@@ -1,6 +1,8 @@
 \name{ssclme-class}
 \docType{class}
 \alias{ssclme-class}
+\alias{coef,ssclme-method}
+\alias{coef<-,ssclme-method}
 \alias{coerce,ssclme,sscMatrix-method}
 \alias{coerce,ssclme,tscMatrix-method}
 \title{lme models as sparse, symmetric matrices}
@@ -66,14 +68,34 @@ or, more commonly, via the \code{ssclme} constructor function.}
   }
 }
 \section{Methods}{
-No methods defined with class "ssclme" in the signature.
+  \describe{
+    \item{coef}{\code{signature(object = "ssclme")}: Extract the
+      "coefficients" from the object as a numeric vector.  If the
+      optional argument \code{unconst} is \code{FALSE} (the default),
+      the values in the upper triangles of the \code{Omega} matrices are
+      concatenated.  Within each matrix the diagonal is given first then
+      the elements above the diagonal are given row-wise.  If
+      \code{unconst} is \code{TRUE}, an unconstrained parameterization
+      based on the LDL decomposition (logarithms of diagonal elements of
+      D followed by elements of the strict lower triangle of L
+      column-wise) are given.}
+    \item{coef<-}{\code{signature(object = "ssclme", value =
+	"numeric")}: Assign the \code{Omega} matrices from a numeric
+      vector.  The assignment depends on the optional argument
+      \code{unconst} as described above.}
+    \item{coerce}{\code{signature(from = "ssclme", to = "sscMatrix")}:
+      return the current Z'Z matrix as an \code{sscMatrix} object.}
+    \item{coerce}{\code{signature(from = "ssclme", to = "tscMatrix")}:
+      return the current L matrix from the LDL decomposition of Z'Z as
+      a \code{tscMatrix} object.}
+  }
 }
-%\section{Methods}{}
 %\references{}
 %\author{}
 %\note{}
 \seealso{
-  \code{\link{sscCrosstab-class}}%, \code{\link{ssclme}}
+  \code{\link{sscCrosstab-class}}, \code{\link{sscMatrix-class}},
+  \code{\link{tscMatrix-class}}
 }
 %\examples{}
 \keyword{classes}

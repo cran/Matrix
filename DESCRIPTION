@@ -1,6 +1,6 @@
 Package: Matrix
-Version: 0.8-4
-Date: 2004/04/15
+Version: 0.8-5
+Date: 2004/04/20
 Title: A Matrix package for R
 Author: Douglas Bates <bates@stat.wisc.edu>
 Maintainer: Douglas Bates <bates@stat.wisc.edu>
@@ -41,4 +41,4 @@ License: GPL version 2 or later
  Metis is available at http://www-users.cs.umn.edu/~karypis/metis/.
  It is a family of multilevel partioning algorithms copyright by the
  Regents of the University of Minnesota and used with permission.
-Packaged: Wed Apr 14 17:52:21 2004; bates
+Packaged: Tue Apr 20 10:42:33 2004; bates

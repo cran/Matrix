@@ -43,7 +43,7 @@ SUBDIRS = Metis taucs
 SUBLIBS = $(SUBDIRS:=.a)
 
 $(SHLIB): $(OBJECTS) $(SUBLIBS)
-	$(SHLIB_LINK) -o $@ $(OBJECTS) $(SUBLIBS) $(ALL_LIBS)
+	gcc --shared -s -o Matrix.dll $(OBJECTS) $(SUBLIBS) $(ALL_LIBS) $(DLLLIBS)
 
 all: $(SHLIB)
 

@@ -252,7 +252,7 @@ ssclme_create(SEXP facs, SEXP ncv, SEXP threshold)
     SET_SLOT(ssc, Matrix_RXXSym, allocMatrix(REALSXP, pp1, pp1));
     SET_SLOT(ssc, Matrix_ZtXSym, allocMatrix(REALSXP, nzcol, pp1));
     SET_SLOT(ssc, Matrix_RZXSym, allocMatrix(REALSXP, nzcol, pp1));
-        /* Zero the symmetric matrices (for cosmetic reasons only). */
+				/* Zero symmetric matrices (cosmetic) */
     memset(REAL(GET_SLOT(ssc, Matrix_XtXSym)), 0,
 	   sizeof(double) * pp1 * pp1); 
     memset(REAL(GET_SLOT(ssc, Matrix_RXXSym)), 0,
@@ -432,29 +432,41 @@ ssclme_update_mm(SEXP x, SEXP facs, SEXP mmats)
 	for (k = j+1; k < nf; k++) { /* off-diagonals */
 	    int *fpk = INTEGER(VECTOR_ELT(facs, k)),
 		*Apk = Ap + Gp[k],
-		nck = nc[k];
+		nck = nc[k],
+		scalar = ncj == 1 && nck == 1;
 	    double
-		*Zk = Z[k];
-
+		*Zk = Z[k], *work;
+	    if (!scalar) work = Calloc(ncj * nck, double);
 	    for (i = 0; i < nobs; i++) {
 		int ii, ind = -1, fpji = fpj[i] - 1,
 		    row = Gp[j] + fpji * ncj,
 		    fpki = fpk[i] - 1,
-		    lastind = Apk[fpki + 1];
-		for (ii = Apk[fpki]; ii < lastind; ii++) {
+		    lastind = Apk[fpki*nck + 1];
+		for (ii = Apk[fpki*nck]; ii < lastind; ii++) {
 		    if (Ai[ii] == row) {
 			ind = ii;
 			break;
 		    }
 		}
 		if (ind < 0) error("logic error in ssclme_update_mm");
-		if (Ncj || nck > 1) {
-				/* FIXME: run a loop to update */
-		    error("code not yet written");
-		} else {	/* update scalars directly */
-		    Ax[ind] += Zj[fpji] * Zk[fpki];
+		if (scalar) {	/* update scalars directly */
+		    Ax[ind] += Zj[i] * Zk[i];
+		} else {
+		    int jj, offset = ind - Apk[fpki * nck];
+		    F77_CALL(dgemm)("T", "N", &ncj, &nck, &ione, &one,
+				    Zj + i, &nobs, Zk + i, &nobs,
+				    &zero, work, &ncj);
+		    for (jj = 0; jj < nck; jj++) {
+			ind = Apk[fpki * nck + jj] + offset;
+			if (Ai[ind] != row)
+			    error("logic error in ssclme_update_mm");
+			for (ii = 0; ii < ncj; ii++) {
+			    Ax[ind++] += work[jj * ncj + ii];
+			}
+		    }
 		}
 	    }
+	    if (!scalar) Free(work);
 	}
     }
     Free(Z);
@@ -462,29 +474,29 @@ ssclme_update_mm(SEXP x, SEXP facs, SEXP mmats)
     return R_NilValue;
 }
 
-SEXP ssclme_inflate_and_factor(SEXP lme)
+SEXP ssclme_inflate_and_factor(SEXP x)
 {
     SEXP
-	GpSlot = GET_SLOT(lme, Matrix_GpSym),
-	Omega = GET_SLOT(lme, Matrix_OmegaSym);
-    int n = INTEGER(GET_SLOT(lme, Matrix_DimSym))[1];
+	GpSlot = GET_SLOT(x, Matrix_GpSym),
+	Omega = GET_SLOT(x, Matrix_OmegaSym);
+    int n = INTEGER(GET_SLOT(x, Matrix_DimSym))[1];
     int
-	*Ai = INTEGER(GET_SLOT(lme, Matrix_iSym)),
-	*Ap = INTEGER(GET_SLOT(lme, Matrix_pSym)),
+	*Ai = INTEGER(GET_SLOT(x, Matrix_iSym)),
+	*Ap = INTEGER(GET_SLOT(x, Matrix_pSym)),
 	*Flag = Calloc(n, int),
 	*Gp = INTEGER(GpSlot),
 	*Lnz = Calloc(n, int),
 	*Pattern = Calloc(n, int),
-	*nc = INTEGER(GET_SLOT(lme, Matrix_ncSym)),
+	*nc = INTEGER(GET_SLOT(x, Matrix_ncSym)),
 	j,
 	nf = length(GpSlot) - 1;
     double
-	*D = REAL(GET_SLOT(lme, Matrix_DSym)),
-	*DIsqrt = REAL(GET_SLOT(lme, Matrix_DIsqrtSym)),
+	*D = REAL(GET_SLOT(x, Matrix_DSym)),
+	*DIsqrt = REAL(GET_SLOT(x, Matrix_DIsqrtSym)),
 	*Y = Calloc(n, double),
 	*xcp = Calloc(Ap[n], double);
 
-    Memcpy(xcp, REAL(GET_SLOT(lme, Matrix_xSym)), Ap[n]);
+    Memcpy(xcp, REAL(GET_SLOT(x, Matrix_xSym)), Ap[n]);
     for (j = 0; j < nf; j++) {
 	int  diag, i, ii, k, G2 = Gp[j + 1], ncj = nc[j];
 	double *omgj = REAL(VECTOR_ELT(Omega, j));
@@ -502,10 +514,10 @@ SEXP ssclme_inflate_and_factor(SEXP lme)
 	}
     }
     j = ldl_numeric(n, Ap, Ai, xcp,
-		    INTEGER(GET_SLOT(lme, Matrix_LpSym)),
-		    INTEGER(GET_SLOT(lme, Matrix_ParentSym)),
-		    Lnz, INTEGER(GET_SLOT(lme, Matrix_LiSym)),
-		    REAL(GET_SLOT(lme, Matrix_LxSym)),
+		    INTEGER(GET_SLOT(x, Matrix_LpSym)),
+		    INTEGER(GET_SLOT(x, Matrix_ParentSym)),
+		    Lnz, INTEGER(GET_SLOT(x, Matrix_LiSym)),
+		    REAL(GET_SLOT(x, Matrix_LxSym)),
 		    D, Y, Pattern, Flag,
 		    (int *) NULL, (int *) NULL); /* P & Pinv */
     if (j != n)
@@ -516,38 +528,38 @@ SEXP ssclme_inflate_and_factor(SEXP lme)
     return R_NilValue;
 }
 
-SEXP ssclme_factor(SEXP lme)
+SEXP ssclme_factor(SEXP x)
 {
-    int *status = LOGICAL(GET_SLOT(lme, Matrix_statusSym));
+    int *status = LOGICAL(GET_SLOT(x, Matrix_statusSym));
     
     if (!status[0]) {
 	SEXP
-	    GpSlot = GET_SLOT(lme, Matrix_GpSym),
-	    Omega = GET_SLOT(lme, Matrix_OmegaSym);
+	    GpSlot = GET_SLOT(x, Matrix_GpSym),
+	    Omega = GET_SLOT(x, Matrix_OmegaSym);
 	int
 	    *Gp = INTEGER(GpSlot),
-	    *Li = INTEGER(GET_SLOT(lme, Matrix_LiSym)),
-	    *Lp = INTEGER(GET_SLOT(lme, Matrix_LpSym)),
-	    *nc = INTEGER(GET_SLOT(lme, Matrix_ncSym)),
+	    *Li = INTEGER(GET_SLOT(x, Matrix_LiSym)),
+	    *Lp = INTEGER(GET_SLOT(x, Matrix_LpSym)),
+	    *nc = INTEGER(GET_SLOT(x, Matrix_ncSym)),
 	    i,
-	    n = INTEGER(GET_SLOT(lme, Matrix_DimSym))[1],
+	    n = INTEGER(GET_SLOT(x, Matrix_DimSym))[1],
 	    nf = length(GpSlot) - 1,
 	    nobs = nc[nf + 1],
 	    nreml = nobs + 1 - nc[nf],
 	    pp1 = nc[nf],
 	    pp2 = pp1 + 1;
 	double
-	    *D = REAL(GET_SLOT(lme, Matrix_DSym)),
-	    *DIsqrt = REAL(GET_SLOT(lme, Matrix_DIsqrtSym)),
-	    *Lx = REAL(GET_SLOT(lme, Matrix_LxSym)),
-	    *RXX = REAL(GET_SLOT(lme, Matrix_RXXSym)),
-	    *RZX = REAL(GET_SLOT(lme, Matrix_RZXSym)),
-	    *dcmp = REAL(getAttrib(lme, Matrix_devCompSym)),
-	    *deviance = REAL(getAttrib(lme, Matrix_devianceSym)),
+	    *D = REAL(GET_SLOT(x, Matrix_DSym)),
+	    *DIsqrt = REAL(GET_SLOT(x, Matrix_DIsqrtSym)),
+	    *Lx = REAL(GET_SLOT(x, Matrix_LxSym)),
+	    *RXX = REAL(GET_SLOT(x, Matrix_RXXSym)),
+	    *RZX = REAL(GET_SLOT(x, Matrix_RZXSym)),
+	    *dcmp = REAL(getAttrib(x, Matrix_devCompSym)),
+	    *deviance = REAL(getAttrib(x, Matrix_devianceSym)),
 	    minus1 = -1.,
 	    one = 1.;
 	
-	ssclme_inflate_and_factor(lme);
+	ssclme_inflate_and_factor(x);
 				/* Accumulate logdet of ZtZ+W */
 	dcmp[0] = dcmp[1] = dcmp[2] = dcmp[3] = 0.;
 	for (i = 0; i < n; i++) dcmp[0] += log(D[i]);
@@ -577,7 +589,7 @@ SEXP ssclme_factor(SEXP lme)
 	    }
 	}
 				/* ldl_lsolve on Z'X */
-	Memcpy(RZX, REAL(GET_SLOT(lme, Matrix_ZtXSym)), n * pp1);
+	Memcpy(RZX, REAL(GET_SLOT(x, Matrix_ZtXSym)), n * pp1);
 	for (i = 0; i < pp1; i++) {
 	    int j;
 	    double *RZXi = RZX + i * n;
@@ -585,7 +597,7 @@ SEXP ssclme_factor(SEXP lme)
 	    for (j = 0; j < n; j++) RZXi[j] *= DIsqrt[j];
 	}
 				/* downdate and factor X'X */
-	Memcpy(RXX, REAL(GET_SLOT(lme, Matrix_XtXSym)), pp1 * pp1);
+	Memcpy(RXX, REAL(GET_SLOT(x, Matrix_XtXSym)), pp1 * pp1);
 	F77_CALL(dsyrk)("U", "T", &pp1, &n, &minus1,
 			RZX, &n, &one, RXX, &pp1);
 	F77_CALL(dpotrf)("U", &pp1, RXX, &pp1, &i);
@@ -623,6 +635,7 @@ int ldl_update_ind(int probe, int start, const int ind[])
  * @return R_NilValue (x is updated in place)
 
  */
+static
 SEXP ldl_inverse(SEXP x)
 {
     SEXP
@@ -720,6 +733,7 @@ SEXP ldl_inverse(SEXP x)
 			"Rank deficient variance matrix at group %d, level %d",
 			i + 1, j + 1);
 	    }
+	    Free(tmp);
 	}
 	return R_NilValue;
     }
@@ -791,24 +805,24 @@ SEXP ldl_inverse(SEXP x)
     return R_NilValue;
 }
 
-SEXP ssclme_invert(SEXP lme)
+SEXP ssclme_invert(SEXP x)
 {
-    int *status = LOGICAL(GET_SLOT(lme, Matrix_statusSym));
-    if (!status[0]) ssclme_factor(lme);
+    int *status = LOGICAL(GET_SLOT(x, Matrix_statusSym));
+    if (!status[0]) ssclme_factor(x);
     if (!status[1]) {
 	SEXP
-	    RZXsl = GET_SLOT(lme, Matrix_RZXSym);
+	    RZXsl = GET_SLOT(x, Matrix_RZXSym);
 	int
 	    *dims = INTEGER(getAttrib(RZXsl, R_DimSymbol)),
-	    *Li = INTEGER(GET_SLOT(lme, Matrix_LiSym)),
-	    *Lp = INTEGER(GET_SLOT(lme, Matrix_LpSym)),
+	    *Li = INTEGER(GET_SLOT(x, Matrix_LiSym)),
+	    *Lp = INTEGER(GET_SLOT(x, Matrix_LpSym)),
 	    i,
 	    n = dims[0],
 	    pp1 = dims[1];
 	double
-	    *DIsqrt = REAL(GET_SLOT(lme, Matrix_DIsqrtSym)),
-	    *Lx = REAL(GET_SLOT(lme, Matrix_LxSym)),
-	    *RXX = REAL(GET_SLOT(lme, Matrix_RXXSym)),
+	    *DIsqrt = REAL(GET_SLOT(x, Matrix_DIsqrtSym)),
+	    *Lx = REAL(GET_SLOT(x, Matrix_LxSym)),
+	    *RXX = REAL(GET_SLOT(x, Matrix_RXXSym)),
 	    *RZX = REAL(RZXsl),
 	    one = 1.;
 
@@ -822,7 +836,7 @@ SEXP ssclme_invert(SEXP lme)
 	    for (j = 0; j < n; j++) RZXi[j] *= DIsqrt[j];
 	    ldl_ltsolve(n, RZXi, Lp, Li, Lx);
 	}
-	ldl_inverse(lme);
+	ldl_inverse(x);
 	status[1] = 1;
     }
     return R_NilValue;
@@ -867,7 +881,6 @@ SEXP ssclme_initial(SEXP x)
 
 /** 
  * Extract the conditional estimates of the fixed effects
- * FIXME: Add names
  * 
  * @param x Pointer to an ssclme object
  * 
@@ -895,8 +908,6 @@ SEXP ssclme_fixef(SEXP x)
 
 /** 
  * Extract the conditional modes of the random effects.
- * FIXME: Change the returned value to be a named list of matrices
- *        with dimnames.
  * 
  * @param x Pointer to an ssclme object
  * 
@@ -965,7 +976,7 @@ int coef_length(int nf, const int nc[])
 
 /** 
  * Extract the upper triangles of the Omega matrices.
- * (These are not in any sense "coefficients" but the extractor is
+ * (These aren't "coefficients" but the extractor is
  * called coef for historical reasons.)
  * 
  * @param x pointer to an ssclme object
@@ -983,12 +994,20 @@ SEXP ssclme_coef(SEXP x)
 
     vind = 0;
     for (i = 0; i < nf; i++) {
-	int j, k, nci = nc[i];
-	double *omgi = REAL(VECTOR_ELT(Omega, i));
-	for (j = 0; j < nci; j++) {
-	    for (k = 0; k <= j; k++) {
-		vv[vind++] = omgi[j*nci + k];
+	int nci = nc[i];
+	if (nci == 1) {
+	    vv[vind++] = REAL(VECTOR_ELT(Omega, i))[0];
+	} else {
+	    int j, k, odind = vind + nci, ncip1 = nci + 1;
+	    double *omgi = REAL(VECTOR_ELT(Omega, i));
+	    
+	    for (j = 0; j < nci; j++) {
+		vv[vind++] = omgi[j * ncip1];
+		for (k = j + 1; k < nci; k++) {
+		    vv[odind++] = omgi[k*nci + j];
+		}
 	    }
+	    vind = odind;
 	}
     }
     UNPROTECT(1);
@@ -996,14 +1015,12 @@ SEXP ssclme_coef(SEXP x)
 }
 
 /** 
- * Extract the upper triangles of the Omega matrices in the unconstrained
- * parameterization.
- * (These are not in any sense "coefficients" but the extractor is
- * called coef for historical reasons.)
+ * Extract the unconstrained parameters that determine the
+ * Omega matrices. (Called coef for historical reasons.)
  * 
  * @param x pointer to an ssclme object
  * 
- * @return numeric vector of the values in the upper triangles of the
+ * @return numeric vector of unconstrained parameters that determine the
  * Omega matrices
  */
 SEXP ssclme_coefUnc(SEXP x)
@@ -1025,7 +1042,8 @@ SEXP ssclme_coefUnc(SEXP x)
 				 REAL(VECTOR_ELT(Omega, i)), ncisq);
 	    F77_CALL(dpotrf)("U", &nci, tmp, &nci, &j);
 	    if (j)		/* should never happen */
-		error("DPOTRF returned error code %d", j);
+		error("DPOTRF returned error code %d on Omega[[%d]]",
+		      j, i+1);
 	    for (j = 0; j < nci; j++) {
 		double diagj = tmp[j * ncip1];
 		vv[vind++] = 2. * log(diagj);
@@ -1046,8 +1064,7 @@ SEXP ssclme_coefUnc(SEXP x)
 }
 
 /** 
- * Assign the upper triangles of the Omega matrices in the unconstrained
- * parameterization.
+ * Assign the Omega matrices from the unconstrained parameterization.
  * 
  * @param x pointer to an ssclme object
  * @param coef pointer to an numeric vector of appropriate length
@@ -1078,18 +1095,17 @@ SEXP ssclme_coefGetsUnc(SEXP x, SEXP coef)
 	    double
 		*omgi = REAL(VECTOR_ELT(Omega, i)),
 		*tmp = Calloc(ncisq, double),
-		diagj, one = 1.;
-	    /* FIXEME: Change this to use a factor and dsyrk */
-				/* LD in omgi and L' in tmp */
+		diagj, one = 1., zero = 0.;
+
 	    memset(omgi, 0, sizeof(double) * ncisq);
 	    for (j = 0; j < nci; j++) {
-		omgi[j * ncip1] = diagj = exp(cc[cind++]);
+		tmp[j * ncip1] = diagj = exp(cc[cind++]/2.);
 		for (k = j + 1; k < nci; k++) {
-		    omgi[j*nci + k] = diagj * (tmp[k*nci + j] = cc[odind++]);
+		    tmp[k*nci + j] = cc[odind++] * diagj;
 		}
 	    }
-	    F77_CALL(dtrmm)("R", "U", "N", "U", &nci, &nci, &one,
-			    tmp, &nci, omgi, &nci);
+	    F77_CALL(dsyrk)("U", "T", &nci, &nci, &one,
+			    tmp, &nci, &zero, omgi, &nci);
 	    Free(tmp);
 	    cind = odind;
 	}
@@ -1100,8 +1116,7 @@ SEXP ssclme_coefGetsUnc(SEXP x, SEXP coef)
 
 /** 
  * Assign the upper triangles of the Omega matrices.
- * (These are not in any sense "coefficients" but are
- * called coef for historical reasons.)
+ * (Called coef for historical reasons.)
  * 
  * @param x pointer to an ssclme object
  * @param coef pointer to an numeric vector of appropriate length
@@ -1121,12 +1136,20 @@ SEXP ssclme_coefGets(SEXP x, SEXP coef)
 	      coef_length(nf, nc));
     cind = 0;
     for (i = 0; i < nf; i++) {
-	int j, k, nci = nc[i];
-	double *omgi = REAL(VECTOR_ELT(Omega, i));
-	for (j = 0; j < nci; j++) {
-	    for (k = 0; k <= j; k++) {
-		omgi[j*nci + k] = cc[cind++];
+	int nci = nc[i];
+	if (nci == 1) {
+	    REAL(VECTOR_ELT(Omega, i))[0] = cc[cind++];
+	} else {
+	    int j, k, odind = cind + nci, ncip1 = nci + 1;
+	    double *omgi = REAL(VECTOR_ELT(Omega, i));
+	
+	    for (j = 0; j < nci; j++) {
+		omgi[j * ncip1] = cc[cind++];
+		for (k = j + 1; k < nci; k++) {
+		    omgi[k*nci + j] = cc[odind++];
+		}
 	    }
+	    cind = odind;
 	}
     }
     status[0] = status[1] = 0;
@@ -1201,12 +1224,115 @@ SEXP ssclme_EMsteps(SEXP x, SEXP nsteps, SEXP REMLp, SEXP verb)
 	    F77_CALL(dpotrf)("U", &nci, vali, &nci, &info);
 	    if (info) error("DPOTRF returned error code %d", info);
 	    F77_CALL(dpotri)("U", &nci, vali, &nci, &info);
-	    if (info) error("DPOTRF returned error code %d", info);
+	    if (info) error("DPOTRI returned error code %d", info);
 	}
 	status[0] = status[1] = 0;
     }
     ssclme_factor(x);
     return R_NilValue;
+}
+
+SEXP ssclme_gradient(SEXP x, SEXP REMLp, SEXP Uncp)
+{
+    SEXP
+	Omega = GET_SLOT(x, Matrix_OmegaSym),
+	RZXsl = GET_SLOT(x, Matrix_RZXSym),
+	ncsl = GET_SLOT(x, Matrix_ncSym),
+	bVar = GET_SLOT(x, Matrix_bVarSym);
+    int
+	*Gp = INTEGER(GET_SLOT(x, Matrix_GpSym)),
+	*dims = INTEGER(getAttrib(RZXsl, R_DimSymbol)),
+	*nc = INTEGER(ncsl),
+	REML = asLogical(REMLp),
+	cind, i, n = dims[0],
+	nf = length(Omega),
+	nobs, odind, p, pp1 = dims[1],
+	uncst = asLogical(Uncp);
+    double
+	*RZX = REAL(RZXsl),
+	*b,
+        alpha,
+	one = 1.;
+    SEXP ans = PROTECT(allocVector(REALSXP, coef_length(nf, nc)));
+
+    nobs = nc[nf + 1];
+    p = pp1 - 1;
+    b = RZX + p * n;
+    ssclme_invert(x);
+    cind = 0;
+    for (i = 0; i < nf; i++) {
+	int j, ki = Gp[i+1] - Gp[i],
+	    nci = nc[i], ncip1 = nci + 1, ncisq = nci * nci,
+	    mi = ki/nci;
+	double
+	    *chol = Memcpy(Calloc(ncisq, double),
+			   REAL(VECTOR_ELT(Omega, i)), ncisq),
+	    *tmp = Calloc(ncisq, double);
+	
+	    
+	F77_CALL(dpotrf)("U", &nci, chol, &nci, &j);
+	if (j)
+	    error("DPOTRF gave error code %d on Omega[[%d]]", j, i + 1);
+	Memcpy(tmp, chol, ncisq);
+	F77_CALL(dpotri)("U", &nci, tmp, &nci, &j);
+	if (j)
+	    error("DPOTRI gave error code %d on Omega[[%d]]", j, i + 1);
+	alpha = (double) -mi;
+	F77_CALL(dsyrk)("U", "N", &nci, &ki,
+			&one, REAL(VECTOR_ELT(bVar, i)), &nci,
+			&alpha, tmp, &nci);
+	alpha = ((double)(REML?(nobs-p):nobs));
+	F77_CALL(dsyrk)("U", "N", &nci, &mi,
+			&alpha, b + Gp[i], &nci,
+			&one, tmp, &nci);
+	if (REML) {
+	    for (j = 0; j < p; j++) { 
+		F77_CALL(dsyrk)("U", "N", &nci, &mi,
+				&one, RZX + Gp[i] + j*n, &nci,
+				&one, tmp, &nci);
+	    }
+	}
+	if (nci == 1) {
+	    REAL(ans)[cind++] = *tmp *
+		(uncst ? *REAL(VECTOR_ELT(Omega, i)) : 1.);
+	} else {
+	    int k, odind = cind + nci;
+	    if (uncst) {
+		int ione = 1, kk;
+		double *rr = Calloc(nci, double);
+		nlme_symmetrize(tmp, nci);
+		for (j = 0; j < nci; j++, cind++) {
+		    for (k = 0; k < nci; k++) rr[k] = chol[j + k*nci];
+		    REAL(ans)[cind] = 0.;
+		    for (k = j; k < nci; k++) {
+			for (kk = j; kk < nci; kk++) {
+			    REAL(ans)[cind] += rr[k] * rr[kk] *
+				tmp[kk * nci + k];
+			}
+		    }
+		    for (k = 0; k < nci; k++) rr[k] *= rr[j];
+		    for (k = j + 1; k < nci; k++) {
+			REAL(ans)[odind++] =
+			    F77_CALL(ddot)(&nci, rr, &ione, tmp + k, &nci) +
+			    F77_CALL(ddot)(&nci, rr, &ione,
+					   tmp + k*nci, &ione);
+		    }			
+		}
+		Free(rr);
+	    } else {
+		for (j = 0; j < nci; j++) {
+		    REAL(ans)[cind++] = tmp[j * ncip1];
+		    for (k = j + 1; k < nci; k++) {
+			REAL(ans)[odind++] = tmp[k*nci + j] * 2.;
+		    }
+		}
+	    }
+	    cind = odind;
+	}
+	Free(tmp); Free(chol);
+    }
+    UNPROTECT(1);
+    return ans;
 }
 
 SEXP ssclme_fitted(SEXP x, SEXP facs, SEXP mmats)
@@ -1286,3 +1412,4 @@ SEXP ssclme_variances(SEXP x, SEXP REML)
     UNPROTECT(2);
     return val;
 }
+

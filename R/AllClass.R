@@ -158,17 +158,20 @@ setClass("pdfactor", representation("matrix", logDet = "numeric"))
                        # correlation matrices and standard deviations
 setClass("corrmatrix", representation("matrix", stdDev = "numeric"))
 
+## Compressed sparse column matrix in blocks
+setClass("cscBlocked", representation(p = "integer", i = "integer", x = "array"))
+         
 ## Representation of a linear mixed effects model
 setClass("lmeRep",
          representation(
                         D = "list",     # list of diagonal factors (lower triangle)
-                        L = "list",     # list of blocked sparse matrices
+                        L = "list",     # list of blocks of L
+                        Linv = "list",  # list of blocks of L^{-1}
                         Omega = "list", # list of relative precision matrices
                         RXX = "matrix", # Augmented RXX component or its inverse
                         RZX = "matrix", # Augmented RZX component or its inverse
-                        T = "list",     # cross-tabulation of grouping factors
                         XtX = "matrix", # Original X'X matrix
-                        ZZx = "list",   # list of arrays comprising ZtZ
+                        ZZx = "list",   # list of blocks of Z'Z
                         ZtX = "matrix", # Original Z'X matrix
                         cnames = "list",# column names of model matrices
                         devComp = "numeric", # Components of deviance

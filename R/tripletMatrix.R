@@ -27,17 +27,49 @@ setMethod("image", "tripletMatrix",
                              xlim = xlim, ylim = ylim,
                              col.regions = col.regions,
                              par.settings = list(background = list(col = "transparent")),
-                             panel = function(x, y, z, zcol, subscripts, ..., col.regions) {
+
+
+### panel function that worked with R 1.9.1:
+
+#                              panel = function(x, y, z, zcol, subscripts, ..., col.regions) {
+#                                  x <- as.numeric(x[subscripts])
+#                                  y <- as.numeric(y[subscripts])
+#                                  zcol <- as.numeric(zcol[subscripts])
+#                                  if (any(subscripts))
+#                                      grid::grid.rect(x = x, y = y, width = 1, height = 1, 
+#                                                      default.units = "native",
+#                                                      gp = grid::gpar(fill = col.regions[zcol], col = NULL))
+#                              },
+
+
+### panel function that works with R 2.0.0 -- seems to work in 1.9.1 as well:
+
+                             panel = function(x, y, z, subscripts, at, ..., col.regions) {
                                  x <- as.numeric(x[subscripts])
                                  y <- as.numeric(y[subscripts])
+
+                                 numcol <- length(at) - 1
+                                 numcol.r <- length(col.regions)
+                                 col.regions <-
+                                     if (numcol.r <= numcol)
+                                         rep(col.regions, length = numcol)
+                                     else col.regions[floor(1+(1:numcol-1)*(numcol.r-1)/(numcol-1))]
+                                 zcol <- rep(NA, length(z)) #numeric(length(z))
+                                 for (i in seq(along = col.regions))
+                                     zcol[!is.na(x) & !is.na(y) & !is.na(z) & z>=at[i] & z<at[i+1]] <- i
+
                                  zcol <- as.numeric(zcol[subscripts])
                                  if (any(subscripts))
                                      grid::grid.rect(x = x, y = y, width = 1, height = 1, 
                                                      default.units = "native",
                                                      gp = grid::gpar(fill = col.regions[zcol], col = NULL))
                              },
+
+
+
                              ...)
       })
+
 
 
 

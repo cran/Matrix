@@ -9,6 +9,8 @@ coef<-                  Assign parameters
 corFactor               Extract the correlation factor
 corMatrix               Generate the correlation matrix
 corrmatrix-class        Class "corrmatrix"
+cscBlocked-class        Class "cscBlocked" compressed, sparse, blocked
+                        Matrix
 cscMatrix-class         Class "cscMatrix" compressed, sparse, column
                         Matrix
 expand                  Expand a Decomposition into Factors

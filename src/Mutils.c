@@ -9,13 +9,13 @@ SEXP
     Matrix_GpSym,
     Matrix_LSym,
     Matrix_LiSym,
+    Matrix_LinvSym,
     Matrix_LpSym,
     Matrix_LxSym,
     Matrix_OmegaSym,
     Matrix_ParentSym,
     Matrix_RXXSym,
     Matrix_RZXSym,
-    Matrix_TSym,
     Matrix_XtXSym,
     Matrix_ZtXSym,
     Matrix_ZZxSym,
@@ -44,11 +44,11 @@ SEXP Matrix_init(void)
     Matrix_GpSym = install("Gp");
     Matrix_LSym = install("L");
     Matrix_LiSym = install("Li");
+    Matrix_LinvSym = install("Linv");
     Matrix_LpSym = install("Lp");
     Matrix_LxSym = install("Lx");
     Matrix_OmegaSym = install("Omega");
     Matrix_ParentSym = install("Parent");
-    Matrix_TSym = install("T");
     Matrix_RXXSym = install("RXX");
     Matrix_RZXSym = install("RZX");
     Matrix_XtXSym = install("XtX");

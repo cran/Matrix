@@ -27,6 +27,7 @@ exportClasses(
 	      "LU",
               "Matrix",
               "corrmatrix",
+              "cscBlocked",
               "cscMatrix",
               "geMatrix",
               "lmeRep",

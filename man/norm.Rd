@@ -5,30 +5,31 @@
 \title{
     Norm of a Matrix
 }
+\usage{\method{norm}{Matrix}(x, type = "M", \dots) }
 \description{
     Computes a matrix norm of \code{x} using Lapack.  The norm can be
     the one norm, the infinity norm, the Frobenius norm, or the maximum
     modulus among elements of a matrix, as determined by the value of
     \code{type}.
 }
-\usage{ norm.Matrix(x, type = "M") }
 \arguments{
-    \item{x}{
-	a real or complex matrix.
-    }
-    \item{type}{
-	A character indicating the type of norm desired.
-	\code{"O"} or \code{"o"} or \code{"1"} specifies the one norm,
-	(maximum absolute column sum);
-	\code{"I"} or \code{"i"} specifies the infinity norm (maximum
-	absolute row sum);
-	\code{"F"} or \code{"f"} specifies the Frobenius norm (the
-	Euclidean norm of \code{x} treated as if it were a vector);
-	and \code{"M"} or \code{"m"} specifies the maximum modulus of
-	all the elements in \code{x}. The default is \code{"M"}.
-
-	Only the first character of \code{type[1]} is used.
-    }
+  \item{x}{
+    a real or complex matrix.
+  }
+  \item{type}{
+    A character indicating the type of norm desired.
+    \code{"O"} or \code{"o"} or \code{"1"} specifies the one norm,
+    (maximum absolute column sum);
+    \code{"I"} or \code{"i"} specifies the infinity norm (maximum
+    absolute row sum);
+    \code{"F"} or \code{"f"} specifies the Frobenius norm (the
+    Euclidean norm of \code{x} treated as if it were a vector);
+    and \code{"M"} or \code{"m"} specifies the maximum modulus of
+    all the elements in \code{x}. The default is \code{"M"}.
+    
+    Only the first character of \code{type[1]} is used.
+  }
+  \item{\dots}{further arguments passed to or from other methods.}
 }
 \value{
     A numeric value of class \code{"norm"}, representing the quantity

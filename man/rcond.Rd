@@ -13,10 +13,7 @@ rcond(x, \dots)
     \item{x}{
 	a matrix. No missing values or IEEE special values are allowed.
     }
-    \item{...}{
-	additional arguments, for example to specify the matrix norm for
-	which the condition number is to be estimated.
-    }
+    \item{\dots}{further arguments passed to or from other methods.}
 }
 \value{
     An estimate of the reciprocal condition number of \code{x}.

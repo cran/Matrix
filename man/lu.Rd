@@ -11,10 +11,7 @@ lu(x, \dots)
     \item{x}{
 	a matrix. No missing values or IEEE special values are allowed.
     }
-    \item{...}{
-	additional arguments, such as choosing lower or upper triangular factors
-	in the Hermitian case.
-    }
+    \item{\dots}{further arguments passed to or from other methods.}
 }
 \value{
     a representation of a triangular decomposition of \code{x}.
@@ -30,7 +27,7 @@ Golub, G., and Van Loan, C. F. (1989).
 \emph{Matrix Computations,}
 2nd edition, Johns Hopkins, Baltimore.
 }
-\seealso{\code{\link{qr}}, \code{\link{chol}}, \code{\link{lu.Matrix}}
+\seealso{\code{\link{qr}}, \code{\link{chol}}, \code{\link{lu.Matrix}}}
 \examples{
 x <- Matrix( rnorm(9), 3, 3)
 lu(x)

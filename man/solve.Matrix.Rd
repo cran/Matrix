@@ -1,7 +1,7 @@
 \name{solve.Matrix}
 \title{Solve a System of Equations}
 \usage{
-solve(a, b, tol = 0, transpose = FALSE)
+\method{solve}{Matrix}(a, b, tol = 0, transpose = FALSE, \dots)
 }
 \alias{solve.Matrix}
 \arguments{
@@ -18,6 +18,7 @@ solve(a, b, tol = 0, transpose = FALSE)
       solved is defined by the transpose of \code{a}.  The default is
       \code{FALSE}, for which the system to be solved is defined by
        \code{a}.}
+  \item{\dots}{further arguments passed to or from other methods.}
 }
 \description{
     This function solves the equation \code{a \%*\% x = b} or

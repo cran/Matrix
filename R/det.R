@@ -1,4 +1,4 @@
-det.default <- function (x, method = c("qr", "eigenvalues"))
+det.default <- function (x, method = c("qr", "eigenvalues"), ...)
 {
     ## old version - in case anyone depends on it
     if (!is.matrix(x) || (n <- ncol(x)) != nrow(x))
@@ -13,12 +13,12 @@ det.default <- function (x, method = c("qr", "eigenvalues"))
     else Re(prod(eigen(x, only.values = TRUE)$values))
 }
 
-det.Matrix <- function(x, logarithm = TRUE)
+det.Matrix <- function(x, logarithm = TRUE, ...)
 {
     .Call("R_LapackPP_det", x, as.logical(logarithm))
 }
 
-det.UnitLowerTriangular <- function(x, logarithm = TRUE)
+det.UnitLowerTriangular <- function(x, logarithm = TRUE, ...)
 {
     logarithm <- as.logical(logarithm[1])
     asObject(list(modulus =
@@ -28,7 +28,7 @@ det.UnitLowerTriangular <- function(x, logarithm = TRUE)
             c("det.UnitLowerTriangular", "det"))
 }
 
-det.UnitUpperTriangular <- function(x, logarithm = TRUE)
+det.UnitUpperTriangular <- function(x, logarithm = TRUE, ...)
 {
     logarithm <- as.logical(logarithm[1])
     asObject(list(modulus =
@@ -39,7 +39,7 @@ det.UnitUpperTriangular <- function(x, logarithm = TRUE)
 }
 
 ## calculate the determinant of a triangular matrix from its diagonal
-diagDet <- function(x, logarithm = TRUE)
+diagDet <- function(x, logarithm = TRUE, ...)
 {
     logarithm <- as.logical(logarithm)[1]
     asObject(list(modulus =
@@ -49,8 +49,8 @@ diagDet <- function(x, logarithm = TRUE)
             "det")
 }
 
-det.LowerTriangular <- function(x, logarithm = TRUE)
+det.LowerTriangular <- function(x, logarithm = TRUE, ...)
     asObject(diagDet(x, logarithm), c("det.LowerTriangular", "det"))
 
-det.UpperTriangular <- function(x, logarithm = TRUE)
+det.UpperTriangular <- function(x, logarithm = TRUE, ...)
     asObject(diagDet(x, logarithm), c("det.UpperTriangular", "det"))

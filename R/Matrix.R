@@ -25,7 +25,7 @@ as.matrix.Matrix <- function(x)
     unclass(unpack(x))
 }
 
-solve.Matrix <- function(a, b, tol = 0, transpose = FALSE)
+solve.Matrix <- function(a, b, tol = 0, transpose = FALSE, ...)
 {   ## short version of a solve method
     if (missing(b)) return(.Call("R_LapackPP_solve", a, NULL))
     .Call("R_LapackPP_solve", a, b)

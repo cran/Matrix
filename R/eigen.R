@@ -1,4 +1,4 @@
-eigen.default <- function (x, symmetric, only.values = FALSE)
+eigen.default <- function (x, symmetric, only.values = FALSE, ...)
 {
     x <- as.matrix(x)
     n <- nrow(x)
@@ -76,13 +76,13 @@ eigen.default <- function (x, symmetric, only.values = FALSE)
         ord])
 }
 
-eigen.Matrix <- function(x, vectors = TRUE, balance = "B", rcond = "N")
+eigen.Matrix <- function(x, vectors = TRUE, balance = "B", rcond = "N", ...)
 {
     .Call("R_LapackPP_eigen", x, as.logical(vectors), as.character(balance),
           as.character(rcond))
 }
 
-schur.Matrix <- function(x, vectors = TRUE)
+schur.Matrix <- function(x, vectors = TRUE, ...)
 {
     .Call("R_LapackPP_Schur", x, as.logical(vectors))
 }

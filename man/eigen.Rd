@@ -1,8 +1,9 @@
 \name{eigen}
 \title{Spectral Decomposition of a Matrix}
 \usage{
-eigen(x, symmetric, only.values = TRUE)
-eigen.Matrix(x, vectors = TRUE, balance = FALSE, rcond = FALSE, schur = FALSE)
+%eigen(x, symmetric, only.values = TRUE)
+\method{eigen}{Matrix}(x, vectors = TRUE, balance = FALSE, 
+   rcond = FALSE, \dots)
 }
 \alias{eigen}
 \alias{eigen.default}
@@ -14,7 +15,7 @@ eigen.Matrix(x, vectors = TRUE, balance = FALSE, rcond = FALSE, schur = FALSE)
 	returned.}
     \item{balance}{logical.  Not used at present.}
     \item{rcond}{logical.  Not used at present.}
-    \item{schur}{logical.  Not used at present.}
+    \item{\dots}{further arguments passed to or from other methods.}
 }
 \description{
     \code{eigen} is a generic function.  The default method
@@ -43,6 +44,7 @@ eigen.Matrix(x, vectors = TRUE, balance = FALSE, rcond = FALSE, schur = FALSE)
   3rd edition, SIAM, Philadelphia.
 }
 \seealso{
+  \code{\link[base]{eigen}},
   \code{\link{svd}}, a generalization of \code{eigen}; \code{\link{qr}}, and
   \code{\link{chol}} for related decompositions.
 
@@ -65,7 +67,7 @@ eigen(as.Matrix(cbind( 1,3:1,1:3)))
 eigen(cbind(-1,c(1:2,0),0:2)) # complex values
 eigen(as.Matrix(cbind(-1,c(1:2,0),0:2))) # complex values
 
-Meps <- .Alias(.Machine$double.eps)
+Meps <- .Machine$double.eps
 m <- matrix(round(rnorm(25),3), 5,5)
 sm <- m + t(m) #- symmetric matrix
 eigen(as.Matrix(sm), vectors = FALSE) # ordered INcreasingly

@@ -157,7 +157,7 @@ public:
 	    else data_.lower->copy(A);
 	    return *this;
 	}
-    LaTriangMatDouble* LaTriangMatDouble::clone() const
+    LaTriangMatDouble* clone() const
 	{
 	    LaTriangMatDouble* ans = new LaTriangMatDouble(uplo());
 	    if (uplo() == 'U')

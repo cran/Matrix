@@ -8,15 +8,15 @@ facmul<- function(x, factor, y, transpose = F, left = T, ...) UseMethod("facmul"
 lu <- function(x, ...) UseMethod("lu")
 
 norm <- function(x, ...) UseMethod("norm")
-norm.Matrix <- function(x, type = "M")
+norm.Matrix <- function(x, type = "M", ...)
     .Call("R_LapackPP_norm", x, as.character(type))
-norm.default <- function(x, type = "M")
+norm.default <- function(x, type = "M", ...)
     .Call("R_LapackPP_norm", as.matrix(x), as.character(type))
 
 rcond <- function(x, ...) UseMethod("rcond")
-rcond.Matrix <- function(x, type = "O")
+rcond.Matrix <- function(x, type = "O", ...)
     .Call("R_LapackPP_rcond", x, as.character(type))
-rcond.default <- function(x, type = "O")
+rcond.default <- function(x, type = "O", ...)
     .Call("R_LapackPP_rcond", as.matrix(x), as.character(type))
 
 schur <- function(x, ...) UseMethod("schur")

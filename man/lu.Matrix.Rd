@@ -7,7 +7,7 @@
   Computes the LU decomposition of a matrix.
 }
 \usage{
-lu.Matrix(x, norm.comp = T)
+\method{lu}{Matrix}(x, norm.comp = T, \dots)
 }
 \arguments{
   \item{x}{
@@ -22,6 +22,7 @@ lu.Matrix(x, norm.comp = T)
     needed for solves involving the underlying matrix, and the one norm
     is needed for solves involving its transpose. 
   }
+  \item{\dots}{further arguments passed to or from other methods.}
 }
 \value{
   The LU decomposition of \code{x} is returned as an object of class

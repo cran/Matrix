@@ -12,9 +12,7 @@ expand(x, \dots)
     \item{x}{
 	a matrix decomposition. 
     }
-    \item{...}{
-	the method for \code{"qr.Matrix"} has an additional argument.
-    }
+    \item{\dots}{further arguments passed to or from other methods.}
 }
 \value{
     the expanded decomposition.

@@ -12,10 +12,7 @@ unpack(x, \dots)
     \item{x}{
 	a matrix stored in packed form. 
     }
-    \item{...}{
-	optional additional arguments (none are used in currently
-	available methods)
-    }
+  \item{\dots}{further arguments passed to or from other methods.}
 }
 \value{
     A \code{Matrix} object containing the full-storage representation of \code{x}.

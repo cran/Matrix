@@ -1,7 +1,7 @@
 \name{Matrix}
 \title{Construct a Classed Matrix}
 \usage{
-Matrix(data=NA, nrow, ncol, byrow=F, dimnames=NULL, tol)
+Matrix(data=NA, nrow, ncol, byrow=F, dimnames=NULL)
 }
 \alias{Matrix}
 \alias{print.Matrix}

@@ -1,3 +1,8 @@
+2002-05-03  Douglas Bates  <bates@stat.wisc.edu>
+
+	* src/lamatrix.h: Removing pre-1.2.0 compatibility code per Kurt
+	Hornik.
+
 2002-04-24  Douglas Bates  <bates@stat.wisc.edu>
 
 	* configure.ac: Replaced configure.in with configure.ac

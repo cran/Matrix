@@ -1684,11 +1684,15 @@ SEXP ssclme_collapse(SEXP x)
  * @param rep pointer to the converged ssclme object
  * @param fitted pointer to the fitted values
  * @param residuals pointer to the residuals
+ * @param terms pointer to a terms object (redundant if model is non-empty)
+ * @param assign pointer to an integer assign vector
+ * @param contrasts pointer to a list of contrast function names
  * 
  * @return an lme object
  */
 SEXP ssclme_to_lme(SEXP call, SEXP facs, SEXP x, SEXP model, SEXP REML,
-		   SEXP rep, SEXP fitted, SEXP residuals)
+		   SEXP rep, SEXP fitted, SEXP residuals, SEXP terms,
+		   SEXP assign)
 {
     SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("lme")));
 
@@ -1700,6 +1704,8 @@ SEXP ssclme_to_lme(SEXP call, SEXP facs, SEXP x, SEXP model, SEXP REML,
     SET_SLOT(ans, install("rep"), rep);
     SET_SLOT(ans, install("fitted"), fitted);
     SET_SLOT(ans, install("residuals"), residuals);
+    SET_SLOT(ans, install("terms"), terms);
+    SET_SLOT(ans, install("assign"), assign);
     UNPROTECT(1);
     return ans;
 }

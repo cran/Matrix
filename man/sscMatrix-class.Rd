@@ -7,6 +7,9 @@
 \alias{t,sscMatrix-method}
 \alias{coerce,sscMatrix,tripletMatrix-method}
 \alias{coerce,sscMatrix,geMatrix-method}
+\alias{coerce,sscMatrix,matrix-method}
+\alias{determinant,sscMatrix,missing-method}
+\alias{determinant,sscMatrix,logical-method}
 \title{Symmetric, compressed, sparse column matrices}
 \description{The \code{sscMatrix} class is a class of symmetric, sparse
   matrices in the compressed, column-oriented format.  In this
@@ -49,8 +52,16 @@ Class \code{"cscMatrix"}, directly.
       \code{x}. If \code{pivot} is \code{TRUE} (the default) Metis is
       used to create a reordering of the rows and columns of \code{x} so
       as to minimize fill-in.}
+    \item{determinant}{\code{signature(x = "sscMatrix", logarithm =
+	"missing")}: Evaluate the determinant of \code{x} on the
+      logarithm scale.  This creates and stores the Cholesky factorization.}
+    \item{determinant}{\code{signature(x = "sscMatrix", logarithm =
+	"logical")}: Evaluate the determinant of \code{x} on the
+      logarithm scale or not, according to the \code{logarithm}
+      argument.  This creates and stores the Cholesky factorization.}
     \item{coerce}{\code{signature(from = "sscMatrix", to = "tripletMatrix")}}
     \item{coerce}{\code{signature(from = "sscMatrix", to = "geMatrix")}}
+    \item{coerce}{\code{signature(from = "sscMatrix", to = "matrix")}}
   }
 }
 %\references{}

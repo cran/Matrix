@@ -30,6 +30,18 @@ SEXP triplet_validate(SEXP x)
     return ScalarLogical(1);
 }
 
+static void
+insert_triplets_in_array(int m, int n, int nnz,
+			 const int xi[], const int xj[], const double xx[],
+			 double vx[])
+{
+    int i;
+    memset(vx, 0, sizeof(double) * m * n);
+    for (i = 0; i < nnz; i++) {
+	vx[xi[i] + xj[i] * m] += xx[i];	/* allow redundant entries in x */
+    }
+}    
+			 
 SEXP triplet_to_geMatrix(SEXP x)
 {
     SEXP dd = GET_SLOT(x, Matrix_DimSym),
@@ -37,25 +49,33 @@ SEXP triplet_to_geMatrix(SEXP x)
 	ans = PROTECT(NEW_OBJECT(MAKE_CLASS("geMatrix")));
 	
     int *dims = INTEGER(dd),
-	*xi = INTEGER(islot),
-	*xj = INTEGER(GET_SLOT(x, Matrix_jSym)),
-	i,
 	m = dims[0],
-	n = dims[1],
-	nnz = length(islot);
-    double
-	*vx,
-	*xx = REAL(GET_SLOT(x, Matrix_xSym));
+	n = dims[1];
     
     SET_SLOT(ans, Matrix_rcondSym, allocVector(REALSXP, 0));
     SET_SLOT(ans, Matrix_factorization, allocVector(VECSXP, 0));
     SET_SLOT(ans, Matrix_DimSym, duplicate(dd));
     SET_SLOT(ans, Matrix_xSym, allocVector(REALSXP, m * n));
-    vx = REAL(GET_SLOT(ans, Matrix_xSym));
-    memset(vx, 0, sizeof(double) * m * n);
-    for (i = 0; i < nnz; i++) {
-	vx[xi[i] + xj[i] * m] += xx[i];	/* allow redundant entries in x */
-    }
+    insert_triplets_in_array(m, n, length(islot),
+			     INTEGER(islot), INTEGER(GET_SLOT(x, Matrix_jSym)),
+			     REAL(GET_SLOT(x, Matrix_xSym)),	     
+			     REAL(GET_SLOT(ans, Matrix_xSym)));
+    UNPROTECT(1);
+    return ans;
+}
+
+SEXP triplet_to_matrix(SEXP x)
+{
+    SEXP dd = GET_SLOT(x, Matrix_DimSym),
+	islot = GET_SLOT(x, Matrix_iSym);
+    int m = INTEGER(dd)[0],
+	n = INTEGER(dd)[1];
+    SEXP ans = PROTECT(allocMatrix(REALSXP, m, n));
+
+    insert_triplets_in_array(m, n, length(islot),
+			     INTEGER(islot), INTEGER(GET_SLOT(x, Matrix_jSym)),
+			     REAL(GET_SLOT(x, Matrix_xSym)),	     
+			     REAL(ans));
     UNPROTECT(1);
     return ans;
 }

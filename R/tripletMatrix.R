@@ -8,6 +8,11 @@ setAs("tripletMatrix", "geMatrix",
       .Call("triplet_to_geMatrix", from)
       )
 
+setAs("tripletMatrix", "matrix",
+      function(from)
+      .Call("triplet_to_matrix", from)
+      )
+
 setMethod("image", "tripletMatrix",
           function(x,
                    xlim = c(-0.5, matdim[2]-0.5),

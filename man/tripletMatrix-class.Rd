@@ -3,6 +3,7 @@
 \alias{tripletMatrix-class}
 \alias{+,tripletMatrix,tripletMatrix-method}
 \alias{coerce,tripletMatrix,geMatrix-method}
+\alias{coerce,tripletMatrix,matrix-method}
 \alias{coerce,tripletMatrix,cscMatrix-method}
 \alias{coerce,tripletMatrix,sscMatrix-method}
 \alias{image,tripletMatrix-method}
@@ -31,8 +32,8 @@ Objects can be created by calls of the form \code{new("tripletMatrix", ...)}.
   \describe{
     \item{+}{\code{signature(e1 = "tripletMatrix", e2 = "tripletMatrix")}}
     \item{coerce}{\code{signature(from = "tripletMatrix", to = "cscMatrix")}}
-    \item{coerce}{\code{signature(from = "tripletMatrix", to =
-	"geMatrix")}}
+    \item{coerce}{\code{signature(from = "tripletMatrix", to = "geMatrix")}}
+    \item{coerce}{\code{signature(from = "tripletMatrix", to = "matrix")}}
     \item{coerce}{\code{signature(from = "tripletMatrix", to = "sscMatrix")}}
     \item{image}{\code{signature(x = "tripletMatrix")}: plots an image of
       \code{x} using the \code{\link[lattice]{levelplot}} function}

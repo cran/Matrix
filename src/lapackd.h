@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: lapackd.h,v 1.13 2002/06/23 05:07:25 saikat Exp $
+// $Id: lapackd.h,v 1.14 2002/10/23 18:17:42 bates Exp $
 
 // C++ prototypes for double precision Lapack routines.
 

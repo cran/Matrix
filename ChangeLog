@@ -1,3 +1,8 @@
+2003-02-03  Douglas Bates  <bates@stat.wisc.edu>
+
+	* DESCRIPTION (Version): removed empty data directory as requested
+	by CRAN maintainers.  Changed version number and date.
+
 2002-10-23  Douglas Bates  <bates@stat.wisc.edu>
 
 	* src/laindex.h: Applied patches from Brian Ripley for compilation

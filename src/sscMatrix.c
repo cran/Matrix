@@ -178,23 +178,57 @@ SEXP sscMatrix_to_triplet(SEXP x)
     return ans;
 }
 
-SEXP sscMatrix_ldl_symbolic(SEXP x)
+SEXP sscMatrix_ldl_symbolic(SEXP x, SEXP doPerm)
 {
-    SEXP ans = PROTECT(allocVector(VECSXP, 2));
-    int lo = toupper(CHAR(asChar(GET_SLOT(x, Matrix_uploSym)))[0]) == 'L',
-	n = INTEGER(GET_SLOT(x, Matrix_DimSym))[0];
+    SEXP Ax, Dims = GET_SLOT(x, Matrix_DimSym),
+	ans = PROTECT(allocVector(VECSXP, 3)), tsc;
+    int i, n = INTEGER(Dims)[0], nz, nza,
+	*Ap, *Ai, *Lp, *Li, *Parent,
+	doperm = asLogical(doPerm),
+	*Lnz = (int *) R_alloc(n, sizeof(int)),
+	*Flag = (int *) R_alloc(n, sizeof(int)),
+	*P = (int *) NULL, *Pinv = (int *) NULL;
 
-    if (lo) x = PROTECT(ssc_transpose(x));
+
+    if (toupper(CHAR(asChar(GET_SLOT(x, Matrix_uploSym)))[0]) == 'L') {
+	x = PROTECT(ssc_transpose(x));
+    } else {
+	x = PROTECT(duplicate(x));
+    }
+    Ax = GET_SLOT(x, Matrix_xSym);
+    nza = length(Ax);
+    Ap = INTEGER(GET_SLOT(x, Matrix_pSym));
+    Ai = INTEGER(GET_SLOT(x, Matrix_iSym));
+    if (doperm) {
+	int *perm;
+	SET_VECTOR_ELT(ans, 2, allocVector(INTSXP, n));
+	perm = INTEGER(VECTOR_ELT(ans, 2));
+	ssc_metis_order(n, Ap, Ai, perm, Flag);
+	ssc_symbolic_permute(n, 1, Flag, Ap, Ai);
+    }
     SET_VECTOR_ELT(ans, 0, allocVector(INTSXP, n));
-    SET_VECTOR_ELT(ans, 1, allocVector(INTSXP, n + 1)); 
-    ldl_symbolic(n, INTEGER(GET_SLOT(x, Matrix_pSym)),
-		 INTEGER(GET_SLOT(x, Matrix_iSym)),
-		 INTEGER(VECTOR_ELT(ans, 1)), /* Lp */    
-		 INTEGER(VECTOR_ELT(ans, 0)), /* Parent */
-		 (int *) R_alloc(n, sizeof(int)), /* Lnz */
-		 (int *) R_alloc(n, sizeof(int)), /* Flag */
-		 (int *) NULL, (int *) NULL);  /* P & Pinv */
-    UNPROTECT(lo ? 2 : 1);
+    Parent = INTEGER(VECTOR_ELT(ans, 0));
+    SET_VECTOR_ELT(ans, 1, NEW_OBJECT(MAKE_CLASS("tscMatrix")));
+    tsc = VECTOR_ELT(ans, 1);
+    SET_SLOT(tsc, Matrix_uploSym, ScalarString(mkChar("L")));
+    SET_SLOT(tsc, Matrix_diagSym, ScalarString(mkChar("U")));
+    SET_SLOT(tsc, Matrix_DimSym, Dims);
+    SET_SLOT(tsc, Matrix_pSym, allocVector(INTSXP, n + 1));
+    Lp = INTEGER(GET_SLOT(tsc, Matrix_pSym));
+    ldl_symbolic(n, Ap, Ai, Lp, Parent, Lnz, Flag, P, Pinv);
+    nz = Lp[n];
+    SET_SLOT(tsc, Matrix_iSym, allocVector(INTSXP, nz));
+    Li = INTEGER(GET_SLOT(tsc, Matrix_iSym));
+    SET_SLOT(tsc, Matrix_xSym, allocVector(REALSXP, nz));
+    for (i = 0; i < nza; i++) REAL(Ax)[i] = 0.00001;
+    for (i = 0; i < n; i++) REAL(Ax)[Ap[i+1]-1] = 10000.;
+    i = ldl_numeric(n, Ap, Ai, REAL(Ax), Lp, Parent, Lnz, Li,
+		    REAL(GET_SLOT(tsc, Matrix_xSym)),
+		    (double *) R_alloc(n, sizeof(double)), /* D */
+		    (double *) R_alloc(n, sizeof(double)), /* Y */
+		    (int *) R_alloc(n, sizeof(int)), /* Pattern */
+		    Flag, P, Pinv);
+    UNPROTECT(2);
     return ans;
 }
 

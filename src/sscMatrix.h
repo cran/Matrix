@@ -10,7 +10,7 @@ SEXP sscMatrix_inverse_factor(SEXP A);
 SEXP sscMatrix_matrix_solve(SEXP a, SEXP b);
 SEXP ssc_transpose(SEXP x);
 SEXP sscMatrix_to_triplet(SEXP x);
-SEXP sscMatrix_ldl_symbolic(SEXP x);
+SEXP sscMatrix_ldl_symbolic(SEXP x, SEXP doPerm);
 extern void ssc_metis_order(int n, const int Tp [], const int Ti [],
 			    int Perm[], int iPerm[]);
 

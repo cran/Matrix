@@ -79,7 +79,7 @@ inline LaColVectorDouble::LaColVectorDouble(double *d, int m) :
 inline LaColVectorDouble::LaColVectorDouble(const LaGenMatDouble& G) : 
         LaGenMatDouble(G)
 {
-        assert(G.size(1)==1);
+        if (!(G.size(1)==1)) throw(LaException("assert failed : G.size(1)==1"));
 
 }
         
@@ -119,7 +119,7 @@ inline LaColVectorDouble& LaColVectorDouble::operator=(double d)
 
 inline LaColVectorDouble& LaColVectorDouble::copy(const LaMatDouble &A)
 {
-    assert(A.size(0) == 1 || A.size(1) == 1);   //make sure rhs is a
+    if (!(A.size(0) == 1 || A.size(1) == 1)) throw(LaException("assert failed : A.size(0) == 1 || A.size(1) == 1"));   //make sure rhs is a
                                                 // a vector.
     LaGenMatDouble::copy(A);
     return *this;
@@ -136,14 +136,14 @@ inline LaColVectorDouble* LaColVectorDouble::clone() const
 
 inline LaColVectorDouble& LaColVectorDouble::ref(const LaGenMatDouble &A)
 {
-    assert(A.size(0) == 1 || A.size(1) == 1);
+    if (!(A.size(0) == 1 || A.size(1) == 1)) throw(LaException("assert failed : A.size(0) == 1 || A.size(1) == 1"));
     LaGenMatDouble::ref(A);
     return *this;
 }
 
 inline LaColVectorDouble& LaColVectorDouble::inject(const LaMatDouble &A)
 {
-    assert(A.size(0) == 1 || A.size(1) == 1);
+    if (!(A.size(0) == 1 || A.size(1) == 1)) throw(LaException("assert failed : A.size(0) == 1 || A.size(1) == 1"));
     LaGenMatDouble::inject(A);
     return *this;
 }

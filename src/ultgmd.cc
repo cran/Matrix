@@ -37,8 +37,8 @@ double& LaUnitLowerTriangMatDouble::operator()(int i, int j)
 
 #ifdef UNIT_LOWER_INDEX_CHK
     if (i <= j) {
-	cout << "Warning, index to Lower Triular matrix out of range!\n";
-	cout << " i = " << i << " " <<" j = " << j << endl;
+	warning("index to Lower Triular matrix out of range!\n i = %d  j = %d",
+		i, j);
     }
 #endif
     if ((j==0)&&(i==0))  // this special case allows us to pass unit matrices
@@ -54,8 +54,8 @@ double& LaUnitLowerTriangMatDouble::operator()(int i, int j) const
 
 #ifdef UNIT_LOWER_INDEX_CHK
     if (i<=j) {
-	cout << "Warning, index to Lower Triular matrix out of range!\n";
-	cout << " i = " << i << " " <<" j = " << j << endl;
+	warning("index to Lower Triular matrix out of range!\n i = %d  j = %d",
+		i, j);
     }
 #endif
 

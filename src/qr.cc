@@ -75,7 +75,7 @@ LaMatDouble& LaQRFactorDouble::solve(LaMatDouble& B) const
 LaMatDouble& LaQRFactorDouble::solve(LaMatDouble& X, const LaMatDouble& B ) const
 {
 //    dynamic_cast<LaGenMatDouble&>(X);
-    assert(X.size(1) == B.size(1));
+    if (!(X.size(1) == B.size(1))) throw(LaException("assert failed : X.size(1) == B.size(1)"));
 
     if (X.size(0) == B.size(0)) {
 	X.inject(B);

@@ -6,7 +6,7 @@ static int dummy(const double& wr, const double& wi) { return 0; }
 
 LaGenSchurDouble::LaGenSchurDouble(const LaMatDouble& a,
 				   bool jobV = true) :
-    aa(a), wR(a.size(0)), wI(a.size(0)), vecs(a)
+    a(a), wR(a.size(0)), wI(a.size(0)), vecs(a)
 {
     char jobVS = (jobV) ? 'V' : 'N';
     int n = a.size(0);
@@ -17,7 +17,7 @@ LaGenSchurDouble::LaGenSchurDouble(const LaMatDouble& a,
     double rconde, rcondv;	// never used
     VectorDouble work(lwork);
     VectorInt iwork(0), bwork(0);
-    F77_CALL(dgeesx)(jobVS, 'N', &dummy, 'N', n, &aa(0,0), aa.gdim(0),
+    F77_CALL(dgeesx)(jobVS, 'N', &dummy, 'N', n, &a(0,0), a.gdim(0),
 		     sdim, &wR(0), &wI(0), &vecs(0,0), n, rconde, rcondv,
 		     &work(0), lwork, &iwork(0), 1, bwork, info);
     if (info != 0)
@@ -74,7 +74,7 @@ SEXP LaGenSchurDouble::asSEXP() const
     } else {
 	SET_VECTOR_ELT(ret, 0, wR.asSEXP());
     }
-    SET_VECTOR_ELT(ret, 1, aa.asSEXP());
+    SET_VECTOR_ELT(ret, 1, a.asSEXP());
     SET_VECTOR_ELT(ret, 2, vecs.asSEXP());
     UNPROTECT(3);
     return ret;

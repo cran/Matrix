@@ -31,7 +31,7 @@ int* LaSpdTridiagMatDouble::info_= new int;  // turn off info print flag.
 
  double& LaSpdTridiagMatDouble::operator()(int i,int j)
 {
-        // really should assert that abs(i-j) < 2 
+        // really should if (!(i-j)) throw(LaException("assert failed : i-j")) < 2 
         int tmp = i-j;
 
         switch (tmp){
@@ -85,7 +85,7 @@ int* LaSpdTridiagMatDouble::info_= new int;  // turn off info print flag.
             tmp.ref(dl_);
             break;
         default:
-            cerr <<"Unrecognized integer representation of diagonal\n";
+            throw(LaException("Unrecognized integer representation of diagonal"));
         }
                     
     return tmp;

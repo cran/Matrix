@@ -12,14 +12,14 @@ LaSymmEigenDouble::LaSymmEigenDouble(const LaMatDouble& a,
     if (a.size(1) != n)
 	throw(LaException("LaSymmEigenDouble : only square matrices allowed"));
 
-    LaGenMatDouble aa(a);
+    LaGenMatDouble a(a);
     int lwork = 5 * n, info;
     VectorDouble work(lwork);
-    F77_CALL(dsyev)(jobz, uplo, n, &aa(0,0), aa.gdim(0), &vals(0),
+    F77_CALL(dsyev)(jobz, uplo, n, &a(0,0), a.gdim(0), &vals(0),
 		    &work(0), lwork, info);
     if (info != 0)
 	throw(LaException("LaSymmEigenDouble : non-zero info returned by dsyev"));
-    if (findVecs) vecs.copy(aa);
+    if (findVecs) vecs.copy(a);
 }
 
 SEXP LaSymmEigenDouble::asSEXP() const
@@ -52,7 +52,7 @@ LaGenEigenDouble::LaGenEigenDouble(const LaMatDouble& a,
     if (a.size(1) != n)
 	throw(LaException("LaGenEigenDouble : only square matrices allowed"));
 
-    LaGenMatDouble aa(a);
+    LaGenMatDouble a(a);
     int lwork = 5*(n*n + 2*n), info;
     VectorDouble work(lwork);
     VectorInt iwork(2*n);
@@ -60,7 +60,7 @@ LaGenEigenDouble::LaGenEigenDouble(const LaMatDouble& a,
     if (rightEV) right.resize(n, n);
     if (sense != 'E' && sense != 'B') rcondE.resize(0);
     if (sense != 'V' && sense != 'B') rcondV.resize(0);
-    F77_CALL(dgeevx)(balanc, jobVL, jobVR, sense, n, &aa(0,0), aa.gdim(0),
+    F77_CALL(dgeevx)(balanc, jobVL, jobVR, sense, n, &a(0,0), a.gdim(0),
 		     &wR(0), &wI(0), &left(0,0), n, &right(0,0), n,
 		     &ilo, &ihi, &scale(0), &abnrm, &rcondE(0), &rcondV(0),
 		     &work(0), lwork, &iwork(0), info);

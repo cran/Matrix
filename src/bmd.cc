@@ -106,8 +106,7 @@ double& LaBandMatDouble::operator()(int i, int j)
 #ifdef LA_BOUNDS_CHK
   if ((i<0||i>=N_)||(j<0||j>=N_))
    {
-     cerr << "Index to Banded Matrix out of range!\n";
-     exit (1);
+     error("Index to Banded Matrix out of range!");
    }
 #endif
 
@@ -143,8 +142,7 @@ double& LaBandMatDouble::operator()(int i, int j) const
 #ifdef LA_BOUNDS_CHK
   if ((i<0||i>=N_)||(j<0||j>=N_))
    {
-     cerr << "Index to Banded Matrix out of range!\n";
-     exit (1);
+       error("Index to Banded Matrix out of range!\n");
    }
 #endif
 

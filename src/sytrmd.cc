@@ -83,7 +83,7 @@ double& LaSymmTridiagMatDouble::operator()(int i,int j)
             tmp.ref(dl_);
             break;
         default:
-            cerr <<"Unrecognized integer representation of diagonal\n";
+            throw(LaException("Unrecognized integer representation of diagonal"));
         }
                     
     return tmp;
@@ -103,7 +103,7 @@ double& LaSymmTridiagMatDouble::operator()(int i,int j)
             tmp.ref(dl_);
             break;
         default:
-            cerr <<"Unrecognized integer representation of diagonal\n";
+            throw(LaException("Unrecognized integer representation of diagonal"));
         }
                     
     return tmp;

@@ -95,8 +95,7 @@ double& LaSpdBandMatDouble::operator()(int i, int j)
 #ifdef LA_BOUNDS_CHK
   if ((i<0||i>=N_)||(j<0||j>=N_))
    {
-     cerr << "Index to SPD Banded Matrix out of range!\n";
-     exit (1);
+     error("Index to SPD Banded Matrix out of range!");
    }
 #endif
 
@@ -121,8 +120,7 @@ double& LaSpdBandMatDouble::operator()(int i, int j) const
 #ifdef LA_BOUNDS_CHK
   if ((i<0||i>=N_)||(j<0||j>=N_))
    {
-     cerr << "Index to SPD Banded Matrix out of range!\n";
-     exit (1);
+     error("Index to SPD Banded Matrix out of range!");
    }
 #endif
 

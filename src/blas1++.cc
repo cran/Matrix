@@ -34,26 +34,26 @@ double Blas_Norm1(const LaVectorDouble &dx)
 
 void Blas_Add_Mult(LaVectorDouble &dy, double da, const LaVectorDouble &dx) 
 {
-    assert(dx.size()==dy.size());
+    if (!(dx.size()==dy.size())) throw(LaException("assert failed : dx.size()==dy.size()"));
     F77_CALL(daxpy)(dx.size(), da, &dx(0), dx.inc(), &dy(0), dy.inc());
 }
 
 void Blas_Mult(LaVectorDouble &dy, double da, LaVectorDouble &dx)
 {
-    assert(dx.size()==dy.size());
+    if (!(dx.size()==dy.size())) throw(LaException("assert failed : dx.size()==dy.size()"));
     dy = 0.0;
     F77_CALL(daxpy)(dx.size(), da, &dx(0), dx.inc(), &dy(0), dy.inc());
 }
 
 void Blas_Copy(LaVectorDouble &dy, LaVectorDouble &dx)
 {
-    assert(dx.size()==dy.size());
+    if (!(dx.size()==dy.size())) throw(LaException("assert failed : dx.size()==dy.size()"));
     F77_CALL(dcopy)(dx.size(), &dx(0), dx.inc(), &dy(0), dy.inc());
 }
 
 double Blas_Dot_Prod(const LaVectorDouble &dx, const LaVectorDouble &dy)
 {
-    assert(dx.size()==dy.size());
+    if (!(dx.size()==dy.size())) throw(LaException("assert failed : dx.size()==dy.size()"));
     return F77_CALL(ddot)(dx.size(), &dx(0), dx.inc(), &dy(0), dy.inc());
 }
 
@@ -65,7 +65,7 @@ double Blas_Norm2(const LaVectorDouble &dx)
 void Blas_Apply_Plane_Rot(LaVectorDouble &dx, LaVectorDouble &dy, 
 			  double c, double s)
 {
-    assert(dx.size() == dy.size());
+    if (!(dx.size() == dy.size())) throw(LaException("assert failed : dx.size() == dy.size()"));
     F77_CALL(drot)(dx.size(), &dx(0), dx.inc(), &dy(0), dy.inc(), c, s);
 }
 
@@ -81,7 +81,7 @@ void Blas_Scale(double da, LaVectorDouble &dx)
 
 void Blas_Swap(LaVectorDouble &dx, LaVectorDouble &dy)
 {
-    assert(dx.size()==dy.size());
+    if (!(dx.size()==dy.size())) throw(LaException("assert failed : dx.size()==dy.size()"));
     F77_CALL(dswap)(dx.size(), &dx(0), dx.inc(), &dy(0), dy.inc());
 }
 
@@ -97,7 +97,7 @@ int Blas_Index_Max(const LaVectorDouble &dx)
 
 COMPLEX Blas_H_Dot_Prod(const LaVectorComplex &cx, const LaVectorComplex &cy)
 {
-    assert(cx.size()==cy.size());
+    if (!(cx.size()==cy.size())) throw(LaException("assert failed : cx.size()==cy.size()"));
     int n = cx.size();
     int incx = cx.inc(), incy = cy.inc();
     COMPLEX tmp;
@@ -108,7 +108,7 @@ COMPLEX Blas_H_Dot_Prod(const LaVectorComplex &cx, const LaVectorComplex &cy)
 
 COMPLEX Blas_U_Dot_Prod(const LaVectorComplex &cx, const LaVectorComplex &cy)
 {
-    assert(cx.size()==cy.size());
+    if (!(cx.size()==cy.size())) throw(LaException("assert failed : cx.size()==cy.size()"));
     int n = cx.size();
     int incx = cx.inc(), incy = cy.inc();
     COMPLEX tmp;
@@ -129,7 +129,7 @@ double Blas_Norm1(const LaVectorComplex &dx)
 
 void Blas_Add_Mult(LaVectorComplex &dy, COMPLEX da, const LaVectorComplex &dx) 
 {
-    assert(dx.size()==dy.size());
+    if (!(dx.size()==dy.size())) throw(LaException("assert failed : dx.size()==dy.size()"));
     int n = dx.size();
     int incx = dx.inc(), incy = dy.inc();
 
@@ -138,7 +138,7 @@ void Blas_Add_Mult(LaVectorComplex &dy, COMPLEX da, const LaVectorComplex &dx)
 
 void Blas_Mult(LaVectorComplex &dy, COMPLEX da, LaVectorComplex &dx)
 {
-    assert(dx.size()==dy.size());
+    if (!(dx.size()==dy.size())) throw(LaException("assert failed : dx.size()==dy.size()"));
     int n = dx.size();
     int incx = dx.inc(), incy = dy.inc();
     dy = COMPLEX(0.0,0.0);
@@ -149,7 +149,7 @@ void Blas_Mult(LaVectorComplex &dy, COMPLEX da, LaVectorComplex &dx)
 
 void Blas_Copy(LaVectorComplex &dy, LaVectorComplex &dx)
 {
-    assert(dx.size()==dy.size());
+    if (!(dx.size()==dy.size())) throw(LaException("assert failed : dx.size()==dy.size()"));
     int n = dx.size();
     int incx = dx.inc(), incy = dy.inc();
 
@@ -180,7 +180,7 @@ void Blas_Scale(COMPLEX za, LaVectorComplex &dx)
 
 void Blas_Swap(LaVectorComplex &dx, LaVectorComplex &dy)
 {
-    assert(dx.size()==dy.size());
+    if (!(dx.size()==dy.size())) throw(LaException("assert failed : dx.size()==dy.size()"));
     int n = dx.size();
     int incx = dx.inc(), incy = dy.inc();
 

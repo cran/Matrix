@@ -48,7 +48,7 @@ public:
 inline LaBandFactDouble::LaBandFactDouble():B_(),pivot_()
 {
 #ifdef BandFactDouble_DEBUG 
-    cout << " called LaBandFactDouble::LaBandFactDouble() " << endl; 
+    warning("called LaBandFactDouble::LaBandFactDouble()");
 #endif 
 
     info_ = 0;
@@ -59,7 +59,7 @@ inline LaBandFactDouble::LaBandFactDouble(int N, int kl, int ku)
     : B_(N,kl,ku),pivot_(kl+ku+1)
 {
 #ifdef BandFactDouble_DEBUG 
-    cout << " called LaBandFactDouble::LaBandFactDouble(int,int,int) " << endl; 
+    warning("called LaBandFactDouble::LaBandFactDouble(int,int,int)");
 #endif 
 
     info_ = 0;
@@ -69,8 +69,7 @@ inline LaBandFactDouble::LaBandFactDouble(int N, int kl, int ku)
 inline LaBandFactDouble::LaBandFactDouble(LaBandMatDouble &G):pivot_()
 {
 #ifdef BandFactDouble_DEBUG 
-    cout << " called LaBandFactDouble::LaBandFactDouble(LaBandMatDouble &)"
-        <<endl; 
+    warning("called LaBandFactDouble::LaBandFactDouble(LaBandMatDouble &)");
 #endif 
 
   B_.ref(G);
@@ -81,7 +80,7 @@ inline LaBandFactDouble::LaBandFactDouble(LaBandMatDouble &G):pivot_()
 inline LaBandFactDouble::LaBandFactDouble(LaBandFactDouble &F)
 {
 #ifdef BandFactDouble_DEBUG 
-    cout << " called LaBandFactDouble::LaBandFactDouble(LaBandFactDouble &) " << endl; 
+    warning("called LaBandFactDouble::LaBandFactDouble(LaBandFactDouble &)");
 #endif 
 
   B_.ref(F.B_);

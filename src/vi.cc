@@ -25,9 +25,11 @@
 #include "lafnames.h"
 #include VECTOR_INT_H
 
+#include "laexcp.h"
+
  VectorInt::VectorInt(int n=0)
 {                                                                      
-    assert(n>=0);
+    if (!(n>=0)) throw(LaException("assert failed : n>=0"));
     p = new vrefInt;
     p->sz = n;                                                          
     p->data = data = new int[n]; 
@@ -111,8 +113,7 @@ VectorInt& VectorInt::inject( VectorInt& m)
 {
     if (m.size() != size())
     {
-          cerr << "VectorInt::inject(): vector sizes do not match.\n";
-      return *this;
+	throw(LaException("VectorInt::inject(): vector sizes do not match"));
     }
     int N = size();
     for (int i=0; i<N; i++)
@@ -128,8 +129,7 @@ VectorInt& VectorInt::copy(const VectorInt &m)
         if (null()) resize(m.size());
 
         if (size() != m.size())
-           cerr << "VectorInt::copy(VectorInt &): incompatible vector \
-                sizes : "<< size() << " vs. " << m.size() << ".\n";
+	    error("VectorInt::copy(VectorInt &): incompatible vector sizes : %d vs. %d", size(), m.size());
         else
 #endif // 0
 

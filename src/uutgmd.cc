@@ -36,8 +36,8 @@ double& LaUnitUpperTriangMatDouble::operator()(int i, int j)
 
 #ifdef UNIT_UPPER_INDEX_CHK
     if (j <= i) { 
-	cout << "Warning, index to Upper Triular matrix out of range!\n";
-	cout << " i = " << i << " " <<" j = " << j << endl;
+	warning("index to Upper Triular matrix out of range!\n i = %d  j = %d",
+		i, j);
     }
 #endif
 
@@ -54,8 +54,8 @@ double& LaUnitUpperTriangMatDouble::operator()(int i, int j) const
 
 #ifdef UNIT_UPPER_INDEX_CHK
   if (j<=i) {
-      cout << "Warning, index to Upper Triular matrix out of range!\n";
-      cout << " i = " << i << " " <<" j = " << j << endl;
+      warning("index to Upper Triular matrix out of range!\n i = %d  j = %d",
+	      i, j);
   }
 #endif
 

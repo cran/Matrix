@@ -26,9 +26,11 @@
 #include "lafnames.h"
 #include VECTOR_DOUBLE_H
 
+#include "laexcp.h"
+
 VectorDouble::VectorDouble(int n=0)
 {                                                                      
-    assert(n>=0);
+    if (!(n>=0)) throw(LaException("assert failed : n>=0"));
     p = new vrefDouble;
     p->sz = n;                                                          
     p->data = data = new double[n]; 
@@ -97,8 +99,7 @@ VectorDouble& VectorDouble::inject(const VectorDouble& m)
 {
     if (m.size() != size())
     {
-	cerr << "VectorDouble::inject(): vector sizes do not match.\n";
-	return *this;
+	throw(LaException("VectorDouble::inject(): vector sizes do not match."));
     }
     int N = size();
     for (int i = 0; i < N; i++) { (*this)(i) = m(i); }
@@ -111,8 +112,7 @@ VectorDouble& VectorDouble::copy(const VectorDouble &m)
     if (null()) resize(m.size());
     
     if (size() != m.size())
-	cerr << "VectorDouble::copy(VectorDouble &): incompatible vector \
-                sizes : "<< size() << " vs. " << m.size() << ".\n";
+	error("VectorDouble::copy(VectorDouble &): incompatible vector sizes : %d vs. %d", size(), m.size());
     else
 #endif // 0
 

@@ -114,7 +114,7 @@ inline VectorInt::operator int*()
 inline int& VectorInt::operator()(int i)
 {
 #ifdef VECTOR_INT_BOUNDS_CHECK
-    assert(0<=i && i<size());
+    if (!(0<=i && i<size())) throw(LaException("assert failed : 0<=i && i<size()"));
 #endif 
     return data[i];
 }
@@ -122,7 +122,7 @@ inline int& VectorInt::operator()(int i)
 inline int& VectorInt::operator()(int i) const
 {
 #ifdef VECTOR_INT_BOUNDS_CHECK
-    assert(0<=i && i<size());
+    if (!(0<=i && i<size())) throw(LaException("assert failed : 0<=i && i<size()"));
 #endif
     return data[i];
 }
@@ -131,7 +131,7 @@ inline int& VectorInt::operator()(int i) const
 inline int& VectorInt::operator[](int i)
 {
 #ifdef VECTOR_INT_BOUNDS_CHECK
-    assert(0<=i && i<size());
+    if (!(0<=i && i<size())) throw(LaException("assert failed : 0<=i && i<size()"));
 #endif  
     return data[i];
 }
@@ -140,7 +140,7 @@ inline int& VectorInt::operator[](int i)
 inline int& VectorInt::operator[](int i) const
 {
 #ifdef VECTOR_INT_BOUNDS_CHECK
-    assert(0<=i && i<size());
+    if (!(0<=i && i<size())) throw(LaException("assert failed : 0<=i && i<size()"));
 #endif  
     return data[i];
 }

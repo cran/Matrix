@@ -32,6 +32,8 @@
 #include LA_GEN_MAT_INT_H
 #endif
 
+#include "laexcp.h"
+
 extern "C" {
 #include <R.h>
 #include <Rinternals.h>
@@ -87,7 +89,7 @@ inline LaVectorInt::LaVectorInt(int i) : LaGenMatInt(i,1) {}
 //
 inline LaVectorInt::LaVectorInt(int m, int n) : LaGenMatInt(m,n)
 {
-    assert(n==1 || m==1);
+    if (!(n==1 || m==1)) throw(LaException("assert failed : n==1 || m==1"));
 }
 
 inline LaVectorInt::LaVectorInt(int *d, int n) : 
@@ -98,7 +100,7 @@ inline LaVectorInt::LaVectorInt(int *d, int n, int m) :
 
 inline LaVectorInt::LaVectorInt(const LaGenMatInt &G) 
 {
-        assert(G.size(0)==1 || G.size(1)==1);
+        if (!(G.size(0)==1 || G.size(1)==1)) throw(LaException("assert failed : G.size(0)==1 || G.size(1)==1"));
 
         (*this).ref(G);
 }
@@ -135,7 +137,7 @@ inline LaVectorInt LaVectorInt::operator()(const LaIndex& I)
 
 inline LaVectorInt& LaVectorInt::copy(const LaGenMatInt &A)
 {
-    assert(A.size(0) == 1 || A.size(1) == 1);   //make sure rhs is a
+    if (!(A.size(0) == 1 || A.size(1) == 1)) throw(LaException("assert failed : A.size(0) == 1 || A.size(1) == 1"));   //make sure rhs is a
                                                 // a vector.
     LaGenMatInt::copy(A);
     return *this;
@@ -148,7 +150,7 @@ inline LaVectorInt& LaVectorInt::operator=(const  LaGenMatInt &A)
 
 inline LaVectorInt& LaVectorInt::ref(const LaGenMatInt &A)
 {
-    assert(A.size(0) == 1 || A.size(1) == 1);
+    if (!(A.size(0) == 1 || A.size(1) == 1)) throw(LaException("assert failed : A.size(0) == 1 || A.size(1) == 1"));
     LaGenMatInt::ref(A);
     return *this;
 }
@@ -161,7 +163,7 @@ inline LaVectorInt& LaVectorInt::operator=(int d)
 
 inline LaVectorInt& LaVectorInt::inject(const LaGenMatInt &A)
 {
-    assert(A.size(0) == 1 || A.size(1) == 1);
+    if (!(A.size(0) == 1 || A.size(1) == 1)) throw(LaException("assert failed : A.size(0) == 1 || A.size(1) == 1"));
     LaGenMatInt::inject(A);
     return *this;
 }

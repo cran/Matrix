@@ -228,8 +228,8 @@ LaGenMatDouble* LaGenMatDouble::clone() const
 
 LaGenMatDouble& LaGenMatDouble::inject(const LaMatDouble& s)
 {
-    assert(s.size(0) == size(0));
-    assert(s.size(1) == size(1));
+    if (!(s.size(0) == size(0))) throw(LaException("assert failed : s.size(0) == size(0)"));
+    if (!(s.size(1) == size(1))) throw(LaException("assert failed : s.size(1) == size(1)"));
     
     int M=size(0), N=size(1);
     for (int j = 0; j < N; j++)
@@ -258,27 +258,27 @@ LaGenMatDouble LaGenMatDouble::operator()(const LaIndex& II, const LaIndex& JJ) 
         J = JJ;
     }
 
-    assert(I.inc() != 0);
-    assert(J.inc() != 0);
+    if (!(I.inc() != 0)) throw(LaException("assert failed : I.inc() != 0"));
+    if (!(J.inc() != 0)) throw(LaException("assert failed : J.inc() != 0"));
 
     if (I.inc() > 0) {
-        assert(I.start() >= 0);
-        assert(I.start() <= I.end());
-        assert(I.end() < size(0));
+        if (!(I.start() >= 0)) throw(LaException("assert failed : I.start() >= 0"));
+        if (!(I.start() <= I.end())) throw(LaException("assert failed : I.start() <= I.end()"));
+        if (!(I.end() < size(0))) throw(LaException("assert failed : I.end() < size(0)"));
     } else {			// I.inc() < 0
-        assert(I.start() < size(0));
-        assert(I.start() >= I.end());
-        assert(I.end() >= 0);
+        if (!(I.start() < size(0))) throw(LaException("assert failed : I.start() < size(0)"));
+        if (!(I.start() >= I.end())) throw(LaException("assert failed : I.start() >= I.end()"));
+        if (!(I.end() >= 0)) throw(LaException("assert failed : I.end() >= 0"));
     }
 
     if (J.inc() > 0) {
-        assert(J.start() >= 0);
-        assert(J.start() <= J.end());
-        assert(J.end() < size(1));
+        if (!(J.start() >= 0)) throw(LaException("assert failed : J.start() >= 0"));
+        if (!(J.start() <= J.end())) throw(LaException("assert failed : J.start() <= J.end()"));
+        if (!(J.end() < size(1))) throw(LaException("assert failed : J.end() < size(1)"));
     } else {			// J.inc() < 0
-        assert(J.start() < size(1));
-        assert(J.start() >= J.end());
-        assert(J.end() >= 0);
+        if (!(J.start() < size(1))) throw(LaException("assert failed : J.start() < size(1)"));
+        if (!(J.start() >= J.end())) throw(LaException("assert failed : J.start() >= J.end()"));
+        if (!(J.end() >= 0)) throw(LaException("assert failed : J.end() >= 0"));
     }
 
     LaGenMatDouble tmp;
@@ -319,27 +319,27 @@ LaGenMatDouble LaGenMatDouble::operator()(const LaIndex& II, const LaIndex& JJ)
         J = JJ;
     }
 
-    assert(I.inc() != 0);
-    assert(J.inc() != 0);
+    if (!(I.inc() != 0)) throw(LaException("assert failed : I.inc() != 0"));
+    if (!(J.inc() != 0)) throw(LaException("assert failed : J.inc() != 0"));
     
     if (I.inc() > 0) {
-        assert(I.start() >= 0);
-        assert(I.start() <= I.end());
-        assert(I.end() < size(0));
+        if (!(I.start() >= 0)) throw(LaException("assert failed : I.start() >= 0"));
+        if (!(I.start() <= I.end())) throw(LaException("assert failed : I.start() <= I.end()"));
+        if (!(I.end() < size(0))) throw(LaException("assert failed : I.end() < size(0)"));
     } else {			// I.inc() < 0
-        assert(I.start() < size(0));
-        assert(I.start() >= I.end());
-        assert(I.end() >= 0);
+        if (!(I.start() < size(0))) throw(LaException("assert failed : I.start() < size(0)"));
+        if (!(I.start() >= I.end())) throw(LaException("assert failed : I.start() >= I.end()"));
+        if (!(I.end() >= 0)) throw(LaException("assert failed : I.end() >= 0"));
     }
 
     if (J.inc() > 0) {
-        assert(J.start() >= 0);
-        assert(J.start() <= J.end());
-        assert(J.end() < size(1));
+        if (!(J.start() >= 0)) throw(LaException("assert failed : J.start() >= 0"));
+        if (!(J.start() <= J.end())) throw(LaException("assert failed : J.start() <= J.end()"));
+        if (!(J.end() < size(1))) throw(LaException("assert failed : J.end() < size(1)"));
     } else {			// J.inc() < 0
-        assert(J.start() < size(1));
-        assert(J.start() >= J.end());
-        assert(J.end() >= 0);
+        if (!(J.start() < size(1))) throw(LaException("assert failed : J.start() < size(1)"));
+        if (!(J.start() >= J.end())) throw(LaException("assert failed : J.start() >= J.end()"));
+        if (!(J.end() >= 0)) throw(LaException("assert failed : J.end() >= 0"));
     }
     
     LaGenMatDouble tmp;

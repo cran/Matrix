@@ -152,10 +152,10 @@ inline int& LaGenMatInt::operator()(int i, int j)
 {
 
 #ifdef LA_BOUNDS_CHECK
-    assert(i>=0);
-    assert(i<size(0));
-    assert(j>=0);
-    assert(j<size(1));
+    if (!(i>=0)) throw(LaException("assert failed : i>=0"));
+    if (!(i<size(0))) throw(LaException("assert failed : i<size(0)"));
+    if (!(j>=0)) throw(LaException("assert failed : j>=0"));
+    if (!(j<size(1))) throw(LaException("assert failed : j<size(1)"));
 #endif
     return v(dim[0]*(ii[1].start() + j*ii[1].inc()) + 
 	      ii[0].start() + i*ii[0].inc());
@@ -164,10 +164,10 @@ inline int& LaGenMatInt::operator()(int i, int j)
 inline int& LaGenMatInt::operator()(int i, int j) const
 {
 #ifdef LA_BOUNDS_CHECK
-    assert(i>=0);
-    assert(i<size(0));
-    assert(j>=0);
-    assert(j<size(1));
+    if (!(i>=0)) throw(LaException("assert failed : i>=0"));
+    if (!(i<size(0))) throw(LaException("assert failed : i<size(0)"));
+    if (!(j>=0)) throw(LaException("assert failed : j>=0"));
+    if (!(j<size(1))) throw(LaException("assert failed : j<size(1)"));
 #endif
     return v( dim[0]*(ii[1].start() + j*ii[1].inc()) + 
                 ii[0].start() + i*ii[0].inc());

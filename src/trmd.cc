@@ -98,7 +98,7 @@ const double& LaTridiagMatDouble::operator()(int i,int j) const
         case 2:   // second upper
             tmp.ref(du2_); break;
         default:
-            cerr <<"Unrecognized integer representation of diagonal\n";
+            throw(LaException("Unrecognized integer representation of diagonal"));
     }
 
     return tmp;
@@ -125,7 +125,7 @@ const double& LaTridiagMatDouble::operator()(int i,int j) const
             tmp.ref(du2_);
             break;
         default:
-            cerr <<"Unrecognized integer representation of diagonal\n";
+            throw(LaException("Unrecognized integer representation of diagonal"));
     }
                     
     return tmp;

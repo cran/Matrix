@@ -120,7 +120,7 @@ inline VectorDouble::operator double*()
 inline double& VectorDouble::operator()(int i)
 {
 #ifdef VECTOR_DOUBLE_BOUNDS_CHECK
-    assert(0<=i && i<size());
+    if (!(0<=i && i<size())) throw(LaException("assert failed : 0<=i && i<size()"));
 #endif 
     return data[i];
 }
@@ -128,7 +128,7 @@ inline double& VectorDouble::operator()(int i)
 inline double& VectorDouble::operator()(int i) const
 {
 #ifdef VECTOR_DOUBLE_BOUNDS_CHECK
-    assert(0<=i && i<size());
+    if (!(0<=i && i<size())) throw(LaException("assert failed : 0<=i && i<size()"));
 #endif
     return data[i];
 }
@@ -138,7 +138,7 @@ inline double& VectorDouble::operator()(int i) const
 inline double& VectorDouble::operator[](int i)
 {
 #ifdef VECTOR_DOUBLE_BOUNDS_CHECK
-    assert(0<=i && i<size());
+    if (!(0<=i && i<size())) throw(LaException("assert failed : 0<=i && i<size()"));
 #endif  
     return data[i];
 }
@@ -146,7 +146,7 @@ inline double& VectorDouble::operator[](int i)
 inline double& VectorDouble::operator[](int i) const
 {
 #ifdef VECTOR_DOUBLE_BOUNDS_CHECK
-    assert(0<=i && i<size());
+    if (!(0<=i && i<size())) throw(LaException("assert failed : 0<=i && i<size()"));
 #endif  
     return data[i];
 }

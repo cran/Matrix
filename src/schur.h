@@ -28,7 +28,7 @@ public:
 class LaGenSchurDouble : public LaSchurDouble
 {
 protected:
-    LaGenMatDouble aa;
+    LaGenMatDouble a;
     LaVectorDouble wR;
     LaVectorDouble wI;
     LaGenMatDouble vecs;

@@ -15,9 +15,7 @@ static int count = 0;
 static bool setNewHandler = false;
 
 void out_of_memory() {
-    cerr << "memory exhausted after " << count 
-	 << " allocations!" << endl;
-    exit(1);
+    error("memory exhausted after %d allocations!", count);
 }
 
 static LaVectorInt* piv2perm(const LaVectorInt& piv)
@@ -169,25 +167,25 @@ extern "C" {
 	
     SEXP R_LapackPP_eigen(SEXP x, SEXP vectors, SEXP balanc, SEXP rcond)
     {
-	LaMatDouble *aa = 0;
+	LaMatDouble *a = 0;
 	LaEigenDouble *eig;
 	try {
-	    aa = asLaMatrix(x);
-	    if (aa->size(0) != aa->size(1)) {
-		delete aa;
+	    a = asLaMatrix(x);
+	    if (a->size(0) != a->size(1)) {
+		delete a;
 		error("Eigenvalue/eigenvector decomp requires a square matrix");
 	    }
 	    bool vecs = (LOGICAL(coerceVector(vectors, LGLSXP))[0] != 0) ?
 		true : false;
-	    eig = aa->eigen(vecs, vecs,
+	    eig = a->eigen(vecs, vecs,
 			    CHAR(STRING_ELT(coerceVector(balanc, STRSXP), 0))[0],
 			    CHAR(STRING_ELT(coerceVector(rcond, STRSXP), 0))[0]);
 	    SEXP val = eig->asSEXP();
-	    delete aa;
+	    delete a;
 	    delete eig;
 	    return val;
 	} catch(LaException xcp) {
-	    delete aa;
+	    delete a;
 	    delete eig;
 	    error(xcp.what());
 	    return R_NilValue;	// to keep -Wall happy
@@ -306,23 +304,23 @@ extern "C" {
 
     SEXP R_LapackPP_Schur(SEXP x, SEXP vectors)
     {
-	LaMatDouble *aa = 0;
+	LaMatDouble *a = 0;
 	LaSchurDouble *schur;
 	try {
-	    aa = asLaMatrix(x);
-	    if (aa->size(0) != aa->size(1)) {
-		delete aa;
+	    a = asLaMatrix(x);
+	    if (a->size(0) != a->size(1)) {
+		delete a;
 		error("Schur decomposition requires a square matrix");
 	    }
 	    bool vecs = (LOGICAL(coerceVector(vectors, LGLSXP))[0] != 0) ?
 		true : false;
-	    schur = new LaGenSchurDouble(*aa, vecs);
+	    schur = new LaGenSchurDouble(*a, vecs);
 	    SEXP val = schur->asSEXP();
-	    delete aa;
+	    delete a;
 	    delete schur;
 	    return val;
 	} catch(LaException xcp) {
-	    delete aa;
+	    delete a;
 	    delete schur;
 	    error(xcp.what());
 	    return R_NilValue;	// to keep -Wall happy

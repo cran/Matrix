@@ -57,14 +57,14 @@ inline LaVectorDouble operator*(double a, const LaVectorDouble &x)
 inline double operator*(const LaVectorDouble &dx, 
 			const LaVectorDouble &dy)
 {
-    assert(dx.size()==dy.size());
+    if (!(dx.size()==dy.size())) throw(LaException("assert failed : dx.size()==dy.size()"));
     return F77_CALL(ddot)(dx.size(), &dx(0), dx.inc(), &dy(0), dy.inc());
 }
 
 inline LaVectorDouble operator+(const LaVectorDouble &dx, 
                                 const LaVectorDouble &dy)
 {
-    assert(dx.size()==dy.size());
+    if (!(dx.size()==dy.size())) throw(LaException("assert failed : dx.size()==dy.size()"));
     
     LaVectorDouble tmp((int) dx.size());
     tmp = dy;
@@ -76,7 +76,7 @@ inline LaVectorDouble operator+(const LaVectorDouble &dx,
 inline LaVectorDouble operator-(const LaVectorDouble &dx, 
                                 const LaVectorDouble &dy)
 {
-    assert(dx.size()==dy.size());
+    if (!(dx.size()==dy.size())) throw(LaException("assert failed : dx.size()==dy.size()"));
 //    int incx = dx.inc(), incy = dy.inc(), n = dx.size();
     
     LaVectorDouble tmp(dx.size());

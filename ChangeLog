@@ -1,3 +1,12 @@
+2002-04-24  Douglas Bates  <bates@stat.wisc.edu>
+
+	* configure.ac: Replaced configure.in with configure.ac
+	contributed by Kurt Hornik.
+
+	* aclocal.m4 (ac_clean_files): Replaced this with Kurt Hornik's
+	version for R-1.5.0
+	
+
 2001-12-10  Douglas Bates  <bates@stat.wisc.edu>
 
 	* man/eigen.Rd: Removed the .Alias in the example

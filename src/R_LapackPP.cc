@@ -257,7 +257,7 @@ extern "C" {
 	    SET_VECTOR_ELT(val, 1, fact->pivot().asSEXP());
 	    SEXP nm = PROTECT(allocVector(STRSXP, 2));
 	    SET_STRING_ELT(nm, 0, mkChar("decomp"));
-	    SET_STRING_ELT(nm, 2, mkChar("permutation"));
+	    SET_STRING_ELT(nm, 1, mkChar("permutation"));
 	    setAttrib(val, R_NamesSymbol, nm);
 	    setAttrib(val, R_ClassSymbol, ScalarString(mkChar("lu.Hermitian")));
 	    delete xx; delete fact; UNPROTECT(2); return val;

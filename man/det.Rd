@@ -7,7 +7,7 @@
 \alias{det.UnitUpperTriangular}
 \alias{det.UpperTriangular}
 \usage{
-det(x, method = c("qr","eigenvalues"))
+det(x, log = FALSE)
 }
 \description{
     \code{det} calculates the determinant (or its logarithm) of a matrix

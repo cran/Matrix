@@ -1,6 +1,28 @@
-//      LAPACK++ (V. 1.1)
-//      (C) 1992-1996 All Rights Reserved.
+// -*- c++ -*-
+//              LAPACK++ 1.1 Linear Algebra Package 1.1
+//               University of Tennessee, Knoxvilee, TN.
+//            Oak Ridge National Laboratory, Oak Ridge, TN.
+//        Authors: J. J. Dongarra, E. Greaser, R. Pozo, D. Walker
+//                 (C) 1992-1996 All Rights Reserved
 //
+//                             NOTICE
+//
+// Permission to use, copy, modify, and distribute this software and
+// its documentation for any purpose and without fee is hereby granted
+// provided that the above copyright notice appear in all copies and
+// that both the copyright notice and this permission notice appear in
+// supporting documentation.
+//
+// Neither the Institutions (University of Tennessee, and Oak Ridge National
+// Laboratory) nor the Authors make any representations about the suitability 
+// of this software for any purpose.  This software is provided ``as is'' 
+// without express or implied warranty.
+//
+// LAPACK++ was funded in part by the U.S. Department of Energy, the
+// National Science Foundation and the State of Tennessee.
+//
+// Modifications Copyright (C) 2000-2000 the R Development Core Team
+
 //      Lapack++ "Shared" Vector Int Class
 //
 //      A lightweight vector class with minimal overhead.
@@ -25,78 +47,54 @@
 #include <assert.h>     // cheap "error" protection used in checking
 #endif                  // checking array bounds.
 
-
 typedef  struct {
-    int        sz;                                        
-    int*    data;                                       
-    int        ref_count;
+    int sz;                                        
+    int* data;                                       
+    int ref_count;
 } vrefInt;
-                        
-
 
 class VectorInt
 {                                                                      
-    private:                                                           
-           vrefInt *p;
-           int *data;            // performance hack, avoid int
-                                    // indirection to data.
-    public:                                                            
-                                                                       
-        /*::::::::::::::::::::::::::*/                                 
-        /* Constructors/Destructors */                                 
-        /*::::::::::::::::::::::::::*/                                 
-                                                                       
-    //inline VectorInt();     // this should behave as VectorInt(0)
+private:                                                           
+    vrefInt *p;
+    int *data;			// performance hack, avoid indirection to data.
+public:
+				// Constructors/Destructors
     VectorInt(int);                             
-    VectorInt(int, int);   // can't be inlined because of 'for'
-                                       // statement.
+    VectorInt(int, int);
     VectorInt(int*, int);
     VectorInt(const VectorInt&); 
     ~VectorInt() ;                              
-                                                                       
-        /*::::::::::::::::::::::::::::::::*/                           
-        /*  Indices and access operations */                           
-        /*::::::::::::::::::::::::::::::::*/                           
-                                                                       
-    inline int&     operator[](int); 
-    inline int&     operator[](int) const; // read only
-    inline int&     operator()(int); 
-    inline int&     operator()(int) const; // read only
-    inline              operator    int*(); 
-    inline int          size() const;
-    inline int          null() const;
-           int          resize(int d);
-    inline int          ref_count() const;  // return the number of ref counts
-    inline int*     addr() const;
-                                                                       
-        /*::::::::::::::*/                                             
-        /*  Assignment  */                                             
-        /*::::::::::::::*/                                             
-                                                                       
+				// Indices and access operations
+    inline int& operator[](int);
+    inline int& operator[](int) const; // read only
+    inline int& operator()(int); 
+    inline int& operator()(int) const; // read only
+    inline operator int*(); 
+    inline int size() const;
+    inline int null() const;
+    int resize(int d);
+    inline int ref_count() const; // return the number of ref counts
+    inline int* addr() const;
+				//  Assignment
     inline  VectorInt& operator=(const VectorInt&);
             VectorInt& operator=(int);
     inline  VectorInt& ref(const VectorInt &);
             VectorInt& inject(VectorInt&);
             VectorInt& copy(const VectorInt&);
-
-    /* I/O */                                                      
+				// I/O
     friend ostream&   operator<<(ostream&, const VectorInt&);       
-
 };                                                                     
-
-
-    // operators and member functions
-
-inline int VectorInt::null()    const
+				// operators and member functions
+inline int VectorInt::null() const
 {
     return (size() == 0) ;
 }
 
 inline int VectorInt::size() const
 {
-    return   p-> sz;
+    return   p->sz;
 }
-
 
 inline int VectorInt::ref_count() const
 {
@@ -112,7 +110,6 @@ inline VectorInt::operator int*()
 {
     return data;
 }
-
 
 inline int& VectorInt::operator()(int i)
 {
@@ -153,29 +150,24 @@ inline VectorInt& VectorInt::ref(const VectorInt& m)
     // always check that the p field has been initialized.
     // Either the lhs or rhs could be a NULL VectorInt...
     
-        if (&m != this)         // not really necessary...
-        {
-            m.p->ref_count++;
-            if (--(p->ref_count) == 0)              // perform garbage col.
-            {
-                delete [] ( p->data);
-                delete p;
-            }
-            p = m.p;
-            data = m.data;
-        }
-        return *this;
+    if (&m != this)		// not really necessary...
+    {
+	m.p->ref_count++;
+	if (--(p->ref_count) == 0) // perform garbage col.
+	{
+	    delete [] ( p->data);
+	    delete p;
+	}
+	p = m.p;
+	data = m.data;
+    }
+    return *this;
 }
-
 
 inline VectorInt& VectorInt::operator=(const VectorInt& m)
 {
-
     return  ref(m);
 }
-
-
-
 
 #endif 
 // _VECTOR_INT_H_

@@ -1,9 +1,28 @@
 // -*- c++ -*-
-//      LAPACK++ (V. 1.0a Beta)
-//      (C) 1992-1996 All Rights Reserved.
+//              LAPACK++ 1.1 Linear Algebra Package 1.1
+//               University of Tennessee, Knoxvilee, TN.
+//            Oak Ridge National Laboratory, Oak Ridge, TN.
+//        Authors: J. J. Dongarra, E. Greaser, R. Pozo, D. Walker
+//                 (C) 1992-1996 All Rights Reserved
 //
-//  Modifications Copyright (C) 2000-2000 the R Development Core Team
+//                             NOTICE
 //
+// Permission to use, copy, modify, and distribute this software and
+// its documentation for any purpose and without fee is hereby granted
+// provided that the above copyright notice appear in all copies and
+// that both the copyright notice and this permission notice appear in
+// supporting documentation.
+//
+// Neither the Institutions (University of Tennessee, and Oak Ridge National
+// Laboratory) nor the Authors make any representations about the suitability 
+// of this software for any purpose.  This software is provided ``as is'' 
+// without express or implied warranty.
+//
+// LAPACK++ was funded in part by the U.S. Department of Energy, the
+// National Science Foundation and the State of Tennessee.
+//
+// Modifications Copyright (C) 2000-2000 the R Development Core Team
+
 //      Lapack++ Rectangular Matrix Class
 //
 //      Dense (nonsingular) matrix, assumes no special structure or properties.
@@ -21,7 +40,7 @@
 #include "lamatrix.h"
 #include "lapack.h"
 #include VECTOR_DOUBLE_H
-#include "solvable.h"
+#include "factor.h"
 
 class LaGenMatDouble : public LaMatDouble
 {
@@ -30,18 +49,18 @@ private:
     LaIndex         ii[2];
     int             dim[2];	// size of original matrix, not submatrix
     int             sz[2];	// size of this submatrix
-    mutable solvable* solver;   // LU or QR decomposition
+    mutable Factor* solver;   // LU or QR decomposition
 
 public:
-    // constructors and destructors
+				// constructors and destructors
     LaGenMatDouble();
     LaGenMatDouble(int, int);
     LaGenMatDouble(double*, int, int);
-    LaGenMatDouble(const LaGenMatDouble&);
+    LaGenMatDouble(const LaMatDouble&);
     LaGenMatDouble(SEXP);
     virtual ~LaGenMatDouble();
 
-    //  Indices and access operations 
+				//  Indices and access operations 
     int size(int d) const       // submatrix size
 	{ return sz[d]; }
     int gdim(int d) const       // global dimensions
@@ -79,23 +98,26 @@ public:
 
     LaMatDouble& operator=(double s);
 
-    LaMatrix& resize(const LaMatrix& m)
+    LaGenMatDouble& resize(const LaMatDouble& m)
 	{ return resize(m.size(0), m.size(1)); }
-    LaMatrix& resize(int m, int n);
-    LaMatrix& ref(const LaGenMatDouble& s);
-    LaMatrix& ref(SEXP);
-    LaMatrix& inject(const LaMatrix& s);
-    LaMatrix& copy(const LaMatrix& s);
+    LaGenMatDouble& resize(int m, int n);
+    LaGenMatDouble& ref(const LaGenMatDouble& s);
+    LaGenMatDouble& ref(SEXP);
+    LaGenMatDouble& inject(const LaMatDouble& s);
+    LaGenMatDouble& copy(const LaMatDouble& s);
+    SEXP asSEXP() const;
 
     double norm(char which) const;
+    double rcond(char which) const;
     inline void doDecomposition() const;
     void clearDecomposition() const
 	{ delete solver; solver = 0; }
-    LaMatrix& solve() const
-	{ if (solver == 0) doDecomposition(); return solver->solve(); };
-    LaMatrix& solve(LaMatrix& B) const
+    LaGenMatDouble& solve() const
+	{ if (solver == 0) doDecomposition();
+	  return dynamic_cast<LaGenMatDouble&>(solver->solve()); };
+    LaMatDouble& solve(LaMatDouble& B) const
 	{ if (solver == 0) doDecomposition(); return solver->solve(B); };
-    LaMatrix& solve(LaMatrix& X, const LaMatrix& B) const
+    LaMatDouble& solve(LaMatDouble& X, const LaMatDouble& B) const
 	{ if (solver == 0) doDecomposition(); return solver->solve(X, B); };
 
     //* I/O *//

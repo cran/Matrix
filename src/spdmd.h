@@ -1,9 +1,27 @@
 //  -*- c++ -*-
-//      LAPACK++ (V. 1.1)
-//      (C) 1992-1996 All Rights Reserved.
+//              LAPACK++ 1.1 Linear Algebra Package 1.1
+//               University of Tennessee, Knoxvilee, TN.
+//            Oak Ridge National Laboratory, Oak Ridge, TN.
+//        Authors: J. J. Dongarra, E. Greaser, R. Pozo, D. Walker
+//                 (C) 1992-1996 All Rights Reserved
 //
-//  Modifications Copyright (C) 2000-2000 the R Development Core Team
-
+//                             NOTICE
+//
+// Permission to use, copy, modify, and distribute this software and
+// its documentation for any purpose and without fee is hereby granted
+// provided that the above copyright notice appear in all copies and
+// that both the copyright notice and this permission notice appear in
+// supporting documentation.
+//
+// Neither the Institutions (University of Tennessee, and Oak Ridge National
+// Laboratory) nor the Authors make any representations about the suitability 
+// of this software for any purpose.  This software is provided ``as is'' 
+// without express or implied warranty.
+//
+// LAPACK++ was funded in part by the U.S. Department of Energy, the
+// National Science Foundation and the State of Tennessee.
+//
+// Modifications Copyright (C) 2000-2000 the R Development Core Team
 
 #ifndef _LA_SPD_MAT_DOUBLE_H_
 #define _LA_SPD_MAT_DOUBLE_H_
@@ -13,7 +31,7 @@
 class LaSpdMatDouble : public LaSymmMatDouble
 {
 public:
-    // constructors and destructors
+				// constructors and destructors
     LaSpdMatDouble()
 	: LaSymmMatDouble() { };
     LaSpdMatDouble(int i, int j)
@@ -26,24 +44,27 @@ public:
 	: LaSymmMatDouble(s) { };
     ~LaSpdMatDouble() { }
 
-    // operators
+				// operators
     LaMatDouble& operator=(double s)
 	{ LaSymmMatDouble::operator=(s); return *this; }
-    LaMatrix& ref(const LaSpdMatDouble& A)
+    LaSpdMatDouble& ref(const LaSpdMatDouble& A)
 	{ LaSymmMatDouble::ref(A); return *this; }
-    LaMatrix& ref(SEXP s)
+    LaSpdMatDouble& ref(SEXP s)
 	{ LaSymmMatDouble::ref(s); return *this; }
-    LaMatrix& inject(const LaMatrix& A)
+    LaSpdMatDouble& inject(const LaMatDouble& A)
 	{ LaSymmMatDouble::inject(A); return *this; }
-    LaMatrix& copy(const LaMatrix& A)
+    LaSpdMatDouble& copy(const LaMatDouble& A)
 	{ LaSymmMatDouble::copy(A); return *this; }
 
 				// linear equation solvers
-    LaMatrix& solve() const {throw(LaException("",""));}	// inverse
-    LaMatrix& solve(LaMatrix& B) const  {throw(LaException("",""));}; // in-place solution
-    LaMatrix& solve(LaMatrix& X, const LaMatrix& B) const  {throw(LaException("",""));};
+    LaSpdMatDouble& solve() const {throw(LaException("",""));}	// inverse
+    LaMatDouble& solve(LaMatDouble& B) const  {throw(LaException("",""));}; // in-place solution
+    LaMatDouble& solve(LaMatDouble& X, const LaMatDouble& B) const  {throw(LaException("",""));};
 				// matrix norms
     double norm(char) const  {throw(LaException("",""));};
+    inline double rcond(char which) const {return 1.0;}
+    SEXP asSEXP() const;
+
 };
 
 #endif 

@@ -5,6 +5,7 @@ Matrix(data=NA, nrow, ncol, byrow=F, dimnames=NULL, tol)
 }
 \alias{Matrix}
 \alias{print.Matrix}
+\alias{solve.Matrix}
 \alias{as.matrix.Matrix}
 \description{
     Construct a Matrix of class \code{Matrix}.

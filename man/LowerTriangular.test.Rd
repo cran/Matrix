@@ -11,16 +11,18 @@ UpperTriangular.test(x)
 \alias{LowerTriangular.test}
 \alias{UpperTriangular.test}
 \description{
-    Either tests whether or not a Matrix is lower or upper triangular, or 
-    else gives a metric by which such a test can be made.
+    \code{LowerTriangular.test} (\code{UpperTriangular.test}) returns
+    the maximum modulus of the strict upper (lower) triangle of x.
+    \code{is.LowerTriangular} and \code{is.UpperTriangular} check if
+    this value is less than a tolerance.
 }
 \arguments{
     \item{x}{
-	an numeric or complex matrix.
+	a numeric or complex matrix.
     }
     \item{tol}{
-	tolerance for the maximum modulus of the elements in the upper or lower
-	triangle of the matrix.
+	tolerance for the maximum modulus of the elements in the upper
+	(or lower) triangle of the matrix.
     }
 }
 \value{
@@ -28,7 +30,7 @@ UpperTriangular.test(x)
     the maximum modulus of the elements in the strict upper (lower)
     triangle of the matrix \code{x}.
     
-    For \code{is.LowerTriangular} (\code{is.UpperTriangular}) returns a
+    \code{is.LowerTriangular} (\code{is.UpperTriangular}) returns a
     logical value according to whether the result of
     \code{LowerTriangular.test} (\code{UpperTriangular.test}) is less
     than or equal to \code{tol}.
@@ -36,13 +38,9 @@ UpperTriangular.test(x)
 %\code{inherits(x, "LowerTriangular")} or \code{inherits(x, "UpperTriangular")}. 
 }
 \examples{
-x <- Matrix(1:9,3,3)
+x <- hilbert(9)
 x[row(x) > col(x)] <- 0
-is.UpperTriangular(x)
-# [1] F
 is.UpperTriangular(x, tol = 0)
-# [1] T
 UpperTriangular.test(x)
-# [1] 0
 }
 \keyword{algebra}

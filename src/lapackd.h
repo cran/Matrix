@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: lapackd.h,v 1.8 2000/07/14 20:21:35 saikat Exp $
+// $Id: lapackd.h,v 1.11 2000/07/18 19:14:18 saikat Exp $
 
 // C++ prototypes for double precision Lapack routines.
 
@@ -47,7 +47,7 @@ extern "C" {
     void F77_NAME(dgbcon)(const char& norm, const int& n,
 			  const int& kl, const int& ku,
 			  double* ab, const int& ldab,
-			  int* ipiv, double* anorm, double& rcond,
+			  int* ipiv, const double& anorm, double& rcond,
 			  double* work, int* iwork, int& info);
 
     // DGBEQU - compute row and column scalings intended to
@@ -149,8 +149,8 @@ extern "C" {
     // general real matrix A, in either the 1-norm or the
     // infinity-norm, using the LU factorization computed by DGETRF
     void F77_NAME(dgecon)(const char& norm, const int& n,
-			  double* a, const int& lda,
-			  double* anorm, double& rcond,
+			  const double* a, const int& lda,
+			  const double& anorm, double& rcond,
 			  double* work, int* iwork, int& info);
 
     // DGEEQU - compute row and column scalings intended to equilibrate
@@ -288,6 +288,13 @@ extern "C" {
     void F77_NAME(dgeqlf)(const int& m, const int& n,
 			  double* a, const int& lda, double* tau,
 			  double* work, const int& lwork, int& info);
+
+    // DGEQP3 - compute a QR factorization with column pivoting of a
+    // real M-by-N matrix A using level 3 BLAS
+    void F77_NAME(dgeqp3)(const int& m, const int& n,
+			  double* a, const int& lda, int* jpvt,
+			  double* tau, double* work, const int& lwork,
+			  int& info);
 
     // DGEQPF - compute a QR factorization with column pivoting of a
     // real M-by-N matrix A
@@ -466,7 +473,7 @@ extern "C" {
     // computed by DGTTRF
     void F77_NAME(dgtcon)(const char& norm, const int& n,
 			  double* dl, double* d, double* du, double* du2,
-			  int* ipiv, double* anorm, double* rcond,
+			  int* ipiv, const double& anorm, double* rcond,
 			  double* work, int* iwork, int& info);
     
     // DGTRFS - improve the computed solution to a system of linear
@@ -571,7 +578,7 @@ extern "C" {
     // DLACPY - copy all or part of a two-dimensional matrix A to
     // another matrix B
     void F77_NAME(dlacpy)(const char& uplo, const int& m, const int& n,
-			  double* a, const int& lda,
+			  const double* a, const int& lda,
 			  double* b, const int& ldb);
 
     // DLADIV - perform complex division in real arithmetic 

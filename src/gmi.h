@@ -1,3 +1,4 @@
+// -*- c++ -*-
 //      LAPACK++ (V. 1.1)
 //      (C) 1992-1996 All Rights Reserved.
 //
@@ -29,9 +30,6 @@ class LaGenMatInt
     LaIndex           ii[2];
     int             dim[2];	// size of original matrix, not submatrix
     int             sz[2];	// size of this submatrix
-    static int  debug_;		// trace all entry and exits into methods and 
-				// operators of this class.  This variable is
-				// explicitly initalized in lagenmatint.cc
 
     static int      *info_;	// print matrix info only, not values
 				// originally 0, set to 1, and then
@@ -93,8 +91,6 @@ public:
     
     inline int shallow() const      // read global shallow flag
         { return shallow_;}
-    inline int debug() const;       // read global debug flag
-    inline int debug(int d);        // set global debug flag
     inline const LaGenMatInt& info() const { 
 	int *t = info_; 
 	*t = 1; 
@@ -150,16 +146,6 @@ inline LaIndex LaGenMatInt::index(int d)  const
 inline int* LaGenMatInt::addr() const
 {
     return  v.addr();
-}
-
-inline int LaGenMatInt::debug() const
-{
-    return debug_;
-}
-
-inline int LaGenMatInt::debug(int d)
-{
-    return debug_ = d;
 }
 
 inline int& LaGenMatInt::operator()(int i, int j)

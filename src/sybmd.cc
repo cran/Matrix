@@ -27,8 +27,6 @@
 
 double LaSymmBandMatDouble::outofbounds_ = 0; // initialize outofbounds_. 
 
-int LaSymmBandMatDouble::debug_ = 0; // initialize debug to off.
-
 int* LaSymmBandMatDouble::info_ = new int; // turn off info print flag.
 
 LaSymmBandMatDouble& LaSymmBandMatDouble::operator=(double scalar)

@@ -26,13 +26,10 @@
 
 #include "lafnames.h"
 #include LA_SYMM_MAT_DOUBLE_H 
+#include "vi.h"
 
-LaMatrix& LaSymmMatDouble::copy(const LaMatrix &ob)
+LaSymmMatDouble& LaSymmMatDouble::copy(const LaMatDouble &ob)
 {
-    if (debug()) {
-	cout << " ob: " << ob.info() << endl;
-    }
-
     int M = ob.size(0);
 
     // current scheme in copy() is to detach the left-hand-side
@@ -43,11 +40,6 @@ LaMatrix& LaSymmMatDouble::copy(const LaMatrix &ob)
     for (int i = 0; i < M; i++)
 	for (int j = 0; j <= i; j++)
 	    (*this)(i,j) = ob(i,j);
-
-    if (debug()) {
-	cout << " *this: " << this->info() << endl;
-    }
-
     return *this;
 }
 
@@ -97,7 +89,7 @@ LaSymmMatDouble::operator LaLowerTriangMatDouble()
   return Lower;
 }
 
-LaMatrix& LaSymmMatDouble::solve() const
+LaSymmMatDouble& LaSymmMatDouble::solve() const
 {				// inverse
     LaSymmMatDouble *inv; //create a copy to return
     inv = new LaSymmMatDouble(*this); 
@@ -110,18 +102,19 @@ LaMatrix& LaSymmMatDouble::solve() const
     return *inv;
 }
 
-LaMatrix& LaSymmMatDouble::solve(LaMatrix& B) const
+LaMatDouble& LaSymmMatDouble::solve(LaMatDouble& B) const
 {				// in-place solution
-    int ipiv[size(0)], lwork = 5 * size(0), info;
-    double work[lwork];
+    VectorInt ipiv(size(0));
+    int lwork = 5 * size(0), info;
+    VectorDouble work(lwork);
 
     F77_CALL(dsysv)('L', size(0), B.size(1),
-		    &lower_data_(0,0), gdim(0), ipiv,
-		    &B(0,0), B.gdim(0), work, lwork, info);
+		    &lower_data_(0,0), gdim(0), &ipiv(0),
+		    &B(0,0), B.gdim(0), &work(0), lwork, info);
     return B;
 }
 
-LaMatrix& LaSymmMatDouble::solve(LaMatrix& X, const LaMatrix& B) const
+LaMatDouble& LaSymmMatDouble::solve(LaMatDouble& X, const LaMatDouble& B) const
 {
     X.inject(B);
     return solve(X);
@@ -129,14 +122,38 @@ LaMatrix& LaSymmMatDouble::solve(LaMatrix& X, const LaMatrix& B) const
 
 double LaSymmMatDouble::norm(char which) const
 {
-    assert(which == 'M' || which == 'm' ||
-	   which == '1' || which == 'O' || which == 'o' ||
-	   which == 'I' || which == 'i' ||
-	   which == 'F' || which == 'f' ||
-	   which == 'E' || which == 'e');
-    double *work = new double[size(0)]; // only needed for Frobenius norm
-    double val = F77_CALL(dlansy)(which, 'L', size(0),
-				  &(*this)(0,0), gdim(0), work);
-    delete[] work;
+    VectorDouble work(size(0));	// only needed for Infinity norm
+    return F77_CALL(dlansy)(which, 'L', size(0),
+			    &(*this)(0,0), gdim(0), &work(0));
+}
+
+double LaSymmMatDouble::rcond(char which) const
+{
+    double val;
+    VectorDouble work(5 * size(0));
+    int info;
+    VectorInt ipiv(size(0)), iwork(size(0));
+    LaSymmMatDouble th(*this);	// create a copy to pass
+
+    F77_CALL(dsytrf)('L', th.size(0), &th(0,0), th.gdim(0), &ipiv(0),
+		     &work(0), 5*size(0), info);
+    F77_CALL(dsycon)('L', th.size(0), &th(0,0), th.gdim(0), &ipiv(0),
+		     norm('O'), val, &work(0), &iwork(0), info);
+    return val;
+}
+
+SEXP LaSymmMatDouble::asSEXP() const
+{
+    int n = size(0);
+    SEXP val = allocMatrix(REALSXP, n, n);
+    F77_CALL(dlacpy)('L', n, n, &(*this)(0,0), gdim(0),
+		     REAL(val), n);
+    for (int i = 1; i < n; i++) // symmetrize the result
+	for (int j = 0; j < i; j++)
+	    REAL(val)[i * n + j] = REAL(val)[j * n + i];
+    SEXP classes = allocVector(STRSXP, 2);
+    STRING(classes)[0] = mkChar("Hermitian");
+    STRING(classes)[1] = mkChar("Matrix");
+    setAttrib(val, R_ClassSymbol, classes);
     return val;
 }

@@ -1,6 +1,27 @@
-//      LAPACK++ (V. 1.1)
-//      (C) 1992-1996 All Rights Reserved.
-
+// -*- c++ -*-
+//              LAPACK++ 1.1 Linear Algebra Package 1.1
+//               University of Tennessee, Knoxvilee, TN.
+//            Oak Ridge National Laboratory, Oak Ridge, TN.
+//        Authors: J. J. Dongarra, E. Greaser, R. Pozo, D. Walker
+//                 (C) 1992-1996 All Rights Reserved
+//
+//                             NOTICE
+//
+// Permission to use, copy, modify, and distribute this software and
+// its documentation for any purpose and without fee is hereby granted
+// provided that the above copyright notice appear in all copies and
+// that both the copyright notice and this permission notice appear in
+// supporting documentation.
+//
+// Neither the Institutions (University of Tennessee, and Oak Ridge National
+// Laboratory) nor the Authors make any representations about the suitability 
+// of this software for any purpose.  This software is provided ``as is'' 
+// without express or implied warranty.
+//
+// LAPACK++ was funded in part by the U.S. Department of Energy, the
+// National Science Foundation and the State of Tennessee.
+//
+// Modifications Copyright (C) 2000-2000 the R Development Core Team
 
 #ifndef _LA_SYMM_BAND_MAT_DOUBLE_H_
 #define _LA_SYMM_BAND_MAT_DOUBLE_H_
@@ -17,7 +38,6 @@ class LaSymmBandMatDouble
   int N_;       // N_ is (NxN)
   int kl_;      // kl_ = # subdiags
   static double outofbounds_; // out of range value returned.
-  static int debug_;         // print debug info.
   static int *info_;         // print matrix info only, not values
                              //   originally 0, set to 1, and then
                              //   reset to 0 after use.
@@ -60,10 +80,6 @@ public:
         return (kl_);}
   inline int shallow() const {      // return shallow flag.
         return data_.shallow();}
-  inline int debug() const {    // return debug flag.
-        return debug_;}
-  inline int debug(int d) { // set debug flag for lagenmat.
-        return debug_ = d;}
 
   inline LaSymmBandMatDouble& resize(const LaSymmBandMatDouble&);
 

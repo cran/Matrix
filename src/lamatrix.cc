@@ -4,10 +4,6 @@
 
 #include "lamatrix.h"
 
-int LaMatrix::debug_ = 0;	// turn off global deubg flag initially.
-                                // use A.debug(1) to turn on/off,
-                                // and A.debug() to check current status.
-
 int* LaMatrix::info_= new int;  // turn off info print flag.
 
 ostream& LaMatrix::Info(ostream& s)

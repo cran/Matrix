@@ -27,8 +27,6 @@
 
 double LaSpdTridiagMatDouble::outofbounds_ = 0; // set outofbounds_. 
 
-int LaSpdTridiagMatDouble::debug_ = 0; // set debug to 0 initially.
-
 int* LaSpdTridiagMatDouble::info_= new int;  // turn off info print flag.
 
  double& LaSpdTridiagMatDouble::operator()(int i,int j)

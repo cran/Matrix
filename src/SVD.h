@@ -22,32 +22,21 @@
 
 #include "lafnames.h"
 #include LA_GEN_MAT_DOUBLE_H
-#include "lapackd.h"
+#include LA_VECTOR_DOUBLE_H
+#include "orthonormal.h"
 
 class SVD {
  public:
-    SVD(LaGenMatDouble&);
-    SVD(LaGenMatDouble&, VectorDouble);
-    SVD(LaGenMatDouble&, VectorDouble, LaGenMatDouble&, LaGenMatDouble&);
+    SVD(LaGenMatDouble& a, int nu = 0, int nvt = 0);
     
-    inline int getInfo();
-    inline VectorDouble getS();
-    inline LaGenMatDouble getU();
-    inline LaGenMatDouble getV();
+    inline LaVectorDouble& getS() {return s;}
+    inline LaColOrthonormalMatDouble& getU() {return u;}
+    inline LaRowOrthonormalMatDouble& getVT() {return vt;}
     
  protected:
-    LaGenMatDouble a;
-    VectorDouble s;
-    LaGenMatDouble u, v;
-    int info;
-    
- private:
-    void doDecomp();
+    LaVectorDouble s;
+    LaColOrthonormalMatDouble u;
+    LaRowOrthonormalMatDouble vt;
 };
-
-inline int SVD::getInfo() {return info;}
-inline VectorDouble SVD::getS() {return s;}
-inline LaGenMatDouble SVD::getU() {return u;}
-inline LaGenMatDouble SVD::getV() {return v;}
 
 #endif

@@ -24,7 +24,6 @@
 #include "lafnames.h"
 #include LA_BAND_MAT_DOUBLE_H
 
-int LaBandMatDouble::debug_= 0;
 int* LaBandMatDouble::info_ = new int;
 double  LaBandMatDouble::outofbounds_ = 0.0;
 

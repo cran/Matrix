@@ -40,7 +40,6 @@ SVD(x, nu = min(n,p), nv = min(n,p))
 }
 \seealso{\code{\link{svd}}, \code{\link{eigen}}, \code{\link{qr}}.}
 \examples{
-hilbert <- function(n) { i <- 1:n; 1 / outer(i - 1, i, "+") }
 str(X <- hilbert(9)[,1:6])
 str(s <- SVD(X))
 Eps <- 100 * .Machine$double.eps

@@ -30,3 +30,10 @@ LaVectorDouble& LaVectorDouble::ref(SEXP x)
     LaVectorDouble tmp(REAL(coerceVector(x, REALSXP)), n);
     return ref(tmp);
 }
+
+SEXP LaVectorDouble::asSEXP() const
+{
+    SEXP val = allocVector(REALSXP, size());
+    Memcpy(REAL(val), addr(), size());
+    return val;
+}

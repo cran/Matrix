@@ -27,6 +27,7 @@
 #include "lafnames.h"
 #include LA_UNIT_UPPER_TRIANG_MAT_DOUBLE_H
 #include "blas3.h"
+#include "vi.h"
 
 double LaUnitUpperTriangMatDouble::outofbounds_ = 0; // initialize outofbounds.
 
@@ -66,22 +67,14 @@ double& LaUnitUpperTriangMatDouble::operator()(int i, int j) const
       return data_(i,j);
 }
 
-LaMatrix& LaUnitUpperTriangMatDouble::copy(const LaMatrix &ob)
+LaUnitUpperTriangMatDouble& LaUnitUpperTriangMatDouble::copy(const LaMatDouble &ob)
 {
-    if (debug()) {
-	cout << " ob: " << ob.info() << endl;
-    }
-
     int M = ob.size(0);
 
     resize(ob);
     for (int i = 0; i < M; i++)
 	for (int j = 0; j > i; j++)
 	    (*this)(i,j) = ob(i,j);
-
-    if (debug()) {
-	cout << " *this: " << this->info() << endl;
-    }
 
     return *this;
 }
@@ -120,7 +113,7 @@ ostream& LaUnitUpperTriangMatDouble::printMatrix(ostream& s) const
     return s;
 }
 
-LaMatrix& LaUnitUpperTriangMatDouble::solve() const
+LaUnitUpperTriangMatDouble& LaUnitUpperTriangMatDouble::solve() const
 {				// inverse
     LaUnitUpperTriangMatDouble *inv; //create a copy to return
     inv = new LaUnitUpperTriangMatDouble(*this); 
@@ -133,14 +126,14 @@ LaMatrix& LaUnitUpperTriangMatDouble::solve() const
     return *inv;
 }
 
-LaMatrix& LaUnitUpperTriangMatDouble::solve(LaMatrix& B) const
+LaMatDouble& LaUnitUpperTriangMatDouble::solve(LaMatDouble& B) const
 {				// in-place solution
     F77_CALL(dtrsm)('L', 'U', 'N', 'U', size(0), B.size(1), 1.0,
 		    &data_(0,0), gdim(0), &B(0,0), B.gdim(0));
     return B;
 }
 
-LaMatrix& LaUnitUpperTriangMatDouble::solve(LaMatrix& X, const LaMatrix& B) const
+LaMatDouble& LaUnitUpperTriangMatDouble::solve(LaMatDouble& X, const LaMatDouble& B) const
 {
     X.inject(B);
     return solve(X);
@@ -153,9 +146,36 @@ double LaUnitUpperTriangMatDouble::norm(char which) const
 	   which == 'I' || which == 'i' ||
 	   which == 'F' || which == 'f' ||
 	   which == 'E' || which == 'e');
-    double *work = new double[size(0)]; // only needed for Infinity norm
+    VectorDouble work(size(0)); // only needed for Infinity norm
     double val = F77_CALL(dlantr)(which, 'U', 'U', size(0), size(1),
-				  &(*this)(0,0), gdim(0), work);
-    delete[] work;
+				  &(*this)(0,0), gdim(0), &work(0));
+    return val;
+}
+
+double LaUnitUpperTriangMatDouble::rcond(char which) const
+{
+    double val;
+    VectorDouble work(3 * size(0));
+    int info;
+    VectorInt iwork(size(0));
+    F77_CALL(dtrcon)(which, 'U', 'U', size(0), &(*this)(0,0),
+		     gdim(0), val, &work(0), &iwork(0), info);
+    return val;
+}
+
+SEXP LaUnitUpperTriangMatDouble::asSEXP() const
+{
+    int m = size(0), n = size(1);
+    SEXP val = allocMatrix(REALSXP, m, n);
+    F77_CALL(dlacpy)('U', m, n, &(*this)(0,0), gdim(0),
+		     REAL(val), m);
+    int ldiag = (m < n) ? m : n;
+    for (int i = 0; i < ldiag; i++) // ensure the diagonal entries are 1.0
+	REAL(val)[i * (m + 1)] = 1.0;
+    SEXP classes = allocVector(STRSXP, 3);
+    STRING(classes)[1] = mkChar("UnitUpperTriangular");
+    STRING(classes)[1] = mkChar("UpperTriangular");
+    STRING(classes)[2] = mkChar("Matrix");
+    setAttrib(val, R_ClassSymbol, classes);
     return val;
 }

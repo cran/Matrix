@@ -14,6 +14,10 @@ norm.default <- function(x, type = "M")
     .Call("R_LapackPP_norm", as.matrix(x), as.character(type))
 
 rcond <- function(x, ...) UseMethod("rcond")
+rcond.Matrix <- function(x, type = "O")
+    .Call("R_LapackPP_rcond", x, as.character(type))
+rcond.default <- function(x, type = "O")
+    .Call("R_LapackPP_rcond", as.matrix(x), as.character(type))
 
 schur <- function(x, ...) UseMethod("schur")
 

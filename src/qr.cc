@@ -4,7 +4,9 @@
 
 LaQRFactorDouble& LaQRFactorDouble::ref(const LaGenMatDouble& A)
 {
-    assert(A.inc(0) == 1 && A.inc(1) == 1);
+    if(A.inc(0) != 1 || A.inc(1) != 1)
+	throw(LaException("LaQRFactorDouble::ref(const LaGenMatDouble&)",
+			  "input matrix has non unit increment"));
     qr_.ref(A);
     R_.ref(qr_);
     LaVectorInt pivot(A.size(1));
@@ -13,34 +15,62 @@ LaQRFactorDouble& LaQRFactorDouble::ref(const LaGenMatDouble& A)
     qraux_.ref(qraux);
     rank_ = 0;
 
-    double* work = new double[3*qr_.size(1)];
+    int lwork = 2*qr_.size(1)+(qr_.size(1)+1)*F77_NAME(ilaenv)(1, "DGEQP3",
+							       "", qr_.size(0),
+							       qr_.size(1),
+							       -1, -1);
+    VectorDouble work(lwork);
     int info;
-    F77_CALL(dgeqpf)(qr_.size(0), qr_.size(1), &qr_(0, 0), qr_.gdim(0),
-		     &pivot_(0), &qraux_(0), work, info);
-    delete[] work;
+    F77_CALL(dgeqp3)(qr_.size(0), qr_.size(1), &qr_(0, 0), qr_.gdim(0),
+		     &pivot_(0), &qraux_(0), &work(0), lwork, info);
+    if (info < 0)
+	throw(LaException("LaQRFactorDouble::ref(const LaGenMatDouble&)",
+			  "illegal input"));
     return *this;
 }
 
-LaMatrix& LaQRFactorDouble::solve(LaMatrix& B) const
+LaMatDouble& LaQRFactorDouble::applyQ(LaMatDouble& y, bool left,
+				   bool transpose) const
+{
+    int info;
+    char opts[] = "LT";
+    if (!left) opts[0] = 'R';
+    if (!transpose) opts[1] = 'N';
+    int lwork = y.size(1)*F77_NAME(ilaenv)(1, "DORMQR",
+					   opts, y.size(0), y.size(1),
+					   qr_.size(0), -1);
+    VectorDouble work(lwork);
+    F77_CALL(dormqr)(left?'L':'R', transpose?'T':'N', y.size(0), y.size(1),
+		     qr_.size(0), &qr_(0, 0), qr_.gdim(0),
+		     &qraux_(0), &y(0, 0), y.gdim(0), &work(0), lwork,
+		     info);
+    if (info < 0)
+	throw(LaException("LaQRFactorDouble::applyQ",
+			  "illegal input "));
+    return y;
+}
+
+LaGenMatDouble& LaQRFactorDouble::solve() const
+{
+    if (qr_.size(0) != qr_.size(1))
+	throw(LaException("singular matrix"));
+    LaGenMatDouble& inv = *(new LaGenMatDouble());
+    inv = R_.solve();
+    applyQ(inv, false, true);
+    return inv;
+}
+
+LaMatDouble& LaQRFactorDouble::solve(LaMatDouble& B) const
 {
 //    dynamic_cast<LaGenMatDouble&>(B);
-    int info;
-    int nb = F77_NAME(ilaenv)(1, "DORMQR",
-			      "LT", B.size(0), B.size(1),
-			      qr_.size(0), -1);
-    double* work = new double[B.size(1)*nb];
-    F77_CALL(dormqr)('L', 'T', B.size(0), B.size(1),
-		     qr_.size(0), &qr_(0, 0), qr_.gdim(0),
-		     &qraux_(0), &B(0, 0), B.gdim(0), work, B.size(1)*nb,
-		     info);
-    delete[] work;
+    applyQ(B);
     R_.solve(B);
     F77_CALL(dlaswp)(B.size(1), &B(0, 0), B.gdim(0), pivot_.start(),
 		     pivot_.end(), &pivot_(0), pivot_.inc());
     return B;
 }
 
-LaMatrix& LaQRFactorDouble::solve(LaMatrix& X, const LaMatrix& B ) const
+LaMatDouble& LaQRFactorDouble::solve(LaMatDouble& X, const LaMatDouble& B ) const
 {
 //    dynamic_cast<LaGenMatDouble&>(X);
     assert(X.size(1) == B.size(1));
@@ -53,16 +83,7 @@ LaMatrix& LaQRFactorDouble::solve(LaMatrix& X, const LaMatrix& B ) const
     LaGenMatDouble BB;
     BB.copy(B);
 
-    int info;
-    int nb = F77_NAME(ilaenv)(1, "DORMQR",
-			      "LT", BB.size(0), BB.size(1),
-			      qr_.size(0), -1);
-    double* work = new double[BB.size(1)*nb];
-    F77_CALL(dormqr)('L', 'T', BB.size(0), BB.size(1),
-		     qr_.size(0), &qr_(0, 0), qr_.gdim(0),
-		     &qraux_(0), &BB(0, 0), BB.gdim(0), work, BB.size(1)*nb,
-		     info);
-    delete[] work;
+    applyQ(BB);
     LaGenMatDouble XX = BB(LaIndex(0, X.size(0) - 1),
 			   LaIndex(0, X.size(1) - 1));
     X.inject(XX);

@@ -50,7 +50,7 @@ LowerTriangular.test <- function(x)
 {
     if ((!inherits(x, "Matrix") && !is.matrix(x))) return(Inf)
     if (is.complex(x)) return(max(Mod(x[row(x) < col(x)])))
-    max(x[row(x) < col(x)])
+    max(abs(x[row(x) < col(x)]))
 }
 
 is.LowerTriangular <- function(x, tol = 0) { LowerTriangular.test(x) <= tol }
@@ -59,7 +59,7 @@ UpperTriangular.test <- function(x)
 {
     if ((!inherits(x, "Matrix") && !is.matrix(x))) return(Inf)
     if (is.complex(x)) return(max(Mod(x[row(x) > col(x)])))
-    max(x[row(x) > col(x)])
+    max(abs(x[row(x) > col(x)]))
 }
 
 is.UpperTriangular <- function(x, tol = 0) { UpperTriangular.test(x) <= tol }

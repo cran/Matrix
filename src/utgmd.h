@@ -1,6 +1,25 @@
 // -*- c++ -*-
-//      LAPACK++ (V. 1.1)
-//      (C) 1992-1996 All Rights Reserved.
+//              LAPACK++ 1.1 Linear Algebra Package 1.1
+//               University of Tennessee, Knoxvilee, TN.
+//            Oak Ridge National Laboratory, Oak Ridge, TN.
+//        Authors: J. J. Dongarra, E. Greaser, R. Pozo, D. Walker
+//                 (C) 1992-1996 All Rights Reserved
+//
+//                             NOTICE
+//
+// Permission to use, copy, modify, and distribute this software and
+// its documentation for any purpose and without fee is hereby granted
+// provided that the above copyright notice appear in all copies and
+// that both the copyright notice and this permission notice appear in
+// supporting documentation.
+//
+// Neither the Institutions (University of Tennessee, and Oak Ridge National
+// Laboratory) nor the Authors make any representations about the suitability 
+// of this software for any purpose.  This software is provided ``as is'' 
+// without express or implied warranty.
+//
+// LAPACK++ was funded in part by the U.S. Department of Energy, the
+// National Science Foundation and the State of Tennessee.
 //
 // Modifications Copyright (C) 2000-2000 the R Development Core Team
 
@@ -18,20 +37,17 @@ class LaUpperTriangMatDouble : public LaMatDouble
     static double outofbounds_;
 
 public:
-
-    // constructors
-    LaUpperTriangMatDouble()
-	{ *info_ = 0; };
+				// constructors
+    LaUpperTriangMatDouble() { *info_ = 0; };
     LaUpperTriangMatDouble(int i, int j)
 	: data_(i, j) { *info_ = 0; };
     LaUpperTriangMatDouble(double* d, int i, int j)
-	: data_(d,i,j) { *info_ = 0; };
+	: data_(d, i, j) { *info_ = 0; };
     LaUpperTriangMatDouble(SEXP s)
 	: data_(s) { };
     LaUpperTriangMatDouble(const LaUpperTriangMatDouble& A)
 	{ data_.copy(A.data_); };
-
-    // destructor
+				// destructor
     ~LaUpperTriangMatDouble() { };
 
     int size(int d) const          // submatrix size
@@ -54,25 +70,27 @@ public:
     operator LaGenMatDouble()
 	{ LaGenMatDouble G; G.ref((*this).data_); return G; };
 
-    LaMatrix& inject(const LaMatrix& A)
+    LaUpperTriangMatDouble& inject(const LaMatDouble& A)
 	{ data_.inject(A); return *this; }
-    LaMatrix& resize(const LaMatrix& A)
+    LaUpperTriangMatDouble& resize(const LaMatDouble& A)
 	{ return resize(A.size(0), A.size(1)); }
-    LaMatrix& resize(int m, int n)
+    LaUpperTriangMatDouble& resize(int m, int n)
 	{ data_.resize(m, n); return *this; }
-    LaMatrix& ref(const LaUpperTriangMatDouble& A)
+    LaUpperTriangMatDouble& ref(const LaUpperTriangMatDouble& A)
 	{ data_.ref(A.data_); return *this; }
-    LaMatrix& ref(const LaGenMatDouble& A)
+    LaUpperTriangMatDouble& ref(const LaGenMatDouble& A)
 	{ data_.ref(A); return *this; }
-    LaMatrix& ref(SEXP s)
+    LaUpperTriangMatDouble& ref(SEXP s)
 	{ data_.ref(s); return *this; }
-    LaMatrix& copy(const LaMatrix &);
+    LaUpperTriangMatDouble& copy(const LaMatDouble &);
 				// linear equation solvers
-    LaMatrix& solve() const;	// inverse
-    LaMatrix& solve(LaMatrix& B) const; // in-place solution
-    LaMatrix& solve(LaMatrix& X, const LaMatrix& B) const;
+    LaUpperTriangMatDouble& solve() const;	// inverse
+    LaMatDouble& solve(LaMatDouble& B) const; // in-place solution
+    LaMatDouble& solve(LaMatDouble& X, const LaMatDouble& B) const;
 				// matrix norms
     double norm(char which) const;
+    double rcond(char which) const;
+    SEXP asSEXP() const;
 
     ostream &printMatrix(ostream &) const;
 };

@@ -57,11 +57,6 @@ LaGenMatDouble::LaGenMatDouble(int m, int n) :v(m*n)
 
 LaGenMatDouble::LaGenMatDouble(double *d, int m, int n) :v(d, m*n)
 {
-    if (debug())
-    {
-        cout << ">>> LaGenMatDouble::LaGenMatDouble(double *d, int m, int n) :v(d, m*n)\n";
-    }
-
     ii[0](0,m-1);
     ii[1](0,n-1);
     dim[0] = m;
@@ -71,21 +66,10 @@ LaGenMatDouble::LaGenMatDouble(double *d, int m, int n) :v(d, m*n)
     *info_ = 0;
     shallow_= 0;  
     solver = 0;
-    
-    if (debug())
-    {
-        cout << "<<< LaGenMatDouble::LaGenMatDouble(double *d, int m, int n) :v(d, m*n)\n";
-    }
 }
 
 LaMatDouble& LaGenMatDouble::operator=(double s)
 {
-    if (debug())
-    {
-        cout << ">>> LaGenMatDouble& LaGenMatDouble::operator=(double s)\n";
-        cout << "       s = " << s << endl;
-    }
-
     for (int j = 0; j < size(1); j++)
     {
         for (int i = 0; i < size(0); i++)
@@ -96,16 +80,10 @@ LaMatDouble& LaGenMatDouble::operator=(double s)
 
     if (solver != 0)
 	clearDecomposition();
-
-    if (debug())
-    {
-	cout << "  *this: " << this->info() << endl;
-	cout << " >>> LaGenMatDouble& LaGenMatDouble::operator=(double s)\n";
-    }
     return *this;
 }
 
-LaMatrix& LaGenMatDouble::ref(const LaGenMatDouble& s)
+LaGenMatDouble& LaGenMatDouble::ref(const LaGenMatDouble& s)
 {
     if (this == &s) return *this; // handle trivial M.ref(M) case
     
@@ -124,7 +102,7 @@ LaMatrix& LaGenMatDouble::ref(const LaGenMatDouble& s)
     return *this;
 }
 
-LaMatrix& LaGenMatDouble::ref(SEXP x)
+LaGenMatDouble& LaGenMatDouble::ref(SEXP x)
 {				// create a reference to the data
     if (!isMatrix(x)) error("x must be a matrix");
     int *dims = INTEGER(coerceVector(getAttrib(x, R_DimSymbol), INTSXP));
@@ -132,17 +110,12 @@ LaMatrix& LaGenMatDouble::ref(SEXP x)
     return ref(tmp);
 }
 
-LaMatrix&  LaGenMatDouble::resize(int m, int n)
+LaGenMatDouble&  LaGenMatDouble::resize(int m, int n)
 {
-    if (debug())
-    {
-        cout << ">>> resize("<< m << "," << n << ")\n";
-    }
-
     // first, reference 0x0 matrix, potentially freeing memory
     // this allows one to resize a matrix > 1/2 of the available
     // memory
-
+    
     LaGenMatDouble tmp1(0,0);
     ref(tmp1);
     
@@ -150,41 +123,27 @@ LaMatrix&  LaGenMatDouble::resize(int m, int n)
     LaGenMatDouble tmp(m,n);
     ref(tmp);
     
-    if (debug())
-    {
-	cout << "<<< resize: *this: " << this->info() << endl;
-    }
-
     if (solver != 0)
 	clearDecomposition();
-
+    
     return *this;
 }
 
-LaGenMatDouble::LaGenMatDouble(const LaGenMatDouble& X) : v(0)
+LaGenMatDouble::LaGenMatDouble(const LaMatDouble& X) : v(X.size(0)*X.size(1))
 {
-    if (X.debug())
-    {
-        cout << ">>> LaGenMatDouble::LaGenMatDouble(const LaGenMatDouble& X)\n";
-        cout << "X: " << X.info() << endl;
-	
-    }
     solver = 0;
-    debug_ = X.debug_;
     shallow_ = 0;		// do not perpetuate shallow copies, otherwise
 				//  B = A(I,J) does not work properly...
-    if (X.shallow_) {
-	v.ref(X.v);
-	dim[0] = X.dim[0];
-	dim[1] = X.dim[1];
-	sz[0] = X.sz[0];
-	sz[1] = X.sz[1];
-	ii[0] = X.ii[0];
-	ii[1] = X.ii[1];
-    } else {
-	if (X.debug())
-	    cout << endl << "Data is being copied!\n" << endl;
-	v.resize(X.size(0)*X.size(1)); 
+//      if (X.shallow_) {
+//  	v.ref(X.v);
+//  	dim[0] = X.dim[0];
+//  	dim[1] = X.dim[1];
+//  	sz[0] = X.sz[0];
+//  	sz[1] = X.sz[1];
+//  	ii[0] = X.ii[0];
+//  	ii[1] = X.ii[1];
+//      } else {
+//	v.resize(X.size(0)*X.size(1)); 
 	ii[0](0,X.size(0)-1);
 	ii[1](0,X.size(1)-1);
 	dim[0] = sz[0] = X.size(0);
@@ -193,12 +152,7 @@ LaGenMatDouble::LaGenMatDouble(const LaGenMatDouble& X) : v(0)
 	for (int j = 0; j < N; j++)
 	    for (int i = 0; i < M; i++)
 		(*this)(i,j) = X(i,j);
-    }
-
-    if (debug()) {
-        cout << "*this: " << info() << endl;
-        cout << "<<< LaGenMatDouble::LaGenMatDouble(const LaGenMatDouble& X)\n";
-    }
+//    }
 }
 
 LaGenMatDouble::LaGenMatDouble(SEXP x) : v(0)
@@ -212,14 +166,8 @@ LaGenMatDouble::LaGenMatDouble(SEXP x) : v(0)
     copy(tmp);
 }
 
-LaMatrix& LaGenMatDouble::copy(const LaMatrix& X) 
+LaGenMatDouble& LaGenMatDouble::copy(const LaMatDouble& X) 
 {
-    if (debug())
-    {
-        cout << ">>> LaGenMatDouble& LaGenMatDouble::copy(const LaGenMatDouble& X)\n";
-        cout << " X: " << X.info() << endl;
-    }
-    
 				// current scheme in copy() is to
 				// detach the left-hand-side 
 				// from whatever it was pointing to.
@@ -230,15 +178,10 @@ LaMatrix& LaGenMatDouble::copy(const LaMatrix& X)
 	for (int j = 0; j < N; j++)
 	    (*this)(i,j) = X(i,j);
     
-    if ((debug()))
-    {
-        cout << " *this: " << this->info() << endl;
-        cout << " <<< LaGenMatDouble& LaGenMatDouble::copy(const LaGenMatDouble& s)\n";
-    }
     return *this;
 }
 
-LaMatrix& LaGenMatDouble::inject(const LaMatrix& s)
+LaGenMatDouble& LaGenMatDouble::inject(const LaMatDouble& s)
 {
     assert(s.size(0) == size(0));
     assert(s.size(1) == size(1));
@@ -257,10 +200,6 @@ LaMatrix& LaGenMatDouble::inject(const LaMatrix& s)
 
 LaGenMatDouble LaGenMatDouble::operator()(const LaIndex& II, const LaIndex& JJ) const
 {
-    if (debug())
-    {
-	cout << ">>> LaGenMatDouble::operator(const LaIndex& const LaIndex&)\n";
-    }
     LaIndex I, J;
 
     if (II.null()) {
@@ -317,20 +256,11 @@ LaGenMatDouble LaGenMatDouble::operator()(const LaIndex& II, const LaIndex& JJ) 
     tmp.v.ref(v);
     tmp.shallow_assign();
     
-    if (debug())
-    {
-	cout << "    return value: " << tmp.info() << endl;
-	cout << "<<< LaGenMatDouble::operator(const LaIndex& const LaIndex&)\n";
-    }
     return tmp;
 }
 
 LaGenMatDouble LaGenMatDouble::operator()(const LaIndex& II, const LaIndex& JJ) 
 {
-    if (debug())
-    {
-	cout << ">>> LaGenMatDouble::operator(const LaIndex& const LaIndex&)\n";
-    }
     LaIndex I, J;
 
     if (II.null()) {
@@ -387,26 +317,14 @@ LaGenMatDouble LaGenMatDouble::operator()(const LaIndex& II, const LaIndex& JJ)
     tmp.v.ref(v);
     tmp.shallow_assign();
     
-    if (debug())
-    {
-	cout << "    return value: " << tmp.info() << endl;
-	cout << "<<< LaGenMatDouble::operator(const LaIndex& const LaIndex&)\n";
-    }
     return tmp;
 }
 
 double LaGenMatDouble::norm(char which) const
 {
-    assert(which == 'M' || which == 'm' ||
-	   which == '1' || which == 'O' || which == 'o' ||
-	   which == 'I' || which == 'i' ||
-	   which == 'F' || which == 'f' ||
-	   which == 'E' || which == 'e');
-    double *work = new double[size(0)]; // only for Frobenius norm
-    double val = F77_CALL(dlange)(which, size(0), size(1),
-				  &(*this)(0,0), gdim(0), work);
-    delete[] work;
-    return val;
+    VectorDouble work(size(0));	// only for the Infinity norm
+    return F77_CALL(dlange)(which, size(0), size(1),
+			    &(*this)(0,0), gdim(0), &work(0));
 }
 
 inline void LaGenMatDouble::doDecomposition() const
@@ -444,3 +362,29 @@ ostream& LaGenMatDouble::Info(ostream& s)
     return s;
 };
 
+
+double LaGenMatDouble::rcond(char which) const
+{
+    double val;
+    VectorDouble work(4 * size(0));
+    int info, ipiv[size(0)];
+    VectorInt iwork(size(0));
+    LaGenMatDouble th(*this);	// create a copy to pass
+
+    F77_CALL(dgetrf)(th.size(0), th.size(1), &th(0,0), th.gdim(0),
+		     ipiv, info);
+    F77_CALL(dgecon)(which, th.size(0), &th(0,0), th.gdim(0),
+		     norm(which), val, &work(0), &iwork(0), info);
+    return val;
+}
+
+SEXP LaGenMatDouble::asSEXP() const
+{
+    SEXP val = allocMatrix(REALSXP, size(0), size(1));
+    F77_CALL(dlacpy)('A', size(0), size(1), &(*this)(0,0), gdim(0),
+		     REAL(val), size(0));
+    setAttrib(val, R_ClassSymbol, ScalarString(mkChar("Matrix")));
+    return val;
+}
+
+	

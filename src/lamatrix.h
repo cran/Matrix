@@ -1,6 +1,6 @@
+// -*- c++ -*-
 //
 //  Copyright (C) 2000-2000 the R Development Core Team
-//
 
 #ifndef _LA_MATRIX_H_
 #define _LA_MATRIX_H_
@@ -22,10 +22,6 @@ extern "C" {
 class LaMatrix
 {
 protected:
-    static int      debug_;	// trace all entry and exits into methods and 
-				// operators of this class.  This variable is
-				// explicitly initalized in gmd.cc
-
     static int      *info_;	// print matrix info only, not values
 				// originally 0, set to 1, and then
 				// reset to 0 after use.
@@ -67,30 +63,15 @@ public:
 	{ return index(d).end(); }
     virtual LaIndex index(int d) const = 0; // index
     
-    virtual double& operator()(int i, int j) = 0;
-    virtual double& operator()(int i, int j) const = 0;
-    virtual LaMatrix& operator=(const LaMatrix& s)
-	{ return inject(s); }
-
     virtual LaMatrix& resize(int m, int n) = 0;
-    virtual LaMatrix& resize(const LaMatrix &A) = 0;
 
-    virtual LaMatrix& ref(SEXP) = 0;
-    virtual LaMatrix& inject(const LaMatrix& s) = 0;
-    virtual LaMatrix& copy(const LaMatrix& s) = 0;
-    
     virtual double norm(char which) const = 0;
+    virtual double rcond(char which) const = 0;
     virtual void doDecomposition(){};
-    virtual LaMatrix& solve() const = 0;
-    virtual LaMatrix& solve(LaMatrix& B) const = 0;
-    virtual LaMatrix& solve(LaMatrix& X, const LaMatrix& B) const = 0;
+    virtual SEXP asSEXP() const = 0; // copy the matrix to an SEXP
 
-    virtual int shallow() const          // read global shallow flag
+    virtual int shallow() const	// read global shallow flag
         { return shallow_;}
-    virtual int debug() const            // read global debug flag
-	{ return debug_; }
-    virtual int debug(int d)             // set global debug flag
-	{ return debug_ = d; }
     virtual const LaMatrix& info() const
 	{ int *t = info_; *t = 1; return *this; }
     
@@ -108,7 +89,22 @@ public:
 				//  Indices and access operations 
     virtual double* addr() const = 0;// begining addr of data space
     
+    virtual double& operator()(int i, int j) = 0;
+    virtual double& operator()(int i, int j) const = 0;
+    virtual LaMatDouble& operator=(const LaMatDouble& s)
+	{ return inject(s); }
     virtual LaMatDouble& operator=(double s) = 0;
+
+    LaMatDouble& resize(int m, int n) = 0;
+    virtual LaMatDouble& resize(const LaMatDouble &A) = 0;
+
+    virtual LaMatDouble& ref(SEXP) = 0;
+    virtual LaMatDouble& inject(const LaMatDouble& s) = 0;
+    virtual LaMatDouble& copy(const LaMatDouble& s) = 0;
+    
+    virtual LaMatDouble& solve() const = 0;
+    virtual LaMatDouble& solve(LaMatDouble& B) const = 0;
+    virtual LaMatDouble& solve(LaMatDouble& X, const LaMatDouble& B) const = 0;
 
     ostream& Info(ostream& s);
 };
@@ -120,7 +116,18 @@ public:
 				//  Indices and access operations 
     virtual int* addr() const = 0;// begining addr of data space
     
+    virtual int& operator()(int i, int j) = 0;
+    virtual int& operator()(int i, int j) const = 0;
+    virtual LaMatInt& operator=(const LaMatInt& s)
+	{ return inject(s); }
     virtual LaMatInt& operator=(int s) = 0;
+ 
+    LaMatInt& resize(int m, int n) = 0;
+    virtual LaMatInt& resize(const LaMatInt &A) = 0;
+
+    virtual LaMatInt& ref(SEXP) = 0;
+    virtual LaMatInt& inject(const LaMatInt& s) = 0;
+    virtual LaMatInt& copy(const LaMatInt& s) = 0;
 
     ostream& Info(ostream& s);
 };

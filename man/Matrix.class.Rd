@@ -1,9 +1,10 @@
 \name{Matrix.class}
 \title{Determine the subclass of a Matrix}
 \usage{
-Matrix.class(x, tol = 0, symmetry = T, unit.diagonal = T, 
-             triangularity = c(T, T), orthogonality = c(T, T), 
-             normality = c(T, T))
+Matrix.class(x, tol = 0, symmetry = TRUE, unit.diagonal = TRUE, 
+             triangularity = c(TRUE, TRUE),
+             orthogonality = c(TRUE, TRUE), 
+             normality = c(TRUE, TRUE))
 }
 \alias{Matrix.class}
 \description{

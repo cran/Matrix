@@ -16,47 +16,35 @@
 //   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include "SVD.h"
+#include "lapackd.h"
+#include "laexcp.h"
 
-SVD::SVD(LaGenMatDouble& a, VectorDouble s, LaGenMatDouble& u,
-	 LaGenMatDouble& v) : s(s)
+SVD::SVD(LaGenMatDouble& a, int nu = 0, int nvt = 0) :
+    s(min(a.size(0), a.size(1))), u(), vt()
 {
-    this->a.ref(a);
-    this->u.ref(u);
-    this->v.ref(v);
-    doDecomp();
-}
-
-SVD::SVD(LaGenMatDouble& a, VectorDouble s) : s(s)
-{
-    this->a.ref(a);
-    doDecomp();
-}
-
-SVD::SVD(LaGenMatDouble& a) : s(min(a.size(0), a.size(1)))
-{
-    this->a.ref(a);
-    doDecomp();
-}
-
-void SVD::doDecomp()
-{
-    int lwork = 5 * max(a.size(0), a.size(1));
-    double *work = new double[lwork];
+    int m = a.size(0), n = a.size(1);
     char jobu = 'N', jobvt = 'N';
+    
+    if (nu != 0 && nu != m && nu != n)
+	throw(LaException("SVD : nu must be 0, or nrow(a), or ncol(a)"));
+    if (nvt != 0 && nvt != m && nvt != n)
+	throw(LaException("SVD : nv must be 0, or nrow(a), or ncol(a)"));
+    if (nu >= m) { jobu = 'A'; }
+    else if(nu >= min(m, n)) { jobu = 'S'; }
+    if (nvt >= n) { jobvt = 'A'; }
+    else if (nvt >= min(m, n)) { jobvt = 'S'; }
 
-    if (u.size(0) >= a.size(0)) {
-	if (u.size(1) >= a.size(0)) { jobu = 'A'; }
-	else if(u.size(1) >= min(a.size(0), a.size(1))) { jobu = 'S'; }
-    }
-    if (v.size(0) >= a.size(1)) {
-	if (v.size(1) >= a.size(0)) { jobvt = 'A'; }
-	else if (v.size(1) >= min(a.size(0), a.size(1))) { jobvt = 'S'; }
-    }
-  
-    F77_CALL(dgesvd)(jobu, jobvt, a.size(0), a.size(1), &a(0,0),
-		     a.gdim(0), s.addr(), &u(0,0), max(1, u.gdim(0)),
-		     &v(0,0), max(1, v.gdim(0)), work, lwork, info); 
-    delete[] work;
+    u.resize(m, nu);
+    vt.resize(n, nvt);
+
+    LaGenMatDouble acopy(a);
+    int lwork = 5 * max(m, n), info;
+    VectorDouble work(lwork);
+    F77_CALL(dgesvd)(jobu, jobvt, m, n, &acopy(0,0),
+		     acopy.gdim(0), &s(0), &u(0,0), max(1, u.gdim(0)),
+		     &vt(0,0), max(1, vt.gdim(0)), &work(0), lwork, info);
+    if (info != 0)
+	throw(LaException("SVD : dgesvd returned a non-zero info"));
 }
 
 

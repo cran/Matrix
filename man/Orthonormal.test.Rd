@@ -61,12 +61,9 @@ Orthonormal.test(x, byrow = FALSE)
 v <- rnorm(3)
 v <- v / norm(v, 'F')
 x <- diag(3) - 2 * (v \%*\% t(v))
-is.Orthonormal(x)
-# should be TRUE
+is.Orthonormal(x)  # should be TRUE
 is.Orthonormal(x, tol = .Machine$double.eps)
-# should be FALSE
 is.Orthonormal(x, tol = sqrt(.Machine$double.eps))
-# should be TRUE
 Orthonormal.test(x)
 }
 \keyword{algebra}

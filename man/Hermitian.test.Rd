@@ -8,12 +8,12 @@ Hermitian.test(x)
 \alias{Hermitian.test}
 \description{
     \code{Hermitian.test} returns the maximum modulus of the difference
-    between a \code{Matrix} and the conjugate of its transpose.
+    between a matrix and the conjugate of its transpose.
     \code{is.Hermitian} checks if this value is less than a tolerance.
 }
 \arguments{
     \item{x}{
-	an numeric or complex matrix.
+	a numeric or complex matrix.
     }
     \item{tol}{
 	tolerance for the maximum modulus of the elements of the difference 

@@ -28,8 +28,6 @@
 
 double LaTridiagMatDouble::outofbounds_ = 0; // set outofbounds_. 
 
-int LaTridiagMatDouble::debug_ = 0; // set debug to 0 initially.
-
 int* LaTridiagMatDouble::info_= new int;  // turn off info print flag.
 
 double& LaTridiagMatDouble::operator()(int i,int j)

@@ -44,10 +44,12 @@ Golub, G., and Van Loan, C. F. (1989).
 2nd edition, Johns Hopkins, Baltimore.
 }
 \examples{
-x <- Matrix( rnorm(9), 3, 3)
-\dontrun{
+x <- Matrix(rnorm(9), 3, 3)
 rcond(x)
-}                   
+rcond(hilbert(9))  # should be about 9.1e-13
+h9 <- hilbert(9)
+class(h9) <- Matrix.class(h9)  # now Hermitian
+rcond(h9) # slightly different answer - different algorithm
 }
 \keyword{array}
 \keyword{algebra}

@@ -1,5 +1,25 @@
-//      LAPACK++ (V. 1.1)
-//      (C) 1992-1996 All Rights Reserved.
+// -*- c++ -*-
+//              LAPACK++ 1.1 Linear Algebra Package 1.1
+//               University of Tennessee, Knoxvilee, TN.
+//            Oak Ridge National Laboratory, Oak Ridge, TN.
+//        Authors: J. J. Dongarra, E. Greaser, R. Pozo, D. Walker
+//                 (C) 1992-1996 All Rights Reserved
+//
+//                             NOTICE
+//
+// Permission to use, copy, modify, and distribute this software and
+// its documentation for any purpose and without fee is hereby granted
+// provided that the above copyright notice appear in all copies and
+// that both the copyright notice and this permission notice appear in
+// supporting documentation.
+//
+// Neither the Institutions (University of Tennessee, and Oak Ridge National
+// Laboratory) nor the Authors make any representations about the suitability 
+// of this software for any purpose.  This software is provided ``as is'' 
+// without express or implied warranty.
+//
+// LAPACK++ was funded in part by the U.S. Department of Energy, the
+// National Science Foundation and the State of Tennessee.
 //
 // Modifications Copyright (C) 2000-2000 the R Development Core Team
 
@@ -35,16 +55,18 @@ class LaVectorDouble: public LaGenMatDouble
     
     inline LaVectorDouble& ref(const LaGenMatDouble &);
     LaVectorDouble& ref(SEXP);
-    inline LaVectorDouble& inject(const LaGenMatDouble &);
-    inline LaVectorDouble& copy(const LaGenMatDouble &);
-    
+    inline LaVectorDouble& inject(const LaMatDouble &);
+    inline LaVectorDouble& copy(const LaMatDouble &);
+    LaVectorDouble& resize(int m)
+	{ LaGenMatDouble::resize(m, 1); return *this; };
+
     inline double& operator()(int i);
     inline const double& operator()(int i) const ;
     inline LaVectorDouble operator()(const LaIndex&);
     
-    inline LaVectorDouble& operator=(double);
-    inline LaVectorDouble& operator=(const LaGenMatDouble&);
+    inline LaMatDouble& operator=(double);
 
+    SEXP asSEXP() const;
 };
 
 // NOTE: we default to column vectors, since matrices are column
@@ -113,7 +135,7 @@ inline LaVectorDouble LaVectorDouble::operator()(const LaIndex& I)
     return LaGenMatDouble::operator()(I,LaIndex(0,0)); 
 }
 
-inline LaVectorDouble& LaVectorDouble::copy(const LaGenMatDouble &A)
+inline LaVectorDouble& LaVectorDouble::copy(const LaMatDouble &A)
 {
 				//make sure rhs is a vector
     assert(A.size(0) == 1 || A.size(1) == 1);
@@ -128,20 +150,13 @@ inline LaVectorDouble& LaVectorDouble::ref(const LaGenMatDouble &A)
     return *this;
 }
 
-inline LaVectorDouble& LaVectorDouble::operator=(const LaGenMatDouble &A)
-{
-    assert(A.size(0) == 1 || A.size(1) == 1);
-    LaGenMatDouble::operator=(A);
-    return *this;
-}
-
-inline LaVectorDouble& LaVectorDouble::operator=(double d)
+inline LaMatDouble& LaVectorDouble::operator=(double d)
 {
     LaGenMatDouble::operator=(d);
     return *this;
 }
 
-inline LaVectorDouble& LaVectorDouble::inject(const LaGenMatDouble &A)
+inline LaVectorDouble& LaVectorDouble::inject(const LaMatDouble& A)
 {
     assert(A.size(0) == 1 || A.size(1) == 1);
     LaGenMatDouble::inject(A);

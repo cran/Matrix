@@ -26,10 +26,6 @@
 #include "lafnames.h"
 #include LA_GEN_MAT_INT_H
 
-int LaGenMatInt::debug_ = 0;	// turn off global deubg flag initially.
-                                // use A.debug(1) to turn on/off,
-                                // and A.debug() to check current status.
-
 int* LaGenMatInt::info_= new int; // turn off info print flag.
 
 LaGenMatInt::~LaGenMatInt()
@@ -57,11 +53,6 @@ LaGenMatInt::LaGenMatInt(int m, int n) :v(m*n)
 
 LaGenMatInt::LaGenMatInt(int *d, int m, int n) :v(d, m*n)
 {
-    if (debug())
-    {
-        cout << ">>> LaGenMatInt::LaGenMatInt(int *d, int m, int n) :v(d, m*n)\n";
-    }
-    
     ii[0](0,m-1);
     ii[1](0,n-1);
     dim[0] = m;
@@ -70,68 +61,34 @@ LaGenMatInt::LaGenMatInt(int *d, int m, int n) :v(d, m*n)
     sz[1] = n;
     *info_ = 0;
     shallow_= 0;  
-
-    if (debug())
-    {
-        cout << "<<< LaGenMatInt::LaGenMatInt(int *d, int m, int n) :v(d, m*n)\n";
-    }
 }
 
 LaGenMatInt& LaGenMatInt::operator=(int s)
 {
-    if (debug())
-    {
-        cout << ">>> LaGenMatInt& LaGenMatInt::operator=(int s)\n";
-        cout << "       s = " << s << endl;
-    }
-
-    int i,j;
-
-    for (j=0; j<size(1); j++)
-    {
-        for (i=0; i<size(0); i++)
-        {
+    for (int j = 0; j < size(1); j++)
+        for (int i = 0; i < size(0); i++)
             (*this)(i,j) = s;
-        }
-    }
-
-    if (debug())
-    {
-	cout << "  *this: " << this->info() << endl;
-	cout << " >>> LaGenMatInt& LaGenMatInt::operator=(int s)\n";
-    }
-    
     return *this;
 }
 
 LaGenMatInt& LaGenMatInt::ref(const LaGenMatInt& s)
 {
-
     // handle trivial M.ref(M) case
     if (this == &s) return *this;
-    else
-    {
-        ii[0] = s.ii[0];
-        ii[1] = s.ii[1];
-        dim[0] = s.dim[0];
-        dim[1] = s.dim[1];
-        sz[0] = s.sz[0];
-        sz[1] = s.sz[1];
-        shallow_ = 0;
 
-        v.ref(s.v);
-
-        return *this;
-    }
+    ii[0] = s.ii[0];
+    ii[1] = s.ii[1];
+    dim[0] = s.dim[0];
+    dim[1] = s.dim[1];
+    sz[0] = s.sz[0];
+    sz[1] = s.sz[1];
+    shallow_ = 0;
+    v.ref(s.v);
+    return *this;
 }
 
 LaGenMatInt&  LaGenMatInt::resize(int m, int n)
 {
-    if (debug())
-    {
-        cout << ">>> resize("<< m << "," << n << ")\n";
-    }
-
     // first, reference 0x0 matrix, potentially freeing memory
     // this allows one to resize a matrix > 1/2 of the available
     // memory
@@ -142,42 +99,19 @@ LaGenMatInt&  LaGenMatInt::resize(int m, int n)
     // now, reference an MxN matrix
     LaGenMatInt tmp(m,n);
     ref(tmp);
-
-    if (debug())
-    {
-	cout << "<<< resize: *this: " << this->info() << endl;
-    }
     return *this;
 
 }
 
 LaGenMatInt&  LaGenMatInt::resize(const LaGenMatInt &A)
 {
-    if (debug())
-    {
-        cout << ">>> resize(const LaGenMatInt &A)" << endl;
-        cout << "      A: " << A.info() << endl;
-    }
-
     resize(A.size(0), A.size(1));
-    if (debug())
-    {
-        cout << "<<< resize(const LaGenMatInt &A) " << endl;
-    }
     return *this;
 }
 
 
 LaGenMatInt::LaGenMatInt(const LaGenMatInt& X) : v(0)
 {
-    if (X.debug())
-    {
-        cout << ">>> LaGenMatInt::LaGenMatInt(const LaGenMatInt& X)\n";
-        cout << "X: " << X.info() << endl;
-
-    }
-    debug_ = X.debug_;
-
     shallow_ = 0;  // do not perpeturate shallow copies, otherwise
     //  B = A(I,J) does not work properly...
 
@@ -193,8 +127,6 @@ LaGenMatInt::LaGenMatInt(const LaGenMatInt& X) : v(0)
     }
     else
     {
-	if (X.debug())
-	    cout << endl << "Data is being copied!\n" << endl;
 	v.resize(X.size(0)*X.size(1)); 
 	ii[0](0,X.size(0)-1);
 	ii[1](0,X.size(1)-1);
@@ -205,23 +137,11 @@ LaGenMatInt::LaGenMatInt(const LaGenMatInt& X) : v(0)
 	    for (i=0; i<M; i++)
 		(*this)(i,j) = X(i,j);
     }  
-
-    if (debug())
-    {
-        cout << "*this: " << info() << endl;
-        cout << "<<< LaGenMatInt::LaGenMatInt(const LaGenMatInt& X)\n";
-    }
 }
 
 
 LaGenMatInt& LaGenMatInt::copy(const LaGenMatInt& X) 
 {
-    if (debug())
-    {
-        cout << ">>> LaGenMatInt& LaGenMatInt::copy(const LaGenMatInt& X)\n";
-        cout << " X: " << X.info() << endl;
-    }
-
     // current scheme in copy() is to detach the left-hand-side
     // from whatever it was pointing to.
     //
@@ -231,13 +151,6 @@ LaGenMatInt& LaGenMatInt::copy(const LaGenMatInt& X)
     for (i=0; i<M; i++)
 	for (j=0; j<N; j++)
 	    (*this)(i,j) = X(i,j);
-
-    if ((debug()))
-    {
-        cout << " *this: " << this->info() << endl;
-        cout << " <<< LaGenMatInt& LaGenMatInt::copy(const LaGenMatInt& s)\n";
-    }
-
     return *this;
 }
 
@@ -247,10 +160,10 @@ LaGenMatInt& LaGenMatInt::inject(const LaGenMatInt& s)
     assert(s.size(0) == size(0));
     assert(s.size(1) == size(1));
 
-    int i, j,  M=size(0), N=size(1);
+    int M = size(0), N = size(1);
 
-    for (j=0;j<N;j++)
-        for (i=0;i<M; i++)
+    for (int j = 0; j < N; j++)
+        for (int i = 0; i < M; i++)
             operator()(i,j) = s(i,j);
 
     return *this;
@@ -259,10 +172,6 @@ LaGenMatInt& LaGenMatInt::inject(const LaGenMatInt& s)
 
 LaGenMatInt LaGenMatInt::operator()(const LaIndex& II, const LaIndex& JJ) const
 {
-    if (debug())
-    {
-	cout << ">>> LaGenMatInt::operator(const LaIndex& const LaIndex&)\n";
-    }
     LaIndex I, J;
 
     if (II.null())
@@ -322,23 +231,11 @@ LaGenMatInt LaGenMatInt::operator()(const LaIndex& II, const LaIndex& JJ) const
 
     tmp.v.ref(v);
     tmp.shallow_assign();
-
-    if (debug())
-    {
-	cout << "    return value: " << tmp.info() << endl;
-	cout << "<<< LaGenMatInt::operator(const LaIndex& const LaIndex&)\n";
-    }
-
     return tmp;
-
 }
 
 LaGenMatInt LaGenMatInt::operator()(const LaIndex& II, const LaIndex& JJ) 
 {
-    if (debug())
-    {
-	cout << ">>> LaGenMatInt::operator(const LaIndex& const LaIndex&)\n";
-    }
     LaIndex I, J;
 
     if (II.null())
@@ -401,12 +298,6 @@ LaGenMatInt LaGenMatInt::operator()(const LaIndex& II, const LaIndex& JJ)
     tmp.v.ref(v);
     tmp.shallow_assign();
 
-    if (debug())
-    {
-	cout << "    return value: " << tmp.info() << endl;
-	cout << "<<< LaGenMatInt::operator(const LaIndex& const LaIndex&)\n";
-    }
-
     return tmp;
 
 }
@@ -424,12 +315,8 @@ ostream& operator<<(ostream& s, const LaGenMatInt& G)
     }
     else 
     {
-
-        int i,j;
-
-        for (i=0; i<G.size(0); i++)
-        {
-            for (j=0; j<G.size(1); j++)
+        for (int i = 0; i < G.size(0); i++) {
+            for (int j = 0; j < G.size(1); j++)
                 s << G(i,j) << "  ";
             s << "\n";
         }

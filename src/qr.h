@@ -1,9 +1,27 @@
 // -*- c++ -*-
+//              LAPACK++ 1.1 Linear Algebra Package 1.1
+//               University of Tennessee, Knoxvilee, TN.
+//            Oak Ridge National Laboratory, Oak Ridge, TN.
+//        Authors: J. J. Dongarra, E. Greaser, R. Pozo, D. Walker
+//                 (C) 1992-1996 All Rights Reserved
 //
-//  Copyright (C) 2000-2000 the R Development Core Team
+//                             NOTICE
 //
-
-
+// Permission to use, copy, modify, and distribute this software and
+// its documentation for any purpose and without fee is hereby granted
+// provided that the above copyright notice appear in all copies and
+// that both the copyright notice and this permission notice appear in
+// supporting documentation.
+//
+// Neither the Institutions (University of Tennessee, and Oak Ridge National
+// Laboratory) nor the Authors make any representations about the suitability 
+// of this software for any purpose.  This software is provided ``as is'' 
+// without express or implied warranty.
+//
+// LAPACK++ was funded in part by the U.S. Department of Energy, the
+// National Science Foundation and the State of Tennessee.
+//
+// Modifications Copyright (C) 2000-2000 the R Development Core Team
 
 #ifndef _LA_QR_FACT_DOUBLE_H
 #define _LA_QR_FACT_DOUBLE_H
@@ -16,9 +34,9 @@
 #include LA_UTIL_H
 
 #include "lapackd.h"
-#include "solvable.h"
+#include "factor.h"
 
-class LaQRFactorDouble : public solvable
+class LaQRFactorDouble : public Factor
 {
     LaGenMatDouble             qr_;
     LaUpperTriangMatDouble      R_;  // always a reference to qr_
@@ -43,13 +61,19 @@ public:
     LaVectorInt& pivot()
 	{ return pivot_; };
     int rank(double);
-    inline int rank() { return rank(1.0e5); }
+    int rank()
+	{ return rank(1.0e6); };
+    bool isSingular()
+	{ return rank() < min(qr_.size(0), qr_.size(1)); };
     LaVectorDouble& qraux()
 	{ return qraux_; }
 				// linear equation solvers
-    inline LaMatrix& solve() const;// inverse
-    LaMatrix& solve(LaMatrix& B) const; // in-place solution
-    LaMatrix& solve(LaMatrix& X, const LaMatrix& B) const;
+    LaGenMatDouble& solve() const;// inverse
+    LaMatDouble& solve(LaMatDouble& B) const; // in-place solution
+    LaMatDouble& solve(LaMatDouble& X, const LaMatDouble& B) const;
+
+    LaMatDouble& applyQ(LaMatDouble& y, bool left = true,
+		     bool transpose = true) const;
 
 				// operators
     LaQRFactorDouble& ref(const LaQRFactorDouble&);
@@ -88,11 +112,6 @@ inline LaQRFactorDouble& LaQRFactorDouble::ref(const LaQRFactorDouble& F)
     rank_ = F.rank_;
     
     return *this;
-}
-
-inline LaMatrix& LaQRFactorDouble::solve() const
-{
-    return *new LaGenMatDouble(0,0);
 }
 
 #endif

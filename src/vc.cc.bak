@@ -20,133 +20,140 @@
 //
 // LAPACK++ was funded in part by the U.S. Department of Energy, the
 // National Science Foundation and the State of Tennessee.
-//
-// Modifications Copyright (C) 2000-2000 the R Development Core Team
+
 
 #include "lafnames.h"
-#include VECTOR_DOUBLE_H
+#include VECTOR_COMPLEX_H
 
-VectorDouble::VectorDouble(int n=0)
+ VectorComplex::VectorComplex(int n=0)
 {                                                                      
     assert(n>=0);
-    p = new vrefDouble;
+    p = new vrefComplex;
     p->sz = n;                                                          
-    p->data = data = new double[n]; 
+    p->data = data = new COMPLEX[n]; 
     p->ref_count = 1;                        
 }                                                                      
 
-VectorDouble::VectorDouble( const VectorDouble& m)
+
+VectorComplex::VectorComplex( const VectorComplex& m)
 {
-// old, deep copy semantics
-#if 0
-    int N = m.size();
-    
-    p = new vrefDouble;
-    p->sz = m.size();
-    
-    p->ref_count = 1;
-    p->data = data = new double[m.size()];
-    for (int i = 0; i < N; i++) { data[i] = m(i); }
-#endif
 // shallow assignment semantics
-    
+
     p = m.p;
     data = m.data;
     p->ref_count++;
 }
 
-VectorDouble::VectorDouble(double *d, int n)
+ VectorComplex::VectorComplex(COMPLEX *d, int n)
 {                                                                      
-    p = new vrefDouble;
+    p = new vrefComplex;
     p->sz = n;                                                          
     p->ref_count = 2; 
     p-> data = data = d;                        
 }                                                                      
+                                                                       
+                                                                       
 
-VectorDouble::~VectorDouble()
+ VectorComplex::~VectorComplex()
 {
-    if (--(p->ref_count) == 0)	// perform garbage collection
-    {
-	delete [] p->data;
-	delete p;
-    }
+
+        if (--(p->ref_count) == 0)              // perform garbage col.
+        {
+           delete [] p->data;
+           delete p;
+        }
 }
 
-VectorDouble::VectorDouble(int n, double scalar)
+VectorComplex::VectorComplex(int n, COMPLEX scalar)
 {                                                                      
-    p = new vrefDouble;
+    p = new vrefComplex;
     p->sz = n;                                                          
     p->ref_count = 1;                        
-    p->data = data = new double[n];
-    for (int i = 0; i < n; i++) { data[i] = scalar; }
+    p->data = data = new COMPLEX[n]; 
+    for (int i=0; i<n; i++)                                            
+        data[i] = scalar;                                            
 }                                                                      
+                                                                       
+
 
 // this actually frees memory first, then resizes it.  it reduces
 // internal fragmentation of memory pool, and the resizing of
 // matrices > 1/2 available memory.
 
-int VectorDouble::resize(int d)
+int VectorComplex::resize(int d)
 {
-    if (d < 0) { return size(); } // do nothing if invalid size
-    ref(VectorDouble(0));	// possibly free up destination
-    if (d > 0) { ref(VectorDouble(d)); }
+
+    if (d<0)                // do nothing if invalid size
+    {
+        return size();
+    }
+    else
+    {
+        ref(VectorComplex(0));  // possibilby free up destination
+        if (d>0)
+            ref(VectorComplex(d));
+    }
     return size();
 }
 
-VectorDouble& VectorDouble::inject(const VectorDouble& m)
+
+VectorComplex& VectorComplex::inject( VectorComplex& m)
 {
     if (m.size() != size())
     {
-	cerr << "VectorDouble::inject(): vector sizes do not match.\n";
-	return *this;
+          cerr << "VectorComplex::inject(): vector sizes do not match.\n";
+      return *this;
     }
     int N = size();
-    for (int i = 0; i < N; i++) { (*this)(i) = m(i); }
+    for (int i=0; i<N; i++)
+        (*this)(i) = m(i);
+
     return *this;
 }
 
-VectorDouble& VectorDouble::copy(const VectorDouble &m)
+
+VectorComplex& VectorComplex::copy(const VectorComplex &m)
 {
 #if 0
-    if (null()) resize(m.size());
-    
-    if (size() != m.size())
-	cerr << "VectorDouble::copy(VectorDouble &): incompatible vector \
+        if (null()) resize(m.size());
+
+        if (size() != m.size())
+           cerr << "VectorComplex::copy(VectorComplex &): incompatible vector \
                 sizes : "<< size() << " vs. " << m.size() << ".\n";
-    else
+        else
 #endif // 0
 
-#if 0
-	resize(0);                  // free up destination
-    
+    resize(0);                  // free up destination
+
     int N = m.size();
-    VectorDouble tmp(N);
-    
-    for (int i = 0; i < N; i++)     // should use memcpy() here...
-	(*this)(i) = m(i);
+    VectorComplex tmp(N);
+
+    for (int i=0; i<N; i++)     // should use memcpy() here...
+       (*this)(i) = m(i);
 
     ref(tmp);
     return *this;
-#endif
-    int N = m.size();
-    resize(N);
-
-    for (int i=0; i<N; i++) { data[i] = m.data[i]; }
-    return *this;
 }
 
-ostream& operator<<(ostream& s, const VectorDouble& m)
+
+ostream& operator<<(ostream& s, const VectorComplex& m)
 {
-    if (m.p) {
-	int n = m.size();
-	for (int i = 0; i < n; i++) { s << m(i) << "  "; }
-	s << "\n";
-    } else { s << "NULL VectorDouble.\n"; }
+        if (m.p)
+        {
+                int n = m.size();
+                for (int i=0; i<n; i++)
+                        s << m(i) << "  ";
+                s << "\n";
+        }
+        else s << "NULL VectorComplex.\n";
     return s;
 }
 
-VectorDouble& VectorDouble::operator=(double scalar)
+
+
+ VectorComplex& VectorComplex::operator=(COMPLEX scalar)
 {
-    for (int i = 0; i < size(); i++) { data[i] = scalar; }
+    for (int i=0; i<size(); i++)
+            data[i] = scalar;
     return *this;
 }

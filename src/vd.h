@@ -76,7 +76,7 @@ class VectorDouble
     inline              operator    double*(); 
     inline int          size() const;
     inline int          null() const;
-    int          resize(int d);
+    int                 resize(int d);
     inline int          ref_count() const;  // return the number of ref counts
     inline double*      addr() const;
 
@@ -84,7 +84,7 @@ class VectorDouble
     inline  VectorDouble& operator=(const VectorDouble&);
     VectorDouble& operator=(double);
     inline  VectorDouble& ref(const VectorDouble &);
-    VectorDouble& inject(VectorDouble&);
+    VectorDouble& inject(const VectorDouble&);
     VectorDouble& copy(const VectorDouble&);
     
 				// I/O

@@ -1,0 +1,496 @@
+This is R-Matrix.info, produced by makeinfo version 4.0 from
+R-Matrix.texi.
+
+INFO-DIR-SECTION Programming
+START-INFO-DIR-ENTRY
+* R Extensions: (R-exts).      Writing R Extensions.
+END-INFO-DIR-ENTRY
+
+   This is a guide to the Matrix package for R.
+
+   Copyright 2000 R Development Core Team
+
+   Permission is granted to make and distribute verbatim copies of this
+manual provided the copyright notice and this permission notice are
+preserved on all copies.
+
+   Permission is granted to copy and distribute modified versions of
+this manual under the conditions for verbatim copying, provided that the
+entire resulting derived work is distributed under the terms of a
+permission notice identical to this one.
+
+   Permission is granted to copy and distribute translations of this
+manual into another language, under the above conditions for modified
+versions, except that this permission notice may be stated in a
+translation approved by the R Development Core Team.
+
+
+File: R-Matrix.info,  Node: Top,  Next: Acknowledgments,  Prev: (dir),  Up: (dir)
+
+* Menu:
+
+* Acknowledgments::
+* Structure of Lapack::
+* Lapack++ and R::
+* Function and variable index::
+* Concept index::
+
+
+File: R-Matrix.info,  Node: Acknowledgments,  Next: Structure of Lapack,  Prev: Top,  Up: Top
+
+Acknowledgments
+***************
+
+   The contributions of Saikat DebRoy are gratefully acknowledged.
+
+   The Fortran version of Lapack, including the levels 1, 2, and 3 of
+the Blas (Basic Linear Algebra Subroutines), are the underlying
+computational routines for the Matrix library.  Lapack version 3.0 can
+be downloaded from `ftp://ftp.netlib.org/lapack'.
+
+   The interface between R and Lapack is based on the C++ package
+lapack++, which carries the copyright notice.
+
+                  LAPACK++ 1.1 Linear Algebra Package 1.1
+                   University of Tennessee, Knoxvilee, TN.
+                Oak Ridge National Laboratory, Oak Ridge, TN.
+            Authors: J. J. Dongarra, E. Greaser, R. Pozo, D. Walker
+                     (C) 1992-1996 All Rights Reserved
+     
+                                 NOTICE
+     
+     Permission to use, copy, modify, and distribute this software and
+     its documentation for any purpose and without fee is hereby granted
+     provided that the above copyright notice appear in all copies and
+     that both the copyright notice and this permission notice appear in
+     supporting documentation.
+     
+     Neither the Institutions (University of Tennessee, and Oak Ridge National
+     Laboratory) nor the Authors make any representations about the suitability
+     of this software for any purpose.  This software is provided ``as is''
+     without express or implied warranty.
+     
+     LAPACK++ was funded in part by the U.S. Department of Energy, the
+     National Science Foundation and the State of Tennessee.
+
+
+File: R-Matrix.info,  Node: Structure of Lapack,  Next: Lapack++ and R,  Prev: Acknowledgments,  Up: Top
+
+Structure of Lapack
+*******************
+
+   The Lapack library is described in detail in _Lapack Users' Guide,
+3rd ed_ (SIAM, 1999), also available as
+`http://www.netlib.org/lapack/lug/lapack_lug.html' Although Lapack is
+written in Fortran, its general structure is reminiscent of
+object-oriented systems in that it provides several classes of
+matrices, designated by two-character abbreviations, and several
+actions that can be performed on matrices, usually designated by
+three-character abbreviations.
+
+   The possible types of matrices and their two-character designations
+are
+`BD'
+     bidiagonal
+
+`DI'
+     diagonal
+
+`GB'
+     general band
+
+`GE'
+     general (i.e., unsymmetric, in some cases rectangular)
+
+`GG'
+     general matrices, generalized problem (i.e., a pair of general
+     matrices)
+
+`GT'
+     general tridiagonal
+
+`HB'
+     (complex) Hermitian band
+
+`HE'
+     (complex) Hermitian
+
+`HG'
+     upper Hessenberg matrix, generalized problem (i.e a Hessenberg and
+     a triangular matrix)
+
+`HP'
+     (complex) Hermitian, packed storage
+
+`HS'
+     upper Hessenberg
+
+`OP'
+     (real) orthogonal, packed storage
+
+`OR'
+     (real) orthogonal
+
+`PB'
+     symmetric or Hermitian positive definite band
+
+`PO'
+     symmetric or Hermitian positive definite
+
+`PP'
+     symmetric or Hermitian positive definite, packed storage
+
+`PT'
+     symmetric or Hermitian positive definite tridiagonal
+
+`SB'
+     (real) symmetric band
+
+`SP'
+     symmetric, packed storage
+
+`ST'
+     (real) symmetric tridiagonal
+
+`SY'
+     symmetric
+
+`TB'
+     triangular band
+
+`TG'
+     triangular matrices, generalized problem (i.e., a pair of
+     triangular matrices)
+
+`TP'
+     triangular, packed storage
+
+`TR'
+     triangular (or in some cases quasi-triangular)
+
+`TZ'
+     trapezoidal
+
+`UN'
+     (complex) unitary
+
+`UP'
+     (complex) unitary, packed storage
+
+   Some of the operations that Lapack can perform on matrices are:
+
+`TRF'
+     Compute a triangular factorization (not needed for triangular
+     matrices)
+
+`TRS'
+     use the factorization (or the matrix A itself if it is triangular)
+     to solve a linear system of equations by forward or backward
+     substitution
+
+`CON'
+     estimate the reciprocal of the condition number of a matrix
+
+`RFS'
+     compute bounds on the error in the computed solution (returned by
+     the xyyTRS routine), and refine the solution to reduce the backward
+     error
+
+`TRI'
+     use the factorization (or the matrix A itself if it is triangular)
+     to calculate its inverse
+
+`EQU'
+     compute scaling factors to equilibrate A (not provided for
+     tridiagonal, symmetric indefinite, or triangular matrices).
+
+   Subroutine names in Lapack are usually composed of a single character
+representing the precision (only the double precision, `d', and double
+precision complex, `z', versions are used in the Matrix package), the
+two-character abbreviation for the matrix type and the three-character
+abbreviation of the operation.  Thus `dgetrf' is the subroutine to
+create a triangular factorization of a double precision, general matrix.
+
+
+File: R-Matrix.info,  Node: Lapack++ and R,  Next: Function and variable index,  Prev: Structure of Lapack,  Up: Top
+
+Lapack++ and R
+**************
+
+   Because Lapack has a structure that looks very much like classes of
+matrices and methods that can be applied to them, it is natural to
+express these operations in an object-oriented language, such as C++.
+The lapack++ project created C++ definitions and implementations of
+several classes of matrices and vectors, and some methods for them.  In
+1996 this project was discontinued in favor of another C++
+implementation which is based on templates.  This implementation is
+called the Template Numerical Toolkit or TNT.  See
+`http://math.nist.gov/tnt' for information on TNT.
+
+   We chose to use `lapack++' to provide an interface between R
+matrices from the Matrix package and the Fortran-based Lapack
+subroutines.  In the process of writing this interface code we extended
+the class structure of lapack++.
+
+* Menu:
+
+* Calling Lapack routines from C++::
+* Classes for Matrices and Vectors::
+* Creating LaMatrix objects from R Matrix objects::
+
+
+File: R-Matrix.info,  Node: Calling Lapack routines from C++,  Next: Classes for Matrices and Vectors,  Prev: Lapack++ and R,  Up: Lapack++ and R
+
+Calling Lapack routines from C++
+================================
+
+   When calling Fortran subroutines from C code, all arguments, even
+compile-time constants, must be passed as pointers.  It is not
+difficult to do this but it can be irritating to be required to create
+a local variable and assign it a constant value in order that a pointer
+to the variable can be passed.
+
+   One can circumvent these steps in C++ where the prototype of a
+function can declare that some arguments are to be passed as
+references.  If the argument declaration includes the `const' keyword
+then a compile-time constant, or the result of a function evaluation,
+can be passed in a call to the function.
+
+   We have created a set of C++ declarations for all the subroutines and
+functions in the double precision version of Lapack.  These
+declarations, contained in the file `lapackd.h', ensure that
+  1. All scalar arguments are passed as references
+
+  2. All vectors or matrices (in the Fortran sense -- these are both
+     stored as single-dimensional arrays in C++) are passed as pointers
+
+  3. Any arguments that will be unchanged upon return from the Fortran
+     subprogram include the `const' keyword
+
+   For example, the arguments `M', `N', and `LDA' are not altered by
+the subroutine `DGETRF' (computes a triangular factorization of a
+double precision, general matrix), which is declared as
+     SUBROUTINE DGETRF( M, N, A, LDA, IPIV, INFO )
+                INTEGER        INFO, LDA, M, N
+                INTEGER        IPIV( * )
+                DOUBLE         PRECISION A( LDA, * )
+   `DGETRF'.
+
+   The corresponding declaration in lapackd.h, which uses the macro
+`F77_NAME' to maps a Fortran name to the corresponding C++ name, is
+     // DGETRF - compute an LU factorization of a general M-by-N
+     // matrix A using partial pivoting with row interchanges
+     void F77_NAME(dgetrf)(const int& m, const int& n,
+                           double* a, const int& lda, int* ipiv,
+                           int& info);
+
+   In the constructor for an LaLUFactorDouble object that takes a
+LaGenMatDouble object as an argument, this subroutine is called as
+     F77_CALL(dgetrf)(A.size(0), A.size(1), &A(0, 0), A.gdim(0),
+     	         &pivot(0), info_);
+   The only arguments being passed as pointers are those passed to `a'
+and to `ipiv'.  The arguments passed to `m', `n', and `lda' are the
+results of method calls on the object `A'.  This call looks more
+"natural" than a call from a C function, where all the arguments must
+be passed as pointers.
+
+   When using C++ to interface to Fortran routines any work arrays
+needed in the Fortran code can be generated dynamically and
+automatically destroyed when they go out of scope.  We use the
+`VectorDouble' and `VectorInt' classes, defined in the files `lavd.h'
+and `lavi.h', for this.
+
+   For example, in Lapack the double precision function `DLANGE'
+evaluates one of four possible matrix norms on a double precision,
+general matrix.  In Fortran it is declared as
+     DOUBLE PRECISION FUNCTION DLANGE(NORM, M, N, A, LDA, WORK)
+         CHARACTER    NORM
+         INTEGER      LDA, M, N
+         DOUBLE       PRECISION A( LDA, * ), WORK( * )
+   where `WORK' is a work vector of dimension `N'. (This vector is used
+only when the Infinity norm is being requested.)
+
+   The `norm' method for the `LaGenMatDouble' class is defined as
+     double LaGenMatDouble::norm(char which) const
+     {
+         VectorDouble work(size(0));	// only for the Infinity norm
+         return F77_CALL(dlange)(which, size(0), size(1),
+                                 &(*this)(0,0), gdim(0), &work());
+     }
+   A work array of the appropriate size is created on entrance to the
+method and automatically deleted on exit.
+
+
+File: R-Matrix.info,  Node: Classes for Matrices and Vectors,  Next: Creating LaMatrix objects from R Matrix objects,  Prev: Calling Lapack routines from C++,  Up: Lapack++ and R
+
+Classes for Matrices and Vectors
+================================
+
+   As shown in the previous section, the C++ classes in lapack++ include
+the LaGenMatDouble class for double precision, general matrices.
+Several other classes for double precision matrices are available
+`LaBandMatDouble'
+     banded, square matrices
+
+`LaGenMatDouble'
+     general (possibly rectangular) matrices
+
+`LaLowerTriangMatDouble'
+     lower triangular matrices
+
+`LaSpdBandMatDouble'
+     symmetric, positive-definite, banded matrices
+
+`LaSpdMatDouble'
+     symmetric, positive-definite matrices
+
+`LaSpdTridiagMatDouble'
+     symmetric, tridiagonal matrices
+
+`LaSymmBandMatDouble'
+     symmetric, banded matrices
+
+`LaSymmMatDouble'
+     symmetric matrices
+
+`LaSymmTridiagMatDouble'
+     symmetric, tridiagonal matrices
+
+`LaTridiagMatDouble'
+     tridiagonal matrices
+
+`LaUnitLowerTriangMatDouble'
+     unit, lower triangular matrices
+
+`LaUnitUpperTriangMatDouble'
+     unit, upper triangular matrices
+
+`LaUpperTriangMatDouble'
+     upper triangular matrices
+
+   In addition there is a `LaVectorDouble' class for vectors.  When
+used as a matrix, an `LaVectorDouble' object is coerced to a column
+vector, as in R.
+
+   We have extended these classes with abstract classes `LaMatrix',
+`LaMatDouble', and `LaMatComplex'.  All the matrix and vector classes
+inherit from `LaMatrix'.  All the double precision matrix and vector
+classes inherit from `LaMatDouble' and all the complex matrix and
+vector classes inherit from `LaMatComplex'.
+
+
+File: R-Matrix.info,  Node: Creating LaMatrix objects from R Matrix objects,  Prev: Classes for Matrices and Vectors,  Up: Lapack++ and R
+
+Creating LaMatrix objects from R Matrix objects
+===============================================
+
+   The interface code from R Matrix objects to LaMatrix objects is
+contained in the file `R_LapackPP.cc'.  All C++ functions called from
+the R Matrix package have names beginning with `R_LapackPP_'.
+
+   There is a (by no means accidental) correspondence between the
+classes defined in the R Matrix package and the LaMatrix classes.  For
+example, a numeric R Matrix object of class `"LowerTriangular"',
+`"Matrix"' corresponds to an LaLowerTriangMatDouble object in lapack++.
+
+   The function `asLaMatrix' converts an R Matrix object into a
+LaMatrix object of the same dimensions and the appropriate class.  Note
+that it returns a pointer to the LaMatrix object, which contains a copy
+of the data in the R object.  To free the storage allocated to it, the
+`delete' operator must be invoked on this pointer before returning from
+the calling function.  Failure to do so will result in a "memory leak".
+
+   To see how `asLaMatrix' is used, consider the function
+`R_LapackPP_norm' that evaluates a matrix norm of an R Matrix object
+and returns this as an R object.
+     SEXP R_LapackPP_norm(SEXP a, SEXP which)
+     {
+         if (!isString(which))
+             error("R_LapackPP_norm : which should be of mode character");
+         LaMatrix *aa = asLaMatrix(a);
+         SEXP val = ScalarReal(aa->norm(CHAR(STRING(which)[0])[0]));
+         delete aa;
+         return val;
+     }
+
+   The first two lines in the function are to check that the argument
+`which' is a vector of character strings. (As an R object, `which'
+should be of mode `character' and should have length `1'.  The first
+element should be 'M', or 'I', or 'O', or 'F' indicating the maximum
+modulus or the Infinity norm or the One norm or the Frobenius norm.)
+
+   Once the `which' argument has been checked, the R Matrix object `a'
+is copied to an LaMatrix object to which a pointer is returned as `aa'.
+(If `a' is not a Matrix object, an error exit will be taken in
+`asLaMatrix'.)  The object `*aa' will be of some C++ class that
+inherits from `LaMatrix'.  The particular class is determined by the R
+class of `a'.  All of these classes have a `norm' method and the
+appropriate method for the object is called through `aa->norm'.  The
+only tasks that remain are to package the result as a numeric `SEXP' of
+length one, to delete the object to which `aa' points, and to return the
+result.
+
+   To create an R Matrix object from an LaMatrix object, use the method
+`asSEXP' defined for all the LaMatrix classes.  For example, the part
+of the C++ function `R_LapackPP_solve' that handles the single-argument
+version of calls to the R function `solve' to return the inverse of a
+matrix is
+     SEXP R_LapackPP_solve(SEXP a, SEXP b)
+     {
+         LaMatrix *aa = asLaMatrix(a);
+         if (b == R_NilValue) {
+             if (aa->size(0) != aa->size(1))
+                  error("only square matrices can be inverted");
+             SEXP val = aa->trf().solve().asSEXP()
+             delete aa;
+             return val;
+         }
+         ...
+     }
+   The expression `aa->trf().solve().asSEXP()', creates a triangular
+factorization of `*aa' (if necessary), uses this factorization to
+return the inverse, and copies this to an R Matrix object of the
+appropriate class.
+
+   Both the `trf' method of `*aa' and the `solve' method of its result
+can allocate memory but this memory is contained in components of `*aa'
+and will be deleted when the `delete' operator is applied to `aa'.
+
+   There is one other conversion function, `asLaRef', which takes an
+`SEXP' and returns a pointer to an LaMatrix object, just as
+`asLaMatrix' does.  The difference between these two functions is that
+the result `asLaMatrix' contains a copy of the data in the `SEXP' while
+the result of `asLaRef' contains a reference to that data.  Use
+`asLaRef' with caution.  The `delete' operator can, and should, be
+invoked on the pointer that it returns without destroying the contents
+of the R safe in that regard.  However, the contents of the R Matrix
+could accidently be modified by modifications to the LaMatrix object.
+
+
+File: R-Matrix.info,  Node: Function and variable index,  Next: Concept index,  Prev: Lapack++ and R,  Up: Top
+
+Function and variable index
+***************************
+
+* Menu:
+
+File: R-Matrix.info,  Node: Concept index,  Prev: Function and variable index,  Up: Top
+
+Concept index
+*************
+
+* Menu:
+
+
+Tag Table:
+Node: Top965
+Node: Acknowledgments1173
+Node: Structure of Lapack2835
+Node: Lapack++ and R6008
+Node: Calling Lapack routines from C++7105
+Node: Classes for Matrices and Vectors10990
+Node: Creating LaMatrix objects from R Matrix objects12679
+Node: Function and variable index16967
+Node: Concept index17146
+
+End Tag Table

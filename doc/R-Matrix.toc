@@ -1,8 +1,0 @@
-\unnumbchapentry{Acknowledgments}{1}
-\chapentry{Structure of Lapack}{1}{2}
-\chapentry{Lapack++ and R}{2}{4}
-\secentry{Calling Lapack routines from C++}{2}{1}{4}
-\secentry{Classes for Matrices and Vectors}{2}{2}{5}
-\secentry{Creating LaMatrix objects from R Matrix objects}{2}{3}{6}
-\unnumbchapentry{Function and variable index}{9}
-\unnumbchapentry{Concept index}{10}

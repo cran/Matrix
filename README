@@ -1,4 +1,4 @@
-This package requires the Fortran LAPACK library version 3.0 available
+This package requires the Fortran LAPACK library version 3.0, available
 in source form and in compiled form for some systems at
 		    http://www.netlib.org/lapack/
 The configure script for this package attempts to detect the lapack

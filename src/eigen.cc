@@ -38,12 +38,14 @@ SEXP LaSymmEigenDouble::asSEXP() const
     UNPROTECT(3);
     return ret;
 }
-
     
 LaGenEigenDouble::LaGenEigenDouble(const LaMatDouble& a,
 				   bool leftEV = true,
-				   bool rightEV = true) :
-    wR(a.size(0)), wI(a.size(0))
+				   bool rightEV = true,
+				   char balanc = 'B',
+				   char sense = 'N') :
+    wR(a.size(0)), wI(a.size(0)), scale(a.size(0)), rcondE(a.size(0)),
+    rcondV(a.size(0))
 {
     char jobVL = (leftEV) ? 'V' : 'N', jobVR = (rightEV) ? 'V' : 'N';
     int n = a.size(0);
@@ -51,14 +53,19 @@ LaGenEigenDouble::LaGenEigenDouble(const LaMatDouble& a,
 	throw(LaException("LaGenEigenDouble : only square matrices allowed"));
 
     LaGenMatDouble aa(a);
-    int lwork = 16 * n, info;
+    int lwork = 5*(n*n + 2*n), info;
     VectorDouble work(lwork);
+    VectorInt iwork(2*n);
     if (leftEV) left.resize(n, n);
     if (rightEV) right.resize(n, n);
-    F77_CALL(dgeev)(jobVL, jobVR, n, &aa(0,0), aa.gdim(0), &wR(0), &wI(0),
-		    &left(0,0), n, &right(0,0), n, &work(0), lwork, info);
+    if (sense != 'E' && sense != 'B') rcondE.resize(0);
+    if (sense != 'V' && sense != 'B') rcondV.resize(0);
+    F77_CALL(dgeevx)(balanc, jobVL, jobVR, sense, n, &aa(0,0), aa.gdim(0),
+		     &wR(0), &wI(0), &left(0,0), n, &right(0,0), n,
+		     &ilo, &ihi, &scale(0), &abnrm, &rcondE(0), &rcondV(0),
+		     &work(0), lwork, &iwork(0), info);
     if (info != 0)
-	throw(LaException("LaGenEigenDouble : non-zero info returned by dgeev"));
+	throw(LaException("LaGenEigenDouble : non-zero info returned by dgeevx"));
     complexVectors_ = false;
     for (int i = 0; i < n; i++)
 	if (wI(i) != 0) { complexVectors_ = true; break; }
@@ -90,20 +97,21 @@ static SEXP unscramble(const LaVectorDouble& imaginary,
 
 SEXP LaGenEigenDouble::asSEXP() const
 {
-    SEXP ret = PROTECT(allocVector(VECSXP, 2));
-    SEXP nm = PROTECT(allocVector(STRSXP, 2));
+    SEXP ret = PROTECT(allocVector(VECSXP, 3));
+    SEXP nm = PROTECT(allocVector(STRSXP, 3));
     SET_STRING_ELT(nm, 0, mkChar("values"));
     SET_STRING_ELT(nm, 1, mkChar("vectors"));
+    SET_STRING_ELT(nm, 2, mkChar("rcond"));
     setAttrib(ret, R_NamesSymbol, nm);
     SEXP classes = PROTECT(allocVector(STRSXP, 2));
     SET_STRING_ELT(classes, 0, mkChar("eigen.Matrix"));
     SET_STRING_ELT(classes, 1, mkChar("decomp"));
     setAttrib(ret, R_ClassSymbol, classes);
     SEXP vecs = PROTECT(allocVector(VECSXP, 2));
-    SET_STRING_ELT(nm, 0, mkChar("left"));
-    SET_STRING_ELT(nm, 1, mkChar("right"));
-    setAttrib(vecs, R_NamesSymbol, nm);
-
+    SEXP vnms = PROTECT(allocVector(STRSXP, 2));
+    SET_STRING_ELT(vnms, 0, mkChar("left"));
+    SET_STRING_ELT(vnms, 1, mkChar("right"));
+    setAttrib(vecs, R_NamesSymbol, vnms);
     if (complexVectors()) {
 	int n = wR.size();
 	SEXP val = allocVector(CPLXSXP, n);
@@ -112,6 +120,7 @@ SEXP LaGenEigenDouble::asSEXP() const
 	    COMPLEX(val)[i].i = wI(i);
 	}
 	SET_VECTOR_ELT(ret, 0, val);
+
 	if (left.size(0) == n)
 	    SET_VECTOR_ELT(vecs, 0, unscramble(wI, left));
 	else SET_VECTOR_ELT(vecs, 0, R_NilValue);
@@ -126,7 +135,15 @@ SEXP LaGenEigenDouble::asSEXP() const
 	SET_VECTOR_ELT(vecs, 1, right.asSEXP());
     }
     SET_VECTOR_ELT(ret, 1, vecs);
-    UNPROTECT(4);
+    SEXP rcond = PROTECT(allocVector(VECSXP, 2)),
+	rnms = PROTECT(allocVector(STRSXP, 2));
+    SET_STRING_ELT(rnms, 0, mkChar("values"));
+    SET_STRING_ELT(rnms, 1, mkChar("vectors"));
+    setAttrib(rcond, R_NamesSymbol, rnms);
+    SET_VECTOR_ELT(rcond, 0, rcondE.asSEXP());
+    SET_VECTOR_ELT(rcond, 1, rcondV.asSEXP());
+    SET_VECTOR_ELT(ret, 2, rcond);
+    UNPROTECT(7);
     return ret;
 }
 

@@ -119,7 +119,8 @@ public:
     virtual LaMatDouble& solve(LaMatDouble& B) const = 0;
     virtual LaMatDouble& solve(LaMatDouble& X, const LaMatDouble& B) const = 0;
 
-    virtual LaEigenDouble* eigen(bool leftEV = true, bool rightEV = true);
+    virtual LaEigenDouble* eigen(bool leftEV = true, bool rightEV = true,
+				 char balanc = 'B', char rcond = 'N');
 
     ostream& Info(ostream& s);
 };

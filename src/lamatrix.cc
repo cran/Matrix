@@ -28,9 +28,10 @@ ostream& LaMatInt::Info(ostream& s)
     return s;
 }
 
-LaEigenDouble* LaMatDouble::eigen(bool leftEV = true, bool rightEV = true)
+LaEigenDouble* LaMatDouble::eigen(bool leftEV = true, bool rightEV = true,
+				  char balanc = 'B', char rcond = 'N')
 {
     LaGenMatDouble tmp(size(0), size(1));
     tmp.inject(*this);
-    return new LaGenEigenDouble(tmp, leftEV, rightEV);
+    return new LaGenEigenDouble(tmp, leftEV, rightEV, balanc, rcond);
 }

@@ -4,6 +4,7 @@
 #include "lapack++.h"
 #include "eigen.h"
 #include "lavi.h"
+#include "schur.h"
  
 #include <iostream>
 #include <cstdlib>
@@ -166,19 +167,21 @@ extern "C" {
 	return val;
     }
 	
-    SEXP R_LapackPP_eigen(SEXP x, SEXP vectors)
+    SEXP R_LapackPP_eigen(SEXP x, SEXP vectors, SEXP balanc, SEXP rcond)
     {
 	LaMatDouble *aa = 0;
 	LaEigenDouble *eig;
 	try {
 	    aa = asLaMatrix(x);
-	    bool vecs = (LOGICAL(coerceVector(vectors, LGLSXP))[0] != 0) ? true
-		: false;
 	    if (aa->size(0) != aa->size(1)) {
 		delete aa;
-		error("Eigenvalue/eigenvector decompositions are defined only for square matrices");
+		error("Eigenvalue/eigenvector decomp requires a square matrix");
 	    }
-	    eig = aa->eigen(vecs, vecs);
+	    bool vecs = (LOGICAL(coerceVector(vectors, LGLSXP))[0] != 0) ?
+		true : false;
+	    eig = aa->eigen(vecs, vecs,
+			    CHAR(STRING_ELT(coerceVector(balanc, STRSXP), 0))[0],
+			    CHAR(STRING_ELT(coerceVector(rcond, STRSXP), 0))[0]);
 	    SEXP val = eig->asSEXP();
 	    delete aa;
 	    delete eig;
@@ -300,6 +303,31 @@ extern "C" {
 	    return R_NilValue;
 	}
     }
+
+    SEXP R_LapackPP_Schur(SEXP x, SEXP vectors)
+    {
+	LaMatDouble *aa = 0;
+	LaSchurDouble *schur;
+	try {
+	    aa = asLaMatrix(x);
+	    if (aa->size(0) != aa->size(1)) {
+		delete aa;
+		error("Schur decomposition requires a square matrix");
+	    }
+	    bool vecs = (LOGICAL(coerceVector(vectors, LGLSXP))[0] != 0) ?
+		true : false;
+	    schur = new LaGenSchurDouble(*aa, vecs);
+	    SEXP val = schur->asSEXP();
+	    delete aa;
+	    delete schur;
+	    return val;
+	} catch(LaException xcp) {
+	    delete aa;
+	    delete schur;
+	    error(xcp.what());
+	    return R_NilValue;	// to keep -Wall happy
+	}
+    }    
 
     SEXP R_LapackPP_solve(SEXP a, SEXP b)
     {

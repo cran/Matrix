@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: lapackd.h,v 1.11 2000/07/18 19:14:18 saikat Exp $
+// $Id: lapackd.h,v 1.12 2000/08/11 23:11:34 bates Exp $
 
 // C++ prototypes for double precision Lapack routines.
 
@@ -169,7 +169,7 @@ extern "C" {
 			 const int& n, double* a, const int& lda,
 			 int* sdim, double* wr, double* wi,
 			 double* vs, const int& ldvs,
-			 double* work, const int& lwork, double* bwork,
+			 double* work, const int& lwork, int* bwork,
 			 int& info);
 
     // DGEESX - compute for an N-by-N real nonsymmetric matrix A, the
@@ -178,13 +178,13 @@ extern "C" {
     void F77_NAME(dgeesx)(const char& jobvs, const char& sort,
 			  int (*select)(const double&, const double&),
 			  const char& sense, const int& n, double* a,
-			  const int& lda, int* sdim,
+			  const int& lda, int& sdim,
 			  double* wr, double* wi,
 			  double* vs, const int& ldvs,
-			  double* rconde, double* rcondv,
+			  double& rconde, double& rcondv,
 			  double* work, const int& lwork,
 			  int* iwork, const int& liwork,
-			  double* bwork, int& info);
+			  int* bwork, int& info);
 
     // DGEEV - compute for an N-by-N real nonsymmetric matrix A, the
     // eigenvalues and, optionally, the left and/or right eigenvectors

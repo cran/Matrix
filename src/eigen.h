@@ -7,6 +7,7 @@
 
 #include "lamatrix.h"
 #include LA_VECTOR_DOUBLE_H
+#include LA_VECTOR_INT_H
 #include "orthonormal.h"
 
 class LaEigen			// eigenvalue/eigenvector decompositions
@@ -46,12 +47,17 @@ class LaGenEigenDouble : public LaEigenDouble
 protected:
     LaVectorDouble wR;
     LaVectorDouble wI;
+    LaVectorDouble scale;
+    LaVectorDouble rcondE;
+    LaVectorDouble rcondV;
     LaGenMatDouble left;
     LaGenMatDouble right;
+    double abnrm;
+    int ilo, ihi;
     bool complexVectors_;
 public:
     LaGenEigenDouble(const LaMatDouble& a, bool leftEV = true,
-		     bool rightEV = true);
+		     bool rightEV = true, char balanc = 'B', char sense = 'N');
 				// accessor methods
     bool complexVectors() const { return complexVectors_; }
     LaMatrix& valuesR() { return wR; }

@@ -25,8 +25,8 @@ SEXP LaColOrthogonalMatDouble::asSEXP() const
     F77_CALL(dlacpy)('A', size(0), size(1), &(*this)(0,0), gdim(0),
 		     REAL(val), size(0));
     SEXP classes = PROTECT(allocVector(STRSXP, 2));
-    STRING(classes)[0] = mkChar("ColOrthogonal");
-    STRING(classes)[1] = mkChar("Matrix");
+    SET_STRING_ELT(classes, 0, mkChar("ColOrthogonal"));
+    SET_STRING_ELT(classes, 1, mkChar("Matrix"));
     setAttrib(val, R_ClassSymbol, classes);
     UNPROTECT(2);
     return val;
@@ -40,8 +40,8 @@ SEXP LaRowOrthogonalMatDouble::asSEXP() const
     F77_CALL(dlacpy)('A', size(0), size(1), &(*this)(0,0), gdim(0),
 		     REAL(val), size(0));
     SEXP classes = PROTECT(allocVector(STRSXP, 2));
-    STRING(classes)[0] = mkChar("RowOrthogonal");
-    STRING(classes)[1] = mkChar("Matrix");
+    SET_STRING_ELT(classes, 0, mkChar("RowOrthogonal"));
+    SET_STRING_ELT(classes, 1, mkChar("Matrix"));
     setAttrib(val, R_ClassSymbol, classes);
     UNPROTECT(2);
     return val;
@@ -55,9 +55,9 @@ SEXP LaColOrthonormalMatDouble::asSEXP() const
     F77_CALL(dlacpy)('A', size(0), size(1), &(*this)(0,0), gdim(0),
 		     REAL(val), size(0));
     SEXP classes = PROTECT(allocVector(STRSXP, 3));
-    STRING(classes)[0] = mkChar("ColOrthonormal");
-    STRING(classes)[1] = mkChar("ColOrthogonal");
-    STRING(classes)[2] = mkChar("Matrix");
+    SET_STRING_ELT(classes, 0, mkChar("ColOrthonormal"));
+    SET_STRING_ELT(classes, 1, mkChar("ColOrthogonal"));
+    SET_STRING_ELT(classes, 2, mkChar("Matrix"));
     setAttrib(val, R_ClassSymbol, classes);
     UNPROTECT(2);
     return val;
@@ -71,9 +71,9 @@ SEXP LaRowOrthonormalMatDouble::asSEXP() const
     F77_CALL(dlacpy)('A', size(0), size(1), &(*this)(0,0), gdim(0),
 		     REAL(val), size(0));
     SEXP classes = PROTECT(allocVector(STRSXP, 3));
-    STRING(classes)[0] = mkChar("RowOrthonormal");
-    STRING(classes)[1] = mkChar("RowOrthogonal");
-    STRING(classes)[2] = mkChar("Matrix");
+    SET_STRING_ELT(classes, 0, mkChar("RowOrthonormal"));
+    SET_STRING_ELT(classes, 1, mkChar("RowOrthogonal"));
+    SET_STRING_ELT(classes, 2, mkChar("Matrix"));
     setAttrib(val, R_ClassSymbol, classes);
     UNPROTECT(2);
     return val;
@@ -89,12 +89,12 @@ SEXP LaOrthogonalMatDouble::asSEXP() const
     SEXP val = PROTECT(allocMatrix(REALSXP, m, n));
     F77_CALL(dlacpy)('A', m, n, &(*this)(0,0), lda, REAL(val), m);
     SEXP classes = PROTECT(allocVector(STRSXP, 6));
-    STRING(classes)[0] = mkChar("Orthogonal");
-    STRING(classes)[1] = mkChar("RowOrthonormal");
-    STRING(classes)[2] = mkChar("RowOrthogonal");
-    STRING(classes)[3] = mkChar("ColOrthonormal");
-    STRING(classes)[4] = mkChar("ColOrthogonal");
-    STRING(classes)[5] = mkChar("Matrix");
+    SET_STRING_ELT(classes, 0, mkChar("Orthogonal"));
+    SET_STRING_ELT(classes, 1, mkChar("RowOrthonormal"));
+    SET_STRING_ELT(classes, 2, mkChar("RowOrthogonal"));
+    SET_STRING_ELT(classes, 3, mkChar("ColOrthonormal"));
+    SET_STRING_ELT(classes, 4, mkChar("ColOrthogonal"));
+    SET_STRING_ELT(classes, 5, mkChar("Matrix"));
     setAttrib(val, R_ClassSymbol, classes);
     UNPROTECT(2);
     return val;

@@ -26,15 +26,15 @@ SEXP LaSymmEigenDouble::asSEXP() const
 {
     SEXP ret = PROTECT(allocVector(VECSXP, 2));
     SEXP nm = PROTECT(allocVector(STRSXP, 2));
-    STRING(nm)[0] = mkChar("values");
-    STRING(nm)[1] = mkChar("vectors");
+    SET_STRING_ELT(nm, 0, mkChar("values"));
+    SET_STRING_ELT(nm, 1, mkChar("vectors"));
     setAttrib(ret, R_NamesSymbol, nm);
     SEXP classes = PROTECT(allocVector(STRSXP, 2));
-    STRING(classes)[0] = mkChar("eigen.Matrix");
-    STRING(classes)[1] = mkChar("decomp");
+    SET_STRING_ELT(classes, 0, mkChar("eigen.Matrix"));
+    SET_STRING_ELT(classes, 1, mkChar("decomp"));
     setAttrib(ret, R_ClassSymbol, classes);
-    VECTOR(ret)[0] = vals.asSEXP();
-    VECTOR(ret)[1] = vecs.asSEXP();
+    SET_VECTOR_ELT(ret, 0, vals.asSEXP());
+    SET_VECTOR_ELT(ret, 1, vecs.asSEXP());
     UNPROTECT(3);
     return ret;
 }
@@ -92,16 +92,16 @@ SEXP LaGenEigenDouble::asSEXP() const
 {
     SEXP ret = PROTECT(allocVector(VECSXP, 2));
     SEXP nm = PROTECT(allocVector(STRSXP, 2));
-    STRING(nm)[0] = mkChar("values");
-    STRING(nm)[1] = mkChar("vectors");
+    SET_STRING_ELT(nm, 0, mkChar("values"));
+    SET_STRING_ELT(nm, 1, mkChar("vectors"));
     setAttrib(ret, R_NamesSymbol, nm);
     SEXP classes = PROTECT(allocVector(STRSXP, 2));
-    STRING(classes)[0] = mkChar("eigen.Matrix");
-    STRING(classes)[1] = mkChar("decomp");
+    SET_STRING_ELT(classes, 0, mkChar("eigen.Matrix"));
+    SET_STRING_ELT(classes, 1, mkChar("decomp"));
     setAttrib(ret, R_ClassSymbol, classes);
     SEXP vecs = PROTECT(allocVector(VECSXP, 2));
-    STRING(nm)[0] = mkChar("left");
-    STRING(nm)[1] = mkChar("right");
+    SET_STRING_ELT(nm, 0, mkChar("left"));
+    SET_STRING_ELT(nm, 1, mkChar("right"));
     setAttrib(vecs, R_NamesSymbol, nm);
 
     if (complexVectors()) {
@@ -111,21 +111,21 @@ SEXP LaGenEigenDouble::asSEXP() const
 	    COMPLEX(val)[i].r = wR(i);
 	    COMPLEX(val)[i].i = wI(i);
 	}
-	VECTOR(ret)[0] = val;
+	SET_VECTOR_ELT(ret, 0, val);
 	if (left.size(0) == n)
-	    VECTOR(vecs)[0] = unscramble(wI, left);
-	else VECTOR(vecs)[0] = R_NilValue;
+	    SET_VECTOR_ELT(vecs, 0, unscramble(wI, left));
+	else SET_VECTOR_ELT(vecs, 0, R_NilValue);
 
 	if (right.size(0) == n)
-	    VECTOR(vecs)[1] = unscramble(wI, right);
-	else VECTOR(vecs)[1] = R_NilValue;
+	    SET_VECTOR_ELT(vecs, 1, unscramble(wI, right));
+	else SET_VECTOR_ELT(vecs, 1, R_NilValue);
 
     } else {
-	VECTOR(ret)[0] = wR.asSEXP();
-	VECTOR(vecs)[0] = left.asSEXP();
-	VECTOR(vecs)[1] = right.asSEXP();
+	SET_VECTOR_ELT(ret, 0, wR.asSEXP());
+	SET_VECTOR_ELT(vecs, 0, left.asSEXP());
+	SET_VECTOR_ELT(vecs, 1, right.asSEXP());
     }
-    VECTOR(ret)[1] = vecs;
+    SET_VECTOR_ELT(ret, 1, vecs);
     UNPROTECT(4);
     return ret;
 }

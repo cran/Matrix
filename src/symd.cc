@@ -97,8 +97,8 @@ SEXP LaSymmMatDouble::asSEXP() const
     LaGenMatDouble tmp(REAL(val), n, n);
     tmp.inject(*this);
     SEXP classes = PROTECT(allocVector(STRSXP, 2));
-    STRING(classes)[0] = mkChar("Hermitian");
-    STRING(classes)[1] = mkChar("Matrix");
+    SET_STRING_ELT(classes, 0, mkChar("Hermitian"));
+    SET_STRING_ELT(classes, 1, mkChar("Matrix"));
     setAttrib(val, R_ClassSymbol, classes);
     UNPROTECT(2);
     return val;

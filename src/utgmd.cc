@@ -130,8 +130,8 @@ SEXP LaUpperTriangMatDouble::asSEXP() const
     F77_CALL(dlacpy)('U', size(0), size(1), &(*this)(0,0), gdim(0),
 		     REAL(val), size(0));
     SEXP classes = PROTECT(allocVector(STRSXP, 2));
-    STRING(classes)[0] = mkChar("UpperTriangular");
-    STRING(classes)[1] = mkChar("Matrix");
+    SET_STRING_ELT(classes, 0, mkChar("UpperTriangular"));
+    SET_STRING_ELT(classes, 1, mkChar("Matrix"));
     setAttrib(val, R_ClassSymbol, classes);
     UNPROTECT(2);
     return val;

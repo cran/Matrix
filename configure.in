@@ -4,6 +4,8 @@ if test -z "${R_HOME}"; then
   echo "could not determine R_HOME"
   exit 1
 fi
+CC=`grep "^CC" ${R_HOME}/etc/Makeconf | sed "s/^CC *= *//"`
+AC_PROG_CC
 F77=`grep "^FC" ${R_HOME}/etc/Makeconf | sed "s/^FC *= *//"`
 FLIBS=`grep "^FLIBS" ${R_HOME}/etc/Makeconf | sed "s/^FLIBS *= *//"`
 if test -n "`grep F77 ${R_HOME}/include/Rconfig.h | grep '_$'`"; then

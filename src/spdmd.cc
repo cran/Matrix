@@ -31,9 +31,9 @@ SEXP LaSpdMatDouble::asSEXP() const
     int n = size(0);
     SEXP val = PROTECT(LaSymmMatDouble::asSEXP());
     SEXP classes = PROTECT(allocVector(STRSXP, 3));
-    STRING(classes)[0] = mkChar("PositiveDefinite");
-    STRING(classes)[1] = mkChar("Hermitian");
-    STRING(classes)[2] = mkChar("Matrix");
+    SET_STRING_ELT(classes, 0, mkChar("PositiveDefinite"));
+    SET_STRING_ELT(classes, 1, mkChar("Hermitian"));
+    SET_STRING_ELT(classes, 2, mkChar("Matrix"));
     setAttrib(val, R_ClassSymbol, classes);
     UNPROTECT(2);
     return val;

@@ -3,6 +3,7 @@
 
 #include "lapack++.h"
 #include "eigen.h"
+#include "lavi.h"
  
 #include <iostream>
 #include <cstdlib>
@@ -18,12 +19,27 @@ void out_of_memory() {
     exit(1);
 }
 
+static LaVectorInt* piv2perm(const LaVectorInt& piv)
+{				// transform a pivot vector to the permutation
+    LaVectorInt *perm;
+    int n = piv.size();
+
+    perm = new LaVectorInt(n);
+    for (int i = 0; i < n; i++) (*perm)(i) = i + 1;
+    for (int i = 0; i < n; i++) {
+	int tmp = (*perm)(i);
+	(*perm)(i) = (*perm)(piv(i) - 1);
+	(*perm)(piv(i) - 1) = tmp;
+    }
+    return perm;
+}
+
 static int isMMatrix(SEXP s)
 {
     if (isObject(s)) {
 	SEXP classes = getAttrib(s, R_ClassSymbol);
 	for (int i = 0; i < Rf_length(classes); i++)
-	    if (!strcmp(CHAR(STRING(classes)[i]), "Matrix")) return 1;
+	    if (!strcmp(CHAR(STRING_ELT(classes, i)), "Matrix")) return 1;
     }
     return 0;
 }
@@ -31,7 +47,7 @@ static int isMMatrix(SEXP s)
 static int checkClass(SEXP classes, char *cname)
 {
     for (int i = 0; i < Rf_length(classes); i++)
-	if (!strcmp(CHAR(STRING(classes)[i]), cname)) return 1;
+	if (!strcmp(CHAR(STRING_ELT(classes, i)), cname)) return 1;
     return 0;
 }
     
@@ -139,12 +155,12 @@ extern "C" {
 	}
 	SEXP val = PROTECT(allocVector(VECSXP, 2));
 	SEXP nm = PROTECT(allocVector(STRSXP, 2));
-	STRING(nm)[0] = mkChar("modulus");
-	STRING(nm)[1] = mkChar("sign");
+	SET_STRING_ELT(nm, 0, mkChar("modulus"));
+	SET_STRING_ELT(nm, 1, mkChar("sign"));
 	setAttrib(val, R_NamesSymbol, nm);
-	VECTOR(val)[0] = ScalarReal(modulus);
-	setAttrib(VECTOR(val)[0], install("logarithm"), ScalarLogical(useLog));
-	VECTOR(val)[1] = ScalarInteger(sign);
+	SET_VECTOR_ELT(val, 0, ScalarReal(modulus));
+	setAttrib(VECTOR_ELT(val, 0), install("logarithm"), ScalarLogical(useLog));
+	SET_VECTOR_ELT(val, 1, ScalarInteger(sign));
 	setAttrib(val, R_ClassSymbol, ScalarString(mkChar("det")));
 	UNPROTECT(2);
 	return val;
@@ -175,6 +191,76 @@ extern "C" {
 	}
     }    
 
+    SEXP R_LapackPP_lu(SEXP x, SEXP normComp)
+    {
+	LaGenMatDouble *xx = 0;
+	LaLUFactorDouble *fact = 0;
+	LaVectorInt *perm = 0;
+	try {
+	    xx = new LaGenMatDouble(x);
+	    fact = new LaLUFactorDouble(*xx);
+	    SEXP val = PROTECT(allocVector(VECSXP, 3));
+	    SET_VECTOR_ELT(val, 0, fact->L().asSEXP());
+	    SET_VECTOR_ELT(val, 1, fact->U().asSEXP());
+	    perm = piv2perm(fact->pivot());
+	    SET_VECTOR_ELT(val, 2, perm->asSEXP());
+	    SEXP nm = PROTECT(allocVector(STRSXP, 3));
+	    SET_STRING_ELT(nm, 0, mkChar("l"));
+	    SET_STRING_ELT(nm, 1, mkChar("u"));
+	    SET_STRING_ELT(nm, 2, mkChar("permutation"));
+	    setAttrib(val, R_NamesSymbol, nm);
+	    UNPROTECT(1);
+	    setAttrib(val, R_ClassSymbol, ScalarString(mkChar("lu.Matrix")));
+	    SEXP norms = PROTECT(allocVector(VECSXP, 2));
+	    nm = PROTECT(allocVector(STRSXP, 2));
+	    SET_STRING_ELT(nm, 0, mkChar("One"));
+	    SET_STRING_ELT(nm, 1, mkChar("Infinity"));
+	    setAttrib(norms, R_NamesSymbol, nm);
+	    UNPROTECT(1);
+	    PROTECT(normComp = coerceVector(normComp, LGLSXP));
+	    if (Rf_length(normComp) > 0 && LOGICAL(normComp)[0] != 0) {
+		SET_VECTOR_ELT(norms, 0, ScalarReal(xx->norm('O')));
+	    } else {
+		SET_VECTOR_ELT(norms, 0, R_NilValue);
+	    }
+	    if (Rf_length(normComp) > 1 && LOGICAL(normComp)[1] != 0) {
+		SET_VECTOR_ELT(norms, 1, ScalarReal(xx->norm('I')));
+	    } else {
+		SET_VECTOR_ELT(norms, 1, R_NilValue);
+	    }
+	    setAttrib(val, install("norms"), norms);
+	    delete xx; delete fact; delete perm; UNPROTECT(3);
+	    return val;
+	} catch(LaException xcp) {
+	    delete xx; delete fact;
+	    error(xcp.what());
+	    return R_NilValue;
+	}
+    }
+	    
+    SEXP R_LapackPP_luH(SEXP x, SEXP lower, SEXP normComp)
+    {
+	LaSymmMatDouble *xx = 0;
+	LaBunchKaufmanFactorDouble *fact = 0;
+	try {
+	    xx = new LaSymmMatDouble(x);
+	    fact = new LaBunchKaufmanFactorDouble(*xx);
+	    SEXP val = PROTECT(allocVector(VECSXP, 2));
+	    SET_VECTOR_ELT(val, 0, fact->decomp().asSEXP());
+	    SET_VECTOR_ELT(val, 1, fact->pivot().asSEXP());
+	    SEXP nm = PROTECT(allocVector(STRSXP, 2));
+	    SET_STRING_ELT(nm, 0, mkChar("decomp"));
+	    SET_STRING_ELT(nm, 2, mkChar("permutation"));
+	    setAttrib(val, R_NamesSymbol, nm);
+	    setAttrib(val, R_ClassSymbol, ScalarString(mkChar("lu.Hermitian")));
+	    delete xx; delete fact; UNPROTECT(2); return val;
+	} catch(LaException xcp) {
+	    delete xx; delete fact;
+	    error(xcp.what());
+	    return R_NilValue;
+	}
+    }
+		
     SEXP R_LapackPP_norm(SEXP a, SEXP which)
     {
 	LaMatDouble *aa = 0;
@@ -182,7 +268,8 @@ extern "C" {
 	    if (!isString(which))
 		error("R_LapackPP_norm : which should be of mode character");
 	    aa = asLaMatrix(a);
-	    SEXP val = PROTECT(ScalarReal(aa->norm(CHAR(STRING(which)[0])[0])));
+	    SEXP val =
+		PROTECT(ScalarReal(aa->norm(CHAR(STRING_ELT(which, 0))[0])));
 	    setAttrib(val, R_ClassSymbol, ScalarString(mkChar("norm")));
 	    delete aa;
 	    UNPROTECT(1);
@@ -202,7 +289,7 @@ extern "C" {
 		error("R_LapackPP_rcond : which should be of mode character");
 	    aa = asLaMatrix(a);
 	    SEXP val =
-		PROTECT(ScalarReal(aa->rcond(CHAR(STRING(which)[0])[0])));
+		PROTECT(ScalarReal(aa->rcond(CHAR(STRING_ELT(which, 0))[0])));
 	    setAttrib(val, R_ClassSymbol, ScalarString(mkChar("rcond")));
 	    delete aa;
 	    UNPROTECT(1);
@@ -245,20 +332,26 @@ extern "C" {
 	if (isComplex(x)) error("Complex Matrix classes not yet implemented");
 	try {
 	    LaGenMatDouble a;
-	    nu = PROTECT(coerceVector(nu, INTSXP));
-	    nv = PROTECT(coerceVector(nv, INTSXP));
+	    int nnu = INTEGER(coerceVector(nu, INTSXP))[0],
+		nnv = INTEGER(coerceVector(nv, INTSXP))[0];
 	    a.ref(x);		// it gets copied in the SVD constructor
-	    SVD sv(a, INTEGER(nu)[0], INTEGER(nv)[0]);
+	    SVD sv(a, nnu, nnv);
 	    SEXP val = PROTECT(allocVector(VECSXP, 3));
 	    SEXP nm = PROTECT(allocVector(STRSXP, 3));
-	    STRING(nm)[0] = mkChar("d");
-	    STRING(nm)[1] = mkChar("u");
-	    STRING(nm)[2] = mkChar("vt");
+	    SET_STRING_ELT(nm, 0, mkChar("d"));
+	    SET_STRING_ELT(nm, 1, mkChar("u"));
+	    SET_STRING_ELT(nm, 2, mkChar("vt"));
 	    setAttrib(val, R_NamesSymbol, nm);
-	    VECTOR(val)[0] = sv.getS().asSEXP();
-	    VECTOR(val)[1] = sv.getU().asSEXP();
-	    VECTOR(val)[2] = sv.getVT().asSEXP();
-	    UNPROTECT(4);
+	    SET_VECTOR_ELT(val, 0, sv.getS().asSEXP());
+	    if (nnu > 0) 
+		SET_VECTOR_ELT(val, 1, sv.getU().asSEXP());
+	    else
+		SET_VECTOR_ELT(val, 1, R_NilValue);
+	    if (nnv > 0)
+		SET_VECTOR_ELT(val, 2, sv.getVT().asSEXP());
+	    else
+		SET_VECTOR_ELT(val, 2, R_NilValue);
+	    UNPROTECT(2);
 	    return val;
 	} catch (LaException xcp) {
 	    error(xcp.what());

@@ -32,6 +32,10 @@
 #include LA_GEN_MAT_INT_H
 #endif
 
+extern "C" {
+#include <R.h>
+#include <Rinternals.h>
+}
 
 // a vector is simply an nx1 or 1xn, matrix, only that it can
 // be constructed and accessed by a single dimension
@@ -68,6 +72,7 @@ public:
     inline LaVectorInt& operator=(int);
     inline LaVectorInt& operator=(const LaGenMatInt&);
 
+    SEXP asSEXP() const;
 };
 
 // NOTE: we default to column vectors, since matrices are column

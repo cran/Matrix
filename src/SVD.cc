@@ -35,7 +35,7 @@ SVD::SVD(LaGenMatDouble& a, int nu = 0, int nvt = 0) :
     else if (nvt >= min(m, n)) { jobvt = 'S'; }
 
     u.resize(m, nu);
-    vt.resize(n, nvt);
+    vt.resize(nvt, n);
 
     LaGenMatDouble acopy(a);
     int lwork = 5 * max(m, n), info;

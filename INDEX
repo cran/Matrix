@@ -11,6 +11,7 @@ eigen                    Spectral Decomposition of a Matrix
 expand                   Expand a Decomposition into Factors
 facmul                   Multiplication by Decomposition Factors
 hilbert                  Generate a Hilbert matrix
+lu.Matrix                Triangular (LU) Decomposition of a Matrix
 lu                       Triangular Decomposition of a Square Matrix
 norm                     Norm of a Matrix
 rcond                    Estimate the Reciprocal Condition Number

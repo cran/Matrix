@@ -24,3 +24,10 @@
 
 #include "lafnames.h"
 #include LA_VECTOR_INT_H
+
+SEXP LaVectorInt::asSEXP() const
+{
+    SEXP val = allocVector(INTSXP, size());
+    Memcpy(INTEGER(val), addr(), size());
+    return val;
+}

@@ -168,9 +168,9 @@ SEXP LaUnitLowerTriangMatDouble::asSEXP() const
     for (int i = 0; i < ldiag; i++) // ensure the diagonal entries are 1.0
 	REAL(val)[i * (m + 1)] = 1.0;
     SEXP classes = PROTECT(allocVector(STRSXP, 3));
-    STRING(classes)[0] = mkChar("UnitLowerTriangular");
-    STRING(classes)[1] = mkChar("LowerTriangular");
-    STRING(classes)[2] = mkChar("Matrix");
+    SET_STRING_ELT(classes, 0, mkChar("UnitLowerTriangular"));
+    SET_STRING_ELT(classes, 1, mkChar("LowerTriangular"));
+    SET_STRING_ELT(classes, 2, mkChar("Matrix"));
     setAttrib(val, R_ClassSymbol, classes);
     UNPROTECT(2);
     return val;

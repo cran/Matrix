@@ -1584,7 +1584,7 @@ SEXP ssclme_fitted(SEXP x, SEXP facs, SEXP mmats, SEXP useRf)
 	    for (j = 0; j < nobs; ) {
 		int nn = 1, lev = ff[j];
 		/* check for adjacent rows with same factor level */
-		while (ff[j + nn] == lev) nn++; 
+		while ((j + nn) < nobs && ff[j + nn] == lev) nn++; 
 		F77_CALL(dgemm)("N", "N", &nn, &ione, &nci,
 				&one, mm + j, &nobs,
 				bb + (lev - 1) * nci, &nci,

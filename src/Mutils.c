@@ -370,7 +370,7 @@ void ssc_symbolic_permute(int n, int upper, const int perm[],
 
     k = nnz - 1;
     for (j = n - 1; j >= 0; j--) {	/* generate new Ap */
-	for(; Aj[k] >= j && k >= 0; k--) Ap[j] = k;
+	for(; k >= 0 && Aj[k] >= j; k--) Ap[j] = k;
     }
     for (k = 0; k < nnz; k++) ii[k] = Ai[ord[k]];
     Memcpy(Ai, ii, nnz);

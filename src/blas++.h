@@ -21,7 +21,7 @@
 // LAPACK++ was funded in part by the U.S. Department of Energy, the
 // National Science Foundation and the State of Tennessee.
 //
-// Modifications Copyright (C) 2000-2000 the R Development Core Team
+// Modifications Copyright (C) 2000-2001 the R Development Core Team
 
 #ifndef _BLAS_PP_H_
 #define _BLAS_PP_H_
@@ -30,7 +30,8 @@
 #include "blas1++.h"
 #include "blas2++.h"
 #include "blas3++.h"
-#include <complex.h>		// to declare abs
+#include <complex>
+
 //inline double abs(double x) {return (x < 0.0) ? -x : x;}
 
 				// Vector/Vector operators
@@ -450,7 +451,7 @@ inline LaGenMatDouble operator+(const LaGenMatDouble &A,
 inline double Norm_Inf(const LaVectorDouble &x)
 {   
     int index = Blas_Index_Max(x);
-    return abs(x(index));
+    return std::abs(x(index));
 }
 
 inline double Norm_Inf(const LaGenMatDouble &A)
@@ -483,7 +484,7 @@ inline double Norm_Inf(const LaBandMatDouble &A)
     {
         R(i) = 0.0;
         for (int j = 0; j < N; j++)
-            R(i) += abs(A(i,j));
+            R(i) += std::abs(A(i,j));
     }
     
     double max = R(0);
@@ -508,7 +509,7 @@ inline double Norm_Inf(const LaSymmMatDouble &S)
     {
         R(i) = 0.0;
         for (int j = 0; j < N; j++)
-            R(i) += abs(S(i,j));
+            R(i) += std::abs(S(i,j));
     }
     
     double max = R(0);
@@ -530,7 +531,7 @@ inline double Norm_Inf(const LaSpdMatDouble &S)
     LaVectorDouble R(N);
     for (int i = 0; i < N; i++) {
         R(i) = 0.0;
-        for (int j = 0; j < N; j++) { R(i) += abs(S(i,j)); }
+        for (int j = 0; j < N; j++) { R(i) += std::abs(S(i,j)); }
     }
     
     double max = R(0);
@@ -546,14 +547,14 @@ inline double Norm_Inf(const LaSymmTridiagMatDouble &S)
     int N = S.size();		// S is square
     LaVectorDouble R(N);
 
-    R(0) = abs(S(0,0)) + abs(S(0,1));
+    R(0) = std::abs(S(0,0)) + std::abs(S(0,1));
     
     for (int i=1; i<N-1; i++)
     {
-        R(i) = abs(S(i,i-1)) + abs(S(i,i)) + abs(S(i,i+1));
+        R(i) = std::abs(S(i,i-1)) + std::abs(S(i,i)) + std::abs(S(i,i+1));
     }
     
-    R(N-1) = abs(S(N-1,N-2)) + abs(S(N-1,N-1));
+    R(N-1) = std::abs(S(N-1,N-2)) + std::abs(S(N-1,N-1));
     
     return Norm_Inf(R);
 }
@@ -565,14 +566,14 @@ inline double Norm_Inf(const LaTridiagMatDouble &T)
     int N = T.size();		// T is square
     LaVectorDouble R(N);
     
-    R(0) = abs(T(0,0)) + abs(T(0,1));
+    R(0) = std::abs(T(0,0)) + std::abs(T(0,1));
     
     for (int i=1; i<N-1; i++)
     {
-        R(i) = abs(T(i,i-1)) + abs(T(i,i)) + abs(T(i,i+1));
+        R(i) = std::abs(T(i,i-1)) + std::abs(T(i,i)) + std::abs(T(i,i+1));
     }
 
-    R(N-1) = abs(T(N-1,N-2)) + abs(T(N-1,N-1));
+    R(N-1) = std::abs(T(N-1,N-2)) + std::abs(T(N-1,N-1));
 
     return Norm_Inf(R);
 }

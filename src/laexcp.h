@@ -21,7 +21,7 @@
 // LAPACK++ was funded in part by the U.S. Department of Energy, the
 // National Science Foundation and the State of Tennessee.
 //
-// Modifications Copyright (C) 2000-2000 the R Development Core Team
+// Modifications Copyright (C) 2000-2001 the R Development Core Team
 
 #ifndef _LA_EXCEPTION_H_
 #define _LA_EXCEPTION_H_
@@ -32,13 +32,13 @@
 #include <string>
 
 class LaException {
-    string s;
+    std::string s;
 public:
-    LaException(const string& s) : s(s) { };
-    LaException(const string& where, const string& what) : s(where + what) { };
+    LaException(const std::string& s) : s(s) { };
+    LaException(const std::string& where, const std::string& what) : s(where + what) { };
     LaException(const char* c) : s(c) { };
-    LaException(const char* where, const char* what) : s(string(where)
-	+ string(what)) { };
+    LaException(const char* where, const char* what) : s(std::string(where)
+	+ std::string(what)) { };
 
     const char* what() { return s.c_str(); }
 };

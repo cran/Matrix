@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2000-2000 the R Development Core Team
+// Copyright (C) 2000-2001 the R Development Core Team
 
 #include "lapack++.h"
 #include "eigen.h"
@@ -10,13 +10,6 @@
 #include <cstdlib>
 #include <new>
 using namespace std;
-
-static int count = 0;
-static bool setNewHandler = false;
-
-void out_of_memory() {
-    error("memory exhausted after %d allocations!", count);
-}
 
 static LaVectorInt* piv2perm(const LaVectorInt& piv)
 {				// transform a pivot vector to the permutation

@@ -29,7 +29,7 @@ dnl the default action will define HAVE_BLAS.
 dnl
 dnl This macro requires autoconf 2.50 or later.
 dnl
-dnl @version $Id: acx_blas.m4,v 1.2 2001/12/13 01:03:06 simons Exp $
+dnl @version $Id: aclocal.m4,v 1.4 2002/10/23 15:34:09 bates Exp $
 dnl @author Steven G. Johnson <stevenj@alum.mit.edu>
 dnl
 AC_DEFUN([ACX_BLAS], [
@@ -177,7 +177,7 @@ dnl library is found, and ACTION-IF-NOT-FOUND is a list of commands
 dnl to run it if it is not found.  If ACTION-IF-FOUND is not specified,
 dnl the default action will define HAVE_LAPACK.
 dnl
-dnl @version $Id: acx_lapack.m4,v 1.2 2001/12/13 01:03:06 simons Exp $
+dnl @version $Id: aclocal.m4,v 1.4 2002/10/23 15:34:09 bates Exp $
 dnl @author Steven G. Johnson <stevenj@alum.mit.edu>
 dnl
 AC_DEFUN([ACX_LAPACK], [

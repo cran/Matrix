@@ -12,7 +12,10 @@
 // Copyright (C) 2000-2000, 2002 the R Development Core Team
 
 extern "C" {
+#undef ERROR
 #include <R_ext/RS.h>		// to define F77_NAME
+#undef small
+#undef large
 
     // DBDSQR - compute the singular value decomposition (SVD) of a real
     // N-by-N (upper or lower) bidiagonal matrix B 

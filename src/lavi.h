@@ -35,6 +35,7 @@
 #include "laexcp.h"
 
 extern "C" {
+#undef ERROR
 #include <R.h>
 #include <Rinternals.h>
 }

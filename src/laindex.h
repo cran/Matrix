@@ -30,6 +30,7 @@
 // with the "index()" string function in C, or other generic Index()
 // functions.
 
+#undef Free
 #include <iostream>
 
 

@@ -37,29 +37,29 @@ LaGenSchurDouble::LaGenSchurDouble(LaMatDouble& aa,
 	if (wI(i) != 0) { complexVectors_ = true; break; }
 }
 
-static SEXP unscramble(const LaVectorDouble& imaginary,
-                       const LaGenMatDouble& vecs)
-{
-    int n = vecs.size(1);
-    SEXP s = allocMatrix(CPLXSXP, n, n);
+// static SEXP unscramble(const LaVectorDouble& imaginary,
+//                        const LaGenMatDouble& vecs)
+// {
+//     int n = vecs.size(1);
+//     SEXP s = allocMatrix(CPLXSXP, n, n);
 
-    for (int j = 0; j < n; j++) {
-	if (imaginary(j) != 0) {
-	    int j1 = j + 1;
-	    for (int i = 0; i < n; i++) {
-		COMPLEX(s)[i+n*j].r = COMPLEX(s)[i+n*j1].r = vecs(i, j);
-		COMPLEX(s)[i+n*j1].i = -(COMPLEX(s)[i+n*j].i = vecs(i, j1));
-	    }
-	    j = j1;
-	} else {
-	    for (int i = 0; i < n; i++) {
-		COMPLEX(s)[i+n*j].r = vecs(i, j);
-		COMPLEX(s)[i+n*j].i = 0.0;
-	    }
-	}
-    }
-    return s;
-}
+//     for (int j = 0; j < n; j++) {
+// 	if (imaginary(j) != 0) {
+// 	    int j1 = j + 1;
+// 	    for (int i = 0; i < n; i++) {
+// 		COMPLEX(s)[i+n*j].r = COMPLEX(s)[i+n*j1].r = vecs(i, j);
+// 		COMPLEX(s)[i+n*j1].i = -(COMPLEX(s)[i+n*j].i = vecs(i, j1));
+// 	    }
+// 	    j = j1;
+// 	} else {
+// 	    for (int i = 0; i < n; i++) {
+// 		COMPLEX(s)[i+n*j].r = vecs(i, j);
+// 		COMPLEX(s)[i+n*j].i = 0.0;
+// 	    }
+// 	}
+//     }
+//     return s;
+// }
 
 SEXP LaGenSchurDouble::asSEXP() const
 {

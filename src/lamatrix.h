@@ -14,6 +14,7 @@ inline int max(int a, int b) { return (a > b) ? a : b; }
 class LaEigenDouble;
 
 extern "C" {
+#undef ERROR
 #include <R.h>
 #include <Rinternals.h>
 }

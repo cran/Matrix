@@ -7,6 +7,7 @@
 
 #ifndef _LAPACKPP_H
 #define _LAPACKPP_H
+#undef Free
 
 #include "lapack.h"
 

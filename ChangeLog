@@ -1,3 +1,11 @@
+2002-10-23  Douglas Bates  <bates@stat.wisc.edu>
+
+	* src/laindex.h: Applied patches from Brian Ripley for compilation
+	under Windows.
+
+	* Added configure.win and src/Makevars.win as requested by Brian
+	Ripley.
+
 2002-05-03  Douglas Bates  <bates@stat.wisc.edu>
 
 	* src/lamatrix.h: Removing pre-1.2.0 compatibility code per Kurt

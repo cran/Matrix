@@ -1,10 +1,10 @@
 Package: Matrix
-Version: 0.3-20
-Date: 2002/10/08
+Version: 0.3-21
+Date: 2002/10/25
 Title: A Matrix package for R
 Author: Douglas Bates <bates@stat.wisc.edu>
 	Saikat DebRoy <saikat@stat.wisc.edu>
 Maintainer: Douglas Bates <bates@stat.wisc.edu>
-Description: A Matrix package for R
+Description: Classes and methods for numerical linear algebra using Lapack
 Depends: R (>= 1.5.0)
 License: GPL version 2 or later

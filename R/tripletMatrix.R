@@ -1,11 +1,11 @@
 setAs("tripletMatrix", "cscMatrix",
       function(from)
-      .Call("triplet_to_csc", from, PACKAGE = "Matrix")
+      .Call("triplet_to_csc", from)
       )
 
 setAs("tripletMatrix", "geMatrix",
       function(from)
-      .Call("triplet_to_geMatrix", from, PACKAGE = "Matrix")
+      .Call("triplet_to_geMatrix", from)
       )
 
 setMethod("image", "tripletMatrix",

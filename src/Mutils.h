@@ -33,7 +33,7 @@ SEXP nlme_replaceSlot(SEXP obj, SEXP names, SEXP value);
 SEXP nlme_weight_matrix_list(SEXP MLin, SEXP wts, SEXP adjst, SEXP MLout);
 
 				/* stored pointers to symbols */
-				/* initialized in Matrix_init */
+				/* initialized in R_init_Matrix */
 extern SEXP
     Matrix_DSym,
     Matrix_DIsqrtSym,

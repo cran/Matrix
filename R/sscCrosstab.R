@@ -3,7 +3,7 @@ sscCrosstab =
 {
     .Call("sscCrosstab", lapply(as(flist, "list"),
                                 function(x) as(x, "factor")[drop = TRUE]),
-          as(upper, "logical")[1], PACKAGE = "Matrix")
+          as(upper, "logical")[1])
 }
 
 

@@ -1,7 +1,6 @@
-# Ensure that the methods package is available, initialize symbols
+# Ensure that the methods package is available
 .onLoad <- function(lib, pkg) {
     require("methods", character = TRUE, quietly = TRUE)
-    .Call("Matrix_init", PACKAGE = "Matrix")
 }
 
 # Virtual class of all Matrix objects
@@ -16,7 +15,7 @@ setClass("geMatrix",
                                factorization = list()),
          contains = "Matrix",
          validity = function(object) {
-             .Call("geMatrix_validate", object, PACKAGE="Matrix")
+             .Call("geMatrix_validate", object)
          })
 
 # Dense, non-packed, triangular matrices 
@@ -25,7 +24,7 @@ setClass("trMatrix",
          contains = "geMatrix",
          prototype = prototype(uplo = "U", diag = "N"),
          validity = function(object) {
-             .Call("trMatrix_validate", object, PACKAGE="Matrix")
+             .Call("trMatrix_validate", object)
          })
 
 # Dense, packed, triangular matrices
@@ -39,7 +38,7 @@ setClass("syMatrix",
            rcond = numeric(0), factorization = list()),
          contains = "geMatrix",
          validity = function(object) {
-             .Call("syMatrix_validate", object, PACKAGE="Matrix")
+             .Call("syMatrix_validate", object)
          })
 
 # Dense, packed, symmetric matrices
@@ -59,7 +58,7 @@ setClass("cscMatrix",
          prototype = prototype(p = as.integer(0), i = integer(0),
                         x = numeric(0), Dim = as.integer(c(0, 0))),
          validity = function(object)
-                    .Call("csc_validate", object, PACKAGE="Matrix")
+                    .Call("csc_validate", object)
          )
 
 # Sparse triangular matrix in sorted compressed sparse column format
@@ -70,7 +69,7 @@ setClass("tscMatrix",
                         uplo = 'L', diag = 'N'),
          contains = "cscMatrix",
          validity = function(object)
-                    .Call("tsc_validate", object, PACKAGE="Matrix"))
+                    .Call("tsc_validate", object))
 
 # Sparse symmetric matrix in compressed sparse column format.
 # Only one triangle is stored, uplo indicates if it is the lower or upper
@@ -81,7 +80,7 @@ setClass("sscMatrix",
                         uplo = 'L'),
          contains = "cscMatrix",
          validity = function(object)
-                    .Call("sscMatrix_validate", object, PACKAGE="Matrix"))
+                    .Call("sscMatrix_validate", object))
 
 # Sparse general matrix in triplet format
 setClass("tripletMatrix",
@@ -90,7 +89,7 @@ setClass("tripletMatrix",
          prototype = prototype(i = integer(0), j = integer(0),
          x = numeric(0), Dim = as.integer(c(0,0))),
          validity = function(object)
-                    .Call("triplet_validate", object, PACKAGE="Matrix"))
+                    .Call("triplet_validate", object))
 
 setClass("determinant",
          representation(modulus ="numeric",
@@ -101,7 +100,7 @@ setClass("determinant",
 setClass("LU", representation(x = "numeric", Dim = "integer",
                               pivot = "integer"),
          validity = function(object)
-                    .Call("LU_validate", object, PACKAGE = "Matrix"))
+                    .Call("LU_validate", object))
 
 setClass("Cholesky", contains = "trMatrix")
 
@@ -114,13 +113,13 @@ setClass("sscChol",
                         uplo = 'L', perm = integer(0), Parent = integer(0),
                         D = numeric(0)),
          validity = function(object)
-           .Call("sscChol_validate", object, PACKAGE = "Matrix"))
+           .Call("sscChol_validate", object))
 
 setClass("sscCrosstab", representation =
          representation(Gp = "integer", perm = "integer"),
          contains = "sscMatrix",
          validity = function(object)
-           .Call("sscCrosstab_validate", object, PACKAGE = "Matrix"))
+           .Call("sscCrosstab_validate", object))
 
 setClass("ssclme", representation =
          representation(
@@ -147,7 +146,7 @@ setClass("ssclme", representation =
                         x = "numeric"   # Non-zeroes in upper triangle of Z'Z
                         ),
          validity = function(object)
-         .Call("ssclme_validate", object, PACKAGE = "Matrix"))
+         .Call("ssclme_validate", object))
 
                        # positive-definite symmetric matrices as matrices
 setClass("pdmatrix", contains="matrix")
@@ -183,5 +182,5 @@ setClass("lmeRep",
                         call = "call"   # omit this after debugging phase
                         ),
          validity = function(object)
-         .Call("lmeRep_validate", object, PACKAGE = "Matrix"))
+         .Call("lmeRep_validate", object))
 

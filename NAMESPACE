@@ -1,7 +1,7 @@
 useDynLib(Matrix)
 importFrom("graphics","image")
 importFrom("lattice", "levelplot")
-importFrom("grid", "grid.rect", "gpar")
+importFrom("grid", "grid.rect", "gpar", "grob")
 importFrom("stats", "deviance", "formula", "coef")
 
 # Generics and functions defined in this package

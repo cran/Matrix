@@ -9,7 +9,7 @@
  * 
  * @return total length of the coefficient vector
  */
-static
+static R_INLINE
 int coef_length(int nf, const int nc[])
 {
     int i, ans = 0;
@@ -53,6 +53,12 @@ SEXP alloc3Darray(int TYP, int nr, int nc, int nf)
     return val;
 }
 
+static R_INLINE
+int match_mat_dims(const int xd[], const int yd[])
+{
+    return xd[0] == yd[0] && xd[1] == yd[1];
+}
+    
 /** 
  * Check validity of an lmeRep object.
  * 
@@ -63,7 +69,25 @@ SEXP alloc3Darray(int TYP, int nr, int nc, int nf)
  */
 SEXP lmeRep_validate(SEXP x)
 {
-    /* FIXME: add checks for correct dimensions, modes, etc. */
+    SEXP 
+	ZZxP = GET_SLOT(x, Matrix_ZZxSym),
+	ZtXP = GET_SLOT(x, Matrix_ZtXSym),
+	XtXP = GET_SLOT(x, Matrix_XtXSym),
+	RZXP = GET_SLOT(x, Matrix_RZXSym),
+	RXXP = GET_SLOT(x, Matrix_RXXSym),
+	levs = GET_SLOT(x, R_LevelsSymbol),
+	cnames = GET_SLOT(x, Matrix_cnamesSym);
+    int *ZtXd = INTEGER(getAttrib(ZtXP, R_DimSymbol)),
+	*XtXd = INTEGER(getAttrib(XtXP, R_DimSymbol));
+    
+    if (!(isReal(ZtXP) && isReal(XtXP) && isReal(RZXP) && isReal(RXXP) ))
+	return ScalarString(mkChar("Slots ZtX, XtX, RZX, and RXX must be real matrices"));
+    if (!match_mat_dims(ZtXd, INTEGER(getAttrib(RZXP, R_DimSymbol))))
+	return ScalarString(mkChar("Dimensions of slots ZtX and RZX must match"));
+    if (!match_mat_dims(XtXd, INTEGER(getAttrib(RXXP, R_DimSymbol))))
+	return ScalarString(mkChar("Dimensions of slots XtX and RXX must match"));
+    if (ZtXd[1] != XtXd[0] || XtXd[0] != XtXd[1])
+	return ScalarString(mkChar("Slots XtX must be a square matrix with same no. of cols as ZtX"));
     return ScalarLogical(1);
 }
 
@@ -75,8 +99,7 @@ SEXP lmeRep_validate(SEXP x)
  * @return Pointer to a list of cscBlocked objects containing the
  * tabulation and pairwise cross-tabulation of the factors
  */
-SEXP
-lmeRep_crosstab(SEXP facs)
+SEXP lmeRep_crosstab(SEXP facs)
 {
     if (isNewList(facs)) {
 	int nf = length(facs);
@@ -86,9 +109,7 @@ lmeRep_crosstab(SEXP facs)
 	    cscBlk = MAKE_CLASS("cscBlocked");
 	int i, j, k, *nlevs = Calloc(nf, int), *itmp = Calloc(nobs, int),
 	    *zb = Calloc(nobs * nf, int); /* zero-based indices */
-	double *xtmp = Calloc(nobs, double), *atmp = Calloc(nobs, double);
-    
-	for (i = 0; i < nobs; i++) xtmp[i] = 1.;
+
 	for (i = 0; i < nf; i++) {
 	    int *dp, *di, nlev;  double *dx; /* diagonal block */
 	    SEXP diag;
@@ -106,7 +127,11 @@ lmeRep_crosstab(SEXP facs)
 	    di = INTEGER(GET_SLOT(diag, Matrix_iSym));
 	    SET_SLOT(diag, Matrix_xSym, allocVector(REALSXP, nlev));
 	    dx = REAL(GET_SLOT(diag, Matrix_xSym));
-	    for (j = 0; j < nlev; j++) {dp[j] = j; di[j] = j; dx[j] = 0.;}
+	    for (j = 0; j < nlev; j++) {
+		dp[j] = di[j] = j;
+		dx[j] = 0.;
+	    }
+	    dp[nlev] = nlev;
 	    for (k = 0; k < nobs; k++) {
 		int zerb = INTEGER(fac)[k] - 1;
 		zb[i * nobs + k] = zerb;
@@ -114,8 +139,7 @@ lmeRep_crosstab(SEXP facs)
 	    }
 	    for (j = 0; j < i; j++) {
 		SEXP mm;
-		int *mp, *mi, nz;
-		double *mx;
+		int *mp, nz;
 		
 		SET_VECTOR_ELT(val, Lind(i, j), NEW_OBJECT(cscBlk));
 		mm = VECTOR_ELT(val, Lind(i, j));
@@ -123,19 +147,14 @@ lmeRep_crosstab(SEXP facs)
 		mp = INTEGER(GET_SLOT(mm, Matrix_pSym));
 		triplet_to_col(nlevs[i], nlevs[j], nobs,
 			       zb + i * nobs, zb + j * nobs,
-			       xtmp, mp, itmp, atmp);
+			       (double *) NULL, mp, itmp, (double *) NULL);
 		nz = mp[nlevs[j]];
 		SET_SLOT(mm, Matrix_iSym, allocVector(INTSXP, nz));
-		mi = INTEGER(GET_SLOT(mm, Matrix_iSym));
+		Memcpy(INTEGER(GET_SLOT(mm, Matrix_iSym)), itmp, nz);
 		SET_SLOT(mm, Matrix_xSym, allocVector(REALSXP, nz));
-		mx = REAL(GET_SLOT(mm, Matrix_xSym));
-		for (k = 0; k < nz; k++) {
-		    mx[k] = atmp[k];
-		    mi[k] = itmp[k];
-		}
 	    }
 	}
-	Free(nlevs); Free(itmp); Free(xtmp); Free(atmp); Free(zb);
+	Free(nlevs); Free(itmp); Free(zb);
 	UNPROTECT(1);
 	return val;
     }
@@ -233,8 +252,7 @@ create_matrix_lists(const int nc[], SEXP facs, SEXP ZZx, SEXP L, SEXP Linv)
  * 
  * @return pointer to an lmeRep object
  */
-SEXP
-lmeRep_create(SEXP facs, SEXP ncv)
+SEXP lmeRep_create(SEXP facs, SEXP ncv)
 {
     SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("lmeRep")));
     int *nc, nf = length(facs), i, nzcol;
@@ -342,7 +360,8 @@ SEXP lmeRep_update_mm(SEXP x, SEXP facs, SEXP mmats)
 	ZtXP = GET_SLOT(x, Matrix_ZtXSym),
 	levs = GET_SLOT(x, R_LevelsSymbol),
 	cnames = GET_SLOT(x, Matrix_cnamesSym);
-    int *nc = INTEGER(GET_SLOT(x, Matrix_ncSym)),
+    int *dims = INTEGER(getAttrib(ZtXP, R_DimSymbol)),
+	*nc = INTEGER(GET_SLOT(x, Matrix_ncSym)),
 	*status = LOGICAL(GET_SLOT(x, Matrix_statusSym)),
 	nf = length(levs), nfp1 = nf + 1,
 	i, ione = 1,
@@ -383,9 +402,9 @@ SEXP lmeRep_update_mm(SEXP x, SEXP facs, SEXP mmats)
 	SET_VECTOR_ELT(levs, i, duplicate(getAttrib(fac, R_LevelsSymbol)));
 	ncZ += length(VECTOR_ELT(levs, i)) * nc[i];
     }
-    if (ncZ != INTEGER(getAttrib(ZtXP, R_DimSymbol))[0])
+    if (ncZ != dims[0])
 	error("# rows of ZtX slot, %d, != sum of # levels * # columns, %d",
-	      INTEGER(getAttrib(ZtXP, R_DimSymbol))[0], ncZ);
+	      dims[0], ncZ);
 				/* Create XtX */
     X = REAL(VECTOR_ELT(mmats, nf));
     F77_CALL(dsyrk)("U", "T", &pp1, &nobs, &one, X, &nobs, &zero, XtX, nc + nf);
@@ -422,7 +441,7 @@ SEXP lmeRep_update_mm(SEXP x, SEXP facs, SEXP mmats)
 	    for (j = 0; j < nobs; j++) {
 		int fj = fac[j] - 1; /* factor indices are 1-based */
 		ZZx[fj] += Z[j] * Z[j];
-		F77_CALL(daxpy)(&pp1, Z + j, X + j, &nobs, ZtX + fj, &nlev);
+		F77_CALL(daxpy)(&pp1, Z + j, X + j, &nobs, ZtX + fj, dims);
 	    }
 	} else {
 	    for (j = 0; j < nobs; j++) {
@@ -433,7 +452,7 @@ SEXP lmeRep_update_mm(SEXP x, SEXP facs, SEXP mmats)
 		F77_CALL(dgemm)("T", "N", nc + i, &pp1, &ione,
 				&one, Z + j, &nobs,
 				X + j, &nobs, &one,
-				ZtX + fj * nci, &ZtXrows);
+				ZtX + fj * nci, dims);
 	    }
 	}
 	ZtX += ZtXrows;
@@ -474,6 +493,134 @@ SEXP lmeRep_initial(SEXP x)
     }
     status[0] = status[1] = 0;
     return R_NilValue;
+}
+
+/** 
+ * Overwrite B with the solution to L X = B where L is a 
+ * sparse, blocked, unit lower triangular matrix.
+ * 
+ * @param nf number of grouping factors
+ * @param LP pointer to the L sparse blocked matrix
+ * @param Linv pointer to the diagonal blocks of the inverse
+ * @param mm pointer to the matrix of right-hand sides
+ */
+static void
+lmeRep_L_sm(int nf, SEXP LP, SEXP Linv, SEXP mm)
+{
+    int *mdims = INTEGER(getAttrib(mm, R_DimSymbol)),
+	*rowpt = Calloc(nf + 1, int), j;
+	    
+    rowpt[0] = 0;
+    for (j = 0; j < nf; j++) {
+	SEXP Li = VECTOR_ELT(Linv, j);
+	SEXP LipP = GET_SLOT(Li, Matrix_pSym),
+	    LixP = GET_SLOT(Li, Matrix_xSym);
+	int *Lip = INTEGER(LipP),
+	    *Lii = INTEGER(GET_SLOT(Li, Matrix_iSym)),
+	    *LixDims = INTEGER(getAttrib(LixP, R_DimSymbol)),
+	    k,
+	    ncb = length(LipP) - 1;
+	int nrow = ncb * LixDims[1];
+
+	for (k = 0; k < j; k++) {
+	    SEXP Ljk = VECTOR_ELT(LP, Lind(j,k));
+	    SEXP LjkxP = GET_SLOT(Ljk, Matrix_xSym);
+	    int *LjkDims = INTEGER(getAttrib(LjkxP, R_DimSymbol));
+	    int nrk = rowpt[k + 1] - rowpt[k];
+
+	    cscBlocked_mm('L', 'N', nrow, mdims[1], nrk,
+			  -1., LjkDims[0], LjkDims[1],
+			  INTEGER(GET_SLOT(Ljk, Matrix_pSym)),
+			  INTEGER(GET_SLOT(Ljk, Matrix_iSym)),
+			  REAL(LjkxP), REAL(mm) + rowpt[k], mdims[0],
+			  1., REAL(mm) + rowpt[j], mdims[0]);
+	}
+	if (length(LixP)) {	/* Li is not the identity */
+	    double *tmp = Calloc(nrow * mdims[1], double);
+
+	    for (k = 0; k < mdims[1]; k++) {
+		Memcpy(tmp + k * nrow,
+		       REAL(LixP) + k * mdims[0],
+		       nrow);
+	    }
+	    cscBlocked_mm('L', 'N', nrow, mdims[1], nrow,
+			  1., LixDims[0], LixDims[1],
+			  Lip, Lii, REAL(LixP),
+			  tmp, nrow,
+			  0., REAL(mm) + rowpt[j], mdims[0]);
+	    Free(tmp);
+	}
+	rowpt[j+1] = rowpt[j] + nrow;
+    }
+    Free(rowpt);
+}
+
+/** 
+ * Overwrite B with the solution to L'X = B where L is a 
+ * sparse, blocked, unit lower triangular matrix.
+ * 
+ * @param nf number of grouping factors
+ * @param LP pointer to the L sparse blocked matrix
+ * @param Linv pointer to the diagonal blocks of the inverse
+ * @param mm pointer to the matrix of right-hand sides
+ */
+static void
+lmeRep_Lt_sm(int nf, SEXP LP, SEXP Linv, SEXP mm)
+{
+    int *mdims = INTEGER(getAttrib(mm, R_DimSymbol)),
+	*rowpt = Calloc(nf + 1, int), j;
+	    
+    rowpt[0] = 0;
+    for (j = 0; j < nf; j++) {
+	SEXP Li = VECTOR_ELT(Linv, j);
+	SEXP LipP = GET_SLOT(Li, Matrix_pSym),
+	    LixP = GET_SLOT(Li, Matrix_xSym);
+	int *LixDims = INTEGER(getAttrib(LixP, R_DimSymbol));
+	int nrow = (length(LipP) - 1) * LixDims[1];
+
+	rowpt[j+1] = rowpt[j] + nrow;
+    }
+
+    for (j = nf - 1; j >= 0; j--) {
+	SEXP Li = VECTOR_ELT(Linv, j);
+	SEXP LipP = GET_SLOT(Li, Matrix_pSym),
+	    LixP = GET_SLOT(Li, Matrix_xSym);
+	int *Lip = INTEGER(LipP),
+	    *Lii = INTEGER(GET_SLOT(Li, Matrix_iSym)),
+	    *LixDims = INTEGER(getAttrib(LixP, R_DimSymbol)),
+	    k;
+	int nrj = rowpt[j + 1] - rowpt[j];
+
+	if (length(LixP)) {	/* Li is not the identity */
+	    double *tmp = Calloc(nrj * mdims[1], double);
+
+	    for (k = 0; k < mdims[1]; k++) {
+		Memcpy(tmp + k * nrj,
+		       REAL(mm) + rowpt[j] + k * mdims[0],
+		       nrj);
+	    }
+	    cscBlocked_mm('L', 'T', nrj, mdims[1], nrj,
+			  1., LixDims[0], LixDims[1],
+			  Lip, Lii, REAL(LixP),
+			  tmp, nrj,
+			  0., REAL(mm) + rowpt[j], mdims[0]);
+	    Free(tmp);
+	}
+	for (k = 0; k < j; k++) {
+	    SEXP Ljk = VECTOR_ELT(LP, Lind(j,k));
+	    SEXP LjkxP = GET_SLOT(Ljk, Matrix_xSym);
+	    int *LjkDims = INTEGER(getAttrib(LjkxP, R_DimSymbol));
+	    int nrk = rowpt[k + 1] - rowpt[k];
+
+	    cscBlocked_mm('L', 'T', nrk, mdims[1], nrj,
+			  -1., LjkDims[0], LjkDims[1],
+			  INTEGER(GET_SLOT(Ljk, Matrix_pSym)),
+			  INTEGER(GET_SLOT(Ljk, Matrix_iSym)),
+			  REAL(LjkxP), REAL(mm) + rowpt[j], mdims[0],
+			  1., REAL(mm) + rowpt[k], mdims[0]);
+	}
+    }
+    Free(rowpt);
 }
 
 /** 
@@ -544,16 +691,18 @@ copy_ZZx_to_L(int nf, const int nc[], SEXP ZZxP, SEXP LP)
 	int k, nci = nc[i];
 	for (k = 0; k < i; k++) {
 	    int ind = Lind(i, k), j, nck = nc[k], sz = nci * nck;
-	    SEXP Lind = VECTOR_ELT(LP, ind),
+	    SEXP Lpt = VECTOR_ELT(LP, ind),
 		Zind = VECTOR_ELT(ZZxP, ind);
-	    int *Lp = INTEGER(GET_SLOT(Lind, Matrix_pSym)),
-		*Li = INTEGER(GET_SLOT(Lind, Matrix_iSym)),
+	    SEXP LpP = GET_SLOT(Lpt, Matrix_pSym);
+	    int *Lp = INTEGER(LpP),
+		*Li = INTEGER(GET_SLOT(Lpt, Matrix_iSym)),
 		*Zp = INTEGER(GET_SLOT(Zind, Matrix_pSym)),
 		*Zi = INTEGER(GET_SLOT(Zind, Matrix_iSym));
-	    double *Lx = REAL(GET_SLOT(Lind, Matrix_xSym)),
+	    int ncol = length(LpP) - 1;
+	    double *Lx = REAL(GET_SLOT(Lpt, Matrix_xSym)),
 		*Zx = REAL(GET_SLOT(Zind, Matrix_xSym));
 
-	    for (j = 0; j < nck; j++) {	/* loop over columns of L and ZZ */
+	    for (j = 0; j < ncol; j++) {	/* loop over columns of L and ZZ */
 		int L2 = Lp[j + 1], Z2 = Zp[j+1], jj, zi, zpj = Zp[j];
 
 		zi = (zpj < Z2) ? Zi[zpj] : INT_MAX;
@@ -562,7 +711,7 @@ copy_ZZx_to_L(int nf, const int nc[], SEXP ZZxP, SEXP LP)
 		    if (ii < zi) { /* zero this block */
 			memset(Lx + ii * sz, 0, sizeof(double) * sz);
 		    } else if (ii == zi) { /* copy this block */
-			Memcpy(Zx + zi * sz, Lx + ii * sz, sz);
+			Memcpy(Lx + j * sz, Zx + zpj * sz, sz);
 			zpj++;
 			zi = (zpj < Z2) ? Zi[zpj] : INT_MAX;
 		    } else
@@ -591,12 +740,14 @@ update_D_L(int i, const int nc[], SEXP LP, SEXP DP)
     for (k = 0; k < i; k++) {
 	int nck = nc[k], ncksq = nck * nck, sz = nci * nck;
 	SEXP Lpt = VECTOR_ELT(LP, Lind(i,k));
-	int *colptr = INTEGER(GET_SLOT(Lpt, Matrix_pSym)),
+	SEXP LpP = GET_SLOT(Lpt, Matrix_pSym);
+	int *colptr = INTEGER(LpP),
 	    *rowind = INTEGER(GET_SLOT(Lpt, Matrix_iSym));
+	int ncol = length(LpP) - 1;
 	double *Dk = REAL(VECTOR_ELT(DP, k)),
 	    *Lx = REAL(GET_SLOT(Lpt, Matrix_xSym));
 	
-	for (j = 0; j < nck; j++) {
+	for (j = 0; j < ncol; j++) {
 	    int j1 = colptr[j], j2 = colptr[j + 1];
 	    if ((j2 - j1) > 1) offdiag = 1;
 	    for (jj = j1; jj < j2; jj++) {
@@ -612,6 +763,35 @@ update_D_L(int i, const int nc[], SEXP LP, SEXP DP)
 	}
 	if (offdiag)
 	    error("code for off-diagonal updates not yet written");
+    }
+}
+
+/** 
+ * Calculate the inverses of the diagonal blocks of L.
+ * 
+ * @param nf number of grouping factors
+ * @param LP pointer to the L list
+ * @param Linv pointer to the Linv list
+ * 
+ * @return NULL
+ */
+static void
+L_inverse(int nf, SEXP LP, SEXP Linv) 
+{
+    int i;
+    for (i = 0; i < nf; i++) {
+	SEXP Li = VECTOR_ELT(LP, Lind(i,i));
+	SEXP Linvi = VECTOR_ELT(Linv, i);
+	SEXP LipP = GET_SLOT(Li, Matrix_pSym);
+	SEXP LixP = GET_SLOT(Li, Matrix_xSym);
+	int *xdims = INTEGER(getAttrib(LixP, R_DimSymbol));
+
+	cscBlocked_tri('L', 'U', length(LipP) - 1, xdims[0], xdims[1],
+		       INTEGER(LipP), INTEGER(GET_SLOT(Li, Matrix_iSym)),
+		       REAL(LixP),
+		       INTEGER(GET_SLOT(Linvi, Matrix_pSym)),
+		       INTEGER(GET_SLOT(Linvi, Matrix_iSym)),
+		       REAL(GET_SLOT(Linvi, Matrix_xSym)));
     }
 }
 
@@ -632,6 +812,7 @@ SEXP lmeRep_factor(SEXP x)
 	SEXP
 	    DP = GET_SLOT(x, Matrix_DSym),
 	    LP = GET_SLOT(x, Matrix_LSym),
+	    Linv = GET_SLOT(x, Matrix_LinvSym),
 	    RZXsl = GET_SLOT(x, Matrix_RZXSym),
 	    ZZxP = GET_SLOT(x, Matrix_ZZxSym),
 	    levs = GET_SLOT(x, R_LevelsSymbol);
@@ -641,29 +822,25 @@ SEXP lmeRep_factor(SEXP x)
 	int nml = nc[nf + 1], nreml = nml + 1 - nc[nf];
 	double
 	    *RXX = REAL(GET_SLOT(x, Matrix_RXXSym)),
-	    *RZX = REAL(GET_SLOT(x, Matrix_RZXSym)),
+	    *RZX = REAL(RZXsl),
 	    *dcmp = REAL(GET_SLOT(x, Matrix_devCompSym)),
 	    *deviance = REAL(GET_SLOT(x, Matrix_devianceSym)),
 	    minus1 = -1., one = 1.;
 
 
-	Memcpy(RZX, REAL(GET_SLOT(x, Matrix_ZtXSym)), dims[0] * dims[1]);
 	copy_ZZx_to_L(nf, nc, ZZxP, LP);
 	lmeRep_inflate(nf, nc, ZZxP, GET_SLOT(x, Matrix_OmegaSym),
 		       levs, DP, dcmp);
 	for (i = 0; i < nf; i++) {
 	    int jj, nci = nc[i], ncisqr = nci * nci,
-		nlev = length(VECTOR_ELT(levs, i)),
-		RZXrows = nlev * nci;
+		nlev = length(VECTOR_ELT(levs, i));
 	    double
 		*D = REAL(VECTOR_ELT(DP, i));
 	
 	    if (i) update_D_L(i, nc, LP, DP);
 	    if (nci == 1) {
-		for (j = 0; j < nlev; j++) {
+		for (j = 0; j < nlev; j++)
 		    dcmp[0] += 2. * log(D[j]);
-		    for (jj = 0; jj < dims[1]; jj++) RZX[j + jj*dims[0]] /= D[j];
-		}
 	    } else {
 		for (j = 0; j < nlev; j++) {
 		    double *Dj = D + j * ncisqr;
@@ -672,14 +849,28 @@ SEXP lmeRep_factor(SEXP x)
 			error("D[ , , %d] is not positive definite", j + 1);
 		    for (jj = 0; jj < nci; jj++) /* accumulate determinant */
 			dcmp[0] += 2. * log(Dj[jj * (nci + 1)]);
-				/* Update RZX */
-		    F77_CALL(dtrsm)("L", "U", "T", "N", &nci, dims + 1,
-				    &one, Dj, &nci, RZX + j * nci, dims);
 		}
+	    }
+	}
+				/* solve for RZX */
+	Memcpy(RZX, REAL(GET_SLOT(x, Matrix_ZtXSym)),
+	       dims[0] * dims[1]);
+	L_inverse(nf, LP, Linv);
+	lmeRep_L_sm(nf, LP, Linv, RZXsl);
+	for (i = 0; i < nf; i++) {
+	    int nci = nc[i], ncisqr = nci * nci,
+		nlev = length(VECTOR_ELT(levs, i)),
+		RZXrows = nlev * nci;
+	    double
+		*D = REAL(VECTOR_ELT(DP, i));
+	    for (j = 0; j < nlev; j++) {
+		F77_CALL(dtrsm)("L", "U", "T", "N", &nci, dims + 1,
+				&one, D + j * ncisqr, &nci,
+				RZX + j * nci, dims);
 	    }
 	    RZX += RZXrows;
 	}
-				/* downdate and factor X'X */
+				/* downdate and factor XtX */
 	Memcpy(RXX, REAL(GET_SLOT(x, Matrix_XtXSym)), dims[1] * dims[1]);
 	F77_CALL(dsyrk)("U", "T", dims + 1, dims,
 			&minus1, REAL(RZXsl), dims,
@@ -702,7 +893,6 @@ SEXP lmeRep_factor(SEXP x)
     }
     return R_NilValue;
 }
-
 
 /** 
  * If necessary, factor Z'Z+Omega, ZtX, and XtX then, if necessary,
@@ -762,6 +952,10 @@ SEXP lmeRep_invert(SEXP x)
 	    }
 	    RZX += nci * nlev;
 	}
+	lmeRep_Lt_sm(nf, GET_SLOT(x, Matrix_LSym),
+		     GET_SLOT(x, Matrix_LinvSym), RZXsl);
+/* FIXME: Does this need a negative sign?  It is in the paper.  Do we
+ * need it in the code?  May be unnecessary if always used as a square.*/
 	status[1] = 1;
     }
     return R_NilValue;
@@ -1334,6 +1528,7 @@ SEXP lmeRep_gradient(SEXP x, SEXP REMLp, SEXP Uncp)
  * 
  * @return val an array consisting of five symmetric faces
  */
+static
 SEXP lmeRep_secondDer(SEXP x, SEXP Valp)
 {
     SEXP

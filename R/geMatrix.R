@@ -13,7 +13,7 @@ setMethod("norm", signature(x = "geMatrix", type = "missing"),
 
 setMethod("norm", signature(x = "geMatrix", type = "character"),
           function(x, type, ...)
-          .Call("geMatrix_norm", x, type, PACKAGE = "Matrix"),
+          .Call("geMatrix_norm", x, type),
           valueClass = "numeric")
 
 setMethod("rcond", signature(x = "geMatrix", type = "missing"),
@@ -21,58 +21,58 @@ setMethod("rcond", signature(x = "geMatrix", type = "missing"),
 
 setMethod("rcond", signature(x = "geMatrix", type = "character"),
           function(x, type, ...)
-          .Call("geMatrix_rcond", x, type, PACKAGE = "Matrix"),
+          .Call("geMatrix_rcond", x, type),
           valueClass = "numeric")
 
 setMethod("crossprod", signature(x = "geMatrix", y = "missing"),
           function(x, y = NULL)
-          .Call("geMatrix_crossprod", x, PACKAGE = "Matrix"),
+          .Call("geMatrix_crossprod", x),
           valueClass = "poMatrix")
 
 setMethod("crossprod", signature(x = "geMatrix", y = "geMatrix"),
           function(x, y = NULL)
-          .Call("geMatrix_geMatrix_crossprod", x, y, PACKAGE = "Matrix"),
+          .Call("geMatrix_geMatrix_crossprod", x, y),
           valueClass = "geMatrix")
 
 setMethod("crossprod", signature(x = "geMatrix", y = "matrix"),
           function(x, y = NULL)
-          .Call("geMatrix_matrix_crossprod", x, y, PACKAGE = "Matrix"),
+          .Call("geMatrix_matrix_crossprod", x, y),
           valueClass = "geMatrix")
 
 setMethod("crossprod", signature(x = "geMatrix", y = "numeric"),
           function(x, y = NULL)
-          .Call("geMatrix_matrix_crossprod", x, as.matrix(y),
-                PACKAGE = "Matrix"), valueClass = "geMatrix")
+          .Call("geMatrix_matrix_crossprod", x, as.matrix(y)),
+          valueClass = "geMatrix")
 
 setMethod("diag", signature(x = "geMatrix"),
           function(x = 1, nrow, ncol = n)
-          .Call("geMatrix_getDiag", x, PACKAGE="Matrix"))
+          .Call("geMatrix_getDiag", x))
 
 setMethod("dim", signature(x = "geMatrix"),
           function(x) x@Dim, valueClass = "integer")
 
 setMethod("solve", signature(a = "geMatrix", b = "missing"),
-          function(a, b, ...) .Call("geMatrix_solve", a, PACKAGE="Matrix")
+          function(a, b, ...) .Call("geMatrix_solve", a)
           )
 
 setMethod("solve", signature(a = "geMatrix", b = "matrix"),
           function(a, b, ...)
-          .Call("geMatrix_matrix_solve", a, b, PACKAGE = "Matrix")
+          .Call("geMatrix_matrix_solve", a, b)
           )
 
 setMethod("lu", signature(x = "geMatrix"),
-          function(x, ...) .Call("geMatrix_LU", x, PACKAGE="Matrix"))
+          function(x, ...) .Call("geMatrix_LU", x))
 
 setMethod("determinant", signature(x = "geMatrix", logarithm = "missing"),
           function(x, logarithm, ...) determinant(x, TRUE))
 
 setMethod("determinant", signature(x = "geMatrix", logarithm = "logical"),
           function(x, logarithm, ...)
-          .Call("geMatrix_determinant", x, logarithm, PACKAGE = "Matrix"))
+          .Call("geMatrix_determinant", x, logarithm))
 
 setMethod("%*%", signature(x = "geMatrix", y = "geMatrix"),
           function(x, y)
-          .Call("geMatrix_geMatrix_mm", x, y, PACKAGE = "Matrix"))
+          .Call("geMatrix_geMatrix_mm", x, y))
 
 Hermitian.test <- function(x)
 {

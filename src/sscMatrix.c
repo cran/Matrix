@@ -103,7 +103,7 @@ SEXP sscMatrix_matrix_solve(SEXP a, SEXP b)
 	error("Argument b must be a numeric matrix");
     if (*adims != *bdims || bdims[1] < 1 || *adims < 1)
 	error("Dimensions of system to be solved are inconsistent");
-    if (Chol == R_NilValue) Chol = sscMatrix_chol(a, ScalarLogical(1.));
+    if (Chol == R_NilValue) Chol = sscMatrix_chol(a, ScalarLogical(1));
     perm = GET_SLOT(Chol, Matrix_permSym);
     piv = length(perm);
     if (piv) tmp = Calloc(n, double);
@@ -111,7 +111,7 @@ SEXP sscMatrix_matrix_solve(SEXP a, SEXP b)
     Lp = INTEGER(GET_SLOT(Chol, Matrix_pSym));
     Lx = REAL(GET_SLOT(Chol, Matrix_xSym));
     D = REAL(GET_SLOT(Chol, Matrix_DSym));
-    for (j = 0; j < bdims[1]; j++, in += n, out += n) {
+    for (j = 0; j < ncol; j++, in += n, out += n) {
 	if (piv) ldl_perm(n, out, in, INTEGER(perm));
 	else Memcpy(out, in, n);
 	ldl_lsolve(n, out, Lp, Li, Lx);

@@ -1,2 +1,2 @@
 setMethod("expand", signature(x = "LU"),
-          function(x, ...) .Call("LU_expand", x, PACKAGE = "Matrix"))
+          function(x, ...) .Call("LU_expand", x))

@@ -6,11 +6,13 @@ PKG_LIBS = ${LAPACK_LIBS} ${BLAS_LIBS}
 SOURCES_C =  \
 	    LU.c \
             Mutils.c \
-	    Metis_utils.c\
+	    Metis_utils.c \
+	    cscBlocked.c \
             cscMatrix.c \
             dense.c \
             factorizations.c \
             geMatrix.c \
+	    init.c \
 	    ldl.c \
 	    lmeRep.c \
             poMatrix.c \
@@ -23,6 +25,8 @@ SOURCES_C =  \
             triplet_to_col.c \
             tscMatrix.c \
             # flame.c
+#SOURCES_F = foo.f
+#OBJECTS = $(SOURCES_C:.c=.o) $(SOURCES_F:.f=.o)
 OBJECTS = $(SOURCES_C:.c=.o)
 SHLIB = $(pkg)$(SHLIB_EXT)
 SUBDIRS = Metis

@@ -7,7 +7,7 @@ setMethod("eigen", signature(x = "geMatrix", only.values = "missing"),
 
 setMethod("eigen", signature(x = "geMatrix", only.values = "logical"),
           function(x, symmetric, only.values, EISPACK)
-          .Call("geMatrix_eigen", x, only.values, PACKAGE = "Matrix")
+          .Call("geMatrix_eigen", x, only.values)
           )
 
 setMethod("Schur", signature(x = "geMatrix", vectors = "missing"),
@@ -19,6 +19,6 @@ setMethod("Schur", signature(x = "geMatrix", vectors = "missing"),
          
 setMethod("Schur", signature(x = "geMatrix", vectors = "logical"),
           function(x, vectors, ...)
-          .Call("geMatrix_Schur", x, vectors, PACKAGE="Matrix")
+          .Call("geMatrix_Schur", x, vectors)
           )
 

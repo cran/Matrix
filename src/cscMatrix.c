@@ -200,6 +200,8 @@ SEXP csc_to_geMatrix(SEXP x)
     return ans;
 }
 
+/* FIXME: This function does not appear to be used. */
+static				/* added to check if it was used */
 SEXP csc_to_imagemat(SEXP x)
 {
     SEXP ans, pslot = GET_SLOT(x, Matrix_pSym);
@@ -329,3 +331,36 @@ SEXP csc_transpose(SEXP x)
     UNPROTECT(1);
     return ans;
 }
+
+SEXP csc_matrix_mm(SEXP a, SEXP b)
+{
+    int *adim = INTEGER(GET_SLOT(a, Matrix_DimSym)),
+	*ai = INTEGER(GET_SLOT(a, Matrix_iSym)),
+	*ap = INTEGER(GET_SLOT(a, Matrix_pSym)),
+	*bdim = INTEGER(getAttrib(b, R_DimSymbol));
+    int j, k, m = adim[0], n = bdim[1], r = adim[1];
+    double *ax = REAL(GET_SLOT(a, Matrix_xSym));
+    SEXP val;
+
+    if (bdim[0] != r)
+	error("Matrices of sizes (%d,%d) and (%d,%d) cannot be multiplied",
+	      m, r, bdim[0], n);
+    val = PROTECT(allocMatrix(REALSXP, m, n));
+    for (j = 0; j < n; j++) {	/* across columns of b */
+	double *ccol = REAL(val) + j * m,
+	    *bcol = REAL(b) + j * r;
+
+	for (k = 0; k < m; k++) ccol[k] = 0.; /* zero the accumulators */
+	for (k = 0; k < r; k++) { /* across columns of a */
+	    int kk, k2 = ap[k + 1];
+	    for (kk = ap[k]; kk < k2; kk++) {
+		ccol[ai[kk]] += ax[kk] * bcol[k];
+	    }
+	}
+    }
+    UNPROTECT(1);
+    return val;
+}
+
+
+	     

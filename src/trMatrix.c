@@ -35,10 +35,10 @@ double get_norm(SEXP obj, char *typstr)
 	work = (double *) R_alloc(dims[0], sizeof(double));
     }
     return F77_CALL(dlantr)(typnm,
-			    CHAR(asChar(GET_SLOT(obj, install("uplo")))),
-			    CHAR(asChar(GET_SLOT(obj, install("diag")))),
+			    CHAR(asChar(GET_SLOT(obj, Matrix_uploSym))),
+			    CHAR(asChar(GET_SLOT(obj, Matrix_diagSym))),
 			    dims, dims+1,
-			    REAL(GET_SLOT(obj, install("x"))),
+			    REAL(GET_SLOT(obj, Matrix_xSym)),
 			    dims, work);
 }
 
@@ -59,9 +59,9 @@ double set_rcond(SEXP obj, char *typstr)
     if (R_IsNA(rcond)) {
 	int *dims = INTEGER(GET_SLOT(obj, Matrix_DimSym)), info;
 	F77_CALL(dtrcon)(typnm,
-			 CHAR(asChar(GET_SLOT(obj, install("uplo")))),
-			 CHAR(asChar(GET_SLOT(obj, install("diag")))),
-			 dims, REAL(GET_SLOT(obj, install("x"))),
+			 CHAR(asChar(GET_SLOT(obj, Matrix_uploSym))),
+			 CHAR(asChar(GET_SLOT(obj, Matrix_diagSym))),
+			 dims, REAL(GET_SLOT(obj, Matrix_xSym)),
 			 dims, &rcond,
 			 (double *) R_alloc(3*dims[0], sizeof(double)),
 			 (int *) R_alloc(dims[0], sizeof(int)), &info);
@@ -80,9 +80,28 @@ SEXP trMatrix_solve(SEXP a)
 {
     SEXP val = PROTECT(duplicate(a));
     int info, *Dim = INTEGER(GET_SLOT(val, Matrix_DimSym));
-    F77_CALL(dtrtri)(CHAR(asChar(GET_SLOT(val, install("uplo")))),
-		     CHAR(asChar(GET_SLOT(val, install("diag")))),
-		     Dim, REAL(GET_SLOT(val, install("x"))), Dim, &info);
+    F77_CALL(dtrtri)(CHAR(asChar(GET_SLOT(val, Matrix_uploSym))),
+		     CHAR(asChar(GET_SLOT(val, Matrix_diagSym))),
+		     Dim, REAL(GET_SLOT(val, Matrix_xSym)), Dim, &info);
+    UNPROTECT(1);
+    return val;
+}
+
+SEXP trMatrix_matrix_solve(SEXP a, SEXP b)
+{
+    SEXP val = PROTECT(duplicate(b));
+    int *Dim = INTEGER(GET_SLOT(a, Matrix_DimSym)),
+	*bDim = INTEGER(getAttrib(val, R_DimSymbol));
+    double one = 1.0;
+
+    if (bDim[0] != Dim[1])
+	error("Dimensions of a (%d,%d) and b (%d,%d) do not conform",
+	      Dim[0], Dim[1], bDim[0], bDim[1]);
+    F77_CALL(dtrsm)("L", CHAR(asChar(GET_SLOT(val, Matrix_uploSym))),
+		    "N", CHAR(asChar(GET_SLOT(val, Matrix_diagSym))),
+		    bDim, bDim+1, &one,
+		    REAL(GET_SLOT(a, Matrix_xSym)), Dim,
+		    REAL(val), bDim);
     UNPROTECT(1);
     return val;
 }
@@ -92,7 +111,7 @@ void make_array_triangular(double *to, SEXP from)
     int i, j, *dims = INTEGER(GET_SLOT(from, Matrix_DimSym));
     int n = dims[0], m = dims[1];
 
-    if (toupper(*CHAR(asChar(GET_SLOT(from, install("uplo"))))) == 'U') {
+    if (toupper(*CHAR(asChar(GET_SLOT(from, Matrix_uploSym)))) == 'U') {
 	for (j = 0; j < n; j++) {
 	    for (i = j+1; i < m; i++) {
 		to[i + j*m] = 0.;
@@ -105,7 +124,7 @@ void make_array_triangular(double *to, SEXP from)
 	    }
 	}
     }
-    if (toupper(*CHAR(asChar(GET_SLOT(from, install("diag"))))) == 'U') {
+    if (toupper(*CHAR(asChar(GET_SLOT(from, Matrix_diagSym)))) == 'U') {
 	j = (n < m) ? n : m;
 	for (i = 0; i < j; i++) {
 	    to[i * (m + 1)] = 1.;
@@ -119,10 +138,10 @@ SEXP trMatrix_as_geMatrix(SEXP from)
     
     SET_SLOT(val, install("rcond"),
 	     duplicate(GET_SLOT(from, install("rcond"))));
-    SET_SLOT(val, install("x"), duplicate(GET_SLOT(from, install("x"))));
+    SET_SLOT(val, Matrix_xSym, duplicate(GET_SLOT(from, Matrix_xSym)));
     SET_SLOT(val, Matrix_DimSym,
 	     duplicate(GET_SLOT(from, Matrix_DimSym)));
-    make_array_triangular(REAL(GET_SLOT(val, install("x"))), from);
+    make_array_triangular(REAL(GET_SLOT(val, Matrix_xSym)), from);
     UNPROTECT(1);
     return val;
 }
@@ -134,7 +153,7 @@ SEXP trMatrix_as_matrix(SEXP from)
     SEXP val = PROTECT(allocMatrix(REALSXP, m, n));
     
     make_array_triangular(Memcpy(REAL(val),
-				 REAL(GET_SLOT(from, install("x"))), m * n),
+				 REAL(GET_SLOT(from, Matrix_xSym)), m * n),
 			  from);
     UNPROTECT(1);
     return val;
@@ -144,9 +163,9 @@ SEXP trMatrix_getDiag(SEXP x)
 {
     int i, n = INTEGER(GET_SLOT(x, Matrix_DimSym))[0];
     SEXP ret = PROTECT(allocVector(REALSXP, n)),
-	xv = GET_SLOT(x, install("x"));
+	xv = GET_SLOT(x, Matrix_xSym);
 
-    if ('U' == toupper(CHAR(STRING_ELT(GET_SLOT(x, install("diag")), 0))[0])) {
+    if ('U' == toupper(CHAR(STRING_ELT(GET_SLOT(x, Matrix_diagSym), 0))[0])) {
 	for (i = 0; i < n; i++) REAL(ret)[i] = 1.;
     } else {
 	for (i = 0; i < n; i++) {

@@ -22,8 +22,11 @@ SEXP ssclme_coefGets(SEXP x, SEXP coef, SEXP Unc);
 SEXP ssclme_EMsteps(SEXP x, SEXP nsteps, SEXP REMLp, SEXP verb);
 SEXP ssclme_fitted(SEXP x, SEXP facs, SEXP mmats, SEXP useRf);
 SEXP ssclme_variances(SEXP x);
+SEXP ssclme_grad(SEXP x, SEXP REMLp, SEXP Unc, SEXP OneVector);
 SEXP ssclme_gradient(SEXP x, SEXP REMLp, SEXP Uncp);
 SEXP ssclme_Hessian(SEXP x, SEXP REMLp, SEXP Uncp);
 SEXP ssclme_collapse(SEXP x);
+SEXP ssclme_to_lme(SEXP call, SEXP facs, SEXP x, SEXP model, SEXP REML,
+		   SEXP rep, SEXP fitted, SEXP residuals);
 
 #endif

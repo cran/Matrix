@@ -18,6 +18,62 @@ SEXP syMatrix_validate(SEXP obj)
     return ScalarLogical(1);
 }
 
+double get_norm_sy(SEXP obj, char *typstr)
+{    
+    char typnm[] = {'\0', '\0'};
+    int *dims = INTEGER(GET_SLOT(obj, Matrix_DimSym));
+    double *work = (double *) NULL;
+
+    typnm[0] = norm_type(typstr);
+    if (*typnm == 'I' || *typnm == 'O') {
+        work = (double *) R_alloc(dims[0], sizeof(double));
+    }
+    return F77_CALL(dlansy)(typnm,
+			    CHAR(asChar(GET_SLOT(obj, Matrix_uploSym))),
+			    dims, REAL(GET_SLOT(obj, Matrix_xSym)),
+			    dims, work);
+}
+
+SEXP syMatrix_norm(SEXP obj, SEXP type)
+{
+    return ScalarReal(get_norm_sy(obj, CHAR(asChar(type))));
+}
+
+static
+double set_rcond_sy(SEXP obj, char *typstr)
+{
+    char typnm[] = {'\0', '\0'};
+    SEXP rcv = GET_SLOT(obj, install("rcond"));
+    double rcond;
+
+    typnm[0] = rcond_type(typstr);
+    rcond = get_double_by_name(rcv, typnm);
+
+/* FIXME: Need a factorization here. */
+    if (R_IsNA(rcond)) {
+	int *dims = INTEGER(GET_SLOT(obj, Matrix_DimSym)), info;
+	double anorm = get_norm_sy(obj, "O");
+
+	error("Code for set_rcond_sy not yet written");
+	F77_CALL(dsycon)(CHAR(asChar(GET_SLOT(obj, Matrix_uploSym))),
+			 dims, REAL(GET_SLOT(obj, Matrix_xSym)),
+			 dims, INTEGER(GET_SLOT(obj, install("pivot"))),
+			 &anorm, &rcond, 
+			 (double *) R_alloc(2*dims[0], sizeof(double)),
+			 (int *) R_alloc(dims[0], sizeof(int)), &info);
+	SET_SLOT(obj, install("rcond"),
+		 set_double_by_name(rcv, rcond, typnm));
+    }
+    return rcond;
+}
+
+SEXP syMatrix_rcond(SEXP obj, SEXP type)
+{
+/* FIXME: This is a stub */
+/*     return ScalarReal(set_rcond_sy(obj, CHAR(asChar(type)))); */
+    return ScalarReal(NA_REAL);
+}
+
 static 
 void make_symmetric(double *to, SEXP from, int n)
 {
@@ -37,6 +93,20 @@ void make_symmetric(double *to, SEXP from, int n)
     }
 }
     
+SEXP syMatrix_solve(SEXP a)
+{
+/* FIXME: Write the code */
+    error("code for syMatrix_solve not yet written");
+    return R_NilValue;
+}
+
+SEXP syMatrix_matrix_solve(SEXP a, SEXP b)
+{
+/* FIXME: Write the code */
+    error("code for syMatrix_matrix_solve not yet written");
+    return R_NilValue;
+}
+
 SEXP syMatrix_as_geMatrix(SEXP from)
 {
     SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("geMatrix"))),
@@ -62,27 +132,6 @@ SEXP syMatrix_as_matrix(SEXP from)
 		   from, n);
     UNPROTECT(1);
     return val;
-}
-
-double get_norm_sy(SEXP obj, char *typstr)
-{    
-    char typnm[] = {'\0', '\0'};
-    int *dims = INTEGER(GET_SLOT(obj, Matrix_DimSym));
-    double *work = (double *) NULL;
-
-    typnm[0] = norm_type(typstr);
-    if (*typnm == 'I' || *typnm == 'O') {
-        work = (double *) R_alloc(dims[0], sizeof(double));
-    }
-    return F77_CALL(dlansy)(typnm,
-			    CHAR(asChar(GET_SLOT(obj, Matrix_uploSym))),
-			    dims, REAL(GET_SLOT(obj, Matrix_xSym)),
-			    dims, work);
-}
-
-SEXP syMatrix_norm(SEXP obj, SEXP type)
-{
-    return ScalarReal(get_norm_sy(obj, CHAR(asChar(type))));
 }
 
 SEXP syMatrix_geMatrix_mm(SEXP a, SEXP b)

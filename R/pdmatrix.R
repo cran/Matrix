@@ -7,7 +7,7 @@ setAs("pdfactor", "pdmatrix",
 setAs("pdmatrix", "pdfactor",
       function(from) {
           val <- new("pdfactor",
-                     .Call("nlme_Chol", as(from, "pdmatrix"), PACKAGE="Matrix"))
+                     .Call("nlme_Chol", as(from, "pdmatrix")))
           val@logDet <- sum(log(diag(val)))
           val
       },

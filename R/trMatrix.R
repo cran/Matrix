@@ -1,20 +1,20 @@
 setAs("trMatrix", "geMatrix",
       function(from) {
-          .Call("trMatrix_as_geMatrix", from, PACKAGE="Matrix")
+          .Call("trMatrix_as_geMatrix", from)
       })
 
 setAs("trMatrix", "matrix",
       function(from) {
-          .Call("trMatrix_as_matrix", from, PACKAGE="Matrix")
+          .Call("trMatrix_as_matrix", from)
       })
 
 setMethod("%*%", signature(x = "trMatrix", y = "geMatrix"),
           function(x, y)
-          .Call("trMatrix_geMatrix_mm", x, y, PACKAGE = "Matrix"))
+          .Call("trMatrix_geMatrix_mm", x, y))
 
 setMethod("%*%", signature(x = "geMatrix", y = "trMatrix"),
           function(x, y)
-          .Call("trMatrix_geMatrix_mm_R", y, x, PACKAGE = "Matrix"))
+          .Call("trMatrix_geMatrix_mm_R", y, x))
 
 setMethod("crossprod", signature(x = "trMatrix", y = "missing"),
           function(x, y = NULL) crossprod(as(x, "geMatrix")),
@@ -42,32 +42,32 @@ setMethod("determinant", signature(x = "trMatrix", logarithm = "logical"),
 
 setMethod("norm", signature(x = "trMatrix", type = "character"),
           function(x, type, ...)
-          .Call("trMatrix_norm", x, type, PACKAGE = "Matrix"),
+          .Call("trMatrix_norm", x, type),
           valueClass = "numeric")
 
 setMethod("norm", signature(x = "trMatrix", type = "missing"),
           function(x, type, ...)
-          .Call("trMatrix_norm", x, "O", PACKAGE = "Matrix"),
+          .Call("trMatrix_norm", x, "O"),
           valueClass = "numeric")
 
 setMethod("rcond", signature(x = "trMatrix", type = "character"),
           function(x, type, ...)
-          .Call("trMatrix_rcond", x, type, PACKAGE = "Matrix"),
+          .Call("trMatrix_rcond", x, type),
           valueClass = "numeric")
 
 setMethod("rcond", signature(x = "trMatrix", type = "missing"),
           function(x, type, ...)
-          .Call("trMatrix_rcond", x, "O", PACKAGE = "Matrix"),
+          .Call("trMatrix_rcond", x, "O"),
           valueClass = "numeric")
 
 setMethod("solve", signature(a = "trMatrix", b="missing"),
           function(a, b, ...)
-          .Call("trMatrix_solve", a, PACKAGE = "Matrix"),
+          .Call("trMatrix_solve", a),
           valueClass = "trMatrix")
 
 setMethod("solve", signature(a = "trMatrix", b="matrix"),
           function(a, b, ...)
-          .Call("trMatrix_matrix_solve", a, b, PACKAGE = "Matrix"),
+          .Call("trMatrix_matrix_solve", a, b),
           valueClass = "matrix")
 
 setMethod("t", signature(x = "trMatrix"),

@@ -1,7 +1,7 @@
 setReplaceMethod("coef", signature(object = "lmeRep", value = "numeric"),
                  function(object, unconst = FALSE, ..., value)
                  .Call("lmeRep_coefGets", object, as.double(value),
-                       unconst, PACKAGE = "Matrix"))
+                       unconst))
 
 setAs("ssclme", "sscMatrix",
       function(from)
@@ -15,7 +15,7 @@ setAs("ssclme", "tscMatrix",
 
 setMethod("coef", signature(object = "lmeRep"),
           function(object, unconst = FALSE, ...) {
-              .Call("lmeRep_coef", object, unconst, PACKAGE = "Matrix")
+              .Call("lmeRep_coef", object, unconst)
           })
 
 setMethod("deviance", "lmeRep",
@@ -26,12 +26,12 @@ setMethod("deviance", "lmeRep",
 
 setMethod("chol", signature(x = "lmeRep"),
           function(x, pivot = FALSE, LINPACK = pivot)
-          .Call("lmeRep_factor", x, PACKAGE = "Matrix")
+          .Call("lmeRep_factor", x)
           )
 
 setMethod("solve", signature(a = "lmeRep", b = "missing"),
           function(a, b, ...)
-          .Call("lmeRep_invert", a, PACKAGE = "Matrix")
+          .Call("lmeRep_invert", a)
           )
 
 

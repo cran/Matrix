@@ -1,6 +1,8 @@
 useDynLib(Matrix)
-importFrom(graphics,image)
-importFrom(stats, deviance, formula, coef)
+importFrom("graphics","image")
+importFrom("lattice", "levelplot")
+importFrom("grid", "grid.rect", "gpar")
+importFrom("stats", "deviance", "formula", "coef")
 
 # Generics and functions defined in this package
 export(
@@ -11,7 +13,6 @@ export(
        "corMatrix",
        "expand",
        "facmul",
-       #"isInitialized",
        "lu",
        "matrix<-",
        "norm",
@@ -50,16 +51,13 @@ exportMethods(
               "coef",
               "coef<-",
               "coerce",
-              #"coerce<-",
               "corMatrix",
               "crossprod",
               "determinant",
               "diag",
               "dim",
               "expand",
-              #"formula",
               "image",
-              #"isInitialized",
               "matrix<-",
               "norm",
               "pdFactor",

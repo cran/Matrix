@@ -491,6 +491,7 @@ lmeRep_inflate(int nf, const int nc[], SEXP ZZxP, SEXP OmegaP, SEXP levelsP,
 	       SEXP DP, double dcmp[])
 {
     int i;
+    dcmp[0] = dcmp[1] = dcmp[2] = dcmp[3] = 0.;
     for (i = 0; i < nf; i++) {
 	int j, nci = nc[i], ncisqr = nci * nci,
 	    nlev = length(VECTOR_ELT(levelsP, i));
@@ -536,32 +537,77 @@ lmeRep_inflate(int nf, const int nc[], SEXP ZZxP, SEXP OmegaP, SEXP levelsP,
 }
 
 static void
-update_D_L(int i, const int nc[], SEXP ZZxP, SEXP LP, SEXP DP)
+copy_ZZx_to_L(int nf, const int nc[], SEXP ZZxP, SEXP LP)
 {
-    int j, jj, k, nci = nc[i], offdiag = 0;
-    double minus1 = -1., one = 1.;
+    int i;
+    for (i = 1; i < nf; i++) {
+	int k, nci = nc[i];
+	for (k = 0; k < i; k++) {
+	    int ind = Lind(i, k), j, nck = nc[k], sz = nci * nck;
+	    SEXP Lind = VECTOR_ELT(LP, ind),
+		Zind = VECTOR_ELT(ZZxP, ind);
+	    int *Lp = INTEGER(GET_SLOT(Lind, Matrix_pSym)),
+		*Li = INTEGER(GET_SLOT(Lind, Matrix_iSym)),
+		*Zp = INTEGER(GET_SLOT(Zind, Matrix_pSym)),
+		*Zi = INTEGER(GET_SLOT(Zind, Matrix_iSym));
+	    double *Lx = REAL(GET_SLOT(Lind, Matrix_xSym)),
+		*Zx = REAL(GET_SLOT(Zind, Matrix_xSym));
+
+	    for (j = 0; j < nck; j++) {	/* loop over columns of L and ZZ */
+		int L2 = Lp[j + 1], Z2 = Zp[j+1], jj, zi, zpj = Zp[j];
+
+		zi = (zpj < Z2) ? Zi[zpj] : INT_MAX;
+		for (jj = Lp[j]; jj < L2; jj++) { /* non-zero blocks in L */
+		    int ii = Li[jj];
+		    if (ii < zi) { /* zero this block */
+			memset(Lx + ii * sz, 0, sizeof(double) * sz);
+		    } else if (ii == zi) { /* copy this block */
+			Memcpy(Zx + zi * sz, Lx + ii * sz, sz);
+			zpj++;
+			zi = (zpj < Z2) ? Zi[zpj] : INT_MAX;
+		    } else
+			error("Unable to find ZZx[[%d]][%d,%d,]", ind+1, ii+1, j+1);
+		}
+	    }
+	}
+    }
+}
+		    
+/** 
+ * Update a diagonal block and corresponding components of L
+ * 
+ * @param i Index of the diagonal block to be updated
+ * @param nc vector of number of columns per block
+ * @param ZZxP pointer to ZZx list
+ * @param LP pointer to L list
+ * @param DP pointer to D list
+ */
+static void
+update_D_L(int i, const int nc[], SEXP LP, SEXP DP)
+{
+    int j, jj, k, nci = nc[i], ncisq = nci * nci, offdiag = 0;
+    double *Di = REAL(VECTOR_ELT(DP, i)), minus1 = -1., one = 1.;
+
     for (k = 0; k < i; k++) {
-	int ind = Lind(i, k), nck = nc[k];
-	int *colptr = INTEGER(GET_SLOT(VECTOR_ELT(LP, ind), Matrix_pSym)),
-	    *rowind = INTEGER(GET_SLOT(VECTOR_ELT(LP, ind), Matrix_iSym));
-	double *Di = REAL(VECTOR_ELT(DP, i)),
-	    *Dk = REAL(VECTOR_ELT(DP, k)),
-	    *ZZx = REAL(GET_SLOT(VECTOR_ELT(ZZxP, ind), Matrix_xSym));
-	
+	int nck = nc[k], ncksq = nck * nck, sz = nci * nck;
+	SEXP Lpt = VECTOR_ELT(LP, Lind(i,k));
+	int *colptr = INTEGER(GET_SLOT(Lpt, Matrix_pSym)),
+	    *rowind = INTEGER(GET_SLOT(Lpt, Matrix_iSym));
+	double *Dk = REAL(VECTOR_ELT(DP, k)),
+	    *Lx = REAL(GET_SLOT(Lpt, Matrix_xSym));
 	
 	for (j = 0; j < nck; j++) {
 	    int j1 = colptr[j], j2 = colptr[j + 1];
 	    if ((j2 - j1) > 1) offdiag = 1;
 	    for (jj = j1; jj < j2; jj++) {
 		int ii = rowind[jj];
-		F77_CALL(dtrsm)("R", "U", "N", "N", &nci, &nck, &one,
-				Dk + j * nck * nck, &nck,
-				ZZx + jj * nci * nck, &nci);
+		F77_CALL(dtrsm)("R", "U", "T", "N", &nci, &nck, &one,
+				Dk + j * ncksq, &nck, Lx + jj * sz, &nci);
 		F77_CALL(dsyrk)("U", "N", &nci, &nck,
-				&minus1, ZZx + jj * nci * nck, &nci,
-				&one, Di + ii * nci * nci, &nci);
-				/* Should there be another dtrsm call here? */
-/* FIXME: Incomplete */
+				&minus1, Lx + jj * sz, &nci,
+				&one, Di + ii * ncisq, &nci);
+		F77_CALL(dtrsm)("R", "U", "N", "N", &nci, &nck, &one,
+				Dk + j * ncksq, &nck, Lx + jj * sz, &nci);
 	    }
 	}
 	if (offdiag)
@@ -602,7 +648,7 @@ SEXP lmeRep_factor(SEXP x)
 
 
 	Memcpy(RZX, REAL(GET_SLOT(x, Matrix_ZtXSym)), dims[0] * dims[1]);
-	dcmp[0] = dcmp[1] = dcmp[2] = dcmp[3] = 0.;
+	copy_ZZx_to_L(nf, nc, ZZxP, LP);
 	lmeRep_inflate(nf, nc, ZZxP, GET_SLOT(x, Matrix_OmegaSym),
 		       levs, DP, dcmp);
 	for (i = 0; i < nf; i++) {
@@ -612,6 +658,7 @@ SEXP lmeRep_factor(SEXP x)
 	    double
 		*D = REAL(VECTOR_ELT(DP, i));
 	
+	    if (i) update_D_L(i, nc, LP, DP);
 	    if (nci == 1) {
 		for (j = 0; j < nlev; j++) {
 		    dcmp[0] += 2. * log(D[j]);
@@ -631,7 +678,6 @@ SEXP lmeRep_factor(SEXP x)
 		}
 	    }
 	    RZX += RZXrows;
-	    update_D_L(i, nc, ZZxP, LP, DP);
 	}
 				/* downdate and factor X'X */
 	Memcpy(RXX, REAL(GET_SLOT(x, Matrix_XtXSym)), dims[1] * dims[1]);

@@ -1,3 +1,7 @@
+2004-10-02  Douglas Bates  <bates@bates1-home>
+
+	* R/tripletMatrix.R: Force a require(lattice) for the image methods.
+
 2004-06-15  Douglas Bates  <bates@bates7>
 
 	* man/trMatrix-class.Rd: Escape the % chars in .Rd files.

@@ -1,17 +1,16 @@
 \name{det}
 \title{Calculate the Determinant of a Matrix}
-\alias{det}
-\alias{det.default}
-\alias{det.Matrix}
-\alias{det.UnitLowerTriangular}
-\alias{det.LowerTriangular}
-\alias{det.UnitUpperTriangular}
-\alias{det.UpperTriangular}
+\alias{determinant}
+\alias{determinant.Matrix}
+\alias{determinant.UnitLowerTriangular}
+\alias{determinant.LowerTriangular}
+\alias{determinant.UnitUpperTriangular}
+\alias{determinant.UpperTriangular}
 \usage{
-\method{det}{Matrix}(x, logarithm = TRUE, ...)
+\method{determinant}{Matrix}(x, logarithm = TRUE, ...)
 }
 \description{
-  \code{det} calculates the determinant (or its logarithm) of a matrix
+  \code{determinant} calculates the determinant (or its logarithm) of a matrix
 }
 \arguments{
   \item{x}{numeric matrix.}
@@ -24,8 +23,7 @@
   \item{\dots}{further arguments passed to or from other methods.}
 }
 \value{
-  \code{det.default} returns a numeric value.  Other \code{det}
-  methods return a list with two elements
+ \code{determinant} return a list with two elements
   \itemize{
     \item{modulus}{a numeric value.  The modulus (absolute value) of
       the determinant or the logarithm of the modulus.  The value
@@ -36,27 +34,21 @@
   }
 }
 \details{
-  \code{det} is a generic function with special methods for different types
+  \code{determinant} is a generic function with special methods for different types
   of matrices or decompositions.
-  Use \code{\link{methods}("det")} to list all the methods for the
-  \code{det} generic.
+  Use \code{\link{methods}("determinant")} to list all the methods for the
+  \code{determinant} generic.
   
-  The \code{det} function from the base R package has a slightly
-  different calling sequence.  In particular, it does not have a
-  \code{logarithm} argument and always returns the determinant, never
-  the logarithm of the determinant.  It is used as the default method for
-  the generic \code{det} function defined here.  Be aware that the
-  \code{logarithm} argument will only have an effect when \code{det}
-  is called on objects that inherit from the \code{Matrix} class.
 }
 \note{
   Often, computing the determinant is \emph{not} what you should be doing
   to solve a given problem.
 }
+\seealso{\code{\link[base]{det}}}
 \examples{
 h9 <- hilbert(9)
-det(h9)
-det(h9, log = FALSE)
+determinant(h9)
+determinant(h9, log = FALSE)
 }
 \keyword{array}
 \keyword{algebra}

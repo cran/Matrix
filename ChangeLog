@@ -1,3 +1,9 @@
+2003-04-19  Douglas Bates  <bates@stat.wisc.edu>
+
+	* R/det.R,man/det.Rd: Change name of det generic to determinant
+
+	* src/R_LapackPP.cc: Change method of calculating determinants
+
 2003-02-03  Douglas Bates  <bates@stat.wisc.edu>
 
 	* DESCRIPTION (Version): removed empty data directory as requested

@@ -130,14 +130,13 @@ extern "C" {
     {
 	if (isComplex(x)) error("Complex Matrix classes not yet implemented");
 	LaGenMatDouble xx(x);
-	int n = xx.size(0);
+	int n = xx.size(0), info;
 	if (xx.size(1) != n) {error("x must be a square matrix");}
-	int lwork = 5 * n, info;
-	LaVectorDouble work(lwork), tau(n);
-	F77_CALL(dgeqrf)(n, n, &xx(0,0), xx.gdim(0), &tau(0), &work(0),
-			 lwork, info);
-	int sign = (n % 2) ? 1 : -1,
-	    useLog = LOGICAL(coerceVector(logarithm, LGLSXP))[0];
+	LaVectorInt jpvt(n);
+	F77_CALL(dgetrf)(n, n, &xx(0,0), xx.gdim(0), &jpvt(0), info);
+	int sign = 1;
+	for (int i = 0; i < n; i++) if (jpvt(i) != (i + 1)) sign = -sign;
+	int useLog = LOGICAL(coerceVector(logarithm, LGLSXP))[0];
 	double modulus;
 	if (useLog) {
 	    modulus = 0.0;
@@ -149,7 +148,7 @@ extern "C" {
 	    modulus = 1.0;
 	    for (int i = 0; i < n; i++) { modulus *= xx(i, i); }
 	    if (modulus < 0) {
-		modulus = - modulus;
+		modulus = -modulus;
 		sign = -sign;
 	    }
 	}

@@ -44,7 +44,7 @@ void METIS_WPartGraphVKway(int *nvtxs, idxtype *xadj, idxtype *adjncy, idxtype *
                           idxtype *vsize, int *wgtflag, int *numflag, int *nparts, 
                           float *tpwgts, int *options, int *volume, idxtype *part)
 {
-  int i, j;
+/*   int i, j; */
   GraphType graph;
   CtrlType ctrl;
 
@@ -94,7 +94,7 @@ void METIS_WPartGraphVKway(int *nvtxs, idxtype *xadj, idxtype *adjncy, idxtype *
 int MlevelVolKWayPartitioning(CtrlType *ctrl, GraphType *graph, int nparts, idxtype *part, 
                               float *tpwgts, float ubfactor)
 {
-  int i, j, nvtxs, tvwgt, tpwgts2[2];
+/*   int i, j, nvtxs, tvwgt, tpwgts2[2]; */
   GraphType *cgraph;
   int wgtflag=3, numflag=0, options[10], edgecut;
 

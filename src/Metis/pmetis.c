@@ -46,7 +46,7 @@ void METIS_WPartGraphRecursive(int *nvtxs, idxtype *xadj, idxtype *adjncy, idxty
                                idxtype *adjwgt, int *wgtflag, int *numflag, int *nparts, 
                                float *tpwgts, int *options, int *edgecut, idxtype *part)
 {
-  int i, j;
+  int i/* , j */;
   GraphType graph;
   CtrlType ctrl;
   float *mytpwgts;
@@ -100,9 +100,11 @@ void METIS_WPartGraphRecursive(int *nvtxs, idxtype *xadj, idxtype *adjncy, idxty
 /*************************************************************************
 * This function takes a graph and produces a bisection of it
 **************************************************************************/
-int MlevelRecursiveBisection(CtrlType *ctrl, GraphType *graph, int nparts, idxtype *part, float *tpwgts, float ubfactor, int fpart)
+int MlevelRecursiveBisection(CtrlType *ctrl, GraphType *graph, int nparts,
+			     idxtype *part, float *tpwgts, float ubfactor,
+			     int fpart)
 {
-  int i, j, nvtxs, cut, tvwgt, tpwgts2[2];
+  int i/* , j */, nvtxs, cut, tvwgt, tpwgts2[2];
   idxtype *label, *where;
   GraphType lgraph, rgraph;
   float wsum;

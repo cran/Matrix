@@ -1,8 +1,10 @@
 #include "lmer.h"
 /* TODO
  * - The egsingle example with ~year|childid+schoolid shows an unusual
- * drop in the deviance when switching from ECME to optim.  Is it real?
- * (Apparently so.)
+ *   drop in the deviance when switching from ECME to optim.  Is it real?
+ *   (Apparently so.)
+ * - Remove the fill_nnz function and the PAR and BLK macros.  Do the
+ *   allocation of temporary storage once only.
  */
 
 /**
@@ -215,8 +217,8 @@ SEXP lmer_update_mm(SEXP x, SEXP mmats)
  * matrices.  There is one more model matrix than grouping factor.  The last
  * model matrix is the fixed effects and the response.
  *
- * @param facs pointer to a list of grouping factors
- * @param ncv pointer to a list of model matrices
+ * @param flist pointer to a list of grouping factors
+ * @param mmats pointer to a list of model matrices
  *
  * @return pointer to an lmer object
  */
@@ -559,24 +561,24 @@ SEXP lmer_factor(SEXP x)
  * Solve one of the matrix equations op(L)*X=alpha*B or
  * X*op(L)=alpha*B where L is a sparse, blocked, unit lower triangular matrix.
  *
- * @param side 'L' for left, 'R' for right
- * @param trans 'T' for transpose, otherwise no transpose
+ * @param side LFT or RGT for left or right
+ * @param trans TRN or NTR for transpose or no transpose
  * @param nf number of grouping factors
  * @param Gp group pointers for the rows
  * @param n number of columns
  * @param alpha multiplier
  * @param L pointer to the L cscb object
- * @param mm pointer to the matrix of right-hand sides
+ * @param B pointer to the matrix of right-hand sides
+ * @param ldb leading dimension of array B as declared in the caller
  */
 static void
-lmer_sm(char side, char trans, int nf, const int Gp[], int n,
-	double alpha, SEXP L, double B[], int ldb)
+lmer_sm(enum CBLAS_SIDE side, enum CBLAS_TRANSPOSE trans, int nf, const int Gp[],
+	int n, double alpha, SEXP L, double B[], int ldb)
 {
-    int itr = (trans == 'T' || trans == 't'), j, k,
-	lside = (side == 'L' || side == 'l');
+    int j, k;
 
-    if (lside) {
-	if (itr) {
+    if (side == LFT) {
+	if (trans == TRN) {
 	    for (j = nf - 1; j >= 0; j--) {
 		int nrj = Gp[j + 1] - Gp[j];
 
@@ -608,6 +610,9 @@ int max_nnz(int j, SEXP Parent)
     return val;
 }
 
+#define BLK(i,j) INTEGER(VECTOR_ELT(VECTOR_ELT(Parent, i), 1))[j]
+#define PAR(i,j) INTEGER(VECTOR_ELT(VECTOR_ELT(Parent, i), 0))[j]
+
 /**
  * Fill the nnz array with the number of nonzero inner blocks in each
  * outer block of the jth inner column block of the ith outer block of
@@ -623,9 +628,6 @@ int max_nnz(int j, SEXP Parent)
  * @param ind array of length nf of pointers to ints
  *
  */
-#define BLK(i,j) INTEGER(VECTOR_ELT(VECTOR_ELT(Parent, i), 1))[j]
-#define PAR(i,j) INTEGER(VECTOR_ELT(VECTOR_ELT(Parent, i), 0))[j]
-
 static
 void fill_nnz(int i, int j, int nf, SEXP Parent, const int nc[],
 	   int nnz[], double *tmp[], int *ind[])
@@ -730,7 +732,7 @@ SEXP lmer_invert(SEXP x)
 	}
 
 	/* RZX := L^{-T} %*% RZX */
-	lmer_sm('L', 'T', nf, Gp, dims[1], 1.0, LP, RZX, dims[0]);
+	lmer_sm(LFT, TRN, nf, Gp, dims[1], 1.0, LP, RZX, dims[0]);
 
 	/* Create bVar arrays as crossprod of column blocks of D^{-T/2}%*%L^{-1} */
 	for (i = 0; i < nf; i++) {
@@ -1233,7 +1235,7 @@ void EMsteps_verbose_print(SEXP x, int iter, int REML, SEXP firstDer, SEXP val)
  * @param x pointer to an ssclme object
  * @param nsteps pointer to an integer scalar - the number of ECME steps to perform
  * @param REMLp pointer to a logical scalar indicating if REML is to be used
- * @param verb pointer to a logical scalar indicating verbose output
+ * @param Verbp pointer to a logical scalar indicating verbose output
  *
  * @return R_NilValue if verb == FALSE, otherwise a list of iteration
  *numbers, deviances, parameters, and gradients.
@@ -1369,9 +1371,9 @@ SEXP lmer_gradient(SEXP x, SEXP REMLp, SEXP Uncp)
  * information to generate the Hessian.
 
  * @param x pointer to an lme object
- * @param val ignored at present
+ * @param Valp ignored at present
  *
- * @return val an array consisting of five symmetric faces
+ * @return Valp an array consisting of five symmetric faces
  */
 static
 SEXP lmer_secondDer(SEXP x, SEXP Valp)

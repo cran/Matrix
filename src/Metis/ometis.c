@@ -22,7 +22,7 @@
 void METIS_EdgeND(int *nvtxs, idxtype *xadj, idxtype *adjncy, int *numflag, int *options, 
                   idxtype *perm, idxtype *iperm) 
 {
-  int i, j;
+  int i/* , j */;
   GraphType graph;
   CtrlType ctrl;
 
@@ -79,7 +79,7 @@ void METIS_EdgeND(int *nvtxs, idxtype *xadj, idxtype *adjncy, int *numflag, int 
 void METIS_NodeND(int *nvtxs, idxtype *xadj, idxtype *adjncy, int *numflag, int *options, 
                   idxtype *perm, idxtype *iperm) 
 {
-  int i, ii, j, l, wflag, nflag;
+  int i, ii, j, l/* , wflag, nflag */;
   GraphType graph;
   CtrlType ctrl;
   idxtype *cptr, *cind, *piperm;
@@ -204,7 +204,7 @@ void METIS_NodeND(int *nvtxs, idxtype *xadj, idxtype *adjncy, int *numflag, int 
 void METIS_NodeWND(int *nvtxs, idxtype *xadj, idxtype *adjncy, idxtype *vwgt, int *numflag, 
                    int *options, idxtype *perm, idxtype *iperm) 
 {
-  int i, j, tvwgt;
+  int i/* , j, tvwgt */;
   GraphType graph;
   CtrlType ctrl;
 
@@ -262,7 +262,7 @@ void METIS_NodeWND(int *nvtxs, idxtype *xadj, idxtype *adjncy, idxtype *vwgt, in
 **************************************************************************/
 void MlevelNestedDissection(CtrlType *ctrl, GraphType *graph, idxtype *order, float ubfactor, int lastvtx)
 {
-  int i, j, nvtxs, nbnd, tvwgt, tpwgts2[2];
+  int i/* , j */, nvtxs, nbnd, tvwgt, tpwgts2[2];
   idxtype *label, *bndind;
   GraphType lgraph, rgraph;
 
@@ -322,7 +322,7 @@ void MlevelNestedDissection(CtrlType *ctrl, GraphType *graph, idxtype *order, fl
 **************************************************************************/
 void MlevelNestedDissectionCC(CtrlType *ctrl, GraphType *graph, idxtype *order, float ubfactor, int lastvtx)
 {
-  int i, j, nvtxs, nbnd, tvwgt, tpwgts2[2], nsgraphs, ncmps, rnvtxs;
+  int i/* , j */, nvtxs, nbnd, tvwgt, tpwgts2[2], nsgraphs, ncmps, rnvtxs;
   idxtype *label, *bndind;
   idxtype *cptr, *cind;
   GraphType *sgraphs;
@@ -383,9 +383,10 @@ void MlevelNestedDissectionCC(CtrlType *ctrl, GraphType *graph, idxtype *order, 
 * This function performs multilevel bisection. It performs multiple 
 * bisections and selects the best.
 **************************************************************************/
-void MlevelNodeBisectionMultiple(CtrlType *ctrl, GraphType *graph, int *tpwgts, float ubfactor)
+void MlevelNodeBisectionMultiple(CtrlType *ctrl, GraphType *graph, int *tpwgts,
+				 float ubfactor)
 {
-  int i, nvtxs, cnvtxs, mincut, tmp;
+  int i, nvtxs, cnvtxs, mincut/* , tmp */;
   GraphType *cgraph; 
   idxtype *bestwhere;
 
@@ -511,7 +512,7 @@ void SplitGraphOrder(CtrlType *ctrl, GraphType *graph, GraphType *lgraph, GraphT
   idxtype *xadj, *vwgt, *adjncy, *adjwgt, *adjwgtsum, *label, *where, *bndptr, *bndind;
   idxtype *sxadj[2], *svwgt[2], *sadjncy[2], *sadjwgt[2], *sadjwgtsum[2], *slabel[2];
   idxtype *rename;
-  idxtype *auxadjncy, *auxadjwgt;
+  idxtype *auxadjncy/* , *auxadjwgt */;
 
   IFSET(ctrl->dbglvl, DBG_TIME, starttimer(ctrl->SplitTmr));
 
@@ -616,7 +617,7 @@ void SplitGraphOrder(CtrlType *ctrl, GraphType *graph, GraphType *lgraph, GraphT
 **************************************************************************/
 void MMDOrder(CtrlType *ctrl, GraphType *graph, idxtype *order, int lastvtx)
 {
-  int i, j, k, nvtxs, nofsub, firstvtx;
+  int i/* , j */, k, nvtxs, nofsub, firstvtx;
   idxtype *xadj, *adjncy, *label;
   idxtype *perm, *iperm, *head, *qsize, *list, *marker;
 
@@ -662,7 +663,7 @@ void MMDOrder(CtrlType *ctrl, GraphType *graph, idxtype *order, int lastvtx)
 **************************************************************************/
 int SplitGraphOrderCC(CtrlType *ctrl, GraphType *graph, GraphType *sgraphs, int ncmps, idxtype *cptr, idxtype *cind)
 {
-  int i, ii, iii, j, k, l, istart, iend, mypart, nvtxs, snvtxs, snedges;
+  int i, ii, iii, j, k, l, istart, iend/* , mypart */, nvtxs, snvtxs, snedges;
   idxtype *xadj, *vwgt, *adjncy, *adjwgt, *adjwgtsum, *label, *where, *bndptr, *bndind;
   idxtype *sxadj, *svwgt, *sadjncy, *sadjwgt, *sadjwgtsum, *slabel;
   idxtype *rename;

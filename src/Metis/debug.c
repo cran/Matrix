@@ -116,7 +116,7 @@ int CheckBnd2(GraphType *graph)
 **************************************************************************/
 int CheckNodeBnd(GraphType *graph, int onbnd) 
 {
-  int i, j, nvtxs, nbnd;
+  int i/* , j */, nvtxs, nbnd;
   idxtype *xadj, *adjncy, *where, *bndptr, *bndind;
 
   nvtxs = graph->nvtxs;
@@ -169,7 +169,7 @@ int CheckRInfo(RInfoType *rinfo)
 **************************************************************************/
 int CheckNodePartitionParams(GraphType *graph)
 {
-  int i, j, k, l, nvtxs, me, other;
+  int i, j/* , k, l */, nvtxs, me, other;
   idxtype *xadj, *adjncy, *adjwgt, *vwgt, *where;
   idxtype edegrees[2], pwgts[3];
 

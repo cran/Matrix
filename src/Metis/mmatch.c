@@ -78,7 +78,7 @@ void MCMatch_RM(CtrlType *ctrl, GraphType *graph)
 **************************************************************************/
 void MCMatch_HEM(CtrlType *ctrl, GraphType *graph)
 {
-  int i, ii, j, k, l, nvtxs, cnvtxs, ncon, maxidx, maxwgt;
+  int i, ii, j, k/* , l */, nvtxs, cnvtxs, ncon, maxidx, maxwgt;
   idxtype *xadj, *adjncy, *adjwgt;
   idxtype *match, *cmap, *perm;
   float *nvwgt;

@@ -21,7 +21,7 @@
 void SetUpGraph(GraphType *graph, int OpType, int nvtxs, int ncon,
        idxtype *xadj, idxtype *adjncy, idxtype *vwgt, idxtype *adjwgt, int wgtflag)
 {
-  int i, j, k, sum, gsize;
+  int i, j/* , k */, sum, gsize;
   float *nvwgt;
   idxtype tvwgt[MAXNCON];
 
@@ -211,7 +211,7 @@ void SetUpGraph2(GraphType *graph, int nvtxs, int ncon, idxtype *xadj,
 void VolSetUpGraph(GraphType *graph, int OpType, int nvtxs, int ncon, idxtype *xadj, 
                    idxtype *adjncy, idxtype *vwgt, idxtype *vsize, int wgtflag)
 {
-  int i, j, k, sum, gsize;
+  int i, j/* , k */, sum, gsize;
   idxtype *adjwgt;
   float *nvwgt;
   idxtype tvwgt[MAXNCON];
@@ -490,7 +490,7 @@ int IsConnected(CtrlType *ctrl, GraphType *graph, int report)
 **************************************************************************/
 int IsConnected2(GraphType *graph, int report)
 {
-  int i, j, k, nvtxs, first, last, nleft, ncmps, wgt;
+  int i, j, k, nvtxs, first, last, nleft, ncmps/* , wgt */;
   idxtype *xadj, *adjncy, *where, *touched, *queue;
   idxtype *cptr;
 
@@ -553,7 +553,7 @@ int IsConnected2(GraphType *graph, int report)
 **************************************************************************/
 int FindComponents(CtrlType *ctrl, GraphType *graph, idxtype *cptr, idxtype *cind)
 {
-  int i, j, k, nvtxs, first, last, nleft, ncmps, wgt;
+  int i, j, k, nvtxs, first, last, nleft, ncmps/* , wgt */;
   idxtype *xadj, *adjncy, *where, *touched, *queue;
 
   nvtxs = graph->nvtxs;

@@ -20,7 +20,8 @@
 void MocFM_2WayEdgeRefine2(CtrlType *ctrl, GraphType *graph, float *tpwgts, float *orgubvec, 
        int npasses)
 {
-  int i, ii, j, k, l, kwgt, nvtxs, ncon, nbnd, nswaps, from, to, pass, me, limit, tmp, cnum;
+  int i, ii, j, k, l, kwgt, nvtxs, ncon, nbnd, nswaps, from,
+      to, pass/* , me */, limit, tmp, cnum;
   idxtype *xadj, *adjncy, *adjwgt, *where, *id, *ed, *bndptr, *bndind;
   idxtype *moved, *swaps, *perm, *qnum;
   float *nvwgt, *npwgts, origdiff[MAXNCON], origbal[MAXNCON], minbal[MAXNCON];
@@ -325,7 +326,7 @@ void SelectQueue2(int ncon, float *npwgts, float *tpwgts, int *from, int *cnum,
 **************************************************************************/
 int IsBetter2wayBalance(int ncon, float *newbal, float *oldbal, float *ubvec)
 {
-  int i, j;
+  int i/* , j */;
   float max1=0.0, max2=0.0, sum1=0.0, sum2=0.0, tmp;
 
   for (i=0; i<ncon; i++) {

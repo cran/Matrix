@@ -101,7 +101,7 @@ be timed accurately in \RR{}
 > system.time(solve(t(mm) %*% mm) %*% t(mm) %*% y, gc = TRUE)
 \end{Sinput}
 \begin{Soutput}
-[1] 0.01 0.00 0.01 0.00 0.00
+[1] 0 0 0 0 0
 \end{Soutput}
 \end{Schunk}
 and it provides essentially the same results as the standard
@@ -155,7 +155,7 @@ Attaching package 'Matrix':
 +     y, gc = TRUE)
 \end{Sinput}
 \begin{Soutput}
-[1] 2.93 0.09 3.04 0.00 0.00
+[1] 2.94 0.11 3.30 0.00 0.00
 \end{Soutput}
 \end{Schunk}
 
@@ -184,7 +184,7 @@ Combining these optimizations we obtain
 +     y)), gc = TRUE)
 \end{Sinput}
 \begin{Soutput}
-[1] 0.64 0.04 0.68 0.00 0.00
+[1] 0.64 0.04 0.79 0.00 0.00
 \end{Soutput}
 \begin{Sinput}
 > all.equal(naive.sol, cpod.sol)
@@ -203,7 +203,7 @@ faster than simply calculating $\bX\trans\bX$ the naive way.
 > system.time(t(mm) %*% mm, gc = TRUE)
 \end{Sinput}
 \begin{Soutput}
-[1] 0.82 0.02 0.83 0.00 0.00
+[1] 0.84 0.03 0.93 0.00 0.00
 \end{Soutput}
 \end{Schunk}
 
@@ -223,14 +223,14 @@ but it is rather awkward
 > system.time(ch <- chol(crossprod(mm)), gc = TRUE)
 \end{Sinput}
 \begin{Soutput}
-[1] 0.46 0.02 0.49 0.00 0.00
+[1] 0.47 0.03 0.82 0.00 0.00
 \end{Soutput}
 \begin{Sinput}
 > system.time(chol.sol <- backsolve(ch, forwardsolve(ch, crossprod(mm, 
 +     y), upper = TRUE, trans = TRUE)), gc = TRUE)
 \end{Sinput}
 \begin{Soutput}
-[1] 0.12 0.03 0.15 0.00 0.00
+[1] 0.12 0.03 0.18 0.00 0.00
 \end{Soutput}
 \begin{Sinput}
 > all.equal(chol.sol, naive.sol)
@@ -263,7 +263,7 @@ attr(,"package")
 +     y)), gc = TRUE)
 \end{Sinput}
 \begin{Soutput}
-[1] 0.48 0.02 0.50 0.00 0.00
+[1] 0.48 0.02 0.54 0.00 0.00
 \end{Soutput}
 \begin{Sinput}
 > all.equal(naive.sol, as(Mat.sol, "matrix"))
@@ -283,13 +283,13 @@ the original object so that it can be reused without recalculation.
 > system.time(solve(xpx, xpy), gc = TRUE)
 \end{Sinput}
 \begin{Soutput}
-[1] 0.1 0.0 0.1 0.0 0.0
+[1] 0.09 0.01 0.11 0.00 0.00
 \end{Soutput}
 \begin{Sinput}
 > system.time(solve(xpx, xpy), gc = TRUE)
 \end{Sinput}
 \begin{Soutput}
-[1] 0.00 0.00 0.01 0.00 0.00
+[1] 0 0 0 0 0
 \end{Soutput}
 \end{Schunk}
 

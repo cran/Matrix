@@ -20,7 +20,7 @@
 **************************************************************************/
 void ComputePartitionInfo(GraphType *graph, int nparts, idxtype *where)
 {
-  int i, j, k, nvtxs, ncon, mustfree=0;
+  int i, j/* , k */, nvtxs, ncon, mustfree=0;
   idxtype *xadj, *adjncy, *vwgt, *adjwgt, *kpwgts, *tmpptr;
   idxtype *padjncy, *padjwgt, *padjcut;
 
@@ -129,8 +129,8 @@ void ComputePartitionInfo(GraphType *graph, int nparts, idxtype *where)
 **************************************************************************/
 void ComputePartitionInfoBipartite(GraphType *graph, int nparts, idxtype *where)
 {
-  int i, j, k, nvtxs, ncon, mustfree=0;
-  idxtype *xadj, *adjncy, *vwgt, *vsize, *adjwgt, *kpwgts, *tmpptr;
+  int i, j/* , k */, nvtxs, ncon, mustfree=0;
+  idxtype *xadj, *adjncy, *vwgt, *vsize, *adjwgt, *kpwgts/* , *tmpptr */;
   idxtype *padjncy, *padjwgt, *padjcut;
 
   nvtxs = graph->nvtxs;
@@ -236,7 +236,7 @@ void ComputePartitionBalance(GraphType *graph, int nparts, idxtype *where, float
 {
   int i, j, nvtxs, ncon;
   idxtype *kpwgts, *vwgt;
-  float balance;
+/*   float balance; */
 
   nvtxs = graph->nvtxs;
   ncon = graph->ncon;

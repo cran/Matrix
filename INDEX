@@ -4,7 +4,6 @@ LU-class                LU Matrix Decompositions
 Matrix                  Construct a Classed Matrix
 Matrix-class            Class "Matrix" Virtual Class of Matrices
 Schur                   Schur Decomposition of a Matrix
-ScotsSec                Scottish secondary school scores
 bCrosstab               Create pairwise crosstabulation
 coef<-                  Assign parameters
 corrmatrix-class        Class "corrmatrix"

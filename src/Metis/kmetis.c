@@ -44,7 +44,7 @@ void METIS_WPartGraphKway(int *nvtxs, idxtype *xadj, idxtype *adjncy, idxtype *v
                           idxtype *adjwgt, int *wgtflag, int *numflag, int *nparts, 
                           float *tpwgts, int *options, int *edgecut, idxtype *part)
 {
-  int i, j;
+/*   int i, j; */
   GraphType graph;
   CtrlType ctrl;
 
@@ -91,9 +91,10 @@ void METIS_WPartGraphKway(int *nvtxs, idxtype *xadj, idxtype *adjncy, idxtype *v
 /*************************************************************************
 * This function takes a graph and produces a bisection of it
 **************************************************************************/
-int MlevelKWayPartitioning(CtrlType *ctrl, GraphType *graph, int nparts, idxtype *part, float *tpwgts, float ubfactor)
+int MlevelKWayPartitioning(CtrlType *ctrl, GraphType *graph, int nparts,
+			   idxtype *part, float *tpwgts, float ubfactor)
 {
-  int i, j, nvtxs, tvwgt, tpwgts2[2];
+/*   int i, j, nvtxs, tvwgt, tpwgts2[2]; */
   GraphType *cgraph;
   int wgtflag=3, numflag=0, options[10], edgecut;
 

@@ -73,7 +73,7 @@ void METIS_MeshToNodal(int *ne, int *nn, idxtype *elmnts, int *etype, int *numfl
 ******************************************************************************/
 void GENDUALMETIS(int nelmnts, int nvtxs, int etype, idxtype *elmnts, idxtype *dxadj, idxtype *dadjncy)
 {
-   int i, j, jj, k, kk, kkk, l, m, n, nedges, mask;
+   int i, j, jj, k, kk, kkk, l, m, n/* , nedges */, mask;
    idxtype *nptr, *nind;
    idxtype *mark, ind[200], wgt[200];
    int esize, esizes[] = {-1, 3, 4, 8, 4},
@@ -168,7 +168,7 @@ void GENDUALMETIS(int nelmnts, int nvtxs, int etype, idxtype *elmnts, idxtype *d
 ******************************************************************************/
 void TRINODALMETIS(int nelmnts, int nvtxs, idxtype *elmnts, idxtype *dxadj, idxtype *dadjncy)
 {
-   int i, j, jj, k, kk, kkk, l, m, n, nedges;
+   int i, j, jj, k, kk/* , kkk, l, m, n */, nedges;
    idxtype *nptr, *nind;
    idxtype *mark;
 
@@ -217,7 +217,7 @@ void TRINODALMETIS(int nelmnts, int nvtxs, idxtype *elmnts, idxtype *dxadj, idxt
 ******************************************************************************/
 void TETNODALMETIS(int nelmnts, int nvtxs, idxtype *elmnts, idxtype *dxadj, idxtype *dadjncy)
 {
-   int i, j, jj, k, kk, kkk, l, m, n, nedges;
+   int i, j, jj, k, kk/* , kkk, l, m, n */, nedges;
    idxtype *nptr, *nind;
    idxtype *mark;
 
@@ -264,19 +264,20 @@ void TETNODALMETIS(int nelmnts, int nvtxs, idxtype *elmnts, idxtype *dxadj, idxt
 /*****************************************************************************
 * This function creates the nodal graph of a finite element mesh
 ******************************************************************************/
-void HEXNODALMETIS(int nelmnts, int nvtxs, idxtype *elmnts, idxtype *dxadj, idxtype *dadjncy)
+void HEXNODALMETIS(int nelmnts, int nvtxs, idxtype *elmnts, idxtype *dxadj,
+		   idxtype *dadjncy)
 {
-   int i, j, jj, k, kk, kkk, l, m, n, nedges;
+   int i, j, jj, k, kk/* , kkk, l, m, n */, nedges;
    idxtype *nptr, *nind;
    idxtype *mark;
-   int table[8][3] = {1, 3, 4,
-                      0, 2, 5,
-                      1, 3, 6,
-                      0, 2, 7,
-                      0, 5, 7,
-                      1, 4, 6,
-                      2, 5, 7,
-                      3, 4, 6};
+   int table[8][3] = {{1, 3, 4},
+                      {0, 2, 5},
+                      {1, 3, 6},
+                      {0, 2, 7},
+                      {0, 5, 7},
+                      {1, 4, 6},
+                      {2, 5, 7},
+                      {3, 4, 6}};
 
    /* Construct the node-element list first */
    nptr = idxsmalloc(nvtxs+1, 0, "HEXNODALMETIS: nptr");
@@ -339,13 +340,13 @@ void HEXNODALMETIS(int nelmnts, int nvtxs, idxtype *elmnts, idxtype *dxadj, idxt
 ******************************************************************************/
 void QUADNODALMETIS(int nelmnts, int nvtxs, idxtype *elmnts, idxtype *dxadj, idxtype *dadjncy)
 {
-   int i, j, jj, k, kk, kkk, l, m, n, nedges;
+   int i, j, jj, k, kk/* , kkk, l, m, n */, nedges;
    idxtype *nptr, *nind;
    idxtype *mark;
-   int table[4][2] = {1, 3, 
-                      0, 2,
-                      1, 3, 
-                      0, 2}; 
+   int table[4][2] = {{1, 3}, 
+                      {0, 2},
+                      {1, 3}, 
+                      {0, 2}}; 
 
    /* Construct the node-element list first */
    nptr = idxsmalloc(nvtxs+1, 0, "QUADNODALMETIS: nptr");

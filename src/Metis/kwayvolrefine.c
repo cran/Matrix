@@ -128,10 +128,11 @@ void AllocateVolKWayPartitionMemory(CtrlType *ctrl, GraphType *graph, int nparts
 **************************************************************************/
 void ComputeVolKWayPartitionParams(CtrlType *ctrl, GraphType *graph, int nparts)
 {
-  int i, ii, j, k, kk, l, nvtxs, nbnd, mincut, minvol, me, other, pid; 
+  int i/* , ii */, j, k/* , kk, l */, nvtxs/* , nbnd */,
+      mincut/* , minvol */, me, other/* , pid */; 
   idxtype *xadj, *vwgt, *adjncy, *adjwgt, *pwgts, *where;
-  VRInfoType *rinfo, *myrinfo, *orinfo;
-  VEDegreeType *myedegrees, *oedegrees;
+  VRInfoType *rinfo, *myrinfo/* , *orinfo */;
+  VEDegreeType *myedegrees/* , *oedegrees */;
 
   nvtxs = graph->nvtxs;
   xadj = graph->xadj;
@@ -208,7 +209,7 @@ void ComputeVolKWayPartitionParams(CtrlType *ctrl, GraphType *graph, int nparts)
 **************************************************************************/
 void ComputeKWayVolGains(CtrlType *ctrl, GraphType *graph, int nparts)
 {
-  int i, ii, j, k, kk, l, nvtxs, me, other, pid, myndegrees; 
+  int i, ii, j, k, kk/* , l */, nvtxs, me, other/* , pid */, myndegrees; 
   idxtype *xadj, *vsize, *adjncy, *adjwgt, *where, *bndind, *bndptr, *ophtable;
   VRInfoType *rinfo, *myrinfo, *orinfo;
   VEDegreeType *myedegrees, *oedegrees;

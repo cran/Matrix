@@ -923,7 +923,7 @@ void FM_2WayNodeBalance(CtrlType *ctrl, GraphType *graph, float ubfactor)
   PQueueType parts; 
   NRInfoType *rinfo;
   int higain, oldgain;	
-  int pass, to, other;
+  int /* pass, */ to, other;
 
   nvtxs = graph->nvtxs;
   xadj = graph->xadj;

@@ -137,7 +137,7 @@ int PQueueGetSize(PQueueType *queue)
 **************************************************************************/
 int PQueueInsert(PQueueType *queue, int node, int gain)
 {
-  int i, j, k;
+  int i, j/* , k */;
   idxtype *locator;
   ListNodeType *newnode;
   KeyValueType *heap;
@@ -294,7 +294,7 @@ int PQueueUpdate(PQueueType *queue, int node, int oldgain, int newgain)
 {
   int i, j;
   idxtype *locator;
-  ListNodeType *newnode;
+/*   ListNodeType *newnode; */
   KeyValueType *heap;
 
   if (oldgain == newgain) 

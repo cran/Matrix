@@ -45,7 +45,7 @@ void METIS_WPartGraphKway2(int *nvtxs, idxtype *xadj, idxtype *adjncy, idxtype *
                           idxtype *adjwgt, int *wgtflag, int *numflag, int *nparts, 
                           float *tpwgts, int *options, int *edgecut, idxtype *part)
 {
-  int i, j;
+/*   int i, j; */
   GraphType graph;
   CtrlType ctrl;
 
@@ -95,7 +95,7 @@ void METIS_WPartGraphKway2(int *nvtxs, idxtype *xadj, idxtype *adjncy, idxtype *
 void METIS_NodeNDP(int nvtxs, idxtype *xadj, idxtype *adjncy, int npes, 
                    int *options, idxtype *perm, idxtype *iperm, idxtype *sizes) 
 {
-  int i, ii, j, l, wflag, nflag;
+  int i, ii, j, l/* , wflag, nflag */;
   GraphType graph;
   CtrlType ctrl;
   idxtype *cptr, *cind;
@@ -193,7 +193,7 @@ void METIS_NodeNDP(int nvtxs, idxtype *xadj, idxtype *adjncy, int npes,
 void MlevelNestedDissectionP(CtrlType *ctrl, GraphType *graph, idxtype *order, int lastvtx, 
                              int npes, int cpos, idxtype *sizes)
 {
-  int i, j, nvtxs, nbnd, tvwgt, tpwgts2[2];
+  int i/* , j */, nvtxs, nbnd, tvwgt, tpwgts2[2];
   idxtype *label, *bndind;
   GraphType lgraph, rgraph;
   float ubfactor;
@@ -262,7 +262,7 @@ void MlevelNestedDissectionP(CtrlType *ctrl, GraphType *graph, idxtype *order, i
 void METIS_NodeComputeSeparator(int *nvtxs, idxtype *xadj, idxtype *adjncy, idxtype *vwgt, 
            idxtype *adjwgt, int *options, int *sepsize, idxtype *part) 
 {
-  int i, j, tvwgt, tpwgts[2];
+  int /* i, j, */ tvwgt, tpwgts[2];
   GraphType graph;
   CtrlType ctrl;
 
@@ -320,7 +320,7 @@ void METIS_NodeComputeSeparator(int *nvtxs, idxtype *xadj, idxtype *adjncy, idxt
 void METIS_EdgeComputeSeparator(int *nvtxs, idxtype *xadj, idxtype *adjncy, idxtype *vwgt, 
            idxtype *adjwgt, int *options, int *sepsize, idxtype *part) 
 {
-  int i, j, tvwgt, tpwgts[2];
+  int /* i, j, */ tvwgt, tpwgts[2];
   GraphType graph;
   CtrlType ctrl;
 

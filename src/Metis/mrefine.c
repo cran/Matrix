@@ -90,12 +90,12 @@ void MocAllocate2WayPartitionMemory(CtrlType *ctrl, GraphType *graph)
 **************************************************************************/
 void MocCompute2WayPartitionParams(CtrlType *ctrl, GraphType *graph)
 {
-  int i, j, k, l, nvtxs, ncon, nbnd, mincut;
+  int i, j/* , k, l */, nvtxs, ncon, nbnd, mincut;
   idxtype *xadj, *adjncy, *adjwgt;
   float *nvwgt, *npwgts;
   idxtype *id, *ed, *where;
   idxtype *bndptr, *bndind;
-  int me, other;
+  int me/* , other */;
 
   nvtxs = graph->nvtxs;
   ncon = graph->ncon;

@@ -20,8 +20,8 @@
 **************************************************************************/
 void Balance2Way(CtrlType *ctrl, GraphType *graph, int *tpwgts, float ubfactor)
 {
-  int i, j, nvtxs, from, imax, gain, mindiff;
-  idxtype *id, *ed;
+  int /* i, j, nvtxs, from, imax, gain, */ mindiff;
+/*   idxtype *id, *ed; */
 
   /* Return right away if the balance is OK */
   mindiff = abs(tpwgts[0]-graph->pwgts[0]);
@@ -47,7 +47,7 @@ void Balance2Way(CtrlType *ctrl, GraphType *graph, int *tpwgts, float ubfactor)
 **************************************************************************/
 void Bnd2WayBalance(CtrlType *ctrl, GraphType *graph, int *tpwgts)
 {
-  int i, ii, j, k, kwgt, nvtxs, nbnd, nswaps, from, to, pass, me, tmp;
+  int i, ii, j, k, kwgt, nvtxs, nbnd, nswaps, from, to/* , pass, me */, tmp;
   idxtype *xadj, *vwgt, *adjncy, *adjwgt, *where, *id, *ed, *bndptr, *bndind, *pwgts;
   idxtype *moved, *perm;
   PQueueType parts;
@@ -173,7 +173,7 @@ void Bnd2WayBalance(CtrlType *ctrl, GraphType *graph, int *tpwgts)
 **************************************************************************/
 void General2WayBalance(CtrlType *ctrl, GraphType *graph, int *tpwgts)
 {
-  int i, ii, j, k, kwgt, nvtxs, nbnd, nswaps, from, to, pass, me, tmp;
+  int i, ii, j, k, kwgt, nvtxs, nbnd, nswaps, from, to/* , pass, me */, tmp;
   idxtype *xadj, *vwgt, *adjncy, *adjwgt, *where, *id, *ed, *bndptr, *bndind, *pwgts;
   idxtype *moved, *perm;
   PQueueType parts;

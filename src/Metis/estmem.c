@@ -21,7 +21,7 @@
 **************************************************************************/
 void METIS_EstimateMemory(int *nvtxs, idxtype *xadj, idxtype *adjncy, int *numflag, int *optype, int *nbytes)
 {
-  int i, j, k, nedges, nlevels;
+  int /* i, j, k,  */nedges, nlevels;
   float vfraction, efraction, vmult, emult;
   int coresize, gdata, rdata;
 
@@ -110,7 +110,7 @@ void EstimateCFraction(int nvtxs, idxtype *xadj, idxtype *adjncy, float *vfracti
 **************************************************************************/
 int ComputeCoarseGraphSize(int nvtxs, idxtype *xadj, idxtype *adjncy, int cnvtxs, idxtype *cmap, idxtype *match, idxtype *perm)
 {
-  int i, j, k, istart, iend, nedges, cnedges, v, u;
+  int i, j, k, istart, iend/* , nedges */, cnedges, v, u;
   idxtype *htable;
 
   htable = idxsmalloc(cnvtxs, -1, "htable");

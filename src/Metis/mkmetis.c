@@ -25,7 +25,7 @@ void METIS_mCPartGraphKway(int *nvtxs, int *ncon, idxtype *xadj, idxtype *adjncy
                           int *nparts, float *rubvec, int *options, int *edgecut, 
                           idxtype *part)
 {
-  int i, j;
+/*   int i, j; */
   GraphType graph;
   CtrlType ctrl;
 
@@ -76,7 +76,7 @@ void METIS_mCPartGraphKway(int *nvtxs, int *ncon, idxtype *xadj, idxtype *adjncy
 int MCMlevelKWayPartitioning(CtrlType *ctrl, GraphType *graph, int nparts, idxtype *part, 
       float *rubvec)
 {
-  int i, j, nvtxs;
+  int i/* , j, nvtxs */;
   GraphType *cgraph;
   int options[10], edgecut;
 

@@ -159,5 +159,38 @@ int match_mat_dims(const int xd[], const int yd[])
 double *expand_csc_column(double *dest, int m, int j,
 			  const int Ap[], const int Ai[], const double Ax[]);
 
-#endif
+/** 
+ * Apply a permutation to an integer vector
+ * 
+ * @param i vector of 0-based indices
+ * @param n length of vector i
+ * @param perm 0-based permutation vector of length max(i) + 1
+ */
+static R_INLINE void
+int_permute(int i[], int n, const int perm[])
+{
+    int j;
+    for (j = 0; j < n; j++) i[j] = perm[i[j]];
+}
 
+/** 
+ * Force index pairs to be in the upper triangle of a matrix
+ * 
+ * @param i vector of 0-based row indices
+ * @param j vector of 0-based column indices
+ * @param nnz length of index vectors
+ */
+static R_INLINE void
+make_upper_triangular(int i[], int j[], int nnz)
+{
+    int k;
+    for (k = 0; k < nnz; k++) {
+	if (i[k] > j[k]) {
+	    int tmp = i[k];
+	    i[k] = j[k];
+	    j[k] = tmp;
+	}
+    }
+}
+
+#endif

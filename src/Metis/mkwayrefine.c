@@ -88,7 +88,7 @@ void MocAllocateKWayPartitionMemory(CtrlType *ctrl, GraphType *graph, int nparts
 **************************************************************************/
 void MocComputeKWayPartitionParams(CtrlType *ctrl, GraphType *graph, int nparts)
 {
-  int i, j, k, l, nvtxs, ncon, nbnd, mincut, me, other;
+  int i, j, k/* , l */, nvtxs, ncon, nbnd, mincut, me, other;
   idxtype *xadj, *adjncy, *adjwgt, *where, *bndind, *bndptr;
   RInfoType *rinfo, *myrinfo;
   EDegreeType *myedegrees;

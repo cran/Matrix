@@ -20,7 +20,8 @@
 void MCRandom_KWayEdgeRefineHorizontal(CtrlType *ctrl, GraphType *graph, int nparts, 
        float *orgubvec, int npasses)
 {
-  int i, ii, iii, j, jj, k, l, pass, nvtxs, ncon, nmoves, nbnd, myndegrees, same; 
+  int i, ii, iii, j/* , jj */, k/* , l */, pass, nvtxs, ncon, nmoves,
+      nbnd, myndegrees, same; 
   int from, me, to, oldcut, gain;
   idxtype *xadj, *adjncy, *adjwgt;
   idxtype *where, *perm, *bndptr, *bndind;
@@ -257,7 +258,8 @@ void MCRandom_KWayEdgeRefineHorizontal(CtrlType *ctrl, GraphType *graph, int npa
 void MCGreedy_KWayEdgeBalanceHorizontal(CtrlType *ctrl, GraphType *graph, int nparts, 
        float *ubvec, int npasses)
 {
-  int i, ii, iii, j, jj, k, l, pass, nvtxs, ncon, nbnd, myndegrees, oldgain, gain, nmoves; 
+  int i, ii/* , iii */, j/* , jj */, k/* , l */, pass, nvtxs, ncon,
+      nbnd, myndegrees, oldgain, gain, nmoves; 
   int from, me, to, oldcut;
   idxtype *xadj, *adjncy, *adjwgt;
   idxtype *where, *perm, *bndptr, *bndind, *moved;
@@ -592,7 +594,7 @@ int MocIsHBalanced(int ncon, int nparts, float *npwgts, float *ubvec)
 **************************************************************************/
 int IsHBalanceBetterFT(int ncon, int nparts, float *pfrom, float *pto, float *vwgt, float *ubvec)
 {
-  int i, j, k;
+  int i/* , j, k */;
   float blb1=0.0, alb1=0.0, sblb=0.0, salb=0.0;
   float blb2=0.0, alb2=0.0;
   float temp;

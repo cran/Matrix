@@ -160,7 +160,7 @@ void CompressGraph(CtrlType *ctrl, GraphType *graph, int nvtxs, idxtype *xadj, i
 void PruneGraph(CtrlType *ctrl, GraphType *graph, int nvtxs, idxtype *xadj, idxtype *adjncy, idxtype *iperm, float factor)
 {
   int i, j, k, l, nlarge, pnvtxs, pnedges;
-  idxtype *pxadj, *padjncy, *padjwgt, *pvwgt;
+  idxtype *pxadj, *padjncy/*, *padjwgt , *pvwgt */;
   idxtype *perm;
 
   perm = idxmalloc(nvtxs, "PruneGraph: perm");

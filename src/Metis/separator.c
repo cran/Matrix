@@ -20,7 +20,7 @@
 **************************************************************************/
 void ConstructSeparator(CtrlType *ctrl, GraphType *graph, float ubfactor)
 {
-  int i, j, k, nvtxs, nbnd;
+  int i, j/* , k */, nvtxs, nbnd;
   idxtype *xadj, *where, *bndind;
 
   nvtxs = graph->nvtxs;

@@ -25,7 +25,7 @@ void METIS_mCPartGraphRecursive(int *nvtxs, int *ncon, idxtype *xadj, idxtype *a
        idxtype *vwgt, idxtype *adjwgt, int *wgtflag, int *numflag, int *nparts, 
        int *options, int *edgecut, idxtype *part)
 {
-  int i, j;
+/*   int i, j; */
   GraphType graph;
   CtrlType ctrl;
 
@@ -79,7 +79,7 @@ void METIS_mCHPartGraphRecursive(int *nvtxs, int *ncon, idxtype *xadj, idxtype *
        idxtype *vwgt, idxtype *adjwgt, int *wgtflag, int *numflag, int *nparts, 
        float *ubvec, int *options, int *edgecut, idxtype *part)
 {
-  int i, j;
+/*   int i, j; */
   GraphType graph;
   CtrlType ctrl;
   float *myubvec;
@@ -137,7 +137,7 @@ void METIS_mCHPartGraphRecursive(int *nvtxs, int *ncon, idxtype *xadj, idxtype *
 void METIS_mCPartGraphRecursiveInternal(int *nvtxs, int *ncon, idxtype *xadj, idxtype *adjncy, 
        float *nvwgt, idxtype *adjwgt, int *nparts, int *options, int *edgecut, idxtype *part)
 {
-  int i, j;
+/*   int i, j; */
   GraphType graph;
   CtrlType ctrl;
 
@@ -185,7 +185,7 @@ void METIS_mCHPartGraphRecursiveInternal(int *nvtxs, int *ncon, idxtype *xadj, i
        float *nvwgt, idxtype *adjwgt, int *nparts, float *ubvec, int *options, int *edgecut, 
        idxtype *part)
 {
-  int i, j;
+/*   int i, j; */
   GraphType graph;
   CtrlType ctrl;
   float *myubvec;
@@ -238,7 +238,7 @@ void METIS_mCHPartGraphRecursiveInternal(int *nvtxs, int *ncon, idxtype *xadj, i
 int MCMlevelRecursiveBisection(CtrlType *ctrl, GraphType *graph, int nparts, idxtype *part, 
        float ubfactor, int fpart)
 {
-  int i, j, nvtxs, ncon, cut;
+  int i/* , j */, nvtxs/* , ncon */, cut;
   idxtype *label, *where;
   GraphType lgraph, rgraph;
   float tpwgts[2];
@@ -290,7 +290,7 @@ int MCMlevelRecursiveBisection(CtrlType *ctrl, GraphType *graph, int nparts, idx
 int MCHMlevelRecursiveBisection(CtrlType *ctrl, GraphType *graph, int nparts, idxtype *part, 
       float *ubvec, int fpart)
 {
-  int i, j, nvtxs, ncon, cut;
+  int i/* , j */, nvtxs, ncon, cut;
   idxtype *label, *where;
   GraphType lgraph, rgraph;
   float tpwgts[2], *npwgts, *lubvec, *rubvec;
@@ -382,7 +382,7 @@ void MCMlevelEdgeBisection(CtrlType *ctrl, GraphType *graph, float *tpwgts, floa
 **************************************************************************/
 void MCHMlevelEdgeBisection(CtrlType *ctrl, GraphType *graph, float *tpwgts, float *ubvec)
 {
-  int i;
+/*   int i; */
   GraphType *cgraph;
 
 /*

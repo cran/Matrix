@@ -21,7 +21,7 @@
 **************************************************************************/
 void MocBalance2Way2(CtrlType *ctrl, GraphType *graph, float *tpwgts, float *ubvec)
 {
-  int i;
+/*   int i; */
   float tvec[MAXNCON];
 
   Compute2WayHLoadImbalanceVec(graph->ncon, graph->npwgts, tpwgts, tvec);
@@ -36,7 +36,8 @@ void MocBalance2Way2(CtrlType *ctrl, GraphType *graph, float *tpwgts, float *ubv
 **************************************************************************/
 void MocGeneral2WayBalance2(CtrlType *ctrl, GraphType *graph, float *tpwgts, float *ubvec)
 {
-  int i, ii, j, k, l, kwgt, nvtxs, ncon, nbnd, nswaps, from, to, pass, me, limit, tmp, cnum;
+  int i, ii, j, k, l, kwgt, nvtxs, ncon, nbnd, nswaps, from,
+      to/* , pass, me */, limit, tmp, cnum;
   idxtype *xadj, *adjncy, *adjwgt, *where, *id, *ed, *bndptr, *bndind;
   idxtype *moved, *swaps, *perm, *qnum;
   float *nvwgt, *npwgts, origbal[MAXNCON], minbal[MAXNCON], newbal[MAXNCON];

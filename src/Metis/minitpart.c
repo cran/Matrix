@@ -20,7 +20,7 @@
 **************************************************************************/
 void MocInit2WayPartition(CtrlType *ctrl, GraphType *graph, float *tpwgts, float ubfactor) 
 {
-  int i, dbglvl;
+  int/*  i, */ dbglvl;
 
   dbglvl = ctrl->dbglvl;
   IFSET(ctrl->dbglvl, DBG_REFINE, ctrl->dbglvl -= DBG_REFINE);
@@ -56,7 +56,7 @@ void MocInit2WayPartition(CtrlType *ctrl, GraphType *graph, float *tpwgts, float
 **************************************************************************/
 void MocGrowBisection(CtrlType *ctrl, GraphType *graph, float *tpwgts, float ubfactor)
 {
-  int i, j, k, nvtxs, ncon, from, bestcut, mincut, nbfs;
+  int /* i, j, k, */ nvtxs/* , ncon, from */, bestcut/* , mincut */, nbfs;
   idxtype *bestwhere, *where;
 
   nvtxs = graph->nvtxs;
@@ -102,9 +102,10 @@ void MocGrowBisection(CtrlType *ctrl, GraphType *graph, float *tpwgts, float ubf
 * growing algorithm. The resulting partition is returned in
 * graph->where
 **************************************************************************/
-void MocRandomBisection(CtrlType *ctrl, GraphType *graph, float *tpwgts, float ubfactor)
+void MocRandomBisection(CtrlType *ctrl, GraphType *graph, float *tpwgts,
+			float ubfactor)
 {
-  int i, ii, j, k, nvtxs, ncon, from, bestcut, mincut, nbfs, qnum;
+  int i, ii/* , j, k */, nvtxs, ncon/* , from */, bestcut/* , mincut */, nbfs, qnum;
   idxtype *bestwhere, *where, *perm;
   int counts[MAXNCON];
   float *nvwgt;
@@ -177,7 +178,8 @@ void MocRandomBisection(CtrlType *ctrl, GraphType *graph, float *tpwgts, float u
 **************************************************************************/
 void MocInit2WayBalance(CtrlType *ctrl, GraphType *graph, float *tpwgts)
 {
-  int i, ii, j, k, l, kwgt, nvtxs, nbnd, ncon, nswaps, from, to, pass, me, cnum, tmp;
+  int i, ii, j, k, l, kwgt, nvtxs, nbnd, ncon, nswaps, from,
+      to/* , pass, me */, cnum, tmp;
   idxtype *xadj, *adjncy, *adjwgt, *where, *id, *ed, *bndptr, *bndind;
   idxtype *perm, *qnum;
   float *nvwgt, *npwgts;

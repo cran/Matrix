@@ -35,7 +35,8 @@ void MocBalance2Way(CtrlType *ctrl, GraphType *graph, float *tpwgts, float lbfac
 **************************************************************************/
 void MocGeneral2WayBalance(CtrlType *ctrl, GraphType *graph, float *tpwgts, float lbfactor)
 {
-  int i, ii, j, k, l, kwgt, nvtxs, ncon, nbnd, nswaps, from, to, pass, me, limit, tmp, cnum;
+  int i, ii, j, k, l, kwgt, nvtxs, ncon, nbnd, nswaps, from,
+      to/* , pass, me */, limit, tmp, cnum;
   idxtype *xadj, *adjncy, *adjwgt, *where, *id, *ed, *bndptr, *bndind;
   idxtype *moved, *swaps, *perm, *qnum;
   float *nvwgt, *npwgts, mindiff[MAXNCON], origbal, minbal, newbal;

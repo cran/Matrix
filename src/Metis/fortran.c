@@ -124,9 +124,10 @@ void ChangeMesh2FNumbering(int n, idxtype *mesh, int nvtxs, idxtype *xadj, idxty
 /*************************************************************************
 * This function changes the numbering to start from 1 instead of 0
 **************************************************************************/
-void ChangeMesh2FNumbering2(int n, idxtype *mesh, int ne, int nn, idxtype *epart, idxtype *npart)
+void ChangeMesh2FNumbering2(int n, idxtype *mesh, int ne, int nn,
+			    idxtype *epart, idxtype *npart)
 {
-  int i, nedges;
+  int i/* , nedges */;
 
   for (i=0; i<n; i++)
     mesh[i]++;

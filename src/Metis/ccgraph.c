@@ -21,7 +21,8 @@
 **************************************************************************/
 void CreateCoarseGraph(CtrlType *ctrl, GraphType *graph, int cnvtxs, idxtype *match, idxtype *perm)
 {
-  int i, j, jj, k, kk, l, m, istart, iend, nvtxs, nedges, ncon, cnedges, v, u, mask, dovsize;
+  int i, j, jj, k, kk, /* l, */ m, istart, iend, nvtxs, nedges, ncon,
+      cnedges, v, u, mask, dovsize;
   idxtype *xadj, *vwgt, *vsize, *adjncy, *adjwgt, *adjwgtsum, *auxadj;
   idxtype *cmap, *htable;
   idxtype *cxadj, *cvwgt, *cvsize, *cadjncy, *cadjwgt, *cadjwgtsum;
@@ -327,9 +328,11 @@ void CreateCoarseGraphNoMask(CtrlType *ctrl, GraphType *graph, int cnvtxs, idxty
 /*************************************************************************
 * This function creates the coarser graph
 **************************************************************************/
-void CreateCoarseGraph_NVW(CtrlType *ctrl, GraphType *graph, int cnvtxs, idxtype *match, idxtype *perm)
+void CreateCoarseGraph_NVW(CtrlType *ctrl, GraphType *graph,
+			   int cnvtxs, idxtype *match, idxtype *perm)
 {
-  int i, j, jj, k, kk, l, m, istart, iend, nvtxs, nedges, ncon, cnedges, v, u, mask;
+  int i, j, jj, k, kk, /* l, */ m, istart, iend, nvtxs, nedges, ncon,
+      cnedges, v, u, mask;
   idxtype *xadj, *adjncy, *adjwgtsum, *auxadj;
   idxtype *cmap, *htable;
   idxtype *cxadj, *cvwgt, *cadjncy, *cadjwgt, *cadjwgtsum;

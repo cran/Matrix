@@ -908,6 +908,8 @@ int coef_length(int nf, const int nc[])
  * order.
  * 
  * @param x pointer to an ssclme object
+ * @param Unconstr pointer to a logical object indicating if the
+ *        unconstrained parameterization should be used.
  * 
  * @return numeric vector of the values in the upper triangles of the
  * Omega matrices
@@ -1077,6 +1079,8 @@ SEXP ssclme_coefGetsUnc(SEXP x, SEXP coef)
  * 
  * @param x pointer to an ssclme object
  * @param coef pointer to an numeric vector of appropriate length
+ * @param Unc pointer to a logical object indicating if the
+ *        unconstrained parameterization should be used.
  * 
  * @return R_NilValue
  */
@@ -1361,8 +1365,10 @@ static void upperTriList_to_vector(SEXP mList, int *nc, SEXP cvec)
  * 
  * @param x pointer to an ssclme object
  * @param REMLp pointer to a logical scalar indicating if REML is to be used
- * @param Uncp pointer to a logical scalar indicating if the unconstrained parameterization is to be used
- * @param Uncp pointer to a logical scalar indicating if result should be a single vector
+ * @param Unc pointer to a logical scalar indicating if the
+ *        unconstrained parameterization is to be used 
+ * @param OneVector pointer to a logical scalar indicating if result
+ *        should be a single vector.
  * 
  * @return pointer to the gradient as a list of matrices or as a vector.
  */
@@ -1686,7 +1692,6 @@ SEXP ssclme_collapse(SEXP x)
  * @param residuals pointer to the residuals
  * @param terms pointer to a terms object (redundant if model is non-empty)
  * @param assign pointer to an integer assign vector
- * @param contrasts pointer to a list of contrast function names
  * 
  * @return an lme object
  */

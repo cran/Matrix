@@ -76,11 +76,11 @@ void Allocate2WayPartitionMemory(CtrlType *ctrl, GraphType *graph)
 **************************************************************************/
 void Compute2WayPartitionParams(CtrlType *ctrl, GraphType *graph)
 {
-  int i, j, k, l, nvtxs, nbnd, mincut;
+  int i, j/* , k, l */, nvtxs, nbnd, mincut;
   idxtype *xadj, *vwgt, *adjncy, *adjwgt, *pwgts;
   idxtype *id, *ed, *where;
   idxtype *bndptr, *bndind;
-  int me, other;
+  int me/* , other */;
 
   nvtxs = graph->nvtxs;
   xadj = graph->xadj;

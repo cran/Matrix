@@ -3,41 +3,12 @@
  * - Only do a fill-reducing permutation on the first non-nested factor
  * - Alternatively: change the algorithm for the fill-reducing
  *   permutation to a greedy or a picky algorithm.
+ * - Rewrite this whole section using the lgTMatrix and lgCMatrix classes.
+ *   A symbolic manipulation of a sparse matrix is equivalent to
+ *   manipulating the sparse matrix with logical entries.
+ * - Create coercion methods for dgCMatrix -> lgCMatrix and vice
+ *   versa.  Same for dgTMatrix -> lgTMatrix.
  */
-
-/** 
- * Apply a permutation to an index vector
- * 
- * @param i vector of 0-based indices
- * @param nnz length of vector i
- * @param perm 0-based permutation vector of length max(i)
- */
-static R_INLINE void
-ind_permute(int i[], int nnz, const int perm[])
-{
-    int j;
-    for (j = 0; j < nnz; j++) i[j] = perm[i[j]];
-}
-
-/** 
- * Force indices to be in the upper triangle of a matrix
- * 
- * @param i vector of 0-based row indices
- * @param j vector of 0-based column indices
- * @param nnz length of index vectors
- */
-static R_INLINE void
-make_upper_triangular(int i[], int j[], int nnz)
-{
-    int k;
-    for (k = 0; k < nnz; k++) {
-	if (i[k] > j[k]) {
-	    int tmp = i[k];
-	    i[k] = j[k];
-	    j[k] = tmp;
-	}
-    }
-}
 
 /** 
  * Replace the structure of C by the structure of CL^{-1} where L is the
@@ -125,7 +96,8 @@ symbolic_right_unit_sm(int anc, const int Parent[], SEXP C)
 /** 
  * Replace the structure of C by the structure of CA^{-T}
  * 
- * @param A a unit lower triangular dgBCMatrix object
+ * @param anc number of column blocks in A
+ * @param Parent parent array for column blocks of A
  * @param C a dgBCMatrix object to be updated
  */
 static void
@@ -194,8 +166,11 @@ symbolic_right_unit_mm_trans(int anc, const int Parent[], SEXP C)
 /** 
  * Update a block of L in the blocked crosstabulation
  * 
- * @param ctab pointer to a blocked crosstabulation object
- * @param j index of updating column
+ * @param L pointer to a unit lower triangular list of logical
+ *          compressed sparse column-oriented matrices
+ * @param ZZpO pointer to a list of upper triangular diagonal blocks
+ *          stored as compressed sparse column-oriented matrices.
+ * @param j index of updating column block
  * @param k column index of block to be updated 
  * @param i row index of block to be updated (j < k <= i)
  */
@@ -287,9 +262,8 @@ block_update(SEXP L, SEXP ZZpO, int j, int k, int i)
  * @param ctab Pointer to a bCrosstab object
  * @param nf number of factors in ctab
  * @param jj index (0-based) of the factor levels to permute
- * @param ncj number of columns in level jj
- * @param perm permutation (0-based) to apply
- * @param pperm inverse of the permutation
+ * @param nlev number of levels of the grouping factors
+ * @param iperm inverse of the permutation
  */
 static void
 bCrosstab_permute(SEXP ctab, int nf, int jj,
@@ -309,8 +283,8 @@ bCrosstab_permute(SEXP ctab, int nf, int jj,
 	int *mi = Memcpy(Calloc(nnz, int), INTEGER(cscbi), nnz);
 	double *mx = Memcpy(Calloc(nnz, double), cx, nnz);
 
-	if (j <= jj) ind_permute(mi, nnz, iperm);
-	if (j >= jj) ind_permute(mj, nnz, iperm);
+	if (j <= jj) int_permute(mi, nnz, iperm);
+	if (j >= jj) int_permute(mj, nnz, iperm);
 	if (j == jj) make_upper_triangular(mi, mj, nnz);
 	triplet_to_col(nrow, ncol, nnz, mi, mj, mx, cp, INTEGER(cscbi), cx);
 	Free(mi); Free(mj); Free(mx);
@@ -328,8 +302,8 @@ symmetric_permute(SEXP A, int nlev, const int iperm[])
     int *mi = Memcpy(Calloc(nnz, int), INTEGER(AiP), nnz);
     double *mx = Memcpy(Calloc(nnz, double), Ax, nnz);
 
-    ind_permute(mi, nnz, iperm);
-    ind_permute(mj, nnz, iperm);
+    int_permute(mi, nnz, iperm);
+    int_permute(mj, nnz, iperm);
     make_upper_triangular(mi, mj, nnz);
     triplet_to_col(nlev, nlev, nnz, mi, mj, mx, Ap, INTEGER(AiP), Ax);
     Free(mi); Free(mj); Free(mx);

@@ -140,7 +140,7 @@ void AllocateKWayPartitionMemory(CtrlType *ctrl, GraphType *graph, int nparts)
 **************************************************************************/
 void ComputeKWayPartitionParams(CtrlType *ctrl, GraphType *graph, int nparts)
 {
-  int i, j, k, l, nvtxs, nbnd, mincut, me, other;
+  int i, j, k/* , l */, nvtxs, nbnd, mincut, me, other;
   idxtype *xadj, *vwgt, *adjncy, *adjwgt, *pwgts, *where, *bndind, *bndptr;
   RInfoType *rinfo, *myrinfo;
   EDegreeType *myedegrees;
@@ -328,7 +328,7 @@ void ProjectKWayPartition(CtrlType *ctrl, GraphType *graph, int nparts)
 **************************************************************************/
 int IsBalanced(idxtype *pwgts, int nparts, float *tpwgts, float ubfactor)
 {
-  int i, j, tvwgt;
+  int i/* , j */, tvwgt;
 
   tvwgt = idxsum(nparts, pwgts);
   for (i=0; i<nparts; i++) {

@@ -123,8 +123,8 @@ cscb_mm(enum CBLAS_SIDE side, enum CBLAS_TRANSPOSE transa,
  * where A is a compressed, sparse, blocked matrix and
  * C is a compressed, sparse, symmetric blocked matrix.
  * 
- * @param uplo 'U' or 'u' for upper triangular storage, else lower.
- * @param trans 'T' or 't' for transpose.
+ * @param uplo UPP or LOW for upper or lower
+ * @param trans TRN or NTR for transpose or no transpose
  * @param alpha scalar multiplier of outer product
  * @param A compressed sparse blocked matrix
  * @param beta scalar multiplier of c
@@ -156,7 +156,7 @@ cscb_syrk(enum CBLAS_UPLO uplo, enum CBLAS_TRANSPOSE trans,
     if (cdims[0] != cdims[1]) error("blocks in C must be square");
     if (trans == TRN) {
 				/* FIXME: Write this part */
-	error("Code for trans == 'T' not yet written");
+	error("Code for trans == TRN not yet written");
     } else {
 	if (adims[0] != cdims[0])
 	    error("Inconsistent dimensions: A[%d,%d,%d], C[%d,%d,%d]",
@@ -335,10 +335,11 @@ cscb_ldl(SEXP A, const int Parent[], SEXP L, SEXP D)
  * Perform one of the dgBCMatrix-matrix operations B := alpha*op(A)*B
  * or B := alpha*B*op(A)
  * 
- * @param side
- * @param uplo
- * @param transa
- * @param diag
+ * @param side LFT or RGT for left or right
+ * @param uplo UPP or LOW for upper or lower
+ * @param transa TRN or NTR for transpose or no transpose
+ * @param diag UNT or NUN for unit or non-unit
+ * @param alpha scalar multiplier
  * @param A pointer to a triangular dgBCMatrix object
  * @param B contents of the matrix B
  * @param m number of rows in B
@@ -374,8 +375,9 @@ cscb_trmm(enum CBLAS_SIDE side, enum CBLAS_UPLO uplo,
  * is a dgBCMatrix triangular matrix and B is a dense matrix.
  * 
  * @param uplo UPP or LOW
- * @param trans TRN or NTR
+ * @param transa TRN or NTR
  * @param diag UNT or NUN
+ * @param alpha scalar multiplier
  * @param A pointer to a triangular dgBCMatrix object
  * @param m number of rows in B
  * @param n number of columns in B
@@ -497,12 +499,13 @@ cscb_trcbm(enum CBLAS_SIDE side, enum CBLAS_UPLO uplo,
  * Solve one of the systems op(A)*X = alpha*B or
  * X*op(A) = alpha*B where A dgBCMatrix triangular and B is dgBCMatrix.
  * 
- * @param side 'L' or 'R' for left or right
- * @param uplo 'U' or 'L' for upper or lower
- * @param transa 'T' or 'N' for transpose or no transpose
- * @param diag 'U' or 'N' for unit diagonal or non-unit
+ * @param side LFT or RGT for left or right
+ * @param uplo UPP or LOW for upper or lower
+ * @param transa TRN or NTR for transpose or no transpose
+ * @param diag UNT or NON for unit or non-unit
  * @param alpha scalar multiplier
  * @param A pointer to a triangular dgBCMatrix object
+ * @param Parent parent array for the column blocks of A
  * @param B pointer to a general dgBCMatrix matrix
  */
 void
@@ -572,8 +575,8 @@ cscb_trcbsm(enum CBLAS_SIDE side, enum CBLAS_UPLO uplo,
  *      C := alpha*op(A)*op(B) + beta*C
  * on compressed, sparse, blocked matrices.
  * 
- * @param transa 'T' for transpose of A, else 'N'
- * @param transb 'T' for transpose of B, else 'N'
+ * @param transa TRN or NTR for transpose or no transpose of A
+ * @param transb TRN or NTR for transpose or no transpose of B
  * @param alpha scalar multiplier
  * @param A pointer to a dgBCMatrix object
  * @param B pointer to a dgBCMatrix object
@@ -641,6 +644,13 @@ cscb_cscbm(enum CBLAS_TRANSPOSE transa, enum CBLAS_TRANSPOSE transb,
     error("Code not yet written");
 }
 
+/** 
+ * Coerce a dgBCMatrix to a dgCMatrix
+ * 
+ * @param A pointer to a dgBCMatrix object to coerce
+ * 
+ * @return pointer to a dgCMatrix
+ */
 SEXP dgBCMatrix_to_dgCMatrix(SEXP A)
 {
     SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dgCMatrix"))),

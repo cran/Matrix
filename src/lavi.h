@@ -21,7 +21,7 @@
 // LAPACK++ was funded in part by the U.S. Department of Energy, the
 // National Science Foundation and the State of Tennessee.
 //
-// Modifications Copyright (C) 2000-2000 the R Development Core Team
+// Modifications Copyright (C) 2000-2001 the R Development Core Team
 
 #ifndef _LA_VECTOR_INT_H_
 #define _LA_VECTOR_INT_H_
@@ -70,7 +70,11 @@ public:
     inline int& operator()(int i) const ;
     inline LaVectorInt operator()(const LaIndex&);
 
-    
+    inline int& operator()(int i, int j)
+	{ return LaGenMatInt::operator()(i,j); }
+    inline int& operator()(int i, int j) const
+	{ return LaGenMatInt::operator()(i,j); }
+
     inline LaVectorInt& operator=(int);
     inline LaVectorInt& operator=(const LaGenMatInt&);
 

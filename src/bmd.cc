@@ -136,7 +136,7 @@ double& LaBandMatDouble::operator()(int i, int j)
 }
 
 
-double& LaBandMatDouble::operator()(int i, int j) const
+const double& LaBandMatDouble::operator()(int i, int j) const
 {
 
 #ifdef LA_BOUNDS_CHK

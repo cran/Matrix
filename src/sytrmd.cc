@@ -24,6 +24,13 @@
 #include "lafnames.h"
 #include LA_SYMM_TRIDIAG_MAT_DOUBLE_H
 
+#ifdef length
+#undef length
+#endif
+
+#ifdef append
+#undef append
+#endif
 
 double LaSymmTridiagMatDouble::outofbounds_ = 0; // set outofbounds_. 
 

@@ -21,7 +21,7 @@
 // LAPACK++ was funded in part by the U.S. Department of Energy, the
 // National Science Foundation and the State of Tennessee.
 //
-// Modifications Copyright (C) 2000-2000 the R Development Core Team
+// Modifications Copyright (C) 2000-2001 the R Development Core Team
 
 #include "bunch_kaufman.h"
 
@@ -94,7 +94,7 @@ public:
 		else return data_(i, j);
 	    }
 	}
-    double& operator()(int i, int j) const
+    const double& operator()(int i, int j) const
 	{
 	    if (uplo() == 'U') {
 		if (i < j)
@@ -135,7 +135,7 @@ public:
 //    operator LaLowerTriangMatDouble();
 //    operator LaUpperTriangMatDouble();
 
-    inline const LaSymmFactor& doDecomposition() const;
+    inline void doDecomposition() const;
     inline void clearDecomposition() const;
 
     inline double rcond(char which) const;
@@ -145,8 +145,11 @@ public:
     inline LaMatDouble& solve(LaMatDouble& B) const;
     inline LaMatDouble& solve(LaMatDouble& X, const LaMatDouble& B) const;
 				// eigenvalues/eigenvectors
+    inline LaSymmEigenDouble* eigen(bool leftEV = true, bool rightEV = true,
+				    char balanc = 'B', char rcond = 'N')
+	{ return new LaSymmEigenDouble(*this, uplo(), leftEV || rightEV); }
     inline LaSymmEigenDouble* eigen(bool leftEV = true, bool rightEV = true)
-	{ return new LaSymmEigenDouble(*this, uplo(), leftEV | rightEV); }
+	{ return new LaSymmEigenDouble(*this, uplo(), leftEV || rightEV); }
 				// matrix norms, etc.
     double norm(char) const;
     SEXP asSEXP() const;
@@ -161,14 +164,13 @@ inline void LaSymmMatDouble::clearDecomposition() const
 }
 
 
-inline const LaSymmFactor& LaSymmMatDouble::doDecomposition() const
+inline void LaSymmMatDouble::doDecomposition() const
 {
     clearDecomposition();
     setFactor(new LaBunchKaufmanFactorDouble());
     LaSymmMatDouble tmp;
     tmp.copy(*this);
     factor_->ref(tmp);
-    return factor();
 }
 
 inline double LaSymmMatDouble::rcond(char which) const
@@ -207,6 +209,18 @@ inline LaSymmMatDouble* LaSymmMatDouble::clone() const
     ans->data_.ref(*tmp);
     delete tmp;
     return ans;
+}
+
+// only callable from C-Lapack due to added ftnlen parameters by f2c; 
+extern "C" {
+    int F77_NAME(ilaenv)(const int& i, const char* name, const char* opts, 
+			 const int& n1, const int& n2, const int& n3,
+			 const int& n4);
+}
+
+inline int LaEnvBlockSize(const char *fname, const LaSymmMatDouble &A)
+{
+    return F77_CALL(ilaenv)(1, fname, "U", A.size(0), A.size(1), -1, -1);
 }
 
 #endif

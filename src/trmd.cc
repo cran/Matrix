@@ -25,6 +25,13 @@
 #include "lafnames.h"
 #include LA_TRIDIAG_MAT_DOUBLE_H
 
+#ifdef length
+#undef length
+#endif
+
+#ifdef append
+#undef append
+#endif
 
 double LaTridiagMatDouble::outofbounds_ = 0; // set outofbounds_. 
 

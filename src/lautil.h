@@ -21,7 +21,7 @@
 // LAPACK++ was funded in part by the U.S. Department of Energy, the
 // National Science Foundation and the State of Tennessee.
 //
-// Modifications Copyright (C) 2000-2000 the R Development Core Team
+// Modifications Copyright (C) 2000-2001 the R Development Core Team
 
 #ifndef _LA_UTIL_H_
 #define _LA_UTIL_H_
@@ -34,14 +34,24 @@ extern "C" {
 }
 
 #ifdef _LA_GEN_MAT_DOUBLE_H_
-#ifdef _LA_VECTOR_LONG_INT_H_
-    void LaSwap(LaGenMatDouble &A, LaVectorLongInt &ipiv);
-#endif
-    int LaEnvBlockSize(const char *fname, const LaGenMatDouble &A);
+
+#ifdef _LA_VECTOR_INT_H_
+inline void LaSwap(LaGenMatDouble &A, LaVectorInt &ipiv)
+{
+    F77_CALL(dlaswp)(A.size(1), &A(0,0), A.gdim(0), ipiv.start(),
+		     ipiv.end(), &ipiv(0), ipiv.inc());
+}
 #endif
 
-#ifdef _LA_SYMM_MAT_DOUBLE_H_
-    int LaEnvBlockSize(const char *fname, const LaSymmMatDouble &A);
+inline int LaEnvBlockSize(const char *fname, const LaGenMatDouble &A)
+{
+    return F77_CALL(ilaenv)(1, fname, "U", A.size(0), A.size(1), -1, -1);
+}
 #endif
-double Mach_eps_double();
+
+inline double Mach_eps_double()
+{
+    return F77_CALL(dlamch)('e');
+}
+
 #endif // _LA_UTIL_H_

@@ -34,7 +34,7 @@ protected:
     LaGenMatDouble vecs;
     bool complexVectors_;
 public:
-    LaGenSchurDouble(const LaMatDouble& a, bool jobV = true);
+    LaGenSchurDouble(LaMatDouble& a, bool jobV = true);
 				// accessor methods
     bool complexVectors() const { return complexVectors_; }
     LaMatrix& valuesR() { return wR; }

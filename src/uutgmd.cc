@@ -49,7 +49,7 @@ double& LaUnitUpperTriangMatDouble::operator()(int i, int j)
 	return data_(i,j);
 }
 
-double& LaUnitUpperTriangMatDouble::operator()(int i, int j) const
+const double& LaUnitUpperTriangMatDouble::operator()(int i, int j) const
 {
 
 #ifdef UNIT_UPPER_INDEX_CHK

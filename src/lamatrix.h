@@ -1,6 +1,6 @@
 // -*- c++ -*-
 //
-//  Copyright (C) 2000-2000 the R Development Core Team
+//  Copyright (C) 2000-2001 the R Development Core Team
 
 #ifndef _LA_MATRIX_H_
 #define _LA_MATRIX_H_
@@ -79,7 +79,7 @@ public:
 
     virtual double norm(char which) const = 0;
     virtual double rcond(char which) const = 0;
-    virtual void doDecomposition(){};
+    virtual void doDecomposition() const { };
     virtual SEXP asSEXP() const = 0; // copy the matrix to an SEXP
 
     virtual int shallow() const	// read global shallow flag
@@ -102,7 +102,7 @@ public:
     virtual double* addr() const = 0;// begining addr of data space
     
     virtual double& operator()(int i, int j) = 0;
-    virtual double& operator()(int i, int j) const = 0;
+    virtual const double& operator()(int i, int j) const = 0;
     virtual LaMatDouble& operator=(const LaMatDouble& s)
 	{ return inject(s); }
     virtual LaMatDouble& operator=(double s) = 0;
@@ -133,7 +133,7 @@ public:
     virtual int* addr() const = 0;// begining addr of data space
     
     virtual int& operator()(int i, int j) = 0;
-    virtual int& operator()(int i, int j) const = 0;
+    virtual const int& operator()(int i, int j) const = 0;
     virtual LaMatInt& operator=(const LaMatInt& s)
 	{ return inject(s); }
     virtual LaMatInt& operator=(int s) = 0;

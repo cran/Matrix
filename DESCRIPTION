@@ -1,6 +1,6 @@
 Package: Matrix
-Version: 0.3-10
-Date: 2001/05/04
+Version: 0.3-13
+Date: 2001/05/10
 Title: A Matrix package for R
 Author: Douglas Bates <bates@stat.wisc.edu>
 	Saikat DebRoy <saikat@stat.wisc.edu>

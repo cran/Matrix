@@ -21,12 +21,20 @@
 // LAPACK++ was funded in part by the U.S. Department of Energy, the
 // National Science Foundation and the State of Tennessee.
 //
-// Modifications Copyright (C) 2000-2000 the R Development Core Team
+// Modifications Copyright (C) 2000-2001 the R Development Core Team
 
 #include "lafnames.h"
 #include LA_GEN_MAT_DOUBLE_H
 #include "gfd.h"
 #include "qr.h"
+
+#ifdef length
+#undef length
+#endif
+
+#ifdef append
+#undef append
+#endif
 
 LaGenMatDouble::~LaGenMatDouble()
 {
@@ -372,7 +380,7 @@ double LaGenMatDouble::norm(char which) const
 			    &(*this)(0,0), gdim(0), &work(0));
 }
 
-inline void LaGenMatDouble::doDecomposition() const
+void LaGenMatDouble::doDecomposition() const
 {
     if (solver != 0)
 	delete solver;
@@ -412,12 +420,13 @@ double LaGenMatDouble::rcond(char which) const
 {
     double val;
     VectorDouble work(4 * size(0));
-    int info, ipiv[size(0)];
+    int info;
+    VectorInt ipiv(size(0));
     VectorInt iwork(size(0));
     LaGenMatDouble th(*this);	// create a copy to pass
 
     F77_CALL(dgetrf)(th.size(0), th.size(1), &th(0,0), th.gdim(0),
-		     ipiv, info);
+		     &ipiv(0), info);
     F77_CALL(dgecon)(which, th.size(0), &th(0,0), th.gdim(0),
 		     norm(which), val, &work(0), &iwork(0), info);
     return val;

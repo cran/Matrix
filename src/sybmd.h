@@ -56,7 +56,7 @@ public:
   LaSymmBandMatDouble& operator=(double);
   inline LaSymmBandMatDouble& operator=(const LaSymmBandMatDouble&);
   double& operator()(int,int);
-  double& operator()(int,int) const;
+  const double& operator()(int,int) const;
   friend ostream& operator<<(ostream &, const LaSymmBandMatDouble &);
 
 

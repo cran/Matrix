@@ -2,6 +2,14 @@
 #include "lapackd.h"
 #include "vd.h"
 
+#ifdef length
+#undef length
+#endif
+
+#ifdef append
+#undef append
+#endif
+
 LaQRFactorDouble& LaQRFactorDouble::ref(const LaGenMatDouble& A)
 {
     if(A.inc(0) != 1 || A.inc(1) != 1)
@@ -55,8 +63,8 @@ LaGenMatDouble* LaQRFactorDouble::solve() const
     if (qr_.size(0) != qr_.size(1))
 	throw(LaException("singular matrix"));
     LaUpperTriangMatDouble* Rinv = R_.solve();
-    LaGenMatDouble* inv = new LaGenMatDouble();
-    *inv = *Rinv;
+    LaGenMatDouble* inv = new LaGenMatDouble(&(*Rinv)(0, 0), Rinv->size(0),
+					     Rinv->size(1));
     delete Rinv;
     applyQ(*inv, false, true);
     return inv;

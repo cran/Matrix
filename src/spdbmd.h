@@ -50,7 +50,7 @@ public:
     inline LaSpdBandMatDouble& operator=(double);
     inline LaSpdBandMatDouble& operator=(const LaSpdBandMatDouble&);
     double& operator()(int,int);
-    double& operator()(int,int) const;
+    const double& operator()(int,int) const;
     friend ostream& operator<<(ostream &, const LaSpdBandMatDouble &);
 
 				// member functions

@@ -5,11 +5,24 @@
 #include "eigen.h"
 #include "lavi.h"
 #include "schur.h"
- 
+
+#ifdef length
+#undef length
+#endif
+
+#ifdef append
+#undef append
+#endif
+
 #include <iostream>
 #include <cstdlib>
 #include <new>
 using namespace std;
+
+static inline SEXP install(const char* c)
+{
+    return install(const_cast<char *>(c));
+}
 
 static LaVectorInt* piv2perm(const LaVectorInt& piv)
 {				// transform a pivot vector to the permutation
@@ -36,7 +49,7 @@ static int isMMatrix(SEXP s)
     return 0;
 }
 
-static int checkClass(SEXP classes, char *cname)
+static int checkClass(SEXP classes, const char *cname)
 {
     for (int i = 0; i < Rf_length(classes); i++)
 	if (!strcmp(CHAR(STRING_ELT(classes, i)), cname)) return 1;

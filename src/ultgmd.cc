@@ -30,6 +30,14 @@
 #include "blas3.h"
 #include "vi.h"
 
+#ifdef length
+#undef length
+#endif
+
+#ifdef append
+#undef append
+#endif
+
 double LaUnitLowerTriangMatDouble::outofbounds_ = 0; // initialize outofbounds.
 
 double& LaUnitLowerTriangMatDouble::operator()(int i, int j)
@@ -49,7 +57,7 @@ double& LaUnitLowerTriangMatDouble::operator()(int i, int j)
 	return data_(i,j);
 }
 
-double& LaUnitLowerTriangMatDouble::operator()(int i, int j) const
+const double& LaUnitLowerTriangMatDouble::operator()(int i, int j) const
 {
 
 #ifdef UNIT_LOWER_INDEX_CHK

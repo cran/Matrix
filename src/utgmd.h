@@ -64,11 +64,11 @@ public:
     // operators
     inline double& operator()(int i, int j)
 	{ if (i > j) return outofbounds_; else return data_(i,j); }
-    inline double& operator()(int i, int j) const
+    inline const double& operator()(int i, int j) const
 	{ if (i > j) return outofbounds_; else return data_(i,j); }
     LaMatDouble& operator=(double); 
-    operator LaGenMatDouble()
-	{ LaGenMatDouble G; G.ref((*this).data_); return G; };
+//      operator LaGenMatDouble()
+//  	{ LaGenMatDouble G; G.ref((*this).data_); return G; };
 
     LaUpperTriangMatDouble& inject(const LaMatDouble& A)
 	{ data_.inject(A); return *this; }

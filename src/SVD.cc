@@ -1,5 +1,5 @@
 //   R : A Computer Language for Statistical Data Analysis
-//   Copyright (C) 2000  the R Development Core Team
+//   Copyright (C) 2000, 2001  the R Development Core Team
 
 //   This program is free software; you can redistribute it and/or modify
 //   it under the terms of the GNU General Public License as published by
@@ -19,7 +19,15 @@
 #include "lapackd.h"
 #include "laexcp.h"
 
-SVD::SVD(LaGenMatDouble& a, int nu = 0, int nvt = 0) :
+#ifdef length
+#undef length
+#endif
+
+#ifdef append
+#undef append
+#endif
+
+SVD::SVD(LaGenMatDouble& a, int nu, int nvt) :
     s(min(a.size(0), a.size(1))), u(), vt()
 {
     int m = a.size(0), n = a.size(1);

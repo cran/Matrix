@@ -67,6 +67,10 @@ public:
 
 				// linear equation solvers
     inline LaSpdMatDouble* solve() const;   // inverse
+    inline LaMatDouble& solve(LaMatDouble& B) const
+        { return LaSymmMatDouble::solve(B); }
+    inline LaMatDouble& solve(LaMatDouble& X, const LaMatDouble& B) const
+        { return LaSymmMatDouble::solve(X, B); }
 				// matrix norms
 //    double norm(char) const;
 //    inline double rcond(char which) const;

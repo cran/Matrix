@@ -21,7 +21,7 @@
 // LAPACK++ was funded in part by the U.S. Department of Energy, the
 // National Science Foundation and the State of Tennessee.
 //
-// Modifications Copyright (C) 2000-2000 the R Development Core Team
+// Modifications Copyright (C) 2000-2001 the R Development Core Team
 
 #ifndef _LA_QR_FACT_DOUBLE_H
 #define _LA_QR_FACT_DOUBLE_H
@@ -76,8 +76,8 @@ public:
 		     bool transpose = true) const;
 
 				// operators
-    LaQRFactorDouble& ref(const LaQRFactorDouble&);
-    inline LaQRFactorDouble& ref(const LaGenMatDouble&);
+    inline LaQRFactorDouble& ref(const LaQRFactorDouble&);
+    LaQRFactorDouble& ref(const LaGenMatDouble&);
 };
 
 

@@ -21,7 +21,7 @@
 // LAPACK++ was funded in part by the U.S. Department of Energy, the
 // National Science Foundation and the State of Tennessee.
 //
-// Modifications Copyright (C) 2000-2000 the R Development Core Team
+// Modifications Copyright (C) 2000-2001 the R Development Core Team
 
 
 #ifndef _LA_BAND_MAT_DOUBLE_H_
@@ -60,16 +60,20 @@ public:
   inline LaBandMatDouble(int,int,int);
   inline LaBandMatDouble(const LaBandMatDouble &);
 
-  // operators
-
-  LaBandMatDouble& operator=(double);
-  inline LaBandMatDouble& operator=(const LaBandMatDouble&);
-  double& operator()(int,int);
-  double& operator()(int,int) const;
   friend ostream& operator<<(ostream &, const LaBandMatDouble &);
 
 
   // member functions
+
+  inline double* addr() const {	// return address of matrix.
+        return data_.addr();}
+
+  double& operator()(int,int);
+  const double& operator()(int,int) const;
+  inline LaBandMatDouble& operator=(const LaBandMatDouble&);
+  LaBandMatDouble& operator=(double);
+
+  inline LaBandMatDouble& resize(const LaBandMatDouble&);
 
   inline int size(int) const;	// submatrix size
   inline int inc(int d) const;	// explicit increment
@@ -77,8 +81,6 @@ public:
 
   inline LaBandMatDouble& ref(LaBandMatDouble &);
         LaBandMatDouble copy(const LaBandMatDouble &);
-  inline double* addr() const {	// return address of matrix.
-        return data_.addr();}
   inline int ref_count() const { // return ref_count of matrix.
         return data_.ref_count();}
   inline LaIndex index(int d) const { // return indices of matrix.
@@ -93,8 +95,6 @@ public:
         return (kl_);}
   inline int shallow() const {	// return shallow flag.
         return data_.shallow();}
-
-  inline LaBandMatDouble& resize(const LaBandMatDouble&);
 
   inline const LaBandMatDouble& info() const {
         int *t = info_;

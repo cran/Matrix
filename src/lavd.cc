@@ -24,6 +24,14 @@
 #include "lafnames.h"
 #include LA_VECTOR_DOUBLE_H
 
+#ifdef length
+#undef length
+#endif
+
+#ifdef append
+#undef append
+#endif
+
 LaVectorDouble& LaVectorDouble::ref(SEXP x)
 {				// create a reference to the data
     int n = LENGTH(x);

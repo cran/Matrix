@@ -135,6 +135,7 @@ inline LaBandFactDouble& LaBandFactDouble::ref(LaBandMatDouble& F)
 }
 
 
+/*
 inline void LaBandMatFactorize(LaBandMatDouble &A, LaBandFactDouble &AF)
 {
 //    int n = A.size(1), m = n, LDA = A.gdim(0);
@@ -151,6 +152,7 @@ inline void LaLinearSolve(LaBandFactDouble &AF, LaGenMatDouble &X,
 //    int  n = AF.B().size(1), lda = AF.B().gdim(0), nrhs = X.size(1), 
 //            ldb = B.size(0), kl = AF.B().subdiags(), 
 //            ku = AF.B().superdiags(), info=0;
+
     int info;
 
     X.inject(B);
@@ -159,6 +161,6 @@ inline void LaLinearSolve(LaBandFactDouble &AF, LaGenMatDouble &X,
 		    &(AF.B()(-AF.B().subdiags(),0)), AF.B().gdim(0),
 		    &(AF.pivot()(0)), &X(0,0), B.size(0), &info);
 }
-
+*/
 
 #endif

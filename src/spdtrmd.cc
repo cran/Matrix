@@ -25,6 +25,14 @@
 #include LA_SPD_TRIDIAG_MAT_DOUBLE_H
 
 
+#ifdef length
+#undef length
+#endif
+
+#ifdef append
+#undef append
+#endif
+
 double LaSpdTridiagMatDouble::outofbounds_ = 0; // set outofbounds_. 
 
 int* LaSpdTridiagMatDouble::info_= new int;  // turn off info print flag.

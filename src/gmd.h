@@ -21,7 +21,7 @@
 // LAPACK++ was funded in part by the U.S. Department of Energy, the
 // National Science Foundation and the State of Tennessee.
 //
-// Modifications Copyright (C) 2000-2000 the R Development Core Team
+// Modifications Copyright (C) 2000-2001 the R Development Core Team
 
 //      Lapack++ Rectangular Matrix Class
 //
@@ -83,7 +83,7 @@ public:
 	    return v( dim[0]*(ii[1].start() + j*ii[1].inc()) + 
 		      ii[0].start() + i*ii[0].inc());
 	}
-    inline double& operator()(int i, int j) const
+    inline const double& operator()(int i, int j) const
 	{
 #ifdef LA_BOUNDS_CHECK
 	    if (!(i>=0)) throw(LaException("assert failed : i>=0"));
@@ -111,7 +111,7 @@ public:
 
     double norm(char which) const;
     double rcond(char which) const;
-    inline void doDecomposition() const;
+    void doDecomposition() const;
     Factor& clearDecomposition() const
 	{ delete solver; solver = 0; return *solver; }
     LaGenMatDouble* solve() const

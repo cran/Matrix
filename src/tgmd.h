@@ -94,7 +94,7 @@ public:
 		return (*data_.upper)(i, j);
 	    else return (*data_.lower)(j, i);
 	}
-    double& operator()(int i, int j) const
+    const double& operator()(int i, int j) const
 	{
 	    if (uplo_ == 'U')
 		return (*data_.upper)(i, j);
@@ -174,12 +174,12 @@ public:
 	    return os;
 	}
 
-    operator LaGenMatDouble()
-	{
-	    if (uplo_ == 'U')
-		return *data_.upper;
-	    else return *data_.lower;
-	}
+//      operator LaGenMatDouble()
+//  	{
+//  	    if (uplo_ == 'U')
+//  		return *data_.upper;
+//  	    else return *data_.lower;
+//  	}
 
 //    operator LaLowerTriangMatDouble();
 //    operator LaUpperTriangMatDouble();

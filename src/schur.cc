@@ -2,22 +2,32 @@
 
 #include "schur.h"
 
-static int dummy(const double& wr, const double& wi) { return 0; }
+#ifdef length
+#undef length
+#endif
 
-LaGenSchurDouble::LaGenSchurDouble(const LaMatDouble& a,
-				   bool jobV = true) :
-    a(a), wR(a.size(0)), wI(a.size(0)), vecs(a)
+#ifdef append
+#undef append
+#endif
+
+extern "C" {
+  static int dummy(const double& wr, const double& wi) { return 0; }
+}
+
+LaGenSchurDouble::LaGenSchurDouble(LaMatDouble& aa,
+				   bool jobV) :
+    a(aa), wR(aa.size(0)), wI(aa.size(0)), vecs(aa)
 {
     char jobVS = (jobV) ? 'V' : 'N';
-    int n = a.size(0);
-    if (a.size(1) != n)
+    int n = aa.size(0);
+    if (aa.size(1) != n)
 	throw(LaException("LaGenSchurDouble : only square matrices allowed"));
 
     int lwork = 5*n, info, sdim;
     double rconde, rcondv;	// never used
     VectorDouble work(lwork);
     VectorInt iwork(0), bwork(0);
-    F77_CALL(dgeesx)(jobVS, 'N', &dummy, 'N', n, &a(0,0), a.gdim(0),
+    F77_CALL(dgeesx)(jobVS, 'N', &dummy, 'N', n, &aa(0,0), aa.gdim(0),
 		     sdim, &wR(0), &wI(0), &vecs(0,0), n, rconde, rcondv,
 		     &work(0), lwork, &iwork(0), 1, bwork, info);
     if (info != 0)

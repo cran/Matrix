@@ -36,6 +36,14 @@
 #include LA_SOLVE_DOUBLE_H
 #include LA_UTIL_H
 
+#ifdef length
+#undef length
+#endif
+
+#ifdef append
+#undef append
+#endif
+
 void LaLinearSolve(const LaGenMatDouble& A, LaGenMatDouble& X,
 		   LaGenMatDouble& B)
 {

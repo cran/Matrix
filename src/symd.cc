@@ -28,6 +28,14 @@
 #include LA_SYMM_MAT_DOUBLE_H 
 #include "vi.h"
 
+#ifdef length
+#undef length
+#endif
+
+#ifdef append
+#undef append
+#endif
+
 ostream& LaSymmMatDouble::printMatrix(ostream& s) const
 {
     if (*info_) {   // print out only matrix info, not actual values

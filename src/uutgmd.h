@@ -64,7 +64,7 @@ public:
 
     // operators
     double& operator()(int,int);
-    double& operator()(int,int) const;
+    const double& operator()(int,int) const;
     LaMatDouble& operator=(double); 
     operator LaGenMatDouble()
 	{ LaGenMatDouble G; G.ref((*this).data_); return G; };

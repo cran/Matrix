@@ -9,11 +9,9 @@
 #include "lavi.h"
 #include "lautil.h"
 
-class LaSymmMatDouble;
-
 class LaBunchKaufmanFactorDouble : public LaSymmFactor
 {
-    LaSymmMatDouble* decomp_;
+    class LaSymmMatDouble* decomp_;
     bool           uplo_;
     LaVectorInt    pivot_;
     bool           singular_;
@@ -22,13 +20,19 @@ public:
 				// constructor
     LaBunchKaufmanFactorDouble()
 	{ decomp_ = 0; };
-    inline explicit LaBunchKaufmanFactorDouble(const LaSymmMatDouble&);
+    inline explicit LaBunchKaufmanFactorDouble(const class LaSymmMatDouble&);
     LaBunchKaufmanFactorDouble(const LaBunchKaufmanFactorDouble& F);
 
     inline ~LaBunchKaufmanFactorDouble();
 
 				// extractor methods for components
-    const LaSymmMatDouble& decomp() const
+    const class LaSymmMatDouble& decomp() const
+	{
+	    if (decomp_ == 0)
+		throw(LaException("No decomposition present"));
+	    return *decomp_;
+	}
+    class LaSymmMatDouble& decomp()
 	{
 	    if (decomp_ == 0)
 		throw(LaException("No decomposition present"));
@@ -49,14 +53,14 @@ public:
 
 				// operators
     inline LaBunchKaufmanFactorDouble& ref(const LaBunchKaufmanFactorDouble& F);
-    inline LaBunchKaufmanFactorDouble& ref(LaSymmMatDouble&);
+    inline LaBunchKaufmanFactorDouble& ref(class LaSymmMatDouble&);
 };
 
 #include "symd.h"
 
 inline LaBunchKaufmanFactorDouble::LaBunchKaufmanFactorDouble(const LaSymmMatDouble& A)
 {
-    decomp_ = new LaSymmMatDouble;
+    decomp_ = new LaSymmMatDouble();
     LaSymmMatDouble A1;
     A1.copy(A);
     ref(A1);

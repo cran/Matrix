@@ -31,10 +31,18 @@
 #include LA_VECTOR_DOUBLE_H
 #include LA_VECTOR_INT_H 
 #include LA_SPD_MAT_DOUBLE_H
-#include LA_SYMM_MAT_DOUBLE_H
+#include "symd.h"
 #include LA_EXCEPTION_H
 #include LA_SOLVE_DOUBLE_H
-#include LA_UTIL_H
+#include "lautil.h"
+
+#ifdef length
+#undef length
+#endif
+
+#ifdef append
+#undef append
+#endif
 
 void LaEigSolve(const LaSymmMatDouble &S, LaVectorDouble &eigvals)
 {   

@@ -55,6 +55,7 @@ public:
     LaRowVectorDouble& ref(SEXP);
     inline LaRowVectorDouble& inject(const LaMatDouble &);
     inline LaRowVectorDouble& copy(const LaMatDouble &);
+    inline LaRowVectorDouble* clone() const;
     
     inline double& operator()(int i);
     inline const double& operator()(int i) const ;
@@ -120,6 +121,14 @@ inline LaRowVectorDouble& LaRowVectorDouble::copy(const LaMatDouble &A)
     return *this;
 }
 
+inline LaRowVectorDouble* LaRowVectorDouble::clone() const
+{
+    LaGenMatDouble* tmp = LaGenMatDouble::clone();
+    LaRowVectorDouble* ans = new LaRowVectorDouble();
+    ans->ref(*tmp);
+    delete tmp;
+    return ans;
+}
 
 inline LaRowVectorDouble& LaRowVectorDouble::ref(const LaGenMatDouble &A)
 {

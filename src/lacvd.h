@@ -56,6 +56,7 @@ public:
     LaColVectorDouble& ref(SEXP);
     inline LaColVectorDouble& inject(const LaMatDouble &);
     inline LaColVectorDouble& copy(const LaMatDouble &);
+    inline LaColVectorDouble* clone() const;
     
     inline double& operator()(int i);
     inline const double& operator()(int i) const ;
@@ -118,11 +119,20 @@ inline LaColVectorDouble& LaColVectorDouble::operator=(double d)
 
 inline LaColVectorDouble& LaColVectorDouble::copy(const LaMatDouble &A)
 {
-    assert(A.size(1) == 1);   //make sure A is a column vector.
+    assert(A.size(0) == 1 || A.size(1) == 1);   //make sure rhs is a
+                                                // a vector.
     LaGenMatDouble::copy(A);
     return *this;
 }
 
+inline LaColVectorDouble* LaColVectorDouble::clone() const
+{
+    LaGenMatDouble* tmp = LaGenMatDouble::clone();
+    LaColVectorDouble* ans = new LaColVectorDouble();
+    ans->ref(*tmp);
+    delete tmp;
+    return ans;
+}
 
 inline LaColVectorDouble& LaColVectorDouble::ref(const LaGenMatDouble &A)
 {

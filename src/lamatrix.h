@@ -11,6 +11,7 @@ inline int max(int a, int b) { return (a > b) ? a : b; }
 #include "lafnames.h"
 #include LA_INDEX_H
 #include LA_EXCEPTION_H
+class LaEigenDouble;
 
 extern "C" {
 #include <R.h>
@@ -64,6 +65,7 @@ public:
     virtual LaIndex index(int d) const = 0; // index
     
     virtual LaMatrix& resize(int m, int n) = 0;
+    virtual LaMatrix* clone() const = 0;
 
     virtual double norm(char which) const = 0;
     virtual double rcond(char which) const = 0;
@@ -101,10 +103,13 @@ public:
     virtual LaMatDouble& ref(SEXP) = 0;
     virtual LaMatDouble& inject(const LaMatDouble& s) = 0;
     virtual LaMatDouble& copy(const LaMatDouble& s) = 0;
-    
-    virtual LaMatDouble& solve() const = 0;
+    virtual LaMatDouble* clone() const = 0;
+
+    virtual LaMatDouble* solve() const = 0;
     virtual LaMatDouble& solve(LaMatDouble& B) const = 0;
     virtual LaMatDouble& solve(LaMatDouble& X, const LaMatDouble& B) const = 0;
+
+    virtual LaEigenDouble* eigen(bool leftEV = true, bool rightEV = true);
 
     ostream& Info(ostream& s);
 };

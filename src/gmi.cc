@@ -28,8 +28,7 @@
 
 int* LaGenMatInt::info_= new int; // turn off info print flag.
 
-LaGenMatInt::~LaGenMatInt()
-{}
+LaGenMatInt::~LaGenMatInt() { }
 
 LaGenMatInt::LaGenMatInt() : v(0)
 {

@@ -25,14 +25,9 @@ as.matrix.Matrix <- function(x)
     unclass(unpack(x))
 }
 
-solve.Matrix <- function(a, b)
+solve.Matrix <- function(a, b, tol = 0, transpose = FALSE)
 {   ## short version of a solve method
-###    if (missing(b)) return(.Call("R_LapackPP_solve1", a))
-    if (missing(b)) {
-        m <- nrow(a)
-        if (m != ncol(a)) stop("only square matrices can be inverted")
-        return(.Call("R_LapackPP_solve", a, diag(m)))
-    }
+    if (missing(b)) return(.Call("R_LapackPP_solve", a, NULL))
     .Call("R_LapackPP_solve", a, b)
 }
 
@@ -126,16 +121,23 @@ Matrix.class <- function(x, tol = 0, symmetry = TRUE, unit.diagonal = TRUE,
             val <- c("ColOrthoNormal", "ColOrthogonal", val)
         } else {
             if (Orthogonal.test(x, normal = FALSE) <= tol)
-                val <- c("ColOrthogonal")
+                val <- c("ColOrthogonal", val)
         }
     }
     if (orthogonality[2]) {
         if (normality[2] && is.RowOrthonormal(x, tol)) {
-            val <- c("ColOrthoNormal", "ColOrthogonal", val)
+            val <- c("RowOrthoNormal", "RowOrthogonal", val)
         } else {
             if (Orthogonal.test(x, byrow = TRUE, normal = FALSE) <= tol)
-                val <- c("ColOrthogonal")
+                val <- c("RowOrthogonal", val)
         }
     }
     val
 }
+
+as.Matrix <- function(x, tol = .Machine$double.eps)
+{
+    if (inherits(x, "Matrix")) return(asObject(x, Matrix.class(x, tol = tol)))
+    asObject(as.matrix(x), Matrix.class(x, tol = tol))
+}
+

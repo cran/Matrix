@@ -56,9 +56,10 @@ public:
     LaGenMatDouble();
     LaGenMatDouble(int, int);
     LaGenMatDouble(double*, int, int);
-    LaGenMatDouble(const LaMatDouble&);
-    LaGenMatDouble(SEXP);
-    virtual ~LaGenMatDouble();
+    explicit LaGenMatDouble(const LaMatDouble&);
+    LaGenMatDouble(const LaGenMatDouble&);
+    explicit LaGenMatDouble(SEXP);
+    ~LaGenMatDouble();
 
 				//  Indices and access operations 
     int size(int d) const       // submatrix size
@@ -105,20 +106,22 @@ public:
     LaGenMatDouble& ref(SEXP);
     LaGenMatDouble& inject(const LaMatDouble& s);
     LaGenMatDouble& copy(const LaMatDouble& s);
+    LaGenMatDouble* clone() const;
     SEXP asSEXP() const;
 
     double norm(char which) const;
     double rcond(char which) const;
     inline void doDecomposition() const;
-    void clearDecomposition() const
-	{ delete solver; solver = 0; }
-    LaGenMatDouble& solve() const
+    Factor& clearDecomposition() const
+	{ delete solver; solver = 0; return *solver; }
+    LaGenMatDouble* solve() const
 	{ if (solver == 0) doDecomposition();
-	  return dynamic_cast<LaGenMatDouble&>(solver->solve()); };
+	  return dynamic_cast<LaGenMatDouble*>(solver->solve()); };
     LaMatDouble& solve(LaMatDouble& B) const
 	{ if (solver == 0) doDecomposition(); return solver->solve(B); };
     LaMatDouble& solve(LaMatDouble& X, const LaMatDouble& B) const
 	{ if (solver == 0) doDecomposition(); return solver->solve(X, B); };
+
 
     //* I/O *//
     ostream& printMatrix(ostream&) const;

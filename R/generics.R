@@ -1,5 +1,5 @@
 det <- function(x, ...) UseMethod("det")
-det.Matrix <-
+eigen <- function(x, ...) UseMethod("eigen")
 expand <- function(x, ...) UseMethod("expand")
 expand.default <- function(x, ...) x
 
@@ -23,3 +23,7 @@ schur <- function(x, ...) UseMethod("schur")
 
 unpack <- function(x, ...) UseMethod("unpack")
 unpack.default <- function(x, ...) x
+
+asObject <- function(x, cl) {class(x) <- as.character(cl); x}
+
+prependClass <- function(x, cl) {class(x) <- c(as.character(cl), class(x)); x}

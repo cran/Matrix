@@ -2,8 +2,8 @@
 //
 //  Copyright (C) 2000-2000 the R Development Core Team
 
-#ifndef _LA_EIGEN_H
-#define _LA_EIGEN_H
+#ifndef _LA_EIGEN_H_
+#define _LA_EIGEN_H_
 
 #include "lamatrix.h"
 #include LA_VECTOR_DOUBLE_H
@@ -14,9 +14,9 @@ class LaEigen			// eigenvalue/eigenvector decompositions
 public:
     virtual ~LaEigen() {}
     virtual SEXP asSEXP() const = 0; // copy the decomposition to an SEXP
-    virtual LaMatrix& values() const = 0; // will always be a LaVectorDouble
-    virtual LaMatrix& vectors() const = 0;
-    virtual LaMatrix& vectors(char side = 'L') const = 0;
+    virtual LaMatrix& values() = 0; // will always be a LaVectorDouble
+    virtual LaMatrix& vectors() = 0;
+    virtual LaMatrix& vectors(char side = 'L') = 0;
 };
 
 class LaEigenDouble : public LaEigen
@@ -31,7 +31,8 @@ protected:
     LaVectorDouble vals;
     LaOrthogonalMatDouble vecs;
 public:
-    LaSymmEigenDouble(const LaMatDouble& a, bool findVecs = true);
+    LaSymmEigenDouble(const LaMatDouble& a, const char uplo,
+		      const bool findVecs = true);
 				// accessor methods
     LaMatrix& values() { return vals; }
     LaMatrix& vectors() { return vecs; }
@@ -40,4 +41,34 @@ public:
     SEXP asSEXP() const;
 };
 
-#endif // _LA_EIGEN_H
+class LaGenEigenDouble : public LaEigenDouble
+{
+protected:
+    LaVectorDouble wR;
+    LaVectorDouble wI;
+    LaGenMatDouble left;
+    LaGenMatDouble right;
+    bool complexVectors_;
+public:
+    LaGenEigenDouble(const LaMatDouble& a, bool leftEV = true,
+		     bool rightEV = true);
+				// accessor methods
+    bool complexVectors() const { return complexVectors_; }
+    LaMatrix& valuesR() { return wR; }
+    LaMatrix& valuesI() { return wI; }
+    LaMatrix& values()
+	{
+	    if (complexVectors())
+		throw(LaException("Can not return complex values"));
+	    return wR;
+	}
+    LaMatrix& vectors() { if (left.size(0) > 0) return left; return right; }
+    LaMatrix& vectors(char side = 'L') {
+	if (side == 'L') return left;
+	return right;
+    }
+
+    SEXP asSEXP() const;
+};
+    
+#endif // _LA_EIGEN_H_

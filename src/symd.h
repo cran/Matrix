@@ -23,71 +23,190 @@
 //
 // Modifications Copyright (C) 2000-2000 the R Development Core Team
 
+#include "bunch_kaufman.h"
+
 #ifndef _LA_SYMM_MAT_DOUBLE_H_
 #define _LA_SYMM_MAT_DOUBLE_H_
 
 #include "lafnames.h"
-#include LA_LOWER_TRIANG_MAT_DOUBLE_H
+#include "tgmd.h"
+#include "eigen.h"
 
 class LaSymmMatDouble : public LaMatDouble
 {
+    LaTriangMatDouble data_;
+
 protected:
-    LaLowerTriangMatDouble lower_data_;
+
+    mutable LaSymmFactor* factor_;
+
+    void setFactor(LaSymmFactor *factor) const
+	{ clearDecomposition(); factor_ = factor; }
 public:
 				// constructors
-    LaSymmMatDouble() : lower_data_() { }
-    LaSymmMatDouble(int i, int j) : lower_data_(i,j) { }
-    LaSymmMatDouble(double* d, int i, int j) : lower_data_(d,i,j) { }
+    LaSymmMatDouble(char uplo = 'U')
+	: data_(uplo)
+	{  factor_ = 0; };
+    LaSymmMatDouble(int i, int j, char uplo = 'U')
+	: data_(i, j, uplo)
+	{  factor_ = 0; };
+    LaSymmMatDouble(double* d, int i, int j, char uplo = 'U')
+	: data_(d, i, j, uplo)
+	{  factor_ = 0; };
     LaSymmMatDouble(const LaSymmMatDouble& A)
-	{ lower_data_.copy(A.lower_data_); }
-    LaSymmMatDouble(SEXP s) : lower_data_(s) { };
+	: data_(A.data_)
+	{  factor_ = 0; };
+    explicit LaSymmMatDouble(SEXP s, char uplo = 'U')
+	: data_(s, uplo)
+	{  factor_ = 0; };
 				// destructor
-    ~LaSymmMatDouble() { };
+    ~LaSymmMatDouble()
+	{ delete factor_; };
 
+    char uplo() const { return data_.uplo(); }
+    const LaSymmFactor& factor() const
+	{
+	    if (factor_ == 0)
+		throw(LaException("No factor present"));
+	    return *factor_;
+	}
     int size(int d) const	// submatrix size
-	{ return lower_data_.size(d); }
+	{ return data_.size(d); }	
     int gdim(int d) const	// global dimensions
-	{ return lower_data_.gdim(d); }
+	{ return data_.gdim(d); }
     LaIndex index(int d) const	// return indices of matrix.
-        { return lower_data_.index(d); }
+	{ return data_.index(d); }
     int ref_count() const	// return ref_count of matrix.
-        { return lower_data_.ref_count(); }
+	{ return data_.ref_count(); }
     double* addr() const	// return address of matrix.
-        { return lower_data_.addr(); }
+	{ return data_.addr(); };
 
 				// operators
     double& operator()(int i,int j) 
-	{ if (i < j) return lower_data_(j,i); else return lower_data_(i,j); }
+	{
+	    if (uplo() == 'U') {
+		if (i < j)
+		    return data_(i, j);
+		else return data_(j, i);
+	    } else {
+		if (i < j)
+		    return data_(j, i);
+		else return data_(i, j);
+	    }
+	}
     double& operator()(int i, int j) const
-	{ if (i < j) return lower_data_(j,i); else return lower_data_(i,j); }
+	{
+	    if (uplo() == 'U') {
+		if (i < j)
+		    return data_(i, j);
+		else return data_(j, i);
+	    } else {
+		if (i < j)
+		    return data_(j, i);
+		else return data_(i, j);
+	    }
+	}
     LaMatDouble& operator=(double s)
-	{ lower_data_ = s; return *this; }
+	{ clearDecomposition(); data_ = s; return *this; };
 
     LaSymmMatDouble& inject(const LaMatDouble& A)
-	{ return copy(A); }
+	{ clearDecomposition(); data_.inject(A); return *this; }
     LaSymmMatDouble& resize(const LaMatDouble& A)
 	{ return resize(A.size(0), A.size(1)); }
-    inline LaSymmMatDouble& resize(int m, int n)
-	{ lower_data_.resize(m, n); return *this; }
+    LaSymmMatDouble& resize(int m, int n)
+	{ clearDecomposition(); data_.resize(m, n); return *this; };
     LaSymmMatDouble& ref(const LaSymmMatDouble& A)
-	{ lower_data_.ref(A.lower_data_); return *this; }
+	{ clearDecomposition(); data_.ref(A.data_); return *this; };
     LaSymmMatDouble& ref(SEXP s)
-	{ lower_data_.ref(s); return *this; }
-    LaSymmMatDouble& copy(const LaMatDouble &);
+	{ clearDecomposition(); data_.ref(s); return *this; };
+    LaSymmMatDouble& copy(const LaMatDouble& A)
+	{ clearDecomposition(); data_.copy(A); return *this; };
+    inline LaSymmMatDouble* clone() const;
    
     ostream &printMatrix(ostream &) const;
 
     operator LaGenMatDouble();
-    operator LaLowerTriangMatDouble();
+    operator LaTriangMatDouble()
+	{
+	    LaTriangMatDouble ans;
+	    ans.ref(data_);
+	    return ans;
+	}
+//    operator LaLowerTriangMatDouble();
+//    operator LaUpperTriangMatDouble();
+
+    inline const LaSymmFactor& doDecomposition() const;
+    inline void clearDecomposition() const;
+
+    inline double rcond(char which) const;
+
 				// linear equation solvers
-    LaSymmMatDouble& solve() const;	// inverse
-    LaMatDouble& solve(LaMatDouble& B) const; // in-place solution
-    LaMatDouble& solve(LaMatDouble& X, const LaMatDouble& B) const;
-    
+    inline LaSymmMatDouble* solve() const;   // inverse
+    inline LaMatDouble& solve(LaMatDouble& B) const;
+    inline LaMatDouble& solve(LaMatDouble& X, const LaMatDouble& B) const;
+				// eigenvalues/eigenvectors
+    inline LaSymmEigenDouble* eigen(bool leftEV = true, bool rightEV = true)
+	{ return new LaSymmEigenDouble(*this, uplo(), leftEV | rightEV); }
 				// matrix norms, etc.
     double norm(char) const;
-    double rcond(char which) const;
     SEXP asSEXP() const;
 };
+
+inline void LaSymmMatDouble::clearDecomposition() const
+{
+    if (factor_ != 0) {
+	delete factor_;
+	factor_ = 0;
+    }
+}
+
+
+inline const LaSymmFactor& LaSymmMatDouble::doDecomposition() const
+{
+    clearDecomposition();
+    setFactor(new LaBunchKaufmanFactorDouble());
+    LaSymmMatDouble tmp;
+    tmp.copy(*this);
+    factor_->ref(tmp);
+    return factor();
+}
+
+inline double LaSymmMatDouble::rcond(char which) const
+{
+    if (factor_ == 0)
+	doDecomposition();
+
+    return factor().rcond(norm('O'));
+}
+
+inline LaSymmMatDouble* LaSymmMatDouble::solve() const   // inverse
+{
+    if (factor_ == 0)
+	doDecomposition();
+    return dynamic_cast<LaSymmMatDouble*>(factor().solve());
+}
+
+inline LaMatDouble& LaSymmMatDouble::solve(LaMatDouble& B) const
+{
+    if (factor_ == 0)
+	doDecomposition();
+    return factor().solve(B);
+}
+
+inline LaMatDouble& LaSymmMatDouble::solve(LaMatDouble& X, const LaMatDouble& B) const
+{
+    if (factor_ == 0)
+	doDecomposition();
+    return factor().solve(X, B);
+}
+
+inline LaSymmMatDouble* LaSymmMatDouble::clone() const
+{
+    LaTriangMatDouble* tmp = data_.clone();
+    LaSymmMatDouble* ans = new LaSymmMatDouble();
+    ans->data_.ref(*tmp);
+    delete tmp;
+    return ans;
+}
 
 #endif

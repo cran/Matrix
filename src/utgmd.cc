@@ -80,7 +80,7 @@ ostream& LaUpperTriangMatDouble::printMatrix(ostream &s) const
     return s;
 }
 
-LaUpperTriangMatDouble& LaUpperTriangMatDouble::solve() const
+LaUpperTriangMatDouble* LaUpperTriangMatDouble::solve() const
 {				// inverse
     LaUpperTriangMatDouble *inv; //create a copy to return
     inv = new LaUpperTriangMatDouble(*this); 
@@ -90,7 +90,7 @@ LaUpperTriangMatDouble& LaUpperTriangMatDouble::solve() const
     if (info != 0)
 	throw(LaException("LaUpperTriangMatDouble::solve()",
 			  "Non-zero return code from dtrtri"));
-    return *inv;
+    return inv;
 }
 
 LaMatDouble& LaUpperTriangMatDouble::solve(LaMatDouble& B) const
@@ -126,13 +126,14 @@ double LaUpperTriangMatDouble::rcond(char which) const
 
 SEXP LaUpperTriangMatDouble::asSEXP() const
 {
-    SEXP val = allocMatrix(REALSXP, size(0), size(1));
+    SEXP val = PROTECT(allocMatrix(REALSXP, size(0), size(1)));
     F77_CALL(dlacpy)('U', size(0), size(1), &(*this)(0,0), gdim(0),
 		     REAL(val), size(0));
-    SEXP classes = allocVector(STRSXP, 2);
+    SEXP classes = PROTECT(allocVector(STRSXP, 2));
     STRING(classes)[0] = mkChar("UpperTriangular");
     STRING(classes)[1] = mkChar("Matrix");
     setAttrib(val, R_ClassSymbol, classes);
+    UNPROTECT(2);
     return val;
 }
 

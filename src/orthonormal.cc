@@ -21,13 +21,14 @@ SEXP LaColOrthogonalMatDouble::asSEXP() const
 {
     if (size(0) < 1 || size(1) < 1) return R_NilValue;
 
-    SEXP val = allocMatrix(REALSXP, size(0), size(1));
+    SEXP val = PROTECT(allocMatrix(REALSXP, size(0), size(1)));
     F77_CALL(dlacpy)('A', size(0), size(1), &(*this)(0,0), gdim(0),
 		     REAL(val), size(0));
-    SEXP classes = allocVector(STRSXP, 2);
+    SEXP classes = PROTECT(allocVector(STRSXP, 2));
     STRING(classes)[0] = mkChar("ColOrthogonal");
     STRING(classes)[1] = mkChar("Matrix");
     setAttrib(val, R_ClassSymbol, classes);
+    UNPROTECT(2);
     return val;
 }
 
@@ -35,13 +36,14 @@ SEXP LaRowOrthogonalMatDouble::asSEXP() const
 {
     if (size(0) < 1 || size(1) < 1) return R_NilValue;
 
-    SEXP val = allocMatrix(REALSXP, size(0), size(1));
+    SEXP val = PROTECT(allocMatrix(REALSXP, size(0), size(1)));
     F77_CALL(dlacpy)('A', size(0), size(1), &(*this)(0,0), gdim(0),
 		     REAL(val), size(0));
-    SEXP classes = allocVector(STRSXP, 2);
+    SEXP classes = PROTECT(allocVector(STRSXP, 2));
     STRING(classes)[0] = mkChar("RowOrthogonal");
     STRING(classes)[1] = mkChar("Matrix");
     setAttrib(val, R_ClassSymbol, classes);
+    UNPROTECT(2);
     return val;
 }
 
@@ -49,14 +51,15 @@ SEXP LaColOrthonormalMatDouble::asSEXP() const
 {
     if (size(0) < 1 || size(1) < 1) return R_NilValue;
 
-    SEXP val = allocMatrix(REALSXP, size(0), size(1));
+    SEXP val = PROTECT(allocMatrix(REALSXP, size(0), size(1)));
     F77_CALL(dlacpy)('A', size(0), size(1), &(*this)(0,0), gdim(0),
 		     REAL(val), size(0));
-    SEXP classes = allocVector(STRSXP, 3);
+    SEXP classes = PROTECT(allocVector(STRSXP, 3));
     STRING(classes)[0] = mkChar("ColOrthonormal");
     STRING(classes)[1] = mkChar("ColOrthogonal");
     STRING(classes)[2] = mkChar("Matrix");
     setAttrib(val, R_ClassSymbol, classes);
+    UNPROTECT(2);
     return val;
 }
 
@@ -64,14 +67,15 @@ SEXP LaRowOrthonormalMatDouble::asSEXP() const
 {
     if (size(0) < 1 || size(1) < 1) return R_NilValue;
 
-    SEXP val = allocMatrix(REALSXP, size(0), size(1));
+    SEXP val = PROTECT(allocMatrix(REALSXP, size(0), size(1)));
     F77_CALL(dlacpy)('A', size(0), size(1), &(*this)(0,0), gdim(0),
 		     REAL(val), size(0));
-    SEXP classes = allocVector(STRSXP, 3);
+    SEXP classes = PROTECT(allocVector(STRSXP, 3));
     STRING(classes)[0] = mkChar("RowOrthonormal");
     STRING(classes)[1] = mkChar("RowOrthogonal");
     STRING(classes)[2] = mkChar("Matrix");
     setAttrib(val, R_ClassSymbol, classes);
+    UNPROTECT(2);
     return val;
 }
 
@@ -82,9 +86,9 @@ SEXP LaOrthogonalMatDouble::asSEXP() const
 
     if (m < 1 || n < 1) return R_NilValue;
 
-    SEXP val = allocMatrix(REALSXP, m, n);
+    SEXP val = PROTECT(allocMatrix(REALSXP, m, n));
     F77_CALL(dlacpy)('A', m, n, &(*this)(0,0), lda, REAL(val), m);
-    SEXP classes = allocVector(STRSXP, 6);
+    SEXP classes = PROTECT(allocVector(STRSXP, 6));
     STRING(classes)[0] = mkChar("Orthogonal");
     STRING(classes)[1] = mkChar("RowOrthonormal");
     STRING(classes)[2] = mkChar("RowOrthogonal");
@@ -92,5 +96,6 @@ SEXP LaOrthogonalMatDouble::asSEXP() const
     STRING(classes)[4] = mkChar("ColOrthogonal");
     STRING(classes)[5] = mkChar("Matrix");
     setAttrib(val, R_ClassSymbol, classes);
+    UNPROTECT(2);
     return val;
 }

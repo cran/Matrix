@@ -37,32 +37,31 @@
 
 class LaLUFactorDouble : public Factor
 {
-    LaUnitLowerTriangMatDouble  L_;
-    LaUpperTriangMatDouble      U_;
-    LaVectorInt             pivot_;
-    bool                 singular_;
+    LaGenMatDouble      A_;
+    LaVectorInt     pivot_;
+    bool         singular_;
 
 public:
 				// constructor
     LaLUFactorDouble()
-	: L_(), U_(), pivot_() { singular_ = true; };
-    inline LaLUFactorDouble(const LaGenMatDouble&);
+	: singular_(true) { };
+    inline explicit LaLUFactorDouble(const LaGenMatDouble&);
     inline LaLUFactorDouble(const LaLUFactorDouble&);
 
     virtual ~LaLUFactorDouble() { };
 
 				// extractor methods for components
-    LaUnitLowerTriangMatDouble& L()
-	{ return L_; };
-    LaUpperTriangMatDouble& U()
-	{ return U_; };
-    LaVectorInt& pivot()
+    LaUnitLowerTriangMatDouble L()
+	{ LaUnitLowerTriangMatDouble Lmat; Lmat.ref(A_); return Lmat; };
+    LaUpperTriangMatDouble U()
+	{ LaUpperTriangMatDouble Umat; Umat.ref(A_); return Umat; };
+    LaVectorInt pivot()
 	{ return pivot_; };
     bool isSingular()
 	{ return singular_; };
 
 				// linear equation solvers
-    inline LaGenMatDouble& solve() const;// inverse
+    inline LaGenMatDouble* solve() const;// inverse
     inline LaMatDouble& solve(LaMatDouble& B) const; // in-place solution
     inline LaMatDouble& solve(LaMatDouble& X, const LaMatDouble& B) const;
 				// operators
@@ -84,8 +83,7 @@ inline LaLUFactorDouble::LaLUFactorDouble(const LaGenMatDouble& A) :
 
 inline LaLUFactorDouble::LaLUFactorDouble(const LaLUFactorDouble& F)
 {
-  L_.ref(F.L_);
-  U_.ref(F.U_);
+  A_.ref(F.A_);
   pivot_.ref(F.pivot_);
   singular_ = F.singular_;
 }
@@ -100,10 +98,9 @@ inline LaLUFactorDouble& LaLUFactorDouble::ref(const LaGenMatDouble& A)
 	throw(LaException("LaLUFactorDouble::ref(const LaGenMatDouble&)",
 			  "input matrix has non unit increment"));
     pivot_.resize(A.size(0));
-    L_.ref(A);
-    U_.ref(A);
+    A_.ref(A);
     int info;
-    F77_CALL(dgetrf)(A.size(0), A.size(0), &A(0, 0), A.gdim(0),
+    F77_CALL(dgetrf)(A.size(0), A.size(0), &A_(0, 0), A.gdim(0),
 		     &pivot_(0), info);
     if (info < 0)
 	throw(LaException("LaLUFactorDouble::ref(const LaGenMatDouble&)",
@@ -115,29 +112,31 @@ inline LaLUFactorDouble& LaLUFactorDouble::ref(const LaGenMatDouble& A)
 inline LaLUFactorDouble& LaLUFactorDouble::ref(const LaLUFactorDouble& F)
 {
 
-    L_.ref(F.L_);
-    U_.ref(F.U_);
+    A_.ref(F.A_);
     pivot_.ref(F.pivot_);
     singular_ = F.singular_;
     
     return *this;
 }
 
-inline LaGenMatDouble& LaLUFactorDouble::solve() const
+inline LaGenMatDouble* LaLUFactorDouble::solve() const
 {
     if (singular_)
 	throw(LaException("singular matrix"));
     int info;
-    LaGenMatDouble& ans = *(new LaGenMatDouble());
-    ans.copy(U_);
-    int lwork = U_.size(0) *
-	F77_NAME(ilaenv)(1, "DGETRI", "", U_.size(0), -1, -1, -1);
+    LaGenMatDouble* ans = new LaGenMatDouble();
+    ans->copy(A_);
+    int lwork = A_.size(0) *
+	F77_NAME(ilaenv)(1, "DGETRI", "", A_.size(0), -1, -1, -1);
     VectorDouble work(lwork);
-    F77_CALL(dgetri)(U_.size(0), &ans(0,0), U_.gdim(0), &pivot_(0),
+    F77_CALL(dgetri)(A_.size(0), &(*ans)(0,0), A_.gdim(0), &pivot_(0),
 		     &work(0), lwork, info);
     if (info < 0)
-	throw(LaException("LaLUFactorDouble::ref(const LaGenMatDouble&)",
+	throw(LaException("LaLUFactorDouble::solve()",
 			  "illegal input"));
+    if (info > 0)
+	throw(LaException("LaLUFactorDouble::solve()",
+			  "singular matrix"));
     return ans;
 }
 
@@ -149,8 +148,8 @@ inline LaMatDouble& LaLUFactorDouble::solve(LaMatDouble& B) const
     dynamic_cast<LaGenMatDouble&>(B);
 
     int info;
-    F77_CALL(dgetrs)('N', L_.size(0), B.size(1), &U_(0,0),
-		     L_.gdim(0), &pivot_(0), &B(0,0), B.size(0), info);
+    F77_CALL(dgetrs)('N', A_.size(0), B.size(1), &A_(0,0),
+		     A_.gdim(0), &pivot_(0), &B(0,0), B.size(0), info);
     return B;
 }
 

@@ -5,11 +5,14 @@ Matrix.class(x, tol = 0, symmetry = TRUE, unit.diagonal = TRUE,
              triangularity = c(TRUE, TRUE),
              orthogonality = c(TRUE, TRUE), 
              normality = c(TRUE, TRUE))
+as.Matrix(x, tol = .Machine$double.eps)
 }
+\alias{as.Matrix}
 \alias{Matrix.class}
 \description{
-    Determines the class of a Matrix in the \code{"Matrix"}
-    class structure.
+    \code{Matrix.class} determines the class of a Matrix in the \code{"Matrix"}
+    class structure.  \code{as.Matrix} assigns the class determined by
+    \code{Matrix.class} to the object \code{x} and returns the classed object.
 }
 \arguments{
     \item{x}{

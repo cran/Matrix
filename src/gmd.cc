@@ -106,7 +106,9 @@ LaGenMatDouble& LaGenMatDouble::ref(SEXP x)
 {				// create a reference to the data
     if (!isMatrix(x)) error("x must be a matrix");
     int *dims = INTEGER(coerceVector(getAttrib(x, R_DimSymbol), INTSXP));
-    LaGenMatDouble tmp(REAL(coerceVector(x, REALSXP)), dims[0], dims[1]);
+    int m = dims[0];
+    int n = dims[1];
+    LaGenMatDouble tmp(REAL(coerceVector(x, REALSXP)), m, n);
     return ref(tmp);
 }
 
@@ -155,14 +157,43 @@ LaGenMatDouble::LaGenMatDouble(const LaMatDouble& X) : v(X.size(0)*X.size(1))
 //    }
 }
 
+LaGenMatDouble::LaGenMatDouble(const LaGenMatDouble& X) : v(X.size(0)*X.size(1))
+{
+    solver = 0;
+    shallow_ = 0;		// do not perpetuate shallow copies, otherwise
+				//  B = A(I,J) does not work properly...
+//      if (X.shallow_) {
+//  	v.ref(X.v);
+//  	dim[0] = X.dim[0];
+//  	dim[1] = X.dim[1];
+//  	sz[0] = X.sz[0];
+//  	sz[1] = X.sz[1];
+//  	ii[0] = X.ii[0];
+//  	ii[1] = X.ii[1];
+//      } else {
+//	v.resize(X.size(0)*X.size(1)); 
+	ii[0](0,X.size(0)-1);
+	ii[1](0,X.size(1)-1);
+	dim[0] = sz[0] = X.size(0);
+	dim[1] = sz[1] = X.size(1);
+	int M = X.size(0), N = X.size(1);
+	for (int j = 0; j < N; j++)
+	    for (int i = 0; i < M; i++)
+		(*this)(i,j) = X(i,j);
+//    }
+}
+
 LaGenMatDouble::LaGenMatDouble(SEXP x) : v(0)
 {				// constructor performs a copy
     if (!isMatrix(x)) error("x must be a matrix");
-    int *dims = INTEGER(coerceVector(getAttrib(x, R_DimSymbol), INTSXP));
+    int *dims =
+	INTEGER(PROTECT(coerceVector(getAttrib(x, R_DimSymbol), INTSXP)));
     int m = dims[0];
     int n = dims[1];
+    UNPROTECT(1);
     solver = 0;
-    LaGenMatDouble tmp(REAL(coerceVector(x, REALSXP)), m, n);
+    LaGenMatDouble tmp(REAL(PROTECT(coerceVector(x, REALSXP))), m, n);
+    UNPROTECT(1);
     copy(tmp);
 }
 
@@ -179,6 +210,20 @@ LaGenMatDouble& LaGenMatDouble::copy(const LaMatDouble& X)
 	    (*this)(i,j) = X(i,j);
     
     return *this;
+}
+
+LaGenMatDouble* LaGenMatDouble::clone() const
+{
+    LaGenMatDouble* ans = new LaGenMatDouble();
+    ans->ii[0] = ii[0];
+    ans->ii[1] = ii[1];
+    ans->dim[0] = dim[0];
+    ans->dim[1] = dim[1];
+    ans->sz[0] = sz[0];
+    ans->sz[1] = sz[1];
+    ans->shallow_ = 0;
+    ans->v.copy(v);
+    return ans;
 }
 
 LaGenMatDouble& LaGenMatDouble::inject(const LaMatDouble& s)
@@ -380,10 +425,11 @@ double LaGenMatDouble::rcond(char which) const
 
 SEXP LaGenMatDouble::asSEXP() const
 {
-    SEXP val = allocMatrix(REALSXP, size(0), size(1));
+    SEXP val = PROTECT(allocMatrix(REALSXP, size(0), size(1)));
     F77_CALL(dlacpy)('A', size(0), size(1), &(*this)(0,0), gdim(0),
 		     REAL(val), size(0));
     setAttrib(val, R_ClassSymbol, ScalarString(mkChar("Matrix")));
+    UNPROTECT(1);
     return val;
 }
 

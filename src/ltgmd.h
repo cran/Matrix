@@ -45,13 +45,13 @@ public:
 	: data_(i, j) { };
     LaLowerTriangMatDouble(double* d, int i, int j)
 	: data_(d,i,j) { };
-    LaLowerTriangMatDouble(SEXP s)
+    explicit LaLowerTriangMatDouble(SEXP s)
 	: data_(s) { };
     LaLowerTriangMatDouble(const LaLowerTriangMatDouble& A)
-	{ data_.copy(A.data_); };
+	{ data_.ref(A.data_); };
 
     // destructor
-    ~LaLowerTriangMatDouble() { };
+    ~LaLowerTriangMatDouble() { }
 
     int size(int d) const          // submatrix size
 	{ return data_.size(d); }
@@ -86,8 +86,9 @@ public:
     LaLowerTriangMatDouble& ref(SEXP s)
 	{ data_.ref(s); return *this; }
     LaLowerTriangMatDouble& copy(const LaMatDouble &);
+    inline LaLowerTriangMatDouble* clone() const;
 				// linear equation solvers
-    LaLowerTriangMatDouble& solve() const;	// inverse
+    LaLowerTriangMatDouble* solve() const;	// inverse
     LaMatDouble& solve(LaMatDouble& B) const; // in-place solution
     LaMatDouble& solve(LaMatDouble& X, const LaMatDouble& B) const;
 				// matrix norms
@@ -97,6 +98,15 @@ public:
 
     ostream &printMatrix(ostream &) const;
 };
+
+inline LaLowerTriangMatDouble* LaLowerTriangMatDouble::clone() const
+{
+    LaGenMatDouble* tmp = data_.clone();
+    LaLowerTriangMatDouble* ans = new LaLowerTriangMatDouble();
+    ans->data_.ref(*tmp);
+    delete tmp;
+    return ans;
+}
 
 #endif 
 // _LA_LOWER_TRIANG_MAT_DOUBLE_H_

@@ -3,6 +3,7 @@
 //
 
 #include "lamatrix.h"
+#include "eigen.h"
 
 int* LaMatrix::info_= new int;  // turn off info print flag.
 
@@ -25,4 +26,11 @@ ostream& LaMatInt::Info(ostream& s)
     LaMatrix::Info(s);
     s << "addr: " << (unsigned) addr() << endl;
     return s;
+}
+
+LaEigenDouble* LaMatDouble::eigen(bool leftEV = true, bool rightEV = true)
+{
+    LaGenMatDouble tmp(size(0), size(1));
+    tmp.inject(*this);
+    return new LaGenEigenDouble(tmp, leftEV, rightEV);
 }

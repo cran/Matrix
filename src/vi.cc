@@ -68,12 +68,10 @@ VectorInt::VectorInt( const VectorInt& m)
 
  VectorInt::~VectorInt()
 {
-
-        if (--(p->ref_count) == 0)              // perform garbage col.
-        {
-           delete [] p->data;
-           delete p;
-        }
+    if (--(p->ref_count) == 0) {             // perform garbage col.
+	delete [] p->data;
+	delete p;
+    }
 }
 
 VectorInt::VectorInt(int n, int scalar)

@@ -48,6 +48,7 @@ public:
     inline LaIndex(const LaIndex &s) {
 	start_=s.start_; inc_=s.inc_; end_=s.end_;
     }
+    ~LaIndex() { }
 
 // ** must have multply defined start(), inc() and end() member functions
 // ** for both const and non-const objects because compiler complains in 

@@ -23,28 +23,36 @@
 //
 // Modifications Copyright (C) 2000-2000 the R Development Core Team
 
+#include "cholesky.h"
+
 #ifndef _LA_SPD_MAT_DOUBLE_H_
 #define _LA_SPD_MAT_DOUBLE_H_
 
 #include LA_SYMM_MAT_DOUBLE_H
+#include "vi.h"
 
 class LaSpdMatDouble : public LaSymmMatDouble
 {
 public:
 				// constructors and destructors
-    LaSpdMatDouble()
-	: LaSymmMatDouble() { };
-    LaSpdMatDouble(int i, int j)
-	: LaSymmMatDouble(i, j) { };
-    LaSpdMatDouble(double* d, int i, int j)
-	: LaSymmMatDouble(d, i, j) { };
-    LaSpdMatDouble(const LaSpdMatDouble& A)
-	: LaSymmMatDouble(A) { };
-    LaSpdMatDouble(SEXP s)
-	: LaSymmMatDouble(s) { };
+    LaSpdMatDouble(char uplo = 'U')
+	: LaSymmMatDouble(uplo)
+	{ };
+    LaSpdMatDouble(int i, int j, char uplo = 'U')
+	: LaSymmMatDouble(i, j, uplo)
+	{ };
+    LaSpdMatDouble(double* d, int i, int j, char uplo = 'U')
+	: LaSymmMatDouble(d, i, j, uplo)
+	{ };
+    LaSpdMatDouble(const LaSymmMatDouble& A)
+	: LaSymmMatDouble(A)
+	{ };
+    explicit LaSpdMatDouble(SEXP s, char uplo = 'U')
+	: LaSymmMatDouble(s, uplo)
+	{ };
     ~LaSpdMatDouble() { }
-
-				// operators
+	
+                                // operators
     LaMatDouble& operator=(double s)
 	{ LaSymmMatDouble::operator=(s); return *this; }
     LaSpdMatDouble& ref(const LaSpdMatDouble& A)
@@ -55,17 +63,32 @@ public:
 	{ LaSymmMatDouble::inject(A); return *this; }
     LaSpdMatDouble& copy(const LaMatDouble& A)
 	{ LaSymmMatDouble::copy(A); return *this; }
+    inline LaSpdMatDouble* clone() const;
 
 				// linear equation solvers
-    LaSpdMatDouble& solve() const {throw(LaException("",""));}	// inverse
-    LaMatDouble& solve(LaMatDouble& B) const  {throw(LaException("",""));}; // in-place solution
-    LaMatDouble& solve(LaMatDouble& X, const LaMatDouble& B) const  {throw(LaException("",""));};
+    inline LaSpdMatDouble* solve() const;   // inverse
 				// matrix norms
-    double norm(char) const  {throw(LaException("",""));};
-    inline double rcond(char which) const {return 1.0;}
+//    double norm(char) const;
+//    inline double rcond(char which) const;
     SEXP asSEXP() const;
 
 };
 
+inline LaSpdMatDouble* LaSpdMatDouble::solve() const   // inverse
+{
+    if (factor_ == 0)
+	doDecomposition();
+    return dynamic_cast<LaSpdMatDouble*>(factor().solve());
+}
+
+inline LaSpdMatDouble* LaSpdMatDouble::clone() const
+{
+    LaSymmMatDouble* tmp = LaSymmMatDouble::clone();
+    LaSpdMatDouble* ans = new LaSpdMatDouble(*tmp);
+    delete tmp;
+    return ans;
+}
+
 #endif 
+
 // _LA_SPD_MAT_DOUBLE_H_

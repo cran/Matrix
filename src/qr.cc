@@ -13,7 +13,7 @@ LaQRFactorDouble& LaQRFactorDouble::ref(const LaGenMatDouble& A)
     pivot_.ref(pivot);
     LaVectorDouble qraux(min(A.size(0), A.size(1)));
     qraux_.ref(qraux);
-    rank_ = 0;
+    rank_ = -1;
 
     int lwork = 2*qr_.size(1)+(qr_.size(1)+1)*F77_NAME(ilaenv)(1, "DGEQP3",
 							       "", qr_.size(0),
@@ -50,13 +50,15 @@ LaMatDouble& LaQRFactorDouble::applyQ(LaMatDouble& y, bool left,
     return y;
 }
 
-LaGenMatDouble& LaQRFactorDouble::solve() const
+LaGenMatDouble* LaQRFactorDouble::solve() const
 {
     if (qr_.size(0) != qr_.size(1))
 	throw(LaException("singular matrix"));
-    LaGenMatDouble& inv = *(new LaGenMatDouble());
-    inv = R_.solve();
-    applyQ(inv, false, true);
+    LaUpperTriangMatDouble* Rinv = R_.solve();
+    LaGenMatDouble* inv = new LaGenMatDouble();
+    *inv = *Rinv;
+    delete Rinv;
+    applyQ(*inv, false, true);
     return inv;
 }
 

@@ -5,9 +5,12 @@
 #ifndef _FACTOR_H
 #define _FACTOR_H
 
+#include "lamatrix.h"
+
 class Factor {
  public:
-    virtual LaMatDouble& solve() const = 0;
+    virtual ~Factor() { };
+    virtual LaMatDouble* solve() const = 0;
     virtual LaMatDouble& solve(LaMatDouble&) const = 0;
     virtual LaMatDouble& solve(LaMatDouble&, const LaMatDouble&) const = 0;
 };

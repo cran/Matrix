@@ -113,7 +113,7 @@ ostream& LaUnitUpperTriangMatDouble::printMatrix(ostream& s) const
     return s;
 }
 
-LaUnitUpperTriangMatDouble& LaUnitUpperTriangMatDouble::solve() const
+LaUnitUpperTriangMatDouble* LaUnitUpperTriangMatDouble::solve() const
 {				// inverse
     LaUnitUpperTriangMatDouble *inv; //create a copy to return
     inv = new LaUnitUpperTriangMatDouble(*this); 
@@ -123,7 +123,7 @@ LaUnitUpperTriangMatDouble& LaUnitUpperTriangMatDouble::solve() const
     if (info != 0)
 	throw(LaException("LaUnitUpperTriangMatDouble::solve()",
 			  "Non-zero return code from dtrtri"));
-    return *inv;
+    return inv;
 }
 
 LaMatDouble& LaUnitUpperTriangMatDouble::solve(LaMatDouble& B) const
@@ -141,15 +141,9 @@ LaMatDouble& LaUnitUpperTriangMatDouble::solve(LaMatDouble& X, const LaMatDouble
 
 double LaUnitUpperTriangMatDouble::norm(char which) const
 {
-    assert(which == 'M' || which == 'm' ||
-	   which == '1' || which == 'O' || which == 'o' ||
-	   which == 'I' || which == 'i' ||
-	   which == 'F' || which == 'f' ||
-	   which == 'E' || which == 'e');
     VectorDouble work(size(0)); // only needed for Infinity norm
-    double val = F77_CALL(dlantr)(which, 'U', 'U', size(0), size(1),
-				  &(*this)(0,0), gdim(0), &work(0));
-    return val;
+    return F77_CALL(dlantr)(which, 'U', 'U', size(0), size(1),
+			    &(*this)(0,0), gdim(0), &work(0));
 }
 
 double LaUnitUpperTriangMatDouble::rcond(char which) const
@@ -166,16 +160,17 @@ double LaUnitUpperTriangMatDouble::rcond(char which) const
 SEXP LaUnitUpperTriangMatDouble::asSEXP() const
 {
     int m = size(0), n = size(1);
-    SEXP val = allocMatrix(REALSXP, m, n);
+    SEXP val = PROTECT(allocMatrix(REALSXP, m, n));
     F77_CALL(dlacpy)('U', m, n, &(*this)(0,0), gdim(0),
 		     REAL(val), m);
     int ldiag = (m < n) ? m : n;
     for (int i = 0; i < ldiag; i++) // ensure the diagonal entries are 1.0
 	REAL(val)[i * (m + 1)] = 1.0;
-    SEXP classes = allocVector(STRSXP, 3);
+    SEXP classes = PROTECT(allocVector(STRSXP, 3));
     STRING(classes)[1] = mkChar("UnitUpperTriangular");
     STRING(classes)[1] = mkChar("UpperTriangular");
     STRING(classes)[2] = mkChar("Matrix");
     setAttrib(val, R_ClassSymbol, classes);
+    UNPROTECT(2);
     return val;
 }

@@ -46,6 +46,7 @@ public:
     inline LaVectorInt(int*, int);
     inline LaVectorInt(int*, int, int);
     inline LaVectorInt(const LaGenMatInt&);
+    ~LaVectorInt() { };
 
     inline int size() const;
     inline int inc() const;

@@ -113,7 +113,7 @@ ostream& LaUnitLowerTriangMatDouble::printMatrix(ostream& s) const
     return s;
 }
 
-LaUnitLowerTriangMatDouble& LaUnitLowerTriangMatDouble::solve() const
+LaUnitLowerTriangMatDouble* LaUnitLowerTriangMatDouble::solve() const
 {				// inverse
     LaUnitLowerTriangMatDouble *inv; //create a copy to return
     inv = new LaUnitLowerTriangMatDouble(*this); 
@@ -123,7 +123,7 @@ LaUnitLowerTriangMatDouble& LaUnitLowerTriangMatDouble::solve() const
     if (info != 0)		// can't happen - "this" is unit triangular
 	throw(LaException("LaUnitLowerTriangMatDouble::solve()",
 			  "Non-zero return code from dtrtri"));
-    return *inv;
+    return inv;
 }
 
 LaMatDouble& LaUnitLowerTriangMatDouble::solve(LaMatDouble& B) const
@@ -141,11 +141,6 @@ LaMatDouble& LaUnitLowerTriangMatDouble::solve(LaMatDouble& X, const LaMatDouble
     
 double LaUnitLowerTriangMatDouble::norm(char which) const
 {
-    assert(which == 'M' || which == 'm' ||
-	   which == '1' || which == 'O' || which == 'o' ||
-	   which == 'I' || which == 'i' ||
-	   which == 'F' || which == 'f' ||
-	   which == 'E' || which == 'e');
     VectorDouble work(size(0)); // only needed for Infinity norm
     double val = F77_CALL(dlantr)(which, 'L', 'U', size(0), size(1),
 				  &(*this)(0,0), gdim(0), &work(0));
@@ -166,16 +161,17 @@ double LaUnitLowerTriangMatDouble::rcond(char which) const
 SEXP LaUnitLowerTriangMatDouble::asSEXP() const
 {
     int m = size(0), n = size(1);
-    SEXP val = allocMatrix(REALSXP, m, n);
+    SEXP val = PROTECT(allocMatrix(REALSXP, m, n));
     F77_CALL(dlacpy)('L', m, n, &(*this)(0,0), gdim(0),
 		     REAL(val), m);
     int ldiag = (m < n) ? m : n;
     for (int i = 0; i < ldiag; i++) // ensure the diagonal entries are 1.0
 	REAL(val)[i * (m + 1)] = 1.0;
-    SEXP classes = allocVector(STRSXP, 3);
+    SEXP classes = PROTECT(allocVector(STRSXP, 3));
     STRING(classes)[0] = mkChar("UnitLowerTriangular");
     STRING(classes)[1] = mkChar("LowerTriangular");
     STRING(classes)[2] = mkChar("Matrix");
     setAttrib(val, R_ClassSymbol, classes);
+    UNPROTECT(2);
     return val;
 }

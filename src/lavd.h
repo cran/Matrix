@@ -45,7 +45,7 @@ class LaVectorDouble: public LaGenMatDouble
     inline LaVectorDouble(double*, int);
     inline LaVectorDouble(double*, int, int);
     inline LaVectorDouble(const LaGenMatDouble&);
-    inline LaVectorDouble(SEXP);
+    inline explicit LaVectorDouble(SEXP);
     
     inline int size() const;
     inline int inc() const;
@@ -57,6 +57,7 @@ class LaVectorDouble: public LaGenMatDouble
     LaVectorDouble& ref(SEXP);
     inline LaVectorDouble& inject(const LaMatDouble &);
     inline LaVectorDouble& copy(const LaMatDouble &);
+    inline LaVectorDouble* clone() const;
     LaVectorDouble& resize(int m)
 	{ LaGenMatDouble::resize(m, 1); return *this; };
 
@@ -131,8 +132,8 @@ inline const double& LaVectorDouble::operator()(int i) const
 inline LaVectorDouble LaVectorDouble::operator()(const LaIndex& I)
 {
     if (LaGenMatDouble::size(0)==1)
-	return LaGenMatDouble::operator()(LaIndex(0,0),I); 
-    return LaGenMatDouble::operator()(I,LaIndex(0,0)); 
+        return LaGenMatDouble::operator()(LaIndex(0,0),I);
+    return LaGenMatDouble::operator()(I,LaIndex(0,0));
 }
 
 inline LaVectorDouble& LaVectorDouble::copy(const LaMatDouble &A)
@@ -141,6 +142,15 @@ inline LaVectorDouble& LaVectorDouble::copy(const LaMatDouble &A)
     assert(A.size(0) == 1 || A.size(1) == 1);
     LaGenMatDouble::copy(A);
     return *this;
+}
+
+inline LaVectorDouble* LaVectorDouble::clone() const
+{
+    LaGenMatDouble* tmp = LaGenMatDouble::clone();
+    LaVectorDouble* ans = new LaVectorDouble();
+    ans->ref(*tmp);
+    delete tmp;
+    return ans;
 }
 
 inline LaVectorDouble& LaVectorDouble::ref(const LaGenMatDouble &A)

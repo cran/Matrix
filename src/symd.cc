@@ -28,21 +28,6 @@
 #include LA_SYMM_MAT_DOUBLE_H 
 #include "vi.h"
 
-LaSymmMatDouble& LaSymmMatDouble::copy(const LaMatDouble &ob)
-{
-    int M = ob.size(0);
-
-    // current scheme in copy() is to detach the left-hand-side
-    // from whatever it was pointing to.
-    //
-
-    resize(ob);
-    for (int i = 0; i < M; i++)
-	for (int j = 0; j <= i; j++)
-	    (*this)(i,j) = ob(i,j);
-    return *this;
-}
-
 ostream& LaSymmMatDouble::printMatrix(ostream& s) const
 {
     if (*info_) {   // print out only matrix info, not actual values
@@ -51,6 +36,7 @@ ostream& LaSymmMatDouble::printMatrix(ostream& s) const
 	s << "Indices: " << index(0) << " " << index(1);
 	s << " #ref: " << ref_count() ;
 	s << " sa:" << shallow();
+	s << " uplo:" << uplo();
     } else {
 	int M = size(0);
 	int N = size(1);
@@ -77,83 +63,44 @@ LaSymmMatDouble::operator LaGenMatDouble()
   return G;
 }
 
-LaSymmMatDouble::operator LaLowerTriangMatDouble()
-{
-  int M = size(0);
-  int N = size(1);
+//  LaSymmMatDouble::operator LaLowerTriangMatDouble()
+//  {
+//    LaLowerTriangMatDouble Lower;
 
-  LaLowerTriangMatDouble Lower(M,N);
+//    if (uplo_ == 'U') {
+//        Lower.copy(*this);
+//    } else Lower.ref(*data_.lower);
+//    return Lower;
+//  }
 
-  Lower.copy(lower_data_);
+//  LaSymmMatDouble::operator LaUpperTriangMatDouble()
+//  {
+//    LaUpperTriangMatDouble Upper;
 
-  return Lower;
-}
-
-LaSymmMatDouble& LaSymmMatDouble::solve() const
-{				// inverse
-    LaSymmMatDouble *inv; //create a copy to return
-    inv = new LaSymmMatDouble(*this); 
-
-    int info;
-    F77_CALL(dtrtri)('U', 'N', inv->size(0), &(*inv)(0,0), inv->gdim(0), info);
-    if (info != 0)
-	throw(LaException("LaSymmMatDouble::solve()",
-			  "Non-zero return code from dtrtri"));
-    return *inv;
-}
-
-LaMatDouble& LaSymmMatDouble::solve(LaMatDouble& B) const
-{				// in-place solution
-    VectorInt ipiv(size(0));
-    int lwork = 5 * size(0), info;
-    VectorDouble work(lwork);
-
-    F77_CALL(dsysv)('L', size(0), B.size(1),
-		    &lower_data_(0,0), gdim(0), &ipiv(0),
-		    &B(0,0), B.gdim(0), &work(0), lwork, info);
-    return B;
-}
-
-LaMatDouble& LaSymmMatDouble::solve(LaMatDouble& X, const LaMatDouble& B) const
-{
-    X.inject(B);
-    return solve(X);
-}
+//    if (uplo_ == 'L') {
+//        Upper.copy(*this);
+//    } else Upper.ref(*data_.upper);
+//    return Upper;
+//  }
 
 double LaSymmMatDouble::norm(char which) const
 {
     VectorDouble work(size(0));	// only needed for Infinity norm
-    return F77_CALL(dlansy)(which, 'L', size(0),
+    return F77_CALL(dlansy)(which, uplo(), size(0),
 			    &(*this)(0,0), gdim(0), &work(0));
-}
-
-double LaSymmMatDouble::rcond(char which) const
-{
-    double val;
-    VectorDouble work(5 * size(0));
-    int info;
-    VectorInt ipiv(size(0)), iwork(size(0));
-    LaSymmMatDouble th(*this);	// create a copy to pass
-
-    F77_CALL(dsytrf)('L', th.size(0), &th(0,0), th.gdim(0), &ipiv(0),
-		     &work(0), 5*size(0), info);
-    F77_CALL(dsycon)('L', th.size(0), &th(0,0), th.gdim(0), &ipiv(0),
-		     norm('O'), val, &work(0), &iwork(0), info);
-    return val;
 }
 
 SEXP LaSymmMatDouble::asSEXP() const
 {
     int n = size(0);
-    SEXP val = allocMatrix(REALSXP, n, n);
-    F77_CALL(dlacpy)('L', n, n, &(*this)(0,0), gdim(0),
-		     REAL(val), n);
-    for (int i = 1; i < n; i++) // symmetrize the result
-	for (int j = 0; j < i; j++)
-	    REAL(val)[i * n + j] = REAL(val)[j * n + i];
-    SEXP classes = allocVector(STRSXP, 2);
+    SEXP val = PROTECT(allocMatrix(REALSXP, n, n));
+    LaGenMatDouble tmp(REAL(val), n, n);
+    tmp.inject(*this);
+    SEXP classes = PROTECT(allocVector(STRSXP, 2));
     STRING(classes)[0] = mkChar("Hermitian");
     STRING(classes)[1] = mkChar("Matrix");
     setAttrib(val, R_ClassSymbol, classes);
+    UNPROTECT(2);
     return val;
 }
+

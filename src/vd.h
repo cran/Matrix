@@ -67,7 +67,7 @@ class VectorDouble
 				// statement.
     VectorDouble(double*, int);
     VectorDouble(const VectorDouble&); 
-    ~VectorDouble() ;                              
+    ~VectorDouble();
 				//  Indices and access operations
     inline double&      operator[](int); 
     inline double&      operator[](int) const; // read only

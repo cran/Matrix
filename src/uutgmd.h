@@ -44,10 +44,10 @@ public:
 	: data_(i, j) { *info_ = 0; };
     LaUnitUpperTriangMatDouble(double* d, int i, int j)
 	: data_(d,i,j) { *info_ = 0; };
-    LaUnitUpperTriangMatDouble(SEXP s)
+    explicit LaUnitUpperTriangMatDouble(SEXP s)
 	: data_(s) { };
     LaUnitUpperTriangMatDouble(const LaUnitUpperTriangMatDouble& A)
-	{ data_.copy(A.data_); };
+	{ data_.ref(A.data_); };
 				// destructor
     ~LaUnitUpperTriangMatDouble() { };
 
@@ -82,8 +82,9 @@ public:
     LaUnitUpperTriangMatDouble& ref(SEXP s)
 	{ data_.ref(s); return *this; }
     LaUnitUpperTriangMatDouble& copy(const LaMatDouble &);
+    inline LaUnitUpperTriangMatDouble* clone() const;
 				// linear equation solvers
-    LaUnitUpperTriangMatDouble& solve() const;	// inverse
+    LaUnitUpperTriangMatDouble* solve() const;	// inverse
     LaMatDouble& solve(LaMatDouble& B) const; // in-place solution
     LaMatDouble& solve(LaMatDouble& X, const LaMatDouble& B) const;
 				// matrix norms
@@ -93,6 +94,15 @@ public:
 
     ostream &printMatrix(ostream &) const;
 };
+
+inline LaUnitUpperTriangMatDouble* LaUnitUpperTriangMatDouble::clone() const
+{
+    LaGenMatDouble* tmp = data_.clone();
+    LaUnitUpperTriangMatDouble* ans = new LaUnitUpperTriangMatDouble();
+    ans->data_.ref(*tmp);
+    delete tmp;
+    return ans;
+}
 
 #endif 
 // _LA_UNIT_UPPER_TRIANG_MAT_DOUBLE_H_

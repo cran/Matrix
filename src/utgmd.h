@@ -43,10 +43,10 @@ public:
 	: data_(i, j) { *info_ = 0; };
     LaUpperTriangMatDouble(double* d, int i, int j)
 	: data_(d, i, j) { *info_ = 0; };
-    LaUpperTriangMatDouble(SEXP s)
+    explicit LaUpperTriangMatDouble(SEXP s)
 	: data_(s) { };
     LaUpperTriangMatDouble(const LaUpperTriangMatDouble& A)
-	{ data_.copy(A.data_); };
+	{ data_.ref(A.data_); };
 				// destructor
     ~LaUpperTriangMatDouble() { };
 
@@ -83,8 +83,9 @@ public:
     LaUpperTriangMatDouble& ref(SEXP s)
 	{ data_.ref(s); return *this; }
     LaUpperTriangMatDouble& copy(const LaMatDouble &);
+    inline LaUpperTriangMatDouble* clone() const;
 				// linear equation solvers
-    LaUpperTriangMatDouble& solve() const;	// inverse
+    LaUpperTriangMatDouble* solve() const;	// inverse
     LaMatDouble& solve(LaMatDouble& B) const; // in-place solution
     LaMatDouble& solve(LaMatDouble& X, const LaMatDouble& B) const;
 				// matrix norms
@@ -94,5 +95,15 @@ public:
 
     ostream &printMatrix(ostream &) const;
 };
+
+inline LaUpperTriangMatDouble* LaUpperTriangMatDouble::clone() const
+{
+    LaGenMatDouble* tmp = data_.clone();
+    LaUpperTriangMatDouble* ans = new LaUpperTriangMatDouble();
+    ans->data_.ref(*tmp);
+    delete tmp;
+    return ans;
+}
+
 #endif 
 // _LA_UPPER_TRIANG_MAT_DOUBLE_H_

@@ -47,8 +47,8 @@ class LaQRFactorDouble : public Factor
 public:
 				// constructor
     LaQRFactorDouble()
-	: qr_(), R_(), qraux_(), pivot_() { rank_ = -1; R_.ref(qr_); }
-    inline LaQRFactorDouble(const LaGenMatDouble&);
+	: rank_(-1) { R_.ref(qr_); }
+    inline explicit LaQRFactorDouble(const LaGenMatDouble&);
     inline LaQRFactorDouble(const LaQRFactorDouble&);
 
     virtual ~LaQRFactorDouble() { };
@@ -68,7 +68,7 @@ public:
     LaVectorDouble& qraux()
 	{ return qraux_; }
 				// linear equation solvers
-    LaGenMatDouble& solve() const;// inverse
+    LaGenMatDouble* solve() const;// inverse
     LaMatDouble& solve(LaMatDouble& B) const; // in-place solution
     LaMatDouble& solve(LaMatDouble& X, const LaMatDouble& B) const;
 
@@ -85,7 +85,6 @@ public:
 // constructor/destructor functions
 
 inline LaQRFactorDouble::LaQRFactorDouble(const LaGenMatDouble& A)
-    : qr_(), R_(), qraux_(), pivot_()
 {
     LaGenMatDouble A1;
     A1.copy(A);
@@ -94,11 +93,7 @@ inline LaQRFactorDouble::LaQRFactorDouble(const LaGenMatDouble& A)
 
 inline LaQRFactorDouble::LaQRFactorDouble(const LaQRFactorDouble& F)
 {
-  qr_.ref(F.qr_);
-  R_.ref(qr_);
-  qraux_.ref(F.qraux_);
-  pivot_.ref(F.pivot_);
-  rank_ = F.rank_;
+    ref(F);
 }
 
 // operators
@@ -108,7 +103,7 @@ inline LaQRFactorDouble& LaQRFactorDouble::ref(const LaQRFactorDouble& F)
     qr_.ref(F.qr_);
     R_.ref(qr_);
     pivot_.ref(F.pivot_);
-    qraux_ = F.qraux_;
+    qraux_.ref(F.qraux_);
     rank_ = F.rank_;
     
     return *this;

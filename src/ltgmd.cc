@@ -56,7 +56,7 @@ ostream& LaLowerTriangMatDouble::printMatrix(ostream& s) const
     return s;
 }
 
-LaLowerTriangMatDouble& LaLowerTriangMatDouble::solve() const
+LaLowerTriangMatDouble* LaLowerTriangMatDouble::solve() const
 {				// inverse
     LaLowerTriangMatDouble *inv; //create a copy to return
     inv = new LaLowerTriangMatDouble(*this); 
@@ -66,7 +66,7 @@ LaLowerTriangMatDouble& LaLowerTriangMatDouble::solve() const
     if (info != 0)
 	throw(LaException("LaLowerTriangMatDouble::solve()",
 			  "Non-zero return code from dtrtri"));
-    return *inv;
+    return inv;
 }
 
 LaMatDouble& LaLowerTriangMatDouble::solve(LaMatDouble& B) const
@@ -102,12 +102,13 @@ double LaLowerTriangMatDouble::rcond(char which) const
 
 SEXP LaLowerTriangMatDouble::asSEXP() const
 {
-    SEXP val = allocMatrix(REALSXP, size(0), size(1));
+    SEXP val = PROTECT(allocMatrix(REALSXP, size(0), size(1)));
     F77_CALL(dlacpy)('L', size(0), size(1), &(*this)(0,0), gdim(0),
 		     REAL(val), size(0));
-    SEXP classes = allocVector(STRSXP, 2);
+    SEXP classes = PROTECT(allocVector(STRSXP, 2));
     STRING(classes)[0] = mkChar("LowerTriangular");
     STRING(classes)[1] = mkChar("Matrix");
     setAttrib(val, R_ClassSymbol, classes);
+    UNPROTECT(2);
     return val;
 }

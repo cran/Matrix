@@ -27,10 +27,12 @@ Golub, G., and Van Loan, C. F. (1989).
 \emph{Matrix Computations,}
 2nd edition, Johns Hopkins, Baltimore.
 }
-\seealso{\code{\link{qr}}, \code{\link{chol}}, \code{\link{lu.Matrix}}}
+\seealso{\code{\link{qr}}, \code{\link{chol}}}
 \examples{
 x <- Matrix( rnorm(9), 3, 3)
+\dontrun{
 lu(x)
+}
 }
 \keyword{array}
 \keyword{algebra}

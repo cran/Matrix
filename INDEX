@@ -1,19 +1,46 @@
-Hermitian.test          Test a Matrix for Conjugate Symmetry
-LowerTriangular.test    Test a Matrix for Triangularity
+Cholesky-class          Cholesky decompositions
+Hilbert                 Generate a Hilbert matrix
+LU-class                LU decompositions
 Matrix                  Construct a Classed Matrix
-Matrix.class            Determine the subclass of a Matrix
-Orthonormal.test        Check for Orthogonality or Orthonormality
-SVD                     Singular Value Decomposition of a Matrix
-det                     Calculate the Determinant of a Matrix
-diagDet                 Determinant of triangular matrices
-eigen                   Spectral Decomposition of a Matrix
+Matrix-class            Class "Matrix" Virtual class of Matrices
+Schur                   Schur Decomposition of a Matrix
+ScotsSec                Scottish secondary school scores
+coef<-                  Assign parameters
+corFactor               Extract the correlation factor
+corMatrix               Generate the correlation matrix
+corrmatrix-class        Class "corrmatrix"
+cscMatrix-class         Class "cscMatrix" compressed, sparse, column
+                        Matrix
 expand                  Expand a Decomposition into Factors
 facmul                  Multiplication by Decomposition Factors
-hilbert                 Generate a Hilbert matrix
-lu.Matrix               Triangular (LU) Decomposition of a Matrix
+geMatrix-class          General S4 Matrix class
+isInitialized           Check for initialization
 lu                      Triangular Decomposition of a Square Matrix
+matrix<-                Assign the matrix
+mm                      A sample sparse model matrix
 norm                    Norm of a Matrix
+pdBlocked-class         Class "pdBlocked", blocked pd matrices
+pdCompSymm-class        Class "pdCompSymm"
+pdDiag-class            Class "pdDiag"
+pdFactor                Square-root factor
+pdIdent-class           Class "pdIdent"
+pdLogChol-class         Class "pdLogChol", positive-definite matrices
+pdMat-class             Class pdMat, positive-definite matrices
+pdMatrix                Return the positive-definite matrix
+pdNatural-class         Class "pdNatural", positive-definite matrices
+pdfactor-class          Factors of positive-definite matrices
+pdmatrix-class          Positive-definite matrices
+poMatrix-class          Positive semi-definite, dense, real matrices
 rcond                   Estimate the Reciprocal Condition Number
-schur                   Schur Decomposition of a Matrix
-solve.Matrix            Solve a System of Equations
+sscChol-class           Cholesky decompositions of sscMatrix objects
+sscCrosstab             Create pairwise crosstabulation
+sscCrosstab-class       Pairwise crosstabulations
+sscMatrix-class         Symmetric, compressed, sparse column matrices
+ssclme-class            lme models as sparse, symmetric matrices
+syMatrix-class          Class "syMatrix" of symmetric matrices
+trMatrix-class          Triangular, dense, non-packed, real matrices
+tripletMatrix-class     Class "tripletMatrix" sparse matrices in
+                        triplet form
+tscMatrix-class         Triangular, compressed, sparse column matrices
 unpack                  Full Storage Representation of Packed Matrices
+y                       A sample response vector

@@ -1,0 +1,104 @@
+#
+pkg = Matrix
+
+PKG_CFLAGS = -I./Metis
+PKG_LIBS = ${LAPACK_LIBS} ${BLAS_LIBS}
+SOURCES_C =  \
+	    LU.c \
+            Mutils.c \
+	    Metis_utils.c\
+            cscMatrix.c \
+            dense.c \
+            factorizations.c \
+            geMatrix.c \
+	    ldl.c \
+	    pdDiag.c \
+	    pdIdent.c \
+	    pdLogChol.c \
+	    pdMat.c \
+	    pdNatural.c \
+            poMatrix.c \
+            sscCrosstab.c \
+            sscMatrix.c \
+            ssclme.c \
+            syMatrix.c \
+            trMatrix.c \
+            triplet.c \
+            triplet_to_col.c \
+            tscMatrix.c \
+            taucs_utils.c \
+            # flame.c
+OBJECTS = $(SOURCES_C:.c=.o)
+SHLIB = $(pkg)$(SHLIB_EXT)
+SUBDIRS = Metis taucs
+# umfpack
+SUBLIBS = $(SUBDIRS:=.a)
+
+$(SHLIB): $(OBJECTS) $(SUBLIBS)
+	$(SHLIB_LINK) -o $@ $(OBJECTS) $(SUBLIBS) $(ALL_LIBS)
+
+all: $(SHLIB)
+
+mostlyclean: clean
+
+$(SUBLIBS): 
+	@for d in $(SUBDIRS); do \
+	  (cd $${d} && $(MAKE) lib) || exit 1; \
+	done
+
+clean:
+	@-rm -rf .libs _libs
+	@-rm -f *.o
+
+LU.o: LU.c LU.h trMatrix.h Mutils.h
+Metis_utils.o: Metis_utils.c Metis_utils.h \
+  Metis/metis.h Metis/defs.h \
+  Metis/struct.h Metis/macros.h Metis/rename.h Metis/proto.h
+Mutils.o: Mutils.c Mutils.h triplet_to_col.h
+# umfpack/umfpack.h \
+#   umfpack/umfpack_symbolic.h umfpack/umfpack_solve.h \
+#   umfpack/umfpack_free_symbolic.h umfpack/umfpack_free_numeric.h \
+#   umfpack/umfpack_defaults.h umfpack/umfpack_triplet_to_col.h \
+#   umfpack/umfpack_col_to_triplet.h umfpack/umfpack_transpose.h \
+#   umfpack/umfpack_scale.h umfpack/umfpack_get_lunz.h \
+#   umfpack/umfpack_get_numeric.h umfpack/umfpack_get_symbolic.h \
+#   umfpack/umfpack_save_numeric.h umfpack/umfpack_load_numeric.h \
+#   umfpack/umfpack_save_symbolic.h umfpack/umfpack_load_symbolic.h \
+#   umfpack/umfpack_report_status.h umfpack/umfpack_report_info.h \
+#   umfpack/umfpack_report_control.h umfpack/umfpack_report_matrix.h \
+#   umfpack/umfpack_report_triplet.h umfpack/umfpack_report_vector.h \
+#   umfpack/umfpack_report_symbolic.h umfpack/umfpack_report_numeric.h \
+#   umfpack/umfpack_report_perm.h umfpack/umfpack_timer.h \
+#   umfpack/umfpack_tictoc.h
+cscMatrix.o: cscMatrix.c cscMatrix.h Mutils.h taucs/taucs.h \
+  taucs/taucs_config_tests.h taucs/taucs_config_build.h \
+  taucs/taucs_private.h
+dense.o: dense.c dense.h
+factorizations.o: factorizations.c factorizations.h Mutils.h
+flame.o: flame.c flame.h
+geMatrix.o: geMatrix.c geMatrix.h 
+geMutils.o: geMutils.c geMutils.h
+ldl.o: ldl.c ldl.h
+pdDiag.o: pdDiag.c Mutils.h
+pdIdent.o: pdIdent.c Mutils.h
+pdLogChol.o: pdLogChol.c Mutils.h
+pdMat.o: pdMat.c Mutils.h
+pdNatural.o: pdNatural.c Mutils.h
+poMatrix.o: poMatrix.c poMatrix.h
+sscChol.o: sscChol.c sscChol.h tscMatrix.h Mutils.h
+sscCrosstab.o: sscCrosstab.c sscCrosstab.h Mutils.h
+sscMatrix.o: sscMatrix.c sscMatrix.h taucs_utils.h Mutils.h \
+  taucs/taucs.h \
+  taucs/taucs_config_tests.h taucs/taucs_config_build.h \
+  taucs/taucs_private.h
+ssclme.o: ssclme.c ssclme.h sscCrosstab.h Mutils.h ldl.h
+syMatrix.o: syMatrix.c syMatrix.h geMatrix.h 
+taucs_utils.o: taucs_utils.c taucs_utils.h Mutils.h taucs/taucs.h \
+  taucs/taucs_config_tests.h taucs/taucs_config_build.h \
+  taucs/taucs_private.h
+trMatrix.o: trMatrix.c trMatrix.h
+triplet.o: triplet.c triplet.h Mutils.h
+tscMatrix.o: tscMatrix.c tscMatrix.h Mutils.h
+utils.o: utils.c taucs/taucs.h \
+  taucs/taucs_config_tests.h taucs/taucs_config_build.h \
+  taucs/taucs_private.h

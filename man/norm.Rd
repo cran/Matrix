@@ -1,11 +1,9 @@
 \name{norm}
 \alias{norm}
-\alias{norm.default}
-\alias{norm.Matrix}
 \title{
     Norm of a Matrix
 }
-\usage{\method{norm}{Matrix}(x, type = "M", \dots) }
+\usage{norm(x, type, \dots) }
 \description{
     Computes a matrix norm of \code{x} using Lapack.  The norm can be
     the one norm, the infinity norm, the Frobenius norm, or the maximum
@@ -25,7 +23,7 @@
     \code{"F"} or \code{"f"} specifies the Frobenius norm (the
     Euclidean norm of \code{x} treated as if it were a vector);
     and \code{"M"} or \code{"m"} specifies the maximum modulus of
-    all the elements in \code{x}. The default is \code{"M"}.
+    all the elements in \code{x}. The default is \code{"O"}.
     
     Only the first character of \code{type[1]} is used.
   }
@@ -34,7 +32,6 @@
 \value{
     A numeric value of class \code{"norm"}, representing the quantity
     chosen according to \code{type}.
-%    A copy of the call to \code{"norm"} is returned as an attribute.
 }
 \details{
     Based on the Lapack functions \code{dlange}, \code{dlansy}, \code{dlantr},
@@ -45,9 +42,8 @@
     \emph{LAPACK User's Guide,}
     2nd edition, SIAM, Philadelphia.
 }
-%\seealso{\code{\link{norm.eigen.Matrix}}, \code{\link{norm.svd.Matrix}}.}
 \examples{
-x <- hilbert(9)
+x <- Hilbert(9)
 norm(x, "1")
 norm(x, "I")
 norm(x, "F")

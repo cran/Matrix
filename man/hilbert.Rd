@@ -1,5 +1,5 @@
-\name{hilbert}
-\alias{hilbert}
+\name{Hilbert}
+\alias{Hilbert}
 \title{Generate a Hilbert matrix}
 \description{
     Generate the \code{n} by \code{n} symmetric Hilbert matrix.  Because
@@ -7,16 +7,18 @@
     they are often used for testing numerical linear algebra code.
 }
 \usage{
-hilbert(n)
+Hilbert(n)
 }
 \arguments{
   \item{n}{a positive integer.}
 }
 \value{
-    the \code{n} by \code{n} symmetric Hilbert matrix.
+  the \code{n} by \code{n} symmetric Hilbert matrix as a
+  \code{"poMatrix"} object.
 }
+\seealso{\code{\link{poMatrix-class}}}  
 \examples{
-round(hilbert(6), 4)
+Hilbert(6)
 }
 \keyword{array}
 \keyword{algebra}

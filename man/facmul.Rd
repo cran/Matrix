@@ -1,7 +1,7 @@
 \name{facmul}
 \title{Multiplication by Decomposition Factors}
 \usage{
-facmul(x, factor, y, transpose = FALSE, left = TRUE, \dots)
+facmul(x, factor, y, transpose, left, \dots)
 }
 \alias{facmul}
 \alias{facmul.default}

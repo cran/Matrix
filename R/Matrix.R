@@ -1,7 +1,10 @@
+setMethod("show", signature(object = "Matrix"),
+          function(object) print(as(object, "matrix")))
+
 Matrix <-
     function (data = NA, nrow = 1, ncol = 1, byrow = FALSE, dimnames = NULL)
 {
-    if (inherits(data, "Matrix")) return(data)
+    if (is(data, "Matrix")) return(data)
     if (is.matrix(data)) { val <- data }
     else {
         if (missing(nrow))
@@ -11,85 +14,7 @@ Matrix <-
         val <- .Internal(matrix(data, nrow, ncol, byrow))
         dimnames(val) <- dimnames
     }
-    class(val) <- "Matrix"
-    val
-}
-
-print.Matrix <- function(x, ...)
-{
-    print(unclass(x), ...)
-}
-
-as.matrix.Matrix <- function(x)
-{
-    unclass(unpack(x))
-}
-
-solve.Matrix <- function(a, b, tol = 0, transpose = FALSE, ...)
-{   ## short version of a solve method
-    if (missing(b)) return(.Call("R_LapackPP_solve", a,
-                                 NULL, PACKAGE="Matrix"))
-    .Call("R_LapackPP_solve", a, b, PACKAGE="Matrix")
-}
-
-Hermitian.test <- function(x)
-{
-    if ((!inherits(x, "Matrix") && !is.matrix(x)) ||
-        (nrow(x) != ncol(x))) return(Inf)
-    if (is.complex(x)) return(max(Mod(x - t(Conj(x)))))
-    max(x - t(x))
-}
-
-is.Hermitian <- function(x, tol = 0) { Hermitian.test(x) <= tol }
-
-LowerTriangular.test <- function(x)
-{
-    if ((!inherits(x, "Matrix") && !is.matrix(x))) return(Inf)
-    if (is.complex(x)) return(max(Mod(x[row(x) < col(x)])))
-    max(abs(x[row(x) < col(x)]))
-}
-
-is.LowerTriangular <- function(x, tol = 0) { LowerTriangular.test(x) <= tol }
-
-UpperTriangular.test <- function(x)
-{
-    if ((!inherits(x, "Matrix") && !is.matrix(x))) return(Inf)
-    if (is.complex(x)) return(max(Mod(x[row(x) > col(x)])))
-    max(abs(x[row(x) > col(x)]))
-}
-
-is.UpperTriangular <- function(x, tol = 0) { UpperTriangular.test(x) <= tol }
-
-Orthogonal.test <- function(x, byrow = FALSE, normal = TRUE)
-{
-    if ((!inherits(x, "Matrix") && !is.matrix(x))) return(Inf)
-    if (byrow) { x <- t(x) }
-    xx <- crossprod(x)
-    if (normal) {                       # check for orthonormal
-        return(max(Mod(xx[row(xx) > col(xx)]), Mod(diag(xx) - 1)))
-    }
-    max(Mod(xx[row(xx) > col(xx)]))
-}
-
-Orthonormal.test <- function(x, byrow = FALSE)
-{
-    Orthogonal.test(x, byrow, normal = TRUE)
-}
-
-is.ColOrthonormal <- function(x, tol = sqrt(.Machine$double.eps))
-{
-    Orthonormal.test(x, byrow = FALSE) <= tol
-}
-
-is.RowOrthonormal <- function(x, tol = sqrt(.Machine$double.eps))
-{
-    Orthonormal.test(x, byrow = TRUE) <= tol
-}
-
-is.Orthonormal <- function(x, tol = sqrt(.Machine$double.eps), byrow = FALSE)
-{
-    if (byrow) return(is.RowOrthonormal(x, tol))
-    is.ColOrthonormal(x, tol)
+    as(val, "geMatrix")
 }
 
 Matrix.class <- function(x, tol = 0, symmetry = TRUE, unit.diagonal = TRUE,
@@ -141,4 +66,3 @@ as.Matrix <- function(x, tol = .Machine$double.eps)
     if (inherits(x, "Matrix")) return(asObject(x, Matrix.class(x, tol = tol)))
     asObject(as.matrix(x), Matrix.class(x, tol = tol))
 }
-

@@ -1,89 +1,24 @@
-eigen.default <- function (x, symmetric, only.values = FALSE, ...)
-{
-    x <- as.matrix(x)
-    n <- nrow(x)
-    if (n != ncol(x))
-        stop("non-square matrix in eigen")
-    complex.x <- is.complex(x)
-    if (complex.x) {
-        if (missing(symmetric))
-            symmetric <- all(x == Conj(t(x)))
-    }
-    else if (is.numeric(x)) {
-        storage.mode(x) <- "double"
-        if (missing(symmetric))
-            symmetric <- all(x == t(x))
-    }
-    else stop("numeric or complex values required in eigen")
-    dbl.n <- double(n)
-    if (symmetric) {
-        if (complex.x) {
-            xr <- Re(x)
-            xi <- Im(x)
-            z <- .Fortran("ch", n, n, xr, xi, values = dbl.n,
-                !only.values, vectors = xr, ivectors = xi, dbl.n,
-                dbl.n, double(2 * n), ierr = integer(1), PACKAGE = "base")
-            if (z$ierr)
-                stop(paste("ch returned code ", z$ierr, " in eigen"))
-            if (!only.values)
-                z$vectors <- matrix(complex(re = z$vectors, im = z$ivectors),
-                  nc = n)
-        }
-        else {
-            z <- .Fortran("rs", n, n, x, values = dbl.n, !only.values,
-                vectors = x, dbl.n, dbl.n, ierr = integer(1),
-                PACKAGE = "base")
-            if (z$ierr)
-                stop(paste("rs returned code ", z$ierr, " in eigen"))
-        }
-        ord <- rev(order(z$values))
-    }
-    else {
-        if (complex.x) {
-            xr <- Re(x)
-            xi <- Im(x)
-            z <- .Fortran("cg", n, n, xr, xi, values = dbl.n,
-                ivalues = dbl.n, !only.values, vectors = xr,
-                ivectors = xi, dbl.n, dbl.n, dbl.n, ierr = integer(1),
-                PACKAGE = "base")
-            if (z$ierr)
-                stop(paste("cg returned code ", z$ierr, " in eigen"))
-            z$values <- complex(re = z$values, im = z$ivalues)
-            if (!only.values)
-                z$vectors <- matrix(complex(re = z$vectors, im = z$ivectors),
-                  nc = n)
-        }
-        else {
-            z <- .Fortran("rg", n, n, x, values = dbl.n, ivalues = dbl.n,
-                !only.values, vectors = x, integer(n), dbl.n,
-                ierr = integer(1), PACKAGE = "base")
-            if (z$ierr)
-                stop(paste("rg returned code ", z$ierr, " in eigen"))
-            ind <- z$ivalues > 0
-            if (any(ind)) {
-                ind <- seq(n)[ind]
-                z$values <- complex(re = z$values, im = z$ivalues)
-                if (!only.values) {
-                  z$vectors[, ind] <- complex(re = z$vectors[,
-                    ind], im = z$vectors[, ind + 1])
-                  z$vectors[, ind + 1] <- Conj(z$vectors[, ind])
-                }
-            }
-        }
-        ord <- rev(order(Mod(z$values)))
-    }
-    list(values = z$values[ord], vectors = if (!only.values) z$vectors[,
-        ord])
-}
+setMethod("eigen", signature(x = "geMatrix", only.values = "missing"),
+          function(x, symmetric, only.values, EISPACK) {
+              nCall = match.call()
+              nCall$only.values = FALSE
+              eval(nCall, parent.frame())
+          })
 
-eigen.Matrix <- function(x, vectors = TRUE, balance = "B", rcond = "N", ...)
-{
-    .Call("R_LapackPP_eigen", x, as.logical(vectors), as.character(balance),
-          as.character(rcond), PACKAGE="Matrix")
-}
+setMethod("eigen", signature(x = "geMatrix", only.values = "logical"),
+          function(x, symmetric, only.values, EISPACK)
+          .Call("geMatrix_eigen", x, only.values, PACKAGE = "Matrix")
+          )
 
-schur.Matrix <- function(x, vectors = TRUE, ...)
-{
-    .Call("R_LapackPP_Schur", x, as.logical(vectors), PACKAGE="Matrix")
-}
+setMethod("Schur", signature(x = "geMatrix", vectors = "missing"),
+          function(x, vectors, ...) {
+              nCall = match.call()
+              nCall$vectors = FALSE
+              eval(nCall, parent.frame())
+          })
+         
+setMethod("Schur", signature(x = "geMatrix", vectors = "logical"),
+          function(x, vectors, ...)
+          .Call("geMatrix_Schur", x, vectors, PACKAGE="Matrix")
+          )
 

@@ -1,3 +1,142 @@
+2004-04-05  Douglas Bates  <bates@bates2_home>
+
+	* src/triplet_to_col.c: Create triplet_to_col as a native
+	function, not the version from umfpack.  There were problems with
+	the configuration of UMFPACK for 64-bit processors and there was
+	only one umfpack routine being used so I moved it here.
+
+2004-04-04  Douglas Bates  <bates@bates2_home>
+
+	* src/ssclme.c (ssclme_variances): New function.
+
+2004-03-28  Douglas Bates  <bates@bates2_home>
+
+	* src/ssclme.c (ssclme_fitted): Added function.
+
+2004-03-27  Douglas Bates  <bates@bates2_home>
+
+	* src/ssclme.c (ssclme_transfer_dimnames): Add new function to
+	store the dimnames in the XtX and bVar slots
+	(ssclme_update_mm): Change the dimensions of the bVar slot
+	components and the returned value from ssclme_ranef.
+
+2004-03-18  Douglas Bates  <bates@stat.wisc.edu>
+
+	* R/{pdMat.R,pdIdent.R,pdLogChol.R,pdMatrixLog.R,pdNatural.R},
+	  src/{pdMat.c,pdIdent.c,pdLogChol.c,pdNatural.c},
+	  tests/{pdCompSymm.R,pdDiag.R,pdIdent.R,pdLogChol.R,pdNatural.R},
+	  man/{pdMat-class.Rd,pdmatrix-class.Rd,corrmatrix-class.Rd,
+	  pdDiag-class.Rd,pdIdent-class.Rd,pdNatural-class.Rd,
+	  pdLogChol-class.Rd,coefGets.Rd,pdCompSymm-class.Rd,
+	  pdfactor-class.Rd,pdFactor.Rd,pdMatrix.Rd,
+	  pdBlocked-class.Rd},AllClass.R,AllGeneric.R:
+	Moved the pdMat classes from the lme4 package.
+
+2004-03-02  Douglas Bates  <bates@stat.wisc.edu>
+
+	* man/ssclme-class.Rd: Update definition and documentation of the
+	ssclme class to include the DIsqrt slot.
+
+	* src/ssclme.c (ssclme_deviance): Modify order of computation
+	(much faster using dsyrk, a level 3 BLAS routine).
+
+	* src/Makefile (SUBLIBS): Change definition (K. Hornik)
+
+2004-02-28  Douglas Bates  <bates@stat.wisc.edu>
+
+	* tests/ssclme.R: Modify the test to account for the permutation
+	of the levels of the grouping factors.
+
+2004-02-23  Douglas Bates  <bates@stat.wisc.edu>
+
+	* R/ssclme.R,src/ssclme.c (ssclme): Move slots of sscCrosstab slot
+	directly into the ssclme class definition.
+
+2004-02-22  Douglas Bates  <bates@stat.wisc.edu>
+
+	* DESCRIPTION (Date): New release
+
+	* man/ssclme-class.Rd: new file.
+
+	* src/ssclme.c (ssclme_loglik): major revisions in design.  It
+	works and it's fast!
+
+2004-02-17  Douglas Bates  <bates@stat.wisc.edu>
+
+	* src/taucs/Makefile.win (lib): Change "ar" to "$(AR)" (B.Ripley)
+
+2004-02-16  Douglas Bates  <bates@stat.wisc.edu>
+
+	* DESCRIPTION (Date): New release
+
+	* NAMESPACE: Don't export ssclme.
+
+	* data/ScotsSec.rda, man/ScotsSec.Rd: Add Scottish secondary
+	school data.
+
+2004-02-11  Douglas Bates  <bates@stat.wisc.edu>
+
+	* src/sscCrosstab.c (sscCrosstab): Added a row to the incidence to
+	keep track of the fixed-effects and the response.  Counts also
+	gets an extra element, which is always one.
+
+	* src/ldl.c: Include these routines from Tim Davis' LDL package.
+
+2004-02-10  Douglas Bates  <bates@stat.wisc.edu>
+
+	* src/cscMatrix.c (csc_transpose): new function
+
+	* src/Mutils.c (csc_sort_columns): perm/iperm confusion corrected
+	(csc_components_transpose): new function
+
+2004-02-06  Douglas Bates  <bates@stat.wisc.edu>
+
+	* src/triplet.c (triplet_validate): Fix Dim slot on generated
+	triplets
+
+2004-01-30  Douglas Bates  <bates@stat.wisc.edu>
+
+	* R/sscCrosstab.R (sscCrosstab): Added sscCrosstab generator function.
+
+	* src/LU.h (MATRIX_LU_H): Add #ifndef #define ... #endif to this
+	and all other .h files in src.
+
+	* src/Makefile.win: This and other Makefile.win files contributed
+	by Brian Ripley.
+
+2004-01-27  Douglas Bates  <bates@stat.wisc.edu>
+
+	* R/syMatrix.R: Added methods for "%*%".
+
+	* R/Hilbert.R (Hilbert): Changed Hilbert function to return a
+	poMatrix object.
+
+2004-01-26  Douglas Bates  <bates@stat.wisc.edu>
+
+	* man/sscChol-class.Rd,man/mm.Rd,man/y.Rd: Added man pages.
+
+2004-01-25  Douglas Bates  <bates@bates2_home>
+
+	* inst/doc/Introduction.Rnw,Comparisons.Rnw: Added vignettes.
+
+	* R/csc.R: Convert all cscMatrix classes to use Dim slot instead
+	of nrow.
+
+2003-12-31  Douglas Bates  <bates@stat.wisc.edu>
+
+	* src/taucs/taucs.h: Moved taucs.h, amd.h, and umfpack.h into
+	subdirectories.
+
+2003-12-08  Douglas Bates  <bates@stat.wisc.edu>
+
+	* src/taucs.h: Accidently referred to global header files
+	instead of local files.
+
+2003-12-04  Douglas Bates  <bates@stat.wisc.edu>
+
+	* R/AllClass.R: Lots of changes.  Removed all the lapack++ code
+	and methods and replaced all classes with S4 classes.
+
 2003-04-19  Douglas Bates  <bates@stat.wisc.edu>
 
 	* R/det.R,man/det.Rd: Change name of det generic to determinant

@@ -1,0 +1,14 @@
+/* This is an automatically generated file */
+/* Configuration name: anonymous */
+#define TAUCS_CONFIG_DREAL
+#undef TAUCS_CONFIG_DCOMPLEX
+#undef TAUCS_CONFIG_GENERIC_COMPLEX
+#define TAUCS_CONFIG_BASE
+#define TAUCS_CONFIG_FACTOR
+#define TAUCS_CONFIG_LLT
+#define TAUCS_CONFIG_OOC_LLT
+#define TAUCS_CONFIG_OOC_LU
+#define TAUCS_CONFIG_INCOMPLETE_CHOL
+#define TAUCS_CONFIG_INVERSE_FACTOR
+#define TAUCS_CONFIG_MATRIX_GENERATORS
+

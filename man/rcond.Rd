@@ -1,19 +1,24 @@
 \name{rcond}
 \title{Estimate the Reciprocal Condition Number}
 \usage{
-rcond(x, \dots)
+rcond(x, type, \dots)
 }
 \alias{rcond}
-\alias{rcond.default}
-\alias{rcond.Matrix}
+%\alias{rcond.default}
+%\alias{rcond.Matrix}
 \description{
-    Estimate the reciprocal of the condition number of a matrix.
+  Estimate the reciprocal of the condition number of a matrix.
 }
 \arguments{
-    \item{x}{
-	a matrix. No missing values or IEEE special values are allowed.
-    }
-    \item{\dots}{further arguments passed to or from other methods.}
+  \item{x}{
+    a matrix. No missing values or IEEE special values are allowed.
+  }
+  \item{type}{
+    Character indicating the type of norm to be used in the estimate.
+    The default is \code{"O"} for the 1-norm.  The other possible value is
+    \code{"I"} for the infinity norm.
+  }
+  \item{\dots}{further arguments passed to or from other methods.}
 }
 \value{
     An estimate of the reciprocal condition number of \code{x}.
@@ -43,10 +48,7 @@ Golub, G., and Van Loan, C. F. (1989).
 \examples{
 x <- Matrix(rnorm(9), 3, 3)
 rcond(x)
-rcond(hilbert(9))  # should be about 9.1e-13
-h9 <- hilbert(9)
-class(h9) <- Matrix.class(h9)  # now Hermitian
-rcond(h9) # slightly different answer - different algorithm
+rcond(Hilbert(9))  # should be about 9.1e-13
 }
 \keyword{array}
 \keyword{algebra}

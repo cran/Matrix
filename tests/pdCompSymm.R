@@ -1,0 +1,2 @@
+library(Matrix)
+showClass('pdCompSymm')

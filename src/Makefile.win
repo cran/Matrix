@@ -1,0 +1,59 @@
+#
+include $(RHOME)/src/gnuwin32/MkRules
+BLAS_LIBS=-lRblas
+LAPACK_LIBS=-L$(RHOME)/lib -lRlapack
+CPPFLAGS=$(PKG_CPPFLAGS) -I$(RHOME)/src/include
+CFLAGS=$(CPPFLAGS) $(DEBUGFLAG) -O2 $(PKG_CFLAGS)
+CXXFLAGS=$(CPPFLAGS) $(DEBUGFLAG) -O2 $(PKG_CXXFLAGS)
+
+DLLLIBS=-L$(RHOME)/src/gnuwin32 $(PKG_LIBS) $(FLIBS) -lR 
+
+pkg = Matrix
+
+PKG_CFLAGS = -I./Metis
+PKG_LIBS = $(LAPACK_LIBS) $(BLAS_LIBS)
+SOURCES_C =  \
+	    LU.c \
+            Mutils.c \
+	    Metis_utils.c\
+            cscMatrix.c \
+            dense.c \
+            factorizations.c \
+            geMatrix.c \
+	    ldl.c \
+	    pdDiag.c \
+	    pdIdent.c \
+	    pdLogChol.c \
+	    pdMat.c \
+	    pdNatural.c \
+            poMatrix.c \
+            sscCrosstab.c \
+            sscMatrix.c \
+            ssclme.c \
+            syMatrix.c \
+            trMatrix.c \
+            triplet.c \
+            tscMatrix.c \
+            taucs_utils.c \
+            # flame.c
+OBJECTS = $(SOURCES_C:.c=.o)
+SHLIB = Matrix.dll
+SUBDIRS = Metis taucs umfpack
+SUBLIBS = $(addsuffix .a,$(SUBDIRS))
+
+
+$(SHLIB): $(OBJECTS) $(SUBLIBS)
+
+all: $(SHLIB)
+
+mostlyclean: clean
+
+$(SUBLIBS): 
+	@for d in $(SUBDIRS); do \
+	  (cd $${d} && $(MAKE) -f Makefile.win lib) || exit 1; \
+	done
+	ranlib $@
+
+clean:
+	@-rm -rf .libs _libs
+	@-rm -f *.o

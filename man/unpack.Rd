@@ -4,7 +4,6 @@
 unpack(x, \dots)
 }
 \alias{unpack}
-\alias{unpack.default}
 \description{
     Expands decompositions stored in compact form into matrix factors.
 }

@@ -1,13 +1,11 @@
 \name{Matrix}
+\alias{Matrix}
 \title{Construct a Classed Matrix}
 \usage{
 Matrix(data=NA, nrow=1, ncol=1, byrow=FALSE, dimnames=NULL)
 }
-\alias{Matrix}
-\alias{print.Matrix}
-\alias{as.matrix.Matrix}
 \description{
-    Construct a Matrix of class \code{Matrix}.
+    Construct a Matrix of a class that inherits from \code{Matrix}.
 }
 \arguments{
   \item{data}{an optional numeric data vector or matrix.}
@@ -20,7 +18,8 @@ Matrix(data=NA, nrow=1, ncol=1, byrow=FALSE, dimnames=NULL)
     \code{list} of length 2.}
 }
 \value{
-    Returns an \code{nrow} by \code{ncol} matrix of class \code{"Matrix"}. 
+    Returns an \code{nrow} by \code{ncol} matrix of a class that
+    inherits from \code{"Matrix"}. 
 }
 \details{
     If either of \code{nrow} or \code{ncol} is
@@ -33,11 +32,10 @@ Matrix(data=NA, nrow=1, ncol=1, byrow=FALSE, dimnames=NULL)
     \code{"Matrix"}.
 }
 \seealso{
-    \code{\link{as.Matrix}}, \code{\link{Matrix.class}}, \code{\link{matrix}}.
+    \code{\link{matrix}}.
 }
 \examples{
 Matrix(0, 3, 2)             # a 3 by 2 matrix of zeros
-
 Matrix(1:6, 3, 2)           # a 3 by 2 matrix
 Matrix(1:6, nrow=3)   
 Matrix(1:6, ncol=2)   

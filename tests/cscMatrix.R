@@ -1,0 +1,7 @@
+library(Matrix)
+data(mm)
+str(mm)
+tmm = t(mm)
+str(tmm)
+validObject(tmm)
+all.equal(as(tmm, "matrix"), t(as(mm, "matrix")))

@@ -1,10 +1,10 @@
-\name{schur}
+\name{Schur}
 \title{Schur Decomposition of a Matrix}
 \usage{
-\method{schur}{Matrix}(x, vectors=TRUE, \dots)
+Schur(x, vectors, \dots)
 }
-\alias{schur}
-\alias{schur.Matrix}
+\alias{Schur}
+%\alias{Schur.Matrix}
 \description{
     Computes the Schur decomposition and eigenvalues of a square matrix.
 }
@@ -42,10 +42,10 @@
   2nd edition, SIAM, Philadelphia.
 }
 \examples{
-schur(hilbert(9))              # Schur factorization (real eigenvalues)
-A <- Matrix(rnorm( 9*9, sd = 100), nrow = 9)
-schur.A <- schur(A)
-mod.eig <- Mod(schur.A$values) # eigenvalue modulus
-schur.A
+#Schur(Hilbert(9))              # Schur factorization (real eigenvalues)
+#A <- Matrix(rnorm( 9*9, sd = 100), nrow = 9)
+#schur.A <- Schur(A)
+#mod.eig <- Mod(schur.A$values) # eigenvalue modulus
+#schur.A
 }
 \keyword{algebra}

@@ -36,7 +36,8 @@ expand(x, \dots)
 \examples{
 library(Matrix)
 x <- Matrix( 1:9, 3, 3)
+\dontrun{
 expand(qr(x))
 }
+}
 \keyword{algebra}
-

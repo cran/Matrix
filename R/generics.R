@@ -1,4 +1,4 @@
-determinant <- function(x, ...) UseMethod("determinant")
+#determinant <- function(x, ...) UseMethod("determinant")
 eigen <- function(x, ...) UseMethod("eigen")
 expand <- function(x, ...) UseMethod("expand")
 expand.default <- function(x, ...) x

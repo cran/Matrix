@@ -49,6 +49,6 @@
 }
 \examples{
 x <- Matrix((1:16)^2, nrow = 4, ncol = 4)
-lu.Matrix(x)
+lu(x)
 }
 \keyword{algebra}

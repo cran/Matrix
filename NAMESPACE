@@ -1,0 +1,37 @@
+useDynLib(Matrix)
+
+export(Matrix, SVD, as.Matrix, diagDet, expand, facmul, hilbert, lu,
+       norm, rcond, schur, unpack)
+
+# New definitions of generics that must be exported
+# These will not be necessary after conversion to S4 classes
+export(eigen)
+
+# used internally - should not be, but are, visible to users
+export(Hermitian.test, LowerTriangular.test, Matrix.class,
+       Orthogonal.test, Orthonormal.test, UpperTriangular.test,
+       is.ColOrthonormal, is.Hermitian, is.LowerTriangular,
+       is.Orthonormal, is.RowOrthonormal, is.UpperTriangular)
+
+# used internally - not intended to be visible to users
+# export(asObject, prependClass)
+
+S3method("as.matrix", "Matrix")
+S3method("determinant", "LowerTriangular")
+S3method("determinant", "Matrix")
+S3method("determinant", "UnitLowerTriangular")
+S3method("determinant", "UnitUpperTriangular")
+S3method("determinant", "UpperTriangular")
+S3method("expand", "default")
+S3method("eigen", "default")
+S3method("lu", "Matrix")
+S3method("norm", "Matrix")
+S3method("norm", "default")
+S3method("print", "Matrix")
+S3method("rcond", "Matrix")
+S3method("rcond", "default")
+S3method("schur", "Matrix")
+S3method("solve", "Matrix")
+S3method("unpack", "default")
+
+

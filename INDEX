@@ -4,7 +4,6 @@ Matrix                  Construct a Classed Matrix
 Matrix.class            Determine the subclass of a Matrix
 Orthonormal.test        Check for Orthogonality or Orthonormality
 SVD                     Singular Value Decomposition of a Matrix
-asObject                Assign or Modify the Class of an Object
 det                     Calculate the Determinant of a Matrix
 diagDet                 Determinant of triangular matrices
 eigen                   Spectral Decomposition of a Matrix

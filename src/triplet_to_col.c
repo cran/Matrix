@@ -27,7 +27,7 @@ void triplet_to_col
 	*Rj = Calloc(nz, int),
 	*W = Calloc((n_row > n_col) ? n_row : n_col, int),
 	*RowCount = Calloc(n_row, int);
-    double *Rx;
+    double *Rx = (double *) NULL;
 
     if (Tx) Rx = Calloc(nz, double);
 

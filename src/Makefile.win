@@ -21,6 +21,7 @@ SOURCES_C =  \
             factorizations.c \
             geMatrix.c \
 	    ldl.c \
+	    lmeRep.c \
             poMatrix.c \
             sscCrosstab.c \
             sscMatrix.c \
@@ -30,11 +31,10 @@ SOURCES_C =  \
             triplet.c \
             triplet_to_col.c \
             tscMatrix.c \
-            taucs_utils.c \
-            # flame.c
+	    # flame.c
 OBJECTS = $(SOURCES_C:.c=.o)
 SHLIB = $(pkg)$(SHLIB_EXT)
-SUBDIRS = Metis taucs
+SUBDIRS = Metis
 SUBLIBS = $(SUBDIRS:=.a)
 
 $(SHLIB): $(OBJECTS) $(SUBLIBS)
@@ -58,9 +58,7 @@ Metis_utils.o: Metis_utils.c Metis_utils.h \
   Metis/metis.h Metis/defs.h \
   Metis/struct.h Metis/macros.h Metis/rename.h Metis/proto.h
 Mutils.o: Mutils.c Mutils.h triplet_to_col.h
-cscMatrix.o: cscMatrix.c cscMatrix.h Mutils.h taucs/taucs.h \
-  taucs/taucs_config_tests.h taucs/taucs_config_build.h \
-  taucs/taucs_private.h
+cscMatrix.o: cscMatrix.c cscMatrix.h Mutils.h
 dense.o: dense.c dense.h
 factorizations.o: factorizations.c factorizations.h Mutils.h
 flame.o: flame.c flame.h
@@ -75,18 +73,9 @@ pdNatural.o: pdNatural.c Mutils.h
 poMatrix.o: poMatrix.c poMatrix.h
 sscChol.o: sscChol.c sscChol.h tscMatrix.h Mutils.h
 sscCrosstab.o: sscCrosstab.c sscCrosstab.h Mutils.h
-sscMatrix.o: sscMatrix.c sscMatrix.h taucs_utils.h Mutils.h \
-  taucs/taucs.h \
-  taucs/taucs_config_tests.h taucs/taucs_config_build.h \
-  taucs/taucs_private.h
+sscMatrix.o: sscMatrix.c sscMatrix.h 
 ssclme.o: ssclme.c ssclme.h sscCrosstab.h Mutils.h ldl.h
 syMatrix.o: syMatrix.c syMatrix.h geMatrix.h 
-taucs_utils.o: taucs_utils.c taucs_utils.h Mutils.h taucs/taucs.h \
-  taucs/taucs_config_tests.h taucs/taucs_config_build.h \
-  taucs/taucs_private.h
 trMatrix.o: trMatrix.c trMatrix.h
 triplet.o: triplet.c triplet.h Mutils.h
 tscMatrix.o: tscMatrix.c tscMatrix.h Mutils.h
-utils.o: utils.c taucs/taucs.h \
-  taucs/taucs_config_tests.h taucs/taucs_config_build.h \
-  taucs/taucs_private.h

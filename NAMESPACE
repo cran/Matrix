@@ -29,6 +29,7 @@ exportClasses(
               "corrmatrix",
               "cscMatrix",
               "geMatrix",
+              "lmeRep",
               "pdfactor",
               "pdmatrix",
               "poMatrix",

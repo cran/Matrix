@@ -1,8 +1,10 @@
 #ifndef MATRIX_SSC_H
 #define MATRIX_SSC_H
 
-#include "taucs_utils.h"
+#include <Rdefines.h>
+#include "Mutils.h"
 #include "ldl.h"
+#include "triplet_to_col.h"
 
 SEXP sscMatrix_validate(SEXP x);
 SEXP sscMatrix_chol(SEXP x, SEXP pivot);

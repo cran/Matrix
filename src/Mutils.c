@@ -16,7 +16,9 @@ SEXP
     Matrix_RZXSym,
     Matrix_XtXSym,
     Matrix_ZtXSym,
+    Matrix_ZZxSym,
     Matrix_bVarSym,
+    Matrix_cnamesSym,
     Matrix_devianceSym,
     Matrix_devCompSym,
     Matrix_diagSym,
@@ -47,7 +49,9 @@ SEXP Matrix_init(void)
     Matrix_RZXSym = install("RZX");
     Matrix_XtXSym = install("XtX");
     Matrix_ZtXSym = install("ZtX");
+    Matrix_ZZxSym = install("ZZx");
     Matrix_bVarSym = install("bVar");
+    Matrix_cnamesSym = install("cnames");
     Matrix_devianceSym = install("deviance");
     Matrix_devCompSym = install("devComp");
     Matrix_diagSym = install("diag");

@@ -15,8 +15,6 @@ but are more commonly created from \code{chol} applied to an
       permutation of the rows and columns chosen to minimize fill-in.
       If pivoting has not been applied this will be an integer vector of
       length 0.}
-    \item{\code{iperm}:}{Object of class \code{"integer"} - the inverse
-      permutation to the \code{perm} slot.}
     \item{\code{diag}:}{A character object indicating if the triangular
       matrix is unit triangular or not.  This slot is inherited from the
       \code{"tscMatrix"} class.  It is always \code{"N"} for this class.}
@@ -37,6 +35,10 @@ but are more commonly created from \code{chol} applied to an
     \item{\code{Dim}:}{Object of class \code{"integer"} - the dimensions
      of the matrix - must be an integer vector with exactly two
      non-negative values.}
+    \item{\code{D}:}{Object of class \code{"numeric"} - the diagonal
+      elements of the matrix D in the LDL' decomposition.}
+    \item{\code{Parent}:}{Object of class \code{"integer"} - the
+      elimination tree of the (possibly permuted) symmetric matrix.}
   }
 }
 \section{Extends}{

@@ -3,7 +3,6 @@
 
 #include <Rdefines.h>
 #include "Mutils.h"
-#include "taucs/taucs.h"
 
 SEXP csc_crossprod(SEXP x);
 SEXP csc_matrix_crossprod(SEXP x, SEXP y);

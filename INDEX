@@ -14,6 +14,7 @@ cscMatrix-class         Class "cscMatrix" compressed, sparse, column
 expand                  Expand a Decomposition into Factors
 facmul                  Multiplication by Decomposition Factors
 geMatrix-class          General S4 Matrix class
+lmeRep-class            lme models representation
 lu                      Triangular Decomposition of a Square Matrix
 matrix<-                Assign the matrix
 mm                      A sample sparse model matrix

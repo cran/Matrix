@@ -106,11 +106,13 @@ setClass("LU", representation(x = "numeric", Dim = "integer",
 setClass("Cholesky", contains = "trMatrix")
 
 setClass("sscChol",
-         representation = representation(perm = "integer", iperm = "integer"),
+         representation = representation(perm = "integer", Parent = "integer",
+         D = "numeric"),
          contains = "tscMatrix",
          prototype = prototype(p = as.integer(0), i = integer(0),
                         x = numeric(0), Dim = as.integer(c(0, 0)),
-                        uplo = 'L', perm = integer(0), iperm = integer(0)),
+                        uplo = 'L', perm = integer(0), Parent = integer(0),
+                        D = numeric(0)),
          validity = function(object)
            .Call("sscChol_validate", object, PACKAGE = "Matrix"))
 
@@ -189,4 +191,26 @@ setClass("pdfactor", representation("matrix", logDet = "numeric"))
 
                        # correlation matrices and standard deviations
 setClass("corrmatrix", representation("matrix", stdDev = "numeric"))
+
+## Representation of a linear mixed effects model
+setClass("lmeRep",
+         representation(
+                        Omega = "list", # list of relative precision matrices
+                        D = "list",     # list of diagonal factors (lower triangle)
+               #         DIsqrt = "list",# list of inverse of lower Cholesky factors
+                        ZZx = "list",   # list of arrays comprising ZtZ
+                        RXX = "matrix", # Augmented RXX component or its inverse
+                        RZX = "matrix", # Augmented RZX component or its inverse
+                        XtX = "matrix", # Original X'X matrix
+                        ZtX = "matrix", # Original Z'X matrix
+                        cnames = "list",# column names of model matrices
+                        deviance = "numeric", # Current deviance (ML and REML)
+                        devComp = "numeric", # Components of deviance
+                        levels = "list",# names of levels of grouping factors
+                        nc = "integer", # number of columns in (augmented)
+                                        # model matrices and number of observations
+                        status = "logical"
+                        ),
+         validity = function(object)
+         .Call("lmeRep_validate", object, PACKAGE = "Matrix"))
 

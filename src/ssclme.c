@@ -391,7 +391,8 @@ ssclme_update_mm(SEXP x, SEXP facs, SEXP mmats)
 		nck = nc[k],
 		scalar = ncj == 1 && nck == 1;
 	    double
-		*Zk = Z[k], *work;
+		*Zk = Z[k], *work = (double *) NULL;
+
 	    if (!scalar) work = Calloc(ncj * nck, double);
 	    for (i = 0; i < nobs; i++) {
 		int ii, ind = -1, fpji = fpj[i] - 1,
@@ -625,7 +626,7 @@ int ldl_update_ind(int probe, int start, const int ind[])
 
  */
 static
-SEXP ldl_inverse(SEXP x)
+void ldl_inverse(SEXP x)
 {
     SEXP
 	Gpsl = GET_SLOT(x, Matrix_GpSym),
@@ -705,7 +706,6 @@ SEXP ldl_inverse(SEXP x)
 	    Free(tmp); Free(ind);
 	}
     }
-    return R_NilValue;
 }
 
 /** 
@@ -915,30 +915,55 @@ int coef_length(int nf, const int nc[])
  * @return numeric vector of the values in the upper triangles of the
  * Omega matrices
  */
-SEXP ssclme_coef(SEXP x)
+SEXP ssclme_coef(SEXP x, SEXP Unconstr)
 {
     SEXP Omega = GET_SLOT(x, Matrix_OmegaSym);
     int	*nc = INTEGER(GET_SLOT(x, Matrix_ncSym)),
-	i, nf = length(Omega), vind;
+	i, nf = length(Omega), unc = asLogical(Unconstr), vind;
     SEXP val = PROTECT(allocVector(REALSXP, coef_length(nf, nc)));
     double *vv = REAL(val);
 
-    vind = 0;
+    vind = 0;			/* index in vv */
     for (i = 0; i < nf; i++) {
-	int nci = nc[i];
+	int nci = nc[i], ncip1 = nci + 1;
 	if (nci == 1) {
-	    vv[vind++] = REAL(VECTOR_ELT(Omega, i))[0];
+	    vv[vind++] = (unc ?
+			  log(REAL(VECTOR_ELT(Omega, i))[0]) :
+			  REAL(VECTOR_ELT(Omega, i))[0]);
 	} else {
-	    int j, k, odind = vind + nci, ncip1 = nci + 1;
-	    double *omgi = REAL(VECTOR_ELT(Omega, i));
-	    
-	    for (j = 0; j < nci; j++) {
-		vv[vind++] = omgi[j * ncip1];
-		for (k = j + 1; k < nci; k++) {
-		    vv[odind++] = omgi[k*nci + j];
+	    if (unc) {		/* L log(D) L' factor of Omega[i,,] */
+		int j, k, ncisq = nci * nci;
+		double *tmp = Memcpy(Calloc(ncisq, double), 
+				     REAL(VECTOR_ELT(Omega, i)), ncisq);
+		F77_CALL(dpotrf)("U", &nci, tmp, &nci, &j);
+		if (j)		/* should never happen */
+		    error("DPOTRF returned error code %d on Omega[[%d]]",
+			  j, i+1);
+		for (j = 0; j < nci; j++) {
+		    double diagj = tmp[j * ncip1];
+		    vv[vind++] = 2. * log(diagj);
+		    for (k = j + 1; k < nci; k++) {
+			tmp[j + k * nci] /= diagj;
+		    }
 		}
+		for (j = 0; j < nci; j++) {
+		    for (k = j + 1; k < nci; k++) {
+			vv[vind++] = tmp[j + k * nci];
+		    }
+		}
+		Free(tmp);
+	    } else {		/* upper triangle of Omega[i,,] */
+		int j, k, odind = vind + nci;
+		double *omgi = REAL(VECTOR_ELT(Omega, i));
+
+		for (j = 0; j < nci; j++) {
+		    vv[vind++] = omgi[j * ncip1];
+		    for (k = j + 1; k < nci; k++) {
+			vv[odind++] = omgi[k*nci + j];
+		    }
+		}
+		vind = odind;
 	    }
-	    vind = odind;
 	}
     }
     UNPROTECT(1);
@@ -1058,12 +1083,13 @@ SEXP ssclme_coefGetsUnc(SEXP x, SEXP coef)
  * 
  * @return R_NilValue
  */
-SEXP ssclme_coefGets(SEXP x, SEXP coef)
+SEXP ssclme_coefGets(SEXP x, SEXP coef, SEXP Unc)
 {
     SEXP Omega = GET_SLOT(x, Matrix_OmegaSym);
     int	*nc = INTEGER(GET_SLOT(x, Matrix_ncSym)),
+	*status = LOGICAL(GET_SLOT(x, Matrix_statusSym)),
 	cind, i, nf = length(Omega),
-	*status = LOGICAL(GET_SLOT(x, Matrix_statusSym));
+	unc = asLogical(Unc);
     double *cc = REAL(coef);
 
     if (length(coef) != coef_length(nf, nc) || !isReal(coef))
@@ -1073,15 +1099,37 @@ SEXP ssclme_coefGets(SEXP x, SEXP coef)
     for (i = 0; i < nf; i++) {
 	int nci = nc[i];
 	if (nci == 1) {
-	    REAL(VECTOR_ELT(Omega, i))[0] = cc[cind++];
+	    REAL(VECTOR_ELT(Omega, i))[0] = (unc ?
+					     exp(cc[cind++]) :
+					     cc[cind++]);
 	} else {
-	    int j, k, odind = cind + nci, ncip1 = nci + 1;
-	    double *omgi = REAL(VECTOR_ELT(Omega, i));
-	
-	    for (j = 0; j < nci; j++) {
-		omgi[j * ncip1] = cc[cind++];
-		for (k = j + 1; k < nci; k++) {
-		    omgi[k*nci + j] = cc[odind++];
+	    int odind = cind + nci, /* off-diagonal index */
+		j, k,
+		ncip1 = nci + 1,
+		ncisq = nci * nci;
+	    double
+		*omgi = REAL(VECTOR_ELT(Omega, i));
+	    if (unc) {
+		double
+		    *tmp = Calloc(ncisq, double),
+		    diagj, one = 1., zero = 0.;
+
+		memset(omgi, 0, sizeof(double) * ncisq);
+		for (j = 0; j < nci; j++) {
+		    tmp[j * ncip1] = diagj = exp(cc[cind++]/2.);
+		    for (k = j + 1; k < nci; k++) {
+			tmp[k*nci + j] = cc[odind++] * diagj;
+		    }
+		}
+		F77_CALL(dsyrk)("U", "T", &nci, &nci, &one,
+				tmp, &nci, &zero, omgi, &nci);
+		Free(tmp);
+	    } else {
+		for (j = 0; j < nci; j++) {
+		    omgi[j * ncip1] = cc[cind++];
+		    for (k = j + 1; k < nci; k++) {
+			omgi[k*nci + j] = cc[odind++];
+		    }
 		}
 	    }
 	    cind = odind;
@@ -1091,11 +1139,84 @@ SEXP ssclme_coefGets(SEXP x, SEXP coef)
     return x;
 }
 
+
 /** 
- * Perform a number of ECME steps for the REML or ML criterion.
+ * Returns the inverse of the updated Omega matrices for an ECME
+ * iteration.  These matrices are also used in the gradient calculation.
  * 
  * @param x pointer to an ssclme object
- * @param nsteps pointer to an integer scalar giving the number of ECME steps to perform
+ * @param REML indicator of REML being used
+ * @param val pointer to a list of symmetric q_i by q_i matrices
+ */
+static void
+common_ECME_gradient(SEXP x, int REML, SEXP val)
+{
+    SEXP
+	RZXsl = GET_SLOT(x, Matrix_RZXSym),
+	bVar = GET_SLOT(x, Matrix_bVarSym);
+    int
+	*Gp = INTEGER(GET_SLOT(x, Matrix_GpSym)),
+	*nc = INTEGER(GET_SLOT(x, Matrix_ncSym)),
+	i, j, n = *INTEGER(getAttrib(RZXsl, R_DimSymbol)),
+	nf = length(val), nobs = nc[nf + 1], p = nc[nf] - 1;
+    double
+	*RZX = REAL(RZXsl),
+	*b = RZX + p * INTEGER(getAttrib(RZXsl, R_DimSymbol))[0],
+	one = 1.0, zero = 0.0;
+
+    ssclme_invert(x);
+    for (i = 0; i < nf; i++) {
+	int ki = Gp[i+1] - Gp[i],
+	    nci = nc[i],
+	    mi = ki/nci;
+	double
+	    *vali = REAL(VECTOR_ELT(val, i)),
+	    alpha = (double)(REML ? (nobs-p) : nobs)/((double) mi);
+
+	F77_CALL(dsyrk)("U", "N", &nci, &mi,
+			&alpha, b + Gp[i], &nci,
+			&zero, vali, &nci);
+	alpha = 1./((double) mi);
+	F77_CALL(dsyrk)("U", "N", &nci, &ki,
+			&alpha, REAL(VECTOR_ELT(bVar, i)), &nci,
+			&one, vali, &nci);
+	if (REML) {
+	    for (j = 0; j < p; j++) { 
+		F77_CALL(dsyrk)("U", "N", &nci, &mi,
+				&alpha, RZX + Gp[i] + j*n, &nci,
+				&one, vali, &nci);
+	    }
+	}
+    }
+}
+
+/** 
+ * Print the verbose output in the ECME iterations
+ * 
+ * @param x pointer to an ssclme object
+ * @param iter iteration number
+ * @param REML indicator of whether REML is being used
+ */
+static void EMsteps_verbose_print(SEXP x, int iter, int REML)
+{
+    SEXP coef = PROTECT(ssclme_coef(x, ScalarLogical(0)));
+    int i, lc = length(coef);
+    double *cc = REAL(coef), *dev = REAL(GET_SLOT(x, Matrix_devianceSym));
+			       
+
+    ssclme_factor(x);
+    if (iter == 0) Rprintf("  EM iterations\n");
+    Rprintf("%3d %.3f", iter, dev[REML ? 1 : 0]);
+    for (i = 0; i < lc; i++) Rprintf(" %#8g", cc[i]);
+    Rprintf("\n");
+    UNPROTECT(1);
+}
+    
+/** 
+ * Perform ECME steps for the REML or ML criterion.
+ * 
+ * @param x pointer to an ssclme object
+ * @param nsteps pointer to an integer scalar - the number of ECME steps to perform
  * @param REMLp pointer to a logical scalar indicating if REML is to be used
  * @param verb pointer to a logical scalar indicating verbose mode
  * 
@@ -1104,93 +1225,138 @@ SEXP ssclme_coefGets(SEXP x, SEXP coef)
 SEXP ssclme_EMsteps(SEXP x, SEXP nsteps, SEXP REMLp, SEXP verb)
 {
     SEXP
-	Omega = GET_SLOT(x, Matrix_OmegaSym),
-	RZXsl = GET_SLOT(x, Matrix_RZXSym),
-	ncsl = GET_SLOT(x, Matrix_ncSym),
-	bVar = GET_SLOT(x, Matrix_bVarSym);
+	Omega = GET_SLOT(x, Matrix_OmegaSym);
     int
-	*Gp = INTEGER(GET_SLOT(x, Matrix_GpSym)),
-	*dims = INTEGER(getAttrib(RZXsl, R_DimSymbol)),
-	*nc = INTEGER(ncsl),
+	*nc = INTEGER(GET_SLOT(x, Matrix_ncSym)),
 	*status = LOGICAL(GET_SLOT(x, Matrix_statusSym)),
 	REML = asLogical(REMLp),
 	i, info, iter,
-	n = dims[0],
 	nEM = asInteger(nsteps),
-	nf = length(ncsl) - 2,
-	nobs = nc[nf + 1],
-	p,
-	pp1 = dims[1],
+	nf = length(Omega),
 	verbose = asLogical(verb);
-    double
-	*RZX = REAL(RZXsl),
-	*dev = REAL(GET_SLOT(x, Matrix_devianceSym)),
-	*b,
-        alpha,
-	one = 1.,
-	zero = 0.;
 
-    p = pp1 - 1;
-    b = RZX + p * n;
-    if (verbose) {
-	SEXP coef = PROTECT(ssclme_coef(x));
-	int lc = length(coef); double *cc = REAL(coef);
-
-	ssclme_factor(x);
-	Rprintf("  EM iterations\n");
-	Rprintf("%3d %.3f", 0, dev[REML ? 1 : 0]);
-	for (i = 0; i < lc; i++) Rprintf(" %#8g", cc[i]);
-	Rprintf("\n");
-	UNPROTECT(1);
-    }
+    if (verbose) EMsteps_verbose_print(x, 0, REML);
     for (iter = 0; iter < nEM; iter++) {
-	ssclme_invert(x);
+	common_ECME_gradient(x, REML, Omega);
+	status[0] = status[1] = 0;
 	for (i = 0; i < nf; i++) {
-	    int ki = Gp[i+1] - Gp[i],
-		nci = nc[i],
-		mi = ki/nci;
-	    double
-	        *vali = REAL(VECTOR_ELT(Omega, i));
-	    
-	    alpha = ((double)(REML?(nobs-p):nobs))/((double)mi);
-	    F77_CALL(dsyrk)("U", "N", &nci, &mi,
-			    &alpha, b + Gp[i], &nci,
-			    &zero, vali, &nci);
-	    alpha = 1./((double) mi);
-	    F77_CALL(dsyrk)("U", "N", &nci, &ki,
-			    &alpha, REAL(VECTOR_ELT(bVar, i)), &nci,
-			    &one, vali, &nci);
-	    if (REML) {
-		int j;
-		for (j = 0; j < p; j++) { 
-		    F77_CALL(dsyrk)("U", "N", &nci, &mi,
-				&alpha, RZX + Gp[i] + j*n, &nci,
-				&one, vali, &nci);
-		}
-	    }
-	    F77_CALL(dpotrf)("U", &nci, vali, &nci, &info);
+	    double *vali = REAL(VECTOR_ELT(Omega, i));
+
+	    F77_CALL(dpotrf)("U", nc + i, vali, nc + i, &info);
 	    if (info)
 		error("DPOTRF returned error code %d in Omega[[%d]] update",
 		      info, i + 1);
-	    F77_CALL(dpotri)("U", &nci, vali, &nci, &info);
+	    F77_CALL(dpotri)("U", nc + i, vali, nc + i, &info);
 	    if (info)
 		error("DPOTRI returned error code %d in Omega[[%d]] update",
 		      info, i + 1);
 	}
-	status[0] = status[1] = 0;
-	if (verbose) {
-	    SEXP coef = PROTECT(ssclme_coef(x));
-	    int lc = length(coef); double *cc = REAL(coef);
-
-	    ssclme_factor(x);
-	    Rprintf("%3d %.3f", iter + 1, dev[REML ? 1 : 0]);
-	    for (i = 0; i < lc; i++) Rprintf(" %#8g", cc[i]);
-	    Rprintf("\n");
-	    UNPROTECT(1);
-	}
+	if (verbose) EMsteps_verbose_print(x, iter + 1, REML);
     }
     ssclme_factor(x);
     return R_NilValue;
+}
+
+/** 
+ * Evaluate the gradient with respect to the indicators of the
+ * positions in the Omega matrices.
+ * 
+ * @param x Pointer to an ssclme object
+ * @param REML indicator of whether REML is to be used
+ * @param val Pointer to an object of the same structure as Omega
+ */
+static void indicator_gradient(SEXP x, int REML, SEXP val)
+{
+    SEXP Omega = GET_SLOT(x, Matrix_OmegaSym);
+    int
+	*Gp = INTEGER(GET_SLOT(x, Matrix_GpSym)),
+	*nc = INTEGER(GET_SLOT(x, Matrix_ncSym)),
+	i, nf = length(Omega);
+
+    common_ECME_gradient(x, REML, val);
+    for (i = 0; i < nf; i++) {
+	int info, nci = nc[i], mi = (Gp[i+1] - Gp[i])/nci;
+	double
+	    *work = Memcpy((double *) Calloc(nci * nci, double),
+			   REAL(VECTOR_ELT(Omega, i)), nci * nci),
+	    alpha = (double) -mi, beta = (double) mi;
+
+	F77_CALL(dpotrf)("U", &nci, work, &nci, &info);
+	if (info)
+	    error("DPOTRF gave error code %d on Omega[[%d]]", info, i + 1);
+	F77_CALL(dtrtri)("U", "N", &nci, work, &nci, &info);
+	if (info)
+	    error("DPOTRI gave error code %d on Omega[[%d]]", info, i + 1);
+	F77_CALL(dsyrk)("U", "N", &nci, &nci, &alpha, work, &nci,
+			&beta, REAL(VECTOR_ELT(val, i)), &nci);
+	Free(work);
+    }
+}
+
+/** 
+ * Overwrite a gradient with respect to positions in Omega[[i]] by the
+ * gradient with respect to the unconstrained parameters.
+ * 
+ * @param grad pointer to a gradient wrt positions.  Contents are overwritten.
+ * @param Omega pointer to a list of symmetric matrices (upper storage).
+ */
+static void unconstrained_gradient(SEXP grad, SEXP Omega)
+{
+    int i, ii, j, nf = length(Omega);
+    double one = 1.0, zero = 0.0;
+
+    for (i = 0; i < nf; i++) {
+	SEXP Omegai = VECTOR_ELT(Omega, i);
+	int nci = *INTEGER(getAttrib(Omegai, R_DimSymbol)),
+	    ncisq = nci * nci, ncip1 = nci + 1;
+	double *chol =
+	    Memcpy(Calloc(ncisq, double), REAL(Omegai), ncisq),
+	    *ai = REAL(VECTOR_ELT(grad, i)),
+	    *tmp = Calloc(ncisq, double);
+
+	F77_CALL(dpotrf)("U", &nci, chol, &nci, &j);
+	if (j)
+	    error("DPOTRF gave error code %d on Omega[[%d]]", j, i + 1);
+	/* calculate and store grad[i,,] %*% t(R) */
+	for (j = 0; j < nci; j++) {
+	    F77_CALL(dsymv)("U", &nci, &one, ai, &nci, chol + j, &nci,
+			    &zero, tmp + j, &nci);
+	}
+	/* full symmetric product gives diagonals */
+	F77_CALL(dtrmm)("R", "U", "T", "N", &nci, &nci, &one, chol, &nci,
+			Memcpy(ai, tmp, ncisq), &nci);
+	/* overwrite upper triangle with gradients for positions in L' */
+	for (ii = 1; ii < nci; ii++) { 
+	    for (j = 0; j < ii; j++) {
+		ai[j + ii*nci] = 2. * chol[j*ncip1] * tmp[j + ii*nci];
+		ai[ii + j*nci] = 0.;
+	    }
+	}
+	Free(chol); Free(tmp);
+    }
+}
+
+/** 
+ * Fills cvec with unlist(lapply(mList, function(el) el[upper.tri(el, strict = FALSE)]))
+ * 
+ * @param mList pointer to a list of REAL matrices
+ * @param nc number of columns in each matrix
+ * @param cvec pointer to REAL vector to receive the result
+ */
+static void upperTriList_to_vector(SEXP mList, int *nc, SEXP cvec)
+{
+    int i, ii, j, nf = length(mList), pos = 0;
+
+    pos = 0;			/* position in vector */
+    for (i = 0; i < nf; i++) {
+	SEXP omgi = VECTOR_ELT(mList, i);
+	int nci = nc[i];
+	for (j = 0; j < nci; j++) {
+	    for (ii = 0; ii <= j; ii++) {
+		REAL(cvec)[pos++] = REAL(omgi)[ii + j * nci];
+	    }
+	}
+    }
 }
 
 /** 
@@ -1199,9 +1365,29 @@ SEXP ssclme_EMsteps(SEXP x, SEXP nsteps, SEXP REMLp, SEXP verb)
  * @param x pointer to an ssclme object
  * @param REMLp pointer to a logical scalar indicating if REML is to be used
  * @param Uncp pointer to a logical scalar indicating if the unconstrained parameterization is to be used
+ * @param Uncp pointer to a logical scalar indicating if result should be a single vector
  * 
- * @return pointer to a numeric vector of the gradient.
+ * @return pointer to the gradient as a list of matrices or as a vector.
  */
+SEXP ssclme_grad(SEXP x, SEXP REMLp, SEXP Unc, SEXP OneVector)
+{
+    SEXP ans = PROTECT(duplicate(GET_SLOT(x, Matrix_OmegaSym)));
+
+    indicator_gradient(x, asLogical(REMLp), ans);
+    if (asLogical(Unc))
+	unconstrained_gradient(ans, GET_SLOT(x, Matrix_OmegaSym));
+    if (asLogical(OneVector)) {
+	int *nc = INTEGER(GET_SLOT(x, Matrix_ncSym));
+	SEXP val = PROTECT(allocVector(REALSXP, coef_length(length(ans), nc)));
+	
+	upperTriList_to_vector(ans, nc, val);
+	UNPROTECT(2);
+	return val;
+    }
+    UNPROTECT(1);
+    return ans;
+}
+
 SEXP ssclme_gradient(SEXP x, SEXP REMLp, SEXP Uncp)
 {
     SEXP
@@ -1327,7 +1513,7 @@ SEXP ssclme_Hessian(SEXP x, SEXP REMLp, SEXP Uncp)
 			       INTEGER(GET_SLOT(x, Matrix_ncSym))),
 	unc = asLogical(Uncp);
     SEXP ans = PROTECT(allocMatrix(REALSXP, ncoef, ncoef)),
-	base = PROTECT(unc ? ssclme_coefUnc(x) : ssclme_coef(x)),
+	base = PROTECT(ssclme_coef(x, Uncp)),
 	current = PROTECT(duplicate(base)),
 	gradient;
 
@@ -1337,27 +1523,18 @@ SEXP ssclme_Hessian(SEXP x, SEXP REMLp, SEXP Uncp)
 
 	for (i = 0; i < ncoef; i++) REAL(current)[i] = REAL(base)[i];
 	REAL(current)[j] += delta/2.;
-	if (unc) {
-	    ssclme_coefGetsUnc(x, current);
-	} else {
-	    ssclme_coefGets(x, current);
-	}
+	ssclme_coefGets(x, current, Uncp);
 	PROTECT(gradient = ssclme_gradient(x, REMLp, Uncp));
 	for (i = 0; i < ncoef; i++) REAL(ans)[j * ncoef + i] = REAL(gradient)[i];
 	UNPROTECT(1);
 	REAL(current)[j] -= delta;
-	if (unc) {
-	    ssclme_coefGetsUnc(x, current);
-	} else {
-	    ssclme_coefGets(x, current);
-	}
+	ssclme_coefGets(x, current, Uncp);
 	PROTECT(gradient = ssclme_gradient(x, REMLp, Uncp));
 	for (i = 0; i < ncoef; i++)
-	    REAL(ans)[j * ncoef + i] = (REAL(ans)[j * ncoef + i] - REAL(gradient)[i])/
-		delta;
+	    REAL(ans)[j * ncoef + i] =
+		(REAL(ans)[j * ncoef + i] - REAL(gradient)[i])/ delta;
 	UNPROTECT(1);
-	/* symmetrize */
-	for (i = 0; i < j; i++) {
+	for (i = 0; i < j; i++) { /* symmetrize */
 	    REAL(ans)[j * ncoef + i] = REAL(ans)[i * ncoef + j] =
 		(REAL(ans)[j * ncoef + i] + REAL(ans)[i * ncoef + j])/2.;
 	}
@@ -1528,3 +1705,4 @@ SEXP ssclme_to_lme(SEXP call, SEXP facs, SEXP x, SEXP model, SEXP REML,
     UNPROTECT(1);
     return ans;
 }
+

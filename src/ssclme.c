@@ -1310,6 +1310,63 @@ SEXP ssclme_gradient(SEXP x, SEXP REMLp, SEXP Uncp)
 }
 
 /** 
+ * Return the Hessian of the ML or REML deviance.  This is a
+ * placeholder until I work out the evaluation of the analytic
+ * Hessian, which probably will involve several helper functions.
+ * 
+ * @param x pointer to an ssclme object
+ * @param REMLp pointer to a logical scalar indicating if REML is to be used
+ * @param Uncp pointer to a logical scalar indicating if the
+ * unconstrained parameterization is to be used
+ * 
+ * @return pointer to an approximate Hessian matrix
+ */
+SEXP ssclme_Hessian(SEXP x, SEXP REMLp, SEXP Uncp)
+{
+    int j, ncoef = coef_length(length(GET_SLOT(x, Matrix_OmegaSym)),
+			       INTEGER(GET_SLOT(x, Matrix_ncSym))),
+	unc = asLogical(Uncp);
+    SEXP ans = PROTECT(allocMatrix(REALSXP, ncoef, ncoef)),
+	base = PROTECT(unc ? ssclme_coefUnc(x) : ssclme_coef(x)),
+	current = PROTECT(duplicate(base)),
+	gradient;
+
+    for (j = 0; j < ncoef; j++) {
+	double delta = (REAL(base)[j] ? 1.e-7 * REAL(base)[j] : 1.e-7);
+	int i;
+
+	for (i = 0; i < ncoef; i++) REAL(current)[i] = REAL(base)[i];
+	REAL(current)[j] += delta/2.;
+	if (unc) {
+	    ssclme_coefGetsUnc(x, current);
+	} else {
+	    ssclme_coefGets(x, current);
+	}
+	PROTECT(gradient = ssclme_gradient(x, REMLp, Uncp));
+	for (i = 0; i < ncoef; i++) REAL(ans)[j * ncoef + i] = REAL(gradient)[i];
+	UNPROTECT(1);
+	REAL(current)[j] -= delta;
+	if (unc) {
+	    ssclme_coefGetsUnc(x, current);
+	} else {
+	    ssclme_coefGets(x, current);
+	}
+	PROTECT(gradient = ssclme_gradient(x, REMLp, Uncp));
+	for (i = 0; i < ncoef; i++)
+	    REAL(ans)[j * ncoef + i] = (REAL(ans)[j * ncoef + i] - REAL(gradient)[i])/
+		delta;
+	UNPROTECT(1);
+	/* symmetrize */
+	for (i = 0; i < j; i++) {
+	    REAL(ans)[j * ncoef + i] = REAL(ans)[i * ncoef + j] =
+		(REAL(ans)[j * ncoef + i] + REAL(ans)[i * ncoef + j])/2.;
+	}
+    }
+    UNPROTECT(3);
+    return ans;
+}
+
+/** 
  * Calculate and return the fitted values.
  * 
  * @param x pointer to an ssclme object

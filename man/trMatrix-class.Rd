@@ -1,7 +1,7 @@
 \name{trMatrix-class}
 \docType{class}
-\alias{%*%,geMatrix,trMatrix-method}
-\alias{%*%,trMatrix,geMatrix-method}
+\alias{\%*\%,geMatrix,trMatrix-method}
+\alias{\%*\%,trMatrix,geMatrix-method}
 \alias{coerce,trMatrix,geMatrix-method}
 \alias{coerce,trMatrix,matrix-method}
 \alias{crossprod,trMatrix,missing-method}

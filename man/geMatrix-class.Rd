@@ -1,7 +1,7 @@
 \name{geMatrix-class}
 \docType{class}
 \alias{geMatrix-class}
-\alias{%*%,geMatrix,geMatrix-method}
+\alias{\%*\%,geMatrix,geMatrix-method}
 \alias{Schur,geMatrix,logical-method}
 \alias{Schur,geMatrix,missing-method}
 \alias{coerce,matrix,geMatrix-method}

@@ -1,7 +1,7 @@
 \name{syMatrix-class}
 \docType{class}
-\alias{%*%,geMatrix,syMatrix-method}
-\alias{%*%,syMatrix,geMatrix-method}
+\alias{\%*\%,geMatrix,syMatrix-method}
+\alias{\%*\%,syMatrix,geMatrix-method}
 \alias{syMatrix-class}
 \alias{coerce,syMatrix,geMatrix-method}
 \alias{coerce,syMatrix,matrix-method}

@@ -23,6 +23,7 @@ SEXP ssclme_EMsteps(SEXP x, SEXP nsteps, SEXP REMLp, SEXP verb);
 SEXP ssclme_fitted(SEXP x, SEXP facs, SEXP mmats, SEXP useRf);
 SEXP ssclme_variances(SEXP x);
 SEXP ssclme_gradient(SEXP x, SEXP REMLp, SEXP Uncp);
+SEXP ssclme_Hessian(SEXP x, SEXP REMLp, SEXP Uncp);
 SEXP ssclme_collapse(SEXP x);
 
 #endif

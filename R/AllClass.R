@@ -159,6 +159,19 @@ setClass("corrmatrix", representation("matrix", stdDev = "numeric"))
 
 ## Compressed sparse column matrix in blocks
 setClass("cscBlocked", representation(p = "integer", i = "integer", x = "array"))
+
+## Block/block sparse symmetric matrices
+setClass("bbSparseSy", representation(x = "list", uplo = "character"))
+
+## Block/block cross tabulation
+setClass("bbCrosstab", contains = "bbSparseSy")
+
+## Block/block sparse triangular matrices
+setClass("bbSparseTr", representation(x = "list", uplo = "character",
+                                      diag = "character"))
+
+## Block/block L matrix
+setClass("bbLmat", representation(Linv = "list"), contains = "bbSparseTr")
          
 ## Representation of a linear mixed effects model
 setClass("lmeRep",

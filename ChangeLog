@@ -1,3 +1,7 @@
+2004-11-05  Douglas Bates  <bates@bates1-home>
+
+	* src/Makefile.win (SOURCES_C): Keep consistent with Makefile
+
 2004-10-27  Douglas Bates  <bates@bates1-home>
 
 	* R/pdmatrix.R: remove PACKAGE="Matrix" in .Call calls

@@ -3,6 +3,7 @@
 \alias{cscMatrix-class}
 \alias{coerce,matrix,cscMatrix-method}
 \alias{coerce,cscMatrix,tripletMatrix-method}
+\alias{coerce,cscMatrix,cscBlocked-method}
 \alias{coerce,cscMatrix,matrix-method}
 \alias{coerce,cscMatrix,geMatrix-method}
 \alias{crossprod,cscMatrix,missing-method}
@@ -38,6 +39,7 @@
   \describe{
     \item{coerce}{\code{signature(from = "matrix", to = "cscMatrix")}}
     \item{coerce}{\code{signature(from = "cscMatrix", to = "matrix")}}
+    \item{coerce}{\code{signature(from = "cscMatrix", to = "cscBlocked")}}
     \item{coerce}{\code{signature(from = "cscMatrix", to = "tripletMatrix")}}
     \item{crossprod}{\code{signature(x = "cscMatrix", y = "missing")}
       returns \code{t(x) \%*\% x} as an \code{sscMatrix} object.}

@@ -30,6 +30,10 @@ setAs("cscMatrix", "geMatrix",
       function(from)
       .Call("csc_to_geMatrix", from))
 
+setAs("cscMatrix", "cscBlocked",
+      function(from) new("cscBlocked", p = from@p, i = from@i,
+                         x = array(from@x, c(1, 1, length(from@x)))))
+
 setAs("matrix", "cscMatrix",
       function(from) {
           storage.mode(from) = "double"

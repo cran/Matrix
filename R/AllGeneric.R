@@ -3,7 +3,11 @@
 if (!isGeneric("expand")) {
     setGeneric("expand", function(x, ...) standardGeneric("expand"))
 }
-    
+
+if (!isGeneric("isNested")) {
+    setGeneric("isNested", function(object, ...) standardGeneric("isNested"))
+}
+
 if (!isGeneric("facmul")) {
     setGeneric("facmul",
                function(x, factor, y, transpose, left, ...)

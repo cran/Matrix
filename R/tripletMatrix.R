@@ -17,7 +17,7 @@ setMethod("image", "tripletMatrix",
                    cuts = 20,
                    col.regions = grey(seq(from = 0.7, to = 0, length = 100)),
                    ...) {
-              require(lattice)
+              require("lattice", character = TRUE, quietly = TRUE)
               
               matdim <- x@Dim
               levelplot(abs(x@x) ~ x@j * x@i,

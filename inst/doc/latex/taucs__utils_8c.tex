@@ -1,0 +1,215 @@
+\hypertarget{taucs__utils_8c}{
+\subsection{taucs\_\-utils.c File Reference}
+\label{taucs__utils_8c}\index{taucs_utils.c@{taucs\_\-utils.c}}
+}
+{\tt \#include \char`\"{}taucs\_\-utils.h\char`\"{}}\par
+\subsubsection*{Functions}
+\begin{CompactItemize}
+\item 
+taucs\_\-ccs\_\-matrix $\ast$ \hyperlink{taucs__utils_8c_a3}{csc\_\-taucs\_\-ptr} (SEXP A, int flags)
+\item 
+SEXP \hyperlink{taucs__utils_8c_a4}{mat\_\-from\_\-taucs} (taucs\_\-ccs\_\-matrix $\ast$tm)
+\item 
+taucs\_\-ccs\_\-matrix $\ast$ \hyperlink{taucs__utils_8c_a5}{copy\_\-csc\_\-to\_\-taucs} (SEXP A, int typ)
+\item 
+double \hyperlink{taucs__utils_8c_a6}{taucs\_\-wtime} ()
+\item 
+double \hyperlink{taucs__utils_8c_a7}{taucs\_\-ctime} ()
+\item 
+void $\ast$ \hyperlink{taucs__utils_8c_a8}{taucs\_\-malloc\_\-stub} (size\_\-t size)
+\item 
+void $\ast$ \hyperlink{taucs__utils_8c_a9}{taucs\_\-calloc\_\-stub} (size\_\-t nmemb, size\_\-t size)
+\item 
+void $\ast$ \hyperlink{taucs__utils_8c_a10}{taucs\_\-realloc\_\-stub} (void $\ast$ptr, size\_\-t size)
+\item 
+void \hyperlink{taucs__utils_8c_a11}{taucs\_\-free\_\-stub} (void $\ast$ptr)
+\item 
+double \hyperlink{taucs__utils_8c_a12}{taucs\_\-allocation\_\-amount} ()
+\item 
+int \hyperlink{taucs__utils_8c_a13}{taucs\_\-allocation\_\-count} ()
+\item 
+int \hyperlink{taucs__utils_8c_a14}{taucs\_\-allocation\_\-attempts} ()
+\item 
+void \hyperlink{taucs__utils_8c_a15}{taucs\_\-allocation\_\-assert\_\-clean} ()
+\item 
+void \hyperlink{taucs__utils_8c_a16}{taucs\_\-allocation\_\-mark\_\-clean} ()
+\item 
+void \hyperlink{taucs__utils_8c_a17}{taucs\_\-allocation\_\-induce\_\-failure} (int i)
+\item 
+int \hyperlink{taucs__utils_8c_a18}{taucs\_\-printf} (char $\ast$fmt,...)
+\item 
+double \hyperlink{taucs__utils_8c_a19}{taucs\_\-get\_\-nan} ()
+\end{CompactItemize}
+\subsubsection*{Variables}
+\begin{CompactItemize}
+\item 
+double \hyperlink{taucs__utils_8c_a0}{taucs\_\-dzero\_\-const} = 0.0
+\item 
+double \hyperlink{taucs__utils_8c_a1}{taucs\_\-done\_\-const} = 1.0
+\item 
+double \hyperlink{taucs__utils_8c_a2}{taucs\_\-dminusone\_\-const} = -1.0
+\end{CompactItemize}
+
+
+\subsubsection{Function Documentation}
+\hypertarget{taucs__utils_8c_a5}{
+\index{taucs_utils.c@{taucs\_\-utils.c}!copy_csc_to_taucs@{copy\_\-csc\_\-to\_\-taucs}}
+\index{copy_csc_to_taucs@{copy\_\-csc\_\-to\_\-taucs}!taucs_utils.c@{taucs\_\-utils.c}}
+\paragraph[copy\_\-csc\_\-to\_\-taucs]{\setlength{\rightskip}{0pt plus 5cm}taucs\_\-ccs\_\-matrix$\ast$ copy\_\-csc\_\-to\_\-taucs (SEXP {\em A}, int {\em typ})}\hfill}
+\label{taucs__utils_8c_a5}
+
+
+\hypertarget{taucs__utils_8c_a3}{
+\index{taucs_utils.c@{taucs\_\-utils.c}!csc_taucs_ptr@{csc\_\-taucs\_\-ptr}}
+\index{csc_taucs_ptr@{csc\_\-taucs\_\-ptr}!taucs_utils.c@{taucs\_\-utils.c}}
+\paragraph[csc\_\-taucs\_\-ptr]{\setlength{\rightskip}{0pt plus 5cm}taucs\_\-ccs\_\-matrix$\ast$ csc\_\-taucs\_\-ptr (SEXP {\em A}, int {\em flags})}\hfill}
+\label{taucs__utils_8c_a3}
+
+
+Create a pointer to a taucs\_\-ccs\_\-matrix from an R object that inherits from class csc\-Matrix according to the flags.
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em A}]Pointer to an object that inherits from csc\-Matrix \item[{\em flags}]taucs flags describing the matrix\end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]A taucs\_\-ccs\_\-matrix pointer to the existing storage (no copying). \end{Desc}
+\hypertarget{taucs__utils_8c_a4}{
+\index{taucs_utils.c@{taucs\_\-utils.c}!mat_from_taucs@{mat\_\-from\_\-taucs}}
+\index{mat_from_taucs@{mat\_\-from\_\-taucs}!taucs_utils.c@{taucs\_\-utils.c}}
+\paragraph[mat\_\-from\_\-taucs]{\setlength{\rightskip}{0pt plus 5cm}SEXP mat\_\-from\_\-taucs (taucs\_\-ccs\_\-matrix $\ast$ {\em tm})}\hfill}
+\label{taucs__utils_8c_a4}
+
+
+Copy a taucs\_\-ccs\_\-matrix to an R object of the appropriate class and free the storage used by the taucs\_\-ccs\_\-matrix.
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em tm}]A pointer to a taucs\_\-ccs\_\-matrix\end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]An R object of class \char`\"{}csc\-Matrix\char`\"{} or \char`\"{}ssc\-Matrix\char`\"{} or \char`\"{}tsc\-Matrix\char`\"{} \end{Desc}
+\hypertarget{taucs__utils_8c_a12}{
+\index{taucs_utils.c@{taucs\_\-utils.c}!taucs_allocation_amount@{taucs\_\-allocation\_\-amount}}
+\index{taucs_allocation_amount@{taucs\_\-allocation\_\-amount}!taucs_utils.c@{taucs\_\-utils.c}}
+\paragraph[taucs\_\-allocation\_\-amount]{\setlength{\rightskip}{0pt plus 5cm}double taucs\_\-allocation\_\-amount ()}\hfill}
+\label{taucs__utils_8c_a12}
+
+
+\hypertarget{taucs__utils_8c_a15}{
+\index{taucs_utils.c@{taucs\_\-utils.c}!taucs_allocation_assert_clean@{taucs\_\-allocation\_\-assert\_\-clean}}
+\index{taucs_allocation_assert_clean@{taucs\_\-allocation\_\-assert\_\-clean}!taucs_utils.c@{taucs\_\-utils.c}}
+\paragraph[taucs\_\-allocation\_\-assert\_\-clean]{\setlength{\rightskip}{0pt plus 5cm}void taucs\_\-allocation\_\-assert\_\-clean ()}\hfill}
+\label{taucs__utils_8c_a15}
+
+
+\hypertarget{taucs__utils_8c_a14}{
+\index{taucs_utils.c@{taucs\_\-utils.c}!taucs_allocation_attempts@{taucs\_\-allocation\_\-attempts}}
+\index{taucs_allocation_attempts@{taucs\_\-allocation\_\-attempts}!taucs_utils.c@{taucs\_\-utils.c}}
+\paragraph[taucs\_\-allocation\_\-attempts]{\setlength{\rightskip}{0pt plus 5cm}int taucs\_\-allocation\_\-attempts ()}\hfill}
+\label{taucs__utils_8c_a14}
+
+
+\hypertarget{taucs__utils_8c_a13}{
+\index{taucs_utils.c@{taucs\_\-utils.c}!taucs_allocation_count@{taucs\_\-allocation\_\-count}}
+\index{taucs_allocation_count@{taucs\_\-allocation\_\-count}!taucs_utils.c@{taucs\_\-utils.c}}
+\paragraph[taucs\_\-allocation\_\-count]{\setlength{\rightskip}{0pt plus 5cm}int taucs\_\-allocation\_\-count ()}\hfill}
+\label{taucs__utils_8c_a13}
+
+
+\hypertarget{taucs__utils_8c_a17}{
+\index{taucs_utils.c@{taucs\_\-utils.c}!taucs_allocation_induce_failure@{taucs\_\-allocation\_\-induce\_\-failure}}
+\index{taucs_allocation_induce_failure@{taucs\_\-allocation\_\-induce\_\-failure}!taucs_utils.c@{taucs\_\-utils.c}}
+\paragraph[taucs\_\-allocation\_\-induce\_\-failure]{\setlength{\rightskip}{0pt plus 5cm}void taucs\_\-allocation\_\-induce\_\-failure (int {\em i})}\hfill}
+\label{taucs__utils_8c_a17}
+
+
+\hypertarget{taucs__utils_8c_a16}{
+\index{taucs_utils.c@{taucs\_\-utils.c}!taucs_allocation_mark_clean@{taucs\_\-allocation\_\-mark\_\-clean}}
+\index{taucs_allocation_mark_clean@{taucs\_\-allocation\_\-mark\_\-clean}!taucs_utils.c@{taucs\_\-utils.c}}
+\paragraph[taucs\_\-allocation\_\-mark\_\-clean]{\setlength{\rightskip}{0pt plus 5cm}void taucs\_\-allocation\_\-mark\_\-clean ()}\hfill}
+\label{taucs__utils_8c_a16}
+
+
+\hypertarget{taucs__utils_8c_a9}{
+\index{taucs_utils.c@{taucs\_\-utils.c}!taucs_calloc_stub@{taucs\_\-calloc\_\-stub}}
+\index{taucs_calloc_stub@{taucs\_\-calloc\_\-stub}!taucs_utils.c@{taucs\_\-utils.c}}
+\paragraph[taucs\_\-calloc\_\-stub]{\setlength{\rightskip}{0pt plus 5cm}void$\ast$ taucs\_\-calloc\_\-stub (size\_\-t {\em nmemb}, size\_\-t {\em size})}\hfill}
+\label{taucs__utils_8c_a9}
+
+
+\hypertarget{taucs__utils_8c_a7}{
+\index{taucs_utils.c@{taucs\_\-utils.c}!taucs_ctime@{taucs\_\-ctime}}
+\index{taucs_ctime@{taucs\_\-ctime}!taucs_utils.c@{taucs\_\-utils.c}}
+\paragraph[taucs\_\-ctime]{\setlength{\rightskip}{0pt plus 5cm}double taucs\_\-ctime ()}\hfill}
+\label{taucs__utils_8c_a7}
+
+
+\hypertarget{taucs__utils_8c_a11}{
+\index{taucs_utils.c@{taucs\_\-utils.c}!taucs_free_stub@{taucs\_\-free\_\-stub}}
+\index{taucs_free_stub@{taucs\_\-free\_\-stub}!taucs_utils.c@{taucs\_\-utils.c}}
+\paragraph[taucs\_\-free\_\-stub]{\setlength{\rightskip}{0pt plus 5cm}void taucs\_\-free\_\-stub (void $\ast$ {\em ptr})}\hfill}
+\label{taucs__utils_8c_a11}
+
+
+\hypertarget{taucs__utils_8c_a19}{
+\index{taucs_utils.c@{taucs\_\-utils.c}!taucs_get_nan@{taucs\_\-get\_\-nan}}
+\index{taucs_get_nan@{taucs\_\-get\_\-nan}!taucs_utils.c@{taucs\_\-utils.c}}
+\paragraph[taucs\_\-get\_\-nan]{\setlength{\rightskip}{0pt plus 5cm}double taucs\_\-get\_\-nan ()}\hfill}
+\label{taucs__utils_8c_a19}
+
+
+\hypertarget{taucs__utils_8c_a8}{
+\index{taucs_utils.c@{taucs\_\-utils.c}!taucs_malloc_stub@{taucs\_\-malloc\_\-stub}}
+\index{taucs_malloc_stub@{taucs\_\-malloc\_\-stub}!taucs_utils.c@{taucs\_\-utils.c}}
+\paragraph[taucs\_\-malloc\_\-stub]{\setlength{\rightskip}{0pt plus 5cm}void$\ast$ taucs\_\-malloc\_\-stub (size\_\-t {\em size})}\hfill}
+\label{taucs__utils_8c_a8}
+
+
+\hypertarget{taucs__utils_8c_a18}{
+\index{taucs_utils.c@{taucs\_\-utils.c}!taucs_printf@{taucs\_\-printf}}
+\index{taucs_printf@{taucs\_\-printf}!taucs_utils.c@{taucs\_\-utils.c}}
+\paragraph[taucs\_\-printf]{\setlength{\rightskip}{0pt plus 5cm}int taucs\_\-printf (char $\ast$ {\em fmt},  {\em ...})}\hfill}
+\label{taucs__utils_8c_a18}
+
+
+\hypertarget{taucs__utils_8c_a10}{
+\index{taucs_utils.c@{taucs\_\-utils.c}!taucs_realloc_stub@{taucs\_\-realloc\_\-stub}}
+\index{taucs_realloc_stub@{taucs\_\-realloc\_\-stub}!taucs_utils.c@{taucs\_\-utils.c}}
+\paragraph[taucs\_\-realloc\_\-stub]{\setlength{\rightskip}{0pt plus 5cm}void$\ast$ taucs\_\-realloc\_\-stub (void $\ast$ {\em ptr}, size\_\-t {\em size})}\hfill}
+\label{taucs__utils_8c_a10}
+
+
+\hypertarget{taucs__utils_8c_a6}{
+\index{taucs_utils.c@{taucs\_\-utils.c}!taucs_wtime@{taucs\_\-wtime}}
+\index{taucs_wtime@{taucs\_\-wtime}!taucs_utils.c@{taucs\_\-utils.c}}
+\paragraph[taucs\_\-wtime]{\setlength{\rightskip}{0pt plus 5cm}double taucs\_\-wtime ()}\hfill}
+\label{taucs__utils_8c_a6}
+
+
+
+
+\subsubsection{Variable Documentation}
+\hypertarget{taucs__utils_8c_a2}{
+\index{taucs_utils.c@{taucs\_\-utils.c}!taucs_dminusone_const@{taucs\_\-dminusone\_\-const}}
+\index{taucs_dminusone_const@{taucs\_\-dminusone\_\-const}!taucs_utils.c@{taucs\_\-utils.c}}
+\paragraph[taucs\_\-dminusone\_\-const]{\setlength{\rightskip}{0pt plus 5cm}double \hyperlink{utils_8c_a2}{taucs\_\-dminusone\_\-const} = -1.0}\hfill}
+\label{taucs__utils_8c_a2}
+
+
+\hypertarget{taucs__utils_8c_a1}{
+\index{taucs_utils.c@{taucs\_\-utils.c}!taucs_done_const@{taucs\_\-done\_\-const}}
+\index{taucs_done_const@{taucs\_\-done\_\-const}!taucs_utils.c@{taucs\_\-utils.c}}
+\paragraph[taucs\_\-done\_\-const]{\setlength{\rightskip}{0pt plus 5cm}double \hyperlink{utils_8c_a1}{taucs\_\-done\_\-const} = 1.0}\hfill}
+\label{taucs__utils_8c_a1}
+
+
+\hypertarget{taucs__utils_8c_a0}{
+\index{taucs_utils.c@{taucs\_\-utils.c}!taucs_dzero_const@{taucs\_\-dzero\_\-const}}
+\index{taucs_dzero_const@{taucs\_\-dzero\_\-const}!taucs_utils.c@{taucs\_\-utils.c}}
+\paragraph[taucs\_\-dzero\_\-const]{\setlength{\rightskip}{0pt plus 5cm}double \hyperlink{utils_8c_a0}{taucs\_\-dzero\_\-const} = 0.0}\hfill}
+\label{taucs__utils_8c_a0}
+
+

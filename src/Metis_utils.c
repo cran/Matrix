@@ -1,13 +1,15 @@
 #include "Metis_utils.h"
 
 void ssc_metis_order(int n, const int Tp [], const int Ti [],
-		     idxtype* perm, idxtype* iperm)
+		     int Perm[], int iPerm[])
 {
     int  j, num_flag = 0, options_flag = 0;
-    idxtype *xadj, *adj;
+    idxtype
+	*perm = Calloc(n, idxtype), /* in case idxtype != int */
+	*iperm = Calloc(n, idxtype),
+	*xadj = Calloc(n+1, idxtype),
+	*adj = Calloc(2 * (Tp[n] - n), idxtype);
 
-    xadj = (idxtype *) R_alloc(n + 1, sizeof(idxtype));
-    adj = (idxtype *) R_alloc(2 * (Tp[n] - n), sizeof(idxtype));
 				/* temporarily use perm to store lengths */
     memset(perm, 0, sizeof(idxtype) * n);
     for (j = 0; j < n; j++) {
@@ -37,4 +39,9 @@ void ssc_metis_order(int n, const int Tp [], const int Ti [],
 	}
     }
     METIS_NodeND(&n, xadj, adj, &num_flag, &options_flag, perm, iperm);
+    for (j = 0; j < n; j++) {
+	Perm[j] = (int) perm[j];
+	iPerm[j] = (int) iperm[j];
+    }
+    Free(iperm); Free(perm); Free(xadj); Free(adj);
 }

@@ -7,9 +7,6 @@ SEXP
     Matrix_DIsqrtSym,
     Matrix_DimSym,
     Matrix_GpSym,
-    Matrix_LIiSym,
-    Matrix_LIpSym,
-    Matrix_LIxSym,
     Matrix_LiSym,
     Matrix_LpSym,
     Matrix_LxSym,
@@ -41,9 +38,6 @@ SEXP Matrix_init(void)
     Matrix_DIsqrtSym = install("DIsqrt");
     Matrix_DimSym = install("Dim");
     Matrix_GpSym = install("Gp");
-    Matrix_LIiSym = install("LIi");
-    Matrix_LIpSym = install("LIp");
-    Matrix_LIxSym = install("LIx");
     Matrix_LiSym = install("Li");
     Matrix_LpSym = install("Lp");
     Matrix_LxSym = install("Lx");
@@ -215,6 +209,15 @@ SEXP cscMatrix_set_Dim(SEXP x, int nrow)
     return x;
 }
 
+/** 
+ * Check for unsorted columns in the row indices
+ * 
+ * @param ncol number of columns
+ * @param p column pointers
+ * @param i row indices
+ * 
+ * @return 0 if all columns are sorted, otherwise 1
+ */
 int csc_unsorted_columns(int ncol, const int p[], const int i[])
 {
     int j;
@@ -227,6 +230,15 @@ int csc_unsorted_columns(int ncol, const int p[], const int i[])
     return 0;
 }
 
+/** 
+ * Sort the columns in a sparse column-oriented matrix so that each
+ * column is in increasing order of row index.
+ * 
+ * @param ncol number of columns
+ * @param p column pointers
+ * @param i row indices
+ * @param x values of nonzero elements
+ */
 void csc_sort_columns(int ncol, const int p[], int i[], double x[])
 {
     int j, maxdiff, *ord;
@@ -252,6 +264,14 @@ void csc_sort_columns(int ncol, const int p[], int i[], double x[])
     Free(ord); Free(dd);
 }
 
+/** 
+ * Check for sorted columns in an object that inherits from the
+ * cscMatrix class.  Resort the columns if necessary.
+ * 
+ * @param m pointer to an object that inherits from the cscMatrix class
+ * 
+ * @return m with the columns sorted by increasing row index
+ */
 SEXP csc_check_column_sorting(SEXP m)
 {
     int *mp = INTEGER(GET_SLOT(m, Matrix_pSym)),
@@ -423,4 +443,91 @@ LMEgradient(const double* factor, const double* A, const int nlev,
 		    fact, &one_i, &zero_d, value, &one_i);
     Free(fact);
     return value;
+}
+
+/** 
+ * Replace the value of a slot or subslot of an object in place.  This
+ * routine purposely does not copy the value of obj.  Use with caution.
+ * 
+ * @param obj object with slot to be replaced
+ * @param names vector of names.  The last element is the name of the slot to replace.  The leading elements are the names of slots and subslots of obj.
+ * @param value the replacement value for the slot
+ * 
+ * @return obj, with the named slot modified in place.
+ */
+SEXP
+nlme_replaceSlot(SEXP obj, SEXP names, SEXP value)
+{
+    int lnm1 = length(names) - 1;
+
+    if (lnm1 >= 0) {
+	SEXP comp = obj;
+	int i;
+
+	for (i = 0; i < lnm1; i++) {
+	    comp = GET_SLOT(comp, install(CHAR(STRING_ELT(names, i))));
+	}
+	SET_SLOT(comp, install(CHAR(STRING_ELT(names, lnm1))), value);
+    }
+    return obj;
+}
+
+/** 
+ * Produce a weighted copy of the matrices in MLin in the storage
+ * allocated to MLout
+ * 
+ * @param MLin input matrix list
+ * @param wts real vector of weights
+ * @param adjst adjusted response
+ * @param MLout On input a list of matrices of the same dimensions as MLin.  
+ * 
+ * @return MLout with its contents overwritten by a weighted copy of
+ * MLin according to wts with adjst overwriting the response.
+ */
+SEXP nlme_weight_matrix_list(SEXP MLin, SEXP wts, SEXP adjst, SEXP MLout)
+{
+    int i, j, n, nf;
+    SEXP lastM;
+    
+    if (!(isNewList(MLin) && isReal(wts) && isReal(adjst) && isNewList(MLout)))
+	error("Incorrect argument type");
+    nf = length(MLin);
+    if (length(MLout) != nf)
+	error("Lengths of MLin (%d) and MLout (%d) must match", nf,
+	      length(MLout));
+    n = length(wts);
+    if (length(adjst) != n)
+	error("Expected adjst to have length %d, got %d", n, length(adjst));
+    for (i = 0; i < nf; i++) {
+	SEXP Min = VECTOR_ELT(MLin, i),
+	    Mout = VECTOR_ELT(MLout, i);
+	int *din, *dout, k, nc;
+
+	if (!(isMatrix(Min) && isReal(Min)))
+	    error("component %d of MLin is not a numeric matrix", i + 1);
+	din = INTEGER(getAttrib(Min, R_DimSymbol));
+	nc = din[1];
+	if (din[0] != n)
+	    error("component %d of MLin has %d rows, expected %d", i + 1,
+		  din[0], n);
+	if (!(isMatrix(Mout) && isReal(Mout)))
+	    error("component %d of MLout is not a numeric matrix", i + 1);
+	dout = INTEGER(getAttrib(Mout, R_DimSymbol));
+	if (dout[0] != n)
+	    error("component %d of MLout has %d rows, expected %d", i + 1,
+		  dout[0], n);
+	if (dout[1] != nc)
+	    error("component %d of MLout has %d columns, expected %d", i + 1,
+		  dout[1], nc);
+	for (k = 0; k < nc; k++) {
+	    for (j = 0; j < n; j++) {
+		REAL(Mout)[j + k * n] = REAL(Min)[j + k * n] * REAL(wts)[j];
+	    }
+	}
+    }
+    lastM = VECTOR_ELT(MLout, nf - 1);
+    j = INTEGER(getAttrib(lastM, R_DimSymbol))[1] - 1;
+    for (i = 0; i < n; i++)
+	REAL(lastM)[j*n + i] = REAL(adjst)[i] * REAL(wts)[i];
+    return MLout;
 }

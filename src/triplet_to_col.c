@@ -27,7 +27,9 @@ void triplet_to_col
 	*Rj = Calloc(nz, int),
 	*W = Calloc((n_row > n_col) ? n_row : n_col, int),
 	*RowCount = Calloc(n_row, int);
-    double *Rx = Calloc(nz, double);
+    double *Rx;
+
+    if (Tx) Rx = Calloc(nz, double);
 
     /* count the entries in each row (including duplicates) */
     /* use W as workspace for row counts (including duplicates) */
@@ -53,7 +55,7 @@ void triplet_to_col
     for (k = 0 ; k < nz ; k++) {
 	p = W [Ti [k]]++ ;
 	Rj [p] = Tj [k] ;
-	Rx [p] = Tx [k] ;
+	if (Tx) Rx [p] = Tx [k] ;
     }
     /* Rp stays the same, but W [i] is advanced to the start of row i+1 */
     /* ---------------------------------------------------------------------- */
@@ -75,7 +77,7 @@ void triplet_to_col
 	    if (pj >= p1) {
 		/* this column index, j, is already in row i, at position pj */
 		/* sum the entry */
-		Rx [pj] += Rx [p] ;
+		if (Tx) Rx [pj] += Rx [p] ;
 	    } else {
 		/* keep the entry */
 		/* also keep track in W[j] of position of a_ij for case above */
@@ -84,7 +86,7 @@ void triplet_to_col
 		if (pdest != p)
 		{
 		    Rj [pdest] = j ;
-		    Rx [pdest] = Rx [p] ;
+		    if (Tx) Rx [pdest] = Rx [p] ;
 		}
 		pdest++ ;
 	    }
@@ -122,8 +124,9 @@ void triplet_to_col
 	for (p = Rp [i] ; p < Rp [i] + RowCount [i] ; p++) {
 	    cp = W [Rj [p]]++ ;
 	    Ai [cp] = i ;
-	    Ax [cp] = Rx [p] ;
+	    if (Tx) Ax [cp] = Rx [p] ;
 	}
     }
-    Free(Rp); Free(Rj); Free(W); Free(RowCount); Free(Rx);
+    Free(Rp); Free(Rj); Free(W); Free(RowCount);
+    if (Tx) Free(Rx);
 }

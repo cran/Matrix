@@ -1,7 +1,6 @@
 # Ensure that the methods package is available, initialize symbols
 .onLoad <- function(lib, pkg) {
-    require(methods)
-    require(stats)
+    require("methods", character = TRUE, quietly = TRUE)
     .Call("Matrix_init", PACKAGE = "Matrix")
 }
 
@@ -127,9 +126,6 @@ setClass("ssclme", representation =
                         DIsqrt = "numeric", # inverse square root of D
                         Dim = "integer", # Dimensions of Z'Z and LDL'
                         Gp = "integer", # Pointers to groups of columns of Z
-                        LIi = "integer", # Row indices of L^{-1}
-                        LIp = "integer", # Column pointers of L^{-1}
-                        LIx = "numeric", # Non-zero off-diagonals of L^{-1}
                         Li = "integer", # Row indices of L
                         Lp = "integer", # Column pointers of L
                         Lx = "numeric", # Non-zero, off-diagonals of L

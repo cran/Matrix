@@ -1,0 +1,92 @@
+\hypertarget{sscMatrix_8c}{
+\subsection{ssc\-Matrix.c File Reference}
+\label{sscMatrix_8c}\index{sscMatrix.c@{sscMatrix.c}}
+}
+{\tt \#include \char`\"{}ssc\-Matrix.h\char`\"{}}\par
+\subsubsection*{Functions}
+\begin{CompactItemize}
+\item 
+SEXP \hyperlink{sscMatrix_8c_a0}{ssc\-Matrix\_\-validate} (SEXP obj)
+\item 
+SEXP \hyperlink{sscMatrix_8c_a1}{ssc\-Matrix\_\-chol} (SEXP x, SEXP pivot)
+\item 
+SEXP \hyperlink{sscMatrix_8c_a2}{ssc\-Matrix\_\-matrix\_\-solve} (SEXP a, SEXP b)
+\item 
+SEXP \hyperlink{sscMatrix_8c_a3}{ssc\-Matrix\_\-inverse\_\-factor} (SEXP A)
+\item 
+SEXP \hyperlink{sscMatrix_8c_a4}{ssc\_\-transpose} (SEXP x)
+\item 
+SEXP \hyperlink{sscMatrix_8c_a5}{ssc\-Matrix\_\-to\_\-triplet} (SEXP x)
+\item 
+SEXP \hyperlink{sscMatrix_8c_a6}{ssc\-Matrix\_\-ldl\_\-symbolic} (SEXP x)
+\item 
+SEXP \hyperlink{sscMatrix_8c_a7}{ssc\-Matrix\_\-metis\_\-perm} (SEXP x)
+\item 
+SEXP \hyperlink{sscMatrix_8c_a8}{ssc\-Matrix\_\-metis\_\-ldl\_\-symbolic} (SEXP x)
+\end{CompactItemize}
+
+
+\subsubsection{Function Documentation}
+\hypertarget{sscMatrix_8c_a4}{
+\index{sscMatrix.c@{ssc\-Matrix.c}!ssc_transpose@{ssc\_\-transpose}}
+\index{ssc_transpose@{ssc\_\-transpose}!sscMatrix.c@{ssc\-Matrix.c}}
+\paragraph[ssc\_\-transpose]{\setlength{\rightskip}{0pt plus 5cm}SEXP ssc\_\-transpose (SEXP {\em x})}\hfill}
+\label{sscMatrix_8c_a4}
+
+
+\hypertarget{sscMatrix_8c_a1}{
+\index{sscMatrix.c@{ssc\-Matrix.c}!sscMatrix_chol@{sscMatrix\_\-chol}}
+\index{sscMatrix_chol@{sscMatrix\_\-chol}!sscMatrix.c@{ssc\-Matrix.c}}
+\paragraph[sscMatrix\_\-chol]{\setlength{\rightskip}{0pt plus 5cm}SEXP ssc\-Matrix\_\-chol (SEXP {\em x}, SEXP {\em pivot})}\hfill}
+\label{sscMatrix_8c_a1}
+
+
+\hypertarget{sscMatrix_8c_a3}{
+\index{sscMatrix.c@{ssc\-Matrix.c}!sscMatrix_inverse_factor@{sscMatrix\_\-inverse\_\-factor}}
+\index{sscMatrix_inverse_factor@{sscMatrix\_\-inverse\_\-factor}!sscMatrix.c@{ssc\-Matrix.c}}
+\paragraph[sscMatrix\_\-inverse\_\-factor]{\setlength{\rightskip}{0pt plus 5cm}SEXP ssc\-Matrix\_\-inverse\_\-factor (SEXP {\em A})}\hfill}
+\label{sscMatrix_8c_a3}
+
+
+\hypertarget{sscMatrix_8c_a6}{
+\index{sscMatrix.c@{ssc\-Matrix.c}!sscMatrix_ldl_symbolic@{sscMatrix\_\-ldl\_\-symbolic}}
+\index{sscMatrix_ldl_symbolic@{sscMatrix\_\-ldl\_\-symbolic}!sscMatrix.c@{ssc\-Matrix.c}}
+\paragraph[sscMatrix\_\-ldl\_\-symbolic]{\setlength{\rightskip}{0pt plus 5cm}SEXP ssc\-Matrix\_\-ldl\_\-symbolic (SEXP {\em x})}\hfill}
+\label{sscMatrix_8c_a6}
+
+
+\hypertarget{sscMatrix_8c_a2}{
+\index{sscMatrix.c@{ssc\-Matrix.c}!sscMatrix_matrix_solve@{sscMatrix\_\-matrix\_\-solve}}
+\index{sscMatrix_matrix_solve@{sscMatrix\_\-matrix\_\-solve}!sscMatrix.c@{ssc\-Matrix.c}}
+\paragraph[sscMatrix\_\-matrix\_\-solve]{\setlength{\rightskip}{0pt plus 5cm}SEXP ssc\-Matrix\_\-matrix\_\-solve (SEXP {\em a}, SEXP {\em b})}\hfill}
+\label{sscMatrix_8c_a2}
+
+
+\hypertarget{sscMatrix_8c_a8}{
+\index{sscMatrix.c@{ssc\-Matrix.c}!sscMatrix_metis_ldl_symbolic@{sscMatrix\_\-metis\_\-ldl\_\-symbolic}}
+\index{sscMatrix_metis_ldl_symbolic@{sscMatrix\_\-metis\_\-ldl\_\-symbolic}!sscMatrix.c@{ssc\-Matrix.c}}
+\paragraph[sscMatrix\_\-metis\_\-ldl\_\-symbolic]{\setlength{\rightskip}{0pt plus 5cm}SEXP ssc\-Matrix\_\-metis\_\-ldl\_\-symbolic (SEXP {\em x})}\hfill}
+\label{sscMatrix_8c_a8}
+
+
+\hypertarget{sscMatrix_8c_a7}{
+\index{sscMatrix.c@{ssc\-Matrix.c}!sscMatrix_metis_perm@{sscMatrix\_\-metis\_\-perm}}
+\index{sscMatrix_metis_perm@{sscMatrix\_\-metis\_\-perm}!sscMatrix.c@{ssc\-Matrix.c}}
+\paragraph[sscMatrix\_\-metis\_\-perm]{\setlength{\rightskip}{0pt plus 5cm}SEXP ssc\-Matrix\_\-metis\_\-perm (SEXP {\em x})}\hfill}
+\label{sscMatrix_8c_a7}
+
+
+\hypertarget{sscMatrix_8c_a5}{
+\index{sscMatrix.c@{ssc\-Matrix.c}!sscMatrix_to_triplet@{sscMatrix\_\-to\_\-triplet}}
+\index{sscMatrix_to_triplet@{sscMatrix\_\-to\_\-triplet}!sscMatrix.c@{ssc\-Matrix.c}}
+\paragraph[sscMatrix\_\-to\_\-triplet]{\setlength{\rightskip}{0pt plus 5cm}SEXP ssc\-Matrix\_\-to\_\-triplet (SEXP {\em x})}\hfill}
+\label{sscMatrix_8c_a5}
+
+
+\hypertarget{sscMatrix_8c_a0}{
+\index{sscMatrix.c@{ssc\-Matrix.c}!sscMatrix_validate@{sscMatrix\_\-validate}}
+\index{sscMatrix_validate@{sscMatrix\_\-validate}!sscMatrix.c@{ssc\-Matrix.c}}
+\paragraph[sscMatrix\_\-validate]{\setlength{\rightskip}{0pt plus 5cm}SEXP ssc\-Matrix\_\-validate (SEXP {\em obj})}\hfill}
+\label{sscMatrix_8c_a0}
+
+

@@ -5,7 +5,7 @@
 #include "metis.h"
 
 void ssc_metis_order(int n, const int Tp [], const int Ti [],
-		     idxtype* perm, idxtype* iperm);
+		     int perm[], int iperm[]);
 
 #endif
 

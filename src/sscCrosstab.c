@@ -2,26 +2,13 @@
 
 SEXP sscCrosstab(SEXP flist, SEXP upper)
 {
-    int
-	**fpt,
-	*Ap,
-	*Gp,
-	*TTi,
-	*Ti,
-	*Tj,
-	*dims,
-	i,
+    int **fpt, *Ap, *Gp, *TTi, *Ti, *Tj, *dims, i,
 	ncol = 0,
 	nfac = length(flist),
 	nfc2 = (nfac * (nfac - 1))/2, /* nfac choose 2 */
 	nobs = length(VECTOR_ELT(flist, 0)),
-	ntrpl,
-	nz,
-	pos,
-	up = asLogical(upper);
-    double
-	*TTx,
-	*Tx;
+	ntrpl, nz, pos, up = asLogical(upper);
+    double *TTx, *Tx;
     SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("sscCrosstab")));
 
     if (!isNewList(flist) || nfac < 1)
@@ -85,115 +72,56 @@ SEXP sscCrosstab(SEXP flist, SEXP upper)
     return val;
 }
 
-extern void ssclme_fill_LIp(int n, const int Parent[], int LIp[]);
-
-SEXP sscCrosstab_L_LI_sizes(SEXP ctab, SEXP permexp)
-{
-    SEXP ans = PROTECT(allocVector(INTSXP, 4));
-    int *Ai = INTEGER(GET_SLOT(ctab, Matrix_iSym)),
-	*Ap = INTEGER(GET_SLOT(ctab, Matrix_pSym)),
-	*aa = INTEGER(ans),
-	*perm = INTEGER(permexp),
-	n = INTEGER(GET_SLOT(ctab, Matrix_DimSym))[1],
-	*Lp = Calloc(n + 1, int),
-	*Parent = Calloc(n, int),
-	*Lnz = Calloc(n, int),
-	*Flag = Calloc(n, int);
-
-    ldl_symbolic(n, Ap, Ai, Lp, Parent, Lnz, Flag,
-		 (int *) NULL, (int *) NULL); /* P & Pinv */
-    aa[0] = Lp[n];
-    ssclme_fill_LIp(n, Parent, Lp);
-    aa[1] = Lp[n];
-    ssc_symbolic_permute(n, 1, perm, Ap, Ai);
-    ldl_symbolic(n, Ap, Ai, Lp, Parent, Lnz, Flag,
-		 (int *) NULL, (int *) NULL); /* P & Pinv */
-    aa[2] = Lp[n];
-    ssclme_fill_LIp(n, Parent, Lp);
-    aa[3] = Lp[n];
-    Free(Flag); Free(Lnz); Free(Parent); Free(Lp); 
-    UNPROTECT(1);
-    return ans;
-}
-
-/** 
-  * Determine the inverse of the permutation of the rows of the sparse,
-  * column-oriented matrix represented by m, n, Ap and Ai that will
-  * concentrate non-zeros in the lower rows.
-  * 
-  * @param m number of rows in the matrix
-  * @param n number of columns in the matrix
-  * @param Ap column pointers in Ai (modified)
-  * @param Ai row indices (modified)
-  * @param rperm on return contains the permutation of the rows
-  * @param cperm if non-null, on return contains the permutation of the columns
-  */
 static
-void pair_perm(int m, int n, int Ap[], int Ai[], int rperm[], int cperm[])
+void col_metis_order(int j0, int j1, int i2,
+		     const int Tp[], const int Ti[], int ans[])
 {
-    int *cc = Calloc(n, int),	/* column counts */
-	*cm = Calloc(n, int),	/* column removed */
-	*sm = Calloc(m, int),	/* sum of column removals for this row */
-	ii, j, pc,
-	*rc = Calloc(m, int);	/* row counts */
-    
-    for (j = 0; j < n; j++) {	/* initialize col counts */
-	cc[j] = Ap[j+1] - Ap[j];
-	cm[j] = 0;
-    }
-    pc = 0;
-    for (ii = m - 1; 0 <= ii; ii--) { /* fill rperm from RHS */
-	int maxrc, rr;
-	int i, mincc, p1, p3;
-	
-	mincc = m + 1;		/* find minimum positive cc */
-	for (j = 0; j < n; j++) {
-	    if (0 < cc[j] && cc[j] < mincc) mincc = cc[j];
-	    if (mincc < 2) break;
+    int j, nz = 0;		/* count off-diagonal pairs */
+    for (j = j0; j < j1; j++) {	/* columns of interest */
+	int ii, nr = 0, p2 = Tp[j + 1];
+	for (ii = Tp[j]; ii < p2; ii++) {
+	    int i = Ti[ii];
+	    if (j1 <= i && i < i2) nr++; /* verify row index */
 	}
-	
-	for (i = 0; i < m; i++) {sm[i] = rc[i] = 0;}
-	for (j = 0; j < n; j++) { /* row counts for cols where cc = mincc */
-	    if (cc[j] == mincc) {
-		int p2 = Ap[j+1];
-		for (i = Ap[j]; i < p2; i++) {
-		    rc[Ai[i]]++;
-		    sm[Ai[i]] += cm[j];
+	nz += (nr * (nr - 1))/2; /* add number of pairs of rows */
+    }
+    if (nz > 0) {		/* Form an ssc Matrix */
+	int j, n = i2 - j1,	/* number of rows */
+	    nnz = n + nz, pos;
+	int *Ap = Calloc(n + 1, int),
+	    *Ai = Calloc(nnz, int),
+	    *Tj = Calloc(nnz, int),
+	    *TTi = Calloc(nnz, int),
+	    *perm = Calloc(n, int),
+	    *iperm = Calloc(n, int);
+
+	for (j = 0; j < n; j++) { /* diagonals */
+	    TTi[j] = Tj[j] = j;
+	}
+	pos = n;
+	for (j = j0; j < j1; j++) { /* create the pairs */
+	    int ii, p2 = Tp[j + 1];
+	    for (ii = Tp[j]; ii < p2; ii++) {
+		int r1 = Ti[ii], i1;
+		if (j1 <= r1 && r1 < i2) {
+		    for (i1 = ii + 1; i1 < p2; i1++) {
+			int r2 = Ti[i1];
+			if (r2 < i2) {
+			    TTi[pos] = r2 - j1;
+			    Tj[pos] = r1 - j1;
+			    pos++;
+			}
+		    }
 		}
 	    }
 	}
-	maxrc = -1;		/* find rows with rc[i] == max(rc) */
-	for (i = 0; i < m; i++) {
-	    int ic = rc[i];
-				/* Choose first on row count.  Ties go
-	                         * to smaller sum of moved.  Ties
-	                         * there go to the last one. */
-	    if (ic > maxrc || (ic == maxrc && sm[i] >= sm[rr])) {
-		maxrc = ic;
-		rr = i;
-	    }
-	}
-
-	rperm[rr] = ii;
-
-	p1 = p3 = 0;		/* update cc, Ap and Ai */
-	for (j = 0; j < n; j++) {
-	    int p2 = Ap[j+1];
-	    for (i = Ap[j]; i < p2; i++) {
-		if (Ai[i] == rr) {
-		    cc[j]--; cm[j]++; /* move from count to removed */
-		    if (cperm && cc[j] < 1) cperm[j] = pc++;
-		} else {
-		    if (i != p1) Ai[p1] = Ai[i];
-		    p1++;
-		}
-	    }
-	    Ap[j] = p3;
-	    p3 = p1;		/* save current pos for next iteration */
-	}
-	Ap[n] = p3;
+	triplet_to_col(n, n, nnz, TTi, Tj, (double *) NULL,
+		       Ap, Ai, (double *) NULL);
+	ssc_metis_order(n, Ap, Ai, perm, iperm);
+	for (j = j1; j < i2; j++) ans[j] = j1 + iperm[j - j1];
+	Free(TTi); Free(Tj); Free(Ai); Free(Ap);
+	Free(perm); Free(iperm);
     }
-    Free(cc); Free(cm); Free(rc); 
 }
 
 SEXP sscCrosstab_groupedPerm(SEXP ctab)
@@ -208,37 +136,218 @@ SEXP sscCrosstab_groupedPerm(SEXP ctab)
 	i,
 	n = length(pSlot) - 1,	/* number of columns */
 	nf = length(GpSlot) - 1, /* number of factors */
-	*np = Calloc(n + 1, int), /* column pointers */
-	*ni = Calloc(length(iSlot) - n, int); /* row indices */
+	up;
     SEXP ans = PROTECT(allocVector(INTSXP, n));
 
-    if (toupper(*CHAR(STRING_ELT(GET_SLOT(ctab, Matrix_uploSym), 0))) != 'L')
-	error("Lower triangle required in sscCrosstab object");
+    up = toupper(*CHAR(STRING_ELT(GET_SLOT(ctab, Matrix_uploSym), 0))) != 'L';
+    if (nf > 1 && up) {			/* transpose */
+	int nz = length(iSlot);
+	int *ai = Calloc(nz, int),
+	    *ap = Calloc(n + 1, int);
+	double *ax = Calloc(nz, double);
 
+	csc_components_transpose(n, n, nz, Ap, Ai,
+				 REAL(GET_SLOT(ctab, Matrix_xSym)),
+				 ap, ai, ax);
+	Ap = ap;
+	Ai = ai;
+	Free(ax);		/* don't need values, only positions */
+    }
     for (i = 0; i < n; i++) {
 	INTEGER(ans)[i] = i;    /* initialize permutation to identity */
     }
-    np[0] = 0;
+    for (i = 1; i < nf; i++) {
+	col_metis_order(Gp[i - 1], Gp[i], Gp[i+1], Ap, Ai, INTEGER(ans));
+    }
+    if (nf > 1 && up) {Free(Ap); Free(Ai);}
+    UNPROTECT(1);
+    return ans;
+}
 
-    for (i = 1; i < nf; i++) {	/* adjacent pairs of grouping factors */
-	int j, k, p0 = 0, p1 = Gp[i-1], p2 = Gp[i], p3 = Gp[i+1];
-	
-	for (j = p1; j < p2; j++) { /* for this set of columns */
-	    int lk = Ap[j+1];
-	    for (k = Ap[j]; k < lk; k++) {
-		int ii = Ai[k];
-		if (p2 <= ii && ii < p3) { /* check the row */
-		    ni[p0++] = ii - p2;
+/** 
+ * Project the (2,1) component of an sscCrosstab object into the (2,2)
+ * component (for illustration only)
+ * 
+ * @param ctab pointer to a sscCrosstab object
+ * 
+ * @return a pointer to an sscMatrix giving the projection of the 2,1 component
+ */
+SEXP sscCrosstab_project(SEXP ctab)
+{
+    SEXP
+	GpSlot = GET_SLOT(ctab, Matrix_GpSym),
+	iSlot = GET_SLOT(ctab, Matrix_iSym),
+	pSlot = GET_SLOT(ctab, Matrix_pSym);
+    int *Ai = INTEGER(iSlot),
+	*Ap = INTEGER(pSlot),
+	*Gp = INTEGER(GpSlot),
+	j, j0, j1, i2,
+	n = length(pSlot) - 1,	/* number of columns */
+	nf = length(GpSlot) - 1, /* number of factors */
+	nz, up;
+    SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("sscMatrix")));
+
+    up = toupper(*CHAR(STRING_ELT(GET_SLOT(ctab, Matrix_uploSym), 0))) != 'L';
+    if (nf > 1 && up) {			/* transpose */
+	int nz = length(iSlot);
+	int *ai = Calloc(nz, int),
+	    *ap = Calloc(n + 1, int);
+	double *ax = Calloc(nz, double);
+
+	csc_components_transpose(n, n, nz, Ap, Ai,
+				 REAL(GET_SLOT(ctab, Matrix_xSym)),
+				 ap, ai, ax);
+	Ap = ap;
+	Ai = ai;
+	Free(ax);		/* don't need values, only positions */
+    }
+    
+    nz = 0;			/* count of off-diagonal pairs */
+    j0 = 0; j1 = Gp[1]; i2 = Gp[2];
+    for (j = j0; j < j1; j++) {	/* columns of interest */
+	int ii, nr = 0, p2 = Ap[j + 1];
+	for (ii = Ap[j]; ii < p2; ii++) {
+	    int i = Ai[ii];
+	    if (j1 <= i && i < i2) nr++; /* verify row index */
+	}
+	nz += (nr * (nr - 1))/2; /* add number of pairs of rows */
+    }
+    if (nz > 0) {		/* Form an ssc Matrix */
+	int j, n = i2 - j1,	/* number of rows */
+	    nnz = n + nz, pos;
+	int *AAp,
+	    *AAi = Calloc(nnz, int),
+	    *Tj = Calloc(nnz, int),
+	    *TTi = Calloc(nnz, int);
+	double *Ax;
+
+	SET_SLOT(ans, Matrix_pSym, allocVector(INTSXP, n + 1));
+	AAp = INTEGER(GET_SLOT(ans, Matrix_pSym));
+	for (j = 0; j < n; j++) { /* diagonals */
+	    TTi[j] = Tj[j] = j;
+	}
+	pos = n;
+	for (j = j0; j < j1; j++) { /* create the pairs */
+	    int ii, p2 = Ap[j + 1];
+	    for (ii = Ap[j]; ii < p2; ii++) {
+		int r1 = Ai[ii], i1;
+		if (j1 <= r1 && r1 < i2) {
+		    for (i1 = ii + 1; i1 < p2; i1++) {
+			int r2 = Ai[i1];
+			if (r2 < i2) {
+			    TTi[pos] = r2 - j1;
+			    Tj[pos] = r1 - j1;
+			    pos++;
+			}
+		    }
 		}
 	    }
-	    np[j + 1 - p1] = p0;
 	}
-	pair_perm(p3 - p2, p2 - p1, np, ni,
-		  INTEGER(ans) + p2, INTEGER(ans));
-	for (j = p2; j < p3; j++) INTEGER(ans)[j] += p2;
+	triplet_to_col(n, n, nnz, TTi, Tj, (double *) NULL,
+		       AAp, AAi, (double *) NULL);
+	nz = AAp[n];
+	SET_SLOT(ans, Matrix_iSym, allocVector(INTSXP, nz));
+	Memcpy(INTEGER(GET_SLOT(ans, Matrix_iSym)), AAi, nz);
+	SET_SLOT(ans, Matrix_xSym, allocVector(REALSXP, nz));
+	Ax = REAL(GET_SLOT(ans, Matrix_xSym));
+	for (j = 0; j < nz; j++) Ax[j] = 1.;
+	SET_SLOT(ans, Matrix_uploSym, ScalarString(mkChar("L")));
+	SET_SLOT(ans, Matrix_DimSym, allocVector(INTSXP, 2));
+	AAp = INTEGER(GET_SLOT(ans, Matrix_DimSym));
+	AAp[0] = AAp[1] = n;
+	Free(TTi); Free(Tj); Free(AAi);
+    }
+    if (nf > 1 && up) {Free(Ap); Free(Ai);}
+    UNPROTECT(1);
+    return ans;
+}
+
+/** 
+ * Project the first group of columns in an sscCrosstab object onto the
+ * remaining columns.
+ * 
+ * @param ctab pointer to a sscCrosstab object
+ * 
+ * @return a pointer to an sscMatrix with the projection
+ */
+SEXP sscCrosstab_project2(SEXP ctab)
+{
+    SEXP
+	GpSlot = GET_SLOT(ctab, Matrix_GpSym),
+	iSlot = GET_SLOT(ctab, Matrix_iSym),
+	pSlot = GET_SLOT(ctab, Matrix_pSym);
+    int *Ai = INTEGER(iSlot),
+	*Ap = INTEGER(pSlot),
+	*Gp = INTEGER(GpSlot),
+	i, i2, j, j1, k, k2,
+	nf = length(GpSlot) - 1, /* number of factors */
+	nz, pos, up, *AAp, *Ti, *Cp, *ind;
+    double *Ax = REAL(GET_SLOT(ctab, Matrix_xSym));
+    SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("sscMatrix")));
+    
+
+    if (nf < 2) error("sscCrosstab_project2 requires more than one group");
+    up = toupper(*CHAR(STRING_ELT(GET_SLOT(ctab, Matrix_uploSym), 0))) != 'L';
+    if (up) {			/* tranpose */
+	int n = length(pSlot) - 1;	/* number of columns */
+	int nnz = length(iSlot);
+	int *ai = Calloc(nnz, int);
+	int *ap = Calloc(n + 1, int);
+	double *ax = Calloc(nnz, double);
+
+	csc_components_transpose(n, n, nnz, Ap, Ai, Ax, ap, ai, ax);
+	Ap = ap; Ai = ai; Ax = ax;
     }
 
-    Free(np); Free(ni);
+    j1 = Gp[1]; i2 = Gp[nf];	/* group boundaries */
+    Cp = Calloc(j1, int);	/* first pos in col with row > i */
+    for (j = 0; j < j1; j++) Cp[j] = Ap[j] + 1;	/* Ap[j] is the diagonal */
+
+    nz = Ap[i2] - Ap[j1];	/* upper bound on nonzeros in result */
+    for (j = 0; j < j1; j++) {	
+	int nr = Ap[j + 1] - Ap[j] - 1;
+	nz += (nr * (nr - 1))/2; /* add number of pairs of rows below diag */
+    }
+
+    Ti = Calloc(nz, int);	/* temporary row indices */
+    SET_SLOT(ans, Matrix_pSym, allocVector(INTSXP, i2 - j1 + 1));
+    AAp = INTEGER(GET_SLOT(ans, Matrix_pSym)); /* column pointers */
+
+    AAp[0] = 0; pos = 0;
+    ind = Calloc(i2 - j1, int);	/* indicator of rows in same column */
+    for (i = j1; i < i2; i++) {
+	for (k = j1; k < i2; k++) ind[k - j1] = 0;
+	for (j = 0; j < j1; j++) {
+	    if (Ai[Cp[j]] == i) { /* go down the column */
+		k2 = Ap[j+1];
+		for(k = Cp[j] + 1; k < k2; k++) ind[Ai[k] - j1] = 1;
+		Cp[j]++;
+	    }
+	}
+	
+	Ti[pos++] = i - j1;	/* diagonal element */
+	for (k = i+1; k < i2; k++) { /* projected pairs */
+	    int ii = k - j1;
+	    if (ind[ii]) Ti[pos++] = ii;
+	}
+	k2 = Ap[i+1];
+	for (k = Ap[i] + 1; k < k2; k++) { /* previous off-diagonals */
+	    Ti[pos++] = Ai[k] - j1;
+	}
+	AAp[i - j1 + 1] = pos;
+    }
+    nz = AAp[i2 - j1];
+    SET_SLOT(ans, Matrix_iSym, allocVector(INTSXP, nz));
+    Memcpy(INTEGER(GET_SLOT(ans, Matrix_iSym)), Ti, nz);
+    SET_SLOT(ans, Matrix_xSym, allocVector(REALSXP, nz));
+    Ax = REAL(GET_SLOT(ans, Matrix_xSym));
+    for (j = 0; j < nz; j++) Ax[j] = 1.;
+    SET_SLOT(ans, Matrix_uploSym, ScalarString(mkChar("L")));
+    SET_SLOT(ans, Matrix_DimSym, allocVector(INTSXP, 2));
+    AAp = INTEGER(GET_SLOT(ans, Matrix_DimSym));
+    AAp[0] = AAp[1] = i2 - j1;
+    Free(Ti); Free(Cp); Free(ind);
+    if (up) {Free(Ap); Free(Ai); free(Ax);}
     UNPROTECT(1);
     return ans;
 }

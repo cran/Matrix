@@ -1,0 +1,84 @@
+\hypertarget{sscMatrix_8h}{
+\subsection{ssc\-Matrix.h File Reference}
+\label{sscMatrix_8h}\index{sscMatrix.h@{sscMatrix.h}}
+}
+{\tt \#include \char`\"{}taucs\_\-utils.h\char`\"{}}\par
+{\tt \#include \char`\"{}ldl.h\char`\"{}}\par
+\subsubsection*{Functions}
+\begin{CompactItemize}
+\item 
+SEXP \hyperlink{sscMatrix_8h_a0}{ssc\-Matrix\_\-validate} (SEXP x)
+\item 
+SEXP \hyperlink{sscMatrix_8h_a1}{ssc\-Matrix\_\-chol} (SEXP x, SEXP pivot)
+\item 
+SEXP \hyperlink{sscMatrix_8h_a2}{ssc\-Matrix\_\-inverse\_\-factor} (SEXP A)
+\item 
+SEXP \hyperlink{sscMatrix_8h_a3}{ssc\-Matrix\_\-matrix\_\-solve} (SEXP a, SEXP b)
+\item 
+SEXP \hyperlink{sscMatrix_8h_a4}{ssc\_\-transpose} (SEXP x)
+\item 
+SEXP \hyperlink{sscMatrix_8h_a5}{ssc\-Matrix\_\-to\_\-triplet} (SEXP x)
+\item 
+SEXP \hyperlink{sscMatrix_8h_a6}{ssc\-Matrix\_\-ldl\_\-symbolic} (SEXP x)
+\item 
+void \hyperlink{sscMatrix_8h_a7}{ssc\_\-metis\_\-order} (int n, const int Tp\mbox{[}$\,$\mbox{]}, const int Ti\mbox{[}$\,$\mbox{]}, int Perm\mbox{[}$\,$\mbox{]}, int i\-Perm\mbox{[}$\,$\mbox{]})
+\end{CompactItemize}
+
+
+\subsubsection{Function Documentation}
+\hypertarget{sscMatrix_8h_a7}{
+\index{sscMatrix.h@{ssc\-Matrix.h}!ssc_metis_order@{ssc\_\-metis\_\-order}}
+\index{ssc_metis_order@{ssc\_\-metis\_\-order}!sscMatrix.h@{ssc\-Matrix.h}}
+\paragraph[ssc\_\-metis\_\-order]{\setlength{\rightskip}{0pt plus 5cm}void ssc\_\-metis\_\-order (int {\em n}, const int {\em Tp}\mbox{[}$\,$\mbox{]}, const int {\em Ti}\mbox{[}$\,$\mbox{]}, int {\em Perm}\mbox{[}$\,$\mbox{]}, int {\em i\-Perm}\mbox{[}$\,$\mbox{]})}\hfill}
+\label{sscMatrix_8h_a7}
+
+
+\hypertarget{sscMatrix_8h_a4}{
+\index{sscMatrix.h@{ssc\-Matrix.h}!ssc_transpose@{ssc\_\-transpose}}
+\index{ssc_transpose@{ssc\_\-transpose}!sscMatrix.h@{ssc\-Matrix.h}}
+\paragraph[ssc\_\-transpose]{\setlength{\rightskip}{0pt plus 5cm}SEXP ssc\_\-transpose (SEXP {\em x})}\hfill}
+\label{sscMatrix_8h_a4}
+
+
+\hypertarget{sscMatrix_8h_a1}{
+\index{sscMatrix.h@{ssc\-Matrix.h}!sscMatrix_chol@{sscMatrix\_\-chol}}
+\index{sscMatrix_chol@{sscMatrix\_\-chol}!sscMatrix.h@{ssc\-Matrix.h}}
+\paragraph[sscMatrix\_\-chol]{\setlength{\rightskip}{0pt plus 5cm}SEXP ssc\-Matrix\_\-chol (SEXP {\em x}, SEXP {\em pivot})}\hfill}
+\label{sscMatrix_8h_a1}
+
+
+\hypertarget{sscMatrix_8h_a2}{
+\index{sscMatrix.h@{ssc\-Matrix.h}!sscMatrix_inverse_factor@{sscMatrix\_\-inverse\_\-factor}}
+\index{sscMatrix_inverse_factor@{sscMatrix\_\-inverse\_\-factor}!sscMatrix.h@{ssc\-Matrix.h}}
+\paragraph[sscMatrix\_\-inverse\_\-factor]{\setlength{\rightskip}{0pt plus 5cm}SEXP ssc\-Matrix\_\-inverse\_\-factor (SEXP {\em A})}\hfill}
+\label{sscMatrix_8h_a2}
+
+
+\hypertarget{sscMatrix_8h_a6}{
+\index{sscMatrix.h@{ssc\-Matrix.h}!sscMatrix_ldl_symbolic@{sscMatrix\_\-ldl\_\-symbolic}}
+\index{sscMatrix_ldl_symbolic@{sscMatrix\_\-ldl\_\-symbolic}!sscMatrix.h@{ssc\-Matrix.h}}
+\paragraph[sscMatrix\_\-ldl\_\-symbolic]{\setlength{\rightskip}{0pt plus 5cm}SEXP ssc\-Matrix\_\-ldl\_\-symbolic (SEXP {\em x})}\hfill}
+\label{sscMatrix_8h_a6}
+
+
+\hypertarget{sscMatrix_8h_a3}{
+\index{sscMatrix.h@{ssc\-Matrix.h}!sscMatrix_matrix_solve@{sscMatrix\_\-matrix\_\-solve}}
+\index{sscMatrix_matrix_solve@{sscMatrix\_\-matrix\_\-solve}!sscMatrix.h@{ssc\-Matrix.h}}
+\paragraph[sscMatrix\_\-matrix\_\-solve]{\setlength{\rightskip}{0pt plus 5cm}SEXP ssc\-Matrix\_\-matrix\_\-solve (SEXP {\em a}, SEXP {\em b})}\hfill}
+\label{sscMatrix_8h_a3}
+
+
+\hypertarget{sscMatrix_8h_a5}{
+\index{sscMatrix.h@{ssc\-Matrix.h}!sscMatrix_to_triplet@{sscMatrix\_\-to\_\-triplet}}
+\index{sscMatrix_to_triplet@{sscMatrix\_\-to\_\-triplet}!sscMatrix.h@{ssc\-Matrix.h}}
+\paragraph[sscMatrix\_\-to\_\-triplet]{\setlength{\rightskip}{0pt plus 5cm}SEXP ssc\-Matrix\_\-to\_\-triplet (SEXP {\em x})}\hfill}
+\label{sscMatrix_8h_a5}
+
+
+\hypertarget{sscMatrix_8h_a0}{
+\index{sscMatrix.h@{ssc\-Matrix.h}!sscMatrix_validate@{sscMatrix\_\-validate}}
+\index{sscMatrix_validate@{sscMatrix\_\-validate}!sscMatrix.h@{ssc\-Matrix.h}}
+\paragraph[sscMatrix\_\-validate]{\setlength{\rightskip}{0pt plus 5cm}SEXP ssc\-Matrix\_\-validate (SEXP {\em x})}\hfill}
+\label{sscMatrix_8h_a0}
+
+

@@ -1,0 +1,876 @@
+\indexentry{cscMatrix.c@{cscMatrix.c}|hyperpage}{3}
+\indexentry{cscMatrix.c@{csc\discretionary {-}{}{}Matrix.c}!csc_crossprod@{csc\_\discretionary {-}{}{}crossprod}|hyperpage}{3}
+\indexentry{csc_crossprod@{csc\_\discretionary {-}{}{}crossprod}!cscMatrix.c@{csc\discretionary {-}{}{}Matrix.c}|hyperpage}{3}
+\indexentry{cscMatrix.c@{csc\discretionary {-}{}{}Matrix.c}!csc_getDiag@{csc\_\discretionary {-}{}{}getDiag}|hyperpage}{3}
+\indexentry{csc_getDiag@{csc\_\discretionary {-}{}{}getDiag}!cscMatrix.c@{csc\discretionary {-}{}{}Matrix.c}|hyperpage}{3}
+\indexentry{cscMatrix.c@{csc\discretionary {-}{}{}Matrix.c}!csc_matrix_crossprod@{csc\_\discretionary {-}{}{}matrix\_\discretionary {-}{}{}crossprod}|hyperpage}{3}
+\indexentry{csc_matrix_crossprod@{csc\_\discretionary {-}{}{}matrix\_\discretionary {-}{}{}crossprod}!cscMatrix.c@{csc\discretionary {-}{}{}Matrix.c}|hyperpage}{3}
+\indexentry{cscMatrix.c@{csc\discretionary {-}{}{}Matrix.c}!csc_to_geMatrix@{csc\_\discretionary {-}{}{}to\_\discretionary {-}{}{}geMatrix}|hyperpage}{3}
+\indexentry{csc_to_geMatrix@{csc\_\discretionary {-}{}{}to\_\discretionary {-}{}{}geMatrix}!cscMatrix.c@{csc\discretionary {-}{}{}Matrix.c}|hyperpage}{3}
+\indexentry{cscMatrix.c@{csc\discretionary {-}{}{}Matrix.c}!csc_to_imagemat@{csc\_\discretionary {-}{}{}to\_\discretionary {-}{}{}imagemat}|hyperpage}{3}
+\indexentry{csc_to_imagemat@{csc\_\discretionary {-}{}{}to\_\discretionary {-}{}{}imagemat}!cscMatrix.c@{csc\discretionary {-}{}{}Matrix.c}|hyperpage}{3}
+\indexentry{cscMatrix.c@{csc\discretionary {-}{}{}Matrix.c}!csc_to_matrix@{csc\_\discretionary {-}{}{}to\_\discretionary {-}{}{}matrix}|hyperpage}{4}
+\indexentry{csc_to_matrix@{csc\_\discretionary {-}{}{}to\_\discretionary {-}{}{}matrix}!cscMatrix.c@{csc\discretionary {-}{}{}Matrix.c}|hyperpage}{4}
+\indexentry{cscMatrix.c@{csc\discretionary {-}{}{}Matrix.c}!csc_to_triplet@{csc\_\discretionary {-}{}{}to\_\discretionary {-}{}{}triplet}|hyperpage}{4}
+\indexentry{csc_to_triplet@{csc\_\discretionary {-}{}{}to\_\discretionary {-}{}{}triplet}!cscMatrix.c@{csc\discretionary {-}{}{}Matrix.c}|hyperpage}{4}
+\indexentry{cscMatrix.c@{csc\discretionary {-}{}{}Matrix.c}!csc_transpose@{csc\_\discretionary {-}{}{}transpose}|hyperpage}{4}
+\indexentry{csc_transpose@{csc\_\discretionary {-}{}{}transpose}!cscMatrix.c@{csc\discretionary {-}{}{}Matrix.c}|hyperpage}{4}
+\indexentry{cscMatrix.c@{csc\discretionary {-}{}{}Matrix.c}!csc_validate@{csc\_\discretionary {-}{}{}validate}|hyperpage}{4}
+\indexentry{csc_validate@{csc\_\discretionary {-}{}{}validate}!cscMatrix.c@{csc\discretionary {-}{}{}Matrix.c}|hyperpage}{4}
+\indexentry{cscMatrix.c@{csc\discretionary {-}{}{}Matrix.c}!matrix_to_csc@{matrix\_\discretionary {-}{}{}to\_\discretionary {-}{}{}csc}|hyperpage}{4}
+\indexentry{matrix_to_csc@{matrix\_\discretionary {-}{}{}to\_\discretionary {-}{}{}csc}!cscMatrix.c@{csc\discretionary {-}{}{}Matrix.c}|hyperpage}{4}
+\indexentry{cscMatrix.c@{csc\discretionary {-}{}{}Matrix.c}!triplet_to_csc@{triplet\_\discretionary {-}{}{}to\_\discretionary {-}{}{}csc}|hyperpage}{4}
+\indexentry{triplet_to_csc@{triplet\_\discretionary {-}{}{}to\_\discretionary {-}{}{}csc}!cscMatrix.c@{csc\discretionary {-}{}{}Matrix.c}|hyperpage}{4}
+\indexentry{cscMatrix.h@{cscMatrix.h}|hyperpage}{4}
+\indexentry{cscMatrix.h@{csc\discretionary {-}{}{}Matrix.h}!csc_crossprod@{csc\_\discretionary {-}{}{}crossprod}|hyperpage}{4}
+\indexentry{csc_crossprod@{csc\_\discretionary {-}{}{}crossprod}!cscMatrix.h@{csc\discretionary {-}{}{}Matrix.h}|hyperpage}{4}
+\indexentry{cscMatrix.h@{csc\discretionary {-}{}{}Matrix.h}!csc_getDiag@{csc\_\discretionary {-}{}{}getDiag}|hyperpage}{4}
+\indexentry{csc_getDiag@{csc\_\discretionary {-}{}{}getDiag}!cscMatrix.h@{csc\discretionary {-}{}{}Matrix.h}|hyperpage}{4}
+\indexentry{cscMatrix.h@{csc\discretionary {-}{}{}Matrix.h}!csc_matrix_crossprod@{csc\_\discretionary {-}{}{}matrix\_\discretionary {-}{}{}crossprod}|hyperpage}{5}
+\indexentry{csc_matrix_crossprod@{csc\_\discretionary {-}{}{}matrix\_\discretionary {-}{}{}crossprod}!cscMatrix.h@{csc\discretionary {-}{}{}Matrix.h}|hyperpage}{5}
+\indexentry{cscMatrix.h@{csc\discretionary {-}{}{}Matrix.h}!csc_to_geMatrix@{csc\_\discretionary {-}{}{}to\_\discretionary {-}{}{}geMatrix}|hyperpage}{5}
+\indexentry{csc_to_geMatrix@{csc\_\discretionary {-}{}{}to\_\discretionary {-}{}{}geMatrix}!cscMatrix.h@{csc\discretionary {-}{}{}Matrix.h}|hyperpage}{5}
+\indexentry{cscMatrix.h@{csc\discretionary {-}{}{}Matrix.h}!csc_to_imagemat@{csc\_\discretionary {-}{}{}to\_\discretionary {-}{}{}imagemat}|hyperpage}{5}
+\indexentry{csc_to_imagemat@{csc\_\discretionary {-}{}{}to\_\discretionary {-}{}{}imagemat}!cscMatrix.h@{csc\discretionary {-}{}{}Matrix.h}|hyperpage}{5}
+\indexentry{cscMatrix.h@{csc\discretionary {-}{}{}Matrix.h}!csc_to_matrix@{csc\_\discretionary {-}{}{}to\_\discretionary {-}{}{}matrix}|hyperpage}{5}
+\indexentry{csc_to_matrix@{csc\_\discretionary {-}{}{}to\_\discretionary {-}{}{}matrix}!cscMatrix.h@{csc\discretionary {-}{}{}Matrix.h}|hyperpage}{5}
+\indexentry{cscMatrix.h@{csc\discretionary {-}{}{}Matrix.h}!csc_to_triplet@{csc\_\discretionary {-}{}{}to\_\discretionary {-}{}{}triplet}|hyperpage}{5}
+\indexentry{csc_to_triplet@{csc\_\discretionary {-}{}{}to\_\discretionary {-}{}{}triplet}!cscMatrix.h@{csc\discretionary {-}{}{}Matrix.h}|hyperpage}{5}
+\indexentry{cscMatrix.h@{csc\discretionary {-}{}{}Matrix.h}!csc_transpose@{csc\_\discretionary {-}{}{}transpose}|hyperpage}{5}
+\indexentry{csc_transpose@{csc\_\discretionary {-}{}{}transpose}!cscMatrix.h@{csc\discretionary {-}{}{}Matrix.h}|hyperpage}{5}
+\indexentry{cscMatrix.h@{csc\discretionary {-}{}{}Matrix.h}!csc_validate@{csc\_\discretionary {-}{}{}validate}|hyperpage}{5}
+\indexentry{csc_validate@{csc\_\discretionary {-}{}{}validate}!cscMatrix.h@{csc\discretionary {-}{}{}Matrix.h}|hyperpage}{5}
+\indexentry{cscMatrix.h@{csc\discretionary {-}{}{}Matrix.h}!matrix_to_csc@{matrix\_\discretionary {-}{}{}to\_\discretionary {-}{}{}csc}|hyperpage}{5}
+\indexentry{matrix_to_csc@{matrix\_\discretionary {-}{}{}to\_\discretionary {-}{}{}csc}!cscMatrix.h@{csc\discretionary {-}{}{}Matrix.h}|hyperpage}{5}
+\indexentry{cscMatrix.h@{csc\discretionary {-}{}{}Matrix.h}!triplet_to_csc@{triplet\_\discretionary {-}{}{}to\_\discretionary {-}{}{}csc}|hyperpage}{5}
+\indexentry{triplet_to_csc@{triplet\_\discretionary {-}{}{}to\_\discretionary {-}{}{}csc}!cscMatrix.h@{csc\discretionary {-}{}{}Matrix.h}|hyperpage}{5}
+\indexentry{dense.c@{dense.c}|hyperpage}{5}
+\indexentry{dense.c@{dense.c}!checkGivens@{checkGivens}|hyperpage}{5}
+\indexentry{checkGivens@{checkGivens}!dense.c@{dense.c}|hyperpage}{5}
+\indexentry{dense.c@{dense.c}!getGivens@{getGivens}|hyperpage}{5}
+\indexentry{getGivens@{getGivens}!dense.c@{dense.c}|hyperpage}{5}
+\indexentry{dense.c@{dense.c}!lapack_qr@{lapack\_\discretionary {-}{}{}qr}|hyperpage}{6}
+\indexentry{lapack_qr@{lapack\_\discretionary {-}{}{}qr}!dense.c@{dense.c}|hyperpage}{6}
+\indexentry{dense.c@{dense.c}!left_cyclic@{left\_\discretionary {-}{}{}cyclic}|hyperpage}{6}
+\indexentry{left_cyclic@{left\_\discretionary {-}{}{}cyclic}!dense.c@{dense.c}|hyperpage}{6}
+\indexentry{dense.c@{dense.c}!lsq_dense_Chol@{lsq\_\discretionary {-}{}{}dense\_\discretionary {-}{}{}Chol}|hyperpage}{6}
+\indexentry{lsq_dense_Chol@{lsq\_\discretionary {-}{}{}dense\_\discretionary {-}{}{}Chol}!dense.c@{dense.c}|hyperpage}{6}
+\indexentry{dense.c@{dense.c}!lsq_dense_QR@{lsq\_\discretionary {-}{}{}dense\_\discretionary {-}{}{}QR}|hyperpage}{6}
+\indexentry{lsq_dense_QR@{lsq\_\discretionary {-}{}{}dense\_\discretionary {-}{}{}QR}!dense.c@{dense.c}|hyperpage}{6}
+\indexentry{dense.h@{dense.h}|hyperpage}{6}
+\indexentry{dense.h@{dense.h}!lapack_qr@{lapack\_\discretionary {-}{}{}qr}|hyperpage}{7}
+\indexentry{lapack_qr@{lapack\_\discretionary {-}{}{}qr}!dense.h@{dense.h}|hyperpage}{7}
+\indexentry{dense.h@{dense.h}!lsq_dense_Chol@{lsq\_\discretionary {-}{}{}dense\_\discretionary {-}{}{}Chol}|hyperpage}{7}
+\indexentry{lsq_dense_Chol@{lsq\_\discretionary {-}{}{}dense\_\discretionary {-}{}{}Chol}!dense.h@{dense.h}|hyperpage}{7}
+\indexentry{dense.h@{dense.h}!lsq_dense_QR@{lsq\_\discretionary {-}{}{}dense\_\discretionary {-}{}{}QR}|hyperpage}{7}
+\indexentry{lsq_dense_QR@{lsq\_\discretionary {-}{}{}dense\_\discretionary {-}{}{}QR}!dense.h@{dense.h}|hyperpage}{7}
+\indexentry{factorizations.c@{factorizations.c}|hyperpage}{7}
+\indexentry{factorizations.c@{factorizations.c}!Cholesky_validate@{Cholesky\_\discretionary {-}{}{}validate}|hyperpage}{7}
+\indexentry{Cholesky_validate@{Cholesky\_\discretionary {-}{}{}validate}!factorizations.c@{factorizations.c}|hyperpage}{7}
+\indexentry{factorizations.c@{factorizations.c}!LU_validate@{LU\_\discretionary {-}{}{}validate}|hyperpage}{7}
+\indexentry{LU_validate@{LU\_\discretionary {-}{}{}validate}!factorizations.c@{factorizations.c}|hyperpage}{7}
+\indexentry{factorizations.c@{factorizations.c}!SVD_validate@{SVD\_\discretionary {-}{}{}validate}|hyperpage}{7}
+\indexentry{SVD_validate@{SVD\_\discretionary {-}{}{}validate}!factorizations.c@{factorizations.c}|hyperpage}{7}
+\indexentry{factorizations.h@{factorizations.h}|hyperpage}{7}
+\indexentry{factorizations.h@{factorizations.h}!Cholesky_validate@{Cholesky\_\discretionary {-}{}{}validate}|hyperpage}{7}
+\indexentry{Cholesky_validate@{Cholesky\_\discretionary {-}{}{}validate}!factorizations.h@{factorizations.h}|hyperpage}{7}
+\indexentry{factorizations.h@{factorizations.h}!LU_validate@{LU\_\discretionary {-}{}{}validate}|hyperpage}{7}
+\indexentry{LU_validate@{LU\_\discretionary {-}{}{}validate}!factorizations.h@{factorizations.h}|hyperpage}{7}
+\indexentry{factorizations.h@{factorizations.h}!SVD_validate@{SVD\_\discretionary {-}{}{}validate}|hyperpage}{8}
+\indexentry{SVD_validate@{SVD\_\discretionary {-}{}{}validate}!factorizations.h@{factorizations.h}|hyperpage}{8}
+\indexentry{flame.c@{flame.c}|hyperpage}{8}
+\indexentry{flame.c@{flame.c}!FLA_Abort@{FLA\_\discretionary {-}{}{}Abort}|hyperpage}{8}
+\indexentry{FLA_Abort@{FLA\_\discretionary {-}{}{}Abort}!flame.c@{flame.c}|hyperpage}{8}
+\indexentry{flame.c@{flame.c}!lsq_Chol_flame@{lsq\_\discretionary {-}{}{}Chol\_\discretionary {-}{}{}flame}|hyperpage}{8}
+\indexentry{lsq_Chol_flame@{lsq\_\discretionary {-}{}{}Chol\_\discretionary {-}{}{}flame}!flame.c@{flame.c}|hyperpage}{8}
+\indexentry{flame.c@{flame.c}!lsq_QR_flame@{lsq\_\discretionary {-}{}{}QR\_\discretionary {-}{}{}flame}|hyperpage}{8}
+\indexentry{lsq_QR_flame@{lsq\_\discretionary {-}{}{}QR\_\discretionary {-}{}{}flame}!flame.c@{flame.c}|hyperpage}{8}
+\indexentry{flame.c@{flame.c}!R_FLA_Finalize@{R\_\discretionary {-}{}{}FLA\_\discretionary {-}{}{}Finalize}|hyperpage}{8}
+\indexentry{R_FLA_Finalize@{R\_\discretionary {-}{}{}FLA\_\discretionary {-}{}{}Finalize}!flame.c@{flame.c}|hyperpage}{8}
+\indexentry{flame.c@{flame.c}!R_FLA_Init@{R\_\discretionary {-}{}{}FLA\_\discretionary {-}{}{}Init}|hyperpage}{8}
+\indexentry{R_FLA_Init@{R\_\discretionary {-}{}{}FLA\_\discretionary {-}{}{}Init}!flame.c@{flame.c}|hyperpage}{8}
+\indexentry{flame.c@{flame.c}!R_to_FLA_copy@{R\_\discretionary {-}{}{}to\_\discretionary {-}{}{}FLA\_\discretionary {-}{}{}copy}|hyperpage}{8}
+\indexentry{R_to_FLA_copy@{R\_\discretionary {-}{}{}to\_\discretionary {-}{}{}FLA\_\discretionary {-}{}{}copy}!flame.c@{flame.c}|hyperpage}{8}
+\indexentry{flame.c@{flame.c}!R_to_FLA_inPlace@{R\_\discretionary {-}{}{}to\_\discretionary {-}{}{}FLA\_\discretionary {-}{}{}inPlace}|hyperpage}{8}
+\indexentry{R_to_FLA_inPlace@{R\_\discretionary {-}{}{}to\_\discretionary {-}{}{}FLA\_\discretionary {-}{}{}inPlace}!flame.c@{flame.c}|hyperpage}{8}
+\indexentry{flame.h@{flame.h}|hyperpage}{9}
+\indexentry{flame.h@{flame.h}!RFLAME_CHOL_NB@{RFLAME\_\discretionary {-}{}{}CHOL\_\discretionary {-}{}{}NB}|hyperpage}{9}
+\indexentry{RFLAME_CHOL_NB@{RFLAME\_\discretionary {-}{}{}CHOL\_\discretionary {-}{}{}NB}!flame.h@{flame.h}|hyperpage}{9}
+\indexentry{flame.h@{flame.h}!RFLAME_QR_NB@{RFLAME\_\discretionary {-}{}{}QR\_\discretionary {-}{}{}NB}|hyperpage}{9}
+\indexentry{RFLAME_QR_NB@{RFLAME\_\discretionary {-}{}{}QR\_\discretionary {-}{}{}NB}!flame.h@{flame.h}|hyperpage}{9}
+\indexentry{flame.h@{flame.h}!lsq_Chol_flame@{lsq\_\discretionary {-}{}{}Chol\_\discretionary {-}{}{}flame}|hyperpage}{9}
+\indexentry{lsq_Chol_flame@{lsq\_\discretionary {-}{}{}Chol\_\discretionary {-}{}{}flame}!flame.h@{flame.h}|hyperpage}{9}
+\indexentry{flame.h@{flame.h}!R_FLA_Finalize@{R\_\discretionary {-}{}{}FLA\_\discretionary {-}{}{}Finalize}|hyperpage}{9}
+\indexentry{R_FLA_Finalize@{R\_\discretionary {-}{}{}FLA\_\discretionary {-}{}{}Finalize}!flame.h@{flame.h}|hyperpage}{9}
+\indexentry{flame.h@{flame.h}!R_FLA_Init@{R\_\discretionary {-}{}{}FLA\_\discretionary {-}{}{}Init}|hyperpage}{9}
+\indexentry{R_FLA_Init@{R\_\discretionary {-}{}{}FLA\_\discretionary {-}{}{}Init}!flame.h@{flame.h}|hyperpage}{9}
+\indexentry{flame.h@{flame.h}!R_to_FLA_copy@{R\_\discretionary {-}{}{}to\_\discretionary {-}{}{}FLA\_\discretionary {-}{}{}copy}|hyperpage}{9}
+\indexentry{R_to_FLA_copy@{R\_\discretionary {-}{}{}to\_\discretionary {-}{}{}FLA\_\discretionary {-}{}{}copy}!flame.h@{flame.h}|hyperpage}{9}
+\indexentry{flame.h@{flame.h}!R_to_FLA_inPlace@{R\_\discretionary {-}{}{}to\_\discretionary {-}{}{}FLA\_\discretionary {-}{}{}inPlace}|hyperpage}{9}
+\indexentry{R_to_FLA_inPlace@{R\_\discretionary {-}{}{}to\_\discretionary {-}{}{}FLA\_\discretionary {-}{}{}inPlace}!flame.h@{flame.h}|hyperpage}{9}
+\indexentry{geMatrix.c@{geMatrix.c}|hyperpage}{10}
+\indexentry{geMatrix.c@{ge\discretionary {-}{}{}Matrix.c}!geMatrix_crossprod@{geMatrix\_\discretionary {-}{}{}crossprod}|hyperpage}{10}
+\indexentry{geMatrix_crossprod@{geMatrix\_\discretionary {-}{}{}crossprod}!geMatrix.c@{ge\discretionary {-}{}{}Matrix.c}|hyperpage}{10}
+\indexentry{geMatrix.c@{ge\discretionary {-}{}{}Matrix.c}!geMatrix_determinant@{geMatrix\_\discretionary {-}{}{}determinant}|hyperpage}{10}
+\indexentry{geMatrix_determinant@{geMatrix\_\discretionary {-}{}{}determinant}!geMatrix.c@{ge\discretionary {-}{}{}Matrix.c}|hyperpage}{10}
+\indexentry{geMatrix.c@{ge\discretionary {-}{}{}Matrix.c}!geMatrix_geMatrix_crossprod@{geMatrix\_\discretionary {-}{}{}geMatrix\_\discretionary {-}{}{}crossprod}|hyperpage}{10}
+\indexentry{geMatrix_geMatrix_crossprod@{geMatrix\_\discretionary {-}{}{}geMatrix\_\discretionary {-}{}{}crossprod}!geMatrix.c@{ge\discretionary {-}{}{}Matrix.c}|hyperpage}{10}
+\indexentry{geMatrix.c@{ge\discretionary {-}{}{}Matrix.c}!geMatrix_geMatrix_mm@{geMatrix\_\discretionary {-}{}{}geMatrix\_\discretionary {-}{}{}mm}|hyperpage}{10}
+\indexentry{geMatrix_geMatrix_mm@{geMatrix\_\discretionary {-}{}{}geMatrix\_\discretionary {-}{}{}mm}!geMatrix.c@{ge\discretionary {-}{}{}Matrix.c}|hyperpage}{10}
+\indexentry{geMatrix.c@{ge\discretionary {-}{}{}Matrix.c}!geMatrix_getDiag@{geMatrix\_\discretionary {-}{}{}getDiag}|hyperpage}{10}
+\indexentry{geMatrix_getDiag@{geMatrix\_\discretionary {-}{}{}getDiag}!geMatrix.c@{ge\discretionary {-}{}{}Matrix.c}|hyperpage}{10}
+\indexentry{geMatrix.c@{ge\discretionary {-}{}{}Matrix.c}!geMatrix_LU@{geMatrix\_\discretionary {-}{}{}LU}|hyperpage}{10}
+\indexentry{geMatrix_LU@{geMatrix\_\discretionary {-}{}{}LU}!geMatrix.c@{ge\discretionary {-}{}{}Matrix.c}|hyperpage}{10}
+\indexentry{geMatrix.c@{ge\discretionary {-}{}{}Matrix.c}!geMatrix_matrix_crossprod@{geMatrix\_\discretionary {-}{}{}matrix\_\discretionary {-}{}{}crossprod}|hyperpage}{10}
+\indexentry{geMatrix_matrix_crossprod@{geMatrix\_\discretionary {-}{}{}matrix\_\discretionary {-}{}{}crossprod}!geMatrix.c@{ge\discretionary {-}{}{}Matrix.c}|hyperpage}{10}
+\indexentry{geMatrix.c@{ge\discretionary {-}{}{}Matrix.c}!geMatrix_norm@{geMatrix\_\discretionary {-}{}{}norm}|hyperpage}{10}
+\indexentry{geMatrix_norm@{geMatrix\_\discretionary {-}{}{}norm}!geMatrix.c@{ge\discretionary {-}{}{}Matrix.c}|hyperpage}{10}
+\indexentry{geMatrix.c@{ge\discretionary {-}{}{}Matrix.c}!geMatrix_rcond@{geMatrix\_\discretionary {-}{}{}rcond}|hyperpage}{10}
+\indexentry{geMatrix_rcond@{geMatrix\_\discretionary {-}{}{}rcond}!geMatrix.c@{ge\discretionary {-}{}{}Matrix.c}|hyperpage}{10}
+\indexentry{geMatrix.c@{ge\discretionary {-}{}{}Matrix.c}!geMatrix_solve@{geMatrix\_\discretionary {-}{}{}solve}|hyperpage}{11}
+\indexentry{geMatrix_solve@{geMatrix\_\discretionary {-}{}{}solve}!geMatrix.c@{ge\discretionary {-}{}{}Matrix.c}|hyperpage}{11}
+\indexentry{geMatrix.c@{ge\discretionary {-}{}{}Matrix.c}!geMatrix_validate@{geMatrix\_\discretionary {-}{}{}validate}|hyperpage}{11}
+\indexentry{geMatrix_validate@{geMatrix\_\discretionary {-}{}{}validate}!geMatrix.c@{ge\discretionary {-}{}{}Matrix.c}|hyperpage}{11}
+\indexentry{geMatrix.c@{ge\discretionary {-}{}{}Matrix.c}!get_norm@{get\_\discretionary {-}{}{}norm}|hyperpage}{11}
+\indexentry{get_norm@{get\_\discretionary {-}{}{}norm}!geMatrix.c@{ge\discretionary {-}{}{}Matrix.c}|hyperpage}{11}
+\indexentry{geMatrix.c@{ge\discretionary {-}{}{}Matrix.c}!set_rcond@{set\_\discretionary {-}{}{}rcond}|hyperpage}{11}
+\indexentry{set_rcond@{set\_\discretionary {-}{}{}rcond}!geMatrix.c@{ge\discretionary {-}{}{}Matrix.c}|hyperpage}{11}
+\indexentry{geMatrix.h@{geMatrix.h}|hyperpage}{11}
+\indexentry{geMatrix.h@{ge\discretionary {-}{}{}Matrix.h}!geMatrix_crossprod@{geMatrix\_\discretionary {-}{}{}crossprod}|hyperpage}{11}
+\indexentry{geMatrix_crossprod@{geMatrix\_\discretionary {-}{}{}crossprod}!geMatrix.h@{ge\discretionary {-}{}{}Matrix.h}|hyperpage}{11}
+\indexentry{geMatrix.h@{ge\discretionary {-}{}{}Matrix.h}!geMatrix_determinant@{geMatrix\_\discretionary {-}{}{}determinant}|hyperpage}{11}
+\indexentry{geMatrix_determinant@{geMatrix\_\discretionary {-}{}{}determinant}!geMatrix.h@{ge\discretionary {-}{}{}Matrix.h}|hyperpage}{11}
+\indexentry{geMatrix.h@{ge\discretionary {-}{}{}Matrix.h}!geMatrix_geMatrix_crossprod@{geMatrix\_\discretionary {-}{}{}geMatrix\_\discretionary {-}{}{}crossprod}|hyperpage}{11}
+\indexentry{geMatrix_geMatrix_crossprod@{geMatrix\_\discretionary {-}{}{}geMatrix\_\discretionary {-}{}{}crossprod}!geMatrix.h@{ge\discretionary {-}{}{}Matrix.h}|hyperpage}{11}
+\indexentry{geMatrix.h@{ge\discretionary {-}{}{}Matrix.h}!geMatrix_geMatrix_mm@{geMatrix\_\discretionary {-}{}{}geMatrix\_\discretionary {-}{}{}mm}|hyperpage}{11}
+\indexentry{geMatrix_geMatrix_mm@{geMatrix\_\discretionary {-}{}{}geMatrix\_\discretionary {-}{}{}mm}!geMatrix.h@{ge\discretionary {-}{}{}Matrix.h}|hyperpage}{11}
+\indexentry{geMatrix.h@{ge\discretionary {-}{}{}Matrix.h}!geMatrix_getDiag@{geMatrix\_\discretionary {-}{}{}getDiag}|hyperpage}{11}
+\indexentry{geMatrix_getDiag@{geMatrix\_\discretionary {-}{}{}getDiag}!geMatrix.h@{ge\discretionary {-}{}{}Matrix.h}|hyperpage}{11}
+\indexentry{geMatrix.h@{ge\discretionary {-}{}{}Matrix.h}!geMatrix_LU@{geMatrix\_\discretionary {-}{}{}LU}|hyperpage}{12}
+\indexentry{geMatrix_LU@{geMatrix\_\discretionary {-}{}{}LU}!geMatrix.h@{ge\discretionary {-}{}{}Matrix.h}|hyperpage}{12}
+\indexentry{geMatrix.h@{ge\discretionary {-}{}{}Matrix.h}!geMatrix_matrix_crossprod@{geMatrix\_\discretionary {-}{}{}matrix\_\discretionary {-}{}{}crossprod}|hyperpage}{12}
+\indexentry{geMatrix_matrix_crossprod@{geMatrix\_\discretionary {-}{}{}matrix\_\discretionary {-}{}{}crossprod}!geMatrix.h@{ge\discretionary {-}{}{}Matrix.h}|hyperpage}{12}
+\indexentry{geMatrix.h@{ge\discretionary {-}{}{}Matrix.h}!geMatrix_norm@{geMatrix\_\discretionary {-}{}{}norm}|hyperpage}{12}
+\indexentry{geMatrix_norm@{geMatrix\_\discretionary {-}{}{}norm}!geMatrix.h@{ge\discretionary {-}{}{}Matrix.h}|hyperpage}{12}
+\indexentry{geMatrix.h@{ge\discretionary {-}{}{}Matrix.h}!geMatrix_solve@{geMatrix\_\discretionary {-}{}{}solve}|hyperpage}{12}
+\indexentry{geMatrix_solve@{geMatrix\_\discretionary {-}{}{}solve}!geMatrix.h@{ge\discretionary {-}{}{}Matrix.h}|hyperpage}{12}
+\indexentry{geMatrix.h@{ge\discretionary {-}{}{}Matrix.h}!geMatrix_validate@{geMatrix\_\discretionary {-}{}{}validate}|hyperpage}{12}
+\indexentry{geMatrix_validate@{geMatrix\_\discretionary {-}{}{}validate}!geMatrix.h@{ge\discretionary {-}{}{}Matrix.h}|hyperpage}{12}
+\indexentry{geMutils.c@{geMutils.c}|hyperpage}{12}
+\indexentry{geMutils.c@{ge\discretionary {-}{}{}Mutils.c}!as_det_obj@{as\_\discretionary {-}{}{}det\_\discretionary {-}{}{}obj}|hyperpage}{12}
+\indexentry{as_det_obj@{as\_\discretionary {-}{}{}det\_\discretionary {-}{}{}obj}!geMutils.c@{ge\discretionary {-}{}{}Mutils.c}|hyperpage}{12}
+\indexentry{geMutils.c@{ge\discretionary {-}{}{}Mutils.c}!cscMatrix_set_Dim@{cscMatrix\_\discretionary {-}{}{}set\_\discretionary {-}{}{}Dim}|hyperpage}{12}
+\indexentry{cscMatrix_set_Dim@{cscMatrix\_\discretionary {-}{}{}set\_\discretionary {-}{}{}Dim}!geMutils.c@{ge\discretionary {-}{}{}Mutils.c}|hyperpage}{12}
+\indexentry{geMutils.c@{ge\discretionary {-}{}{}Mutils.c}!get_double_by_name@{get\_\discretionary {-}{}{}double\_\discretionary {-}{}{}by\_\discretionary {-}{}{}name}|hyperpage}{12}
+\indexentry{get_double_by_name@{get\_\discretionary {-}{}{}double\_\discretionary {-}{}{}by\_\discretionary {-}{}{}name}!geMutils.c@{ge\discretionary {-}{}{}Mutils.c}|hyperpage}{12}
+\indexentry{geMutils.c@{ge\discretionary {-}{}{}Mutils.c}!get_factorization@{get\_\discretionary {-}{}{}factorization}|hyperpage}{12}
+\indexentry{get_factorization@{get\_\discretionary {-}{}{}factorization}!geMutils.c@{ge\discretionary {-}{}{}Mutils.c}|hyperpage}{12}
+\indexentry{geMutils.c@{ge\discretionary {-}{}{}Mutils.c}!Matrix_init@{Matrix\_\discretionary {-}{}{}init}|hyperpage}{12}
+\indexentry{Matrix_init@{Matrix\_\discretionary {-}{}{}init}!geMutils.c@{ge\discretionary {-}{}{}Mutils.c}|hyperpage}{12}
+\indexentry{geMutils.c@{ge\discretionary {-}{}{}Mutils.c}!norm_type@{norm\_\discretionary {-}{}{}type}|hyperpage}{13}
+\indexentry{norm_type@{norm\_\discretionary {-}{}{}type}!geMutils.c@{ge\discretionary {-}{}{}Mutils.c}|hyperpage}{13}
+\indexentry{geMutils.c@{ge\discretionary {-}{}{}Mutils.c}!rcond_type@{rcond\_\discretionary {-}{}{}type}|hyperpage}{13}
+\indexentry{rcond_type@{rcond\_\discretionary {-}{}{}type}!geMutils.c@{ge\discretionary {-}{}{}Mutils.c}|hyperpage}{13}
+\indexentry{geMutils.c@{ge\discretionary {-}{}{}Mutils.c}!set_double_by_name@{set\_\discretionary {-}{}{}double\_\discretionary {-}{}{}by\_\discretionary {-}{}{}name}|hyperpage}{13}
+\indexentry{set_double_by_name@{set\_\discretionary {-}{}{}double\_\discretionary {-}{}{}by\_\discretionary {-}{}{}name}!geMutils.c@{ge\discretionary {-}{}{}Mutils.c}|hyperpage}{13}
+\indexentry{geMutils.c@{ge\discretionary {-}{}{}Mutils.c}!set_factorization@{set\_\discretionary {-}{}{}factorization}|hyperpage}{13}
+\indexentry{set_factorization@{set\_\discretionary {-}{}{}factorization}!geMutils.c@{ge\discretionary {-}{}{}Mutils.c}|hyperpage}{13}
+\indexentry{geMutils.h@{geMutils.h}|hyperpage}{13}
+\indexentry{geMutils.h@{ge\discretionary {-}{}{}Mutils.h}!as_det_obj@{as\_\discretionary {-}{}{}det\_\discretionary {-}{}{}obj}|hyperpage}{13}
+\indexentry{as_det_obj@{as\_\discretionary {-}{}{}det\_\discretionary {-}{}{}obj}!geMutils.h@{ge\discretionary {-}{}{}Mutils.h}|hyperpage}{13}
+\indexentry{geMutils.h@{ge\discretionary {-}{}{}Mutils.h}!cscMatrix_set_Dim@{cscMatrix\_\discretionary {-}{}{}set\_\discretionary {-}{}{}Dim}|hyperpage}{13}
+\indexentry{cscMatrix_set_Dim@{cscMatrix\_\discretionary {-}{}{}set\_\discretionary {-}{}{}Dim}!geMutils.h@{ge\discretionary {-}{}{}Mutils.h}|hyperpage}{13}
+\indexentry{geMutils.h@{ge\discretionary {-}{}{}Mutils.h}!get_double_by_name@{get\_\discretionary {-}{}{}double\_\discretionary {-}{}{}by\_\discretionary {-}{}{}name}|hyperpage}{14}
+\indexentry{get_double_by_name@{get\_\discretionary {-}{}{}double\_\discretionary {-}{}{}by\_\discretionary {-}{}{}name}!geMutils.h@{ge\discretionary {-}{}{}Mutils.h}|hyperpage}{14}
+\indexentry{geMutils.h@{ge\discretionary {-}{}{}Mutils.h}!get_factorization@{get\_\discretionary {-}{}{}factorization}|hyperpage}{14}
+\indexentry{get_factorization@{get\_\discretionary {-}{}{}factorization}!geMutils.h@{ge\discretionary {-}{}{}Mutils.h}|hyperpage}{14}
+\indexentry{geMutils.h@{ge\discretionary {-}{}{}Mutils.h}!norm_type@{norm\_\discretionary {-}{}{}type}|hyperpage}{14}
+\indexentry{norm_type@{norm\_\discretionary {-}{}{}type}!geMutils.h@{ge\discretionary {-}{}{}Mutils.h}|hyperpage}{14}
+\indexentry{geMutils.h@{ge\discretionary {-}{}{}Mutils.h}!rcond_type@{rcond\_\discretionary {-}{}{}type}|hyperpage}{14}
+\indexentry{rcond_type@{rcond\_\discretionary {-}{}{}type}!geMutils.h@{ge\discretionary {-}{}{}Mutils.h}|hyperpage}{14}
+\indexentry{geMutils.h@{ge\discretionary {-}{}{}Mutils.h}!set_double_by_name@{set\_\discretionary {-}{}{}double\_\discretionary {-}{}{}by\_\discretionary {-}{}{}name}|hyperpage}{14}
+\indexentry{set_double_by_name@{set\_\discretionary {-}{}{}double\_\discretionary {-}{}{}by\_\discretionary {-}{}{}name}!geMutils.h@{ge\discretionary {-}{}{}Mutils.h}|hyperpage}{14}
+\indexentry{geMutils.h@{ge\discretionary {-}{}{}Mutils.h}!set_factorization@{set\_\discretionary {-}{}{}factorization}|hyperpage}{14}
+\indexentry{set_factorization@{set\_\discretionary {-}{}{}factorization}!geMutils.h@{ge\discretionary {-}{}{}Mutils.h}|hyperpage}{14}
+\indexentry{geMutils.h@{ge\discretionary {-}{}{}Mutils.h}!Matrix_diagSym@{Matrix\_\discretionary {-}{}{}diagSym}|hyperpage}{14}
+\indexentry{Matrix_diagSym@{Matrix\_\discretionary {-}{}{}diagSym}!geMutils.h@{ge\discretionary {-}{}{}Mutils.h}|hyperpage}{14}
+\indexentry{geMutils.h@{ge\discretionary {-}{}{}Mutils.h}!Matrix_DimSym@{Matrix\_\discretionary {-}{}{}DimSym}|hyperpage}{14}
+\indexentry{Matrix_DimSym@{Matrix\_\discretionary {-}{}{}DimSym}!geMutils.h@{ge\discretionary {-}{}{}Mutils.h}|hyperpage}{14}
+\indexentry{geMutils.h@{ge\discretionary {-}{}{}Mutils.h}!Matrix_iSym@{Matrix\_\discretionary {-}{}{}iSym}|hyperpage}{14}
+\indexentry{Matrix_iSym@{Matrix\_\discretionary {-}{}{}iSym}!geMutils.h@{ge\discretionary {-}{}{}Mutils.h}|hyperpage}{14}
+\indexentry{geMutils.h@{ge\discretionary {-}{}{}Mutils.h}!Matrix_pSym@{Matrix\_\discretionary {-}{}{}pSym}|hyperpage}{14}
+\indexentry{Matrix_pSym@{Matrix\_\discretionary {-}{}{}pSym}!geMutils.h@{ge\discretionary {-}{}{}Mutils.h}|hyperpage}{14}
+\indexentry{geMutils.h@{ge\discretionary {-}{}{}Mutils.h}!Matrix_uploSym@{Matrix\_\discretionary {-}{}{}uploSym}|hyperpage}{14}
+\indexentry{Matrix_uploSym@{Matrix\_\discretionary {-}{}{}uploSym}!geMutils.h@{ge\discretionary {-}{}{}Mutils.h}|hyperpage}{14}
+\indexentry{geMutils.h@{ge\discretionary {-}{}{}Mutils.h}!Matrix_xSym@{Matrix\_\discretionary {-}{}{}xSym}|hyperpage}{14}
+\indexentry{Matrix_xSym@{Matrix\_\discretionary {-}{}{}xSym}!geMutils.h@{ge\discretionary {-}{}{}Mutils.h}|hyperpage}{14}
+\indexentry{geMutils.h@{ge\discretionary {-}{}{}Mutils.h}!Matrix_zSym@{Matrix\_\discretionary {-}{}{}zSym}|hyperpage}{14}
+\indexentry{Matrix_zSym@{Matrix\_\discretionary {-}{}{}zSym}!geMutils.h@{ge\discretionary {-}{}{}Mutils.h}|hyperpage}{14}
+\indexentry{ldl.c@{ldl.c}|hyperpage}{14}
+\indexentry{ldl.c@{ldl.c}!ldl_dsolve@{ldl\_\discretionary {-}{}{}dsolve}|hyperpage}{15}
+\indexentry{ldl_dsolve@{ldl\_\discretionary {-}{}{}dsolve}!ldl.c@{ldl.c}|hyperpage}{15}
+\indexentry{ldl.c@{ldl.c}!ldl_lsolve@{ldl\_\discretionary {-}{}{}lsolve}|hyperpage}{15}
+\indexentry{ldl_lsolve@{ldl\_\discretionary {-}{}{}lsolve}!ldl.c@{ldl.c}|hyperpage}{15}
+\indexentry{ldl.c@{ldl.c}!ldl_ltsolve@{ldl\_\discretionary {-}{}{}ltsolve}|hyperpage}{15}
+\indexentry{ldl_ltsolve@{ldl\_\discretionary {-}{}{}ltsolve}!ldl.c@{ldl.c}|hyperpage}{15}
+\indexentry{ldl.c@{ldl.c}!ldl_numeric@{ldl\_\discretionary {-}{}{}numeric}|hyperpage}{15}
+\indexentry{ldl_numeric@{ldl\_\discretionary {-}{}{}numeric}!ldl.c@{ldl.c}|hyperpage}{15}
+\indexentry{ldl.c@{ldl.c}!ldl_perm@{ldl\_\discretionary {-}{}{}perm}|hyperpage}{15}
+\indexentry{ldl_perm@{ldl\_\discretionary {-}{}{}perm}!ldl.c@{ldl.c}|hyperpage}{15}
+\indexentry{ldl.c@{ldl.c}!ldl_permt@{ldl\_\discretionary {-}{}{}permt}|hyperpage}{15}
+\indexentry{ldl_permt@{ldl\_\discretionary {-}{}{}permt}!ldl.c@{ldl.c}|hyperpage}{15}
+\indexentry{ldl.c@{ldl.c}!ldl_symbolic@{ldl\_\discretionary {-}{}{}symbolic}|hyperpage}{15}
+\indexentry{ldl_symbolic@{ldl\_\discretionary {-}{}{}symbolic}!ldl.c@{ldl.c}|hyperpage}{15}
+\indexentry{ldl.c@{ldl.c}!ldl_valid_matrix@{ldl\_\discretionary {-}{}{}valid\_\discretionary {-}{}{}matrix}|hyperpage}{15}
+\indexentry{ldl_valid_matrix@{ldl\_\discretionary {-}{}{}valid\_\discretionary {-}{}{}matrix}!ldl.c@{ldl.c}|hyperpage}{15}
+\indexentry{ldl.c@{ldl.c}!ldl_valid_perm@{ldl\_\discretionary {-}{}{}valid\_\discretionary {-}{}{}perm}|hyperpage}{15}
+\indexentry{ldl_valid_perm@{ldl\_\discretionary {-}{}{}valid\_\discretionary {-}{}{}perm}!ldl.c@{ldl.c}|hyperpage}{15}
+\indexentry{ldl.h@{ldl.h}|hyperpage}{16}
+\indexentry{ldl.h@{ldl.h}!ldl_dsolve@{ldl\_\discretionary {-}{}{}dsolve}|hyperpage}{16}
+\indexentry{ldl_dsolve@{ldl\_\discretionary {-}{}{}dsolve}!ldl.h@{ldl.h}|hyperpage}{16}
+\indexentry{ldl.h@{ldl.h}!ldl_lsolve@{ldl\_\discretionary {-}{}{}lsolve}|hyperpage}{16}
+\indexentry{ldl_lsolve@{ldl\_\discretionary {-}{}{}lsolve}!ldl.h@{ldl.h}|hyperpage}{16}
+\indexentry{ldl.h@{ldl.h}!ldl_ltsolve@{ldl\_\discretionary {-}{}{}ltsolve}|hyperpage}{16}
+\indexentry{ldl_ltsolve@{ldl\_\discretionary {-}{}{}ltsolve}!ldl.h@{ldl.h}|hyperpage}{16}
+\indexentry{ldl.h@{ldl.h}!ldl_numeric@{ldl\_\discretionary {-}{}{}numeric}|hyperpage}{16}
+\indexentry{ldl_numeric@{ldl\_\discretionary {-}{}{}numeric}!ldl.h@{ldl.h}|hyperpage}{16}
+\indexentry{ldl.h@{ldl.h}!ldl_perm@{ldl\_\discretionary {-}{}{}perm}|hyperpage}{16}
+\indexentry{ldl_perm@{ldl\_\discretionary {-}{}{}perm}!ldl.h@{ldl.h}|hyperpage}{16}
+\indexentry{ldl.h@{ldl.h}!ldl_permt@{ldl\_\discretionary {-}{}{}permt}|hyperpage}{16}
+\indexentry{ldl_permt@{ldl\_\discretionary {-}{}{}permt}!ldl.h@{ldl.h}|hyperpage}{16}
+\indexentry{ldl.h@{ldl.h}!ldl_symbolic@{ldl\_\discretionary {-}{}{}symbolic}|hyperpage}{16}
+\indexentry{ldl_symbolic@{ldl\_\discretionary {-}{}{}symbolic}!ldl.h@{ldl.h}|hyperpage}{16}
+\indexentry{ldl.h@{ldl.h}!ldl_valid_matrix@{ldl\_\discretionary {-}{}{}valid\_\discretionary {-}{}{}matrix}|hyperpage}{16}
+\indexentry{ldl_valid_matrix@{ldl\_\discretionary {-}{}{}valid\_\discretionary {-}{}{}matrix}!ldl.h@{ldl.h}|hyperpage}{16}
+\indexentry{ldl.h@{ldl.h}!ldl_valid_perm@{ldl\_\discretionary {-}{}{}valid\_\discretionary {-}{}{}perm}|hyperpage}{16}
+\indexentry{ldl_valid_perm@{ldl\_\discretionary {-}{}{}valid\_\discretionary {-}{}{}perm}!ldl.h@{ldl.h}|hyperpage}{16}
+\indexentry{LU.c@{LU.c}|hyperpage}{17}
+\indexentry{LU.c@{LU.c}!LU_expand@{LU\_\discretionary {-}{}{}expand}|hyperpage}{17}
+\indexentry{LU_expand@{LU\_\discretionary {-}{}{}expand}!LU.c@{LU.c}|hyperpage}{17}
+\indexentry{LU.h@{LU.h}|hyperpage}{17}
+\indexentry{LU.h@{LU.h}!LU_expand@{LU\_\discretionary {-}{}{}expand}|hyperpage}{17}
+\indexentry{LU_expand@{LU\_\discretionary {-}{}{}expand}!LU.h@{LU.h}|hyperpage}{17}
+\indexentry{Metis_utils.c@{Metis\_\discretionary {-}{}{}utils.c}|hyperpage}{17}
+\indexentry{Metis_utils.c@{Metis\_\discretionary {-}{}{}utils.c}!ssc_metis_order@{ssc\_\discretionary {-}{}{}metis\_\discretionary {-}{}{}order}|hyperpage}{17}
+\indexentry{ssc_metis_order@{ssc\_\discretionary {-}{}{}metis\_\discretionary {-}{}{}order}!Metis_utils.c@{Metis\_\discretionary {-}{}{}utils.c}|hyperpage}{17}
+\indexentry{Metis_utils.h@{Metis\_\discretionary {-}{}{}utils.h}|hyperpage}{18}
+\indexentry{Metis_utils.h@{Metis\_\discretionary {-}{}{}utils.h}!ssc_metis_order@{ssc\_\discretionary {-}{}{}metis\_\discretionary {-}{}{}order}|hyperpage}{18}
+\indexentry{ssc_metis_order@{ssc\_\discretionary {-}{}{}metis\_\discretionary {-}{}{}order}!Metis_utils.h@{Metis\_\discretionary {-}{}{}utils.h}|hyperpage}{18}
+\indexentry{Mutils.c@{Mutils.c}|hyperpage}{18}
+\indexentry{Mutils.c@{Mutils.c}!as_det_obj@{as\_\discretionary {-}{}{}det\_\discretionary {-}{}{}obj}|hyperpage}{19}
+\indexentry{as_det_obj@{as\_\discretionary {-}{}{}det\_\discretionary {-}{}{}obj}!Mutils.c@{Mutils.c}|hyperpage}{19}
+\indexentry{Mutils.c@{Mutils.c}!csc_check_column_sorting@{csc\_\discretionary {-}{}{}check\_\discretionary {-}{}{}column\_\discretionary {-}{}{}sorting}|hyperpage}{19}
+\indexentry{csc_check_column_sorting@{csc\_\discretionary {-}{}{}check\_\discretionary {-}{}{}column\_\discretionary {-}{}{}sorting}!Mutils.c@{Mutils.c}|hyperpage}{19}
+\indexentry{Mutils.c@{Mutils.c}!csc_components_transpose@{csc\_\discretionary {-}{}{}components\_\discretionary {-}{}{}transpose}|hyperpage}{20}
+\indexentry{csc_components_transpose@{csc\_\discretionary {-}{}{}components\_\discretionary {-}{}{}transpose}!Mutils.c@{Mutils.c}|hyperpage}{20}
+\indexentry{Mutils.c@{Mutils.c}!csc_sort_columns@{csc\_\discretionary {-}{}{}sort\_\discretionary {-}{}{}columns}|hyperpage}{20}
+\indexentry{csc_sort_columns@{csc\_\discretionary {-}{}{}sort\_\discretionary {-}{}{}columns}!Mutils.c@{Mutils.c}|hyperpage}{20}
+\indexentry{Mutils.c@{Mutils.c}!csc_unsorted_columns@{csc\_\discretionary {-}{}{}unsorted\_\discretionary {-}{}{}columns}|hyperpage}{20}
+\indexentry{csc_unsorted_columns@{csc\_\discretionary {-}{}{}unsorted\_\discretionary {-}{}{}columns}!Mutils.c@{Mutils.c}|hyperpage}{20}
+\indexentry{Mutils.c@{Mutils.c}!cscMatrix_set_Dim@{cscMatrix\_\discretionary {-}{}{}set\_\discretionary {-}{}{}Dim}|hyperpage}{20}
+\indexentry{cscMatrix_set_Dim@{cscMatrix\_\discretionary {-}{}{}set\_\discretionary {-}{}{}Dim}!Mutils.c@{Mutils.c}|hyperpage}{20}
+\indexentry{Mutils.c@{Mutils.c}!get_double_by_name@{get\_\discretionary {-}{}{}double\_\discretionary {-}{}{}by\_\discretionary {-}{}{}name}|hyperpage}{20}
+\indexentry{get_double_by_name@{get\_\discretionary {-}{}{}double\_\discretionary {-}{}{}by\_\discretionary {-}{}{}name}!Mutils.c@{Mutils.c}|hyperpage}{20}
+\indexentry{Mutils.c@{Mutils.c}!get_factorization@{get\_\discretionary {-}{}{}factorization}|hyperpage}{20}
+\indexentry{get_factorization@{get\_\discretionary {-}{}{}factorization}!Mutils.c@{Mutils.c}|hyperpage}{20}
+\indexentry{Mutils.c@{Mutils.c}!LMEgradient@{LMEgradient}|hyperpage}{21}
+\indexentry{LMEgradient@{LMEgradient}!Mutils.c@{Mutils.c}|hyperpage}{21}
+\indexentry{Mutils.c@{Mutils.c}!Matrix_init@{Matrix\_\discretionary {-}{}{}init}|hyperpage}{21}
+\indexentry{Matrix_init@{Matrix\_\discretionary {-}{}{}init}!Mutils.c@{Mutils.c}|hyperpage}{21}
+\indexentry{Mutils.c@{Mutils.c}!nlme_check_Lapack_error@{nlme\_\discretionary {-}{}{}check\_\discretionary {-}{}{}Lapack\_\discretionary {-}{}{}error}|hyperpage}{21}
+\indexentry{nlme_check_Lapack_error@{nlme\_\discretionary {-}{}{}check\_\discretionary {-}{}{}Lapack\_\discretionary {-}{}{}error}!Mutils.c@{Mutils.c}|hyperpage}{21}
+\indexentry{Mutils.c@{Mutils.c}!nlme_replaceSlot@{nlme\_\discretionary {-}{}{}replaceSlot}|hyperpage}{21}
+\indexentry{nlme_replaceSlot@{nlme\_\discretionary {-}{}{}replaceSlot}!Mutils.c@{Mutils.c}|hyperpage}{21}
+\indexentry{Mutils.c@{Mutils.c}!nlme_symmetrize@{nlme\_\discretionary {-}{}{}symmetrize}|hyperpage}{22}
+\indexentry{nlme_symmetrize@{nlme\_\discretionary {-}{}{}symmetrize}!Mutils.c@{Mutils.c}|hyperpage}{22}
+\indexentry{Mutils.c@{Mutils.c}!nlme_weight_matrix_list@{nlme\_\discretionary {-}{}{}weight\_\discretionary {-}{}{}matrix\_\discretionary {-}{}{}list}|hyperpage}{22}
+\indexentry{nlme_weight_matrix_list@{nlme\_\discretionary {-}{}{}weight\_\discretionary {-}{}{}matrix\_\discretionary {-}{}{}list}!Mutils.c@{Mutils.c}|hyperpage}{22}
+\indexentry{Mutils.c@{Mutils.c}!norm_type@{norm\_\discretionary {-}{}{}type}|hyperpage}{22}
+\indexentry{norm_type@{norm\_\discretionary {-}{}{}type}!Mutils.c@{Mutils.c}|hyperpage}{22}
+\indexentry{Mutils.c@{Mutils.c}!rcond_type@{rcond\_\discretionary {-}{}{}type}|hyperpage}{22}
+\indexentry{rcond_type@{rcond\_\discretionary {-}{}{}type}!Mutils.c@{Mutils.c}|hyperpage}{22}
+\indexentry{Mutils.c@{Mutils.c}!set_double_by_name@{set\_\discretionary {-}{}{}double\_\discretionary {-}{}{}by\_\discretionary {-}{}{}name}|hyperpage}{22}
+\indexentry{set_double_by_name@{set\_\discretionary {-}{}{}double\_\discretionary {-}{}{}by\_\discretionary {-}{}{}name}!Mutils.c@{Mutils.c}|hyperpage}{22}
+\indexentry{Mutils.c@{Mutils.c}!set_factorization@{set\_\discretionary {-}{}{}factorization}|hyperpage}{22}
+\indexentry{set_factorization@{set\_\discretionary {-}{}{}factorization}!Mutils.c@{Mutils.c}|hyperpage}{22}
+\indexentry{Mutils.c@{Mutils.c}!ssc_symbolic_permute@{ssc\_\discretionary {-}{}{}symbolic\_\discretionary {-}{}{}permute}|hyperpage}{22}
+\indexentry{ssc_symbolic_permute@{ssc\_\discretionary {-}{}{}symbolic\_\discretionary {-}{}{}permute}!Mutils.c@{Mutils.c}|hyperpage}{22}
+\indexentry{Mutils.c@{Mutils.c}!triple_as_SEXP@{triple\_\discretionary {-}{}{}as\_\discretionary {-}{}{}SEXP}|hyperpage}{23}
+\indexentry{triple_as_SEXP@{triple\_\discretionary {-}{}{}as\_\discretionary {-}{}{}SEXP}!Mutils.c@{Mutils.c}|hyperpage}{23}
+\indexentry{Mutils.c@{Mutils.c}!Matrix_bVarSym@{Matrix\_\discretionary {-}{}{}bVarSym}|hyperpage}{23}
+\indexentry{Matrix_bVarSym@{Matrix\_\discretionary {-}{}{}bVarSym}!Mutils.c@{Mutils.c}|hyperpage}{23}
+\indexentry{Mutils.c@{Mutils.c}!Matrix_devCompSym@{Matrix\_\discretionary {-}{}{}devCompSym}|hyperpage}{23}
+\indexentry{Matrix_devCompSym@{Matrix\_\discretionary {-}{}{}devCompSym}!Mutils.c@{Mutils.c}|hyperpage}{23}
+\indexentry{Mutils.c@{Mutils.c}!Matrix_devianceSym@{Matrix\_\discretionary {-}{}{}devianceSym}|hyperpage}{23}
+\indexentry{Matrix_devianceSym@{Matrix\_\discretionary {-}{}{}devianceSym}!Mutils.c@{Mutils.c}|hyperpage}{23}
+\indexentry{Mutils.c@{Mutils.c}!Matrix_diagSym@{Matrix\_\discretionary {-}{}{}diagSym}|hyperpage}{23}
+\indexentry{Matrix_diagSym@{Matrix\_\discretionary {-}{}{}diagSym}!Mutils.c@{Mutils.c}|hyperpage}{23}
+\indexentry{Mutils.c@{Mutils.c}!Matrix_DimSym@{Matrix\_\discretionary {-}{}{}DimSym}|hyperpage}{23}
+\indexentry{Matrix_DimSym@{Matrix\_\discretionary {-}{}{}DimSym}!Mutils.c@{Mutils.c}|hyperpage}{23}
+\indexentry{Mutils.c@{Mutils.c}!Matrix_DIsqrtSym@{Matrix\_\discretionary {-}{}{}DIsqrtSym}|hyperpage}{23}
+\indexentry{Matrix_DIsqrtSym@{Matrix\_\discretionary {-}{}{}DIsqrtSym}!Mutils.c@{Mutils.c}|hyperpage}{23}
+\indexentry{Mutils.c@{Mutils.c}!Matrix_DSym@{Matrix\_\discretionary {-}{}{}DSym}|hyperpage}{23}
+\indexentry{Matrix_DSym@{Matrix\_\discretionary {-}{}{}DSym}!Mutils.c@{Mutils.c}|hyperpage}{23}
+\indexentry{Mutils.c@{Mutils.c}!Matrix_GpSym@{Matrix\_\discretionary {-}{}{}GpSym}|hyperpage}{23}
+\indexentry{Matrix_GpSym@{Matrix\_\discretionary {-}{}{}GpSym}!Mutils.c@{Mutils.c}|hyperpage}{23}
+\indexentry{Mutils.c@{Mutils.c}!Matrix_ipermSym@{Matrix\_\discretionary {-}{}{}ipermSym}|hyperpage}{23}
+\indexentry{Matrix_ipermSym@{Matrix\_\discretionary {-}{}{}ipermSym}!Mutils.c@{Mutils.c}|hyperpage}{23}
+\indexentry{Mutils.c@{Mutils.c}!Matrix_iSym@{Matrix\_\discretionary {-}{}{}iSym}|hyperpage}{23}
+\indexentry{Matrix_iSym@{Matrix\_\discretionary {-}{}{}iSym}!Mutils.c@{Mutils.c}|hyperpage}{23}
+\indexentry{Mutils.c@{Mutils.c}!Matrix_jSym@{Matrix\_\discretionary {-}{}{}jSym}|hyperpage}{23}
+\indexentry{Matrix_jSym@{Matrix\_\discretionary {-}{}{}jSym}!Mutils.c@{Mutils.c}|hyperpage}{23}
+\indexentry{Mutils.c@{Mutils.c}!Matrix_LiSym@{Matrix\_\discretionary {-}{}{}LiSym}|hyperpage}{23}
+\indexentry{Matrix_LiSym@{Matrix\_\discretionary {-}{}{}LiSym}!Mutils.c@{Mutils.c}|hyperpage}{23}
+\indexentry{Mutils.c@{Mutils.c}!Matrix_LpSym@{Matrix\_\discretionary {-}{}{}LpSym}|hyperpage}{23}
+\indexentry{Matrix_LpSym@{Matrix\_\discretionary {-}{}{}LpSym}!Mutils.c@{Mutils.c}|hyperpage}{23}
+\indexentry{Mutils.c@{Mutils.c}!Matrix_LxSym@{Matrix\_\discretionary {-}{}{}LxSym}|hyperpage}{23}
+\indexentry{Matrix_LxSym@{Matrix\_\discretionary {-}{}{}LxSym}!Mutils.c@{Mutils.c}|hyperpage}{23}
+\indexentry{Mutils.c@{Mutils.c}!Matrix_matSym@{Matrix\_\discretionary {-}{}{}matSym}|hyperpage}{23}
+\indexentry{Matrix_matSym@{Matrix\_\discretionary {-}{}{}matSym}!Mutils.c@{Mutils.c}|hyperpage}{23}
+\indexentry{Mutils.c@{Mutils.c}!Matrix_ncSym@{Matrix\_\discretionary {-}{}{}ncSym}|hyperpage}{24}
+\indexentry{Matrix_ncSym@{Matrix\_\discretionary {-}{}{}ncSym}!Mutils.c@{Mutils.c}|hyperpage}{24}
+\indexentry{Mutils.c@{Mutils.c}!Matrix_OmegaSym@{Matrix\_\discretionary {-}{}{}OmegaSym}|hyperpage}{24}
+\indexentry{Matrix_OmegaSym@{Matrix\_\discretionary {-}{}{}OmegaSym}!Mutils.c@{Mutils.c}|hyperpage}{24}
+\indexentry{Mutils.c@{Mutils.c}!Matrix_ParentSym@{Matrix\_\discretionary {-}{}{}ParentSym}|hyperpage}{24}
+\indexentry{Matrix_ParentSym@{Matrix\_\discretionary {-}{}{}ParentSym}!Mutils.c@{Mutils.c}|hyperpage}{24}
+\indexentry{Mutils.c@{Mutils.c}!Matrix_permSym@{Matrix\_\discretionary {-}{}{}permSym}|hyperpage}{24}
+\indexentry{Matrix_permSym@{Matrix\_\discretionary {-}{}{}permSym}!Mutils.c@{Mutils.c}|hyperpage}{24}
+\indexentry{Mutils.c@{Mutils.c}!Matrix_pSym@{Matrix\_\discretionary {-}{}{}pSym}|hyperpage}{24}
+\indexentry{Matrix_pSym@{Matrix\_\discretionary {-}{}{}pSym}!Mutils.c@{Mutils.c}|hyperpage}{24}
+\indexentry{Mutils.c@{Mutils.c}!Matrix_RXXSym@{Matrix\_\discretionary {-}{}{}RXXSym}|hyperpage}{24}
+\indexentry{Matrix_RXXSym@{Matrix\_\discretionary {-}{}{}RXXSym}!Mutils.c@{Mutils.c}|hyperpage}{24}
+\indexentry{Mutils.c@{Mutils.c}!Matrix_RZXSym@{Matrix\_\discretionary {-}{}{}RZXSym}|hyperpage}{24}
+\indexentry{Matrix_RZXSym@{Matrix\_\discretionary {-}{}{}RZXSym}!Mutils.c@{Mutils.c}|hyperpage}{24}
+\indexentry{Mutils.c@{Mutils.c}!Matrix_statusSym@{Matrix\_\discretionary {-}{}{}statusSym}|hyperpage}{24}
+\indexentry{Matrix_statusSym@{Matrix\_\discretionary {-}{}{}statusSym}!Mutils.c@{Mutils.c}|hyperpage}{24}
+\indexentry{Mutils.c@{Mutils.c}!Matrix_uploSym@{Matrix\_\discretionary {-}{}{}uploSym}|hyperpage}{24}
+\indexentry{Matrix_uploSym@{Matrix\_\discretionary {-}{}{}uploSym}!Mutils.c@{Mutils.c}|hyperpage}{24}
+\indexentry{Mutils.c@{Mutils.c}!Matrix_xSym@{Matrix\_\discretionary {-}{}{}xSym}|hyperpage}{24}
+\indexentry{Matrix_xSym@{Matrix\_\discretionary {-}{}{}xSym}!Mutils.c@{Mutils.c}|hyperpage}{24}
+\indexentry{Mutils.c@{Mutils.c}!Matrix_XtXSym@{Matrix\_\discretionary {-}{}{}XtXSym}|hyperpage}{24}
+\indexentry{Matrix_XtXSym@{Matrix\_\discretionary {-}{}{}XtXSym}!Mutils.c@{Mutils.c}|hyperpage}{24}
+\indexentry{Mutils.c@{Mutils.c}!Matrix_zSym@{Matrix\_\discretionary {-}{}{}zSym}|hyperpage}{24}
+\indexentry{Matrix_zSym@{Matrix\_\discretionary {-}{}{}zSym}!Mutils.c@{Mutils.c}|hyperpage}{24}
+\indexentry{Mutils.c@{Mutils.c}!Matrix_ZtXSym@{Matrix\_\discretionary {-}{}{}ZtXSym}|hyperpage}{24}
+\indexentry{Matrix_ZtXSym@{Matrix\_\discretionary {-}{}{}ZtXSym}!Mutils.c@{Mutils.c}|hyperpage}{24}
+\indexentry{Mutils.h@{Mutils.h}|hyperpage}{24}
+\indexentry{Mutils.h@{Mutils.h}!as_det_obj@{as\_\discretionary {-}{}{}det\_\discretionary {-}{}{}obj}|hyperpage}{26}
+\indexentry{as_det_obj@{as\_\discretionary {-}{}{}det\_\discretionary {-}{}{}obj}!Mutils.h@{Mutils.h}|hyperpage}{26}
+\indexentry{Mutils.h@{Mutils.h}!csc_check_column_sorting@{csc\_\discretionary {-}{}{}check\_\discretionary {-}{}{}column\_\discretionary {-}{}{}sorting}|hyperpage}{26}
+\indexentry{csc_check_column_sorting@{csc\_\discretionary {-}{}{}check\_\discretionary {-}{}{}column\_\discretionary {-}{}{}sorting}!Mutils.h@{Mutils.h}|hyperpage}{26}
+\indexentry{Mutils.h@{Mutils.h}!csc_components_transpose@{csc\_\discretionary {-}{}{}components\_\discretionary {-}{}{}transpose}|hyperpage}{26}
+\indexentry{csc_components_transpose@{csc\_\discretionary {-}{}{}components\_\discretionary {-}{}{}transpose}!Mutils.h@{Mutils.h}|hyperpage}{26}
+\indexentry{Mutils.h@{Mutils.h}!csc_sort_columns@{csc\_\discretionary {-}{}{}sort\_\discretionary {-}{}{}columns}|hyperpage}{26}
+\indexentry{csc_sort_columns@{csc\_\discretionary {-}{}{}sort\_\discretionary {-}{}{}columns}!Mutils.h@{Mutils.h}|hyperpage}{26}
+\indexentry{Mutils.h@{Mutils.h}!csc_unsorted_columns@{csc\_\discretionary {-}{}{}unsorted\_\discretionary {-}{}{}columns}|hyperpage}{26}
+\indexentry{csc_unsorted_columns@{csc\_\discretionary {-}{}{}unsorted\_\discretionary {-}{}{}columns}!Mutils.h@{Mutils.h}|hyperpage}{26}
+\indexentry{Mutils.h@{Mutils.h}!cscMatrix_set_Dim@{cscMatrix\_\discretionary {-}{}{}set\_\discretionary {-}{}{}Dim}|hyperpage}{27}
+\indexentry{cscMatrix_set_Dim@{cscMatrix\_\discretionary {-}{}{}set\_\discretionary {-}{}{}Dim}!Mutils.h@{Mutils.h}|hyperpage}{27}
+\indexentry{Mutils.h@{Mutils.h}!get_double_by_name@{get\_\discretionary {-}{}{}double\_\discretionary {-}{}{}by\_\discretionary {-}{}{}name}|hyperpage}{27}
+\indexentry{get_double_by_name@{get\_\discretionary {-}{}{}double\_\discretionary {-}{}{}by\_\discretionary {-}{}{}name}!Mutils.h@{Mutils.h}|hyperpage}{27}
+\indexentry{Mutils.h@{Mutils.h}!get_factorization@{get\_\discretionary {-}{}{}factorization}|hyperpage}{27}
+\indexentry{get_factorization@{get\_\discretionary {-}{}{}factorization}!Mutils.h@{Mutils.h}|hyperpage}{27}
+\indexentry{Mutils.h@{Mutils.h}!LMEgradient@{LMEgradient}|hyperpage}{27}
+\indexentry{LMEgradient@{LMEgradient}!Mutils.h@{Mutils.h}|hyperpage}{27}
+\indexentry{Mutils.h@{Mutils.h}!nlme_check_Lapack_error@{nlme\_\discretionary {-}{}{}check\_\discretionary {-}{}{}Lapack\_\discretionary {-}{}{}error}|hyperpage}{27}
+\indexentry{nlme_check_Lapack_error@{nlme\_\discretionary {-}{}{}check\_\discretionary {-}{}{}Lapack\_\discretionary {-}{}{}error}!Mutils.h@{Mutils.h}|hyperpage}{27}
+\indexentry{Mutils.h@{Mutils.h}!nlme_replaceSlot@{nlme\_\discretionary {-}{}{}replaceSlot}|hyperpage}{28}
+\indexentry{nlme_replaceSlot@{nlme\_\discretionary {-}{}{}replaceSlot}!Mutils.h@{Mutils.h}|hyperpage}{28}
+\indexentry{Mutils.h@{Mutils.h}!nlme_symmetrize@{nlme\_\discretionary {-}{}{}symmetrize}|hyperpage}{28}
+\indexentry{nlme_symmetrize@{nlme\_\discretionary {-}{}{}symmetrize}!Mutils.h@{Mutils.h}|hyperpage}{28}
+\indexentry{Mutils.h@{Mutils.h}!nlme_weight_matrix_list@{nlme\_\discretionary {-}{}{}weight\_\discretionary {-}{}{}matrix\_\discretionary {-}{}{}list}|hyperpage}{28}
+\indexentry{nlme_weight_matrix_list@{nlme\_\discretionary {-}{}{}weight\_\discretionary {-}{}{}matrix\_\discretionary {-}{}{}list}!Mutils.h@{Mutils.h}|hyperpage}{28}
+\indexentry{Mutils.h@{Mutils.h}!norm_type@{norm\_\discretionary {-}{}{}type}|hyperpage}{29}
+\indexentry{norm_type@{norm\_\discretionary {-}{}{}type}!Mutils.h@{Mutils.h}|hyperpage}{29}
+\indexentry{Mutils.h@{Mutils.h}!rcond_type@{rcond\_\discretionary {-}{}{}type}|hyperpage}{29}
+\indexentry{rcond_type@{rcond\_\discretionary {-}{}{}type}!Mutils.h@{Mutils.h}|hyperpage}{29}
+\indexentry{Mutils.h@{Mutils.h}!set_double_by_name@{set\_\discretionary {-}{}{}double\_\discretionary {-}{}{}by\_\discretionary {-}{}{}name}|hyperpage}{29}
+\indexentry{set_double_by_name@{set\_\discretionary {-}{}{}double\_\discretionary {-}{}{}by\_\discretionary {-}{}{}name}!Mutils.h@{Mutils.h}|hyperpage}{29}
+\indexentry{Mutils.h@{Mutils.h}!set_factorization@{set\_\discretionary {-}{}{}factorization}|hyperpage}{29}
+\indexentry{set_factorization@{set\_\discretionary {-}{}{}factorization}!Mutils.h@{Mutils.h}|hyperpage}{29}
+\indexentry{Mutils.h@{Mutils.h}!ssc_symbolic_permute@{ssc\_\discretionary {-}{}{}symbolic\_\discretionary {-}{}{}permute}|hyperpage}{29}
+\indexentry{ssc_symbolic_permute@{ssc\_\discretionary {-}{}{}symbolic\_\discretionary {-}{}{}permute}!Mutils.h@{Mutils.h}|hyperpage}{29}
+\indexentry{Mutils.h@{Mutils.h}!triple_as_SEXP@{triple\_\discretionary {-}{}{}as\_\discretionary {-}{}{}SEXP}|hyperpage}{29}
+\indexentry{triple_as_SEXP@{triple\_\discretionary {-}{}{}as\_\discretionary {-}{}{}SEXP}!Mutils.h@{Mutils.h}|hyperpage}{29}
+\indexentry{Mutils.h@{Mutils.h}!triplet_to_col@{triplet\_\discretionary {-}{}{}to\_\discretionary {-}{}{}col}|hyperpage}{29}
+\indexentry{triplet_to_col@{triplet\_\discretionary {-}{}{}to\_\discretionary {-}{}{}col}!Mutils.h@{Mutils.h}|hyperpage}{29}
+\indexentry{Mutils.h@{Mutils.h}!Matrix_bVarSym@{Matrix\_\discretionary {-}{}{}bVarSym}|hyperpage}{29}
+\indexentry{Matrix_bVarSym@{Matrix\_\discretionary {-}{}{}bVarSym}!Mutils.h@{Mutils.h}|hyperpage}{29}
+\indexentry{Mutils.h@{Mutils.h}!Matrix_devCompSym@{Matrix\_\discretionary {-}{}{}devCompSym}|hyperpage}{29}
+\indexentry{Matrix_devCompSym@{Matrix\_\discretionary {-}{}{}devCompSym}!Mutils.h@{Mutils.h}|hyperpage}{29}
+\indexentry{Mutils.h@{Mutils.h}!Matrix_devianceSym@{Matrix\_\discretionary {-}{}{}devianceSym}|hyperpage}{29}
+\indexentry{Matrix_devianceSym@{Matrix\_\discretionary {-}{}{}devianceSym}!Mutils.h@{Mutils.h}|hyperpage}{29}
+\indexentry{Mutils.h@{Mutils.h}!Matrix_diagSym@{Matrix\_\discretionary {-}{}{}diagSym}|hyperpage}{29}
+\indexentry{Matrix_diagSym@{Matrix\_\discretionary {-}{}{}diagSym}!Mutils.h@{Mutils.h}|hyperpage}{29}
+\indexentry{Mutils.h@{Mutils.h}!Matrix_DimSym@{Matrix\_\discretionary {-}{}{}DimSym}|hyperpage}{29}
+\indexentry{Matrix_DimSym@{Matrix\_\discretionary {-}{}{}DimSym}!Mutils.h@{Mutils.h}|hyperpage}{29}
+\indexentry{Mutils.h@{Mutils.h}!Matrix_DIsqrtSym@{Matrix\_\discretionary {-}{}{}DIsqrtSym}|hyperpage}{29}
+\indexentry{Matrix_DIsqrtSym@{Matrix\_\discretionary {-}{}{}DIsqrtSym}!Mutils.h@{Mutils.h}|hyperpage}{29}
+\indexentry{Mutils.h@{Mutils.h}!Matrix_DSym@{Matrix\_\discretionary {-}{}{}DSym}|hyperpage}{30}
+\indexentry{Matrix_DSym@{Matrix\_\discretionary {-}{}{}DSym}!Mutils.h@{Mutils.h}|hyperpage}{30}
+\indexentry{Mutils.h@{Mutils.h}!Matrix_GpSym@{Matrix\_\discretionary {-}{}{}GpSym}|hyperpage}{30}
+\indexentry{Matrix_GpSym@{Matrix\_\discretionary {-}{}{}GpSym}!Mutils.h@{Mutils.h}|hyperpage}{30}
+\indexentry{Mutils.h@{Mutils.h}!Matrix_ipermSym@{Matrix\_\discretionary {-}{}{}ipermSym}|hyperpage}{30}
+\indexentry{Matrix_ipermSym@{Matrix\_\discretionary {-}{}{}ipermSym}!Mutils.h@{Mutils.h}|hyperpage}{30}
+\indexentry{Mutils.h@{Mutils.h}!Matrix_iSym@{Matrix\_\discretionary {-}{}{}iSym}|hyperpage}{30}
+\indexentry{Matrix_iSym@{Matrix\_\discretionary {-}{}{}iSym}!Mutils.h@{Mutils.h}|hyperpage}{30}
+\indexentry{Mutils.h@{Mutils.h}!Matrix_jSym@{Matrix\_\discretionary {-}{}{}jSym}|hyperpage}{30}
+\indexentry{Matrix_jSym@{Matrix\_\discretionary {-}{}{}jSym}!Mutils.h@{Mutils.h}|hyperpage}{30}
+\indexentry{Mutils.h@{Mutils.h}!Matrix_LiSym@{Matrix\_\discretionary {-}{}{}LiSym}|hyperpage}{30}
+\indexentry{Matrix_LiSym@{Matrix\_\discretionary {-}{}{}LiSym}!Mutils.h@{Mutils.h}|hyperpage}{30}
+\indexentry{Mutils.h@{Mutils.h}!Matrix_LpSym@{Matrix\_\discretionary {-}{}{}LpSym}|hyperpage}{30}
+\indexentry{Matrix_LpSym@{Matrix\_\discretionary {-}{}{}LpSym}!Mutils.h@{Mutils.h}|hyperpage}{30}
+\indexentry{Mutils.h@{Mutils.h}!Matrix_LxSym@{Matrix\_\discretionary {-}{}{}LxSym}|hyperpage}{30}
+\indexentry{Matrix_LxSym@{Matrix\_\discretionary {-}{}{}LxSym}!Mutils.h@{Mutils.h}|hyperpage}{30}
+\indexentry{Mutils.h@{Mutils.h}!Matrix_matSym@{Matrix\_\discretionary {-}{}{}matSym}|hyperpage}{30}
+\indexentry{Matrix_matSym@{Matrix\_\discretionary {-}{}{}matSym}!Mutils.h@{Mutils.h}|hyperpage}{30}
+\indexentry{Mutils.h@{Mutils.h}!Matrix_ncSym@{Matrix\_\discretionary {-}{}{}ncSym}|hyperpage}{30}
+\indexentry{Matrix_ncSym@{Matrix\_\discretionary {-}{}{}ncSym}!Mutils.h@{Mutils.h}|hyperpage}{30}
+\indexentry{Mutils.h@{Mutils.h}!Matrix_OmegaSym@{Matrix\_\discretionary {-}{}{}OmegaSym}|hyperpage}{30}
+\indexentry{Matrix_OmegaSym@{Matrix\_\discretionary {-}{}{}OmegaSym}!Mutils.h@{Mutils.h}|hyperpage}{30}
+\indexentry{Mutils.h@{Mutils.h}!Matrix_ParentSym@{Matrix\_\discretionary {-}{}{}ParentSym}|hyperpage}{30}
+\indexentry{Matrix_ParentSym@{Matrix\_\discretionary {-}{}{}ParentSym}!Mutils.h@{Mutils.h}|hyperpage}{30}
+\indexentry{Mutils.h@{Mutils.h}!Matrix_permSym@{Matrix\_\discretionary {-}{}{}permSym}|hyperpage}{30}
+\indexentry{Matrix_permSym@{Matrix\_\discretionary {-}{}{}permSym}!Mutils.h@{Mutils.h}|hyperpage}{30}
+\indexentry{Mutils.h@{Mutils.h}!Matrix_pSym@{Matrix\_\discretionary {-}{}{}pSym}|hyperpage}{30}
+\indexentry{Matrix_pSym@{Matrix\_\discretionary {-}{}{}pSym}!Mutils.h@{Mutils.h}|hyperpage}{30}
+\indexentry{Mutils.h@{Mutils.h}!Matrix_RXXSym@{Matrix\_\discretionary {-}{}{}RXXSym}|hyperpage}{30}
+\indexentry{Matrix_RXXSym@{Matrix\_\discretionary {-}{}{}RXXSym}!Mutils.h@{Mutils.h}|hyperpage}{30}
+\indexentry{Mutils.h@{Mutils.h}!Matrix_RZXSym@{Matrix\_\discretionary {-}{}{}RZXSym}|hyperpage}{30}
+\indexentry{Matrix_RZXSym@{Matrix\_\discretionary {-}{}{}RZXSym}!Mutils.h@{Mutils.h}|hyperpage}{30}
+\indexentry{Mutils.h@{Mutils.h}!Matrix_statusSym@{Matrix\_\discretionary {-}{}{}statusSym}|hyperpage}{30}
+\indexentry{Matrix_statusSym@{Matrix\_\discretionary {-}{}{}statusSym}!Mutils.h@{Mutils.h}|hyperpage}{30}
+\indexentry{Mutils.h@{Mutils.h}!Matrix_uploSym@{Matrix\_\discretionary {-}{}{}uploSym}|hyperpage}{31}
+\indexentry{Matrix_uploSym@{Matrix\_\discretionary {-}{}{}uploSym}!Mutils.h@{Mutils.h}|hyperpage}{31}
+\indexentry{Mutils.h@{Mutils.h}!Matrix_xSym@{Matrix\_\discretionary {-}{}{}xSym}|hyperpage}{31}
+\indexentry{Matrix_xSym@{Matrix\_\discretionary {-}{}{}xSym}!Mutils.h@{Mutils.h}|hyperpage}{31}
+\indexentry{Mutils.h@{Mutils.h}!Matrix_XtXSym@{Matrix\_\discretionary {-}{}{}XtXSym}|hyperpage}{31}
+\indexentry{Matrix_XtXSym@{Matrix\_\discretionary {-}{}{}XtXSym}!Mutils.h@{Mutils.h}|hyperpage}{31}
+\indexentry{Mutils.h@{Mutils.h}!Matrix_zSym@{Matrix\_\discretionary {-}{}{}zSym}|hyperpage}{31}
+\indexentry{Matrix_zSym@{Matrix\_\discretionary {-}{}{}zSym}!Mutils.h@{Mutils.h}|hyperpage}{31}
+\indexentry{Mutils.h@{Mutils.h}!Matrix_ZtXSym@{Matrix\_\discretionary {-}{}{}ZtXSym}|hyperpage}{31}
+\indexentry{Matrix_ZtXSym@{Matrix\_\discretionary {-}{}{}ZtXSym}!Mutils.h@{Mutils.h}|hyperpage}{31}
+\indexentry{pdDiag.c@{pdDiag.c}|hyperpage}{31}
+\indexentry{pdDiag.c@{pd\discretionary {-}{}{}Diag.c}!pdDiag_coefGets@{pdDiag\_\discretionary {-}{}{}coefGets}|hyperpage}{31}
+\indexentry{pdDiag_coefGets@{pdDiag\_\discretionary {-}{}{}coefGets}!pdDiag.c@{pd\discretionary {-}{}{}Diag.c}|hyperpage}{31}
+\indexentry{pdDiag.c@{pd\discretionary {-}{}{}Diag.c}!pdDiag_EMupdate@{pdDiag\_\discretionary {-}{}{}EMupdate}|hyperpage}{31}
+\indexentry{pdDiag_EMupdate@{pdDiag\_\discretionary {-}{}{}EMupdate}!pdDiag.c@{pd\discretionary {-}{}{}Diag.c}|hyperpage}{31}
+\indexentry{pdDiag.c@{pd\discretionary {-}{}{}Diag.c}!pdDiag_ld_factor_from_par@{pdDiag\_\discretionary {-}{}{}ld\_\discretionary {-}{}{}factor\_\discretionary {-}{}{}from\_\discretionary {-}{}{}par}|hyperpage}{31}
+\indexentry{pdDiag_ld_factor_from_par@{pdDiag\_\discretionary {-}{}{}ld\_\discretionary {-}{}{}factor\_\discretionary {-}{}{}from\_\discretionary {-}{}{}par}!pdDiag.c@{pd\discretionary {-}{}{}Diag.c}|hyperpage}{31}
+\indexentry{pdDiag.c@{pd\discretionary {-}{}{}Diag.c}!pdDiag_LMEgradient@{pdDiag\_\discretionary {-}{}{}LMEgradient}|hyperpage}{32}
+\indexentry{pdDiag_LMEgradient@{pdDiag\_\discretionary {-}{}{}LMEgradient}!pdDiag.c@{pd\discretionary {-}{}{}Diag.c}|hyperpage}{32}
+\indexentry{pdIdent.c@{pdIdent.c}|hyperpage}{32}
+\indexentry{pdIdent.c@{pd\discretionary {-}{}{}Ident.c}!pdIdent_EMupdate@{pdIdent\_\discretionary {-}{}{}EMupdate}|hyperpage}{32}
+\indexentry{pdIdent_EMupdate@{pdIdent\_\discretionary {-}{}{}EMupdate}!pdIdent.c@{pd\discretionary {-}{}{}Ident.c}|hyperpage}{32}
+\indexentry{pdIdent.c@{pd\discretionary {-}{}{}Ident.c}!pdIdent_gradient@{pdIdent\_\discretionary {-}{}{}gradient}|hyperpage}{32}
+\indexentry{pdIdent_gradient@{pdIdent\_\discretionary {-}{}{}gradient}!pdIdent.c@{pd\discretionary {-}{}{}Ident.c}|hyperpage}{32}
+\indexentry{pdLogChol.c@{pdLogChol.c}|hyperpage}{32}
+\indexentry{pdLogChol.c@{pd\discretionary {-}{}{}Log\discretionary {-}{}{}Chol.c}!gradient@{gradient}|hyperpage}{33}
+\indexentry{gradient@{gradient}!pdLogChol.c@{pd\discretionary {-}{}{}Log\discretionary {-}{}{}Chol.c}|hyperpage}{33}
+\indexentry{pdLogChol.c@{pd\discretionary {-}{}{}Log\discretionary {-}{}{}Chol.c}!ld_factor_from_par@{ld\_\discretionary {-}{}{}factor\_\discretionary {-}{}{}from\_\discretionary {-}{}{}par}|hyperpage}{33}
+\indexentry{ld_factor_from_par@{ld\_\discretionary {-}{}{}factor\_\discretionary {-}{}{}from\_\discretionary {-}{}{}par}!pdLogChol.c@{pd\discretionary {-}{}{}Log\discretionary {-}{}{}Chol.c}|hyperpage}{33}
+\indexentry{pdLogChol.c@{pd\discretionary {-}{}{}Log\discretionary {-}{}{}Chol.c}!pdLogChol_coefGets@{pdLogChol\_\discretionary {-}{}{}coefGets}|hyperpage}{33}
+\indexentry{pdLogChol_coefGets@{pdLogChol\_\discretionary {-}{}{}coefGets}!pdLogChol.c@{pd\discretionary {-}{}{}Log\discretionary {-}{}{}Chol.c}|hyperpage}{33}
+\indexentry{pdLogChol.c@{pd\discretionary {-}{}{}Log\discretionary {-}{}{}Chol.c}!pdLogChol_EMupdate@{pdLogChol\_\discretionary {-}{}{}EMupdate}|hyperpage}{33}
+\indexentry{pdLogChol_EMupdate@{pdLogChol\_\discretionary {-}{}{}EMupdate}!pdLogChol.c@{pd\discretionary {-}{}{}Log\discretionary {-}{}{}Chol.c}|hyperpage}{33}
+\indexentry{pdLogChol.c@{pd\discretionary {-}{}{}Log\discretionary {-}{}{}Chol.c}!pdLogChol_LMEgradient@{pdLogChol\_\discretionary {-}{}{}LMEgradient}|hyperpage}{33}
+\indexentry{pdLogChol_LMEgradient@{pdLogChol\_\discretionary {-}{}{}LMEgradient}!pdLogChol.c@{pd\discretionary {-}{}{}Log\discretionary {-}{}{}Chol.c}|hyperpage}{33}
+\indexentry{pdLogChol.c@{pd\discretionary {-}{}{}Log\discretionary {-}{}{}Chol.c}!pdLogChol_LMEhessian@{pdLogChol\_\discretionary {-}{}{}LMEhessian}|hyperpage}{34}
+\indexentry{pdLogChol_LMEhessian@{pdLogChol\_\discretionary {-}{}{}LMEhessian}!pdLogChol.c@{pd\discretionary {-}{}{}Log\discretionary {-}{}{}Chol.c}|hyperpage}{34}
+\indexentry{pdLogChol.c@{pd\discretionary {-}{}{}Log\discretionary {-}{}{}Chol.c}!pdLogChol_pdgradient@{pdLogChol\_\discretionary {-}{}{}pdgradient}|hyperpage}{34}
+\indexentry{pdLogChol_pdgradient@{pdLogChol\_\discretionary {-}{}{}pdgradient}!pdLogChol.c@{pd\discretionary {-}{}{}Log\discretionary {-}{}{}Chol.c}|hyperpage}{34}
+\indexentry{pdMat.c@{pdMat.c}|hyperpage}{34}
+\indexentry{pdMat.c@{pd\discretionary {-}{}{}Mat.c}!nlme_Chol@{nlme\_\discretionary {-}{}{}Chol}|hyperpage}{34}
+\indexentry{nlme_Chol@{nlme\_\discretionary {-}{}{}Chol}!pdMat.c@{pd\discretionary {-}{}{}Mat.c}|hyperpage}{34}
+\indexentry{pdMat.c@{pd\discretionary {-}{}{}Mat.c}!pdCompSymm_pdFactor@{pdCompSymm\_\discretionary {-}{}{}pdFactor}|hyperpage}{34}
+\indexentry{pdCompSymm_pdFactor@{pdCompSymm\_\discretionary {-}{}{}pdFactor}!pdMat.c@{pd\discretionary {-}{}{}Mat.c}|hyperpage}{34}
+\indexentry{pdNatural.c@{pdNatural.c}|hyperpage}{35}
+\indexentry{pdNatural.c@{pd\discretionary {-}{}{}Natural.c}!corr_from_par@{corr\_\discretionary {-}{}{}from\_\discretionary {-}{}{}par}|hyperpage}{35}
+\indexentry{corr_from_par@{corr\_\discretionary {-}{}{}from\_\discretionary {-}{}{}par}!pdNatural.c@{pd\discretionary {-}{}{}Natural.c}|hyperpage}{35}
+\indexentry{pdNatural.c@{pd\discretionary {-}{}{}Natural.c}!gradient@{gradient}|hyperpage}{35}
+\indexentry{gradient@{gradient}!pdNatural.c@{pd\discretionary {-}{}{}Natural.c}|hyperpage}{35}
+\indexentry{pdNatural.c@{pd\discretionary {-}{}{}Natural.c}!pdNatural_corrmatrix@{pdNatural\_\discretionary {-}{}{}corrmatrix}|hyperpage}{35}
+\indexentry{pdNatural_corrmatrix@{pdNatural\_\discretionary {-}{}{}corrmatrix}!pdNatural.c@{pd\discretionary {-}{}{}Natural.c}|hyperpage}{35}
+\indexentry{pdNatural.c@{pd\discretionary {-}{}{}Natural.c}!pdNatural_LMEgradient@{pdNatural\_\discretionary {-}{}{}LMEgradient}|hyperpage}{35}
+\indexentry{pdNatural_LMEgradient@{pdNatural\_\discretionary {-}{}{}LMEgradient}!pdNatural.c@{pd\discretionary {-}{}{}Natural.c}|hyperpage}{35}
+\indexentry{pdNatural.c@{pd\discretionary {-}{}{}Natural.c}!pdNatural_pdmatrix@{pdNatural\_\discretionary {-}{}{}pdmatrix}|hyperpage}{36}
+\indexentry{pdNatural_pdmatrix@{pdNatural\_\discretionary {-}{}{}pdmatrix}!pdNatural.c@{pd\discretionary {-}{}{}Natural.c}|hyperpage}{36}
+\indexentry{poMatrix.c@{poMatrix.c}|hyperpage}{36}
+\indexentry{poMatrix.c@{po\discretionary {-}{}{}Matrix.c}!poMatrix_chol@{poMatrix\_\discretionary {-}{}{}chol}|hyperpage}{36}
+\indexentry{poMatrix_chol@{poMatrix\_\discretionary {-}{}{}chol}!poMatrix.c@{po\discretionary {-}{}{}Matrix.c}|hyperpage}{36}
+\indexentry{poMatrix.c@{po\discretionary {-}{}{}Matrix.c}!poMatrix_geMatrix_solve@{poMatrix\_\discretionary {-}{}{}geMatrix\_\discretionary {-}{}{}solve}|hyperpage}{36}
+\indexentry{poMatrix_geMatrix_solve@{poMatrix\_\discretionary {-}{}{}geMatrix\_\discretionary {-}{}{}solve}!poMatrix.c@{po\discretionary {-}{}{}Matrix.c}|hyperpage}{36}
+\indexentry{poMatrix.c@{po\discretionary {-}{}{}Matrix.c}!poMatrix_matrix_solve@{poMatrix\_\discretionary {-}{}{}matrix\_\discretionary {-}{}{}solve}|hyperpage}{36}
+\indexentry{poMatrix_matrix_solve@{poMatrix\_\discretionary {-}{}{}matrix\_\discretionary {-}{}{}solve}!poMatrix.c@{po\discretionary {-}{}{}Matrix.c}|hyperpage}{36}
+\indexentry{poMatrix.c@{po\discretionary {-}{}{}Matrix.c}!poMatrix_rcond@{poMatrix\_\discretionary {-}{}{}rcond}|hyperpage}{36}
+\indexentry{poMatrix_rcond@{poMatrix\_\discretionary {-}{}{}rcond}!poMatrix.c@{po\discretionary {-}{}{}Matrix.c}|hyperpage}{36}
+\indexentry{poMatrix.c@{po\discretionary {-}{}{}Matrix.c}!poMatrix_solve@{poMatrix\_\discretionary {-}{}{}solve}|hyperpage}{36}
+\indexentry{poMatrix_solve@{poMatrix\_\discretionary {-}{}{}solve}!poMatrix.c@{po\discretionary {-}{}{}Matrix.c}|hyperpage}{36}
+\indexentry{poMatrix.c@{po\discretionary {-}{}{}Matrix.c}!set_rcond@{set\_\discretionary {-}{}{}rcond}|hyperpage}{36}
+\indexentry{set_rcond@{set\_\discretionary {-}{}{}rcond}!poMatrix.c@{po\discretionary {-}{}{}Matrix.c}|hyperpage}{36}
+\indexentry{poMatrix.h@{poMatrix.h}|hyperpage}{37}
+\indexentry{poMatrix.h@{po\discretionary {-}{}{}Matrix.h}!get_norm_sy@{get\_\discretionary {-}{}{}norm\_\discretionary {-}{}{}sy}|hyperpage}{37}
+\indexentry{get_norm_sy@{get\_\discretionary {-}{}{}norm\_\discretionary {-}{}{}sy}!poMatrix.h@{po\discretionary {-}{}{}Matrix.h}|hyperpage}{37}
+\indexentry{poMatrix.h@{po\discretionary {-}{}{}Matrix.h}!poMatrix_chol@{poMatrix\_\discretionary {-}{}{}chol}|hyperpage}{37}
+\indexentry{poMatrix_chol@{poMatrix\_\discretionary {-}{}{}chol}!poMatrix.h@{po\discretionary {-}{}{}Matrix.h}|hyperpage}{37}
+\indexentry{poMatrix.h@{po\discretionary {-}{}{}Matrix.h}!poMatrix_geMatrix_solve@{poMatrix\_\discretionary {-}{}{}geMatrix\_\discretionary {-}{}{}solve}|hyperpage}{37}
+\indexentry{poMatrix_geMatrix_solve@{poMatrix\_\discretionary {-}{}{}geMatrix\_\discretionary {-}{}{}solve}!poMatrix.h@{po\discretionary {-}{}{}Matrix.h}|hyperpage}{37}
+\indexentry{poMatrix.h@{po\discretionary {-}{}{}Matrix.h}!poMatrix_matrix_solve@{poMatrix\_\discretionary {-}{}{}matrix\_\discretionary {-}{}{}solve}|hyperpage}{37}
+\indexentry{poMatrix_matrix_solve@{poMatrix\_\discretionary {-}{}{}matrix\_\discretionary {-}{}{}solve}!poMatrix.h@{po\discretionary {-}{}{}Matrix.h}|hyperpage}{37}
+\indexentry{poMatrix.h@{po\discretionary {-}{}{}Matrix.h}!poMatrix_rcond@{poMatrix\_\discretionary {-}{}{}rcond}|hyperpage}{37}
+\indexentry{poMatrix_rcond@{poMatrix\_\discretionary {-}{}{}rcond}!poMatrix.h@{po\discretionary {-}{}{}Matrix.h}|hyperpage}{37}
+\indexentry{poMatrix.h@{po\discretionary {-}{}{}Matrix.h}!poMatrix_solve@{poMatrix\_\discretionary {-}{}{}solve}|hyperpage}{37}
+\indexentry{poMatrix_solve@{poMatrix\_\discretionary {-}{}{}solve}!poMatrix.h@{po\discretionary {-}{}{}Matrix.h}|hyperpage}{37}
+\indexentry{sscChol.c@{sscChol.c}|hyperpage}{37}
+\indexentry{sscChol.c@{ssc\discretionary {-}{}{}Chol.c}!sscChol_validate@{sscChol\_\discretionary {-}{}{}validate}|hyperpage}{37}
+\indexentry{sscChol_validate@{sscChol\_\discretionary {-}{}{}validate}!sscChol.c@{ssc\discretionary {-}{}{}Chol.c}|hyperpage}{37}
+\indexentry{sscChol.h@{sscChol.h}|hyperpage}{38}
+\indexentry{sscChol.h@{ssc\discretionary {-}{}{}Chol.h}!sscChol_validate@{sscChol\_\discretionary {-}{}{}validate}|hyperpage}{38}
+\indexentry{sscChol_validate@{sscChol\_\discretionary {-}{}{}validate}!sscChol.h@{ssc\discretionary {-}{}{}Chol.h}|hyperpage}{38}
+\indexentry{sscCrosstab.c@{sscCrosstab.c}|hyperpage}{38}
+\indexentry{sscCrosstab.c@{ssc\discretionary {-}{}{}Crosstab.c}!col_metis_order@{col\_\discretionary {-}{}{}metis\_\discretionary {-}{}{}order}|hyperpage}{38}
+\indexentry{col_metis_order@{col\_\discretionary {-}{}{}metis\_\discretionary {-}{}{}order}!sscCrosstab.c@{ssc\discretionary {-}{}{}Crosstab.c}|hyperpage}{38}
+\indexentry{sscCrosstab.c@{ssc\discretionary {-}{}{}Crosstab.c}!sscCrosstab@{sscCrosstab}|hyperpage}{38}
+\indexentry{sscCrosstab@{sscCrosstab}!sscCrosstab.c@{ssc\discretionary {-}{}{}Crosstab.c}|hyperpage}{38}
+\indexentry{sscCrosstab.c@{ssc\discretionary {-}{}{}Crosstab.c}!sscCrosstab_groupedPerm@{sscCrosstab\_\discretionary {-}{}{}groupedPerm}|hyperpage}{38}
+\indexentry{sscCrosstab_groupedPerm@{sscCrosstab\_\discretionary {-}{}{}groupedPerm}!sscCrosstab.c@{ssc\discretionary {-}{}{}Crosstab.c}|hyperpage}{38}
+\indexentry{sscCrosstab.c@{ssc\discretionary {-}{}{}Crosstab.c}!sscCrosstab_project@{sscCrosstab\_\discretionary {-}{}{}project}|hyperpage}{38}
+\indexentry{sscCrosstab_project@{sscCrosstab\_\discretionary {-}{}{}project}!sscCrosstab.c@{ssc\discretionary {-}{}{}Crosstab.c}|hyperpage}{38}
+\indexentry{sscCrosstab.c@{ssc\discretionary {-}{}{}Crosstab.c}!sscCrosstab_project2@{sscCrosstab\_\discretionary {-}{}{}project2}|hyperpage}{39}
+\indexentry{sscCrosstab_project2@{sscCrosstab\_\discretionary {-}{}{}project2}!sscCrosstab.c@{ssc\discretionary {-}{}{}Crosstab.c}|hyperpage}{39}
+\indexentry{sscCrosstab.h@{sscCrosstab.h}|hyperpage}{39}
+\indexentry{sscCrosstab.h@{ssc\discretionary {-}{}{}Crosstab.h}!ssc_metis_order@{ssc\_\discretionary {-}{}{}metis\_\discretionary {-}{}{}order}|hyperpage}{39}
+\indexentry{ssc_metis_order@{ssc\_\discretionary {-}{}{}metis\_\discretionary {-}{}{}order}!sscCrosstab.h@{ssc\discretionary {-}{}{}Crosstab.h}|hyperpage}{39}
+\indexentry{sscCrosstab.h@{ssc\discretionary {-}{}{}Crosstab.h}!sscCrosstab@{sscCrosstab}|hyperpage}{39}
+\indexentry{sscCrosstab@{sscCrosstab}!sscCrosstab.h@{ssc\discretionary {-}{}{}Crosstab.h}|hyperpage}{39}
+\indexentry{sscCrosstab.h@{ssc\discretionary {-}{}{}Crosstab.h}!sscCrosstab_groupedPerm@{sscCrosstab\_\discretionary {-}{}{}groupedPerm}|hyperpage}{39}
+\indexentry{sscCrosstab_groupedPerm@{sscCrosstab\_\discretionary {-}{}{}groupedPerm}!sscCrosstab.h@{ssc\discretionary {-}{}{}Crosstab.h}|hyperpage}{39}
+\indexentry{sscCrosstab.h@{ssc\discretionary {-}{}{}Crosstab.h}!sscCrosstab_project2@{sscCrosstab\_\discretionary {-}{}{}project2}|hyperpage}{39}
+\indexentry{sscCrosstab_project2@{sscCrosstab\_\discretionary {-}{}{}project2}!sscCrosstab.h@{ssc\discretionary {-}{}{}Crosstab.h}|hyperpage}{39}
+\indexentry{ssclme.c@{ssclme.c}|hyperpage}{40}
+\indexentry{ssclme.c@{ssclme.c}!slot_dup@{slot\_\discretionary {-}{}{}dup}|hyperpage}{41}
+\indexentry{slot_dup@{slot\_\discretionary {-}{}{}dup}!ssclme.c@{ssclme.c}|hyperpage}{41}
+\indexentry{ssclme.c@{ssclme.c}!bVj_to_A@{bVj\_\discretionary {-}{}{}to\_\discretionary {-}{}{}A}|hyperpage}{41}
+\indexentry{bVj_to_A@{bVj\_\discretionary {-}{}{}to\_\discretionary {-}{}{}A}!ssclme.c@{ssclme.c}|hyperpage}{41}
+\indexentry{ssclme.c@{ssclme.c}!coef_length@{coef\_\discretionary {-}{}{}length}|hyperpage}{41}
+\indexentry{coef_length@{coef\_\discretionary {-}{}{}length}!ssclme.c@{ssclme.c}|hyperpage}{41}
+\indexentry{ssclme.c@{ssclme.c}!ldl_inverse@{ldl\_\discretionary {-}{}{}inverse}|hyperpage}{41}
+\indexentry{ldl_inverse@{ldl\_\discretionary {-}{}{}inverse}!ssclme.c@{ssclme.c}|hyperpage}{41}
+\indexentry{ssclme.c@{ssclme.c}!ldl_update_ind@{ldl\_\discretionary {-}{}{}update\_\discretionary {-}{}{}ind}|hyperpage}{41}
+\indexentry{ldl_update_ind@{ldl\_\discretionary {-}{}{}update\_\discretionary {-}{}{}ind}!ssclme.c@{ssclme.c}|hyperpage}{41}
+\indexentry{ssclme.c@{ssclme.c}!ssclme_calc_maxod@{ssclme\_\discretionary {-}{}{}calc\_\discretionary {-}{}{}maxod}|hyperpage}{42}
+\indexentry{ssclme_calc_maxod@{ssclme\_\discretionary {-}{}{}calc\_\discretionary {-}{}{}maxod}!ssclme.c@{ssclme.c}|hyperpage}{42}
+\indexentry{ssclme.c@{ssclme.c}!ssclme_coef@{ssclme\_\discretionary {-}{}{}coef}|hyperpage}{42}
+\indexentry{ssclme_coef@{ssclme\_\discretionary {-}{}{}coef}!ssclme.c@{ssclme.c}|hyperpage}{42}
+\indexentry{ssclme.c@{ssclme.c}!ssclme_coefGets@{ssclme\_\discretionary {-}{}{}coefGets}|hyperpage}{42}
+\indexentry{ssclme_coefGets@{ssclme\_\discretionary {-}{}{}coefGets}!ssclme.c@{ssclme.c}|hyperpage}{42}
+\indexentry{ssclme.c@{ssclme.c}!ssclme_coefGetsUnc@{ssclme\_\discretionary {-}{}{}coefGetsUnc}|hyperpage}{42}
+\indexentry{ssclme_coefGetsUnc@{ssclme\_\discretionary {-}{}{}coefGetsUnc}!ssclme.c@{ssclme.c}|hyperpage}{42}
+\indexentry{ssclme.c@{ssclme.c}!ssclme_coefUnc@{ssclme\_\discretionary {-}{}{}coefUnc}|hyperpage}{43}
+\indexentry{ssclme_coefUnc@{ssclme\_\discretionary {-}{}{}coefUnc}!ssclme.c@{ssclme.c}|hyperpage}{43}
+\indexentry{ssclme.c@{ssclme.c}!ssclme_collapse@{ssclme\_\discretionary {-}{}{}collapse}|hyperpage}{43}
+\indexentry{ssclme_collapse@{ssclme\_\discretionary {-}{}{}collapse}!ssclme.c@{ssclme.c}|hyperpage}{43}
+\indexentry{ssclme.c@{ssclme.c}!ssclme_copy_ctab@{ssclme\_\discretionary {-}{}{}copy\_\discretionary {-}{}{}ctab}|hyperpage}{43}
+\indexentry{ssclme_copy_ctab@{ssclme\_\discretionary {-}{}{}copy\_\discretionary {-}{}{}ctab}!ssclme.c@{ssclme.c}|hyperpage}{43}
+\indexentry{ssclme.c@{ssclme.c}!ssclme_create@{ssclme\_\discretionary {-}{}{}create}|hyperpage}{44}
+\indexentry{ssclme_create@{ssclme\_\discretionary {-}{}{}create}!ssclme.c@{ssclme.c}|hyperpage}{44}
+\indexentry{ssclme.c@{ssclme.c}!ssclme_EMsteps@{ssclme\_\discretionary {-}{}{}EMsteps}|hyperpage}{44}
+\indexentry{ssclme_EMsteps@{ssclme\_\discretionary {-}{}{}EMsteps}!ssclme.c@{ssclme.c}|hyperpage}{44}
+\indexentry{ssclme.c@{ssclme.c}!ssclme_factor@{ssclme\_\discretionary {-}{}{}factor}|hyperpage}{44}
+\indexentry{ssclme_factor@{ssclme\_\discretionary {-}{}{}factor}!ssclme.c@{ssclme.c}|hyperpage}{44}
+\indexentry{ssclme.c@{ssclme.c}!ssclme_fitted@{ssclme\_\discretionary {-}{}{}fitted}|hyperpage}{45}
+\indexentry{ssclme_fitted@{ssclme\_\discretionary {-}{}{}fitted}!ssclme.c@{ssclme.c}|hyperpage}{45}
+\indexentry{ssclme.c@{ssclme.c}!ssclme_fixef@{ssclme\_\discretionary {-}{}{}fixef}|hyperpage}{45}
+\indexentry{ssclme_fixef@{ssclme\_\discretionary {-}{}{}fixef}!ssclme.c@{ssclme.c}|hyperpage}{45}
+\indexentry{ssclme.c@{ssclme.c}!ssclme_gradient@{ssclme\_\discretionary {-}{}{}gradient}|hyperpage}{45}
+\indexentry{ssclme_gradient@{ssclme\_\discretionary {-}{}{}gradient}!ssclme.c@{ssclme.c}|hyperpage}{45}
+\indexentry{ssclme.c@{ssclme.c}!ssclme_inflate_and_factor@{ssclme\_\discretionary {-}{}{}inflate\_\discretionary {-}{}{}and\_\discretionary {-}{}{}factor}|hyperpage}{45}
+\indexentry{ssclme_inflate_and_factor@{ssclme\_\discretionary {-}{}{}inflate\_\discretionary {-}{}{}and\_\discretionary {-}{}{}factor}!ssclme.c@{ssclme.c}|hyperpage}{45}
+\indexentry{ssclme.c@{ssclme.c}!ssclme_initial@{ssclme\_\discretionary {-}{}{}initial}|hyperpage}{46}
+\indexentry{ssclme_initial@{ssclme\_\discretionary {-}{}{}initial}!ssclme.c@{ssclme.c}|hyperpage}{46}
+\indexentry{ssclme.c@{ssclme.c}!ssclme_invert@{ssclme\_\discretionary {-}{}{}invert}|hyperpage}{46}
+\indexentry{ssclme_invert@{ssclme\_\discretionary {-}{}{}invert}!ssclme.c@{ssclme.c}|hyperpage}{46}
+\indexentry{ssclme.c@{ssclme.c}!ssclme_ranef@{ssclme\_\discretionary {-}{}{}ranef}|hyperpage}{46}
+\indexentry{ssclme_ranef@{ssclme\_\discretionary {-}{}{}ranef}!ssclme.c@{ssclme.c}|hyperpage}{46}
+\indexentry{ssclme.c@{ssclme.c}!ssclme_sigma@{ssclme\_\discretionary {-}{}{}sigma}|hyperpage}{46}
+\indexentry{ssclme_sigma@{ssclme\_\discretionary {-}{}{}sigma}!ssclme.c@{ssclme.c}|hyperpage}{46}
+\indexentry{ssclme.c@{ssclme.c}!ssclme_to_lme@{ssclme\_\discretionary {-}{}{}to\_\discretionary {-}{}{}lme}|hyperpage}{47}
+\indexentry{ssclme_to_lme@{ssclme\_\discretionary {-}{}{}to\_\discretionary {-}{}{}lme}!ssclme.c@{ssclme.c}|hyperpage}{47}
+\indexentry{ssclme.c@{ssclme.c}!ssclme_transfer_dimnames@{ssclme\_\discretionary {-}{}{}transfer\_\discretionary {-}{}{}dimnames}|hyperpage}{47}
+\indexentry{ssclme_transfer_dimnames@{ssclme\_\discretionary {-}{}{}transfer\_\discretionary {-}{}{}dimnames}!ssclme.c@{ssclme.c}|hyperpage}{47}
+\indexentry{ssclme.c@{ssclme.c}!ssclme_update_mm@{ssclme\_\discretionary {-}{}{}update\_\discretionary {-}{}{}mm}|hyperpage}{47}
+\indexentry{ssclme_update_mm@{ssclme\_\discretionary {-}{}{}update\_\discretionary {-}{}{}mm}!ssclme.c@{ssclme.c}|hyperpage}{47}
+\indexentry{ssclme.c@{ssclme.c}!ssclme_variances@{ssclme\_\discretionary {-}{}{}variances}|hyperpage}{48}
+\indexentry{ssclme_variances@{ssclme\_\discretionary {-}{}{}variances}!ssclme.c@{ssclme.c}|hyperpage}{48}
+\indexentry{ssclme.h@{ssclme.h}|hyperpage}{48}
+\indexentry{ssclme.h@{ssclme.h}!ssclme_coef@{ssclme\_\discretionary {-}{}{}coef}|hyperpage}{49}
+\indexentry{ssclme_coef@{ssclme\_\discretionary {-}{}{}coef}!ssclme.h@{ssclme.h}|hyperpage}{49}
+\indexentry{ssclme.h@{ssclme.h}!ssclme_coefGets@{ssclme\_\discretionary {-}{}{}coefGets}|hyperpage}{49}
+\indexentry{ssclme_coefGets@{ssclme\_\discretionary {-}{}{}coefGets}!ssclme.h@{ssclme.h}|hyperpage}{49}
+\indexentry{ssclme.h@{ssclme.h}!ssclme_coefGetsUnc@{ssclme\_\discretionary {-}{}{}coefGetsUnc}|hyperpage}{49}
+\indexentry{ssclme_coefGetsUnc@{ssclme\_\discretionary {-}{}{}coefGetsUnc}!ssclme.h@{ssclme.h}|hyperpage}{49}
+\indexentry{ssclme.h@{ssclme.h}!ssclme_coefUnc@{ssclme\_\discretionary {-}{}{}coefUnc}|hyperpage}{49}
+\indexentry{ssclme_coefUnc@{ssclme\_\discretionary {-}{}{}coefUnc}!ssclme.h@{ssclme.h}|hyperpage}{49}
+\indexentry{ssclme.h@{ssclme.h}!ssclme_collapse@{ssclme\_\discretionary {-}{}{}collapse}|hyperpage}{50}
+\indexentry{ssclme_collapse@{ssclme\_\discretionary {-}{}{}collapse}!ssclme.h@{ssclme.h}|hyperpage}{50}
+\indexentry{ssclme.h@{ssclme.h}!ssclme_create@{ssclme\_\discretionary {-}{}{}create}|hyperpage}{50}
+\indexentry{ssclme_create@{ssclme\_\discretionary {-}{}{}create}!ssclme.h@{ssclme.h}|hyperpage}{50}
+\indexentry{ssclme.h@{ssclme.h}!ssclme_EMsteps@{ssclme\_\discretionary {-}{}{}EMsteps}|hyperpage}{50}
+\indexentry{ssclme_EMsteps@{ssclme\_\discretionary {-}{}{}EMsteps}!ssclme.h@{ssclme.h}|hyperpage}{50}
+\indexentry{ssclme.h@{ssclme.h}!ssclme_factor@{ssclme\_\discretionary {-}{}{}factor}|hyperpage}{51}
+\indexentry{ssclme_factor@{ssclme\_\discretionary {-}{}{}factor}!ssclme.h@{ssclme.h}|hyperpage}{51}
+\indexentry{ssclme.h@{ssclme.h}!ssclme_fitted@{ssclme\_\discretionary {-}{}{}fitted}|hyperpage}{51}
+\indexentry{ssclme_fitted@{ssclme\_\discretionary {-}{}{}fitted}!ssclme.h@{ssclme.h}|hyperpage}{51}
+\indexentry{ssclme.h@{ssclme.h}!ssclme_fixef@{ssclme\_\discretionary {-}{}{}fixef}|hyperpage}{51}
+\indexentry{ssclme_fixef@{ssclme\_\discretionary {-}{}{}fixef}!ssclme.h@{ssclme.h}|hyperpage}{51}
+\indexentry{ssclme.h@{ssclme.h}!ssclme_gradient@{ssclme\_\discretionary {-}{}{}gradient}|hyperpage}{51}
+\indexentry{ssclme_gradient@{ssclme\_\discretionary {-}{}{}gradient}!ssclme.h@{ssclme.h}|hyperpage}{51}
+\indexentry{ssclme.h@{ssclme.h}!ssclme_inflate_and_factor@{ssclme\_\discretionary {-}{}{}inflate\_\discretionary {-}{}{}and\_\discretionary {-}{}{}factor}|hyperpage}{52}
+\indexentry{ssclme_inflate_and_factor@{ssclme\_\discretionary {-}{}{}inflate\_\discretionary {-}{}{}and\_\discretionary {-}{}{}factor}!ssclme.h@{ssclme.h}|hyperpage}{52}
+\indexentry{ssclme.h@{ssclme.h}!ssclme_initial@{ssclme\_\discretionary {-}{}{}initial}|hyperpage}{52}
+\indexentry{ssclme_initial@{ssclme\_\discretionary {-}{}{}initial}!ssclme.h@{ssclme.h}|hyperpage}{52}
+\indexentry{ssclme.h@{ssclme.h}!ssclme_invert@{ssclme\_\discretionary {-}{}{}invert}|hyperpage}{52}
+\indexentry{ssclme_invert@{ssclme\_\discretionary {-}{}{}invert}!ssclme.h@{ssclme.h}|hyperpage}{52}
+\indexentry{ssclme.h@{ssclme.h}!ssclme_ranef@{ssclme\_\discretionary {-}{}{}ranef}|hyperpage}{52}
+\indexentry{ssclme_ranef@{ssclme\_\discretionary {-}{}{}ranef}!ssclme.h@{ssclme.h}|hyperpage}{52}
+\indexentry{ssclme.h@{ssclme.h}!ssclme_sigma@{ssclme\_\discretionary {-}{}{}sigma}|hyperpage}{53}
+\indexentry{ssclme_sigma@{ssclme\_\discretionary {-}{}{}sigma}!ssclme.h@{ssclme.h}|hyperpage}{53}
+\indexentry{ssclme.h@{ssclme.h}!ssclme_transfer_dimnames@{ssclme\_\discretionary {-}{}{}transfer\_\discretionary {-}{}{}dimnames}|hyperpage}{53}
+\indexentry{ssclme_transfer_dimnames@{ssclme\_\discretionary {-}{}{}transfer\_\discretionary {-}{}{}dimnames}!ssclme.h@{ssclme.h}|hyperpage}{53}
+\indexentry{ssclme.h@{ssclme.h}!ssclme_update_mm@{ssclme\_\discretionary {-}{}{}update\_\discretionary {-}{}{}mm}|hyperpage}{53}
+\indexentry{ssclme_update_mm@{ssclme\_\discretionary {-}{}{}update\_\discretionary {-}{}{}mm}!ssclme.h@{ssclme.h}|hyperpage}{53}
+\indexentry{ssclme.h@{ssclme.h}!ssclme_variances@{ssclme\_\discretionary {-}{}{}variances}|hyperpage}{54}
+\indexentry{ssclme_variances@{ssclme\_\discretionary {-}{}{}variances}!ssclme.h@{ssclme.h}|hyperpage}{54}
+\indexentry{sscMatrix.c@{sscMatrix.c}|hyperpage}{54}
+\indexentry{sscMatrix.c@{ssc\discretionary {-}{}{}Matrix.c}!ssc_transpose@{ssc\_\discretionary {-}{}{}transpose}|hyperpage}{54}
+\indexentry{ssc_transpose@{ssc\_\discretionary {-}{}{}transpose}!sscMatrix.c@{ssc\discretionary {-}{}{}Matrix.c}|hyperpage}{54}
+\indexentry{sscMatrix.c@{ssc\discretionary {-}{}{}Matrix.c}!sscMatrix_chol@{sscMatrix\_\discretionary {-}{}{}chol}|hyperpage}{54}
+\indexentry{sscMatrix_chol@{sscMatrix\_\discretionary {-}{}{}chol}!sscMatrix.c@{ssc\discretionary {-}{}{}Matrix.c}|hyperpage}{54}
+\indexentry{sscMatrix.c@{ssc\discretionary {-}{}{}Matrix.c}!sscMatrix_inverse_factor@{sscMatrix\_\discretionary {-}{}{}inverse\_\discretionary {-}{}{}factor}|hyperpage}{54}
+\indexentry{sscMatrix_inverse_factor@{sscMatrix\_\discretionary {-}{}{}inverse\_\discretionary {-}{}{}factor}!sscMatrix.c@{ssc\discretionary {-}{}{}Matrix.c}|hyperpage}{54}
+\indexentry{sscMatrix.c@{ssc\discretionary {-}{}{}Matrix.c}!sscMatrix_ldl_symbolic@{sscMatrix\_\discretionary {-}{}{}ldl\_\discretionary {-}{}{}symbolic}|hyperpage}{54}
+\indexentry{sscMatrix_ldl_symbolic@{sscMatrix\_\discretionary {-}{}{}ldl\_\discretionary {-}{}{}symbolic}!sscMatrix.c@{ssc\discretionary {-}{}{}Matrix.c}|hyperpage}{54}
+\indexentry{sscMatrix.c@{ssc\discretionary {-}{}{}Matrix.c}!sscMatrix_matrix_solve@{sscMatrix\_\discretionary {-}{}{}matrix\_\discretionary {-}{}{}solve}|hyperpage}{55}
+\indexentry{sscMatrix_matrix_solve@{sscMatrix\_\discretionary {-}{}{}matrix\_\discretionary {-}{}{}solve}!sscMatrix.c@{ssc\discretionary {-}{}{}Matrix.c}|hyperpage}{55}
+\indexentry{sscMatrix.c@{ssc\discretionary {-}{}{}Matrix.c}!sscMatrix_metis_ldl_symbolic@{sscMatrix\_\discretionary {-}{}{}metis\_\discretionary {-}{}{}ldl\_\discretionary {-}{}{}symbolic}|hyperpage}{55}
+\indexentry{sscMatrix_metis_ldl_symbolic@{sscMatrix\_\discretionary {-}{}{}metis\_\discretionary {-}{}{}ldl\_\discretionary {-}{}{}symbolic}!sscMatrix.c@{ssc\discretionary {-}{}{}Matrix.c}|hyperpage}{55}
+\indexentry{sscMatrix.c@{ssc\discretionary {-}{}{}Matrix.c}!sscMatrix_metis_perm@{sscMatrix\_\discretionary {-}{}{}metis\_\discretionary {-}{}{}perm}|hyperpage}{55}
+\indexentry{sscMatrix_metis_perm@{sscMatrix\_\discretionary {-}{}{}metis\_\discretionary {-}{}{}perm}!sscMatrix.c@{ssc\discretionary {-}{}{}Matrix.c}|hyperpage}{55}
+\indexentry{sscMatrix.c@{ssc\discretionary {-}{}{}Matrix.c}!sscMatrix_to_triplet@{sscMatrix\_\discretionary {-}{}{}to\_\discretionary {-}{}{}triplet}|hyperpage}{55}
+\indexentry{sscMatrix_to_triplet@{sscMatrix\_\discretionary {-}{}{}to\_\discretionary {-}{}{}triplet}!sscMatrix.c@{ssc\discretionary {-}{}{}Matrix.c}|hyperpage}{55}
+\indexentry{sscMatrix.c@{ssc\discretionary {-}{}{}Matrix.c}!sscMatrix_validate@{sscMatrix\_\discretionary {-}{}{}validate}|hyperpage}{55}
+\indexentry{sscMatrix_validate@{sscMatrix\_\discretionary {-}{}{}validate}!sscMatrix.c@{ssc\discretionary {-}{}{}Matrix.c}|hyperpage}{55}
+\indexentry{sscMatrix.h@{sscMatrix.h}|hyperpage}{55}
+\indexentry{sscMatrix.h@{ssc\discretionary {-}{}{}Matrix.h}!ssc_metis_order@{ssc\_\discretionary {-}{}{}metis\_\discretionary {-}{}{}order}|hyperpage}{55}
+\indexentry{ssc_metis_order@{ssc\_\discretionary {-}{}{}metis\_\discretionary {-}{}{}order}!sscMatrix.h@{ssc\discretionary {-}{}{}Matrix.h}|hyperpage}{55}
+\indexentry{sscMatrix.h@{ssc\discretionary {-}{}{}Matrix.h}!ssc_transpose@{ssc\_\discretionary {-}{}{}transpose}|hyperpage}{55}
+\indexentry{ssc_transpose@{ssc\_\discretionary {-}{}{}transpose}!sscMatrix.h@{ssc\discretionary {-}{}{}Matrix.h}|hyperpage}{55}
+\indexentry{sscMatrix.h@{ssc\discretionary {-}{}{}Matrix.h}!sscMatrix_chol@{sscMatrix\_\discretionary {-}{}{}chol}|hyperpage}{55}
+\indexentry{sscMatrix_chol@{sscMatrix\_\discretionary {-}{}{}chol}!sscMatrix.h@{ssc\discretionary {-}{}{}Matrix.h}|hyperpage}{55}
+\indexentry{sscMatrix.h@{ssc\discretionary {-}{}{}Matrix.h}!sscMatrix_inverse_factor@{sscMatrix\_\discretionary {-}{}{}inverse\_\discretionary {-}{}{}factor}|hyperpage}{55}
+\indexentry{sscMatrix_inverse_factor@{sscMatrix\_\discretionary {-}{}{}inverse\_\discretionary {-}{}{}factor}!sscMatrix.h@{ssc\discretionary {-}{}{}Matrix.h}|hyperpage}{55}
+\indexentry{sscMatrix.h@{ssc\discretionary {-}{}{}Matrix.h}!sscMatrix_ldl_symbolic@{sscMatrix\_\discretionary {-}{}{}ldl\_\discretionary {-}{}{}symbolic}|hyperpage}{56}
+\indexentry{sscMatrix_ldl_symbolic@{sscMatrix\_\discretionary {-}{}{}ldl\_\discretionary {-}{}{}symbolic}!sscMatrix.h@{ssc\discretionary {-}{}{}Matrix.h}|hyperpage}{56}
+\indexentry{sscMatrix.h@{ssc\discretionary {-}{}{}Matrix.h}!sscMatrix_matrix_solve@{sscMatrix\_\discretionary {-}{}{}matrix\_\discretionary {-}{}{}solve}|hyperpage}{56}
+\indexentry{sscMatrix_matrix_solve@{sscMatrix\_\discretionary {-}{}{}matrix\_\discretionary {-}{}{}solve}!sscMatrix.h@{ssc\discretionary {-}{}{}Matrix.h}|hyperpage}{56}
+\indexentry{sscMatrix.h@{ssc\discretionary {-}{}{}Matrix.h}!sscMatrix_to_triplet@{sscMatrix\_\discretionary {-}{}{}to\_\discretionary {-}{}{}triplet}|hyperpage}{56}
+\indexentry{sscMatrix_to_triplet@{sscMatrix\_\discretionary {-}{}{}to\_\discretionary {-}{}{}triplet}!sscMatrix.h@{ssc\discretionary {-}{}{}Matrix.h}|hyperpage}{56}
+\indexentry{sscMatrix.h@{ssc\discretionary {-}{}{}Matrix.h}!sscMatrix_validate@{sscMatrix\_\discretionary {-}{}{}validate}|hyperpage}{56}
+\indexentry{sscMatrix_validate@{sscMatrix\_\discretionary {-}{}{}validate}!sscMatrix.h@{ssc\discretionary {-}{}{}Matrix.h}|hyperpage}{56}
+\indexentry{syMatrix.c@{syMatrix.c}|hyperpage}{56}
+\indexentry{syMatrix.c@{sy\discretionary {-}{}{}Matrix.c}!get_norm_sy@{get\_\discretionary {-}{}{}norm\_\discretionary {-}{}{}sy}|hyperpage}{56}
+\indexentry{get_norm_sy@{get\_\discretionary {-}{}{}norm\_\discretionary {-}{}{}sy}!syMatrix.c@{sy\discretionary {-}{}{}Matrix.c}|hyperpage}{56}
+\indexentry{syMatrix.c@{sy\discretionary {-}{}{}Matrix.c}!make_symmetric@{make\_\discretionary {-}{}{}symmetric}|hyperpage}{56}
+\indexentry{make_symmetric@{make\_\discretionary {-}{}{}symmetric}!syMatrix.c@{sy\discretionary {-}{}{}Matrix.c}|hyperpage}{56}
+\indexentry{syMatrix.c@{sy\discretionary {-}{}{}Matrix.c}!syMatrix_as_geMatrix@{syMatrix\_\discretionary {-}{}{}as\_\discretionary {-}{}{}geMatrix}|hyperpage}{56}
+\indexentry{syMatrix_as_geMatrix@{syMatrix\_\discretionary {-}{}{}as\_\discretionary {-}{}{}geMatrix}!syMatrix.c@{sy\discretionary {-}{}{}Matrix.c}|hyperpage}{56}
+\indexentry{syMatrix.c@{sy\discretionary {-}{}{}Matrix.c}!syMatrix_as_matrix@{syMatrix\_\discretionary {-}{}{}as\_\discretionary {-}{}{}matrix}|hyperpage}{56}
+\indexentry{syMatrix_as_matrix@{syMatrix\_\discretionary {-}{}{}as\_\discretionary {-}{}{}matrix}!syMatrix.c@{sy\discretionary {-}{}{}Matrix.c}|hyperpage}{56}
+\indexentry{syMatrix.c@{sy\discretionary {-}{}{}Matrix.c}!syMatrix_geMatrix_mm@{syMatrix\_\discretionary {-}{}{}geMatrix\_\discretionary {-}{}{}mm}|hyperpage}{56}
+\indexentry{syMatrix_geMatrix_mm@{syMatrix\_\discretionary {-}{}{}geMatrix\_\discretionary {-}{}{}mm}!syMatrix.c@{sy\discretionary {-}{}{}Matrix.c}|hyperpage}{56}
+\indexentry{syMatrix.c@{sy\discretionary {-}{}{}Matrix.c}!syMatrix_geMatrix_mm_R@{syMatrix\_\discretionary {-}{}{}geMatrix\_\discretionary {-}{}{}mm\_\discretionary {-}{}{}R}|hyperpage}{56}
+\indexentry{syMatrix_geMatrix_mm_R@{syMatrix\_\discretionary {-}{}{}geMatrix\_\discretionary {-}{}{}mm\_\discretionary {-}{}{}R}!syMatrix.c@{sy\discretionary {-}{}{}Matrix.c}|hyperpage}{56}
+\indexentry{syMatrix.c@{sy\discretionary {-}{}{}Matrix.c}!syMatrix_norm@{syMatrix\_\discretionary {-}{}{}norm}|hyperpage}{57}
+\indexentry{syMatrix_norm@{syMatrix\_\discretionary {-}{}{}norm}!syMatrix.c@{sy\discretionary {-}{}{}Matrix.c}|hyperpage}{57}
+\indexentry{syMatrix.c@{sy\discretionary {-}{}{}Matrix.c}!syMatrix_validate@{syMatrix\_\discretionary {-}{}{}validate}|hyperpage}{57}
+\indexentry{syMatrix_validate@{syMatrix\_\discretionary {-}{}{}validate}!syMatrix.c@{sy\discretionary {-}{}{}Matrix.c}|hyperpage}{57}
+\indexentry{syMatrix.h@{syMatrix.h}|hyperpage}{57}
+\indexentry{syMatrix.h@{sy\discretionary {-}{}{}Matrix.h}!get_norm_sy@{get\_\discretionary {-}{}{}norm\_\discretionary {-}{}{}sy}|hyperpage}{57}
+\indexentry{get_norm_sy@{get\_\discretionary {-}{}{}norm\_\discretionary {-}{}{}sy}!syMatrix.h@{sy\discretionary {-}{}{}Matrix.h}|hyperpage}{57}
+\indexentry{syMatrix.h@{sy\discretionary {-}{}{}Matrix.h}!syMatrix_as_geMatrix@{syMatrix\_\discretionary {-}{}{}as\_\discretionary {-}{}{}geMatrix}|hyperpage}{57}
+\indexentry{syMatrix_as_geMatrix@{syMatrix\_\discretionary {-}{}{}as\_\discretionary {-}{}{}geMatrix}!syMatrix.h@{sy\discretionary {-}{}{}Matrix.h}|hyperpage}{57}
+\indexentry{syMatrix.h@{sy\discretionary {-}{}{}Matrix.h}!syMatrix_as_matrix@{syMatrix\_\discretionary {-}{}{}as\_\discretionary {-}{}{}matrix}|hyperpage}{57}
+\indexentry{syMatrix_as_matrix@{syMatrix\_\discretionary {-}{}{}as\_\discretionary {-}{}{}matrix}!syMatrix.h@{sy\discretionary {-}{}{}Matrix.h}|hyperpage}{57}
+\indexentry{syMatrix.h@{sy\discretionary {-}{}{}Matrix.h}!syMatrix_geMatrix_mm@{syMatrix\_\discretionary {-}{}{}geMatrix\_\discretionary {-}{}{}mm}|hyperpage}{57}
+\indexentry{syMatrix_geMatrix_mm@{syMatrix\_\discretionary {-}{}{}geMatrix\_\discretionary {-}{}{}mm}!syMatrix.h@{sy\discretionary {-}{}{}Matrix.h}|hyperpage}{57}
+\indexentry{syMatrix.h@{sy\discretionary {-}{}{}Matrix.h}!syMatrix_geMatrix_mm_R@{syMatrix\_\discretionary {-}{}{}geMatrix\_\discretionary {-}{}{}mm\_\discretionary {-}{}{}R}|hyperpage}{57}
+\indexentry{syMatrix_geMatrix_mm_R@{syMatrix\_\discretionary {-}{}{}geMatrix\_\discretionary {-}{}{}mm\_\discretionary {-}{}{}R}!syMatrix.h@{sy\discretionary {-}{}{}Matrix.h}|hyperpage}{57}
+\indexentry{syMatrix.h@{sy\discretionary {-}{}{}Matrix.h}!syMatrix_matrix_solve@{syMatrix\_\discretionary {-}{}{}matrix\_\discretionary {-}{}{}solve}|hyperpage}{57}
+\indexentry{syMatrix_matrix_solve@{syMatrix\_\discretionary {-}{}{}matrix\_\discretionary {-}{}{}solve}!syMatrix.h@{sy\discretionary {-}{}{}Matrix.h}|hyperpage}{57}
+\indexentry{syMatrix.h@{sy\discretionary {-}{}{}Matrix.h}!syMatrix_norm@{syMatrix\_\discretionary {-}{}{}norm}|hyperpage}{57}
+\indexentry{syMatrix_norm@{syMatrix\_\discretionary {-}{}{}norm}!syMatrix.h@{sy\discretionary {-}{}{}Matrix.h}|hyperpage}{57}
+\indexentry{syMatrix.h@{sy\discretionary {-}{}{}Matrix.h}!syMatrix_rcond@{syMatrix\_\discretionary {-}{}{}rcond}|hyperpage}{58}
+\indexentry{syMatrix_rcond@{syMatrix\_\discretionary {-}{}{}rcond}!syMatrix.h@{sy\discretionary {-}{}{}Matrix.h}|hyperpage}{58}
+\indexentry{syMatrix.h@{sy\discretionary {-}{}{}Matrix.h}!syMatrix_solve@{syMatrix\_\discretionary {-}{}{}solve}|hyperpage}{58}
+\indexentry{syMatrix_solve@{syMatrix\_\discretionary {-}{}{}solve}!syMatrix.h@{sy\discretionary {-}{}{}Matrix.h}|hyperpage}{58}
+\indexentry{syMatrix.h@{sy\discretionary {-}{}{}Matrix.h}!syMatrix_validate@{syMatrix\_\discretionary {-}{}{}validate}|hyperpage}{58}
+\indexentry{syMatrix_validate@{syMatrix\_\discretionary {-}{}{}validate}!syMatrix.h@{sy\discretionary {-}{}{}Matrix.h}|hyperpage}{58}
+\indexentry{taucs_utils.c@{taucs\_\discretionary {-}{}{}utils.c}|hyperpage}{58}
+\indexentry{taucs_utils.c@{taucs\_\discretionary {-}{}{}utils.c}!copy_csc_to_taucs@{copy\_\discretionary {-}{}{}csc\_\discretionary {-}{}{}to\_\discretionary {-}{}{}taucs}|hyperpage}{59}
+\indexentry{copy_csc_to_taucs@{copy\_\discretionary {-}{}{}csc\_\discretionary {-}{}{}to\_\discretionary {-}{}{}taucs}!taucs_utils.c@{taucs\_\discretionary {-}{}{}utils.c}|hyperpage}{59}
+\indexentry{taucs_utils.c@{taucs\_\discretionary {-}{}{}utils.c}!csc_taucs_ptr@{csc\_\discretionary {-}{}{}taucs\_\discretionary {-}{}{}ptr}|hyperpage}{59}
+\indexentry{csc_taucs_ptr@{csc\_\discretionary {-}{}{}taucs\_\discretionary {-}{}{}ptr}!taucs_utils.c@{taucs\_\discretionary {-}{}{}utils.c}|hyperpage}{59}
+\indexentry{taucs_utils.c@{taucs\_\discretionary {-}{}{}utils.c}!mat_from_taucs@{mat\_\discretionary {-}{}{}from\_\discretionary {-}{}{}taucs}|hyperpage}{59}
+\indexentry{mat_from_taucs@{mat\_\discretionary {-}{}{}from\_\discretionary {-}{}{}taucs}!taucs_utils.c@{taucs\_\discretionary {-}{}{}utils.c}|hyperpage}{59}
+\indexentry{taucs_utils.c@{taucs\_\discretionary {-}{}{}utils.c}!taucs_allocation_amount@{taucs\_\discretionary {-}{}{}allocation\_\discretionary {-}{}{}amount}|hyperpage}{59}
+\indexentry{taucs_allocation_amount@{taucs\_\discretionary {-}{}{}allocation\_\discretionary {-}{}{}amount}!taucs_utils.c@{taucs\_\discretionary {-}{}{}utils.c}|hyperpage}{59}
+\indexentry{taucs_utils.c@{taucs\_\discretionary {-}{}{}utils.c}!taucs_allocation_assert_clean@{taucs\_\discretionary {-}{}{}allocation\_\discretionary {-}{}{}assert\_\discretionary {-}{}{}clean}|hyperpage}{59}
+\indexentry{taucs_allocation_assert_clean@{taucs\_\discretionary {-}{}{}allocation\_\discretionary {-}{}{}assert\_\discretionary {-}{}{}clean}!taucs_utils.c@{taucs\_\discretionary {-}{}{}utils.c}|hyperpage}{59}
+\indexentry{taucs_utils.c@{taucs\_\discretionary {-}{}{}utils.c}!taucs_allocation_attempts@{taucs\_\discretionary {-}{}{}allocation\_\discretionary {-}{}{}attempts}|hyperpage}{59}
+\indexentry{taucs_allocation_attempts@{taucs\_\discretionary {-}{}{}allocation\_\discretionary {-}{}{}attempts}!taucs_utils.c@{taucs\_\discretionary {-}{}{}utils.c}|hyperpage}{59}
+\indexentry{taucs_utils.c@{taucs\_\discretionary {-}{}{}utils.c}!taucs_allocation_count@{taucs\_\discretionary {-}{}{}allocation\_\discretionary {-}{}{}count}|hyperpage}{59}
+\indexentry{taucs_allocation_count@{taucs\_\discretionary {-}{}{}allocation\_\discretionary {-}{}{}count}!taucs_utils.c@{taucs\_\discretionary {-}{}{}utils.c}|hyperpage}{59}
+\indexentry{taucs_utils.c@{taucs\_\discretionary {-}{}{}utils.c}!taucs_allocation_induce_failure@{taucs\_\discretionary {-}{}{}allocation\_\discretionary {-}{}{}induce\_\discretionary {-}{}{}failure}|hyperpage}{59}
+\indexentry{taucs_allocation_induce_failure@{taucs\_\discretionary {-}{}{}allocation\_\discretionary {-}{}{}induce\_\discretionary {-}{}{}failure}!taucs_utils.c@{taucs\_\discretionary {-}{}{}utils.c}|hyperpage}{59}
+\indexentry{taucs_utils.c@{taucs\_\discretionary {-}{}{}utils.c}!taucs_allocation_mark_clean@{taucs\_\discretionary {-}{}{}allocation\_\discretionary {-}{}{}mark\_\discretionary {-}{}{}clean}|hyperpage}{59}
+\indexentry{taucs_allocation_mark_clean@{taucs\_\discretionary {-}{}{}allocation\_\discretionary {-}{}{}mark\_\discretionary {-}{}{}clean}!taucs_utils.c@{taucs\_\discretionary {-}{}{}utils.c}|hyperpage}{59}
+\indexentry{taucs_utils.c@{taucs\_\discretionary {-}{}{}utils.c}!taucs_calloc_stub@{taucs\_\discretionary {-}{}{}calloc\_\discretionary {-}{}{}stub}|hyperpage}{59}
+\indexentry{taucs_calloc_stub@{taucs\_\discretionary {-}{}{}calloc\_\discretionary {-}{}{}stub}!taucs_utils.c@{taucs\_\discretionary {-}{}{}utils.c}|hyperpage}{59}
+\indexentry{taucs_utils.c@{taucs\_\discretionary {-}{}{}utils.c}!taucs_ctime@{taucs\_\discretionary {-}{}{}ctime}|hyperpage}{60}
+\indexentry{taucs_ctime@{taucs\_\discretionary {-}{}{}ctime}!taucs_utils.c@{taucs\_\discretionary {-}{}{}utils.c}|hyperpage}{60}
+\indexentry{taucs_utils.c@{taucs\_\discretionary {-}{}{}utils.c}!taucs_free_stub@{taucs\_\discretionary {-}{}{}free\_\discretionary {-}{}{}stub}|hyperpage}{60}
+\indexentry{taucs_free_stub@{taucs\_\discretionary {-}{}{}free\_\discretionary {-}{}{}stub}!taucs_utils.c@{taucs\_\discretionary {-}{}{}utils.c}|hyperpage}{60}
+\indexentry{taucs_utils.c@{taucs\_\discretionary {-}{}{}utils.c}!taucs_get_nan@{taucs\_\discretionary {-}{}{}get\_\discretionary {-}{}{}nan}|hyperpage}{60}
+\indexentry{taucs_get_nan@{taucs\_\discretionary {-}{}{}get\_\discretionary {-}{}{}nan}!taucs_utils.c@{taucs\_\discretionary {-}{}{}utils.c}|hyperpage}{60}
+\indexentry{taucs_utils.c@{taucs\_\discretionary {-}{}{}utils.c}!taucs_malloc_stub@{taucs\_\discretionary {-}{}{}malloc\_\discretionary {-}{}{}stub}|hyperpage}{60}
+\indexentry{taucs_malloc_stub@{taucs\_\discretionary {-}{}{}malloc\_\discretionary {-}{}{}stub}!taucs_utils.c@{taucs\_\discretionary {-}{}{}utils.c}|hyperpage}{60}
+\indexentry{taucs_utils.c@{taucs\_\discretionary {-}{}{}utils.c}!taucs_printf@{taucs\_\discretionary {-}{}{}printf}|hyperpage}{60}
+\indexentry{taucs_printf@{taucs\_\discretionary {-}{}{}printf}!taucs_utils.c@{taucs\_\discretionary {-}{}{}utils.c}|hyperpage}{60}
+\indexentry{taucs_utils.c@{taucs\_\discretionary {-}{}{}utils.c}!taucs_realloc_stub@{taucs\_\discretionary {-}{}{}realloc\_\discretionary {-}{}{}stub}|hyperpage}{60}
+\indexentry{taucs_realloc_stub@{taucs\_\discretionary {-}{}{}realloc\_\discretionary {-}{}{}stub}!taucs_utils.c@{taucs\_\discretionary {-}{}{}utils.c}|hyperpage}{60}
+\indexentry{taucs_utils.c@{taucs\_\discretionary {-}{}{}utils.c}!taucs_wtime@{taucs\_\discretionary {-}{}{}wtime}|hyperpage}{60}
+\indexentry{taucs_wtime@{taucs\_\discretionary {-}{}{}wtime}!taucs_utils.c@{taucs\_\discretionary {-}{}{}utils.c}|hyperpage}{60}
+\indexentry{taucs_utils.c@{taucs\_\discretionary {-}{}{}utils.c}!taucs_dminusone_const@{taucs\_\discretionary {-}{}{}dminusone\_\discretionary {-}{}{}const}|hyperpage}{60}
+\indexentry{taucs_dminusone_const@{taucs\_\discretionary {-}{}{}dminusone\_\discretionary {-}{}{}const}!taucs_utils.c@{taucs\_\discretionary {-}{}{}utils.c}|hyperpage}{60}
+\indexentry{taucs_utils.c@{taucs\_\discretionary {-}{}{}utils.c}!taucs_done_const@{taucs\_\discretionary {-}{}{}done\_\discretionary {-}{}{}const}|hyperpage}{60}
+\indexentry{taucs_done_const@{taucs\_\discretionary {-}{}{}done\_\discretionary {-}{}{}const}!taucs_utils.c@{taucs\_\discretionary {-}{}{}utils.c}|hyperpage}{60}
+\indexentry{taucs_utils.c@{taucs\_\discretionary {-}{}{}utils.c}!taucs_dzero_const@{taucs\_\discretionary {-}{}{}dzero\_\discretionary {-}{}{}const}|hyperpage}{60}
+\indexentry{taucs_dzero_const@{taucs\_\discretionary {-}{}{}dzero\_\discretionary {-}{}{}const}!taucs_utils.c@{taucs\_\discretionary {-}{}{}utils.c}|hyperpage}{60}
+\indexentry{taucs_utils.h@{taucs\_\discretionary {-}{}{}utils.h}|hyperpage}{60}
+\indexentry{taucs_utils.h@{taucs\_\discretionary {-}{}{}utils.h}!csc_taucs_ptr@{csc\_\discretionary {-}{}{}taucs\_\discretionary {-}{}{}ptr}|hyperpage}{61}
+\indexentry{csc_taucs_ptr@{csc\_\discretionary {-}{}{}taucs\_\discretionary {-}{}{}ptr}!taucs_utils.h@{taucs\_\discretionary {-}{}{}utils.h}|hyperpage}{61}
+\indexentry{taucs_utils.h@{taucs\_\discretionary {-}{}{}utils.h}!mat_from_taucs@{mat\_\discretionary {-}{}{}from\_\discretionary {-}{}{}taucs}|hyperpage}{61}
+\indexentry{mat_from_taucs@{mat\_\discretionary {-}{}{}from\_\discretionary {-}{}{}taucs}!taucs_utils.h@{taucs\_\discretionary {-}{}{}utils.h}|hyperpage}{61}
+\indexentry{triplet.c@{triplet.c}|hyperpage}{61}
+\indexentry{triplet.c@{triplet.c}!triplet_to_geMatrix@{triplet\_\discretionary {-}{}{}to\_\discretionary {-}{}{}geMatrix}|hyperpage}{61}
+\indexentry{triplet_to_geMatrix@{triplet\_\discretionary {-}{}{}to\_\discretionary {-}{}{}geMatrix}!triplet.c@{triplet.c}|hyperpage}{61}
+\indexentry{triplet.c@{triplet.c}!triplet_validate@{triplet\_\discretionary {-}{}{}validate}|hyperpage}{61}
+\indexentry{triplet_validate@{triplet\_\discretionary {-}{}{}validate}!triplet.c@{triplet.c}|hyperpage}{61}
+\indexentry{triplet.h@{triplet.h}|hyperpage}{62}
+\indexentry{triplet.h@{triplet.h}!triplet_to_geMatrix@{triplet\_\discretionary {-}{}{}to\_\discretionary {-}{}{}geMatrix}|hyperpage}{62}
+\indexentry{triplet_to_geMatrix@{triplet\_\discretionary {-}{}{}to\_\discretionary {-}{}{}geMatrix}!triplet.h@{triplet.h}|hyperpage}{62}
+\indexentry{triplet.h@{triplet.h}!triplet_validate@{triplet\_\discretionary {-}{}{}validate}|hyperpage}{62}
+\indexentry{triplet_validate@{triplet\_\discretionary {-}{}{}validate}!triplet.h@{triplet.h}|hyperpage}{62}
+\indexentry{triplet_to_col.c@{triplet\_\discretionary {-}{}{}to\_\discretionary {-}{}{}col.c}|hyperpage}{62}
+\indexentry{triplet_to_col.c@{triplet\_\discretionary {-}{}{}to\_\discretionary {-}{}{}col.c}!triplet_to_col@{triplet\_\discretionary {-}{}{}to\_\discretionary {-}{}{}col}|hyperpage}{62}
+\indexentry{triplet_to_col@{triplet\_\discretionary {-}{}{}to\_\discretionary {-}{}{}col}!triplet_to_col.c@{triplet\_\discretionary {-}{}{}to\_\discretionary {-}{}{}col.c}|hyperpage}{62}
+\indexentry{triplet_to_col.h@{triplet\_\discretionary {-}{}{}to\_\discretionary {-}{}{}col.h}|hyperpage}{62}
+\indexentry{triplet_to_col.h@{triplet\_\discretionary {-}{}{}to\_\discretionary {-}{}{}col.h}!triplet_to_col@{triplet\_\discretionary {-}{}{}to\_\discretionary {-}{}{}col}|hyperpage}{62}
+\indexentry{triplet_to_col@{triplet\_\discretionary {-}{}{}to\_\discretionary {-}{}{}col}!triplet_to_col.h@{triplet\_\discretionary {-}{}{}to\_\discretionary {-}{}{}col.h}|hyperpage}{62}
+\indexentry{trMatrix.c@{trMatrix.c}|hyperpage}{63}
+\indexentry{trMatrix.c@{tr\discretionary {-}{}{}Matrix.c}!get_norm@{get\_\discretionary {-}{}{}norm}|hyperpage}{63}
+\indexentry{get_norm@{get\_\discretionary {-}{}{}norm}!trMatrix.c@{tr\discretionary {-}{}{}Matrix.c}|hyperpage}{63}
+\indexentry{trMatrix.c@{tr\discretionary {-}{}{}Matrix.c}!make_array_triangular@{make\_\discretionary {-}{}{}array\_\discretionary {-}{}{}triangular}|hyperpage}{63}
+\indexentry{make_array_triangular@{make\_\discretionary {-}{}{}array\_\discretionary {-}{}{}triangular}!trMatrix.c@{tr\discretionary {-}{}{}Matrix.c}|hyperpage}{63}
+\indexentry{trMatrix.c@{tr\discretionary {-}{}{}Matrix.c}!set_rcond@{set\_\discretionary {-}{}{}rcond}|hyperpage}{63}
+\indexentry{set_rcond@{set\_\discretionary {-}{}{}rcond}!trMatrix.c@{tr\discretionary {-}{}{}Matrix.c}|hyperpage}{63}
+\indexentry{trMatrix.c@{tr\discretionary {-}{}{}Matrix.c}!trMatrix_as_geMatrix@{trMatrix\_\discretionary {-}{}{}as\_\discretionary {-}{}{}geMatrix}|hyperpage}{63}
+\indexentry{trMatrix_as_geMatrix@{trMatrix\_\discretionary {-}{}{}as\_\discretionary {-}{}{}geMatrix}!trMatrix.c@{tr\discretionary {-}{}{}Matrix.c}|hyperpage}{63}
+\indexentry{trMatrix.c@{tr\discretionary {-}{}{}Matrix.c}!trMatrix_as_matrix@{trMatrix\_\discretionary {-}{}{}as\_\discretionary {-}{}{}matrix}|hyperpage}{63}
+\indexentry{trMatrix_as_matrix@{trMatrix\_\discretionary {-}{}{}as\_\discretionary {-}{}{}matrix}!trMatrix.c@{tr\discretionary {-}{}{}Matrix.c}|hyperpage}{63}
+\indexentry{trMatrix.c@{tr\discretionary {-}{}{}Matrix.c}!trMatrix_geMatrix_mm@{trMatrix\_\discretionary {-}{}{}geMatrix\_\discretionary {-}{}{}mm}|hyperpage}{63}
+\indexentry{trMatrix_geMatrix_mm@{trMatrix\_\discretionary {-}{}{}geMatrix\_\discretionary {-}{}{}mm}!trMatrix.c@{tr\discretionary {-}{}{}Matrix.c}|hyperpage}{63}
+\indexentry{trMatrix.c@{tr\discretionary {-}{}{}Matrix.c}!trMatrix_geMatrix_mm_R@{trMatrix\_\discretionary {-}{}{}geMatrix\_\discretionary {-}{}{}mm\_\discretionary {-}{}{}R}|hyperpage}{63}
+\indexentry{trMatrix_geMatrix_mm_R@{trMatrix\_\discretionary {-}{}{}geMatrix\_\discretionary {-}{}{}mm\_\discretionary {-}{}{}R}!trMatrix.c@{tr\discretionary {-}{}{}Matrix.c}|hyperpage}{63}
+\indexentry{trMatrix.c@{tr\discretionary {-}{}{}Matrix.c}!trMatrix_getDiag@{trMatrix\_\discretionary {-}{}{}getDiag}|hyperpage}{63}
+\indexentry{trMatrix_getDiag@{trMatrix\_\discretionary {-}{}{}getDiag}!trMatrix.c@{tr\discretionary {-}{}{}Matrix.c}|hyperpage}{63}
+\indexentry{trMatrix.c@{tr\discretionary {-}{}{}Matrix.c}!trMatrix_norm@{trMatrix\_\discretionary {-}{}{}norm}|hyperpage}{63}
+\indexentry{trMatrix_norm@{trMatrix\_\discretionary {-}{}{}norm}!trMatrix.c@{tr\discretionary {-}{}{}Matrix.c}|hyperpage}{63}
+\indexentry{trMatrix.c@{tr\discretionary {-}{}{}Matrix.c}!trMatrix_rcond@{trMatrix\_\discretionary {-}{}{}rcond}|hyperpage}{63}
+\indexentry{trMatrix_rcond@{trMatrix\_\discretionary {-}{}{}rcond}!trMatrix.c@{tr\discretionary {-}{}{}Matrix.c}|hyperpage}{63}
+\indexentry{trMatrix.c@{tr\discretionary {-}{}{}Matrix.c}!trMatrix_solve@{trMatrix\_\discretionary {-}{}{}solve}|hyperpage}{64}
+\indexentry{trMatrix_solve@{trMatrix\_\discretionary {-}{}{}solve}!trMatrix.c@{tr\discretionary {-}{}{}Matrix.c}|hyperpage}{64}
+\indexentry{trMatrix.c@{tr\discretionary {-}{}{}Matrix.c}!trMatrix_validate@{trMatrix\_\discretionary {-}{}{}validate}|hyperpage}{64}
+\indexentry{trMatrix_validate@{trMatrix\_\discretionary {-}{}{}validate}!trMatrix.c@{tr\discretionary {-}{}{}Matrix.c}|hyperpage}{64}
+\indexentry{trMatrix.h@{trMatrix.h}|hyperpage}{64}
+\indexentry{trMatrix.h@{tr\discretionary {-}{}{}Matrix.h}!make_array_triangular@{make\_\discretionary {-}{}{}array\_\discretionary {-}{}{}triangular}|hyperpage}{64}
+\indexentry{make_array_triangular@{make\_\discretionary {-}{}{}array\_\discretionary {-}{}{}triangular}!trMatrix.h@{tr\discretionary {-}{}{}Matrix.h}|hyperpage}{64}
+\indexentry{trMatrix.h@{tr\discretionary {-}{}{}Matrix.h}!trMatrix_as_geMatrix@{trMatrix\_\discretionary {-}{}{}as\_\discretionary {-}{}{}geMatrix}|hyperpage}{64}
+\indexentry{trMatrix_as_geMatrix@{trMatrix\_\discretionary {-}{}{}as\_\discretionary {-}{}{}geMatrix}!trMatrix.h@{tr\discretionary {-}{}{}Matrix.h}|hyperpage}{64}
+\indexentry{trMatrix.h@{tr\discretionary {-}{}{}Matrix.h}!trMatrix_as_matrix@{trMatrix\_\discretionary {-}{}{}as\_\discretionary {-}{}{}matrix}|hyperpage}{64}
+\indexentry{trMatrix_as_matrix@{trMatrix\_\discretionary {-}{}{}as\_\discretionary {-}{}{}matrix}!trMatrix.h@{tr\discretionary {-}{}{}Matrix.h}|hyperpage}{64}
+\indexentry{trMatrix.h@{tr\discretionary {-}{}{}Matrix.h}!trMatrix_geMatrix_mm@{trMatrix\_\discretionary {-}{}{}geMatrix\_\discretionary {-}{}{}mm}|hyperpage}{64}
+\indexentry{trMatrix_geMatrix_mm@{trMatrix\_\discretionary {-}{}{}geMatrix\_\discretionary {-}{}{}mm}!trMatrix.h@{tr\discretionary {-}{}{}Matrix.h}|hyperpage}{64}
+\indexentry{trMatrix.h@{tr\discretionary {-}{}{}Matrix.h}!trMatrix_geMatrix_mm_R@{trMatrix\_\discretionary {-}{}{}geMatrix\_\discretionary {-}{}{}mm\_\discretionary {-}{}{}R}|hyperpage}{64}
+\indexentry{trMatrix_geMatrix_mm_R@{trMatrix\_\discretionary {-}{}{}geMatrix\_\discretionary {-}{}{}mm\_\discretionary {-}{}{}R}!trMatrix.h@{tr\discretionary {-}{}{}Matrix.h}|hyperpage}{64}
+\indexentry{trMatrix.h@{tr\discretionary {-}{}{}Matrix.h}!trMatrix_getDiag@{trMatrix\_\discretionary {-}{}{}getDiag}|hyperpage}{64}
+\indexentry{trMatrix_getDiag@{trMatrix\_\discretionary {-}{}{}getDiag}!trMatrix.h@{tr\discretionary {-}{}{}Matrix.h}|hyperpage}{64}
+\indexentry{trMatrix.h@{tr\discretionary {-}{}{}Matrix.h}!trMatrix_matrix_solve@{trMatrix\_\discretionary {-}{}{}matrix\_\discretionary {-}{}{}solve}|hyperpage}{64}
+\indexentry{trMatrix_matrix_solve@{trMatrix\_\discretionary {-}{}{}matrix\_\discretionary {-}{}{}solve}!trMatrix.h@{tr\discretionary {-}{}{}Matrix.h}|hyperpage}{64}
+\indexentry{trMatrix.h@{tr\discretionary {-}{}{}Matrix.h}!trMatrix_norm@{trMatrix\_\discretionary {-}{}{}norm}|hyperpage}{65}
+\indexentry{trMatrix_norm@{trMatrix\_\discretionary {-}{}{}norm}!trMatrix.h@{tr\discretionary {-}{}{}Matrix.h}|hyperpage}{65}
+\indexentry{trMatrix.h@{tr\discretionary {-}{}{}Matrix.h}!trMatrix_rcond@{trMatrix\_\discretionary {-}{}{}rcond}|hyperpage}{65}
+\indexentry{trMatrix_rcond@{trMatrix\_\discretionary {-}{}{}rcond}!trMatrix.h@{tr\discretionary {-}{}{}Matrix.h}|hyperpage}{65}
+\indexentry{trMatrix.h@{tr\discretionary {-}{}{}Matrix.h}!trMatrix_solve@{trMatrix\_\discretionary {-}{}{}solve}|hyperpage}{65}
+\indexentry{trMatrix_solve@{trMatrix\_\discretionary {-}{}{}solve}!trMatrix.h@{tr\discretionary {-}{}{}Matrix.h}|hyperpage}{65}
+\indexentry{trMatrix.h@{tr\discretionary {-}{}{}Matrix.h}!trMatrix_validate@{trMatrix\_\discretionary {-}{}{}validate}|hyperpage}{65}
+\indexentry{trMatrix_validate@{trMatrix\_\discretionary {-}{}{}validate}!trMatrix.h@{tr\discretionary {-}{}{}Matrix.h}|hyperpage}{65}
+\indexentry{tscMatrix.c@{tscMatrix.c}|hyperpage}{65}
+\indexentry{tscMatrix.c@{tsc\discretionary {-}{}{}Matrix.c}!tsc_to_triplet@{tsc\_\discretionary {-}{}{}to\_\discretionary {-}{}{}triplet}|hyperpage}{65}
+\indexentry{tsc_to_triplet@{tsc\_\discretionary {-}{}{}to\_\discretionary {-}{}{}triplet}!tscMatrix.c@{tsc\discretionary {-}{}{}Matrix.c}|hyperpage}{65}
+\indexentry{tscMatrix.c@{tsc\discretionary {-}{}{}Matrix.c}!tsc_transpose@{tsc\_\discretionary {-}{}{}transpose}|hyperpage}{65}
+\indexentry{tsc_transpose@{tsc\_\discretionary {-}{}{}transpose}!tscMatrix.c@{tsc\discretionary {-}{}{}Matrix.c}|hyperpage}{65}
+\indexentry{tscMatrix.c@{tsc\discretionary {-}{}{}Matrix.c}!tsc_validate@{tsc\_\discretionary {-}{}{}validate}|hyperpage}{65}
+\indexentry{tsc_validate@{tsc\_\discretionary {-}{}{}validate}!tscMatrix.c@{tsc\discretionary {-}{}{}Matrix.c}|hyperpage}{65}
+\indexentry{tscMatrix.h@{tscMatrix.h}|hyperpage}{65}
+\indexentry{tscMatrix.h@{tsc\discretionary {-}{}{}Matrix.h}!tsc_to_triplet@{tsc\_\discretionary {-}{}{}to\_\discretionary {-}{}{}triplet}|hyperpage}{66}
+\indexentry{tsc_to_triplet@{tsc\_\discretionary {-}{}{}to\_\discretionary {-}{}{}triplet}!tscMatrix.h@{tsc\discretionary {-}{}{}Matrix.h}|hyperpage}{66}
+\indexentry{tscMatrix.h@{tsc\discretionary {-}{}{}Matrix.h}!tsc_transpose@{tsc\_\discretionary {-}{}{}transpose}|hyperpage}{66}
+\indexentry{tsc_transpose@{tsc\_\discretionary {-}{}{}transpose}!tscMatrix.h@{tsc\discretionary {-}{}{}Matrix.h}|hyperpage}{66}
+\indexentry{tscMatrix.h@{tsc\discretionary {-}{}{}Matrix.h}!tsc_validate@{tsc\_\discretionary {-}{}{}validate}|hyperpage}{66}
+\indexentry{tsc_validate@{tsc\_\discretionary {-}{}{}validate}!tscMatrix.h@{tsc\discretionary {-}{}{}Matrix.h}|hyperpage}{66}
+\indexentry{utils.c@{utils.c}|hyperpage}{66}
+\indexentry{utils.c@{utils.c}!taucs_allocation_amount@{taucs\_\discretionary {-}{}{}allocation\_\discretionary {-}{}{}amount}|hyperpage}{66}
+\indexentry{taucs_allocation_amount@{taucs\_\discretionary {-}{}{}allocation\_\discretionary {-}{}{}amount}!utils.c@{utils.c}|hyperpage}{66}
+\indexentry{utils.c@{utils.c}!taucs_allocation_assert_clean@{taucs\_\discretionary {-}{}{}allocation\_\discretionary {-}{}{}assert\_\discretionary {-}{}{}clean}|hyperpage}{66}
+\indexentry{taucs_allocation_assert_clean@{taucs\_\discretionary {-}{}{}allocation\_\discretionary {-}{}{}assert\_\discretionary {-}{}{}clean}!utils.c@{utils.c}|hyperpage}{66}
+\indexentry{utils.c@{utils.c}!taucs_allocation_attempts@{taucs\_\discretionary {-}{}{}allocation\_\discretionary {-}{}{}attempts}|hyperpage}{67}
+\indexentry{taucs_allocation_attempts@{taucs\_\discretionary {-}{}{}allocation\_\discretionary {-}{}{}attempts}!utils.c@{utils.c}|hyperpage}{67}
+\indexentry{utils.c@{utils.c}!taucs_allocation_count@{taucs\_\discretionary {-}{}{}allocation\_\discretionary {-}{}{}count}|hyperpage}{67}
+\indexentry{taucs_allocation_count@{taucs\_\discretionary {-}{}{}allocation\_\discretionary {-}{}{}count}!utils.c@{utils.c}|hyperpage}{67}
+\indexentry{utils.c@{utils.c}!taucs_allocation_induce_failure@{taucs\_\discretionary {-}{}{}allocation\_\discretionary {-}{}{}induce\_\discretionary {-}{}{}failure}|hyperpage}{67}
+\indexentry{taucs_allocation_induce_failure@{taucs\_\discretionary {-}{}{}allocation\_\discretionary {-}{}{}induce\_\discretionary {-}{}{}failure}!utils.c@{utils.c}|hyperpage}{67}
+\indexentry{utils.c@{utils.c}!taucs_allocation_mark_clean@{taucs\_\discretionary {-}{}{}allocation\_\discretionary {-}{}{}mark\_\discretionary {-}{}{}clean}|hyperpage}{67}
+\indexentry{taucs_allocation_mark_clean@{taucs\_\discretionary {-}{}{}allocation\_\discretionary {-}{}{}mark\_\discretionary {-}{}{}clean}!utils.c@{utils.c}|hyperpage}{67}
+\indexentry{utils.c@{utils.c}!taucs_calloc_stub@{taucs\_\discretionary {-}{}{}calloc\_\discretionary {-}{}{}stub}|hyperpage}{67}
+\indexentry{taucs_calloc_stub@{taucs\_\discretionary {-}{}{}calloc\_\discretionary {-}{}{}stub}!utils.c@{utils.c}|hyperpage}{67}
+\indexentry{utils.c@{utils.c}!taucs_ctime@{taucs\_\discretionary {-}{}{}ctime}|hyperpage}{67}
+\indexentry{taucs_ctime@{taucs\_\discretionary {-}{}{}ctime}!utils.c@{utils.c}|hyperpage}{67}
+\indexentry{utils.c@{utils.c}!taucs_free_stub@{taucs\_\discretionary {-}{}{}free\_\discretionary {-}{}{}stub}|hyperpage}{67}
+\indexentry{taucs_free_stub@{taucs\_\discretionary {-}{}{}free\_\discretionary {-}{}{}stub}!utils.c@{utils.c}|hyperpage}{67}
+\indexentry{utils.c@{utils.c}!taucs_get_nan@{taucs\_\discretionary {-}{}{}get\_\discretionary {-}{}{}nan}|hyperpage}{67}
+\indexentry{taucs_get_nan@{taucs\_\discretionary {-}{}{}get\_\discretionary {-}{}{}nan}!utils.c@{utils.c}|hyperpage}{67}
+\indexentry{utils.c@{utils.c}!taucs_malloc_stub@{taucs\_\discretionary {-}{}{}malloc\_\discretionary {-}{}{}stub}|hyperpage}{67}
+\indexentry{taucs_malloc_stub@{taucs\_\discretionary {-}{}{}malloc\_\discretionary {-}{}{}stub}!utils.c@{utils.c}|hyperpage}{67}
+\indexentry{utils.c@{utils.c}!taucs_printf@{taucs\_\discretionary {-}{}{}printf}|hyperpage}{67}
+\indexentry{taucs_printf@{taucs\_\discretionary {-}{}{}printf}!utils.c@{utils.c}|hyperpage}{67}
+\indexentry{utils.c@{utils.c}!taucs_realloc_stub@{taucs\_\discretionary {-}{}{}realloc\_\discretionary {-}{}{}stub}|hyperpage}{67}
+\indexentry{taucs_realloc_stub@{taucs\_\discretionary {-}{}{}realloc\_\discretionary {-}{}{}stub}!utils.c@{utils.c}|hyperpage}{67}
+\indexentry{utils.c@{utils.c}!taucs_wtime@{taucs\_\discretionary {-}{}{}wtime}|hyperpage}{67}
+\indexentry{taucs_wtime@{taucs\_\discretionary {-}{}{}wtime}!utils.c@{utils.c}|hyperpage}{67}
+\indexentry{utils.c@{utils.c}!taucs_dminusone_const@{taucs\_\discretionary {-}{}{}dminusone\_\discretionary {-}{}{}const}|hyperpage}{67}
+\indexentry{taucs_dminusone_const@{taucs\_\discretionary {-}{}{}dminusone\_\discretionary {-}{}{}const}!utils.c@{utils.c}|hyperpage}{67}
+\indexentry{utils.c@{utils.c}!taucs_done_const@{taucs\_\discretionary {-}{}{}done\_\discretionary {-}{}{}const}|hyperpage}{67}
+\indexentry{taucs_done_const@{taucs\_\discretionary {-}{}{}done\_\discretionary {-}{}{}const}!utils.c@{utils.c}|hyperpage}{67}
+\indexentry{utils.c@{utils.c}!taucs_dzero_const@{taucs\_\discretionary {-}{}{}dzero\_\discretionary {-}{}{}const}|hyperpage}{67}
+\indexentry{taucs_dzero_const@{taucs\_\discretionary {-}{}{}dzero\_\discretionary {-}{}{}const}!utils.c@{utils.c}|hyperpage}{67}

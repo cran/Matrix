@@ -1,0 +1,92 @@
+\hypertarget{geMutils_8c}{
+\subsection{ge\-Mutils.c File Reference}
+\label{geMutils_8c}\index{geMutils.c@{geMutils.c}}
+}
+{\tt \#include \char`\"{}ge\-Mutils.h\char`\"{}}\par
+\subsubsection*{Functions}
+\begin{CompactItemize}
+\item 
+char \hyperlink{geMutils_8c_a0}{norm\_\-type} (char $\ast$typstr)
+\item 
+char \hyperlink{geMutils_8c_a1}{rcond\_\-type} (char $\ast$typstr)
+\item 
+double \hyperlink{geMutils_8c_a2}{get\_\-double\_\-by\_\-name} (SEXP obj, char $\ast$nm)
+\item 
+SEXP \hyperlink{geMutils_8c_a3}{set\_\-double\_\-by\_\-name} (SEXP obj, double val, char $\ast$nm)
+\item 
+SEXP \hyperlink{geMutils_8c_a4}{as\_\-det\_\-obj} (double val, int log, int sign)
+\item 
+SEXP \hyperlink{geMutils_8c_a5}{get\_\-factorization} (SEXP obj, char $\ast$nm)
+\item 
+SEXP \hyperlink{geMutils_8c_a6}{set\_\-factorization} (SEXP obj, SEXP val, char $\ast$nm)
+\item 
+SEXP \hyperlink{geMutils_8c_a7}{Matrix\_\-init} (void)
+\item 
+SEXP \hyperlink{geMutils_8c_a8}{csc\-Matrix\_\-set\_\-Dim} (SEXP x, int nrow)
+\end{CompactItemize}
+
+
+\subsubsection{Function Documentation}
+\hypertarget{geMutils_8c_a4}{
+\index{geMutils.c@{ge\-Mutils.c}!as_det_obj@{as\_\-det\_\-obj}}
+\index{as_det_obj@{as\_\-det\_\-obj}!geMutils.c@{ge\-Mutils.c}}
+\paragraph[as\_\-det\_\-obj]{\setlength{\rightskip}{0pt plus 5cm}SEXP as\_\-det\_\-obj (double {\em val}, int {\em log}, int {\em sign})}\hfill}
+\label{geMutils_8c_a4}
+
+
+\hypertarget{geMutils_8c_a8}{
+\index{geMutils.c@{ge\-Mutils.c}!cscMatrix_set_Dim@{cscMatrix\_\-set\_\-Dim}}
+\index{cscMatrix_set_Dim@{cscMatrix\_\-set\_\-Dim}!geMutils.c@{ge\-Mutils.c}}
+\paragraph[cscMatrix\_\-set\_\-Dim]{\setlength{\rightskip}{0pt plus 5cm}SEXP csc\-Matrix\_\-set\_\-Dim (SEXP {\em x}, int {\em nrow})}\hfill}
+\label{geMutils_8c_a8}
+
+
+\hypertarget{geMutils_8c_a2}{
+\index{geMutils.c@{ge\-Mutils.c}!get_double_by_name@{get\_\-double\_\-by\_\-name}}
+\index{get_double_by_name@{get\_\-double\_\-by\_\-name}!geMutils.c@{ge\-Mutils.c}}
+\paragraph[get\_\-double\_\-by\_\-name]{\setlength{\rightskip}{0pt plus 5cm}double get\_\-double\_\-by\_\-name (SEXP {\em obj}, char $\ast$ {\em nm})}\hfill}
+\label{geMutils_8c_a2}
+
+
+\hypertarget{geMutils_8c_a5}{
+\index{geMutils.c@{ge\-Mutils.c}!get_factorization@{get\_\-factorization}}
+\index{get_factorization@{get\_\-factorization}!geMutils.c@{ge\-Mutils.c}}
+\paragraph[get\_\-factorization]{\setlength{\rightskip}{0pt plus 5cm}SEXP get\_\-factorization (SEXP {\em obj}, char $\ast$ {\em nm})}\hfill}
+\label{geMutils_8c_a5}
+
+
+\hypertarget{geMutils_8c_a7}{
+\index{geMutils.c@{ge\-Mutils.c}!Matrix_init@{Matrix\_\-init}}
+\index{Matrix_init@{Matrix\_\-init}!geMutils.c@{ge\-Mutils.c}}
+\paragraph[Matrix\_\-init]{\setlength{\rightskip}{0pt plus 5cm}SEXP Matrix\_\-init (void)}\hfill}
+\label{geMutils_8c_a7}
+
+
+\hypertarget{geMutils_8c_a0}{
+\index{geMutils.c@{ge\-Mutils.c}!norm_type@{norm\_\-type}}
+\index{norm_type@{norm\_\-type}!geMutils.c@{ge\-Mutils.c}}
+\paragraph[norm\_\-type]{\setlength{\rightskip}{0pt plus 5cm}char norm\_\-type (char $\ast$ {\em typstr})}\hfill}
+\label{geMutils_8c_a0}
+
+
+\hypertarget{geMutils_8c_a1}{
+\index{geMutils.c@{ge\-Mutils.c}!rcond_type@{rcond\_\-type}}
+\index{rcond_type@{rcond\_\-type}!geMutils.c@{ge\-Mutils.c}}
+\paragraph[rcond\_\-type]{\setlength{\rightskip}{0pt plus 5cm}char rcond\_\-type (char $\ast$ {\em typstr})}\hfill}
+\label{geMutils_8c_a1}
+
+
+\hypertarget{geMutils_8c_a3}{
+\index{geMutils.c@{ge\-Mutils.c}!set_double_by_name@{set\_\-double\_\-by\_\-name}}
+\index{set_double_by_name@{set\_\-double\_\-by\_\-name}!geMutils.c@{ge\-Mutils.c}}
+\paragraph[set\_\-double\_\-by\_\-name]{\setlength{\rightskip}{0pt plus 5cm}SEXP set\_\-double\_\-by\_\-name (SEXP {\em obj}, double {\em val}, char $\ast$ {\em nm})}\hfill}
+\label{geMutils_8c_a3}
+
+
+\hypertarget{geMutils_8c_a6}{
+\index{geMutils.c@{ge\-Mutils.c}!set_factorization@{set\_\-factorization}}
+\index{set_factorization@{set\_\-factorization}!geMutils.c@{ge\-Mutils.c}}
+\paragraph[set\_\-factorization]{\setlength{\rightskip}{0pt plus 5cm}SEXP set\_\-factorization (SEXP {\em obj}, SEXP {\em val}, char $\ast$ {\em nm})}\hfill}
+\label{geMutils_8c_a6}
+
+

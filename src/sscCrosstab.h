@@ -5,7 +5,9 @@
 #include "ldl.h"
 
 SEXP sscCrosstab(SEXP flist, SEXP upper);
-SEXP sscCrosstab_L_LI_sizes(SEXP ctab, SEXP permexp);
+extern void ssc_metis_order(int n, const int Tp [], const int Ti [],
+			    int Perm[], int iPerm[]);
 SEXP sscCrosstab_groupedPerm(SEXP ctab);
+SEXP sscCrosstab_project2(SEXP ctab);
 
 #endif

@@ -1,0 +1,83 @@
+\hypertarget{pdNatural_8c}{
+\subsection{pd\-Natural.c File Reference}
+\label{pdNatural_8c}\index{pdNatural.c@{pdNatural.c}}
+}
+{\tt \#include \char`\"{}Mutils.h\char`\"{}}\par
+\subsubsection*{Functions}
+\begin{CompactItemize}
+\item 
+void \hyperlink{pdNatural_8c_a0}{corr\_\-from\_\-par} (const double $\ast$par, double $\ast$corr, int nc)
+\item 
+SEXP \hyperlink{pdNatural_8c_a1}{pd\-Natural\_\-pdmatrix} (SEXP x)
+\item 
+SEXP \hyperlink{pdNatural_8c_a2}{pd\-Natural\_\-corrmatrix} (SEXP x)
+\item 
+double $\ast$ \hyperlink{pdNatural_8c_a3}{gradient} (int nc, const double $\ast$param, double $\ast$value)
+\item 
+SEXP \hyperlink{pdNatural_8c_a4}{pd\-Natural\_\-LMEgradient} (SEXP x, SEXP Ain, SEXP nlev)
+\end{CompactItemize}
+
+
+\subsubsection{Function Documentation}
+\hypertarget{pdNatural_8c_a0}{
+\index{pdNatural.c@{pd\-Natural.c}!corr_from_par@{corr\_\-from\_\-par}}
+\index{corr_from_par@{corr\_\-from\_\-par}!pdNatural.c@{pd\-Natural.c}}
+\paragraph[corr\_\-from\_\-par]{\setlength{\rightskip}{0pt plus 5cm}void corr\_\-from\_\-par (const double $\ast$ {\em par}, double $\ast$ {\em corr}, int {\em nc})\hspace{0.3cm}{\tt  \mbox{[}static\mbox{]}}}\hfill}
+\label{pdNatural_8c_a0}
+
+
+\hypertarget{pdNatural_8c_a3}{
+\index{pdNatural.c@{pd\-Natural.c}!gradient@{gradient}}
+\index{gradient@{gradient}!pdNatural.c@{pd\-Natural.c}}
+\paragraph[gradient]{\setlength{\rightskip}{0pt plus 5cm}double$\ast$ gradient (int {\em nc}, const double $\ast$ {\em param}, double $\ast$ {\em value})\hspace{0.3cm}{\tt  \mbox{[}static\mbox{]}}}\hfill}
+\label{pdNatural_8c_a3}
+
+
+An internal function that calculates the gradient of the positive-definite matrix with respect to the parameters. This function is used in pd\-Natural\_\-LMEgradient
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em nc}]number of columns (and rows) in the matrix \item[{\em mat}]the positive definite matrix \item[{\em value}]array into which the results are written\end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]the gradient in value \end{Desc}
+\hypertarget{pdNatural_8c_a2}{
+\index{pdNatural.c@{pd\-Natural.c}!pdNatural_corrmatrix@{pdNatural\_\-corrmatrix}}
+\index{pdNatural_corrmatrix@{pdNatural\_\-corrmatrix}!pdNatural.c@{pd\-Natural.c}}
+\paragraph[pdNatural\_\-corrmatrix]{\setlength{\rightskip}{0pt plus 5cm}SEXP pd\-Natural\_\-corrmatrix (SEXP {\em x})}\hfill}
+\label{pdNatural_8c_a2}
+
+
+\hypertarget{pdNatural_8c_a4}{
+\index{pdNatural.c@{pd\-Natural.c}!pdNatural_LMEgradient@{pdNatural\_\-LMEgradient}}
+\index{pdNatural_LMEgradient@{pdNatural\_\-LMEgradient}!pdNatural.c@{pd\-Natural.c}}
+\paragraph[pdNatural\_\-LMEgradient]{\setlength{\rightskip}{0pt plus 5cm}SEXP pd\-Natural\_\-LMEgradient (SEXP {\em x}, SEXP {\em Ain}, SEXP {\em nlev})}\hfill}
+\label{pdNatural_8c_a4}
+
+
+LMEgradient implementation for the pd\-Natural class
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em x}]Pointer to a pd\-Natural object \item[{\em Ain}]Pointer to an upper-triangular double precision square matrix \item[{\em nlev}]Pointer to an integer scalar giving the number of levels\end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]Pointer to a REAL gradient vector \end{Desc}
+\hypertarget{pdNatural_8c_a1}{
+\index{pdNatural.c@{pd\-Natural.c}!pdNatural_pdmatrix@{pdNatural\_\-pdmatrix}}
+\index{pdNatural_pdmatrix@{pdNatural\_\-pdmatrix}!pdNatural.c@{pd\-Natural.c}}
+\paragraph[pdNatural\_\-pdmatrix]{\setlength{\rightskip}{0pt plus 5cm}SEXP pd\-Natural\_\-pdmatrix (SEXP {\em x})}\hfill}
+\label{pdNatural_8c_a1}
+
+
+Evaluate the pd\-Matrix from a pd\-Natural object
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em x}]Pointer to a pd\-Natural object\end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]A newly allocated matrix \end{Desc}

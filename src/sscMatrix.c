@@ -177,3 +177,68 @@ SEXP sscMatrix_to_triplet(SEXP x)
     UNPROTECT(1);
     return ans;
 }
+
+SEXP sscMatrix_ldl_symbolic(SEXP x)
+{
+    SEXP ans = PROTECT(allocVector(VECSXP, 2));
+    int lo = toupper(CHAR(asChar(GET_SLOT(x, Matrix_uploSym)))[0]) == 'L',
+	n = INTEGER(GET_SLOT(x, Matrix_DimSym))[0];
+
+    if (lo) x = PROTECT(ssc_transpose(x));
+    SET_VECTOR_ELT(ans, 0, allocVector(INTSXP, n));
+    SET_VECTOR_ELT(ans, 1, allocVector(INTSXP, n + 1)); 
+    ldl_symbolic(n, INTEGER(GET_SLOT(x, Matrix_pSym)),
+		 INTEGER(GET_SLOT(x, Matrix_iSym)),
+		 INTEGER(VECTOR_ELT(ans, 1)), /* Lp */    
+		 INTEGER(VECTOR_ELT(ans, 0)), /* Parent */
+		 (int *) R_alloc(n, sizeof(int)), /* Lnz */
+		 (int *) R_alloc(n, sizeof(int)), /* Flag */
+		 (int *) NULL, (int *) NULL);  /* P & Pinv */
+    UNPROTECT(lo ? 2 : 1);
+    return ans;
+}
+
+SEXP sscMatrix_metis_perm(SEXP x)
+{
+    SEXP pSlot = GET_SLOT(x, Matrix_pSym),
+	ans = PROTECT(allocVector(VECSXP, 2));
+    int n = length(pSlot) - 1;
+    
+    SET_VECTOR_ELT(ans, 0, allocVector(INTSXP, n));
+    SET_VECTOR_ELT(ans, 1, allocVector(INTSXP, n));    
+    ssc_metis_order(n,
+		    INTEGER(pSlot),
+		    INTEGER(GET_SLOT(x, Matrix_iSym)),
+		    INTEGER(VECTOR_ELT(ans, 0)),
+		    INTEGER(VECTOR_ELT(ans, 1)));
+    UNPROTECT(1);
+    return ans;
+}
+
+SEXP sscMatrix_metis_ldl_symbolic(SEXP x)
+{
+    SEXP pSlot = GET_SLOT(x, Matrix_pSym),
+	ans = PROTECT(allocVector(VECSXP, 4));
+    int *Ai = INTEGER(GET_SLOT(x, Matrix_iSym)),
+	lo = toupper(CHAR(asChar(GET_SLOT(x, Matrix_uploSym)))[0]) == 'L',
+	n = length(pSlot)-1;
+	
+
+    if (lo) x = PROTECT(ssc_transpose(x));
+    SET_VECTOR_ELT(ans, 0, allocVector(INTSXP, n));
+    SET_VECTOR_ELT(ans, 1, allocVector(INTSXP, n));    
+    SET_VECTOR_ELT(ans, 2, allocVector(INTSXP, n + 1));
+    SET_VECTOR_ELT(ans, 3, allocVector(INTSXP, n)); 
+    ssc_metis_order(n, INTEGER(pSlot), Ai,
+		    INTEGER(VECTOR_ELT(ans, 0)), /* P */
+		    INTEGER(VECTOR_ELT(ans, 1))); /* Pinv */
+    ldl_symbolic(n, INTEGER(pSlot), Ai,
+		 INTEGER(VECTOR_ELT(ans, 2)), /* Lp */    
+		 INTEGER(VECTOR_ELT(ans, 3)), /* Parent */
+		 (int *) R_alloc(n, sizeof(int)), /* Lnz */
+		 (int *) R_alloc(n, sizeof(int)), /* Flag */
+		 INTEGER(VECTOR_ELT(ans, 0)), /* P */
+		 INTEGER(VECTOR_ELT(ans, 1))); /* Pinv */
+    UNPROTECT(lo ? 2 : 1);
+    return ans;
+}

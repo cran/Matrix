@@ -127,11 +127,9 @@ SEXP sscCrosstab_L_LI_sizes(SEXP ctab, SEXP permexp)
   * @param Ai row indices (modified)
   * @param rperm on return contains the permutation of the rows
   * @param cperm if non-null, on return contains the permutation of the columns
-  * @param useL when more than one row matches maxrc, use last match
   */
 static
-void pair_perm(int m, int n, int Ap[], int Ai[], int rperm[], int cperm[],
-	       int useL)
+void pair_perm(int m, int n, int Ap[], int Ai[], int rperm[], int cperm[])
 {
     int *cc = Calloc(n, int),	/* column counts */
 	*cm = Calloc(n, int),	/* column removed */
@@ -198,7 +196,7 @@ void pair_perm(int m, int n, int Ap[], int Ai[], int rperm[], int cperm[],
     Free(cc); Free(cm); Free(rc); 
 }
 
-SEXP sscCrosstab_groupedPerm(SEXP ctab, SEXP useLast)
+SEXP sscCrosstab_groupedPerm(SEXP ctab)
 {
     SEXP
 	GpSlot = GET_SLOT(ctab, Matrix_GpSym),
@@ -207,7 +205,6 @@ SEXP sscCrosstab_groupedPerm(SEXP ctab, SEXP useLast)
     int *Ai = INTEGER(iSlot),
 	*Ap = INTEGER(pSlot),
 	*Gp = INTEGER(GpSlot),
-	useL = asLogical(useLast),
 	i,
 	n = length(pSlot) - 1,	/* number of columns */
 	nf = length(GpSlot) - 1, /* number of factors */
@@ -237,7 +234,7 @@ SEXP sscCrosstab_groupedPerm(SEXP ctab, SEXP useLast)
 	    np[j + 1 - p1] = p0;
 	}
 	pair_perm(p3 - p2, p2 - p1, np, ni,
-		  INTEGER(ans) + p2, INTEGER(ans), useL);
+		  INTEGER(ans) + p2, INTEGER(ans));
 	for (j = p2; j < p3; j++) INTEGER(ans)[j] += p2;
     }
 

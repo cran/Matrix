@@ -601,17 +601,20 @@ SEXP ssclme_factor(SEXP x)
 	F77_CALL(dsyrk)("U", "T", &pp1, &n, &minus1,
 			RZX, &n, &one, RXX, &pp1);
 	F77_CALL(dpotrf)("U", &pp1, RXX, &pp1, &i);
-	if (i)
-	    error("DPOTRF returned error code %d", i);
+	if (i) {
+	    warning("Could not factor downdated X'X, code %d", i);
+	    dcmp[2] = dcmp[3] = deviance[0] = deviance[1] = NA_REAL;
+	} else {
 				/* logdet of RXX */
-	for (i = 0; i < (pp1 - 1); i++)
-	    dcmp[2] += 2 * log(RXX[i*pp2]);
+	    for (i = 0; i < (pp1 - 1); i++)
+		dcmp[2] += 2 * log(RXX[i*pp2]);
 				/* logdet of Ryy */
-	dcmp[3] = 2. * log(RXX[pp1 * pp1 - 1]);
-	deviance[0] =		/* ML criterion */
-	    dcmp[0] - dcmp[1] + nobs*(1+dcmp[3]+log(2*PI/nobs));
-	deviance[1] = dcmp[0] - dcmp[1] + /* REML */
-	    dcmp[2] + nreml * (1. + dcmp[3] + log(2. * PI/nreml));
+	    dcmp[3] = 2. * log(RXX[pp1 * pp1 - 1]);
+	    deviance[0] =	/* ML criterion */
+		dcmp[0] - dcmp[1] + nobs*(1+dcmp[3]+log(2*PI/nobs));
+	    deviance[1] = dcmp[0] - dcmp[1] + /* REML */
+		dcmp[2] + nreml * (1. + dcmp[3] + log(2. * PI/nreml));
+	}
 	status[0] = 1;
 	status[1] = 0;
     }
@@ -708,7 +711,7 @@ SEXP ldl_inverse(SEXP x)
 	    }
 	    tmp = Calloc(nr * nci, double); /* scratch storage */
 	    nr1 = nr + 1;
-				/* initialize bVi to zero (cosmetic) */
+				/* initialize bVi to zero */
 	    memset(bVi, 0, sizeof(double) * (G2 - G1) * nci);
 	    for (j = G1; j < G2; j += nci) {
 		memset(tmp, 0, sizeof(double) * nr * nci);
@@ -724,9 +727,9 @@ SEXP ldl_inverse(SEXP x)
 			tmp[k * nr + kk] *= DIsqrt[LIi[LIp[j] + kk - 1]];
 		    }
 		}
-		F77_CALL(dsyrk)("U", "T", &nci, &rr, &one, tmp, &nr,
+		F77_CALL(dsyrk)("L", "T", &nci, &rr, &one, tmp, &nr,
 				&zero, bVi + (j - G1) * nci, &nci);
-		F77_CALL(dpotrf)("U", &nci, bVi + (j - G1) * nci,
+		F77_CALL(dpotrf)("L", &nci, bVi + (j - G1) * nci,
 				 &nci, &kk);
 		if (kk)		/* should never happen */
 		    error(
@@ -790,9 +793,9 @@ SEXP ldl_inverse(SEXP x)
 			tmp[k * nr + kk] *= DIsqrt[ind[kk]];
 		    }
 		}
-		F77_CALL(dsyrk)("U", "T", &nci, &nr, &one, tmp, &nr,
+		F77_CALL(dsyrk)("L", "T", &nci, &nr, &one, tmp, &nr,
 				&zero, mpt + (j - Gp[i])*nci, &nci);
-		F77_CALL(dpotrf)("U", &nci, mpt + (j - Gp[i])*nci,
+		F77_CALL(dpotrf)("L", &nci, mpt + (j - Gp[i])*nci,
 				 &nci, &info);
 		if (info)	/* should never happen */
 		    error(
@@ -809,6 +812,8 @@ SEXP ssclme_invert(SEXP x)
 {
     int *status = LOGICAL(GET_SLOT(x, Matrix_statusSym));
     if (!status[0]) ssclme_factor(x);
+    if (!R_FINITE(REAL(GET_SLOT(x, Matrix_devianceSym))[0]))
+	error("Unable to invert singular factor of downdated X'X");
     if (!status[1]) {
 	SEXP
 	    RZXsl = GET_SLOT(x, Matrix_RZXSym);
@@ -957,8 +962,8 @@ SEXP ssclme_sigma(SEXP x, SEXP REML)
 {
     SEXP RXXsl = GET_SLOT(x, Matrix_RXXSym);
     int pp1 = INTEGER(getAttrib(RXXsl, R_DimSymbol))[1],
-	nobs = INTEGER(GET_SLOT(x, Matrix_ncSym))
-	[length(GET_SLOT(x, Matrix_GpSym))];
+	nobs = INTEGER(GET_SLOT(x, Matrix_ncSym))[
+	    length(GET_SLOT(x, Matrix_GpSym))];
    
     ssclme_invert(x);
     return ScalarReal(1./(REAL(RXXsl)[pp1*pp1 - 1] *
@@ -1222,9 +1227,13 @@ SEXP ssclme_EMsteps(SEXP x, SEXP nsteps, SEXP REMLp, SEXP verb)
 		}
 	    }
 	    F77_CALL(dpotrf)("U", &nci, vali, &nci, &info);
-	    if (info) error("DPOTRF returned error code %d", info);
+	    if (info)
+		error("DPOTRF returned error code %d in Omega[[%d]] update",
+		      info, i + 1);
 	    F77_CALL(dpotri)("U", &nci, vali, &nci, &info);
-	    if (info) error("DPOTRI returned error code %d", info);
+	    if (info)
+		error("DPOTRI returned error code %d in Omega[[%d]] update",
+		      info, i + 1);
 	}
 	status[0] = status[1] = 0;
     }
@@ -1246,7 +1255,7 @@ SEXP ssclme_gradient(SEXP x, SEXP REMLp, SEXP Uncp)
 	REML = asLogical(REMLp),
 	cind, i, n = dims[0],
 	nf = length(Omega),
-	nobs, odind, p, pp1 = dims[1],
+	nobs, p, pp1 = dims[1],
 	uncst = asLogical(Uncp);
     double
 	*RZX = REAL(RZXsl),
@@ -1254,7 +1263,15 @@ SEXP ssclme_gradient(SEXP x, SEXP REMLp, SEXP Uncp)
         alpha,
 	one = 1.;
     SEXP ans = PROTECT(allocVector(REALSXP, coef_length(nf, nc)));
+    int *status = LOGICAL(GET_SLOT(x, Matrix_statusSym));
 
+    ssclme_factor(x);
+    if (!R_FINITE(REAL(GET_SLOT(x, Matrix_devianceSym))[0])) {
+	int ncoef = coef_length(nf, nc);
+	for (i = 0; i < ncoef; i++) REAL(ans)[i] = NA_REAL;
+	UNPROTECT(1);
+	return ans;
+    }
     nobs = nc[nf + 1];
     p = pp1 - 1;
     b = RZX + p * n;
@@ -1377,22 +1394,22 @@ SEXP ssclme_fitted(SEXP x, SEXP facs, SEXP mmats)
     return val;
 }
 
-SEXP ssclme_variances(SEXP x, SEXP REML)
+/** 
+ * Return the unscaled variances
+ * 
+ * @param x pointer to an ssclme object
+ * 
+ * @return a list similar to the Omega list with the unscaled variances
+ */
+SEXP ssclme_variances(SEXP x)
 {
-    SEXP Omg = PROTECT(duplicate(GET_SLOT(x, Matrix_OmegaSym))),
-	val = PROTECT(allocVector(VECSXP, 2));
+    SEXP Omg = PROTECT(duplicate(GET_SLOT(x, Matrix_OmegaSym)));
     int *nc = INTEGER(GET_SLOT(x, Matrix_ncSym)),
 	i, nf = length(Omg);
-    double sigmasq;
     
-
-    SET_VECTOR_ELT(val, 0, Omg);
-    SET_VECTOR_ELT(val, 1, ssclme_sigma(x, REML));
-    sigmasq = REAL(VECTOR_ELT(val, 1))[0];
-    sigmasq = (sigmasq) * (sigmasq);
     for (i = 0; i < nf; i++) {
 	double *mm = REAL(VECTOR_ELT(Omg, i));
-	int j, k, nci = nc[i], ncip1 = nci+1;
+	int j, nci = nc[i];
 
 	F77_CALL(dpotrf)("U", &nci, mm, &nci, &j);
 	if (j)			/* shouldn't happen */
@@ -1402,14 +1419,40 @@ SEXP ssclme_variances(SEXP x, SEXP REML)
 	if (j)			/* shouldn't happen */
 	    error("DTRTRI returned error code %d on Omega[%d]",
 		  j, i + 1);
-	for (j = 0; j < nci; j++) {
-	    mm[j * ncip1] *= sigmasq;
-	    for (k = 0; k < j; k++) {
-		mm[j + k * nci] = (mm[k + j * nci] *= sigmasq);
-	    }
-	}
+	nlme_symmetrize(mm, nci);
     }
-    UNPROTECT(2);
-    return val;
+    UNPROTECT(1);
+    return Omg;
 }
 
+SEXP ssclme_collapse(SEXP x)
+{
+    SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("ssclme"))),
+	Omega = GET_SLOT(x, Matrix_OmegaSym),
+	Dim = GET_SLOT(x, Matrix_DimSym);
+    int i, nf = length(Omega), nz = INTEGER(Dim)[1];
+    SEXP copy[] = {Matrix_DSym, Matrix_DIsqrtSym, Matrix_DimSym,
+		   Matrix_GpSym, Matrix_LIiSym, Matrix_LIpSym,
+		   Matrix_LIxSym, Matrix_LiSym, Matrix_LpSym,
+		   Matrix_LxSym, Matrix_OmegaSym, Matrix_ParentSym,
+		   Matrix_LIxSym, Matrix_LiSym, Matrix_LpSym,
+		   Matrix_bVarSym, Matrix_devianceSym,
+		   Matrix_devCompSym, Matrix_iSym, Matrix_ncSym,
+		   Matrix_statusSym, Matrix_pSym, Matrix_xSym};
+
+    for (i = 0; i < 23; i++)
+	SET_SLOT(ans, copy[i], duplicate(GET_SLOT(x, copy[i])));
+
+    INTEGER(GET_SLOT(ans, Matrix_ncSym))[nf] = 1;
+    SET_SLOT(ans, Matrix_XtXSym, allocMatrix(REALSXP, 1, 1));
+    REAL(GET_SLOT(ans, Matrix_XtXSym))[0] = NA_REAL;
+    SET_SLOT(ans, Matrix_RXXSym, allocMatrix(REALSXP, 1, 1));
+    REAL(GET_SLOT(ans, Matrix_RXXSym))[0] = NA_REAL;
+    SET_SLOT(ans, Matrix_ZtXSym, allocMatrix(REALSXP, nz, 1));
+    SET_SLOT(ans, Matrix_RZXSym, allocMatrix(REALSXP, nz, 1));
+    LOGICAL(GET_SLOT(ans, Matrix_statusSym))[0] = 0;
+    UNPROTECT(1);
+    return ans;
+}
+
+    

@@ -5,7 +5,6 @@
 \alias{coerce,cscMatrix,tripletMatrix-method}
 \alias{coerce,cscMatrix,matrix-method}
 \alias{coerce,cscMatrix,geMatrix-method}
-\alias{coerce,tripletMatrix,cscMatrix-method}
 \alias{crossprod,cscMatrix,missing-method}
 \alias{crossprod,cscMatrix,matrix-method}
 \alias{crossprod,cscMatrix,numeric-method}
@@ -13,7 +12,6 @@
 \alias{dim,cscMatrix-method}
 \alias{image,cscMatrix-method}
 \alias{t,cscMatrix-method}
-
 \title{Class "cscMatrix" compressed, sparse, column Matrix}
 \description{The \code{cscMatrix} class is a class of sparse matrices in
   the compressed, sparse, column-oriented format.  In this
@@ -38,16 +36,19 @@
 }
 \section{Methods}{
   \describe{
-    \item{coerce}{\code{signature(from = "matrix", to = "cscMatrix")}: ... }
-    \item{coerce}{\code{signature(from = "cscMatrix", to = "tripletMatrix")}: ... }
-    \item{coerce}{\code{signature(from = "cscMatrix", to = "matrix")}: ... }
-    \item{coerce}{\code{signature(from = "tripletMatrix", to = "cscMatrix")}: ... }
-    \item{crossprod}{\code{signature(x = "cscMatrix", y = "missing")}: ... }
+    \item{coerce}{\code{signature(from = "matrix", to = "cscMatrix")}}
+    \item{coerce}{\code{signature(from = "cscMatrix", to = "matrix")}}
+    \item{coerce}{\code{signature(from = "cscMatrix", to = "tripletMatrix")}}
+    \item{crossprod}{\code{signature(x = "cscMatrix", y = "missing")}
+      returns \code{t(x) \%*\% x} as an \code{sscMatrix} object.}
     \item{crossprod}{\code{signature(x = "cscMatrix", y = "matrix")}: ... }
     \item{crossprod}{\code{signature(x = "cscMatrix", y = "numeric")}: ... }
-    \item{diag}{\code{signature(x = "cscMatrix")}: ... }
-    \item{dim}{\code{signature(x = "cscMatrix")}: ... }
-    \item{image}{\code{signature(x = "cscMatrix")}: ... }
+    \item{diag}{\code{signature(x = "cscMatrix")}: returns the diagonal
+      of \code{x}}
+    \item{dim}{\code{signature(x = "cscMatrix")}: returns the dimensions
+      of \code{x}}
+    \item{image}{\code{signature(x = "cscMatrix")}: plots an image of
+      \code{x} using the \code{\link[lattice]{levelplot}} function}
   }
 }
 %\references{}

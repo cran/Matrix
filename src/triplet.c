@@ -29,3 +29,32 @@ SEXP triplet_validate(SEXP x)
     }
     return ScalarLogical(1);
 }
+
+SEXP triplet_to_geMatrix(SEXP x)
+{
+    SEXP dd = GET_SLOT(x, Matrix_DimSym),
+	islot = GET_SLOT(x, Matrix_iSym),
+	ans = PROTECT(NEW_OBJECT(MAKE_CLASS("geMatrix")));
+	
+    int *dims = INTEGER(dd),
+	*xi = INTEGER(islot),
+	*xj = INTEGER(GET_SLOT(x, Matrix_jSym)),
+	i,
+	m = dims[0],
+	n = dims[1],
+	nnz = length(islot);
+    double
+	*vx,
+	*xx = REAL(GET_SLOT(x, Matrix_xSym));
+    
+    SET_SLOT(ans, Matrix_DimSym, duplicate(dd));
+    SET_SLOT(ans, Matrix_xSym, allocVector(REALSXP, m * n));
+    vx = REAL(GET_SLOT(ans, Matrix_xSym));
+    memset(vx, 0, sizeof(double) * m * n);
+    for (i = 0; i < nnz; i++) {
+	vx[xi[i] + xj[i] * m] += xx[i];	/* allow redundant entries in x */
+    }
+    UNPROTECT(1);
+    return ans;
+}
+

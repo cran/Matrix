@@ -13,3 +13,9 @@ setMethod("chol", signature(x = "sscMatrix", pivot = "logical"),
 setMethod("t", signature(x = "sscMatrix"),
           function(x) .Call("ssc_transpose", x, PACKAGE = "Matrix"),
           valueClass = "sscMatrix")
+
+setAs("sscMatrix", "tripletMatrix",
+      function(from) .Call("sscMatrix_to_triplet", from, PACKAGE = "Matrix"))
+
+setAs("sscMatrix", "geMatrix",
+      function(from) as(as(from, "tripletMatrix"), "geMatrix"))

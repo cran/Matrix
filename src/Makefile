@@ -31,7 +31,6 @@ SOURCES_C =  \
 OBJECTS = $(SOURCES_C:.c=.o)
 SHLIB = $(pkg)$(SHLIB_EXT)
 SUBDIRS = Metis taucs
-# umfpack
 SUBLIBS = $(SUBDIRS:=.a)
 
 $(SHLIB): $(OBJECTS) $(SUBLIBS)

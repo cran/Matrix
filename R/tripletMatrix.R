@@ -3,6 +3,11 @@ setAs("tripletMatrix", "cscMatrix",
       .Call("triplet_to_csc", from, PACKAGE = "Matrix")
       )
 
+setAs("tripletMatrix", "geMatrix",
+      function(from)
+      .Call("triplet_to_geMatrix", from, PACKAGE = "Matrix")
+      )
+
 setMethod("image", "tripletMatrix",
           function(x,
                    xlim = c(0, matdim[2] + 1),

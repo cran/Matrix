@@ -52,7 +52,7 @@ int ctab_isNested(int n, int nf, int upper,
  * 
  * @return pointer to an integer R vector.
  */
-static
+
 SEXP ctab_permute(SEXP ctab)
 {
     SEXP val, GpSl = GET_SLOT(ctab, Matrix_GpSym);
@@ -65,7 +65,6 @@ SEXP ctab_permute(SEXP ctab)
 	j,
 	n = INTEGER(GET_SLOT(ctab, Matrix_DimSym))[1],
 	nf = length(GpSl) - 1,
-	nz = Ap[n],		/* number of non-zeros */
 	pos;
 
     if (ctab_isNested(n, nf, 1, Ap, Ai, Gp))
@@ -73,7 +72,7 @@ SEXP ctab_permute(SEXP ctab)
     val =  allocVector(INTSXP, n);
     perm = INTEGER(val);
     work = (int *) R_alloc(n, sizeof(int));
-    ssc_metis_order(n, nz, Ap, Ai, work, perm);	/* perm gets inverse perm */
+    ssc_metis_order(n, Ap, Ai, work, perm);	/* perm gets inverse perm */
     /* work now contains desired permutation but with groups scrambled */
 
     /* copy work into perm preserving the order of the groups */
@@ -189,7 +188,6 @@ void ssclme_copy_ctab(int nf, const int nc[], SEXP ctab, SEXP ssc)
     }
 }
 
-static
 void ssclme_fill_LIp(int n, const int Parent[], int LIp[])
 {
     int *sz = Calloc(n, int), i;
@@ -1193,10 +1191,12 @@ SEXP ssclme_EMsteps(SEXP x, SEXP nsteps, SEXP REMLp, SEXP verb)
 			    &alpha, REAL(VECTOR_ELT(bVar, i)), &nci,
 			    &one, vali, &nci);
 	    if (REML) {
-		int mp = mi * p;
-		F77_CALL(dsyrk)("U", "N", &nci, &mp,
-				&alpha, RZX + Gp[i], &nci,
+		int j;
+		for (j = 0; j < p; j++) { 
+		    F77_CALL(dsyrk)("U", "N", &nci, &mi,
+				&alpha, RZX + Gp[i] + j*n, &nci,
 				&one, vali, &nci);
+		}
 	    }
 	    F77_CALL(dpotrf)("U", &nci, vali, &nci, &info);
 	    if (info) error("DPOTRF returned error code %d", info);

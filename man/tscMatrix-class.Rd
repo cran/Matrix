@@ -2,6 +2,8 @@
 \docType{class}
 \alias{tscMatrix-class}
 \alias{t,tscMatrix-method}
+\alias{coerce,tscMatrix,tripletMatrix-method}
+\alias{coerce,tscMatrix,geMatrix-method}
 \title{Triangular, compressed, sparse column matrices}
 \description{The \code{sscMatrix} class is a class of triangular, sparse
   matrices in the compressed, column-oriented format.  In this
@@ -31,13 +33,22 @@
   }
 }
 \section{Extends}{
-Class \code{"cscMatrix"}, directly.
+  Class \code{"cscMatrix"}, directly.
+}
+\section{Methods}{
+  \describe{
+    \item{coerce}{\code{signature(from = "tscMatrix", to = "tripletMatrix")}}
+    \item{coerce}{\code{signature(from = "tscMatrix", to = "geMatrix")}}
+    \item{t}{\code{signature(x = "tscMatrix")}: returns the transpose of
+      \code{x}}
+  }
 }
 %\references{}
 %\author{}
 %\note{}
 \seealso{
-  \code{\link{cscMatrix-class}}
+  \code{\link{cscMatrix-class}}, \code{\link{tripletMatrix-class}},
+  \code{\link{geMatrix-class}}
 }
 %\examples{}
 \keyword{classes}

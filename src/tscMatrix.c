@@ -31,3 +31,39 @@ SEXP tsc_transpose(SEXP x)
     UNPROTECT(1);
     return ans;
 }
+
+SEXP tsc_to_triplet(SEXP x)
+{
+    SEXP ans;
+    if (toupper(CHAR(STRING_ELT(GET_SLOT(x, Matrix_diagSym), 0))[0]) != 'U')
+	ans = csc_to_triplet(x);
+    else {			/* unit triangular matrix */
+	SEXP islot = GET_SLOT(x, Matrix_iSym), 
+	    pslot = GET_SLOT(x, Matrix_pSym);
+	int *ai, *aj, j,
+	    n = length(pslot) - 1,
+	    nod = length(islot),
+	    nout = n + nod,
+	    *p = INTEGER(pslot);
+	double *ax;
+    
+	ans = PROTECT(NEW_OBJECT(MAKE_CLASS("tripletMatrix")));
+	SET_SLOT(ans, Matrix_DimSym, duplicate(GET_SLOT(x, Matrix_DimSym)));
+	SET_SLOT(ans, Matrix_iSym, allocVector(INTSXP, nout));
+	ai = INTEGER(GET_SLOT(ans, Matrix_iSym));
+	Memcpy(ai, INTEGER(islot), nod);
+	SET_SLOT(ans, Matrix_jSym, allocVector(INTSXP, nout));
+	aj = INTEGER(GET_SLOT(ans, Matrix_jSym));
+	SET_SLOT(ans, Matrix_xSym, allocVector(REALSXP, nout));
+	ax = REAL(GET_SLOT(ans, Matrix_xSym));
+	Memcpy(ax, REAL(GET_SLOT(x, Matrix_xSym)), nod);
+	for (j = 0; j < n; j++) {
+	    int jj, npj = nod + j,  p2 = p[j+1];
+	    aj[npj] = ai[npj] = j;
+	    ax[npj] = 1.;
+	    for (jj = p[j]; jj < p2; jj++) aj[jj] = j;
+	}
+	UNPROTECT(1);
+    }
+    return ans;
+}

@@ -4,8 +4,7 @@
 #include <Rdefines.h>
 #include "metis.h"
 
-void ssc_metis_order(int n, int nnz,
-		     const int Tp [], const int Ti [],
+void ssc_metis_order(int n, const int Tp [], const int Ti [],
 		     idxtype* perm, idxtype* iperm);
 
 #endif

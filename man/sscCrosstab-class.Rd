@@ -1,7 +1,7 @@
 \name{sscCrosstab-class}
 \docType{class}
 \alias{sscCrosstab-class}
-
+\alias{image,sscCrosstab-method}
 \title{Pairwise crosstabulations}
 \description{An \code{sscCrosstab} object is a pairwise crosstabulation
   of two or more factors expressed as an \code{sscMatrix} plus
@@ -32,7 +32,12 @@ or by a call to the constructor function \code{sscCrosstab}.
 Class \code{"sscMatrix"}, directly.
 Class \code{"cscMatrix"}, by class \code{"sscMatrix"}.
 }
-%\section{Methods}{}
+\section{Methods}{
+  \describe{
+    \item{image}{\code{signature(x = "sscCrosstab")}: plots an image of
+      \code{x} using the \code{\link[lattice]{levelplot}} function}
+  }
+}
 %\references{}
 %\author{}
 %\note{}

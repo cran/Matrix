@@ -4,5 +4,6 @@
 #include "Mutils.h"
 
 SEXP triplet_validate(SEXP x);
+SEXP triplet_to_geMatrix(SEXP x);
 
 #endif

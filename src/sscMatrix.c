@@ -35,8 +35,7 @@ SEXP sscMatrix_chol(SEXP x, SEXP pivot)
 	SET_SLOT(val, Matrix_ipermSym, allocVector(INTSXP, tm->n));
 	perm = INTEGER(GET_SLOT(val, Matrix_permSym));
 	iperm = INTEGER(GET_SLOT(val, Matrix_ipermSym));
-	ssc_metis_order(tm->n, (tm->colptr)[tm->n], tm->colptr,
-			tm->rowind, perm, iperm);
+	ssc_metis_order(tm->n, tm->colptr, tm->rowind, perm, iperm);
 	tm = taucs_dccs_permute_symmetrically(tm, perm, iperm);
     }
     if (!(L = taucs_ccs_factor_llt_mf(tm)))
@@ -131,6 +130,50 @@ SEXP ssc_transpose(SEXP x)
 			     INTEGER(GET_SLOT(ans, Matrix_pSym)),
 			     INTEGER(GET_SLOT(ans, Matrix_iSym)),
 			     REAL(GET_SLOT(ans, Matrix_xSym)));
+    UNPROTECT(1);
+    return ans;
+}
+
+SEXP sscMatrix_to_triplet(SEXP x)
+{
+    SEXP
+	ans = PROTECT(NEW_OBJECT(MAKE_CLASS("tripletMatrix"))),
+	islot = GET_SLOT(x, Matrix_iSym),
+	pslot = GET_SLOT(x, Matrix_pSym);
+    int *ai, *aj, *iv = INTEGER(islot),
+	j, jj, nnz = length(islot), nout,
+	n = length(pslot) - 1,
+	*p = INTEGER(pslot), pos;
+    double *ax, *xv = REAL(GET_SLOT(x, Matrix_xSym));
+
+    /* increment output count by number of off-diagonals */
+    nout = nnz;
+    for (j = 0; j < n; j++) {
+	int p2 = p[j+1];
+	for (jj = p[j]; jj < p2; jj++) {
+	    if (iv[jj] != j) nout++;
+	}
+    }
+    SET_SLOT(ans, Matrix_DimSym, duplicate(GET_SLOT(x, Matrix_DimSym)));
+    SET_SLOT(ans, Matrix_iSym, allocVector(INTSXP, nout));
+    ai = INTEGER(GET_SLOT(ans, Matrix_iSym));
+    SET_SLOT(ans, Matrix_jSym, allocVector(INTSXP, nout));
+    aj = INTEGER(GET_SLOT(ans, Matrix_jSym));
+    SET_SLOT(ans, Matrix_xSym, allocVector(REALSXP, nout));
+    ax = REAL(GET_SLOT(ans, Matrix_xSym));
+    pos = 0;
+    for (j = 0; j < n; j++) {
+	int p2 = p[j+1];
+	for (jj = p[j]; jj < p2; jj++) {
+	    int ii = iv[jj];
+	    double xx = xv[jj];
+	    
+	    ai[pos] = ii; aj[pos] = j; ax[pos] = xx; pos++;
+	    if (ii != j) {
+		aj[pos] = ii; ai[pos] = j; ax[pos] = xx; pos++;
+	    }
+	}
+    }
     UNPROTECT(1);
     return ans;
 }

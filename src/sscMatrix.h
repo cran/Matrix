@@ -9,5 +9,6 @@ SEXP sscMatrix_chol(SEXP x, SEXP pivot);
 SEXP sscMatrix_inverse_factor(SEXP A);
 SEXP sscMatrix_matrix_solve(SEXP a, SEXP b);
 SEXP ssc_transpose(SEXP x);
+SEXP sscMatrix_to_triplet(SEXP x);
 
 #endif

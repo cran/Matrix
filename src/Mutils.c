@@ -336,7 +336,6 @@ void ssc_symbolic_permute(int n, int upper, const int perm[],
 	ord[k] = k;
 	if ((upper && Ai[k] > Aj[k]) || (!upper && Ai[k] < Aj[k])) {
 	    int tmp = Ai[k]; Ai[k] = Aj[k]; Aj[k] = tmp;
-	    warning("in part of code that should not be used");
 	}
     }
     R_qsort_int_I(Aj, ord, 1, nnz); /* sort Aj carrying along ind */

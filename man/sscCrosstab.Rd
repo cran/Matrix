@@ -11,14 +11,14 @@
   groups of columns corresponding to different factors.
 }
 \usage{
-sscCrosstab(flist, permutations = TRUE)
+sscCrosstab(flist, upper = TRUE)
 }
 \arguments{
   \item{flist}{A list of two or more factors.  All factors must have the
     same length.}
-  \item{permutations}{logical - if \code{TRUE}, the default, then a
-    permutation to minimize fill-in in the Cholesky decomposition while
-    maintaining separation of the groups, and its inverse, are calculated.}
+  \item{upper}{logical - if \code{TRUE} the upper triangle of the
+    pairwise cross-tabulation matrix is computed and returned.  Otherwise
+    the lower triangle is returned.  Defaults to \code{TRUE}.}
 }
 %\details{}
 \value{

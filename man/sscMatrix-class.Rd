@@ -5,6 +5,8 @@
 \alias{chol,sscMatrix,missing-method}
 \alias{chol,sscMatrix,logical-method}
 \alias{t,sscMatrix-method}
+\alias{coerce,sscMatrix,tripletMatrix-method}
+\alias{coerce,sscMatrix,geMatrix-method}
 \title{Symmetric, compressed, sparse column matrices}
 \description{The \code{sscMatrix} class is a class of symmetric, sparse
   matrices in the compressed, column-oriented format.  In this
@@ -47,13 +49,16 @@ Class \code{"cscMatrix"}, directly.
       \code{x}. If \code{pivot} is \code{TRUE} (the default) Metis is
       used to create a reordering of the rows and columns of \code{x} so
       as to minimize fill-in.}
+    \item{coerce}{\code{signature(from = "sscMatrix", to = "tripletMatrix")}}
+    \item{coerce}{\code{signature(from = "sscMatrix", to = "geMatrix")}}
   }
 }
 %\references{}
 %\author{}
 %\note{}
 \seealso{
-  \code{\link{cscMatrix-class}}
+  \code{\link{cscMatrix-class}}, \code{\link{tripletMatrix-class}},
+  \code{\link{geMatrix-class}}
 }
 %\examples{}
 \keyword{classes}

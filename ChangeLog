@@ -1,3 +1,9 @@
+2004-04-14  Douglas Bates  <bates@stat.wisc.edu>
+
+	* src/ssclme.c (ssclme_EMsteps): Fix logic in REML update
+
+	* src/Makefile.win: Remove unneeded ranlib call
+
 2004-04-12  Douglas Bates  <bates@stat.wisc.edu>
 
 	* DESCRIPTION (Version): New release

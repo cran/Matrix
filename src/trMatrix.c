@@ -2,8 +2,8 @@
 
 SEXP trMatrix_validate(SEXP obj)
 {
-    SEXP uplo = GET_SLOT(obj, install("uplo")),
-	diag = GET_SLOT(obj, install("uplo"));
+    SEXP uplo = GET_SLOT(obj, Matrix_uploSym),
+	diag = GET_SLOT(obj, Matrix_diagSym);
     char *val;
     
     if (length(uplo) != 1)

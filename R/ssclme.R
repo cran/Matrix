@@ -11,7 +11,5 @@ setAs("ssclme", "sscMatrix",
 
 setAs("ssclme", "tscMatrix",
       function(from)
-      new("sscMatrix", i = from@Li, p = from@Lp, Dim = from@Dim, x = from@Lx,
-          uplo = "L"))
-
-
+      new("tscMatrix", i = from@Li, p = from@Lp, Dim = from@Dim, x = from@Lx,
+          uplo = "L", diag = "U"))

@@ -258,7 +258,7 @@ PACKAGE_VERSION=
 PACKAGE_STRING=
 PACKAGE_BUGREPORT=
 
-ac_unique_file="src/SVD.cc"
+ac_unique_file="src/Makevars.in"
 
 # Initialize some variables set by options.
 ac_init_help=
@@ -1156,6 +1156,7 @@ if test -z "${R_HOME}"; then
   exit 1
 fi
 CC=`${R_HOME}/bin/R CMD config CC`
+CFLAGS=`${R_HOME}/bin/R CMD config CFLAGS`
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -1915,6 +1916,11 @@ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 F77=`${R_HOME}/bin/R CMD config F77`
+if test -z "${F77}"; then
+  { { echo "$as_me:$LINENO: error: R was configured without a FORTRAN compiler" >&5
+echo "$as_me: error: R was configured without a FORTRAN compiler" >&2;}
+   { (exit 1); exit 1; }; }
+fi
 ac_ext=f
 ac_compile='$F77 -c $FFLAGS conftest.$ac_ext >&5'
 ac_link='$F77 -o conftest$ac_exeext $FFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
@@ -2007,7 +2013,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:2010:" \
+echo "$as_me:2016:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -2127,6 +2133,7 @@ ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
+FLIBS=`${R_HOME}/bin/R CMD config FLIBS`
 
 ac_ext=f
 ac_compile='$F77 -c $FFLAGS conftest.$ac_ext >&5'
@@ -2175,7 +2182,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_verb"
-(eval echo $as_me:2178: \"$ac_link\") >&5
+(eval echo $as_me:2185: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -2254,7 +2261,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_cv_prog_f77_v"
-(eval echo $as_me:2257: \"$ac_link\") >&5
+(eval echo $as_me:2264: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -2732,7 +2739,6 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 fi
 echo "$as_me:$LINENO: result: $ac_cv_f77_mangling" >&5
 echo "${ECHO_T}$ac_cv_f77_mangling" >&6
-
 
 
 

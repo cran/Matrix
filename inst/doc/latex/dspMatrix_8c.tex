@@ -1,0 +1,101 @@
+\hypertarget{dspMatrix_8c}{
+\subsection{dsp\-Matrix.c File Reference}
+\label{dspMatrix_8c}\index{dspMatrix.c@{dspMatrix.c}}
+}
+{\tt \#include \char`\"{}dsp\-Matrix.h\char`\"{}}\par
+\subsubsection*{Functions}
+\begin{CompactItemize}
+\item 
+SEXP \hyperlink{dspMatrix_8c_a0}{dsp\-Matrix\_\-validate} (SEXP obj)
+\item 
+double \hyperlink{dspMatrix_8c_a1}{get\_\-norm\_\-sp} (SEXP obj, char $\ast$typstr)
+\item 
+SEXP \hyperlink{dspMatrix_8c_a2}{dsp\-Matrix\_\-norm} (SEXP obj, SEXP type)
+\item 
+static double \hyperlink{dspMatrix_8c_a3}{set\_\-rcond\_\-sp} (SEXP obj, char $\ast$typstr)
+\item 
+SEXP \hyperlink{dspMatrix_8c_a4}{dsp\-Matrix\_\-rcond} (SEXP obj, SEXP type)
+\item 
+SEXP \hyperlink{dspMatrix_8c_a5}{dsp\-Matrix\_\-solve} (SEXP a)
+\item 
+SEXP \hyperlink{dspMatrix_8c_a6}{dsp\-Matrix\_\-matrix\_\-solve} (SEXP a, SEXP b, SEXP classed\-P)
+\item 
+SEXP \hyperlink{dspMatrix_8c_a7}{dsp\-Matrix\_\-as\_\-dsy\-Matrix} (SEXP from)
+\item 
+SEXP \hyperlink{dspMatrix_8c_a8}{dsp\-Matrix\_\-matrix\_\-mm} (SEXP a, SEXP b, SEXP classed\-P)
+\item 
+SEXP \hyperlink{dspMatrix_8c_a9}{dsp\-Matrix\_\-trf} (SEXP x)
+\end{CompactItemize}
+
+
+\subsubsection{Function Documentation}
+\hypertarget{dspMatrix_8c_a7}{
+\index{dspMatrix.c@{dsp\-Matrix.c}!dspMatrix_as_dsyMatrix@{dspMatrix\_\-as\_\-dsyMatrix}}
+\index{dspMatrix_as_dsyMatrix@{dspMatrix\_\-as\_\-dsyMatrix}!dspMatrix.c@{dsp\-Matrix.c}}
+\paragraph[dspMatrix\_\-as\_\-dsyMatrix]{\setlength{\rightskip}{0pt plus 5cm}SEXP dsp\-Matrix\_\-as\_\-dsy\-Matrix (SEXP {\em from})}\hfill}
+\label{dspMatrix_8c_a7}
+
+
+\hypertarget{dspMatrix_8c_a8}{
+\index{dspMatrix.c@{dsp\-Matrix.c}!dspMatrix_matrix_mm@{dspMatrix\_\-matrix\_\-mm}}
+\index{dspMatrix_matrix_mm@{dspMatrix\_\-matrix\_\-mm}!dspMatrix.c@{dsp\-Matrix.c}}
+\paragraph[dspMatrix\_\-matrix\_\-mm]{\setlength{\rightskip}{0pt plus 5cm}SEXP dsp\-Matrix\_\-matrix\_\-mm (SEXP {\em a}, SEXP {\em b}, SEXP {\em classed\-P})}\hfill}
+\label{dspMatrix_8c_a8}
+
+
+\hypertarget{dspMatrix_8c_a6}{
+\index{dspMatrix.c@{dsp\-Matrix.c}!dspMatrix_matrix_solve@{dspMatrix\_\-matrix\_\-solve}}
+\index{dspMatrix_matrix_solve@{dspMatrix\_\-matrix\_\-solve}!dspMatrix.c@{dsp\-Matrix.c}}
+\paragraph[dspMatrix\_\-matrix\_\-solve]{\setlength{\rightskip}{0pt plus 5cm}SEXP dsp\-Matrix\_\-matrix\_\-solve (SEXP {\em a}, SEXP {\em b}, SEXP {\em classed\-P})}\hfill}
+\label{dspMatrix_8c_a6}
+
+
+\hypertarget{dspMatrix_8c_a2}{
+\index{dspMatrix.c@{dsp\-Matrix.c}!dspMatrix_norm@{dspMatrix\_\-norm}}
+\index{dspMatrix_norm@{dspMatrix\_\-norm}!dspMatrix.c@{dsp\-Matrix.c}}
+\paragraph[dspMatrix\_\-norm]{\setlength{\rightskip}{0pt plus 5cm}SEXP dsp\-Matrix\_\-norm (SEXP {\em obj}, SEXP {\em type})}\hfill}
+\label{dspMatrix_8c_a2}
+
+
+\hypertarget{dspMatrix_8c_a4}{
+\index{dspMatrix.c@{dsp\-Matrix.c}!dspMatrix_rcond@{dspMatrix\_\-rcond}}
+\index{dspMatrix_rcond@{dspMatrix\_\-rcond}!dspMatrix.c@{dsp\-Matrix.c}}
+\paragraph[dspMatrix\_\-rcond]{\setlength{\rightskip}{0pt plus 5cm}SEXP dsp\-Matrix\_\-rcond (SEXP {\em obj}, SEXP {\em type})}\hfill}
+\label{dspMatrix_8c_a4}
+
+
+\hypertarget{dspMatrix_8c_a5}{
+\index{dspMatrix.c@{dsp\-Matrix.c}!dspMatrix_solve@{dspMatrix\_\-solve}}
+\index{dspMatrix_solve@{dspMatrix\_\-solve}!dspMatrix.c@{dsp\-Matrix.c}}
+\paragraph[dspMatrix\_\-solve]{\setlength{\rightskip}{0pt plus 5cm}SEXP dsp\-Matrix\_\-solve (SEXP {\em a})}\hfill}
+\label{dspMatrix_8c_a5}
+
+
+\hypertarget{dspMatrix_8c_a9}{
+\index{dspMatrix.c@{dsp\-Matrix.c}!dspMatrix_trf@{dspMatrix\_\-trf}}
+\index{dspMatrix_trf@{dspMatrix\_\-trf}!dspMatrix.c@{dsp\-Matrix.c}}
+\paragraph[dspMatrix\_\-trf]{\setlength{\rightskip}{0pt plus 5cm}SEXP dsp\-Matrix\_\-trf (SEXP {\em x})}\hfill}
+\label{dspMatrix_8c_a9}
+
+
+\hypertarget{dspMatrix_8c_a0}{
+\index{dspMatrix.c@{dsp\-Matrix.c}!dspMatrix_validate@{dspMatrix\_\-validate}}
+\index{dspMatrix_validate@{dspMatrix\_\-validate}!dspMatrix.c@{dsp\-Matrix.c}}
+\paragraph[dspMatrix\_\-validate]{\setlength{\rightskip}{0pt plus 5cm}SEXP dsp\-Matrix\_\-validate (SEXP {\em obj})}\hfill}
+\label{dspMatrix_8c_a0}
+
+
+\hypertarget{dspMatrix_8c_a1}{
+\index{dspMatrix.c@{dsp\-Matrix.c}!get_norm_sp@{get\_\-norm\_\-sp}}
+\index{get_norm_sp@{get\_\-norm\_\-sp}!dspMatrix.c@{dsp\-Matrix.c}}
+\paragraph[get\_\-norm\_\-sp]{\setlength{\rightskip}{0pt plus 5cm}double get\_\-norm\_\-sp (SEXP {\em obj}, char $\ast$ {\em typstr})}\hfill}
+\label{dspMatrix_8c_a1}
+
+
+\hypertarget{dspMatrix_8c_a3}{
+\index{dspMatrix.c@{dsp\-Matrix.c}!set_rcond_sp@{set\_\-rcond\_\-sp}}
+\index{set_rcond_sp@{set\_\-rcond\_\-sp}!dspMatrix.c@{dsp\-Matrix.c}}
+\paragraph[set\_\-rcond\_\-sp]{\setlength{\rightskip}{0pt plus 5cm}static double set\_\-rcond\_\-sp (SEXP {\em obj}, char $\ast$ {\em typstr})\hspace{0.3cm}{\tt  \mbox{[}static\mbox{]}}}\hfill}
+\label{dspMatrix_8c_a3}
+
+

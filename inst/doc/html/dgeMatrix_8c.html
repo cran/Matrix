@@ -35,13 +35,15 @@
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="dgeMatrix_8c.html#a12">dgeMatrix_solve</a> (SEXP a)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="dgeMatrix_8c.html#a13">dgeMatrix_dgeMatrix_mm</a> (SEXP a, SEXP b)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="dgeMatrix_8c.html#a13">dgeMatrix_matrix_solve</a> (SEXP a, SEXP b, SEXP classed)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="dgeMatrix_8c.html#a14">dgeMatrix_svd</a> (SEXP x, SEXP nnu, SEXP nnv)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="dgeMatrix_8c.html#a14">dgeMatrix_matrix_mm</a> (SEXP a, SEXP b, SEXP classed, SEXP right)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="dgeMatrix_8c.html#a15">dgeMatrix_exp</a> (SEXP x)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="dgeMatrix_8c.html#a15">dgeMatrix_svd</a> (SEXP x, SEXP nnu, SEXP nnv)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="dgeMatrix_8c.html#a16">dgeMatrix_Schur</a> (SEXP x, SEXP vectors)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="dgeMatrix_8c.html#a16">dgeMatrix_exp</a> (SEXP x)</td></tr>
+
+<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="dgeMatrix_8c.html#a17">dgeMatrix_Schur</a> (SEXP x, SEXP vectors)</td></tr>
 
 <tr><td colspan="2"><br><h2>Variables</h2></td></tr>
 <tr><td class="memItemLeft" nowrap align="right" valign="top">static double&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="dgeMatrix_8c.html#a0">padec</a> []</td></tr>
@@ -150,44 +152,7 @@
     </td>
   </tr>
 </table>
-<a class="anchor" name="a13" doxytag="dgeMatrix.c::dgeMatrix_dgeMatrix_mm"></a><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">SEXP dgeMatrix_dgeMatrix_mm           </td>
-          <td class="md" valign="top">(&nbsp;</td>
-          <td class="md" nowrap valign="top">SEXP&nbsp;</td>
-          <td class="mdname" nowrap> <em>a</em>, </td>
-        </tr>
-        <tr>
-          <td class="md" nowrap align="right"></td>
-          <td class="md"></td>
-          <td class="md" nowrap>SEXP&nbsp;</td>
-          <td class="mdname" nowrap> <em>b</em></td>
-        </tr>
-        <tr>
-          <td class="md"></td>
-          <td class="md">)&nbsp;</td>
-          <td class="md" colspan="2"></td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-    </td>
-  </tr>
-</table>
-<a class="anchor" name="a15" doxytag="dgeMatrix.c::dgeMatrix_exp"></a><p>
+<a class="anchor" name="a16" doxytag="dgeMatrix.c::dgeMatrix_exp"></a><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -315,6 +280,98 @@ Matrix exponential - based on the code for Octave's expm function.<p>
     </td>
   </tr>
 </table>
+<a class="anchor" name="a14" doxytag="dgeMatrix.c::dgeMatrix_matrix_mm"></a><p>
+<table class="mdTable" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top">SEXP dgeMatrix_matrix_mm           </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">SEXP&nbsp;</td>
+          <td class="mdname" nowrap> <em>a</em>, </td>
+        </tr>
+        <tr>
+          <td class="md" nowrap align="right"></td>
+          <td class="md"></td>
+          <td class="md" nowrap>SEXP&nbsp;</td>
+          <td class="mdname" nowrap> <em>b</em>, </td>
+        </tr>
+        <tr>
+          <td class="md" nowrap align="right"></td>
+          <td class="md"></td>
+          <td class="md" nowrap>SEXP&nbsp;</td>
+          <td class="mdname" nowrap> <em>classed</em>, </td>
+        </tr>
+        <tr>
+          <td class="md" nowrap align="right"></td>
+          <td class="md"></td>
+          <td class="md" nowrap>SEXP&nbsp;</td>
+          <td class="mdname" nowrap> <em>right</em></td>
+        </tr>
+        <tr>
+          <td class="md"></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"></td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing="5" cellpadding="0" border="0">
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a class="anchor" name="a13" doxytag="dgeMatrix.c::dgeMatrix_matrix_solve"></a><p>
+<table class="mdTable" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top">SEXP dgeMatrix_matrix_solve           </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">SEXP&nbsp;</td>
+          <td class="mdname" nowrap> <em>a</em>, </td>
+        </tr>
+        <tr>
+          <td class="md" nowrap align="right"></td>
+          <td class="md"></td>
+          <td class="md" nowrap>SEXP&nbsp;</td>
+          <td class="mdname" nowrap> <em>b</em>, </td>
+        </tr>
+        <tr>
+          <td class="md" nowrap align="right"></td>
+          <td class="md"></td>
+          <td class="md" nowrap>SEXP&nbsp;</td>
+          <td class="mdname" nowrap> <em>classed</em></td>
+        </tr>
+        <tr>
+          <td class="md"></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"></td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing="5" cellpadding="0" border="0">
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
 <a class="anchor" name="a3" doxytag="dgeMatrix.c::dgeMatrix_norm"></a><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
@@ -389,7 +446,7 @@ Matrix exponential - based on the code for Octave's expm function.<p>
     </td>
   </tr>
 </table>
-<a class="anchor" name="a16" doxytag="dgeMatrix.c::dgeMatrix_Schur"></a><p>
+<a class="anchor" name="a17" doxytag="dgeMatrix.c::dgeMatrix_Schur"></a><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -454,7 +511,7 @@ Matrix exponential - based on the code for Octave's expm function.<p>
     </td>
   </tr>
 </table>
-<a class="anchor" name="a14" doxytag="dgeMatrix.c::dgeMatrix_svd"></a><p>
+<a class="anchor" name="a15" doxytag="dgeMatrix.c::dgeMatrix_svd"></a><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -634,7 +691,7 @@ Matrix exponential - based on the code for Octave's expm function.<p>
 </pre></div>    </td>
   </tr>
 </table>
-<hr size="1"><address style="align: right;"><small>Generated on Tue Mar 1 16:58:10 2005 for Matrix by&nbsp;
+<hr size="1"><address style="align: right;"><small>Generated on Wed Mar 30 08:43:57 2005 for Matrix by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.1 </small></address>
 </body>

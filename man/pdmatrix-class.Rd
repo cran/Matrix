@@ -2,9 +2,6 @@
 \docType{class}
 \alias{pdmatrix-class}
 \alias{coerce,matrix,pdmatrix-method}
-\alias{coerce,pdfactor,pdmatrix-method}
-\alias{coerce,pdmatrix,pdfactor-method}
-\alias{coerce<-,pdmatrix,pdfactor-method}
 \title{Positive-definite matrices }
 \description{The class of positive-definite, symmetric matrices.}
 \section{Objects from the Class}{
@@ -38,15 +35,11 @@
     \item{coerce}{\code{signature(from = "matrix", to = "pdmatrix")}:
       create a \code{pdmatrix} object from a matrix (does not check for
       symmetry or positive-definiteness)}
-    \item{coerce}{\code{signature(from = "pdfactor", to = "pdmatrix")}:
-      create a positive-definite matrix as the crossproduct of the factor.}
-    \item{coerce}{\code{signature(from = "pdmatrix", to = "pdfactor")}:
-      convert a \code{pdmatrix} object to its Cholesky factor}
   }
 }
 %\references{}
 %\author{Douglas Bates \email{bates@stat.wisc.edu} and Saikat DebRoy \email{saikat@stat.wisc.edu}}
 %\note{}
-\seealso{\code{\link{pdfactor-class}}}
+\seealso{\code{\link{dpoMatrix-class}}}}
 %\examples{}
 \keyword{classes}

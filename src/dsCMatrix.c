@@ -2,17 +2,11 @@
 
 SEXP dsCMatrix_validate(SEXP obj)
 {
-    SEXP uplo = GET_SLOT(obj, Matrix_uploSym);
+    SEXP val = check_scalar_string(GET_SLOT(obj, Matrix_uploSym),
+				   "LU", "uplo");
     int *Dim = INTEGER(GET_SLOT(obj, Matrix_DimSym));
-    char *val;
 
-    if (length(uplo) != 1)
-	return mkString(_("uplo slot must have length 1"));
-    val = CHAR(STRING_ELT(uplo, 0));
-    if (strlen(val) != 1)
-    	return mkString(_("uplo[1] must have string length 1"));
-    if (*val != 'U' && *val != 'L')
-    	return mkString(_("uplo[1] must be \"U\" or \"L\""));
+    if (isString(val)) return val;
     if (Dim[0] != Dim[1])
 	return mkString(_("Symmetric matrix must be square"));
     csc_check_column_sorting(obj);
@@ -136,26 +130,23 @@ SEXP dsCMatrix_inverse_factor(SEXP A)
 
 SEXP ssc_transpose(SEXP x)
 {
-    SEXP
-	ans = PROTECT(NEW_OBJECT(MAKE_CLASS("dsCMatrix"))),
+    SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("dsCMatrix"))),
 	islot = GET_SLOT(x, Matrix_iSym);
-    int nnz = length(islot),
-	*adims = INTEGER(GET_SLOT(ans, Matrix_DimSym)),
+    int nnz = length(islot), *adims,
 	*xdims = INTEGER(GET_SLOT(x, Matrix_DimSym));
 
+    adims = INTEGER(ALLOC_SLOT(ans, Matrix_DimSym, INTSXP, 2));
     adims[0] = xdims[1]; adims[1] = xdims[0];
     if (CHAR(asChar(GET_SLOT(x, Matrix_uploSym)))[0] == 'U')
 	SET_SLOT(ans, Matrix_uploSym, mkString("L"));
-    SET_SLOT(ans, Matrix_pSym, allocVector(INTSXP, xdims[0] + 1));
-    SET_SLOT(ans, Matrix_iSym, allocVector(INTSXP, nnz));
-    SET_SLOT(ans, Matrix_xSym, allocVector(REALSXP, nnz));
-    csc_components_transpose(xdims[0], xdims[1], nnz,
-			     INTEGER(GET_SLOT(x, Matrix_pSym)),
-			     INTEGER(islot),
-			     REAL(GET_SLOT(x, Matrix_xSym)),
-			     INTEGER(GET_SLOT(ans, Matrix_pSym)),
-			     INTEGER(GET_SLOT(ans, Matrix_iSym)),
-			     REAL(GET_SLOT(ans, Matrix_xSym)));
+    else
+	SET_SLOT(ans, Matrix_uploSym, mkString("U"));
+    csc_compTr(xdims[0], xdims[1], nnz,
+	       INTEGER(GET_SLOT(x, Matrix_pSym)), INTEGER(islot),
+	       REAL(GET_SLOT(x, Matrix_xSym)),
+	       INTEGER(ALLOC_SLOT(ans, Matrix_pSym, INTSXP, xdims[0] + 1)),
+	       INTEGER(ALLOC_SLOT(ans, Matrix_iSym, INTSXP, nnz)),
+	       REAL(ALLOC_SLOT(ans, Matrix_xSym, REALSXP, nnz)));
     UNPROTECT(1);
     return ans;
 }

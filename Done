@@ -35,3 +35,9 @@
 
 - Clean up vestigial functions (pdFactor, pdMatrix, matrix<-) from the
   nlme package.
+
+- create a class of permutation matrices for use in expand.  The
+  current expand method for the LU factorization is not complete
+  because it does not provide the permutation.
+
+- tcrossprod() now works: C code now "exported" via init.c

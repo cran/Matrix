@@ -12,6 +12,7 @@
 \alias{coerce,dsCMatrix,matrix-method}
 \alias{coerce,dsTMatrix,matrix-method}
 \alias{coerce,dsTMatrix,dgeMatrix-method}
+\alias{coerce,dsTMatrix,dsCMatrix-method}
 \alias{coerce,dsTMatrix,dsyMatrix-method}
 \alias{determinant,dsCMatrix,missing-method}
 \alias{determinant,dsCMatrix,logical-method}
@@ -80,6 +81,7 @@ Class \code{"dgCMatrix"}, directly.
     \item{coerce}{\code{signature(from = "dsCMatrix", to = "dgeMatrix")}}
     \item{coerce}{\code{signature(from = "dsCMatrix", to = "matrix")}}
     \item{coerce}{\code{signature(from = "dsTMatrix", to = "dgeMatrix")}}
+    \item{coerce}{\code{signature(from = "dsTMatrix", to = "dsCMatrix")}}
     \item{coerce}{\code{signature(from = "dsTMatrix", to = "dsyMatrix")}}
     \item{coerce}{\code{signature(from = "dsTMatrix", to = "matrix")}}
   }

@@ -539,7 +539,7 @@ cscb_trcbsm(enum CBLAS_SIDE side, enum CBLAS_UPLO uplo,
     if (diag == UNT && axdims[0] == 1) { /* can use R_ldl code */
 	if ((side != LFT) && transa == TRN) {	/* case required for lmer */
 	    int *BTp, nnz = bxdims[2], nrbB;
-	    int *tmp = expand_column_pointers(ncbB, Bp, Calloc(nnz, int));
+	    int *tmp = expand_cmprPt(ncbB, Bp, Calloc(nnz, int));
 	    int *BTi = Calloc(nnz, int);
 	    double *BTx = Calloc(nnz, double), *rhs;
 
@@ -731,7 +731,7 @@ SEXP dgBCMatrix_to_dgTMatrix(SEXP A)
 	*bdims = INTEGER(GET_SLOT(val, Matrix_DimSym)),
 	*adims = INTEGER(getAttrib(AxP, R_DimSymbol)),
 	i, j, k, kk, ncb = length(ApP) - 1, nnz = length(AxP), nrb;
-    int *Aj = expand_column_pointers(ncb, Ap, Calloc(nnz, int)), 
+    int *Aj = expand_cmprPt(ncb, Ap, Calloc(nnz, int)), 
 	*Bi = INTEGER(ALLOC_SLOT(val, Matrix_iSym, INTSXP, nnz)),
 	*Bj = INTEGER(ALLOC_SLOT(val, Matrix_jSym, INTSXP, nnz)),
 	nblk = adims[2], nc = adims[1], nr = adims[0];

@@ -1,3 +1,47 @@
+2005-03-26  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/AllClass.R: add two virtual sparse classes ``on top''
+
+2005-03-24  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/AllClass.R (setClass): use "VIRTUAL" for the virtual classes;
+		correspondingly fix examples and tests/ since new()
+		doesn't work for virtual classes.
+
+2005-03-17  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Matrix.R (as.matrix): method and one for unname()
+	* tests/dpoMatrix.R: tests should now be less platform dependent;
+	  also run for R 2.1.0; using as.matrix()
+
+2005-03-15  Douglas Bates  <bates@bates1-home>
+
+	* R/pMatrix.R: "pMatrix" class added
+	* ....
+
+2005-03-14  Douglas Bates  <bates@bates1-home>
+
+	* R/dtpMatrix.R: Add unpack method and an example.
+
+	* src/dsyMatrix.c (dsyMatrix_trf): Add BunchKaufman factorization
+	of general symmetric matrices and associated S4 methods.
+
+2005-03-10  Martin Maechler  <maechler@stat.math.ethz.ch>
+	+
+2005-03-05  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/dgeMatrix.R (setAs): and many other files: more coercion,
+	  crossprod() and "%*%" methods added; tests, too.
+	* tests/matprod.R: new, for testing these
+
+2005-03-03  Douglas Bates  <bates@bates1-home>
+
+	* src/lmer.c (lmer_fitted): Added.
+
+2005-03-02  Douglas Bates  <bates@bates1-home>
+
+	* R/dsTMatrix.R: Conversion from dsTMatrix to dsCMatrix
+
 2005-02-28  Douglas Bates  <bates@bates1-home>
 
 	* src/*.c,po/,inst/po: Internationalization and localization of
@@ -7,7 +51,7 @@
 	R_ldl.c file.
 
 	* src/flame.[ch]: Removed these source files.
-	
+
 	* src/dtrMatrix.c (make_array_triangular): Move to Mutils
 
 	* src/LU.[ch],src/init.c: absorb in factorizations
@@ -24,7 +68,7 @@
 	* R/dtrMatrix.R: fix t() method
 
 	* R/dgeMatrix.R: define group methods "Arith", "Math", "Math2"
-        * NAMESPACE: export them (and import generics from "methods")
+	* NAMESPACE: export them (and import generics from "methods")
 	* tests/group-methods.R : and test them.
 
 	* src/dtrMatrix.c (dtrMatrix_as_dgeMatrix): prevent seg.fault in
@@ -32,7 +76,7 @@
 
 2005-02-24  Douglas Bates  <bates@stat.wisc.edu>
 
-	* DESCRIPTION (Version): 0.95-2  released to CRAN
+	* DESCRIPTION (Version): 0.95-2	 released to CRAN
 
 	* src/dgBCMatrix.c:
 	* src/lmer.c: many changes
@@ -59,7 +103,7 @@
 
 2005-01-23  Douglas Bates  <bates@bates7>
 
-	* src/lmer.c (Lind): Definition of Lind was backwards.  This only
+	* src/lmer.c (Lind): Definition of Lind was backwards.	This only
 	had an effect in cases with more than 2 grouping factors.
 
 2005-01-03  Douglas Bates  <bates@bates1-home>
@@ -171,7 +215,7 @@
 2004-04-05  Douglas Bates  <bates@bates2_home>
 
 	* src/triplet_to_col.c: Create triplet_to_col as a native
-	function, not the version from umfpack.  There were problems with
+	function, not the version from umfpack.	 There were problems with
 	the configuration of UMFPACK for 64-bit processors and there was
 	only one umfpack routine being used so I moved it here.
 

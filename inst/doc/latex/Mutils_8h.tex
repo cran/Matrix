@@ -5,11 +5,12 @@
 {\tt \#include $<$Rdefines.h$>$}\par
 {\tt \#include $<$Rconfig.h$>$}\par
 {\tt \#include $<$R.h$>$}\par
+{\tt \#include $<$libintl.h$>$}\par
 {\tt \#include \char`\"{}Syms.h\char`\"{}}\par
 \subsubsection*{Defines}
 \begin{CompactItemize}
 \item 
-\#define \hyperlink{Mutils_8h_a0}{\_\-}(String)~(String)
+\#define \hyperlink{Mutils_8h_a0}{\_\-}(String)~dgettext (\char`\"{}Matrix\char`\"{}, String)
 \item 
 \#define \hyperlink{Mutils_8h_a1}{RMJ}~Cblas\-Row\-Major
 \item 
@@ -34,91 +35,103 @@
 \#define \hyperlink{Mutils_8h_a11}{RGT}~Cblas\-Right
 \item 
 \#define \hyperlink{Mutils_8h_a12}{AZERO}(x, n)~\{int \_\-I\_\-, \_\-SZ\_\- = (n); for(\_\-I\_\- = 0; \_\-I\_\- $<$ \_\-SZ\_\-; \_\-I\_\-++) (x)\mbox{[}\_\-I\_\-\mbox{]} = 0;\}
+\item 
+\#define \hyperlink{Mutils_8h_a13}{PACKED\_\-LENGTH}(n)~((n) $\ast$ ((n) + 1))/2
 \end{CompactItemize}
 \subsubsection*{Enumerations}
 \begin{CompactItemize}
 \item 
-enum \hyperlink{Mutils_8h_a53}{CBLAS\_\-ORDER} \{ \hyperlink{Mutils_8h_a53a13}{Cblas\-Row\-Major} = 101, 
-\hyperlink{Mutils_8h_a53a14}{Cblas\-Col\-Major} = 102
+enum \hyperlink{Mutils_8h_a59}{CBLAS\_\-ORDER} \{ \hyperlink{Mutils_8h_a59a14}{Cblas\-Row\-Major} = 101, 
+\hyperlink{Mutils_8h_a59a15}{Cblas\-Col\-Major} = 102
  \}
 \item 
-enum \hyperlink{Mutils_8h_a54}{CBLAS\_\-TRANSPOSE} \{ \hyperlink{Mutils_8h_a54a15}{Cblas\-No\-Trans} = 111, 
-\hyperlink{Mutils_8h_a54a16}{Cblas\-Trans} = 112, 
-\hyperlink{Mutils_8h_a54a17}{Cblas\-Conj\-Trans} = 113
+enum \hyperlink{Mutils_8h_a60}{CBLAS\_\-TRANSPOSE} \{ \hyperlink{Mutils_8h_a60a16}{Cblas\-No\-Trans} = 111, 
+\hyperlink{Mutils_8h_a60a17}{Cblas\-Trans} = 112, 
+\hyperlink{Mutils_8h_a60a18}{Cblas\-Conj\-Trans} = 113
  \}
 \item 
-enum \hyperlink{Mutils_8h_a55}{CBLAS\_\-UPLO} \{ \hyperlink{Mutils_8h_a55a18}{Cblas\-Upper} = 121, 
-\hyperlink{Mutils_8h_a55a19}{Cblas\-Lower} = 122
+enum \hyperlink{Mutils_8h_a61}{CBLAS\_\-UPLO} \{ \hyperlink{Mutils_8h_a61a19}{Cblas\-Upper} = 121, 
+\hyperlink{Mutils_8h_a61a20}{Cblas\-Lower} = 122
  \}
 \item 
-enum \hyperlink{Mutils_8h_a56}{CBLAS\_\-DIAG} \{ \hyperlink{Mutils_8h_a56a20}{Cblas\-Non\-Unit} = 131, 
-\hyperlink{Mutils_8h_a56a21}{Cblas\-Unit} = 132
+enum \hyperlink{Mutils_8h_a62}{CBLAS\_\-DIAG} \{ \hyperlink{Mutils_8h_a62a21}{Cblas\-Non\-Unit} = 131, 
+\hyperlink{Mutils_8h_a62a22}{Cblas\-Unit} = 132
  \}
 \item 
-enum \hyperlink{Mutils_8h_a57}{CBLAS\_\-SIDE} \{ \hyperlink{Mutils_8h_a57a22}{Cblas\-Left} = 141, 
-\hyperlink{Mutils_8h_a57a23}{Cblas\-Right} = 142
+enum \hyperlink{Mutils_8h_a63}{CBLAS\_\-SIDE} \{ \hyperlink{Mutils_8h_a63a23}{Cblas\-Left} = 141, 
+\hyperlink{Mutils_8h_a63a24}{Cblas\-Right} = 142
  \}
 \end{CompactItemize}
 \subsubsection*{Functions}
 \begin{CompactItemize}
 \item 
-char \hyperlink{Mutils_8h_a24}{norm\_\-type} (char $\ast$typstr)
+char \hyperlink{Mutils_8h_a25}{norm\_\-type} (char $\ast$typstr)
 \item 
-char \hyperlink{Mutils_8h_a25}{rcond\_\-type} (char $\ast$typstr)
+char \hyperlink{Mutils_8h_a26}{rcond\_\-type} (char $\ast$typstr)
 \item 
-double \hyperlink{Mutils_8h_a26}{get\_\-double\_\-by\_\-name} (SEXP obj, char $\ast$nm)
+double \hyperlink{Mutils_8h_a27}{get\_\-double\_\-by\_\-name} (SEXP obj, char $\ast$nm)
 \item 
-SEXP \hyperlink{Mutils_8h_a27}{set\_\-double\_\-by\_\-name} (SEXP obj, double val, char $\ast$nm)
+SEXP \hyperlink{Mutils_8h_a28}{set\_\-double\_\-by\_\-name} (SEXP obj, double val, char $\ast$nm)
 \item 
-SEXP \hyperlink{Mutils_8h_a28}{as\_\-det\_\-obj} (double val, int log, int sign)
+SEXP \hyperlink{Mutils_8h_a29}{as\_\-det\_\-obj} (double val, int log, int sign)
 \item 
-SEXP \hyperlink{Mutils_8h_a29}{get\_\-factors} (SEXP obj, char $\ast$nm)
+SEXP \hyperlink{Mutils_8h_a30}{get\_\-factors} (SEXP obj, char $\ast$nm)
 \item 
-SEXP \hyperlink{Mutils_8h_a30}{set\_\-factors} (SEXP obj, SEXP val, char $\ast$nm)
+SEXP \hyperlink{Mutils_8h_a31}{set\_\-factors} (SEXP obj, SEXP val, char $\ast$nm)
 \item 
-SEXP \hyperlink{Mutils_8h_a31}{dg\-CMatrix\_\-set\_\-Dim} (SEXP x, int nrow)
+SEXP \hyperlink{Mutils_8h_a32}{dg\-CMatrix\_\-set\_\-Dim} (SEXP x, int nrow)
 \item 
-int \hyperlink{Mutils_8h_a32}{csc\_\-unsorted\_\-columns} (int ncol, const int p\mbox{[}$\,$\mbox{]}, const int i\mbox{[}$\,$\mbox{]})
+int \hyperlink{Mutils_8h_a33}{csc\_\-unsorted\_\-columns} (int ncol, const int p\mbox{[}$\,$\mbox{]}, const int i\mbox{[}$\,$\mbox{]})
 \item 
-void \hyperlink{Mutils_8h_a33}{csc\_\-sort\_\-columns} (int ncol, const int p\mbox{[}$\,$\mbox{]}, int i\mbox{[}$\,$\mbox{]}, double x\mbox{[}$\,$\mbox{]})
+void \hyperlink{Mutils_8h_a34}{csc\_\-sort\_\-columns} (int ncol, const int p\mbox{[}$\,$\mbox{]}, int i\mbox{[}$\,$\mbox{]}, double x\mbox{[}$\,$\mbox{]})
 \item 
-SEXP \hyperlink{Mutils_8h_a34}{triple\_\-as\_\-SEXP} (int nrow, int ncol, int nz, const int Ti\mbox{[}$\,$\mbox{]}, const int Tj\mbox{[}$\,$\mbox{]}, const double Tx\mbox{[}$\,$\mbox{]}, char $\ast$Rclass)
+SEXP \hyperlink{Mutils_8h_a35}{triple\_\-as\_\-SEXP} (int nrow, int ncol, int nz, const int Ti\mbox{[}$\,$\mbox{]}, const int Tj\mbox{[}$\,$\mbox{]}, const double Tx\mbox{[}$\,$\mbox{]}, char $\ast$Rclass)
 \item 
-SEXP \hyperlink{Mutils_8h_a35}{csc\_\-check\_\-column\_\-sorting} (SEXP A)
+SEXP \hyperlink{Mutils_8h_a36}{csc\_\-check\_\-column\_\-sorting} (SEXP A)
 \item 
-void \hyperlink{Mutils_8h_a36}{csc\_\-components\_\-transpose} (int m, int n, int nnz, const int xp\mbox{[}$\,$\mbox{]}, const int xi\mbox{[}$\,$\mbox{]}, const double xx\mbox{[}$\,$\mbox{]}, int ap\mbox{[}$\,$\mbox{]}, int ai\mbox{[}$\,$\mbox{]}, double ax\mbox{[}$\,$\mbox{]})
+void \hyperlink{Mutils_8h_a37}{csc\_\-comp\-Tr} (int m, int n, int nnz, const int xp\mbox{[}$\,$\mbox{]}, const int xi\mbox{[}$\,$\mbox{]}, const double xx\mbox{[}$\,$\mbox{]}, int ap\mbox{[}$\,$\mbox{]}, int ai\mbox{[}$\,$\mbox{]}, double ax\mbox{[}$\,$\mbox{]})
 \item 
-void \hyperlink{Mutils_8h_a37}{ssc\_\-symbolic\_\-permute} (int n, int upper, const int perm\mbox{[}$\,$\mbox{]}, int Ap\mbox{[}$\,$\mbox{]}, int Ai\mbox{[}$\,$\mbox{]})
+void \hyperlink{Mutils_8h_a38}{ssc\_\-symbolic\_\-permute} (int n, int upper, const int perm\mbox{[}$\,$\mbox{]}, int Ap\mbox{[}$\,$\mbox{]}, int Ai\mbox{[}$\,$\mbox{]})
 \item 
-double $\ast$ \hyperlink{Mutils_8h_a38}{nlme\_\-symmetrize} (double $\ast$a, const int nc)
+double $\ast$ \hyperlink{Mutils_8h_a39}{nlme\_\-symmetrize} (double $\ast$a, const int nc)
 \item 
-void \hyperlink{Mutils_8h_a39}{nlme\_\-check\_\-Lapack\_\-error} (int info, const char $\ast$la\-Name)
+void \hyperlink{Mutils_8h_a40}{nlme\_\-check\_\-Lapack\_\-error} (int info, const char $\ast$la\-Name)
 \item 
-SEXP \hyperlink{Mutils_8h_a40}{nlme\_\-replace\-Slot} (SEXP obj, SEXP names, SEXP value)
+SEXP \hyperlink{Mutils_8h_a41}{nlme\_\-replace\-Slot} (SEXP obj, SEXP names, SEXP value)
 \item 
-SEXP \hyperlink{Mutils_8h_a41}{nlme\_\-weight\_\-matrix\_\-list} (SEXP MLin, SEXP wts, SEXP adjst, SEXP MLout)
+SEXP \hyperlink{Mutils_8h_a42}{nlme\_\-weight\_\-matrix\_\-list} (SEXP MLin, SEXP wts, SEXP adjst, SEXP MLout)
 \item 
-SEXP \hyperlink{Mutils_8h_a42}{Matrix\_\-make\_\-named} (int TYP, char $\ast$$\ast$names)
+SEXP \hyperlink{Mutils_8h_a43}{Matrix\_\-make\_\-named} (int TYP, char $\ast$$\ast$names)
 \item 
-static R\_\-INLINE SEXP \hyperlink{Mutils_8h_a43}{ALLOC\_\-SLOT} (SEXP obj, SEXP nm, SEXPTYPE type, int length)
+SEXP \hyperlink{Mutils_8h_a44}{check\_\-scalar\_\-string} (SEXP s\-P, char $\ast$vals, char $\ast$nm)
 \item 
-static R\_\-INLINE int $\ast$ \hyperlink{Mutils_8h_a44}{expand\_\-column\_\-pointers} (int ncol, const int mp\mbox{[}$\,$\mbox{]}, int mj\mbox{[}$\,$\mbox{]})
+double $\ast$ \hyperlink{Mutils_8h_a45}{packed\_\-to\_\-full} (double $\ast$dest, const double $\ast$src, int n, enum \hyperlink{Mutils_8h_a61}{CBLAS\_\-UPLO} uplo)
 \item 
-static R\_\-INLINE int \hyperlink{Mutils_8h_a45}{check\_\-csc\_\-index} (const int p\mbox{[}$\,$\mbox{]}, const int i\mbox{[}$\,$\mbox{]}, int row, int col, int missing)
+double $\ast$ \hyperlink{Mutils_8h_a46}{full\_\-to\_\-packed} (double $\ast$dest, const double $\ast$src, int n, enum \hyperlink{Mutils_8h_a61}{CBLAS\_\-UPLO} uplo, enum \hyperlink{Mutils_8h_a62}{CBLAS\_\-DIAG} diag)
 \item 
-SEXP \hyperlink{Mutils_8h_a46}{alloc3Darray} (SEXPTYPE mode, int nrow, int ncol, int nface)
+double $\ast$ \hyperlink{Mutils_8h_a47}{packed\_\-get\-Diag} (double $\ast$dest, SEXP x)
 \item 
-static R\_\-INLINE int \hyperlink{Mutils_8h_a47}{Lind} (int k, int i)
+static R\_\-INLINE int \hyperlink{Mutils_8h_a48}{packed\_\-ncol} (int len)
 \item 
-static R\_\-INLINE int \hyperlink{Mutils_8h_a48}{match\_\-mat\_\-dims} (const int xd\mbox{[}$\,$\mbox{]}, const int yd\mbox{[}$\,$\mbox{]})
+static R\_\-INLINE SEXP \hyperlink{Mutils_8h_a49}{ALLOC\_\-SLOT} (SEXP obj, SEXP nm, SEXPTYPE type, int length)
 \item 
-double $\ast$ \hyperlink{Mutils_8h_a49}{expand\_\-csc\_\-column} (double $\ast$dest, int m, int j, const int Ap\mbox{[}$\,$\mbox{]}, const int Ai\mbox{[}$\,$\mbox{]}, const double Ax\mbox{[}$\,$\mbox{]})
+static R\_\-INLINE int $\ast$ \hyperlink{Mutils_8h_a50}{expand\_\-cmpr\-Pt} (int ncol, const int mp\mbox{[}$\,$\mbox{]}, int mj\mbox{[}$\,$\mbox{]})
 \item 
-static R\_\-INLINE void \hyperlink{Mutils_8h_a50}{int\_\-permute} (int i\mbox{[}$\,$\mbox{]}, int n, const int perm\mbox{[}$\,$\mbox{]})
+static R\_\-INLINE int \hyperlink{Mutils_8h_a51}{check\_\-csc\_\-index} (const int p\mbox{[}$\,$\mbox{]}, const int i\mbox{[}$\,$\mbox{]}, int row, int col, int missing)
 \item 
-static R\_\-INLINE void \hyperlink{Mutils_8h_a51}{make\_\-upper\_\-triangular} (int i\mbox{[}$\,$\mbox{]}, int j\mbox{[}$\,$\mbox{]}, int nnz)
+SEXP \hyperlink{Mutils_8h_a52}{alloc3Darray} (SEXPTYPE mode, int nrow, int ncol, int nface)
 \item 
-void \hyperlink{Mutils_8h_a52}{make\_\-array\_\-triangular} (double $\ast$x, SEXP from)
+static R\_\-INLINE int \hyperlink{Mutils_8h_a53}{Lind} (int k, int i)
+\item 
+static R\_\-INLINE int \hyperlink{Mutils_8h_a54}{match\_\-mat\_\-dims} (const int xd\mbox{[}$\,$\mbox{]}, const int yd\mbox{[}$\,$\mbox{]})
+\item 
+double $\ast$ \hyperlink{Mutils_8h_a55}{expand\_\-csc\_\-column} (double $\ast$dest, int m, int j, const int Ap\mbox{[}$\,$\mbox{]}, const int Ai\mbox{[}$\,$\mbox{]}, const double Ax\mbox{[}$\,$\mbox{]})
+\item 
+static R\_\-INLINE void \hyperlink{Mutils_8h_a56}{int\_\-permute} (int i\mbox{[}$\,$\mbox{]}, int n, const int perm\mbox{[}$\,$\mbox{]})
+\item 
+static R\_\-INLINE void \hyperlink{Mutils_8h_a57}{make\_\-upper\_\-triangular} (int i\mbox{[}$\,$\mbox{]}, int j\mbox{[}$\,$\mbox{]}, int nnz)
+\item 
+void \hyperlink{Mutils_8h_a58}{make\_\-array\_\-triangular} (double $\ast$x, SEXP from)
 \end{CompactItemize}
 
 
@@ -126,7 +139,7 @@ void \hyperlink{Mutils_8h_a52}{make\_\-array\_\-triangular} (double $\ast$x, SEX
 \hypertarget{Mutils_8h_a0}{
 \index{Mutils.h@{Mutils.h}!_@{\_\-}}
 \index{_@{\_\-}!Mutils.h@{Mutils.h}}
-\paragraph[\_\-]{\setlength{\rightskip}{0pt plus 5cm}\#define \_\-(String)~(String)}\hfill}
+\paragraph[\_\-]{\setlength{\rightskip}{0pt plus 5cm}\#define \_\-(String)~dgettext (\char`\"{}Matrix\char`\"{}, String)}\hfill}
 \label{Mutils_8h_a0}
 
 
@@ -179,6 +192,13 @@ void \hyperlink{Mutils_8h_a52}{make\_\-array\_\-triangular} (double $\ast$x, SEX
 \label{Mutils_8h_a8}
 
 
+\hypertarget{Mutils_8h_a13}{
+\index{Mutils.h@{Mutils.h}!PACKED_LENGTH@{PACKED\_\-LENGTH}}
+\index{PACKED_LENGTH@{PACKED\_\-LENGTH}!Mutils.h@{Mutils.h}}
+\paragraph[PACKED\_\-LENGTH]{\setlength{\rightskip}{0pt plus 5cm}\#define PACKED\_\-LENGTH(n)~((n) $\ast$ ((n) + 1))/2}\hfill}
+\label{Mutils_8h_a13}
+
+
 \hypertarget{Mutils_8h_a11}{
 \index{Mutils.h@{Mutils.h}!RGT@{RGT}}
 \index{RGT@{RGT}!Mutils.h@{Mutils.h}}
@@ -217,123 +237,123 @@ void \hyperlink{Mutils_8h_a52}{make\_\-array\_\-triangular} (double $\ast$x, SEX
 
 
 \subsubsection{Enumeration Type Documentation}
-\hypertarget{Mutils_8h_a56}{
+\hypertarget{Mutils_8h_a62}{
 \index{Mutils.h@{Mutils.h}!CBLAS_DIAG@{CBLAS\_\-DIAG}}
 \index{CBLAS_DIAG@{CBLAS\_\-DIAG}!Mutils.h@{Mutils.h}}
-\paragraph[CBLAS\_\-DIAG]{\setlength{\rightskip}{0pt plus 5cm}enum \hyperlink{Mutils_8h_a56}{CBLAS\_\-DIAG}}\hfill}
-\label{Mutils_8h_a56}
+\paragraph[CBLAS\_\-DIAG]{\setlength{\rightskip}{0pt plus 5cm}enum \hyperlink{Mutils_8h_a62}{CBLAS\_\-DIAG}}\hfill}
+\label{Mutils_8h_a62}
 
 
 \begin{Desc}
 \item[Enumeration values: ]\par
 \begin{description}
 \index{CblasNonUnit@{CblasNonUnit}!Mutils.h@{Mutils.h}}\index{Mutils.h@{Mutils.h}!CblasNonUnit@{CblasNonUnit}}\item[{\em 
-\hypertarget{Mutils_8h_a56a20}{
+\hypertarget{Mutils_8h_a62a21}{
 Cblas\-Non\-Unit}
-\label{Mutils_8h_a56a20}
+\label{Mutils_8h_a62a21}
 }]\index{CblasUnit@{CblasUnit}!Mutils.h@{Mutils.h}}\index{Mutils.h@{Mutils.h}!CblasUnit@{CblasUnit}}\item[{\em 
-\hypertarget{Mutils_8h_a56a21}{
+\hypertarget{Mutils_8h_a62a22}{
 Cblas\-Unit}
-\label{Mutils_8h_a56a21}
+\label{Mutils_8h_a62a22}
 }]\end{description}
 \end{Desc}
 
-\hypertarget{Mutils_8h_a53}{
+\hypertarget{Mutils_8h_a59}{
 \index{Mutils.h@{Mutils.h}!CBLAS_ORDER@{CBLAS\_\-ORDER}}
 \index{CBLAS_ORDER@{CBLAS\_\-ORDER}!Mutils.h@{Mutils.h}}
-\paragraph[CBLAS\_\-ORDER]{\setlength{\rightskip}{0pt plus 5cm}enum \hyperlink{Mutils_8h_a53}{CBLAS\_\-ORDER}}\hfill}
-\label{Mutils_8h_a53}
+\paragraph[CBLAS\_\-ORDER]{\setlength{\rightskip}{0pt plus 5cm}enum \hyperlink{Mutils_8h_a59}{CBLAS\_\-ORDER}}\hfill}
+\label{Mutils_8h_a59}
 
 
 \begin{Desc}
 \item[Enumeration values: ]\par
 \begin{description}
 \index{CblasRowMajor@{CblasRowMajor}!Mutils.h@{Mutils.h}}\index{Mutils.h@{Mutils.h}!CblasRowMajor@{CblasRowMajor}}\item[{\em 
-\hypertarget{Mutils_8h_a53a13}{
+\hypertarget{Mutils_8h_a59a14}{
 Cblas\-Row\-Major}
-\label{Mutils_8h_a53a13}
+\label{Mutils_8h_a59a14}
 }]\index{CblasColMajor@{CblasColMajor}!Mutils.h@{Mutils.h}}\index{Mutils.h@{Mutils.h}!CblasColMajor@{CblasColMajor}}\item[{\em 
-\hypertarget{Mutils_8h_a53a14}{
+\hypertarget{Mutils_8h_a59a15}{
 Cblas\-Col\-Major}
-\label{Mutils_8h_a53a14}
+\label{Mutils_8h_a59a15}
 }]\end{description}
 \end{Desc}
 
-\hypertarget{Mutils_8h_a57}{
+\hypertarget{Mutils_8h_a63}{
 \index{Mutils.h@{Mutils.h}!CBLAS_SIDE@{CBLAS\_\-SIDE}}
 \index{CBLAS_SIDE@{CBLAS\_\-SIDE}!Mutils.h@{Mutils.h}}
-\paragraph[CBLAS\_\-SIDE]{\setlength{\rightskip}{0pt plus 5cm}enum \hyperlink{Mutils_8h_a57}{CBLAS\_\-SIDE}}\hfill}
-\label{Mutils_8h_a57}
+\paragraph[CBLAS\_\-SIDE]{\setlength{\rightskip}{0pt plus 5cm}enum \hyperlink{Mutils_8h_a63}{CBLAS\_\-SIDE}}\hfill}
+\label{Mutils_8h_a63}
 
 
 \begin{Desc}
 \item[Enumeration values: ]\par
 \begin{description}
 \index{CblasLeft@{CblasLeft}!Mutils.h@{Mutils.h}}\index{Mutils.h@{Mutils.h}!CblasLeft@{CblasLeft}}\item[{\em 
-\hypertarget{Mutils_8h_a57a22}{
+\hypertarget{Mutils_8h_a63a23}{
 Cblas\-Left}
-\label{Mutils_8h_a57a22}
+\label{Mutils_8h_a63a23}
 }]\index{CblasRight@{CblasRight}!Mutils.h@{Mutils.h}}\index{Mutils.h@{Mutils.h}!CblasRight@{CblasRight}}\item[{\em 
-\hypertarget{Mutils_8h_a57a23}{
+\hypertarget{Mutils_8h_a63a24}{
 Cblas\-Right}
-\label{Mutils_8h_a57a23}
+\label{Mutils_8h_a63a24}
 }]\end{description}
 \end{Desc}
 
-\hypertarget{Mutils_8h_a54}{
+\hypertarget{Mutils_8h_a60}{
 \index{Mutils.h@{Mutils.h}!CBLAS_TRANSPOSE@{CBLAS\_\-TRANSPOSE}}
 \index{CBLAS_TRANSPOSE@{CBLAS\_\-TRANSPOSE}!Mutils.h@{Mutils.h}}
-\paragraph[CBLAS\_\-TRANSPOSE]{\setlength{\rightskip}{0pt plus 5cm}enum \hyperlink{Mutils_8h_a54}{CBLAS\_\-TRANSPOSE}}\hfill}
-\label{Mutils_8h_a54}
+\paragraph[CBLAS\_\-TRANSPOSE]{\setlength{\rightskip}{0pt plus 5cm}enum \hyperlink{Mutils_8h_a60}{CBLAS\_\-TRANSPOSE}}\hfill}
+\label{Mutils_8h_a60}
 
 
 \begin{Desc}
 \item[Enumeration values: ]\par
 \begin{description}
 \index{CblasNoTrans@{CblasNoTrans}!Mutils.h@{Mutils.h}}\index{Mutils.h@{Mutils.h}!CblasNoTrans@{CblasNoTrans}}\item[{\em 
-\hypertarget{Mutils_8h_a54a15}{
+\hypertarget{Mutils_8h_a60a16}{
 Cblas\-No\-Trans}
-\label{Mutils_8h_a54a15}
+\label{Mutils_8h_a60a16}
 }]\index{CblasTrans@{CblasTrans}!Mutils.h@{Mutils.h}}\index{Mutils.h@{Mutils.h}!CblasTrans@{CblasTrans}}\item[{\em 
-\hypertarget{Mutils_8h_a54a16}{
+\hypertarget{Mutils_8h_a60a17}{
 Cblas\-Trans}
-\label{Mutils_8h_a54a16}
+\label{Mutils_8h_a60a17}
 }]\index{CblasConjTrans@{CblasConjTrans}!Mutils.h@{Mutils.h}}\index{Mutils.h@{Mutils.h}!CblasConjTrans@{CblasConjTrans}}\item[{\em 
-\hypertarget{Mutils_8h_a54a17}{
+\hypertarget{Mutils_8h_a60a18}{
 Cblas\-Conj\-Trans}
-\label{Mutils_8h_a54a17}
+\label{Mutils_8h_a60a18}
 }]\end{description}
 \end{Desc}
 
-\hypertarget{Mutils_8h_a55}{
+\hypertarget{Mutils_8h_a61}{
 \index{Mutils.h@{Mutils.h}!CBLAS_UPLO@{CBLAS\_\-UPLO}}
 \index{CBLAS_UPLO@{CBLAS\_\-UPLO}!Mutils.h@{Mutils.h}}
-\paragraph[CBLAS\_\-UPLO]{\setlength{\rightskip}{0pt plus 5cm}enum \hyperlink{Mutils_8h_a55}{CBLAS\_\-UPLO}}\hfill}
-\label{Mutils_8h_a55}
+\paragraph[CBLAS\_\-UPLO]{\setlength{\rightskip}{0pt plus 5cm}enum \hyperlink{Mutils_8h_a61}{CBLAS\_\-UPLO}}\hfill}
+\label{Mutils_8h_a61}
 
 
 \begin{Desc}
 \item[Enumeration values: ]\par
 \begin{description}
 \index{CblasUpper@{CblasUpper}!Mutils.h@{Mutils.h}}\index{Mutils.h@{Mutils.h}!CblasUpper@{CblasUpper}}\item[{\em 
-\hypertarget{Mutils_8h_a55a18}{
+\hypertarget{Mutils_8h_a61a19}{
 Cblas\-Upper}
-\label{Mutils_8h_a55a18}
+\label{Mutils_8h_a61a19}
 }]\index{CblasLower@{CblasLower}!Mutils.h@{Mutils.h}}\index{Mutils.h@{Mutils.h}!CblasLower@{CblasLower}}\item[{\em 
-\hypertarget{Mutils_8h_a55a19}{
+\hypertarget{Mutils_8h_a61a20}{
 Cblas\-Lower}
-\label{Mutils_8h_a55a19}
+\label{Mutils_8h_a61a20}
 }]\end{description}
 \end{Desc}
 
 
 
 \subsubsection{Function Documentation}
-\hypertarget{Mutils_8h_a46}{
+\hypertarget{Mutils_8h_a52}{
 \index{Mutils.h@{Mutils.h}!alloc3Darray@{alloc3Darray}}
 \index{alloc3Darray@{alloc3Darray}!Mutils.h@{Mutils.h}}
 \paragraph[alloc3Darray]{\setlength{\rightskip}{0pt plus 5cm}SEXP alloc3Darray (SEXPTYPE {\em mode}, int {\em nrow}, int {\em ncol}, int {\em nface})}\hfill}
-\label{Mutils_8h_a46}
+\label{Mutils_8h_a52}
 
 
 Allocate a 3-dimensional array
@@ -345,11 +365,11 @@ Allocate a 3-dimensional array
 \end{Desc}
 \begin{Desc}
 \item[Returns:]A 3-dimensional array of the indicated dimensions and mode \end{Desc}
-\hypertarget{Mutils_8h_a43}{
+\hypertarget{Mutils_8h_a49}{
 \index{Mutils.h@{Mutils.h}!ALLOC_SLOT@{ALLOC\_\-SLOT}}
 \index{ALLOC_SLOT@{ALLOC\_\-SLOT}!Mutils.h@{Mutils.h}}
 \paragraph[ALLOC\_\-SLOT]{\setlength{\rightskip}{0pt plus 5cm}static R\_\-INLINE SEXP ALLOC\_\-SLOT (SEXP {\em obj}, SEXP {\em nm}, SEXPTYPE {\em type}, int {\em length})\hspace{0.3cm}{\tt  \mbox{[}static\mbox{]}}}\hfill}
-\label{Mutils_8h_a43}
+\label{Mutils_8h_a49}
 
 
 Allocate an SEXP of given type and length, assign it as slot nm in the object, and return the SEXP. The validity of this function depends on SET\_\-SLOT not duplicating val when NAMED(val) == 0. If this behavior changes then ALLOC\_\-SLOT must use SET\_\-SLOT followed by GET\_\-SLOT to ensure that the value returned is indeed the SEXP in the slot.
@@ -361,18 +381,18 @@ Allocate an SEXP of given type and length, assign it as slot nm in the object, a
 \end{Desc}
 \begin{Desc}
 \item[Returns:]SEXP of given type and length assigned as slot nm in obj \end{Desc}
-\hypertarget{Mutils_8h_a28}{
+\hypertarget{Mutils_8h_a29}{
 \index{Mutils.h@{Mutils.h}!as_det_obj@{as\_\-det\_\-obj}}
 \index{as_det_obj@{as\_\-det\_\-obj}!Mutils.h@{Mutils.h}}
 \paragraph[as\_\-det\_\-obj]{\setlength{\rightskip}{0pt plus 5cm}SEXP as\_\-det\_\-obj (double {\em val}, int {\em log}, int {\em sign})}\hfill}
-\label{Mutils_8h_a28}
+\label{Mutils_8h_a29}
 
 
-\hypertarget{Mutils_8h_a45}{
+\hypertarget{Mutils_8h_a51}{
 \index{Mutils.h@{Mutils.h}!check_csc_index@{check\_\-csc\_\-index}}
 \index{check_csc_index@{check\_\-csc\_\-index}!Mutils.h@{Mutils.h}}
 \paragraph[check\_\-csc\_\-index]{\setlength{\rightskip}{0pt plus 5cm}static R\_\-INLINE int check\_\-csc\_\-index (const int {\em p}\mbox{[}$\,$\mbox{]}, const int {\em i}\mbox{[}$\,$\mbox{]}, int {\em row}, int {\em col}, int {\em missing})\hspace{0.3cm}{\tt  \mbox{[}static\mbox{]}}}\hfill}
-\label{Mutils_8h_a45}
+\label{Mutils_8h_a51}
 
 
 Return the linear index of the (row, col) entry in a csc structure. If the entry is not found and missing is 0 an error is signaled; otherwise the missing value is returned.
@@ -384,11 +404,18 @@ Return the linear index of the (row, col) entry in a csc structure. If the entry
 \end{Desc}
 \begin{Desc}
 \item[Returns:]index of element at (row, col) if it exists, otherwise missing \end{Desc}
-\hypertarget{Mutils_8h_a35}{
+\hypertarget{Mutils_8h_a44}{
+\index{Mutils.h@{Mutils.h}!check_scalar_string@{check\_\-scalar\_\-string}}
+\index{check_scalar_string@{check\_\-scalar\_\-string}!Mutils.h@{Mutils.h}}
+\paragraph[check\_\-scalar\_\-string]{\setlength{\rightskip}{0pt plus 5cm}SEXP check\_\-scalar\_\-string (SEXP {\em s\-P}, char $\ast$ {\em vals}, char $\ast$ {\em nm})}\hfill}
+\label{Mutils_8h_a44}
+
+
+\hypertarget{Mutils_8h_a36}{
 \index{Mutils.h@{Mutils.h}!csc_check_column_sorting@{csc\_\-check\_\-column\_\-sorting}}
 \index{csc_check_column_sorting@{csc\_\-check\_\-column\_\-sorting}!Mutils.h@{Mutils.h}}
 \paragraph[csc\_\-check\_\-column\_\-sorting]{\setlength{\rightskip}{0pt plus 5cm}SEXP csc\_\-check\_\-column\_\-sorting (SEXP {\em m})}\hfill}
-\label{Mutils_8h_a35}
+\label{Mutils_8h_a36}
 
 
 Check for sorted columns in an object that inherits from the dg\-CMatrix class. Resort the columns if necessary.
@@ -400,18 +427,18 @@ Check for sorted columns in an object that inherits from the dg\-CMatrix class. 
 \end{Desc}
 \begin{Desc}
 \item[Returns:]m with the columns sorted by increasing row index \end{Desc}
-\hypertarget{Mutils_8h_a36}{
-\index{Mutils.h@{Mutils.h}!csc_components_transpose@{csc\_\-components\_\-transpose}}
-\index{csc_components_transpose@{csc\_\-components\_\-transpose}!Mutils.h@{Mutils.h}}
-\paragraph[csc\_\-components\_\-transpose]{\setlength{\rightskip}{0pt plus 5cm}void csc\_\-components\_\-transpose (int {\em m}, int {\em n}, int {\em nnz}, const int {\em xp}\mbox{[}$\,$\mbox{]}, const int {\em xi}\mbox{[}$\,$\mbox{]}, const double {\em xx}\mbox{[}$\,$\mbox{]}, int {\em ap}\mbox{[}$\,$\mbox{]}, int {\em ai}\mbox{[}$\,$\mbox{]}, double {\em ax}\mbox{[}$\,$\mbox{]})}\hfill}
-\label{Mutils_8h_a36}
+\hypertarget{Mutils_8h_a37}{
+\index{Mutils.h@{Mutils.h}!csc_compTr@{csc\_\-compTr}}
+\index{csc_compTr@{csc\_\-compTr}!Mutils.h@{Mutils.h}}
+\paragraph[csc\_\-compTr]{\setlength{\rightskip}{0pt plus 5cm}void csc\_\-comp\-Tr (int {\em m}, int {\em n}, int {\em nnz}, const int {\em xp}\mbox{[}$\,$\mbox{]}, const int {\em xi}\mbox{[}$\,$\mbox{]}, const double {\em xx}\mbox{[}$\,$\mbox{]}, int {\em ap}\mbox{[}$\,$\mbox{]}, int {\em ai}\mbox{[}$\,$\mbox{]}, double {\em ax}\mbox{[}$\,$\mbox{]})}\hfill}
+\label{Mutils_8h_a37}
 
 
-\hypertarget{Mutils_8h_a33}{
+\hypertarget{Mutils_8h_a34}{
 \index{Mutils.h@{Mutils.h}!csc_sort_columns@{csc\_\-sort\_\-columns}}
 \index{csc_sort_columns@{csc\_\-sort\_\-columns}!Mutils.h@{Mutils.h}}
 \paragraph[csc\_\-sort\_\-columns]{\setlength{\rightskip}{0pt plus 5cm}void csc\_\-sort\_\-columns (int {\em ncol}, const int {\em p}\mbox{[}$\,$\mbox{]}, int {\em i}\mbox{[}$\,$\mbox{]}, double {\em x}\mbox{[}$\,$\mbox{]})}\hfill}
-\label{Mutils_8h_a33}
+\label{Mutils_8h_a34}
 
 
 Sort the columns in a sparse column-oriented matrix so that each column is in increasing order of row index.
@@ -421,11 +448,11 @@ Sort the columns in a sparse column-oriented matrix so that each column is in in
 \begin{description}
 \item[{\em ncol}]number of columns \item[{\em p}]column pointers \item[{\em i}]row indices \item[{\em x}]values of nonzero elements \end{description}
 \end{Desc}
-\hypertarget{Mutils_8h_a32}{
+\hypertarget{Mutils_8h_a33}{
 \index{Mutils.h@{Mutils.h}!csc_unsorted_columns@{csc\_\-unsorted\_\-columns}}
 \index{csc_unsorted_columns@{csc\_\-unsorted\_\-columns}!Mutils.h@{Mutils.h}}
 \paragraph[csc\_\-unsorted\_\-columns]{\setlength{\rightskip}{0pt plus 5cm}int csc\_\-unsorted\_\-columns (int {\em ncol}, const int {\em p}\mbox{[}$\,$\mbox{]}, const int {\em i}\mbox{[}$\,$\mbox{]})}\hfill}
-\label{Mutils_8h_a32}
+\label{Mutils_8h_a33}
 
 
 Check for unsorted columns in the row indices
@@ -437,34 +464,34 @@ Check for unsorted columns in the row indices
 \end{Desc}
 \begin{Desc}
 \item[Returns:]0 if all columns are sorted, otherwise 1 \end{Desc}
-\hypertarget{Mutils_8h_a31}{
+\hypertarget{Mutils_8h_a32}{
 \index{Mutils.h@{Mutils.h}!dgCMatrix_set_Dim@{dgCMatrix\_\-set\_\-Dim}}
 \index{dgCMatrix_set_Dim@{dgCMatrix\_\-set\_\-Dim}!Mutils.h@{Mutils.h}}
 \paragraph[dgCMatrix\_\-set\_\-Dim]{\setlength{\rightskip}{0pt plus 5cm}SEXP dg\-CMatrix\_\-set\_\-Dim (SEXP {\em x}, int {\em nrow})}\hfill}
-\label{Mutils_8h_a31}
+\label{Mutils_8h_a32}
 
 
-\hypertarget{Mutils_8h_a44}{
-\index{Mutils.h@{Mutils.h}!expand_column_pointers@{expand\_\-column\_\-pointers}}
-\index{expand_column_pointers@{expand\_\-column\_\-pointers}!Mutils.h@{Mutils.h}}
-\paragraph[expand\_\-column\_\-pointers]{\setlength{\rightskip}{0pt plus 5cm}static R\_\-INLINE int$\ast$ expand\_\-column\_\-pointers (int {\em ncol}, const int {\em mp}\mbox{[}$\,$\mbox{]}, int {\em mj}\mbox{[}$\,$\mbox{]})\hspace{0.3cm}{\tt  \mbox{[}static\mbox{]}}}\hfill}
-\label{Mutils_8h_a44}
+\hypertarget{Mutils_8h_a50}{
+\index{Mutils.h@{Mutils.h}!expand_cmprPt@{expand\_\-cmprPt}}
+\index{expand_cmprPt@{expand\_\-cmprPt}!Mutils.h@{Mutils.h}}
+\paragraph[expand\_\-cmprPt]{\setlength{\rightskip}{0pt plus 5cm}static R\_\-INLINE int$\ast$ expand\_\-cmpr\-Pt (int {\em ncol}, const int {\em mp}\mbox{[}$\,$\mbox{]}, int {\em mj}\mbox{[}$\,$\mbox{]})\hspace{0.3cm}{\tt  \mbox{[}static\mbox{]}}}\hfill}
+\label{Mutils_8h_a50}
 
 
-Expand the column pointers in the array mp into a full set of column indices in the array mj.
+Expand compressed pointers in the array mp into a full set of indices in the array mj.
 
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em ncol}]number of columns \item[{\em mp}]column pointer vector of length ncol + 1 \item[{\em mj}]vector of length mp\mbox{[}ncol\mbox{]} - 1 to hold the result\end{description}
+\item[{\em ncol}]number of columns (or rows) \item[{\em mp}]column pointer vector of length ncol + 1 \item[{\em mj}]vector of length mp\mbox{[}ncol\mbox{]} to hold the result\end{description}
 \end{Desc}
 \begin{Desc}
 \item[Returns:]mj \end{Desc}
-\hypertarget{Mutils_8h_a49}{
+\hypertarget{Mutils_8h_a55}{
 \index{Mutils.h@{Mutils.h}!expand_csc_column@{expand\_\-csc\_\-column}}
 \index{expand_csc_column@{expand\_\-csc\_\-column}!Mutils.h@{Mutils.h}}
 \paragraph[expand\_\-csc\_\-column]{\setlength{\rightskip}{0pt plus 5cm}double$\ast$ expand\_\-csc\_\-column (double $\ast$ {\em dest}, int {\em m}, int {\em j}, const int {\em Ap}\mbox{[}$\,$\mbox{]}, const int {\em Ai}\mbox{[}$\,$\mbox{]}, const double {\em Ax}\mbox{[}$\,$\mbox{]})}\hfill}
-\label{Mutils_8h_a49}
+\label{Mutils_8h_a55}
 
 
 Expand a column of a compressed, sparse, column-oriented matrix.
@@ -476,25 +503,32 @@ Expand a column of a compressed, sparse, column-oriented matrix.
 \end{Desc}
 \begin{Desc}
 \item[Returns:]dest \end{Desc}
-\hypertarget{Mutils_8h_a26}{
+\hypertarget{Mutils_8h_a46}{
+\index{Mutils.h@{Mutils.h}!full_to_packed@{full\_\-to\_\-packed}}
+\index{full_to_packed@{full\_\-to\_\-packed}!Mutils.h@{Mutils.h}}
+\paragraph[full\_\-to\_\-packed]{\setlength{\rightskip}{0pt plus 5cm}double$\ast$ full\_\-to\_\-packed (double $\ast$ {\em dest}, const double $\ast$ {\em src}, int {\em n}, enum \hyperlink{Mutils_8h_a61}{CBLAS\_\-UPLO} {\em uplo}, enum \hyperlink{Mutils_8h_a62}{CBLAS\_\-DIAG} {\em diag})}\hfill}
+\label{Mutils_8h_a46}
+
+
+\hypertarget{Mutils_8h_a27}{
 \index{Mutils.h@{Mutils.h}!get_double_by_name@{get\_\-double\_\-by\_\-name}}
 \index{get_double_by_name@{get\_\-double\_\-by\_\-name}!Mutils.h@{Mutils.h}}
 \paragraph[get\_\-double\_\-by\_\-name]{\setlength{\rightskip}{0pt plus 5cm}double get\_\-double\_\-by\_\-name (SEXP {\em obj}, char $\ast$ {\em nm})}\hfill}
-\label{Mutils_8h_a26}
+\label{Mutils_8h_a27}
 
 
-\hypertarget{Mutils_8h_a29}{
+\hypertarget{Mutils_8h_a30}{
 \index{Mutils.h@{Mutils.h}!get_factors@{get\_\-factors}}
 \index{get_factors@{get\_\-factors}!Mutils.h@{Mutils.h}}
 \paragraph[get\_\-factors]{\setlength{\rightskip}{0pt plus 5cm}SEXP get\_\-factors (SEXP {\em obj}, char $\ast$ {\em nm})}\hfill}
-\label{Mutils_8h_a29}
+\label{Mutils_8h_a30}
 
 
-\hypertarget{Mutils_8h_a50}{
+\hypertarget{Mutils_8h_a56}{
 \index{Mutils.h@{Mutils.h}!int_permute@{int\_\-permute}}
 \index{int_permute@{int\_\-permute}!Mutils.h@{Mutils.h}}
 \paragraph[int\_\-permute]{\setlength{\rightskip}{0pt plus 5cm}static R\_\-INLINE void int\_\-permute (int {\em i}\mbox{[}$\,$\mbox{]}, int {\em n}, const int {\em perm}\mbox{[}$\,$\mbox{]})\hspace{0.3cm}{\tt  \mbox{[}static\mbox{]}}}\hfill}
-\label{Mutils_8h_a50}
+\label{Mutils_8h_a56}
 
 
 Apply a permutation to an integer vector
@@ -504,11 +538,11 @@ Apply a permutation to an integer vector
 \begin{description}
 \item[{\em i}]vector of 0-based indices \item[{\em n}]length of vector i \item[{\em perm}]0-based permutation vector of length max(i) + 1 \end{description}
 \end{Desc}
-\hypertarget{Mutils_8h_a47}{
+\hypertarget{Mutils_8h_a53}{
 \index{Mutils.h@{Mutils.h}!Lind@{Lind}}
 \index{Lind@{Lind}!Mutils.h@{Mutils.h}}
 \paragraph[Lind]{\setlength{\rightskip}{0pt plus 5cm}static R\_\-INLINE int Lind (int {\em k}, int {\em i})\hspace{0.3cm}{\tt  \mbox{[}static\mbox{]}}}\hfill}
-\label{Mutils_8h_a47}
+\label{Mutils_8h_a53}
 
 
 Calculate the zero-based index in a row-wise packed lower triangular matrix. This is used for the arrays of blocked sparse matrices.
@@ -520,18 +554,18 @@ Calculate the zero-based index in a row-wise packed lower triangular matrix. Thi
 \end{Desc}
 \begin{Desc}
 \item[Returns:]The index of the (k,i) element of a packed lower triangular matrix \end{Desc}
-\hypertarget{Mutils_8h_a52}{
+\hypertarget{Mutils_8h_a58}{
 \index{Mutils.h@{Mutils.h}!make_array_triangular@{make\_\-array\_\-triangular}}
 \index{make_array_triangular@{make\_\-array\_\-triangular}!Mutils.h@{Mutils.h}}
 \paragraph[make\_\-array\_\-triangular]{\setlength{\rightskip}{0pt plus 5cm}void make\_\-array\_\-triangular (double $\ast$ {\em x}, SEXP {\em from})}\hfill}
-\label{Mutils_8h_a52}
+\label{Mutils_8h_a58}
 
 
-\hypertarget{Mutils_8h_a51}{
+\hypertarget{Mutils_8h_a57}{
 \index{Mutils.h@{Mutils.h}!make_upper_triangular@{make\_\-upper\_\-triangular}}
 \index{make_upper_triangular@{make\_\-upper\_\-triangular}!Mutils.h@{Mutils.h}}
 \paragraph[make\_\-upper\_\-triangular]{\setlength{\rightskip}{0pt plus 5cm}static R\_\-INLINE void make\_\-upper\_\-triangular (int {\em i}\mbox{[}$\,$\mbox{]}, int {\em j}\mbox{[}$\,$\mbox{]}, int {\em nnz})\hspace{0.3cm}{\tt  \mbox{[}static\mbox{]}}}\hfill}
-\label{Mutils_8h_a51}
+\label{Mutils_8h_a57}
 
 
 Force index pairs to be in the upper triangle of a matrix
@@ -541,11 +575,11 @@ Force index pairs to be in the upper triangle of a matrix
 \begin{description}
 \item[{\em i}]vector of 0-based row indices \item[{\em j}]vector of 0-based column indices \item[{\em nnz}]length of index vectors \end{description}
 \end{Desc}
-\hypertarget{Mutils_8h_a48}{
+\hypertarget{Mutils_8h_a54}{
 \index{Mutils.h@{Mutils.h}!match_mat_dims@{match\_\-mat\_\-dims}}
 \index{match_mat_dims@{match\_\-mat\_\-dims}!Mutils.h@{Mutils.h}}
 \paragraph[match\_\-mat\_\-dims]{\setlength{\rightskip}{0pt plus 5cm}static R\_\-INLINE int match\_\-mat\_\-dims (const int {\em xd}\mbox{[}$\,$\mbox{]}, const int {\em yd}\mbox{[}$\,$\mbox{]})\hspace{0.3cm}{\tt  \mbox{[}static\mbox{]}}}\hfill}
-\label{Mutils_8h_a48}
+\label{Mutils_8h_a54}
 
 
 Check for a complete match on matrix dimensions
@@ -557,11 +591,11 @@ Check for a complete match on matrix dimensions
 \end{Desc}
 \begin{Desc}
 \item[Returns:]1 if dimensions match, otherwise 0 \end{Desc}
-\hypertarget{Mutils_8h_a42}{
+\hypertarget{Mutils_8h_a43}{
 \index{Mutils.h@{Mutils.h}!Matrix_make_named@{Matrix\_\-make\_\-named}}
 \index{Matrix_make_named@{Matrix\_\-make\_\-named}!Mutils.h@{Mutils.h}}
 \paragraph[Matrix\_\-make\_\-named]{\setlength{\rightskip}{0pt plus 5cm}SEXP Matrix\_\-make\_\-named (int {\em TYP}, char $\ast$$\ast$ {\em names})}\hfill}
-\label{Mutils_8h_a42}
+\label{Mutils_8h_a43}
 
 
 Create a named vector of type TYP
@@ -573,11 +607,11 @@ Create a named vector of type TYP
 \end{Desc}
 \begin{Desc}
 \item[Returns:]pointer to a named vector of type TYP \end{Desc}
-\hypertarget{Mutils_8h_a39}{
+\hypertarget{Mutils_8h_a40}{
 \index{Mutils.h@{Mutils.h}!nlme_check_Lapack_error@{nlme\_\-check\_\-Lapack\_\-error}}
 \index{nlme_check_Lapack_error@{nlme\_\-check\_\-Lapack\_\-error}!Mutils.h@{Mutils.h}}
 \paragraph[nlme\_\-check\_\-Lapack\_\-error]{\setlength{\rightskip}{0pt plus 5cm}void nlme\_\-check\_\-Lapack\_\-error (int {\em info}, const char $\ast$ {\em la\-Name})}\hfill}
-\label{Mutils_8h_a39}
+\label{Mutils_8h_a40}
 
 
 Check the error code returned by an Lapack routine and create an appropriate error message.
@@ -587,11 +621,11 @@ Check the error code returned by an Lapack routine and create an appropriate err
 \begin{description}
 \item[{\em info}]Error code as returned from the Lapack routine \item[{\em la\-Name}]Character string containing the name of the Lapack routine \end{description}
 \end{Desc}
-\hypertarget{Mutils_8h_a40}{
+\hypertarget{Mutils_8h_a41}{
 \index{Mutils.h@{Mutils.h}!nlme_replaceSlot@{nlme\_\-replaceSlot}}
 \index{nlme_replaceSlot@{nlme\_\-replaceSlot}!Mutils.h@{Mutils.h}}
 \paragraph[nlme\_\-replaceSlot]{\setlength{\rightskip}{0pt plus 5cm}SEXP nlme\_\-replace\-Slot (SEXP {\em obj}, SEXP {\em names}, SEXP {\em value})}\hfill}
-\label{Mutils_8h_a40}
+\label{Mutils_8h_a41}
 
 
 Replace the value of a slot or subslot of an object in place. This routine purposely does not copy the value of obj. Use with caution.
@@ -603,11 +637,11 @@ Replace the value of a slot or subslot of an object in place. This routine purpo
 \end{Desc}
 \begin{Desc}
 \item[Returns:]obj, with the named slot modified in place. \end{Desc}
-\hypertarget{Mutils_8h_a38}{
+\hypertarget{Mutils_8h_a39}{
 \index{Mutils.h@{Mutils.h}!nlme_symmetrize@{nlme\_\-symmetrize}}
 \index{nlme_symmetrize@{nlme\_\-symmetrize}!Mutils.h@{Mutils.h}}
 \paragraph[nlme\_\-symmetrize]{\setlength{\rightskip}{0pt plus 5cm}double$\ast$ nlme\_\-symmetrize (double $\ast$ {\em a}, const int {\em nc})}\hfill}
-\label{Mutils_8h_a38}
+\label{Mutils_8h_a39}
 
 
 Symmetrize a matrix by copying the strict upper triangle into the lower triangle.
@@ -619,11 +653,11 @@ Symmetrize a matrix by copying the strict upper triangle into the lower triangle
 \end{Desc}
 \begin{Desc}
 \item[Returns:]a, symmetrized \end{Desc}
-\hypertarget{Mutils_8h_a41}{
+\hypertarget{Mutils_8h_a42}{
 \index{Mutils.h@{Mutils.h}!nlme_weight_matrix_list@{nlme\_\-weight\_\-matrix\_\-list}}
 \index{nlme_weight_matrix_list@{nlme\_\-weight\_\-matrix\_\-list}!Mutils.h@{Mutils.h}}
 \paragraph[nlme\_\-weight\_\-matrix\_\-list]{\setlength{\rightskip}{0pt plus 5cm}SEXP nlme\_\-weight\_\-matrix\_\-list (SEXP {\em MLin}, SEXP {\em wts}, SEXP {\em adjst}, SEXP {\em MLout})}\hfill}
-\label{Mutils_8h_a41}
+\label{Mutils_8h_a42}
 
 
 Produce a weighted copy of the matrices in MLin in the storage allocated to MLout
@@ -635,45 +669,84 @@ Produce a weighted copy of the matrices in MLin in the storage allocated to MLou
 \end{Desc}
 \begin{Desc}
 \item[Returns:]MLout with its contents overwritten by a weighted copy of MLin according to wts with adjst overwriting the response. \end{Desc}
-\hypertarget{Mutils_8h_a24}{
+\hypertarget{Mutils_8h_a25}{
 \index{Mutils.h@{Mutils.h}!norm_type@{norm\_\-type}}
 \index{norm_type@{norm\_\-type}!Mutils.h@{Mutils.h}}
 \paragraph[norm\_\-type]{\setlength{\rightskip}{0pt plus 5cm}char norm\_\-type (char $\ast$ {\em typstr})}\hfill}
-\label{Mutils_8h_a24}
-
-
-\hypertarget{Mutils_8h_a25}{
-\index{Mutils.h@{Mutils.h}!rcond_type@{rcond\_\-type}}
-\index{rcond_type@{rcond\_\-type}!Mutils.h@{Mutils.h}}
-\paragraph[rcond\_\-type]{\setlength{\rightskip}{0pt plus 5cm}char rcond\_\-type (char $\ast$ {\em typstr})}\hfill}
 \label{Mutils_8h_a25}
 
 
-\hypertarget{Mutils_8h_a27}{
+\hypertarget{Mutils_8h_a47}{
+\index{Mutils.h@{Mutils.h}!packed_getDiag@{packed\_\-getDiag}}
+\index{packed_getDiag@{packed\_\-getDiag}!Mutils.h@{Mutils.h}}
+\paragraph[packed\_\-getDiag]{\setlength{\rightskip}{0pt plus 5cm}double$\ast$ packed\_\-get\-Diag (double $\ast$ {\em dest}, SEXP {\em x})}\hfill}
+\label{Mutils_8h_a47}
+
+
+Copy the diagonal elements of the packed array x to dest
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em dest}]vector of length ncol(x) \item[{\em x}]pointer to an object representing a packed array\end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]dest \end{Desc}
+\hypertarget{Mutils_8h_a48}{
+\index{Mutils.h@{Mutils.h}!packed_ncol@{packed\_\-ncol}}
+\index{packed_ncol@{packed\_\-ncol}!Mutils.h@{Mutils.h}}
+\paragraph[packed\_\-ncol]{\setlength{\rightskip}{0pt plus 5cm}static R\_\-INLINE int packed\_\-ncol (int {\em len})\hspace{0.3cm}{\tt  \mbox{[}static\mbox{]}}}\hfill}
+\label{Mutils_8h_a48}
+
+
+Check for valid length of a packed triangular array and return the corresponding number of columns
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em len}]length of a packed triangular array\end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]number of columns \end{Desc}
+\hypertarget{Mutils_8h_a45}{
+\index{Mutils.h@{Mutils.h}!packed_to_full@{packed\_\-to\_\-full}}
+\index{packed_to_full@{packed\_\-to\_\-full}!Mutils.h@{Mutils.h}}
+\paragraph[packed\_\-to\_\-full]{\setlength{\rightskip}{0pt plus 5cm}double$\ast$ packed\_\-to\_\-full (double $\ast$ {\em dest}, const double $\ast$ {\em src}, int {\em n}, enum \hyperlink{Mutils_8h_a61}{CBLAS\_\-UPLO} {\em uplo})}\hfill}
+\label{Mutils_8h_a45}
+
+
+\hypertarget{Mutils_8h_a26}{
+\index{Mutils.h@{Mutils.h}!rcond_type@{rcond\_\-type}}
+\index{rcond_type@{rcond\_\-type}!Mutils.h@{Mutils.h}}
+\paragraph[rcond\_\-type]{\setlength{\rightskip}{0pt plus 5cm}char rcond\_\-type (char $\ast$ {\em typstr})}\hfill}
+\label{Mutils_8h_a26}
+
+
+\hypertarget{Mutils_8h_a28}{
 \index{Mutils.h@{Mutils.h}!set_double_by_name@{set\_\-double\_\-by\_\-name}}
 \index{set_double_by_name@{set\_\-double\_\-by\_\-name}!Mutils.h@{Mutils.h}}
 \paragraph[set\_\-double\_\-by\_\-name]{\setlength{\rightskip}{0pt plus 5cm}SEXP set\_\-double\_\-by\_\-name (SEXP {\em obj}, double {\em val}, char $\ast$ {\em nm})}\hfill}
-\label{Mutils_8h_a27}
+\label{Mutils_8h_a28}
 
 
-\hypertarget{Mutils_8h_a30}{
+\hypertarget{Mutils_8h_a31}{
 \index{Mutils.h@{Mutils.h}!set_factors@{set\_\-factors}}
 \index{set_factors@{set\_\-factors}!Mutils.h@{Mutils.h}}
 \paragraph[set\_\-factors]{\setlength{\rightskip}{0pt plus 5cm}SEXP set\_\-factors (SEXP {\em obj}, SEXP {\em val}, char $\ast$ {\em nm})}\hfill}
-\label{Mutils_8h_a30}
+\label{Mutils_8h_a31}
 
 
-\hypertarget{Mutils_8h_a37}{
+\hypertarget{Mutils_8h_a38}{
 \index{Mutils.h@{Mutils.h}!ssc_symbolic_permute@{ssc\_\-symbolic\_\-permute}}
 \index{ssc_symbolic_permute@{ssc\_\-symbolic\_\-permute}!Mutils.h@{Mutils.h}}
 \paragraph[ssc\_\-symbolic\_\-permute]{\setlength{\rightskip}{0pt plus 5cm}void ssc\_\-symbolic\_\-permute (int {\em n}, int {\em upper}, const int {\em perm}\mbox{[}$\,$\mbox{]}, int {\em Ap}\mbox{[}$\,$\mbox{]}, int {\em Ai}\mbox{[}$\,$\mbox{]})}\hfill}
-\label{Mutils_8h_a37}
+\label{Mutils_8h_a38}
 
 
-\hypertarget{Mutils_8h_a34}{
+\hypertarget{Mutils_8h_a35}{
 \index{Mutils.h@{Mutils.h}!triple_as_SEXP@{triple\_\-as\_\-SEXP}}
 \index{triple_as_SEXP@{triple\_\-as\_\-SEXP}!Mutils.h@{Mutils.h}}
 \paragraph[triple\_\-as\_\-SEXP]{\setlength{\rightskip}{0pt plus 5cm}SEXP triple\_\-as\_\-SEXP (int {\em nrow}, int {\em ncol}, int {\em nz}, const int {\em Ti}\mbox{[}$\,$\mbox{]}, const int {\em Tj}\mbox{[}$\,$\mbox{]}, const double {\em Tx}\mbox{[}$\,$\mbox{]}, char $\ast$ {\em Rclass})}\hfill}
-\label{Mutils_8h_a34}
+\label{Mutils_8h_a35}
 
 

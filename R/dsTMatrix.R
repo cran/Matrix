@@ -1,5 +1,8 @@
   ### Coercion and Methods for Symmetric Triplet Matrices
 
+setAs("dsTMatrix", "dsCMatrix",
+      function(from) .Call("dsTMatrix_as_dsCMatrix", from))
+
 ## Conversion to dense storage is first to a dsyMatrix
 setAs("dsTMatrix", "dsyMatrix",
       function(from) .Call("dsTMatrix_as_dsyMatrix", from))

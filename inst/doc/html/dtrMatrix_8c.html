@@ -23,21 +23,23 @@
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="dtrMatrix_8c.html#a5">dtrMatrix_solve</a> (SEXP a)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="dtrMatrix_8c.html#a6">dtrMatrix_matrix_solve</a> (SEXP a, SEXP b)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="dtrMatrix_8c.html#a6">dtrMatrix_matrix_solve</a> (SEXP a, SEXP b, SEXP classed)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="dtrMatrix_8c.html#a7">dtrMatrix_as_dgeMatrix</a> (SEXP from)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="dtrMatrix_8c.html#a7">dtrMatrix_matrix_mm</a> (SEXP a, SEXP b, SEXP classed, SEXP right)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="dtrMatrix_8c.html#a8">dtrMatrix_as_matrix</a> (SEXP from)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="dtrMatrix_8c.html#a8">dtrMatrix_as_dgeMatrix</a> (SEXP from)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="dtrMatrix_8c.html#a9">dtrMatrix_getDiag</a> (SEXP x)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="dtrMatrix_8c.html#a9">dtrMatrix_as_matrix</a> (SEXP from)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="dtrMatrix_8c.html#a10">dtrMatrix_dgeMatrix_mm</a> (SEXP a, SEXP b)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="dtrMatrix_8c.html#a10">dtrMatrix_getDiag</a> (SEXP x)</td></tr>
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="dtrMatrix_8c.html#a11">dtrMatrix_dgeMatrix_mm_R</a> (SEXP a, SEXP b)</td></tr>
 
+<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="dtrMatrix_8c.html#a12">dtrMatrix_as_dtpMatrix</a> (SEXP from)</td></tr>
+
 </table>
 <hr><h2>Function Documentation</h2>
-<a class="anchor" name="a7" doxytag="dtrMatrix.c::dtrMatrix_as_dgeMatrix"></a><p>
+<a class="anchor" name="a8" doxytag="dtrMatrix.c::dtrMatrix_as_dgeMatrix"></a><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -65,13 +67,13 @@
     </td>
   </tr>
 </table>
-<a class="anchor" name="a8" doxytag="dtrMatrix.c::dtrMatrix_as_matrix"></a><p>
+<a class="anchor" name="a12" doxytag="dtrMatrix.c::dtrMatrix_as_dtpMatrix"></a><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top">SEXP dtrMatrix_as_matrix           </td>
+          <td class="md" nowrap valign="top">SEXP dtrMatrix_as_dtpMatrix           </td>
           <td class="md" valign="top">(&nbsp;</td>
           <td class="md" nowrap valign="top">SEXP&nbsp;</td>
           <td class="mdname1" valign="top" nowrap> <em>from</em>          </td>
@@ -93,27 +95,18 @@
     </td>
   </tr>
 </table>
-<a class="anchor" name="a10" doxytag="dtrMatrix.c::dtrMatrix_dgeMatrix_mm"></a><p>
+<a class="anchor" name="a9" doxytag="dtrMatrix.c::dtrMatrix_as_matrix"></a><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top">SEXP dtrMatrix_dgeMatrix_mm           </td>
+          <td class="md" nowrap valign="top">SEXP dtrMatrix_as_matrix           </td>
           <td class="md" valign="top">(&nbsp;</td>
           <td class="md" nowrap valign="top">SEXP&nbsp;</td>
-          <td class="mdname" nowrap> <em>a</em>, </td>
-        </tr>
-        <tr>
-          <td class="md" nowrap align="right"></td>
-          <td class="md"></td>
-          <td class="md" nowrap>SEXP&nbsp;</td>
-          <td class="mdname" nowrap> <em>b</em></td>
-        </tr>
-        <tr>
-          <td class="md"></td>
-          <td class="md">)&nbsp;</td>
-          <td class="md" colspan="2"></td>
+          <td class="mdname1" valign="top" nowrap> <em>from</em>          </td>
+          <td class="md" valign="top">&nbsp;)&nbsp;</td>
+          <td class="md" nowrap></td>
         </tr>
       </table>
     </td>
@@ -167,7 +160,7 @@
     </td>
   </tr>
 </table>
-<a class="anchor" name="a9" doxytag="dtrMatrix.c::dtrMatrix_getDiag"></a><p>
+<a class="anchor" name="a10" doxytag="dtrMatrix.c::dtrMatrix_getDiag"></a><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -179,6 +172,55 @@
           <td class="mdname1" valign="top" nowrap> <em>x</em>          </td>
           <td class="md" valign="top">&nbsp;)&nbsp;</td>
           <td class="md" nowrap></td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing="5" cellpadding="0" border="0">
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a class="anchor" name="a7" doxytag="dtrMatrix.c::dtrMatrix_matrix_mm"></a><p>
+<table class="mdTable" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top">SEXP dtrMatrix_matrix_mm           </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">SEXP&nbsp;</td>
+          <td class="mdname" nowrap> <em>a</em>, </td>
+        </tr>
+        <tr>
+          <td class="md" nowrap align="right"></td>
+          <td class="md"></td>
+          <td class="md" nowrap>SEXP&nbsp;</td>
+          <td class="mdname" nowrap> <em>b</em>, </td>
+        </tr>
+        <tr>
+          <td class="md" nowrap align="right"></td>
+          <td class="md"></td>
+          <td class="md" nowrap>SEXP&nbsp;</td>
+          <td class="mdname" nowrap> <em>classed</em>, </td>
+        </tr>
+        <tr>
+          <td class="md" nowrap align="right"></td>
+          <td class="md"></td>
+          <td class="md" nowrap>SEXP&nbsp;</td>
+          <td class="mdname" nowrap> <em>right</em></td>
+        </tr>
+        <tr>
+          <td class="md"></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"></td>
         </tr>
       </table>
     </td>
@@ -210,7 +252,13 @@
           <td class="md" nowrap align="right"></td>
           <td class="md"></td>
           <td class="md" nowrap>SEXP&nbsp;</td>
-          <td class="mdname" nowrap> <em>b</em></td>
+          <td class="mdname" nowrap> <em>b</em>, </td>
+        </tr>
+        <tr>
+          <td class="md" nowrap align="right"></td>
+          <td class="md"></td>
+          <td class="md" nowrap>SEXP&nbsp;</td>
+          <td class="mdname" nowrap> <em>classed</em></td>
         </tr>
         <tr>
           <td class="md"></td>
@@ -436,7 +484,7 @@
     </td>
   </tr>
 </table>
-<hr size="1"><address style="align: right;"><small>Generated on Tue Mar 1 16:58:11 2005 for Matrix by&nbsp;
+<hr size="1"><address style="align: right;"><small>Generated on Wed Mar 30 08:43:57 2005 for Matrix by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.1 </small></address>
 </body>

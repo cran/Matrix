@@ -2,6 +2,7 @@ SEXP
     Matrix_DIsqrtSym,
     Matrix_DSym,
     Matrix_DimSym,
+    Matrix_DimNamesSym,
     Matrix_GpSym,
     Matrix_LSym,
     Matrix_LiSym,

@@ -80,21 +80,35 @@ setMethod("t", signature(x = "dgTMatrix"),
           new("dgTMatrix", i = x@j, j = x@i, x = x@x, Dim = rev(x@Dim)))
 
 setMethod("isSymmetric", signature(object = "dgTMatrix"),
-          ## This is not a complete test.  Probably use .Call for complete test.
-          function(object, ...) {
-              i <- object@i
-              j <- object@j
-              all(sort(paste(i, j, sep=':')) == sort(paste(j, i, sep=':')))
-          })
+          function(object, ...)
+              identical(TRUE,
+                        all.equal(as(object, "dgCMatrix"),
+                                  as(t(object), "dgCMatrix"))))
 
 setAs("dgTMatrix", "dsCMatrix",
       function(from) {
-          i <- from@i
-          j <- from@j
-          if (any(upper <- j > i)) {
-              from@j[upper] <- i[upper]
-              from@i[upper] <- j[upper]
-          }
-          as(as(from, "dgCMatrix"), "dsCMatrix")
+          if (!Matrix:::isSymmetric(from))
+              stop("cannot coerce non-symmetric matrix to dsCMatrix class")
+          upper <- from@i <= from@j
+          uC <- as(new("dgTMatrix", Dim = from@Dim, i = from@i[upper],
+                       j = from@j[upper], x = from@x[upper]), "dgCMatrix")
+          new("dsCMatrix", Dim = uC@Dim, p = uC@p, i = uC@i, x = uC@x, uplo = "U")
       })
 
+setAs("matrix", "dgTMatrix",
+      function(from) as(as(from, "dgCMatrix"), "dgTMatrix"))
+
+setMethod("kronecker", signature(X = "dgTMatrix", Y = "dgTMatrix"),
+          function (X, Y, FUN = "*", make.dimnames = FALSE, ...)
+      {
+          if (FUN != "*") stop("kronecker method must use default 'FUN'")
+          ydim <- Y@Dim
+          xi <- X@i
+          xnnz <- length(xi)
+          yi <- Y@i
+          ynnz <- length(yi)
+          new("dgTMatrix", Dim = X@Dim * ydim,
+              i = rep.int(yi, xnnz) + ydim[1] * rep.int(xi, rep.int(ynnz, xnnz)),
+              j = rep.int(Y@j, xnnz) + ydim[2] * rep.int(X@j, rep.int(ynnz, xnnz)),
+              x = as.vector(outer(Y@x, X@x)))
+      }, valueClass = "dgTMatrix")

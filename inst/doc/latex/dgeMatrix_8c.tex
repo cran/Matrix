@@ -30,13 +30,15 @@ SEXP \hyperlink{dgeMatrix_8c_a11}{dge\-Matrix\_\-determinant} (SEXP x, SEXP loga
 \item 
 SEXP \hyperlink{dgeMatrix_8c_a12}{dge\-Matrix\_\-solve} (SEXP a)
 \item 
-SEXP \hyperlink{dgeMatrix_8c_a13}{dge\-Matrix\_\-dge\-Matrix\_\-mm} (SEXP a, SEXP b)
+SEXP \hyperlink{dgeMatrix_8c_a13}{dge\-Matrix\_\-matrix\_\-solve} (SEXP a, SEXP b, SEXP classed)
 \item 
-SEXP \hyperlink{dgeMatrix_8c_a14}{dge\-Matrix\_\-svd} (SEXP x, SEXP nnu, SEXP nnv)
+SEXP \hyperlink{dgeMatrix_8c_a14}{dge\-Matrix\_\-matrix\_\-mm} (SEXP a, SEXP b, SEXP classed, SEXP right)
 \item 
-SEXP \hyperlink{dgeMatrix_8c_a15}{dge\-Matrix\_\-exp} (SEXP x)
+SEXP \hyperlink{dgeMatrix_8c_a15}{dge\-Matrix\_\-svd} (SEXP x, SEXP nnu, SEXP nnv)
 \item 
-SEXP \hyperlink{dgeMatrix_8c_a16}{dge\-Matrix\_\-Schur} (SEXP x, SEXP vectors)
+SEXP \hyperlink{dgeMatrix_8c_a16}{dge\-Matrix\_\-exp} (SEXP x)
+\item 
+SEXP \hyperlink{dgeMatrix_8c_a17}{dge\-Matrix\_\-Schur} (SEXP x, SEXP vectors)
 \end{CompactItemize}
 \subsubsection*{Variables}
 \begin{CompactItemize}
@@ -67,18 +69,11 @@ static double \hyperlink{dgeMatrix_8c_a0}{padec} \mbox{[}$\,$\mbox{]}
 \label{dgeMatrix_8c_a7}
 
 
-\hypertarget{dgeMatrix_8c_a13}{
-\index{dgeMatrix.c@{dge\-Matrix.c}!dgeMatrix_dgeMatrix_mm@{dgeMatrix\_\-dgeMatrix\_\-mm}}
-\index{dgeMatrix_dgeMatrix_mm@{dgeMatrix\_\-dgeMatrix\_\-mm}!dgeMatrix.c@{dge\-Matrix.c}}
-\paragraph[dgeMatrix\_\-dgeMatrix\_\-mm]{\setlength{\rightskip}{0pt plus 5cm}SEXP dge\-Matrix\_\-dge\-Matrix\_\-mm (SEXP {\em a}, SEXP {\em b})}\hfill}
-\label{dgeMatrix_8c_a13}
-
-
-\hypertarget{dgeMatrix_8c_a15}{
+\hypertarget{dgeMatrix_8c_a16}{
 \index{dgeMatrix.c@{dge\-Matrix.c}!dgeMatrix_exp@{dgeMatrix\_\-exp}}
 \index{dgeMatrix_exp@{dgeMatrix\_\-exp}!dgeMatrix.c@{dge\-Matrix.c}}
 \paragraph[dgeMatrix\_\-exp]{\setlength{\rightskip}{0pt plus 5cm}SEXP dge\-Matrix\_\-exp (SEXP {\em x})}\hfill}
-\label{dgeMatrix_8c_a15}
+\label{dgeMatrix_8c_a16}
 
 
 Matrix exponential - based on the code for Octave's expm function.
@@ -111,6 +106,20 @@ Matrix exponential - based on the code for Octave's expm function.
 \label{dgeMatrix_8c_a8}
 
 
+\hypertarget{dgeMatrix_8c_a14}{
+\index{dgeMatrix.c@{dge\-Matrix.c}!dgeMatrix_matrix_mm@{dgeMatrix\_\-matrix\_\-mm}}
+\index{dgeMatrix_matrix_mm@{dgeMatrix\_\-matrix\_\-mm}!dgeMatrix.c@{dge\-Matrix.c}}
+\paragraph[dgeMatrix\_\-matrix\_\-mm]{\setlength{\rightskip}{0pt plus 5cm}SEXP dge\-Matrix\_\-matrix\_\-mm (SEXP {\em a}, SEXP {\em b}, SEXP {\em classed}, SEXP {\em right})}\hfill}
+\label{dgeMatrix_8c_a14}
+
+
+\hypertarget{dgeMatrix_8c_a13}{
+\index{dgeMatrix.c@{dge\-Matrix.c}!dgeMatrix_matrix_solve@{dgeMatrix\_\-matrix\_\-solve}}
+\index{dgeMatrix_matrix_solve@{dgeMatrix\_\-matrix\_\-solve}!dgeMatrix.c@{dge\-Matrix.c}}
+\paragraph[dgeMatrix\_\-matrix\_\-solve]{\setlength{\rightskip}{0pt plus 5cm}SEXP dge\-Matrix\_\-matrix\_\-solve (SEXP {\em a}, SEXP {\em b}, SEXP {\em classed})}\hfill}
+\label{dgeMatrix_8c_a13}
+
+
 \hypertarget{dgeMatrix_8c_a3}{
 \index{dgeMatrix.c@{dge\-Matrix.c}!dgeMatrix_norm@{dgeMatrix\_\-norm}}
 \index{dgeMatrix_norm@{dgeMatrix\_\-norm}!dgeMatrix.c@{dge\-Matrix.c}}
@@ -125,11 +134,11 @@ Matrix exponential - based on the code for Octave's expm function.
 \label{dgeMatrix_8c_a5}
 
 
-\hypertarget{dgeMatrix_8c_a16}{
+\hypertarget{dgeMatrix_8c_a17}{
 \index{dgeMatrix.c@{dge\-Matrix.c}!dgeMatrix_Schur@{dgeMatrix\_\-Schur}}
 \index{dgeMatrix_Schur@{dgeMatrix\_\-Schur}!dgeMatrix.c@{dge\-Matrix.c}}
 \paragraph[dgeMatrix\_\-Schur]{\setlength{\rightskip}{0pt plus 5cm}SEXP dge\-Matrix\_\-Schur (SEXP {\em x}, SEXP {\em vectors})}\hfill}
-\label{dgeMatrix_8c_a16}
+\label{dgeMatrix_8c_a17}
 
 
 \hypertarget{dgeMatrix_8c_a12}{
@@ -139,11 +148,11 @@ Matrix exponential - based on the code for Octave's expm function.
 \label{dgeMatrix_8c_a12}
 
 
-\hypertarget{dgeMatrix_8c_a14}{
+\hypertarget{dgeMatrix_8c_a15}{
 \index{dgeMatrix.c@{dge\-Matrix.c}!dgeMatrix_svd@{dgeMatrix\_\-svd}}
 \index{dgeMatrix_svd@{dgeMatrix\_\-svd}!dgeMatrix.c@{dge\-Matrix.c}}
 \paragraph[dgeMatrix\_\-svd]{\setlength{\rightskip}{0pt plus 5cm}SEXP dge\-Matrix\_\-svd (SEXP {\em x}, SEXP {\em nnu}, SEXP {\em nnv})}\hfill}
-\label{dgeMatrix_8c_a14}
+\label{dgeMatrix_8c_a15}
 
 
 \hypertarget{dgeMatrix_8c_a1}{

@@ -22,26 +22,27 @@
 00013 SEXP <a class="code" href="dgeMatrix_8c.html#a9">dgeMatrix_getDiag</a>(SEXP x);
 00014 SEXP <a class="code" href="dgeMatrix_8c.html#a10">dgeMatrix_LU</a>(SEXP x);
 00015 SEXP <a class="code" href="dgeMatrix_8c.html#a11">dgeMatrix_determinant</a>(SEXP x, SEXP logarithm);
-00016 SEXP <a class="code" href="dgeMatrix_8c.html#a16">dgeMatrix_Schur</a>(SEXP x, SEXP vectors);
+00016 SEXP <a class="code" href="dgeMatrix_8c.html#a17">dgeMatrix_Schur</a>(SEXP x, SEXP vectors);
 00017 SEXP <a class="code" href="dgeMatrix_8c.html#a12">dgeMatrix_solve</a>(SEXP a);
-00018 SEXP <a class="code" href="dgeMatrix_8c.html#a13">dgeMatrix_dgeMatrix_mm</a>(SEXP a, SEXP b);
-00019 SEXP <a class="code" href="dgeMatrix_8c.html#a14">dgeMatrix_svd</a>(SEXP x, SEXP nu, SEXP nv);
-00020 SEXP <a class="code" href="dgeMatrix_8c.html#a15">dgeMatrix_exp</a>(SEXP x);
-00021 
-00022 <span class="comment">/* DGESDD - compute the singular value decomposition (SVD); of a   */</span>
-00023 <span class="comment">/* real M-by-N matrix A, optionally computing the left and/or      */</span>
-00024 <span class="comment">/* right singular vectors.  If singular vectors are desired, it uses a */</span>
-00025 <span class="comment">/* divide-and-conquer algorithm.                                   */</span>
-00026 <span class="keywordtype">void</span> F77_NAME(dgesdd)(<span class="keyword">const</span> <span class="keywordtype">char</span> *jobz,
-00027                       <span class="keyword">const</span> <span class="keywordtype">int</span> *m, <span class="keyword">const</span> <span class="keywordtype">int</span> *n,
-00028                       <span class="keywordtype">double</span> *a, <span class="keyword">const</span> <span class="keywordtype">int</span> *lda, <span class="keywordtype">double</span> *s,
-00029                       <span class="keywordtype">double</span> *u, <span class="keyword">const</span> <span class="keywordtype">int</span> *ldu,
-00030                       <span class="keywordtype">double</span> *vt, <span class="keyword">const</span> <span class="keywordtype">int</span> *ldvt,
-00031                       <span class="keywordtype">double</span> *work, <span class="keyword">const</span> <span class="keywordtype">int</span> *lwork, <span class="keywordtype">int</span> *iwork, <span class="keywordtype">int</span> *info);
-00032 
+00018 SEXP <a class="code" href="dgeMatrix_8c.html#a13">dgeMatrix_matrix_solve</a>(SEXP a, SEXP b, SEXP classed);
+00019 SEXP <a class="code" href="dgeMatrix_8c.html#a14">dgeMatrix_matrix_mm</a>(SEXP a, SEXP b, SEXP classed, SEXP right);
+00020 SEXP <a class="code" href="dgeMatrix_8c.html#a15">dgeMatrix_svd</a>(SEXP x, SEXP nu, SEXP nv);
+00021 SEXP <a class="code" href="dgeMatrix_8c.html#a16">dgeMatrix_exp</a>(SEXP x);
+00022 
+00023 <span class="comment">/* DGESDD - compute the singular value decomposition (SVD); of a   */</span>
+00024 <span class="comment">/* real M-by-N matrix A, optionally computing the left and/or      */</span>
+00025 <span class="comment">/* right singular vectors.  If singular vectors are desired, it uses a */</span>
+00026 <span class="comment">/* divide-and-conquer algorithm.                                   */</span>
+00027 <span class="keywordtype">void</span> F77_NAME(dgesdd)(<span class="keyword">const</span> <span class="keywordtype">char</span> *jobz,
+00028                       <span class="keyword">const</span> <span class="keywordtype">int</span> *m, <span class="keyword">const</span> <span class="keywordtype">int</span> *n,
+00029                       <span class="keywordtype">double</span> *a, <span class="keyword">const</span> <span class="keywordtype">int</span> *lda, <span class="keywordtype">double</span> *s,
+00030                       <span class="keywordtype">double</span> *u, <span class="keyword">const</span> <span class="keywordtype">int</span> *ldu,
+00031                       <span class="keywordtype">double</span> *vt, <span class="keyword">const</span> <span class="keywordtype">int</span> *ldvt,
+00032                       <span class="keywordtype">double</span> *work, <span class="keyword">const</span> <span class="keywordtype">int</span> *lwork, <span class="keywordtype">int</span> *iwork, <span class="keywordtype">int</span> *info);
 00033 
-00034 <span class="preprocessor">#endif</span>
-</pre></div><hr size="1"><address style="align: right;"><small>Generated on Tue Mar 1 16:58:10 2005 for Matrix by&nbsp;
+00034 
+00035 <span class="preprocessor">#endif</span>
+</pre></div><hr size="1"><address style="align: right;"><small>Generated on Wed Mar 30 08:43:57 2005 for Matrix by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.1 </small></address>
 </body>

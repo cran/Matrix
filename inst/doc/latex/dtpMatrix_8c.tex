@@ -1,0 +1,119 @@
+\hypertarget{dtpMatrix_8c}{
+\subsection{dtp\-Matrix.c File Reference}
+\label{dtpMatrix_8c}\index{dtpMatrix.c@{dtpMatrix.c}}
+}
+{\tt \#include \char`\"{}dtp\-Matrix.h\char`\"{}}\par
+\subsubsection*{Functions}
+\begin{CompactItemize}
+\item 
+SEXP \hyperlink{dtpMatrix_8c_a0}{dtp\-Matrix\_\-validate} (SEXP obj)
+\item 
+static double \hyperlink{dtpMatrix_8c_a1}{get\_\-norm} (SEXP obj, char $\ast$typstr)
+\item 
+SEXP \hyperlink{dtpMatrix_8c_a2}{dtp\-Matrix\_\-norm} (SEXP obj, SEXP type)
+\item 
+static double \hyperlink{dtpMatrix_8c_a3}{set\_\-rcond} (SEXP obj, char $\ast$typstr)
+\item 
+SEXP \hyperlink{dtpMatrix_8c_a4}{dtp\-Matrix\_\-rcond} (SEXP obj, SEXP type)
+\item 
+SEXP \hyperlink{dtpMatrix_8c_a5}{dtp\-Matrix\_\-solve} (SEXP a)
+\item 
+SEXP \hyperlink{dtpMatrix_8c_a6}{dtp\-Matrix\_\-get\-Diag} (SEXP x)
+\item 
+SEXP \hyperlink{dtpMatrix_8c_a7}{dtp\-Matrix\_\-matrix\_\-solve} (SEXP a, SEXP b)
+\item 
+SEXP \hyperlink{dtpMatrix_8c_a8}{dtp\-Matrix\_\-dge\-Matrix\_\-mm} (SEXP x, SEXP y)
+\item 
+SEXP \hyperlink{dtpMatrix_8c_a9}{dge\-Matrix\_\-dtp\-Matrix\_\-mm} (SEXP x, SEXP y)
+\item 
+SEXP \hyperlink{dtpMatrix_8c_a10}{dtp\-Matrix\_\-matrix\_\-mm} (SEXP x, SEXP y)
+\item 
+SEXP \hyperlink{dtpMatrix_8c_a11}{dtp\-Matrix\_\-as\_\-dtr\-Matrix} (SEXP from)
+\end{CompactItemize}
+
+
+\subsubsection{Function Documentation}
+\hypertarget{dtpMatrix_8c_a9}{
+\index{dtpMatrix.c@{dtp\-Matrix.c}!dgeMatrix_dtpMatrix_mm@{dgeMatrix\_\-dtpMatrix\_\-mm}}
+\index{dgeMatrix_dtpMatrix_mm@{dgeMatrix\_\-dtpMatrix\_\-mm}!dtpMatrix.c@{dtp\-Matrix.c}}
+\paragraph[dgeMatrix\_\-dtpMatrix\_\-mm]{\setlength{\rightskip}{0pt plus 5cm}SEXP dge\-Matrix\_\-dtp\-Matrix\_\-mm (SEXP {\em x}, SEXP {\em y})}\hfill}
+\label{dtpMatrix_8c_a9}
+
+
+\hypertarget{dtpMatrix_8c_a11}{
+\index{dtpMatrix.c@{dtp\-Matrix.c}!dtpMatrix_as_dtrMatrix@{dtpMatrix\_\-as\_\-dtrMatrix}}
+\index{dtpMatrix_as_dtrMatrix@{dtpMatrix\_\-as\_\-dtrMatrix}!dtpMatrix.c@{dtp\-Matrix.c}}
+\paragraph[dtpMatrix\_\-as\_\-dtrMatrix]{\setlength{\rightskip}{0pt plus 5cm}SEXP dtp\-Matrix\_\-as\_\-dtr\-Matrix (SEXP {\em from})}\hfill}
+\label{dtpMatrix_8c_a11}
+
+
+\hypertarget{dtpMatrix_8c_a8}{
+\index{dtpMatrix.c@{dtp\-Matrix.c}!dtpMatrix_dgeMatrix_mm@{dtpMatrix\_\-dgeMatrix\_\-mm}}
+\index{dtpMatrix_dgeMatrix_mm@{dtpMatrix\_\-dgeMatrix\_\-mm}!dtpMatrix.c@{dtp\-Matrix.c}}
+\paragraph[dtpMatrix\_\-dgeMatrix\_\-mm]{\setlength{\rightskip}{0pt plus 5cm}SEXP dtp\-Matrix\_\-dge\-Matrix\_\-mm (SEXP {\em x}, SEXP {\em y})}\hfill}
+\label{dtpMatrix_8c_a8}
+
+
+\hypertarget{dtpMatrix_8c_a6}{
+\index{dtpMatrix.c@{dtp\-Matrix.c}!dtpMatrix_getDiag@{dtpMatrix\_\-getDiag}}
+\index{dtpMatrix_getDiag@{dtpMatrix\_\-getDiag}!dtpMatrix.c@{dtp\-Matrix.c}}
+\paragraph[dtpMatrix\_\-getDiag]{\setlength{\rightskip}{0pt plus 5cm}SEXP dtp\-Matrix\_\-get\-Diag (SEXP {\em x})}\hfill}
+\label{dtpMatrix_8c_a6}
+
+
+\hypertarget{dtpMatrix_8c_a10}{
+\index{dtpMatrix.c@{dtp\-Matrix.c}!dtpMatrix_matrix_mm@{dtpMatrix\_\-matrix\_\-mm}}
+\index{dtpMatrix_matrix_mm@{dtpMatrix\_\-matrix\_\-mm}!dtpMatrix.c@{dtp\-Matrix.c}}
+\paragraph[dtpMatrix\_\-matrix\_\-mm]{\setlength{\rightskip}{0pt plus 5cm}SEXP dtp\-Matrix\_\-matrix\_\-mm (SEXP {\em x}, SEXP {\em y})}\hfill}
+\label{dtpMatrix_8c_a10}
+
+
+\hypertarget{dtpMatrix_8c_a7}{
+\index{dtpMatrix.c@{dtp\-Matrix.c}!dtpMatrix_matrix_solve@{dtpMatrix\_\-matrix\_\-solve}}
+\index{dtpMatrix_matrix_solve@{dtpMatrix\_\-matrix\_\-solve}!dtpMatrix.c@{dtp\-Matrix.c}}
+\paragraph[dtpMatrix\_\-matrix\_\-solve]{\setlength{\rightskip}{0pt plus 5cm}SEXP dtp\-Matrix\_\-matrix\_\-solve (SEXP {\em a}, SEXP {\em b})}\hfill}
+\label{dtpMatrix_8c_a7}
+
+
+\hypertarget{dtpMatrix_8c_a2}{
+\index{dtpMatrix.c@{dtp\-Matrix.c}!dtpMatrix_norm@{dtpMatrix\_\-norm}}
+\index{dtpMatrix_norm@{dtpMatrix\_\-norm}!dtpMatrix.c@{dtp\-Matrix.c}}
+\paragraph[dtpMatrix\_\-norm]{\setlength{\rightskip}{0pt plus 5cm}SEXP dtp\-Matrix\_\-norm (SEXP {\em obj}, SEXP {\em type})}\hfill}
+\label{dtpMatrix_8c_a2}
+
+
+\hypertarget{dtpMatrix_8c_a4}{
+\index{dtpMatrix.c@{dtp\-Matrix.c}!dtpMatrix_rcond@{dtpMatrix\_\-rcond}}
+\index{dtpMatrix_rcond@{dtpMatrix\_\-rcond}!dtpMatrix.c@{dtp\-Matrix.c}}
+\paragraph[dtpMatrix\_\-rcond]{\setlength{\rightskip}{0pt plus 5cm}SEXP dtp\-Matrix\_\-rcond (SEXP {\em obj}, SEXP {\em type})}\hfill}
+\label{dtpMatrix_8c_a4}
+
+
+\hypertarget{dtpMatrix_8c_a5}{
+\index{dtpMatrix.c@{dtp\-Matrix.c}!dtpMatrix_solve@{dtpMatrix\_\-solve}}
+\index{dtpMatrix_solve@{dtpMatrix\_\-solve}!dtpMatrix.c@{dtp\-Matrix.c}}
+\paragraph[dtpMatrix\_\-solve]{\setlength{\rightskip}{0pt plus 5cm}SEXP dtp\-Matrix\_\-solve (SEXP {\em a})}\hfill}
+\label{dtpMatrix_8c_a5}
+
+
+\hypertarget{dtpMatrix_8c_a0}{
+\index{dtpMatrix.c@{dtp\-Matrix.c}!dtpMatrix_validate@{dtpMatrix\_\-validate}}
+\index{dtpMatrix_validate@{dtpMatrix\_\-validate}!dtpMatrix.c@{dtp\-Matrix.c}}
+\paragraph[dtpMatrix\_\-validate]{\setlength{\rightskip}{0pt plus 5cm}SEXP dtp\-Matrix\_\-validate (SEXP {\em obj})}\hfill}
+\label{dtpMatrix_8c_a0}
+
+
+\hypertarget{dtpMatrix_8c_a1}{
+\index{dtpMatrix.c@{dtp\-Matrix.c}!get_norm@{get\_\-norm}}
+\index{get_norm@{get\_\-norm}!dtpMatrix.c@{dtp\-Matrix.c}}
+\paragraph[get\_\-norm]{\setlength{\rightskip}{0pt plus 5cm}static double get\_\-norm (SEXP {\em obj}, char $\ast$ {\em typstr})\hspace{0.3cm}{\tt  \mbox{[}static\mbox{]}}}\hfill}
+\label{dtpMatrix_8c_a1}
+
+
+\hypertarget{dtpMatrix_8c_a3}{
+\index{dtpMatrix.c@{dtp\-Matrix.c}!set_rcond@{set\_\-rcond}}
+\index{set_rcond@{set\_\-rcond}!dtpMatrix.c@{dtp\-Matrix.c}}
+\paragraph[set\_\-rcond]{\setlength{\rightskip}{0pt plus 5cm}static double set\_\-rcond (SEXP {\em obj}, char $\ast$ {\em typstr})\hspace{0.3cm}{\tt  \mbox{[}static\mbox{]}}}\hfill}
+\label{dtpMatrix_8c_a3}
+
+

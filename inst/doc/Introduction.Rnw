@@ -80,9 +80,12 @@ implemented.  These classes are
 \begin{description}
 \item[dgeMatrix] Real matrices in general storage mode
 \item[dsyMatrix] Symmetric real matrices in non-packed storage
-\item[dtrMatrix] Triangular real matrices in non-packaged storage
+\item[dspMatrix] Symmetric real matrices in packed storage (one triangle only)
+\item[dtrMatrix] Triangular real matrices in non-packed storage
+\item[dtpMatrix] Triangular real matrices in packed storage (triangle only)
 \item[dpoMatrix] Positive semi-definite symmetric real matrices in
-  non-package storage
+  non-packed storage
+\item[dppMatrix] \ \ dito \ \ in packed storage
 \end{description}
 Methods for these classes include coercion between these classes, when
 appropriate, and coercion to the \code{matrix} class; methods for
@@ -91,6 +94,10 @@ matrix multiplication (\code{\%*\%}); cross products
 number (\code{rcond}); LU factorization (\code{lu}) or, for the
 \code{poMatrix} class, the Cholesky decomposition (\code{chol}); and
 solutions of linear systems of equations (\code{solve}).
+
+Further, group methods have been defined for the \code{Arith} (basic
+arithmetic, including with scalar numbers) and the \code{Math} (basic
+mathematical functions) group..
 
 Whenever a factorization or a decomposition is calculated it is
 preserved as a (list) element in the \code{factors} slot of the
@@ -119,8 +126,8 @@ setClass("dgTMatrix",
          representation(i = "integer", j = "integer", x = "numeric",
                         Dim = "integer"))
 \end{Sinput}
-\end{Schunk}  
-    
+\end{Schunk}
+
 The triplet representation is row-oriented if elements in the same row
 were adjacent and column-oriented if elements in the same column were
 adjacent.  The compressed sparse row (csr) (or compressed sparse
@@ -131,7 +138,7 @@ couple of other details but that is the gist of it.)  These compressed
 representations remove the redundant row (column) indices and provide
 faster access to a given location in the matrix because you only need
 to check one row (column).
-    
+
 The preferred representation of sparse matrices in the SparseM package
 is csr.  Matlab uses csc.  We hope that Octave will also use this
 representation. There are certain advantages to csc in systems like R

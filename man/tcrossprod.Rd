@@ -32,6 +32,25 @@ tcrossprod(x)
   }
 }
 \seealso{\code{\link[base]{crossprod}}}
-%\examples{}
+\examples{
+ ## A random sparce "incidence" matrix :
+ m <- matrix(0, 400, 500)
+ set.seed(12)
+ m[runif(314, 0, length(m))] <- 1
+ mm <- as(m, "dgCMatrix")
+ object.size(m) / object.size(mm) # smaller by a factor of 242.88
+
+ ## tcrossprod() is very fast:
+ system.time(tCmm <- tcrossprod(mm))# "0" practically
+ system.time(cm <- crossprod(t(m))) #
+
+ stopifnot(identical(cm, as(tCmm, "matrix")))
+
+ ## show "sparse" (sub) matrix
+ tc <- cm[1:16, 1:30]
+ storage.mode(tc) <- "character" ; tc[tc == "0"] <- "."
+ dimnames(tc)[[2]] <- rep("", ncol(tc))
+ noquote(tc)
+}
 \keyword{methods}
 \keyword{algebra}

@@ -12,54 +12,114 @@
 <code>#include &lt;R_ext/Lapack.h&gt;</code><br>
 <table border="0" cellpadding="0" cellspacing="0">
 <tr><td></td></tr>
+<tr><td colspan="2"><br><h2>Defines</h2></td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a0">Matrix_Error_Bufsiz</a>&nbsp;&nbsp;&nbsp;4096</td></tr>
+
+<tr><td class="memItemLeft" nowrap align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a1">SPRINTF</a>&nbsp;&nbsp;&nbsp;buf = Calloc(Matrix_Error_Bufsiz, char); sprintf</td></tr>
+
 <tr><td colspan="2"><br><h2>Functions</h2></td></tr>
-<tr><td class="memItemLeft" nowrap align="right" valign="top">char&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a0">norm_type</a> (char *typstr)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">char&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a2">norm_type</a> (char *typstr)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">char&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a1">rcond_type</a> (char *typstr)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">char&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a3">rcond_type</a> (char *typstr)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">double&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a2">get_double_by_name</a> (SEXP obj, char *nm)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">double&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a4">get_double_by_name</a> (SEXP obj, char *nm)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a3">set_double_by_name</a> (SEXP obj, double val, char *nm)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a5">set_double_by_name</a> (SEXP obj, double val, char *nm)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a4">as_det_obj</a> (double val, int log, int sign)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a6">as_det_obj</a> (double val, int log, int sign)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a5">get_factors</a> (SEXP obj, char *nm)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a7">get_factors</a> (SEXP obj, char *nm)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a6">set_factors</a> (SEXP obj, SEXP val, char *nm)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a8">set_factors</a> (SEXP obj, SEXP val, char *nm)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a7">dgCMatrix_set_Dim</a> (SEXP x, int nrow)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a9">dgCMatrix_set_Dim</a> (SEXP x, int nrow)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a8">csc_unsorted_columns</a> (int ncol, const int p[], const int i[])</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a10">csc_unsorted_columns</a> (int ncol, const int p[], const int i[])</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a9">csc_sort_columns</a> (int ncol, const int p[], int i[], double x[])</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a11">csc_sort_columns</a> (int ncol, const int p[], int i[], double x[])</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a10">csc_check_column_sorting</a> (SEXP m)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a12">csc_check_column_sorting</a> (SEXP m)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a11">triple_as_SEXP</a> (int nrow, int ncol, int nz, const int Ti[], const int Tj[], const double Tx[], char *Rclass)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a13">triple_as_SEXP</a> (int nrow, int ncol, int nz, const int Ti[], const int Tj[], const double Tx[], char *Rclass)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a12">csc_components_transpose</a> (int m, int n, int nnz, const int xp[], const int xi[], const double xx[], int ap[], int ai[], double ax[])</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a14">csc_compTr</a> (int m, int n, int nnz, const int xp[], const int xi[], const double xx[], int ap[], int ai[], double ax[])</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a13">ssc_symbolic_permute</a> (int n, int upper, const int perm[], int Ap[], int Ai[])</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a15">ssc_symbolic_permute</a> (int n, int upper, const int perm[], int Ap[], int Ai[])</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">double *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a14">nlme_symmetrize</a> (double *a, const int nc)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">double *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a16">nlme_symmetrize</a> (double *a, const int nc)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a15">nlme_check_Lapack_error</a> (int info, const char *laName)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a17">nlme_check_Lapack_error</a> (int info, const char *laName)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a16">make_array_triangular</a> (double *to, SEXP from)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a18">make_array_triangular</a> (double *to, SEXP from)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a17">nlme_replaceSlot</a> (SEXP obj, SEXP names, SEXP value)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a19">nlme_replaceSlot</a> (SEXP obj, SEXP names, SEXP value)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a18">nlme_weight_matrix_list</a> (SEXP MLin, SEXP wts, SEXP adjst, SEXP MLout)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a20">nlme_weight_matrix_list</a> (SEXP MLin, SEXP wts, SEXP adjst, SEXP MLout)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a19">Matrix_make_named</a> (int TYP, char **names)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a21">Matrix_make_named</a> (int TYP, char **names)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a20">alloc3Darray</a> (SEXPTYPE mode, int nrow, int ncol, int nface)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a22">alloc3Darray</a> (SEXPTYPE mode, int nrow, int ncol, int nface)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">double *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a21">expand_csc_column</a> (double *dest, int m, int j, const int Ap[], const int Ai[], const double Ax[])</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">double *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a23">expand_csc_column</a> (double *dest, int m, int j, const int Ap[], const int Ai[], const double Ax[])</td></tr>
+
+<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a24">check_scalar_string</a> (SEXP sP, char *vals, char *nm)</td></tr>
+
+<tr><td class="memItemLeft" nowrap align="right" valign="top">double *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a25">packed_to_full</a> (double *dest, const double *src, int n, enum <a class="el" href="Mutils_8h.html#a61">CBLAS_UPLO</a> uplo)</td></tr>
+
+<tr><td class="memItemLeft" nowrap align="right" valign="top">double *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a26">full_to_packed</a> (double *dest, const double *src, int n, enum <a class="el" href="Mutils_8h.html#a61">CBLAS_UPLO</a> uplo, enum <a class="el" href="Mutils_8h.html#a62">CBLAS_DIAG</a> diag)</td></tr>
+
+<tr><td class="memItemLeft" nowrap align="right" valign="top">double *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a27">packed_getDiag</a> (double *dest, SEXP x)</td></tr>
 
 </table>
+<hr><h2>Define Documentation</h2>
+<a class="anchor" name="a0" doxytag="Mutils.c::Matrix_Error_Bufsiz"></a><p>
+<table class="mdTable" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top">#define Matrix_Error_Bufsiz&nbsp;&nbsp;&nbsp;4096          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing="5" cellpadding="0" border="0">
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a class="anchor" name="a1" doxytag="Mutils.c::SPRINTF"></a><p>
+<table class="mdTable" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top">#define SPRINTF&nbsp;&nbsp;&nbsp;buf = Calloc(Matrix_Error_Bufsiz, char); sprintf          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing="5" cellpadding="0" border="0">
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
 <hr><h2>Function Documentation</h2>
-<a class="anchor" name="a20" doxytag="Mutils.c::alloc3Darray"></a><p>
+<a class="anchor" name="a22" doxytag="Mutils.c::alloc3Darray"></a><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -118,7 +178,7 @@ Allocate a 3-dimensional array<p>
     </td>
   </tr>
 </table>
-<a class="anchor" name="a4" doxytag="Mutils.c::as_det_obj"></a><p>
+<a class="anchor" name="a6" doxytag="Mutils.c::as_det_obj"></a><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -161,7 +221,50 @@ Allocate a 3-dimensional array<p>
     </td>
   </tr>
 </table>
-<a class="anchor" name="a10" doxytag="Mutils.c::csc_check_column_sorting"></a><p>
+<a class="anchor" name="a24" doxytag="Mutils.c::check_scalar_string"></a><p>
+<table class="mdTable" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top">SEXP check_scalar_string           </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">SEXP&nbsp;</td>
+          <td class="mdname" nowrap> <em>sP</em>, </td>
+        </tr>
+        <tr>
+          <td class="md" nowrap align="right"></td>
+          <td class="md"></td>
+          <td class="md" nowrap>char *&nbsp;</td>
+          <td class="mdname" nowrap> <em>vals</em>, </td>
+        </tr>
+        <tr>
+          <td class="md" nowrap align="right"></td>
+          <td class="md"></td>
+          <td class="md" nowrap>char *&nbsp;</td>
+          <td class="mdname" nowrap> <em>nm</em></td>
+        </tr>
+        <tr>
+          <td class="md"></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"></td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing="5" cellpadding="0" border="0">
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a class="anchor" name="a12" doxytag="Mutils.c::csc_check_column_sorting"></a><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -196,13 +299,13 @@ Check for sorted columns in an object that inherits from the dgCMatrix class. Re
     </td>
   </tr>
 </table>
-<a class="anchor" name="a12" doxytag="Mutils.c::csc_components_transpose"></a><p>
+<a class="anchor" name="a14" doxytag="Mutils.c::csc_compTr"></a><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top">void csc_components_transpose           </td>
+          <td class="md" nowrap valign="top">void csc_compTr           </td>
           <td class="md" valign="top">(&nbsp;</td>
           <td class="md" nowrap valign="top">int&nbsp;</td>
           <td class="mdname" nowrap> <em>m</em>, </td>
@@ -275,7 +378,7 @@ Check for sorted columns in an object that inherits from the dgCMatrix class. Re
     </td>
   </tr>
 </table>
-<a class="anchor" name="a9" doxytag="Mutils.c::csc_sort_columns"></a><p>
+<a class="anchor" name="a11" doxytag="Mutils.c::csc_sort_columns"></a><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -333,7 +436,7 @@ Sort the columns in a sparse column-oriented matrix so that each column is in in
     </td>
   </tr>
 </table>
-<a class="anchor" name="a8" doxytag="Mutils.c::csc_unsorted_columns"></a><p>
+<a class="anchor" name="a10" doxytag="Mutils.c::csc_unsorted_columns"></a><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -385,7 +488,7 @@ Check for unsorted columns in the row indices<p>
     </td>
   </tr>
 </table>
-<a class="anchor" name="a7" doxytag="Mutils.c::dgCMatrix_set_Dim"></a><p>
+<a class="anchor" name="a9" doxytag="Mutils.c::dgCMatrix_set_Dim"></a><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -422,7 +525,7 @@ Check for unsorted columns in the row indices<p>
     </td>
   </tr>
 </table>
-<a class="anchor" name="a21" doxytag="Mutils.c::expand_csc_column"></a><p>
+<a class="anchor" name="a23" doxytag="Mutils.c::expand_csc_column"></a><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -495,7 +598,62 @@ Expand a column of a compressed, sparse, column-oriented matrix.<p>
     </td>
   </tr>
 </table>
-<a class="anchor" name="a2" doxytag="Mutils.c::get_double_by_name"></a><p>
+<a class="anchor" name="a26" doxytag="Mutils.c::full_to_packed"></a><p>
+<table class="mdTable" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top">double* full_to_packed           </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">double *&nbsp;</td>
+          <td class="mdname" nowrap> <em>dest</em>, </td>
+        </tr>
+        <tr>
+          <td class="md" nowrap align="right"></td>
+          <td class="md"></td>
+          <td class="md" nowrap>const double *&nbsp;</td>
+          <td class="mdname" nowrap> <em>src</em>, </td>
+        </tr>
+        <tr>
+          <td class="md" nowrap align="right"></td>
+          <td class="md"></td>
+          <td class="md" nowrap>int&nbsp;</td>
+          <td class="mdname" nowrap> <em>n</em>, </td>
+        </tr>
+        <tr>
+          <td class="md" nowrap align="right"></td>
+          <td class="md"></td>
+          <td class="md" nowrap>enum <a class="el" href="Mutils_8h.html#a61">CBLAS_UPLO</a>&nbsp;</td>
+          <td class="mdname" nowrap> <em>uplo</em>, </td>
+        </tr>
+        <tr>
+          <td class="md" nowrap align="right"></td>
+          <td class="md"></td>
+          <td class="md" nowrap>enum <a class="el" href="Mutils_8h.html#a62">CBLAS_DIAG</a>&nbsp;</td>
+          <td class="mdname" nowrap> <em>diag</em></td>
+        </tr>
+        <tr>
+          <td class="md"></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"></td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing="5" cellpadding="0" border="0">
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a class="anchor" name="a4" doxytag="Mutils.c::get_double_by_name"></a><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -532,7 +690,7 @@ Expand a column of a compressed, sparse, column-oriented matrix.<p>
     </td>
   </tr>
 </table>
-<a class="anchor" name="a5" doxytag="Mutils.c::get_factors"></a><p>
+<a class="anchor" name="a7" doxytag="Mutils.c::get_factors"></a><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -569,7 +727,7 @@ Expand a column of a compressed, sparse, column-oriented matrix.<p>
     </td>
   </tr>
 </table>
-<a class="anchor" name="a16" doxytag="Mutils.c::make_array_triangular"></a><p>
+<a class="anchor" name="a18" doxytag="Mutils.c::make_array_triangular"></a><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -606,7 +764,7 @@ Expand a column of a compressed, sparse, column-oriented matrix.<p>
     </td>
   </tr>
 </table>
-<a class="anchor" name="a19" doxytag="Mutils.c::Matrix_make_named"></a><p>
+<a class="anchor" name="a21" doxytag="Mutils.c::Matrix_make_named"></a><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -651,7 +809,7 @@ Create a named vector of type TYP<p>
     </td>
   </tr>
 </table>
-<a class="anchor" name="a15" doxytag="Mutils.c::nlme_check_Lapack_error"></a><p>
+<a class="anchor" name="a17" doxytag="Mutils.c::nlme_check_Lapack_error"></a><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -695,7 +853,7 @@ Check the error code returned by an Lapack routine and create an appropriate err
     </td>
   </tr>
 </table>
-<a class="anchor" name="a17" doxytag="Mutils.c::nlme_replaceSlot"></a><p>
+<a class="anchor" name="a19" doxytag="Mutils.c::nlme_replaceSlot"></a><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -747,7 +905,7 @@ Replace the value of a slot or subslot of an object in place. This routine purpo
     </td>
   </tr>
 </table>
-<a class="anchor" name="a14" doxytag="Mutils.c::nlme_symmetrize"></a><p>
+<a class="anchor" name="a16" doxytag="Mutils.c::nlme_symmetrize"></a><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -792,7 +950,7 @@ Symmetrize a matrix by copying the strict upper triangle into the lower triangle
     </td>
   </tr>
 </table>
-<a class="anchor" name="a18" doxytag="Mutils.c::nlme_weight_matrix_list"></a><p>
+<a class="anchor" name="a20" doxytag="Mutils.c::nlme_weight_matrix_list"></a><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -851,7 +1009,7 @@ Produce a weighted copy of the matrices in MLin in the storage allocated to MLou
     </td>
   </tr>
 </table>
-<a class="anchor" name="a0" doxytag="Mutils.c::norm_type"></a><p>
+<a class="anchor" name="a2" doxytag="Mutils.c::norm_type"></a><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -879,7 +1037,101 @@ Produce a weighted copy of the matrices in MLin in the storage allocated to MLou
     </td>
   </tr>
 </table>
-<a class="anchor" name="a1" doxytag="Mutils.c::rcond_type"></a><p>
+<a class="anchor" name="a27" doxytag="Mutils.c::packed_getDiag"></a><p>
+<table class="mdTable" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top">double* packed_getDiag           </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">double *&nbsp;</td>
+          <td class="mdname" nowrap> <em>dest</em>, </td>
+        </tr>
+        <tr>
+          <td class="md" nowrap align="right"></td>
+          <td class="md"></td>
+          <td class="md" nowrap>SEXP&nbsp;</td>
+          <td class="mdname" nowrap> <em>x</em></td>
+        </tr>
+        <tr>
+          <td class="md"></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"></td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing="5" cellpadding="0" border="0">
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Copy the diagonal elements of the packed array x to dest<p>
+<dl compact><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>dest</em>&nbsp;</td><td>vector of length ncol(x) </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>x</em>&nbsp;</td><td>pointer to an object representing a packed array</td></tr>
+  </table>
+</dl>
+<dl compact><dt><b>Returns:</b></dt><dd>dest </dd></dl>
+    </td>
+  </tr>
+</table>
+<a class="anchor" name="a25" doxytag="Mutils.c::packed_to_full"></a><p>
+<table class="mdTable" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top">double* packed_to_full           </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">double *&nbsp;</td>
+          <td class="mdname" nowrap> <em>dest</em>, </td>
+        </tr>
+        <tr>
+          <td class="md" nowrap align="right"></td>
+          <td class="md"></td>
+          <td class="md" nowrap>const double *&nbsp;</td>
+          <td class="mdname" nowrap> <em>src</em>, </td>
+        </tr>
+        <tr>
+          <td class="md" nowrap align="right"></td>
+          <td class="md"></td>
+          <td class="md" nowrap>int&nbsp;</td>
+          <td class="mdname" nowrap> <em>n</em>, </td>
+        </tr>
+        <tr>
+          <td class="md" nowrap align="right"></td>
+          <td class="md"></td>
+          <td class="md" nowrap>enum <a class="el" href="Mutils_8h.html#a61">CBLAS_UPLO</a>&nbsp;</td>
+          <td class="mdname" nowrap> <em>uplo</em></td>
+        </tr>
+        <tr>
+          <td class="md"></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"></td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing="5" cellpadding="0" border="0">
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a class="anchor" name="a3" doxytag="Mutils.c::rcond_type"></a><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -907,7 +1159,7 @@ Produce a weighted copy of the matrices in MLin in the storage allocated to MLou
     </td>
   </tr>
 </table>
-<a class="anchor" name="a3" doxytag="Mutils.c::set_double_by_name"></a><p>
+<a class="anchor" name="a5" doxytag="Mutils.c::set_double_by_name"></a><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -950,7 +1202,7 @@ Produce a weighted copy of the matrices in MLin in the storage allocated to MLou
     </td>
   </tr>
 </table>
-<a class="anchor" name="a6" doxytag="Mutils.c::set_factors"></a><p>
+<a class="anchor" name="a8" doxytag="Mutils.c::set_factors"></a><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -993,7 +1245,7 @@ Produce a weighted copy of the matrices in MLin in the storage allocated to MLou
     </td>
   </tr>
 </table>
-<a class="anchor" name="a13" doxytag="Mutils.c::ssc_symbolic_permute"></a><p>
+<a class="anchor" name="a15" doxytag="Mutils.c::ssc_symbolic_permute"></a><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -1048,7 +1300,7 @@ Produce a weighted copy of the matrices in MLin in the storage allocated to MLou
     </td>
   </tr>
 </table>
-<a class="anchor" name="a11" doxytag="Mutils.c::triple_as_SEXP"></a><p>
+<a class="anchor" name="a13" doxytag="Mutils.c::triple_as_SEXP"></a><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -1115,7 +1367,7 @@ Produce a weighted copy of the matrices in MLin in the storage allocated to MLou
     </td>
   </tr>
 </table>
-<hr size="1"><address style="align: right;"><small>Generated on Tue Mar 1 16:58:11 2005 for Matrix by&nbsp;
+<hr size="1"><address style="align: right;"><small>Generated on Wed Mar 30 08:43:57 2005 for Matrix by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.1 </small></address>
 </body>

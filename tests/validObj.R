@@ -22,12 +22,12 @@ assertError <- function(expr) {
     invisible(t.res)
 }
 
-## "dMatrix"
-str(new("Matrix"))
+## the empty ones:
+chk.matrix(new("dgeMatrix"))
 
 ## "dge"
 assertError( new("dgeMatrix", Dim = c(2,2), x= 1:4) )# double 'Dim'
-if(FALSE)## FIXME: this creates an integer '@ x' !
+if(paste(R.version$major, R.version$minor, sep=".") >= "2.0.1")
 assertError( new("dgeMatrix", Dim = as.integer(c(2,2)), x= 1:4) )# int 'x'
 assertError( new("dgeMatrix", Dim = 2:2, x=as.double(1:4)) )# length(Dim) !=2
 assertError( new("dgeMatrix", Dim = as.integer(c(2,2)), x= as.double(1:5)))
@@ -43,23 +43,28 @@ stopifnot(colnames(m1) == c.nam,
           identical(dimnames(t(m1)), list(c.nam, NULL)),
           identical(m1, t(t(m1))))
 
+## an example of *named* dimnames
+(t34N <- as(unclass(table(x = gl(3,4), y=gl(4,3))), "dgeMatrix"))
+stopifnot(identical(dimnames(t34N),
+                    dimnames(as(t34N, "matrix"))))
 
 ## "dpo"
 chk.matrix(cm <- crossprod(m1))
 chk.matrix(as(cm, "dsyMatrix"))
 chk.matrix(as(cm, "dgeMatrix"))
+chk.matrix(as(cm, "dMatrix"))
 try( chk.matrix(as(cm, "Matrix")) )# gives an error: "Matrix" has NULL 'dim()'
 
 ## Cholesky
 chk.matrix(ch <- chol(cm))
-## FIXME:
-try( chk.matrix(ch2 <- chol(as(cm, "dsyMatrix"))) ) # should not give an error
-try( chk.matrix(ch3 <- chol(as(cm, "dgeMatrix"))) ) # nor that one
+chk.matrix(ch2 <- chol(as(cm, "dsyMatrix")))
+#chk.matrix(ch3 <- chol(as(cm, "dgeMatrix")))
+stopifnot(all.equal(as(ch, "matrix"), as(ch2, "matrix")))
 
 ### Very basic  triangular matrix stuff
 
 assertError( new("dtrMatrix", Dim = c(2,2), x= 1:4) )# double 'Dim'
-if(FALSE)## FIXME: this creates an integer '@ x' !
+if(paste(R.version$major, R.version$minor, sep=".") >= "2.0.1")
 assertError( new("dtrMatrix", Dim = as.integer(c(2,2)), x= 1:4) )# int 'x'
 ## This caused a segfault (before revision r1172 in ../src/dtrMatrix.c):
 assertError( new("dtrMatrix", Dim = 2:2, x=as.double(1:4)) )# length(Dim) !=2

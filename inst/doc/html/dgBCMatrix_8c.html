@@ -13,23 +13,23 @@
 <tr><td colspan="2"><br><h2>Functions</h2></td></tr>
 <tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="dgBCMatrix_8c.html#a0">dgBCMatrix_validate</a> (SEXP x)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="dgBCMatrix_8c.html#a1">cscb_mm</a> (enum <a class="el" href="Mutils_8h.html#a57">CBLAS_SIDE</a> side, enum <a class="el" href="Mutils_8h.html#a54">CBLAS_TRANSPOSE</a> transa, int m, int n, int k, double alpha, SEXP A, const double B[], int ldb, double beta, double C[], int ldc)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="dgBCMatrix_8c.html#a1">cscb_mm</a> (enum <a class="el" href="Mutils_8h.html#a63">CBLAS_SIDE</a> side, enum <a class="el" href="Mutils_8h.html#a60">CBLAS_TRANSPOSE</a> transa, int m, int n, int k, double alpha, SEXP A, const double B[], int ldb, double beta, double C[], int ldc)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="dgBCMatrix_8c.html#a2">cscb_syrk</a> (enum <a class="el" href="Mutils_8h.html#a55">CBLAS_UPLO</a> uplo, enum <a class="el" href="Mutils_8h.html#a54">CBLAS_TRANSPOSE</a> trans, double alpha, SEXP A, double beta, SEXP C)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="dgBCMatrix_8c.html#a2">cscb_syrk</a> (enum <a class="el" href="Mutils_8h.html#a61">CBLAS_UPLO</a> uplo, enum <a class="el" href="Mutils_8h.html#a60">CBLAS_TRANSPOSE</a> trans, double alpha, SEXP A, double beta, SEXP C)</td></tr>
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="dgBCMatrix_8c.html#a3">copy_transpose</a> (double dest[], const double src[], int n)</td></tr>
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="dgBCMatrix_8c.html#a4">cscb_ldl</a> (SEXP A, const int Parent[], SEXP L, SEXP D)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="dgBCMatrix_8c.html#a5">cscb_trmm</a> (enum <a class="el" href="Mutils_8h.html#a57">CBLAS_SIDE</a> side, enum <a class="el" href="Mutils_8h.html#a55">CBLAS_UPLO</a> uplo, enum <a class="el" href="Mutils_8h.html#a54">CBLAS_TRANSPOSE</a> transa, enum <a class="el" href="Mutils_8h.html#a56">CBLAS_DIAG</a> diag, double alpha, SEXP A, double B[], int m, int n, int ldb)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="dgBCMatrix_8c.html#a5">cscb_trmm</a> (enum <a class="el" href="Mutils_8h.html#a63">CBLAS_SIDE</a> side, enum <a class="el" href="Mutils_8h.html#a61">CBLAS_UPLO</a> uplo, enum <a class="el" href="Mutils_8h.html#a60">CBLAS_TRANSPOSE</a> transa, enum <a class="el" href="Mutils_8h.html#a62">CBLAS_DIAG</a> diag, double alpha, SEXP A, double B[], int m, int n, int ldb)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="dgBCMatrix_8c.html#a6">cscb_trsm</a> (enum <a class="el" href="Mutils_8h.html#a55">CBLAS_UPLO</a> uplo, enum <a class="el" href="Mutils_8h.html#a54">CBLAS_TRANSPOSE</a> transa, enum <a class="el" href="Mutils_8h.html#a56">CBLAS_DIAG</a> diag, double alpha, SEXP A, int m, int n, double B[], int ldb)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="dgBCMatrix_8c.html#a6">cscb_trsm</a> (enum <a class="el" href="Mutils_8h.html#a61">CBLAS_UPLO</a> uplo, enum <a class="el" href="Mutils_8h.html#a60">CBLAS_TRANSPOSE</a> transa, enum <a class="el" href="Mutils_8h.html#a62">CBLAS_DIAG</a> diag, double alpha, SEXP A, int m, int n, double B[], int ldb)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="dgBCMatrix_8c.html#a7">cscb_trcbm</a> (enum <a class="el" href="Mutils_8h.html#a57">CBLAS_SIDE</a> side, enum <a class="el" href="Mutils_8h.html#a55">CBLAS_UPLO</a> uplo, enum <a class="el" href="Mutils_8h.html#a54">CBLAS_TRANSPOSE</a> transa, enum <a class="el" href="Mutils_8h.html#a56">CBLAS_DIAG</a> diag, double alpha, SEXP A, SEXP B)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="dgBCMatrix_8c.html#a7">cscb_trcbm</a> (enum <a class="el" href="Mutils_8h.html#a63">CBLAS_SIDE</a> side, enum <a class="el" href="Mutils_8h.html#a61">CBLAS_UPLO</a> uplo, enum <a class="el" href="Mutils_8h.html#a60">CBLAS_TRANSPOSE</a> transa, enum <a class="el" href="Mutils_8h.html#a62">CBLAS_DIAG</a> diag, double alpha, SEXP A, SEXP B)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="dgBCMatrix_8c.html#a8">cscb_trcbsm</a> (enum <a class="el" href="Mutils_8h.html#a57">CBLAS_SIDE</a> side, enum <a class="el" href="Mutils_8h.html#a55">CBLAS_UPLO</a> uplo, enum <a class="el" href="Mutils_8h.html#a54">CBLAS_TRANSPOSE</a> transa, enum <a class="el" href="Mutils_8h.html#a56">CBLAS_DIAG</a> diag, double alpha, SEXP A, const int Parent[], SEXP B)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="dgBCMatrix_8c.html#a8">cscb_trcbsm</a> (enum <a class="el" href="Mutils_8h.html#a63">CBLAS_SIDE</a> side, enum <a class="el" href="Mutils_8h.html#a61">CBLAS_UPLO</a> uplo, enum <a class="el" href="Mutils_8h.html#a60">CBLAS_TRANSPOSE</a> transa, enum <a class="el" href="Mutils_8h.html#a62">CBLAS_DIAG</a> diag, double alpha, SEXP A, const int Parent[], SEXP B)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="dgBCMatrix_8c.html#a9">cscb_cscbm</a> (enum <a class="el" href="Mutils_8h.html#a54">CBLAS_TRANSPOSE</a> transa, enum <a class="el" href="Mutils_8h.html#a54">CBLAS_TRANSPOSE</a> transb, double alpha, SEXP A, SEXP B, double beta, SEXP C)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="dgBCMatrix_8c.html#a9">cscb_cscbm</a> (enum <a class="el" href="Mutils_8h.html#a60">CBLAS_TRANSPOSE</a> transa, enum <a class="el" href="Mutils_8h.html#a60">CBLAS_TRANSPOSE</a> transb, double alpha, SEXP A, SEXP B, double beta, SEXP C)</td></tr>
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="dgBCMatrix_8c.html#a10">dgBCMatrix_to_dgCMatrix</a> (SEXP A)</td></tr>
 
@@ -88,13 +88,13 @@
         <tr>
           <td class="md" nowrap valign="top">void cscb_cscbm           </td>
           <td class="md" valign="top">(&nbsp;</td>
-          <td class="md" nowrap valign="top">enum <a class="el" href="Mutils_8h.html#a54">CBLAS_TRANSPOSE</a>&nbsp;</td>
+          <td class="md" nowrap valign="top">enum <a class="el" href="Mutils_8h.html#a60">CBLAS_TRANSPOSE</a>&nbsp;</td>
           <td class="mdname" nowrap> <em>transa</em>, </td>
         </tr>
         <tr>
           <td class="md" nowrap align="right"></td>
           <td class="md"></td>
-          <td class="md" nowrap>enum <a class="el" href="Mutils_8h.html#a54">CBLAS_TRANSPOSE</a>&nbsp;</td>
+          <td class="md" nowrap>enum <a class="el" href="Mutils_8h.html#a60">CBLAS_TRANSPOSE</a>&nbsp;</td>
           <td class="mdname" nowrap> <em>transb</em>, </td>
         </tr>
         <tr>
@@ -226,13 +226,13 @@ Create the LD^{T/2}D^{1/2}L' decomposition of the positive definite symmetric dg
         <tr>
           <td class="md" nowrap valign="top">void cscb_mm           </td>
           <td class="md" valign="top">(&nbsp;</td>
-          <td class="md" nowrap valign="top">enum <a class="el" href="Mutils_8h.html#a57">CBLAS_SIDE</a>&nbsp;</td>
+          <td class="md" nowrap valign="top">enum <a class="el" href="Mutils_8h.html#a63">CBLAS_SIDE</a>&nbsp;</td>
           <td class="mdname" nowrap> <em>side</em>, </td>
         </tr>
         <tr>
           <td class="md" nowrap align="right"></td>
           <td class="md"></td>
-          <td class="md" nowrap>enum <a class="el" href="Mutils_8h.html#a54">CBLAS_TRANSPOSE</a>&nbsp;</td>
+          <td class="md" nowrap>enum <a class="el" href="Mutils_8h.html#a60">CBLAS_TRANSPOSE</a>&nbsp;</td>
           <td class="mdname" nowrap> <em>transa</em>, </td>
         </tr>
         <tr>
@@ -340,13 +340,13 @@ Perform one of the matrix operations C := alpha*op(A)*B + beta*C or C := alpha*B
         <tr>
           <td class="md" nowrap valign="top">void cscb_syrk           </td>
           <td class="md" valign="top">(&nbsp;</td>
-          <td class="md" nowrap valign="top">enum <a class="el" href="Mutils_8h.html#a55">CBLAS_UPLO</a>&nbsp;</td>
+          <td class="md" nowrap valign="top">enum <a class="el" href="Mutils_8h.html#a61">CBLAS_UPLO</a>&nbsp;</td>
           <td class="mdname" nowrap> <em>uplo</em>, </td>
         </tr>
         <tr>
           <td class="md" nowrap align="right"></td>
           <td class="md"></td>
-          <td class="md" nowrap>enum <a class="el" href="Mutils_8h.html#a54">CBLAS_TRANSPOSE</a>&nbsp;</td>
+          <td class="md" nowrap>enum <a class="el" href="Mutils_8h.html#a60">CBLAS_TRANSPOSE</a>&nbsp;</td>
           <td class="mdname" nowrap> <em>trans</em>, </td>
         </tr>
         <tr>
@@ -412,25 +412,25 @@ Perform one of the matrix operations C := alpha*A*A' + beta*C, or C := alpha*A'*
         <tr>
           <td class="md" nowrap valign="top">void cscb_trcbm           </td>
           <td class="md" valign="top">(&nbsp;</td>
-          <td class="md" nowrap valign="top">enum <a class="el" href="Mutils_8h.html#a57">CBLAS_SIDE</a>&nbsp;</td>
+          <td class="md" nowrap valign="top">enum <a class="el" href="Mutils_8h.html#a63">CBLAS_SIDE</a>&nbsp;</td>
           <td class="mdname" nowrap> <em>side</em>, </td>
         </tr>
         <tr>
           <td class="md" nowrap align="right"></td>
           <td class="md"></td>
-          <td class="md" nowrap>enum <a class="el" href="Mutils_8h.html#a55">CBLAS_UPLO</a>&nbsp;</td>
+          <td class="md" nowrap>enum <a class="el" href="Mutils_8h.html#a61">CBLAS_UPLO</a>&nbsp;</td>
           <td class="mdname" nowrap> <em>uplo</em>, </td>
         </tr>
         <tr>
           <td class="md" nowrap align="right"></td>
           <td class="md"></td>
-          <td class="md" nowrap>enum <a class="el" href="Mutils_8h.html#a54">CBLAS_TRANSPOSE</a>&nbsp;</td>
+          <td class="md" nowrap>enum <a class="el" href="Mutils_8h.html#a60">CBLAS_TRANSPOSE</a>&nbsp;</td>
           <td class="mdname" nowrap> <em>transa</em>, </td>
         </tr>
         <tr>
           <td class="md" nowrap align="right"></td>
           <td class="md"></td>
-          <td class="md" nowrap>enum <a class="el" href="Mutils_8h.html#a56">CBLAS_DIAG</a>&nbsp;</td>
+          <td class="md" nowrap>enum <a class="el" href="Mutils_8h.html#a62">CBLAS_DIAG</a>&nbsp;</td>
           <td class="mdname" nowrap> <em>diag</em>, </td>
         </tr>
         <tr>
@@ -491,25 +491,25 @@ Perform one of the operations B := alpha*op(A)*B or B := alpha*B*op(A) where A a
         <tr>
           <td class="md" nowrap valign="top">void cscb_trcbsm           </td>
           <td class="md" valign="top">(&nbsp;</td>
-          <td class="md" nowrap valign="top">enum <a class="el" href="Mutils_8h.html#a57">CBLAS_SIDE</a>&nbsp;</td>
+          <td class="md" nowrap valign="top">enum <a class="el" href="Mutils_8h.html#a63">CBLAS_SIDE</a>&nbsp;</td>
           <td class="mdname" nowrap> <em>side</em>, </td>
         </tr>
         <tr>
           <td class="md" nowrap align="right"></td>
           <td class="md"></td>
-          <td class="md" nowrap>enum <a class="el" href="Mutils_8h.html#a55">CBLAS_UPLO</a>&nbsp;</td>
+          <td class="md" nowrap>enum <a class="el" href="Mutils_8h.html#a61">CBLAS_UPLO</a>&nbsp;</td>
           <td class="mdname" nowrap> <em>uplo</em>, </td>
         </tr>
         <tr>
           <td class="md" nowrap align="right"></td>
           <td class="md"></td>
-          <td class="md" nowrap>enum <a class="el" href="Mutils_8h.html#a54">CBLAS_TRANSPOSE</a>&nbsp;</td>
+          <td class="md" nowrap>enum <a class="el" href="Mutils_8h.html#a60">CBLAS_TRANSPOSE</a>&nbsp;</td>
           <td class="mdname" nowrap> <em>transa</em>, </td>
         </tr>
         <tr>
           <td class="md" nowrap align="right"></td>
           <td class="md"></td>
-          <td class="md" nowrap>enum <a class="el" href="Mutils_8h.html#a56">CBLAS_DIAG</a>&nbsp;</td>
+          <td class="md" nowrap>enum <a class="el" href="Mutils_8h.html#a62">CBLAS_DIAG</a>&nbsp;</td>
           <td class="mdname" nowrap> <em>diag</em>, </td>
         </tr>
         <tr>
@@ -577,25 +577,25 @@ Solve one of the systems op(A)*X = alpha*B or X*op(A) = alpha*B where A dgBCMatr
         <tr>
           <td class="md" nowrap valign="top">void cscb_trmm           </td>
           <td class="md" valign="top">(&nbsp;</td>
-          <td class="md" nowrap valign="top">enum <a class="el" href="Mutils_8h.html#a57">CBLAS_SIDE</a>&nbsp;</td>
+          <td class="md" nowrap valign="top">enum <a class="el" href="Mutils_8h.html#a63">CBLAS_SIDE</a>&nbsp;</td>
           <td class="mdname" nowrap> <em>side</em>, </td>
         </tr>
         <tr>
           <td class="md" nowrap align="right"></td>
           <td class="md"></td>
-          <td class="md" nowrap>enum <a class="el" href="Mutils_8h.html#a55">CBLAS_UPLO</a>&nbsp;</td>
+          <td class="md" nowrap>enum <a class="el" href="Mutils_8h.html#a61">CBLAS_UPLO</a>&nbsp;</td>
           <td class="mdname" nowrap> <em>uplo</em>, </td>
         </tr>
         <tr>
           <td class="md" nowrap align="right"></td>
           <td class="md"></td>
-          <td class="md" nowrap>enum <a class="el" href="Mutils_8h.html#a54">CBLAS_TRANSPOSE</a>&nbsp;</td>
+          <td class="md" nowrap>enum <a class="el" href="Mutils_8h.html#a60">CBLAS_TRANSPOSE</a>&nbsp;</td>
           <td class="mdname" nowrap> <em>transa</em>, </td>
         </tr>
         <tr>
           <td class="md" nowrap align="right"></td>
           <td class="md"></td>
-          <td class="md" nowrap>enum <a class="el" href="Mutils_8h.html#a56">CBLAS_DIAG</a>&nbsp;</td>
+          <td class="md" nowrap>enum <a class="el" href="Mutils_8h.html#a62">CBLAS_DIAG</a>&nbsp;</td>
           <td class="mdname" nowrap> <em>diag</em>, </td>
         </tr>
         <tr>
@@ -677,19 +677,19 @@ Perform one of the dgBCMatrix-matrix operations B := alpha*op(A)*B or B := alpha
         <tr>
           <td class="md" nowrap valign="top">void cscb_trsm           </td>
           <td class="md" valign="top">(&nbsp;</td>
-          <td class="md" nowrap valign="top">enum <a class="el" href="Mutils_8h.html#a55">CBLAS_UPLO</a>&nbsp;</td>
+          <td class="md" nowrap valign="top">enum <a class="el" href="Mutils_8h.html#a61">CBLAS_UPLO</a>&nbsp;</td>
           <td class="mdname" nowrap> <em>uplo</em>, </td>
         </tr>
         <tr>
           <td class="md" nowrap align="right"></td>
           <td class="md"></td>
-          <td class="md" nowrap>enum <a class="el" href="Mutils_8h.html#a54">CBLAS_TRANSPOSE</a>&nbsp;</td>
+          <td class="md" nowrap>enum <a class="el" href="Mutils_8h.html#a60">CBLAS_TRANSPOSE</a>&nbsp;</td>
           <td class="mdname" nowrap> <em>transa</em>, </td>
         </tr>
         <tr>
           <td class="md" nowrap align="right"></td>
           <td class="md"></td>
-          <td class="md" nowrap>enum <a class="el" href="Mutils_8h.html#a56">CBLAS_DIAG</a>&nbsp;</td>
+          <td class="md" nowrap>enum <a class="el" href="Mutils_8h.html#a62">CBLAS_DIAG</a>&nbsp;</td>
           <td class="mdname" nowrap> <em>diag</em>, </td>
         </tr>
         <tr>
@@ -853,7 +853,7 @@ Coerce a dgBCMatrix to a dgCMatrix<p>
     </td>
   </tr>
 </table>
-<hr size="1"><address style="align: right;"><small>Generated on Tue Mar 1 16:58:10 2005 for Matrix by&nbsp;
+<hr size="1"><address style="align: right;"><small>Generated on Wed Mar 30 08:43:57 2005 for Matrix by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.1 </small></address>
 </body>

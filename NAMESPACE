@@ -14,88 +14,80 @@ export(
        "Matrix",
        "Schur",
        "bCrosstab",
-       "coef<-",
-#       "corFactor",
-#       "corMatrix",
        "expand",
        "expm",
        "facmul",
        "lu",
-#       "matrix<-",
        "norm",
-#       "pdFactor",
-#       "pdMatrix",
        "rcond",
        "round", # "Math2" group (needs explicit setGeneric(.))
-       "signif",#  {dito}
-       "sscCrosstab",
+       "signif",#  {ditto}
        "tcrossprod",
        "unpack"
        )
 
 exportClasses(
+	      "BunchKaufman",
+	      "pBunchKaufman",
 	      "Cholesky",
+	      "pCholesky",
 	      "LU",
-              "Matrix",
-              ## also intermediate `virtual' ones:
-              "dMatrix",
-              ## not yet:   "iMatrix", "lMatrix", "zMatrix",
-              "ddenseMatrix",
+	      "Matrix",
+	      ## also intermediate `virtual' ones:
+	      "dMatrix",
+	      "sparseMatrix",
+	      "dsparseMatrix",
+	      ## not yet:   "iMatrix", "lMatrix", "zMatrix",
 
-              "dgBCMatrix",
-              "dgCMatrix",
-              "dgTMatrix",
-              "dgeMatrix",
-              "dpoMatrix",
-              "dppMatrix",
-              "dsCMatrix",
-              "dsTMatrix",
-              "dspMatrix",
-              "dsyMatrix",
-              "dtCMatrix",
-              "dtTMatrix",
-              "dtpMatrix",
-              "dtrMatrix",
+	      "ddenseMatrix",
 
-              "corrmatrix",
-              "pdfactor",
-              "pdmatrix",
-              "dCholCMatrix",
-              "sscCrosstab",
-              "ssclme"
-              )
+	      "dgBCMatrix",
+	      "dgCMatrix",
+	      "dgTMatrix",
+	      "dgeMatrix",
+	      "dpoMatrix",
+	      "dppMatrix",
+	      "dsCMatrix",
+	      "dsTMatrix",
+	      "dspMatrix",
+	      "dsyMatrix",
+	      "dtCMatrix",
+	      "dtTMatrix",
+	      "dtpMatrix",
+	      "dtrMatrix",
+
+	      "corrmatrix",
+	      "pMatrix",
+	      "pdmatrix",
+	      "dCholCMatrix"
+	      )
 
 exportMethods(
-              ## Group Methods
-              "Arith",
-              "Math",
-              "Math2",
+	      ## Group Methods
+	      "Arith",
+	      "Math",
+	      "Math2",
 
-              "+",# for dgT(Matrix) only
-              "%*%",
+	      "+",# for dgT(Matrix) only
+	      "%*%",
 
-              "Schur",
-              "chol",
-              "coef",
-              "coef<-",
-              "coerce",
-#             "corMatrix",
-              "crossprod",
-              "determinant",
-              "diag",
-              "dim",
-              "dimnames",
-              "dimnames<-",
-              "expand",
-              "expm",
-              "image",
-#              "matrix<-",
-              "norm",
-#              "pdFactor",
-#              "pdMatrix",
-              "rcond",
-              "show",
-              "solve",
-              "t",
-              "tcrossprod"
-              )
+	      "Schur",
+	      "as.matrix",
+	      "chol",
+	      "coerce",
+	      "crossprod",
+	      "determinant",
+	      "diag",
+	      "dim",
+	      "dimnames",
+	      "dimnames<-",
+	      "expand",
+	      "expm",
+	      "image",
+	      "norm",
+	      "rcond",
+	      "show",
+	      "solve",
+	      "t",
+	      "tcrossprod"
+	      )

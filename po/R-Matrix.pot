@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: R 2.1.0\n"
 "Report-Msgid-Bugs-To: bugs@r-project.org\n"
-"POT-Creation-Date: 2005-02-28 11:49\n"
+"POT-Creation-Date: 2005-03-30 08:30\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -11,13 +11,13 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 
+msgid "'x' is not positive definite -- chol() undefined."
+msgstr ""
+
 msgid "flist must be a non-empty list of factors"
 msgstr ""
 
 msgid "all factors in flist must have the same length"
-msgstr ""
-
-msgid "Dimensions not compatible for addition"
 msgstr ""
 
 msgid "Matrices must have same number of rows for arithmetic"
@@ -33,6 +33,18 @@ msgid "length of 2nd arg does not match dimension of first"
 msgstr ""
 
 msgid "length of 1st arg does not match dimension of 2nd"
+msgstr ""
+
+msgid "Dimensions not compatible for addition"
+msgstr ""
+
+msgid "cannot coerce non-symmetric matrix to dsCMatrix class"
+msgstr ""
+
+msgid "kronecker method must use default 'FUN'"
+msgstr ""
+
+msgid "dim(.) has not length 2"
 msgstr ""
 
 msgid "invalid dimnames given for '%s' object"

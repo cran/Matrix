@@ -1,9 +1,26 @@
-prMatrix <-
-    ## private function to be used as show() method possibly more than once
-    function(object) {
-        d <- dim(object)
-        cat(paste(d, collapse= " x "), " Matrix of class ",
-            sQuote(class(object)),"\n", sep='')
+#### Toplevel ``virtual'' class "Matrix"
+
+## probably not needed eventually:
+setAs(from = "ddenseMatrix", to = "matrix",
+      function(from) {
+          if(length(d <- dim(from)) != 2) stop("dim(.) has not length 2")
+          array(from@x, dim = d, dimnames = dimnames(from))
+      })
+
+## private function to be used as show() method possibly more than once
+prMatrix <- function(object) {
+    d <- dim(object)
+    cl <- class(object)
+    cat(sprintf('%d x %d Matrix of class "%s"\n', d[1], d[2], cl))
+##- no longer needed: have no objects of virtual classes:
+##     if(cl == "Matrix") { ## have no data slot
+##         cat("Dim = ", d)
+##         if(any(sapply(object@Dimnames,length) > 0)) {
+##             cat("; Dimnames = ")
+##             str(object@Dimnames)
+##         }
+##         cat("\n")
+##     } else { # not "Matrix", hence have data 'x' slot
         m <- as(object, "matrix")
         maxp <- getOption("max.print")
         if(prod(d) <= maxp) print(m)
@@ -15,17 +32,60 @@ prMatrix <-
             print(tail(m, max(1, nr - n2)))
         }
         ## DEBUG: cat("str(.):\n") ; str(object)
-        invisible()
-    }
+##    }
+    invisible(object)# as print() S3 methods do
+}
 
+setMethod("show", signature(object = "ddenseMatrix"), prMatrix)
+
+setMethod("show", signature(object = "sparseMatrix"),
+   function(object) {
+       d <- dim(object)
+       cl <- class(object)
+       cat(sprintf('%d x %d sparse Matrix of class "%s"\n', d[1], d[2], cl))
+
+       maxp <- getOption("max.print")
+       if(prod(d) <= maxp) print(as(object, "matrix"))
+       else { ## d[1] > maxp / d[2] >= nr :
+           cat("\n Not printing large sparse matrix -- maybe increase options(max.print)\n")
+           if(FALSE) { ### need storage economic "[,]" method for sparse!!
+               nr <- maxp %/% d[2]
+               n2 <- ceiling(nr / 2)
+               print(head(m, max(1, n2)))
+               cat("\n ..........\n\n")
+               print(tail(m, max(1, nr - n2)))
+           }
+       }
+        ## DEBUG: cat("str(.):\n") ; str(object)
+       invisible(object)
+   })
+
+## this may go away {since sparse matrices need something better!} :
 setMethod("show", signature(object = "Matrix"), prMatrix)
 
-if(FALSE) {## FIXME: we should do this here (for all subclasses),
-    ##        -----  but it coerces some to "Matrix" {with no @x slot}
+## should propagate to all subclasses:
+setMethod("as.matrix", signature(x = "Matrix"), function(x) as(x, "matrix"))
+
 setMethod("dim", signature(x = "Matrix"),
           function(x) x@Dim, valueClass = "integer")
 setMethod("dimnames", signature(x = "Matrix"), function(x) x@Dimnames)
-}# FIXME
+## not exported but used more than once for "dimnames<-" method :
+## -- or do only once for all "Matrix" classes ??
+dimnamesGets <- function (x, value) {
+    d <- dim(x)
+    if (!is.list(value) || length(value) != 2 ||
+        !(is.null(v1 <- value[[1]]) || length(v1) == d[1]) ||
+        !(is.null(v2 <- value[[2]]) || length(v2) == d[2]))
+        stop(sprintf("invalid dimnames given for '%s' object", class(x)))
+    x@Dimnames <- list(if(!is.null(v1)) as.character(v1),
+                       if(!is.null(v2)) as.character(v2))
+    x
+}
+setMethod("dimnames<-", signature(x = "Matrix", value = "list"),
+          dimnamesGets)
+
+setMethod("unname", signature("Matrix", force="missing"),
+          function(obj) { obj@Dimnames <- list(NULL,NULL); obj})
 
 Matrix <-
     function (data = NA, nrow = 1, ncol = 1, byrow = FALSE, dimnames = NULL)

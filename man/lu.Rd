@@ -25,7 +25,9 @@ lu(x, \dots)
   \emph{Matrix Computations,}
   2nd edition, Johns Hopkins, Baltimore.
 }
-\seealso{\code{\link{qr}}, \code{\link{chol}}.
+\seealso{
+  \code{\link{LU-class}} and \code{\link{expand}};
+  \code{\link{qr}}, \code{\link{chol}}.
 }
 \examples{
 x <- Matrix(rnorm(9), 3, 3)

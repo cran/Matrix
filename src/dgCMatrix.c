@@ -190,28 +190,21 @@ SEXP csc_matrix_crossprod(SEXP x, SEXP y)
     return ans;
 }
 
-SEXP csc_to_dgTMatrix(SEXP x)
+SEXP compressed_to_dgTMatrix(SEXP x, SEXP colP)
 {
-    SEXP
-	ans = PROTECT(NEW_OBJECT(MAKE_CLASS("dgTMatrix"))),
-	dimslot = GET_SLOT(x, Matrix_DimSym),
-	islot = GET_SLOT(x, Matrix_iSym),
-	pslot = GET_SLOT(x, Matrix_pSym);
-    int *dims = INTEGER(dimslot), j, jj,
-	*xp = INTEGER(pslot), *yj;
+    int col = asLogical(colP);
+    SEXP indSym = col ? Matrix_iSym : Matrix_jSym;
+    SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("dgTMatrix"))),
+	indP = GET_SLOT(x, indSym),
+	pP = GET_SLOT(x, Matrix_pSym);
+    int npt = length(pP) - 1;
 
-    SET_SLOT(ans, Matrix_iSym, duplicate(islot));
-    SET_SLOT(ans, Matrix_DimSym, duplicate(dimslot));
+    SET_SLOT(ans, Matrix_DimSym, duplicate(GET_SLOT(x, Matrix_DimSym)));
     SET_SLOT(ans, Matrix_xSym, duplicate(GET_SLOT(x, Matrix_xSym)));
-    SET_SLOT(ans, Matrix_jSym, allocVector(INTSXP, length(islot)));
-    yj = INTEGER(GET_SLOT(ans, Matrix_jSym));
-    jj = 0;
-    for (j = 0; j < dims[1]; j++) {
-	while (jj < xp[j + 1]) {
-	    yj[jj] = j;
-	    jj++;
-	}
-    }
+    SET_SLOT(ans, indSym, duplicate(indP));
+    expand_cmprPt(npt, INTEGER(pP),
+		  INTEGER(ALLOC_SLOT(ans, col ? Matrix_jSym : Matrix_iSym,
+				     INTSXP, length(indP))));
     UNPROTECT(1);
     return ans;
 }
@@ -354,20 +347,14 @@ SEXP csc_transpose(SEXP x)
     int *adims,	*xdims = INTEGER(GET_SLOT(x, Matrix_DimSym)),
 	nnz = length(islot);
 
-    SET_SLOT(ans, Matrix_DimSym, allocVector(INTSXP, 2));
-    adims = INTEGER(GET_SLOT(ans, Matrix_DimSym));
+    adims = INTEGER(ALLOC_SLOT(ans, Matrix_DimSym, INTSXP, 2));
     adims[0] = xdims[1]; adims[1] = xdims[0];
-    SET_SLOT(ans, Matrix_factorSym, allocVector(VECSXP, 0));
-    SET_SLOT(ans, Matrix_pSym, allocVector(INTSXP, xdims[0] + 1));
-    SET_SLOT(ans, Matrix_iSym, allocVector(INTSXP, nnz));
-    SET_SLOT(ans, Matrix_xSym, allocVector(REALSXP, nnz));
-    csc_components_transpose(xdims[0], xdims[1], nnz,
-			     INTEGER(GET_SLOT(x, Matrix_pSym)),
-			     INTEGER(islot),
-			     REAL(GET_SLOT(x, Matrix_xSym)),
-			     INTEGER(GET_SLOT(ans, Matrix_pSym)),
-			     INTEGER(GET_SLOT(ans, Matrix_iSym)),
-			     REAL(GET_SLOT(ans, Matrix_xSym)));
+    csc_compTr(xdims[0], xdims[1], nnz,
+	       INTEGER(GET_SLOT(x, Matrix_pSym)), INTEGER(islot),
+	       REAL(GET_SLOT(x, Matrix_xSym)),
+	       INTEGER(ALLOC_SLOT(ans, Matrix_pSym, INTSXP, xdims[0] + 1)),
+	       INTEGER(ALLOC_SLOT(ans, Matrix_iSym, INTSXP, nnz)),
+	       REAL(ALLOC_SLOT(ans, Matrix_xSym, REALSXP, nnz)));
     UNPROTECT(1);
     return ans;
 }

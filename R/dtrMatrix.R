@@ -3,22 +3,46 @@
 setAs("dtrMatrix", "dgeMatrix",
       function(from) .Call("dtrMatrix_as_dgeMatrix", from) )
 
+setAs("dtrMatrix", "dtpMatrix",
+      function(from) .Call("dtrMatrix_as_dtpMatrix", from) )
+
 ## needed for t() method
 setAs("dtrMatrix", "matrix",
       function(from) .Call("dtrMatrix_as_matrix", from) )
 
+setAs("matrix", "dtrMatrix",
+      function(from) as(as(from, "dgeMatrix"), "dtrMatrix"))
+
+## Group Methods:
+## TODO: carefully check for the cases where the result remains triangular
+## instead : inherit them from "dgeMatrix" via definition in ./dMatrix.R
+
 setMethod("%*%", signature(x = "dtrMatrix", y = "dgeMatrix"),
-	  function(x, y) .Call("dtrMatrix_dgeMatrix_mm", x, y))
+	  function(x, y) .Call("dtrMatrix_matrix_mm", x, y, TRUE, FALSE),
+          valueClass = "dgeMatrix")
+
+setMethod("%*%", signature(x = "dtrMatrix", y = "matrix"),
+	  function(x, y) .Call("dtrMatrix_matrix_mm", x, y, FALSE, FALSE),
+          valueClass = "dgeMatrix")
 
 setMethod("%*%", signature(x = "dgeMatrix", y = "dtrMatrix"),
-	  function(x, y) .Call("dtrMatrix_dgeMatrix_mm_R", y, x))
+	  function(x, y) .Call("dtrMatrix_matrix_mm", y, x, TRUE, TRUE),
+          valueClass = "dgeMatrix")
+
+setMethod("%*%", signature(x = "matrix", y = "dtrMatrix"),
+	  function(x, y) .Call("dtrMatrix_matrix_mm", y, x, FALSE, TRUE),
+          valueClass = "dgeMatrix")
+
+setMethod("%*%", signature(x = "dtrMatrix", y = "dtrMatrix"),
+	  function(x, y) callGeneric(x, as(y, "dgeMatrix")),
+          valueClass = "dgeMatrix")
 
 setMethod("crossprod", signature(x = "dtrMatrix", y = "missing"),
-	  function(x, y = NULL) crossprod(as(x, "dgeMatrix")),
+	  function(x, y = NULL) callGeneric(as(x, "dgeMatrix")),
 	  valueClass = "dpoMatrix")
 
 setMethod("determinant", signature(x = "dtrMatrix", logarithm = "missing"),
-	  function(x, logarithm, ...) determinant(x, TRUE))
+	  function(x, logarithm, ...) callGeneric(x, TRUE))
 
 setMethod("determinant", signature(x = "dtrMatrix", logarithm = "logical"),
 	  function(x, logarithm, ...) {
@@ -62,19 +86,21 @@ setMethod("solve", signature(a = "dtrMatrix", b="missing"),
 	  .Call("dtrMatrix_solve", a),
 	  valueClass = "dtrMatrix")
 
+setMethod("solve", signature(a = "dtrMatrix", b="dgeMatrix"),
+	  function(a, b, ...) .Call("dtrMatrix_matrix_solve", a, b, TRUE),
+	  valueClass = "dgeMatrix")
+
 setMethod("solve", signature(a = "dtrMatrix", b="matrix"),
-	  function(a, b, ...)
-	  .Call("dtrMatrix_matrix_solve", a, b),
-	  valueClass = "matrix")
+	  function(a, b, ...) .Call("dtrMatrix_matrix_solve", a, b, FALSE),
+	  valueClass = "dgeMatrix")
 
 setMethod("t", signature(x = "dtrMatrix"),
 	  function(x) {
-	      val <- new("dtrMatrix",
-                         Dim = x@Dim, Dimnames = x@Dimnames[2:1],
-                         x = as.vector(t(as(x, "matrix"))))
-	      if (x@uplo == "U") val@uplo <- "L"
-	      if (x@diag == "U") val@diag <- "U"
-	      val
+	      new("dtrMatrix",
+                  Dim = x@Dim[2:1], Dimnames = x@Dimnames[2:1],
+                  x = as.vector(t(as(x, "matrix"))),
+	          uplo = if (x@uplo == "U") "L" else "U",
+                  diag = x@diag)
 	  }, valueClass = "dtrMatrix")
 
 ###

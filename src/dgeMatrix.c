@@ -14,7 +14,9 @@ SEXP dgeMatrix_validate(SEXP obj)
     if (m < 0 || n < 0)
 	return mkString(_("Negative value(s) in Dim"));
     if (length(x) != m * n)
-    	return mkString(_("length of x slot != prod(Dim)"));
+	return mkString(_("length of x slot != prod(Dim)"));
+    if (!isReal(x))
+	return mkString(_("x slot must be numeric \"double\""));
     if (length(fact) > 0 && getAttrib(fact, R_NamesSymbol) == R_NilValue)
 	return mkString(_("factors slot must be named list"));
     if (length(rc) > 0 && getAttrib(rc, R_NamesSymbol) == R_NilValue)
@@ -184,11 +186,12 @@ SEXP dgeMatrix_LU(SEXP x)
     val = PROTECT(NEW_OBJECT(MAKE_CLASS("LU")));
     SET_SLOT(val, Matrix_xSym, duplicate(GET_SLOT(x, Matrix_xSym)));
     SET_SLOT(val, Matrix_DimSym, duplicate(GET_SLOT(x, Matrix_DimSym)));
-    SET_SLOT(val, install("pivot"), allocVector(INTSXP, npiv));
     F77_CALL(dgetrf)(dims, dims + 1, REAL(GET_SLOT(val, Matrix_xSym)),
-		     dims, INTEGER(GET_SLOT(val, install("pivot"))),
+		     dims,
+		     INTEGER(ALLOC_SLOT(val, Matrix_permSym, INTSXP, npiv)),
 		     &info);
-    if (info) error(_("Lapack routine dgetrf returned error code %d"), info);
+    if (info)
+	error(_("Lapack routine %s returned error code %d"), "dgetrf", info);
     UNPROTECT(1);
     return set_factors(x, val, "LU");
 }
@@ -198,7 +201,7 @@ SEXP dgeMatrix_determinant(SEXP x, SEXP logarithm)
     int lg = asLogical(logarithm);
     SEXP lu = dgeMatrix_LU(x);
     int *dims = INTEGER(GET_SLOT(lu, Matrix_DimSym)),
-	*jpvt = INTEGER(GET_SLOT(lu, install("pivot"))),
+	*jpvt = INTEGER(GET_SLOT(lu, Matrix_permSym)),
 	i, n = dims[0], sign = 1;
     double *luvals = REAL(GET_SLOT(lu, Matrix_xSym)), modulus;
 
@@ -229,14 +232,12 @@ SEXP dgeMatrix_solve(SEXP a)
     SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dgeMatrix"))),
 	lu = dgeMatrix_LU(a);
     int *dims = INTEGER(GET_SLOT(lu, Matrix_DimSym)),
-	*pivot = INTEGER(GET_SLOT(lu, install("pivot")));
+	*pivot = INTEGER(GET_SLOT(lu, Matrix_permSym));
     double *x, tmp;
     int	info, lwork = -1;
 
 
     if (dims[0] != dims[1]) error(_("Solve requires a square matrix"));
-    SET_SLOT(val, Matrix_rcondSym, allocVector(REALSXP, 0));
-    SET_SLOT(val, Matrix_factorSym, allocVector(VECSXP, 0));
     SET_SLOT(val, Matrix_xSym, duplicate(GET_SLOT(lu, Matrix_xSym)));
     x = REAL(GET_SLOT(val, Matrix_xSym));
     SET_SLOT(val, Matrix_DimSym, duplicate(GET_SLOT(lu, Matrix_DimSym)));
@@ -249,33 +250,68 @@ SEXP dgeMatrix_solve(SEXP a)
     return val;
 }
 
-SEXP dgeMatrix_dgeMatrix_mm(SEXP a, SEXP b)
+SEXP dgeMatrix_matrix_solve(SEXP a, SEXP b, SEXP classed)
 {
-    int *adims = INTEGER(GET_SLOT(a, Matrix_DimSym)),
-	*bdims = INTEGER(GET_SLOT(b, Matrix_DimSym)),
-	*cdims,
-	m = adims[0], n = bdims[1], k = adims[1];
-    SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dgeMatrix")));
-    char *trans = "N";
-    double one = 1., zero = 0.;
+    int cl = asLogical(classed);
+    SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dgeMatrix"))),
+	lu = dgeMatrix_LU(a);
+    int *adims = INTEGER(GET_SLOT(lu, Matrix_DimSym)),
+	*bdims = INTEGER(cl ? GET_SLOT(b, Matrix_DimSym) :
+			 getAttrib(b, R_DimSymbol));
+    int info, n = bdims[0], nrhs = bdims[1];
+    int sz = n * nrhs;
 
-    if (bdims[0] != k)
-	error(_("Matrices are not conformable for multiplication"));
-    if (m < 1 || n < 1 || k < 1)
-	error(_("Matrices with zero extents cannot be multiplied"));
-    SET_SLOT(val, Matrix_rcondSym, allocVector(REALSXP, 0));
-    SET_SLOT(val, Matrix_factorSym, allocVector(VECSXP, 0));
-    SET_SLOT(val, Matrix_xSym, allocVector(REALSXP, m * n));
-    SET_SLOT(val, Matrix_DimSym, allocVector(INTSXP, 2));
-    cdims = INTEGER(GET_SLOT(val, Matrix_DimSym));
-    cdims[0] = m; cdims[1] = n;
-    F77_CALL(dgemm)(trans, trans, adims, bdims+1, bdims, &one,
-		    REAL(GET_SLOT(a, Matrix_xSym)), adims,
-		    REAL(GET_SLOT(b, Matrix_xSym)), bdims,
-		    &zero, REAL(GET_SLOT(val, Matrix_xSym)), adims);
+    if (*adims != *bdims || bdims[1] < 1 || *adims < 1 || *adims != adims[1])
+	error(_("Dimensions of system to be solved are inconsistent"));
+    Memcpy(INTEGER(ALLOC_SLOT(val, Matrix_DimSym, INTSXP, 2)), bdims, 2);
+    F77_CALL(dgetrs)("N", &n, &nrhs, REAL(GET_SLOT(val, Matrix_xSym)), &n,
+		     INTEGER(GET_SLOT(lu, Matrix_permSym)),
+		     Memcpy(REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, sz)),
+			    REAL(cl ? GET_SLOT(b, Matrix_xSym):b), sz),
+		     &n, &info);
     UNPROTECT(1);
     return val;
 }
+
+SEXP dgeMatrix_matrix_mm(SEXP a, SEXP b, SEXP classed, SEXP right)
+{
+    int cl = asLogical(classed);
+    SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dgeMatrix")));
+    int *adims = INTEGER(GET_SLOT(a, Matrix_DimSym)),
+	*bdims = INTEGER(cl ? GET_SLOT(b, Matrix_DimSym) :
+			 getAttrib(b, R_DimSymbol)),
+	*cdims = INTEGER(ALLOC_SLOT(val, Matrix_DimSym, INTSXP, 2));
+    double one = 1., zero = 0.;
+
+    if (asLogical(right)) {
+	int m = bdims[0], n = adims[1], k = bdims[1];
+	if (adims[0] != k)
+	    error(_("Matrices are not conformable for multiplication"));
+	if (m < 1 || n < 1 || k < 1)
+	    error(_("Matrices with zero extents cannot be multiplied"));
+	cdims[0] = m; cdims[1] = n;
+	F77_CALL(dgemm) ("N", "N", &m, &n, &k, &one,
+			 REAL(cl ? GET_SLOT(b, Matrix_xSym) : b), &m,
+			 REAL(GET_SLOT(a, Matrix_xSym)), &k, &zero,
+			 REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, m * n)),
+			 &m);
+    } else {
+	int m = adims[0], n = bdims[1], k = adims[1];
+
+	if (bdims[0] != k)
+	    error(_("Matrices are not conformable for multiplication"));
+	if (m < 1 || n < 1 || k < 1)
+	    error(_("Matrices with zero extents cannot be multiplied"));
+	cdims[0] = m; cdims[1] = n;
+	F77_CALL(dgemm)
+	    ("N", "N", &m, &n, &k, &one, REAL(GET_SLOT(a, Matrix_xSym)),
+	     &m, REAL(cl ? GET_SLOT(b, Matrix_xSym) : b), &k, &zero,
+	     REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, m * n)), &m);
+    }
+    UNPROTECT(1);
+    return val;
+}
+
 
 SEXP dgeMatrix_svd(SEXP x, SEXP nnu, SEXP nnv)
 {

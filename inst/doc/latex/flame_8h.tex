@@ -1,0 +1,82 @@
+\hypertarget{flame_8h}{
+\subsection{flame.h File Reference}
+\label{flame_8h}\index{flame.h@{flame.h}}
+}
+{\tt \#include \char`\"{}Rdefines.h\char`\"{}}\par
+{\tt \#include \char`\"{}R\_\-ext/Lapack.h\char`\"{}}\par
+{\tt \#include \char`\"{}FLAME/FLAME.h\char`\"{}}\par
+\subsubsection*{Defines}
+\begin{CompactItemize}
+\item 
+\#define \hyperlink{flame_8h_a0}{RFLAME\_\-CHOL\_\-NB}~104
+\item 
+\#define \hyperlink{flame_8h_a1}{RFLAME\_\-QR\_\-NB}~96
+\end{CompactItemize}
+\subsubsection*{Functions}
+\begin{CompactItemize}
+\item 
+FLA\_\-Obj $\ast$ \hyperlink{flame_8h_a2}{R\_\-to\_\-FLA\_\-copy} (SEXP Ain)
+\item 
+FLA\_\-Obj $\ast$ \hyperlink{flame_8h_a3}{R\_\-to\_\-FLA\_\-in\-Place} (SEXP Ain)
+\item 
+SEXP \hyperlink{flame_8h_a4}{R\_\-FLA\_\-Init} ()
+\item 
+SEXP \hyperlink{flame_8h_a5}{R\_\-FLA\_\-Finalize} ()
+\item 
+SEXP \hyperlink{flame_8h_a6}{lsq\_\-Chol\_\-flame} (SEXP Xin, SEXP yin)
+\end{CompactItemize}
+
+
+\subsubsection{Define Documentation}
+\hypertarget{flame_8h_a0}{
+\index{flame.h@{flame.h}!RFLAME_CHOL_NB@{RFLAME\_\-CHOL\_\-NB}}
+\index{RFLAME_CHOL_NB@{RFLAME\_\-CHOL\_\-NB}!flame.h@{flame.h}}
+\paragraph[RFLAME\_\-CHOL\_\-NB]{\setlength{\rightskip}{0pt plus 5cm}\#define RFLAME\_\-CHOL\_\-NB~104}\hfill}
+\label{flame_8h_a0}
+
+
+\hypertarget{flame_8h_a1}{
+\index{flame.h@{flame.h}!RFLAME_QR_NB@{RFLAME\_\-QR\_\-NB}}
+\index{RFLAME_QR_NB@{RFLAME\_\-QR\_\-NB}!flame.h@{flame.h}}
+\paragraph[RFLAME\_\-QR\_\-NB]{\setlength{\rightskip}{0pt plus 5cm}\#define RFLAME\_\-QR\_\-NB~96}\hfill}
+\label{flame_8h_a1}
+
+
+
+
+\subsubsection{Function Documentation}
+\hypertarget{flame_8h_a6}{
+\index{flame.h@{flame.h}!lsq_Chol_flame@{lsq\_\-Chol\_\-flame}}
+\index{lsq_Chol_flame@{lsq\_\-Chol\_\-flame}!flame.h@{flame.h}}
+\paragraph[lsq\_\-Chol\_\-flame]{\setlength{\rightskip}{0pt plus 5cm}SEXP lsq\_\-Chol\_\-flame (SEXP {\em Xin}, SEXP {\em yin})}\hfill}
+\label{flame_8h_a6}
+
+
+\hypertarget{flame_8h_a5}{
+\index{flame.h@{flame.h}!R_FLA_Finalize@{R\_\-FLA\_\-Finalize}}
+\index{R_FLA_Finalize@{R\_\-FLA\_\-Finalize}!flame.h@{flame.h}}
+\paragraph[R\_\-FLA\_\-Finalize]{\setlength{\rightskip}{0pt plus 5cm}SEXP R\_\-FLA\_\-Finalize ()}\hfill}
+\label{flame_8h_a5}
+
+
+\hypertarget{flame_8h_a4}{
+\index{flame.h@{flame.h}!R_FLA_Init@{R\_\-FLA\_\-Init}}
+\index{R_FLA_Init@{R\_\-FLA\_\-Init}!flame.h@{flame.h}}
+\paragraph[R\_\-FLA\_\-Init]{\setlength{\rightskip}{0pt plus 5cm}SEXP R\_\-FLA\_\-Init ()}\hfill}
+\label{flame_8h_a4}
+
+
+\hypertarget{flame_8h_a2}{
+\index{flame.h@{flame.h}!R_to_FLA_copy@{R\_\-to\_\-FLA\_\-copy}}
+\index{R_to_FLA_copy@{R\_\-to\_\-FLA\_\-copy}!flame.h@{flame.h}}
+\paragraph[R\_\-to\_\-FLA\_\-copy]{\setlength{\rightskip}{0pt plus 5cm}FLA\_\-Obj$\ast$ R\_\-to\_\-FLA\_\-copy (SEXP {\em Ain})}\hfill}
+\label{flame_8h_a2}
+
+
+\hypertarget{flame_8h_a3}{
+\index{flame.h@{flame.h}!R_to_FLA_inPlace@{R\_\-to\_\-FLA\_\-inPlace}}
+\index{R_to_FLA_inPlace@{R\_\-to\_\-FLA\_\-inPlace}!flame.h@{flame.h}}
+\paragraph[R\_\-to\_\-FLA\_\-inPlace]{\setlength{\rightskip}{0pt plus 5cm}FLA\_\-Obj$\ast$ R\_\-to\_\-FLA\_\-in\-Place (SEXP {\em Ain})}\hfill}
+\label{flame_8h_a3}
+
+

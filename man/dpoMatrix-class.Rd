@@ -2,15 +2,27 @@
 \docType{class}
 \alias{dpoMatrix-class}
 \alias{dppMatrix-class}
+\alias{coerce,dpoMatrix,dppMatrix-method}
+\alias{coerce,dppMatrix,dpoMatrix-method}
 \alias{rcond,dpoMatrix,character-method}
+\alias{rcond,dppMatrix,character-method}
 \alias{rcond,dpoMatrix,missing-method}
+\alias{rcond,dppMatrix,missing-method}
 \alias{chol,dpoMatrix-method}
+\alias{chol,dppMatrix-method}
 \alias{chol,dpoMatrix,ANY-method}
+\alias{chol,dppMatrix,ANY-method}
 \alias{determinant,dpoMatrix,logical-method}
+\alias{determinant,dppMatrix,logical-method}
 \alias{solve,dpoMatrix,dgeMatrix-method}
+\alias{solve,dppMatrix,dgeMatrix-method}
 \alias{solve,dpoMatrix,matrix-method}
+\alias{solve,dppMatrix,matrix-method}
 \alias{solve,dpoMatrix,missing-method}
+\alias{solve,dppMatrix,missing-method}
 \alias{solve,dpoMatrix,numeric-method}
+\alias{solve,dppMatrix,numeric-method}
+\alias{solve,dppMatrix,integer-method}
 \title{Positive semi-definite, dense, numeric matrices}
 \description{The \code{"dpoMatrix"} class is the class of
   positive-semidefinite symmetric matrices in nonpacked storage.  The
@@ -63,9 +75,15 @@ Class \code{"Matrix"}, by class \code{"dsyMatrix"}.
 %\author{}
 \seealso{
   \code{\link{dsyMatrix-class}}, \code{\link{dgeMatrix-class}},
-  \code{\link{Matrix}}, \code{\link{rcond}}, \code{\link{chol}},
-  \code{\link{solve}}, \code{\link{crossprod}}
+  \code{\link{Matrix}}, \code{\link{rcond}}, \code{\link[base]{chol}},
+  \code{\link[base]{solve}}, \code{\link{crossprod}}
 }
-%\examples{}
+\examples{
+h6 <- Hilbert(6)
+rcond(h6)
+str(h6)
+solve(h6)
+str(hp6 <- as(h6, "dppMatrix"))
+}
 \keyword{classes}
 \keyword{algebra}

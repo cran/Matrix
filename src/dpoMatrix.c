@@ -18,20 +18,22 @@ SEXP dpoMatrix_chol(SEXP x)
     SEXP val = get_factors(x, "Cholesky"),
 	dimP = GET_SLOT(x, Matrix_DimSym),
 	uploP = GET_SLOT(x, Matrix_uploSym);
-    int *dims, info;
+    char *uplo = CHAR(STRING_ELT(uploP, 0));
+    int *dims = INTEGER(dimP), info;
+    int n = dims[0];
+    double *vx;
 
     if (val != R_NilValue) return val;
     dims = INTEGER(dimP);
     val = PROTECT(NEW_OBJECT(MAKE_CLASS("Cholesky")));
     SET_SLOT(val, Matrix_uploSym, duplicate(uploP));
     SET_SLOT(val, Matrix_diagSym, mkString("N"));
-    SET_SLOT(val, Matrix_rcondSym, allocVector(REALSXP, 0));
-    SET_SLOT(val, Matrix_factorSym, allocVector(VECSXP, 0));
-    SET_SLOT(val, Matrix_xSym, duplicate(GET_SLOT(x, Matrix_xSym)));
     SET_SLOT(val, Matrix_DimSym, duplicate(dimP));
-    F77_CALL(dpotrf)(CHAR(asChar(uploP)), dims,
-		     REAL(GET_SLOT(val, Matrix_xSym)), dims, &info);
-    if (info) error(_("Lapack routine dpotrf returned error code %d"), info);
+    vx = REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, n * n));
+    AZERO(vx, n * n);
+    F77_CALL(dlacpy)(uplo, &n, &n, REAL(GET_SLOT(x, Matrix_xSym)), &n, vx, &n);
+    F77_CALL(dpotrf)(uplo, &n, vx, &n, &info);
+    if (info) error(_("Lapack routine %s returned error code %d"), "dpotrf", info);
     UNPROTECT(1);
     return set_factors(x, val, "Cholesky");
 }
@@ -61,7 +63,7 @@ double set_rcond(SEXP obj, char *typstr)
 
 SEXP dpoMatrix_rcond(SEXP obj, SEXP type)
 {
-  return ScalarReal(set_rcond(obj, CHAR(asChar(type))));
+    return ScalarReal(set_rcond(obj, CHAR(asChar(type))));
 }
 
 SEXP dpoMatrix_solve(SEXP x)

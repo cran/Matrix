@@ -12,12 +12,15 @@ SOURCES_C =  \
             dgTMatrix.c \
             dgeMatrix.c \
             dpoMatrix.c \
+            dppMatrix.c \
             dsCMatrix.c \
             dsTMatrix.c \
             dsyMatrix.c \
+            dspMatrix.c \
             dtCMatrix.c \
             dtTMatrix.c \
             dtrMatrix.c \
+            dtpMatrix.c \
             factorizations.c \
             sscCrosstab.c \
             ssclme.c \

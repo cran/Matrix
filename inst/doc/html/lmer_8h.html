@@ -44,13 +44,15 @@
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="lmer_8h.html#a12">lmer_ECMEsteps</a> (SEXP x, SEXP nsteps, SEXP REMLp, SEXP Verbp)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="lmer_8h.html#a13">lmer_gradient</a> (SEXP x, SEXP REMLp, SEXP Uncp)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="lmer_8h.html#a13">lmer_fitted</a> (SEXP x, SEXP mmats, SEXP useRf)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="lmer_8h.html#a14">lmer_variances</a> (SEXP x)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="lmer_8h.html#a14">lmer_gradient</a> (SEXP x, SEXP REMLp, SEXP Uncp)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="lmer_8h.html#a15">lmer_Crosstab</a> (SEXP flist)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="lmer_8h.html#a15">lmer_variances</a> (SEXP x)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="lmer_8h.html#a16">lmer_firstDer</a> (SEXP x, SEXP val)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="lmer_8h.html#a16">lmer_Crosstab</a> (SEXP flist)</td></tr>
+
+<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="lmer_8h.html#a17">lmer_firstDer</a> (SEXP x, SEXP val)</td></tr>
 
 </table>
 <hr><h2>Function Documentation</h2>
@@ -196,7 +198,7 @@ Create an lmer object from a list of grouping factors and a list of model matric
     </td>
   </tr>
 </table>
-<a class="anchor" name="a15" doxytag="lmer.h::lmer_Crosstab"></a><p>
+<a class="anchor" name="a16" doxytag="lmer.h::lmer_Crosstab"></a><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -318,7 +320,7 @@ If status[["factored"]] is FALSE, create and factor Z'Z+Omega. Also create RZX a
     </td>
   </tr>
 </table>
-<a class="anchor" name="a16" doxytag="lmer.h::lmer_firstDer"></a><p>
+<a class="anchor" name="a17" doxytag="lmer.h::lmer_firstDer"></a><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -363,6 +365,58 @@ Fill in four symmetric matrices for each level, providing the information to gen
     </td>
   </tr>
 </table>
+<a class="anchor" name="a13" doxytag="lmer.h::lmer_fitted"></a><p>
+<table class="mdTable" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top">SEXP lmer_fitted           </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">SEXP&nbsp;</td>
+          <td class="mdname" nowrap> <em>x</em>, </td>
+        </tr>
+        <tr>
+          <td class="md" nowrap align="right"></td>
+          <td class="md"></td>
+          <td class="md" nowrap>SEXP&nbsp;</td>
+          <td class="mdname" nowrap> <em>mmats</em>, </td>
+        </tr>
+        <tr>
+          <td class="md" nowrap align="right"></td>
+          <td class="md"></td>
+          <td class="md" nowrap>SEXP&nbsp;</td>
+          <td class="mdname" nowrap> <em>useRf</em></td>
+        </tr>
+        <tr>
+          <td class="md"></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"></td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing="5" cellpadding="0" border="0">
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Calculate and return the fitted values.<p>
+<dl compact><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>x</em>&nbsp;</td><td>pointer to an ssclme object </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>mmats</em>&nbsp;</td><td>list of model matrices </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>useRf</em>&nbsp;</td><td>pointer to a logical scalar indicating if the random effects should be used</td></tr>
+  </table>
+</dl>
+<dl compact><dt><b>Returns:</b></dt><dd>pointer to a numeric array of fitted values </dd></dl>
+    </td>
+  </tr>
+</table>
 <a class="anchor" name="a10" doxytag="lmer.h::lmer_fixef"></a><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
@@ -398,7 +452,7 @@ Extract the conditional estimates of the fixed effects<p>
     </td>
   </tr>
 </table>
-<a class="anchor" name="a13" doxytag="lmer.h::lmer_gradient"></a><p>
+<a class="anchor" name="a14" doxytag="lmer.h::lmer_gradient"></a><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -705,7 +759,7 @@ Check validity of an lmer object.<p>
     </td>
   </tr>
 </table>
-<a class="anchor" name="a14" doxytag="lmer.h::lmer_variances"></a><p>
+<a class="anchor" name="a15" doxytag="lmer.h::lmer_variances"></a><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -740,7 +794,7 @@ Return the unscaled variances<p>
     </td>
   </tr>
 </table>
-<hr size="1"><address style="align: right;"><small>Generated on Tue Mar 1 16:58:11 2005 for Matrix by&nbsp;
+<hr size="1"><address style="align: right;"><small>Generated on Wed Mar 30 08:43:57 2005 for Matrix by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.1 </small></address>
 </body>

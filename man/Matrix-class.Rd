@@ -1,16 +1,19 @@
 \name{Matrix-class}
 \docType{class}
 \alias{Matrix-class}
+\alias{dim,Matrix-method}
+\alias{dimnames,Matrix-method}
+\alias{dimnames<-,Matrix,list-method}
 \alias{show,Matrix-method}
-\title{Class "Matrix" Virtual Class of Matrices}
+\alias{as.matrix,Matrix-method}
+\alias{unname,Matrix-method}
+%\alias{coerce,Matrix,matrix-method}
+
+\title{Virtual Class "Matrix" Class of Matrices}
 \description{
-  The \code{Matrix} class is a virtual class contained by all actual
-  classes in the \pkg{Matrix} package.
+  The \code{Matrix} class is a class contained by all actual
+  classes in the \pkg{Matrix} package.  It is a \dQuote{virtual} class.
 }
-%% FIXME: It's no longer virtual in the strict sense
-%\section{Objects from the Class}{A virtual Class: No objects may be
-%  created from it.
-%}
 \section{Slots}{
   Common to \emph{all} matrix object in the package:
   \describe{
@@ -24,7 +27,15 @@
 }
 \section{Methods}{
   \describe{
-    \item{show}{\code{signature(object = "Matrix"}}
+    \item{dim}{\code{signature(x = "Matrix")}: extract matrix dimensions
+      \code{\link{dim}}.}
+    \item{dimnames}{\code{signature(x = "Matrix")}: extract
+      \code{\link{dimnames}}.}
+    \item{dimnames<-}{\code{signature(x = "Matrix", value = "list")}: set
+      the \code{dimnames} to a \code{\link{list}} of length 2, see
+      \code{\link{dimnames<-}}.}
+    \item{show}{\code{signature(object = "Matrix")}: \code{\link{show}}
+      method for \code{\link{print}}ing.}
   }
 }
 %\references{}
@@ -32,11 +43,6 @@
 \seealso{
   \code{\link{dgeMatrix-class}}, \code{\link{dgCMatrix-class}}, and
   \code{\link{Matrix}} for construction (and examples).
-}
-\examples{
- (M <- new("Matrix"))
- (M <- new("Matrix", Dim = 1:2, Dimnames = list("r1", c("c1","c2"))))
- str(M)
 }
 \keyword{classes}
 \keyword{algebra}

@@ -2,15 +2,16 @@
 \docType{class}
 \alias{dgTMatrix-class}
 \alias{+,dgTMatrix,dgTMatrix-method}
-\alias{coerce,dgTMatrix,dgeMatrix-method}
-\alias{coerce,dgTMatrix,matrix-method}
 \alias{coerce,dgTMatrix,dgCMatrix-method}
+\alias{coerce,dgTMatrix,dgeMatrix-method}
 \alias{coerce,dgTMatrix,dsCMatrix-method}
-\alias{image,dgTMatrix-method}
-\alias{t,dgTMatrix-method}
+\alias{coerce,dgTMatrix,matrix-method}
+\alias{coerce,matrix,dgTMatrix-method}
 \alias{crossprod,dgTMatrix,missing-method}
 \alias{crossprod,dgTMatrix,matrix-method}
 \alias{crossprod,dgTMatrix,numeric-method}
+\alias{image,dgTMatrix-method}
+\alias{t,dgTMatrix-method}
 \title{Sparse matrices in triplet form}
 \description{The \code{"dgTMatrix"} class is the class of sparse
   matrices stored as (possibly redundant) triplets.}
@@ -38,6 +39,7 @@ Objects can be created by calls of the form \code{new("dgTMatrix", ...)}.
     \item{coerce}{\code{signature(from = "dgTMatrix", to = "dgeMatrix")}}
     \item{coerce}{\code{signature(from = "dgTMatrix", to = "matrix")}}
     \item{coerce}{\code{signature(from = "dgTMatrix", to = "dsCMatrix")}}
+    \item{coerce}{\code{signature(from = "matrix", to = "dsTMatrix")}}
     \item{crossprod}{\code{signature(x = "dgTMatrix", y = "missing")}
       returns \code{t(x) \%*\% x} as an \code{dsCMatrix} object.}
     \item{crossprod}{\code{signature(x = "dgTMatrix", y = "matrix")}: ... }

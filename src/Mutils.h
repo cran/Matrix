@@ -4,18 +4,18 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
+    
 #include <Rdefines.h>
 #include <Rconfig.h>
 #include <R.h>  /* to include Rconfig.h */
-
+    
 #ifdef ENABLE_NLS
 #include <libintl.h>
 #define _(String) dgettext ("Matrix", String)
 #else
 #define _(String) (String)
 #endif
-
+    
 /* enum constants from cblas.h and some short forms */
 enum CBLAS_ORDER {CblasRowMajor=101, CblasColMajor=102};
 enum CBLAS_TRANSPOSE {CblasNoTrans=111, CblasTrans=112, CblasConjTrans=113};
@@ -48,10 +48,9 @@ SEXP triple_as_SEXP(int nrow, int ncol, int nz,
 		    const int Ti [], const int Tj [], const double Tx [],
 		    char *Rclass);
 SEXP csc_check_column_sorting(SEXP A);
-void csc_components_transpose(int m, int n, int nnz,
-			      const int xp[], const int xi[],
-			      const double xx[],
-			      int ap[], int ai[], double ax[]);
+void csc_compTr(int m, int n, int nnz,
+		const int xp[], const int xi[], const double xx[],
+		int ap[], int ai[], double ax[]);
 void ssc_symbolic_permute(int n, int upper, const int perm[],
 			  int Ap[], int Ai[]);
 double *nlme_symmetrize(double *a, const int nc);
@@ -59,13 +58,40 @@ void nlme_check_Lapack_error(int info, const char *laName);
 SEXP nlme_replaceSlot(SEXP obj, SEXP names, SEXP value);
 SEXP nlme_weight_matrix_list(SEXP MLin, SEXP wts, SEXP adjst, SEXP MLout);
 SEXP Matrix_make_named(int TYP, char **names);
-				/* stored pointers to symbols */
-				/* initialized in R_init_Matrix */
-extern
+SEXP check_scalar_string(SEXP sP, char *vals, char *nm);
+double *packed_to_full(double *dest, const double *src, int n,
+		       enum CBLAS_UPLO uplo);
+double *full_to_packed(double *dest, const double *src, int n,
+		       enum CBLAS_UPLO uplo, enum CBLAS_DIAG diag);
+double *packed_getDiag(double *dest, SEXP x);
+
+extern	 /* stored pointers to symbols initialized in R_init_Matrix */
 #include "Syms.h"
 
 /* zero an array */
 #define AZERO(x, n) {int _I_, _SZ_ = (n); for(_I_ = 0; _I_ < _SZ_; _I_++) (x)[_I_] = 0;}
+
+/* number of elements in one triangle of a square matrix of order n */
+#define PACKED_LENGTH(n)   ((n) * ((n) + 1))/2
+
+/** 
+ * Check for valid length of a packed triangular array and return the
+ * corresponding number of columns
+ * 
+ * @param len length of a packed triangular array
+ * 
+ * @return number of columns
+ */
+static R_INLINE
+int packed_ncol(int len) 
+{
+    int disc = 8 * len + 1;	/* discriminant */
+    int sqrtd = (int) sqrt((double) disc);
+
+    if (len < 0 || disc != sqrtd * sqrtd)
+	error(_("invalid 'len' = %d in packed_ncol"));
+    return (sqrtd - 1)/2;
+}
 
 /** 
  * Allocate an SEXP of given type and length, assign it as slot nm in
@@ -92,17 +118,17 @@ SEXP ALLOC_SLOT(SEXP obj, SEXP nm, SEXPTYPE type, int length)
 }
 
 /** 
- * Expand the column pointers in the array mp into a full set of column indices
+ * Expand compressed pointers in the array mp into a full set of indices
  * in the array mj.
  * 
- * @param ncol number of columns
+ * @param ncol number of columns (or rows)
  * @param mp column pointer vector of length ncol + 1
- * @param mj vector of length mp[ncol] - 1 to hold the result
+ * @param mj vector of length mp[ncol] to hold the result
  * 
  * @return mj
  */
 static R_INLINE
-int* expand_column_pointers(int ncol, const int mp[], int mj[])
+int* expand_cmprPt(int ncol, const int mp[], int mj[])
 {
     int j;
     for (j = 0; j < ncol; j++) {

@@ -34,7 +34,7 @@
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="lmer_8c.html#a10">lmer_factor</a> (SEXP x)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="lmer_8c.html#a11">lmer_sm</a> (enum <a class="el" href="Mutils_8h.html#a57">CBLAS_SIDE</a> side, enum <a class="el" href="Mutils_8h.html#a54">CBLAS_TRANSPOSE</a> trans, int nf, const int Gp[], int n, double alpha, SEXP L, double B[], int ldb)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="lmer_8c.html#a11">lmer_sm</a> (enum <a class="el" href="Mutils_8h.html#a63">CBLAS_SIDE</a> side, enum <a class="el" href="Mutils_8h.html#a60">CBLAS_TRANSPOSE</a> trans, int nf, const int Gp[], int n, double alpha, SEXP L, double B[], int ldb)</td></tr>
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">static int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="lmer_8c.html#a12">max_nnz</a> (int j, SEXP Parent)</td></tr>
 
@@ -71,6 +71,8 @@
 <tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="lmer_8c.html#a28">lmer_variances</a> (SEXP x)</td></tr>
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="lmer_8c.html#a29">lmer_Crosstab</a> (SEXP flist)</td></tr>
+
+<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="lmer_8c.html#a30">lmer_fitted</a> (SEXP x, SEXP mmats, SEXP useRf)</td></tr>
 
 </table>
 <hr><h2>Define Documentation</h2>
@@ -900,6 +902,58 @@ Fill in four symmetric matrices for each level, providing the information to gen
     </td>
   </tr>
 </table>
+<a class="anchor" name="a30" doxytag="lmer.c::lmer_fitted"></a><p>
+<table class="mdTable" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top">SEXP lmer_fitted           </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">SEXP&nbsp;</td>
+          <td class="mdname" nowrap> <em>x</em>, </td>
+        </tr>
+        <tr>
+          <td class="md" nowrap align="right"></td>
+          <td class="md"></td>
+          <td class="md" nowrap>SEXP&nbsp;</td>
+          <td class="mdname" nowrap> <em>mmats</em>, </td>
+        </tr>
+        <tr>
+          <td class="md" nowrap align="right"></td>
+          <td class="md"></td>
+          <td class="md" nowrap>SEXP&nbsp;</td>
+          <td class="mdname" nowrap> <em>useRf</em></td>
+        </tr>
+        <tr>
+          <td class="md"></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"></td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing="5" cellpadding="0" border="0">
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Calculate and return the fitted values.<p>
+<dl compact><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>x</em>&nbsp;</td><td>pointer to an ssclme object </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>mmats</em>&nbsp;</td><td>list of model matrices </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>useRf</em>&nbsp;</td><td>pointer to a logical scalar indicating if the random effects should be used</td></tr>
+  </table>
+</dl>
+<dl compact><dt><b>Returns:</b></dt><dd>pointer to a numeric array of fitted values </dd></dl>
+    </td>
+  </tr>
+</table>
 <a class="anchor" name="a19" doxytag="lmer.c::lmer_fixef"></a><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
@@ -1215,13 +1269,13 @@ Extract the ML or REML conditional estimate of sigma<p>
         <tr>
           <td class="md" nowrap valign="top">static void lmer_sm           </td>
           <td class="md" valign="top">(&nbsp;</td>
-          <td class="md" nowrap valign="top">enum <a class="el" href="Mutils_8h.html#a57">CBLAS_SIDE</a>&nbsp;</td>
+          <td class="md" nowrap valign="top">enum <a class="el" href="Mutils_8h.html#a63">CBLAS_SIDE</a>&nbsp;</td>
           <td class="mdname" nowrap> <em>side</em>, </td>
         </tr>
         <tr>
           <td class="md" nowrap align="right"></td>
           <td class="md"></td>
-          <td class="md" nowrap>enum <a class="el" href="Mutils_8h.html#a54">CBLAS_TRANSPOSE</a>&nbsp;</td>
+          <td class="md" nowrap>enum <a class="el" href="Mutils_8h.html#a60">CBLAS_TRANSPOSE</a>&nbsp;</td>
           <td class="mdname" nowrap> <em>trans</em>, </td>
         </tr>
         <tr>
@@ -1452,7 +1506,7 @@ Return the unscaled variances<p>
     </td>
   </tr>
 </table>
-<hr size="1"><address style="align: right;"><small>Generated on Tue Mar 1 16:58:11 2005 for Matrix by&nbsp;
+<hr size="1"><address style="align: right;"><small>Generated on Wed Mar 30 08:43:57 2005 for Matrix by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.1 </small></address>
 </body>

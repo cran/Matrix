@@ -146,9 +146,9 @@ SEXP sscCrosstab_groupedPerm(SEXP ctab)
 	    *ap = Calloc(n + 1, int);
 	double *ax = Calloc(nz, double);
 
-	csc_components_transpose(n, n, nz, Ap, Ai,
-				 REAL(GET_SLOT(ctab, Matrix_xSym)),
-				 ap, ai, ax);
+	csc_compTr(n, n, nz, Ap, Ai,
+		   REAL(GET_SLOT(ctab, Matrix_xSym)),
+		   ap, ai, ax);
 	Ap = ap;
 	Ai = ai;
 	Free(ax);		/* don't need values, only positions */
@@ -194,9 +194,9 @@ SEXP sscCrosstab_project(SEXP ctab)
 	    *ap = Calloc(n + 1, int);
 	double *ax = Calloc(nz, double);
 
-	csc_components_transpose(n, n, nz, Ap, Ai,
-				 REAL(GET_SLOT(ctab, Matrix_xSym)),
-				 ap, ai, ax);
+	csc_compTr(n, n, nz, Ap, Ai,
+		   REAL(GET_SLOT(ctab, Matrix_xSym)),
+		   ap, ai, ax);
 	Ap = ap;
 	Ai = ai;
 	Free(ax);		/* don't need values, only positions */
@@ -295,7 +295,7 @@ SEXP sscCrosstab_project2(SEXP ctab)
 	int *ap = Calloc(n + 1, int);
 	double *ax = Calloc(nnz, double);
 
-	csc_components_transpose(n, n, nnz, Ap, Ai, Ax, ap, ai, ax);
+	csc_compTr(n, n, nnz, Ap, Ai, Ax, ap, ai, ax);
 	Ap = ap; Ai = ai; Ax = ax;
     }
 

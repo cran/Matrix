@@ -2,8 +2,7 @@
 \title{General S4 Matrix class}
 \docType{class}
 \alias{dgeMatrix-class}
-% FIXME: These two are not (yet) further referenced below:
-\alias{dMatrix-class}
+% FIXME: This is not yet documented below:
 \alias{ddenseMatrix-class}
 % METHODS:
 % Group ones
@@ -12,16 +11,27 @@
 \alias{Arith,numeric,dgeMatrix-method}
 \alias{Math,dgeMatrix-method}
 \alias{Math2,dgeMatrix,numeric-method}
-% others
+% Others
+% undocu (FIXME)
+\alias{show,ddenseMatrix-method}
+\alias{coerce,ddenseMatrix,matrix-method}
+%
 \alias{\%*\%,dgeMatrix,dgeMatrix-method}
+\alias{\%*\%,dgeMatrix,matrix-method}
+\alias{\%*\%,matrix,dgeMatrix-method}
+\alias{\%*\%,dgeMatrix,numeric-method}
+\alias{\%*\%,numeric,dgeMatrix-method}
 \alias{Schur,dgeMatrix,logical-method}
 \alias{Schur,dgeMatrix,missing-method}
+\alias{chol,dgeMatrix,ANY-method}
 \alias{coerce,matrix,dgeMatrix-method}
 \alias{coerce,dgeMatrix,matrix-method}
 \alias{crossprod,dgeMatrix,dgeMatrix-method}
 \alias{crossprod,dgeMatrix,matrix-method}
-\alias{crossprod,dgeMatrix,missing-method}
 \alias{crossprod,dgeMatrix,numeric-method}
+\alias{crossprod,dgeMatrix,missing-method}
+\alias{crossprod,matrix,dgeMatrix-method}
+\alias{crossprod,numeric,dgeMatrix-method}
 \alias{determinant,dgeMatrix,logical-method}
 \alias{determinant,dgeMatrix,missing-method}
 \alias{diag,dgeMatrix-method}
@@ -36,6 +46,8 @@
 \alias{rcond,dgeMatrix,missing-method}
 \alias{rcond,dgeMatrix,character-method}
 \alias{solve,dgeMatrix,matrix-method}
+\alias{solve,dgeMatrix,numeric-method}
+\alias{solve,dgeMatrix,dgeMatrix-method}
 \alias{solve,dgeMatrix,missing-method}
 \alias{t,dgeMatrix-method}
 %
@@ -72,14 +84,19 @@
   }
   and other matrix methods available:
   \describe{
+    \item{\%*\%}{\code{signature(x = "dgeMatrix", y = "dgeMatrix")}:
+      Matrix multiplication; dito for several other signature
+      combinations, see \code{showMethods("\%*\%", class = "dgeMatrix")}.}
     \item{Schur}{\code{signature(x = "dgeMatrix", vectors = "logical")}: ... }
     \item{Schur}{\code{signature(x = "dgeMatrix", vectors = "missing")}: ... }
+    \item{chol}{\code{signature(x = "dgeMatrix")}: works via
+      \code{"dpoMatrix"}, see \code{\link{dpoMatrix-class}}.}
     \item{coerce}{\code{signature(from = "dgeMatrix", to = "matrix")}: ... }
     \item{coerce}{\code{signature(from = "matrix", to = "dgeMatrix")}: ... }
-    \item{crossprod}{\code{signature(x = "dgeMatrix", y = "dgeMatrix")}: ... }
-    \item{crossprod}{\code{signature(x = "dgeMatrix", y = "matrix")}: ... }
-    \item{crossprod}{\code{signature(x = "dgeMatrix", y = "missing")}: ... }
-    \item{crossprod}{\code{signature(x = "dgeMatrix", y = "numeric")}: ... }
+    \item{crossprod}{\code{signature(x = "dgeMatrix", y = "dgeMatrix")}:
+      dito for several other signatures, use
+      \code{showMethods("crossprod", class = "dgeMatrix")}, matrix
+      crossproduct, an efficient version of \code{t(x) \%*\% y}.}
     \item{diag}{\code{signature(x = "dgeMatrix")}: ... }
     \item{dim}{\code{signature(x = "dgeMatrix")}: ... }
     \item{dimnames}{\code{signature(x = "dgeMatrix")}: ... }

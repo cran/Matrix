@@ -1,5 +1,8 @@
 library(Matrix)
 
+### Rebuild the 'mm' example matrix
+### Use this if classes are changed
+
 mmT <- as(mm, "dgTMatrix")
 str(mmT)
 mm3 <- cbind(i = mmT@i, j = mmT@j, x = mmT@x)

@@ -17,7 +17,7 @@
 	(such that one needs  data(*) explicitly);
 	But MM would rather want something like  ex.mm and ex.y
 
-- "factors" maybe should move up to "Matrix"
+-  slot "factors" maybe should move up to "Matrix"
 
 -------
 
@@ -39,8 +39,21 @@ We have a (at least one) basic problem :
 
 ---
 
+- provide methods for "dspMatrix" and "dppMatrix"!
+
 - implement (more) methods for supporting "packed" (symmetric / triangular)
-  matrices; particularly something like pack() and unpack().
+  matrices; particularly something like pack() and unpack()  [to/from our
+  classes from/to "numeric"] --- have already man/unpack.Rd but no method yet!
 
 - implement diagonal Matrix class  "ddiMatrix" etc
   using constructor function Diagonal() or Diag().
+
+---
+
+- combine the C functions for multiplication by special forms and
+  solution wrt special forms by using a 'right' argument and a
+  'classed' argument.
+   [done with dgeMatrix_matrix_mm();  not yet for other classes;
+    and for _crossprod()]
+
+- add more comprehensive examples / tests for Schur decomposition

@@ -37,13 +37,15 @@ SEXP \hyperlink{lmer_8h_a11}{lmer\_\-ranef} (SEXP x)
 \item 
 SEXP \hyperlink{lmer_8h_a12}{lmer\_\-ECMEsteps} (SEXP x, SEXP nsteps, SEXP REMLp, SEXP Verbp)
 \item 
-SEXP \hyperlink{lmer_8h_a13}{lmer\_\-gradient} (SEXP x, SEXP REMLp, SEXP Uncp)
+SEXP \hyperlink{lmer_8h_a13}{lmer\_\-fitted} (SEXP x, SEXP mmats, SEXP use\-Rf)
 \item 
-SEXP \hyperlink{lmer_8h_a14}{lmer\_\-variances} (SEXP x)
+SEXP \hyperlink{lmer_8h_a14}{lmer\_\-gradient} (SEXP x, SEXP REMLp, SEXP Uncp)
 \item 
-SEXP \hyperlink{lmer_8h_a15}{lmer\_\-Crosstab} (SEXP flist)
+SEXP \hyperlink{lmer_8h_a15}{lmer\_\-variances} (SEXP x)
 \item 
-SEXP \hyperlink{lmer_8h_a16}{lmer\_\-first\-Der} (SEXP x, SEXP val)
+SEXP \hyperlink{lmer_8h_a16}{lmer\_\-Crosstab} (SEXP flist)
+\item 
+SEXP \hyperlink{lmer_8h_a17}{lmer\_\-first\-Der} (SEXP x, SEXP val)
 \end{CompactItemize}
 
 
@@ -96,11 +98,11 @@ Create an lmer object from a list of grouping factors and a list of model matric
 \end{Desc}
 \begin{Desc}
 \item[Returns:]pointer to an lmer object \end{Desc}
-\hypertarget{lmer_8h_a15}{
+\hypertarget{lmer_8h_a16}{
 \index{lmer.h@{lmer.h}!lmer_Crosstab@{lmer\_\-Crosstab}}
 \index{lmer_Crosstab@{lmer\_\-Crosstab}!lmer.h@{lmer.h}}
 \paragraph[lmer\_\-Crosstab]{\setlength{\rightskip}{0pt plus 5cm}SEXP lmer\_\-Crosstab (SEXP {\em flist})}\hfill}
-\label{lmer_8h_a15}
+\label{lmer_8h_a16}
 
 
 \hypertarget{lmer_8h_a12}{
@@ -135,11 +137,11 @@ If status\mbox{[}\mbox{[}\char`\"{}factored\char`\"{}\mbox{]}\mbox{]} is FALSE, 
 \end{Desc}
 \begin{Desc}
 \item[Returns:]NULL \end{Desc}
-\hypertarget{lmer_8h_a16}{
+\hypertarget{lmer_8h_a17}{
 \index{lmer.h@{lmer.h}!lmer_firstDer@{lmer\_\-firstDer}}
 \index{lmer_firstDer@{lmer\_\-firstDer}!lmer.h@{lmer.h}}
 \paragraph[lmer\_\-firstDer]{\setlength{\rightskip}{0pt plus 5cm}SEXP lmer\_\-first\-Der (SEXP {\em x}, SEXP {\em val})}\hfill}
-\label{lmer_8h_a16}
+\label{lmer_8h_a17}
 
 
 Fill in four symmetric matrices for each level, providing the information to generate the gradient or the ECME step. The four matrices are 1) -m\_\-i$^\wedge$\{-1\} 2)  3) \mbox{[}\{\}(+)\mbox{]} 4) The term added to 3) to get \mbox{[}\{\}\mbox{]}
@@ -151,6 +153,22 @@ Fill in four symmetric matrices for each level, providing the information to gen
 \end{Desc}
 \begin{Desc}
 \item[Returns:]val \end{Desc}
+\hypertarget{lmer_8h_a13}{
+\index{lmer.h@{lmer.h}!lmer_fitted@{lmer\_\-fitted}}
+\index{lmer_fitted@{lmer\_\-fitted}!lmer.h@{lmer.h}}
+\paragraph[lmer\_\-fitted]{\setlength{\rightskip}{0pt plus 5cm}SEXP lmer\_\-fitted (SEXP {\em x}, SEXP {\em mmats}, SEXP {\em use\-Rf})}\hfill}
+\label{lmer_8h_a13}
+
+
+Calculate and return the fitted values.
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em x}]pointer to an ssclme object \item[{\em mmats}]list of model matrices \item[{\em use\-Rf}]pointer to a logical scalar indicating if the random effects should be used\end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]pointer to a numeric array of fitted values \end{Desc}
 \hypertarget{lmer_8h_a10}{
 \index{lmer.h@{lmer.h}!lmer_fixef@{lmer\_\-fixef}}
 \index{lmer_fixef@{lmer\_\-fixef}!lmer.h@{lmer.h}}
@@ -167,11 +185,11 @@ Extract the conditional estimates of the fixed effects
 \end{Desc}
 \begin{Desc}
 \item[Returns:]a numeric vector containing the conditional estimates of the fixed effects \end{Desc}
-\hypertarget{lmer_8h_a13}{
+\hypertarget{lmer_8h_a14}{
 \index{lmer.h@{lmer.h}!lmer_gradient@{lmer\_\-gradient}}
 \index{lmer_gradient@{lmer\_\-gradient}!lmer.h@{lmer.h}}
 \paragraph[lmer\_\-gradient]{\setlength{\rightskip}{0pt plus 5cm}SEXP lmer\_\-gradient (SEXP {\em x}, SEXP {\em REMLp}, SEXP {\em Uncp})}\hfill}
-\label{lmer_8h_a13}
+\label{lmer_8h_a14}
 
 
 \hypertarget{lmer_8h_a3}{
@@ -284,11 +302,11 @@ Check validity of an lmer object.
 \end{Desc}
 \begin{Desc}
 \item[Returns:]TRUE if the object is a valid lmer object, else a string describing the nature of the violation. \end{Desc}
-\hypertarget{lmer_8h_a14}{
+\hypertarget{lmer_8h_a15}{
 \index{lmer.h@{lmer.h}!lmer_variances@{lmer\_\-variances}}
 \index{lmer_variances@{lmer\_\-variances}!lmer.h@{lmer.h}}
 \paragraph[lmer\_\-variances]{\setlength{\rightskip}{0pt plus 5cm}SEXP lmer\_\-variances (SEXP {\em x})}\hfill}
-\label{lmer_8h_a14}
+\label{lmer_8h_a15}
 
 
 Return the unscaled variances

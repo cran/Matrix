@@ -5,8 +5,9 @@
 
 ## ------------- Virtual Classes ----------------------------------------
 
-# Virtual class of all Matrix objects
-setClass("Matrix", representation(Dim = "integer", Dimnames = "list"),
+# Mother class of all Matrix objects
+setClass("Matrix", representation(Dim = "integer", Dimnames = "list",
+                                  "VIRTUAL"),
          prototype = prototype(Dim = integer(2), Dimnames = list(NULL,NULL)),
          validity = function(object) {
              Dim <- object@Dim
@@ -17,29 +18,36 @@ setClass("Matrix", representation(Dim = "integer", Dimnames = "list"),
              Dn <- object@Dimnames
              if (!is.list(Dn) || length(Dn) != 2)
                  return("'Dimnames' slot must be list of length 2")
+             ## 'else'  ok :
              TRUE
          })
 
 # Virtual class of numeric matrices
 setClass("dMatrix",
-         representation(x = "numeric"), contains = "Matrix")
+         representation(x = "numeric", "VIRTUAL"), contains = "Matrix")
 
 # Virtual class of integer matrices
 setClass("iMatrix",
-         representation(x = "integer"), contains = "Matrix")
+         representation(x = "integer", "VIRTUAL"), contains = "Matrix")
 
 # Virtual class of logical matrices
 setClass("lMatrix",
-         representation(x = "logical"), contains = "Matrix")
+         representation(x = "logical", "VIRTUAL"), contains = "Matrix")
 
-# Virtual class of complex matricesn
+# Virtual class of complex matrices
 setClass("zMatrix", # letter 'z' is as in the names of Lapack subroutines
-         representation(x = "complex"), contains = "Matrix")
+         representation(x = "complex", "VIRTUAL"), contains = "Matrix")
 
 # Virtual class of dense, numeric matrices
 setClass("ddenseMatrix",
-         representation(rcond = "numeric", factors = "list"),
+         representation(rcond = "numeric", factors = "list", "VIRTUAL"),
          contains = "dMatrix")
+
+## virtual SPARSE ------------
+
+setClass("sparseMatrix", contains = "Matrix")# "VIRTUAL"
+
+setClass("dsparseMatrix", contains = c("dMatrix", "sparseMatrix"))# "VIRTUAL"
 
 ## ------------------ Proper (non-virtual) Classes ----------------------------
 
@@ -47,7 +55,7 @@ setClass("ddenseMatrix",
 
 # numeric, dense, general matrices
 setClass("dgeMatrix", contains = "ddenseMatrix",
-         ## checks the length of x is prod(Dim):
+         ## checks that length( @ x) == prod( @ Dim):
          validity = function(object) .Call("dgeMatrix_validate", object)
          )
 ## i.e. "dgeMatrix" cannot be packed, but "ddenseMatrix" can ..
@@ -84,22 +92,22 @@ setClass("dspMatrix",
          validity = function(object) .Call("dspMatrix_validate", object)
          )
 
-# numeric, dense, non-packed, postive-definite, symmetric matrices
+# numeric, dense, non-packed, positive-definite, symmetric matrices
 setClass("dpoMatrix", contains = "dsyMatrix",
          validity = function(object) .Call("dpoMatrix_validate", object)
          )
 
-# numeric, dense, packed, postive-definite, symmetric matrices
+# numeric, dense, packed, positive-definite, symmetric matrices
 setClass("dppMatrix", contains = "dspMatrix",
          validity = function(object) .Call("dppMatrix_validate", object)
          )
 
-##-------------------- S P A R S E ----------------------------------------
+##-------------------- S P A R S E (non-virtual) --------------------------
 
 # numeric, sparse, triplet general matrices
 setClass("dgTMatrix",
          representation(i = "integer", j = "integer", factors = "list"),
-         contains = "dMatrix",
+         contains = "dsparseMatrix",
          validity = function(object) .Call("dgTMatrix_validate", object)
          )
 
@@ -120,7 +128,7 @@ setClass("dsTMatrix",
 # numeric, sparse, sorted compressed sparse column-oriented general matrices
 setClass("dgCMatrix",
          representation(i = "integer", p = "integer", factors = "list"),
-         contains = "dMatrix",
+         contains = "dsparseMatrix",
          validity = function(object) .Call("dgCMatrix_validate", object)
          )
 
@@ -128,7 +136,7 @@ setClass("dgCMatrix",
 setClass("dtCMatrix",
          representation(uplo = "character", diag = "character"),
          contains = "dgCMatrix",
-         validity = function(object) .Call("dtCMatrix_validate", object)
+         validity = function(object) .Call("tsc_validate", object)
          )
 
 # numeric, sparse, sorted compressed sparse column-oriented symmetric matrices
@@ -141,7 +149,7 @@ setClass("dsCMatrix",
 # numeric, sparse, sorted compressed sparse row-oriented general matrices
 setClass("dgRMatrix",
          representation(j = "integer", p = "integer", factors = "list"),
-         contains = "dMatrix",
+         contains = "dsparseMatrix",
          validity = function(object) .Call("dgRMatrix_validate", object)
          )
 
@@ -165,11 +173,33 @@ setClass("dgBCMatrix",
 
 setClass("Cholesky", contains = "dtrMatrix")
 
+setClass("pCholesky", contains = "dtpMatrix")
+
+setClass("BunchKaufman", representation(perm = "integer"), contains = "dtrMatrix",
+         validity = function(object) .Call("BunchKaufman_validate", object));
+
+setClass("pBunchKaufman", representation(perm = "integer"), contains = "dtpMatrix",
+         validity = function(object) .Call("pBunchKaufman_validate", object));
+
 setClass("dCholCMatrix",
          representation(perm = "integer", Parent = "integer", D = "numeric"),
          contains = "dtCMatrix",
          validity = function(object) .Call("dCholCMatrix_validate", object))
 
+##-------------------- permutation ----------------------------------------
+
+setClass("pMatrix", representation(perm = "integer"), contains = "Matrix",
+         validity = function(object) {
+             dd <- object@Dim
+             n <- dd[1]
+             perm <- object@perm
+             if (dd[2] != n) return("pMatrix must be symmetric")
+             if (length(perm) != n)
+                 return(paste("length of 'perm' slot must be", n))
+             if (!(all(range(perm) == c(1, n)) && length(unique(perm)) == n))
+                 return("'perm' slot is not a valid permutation")
+             TRUE
+         })
 
 ## --------------------- non-"Matrix" Classes --------------------------------
 
@@ -180,47 +210,15 @@ setClass("determinant",
                         call = "call"))
 
 setClass("LU", representation(x = "numeric",
-                              pivot = "integer"),
+                              perm = "integer"),
          validity = function(object) .Call("LU_validate", object))
-
-setClass("sscCrosstab", representation =
-         representation(Gp = "integer", perm = "integer"),
-         contains = "dsCMatrix",
-         validity = function(object) .Call("sscCrosstab_validate", object))
-
-setClass("ssclme", representation =
-         representation(
-                        D = "numeric",  # Diagonal of D in LDL'
-                        DIsqrt = "numeric", # inverse square root of D
-                        Dim = "integer", # Dimensions of Z'Z and LDL'
-                        Gp = "integer", # Pointers to groups of columns of Z
-                        Li = "integer", # Row indices of L
-                        Lp = "integer", # Column pointers of L
-                        Lx = "numeric", # Non-zero, off-diagonals of L
-                        Omega = "list", # List of symmetric matrices
-                        Parent = "integer", # Elimination tree of L
-                        RXX = "matrix", # Augmented RXX component or inverse
-                        RZX = "matrix", # Augmented RZX component or inverse
-                        XtX = "matrix", # Original X'X matrix
-                        ZtX = "matrix", # Original Z'X matrix
-                        bVar = "list",  # Diagonal blocks on (Z'Z+W)^{-1}
-                        deviance = "numeric", # Current deviance (ML and REML)
-                        devComp = "numeric", # Components of deviance
-                        i = "integer",  # Row indices of Z'Z
-                        nc = "integer", # number of columns in model matrices
-                        p = "integer",  # Pointers to columns of Z'Z
-                        status = "logical", # record if factored, if inverted
-                        x = "numeric"   # Non-zeroes in upper triangle of Z'Z
-                        ),
-         validity = function(object)
-         .Call("ssclme_validate", object))
 
 ## Deprecated:
                        # positive-definite symmetric matrices as matrices
 setClass("pdmatrix", contains="matrix")
 
-                       # factors of positive-definite symmetric matrices
-setClass("pdfactor", representation("matrix", logDet = "numeric"))
+#                        # factors of positive-definite symmetric matrices
+# setClass("pdfactor", representation("matrix", logDet = "numeric"))
 
                        # correlation matrices and standard deviations
 setClass("corrmatrix", representation("matrix", stdDev = "numeric"))

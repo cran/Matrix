@@ -31,7 +31,7 @@ static R\_\-INLINE int $\ast$ \hyperlink{lmer_8c_a9}{block\_\-parent} (int j, in
 \item 
 SEXP \hyperlink{lmer_8c_a10}{lmer\_\-factor} (SEXP x)
 \item 
-static void \hyperlink{lmer_8c_a11}{lmer\_\-sm} (enum \hyperlink{Mutils_8h_a57}{CBLAS\_\-SIDE} side, enum \hyperlink{Mutils_8h_a54}{CBLAS\_\-TRANSPOSE} trans, int nf, const int Gp\mbox{[}$\,$\mbox{]}, int n, double alpha, SEXP L, double B\mbox{[}$\,$\mbox{]}, int ldb)
+static void \hyperlink{lmer_8c_a11}{lmer\_\-sm} (enum \hyperlink{Mutils_8h_a63}{CBLAS\_\-SIDE} side, enum \hyperlink{Mutils_8h_a60}{CBLAS\_\-TRANSPOSE} trans, int nf, const int Gp\mbox{[}$\,$\mbox{]}, int n, double alpha, SEXP L, double B\mbox{[}$\,$\mbox{]}, int ldb)
 \item 
 static int \hyperlink{lmer_8c_a12}{max\_\-nnz} (int j, SEXP Parent)
 \item 
@@ -68,6 +68,8 @@ static SEXP \hyperlink{lmer_8c_a27}{lmer\_\-second\-Der} (SEXP x, SEXP Valp)
 SEXP \hyperlink{lmer_8c_a28}{lmer\_\-variances} (SEXP x)
 \item 
 SEXP \hyperlink{lmer_8c_a29}{lmer\_\-Crosstab} (SEXP flist)
+\item 
+SEXP \hyperlink{lmer_8c_a30}{lmer\_\-fitted} (SEXP x, SEXP mmats, SEXP use\-Rf)
 \end{CompactItemize}
 
 
@@ -307,6 +309,22 @@ Fill in four symmetric matrices for each level, providing the information to gen
 \end{Desc}
 \begin{Desc}
 \item[Returns:]val \end{Desc}
+\hypertarget{lmer_8c_a30}{
+\index{lmer.c@{lmer.c}!lmer_fitted@{lmer\_\-fitted}}
+\index{lmer_fitted@{lmer\_\-fitted}!lmer.c@{lmer.c}}
+\paragraph[lmer\_\-fitted]{\setlength{\rightskip}{0pt plus 5cm}SEXP lmer\_\-fitted (SEXP {\em x}, SEXP {\em mmats}, SEXP {\em use\-Rf})}\hfill}
+\label{lmer_8c_a30}
+
+
+Calculate and return the fitted values.
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em x}]pointer to an ssclme object \item[{\em mmats}]list of model matrices \item[{\em use\-Rf}]pointer to a logical scalar indicating if the random effects should be used\end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]pointer to a numeric array of fitted values \end{Desc}
 \hypertarget{lmer_8c_a19}{
 \index{lmer.c@{lmer.c}!lmer_fixef@{lmer\_\-fixef}}
 \index{lmer_fixef@{lmer\_\-fixef}!lmer.c@{lmer.c}}
@@ -427,7 +445,7 @@ Extract the ML or REML conditional estimate of sigma
 \hypertarget{lmer_8c_a11}{
 \index{lmer.c@{lmer.c}!lmer_sm@{lmer\_\-sm}}
 \index{lmer_sm@{lmer\_\-sm}!lmer.c@{lmer.c}}
-\paragraph[lmer\_\-sm]{\setlength{\rightskip}{0pt plus 5cm}static void lmer\_\-sm (enum \hyperlink{Mutils_8h_a57}{CBLAS\_\-SIDE} {\em side}, enum \hyperlink{Mutils_8h_a54}{CBLAS\_\-TRANSPOSE} {\em trans}, int {\em nf}, const int {\em Gp}\mbox{[}$\,$\mbox{]}, int {\em n}, double {\em alpha}, SEXP {\em L}, double {\em B}\mbox{[}$\,$\mbox{]}, int {\em ldb})\hspace{0.3cm}{\tt  \mbox{[}static\mbox{]}}}\hfill}
+\paragraph[lmer\_\-sm]{\setlength{\rightskip}{0pt plus 5cm}static void lmer\_\-sm (enum \hyperlink{Mutils_8h_a63}{CBLAS\_\-SIDE} {\em side}, enum \hyperlink{Mutils_8h_a60}{CBLAS\_\-TRANSPOSE} {\em trans}, int {\em nf}, const int {\em Gp}\mbox{[}$\,$\mbox{]}, int {\em n}, double {\em alpha}, SEXP {\em L}, double {\em B}\mbox{[}$\,$\mbox{]}, int {\em ldb})\hspace{0.3cm}{\tt  \mbox{[}static\mbox{]}}}\hfill}
 \label{lmer_8c_a11}
 
 

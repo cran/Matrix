@@ -4,15 +4,15 @@
 rcond(x, type, \dots)
 }
 \alias{rcond}
-%\alias{rcond.default}
-%\alias{rcond.Matrix}
+% methods are documented in <foo>Matrix-class.Rd
 \description{
   Estimate the reciprocal of the condition number of a matrix.
+
+  This is a generic function with several methods, as seen by
+  \code{\link{showMethods}(rcond)}.
 }
 \arguments{
-  \item{x}{
-    a matrix. No missing values or IEEE special values are allowed.
-  }
+  \item{x}{an \R object that inherits from the \code{Matrix} class.}
   \item{type}{
     Character indicating the type of norm to be used in the estimate.
     The default is \code{"O"} for the 1-norm.  The other possible value is
@@ -21,7 +21,7 @@ rcond(x, type, \dots)
   \item{\dots}{further arguments passed to or from other methods.}
 }
 \value{
-    An estimate of the reciprocal condition number of \code{x}.
+  An estimate of the reciprocal condition number of \code{x}.
 }
 \section{BACKGROUND}{
     The condition number of a matrix is the product of the matrix and
@@ -41,9 +41,9 @@ rcond(x, type, \dots)
     near 1 and ill-conditioned if it is near zero.
 }
 \references{
-Golub, G., and Van Loan, C. F. (1989).
-\emph{Matrix Computations,}
-2nd edition, Johns Hopkins, Baltimore.
+  Golub, G., and Van Loan, C. F. (1989).
+  \emph{Matrix Computations,}
+  2nd edition, Johns Hopkins, Baltimore.
 }
 \examples{
 x <- Matrix(rnorm(9), 3, 3)

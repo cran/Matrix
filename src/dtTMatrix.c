@@ -3,12 +3,12 @@
 
 SEXP dtTMatrix_validate(SEXP x)
 {
-    SEXP xiP = GET_SLOT(x, Matrix_iSym),
-	xjP = GET_SLOT(x, Matrix_jSym),
-	xxP = GET_SLOT(x, Matrix_xSym);
+    SEXP val;
 
-    if (length(xiP) != length(xjP) || length(xjP) != length(xxP))
-	return mkString(_("slots i, j and x must have the same length"));
+    if (isString(val = check_scalar_string(GET_SLOT(x, Matrix_uploSym),
+					   "LU", "uplo"))) return val;
+    if (isString(val = check_scalar_string(GET_SLOT(x, Matrix_diagSym),
+					   "NU", "diag"))) return val;
     return ScalarLogical(1);
 }
 

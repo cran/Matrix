@@ -135,7 +135,7 @@ symbolic_right_unit_mm_trans(int anc, const int Parent[], SEXP C)
 	int cnr, ntot = cnz + nextra, pos;
 	int *dims = INTEGER(getAttrib(GET_SLOT(C, Matrix_xSym), R_DimSymbol)),
 	    *Ti = Memcpy((int *) Calloc(ntot, int), ci, cnz),
-	    *Tj = expand_column_pointers(anc, cp, Calloc(ntot, int)),
+	    *Tj = expand_cmprPt(anc, cp, Calloc(ntot, int)),
 	    *Ci = Calloc(ntot, int);
 
 	for (j = 0, pos = cnz; j < anc; j++) {
@@ -279,7 +279,7 @@ bCrosstab_permute(SEXP ctab, int nf, int jj,
 	int *cp = INTEGER(GET_SLOT(cscb, Matrix_pSym)),
 	    nnz = length(cscbi);
 	double *cx = REAL(GET_SLOT(cscb, Matrix_xSym));
-	int *mj = expand_column_pointers(ncol, cp, Calloc(nnz, int));
+	int *mj = expand_cmprPt(ncol, cp, Calloc(nnz, int));
 	int *mi = Memcpy(Calloc(nnz, int), INTEGER(cscbi), nnz);
 	double *mx = Memcpy(Calloc(nnz, double), cx, nnz);
 
@@ -298,7 +298,7 @@ symmetric_permute(SEXP A, int nlev, const int iperm[])
     int *Ap = INTEGER(GET_SLOT(A, Matrix_pSym)),
 	nnz = length(AiP);
     double *Ax = REAL(GET_SLOT(A, Matrix_xSym));
-    int *mj = expand_column_pointers(nlev, Ap, Calloc(nnz, int));
+    int *mj = expand_cmprPt(nlev, Ap, Calloc(nnz, int));
     int *mi = Memcpy(Calloc(nnz, int), INTEGER(AiP), nnz);
     double *mx = Memcpy(Calloc(nnz, double), Ax, nnz);
 

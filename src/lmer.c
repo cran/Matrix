@@ -1519,3 +1519,55 @@ SEXP lmer_Crosstab(SEXP flist)
     Free(nc);
     return val;
 }
+
+/** 
+ * Calculate and return the fitted values.
+ * 
+ * @param x pointer to an ssclme object
+ * @param mmats list of model matrices
+ * @param useRf pointer to a logical scalar indicating if the random
+ * effects should be used
+ * 
+ * @return pointer to a numeric array of fitted values
+ */
+SEXP lmer_fitted(SEXP x, SEXP mmats, SEXP useRf)
+{
+    SEXP flist = GET_SLOT(x, Matrix_flistSym);
+    int *nc = INTEGER(GET_SLOT(x, Matrix_ncSym)), ione = 1,
+	nf = length(flist), nobs = length(VECTOR_ELT(flist, 0));
+    int p = nc[nf] - 1;
+    SEXP val = PROTECT(allocVector(REALSXP, nobs));
+    double one = 1.0, zero = 0.0;
+
+    if (p > 0) {
+	F77_CALL(dgemm)("N", "N", &nobs, &ione, &p, &one,
+			REAL(VECTOR_ELT(mmats, nf)), &nobs,
+			REAL(PROTECT(lmer_fixef(x))), &p,
+			&zero, REAL(val), &nobs);
+	UNPROTECT(1);
+    } else {
+	AZERO(REAL(val), nobs);
+    }
+    if (asLogical(useRf)) {
+	int i;
+	SEXP b = PROTECT(lmer_ranef(x));
+	for (i = 0; i < nf; i++) {
+	    int *ff = INTEGER(VECTOR_ELT(flist, i)), j, nci = nc[i];
+	    double *bb = REAL(VECTOR_ELT(b, i)),
+		*mm = REAL(VECTOR_ELT(mmats, i));
+	    for (j = 0; j < nobs; ) {
+		int nn = 1, lev = ff[j];
+		/* check for adjacent rows with same factor level */
+		while ((j + nn) < nobs && ff[j + nn] == lev) nn++; 
+		F77_CALL(dgemm)("N", "N", &nn, &ione, &nci,
+				&one, mm + j, &nobs,
+				bb + (lev - 1) * nci, &nci,
+				&one, REAL(val) + j, &nobs);
+		j += nn;
+	    }
+	}
+	UNPROTECT(1);
+    }
+    UNPROTECT(1);
+    return val;
+}

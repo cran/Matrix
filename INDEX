@@ -2,7 +2,7 @@ Hermitian.test          Test a Matrix for Conjugate Symmetry
 LowerTriangular.test    Test a Matrix for Triangularity
 Matrix                  Construct a Classed Matrix
 Matrix.class            Determine the subclass of a Matrix
-Orthonormal.test        Check for Orthogonality or Orthonormality 
+Orthonormal.test        Check for Orthogonality or Orthonormality
 SVD                     Singular Value Decomposition of a Matrix
 asObject                Assign or Modify the Class of an Object
 det                     Calculate the Determinant of a Matrix
@@ -11,9 +11,9 @@ eigen                   Spectral Decomposition of a Matrix
 expand                  Expand a Decomposition into Factors
 facmul                  Multiplication by Decomposition Factors
 hilbert                 Generate a Hilbert matrix
-lu.Matrix               Triangular (LU) Decomposition of a Matrix 
+lu.Matrix               Triangular (LU) Decomposition of a Matrix
 lu                      Triangular Decomposition of a Square Matrix
-norm                    Norm of a Matrix 
+norm                    Norm of a Matrix
 rcond                   Estimate the Reciprocal Condition Number
 schur                   Schur Decomposition of a Matrix
 solve.Matrix            Solve a System of Equations

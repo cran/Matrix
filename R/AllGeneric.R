@@ -1,84 +1,81 @@
-# Define those generics that we need, if they don't exist
+#### Define those generics that we need, if they don't exist
 
-if (!isGeneric("expand")) {
+### In order to be able to define group generics
+### {MM : I think this is a workaround for a basic "methods"+NAMESPACE bug}
+## This errors out in R 2.1.0
+##- setGeneric("+", function(e1,e2) standardGeneric("+"), group = "Arith")
+##- setGeneric("-", function(e1,e2) standardGeneric("-"), group = "Arith")
+##- setGeneric("*", function(e1,e2) standardGeneric("*"), group = "Arith")
+##- setGeneric("/", function(e1,e2) standardGeneric("/"), group = "Arith")
+
+
+if (!isGeneric("expand"))
     setGeneric("expand", function(x, ...) standardGeneric("expand"))
-}
 
-if (!isGeneric("tcrossprod")) {
+if (!isGeneric("tcrossprod"))
     setGeneric("tcrossprod", function(x) standardGeneric("tcrossprod"))
-}
 
-if (!isGeneric("isSymmetric")) {
-    setGeneric("isSymmetric", function(object, ...) standardGeneric("isSymmetric"))
-}
+if (!isGeneric("isSymmetric"))
+    setGeneric("isSymmetric", function(object, ...)
+               standardGeneric("isSymmetric"))
 
-if (!isGeneric("isNested")) {
+if (!isGeneric("isNested"))
     setGeneric("isNested", function(object, ...) standardGeneric("isNested"))
-}
 
-if (!isGeneric("facmul")) {
+if (!isGeneric("facmul"))
     setGeneric("facmul",
                function(x, factor, y, transpose, left, ...)
                standardGeneric("facmul"))
-}
 
-if (!isGeneric("lu")) {
+if (!isGeneric("lu"))
     setGeneric("lu", function(x, ...) standardGeneric("lu"))
-}
 
-if (!isGeneric("norm")) {
+if (!isGeneric("norm"))
     setGeneric("norm", function(x, type, ...) standardGeneric("norm"))
-}
 
-if (!isGeneric("rcond")) {
+if (!isGeneric("rcond"))
     setGeneric("rcond", function(x, type, ...) standardGeneric("rcond"))
-}
 
-if (!isGeneric("Schur")) {
+if (!isGeneric("Schur"))
     setGeneric("Schur", function(x, vectors, ...) standardGeneric("Schur"))
-}
 
-if (!isGeneric("unpack")) {
+if (!isGeneric("unpack"))
     setGeneric("unpack", function(x, ...) standardGeneric("unpack"))
-}
 
-if (!isGeneric("%p%")) {
+if (!isGeneric("%p%"))
     setGeneric("%p%", function(a, b) standardGeneric("%p%"))
-}
 
-if (!isGeneric("coef<-")) {
+if (!isGeneric("coef<-"))
     setGeneric("coef<-", function(object, ..., value)
                standardGeneric("coef<-"))
-}
+
 
 ## The generics pdFactor, pdMatrix, corFactor and corMatrix will be deprecated
 
-if (!isGeneric("pdFactor")) {
-    setGeneric("pdFactor", function(object) standardGeneric("pdFactor"))
-}
+# if (!isGeneric("pdFactor"))
+#     setGeneric("pdFactor", function(object) standardGeneric("pdFactor"))
 
-if (!isGeneric("pdMatrix")) {
-    setGeneric("pdMatrix", function(object) standardGeneric("pdMatrix"))
-}
+# if (!isGeneric("pdMatrix"))
+#     setGeneric("pdMatrix", function(object) standardGeneric("pdMatrix"))
 
-if (!isGeneric("corFactor")) {
-    ## extractor for transpose inverse square root factor of corr matrix
-    setGeneric("corFactor", function(object, ...) standardGeneric("corFactor"))
-}
+# if (!isGeneric("corFactor"))
+#     ## extractor for transpose inverse square root factor of corr matrix
+#     setGeneric("corFactor", function(object, ...) standardGeneric("corFactor"))
 
-if (!isGeneric("corMatrix")) {
-    ## extractor for correlation matrix or the transpose inverse
-    ## square root matrix
-    setGeneric("corMatrix", function(object, ...) standardGeneric("corMatrix"))
-}
+# if (!isGeneric("corMatrix"))
+#     ## extractor for correlation matrix or the transpose inverse
+#     ## square root matrix
+#     setGeneric("corMatrix", function(object, ...) standardGeneric("corMatrix"))
 
-# if (!isGeneric("isInitialized")) {
+# if (!isGeneric("isInitialized"))
 #     setGeneric("isInitialized",
 #                function(object) standardGeneric("isInitialized"),
 #                valueClass = "logical")
-# }
+#
 
-if (!isGeneric("matrix<-")) {
-    setGeneric("matrix<-",
-               function(object, value) standardGeneric("matrix<-"))
-}
+# if (!isGeneric("matrix<-"))
+#     setGeneric("matrix<-", function(object, value) standardGeneric("matrix<-"))
+
+if (!isGeneric("expm"))
+    setGeneric("expm", function(x) standardGeneric("expm"))
+

@@ -1,0 +1,128 @@
+\hypertarget{dgCMatrix_8c}{
+\subsection{dg\-CMatrix.c File Reference}
+\label{dgCMatrix_8c}\index{dgCMatrix.c@{dgCMatrix.c}}
+}
+{\tt \#include \char`\"{}dg\-CMatrix.h\char`\"{}}\par
+\subsubsection*{Functions}
+\begin{CompactItemize}
+\item 
+SEXP \hyperlink{dgCMatrix_8c_a0}{dg\-CMatrix\_\-validate} (SEXP x)
+\item 
+SEXP \hyperlink{dgCMatrix_8c_a1}{csc\_\-crossprod} (SEXP x)
+\item 
+SEXP \hyperlink{dgCMatrix_8c_a2}{csc\_\-tcrossprod} (SEXP x)
+\item 
+SEXP \hyperlink{dgCMatrix_8c_a3}{csc\_\-matrix\_\-crossprod} (SEXP x, SEXP y)
+\item 
+SEXP \hyperlink{dgCMatrix_8c_a4}{csc\_\-to\_\-dg\-TMatrix} (SEXP x)
+\item 
+SEXP \hyperlink{dgCMatrix_8c_a5}{csc\_\-to\_\-matrix} (SEXP x)
+\item 
+SEXP \hyperlink{dgCMatrix_8c_a6}{csc\_\-to\_\-dge\-Matrix} (SEXP x)
+\item 
+SEXP \hyperlink{dgCMatrix_8c_a7}{matrix\_\-to\_\-csc} (SEXP A)
+\item 
+SEXP \hyperlink{dgCMatrix_8c_a8}{dg\-TMatrix\_\-to\_\-csc} (SEXP dg\-TMatrix)
+\item 
+SEXP \hyperlink{dgCMatrix_8c_a9}{csc\_\-get\-Diag} (SEXP x)
+\item 
+SEXP \hyperlink{dgCMatrix_8c_a10}{csc\_\-transpose} (SEXP x)
+\item 
+SEXP \hyperlink{dgCMatrix_8c_a11}{csc\_\-matrix\_\-mm} (SEXP a, SEXP b)
+\item 
+SEXP \hyperlink{dgCMatrix_8c_a12}{csc\_\-col\_\-permute} (SEXP x, SEXP perm)
+\end{CompactItemize}
+
+
+\subsubsection{Function Documentation}
+\hypertarget{dgCMatrix_8c_a12}{
+\index{dgCMatrix.c@{dg\-CMatrix.c}!csc_col_permute@{csc\_\-col\_\-permute}}
+\index{csc_col_permute@{csc\_\-col\_\-permute}!dgCMatrix.c@{dg\-CMatrix.c}}
+\paragraph[csc\_\-col\_\-permute]{\setlength{\rightskip}{0pt plus 5cm}SEXP csc\_\-col\_\-permute (SEXP {\em x}, SEXP {\em perm})}\hfill}
+\label{dgCMatrix_8c_a12}
+
+
+\hypertarget{dgCMatrix_8c_a1}{
+\index{dgCMatrix.c@{dg\-CMatrix.c}!csc_crossprod@{csc\_\-crossprod}}
+\index{csc_crossprod@{csc\_\-crossprod}!dgCMatrix.c@{dg\-CMatrix.c}}
+\paragraph[csc\_\-crossprod]{\setlength{\rightskip}{0pt plus 5cm}SEXP csc\_\-crossprod (SEXP {\em x})}\hfill}
+\label{dgCMatrix_8c_a1}
+
+
+\hypertarget{dgCMatrix_8c_a9}{
+\index{dgCMatrix.c@{dg\-CMatrix.c}!csc_getDiag@{csc\_\-getDiag}}
+\index{csc_getDiag@{csc\_\-getDiag}!dgCMatrix.c@{dg\-CMatrix.c}}
+\paragraph[csc\_\-getDiag]{\setlength{\rightskip}{0pt plus 5cm}SEXP csc\_\-get\-Diag (SEXP {\em x})}\hfill}
+\label{dgCMatrix_8c_a9}
+
+
+\hypertarget{dgCMatrix_8c_a3}{
+\index{dgCMatrix.c@{dg\-CMatrix.c}!csc_matrix_crossprod@{csc\_\-matrix\_\-crossprod}}
+\index{csc_matrix_crossprod@{csc\_\-matrix\_\-crossprod}!dgCMatrix.c@{dg\-CMatrix.c}}
+\paragraph[csc\_\-matrix\_\-crossprod]{\setlength{\rightskip}{0pt plus 5cm}SEXP csc\_\-matrix\_\-crossprod (SEXP {\em x}, SEXP {\em y})}\hfill}
+\label{dgCMatrix_8c_a3}
+
+
+\hypertarget{dgCMatrix_8c_a11}{
+\index{dgCMatrix.c@{dg\-CMatrix.c}!csc_matrix_mm@{csc\_\-matrix\_\-mm}}
+\index{csc_matrix_mm@{csc\_\-matrix\_\-mm}!dgCMatrix.c@{dg\-CMatrix.c}}
+\paragraph[csc\_\-matrix\_\-mm]{\setlength{\rightskip}{0pt plus 5cm}SEXP csc\_\-matrix\_\-mm (SEXP {\em a}, SEXP {\em b})}\hfill}
+\label{dgCMatrix_8c_a11}
+
+
+\hypertarget{dgCMatrix_8c_a2}{
+\index{dgCMatrix.c@{dg\-CMatrix.c}!csc_tcrossprod@{csc\_\-tcrossprod}}
+\index{csc_tcrossprod@{csc\_\-tcrossprod}!dgCMatrix.c@{dg\-CMatrix.c}}
+\paragraph[csc\_\-tcrossprod]{\setlength{\rightskip}{0pt plus 5cm}SEXP csc\_\-tcrossprod (SEXP {\em x})}\hfill}
+\label{dgCMatrix_8c_a2}
+
+
+\hypertarget{dgCMatrix_8c_a6}{
+\index{dgCMatrix.c@{dg\-CMatrix.c}!csc_to_dgeMatrix@{csc\_\-to\_\-dgeMatrix}}
+\index{csc_to_dgeMatrix@{csc\_\-to\_\-dgeMatrix}!dgCMatrix.c@{dg\-CMatrix.c}}
+\paragraph[csc\_\-to\_\-dgeMatrix]{\setlength{\rightskip}{0pt plus 5cm}SEXP csc\_\-to\_\-dge\-Matrix (SEXP {\em x})}\hfill}
+\label{dgCMatrix_8c_a6}
+
+
+\hypertarget{dgCMatrix_8c_a4}{
+\index{dgCMatrix.c@{dg\-CMatrix.c}!csc_to_dgTMatrix@{csc\_\-to\_\-dgTMatrix}}
+\index{csc_to_dgTMatrix@{csc\_\-to\_\-dgTMatrix}!dgCMatrix.c@{dg\-CMatrix.c}}
+\paragraph[csc\_\-to\_\-dgTMatrix]{\setlength{\rightskip}{0pt plus 5cm}SEXP csc\_\-to\_\-dg\-TMatrix (SEXP {\em x})}\hfill}
+\label{dgCMatrix_8c_a4}
+
+
+\hypertarget{dgCMatrix_8c_a5}{
+\index{dgCMatrix.c@{dg\-CMatrix.c}!csc_to_matrix@{csc\_\-to\_\-matrix}}
+\index{csc_to_matrix@{csc\_\-to\_\-matrix}!dgCMatrix.c@{dg\-CMatrix.c}}
+\paragraph[csc\_\-to\_\-matrix]{\setlength{\rightskip}{0pt plus 5cm}SEXP csc\_\-to\_\-matrix (SEXP {\em x})}\hfill}
+\label{dgCMatrix_8c_a5}
+
+
+\hypertarget{dgCMatrix_8c_a10}{
+\index{dgCMatrix.c@{dg\-CMatrix.c}!csc_transpose@{csc\_\-transpose}}
+\index{csc_transpose@{csc\_\-transpose}!dgCMatrix.c@{dg\-CMatrix.c}}
+\paragraph[csc\_\-transpose]{\setlength{\rightskip}{0pt plus 5cm}SEXP csc\_\-transpose (SEXP {\em x})}\hfill}
+\label{dgCMatrix_8c_a10}
+
+
+\hypertarget{dgCMatrix_8c_a0}{
+\index{dgCMatrix.c@{dg\-CMatrix.c}!dgCMatrix_validate@{dgCMatrix\_\-validate}}
+\index{dgCMatrix_validate@{dgCMatrix\_\-validate}!dgCMatrix.c@{dg\-CMatrix.c}}
+\paragraph[dgCMatrix\_\-validate]{\setlength{\rightskip}{0pt plus 5cm}SEXP dg\-CMatrix\_\-validate (SEXP {\em x})}\hfill}
+\label{dgCMatrix_8c_a0}
+
+
+\hypertarget{dgCMatrix_8c_a8}{
+\index{dgCMatrix.c@{dg\-CMatrix.c}!dgTMatrix_to_csc@{dgTMatrix\_\-to\_\-csc}}
+\index{dgTMatrix_to_csc@{dgTMatrix\_\-to\_\-csc}!dgCMatrix.c@{dg\-CMatrix.c}}
+\paragraph[dgTMatrix\_\-to\_\-csc]{\setlength{\rightskip}{0pt plus 5cm}SEXP dg\-TMatrix\_\-to\_\-csc (SEXP {\em dg\-TMatrix})}\hfill}
+\label{dgCMatrix_8c_a8}
+
+
+\hypertarget{dgCMatrix_8c_a7}{
+\index{dgCMatrix.c@{dg\-CMatrix.c}!matrix_to_csc@{matrix\_\-to\_\-csc}}
+\index{matrix_to_csc@{matrix\_\-to\_\-csc}!dgCMatrix.c@{dg\-CMatrix.c}}
+\paragraph[matrix\_\-to\_\-csc]{\setlength{\rightskip}{0pt plus 5cm}SEXP matrix\_\-to\_\-csc (SEXP {\em A})}\hfill}
+\label{dgCMatrix_8c_a7}
+
+

@@ -78,14 +78,14 @@ double precision) and complex (stored as double precision complex)
 dense matrices.  At present only the real classes have been
 implemented.  These classes are
 \begin{description}
-\item[geMatrix] Real matrices in general storage mode
-\item[syMatrix] Symmetric real matrices in non-packed storage
-\item[trMatrix] Triangular real matrices in non-packaged storage
-\item[poMatrix] Positive semi-definite symmetric real matrices in
+\item[dgeMatrix] Real matrices in general storage mode
+\item[dsyMatrix] Symmetric real matrices in non-packed storage
+\item[dtrMatrix] Triangular real matrices in non-packaged storage
+\item[dpoMatrix] Positive semi-definite symmetric real matrices in
   non-package storage
 \end{description}
-Methods for these classes include coersion between these classes, when
-appropriate, and coersion to the \code{matrix} class; methods for
+Methods for these classes include coercion between these classes, when
+appropriate, and coercion to the \code{matrix} class; methods for
 matrix multiplication (\code{\%*\%}); cross products
 (\code{crossprod}), matrix norm (\code{norm}); reciprocal condition
 number (\code{rcond}); LU factorization (\code{lu}) or, for the
@@ -93,7 +93,7 @@ number (\code{rcond}); LU factorization (\code{lu}) or, for the
 solutions of linear systems of equations (\code{solve}).
 
 Whenever a factorization or a decomposition is calculated it is
-preserved as a (list) element in the \code{factorization} slot of the
+preserved as a (list) element in the \code{factors} slot of the
 original object.  In this way a sequence of operations, such as
 determining the condition number of a matrix then solving a linear
 system based on the matrix, do not require multiple factorizations of
@@ -115,7 +115,7 @@ vector \code{x} giving the non-zero values in the matrix.  An S4 class
 definition might be
 \begin{Schunk}
 \begin{Sinput}
-setClass("tripletMatrix",
+setClass("dgTMatrix",
          representation(i = "integer", j = "integer", x = "numeric",
                         Dim = "integer"))
 \end{Sinput}
@@ -142,16 +142,16 @@ level-3 BLAS in certain sparse matrix computations.
 
 The Matrix package provides the following classes for sparse matrices
 \begin{description}
-\item[tripletMatrix] general, real, sparse matrices in (a possibly
+\item[dgTMatrix] general, numeric, sparse matrices in (a possibly
   redundant) triplet form.  This can be a convenient form in which to
   construct sparse matrices.
-\item[cscMatrix] general, real, sparse matrices in the (sorted) compressed
+\item[dgCMatrix] general, numeric, sparse matrices in the (sorted) compressed
   sparse column format.
-\item[sscMatrix] symmetric, real, sparse matrices in the (sorted)
+\item[dsCMatrix] symmetric, real, sparse matrices in the (sorted)
   compressed sparse column format.  Only the upper or the lower triangle is
   stored.  Although there is provision for both forms, the lower
   triangle form works best with TAUCS.
-\item[tscMatrix] triangular, real, sparse matrices in the (sorted)
+\item[dtCMatrix] triangular, real, sparse matrices in the (sorted)
   compressed sparse column format.
 \end{description}
 

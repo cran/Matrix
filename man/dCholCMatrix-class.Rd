@@ -1,0 +1,71 @@
+\name{dCholCMatrix-class}
+\docType{class}
+\alias{dCholCMatrix-class}
+\title{Cholesky Decompositions of dsCMatrix Objects}
+\description{The class of Cholesky decompositions of symmetric, sparse
+  compressed column matrices from the \code{"dsCMatrix"} class.}
+\section{Objects from the Class}{
+  Objects can be created by calls of the form \code{new("dCholCMatrix", ...)}
+  but are more commonly created from \code{chol} applied to an
+  \code{dsCMatrix} object.
+}
+\section{Slots}{
+  \describe{
+    \item{\code{perm}:}{Object of class \code{"integer"} giving the
+      permutation of the rows and columns chosen to minimize fill-in.
+      If pivoting has not been applied this will be an integer vector of
+      length 0.}
+    \item{\code{diag}:}{A character object indicating if the triangular
+      matrix is unit triangular or not.  This slot is inherited from the
+      \code{"dtCMatrix"} class.  It is always \code{"N"} for this class.}
+    \item{\code{uplo}:}{A character object indicating if the upper
+      triangle (\code{"U"} or \code{"u"}) or the lower triangle
+      (\code{"L"} or \code{"l"}) is stored.  At present only the lower
+      triangle form is allowed.}
+    \item{\code{p}:}{Object of class \code{"integer"} of pointers, one
+      for each column, to the initial (zero-based) index of elements in
+      the column.}
+    \item{\code{i}:}{Object of class \code{"integer"} of length nnzero
+      (number of non-zero elements).  These are the row numbers for
+      each non-zero element in the matrix.}
+    \item{\code{x}:}{Object of class \code{"numeric"} - the non-zero
+      elements of the matrix.}
+    \item{\code{factors}:}{Object of class \code{"list"} - a list
+      of factorizations of the matrix. }
+    \item{\code{Dim}:}{Object of class \code{"integer"} - the dimensions
+     of the matrix - must be an integer vector with exactly two
+     non-negative values.}
+    \item{\code{Dimnames}:}{list of length two; inherited from the
+      \code{"Matrix"} class, see \code{\link{Matrix-class}}.}
+    \item{\code{D}:}{Object of class \code{"numeric"} - the diagonal
+      elements of the matrix D in the LDL' decomposition.}
+    \item{\code{Parent}:}{Object of class \code{"integer"} - the
+      elimination tree of the (possibly permuted) symmetric matrix.}
+  }
+}
+\section{Extends}{
+  Class \code{"dtCMatrix"}, directly.
+  Class \code{"dgCMatrix"}, by class \code{"dtCMatrix"}.
+}
+\section{Methods}{
+  No methods defined with class "dCholCMatrix" in the signature.
+}
+%\references{}
+%\author{}
+%\note{}
+\seealso{
+  \code{\link{dgCMatrix-class}}
+}
+%\examples{}
+\examples{
+data(mm)
+xpx <- crossprod(mm)
+str(xpx)
+str(ch <- chol(xpx))
+
+## Visualize the sparseness:
+image(xpx, main=paste("crossprod(mm) : Sparse",dQuote(class(xpx))))
+image(ch, main=paste("chol (crossprod(mm)) : Sparse", dQuote(class(ch))))
+}
+\keyword{classes}
+\keyword{algebra}

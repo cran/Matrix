@@ -15,9 +15,10 @@ OBJS = coarsen.o fm.o initpart.o match.o ccgraph.o memory.o \
 
 LIB = ../Metis.a
 
-lib: $(OBJS)
-	$(AR) -rucs $(LIB) $(OBJS)
+lib: $(LIB)
 
+$(LIB): $(OBJS)
+	$(AR) -rucs $(LIB) $(OBJS)
 
 mostlyclean: clean
 

@@ -2,21 +2,19 @@
  * Copyright 1997, Regents of the University of Minnesota
  *
  * myqsort.c
- * 
+ *
  * This file contains a fast idxtype increasing qsort algorithm.
  * Addopted from TeX
- * 
+ *
  * Started 10/18/96
  * George
- * 
- * $Id: myqsort.c,v 1.1 2003/12/31 21:32:30 bates Exp $
+ *
  */
 
 #include <metis.h>			/* only for type declarations */
 
 #define		THRESH		1	/* threshold for insertion */
 #define		MTHRESH		6	/* threshold for median */
-
 
 
 
@@ -48,18 +46,15 @@ void iidxsort(int n, idxtype *base)
     siqst(base, max);
     hi = base + THRESH;
   }
-  else 
+  else
     hi = max;
 
   for (j = lo = base; lo++ < hi;) {
     if (*j > *lo)
       j = lo;
   }
-  if (j != base) { /* swap j into place */
-    c = *base;
-    *base = *j;
-    *j = c;
-  }
+  if (j != base) /* swap j into place */
+      SWAP(*base, *j, c);
 
   for (min = base; (hi = min += 1) < max;) {
     while (*(--hi) > *min);
@@ -76,15 +71,9 @@ void iidxsort(int n, idxtype *base)
 
 static void siqst(idxtype *base, idxtype *max)
 {
-  register idxtype *i;
-  register idxtype *j;
-  register idxtype *jj;
-  register idxtype *mid;
-  register int ii;
-  register idxtype c;
+  register idxtype *i, *j, *jj, *mid, c;
   idxtype *tmp;
-  int lo;
-  int hi;
+  int lo, hi;
 
   lo = max - base;		/* number of elements as idxtype */
   do {
@@ -98,11 +87,8 @@ static void siqst(idxtype *base, idxtype *max)
           j = tmp;
       }
 
-      if (j != mid) {  /* SWAP */ 
-        c = *mid;
-        *mid = *j;
-        *j = c;
-      }
+      if (j != mid)
+	SWAP(*mid, *j, c);
     }
 
     /* Semi-standard quicksort partitioning/swapping */
@@ -122,7 +108,7 @@ static void siqst(idxtype *base, idxtype *max)
         goto swap;
       }
 
-      if (i == mid) 
+      if (i == mid)
 	break;
       else {		/* i <-> mid, new mid is i */
         jj = mid;
@@ -130,9 +116,7 @@ static void siqst(idxtype *base, idxtype *max)
         j--;
       }
 swap:
-      c = *i;
-      *i = *jj;
-      *jj = c;
+      SWAP(*i, *jj, c);
       i = tmp;
     }
 
@@ -177,18 +161,15 @@ void iintsort(int n, int *base)
     iiqst(base, max);
     hi = base + THRESH;
   }
-  else 
+  else
     hi = max;
 
   for (j = lo = base; lo++ < hi;) {
     if (*j > *lo)
       j = lo;
   }
-  if (j != base) { /* swap j into place */
-    c = *base;
-    *base = *j;
-    *j = c;
-  }
+  if (j != base) /* swap j into place */
+    SWAP(*base, *j, c);
 
   for (min = base; (hi = min += 1) < max;) {
     while (*(--hi) > *min);
@@ -206,15 +187,10 @@ void iintsort(int n, int *base)
 
 static void iiqst(int *base, int *max)
 {
-  register int *i;
-  register int *j;
-  register int *jj;
-  register int *mid;
-  register int ii;
+  register int *i, *j, *jj, *mid;
   register int c;
   int *tmp;
-  int lo;
-  int hi;
+  int lo, hi;
 
   lo = max - base;		/* number of elements as ints */
   do {
@@ -228,11 +204,8 @@ static void iiqst(int *base, int *max)
           j = tmp;
       }
 
-      if (j != mid) {  /* SWAP */ 
-        c = *mid;
-        *mid = *j;
-        *j = c;
-      }
+      if (j != mid)
+	SWAP(*mid, *j, c);
     }
 
     /* Semi-standard quicksort partitioning/swapping */
@@ -252,7 +225,7 @@ static void iiqst(int *base, int *max)
         goto swap;
       }
 
-      if (i == mid) 
+      if (i == mid)
 	break;
       else {		/* i <-> mid, new mid is i */
         jj = mid;
@@ -260,9 +233,7 @@ static void iiqst(int *base, int *max)
         j--;
       }
 swap:
-      c = *i;
-      *i = *jj;
-      *jj = c;
+      SWAP(*i, *jj, c);
       i = tmp;
     }
 
@@ -307,18 +278,15 @@ void ikeysort(int n, KeyValueType *base)
     keyiqst(base, max);
     hi = base + THRESH;
   }
-  else 
+  else
     hi = max;
 
   for (j = lo = base; lo++ < hi;) {
     if (j->key > lo->key)
       j = lo;
   }
-  if (j != base) { /* swap j into place */
-    c = *base;
-    *base = *j;
-    *j = c;
-  }
+  if (j != base) /* swap j into place */
+    SWAP(*base, *j, c);
 
   for (min = base; (hi = min += 1) < max;) {
     while ((--hi)->key > min->key);
@@ -333,7 +301,7 @@ void ikeysort(int n, KeyValueType *base)
   }
 
   /* Sanity check */
-  { 
+  {
     int i;
     for (i=0; i<n-1; i++)
       if (base[i].key > base[i+1].key)
@@ -365,11 +333,8 @@ static void keyiqst(KeyValueType *base, KeyValueType *max)
           j = tmp;
       }
 
-      if (j != mid) {  /* SWAP */ 
-        c = *mid;
-        *mid = *j;
-        *j = c;
-      }
+      if (j != mid)
+	SWAP(*mid, *j, c);
     }
 
     /* Semi-standard quicksort partitioning/swapping */
@@ -389,7 +354,7 @@ static void keyiqst(KeyValueType *base, KeyValueType *max)
         goto swap;
       }
 
-      if (i == mid) 
+      if (i == mid)
 	break;
       else {		/* i <-> mid, new mid is i */
         jj = mid;
@@ -397,9 +362,7 @@ static void keyiqst(KeyValueType *base, KeyValueType *max)
         j--;
       }
 swap:
-      c = *i;
-      *i = *jj;
-      *jj = c;
+      SWAP(*i, *jj, c);
       i = tmp;
     }
 
@@ -443,7 +406,7 @@ void ikeyvalsort(int n, KeyValueType *base)
     keyvaliqst(base, max);
     hi = base + THRESH;
   }
-  else 
+  else
     hi = max;
 
   for (j = lo = base; lo++ < hi;) {
@@ -493,11 +456,8 @@ static void keyvaliqst(KeyValueType *base, KeyValueType *max)
           j = tmp;
       }
 
-      if (j != mid) {  /* SWAP */ 
-        c = *mid;
-        *mid = *j;
-        *j = c;
-      }
+      if (j != mid)
+	SWAP(*mid, *j, c);
     }
 
     /* Semi-standard quicksort partitioning/swapping */
@@ -517,7 +477,7 @@ static void keyvaliqst(KeyValueType *base, KeyValueType *max)
         goto swap;
       }
 
-      if (i == mid) 
+      if (i == mid)
 	break;
       else {		/* i <-> mid, new mid is i */
         jj = mid;
@@ -525,9 +485,7 @@ static void keyvaliqst(KeyValueType *base, KeyValueType *max)
         j--;
       }
 swap:
-      c = *i;
-      *i = *jj;
-      *jj = c;
+      SWAP(*i, *jj, c);
       i = tmp;
     }
 

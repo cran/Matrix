@@ -3,8 +3,8 @@
 \alias{ssclme-class}
 \alias{coef,ssclme-method}
 \alias{coef<-,ssclme-method}
-\alias{coerce,ssclme,sscMatrix-method}
-\alias{coerce,ssclme,tscMatrix-method}
+\alias{coerce,ssclme,dsCMatrix-method}
+\alias{coerce,ssclme,dtCMatrix-method}
 \title{lme models as sparse, symmetric matrices}
 \description{A representation of a linear mixed-effects model using a
   combination of sparse, symmetric, column-oriented matrices and dense matrices.}
@@ -18,10 +18,10 @@ or, more commonly, via the \code{ssclme} constructor function.}
       each group of columns.  Its length is 1 greater than the number of
       groups.  Successive differences give the number of levels of each
       factor.} 
-    \item{\code{p}:}{as for \code{"sscMatrix"} objects.}
-    \item{\code{i}:}{as for \code{"sscMatrix"} objects.}
-    \item{\code{x}:}{as for \code{"sscMatrix"} objects.}
-    \item{\code{Dim}:}{as for \code{"sscMatrix"} objects.}
+    \item{\code{p}:}{as for \code{"dsCMatrix"} objects.}
+    \item{\code{i}:}{as for \code{"dsCMatrix"} objects.}
+    \item{\code{x}:}{as for \code{"dsCMatrix"} objects.}
+    \item{\code{Dim}:}{as for \code{"dsCMatrix"} objects.}
     \item{\code{nc}:}{An integer vector of the number of columns in each
       model matrix.  The last entry is \code{p+1} where \code{p} is the
       number of columns in the fixed-effects model matrix.}
@@ -83,19 +83,19 @@ or, more commonly, via the \code{ssclme} constructor function.}
 	"numeric")}: Assign the \code{Omega} matrices from a numeric
       vector.  The assignment depends on the optional argument
       \code{unconst} as described above.}
-    \item{coerce}{\code{signature(from = "ssclme", to = "sscMatrix")}:
-      return the current Z'Z matrix as an \code{sscMatrix} object.}
-    \item{coerce}{\code{signature(from = "ssclme", to = "tscMatrix")}:
+    \item{coerce}{\code{signature(from = "ssclme", to = "dsCMatrix")}:
+      return the current Z'Z matrix as an \code{dsCMatrix} object.}
+    \item{coerce}{\code{signature(from = "ssclme", to = "dtCMatrix")}:
       return the current L matrix from the LDL decomposition of Z'Z as
-      a \code{tscMatrix} object.}
+      a \code{dtCMatrix} object.}
   }
 }
 %\references{}
 %\author{}
 %\note{}
 \seealso{
-  \code{\link{sscCrosstab-class}}, \code{\link{sscMatrix-class}},
-  \code{\link{tscMatrix-class}}
+  \code{\link{sscCrosstab-class}}, \code{\link{dsCMatrix-class}},
+  \code{\link{dtCMatrix-class}}
 }
 %\examples{}
 \keyword{classes}

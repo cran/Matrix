@@ -22,7 +22,7 @@ SEXP
     Matrix_devCompSym,
     Matrix_devianceSym,
     Matrix_diagSym,
-    Matrix_factorization,
+    Matrix_factorSym,
     Matrix_flistSym,
     Matrix_iSym,
     Matrix_ipermSym,

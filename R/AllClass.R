@@ -1,95 +1,177 @@
-# Ensure that the methods package is available
 .onLoad <- function(lib, pkg) {
-    require("methods", character = TRUE, quietly = TRUE)
+    if(is.null(getOption("max.print")))
+        options(max.print = 10000)#-> show() of large matrices
 }
 
+## ------------- Virtual Classes ----------------------------------------
+
 # Virtual class of all Matrix objects
-setClass("Matrix")
-
-# general double-precision matrices
-setClass("geMatrix",
-         representation(x = "numeric", Dim = "integer", 
-                        rcond = "numeric", factorization = "list"),
-         prototype = prototype(x = numeric(0), Dim = as.integer(c(0,0)),
-                               rcond = numeric(0),
-                               factorization = list()),
-         contains = "Matrix",
+setClass("Matrix", representation(Dim = "integer", Dimnames = "list"),
+         prototype = prototype(Dim = integer(2), Dimnames = list(NULL,NULL)),
          validity = function(object) {
-             .Call("geMatrix_validate", object)
+             Dim <- object@Dim
+             if (length(Dim) != 2)
+                 return("Dim slot must be of length 2")
+             if (any(Dim < 0))
+                 return("Dim slot must contain non-negative values")
+             Dn <- object@Dimnames
+             if (!is.list(Dn) || length(Dn) != 2)
+                 return("'Dimnames' slot must be list of length 2")
+             TRUE
          })
 
-# Dense, non-packed, triangular matrices 
-setClass("trMatrix",
+# Virtual class of numeric matrices
+setClass("dMatrix",
+         representation(x = "numeric"), contains = "Matrix")
+
+# Virtual class of integer matrices
+setClass("iMatrix",
+         representation(x = "integer"), contains = "Matrix")
+
+# Virtual class of logical matrices
+setClass("lMatrix",
+         representation(x = "logical"), contains = "Matrix")
+
+# Virtual class of complex matricesn
+setClass("zMatrix", # letter 'z' is as in the names of Lapack subroutines
+         representation(x = "complex"), contains = "Matrix")
+
+# Virtual class of dense, numeric matrices
+setClass("ddenseMatrix",
+         representation(rcond = "numeric", factors = "list"),
+         contains = "dMatrix")
+
+## ------------------ Proper (non-virtual) Classes ----------------------------
+
+##----------------------  DENSE  -----------------------------------------
+
+# numeric, dense, general matrices
+setClass("dgeMatrix", contains = "ddenseMatrix",
+         ## checks the length of x is prod(Dim):
+         validity = function(object) .Call("dgeMatrix_validate", object)
+         )
+## i.e. "dgeMatrix" cannot be packed, but "ddenseMatrix" can ..
+
+# numeric, dense, non-packed, triangular matrices
+setClass("dtrMatrix",
          representation(uplo = "character", diag = "character"),
-         contains = "geMatrix",
+         contains = "dgeMatrix",
          prototype = prototype(uplo = "U", diag = "N"),
-         validity = function(object) {
-             .Call("trMatrix_validate", object)
-         })
-
-# Dense, packed, triangular matrices
-# setClass("tpMatrix", representation(...))
-
-# Dense, non-packed symmetric matrices
-setClass("syMatrix",
-         representation(uplo = "character"),
-         prototype = prototype(uplo = "U",
-           x = numeric(0), Dim = as.integer(c(0,0)),
-           rcond = numeric(0), factorization = list()),
-         contains = "geMatrix",
-         validity = function(object) {
-             .Call("syMatrix_validate", object)
-         })
-
-# Dense, packed, symmetric matrices
-# setClass("spMatrix", representation(...))
-
-# Dense, non-packed, postive-definite, symmetric matrices
-setClass("poMatrix", contains = "syMatrix",
-         prototype = prototype(uplo = "U",
-           x = numeric(0), Dim = as.integer(c(0,0)),
-           rcond = numeric(0), factorization = list())
+         validity = function(object) .Call("dtrMatrix_validate", object)
          )
 
-# Sparse general matrix in sorted compressed sparse column format
-setClass("cscMatrix",
-         representation(p = "integer", i = "integer", x = "numeric",
-                        Dim = "integer", factorization = "list"),
-         prototype = prototype(p = as.integer(0), i = integer(0),
-                        x = numeric(0), Dim = as.integer(c(0, 0))),
-         validity = function(object)
-                    .Call("csc_validate", object)
-         )
-
-# Sparse triangular matrix in sorted compressed sparse column format
-setClass("tscMatrix",
+# numeric, dense, packed, triangular matrices
+setClass("dtpMatrix",
          representation(uplo = "character", diag = "character"),
-         prototype = prototype(p = as.integer(0), i = integer(0),
-                        x = numeric(0), Dim = as.integer(c(0, 0)),
-                        uplo = 'L', diag = 'N'),
-         contains = "cscMatrix",
-         validity = function(object)
-                    .Call("tsc_validate", object))
+         contains = "ddenseMatrix",
+         prototype = prototype(uplo = "U", diag = "N"),
+         validity = function(object) .Call("dtpMatrix_validate", object)
+         )
 
-# Sparse symmetric matrix in compressed sparse column format.
-# Only one triangle is stored, uplo indicates if it is the lower or upper
-setClass("sscMatrix",
-         representation = representation(uplo = "character"),
-         prototype = prototype(p = as.integer(0), i = integer(0),
-                        x = numeric(0), Dim = as.integer(c(0, 0)),
-                        uplo = 'L'),
-         contains = "cscMatrix",
-         validity = function(object)
-                    .Call("sscMatrix_validate", object))
+# numeric, dense, non-packed symmetric matrices
+setClass("dsyMatrix",
+         representation(uplo = "character"),
+         prototype = prototype(uplo = "U"),
+         contains = "dgeMatrix",
+         validity = function(object) .Call("dsyMatrix_validate", object)
+         )
 
-# Sparse general matrix in triplet format
-setClass("tripletMatrix",
-         representation(i = "integer", j = "integer", x = "numeric",
-                        Dim = "integer"),
-         prototype = prototype(i = integer(0), j = integer(0),
-         x = numeric(0), Dim = as.integer(c(0,0))),
-         validity = function(object)
-                    .Call("triplet_validate", object))
+# numeric, dense, packed symmetric matrices
+setClass("dspMatrix",
+         representation(uplo = "character"),
+         prototype = prototype(uplo = "U"),
+         contains = "ddenseMatrix",
+         validity = function(object) .Call("dspMatrix_validate", object)
+         )
+
+# numeric, dense, non-packed, postive-definite, symmetric matrices
+setClass("dpoMatrix", contains = "dsyMatrix",
+         validity = function(object) .Call("dpoMatrix_validate", object)
+         )
+
+# numeric, dense, packed, postive-definite, symmetric matrices
+setClass("dppMatrix", contains = "dspMatrix",
+         validity = function(object) .Call("dppMatrix_validate", object)
+         )
+
+##-------------------- S P A R S E ----------------------------------------
+
+# numeric, sparse, triplet general matrices
+setClass("dgTMatrix",
+         representation(i = "integer", j = "integer", factors = "list"),
+         contains = "dMatrix",
+         validity = function(object) .Call("dgTMatrix_validate", object)
+         )
+
+# numeric, sparse, triplet triangular matrices
+setClass("dtTMatrix",
+         representation(uplo = "character", diag = "character"),
+         contains = "dgTMatrix",
+         validity = function(object) .Call("dtTMatrix_validate", object)
+         )
+
+# numeric, sparse, triplet symmetric matrices
+setClass("dsTMatrix",
+         representation(uplo = "character"),
+         contains = "dgTMatrix",
+         validity = function(object) .Call("dsTMatrix_validate", object)
+         )
+
+# numeric, sparse, sorted compressed sparse column-oriented general matrices
+setClass("dgCMatrix",
+         representation(i = "integer", p = "integer", factors = "list"),
+         contains = "dMatrix",
+         validity = function(object) .Call("dgCMatrix_validate", object)
+         )
+
+# numeric, sparse, sorted compressed sparse column-oriented triangular matrices
+setClass("dtCMatrix",
+         representation(uplo = "character", diag = "character"),
+         contains = "dgCMatrix",
+         validity = function(object) .Call("dtCMatrix_validate", object)
+         )
+
+# numeric, sparse, sorted compressed sparse column-oriented symmetric matrices
+setClass("dsCMatrix",
+         representation(uplo = "character"),
+         contains = "dgCMatrix",
+         validity = function(object) .Call("dsCMatrix_validate", object)
+         )
+
+# numeric, sparse, sorted compressed sparse row-oriented general matrices
+setClass("dgRMatrix",
+         representation(j = "integer", p = "integer", factors = "list"),
+         contains = "dMatrix",
+         validity = function(object) .Call("dgRMatrix_validate", object)
+         )
+
+# numeric, sparse, sorted compressed sparse row-oriented triangular matrices
+setClass("dtRMatrix",
+         representation(uplo = "character", diag = "character"),
+         contains = "dgRMatrix",
+         validity = function(object) .Call("dtRMatrix_validate", object)
+         )
+
+# numeric, sparse, sorted compressed sparse row-oriented symmetric matrices
+setClass("dsRMatrix",
+         representation(uplo = "character"),
+         contains = "dgRMatrix",
+         validity = function(object) .Call("dsRMatrix_validate", object)
+         )
+
+## Compressed sparse column matrix in blocks
+setClass("dgBCMatrix",
+         representation(p = "integer", i = "integer", x = "array"))
+
+setClass("Cholesky", contains = "dtrMatrix")
+
+setClass("dCholCMatrix",
+         representation(perm = "integer", Parent = "integer", D = "numeric"),
+         contains = "dtCMatrix",
+         validity = function(object) .Call("dCholCMatrix_validate", object))
+
+
+## --------------------- non-"Matrix" Classes --------------------------------
 
 setClass("determinant",
          representation(modulus ="numeric",
@@ -97,29 +179,14 @@ setClass("determinant",
                         sign = "integer",
                         call = "call"))
 
-setClass("LU", representation(x = "numeric", Dim = "integer",
+setClass("LU", representation(x = "numeric",
                               pivot = "integer"),
-         validity = function(object)
-                    .Call("LU_validate", object))
-
-setClass("Cholesky", contains = "trMatrix")
-
-setClass("sscChol",
-         representation = representation(perm = "integer", Parent = "integer",
-         D = "numeric"),
-         contains = "tscMatrix",
-         prototype = prototype(p = as.integer(0), i = integer(0),
-                        x = numeric(0), Dim = as.integer(c(0, 0)),
-                        uplo = 'L', perm = integer(0), Parent = integer(0),
-                        D = numeric(0)),
-         validity = function(object)
-           .Call("sscChol_validate", object))
+         validity = function(object) .Call("LU_validate", object))
 
 setClass("sscCrosstab", representation =
          representation(Gp = "integer", perm = "integer"),
-         contains = "sscMatrix",
-         validity = function(object)
-           .Call("sscCrosstab_validate", object))
+         contains = "dsCMatrix",
+         validity = function(object) .Call("sscCrosstab_validate", object))
 
 setClass("ssclme", representation =
          representation(
@@ -148,6 +215,7 @@ setClass("ssclme", representation =
          validity = function(object)
          .Call("ssclme_validate", object))
 
+## Deprecated:
                        # positive-definite symmetric matrices as matrices
 setClass("pdmatrix", contains="matrix")
 
@@ -156,63 +224,3 @@ setClass("pdfactor", representation("matrix", logDet = "numeric"))
 
                        # correlation matrices and standard deviations
 setClass("corrmatrix", representation("matrix", stdDev = "numeric"))
-
-## Compressed sparse column matrix in blocks
-setClass("cscBlocked", representation(p = "integer", i = "integer", x = "array"))
-
-## Block/block sparse symmetric matrices
-setClass("bbSparseSy", representation(x = "list", uplo = "character"),
-         validity = function(object) {
-             ul <- object@uplo
-             if (length(ul) != 1 || nchar(ul[1]) != 1 ||
-                 !toupper(ul[1]) %in% c('L', 'U'))
-                 return("uplo slot must be 'U' or 'L'")
-             xl <- object@x
-             nf <- as.integer((-1 + sqrt(1 + 8 * length(xl))) / 2)
-             if (length(xl) != ((nf * (nf + 1))/2))
-                 return("x slot has incorrect length")
-             if (any(unlist(lapply(xl, class)) != "cscBlocked"))
-                 return("x slot must be a list of cscBlocked objects")
-             TRUE
-         })
-
-## Block/block cross tabulation
-#setClass("bbCrosstab", contains = "bbSparseSy")
-
-## Block/block sparse triangular matrices
-setClass("bbSparseTr", representation(x = "list", uplo = "character",
-                                      diag = "character"),
-         validity = function(object) {
-             ul <- object@uplo
-             if (length(ul) != 1 || nchar(ul[1]) != 1 ||
-                 !toupper(ul[1]) %in% c('L', 'U'))
-                 return("uplo slot must be 'U' or 'L'")
-             dd <- object@diag
-             if (length(dd) != 1 || nchar(dd[1]) != 1 ||
-                 !toupper(dd[1]) %in% c('N', 'U'))
-                 return("diag slot must be 'N' or 'U'")
-             xl <- object@x
-             nf <- as.integer((-1 + sqrt(1 + 8 * length(xl))) / 2)
-             if (length(xl) != ((nf * (nf + 1))/2))
-                 return("x slot has incorrect length")
-             if (any(unlist(lapply(xl, class)) != "cscBlocked"))
-                 return("x slot must be a list of cscBlocked objects")
-             TRUE
-         })
-
-
-## Block/block L matrix
-setClass("bbLmat", representation(Linv = "list"), contains = "bbSparseTr",
-         validity = function(object) {
-             linv <- object@linv
-             xl <- object@x
-             nf <- as.integer((-1 + sqrt(1 + 8 * length(xl))) / 2)
-             if (length(linv) != nf)
-                 return("x and Linv slots have inconsistent length")
-             if (any(unlist(lapply(xl, class)) != "cscBlocked"))
-                 return("x slot must be a list of cscBlocked objects")
-             TRUE
-         })
-
-
-

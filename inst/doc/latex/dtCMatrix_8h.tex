@@ -1,0 +1,82 @@
+\hypertarget{dtCMatrix_8h}{
+\subsection{dt\-CMatrix.h File Reference}
+\label{dtCMatrix_8h}\index{dtCMatrix.h@{dtCMatrix.h}}
+}
+{\tt \#include \char`\"{}Mutils.h\char`\"{}}\par
+{\tt \#include \char`\"{}dg\-CMatrix.h\char`\"{}}\par
+\subsubsection*{Functions}
+\begin{CompactItemize}
+\item 
+SEXP \hyperlink{dtCMatrix_8h_a0}{tsc\_\-validate} (SEXP x)
+\item 
+SEXP \hyperlink{dtCMatrix_8h_a1}{tsc\_\-transpose} (SEXP x)
+\item 
+SEXP \hyperlink{dtCMatrix_8h_a2}{tsc\_\-to\_\-dg\-TMatrix} (SEXP x)
+\item 
+SEXP \hyperlink{dtCMatrix_8h_a3}{Parent\_\-inverse} (SEXP par, SEXP unitdiag)
+\item 
+int \hyperlink{dtCMatrix_8h_a4}{parent\_\-inv\_\-ap} (int n, int count\-Diag, const int pr\mbox{[}$\,$\mbox{]}, int ap\mbox{[}$\,$\mbox{]})
+\item 
+void \hyperlink{dtCMatrix_8h_a5}{parent\_\-inv\_\-ai} (int n, int count\-Diag, const int pr\mbox{[}$\,$\mbox{]}, int ai\mbox{[}$\,$\mbox{]})
+\end{CompactItemize}
+
+
+\subsubsection{Function Documentation}
+\hypertarget{dtCMatrix_8h_a5}{
+\index{dtCMatrix.h@{dt\-CMatrix.h}!parent_inv_ai@{parent\_\-inv\_\-ai}}
+\index{parent_inv_ai@{parent\_\-inv\_\-ai}!dtCMatrix.h@{dt\-CMatrix.h}}
+\paragraph[parent\_\-inv\_\-ai]{\setlength{\rightskip}{0pt plus 5cm}void parent\_\-inv\_\-ai (int {\em n}, int {\em count\-Diag}, const int {\em pr}\mbox{[}$\,$\mbox{]}, int {\em ai}\mbox{[}$\,$\mbox{]})}\hfill}
+\label{dtCMatrix_8h_a5}
+
+
+Derive the row index array for the inverse of L from the parent array
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em n}]length of parent array \item[{\em count\-Diag}]0 for a unit triangular matrix with implicit diagonal, otherwise 1 \item[{\em pr}]parent vector describing the elimination tree \item[{\em ai}]row index vector of length ap\mbox{[}n\mbox{]} \end{description}
+\end{Desc}
+\hypertarget{dtCMatrix_8h_a4}{
+\index{dtCMatrix.h@{dt\-CMatrix.h}!parent_inv_ap@{parent\_\-inv\_\-ap}}
+\index{parent_inv_ap@{parent\_\-inv\_\-ap}!dtCMatrix.h@{dt\-CMatrix.h}}
+\paragraph[parent\_\-inv\_\-ap]{\setlength{\rightskip}{0pt plus 5cm}int parent\_\-inv\_\-ap (int {\em n}, int {\em count\-Diag}, const int {\em pr}\mbox{[}$\,$\mbox{]}, int {\em ap}\mbox{[}$\,$\mbox{]})}\hfill}
+\label{dtCMatrix_8h_a4}
+
+
+Derive the column pointer vector for the inverse of L from the parent array
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em n}]length of parent array \item[{\em count\-Diag}]0 for a unit triangular matrix with implicit diagonal, otherwise 1 \item[{\em pr}]parent vector describing the elimination tree \item[{\em ap}]array of length n+1 to be filled with the column pointers\end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]the number of non-zero entries (ap\mbox{[}n\mbox{]}) \end{Desc}
+\hypertarget{dtCMatrix_8h_a3}{
+\index{dtCMatrix.h@{dt\-CMatrix.h}!Parent_inverse@{Parent\_\-inverse}}
+\index{Parent_inverse@{Parent\_\-inverse}!dtCMatrix.h@{dt\-CMatrix.h}}
+\paragraph[Parent\_\-inverse]{\setlength{\rightskip}{0pt plus 5cm}SEXP Parent\_\-inverse (SEXP {\em par}, SEXP {\em unitdiag})}\hfill}
+\label{dtCMatrix_8h_a3}
+
+
+\hypertarget{dtCMatrix_8h_a2}{
+\index{dtCMatrix.h@{dt\-CMatrix.h}!tsc_to_dgTMatrix@{tsc\_\-to\_\-dgTMatrix}}
+\index{tsc_to_dgTMatrix@{tsc\_\-to\_\-dgTMatrix}!dtCMatrix.h@{dt\-CMatrix.h}}
+\paragraph[tsc\_\-to\_\-dgTMatrix]{\setlength{\rightskip}{0pt plus 5cm}SEXP tsc\_\-to\_\-dg\-TMatrix (SEXP {\em x})}\hfill}
+\label{dtCMatrix_8h_a2}
+
+
+\hypertarget{dtCMatrix_8h_a1}{
+\index{dtCMatrix.h@{dt\-CMatrix.h}!tsc_transpose@{tsc\_\-transpose}}
+\index{tsc_transpose@{tsc\_\-transpose}!dtCMatrix.h@{dt\-CMatrix.h}}
+\paragraph[tsc\_\-transpose]{\setlength{\rightskip}{0pt plus 5cm}SEXP tsc\_\-transpose (SEXP {\em x})}\hfill}
+\label{dtCMatrix_8h_a1}
+
+
+\hypertarget{dtCMatrix_8h_a0}{
+\index{dtCMatrix.h@{dt\-CMatrix.h}!tsc_validate@{tsc\_\-validate}}
+\index{tsc_validate@{tsc\_\-validate}!dtCMatrix.h@{dt\-CMatrix.h}}
+\paragraph[tsc\_\-validate]{\setlength{\rightskip}{0pt plus 5cm}SEXP tsc\_\-validate (SEXP {\em x})}\hfill}
+\label{dtCMatrix_8h_a0}
+
+

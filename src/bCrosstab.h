@@ -2,12 +2,12 @@
 #define MATRIX_BCROSSTAB_H
 
 #include "Mutils.h"
-#include "cscMatrix.h"
+#include "dgCMatrix.h"
 #include "Metis_utils.h"
 #include "triplet_to_col.h"
 #include "R_ldl.h"
-#include "sscMatrix.h"
-#include "tscMatrix.h"
+#include "dsCMatrix.h"
+#include "dtCMatrix.h"
 
 void lmer_populate(SEXP bCtab);
 

@@ -1,0 +1,37 @@
+- check to see if the .onLoad function to require the methods package
+  (in the AllClass.R file) is needed
+  -- no, it is not:  "Depends: " in DESCRIPTION suffices.
+
+- Should the uplo and diag slots continue to be stored as character?
+  An alternative is to use a factor as in the enum values for the
+  cblas.
+  -- Leave as character but use care in determining the default cases
+  -- E.g. Checks for diag slot should check for 'U' or 'u' vs. anything else
+
+- Organization of the source code files - right now they are organized
+  according to class (e.g. dgeMatrix.R, dgeMatrix.h, dgeMatrix.c).  Is
+  there a better way?
+  -- This seems ok.
+
+- Fix the calculation of the Dim slot for the crossprod method for
+  dgCMatrix objects (too tired to do that now).
+  -- Done
+
+- spelling style: Should "coersion" be "coercion" ?
+  -- Yes.  Watch for this.
+
+- src/Metis/ : one of the two Makefiles needs fixing, as changing
+	     src/Metis/*.c  does not lead to recompilation.
+  --DB - it seems both Makefiles need fixing.  I think I have the
+	     src/Metis/Makefile fixed but not src/Makefile
+  --DB - now have both working, I believe.
+
+- man/Matrix.Rd :  has example with dimnames, but we just drop them!
+		MM thinks dimnames should be supported (but then ...)
+  -- added 'Dimnames' slot (2005-02-10)
+
+- bCrosstab(): yes, we really do want the diagonal "V:V" crosstabs.
+   -- explained a bit more in man/bCrosstab.Rd
+
+- Clean up vestigial functions (pdFactor, pdMatrix, matrix<-) from the
+  nlme package.

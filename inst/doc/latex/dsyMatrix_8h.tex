@@ -1,0 +1,102 @@
+\hypertarget{dsyMatrix_8h}{
+\subsection{dsy\-Matrix.h File Reference}
+\label{dsyMatrix_8h}\index{dsyMatrix.h@{dsyMatrix.h}}
+}
+{\tt \#include \char`\"{}dge\-Matrix.h\char`\"{}}\par
+{\tt \#include \char`\"{}R\_\-ext/Lapack.h\char`\"{}}\par
+\subsubsection*{Functions}
+\begin{CompactItemize}
+\item 
+SEXP \hyperlink{dsyMatrix_8h_a0}{dsy\-Matrix\_\-validate} (SEXP obj)
+\item 
+double \hyperlink{dsyMatrix_8h_a1}{get\_\-norm\_\-sy} (SEXP obj, char $\ast$typstr)
+\item 
+SEXP \hyperlink{dsyMatrix_8h_a2}{dsy\-Matrix\_\-norm} (SEXP obj, SEXP type)
+\item 
+SEXP \hyperlink{dsyMatrix_8h_a3}{dsy\-Matrix\_\-rcond} (SEXP obj, SEXP type)
+\item 
+SEXP \hyperlink{dsyMatrix_8h_a4}{dsy\-Matrix\_\-solve} (SEXP a)
+\item 
+SEXP \hyperlink{dsyMatrix_8h_a5}{dsy\-Matrix\_\-matrix\_\-solve} (SEXP a, SEXP b)
+\item 
+SEXP \hyperlink{dsyMatrix_8h_a6}{dsy\-Matrix\_\-as\_\-dge\-Matrix} (SEXP from)
+\item 
+SEXP \hyperlink{dsyMatrix_8h_a7}{dsy\-Matrix\_\-as\_\-matrix} (SEXP from)
+\item 
+SEXP \hyperlink{dsyMatrix_8h_a8}{dsy\-Matrix\_\-dge\-Matrix\_\-mm} (SEXP a, SEXP b)
+\item 
+SEXP \hyperlink{dsyMatrix_8h_a9}{dsy\-Matrix\_\-dge\-Matrix\_\-mm\_\-R} (SEXP a, SEXP b)
+\end{CompactItemize}
+
+
+\subsubsection{Function Documentation}
+\hypertarget{dsyMatrix_8h_a6}{
+\index{dsyMatrix.h@{dsy\-Matrix.h}!dsyMatrix_as_dgeMatrix@{dsyMatrix\_\-as\_\-dgeMatrix}}
+\index{dsyMatrix_as_dgeMatrix@{dsyMatrix\_\-as\_\-dgeMatrix}!dsyMatrix.h@{dsy\-Matrix.h}}
+\paragraph[dsyMatrix\_\-as\_\-dgeMatrix]{\setlength{\rightskip}{0pt plus 5cm}SEXP dsy\-Matrix\_\-as\_\-dge\-Matrix (SEXP {\em from})}\hfill}
+\label{dsyMatrix_8h_a6}
+
+
+\hypertarget{dsyMatrix_8h_a7}{
+\index{dsyMatrix.h@{dsy\-Matrix.h}!dsyMatrix_as_matrix@{dsyMatrix\_\-as\_\-matrix}}
+\index{dsyMatrix_as_matrix@{dsyMatrix\_\-as\_\-matrix}!dsyMatrix.h@{dsy\-Matrix.h}}
+\paragraph[dsyMatrix\_\-as\_\-matrix]{\setlength{\rightskip}{0pt plus 5cm}SEXP dsy\-Matrix\_\-as\_\-matrix (SEXP {\em from})}\hfill}
+\label{dsyMatrix_8h_a7}
+
+
+\hypertarget{dsyMatrix_8h_a8}{
+\index{dsyMatrix.h@{dsy\-Matrix.h}!dsyMatrix_dgeMatrix_mm@{dsyMatrix\_\-dgeMatrix\_\-mm}}
+\index{dsyMatrix_dgeMatrix_mm@{dsyMatrix\_\-dgeMatrix\_\-mm}!dsyMatrix.h@{dsy\-Matrix.h}}
+\paragraph[dsyMatrix\_\-dgeMatrix\_\-mm]{\setlength{\rightskip}{0pt plus 5cm}SEXP dsy\-Matrix\_\-dge\-Matrix\_\-mm (SEXP {\em a}, SEXP {\em b})}\hfill}
+\label{dsyMatrix_8h_a8}
+
+
+\hypertarget{dsyMatrix_8h_a9}{
+\index{dsyMatrix.h@{dsy\-Matrix.h}!dsyMatrix_dgeMatrix_mm_R@{dsyMatrix\_\-dgeMatrix\_\-mm\_\-R}}
+\index{dsyMatrix_dgeMatrix_mm_R@{dsyMatrix\_\-dgeMatrix\_\-mm\_\-R}!dsyMatrix.h@{dsy\-Matrix.h}}
+\paragraph[dsyMatrix\_\-dgeMatrix\_\-mm\_\-R]{\setlength{\rightskip}{0pt plus 5cm}SEXP dsy\-Matrix\_\-dge\-Matrix\_\-mm\_\-R (SEXP {\em a}, SEXP {\em b})}\hfill}
+\label{dsyMatrix_8h_a9}
+
+
+\hypertarget{dsyMatrix_8h_a5}{
+\index{dsyMatrix.h@{dsy\-Matrix.h}!dsyMatrix_matrix_solve@{dsyMatrix\_\-matrix\_\-solve}}
+\index{dsyMatrix_matrix_solve@{dsyMatrix\_\-matrix\_\-solve}!dsyMatrix.h@{dsy\-Matrix.h}}
+\paragraph[dsyMatrix\_\-matrix\_\-solve]{\setlength{\rightskip}{0pt plus 5cm}SEXP dsy\-Matrix\_\-matrix\_\-solve (SEXP {\em a}, SEXP {\em b})}\hfill}
+\label{dsyMatrix_8h_a5}
+
+
+\hypertarget{dsyMatrix_8h_a2}{
+\index{dsyMatrix.h@{dsy\-Matrix.h}!dsyMatrix_norm@{dsyMatrix\_\-norm}}
+\index{dsyMatrix_norm@{dsyMatrix\_\-norm}!dsyMatrix.h@{dsy\-Matrix.h}}
+\paragraph[dsyMatrix\_\-norm]{\setlength{\rightskip}{0pt plus 5cm}SEXP dsy\-Matrix\_\-norm (SEXP {\em obj}, SEXP {\em type})}\hfill}
+\label{dsyMatrix_8h_a2}
+
+
+\hypertarget{dsyMatrix_8h_a3}{
+\index{dsyMatrix.h@{dsy\-Matrix.h}!dsyMatrix_rcond@{dsyMatrix\_\-rcond}}
+\index{dsyMatrix_rcond@{dsyMatrix\_\-rcond}!dsyMatrix.h@{dsy\-Matrix.h}}
+\paragraph[dsyMatrix\_\-rcond]{\setlength{\rightskip}{0pt plus 5cm}SEXP dsy\-Matrix\_\-rcond (SEXP {\em obj}, SEXP {\em type})}\hfill}
+\label{dsyMatrix_8h_a3}
+
+
+\hypertarget{dsyMatrix_8h_a4}{
+\index{dsyMatrix.h@{dsy\-Matrix.h}!dsyMatrix_solve@{dsyMatrix\_\-solve}}
+\index{dsyMatrix_solve@{dsyMatrix\_\-solve}!dsyMatrix.h@{dsy\-Matrix.h}}
+\paragraph[dsyMatrix\_\-solve]{\setlength{\rightskip}{0pt plus 5cm}SEXP dsy\-Matrix\_\-solve (SEXP {\em a})}\hfill}
+\label{dsyMatrix_8h_a4}
+
+
+\hypertarget{dsyMatrix_8h_a0}{
+\index{dsyMatrix.h@{dsy\-Matrix.h}!dsyMatrix_validate@{dsyMatrix\_\-validate}}
+\index{dsyMatrix_validate@{dsyMatrix\_\-validate}!dsyMatrix.h@{dsy\-Matrix.h}}
+\paragraph[dsyMatrix\_\-validate]{\setlength{\rightskip}{0pt plus 5cm}SEXP dsy\-Matrix\_\-validate (SEXP {\em obj})}\hfill}
+\label{dsyMatrix_8h_a0}
+
+
+\hypertarget{dsyMatrix_8h_a1}{
+\index{dsyMatrix.h@{dsy\-Matrix.h}!get_norm_sy@{get\_\-norm\_\-sy}}
+\index{get_norm_sy@{get\_\-norm\_\-sy}!dsyMatrix.h@{dsy\-Matrix.h}}
+\paragraph[get\_\-norm\_\-sy]{\setlength{\rightskip}{0pt plus 5cm}double get\_\-norm\_\-sy (SEXP {\em obj}, char $\ast$ {\em typstr})}\hfill}
+\label{dsyMatrix_8h_a1}
+
+

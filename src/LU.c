@@ -3,8 +3,8 @@
 /* FIXME - add the permutation matrix P to the result */
 SEXP LU_expand(SEXP x)
 {
-    SEXP L = PROTECT(NEW_OBJECT(MAKE_CLASS("trMatrix"))),
-	U = PROTECT(NEW_OBJECT(MAKE_CLASS("trMatrix"))),
+    SEXP L = PROTECT(NEW_OBJECT(MAKE_CLASS("dtrMatrix"))),
+	U = PROTECT(NEW_OBJECT(MAKE_CLASS("dtrMatrix"))),
 	val = PROTECT(allocVector(VECSXP, 2)),
 	nms = PROTECT(allocVector(STRSXP, 2)),
 	lux = GET_SLOT(x, Matrix_xSym),
@@ -17,21 +17,18 @@ SEXP LU_expand(SEXP x)
     SET_VECTOR_ELT(val, 1, U);
     SET_SLOT(L, Matrix_xSym, duplicate(lux));
     SET_SLOT(L, Matrix_DimSym, dd);
-    SET_SLOT(L, Matrix_uploSym, ScalarString(mkChar("L")));
-    SET_SLOT(L, Matrix_diagSym, ScalarString(mkChar("U")));
+    SET_SLOT(L, Matrix_uploSym, mkString("L"));
+    SET_SLOT(L, Matrix_diagSym, mkString("U"));
     SET_SLOT(L, Matrix_rcondSym, allocVector(REALSXP, 0));
-    SET_SLOT(L, Matrix_factorization, allocVector(VECSXP, 0));
+    SET_SLOT(L, Matrix_factorSym, allocVector(VECSXP, 0));
     make_array_triangular(REAL(GET_SLOT(L, Matrix_xSym)), L);
     SET_SLOT(U, Matrix_xSym, duplicate(lux));
     SET_SLOT(U, Matrix_DimSym, dd);
-    SET_SLOT(U, Matrix_uploSym, ScalarString(mkChar("U")));
-    SET_SLOT(U, Matrix_diagSym, ScalarString(mkChar("N")));
+    SET_SLOT(U, Matrix_uploSym, mkString("U"));
+    SET_SLOT(U, Matrix_diagSym, mkString("N"));
     SET_SLOT(U, Matrix_rcondSym, allocVector(REALSXP, 0));
-    SET_SLOT(U, Matrix_factorization, allocVector(VECSXP, 0));
+    SET_SLOT(U, Matrix_factorSym, allocVector(VECSXP, 0));
     make_array_triangular(REAL(GET_SLOT(U, Matrix_xSym)), U);
     UNPROTECT(4);
     return val;
 }
-
-    
-	     

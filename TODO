@@ -1,2 +1,46 @@
 - Report the problem in the Linux ldexp manual page.  The second and
   third calls in the Synopsis should be to ldexpf and ldexpl.
+
+- [,] indexing
+
+- group generics: "Arith" (partly done),
+  but also "Compare", "Math" etc;
+  see ?Math  and the examples in ?SetGeneric
+
+- methods for rbind and cbind where they make sense
+
+- consider moving alloc3Darray from ./src/Mutils.c to
+  $(RSRC)/src/base/array.c
+
+- data/ : names 'mm' and even more 'y' are  ``too short''.
+	If we really want to keep them, don't use "LazyData"
+	(such that one needs  data(*) explicitly);
+	But MM would rather want something like  ex.mm and ex.y
+
+- "factors" maybe should move up to "Matrix"
+
+-------
+
+We have a (at least one) basic problem :
+   Currently the show() method fail sometime after coercion:
+   e.g. 'sy' show()s wrongly, even though it "str()" fine :
+
+      (po <- crossprod(Matrix(0:3, 2))) # ok
+      (ge <- as(po, "dgeMatrix")) # ok
+      (sy <- as(po, "dsyMatrix")) # BAD
+      str(sy) # looks fine
+
+  or
+      example(expand) # -> ex$L and ex$U look bad, however
+      as(ex$L, "dgeMatrix") # `works'
+
+  {Of course, we don't need a workaround but must understand
+   and solve the problem}
+
+---
+
+- implement (more) methods for supporting "packed" (symmetric / triangular)
+  matrices; particularly something like pack() and unpack().
+
+- implement diagonal Matrix class  "ddiMatrix" etc
+  using constructor function Diagonal() or Diag().

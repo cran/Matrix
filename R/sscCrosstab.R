@@ -30,6 +30,6 @@ sscCrosstab <- function(flist, upper = TRUE)
 
 setMethod("image", signature(x = "sscCrosstab"),
           function(x, ...) {
-              x <- as(x, "tripletMatrix")
+              x <- as(x, "dgTMatrix")
               callGeneric()
           })

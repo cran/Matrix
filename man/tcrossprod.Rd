@@ -1,7 +1,8 @@
 \name{tcrossprod}
 \docType{methods}
 \alias{tcrossprod-methods}
-\alias{tcrossprod,cscMatrix-method}
+\alias{tcrossprod,dgCMatrix-method}
+\alias{tcrossprod,dgTMatrix-method}
 \alias{tcrossprod}
 \title{Cross-product of transpose}
 \description{
@@ -17,7 +18,7 @@ tcrossprod(x)
 }
 \details{
   For some classes in the \code{Matrix} package, such as the
-  \code{\link{cscMatrix-class}}, it is much faster to calculate the
+  \code{\link{dgCMatrix-class}}, it is much faster to calculate the
   cross-product of the transpose directly instead of calculating the
   transpose first and then its cross-product.
 }
@@ -26,7 +27,7 @@ tcrossprod(x)
 }
 \section{Methods}{
   \describe{
-    \item{x = "cscMatrix"}{method for compressed, sparse,
+    \item{x = "dgCMatrix"}{method for compressed, sparse,
       column-oriented matrices.}
   }
 }

@@ -1,0 +1,150 @@
+\hypertarget{bCrosstab_8c}{
+\subsection{b\-Crosstab.c File Reference}
+\label{bCrosstab_8c}\index{bCrosstab.c@{bCrosstab.c}}
+}
+{\tt \#include \char`\"{}b\-Crosstab.h\char`\"{}}\par
+\subsubsection*{Functions}
+\begin{CompactItemize}
+\item 
+static R\_\-INLINE void \hyperlink{bCrosstab_8c_a0}{ind\_\-permute} (int i\mbox{[}$\,$\mbox{]}, int nnz, const int perm\mbox{[}$\,$\mbox{]})
+\item 
+static R\_\-INLINE void \hyperlink{bCrosstab_8c_a1}{make\_\-upper\_\-triangular} (int i\mbox{[}$\,$\mbox{]}, int j\mbox{[}$\,$\mbox{]}, int nnz)
+\item 
+static void \hyperlink{bCrosstab_8c_a2}{symbolic\_\-right\_\-unit\_\-sm} (int anc, const int Parent\mbox{[}$\,$\mbox{]}, SEXP C)
+\item 
+static void \hyperlink{bCrosstab_8c_a3}{symbolic\_\-right\_\-unit\_\-mm\_\-trans} (int anc, const int Parent\mbox{[}$\,$\mbox{]}, SEXP C)
+\item 
+static void \hyperlink{bCrosstab_8c_a4}{block\_\-update} (SEXP L, SEXP ZZp\-O, int j, int k, int i)
+\item 
+static void \hyperlink{bCrosstab_8c_a5}{b\-Crosstab\_\-permute} (SEXP ctab, int nf, int jj, const int nlev\mbox{[}$\,$\mbox{]}, const int iperm\mbox{[}$\,$\mbox{]})
+\item 
+static void \hyperlink{bCrosstab_8c_a6}{symmetric\_\-permute} (SEXP A, int nlev, const int iperm\mbox{[}$\,$\mbox{]})
+\item 
+static void \hyperlink{bCrosstab_8c_a7}{factor\_\-levels\_\-permute} (SEXP dest, SEXP src, const int perm\mbox{[}$\,$\mbox{]}, const int iperm\mbox{[}$\,$\mbox{]})
+\item 
+void \hyperlink{bCrosstab_8c_a8}{lmer\_\-populate} (SEXP val)
+\end{CompactItemize}
+
+
+\subsubsection{Function Documentation}
+\hypertarget{bCrosstab_8c_a5}{
+\index{bCrosstab.c@{b\-Crosstab.c}!bCrosstab_permute@{bCrosstab\_\-permute}}
+\index{bCrosstab_permute@{bCrosstab\_\-permute}!bCrosstab.c@{b\-Crosstab.c}}
+\paragraph[bCrosstab\_\-permute]{\setlength{\rightskip}{0pt plus 5cm}static void b\-Crosstab\_\-permute (SEXP {\em ctab}, int {\em nf}, int {\em jj}, const int {\em nlev}\mbox{[}$\,$\mbox{]}, const int {\em iperm}\mbox{[}$\,$\mbox{]})\hspace{0.3cm}{\tt  \mbox{[}static\mbox{]}}}\hfill}
+\label{bCrosstab_8c_a5}
+
+
+Permute the levels of one of the grouping factors in a b\-Crosstab object
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em ctab}]Pointer to a b\-Crosstab object \item[{\em nf}]number of factors in ctab \item[{\em jj}]index (0-based) of the factor levels to permute \item[{\em ncj}]number of columns in level jj \item[{\em perm}]permutation (0-based) to apply \item[{\em pperm}]inverse of the permutation \end{description}
+\end{Desc}
+\hypertarget{bCrosstab_8c_a4}{
+\index{bCrosstab.c@{b\-Crosstab.c}!block_update@{block\_\-update}}
+\index{block_update@{block\_\-update}!bCrosstab.c@{b\-Crosstab.c}}
+\paragraph[block\_\-update]{\setlength{\rightskip}{0pt plus 5cm}static void block\_\-update (SEXP {\em L}, SEXP {\em ZZp\-O}, int {\em j}, int {\em k}, int {\em i})\hspace{0.3cm}{\tt  \mbox{[}static\mbox{]}}}\hfill}
+\label{bCrosstab_8c_a4}
+
+
+Update a block of L in the blocked crosstabulation
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em ctab}]pointer to a blocked crosstabulation object \item[{\em j}]index of updating column \item[{\em k}]column index of block to be updated \item[{\em i}]row index of block to be updated (j $<$ k $<$= i) \end{description}
+\end{Desc}
+\hypertarget{bCrosstab_8c_a7}{
+\index{bCrosstab.c@{b\-Crosstab.c}!factor_levels_permute@{factor\_\-levels\_\-permute}}
+\index{factor_levels_permute@{factor\_\-levels\_\-permute}!bCrosstab.c@{b\-Crosstab.c}}
+\paragraph[factor\_\-levels\_\-permute]{\setlength{\rightskip}{0pt plus 5cm}static void factor\_\-levels\_\-permute (SEXP {\em dest}, SEXP {\em src}, const int {\em perm}\mbox{[}$\,$\mbox{]}, const int {\em iperm}\mbox{[}$\,$\mbox{]})\hspace{0.3cm}{\tt  \mbox{[}static\mbox{]}}}\hfill}
+\label{bCrosstab_8c_a7}
+
+
+Apply a permutation vector to the levels of a factor.
+
+The dest pointer is assumed to point to a copy of the src pointer's contents.
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em dest}]pointer to the destination factor \item[{\em src}]pointer to the source factor \item[{\em perm}]permutation vector (0-based) \item[{\em iperm}]inverse permutation vector (0-based) \end{description}
+\end{Desc}
+\hypertarget{bCrosstab_8c_a0}{
+\index{bCrosstab.c@{b\-Crosstab.c}!ind_permute@{ind\_\-permute}}
+\index{ind_permute@{ind\_\-permute}!bCrosstab.c@{b\-Crosstab.c}}
+\paragraph[ind\_\-permute]{\setlength{\rightskip}{0pt plus 5cm}static R\_\-INLINE void ind\_\-permute (int {\em i}\mbox{[}$\,$\mbox{]}, int {\em nnz}, const int {\em perm}\mbox{[}$\,$\mbox{]})\hspace{0.3cm}{\tt  \mbox{[}static\mbox{]}}}\hfill}
+\label{bCrosstab_8c_a0}
+
+
+Apply a permutation to an index vector
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em i}]vector of 0-based indices \item[{\em nnz}]length of vector i \item[{\em perm}]0-based permutation vector of length max(i) \end{description}
+\end{Desc}
+\hypertarget{bCrosstab_8c_a8}{
+\index{bCrosstab.c@{b\-Crosstab.c}!lmer_populate@{lmer\_\-populate}}
+\index{lmer_populate@{lmer\_\-populate}!bCrosstab.c@{b\-Crosstab.c}}
+\paragraph[lmer\_\-populate]{\setlength{\rightskip}{0pt plus 5cm}void lmer\_\-populate (SEXP {\em val})}\hfill}
+\label{bCrosstab_8c_a8}
+
+
+Create and populate slots in an lmer object from the blocked crosstabulation.
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em val}]Pointer to an lmer object \end{description}
+\end{Desc}
+\hypertarget{bCrosstab_8c_a1}{
+\index{bCrosstab.c@{b\-Crosstab.c}!make_upper_triangular@{make\_\-upper\_\-triangular}}
+\index{make_upper_triangular@{make\_\-upper\_\-triangular}!bCrosstab.c@{b\-Crosstab.c}}
+\paragraph[make\_\-upper\_\-triangular]{\setlength{\rightskip}{0pt plus 5cm}static R\_\-INLINE void make\_\-upper\_\-triangular (int {\em i}\mbox{[}$\,$\mbox{]}, int {\em j}\mbox{[}$\,$\mbox{]}, int {\em nnz})\hspace{0.3cm}{\tt  \mbox{[}static\mbox{]}}}\hfill}
+\label{bCrosstab_8c_a1}
+
+
+Force indices to be in the upper triangle of a matrix
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em i}]vector of 0-based row indices \item[{\em j}]vector of 0-based column indices \item[{\em nnz}]length of index vectors \end{description}
+\end{Desc}
+\hypertarget{bCrosstab_8c_a3}{
+\index{bCrosstab.c@{b\-Crosstab.c}!symbolic_right_unit_mm_trans@{symbolic\_\-right\_\-unit\_\-mm\_\-trans}}
+\index{symbolic_right_unit_mm_trans@{symbolic\_\-right\_\-unit\_\-mm\_\-trans}!bCrosstab.c@{b\-Crosstab.c}}
+\paragraph[symbolic\_\-right\_\-unit\_\-mm\_\-trans]{\setlength{\rightskip}{0pt plus 5cm}static void symbolic\_\-right\_\-unit\_\-mm\_\-trans (int {\em anc}, const int {\em Parent}\mbox{[}$\,$\mbox{]}, SEXP {\em C})\hspace{0.3cm}{\tt  \mbox{[}static\mbox{]}}}\hfill}
+\label{bCrosstab_8c_a3}
+
+
+Replace the structure of C by the structure of CA$^\wedge$\{-T\}
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em A}]a unit lower triangular dg\-BCMatrix object \item[{\em C}]a dg\-BCMatrix object to be updated \end{description}
+\end{Desc}
+\hypertarget{bCrosstab_8c_a2}{
+\index{bCrosstab.c@{b\-Crosstab.c}!symbolic_right_unit_sm@{symbolic\_\-right\_\-unit\_\-sm}}
+\index{symbolic_right_unit_sm@{symbolic\_\-right\_\-unit\_\-sm}!bCrosstab.c@{b\-Crosstab.c}}
+\paragraph[symbolic\_\-right\_\-unit\_\-sm]{\setlength{\rightskip}{0pt plus 5cm}static void symbolic\_\-right\_\-unit\_\-sm (int {\em anc}, const int {\em Parent}\mbox{[}$\,$\mbox{]}, SEXP {\em C})\hspace{0.3cm}{\tt  \mbox{[}static\mbox{]}}}\hfill}
+\label{bCrosstab_8c_a2}
+
+
+Replace the structure of C by the structure of CL$^\wedge$\{-1\} where L is the unit lower triangular sparse matrix from an LDL' Cholesky decomposition
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em anc}]number of columns in A \item[{\em Parent}]parent array for A \item[{\em C}]a dg\-BCMatrix object to be updated \end{description}
+\end{Desc}
+\hypertarget{bCrosstab_8c_a6}{
+\index{bCrosstab.c@{b\-Crosstab.c}!symmetric_permute@{symmetric\_\-permute}}
+\index{symmetric_permute@{symmetric\_\-permute}!bCrosstab.c@{b\-Crosstab.c}}
+\paragraph[symmetric\_\-permute]{\setlength{\rightskip}{0pt plus 5cm}static void symmetric\_\-permute (SEXP {\em A}, int {\em nlev}, const int {\em iperm}\mbox{[}$\,$\mbox{]})\hspace{0.3cm}{\tt  \mbox{[}static\mbox{]}}}\hfill}
+\label{bCrosstab_8c_a6}
+
+

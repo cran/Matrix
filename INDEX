@@ -1,42 +1,38 @@
-Cholesky-class          Cholesky decompositions
+Cholesky-class          Cholesky Decompositions
 Hilbert                 Generate a Hilbert matrix
-LU-class                LU decompositions
+LU-class                LU Matrix Decompositions
 Matrix                  Construct a Classed Matrix
-Matrix-class            Class "Matrix" Virtual class of Matrices
+Matrix-class            Class "Matrix" Virtual Class of Matrices
 Schur                   Schur Decomposition of a Matrix
 ScotsSec                Scottish secondary school scores
 bCrosstab               Create pairwise crosstabulation
 coef<-                  Assign parameters
-corFactor               Extract the correlation factor
-corMatrix               Generate the correlation matrix
 corrmatrix-class        Class "corrmatrix"
-cscBlocked-class        Class "cscBlocked" compressed, sparse, blocked
-                        Matrix
-cscMatrix-class         Class "cscMatrix" compressed, sparse, column
-                        Matrix
+dCholCMatrix-class      Cholesky Decompositions of dsCMatrix Objects
+dgBCMatrix-class        Class "dgBCMatrix" Real Sparse Blocked Column
+                        Compressed Matrix
+dgCMatrix-class         Compressed, sparse, column-oriented numeric
+                        matrices
+dgTMatrix-class         Sparse matrices in triplet form
+dgeMatrix-class         General S4 Matrix class
+dpoMatrix-class         Positive semi-definite, dense, numeric
+                        matrices
+dsCMatrix-class         Symmetric, compressed, sparse column matrices
+dsyMatrix-class         Symmetric, dense matrices
+dtCMatrix-class         Triangular, compressed, sparse column matrices
+dtrMatrix-class         Triangular, dense, numeric matrices
 expand                  Expand a Decomposition into Factors
+expm                    Matrix exponential
 facmul                  Multiplication by Decomposition Factors
-geMatrix-class          General S4 Matrix class
 lu                      Triangular Decomposition of a Square Matrix
-matrix<-                Assign the matrix
 mm                      A sample sparse model matrix
 norm                    Norm of a Matrix
-pdFactor                Square-root factor
-pdMatrix                Return the positive-definite matrix
 pdfactor-class          Factors of positive-definite matrices
 pdmatrix-class          Positive-definite matrices
-poMatrix-class          Positive semi-definite, dense, real matrices
 rcond                   Estimate the Reciprocal Condition Number
-sscChol-class           Cholesky decompositions of sscMatrix objects
 sscCrosstab             Create pairwise crosstabulation
 sscCrosstab-class       Pairwise crosstabulations
-sscMatrix-class         Symmetric, compressed, sparse column matrices
 ssclme-class            lme models as sparse, symmetric matrices
-syMatrix-class          Class "syMatrix" of symmetric matrices
 tcrossprod              Cross-product of transpose
-trMatrix-class          Triangular, dense, non-packed, real matrices
-tripletMatrix-class     Class "tripletMatrix" sparse matrices in
-                        triplet form
-tscMatrix-class         Triangular, compressed, sparse column matrices
 unpack                  Full Storage Representation of Packed Matrices
 y                       A sample response vector

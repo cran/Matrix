@@ -149,12 +149,12 @@ The \code{Matrix} package uses the S4 class system
 \citep{R:Chambers:1998} to retain information on the structure of
 matrices from the intermediate calculations.  A general matrix in
 dense storage, created by the \code{Matrix} function, has class
-\code{"geMatrix"} but its cross-product has class \code{"poMatrix"}.
-The \code{solve} methods for the \code{"poMatrix"} class use the
+\code{"dgeMatrix"} but its cross-product has class \code{"dpoMatrix"}.
+The \code{solve} methods for the \code{"dpoMatrix"} class use the
 Cholesky decomposition.
 <<MatrixKoenNg>>=
 data(mm, package = "Matrix")
-mm <- as(mm, "geMatrix")
+mm <- as(mm, "dgeMatrix")
 class(crossprod(mm))
 system.time(Mat.sol <- solve(crossprod(mm), crossprod(mm, y)), gc=TRUE)
 all.equal(naive.sol, as(Mat.sol, "matrix"))

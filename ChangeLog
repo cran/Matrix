@@ -1,3 +1,12 @@
+2005-02-04  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Matrix.R: add more sophisticated show() method.
+
+2005-01-26  Douglas Bates  <bates@bates7>
+
+	* R/AllGeneric.R: Added matrix exponential generic expm and a method
+	for the geMatrix class.
+
 2005-01-24  Douglas Bates  <bates@bates7>
 
 	* src/Makefile (clean): Remove *.a and *.so
@@ -285,7 +294,7 @@
 
 	* aclocal.m4 (ac_clean_files): Replaced this with Kurt Hornik's
 	version for R-1.5.0
-	
+
 
 2001-12-10  Douglas Bates  <bates@stat.wisc.edu>
 

@@ -1,0 +1,89 @@
+
+R : Copyright 2005, The R Foundation for Statistical Computing
+Version 2.1.0 Under development (unstable) (2005-02-09), ISBN 3-900051-07-0
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for a HTML browser interface to help.
+Type 'q()' to quit R.
+
+> ### Testing positive definite matrices
+> 
+> library(Matrix)
+> 
+> stopifnot(c(0,0) == dim(Hilbert(0)))
+> 
+> h9 <- Hilbert(9)
+> str(h9)
+Formal class 'dpoMatrix' [package "Matrix"] with 6 slots
+  ..@ uplo    : chr "U"
+  ..@ rcond   : num(0) 
+  ..@ factors : list()
+  ..@ x       : num [1:81] 1.000 0.500 0.333 0.250 0.200 ...
+  ..@ Dim     : int [1:2] 9 9
+  ..@ Dimnames:List of 2
+  .. ..$ : NULL
+  .. ..$ : NULL
+> all.equal(determinant(h9)$modulus, -96.7369450737858, tol= 1e-15)
+[1] TRUE
+> stopifnot(0 == length(h9@factors))# nothing yet
+> str(f9 <- as(chol(h9), "dtrMatrix"))
+Formal class 'dtrMatrix' [package "Matrix"] with 7 slots
+  ..@ uplo    : chr "U"
+  ..@ diag    : chr "N"
+  ..@ rcond   : num(0) 
+  ..@ factors : list()
+  ..@ x       : num [1:81] 1.000 0.500 0.333 0.250 0.200 ...
+  ..@ Dim     : int [1:2] 9 9
+  ..@ Dimnames:List of 2
+  .. ..$ : NULL
+  .. ..$ : NULL
+> ## h9 now has factorization
+> stopifnot(names(h9@factors) == "Cholesky")
+> stopifnot(all.equal(rcond(h9), 9.0938e-13))
+> stopifnot(all.equal(rcond(f9), 9.1272e-7, tol = 1e-6))# more precision fails
+> str(h9)# has 'rcond' and 'factors'
+Formal class 'dpoMatrix' [package "Matrix"] with 6 slots
+  ..@ uplo    : chr "U"
+  ..@ rcond   : Named num 9.1e-13
+  .. ..- attr(*, "names")= chr "O"
+  ..@ factors :List of 1
+  .. ..$ Cholesky:Formal class 'Cholesky' [package "Matrix"] with 7 slots
+  .. .. .. ..@ uplo    : chr "U"
+  .. .. .. ..@ diag    : chr "N"
+  .. .. .. ..@ rcond   : num(0) 
+  .. .. .. ..@ factors : list()
+  .. .. .. ..@ x       : num [1:81] 1.000 0.500 0.333 0.250 0.200 ...
+  .. .. .. ..@ Dim     : int [1:2] 9 9
+  .. .. .. ..@ Dimnames:List of 2
+  .. .. .. .. ..$ : NULL
+  .. .. .. .. ..$ : NULL
+  ..@ x       : num [1:81] 1.000 0.500 0.333 0.250 0.200 ...
+  ..@ Dim     : int [1:2] 9 9
+  ..@ Dimnames:List of 2
+  .. ..$ : NULL
+  .. ..$ : NULL
+> options(digits=4)
+> (cf9 <- crossprod(f9))# looks the same as  h9 :
+9 x 9 Matrix of class 'dpoMatrix'
+        [,1]   [,2]    [,3]    [,4]    [,5]    [,6]    [,7]    [,8]    [,9]
+ [1,] 1.0000 0.5000 0.33333 0.25000 0.20000 0.16667 0.14286 0.12500 0.11111
+ [2,] 0.5000 0.3333 0.25000 0.20000 0.16667 0.14286 0.12500 0.11111 0.10000
+ [3,] 0.3333 0.2500 0.20000 0.16667 0.14286 0.12500 0.11111 0.10000 0.09091
+ [4,] 0.2500 0.2000 0.16667 0.14286 0.12500 0.11111 0.10000 0.09091 0.08333
+ [5,] 0.2000 0.1667 0.14286 0.12500 0.11111 0.10000 0.09091 0.08333 0.07692
+ [6,] 0.1667 0.1429 0.12500 0.11111 0.10000 0.09091 0.08333 0.07692 0.07143
+ [7,] 0.1429 0.1250 0.11111 0.10000 0.09091 0.08333 0.07692 0.07143 0.06667
+ [8,] 0.1250 0.1111 0.10000 0.09091 0.08333 0.07692 0.07143 0.06667 0.06250
+ [9,] 0.1111 0.1000 0.09091 0.08333 0.07692 0.07143 0.06667 0.06250 0.05882
+> stopifnot(all.equal(as(h9, "matrix"),
++                     as(cf9,"matrix"), tol= 1e-15))
+> 
+> 

@@ -1,0 +1,302 @@
+\hypertarget{lmer_8h}{
+\subsection{lmer.h File Reference}
+\label{lmer_8h}\index{lmer.h@{lmer.h}}
+}
+{\tt \#include \char`\"{}Mutils.h\char`\"{}}\par
+{\tt \#include \char`\"{}triplet\_\-to\_\-col.h\char`\"{}}\par
+{\tt \#include \char`\"{}dg\-BCMatrix.h\char`\"{}}\par
+{\tt \#include \char`\"{}b\-Crosstab.h\char`\"{}}\par
+{\tt \#include $<$R\_\-ext/Lapack.h$>$}\par
+{\tt \#include $<$R\_\-ext/Constants.h$>$}\par
+\subsubsection*{Functions}
+\begin{CompactItemize}
+\item 
+SEXP \hyperlink{lmer_8h_a0}{lmer\_\-validate} (SEXP x)
+\item 
+SEXP \hyperlink{lmer_8h_a1}{lmer\_\-update\_\-mm} (SEXP x, SEXP mmats)
+\item 
+SEXP \hyperlink{lmer_8h_a2}{lmer\_\-create} (SEXP flist, SEXP mmats)
+\item 
+SEXP \hyperlink{lmer_8h_a3}{lmer\_\-inflate} (SEXP x)
+\item 
+SEXP \hyperlink{lmer_8h_a4}{lmer\_\-initial} (SEXP x)
+\item 
+SEXP \hyperlink{lmer_8h_a5}{lmer\_\-factor} (SEXP x)
+\item 
+SEXP \hyperlink{lmer_8h_a6}{lmer\_\-invert} (SEXP x)
+\item 
+SEXP \hyperlink{lmer_8h_a7}{lmer\_\-sigma} (SEXP x, SEXP REML)
+\item 
+SEXP \hyperlink{lmer_8h_a8}{lmer\_\-coef} (SEXP x, SEXP Unc)
+\item 
+SEXP \hyperlink{lmer_8h_a9}{lmer\_\-coef\-Gets} (SEXP x, SEXP coef, SEXP Unc)
+\item 
+SEXP \hyperlink{lmer_8h_a10}{lmer\_\-fixef} (SEXP x)
+\item 
+SEXP \hyperlink{lmer_8h_a11}{lmer\_\-ranef} (SEXP x)
+\item 
+SEXP \hyperlink{lmer_8h_a12}{lmer\_\-ECMEsteps} (SEXP x, SEXP nsteps, SEXP REMLp, SEXP Verbp)
+\item 
+SEXP \hyperlink{lmer_8h_a13}{lmer\_\-gradient} (SEXP x, SEXP REMLp, SEXP Uncp)
+\item 
+SEXP \hyperlink{lmer_8h_a14}{lmer\_\-variances} (SEXP x)
+\item 
+SEXP \hyperlink{lmer_8h_a15}{lmer\_\-Crosstab} (SEXP flist)
+\item 
+SEXP \hyperlink{lmer_8h_a16}{lmer\_\-first\-Der} (SEXP x, SEXP val)
+\end{CompactItemize}
+
+
+\subsubsection{Function Documentation}
+\hypertarget{lmer_8h_a8}{
+\index{lmer.h@{lmer.h}!lmer_coef@{lmer\_\-coef}}
+\index{lmer_coef@{lmer\_\-coef}!lmer.h@{lmer.h}}
+\paragraph[lmer\_\-coef]{\setlength{\rightskip}{0pt plus 5cm}SEXP lmer\_\-coef (SEXP {\em x}, SEXP {\em Unc})}\hfill}
+\label{lmer_8h_a8}
+
+
+Extract the upper triangles of the Omega matrices. These aren't \char`\"{}coefficients\char`\"{} but the extractor is called coef for historical reasons. Within each group these values are in the order of the diagonal entries first then the strict upper triangle in row order.
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em x}]pointer to an lme object \item[{\em Unc}]pointer to a logical scalar indicating if the parameters are in the unconstrained form.\end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]numeric vector of the values in the upper triangles of the Omega matrices \end{Desc}
+\hypertarget{lmer_8h_a9}{
+\index{lmer.h@{lmer.h}!lmer_coefGets@{lmer\_\-coefGets}}
+\index{lmer_coefGets@{lmer\_\-coefGets}!lmer.h@{lmer.h}}
+\paragraph[lmer\_\-coefGets]{\setlength{\rightskip}{0pt plus 5cm}SEXP lmer\_\-coef\-Gets (SEXP {\em x}, SEXP {\em coef}, SEXP {\em Unc})}\hfill}
+\label{lmer_8h_a9}
+
+
+Assign the upper triangles of the Omega matrices. (Called coef for historical reasons.)
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em x}]pointer to an lme object \item[{\em coef}]pointer to an numeric vector of appropriate length \item[{\em Unc}]pointer to a logical scalar indicating if the parameters are in the unconstrained form.\end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]R\_\-Nil\-Value \end{Desc}
+\hypertarget{lmer_8h_a2}{
+\index{lmer.h@{lmer.h}!lmer_create@{lmer\_\-create}}
+\index{lmer_create@{lmer\_\-create}!lmer.h@{lmer.h}}
+\paragraph[lmer\_\-create]{\setlength{\rightskip}{0pt plus 5cm}SEXP lmer\_\-create (SEXP {\em flist}, SEXP {\em mmats})}\hfill}
+\label{lmer_8h_a2}
+
+
+Create an lmer object from a list of grouping factors and a list of model matrices. There is one more model matrix than grouping factor. The last model matrix is the fixed effects and the response.
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em facs}]pointer to a list of grouping factors \item[{\em ncv}]pointer to a list of model matrices\end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]pointer to an lmer object \end{Desc}
+\hypertarget{lmer_8h_a15}{
+\index{lmer.h@{lmer.h}!lmer_Crosstab@{lmer\_\-Crosstab}}
+\index{lmer_Crosstab@{lmer\_\-Crosstab}!lmer.h@{lmer.h}}
+\paragraph[lmer\_\-Crosstab]{\setlength{\rightskip}{0pt plus 5cm}SEXP lmer\_\-Crosstab (SEXP {\em flist})}\hfill}
+\label{lmer_8h_a15}
+
+
+\hypertarget{lmer_8h_a12}{
+\index{lmer.h@{lmer.h}!lmer_ECMEsteps@{lmer\_\-ECMEsteps}}
+\index{lmer_ECMEsteps@{lmer\_\-ECMEsteps}!lmer.h@{lmer.h}}
+\paragraph[lmer\_\-ECMEsteps]{\setlength{\rightskip}{0pt plus 5cm}SEXP lmer\_\-ECMEsteps (SEXP {\em x}, SEXP {\em nsteps}, SEXP {\em REMLp}, SEXP {\em Verbp})}\hfill}
+\label{lmer_8h_a12}
+
+
+Perform ECME steps for the REML or ML criterion.
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em x}]pointer to an ssclme object \item[{\em nsteps}]pointer to an integer scalar - the number of ECME steps to perform \item[{\em REMLp}]pointer to a logical scalar indicating if REML is to be used \item[{\em verb}]pointer to a logical scalar indicating verbose output\end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]R\_\-Nil\-Value if verb == FALSE, otherwise a list of iteration numbers, deviances, parameters, and gradients. \end{Desc}
+\hypertarget{lmer_8h_a5}{
+\index{lmer.h@{lmer.h}!lmer_factor@{lmer\_\-factor}}
+\index{lmer_factor@{lmer\_\-factor}!lmer.h@{lmer.h}}
+\paragraph[lmer\_\-factor]{\setlength{\rightskip}{0pt plus 5cm}SEXP lmer\_\-factor (SEXP {\em x})}\hfill}
+\label{lmer_8h_a5}
+
+
+If status\mbox{[}\mbox{[}\char`\"{}factored\char`\"{}\mbox{]}\mbox{]} is FALSE, create and factor Z'Z+Omega. Also create RZX and RXX, the deviance components, and the value of the deviance for both ML and REML.
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em x}]pointer to an lmer object\end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]NULL \end{Desc}
+\hypertarget{lmer_8h_a16}{
+\index{lmer.h@{lmer.h}!lmer_firstDer@{lmer\_\-firstDer}}
+\index{lmer_firstDer@{lmer\_\-firstDer}!lmer.h@{lmer.h}}
+\paragraph[lmer\_\-firstDer]{\setlength{\rightskip}{0pt plus 5cm}SEXP lmer\_\-first\-Der (SEXP {\em x}, SEXP {\em val})}\hfill}
+\label{lmer_8h_a16}
+
+
+Fill in four symmetric matrices for each level, providing the information to generate the gradient or the ECME step. The four matrices are 1) -m\_\-i$^\wedge$\{-1\} 2)  3) \mbox{[}\{\}(+)\mbox{]} 4) The term added to 3) to get \mbox{[}\{\}\mbox{]}
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em x}]pointer to an lme object \item[{\em val}]pointer to a list of matrices of the correct sizes\end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]val \end{Desc}
+\hypertarget{lmer_8h_a10}{
+\index{lmer.h@{lmer.h}!lmer_fixef@{lmer\_\-fixef}}
+\index{lmer_fixef@{lmer\_\-fixef}!lmer.h@{lmer.h}}
+\paragraph[lmer\_\-fixef]{\setlength{\rightskip}{0pt plus 5cm}SEXP lmer\_\-fixef (SEXP {\em x})}\hfill}
+\label{lmer_8h_a10}
+
+
+Extract the conditional estimates of the fixed effects
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em x}]Pointer to an lme object\end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]a numeric vector containing the conditional estimates of the fixed effects \end{Desc}
+\hypertarget{lmer_8h_a13}{
+\index{lmer.h@{lmer.h}!lmer_gradient@{lmer\_\-gradient}}
+\index{lmer_gradient@{lmer\_\-gradient}!lmer.h@{lmer.h}}
+\paragraph[lmer\_\-gradient]{\setlength{\rightskip}{0pt plus 5cm}SEXP lmer\_\-gradient (SEXP {\em x}, SEXP {\em REMLp}, SEXP {\em Uncp})}\hfill}
+\label{lmer_8h_a13}
+
+
+\hypertarget{lmer_8h_a3}{
+\index{lmer.h@{lmer.h}!lmer_inflate@{lmer\_\-inflate}}
+\index{lmer_inflate@{lmer\_\-inflate}!lmer.h@{lmer.h}}
+\paragraph[lmer\_\-inflate]{\setlength{\rightskip}{0pt plus 5cm}SEXP lmer\_\-inflate (SEXP {\em x})}\hfill}
+\label{lmer_8h_a3}
+
+
+Copy Zt\-Z to ZZp\-O and L. Inflate diagonal blocks of ZZp\-O by Omega. Update dev\-Comp\mbox{[}1\mbox{]}.
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em x}]pointer to an lmer object \end{description}
+\end{Desc}
+\hypertarget{lmer_8h_a4}{
+\index{lmer.h@{lmer.h}!lmer_initial@{lmer\_\-initial}}
+\index{lmer_initial@{lmer\_\-initial}!lmer.h@{lmer.h}}
+\paragraph[lmer\_\-initial]{\setlength{\rightskip}{0pt plus 5cm}SEXP lmer\_\-initial (SEXP {\em x})}\hfill}
+\label{lmer_8h_a4}
+
+
+Create and insert initial values for Omega.
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em x}]pointer to an lmer object\end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]NULL \end{Desc}
+\hypertarget{lmer_8h_a6}{
+\index{lmer.h@{lmer.h}!lmer_invert@{lmer\_\-invert}}
+\index{lmer_invert@{lmer\_\-invert}!lmer.h@{lmer.h}}
+\paragraph[lmer\_\-invert]{\setlength{\rightskip}{0pt plus 5cm}SEXP lmer\_\-invert (SEXP {\em x})}\hfill}
+\label{lmer_8h_a6}
+
+
+If necessary, factor Z'Z+Omega, Zt\-X, and Xt\-X then, if necessary, replace the RZX and RXX slots by the corresponding parts of the inverse of the Cholesky factor. Replace the elements of the D slot by the blockwise inverses and evaluate b\-Var.
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em x}]pointer to an lmer object\end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]NULL (x is updated in place) \end{Desc}
+\hypertarget{lmer_8h_a11}{
+\index{lmer.h@{lmer.h}!lmer_ranef@{lmer\_\-ranef}}
+\index{lmer_ranef@{lmer\_\-ranef}!lmer.h@{lmer.h}}
+\paragraph[lmer\_\-ranef]{\setlength{\rightskip}{0pt plus 5cm}SEXP lmer\_\-ranef (SEXP {\em x})}\hfill}
+\label{lmer_8h_a11}
+
+
+Extract the conditional modes of the random effects.
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em x}]Pointer to an lme object\end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]a vector containing the conditional modes of the random effects \end{Desc}
+\hypertarget{lmer_8h_a7}{
+\index{lmer.h@{lmer.h}!lmer_sigma@{lmer\_\-sigma}}
+\index{lmer_sigma@{lmer\_\-sigma}!lmer.h@{lmer.h}}
+\paragraph[lmer\_\-sigma]{\setlength{\rightskip}{0pt plus 5cm}SEXP lmer\_\-sigma (SEXP {\em x}, SEXP {\em REML})}\hfill}
+\label{lmer_8h_a7}
+
+
+Extract the ML or REML conditional estimate of sigma
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em x}]pointer to an lme object \item[{\em REML}]logical scalar - TRUE if REML estimates are requested\end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]pointer to a numeric scalar \end{Desc}
+\hypertarget{lmer_8h_a1}{
+\index{lmer.h@{lmer.h}!lmer_update_mm@{lmer\_\-update\_\-mm}}
+\index{lmer_update_mm@{lmer\_\-update\_\-mm}!lmer.h@{lmer.h}}
+\paragraph[lmer\_\-update\_\-mm]{\setlength{\rightskip}{0pt plus 5cm}SEXP lmer\_\-update\_\-mm (SEXP {\em x}, SEXP {\em mmats})}\hfill}
+\label{lmer_8h_a1}
+
+
+Update the arrays Zt\-Z, Zt\-X, and Xt\-X in an lme object according to a list of model matrices.
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em x}]pointer to an lmer object \item[{\em mmats}]pointer to a list of model matrices\end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]NULL \end{Desc}
+\hypertarget{lmer_8h_a0}{
+\index{lmer.h@{lmer.h}!lmer_validate@{lmer\_\-validate}}
+\index{lmer_validate@{lmer\_\-validate}!lmer.h@{lmer.h}}
+\paragraph[lmer\_\-validate]{\setlength{\rightskip}{0pt plus 5cm}SEXP lmer\_\-validate (SEXP {\em x})}\hfill}
+\label{lmer_8h_a0}
+
+
+Check validity of an lmer object.
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em x}]Pointer to an lmer object\end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]TRUE if the object is a valid lmer object, else a string describing the nature of the violation. \end{Desc}
+\hypertarget{lmer_8h_a14}{
+\index{lmer.h@{lmer.h}!lmer_variances@{lmer\_\-variances}}
+\index{lmer_variances@{lmer\_\-variances}!lmer.h@{lmer.h}}
+\paragraph[lmer\_\-variances]{\setlength{\rightskip}{0pt plus 5cm}SEXP lmer\_\-variances (SEXP {\em x})}\hfill}
+\label{lmer_8h_a14}
+
+
+Return the unscaled variances
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em x}]pointer to an lmer object\end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]a list similar to the Omega list with the unscaled variances \end{Desc}

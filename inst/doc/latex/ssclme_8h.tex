@@ -1,0 +1,400 @@
+\hypertarget{ssclme_8h}{
+\subsection{ssclme.h File Reference}
+\label{ssclme_8h}\index{ssclme.h@{ssclme.h}}
+}
+{\tt \#include \char`\"{}ssc\-Crosstab.h\char`\"{}}\par
+{\tt \#include $<$R\_\-ext/Lapack.h$>$}\par
+{\tt \#include $<$R\_\-ext/Constants.h$>$}\par
+\subsubsection*{Functions}
+\begin{CompactItemize}
+\item 
+SEXP \hyperlink{ssclme_8h_a0}{ssclme\_\-create} (SEXP facs, SEXP ncv)
+\item 
+SEXP \hyperlink{ssclme_8h_a1}{ssclme\_\-transfer\_\-dimnames} (SEXP x, SEXP facs, SEXP mmats)
+\item 
+SEXP \hyperlink{ssclme_8h_a2}{ssclme\_\-update\_\-mm} (SEXP x, SEXP facs, SEXP mmats)
+\item 
+SEXP \hyperlink{ssclme_8h_a3}{ssclme\_\-inflate\_\-and\_\-factor} (SEXP x)
+\item 
+SEXP \hyperlink{ssclme_8h_a4}{ssclme\_\-factor} (SEXP x)
+\item 
+SEXP \hyperlink{ssclme_8h_a5}{ssclme\_\-invert} (SEXP x)
+\item 
+SEXP \hyperlink{ssclme_8h_a6}{ssclme\_\-initial} (SEXP x)
+\item 
+SEXP \hyperlink{ssclme_8h_a7}{ssclme\_\-fixef} (SEXP x)
+\item 
+SEXP \hyperlink{ssclme_8h_a8}{ssclme\_\-ranef} (SEXP x)
+\item 
+SEXP \hyperlink{ssclme_8h_a9}{ssclme\_\-sigma} (SEXP x, SEXP REML)
+\item 
+SEXP \hyperlink{ssclme_8h_a10}{ssclme\_\-coef} (SEXP x, SEXP Unc)
+\item 
+SEXP \hyperlink{ssclme_8h_a11}{ssclme\_\-coef\-Unc} (SEXP x)
+\item 
+SEXP \hyperlink{ssclme_8h_a12}{ssclme\_\-coef\-Gets\-Unc} (SEXP x, SEXP coef)
+\item 
+SEXP \hyperlink{ssclme_8h_a13}{ssclme\_\-coef\-Gets} (SEXP x, SEXP coef, SEXP Unc)
+\item 
+SEXP \hyperlink{ssclme_8h_a14}{ssclme\_\-EMsteps} (SEXP x, SEXP nsteps, SEXP REMLp, SEXP verb)
+\item 
+SEXP \hyperlink{ssclme_8h_a15}{ssclme\_\-fitted} (SEXP x, SEXP facs, SEXP mmats, SEXP use\-Rf)
+\item 
+SEXP \hyperlink{ssclme_8h_a16}{ssclme\_\-variances} (SEXP x)
+\item 
+SEXP \hyperlink{ssclme_8h_a17}{ssclme\_\-grad} (SEXP x, SEXP REMLp, SEXP Unc, SEXP One\-Vector)
+\item 
+SEXP \hyperlink{ssclme_8h_a18}{ssclme\_\-gradient} (SEXP x, SEXP REMLp, SEXP Uncp)
+\item 
+SEXP \hyperlink{ssclme_8h_a19}{ssclme\_\-Hessian} (SEXP x, SEXP REMLp, SEXP Uncp)
+\item 
+SEXP \hyperlink{ssclme_8h_a20}{ssclme\_\-collapse} (SEXP x)
+\item 
+SEXP \hyperlink{ssclme_8h_a21}{ssclme\_\-to\_\-lme} (SEXP call, SEXP facs, SEXP x, SEXP model, SEXP REML, SEXP rep, SEXP fitted, SEXP residuals, SEXP terms, SEXP assign)
+\end{CompactItemize}
+
+
+\subsubsection{Function Documentation}
+\hypertarget{ssclme_8h_a10}{
+\index{ssclme.h@{ssclme.h}!ssclme_coef@{ssclme\_\-coef}}
+\index{ssclme_coef@{ssclme\_\-coef}!ssclme.h@{ssclme.h}}
+\paragraph[ssclme\_\-coef]{\setlength{\rightskip}{0pt plus 5cm}SEXP ssclme\_\-coef (SEXP {\em x}, SEXP {\em Unconstr})}\hfill}
+\label{ssclme_8h_a10}
+
+
+Extract the upper triangles of the Omega matrices. These aren't \char`\"{}coefficients\char`\"{} but the extractor is called coef for historical reasons. Within each group these values are in the order of the diagonal entries first then the strict upper triangle in row order.
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em x}]pointer to an ssclme object\end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]numeric vector of the values in the upper triangles of the Omega matrices \end{Desc}
+\hypertarget{ssclme_8h_a13}{
+\index{ssclme.h@{ssclme.h}!ssclme_coefGets@{ssclme\_\-coefGets}}
+\index{ssclme_coefGets@{ssclme\_\-coefGets}!ssclme.h@{ssclme.h}}
+\paragraph[ssclme\_\-coefGets]{\setlength{\rightskip}{0pt plus 5cm}SEXP ssclme\_\-coef\-Gets (SEXP {\em x}, SEXP {\em coef}, SEXP {\em Unc})}\hfill}
+\label{ssclme_8h_a13}
+
+
+Assign the upper triangles of the Omega matrices. (Called coef for historical reasons.)
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em x}]pointer to an ssclme object \item[{\em coef}]pointer to an numeric vector of appropriate length\end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]R\_\-Nil\-Value \end{Desc}
+\hypertarget{ssclme_8h_a12}{
+\index{ssclme.h@{ssclme.h}!ssclme_coefGetsUnc@{ssclme\_\-coefGetsUnc}}
+\index{ssclme_coefGetsUnc@{ssclme\_\-coefGetsUnc}!ssclme.h@{ssclme.h}}
+\paragraph[ssclme\_\-coefGetsUnc]{\setlength{\rightskip}{0pt plus 5cm}SEXP ssclme\_\-coef\-Gets\-Unc (SEXP {\em x}, SEXP {\em coef})}\hfill}
+\label{ssclme_8h_a12}
+
+
+Assign the Omega matrices from the unconstrained parameterization.
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em x}]pointer to an ssclme object \item[{\em coef}]pointer to an numeric vector of appropriate length\end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]R\_\-Nil\-Value \end{Desc}
+\hypertarget{ssclme_8h_a11}{
+\index{ssclme.h@{ssclme.h}!ssclme_coefUnc@{ssclme\_\-coefUnc}}
+\index{ssclme_coefUnc@{ssclme\_\-coefUnc}!ssclme.h@{ssclme.h}}
+\paragraph[ssclme\_\-coefUnc]{\setlength{\rightskip}{0pt plus 5cm}SEXP ssclme\_\-coef\-Unc (SEXP {\em x})}\hfill}
+\label{ssclme_8h_a11}
+
+
+Extract the unconstrained parameters that determine the Omega matrices. (Called coef for historical reasons.) The unconstrained parameters are derived from the LDL' decomposition of Omega\_\-i. The first nc\mbox{[}i\mbox{]} entries in each group are the diagonals of log(D) followed by the strict lower triangle of L in column order.
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em x}]pointer to an ssclme object\end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]numeric vector of unconstrained parameters that determine the Omega matrices \end{Desc}
+\hypertarget{ssclme_8h_a20}{
+\index{ssclme.h@{ssclme.h}!ssclme_collapse@{ssclme\_\-collapse}}
+\index{ssclme_collapse@{ssclme\_\-collapse}!ssclme.h@{ssclme.h}}
+\paragraph[ssclme\_\-collapse]{\setlength{\rightskip}{0pt plus 5cm}SEXP ssclme\_\-collapse (SEXP {\em x})}\hfill}
+\label{ssclme_8h_a20}
+
+
+Copy an ssclme object collapsing the fixed effects slots to the response only.
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em x}]pointer to an ssclme object\end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]a duplicate of x with the fixed effects slots collapsed to the response only \end{Desc}
+\hypertarget{ssclme_8h_a0}{
+\index{ssclme.h@{ssclme.h}!ssclme_create@{ssclme\_\-create}}
+\index{ssclme_create@{ssclme\_\-create}!ssclme.h@{ssclme.h}}
+\paragraph[ssclme\_\-create]{\setlength{\rightskip}{0pt plus 5cm}SEXP ssclme\_\-create (SEXP {\em facs}, SEXP {\em ncv})}\hfill}
+\label{ssclme_8h_a0}
+
+
+Create an ssclme object from a list of grouping factors, sorted in order of non-increasing numbers of levels, and an integer vector of the number of columns in the model matrices. There is one more element in ncv than in facs. The last element is the number of columns in the model matrix for the fixed effects plus the response. (i.e. p+1)
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em facs}]pointer to a list of grouping factors \item[{\em ncv}]pointer to an integer vector of number of columns per model matrix\end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]pointer to an ssclme object \end{Desc}
+\hypertarget{ssclme_8h_a14}{
+\index{ssclme.h@{ssclme.h}!ssclme_EMsteps@{ssclme\_\-EMsteps}}
+\index{ssclme_EMsteps@{ssclme\_\-EMsteps}!ssclme.h@{ssclme.h}}
+\paragraph[ssclme\_\-EMsteps]{\setlength{\rightskip}{0pt plus 5cm}SEXP ssclme\_\-EMsteps (SEXP {\em x}, SEXP {\em nsteps}, SEXP {\em REMLp}, SEXP {\em verb})}\hfill}
+\label{ssclme_8h_a14}
+
+
+Perform ECME steps for the REML or ML criterion.
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em x}]pointer to an ssclme object \item[{\em nsteps}]pointer to an integer scalar - the number of ECME steps to perform \item[{\em REMLp}]pointer to a logical scalar indicating if REML is to be used \item[{\em verb}]pointer to a logical scalar indicating verbose mode\end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]NULL \end{Desc}
+\hypertarget{ssclme_8h_a4}{
+\index{ssclme.h@{ssclme.h}!ssclme_factor@{ssclme\_\-factor}}
+\index{ssclme_factor@{ssclme\_\-factor}!ssclme.h@{ssclme.h}}
+\paragraph[ssclme\_\-factor]{\setlength{\rightskip}{0pt plus 5cm}SEXP ssclme\_\-factor (SEXP {\em x})}\hfill}
+\label{ssclme_8h_a4}
+
+
+If status\mbox{[}\mbox{[}\char`\"{}factored\char`\"{}\mbox{]}\mbox{]} is FALSE, create and factor Z'Z+Omega, then create RZX and RXX, the deviance components, and the value of the deviance for both ML and REML.
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em x}]pointer to an ssclme object\end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]NULL \end{Desc}
+\hypertarget{ssclme_8h_a15}{
+\index{ssclme.h@{ssclme.h}!ssclme_fitted@{ssclme\_\-fitted}}
+\index{ssclme_fitted@{ssclme\_\-fitted}!ssclme.h@{ssclme.h}}
+\paragraph[ssclme\_\-fitted]{\setlength{\rightskip}{0pt plus 5cm}SEXP ssclme\_\-fitted (SEXP {\em x}, SEXP {\em facs}, SEXP {\em mmats}, SEXP {\em use\-Rf})}\hfill}
+\label{ssclme_8h_a15}
+
+
+Calculate and return the fitted values.
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em x}]pointer to an ssclme object \item[{\em facs}]list of grouping factors \item[{\em mmats}]list of model matrices \item[{\em use\-Rf}]pointer to a logical scalar indicating if the random effects should be used\end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]pointer to a numeric array of fitted values \end{Desc}
+\hypertarget{ssclme_8h_a7}{
+\index{ssclme.h@{ssclme.h}!ssclme_fixef@{ssclme\_\-fixef}}
+\index{ssclme_fixef@{ssclme\_\-fixef}!ssclme.h@{ssclme.h}}
+\paragraph[ssclme\_\-fixef]{\setlength{\rightskip}{0pt plus 5cm}SEXP ssclme\_\-fixef (SEXP {\em x})}\hfill}
+\label{ssclme_8h_a7}
+
+
+Extract the conditional estimates of the fixed effects
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em x}]Pointer to an ssclme object\end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]a numeric vector containing the conditional estimates of the fixed effects \end{Desc}
+\hypertarget{ssclme_8h_a17}{
+\index{ssclme.h@{ssclme.h}!ssclme_grad@{ssclme\_\-grad}}
+\index{ssclme_grad@{ssclme\_\-grad}!ssclme.h@{ssclme.h}}
+\paragraph[ssclme\_\-grad]{\setlength{\rightskip}{0pt plus 5cm}SEXP ssclme\_\-grad (SEXP {\em x}, SEXP {\em REMLp}, SEXP {\em Unc}, SEXP {\em One\-Vector})}\hfill}
+\label{ssclme_8h_a17}
+
+
+Return the gradient of the ML or REML deviance.
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em x}]pointer to an ssclme object \item[{\em REMLp}]pointer to a logical scalar indicating if REML is to be used \item[{\em Uncp}]pointer to a logical scalar indicating if the unconstrained parameterization is to be used \item[{\em Uncp}]pointer to a logical scalar indicating if result should be a single vector\end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]pointer to the gradient as a list of matrices or as a vector. \end{Desc}
+\hypertarget{ssclme_8h_a18}{
+\index{ssclme.h@{ssclme.h}!ssclme_gradient@{ssclme\_\-gradient}}
+\index{ssclme_gradient@{ssclme\_\-gradient}!ssclme.h@{ssclme.h}}
+\paragraph[ssclme\_\-gradient]{\setlength{\rightskip}{0pt plus 5cm}SEXP ssclme\_\-gradient (SEXP {\em x}, SEXP {\em REMLp}, SEXP {\em Uncp})}\hfill}
+\label{ssclme_8h_a18}
+
+
+\hypertarget{ssclme_8h_a19}{
+\index{ssclme.h@{ssclme.h}!ssclme_Hessian@{ssclme\_\-Hessian}}
+\index{ssclme_Hessian@{ssclme\_\-Hessian}!ssclme.h@{ssclme.h}}
+\paragraph[ssclme\_\-Hessian]{\setlength{\rightskip}{0pt plus 5cm}SEXP ssclme\_\-Hessian (SEXP {\em x}, SEXP {\em REMLp}, SEXP {\em Uncp})}\hfill}
+\label{ssclme_8h_a19}
+
+
+Return the Hessian of the ML or REML deviance. This is a placeholder until I work out the evaluation of the analytic Hessian, which probably will involve several helper functions.
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em x}]pointer to an ssclme object \item[{\em REMLp}]pointer to a logical scalar indicating if REML is to be used \item[{\em Uncp}]pointer to a logical scalar indicating if the unconstrained parameterization is to be used\end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]pointer to an approximate Hessian matrix \end{Desc}
+\hypertarget{ssclme_8h_a3}{
+\index{ssclme.h@{ssclme.h}!ssclme_inflate_and_factor@{ssclme\_\-inflate\_\-and\_\-factor}}
+\index{ssclme_inflate_and_factor@{ssclme\_\-inflate\_\-and\_\-factor}!ssclme.h@{ssclme.h}}
+\paragraph[ssclme\_\-inflate\_\-and\_\-factor]{\setlength{\rightskip}{0pt plus 5cm}SEXP ssclme\_\-inflate\_\-and\_\-factor (SEXP {\em x})}\hfill}
+\label{ssclme_8h_a3}
+
+
+Inflate Z'Z according to Omega and create the factorization LDL'
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em x}]pointer to an ssclme object\end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]NULL \end{Desc}
+\hypertarget{ssclme_8h_a6}{
+\index{ssclme.h@{ssclme.h}!ssclme_initial@{ssclme\_\-initial}}
+\index{ssclme_initial@{ssclme\_\-initial}!ssclme.h@{ssclme.h}}
+\paragraph[ssclme\_\-initial]{\setlength{\rightskip}{0pt plus 5cm}SEXP ssclme\_\-initial (SEXP {\em x})}\hfill}
+\label{ssclme_8h_a6}
+
+
+Create and insert initial values for Omega\_\-i.
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em x}]pointer to an ssclme object\end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]NULL \end{Desc}
+\hypertarget{ssclme_8h_a5}{
+\index{ssclme.h@{ssclme.h}!ssclme_invert@{ssclme\_\-invert}}
+\index{ssclme_invert@{ssclme\_\-invert}!ssclme.h@{ssclme.h}}
+\paragraph[ssclme\_\-invert]{\setlength{\rightskip}{0pt plus 5cm}SEXP ssclme\_\-invert (SEXP {\em x})}\hfill}
+\label{ssclme_8h_a5}
+
+
+If necessary, factor Z'Z+Omega, Zt\-X, and Xt\-X then, if necessary, form RZX, RXX, and b\-Var for the inverse of the Cholesky factor.
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em x}]pointer to an ssclme object\end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]NULL (x is updated in place) \end{Desc}
+\hypertarget{ssclme_8h_a8}{
+\index{ssclme.h@{ssclme.h}!ssclme_ranef@{ssclme\_\-ranef}}
+\index{ssclme_ranef@{ssclme\_\-ranef}!ssclme.h@{ssclme.h}}
+\paragraph[ssclme\_\-ranef]{\setlength{\rightskip}{0pt plus 5cm}SEXP ssclme\_\-ranef (SEXP {\em x})}\hfill}
+\label{ssclme_8h_a8}
+
+
+Extract the conditional modes of the random effects.
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em x}]Pointer to an ssclme object\end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]a list containing the conditional modes of the random effects \end{Desc}
+\hypertarget{ssclme_8h_a9}{
+\index{ssclme.h@{ssclme.h}!ssclme_sigma@{ssclme\_\-sigma}}
+\index{ssclme_sigma@{ssclme\_\-sigma}!ssclme.h@{ssclme.h}}
+\paragraph[ssclme\_\-sigma]{\setlength{\rightskip}{0pt plus 5cm}SEXP ssclme\_\-sigma (SEXP {\em x}, SEXP {\em REML})}\hfill}
+\label{ssclme_8h_a9}
+
+
+Extract the ML or REML conditional estimate of sigma
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em x}]pointer to an ssclme object \item[{\em REML}]logical scalar - TRUE if REML estimates are requested\end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]numeric scalar \end{Desc}
+\hypertarget{ssclme_8h_a21}{
+\index{ssclme.h@{ssclme.h}!ssclme_to_lme@{ssclme\_\-to\_\-lme}}
+\index{ssclme_to_lme@{ssclme\_\-to\_\-lme}!ssclme.h@{ssclme.h}}
+\paragraph[ssclme\_\-to\_\-lme]{\setlength{\rightskip}{0pt plus 5cm}SEXP ssclme\_\-to\_\-lme (SEXP {\em call}, SEXP {\em facs}, SEXP {\em x}, SEXP {\em model}, SEXP {\em REML}, SEXP {\em rep}, SEXP {\em fitted}, SEXP {\em residuals}, SEXP {\em terms}, SEXP {\em assign})}\hfill}
+\label{ssclme_8h_a21}
+
+
+Create an lme object from its components. This is not done by new(\char`\"{}lme\char`\"{}, ...) at the R level because of the possibility of causing the copying of very large objects.
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em call}]Pointer to the original call \item[{\em facs}]pointer to the list of grouping factors \item[{\em x}]pointer to the model matrices (may be of length zero) \item[{\em model}]pointer to the model frame \item[{\em REML}]pointer to a logical scalar indicating if REML is used \item[{\em rep}]pointer to the converged ssclme object \item[{\em fitted}]pointer to the fitted values \item[{\em residuals}]pointer to the residuals \item[{\em terms}]pointer to a terms object (redundant if model is non-empty) \item[{\em assign}]pointer to an integer assign vector \item[{\em contrasts}]pointer to a list of contrast function names\end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]an lme object \end{Desc}
+\hypertarget{ssclme_8h_a1}{
+\index{ssclme.h@{ssclme.h}!ssclme_transfer_dimnames@{ssclme\_\-transfer\_\-dimnames}}
+\index{ssclme_transfer_dimnames@{ssclme\_\-transfer\_\-dimnames}!ssclme.h@{ssclme.h}}
+\paragraph[ssclme\_\-transfer\_\-dimnames]{\setlength{\rightskip}{0pt plus 5cm}SEXP ssclme\_\-transfer\_\-dimnames (SEXP {\em x}, SEXP {\em facs}, SEXP {\em mmats})}\hfill}
+\label{ssclme_8h_a1}
+
+
+Copy the dimnames from the list of grouping factors and the model matrices for the grouping factors into the appropriate parts of the ssclme object.
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em x}]pointer to an ssclme object \item[{\em facs}]pointer to a list of factors \item[{\em mmats}]pointer to a list of model matrices\end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]NULL \end{Desc}
+\hypertarget{ssclme_8h_a2}{
+\index{ssclme.h@{ssclme.h}!ssclme_update_mm@{ssclme\_\-update\_\-mm}}
+\index{ssclme_update_mm@{ssclme\_\-update\_\-mm}!ssclme.h@{ssclme.h}}
+\paragraph[ssclme\_\-update\_\-mm]{\setlength{\rightskip}{0pt plus 5cm}SEXP ssclme\_\-update\_\-mm (SEXP {\em x}, SEXP {\em facs}, SEXP {\em mmats})}\hfill}
+\label{ssclme_8h_a2}
+
+
+Update the numerical entries x, Zt\-X, and Xt\-X in an ssclme object according to a set of model matrices.
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em x}]pointer to an ssclme object \item[{\em facs}]pointer to a list of grouping factors \item[{\em mmats}]pointer to a list of model matrices\end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]NULL \end{Desc}
+\hypertarget{ssclme_8h_a16}{
+\index{ssclme.h@{ssclme.h}!ssclme_variances@{ssclme\_\-variances}}
+\index{ssclme_variances@{ssclme\_\-variances}!ssclme.h@{ssclme.h}}
+\paragraph[ssclme\_\-variances]{\setlength{\rightskip}{0pt plus 5cm}SEXP ssclme\_\-variances (SEXP {\em x})}\hfill}
+\label{ssclme_8h_a16}
+
+
+Return the unscaled variances
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em x}]pointer to an ssclme object\end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]a list similar to the Omega list with the unscaled variances \end{Desc}

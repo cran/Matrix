@@ -65,14 +65,14 @@
  * C-callable routines:
  * --------------------
  *
- *	R_ldl_symbolic:  Given the pattern of A, computes the Lp and Parent arrays
- *	    required by R_ldl_numeric.  Takes time proportional to the number of
- *	    nonzeros in L.  Computes the inverse Pinv of P if P is provided.
- *	    Also returns Lnz, the count of nonzeros in each column of L below
- *	    the diagonal (this is not required by R_ldl_numeric).
- *	R_ldl_numeric:  Given the pattern and numerical values of A, the Lp array,
- *	    the Parent array, and P and Pinv if applicable, computes the
- *	    pattern and numerical values of L and D.
+ *	R_ldl_symbolic:  Given the pattern of A, computes the Lp and Parent 
+ *	    arrays required by R_ldl_numeric.  Takes time proportional to the
+ *	    number of nonzeros in L.  Computes the inverse Pinv of P if P is
+ *	    provided.  Also returns Lnz, the count of nonzeros in each column
+ *	    of L below the diagonal (this is not required by R_ldl_numeric).
+ *	R_ldl_numeric:  Given the pattern and numerical values of A, the Lp 
+ *	    array, the Parent array, and P and Pinv if applicable, computes
+ *	    the pattern and numerical values of L and D.
  *	R_ldl_lsolve:  Solves Lx=b for a dense vector b.
  *	R_ldl_dsolve:  Solves Dx=b for a dense vector b.
  *	R_ldl_ltsolve: Solves L'x=b for a dense vector b.
@@ -85,109 +85,121 @@
  * Limitations of this package:
  * ----------------------------
  *
- * In the interest of keeping this code simple and readable, R_ldl_symbolic and
- * R_ldl_numeric assume their inputs are valid.  You can check your own inputs
- * prior to calling these routines with the R_ldl_valid_perm and R_ldl_valid_matrix
- * routines.  Except for the two R_ldl_valid_* routines, no routine checks to see
- * if the array arguments are present (non-NULL).  Like all C routines, no
- * routine can determine if the arrays are long enough and don't overlap.
+ * In the interest of keeping this code simple and readable,
+ * R_ldl_symbolic and R_ldl_numeric assume their inputs are valid.
+ * You can check your own inputs prior to calling these routines with
+ * the R_ldl_valid_perm and R_ldl_valid_matrix routines.  Except for
+ * the two R_ldl_valid_* routines, no routine checks to see if the
+ * array arguments are present (non-NULL).  Like all C routines, no
+ * routine can determine if the arrays are long enough and don't
+ * overlap.
  *
- * The R_ldl_numeric does check the numerical factorization, however.  It returns
- * n if the factorization is successful.  If D (k,k) is zero, then k is
- * returned, and L is only partially computed.
+ * The R_ldl_numeric does check the numerical factorization, however.
+ * It returns n if the factorization is successful.  If D (k,k) is
+ * zero, then k is returned, and L is only partially computed.
  *
- * No pivoting to control fill-in is performed, which is often critical for
- * obtaining good performance.  I recommend that you compute the permutation P
- * using AMD or SYMAMD (approximate minimum degree ordering routines), or an
- * appropriate graph-partitioning based ordering.  See the ldldemo.m routine for
- * an example in MATLAB, and the ldlmain.c stand-alone C program for examples of
- * how to find P.  Routines for manipulating compressed-column matrices are
- * available in UMFPACK.  AMD, SYMAMD, UMFPACK, and this LDL package are all
- * available at http://www.cise.ufl.edu/research/sparse.
+ * No pivoting to control fill-in is performed, which is often
+ * critical for obtaining good performance.  I recommend that you
+ * compute the permutation P using AMD or SYMAMD (approximate minimum
+ * degree ordering routines), or an appropriate graph-partitioning
+ * based ordering.  See the ldldemo.m routine for an example in
+ * MATLAB, and the ldlmain.c stand-alone C program for examples of how
+ * to find P.  Routines for manipulating compressed-column matrices
+ * are available in UMFPACK.  AMD, SYMAMD, UMFPACK, and this LDL
+ * package are all available at
+ * http://www.cise.ufl.edu/research/sparse.
  *
  * -------------------------
  * Possible simplifications:
  * -------------------------
  *
- * These routines could be made even simpler with a few additional assumptions.
- * If no input permutation were performed, the caller would have to permute the
- * matrix first, but the computation of Pinv, and the use of P and Pinv could be
- * removed.  If only the diagonal and upper triangular part of A or PAP' are
- * present, then the tests in the "if (i < k)" statement in R_ldl_symbolic and
- * "if (i <= k)" in R_ldl_numeric, are always true, and could be removed (i can
- * equal k in R_ldl_symbolic, but then the body of the if statement would
- * correctly do no work since Flag [k] == k).  If we could assume that no
- * duplicate entries are present, then the statement Y [i] += Ax [p] could be
- * replaced with Y [i] = Ax [p] in R_ldl_numeric.
+ * These routines could be made even simpler with a few additional
+ * assumptions.  If no input permutation were performed, the caller
+ * would have to permute the matrix first, but the computation of
+ * Pinv, and the use of P and Pinv could be removed.  If only the
+ * diagonal and upper triangular part of A or PAP' are present, then
+ * the tests in the "if (i < k)" statement in R_ldl_symbolic and "if
+ * (i <= k)" in R_ldl_numeric, are always true, and could be removed
+ * (i can equal k in R_ldl_symbolic, but then the body of the if
+ * statement would correctly do no work since Flag [k] == k).  If we
+ * could assume that no duplicate entries are present, then the
+ * statement Y [i] += Ax [p] could be replaced with Y [i] = Ax [p] in
+ * R_ldl_numeric.
  *
  * --------------------------
  * Description of the method:
  * --------------------------
  *
- * LDL computes the symbolic factorization by finding the pattern of L one row
- * at a time.  It does this based on the following theory.  Consider a sparse
- * system Lx=b, where L, x, and b, are all sparse, and where L comes from a
- * Cholesky (or LDL') factorization.  The elimination tree (etree) of L is
- * defined as follows.  The parent of node j is the smallest k > j such that
- * L (k,j) is nonzero.  Node j has no parent if column j of L is completely zero
- * below the diagonal (j is a root of the etree in this case).  The nonzero
- * pattern of x is the union of the paths from each node i to the root, for
- * each nonzero b (i).  To compute the numerical solution to Lx=b, we can
- * traverse the columns of L corresponding to nonzero values of x.  This
- * traversal does not need to be done in the order 0 to n-1.  It can be done in
- * any "topological" order, such that x (i) is computed before x (j) if i is a
- * descendant of j in the elimination tree.
+ * LDL computes the symbolic factorization by finding the pattern of L
+ * one row at a time.  It does this based on the following theory.
+ * Consider a sparse system Lx=b, where L, x, and b, are all sparse,
+ * and where L comes from a Cholesky (or LDL') factorization.  The
+ * elimination tree (etree) of L is defined as follows.  The parent of
+ * node j is the smallest k > j such that L (k,j) is nonzero.  Node j
+ * has no parent if column j of L is completely zero below the
+ * diagonal (j is a root of the etree in this case).  The nonzero
+ * pattern of x is the union of the paths from each node i to the
+ * root, for each nonzero b (i).  To compute the numerical solution to
+ * Lx=b, we can traverse the columns of L corresponding to nonzero
+ * values of x.  This traversal does not need to be done in the order
+ * 0 to n-1.  It can be done in any "topological" order, such that x
+ * (i) is computed before x (j) if i is a descendant of j in the
+ * elimination tree.
  *
- * The row-form of the LDL' factorization is shown in the MATLAB function
- * ldlrow.m in this LDL package.  Note that row k of L is found via a sparse
- * triangular solve of L (1:k-1, 1:k-1) \ A (1:k-1, k), to use 1-based MATLAB
- * notation.  Thus, we can start with the nonzero pattern of the kth column of
- * A (above the diagonal), follow the paths up to the root of the etree of the
- * (k-1)-by-(k-1) leading submatrix of L, and obtain the pattern of the kth row
- * of L.  Note that we only need the leading (k-1)-by-(k-1) submatrix of L to
- * do this.  The elimination tree can be constructed as we go.
+ * The row-form of the LDL' factorization is shown in the MATLAB
+ * function ldlrow.m in this LDL package.  Note that row k of L is
+ * found via a sparse triangular solve of L (1:k-1, 1:k-1) \ A (1:k-1,
+ * k), to use 1-based MATLAB notation.  Thus, we can start with the
+ * nonzero pattern of the kth column of A (above the diagonal), follow
+ * the paths up to the root of the etree of the (k-1)-by-(k-1) leading
+ * submatrix of L, and obtain the pattern of the kth row of L.  Note
+ * that we only need the leading (k-1)-by-(k-1) submatrix of L to do
+ * this.  The elimination tree can be constructed as we go.
  *
- * The symbolic factorization does the same thing, except that it discards the
- * pattern of L as it is computed.  It simply counts the number of nonzeros in
- * each column of L and then constructs the Lp index array when it's done.  The
- * symbolic factorization does not need to do this in topological order.
- * Compare R_ldl_symbolic with the first part of R_ldl_numeric, and note that the
- * while (len > 0) loop is not present in R_ldl_symbolic.
+ * The symbolic factorization does the same thing, except that it
+ * discards the pattern of L as it is computed.  It simply counts the
+ * number of nonzeros in each column of L and then constructs the Lp
+ * index array when it's done.  The symbolic factorization does not
+ * need to do this in topological order.  Compare R_ldl_symbolic with
+ * the first part of R_ldl_numeric, and note that the while (len > 0)
+ * loop is not present in R_ldl_symbolic.
  *
- * LDL Version 1.0 (Dec. 31, 2003), Copyright (c) 2003 by Timothy A Davis,
- * University of Florida.  All Rights Reserved.  Developed while on sabbatical
- * at Stanford University and Lawrence Berkeley National Laboratory.  Refer to
- * the README file for the License.  Available at
- * http://www.cise.ufl.edu/research/sparse.
+ * LDL Version 1.0 (Dec. 31, 2003), Copyright (c) 2003 by Timothy A
+ * Davis, University of Florida.  All Rights Reserved.  Developed
+ * while on sabbatical at Stanford University and Lawrence Berkeley
+ * National Laboratory.  Refer to the README file for the License.
+ * Available at http://www.cise.ufl.edu/research/sparse.
  */
 
 #include "R_ldl.h"
 
 /* ========================================================================== */
-/* === R_ldl_symbolic ========================================================= */
+/* === R_ldl_symbolic ======================================================= */
 /* ========================================================================== */
 
 /** 
- * The input to this routine is a sparse matrix A, stored in column form, and
- * an optional permutation P.  The output is the elimination tree
- * and the number of nonzeros in each column of L.  Parent [i] = k if k is the
- * parent of i in the tree.  The Parent array is required by R_ldl_numeric.
- * Lnz [k] gives the number of nonzeros in the kth column of L, excluding the
- * diagonal.
+ * The input to this routine is a sparse matrix A, stored in column
+ * form, and an optional permutation P.  The output is the elimination
+ * tree and the number of nonzeros in each column of L.  Parent [i] =
+ * k if k is the parent of i in the tree.  The Parent array is
+ * required by R_ldl_numeric.  Lnz [k] gives the number of nonzeros in
+ * the kth column of L, excluding the diagonal.
  *
- * If P is NULL, then it is ignored.  The factorization will be LDL' = A.
- * Pinv is not computed.  In this case, neither P nor Pinv are required by
- * R_ldl_numeric.
+ * If P is NULL, then it is ignored.  The factorization will be LDL' =
+ * A.  Pinv is not computed.  In this case, neither P nor Pinv are
+ * required by R_ldl_numeric.
  *
  * If P is not NULL, then it is assumed to be a valid permutation.  If
- * row and column j of A is the kth pivot, the P [k] = j.  The factorization
- * will be LDL' = PAP', or A (p,p) in MATLAB notation.  The inverse permutation
- * Pinv is computed, where Pinv [j] = k if P [k] = j.  In this case, both P
- * and Pinv are required as inputs to R_ldl_numeric.
+ * row and column j of A is the kth pivot, the P [k] = j.  The
+ * factorization will be LDL' = PAP', or A (p,p) in MATLAB notation.
+ * The inverse permutation Pinv is computed, where Pinv [j] = k if P
+ * [k] = j.  In this case, both P and Pinv are required as inputs to
+ * R_ldl_numeric.
  *
- * The floating-point operation count of the subsequent call to R_ldl_numeric
- * is not returned, but could be computed after R_ldl_symbolic is done.  It is
- * the sum of (Lnz [k]) * (Lnz [k] + 2) for k = 0 to n-1.
+ * The floating-point operation count of the subsequent call to
+ * R_ldl_numeric is not returned, but could be computed after
+ * R_ldl_symbolic is done.  It is the sum of (Lnz [k]) * (Lnz [k] + 2)
+ * for k = 0 to n-1.
  * 
  * @param n A and L are n-by-n, where n >= 0
  * @param Ap column pointers of size n+1
@@ -215,10 +227,10 @@ R_ldl_symbolic(int n, const int Ap[], const int Ai[], int Lp[],
     for (k = 0 ; k < n ; k++)
     {
 	/* L(k,:) pattern: all nodes reachable in etree from nz in A(0:k-1,k) */
-	Parent [k] = -1 ;	    /* parent of k is not yet known */
-	Flag [k] = k ;		    /* mark node k as visited */
-	Lnz [k] = 0 ;		    /* count of nonzeros in column k of L */
-	kk = (P) ? (P [k]) : (k) ;  /* kth original, or permuted, column */
+	Parent [k] = -1 ;	/* parent of k is not yet known */
+	Flag [k] = k ;		/* mark node k as visited */
+	Lnz [k] = 0 ;	      /* count of nonzeros in column k of L */
+	kk = (P) ? (P [k]) : (k) ; /* kth original, or permuted, column */
 	p2 = Ap [kk+1] ;
 	for (p = Ap [kk] ; p < p2 ; p++)
 	{
@@ -234,8 +246,8 @@ R_ldl_symbolic(int n, const int Ap[], const int Ai[], int Lp[],
 		    {
 			Parent [i] = k ;
 		    }
-		    Lnz [i]++ ;				/* L (k,i) is nonzero */
-		    Flag [i] = k ;			/* mark i as visited */
+		    Lnz [i]++ ;	/* L (k,i) is nonzero */
+		    Flag [i] = k ; /* mark i as visited */
 		}
 	    }
 	}
@@ -250,10 +262,10 @@ R_ldl_symbolic(int n, const int Ap[], const int Ai[], int Lp[],
 }
 
 /** 
- * Given a sparse matrix A (the arguments n, Ap, Ai, and Ax) and its symbolic
- * analysis (Lp and Parent, and optionally P and Pinv), compute the numeric LDL'
- * factorization of A or PAP'.  The outputs of this routine are arguments Li,
- * Lx, and D.
+ * Given a sparse matrix A (the arguments n, Ap, Ai, and Ax) and its
+ * symbolic analysis (Lp and Parent, and optionally P and Pinv),
+ * compute the numeric LDL' factorization of A or PAP'.  The outputs
+ * of this routine are arguments Li, Lx, and D.
  * 
  * @param n A and L are n-by-n, where n >= 0
  * @param Ap column pointer array of size n+1
@@ -287,24 +299,24 @@ R_ldl_numeric(int n,
     {
 	/* compute nonzero Pattern of kth row of L, in topological order */
 	Y [k] = 0.0 ;		/* Y (0:k) is now all zero */
-	top = n ;		    /* stack for pattern is empty */
-	Flag [k] = k ;		    /* mark node k as visited */
-	Lnz [k] = 0 ;		    /* count of nonzeros in column k of L */
-	kk = (P) ? (P [k]) : (k) ;  /* kth original, or permuted, column */
+	top = n ;		/* stack for pattern is empty */
+	Flag [k] = k ;		/* mark node k as visited */
+	Lnz [k] = 0 ;	      /* count of nonzeros in column k of L */
+	kk = (P) ? (P [k]) : (k) ; /* kth original, or permuted, column */
 	p2 = Ap [kk+1] ;
 	for (p = Ap [kk] ; p < p2 ; p++)
 	{
-	    i = (Pinv) ? (Pinv [Ai [p]]) : (Ai [p]) ;	/* get A(i,k) */
+	    i = (Pinv) ? (Pinv [Ai [p]]) : (Ai [p]) ; /* get A(i,k) */
 	    if (i <= k)
 	    {
-		Y [i] += Ax [p] ;  /* scatter A(i,k) into Y (sum duplicates) */
+		Y [i] += Ax [p] ; /* scatter A(i,k) into Y (sum duplicates) */
 		/* follow path from i to root of etree, stop at flagged node */
 		for (len = 0 ; Flag [i] != k ; i = Parent [i])
 		{
-		    Pattern [len++] = i ;   /* L (k,i) is nonzero */
-		    Flag [i] = k ;	    /* mark i as visited */
+		    Pattern [len++] = i ; /* L (k,i) is nonzero */
+		    Flag [i] = k ; /* mark i as visited */
 		}
-		while (len > 0)		    /* push path on top of stack */
+		while (len > 0)	/* push path on top of stack */
 		{
 		    Pattern [--top] = Pattern [--len] ;
 		}
@@ -312,32 +324,32 @@ R_ldl_numeric(int n,
 	}
 	/* Pattern [top ... n-1] now contains nonzero pattern of L (:,k) */
 	/* compute numerical values kth row of L (a sparse triangular solve) */
-	D [k] = Y [k] ;		    /* get D (k,k) and clear Y (k) */
+	D [k] = Y [k] ;		/* get D (k,k) and clear Y (k) */
 	Y [k] = 0.0 ;
 	for ( ; top < n ; top++)
 	{
 	    i = Pattern [top] ;
-	    yi = Y [i] ;	    /* get and clear Y (i) */
+	    yi = Y [i] ;	/* get and clear Y (i) */
 	    Y [i] = 0.0 ;
 	    p2 = Lp [i] + Lnz [i] ;
 	    for (p = Lp [i] ; p < p2 ; p++)
 	    {
 		Y [Li [p]] -= Lx [p] * yi ;
 	    }
-	    l_ki = yi / D [i] ;	    /* the nonzero entry L (k,i) */
+	    l_ki = yi / D [i] ;	/* the nonzero entry L (k,i) */
 	    D [k] -= l_ki * yi ;
-	    Li [p] = k ;	    /* store L(k,k )in column form of L */
+	    Li [p] = k ;	/* store L(k,k )in column form of L */
 	    Lx [p] = l_ki ;
-	    Lnz [i]++ ;		    /* increment count of nonzeros in col i */
+	    Lnz [i]++ ;	    /* increment count of nonzeros in col i */
 	}
 	if (D [k] == 0.0)
 	{
 	    Free(Y); Free(Pattern); Free(Flag); Free(Lnz);
-	    return (k) ;	    /* failure, D (k,k) is zero */
+	    return (k) ;	/* failure, D (k,k) is zero */
 	}
     }
     Free(Y); Free(Pattern); Free(Flag); Free(Lnz);
-    return (n) ;	/* success, diagonal of D is all nonzero */
+    return (n) ;	   /* success, diagonal of D is all nonzero */
 }
 
 /** 
@@ -458,34 +470,35 @@ R_ldl_valid_perm (int n, const int P[])
 
     if (n < 0 || !Flag)
     {
-	return (0) ;	    /* n must be >= 0, and Flag must be present */
+	return (0) ;	/* n must be >= 0, and Flag must be present */
     }
     if (!P)
     {
-	return (1) ;	    /* If NULL, P is assumed to be the identity perm. */
+	return (1) ; /* If NULL, P is assumed to be the identity perm. */
     }
     for (j = 0 ; j < n ; j++)
     {
-	Flag [j] = 0 ;	    /* clear the Flag array */
+	Flag [j] = 0 ;		/* clear the Flag array */
     }
     for (k = 0 ; k < n ; k++)
     {
 	j = P [k] ;
 	if (j < 0 || j >= n || Flag [j] != 0)
 	{
-	    return (0) ;    /* P is not valid */
+	    return (0) ;	/* P is not valid */
 	}
 	Flag [j] = 1 ;
     }
-    return (1) ;	    /* P is valid */
+    return (1) ;		/* P is valid */
 }
 
 /** 
- * This routine checks to see if a sparse matrix A is valid for input to
- * R_ldl_symbolic and R_ldl_numeric.  It returns 1 if the matrix is valid, 0
- * otherwise.  A is in sparse column form.  The numerical values in column j
- * are stored in Ax [Ap [j] ... Ap [j+1]-1], with row indices in
- * Ai [Ap [j] ... Ap [j+1]-1].  The Ax array is not checked.
+ * This routine checks to see if a sparse matrix A is valid for input
+ * to R_ldl_symbolic and R_ldl_numeric.  It returns 1 if the matrix is
+ * valid, 0 otherwise.  A is in sparse column form.  The numerical
+ * values in column j are stored in Ax [Ap [j] ... Ap [j+1]-1], with
+ * row indices in Ai [Ap [j] ... Ap [j+1]-1].  The Ax array is not
+ * checked.
  * 
  * @param n A is n by n (n >= 0)
  * @param Ap column pointer array of size n+1
@@ -499,21 +512,21 @@ R_ldl_valid_matrix (int n, const int Ap[], const int Ai[])
     int j, p ;
     if (n < 0 || !Ap || !Ai || Ap [0] != 0)
     {
-	return (0) ;	    /* n must be >= 0, and Ap and Ai must be present */
+	return (0) ; /* n must be >= 0, and Ap and Ai must be present */
     }
     for (j = 0 ; j < n ; j++)
     {
 	if (Ap [j] > Ap [j+1])
 	{
-	    return (0) ;    /* Ap must be monotonically nondecreasing */
+	    return (0) ;  /* Ap must be monotonically nondecreasing */
 	}
     }
     for (p = 0 ; p < Ap [n] ; p++)
     {
 	if (Ai [p] < 0 || Ai [p] >= n)
 	{
-	    return (0) ;    /* row indices must be in the range 0 to n-1 */
+	    return (0) ; /* row indices must be in the range 0 to n-1 */
 	}
     }
-    return (1) ;	    /* matrix is valid */
+    return (1) ;		/* matrix is valid */
 }

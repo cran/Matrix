@@ -1,24 +1,30 @@
 useDynLib(Matrix)
-importFrom("graphics","image")
-importFrom("lattice", "levelplot")
-importFrom("grid", "grid.rect", "gpar", "grob")
-importFrom("stats", "deviance", "formula", "coef")
 
-# Generics and functions defined in this package
+importFrom("graphics",image)
+importFrom("lattice", levelplot)
+importFrom("grid",    grid.rect, gpar, grob)
+importFrom("stats",   deviance, formula, coef)
+
+## Currently, group generics need to be explicitly imported (Bug?):
+importFrom("methods", Arith, Compare, Math, Math2, Summary, Complex)
+
+## Generics and functions defined in this package
 export(
        "Hilbert",
        "Matrix",
+       "Schur",
        "bCrosstab",
        "coef<-",
-       "corFactor",
-       "corMatrix",
+#       "corFactor",
+#       "corMatrix",
        "expand",
+       "expm",
        "facmul",
        "lu",
-       "matrix<-",
+#       "matrix<-",
        "norm",
-       "pdFactor",
-       "pdMatrix",
+#       "pdFactor",
+#       "pdMatrix",
        "rcond",
        "sscCrosstab",
        "tcrossprod",
@@ -29,45 +35,61 @@ exportClasses(
 	      "Cholesky",
 	      "LU",
               "Matrix",
+              ## also intermediate `virtual' ones:
+              "dMatrix",
+              ## not yet:   "iMatrix", "lMatrix", "zMatrix",
+              "ddenseMatrix",
+
+              "dgBCMatrix",
+              "dgCMatrix",
+              "dgTMatrix",
+              "dgeMatrix",
+              "dpoMatrix",
+              "dppMatrix",
+              "dsCMatrix",
+              "dsTMatrix",
+              "dspMatrix",
+              "dsyMatrix",
+              "dtCMatrix",
+              "dtTMatrix",
+              "dtpMatrix",
+              "dtrMatrix",
+
               "corrmatrix",
-              "cscBlocked",
-              "cscMatrix",
-              "geMatrix",
               "pdfactor",
               "pdmatrix",
-              "poMatrix",
-              "sscChol",
+              "dCholCMatrix",
               "sscCrosstab",
-              "sscMatrix",
-              "ssclme",
-              "syMatrix",
-              "trMatrix",
-              "tripletMatrix",
-              "tscMatrix"
+              "ssclme"
               )
 
 exportMethods(
+              ## Group Methods
+              "Arith",
+
+              "+",# for dgT(Matrix) only
               "%*%",
+
+              "Schur",
               "chol",
               "coef",
               "coef<-",
               "coerce",
-              "corMatrix",
+#             "corMatrix",
               "crossprod",
               "determinant",
               "diag",
               "dim",
               "expand",
+              "expm",
               "image",
-              "matrix<-",
+#              "matrix<-",
               "norm",
-              "pdFactor",
-              "pdMatrix",
+#              "pdFactor",
+#              "pdMatrix",
               "rcond",
               "show",
               "solve",
               "t",
               "tcrossprod"
               )
-
-

@@ -10,13 +10,13 @@
 Hilbert(n)
 }
 \arguments{
-  \item{n}{a positive integer.}
+  \item{n}{a non-negative integer.}
 }
 \value{
   the \code{n} by \code{n} symmetric Hilbert matrix as a
-  \code{"poMatrix"} object.
+  \code{"dpoMatrix"} object.
 }
-\seealso{\code{\link{poMatrix-class}}}  
+\seealso{\code{\link{dpoMatrix-class}}}
 \examples{
 Hilbert(6)
 }

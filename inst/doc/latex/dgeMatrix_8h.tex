@@ -1,0 +1,156 @@
+\hypertarget{dgeMatrix_8h}{
+\subsection{dge\-Matrix.h File Reference}
+\label{dgeMatrix_8h}\index{dgeMatrix.h@{dgeMatrix.h}}
+}
+{\tt \#include $<$R\_\-ext/Lapack.h$>$}\par
+{\tt \#include \char`\"{}Mutils.h\char`\"{}}\par
+\subsubsection*{Functions}
+\begin{CompactItemize}
+\item 
+SEXP \hyperlink{dgeMatrix_8h_a0}{dge\-Matrix\_\-validate} (SEXP obj)
+\item 
+SEXP \hyperlink{dgeMatrix_8h_a1}{dge\-Matrix\_\-norm} (SEXP obj, SEXP norm)
+\item 
+SEXP \hyperlink{dgeMatrix_8h_a2}{dge\-Matrix\_\-rcond} (SEXP obj, SEXP type)
+\item 
+SEXP \hyperlink{dgeMatrix_8h_a3}{dge\-Matrix\_\-crossprod} (SEXP x)
+\item 
+SEXP \hyperlink{dgeMatrix_8h_a4}{dge\-Matrix\_\-dge\-Matrix\_\-crossprod} (SEXP x, SEXP y)
+\item 
+SEXP \hyperlink{dgeMatrix_8h_a5}{dge\-Matrix\_\-matrix\_\-crossprod} (SEXP x, SEXP y)
+\item 
+SEXP \hyperlink{dgeMatrix_8h_a6}{dge\-Matrix\_\-get\-Diag} (SEXP x)
+\item 
+SEXP \hyperlink{dgeMatrix_8h_a7}{dge\-Matrix\_\-LU} (SEXP x)
+\item 
+SEXP \hyperlink{dgeMatrix_8h_a8}{dge\-Matrix\_\-determinant} (SEXP x, SEXP logarithm)
+\item 
+SEXP \hyperlink{dgeMatrix_8h_a9}{dge\-Matrix\_\-Schur} (SEXP x, SEXP vectors)
+\item 
+SEXP \hyperlink{dgeMatrix_8h_a10}{dge\-Matrix\_\-solve} (SEXP a)
+\item 
+SEXP \hyperlink{dgeMatrix_8h_a11}{dge\-Matrix\_\-dge\-Matrix\_\-mm} (SEXP a, SEXP b)
+\item 
+SEXP \hyperlink{dgeMatrix_8h_a12}{dge\-Matrix\_\-svd} (SEXP x, SEXP nu, SEXP nv)
+\item 
+SEXP \hyperlink{dgeMatrix_8h_a13}{dge\-Matrix\_\-exp} (SEXP x)
+\item 
+void \hyperlink{dgeMatrix_8h_a14}{dgesdd\_\-} (const char $\ast$jobz, const int $\ast$m, const int $\ast$n, double $\ast$a, const int $\ast$lda, double $\ast$s, double $\ast$u, const int $\ast$ldu, double $\ast$vt, const int $\ast$ldvt, double $\ast$work, const int $\ast$lwork, int $\ast$iwork, int $\ast$info)
+\end{CompactItemize}
+
+
+\subsubsection{Function Documentation}
+\hypertarget{dgeMatrix_8h_a3}{
+\index{dgeMatrix.h@{dge\-Matrix.h}!dgeMatrix_crossprod@{dgeMatrix\_\-crossprod}}
+\index{dgeMatrix_crossprod@{dgeMatrix\_\-crossprod}!dgeMatrix.h@{dge\-Matrix.h}}
+\paragraph[dgeMatrix\_\-crossprod]{\setlength{\rightskip}{0pt plus 5cm}SEXP dge\-Matrix\_\-crossprod (SEXP {\em x})}\hfill}
+\label{dgeMatrix_8h_a3}
+
+
+\hypertarget{dgeMatrix_8h_a8}{
+\index{dgeMatrix.h@{dge\-Matrix.h}!dgeMatrix_determinant@{dgeMatrix\_\-determinant}}
+\index{dgeMatrix_determinant@{dgeMatrix\_\-determinant}!dgeMatrix.h@{dge\-Matrix.h}}
+\paragraph[dgeMatrix\_\-determinant]{\setlength{\rightskip}{0pt plus 5cm}SEXP dge\-Matrix\_\-determinant (SEXP {\em x}, SEXP {\em logarithm})}\hfill}
+\label{dgeMatrix_8h_a8}
+
+
+\hypertarget{dgeMatrix_8h_a4}{
+\index{dgeMatrix.h@{dge\-Matrix.h}!dgeMatrix_dgeMatrix_crossprod@{dgeMatrix\_\-dgeMatrix\_\-crossprod}}
+\index{dgeMatrix_dgeMatrix_crossprod@{dgeMatrix\_\-dgeMatrix\_\-crossprod}!dgeMatrix.h@{dge\-Matrix.h}}
+\paragraph[dgeMatrix\_\-dgeMatrix\_\-crossprod]{\setlength{\rightskip}{0pt plus 5cm}SEXP dge\-Matrix\_\-dge\-Matrix\_\-crossprod (SEXP {\em x}, SEXP {\em y})}\hfill}
+\label{dgeMatrix_8h_a4}
+
+
+\hypertarget{dgeMatrix_8h_a11}{
+\index{dgeMatrix.h@{dge\-Matrix.h}!dgeMatrix_dgeMatrix_mm@{dgeMatrix\_\-dgeMatrix\_\-mm}}
+\index{dgeMatrix_dgeMatrix_mm@{dgeMatrix\_\-dgeMatrix\_\-mm}!dgeMatrix.h@{dge\-Matrix.h}}
+\paragraph[dgeMatrix\_\-dgeMatrix\_\-mm]{\setlength{\rightskip}{0pt plus 5cm}SEXP dge\-Matrix\_\-dge\-Matrix\_\-mm (SEXP {\em a}, SEXP {\em b})}\hfill}
+\label{dgeMatrix_8h_a11}
+
+
+\hypertarget{dgeMatrix_8h_a13}{
+\index{dgeMatrix.h@{dge\-Matrix.h}!dgeMatrix_exp@{dgeMatrix\_\-exp}}
+\index{dgeMatrix_exp@{dgeMatrix\_\-exp}!dgeMatrix.h@{dge\-Matrix.h}}
+\paragraph[dgeMatrix\_\-exp]{\setlength{\rightskip}{0pt plus 5cm}SEXP dge\-Matrix\_\-exp (SEXP {\em x})}\hfill}
+\label{dgeMatrix_8h_a13}
+
+
+Matrix exponential - based on the code for Octave's expm function.
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em x}]real square matrix to exponentiate\end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]matrix exponential of x \end{Desc}
+\hypertarget{dgeMatrix_8h_a6}{
+\index{dgeMatrix.h@{dge\-Matrix.h}!dgeMatrix_getDiag@{dgeMatrix\_\-getDiag}}
+\index{dgeMatrix_getDiag@{dgeMatrix\_\-getDiag}!dgeMatrix.h@{dge\-Matrix.h}}
+\paragraph[dgeMatrix\_\-getDiag]{\setlength{\rightskip}{0pt plus 5cm}SEXP dge\-Matrix\_\-get\-Diag (SEXP {\em x})}\hfill}
+\label{dgeMatrix_8h_a6}
+
+
+\hypertarget{dgeMatrix_8h_a7}{
+\index{dgeMatrix.h@{dge\-Matrix.h}!dgeMatrix_LU@{dgeMatrix\_\-LU}}
+\index{dgeMatrix_LU@{dgeMatrix\_\-LU}!dgeMatrix.h@{dge\-Matrix.h}}
+\paragraph[dgeMatrix\_\-LU]{\setlength{\rightskip}{0pt plus 5cm}SEXP dge\-Matrix\_\-LU (SEXP {\em x})}\hfill}
+\label{dgeMatrix_8h_a7}
+
+
+\hypertarget{dgeMatrix_8h_a5}{
+\index{dgeMatrix.h@{dge\-Matrix.h}!dgeMatrix_matrix_crossprod@{dgeMatrix\_\-matrix\_\-crossprod}}
+\index{dgeMatrix_matrix_crossprod@{dgeMatrix\_\-matrix\_\-crossprod}!dgeMatrix.h@{dge\-Matrix.h}}
+\paragraph[dgeMatrix\_\-matrix\_\-crossprod]{\setlength{\rightskip}{0pt plus 5cm}SEXP dge\-Matrix\_\-matrix\_\-crossprod (SEXP {\em x}, SEXP {\em y})}\hfill}
+\label{dgeMatrix_8h_a5}
+
+
+\hypertarget{dgeMatrix_8h_a1}{
+\index{dgeMatrix.h@{dge\-Matrix.h}!dgeMatrix_norm@{dgeMatrix\_\-norm}}
+\index{dgeMatrix_norm@{dgeMatrix\_\-norm}!dgeMatrix.h@{dge\-Matrix.h}}
+\paragraph[dgeMatrix\_\-norm]{\setlength{\rightskip}{0pt plus 5cm}SEXP dge\-Matrix\_\-norm (SEXP {\em obj}, SEXP {\em norm})}\hfill}
+\label{dgeMatrix_8h_a1}
+
+
+\hypertarget{dgeMatrix_8h_a2}{
+\index{dgeMatrix.h@{dge\-Matrix.h}!dgeMatrix_rcond@{dgeMatrix\_\-rcond}}
+\index{dgeMatrix_rcond@{dgeMatrix\_\-rcond}!dgeMatrix.h@{dge\-Matrix.h}}
+\paragraph[dgeMatrix\_\-rcond]{\setlength{\rightskip}{0pt plus 5cm}SEXP dge\-Matrix\_\-rcond (SEXP {\em obj}, SEXP {\em type})}\hfill}
+\label{dgeMatrix_8h_a2}
+
+
+\hypertarget{dgeMatrix_8h_a9}{
+\index{dgeMatrix.h@{dge\-Matrix.h}!dgeMatrix_Schur@{dgeMatrix\_\-Schur}}
+\index{dgeMatrix_Schur@{dgeMatrix\_\-Schur}!dgeMatrix.h@{dge\-Matrix.h}}
+\paragraph[dgeMatrix\_\-Schur]{\setlength{\rightskip}{0pt plus 5cm}SEXP dge\-Matrix\_\-Schur (SEXP {\em x}, SEXP {\em vectors})}\hfill}
+\label{dgeMatrix_8h_a9}
+
+
+\hypertarget{dgeMatrix_8h_a10}{
+\index{dgeMatrix.h@{dge\-Matrix.h}!dgeMatrix_solve@{dgeMatrix\_\-solve}}
+\index{dgeMatrix_solve@{dgeMatrix\_\-solve}!dgeMatrix.h@{dge\-Matrix.h}}
+\paragraph[dgeMatrix\_\-solve]{\setlength{\rightskip}{0pt plus 5cm}SEXP dge\-Matrix\_\-solve (SEXP {\em a})}\hfill}
+\label{dgeMatrix_8h_a10}
+
+
+\hypertarget{dgeMatrix_8h_a12}{
+\index{dgeMatrix.h@{dge\-Matrix.h}!dgeMatrix_svd@{dgeMatrix\_\-svd}}
+\index{dgeMatrix_svd@{dgeMatrix\_\-svd}!dgeMatrix.h@{dge\-Matrix.h}}
+\paragraph[dgeMatrix\_\-svd]{\setlength{\rightskip}{0pt plus 5cm}SEXP dge\-Matrix\_\-svd (SEXP {\em x}, SEXP {\em nu}, SEXP {\em nv})}\hfill}
+\label{dgeMatrix_8h_a12}
+
+
+\hypertarget{dgeMatrix_8h_a0}{
+\index{dgeMatrix.h@{dge\-Matrix.h}!dgeMatrix_validate@{dgeMatrix\_\-validate}}
+\index{dgeMatrix_validate@{dgeMatrix\_\-validate}!dgeMatrix.h@{dge\-Matrix.h}}
+\paragraph[dgeMatrix\_\-validate]{\setlength{\rightskip}{0pt plus 5cm}SEXP dge\-Matrix\_\-validate (SEXP {\em obj})}\hfill}
+\label{dgeMatrix_8h_a0}
+
+
+\hypertarget{dgeMatrix_8h_a14}{
+\index{dgeMatrix.h@{dge\-Matrix.h}!dgesdd_@{dgesdd\_\-}}
+\index{dgesdd_@{dgesdd\_\-}!dgeMatrix.h@{dge\-Matrix.h}}
+\paragraph[dgesdd\_\-]{\setlength{\rightskip}{0pt plus 5cm}void dgesdd\_\- (const char $\ast$ {\em jobz}, const int $\ast$ {\em m}, const int $\ast$ {\em n}, double $\ast$ {\em a}, const int $\ast$ {\em lda}, double $\ast$ {\em s}, double $\ast$ {\em u}, const int $\ast$ {\em ldu}, double $\ast$ {\em vt}, const int $\ast$ {\em ldvt}, double $\ast$ {\em work}, const int $\ast$ {\em lwork}, int $\ast$ {\em iwork}, int $\ast$ {\em info})}\hfill}
+\label{dgeMatrix_8h_a14}
+
+

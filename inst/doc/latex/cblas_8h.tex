@@ -1,0 +1,1449 @@
+\hypertarget{cblas_8h}{
+\subsection{cblas.h File Reference}
+\label{cblas_8h}\index{cblas.h@{cblas.h}}
+}
+{\tt \#include $<$stddef.h$>$}\par
+\subsubsection*{Defines}
+\begin{CompactItemize}
+\item 
+\#define \hyperlink{cblas_8h_a0}{CBLAS\_\-INDEX}~size\_\-t
+\end{CompactItemize}
+\subsubsection*{Enumerations}
+\begin{CompactItemize}
+\item 
+enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} \{ \hyperlink{cblas_8h_a155a1}{Cblas\-Row\-Major} = 101, 
+\hyperlink{cblas_8h_a155a2}{Cblas\-Col\-Major} = 102
+ \}
+\item 
+enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} \{ \hyperlink{cblas_8h_a156a3}{Cblas\-No\-Trans} = 111, 
+\hyperlink{cblas_8h_a156a4}{Cblas\-Trans} = 112, 
+\hyperlink{cblas_8h_a156a5}{Cblas\-Conj\-Trans} = 113
+ \}
+\item 
+enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} \{ \hyperlink{cblas_8h_a157a6}{Cblas\-Upper} = 121, 
+\hyperlink{cblas_8h_a157a7}{Cblas\-Lower} = 122
+ \}
+\item 
+enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} \{ \hyperlink{cblas_8h_a158a8}{Cblas\-Non\-Unit} = 131, 
+\hyperlink{cblas_8h_a158a9}{Cblas\-Unit} = 132
+ \}
+\item 
+enum \hyperlink{cblas_8h_a159}{CBLAS\_\-SIDE} \{ \hyperlink{cblas_8h_a159a10}{Cblas\-Left} = 141, 
+\hyperlink{cblas_8h_a159a11}{Cblas\-Right} = 142
+ \}
+\end{CompactItemize}
+\subsubsection*{Functions}
+\begin{CompactItemize}
+\item 
+float \hyperlink{cblas_8h_a12}{cblas\_\-sdsdot} (const int N, const float alpha, const float $\ast$X, const int inc\-X, const float $\ast$Y, const int inc\-Y)
+\item 
+double \hyperlink{cblas_8h_a13}{cblas\_\-dsdot} (const int N, const float $\ast$X, const int inc\-X, const float $\ast$Y, const int inc\-Y)
+\item 
+float \hyperlink{cblas_8h_a14}{cblas\_\-sdot} (const int N, const float $\ast$X, const int inc\-X, const float $\ast$Y, const int inc\-Y)
+\item 
+double \hyperlink{cblas_8h_a15}{cblas\_\-ddot} (const int N, const double $\ast$X, const int inc\-X, const double $\ast$Y, const int inc\-Y)
+\item 
+void \hyperlink{cblas_8h_a16}{cblas\_\-cdotu\_\-sub} (const int N, const void $\ast$X, const int inc\-X, const void $\ast$Y, const int inc\-Y, void $\ast$dotu)
+\item 
+void \hyperlink{cblas_8h_a17}{cblas\_\-cdotc\_\-sub} (const int N, const void $\ast$X, const int inc\-X, const void $\ast$Y, const int inc\-Y, void $\ast$dotc)
+\item 
+void \hyperlink{cblas_8h_a18}{cblas\_\-zdotu\_\-sub} (const int N, const void $\ast$X, const int inc\-X, const void $\ast$Y, const int inc\-Y, void $\ast$dotu)
+\item 
+void \hyperlink{cblas_8h_a19}{cblas\_\-zdotc\_\-sub} (const int N, const void $\ast$X, const int inc\-X, const void $\ast$Y, const int inc\-Y, void $\ast$dotc)
+\item 
+float \hyperlink{cblas_8h_a20}{cblas\_\-snrm2} (const int N, const float $\ast$X, const int inc\-X)
+\item 
+float \hyperlink{cblas_8h_a21}{cblas\_\-sasum} (const int N, const float $\ast$X, const int inc\-X)
+\item 
+double \hyperlink{cblas_8h_a22}{cblas\_\-dnrm2} (const int N, const double $\ast$X, const int inc\-X)
+\item 
+double \hyperlink{cblas_8h_a23}{cblas\_\-dasum} (const int N, const double $\ast$X, const int inc\-X)
+\item 
+float \hyperlink{cblas_8h_a24}{cblas\_\-scnrm2} (const int N, const void $\ast$X, const int inc\-X)
+\item 
+float \hyperlink{cblas_8h_a25}{cblas\_\-scasum} (const int N, const void $\ast$X, const int inc\-X)
+\item 
+double \hyperlink{cblas_8h_a26}{cblas\_\-dznrm2} (const int N, const void $\ast$X, const int inc\-X)
+\item 
+double \hyperlink{cblas_8h_a27}{cblas\_\-dzasum} (const int N, const void $\ast$X, const int inc\-X)
+\item 
+CBLAS\_\-INDEX \hyperlink{cblas_8h_a28}{cblas\_\-isamax} (const int N, const float $\ast$X, const int inc\-X)
+\item 
+CBLAS\_\-INDEX \hyperlink{cblas_8h_a29}{cblas\_\-idamax} (const int N, const double $\ast$X, const int inc\-X)
+\item 
+CBLAS\_\-INDEX \hyperlink{cblas_8h_a30}{cblas\_\-icamax} (const int N, const void $\ast$X, const int inc\-X)
+\item 
+CBLAS\_\-INDEX \hyperlink{cblas_8h_a31}{cblas\_\-izamax} (const int N, const void $\ast$X, const int inc\-X)
+\item 
+void \hyperlink{cblas_8h_a32}{cblas\_\-sswap} (const int N, float $\ast$X, const int inc\-X, float $\ast$Y, const int inc\-Y)
+\item 
+void \hyperlink{cblas_8h_a33}{cblas\_\-scopy} (const int N, const float $\ast$X, const int inc\-X, float $\ast$Y, const int inc\-Y)
+\item 
+void \hyperlink{cblas_8h_a34}{cblas\_\-saxpy} (const int N, const float alpha, const float $\ast$X, const int inc\-X, float $\ast$Y, const int inc\-Y)
+\item 
+void \hyperlink{cblas_8h_a35}{cblas\_\-dswap} (const int N, double $\ast$X, const int inc\-X, double $\ast$Y, const int inc\-Y)
+\item 
+void \hyperlink{cblas_8h_a36}{cblas\_\-dcopy} (const int N, const double $\ast$X, const int inc\-X, double $\ast$Y, const int inc\-Y)
+\item 
+void \hyperlink{cblas_8h_a37}{cblas\_\-daxpy} (const int N, const double alpha, const double $\ast$X, const int inc\-X, double $\ast$Y, const int inc\-Y)
+\item 
+void \hyperlink{cblas_8h_a38}{cblas\_\-cswap} (const int N, void $\ast$X, const int inc\-X, void $\ast$Y, const int inc\-Y)
+\item 
+void \hyperlink{cblas_8h_a39}{cblas\_\-ccopy} (const int N, const void $\ast$X, const int inc\-X, void $\ast$Y, const int inc\-Y)
+\item 
+void \hyperlink{cblas_8h_a40}{cblas\_\-caxpy} (const int N, const void $\ast$alpha, const void $\ast$X, const int inc\-X, void $\ast$Y, const int inc\-Y)
+\item 
+void \hyperlink{cblas_8h_a41}{cblas\_\-zswap} (const int N, void $\ast$X, const int inc\-X, void $\ast$Y, const int inc\-Y)
+\item 
+void \hyperlink{cblas_8h_a42}{cblas\_\-zcopy} (const int N, const void $\ast$X, const int inc\-X, void $\ast$Y, const int inc\-Y)
+\item 
+void \hyperlink{cblas_8h_a43}{cblas\_\-zaxpy} (const int N, const void $\ast$alpha, const void $\ast$X, const int inc\-X, void $\ast$Y, const int inc\-Y)
+\item 
+void \hyperlink{cblas_8h_a44}{cblas\_\-srotg} (float $\ast$a, float $\ast$b, float $\ast$c, float $\ast$s)
+\item 
+void \hyperlink{cblas_8h_a45}{cblas\_\-srotmg} (float $\ast$d1, float $\ast$d2, float $\ast$b1, const float b2, float $\ast$P)
+\item 
+void \hyperlink{cblas_8h_a46}{cblas\_\-srot} (const int N, float $\ast$X, const int inc\-X, float $\ast$Y, const int inc\-Y, const float c, const float s)
+\item 
+void \hyperlink{cblas_8h_a47}{cblas\_\-srotm} (const int N, float $\ast$X, const int inc\-X, float $\ast$Y, const int inc\-Y, const float $\ast$P)
+\item 
+void \hyperlink{cblas_8h_a48}{cblas\_\-drotg} (double $\ast$a, double $\ast$b, double $\ast$c, double $\ast$s)
+\item 
+void \hyperlink{cblas_8h_a49}{cblas\_\-drotmg} (double $\ast$d1, double $\ast$d2, double $\ast$b1, const double b2, double $\ast$P)
+\item 
+void \hyperlink{cblas_8h_a50}{cblas\_\-drot} (const int N, double $\ast$X, const int inc\-X, double $\ast$Y, const int inc\-Y, const double c, const double s)
+\item 
+void \hyperlink{cblas_8h_a51}{cblas\_\-drotm} (const int N, double $\ast$X, const int inc\-X, double $\ast$Y, const int inc\-Y, const double $\ast$P)
+\item 
+void \hyperlink{cblas_8h_a52}{cblas\_\-sscal} (const int N, const float alpha, float $\ast$X, const int inc\-X)
+\item 
+void \hyperlink{cblas_8h_a53}{cblas\_\-dscal} (const int N, const double alpha, double $\ast$X, const int inc\-X)
+\item 
+void \hyperlink{cblas_8h_a54}{cblas\_\-cscal} (const int N, const void $\ast$alpha, void $\ast$X, const int inc\-X)
+\item 
+void \hyperlink{cblas_8h_a55}{cblas\_\-zscal} (const int N, const void $\ast$alpha, void $\ast$X, const int inc\-X)
+\item 
+void \hyperlink{cblas_8h_a56}{cblas\_\-csscal} (const int N, const float alpha, void $\ast$X, const int inc\-X)
+\item 
+void \hyperlink{cblas_8h_a57}{cblas\_\-zdscal} (const int N, const double alpha, void $\ast$X, const int inc\-X)
+\item 
+void \hyperlink{cblas_8h_a58}{cblas\_\-sgemv} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans\-A, const int M, const int N, const float alpha, const float $\ast$A, const int lda, const float $\ast$X, const int inc\-X, const float beta, float $\ast$Y, const int inc\-Y)
+\item 
+void \hyperlink{cblas_8h_a59}{cblas\_\-sgbmv} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans\-A, const int M, const int N, const int KL, const int KU, const float alpha, const float $\ast$A, const int lda, const float $\ast$X, const int inc\-X, const float beta, float $\ast$Y, const int inc\-Y)
+\item 
+void \hyperlink{cblas_8h_a60}{cblas\_\-strmv} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans\-A, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} Diag, const int N, const float $\ast$A, const int lda, float $\ast$X, const int inc\-X)
+\item 
+void \hyperlink{cblas_8h_a61}{cblas\_\-stbmv} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans\-A, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} Diag, const int N, const int K, const float $\ast$A, const int lda, float $\ast$X, const int inc\-X)
+\item 
+void \hyperlink{cblas_8h_a62}{cblas\_\-stpmv} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans\-A, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} Diag, const int N, const float $\ast$Ap, float $\ast$X, const int inc\-X)
+\item 
+void \hyperlink{cblas_8h_a63}{cblas\_\-strsv} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans\-A, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} Diag, const int N, const float $\ast$A, const int lda, float $\ast$X, const int inc\-X)
+\item 
+void \hyperlink{cblas_8h_a64}{cblas\_\-stbsv} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans\-A, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} Diag, const int N, const int K, const float $\ast$A, const int lda, float $\ast$X, const int inc\-X)
+\item 
+void \hyperlink{cblas_8h_a65}{cblas\_\-stpsv} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans\-A, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} Diag, const int N, const float $\ast$Ap, float $\ast$X, const int inc\-X)
+\item 
+void \hyperlink{cblas_8h_a66}{cblas\_\-dgemv} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans\-A, const int M, const int N, const double alpha, const double $\ast$A, const int lda, const double $\ast$X, const int inc\-X, const double beta, double $\ast$Y, const int inc\-Y)
+\item 
+void \hyperlink{cblas_8h_a67}{cblas\_\-dgbmv} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans\-A, const int M, const int N, const int KL, const int KU, const double alpha, const double $\ast$A, const int lda, const double $\ast$X, const int inc\-X, const double beta, double $\ast$Y, const int inc\-Y)
+\item 
+void \hyperlink{cblas_8h_a68}{cblas\_\-dtrmv} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans\-A, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} Diag, const int N, const double $\ast$A, const int lda, double $\ast$X, const int inc\-X)
+\item 
+void \hyperlink{cblas_8h_a69}{cblas\_\-dtbmv} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans\-A, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} Diag, const int N, const int K, const double $\ast$A, const int lda, double $\ast$X, const int inc\-X)
+\item 
+void \hyperlink{cblas_8h_a70}{cblas\_\-dtpmv} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans\-A, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} Diag, const int N, const double $\ast$Ap, double $\ast$X, const int inc\-X)
+\item 
+void \hyperlink{cblas_8h_a71}{cblas\_\-dtrsv} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans\-A, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} Diag, const int N, const double $\ast$A, const int lda, double $\ast$X, const int inc\-X)
+\item 
+void \hyperlink{cblas_8h_a72}{cblas\_\-dtbsv} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans\-A, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} Diag, const int N, const int K, const double $\ast$A, const int lda, double $\ast$X, const int inc\-X)
+\item 
+void \hyperlink{cblas_8h_a73}{cblas\_\-dtpsv} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans\-A, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} Diag, const int N, const double $\ast$Ap, double $\ast$X, const int inc\-X)
+\item 
+void \hyperlink{cblas_8h_a74}{cblas\_\-cgemv} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans\-A, const int M, const int N, const void $\ast$alpha, const void $\ast$A, const int lda, const void $\ast$X, const int inc\-X, const void $\ast$beta, void $\ast$Y, const int inc\-Y)
+\item 
+void \hyperlink{cblas_8h_a75}{cblas\_\-cgbmv} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans\-A, const int M, const int N, const int KL, const int KU, const void $\ast$alpha, const void $\ast$A, const int lda, const void $\ast$X, const int inc\-X, const void $\ast$beta, void $\ast$Y, const int inc\-Y)
+\item 
+void \hyperlink{cblas_8h_a76}{cblas\_\-ctrmv} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans\-A, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} Diag, const int N, const void $\ast$A, const int lda, void $\ast$X, const int inc\-X)
+\item 
+void \hyperlink{cblas_8h_a77}{cblas\_\-ctbmv} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans\-A, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} Diag, const int N, const int K, const void $\ast$A, const int lda, void $\ast$X, const int inc\-X)
+\item 
+void \hyperlink{cblas_8h_a78}{cblas\_\-ctpmv} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans\-A, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} Diag, const int N, const void $\ast$Ap, void $\ast$X, const int inc\-X)
+\item 
+void \hyperlink{cblas_8h_a79}{cblas\_\-ctrsv} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans\-A, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} Diag, const int N, const void $\ast$A, const int lda, void $\ast$X, const int inc\-X)
+\item 
+void \hyperlink{cblas_8h_a80}{cblas\_\-ctbsv} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans\-A, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} Diag, const int N, const int K, const void $\ast$A, const int lda, void $\ast$X, const int inc\-X)
+\item 
+void \hyperlink{cblas_8h_a81}{cblas\_\-ctpsv} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans\-A, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} Diag, const int N, const void $\ast$Ap, void $\ast$X, const int inc\-X)
+\item 
+void \hyperlink{cblas_8h_a82}{cblas\_\-zgemv} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans\-A, const int M, const int N, const void $\ast$alpha, const void $\ast$A, const int lda, const void $\ast$X, const int inc\-X, const void $\ast$beta, void $\ast$Y, const int inc\-Y)
+\item 
+void \hyperlink{cblas_8h_a83}{cblas\_\-zgbmv} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans\-A, const int M, const int N, const int KL, const int KU, const void $\ast$alpha, const void $\ast$A, const int lda, const void $\ast$X, const int inc\-X, const void $\ast$beta, void $\ast$Y, const int inc\-Y)
+\item 
+void \hyperlink{cblas_8h_a84}{cblas\_\-ztrmv} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans\-A, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} Diag, const int N, const void $\ast$A, const int lda, void $\ast$X, const int inc\-X)
+\item 
+void \hyperlink{cblas_8h_a85}{cblas\_\-ztbmv} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans\-A, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} Diag, const int N, const int K, const void $\ast$A, const int lda, void $\ast$X, const int inc\-X)
+\item 
+void \hyperlink{cblas_8h_a86}{cblas\_\-ztpmv} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans\-A, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} Diag, const int N, const void $\ast$Ap, void $\ast$X, const int inc\-X)
+\item 
+void \hyperlink{cblas_8h_a87}{cblas\_\-ztrsv} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans\-A, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} Diag, const int N, const void $\ast$A, const int lda, void $\ast$X, const int inc\-X)
+\item 
+void \hyperlink{cblas_8h_a88}{cblas\_\-ztbsv} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans\-A, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} Diag, const int N, const int K, const void $\ast$A, const int lda, void $\ast$X, const int inc\-X)
+\item 
+void \hyperlink{cblas_8h_a89}{cblas\_\-ztpsv} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans\-A, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} Diag, const int N, const void $\ast$Ap, void $\ast$X, const int inc\-X)
+\item 
+void \hyperlink{cblas_8h_a90}{cblas\_\-ssymv} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const int N, const float alpha, const float $\ast$A, const int lda, const float $\ast$X, const int inc\-X, const float beta, float $\ast$Y, const int inc\-Y)
+\item 
+void \hyperlink{cblas_8h_a91}{cblas\_\-ssbmv} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const int N, const int K, const float alpha, const float $\ast$A, const int lda, const float $\ast$X, const int inc\-X, const float beta, float $\ast$Y, const int inc\-Y)
+\item 
+void \hyperlink{cblas_8h_a92}{cblas\_\-sspmv} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const int N, const float alpha, const float $\ast$Ap, const float $\ast$X, const int inc\-X, const float beta, float $\ast$Y, const int inc\-Y)
+\item 
+void \hyperlink{cblas_8h_a93}{cblas\_\-sger} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const int M, const int N, const float alpha, const float $\ast$X, const int inc\-X, const float $\ast$Y, const int inc\-Y, float $\ast$A, const int lda)
+\item 
+void \hyperlink{cblas_8h_a94}{cblas\_\-ssyr} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const int N, const float alpha, const float $\ast$X, const int inc\-X, float $\ast$A, const int lda)
+\item 
+void \hyperlink{cblas_8h_a95}{cblas\_\-sspr} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const int N, const float alpha, const float $\ast$X, const int inc\-X, float $\ast$Ap)
+\item 
+void \hyperlink{cblas_8h_a96}{cblas\_\-ssyr2} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const int N, const float alpha, const float $\ast$X, const int inc\-X, const float $\ast$Y, const int inc\-Y, float $\ast$A, const int lda)
+\item 
+void \hyperlink{cblas_8h_a97}{cblas\_\-sspr2} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const int N, const float alpha, const float $\ast$X, const int inc\-X, const float $\ast$Y, const int inc\-Y, float $\ast$A)
+\item 
+void \hyperlink{cblas_8h_a98}{cblas\_\-dsymv} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const int N, const double alpha, const double $\ast$A, const int lda, const double $\ast$X, const int inc\-X, const double beta, double $\ast$Y, const int inc\-Y)
+\item 
+void \hyperlink{cblas_8h_a99}{cblas\_\-dsbmv} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const int N, const int K, const double alpha, const double $\ast$A, const int lda, const double $\ast$X, const int inc\-X, const double beta, double $\ast$Y, const int inc\-Y)
+\item 
+void \hyperlink{cblas_8h_a100}{cblas\_\-dspmv} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const int N, const double alpha, const double $\ast$Ap, const double $\ast$X, const int inc\-X, const double beta, double $\ast$Y, const int inc\-Y)
+\item 
+void \hyperlink{cblas_8h_a101}{cblas\_\-dger} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const int M, const int N, const double alpha, const double $\ast$X, const int inc\-X, const double $\ast$Y, const int inc\-Y, double $\ast$A, const int lda)
+\item 
+void \hyperlink{cblas_8h_a102}{cblas\_\-dsyr} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const int N, const double alpha, const double $\ast$X, const int inc\-X, double $\ast$A, const int lda)
+\item 
+void \hyperlink{cblas_8h_a103}{cblas\_\-dspr} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const int N, const double alpha, const double $\ast$X, const int inc\-X, double $\ast$Ap)
+\item 
+void \hyperlink{cblas_8h_a104}{cblas\_\-dsyr2} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const int N, const double alpha, const double $\ast$X, const int inc\-X, const double $\ast$Y, const int inc\-Y, double $\ast$A, const int lda)
+\item 
+void \hyperlink{cblas_8h_a105}{cblas\_\-dspr2} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const int N, const double alpha, const double $\ast$X, const int inc\-X, const double $\ast$Y, const int inc\-Y, double $\ast$A)
+\item 
+void \hyperlink{cblas_8h_a106}{cblas\_\-chemv} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const int N, const void $\ast$alpha, const void $\ast$A, const int lda, const void $\ast$X, const int inc\-X, const void $\ast$beta, void $\ast$Y, const int inc\-Y)
+\item 
+void \hyperlink{cblas_8h_a107}{cblas\_\-chbmv} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const int N, const int K, const void $\ast$alpha, const void $\ast$A, const int lda, const void $\ast$X, const int inc\-X, const void $\ast$beta, void $\ast$Y, const int inc\-Y)
+\item 
+void \hyperlink{cblas_8h_a108}{cblas\_\-chpmv} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const int N, const void $\ast$alpha, const void $\ast$Ap, const void $\ast$X, const int inc\-X, const void $\ast$beta, void $\ast$Y, const int inc\-Y)
+\item 
+void \hyperlink{cblas_8h_a109}{cblas\_\-cgeru} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const int M, const int N, const void $\ast$alpha, const void $\ast$X, const int inc\-X, const void $\ast$Y, const int inc\-Y, void $\ast$A, const int lda)
+\item 
+void \hyperlink{cblas_8h_a110}{cblas\_\-cgerc} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const int M, const int N, const void $\ast$alpha, const void $\ast$X, const int inc\-X, const void $\ast$Y, const int inc\-Y, void $\ast$A, const int lda)
+\item 
+void \hyperlink{cblas_8h_a111}{cblas\_\-cher} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const int N, const float alpha, const void $\ast$X, const int inc\-X, void $\ast$A, const int lda)
+\item 
+void \hyperlink{cblas_8h_a112}{cblas\_\-chpr} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const int N, const float alpha, const void $\ast$X, const int inc\-X, void $\ast$A)
+\item 
+void \hyperlink{cblas_8h_a113}{cblas\_\-cher2} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const int N, const void $\ast$alpha, const void $\ast$X, const int inc\-X, const void $\ast$Y, const int inc\-Y, void $\ast$A, const int lda)
+\item 
+void \hyperlink{cblas_8h_a114}{cblas\_\-chpr2} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const int N, const void $\ast$alpha, const void $\ast$X, const int inc\-X, const void $\ast$Y, const int inc\-Y, void $\ast$Ap)
+\item 
+void \hyperlink{cblas_8h_a115}{cblas\_\-zhemv} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const int N, const void $\ast$alpha, const void $\ast$A, const int lda, const void $\ast$X, const int inc\-X, const void $\ast$beta, void $\ast$Y, const int inc\-Y)
+\item 
+void \hyperlink{cblas_8h_a116}{cblas\_\-zhbmv} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const int N, const int K, const void $\ast$alpha, const void $\ast$A, const int lda, const void $\ast$X, const int inc\-X, const void $\ast$beta, void $\ast$Y, const int inc\-Y)
+\item 
+void \hyperlink{cblas_8h_a117}{cblas\_\-zhpmv} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const int N, const void $\ast$alpha, const void $\ast$Ap, const void $\ast$X, const int inc\-X, const void $\ast$beta, void $\ast$Y, const int inc\-Y)
+\item 
+void \hyperlink{cblas_8h_a118}{cblas\_\-zgeru} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const int M, const int N, const void $\ast$alpha, const void $\ast$X, const int inc\-X, const void $\ast$Y, const int inc\-Y, void $\ast$A, const int lda)
+\item 
+void \hyperlink{cblas_8h_a119}{cblas\_\-zgerc} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const int M, const int N, const void $\ast$alpha, const void $\ast$X, const int inc\-X, const void $\ast$Y, const int inc\-Y, void $\ast$A, const int lda)
+\item 
+void \hyperlink{cblas_8h_a120}{cblas\_\-zher} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const int N, const double alpha, const void $\ast$X, const int inc\-X, void $\ast$A, const int lda)
+\item 
+void \hyperlink{cblas_8h_a121}{cblas\_\-zhpr} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const int N, const double alpha, const void $\ast$X, const int inc\-X, void $\ast$A)
+\item 
+void \hyperlink{cblas_8h_a122}{cblas\_\-zher2} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const int N, const void $\ast$alpha, const void $\ast$X, const int inc\-X, const void $\ast$Y, const int inc\-Y, void $\ast$A, const int lda)
+\item 
+void \hyperlink{cblas_8h_a123}{cblas\_\-zhpr2} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const int N, const void $\ast$alpha, const void $\ast$X, const int inc\-X, const void $\ast$Y, const int inc\-Y, void $\ast$Ap)
+\item 
+void \hyperlink{cblas_8h_a124}{cblas\_\-sgemm} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} Order, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans\-A, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans\-B, const int M, const int N, const int K, const float alpha, const float $\ast$A, const int lda, const float $\ast$B, const int ldb, const float beta, float $\ast$C, const int ldc)
+\item 
+void \hyperlink{cblas_8h_a125}{cblas\_\-ssymm} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} Order, const enum \hyperlink{cblas_8h_a159}{CBLAS\_\-SIDE} Side, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const int M, const int N, const float alpha, const float $\ast$A, const int lda, const float $\ast$B, const int ldb, const float beta, float $\ast$C, const int ldc)
+\item 
+void \hyperlink{cblas_8h_a126}{cblas\_\-ssyrk} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} Order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans, const int N, const int K, const float alpha, const float $\ast$A, const int lda, const float beta, float $\ast$C, const int ldc)
+\item 
+void \hyperlink{cblas_8h_a127}{cblas\_\-ssyr2k} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} Order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans, const int N, const int K, const float alpha, const float $\ast$A, const int lda, const float $\ast$B, const int ldb, const float beta, float $\ast$C, const int ldc)
+\item 
+void \hyperlink{cblas_8h_a128}{cblas\_\-strmm} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} Order, const enum \hyperlink{cblas_8h_a159}{CBLAS\_\-SIDE} Side, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans\-A, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} Diag, const int M, const int N, const float alpha, const float $\ast$A, const int lda, float $\ast$B, const int ldb)
+\item 
+void \hyperlink{cblas_8h_a129}{cblas\_\-strsm} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} Order, const enum \hyperlink{cblas_8h_a159}{CBLAS\_\-SIDE} Side, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans\-A, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} Diag, const int M, const int N, const float alpha, const float $\ast$A, const int lda, float $\ast$B, const int ldb)
+\item 
+void \hyperlink{cblas_8h_a130}{cblas\_\-dgemm} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} Order, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans\-A, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans\-B, const int M, const int N, const int K, const double alpha, const double $\ast$A, const int lda, const double $\ast$B, const int ldb, const double beta, double $\ast$C, const int ldc)
+\item 
+void \hyperlink{cblas_8h_a131}{cblas\_\-dsymm} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} Order, const enum \hyperlink{cblas_8h_a159}{CBLAS\_\-SIDE} Side, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const int M, const int N, const double alpha, const double $\ast$A, const int lda, const double $\ast$B, const int ldb, const double beta, double $\ast$C, const int ldc)
+\item 
+void \hyperlink{cblas_8h_a132}{cblas\_\-dsyrk} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} Order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans, const int N, const int K, const double alpha, const double $\ast$A, const int lda, const double beta, double $\ast$C, const int ldc)
+\item 
+void \hyperlink{cblas_8h_a133}{cblas\_\-dsyr2k} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} Order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans, const int N, const int K, const double alpha, const double $\ast$A, const int lda, const double $\ast$B, const int ldb, const double beta, double $\ast$C, const int ldc)
+\item 
+void \hyperlink{cblas_8h_a134}{cblas\_\-dtrmm} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} Order, const enum \hyperlink{cblas_8h_a159}{CBLAS\_\-SIDE} Side, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans\-A, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} Diag, const int M, const int N, const double alpha, const double $\ast$A, const int lda, double $\ast$B, const int ldb)
+\item 
+void \hyperlink{cblas_8h_a135}{cblas\_\-dtrsm} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} Order, const enum \hyperlink{cblas_8h_a159}{CBLAS\_\-SIDE} Side, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans\-A, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} Diag, const int M, const int N, const double alpha, const double $\ast$A, const int lda, double $\ast$B, const int ldb)
+\item 
+void \hyperlink{cblas_8h_a136}{cblas\_\-cgemm} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} Order, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans\-A, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans\-B, const int M, const int N, const int K, const void $\ast$alpha, const void $\ast$A, const int lda, const void $\ast$B, const int ldb, const void $\ast$beta, void $\ast$C, const int ldc)
+\item 
+void \hyperlink{cblas_8h_a137}{cblas\_\-csymm} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} Order, const enum \hyperlink{cblas_8h_a159}{CBLAS\_\-SIDE} Side, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const int M, const int N, const void $\ast$alpha, const void $\ast$A, const int lda, const void $\ast$B, const int ldb, const void $\ast$beta, void $\ast$C, const int ldc)
+\item 
+void \hyperlink{cblas_8h_a138}{cblas\_\-csyrk} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} Order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans, const int N, const int K, const void $\ast$alpha, const void $\ast$A, const int lda, const void $\ast$beta, void $\ast$C, const int ldc)
+\item 
+void \hyperlink{cblas_8h_a139}{cblas\_\-csyr2k} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} Order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans, const int N, const int K, const void $\ast$alpha, const void $\ast$A, const int lda, const void $\ast$B, const int ldb, const void $\ast$beta, void $\ast$C, const int ldc)
+\item 
+void \hyperlink{cblas_8h_a140}{cblas\_\-ctrmm} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} Order, const enum \hyperlink{cblas_8h_a159}{CBLAS\_\-SIDE} Side, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans\-A, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} Diag, const int M, const int N, const void $\ast$alpha, const void $\ast$A, const int lda, void $\ast$B, const int ldb)
+\item 
+void \hyperlink{cblas_8h_a141}{cblas\_\-ctrsm} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} Order, const enum \hyperlink{cblas_8h_a159}{CBLAS\_\-SIDE} Side, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans\-A, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} Diag, const int M, const int N, const void $\ast$alpha, const void $\ast$A, const int lda, void $\ast$B, const int ldb)
+\item 
+void \hyperlink{cblas_8h_a142}{cblas\_\-zgemm} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} Order, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans\-A, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans\-B, const int M, const int N, const int K, const void $\ast$alpha, const void $\ast$A, const int lda, const void $\ast$B, const int ldb, const void $\ast$beta, void $\ast$C, const int ldc)
+\item 
+void \hyperlink{cblas_8h_a143}{cblas\_\-zsymm} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} Order, const enum \hyperlink{cblas_8h_a159}{CBLAS\_\-SIDE} Side, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const int M, const int N, const void $\ast$alpha, const void $\ast$A, const int lda, const void $\ast$B, const int ldb, const void $\ast$beta, void $\ast$C, const int ldc)
+\item 
+void \hyperlink{cblas_8h_a144}{cblas\_\-zsyrk} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} Order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans, const int N, const int K, const void $\ast$alpha, const void $\ast$A, const int lda, const void $\ast$beta, void $\ast$C, const int ldc)
+\item 
+void \hyperlink{cblas_8h_a145}{cblas\_\-zsyr2k} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} Order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans, const int N, const int K, const void $\ast$alpha, const void $\ast$A, const int lda, const void $\ast$B, const int ldb, const void $\ast$beta, void $\ast$C, const int ldc)
+\item 
+void \hyperlink{cblas_8h_a146}{cblas\_\-ztrmm} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} Order, const enum \hyperlink{cblas_8h_a159}{CBLAS\_\-SIDE} Side, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans\-A, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} Diag, const int M, const int N, const void $\ast$alpha, const void $\ast$A, const int lda, void $\ast$B, const int ldb)
+\item 
+void \hyperlink{cblas_8h_a147}{cblas\_\-ztrsm} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} Order, const enum \hyperlink{cblas_8h_a159}{CBLAS\_\-SIDE} Side, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans\-A, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} Diag, const int M, const int N, const void $\ast$alpha, const void $\ast$A, const int lda, void $\ast$B, const int ldb)
+\item 
+void \hyperlink{cblas_8h_a148}{cblas\_\-chemm} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} Order, const enum \hyperlink{cblas_8h_a159}{CBLAS\_\-SIDE} Side, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const int M, const int N, const void $\ast$alpha, const void $\ast$A, const int lda, const void $\ast$B, const int ldb, const void $\ast$beta, void $\ast$C, const int ldc)
+\item 
+void \hyperlink{cblas_8h_a149}{cblas\_\-cherk} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} Order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans, const int N, const int K, const float alpha, const void $\ast$A, const int lda, const float beta, void $\ast$C, const int ldc)
+\item 
+void \hyperlink{cblas_8h_a150}{cblas\_\-cher2k} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} Order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans, const int N, const int K, const void $\ast$alpha, const void $\ast$A, const int lda, const void $\ast$B, const int ldb, const float beta, void $\ast$C, const int ldc)
+\item 
+void \hyperlink{cblas_8h_a151}{cblas\_\-zhemm} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} Order, const enum \hyperlink{cblas_8h_a159}{CBLAS\_\-SIDE} Side, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const int M, const int N, const void $\ast$alpha, const void $\ast$A, const int lda, const void $\ast$B, const int ldb, const void $\ast$beta, void $\ast$C, const int ldc)
+\item 
+void \hyperlink{cblas_8h_a152}{cblas\_\-zherk} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} Order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans, const int N, const int K, const double alpha, const void $\ast$A, const int lda, const double beta, void $\ast$C, const int ldc)
+\item 
+void \hyperlink{cblas_8h_a153}{cblas\_\-zher2k} (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} Order, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} Uplo, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} Trans, const int N, const int K, const void $\ast$alpha, const void $\ast$A, const int lda, const void $\ast$B, const int ldb, const double beta, void $\ast$C, const int ldc)
+\item 
+void \hyperlink{cblas_8h_a154}{cblas\_\-xerbla} (int p, const char $\ast$rout, const char $\ast$form,...)
+\end{CompactItemize}
+
+
+\subsubsection{Define Documentation}
+\hypertarget{cblas_8h_a0}{
+\index{cblas.h@{cblas.h}!CBLAS_INDEX@{CBLAS\_\-INDEX}}
+\index{CBLAS_INDEX@{CBLAS\_\-INDEX}!cblas.h@{cblas.h}}
+\paragraph[CBLAS\_\-INDEX]{\setlength{\rightskip}{0pt plus 5cm}\#define CBLAS\_\-INDEX~size\_\-t}\hfill}
+\label{cblas_8h_a0}
+
+
+
+
+\subsubsection{Enumeration Type Documentation}
+\hypertarget{cblas_8h_a158}{
+\index{cblas.h@{cblas.h}!CBLAS_DIAG@{CBLAS\_\-DIAG}}
+\index{CBLAS_DIAG@{CBLAS\_\-DIAG}!cblas.h@{cblas.h}}
+\paragraph[CBLAS\_\-DIAG]{\setlength{\rightskip}{0pt plus 5cm}enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG}}\hfill}
+\label{cblas_8h_a158}
+
+
+\begin{Desc}
+\item[Enumeration values: ]\par
+\begin{description}
+\index{CblasNonUnit@{CblasNonUnit}!cblas.h@{cblas.h}}\index{cblas.h@{cblas.h}!CblasNonUnit@{CblasNonUnit}}\item[{\em 
+\hypertarget{cblas_8h_a158a8}{
+Cblas\-Non\-Unit}
+\label{cblas_8h_a158a8}
+}]\index{CblasUnit@{CblasUnit}!cblas.h@{cblas.h}}\index{cblas.h@{cblas.h}!CblasUnit@{CblasUnit}}\item[{\em 
+\hypertarget{cblas_8h_a158a9}{
+Cblas\-Unit}
+\label{cblas_8h_a158a9}
+}]\end{description}
+\end{Desc}
+
+\hypertarget{cblas_8h_a155}{
+\index{cblas.h@{cblas.h}!CBLAS_ORDER@{CBLAS\_\-ORDER}}
+\index{CBLAS_ORDER@{CBLAS\_\-ORDER}!cblas.h@{cblas.h}}
+\paragraph[CBLAS\_\-ORDER]{\setlength{\rightskip}{0pt plus 5cm}enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER}}\hfill}
+\label{cblas_8h_a155}
+
+
+\begin{Desc}
+\item[Enumeration values: ]\par
+\begin{description}
+\index{CblasRowMajor@{CblasRowMajor}!cblas.h@{cblas.h}}\index{cblas.h@{cblas.h}!CblasRowMajor@{CblasRowMajor}}\item[{\em 
+\hypertarget{cblas_8h_a155a1}{
+Cblas\-Row\-Major}
+\label{cblas_8h_a155a1}
+}]\index{CblasColMajor@{CblasColMajor}!cblas.h@{cblas.h}}\index{cblas.h@{cblas.h}!CblasColMajor@{CblasColMajor}}\item[{\em 
+\hypertarget{cblas_8h_a155a2}{
+Cblas\-Col\-Major}
+\label{cblas_8h_a155a2}
+}]\end{description}
+\end{Desc}
+
+\hypertarget{cblas_8h_a159}{
+\index{cblas.h@{cblas.h}!CBLAS_SIDE@{CBLAS\_\-SIDE}}
+\index{CBLAS_SIDE@{CBLAS\_\-SIDE}!cblas.h@{cblas.h}}
+\paragraph[CBLAS\_\-SIDE]{\setlength{\rightskip}{0pt plus 5cm}enum \hyperlink{cblas_8h_a159}{CBLAS\_\-SIDE}}\hfill}
+\label{cblas_8h_a159}
+
+
+\begin{Desc}
+\item[Enumeration values: ]\par
+\begin{description}
+\index{CblasLeft@{CblasLeft}!cblas.h@{cblas.h}}\index{cblas.h@{cblas.h}!CblasLeft@{CblasLeft}}\item[{\em 
+\hypertarget{cblas_8h_a159a10}{
+Cblas\-Left}
+\label{cblas_8h_a159a10}
+}]\index{CblasRight@{CblasRight}!cblas.h@{cblas.h}}\index{cblas.h@{cblas.h}!CblasRight@{CblasRight}}\item[{\em 
+\hypertarget{cblas_8h_a159a11}{
+Cblas\-Right}
+\label{cblas_8h_a159a11}
+}]\end{description}
+\end{Desc}
+
+\hypertarget{cblas_8h_a156}{
+\index{cblas.h@{cblas.h}!CBLAS_TRANSPOSE@{CBLAS\_\-TRANSPOSE}}
+\index{CBLAS_TRANSPOSE@{CBLAS\_\-TRANSPOSE}!cblas.h@{cblas.h}}
+\paragraph[CBLAS\_\-TRANSPOSE]{\setlength{\rightskip}{0pt plus 5cm}enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE}}\hfill}
+\label{cblas_8h_a156}
+
+
+\begin{Desc}
+\item[Enumeration values: ]\par
+\begin{description}
+\index{CblasNoTrans@{CblasNoTrans}!cblas.h@{cblas.h}}\index{cblas.h@{cblas.h}!CblasNoTrans@{CblasNoTrans}}\item[{\em 
+\hypertarget{cblas_8h_a156a3}{
+Cblas\-No\-Trans}
+\label{cblas_8h_a156a3}
+}]\index{CblasTrans@{CblasTrans}!cblas.h@{cblas.h}}\index{cblas.h@{cblas.h}!CblasTrans@{CblasTrans}}\item[{\em 
+\hypertarget{cblas_8h_a156a4}{
+Cblas\-Trans}
+\label{cblas_8h_a156a4}
+}]\index{CblasConjTrans@{CblasConjTrans}!cblas.h@{cblas.h}}\index{cblas.h@{cblas.h}!CblasConjTrans@{CblasConjTrans}}\item[{\em 
+\hypertarget{cblas_8h_a156a5}{
+Cblas\-Conj\-Trans}
+\label{cblas_8h_a156a5}
+}]\end{description}
+\end{Desc}
+
+\hypertarget{cblas_8h_a157}{
+\index{cblas.h@{cblas.h}!CBLAS_UPLO@{CBLAS\_\-UPLO}}
+\index{CBLAS_UPLO@{CBLAS\_\-UPLO}!cblas.h@{cblas.h}}
+\paragraph[CBLAS\_\-UPLO]{\setlength{\rightskip}{0pt plus 5cm}enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO}}\hfill}
+\label{cblas_8h_a157}
+
+
+\begin{Desc}
+\item[Enumeration values: ]\par
+\begin{description}
+\index{CblasUpper@{CblasUpper}!cblas.h@{cblas.h}}\index{cblas.h@{cblas.h}!CblasUpper@{CblasUpper}}\item[{\em 
+\hypertarget{cblas_8h_a157a6}{
+Cblas\-Upper}
+\label{cblas_8h_a157a6}
+}]\index{CblasLower@{CblasLower}!cblas.h@{cblas.h}}\index{cblas.h@{cblas.h}!CblasLower@{CblasLower}}\item[{\em 
+\hypertarget{cblas_8h_a157a7}{
+Cblas\-Lower}
+\label{cblas_8h_a157a7}
+}]\end{description}
+\end{Desc}
+
+
+
+\subsubsection{Function Documentation}
+\hypertarget{cblas_8h_a40}{
+\index{cblas.h@{cblas.h}!cblas_caxpy@{cblas\_\-caxpy}}
+\index{cblas_caxpy@{cblas\_\-caxpy}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-caxpy]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-caxpy (const int {\em N}, const void $\ast$ {\em alpha}, const void $\ast$ {\em X}, const int {\em inc\-X}, void $\ast$ {\em Y}, const int {\em inc\-Y})}\hfill}
+\label{cblas_8h_a40}
+
+
+\hypertarget{cblas_8h_a39}{
+\index{cblas.h@{cblas.h}!cblas_ccopy@{cblas\_\-ccopy}}
+\index{cblas_ccopy@{cblas\_\-ccopy}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-ccopy]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-ccopy (const int {\em N}, const void $\ast$ {\em X}, const int {\em inc\-X}, void $\ast$ {\em Y}, const int {\em inc\-Y})}\hfill}
+\label{cblas_8h_a39}
+
+
+\hypertarget{cblas_8h_a17}{
+\index{cblas.h@{cblas.h}!cblas_cdotc_sub@{cblas\_\-cdotc\_\-sub}}
+\index{cblas_cdotc_sub@{cblas\_\-cdotc\_\-sub}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-cdotc\_\-sub]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-cdotc\_\-sub (const int {\em N}, const void $\ast$ {\em X}, const int {\em inc\-X}, const void $\ast$ {\em Y}, const int {\em inc\-Y}, void $\ast$ {\em dotc})}\hfill}
+\label{cblas_8h_a17}
+
+
+\hypertarget{cblas_8h_a16}{
+\index{cblas.h@{cblas.h}!cblas_cdotu_sub@{cblas\_\-cdotu\_\-sub}}
+\index{cblas_cdotu_sub@{cblas\_\-cdotu\_\-sub}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-cdotu\_\-sub]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-cdotu\_\-sub (const int {\em N}, const void $\ast$ {\em X}, const int {\em inc\-X}, const void $\ast$ {\em Y}, const int {\em inc\-Y}, void $\ast$ {\em dotu})}\hfill}
+\label{cblas_8h_a16}
+
+
+\hypertarget{cblas_8h_a75}{
+\index{cblas.h@{cblas.h}!cblas_cgbmv@{cblas\_\-cgbmv}}
+\index{cblas_cgbmv@{cblas\_\-cgbmv}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-cgbmv]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-cgbmv (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans\-A}, const int {\em M}, const int {\em N}, const int {\em KL}, const int {\em KU}, const void $\ast$ {\em alpha}, const void $\ast$ {\em A}, const int {\em lda}, const void $\ast$ {\em X}, const int {\em inc\-X}, const void $\ast$ {\em beta}, void $\ast$ {\em Y}, const int {\em inc\-Y})}\hfill}
+\label{cblas_8h_a75}
+
+
+\hypertarget{cblas_8h_a136}{
+\index{cblas.h@{cblas.h}!cblas_cgemm@{cblas\_\-cgemm}}
+\index{cblas_cgemm@{cblas\_\-cgemm}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-cgemm]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-cgemm (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em Order}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans\-A}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans\-B}, const int {\em M}, const int {\em N}, const int {\em K}, const void $\ast$ {\em alpha}, const void $\ast$ {\em A}, const int {\em lda}, const void $\ast$ {\em B}, const int {\em ldb}, const void $\ast$ {\em beta}, void $\ast$ {\em C}, const int {\em ldc})}\hfill}
+\label{cblas_8h_a136}
+
+
+\hypertarget{cblas_8h_a74}{
+\index{cblas.h@{cblas.h}!cblas_cgemv@{cblas\_\-cgemv}}
+\index{cblas_cgemv@{cblas\_\-cgemv}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-cgemv]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-cgemv (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans\-A}, const int {\em M}, const int {\em N}, const void $\ast$ {\em alpha}, const void $\ast$ {\em A}, const int {\em lda}, const void $\ast$ {\em X}, const int {\em inc\-X}, const void $\ast$ {\em beta}, void $\ast$ {\em Y}, const int {\em inc\-Y})}\hfill}
+\label{cblas_8h_a74}
+
+
+\hypertarget{cblas_8h_a110}{
+\index{cblas.h@{cblas.h}!cblas_cgerc@{cblas\_\-cgerc}}
+\index{cblas_cgerc@{cblas\_\-cgerc}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-cgerc]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-cgerc (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const int {\em M}, const int {\em N}, const void $\ast$ {\em alpha}, const void $\ast$ {\em X}, const int {\em inc\-X}, const void $\ast$ {\em Y}, const int {\em inc\-Y}, void $\ast$ {\em A}, const int {\em lda})}\hfill}
+\label{cblas_8h_a110}
+
+
+\hypertarget{cblas_8h_a109}{
+\index{cblas.h@{cblas.h}!cblas_cgeru@{cblas\_\-cgeru}}
+\index{cblas_cgeru@{cblas\_\-cgeru}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-cgeru]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-cgeru (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const int {\em M}, const int {\em N}, const void $\ast$ {\em alpha}, const void $\ast$ {\em X}, const int {\em inc\-X}, const void $\ast$ {\em Y}, const int {\em inc\-Y}, void $\ast$ {\em A}, const int {\em lda})}\hfill}
+\label{cblas_8h_a109}
+
+
+\hypertarget{cblas_8h_a107}{
+\index{cblas.h@{cblas.h}!cblas_chbmv@{cblas\_\-chbmv}}
+\index{cblas_chbmv@{cblas\_\-chbmv}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-chbmv]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-chbmv (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const int {\em N}, const int {\em K}, const void $\ast$ {\em alpha}, const void $\ast$ {\em A}, const int {\em lda}, const void $\ast$ {\em X}, const int {\em inc\-X}, const void $\ast$ {\em beta}, void $\ast$ {\em Y}, const int {\em inc\-Y})}\hfill}
+\label{cblas_8h_a107}
+
+
+\hypertarget{cblas_8h_a148}{
+\index{cblas.h@{cblas.h}!cblas_chemm@{cblas\_\-chemm}}
+\index{cblas_chemm@{cblas\_\-chemm}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-chemm]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-chemm (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em Order}, const enum \hyperlink{cblas_8h_a159}{CBLAS\_\-SIDE} {\em Side}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const int {\em M}, const int {\em N}, const void $\ast$ {\em alpha}, const void $\ast$ {\em A}, const int {\em lda}, const void $\ast$ {\em B}, const int {\em ldb}, const void $\ast$ {\em beta}, void $\ast$ {\em C}, const int {\em ldc})}\hfill}
+\label{cblas_8h_a148}
+
+
+\hypertarget{cblas_8h_a106}{
+\index{cblas.h@{cblas.h}!cblas_chemv@{cblas\_\-chemv}}
+\index{cblas_chemv@{cblas\_\-chemv}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-chemv]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-chemv (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const int {\em N}, const void $\ast$ {\em alpha}, const void $\ast$ {\em A}, const int {\em lda}, const void $\ast$ {\em X}, const int {\em inc\-X}, const void $\ast$ {\em beta}, void $\ast$ {\em Y}, const int {\em inc\-Y})}\hfill}
+\label{cblas_8h_a106}
+
+
+\hypertarget{cblas_8h_a111}{
+\index{cblas.h@{cblas.h}!cblas_cher@{cblas\_\-cher}}
+\index{cblas_cher@{cblas\_\-cher}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-cher]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-cher (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const int {\em N}, const float {\em alpha}, const void $\ast$ {\em X}, const int {\em inc\-X}, void $\ast$ {\em A}, const int {\em lda})}\hfill}
+\label{cblas_8h_a111}
+
+
+\hypertarget{cblas_8h_a113}{
+\index{cblas.h@{cblas.h}!cblas_cher2@{cblas\_\-cher2}}
+\index{cblas_cher2@{cblas\_\-cher2}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-cher2]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-cher2 (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const int {\em N}, const void $\ast$ {\em alpha}, const void $\ast$ {\em X}, const int {\em inc\-X}, const void $\ast$ {\em Y}, const int {\em inc\-Y}, void $\ast$ {\em A}, const int {\em lda})}\hfill}
+\label{cblas_8h_a113}
+
+
+\hypertarget{cblas_8h_a150}{
+\index{cblas.h@{cblas.h}!cblas_cher2k@{cblas\_\-cher2k}}
+\index{cblas_cher2k@{cblas\_\-cher2k}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-cher2k]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-cher2k (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em Order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans}, const int {\em N}, const int {\em K}, const void $\ast$ {\em alpha}, const void $\ast$ {\em A}, const int {\em lda}, const void $\ast$ {\em B}, const int {\em ldb}, const float {\em beta}, void $\ast$ {\em C}, const int {\em ldc})}\hfill}
+\label{cblas_8h_a150}
+
+
+\hypertarget{cblas_8h_a149}{
+\index{cblas.h@{cblas.h}!cblas_cherk@{cblas\_\-cherk}}
+\index{cblas_cherk@{cblas\_\-cherk}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-cherk]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-cherk (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em Order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans}, const int {\em N}, const int {\em K}, const float {\em alpha}, const void $\ast$ {\em A}, const int {\em lda}, const float {\em beta}, void $\ast$ {\em C}, const int {\em ldc})}\hfill}
+\label{cblas_8h_a149}
+
+
+\hypertarget{cblas_8h_a108}{
+\index{cblas.h@{cblas.h}!cblas_chpmv@{cblas\_\-chpmv}}
+\index{cblas_chpmv@{cblas\_\-chpmv}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-chpmv]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-chpmv (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const int {\em N}, const void $\ast$ {\em alpha}, const void $\ast$ {\em Ap}, const void $\ast$ {\em X}, const int {\em inc\-X}, const void $\ast$ {\em beta}, void $\ast$ {\em Y}, const int {\em inc\-Y})}\hfill}
+\label{cblas_8h_a108}
+
+
+\hypertarget{cblas_8h_a112}{
+\index{cblas.h@{cblas.h}!cblas_chpr@{cblas\_\-chpr}}
+\index{cblas_chpr@{cblas\_\-chpr}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-chpr]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-chpr (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const int {\em N}, const float {\em alpha}, const void $\ast$ {\em X}, const int {\em inc\-X}, void $\ast$ {\em A})}\hfill}
+\label{cblas_8h_a112}
+
+
+\hypertarget{cblas_8h_a114}{
+\index{cblas.h@{cblas.h}!cblas_chpr2@{cblas\_\-chpr2}}
+\index{cblas_chpr2@{cblas\_\-chpr2}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-chpr2]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-chpr2 (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const int {\em N}, const void $\ast$ {\em alpha}, const void $\ast$ {\em X}, const int {\em inc\-X}, const void $\ast$ {\em Y}, const int {\em inc\-Y}, void $\ast$ {\em Ap})}\hfill}
+\label{cblas_8h_a114}
+
+
+\hypertarget{cblas_8h_a54}{
+\index{cblas.h@{cblas.h}!cblas_cscal@{cblas\_\-cscal}}
+\index{cblas_cscal@{cblas\_\-cscal}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-cscal]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-cscal (const int {\em N}, const void $\ast$ {\em alpha}, void $\ast$ {\em X}, const int {\em inc\-X})}\hfill}
+\label{cblas_8h_a54}
+
+
+\hypertarget{cblas_8h_a56}{
+\index{cblas.h@{cblas.h}!cblas_csscal@{cblas\_\-csscal}}
+\index{cblas_csscal@{cblas\_\-csscal}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-csscal]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-csscal (const int {\em N}, const float {\em alpha}, void $\ast$ {\em X}, const int {\em inc\-X})}\hfill}
+\label{cblas_8h_a56}
+
+
+\hypertarget{cblas_8h_a38}{
+\index{cblas.h@{cblas.h}!cblas_cswap@{cblas\_\-cswap}}
+\index{cblas_cswap@{cblas\_\-cswap}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-cswap]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-cswap (const int {\em N}, void $\ast$ {\em X}, const int {\em inc\-X}, void $\ast$ {\em Y}, const int {\em inc\-Y})}\hfill}
+\label{cblas_8h_a38}
+
+
+\hypertarget{cblas_8h_a137}{
+\index{cblas.h@{cblas.h}!cblas_csymm@{cblas\_\-csymm}}
+\index{cblas_csymm@{cblas\_\-csymm}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-csymm]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-csymm (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em Order}, const enum \hyperlink{cblas_8h_a159}{CBLAS\_\-SIDE} {\em Side}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const int {\em M}, const int {\em N}, const void $\ast$ {\em alpha}, const void $\ast$ {\em A}, const int {\em lda}, const void $\ast$ {\em B}, const int {\em ldb}, const void $\ast$ {\em beta}, void $\ast$ {\em C}, const int {\em ldc})}\hfill}
+\label{cblas_8h_a137}
+
+
+\hypertarget{cblas_8h_a139}{
+\index{cblas.h@{cblas.h}!cblas_csyr2k@{cblas\_\-csyr2k}}
+\index{cblas_csyr2k@{cblas\_\-csyr2k}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-csyr2k]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-csyr2k (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em Order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans}, const int {\em N}, const int {\em K}, const void $\ast$ {\em alpha}, const void $\ast$ {\em A}, const int {\em lda}, const void $\ast$ {\em B}, const int {\em ldb}, const void $\ast$ {\em beta}, void $\ast$ {\em C}, const int {\em ldc})}\hfill}
+\label{cblas_8h_a139}
+
+
+\hypertarget{cblas_8h_a138}{
+\index{cblas.h@{cblas.h}!cblas_csyrk@{cblas\_\-csyrk}}
+\index{cblas_csyrk@{cblas\_\-csyrk}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-csyrk]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-csyrk (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em Order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans}, const int {\em N}, const int {\em K}, const void $\ast$ {\em alpha}, const void $\ast$ {\em A}, const int {\em lda}, const void $\ast$ {\em beta}, void $\ast$ {\em C}, const int {\em ldc})}\hfill}
+\label{cblas_8h_a138}
+
+
+\hypertarget{cblas_8h_a77}{
+\index{cblas.h@{cblas.h}!cblas_ctbmv@{cblas\_\-ctbmv}}
+\index{cblas_ctbmv@{cblas\_\-ctbmv}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-ctbmv]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-ctbmv (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans\-A}, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} {\em Diag}, const int {\em N}, const int {\em K}, const void $\ast$ {\em A}, const int {\em lda}, void $\ast$ {\em X}, const int {\em inc\-X})}\hfill}
+\label{cblas_8h_a77}
+
+
+\hypertarget{cblas_8h_a80}{
+\index{cblas.h@{cblas.h}!cblas_ctbsv@{cblas\_\-ctbsv}}
+\index{cblas_ctbsv@{cblas\_\-ctbsv}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-ctbsv]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-ctbsv (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans\-A}, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} {\em Diag}, const int {\em N}, const int {\em K}, const void $\ast$ {\em A}, const int {\em lda}, void $\ast$ {\em X}, const int {\em inc\-X})}\hfill}
+\label{cblas_8h_a80}
+
+
+\hypertarget{cblas_8h_a78}{
+\index{cblas.h@{cblas.h}!cblas_ctpmv@{cblas\_\-ctpmv}}
+\index{cblas_ctpmv@{cblas\_\-ctpmv}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-ctpmv]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-ctpmv (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans\-A}, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} {\em Diag}, const int {\em N}, const void $\ast$ {\em Ap}, void $\ast$ {\em X}, const int {\em inc\-X})}\hfill}
+\label{cblas_8h_a78}
+
+
+\hypertarget{cblas_8h_a81}{
+\index{cblas.h@{cblas.h}!cblas_ctpsv@{cblas\_\-ctpsv}}
+\index{cblas_ctpsv@{cblas\_\-ctpsv}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-ctpsv]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-ctpsv (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans\-A}, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} {\em Diag}, const int {\em N}, const void $\ast$ {\em Ap}, void $\ast$ {\em X}, const int {\em inc\-X})}\hfill}
+\label{cblas_8h_a81}
+
+
+\hypertarget{cblas_8h_a140}{
+\index{cblas.h@{cblas.h}!cblas_ctrmm@{cblas\_\-ctrmm}}
+\index{cblas_ctrmm@{cblas\_\-ctrmm}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-ctrmm]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-ctrmm (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em Order}, const enum \hyperlink{cblas_8h_a159}{CBLAS\_\-SIDE} {\em Side}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans\-A}, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} {\em Diag}, const int {\em M}, const int {\em N}, const void $\ast$ {\em alpha}, const void $\ast$ {\em A}, const int {\em lda}, void $\ast$ {\em B}, const int {\em ldb})}\hfill}
+\label{cblas_8h_a140}
+
+
+\hypertarget{cblas_8h_a76}{
+\index{cblas.h@{cblas.h}!cblas_ctrmv@{cblas\_\-ctrmv}}
+\index{cblas_ctrmv@{cblas\_\-ctrmv}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-ctrmv]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-ctrmv (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans\-A}, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} {\em Diag}, const int {\em N}, const void $\ast$ {\em A}, const int {\em lda}, void $\ast$ {\em X}, const int {\em inc\-X})}\hfill}
+\label{cblas_8h_a76}
+
+
+\hypertarget{cblas_8h_a141}{
+\index{cblas.h@{cblas.h}!cblas_ctrsm@{cblas\_\-ctrsm}}
+\index{cblas_ctrsm@{cblas\_\-ctrsm}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-ctrsm]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-ctrsm (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em Order}, const enum \hyperlink{cblas_8h_a159}{CBLAS\_\-SIDE} {\em Side}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans\-A}, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} {\em Diag}, const int {\em M}, const int {\em N}, const void $\ast$ {\em alpha}, const void $\ast$ {\em A}, const int {\em lda}, void $\ast$ {\em B}, const int {\em ldb})}\hfill}
+\label{cblas_8h_a141}
+
+
+\hypertarget{cblas_8h_a79}{
+\index{cblas.h@{cblas.h}!cblas_ctrsv@{cblas\_\-ctrsv}}
+\index{cblas_ctrsv@{cblas\_\-ctrsv}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-ctrsv]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-ctrsv (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans\-A}, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} {\em Diag}, const int {\em N}, const void $\ast$ {\em A}, const int {\em lda}, void $\ast$ {\em X}, const int {\em inc\-X})}\hfill}
+\label{cblas_8h_a79}
+
+
+\hypertarget{cblas_8h_a23}{
+\index{cblas.h@{cblas.h}!cblas_dasum@{cblas\_\-dasum}}
+\index{cblas_dasum@{cblas\_\-dasum}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-dasum]{\setlength{\rightskip}{0pt plus 5cm}double cblas\_\-dasum (const int {\em N}, const double $\ast$ {\em X}, const int {\em inc\-X})}\hfill}
+\label{cblas_8h_a23}
+
+
+\hypertarget{cblas_8h_a37}{
+\index{cblas.h@{cblas.h}!cblas_daxpy@{cblas\_\-daxpy}}
+\index{cblas_daxpy@{cblas\_\-daxpy}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-daxpy]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-daxpy (const int {\em N}, const double {\em alpha}, const double $\ast$ {\em X}, const int {\em inc\-X}, double $\ast$ {\em Y}, const int {\em inc\-Y})}\hfill}
+\label{cblas_8h_a37}
+
+
+\hypertarget{cblas_8h_a36}{
+\index{cblas.h@{cblas.h}!cblas_dcopy@{cblas\_\-dcopy}}
+\index{cblas_dcopy@{cblas\_\-dcopy}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-dcopy]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-dcopy (const int {\em N}, const double $\ast$ {\em X}, const int {\em inc\-X}, double $\ast$ {\em Y}, const int {\em inc\-Y})}\hfill}
+\label{cblas_8h_a36}
+
+
+\hypertarget{cblas_8h_a15}{
+\index{cblas.h@{cblas.h}!cblas_ddot@{cblas\_\-ddot}}
+\index{cblas_ddot@{cblas\_\-ddot}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-ddot]{\setlength{\rightskip}{0pt plus 5cm}double cblas\_\-ddot (const int {\em N}, const double $\ast$ {\em X}, const int {\em inc\-X}, const double $\ast$ {\em Y}, const int {\em inc\-Y})}\hfill}
+\label{cblas_8h_a15}
+
+
+\hypertarget{cblas_8h_a67}{
+\index{cblas.h@{cblas.h}!cblas_dgbmv@{cblas\_\-dgbmv}}
+\index{cblas_dgbmv@{cblas\_\-dgbmv}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-dgbmv]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-dgbmv (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans\-A}, const int {\em M}, const int {\em N}, const int {\em KL}, const int {\em KU}, const double {\em alpha}, const double $\ast$ {\em A}, const int {\em lda}, const double $\ast$ {\em X}, const int {\em inc\-X}, const double {\em beta}, double $\ast$ {\em Y}, const int {\em inc\-Y})}\hfill}
+\label{cblas_8h_a67}
+
+
+\hypertarget{cblas_8h_a130}{
+\index{cblas.h@{cblas.h}!cblas_dgemm@{cblas\_\-dgemm}}
+\index{cblas_dgemm@{cblas\_\-dgemm}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-dgemm]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-dgemm (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em Order}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans\-A}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans\-B}, const int {\em M}, const int {\em N}, const int {\em K}, const double {\em alpha}, const double $\ast$ {\em A}, const int {\em lda}, const double $\ast$ {\em B}, const int {\em ldb}, const double {\em beta}, double $\ast$ {\em C}, const int {\em ldc})}\hfill}
+\label{cblas_8h_a130}
+
+
+\hypertarget{cblas_8h_a66}{
+\index{cblas.h@{cblas.h}!cblas_dgemv@{cblas\_\-dgemv}}
+\index{cblas_dgemv@{cblas\_\-dgemv}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-dgemv]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-dgemv (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans\-A}, const int {\em M}, const int {\em N}, const double {\em alpha}, const double $\ast$ {\em A}, const int {\em lda}, const double $\ast$ {\em X}, const int {\em inc\-X}, const double {\em beta}, double $\ast$ {\em Y}, const int {\em inc\-Y})}\hfill}
+\label{cblas_8h_a66}
+
+
+\hypertarget{cblas_8h_a101}{
+\index{cblas.h@{cblas.h}!cblas_dger@{cblas\_\-dger}}
+\index{cblas_dger@{cblas\_\-dger}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-dger]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-dger (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const int {\em M}, const int {\em N}, const double {\em alpha}, const double $\ast$ {\em X}, const int {\em inc\-X}, const double $\ast$ {\em Y}, const int {\em inc\-Y}, double $\ast$ {\em A}, const int {\em lda})}\hfill}
+\label{cblas_8h_a101}
+
+
+\hypertarget{cblas_8h_a22}{
+\index{cblas.h@{cblas.h}!cblas_dnrm2@{cblas\_\-dnrm2}}
+\index{cblas_dnrm2@{cblas\_\-dnrm2}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-dnrm2]{\setlength{\rightskip}{0pt plus 5cm}double cblas\_\-dnrm2 (const int {\em N}, const double $\ast$ {\em X}, const int {\em inc\-X})}\hfill}
+\label{cblas_8h_a22}
+
+
+\hypertarget{cblas_8h_a50}{
+\index{cblas.h@{cblas.h}!cblas_drot@{cblas\_\-drot}}
+\index{cblas_drot@{cblas\_\-drot}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-drot]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-drot (const int {\em N}, double $\ast$ {\em X}, const int {\em inc\-X}, double $\ast$ {\em Y}, const int {\em inc\-Y}, const double {\em c}, const double {\em s})}\hfill}
+\label{cblas_8h_a50}
+
+
+\hypertarget{cblas_8h_a48}{
+\index{cblas.h@{cblas.h}!cblas_drotg@{cblas\_\-drotg}}
+\index{cblas_drotg@{cblas\_\-drotg}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-drotg]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-drotg (double $\ast$ {\em a}, double $\ast$ {\em b}, double $\ast$ {\em c}, double $\ast$ {\em s})}\hfill}
+\label{cblas_8h_a48}
+
+
+\hypertarget{cblas_8h_a51}{
+\index{cblas.h@{cblas.h}!cblas_drotm@{cblas\_\-drotm}}
+\index{cblas_drotm@{cblas\_\-drotm}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-drotm]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-drotm (const int {\em N}, double $\ast$ {\em X}, const int {\em inc\-X}, double $\ast$ {\em Y}, const int {\em inc\-Y}, const double $\ast$ {\em P})}\hfill}
+\label{cblas_8h_a51}
+
+
+\hypertarget{cblas_8h_a49}{
+\index{cblas.h@{cblas.h}!cblas_drotmg@{cblas\_\-drotmg}}
+\index{cblas_drotmg@{cblas\_\-drotmg}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-drotmg]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-drotmg (double $\ast$ {\em d1}, double $\ast$ {\em d2}, double $\ast$ {\em b1}, const double {\em b2}, double $\ast$ {\em P})}\hfill}
+\label{cblas_8h_a49}
+
+
+\hypertarget{cblas_8h_a99}{
+\index{cblas.h@{cblas.h}!cblas_dsbmv@{cblas\_\-dsbmv}}
+\index{cblas_dsbmv@{cblas\_\-dsbmv}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-dsbmv]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-dsbmv (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const int {\em N}, const int {\em K}, const double {\em alpha}, const double $\ast$ {\em A}, const int {\em lda}, const double $\ast$ {\em X}, const int {\em inc\-X}, const double {\em beta}, double $\ast$ {\em Y}, const int {\em inc\-Y})}\hfill}
+\label{cblas_8h_a99}
+
+
+\hypertarget{cblas_8h_a53}{
+\index{cblas.h@{cblas.h}!cblas_dscal@{cblas\_\-dscal}}
+\index{cblas_dscal@{cblas\_\-dscal}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-dscal]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-dscal (const int {\em N}, const double {\em alpha}, double $\ast$ {\em X}, const int {\em inc\-X})}\hfill}
+\label{cblas_8h_a53}
+
+
+\hypertarget{cblas_8h_a13}{
+\index{cblas.h@{cblas.h}!cblas_dsdot@{cblas\_\-dsdot}}
+\index{cblas_dsdot@{cblas\_\-dsdot}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-dsdot]{\setlength{\rightskip}{0pt plus 5cm}double cblas\_\-dsdot (const int {\em N}, const float $\ast$ {\em X}, const int {\em inc\-X}, const float $\ast$ {\em Y}, const int {\em inc\-Y})}\hfill}
+\label{cblas_8h_a13}
+
+
+\hypertarget{cblas_8h_a100}{
+\index{cblas.h@{cblas.h}!cblas_dspmv@{cblas\_\-dspmv}}
+\index{cblas_dspmv@{cblas\_\-dspmv}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-dspmv]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-dspmv (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const int {\em N}, const double {\em alpha}, const double $\ast$ {\em Ap}, const double $\ast$ {\em X}, const int {\em inc\-X}, const double {\em beta}, double $\ast$ {\em Y}, const int {\em inc\-Y})}\hfill}
+\label{cblas_8h_a100}
+
+
+\hypertarget{cblas_8h_a103}{
+\index{cblas.h@{cblas.h}!cblas_dspr@{cblas\_\-dspr}}
+\index{cblas_dspr@{cblas\_\-dspr}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-dspr]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-dspr (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const int {\em N}, const double {\em alpha}, const double $\ast$ {\em X}, const int {\em inc\-X}, double $\ast$ {\em Ap})}\hfill}
+\label{cblas_8h_a103}
+
+
+\hypertarget{cblas_8h_a105}{
+\index{cblas.h@{cblas.h}!cblas_dspr2@{cblas\_\-dspr2}}
+\index{cblas_dspr2@{cblas\_\-dspr2}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-dspr2]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-dspr2 (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const int {\em N}, const double {\em alpha}, const double $\ast$ {\em X}, const int {\em inc\-X}, const double $\ast$ {\em Y}, const int {\em inc\-Y}, double $\ast$ {\em A})}\hfill}
+\label{cblas_8h_a105}
+
+
+\hypertarget{cblas_8h_a35}{
+\index{cblas.h@{cblas.h}!cblas_dswap@{cblas\_\-dswap}}
+\index{cblas_dswap@{cblas\_\-dswap}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-dswap]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-dswap (const int {\em N}, double $\ast$ {\em X}, const int {\em inc\-X}, double $\ast$ {\em Y}, const int {\em inc\-Y})}\hfill}
+\label{cblas_8h_a35}
+
+
+\hypertarget{cblas_8h_a131}{
+\index{cblas.h@{cblas.h}!cblas_dsymm@{cblas\_\-dsymm}}
+\index{cblas_dsymm@{cblas\_\-dsymm}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-dsymm]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-dsymm (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em Order}, const enum \hyperlink{cblas_8h_a159}{CBLAS\_\-SIDE} {\em Side}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const int {\em M}, const int {\em N}, const double {\em alpha}, const double $\ast$ {\em A}, const int {\em lda}, const double $\ast$ {\em B}, const int {\em ldb}, const double {\em beta}, double $\ast$ {\em C}, const int {\em ldc})}\hfill}
+\label{cblas_8h_a131}
+
+
+\hypertarget{cblas_8h_a98}{
+\index{cblas.h@{cblas.h}!cblas_dsymv@{cblas\_\-dsymv}}
+\index{cblas_dsymv@{cblas\_\-dsymv}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-dsymv]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-dsymv (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const int {\em N}, const double {\em alpha}, const double $\ast$ {\em A}, const int {\em lda}, const double $\ast$ {\em X}, const int {\em inc\-X}, const double {\em beta}, double $\ast$ {\em Y}, const int {\em inc\-Y})}\hfill}
+\label{cblas_8h_a98}
+
+
+\hypertarget{cblas_8h_a102}{
+\index{cblas.h@{cblas.h}!cblas_dsyr@{cblas\_\-dsyr}}
+\index{cblas_dsyr@{cblas\_\-dsyr}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-dsyr]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-dsyr (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const int {\em N}, const double {\em alpha}, const double $\ast$ {\em X}, const int {\em inc\-X}, double $\ast$ {\em A}, const int {\em lda})}\hfill}
+\label{cblas_8h_a102}
+
+
+\hypertarget{cblas_8h_a104}{
+\index{cblas.h@{cblas.h}!cblas_dsyr2@{cblas\_\-dsyr2}}
+\index{cblas_dsyr2@{cblas\_\-dsyr2}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-dsyr2]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-dsyr2 (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const int {\em N}, const double {\em alpha}, const double $\ast$ {\em X}, const int {\em inc\-X}, const double $\ast$ {\em Y}, const int {\em inc\-Y}, double $\ast$ {\em A}, const int {\em lda})}\hfill}
+\label{cblas_8h_a104}
+
+
+\hypertarget{cblas_8h_a133}{
+\index{cblas.h@{cblas.h}!cblas_dsyr2k@{cblas\_\-dsyr2k}}
+\index{cblas_dsyr2k@{cblas\_\-dsyr2k}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-dsyr2k]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-dsyr2k (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em Order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans}, const int {\em N}, const int {\em K}, const double {\em alpha}, const double $\ast$ {\em A}, const int {\em lda}, const double $\ast$ {\em B}, const int {\em ldb}, const double {\em beta}, double $\ast$ {\em C}, const int {\em ldc})}\hfill}
+\label{cblas_8h_a133}
+
+
+\hypertarget{cblas_8h_a132}{
+\index{cblas.h@{cblas.h}!cblas_dsyrk@{cblas\_\-dsyrk}}
+\index{cblas_dsyrk@{cblas\_\-dsyrk}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-dsyrk]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-dsyrk (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em Order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans}, const int {\em N}, const int {\em K}, const double {\em alpha}, const double $\ast$ {\em A}, const int {\em lda}, const double {\em beta}, double $\ast$ {\em C}, const int {\em ldc})}\hfill}
+\label{cblas_8h_a132}
+
+
+\hypertarget{cblas_8h_a69}{
+\index{cblas.h@{cblas.h}!cblas_dtbmv@{cblas\_\-dtbmv}}
+\index{cblas_dtbmv@{cblas\_\-dtbmv}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-dtbmv]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-dtbmv (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans\-A}, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} {\em Diag}, const int {\em N}, const int {\em K}, const double $\ast$ {\em A}, const int {\em lda}, double $\ast$ {\em X}, const int {\em inc\-X})}\hfill}
+\label{cblas_8h_a69}
+
+
+\hypertarget{cblas_8h_a72}{
+\index{cblas.h@{cblas.h}!cblas_dtbsv@{cblas\_\-dtbsv}}
+\index{cblas_dtbsv@{cblas\_\-dtbsv}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-dtbsv]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-dtbsv (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans\-A}, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} {\em Diag}, const int {\em N}, const int {\em K}, const double $\ast$ {\em A}, const int {\em lda}, double $\ast$ {\em X}, const int {\em inc\-X})}\hfill}
+\label{cblas_8h_a72}
+
+
+\hypertarget{cblas_8h_a70}{
+\index{cblas.h@{cblas.h}!cblas_dtpmv@{cblas\_\-dtpmv}}
+\index{cblas_dtpmv@{cblas\_\-dtpmv}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-dtpmv]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-dtpmv (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans\-A}, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} {\em Diag}, const int {\em N}, const double $\ast$ {\em Ap}, double $\ast$ {\em X}, const int {\em inc\-X})}\hfill}
+\label{cblas_8h_a70}
+
+
+\hypertarget{cblas_8h_a73}{
+\index{cblas.h@{cblas.h}!cblas_dtpsv@{cblas\_\-dtpsv}}
+\index{cblas_dtpsv@{cblas\_\-dtpsv}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-dtpsv]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-dtpsv (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans\-A}, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} {\em Diag}, const int {\em N}, const double $\ast$ {\em Ap}, double $\ast$ {\em X}, const int {\em inc\-X})}\hfill}
+\label{cblas_8h_a73}
+
+
+\hypertarget{cblas_8h_a134}{
+\index{cblas.h@{cblas.h}!cblas_dtrmm@{cblas\_\-dtrmm}}
+\index{cblas_dtrmm@{cblas\_\-dtrmm}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-dtrmm]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-dtrmm (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em Order}, const enum \hyperlink{cblas_8h_a159}{CBLAS\_\-SIDE} {\em Side}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans\-A}, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} {\em Diag}, const int {\em M}, const int {\em N}, const double {\em alpha}, const double $\ast$ {\em A}, const int {\em lda}, double $\ast$ {\em B}, const int {\em ldb})}\hfill}
+\label{cblas_8h_a134}
+
+
+\hypertarget{cblas_8h_a68}{
+\index{cblas.h@{cblas.h}!cblas_dtrmv@{cblas\_\-dtrmv}}
+\index{cblas_dtrmv@{cblas\_\-dtrmv}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-dtrmv]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-dtrmv (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans\-A}, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} {\em Diag}, const int {\em N}, const double $\ast$ {\em A}, const int {\em lda}, double $\ast$ {\em X}, const int {\em inc\-X})}\hfill}
+\label{cblas_8h_a68}
+
+
+\hypertarget{cblas_8h_a135}{
+\index{cblas.h@{cblas.h}!cblas_dtrsm@{cblas\_\-dtrsm}}
+\index{cblas_dtrsm@{cblas\_\-dtrsm}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-dtrsm]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-dtrsm (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em Order}, const enum \hyperlink{cblas_8h_a159}{CBLAS\_\-SIDE} {\em Side}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans\-A}, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} {\em Diag}, const int {\em M}, const int {\em N}, const double {\em alpha}, const double $\ast$ {\em A}, const int {\em lda}, double $\ast$ {\em B}, const int {\em ldb})}\hfill}
+\label{cblas_8h_a135}
+
+
+\hypertarget{cblas_8h_a71}{
+\index{cblas.h@{cblas.h}!cblas_dtrsv@{cblas\_\-dtrsv}}
+\index{cblas_dtrsv@{cblas\_\-dtrsv}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-dtrsv]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-dtrsv (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans\-A}, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} {\em Diag}, const int {\em N}, const double $\ast$ {\em A}, const int {\em lda}, double $\ast$ {\em X}, const int {\em inc\-X})}\hfill}
+\label{cblas_8h_a71}
+
+
+\hypertarget{cblas_8h_a27}{
+\index{cblas.h@{cblas.h}!cblas_dzasum@{cblas\_\-dzasum}}
+\index{cblas_dzasum@{cblas\_\-dzasum}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-dzasum]{\setlength{\rightskip}{0pt plus 5cm}double cblas\_\-dzasum (const int {\em N}, const void $\ast$ {\em X}, const int {\em inc\-X})}\hfill}
+\label{cblas_8h_a27}
+
+
+\hypertarget{cblas_8h_a26}{
+\index{cblas.h@{cblas.h}!cblas_dznrm2@{cblas\_\-dznrm2}}
+\index{cblas_dznrm2@{cblas\_\-dznrm2}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-dznrm2]{\setlength{\rightskip}{0pt plus 5cm}double cblas\_\-dznrm2 (const int {\em N}, const void $\ast$ {\em X}, const int {\em inc\-X})}\hfill}
+\label{cblas_8h_a26}
+
+
+\hypertarget{cblas_8h_a30}{
+\index{cblas.h@{cblas.h}!cblas_icamax@{cblas\_\-icamax}}
+\index{cblas_icamax@{cblas\_\-icamax}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-icamax]{\setlength{\rightskip}{0pt plus 5cm}CBLAS\_\-INDEX cblas\_\-icamax (const int {\em N}, const void $\ast$ {\em X}, const int {\em inc\-X})}\hfill}
+\label{cblas_8h_a30}
+
+
+\hypertarget{cblas_8h_a29}{
+\index{cblas.h@{cblas.h}!cblas_idamax@{cblas\_\-idamax}}
+\index{cblas_idamax@{cblas\_\-idamax}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-idamax]{\setlength{\rightskip}{0pt plus 5cm}CBLAS\_\-INDEX cblas\_\-idamax (const int {\em N}, const double $\ast$ {\em X}, const int {\em inc\-X})}\hfill}
+\label{cblas_8h_a29}
+
+
+\hypertarget{cblas_8h_a28}{
+\index{cblas.h@{cblas.h}!cblas_isamax@{cblas\_\-isamax}}
+\index{cblas_isamax@{cblas\_\-isamax}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-isamax]{\setlength{\rightskip}{0pt plus 5cm}CBLAS\_\-INDEX cblas\_\-isamax (const int {\em N}, const float $\ast$ {\em X}, const int {\em inc\-X})}\hfill}
+\label{cblas_8h_a28}
+
+
+\hypertarget{cblas_8h_a31}{
+\index{cblas.h@{cblas.h}!cblas_izamax@{cblas\_\-izamax}}
+\index{cblas_izamax@{cblas\_\-izamax}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-izamax]{\setlength{\rightskip}{0pt plus 5cm}CBLAS\_\-INDEX cblas\_\-izamax (const int {\em N}, const void $\ast$ {\em X}, const int {\em inc\-X})}\hfill}
+\label{cblas_8h_a31}
+
+
+\hypertarget{cblas_8h_a21}{
+\index{cblas.h@{cblas.h}!cblas_sasum@{cblas\_\-sasum}}
+\index{cblas_sasum@{cblas\_\-sasum}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-sasum]{\setlength{\rightskip}{0pt plus 5cm}float cblas\_\-sasum (const int {\em N}, const float $\ast$ {\em X}, const int {\em inc\-X})}\hfill}
+\label{cblas_8h_a21}
+
+
+\hypertarget{cblas_8h_a34}{
+\index{cblas.h@{cblas.h}!cblas_saxpy@{cblas\_\-saxpy}}
+\index{cblas_saxpy@{cblas\_\-saxpy}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-saxpy]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-saxpy (const int {\em N}, const float {\em alpha}, const float $\ast$ {\em X}, const int {\em inc\-X}, float $\ast$ {\em Y}, const int {\em inc\-Y})}\hfill}
+\label{cblas_8h_a34}
+
+
+\hypertarget{cblas_8h_a25}{
+\index{cblas.h@{cblas.h}!cblas_scasum@{cblas\_\-scasum}}
+\index{cblas_scasum@{cblas\_\-scasum}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-scasum]{\setlength{\rightskip}{0pt plus 5cm}float cblas\_\-scasum (const int {\em N}, const void $\ast$ {\em X}, const int {\em inc\-X})}\hfill}
+\label{cblas_8h_a25}
+
+
+\hypertarget{cblas_8h_a24}{
+\index{cblas.h@{cblas.h}!cblas_scnrm2@{cblas\_\-scnrm2}}
+\index{cblas_scnrm2@{cblas\_\-scnrm2}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-scnrm2]{\setlength{\rightskip}{0pt plus 5cm}float cblas\_\-scnrm2 (const int {\em N}, const void $\ast$ {\em X}, const int {\em inc\-X})}\hfill}
+\label{cblas_8h_a24}
+
+
+\hypertarget{cblas_8h_a33}{
+\index{cblas.h@{cblas.h}!cblas_scopy@{cblas\_\-scopy}}
+\index{cblas_scopy@{cblas\_\-scopy}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-scopy]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-scopy (const int {\em N}, const float $\ast$ {\em X}, const int {\em inc\-X}, float $\ast$ {\em Y}, const int {\em inc\-Y})}\hfill}
+\label{cblas_8h_a33}
+
+
+\hypertarget{cblas_8h_a14}{
+\index{cblas.h@{cblas.h}!cblas_sdot@{cblas\_\-sdot}}
+\index{cblas_sdot@{cblas\_\-sdot}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-sdot]{\setlength{\rightskip}{0pt plus 5cm}float cblas\_\-sdot (const int {\em N}, const float $\ast$ {\em X}, const int {\em inc\-X}, const float $\ast$ {\em Y}, const int {\em inc\-Y})}\hfill}
+\label{cblas_8h_a14}
+
+
+\hypertarget{cblas_8h_a12}{
+\index{cblas.h@{cblas.h}!cblas_sdsdot@{cblas\_\-sdsdot}}
+\index{cblas_sdsdot@{cblas\_\-sdsdot}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-sdsdot]{\setlength{\rightskip}{0pt plus 5cm}float cblas\_\-sdsdot (const int {\em N}, const float {\em alpha}, const float $\ast$ {\em X}, const int {\em inc\-X}, const float $\ast$ {\em Y}, const int {\em inc\-Y})}\hfill}
+\label{cblas_8h_a12}
+
+
+\hypertarget{cblas_8h_a59}{
+\index{cblas.h@{cblas.h}!cblas_sgbmv@{cblas\_\-sgbmv}}
+\index{cblas_sgbmv@{cblas\_\-sgbmv}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-sgbmv]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-sgbmv (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans\-A}, const int {\em M}, const int {\em N}, const int {\em KL}, const int {\em KU}, const float {\em alpha}, const float $\ast$ {\em A}, const int {\em lda}, const float $\ast$ {\em X}, const int {\em inc\-X}, const float {\em beta}, float $\ast$ {\em Y}, const int {\em inc\-Y})}\hfill}
+\label{cblas_8h_a59}
+
+
+\hypertarget{cblas_8h_a124}{
+\index{cblas.h@{cblas.h}!cblas_sgemm@{cblas\_\-sgemm}}
+\index{cblas_sgemm@{cblas\_\-sgemm}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-sgemm]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-sgemm (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em Order}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans\-A}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans\-B}, const int {\em M}, const int {\em N}, const int {\em K}, const float {\em alpha}, const float $\ast$ {\em A}, const int {\em lda}, const float $\ast$ {\em B}, const int {\em ldb}, const float {\em beta}, float $\ast$ {\em C}, const int {\em ldc})}\hfill}
+\label{cblas_8h_a124}
+
+
+\hypertarget{cblas_8h_a58}{
+\index{cblas.h@{cblas.h}!cblas_sgemv@{cblas\_\-sgemv}}
+\index{cblas_sgemv@{cblas\_\-sgemv}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-sgemv]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-sgemv (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans\-A}, const int {\em M}, const int {\em N}, const float {\em alpha}, const float $\ast$ {\em A}, const int {\em lda}, const float $\ast$ {\em X}, const int {\em inc\-X}, const float {\em beta}, float $\ast$ {\em Y}, const int {\em inc\-Y})}\hfill}
+\label{cblas_8h_a58}
+
+
+\hypertarget{cblas_8h_a93}{
+\index{cblas.h@{cblas.h}!cblas_sger@{cblas\_\-sger}}
+\index{cblas_sger@{cblas\_\-sger}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-sger]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-sger (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const int {\em M}, const int {\em N}, const float {\em alpha}, const float $\ast$ {\em X}, const int {\em inc\-X}, const float $\ast$ {\em Y}, const int {\em inc\-Y}, float $\ast$ {\em A}, const int {\em lda})}\hfill}
+\label{cblas_8h_a93}
+
+
+\hypertarget{cblas_8h_a20}{
+\index{cblas.h@{cblas.h}!cblas_snrm2@{cblas\_\-snrm2}}
+\index{cblas_snrm2@{cblas\_\-snrm2}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-snrm2]{\setlength{\rightskip}{0pt plus 5cm}float cblas\_\-snrm2 (const int {\em N}, const float $\ast$ {\em X}, const int {\em inc\-X})}\hfill}
+\label{cblas_8h_a20}
+
+
+\hypertarget{cblas_8h_a46}{
+\index{cblas.h@{cblas.h}!cblas_srot@{cblas\_\-srot}}
+\index{cblas_srot@{cblas\_\-srot}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-srot]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-srot (const int {\em N}, float $\ast$ {\em X}, const int {\em inc\-X}, float $\ast$ {\em Y}, const int {\em inc\-Y}, const float {\em c}, const float {\em s})}\hfill}
+\label{cblas_8h_a46}
+
+
+\hypertarget{cblas_8h_a44}{
+\index{cblas.h@{cblas.h}!cblas_srotg@{cblas\_\-srotg}}
+\index{cblas_srotg@{cblas\_\-srotg}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-srotg]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-srotg (float $\ast$ {\em a}, float $\ast$ {\em b}, float $\ast$ {\em c}, float $\ast$ {\em s})}\hfill}
+\label{cblas_8h_a44}
+
+
+\hypertarget{cblas_8h_a47}{
+\index{cblas.h@{cblas.h}!cblas_srotm@{cblas\_\-srotm}}
+\index{cblas_srotm@{cblas\_\-srotm}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-srotm]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-srotm (const int {\em N}, float $\ast$ {\em X}, const int {\em inc\-X}, float $\ast$ {\em Y}, const int {\em inc\-Y}, const float $\ast$ {\em P})}\hfill}
+\label{cblas_8h_a47}
+
+
+\hypertarget{cblas_8h_a45}{
+\index{cblas.h@{cblas.h}!cblas_srotmg@{cblas\_\-srotmg}}
+\index{cblas_srotmg@{cblas\_\-srotmg}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-srotmg]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-srotmg (float $\ast$ {\em d1}, float $\ast$ {\em d2}, float $\ast$ {\em b1}, const float {\em b2}, float $\ast$ {\em P})}\hfill}
+\label{cblas_8h_a45}
+
+
+\hypertarget{cblas_8h_a91}{
+\index{cblas.h@{cblas.h}!cblas_ssbmv@{cblas\_\-ssbmv}}
+\index{cblas_ssbmv@{cblas\_\-ssbmv}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-ssbmv]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-ssbmv (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const int {\em N}, const int {\em K}, const float {\em alpha}, const float $\ast$ {\em A}, const int {\em lda}, const float $\ast$ {\em X}, const int {\em inc\-X}, const float {\em beta}, float $\ast$ {\em Y}, const int {\em inc\-Y})}\hfill}
+\label{cblas_8h_a91}
+
+
+\hypertarget{cblas_8h_a52}{
+\index{cblas.h@{cblas.h}!cblas_sscal@{cblas\_\-sscal}}
+\index{cblas_sscal@{cblas\_\-sscal}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-sscal]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-sscal (const int {\em N}, const float {\em alpha}, float $\ast$ {\em X}, const int {\em inc\-X})}\hfill}
+\label{cblas_8h_a52}
+
+
+\hypertarget{cblas_8h_a92}{
+\index{cblas.h@{cblas.h}!cblas_sspmv@{cblas\_\-sspmv}}
+\index{cblas_sspmv@{cblas\_\-sspmv}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-sspmv]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-sspmv (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const int {\em N}, const float {\em alpha}, const float $\ast$ {\em Ap}, const float $\ast$ {\em X}, const int {\em inc\-X}, const float {\em beta}, float $\ast$ {\em Y}, const int {\em inc\-Y})}\hfill}
+\label{cblas_8h_a92}
+
+
+\hypertarget{cblas_8h_a95}{
+\index{cblas.h@{cblas.h}!cblas_sspr@{cblas\_\-sspr}}
+\index{cblas_sspr@{cblas\_\-sspr}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-sspr]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-sspr (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const int {\em N}, const float {\em alpha}, const float $\ast$ {\em X}, const int {\em inc\-X}, float $\ast$ {\em Ap})}\hfill}
+\label{cblas_8h_a95}
+
+
+\hypertarget{cblas_8h_a97}{
+\index{cblas.h@{cblas.h}!cblas_sspr2@{cblas\_\-sspr2}}
+\index{cblas_sspr2@{cblas\_\-sspr2}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-sspr2]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-sspr2 (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const int {\em N}, const float {\em alpha}, const float $\ast$ {\em X}, const int {\em inc\-X}, const float $\ast$ {\em Y}, const int {\em inc\-Y}, float $\ast$ {\em A})}\hfill}
+\label{cblas_8h_a97}
+
+
+\hypertarget{cblas_8h_a32}{
+\index{cblas.h@{cblas.h}!cblas_sswap@{cblas\_\-sswap}}
+\index{cblas_sswap@{cblas\_\-sswap}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-sswap]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-sswap (const int {\em N}, float $\ast$ {\em X}, const int {\em inc\-X}, float $\ast$ {\em Y}, const int {\em inc\-Y})}\hfill}
+\label{cblas_8h_a32}
+
+
+\hypertarget{cblas_8h_a125}{
+\index{cblas.h@{cblas.h}!cblas_ssymm@{cblas\_\-ssymm}}
+\index{cblas_ssymm@{cblas\_\-ssymm}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-ssymm]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-ssymm (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em Order}, const enum \hyperlink{cblas_8h_a159}{CBLAS\_\-SIDE} {\em Side}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const int {\em M}, const int {\em N}, const float {\em alpha}, const float $\ast$ {\em A}, const int {\em lda}, const float $\ast$ {\em B}, const int {\em ldb}, const float {\em beta}, float $\ast$ {\em C}, const int {\em ldc})}\hfill}
+\label{cblas_8h_a125}
+
+
+\hypertarget{cblas_8h_a90}{
+\index{cblas.h@{cblas.h}!cblas_ssymv@{cblas\_\-ssymv}}
+\index{cblas_ssymv@{cblas\_\-ssymv}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-ssymv]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-ssymv (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const int {\em N}, const float {\em alpha}, const float $\ast$ {\em A}, const int {\em lda}, const float $\ast$ {\em X}, const int {\em inc\-X}, const float {\em beta}, float $\ast$ {\em Y}, const int {\em inc\-Y})}\hfill}
+\label{cblas_8h_a90}
+
+
+\hypertarget{cblas_8h_a94}{
+\index{cblas.h@{cblas.h}!cblas_ssyr@{cblas\_\-ssyr}}
+\index{cblas_ssyr@{cblas\_\-ssyr}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-ssyr]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-ssyr (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const int {\em N}, const float {\em alpha}, const float $\ast$ {\em X}, const int {\em inc\-X}, float $\ast$ {\em A}, const int {\em lda})}\hfill}
+\label{cblas_8h_a94}
+
+
+\hypertarget{cblas_8h_a96}{
+\index{cblas.h@{cblas.h}!cblas_ssyr2@{cblas\_\-ssyr2}}
+\index{cblas_ssyr2@{cblas\_\-ssyr2}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-ssyr2]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-ssyr2 (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const int {\em N}, const float {\em alpha}, const float $\ast$ {\em X}, const int {\em inc\-X}, const float $\ast$ {\em Y}, const int {\em inc\-Y}, float $\ast$ {\em A}, const int {\em lda})}\hfill}
+\label{cblas_8h_a96}
+
+
+\hypertarget{cblas_8h_a127}{
+\index{cblas.h@{cblas.h}!cblas_ssyr2k@{cblas\_\-ssyr2k}}
+\index{cblas_ssyr2k@{cblas\_\-ssyr2k}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-ssyr2k]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-ssyr2k (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em Order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans}, const int {\em N}, const int {\em K}, const float {\em alpha}, const float $\ast$ {\em A}, const int {\em lda}, const float $\ast$ {\em B}, const int {\em ldb}, const float {\em beta}, float $\ast$ {\em C}, const int {\em ldc})}\hfill}
+\label{cblas_8h_a127}
+
+
+\hypertarget{cblas_8h_a126}{
+\index{cblas.h@{cblas.h}!cblas_ssyrk@{cblas\_\-ssyrk}}
+\index{cblas_ssyrk@{cblas\_\-ssyrk}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-ssyrk]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-ssyrk (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em Order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans}, const int {\em N}, const int {\em K}, const float {\em alpha}, const float $\ast$ {\em A}, const int {\em lda}, const float {\em beta}, float $\ast$ {\em C}, const int {\em ldc})}\hfill}
+\label{cblas_8h_a126}
+
+
+\hypertarget{cblas_8h_a61}{
+\index{cblas.h@{cblas.h}!cblas_stbmv@{cblas\_\-stbmv}}
+\index{cblas_stbmv@{cblas\_\-stbmv}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-stbmv]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-stbmv (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans\-A}, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} {\em Diag}, const int {\em N}, const int {\em K}, const float $\ast$ {\em A}, const int {\em lda}, float $\ast$ {\em X}, const int {\em inc\-X})}\hfill}
+\label{cblas_8h_a61}
+
+
+\hypertarget{cblas_8h_a64}{
+\index{cblas.h@{cblas.h}!cblas_stbsv@{cblas\_\-stbsv}}
+\index{cblas_stbsv@{cblas\_\-stbsv}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-stbsv]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-stbsv (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans\-A}, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} {\em Diag}, const int {\em N}, const int {\em K}, const float $\ast$ {\em A}, const int {\em lda}, float $\ast$ {\em X}, const int {\em inc\-X})}\hfill}
+\label{cblas_8h_a64}
+
+
+\hypertarget{cblas_8h_a62}{
+\index{cblas.h@{cblas.h}!cblas_stpmv@{cblas\_\-stpmv}}
+\index{cblas_stpmv@{cblas\_\-stpmv}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-stpmv]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-stpmv (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans\-A}, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} {\em Diag}, const int {\em N}, const float $\ast$ {\em Ap}, float $\ast$ {\em X}, const int {\em inc\-X})}\hfill}
+\label{cblas_8h_a62}
+
+
+\hypertarget{cblas_8h_a65}{
+\index{cblas.h@{cblas.h}!cblas_stpsv@{cblas\_\-stpsv}}
+\index{cblas_stpsv@{cblas\_\-stpsv}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-stpsv]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-stpsv (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans\-A}, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} {\em Diag}, const int {\em N}, const float $\ast$ {\em Ap}, float $\ast$ {\em X}, const int {\em inc\-X})}\hfill}
+\label{cblas_8h_a65}
+
+
+\hypertarget{cblas_8h_a128}{
+\index{cblas.h@{cblas.h}!cblas_strmm@{cblas\_\-strmm}}
+\index{cblas_strmm@{cblas\_\-strmm}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-strmm]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-strmm (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em Order}, const enum \hyperlink{cblas_8h_a159}{CBLAS\_\-SIDE} {\em Side}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans\-A}, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} {\em Diag}, const int {\em M}, const int {\em N}, const float {\em alpha}, const float $\ast$ {\em A}, const int {\em lda}, float $\ast$ {\em B}, const int {\em ldb})}\hfill}
+\label{cblas_8h_a128}
+
+
+\hypertarget{cblas_8h_a60}{
+\index{cblas.h@{cblas.h}!cblas_strmv@{cblas\_\-strmv}}
+\index{cblas_strmv@{cblas\_\-strmv}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-strmv]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-strmv (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans\-A}, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} {\em Diag}, const int {\em N}, const float $\ast$ {\em A}, const int {\em lda}, float $\ast$ {\em X}, const int {\em inc\-X})}\hfill}
+\label{cblas_8h_a60}
+
+
+\hypertarget{cblas_8h_a129}{
+\index{cblas.h@{cblas.h}!cblas_strsm@{cblas\_\-strsm}}
+\index{cblas_strsm@{cblas\_\-strsm}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-strsm]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-strsm (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em Order}, const enum \hyperlink{cblas_8h_a159}{CBLAS\_\-SIDE} {\em Side}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans\-A}, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} {\em Diag}, const int {\em M}, const int {\em N}, const float {\em alpha}, const float $\ast$ {\em A}, const int {\em lda}, float $\ast$ {\em B}, const int {\em ldb})}\hfill}
+\label{cblas_8h_a129}
+
+
+\hypertarget{cblas_8h_a63}{
+\index{cblas.h@{cblas.h}!cblas_strsv@{cblas\_\-strsv}}
+\index{cblas_strsv@{cblas\_\-strsv}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-strsv]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-strsv (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans\-A}, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} {\em Diag}, const int {\em N}, const float $\ast$ {\em A}, const int {\em lda}, float $\ast$ {\em X}, const int {\em inc\-X})}\hfill}
+\label{cblas_8h_a63}
+
+
+\hypertarget{cblas_8h_a154}{
+\index{cblas.h@{cblas.h}!cblas_xerbla@{cblas\_\-xerbla}}
+\index{cblas_xerbla@{cblas\_\-xerbla}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-xerbla]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-xerbla (int {\em p}, const char $\ast$ {\em rout}, const char $\ast$ {\em form},  {\em ...})}\hfill}
+\label{cblas_8h_a154}
+
+
+\hypertarget{cblas_8h_a43}{
+\index{cblas.h@{cblas.h}!cblas_zaxpy@{cblas\_\-zaxpy}}
+\index{cblas_zaxpy@{cblas\_\-zaxpy}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-zaxpy]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-zaxpy (const int {\em N}, const void $\ast$ {\em alpha}, const void $\ast$ {\em X}, const int {\em inc\-X}, void $\ast$ {\em Y}, const int {\em inc\-Y})}\hfill}
+\label{cblas_8h_a43}
+
+
+\hypertarget{cblas_8h_a42}{
+\index{cblas.h@{cblas.h}!cblas_zcopy@{cblas\_\-zcopy}}
+\index{cblas_zcopy@{cblas\_\-zcopy}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-zcopy]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-zcopy (const int {\em N}, const void $\ast$ {\em X}, const int {\em inc\-X}, void $\ast$ {\em Y}, const int {\em inc\-Y})}\hfill}
+\label{cblas_8h_a42}
+
+
+\hypertarget{cblas_8h_a19}{
+\index{cblas.h@{cblas.h}!cblas_zdotc_sub@{cblas\_\-zdotc\_\-sub}}
+\index{cblas_zdotc_sub@{cblas\_\-zdotc\_\-sub}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-zdotc\_\-sub]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-zdotc\_\-sub (const int {\em N}, const void $\ast$ {\em X}, const int {\em inc\-X}, const void $\ast$ {\em Y}, const int {\em inc\-Y}, void $\ast$ {\em dotc})}\hfill}
+\label{cblas_8h_a19}
+
+
+\hypertarget{cblas_8h_a18}{
+\index{cblas.h@{cblas.h}!cblas_zdotu_sub@{cblas\_\-zdotu\_\-sub}}
+\index{cblas_zdotu_sub@{cblas\_\-zdotu\_\-sub}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-zdotu\_\-sub]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-zdotu\_\-sub (const int {\em N}, const void $\ast$ {\em X}, const int {\em inc\-X}, const void $\ast$ {\em Y}, const int {\em inc\-Y}, void $\ast$ {\em dotu})}\hfill}
+\label{cblas_8h_a18}
+
+
+\hypertarget{cblas_8h_a57}{
+\index{cblas.h@{cblas.h}!cblas_zdscal@{cblas\_\-zdscal}}
+\index{cblas_zdscal@{cblas\_\-zdscal}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-zdscal]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-zdscal (const int {\em N}, const double {\em alpha}, void $\ast$ {\em X}, const int {\em inc\-X})}\hfill}
+\label{cblas_8h_a57}
+
+
+\hypertarget{cblas_8h_a83}{
+\index{cblas.h@{cblas.h}!cblas_zgbmv@{cblas\_\-zgbmv}}
+\index{cblas_zgbmv@{cblas\_\-zgbmv}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-zgbmv]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-zgbmv (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans\-A}, const int {\em M}, const int {\em N}, const int {\em KL}, const int {\em KU}, const void $\ast$ {\em alpha}, const void $\ast$ {\em A}, const int {\em lda}, const void $\ast$ {\em X}, const int {\em inc\-X}, const void $\ast$ {\em beta}, void $\ast$ {\em Y}, const int {\em inc\-Y})}\hfill}
+\label{cblas_8h_a83}
+
+
+\hypertarget{cblas_8h_a142}{
+\index{cblas.h@{cblas.h}!cblas_zgemm@{cblas\_\-zgemm}}
+\index{cblas_zgemm@{cblas\_\-zgemm}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-zgemm]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-zgemm (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em Order}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans\-A}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans\-B}, const int {\em M}, const int {\em N}, const int {\em K}, const void $\ast$ {\em alpha}, const void $\ast$ {\em A}, const int {\em lda}, const void $\ast$ {\em B}, const int {\em ldb}, const void $\ast$ {\em beta}, void $\ast$ {\em C}, const int {\em ldc})}\hfill}
+\label{cblas_8h_a142}
+
+
+\hypertarget{cblas_8h_a82}{
+\index{cblas.h@{cblas.h}!cblas_zgemv@{cblas\_\-zgemv}}
+\index{cblas_zgemv@{cblas\_\-zgemv}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-zgemv]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-zgemv (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans\-A}, const int {\em M}, const int {\em N}, const void $\ast$ {\em alpha}, const void $\ast$ {\em A}, const int {\em lda}, const void $\ast$ {\em X}, const int {\em inc\-X}, const void $\ast$ {\em beta}, void $\ast$ {\em Y}, const int {\em inc\-Y})}\hfill}
+\label{cblas_8h_a82}
+
+
+\hypertarget{cblas_8h_a119}{
+\index{cblas.h@{cblas.h}!cblas_zgerc@{cblas\_\-zgerc}}
+\index{cblas_zgerc@{cblas\_\-zgerc}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-zgerc]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-zgerc (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const int {\em M}, const int {\em N}, const void $\ast$ {\em alpha}, const void $\ast$ {\em X}, const int {\em inc\-X}, const void $\ast$ {\em Y}, const int {\em inc\-Y}, void $\ast$ {\em A}, const int {\em lda})}\hfill}
+\label{cblas_8h_a119}
+
+
+\hypertarget{cblas_8h_a118}{
+\index{cblas.h@{cblas.h}!cblas_zgeru@{cblas\_\-zgeru}}
+\index{cblas_zgeru@{cblas\_\-zgeru}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-zgeru]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-zgeru (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const int {\em M}, const int {\em N}, const void $\ast$ {\em alpha}, const void $\ast$ {\em X}, const int {\em inc\-X}, const void $\ast$ {\em Y}, const int {\em inc\-Y}, void $\ast$ {\em A}, const int {\em lda})}\hfill}
+\label{cblas_8h_a118}
+
+
+\hypertarget{cblas_8h_a116}{
+\index{cblas.h@{cblas.h}!cblas_zhbmv@{cblas\_\-zhbmv}}
+\index{cblas_zhbmv@{cblas\_\-zhbmv}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-zhbmv]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-zhbmv (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const int {\em N}, const int {\em K}, const void $\ast$ {\em alpha}, const void $\ast$ {\em A}, const int {\em lda}, const void $\ast$ {\em X}, const int {\em inc\-X}, const void $\ast$ {\em beta}, void $\ast$ {\em Y}, const int {\em inc\-Y})}\hfill}
+\label{cblas_8h_a116}
+
+
+\hypertarget{cblas_8h_a151}{
+\index{cblas.h@{cblas.h}!cblas_zhemm@{cblas\_\-zhemm}}
+\index{cblas_zhemm@{cblas\_\-zhemm}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-zhemm]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-zhemm (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em Order}, const enum \hyperlink{cblas_8h_a159}{CBLAS\_\-SIDE} {\em Side}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const int {\em M}, const int {\em N}, const void $\ast$ {\em alpha}, const void $\ast$ {\em A}, const int {\em lda}, const void $\ast$ {\em B}, const int {\em ldb}, const void $\ast$ {\em beta}, void $\ast$ {\em C}, const int {\em ldc})}\hfill}
+\label{cblas_8h_a151}
+
+
+\hypertarget{cblas_8h_a115}{
+\index{cblas.h@{cblas.h}!cblas_zhemv@{cblas\_\-zhemv}}
+\index{cblas_zhemv@{cblas\_\-zhemv}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-zhemv]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-zhemv (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const int {\em N}, const void $\ast$ {\em alpha}, const void $\ast$ {\em A}, const int {\em lda}, const void $\ast$ {\em X}, const int {\em inc\-X}, const void $\ast$ {\em beta}, void $\ast$ {\em Y}, const int {\em inc\-Y})}\hfill}
+\label{cblas_8h_a115}
+
+
+\hypertarget{cblas_8h_a120}{
+\index{cblas.h@{cblas.h}!cblas_zher@{cblas\_\-zher}}
+\index{cblas_zher@{cblas\_\-zher}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-zher]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-zher (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const int {\em N}, const double {\em alpha}, const void $\ast$ {\em X}, const int {\em inc\-X}, void $\ast$ {\em A}, const int {\em lda})}\hfill}
+\label{cblas_8h_a120}
+
+
+\hypertarget{cblas_8h_a122}{
+\index{cblas.h@{cblas.h}!cblas_zher2@{cblas\_\-zher2}}
+\index{cblas_zher2@{cblas\_\-zher2}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-zher2]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-zher2 (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const int {\em N}, const void $\ast$ {\em alpha}, const void $\ast$ {\em X}, const int {\em inc\-X}, const void $\ast$ {\em Y}, const int {\em inc\-Y}, void $\ast$ {\em A}, const int {\em lda})}\hfill}
+\label{cblas_8h_a122}
+
+
+\hypertarget{cblas_8h_a153}{
+\index{cblas.h@{cblas.h}!cblas_zher2k@{cblas\_\-zher2k}}
+\index{cblas_zher2k@{cblas\_\-zher2k}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-zher2k]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-zher2k (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em Order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans}, const int {\em N}, const int {\em K}, const void $\ast$ {\em alpha}, const void $\ast$ {\em A}, const int {\em lda}, const void $\ast$ {\em B}, const int {\em ldb}, const double {\em beta}, void $\ast$ {\em C}, const int {\em ldc})}\hfill}
+\label{cblas_8h_a153}
+
+
+\hypertarget{cblas_8h_a152}{
+\index{cblas.h@{cblas.h}!cblas_zherk@{cblas\_\-zherk}}
+\index{cblas_zherk@{cblas\_\-zherk}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-zherk]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-zherk (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em Order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans}, const int {\em N}, const int {\em K}, const double {\em alpha}, const void $\ast$ {\em A}, const int {\em lda}, const double {\em beta}, void $\ast$ {\em C}, const int {\em ldc})}\hfill}
+\label{cblas_8h_a152}
+
+
+\hypertarget{cblas_8h_a117}{
+\index{cblas.h@{cblas.h}!cblas_zhpmv@{cblas\_\-zhpmv}}
+\index{cblas_zhpmv@{cblas\_\-zhpmv}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-zhpmv]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-zhpmv (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const int {\em N}, const void $\ast$ {\em alpha}, const void $\ast$ {\em Ap}, const void $\ast$ {\em X}, const int {\em inc\-X}, const void $\ast$ {\em beta}, void $\ast$ {\em Y}, const int {\em inc\-Y})}\hfill}
+\label{cblas_8h_a117}
+
+
+\hypertarget{cblas_8h_a121}{
+\index{cblas.h@{cblas.h}!cblas_zhpr@{cblas\_\-zhpr}}
+\index{cblas_zhpr@{cblas\_\-zhpr}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-zhpr]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-zhpr (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const int {\em N}, const double {\em alpha}, const void $\ast$ {\em X}, const int {\em inc\-X}, void $\ast$ {\em A})}\hfill}
+\label{cblas_8h_a121}
+
+
+\hypertarget{cblas_8h_a123}{
+\index{cblas.h@{cblas.h}!cblas_zhpr2@{cblas\_\-zhpr2}}
+\index{cblas_zhpr2@{cblas\_\-zhpr2}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-zhpr2]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-zhpr2 (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const int {\em N}, const void $\ast$ {\em alpha}, const void $\ast$ {\em X}, const int {\em inc\-X}, const void $\ast$ {\em Y}, const int {\em inc\-Y}, void $\ast$ {\em Ap})}\hfill}
+\label{cblas_8h_a123}
+
+
+\hypertarget{cblas_8h_a55}{
+\index{cblas.h@{cblas.h}!cblas_zscal@{cblas\_\-zscal}}
+\index{cblas_zscal@{cblas\_\-zscal}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-zscal]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-zscal (const int {\em N}, const void $\ast$ {\em alpha}, void $\ast$ {\em X}, const int {\em inc\-X})}\hfill}
+\label{cblas_8h_a55}
+
+
+\hypertarget{cblas_8h_a41}{
+\index{cblas.h@{cblas.h}!cblas_zswap@{cblas\_\-zswap}}
+\index{cblas_zswap@{cblas\_\-zswap}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-zswap]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-zswap (const int {\em N}, void $\ast$ {\em X}, const int {\em inc\-X}, void $\ast$ {\em Y}, const int {\em inc\-Y})}\hfill}
+\label{cblas_8h_a41}
+
+
+\hypertarget{cblas_8h_a143}{
+\index{cblas.h@{cblas.h}!cblas_zsymm@{cblas\_\-zsymm}}
+\index{cblas_zsymm@{cblas\_\-zsymm}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-zsymm]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-zsymm (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em Order}, const enum \hyperlink{cblas_8h_a159}{CBLAS\_\-SIDE} {\em Side}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const int {\em M}, const int {\em N}, const void $\ast$ {\em alpha}, const void $\ast$ {\em A}, const int {\em lda}, const void $\ast$ {\em B}, const int {\em ldb}, const void $\ast$ {\em beta}, void $\ast$ {\em C}, const int {\em ldc})}\hfill}
+\label{cblas_8h_a143}
+
+
+\hypertarget{cblas_8h_a145}{
+\index{cblas.h@{cblas.h}!cblas_zsyr2k@{cblas\_\-zsyr2k}}
+\index{cblas_zsyr2k@{cblas\_\-zsyr2k}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-zsyr2k]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-zsyr2k (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em Order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans}, const int {\em N}, const int {\em K}, const void $\ast$ {\em alpha}, const void $\ast$ {\em A}, const int {\em lda}, const void $\ast$ {\em B}, const int {\em ldb}, const void $\ast$ {\em beta}, void $\ast$ {\em C}, const int {\em ldc})}\hfill}
+\label{cblas_8h_a145}
+
+
+\hypertarget{cblas_8h_a144}{
+\index{cblas.h@{cblas.h}!cblas_zsyrk@{cblas\_\-zsyrk}}
+\index{cblas_zsyrk@{cblas\_\-zsyrk}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-zsyrk]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-zsyrk (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em Order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans}, const int {\em N}, const int {\em K}, const void $\ast$ {\em alpha}, const void $\ast$ {\em A}, const int {\em lda}, const void $\ast$ {\em beta}, void $\ast$ {\em C}, const int {\em ldc})}\hfill}
+\label{cblas_8h_a144}
+
+
+\hypertarget{cblas_8h_a85}{
+\index{cblas.h@{cblas.h}!cblas_ztbmv@{cblas\_\-ztbmv}}
+\index{cblas_ztbmv@{cblas\_\-ztbmv}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-ztbmv]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-ztbmv (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans\-A}, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} {\em Diag}, const int {\em N}, const int {\em K}, const void $\ast$ {\em A}, const int {\em lda}, void $\ast$ {\em X}, const int {\em inc\-X})}\hfill}
+\label{cblas_8h_a85}
+
+
+\hypertarget{cblas_8h_a88}{
+\index{cblas.h@{cblas.h}!cblas_ztbsv@{cblas\_\-ztbsv}}
+\index{cblas_ztbsv@{cblas\_\-ztbsv}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-ztbsv]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-ztbsv (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans\-A}, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} {\em Diag}, const int {\em N}, const int {\em K}, const void $\ast$ {\em A}, const int {\em lda}, void $\ast$ {\em X}, const int {\em inc\-X})}\hfill}
+\label{cblas_8h_a88}
+
+
+\hypertarget{cblas_8h_a86}{
+\index{cblas.h@{cblas.h}!cblas_ztpmv@{cblas\_\-ztpmv}}
+\index{cblas_ztpmv@{cblas\_\-ztpmv}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-ztpmv]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-ztpmv (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans\-A}, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} {\em Diag}, const int {\em N}, const void $\ast$ {\em Ap}, void $\ast$ {\em X}, const int {\em inc\-X})}\hfill}
+\label{cblas_8h_a86}
+
+
+\hypertarget{cblas_8h_a89}{
+\index{cblas.h@{cblas.h}!cblas_ztpsv@{cblas\_\-ztpsv}}
+\index{cblas_ztpsv@{cblas\_\-ztpsv}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-ztpsv]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-ztpsv (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans\-A}, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} {\em Diag}, const int {\em N}, const void $\ast$ {\em Ap}, void $\ast$ {\em X}, const int {\em inc\-X})}\hfill}
+\label{cblas_8h_a89}
+
+
+\hypertarget{cblas_8h_a146}{
+\index{cblas.h@{cblas.h}!cblas_ztrmm@{cblas\_\-ztrmm}}
+\index{cblas_ztrmm@{cblas\_\-ztrmm}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-ztrmm]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-ztrmm (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em Order}, const enum \hyperlink{cblas_8h_a159}{CBLAS\_\-SIDE} {\em Side}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans\-A}, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} {\em Diag}, const int {\em M}, const int {\em N}, const void $\ast$ {\em alpha}, const void $\ast$ {\em A}, const int {\em lda}, void $\ast$ {\em B}, const int {\em ldb})}\hfill}
+\label{cblas_8h_a146}
+
+
+\hypertarget{cblas_8h_a84}{
+\index{cblas.h@{cblas.h}!cblas_ztrmv@{cblas\_\-ztrmv}}
+\index{cblas_ztrmv@{cblas\_\-ztrmv}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-ztrmv]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-ztrmv (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans\-A}, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} {\em Diag}, const int {\em N}, const void $\ast$ {\em A}, const int {\em lda}, void $\ast$ {\em X}, const int {\em inc\-X})}\hfill}
+\label{cblas_8h_a84}
+
+
+\hypertarget{cblas_8h_a147}{
+\index{cblas.h@{cblas.h}!cblas_ztrsm@{cblas\_\-ztrsm}}
+\index{cblas_ztrsm@{cblas\_\-ztrsm}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-ztrsm]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-ztrsm (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em Order}, const enum \hyperlink{cblas_8h_a159}{CBLAS\_\-SIDE} {\em Side}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans\-A}, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} {\em Diag}, const int {\em M}, const int {\em N}, const void $\ast$ {\em alpha}, const void $\ast$ {\em A}, const int {\em lda}, void $\ast$ {\em B}, const int {\em ldb})}\hfill}
+\label{cblas_8h_a147}
+
+
+\hypertarget{cblas_8h_a87}{
+\index{cblas.h@{cblas.h}!cblas_ztrsv@{cblas\_\-ztrsv}}
+\index{cblas_ztrsv@{cblas\_\-ztrsv}!cblas.h@{cblas.h}}
+\paragraph[cblas\_\-ztrsv]{\setlength{\rightskip}{0pt plus 5cm}void cblas\_\-ztrsv (const enum \hyperlink{cblas_8h_a155}{CBLAS\_\-ORDER} {\em order}, const enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em Uplo}, const enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em Trans\-A}, const enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} {\em Diag}, const int {\em N}, const void $\ast$ {\em A}, const int {\em lda}, void $\ast$ {\em X}, const int {\em inc\-X})}\hfill}
+\label{cblas_8h_a87}
+
+

@@ -1,0 +1,128 @@
+\hypertarget{dtrMatrix_8c}{
+\subsection{dtr\-Matrix.c File Reference}
+\label{dtrMatrix_8c}\index{dtrMatrix.c@{dtrMatrix.c}}
+}
+{\tt \#include \char`\"{}dtr\-Matrix.h\char`\"{}}\par
+\subsubsection*{Functions}
+\begin{CompactItemize}
+\item 
+SEXP \hyperlink{dtrMatrix_8c_a0}{dtr\-Matrix\_\-validate} (SEXP obj)
+\item 
+static double \hyperlink{dtrMatrix_8c_a1}{get\_\-norm} (SEXP obj, char $\ast$typstr)
+\item 
+SEXP \hyperlink{dtrMatrix_8c_a2}{dtr\-Matrix\_\-norm} (SEXP obj, SEXP type)
+\item 
+static double \hyperlink{dtrMatrix_8c_a3}{set\_\-rcond} (SEXP obj, char $\ast$typstr)
+\item 
+SEXP \hyperlink{dtrMatrix_8c_a4}{dtr\-Matrix\_\-rcond} (SEXP obj, SEXP type)
+\item 
+SEXP \hyperlink{dtrMatrix_8c_a5}{dtr\-Matrix\_\-solve} (SEXP a)
+\item 
+SEXP \hyperlink{dtrMatrix_8c_a6}{dtr\-Matrix\_\-matrix\_\-solve} (SEXP a, SEXP b)
+\item 
+void \hyperlink{dtrMatrix_8c_a7}{make\_\-array\_\-triangular} (double $\ast$to, SEXP from)
+\item 
+SEXP \hyperlink{dtrMatrix_8c_a8}{dtr\-Matrix\_\-as\_\-dge\-Matrix} (SEXP from)
+\item 
+SEXP \hyperlink{dtrMatrix_8c_a9}{dtr\-Matrix\_\-as\_\-matrix} (SEXP from)
+\item 
+SEXP \hyperlink{dtrMatrix_8c_a10}{dtr\-Matrix\_\-get\-Diag} (SEXP x)
+\item 
+SEXP \hyperlink{dtrMatrix_8c_a11}{dtr\-Matrix\_\-dge\-Matrix\_\-mm} (SEXP a, SEXP b)
+\item 
+SEXP \hyperlink{dtrMatrix_8c_a12}{dtr\-Matrix\_\-dge\-Matrix\_\-mm\_\-R} (SEXP a, SEXP b)
+\end{CompactItemize}
+
+
+\subsubsection{Function Documentation}
+\hypertarget{dtrMatrix_8c_a8}{
+\index{dtrMatrix.c@{dtr\-Matrix.c}!dtrMatrix_as_dgeMatrix@{dtrMatrix\_\-as\_\-dgeMatrix}}
+\index{dtrMatrix_as_dgeMatrix@{dtrMatrix\_\-as\_\-dgeMatrix}!dtrMatrix.c@{dtr\-Matrix.c}}
+\paragraph[dtrMatrix\_\-as\_\-dgeMatrix]{\setlength{\rightskip}{0pt plus 5cm}SEXP dtr\-Matrix\_\-as\_\-dge\-Matrix (SEXP {\em from})}\hfill}
+\label{dtrMatrix_8c_a8}
+
+
+\hypertarget{dtrMatrix_8c_a9}{
+\index{dtrMatrix.c@{dtr\-Matrix.c}!dtrMatrix_as_matrix@{dtrMatrix\_\-as\_\-matrix}}
+\index{dtrMatrix_as_matrix@{dtrMatrix\_\-as\_\-matrix}!dtrMatrix.c@{dtr\-Matrix.c}}
+\paragraph[dtrMatrix\_\-as\_\-matrix]{\setlength{\rightskip}{0pt plus 5cm}SEXP dtr\-Matrix\_\-as\_\-matrix (SEXP {\em from})}\hfill}
+\label{dtrMatrix_8c_a9}
+
+
+\hypertarget{dtrMatrix_8c_a11}{
+\index{dtrMatrix.c@{dtr\-Matrix.c}!dtrMatrix_dgeMatrix_mm@{dtrMatrix\_\-dgeMatrix\_\-mm}}
+\index{dtrMatrix_dgeMatrix_mm@{dtrMatrix\_\-dgeMatrix\_\-mm}!dtrMatrix.c@{dtr\-Matrix.c}}
+\paragraph[dtrMatrix\_\-dgeMatrix\_\-mm]{\setlength{\rightskip}{0pt plus 5cm}SEXP dtr\-Matrix\_\-dge\-Matrix\_\-mm (SEXP {\em a}, SEXP {\em b})}\hfill}
+\label{dtrMatrix_8c_a11}
+
+
+\hypertarget{dtrMatrix_8c_a12}{
+\index{dtrMatrix.c@{dtr\-Matrix.c}!dtrMatrix_dgeMatrix_mm_R@{dtrMatrix\_\-dgeMatrix\_\-mm\_\-R}}
+\index{dtrMatrix_dgeMatrix_mm_R@{dtrMatrix\_\-dgeMatrix\_\-mm\_\-R}!dtrMatrix.c@{dtr\-Matrix.c}}
+\paragraph[dtrMatrix\_\-dgeMatrix\_\-mm\_\-R]{\setlength{\rightskip}{0pt plus 5cm}SEXP dtr\-Matrix\_\-dge\-Matrix\_\-mm\_\-R (SEXP {\em a}, SEXP {\em b})}\hfill}
+\label{dtrMatrix_8c_a12}
+
+
+\hypertarget{dtrMatrix_8c_a10}{
+\index{dtrMatrix.c@{dtr\-Matrix.c}!dtrMatrix_getDiag@{dtrMatrix\_\-getDiag}}
+\index{dtrMatrix_getDiag@{dtrMatrix\_\-getDiag}!dtrMatrix.c@{dtr\-Matrix.c}}
+\paragraph[dtrMatrix\_\-getDiag]{\setlength{\rightskip}{0pt plus 5cm}SEXP dtr\-Matrix\_\-get\-Diag (SEXP {\em x})}\hfill}
+\label{dtrMatrix_8c_a10}
+
+
+\hypertarget{dtrMatrix_8c_a6}{
+\index{dtrMatrix.c@{dtr\-Matrix.c}!dtrMatrix_matrix_solve@{dtrMatrix\_\-matrix\_\-solve}}
+\index{dtrMatrix_matrix_solve@{dtrMatrix\_\-matrix\_\-solve}!dtrMatrix.c@{dtr\-Matrix.c}}
+\paragraph[dtrMatrix\_\-matrix\_\-solve]{\setlength{\rightskip}{0pt plus 5cm}SEXP dtr\-Matrix\_\-matrix\_\-solve (SEXP {\em a}, SEXP {\em b})}\hfill}
+\label{dtrMatrix_8c_a6}
+
+
+\hypertarget{dtrMatrix_8c_a2}{
+\index{dtrMatrix.c@{dtr\-Matrix.c}!dtrMatrix_norm@{dtrMatrix\_\-norm}}
+\index{dtrMatrix_norm@{dtrMatrix\_\-norm}!dtrMatrix.c@{dtr\-Matrix.c}}
+\paragraph[dtrMatrix\_\-norm]{\setlength{\rightskip}{0pt plus 5cm}SEXP dtr\-Matrix\_\-norm (SEXP {\em obj}, SEXP {\em type})}\hfill}
+\label{dtrMatrix_8c_a2}
+
+
+\hypertarget{dtrMatrix_8c_a4}{
+\index{dtrMatrix.c@{dtr\-Matrix.c}!dtrMatrix_rcond@{dtrMatrix\_\-rcond}}
+\index{dtrMatrix_rcond@{dtrMatrix\_\-rcond}!dtrMatrix.c@{dtr\-Matrix.c}}
+\paragraph[dtrMatrix\_\-rcond]{\setlength{\rightskip}{0pt plus 5cm}SEXP dtr\-Matrix\_\-rcond (SEXP {\em obj}, SEXP {\em type})}\hfill}
+\label{dtrMatrix_8c_a4}
+
+
+\hypertarget{dtrMatrix_8c_a5}{
+\index{dtrMatrix.c@{dtr\-Matrix.c}!dtrMatrix_solve@{dtrMatrix\_\-solve}}
+\index{dtrMatrix_solve@{dtrMatrix\_\-solve}!dtrMatrix.c@{dtr\-Matrix.c}}
+\paragraph[dtrMatrix\_\-solve]{\setlength{\rightskip}{0pt plus 5cm}SEXP dtr\-Matrix\_\-solve (SEXP {\em a})}\hfill}
+\label{dtrMatrix_8c_a5}
+
+
+\hypertarget{dtrMatrix_8c_a0}{
+\index{dtrMatrix.c@{dtr\-Matrix.c}!dtrMatrix_validate@{dtrMatrix\_\-validate}}
+\index{dtrMatrix_validate@{dtrMatrix\_\-validate}!dtrMatrix.c@{dtr\-Matrix.c}}
+\paragraph[dtrMatrix\_\-validate]{\setlength{\rightskip}{0pt plus 5cm}SEXP dtr\-Matrix\_\-validate (SEXP {\em obj})}\hfill}
+\label{dtrMatrix_8c_a0}
+
+
+\hypertarget{dtrMatrix_8c_a1}{
+\index{dtrMatrix.c@{dtr\-Matrix.c}!get_norm@{get\_\-norm}}
+\index{get_norm@{get\_\-norm}!dtrMatrix.c@{dtr\-Matrix.c}}
+\paragraph[get\_\-norm]{\setlength{\rightskip}{0pt plus 5cm}static double get\_\-norm (SEXP {\em obj}, char $\ast$ {\em typstr})\hspace{0.3cm}{\tt  \mbox{[}static\mbox{]}}}\hfill}
+\label{dtrMatrix_8c_a1}
+
+
+\hypertarget{dtrMatrix_8c_a7}{
+\index{dtrMatrix.c@{dtr\-Matrix.c}!make_array_triangular@{make\_\-array\_\-triangular}}
+\index{make_array_triangular@{make\_\-array\_\-triangular}!dtrMatrix.c@{dtr\-Matrix.c}}
+\paragraph[make\_\-array\_\-triangular]{\setlength{\rightskip}{0pt plus 5cm}void make\_\-array\_\-triangular (double $\ast$ {\em to}, SEXP {\em from})}\hfill}
+\label{dtrMatrix_8c_a7}
+
+
+\hypertarget{dtrMatrix_8c_a3}{
+\index{dtrMatrix.c@{dtr\-Matrix.c}!set_rcond@{set\_\-rcond}}
+\index{set_rcond@{set\_\-rcond}!dtrMatrix.c@{dtr\-Matrix.c}}
+\paragraph[set\_\-rcond]{\setlength{\rightskip}{0pt plus 5cm}static double set\_\-rcond (SEXP {\em obj}, char $\ast$ {\em typstr})\hspace{0.3cm}{\tt  \mbox{[}static\mbox{]}}}\hfill}
+\label{dtrMatrix_8c_a3}
+
+

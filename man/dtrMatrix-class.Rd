@@ -1,0 +1,66 @@
+\name{dtrMatrix-class}
+\docType{class}
+\alias{\%*\%,dgeMatrix,dtrMatrix-method}
+\alias{\%*\%,dtrMatrix,dgeMatrix-method}
+\alias{coerce,dtrMatrix,dgeMatrix-method}
+\alias{coerce,dtrMatrix,matrix-method}
+\alias{crossprod,dtrMatrix,missing-method}
+\alias{determinant,dtrMatrix,logical-method}
+\alias{determinant,dtrMatrix,missing-method}
+\alias{norm,dtrMatrix,character-method}
+\alias{norm,dtrMatrix,missing-method}
+\alias{rcond,dtrMatrix,character-method}
+\alias{rcond,dtrMatrix,missing-method}
+\alias{solve,dtrMatrix,matrix-method}
+\alias{solve,dtrMatrix,missing-method}
+\alias{t,dtrMatrix-method}
+\alias{dtrMatrix-class}
+\alias{dtpMatrix-class}
+\title{Triangular, dense, numeric matrices}
+\description{The \code{"dtrMatrix"} class is the class of triangular,
+  dense, numeric matrices in nonpacked storage.  The \code{"dtpMatrix"}
+  class is the same except in packed storage.}
+\section{Objects from the Class}{
+Objects can be created by calls of the form \code{new("dtrMatrix", ...)}.
+}
+\section{Slots}{
+  \describe{
+    \item{\code{uplo}:}{Object of class \code{"character"}. Must be
+      either "U", for upper triangular, and "L", for lower triangular.}
+    \item{\code{diag}:}{Object of class \code{"character"}. Must be
+      either \code{"U"}, for unit triangular (diagonal is all ones), or
+      \code{"N"} for non-unit.  The implicit diagonal elements are not
+      explicitly stored when \code{diag} is \code{"U"}.}
+    \item{\code{x}:}{Object of class \code{"numeric"}. The numeric
+      values that constitute the matrix, stored in column-major order.}
+    \item{\code{Dim}:}{Object of class \code{"integer"}. The dimensions
+      of the matrix which must be a two-element vector of non-negative
+      integers.}
+    \item{\code{rcond}:}{Object of class \code{"numeric"}. A named
+      numeric vector of reciprocal condition numbers in either the
+      1-norm \code{"O"} or the infinity norm \code{"I"}.}
+    \item{\code{factors}:}{Object of class \code{"list"}.  A named
+      list of factorizations that have been computed for the matrix.}
+  }
+}
+\section{Extends}{
+Class \code{"dgeMatrix"}, directly.
+Class \code{"Matrix"}, by class \code{"dgeMatrix"}.
+}
+\section{Methods}{
+  \describe{
+    \item{coerce}{\code{signature(from = "dtrMatrix", to = "dgeMatrix")}}
+    \item{coerce}{\code{signature(from = "dtrMatrix", to = "matrix")}}
+    \item{norm}{\code{signature(x = "dtrMatrix", type = "character")}}
+    \item{rcond}{\code{signature(x = "dtrMatrix", type = "character")}}    
+    \item{solve}{\code{signature(a = "dtrMatrix", b = "missing")}}
+    \item{solve}{\code{signature(a = "dtrMatrix", b = "matrix")}}
+  }
+}
+%\references{}
+%\author{}
+\seealso{
+  \code{\link{dgeMatrix-class}}, \code{\link{Matrix-class}}
+}
+%\examples{}
+\keyword{classes}

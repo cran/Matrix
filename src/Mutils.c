@@ -5,7 +5,7 @@
 char norm_type(char *typstr)
 {
     char typup;
-    
+
     if (strlen(typstr) != 1)
 	error("argument type[1]='%s' must be a character string of string length 1",
 	      typstr);
@@ -21,7 +21,7 @@ char norm_type(char *typstr)
 char rcond_type(char *typstr)
 {
     char typup;
-    
+
     if (strlen(typstr) != 1)
 	error("argument type[1]='%s' must be a character string of string length 1",
 	      typstr);
@@ -37,7 +37,7 @@ double get_double_by_name(SEXP obj, char *nm)
 {
     SEXP nms = getAttrib(obj, R_NamesSymbol);
     int i, len = length(obj);
-    
+
     if ((!isReal(obj)) || (length(obj) > 0 && nms == R_NilValue))
 	error("object must be a named, numeric vector");
     for (i = 0; i < len; i++) {
@@ -90,19 +90,19 @@ SEXP as_det_obj(double val, int log, int sign)
     setAttrib(vv, install("logarithm"), ScalarLogical(log));
     SET_VECTOR_ELT(det, 0, vv);
     SET_VECTOR_ELT(det, 1, ScalarInteger(sign));
-    setAttrib(det, R_ClassSymbol, ScalarString(mkChar("det")));
+    setAttrib(det, R_ClassSymbol, mkString("det"));
     UNPROTECT(1);
     return det;
 }
 
-SEXP get_factorization(SEXP obj, char *nm)
+SEXP get_factors(SEXP obj, char *nm)
 {
-    SEXP fac = GET_SLOT(obj, Matrix_factorization),
+    SEXP fac = GET_SLOT(obj, Matrix_factorSym),
 	nms = getAttrib(fac, R_NamesSymbol);
     int i, len = length(fac);
-    
+
     if ((!isNewList(fac)) || (length(fac) > 0 && nms == R_NilValue))
-	error("factorization slot must be a named list");
+	error("factors slot must be a named list");
     for (i = 0; i < len; i++) {
 	if (!strcmp(nm, CHAR(STRING_ELT(nms, i)))) {
 	    return VECTOR_ELT(fac, i);
@@ -111,14 +111,14 @@ SEXP get_factorization(SEXP obj, char *nm)
     return R_NilValue;
 }
 
-SEXP set_factorization(SEXP obj, SEXP val, char *nm)
+SEXP set_factors(SEXP obj, SEXP val, char *nm)
 {
-    SEXP fac = GET_SLOT(obj, Matrix_factorization),
+    SEXP fac = GET_SLOT(obj, Matrix_factorSym),
 	nms = getAttrib(fac, R_NamesSymbol), nfac, nnms;
     int i, len = length(fac);
 
     if ((!isNewList(fac)) || (length(fac) > 0 && nms == R_NilValue))
-	error("factorization slot must be a named list");
+	error("factors slot must be a named list");
     for (i = 0; i < len; i++) {
 	if (!strcmp(nm, CHAR(STRING_ELT(nms, i)))) {
 	    SET_VECTOR_ELT(fac, i, duplicate(val));
@@ -134,12 +134,12 @@ SEXP set_factorization(SEXP obj, SEXP val, char *nm)
     }
     SET_VECTOR_ELT(nfac, len, duplicate(val));
     SET_STRING_ELT(nnms, len, mkChar(nm));
-    SET_SLOT(obj, Matrix_factorization, nfac);
+    SET_SLOT(obj, Matrix_factorSym, nfac);
     UNPROTECT(2);
     return val;
 }
 
-SEXP cscMatrix_set_Dim(SEXP x, int nrow)
+SEXP dgCMatrix_set_Dim(SEXP x, int nrow)
 {
     int *dims = INTEGER(GET_SLOT(x, Matrix_DimSym));
 
@@ -148,13 +148,13 @@ SEXP cscMatrix_set_Dim(SEXP x, int nrow)
     return x;
 }
 
-/** 
+/**
  * Check for unsorted columns in the row indices
- * 
+ *
  * @param ncol number of columns
  * @param p column pointers
  * @param i row indices
- * 
+ *
  * @return 0 if all columns are sorted, otherwise 1
  */
 int csc_unsorted_columns(int ncol, const int p[], const int i[])
@@ -169,10 +169,10 @@ int csc_unsorted_columns(int ncol, const int p[], const int i[])
     return 0;
 }
 
-/** 
+/**
  * Sort the columns in a sparse column-oriented matrix so that each
  * column is in increasing order of row index.
- * 
+ *
  * @param ncol number of columns
  * @param p column pointers
  * @param i row indices
@@ -182,7 +182,7 @@ void csc_sort_columns(int ncol, const int p[], int i[], double x[])
 {
     int j, maxdiff, *ord;
     double *dd;
-	
+
     maxdiff = -1;
     for (j = 0; j < ncol; j++) {
 	int diff = p[j+1] - p[j];
@@ -203,12 +203,12 @@ void csc_sort_columns(int ncol, const int p[], int i[], double x[])
     Free(ord); Free(dd);
 }
 
-/** 
+/**
  * Check for sorted columns in an object that inherits from the
- * cscMatrix class.  Resort the columns if necessary.
- * 
- * @param m pointer to an object that inherits from the cscMatrix class
- * 
+ * dgCMatrix class.  Resort the columns if necessary.
+ *
+ * @param m pointer to an object that inherits from the dgCMatrix class
+ *
  * @return m with the columns sorted by increasing row index
  */
 SEXP csc_check_column_sorting(SEXP m)
@@ -239,10 +239,10 @@ SEXP triple_as_SEXP(int nrow, int ncol, int nz,
     Memcpy(INTEGER(GET_SLOT(val, Matrix_iSym)), Ai, nz); Free(Ai);
     SET_SLOT(val, Matrix_xSym, allocVector(REALSXP, nz));
     Memcpy(REAL(GET_SLOT(val, Matrix_xSym)), Ax, nz); Free(Ax);
-    SET_SLOT(val, Matrix_factorization, allocVector(VECSXP, 0));
+    SET_SLOT(val, Matrix_factorSym, allocVector(VECSXP, 0));
     UNPROTECT(1);
-    return cscMatrix_set_Dim(val, nrow);
-}    
+    return dgCMatrix_set_Dim(val, nrow);
+}
 
 void csc_components_transpose(int m, int n, int nnz,
 			      const int xp[], const int xi[],
@@ -284,7 +284,7 @@ void ssc_symbolic_permute(int n, int upper, const int perm[],
 	*Aj = Calloc(nnz, int),
 	*ord = Calloc(nnz, int),
 	*ii = Calloc(nnz, int);
-    
+
     for (j = 0; j < n; j++) {
 	int pj = perm[j];
 	for (k = Ap[j]; k < Ap[j+1]; k++) {
@@ -309,12 +309,12 @@ void ssc_symbolic_permute(int n, int upper, const int perm[],
     for (j = 0; j < n; j++) R_isort(Ai + Ap[j], Ap[j+1] - Ap[j]);
     Free(Aj); Free(ord); Free(ii);
 }
-    
-    
-/** 
+
+
+/**
  * Symmetrize a matrix by copying the strict upper triangle into the
  * lower triangle.
- * 
+ *
  * @param a pointer to a matrix in Fortran storage mode
  * @param nc number of columns (and rows and leading dimension) in the matrix
  *
@@ -325,16 +325,16 @@ nlme_symmetrize(double *a, const int nc)
 {
     int i, j;
 
-    for (i = 1; i < nc; i++) 
+    for (i = 1; i < nc; i++)
 	for (j = 0; j < i; j++)
 	    a[i + j*nc] = a[j + i*nc];
     return a;
 }
 
-/** 
+/**
  * Check the error code returned by an Lapack routine and create an
  * appropriate error message.
- * 
+ *
  * @param info Error code as returned from the Lapack routine
  * @param laName Character string containing the name of the Lapack routine
  */
@@ -349,14 +349,14 @@ nlme_check_Lapack_error(int info, const char *laName)
     }
 }
 
-/** 
+/**
  * Replace the value of a slot or subslot of an object in place.  This
  * routine purposely does not copy the value of obj.  Use with caution.
- * 
+ *
  * @param obj object with slot to be replaced
  * @param names vector of names.  The last element is the name of the slot to replace.  The leading elements are the names of slots and subslots of obj.
  * @param value the replacement value for the slot
- * 
+ *
  * @return obj, with the named slot modified in place.
  */
 SEXP
@@ -376,15 +376,15 @@ nlme_replaceSlot(SEXP obj, SEXP names, SEXP value)
     return obj;
 }
 
-/** 
+/**
  * Produce a weighted copy of the matrices in MLin in the storage
  * allocated to MLout
- * 
+ *
  * @param MLin input matrix list
  * @param wts real vector of weights
  * @param adjst adjusted response
- * @param MLout On input a list of matrices of the same dimensions as MLin.  
- * 
+ * @param MLout On input a list of matrices of the same dimensions as MLin.
+ *
  * @return MLout with its contents overwritten by a weighted copy of
  * MLin according to wts with adjst overwriting the response.
  */
@@ -392,7 +392,7 @@ SEXP nlme_weight_matrix_list(SEXP MLin, SEXP wts, SEXP adjst, SEXP MLout)
 {
     int i, j, n, nf;
     SEXP lastM;
-    
+
     if (!(isNewList(MLin) && isReal(wts) && isReal(adjst) && isNewList(MLout)))
 	error("Incorrect argument type");
     nf = length(MLin);
@@ -435,3 +435,79 @@ SEXP nlme_weight_matrix_list(SEXP MLin, SEXP wts, SEXP adjst, SEXP MLout)
 	REAL(lastM)[j*n + i] = REAL(adjst)[i] * REAL(wts)[i];
     return MLout;
 }
+
+/**
+ * Create a named vector of type TYP
+ *
+ * @param TYP a vector SEXP type (e.g. REALSXP)
+ * @param names names of list elements with null string appended
+ *
+ * @return pointer to a named vector of type TYP
+ */
+SEXP
+Matrix_make_named(int TYP, char **names)
+{
+    SEXP ans, nms;
+    int i, n;
+
+    for (n = 0; strlen(names[n]) > 0; n++) {}
+    ans = PROTECT(allocVector(TYP, n));
+    nms = PROTECT(allocVector(STRSXP, n));
+    for (i = 0; i < n; i++) SET_STRING_ELT(nms, i, mkChar(names[i]));
+    setAttrib(ans, R_NamesSymbol, nms);
+    UNPROTECT(2);
+    return ans;
+}
+
+/** 
+ * Allocate a 3-dimensional array
+ * 
+ * @param mode The R mode (e.g. INTSXP)
+ * @param nrow number of rows
+ * @param ncol number of columns
+ * @param nface number of faces
+ * 
+ * @return A 3-dimensional array of the indicated dimensions and mode
+ */
+SEXP alloc3Darray(SEXPTYPE mode, int nrow, int ncol, int nface)
+{
+    SEXP s, t;
+    int n;
+
+    if (nrow < 0 || ncol < 0 || nface < 0)
+	error("negative extents to 3D array");
+    if ((double)nrow * (double)ncol * (double)nface > INT_MAX)
+	error("alloc3Darray: too many elements specified");
+    n = nrow * ncol * nface;
+    PROTECT(s = allocVector(mode, n));
+    PROTECT(t = allocVector(INTSXP, 3));
+    INTEGER(t)[0] = nrow;
+    INTEGER(t)[1] = ncol;
+    INTEGER(t)[2] = nface;
+    setAttrib(s, R_DimSymbol, t);
+    UNPROTECT(2);
+    return s;
+}
+
+/** 
+ * Expand a column of a compressed, sparse, column-oriented matrix.
+ * 
+ * @param dest array to hold the result
+ * @param m number of rows in the matrix
+ * @param j index (0-based) of column to expand
+ * @param Ap array of column pointers
+ * @param Ai array of row indices
+ * @param Ax array of non-zero values
+ * 
+ * @return dest
+ */
+double *expand_csc_column(double *dest, int m, int j,
+			  const int Ap[], const int Ai[], const double Ax[])
+{
+    int k, k2 = Ap[j + 1];
+
+    for (k = 0; k < m; k++) dest[k] = 0.;
+    for (k = Ap[j]; k < k2; k++) dest[Ai[k]] = Ax[k];
+    return dest;
+}
+

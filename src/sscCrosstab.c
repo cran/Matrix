@@ -67,7 +67,7 @@ SEXP sscCrosstab(SEXP flist, SEXP upper)
     Memcpy(REAL(GET_SLOT(val, Matrix_xSym)), TTx, nz);
     Free(Ti); Free(Tj); Free(Tx);
     Free(TTi); Free(TTx);
-    
+
     UNPROTECT(1);
     return val;
 }
@@ -139,7 +139,7 @@ SEXP sscCrosstab_groupedPerm(SEXP ctab)
 	up;
     SEXP ans = PROTECT(allocVector(INTSXP, n));
 
-    up = toupper(*CHAR(STRING_ELT(GET_SLOT(ctab, Matrix_uploSym), 0))) != 'L';
+    up = *CHAR(STRING_ELT(GET_SLOT(ctab, Matrix_uploSym), 0)) != 'L';
     if (nf > 1 && up) {			/* transpose */
 	int nz = length(iSlot);
 	int *ai = Calloc(nz, int),
@@ -164,13 +164,13 @@ SEXP sscCrosstab_groupedPerm(SEXP ctab)
     return ans;
 }
 
-/** 
+/**
  * Project the (2,1) component of an sscCrosstab object into the (2,2)
  * component (for illustration only)
- * 
+ *
  * @param ctab pointer to a sscCrosstab object
- * 
- * @return a pointer to an sscMatrix giving the projection of the 2,1 component
+ *
+ * @return a pointer to an dsCMatrix giving the projection of the 2,1 component
  */
 SEXP sscCrosstab_project(SEXP ctab)
 {
@@ -185,9 +185,9 @@ SEXP sscCrosstab_project(SEXP ctab)
 	n = length(pSlot) - 1,	/* number of columns */
 	nf = length(GpSlot) - 1, /* number of factors */
 	nz, up;
-    SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("sscMatrix")));
+    SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("dsCMatrix")));
 
-    up = toupper(*CHAR(STRING_ELT(GET_SLOT(ctab, Matrix_uploSym), 0))) != 'L';
+    up = *CHAR(STRING_ELT(GET_SLOT(ctab, Matrix_uploSym), 0)) != 'L';
     if (nf > 1 && up) {			/* transpose */
 	int nz = length(iSlot);
 	int *ai = Calloc(nz, int),
@@ -201,7 +201,7 @@ SEXP sscCrosstab_project(SEXP ctab)
 	Ai = ai;
 	Free(ax);		/* don't need values, only positions */
     }
-    
+
     nz = 0;			/* count of off-diagonal pairs */
     j0 = 0; j1 = Gp[1]; i2 = Gp[2];
     for (j = j0; j < j1; j++) {	/* columns of interest */
@@ -251,7 +251,7 @@ SEXP sscCrosstab_project(SEXP ctab)
 	SET_SLOT(ans, Matrix_xSym, allocVector(REALSXP, nz));
 	Ax = REAL(GET_SLOT(ans, Matrix_xSym));
 	for (j = 0; j < nz; j++) Ax[j] = 1.;
-	SET_SLOT(ans, Matrix_uploSym, ScalarString(mkChar("L")));
+	SET_SLOT(ans, Matrix_uploSym, mkString("L"));
 	SET_SLOT(ans, Matrix_DimSym, allocVector(INTSXP, 2));
 	AAp = INTEGER(GET_SLOT(ans, Matrix_DimSym));
 	AAp[0] = AAp[1] = n;
@@ -262,13 +262,13 @@ SEXP sscCrosstab_project(SEXP ctab)
     return ans;
 }
 
-/** 
+/**
  * Project the first group of columns in an sscCrosstab object onto the
  * remaining columns.
- * 
+ *
  * @param ctab pointer to a sscCrosstab object
- * 
- * @return a pointer to an sscMatrix with the projection
+ *
+ * @return a pointer to an dsCMatrix with the projection
  */
 SEXP sscCrosstab_project2(SEXP ctab)
 {
@@ -283,11 +283,11 @@ SEXP sscCrosstab_project2(SEXP ctab)
 	nf = length(GpSlot) - 1, /* number of factors */
 	nz, pos, up, *AAp, *Ti, *Cp, *ind;
     double *Ax = REAL(GET_SLOT(ctab, Matrix_xSym));
-    SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("sscMatrix")));
-    
+    SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("dsCMatrix")));
+
 
     if (nf < 2) error("sscCrosstab_project2 requires more than one group");
-    up = toupper(*CHAR(STRING_ELT(GET_SLOT(ctab, Matrix_uploSym), 0))) != 'L';
+    up = *CHAR(STRING_ELT(GET_SLOT(ctab, Matrix_uploSym), 0)) != 'L';
     if (up) {			/* tranpose */
 	int n = length(pSlot) - 1;	/* number of columns */
 	int nnz = length(iSlot);
@@ -304,7 +304,7 @@ SEXP sscCrosstab_project2(SEXP ctab)
     for (j = 0; j < j1; j++) Cp[j] = Ap[j] + 1;	/* Ap[j] is the diagonal */
 
     nz = Ap[i2] - Ap[j1];	/* upper bound on nonzeros in result */
-    for (j = 0; j < j1; j++) {	
+    for (j = 0; j < j1; j++) {
 	int nr = Ap[j + 1] - Ap[j] - 1;
 	nz += (nr * (nr - 1))/2; /* add number of pairs of rows below diag */
     }
@@ -324,7 +324,7 @@ SEXP sscCrosstab_project2(SEXP ctab)
 		Cp[j]++;
 	    }
 	}
-	
+
 	Ti[pos++] = i - j1;	/* diagonal element */
 	for (k = i+1; k < i2; k++) { /* projected pairs */
 	    int ii = k - j1;
@@ -342,7 +342,7 @@ SEXP sscCrosstab_project2(SEXP ctab)
     SET_SLOT(ans, Matrix_xSym, allocVector(REALSXP, nz));
     Ax = REAL(GET_SLOT(ans, Matrix_xSym));
     for (j = 0; j < nz; j++) Ax[j] = 1.;
-    SET_SLOT(ans, Matrix_uploSym, ScalarString(mkChar("L")));
+    SET_SLOT(ans, Matrix_uploSym, mkString("L"));
     SET_SLOT(ans, Matrix_DimSym, allocVector(INTSXP, 2));
     AAp = INTEGER(GET_SLOT(ans, Matrix_DimSym));
     AAp[0] = AAp[1] = i2 - j1;

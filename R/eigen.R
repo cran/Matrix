@@ -1,24 +1,19 @@
-setMethod("eigen", signature(x = "geMatrix", only.values = "missing"),
+setMethod("eigen", signature(x = "dgeMatrix", only.values = "missing"),
           function(x, symmetric, only.values, EISPACK) {
               nCall = match.call()
               nCall$only.values = FALSE
               eval(nCall, parent.frame())
           })
 
-setMethod("eigen", signature(x = "geMatrix", only.values = "logical"),
+setMethod("eigen", signature(x = "dgeMatrix", only.values = "logical"),
           function(x, symmetric, only.values, EISPACK)
-          .Call("geMatrix_eigen", x, only.values)
+          .Call("dgeMatrix_eigen", x, only.values)
           )
 
-setMethod("Schur", signature(x = "geMatrix", vectors = "missing"),
-          function(x, vectors, ...) {
-              nCall = match.call()
-              nCall$vectors = FALSE
-              eval(nCall, parent.frame())
-          })
+setMethod("Schur", signature(x = "dgeMatrix", vectors = "missing"),
+          function(x, vectors, ...) Schur(x, TRUE, ...))
          
-setMethod("Schur", signature(x = "geMatrix", vectors = "logical"),
-          function(x, vectors, ...)
-          .Call("geMatrix_Schur", x, vectors)
+setMethod("Schur", signature(x = "dgeMatrix", vectors = "logical"),
+          function(x, vectors, ...) .Call("dgeMatrix_Schur", x, vectors)
           )
 

@@ -4,7 +4,7 @@
 \alias{image,sscCrosstab-method}
 \title{Pairwise crosstabulations}
 \description{An \code{sscCrosstab} object is a pairwise crosstabulation
-  of two or more factors expressed as an \code{sscMatrix} plus
+  of two or more factors expressed as an \code{dsCMatrix} plus
   additional information.}
 \section{Objects from the Class}{
 Objects can be created by calls of the form \code{new("sscCrosstab", ...)}
@@ -20,17 +20,17 @@ or by a call to the constructor function \code{sscCrosstab}.
       fill-reducing permutation for the Cholesky decomposition.  The
       permutation is constrained to keep the groups of columns
       corresponding to different factors distinct.}
-    \item{\code{uplo}:}{as for \code{"sscMatrix"} objects.}
-    \item{\code{p}:}{as for \code{"sscMatrix"} objects.}
-    \item{\code{i}:}{as for \code{"sscMatrix"} objects.}
-    \item{\code{x}:}{as for \code{"sscMatrix"} objects.}
-    \item{\code{Dim}:}{as for \code{"sscMatrix"} objects.}
-    \item{\code{factorization}:}{as for \code{"sscMatrix"} objects.}
+    \item{\code{uplo}:}{as for \code{"dsCMatrix"} objects.}
+    \item{\code{p}:}{as for \code{"dsCMatrix"} objects.}
+    \item{\code{i}:}{as for \code{"dsCMatrix"} objects.}
+    \item{\code{x}:}{as for \code{"dsCMatrix"} objects.}
+    \item{\code{Dim}:}{as for \code{"dsCMatrix"} objects.}
+    \item{\code{factors}:}{as for \code{"dsCMatrix"} objects.}
   }
 }
 \section{Extends}{
-Class \code{"sscMatrix"}, directly.
-Class \code{"cscMatrix"}, by class \code{"sscMatrix"}.
+Class \code{"dsCMatrix"}, directly.
+Class \code{"dgCMatrix"}, by class \code{"dsCMatrix"}.
 }
 \section{Methods}{
   \describe{
@@ -42,7 +42,7 @@ Class \code{"cscMatrix"}, by class \code{"sscMatrix"}.
 %\author{}
 %\note{}
 \seealso{
- \code{\link{sscMatrix-class}}, \code{\link{sscCrosstab}}
+ \code{\link{dsCMatrix-class}}, \code{\link{sscCrosstab}}
 }
 %\examples{}
 \keyword{classes}

@@ -42,9 +42,9 @@ Schur(x, vectors, \dots)
   2nd edition, SIAM, Philadelphia.
 }
 \examples{
-#Schur(Hilbert(9))              # Schur factorization (real eigenvalues)
-#A <- Matrix(rnorm( 9*9, sd = 100), nrow = 9)
-#schur.A <- Schur(A)
+Schur(Hilbert(9))              # Schur factorization (real eigenvalues)
+A <- Matrix(rnorm( 9*9, sd = 100), nrow = 9)
+schur.A <- Schur(A)
 #mod.eig <- Mod(schur.A$values) # eigenvalue modulus
 #schur.A
 }

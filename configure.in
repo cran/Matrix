@@ -8,7 +8,14 @@ CC=`grep "^CC" ${R_HOME}/etc/Makeconf | sed "s/^CC *= *//"`
 AC_PROG_CC
 F77=`grep "^FC" ${R_HOME}/etc/Makeconf | sed "s/^FC *= *//"`
 FLIBS=`grep "^FLIBS" ${R_HOME}/etc/Makeconf | sed "s/^FLIBS *= *//"`
-if test -n "`grep F77 ${R_HOME}/include/Rconfig.h | grep '_$'`"; then
+have_f77_underscore=false
+if test -n "`grep HAVE_F77_UNDERSCORE ${R_HOME}/include/Rconfig.h | \
+             grep '#define'`"; then
+  have_f77_underscore=true
+elif test -n "`grep F77 ${R_HOME}/include/Rconfig.h | grep '_$'`"; then
+  have_f77_underscore=true
+fi
+if ${have_f77_underscore}; then
   dgemm_func=dgemm_
   cheev_func=cheev_
 else

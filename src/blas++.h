@@ -30,8 +30,8 @@
 #include "blas1++.h"
 #include "blas2++.h"
 #include "blas3++.h"
-
-inline double abs(double x) {return (x < 0.0) ? -x : x;}
+#include <complex.h>		// to declare abs
+//inline double abs(double x) {return (x < 0.0) ? -x : x;}
 
 				// Vector/Vector operators
 #ifdef _LA_VECTOR_DOUBLE_H_

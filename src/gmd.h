@@ -49,7 +49,7 @@ private:
     LaIndex         ii[2];
     int             dim[2];	// size of original matrix, not submatrix
     int             sz[2];	// size of this submatrix
-    mutable Factor* solver;   // LU or QR decomposition
+    mutable Factor* solver;	// LU or QR decomposition
 
 public:
 				// constructors and destructors

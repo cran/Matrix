@@ -65,7 +65,7 @@ class LaVectorDouble: public LaGenMatDouble
     inline const double& operator()(int i) const ;
     inline LaVectorDouble operator()(const LaIndex&);
     
-    inline LaMatDouble& operator=(double);
+    inline LaVectorDouble& operator=(double);
 
     SEXP asSEXP() const;
 };
@@ -160,7 +160,7 @@ inline LaVectorDouble& LaVectorDouble::ref(const LaGenMatDouble &A)
     return *this;
 }
 
-inline LaMatDouble& LaVectorDouble::operator=(double d)
+inline LaVectorDouble& LaVectorDouble::operator=(double d)
 {
     LaGenMatDouble::operator=(d);
     return *this;

@@ -149,40 +149,6 @@ setClass("ssclme", representation =
          validity = function(object)
          .Call("ssclme_validate", object, PACKAGE = "Matrix"))
 
-# setClass("pdMat",      # parameterized positive-definite matrices
-#          representation(form="formula",    # a model-matrix formula
-#                         Names="character", # column (and row) names
-#                         param="numeric",   # parameter vector
-#                         Ncol="integer",    # number of columns
-#                         factor="matrix",   # factor of the pos-def matrix
-#                         logDet="numeric"   # logarithm of the absolute value
-#                         ## of the determinant of the factor (i.e. half
-#                         ## the logarithm of the determinant of the matrix)
-#                         ),
-#          prototype(form=formula(NULL),
-#                    Names=character(0),
-#                    param=numeric(0),
-#                    Ncol=as.integer(0),
-#                    factor=matrix(numeric(0),0,0),
-#                    logDet=numeric(0))
-#          )
-
-#setClass("pdSymm", contains="pdMat")    # general symmetric pd matrices
-
-#setClass("pdScalar", contains="pdMat") # special case of positive scalars
-# setClass("pdLogChol", contains="pdMat") # default parameterization
-# setClass("pdNatural", contains="pdMat") # log sd and logistic of correlation
-#setClass("pdMatrixLog", contains="pdSymm") # matrix logarithm parameterization
-
-# setClass("pdDiag", contains="pdMat")    # diagonal pd matrices
-
-# setClass("pdIdent", contains="pdMat")   # positive multiple of the identity
-
-# setClass("pdCompSymm", contains="pdMat") # compound symmetric pd matrices
-
-#setClass("pdBlocked",                   # block-diagonal pd matrices
-#         representation("pdMat", components = "list"))
-
                        # positive-definite symmetric matrices as matrices
 setClass("pdmatrix", contains="matrix")
 
@@ -195,21 +161,23 @@ setClass("corrmatrix", representation("matrix", stdDev = "numeric"))
 ## Representation of a linear mixed effects model
 setClass("lmeRep",
          representation(
-                        Omega = "list", # list of relative precision matrices
                         D = "list",     # list of diagonal factors (lower triangle)
-               #         DIsqrt = "list",# list of inverse of lower Cholesky factors
-                        ZZx = "list",   # list of arrays comprising ZtZ
+                        L = "list",     # list of blocked sparse matrices
+                        Omega = "list", # list of relative precision matrices
                         RXX = "matrix", # Augmented RXX component or its inverse
                         RZX = "matrix", # Augmented RZX component or its inverse
+                        T = "list",     # cross-tabulation of grouping factors
                         XtX = "matrix", # Original X'X matrix
+                        ZZx = "list",   # list of arrays comprising ZtZ
                         ZtX = "matrix", # Original Z'X matrix
                         cnames = "list",# column names of model matrices
-                        deviance = "numeric", # Current deviance (ML and REML)
                         devComp = "numeric", # Components of deviance
+                        deviance = "numeric", # Current deviance (ML and REML)
                         levels = "list",# names of levels of grouping factors
                         nc = "integer", # number of columns in (augmented)
                                         # model matrices and number of observations
-                        status = "logical"
+                        status = "logical",
+                        call = "call"   # omit this after debugging phase
                         ),
          validity = function(object)
          .Call("lmeRep_validate", object, PACKAGE = "Matrix"))

@@ -6,6 +6,10 @@
 #include <R_ext/Lapack.h>
 #include <R_ext/Constants.h>
 
+#ifndef R_INLINE
+#define R_INLINE
+#endif
+
 SEXP lmeRep_validate(SEXP x);
 SEXP lmeRep_create(SEXP facs, SEXP ncv);
 SEXP lmeRep_update_mm(SEXP x, SEXP facs, SEXP mmats);

@@ -19,6 +19,8 @@ or, more commonly, via the \code{lme1} function.}
       upper triangle of each component is used and stored.}
     \item{\code{D}:}{A list of the diagonal factors (lower triangle) in the
       LDL' decomposition of Z'Z+W.}
+    \item{\code{T}:}{A list of objects of class \code{cscMatrix}
+      providing the pairwise cross-tabulation of the grouping factors.}
     \item{\code{ZZx}:}{A list of arrays comprising ZtZ}
     \item{\code{RXX}:}{A matrix which is the (augmented) RXX component
       or the corresponding component from the inverse of Z'Z+W}

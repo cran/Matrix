@@ -3,7 +3,8 @@ eigen <- function(x, ...) UseMethod("eigen")
 expand <- function(x, ...) UseMethod("expand")
 expand.default <- function(x, ...) x
 
-facmul<- function(x, factor, y, transpose = F, left = T, ...) UseMethod("facmul")
+facmul<- function(x, factor, y, transpose = FALSE, left = TRUE, ...)
+    UseMethod("facmul")
 
 lu <- function(x, ...) UseMethod("lu")
 

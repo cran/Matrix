@@ -1,7 +1,7 @@
 \name{SVD}
 \title{Singular Value Decomposition of a Matrix}
 \usage{
-SVD(x, nu = min(n,p), nv = min(n,p))
+SVD(x, nu = min(dim(x)), nv = min(dim(x)))
 }
 \alias{SVD}
 \arguments{

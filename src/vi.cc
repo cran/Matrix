@@ -27,66 +27,49 @@
 
 #include "laexcp.h"
 
- VectorInt::VectorInt(int n=0)
-{                                                                      
+VectorInt::VectorInt(int n=0)
+    : p(new vrefInt()), data(new int[n])
+{
     if (!(n>=0)) throw(LaException("assert failed : n>=0"));
-    p = new vrefInt;
     p->sz = n;                                                          
-    p->data = data = new int[n]; 
+    p->data = data;
     p->ref_count = 1;                        
 }                                                                      
 
 
 VectorInt::VectorInt( const VectorInt& m)
+    : p(m.p), data(m.data)
 {
-// old, deep copy semantics
-#if 0
-    int i, N = m.size();
-
-    p = new vrefInt;
-    p->sz = m.size();
-
-    p->ref_count = 1;
-    p->data = data = new int[m.size()];
-    for (i=0;i<N;i++) data[i] = m(i);
-#endif
-
-// shallow assignment semantics
-
-    p = m.p;
-    data = m.data;
     p->ref_count++;
 }
 
- VectorInt::VectorInt(int *d, int n)
-{                                                                      
-    p = new vrefInt;
+VectorInt::VectorInt(int *d, int n)
+    : p(new vrefInt()), data(d)
+{
     p->sz = n;                                                          
     p->ref_count = 2; 
-    p-> data = data = d;                        
+    p->data = data;
 }                                                                      
                                                                        
                                                                        
 
- VectorInt::~VectorInt()
+VectorInt::~VectorInt()
 {
     if (--(p->ref_count) == 0) {             // perform garbage col.
-	delete [] p->data;
-	delete p;
+        delete [] p->data;
+        delete p;
     }
 }
 
 VectorInt::VectorInt(int n, int scalar)
-{                                                                      
-    p = new vrefInt;
+    : p(new vrefInt()), data(new int[n])
+{
     p->sz = n;                                                          
     p->ref_count = 1;                        
-    p->data = data = new int[n]; 
+    p->data = data;
     for (int i=0; i<n; i++)                                            
         data[i] = scalar;                                            
-}                                                                      
-                                                                       
-
+}
 
 // this actually frees memory first, then resizes it.  it reduces
 // internal fragmentation of memory pool, and the resizing of
@@ -146,22 +129,22 @@ VectorInt& VectorInt::copy(const VectorInt &m)
 }
 
 
-ostream& operator<<(ostream& s, const VectorInt& m)
+std::ostream& operator<<(std::ostream& s, const VectorInt& m)
 {
         if (m.p)
         {
-                int n = m.size();
-                for (int i=0; i<n; i++)
-                        s << m(i) << "  ";
-                s << "\n";
+            int n = m.size();
+            for (int i=0; i<n; i++)
+                s << m(i) << "  ";
+            s << std::endl;
         }
-        else s << "NULL VectorInt.\n";
+        else s << "NULL VectorInt." << std::endl;
     return s;
 }
 
 
 
- VectorInt& VectorInt::operator=(int scalar)
+VectorInt& VectorInt::operator=(int scalar)
 {
     for (int i=0; i<size(); i++)
             data[i] = scalar;

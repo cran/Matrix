@@ -21,7 +21,7 @@
 // LAPACK++ was funded in part by the U.S. Department of Energy, the
 // National Science Foundation and the State of Tennessee.
 //
-// Modifications Copyright (C) 2000-2000 the R Development Core Team
+// Modifications Copyright (C) 2000-2000, 2002 the R Development Core Team
 
 #ifndef _LA_SPD_BAND_MAT_DOUBLE_H_
 #define _LA_SPD_BAND_MAT_DOUBLE_H_
@@ -50,8 +50,8 @@ public:
     inline LaSpdBandMatDouble& operator=(double);
     inline LaSpdBandMatDouble& operator=(const LaSpdBandMatDouble&);
     double& operator()(int,int);
-    const double& operator()(int,int) const;
-    friend ostream& operator<<(ostream &, const LaSpdBandMatDouble &);
+    double operator()(int,int) const;
+    friend std::ostream& operator<<(std::ostream &, const LaSpdBandMatDouble &);
 
 				// member functions
     inline int size(int) const;	// submatrix size
@@ -60,8 +60,10 @@ public:
     
     inline LaSpdBandMatDouble& ref(LaSpdBandMatDouble &);
     inline LaSpdBandMatDouble& copy(const LaSpdBandMatDouble &);
-    inline double* addr() const { // return address of matrix.
-	return data_.addr();}
+    inline const double* addr() const { // return address of matrix.
+        return data_.addr();}
+    inline double* addr() { // return address of matrix.
+        return data_.addr();}
     inline int ref_count() const { // return ref_count of matrix.
         return data_.ref_count();}
     inline LaIndex index(int d) const { // return indices of matrix.
@@ -79,31 +81,26 @@ public:
         return *this;};
 
     inline LaSpdBandMatDouble print_data() const 
-	{ cout << data_; return *this;}
-				// destructor
+	{ std::cout << data_; return *this;}
+    // destructor
     inline ~LaSpdBandMatDouble();
 };
 
 				// constructors 
 inline LaSpdBandMatDouble::LaSpdBandMatDouble()
-    :data_()
+    :data_(), N_(0), kl_(0)
 {
-    N_ = kl_ = 0;
 }
 
 inline LaSpdBandMatDouble::LaSpdBandMatDouble(int n,int l)
-    :data_(n,2*l+1)
+    :data_(n,2*l+1), N_(n), kl_(l)
 {
-
-    N_ = n;
-    kl_ = l;
 }
 
 inline LaSpdBandMatDouble::LaSpdBandMatDouble(const LaSpdBandMatDouble &A)
+    : data_(), N_(A.N_), kl_(A.kl_)
 {
     data_.copy(A.data_);
-    N_ = A.N_;
-    kl_ = A.kl_;
 }
 
 				// destructor 

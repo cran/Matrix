@@ -21,7 +21,7 @@
 // LAPACK++ was funded in part by the U.S. Department of Energy, the
 // National Science Foundation and the State of Tennessee.
 //
-// Modifications Copyright (C) 2000-2001 the R Development Core Team
+// Modifications Copyright (C) 2000-2002 the R Development Core Team
 
 //      Lapack++ Rectangular Matrix Class
 //
@@ -58,6 +58,7 @@ public:
     LaGenMatDouble(double*, int, int);
     explicit LaGenMatDouble(const LaMatDouble&);
     LaGenMatDouble(const LaGenMatDouble&);
+    LaGenMatDouble& operator=(const LaGenMatDouble&);
     explicit LaGenMatDouble(SEXP);
     ~LaGenMatDouble();
 
@@ -70,8 +71,10 @@ public:
 	{ return ii[d]; }
     int ref_count() const
 	{ return v.ref_count(); }
-    double* addr() const        // begining addr of data space
-	{ return v.addr(); }
+    double* addr()                    // begining addr of data space
+	{ return v.addr() + dim[0]*ii[1].start() + ii[0].start(); }
+    const double* addr() const        // begining addr of data space
+	{ return v.addr() + dim[0]*ii[1].start() + ii[0].start(); }
     inline double& operator()(int i, int j)
 	{
 #ifdef LA_BOUNDS_CHECK
@@ -83,7 +86,7 @@ public:
 	    return v( dim[0]*(ii[1].start() + j*ii[1].inc()) + 
 		      ii[0].start() + i*ii[0].inc());
 	}
-    inline const double& operator()(int i, int j) const
+    inline double operator()(int i, int j) const
 	{
 #ifdef LA_BOUNDS_CHECK
 	    if (!(i>=0)) throw(LaException("assert failed : i>=0"));
@@ -124,8 +127,8 @@ public:
 
 
     //* I/O *//
-    ostream& printMatrix(ostream&) const;
-    ostream& Info(ostream& s);
+    std::ostream& printMatrix(std::ostream&) const;
+    std::ostream& Info(std::ostream& s);
 };				// End of LaGenMatDouble Class
 
 #endif 

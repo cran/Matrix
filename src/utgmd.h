@@ -21,7 +21,7 @@
 // LAPACK++ was funded in part by the U.S. Department of Energy, the
 // National Science Foundation and the State of Tennessee.
 //
-// Modifications Copyright (C) 2000-2000 the R Development Core Team
+// Modifications Copyright (C) 2000-2000, 2002 the R Development Core Team
 
 #include "lafnames.h"
 #ifndef _LA_GEN_MAT_DOUBLE_H_
@@ -38,14 +38,15 @@ class LaUpperTriangMatDouble : public LaMatDouble
 
 public:
 				// constructors
-    LaUpperTriangMatDouble() { *info_ = 0; };
+    LaUpperTriangMatDouble() : data_() { *info_ = 0; };
     LaUpperTriangMatDouble(int i, int j)
-	: data_(i, j) { *info_ = 0; };
+        : data_(i, j) { *info_ = 0; };
     LaUpperTriangMatDouble(double* d, int i, int j)
-	: data_(d, i, j) { *info_ = 0; };
+        : data_(d, i, j) { *info_ = 0; };
     explicit LaUpperTriangMatDouble(SEXP s)
-	: data_(s) { };
+        : data_(s) { };
     LaUpperTriangMatDouble(const LaUpperTriangMatDouble& A)
+        : data_()
 	{ data_.ref(A.data_); };
 				// destructor
     ~LaUpperTriangMatDouble() { };
@@ -58,13 +59,15 @@ public:
         { return data_.index(d); }
     int ref_count() const          // return ref_count of matrix.
         { return data_.ref_count(); }
-    double* addr() const           // return address of matrix.
+    double* addr()           // return address of matrix.
+        { return data_.addr(); }
+    const double* addr() const           // return address of matrix.
         { return data_.addr(); }
 
     // operators
     inline double& operator()(int i, int j)
 	{ if (i > j) return outofbounds_; else return data_(i,j); }
-    inline const double& operator()(int i, int j) const
+    inline double operator()(int i, int j) const
 	{ if (i > j) return outofbounds_; else return data_(i,j); }
     LaMatDouble& operator=(double); 
 //      operator LaGenMatDouble()
@@ -93,7 +96,7 @@ public:
     double rcond(char which) const;
     SEXP asSEXP() const;
 
-    ostream &printMatrix(ostream &) const;
+    std::ostream& printMatrix(std::ostream &) const;
 };
 
 inline LaUpperTriangMatDouble* LaUpperTriangMatDouble::clone() const

@@ -1,6 +1,6 @@
 // -*- c++ -*-
 //
-//  Copyright (C) 2000-2000 the R Development Core Team
+//  Copyright (C) 2000-2000, 2002 the R Development Core Team
 
 #ifndef _LA_EIGEN_H_
 #define _LA_EIGEN_H_
@@ -33,7 +33,7 @@ protected:
     LaOrthogonalMatDouble vecs;
 public:
     LaSymmEigenDouble(const LaMatDouble& a, const char uplo,
-		      const bool findVecs = true);
+                      const bool findVecs = true);
 				// accessor methods
     LaMatrix& values() { return vals; }
     LaMatrix& vectors() { return vecs; }

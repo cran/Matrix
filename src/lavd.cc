@@ -42,6 +42,6 @@ LaVectorDouble& LaVectorDouble::ref(SEXP x)
 SEXP LaVectorDouble::asSEXP() const
 {
     SEXP val = allocVector(REALSXP, size());
-    Memcpy(REAL(val), addr(), size());
+    memcpy(REAL(val), addr(), size()*sizeof(double));
     return val;
 }

@@ -1,4 +1,4 @@
-//  Copyright (C) 2000-2000 the R Development Core Team
+//  Copyright (C) 2000-2000, 2002 the R Development Core Team
 
 #include "schur.h"
 
@@ -38,7 +38,7 @@ LaGenSchurDouble::LaGenSchurDouble(LaMatDouble& aa,
 }
 
 static SEXP unscramble(const LaVectorDouble& imaginary,
-		       const LaGenMatDouble& vecs)
+                       const LaGenMatDouble& vecs)
 {
     int n = vecs.size(1);
     SEXP s = allocMatrix(CPLXSXP, n, n);

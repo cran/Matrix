@@ -21,7 +21,7 @@
 // LAPACK++ was funded in part by the U.S. Department of Energy, the
 // National Science Foundation and the State of Tennessee.
 //
-// Modifications Copyright (C) 2000-2000 the R Development Core Team
+// Modifications Copyright (C) 2000-2000, 2002 the R Development Core Team
 
 #include "lafnames.h"
 #ifndef _LA_GEN_MAT_DOUBLE_H_
@@ -47,6 +47,7 @@ public:
     explicit LaUnitLowerTriangMatDouble(SEXP s)
 	: data_(s) { };
     LaUnitLowerTriangMatDouble(const LaUnitLowerTriangMatDouble& A)
+        : data_()
 	{ data_.ref(A.data_); };
 				// destructor
     ~LaUnitLowerTriangMatDouble() { };
@@ -59,12 +60,14 @@ public:
         { return data_.index(d); }
     int ref_count() const	// return ref_count of matrix.
         { return data_.ref_count(); }
-    double* addr() const	// return address of matrix.
+    double* addr() 	// return address of matrix.
+        { return data_.addr(); }
+    const double* addr() const	// return address of matrix.
         { return data_.addr(); }
 
 				// operators
     double& operator()(int,int);
-    const double& operator()(int,int) const;
+    double operator()(int,int) const;
     LaMatDouble& operator=(double); 
     operator LaGenMatDouble()
 	{ LaGenMatDouble G; G.ref((*this).data_); return G; };
@@ -92,7 +95,7 @@ public:
     double rcond(char which) const;
     SEXP asSEXP() const;
 
-    ostream &printMatrix(ostream &) const;
+    std::ostream &printMatrix(std::ostream &) const;
 };
 
 inline LaUnitLowerTriangMatDouble* LaUnitLowerTriangMatDouble::clone() const

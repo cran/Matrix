@@ -21,7 +21,7 @@
 // LAPACK++ was funded in part by the U.S. Department of Energy, the
 // National Science Foundation and the State of Tennessee.
 //
-// Modifications Copyright (C) 2000-2001 the R Development Core Team
+// Modifications Copyright (C) 2000-2002 the R Development Core Team
 
 
 #ifndef _LA_BAND_MAT_DOUBLE_H_
@@ -60,16 +60,18 @@ public:
   inline LaBandMatDouble(int,int,int);
   inline LaBandMatDouble(const LaBandMatDouble &);
 
-  friend ostream& operator<<(ostream &, const LaBandMatDouble &);
+  friend std::ostream& operator<<(std::ostream &, const LaBandMatDouble &);
 
 
   // member functions
 
-  inline double* addr() const {	// return address of matrix.
+  inline double* addr() {	// return address of matrix.
+        return data_.addr();}
+  inline const double* addr() const {	// return address of matrix.
         return data_.addr();}
 
   double& operator()(int,int);
-  const double& operator()(int,int) const;
+  double operator()(int,int) const;
   inline LaBandMatDouble& operator=(const LaBandMatDouble&);
   LaBandMatDouble& operator=(double);
 
@@ -102,7 +104,7 @@ public:
         return *this;};
 
   inline LaBandMatDouble print_data() const 
-    { cout << data_; return *this;}
+    { std::cout << data_; return *this;}
 
   // destructor
 
@@ -112,28 +114,18 @@ public:
   // constructors 
 
 inline LaBandMatDouble::LaBandMatDouble() 
-    : data_()
+    : data_(), N_(0), kl_(0), ku_(0)
 {
-
-  N_ = kl_ = ku_ = 0;
 }
 
 inline LaBandMatDouble::LaBandMatDouble(int n,int l,int u)
-    : data_(2*l+u+1,n)
+    : data_(2*l+u+1,n), N_(n), kl_(l), ku_(u)
 {
-
-  N_ = n;
-  kl_ = l;
-  ku_ = u;
 }
 
 inline LaBandMatDouble::LaBandMatDouble(const LaBandMatDouble &A)
+    : data_(), N_(A.N_), kl_(A.kl_), ku_(A.ku_)
 {
-
-  data_.copy(A.data_);
-  N_ = A.N_;
-  kl_ = A.kl_;
-  ku_ = A.ku_;
 }
 
   // destructor 

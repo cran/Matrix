@@ -21,7 +21,7 @@
 // LAPACK++ was funded in part by the U.S. Department of Energy, the
 // National Science Foundation and the State of Tennessee.
 //
-// Modifications Copyright (C) 2000-2000 the R Development Core Team
+// Modifications Copyright (C) 2000-2000, 2002 the R Development Core Team
 
 #ifndef _LA_SYMM_FACT_DOUBLE_H_
 #define _LA_SYMM_FACT_DOUBLE_H_
@@ -73,12 +73,13 @@ public:
 
     // constructor/destructor functions
 
-inline LaSymmFactDouble::LaSymmFactDouble():S_(),pivot_(),info_(0),uplo_('L')
+inline LaSymmFactDouble::LaSymmFactDouble()
+    :S_(),pivot_(),info_(0),uplo_('L'),size_(0),gdim_(0)
 {}
 
 
-inline LaSymmFactDouble::LaSymmFactDouble(int n, int m):S_(n,m),pivot_(n*m),
-                    info_(0),uplo_('L')
+inline LaSymmFactDouble::LaSymmFactDouble(int n, int m)
+    : S_(n,m),pivot_(n*m),info_(0),uplo_('L'),size_(n),gdim_(n)
 {}
 
 

@@ -1,11 +1,11 @@
-//  Copyright (C) 2000-2000 the R Development Core Team
+//  Copyright (C) 2000-2000, 2002 the R Development Core Team
 
 #include "eigen.h"
 
 LaSymmEigenDouble::LaSymmEigenDouble(const LaMatDouble& a,
 				     const char uplo,
-				     const bool findVecs) :
-    vals(a.size(0))
+				     const bool findVecs)
+    : vals(a.size(0)), vecs()
 {
     char jobz = (findVecs) ? 'V' : 'N';
     int n = a.size(0);
@@ -43,9 +43,9 @@ LaGenEigenDouble::LaGenEigenDouble(const LaMatDouble& a,
 				   bool leftEV,
 				   bool rightEV,
 				   char balanc,
-				   char sense) :
-    wR(a.size(0)), wI(a.size(0)), scale(a.size(0)), rcondE(a.size(0)),
-    rcondV(a.size(0))
+				   char sense)
+    : wR(a.size(0)), wI(a.size(0)), scale(a.size(0)), rcondE(a.size(0)),
+      rcondV(a.size(0))
 {
     char jobVL = (leftEV) ? 'V' : 'N', jobVR = (rightEV) ? 'V' : 'N';
     int n = a.size(0);

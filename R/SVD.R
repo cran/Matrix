@@ -1,4 +1,4 @@
-### $Id: SVD.R,v 1.2 2000/07/14 20:41:23 bates Exp $
+### $Id: SVD.R,v 1.3 2002/07/22 19:01:14 bates Exp $
 ###
 ### Copyright 2000-2000 Douglas M. Bates <bates@stat.wisc.edu>
 ###
@@ -23,7 +23,7 @@ SVD <- function(x, nu = min(dim(x)), nv = min(dim(x)))
     if (!is.numeric(x))
         stop("argument to SVD must be numeric")
     x <- as.matrix(x)
-    .Call("R_LapackPP_svd", x, nu, nv)
+    .Call("R_LapackPP_svd", x, nu, nv, PACKAGE="Matrix")
 }
 
 

@@ -21,7 +21,7 @@
 // LAPACK++ was funded in part by the U.S. Department of Energy, the
 // National Science Foundation and the State of Tennessee.
 //
-// Modifications Copyright (C) 2000-2001 the R Development Core Team
+// Modifications Copyright (C) 2000-2002 the R Development Core Team
 
 #ifndef _BLAS_PP_H_
 #define _BLAS_PP_H_
@@ -59,7 +59,7 @@ inline double operator*(const LaVectorDouble &dx,
 			const LaVectorDouble &dy)
 {
     if (!(dx.size()==dy.size())) throw(LaException("assert failed : dx.size()==dy.size()"));
-    return F77_CALL(ddot)(dx.size(), &dx(0), dx.inc(), &dy(0), dy.inc());
+    return F77_CALL(ddot)(dx.size(), dx.addr(), dx.inc(), dy.addr(), dy.inc());
 }
 
 inline LaVectorDouble operator+(const LaVectorDouble &dx, 
@@ -67,10 +67,10 @@ inline LaVectorDouble operator+(const LaVectorDouble &dx,
 {
     if (!(dx.size()==dy.size())) throw(LaException("assert failed : dx.size()==dy.size()"));
     
-    LaVectorDouble tmp((int) dx.size());
+    LaVectorDouble tmp(dx.size());
     tmp = dy;
     
-    F77_CALL(daxpy)(dx.size(), 1.0, &dx(0), dx.inc(), &tmp(0), dy.inc());
+    F77_CALL(daxpy)(dx.size(), 1.0, dx.addr(), dx.inc(), &tmp(0), dy.inc());
     return tmp;
 }
 
@@ -83,7 +83,7 @@ inline LaVectorDouble operator-(const LaVectorDouble &dx,
     LaVectorDouble tmp(dx.size());
     tmp = dx;
     
-    F77_CALL(daxpy)(dx.size(), -1.0, &dy(0), dx.inc(), &tmp(0), dy.inc());
+    F77_CALL(daxpy)(dx.size(), -1.0, dy.addr(), dx.inc(), &tmp(0), dy.inc());
     return tmp;
 }
 				// Matrix/Vector operators
@@ -94,8 +94,8 @@ inline LaVectorDouble operator*(const LaGenMatDouble &A,
     LaVectorDouble dy(A.size(0));
     dy = 0.0;
     
-    F77_CALL(dgemv)('N', A.size(0), A.size(1), 1.0, &A(0,0), A.gdim(0),
-		    &dx(0), dx.inc(), 0.0, &dy(0), dy.inc()); 
+    F77_CALL(dgemv)('N', A.size(0), A.size(1), 1.0, A.addr(), A.gdim(0),
+                    dx.addr(), dx.inc(), 0.0, dy.addr(), dy.inc()); 
     return dy; 
     
 }
@@ -114,8 +114,8 @@ inline LaVectorDouble operator*(const LaBandMatDouble &A,
 //    int incx = dx.inc(), incy = dy.inc();
     
     F77_CALL(dgbmv)('N', A.size(0), A.size(1), A.subdiags(),
-		    A.superdiags(), 1.0, &A(0,0), A.gdim(0),
-		    &dx(0), dx.inc(), 0.0, &dy(0), dy.inc());
+		    A.superdiags(), 1.0, A.addr(), A.gdim(0),
+		    dx.addr(), dx.inc(), 0.0, dy.addr(), dy.inc());
     return dy;
 }
 #endif
@@ -131,8 +131,8 @@ inline LaVectorDouble operator*(const LaSymmMatDouble &A,
     LaVectorDouble dy(A.size(1));
 //    int incx = dx.inc(), incy = dy.inc();
     
-    F77_CALL(dsymv)('L', A.size(1), 1.0, &A(0,0), A.gdim(0), &dx(0),
-		    dx.inc(), 0.0, &dy(0), dy.inc());
+    F77_CALL(dsymv)('L', A.size(1), 1.0, A.addr(), A.gdim(0), dx.addr(),
+		    dx.inc(), 0.0, dy.addr(), dy.inc());
     return dy;
 }
 #endif
@@ -148,8 +148,8 @@ inline LaVectorDouble operator*(const LaSymmBandMatDouble &A,
     LaVectorDouble dy(A.size(1));
 //    int incx = dx.inc(), incy = dy.inc();
     
-    F77_CALL(dsbmv)('L', A.size(1), A.subdiags(), 1.0, &A(0,0),
-		    A.gdim(0), &dx(0), dx.inc(), 0.0, &dy(0), dy.inc());
+    F77_CALL(dsbmv)('L', A.size(1), A.subdiags(), 1.0, A.addr(),
+		    A.gdim(0), dx.addr(), dx.inc(), 0.0, dy.addr(), dy.inc());
     return dy;
 }
 #endif
@@ -166,8 +166,8 @@ inline LaVectorDouble operator*(const LaSpdMatDouble &AP,
     LaVectorDouble dy(AP.size(0));
 //    int incy = dy.inc();
     
-    F77_CALL(dsymv)('L', AP.size(1), 1.0, &AP(0,0), AP.gdim(0),
-		    &dx(0), dx.inc(), 0.0, &dy(0), dy.inc());
+    F77_CALL(dsymv)('L', AP.size(1), 1.0, AP.addr(), AP.gdim(0),
+                    dx.addr(), dx.inc(), 0.0, dy.addr(), dy.inc());
     return dy;
 }
 #endif
@@ -182,8 +182,8 @@ inline LaVectorDouble operator*(const LaLowerTriangMatDouble &A,
     
     LaVectorDouble dy(dx);
     
-    F77_CALL(dtrmv)('L', 'N', 'N', A.size(1), &A(0,0), A.gdim(0),
-		    &dy(0), dy.inc());
+    F77_CALL(dtrmv)('L', 'N', 'N', A.size(1), A.addr(), A.gdim(0),
+		    dy.addr(), dy.inc());
     return dy;
 }
 #endif
@@ -198,8 +198,8 @@ inline LaVectorDouble operator*(const LaUpperTriangMatDouble &A,
     
     LaVectorDouble dy(dx);
     
-    F77_CALL(dtrmv)('U', 'N', 'N', A.size(1), &A(0,0), A.gdim(0),
-		    &dy(0), dy.inc());
+    F77_CALL(dtrmv)('U', 'N', 'N', A.size(1), A.addr(), A.gdim(0),
+		    dy.addr(), dy.inc());
     return dy;
 }
 #endif
@@ -214,8 +214,8 @@ inline LaVectorDouble operator*(const LaUnitLowerTriangMatDouble &A,
     
     LaVectorDouble dy(dx);
     
-    F77_CALL(dtrmv)('L', 'N', 'U', A.size(1), &A(0,0),
-		    A.gdim(0), &dy(0), dy.inc());
+    F77_CALL(dtrmv)('L', 'N', 'U', A.size(1), A.addr(),
+		    A.gdim(0), dy.addr(), dy.inc());
     return dy;
 }
 #endif
@@ -230,8 +230,8 @@ inline LaVectorDouble operator*(const LaUnitUpperTriangMatDouble &A,
 
     LaVectorDouble dy(dx);
     
-    F77_CALL(dtrmv)('U', 'N', 'U', A.size(1), &A(0,0), A.gdim(0),
-		    &dy(0), dy.inc());
+    F77_CALL(dtrmv)('U', 'N', 'U', A.size(1), A.addr(), A.gdim(0),
+		    dy.addr(), dy.inc());
     return dy;
 }
 #endif
@@ -251,8 +251,8 @@ inline LaGenMatDouble operator*(const LaGenMatDouble &A,
     C = 0.0;
     
     F77_CALL(dgemm)('N', 'N', A.size(0), B.size(1), A.size(1),
-		    1.0, &A(0,0), A.gdim(0), &B(0,0), B.gdim(0),
-		    1.0, &C(0,0), A.gdim(0));
+                    1.0, A.addr(), A.gdim(0), B.addr(), B.gdim(0),
+                    1.0, C.addr(), A.gdim(0));
     return C;
 }
 
@@ -268,7 +268,7 @@ inline LaGenMatDouble operator*(const LaUnitLowerTriangMatDouble &A,
     LaGenMatDouble C(B);
     
     F77_CALL(dtrmm)('L', 'L', 'N', 'U', B.size(0), B.size(1), 1.0,
-		    &A(0,0), A.gdim(0), &C(0,0), B.gdim(0));
+		    A.addr(), A.gdim(0), &C(0,0), B.gdim(0));
     return C;
 }
 #endif
@@ -285,7 +285,7 @@ inline LaGenMatDouble operator*(const LaUnitUpperTriangMatDouble &A,
     LaGenMatDouble C(B);
     
     F77_CALL(dtrmm)('L', 'U', 'N', 'U', B.size(0), B.size(1), 1.0,
-		    &A(0,0), A.gdim(0), &C(0,0), B.gdim(0));
+		    A.addr(), A.gdim(0), &C(0,0), B.gdim(0));
     
     return C;
 }
@@ -303,7 +303,7 @@ inline LaGenMatDouble operator*(const LaLowerTriangMatDouble &A,
     LaGenMatDouble C(B);
     
     F77_CALL(dtrmm)('L', 'L', 'N', 'N', B.size(0), B.size(1), 1.0,
-		    &A(0,0), A.gdim(0), &C(0,0), B.gdim(0));
+		    A.addr(), A.gdim(0), &C(0,0), B.gdim(0));
     
     return C;
 }
@@ -321,7 +321,7 @@ inline LaGenMatDouble operator*(const LaUpperTriangMatDouble &A,
     LaGenMatDouble C(B);
     
     F77_CALL(dtrmm)('L', 'U', 'N', 'N', B.size(0), B.size(1), 1.0,
-		    &A(0,0), A.gdim(0), &C(0,0), B.gdim(0));
+		    A.addr(), A.gdim(0), &C(0,0), B.gdim(0));
     
     return C;
 }
@@ -338,8 +338,8 @@ inline LaGenMatDouble operator*(const LaSymmMatDouble &A,
 //	ldb = B.gdim(0), ldc = C.gdim(0);
     
     F77_CALL(dsymm)('L', 'L', C.size(0), C.size(1), 1.0,
-		    &A(0,0), A.gdim(0), &B(0,0), B.gdim(0), 1.0,
-		    &C(0,0), C.gdim(0));
+                    A.addr(), A.gdim(0), B.addr(), B.gdim(0), 1.0,
+                    C.addr(), C.gdim(0));
     
     return C;
 }

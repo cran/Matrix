@@ -21,7 +21,7 @@
 // LAPACK++ was funded in part by the U.S. Department of Energy, the
 // National Science Foundation and the State of Tennessee.
 //
-// Modifications Copyright (C) 2000-2000 the R Development Core Team
+// Modifications Copyright (C) 2000-2000, 2002 the R Development Core Team
 //
 
 #include "lafnames.h"
@@ -36,7 +36,9 @@
 #undef append
 #endif
 
-ostream& LaSymmMatDouble::printMatrix(ostream& s) const
+#include <valarray>
+
+std::ostream& LaSymmMatDouble::printMatrix(std::ostream& s) const
 {
     if (*info_) {   // print out only matrix info, not actual values
 	*info_ = 0; // reset the flag
@@ -51,7 +53,7 @@ ostream& LaSymmMatDouble::printMatrix(ostream& s) const
 	for (int i = 0; i < M; i++) {
 	    for (int j = 0; j < N; j++)
 		s << (*this)(i,j) << " ";
-	    s << endl;
+	    s << std::endl;
 	}
     }
     return s;
@@ -93,9 +95,9 @@ LaSymmMatDouble::operator LaGenMatDouble()
 
 double LaSymmMatDouble::norm(char which) const
 {
-    VectorDouble work(size(0));	// only needed for Infinity norm
+    std::valarray<double> work(size(0));	// only needed for Infinity norm
     return F77_CALL(dlansy)(which, uplo(), size(0),
-			    &(*this)(0,0), gdim(0), &work(0));
+                            this->addr(), gdim(0), &work[0]);
 }
 
 SEXP LaSymmMatDouble::asSEXP() const

@@ -79,11 +79,11 @@ eigen.default <- function (x, symmetric, only.values = FALSE, ...)
 eigen.Matrix <- function(x, vectors = TRUE, balance = "B", rcond = "N", ...)
 {
     .Call("R_LapackPP_eigen", x, as.logical(vectors), as.character(balance),
-          as.character(rcond))
+          as.character(rcond), PACKAGE="Matrix")
 }
 
 schur.Matrix <- function(x, vectors = TRUE, ...)
 {
-    .Call("R_LapackPP_Schur", x, as.logical(vectors))
+    .Call("R_LapackPP_Schur", x, as.logical(vectors), PACKAGE="Matrix")
 }
 

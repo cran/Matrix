@@ -21,7 +21,7 @@
 // LAPACK++ was funded in part by the U.S. Department of Energy, the
 // National Science Foundation and the State of Tennessee.
 //
-// Modifications Copyright (C) 2000-2001 the R Development Core Team
+// Modifications Copyright (C) 2000-2002 the R Development Core Team
 
 #ifndef _LA_VECTOR_DOUBLE_H_
 #define _LA_VECTOR_DOUBLE_H_
@@ -80,13 +80,13 @@ class LaVectorDouble: public LaGenMatDouble
     LaVectorDouble& resize(const LaMatDouble &A)
         { resize(A.size(0)*A.size(1)); return *this; }
 
-    const double& operator()(int i, int j) const
+    double operator()(int i, int j) const
 	{ return LaGenMatDouble::operator()(i,j); }
     double& operator()(int i, int j)
 	{ return LaGenMatDouble::operator()(i,j); }
 
     inline double& operator()(int i);
-    inline const double& operator()(int i) const ;
+    inline double operator()(int i) const ;
     inline LaVectorDouble operator()(const LaIndex&);
     inline LaVectorDouble operator()(const LaIndex&) const;
     
@@ -147,7 +147,7 @@ inline double& LaVectorDouble::operator()(int i)
     return LaGenMatDouble::operator()(i,0);
 }
 
-inline const double& LaVectorDouble::operator()(int i) const
+inline double LaVectorDouble::operator()(int i) const
 {
     if (LaGenMatDouble::size(0)==1 )
 	return LaGenMatDouble::operator()(0,i);

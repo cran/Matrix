@@ -1,6 +1,6 @@
 // -*- c++ -*-
 //
-//  Copyright (C) 2000-2000 the R Development Core Team
+//  Copyright (C) 2000-2000, 2002 the R Development Core Team
 
 #ifndef _SYMMETRIC_FACTOR_H
 #define _SYMMETRIC_FACTOR_H
@@ -23,6 +23,7 @@ class LaSymmFactor : public Factor {
     virtual bool singular() const = 0;
     virtual const LaVectorInt& pivot() const = 0;
     virtual LaSymmFactor& ref(LaSymmMatDouble&) = 0;
+    virtual LaSymmFactor& ref(const LaSymmFactor&) = 0;
 };
 
 #endif

@@ -1,13 +1,15 @@
 //      LAPACK++ (V. 1.1 Beta)
 //      (C) 1992-1996 All Rights Reserved.
 //
-// Modifications Copyright (C) 2000-2000 the R Development Core Team
+// Modifications Copyright (C) 2000-2000, 2002 the R Development Core Team
 //
 
 #include "lafnames.h"
 #include LA_LOWER_TRIANG_MAT_DOUBLE_H
 #include "blas3.h"
 #include "vi.h"
+
+#include <valarray>
 
 double LaLowerTriangMatDouble::outofbounds_ = 0; // initialize outofbounds.
 
@@ -33,7 +35,7 @@ LaMatDouble& LaLowerTriangMatDouble::operator=(double s)
     return *this;
 }
 
-ostream& LaLowerTriangMatDouble::printMatrix(ostream& s) const
+std::ostream& LaLowerTriangMatDouble::printMatrix(std::ostream& s) const
 {
     if (*info_) {   // print out only matrix info, not actual values
 	*info_ = 0; // reset the flag
@@ -50,7 +52,7 @@ ostream& LaLowerTriangMatDouble::printMatrix(ostream& s) const
 		if (i >= j)
 		    s << (*this)(i,j) << "  ";
 	    }
-	    s << endl;
+	    s << std::endl;
 	}
     }
     return s;
@@ -72,7 +74,7 @@ LaLowerTriangMatDouble* LaLowerTriangMatDouble::solve() const
 LaMatDouble& LaLowerTriangMatDouble::solve(LaMatDouble& B) const
 {				// in-place solution
     F77_CALL(dtrsm)('L', 'L', 'N', 'N', size(0), B.size(1), 1.0,
-		    &data_(0,0), gdim(0), &B(0,0), B.gdim(0));
+                    data_.addr(), gdim(0), B.addr(), B.gdim(0));
     return B;
 }
 
@@ -84,27 +86,27 @@ LaMatDouble& LaLowerTriangMatDouble::solve(LaMatDouble& X, const LaMatDouble& B)
 
 double LaLowerTriangMatDouble::norm(char which) const
 {
-    VectorDouble work(size(0));	// only needed for Infinity norm
+    std::valarray<double> work(size(0));	// only needed for Infinity norm
     return F77_CALL(dlantr)(which, 'L', 'N', size(0), size(1),
-			    &(*this)(0,0), gdim(0), &work(0));
+                            this->addr(), gdim(0), &work[0]);
 }
 
 double LaLowerTriangMatDouble::rcond(char which) const
 {
     double val;
-    VectorDouble work(3 * size(0));
+    std::valarray<double> work(3 * size(0));
     int info;
-    VectorInt iwork(size(0));
-    F77_CALL(dtrcon)(which, 'L', 'N', size(0), &(*this)(0,0),
-		     gdim(0), val, &work(0), &iwork(0), info);
+    std::valarray<int> iwork(size(0));
+    F77_CALL(dtrcon)(which, 'L', 'N', size(0), this->addr(),
+                     gdim(0), val, &work[0], &iwork[0], info);
     return val;
 }
 
 SEXP LaLowerTriangMatDouble::asSEXP() const
 {
     SEXP val = PROTECT(allocMatrix(REALSXP, size(0), size(1)));
-    F77_CALL(dlacpy)('L', size(0), size(1), &(*this)(0,0), gdim(0),
-		     REAL(val), size(0));
+    F77_CALL(dlacpy)('L', size(0), size(1), this->addr(), gdim(0),
+                     REAL(val), size(0));
     SEXP classes = PROTECT(allocVector(STRSXP, 2));
     SET_STRING_ELT(classes, 0, mkChar("LowerTriangular"));
     SET_STRING_ELT(classes, 1, mkChar("Matrix"));

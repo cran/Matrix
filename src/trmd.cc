@@ -63,7 +63,7 @@ double& LaTridiagMatDouble::operator()(int i,int j)
 }
 
 
-const double& LaTridiagMatDouble::operator()(int i,int j) const
+double LaTridiagMatDouble::operator()(int i,int j) const
 {
         int tmp = i-j;
         switch (tmp)
@@ -139,25 +139,25 @@ const double& LaTridiagMatDouble::operator()(int i,int j) const
 }
 
 
-ostream& operator<<(ostream& s, const LaTridiagMatDouble& td)
+std::ostream& operator<<(std::ostream& s, const LaTridiagMatDouble& td)
 
 {
   if (*(td.info_))     // print out only matrix info, not actual values
   {
       *(td.info_) = 0; // reset the flag
       s << "superdiag: (" << td.du_.size() << ") " ;
-      s <<" #ref: "<< td.du_.ref_count()<< endl;
+      s <<" #ref: "<< td.du_.ref_count()<< std::endl;
       s << "maindiag: (" << td.d_.size() << ") " ;
-      s <<" #ref: "<< td.d_.ref_count()<< endl;
+      s <<" #ref: "<< td.d_.ref_count()<< std::endl;
       s << "subdiag: (" << td.dl_.size() << ") " ;
-      s <<" #ref: "<< td.dl_.ref_count()<< endl;
+      s <<" #ref: "<< td.dl_.ref_count()<< std::endl;
   }
   else
   {
     s << td.diag(1);
     s << td.diag(0);
     s << td.diag(-1);
-    s << endl;
+    s << std::endl;
   } 
   return s;
 }

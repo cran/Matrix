@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: lapackd.h,v 1.12 2000/08/11 23:11:34 bates Exp $
+// $Id: lapackd.h,v 1.13 2002/06/23 05:07:25 saikat Exp $
 
 // C++ prototypes for double precision Lapack routines.
 
@@ -9,7 +9,7 @@
 // pointers.  The const keyword modifies those arguments that are
 // guaranteed to be unchanged on exit.
 
-// Copyright (C) 2000-2000 the R Development Core Team
+// Copyright (C) 2000-2000, 2002 the R Development Core Team
 
 extern "C" {
 #include <R_ext/RS.h>		// to define F77_NAME
@@ -376,7 +376,7 @@ extern "C" {
     // DGETRI - compute the inverse of a matrix using the LU
     // factorization computed by DGETRF
     void F77_NAME(dgetri)(const int& n, double* a, const int& lda,
-			  int* ipiv, double* work, const int& lwork,
+              const int* ipiv, double* work, const int& lwork,
 			  int& info);
 
     // DGETRS - solve a system of linear equations  A * X = B or A' *

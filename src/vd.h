@@ -21,7 +21,7 @@
 // LAPACK++ was funded in part by the U.S. Department of Energy, the
 // National Science Foundation and the State of Tennessee.
 //
-// Modifications Copyright (C) 2000-2000 the R Development Core Team
+// Modifications Copyright (C) 2000-2002 the R Development Core Team
 
 //      Lapack++ "Shared" Vector Double Class
 //
@@ -41,11 +41,7 @@
 #ifndef _VECTOR_DOUBLE_H_
 #define _VECTOR_DOUBLE_H_    
 
-#include <iostream.h>       // for formatted printing of matrices
-
-#ifndef __ASSERT_H
-#include <assert.h>     // cheap "error" protection used in checking
-#endif                  // checking array bounds.
+#include <iostream>       // for formatted printing of matrices
 
 typedef  struct {
     int        sz;                                        
@@ -70,15 +66,16 @@ class VectorDouble
     ~VectorDouble();
 				//  Indices and access operations
     inline double&      operator[](int); 
-    inline double&      operator[](int) const; // read only
+    inline double       operator[](int) const; // read only
     inline double&      operator()(int); 
-    inline double&      operator()(int) const; // read only
+    inline double       operator()(int) const; // read only
     inline              operator    double*(); 
     inline int          size() const;
-    inline int          null() const;
+    inline bool         null() const;
     int                 resize(int d);
     inline int          ref_count() const;  // return the number of ref counts
-    inline double*      addr() const;
+    inline double*      addr();
+    inline const double* addr() const;
 
 				//  Assignment
     inline  VectorDouble& operator=(const VectorDouble&);
@@ -88,11 +85,11 @@ class VectorDouble
     VectorDouble& copy(const VectorDouble&);
     
 				// I/O
-    friend ostream&   operator<<(ostream&, const VectorDouble&);       
+    friend std::ostream&   operator<<(std::ostream&, const VectorDouble&);
 };                                                                     
 
 				// operators and member functions
-inline int VectorDouble::null() const
+inline bool VectorDouble::null() const
 {
     return (size() == 0) ;
 }
@@ -107,7 +104,12 @@ inline int VectorDouble::ref_count() const
     return p->ref_count;
 }
 
-inline double* VectorDouble::addr() const
+inline const double* VectorDouble::addr() const
+{
+    return data;
+}
+
+inline double* VectorDouble::addr()
 {
     return data;
 }
@@ -125,7 +127,7 @@ inline double& VectorDouble::operator()(int i)
     return data[i];
 }
 
-inline double& VectorDouble::operator()(int i) const
+inline double VectorDouble::operator()(int i) const
 {
 #ifdef VECTOR_DOUBLE_BOUNDS_CHECK
     if (!(0<=i && i<size())) throw(LaException("assert failed : 0<=i && i<size()"));
@@ -143,7 +145,7 @@ inline double& VectorDouble::operator[](int i)
     return data[i];
 }
 
-inline double& VectorDouble::operator[](int i) const
+inline double VectorDouble::operator[](int i) const
 {
 #ifdef VECTOR_DOUBLE_BOUNDS_CHECK
     if (!(0<=i && i<size())) throw(LaException("assert failed : 0<=i && i<size()"));
@@ -171,7 +173,8 @@ inline VectorDouble& VectorDouble::ref(const VectorDouble& m)
 
 inline VectorDouble& VectorDouble::operator=(const VectorDouble& m)
 {
-    return  ref(m);
+    ref(m);
+    return *this;
 }
 
 #endif 

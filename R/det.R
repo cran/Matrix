@@ -15,7 +15,7 @@ det.default <- function (x, method = c("qr", "eigenvalues"), ...)
 
 det.Matrix <- function(x, logarithm = TRUE, ...)
 {
-    .Call("R_LapackPP_det", x, as.logical(logarithm))
+    .Call("R_LapackPP_det", x, as.logical(logarithm), PACKAGE="Matrix")
 }
 
 det.UnitLowerTriangular <- function(x, logarithm = TRUE, ...)

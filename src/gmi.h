@@ -13,11 +13,12 @@
 //      ) indexing via A(i,j) where i,j are either integers or
 //              LaIndex         
 //
-// Modifications Copyright (C) 2000-2000 the R Development Core Team
+// Modifications Copyright (C) 2000-2002 the R Development Core Team
 
 #ifndef _LA_GEN_MAT_INT_H_
 #define _LA_GEN_MAT_INT_H_
 
+#include <iostream>
 #include "lafnames.h"
 #include VECTOR_INT_H
 #include LA_INDEX_H
@@ -73,10 +74,11 @@ public:
     inline int end(int d) const;    // return ii[d].end()
     inline LaIndex index(int d) const;// index
     inline int ref_count() const;
-    inline int* addr() const;       // begining addr of data space
+    inline int* addr();       // begining addr of data space
+    inline const int* addr() const;       // begining addr of data space
     
     inline int& operator()(int i, int j);
-    inline int& operator()(int i, int j) const;
+    inline int operator()(int i, int j) const;
     LaGenMatInt operator()(const LaIndex& I, const LaIndex& J) ;
     LaGenMatInt operator()(const LaIndex& I, const LaIndex& J) const;
     
@@ -97,12 +99,12 @@ public:
 	return *this;
     };
 				// I/O
-    friend ostream& operator<<(ostream&, const LaGenMatInt&);
-    ostream& Info(ostream& s)
+    friend std::ostream& operator<<(std::ostream&, const LaGenMatInt&);
+    std::ostream& Info(std::ostream& s)
     {
-	s << "Size: (" << size(0) << "x" << size(1) << ") " ;
+        s << "Size: (" << size(0) << "x" << size(1) << ") " ;
         s << "Indeces: " << ii[0] << " " << ii[1];
-        s << "#ref: " << ref_count() << "addr: " << (unsigned) addr() << endl;
+        s << "#ref: " << ref_count() << "addr: " << addr() << std::endl;
         return s;
     };
 };  //* End of LaGenMatInt Class *//
@@ -143,9 +145,14 @@ inline LaIndex LaGenMatInt::index(int d)  const
     return ii[d];
 }
 
-inline int* LaGenMatInt::addr() const
+inline int* LaGenMatInt::addr()
 {
-    return  v.addr();
+    return v.addr() + dim[0]*ii[1].start() + ii[0].start();
+}
+
+inline const int* LaGenMatInt::addr() const
+{
+    return v.addr() + dim[0]*ii[1].start() + ii[0].start();
 }
 
 inline int& LaGenMatInt::operator()(int i, int j)
@@ -161,7 +168,7 @@ inline int& LaGenMatInt::operator()(int i, int j)
 	      ii[0].start() + i*ii[0].inc());
 }
 
-inline int& LaGenMatInt::operator()(int i, int j) const
+inline int LaGenMatInt::operator()(int i, int j) const
 {
 #ifdef LA_BOUNDS_CHECK
     if (!(i>=0)) throw(LaException("assert failed : i>=0"));
@@ -175,7 +182,8 @@ inline int& LaGenMatInt::operator()(int i, int j) const
 
 inline LaGenMatInt& LaGenMatInt::operator=(const LaGenMatInt& s)
 {
-    return copy(s);
+    copy(s);
+    return *this;
 }
 
 inline  LaGenMatInt&  LaGenMatInt::shallow_assign()

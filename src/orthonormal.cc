@@ -1,5 +1,5 @@
 //   R : A Computer Language for Statistical Data Analysis
-//   Copyright (C) 2000  the R Development Core Team
+//   Copyright (C) 2000, 2002  the R Development Core Team
 
 //   This program is free software; you can redistribute it and/or modify
 //   it under the terms of the GNU General Public License as published by
@@ -22,8 +22,8 @@ SEXP LaColOrthogonalMatDouble::asSEXP() const
     if (size(0) < 1 || size(1) < 1) return R_NilValue;
 
     SEXP val = PROTECT(allocMatrix(REALSXP, size(0), size(1)));
-    F77_CALL(dlacpy)('A', size(0), size(1), &(*this)(0,0), gdim(0),
-		     REAL(val), size(0));
+    F77_CALL(dlacpy)('A', size(0), size(1), this->addr(), gdim(0),
+                     REAL(val), size(0));
     SEXP classes = PROTECT(allocVector(STRSXP, 2));
     SET_STRING_ELT(classes, 0, mkChar("ColOrthogonal"));
     SET_STRING_ELT(classes, 1, mkChar("Matrix"));
@@ -37,8 +37,8 @@ SEXP LaRowOrthogonalMatDouble::asSEXP() const
     if (size(0) < 1 || size(1) < 1) return R_NilValue;
 
     SEXP val = PROTECT(allocMatrix(REALSXP, size(0), size(1)));
-    F77_CALL(dlacpy)('A', size(0), size(1), &(*this)(0,0), gdim(0),
-		     REAL(val), size(0));
+    F77_CALL(dlacpy)('A', size(0), size(1), this->addr(), gdim(0),
+                     REAL(val), size(0));
     SEXP classes = PROTECT(allocVector(STRSXP, 2));
     SET_STRING_ELT(classes, 0, mkChar("RowOrthogonal"));
     SET_STRING_ELT(classes, 1, mkChar("Matrix"));
@@ -52,8 +52,8 @@ SEXP LaColOrthonormalMatDouble::asSEXP() const
     if (size(0) < 1 || size(1) < 1) return R_NilValue;
 
     SEXP val = PROTECT(allocMatrix(REALSXP, size(0), size(1)));
-    F77_CALL(dlacpy)('A', size(0), size(1), &(*this)(0,0), gdim(0),
-		     REAL(val), size(0));
+    F77_CALL(dlacpy)('A', size(0), size(1), this->addr(), gdim(0),
+                     REAL(val), size(0));
     SEXP classes = PROTECT(allocVector(STRSXP, 3));
     SET_STRING_ELT(classes, 0, mkChar("ColOrthonormal"));
     SET_STRING_ELT(classes, 1, mkChar("ColOrthogonal"));
@@ -68,8 +68,8 @@ SEXP LaRowOrthonormalMatDouble::asSEXP() const
     if (size(0) < 1 || size(1) < 1) return R_NilValue;
 
     SEXP val = PROTECT(allocMatrix(REALSXP, size(0), size(1)));
-    F77_CALL(dlacpy)('A', size(0), size(1), &(*this)(0,0), gdim(0),
-		     REAL(val), size(0));
+    F77_CALL(dlacpy)('A', size(0), size(1), this->addr(), gdim(0),
+                     REAL(val), size(0));
     SEXP classes = PROTECT(allocVector(STRSXP, 3));
     SET_STRING_ELT(classes, 0, mkChar("RowOrthonormal"));
     SET_STRING_ELT(classes, 1, mkChar("RowOrthogonal"));
@@ -87,7 +87,7 @@ SEXP LaOrthogonalMatDouble::asSEXP() const
     if (m < 1 || n < 1) return R_NilValue;
 
     SEXP val = PROTECT(allocMatrix(REALSXP, m, n));
-    F77_CALL(dlacpy)('A', m, n, &(*this)(0,0), lda, REAL(val), m);
+    F77_CALL(dlacpy)('A', m, n, this->addr(), lda, REAL(val), m);
     SEXP classes = PROTECT(allocVector(STRSXP, 6));
     SET_STRING_ELT(classes, 0, mkChar("Orthogonal"));
     SET_STRING_ELT(classes, 1, mkChar("RowOrthonormal"));

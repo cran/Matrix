@@ -21,7 +21,7 @@
 // LAPACK++ was funded in part by the U.S. Department of Energy, the
 // National Science Foundation and the State of Tennessee.
 //
-// Modifications Copyright (C) 2000-2001 the R Development Core Team
+// Modifications Copyright (C) 2000-2002 the R Development Core Team
 
 #include "lafnames.h"
 #include LA_GEN_MAT_DOUBLE_H
@@ -36,21 +36,23 @@
 #undef append
 #endif
 
+#include <valarray>
+
 LaGenMatDouble::~LaGenMatDouble()
 {
     delete solver;
 }
 
-LaGenMatDouble::LaGenMatDouble() : v(0)
+LaGenMatDouble::LaGenMatDouble()
+    : v(0), solver(0)
 {
     dim[0] = dim[1] = 0;
     sz[0] = sz[1] = 0;
     *info_ = 0;
-    shallow_= 0;
-    solver = 0;
 }
 
-LaGenMatDouble::LaGenMatDouble(int m, int n) :v(m*n)
+LaGenMatDouble::LaGenMatDouble(int m, int n)
+    : v(m*n), solver(0)
 {
     ii[0](0,m-1);
     ii[1](0,n-1);
@@ -59,11 +61,10 @@ LaGenMatDouble::LaGenMatDouble(int m, int n) :v(m*n)
     sz[0] = m;
     sz[1] = n;
     *info_ = 0;
-    shallow_= 0;
-    solver = 0;
 }
 
-LaGenMatDouble::LaGenMatDouble(double *d, int m, int n) :v(d, m*n)
+LaGenMatDouble::LaGenMatDouble(double *d, int m, int n)
+    : v(d, m*n), solver(0)
 {
     ii[0](0,m-1);
     ii[1](0,n-1);
@@ -72,8 +73,6 @@ LaGenMatDouble::LaGenMatDouble(double *d, int m, int n) :v(d, m*n)
     sz[0] = m;
     sz[1] = n;
     *info_ = 0;
-    shallow_= 0;  
-    solver = 0;
 }
 
 LaMatDouble& LaGenMatDouble::operator=(double s)
@@ -87,7 +86,7 @@ LaMatDouble& LaGenMatDouble::operator=(double s)
     }
 
     if (solver != 0)
-	clearDecomposition();
+        clearDecomposition();
     return *this;
 }
 
@@ -139,9 +138,9 @@ LaGenMatDouble&  LaGenMatDouble::resize(int m, int n)
     return *this;
 }
 
-LaGenMatDouble::LaGenMatDouble(const LaMatDouble& X) : v(X.size(0)*X.size(1))
+LaGenMatDouble::LaGenMatDouble(const LaMatDouble& X)
+    : v(X.size(0)*X.size(1)), solver(0)
 {
-    solver = 0;
     shallow_ = 0;		// do not perpetuate shallow copies, otherwise
 				//  B = A(I,J) does not work properly...
 //      if (X.shallow_) {
@@ -165,10 +164,9 @@ LaGenMatDouble::LaGenMatDouble(const LaMatDouble& X) : v(X.size(0)*X.size(1))
 //    }
 }
 
-LaGenMatDouble::LaGenMatDouble(const LaGenMatDouble& X) : v(X.size(0)*X.size(1))
+LaGenMatDouble::LaGenMatDouble(const LaGenMatDouble& X)
+    : v(X.size(0)*X.size(1)), solver(0)
 {
-    solver = 0;
-    shallow_ = 0;		// do not perpetuate shallow copies, otherwise
 				//  B = A(I,J) does not work properly...
 //      if (X.shallow_) {
 //  	v.ref(X.v);
@@ -191,7 +189,36 @@ LaGenMatDouble::LaGenMatDouble(const LaGenMatDouble& X) : v(X.size(0)*X.size(1))
 //    }
 }
 
-LaGenMatDouble::LaGenMatDouble(SEXP x) : v(0)
+LaGenMatDouble& LaGenMatDouble::operator=(const LaGenMatDouble& X)
+{
+    shallow_ = 0;
+    v.resize(X.size(0)*X.size(1));
+    solver = 0;
+				//  B = A(I,J) does not work properly...
+//      if (X.shallow_) {
+//  	v.ref(X.v);
+//  	dim[0] = X.dim[0];
+//  	dim[1] = X.dim[1];
+//  	sz[0] = X.sz[0];
+//  	sz[1] = X.sz[1];
+//  	ii[0] = X.ii[0];
+//  	ii[1] = X.ii[1];
+//      } else {
+//	v.resize(X.size(0)*X.size(1)); 
+	ii[0](0,X.size(0)-1);
+	ii[1](0,X.size(1)-1);
+	dim[0] = sz[0] = X.size(0);
+	dim[1] = sz[1] = X.size(1);
+	int M = X.size(0), N = X.size(1);
+	for (int j = 0; j < N; j++)
+	    for (int i = 0; i < M; i++)
+		(*this)(i,j) = X(i,j);
+//    }
+    return *this;
+}
+
+LaGenMatDouble::LaGenMatDouble(SEXP x)
+    : v(0), solver(0)
 {				// constructor performs a copy
     if (!isMatrix(x)) error("x must be a matrix");
     int *dims =
@@ -375,9 +402,9 @@ LaGenMatDouble LaGenMatDouble::operator()(const LaIndex& II, const LaIndex& JJ)
 
 double LaGenMatDouble::norm(char which) const
 {
-    VectorDouble work(size(0));	// only for the Infinity norm
+    std::valarray<double> work(size(0));
     return F77_CALL(dlange)(which, size(0), size(1),
-			    &(*this)(0,0), gdim(0), &work(0));
+                            this->addr(), gdim(0), &work[0]);
 }
 
 void LaGenMatDouble::doDecomposition() const
@@ -389,7 +416,7 @@ void LaGenMatDouble::doDecomposition() const
     else solver = new LaQRFactorDouble(*this);
 }
 
-ostream& LaGenMatDouble::printMatrix(ostream& s) const
+std::ostream& LaGenMatDouble::printMatrix(std::ostream& s) const
 {
     if (*info_)     // print out only matrix info, not actual values
     {
@@ -408,12 +435,12 @@ ostream& LaGenMatDouble::printMatrix(ostream& s) const
     return s;
 }
 
-ostream& LaGenMatDouble::Info(ostream& s)
+std::ostream& LaGenMatDouble::Info(std::ostream& s)
 {
     LaMatDouble::Info(s);
-    s << "#ref: " << ref_count() << endl;
+    s << "#ref: " << ref_count() << std::endl;
     return s;
-};
+}
 
 
 double LaGenMatDouble::rcond(char which) const
@@ -435,8 +462,8 @@ double LaGenMatDouble::rcond(char which) const
 SEXP LaGenMatDouble::asSEXP() const
 {
     SEXP val = PROTECT(allocMatrix(REALSXP, size(0), size(1)));
-    F77_CALL(dlacpy)('A', size(0), size(1), &(*this)(0,0), gdim(0),
-		     REAL(val), size(0));
+    F77_CALL(dlacpy)('A', size(0), size(1), this->addr(), gdim(0),
+                     REAL(val), size(0));
     setAttrib(val, R_ClassSymbol, ScalarString(mkChar("Matrix")));
     UNPROTECT(1);
     return val;

@@ -21,7 +21,7 @@
 // LAPACK++ was funded in part by the U.S. Department of Energy, the
 // National Science Foundation and the State of Tennessee.
 //
-// Modifications Copyright (C) 2000-2000 the R Development Core Team
+// Modifications Copyright (C) 2000-2000, 2002 the R Development Core Team
 
 #include "lafnames.h"
 #include LA_VECTOR_DOUBLE_H
@@ -29,44 +29,44 @@
 
 double Blas_Norm1(const LaVectorDouble &dx)
 {
-    return F77_CALL(dasum)(dx.size(), &dx(0), dx.inc());
+    return F77_CALL(dasum)(dx.size(), dx.addr(), dx.inc());
 }
 
 void Blas_Add_Mult(LaVectorDouble &dy, double da, const LaVectorDouble &dx) 
 {
     if (!(dx.size()==dy.size())) throw(LaException("assert failed : dx.size()==dy.size()"));
-    F77_CALL(daxpy)(dx.size(), da, &dx(0), dx.inc(), &dy(0), dy.inc());
+    F77_CALL(daxpy)(dx.size(), da, dx.addr(), dx.inc(), &dy(0), dy.inc());
 }
 
 void Blas_Mult(LaVectorDouble &dy, double da, LaVectorDouble &dx)
 {
     if (!(dx.size()==dy.size())) throw(LaException("assert failed : dx.size()==dy.size()"));
     dy = 0.0;
-    F77_CALL(daxpy)(dx.size(), da, &dx(0), dx.inc(), &dy(0), dy.inc());
+    F77_CALL(daxpy)(dx.size(), da, dx.addr(), dx.inc(), &dy(0), dy.inc());
 }
 
 void Blas_Copy(LaVectorDouble &dy, LaVectorDouble &dx)
 {
     if (!(dx.size()==dy.size())) throw(LaException("assert failed : dx.size()==dy.size()"));
-    F77_CALL(dcopy)(dx.size(), &dx(0), dx.inc(), &dy(0), dy.inc());
+    F77_CALL(dcopy)(dx.size(), dx.addr(), dx.inc(), &dy(0), dy.inc());
 }
 
 double Blas_Dot_Prod(const LaVectorDouble &dx, const LaVectorDouble &dy)
 {
     if (!(dx.size()==dy.size())) throw(LaException("assert failed : dx.size()==dy.size()"));
-    return F77_CALL(ddot)(dx.size(), &dx(0), dx.inc(), &dy(0), dy.inc());
+    return F77_CALL(ddot)(dx.size(), dx.addr(), dx.inc(), dy.addr(), dy.inc());
 }
 
 double Blas_Norm2(const LaVectorDouble &dx)
 {
-    return F77_CALL(dnrm2)(dx.size(), &dx(0), dx.inc());
+    return F77_CALL(dnrm2)(dx.size(), dx.addr(), dx.inc());
 }
 
 void Blas_Apply_Plane_Rot(LaVectorDouble &dx, LaVectorDouble &dy, 
 			  double c, double s)
 {
     if (!(dx.size() == dy.size())) throw(LaException("assert failed : dx.size() == dy.size()"));
-    F77_CALL(drot)(dx.size(), &dx(0), dx.inc(), &dy(0), dy.inc(), c, s);
+    F77_CALL(drot)(dx.size(), dx.addr(), dx.inc(), dy.addr(), dy.inc(), c, s);
 }
 
 void Blas_Gen_Plane_Rot(double da, double db, double &c, double &s)
@@ -76,19 +76,19 @@ void Blas_Gen_Plane_Rot(double da, double db, double &c, double &s)
 
 void Blas_Scale(double da, LaVectorDouble &dx)
 {
-    F77_CALL(dscal)(dx.size(), da, &dx(0), dx.inc());
+    F77_CALL(dscal)(dx.size(), da, dx.addr(), dx.inc());
 }
 
 void Blas_Swap(LaVectorDouble &dx, LaVectorDouble &dy)
 {
     if (!(dx.size()==dy.size())) throw(LaException("assert failed : dx.size()==dy.size()"));
-    F77_CALL(dswap)(dx.size(), &dx(0), dx.inc(), &dy(0), dy.inc());
+    F77_CALL(dswap)(dx.size(), dx.addr(), dx.inc(), dy.addr(), dy.inc());
 }
 
 int Blas_Index_Max(const LaVectorDouble &dx)
 {
     // subtract one from index since f77 starts at 1, not 0.
-    return F77_CALL(idamax)(dx.size(), &dx(0), dx.inc()) - 1;
+    return F77_CALL(idamax)(dx.size(), dx.addr(), dx.inc()) - 1;
 }
 
 // Complex Routines
@@ -108,7 +108,8 @@ COMPLEX Blas_H_Dot_Prod(const LaVectorComplex &cx, const LaVectorComplex &cy)
 
 COMPLEX Blas_U_Dot_Prod(const LaVectorComplex &cx, const LaVectorComplex &cy)
 {
-    if (!(cx.size()==cy.size())) throw(LaException("assert failed : cx.size()==cy.size()"));
+    if (!(cx.size()==cy.size()))
+        throw(LaException("assert failed : cx.size()==cy.size()"));
     int n = cx.size();
     int incx = cx.inc(), incy = cy.inc();
     COMPLEX tmp;
@@ -123,37 +124,43 @@ double Blas_Norm1(const LaVectorComplex &dx)
     int n = dx.size();
     int incx = dx.inc();
 
-    return F77_CALL(dzasum)(&n, &dx(0), &incx);
+    return F77_CALL(dzasum)(&n, dx.addr(), &incx);
 }
 
 
 void Blas_Add_Mult(LaVectorComplex &dy, COMPLEX da, const LaVectorComplex &dx) 
 {
-    if (!(dx.size()==dy.size())) throw(LaException("assert failed : dx.size()==dy.size()"));
+    if (!(dx.size()==dy.size()))
+        throw(LaException("assert failed : dx.size()==dy.size()"));
     int n = dx.size();
     int incx = dx.inc(), incy = dy.inc();
 
-    F77_CALL(zaxpy)(&n, &da, &dx(0), &incx, &dy(0), &incy);
+    F77_CALL(zaxpy)(&n, &da, dx.addr(), &incx,
+                    dy.addr(), &incy);
 }
 
 void Blas_Mult(LaVectorComplex &dy, COMPLEX da, LaVectorComplex &dx)
 {
-    if (!(dx.size()==dy.size())) throw(LaException("assert failed : dx.size()==dy.size()"));
+    if (!(dx.size()==dy.size()))
+        throw(LaException("assert failed : dx.size()==dy.size()"));
     int n = dx.size();
     int incx = dx.inc(), incy = dy.inc();
     dy = COMPLEX(0.0,0.0);
 
-    F77_CALL(zaxpy)(&n, &da, &dx(0), &incx, &dy(0), &incy);
+    F77_CALL(zaxpy)(&n, &da, dx.addr(), &incx,
+                    dy.addr(), &incy);
 }
 
 
 void Blas_Copy(LaVectorComplex &dy, LaVectorComplex &dx)
 {
-    if (!(dx.size()==dy.size())) throw(LaException("assert failed : dx.size()==dy.size()"));
+    if (!(dx.size()==dy.size()))
+        throw(LaException("assert failed : dx.size()==dy.size()"));
     int n = dx.size();
     int incx = dx.inc(), incy = dy.inc();
 
-    F77_CALL(zcopy)(&n, &dx(0), &incx, &dy(0), &incy);
+    F77_CALL(zcopy)(&n, dx.addr(), &incx, dy.addr(),
+                    &incy);
 }
 
 
@@ -164,7 +171,7 @@ double Blas_Norm2(const LaVectorComplex &dx)
     int n = dx.size();
     int incx = dx.inc();
 
-    return F77_CALL(dznrm2)(&n, &dx(0), &incx);
+    return F77_CALL(dznrm2)(&n, dx.addr(), &incx);
 }
 
 
@@ -174,17 +181,19 @@ void Blas_Scale(COMPLEX za, LaVectorComplex &dx)
     int n = dx.size();
     int incx = dx.inc();
 
-    F77_CALL(zscal)(&n, &za, &dx(0), &incx);
+    F77_CALL(zscal)(&n, &za, dx.addr(), &incx);
 }
 
 
 void Blas_Swap(LaVectorComplex &dx, LaVectorComplex &dy)
 {
-    if (!(dx.size()==dy.size())) throw(LaException("assert failed : dx.size()==dy.size()"));
+    if (!(dx.size()==dy.size()))
+        throw(LaException("assert failed : dx.size()==dy.size()"));
     int n = dx.size();
     int incx = dx.inc(), incy = dy.inc();
 
-    F77_CALL(zswap)(&n, &dx(0), &incx, &dy(0), &incy);
+    F77_CALL(zswap)(&n, dx.addr(), &incx, dy.addr(),
+                    &incy);
 }
 
 
@@ -195,7 +204,7 @@ int Blas_Index_Max(const LaVectorComplex &dx)
     int incx = dx.inc();
 
     // subtract one from index since f77 starts at 1, not 0.
-    return F77_CALL(izamax)(&n, &dx(0), &incx) - 1;
+    return F77_CALL(izamax)(&n, dx.addr(), &incx) - 1;
 }
 
 #endif

@@ -21,7 +21,7 @@
 // LAPACK++ was funded in part by the U.S. Department of Energy, the
 // National Science Foundation and the State of Tennessee.
 //
-// Modifications Copyright (C) 2000-2001 the R Development Core Team
+// Modifications Copyright (C) 2000-2002 the R Development Core Team
 
 #ifndef _LA_VECTOR_INT_H_
 #define _LA_VECTOR_INT_H_
@@ -67,12 +67,12 @@ public:
 	{ LaGenMatInt::resize(m, 1); return *this; };
 
     inline int& operator()(int i);
-    inline int& operator()(int i) const ;
+    inline int operator()(int i) const ;
     inline LaVectorInt operator()(const LaIndex&);
 
     inline int& operator()(int i, int j)
 	{ return LaGenMatInt::operator()(i,j); }
-    inline int& operator()(int i, int j) const
+    inline int operator()(int i, int j) const
 	{ return LaGenMatInt::operator()(i,j); }
 
     inline LaVectorInt& operator=(int);
@@ -124,11 +124,12 @@ inline int& LaVectorInt::operator()(int i)
     return LaGenMatInt::operator()(i,0);
 }
 
-inline int& LaVectorInt::operator()(int i) const
-{ if (LaGenMatInt::size(0)==1 )
-    return LaGenMatInt::operator()(0,i);
-  else
-    return LaGenMatInt::operator()(i,0);
+inline int LaVectorInt::operator()(int i) const
+{
+    if (LaGenMatInt::size(0)==1 )
+        return LaGenMatInt::operator()(0,i);
+    else
+        return LaGenMatInt::operator()(i,0);
 }
 
 inline LaVectorInt LaVectorInt::operator()(const LaIndex& I)
@@ -149,7 +150,8 @@ inline LaVectorInt& LaVectorInt::copy(const LaGenMatInt &A)
 
 inline LaVectorInt& LaVectorInt::operator=(const  LaGenMatInt &A)
 {
-    return inject(A);
+    inject(A);
+    return *this;
 }
 
 inline LaVectorInt& LaVectorInt::ref(const LaGenMatInt &A)

@@ -21,7 +21,7 @@
 // LAPACK++ was funded in part by the U.S. Department of Energy, the
 // National Science Foundation and the State of Tennessee.
 //
-// Modifications Copyright (C) 2000-2000 the R Development Core Team
+// Modifications Copyright (C) 2000-2000, 2002 the R Development Core Team
 
 #include "lafnames.h"
 #include VECTOR_DOUBLE_H
@@ -29,57 +29,44 @@
 #include "laexcp.h"
 
 VectorDouble::VectorDouble(int n=0)
+    : p(new vrefDouble()), data(new double[n])
 {                                                                      
-    if (!(n>=0)) throw(LaException("assert failed : n>=0"));
-    p = new vrefDouble;
+    if (!(n>=0))
+        throw(LaException("assert failed : n>=0"));
     p->sz = n;                                                          
-    p->data = data = new double[n]; 
+    p->data = data;
     p->ref_count = 1;                        
 }                                                                      
 
 VectorDouble::VectorDouble( const VectorDouble& m)
+    : p(m.p), data(m.data)
 {
-// old, deep copy semantics
-#if 0
-    int N = m.size();
-    
-    p = new vrefDouble;
-    p->sz = m.size();
-    
-    p->ref_count = 1;
-    p->data = data = new double[m.size()];
-    for (int i = 0; i < N; i++) { data[i] = m(i); }
-#endif
-// shallow assignment semantics
-    
-    p = m.p;
-    data = m.data;
     p->ref_count++;
 }
 
 VectorDouble::VectorDouble(double *d, int n)
-{                                                                      
-    p = new vrefDouble;
+    : p(new vrefDouble()), data(d)
+{
     p->sz = n;                                                          
     p->ref_count = 2; 
-    p-> data = data = d;                        
+    p->data = data;
 }                                                                      
 
 VectorDouble::~VectorDouble()
 {
     if (--(p->ref_count) == 0)	// perform garbage collection
     {
-	delete [] p->data;
-	delete p;
+        delete [] p->data;
+        delete p;
     }
 }
 
 VectorDouble::VectorDouble(int n, double scalar)
-{                                                                      
-    p = new vrefDouble;
+    : p(new vrefDouble()), data(new double[n])
+{
     p->sz = n;                                                          
     p->ref_count = 1;                        
-    p->data = data = new double[n];
+    p->data = data;
     for (int i = 0; i < n; i++) { data[i] = scalar; }
 }                                                                      
 
@@ -135,13 +122,13 @@ VectorDouble& VectorDouble::copy(const VectorDouble &m)
     return *this;
 }
 
-ostream& operator<<(ostream& s, const VectorDouble& m)
+std::ostream& operator<<(std::ostream& s, const VectorDouble& m)
 {
     if (m.p) {
-	int n = m.size();
-	for (int i = 0; i < n; i++) { s << m(i) << "  "; }
-	s << "\n";
-    } else { s << "NULL VectorDouble.\n"; }
+        int n = m.size();
+        for (int i = 0; i < n; i++) { s << m(i) << "  "; }
+        s << std::endl;
+    } else { s << "NULL VectorDouble." << std::endl; }
     return s;
 }
 

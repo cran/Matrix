@@ -21,7 +21,7 @@
 // LAPACK++ was funded in part by the U.S. Department of Energy, the
 // National Science Foundation and the State of Tennessee.
 //
-// Modifications Copyright (C) 2000-2000 the R Development Core Team
+// Modifications Copyright (C) 2000-2000, 2002 the R Development Core Team
 
 #ifndef _LA_SPD_TRIDIAG_MAT_DOUBLE_H_
 #define _LA_SPD_TRIDIAG_MAT_DOUBLE_H_
@@ -62,28 +62,26 @@ class LaSpdTridiagMatDouble
             return *this;};
         inline int size() const; 
 
-        friend ostream& operator<<(ostream&,const LaSpdTridiagMatDouble&);
+    friend std::ostream& operator<<(std::ostream&,const LaSpdTridiagMatDouble&);
 
 
 };
 
     // constructors
 
-inline LaSpdTridiagMatDouble::LaSpdTridiagMatDouble(): 
-        d_(), dl_()
+inline LaSpdTridiagMatDouble::LaSpdTridiagMatDouble()
+    : size_(0), d_(), dl_()
 {
-    size_ = 0;
 }
 
-inline LaSpdTridiagMatDouble::LaSpdTridiagMatDouble(int N): 
-        d_(N), dl_(N-1)
+inline LaSpdTridiagMatDouble::LaSpdTridiagMatDouble(int N)
+    : size_(N), d_(N), dl_(N-1)
 {
-    size_ = N;
 }
     
-inline LaSpdTridiagMatDouble::LaSpdTridiagMatDouble(const LaSpdTridiagMatDouble& td): d_(td.d_), dl_(td.dl_)
+inline LaSpdTridiagMatDouble::LaSpdTridiagMatDouble(const LaSpdTridiagMatDouble& td)
+    : size_(td.size_), d_(td.d_), dl_(td.dl_)
 {
-    size_ = td.size_;
 }
 
     // destructor

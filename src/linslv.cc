@@ -21,9 +21,9 @@
 // LAPACK++ was funded in part by the U.S. Department of Energy, the
 // National Science Foundation and the State of Tennessee.
 //
-// Modifications Copyright (C) 2000-2000 the R Development Core Team
+// Modifications Copyright (C) 2000-2000, 2002 the R Development Core Team
 
-#include <iostream.h>
+#include <iostream>
 #include "lapackd.h"
 #include "lafnames.h"
 #include LA_GEN_MAT_DOUBLE_H
@@ -173,7 +173,7 @@ void LaQRLinearSolveIP(LaGenMatDouble& A, LaGenMatDouble& X, LaGenMatDouble& B )
     int nb = LaEnvBlockSize("DGELSV", A);
     int W = MIN(M,N) + nb * MAX3(M, N, nrhs);
     
-    LaVectorDouble work((int) W);         
+    LaVectorDouble work(W);         
     // typically is A non-square, so we need to create tmp X becuase is
     //  X is N x nrhs, while B is M x nrhs.  We need to make copies of
     //  these so that the routine won't corrupt data around X and B

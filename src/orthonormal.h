@@ -1,7 +1,7 @@
 // -*- c++ -*-
 //
 //   R : A Computer Language for Statistical Data Analysis
-//   Copyright (C) 2000  the R Development Core Team
+//   Copyright (C) 2000, 2002  the R Development Core Team
 
 //   This program is free software; you can redistribute it and/or modify
 //   it under the terms of the GNU General Public License as published by
@@ -27,26 +27,55 @@ class LaColOrthogonalMatDouble : public LaGenMatDouble
 {
  public:
     SEXP asSEXP() const;
+    LaColOrthogonalMatDouble& operator=(double s)
+    {
+        LaGenMatDouble::operator=(s);
+        return *this;
+    }
 };
+
 class LaRowOrthogonalMatDouble : public LaGenMatDouble
 {
  public:
     SEXP asSEXP() const;
+    LaRowOrthogonalMatDouble& operator=(double s)
+    {
+        LaGenMatDouble::operator=(s);
+        return *this;
+    }
 };
+
 class LaColOrthonormalMatDouble : public LaColOrthogonalMatDouble
 {
  public:
     SEXP asSEXP() const;
+    LaColOrthonormalMatDouble& operator=(double s)
+    {
+        LaGenMatDouble::operator=(s);
+        return *this;
+    }
 };
+
 class LaRowOrthonormalMatDouble : public LaRowOrthogonalMatDouble
 {
  public:
     SEXP asSEXP() const;
+    LaRowOrthonormalMatDouble& operator=(double s)
+    {
+        LaGenMatDouble::operator=(s);
+        return *this;
+    }
 };
+
 class LaOrthogonalMatDouble : public LaColOrthonormalMatDouble
 {
  public:
     SEXP asSEXP() const;
+    LaOrthogonalMatDouble& operator=(double s)
+    {
+        LaGenMatDouble::operator=(s);
+        return *this;
+    }
 };
 
 #endif // _ORTHONORMAL_H_

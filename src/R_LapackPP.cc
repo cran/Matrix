@@ -19,11 +19,6 @@
 #include <new>
 using namespace std;
 
-static inline SEXP install(const char* c)
-{
-    return install(const_cast<char *>(c));
-}
-
 static LaVectorInt* piv2perm(const LaVectorInt& piv)
 {				// transform a pivot vector to the permutation
     LaVectorInt *perm;

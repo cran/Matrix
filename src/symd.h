@@ -21,7 +21,7 @@
 // LAPACK++ was funded in part by the U.S. Department of Energy, the
 // National Science Foundation and the State of Tennessee.
 //
-// Modifications Copyright (C) 2000-2001 the R Development Core Team
+// Modifications Copyright (C) 2000-2002 the R Development Core Team
 
 #include "bunch_kaufman.h"
 
@@ -39,35 +39,34 @@ class LaSymmMatDouble : public LaMatDouble
 protected:
 
     mutable LaSymmFactor* factor_;
+    mutable bool dirty_;
 
     void setFactor(LaSymmFactor *factor) const
-	{ clearDecomposition(); factor_ = factor; }
+	{
+        clearDecomposition();
+        factor_ = factor;
+    }
 public:
 				// constructors
     LaSymmMatDouble(char uplo = 'U')
-	: data_(uplo)
-	{  factor_ = 0; };
+        : data_(uplo), factor_(0), dirty_(true) {}
     LaSymmMatDouble(int i, int j, char uplo = 'U')
-	: data_(i, j, uplo)
-	{  factor_ = 0; };
+        : data_(i, j, uplo), factor_(0), dirty_(true) {}
     LaSymmMatDouble(double* d, int i, int j, char uplo = 'U')
-	: data_(d, i, j, uplo)
-	{  factor_ = 0; };
+        : data_(d, i, j, uplo), factor_(0), dirty_(true) {}
     LaSymmMatDouble(const LaSymmMatDouble& A)
-	: data_(A.data_)
-	{  factor_ = 0; };
+        : data_(A.data_), factor_(0), dirty_(true) {}
     explicit LaSymmMatDouble(SEXP s, char uplo = 'U')
-	: data_(s, uplo)
-	{  factor_ = 0; };
+        : data_(s, uplo), factor_(0), dirty_(true) {}
 				// destructor
     ~LaSymmMatDouble()
-	{ delete factor_; };
+	{ delete factor_; }
 
     char uplo() const { return data_.uplo(); }
     const LaSymmFactor& factor() const
 	{
 	    if (factor_ == 0)
-		throw(LaException("No factor present"));
+            throw(LaException("No factor present"));
 	    return *factor_;
 	}
     int size(int d) const	// submatrix size
@@ -78,52 +77,95 @@ public:
 	{ return data_.index(d); }
     int ref_count() const	// return ref_count of matrix.
 	{ return data_.ref_count(); }
-    double* addr() const	// return address of matrix.
+    const double* addr() const	// return address of matrix.
+	{ return data_.addr(); };
+    double* addr()	// return address of matrix.
 	{ return data_.addr(); };
 
 				// operators
     double& operator()(int i,int j) 
 	{
+        dirty_ = true;
 	    if (uplo() == 'U') {
-		if (i < j)
-		    return data_(i, j);
-		else return data_(j, i);
+            if (i < j)
+                return data_(i, j);
+            else return data_(j, i);
 	    } else {
-		if (i < j)
-		    return data_(j, i);
-		else return data_(i, j);
+            if (i < j)
+                return data_(j, i);
+            else return data_(i, j);
 	    }
 	}
-    const double& operator()(int i, int j) const
+    double operator()(int i, int j) const
 	{
 	    if (uplo() == 'U') {
-		if (i < j)
-		    return data_(i, j);
-		else return data_(j, i);
+            if (i < j)
+                return data_(i, j);
+            else return data_(j, i);
 	    } else {
-		if (i < j)
-		    return data_(j, i);
-		else return data_(i, j);
+            if (i < j)
+                return data_(j, i);
+            else return data_(i, j);
 	    }
 	}
-    LaMatDouble& operator=(double s)
-	{ clearDecomposition(); data_ = s; return *this; };
+
+    virtual LaSymmMatDouble& operator=(double s)
+	{
+        dirty_ = true;
+        data_ = s;
+        return *this;
+    };
+
+    LaSymmMatDouble& operator=(const LaSymmMatDouble& x)
+	{
+        if (!x.dirty_ && x.factor_ != 0) {
+            if (factor_ == 0)
+                setFactor(new LaBunchKaufmanFactorDouble());
+            factor_->ref(*x.factor_);
+            dirty_ = false;
+        } else dirty_ = true;
+        data_ = x.data_;
+        return *this;
+    }
 
     LaSymmMatDouble& inject(const LaMatDouble& A)
-	{ clearDecomposition(); data_.inject(A); return *this; }
+	{
+        dirty_ = true;
+        data_.inject(A);
+        return *this;
+    }
     LaSymmMatDouble& resize(const LaMatDouble& A)
-	{ return resize(A.size(0), A.size(1)); }
+	{
+        dirty_ = true;
+        return resize(A.size(0), A.size(1));
+    }
     LaSymmMatDouble& resize(int m, int n)
-	{ clearDecomposition(); data_.resize(m, n); return *this; };
+	{
+        dirty_ = true;
+        data_.resize(m, n);
+        return *this;
+    }
     LaSymmMatDouble& ref(const LaSymmMatDouble& A)
-	{ clearDecomposition(); data_.ref(A.data_); return *this; };
+	{
+        dirty_ = true;
+        data_.ref(A.data_);
+        return *this;
+    }
     LaSymmMatDouble& ref(SEXP s)
-	{ clearDecomposition(); data_.ref(s); return *this; };
+	{
+        dirty_ = true;
+        data_.ref(s);
+        return *this;
+    }
     LaSymmMatDouble& copy(const LaMatDouble& A)
-	{ clearDecomposition(); data_.copy(A); return *this; };
+	{
+        dirty_ = true;
+        data_.copy(A);
+        return *this;
+    }
     inline LaSymmMatDouble* clone() const;
    
-    ostream &printMatrix(ostream &) const;
+    std::ostream &printMatrix(std::ostream &) const;
 
     operator LaGenMatDouble();
     operator LaTriangMatDouble()
@@ -147,10 +189,14 @@ public:
 				// eigenvalues/eigenvectors
     inline LaSymmEigenDouble* eigen(bool leftEV = true, bool rightEV = true,
 				    char balanc = 'B', char rcond = 'N')
-	{ return new LaSymmEigenDouble(*this, uplo(), leftEV || rightEV); }
+	{
+        return new LaSymmEigenDouble(*this, uplo(), leftEV || rightEV);
+    }
     inline LaSymmEigenDouble* eigen(bool leftEV = true, bool rightEV = true)
-	{ return new LaSymmEigenDouble(*this, uplo(), leftEV || rightEV); }
-				// matrix norms, etc.
+	{
+        return new LaSymmEigenDouble(*this, uplo(), leftEV || rightEV);
+    }
+    // matrix norms, etc.
     double norm(char) const;
     SEXP asSEXP() const;
 };
@@ -158,47 +204,45 @@ public:
 inline void LaSymmMatDouble::clearDecomposition() const
 {
     if (factor_ != 0) {
-	delete factor_;
-	factor_ = 0;
+        delete factor_;
+        factor_ = 0;
     }
+    dirty_ = true;
 }
-
 
 inline void LaSymmMatDouble::doDecomposition() const
 {
-    clearDecomposition();
-    setFactor(new LaBunchKaufmanFactorDouble());
-    LaSymmMatDouble tmp;
-    tmp.copy(*this);
-    factor_->ref(tmp);
+    if (dirty_) {
+        LaSymmMatDouble tmp;
+        tmp.copy(*this);
+        if (factor_ == 0)
+            setFactor(new LaBunchKaufmanFactorDouble());
+        factor_->ref(tmp);
+        dirty_ = false;
+    }
 }
 
 inline double LaSymmMatDouble::rcond(char which) const
 {
-    if (factor_ == 0)
-	doDecomposition();
-
+    doDecomposition();
     return factor().rcond(norm('O'));
 }
 
 inline LaSymmMatDouble* LaSymmMatDouble::solve() const   // inverse
 {
-    if (factor_ == 0)
-	doDecomposition();
+    doDecomposition();
     return dynamic_cast<LaSymmMatDouble*>(factor().solve());
 }
 
 inline LaMatDouble& LaSymmMatDouble::solve(LaMatDouble& B) const
 {
-    if (factor_ == 0)
-	doDecomposition();
+    doDecomposition();
     return factor().solve(B);
 }
 
 inline LaMatDouble& LaSymmMatDouble::solve(LaMatDouble& X, const LaMatDouble& B) const
 {
-    if (factor_ == 0)
-	doDecomposition();
+    doDecomposition();
     return factor().solve(X, B);
 }
 

@@ -21,7 +21,7 @@
 // LAPACK++ was funded in part by the U.S. Department of Energy, the
 // National Science Foundation and the State of Tennessee.
 //
-// Modifications Copyright (C) 2000-2000 the R Development Core Team
+// Modifications Copyright (C) 2000-2000, 2002 the R Development Core Team
 
 #include "lafnames.h"
 #include LA_GEN_MAT_INT_H
@@ -32,7 +32,8 @@ int* LaGenMatInt::info_= new int; // turn off info print flag.
 
 LaGenMatInt::~LaGenMatInt() { }
 
-LaGenMatInt::LaGenMatInt() : v(0)
+LaGenMatInt::LaGenMatInt()
+    : v(0)
 {
     dim[0] = dim[1] = 0;
     sz[0] = sz[1] = 0;
@@ -40,7 +41,8 @@ LaGenMatInt::LaGenMatInt() : v(0)
     shallow_= 0;
 }
 
-LaGenMatInt::LaGenMatInt(int m, int n) :v(m*n)
+LaGenMatInt::LaGenMatInt(int m, int n)
+    : v(m*n)
 {
     ii[0](0,m-1);
     ii[1](0,n-1);
@@ -304,7 +306,7 @@ LaGenMatInt LaGenMatInt::operator()(const LaIndex& II, const LaIndex& JJ)
 }
 
 
-ostream& operator<<(ostream& s, const LaGenMatInt& G)
+std::ostream& operator<<(std::ostream& s, const LaGenMatInt& G)
 {
     if (*(G.info_))     // print out only matrix info, not actual values
     {
@@ -319,7 +321,7 @@ ostream& operator<<(ostream& s, const LaGenMatInt& G)
         for (int i = 0; i < G.size(0); i++) {
             for (int j = 0; j < G.size(1); j++)
                 s << G(i,j) << "  ";
-            s << "\n";
+            s << std::endl;
         }
     }
     return s;

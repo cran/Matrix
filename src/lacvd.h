@@ -21,7 +21,7 @@
 // LAPACK++ was funded in part by the U.S. Department of Energy, the
 // National Science Foundation and the State of Tennessee.
 //
-// Modifications Copyright (C) 2000-2001 the R Development Core Team
+// Modifications Copyright (C) 2000-2002 the R Development Core Team
 
 
 #ifndef _LA_COL_VECTOR_DOUBLE_H_
@@ -69,13 +69,13 @@ public:
     inline LaColVectorDouble& copy(const LaMatDouble &);
     inline LaColVectorDouble* clone() const;
     
-    const double& operator()(int i, int j) const
+    double operator()(int i, int j) const
 	{ return operator()(i); }
     double& operator()(int i, int j)
 	{ return operator()(i); }
 
     inline double& operator()(int i);
-    inline const double& operator()(int i) const ;
+    inline double operator()(int i) const ;
     inline LaColVectorDouble operator()(const LaIndex&);
 
     inline LaColVectorDouble& operator=(const LaMatDouble &A);
@@ -110,7 +110,7 @@ inline double& LaColVectorDouble::operator()(int i)
     return LaGenMatDouble::operator()(i,0);
 }
 
-inline const double& LaColVectorDouble::operator()(int i) const
+inline double LaColVectorDouble::operator()(int i) const
 { 
     return LaGenMatDouble::operator()(i,0);
 }

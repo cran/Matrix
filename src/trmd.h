@@ -21,7 +21,7 @@
 // LAPACK++ was funded in part by the U.S. Department of Energy, the
 // National Science Foundation and the State of Tennessee.
 //
-// Modifications Copyright (C) 2000-2000 the R Development Core Team
+// Modifications Copyright (C) 2000-2000, 2002 the R Development Core Team
 
 #ifndef _LA_TRIDIAG_MAT_DOUBLE_
 #define _LA_TRIDIAG_MAT_DOUBLE_
@@ -55,20 +55,20 @@ class LaTridiagMatDouble
 
         // operators and member functions
 
-            double & operator()(int i, int j);
-            const double & operator()(int i, int j) const;
-            LaVectorDouble diag(int); /* 0 main, -1 lower, 1 upper, 
+    double & operator()(int i, int j);
+    double operator()(int i, int j) const;
+    LaVectorDouble diag(int); /* 0 main, -1 lower, 1 upper, 
                                             2 second upper  */
-             LaVectorDouble diag(int) const; /* 0 main, -1 lower, 
-                                            1 upper, 2 second upper  */
-        inline LaTridiagMatDouble& ref(LaTridiagMatDouble&); 
-        inline LaTridiagMatDouble& copy(const LaTridiagMatDouble&); 
-        const LaTridiagMatDouble& info() const {
-            int *t = info_; *t = 1; return *this;}
-        int size() { return size_;}
-        int size() const { return size_;}
-
-        friend ostream& operator<<(ostream&,const LaTridiagMatDouble&);
+    LaVectorDouble diag(int) const; /* 0 main, -1 lower, 
+                                       1 upper, 2 second upper  */
+    inline LaTridiagMatDouble& ref(LaTridiagMatDouble&); 
+    inline LaTridiagMatDouble& copy(const LaTridiagMatDouble&); 
+    const LaTridiagMatDouble& info() const {
+        int *t = info_; *t = 1; return *this;}
+    int size() { return size_;}
+    int size() const { return size_;}
+    
+    friend std::ostream& operator<<(std::ostream&,const LaTridiagMatDouble&);
 
 
 };

@@ -1,6 +1,6 @@
 // -*- c++ -*-
 //
-//  Copyright (C) 2000-2001 the R Development Core Team
+//  Copyright (C) 2000-2002 the R Development Core Team
 
 #ifndef _LA_MATRIX_H_
 #define _LA_MATRIX_H_
@@ -18,7 +18,7 @@ extern "C" {
 #include <Rinternals.h>
 }
 
-#include <iostream.h>
+#include <iostream>
 
 class LaMatrix
 {
@@ -48,6 +48,9 @@ protected:
     int             shallow_;	// set flag to '0' in order to return matrices
 				// by value from functions without unecessary
 				// copying.
+    LaMatrix()
+        : shallow_(0)
+    {}
     inline LaMatrix& shallow_assign()
 	{ shallow_ = 1; return *this; }
 
@@ -78,10 +81,10 @@ public:
 	{ int *t = info_; *t = 1; return *this; }
     
     //* I/O *//
-    virtual ostream& printMatrix(ostream&) const = 0;
-    friend ostream& operator<<(ostream& s, const LaMatrix& mat)
+    virtual std::ostream& printMatrix(std::ostream&) const = 0;
+    friend std::ostream& operator<<(std::ostream& s, const LaMatrix& mat)
 	{ return mat.printMatrix(s); }
-    virtual ostream& Info(ostream& s);
+    virtual std::ostream& Info(std::ostream& s);
 };
 
 class LaMatDouble : public LaMatrix
@@ -89,12 +92,13 @@ class LaMatDouble : public LaMatrix
 public:
     virtual ~LaMatDouble() { }
 				//  Indices and access operations 
-    virtual double* addr() const = 0;// begining addr of data space
+    virtual const double* addr() const = 0;// begining addr of data space
+    virtual double* addr() = 0;// begining addr of data space
     
     virtual double& operator()(int i, int j) = 0;
-    virtual const double& operator()(int i, int j) const = 0;
-    virtual LaMatDouble& operator=(const LaMatDouble& s)
-	{ return inject(s); }
+    virtual double operator()(int i, int j) const = 0;
+    LaMatDouble& operator=(const LaMatDouble& s)
+	{ inject(s); return *this; }
     virtual LaMatDouble& operator=(double s) = 0;
 
     LaMatDouble& resize(int m, int n) = 0;
@@ -112,7 +116,7 @@ public:
     virtual LaEigenDouble* eigen(bool leftEV = true, bool rightEV = true,
 				 char balanc = 'B', char rcond = 'N');
 
-    ostream& Info(ostream& s);
+    std::ostream& Info(std::ostream& s);
 };
 
 class LaMatInt : public LaMatrix
@@ -120,12 +124,13 @@ class LaMatInt : public LaMatrix
 public:
     virtual ~LaMatInt() { }
 				//  Indices and access operations 
-    virtual int* addr() const = 0;// begining addr of data space
+    virtual const int* addr() const = 0;// begining addr of data space
+    virtual int* addr() = 0;// begining addr of data space
     
     virtual int& operator()(int i, int j) = 0;
-    virtual const int& operator()(int i, int j) const = 0;
+    virtual int operator()(int i, int j) const = 0;
     virtual LaMatInt& operator=(const LaMatInt& s)
-	{ return inject(s); }
+	{ inject(s); return *this; }
     virtual LaMatInt& operator=(int s) = 0;
  
     LaMatInt& resize(int m, int n) = 0;
@@ -135,7 +140,7 @@ public:
     virtual LaMatInt& inject(const LaMatInt& s) = 0;
     virtual LaMatInt& copy(const LaMatInt& s) = 0;
 
-    ostream& Info(ostream& s);
+    std::ostream& Info(std::ostream& s);
 };
 
 #endif

@@ -21,7 +21,7 @@
 // LAPACK++ was funded in part by the U.S. Department of Energy, the
 // National Science Foundation and the State of Tennessee.
 //
-// Modifications Copyright (C) 2000-2000 the R Development Core Team
+// Modifications Copyright (C) 2000-2000, 2002 the R Development Core Team
 
 #include "cholesky.h"
 
@@ -53,7 +53,7 @@ public:
     ~LaSpdMatDouble() { }
 	
                                 // operators
-    LaMatDouble& operator=(double s)
+    LaSpdMatDouble& operator=(double s)
 	{ LaSymmMatDouble::operator=(s); return *this; }
     LaSpdMatDouble& ref(const LaSpdMatDouble& A)
 	{ LaSymmMatDouble::ref(A); return *this; }

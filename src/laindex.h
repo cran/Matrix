@@ -21,7 +21,7 @@
 // LAPACK++ was funded in part by the U.S. Department of Energy, the
 // National Science Foundation and the State of Tennessee.
 //
-// Modifications Copyright (C) 2000-2000 the R Development Core Team
+// Modifications Copyright (C) 2000-2002 the R Development Core Team
 
 #ifndef _LA_INDEX_H_
 #define _LA_INDEX_H_
@@ -30,8 +30,7 @@
 // with the "index()" string function in C, or other generic Index()
 // functions.
 
-#include <iostream.h>   
-#include <stdio.h>
+#include <iostream>
 
 
 class LaIndex
@@ -41,13 +40,16 @@ protected:
     int inc_;
     int end_;
 public:
-    inline LaIndex() {start_ = inc_ = end_ = 0;}
-    inline LaIndex(int i1) {start_=i1, inc_=1; end_=i1;}
-    inline LaIndex(int i1, int i2){start_=i1; inc_=1; end_=i2;}
-    inline LaIndex(int i1, int i2, int i3){start_=i1; inc_=i3; end_=i2;}
-    inline LaIndex(const LaIndex &s) {
-	start_=s.start_; inc_=s.inc_; end_=s.end_;
-    }
+    inline LaIndex()
+        : start_(0), inc_(0), end_(0) {}
+    inline LaIndex(int i1)
+        : start_(i1), inc_(1), end_(i1) {}
+    inline LaIndex(int i1, int i2)
+        : start_(i1), inc_(1), end_(i2) {}
+    inline LaIndex(int i1, int i2, int i3)
+        : start_(i1), inc_(i3), end_(i2) {}
+    inline LaIndex(const LaIndex &s)
+        : start_(s.start_), inc_(s.inc_), end_(s.end_) {}
     ~LaIndex() { }
 
 // ** must have multply defined start(), inc() and end() member functions
@@ -66,14 +68,17 @@ public:
 					   inc() == 0  && end() == 0);}
     inline LaIndex& operator()(int i1, int i2){
 	start_=i1; inc_=1; end_=i2; return *this;}
-    inline LaIndex& operator+(int i){
-	start_+=i; end_+=i; return *this;}
+    inline LaIndex operator+(int i)
+    {
+        start_+=i; end_+=i;
+        return *this;
+    }
     inline LaIndex& operator=(const LaIndex& i){
 	start_=i.start_; inc_=1; end_=i.end_; 
 	return *this;}
 };
 
-inline ostream& operator<<(ostream& s, const LaIndex i)
+inline std::ostream& operator<<(std::ostream& s, const LaIndex i)
 {
     s << "(" << i.start() << ":" << i.inc() << ":" << i.end() << ")";
     

@@ -21,7 +21,7 @@
 // LAPACK++ was funded in part by the U.S. Department of Energy, the
 // National Science Foundation and the State of Tennessee.
 //
-// Modifications Copyright (C) 2000-2000 the R Development Core Team
+// Modifications Copyright (C) 2000-2000, 2002 the R Development Core Team
 
 //      Lapack++ "Shared" Vector Int Class
 //
@@ -41,11 +41,7 @@
 #ifndef _VECTOR_INT_H_
 #define _VECTOR_INT_H_    
 
-#include <iostream.h>       // for formatted printing of matrices
-
-#ifndef __ASSERT_H
-#include <assert.h>     // cheap "error" protection used in checking
-#endif                  // checking array bounds.
+#include <iostream>       // for formatted printing of matrices
 
 typedef  struct {
     int sz;                                        
@@ -67,15 +63,16 @@ public:
     ~VectorInt() ;                              
 				// Indices and access operations
     inline int& operator[](int);
-    inline int& operator[](int) const; // read only
+    inline int operator[](int) const; // read only
     inline int& operator()(int); 
-    inline int& operator()(int) const; // read only
+    inline int operator()(int) const; // read only
     inline operator int*(); 
     inline int size() const;
-    inline int null() const;
+    inline bool null() const;
     int resize(int d);
     inline int ref_count() const; // return the number of ref counts
-    inline int* addr() const;
+    inline int* addr();
+    inline const int* addr() const;
 				//  Assignment
     inline  VectorInt& operator=(const VectorInt&);
             VectorInt& operator=(int);
@@ -83,10 +80,10 @@ public:
             VectorInt& inject(VectorInt&);
             VectorInt& copy(const VectorInt&);
 				// I/O
-    friend ostream&   operator<<(ostream&, const VectorInt&);       
+    friend std::ostream&   operator<<(std::ostream&, const VectorInt&);       
 };                                                                     
 				// operators and member functions
-inline int VectorInt::null() const
+inline bool VectorInt::null() const
 {
     return (size() == 0) ;
 }
@@ -101,7 +98,12 @@ inline int VectorInt::ref_count() const
     return p->ref_count;
 }
 
-inline int* VectorInt::addr() const
+inline const int* VectorInt::addr() const
+{
+    return data;
+}
+
+inline int* VectorInt::addr()
 {
     return data;
 }
@@ -119,7 +121,7 @@ inline int& VectorInt::operator()(int i)
     return data[i];
 }
 
-inline int& VectorInt::operator()(int i) const
+inline int VectorInt::operator()(int i) const
 {
 #ifdef VECTOR_INT_BOUNDS_CHECK
     if (!(0<=i && i<size())) throw(LaException("assert failed : 0<=i && i<size()"));
@@ -137,7 +139,7 @@ inline int& VectorInt::operator[](int i)
 }
 
 //  *CHANGE*  [] is the same as ()
-inline int& VectorInt::operator[](int i) const
+inline int VectorInt::operator[](int i) const
 {
 #ifdef VECTOR_INT_BOUNDS_CHECK
     if (!(0<=i && i<size())) throw(LaException("assert failed : 0<=i && i<size()"));
@@ -166,7 +168,8 @@ inline VectorInt& VectorInt::ref(const VectorInt& m)
 
 inline VectorInt& VectorInt::operator=(const VectorInt& m)
 {
-    return  ref(m);
+    ref(m);
+    return *this;
 }
 
 #endif 

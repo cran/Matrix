@@ -28,6 +28,6 @@
 SEXP LaVectorInt::asSEXP() const
 {
     SEXP val = allocVector(INTSXP, size());
-    Memcpy(INTEGER(val), addr(), size());
+    memcpy(INTEGER(val), addr(), size()*sizeof(int));
     return val;
 }

@@ -58,7 +58,7 @@ LaSpdBandMatDouble& LaSpdBandMatDouble::copy(const LaSpdBandMatDouble &ob)
   return *this;
 }
 
-ostream& operator<<(ostream &s, const LaSpdBandMatDouble &ob)
+std::ostream& operator<<(std::ostream &s, const LaSpdBandMatDouble &ob)
 {
   if (*(ob.info_))     // print out only matrix info, not actual values
   {
@@ -83,7 +83,7 @@ ostream& operator<<(ostream &s, const LaSpdBandMatDouble &ob)
           else if (((j>=i)&&(j-i<=kl_)))
             s << ob(j,i) << ' ';
         }
-      s << "\n";
+      s << std::endl;
     }
   }
   return s;
@@ -114,7 +114,7 @@ double& LaSpdBandMatDouble::operator()(int i, int j)
 }
 
 
-const double& LaSpdBandMatDouble::operator()(int i, int j) const
+double LaSpdBandMatDouble::operator()(int i, int j) const
 {
 
 #ifdef LA_BOUNDS_CHK

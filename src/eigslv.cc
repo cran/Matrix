@@ -21,10 +21,10 @@
 // LAPACK++ was funded in part by the U.S. Department of Energy, the
 // National Science Foundation and the State of Tennessee.
 //
-// Modifications Copyright (C) 2000-2000 the R Development Core Team
+// Modifications Copyright (C) 2000-2000, 2002 the R Development Core Team
 
 
-#include <iostream.h>
+#include <iostream>
 #include "lapack.h"
 #include "lafnames.h"
 #include LA_GEN_MAT_DOUBLE_H

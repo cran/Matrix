@@ -21,7 +21,7 @@
 // LAPACK++ was funded in part by the U.S. Department of Energy, the
 // National Science Foundation and the State of Tennessee.
 //
-// Modifications Copyright (C) 2000-2001 the R Development Core Team
+// Modifications Copyright (C) 2000-2002 the R Development Core Team
 
 #ifndef _LA_QR_FACT_DOUBLE_H
 #define _LA_QR_FACT_DOUBLE_H
@@ -47,7 +47,10 @@ class LaQRFactorDouble : public Factor
 public:
 				// constructor
     LaQRFactorDouble()
-	: rank_(-1) { R_.ref(qr_); }
+        : qr_(), R_(), qraux_(), pivot_(), rank_(-1)
+    {
+        R_.ref(qr_);
+    }
     inline explicit LaQRFactorDouble(const LaGenMatDouble&);
     inline LaQRFactorDouble(const LaQRFactorDouble&);
 

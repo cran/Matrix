@@ -54,7 +54,7 @@ LaBandMatDouble LaBandMatDouble::copy(const LaBandMatDouble &ob)
   return *this;
 }
 
-ostream& operator<<(ostream &s, const LaBandMatDouble &ob)
+std::ostream& operator<<(std::ostream &s, const LaBandMatDouble &ob)
 {
   if (*(ob.info_))     // print out only matrix info, not actual values
   {
@@ -136,7 +136,7 @@ double& LaBandMatDouble::operator()(int i, int j)
 }
 
 
-const double& LaBandMatDouble::operator()(int i, int j) const
+double LaBandMatDouble::operator()(int i, int j) const
 {
 
 #ifdef LA_BOUNDS_CHK

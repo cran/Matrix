@@ -27,8 +27,9 @@ as.matrix.Matrix <- function(x)
 
 solve.Matrix <- function(a, b, tol = 0, transpose = FALSE, ...)
 {   ## short version of a solve method
-    if (missing(b)) return(.Call("R_LapackPP_solve", a, NULL))
-    .Call("R_LapackPP_solve", a, b)
+    if (missing(b)) return(.Call("R_LapackPP_solve", a,
+                                 NULL, PACKAGE="Matrix"))
+    .Call("R_LapackPP_solve", a, b, PACKAGE="Matrix")
 }
 
 Hermitian.test <- function(x)

@@ -21,7 +21,7 @@
 // LAPACK++ was funded in part by the U.S. Department of Energy, the
 // National Science Foundation and the State of Tennessee.
 //
-// Modifications Copyright (C) 2000-2000 the R Development Core Team
+// Modifications Copyright (C) 2000-2002 the R Development Core Team
 
 #include "lafnames.h"
 #ifndef _LA_GEN_MAT_DOUBLE_H_
@@ -40,15 +40,16 @@ public:
 
     // constructors
     LaLowerTriangMatDouble()
-	: data_() { };
+        : data_() { shallow_ = 0; }
     LaLowerTriangMatDouble(int i, int j)
-	: data_(i, j) { };
+        : data_(i, j) { }
     LaLowerTriangMatDouble(double* d, int i, int j)
-	: data_(d,i,j) { };
+        : data_(d,i,j) { }
     explicit LaLowerTriangMatDouble(SEXP s)
-	: data_(s) { };
+        : data_(s) { }
     LaLowerTriangMatDouble(const LaLowerTriangMatDouble& A)
-	{ data_.ref(A.data_); };
+        : data_()
+	{ data_.ref(A.data_); }
 
     // destructor
     ~LaLowerTriangMatDouble() { }
@@ -61,14 +62,26 @@ public:
         { return data_.index(d); }
     int ref_count() const          // return ref_count of matrix.
         { return data_.ref_count(); }
-    double* addr() const           // return address of matrix.
+    const double* addr() const           // return address of matrix.
+        { return data_.addr(); }
+    double* addr()               // return address of matrix.
         { return data_.addr(); }
 
     // operators
     double& operator()(int i,int j)
-	{ if (i < j) return outofbounds_; else return data_(i,j); }
-    const double& operator()(int i, int j) const
-	{ if (i < j) return outofbounds_; else return data_(i,j); }
+	{
+        if (i < j) {
+            outofbounds_ = 0;
+            return outofbounds_;
+        } else return data_(i,j);
+    }
+    double operator()(int i, int j) const
+	{
+        if (i < j) {
+            outofbounds_ = 0;
+            return outofbounds_;
+        } else return data_(i,j);
+    }
     LaMatDouble& operator=(double); 
 //      operator LaGenMatDouble()
 //  	{ LaGenMatDouble G; G.ref((*this).data_); return G; };
@@ -96,7 +109,7 @@ public:
     double rcond(char which) const;
     SEXP asSEXP() const;
 
-    ostream &printMatrix(ostream &) const;
+    std::ostream& printMatrix(std::ostream&) const;
 };
 
 inline LaLowerTriangMatDouble* LaLowerTriangMatDouble::clone() const

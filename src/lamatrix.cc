@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2000-2000 the R Development Core Team
+// Copyright (C) 2000-2000, 2002 the R Development Core Team
 //
 
 #include "lamatrix.h"
@@ -7,24 +7,24 @@
 
 int* LaMatrix::info_= new int;  // turn off info print flag.
 
-ostream& LaMatrix::Info(ostream& s)
+std::ostream& LaMatrix::Info(std::ostream& s)
 {
     s << "Size: (" << size(0) << "x" << size(1) << ") " ;
     s << "Indices: " << index(0) << " " << index(1);
     return s;
 }
 
-ostream& LaMatDouble::Info(ostream& s)
+std::ostream& LaMatDouble::Info(std::ostream& s)
 {
     LaMatrix::Info(s);
-    s << "addr: " << (unsigned) addr() << endl;
+    s << "addr: " << addr() << std::endl;
     return s;
 }
 
-ostream& LaMatInt::Info(ostream& s)
+std::ostream& LaMatInt::Info(std::ostream& s)
 {
     LaMatrix::Info(s);
-    s << "addr: " << (unsigned) addr() << endl;
+    s << "addr: " << addr() << std::endl;
     return s;
 }
 

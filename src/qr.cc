@@ -10,6 +10,8 @@
 #undef append
 #endif
 
+#include <valarray>
+
 LaQRFactorDouble& LaQRFactorDouble::ref(const LaGenMatDouble& A)
 {
     if(A.inc(0) != 1 || A.inc(1) != 1)
@@ -47,11 +49,11 @@ LaMatDouble& LaQRFactorDouble::applyQ(LaMatDouble& y, bool left,
     int lwork = y.size(1)*F77_NAME(ilaenv)(1, "DORMQR",
 					   opts, y.size(0), y.size(1),
 					   qr_.size(0), -1);
-    VectorDouble work(lwork);
+    std::valarray<double> work(lwork);
     F77_CALL(dormqr)(left?'L':'R', transpose?'T':'N', y.size(0), y.size(1),
-		     qr_.size(0), &qr_(0, 0), qr_.gdim(0),
-		     &qraux_(0), &y(0, 0), y.gdim(0), &work(0), lwork,
-		     info);
+                     qr_.size(0), qr_.addr(), qr_.gdim(0),
+                     qraux_.addr(), y.addr(), y.gdim(0), &work[0], lwork,
+                     info);
     if (info < 0)
 	throw(LaException("LaQRFactorDouble::applyQ",
 			  "illegal input "));
@@ -75,8 +77,8 @@ LaMatDouble& LaQRFactorDouble::solve(LaMatDouble& B) const
 //    dynamic_cast<LaGenMatDouble&>(B);
     applyQ(B);
     R_.solve(B);
-    F77_CALL(dlaswp)(B.size(1), &B(0, 0), B.gdim(0), pivot_.start(),
-		     pivot_.end(), &pivot_(0), pivot_.inc());
+    F77_CALL(dlaswp)(B.size(1), B.addr(), B.gdim(0), pivot_.start(),
+                     pivot_.end(), pivot_.addr(), pivot_.inc());
     return B;
 }
 
@@ -98,8 +100,8 @@ LaMatDouble& LaQRFactorDouble::solve(LaMatDouble& X, const LaMatDouble& B ) cons
 			   LaIndex(0, X.size(1) - 1));
     X.inject(XX);
     R_.solve(X);
-    F77_CALL(dlaswp)(X.size(1), &X(0, 0), X.gdim(0), pivot_.start(),
-		     pivot_.end(), &pivot_(0), pivot_.inc());
+    F77_CALL(dlaswp)(X.size(1), X.addr(), X.gdim(0), pivot_.start(),
+                     pivot_.end(), pivot_.addr(), pivot_.inc());
     return X;
 }
 

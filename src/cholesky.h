@@ -13,13 +13,13 @@ class LaSpdMatDouble;
 class LaCholeskyFactorDouble : public LaSymmFactor
 {
     LaSpdMatDouble* decomp_;
-    bool uplo_;
 
 public:
 				// constructor
     inline LaCholeskyFactorDouble();
     inline explicit LaCholeskyFactorDouble(const LaSpdMatDouble&);
     inline LaCholeskyFactorDouble(const LaCholeskyFactorDouble& F);
+    inline LaCholeskyFactorDouble& operator=(const LaCholeskyFactorDouble& F);
 
     inline ~LaCholeskyFactorDouble();
 
@@ -41,6 +41,10 @@ public:
 
 				// operators
     inline LaCholeskyFactorDouble& ref(const LaCholeskyFactorDouble& F);
+    LaCholeskyFactorDouble& ref(const LaSymmFactor& F)
+    {
+        return ref(dynamic_cast<const LaCholeskyFactorDouble&>(F));
+    }
     inline LaCholeskyFactorDouble& ref(LaSpdMatDouble&);
     inline LaCholeskyFactorDouble& ref(LaSymmMatDouble& A);
 };
@@ -50,19 +54,26 @@ public:
 // constructor/destructor functions
 
 inline LaCholeskyFactorDouble::LaCholeskyFactorDouble()
+    : decomp_(0)
 {
-    decomp_ = 0;
 }
 
 inline LaCholeskyFactorDouble::LaCholeskyFactorDouble(const LaCholeskyFactorDouble& F)
+    : decomp_(new LaSpdMatDouble)
 {
-    decomp_ = new LaSpdMatDouble;
     ref(F);
 }
 
-inline LaCholeskyFactorDouble::LaCholeskyFactorDouble(const LaSpdMatDouble& A)
+inline LaCholeskyFactorDouble&
+LaCholeskyFactorDouble::operator=(const LaCholeskyFactorDouble& F)
 {
-    decomp_ = new LaSpdMatDouble;
+    ref(F);
+    return *this;
+}
+
+inline LaCholeskyFactorDouble::LaCholeskyFactorDouble(const LaSpdMatDouble& A)
+    : decomp_(new LaSpdMatDouble)
+{
     LaSpdMatDouble A1;
     A1.copy(A);
     ref(A1);
@@ -90,7 +101,7 @@ inline const LaSpdMatDouble& LaCholeskyFactorDouble::localDecomp() const
 inline char LaCholeskyFactorDouble::uplo() const
 {
     if (decomp_ == 0)
-	throw(LaException("No decomposition present"));
+        throw(LaException("No decomposition present"));
     return decomp_->uplo();
 }
 
@@ -98,9 +109,8 @@ inline char LaCholeskyFactorDouble::uplo() const
 inline LaCholeskyFactorDouble& LaCholeskyFactorDouble::ref(const LaCholeskyFactorDouble& F)
 {
     if (decomp_ == 0)
-	decomp_ = new LaSpdMatDouble();
+        decomp_ = new LaSpdMatDouble();
     decomp_->ref(F.localDecomp());
-    uplo_ = F.uplo_;
     return *this;
 }
 
@@ -136,9 +146,9 @@ inline double LaCholeskyFactorDouble::rcond(double infnorm) const
     VectorDouble work(3*localDecomp().size(0));
     VectorInt iwork(localDecomp().size(0));
     int info;
-    F77_CALL(dpocon)(uplo(), localDecomp().size(0), &localDecomp()(0,0),
-		     localDecomp().gdim(0), infnorm, ans, &work(0),
-		     &iwork(0), info);
+    F77_CALL(dpocon)(uplo(), localDecomp().size(0), localDecomp().addr(),
+                     localDecomp().gdim(0), infnorm, ans, work.addr(),
+                     iwork.addr(), info);
     if (info < 0)
 	throw(LaException("LaCholeskyFactorDouble::rcond(double)",
 			  "illegal input"));
@@ -168,13 +178,13 @@ inline LaMatDouble& LaCholeskyFactorDouble::solve(LaMatDouble& B) const
 	throw(LaException("No decomposition present"));
     int info;
     F77_CALL(dpotrs)(uplo(), localDecomp().size(0), B.size(1),
-		     &localDecomp()(0,0), localDecomp().gdim(0),
-		     &B(0,0), B.gdim(0), info);
+                     localDecomp().addr(), localDecomp().gdim(0),
+                     B.addr(), B.gdim(0), info);
     return B;
 }
 
 inline LaMatDouble& LaCholeskyFactorDouble::solve(LaMatDouble& X,
-						  const LaMatDouble& B ) const
+                                                  const LaMatDouble& B ) const
 {
     if (decomp_ == 0)
 	throw(LaException("No decomposition present"));

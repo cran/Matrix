@@ -102,16 +102,16 @@ int* LaSpdTridiagMatDouble::info_= new int;  // turn off info print flag.
 #define OUTPUT_MATRIX
 #ifdef OUTPUT_MATRIX
 
-ostream& operator<<(ostream& s, const LaSpdTridiagMatDouble& td)
+std::ostream& operator<<(std::ostream& s, const LaSpdTridiagMatDouble& td)
 
 {
   if (*(td.info_))     // print out only matrix info, not actual values
   {
       *(td.info_) = 0; // reset the flag
       s << "maindiag: (" << td.d_.size() << ") " ;
-      s <<" #ref: "<< td.d_.ref_count() << endl;
+      s <<" #ref: "<< td.d_.ref_count() << std::endl;
       s << "subdiag: (" << td.dl_.size() << ") " ;
-      s <<" #ref: "<< td.dl_.ref_count()<< endl;
+      s <<" #ref: "<< td.dl_.ref_count()<< std::endl;
   }
   else
   {
@@ -136,9 +136,9 @@ ostream& operator<<(ostream& s, const LaSpdTridiagMatDouble& td)
                     s << "  ";
             }
         }
-        s << endl;
+        s << std::endl;
     }
-    s << endl;
+    s << std::endl;
   } 
   return s;
 }

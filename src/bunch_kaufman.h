@@ -12,16 +12,16 @@
 class LaBunchKaufmanFactorDouble : public LaSymmFactor
 {
     class LaSymmMatDouble* decomp_;
-    bool           uplo_;
     LaVectorInt    pivot_;
     bool           singular_;
 
 public:
 				// constructor
     LaBunchKaufmanFactorDouble()
-	{ decomp_ = 0; };
+        : decomp_(0), pivot_(), singular_(true) {}
     inline explicit LaBunchKaufmanFactorDouble(const class LaSymmMatDouble&);
     LaBunchKaufmanFactorDouble(const LaBunchKaufmanFactorDouble& F);
+    LaBunchKaufmanFactorDouble& operator=(const LaBunchKaufmanFactorDouble& F);
 
     inline ~LaBunchKaufmanFactorDouble();
 
@@ -29,13 +29,13 @@ public:
     const class LaSymmMatDouble& decomp() const
 	{
 	    if (decomp_ == 0)
-		throw(LaException("No decomposition present"));
+            throw(LaException("No decomposition present"));
 	    return *decomp_;
 	}
     class LaSymmMatDouble& decomp()
 	{
 	    if (decomp_ == 0)
-		throw(LaException("No decomposition present"));
+            throw(LaException("No decomposition present"));
 	    return *decomp_;
 	}
     const LaVectorInt& pivot() const
@@ -53,23 +53,35 @@ public:
 
 				// operators
     inline LaBunchKaufmanFactorDouble& ref(const LaBunchKaufmanFactorDouble& F);
+    LaBunchKaufmanFactorDouble& ref(const LaSymmFactor& F)
+    {
+        return ref(dynamic_cast<const LaBunchKaufmanFactorDouble&>(F));
+    }
     inline LaBunchKaufmanFactorDouble& ref(class LaSymmMatDouble&);
 };
 
 #include "symd.h"
 
 inline LaBunchKaufmanFactorDouble::LaBunchKaufmanFactorDouble(const LaSymmMatDouble& A)
+    : decomp_(new LaSymmMatDouble()), pivot_(), singular_(true)
 {
-    decomp_ = new LaSymmMatDouble();
     LaSymmMatDouble A1;
     A1.copy(A);
     ref(A1);
 }
 
 inline LaBunchKaufmanFactorDouble::LaBunchKaufmanFactorDouble(const LaBunchKaufmanFactorDouble& F)
+    : decomp_(new LaSymmMatDouble()), pivot_(), singular_(true)
 {
-    decomp_ = new LaSymmMatDouble;
     ref(F);
+}
+
+inline LaBunchKaufmanFactorDouble&
+LaBunchKaufmanFactorDouble::operator=(
+    const LaBunchKaufmanFactorDouble& F)
+{
+    ref(F);
+    return *this;
 }
 
 inline LaBunchKaufmanFactorDouble::~LaBunchKaufmanFactorDouble()
@@ -80,7 +92,7 @@ inline LaBunchKaufmanFactorDouble::~LaBunchKaufmanFactorDouble()
 inline char LaBunchKaufmanFactorDouble::uplo() const
 {
     if (decomp_ == 0)
-	throw(LaException("No decomposition present"));
+        throw(LaException("No decomposition present"));
     return decomp_->uplo();
 }
 
@@ -88,7 +100,7 @@ inline char LaBunchKaufmanFactorDouble::uplo() const
 inline LaBunchKaufmanFactorDouble& LaBunchKaufmanFactorDouble::ref(const LaBunchKaufmanFactorDouble& F)
 {
     if (decomp_ == 0)
-	decomp_ = new LaSymmMatDouble();
+        decomp_ = new LaSymmMatDouble();
     decomp_->ref(F.decomp());
     pivot_.ref(F.pivot());
     singular_ = F.singular();
@@ -98,10 +110,10 @@ inline LaBunchKaufmanFactorDouble& LaBunchKaufmanFactorDouble::ref(const LaBunch
 inline LaBunchKaufmanFactorDouble& LaBunchKaufmanFactorDouble::ref(LaSymmMatDouble& A)
 {
     if(A.inc(0) != 1 || A.inc(1) != 1)	
-	throw(LaException("LaBunchKaufmanFactorDouble::ref(const LaSymmMatDouble&)",
-			  "input matrix has non unit increment"));
+        throw(LaException("LaBunchKaufmanFactorDouble::ref(const LaSymmMatDouble&)",
+                          "input matrix has non unit increment"));
     if (decomp_ == 0)
-	decomp_ = new LaSymmMatDouble();
+        decomp_ = new LaSymmMatDouble();
     decomp_->ref(A);
     pivot_.resize(A.size(0));
     int info;
@@ -114,8 +126,8 @@ inline LaBunchKaufmanFactorDouble& LaBunchKaufmanFactorDouble::ref(LaSymmMatDoub
     F77_CALL(dsytrf)(uplo(), decomp().size(0), &decomp()(0, 0), decomp().gdim(0), &pivot_(0),
 		     &work(0), lwork, info);
     if (info < 0)
-	throw(LaException("LaBunchKaufmanFactorDouble::ref(const LaSymmMatDouble&)",
-			  "illegal input"));
+        throw(LaException("LaBunchKaufmanFactorDouble::ref(const LaSymmMatDouble&)",
+                          "illegal input"));
     singular_ = info > 0;
     return *this;
 }
@@ -123,52 +135,53 @@ inline LaBunchKaufmanFactorDouble& LaBunchKaufmanFactorDouble::ref(LaSymmMatDoub
 inline double LaBunchKaufmanFactorDouble::rcond(double infnorm) const
 {
     if (decomp_ == 0)
-	throw(LaException("No decomposition present"));
+        throw(LaException("No decomposition present"));
 
     double ans;
 
     VectorDouble work(5*decomp().size(0));
     VectorInt iwork(decomp().size(0));
     int info;
-    F77_CALL(dsycon)(uplo(), decomp().size(0), &(decomp()(0,0)),
-		     decomp().gdim(0), &(pivot()(0)), infnorm, ans,
-		     &work(0), &iwork(0), info);
+    F77_CALL(dsycon)(uplo(), decomp().size(0), decomp().addr(),
+                     decomp().gdim(0), pivot().addr(), infnorm, ans,
+                     work.addr(), iwork.addr(), info);
     if (info < 0)
-	throw(LaException("LaSymmMatDouble::rcond(char which)",
-			  "illegal input"));
+        throw(LaException("LaSymmMatDouble::rcond(char which)",
+                          "illegal input"));
     return ans;
 }
 
 inline LaMatDouble* LaBunchKaufmanFactorDouble::solve() const
 {
     if (decomp_ == 0)
-	throw(LaException("No decomposition present"));
+        throw(LaException("No decomposition present"));
 
     if (singular())
-	throw(LaException("LaBunchKaufmanFactorDouble::solve()",
-			  "singular matrix"));
+        throw(LaException("LaBunchKaufmanFactorDouble::solve()",
+                          "singular matrix"));
     int info;
     LaSymmMatDouble *ans = decomp().clone();
     VectorDouble work(decomp().size(0));
-    F77_CALL(dsytri)(uplo(), decomp().size(0), &(*ans)(0,0), decomp().gdim(0),
-		     &pivot_(0), &work(0), info);
+    F77_CALL(dsytri)(uplo(), decomp().size(0), ans->addr(), decomp().gdim(0),
+                     pivot_.addr(), work.addr(), info);
     if (info < 0)
 	throw(LaException("LaBunchKaufmanFactorDouble::solve()",
 			  "illegal input"));
     if (info > 0)
-	throw(LaException("LaBunchKaufmanFactorDouble::solve()",
-			  "singular matrix"));
+        throw(LaException("LaBunchKaufmanFactorDouble::solve()",
+                          "singular matrix"));
     return ans;
 }
 
 inline LaMatDouble& LaBunchKaufmanFactorDouble::solve(LaMatDouble& B) const
 {
     if (decomp_ == 0)
-	throw(LaException("No decomposition present"));
+        throw(LaException("No decomposition present"));
 
     int info;
-    F77_CALL(dsytrs)(uplo(), decomp().size(0), B.size(1), &decomp()(0,0),
-		     decomp().gdim(0), &pivot_(0), &B(0,0), B.gdim(0), info);
+    F77_CALL(dsytrs)(uplo(), decomp().size(0), B.size(1), decomp().addr(),
+                     decomp().gdim(0), pivot_.addr(), B.addr(), B.gdim(0),
+                     info);
     return B;
 }
 
@@ -176,7 +189,7 @@ inline LaMatDouble& LaBunchKaufmanFactorDouble::solve(LaMatDouble& X,
 						  const LaMatDouble& B ) const
 {
     if (decomp_ == 0)
-	throw(LaException("No decomposition present"));
+        throw(LaException("No decomposition present"));
 
     X.inject(B);
     return solve(X);

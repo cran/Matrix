@@ -21,7 +21,7 @@
 // LAPACK++ was funded in part by the U.S. Department of Energy, the
 // National Science Foundation and the State of Tennessee.
 //
-// Modifications Copyright (C) 2000-2000 the R Development Core Team
+// Modifications Copyright (C) 2000-2000, 2002 the R Development Core Team
 
 
 #ifndef _LA_GEN_FACT_DOUBLE_H
@@ -44,7 +44,7 @@ class LaLUFactorDouble : public Factor
 public:
 				// constructor
     LaLUFactorDouble()
-	: singular_(true) { };
+        : A_(), pivot_(), singular_(true) { }
     inline explicit LaLUFactorDouble(const LaGenMatDouble&);
     inline LaLUFactorDouble(const LaLUFactorDouble&);
 
@@ -73,8 +73,8 @@ public:
 
 // constructor/destructor functions
 
-inline LaLUFactorDouble::LaLUFactorDouble(const LaGenMatDouble& A) :
-    pivot_(min(A.size(0), A.size(1)))
+inline LaLUFactorDouble::LaLUFactorDouble(const LaGenMatDouble& A)
+    : A_(), pivot_(min(A.size(0), A.size(1))), singular_(true)
 {
     LaGenMatDouble A1;
     A1.copy(A);
@@ -82,6 +82,7 @@ inline LaLUFactorDouble::LaLUFactorDouble(const LaGenMatDouble& A) :
 }
 
 inline LaLUFactorDouble::LaLUFactorDouble(const LaLUFactorDouble& F)
+    : A_(), pivot_(), singular_(true)
 {
   A_.ref(F.A_);
   pivot_.ref(F.pivot_);
@@ -129,27 +130,27 @@ inline LaGenMatDouble* LaLUFactorDouble::solve() const
     int lwork = A_.size(0) *
 	F77_NAME(ilaenv)(1, "DGETRI", "", A_.size(0), -1, -1, -1);
     VectorDouble work(lwork);
-    F77_CALL(dgetri)(A_.size(0), &(*ans)(0,0), A_.gdim(0), &pivot_(0),
-		     &work(0), lwork, info);
+    F77_CALL(dgetri)(A_.size(0), ans->addr(), A_.gdim(0), pivot_.addr(),
+                     work.addr(), lwork, info);
     if (info < 0)
-	throw(LaException("LaLUFactorDouble::solve()",
-			  "illegal input"));
+        throw(LaException("LaLUFactorDouble::solve()",
+                          "illegal input"));
     if (info > 0)
-	throw(LaException("LaLUFactorDouble::solve()",
-			  "singular matrix"));
+        throw(LaException("LaLUFactorDouble::solve()",
+                          "singular matrix"));
     return ans;
 }
 
 inline LaMatDouble& LaLUFactorDouble::solve(LaMatDouble& B) const
 {
     if (singular_)
-	throw(LaException("singular matrix"));
+        throw(LaException("singular matrix"));
 
     dynamic_cast<LaGenMatDouble&>(B);
 
     int info;
-    F77_CALL(dgetrs)('N', A_.size(0), B.size(1), &A_(0,0),
-		     A_.gdim(0), &pivot_(0), &B(0,0), B.size(0), info);
+    F77_CALL(dgetrs)('N', A_.size(0), B.size(1), A_.addr(),
+                     A_.gdim(0), pivot_.addr(), B.addr(), B.size(0), info);
     return B;
 }
 
@@ -167,7 +168,7 @@ inline void LaGenMatFactorize(LaGenMatDouble &GM, LaLUFactorDouble &GF)
     integer m = GM.size(0), n = GM.size(1), lda = GM.gdim(0);
     integer info=0;
 
-    F77NAME(dgetrf)(&m, &n, &GM(0,0), &lda, &(GF.pivot()(0)), &info);
+    F77NAME(dgetrf)(&m, &n, GM.addr(), &lda, GF.pivot().addr(), &info);
 }
 
 inline void LaGenMatFactorizeUnblocked(LaGenMatDouble &A, LaLUFactorDouble &F)
@@ -175,7 +176,7 @@ inline void LaGenMatFactorizeUnblocked(LaGenMatDouble &A, LaLUFactorDouble &F)
     integer m = A.size(0), n=A.size(1), lda = A.gdim(0);
     integer info=0;
 
-    F77NAME(dgetf2)(&m, &n, &A(0,0), &lda, &(F.pivot()(0)), &info);
+    F77NAME(dgetf2)(&m, &n, A.addr(), &lda, F.pivot().addr(), &info);
 }
 #endif
 

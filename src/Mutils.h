@@ -28,10 +28,6 @@ void ssc_symbolic_permute(int n, int upper, const int perm[],
 			  int Ap[], int Ai[]);
 double *nlme_symmetrize(double *a, const int nc);
 void nlme_check_Lapack_error(int info, const char *laName);
-double *
-LMEgradient(const double* factor, const double* A, const int nlev,
-	    const int nc, const double* pdgradient, const int plen,
-	    double* value);
 SEXP nlme_replaceSlot(SEXP obj, SEXP names, SEXP value);
 SEXP nlme_weight_matrix_list(SEXP MLin, SEXP wts, SEXP adjst, SEXP MLout);
 

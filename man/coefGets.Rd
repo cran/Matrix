@@ -2,12 +2,6 @@
 \docType{genericFunction}
 \alias{coef<-}
 \alias{coef<--methods}
-\alias{coef<-,pdCompSymm,numeric-method}
-\alias{coef<-,pdDiag,numeric-method}
-\alias{coef<-,pdIdent,numeric-method}
-\alias{coef<-,pdLogChol,numeric-method}
-\alias{coef<-,pdNatural,numeric-method}
-\alias{coef<-,reStruct,numeric-method}
 \alias{coef<-,ssclme,numeric-method}
 \title{Assign parameters}
 \description{
@@ -29,13 +23,9 @@ coef(object, \dots) <- value
   \code{object} with an updated parameter vector
 }
 %\references{}
-\author{Douglas Bates \email{bates@stat.wisc.edu}
-  and Saikat DebRoy \email{saikat@stat.wisc.edu}}
+%\author{Douglas Bates \email{bates@stat.wisc.edu}
+%  and Saikat DebRoy \email{saikat@stat.wisc.edu}}
 %\note{}
 %\seealso{}
-\examples{
-m1 <- pdLogChol(~ age)
-coef(m1) <- rnorm(3)
-m1
-}
+%\examples{}
 \keyword{manip}

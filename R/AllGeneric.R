@@ -60,11 +60,11 @@ if (!isGeneric("corMatrix")) {
     setGeneric("corMatrix", function(object, ...) standardGeneric("corMatrix"))
 }
 
-if (!isGeneric("isInitialized")) {
-    setGeneric("isInitialized",
-               function(object) standardGeneric("isInitialized"),
-               valueClass = "logical")
-}
+# if (!isGeneric("isInitialized")) {
+#     setGeneric("isInitialized",
+#                function(object) standardGeneric("isInitialized"),
+#                valueClass = "logical")
+# }
 
 if (!isGeneric("matrix<-")) {
     setGeneric("matrix<-",

@@ -12,11 +12,6 @@ SOURCES_C =  \
             factorizations.c \
             geMatrix.c \
 	    ldl.c \
-	    pdDiag.c \
-	    pdIdent.c \
-	    pdLogChol.c \
-	    pdMat.c \
-	    pdNatural.c \
             poMatrix.c \
             sscCrosstab.c \
             sscMatrix.c \

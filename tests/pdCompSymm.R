@@ -1,2 +1,0 @@
-library(Matrix)
-showClass('pdCompSymm')

@@ -3,7 +3,7 @@
 \docType{genericFunction}
 \alias{pdFactor}
 \alias{pdFactor-methods}
-\alias{pdFactor,pdMat-method}
+%\alias{pdFactor,pdMat-method}
 \title{Square-root factor}
 \description{This generic function extracts the square-root factor of
   the positive-definite matrix represented by \code{object}. Letting
@@ -25,6 +25,6 @@ pdFactor(object)
 \value{
   A \code{pdfactor} object.
 }
-\seealso{\code{\link{pdMat-class}}, \code{\link{pdfactor-class}}}
+\seealso{\code{\link{pdfactor-class}}}
 %\examples{}
 \keyword{models}

@@ -3,7 +3,7 @@
 \docType{genericFunction}
 \alias{pdMatrix}
 \alias{pdMatrix-methods}
-\alias{pdMatrix,pdMat-method}
+%\alias{pdMatrix,pdMat-method}
 \title{Return the positive-definite matrix}
 \description{This generic function extracts the positive-definite matrix
   represented by \code{object}.
@@ -22,6 +22,6 @@ pdMatrix(object)
 \value{
   A \code{pdmatrix} object.
 }
-\seealso{\code{\link{pdmatrix-class}}, \code{\link{pdMat-class}}}
+\seealso{\code{\link{pdmatrix-class}}}
 %\examples{}
 \keyword{models}

@@ -410,42 +410,6 @@ nlme_check_Lapack_error(int info, const char *laName)
 }
 
 /** 
- * Calculate the inner product of vec(nlev*D^{-1} - A'A)/2 and the
- * pdgradient array regarded as a nc*nc by plen matrix.  This
- * calculation is used in several of the LMEgradient methods.
- * 
- * @param factor The nc by nc factor of the pdMat object
- * @param A The nc by nc matrix A from the LME decomposition.
- * @param nlev The number of groups associated with the random effect
- * @param nc The number of columns in the matrix
- * @param pdgradient A pdgradient object of dimension nc by nc by plen
- * @param value An array of length plen in which the gradient will be  returned
- * 
- * @return value, with the LME gradient
- */
-double *
-LMEgradient(const double* factor, const double* A, const int nlev,
-	     const int nc, const double* pdgradient, const int plen,
-	     double* value)
-{
-    int info, ncsq = nc*nc, one_i = 1;
-    double nlev2_d = ((double) nlev)/2., mhalf_d = -0.5, one_d = 1.0,
-	zero_d = 0.0;
-    double *fact = Calloc(nc * nc, double);
-    
-    F77_CALL(dlacpy)("U", &nc, &nc, factor, &nc, fact, &nc);
-    F77_CALL(dpotri)("U", &nc, fact, &nc, &info);
-    nlme_check_Lapack_error(info, "dpotri");
-    F77_CALL(dsyrk)("U", "T", &nc, &nc, &mhalf_d, A, &nc, &nlev2_d,
-		    fact, &nc);
-    nlme_symmetrize(fact, nc);
-    F77_CALL(dgemv)("T", &ncsq, &plen, &one_d, pdgradient, &ncsq,
-		    fact, &one_i, &zero_d, value, &one_i);
-    Free(fact);
-    return value;
-}
-
-/** 
  * Replace the value of a slot or subslot of an object in place.  This
  * routine purposely does not copy the value of obj.  Use with caution.
  * 

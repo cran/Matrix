@@ -14,20 +14,12 @@ cscMatrix-class         Class "cscMatrix" compressed, sparse, column
 expand                  Expand a Decomposition into Factors
 facmul                  Multiplication by Decomposition Factors
 geMatrix-class          General S4 Matrix class
-isInitialized           Check for initialization
 lu                      Triangular Decomposition of a Square Matrix
 matrix<-                Assign the matrix
 mm                      A sample sparse model matrix
 norm                    Norm of a Matrix
-pdBlocked-class         Class "pdBlocked", blocked pd matrices
-pdCompSymm-class        Class "pdCompSymm"
-pdDiag-class            Class "pdDiag"
 pdFactor                Square-root factor
-pdIdent-class           Class "pdIdent"
-pdLogChol-class         Class "pdLogChol", positive-definite matrices
-pdMat-class             Class pdMat, positive-definite matrices
 pdMatrix                Return the positive-definite matrix
-pdNatural-class         Class "pdNatural", positive-definite matrices
 pdfactor-class          Factors of positive-definite matrices
 pdmatrix-class          Positive-definite matrices
 poMatrix-class          Positive semi-definite, dense, real matrices

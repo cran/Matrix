@@ -34,6 +34,6 @@ Class \code{"vector"}, by class "matrix".
 %\references{}
 %\author{Douglas Bates \email{bates@stat.wisc.edu} and Saikat DebRoy \email{saikat@stat.wisc.edu}}
 %\note{}
-\seealso{\code{\link{pdMat-class}}, \code{\link{pdmatrix-class}}}
+\seealso{\code{\link{pdmatrix-class}}}
 %\examples{}
 \keyword{classes}

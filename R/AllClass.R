@@ -147,36 +147,36 @@ setClass("ssclme", representation =
          validity = function(object)
          .Call("ssclme_validate", object, PACKAGE = "Matrix"))
 
-setClass("pdMat",      # parameterized positive-definite matrices
-         representation(form="formula",    # a model-matrix formula
-                        Names="character", # column (and row) names
-                        param="numeric",   # parameter vector
-                        Ncol="integer",    # number of columns
-                        factor="matrix",   # factor of the pos-def matrix
-                        logDet="numeric"   # logarithm of the absolute value
-                        ## of the determinant of the factor (i.e. half
-                        ## the logarithm of the determinant of the matrix)
-                        ),
-         prototype(form=formula(NULL),
-                   Names=character(0),
-                   param=numeric(0),
-                   Ncol=as.integer(0),
-                   factor=matrix(numeric(0),0,0),
-                   logDet=numeric(0))
-         )
+# setClass("pdMat",      # parameterized positive-definite matrices
+#          representation(form="formula",    # a model-matrix formula
+#                         Names="character", # column (and row) names
+#                         param="numeric",   # parameter vector
+#                         Ncol="integer",    # number of columns
+#                         factor="matrix",   # factor of the pos-def matrix
+#                         logDet="numeric"   # logarithm of the absolute value
+#                         ## of the determinant of the factor (i.e. half
+#                         ## the logarithm of the determinant of the matrix)
+#                         ),
+#          prototype(form=formula(NULL),
+#                    Names=character(0),
+#                    param=numeric(0),
+#                    Ncol=as.integer(0),
+#                    factor=matrix(numeric(0),0,0),
+#                    logDet=numeric(0))
+#          )
 
 #setClass("pdSymm", contains="pdMat")    # general symmetric pd matrices
 
 #setClass("pdScalar", contains="pdMat") # special case of positive scalars
-setClass("pdLogChol", contains="pdMat") # default parameterization
-setClass("pdNatural", contains="pdMat") # log sd and logistic of correlation
+# setClass("pdLogChol", contains="pdMat") # default parameterization
+# setClass("pdNatural", contains="pdMat") # log sd and logistic of correlation
 #setClass("pdMatrixLog", contains="pdSymm") # matrix logarithm parameterization
 
-setClass("pdDiag", contains="pdMat")    # diagonal pd matrices
+# setClass("pdDiag", contains="pdMat")    # diagonal pd matrices
 
-setClass("pdIdent", contains="pdMat")   # positive multiple of the identity
+# setClass("pdIdent", contains="pdMat")   # positive multiple of the identity
 
-setClass("pdCompSymm", contains="pdMat") # compound symmetric pd matrices
+# setClass("pdCompSymm", contains="pdMat") # compound symmetric pd matrices
 
 #setClass("pdBlocked",                   # block-diagonal pd matrices
 #         representation("pdMat", components = "list"))

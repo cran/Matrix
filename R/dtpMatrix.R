@@ -31,8 +31,8 @@ setMethod("%*%", signature(x = "matrix", y = "dtpMatrix"),
           function(x, y) callGeneric(as(x, "dgeMatrix"), y))
 
 ## dtpMatrix <-> numeric : the auxiliary functions are R version specific!
-setMethod("%*%", signature(x = "dtpMatrix", y = "numeric"), .M.v)
-setMethod("%*%", signature(x = "numeric", y = "dtpMatrix"), .v.M)
+##setMethod("%*%", signature(x = "dtpMatrix", y = "numeric"), .M.v)
+##setMethod("%*%", signature(x = "numeric", y = "dtpMatrix"), .v.M)
 
 
 setMethod("determinant", signature(x = "dtpMatrix", logarithm = "missing"),

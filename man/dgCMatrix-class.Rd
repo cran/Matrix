@@ -1,6 +1,8 @@
 \name{dgCMatrix-class}
 \docType{class}
 \alias{dgCMatrix-class}
+\alias{\%*\%,dgCMatrix,dgeMatrix-method}
+\alias{\%*\%,dgCMatrix,matrix-method}
 \alias{coerce,matrix,dgCMatrix-method}
 \alias{coerce,dgCMatrix,dgTMatrix-method}
 \alias{coerce,dgCMatrix,dgBCMatrix-method}
@@ -8,7 +10,7 @@
 \alias{coerce,dgCMatrix,dgeMatrix-method}
 \alias{crossprod,dgCMatrix,missing-method}
 \alias{crossprod,dgCMatrix,matrix-method}
-\alias{crossprod,dgCMatrix,numeric-method}
+\alias{crossprod,dgCMatrix,dgeMatrix-method}
 \alias{diag,dgCMatrix-method}
 \alias{dim,dgCMatrix-method}
 \alias{image,dgCMatrix-method}

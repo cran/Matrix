@@ -2,7 +2,10 @@
 \docType{class}
 \alias{sparseMatrix-class}
 \alias{show,sparseMatrix-method}
-
+\alias{\%*\%,sparseMatrix,ddenseMatrix-method}
+\alias{\%*\%,ddenseMatrix,sparseMatrix-method}
+\alias{crossprod,sparseMatrix,ddenseMatrix-method}
+\alias{crossprod,ddenseMatrix,sparseMatrix-method}
 \title{Virtual Class "sparseMatrix" --- Mother of Sparse Matrices}
 \description{Virtual Mother Class of All Sparse Matrices}
 \section{Slots}{
@@ -17,6 +20,14 @@
       \code{\link{show}} method for sparse matrices prints
       \emph{\dQuote{structural}} zeroes as \code{"."} or blank.}
   }
+}
+\note{
+  In method selection for multiplication operations (i.e. \code{\%*\%}
+  and the two-argument form of \code{\link[base]{crossprod}}) 
+  the sparseMatrix class takes precedence in the sense that if one
+  operand is a sparse matrix and the other is any type of dense matrix
+  then the dense matrix is coerced to a \code{dgeMatrix} and the
+  appropriate sparse matrix method is used.
 }
 %\author{Martin}
 \examples{

@@ -10,6 +10,34 @@ if(paste(R.version$major, R.version$minor, sep=".") < "2.0.1") {
 setAs("dMatrix", "matrix",
       function(from) as(as(from, "dgeMatrix"), "matrix"))
 
+## Methods for operations where one argument is integer
+
+setMethod("%*%", signature(x = "dMatrix", y = "integer"),
+          function(x, y)
+          callGeneric(x, array(as.numeric(y), c(length(y), 1))),
+          valueClass = "dgeMatrix")
+
+setMethod("%*%", signature(x = "integer", y = "dMatrix"),
+          function(x, y)
+          callGeneric(array(as.numeric(x), c(1, length(x))), y),
+          valueClass = "dgeMatrix")
+
+setMethod("crossprod", signature(x = "dMatrix", y = "integer"),
+          function(x, y = NULL)
+          callGeneric(x, array(as.numeric(y), c(length(y), 1))),
+          valueClass = "dgeMatrix")
+
+setMethod("crossprod", signature(x = "integer", y = "dMatrix"),
+          function(x, y = NULL)
+          callGeneric(array(as.numeric(x), c(1, length(x))), y),
+          valueClass = "dgeMatrix")
+
+setMethod("solve", signature(a = "dMatrix", b = "integer"),
+          function(a, b, ...)
+          callGeneric(a, array(as.numeric(b), c(length(b), 1))),
+          valueClass = "dgeMatrix")
+
+
 ## Group Methods, see ?Arith (e.g.)
 ## -----
 

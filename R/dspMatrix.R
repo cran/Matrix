@@ -27,9 +27,9 @@ setMethod("%*%", signature(x = "dspMatrix", y = "matrix"),
           function(x, y) .Call("dspMatrix_matrix_mm", x, y, FALSE),
           valueClass = "dgeMatrix")
 
-setMethod("%*%", signature(x = "dspMatrix", y = "numeric"),
-          function(x, y) .Call("dspMatrix_matrix_mm", x, as.matrix(y), FALSE),
-          valueClass = "dgeMatrix")
+##setMethod("%*%", signature(x = "dspMatrix", y = "numeric"),
+##          function(x, y) .Call("dspMatrix_matrix_mm", x, as.matrix(y), FALSE),
+##          valueClass = "dgeMatrix")
 
 setMethod("%*%", signature(x = "dspMatrix", y = "integer"),
           function(x, y) {
@@ -51,10 +51,10 @@ setMethod("solve", signature(a = "dspMatrix", b = "dgeMatrix"),
 	  .Call("dspMatrix_matrix_solve", a, as(b,"matrix"), TRUE),
 	  valueClass = "dgeMatrix")
 
-setMethod("solve", signature(a = "dspMatrix", b = "numeric"),
-	  function(a, b, ...)
-	  .Call("dspMatrix_matrix_solve", a, as.matrix(b), FALSE),
-	  valueClass = "dgeMatrix")
+##setMethod("solve", signature(a = "dspMatrix", b = "numeric"),
+##	  function(a, b, ...)
+##	  .Call("dspMatrix_matrix_solve", a, as.matrix(b), FALSE),
+##	  valueClass = "dgeMatrix")
 
 setMethod("solve", signature(a = "dspMatrix", b = "integer"),
 	  function(a, b, ...) {

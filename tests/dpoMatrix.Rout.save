@@ -1,6 +1,6 @@
 
 R : Copyright 2005, The R Foundation for Statistical Computing
-Version 2.0.1 Patched (2005-03-15), ISBN 3-900051-07-0
+Version 2.1.0 alpha (2005-03-31), ISBN 3-900051-07-0
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -33,7 +33,7 @@ Formal class 'dpoMatrix' [package "Matrix"] with 6 slots
   .. ..$ : NULL
   .. ..$ : NULL
 > all.equal(determinant(h9)$modulus, -96.7369450737858, tol= 1e-15)
-[1] "Mean relative  difference: 1.043917e-08"
+[1] TRUE
 > ##-> TRUE only on some platforms; seen relative difference of 10^-8
 > stopifnot(0 == length(h9@factors))# nothing yet
 > str(f9 <- as(chol(h9), "dtrMatrix"))

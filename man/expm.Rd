@@ -1,5 +1,6 @@
 \name{expm}
 \alias{expm}
+\alias{expm,ddenseMatrix-method}
 \alias{expm,dgeMatrix-method}
 \title{Matrix exponential}
 \description{

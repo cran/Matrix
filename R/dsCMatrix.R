@@ -17,10 +17,19 @@ setAs("dsCMatrix", "dsyMatrix",
       function(from) as(as(from, "dsTMatrix"), "dsyMatrix"))
 }# not yet
 
+setMethod("solve", signature(a = "dsCMatrix", b = "dgeMatrix"),
+          function(a, b, ...)
+          .Call("dsCMatrix_matrix_solve", a, b, TRUE),
+          valueClass = "dgeMatrix")
 
 setMethod("solve", signature(a = "dsCMatrix", b = "matrix"),
           function(a, b, ...)
-          .Call("dsCMatrix_matrix_solve", a, b))
+          .Call("dsCMatrix_matrix_solve", a, b, FALSE),
+          valueClass = "dgeMatrix")
+
+##setMethod("solve", signature(a = "dsCMatrix", b = "numeric"),
+##          function(a, b, ...) callGeneric(a, as.matrix(b)),
+##          valueClass = "dgeMatrix")
 
 setMethod("chol", signature(x = "dsCMatrix", pivot = "missing"),
           function(x, pivot, LINPACK) .Call("dsCMatrix_chol", x, TRUE))

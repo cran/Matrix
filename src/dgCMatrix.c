@@ -161,33 +161,40 @@ SEXP csc_tcrossprod(SEXP x)
     return ans;
 }
 
-SEXP csc_matrix_crossprod(SEXP x, SEXP y)
+SEXP csc_matrix_crossprod(SEXP x, SEXP y, SEXP classed)
 {
-    SEXP pslot = GET_SLOT(x, Matrix_pSym), ans;
-    int j,
-	*xp = INTEGER(pslot),
-	*xi = INTEGER(GET_SLOT(x, Matrix_iSym)),
-	xncol = length(pslot) - 1,
-	xnrow = INTEGER(GET_SLOT(x, Matrix_DimSym))[0],
-	*ydims;
-    double *xx = REAL(GET_SLOT(x, Matrix_xSym));
+    int cl = asLogical(classed);
+    SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dgeMatrix")));
+    int *xdims = INTEGER(GET_SLOT(x, Matrix_DimSym)),
+	*ydims = INTEGER(cl ? GET_SLOT(y, Matrix_DimSym) :
+			 getAttrib(y, R_DimSymbol)),
+	*vdims = INTEGER(ALLOC_SLOT(val, Matrix_DimSym, INTSXP, 2));
+    int *xi = INTEGER(GET_SLOT(x, Matrix_iSym)),
+	*xp = INTEGER(GET_SLOT(x, Matrix_pSym));
+    int j, k = xdims[0], m = xdims[1], n = ydims[1];
+    double *vx, *xx = REAL(GET_SLOT(x, Matrix_xSym)),
+	*yx = REAL(cl ? GET_SLOT(y, Matrix_xSym) : y);
 
-    if (!(isMatrix(y) && isReal(y))) error(_("y must be a numeric matrix"));
-    ydims = INTEGER(getAttrib(y, R_DimSymbol));
-    if (xnrow != ydims[0]) error(_("x and y must have the same number of rows"));
-    ans = PROTECT(allocMatrix(REALSXP, xncol, ydims[1]));
-    for (j = 0; j < ydims[1]; j++) {
-	int i; double *ypt = REAL(y) + j * ydims[0];
-	for(i = 0; i < xncol; i++) {
+    if (!cl && !(isMatrix(y) && isReal(y)))
+	error(_("y must be a numeric matrix"));
+    if (ydims[0] != k)
+	error(_("x and y must have the same number of rows"));
+    if (m < 1 || n < 1 || k < 1)
+	error(_("Matrices with zero extents cannot be multiplied"));
+    vdims[0] = m; vdims[1] = n;
+    vx = REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, m * n));
+    for (j = 0; j < n; j++) {
+	int i; double *ypt = yx + j * k;
+	for(i = 0; i < m; i++) {
 	    int ii; double accum = 0.;
 	    for (ii = xp[i]; ii < xp[i+1]; ii++) {
 		accum += xx[ii] * ypt[xi[ii]];
 	    }
-	    REAL(ans)[i + j * xncol] = accum;
+	    vx[i + j * m] = accum;
 	}
     }
     UNPROTECT(1);
-    return ans;
+    return val;
 }
 
 SEXP compressed_to_dgTMatrix(SEXP x, SEXP colP)

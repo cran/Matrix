@@ -1,6 +1,6 @@
 #### Sparse Matrices in Compressed column-oriented format
 
-### contains = "dMatrix"
+### contains = "dsparseMatrix"
 
 setAs("dgCMatrix", "dgTMatrix",
       function(from) .Call("compressed_to_dgTMatrix", from, TRUE))
@@ -22,13 +22,20 @@ setAs("matrix", "dgCMatrix",
       })
 
 setMethod("crossprod", signature(x = "dgCMatrix", y = "missing"),
-          function(x, y = NULL) .Call("csc_crossprod", x))
+          function(x, y = NULL) .Call("csc_crossprod", x),
+          valueClass = "dsCMatrix")
+
+setMethod("crossprod", signature(x = "dgCMatrix", y = "dgeMatrix"),
+          function(x, y = NULL) .Call("csc_matrix_crossprod", x, y, TRUE),
+          valueClass = "dgeMatrix")
 
 setMethod("crossprod", signature(x = "dgCMatrix", y = "matrix"),
-          function(x, y = NULL) .Call("csc_matrix_crossprod", x, y))
+          function(x, y = NULL) .Call("csc_matrix_crossprod", x, y, FALSE),
+          valueClass = "dgeMatrix")
 
-setMethod("crossprod", signature(x = "dgCMatrix", y = "numeric"),
-          function(x, y = NULL) .Call("csc_matrix_crossprod", x, as.matrix(y)))
+##setMethod("crossprod", signature(x = "dgCMatrix", y = "numeric"),
+##          function(x, y = NULL) callGeneric(x, as.matrix(y)),
+##          valueClass = "dgeMatrix")
 
 setMethod("tcrossprod", signature(x = "dgCMatrix"),
           function(x) .Call("csc_tcrossprod", x))
@@ -49,3 +56,8 @@ setMethod("image", "dgCMatrix",
               x = as(x, "dgTMatrix")
               callGeneric()
           })
+
+setMethod("%*%", signature(x = "dgCMatrix", y = "dgeMatrix"),
+          function(x, y) .Call("dgCMatrix_matrix_mm", x, y, TRUE, FALSE),
+          valueClass = "dgeMatrix")
+

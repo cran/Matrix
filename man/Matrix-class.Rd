@@ -1,6 +1,11 @@
 \name{Matrix-class}
 \docType{class}
 \alias{Matrix-class}
+\alias{\%*\%,Matrix,numeric-method}
+\alias{\%*\%,numeric,Matrix-method}
+\alias{crossprod,Matrix,numeric-method}
+\alias{crossprod,numeric,Matrix-method}
+\alias{solve,Matrix,numeric-method}
 \alias{dim,Matrix-method}
 \alias{dimnames,Matrix-method}
 \alias{dimnames<-,Matrix,list-method}
@@ -8,7 +13,6 @@
 \alias{as.matrix,Matrix-method}
 \alias{unname,Matrix-method}
 %\alias{coerce,Matrix,matrix-method}
-
 \title{Virtual Class "Matrix" Class of Matrices}
 \description{
   The \code{Matrix} class is a class contained by all actual

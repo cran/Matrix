@@ -89,18 +89,22 @@ SEXP dsCMatrix_chol(SEXP x, SEXP pivot)
     return set_factors(xorig, val, "Cholesky");
 }
 
-SEXP dsCMatrix_matrix_solve(SEXP a, SEXP b)
+SEXP dsCMatrix_matrix_solve(SEXP a, SEXP b, SEXP classed)
 {
+    int cl = asLogical(classed);
     SEXP Chol = get_factors(a, "Cholesky"), perm,
-	val = PROTECT(duplicate(b));
+	bdP = cl ? GET_SLOT(b, Matrix_DimSym) : getAttrib(b, R_DimSymbol),
+	val = PROTECT(NEW_OBJECT(MAKE_CLASS("dgeMatrix")));
     int *adims = INTEGER(GET_SLOT(a, Matrix_DimSym)),
-	*bdims = INTEGER(getAttrib(b, R_DimSymbol)),
-	*Li, *Lp, j, n = adims[1], ncol = bdims[1], piv;
-    double *Lx, *D, *in = REAL(b), *out = REAL(val), *tmp = (double *) NULL;
+	*bdims = INTEGER(bdP), *Li, *Lp, j, piv;
+    int n = adims[1], ncol = bdims[1];
+    double *Lx, *D, *in = REAL(cl ? GET_SLOT(b, Matrix_xSym) : b),
+	*out = REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, n * ncol)),
+	*tmp = (double *) NULL;
 
-    if (!(isReal(b) && isMatrix(b)))
+    if (!cl && !(isReal(b) && isMatrix(b)))
 	error(_("Argument b must be a numeric matrix"));
-    if (*adims != *bdims || bdims[1] < 1 || *adims < 1)
+    if (*adims != *bdims || ncol < 1 || *adims < 1)
 	error(_("Dimensions of system to be solved are inconsistent"));
     if (Chol == R_NilValue) Chol = dsCMatrix_chol(a, ScalarLogical(1));
     perm = GET_SLOT(Chol, Matrix_permSym);

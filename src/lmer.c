@@ -998,7 +998,7 @@ SEXP lmer_fixef(SEXP x)
  *
  * @param x Pointer to an lme object
  *
- * @return a vector containing the conditional modes of the random effects
+ * @return a list of matrices containing the conditional modes of the random effects
  */
 SEXP lmer_ranef(SEXP x)
 {
@@ -1552,16 +1552,18 @@ SEXP lmer_fitted(SEXP x, SEXP mmats, SEXP useRf)
 	int i;
 	SEXP b = PROTECT(lmer_ranef(x));
 	for (i = 0; i < nf; i++) {
+	    SEXP bi = VECTOR_ELT(b, i);
+	    int mi = INTEGER(getAttrib(bi, R_DimSymbol))[0];
 	    int *ff = INTEGER(VECTOR_ELT(flist, i)), j, nci = nc[i];
-	    double *bb = REAL(VECTOR_ELT(b, i)),
-		*mm = REAL(VECTOR_ELT(mmats, i));
+	    double *mm = REAL(VECTOR_ELT(mmats, i));
+
 	    for (j = 0; j < nobs; ) {
 		int nn = 1, lev = ff[j];
 		/* check for adjacent rows with same factor level */
 		while ((j + nn) < nobs && ff[j + nn] == lev) nn++; 
-		F77_CALL(dgemm)("N", "N", &nn, &ione, &nci,
+		F77_CALL(dgemm)("N", "T", &nn, &ione, &nci,
 				&one, mm + j, &nobs,
-				bb + (lev - 1) * nci, &nci,
+				REAL(bi) + (lev - 1), &mi,
 				&one, REAL(val) + j, &nobs);
 		j += nn;
 	    }

@@ -7,7 +7,7 @@
 SEXP dgeMatrix_validate(SEXP obj);
 SEXP dgeMatrix_norm(SEXP obj, SEXP norm);
 SEXP dgeMatrix_rcond(SEXP obj, SEXP type);
-SEXP dgeMatrix_crossprod(SEXP x);
+SEXP dgeMatrix_crossprod(SEXP x, SEXP trans);
 SEXP dgeMatrix_dgeMatrix_crossprod(SEXP x, SEXP y);
 SEXP dgeMatrix_matrix_crossprod(SEXP x, SEXP y);
 SEXP dgeMatrix_getDiag(SEXP x);

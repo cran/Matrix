@@ -4,7 +4,10 @@
 Schur(x, vectors, \dots)
 }
 \alias{Schur}
-%\alias{Schur.Matrix}
+\alias{Schur,dgeMatrix,logical-method}
+\alias{Schur,dgeMatrix,missing-method}
+\alias{Schur,ddenseMatrix,logical-method}
+\alias{Schur,ddenseMatrix,missing-method}
 \description{
     Computes the Schur decomposition and eigenvalues of a square matrix.
 }

@@ -3,6 +3,7 @@
 \alias{dsCMatrix-class}
 \alias{dsTMatrix-class}
 \alias{solve,dsCMatrix,matrix-method}
+\alias{solve,dsCMatrix,dgeMatrix-method}
 \alias{chol,dsCMatrix,missing-method}
 \alias{chol,dsCMatrix,logical-method}
 \alias{t,dsCMatrix-method}

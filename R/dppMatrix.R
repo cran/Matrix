@@ -31,10 +31,10 @@ setMethod("solve", signature(a = "dppMatrix", b = "matrix"),
           .Call("dppMatrix_matrix_solve", a, b, FALSE),
           valueClass = "dgeMatrix")
 
-setMethod("solve", signature(a = "dppMatrix", b = "numeric"),
-          function(a, b, ...)
-          .Call("dppMatrix_matrix_solve", a, as.matrix(b), FALSE),
-          valueClass = "dgeMatrix")
+##setMethod("solve", signature(a = "dppMatrix", b = "numeric"),
+##          function(a, b, ...)
+##          .Call("dppMatrix_matrix_solve", a, as.matrix(b), FALSE),
+##          valueClass = "dgeMatrix")
 
 setMethod("solve", signature(a = "dppMatrix", b = "integer"),
           function(a, b, ...) {

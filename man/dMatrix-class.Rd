@@ -13,7 +13,12 @@
 % for silly reasons, need these 2 as well:
 \alias{round,dMatrix,numeric-method}
 \alias{signif,dMatrix,numeric-method}
-%
+% operations with one argument from the "integer" class
+\alias{crossprod,dMatrix,integer-method}
+\alias{crossprod,integer,dMatrix-method}
+\alias{solve,dMatrix,integer-method}
+\alias{\%*\%,dMatrix,integer-method}
+\alias{\%*\%,integer,dMatrix-method}
 \title{(Virtual) Class "dMatrix" of "double" Matrices}
 \description{
   The \code{dMatrix} class is a virtual class contained by all actual

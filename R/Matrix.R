@@ -103,6 +103,22 @@ Matrix <-
     as(val, "dgeMatrix")
 }
 
+## Methods for operations where one argument is numeric
+
+setMethod("%*%", signature(x = "Matrix", y = "numeric"),
+          function(x, y) callGeneric(x, array(y, c(length(y), 1))))
+
+setMethod("%*%", signature(x = "numeric", y = "Matrix"),
+          function(x, y) callGeneric(array(x, c(1, length(x))), y))
+
+setMethod("crossprod", signature(x = "Matrix", y = "numeric"),
+          function(x, y = NULL) callGeneric(x, array(y, c(length(y), 1))))
+
+setMethod("crossprod", signature(x = "numeric", y = "Matrix"),
+          function(x, y = NULL)  callGeneric(array(x, c(1, length(x))), y))
+
+setMethod("solve", signature(a = "Matrix", b = "numeric"),
+          function(a, b, ...) callGeneric(a, array(b, c(length(b), 1))))
 
 if(FALSE) { ##--- not-yet used -- {almost same code also in ./dgeMatrix.R }
 

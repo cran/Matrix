@@ -32,8 +32,8 @@ setMethod("solve", signature(a = "dpoMatrix", b = "matrix"),
           .Call("dpoMatrix_matrix_solve", a, b),
           valueClass = "matrix")
 
-setMethod("solve", signature(a = "dpoMatrix", b = "numeric"),
-          function(a, b, ...)
-          as.numeric(.Call("dpoMatrix_matrix_solve",
-                           a, as.matrix(b))),
-          valueClass = "numeric")
+##setMethod("solve", signature(a = "dpoMatrix", b = "numeric"),
+##          function(a, b, ...)
+##          as.numeric(.Call("dpoMatrix_matrix_solve",
+##                           a, as.matrix(b))),
+##          valueClass = "numeric")

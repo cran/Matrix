@@ -3,6 +3,20 @@
 
 #include <Rdefines.h>
 #include <Rconfig.h>
+#include "cblas.h"
+
+/* short forms of some enum constants from cblas.h */
+#define RMJ CblasRowMajor
+#define CMJ CblasColMajor
+#define NTR CblasNoTrans
+#define TRN CblasTrans
+#define CTR CblasConjTrans
+#define UPP CblasUpper
+#define LOW CblasLower
+#define NUN CblasNonUnit
+#define UNT CblasUnit
+#define LFT CblasLeft
+#define RGT CblasRight
 
 char norm_type(char *typstr);
 char rcond_type(char *typstr);
@@ -22,9 +36,6 @@ void csc_components_transpose(int m, int n, int nnz,
 			      const int xp[], const int xi[],
 			      const double xx[],
 			      int ap[], int ai[], double ax[]);
-void triplet_to_col(int nrow, int ncol, int nz,
-		    const int Ti [], const int Tj [], const double Tx [],
-		    int Ap [], int Ai [], double Ax []);
 void ssc_symbolic_permute(int n, int upper, const int perm[],
 			  int Ap[], int Ai[]);
 double *nlme_symmetrize(double *a, const int nc);
@@ -36,6 +47,10 @@ SEXP nlme_weight_matrix_list(SEXP MLin, SEXP wts, SEXP adjst, SEXP MLout);
 				/* initialized in R_init_Matrix */
 extern
 #include "Syms.h"
+
+/* zero an array */
+#define AZERO(x, n) {int _I_, _SZ_ = (n); for(_I_ = 0; _I_ < _SZ_; _I_++) (x)[_I_] = 0;}
+
 
 #endif
 

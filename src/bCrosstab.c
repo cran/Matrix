@@ -1,4 +1,30 @@
 #include "bCrosstab.h"
+/* TODO:
+ * - Use the off-diagonal blocks of L
+ * - Remove the off-diagonal blocks of ZZpO
+ * - Only do a fill-reducing permutation on the first non-nested factor
+ */
+
+/** 
+ * Allocate a 3-dimensional array
+ * 
+ * @param TYP The R Type code (e.g. INTSXP)
+ * @param nr number of rows
+ * @param nc number of columns
+ * @param nf number of faces
+ * 
+ * @return A 3-dimensional array of the indicated dimensions and type
+ */
+static
+SEXP alloc3Darray(int TYP, int nr, int nc, int nf)
+{
+    SEXP val, dd = PROTECT(allocVector(INTSXP, 3));
+    
+    INTEGER(dd)[0] = nr; INTEGER(dd)[1] = nc; INTEGER(dd)[2] = nf;
+    val = allocArray(TYP, dd);
+    UNPROTECT(1);
+    return val;
+}
 
 /** 
  * Calculate the zero-based index in a row-wise packed lower
@@ -51,20 +77,22 @@ make_upper_triangular(int i[], int j[], int nnz)
 }
 
 /** 
- * Create a named list of length n
+ * Create a named vector of type TYP
  * 
- * @param n length of list to return
- * @param names names of list elements
+ * @param TYP a vector SEXP type (e.g. REALSXP)
+ * @param names names of list elements with null string appended
  * 
- * @return pointer to a named list of length n
+ * @return pointer to a named vector of type TYP
  */
 static SEXP
-make_named_list(int n, char **names)
+make_named(int TYP, char **names)
 {
-    SEXP ans = PROTECT(allocVector(VECSXP, n)),
-	nms = PROTECT(allocVector(STRSXP, n));
-    int i;
+    SEXP ans, nms;
+    int i, n;
 
+    for (n = 0; strlen(names[n]) > 0; n++) {}
+    ans = PROTECT(allocVector(TYP, n));
+    nms = PROTECT(allocVector(STRSXP, n));
     for (i = 0; i < n; i++) SET_STRING_ELT(nms, i, mkChar(names[i]));
     setAttrib(ans, R_NamesSymbol, nms);
     UNPROTECT(2);
@@ -93,35 +121,49 @@ check_csc_index(const int p[], const int i[], int row, int col)
     return -1;
 }
 
+static int*
+expand_column_pointers(int ncol, const int mp[], int mj[])
+{
+    int j;
+    for (j = 0; j < ncol; j++) {
+	int j2 = mp[j+1], jj;
+	for (jj = mp[j]; jj < j2; jj++) mj[jj] = j;
+    }
+    return mj;
+}
+
 /** 
- * Replace the structure of C by the structure of CA
+ * Replace the structure of C by the structure of CL^{-1} where L is the
+ * unit lower triangular sparse matrix from an LDL' Cholesky decomposition
  * 
- * @param A a unit lower tscMatrix
- * @param C cscMatrix to be updated
+ * @param anc number of columns in A
+ * @param Parent parent array for A
+ * @param C a cscBlocked object to be updated
  */
 static void
-symbolic_right_unit_mm(SEXP A, SEXP C)
+symbolic_right_unit_sm(int anc, const int Parent[], SEXP C)
 {
-    SEXP aip = GET_SLOT(A, Matrix_iSym),
-	app = GET_SLOT(A, Matrix_pSym),
-	cip = GET_SLOT(C, Matrix_iSym),
+    SEXP cip = GET_SLOT(C, Matrix_iSym),
 	cpp = GET_SLOT(C, Matrix_pSym);
     int *Flag,
-	*ai = INTEGER(aip),
-	*ap = INTEGER(app),
 	*ci = INTEGER(cip),
 	*cp = INTEGER(cpp),
 	*ncp,
-	anc = length(app) - 1, 
-	anz = length(aip),
 	cnr, cnz = length(cip),
 	i, j;
 
-    if ((length(cpp) - 1) != anc)
+    if ((length(cpp) - 1) != anc) /* A is square so can compare no of cols */
 	error("No. of rows in A (%d) does not match no. of cols in C (%d)",
-	      anc, length(cpp) - 1);
-    if (anz < 1) return;	/* C is the identity */
-    cnr = -1;			/* number of rows in C is max(ci + 1) */
+	      anc, length(cpp) - 1); 
+    i = 1;			/* check for A being the identity */
+    for (j = 0; j < anc; j++) {
+	if (Parent[j] >= 0) {
+	    i = 0;
+	    break;
+	}
+    }
+    if (i) return;		/* A is the identity */
+    cnr = 0;			/* number of rows in C (= max(ci + 1)) */
     for (i = 0; i < cnz; i++) {
 	int ri = ci[i] + 1;
 	if (cnr < ri) cnr = ri;
@@ -131,14 +173,14 @@ symbolic_right_unit_mm(SEXP A, SEXP C)
 
     ncp[0] = 0;
     for (j = 0; j < anc; j++) {
-	int aj2 = ap[j + 1], cj2 = cp[j + 1], ka, kc;
+	int cj2 = cp[j + 1], kk, kc;
 	for (i = 0; i < cnr; i++) Flag[i] = 0;
 	ncp[j+1] = ncp[j] + cj2 - cp[j];
 				/* positions of current column j of C */
 	for (kc = cp[j]; kc < cj2; kc++) Flag[ci[kc]] = 1;
 				/* other positions in column j of product */
-	for (ka = ap[j]; ka < aj2; ka++) {
-	    int kk = ai[ka], kk2 = cp[kk + 1];
+	for (kk = Parent[j]; kk >= 0; kk = Parent[kk]) { /* loop over the Parent */
+	    int kk2 = cp[kk + 1];
 	    for (kc = cp[kk]; kc < kk2; kc++) {
 		if (!Flag[ci[kc]]) {
 		    ncp[j+1]++;
@@ -148,21 +190,22 @@ symbolic_right_unit_mm(SEXP A, SEXP C)
 	}
     }
     if (ncp[anc] > cp[anc]) {
-	int *nci, nnz = ncp[anc], pos = 0;
+	int *dims, *nci, nnz = ncp[anc], pos = 0;
 	double *ncx;
 
 	SET_SLOT(C, Matrix_iSym, allocVector(INTSXP,  nnz));
 	nci = INTEGER(GET_SLOT(C, Matrix_iSym));
-	SET_SLOT(C, Matrix_xSym, allocVector(REALSXP,  nnz));
+	dims = INTEGER(getAttrib(GET_SLOT(C, Matrix_xSym), R_DimSymbol));
+	SET_SLOT(C, Matrix_xSym, alloc3Darray(REALSXP, dims[0], dims[1], nnz));
 	ncx = REAL(GET_SLOT(C, Matrix_xSym));
 	for (i = 0; i < nnz; i++) ncx[i] = 1.;
 				/* As Diana Krall said, "Just do it again." */
 	for (j = 0; j < anc; j++) {
-	    int aj2 = ap[j + 1], cj2 = cp[j + 1], ka, kc;
+	    int cj2 = cp[j + 1], kc, kk;
 	    for (i = 0; i < cnr; i++) Flag[i] = 0;
 	    for (kc = cp[j]; kc < cj2; kc++) Flag[ci[kc]] = 1;
-	    for (ka = ap[j]; ka < aj2; ka++) {
-		int kk = ai[ka], kk2 = cp[kk + 1];
+	    for (kk = Parent[j]; kk >= 0; kk = Parent[kk]) {
+		int kk2 = cp[kk + 1];
 		for (kc = cp[kk]; kc < kk2; kc++) Flag[ci[kc]] = 1;
 	    }
 	    for (i = 0; i < cnr; i++) if (Flag[i]) nci[pos++] = i;
@@ -170,6 +213,75 @@ symbolic_right_unit_mm(SEXP A, SEXP C)
 	Memcpy(cp, ncp, anc + 1);
     }	
     Free(Flag); Free(ncp);
+}
+
+/** 
+ * Replace the structure of C by the structure of CA^{-T}
+ * 
+ * @param A a unit lower triangular cscBlocked object
+ * @param C a cscBlocked object to be updated
+ */
+static void
+symbolic_right_unit_mm_trans(int anc, const int Parent[], SEXP C)
+{
+    SEXP cip = GET_SLOT(C, Matrix_iSym),
+	cpp = GET_SLOT(C, Matrix_pSym);
+    int *ci = INTEGER(cip),
+	*cp = INTEGER(cpp),
+	cnz = length(cip),
+	i, j, nextra = 0;
+
+    if ((length(cpp) - 1) != anc)
+	error("No. of cols in A (%d) does not match no. of cols in C (%d)",
+	      anc, length(cpp) - 1);
+    
+    i = 1;			/* check for A being the identity */
+    for (j = 0; j < anc; j++) {
+	if (Parent[j] >= 0) {
+	    i = 0;
+	    break;
+	}
+    }
+    if (i) return;		/* A is the identity */
+
+    for (j = 0; j < anc; j++) { /* bound the number of extra triplets */
+	int cj2 = cp[j + 1], ka, kc;
+	for (ka = Parent[j]; ka >= 0; ka = Parent[ka]) {
+	    for (kc = cp[j]; kc < cj2; kc++) {
+		if (check_csc_index(cp, ci, ci[kc], ka) < 0) nextra++;
+	    }
+	}
+    }
+    if (nextra) {
+	int cnr, ntot = cnz + nextra, pos;
+	int *dims = INTEGER(getAttrib(GET_SLOT(C, Matrix_xSym), R_DimSymbol)),
+	    *Ti = Memcpy((int *) Calloc(ntot, int), ci, cnz),
+	    *Tj = expand_column_pointers(anc, cp, Calloc(ntot, int)),
+	    *Ci = Calloc(ntot, int);
+
+	for (j = 0, pos = cnz; j < anc; j++) {
+	    int cj2 = cp[j + 1], ka, kc;
+	    for (ka = Parent[j]; ka >= 0; ka = Parent[ka]) {
+		for (kc = cp[j]; kc < cj2; kc++) {
+		    if (check_csc_index(cp, ci, ci[kc], ka) < 0) {
+			Tj[pos] = ka;
+			Ti[pos] = ci[kc];
+			pos++;
+		    }
+		}
+	    }
+	}
+	for (j = 0, cnr = 0; j < cnz; j++) { /* determine number of rows in C */
+	    int rr = ci[j] + 1;
+	    if (rr > cnr) cnr = rr;
+	}
+	triplet_to_col(cnr, anc, ntot, Ti, Tj, (double *) NULL,
+		       INTEGER(cpp), Ci, (double *) NULL);
+	cnz = cp[anc];
+	SET_SLOT(C, Matrix_iSym, allocVector(INTSXP, cnz));
+	SET_SLOT(C, Matrix_xSym, alloc3Darray(REALSXP, dims[0], dims[1], cnz));
+	Free(Ti); Free(Tj); Free(Ci);
+    }
 }
     
 /** 
@@ -181,11 +293,11 @@ symbolic_right_unit_mm(SEXP A, SEXP C)
  * @param i row index of block to be updated (j < k <= i)
  */
 static void
-block_update(SEXP ctab, int j, int k, int i)
+block_update(SEXP L, SEXP ZZpO, int j, int k, int i)
 {
-    SEXP tb = VECTOR_ELT(ctab, Lind(i, k)),
-	ib = VECTOR_ELT(ctab, Lind(i, j)),
-	kb = VECTOR_ELT(ctab, Lind(k, j));
+    SEXP tb = (i == k) ? VECTOR_ELT(ZZpO, i) : VECTOR_ELT(L, Lind(i, k)),
+	ib = VECTOR_ELT(L, Lind(i, j)),
+	kb = VECTOR_ELT(L, Lind(k, j));
     SEXP tpp = GET_SLOT(tb, Matrix_pSym),
 	kpp = GET_SLOT(kb, Matrix_pSym);
     int *ti = INTEGER(GET_SLOT(tb, Matrix_iSym)),
@@ -217,11 +329,11 @@ block_update(SEXP ctab, int j, int k, int i)
     if (!extra) return;
     {
 	int pos, nnz = tp[tnc];
-	int ntot = nnz + extra;
+	int ntot = nnz + extra, tnr;
 	int *Ai = Calloc(ntot, int),
 	    *Ti = Calloc(ntot, int),
 	    *Tj = Calloc(ntot, int),
-	    *Dims = INTEGER(GET_SLOT(tb, Matrix_DimSym));
+	    *dims;
 	double *Ax;
 
 	Memcpy(Ti, ti, nnz);	/* make a copy of the row indices */
@@ -243,12 +355,17 @@ block_update(SEXP ctab, int j, int k, int i)
 		}
 	    }
 	}
-	triplet_to_col(Dims[0], Dims[1], ntot, Ti, Tj, (double *) NULL,
+	/* Pass nlev instead of doing this.  The dimensions are nlev[i], nlev[k] */
+	/* Determine maximum row index in T */
+	tnr = -1; for (jj = 0; jj < ntot; jj++) if (Ti[jj] > tnr) tnr = Ti[jj];
+	tnr++;			/* increment by 1 to get number of rows */
+	triplet_to_col(tnr, tnc, ntot, Ti, Tj, (double *) NULL,
 		       tp, Ai, (double *) NULL);
 	nnz = tp[tnc];
 	SET_SLOT(tb, Matrix_iSym, allocVector(INTSXP, nnz));
 	Memcpy(INTEGER(GET_SLOT(tb, Matrix_iSym)), Ai, nnz);
-	SET_SLOT(tb, Matrix_xSym, allocVector(REALSXP, nnz));
+	dims = INTEGER(getAttrib(GET_SLOT(tb, Matrix_xSym), R_DimSymbol));
+	SET_SLOT(tb, Matrix_xSym, alloc3Darray(REALSXP, dims[0], dims[1], nnz));
 	Ax = REAL(GET_SLOT(tb, Matrix_xSym));
 	for (j = 0; j < nnz; j++) Ax[j] = 1.;
 	Free(Ai); Free(Ti); Free(Tj);
@@ -267,32 +384,46 @@ block_update(SEXP ctab, int j, int k, int i)
  * @param pperm inverse of the permutation
  */
 static void
-bCrosstab_permute(SEXP ctab, int nf, int jj,
-		  const int perm[], const int iperm[])
+bCrosstab_permute(SEXP ctab, int nf, int jj, const int nlev[], const int iperm[])
 {
-    SEXP trip, ipt, jpt;
-    int j, nnz;
-    
+    int j;
     for (j = 0; j < nf; j++) {
-	int ind = (j < jj ? Lind(jj, j) : Lind(j, jj));
-	SEXP csc = VECTOR_ELT(ctab, ind);
-	int *Dims = INTEGER(GET_SLOT(csc, Matrix_DimSym));
+	int ind = (j < jj ? Lind(jj, j) : Lind(j, jj)),
+	    ncol = (j < jj ? nlev[j] : nlev[jj]),
+	    nrow = (j < jj ? nlev[jj] : nlev[j]);
+	SEXP cscb = VECTOR_ELT(ctab, ind),
+	    cscbi = GET_SLOT(cscb, Matrix_iSym);
+	int *cp = INTEGER(GET_SLOT(cscb, Matrix_pSym)),
+	    nnz = length(cscbi);
+	double *cx = REAL(GET_SLOT(cscb, Matrix_xSym));
+	int *mj = expand_column_pointers(ncol, cp, Calloc(nnz, int));
+	int *mi = Memcpy(Calloc(nnz, int), INTEGER(cscbi), nnz);
+	double *mx = Memcpy(Calloc(nnz, double), cx, nnz);
 
-	trip = csc_to_triplet(csc);
-	ipt = GET_SLOT(trip, Matrix_iSym);
-	nnz = length(ipt);
-	jpt = GET_SLOT(trip, Matrix_jSym);
-	if (j <= jj) ind_permute(INTEGER(ipt), nnz, iperm);
-	if (j >= jj) ind_permute(INTEGER(jpt), nnz, iperm);
-	if (j == jj)
-	    make_upper_triangular(INTEGER(ipt), INTEGER(jpt), nnz);
-	triplet_to_col(Dims[0], Dims[1], nnz, INTEGER(ipt),
-		       INTEGER(jpt),
-		       REAL(GET_SLOT(trip, Matrix_xSym)),
-		       INTEGER(GET_SLOT(csc, Matrix_pSym)),
-		       INTEGER(GET_SLOT(csc, Matrix_iSym)),
-		       REAL(GET_SLOT(csc, Matrix_xSym)));
+	if (j <= jj) ind_permute(mi, nnz, iperm);
+	if (j >= jj) ind_permute(mj, nnz, iperm);
+	if (j == jj) make_upper_triangular(mi, mj, nnz);
+	triplet_to_col(nrow, ncol, nnz, mi, mj, mx, cp, INTEGER(cscbi), cx);
+	Free(mi); Free(mj); Free(mx);
     }
+}
+
+static void
+symmetric_permute(SEXP A, int nlev, const int iperm[])
+{
+    SEXP AiP = GET_SLOT(A, Matrix_iSym);
+    int *Ap = INTEGER(GET_SLOT(A, Matrix_pSym)),
+	nnz = length(AiP);
+    double *Ax = REAL(GET_SLOT(A, Matrix_xSym));
+    int *mj = expand_column_pointers(nlev, Ap, Calloc(nnz, int));
+    int *mi = Memcpy(Calloc(nnz, int), INTEGER(AiP), nnz);
+    double *mx = Memcpy(Calloc(nnz, double), Ax, nnz);
+
+    ind_permute(mi, nnz, iperm);
+    ind_permute(mj, nnz, iperm);
+    make_upper_triangular(mi, mj, nnz);
+    triplet_to_col(nlev, nlev, nnz, mi, mj, mx, Ap, INTEGER(AiP), Ax);
+    Free(mi); Free(mj); Free(mx);
 }
 
 /** 
@@ -326,127 +457,139 @@ factor_levels_permute(SEXP dest, SEXP src, const int perm[],
 }
 
 /** 
- * Derive the structure of elements of an lmeRep object from a blocked
- * crosstabulation.
+ * Create and populate slots in an lmer object from the blocked crosstabulation.
  * 
- * @param bCtab Pointer to a list containing a blocked crosstabulation
- * object and the factors used to generate it.
- * 
- * @return A list of the factor list, the blocked/blocked sparse unit
- * lower triangular matrix L, the list of diagonal elements of
- * L-inverse, the permutations and the Parent arrays.
+ * @param val Pointer to an lmer object
  */
-SEXP
-bCrosstab_convert(SEXP bCtab)
+void
+lmer_populate(SEXP val)
 {
-    char *anms[] = {"flist", "L", "Linv", "perm", "Parent"};
-    SEXP flist = VECTOR_ELT(bCtab, 0),
-	ctab = PROTECT(duplicate(VECTOR_ELT(bCtab, 1))),
-	ans = PROTECT(make_named_list(sizeof(anms)/sizeof(char *), anms));
-    SEXP fcp, perm, L, Linv, Parent;
-    int ctbl = length(ctab), j, nf = length(flist);
-
-    if (ctbl != (nf*(nf + 1))/2)
-	error("length of ctab = %d is not permisable", ctbl);
-    SET_VECTOR_ELT(ans, 0, duplicate(flist));
-    SET_VECTOR_ELT(ans, 1, allocVector(VECSXP, ctbl));
-    SET_VECTOR_ELT(ans, 2, allocVector(VECSXP, nf));
-    SET_VECTOR_ELT(ans, 3, allocVector(VECSXP, nf));
-    SET_VECTOR_ELT(ans, 4, allocVector(VECSXP, nf));
-    fcp = VECTOR_ELT(ans, 0);
-    L = VECTOR_ELT(ans, 1);
-    setAttrib(L, R_NamesSymbol, duplicate(getAttrib(ctab, R_NamesSymbol)));
-    Linv = VECTOR_ELT(ans, 2);
-    setAttrib(Linv, R_NamesSymbol, duplicate(getAttrib(flist, R_NamesSymbol)));
-    perm = VECTOR_ELT(ans, 3);
+    SEXP D, L, Parent, ZZpO, flist = GET_SLOT(val, Matrix_flistSym),
+	perm, Omega, ZtZ = GET_SLOT(val, Matrix_ZtZSym);
+    int j, k, nf = length(flist);
+    int *nc = INTEGER(GET_SLOT(val, Matrix_ncSym)), *Gp,
+	*nlev = Calloc(nf, int), npairs = (nf * (nf + 1))/2;
+    char *statnms[] = {"factored", "inverted", ""},
+	*devnms[] = {"ML", "REML", ""},
+	*pnms[] = {"index", "block", ""};
+	
+    /* Allocate fixed-sized slots */
+    SET_SLOT(val, Matrix_statusSym, make_named(LGLSXP, statnms ));
+    SET_SLOT(val, Matrix_devianceSym, make_named(REALSXP, devnms));
+    SET_SLOT(val, Matrix_devCompSym, allocVector(REALSXP, 4));
+    /* Allocate slots that are lists of length nf */
+    SET_SLOT(val, Matrix_ZZpOSym, allocVector(VECSXP, nf));
+    ZZpO = GET_SLOT(val, Matrix_ZZpOSym);
+    setAttrib(ZZpO, R_NamesSymbol, duplicate(getAttrib(flist, R_NamesSymbol)));
+    SET_SLOT(val, Matrix_DSym, allocVector(VECSXP, nf));
+    D = GET_SLOT(val, Matrix_DSym);
+    setAttrib(D, R_NamesSymbol, duplicate(getAttrib(flist, R_NamesSymbol)));
+    SET_SLOT(val, Matrix_permSym, allocVector(VECSXP, nf));
+    perm = GET_SLOT(val, Matrix_permSym);
     setAttrib(perm, R_NamesSymbol, duplicate(getAttrib(flist, R_NamesSymbol)));    
-    Parent = VECTOR_ELT(ans, 4);
+    SET_SLOT(val, Matrix_ParentSym, allocVector(VECSXP, nf));
+    Parent = GET_SLOT(val, Matrix_ParentSym);
     setAttrib(Parent, R_NamesSymbol, duplicate(getAttrib(flist, R_NamesSymbol)));
+    SET_SLOT(val, Matrix_OmegaSym, allocVector(VECSXP, nf));
+    Omega = GET_SLOT(val, Matrix_OmegaSym);
+    setAttrib(Omega, R_NamesSymbol, duplicate(getAttrib(flist, R_NamesSymbol)));
+    
+    /* Allocate peculiar length slots */
+    SET_SLOT(val, Matrix_LSym, allocVector(VECSXP, npairs));
+    L = GET_SLOT(val, Matrix_LSym);
+    SET_SLOT(val, Matrix_GpSym, allocVector(INTSXP, nf + 1));
+    Gp = INTEGER(GET_SLOT(val, Matrix_GpSym));
+    Gp[0] = 0;
     for (j = 0; j < nf; j++) {
-	int dind = Lind(j, j), i, k;
-	SEXP ctd = VECTOR_ELT(ctab, dind); /* diagonal in crosstab */
-	SEXP Dimslot = GET_SLOT(ctd, Matrix_DimSym),
-	    Linvj, Ljj, cpp = GET_SLOT(ctd, Matrix_pSym),
-	    cip = GET_SLOT(ctd, Matrix_iSym);
-	int *Lp, *Linvp, *Perm, *cp = INTEGER(cpp),
-	    *ci = INTEGER(cip), *parent,
+	nlev[j] = length(getAttrib(VECTOR_ELT(flist, j), R_LevelsSymbol));
+	Gp[j + 1] = Gp[j] + nc[j] * nlev[j];
+	SET_VECTOR_ELT(D, j, alloc3Darray(REALSXP, nc[j], nc[j], nlev[j]));
+	SET_VECTOR_ELT(Omega, j, allocMatrix(REALSXP, nc[j], nc[j]));
+	SET_VECTOR_ELT(ZZpO, j, duplicate(VECTOR_ELT(ZtZ, Lind(j, j))));
+	for (k = j; k < nf; k++)
+	    SET_VECTOR_ELT(L, Lind(k, j), duplicate(VECTOR_ELT(ZtZ, Lind(k, j))));
+    }
+    SET_SLOT(val, Matrix_XtXSym, allocMatrix(REALSXP, nc[nf], nc[nf]));
+    AZERO(REAL(GET_SLOT(val, Matrix_XtXSym)), nc[nf] * nc[nf]);
+    SET_SLOT(val, Matrix_RXXSym, allocMatrix(REALSXP, nc[nf], nc[nf]));
+    AZERO(REAL(GET_SLOT(val, Matrix_RXXSym)), nc[nf] * nc[nf]);
+    SET_SLOT(val, Matrix_ZtXSym, allocMatrix(REALSXP, Gp[nf], nc[nf]));
+    SET_SLOT(val, Matrix_RZXSym, allocMatrix(REALSXP, Gp[nf], nc[nf]));
+    for (j = 0; j < nf; j++) {
+	int dind = Lind(j, j), i;
+	SEXP ctd = VECTOR_ELT(ZZpO, j); /* diagonal in crosstab */
+	SEXP Ljj = VECTOR_ELT(L, dind),
+	    cpp = GET_SLOT(ctd, Matrix_pSym),
+	    cip = GET_SLOT(ctd, Matrix_iSym), parent;
+	int *Lp = INTEGER(GET_SLOT(Ljj, Matrix_pSym)), *Perm,
+	    *cp = INTEGER(cpp),
+	    *ci = INTEGER(cip), *dims,
 	    ncj = length(cpp) - 1,
 	    nnz = length(cip);
-	double *dtmp;
 				
-	SET_VECTOR_ELT(Parent, j, allocVector(INTSXP, ncj));
-	parent = INTEGER(VECTOR_ELT(Parent, j));
+	SET_VECTOR_ELT(Parent, j, make_named(VECSXP, pnms));
+	parent = VECTOR_ELT(Parent, j);
+	SET_VECTOR_ELT(parent, 0, allocVector(INTSXP, ncj));
+	SET_VECTOR_ELT(parent, 1, allocVector(INTSXP, ncj));
 	SET_VECTOR_ELT(perm, j, allocVector(INTSXP, ncj));
 	Perm = INTEGER(VECTOR_ELT(perm, j));
-	SET_VECTOR_ELT(L, dind, NEW_OBJECT(MAKE_CLASS("cscMatrix")));
-	Ljj = VECTOR_ELT(L, dind);
-	SET_VECTOR_ELT(Linv, j, NEW_OBJECT(MAKE_CLASS("cscMatrix")));
-	Linvj = VECTOR_ELT(Linv, j);
-	SET_SLOT(Ljj, Matrix_DimSym, duplicate(Dimslot));
-	SET_SLOT(Linvj, Matrix_DimSym, duplicate(Dimslot));
-	SET_SLOT(Ljj, Matrix_factorization, allocVector(VECSXP, 0));
-	SET_SLOT(Linvj, Matrix_factorization, allocVector(VECSXP, 0));
-	SET_SLOT(Ljj, Matrix_pSym, allocVector(INTSXP, ncj + 1));
-	SET_SLOT(Linvj, Matrix_pSym, allocVector(INTSXP, ncj + 1));
-	Lp = INTEGER(GET_SLOT(Ljj, Matrix_pSym));
-	Linvp = INTEGER(GET_SLOT(Linvj, Matrix_pSym));
+	dims = INTEGER(getAttrib(GET_SLOT(ctd, Matrix_xSym), R_DimSymbol));
 	if (nnz > ncj) {	/* calculate fill-reducing permutation */
+	    SEXP fac = VECTOR_ELT(flist, j);
+	    SEXP fcp = PROTECT(duplicate(fac));
 	    int *iPerm = Calloc(ncj, int);
 
 	    ssc_metis_order(ncj, cp, ci, Perm, iPerm);
-				/* apply to the crosstabulation */
-	    bCrosstab_permute(ctab, nf, j, Perm, iPerm);
+				/* apply to the crosstabulation, L, and ZZpO */
+	    bCrosstab_permute(ZtZ, nf, j, nlev, iPerm);
+	    bCrosstab_permute(L, nf, j, nlev, iPerm);
+	    symmetric_permute(VECTOR_ELT(ZZpO, j), nlev[j], iPerm);
 				/* apply to the factor */
-	    factor_levels_permute(VECTOR_ELT(fcp, j),
-				  VECTOR_ELT(flist, j), Perm, iPerm);
+	    factor_levels_permute(fac, fcp, Perm, iPerm);
 				/* symbolic analysis to get Parent */
-	    R_ldl_symbolic(ncj, cp, ci, Lp, parent, 
+	    R_ldl_symbolic(ncj, cp, ci, Lp, INTEGER(VECTOR_ELT(parent, 0)), 
 			 (int *) NULL, (int *) NULL);
-				/* decompose the identity to get the row pointers */
-	    dtmp = REAL(GET_SLOT(ctd, Matrix_xSym));
-	    for (i = 0; i < nnz; i++) dtmp[i] = 0.; /* initialize */
-				/* diagonal el is last element in the column */
-	    for (i = 0; i < ncj; i++) dtmp[cp[i+1] - 1] = 1.;
+	    for (i = 0; i < ncj; i++)
+		INTEGER(VECTOR_ELT(parent, 1))[i] =
+		    (INTEGER(VECTOR_ELT(parent, 0))[i] < 0) ? -1 : j;
 	    nnz = Lp[ncj];
 	    SET_SLOT(Ljj, Matrix_iSym, allocVector(INTSXP, nnz));
-	    SET_SLOT(Ljj, Matrix_xSym, allocVector(REALSXP, nnz));
-	    i = R_ldl_numeric(ncj, cp, ci, dtmp, Lp, parent, 
-			       INTEGER(GET_SLOT(Ljj, Matrix_iSym)),
-			       REAL(GET_SLOT(Ljj, Matrix_xSym)),
-			       (double *) R_alloc(ncj, sizeof(double)),	/* D */
-			       (int *) NULL, (int *) NULL);
-	    if (i < ncj) error("identity matrix is not positive definite?");
-	    Free(iPerm);
+	    SET_SLOT(Ljj, Matrix_xSym, alloc3Darray(REALSXP, dims[0], dims[1], nnz));
+	    Free(iPerm); UNPROTECT(1);
 	} else {
-	    for (i = 0; i <= ncj; i++) {
+	    for (i = 0; i < ncj; i++) {
 		Lp[i] = 0;
-		parent[i] = -1;
+		INTEGER(VECTOR_ELT(parent,0))[i] = -1;
+		INTEGER(VECTOR_ELT(parent,1))[i] = -1;
 		Perm[i] = i;
 	    }
+	    Lp[ncj] = 0;
 	    SET_SLOT(Ljj, Matrix_iSym, allocVector(INTSXP, 0));
-	    SET_SLOT(Ljj, Matrix_xSym, allocVector(REALSXP, 0));
+	    SET_SLOT(Ljj, Matrix_xSym, alloc3Darray(REALSXP, dims[0], dims[1], 0));
 	}
-				/* Derive the diagonal block of Linv */
-	nnz = parent_inv_ap(ncj, 0, parent, Linvp);
-	SET_SLOT(Linvj, Matrix_iSym, allocVector(INTSXP, nnz));
-	parent_inv_ai(ncj, 0, parent, INTEGER(GET_SLOT(Linvj, Matrix_iSym)));
-	SET_SLOT(Linvj, Matrix_xSym, allocVector(REALSXP, nnz));
-	dtmp = REAL(GET_SLOT(Linvj, Matrix_xSym));
-	for (i = 0; i < nnz; i++) dtmp[i] = 1.;
 	for (k = j+1; k < nf; k++) { /* Update other blocks in this column */
-	    symbolic_right_unit_mm(Linvj, VECTOR_ELT(ctab, Lind(k,j)));
+	    symbolic_right_unit_mm_trans(ncj, INTEGER(VECTOR_ELT(parent, 0)),
+					 VECTOR_ELT(L, Lind(k,j)));
 	}
 	for (k = j+1; k < nf; k++) { /* Update remaining columns */
-	    for (i = k; i < nf; i++) block_update(ctab, j, k, i);
-	}
-	for (i= 0; i < j; i++) { /* copy blocks to the left */
-	    SET_VECTOR_ELT(L, Lind(j,i), duplicate(VECTOR_ELT(ctab, Lind(j,i))));
+	    for (i = k; i < nf; i++) block_update(L, ZZpO, j, k, i);
 	}
     }
-    UNPROTECT(2);
-    return ans;
+    /* Convert blockwise Parent arrays to extended Parent arrays */
+    for (j = 0; j < (nf - 1); j++) { /* Parent[nf] does not need conversion */
+	SEXP Ljp1j = VECTOR_ELT(L, Lind(j + 1, j)),
+	    LpP = GET_SLOT(Ljp1j, Matrix_pSym);
+	int *Li = INTEGER(GET_SLOT(Ljp1j, Matrix_iSym)),
+	    *Lp = INTEGER(LpP),
+	    *block = INTEGER(VECTOR_ELT(VECTOR_ELT(Parent, j), 1)),
+	    *parent = INTEGER(VECTOR_ELT(VECTOR_ELT(Parent, j), 0)),
+	    i, nlev = length(LpP) - 1;
+	for (i = 0; i < nlev; i++) {
+	    if (block[i] < 0) {
+		block[i] = j + 1;
+		parent[i] = Li[Lp[i]];
+	    }
+	}	    
+    }
+    Free(nlev);
 }
-
-
-
-	

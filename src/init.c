@@ -5,7 +5,7 @@
 #include "dense.h"
 #include "factorizations.h"
 #include "geMatrix.h"
-#include "lmeRep.h"
+#include "lmer.h"
 #include "poMatrix.h"
 #include "sscCrosstab.h"
 #include "sscMatrix.h"
@@ -30,7 +30,6 @@ static R_CallMethodDef CallEntries[] = {
     {"csc_to_triplet", (DL_FUNC) &csc_to_triplet, 1},
     {"csc_to_matrix", (DL_FUNC) &csc_to_matrix, 1},
     {"csc_to_geMatrix", (DL_FUNC) &csc_to_geMatrix, 1},
-/*     {"csc_to_imagemat", (DL_FUNC) &csc_to_imagemat, 1}, */
     {"matrix_to_csc", (DL_FUNC) &matrix_to_csc, 1},
     {"triplet_to_csc", (DL_FUNC) &triplet_to_csc, 1},
     {"csc_getDiag", (DL_FUNC) &csc_getDiag, 1},
@@ -44,6 +43,7 @@ static R_CallMethodDef CallEntries[] = {
     {"SVD_validate", (DL_FUNC) &SVD_validate, 1},
     {"geMatrix_validate", (DL_FUNC) &geMatrix_validate, 1},
     {"geMatrix_norm", (DL_FUNC) &geMatrix_norm, 2},
+    {"geMatrix_rcond", (DL_FUNC) &geMatrix_rcond, 2},
     {"geMatrix_crossprod", (DL_FUNC) &geMatrix_crossprod, 1},
     {"geMatrix_geMatrix_crossprod", (DL_FUNC) &geMatrix_geMatrix_crossprod, 2},
     {"geMatrix_matrix_crossprod", (DL_FUNC) &geMatrix_matrix_crossprod, 2},
@@ -52,21 +52,20 @@ static R_CallMethodDef CallEntries[] = {
     {"geMatrix_determinant", (DL_FUNC) &geMatrix_determinant, 2},
     {"geMatrix_solve", (DL_FUNC) &geMatrix_solve, 1},
     {"geMatrix_geMatrix_mm", (DL_FUNC) &geMatrix_geMatrix_mm, 2},
-    {"lmeRep_validate", (DL_FUNC) &lmeRep_validate, 1},
-    {"lmeRep_crosstab", (DL_FUNC) &lmeRep_crosstab, 1},
-    {"lmeRep_create", (DL_FUNC) &lmeRep_create, 2},
-    {"lmeRep_update_mm", (DL_FUNC) &lmeRep_update_mm, 3},
-    {"lmeRep_initial", (DL_FUNC) &lmeRep_initial, 1},
-    {"lmeRep_factor", (DL_FUNC) &lmeRep_factor, 1},
-    {"lmeRep_invert", (DL_FUNC) &lmeRep_invert, 1},
-    {"lmeRep_sigma", (DL_FUNC) &lmeRep_sigma, 2},
-    {"lmeRep_coef", (DL_FUNC) &lmeRep_coef, 2},
-    {"lmeRep_coefGets", (DL_FUNC) &lmeRep_coefGets, 3},
-    {"lmeRep_fixef", (DL_FUNC) &lmeRep_fixef, 1},
-    {"lmeRep_ranef", (DL_FUNC) &lmeRep_ranef, 1},
-    {"lmeRep_ECMEsteps", (DL_FUNC) &lmeRep_ECMEsteps, 4},
-    {"lmeRep_gradient", (DL_FUNC) &lmeRep_gradient, 3},
-    {"lmeRep_variances", (DL_FUNC) &lmeRep_variances, 1},
+    {"lmer_validate", (DL_FUNC) &lmer_validate, 1},
+    {"lmer_update_mm", (DL_FUNC) &lmer_update_mm, 3},
+    {"lmer_create", (DL_FUNC) &lmer_create, 2},
+    {"lmer_initial", (DL_FUNC) &lmer_initial, 1},
+    {"lmer_factor", (DL_FUNC) &lmer_factor, 1},
+    {"lmer_invert", (DL_FUNC) &lmer_invert, 1},
+    {"lmer_sigma", (DL_FUNC) &lmer_sigma, 2},
+    {"lmer_coef", (DL_FUNC) &lmer_coef, 2},
+    {"lmer_coefGets", (DL_FUNC) &lmer_coefGets, 3},
+    {"lmer_fixef", (DL_FUNC) &lmer_fixef, 1},
+    {"lmer_ranef", (DL_FUNC) &lmer_ranef, 1},
+    {"lmer_ECMEsteps", (DL_FUNC) &lmer_ECMEsteps, 4},
+    {"lmer_gradient", (DL_FUNC) &lmer_gradient, 3},
+    {"lmer_variances", (DL_FUNC) &lmer_variances, 1},
     {"poMatrix_rcond", (DL_FUNC) &poMatrix_rcond, 2},
     {"poMatrix_solve", (DL_FUNC) &poMatrix_solve, 1},
     {"poMatrix_matrix_solve", (DL_FUNC) &poMatrix_matrix_solve, 2},
@@ -134,10 +133,10 @@ static R_CallMethodDef CallEntries[] = {
 
 void R_init_Matrix(DllInfo *dll)
 {
-    R_useDynamicSymbols(dll, FALSE);
     R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
-    Matrix_DSym = install("D");
+    R_useDynamicSymbols(dll, FALSE);
     Matrix_DIsqrtSym = install("DIsqrt");
+    Matrix_DSym = install("D");
     Matrix_DimSym = install("Dim");
     Matrix_GpSym = install("Gp");
     Matrix_LSym = install("L");
@@ -150,14 +149,17 @@ void R_init_Matrix(DllInfo *dll)
     Matrix_RXXSym = install("RXX");
     Matrix_RZXSym = install("RZX");
     Matrix_XtXSym = install("XtX");
-    Matrix_ZtXSym = install("ZtX");
     Matrix_ZZxSym = install("ZZx");
+    Matrix_ZZpOSym = install("ZZpO");
+    Matrix_ZtXSym = install("ZtX");
+    Matrix_ZtZSym = install("ZtZ");
     Matrix_bVarSym = install("bVar");
     Matrix_cnamesSym = install("cnames");
-    Matrix_devianceSym = install("deviance");
     Matrix_devCompSym = install("devComp");
+    Matrix_devianceSym = install("deviance");
     Matrix_diagSym = install("diag");
     Matrix_factorization = install("factorization");
+    Matrix_flistSym = install("flist");
     Matrix_iSym = install("i");
     Matrix_ipermSym = install("iperm");
     Matrix_jSym = install("j");

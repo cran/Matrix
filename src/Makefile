@@ -24,5 +24,8 @@ $(SUBLIBS):
 clean:
 	@-rm -rf .libs _libs
 	@-rm -f *.o
+	@for d in $(SUBDIRS); do \
+	  (cd $${d} && $(MAKE) clean) || exit 1; \
+	done
 
 include DEPS.mkf

@@ -1,15 +1,15 @@
-\name{lmeRep-class}
+\name{lmer-class}
 \docType{class}
-\alias{lmeRep-class}
-\alias{chol,lmeRep,ANY-method}
-\alias{coef,lmeRep-method}
-\alias{coef<-,lmeRep,numeric-method}
-\alias{solve,lmeRep,missing-method}
+\alias{lmer-class}
+\alias{chol,lmer,ANY-method}
+\alias{coef,lmer-method}
+\alias{coef<-,lmer,numeric-method}
+\alias{solve,lmer,missing-method}
 \title{lme models representation}
 \description{A representation of a linear mixed-effects model using a
   combination of sparse, symmetric, column-oriented matrices and dense matrices.}
 \section{Objects from the Class}{
-Objects can be created by calls of the form \code{new("lmeRep", ...)}
+Objects can be created by calls of the form \code{new("lmer", ...)}
 or, more commonly, via the \code{lme1} function.}
 }
 \section{Slots}{
@@ -47,17 +47,17 @@ or, more commonly, via the \code{lme1} function.}
 }
 \section{Methods}{
   \describe{
-    \item{chol}{\code{signature(x = "lmeRep", pivot = "ANY")}: Factor
+    \item{chol}{\code{signature(x = "lmer", pivot = "ANY")}: Factor
       the matrix Z'Z+W}
-    \item{coef}{\code{signature(object = "lmeRep")}: Extract the
+    \item{coef}{\code{signature(object = "lmer")}: Extract the
       parameters that determine the Omega matrices.  The optional
       logical argument \code{unconstr} determines the constrained or
       unconstrained parameterization.}
-    \item{coef<-}{\code{signature(object = "lmeRep", value = "numeric")}: Assign the
+    \item{coef<-}{\code{signature(object = "lmer", value = "numeric")}: Assign the
       parameters that determine the Omega matrices.  The optional
       logical argument \code{unconstr} determines the constrained or
       unconstrained parameterization. }
-    \item{solve}{\code{signature(a = "lmeRep", b = "missing")}: Invert
+    \item{solve}{\code{signature(a = "lmer", b = "missing")}: Invert
       the decomposed matrices.}
   }
 }

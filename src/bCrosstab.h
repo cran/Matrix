@@ -9,6 +9,6 @@
 #include "sscMatrix.h"
 #include "tscMatrix.h"
 
-SEXP bCrosstab_convert(SEXP bCtab);
+void lmer_populate(SEXP bCtab);
 
 #endif

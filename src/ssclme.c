@@ -828,7 +828,7 @@ SEXP ssclme_fixef(SEXP x)
  * 
  * @param x Pointer to an ssclme object
  * 
- * @return a vector containing the conditional modes of the random effects
+ * @return a list containing the conditional modes of the random effects
  */
 SEXP ssclme_ranef(SEXP x)
 {

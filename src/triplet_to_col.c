@@ -38,7 +38,8 @@ void triplet_to_col
 	i = Ti [k] ;
 	j = Tj [k] ;
 	if (i < 0 || i >= n_row || j < 0 || j >= n_col)
-	    error("entry %d in input has row %d and column %d", k, i, j);
+	    error("entry %d in matrix[%d,%d] has row %d and column %d",
+		  k, n_row, n_col, i, j);
 	W [i]++ ;
     }
     /* compute the row pointers */

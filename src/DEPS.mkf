@@ -12,11 +12,11 @@ dense.o: dense.c dense.h Mutils.h Syms.h
 factorizations.o: factorizations.c factorizations.h Mutils.h Syms.h
 geMatrix.o: geMatrix.c geMatrix.h  Syms.h
 init.o: init.c LU.h trMatrix.h Syms.h cscBlocked.h cscMatrix.h \
-  R_ldl.h dense.h factorizations.h geMatrix.h lmeRep.h triplet_to_col.h \
+  R_ldl.h dense.h factorizations.h geMatrix.h lmer.h triplet_to_col.h \
   poMatrix.h sscCrosstab.h sscMatrix.h ssclme.h syMatrix.h triplet.h \
   tscMatrix.h
 R_ldl.o: R_ldl.c R_ldl.h
-lmeRep.o: lmeRep.c lmeRep.h Mutils.h
+lmer.o: lmer.c lmer.h Mutils.h
 poMatrix.o: poMatrix.c poMatrix.h Syms.h
 sscChol.o: sscChol.c sscChol.h tscMatrix.h Mutils.h \
   Syms.h cscMatrix.h R_ldl.h

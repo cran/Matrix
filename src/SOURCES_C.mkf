@@ -10,7 +10,7 @@ SOURCES_C =  \
             factorizations.c \
             geMatrix.c \
 	    init.c \
-	    lmeRep.c \
+	    lmer.c \
             poMatrix.c \
             sscCrosstab.c \
             sscMatrix.c \

@@ -6,6 +6,7 @@
 
 SEXP geMatrix_validate(SEXP obj);
 SEXP geMatrix_norm(SEXP obj, SEXP norm);
+SEXP geMatrix_rcond(SEXP obj, SEXP type);
 SEXP geMatrix_crossprod(SEXP x);
 SEXP geMatrix_geMatrix_crossprod(SEXP x, SEXP y);
 SEXP geMatrix_matrix_crossprod(SEXP x, SEXP y);

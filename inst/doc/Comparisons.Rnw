@@ -23,25 +23,6 @@
 \end{abstract}
 <<preliminaries, echo=FALSE>>=
 options(width=75)
-sysgc.time <- function(expr, gcFirst = TRUE)
-{
-    if (!exists("proc.time")) 
-        return(rep(as.numeric(NA), 5))
-    loc.frame <- parent.frame()
-    if (gcFirst) 
-        gc(FALSE)
-    on.exit(cat("Timing stopped at:", proc.time() - time, "\n"))
-    expr <- substitute(expr)
-    time <- proc.time()
-    eval(expr, envir = loc.frame)
-    new.time <- proc.time()
-    on.exit()
-    if (length(new.time) == 3) 
-        new.time <- c(new.time, 0, 0)
-    if (length(time) == 3) 
-        time <- c(time, 0, 0)
-    new.time - time
-}
 @
 
 \section{Linear least squares calculations}
@@ -88,7 +69,7 @@ solve(t(mm) %*% mm) %*% t(mm) %*% y
 On modern computers this calculation is performed so quickly that it cannot
 be timed accurately in \RR{}
 <<timedNaive>>=
-sysgc.time(solve(t(mm) %*% mm) %*% t(mm) %*% y)
+system.time(solve(t(mm) %*% mm) %*% t(mm) %*% y, gc = TRUE)
 @ 
 and it provides essentially the same results as the standard
 \code{lm.fit} function that is called by \code{lm}.
@@ -96,7 +77,7 @@ and it provides essentially the same results as the standard
 dput(c(solve(t(mm) %*% mm) %*% t(mm) %*% y))
 dput(lm.fit(mm, y)$coefficients)
 @ 
-
+%$
 
 \subsection{A large example}
 \label{sec:largeLSQ}
@@ -108,9 +89,9 @@ described in \citet{koen:ng:2003}, the literal translation of
 library(Matrix)
 data(mm, package = "Matrix")
 data(y, package = "Matrix")
-mm = as(mm, "matrix")
+mm <- as(mm, "matrix")
 dim(mm)
-sysgc.time(naive.sol <- solve(t(mm) %*% mm) %*% t(mm) %*% y)
+system.time(naive.sol <- solve(t(mm) %*% mm) %*% t(mm) %*% y, gc = TRUE)
 @ 
 
 Because the calculation of a ``cross-product'' matrix, such as
@@ -133,7 +114,7 @@ is solved directly.
 
 Combining these optimizations we obtain
 <<crossKoenNg>>=
-sysgc.time(cpod.sol <- solve(crossprod(mm), crossprod(mm,y)))
+system.time(cpod.sol <- solve(crossprod(mm), crossprod(mm,y)), gc = TRUE)
 all.equal(naive.sol, cpod.sol)
 @ 
 
@@ -142,7 +123,7 @@ crossprod form of the calculation is about four times as fast as the
 naive calculation.  In fact, the entire crossprod solution is
 faster than simply calculating $\bX\trans\bX$ the naive way.
 <<xpxKoenNg>>=
-sysgc.time(t(mm) %*% mm)
+system.time(t(mm) %*% mm, gc = TRUE)
 @ 
 
 \subsection{Least squares calculations with Matrix classes}
@@ -157,9 +138,10 @@ decomposition when it would be faster, and more stable numerically, to
 use a Cholesky decomposition.  The Cholesky decomposition could be used
 but it is rather awkward
 <<naiveChol>>=
-sysgc.time(ch <- chol(crossprod(mm)))
-sysgc.time(chol.sol <- backsolve(ch,
-   forwardsolve(ch, crossprod(mm, y), upper = TRUE, trans = TRUE)))
+system.time(ch <- chol(crossprod(mm)), gc = TRUE)
+system.time(chol.sol <- backsolve(ch,
+   forwardsolve(ch, crossprod(mm, y), upper = TRUE, trans = TRUE)),
+   gc = TRUE)
 all.equal(chol.sol, naive.sol)
 @ 
 
@@ -172,9 +154,9 @@ The \code{solve} methods for the \code{"poMatrix"} class use the
 Cholesky decomposition.
 <<MatrixKoenNg>>=
 data(mm, package = "Matrix")
-mm = as(mm, "geMatrix")
+mm <- as(mm, "geMatrix")
 class(crossprod(mm))
-sysgc.time(Mat.sol <- solve(crossprod(mm), crossprod(mm, y)))
+system.time(Mat.sol <- solve(crossprod(mm), crossprod(mm, y)), gc=TRUE)
 all.equal(naive.sol, as(Mat.sol, "matrix"))
 @ 
 
@@ -182,10 +164,10 @@ Furthermore, any method that calculates a
 decomposition or factorization stores the resulting factorization with
 the original object so that it can be reused without recalculation.
 <<saveFactor>>=
-xpx = crossprod(mm)
-xpy = crossprod(mm, y)
-sysgc.time(solve(xpx, xpy))
-sysgc.time(solve(xpx, xpy))
+xpx <- crossprod(mm)
+xpy <- crossprod(mm, y)
+system.time(solve(xpx, xpy), gc=TRUE)
+system.time(solve(xpx, xpy), gc=TRUE)
 @ 
 
 The model matrix \code{mm} is sparse; that is, most of the elements of
@@ -195,7 +177,7 @@ methods for sparse matrices, which produce the fastest results of all.
 <<SparseKoenNg>>=
 data(mm, package = "Matrix")
 class(mm)
-sysgc.time(sparse.sol <- solve(crossprod(mm), crossprod(mm, y)))
+system.time(sparse.sol <- solve(crossprod(mm), crossprod(mm, y)), gc=TRUE)
 all.equal(naive.sol, as(sparse.sol, "matrix"))
 @ 
 
@@ -205,10 +187,10 @@ although, in this case, the decomposition is so fast that it is
 difficult to determine the difference in the solution times.
 
 <<SparseSaveFactor>>=
-xpx = crossprod(mm)
-xpy = crossprod(mm, y)
-sysgc.time(solve(xpx, xpy))
-sysgc.time(solve(xpx, xpy))
+xpx <- crossprod(mm)
+xpy <- crossprod(mm, y)
+system.time(solve(xpx, xpy), gc=TRUE)
+system.time(solve(xpx, xpy), gc=TRUE)
 @ 
 
 \bibliography{Matrix}

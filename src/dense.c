@@ -1,5 +1,5 @@
 #include "dense.h"
-
+#include "Mutils.h"
 
 /** 
  * Perform a left cyclic shift of columns j to k in the upper triangular
@@ -208,7 +208,7 @@ SEXP lapack_qr(SEXP Xin, SEXP tl)
 	F77_CALL(dgeqrf)(&n, &p, xpt, &n, REAL(qraux), work, &lwork, &info);
 	if (info)
 	    error("Second call to dgeqrf returned error code %d", info);
-	iwork = (int *) R_alloc(trsz, sizeof(double));
+	iwork = (int *) R_alloc(trsz, sizeof(int));
 	F77_CALL(dtrcon)("1", "U", "N", &rank, xpt, &n, &rcond,
 			 work, iwork, &info);
 	if (info)
@@ -240,7 +240,7 @@ SEXP lapack_qr(SEXP Xin, SEXP tl)
 	SET_VECTOR_ELT(Gcpy, i, VECTOR_ELT(Givens, i));
     SET_VECTOR_ELT(ans, 1, ScalarInteger(rank));
     setAttrib(ans, install("useLAPACK"), ScalarLogical(1));
-    setAttrib(ans, install("rcond"), ScalarReal(rcond));
+    setAttrib(ans, Matrix_rcondSym, ScalarReal(rcond));
     UNPROTECT(2);
     return ans;
 }

@@ -1,0 +1,2 @@
+- Report the problem in the Linux ldexp manual page.  The second and
+  third calls in the Synopsis should be to ldexpf and ldexpl.

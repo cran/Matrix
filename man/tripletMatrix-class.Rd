@@ -1,8 +1,10 @@
 \name{tripletMatrix-class}
 \docType{class}
 \alias{tripletMatrix-class}
+\alias{+,tripletMatrix,tripletMatrix-method}
 \alias{coerce,tripletMatrix,geMatrix-method}
 \alias{coerce,tripletMatrix,cscMatrix-method}
+\alias{coerce,tripletMatrix,sscMatrix-method}
 \alias{image,tripletMatrix-method}
 \alias{t,tripletMatrix-method}
 \title{Class "tripletMatrix" sparse matrices in triplet form}
@@ -27,8 +29,11 @@ Objects can be created by calls of the form \code{new("tripletMatrix", ...)}.
 }
 \section{Methods}{
   \describe{
+    \item{+}{\code{signature(e1 = "tripletMatrix", e2 = "tripletMatrix")}}
     \item{coerce}{\code{signature(from = "tripletMatrix", to = "cscMatrix")}}
-    \item{coerce}{\code{signature(from = "tripletMatrix", to = "geMatrix")}}
+    \item{coerce}{\code{signature(from = "tripletMatrix", to =
+	"geMatrix")}}
+    \item{coerce}{\code{signature(from = "tripletMatrix", to = "sscMatrix")}}
     \item{image}{\code{signature(x = "tripletMatrix")}: plots an image of
       \code{x} using the \code{\link[lattice]{levelplot}} function}
     \item{t}{\code{signature(x = "tripletMatrix")}: returns the transpose of

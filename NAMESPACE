@@ -8,6 +8,7 @@ importFrom("stats", "deviance", "formula", "coef")
 export(
        "Hilbert",
        "Matrix",
+       "bCrosstab",
        "coef<-",
        "corFactor",
        "corMatrix",
@@ -20,6 +21,7 @@ export(
        "pdMatrix",
        "rcond",
        "sscCrosstab",
+       "tcrossprod",
        "unpack"
        )
 
@@ -27,6 +29,7 @@ exportClasses(
 	      "Cholesky",
 	      "LU",
               "Matrix",
+              #"bbCrosstab",
               "corrmatrix",
               "cscBlocked",
               "cscMatrix",
@@ -65,7 +68,8 @@ exportMethods(
               "rcond",
               "show",
               "solve",
-              "t"
+              "t",
+              "tcrossprod"
               )
 
 

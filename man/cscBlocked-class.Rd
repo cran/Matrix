@@ -1,7 +1,8 @@
 \name{cscBlocked-class}
 \docType{class}
 \alias{cscBlocked-class}
-
+\alias{coerce,cscBlocked,cscMatrix-method}
+\alias{coerce,cscBlocked,tripletMatrix-method}
 \title{Class "cscBlocked" compressed, sparse, blocked Matrix }
 \description{The \code{cscMatrix} class is a class of sparse matrices in
   the compressed, sparse, column-oriented format.  In this
@@ -31,7 +32,11 @@
   }
 }
 \section{Methods}{
-No methods defined with class "cscBlocked" in the signature.
+  \describe{
+    \item{coerce}{\code{signature(from = "cscBlocked", to = "cscMatrix")}}
+    \item{coerce}{\code{signature(from = "cscBlocked", to = "tripletMatrix")}}
+    \item{coerce}{\code{signature(from = "cscMatrix", to = "cscBlocked")}}
+  }
 }
 %\references{}
 %\author{}

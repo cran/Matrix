@@ -34,39 +34,8 @@ SEXP nlme_weight_matrix_list(SEXP MLin, SEXP wts, SEXP adjst, SEXP MLout);
 
 				/* stored pointers to symbols */
 				/* initialized in R_init_Matrix */
-extern SEXP
-    Matrix_DSym,
-    Matrix_DIsqrtSym,
-    Matrix_DimSym,
-    Matrix_GpSym,
-    Matrix_LSym,
-    Matrix_LiSym,
-    Matrix_LinvSym,
-    Matrix_LpSym,
-    Matrix_LxSym,
-    Matrix_OmegaSym,
-    Matrix_ParentSym,
-    Matrix_RXXSym,
-    Matrix_RZXSym,
-    Matrix_XtXSym,
-    Matrix_ZtXSym,
-    Matrix_ZZxSym,
-    Matrix_bVarSym,
-    Matrix_cnamesSym,
-    Matrix_devianceSym,
-    Matrix_devCompSym,
-    Matrix_diagSym,
-    Matrix_iSym,
-    Matrix_ipermSym,
-    Matrix_jSym,
-    Matrix_matSym,
-    Matrix_ncSym,
-    Matrix_pSym,
-    Matrix_permSym,
-    Matrix_statusSym,
-    Matrix_uploSym,
-    Matrix_xSym,
-    Matrix_zSym;
+extern
+#include "Syms.h"
 
 #endif
 

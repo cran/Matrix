@@ -1,3 +1,44 @@
+2004-12-13  Douglas Bates  <bates@bates1-home>
+
+	* R/AllClass.R (.onLoad): Eliminate the bbCrosstab class, which is
+	no longer used.
+
+	* src/R_ldl.c: Created an R-specific version of the ldl.[ch] files
+	with dynamic allocation of scratch arrays.
+
+	* src/ssclme.c (ssclme_copy_ctab): Fixed bug in creation of ZtZ
+	for multivariate random effects with multiple grouping factors.
+	Fixes part but not all of #15.
+
+2004-12-03  Douglas Bates  <bates@bates1-home>
+
+	* src/lmeRep.c (lmeRep_factor): order of operations for multiple
+	scalar grouping factors corrected.
+
+2004-11-29  Douglas Bates  <bates@bates1-home>
+
+	* src/bCrosstab.c: remove diag_update which is no longer used
+
+2004-11-16  Douglas Bates  <bates@bates1-home>
+
+	* src/Metis_utils.c: Move metis.h include to C sources so that the
+	.h file can be included.
+
+2004-11-12  Douglas Bates  <bates@bates1-home>
+
+	* src/LU.c,geMatrix.c,trMatrix.c, etc.:
+	Complete allocation of slots in NEW_OBJECT.
+
+	* src/Mutils.h: Moved list of symbols to an include file
+
+2004-11-11  Douglas Bates  <bates@bates1-home>
+
+	* src/geMutils.c (Matrix_init): remove unused function
+
+2004-11-10  Douglas Bates  <bates@bates1-home>
+
+	* src/cscMatrix.c (csc_to_imagemat): removed unused function
+
 2004-11-05  Douglas Bates  <bates@bates1-home>
 
 	* src/Makefile.win (SOURCES_C): Keep consistent with Makefile

@@ -29,8 +29,7 @@ SEXP sscMatrix_chol(SEXP x, SEXP pivot)
 	n = length(pSlot)-1,
 	nnz, piv = asLogical(pivot);
     SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("sscChol")));
-    int *Flag = Calloc(n, int), *Lnz = Calloc(n, int),
-	*P = (int *) NULL, *Pinv = (int *) NULL;
+    int *P = (int *) NULL, *Pinv = (int *) NULL;
     double *Ax;
 
     if (lo) {
@@ -65,23 +64,20 @@ SEXP sscMatrix_chol(SEXP x, SEXP pivot)
 		       REAL(GET_SLOT(trip, Matrix_xSym)),
 		       Ap, Ai, Ax);
     } 
-    ldl_symbolic(n, Ap, Ai, Lp, Parent, Lnz, Flag, P, Pinv);
+    R_ldl_symbolic(n, Ap, Ai, Lp, Parent, P, Pinv);
     nnz = Lp[n];
     SET_SLOT(val, Matrix_iSym, allocVector(INTSXP, nnz));
     SET_SLOT(val, Matrix_xSym, allocVector(REALSXP, nnz));
     SET_SLOT(val, Matrix_DSym, allocVector(REALSXP, n));    
-    info = ldl_numeric(n, Ap, Ai, Ax,
-		       Lp, Parent, Lnz,
+    info = R_ldl_numeric(n, Ap, Ai, Ax,
+		       Lp, Parent,
 		       INTEGER(GET_SLOT(val, Matrix_iSym)),
 		       REAL(GET_SLOT(val, Matrix_xSym)),
 		       REAL(GET_SLOT(val, Matrix_DSym)),
-		       (double *) R_alloc(n, sizeof(double)), /* Y */
-		       (int *) R_alloc(n, sizeof(int)),	/* Pattern */
-		       Flag, P, Pinv);
+		       P, Pinv);
     if (info != n)
 	error("Leading minor of size %d (possibly after permutation) is indefinite",
 	      info + 1);
-    Free(Flag); Free(Lnz);
     if (piv) {
 	UNPROTECT(1);
 	Free(Pinv); Free(Ax); Free(Ai); Free(Ap);
@@ -112,12 +108,12 @@ SEXP sscMatrix_matrix_solve(SEXP a, SEXP b)
     Lx = REAL(GET_SLOT(Chol, Matrix_xSym));
     D = REAL(GET_SLOT(Chol, Matrix_DSym));
     for (j = 0; j < ncol; j++, in += n, out += n) {
-	if (piv) ldl_perm(n, out, in, INTEGER(perm));
+	if (piv) R_ldl_perm(n, out, in, INTEGER(perm));
 	else Memcpy(out, in, n);
-	ldl_lsolve(n, out, Lp, Li, Lx);
-	ldl_dsolve(n, out, D);
-	ldl_ltsolve(n, out, Lp, Li, Lx);
-	if (piv) ldl_permt(n, out, Memcpy(tmp, out, n), INTEGER(perm));
+	R_ldl_lsolve(n, out, Lp, Li, Lx);
+	R_ldl_dsolve(n, out, D);
+	R_ldl_ltsolve(n, out, Lp, Li, Lx);
+	if (piv) R_ldl_permt(n, out, Memcpy(tmp, out, n), INTEGER(perm));
     }
     if (piv) Free(tmp);
     UNPROTECT(1);
@@ -206,8 +202,6 @@ SEXP sscMatrix_ldl_symbolic(SEXP x, SEXP doPerm)
     int i, n = INTEGER(Dims)[0], nz, nza,
 	*Ap, *Ai, *Lp, *Li, *Parent,
 	doperm = asLogical(doPerm),
-	*Lnz = (int *) R_alloc(n, sizeof(int)),
-	*Flag = (int *) R_alloc(n, sizeof(int)),
 	*P = (int *) NULL, *Pinv = (int *) NULL;
 
 
@@ -221,11 +215,13 @@ SEXP sscMatrix_ldl_symbolic(SEXP x, SEXP doPerm)
     Ap = INTEGER(GET_SLOT(x, Matrix_pSym));
     Ai = INTEGER(GET_SLOT(x, Matrix_iSym));
     if (doperm) {
-	int *perm;
+	int *perm, *iperm = Calloc(n, int);
+
 	SET_VECTOR_ELT(ans, 2, allocVector(INTSXP, n));
 	perm = INTEGER(VECTOR_ELT(ans, 2));
-	ssc_metis_order(n, Ap, Ai, perm, Flag);
-	ssc_symbolic_permute(n, 1, Flag, Ap, Ai);
+	ssc_metis_order(n, Ap, Ai, perm, iperm);
+	ssc_symbolic_permute(n, 1, iperm, Ap, Ai);
+	Free(iperm);
     }
     SET_VECTOR_ELT(ans, 0, allocVector(INTSXP, n));
     Parent = INTEGER(VECTOR_ELT(ans, 0));
@@ -236,19 +232,17 @@ SEXP sscMatrix_ldl_symbolic(SEXP x, SEXP doPerm)
     SET_SLOT(tsc, Matrix_DimSym, Dims);
     SET_SLOT(tsc, Matrix_pSym, allocVector(INTSXP, n + 1));
     Lp = INTEGER(GET_SLOT(tsc, Matrix_pSym));
-    ldl_symbolic(n, Ap, Ai, Lp, Parent, Lnz, Flag, P, Pinv);
+    R_ldl_symbolic(n, Ap, Ai, Lp, Parent, P, Pinv);
     nz = Lp[n];
     SET_SLOT(tsc, Matrix_iSym, allocVector(INTSXP, nz));
     Li = INTEGER(GET_SLOT(tsc, Matrix_iSym));
     SET_SLOT(tsc, Matrix_xSym, allocVector(REALSXP, nz));
     for (i = 0; i < nza; i++) REAL(Ax)[i] = 0.00001;
     for (i = 0; i < n; i++) REAL(Ax)[Ap[i+1]-1] = 10000.;
-    i = ldl_numeric(n, Ap, Ai, REAL(Ax), Lp, Parent, Lnz, Li,
+    i = R_ldl_numeric(n, Ap, Ai, REAL(Ax), Lp, Parent, Li,
 		    REAL(GET_SLOT(tsc, Matrix_xSym)),
 		    (double *) R_alloc(n, sizeof(double)), /* D */
-		    (double *) R_alloc(n, sizeof(double)), /* Y */
-		    (int *) R_alloc(n, sizeof(int)), /* Pattern */
-		    Flag, P, Pinv);
+		    P, Pinv);
     UNPROTECT(2);
     return ans;
 }

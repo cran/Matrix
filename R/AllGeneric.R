@@ -4,6 +4,14 @@ if (!isGeneric("expand")) {
     setGeneric("expand", function(x, ...) standardGeneric("expand"))
 }
 
+if (!isGeneric("tcrossprod")) {
+    setGeneric("tcrossprod", function(x) standardGeneric("tcrossprod"))
+}
+
+if (!isGeneric("isSymmetric")) {
+    setGeneric("isSymmetric", function(object, ...) standardGeneric("isSymmetric"))
+}
+
 if (!isGeneric("isNested")) {
     setGeneric("isNested", function(object, ...) standardGeneric("isNested"))
 }

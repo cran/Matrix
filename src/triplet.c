@@ -47,6 +47,8 @@ SEXP triplet_to_geMatrix(SEXP x)
 	*vx,
 	*xx = REAL(GET_SLOT(x, Matrix_xSym));
     
+    SET_SLOT(ans, Matrix_rcondSym, allocVector(REALSXP, 0));
+    SET_SLOT(ans, Matrix_factorization, allocVector(VECSXP, 0));
     SET_SLOT(ans, Matrix_DimSym, duplicate(dd));
     SET_SLOT(ans, Matrix_xSym, allocVector(REALSXP, m * n));
     vx = REAL(GET_SLOT(ans, Matrix_xSym));

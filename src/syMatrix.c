@@ -43,7 +43,7 @@ static
 double set_rcond_sy(SEXP obj, char *typstr)
 {
     char typnm[] = {'\0', '\0'};
-    SEXP rcv = GET_SLOT(obj, install("rcond"));
+    SEXP rcv = GET_SLOT(obj, Matrix_rcondSym);
     double rcond;
 
     typnm[0] = rcond_type(typstr);
@@ -61,7 +61,7 @@ double set_rcond_sy(SEXP obj, char *typstr)
 			 &anorm, &rcond, 
 			 (double *) R_alloc(2*dims[0], sizeof(double)),
 			 (int *) R_alloc(dims[0], sizeof(int)), &info);
-	SET_SLOT(obj, install("rcond"),
+	SET_SLOT(obj, Matrix_rcondSym,
 		 set_double_by_name(rcv, rcond, typnm));
     }
     return rcond;
@@ -110,8 +110,10 @@ SEXP syMatrix_matrix_solve(SEXP a, SEXP b)
 SEXP syMatrix_as_geMatrix(SEXP from)
 {
     SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("geMatrix"))),
-	rcondSym = install("rcond");
+	rcondSym = Matrix_rcondSym;
     
+    SET_SLOT(val, Matrix_rcondSym, allocVector(REALSXP, 0));
+    SET_SLOT(val, Matrix_factorization, allocVector(VECSXP, 0));
     SET_SLOT(val, rcondSym, duplicate(GET_SLOT(from, rcondSym)));
     SET_SLOT(val, Matrix_xSym, duplicate(GET_SLOT(from, Matrix_xSym)));
     SET_SLOT(val, Matrix_DimSym,
@@ -147,6 +149,8 @@ SEXP syMatrix_geMatrix_mm(SEXP a, SEXP b)
 	error("Matrices are not conformable for multiplication");
     if (m < 1 || n < 1 || k < 1)
 	error("Matrices with zero extents cannot be multiplied");
+    SET_SLOT(val, Matrix_factorization, allocVector(VECSXP, 0));
+    SET_SLOT(val, Matrix_rcondSym, allocVector(REALSXP, 0));
     SET_SLOT(val, Matrix_xSym, allocVector(REALSXP, m * n));
     SET_SLOT(val, Matrix_DimSym, allocVector(INTSXP, 2));
     cdims = INTEGER(GET_SLOT(val, Matrix_DimSym));
@@ -173,6 +177,8 @@ SEXP syMatrix_geMatrix_mm_R(SEXP a, SEXP b)
 	error("Matrices are not conformable for multiplication");
     if (m < 1 || n < 1 || k < 1)
 	error("Matrices with zero extents cannot be multiplied");
+    SET_SLOT(val, Matrix_rcondSym, allocVector(REALSXP, 0));
+    SET_SLOT(val, Matrix_factorization, allocVector(VECSXP, 0));
     SET_SLOT(val, Matrix_xSym, allocVector(REALSXP, m * n));
     SET_SLOT(val, Matrix_DimSym, allocVector(INTSXP, 2));
     cdims = INTEGER(GET_SLOT(val, Matrix_DimSym));

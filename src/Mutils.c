@@ -62,18 +62,19 @@ set_double_by_name(SEXP obj, double val, char *nm)
 	    return obj;
 	}
     }
-    {SEXP nx = PROTECT(allocVector(REALSXP, len + 1)),
-	 nnms = allocVector(STRSXP, len + 1);
+    {
+	SEXP nx = PROTECT(allocVector(REALSXP, len + 1)),
+	    nnms = allocVector(STRSXP, len + 1);
 
-    setAttrib(nx, R_NamesSymbol, nnms);
-    for (i = 0; i < len; i++) {
-	REAL(nx)[i] = REAL(obj)[i];
-	SET_STRING_ELT(nnms, i, duplicate(STRING_ELT(nms, i)));
-    }
-    REAL(nx)[len] = val;
-    SET_STRING_ELT(nnms, len, mkChar(nm));
-    UNPROTECT(1);
-    return nx;
+	setAttrib(nx, R_NamesSymbol, nnms);
+	for (i = 0; i < len; i++) {
+	    REAL(nx)[i] = REAL(obj)[i];
+	    SET_STRING_ELT(nnms, i, duplicate(STRING_ELT(nms, i)));
+	}
+	REAL(nx)[len] = val;
+	SET_STRING_ELT(nnms, len, mkChar(nm));
+	UNPROTECT(1);
+	return nx;
     }
 }
 
@@ -96,7 +97,7 @@ SEXP as_det_obj(double val, int log, int sign)
 
 SEXP get_factorization(SEXP obj, char *nm)
 {
-    SEXP fac = GET_SLOT(obj, install("factorization")),
+    SEXP fac = GET_SLOT(obj, Matrix_factorization),
 	nms = getAttrib(fac, R_NamesSymbol);
     int i, len = length(fac);
     
@@ -112,7 +113,7 @@ SEXP get_factorization(SEXP obj, char *nm)
 
 SEXP set_factorization(SEXP obj, SEXP val, char *nm)
 {
-    SEXP fac = GET_SLOT(obj, install("factorization")),
+    SEXP fac = GET_SLOT(obj, Matrix_factorization),
 	nms = getAttrib(fac, R_NamesSymbol), nfac, nnms;
     int i, len = length(fac);
 
@@ -120,20 +121,21 @@ SEXP set_factorization(SEXP obj, SEXP val, char *nm)
 	error("factorization slot must be a named list");
     for (i = 0; i < len; i++) {
 	if (!strcmp(nm, CHAR(STRING_ELT(nms, i)))) {
-	    SET_VECTOR_ELT(fac, i, val);
+	    SET_VECTOR_ELT(fac, i, duplicate(val));
 	    return val;
 	}
     }
-    nfac = allocVector(VECSXP, len + 1);
-    nnms = allocVector(STRSXP, len + 1);
+    nfac = PROTECT(allocVector(VECSXP, len + 1));
+    nnms = PROTECT(allocVector(STRSXP, len + 1));
     setAttrib(nfac, R_NamesSymbol, nnms);
     for (i = 0; i < len; i++) {
 	SET_VECTOR_ELT(nfac, i, VECTOR_ELT(fac, i));
 	SET_STRING_ELT(nnms, i, duplicate(STRING_ELT(nms, i)));
     }
-    SET_VECTOR_ELT(nfac, len, val);
+    SET_VECTOR_ELT(nfac, len, duplicate(val));
     SET_STRING_ELT(nnms, len, mkChar(nm));
-    SET_SLOT(obj, install("factorization"), nfac);
+    SET_SLOT(obj, Matrix_factorization, nfac);
+    UNPROTECT(2);
     return val;
 }
 
@@ -237,6 +239,7 @@ SEXP triple_as_SEXP(int nrow, int ncol, int nz,
     Memcpy(INTEGER(GET_SLOT(val, Matrix_iSym)), Ai, nz); Free(Ai);
     SET_SLOT(val, Matrix_xSym, allocVector(REALSXP, nz));
     Memcpy(REAL(GET_SLOT(val, Matrix_xSym)), Ax, nz); Free(Ax);
+    SET_SLOT(val, Matrix_factorization, allocVector(VECSXP, 0));
     UNPROTECT(1);
     return cscMatrix_set_Dim(val, nrow);
 }    

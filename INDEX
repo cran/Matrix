@@ -5,6 +5,7 @@ Matrix                  Construct a Classed Matrix
 Matrix-class            Class "Matrix" Virtual class of Matrices
 Schur                   Schur Decomposition of a Matrix
 ScotsSec                Scottish secondary school scores
+bCrosstab               Create pairwise crosstabulation
 coef<-                  Assign parameters
 corFactor               Extract the correlation factor
 corMatrix               Generate the correlation matrix
@@ -33,6 +34,7 @@ sscCrosstab-class       Pairwise crosstabulations
 sscMatrix-class         Symmetric, compressed, sparse column matrices
 ssclme-class            lme models as sparse, symmetric matrices
 syMatrix-class          Class "syMatrix" of symmetric matrices
+tcrossprod              Cross-product of transpose
 trMatrix-class          Triangular, dense, non-packed, real matrices
 tripletMatrix-class     Class "tripletMatrix" sparse matrices in
                         triplet form

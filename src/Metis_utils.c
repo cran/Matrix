@@ -1,3 +1,5 @@
+#include <Rdefines.h>
+#include "metis.h"
 #include "Metis_utils.h"
 
 void ssc_metis_order(int n, const int Tp [], const int Ti [],

@@ -161,17 +161,59 @@ setClass("corrmatrix", representation("matrix", stdDev = "numeric"))
 setClass("cscBlocked", representation(p = "integer", i = "integer", x = "array"))
 
 ## Block/block sparse symmetric matrices
-setClass("bbSparseSy", representation(x = "list", uplo = "character"))
+setClass("bbSparseSy", representation(x = "list", uplo = "character"),
+         validity = function(object) {
+             ul <- object@uplo
+             if (length(ul) != 1 || nchar(ul[1]) != 1 ||
+                 !toupper(ul[1]) %in% c('L', 'U'))
+                 return("uplo slot must be 'U' or 'L'")
+             xl <- object@x
+             nf <- as.integer((-1 + sqrt(1 + 8 * length(xl))) / 2)
+             if (length(xl) != ((nf * (nf + 1))/2))
+                 return("x slot has incorrect length")
+             if (any(unlist(lapply(xl, class)) != "cscBlocked"))
+                 return("x slot must be a list of cscBlocked objects")
+             TRUE
+         })
 
 ## Block/block cross tabulation
-setClass("bbCrosstab", contains = "bbSparseSy")
+#setClass("bbCrosstab", contains = "bbSparseSy")
 
 ## Block/block sparse triangular matrices
 setClass("bbSparseTr", representation(x = "list", uplo = "character",
-                                      diag = "character"))
+                                      diag = "character"),
+         validity = function(object) {
+             ul <- object@uplo
+             if (length(ul) != 1 || nchar(ul[1]) != 1 ||
+                 !toupper(ul[1]) %in% c('L', 'U'))
+                 return("uplo slot must be 'U' or 'L'")
+             dd <- object@diag
+             if (length(dd) != 1 || nchar(dd[1]) != 1 ||
+                 !toupper(dd[1]) %in% c('N', 'U'))
+                 return("diag slot must be 'N' or 'U'")
+             xl <- object@x
+             nf <- as.integer((-1 + sqrt(1 + 8 * length(xl))) / 2)
+             if (length(xl) != ((nf * (nf + 1))/2))
+                 return("x slot has incorrect length")
+             if (any(unlist(lapply(xl, class)) != "cscBlocked"))
+                 return("x slot must be a list of cscBlocked objects")
+             TRUE
+         })
+
 
 ## Block/block L matrix
-setClass("bbLmat", representation(Linv = "list"), contains = "bbSparseTr")
+setClass("bbLmat", representation(Linv = "list"), contains = "bbSparseTr",
+         validity = function(object) {
+             linv <- object@linv
+             xl <- object@x
+             nf <- as.integer((-1 + sqrt(1 + 8 * length(xl))) / 2)
+             if (length(linv) != nf)
+                 return("x and Linv slots have inconsistent length")
+             if (any(unlist(lapply(xl, class)) != "cscBlocked"))
+                 return("x slot must be a list of cscBlocked objects")
+             TRUE
+         })
+             
          
 ## Representation of a linear mixed effects model
 setClass("lmeRep",

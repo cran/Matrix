@@ -16,39 +16,7 @@
 #include "tscMatrix.h"
 #include <R_ext/Rdynload.h>
 
-SEXP
-    Matrix_DSym,
-    Matrix_DIsqrtSym,
-    Matrix_DimSym,
-    Matrix_GpSym,
-    Matrix_LSym,
-    Matrix_LiSym,
-    Matrix_LinvSym,
-    Matrix_LpSym,
-    Matrix_LxSym,
-    Matrix_OmegaSym,
-    Matrix_ParentSym,
-    Matrix_RXXSym,
-    Matrix_RZXSym,
-    Matrix_XtXSym,
-    Matrix_ZtXSym,
-    Matrix_ZZxSym,
-    Matrix_bVarSym,
-    Matrix_cnamesSym,
-    Matrix_devianceSym,
-    Matrix_devCompSym,
-    Matrix_diagSym,
-    Matrix_iSym,
-    Matrix_ipermSym,
-    Matrix_jSym,
-    Matrix_matSym,
-    Matrix_ncSym,
-    Matrix_pSym,
-    Matrix_permSym,
-    Matrix_statusSym,
-    Matrix_uploSym,
-    Matrix_xSym,
-    Matrix_zSym;
+#include "Syms.h"
 
 static R_CallMethodDef CallEntries[] = {
     {"csc_check_column_sorting", (DL_FUNC) &csc_check_column_sorting, 1},
@@ -188,6 +156,7 @@ void R_init_Matrix(DllInfo *dll)
     Matrix_devianceSym = install("deviance");
     Matrix_devCompSym = install("devComp");
     Matrix_diagSym = install("diag");
+    Matrix_factorization = install("factorization");
     Matrix_iSym = install("i");
     Matrix_ipermSym = install("iperm");
     Matrix_jSym = install("j");
@@ -195,6 +164,7 @@ void R_init_Matrix(DllInfo *dll)
     Matrix_ncSym = install("nc");
     Matrix_pSym = install("p");
     Matrix_permSym = install("perm");
+    Matrix_rcondSym = install("rcond");
     Matrix_statusSym = install("status");
     Matrix_uploSym = install("uplo");
     Matrix_xSym = install("x");

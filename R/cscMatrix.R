@@ -10,6 +10,10 @@ setMethod("crossprod", signature(x = "cscMatrix", y = "numeric"),
           function(x, y = NULL)
           .Call("csc_matrix_crossprod", x, as.matrix(y)))
 
+setMethod("tcrossprod", signature(x = "cscMatrix"),
+          function(x)
+          .Call("csc_tcrossprod", x))
+
 setMethod("dim", signature(x = "cscMatrix"),
           function(x) x@Dim, valueClass = "integer")
 
@@ -49,3 +53,4 @@ setMethod("image", "cscMatrix",
               x = as(x, "tripletMatrix")
               callGeneric()
           })
+

@@ -3,18 +3,22 @@
 SEXP geMatrix_validate(SEXP obj)
 {
     SEXP x = GET_SLOT(obj, Matrix_xSym),
-	Dim = GET_SLOT(obj, Matrix_DimSym);
+	Dim = GET_SLOT(obj, Matrix_DimSym),
+	fact = GET_SLOT(obj, Matrix_factorization),
+	rc = GET_SLOT(obj, Matrix_rcondSym);    
     int m, n;
 
     if (length(Dim) != 2)
 	return ScalarString(mkChar("Dim slot must have length 2"));
     m = INTEGER(Dim)[0]; n = INTEGER(Dim)[1];
     if (m < 0 || n < 0)
-	return
-	    ScalarString(mkChar("Negative value(s) in Dim"));
+	return ScalarString(mkChar("Negative value(s) in Dim"));
     if (length(x) != m * n)
-    	return
-	    ScalarString(mkChar("x slot must have length that is prod(Dim)"));
+    	return ScalarString(mkChar("length of x slot != prod(Dim)"));
+    if (length(fact) > 0 && getAttrib(fact, R_NamesSymbol) == R_NilValue)
+	return ScalarString(mkChar("factorization slot must be named list"));
+    if (length(rc) > 0 && getAttrib(rc, R_NamesSymbol) == R_NilValue)
+	return ScalarString(mkChar("rcond slot must be named numeric vector"));
     return ScalarLogical(1);
 }
 
@@ -43,7 +47,7 @@ static
 double set_rcond(SEXP obj, char *typstr)
 {
     char typnm[] = {'\0', '\0'};
-    SEXP rcv = GET_SLOT(obj, install("rcond"));
+    SEXP rcv = GET_SLOT(obj, Matrix_rcondSym);
     double rcond = get_double_by_name(rcv, typnm);
 
     typnm[0] = rcond_type(typstr);
@@ -59,7 +63,7 @@ double set_rcond(SEXP obj, char *typstr)
 			 dims, &anorm, &rcond,
 			 (double *) R_alloc(4*dims[0], sizeof(double)),
 			 (int *) R_alloc(dims[0], sizeof(int)), &info);
-	SET_SLOT(obj, install("rcond"),
+	SET_SLOT(obj, Matrix_rcondSym,
 		 set_double_by_name(rcv, rcond, typnm));
     }
     return rcond;
@@ -74,19 +78,23 @@ SEXP geMatrix_crossprod(SEXP x)
 {
     SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("poMatrix")));
     int *Dims = INTEGER(GET_SLOT(x, Matrix_DimSym)),
-	*vDims = INTEGER(GET_SLOT(val, Matrix_DimSym));
-    int n = Dims[1];
-    double one = 1.0, zero = 0.0;
+	*vDims;
+    int i, n = Dims[1];
+    int nsqr = n * n;
+    double one = 1.0, *xvals, zero = 0.0;
 
-    if ((*Dims) > 0 && n > 0) {
-	vDims[0] = vDims[1] = n;
-	SET_SLOT(val, Matrix_xSym, allocVector(REALSXP, n * n));
-	F77_CALL(dsyrk)(CHAR(asChar(GET_SLOT(val, Matrix_uploSym))),
-		       "T", Dims + 1, Dims, &one,
-		       REAL(GET_SLOT(x, Matrix_xSym)),
-		       Dims, &zero,
-		       REAL(GET_SLOT(val, Matrix_xSym)), &n);
-    }
+    SET_SLOT(val, Matrix_factorization, allocVector(VECSXP, 0));
+    SET_SLOT(val, Matrix_rcondSym, allocVector(REALSXP, 0));
+    SET_SLOT(val, Matrix_uploSym, ScalarString(mkChar("U")));
+    SET_SLOT(val, Matrix_DimSym, allocVector(INTSXP, 2));
+    vDims = INTEGER(GET_SLOT(val, Matrix_DimSym));
+    vDims[0] = vDims[1] = n;
+    SET_SLOT(val, Matrix_xSym, allocVector(REALSXP, nsqr));
+    xvals = REAL(GET_SLOT(val, Matrix_xSym));
+    for (i = 0; i < nsqr; i++) xvals[i] = 0.; /* keep valgrind happy */
+    F77_CALL(dsyrk)("U", "T", vDims, Dims,
+		    &one, REAL(GET_SLOT(x, Matrix_xSym)), Dims,
+		    &zero, xvals, vDims);
     UNPROTECT(1);
     return val;
 }
@@ -96,10 +104,14 @@ SEXP geMatrix_geMatrix_crossprod(SEXP x, SEXP y)
     SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("geMatrix")));
     int *xDims = INTEGER(GET_SLOT(x, Matrix_DimSym)),
 	*yDims = INTEGER(GET_SLOT(y, Matrix_DimSym)),
-	*vDims = INTEGER(GET_SLOT(val, Matrix_DimSym));
+	*vDims;
     int m = xDims[1], n = yDims[1];
     double one = 1.0, zero = 0.0;
 
+    SET_SLOT(val, Matrix_rcondSym, allocVector(REALSXP, 0));
+    SET_SLOT(val, Matrix_factorization, allocVector(VECSXP, 0));
+    SET_SLOT(val, Matrix_DimSym, allocVector(INTSXP, 2));
+    vDims = INTEGER(GET_SLOT(val, Matrix_DimSym));
     if ((*xDims) > 0 && (*yDims) > 0 && n > 0 && m > 0) {
 	if (*xDims != *yDims)
 	    error("Dimensions of x and y are not compatible for crossprod");
@@ -120,12 +132,16 @@ SEXP geMatrix_matrix_crossprod(SEXP x, SEXP y)
     SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("geMatrix")));
     int *xDims = INTEGER(GET_SLOT(x, Matrix_DimSym)),
 	*yDims = INTEGER(getAttrib(y, R_DimSymbol)),
-	*vDims = INTEGER(GET_SLOT(val, Matrix_DimSym));
+	*vDims;
     int m = xDims[1], n = yDims[1];
     double one = 1.0, zero = 0.0;
 
     if (!(isMatrix(y) && isReal(y)))
 	error("Argument y must be a numeric (real) matrix");
+    SET_SLOT(val, Matrix_rcondSym, allocVector(REALSXP, 0));
+    SET_SLOT(val, Matrix_factorization, allocVector(VECSXP, 0));
+    SET_SLOT(val, Matrix_DimSym, allocVector(INTSXP, 2));
+    vDims = INTEGER(GET_SLOT(val, Matrix_DimSym));
     if ((*xDims) > 0 && (*yDims) > 0 && n > 0 && m > 0) {
 	if (*xDims != *yDims)
 	    error("Dimensions of x and y are not compatible for crossprod");
@@ -219,6 +235,8 @@ SEXP geMatrix_solve(SEXP a)
 
 
     if (dims[0] != dims[1]) error("Solve requires a square matrix");
+    SET_SLOT(val, Matrix_rcondSym, allocVector(REALSXP, 0));
+    SET_SLOT(val, Matrix_factorization, allocVector(VECSXP, 0));
     SET_SLOT(val, Matrix_xSym, duplicate(GET_SLOT(lu, Matrix_xSym)));
     x = REAL(GET_SLOT(val, Matrix_xSym));
     SET_SLOT(val, Matrix_DimSym, duplicate(GET_SLOT(lu, Matrix_DimSym)));
@@ -245,6 +263,8 @@ SEXP geMatrix_geMatrix_mm(SEXP a, SEXP b)
 	error("Matrices are not conformable for multiplication");
     if (m < 1 || n < 1 || k < 1)
 	error("Matrices with zero extents cannot be multiplied");
+    SET_SLOT(val, Matrix_rcondSym, allocVector(REALSXP, 0));
+    SET_SLOT(val, Matrix_factorization, allocVector(VECSXP, 0));
     SET_SLOT(val, Matrix_xSym, allocVector(REALSXP, m * n));
     SET_SLOT(val, Matrix_DimSym, allocVector(INTSXP, 2));
     cdims = INTEGER(GET_SLOT(val, Matrix_DimSym));
@@ -259,8 +279,8 @@ SEXP geMatrix_geMatrix_mm(SEXP a, SEXP b)
 
 SEXP geMatrix_svd(SEXP x, SEXP nnu, SEXP nnv)
 {
-    int nu = asInteger(nnu),
-	nv = asInteger(nnv),
+    int /* nu = asInteger(nnu),
+	   nv = asInteger(nnv), */
 	*dims = INTEGER(GET_SLOT(x, Matrix_DimSym));
     double *xx = REAL(GET_SLOT(x, Matrix_xSym));
     SEXP val = PROTECT(allocVector(VECSXP, 3));

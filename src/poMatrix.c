@@ -2,16 +2,21 @@
 
 SEXP poMatrix_chol(SEXP x)
 {
-    SEXP val = get_factorization(x, "Cholesky");
+    SEXP val = get_factorization(x, "Cholesky"),
+	dimP = GET_SLOT(x, Matrix_DimSym),
+	uploP = GET_SLOT(x, Matrix_uploSym);
     int *dims, info;
     
     if (val != R_NilValue) return val;
-    dims = INTEGER(GET_SLOT(x, Matrix_DimSym));
+    dims = INTEGER(dimP);
     val = PROTECT(NEW_OBJECT(MAKE_CLASS("Cholesky")));
-    SET_SLOT(val, install("uplo"), duplicate(GET_SLOT(x, install("uplo"))));
+    SET_SLOT(val, Matrix_uploSym, duplicate(uploP));
+    SET_SLOT(val, Matrix_diagSym, ScalarString(mkChar("N")));
+    SET_SLOT(val, Matrix_rcondSym, allocVector(REALSXP, 0));
+    SET_SLOT(val, Matrix_factorization, allocVector(VECSXP, 0));
     SET_SLOT(val, Matrix_xSym, duplicate(GET_SLOT(x, Matrix_xSym)));
-    SET_SLOT(val, Matrix_DimSym, duplicate(GET_SLOT(x, Matrix_DimSym)));
-    F77_CALL(dpotrf)(CHAR(asChar(GET_SLOT(val, Matrix_uploSym))), dims,
+    SET_SLOT(val, Matrix_DimSym, duplicate(dimP));
+    F77_CALL(dpotrf)(CHAR(asChar(uploP)), dims,
 		     REAL(GET_SLOT(val, Matrix_xSym)), dims, &info);
     if (info) error("Lapack routine dpotrf returned error code %d", info);
     UNPROTECT(1);
@@ -22,7 +27,7 @@ static
 double set_rcond(SEXP obj, char *typstr)
 {
     char typnm[] = {'O', '\0'};	/* always use the one norm */
-    SEXP rcv = GET_SLOT(obj, install("rcond"));
+    SEXP rcv = GET_SLOT(obj, Matrix_rcondSym);
     double rcond = get_double_by_name(rcv, typnm);
 
     if (R_IsNA(rcond)) {
@@ -35,7 +40,7 @@ double set_rcond(SEXP obj, char *typstr)
 			 dims, &anorm, &rcond,
 			 (double *) R_alloc(3*dims[0], sizeof(double)),
 			 (int *) R_alloc(dims[0], sizeof(int)), &info);
-	SET_SLOT(obj, install("rcond"),
+	SET_SLOT(obj, Matrix_rcondSym,
 		 set_double_by_name(rcv, rcond, typnm));
     }
     return rcond;
@@ -52,11 +57,13 @@ SEXP poMatrix_solve(SEXP x)
     SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("poMatrix")));
     int *dims = INTEGER(GET_SLOT(x, Matrix_DimSym)), info;
 
-    SET_SLOT(val, Matrix_uploSym, duplicate(GET_SLOT(x, Matrix_uploSym)));
+    SET_SLOT(val, Matrix_factorization, allocVector(VECSXP, 0));
+    SET_SLOT(val, Matrix_uploSym, duplicate(GET_SLOT(Chol, Matrix_uploSym)));
     SET_SLOT(val, Matrix_xSym, duplicate(GET_SLOT(Chol, Matrix_xSym)));
-    SET_SLOT(val, Matrix_DimSym, duplicate(GET_SLOT(x, Matrix_DimSym)));
+    SET_SLOT(val, Matrix_DimSym, duplicate(GET_SLOT(Chol, Matrix_DimSym)));
     F77_CALL(dpotri)(CHAR(asChar(GET_SLOT(val, Matrix_uploSym))),
 		     dims, REAL(GET_SLOT(val, Matrix_xSym)), dims, &info);
+    SET_SLOT(val, Matrix_rcondSym, duplicate(GET_SLOT(x, Matrix_rcondSym)));
     UNPROTECT(1);
     return val;
 }
@@ -71,6 +78,8 @@ SEXP poMatrix_geMatrix_solve(SEXP a, SEXP b)
 
     if (*adims != *bdims || bdims[1] < 1 || *adims < 1)
 	error("Dimensions of system to be solved are inconsistent");
+    SET_SLOT(val, Matrix_rcondSym, allocVector(REALSXP, 0));
+    SET_SLOT(val, Matrix_factorization, allocVector(VECSXP, 0));
     SET_SLOT(val, Matrix_DimSym, duplicate(GET_SLOT(b, Matrix_DimSym)));
     SET_SLOT(val, Matrix_xSym, duplicate(GET_SLOT(b, Matrix_xSym)));
     F77_CALL(dpotrs)(CHAR(asChar(GET_SLOT(Chol, Matrix_uploSym))),

@@ -52,7 +52,7 @@ static
 double set_rcond(SEXP obj, char *typstr)
 {
     char typnm[] = {'\0', '\0'};
-    SEXP rcv = GET_SLOT(obj, install("rcond"));
+    SEXP rcv = GET_SLOT(obj, Matrix_rcondSym);
     double rcond = get_double_by_name(rcv, typnm);
 
     typnm[0] = rcond_type(typstr);
@@ -65,7 +65,7 @@ double set_rcond(SEXP obj, char *typstr)
 			 dims, &rcond,
 			 (double *) R_alloc(3*dims[0], sizeof(double)),
 			 (int *) R_alloc(dims[0], sizeof(int)), &info);
-	SET_SLOT(obj, install("rcond"),
+	SET_SLOT(obj, Matrix_rcondSym,
 		 set_double_by_name(rcv, rcond, typnm));
     }
     return rcond;
@@ -136,11 +136,12 @@ SEXP trMatrix_as_geMatrix(SEXP from)
 {
     SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("geMatrix")));
     
-    SET_SLOT(val, install("rcond"),
-	     duplicate(GET_SLOT(from, install("rcond"))));
+    SET_SLOT(val, Matrix_rcondSym,
+	     duplicate(GET_SLOT(from, Matrix_rcondSym)));
     SET_SLOT(val, Matrix_xSym, duplicate(GET_SLOT(from, Matrix_xSym)));
     SET_SLOT(val, Matrix_DimSym,
 	     duplicate(GET_SLOT(from, Matrix_DimSym)));
+    SET_SLOT(val, Matrix_factorization, allocVector(VECSXP, 0));
     make_array_triangular(REAL(GET_SLOT(val, Matrix_xSym)), from);
     UNPROTECT(1);
     return val;

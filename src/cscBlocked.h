@@ -14,5 +14,5 @@ void cscBlocked_mm(char side, char transa, int m, int n, int k,
 void cscBlocked_tri(char upper, char unit, int n, int nr, int nc,
 		    const int ap[], const int ai[], const double ax[],
 		    int aip[], int aii[], double aix[]);
-
+SEXP cscBlocked_syrk(SEXP uplo, SEXP trans, SEXP alpha, SEXP A, SEXP beta, SEXP C);
 #endif

@@ -1,0 +1,33 @@
+LU.o: LU.c LU.h trMatrix.h
+Metis_utils.o: Metis_utils.c Metis/metis.h Metis/defs.h \
+  Metis/struct.h Metis/macros.h Metis/rename.h Metis/proto.h \
+  Metis_utils.h
+Mutils.o: Mutils.c Mutils.h 
+bCrosstab.o: bCrosstab.c bCrosstab.h Mutils.h \
+  Syms.h cscMatrix.h R_ldl.h \
+  Metis_utils.h triplet_to_col.h sscMatrix.h tscMatrix.h
+cscBlocked.o: cscBlocked.c cscBlocked.h Mutils.h 
+cscMatrix.o: cscMatrix.c cscMatrix.h Mutils.h Syms.h ldl.h
+dense.o: dense.c dense.h Mutils.h Syms.h
+factorizations.o: factorizations.c factorizations.h Mutils.h Syms.h
+geMatrix.o: geMatrix.c geMatrix.h  Syms.h
+init.o: init.c LU.h trMatrix.h Syms.h cscBlocked.h cscMatrix.h \
+  R_ldl.h dense.h factorizations.h geMatrix.h lmeRep.h triplet_to_col.h \
+  poMatrix.h sscCrosstab.h sscMatrix.h ssclme.h syMatrix.h triplet.h \
+  tscMatrix.h
+R_ldl.o: R_ldl.c R_ldl.h
+lmeRep.o: lmeRep.c lmeRep.h Mutils.h
+poMatrix.o: poMatrix.c poMatrix.h Syms.h
+sscChol.o: sscChol.c sscChol.h tscMatrix.h Mutils.h \
+  Syms.h cscMatrix.h R_ldl.h
+sscCrosstab.o: sscCrosstab.c sscCrosstab.h Mutils.h \
+  Syms.h R_ldl.h
+sscMatrix.o: sscMatrix.c sscMatrix.h \
+  Mutils.h Syms.h R_ldl.h \
+  triplet_to_col.h
+ssclme.o: ssclme.c ssclme.h sscCrosstab.h Mutils.h 
+syMatrix.o: syMatrix.c syMatrix.h geMatrix.h Syms.h
+trMatrix.o: trMatrix.c trMatrix.h Syms.h
+triplet.o: triplet.c triplet.h Mutils.h Syms.h
+triplet_to_col.o: triplet_to_col.c 
+tscMatrix.o: tscMatrix.c tscMatrix.h Mutils.h Syms.h cscMatrix.h R_ldl.h

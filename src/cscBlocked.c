@@ -126,7 +126,7 @@ cscBlocked_tri(char upper, char unit, int n, int nr, int nc,
 	       const int ap[], const int ai[], const double ax[],
 	       int aip[], int aii[], double aix[])
 {
-    int iup = (upper == 'U' || upper == 'u') ? 1 : 0,
+    int /* iup = (upper == 'U' || upper == 'u') ? 1 : 0, */
 	iunit = (unit == 'U' || unit == 'u') ? 1 : 0;
     
     if (!iunit)
@@ -138,3 +138,119 @@ cscBlocked_tri(char upper, char unit, int n, int nr, int nc,
 	error ("Structure of A and A-inverse does not agree");
     }
 }
+
+/** 
+ * Search for the element in a compressed sparse matrix at a given row and column
+ * 
+ * @param row row index
+ * @param col column index
+ * @param cp column pointers
+ * @param ci row indices
+ * 
+ * @return index of element in ci, if it exists, else -1
+ */
+static R_INLINE
+int Ind(int row, int col, const int cp[], const int ci[])
+{
+    int i, i2 = cp[col + 1];
+    for (i = cp[col]; i < i2; i++)
+	if (ci[i] == row) return i;
+    return -1;
+}
+
+/** 
+ * Perform one of the matrix operations 
+ *  C := alpha*A*A' + beta*C,
+ * or
+ *  C := alpha*A'*A + beta*C,
+ * where A is a compressed, sparse, blocked matrix and
+ * C is a compressed, sparse, symmetric blocked matrix.
+ * 
+ * @param uplo 'U' or 'u' for upper triangular storage, else lower.
+ * @param trans 'T' or 't' for transpose.
+ * @param alpha scalar multiplier of outer product
+ * @param A compressed sparse blocked matrix
+ * @param beta scalar multiplier of c
+ * @param C compressed sparse blocked symmetric matrix to be updated
+ */
+SEXP cscBlocked_syrk(SEXP uplo, SEXP trans, SEXP alpha, SEXP A, SEXP beta, SEXP C)
+{
+    SEXP axp = GET_SLOT(A, Matrix_xSym),
+	app = GET_SLOT(A, Matrix_pSym),
+	cxp = GET_SLOT(C, Matrix_xSym),
+	cpp = GET_SLOT(C, Matrix_pSym);
+    int *adims = INTEGER(getAttrib(axp, R_DimSymbol)),
+	*ai = INTEGER(GET_SLOT(A, Matrix_iSym)),
+	*ap = INTEGER(app),
+	*cdims = INTEGER(getAttrib(cxp, R_DimSymbol)),
+	*ci = INTEGER(GET_SLOT(A, Matrix_iSym)),
+	*cp = INTEGER(cpp),
+	j, k,
+	nca = length(app) - 1,
+	ncc = length(cpp) - 1,
+	npairs,
+	inplace;
+    char *ul, *tr;
+    double *ax = REAL(axp),
+	*cx = REAL(cxp),
+	bta = asReal(beta);
+
+    if (length(uplo) != 1 || length(trans) != 1 || length(alpha) != 1 ||
+	length(beta) != 1 || !isReal(alpha) || !isReal(beta) ||
+	!isString(uplo) || !isString(trans))
+	error("uplo and trans must be character scalars, alpha and beta real scalars");
+    if (cdims[0] != cdims[1]) error("blocks in C must be square");
+    ul = CHAR(STRING_ELT(uplo, 0));
+    tr = CHAR(STRING_ELT(trans, 0));
+    if (toupper(tr[0]) == 'T')
+	error("Code for trans == 'T' not yet written");
+/* FIXME: Write the other version */
+    if (adims[0] != cdims[0])
+	error("Dimension inconsistency in blocks: dim(A)=[%d,,], dim(C)=[%d,,]",
+	      adims[0], cdims[0]);
+				/* check the row indices */
+    for (k = 0; k < adims[2]; k++) {
+	int aik = ai[k];
+	if (aik < 0 || aik >= ncc)
+	    error("Row index %d = %d is out of range [0, %d]",
+		  k, ai[k], ncc - 1);
+    }
+				/* check if C can be updated in place */
+    inplace = 1;
+    npairs = 0;
+    for (j = 0; j < nca; j++) {
+	int k, kk, k2 = ap[j+1];
+	int nnz = k2 - ap[j];
+	npairs += (nnz * (nnz - 1)) / 2;
+	for (k = ap[j]; k < k2; k++) {
+/* FIXME: This check assumes uplo == 'L' */
+	    for (kk = k; kk < k2; kk++) {
+		if (Ind(ai[k], ai[kk], cp, ci) < 0) {
+		    inplace = 0;
+		    break;
+		}
+	    }
+	    if (!inplace) break;
+	}
+    }
+				/* multiply C by beta */
+    for (j = 0; j < cdims[0]*cdims[1]*cdims[2]; j++) cx[j] *= bta;
+    if (inplace) {
+	int scalar = (adims[0] == 1 && adims[1] == 1);
+	
+	for (j = 0; j < nca; j++) {
+	    int k, kk, k2 = ap[j+1];
+	    for (k = ap[j]; k < k2; k++) {
+		int ii = ai[k];
+		for (kk = k; kk < k2; kk++) {
+		    int jj = ai[kk], K = Ind(ii, jj, cp, ci);
+		    if (scalar) cx[K] += ax[k] * ax[kk];
+		    else {
+		    }
+		}
+	    }
+	}
+    }
+    return C;
+}
+

@@ -3,7 +3,7 @@
 
 #include <Rdefines.h>
 #include "Mutils.h"
-#include "ldl.h"
+#include "R_ldl.h"
 #include "triplet_to_col.h"
 
 SEXP sscMatrix_validate(SEXP x);

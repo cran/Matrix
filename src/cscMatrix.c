@@ -49,6 +49,7 @@ SEXP csc_crossprod(SEXP x)
     int j, *iVal, ncol = length(pslot) - 1, maxnz, nnz = 0, *pVal;
     double *xVal;
     
+    SET_SLOT(ans, Matrix_factorization, allocVector(VECSXP, 0));
     maxnz = (ncol * (ncol + 1))/2;
     iVal = Calloc(maxnz, int); xVal = Calloc(maxnz, double);
     SET_SLOT(ans, Matrix_pSym, allocVector(INTSXP, ncol + 1));
@@ -100,6 +101,67 @@ SEXP csc_crossprod(SEXP x)
     return cscMatrix_set_Dim(ans, ncol);
 }
 
+SEXP csc_tcrossprod(SEXP x)
+{
+    SEXP pslot = GET_SLOT(x, Matrix_pSym),
+	ans = PROTECT(NEW_OBJECT(MAKE_CLASS("sscMatrix")));
+    int *xp = INTEGER(pslot),
+	*xi = INTEGER(GET_SLOT(x, Matrix_iSym)),
+	*dims = INTEGER(GET_SLOT(x, Matrix_DimSym));
+    double *xx = REAL(GET_SLOT(x, Matrix_xSym));
+
+    int j, ntrip, *iVal, nrow = dims[0], ncol = dims[1], *jVal, nnz, pos;
+    int *itmp, *ansp;
+    double *xVal, *xtmp;
+
+    SET_SLOT(ans, Matrix_factorization, allocVector(VECSXP, 0));
+    ntrip = nrow;  		/* number of triplets */
+    for (j = 0; j < ncol; j++) {
+	int nzj = xp[j+1] - xp[j];
+	ntrip += (nzj * (nzj - 1))/2;
+    }
+    iVal = Calloc(ntrip, int); jVal = Calloc(ntrip, int);
+    xVal = Calloc(ntrip, double);
+    for (j = 0; j < nrow; j++) {
+	iVal[j] = jVal[j] = j;
+	xVal[j] = 0.;
+    }
+    pos = nrow;
+    for (j = 0; j < ncol; j++) {
+	int k, kk, k2 = xp[j+1];
+	for (k = xp[j]; k < k2; k++) {
+	    int r1 = xi[k];
+	    double x1 = xx[k];
+	    xVal[r1] += x1 * x1;
+	    for (kk = k + 1; kk < k2; kk++) {
+		int r2 = xi[kk];
+		double x2 = xx[kk];
+		jVal[pos] = r1;
+		iVal[pos] = r2;
+		xVal[pos] = x1 * x2;
+		pos++;
+	    }
+	}
+    }
+    SET_SLOT(ans, Matrix_pSym, allocVector(INTSXP, nrow + 1));
+    ansp = INTEGER(GET_SLOT(ans, Matrix_pSym));
+    itmp = Calloc(ntrip, int); xtmp = Calloc(ntrip, double);
+    triplet_to_col(nrow, nrow, ntrip, iVal, jVal, xVal,
+		   ansp, itmp, xtmp);
+    nnz = ansp[nrow];
+    SET_SLOT(ans, Matrix_uploSym, ScalarString(mkChar("L")));
+    SET_SLOT(ans, Matrix_iSym, allocVector(INTSXP, nnz));
+    SET_SLOT(ans, Matrix_xSym, allocVector(REALSXP, nnz));
+    Memcpy(INTEGER(GET_SLOT(ans, Matrix_iSym)), itmp, nnz);
+    Memcpy(REAL(GET_SLOT(ans, Matrix_xSym)), xtmp, nnz);
+    SET_SLOT(ans, Matrix_DimSym, allocVector(INTSXP, 2));
+    dims = INTEGER(GET_SLOT(ans, Matrix_DimSym));
+    dims[0] = dims[1] = nrow;
+    Free(itmp); Free(xtmp); Free(iVal); Free(jVal); Free(xVal);
+    UNPROTECT(1);
+    return ans;
+}
+    
 SEXP csc_matrix_crossprod(SEXP x, SEXP y)
 {
     SEXP pslot = GET_SLOT(x, Matrix_pSym), ans;
@@ -188,38 +250,14 @@ SEXP csc_to_geMatrix(SEXP x)
 		      
     SET_SLOT(ans, Matrix_DimSym, duplicate(Dimslot));
     SET_SLOT(ans, Matrix_xSym, allocVector(REALSXP, nrow*ncol));
+    SET_SLOT(ans, Matrix_rcondSym, allocVector(REALSXP, 0));
+    SET_SLOT(ans, Matrix_factorization, allocVector(VECSXP, 0));
     ax = REAL(GET_SLOT(ans, Matrix_xSym));
     for (j = 0; j < (nrow * ncol); j++) ax[j] = 0.;
     for (j = 0; j < ncol; j++) {
 	int ind;
 	for (ind = xp[j]; ind < xp[j+1]; ind++) {
 	    ax[j * nrow + xi[ind]] = xx[ind];
-	}
-    }
-    UNPROTECT(1);
-    return ans;
-}
-
-/* FIXME: This function does not appear to be used. */
-static				/* added to check if it was used */
-SEXP csc_to_imagemat(SEXP x)
-{
-    SEXP ans, pslot = GET_SLOT(x, Matrix_pSym);
-    int j, ncol = length(pslot) - 1,
-	nrow = INTEGER(GET_SLOT(x, Matrix_DimSym))[0],
-	*xp = INTEGER(pslot),
-	*xi = INTEGER(GET_SLOT(x, Matrix_iSym)),
-	*ax;
-				/* ans is the transpose of the indicator
-				   of non-zero */
-    ax = INTEGER(ans = PROTECT(allocMatrix(INTSXP, ncol, nrow)));
-    for (j = 0; j < (ncol * nrow); j++) ax[j] = 0;
-    for (j = 0; j < ncol; j++) {
-	int ind;
-
-	for (ind = xp[j]; ind < xp[j+1]; ind++) {
-				/* reverse rows of transpose */
-	    ax[j + ncol*(nrow - 1 - xi[ind])] = 1;
 	}
     }
     UNPROTECT(1);
@@ -237,6 +275,7 @@ SEXP matrix_to_csc(SEXP A)
     if (!(isMatrix(A) && isReal(A)))
 	error("A must be a numeric matrix");
     nrow = adims[0]; ncol = adims[1];
+    SET_SLOT(val, Matrix_factorization, allocVector(VECSXP, 0));
     SET_SLOT(val, Matrix_pSym, allocVector(INTSXP, ncol + 1));
     vp = INTEGER(GET_SLOT(val, Matrix_pSym));
     maxnz = nrow * ncol;
@@ -318,6 +357,7 @@ SEXP csc_transpose(SEXP x)
 	*xdims = INTEGER(GET_SLOT(x, Matrix_DimSym));
 
     adims[0] = xdims[1]; adims[1] = xdims[0];
+    SET_SLOT(ans, Matrix_factorization, allocVector(VECSXP, 0));
     SET_SLOT(ans, Matrix_pSym, allocVector(INTSXP, xdims[0] + 1));
     SET_SLOT(ans, Matrix_iSym, allocVector(INTSXP, nnz));
     SET_SLOT(ans, Matrix_xSym, allocVector(REALSXP, nnz));
@@ -362,5 +402,52 @@ SEXP csc_matrix_mm(SEXP a, SEXP b)
     return val;
 }
 
+SEXP csc_col_permute(SEXP x, SEXP perm)
+{
+    SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("cscMatrix"))), tmp;
+    int *iperm, *prm, *vi, *vp, *xi, *xp, j, k, ncol, pos;
+    double *vx, *xx;
 
-	     
+    SET_SLOT(val, Matrix_factorization, allocVector(VECSXP, 0));
+    tmp = GET_SLOT(x, Matrix_DimSym);
+    SET_SLOT(val, Matrix_DimSym, duplicate(tmp));
+    ncol = INTEGER(tmp)[1];
+    if (!(isInteger(perm) && length(perm) == ncol))
+	error("perm must be an integer vector of length %d",
+	      ncol);
+    prm = INTEGER(perm);
+    if (!R_ldl_valid_perm(ncol, prm))
+	error("perm is not a valid 0-based permutation");
+    iperm = Calloc(ncol, int);
+    for (j = 0; j < ncol; j++) iperm[prm[j]] = j;
+    tmp = GET_SLOT(x, Matrix_pSym);
+    xp = INTEGER(tmp);
+    SET_SLOT(val, Matrix_pSym, duplicate(tmp));
+    vp = INTEGER(GET_SLOT(val, Matrix_pSym));
+    tmp = GET_SLOT(x, Matrix_iSym);
+    xi = INTEGER(tmp);
+    SET_SLOT(val, Matrix_iSym, duplicate(tmp));
+    vi = INTEGER(GET_SLOT(val, Matrix_iSym));
+    tmp = GET_SLOT(x, Matrix_xSym);
+    xx = REAL(tmp);
+    SET_SLOT(val, Matrix_xSym, duplicate(tmp));
+    vx = REAL(GET_SLOT(val, Matrix_xSym));
+
+    pos = vp[0] = 0;
+    for (j = 0; j < ncol; j++) {
+	int jj = iperm[j];
+	int j1 = xp[jj], j2 = xp[jj+1];
+	vp[j + 1] = vp[j] + (j2 - j1);
+	for (k = j1; k < j2; k++) {
+	    vi[pos] = xi[k];
+	    vx[pos] = xx[k];
+	    pos++;
+	}
+    }
+    Free(iperm);
+    UNPROTECT(1);
+    return val;
+}
+
+	
+    

@@ -1253,22 +1253,21 @@ SEXP ssclme_fitted(SEXP x, SEXP facs, SEXP mmats)
 
 SEXP ssclme_variances(SEXP x, SEXP REML)
 {
-    SEXP Omega = GET_SLOT(x, Matrix_OmegaSym),
-	val = PROTECT(allocVector(VECSXP, length(Omega) + 1));
+    SEXP Omg = PROTECT(duplicate(GET_SLOT(x, Matrix_OmegaSym))),
+	val = PROTECT(allocVector(VECSXP, 2));
     int *nc = INTEGER(GET_SLOT(x, Matrix_ncSym)),
-	i, nf = length(Omega);
-    double *sig, sigmasq;
+	i, nf = length(Omg);
+    double sigmasq;
     
-    SET_VECTOR_ELT(val, nf, ssclme_sigma(x, REML));
-    sig = REAL(VECTOR_ELT(val, nf));
-    sigmasq = (*sig) * (*sig);
-    *sig = sigmasq;
+
+    SET_VECTOR_ELT(val, 0, Omg);
+    SET_VECTOR_ELT(val, 1, ssclme_sigma(x, REML));
+    sigmasq = REAL(VECTOR_ELT(val, 1))[0];
+    sigmasq = (sigmasq) * (sigmasq);
     for (i = 0; i < nf; i++) {
-	SEXP vari = duplicate(VECTOR_ELT(Omega, i));
-	double *mm = REAL(vari);
+	double *mm = REAL(VECTOR_ELT(Omg, i));
 	int j, k, nci = nc[i], ncip1 = nci+1;
 
-	SET_VECTOR_ELT(val, i, vari);
 	F77_CALL(dpotrf)("U", &nci, mm, &nci, &j);
 	if (j)			/* shouldn't happen */
 	    error("DPOTRF returned error code %d on Omega[%d]",
@@ -1284,6 +1283,6 @@ SEXP ssclme_variances(SEXP x, SEXP REML)
 	    }
 	}
     }
-    UNPROTECT(1);
+    UNPROTECT(2);
     return val;
 }

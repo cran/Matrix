@@ -55,21 +55,6 @@ Metis_utils.o: Metis_utils.c Metis_utils.h \
   Metis/metis.h Metis/defs.h \
   Metis/struct.h Metis/macros.h Metis/rename.h Metis/proto.h
 Mutils.o: Mutils.c Mutils.h triplet_to_col.h
-# umfpack/umfpack.h \
-#   umfpack/umfpack_symbolic.h umfpack/umfpack_solve.h \
-#   umfpack/umfpack_free_symbolic.h umfpack/umfpack_free_numeric.h \
-#   umfpack/umfpack_defaults.h umfpack/umfpack_triplet_to_col.h \
-#   umfpack/umfpack_col_to_triplet.h umfpack/umfpack_transpose.h \
-#   umfpack/umfpack_scale.h umfpack/umfpack_get_lunz.h \
-#   umfpack/umfpack_get_numeric.h umfpack/umfpack_get_symbolic.h \
-#   umfpack/umfpack_save_numeric.h umfpack/umfpack_load_numeric.h \
-#   umfpack/umfpack_save_symbolic.h umfpack/umfpack_load_symbolic.h \
-#   umfpack/umfpack_report_status.h umfpack/umfpack_report_info.h \
-#   umfpack/umfpack_report_control.h umfpack/umfpack_report_matrix.h \
-#   umfpack/umfpack_report_triplet.h umfpack/umfpack_report_vector.h \
-#   umfpack/umfpack_report_symbolic.h umfpack/umfpack_report_numeric.h \
-#   umfpack/umfpack_report_perm.h umfpack/umfpack_timer.h \
-#   umfpack/umfpack_tictoc.h
 cscMatrix.o: cscMatrix.c cscMatrix.h Mutils.h taucs/taucs.h \
   taucs/taucs_config_tests.h taucs/taucs_config_build.h \
   taucs/taucs_private.h

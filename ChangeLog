@@ -1,3 +1,9 @@
+2004-04-12  Douglas Bates  <bates@stat.wisc.edu>
+
+	* DESCRIPTION (Version): New release
+
+	* src/Makefile.win: Update Makefile.win to umfpack removal.
+
 2004-04-05  Douglas Bates  <bates@bates2_home>
 
 	* src/triplet_to_col.c: Create triplet_to_col as a native

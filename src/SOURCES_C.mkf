@@ -1,5 +1,4 @@
 SOURCES_C =  \
-	    LU.c \
 	    Metis_utils.c \
 	    R_ldl.c \
 	    dgBCMatrix.c \
@@ -22,5 +21,4 @@ SOURCES_C =  \
             factorizations.c \
             sscCrosstab.c \
             ssclme.c \
-            triplet_to_col.c \
-            # flame.c
+            triplet_to_col.c

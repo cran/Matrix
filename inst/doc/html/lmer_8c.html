@@ -34,7 +34,7 @@
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="lmer_8c.html#a10">lmer_factor</a> (SEXP x)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="lmer_8c.html#a11">lmer_sm</a> (char side, char trans, int nf, const int Gp[], int n, double alpha, SEXP L, double B[], int ldb)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="lmer_8c.html#a11">lmer_sm</a> (enum <a class="el" href="Mutils_8h.html#a57">CBLAS_SIDE</a> side, enum <a class="el" href="Mutils_8h.html#a54">CBLAS_TRANSPOSE</a> trans, int nf, const int Gp[], int n, double alpha, SEXP L, double B[], int ldb)</td></tr>
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">static int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="lmer_8c.html#a12">max_nnz</a> (int j, SEXP Parent)</td></tr>
 
@@ -102,19 +102,6 @@
     <td>
 
 <p>
-Fill the nnz array with the number of nonzero inner blocks in each outer block of the jth inner column block of the ith outer block of L^{-1}. Also allocate the tmp and ind arrays and fill the ind array.<p>
-<dl compact><dt><b>Parameters:</b></dt><dd>
-  <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>i</em>&nbsp;</td><td>outer block index </td></tr>
-    <tr><td valign="top"></td><td valign="top"><em>j</em>&nbsp;</td><td>inner block index within the ith outer block </td></tr>
-    <tr><td valign="top"></td><td valign="top"><em>nf</em>&nbsp;</td><td>number of factors </td></tr>
-    <tr><td valign="top"></td><td valign="top"><em>Parent</em>&nbsp;</td><td>pointer to the extended parent pairs </td></tr>
-    <tr><td valign="top"></td><td valign="top"><em>nc</em>&nbsp;</td><td></td></tr>
-    <tr><td valign="top"></td><td valign="top"><em>nnz</em>&nbsp;</td><td>array of length nf </td></tr>
-    <tr><td valign="top"></td><td valign="top"><em>tmp</em>&nbsp;</td><td>array of length nf of pointers to doubles </td></tr>
-    <tr><td valign="top"></td><td valign="top"><em>ind</em>&nbsp;</td><td>array of length nf of pointers to ints </td></tr>
-  </table>
-</dl>
     </td>
   </tr>
 </table>
@@ -493,6 +480,19 @@ Print the verbose output in the ECME iterations<p>
     <td>
 
 <p>
+Fill the nnz array with the number of nonzero inner blocks in each outer block of the jth inner column block of the ith outer block of L^{-1}. Also allocate the tmp and ind arrays and fill the ind array.<p>
+<dl compact><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>i</em>&nbsp;</td><td>outer block index </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>j</em>&nbsp;</td><td>inner block index within the ith outer block </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>nf</em>&nbsp;</td><td>number of factors </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>Parent</em>&nbsp;</td><td>pointer to the extended parent pairs </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>nc</em>&nbsp;</td><td></td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>nnz</em>&nbsp;</td><td>array of length nf </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>tmp</em>&nbsp;</td><td>array of length nf of pointers to doubles </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>ind</em>&nbsp;</td><td>array of length nf of pointers to ints </td></tr>
+  </table>
+</dl>
     </td>
   </tr>
 </table>
@@ -673,8 +673,8 @@ Assign the upper triangles of the Omega matrices. (Called coef for historical re
 Create an lmer object from a list of grouping factors and a list of model matrices. There is one more model matrix than grouping factor. The last model matrix is the fixed effects and the response.<p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>facs</em>&nbsp;</td><td>pointer to a list of grouping factors </td></tr>
-    <tr><td valign="top"></td><td valign="top"><em>ncv</em>&nbsp;</td><td>pointer to a list of model matrices</td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>flist</em>&nbsp;</td><td>pointer to a list of grouping factors </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>mmats</em>&nbsp;</td><td>pointer to a list of model matrices</td></tr>
   </table>
 </dl>
 <dl compact><dt><b>Returns:</b></dt><dd>pointer to an lmer object </dd></dl>
@@ -813,7 +813,7 @@ Perform ECME steps for the REML or ML criterion.<p>
     <tr><td valign="top"></td><td valign="top"><em>x</em>&nbsp;</td><td>pointer to an ssclme object </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>nsteps</em>&nbsp;</td><td>pointer to an integer scalar - the number of ECME steps to perform </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>REMLp</em>&nbsp;</td><td>pointer to a logical scalar indicating if REML is to be used </td></tr>
-    <tr><td valign="top"></td><td valign="top"><em>verb</em>&nbsp;</td><td>pointer to a logical scalar indicating verbose output</td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>Verbp</em>&nbsp;</td><td>pointer to a logical scalar indicating verbose output</td></tr>
   </table>
 </dl>
 <dl compact><dt><b>Returns:</b></dt><dd>R_NilValue if verb == FALSE, otherwise a list of iteration numbers, deviances, parameters, and gradients. </dd></dl>
@@ -1155,10 +1155,10 @@ Fill in five symmetric matrices, providing the information to generate the Hessi
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
     <tr><td valign="top"></td><td valign="top"><em>x</em>&nbsp;</td><td>pointer to an lme object </td></tr>
-    <tr><td valign="top"></td><td valign="top"><em>val</em>&nbsp;</td><td>ignored at present</td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>Valp</em>&nbsp;</td><td>ignored at present</td></tr>
   </table>
 </dl>
-<dl compact><dt><b>Returns:</b></dt><dd>val an array consisting of five symmetric faces </dd></dl>
+<dl compact><dt><b>Returns:</b></dt><dd>Valp an array consisting of five symmetric faces </dd></dl>
     </td>
   </tr>
 </table>
@@ -1215,13 +1215,13 @@ Extract the ML or REML conditional estimate of sigma<p>
         <tr>
           <td class="md" nowrap valign="top">static void lmer_sm           </td>
           <td class="md" valign="top">(&nbsp;</td>
-          <td class="md" nowrap valign="top">char&nbsp;</td>
+          <td class="md" nowrap valign="top">enum <a class="el" href="Mutils_8h.html#a57">CBLAS_SIDE</a>&nbsp;</td>
           <td class="mdname" nowrap> <em>side</em>, </td>
         </tr>
         <tr>
           <td class="md" nowrap align="right"></td>
           <td class="md"></td>
-          <td class="md" nowrap>char&nbsp;</td>
+          <td class="md" nowrap>enum <a class="el" href="Mutils_8h.html#a54">CBLAS_TRANSPOSE</a>&nbsp;</td>
           <td class="mdname" nowrap> <em>trans</em>, </td>
         </tr>
         <tr>
@@ -1286,14 +1286,15 @@ Extract the ML or REML conditional estimate of sigma<p>
 Solve one of the matrix equations op(L)*X=alpha*B or X*op(L)=alpha*B where L is a sparse, blocked, unit lower triangular matrix.<p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>side</em>&nbsp;</td><td>'L' for left, 'R' for right </td></tr>
-    <tr><td valign="top"></td><td valign="top"><em>trans</em>&nbsp;</td><td>'T' for transpose, otherwise no transpose </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>side</em>&nbsp;</td><td>LFT or RGT for left or right </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>trans</em>&nbsp;</td><td>TRN or NTR for transpose or no transpose </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>nf</em>&nbsp;</td><td>number of grouping factors </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>Gp</em>&nbsp;</td><td>group pointers for the rows </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>n</em>&nbsp;</td><td>number of columns </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>alpha</em>&nbsp;</td><td>multiplier </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>L</em>&nbsp;</td><td>pointer to the L cscb object </td></tr>
-    <tr><td valign="top"></td><td valign="top"><em>mm</em>&nbsp;</td><td>pointer to the matrix of right-hand sides </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>B</em>&nbsp;</td><td>pointer to the matrix of right-hand sides </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>ldb</em>&nbsp;</td><td>leading dimension of array B as declared in the caller </td></tr>
   </table>
 </dl>
     </td>
@@ -1451,7 +1452,7 @@ Return the unscaled variances<p>
     </td>
   </tr>
 </table>
-<hr size="1"><address style="align: right;"><small>Generated on Fri Feb 18 08:49:35 2005 for Matrix by&nbsp;
+<hr size="1"><address style="align: right;"><small>Generated on Tue Mar 1 16:58:11 2005 for Matrix by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.1 </small></address>
 </body>

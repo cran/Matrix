@@ -1,0 +1,819 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2005-02-28 11:10-0600\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: dsyMatrix.c:10 dsCMatrix.c:10
+msgid "uplo slot must have length 1"
+msgstr ""
+
+#: dsyMatrix.c:13
+msgid "uplo must have string length 1"
+msgstr ""
+
+#: dsyMatrix.c:15
+msgid "uplo must be \"U\" or \"L\""
+msgstr ""
+
+#: dsyMatrix.c:17 dsCMatrix.c:17
+msgid "Symmetric matrix must be square"
+msgstr ""
+
+#: dsyMatrix.c:57
+msgid "Code for set_rcond_sy not yet written"
+msgstr ""
+
+#: dsyMatrix.c:99
+msgid "code for dsyMatrix_solve not yet written"
+msgstr ""
+
+#: dsyMatrix.c:106
+msgid "code for dsyMatrix_matrix_solve not yet written"
+msgstr ""
+
+#: dsyMatrix.c:149 dsyMatrix.c:177 dgeMatrix.c:263 dtrMatrix.c:172
+#: dtrMatrix.c:193
+msgid "Matrices are not conformable for multiplication"
+msgstr ""
+
+#: dsyMatrix.c:151 dsyMatrix.c:179 dgeMatrix.c:265 dtrMatrix.c:174
+#: dtrMatrix.c:195
+msgid "Matrices with zero extents cannot be multiplied"
+msgstr ""
+
+#: dsCMatrix.c:13
+msgid "uplo[1] must have string length 1"
+msgstr ""
+
+#: dsCMatrix.c:15
+msgid "uplo[1] must be \"U\" or \"L\""
+msgstr ""
+
+#: dsCMatrix.c:89
+#, c-format
+msgid "Leading minor of size %d (possibly after permutation) is indefinite"
+msgstr ""
+
+#: dsCMatrix.c:108 dpoMatrix.c:116
+msgid "Argument b must be a numeric matrix"
+msgstr ""
+
+#: dsCMatrix.c:110 dpoMatrix.c:93 dpoMatrix.c:118
+msgid "Dimensions of system to be solved are inconsistent"
+msgstr ""
+
+#: ssclme.c:160
+#, c-format
+msgid "length of nc (%d) should be length of facs (%d) + 1"
+msgstr ""
+
+#: ssclme.c:263 ssclme.c:471
+#, c-format
+msgid "Expected Ai[%d] to be %d (i.e on diagonal) not %d"
+msgstr ""
+
+#: ssclme.c:345 lmer.c:155
+#, c-format
+msgid "Expected %d rows in the %d'th model matrix. Got %d"
+msgstr ""
+
+#: ssclme.c:348 lmer.c:158
+#, c-format
+msgid "Expected %d columns in the %d'th model matrix. Got %d"
+msgstr ""
+
+#: ssclme.c:373 ssclme.c:406 ssclme.c:417
+msgid "logic error in ssclme_update_mm"
+msgstr ""
+
+#: ssclme.c:486
+#, c-format
+msgid "rank deficiency of ZtZ+W detected at column %d"
+msgstr ""
+
+#: ssclme.c:555
+#, c-format
+msgid "Omega[%d] is not positive definite"
+msgstr ""
+
+#: ssclme.c:611
+msgid "logic error in ldl_inverse"
+msgstr ""
+
+#: ssclme.c:700
+#, c-format
+msgid "Rank deficient variance matrix at group %d, level %d, error code %d"
+msgstr ""
+
+#: ssclme.c:721 lmer.c:683
+msgid "Unable to invert singular factor of downdated X'X"
+msgstr ""
+
+#: ssclme.c:741
+#, c-format
+msgid "DTRTRI returned error code %d"
+msgstr ""
+
+#: ssclme.c:790
+msgid "malformed ZtZ structure"
+msgstr ""
+
+#: ssclme.c:939 ssclme.c:1004 lmer.c:867
+#, c-format
+msgid "DPOTRF returned error code %d on Omega[[%d]]"
+msgstr ""
+
+#: ssclme.c:1042 ssclme.c:1097 lmer.c:922
+#, c-format
+msgid "coef must be a numeric vector of length %d"
+msgstr ""
+
+#: ssclme.c:1248
+#, c-format
+msgid "DPOTRF returned error code %d in Omega[[%d]] update"
+msgstr ""
+
+#: ssclme.c:1252
+#, c-format
+msgid "DPOTRI returned error code %d in Omega[[%d]] update"
+msgstr ""
+
+#: ssclme.c:1287 ssclme.c:1320 ssclme.c:1440
+#, c-format
+msgid "DPOTRF gave error code %d on Omega[[%d]]"
+msgstr ""
+
+#: ssclme.c:1290 ssclme.c:1444
+#, c-format
+msgid "DPOTRI gave error code %d on Omega[[%d]]"
+msgstr ""
+
+#: ssclme.c:1568
+msgid "null factor list passed to ssclme_fitted"
+msgstr ""
+
+#: ssclme.c:1624 lmer.c:1489
+#, c-format
+msgid "DPOTRF returned error code %d on Omega[%d]"
+msgstr ""
+
+#: ssclme.c:1628 lmer.c:1493
+#, c-format
+msgid "DTRTRI returned error code %d on Omega[%d]"
+msgstr ""
+
+#: dgeMatrix.c:12
+msgid "Dim slot must have length 2"
+msgstr ""
+
+#: dgeMatrix.c:15
+msgid "Negative value(s) in Dim"
+msgstr ""
+
+#: dgeMatrix.c:17
+msgid "length of x slot != prod(Dim)"
+msgstr ""
+
+#: dgeMatrix.c:19
+msgid "factors slot must be named list"
+msgstr ""
+
+#: dgeMatrix.c:21
+msgid "rcond slot must be named numeric vector"
+msgstr ""
+
+#: dgeMatrix.c:60
+msgid "rcond requires a square, non-empty matrix"
+msgstr ""
+
+#: dgeMatrix.c:117 dgeMatrix.c:147
+msgid "Dimensions of x and y are not compatible for crossprod"
+msgstr ""
+
+#: dgeMatrix.c:140
+msgid "Argument y must be a numeric (real) matrix"
+msgstr ""
+
+#: dgeMatrix.c:182
+msgid "Cannot factor a matrix with zero extents"
+msgstr ""
+
+#: dgeMatrix.c:191
+#, c-format
+msgid "Lapack routine dgetrf returned error code %d"
+msgstr ""
+
+#: dgeMatrix.c:206
+msgid "Determinant requires a square matrix"
+msgstr ""
+
+#: dgeMatrix.c:237
+msgid "Solve requires a square matrix"
+msgstr ""
+
+#: dgeMatrix.c:362
+msgid "Matrix exponential requires square, non-null matrix"
+msgstr ""
+
+#: dgeMatrix.c:376 dgeMatrix.c:378
+#, c-format
+msgid "dgeMatrix_exp: LAPACK routine dgebal returned %d"
+msgstr ""
+
+#: dgeMatrix.c:416
+#, c-format
+msgid "dgeMatrix_exp: dgetrf returned error code %d"
+msgstr ""
+
+#: dgeMatrix.c:418
+#, c-format
+msgid "dgeMatrix_exp: dgetrs returned error code %d"
+msgstr ""
+
+#: dgeMatrix.c:478
+msgid "dgeMatrix_Schur: argument x must be a non-null square matrix"
+msgstr ""
+
+#: dgeMatrix.c:487
+msgid "dgeMatrix_Schur: first call to dgees failed"
+msgstr ""
+
+#: dgeMatrix.c:494
+#, c-format
+msgid "dgeMatrix_Schur: dgees returned code %d"
+msgstr ""
+
+#: dgTMatrix.c:18
+msgid "lengths of slots i, j, and x must match"
+msgstr ""
+
+#: dgTMatrix.c:20
+msgid "slot Dim must have length 2"
+msgstr ""
+
+#: dgTMatrix.c:24 dgCMatrix.c:30
+msgid "all row indices must be between 0 and nrow-1"
+msgstr ""
+
+#: dgTMatrix.c:26
+msgid "all column indices must be between 0 and ncol-1"
+msgstr ""
+
+#: bCrosstab.c:34
+#, c-format
+msgid "No. of rows in A (%d) does not match no. of cols in C (%d)"
+msgstr ""
+
+#: bCrosstab.c:114
+#, c-format
+msgid "No. of cols in A (%d) does not match no. of cols in C (%d)"
+msgstr ""
+
+#: bCrosstab.c:196
+#, c-format
+msgid "i,j,k values of %d,%d,%d do not satisfy j < k <= i"
+msgstr ""
+
+#: bCrosstab.c:333
+msgid "number of levels in src and dest must match"
+msgstr ""
+
+#: bCrosstab.c:335
+msgid "length of src and dest must match"
+msgstr ""
+
+#: dpoMatrix.c:12
+msgid "dpoMatrix is not positive definite"
+msgstr ""
+
+#: dpoMatrix.c:34
+#, c-format
+msgid "Lapack routine dpotrf returned error code %d"
+msgstr ""
+
+#: lmer.c:49
+msgid "Slots ZtX, XtX, RZX, and RXX must be real matrices"
+msgstr ""
+
+#: lmer.c:51
+msgid "Dimensions of slots ZtX and RZX must match"
+msgstr ""
+
+#: lmer.c:53
+msgid "Dimensions of slots XtX and RXX must match"
+msgstr ""
+
+#: lmer.c:55
+msgid "Slots XtX must be a square matrix with same no. of cols as ZtX"
+msgstr ""
+
+#: lmer.c:147
+#, c-format
+msgid "mmats must be a list of %d model matrices"
+msgstr ""
+
+#: lmer.c:153
+#, c-format
+msgid "element %d of mmats is not a numeric matrix"
+msgstr ""
+
+#: lmer.c:233 lmer.c:1508 sscCrosstab.c:15
+msgid "flist must be a non-empty list"
+msgstr ""
+
+#: lmer.c:235 lmer.c:1510
+msgid "flist[[0]] must be a non-null factor"
+msgstr ""
+
+#: lmer.c:239 lmer.c:1514
+#, c-format
+msgid "flist[[%d]] must be a factor of length %d"
+msgstr ""
+
+#: lmer.c:245
+#, c-format
+msgid "mmats must be a list of length %d"
+msgstr ""
+
+#: lmer.c:254
+#, c-format
+msgid "mmats[[%d]] must be a numeric matrix"
+msgstr ""
+
+#: lmer.c:257
+#, c-format
+msgid "mmats[[%d]] must have %d rows"
+msgstr ""
+
+#: lmer.c:259
+#, c-format
+msgid "mmats[[%d]] must have at least 1 column"
+msgstr ""
+
+#: lmer.c:356
+#, c-format
+msgid "Leading %d minor of Omega[[%d]] not positive definite"
+msgstr ""
+
+#: lmer.c:472
+#, c-format
+msgid "cscb_ldl returned %d < nlev = %d"
+msgstr ""
+
+#: lmer.c:593
+msgid "Code for non-transpose case not yet written"
+msgstr ""
+
+#: lmer.c:594
+msgid "Code for right-side solutions not yet written"
+msgstr ""
+
+#: lmer.c:664
+#, c-format
+msgid "fsrch: unable to find target %d in nvals %d "
+msgstr ""
+
+#: lmer.c:704
+#, c-format
+msgid "Leading minor of size %d of downdated X'X,is indefinite"
+msgstr ""
+
+#: lmer.c:727
+#, c-format
+msgid "D[,,%d] for factor %d is singular"
+msgstr ""
+
+#: lmer.c:1097 lmer.c:1100 lmer.c:1339
+#, c-format
+msgid "Omega[[%d]] is not positive definite"
+msgstr ""
+
+#: lmer.c:1283
+#, c-format
+msgid "DPOTRF in ECME update gave code %d"
+msgstr ""
+
+#: lmer.c:1286
+#, c-format
+msgid "Matrix inverse in ECME update gave code %d"
+msgstr ""
+
+#: dtCMatrix.c:123
+msgid "par argument must be an integer vector"
+msgstr ""
+
+#: dense.c:28
+#, c-format
+msgid "incorrect left cyclic shift, j (%d) >= k (%d)"
+msgstr ""
+
+#: dense.c:30
+#, c-format
+msgid "incorrect left cyclic shift, j (%d) < 0"
+msgstr ""
+
+#: dense.c:32
+#, c-format
+msgid "incorrect left cyclic shift, k (%d) > ldx (%d)"
+msgstr ""
+
+#: dense.c:77
+msgid "Unknown error in getGivens"
+msgstr ""
+
+#: dense.c:89 dense.c:105 dense.c:138
+msgid "X must be a numeric (double precision) matrix"
+msgstr ""
+
+#: dense.c:110 dense.c:143
+msgid "y must be a numeric (double precision) matrix"
+msgstr ""
+
+#: dense.c:114 dense.c:147
+#, c-format
+msgid "number of rows in y (%d) does not match number of rows in X (%d)"
+msgstr ""
+
+#: dense.c:125
+#, c-format
+msgid "Lapack routine dposv returned error code %d"
+msgstr ""
+
+#: dense.c:158
+#, c-format
+msgid "First call to Lapack routine dgels returned error code %d"
+msgstr ""
+
+#: dense.c:165
+#, c-format
+msgid "Second call to Lapack routine dgels returned error code %d"
+msgstr ""
+
+#: dense.c:178
+msgid "X must be a real (numeric) matrix"
+msgstr ""
+
+#: dense.c:179
+#, c-format
+msgid "tol, given as %g, must be non-negative"
+msgstr ""
+
+#: dense.c:180
+#, c-format
+msgid "tol, given as %g, must be <= 1"
+msgstr ""
+
+#: dense.c:204
+#, c-format
+msgid "First call to dgeqrf returned error code %d"
+msgstr ""
+
+#: dense.c:210
+#, c-format
+msgid "Second call to dgeqrf returned error code %d"
+msgstr ""
+
+#: dense.c:215 dense.c:235
+#, c-format
+msgid "Lapack routine dtrcon returned error code %d"
+msgstr ""
+
+#: sscCrosstab.c:22
+msgid "flist must be a non-empty list of factors"
+msgstr ""
+
+#: sscCrosstab.c:24
+msgid "All elements of flist must have the same length"
+msgstr ""
+
+#: sscCrosstab.c:289
+msgid "sscCrosstab_project2 requires more than one group"
+msgstr ""
+
+#: Mutils.c:11 Mutils.c:27
+#, c-format
+msgid "argument type[1]='%s' must be a character string of string length 1"
+msgstr ""
+
+#: Mutils.c:17
+#, c-format
+msgid "argument type[1]='%s' must be one of 'M','1','O','I','F' or 'E'"
+msgstr ""
+
+#: Mutils.c:32
+#, c-format
+msgid "argument type[1]='%s' must be one of '1','O', or 'I'"
+msgstr ""
+
+#: Mutils.c:43
+msgid "object must be a named, numeric vector"
+msgstr ""
+
+#: Mutils.c:347
+#, c-format
+msgid "error code %d from Lapack routine %s"
+msgstr ""
+
+#: Mutils.c:348
+#, c-format
+msgid "argument no. %d to Lapack routine %s is illegal"
+msgstr ""
+
+#: Mutils.c:424
+msgid "Incorrect argument type"
+msgstr ""
+
+#: Mutils.c:427
+#, c-format
+msgid "Lengths of MLin (%d) and MLout (%d) must match"
+msgstr ""
+
+#: Mutils.c:431
+#, c-format
+msgid "Expected adjst to have length %d, got %d"
+msgstr ""
+
+#: Mutils.c:438
+#, c-format
+msgid "component %d of MLin is not a numeric matrix"
+msgstr ""
+
+#: Mutils.c:442
+#, c-format
+msgid "component %d of MLin has %d rows, expected %d"
+msgstr ""
+
+#: Mutils.c:445
+#, c-format
+msgid "component %d of MLout is not a numeric matrix"
+msgstr ""
+
+#: Mutils.c:448
+#, c-format
+msgid "component %d of MLout has %d rows, expected %d"
+msgstr ""
+
+#: Mutils.c:451
+#, c-format
+msgid "component %d of MLout has %d columns, expected %d"
+msgstr ""
+
+#: Mutils.c:505
+msgid "negative extents to 3D array"
+msgstr ""
+
+#: Mutils.c:507
+msgid "alloc3Darray: too many elements specified"
+msgstr ""
+
+#: dtTMatrix.c:11 dsTMatrix.c:14
+msgid "slots i, j and x must have the same length"
+msgstr ""
+
+#: triplet_to_col.c:41
+#, c-format
+msgid "entry %d in matrix[%d,%d] has row %d and column %d"
+msgstr ""
+
+#: dtrMatrix.c:16
+msgid "'uplo' slot must have length 1"
+msgstr ""
+
+#: dtrMatrix.c:18
+msgid "'diag' slot must have length 1"
+msgstr ""
+
+#: dtrMatrix.c:21
+msgid "'uplo' must have string length 1"
+msgstr ""
+
+#: dtrMatrix.c:23
+msgid "'uplo' must be \"U\" or \"L\""
+msgstr ""
+
+#: dtrMatrix.c:26
+msgid "'diag' must have string length 1"
+msgstr ""
+
+#: dtrMatrix.c:28
+msgid "'diag' must be \"U\" or \"N\""
+msgstr ""
+
+#: dtrMatrix.c:104
+#, c-format
+msgid "Dimensions of a (%d,%d) and b (%d,%d) do not conform"
+msgstr ""
+
+#: dtrMatrix.c:124
+msgid "'Dim' slot has length less than two"
+msgstr ""
+
+#: dgBCMatrix.c:19
+msgid "slot x should be a real array"
+msgstr ""
+
+#: dgBCMatrix.c:21
+msgid "slot x should be a 3-dimensional array"
+msgstr ""
+
+#: dgBCMatrix.c:23
+msgid "length of slot i does not match last element of slot p"
+msgstr ""
+
+#: dgBCMatrix.c:26
+msgid "third dimension of slot x does not match number of nonzeros"
+msgstr ""
+
+#: dgBCMatrix.c:70
+#, c-format
+msgid "incompatible dims m=%d, ldc=%d"
+msgstr ""
+
+#: dgBCMatrix.c:74
+#, c-format
+msgid "incompatible L dims k=%d, ldb=%d, n=%d, nr=%d, nc=%d"
+msgstr ""
+
+#: dgBCMatrix.c:78
+#, c-format
+msgid "incompatible LT dims m=%d, k = %d, nr=%d, nc=%d"
+msgstr ""
+
+#: dgBCMatrix.c:81
+#, c-format
+msgid "incompatible LT dims m=%d, ancb=%d, adims=[%d,%d,%d]"
+msgstr ""
+
+#: dgBCMatrix.c:86
+#, c-format
+msgid "incompatible LN dims m=%d, k = %d, nr=%d, nc=%d"
+msgstr ""
+
+#: dgBCMatrix.c:89
+#, c-format
+msgid "incompatible LN dims k=%d, ancb=%d, adims=[%d,%d,%d]"
+msgstr ""
+
+#: dgBCMatrix.c:98
+#, c-format
+msgid "improper row index ii=%d, anrb=%d"
+msgstr ""
+
+#: dgBCMatrix.c:114
+msgid "Call to cscb_mm must have side == LFT"
+msgstr ""
+
+#: dgBCMatrix.c:156
+msgid "blocks in C must be square"
+msgstr ""
+
+#: dgBCMatrix.c:159
+msgid "Code for trans == TRN not yet written"
+msgstr ""
+
+#: dgBCMatrix.c:162
+#, c-format
+msgid "Inconsistent dimensions: A[%d,%d,%d], C[%d,%d,%d]"
+msgstr ""
+
+#: dgBCMatrix.c:169
+#, c-format
+msgid "Row index %d = %d is out of range [0, %d]"
+msgstr ""
+
+#: dgBCMatrix.c:181
+#, c-format
+msgid "cscb_syrk: C[%d,%d] not defined"
+msgstr ""
+
+#: dgBCMatrix.c:247
+#, c-format
+msgid "cscb_ldl: dim(A) is [%d, %d, %d]"
+msgstr ""
+
+#: dgBCMatrix.c:282
+msgid "cscb_ldl: A has nonzeros below diagonal"
+msgstr ""
+
+#: dgBCMatrix.c:362
+msgid "Argument A to cscb_trmm is not triangular"
+msgstr ""
+
+#: dgBCMatrix.c:370
+msgid "Code for non-identity cases of cscb_trmm not yet written"
+msgstr ""
+
+#: dgBCMatrix.c:401
+msgid "Argument A to cscb_trsm is not triangular"
+msgstr ""
+
+#: dgBCMatrix.c:403
+#, c-format
+msgid "cscb_trsm: inconsistent dims m = %d, n = %d, ldb = %d"
+msgstr ""
+
+#: dgBCMatrix.c:406
+#, c-format
+msgid "cscb_trsm: inconsistent dims m = %d, A[%d,%d,]x%d"
+msgstr ""
+
+#: dgBCMatrix.c:417 dgBCMatrix.c:429
+msgid "Code for upper triangle not yet written"
+msgstr ""
+
+#: dgBCMatrix.c:450
+msgid "Code for non-unit cases of cscb_trsm not yet written"
+msgstr ""
+
+#: dgBCMatrix.c:488 dgBCMatrix.c:532
+msgid "Argument A to cscb_trcbm is not triangular"
+msgstr ""
+
+#: dgBCMatrix.c:495
+msgid "Code for non-trivial cscb_trcbm not yet written"
+msgstr ""
+
+#: dgBCMatrix.c:552
+msgid "cscb_trcbsm: transpose operation failed"
+msgstr ""
+
+#: dgBCMatrix.c:568 dgBCMatrix.c:570
+msgid "cscb_trcbsm: method not yet written"
+msgstr ""
+
+#: dgBCMatrix.c:620
+#, c-format
+msgid "C[%d,%d,%d] := A[%d,%d,%d] %*% t(B[%d,%d,%d])"
+msgstr ""
+
+#: dgBCMatrix.c:625
+#, c-format
+msgid "C := A(ncblocks = %d) %*% t(B(ncblocks = %d)"
+msgstr ""
+
+#: dgBCMatrix.c:644
+msgid "Code not yet written"
+msgstr ""
+
+#: dsTMatrix.c:12
+msgid "dsTMatrix must have ncol == nrow"
+msgstr ""
+
+#: dgCMatrix.c:17
+msgid "lengths of slots i and x must match"
+msgstr ""
+
+#: dgCMatrix.c:19
+msgid "slot p must have length > 0"
+msgstr ""
+
+#: dgCMatrix.c:21
+msgid "first element of slot p must be zero"
+msgstr ""
+
+#: dgCMatrix.c:23
+msgid "last element of slot p must match length of slots i and x"
+msgstr ""
+
+#: dgCMatrix.c:26
+msgid "slot p must be non-decreasing"
+msgstr ""
+
+#: dgCMatrix.c:175
+msgid "y must be a numeric matrix"
+msgstr ""
+
+#: dgCMatrix.c:177
+msgid "x and y must have the same number of rows"
+msgstr ""
+
+#: dgCMatrix.c:275
+msgid "A must be a numeric matrix"
+msgstr ""
+
+#: dgCMatrix.c:386
+#, c-format
+msgid "Matrices of sizes (%d,%d) and (%d,%d) cannot be multiplied"
+msgstr ""
+
+#: dgCMatrix.c:416
+#, c-format
+msgid "perm must be an integer vector of length %d"
+msgstr ""
+
+#: dgCMatrix.c:420
+msgid "perm is not a valid 0-based permutation"
+msgstr ""

@@ -8,7 +8,7 @@ SEXP dtTMatrix_validate(SEXP x)
 	xxP = GET_SLOT(x, Matrix_xSym);
 
     if (length(xiP) != length(xjP) || length(xjP) != length(xxP))
-	return mkString("slots i, j and x must have the same length");
+	return mkString(_("slots i, j and x must have the same length"));
     return ScalarLogical(1);
 }
 

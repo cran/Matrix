@@ -9,16 +9,16 @@ SEXP dgeMatrix_validate(SEXP obj)
     int m, n;
 
     if (length(Dim) != 2)
-	return mkString("Dim slot must have length 2");
+	return mkString(_("Dim slot must have length 2"));
     m = INTEGER(Dim)[0]; n = INTEGER(Dim)[1];
     if (m < 0 || n < 0)
-	return mkString("Negative value(s) in Dim");
+	return mkString(_("Negative value(s) in Dim"));
     if (length(x) != m * n)
-    	return mkString("length of x slot != prod(Dim)");
+    	return mkString(_("length of x slot != prod(Dim)"));
     if (length(fact) > 0 && getAttrib(fact, R_NamesSymbol) == R_NilValue)
-	return mkString("factors slot must be named list");
+	return mkString(_("factors slot must be named list"));
     if (length(rc) > 0 && getAttrib(rc, R_NamesSymbol) == R_NilValue)
-	return mkString("rcond slot must be named numeric vector");
+	return mkString(_("rcond slot must be named numeric vector"));
     return ScalarLogical(1);
 }
 
@@ -57,7 +57,7 @@ double set_rcond(SEXP obj, char *typstr)
 	double anorm = get_norm(obj, typstr);
 
 	if (dims[0] != dims[1] || dims[0] < 1)
-            error("rcond requires a square, non-empty matrix");
+            error(_("rcond requires a square, non-empty matrix"));
 	F77_CALL(dgecon)(typnm,
 			 dims, REAL(GET_SLOT(LU, Matrix_xSym)),
 			 dims, &anorm, &rcond,
@@ -114,7 +114,7 @@ SEXP dgeMatrix_dgeMatrix_crossprod(SEXP x, SEXP y)
     vDims = INTEGER(GET_SLOT(val, Matrix_DimSym));
     if ((*xDims) > 0 && (*yDims) > 0 && n > 0 && m > 0) {
 	if (*xDims != *yDims)
-	    error("Dimensions of x and y are not compatible for crossprod");
+	    error(_("Dimensions of x and y are not compatible for crossprod"));
 	vDims[0] = m; vDims[1] = n;
 	SET_SLOT(val, Matrix_xSym, allocVector(REALSXP, m * n));
 	F77_CALL(dgemm)("T", "N", xDims + 1, yDims + 1, xDims, &one,
@@ -137,14 +137,14 @@ SEXP dgeMatrix_matrix_crossprod(SEXP x, SEXP y)
     double one = 1.0, zero = 0.0;
 
     if (!(isMatrix(y) && isReal(y)))
-	error("Argument y must be a numeric (real) matrix");
+	error(_("Argument y must be a numeric (real) matrix"));
     SET_SLOT(val, Matrix_rcondSym, allocVector(REALSXP, 0));
     SET_SLOT(val, Matrix_factorSym, allocVector(VECSXP, 0));
     SET_SLOT(val, Matrix_DimSym, allocVector(INTSXP, 2));
     vDims = INTEGER(GET_SLOT(val, Matrix_DimSym));
     if ((*xDims) > 0 && (*yDims) > 0 && n > 0 && m > 0) {
 	if (*xDims != *yDims)
-	    error("Dimensions of x and y are not compatible for crossprod");
+	    error(_("Dimensions of x and y are not compatible for crossprod"));
 	vDims[0] = m; vDims[1] = n;
 	SET_SLOT(val, Matrix_xSym, allocVector(REALSXP, m * n));
 	F77_CALL(dgemm)("T", "N", xDims + 1, yDims + 1, xDims, &one,
@@ -179,7 +179,7 @@ SEXP dgeMatrix_LU(SEXP x)
     if (val != R_NilValue) return val;
     dims = INTEGER(GET_SLOT(x, Matrix_DimSym));
     if (dims[0] < 1 || dims[1] < 1)
-	error("Cannot factor a matrix with zero extents");
+	error(_("Cannot factor a matrix with zero extents"));
     npiv = (dims[0] <dims[1]) ? dims[0] : dims[1];
     val = PROTECT(NEW_OBJECT(MAKE_CLASS("LU")));
     SET_SLOT(val, Matrix_xSym, duplicate(GET_SLOT(x, Matrix_xSym)));
@@ -188,7 +188,7 @@ SEXP dgeMatrix_LU(SEXP x)
     F77_CALL(dgetrf)(dims, dims + 1, REAL(GET_SLOT(val, Matrix_xSym)),
 		     dims, INTEGER(GET_SLOT(val, install("pivot"))),
 		     &info);
-    if (info) error("Lapack routine dgetrf returned error code %d", info);
+    if (info) error(_("Lapack routine dgetrf returned error code %d"), info);
     UNPROTECT(1);
     return set_factors(x, val, "LU");
 }
@@ -203,7 +203,7 @@ SEXP dgeMatrix_determinant(SEXP x, SEXP logarithm)
     double *luvals = REAL(GET_SLOT(lu, Matrix_xSym)), modulus;
 
     if (n != dims[1])
-	error("Determinant requires a square matrix");
+	error(_("Determinant requires a square matrix"));
     for (i = 0; i < n; i++) if (jpvt[i] != (i + 1)) sign = -sign;
     if (lg) {
 	modulus = 0.0;
@@ -234,7 +234,7 @@ SEXP dgeMatrix_solve(SEXP a)
     int	info, lwork = -1;
 
 
-    if (dims[0] != dims[1]) error("Solve requires a square matrix");
+    if (dims[0] != dims[1]) error(_("Solve requires a square matrix"));
     SET_SLOT(val, Matrix_rcondSym, allocVector(REALSXP, 0));
     SET_SLOT(val, Matrix_factorSym, allocVector(VECSXP, 0));
     SET_SLOT(val, Matrix_xSym, duplicate(GET_SLOT(lu, Matrix_xSym)));
@@ -260,9 +260,9 @@ SEXP dgeMatrix_dgeMatrix_mm(SEXP a, SEXP b)
     double one = 1., zero = 0.;
 
     if (bdims[0] != k)
-	error("Matrices are not conformable for multiplication");
+	error(_("Matrices are not conformable for multiplication"));
     if (m < 1 || n < 1 || k < 1)
-	error("Matrices with zero extents cannot be multiplied");
+	error(_("Matrices with zero extents cannot be multiplied"));
     SET_SLOT(val, Matrix_rcondSym, allocVector(REALSXP, 0));
     SET_SLOT(val, Matrix_factorSym, allocVector(VECSXP, 0));
     SET_SLOT(val, Matrix_xSym, allocVector(REALSXP, m * n));
@@ -359,7 +359,7 @@ SEXP dgeMatrix_exp(SEXP x)
 	one = 1., trshift, zero = 0.;
 
     if (nc < 1 || Dims[0] != nc)
-	error("Matrix exponential requires square, non-null matrix");
+	error(_("Matrix exponential requires square, non-null matrix"));
 
     /* FIXME: Add special treatment for nc == 1 */
 
@@ -373,9 +373,9 @@ SEXP dgeMatrix_exp(SEXP x)
 
     /* Preconditioning 2. Balancing with dgebal. */
     F77_CALL(dgebal)("P", &nc, v, &nc, &ilo, &ihi, perm, &j);
-    if (j) error("dgeMatrix_exp: LAPACK routine dgebal returned %d", j);
+    if (j) error(_("dgeMatrix_exp: LAPACK routine dgebal returned %d"), j);
     F77_CALL(dgebal)("S", &nc, v, &nc, &ilos, &ihis, scale, &j);
-    if (j) error("dgeMatrix_exp: LAPACK routine dgebal returned %d", j);
+    if (j) error(_("dgeMatrix_exp: LAPACK routine dgebal returned %d"), j);
 
     /* Preconditioning 3. Scaling according to infinity norm */
     inf_norm = F77_CALL(dlange)("I", &nc, &nc, v, &nc, work);
@@ -413,9 +413,9 @@ SEXP dgeMatrix_exp(SEXP x)
 
     /* Pade' approximation is solve(dpp, npp) */
     F77_CALL(dgetrf)(&nc, &nc, dpp, &nc, pivot, &j);
-    if (j) error("dgeMatrix_exp: dgetrf returned error code %d", j);
+    if (j) error(_("dgeMatrix_exp: dgetrf returned error code %d"), j);
     F77_CALL(dgetrs)("N", &nc, &nc, dpp, &nc, pivot, npp, &nc, &j);
-    if (j) error("dgeMatrix_exp: dgetrs returned error code %d", j);
+    if (j) error(_("dgeMatrix_exp: dgetrs returned error code %d"), j);
     Memcpy(v, npp, ncsqr);
 
     /* Now undo all of the preconditioning */
@@ -475,7 +475,7 @@ SEXP dgeMatrix_Schur(SEXP x, SEXP vectors)
     SEXP val = PROTECT(Matrix_make_named(VECSXP, nms));
 
     if (n != dims[1] || n < 1)
-	error("dgeMatrix_Schur: argument x must be a non-null square matrix");
+	error(_("dgeMatrix_Schur: argument x must be a non-null square matrix"));
     SET_VECTOR_ELT(val, 0, allocVector(REALSXP, n));
     SET_VECTOR_ELT(val, 1, allocVector(REALSXP, n));
     SET_VECTOR_ELT(val, 2, allocMatrix(REALSXP, n, n));
@@ -484,14 +484,14 @@ SEXP dgeMatrix_Schur(SEXP x, SEXP vectors)
     F77_CALL(dgees)(vecs ? "V" : "N", "N", NULL, dims, (double *) NULL, dims, &izero,
 		    (double *) NULL, (double *) NULL, (double *) NULL, dims,
 		    &tmp, &lwork, (int *) NULL, &info);
-    if (info) error("dgeMatrix_Schur: first call to dgees failed");
+    if (info) error(_("dgeMatrix_Schur: first call to dgees failed"));
     lwork = (int) tmp;
     work = Calloc(lwork, double);
     F77_CALL(dgees)(vecs ? "V" : "N", "N", NULL, dims, REAL(VECTOR_ELT(val, 2)), dims,
 		    &izero, REAL(VECTOR_ELT(val, 0)), REAL(VECTOR_ELT(val, 1)),
 		    REAL(VECTOR_ELT(val, 3)), dims, work, &lwork,
 		    (int *) NULL, &info);
-    if (info) error("dgeMatrix_Schur: dgees returned code %d", info);
+    if (info) error(_("dgeMatrix_Schur: dgees returned code %d"), info);
     Free(work);
     UNPROTECT(1);
     return val;

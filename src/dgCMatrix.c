@@ -14,20 +14,20 @@ SEXP dgCMatrix_validate(SEXP x)
 
     nrow = dims[0];
     if (length(islot) != length(xslot))
-	return mkString("lengths of slots i and x must match");
+	return mkString(_("lengths of slots i and x must match"));
     if (length(pslot) <= 0)
-	return mkString("slot p must have length > 0");
+	return mkString(_("slot p must have length > 0"));
     if (xp[0] != 0)
-	return mkString("first element of slot p must be zero");
+	return mkString(_("first element of slot p must be zero"));
     if (length(islot) != xp[ncol])
-	return mkString("last element of slot p must match length of slots i and x");
+	return mkString(_("last element of slot p must match length of slots i and x"));
     for (j = 0; j < ncol; j++) {
 	if (xp[j] > xp[j+1])
-	    return mkString("slot p must be non-decreasing");
+	    return mkString(_("slot p must be non-decreasing"));
     }
     for (j = 0; j < length(islot); j++) {
 	if (xi[j] < 0 || xi[j] >= nrow)
-	    return mkString("all row indices must be between 0 and nrow-1");
+	    return mkString(_("all row indices must be between 0 and nrow-1"));
     }
     if (csc_unsorted_columns(ncol, xp, xi)) {
 	csc_sort_columns(ncol, xp, xi, REAL(xslot));
@@ -172,9 +172,9 @@ SEXP csc_matrix_crossprod(SEXP x, SEXP y)
 	*ydims;
     double *xx = REAL(GET_SLOT(x, Matrix_xSym));
 
-    if (!(isMatrix(y) && isReal(y))) error("y must be a numeric matrix");
+    if (!(isMatrix(y) && isReal(y))) error(_("y must be a numeric matrix"));
     ydims = INTEGER(getAttrib(y, R_DimSymbol));
-    if (xnrow != ydims[0]) error("x and y must have the same number of rows");
+    if (xnrow != ydims[0]) error(_("x and y must have the same number of rows"));
     ans = PROTECT(allocMatrix(REALSXP, xncol, ydims[1]));
     for (j = 0; j < ydims[1]; j++) {
 	int i; double *ypt = REAL(y) + j * ydims[0];
@@ -272,7 +272,7 @@ SEXP matrix_to_csc(SEXP A)
     double *vx;
 
     if (!(isMatrix(A) && isReal(A)))
-	error("A must be a numeric matrix");
+	error(_("A must be a numeric matrix"));
     nrow = adims[0]; ncol = adims[1];
     SET_SLOT(val, Matrix_factorSym, allocVector(VECSXP, 0));
     SET_SLOT(val, Matrix_DimSym, allocVector(INTSXP, 2));
@@ -383,7 +383,7 @@ SEXP csc_matrix_mm(SEXP a, SEXP b)
     SEXP val;
 
     if (bdim[0] != r)
-	error("Matrices of sizes (%d,%d) and (%d,%d) cannot be multiplied",
+	error(_("Matrices of sizes (%d,%d) and (%d,%d) cannot be multiplied"),
 	      m, r, bdim[0], n);
     val = PROTECT(allocMatrix(REALSXP, m, n));
     for (j = 0; j < n; j++) {	/* across columns of b */
@@ -413,11 +413,11 @@ SEXP csc_col_permute(SEXP x, SEXP perm)
     SET_SLOT(val, Matrix_DimSym, duplicate(tmp));
     ncol = INTEGER(tmp)[1];
     if (!(isInteger(perm) && length(perm) == ncol))
-	error("perm must be an integer vector of length %d",
+	error(_("perm must be an integer vector of length %d"),
 	      ncol);
     prm = INTEGER(perm);
     if (!R_ldl_valid_perm(ncol, prm))
-	error("perm is not a valid 0-based permutation");
+	error(_("perm is not a valid 0-based permutation"));
     iperm = Calloc(ncol, int);
     for (j = 0; j < ncol; j++) iperm[prm[j]] = j;
     tmp = GET_SLOT(x, Matrix_pSym);

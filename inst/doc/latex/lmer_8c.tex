@@ -31,7 +31,7 @@ static R\_\-INLINE int $\ast$ \hyperlink{lmer_8c_a9}{block\_\-parent} (int j, in
 \item 
 SEXP \hyperlink{lmer_8c_a10}{lmer\_\-factor} (SEXP x)
 \item 
-static void \hyperlink{lmer_8c_a11}{lmer\_\-sm} (char side, char trans, int nf, const int Gp\mbox{[}$\,$\mbox{]}, int n, double alpha, SEXP L, double B\mbox{[}$\,$\mbox{]}, int ldb)
+static void \hyperlink{lmer_8c_a11}{lmer\_\-sm} (enum \hyperlink{Mutils_8h_a57}{CBLAS\_\-SIDE} side, enum \hyperlink{Mutils_8h_a54}{CBLAS\_\-TRANSPOSE} trans, int nf, const int Gp\mbox{[}$\,$\mbox{]}, int n, double alpha, SEXP L, double B\mbox{[}$\,$\mbox{]}, int ldb)
 \item 
 static int \hyperlink{lmer_8c_a12}{max\_\-nnz} (int j, SEXP Parent)
 \item 
@@ -79,13 +79,6 @@ SEXP \hyperlink{lmer_8c_a29}{lmer\_\-Crosstab} (SEXP flist)
 \label{lmer_8c_a0}
 
 
-Fill the nnz array with the number of nonzero inner blocks in each outer block of the jth inner column block of the ith outer block of L$^\wedge$\{-1\}. Also allocate the tmp and ind arrays and fill the ind array.
-
-\begin{Desc}
-\item[Parameters:]
-\begin{description}
-\item[{\em i}]outer block index \item[{\em j}]inner block index within the ith outer block \item[{\em nf}]number of factors \item[{\em Parent}]pointer to the extended parent pairs \item[{\em nc}]\item[{\em nnz}]array of length nf \item[{\em tmp}]array of length nf of pointers to doubles \item[{\em ind}]array of length nf of pointers to ints \end{description}
-\end{Desc}
 \hypertarget{lmer_8c_a1}{
 \index{lmer.c@{lmer.c}!PAR@{PAR}}
 \index{PAR@{PAR}!lmer.c@{lmer.c}}
@@ -181,6 +174,13 @@ Print the verbose output in the ECME iterations
 \label{lmer_8c_a13}
 
 
+Fill the nnz array with the number of nonzero inner blocks in each outer block of the jth inner column block of the ith outer block of L$^\wedge$\{-1\}. Also allocate the tmp and ind arrays and fill the ind array.
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em i}]outer block index \item[{\em j}]inner block index within the ith outer block \item[{\em nf}]number of factors \item[{\em Parent}]pointer to the extended parent pairs \item[{\em nc}]\item[{\em nnz}]array of length nf \item[{\em tmp}]array of length nf of pointers to doubles \item[{\em ind}]array of length nf of pointers to ints \end{description}
+\end{Desc}
 \hypertarget{lmer_8c_a14}{
 \index{lmer.c@{lmer.c}!fsrch@{fsrch}}
 \index{fsrch@{fsrch}!lmer.c@{lmer.c}}
@@ -232,7 +232,7 @@ Create an lmer object from a list of grouping factors and a list of model matric
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em facs}]pointer to a list of grouping factors \item[{\em ncv}]pointer to a list of model matrices\end{description}
+\item[{\em flist}]pointer to a list of grouping factors \item[{\em mmats}]pointer to a list of model matrices\end{description}
 \end{Desc}
 \begin{Desc}
 \item[Returns:]pointer to an lmer object \end{Desc}
@@ -271,7 +271,7 @@ Perform ECME steps for the REML or ML criterion.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em x}]pointer to an ssclme object \item[{\em nsteps}]pointer to an integer scalar - the number of ECME steps to perform \item[{\em REMLp}]pointer to a logical scalar indicating if REML is to be used \item[{\em verb}]pointer to a logical scalar indicating verbose output\end{description}
+\item[{\em x}]pointer to an ssclme object \item[{\em nsteps}]pointer to an integer scalar - the number of ECME steps to perform \item[{\em REMLp}]pointer to a logical scalar indicating if REML is to be used \item[{\em Verbp}]pointer to a logical scalar indicating verbose output\end{description}
 \end{Desc}
 \begin{Desc}
 \item[Returns:]R\_\-Nil\-Value if verb == FALSE, otherwise a list of iteration numbers, deviances, parameters, and gradients. \end{Desc}
@@ -404,10 +404,10 @@ Fill in five symmetric matrices, providing the information to generate the Hessi
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em x}]pointer to an lme object \item[{\em val}]ignored at present\end{description}
+\item[{\em x}]pointer to an lme object \item[{\em Valp}]ignored at present\end{description}
 \end{Desc}
 \begin{Desc}
-\item[Returns:]val an array consisting of five symmetric faces \end{Desc}
+\item[Returns:]Valp an array consisting of five symmetric faces \end{Desc}
 \hypertarget{lmer_8c_a16}{
 \index{lmer.c@{lmer.c}!lmer_sigma@{lmer\_\-sigma}}
 \index{lmer_sigma@{lmer\_\-sigma}!lmer.c@{lmer.c}}
@@ -427,7 +427,7 @@ Extract the ML or REML conditional estimate of sigma
 \hypertarget{lmer_8c_a11}{
 \index{lmer.c@{lmer.c}!lmer_sm@{lmer\_\-sm}}
 \index{lmer_sm@{lmer\_\-sm}!lmer.c@{lmer.c}}
-\paragraph[lmer\_\-sm]{\setlength{\rightskip}{0pt plus 5cm}static void lmer\_\-sm (char {\em side}, char {\em trans}, int {\em nf}, const int {\em Gp}\mbox{[}$\,$\mbox{]}, int {\em n}, double {\em alpha}, SEXP {\em L}, double {\em B}\mbox{[}$\,$\mbox{]}, int {\em ldb})\hspace{0.3cm}{\tt  \mbox{[}static\mbox{]}}}\hfill}
+\paragraph[lmer\_\-sm]{\setlength{\rightskip}{0pt plus 5cm}static void lmer\_\-sm (enum \hyperlink{Mutils_8h_a57}{CBLAS\_\-SIDE} {\em side}, enum \hyperlink{Mutils_8h_a54}{CBLAS\_\-TRANSPOSE} {\em trans}, int {\em nf}, const int {\em Gp}\mbox{[}$\,$\mbox{]}, int {\em n}, double {\em alpha}, SEXP {\em L}, double {\em B}\mbox{[}$\,$\mbox{]}, int {\em ldb})\hspace{0.3cm}{\tt  \mbox{[}static\mbox{]}}}\hfill}
 \label{lmer_8c_a11}
 
 
@@ -436,7 +436,7 @@ Solve one of the matrix equations op(L)$\ast$X=alpha$\ast$B or X$\ast$op(L)=alph
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em side}]'L' for left, 'R' for right \item[{\em trans}]'T' for transpose, otherwise no transpose \item[{\em nf}]number of grouping factors \item[{\em Gp}]group pointers for the rows \item[{\em n}]number of columns \item[{\em alpha}]multiplier \item[{\em L}]pointer to the L cscb object \item[{\em mm}]pointer to the matrix of right-hand sides \end{description}
+\item[{\em side}]LFT or RGT for left or right \item[{\em trans}]TRN or NTR for transpose or no transpose \item[{\em nf}]number of grouping factors \item[{\em Gp}]group pointers for the rows \item[{\em n}]number of columns \item[{\em alpha}]multiplier \item[{\em L}]pointer to the L cscb object \item[{\em B}]pointer to the matrix of right-hand sides \item[{\em ldb}]leading dimension of array B as declared in the caller \end{description}
 \end{Desc}
 \hypertarget{lmer_8c_a5}{
 \index{lmer.c@{lmer.c}!lmer_update_mm@{lmer\_\-update\_\-mm}}

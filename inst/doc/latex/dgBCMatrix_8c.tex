@@ -8,23 +8,23 @@
 \item 
 SEXP \hyperlink{dgBCMatrix_8c_a0}{dg\-BCMatrix\_\-validate} (SEXP x)
 \item 
-void \hyperlink{dgBCMatrix_8c_a1}{cscb\_\-mm} (enum \hyperlink{cblas_8h_a159}{CBLAS\_\-SIDE} side, enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} transa, int m, int n, int k, double alpha, SEXP A, const double B\mbox{[}$\,$\mbox{]}, int ldb, double beta, double C\mbox{[}$\,$\mbox{]}, int ldc)
+void \hyperlink{dgBCMatrix_8c_a1}{cscb\_\-mm} (enum \hyperlink{Mutils_8h_a57}{CBLAS\_\-SIDE} side, enum \hyperlink{Mutils_8h_a54}{CBLAS\_\-TRANSPOSE} transa, int m, int n, int k, double alpha, SEXP A, const double B\mbox{[}$\,$\mbox{]}, int ldb, double beta, double C\mbox{[}$\,$\mbox{]}, int ldc)
 \item 
-void \hyperlink{dgBCMatrix_8c_a2}{cscb\_\-syrk} (enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} uplo, enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} trans, double alpha, SEXP A, double beta, SEXP C)
+void \hyperlink{dgBCMatrix_8c_a2}{cscb\_\-syrk} (enum \hyperlink{Mutils_8h_a55}{CBLAS\_\-UPLO} uplo, enum \hyperlink{Mutils_8h_a54}{CBLAS\_\-TRANSPOSE} trans, double alpha, SEXP A, double beta, SEXP C)
 \item 
 static void \hyperlink{dgBCMatrix_8c_a3}{copy\_\-transpose} (double dest\mbox{[}$\,$\mbox{]}, const double src\mbox{[}$\,$\mbox{]}, int n)
 \item 
 int \hyperlink{dgBCMatrix_8c_a4}{cscb\_\-ldl} (SEXP A, const int Parent\mbox{[}$\,$\mbox{]}, SEXP L, SEXP D)
 \item 
-void \hyperlink{dgBCMatrix_8c_a5}{cscb\_\-trmm} (enum \hyperlink{cblas_8h_a159}{CBLAS\_\-SIDE} side, enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} uplo, enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} transa, enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} diag, double alpha, SEXP A, double B\mbox{[}$\,$\mbox{]}, int m, int n, int ldb)
+void \hyperlink{dgBCMatrix_8c_a5}{cscb\_\-trmm} (enum \hyperlink{Mutils_8h_a57}{CBLAS\_\-SIDE} side, enum \hyperlink{Mutils_8h_a55}{CBLAS\_\-UPLO} uplo, enum \hyperlink{Mutils_8h_a54}{CBLAS\_\-TRANSPOSE} transa, enum \hyperlink{Mutils_8h_a56}{CBLAS\_\-DIAG} diag, double alpha, SEXP A, double B\mbox{[}$\,$\mbox{]}, int m, int n, int ldb)
 \item 
-void \hyperlink{dgBCMatrix_8c_a6}{cscb\_\-trsm} (enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} uplo, enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} transa, enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} diag, double alpha, SEXP A, int m, int n, double B\mbox{[}$\,$\mbox{]}, int ldb)
+void \hyperlink{dgBCMatrix_8c_a6}{cscb\_\-trsm} (enum \hyperlink{Mutils_8h_a55}{CBLAS\_\-UPLO} uplo, enum \hyperlink{Mutils_8h_a54}{CBLAS\_\-TRANSPOSE} transa, enum \hyperlink{Mutils_8h_a56}{CBLAS\_\-DIAG} diag, double alpha, SEXP A, int m, int n, double B\mbox{[}$\,$\mbox{]}, int ldb)
 \item 
-void \hyperlink{dgBCMatrix_8c_a7}{cscb\_\-trcbm} (enum \hyperlink{cblas_8h_a159}{CBLAS\_\-SIDE} side, enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} uplo, enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} transa, enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} diag, double alpha, SEXP A, SEXP B)
+void \hyperlink{dgBCMatrix_8c_a7}{cscb\_\-trcbm} (enum \hyperlink{Mutils_8h_a57}{CBLAS\_\-SIDE} side, enum \hyperlink{Mutils_8h_a55}{CBLAS\_\-UPLO} uplo, enum \hyperlink{Mutils_8h_a54}{CBLAS\_\-TRANSPOSE} transa, enum \hyperlink{Mutils_8h_a56}{CBLAS\_\-DIAG} diag, double alpha, SEXP A, SEXP B)
 \item 
-void \hyperlink{dgBCMatrix_8c_a8}{cscb\_\-trcbsm} (enum \hyperlink{cblas_8h_a159}{CBLAS\_\-SIDE} side, enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} uplo, enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} transa, enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} diag, double alpha, SEXP A, const int Parent\mbox{[}$\,$\mbox{]}, SEXP B)
+void \hyperlink{dgBCMatrix_8c_a8}{cscb\_\-trcbsm} (enum \hyperlink{Mutils_8h_a57}{CBLAS\_\-SIDE} side, enum \hyperlink{Mutils_8h_a55}{CBLAS\_\-UPLO} uplo, enum \hyperlink{Mutils_8h_a54}{CBLAS\_\-TRANSPOSE} transa, enum \hyperlink{Mutils_8h_a56}{CBLAS\_\-DIAG} diag, double alpha, SEXP A, const int Parent\mbox{[}$\,$\mbox{]}, SEXP B)
 \item 
-void \hyperlink{dgBCMatrix_8c_a9}{cscb\_\-cscbm} (enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} transa, enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} transb, double alpha, SEXP A, SEXP B, double beta, SEXP C)
+void \hyperlink{dgBCMatrix_8c_a9}{cscb\_\-cscbm} (enum \hyperlink{Mutils_8h_a54}{CBLAS\_\-TRANSPOSE} transa, enum \hyperlink{Mutils_8h_a54}{CBLAS\_\-TRANSPOSE} transb, double alpha, SEXP A, SEXP B, double beta, SEXP C)
 \item 
 SEXP \hyperlink{dgBCMatrix_8c_a10}{dg\-BCMatrix\_\-to\_\-dg\-CMatrix} (SEXP A)
 \item 
@@ -43,7 +43,7 @@ SEXP \hyperlink{dgBCMatrix_8c_a11}{dg\-BCMatrix\_\-to\_\-dg\-TMatrix} (SEXP A)
 \hypertarget{dgBCMatrix_8c_a9}{
 \index{dgBCMatrix.c@{dg\-BCMatrix.c}!cscb_cscbm@{cscb\_\-cscbm}}
 \index{cscb_cscbm@{cscb\_\-cscbm}!dgBCMatrix.c@{dg\-BCMatrix.c}}
-\paragraph[cscb\_\-cscbm]{\setlength{\rightskip}{0pt plus 5cm}void cscb\_\-cscbm (enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em transa}, enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em transb}, double {\em alpha}, SEXP {\em A}, SEXP {\em B}, double {\em beta}, SEXP {\em C})}\hfill}
+\paragraph[cscb\_\-cscbm]{\setlength{\rightskip}{0pt plus 5cm}void cscb\_\-cscbm (enum \hyperlink{Mutils_8h_a54}{CBLAS\_\-TRANSPOSE} {\em transa}, enum \hyperlink{Mutils_8h_a54}{CBLAS\_\-TRANSPOSE} {\em transb}, double {\em alpha}, SEXP {\em A}, SEXP {\em B}, double {\em beta}, SEXP {\em C})}\hfill}
 \label{dgBCMatrix_8c_a9}
 
 
@@ -52,7 +52,7 @@ Perform one of the matrix-matrix operations C := alpha$\ast$op(A)$\ast$op(B) + b
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em transa}]'T' for transpose of A, else 'N' \item[{\em transb}]'T' for transpose of B, else 'N' \item[{\em alpha}]scalar multiplier \item[{\em A}]pointer to a dg\-BCMatrix object \item[{\em B}]pointer to a dg\-BCMatrix object \item[{\em beta}]scalar multiplier \item[{\em C}]pointer to a dg\-BCMatrix object \end{description}
+\item[{\em transa}]TRN or NTR for transpose or no transpose of A \item[{\em transb}]TRN or NTR for transpose or no transpose of B \item[{\em alpha}]scalar multiplier \item[{\em A}]pointer to a dg\-BCMatrix object \item[{\em B}]pointer to a dg\-BCMatrix object \item[{\em beta}]scalar multiplier \item[{\em C}]pointer to a dg\-BCMatrix object \end{description}
 \end{Desc}
 \hypertarget{dgBCMatrix_8c_a4}{
 \index{dgBCMatrix.c@{dg\-BCMatrix.c}!cscb_ldl@{cscb\_\-ldl}}
@@ -73,7 +73,7 @@ Create the LD$^\wedge$\{T/2\}D$^\wedge$\{1/2\}L' decomposition of the positive d
 \hypertarget{dgBCMatrix_8c_a1}{
 \index{dgBCMatrix.c@{dg\-BCMatrix.c}!cscb_mm@{cscb\_\-mm}}
 \index{cscb_mm@{cscb\_\-mm}!dgBCMatrix.c@{dg\-BCMatrix.c}}
-\paragraph[cscb\_\-mm]{\setlength{\rightskip}{0pt plus 5cm}void cscb\_\-mm (enum \hyperlink{cblas_8h_a159}{CBLAS\_\-SIDE} {\em side}, enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em transa}, int {\em m}, int {\em n}, int {\em k}, double {\em alpha}, SEXP {\em A}, const double {\em B}\mbox{[}$\,$\mbox{]}, int {\em ldb}, double {\em beta}, double {\em C}\mbox{[}$\,$\mbox{]}, int {\em ldc})}\hfill}
+\paragraph[cscb\_\-mm]{\setlength{\rightskip}{0pt plus 5cm}void cscb\_\-mm (enum \hyperlink{Mutils_8h_a57}{CBLAS\_\-SIDE} {\em side}, enum \hyperlink{Mutils_8h_a54}{CBLAS\_\-TRANSPOSE} {\em transa}, int {\em m}, int {\em n}, int {\em k}, double {\em alpha}, SEXP {\em A}, const double {\em B}\mbox{[}$\,$\mbox{]}, int {\em ldb}, double {\em beta}, double {\em C}\mbox{[}$\,$\mbox{]}, int {\em ldc})}\hfill}
 \label{dgBCMatrix_8c_a1}
 
 
@@ -87,7 +87,7 @@ Perform one of the matrix operations C := alpha$\ast$op(A)$\ast$B + beta$\ast$C 
 \hypertarget{dgBCMatrix_8c_a2}{
 \index{dgBCMatrix.c@{dg\-BCMatrix.c}!cscb_syrk@{cscb\_\-syrk}}
 \index{cscb_syrk@{cscb\_\-syrk}!dgBCMatrix.c@{dg\-BCMatrix.c}}
-\paragraph[cscb\_\-syrk]{\setlength{\rightskip}{0pt plus 5cm}void cscb\_\-syrk (enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em uplo}, enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em trans}, double {\em alpha}, SEXP {\em A}, double {\em beta}, SEXP {\em C})}\hfill}
+\paragraph[cscb\_\-syrk]{\setlength{\rightskip}{0pt plus 5cm}void cscb\_\-syrk (enum \hyperlink{Mutils_8h_a55}{CBLAS\_\-UPLO} {\em uplo}, enum \hyperlink{Mutils_8h_a54}{CBLAS\_\-TRANSPOSE} {\em trans}, double {\em alpha}, SEXP {\em A}, double {\em beta}, SEXP {\em C})}\hfill}
 \label{dgBCMatrix_8c_a2}
 
 
@@ -96,12 +96,12 @@ Perform one of the matrix operations C := alpha$\ast$A$\ast$A' + beta$\ast$C, or
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em uplo}]'U' or 'u' for upper triangular storage, else lower. \item[{\em trans}]'T' or 't' for transpose. \item[{\em alpha}]scalar multiplier of outer product \item[{\em A}]compressed sparse blocked matrix \item[{\em beta}]scalar multiplier of c \item[{\em C}]compressed sparse blocked symmetric matrix to be updated \end{description}
+\item[{\em uplo}]UPP or LOW for upper or lower \item[{\em trans}]TRN or NTR for transpose or no transpose \item[{\em alpha}]scalar multiplier of outer product \item[{\em A}]compressed sparse blocked matrix \item[{\em beta}]scalar multiplier of c \item[{\em C}]compressed sparse blocked symmetric matrix to be updated \end{description}
 \end{Desc}
 \hypertarget{dgBCMatrix_8c_a7}{
 \index{dgBCMatrix.c@{dg\-BCMatrix.c}!cscb_trcbm@{cscb\_\-trcbm}}
 \index{cscb_trcbm@{cscb\_\-trcbm}!dgBCMatrix.c@{dg\-BCMatrix.c}}
-\paragraph[cscb\_\-trcbm]{\setlength{\rightskip}{0pt plus 5cm}void cscb\_\-trcbm (enum \hyperlink{cblas_8h_a159}{CBLAS\_\-SIDE} {\em side}, enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em uplo}, enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em transa}, enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} {\em diag}, double {\em alpha}, SEXP {\em A}, SEXP {\em B})}\hfill}
+\paragraph[cscb\_\-trcbm]{\setlength{\rightskip}{0pt plus 5cm}void cscb\_\-trcbm (enum \hyperlink{Mutils_8h_a57}{CBLAS\_\-SIDE} {\em side}, enum \hyperlink{Mutils_8h_a55}{CBLAS\_\-UPLO} {\em uplo}, enum \hyperlink{Mutils_8h_a54}{CBLAS\_\-TRANSPOSE} {\em transa}, enum \hyperlink{Mutils_8h_a56}{CBLAS\_\-DIAG} {\em diag}, double {\em alpha}, SEXP {\em A}, SEXP {\em B})}\hfill}
 \label{dgBCMatrix_8c_a7}
 
 
@@ -115,7 +115,7 @@ Perform one of the operations B := alpha$\ast$op(A)$\ast$B or B := alpha$\ast$B$
 \hypertarget{dgBCMatrix_8c_a8}{
 \index{dgBCMatrix.c@{dg\-BCMatrix.c}!cscb_trcbsm@{cscb\_\-trcbsm}}
 \index{cscb_trcbsm@{cscb\_\-trcbsm}!dgBCMatrix.c@{dg\-BCMatrix.c}}
-\paragraph[cscb\_\-trcbsm]{\setlength{\rightskip}{0pt plus 5cm}void cscb\_\-trcbsm (enum \hyperlink{cblas_8h_a159}{CBLAS\_\-SIDE} {\em side}, enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em uplo}, enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em transa}, enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} {\em diag}, double {\em alpha}, SEXP {\em A}, const int {\em Parent}\mbox{[}$\,$\mbox{]}, SEXP {\em B})}\hfill}
+\paragraph[cscb\_\-trcbsm]{\setlength{\rightskip}{0pt plus 5cm}void cscb\_\-trcbsm (enum \hyperlink{Mutils_8h_a57}{CBLAS\_\-SIDE} {\em side}, enum \hyperlink{Mutils_8h_a55}{CBLAS\_\-UPLO} {\em uplo}, enum \hyperlink{Mutils_8h_a54}{CBLAS\_\-TRANSPOSE} {\em transa}, enum \hyperlink{Mutils_8h_a56}{CBLAS\_\-DIAG} {\em diag}, double {\em alpha}, SEXP {\em A}, const int {\em Parent}\mbox{[}$\,$\mbox{]}, SEXP {\em B})}\hfill}
 \label{dgBCMatrix_8c_a8}
 
 
@@ -124,12 +124,12 @@ Solve one of the systems op(A)$\ast$X = alpha$\ast$B or X$\ast$op(A) = alpha$\as
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em side}]'L' or 'R' for left or right \item[{\em uplo}]'U' or 'L' for upper or lower \item[{\em transa}]'T' or 'N' for transpose or no transpose \item[{\em diag}]'U' or 'N' for unit diagonal or non-unit \item[{\em alpha}]scalar multiplier \item[{\em A}]pointer to a triangular dg\-BCMatrix object \item[{\em B}]pointer to a general dg\-BCMatrix matrix \end{description}
+\item[{\em side}]LFT or RGT for left or right \item[{\em uplo}]UPP or LOW for upper or lower \item[{\em transa}]TRN or NTR for transpose or no transpose \item[{\em diag}]UNT or NON for unit or non-unit \item[{\em alpha}]scalar multiplier \item[{\em A}]pointer to a triangular dg\-BCMatrix object \item[{\em Parent}]parent array for the column blocks of A \item[{\em B}]pointer to a general dg\-BCMatrix matrix \end{description}
 \end{Desc}
 \hypertarget{dgBCMatrix_8c_a5}{
 \index{dgBCMatrix.c@{dg\-BCMatrix.c}!cscb_trmm@{cscb\_\-trmm}}
 \index{cscb_trmm@{cscb\_\-trmm}!dgBCMatrix.c@{dg\-BCMatrix.c}}
-\paragraph[cscb\_\-trmm]{\setlength{\rightskip}{0pt plus 5cm}void cscb\_\-trmm (enum \hyperlink{cblas_8h_a159}{CBLAS\_\-SIDE} {\em side}, enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em uplo}, enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em transa}, enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} {\em diag}, double {\em alpha}, SEXP {\em A}, double {\em B}\mbox{[}$\,$\mbox{]}, int {\em m}, int {\em n}, int {\em ldb})}\hfill}
+\paragraph[cscb\_\-trmm]{\setlength{\rightskip}{0pt plus 5cm}void cscb\_\-trmm (enum \hyperlink{Mutils_8h_a57}{CBLAS\_\-SIDE} {\em side}, enum \hyperlink{Mutils_8h_a55}{CBLAS\_\-UPLO} {\em uplo}, enum \hyperlink{Mutils_8h_a54}{CBLAS\_\-TRANSPOSE} {\em transa}, enum \hyperlink{Mutils_8h_a56}{CBLAS\_\-DIAG} {\em diag}, double {\em alpha}, SEXP {\em A}, double {\em B}\mbox{[}$\,$\mbox{]}, int {\em m}, int {\em n}, int {\em ldb})}\hfill}
 \label{dgBCMatrix_8c_a5}
 
 
@@ -138,12 +138,12 @@ Perform one of the dg\-BCMatrix-matrix operations B := alpha$\ast$op(A)$\ast$B o
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em side}]\item[{\em uplo}]\item[{\em transa}]\item[{\em diag}]\item[{\em A}]pointer to a triangular dg\-BCMatrix object \item[{\em B}]contents of the matrix B \item[{\em m}]number of rows in B \item[{\em n}]number of columns in B \item[{\em ldb}]leading dimension of B as declared in the calling function \end{description}
+\item[{\em side}]LFT or RGT for left or right \item[{\em uplo}]UPP or LOW for upper or lower \item[{\em transa}]TRN or NTR for transpose or no transpose \item[{\em diag}]UNT or NUN for unit or non-unit \item[{\em alpha}]scalar multiplier \item[{\em A}]pointer to a triangular dg\-BCMatrix object \item[{\em B}]contents of the matrix B \item[{\em m}]number of rows in B \item[{\em n}]number of columns in B \item[{\em ldb}]leading dimension of B as declared in the calling function \end{description}
 \end{Desc}
 \hypertarget{dgBCMatrix_8c_a6}{
 \index{dgBCMatrix.c@{dg\-BCMatrix.c}!cscb_trsm@{cscb\_\-trsm}}
 \index{cscb_trsm@{cscb\_\-trsm}!dgBCMatrix.c@{dg\-BCMatrix.c}}
-\paragraph[cscb\_\-trsm]{\setlength{\rightskip}{0pt plus 5cm}void cscb\_\-trsm (enum \hyperlink{cblas_8h_a157}{CBLAS\_\-UPLO} {\em uplo}, enum \hyperlink{cblas_8h_a156}{CBLAS\_\-TRANSPOSE} {\em transa}, enum \hyperlink{cblas_8h_a158}{CBLAS\_\-DIAG} {\em diag}, double {\em alpha}, SEXP {\em A}, int {\em m}, int {\em n}, double {\em B}\mbox{[}$\,$\mbox{]}, int {\em ldb})}\hfill}
+\paragraph[cscb\_\-trsm]{\setlength{\rightskip}{0pt plus 5cm}void cscb\_\-trsm (enum \hyperlink{Mutils_8h_a55}{CBLAS\_\-UPLO} {\em uplo}, enum \hyperlink{Mutils_8h_a54}{CBLAS\_\-TRANSPOSE} {\em transa}, enum \hyperlink{Mutils_8h_a56}{CBLAS\_\-DIAG} {\em diag}, double {\em alpha}, SEXP {\em A}, int {\em m}, int {\em n}, double {\em B}\mbox{[}$\,$\mbox{]}, int {\em ldb})}\hfill}
 \label{dgBCMatrix_8c_a6}
 
 
@@ -152,7 +152,7 @@ Solve a triangular system of the form op(A)$\ast$X = alpha$\ast$B where A is a d
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em uplo}]UPP or LOW \item[{\em trans}]TRN or NTR \item[{\em diag}]UNT or NUN \item[{\em A}]pointer to a triangular dg\-BCMatrix object \item[{\em m}]number of rows in B \item[{\em n}]number of columns in B \item[{\em B}]pointer to the contents of the matrix B \item[{\em ldb}]leading dimension of B as declared in the calling function \end{description}
+\item[{\em uplo}]UPP or LOW \item[{\em transa}]TRN or NTR \item[{\em diag}]UNT or NUN \item[{\em alpha}]scalar multiplier \item[{\em A}]pointer to a triangular dg\-BCMatrix object \item[{\em m}]number of rows in B \item[{\em n}]number of columns in B \item[{\em B}]pointer to the contents of the matrix B \item[{\em ldb}]leading dimension of B as declared in the calling function \end{description}
 \end{Desc}
 \hypertarget{dgBCMatrix_8c_a10}{
 \index{dgBCMatrix.c@{dg\-BCMatrix.c}!dgBCMatrix_to_dgCMatrix@{dgBCMatrix\_\-to\_\-dgCMatrix}}
@@ -161,6 +161,15 @@ Solve a triangular system of the form op(A)$\ast$X = alpha$\ast$B where A is a d
 \label{dgBCMatrix_8c_a10}
 
 
+Coerce a dg\-BCMatrix to a dg\-CMatrix
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em A}]pointer to a dg\-BCMatrix object to coerce\end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]pointer to a dg\-CMatrix \end{Desc}
 \hypertarget{dgBCMatrix_8c_a11}{
 \index{dgBCMatrix.c@{dg\-BCMatrix.c}!dgBCMatrix_to_dgTMatrix@{dgBCMatrix\_\-to\_\-dgTMatrix}}
 \index{dgBCMatrix_to_dgTMatrix@{dgBCMatrix\_\-to\_\-dgTMatrix}!dgBCMatrix.c@{dg\-BCMatrix.c}}

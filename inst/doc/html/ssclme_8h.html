@@ -98,7 +98,8 @@
 Extract the upper triangles of the Omega matrices. These aren't "coefficients" but the extractor is called coef for historical reasons. Within each group these values are in the order of the diagonal entries first then the strict upper triangle in row order.<p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>x</em>&nbsp;</td><td>pointer to an ssclme object</td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>x</em>&nbsp;</td><td>pointer to an ssclme object </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>Unconstr</em>&nbsp;</td><td>pointer to a logical object indicating if the unconstrained parameterization should be used.</td></tr>
   </table>
 </dl>
 <dl compact><dt><b>Returns:</b></dt><dd>numeric vector of the values in the upper triangles of the Omega matrices </dd></dl>
@@ -149,7 +150,8 @@ Assign the upper triangles of the Omega matrices. (Called coef for historical re
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
     <tr><td valign="top"></td><td valign="top"><em>x</em>&nbsp;</td><td>pointer to an ssclme object </td></tr>
-    <tr><td valign="top"></td><td valign="top"><em>coef</em>&nbsp;</td><td>pointer to an numeric vector of appropriate length</td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>coef</em>&nbsp;</td><td>pointer to an numeric vector of appropriate length </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>Unc</em>&nbsp;</td><td>pointer to a logical object indicating if the unconstrained parameterization should be used.</td></tr>
   </table>
 </dl>
 <dl compact><dt><b>Returns:</b></dt><dd>R_NilValue </dd></dl>
@@ -555,8 +557,8 @@ Return the gradient of the ML or REML deviance.<p>
   <table border="0" cellspacing="2" cellpadding="0">
     <tr><td valign="top"></td><td valign="top"><em>x</em>&nbsp;</td><td>pointer to an ssclme object </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>REMLp</em>&nbsp;</td><td>pointer to a logical scalar indicating if REML is to be used </td></tr>
-    <tr><td valign="top"></td><td valign="top"><em>Uncp</em>&nbsp;</td><td>pointer to a logical scalar indicating if the unconstrained parameterization is to be used </td></tr>
-    <tr><td valign="top"></td><td valign="top"><em>Uncp</em>&nbsp;</td><td>pointer to a logical scalar indicating if result should be a single vector</td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>Unc</em>&nbsp;</td><td>pointer to a logical scalar indicating if the unconstrained parameterization is to be used </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>OneVector</em>&nbsp;</td><td>pointer to a logical scalar indicating if result should be a single vector.</td></tr>
   </table>
 </dl>
 <dl compact><dt><b>Returns:</b></dt><dd>pointer to the gradient as a list of matrices or as a vector. </dd></dl>
@@ -937,8 +939,7 @@ Create an lme object from its components. This is not done by new("lme", ...) at
     <tr><td valign="top"></td><td valign="top"><em>fitted</em>&nbsp;</td><td>pointer to the fitted values </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>residuals</em>&nbsp;</td><td>pointer to the residuals </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>terms</em>&nbsp;</td><td>pointer to a terms object (redundant if model is non-empty) </td></tr>
-    <tr><td valign="top"></td><td valign="top"><em>assign</em>&nbsp;</td><td>pointer to an integer assign vector </td></tr>
-    <tr><td valign="top"></td><td valign="top"><em>contrasts</em>&nbsp;</td><td>pointer to a list of contrast function names</td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>assign</em>&nbsp;</td><td>pointer to an integer assign vector</td></tr>
   </table>
 </dl>
 <dl compact><dt><b>Returns:</b></dt><dd>an lme object </dd></dl>
@@ -1084,7 +1085,7 @@ Return the unscaled variances<p>
     </td>
   </tr>
 </table>
-<hr size="1"><address style="align: right;"><small>Generated on Fri Feb 18 08:49:35 2005 for Matrix by&nbsp;
+<hr size="1"><address style="align: right;"><small>Generated on Tue Mar 1 16:58:11 2005 for Matrix by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.1 </small></address>
 </body>

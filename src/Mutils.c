@@ -7,13 +7,14 @@ char norm_type(char *typstr)
     char typup;
 
     if (strlen(typstr) != 1)
-	error("argument type[1]='%s' must be a character string of string length 1",
-	      typstr);
+	error(
+	    _("argument type[1]='%s' must be a character string of string length 1"),
+	    typstr);
     typup = toupper(*typstr);
     if (typup == '1') typup = 'O'; /* aliases */
     if (typup == 'E') typup = 'F';
     if (typup != 'M' && typup != 'O' && typup != 'I' && typup != 'F')
-	error("argument type[1]='%s' must be one of 'M','1','O','I','F' or 'E'",
+	error(_("argument type[1]='%s' must be one of 'M','1','O','I','F' or 'E'"),
 	      typstr);
     return typup;
 }
@@ -23,12 +24,12 @@ char rcond_type(char *typstr)
     char typup;
 
     if (strlen(typstr) != 1)
-	error("argument type[1]='%s' must be a character string of string length 1",
+	error(_("argument type[1]='%s' must be a character string of string length 1"),
 	      typstr);
     typup = toupper(*typstr);
     if (typup == '1') typup = 'O'; /* alias */
     if (typup != 'O' && typup != 'I')
-	error("argument type[1]='%s' must be one of '1','O', or 'I'",
+	error(_("argument type[1]='%s' must be one of '1','O', or 'I'"),
 	      typstr);
     return typup;
 }
@@ -39,7 +40,7 @@ double get_double_by_name(SEXP obj, char *nm)
     int i, len = length(obj);
 
     if ((!isReal(obj)) || (length(obj) > 0 && nms == R_NilValue))
-	error("object must be a named, numeric vector");
+	error(_("object must be a named, numeric vector"));
     for (i = 0; i < len; i++) {
 	if (!strcmp(nm, CHAR(STRING_ELT(nms, i)))) {
 	    return REAL(obj)[i];
@@ -343,9 +344,35 @@ nlme_check_Lapack_error(int info, const char *laName)
 {
     if (info != 0) {
         if (info > 0)
-            error("error code %d from Lapack routine %s", info, laName);
-        error("argument no. %d to Lapack routine %s is illegal",
+            error(_("error code %d from Lapack routine %s"), info, laName);
+        error(_("argument no. %d to Lapack routine %s is illegal"),
               -info, laName);
+    }
+}
+
+void make_array_triangular(double *to, SEXP from)
+{
+    int i, j, *dims = INTEGER(GET_SLOT(from, Matrix_DimSym));
+    int n = dims[0], m = dims[1];
+
+    if (*CHAR(asChar(GET_SLOT(from, Matrix_uploSym))) == 'U') {
+	for (j = 0; j < n; j++) {
+	    for (i = j+1; i < m; i++) {
+		to[i + j*m] = 0.;
+	    }
+	}
+    } else {
+	for (j = 1; j < n; j++) {
+	    for (i = 0; i < j && i < m; i++) {
+		to[i + j*m] = 0.;
+	    }
+	}
+    }
+    if (*CHAR(asChar(GET_SLOT(from, Matrix_diagSym))) == 'U') {
+	j = (n < m) ? n : m;
+	for (i = 0; i < j; i++) {
+	    to[i * (m + 1)] = 1.;
+	}
     }
 }
 
@@ -394,34 +421,34 @@ SEXP nlme_weight_matrix_list(SEXP MLin, SEXP wts, SEXP adjst, SEXP MLout)
     SEXP lastM;
 
     if (!(isNewList(MLin) && isReal(wts) && isReal(adjst) && isNewList(MLout)))
-	error("Incorrect argument type");
+	error(_("Incorrect argument type"));
     nf = length(MLin);
     if (length(MLout) != nf)
-	error("Lengths of MLin (%d) and MLout (%d) must match", nf,
+	error(_("Lengths of MLin (%d) and MLout (%d) must match"), nf,
 	      length(MLout));
     n = length(wts);
     if (length(adjst) != n)
-	error("Expected adjst to have length %d, got %d", n, length(adjst));
+	error(_("Expected adjst to have length %d, got %d"), n, length(adjst));
     for (i = 0; i < nf; i++) {
 	SEXP Min = VECTOR_ELT(MLin, i),
 	    Mout = VECTOR_ELT(MLout, i);
 	int *din, *dout, k, nc;
 
 	if (!(isMatrix(Min) && isReal(Min)))
-	    error("component %d of MLin is not a numeric matrix", i + 1);
+	    error(_("component %d of MLin is not a numeric matrix"), i + 1);
 	din = INTEGER(getAttrib(Min, R_DimSymbol));
 	nc = din[1];
 	if (din[0] != n)
-	    error("component %d of MLin has %d rows, expected %d", i + 1,
+	    error(_("component %d of MLin has %d rows, expected %d"), i + 1,
 		  din[0], n);
 	if (!(isMatrix(Mout) && isReal(Mout)))
-	    error("component %d of MLout is not a numeric matrix", i + 1);
+	    error(_("component %d of MLout is not a numeric matrix"), i + 1);
 	dout = INTEGER(getAttrib(Mout, R_DimSymbol));
 	if (dout[0] != n)
-	    error("component %d of MLout has %d rows, expected %d", i + 1,
+	    error(_("component %d of MLout has %d rows, expected %d"), i + 1,
 		  dout[0], n);
 	if (dout[1] != nc)
-	    error("component %d of MLout has %d columns, expected %d", i + 1,
+	    error(_("component %d of MLout has %d columns, expected %d"), i + 1,
 		  dout[1], nc);
 	for (k = 0; k < nc; k++) {
 	    for (j = 0; j < n; j++) {
@@ -475,9 +502,9 @@ SEXP alloc3Darray(SEXPTYPE mode, int nrow, int ncol, int nface)
     int n;
 
     if (nrow < 0 || ncol < 0 || nface < 0)
-	error("negative extents to 3D array");
+	error(_("negative extents to 3D array"));
     if ((double)nrow * (double)ncol * (double)nface > INT_MAX)
-	error("alloc3Darray: too many elements specified");
+	error(_("alloc3Darray: too many elements specified"));
     n = nrow * ncol * nface;
     PROTECT(s = allocVector(mode, n));
     PROTECT(t = allocVector(INTSXP, 3));

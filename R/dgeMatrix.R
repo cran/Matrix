@@ -19,12 +19,15 @@ setAs("dgeMatrix", "matrix",
 setMethod("Arith", ##  "+", "-", "*", "^", "%%", "%/%", "/"
           signature(e1 = "dgeMatrix", e2 = "dgeMatrix"),
           function(e1, e2) {
+              ## NB:  triangular, symmetric, etc may need own method
+
               d1 <- e1@Dim
               d2 <- e2@Dim
               eqD <- d1 == d2
               if (!eqD[1])
                   stop("Matrices must have same number of rows for arithmetic")
-              if (eqD[2])
+              same.dim <- eqD[2]
+              if (same.dim)
                   d <- d1
               else { # nrows differ
                   if(d2[2] %% d1[2] == 0) { # nrow(e2) is a multiple
@@ -45,21 +48,38 @@ setMethod("Arith", ##  "+", "-", "*", "^", "%%", "%/%", "/"
                   dn <- dn0
                   warning("not using incompatible 'Dimnames' in arithmetical result")
               }
-              ##
-              new("dgeMatrix", Dim = d, Dimnames = dn,
-                  x = callGeneric(e1@x, e2@x))
+              ## be smart and preserve, e.g., triangular, or symmetric
+              ## but this sucks: For these,
+              ## 'uplo' and 'diag' also must coincide or be dealt with properly
+
+              ## ==> triangular, symmetric, etc may need own method
+              ##     also since their @x is `non-typical'
+
+##               if(same.dim) {
+##                   if(extends(class(e1), class(e2))) {
+##                       e2@x <- callGeneric(e1@x, e2@x)
+##                       e2@Dimnames <- dn
+##                       e2
+##                   }
+##                   else if(extends(class(e2), class(e1))) {
+##                       e1@x <- callGeneric(e1@x, e2@x)
+##                       e1@Dimnames <- dn
+##                       e1
+##                   }
+##               }
+##               else
+                  new("dgeMatrix", Dim = d, Dimnames = dn,
+                      x = callGeneric(e1@x, e2@x))
           })
 
 setMethod("Arith",
           signature(e1 = "dgeMatrix", e2 = "numeric"),
-          ## could use this function twice  for   A o B  and   B o A
-          ## if callGeneric(.) became smarter:
           function(e1, e2) {
               d <- e1@Dim
               le <- length(e2)
               if(le == 1 || le == d[1] || prod(d) == le) { # matching dim
-                  new("dgeMatrix", Dim = d, Dimnames = e1@Dimnames,
-                      x = callGeneric(as.vector(e2), e1@x))
+                  e1@x <- callGeneric(e1@x, as.vector(e2))
+                  e1
               } else stop ("length of 2nd arg does not match dimension of first")
           })
 
@@ -69,10 +89,31 @@ setMethod("Arith",
               d <- e2@Dim
               le <- length(e1)
               if(le == 1 || le == d[1] || prod(d) == le) { # matching dim
-                  new("dgeMatrix", Dim = d, Dimnames = e2@Dimnames,
-                      x = callGeneric(as.vector(e1), e2@x))
+                  e2@x <- callGeneric(as.vector(e1), e2@x)
+                  e2
               } else stop ("length of 1st arg does not match dimension of 2nd")
           })
+
+setMethod("Math",
+          signature(x = "dgeMatrix"),
+          function(x) {
+              x@x <- callGeneric(x@x)
+              x
+          })
+
+## help(Math2)  mentions this uglyness:
+setGeneric("round",  group="Math2")
+setGeneric("signif", group="Math2")
+
+setMethod("Math2",
+          signature(x = "dgeMatrix", digits = "numeric"),
+          function(x, digits) {
+              x@x <- callGeneric(x@x, digits = digits)
+              x
+          })
+
+## TODO :  "Compare" -> returning  logical Matrices
+
 
 ## -- end{group generics} -----------------------
 
@@ -92,6 +133,13 @@ setMethod("rcond", signature(x = "dgeMatrix", type = "character"),
           function(x, type, ...)
           .Call("dgeMatrix_rcond", x, type),
           valueClass = "numeric")
+
+setMethod("t", signature(x = "dgeMatrix"),
+	  function(x) {
+              x@x <- as.vector(t(array(x@x, dim = x@Dim)))# no dimnames here!
+              x@Dim <- x@Dim[2:1]
+              x@Dimnames <- x@Dimnames[2:1]
+              x })
 
 setMethod("crossprod", signature(x = "dgeMatrix", y = "missing"),
           function(x, y = NULL)
@@ -117,8 +165,27 @@ setMethod("diag", signature(x = "dgeMatrix"),
           function(x = 1, nrow, ncol = n)
           .Call("dgeMatrix_getDiag", x))
 
+## should be done once and for all in ./Matrix.R - but that fails (as "show"):
 setMethod("dim", signature(x = "dgeMatrix"),
           function(x) x@Dim, valueClass = "integer")
+setMethod("dimnames", signature(x = "dgeMatrix"), function(x) x@Dimnames)
+
+## not exported but used more than once for "dimnames<-" method :
+## -- or do only once for all "Matrix" classes ??
+dimnamesGets <- function (x, value) {
+    d <- dim(x)
+    if (!is.list(value) || length(value) != 2 ||
+        !(is.null(v1 <- value[[1]]) || length(v1) == d[1]) ||
+        !(is.null(v2 <- value[[2]]) || length(v2) == d[2]))
+        stop(sprintf("invalid dimnames given for '%s' object", class(x)))
+    x@Dimnames <- list(if(!is.null(v1)) as.character(v1),
+                       if(!is.null(v2)) as.character(v2))
+    x
+}
+setMethod("dimnames<-", signature(x = "dgeMatrix", value = "list"),
+          dimnamesGets)
+
+
 
 setMethod("solve", signature(a = "dgeMatrix", b = "missing"),
           function(a, b, ...) .Call("dgeMatrix_solve", a)
@@ -146,6 +213,11 @@ setMethod("%*%", signature(x = "dgeMatrix", y = "dgeMatrix"),
 setMethod("expm", signature(x = "dgeMatrix"),
           function(x) .Call("dgeMatrix_exp", x),
           valueClass = "dgeMatrix")
+
+if(FALSE) { ##--- not-yet used -- {almost same code also in ./Matrix.R }
+
+    ## The following all serve for  as.Matrix()
+    ## which is not exported and invalid
 
 Hermitian.test <- function(x)
 {
@@ -255,3 +327,5 @@ as.Matrix <- function(x, tol = .Machine$double.eps)
     asObject(if (inherits(x, "Matrix")) x else as.matrix(x),
 	     Matrix.class(x, tol = tol))
 }
+
+}## not-yet used

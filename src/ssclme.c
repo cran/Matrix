@@ -157,7 +157,7 @@ ssclme_create(SEXP facs, SEXP ncv)
 	*dims = INTEGER(dd);
 
     if (length(ncv) != (nf + 1))
-	error("length of nc (%d) should be length of facs (%d) + 1",
+	error(_("length of nc (%d) should be length of facs (%d) + 1"),
 	      length(ncv), nf);
     SET_VECTOR_ELT(val, 0, NEW_OBJECT(MAKE_CLASS("ssclme")));
     ssc = VECTOR_ELT(val, 0);
@@ -260,7 +260,7 @@ void bVj_to_A(int ncj, int Gpj, int Gpjp, const double bVj[],
 	for (k = 0; k < ncj; k++) {
 	    diag = Ap[i + k + 1] - 1;
 	    if (Ai[diag] != i+k)
-		error("Expected Ai[%d] to be %d (i.e on diagonal) not %d",
+		error(_("Expected Ai[%d] to be %d (i.e on diagonal) not %d"),
 		      diag, i+k, Ai[diag]);
 	    Memcpy(Ax + diag - k, bVj + (i+k-Gpj)*ncj, k + 1);
 	}
@@ -342,10 +342,10 @@ ssclme_update_mm(SEXP x, SEXP facs, SEXP mmats)
 	int *dims = INTEGER(getAttrib(VECTOR_ELT(mmats, i), R_DimSymbol)),
 	    nci = nc[i];
 	if (nobs != dims[0])
-	    error("Expected %d rows in the %d'th model matrix. Got %d",
+	    error(_("Expected %d rows in the %d'th model matrix. Got %d"),
 		  nobs, i+1, dims[0]);
 	if (nci != dims[1])
-	    error("Expected %d columns in the %d'th model matrix. Got %d",
+	    error(_("Expected %d columns in the %d'th model matrix. Got %d"),
 		  nci, i+1, dims[1]);
 	Z[i] = REAL(VECTOR_ELT(mmats, i));
     }
@@ -370,7 +370,7 @@ ssclme_update_mm(SEXP x, SEXP facs, SEXP mmats)
 	    int fpji = fpj[i] - 1, /* factor indices are 1-based */
 		dind = Ap[Gp[j] + fpji * ncj + 1] - 1;
 	    if (Ai[dind] != (Gp[j] + fpji * ncj))
-		error("logic error in ssclme_update_mm");
+		error(_("logic error in ssclme_update_mm"));
 	    if (Ncj) {		/* use bVar to accumulate */
 		F77_CALL(dsyrk)("U", "T", &ncj, &ione, &one, Zj+i,
 				&nobs, &one, bVj + fpji*ncj*ncj, &ncj);
@@ -403,7 +403,7 @@ ssclme_update_mm(SEXP x, SEXP facs, SEXP mmats)
 			break;
 		    }
 		}
-		if (ind < 0) error("logic error in ssclme_update_mm");
+		if (ind < 0) error(_("logic error in ssclme_update_mm"));
 		if (scalar) {	/* update scalars directly */
 		    Ax[ind] += Zj[i] * Zk[i];
 		} else {
@@ -414,7 +414,7 @@ ssclme_update_mm(SEXP x, SEXP facs, SEXP mmats)
 		    for (jj = 0; jj < nck; jj++) {
 			ind = Apk[fpki * nck + jj] + offset;
 			if (Ai[ind] != row)
-			    error("logic error in ssclme_update_mm");
+			    error(_("logic error in ssclme_update_mm"));
 			for (ii = 0; ii < ncj; ii++) {
 			    Ax[ind++] += work[jj * ncj + ii];
 			}
@@ -468,7 +468,7 @@ SEXP ssclme_inflate_and_factor(SEXP x)
 	    for (k = 0; k < ncj; k++) {
 		diag = Ap[i + k + 1] - 1;
 		if (Ai[diag] != i+k)
-		    error("Expected Ai[%d] to be %d (i.e on diagonal) not %d",
+		    error(_("Expected Ai[%d] to be %d (i.e on diagonal) not %d"),
 			  diag, i+k, Ai[diag]);
 		for (ii = 0; ii <= k; ii++) {
 		    xcp[diag + ii - k] += omgj[k*ncj + ii];
@@ -483,7 +483,7 @@ SEXP ssclme_inflate_and_factor(SEXP x)
 		    REAL(GET_SLOT(x, Matrix_LxSym)),
 		    D, (int *) NULL, (int *) NULL); /* P & Pinv */
     if (j != n)
-	error("rank deficiency of ZtZ+W detected at column %d",
+	error(_("rank deficiency of ZtZ+W detected at column %d"),
 	      j + 1);
     for (j = 0; j < n; j++) DIsqrt[j] = 1./sqrt(D[j]);
     Free(Lnz); Free(Flag); Free(Pattern); Free(Y); Free(xcp);
@@ -552,7 +552,7 @@ SEXP ssclme_factor(SEXP x)
 					nci * nci),
 				 &nci, &j);
 		if (j) 
-		    error("Omega[%d] is not positive definite", i + 1);
+		    error(_("Omega[%d] is not positive definite"), i + 1);
 		for (j = 0; j < nci; j++) {
 		    accum += 2 * log(tmp[j * (nci + 1)]);
 		}
@@ -608,7 +608,7 @@ static
 int ldl_update_ind(int probe, int start, const int ind[])
 {
     while (ind[start] < probe) start++;
-    if (ind[start] > probe) error("logic error in ldl_inverse");
+    if (ind[start] > probe) error(_("logic error in ldl_inverse"));
     return start;
 }
 
@@ -696,8 +696,8 @@ void ldl_inverse(SEXP x)
 		F77_CALL(dpotrf)("L", &nci, bVi + (j - G1)*nci,
 				 &nci, &jj);
 		if (jj)		/* should never happen */
-		    error(
-			"Rank deficient variance matrix at group %d, level %d, error code %d",
+		    error(_(
+			"Rank deficient variance matrix at group %d, level %d, error code %d"),
 			i + 1, j + 1, jj);
 	    }
 	    Free(tmp); Free(ind);
@@ -718,7 +718,7 @@ SEXP ssclme_invert(SEXP x)
     int *status = LOGICAL(GET_SLOT(x, Matrix_statusSym));
     if (!status[0]) ssclme_factor(x);
     if (!R_FINITE(REAL(GET_SLOT(x, Matrix_devianceSym))[0]))
-	error("Unable to invert singular factor of downdated X'X");
+	error(_("Unable to invert singular factor of downdated X'X"));
     if (!status[1]) {
 	SEXP
 	    RZXsl = GET_SLOT(x, Matrix_RZXSym);
@@ -738,7 +738,7 @@ SEXP ssclme_invert(SEXP x)
 
 	F77_CALL(dtrtri)("U", "N", &pp1, RXX, &pp1, &i);
 	if (i)
-	    error("DTRTRI returned error code %d", i);
+	    error(_("DTRTRI returned error code %d"), i);
 	F77_CALL(dtrmm)("R", "U", "N", "N", &n, &pp1, &one,
 			RXX, &pp1, RZX, &n);
 	for (i = 0; i < pp1; i++) {
@@ -787,7 +787,7 @@ SEXP ssclme_initial(SEXP x)
 	for (j = Gpi; j < p2; j += nci) {
 	    for (k = 0; k < nci; k++) {
 		int jk = j+k, jj = Ap[jk+1] - 1;
-		if (Ai[jj] != jk) error("malformed ZtZ structure");
+		if (Ai[jj] != jk) error(_("malformed ZtZ structure"));
 		mm[k * ncip1] += Ax[jj] * mi;
 	    }
 	}
@@ -936,7 +936,7 @@ SEXP ssclme_coef(SEXP x, SEXP Unconstr)
 				     REAL(VECTOR_ELT(Omega, i)), ncisq);
 		F77_CALL(dpotrf)("U", &nci, tmp, &nci, &j);
 		if (j)		/* should never happen */
-		    error("DPOTRF returned error code %d on Omega[[%d]]",
+		    error(_("DPOTRF returned error code %d on Omega[[%d]]"),
 			  j, i+1);
 		for (j = 0; j < nci; j++) {
 		    double diagj = tmp[j * ncip1];
@@ -1001,7 +1001,7 @@ SEXP ssclme_coefUnc(SEXP x)
 				 REAL(VECTOR_ELT(Omega, i)), ncisq);
 	    F77_CALL(dpotrf)("U", &nci, tmp, &nci, &j);
 	    if (j)		/* should never happen */
-		error("DPOTRF returned error code %d on Omega[[%d]]",
+		error(_("DPOTRF returned error code %d on Omega[[%d]]"),
 		      j, i+1);
 	    for (j = 0; j < nci; j++) {
 		double diagj = tmp[j * ncip1];
@@ -1039,7 +1039,7 @@ SEXP ssclme_coefGetsUnc(SEXP x, SEXP coef)
     double *cc = REAL(coef);
 
     if (length(coef) != coef_length(nf, nc) || !isReal(coef))
-	error("coef must be a numeric vector of length %d",
+	error(_("coef must be a numeric vector of length %d"),
 	      coef_length(nf, nc));
     cind = 0;
     for (i = 0; i < nf; i++) {
@@ -1094,7 +1094,7 @@ SEXP ssclme_coefGets(SEXP x, SEXP coef, SEXP Unc)
     double *cc = REAL(coef);
 
     if (length(coef) != coef_length(nf, nc) || !isReal(coef))
-	error("coef must be a numeric vector of length %d",
+	error(_("coef must be a numeric vector of length %d"),
 	      coef_length(nf, nc));
     cind = 0;
     for (i = 0; i < nf; i++) {
@@ -1245,11 +1245,11 @@ SEXP ssclme_EMsteps(SEXP x, SEXP nsteps, SEXP REMLp, SEXP verb)
 
 	    F77_CALL(dpotrf)("U", nc + i, vali, nc + i, &info);
 	    if (info)
-		error("DPOTRF returned error code %d in Omega[[%d]] update",
+		error(_("DPOTRF returned error code %d in Omega[[%d]] update"),
 		      info, i + 1);
 	    F77_CALL(dpotri)("U", nc + i, vali, nc + i, &info);
 	    if (info)
-		error("DPOTRI returned error code %d in Omega[[%d]] update",
+		error(_("DPOTRI returned error code %d in Omega[[%d]] update"),
 		      info, i + 1);
 	}
 	if (verbose) EMsteps_verbose_print(x, iter + 1, REML);
@@ -1284,10 +1284,10 @@ static void indicator_gradient(SEXP x, int REML, SEXP val)
 
 	F77_CALL(dpotrf)("U", &nci, work, &nci, &info);
 	if (info)
-	    error("DPOTRF gave error code %d on Omega[[%d]]", info, i + 1);
+	    error(_("DPOTRF gave error code %d on Omega[[%d]]"), info, i + 1);
 	F77_CALL(dtrtri)("U", "N", &nci, work, &nci, &info);
 	if (info)
-	    error("DPOTRI gave error code %d on Omega[[%d]]", info, i + 1);
+	    error(_("DPOTRI gave error code %d on Omega[[%d]]"), info, i + 1);
 	F77_CALL(dsyrk)("U", "N", &nci, &nci, &alpha, work, &nci,
 			&beta, REAL(VECTOR_ELT(val, i)), &nci);
 	Free(work);
@@ -1317,7 +1317,7 @@ static void unconstrained_gradient(SEXP grad, SEXP Omega)
 
 	F77_CALL(dpotrf)("U", &nci, chol, &nci, &j);
 	if (j)
-	    error("DPOTRF gave error code %d on Omega[[%d]]", j, i + 1);
+	    error(_("DPOTRF gave error code %d on Omega[[%d]]"), j, i + 1);
 	/* calculate and store grad[i,,] %*% t(R) */
 	for (j = 0; j < nci; j++) {
 	    F77_CALL(dsymv)("U", &nci, &one, ai, &nci, chol + j, &nci,
@@ -1437,11 +1437,11 @@ SEXP ssclme_gradient(SEXP x, SEXP REMLp, SEXP Uncp)
 	    
 	F77_CALL(dpotrf)("U", &nci, chol, &nci, &j);
 	if (j)
-	    error("DPOTRF gave error code %d on Omega[[%d]]", j, i + 1);
+	    error(_("DPOTRF gave error code %d on Omega[[%d]]"), j, i + 1);
 	Memcpy(tmp, chol, ncisq);
 	F77_CALL(dpotri)("U", &nci, tmp, &nci, &j);
 	if (j)
-	    error("DPOTRI gave error code %d on Omega[[%d]]", j, i + 1);
+	    error(_("DPOTRI gave error code %d on Omega[[%d]]"), j, i + 1);
 	alpha = (double) -mi;
 	F77_CALL(dsyrk)("U", "N", &nci, &ki,
 			&one, REAL(VECTOR_ELT(bVar, i)), &nci,
@@ -1565,7 +1565,7 @@ SEXP ssclme_fitted(SEXP x, SEXP facs, SEXP mmats, SEXP useRf)
     double *vv, one = 1.0, zero = 0.0;
 
     if (nf < 1)
-	error("null factor list passed to ssclme_fitted");
+	error(_("null factor list passed to ssclme_fitted"));
     nobs = length(VECTOR_ELT(facs, 0));
     val = PROTECT(allocVector(REALSXP, nobs));
     vv = REAL(val);
@@ -1621,11 +1621,11 @@ SEXP ssclme_variances(SEXP x)
 
 	F77_CALL(dpotrf)("U", &nci, mm, &nci, &j);
 	if (j)			/* shouldn't happen */
-	    error("DPOTRF returned error code %d on Omega[%d]",
+	    error(_("DPOTRF returned error code %d on Omega[%d]"),
 		  j, i + 1);
 	F77_CALL(dpotri)("U", &nci, mm, &nci, &j);
 	if (j)			/* shouldn't happen */
-	    error("DTRTRI returned error code %d on Omega[%d]",
+	    error(_("DTRTRI returned error code %d on Omega[%d]"),
 		  j, i + 1);
 	nlme_symmetrize(mm, nci);
     }

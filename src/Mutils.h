@@ -1,11 +1,27 @@
 #ifndef MATRIX_MUTILS_H
 #define MATRIX_MUTILS_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <Rdefines.h>
 #include <Rconfig.h>
-#include "cblas.h"
+#include <R.h>  /* to include Rconfig.h */
 
-/* short forms of some enum constants from cblas.h */
+#ifdef ENABLE_NLS
+#include <libintl.h>
+#define _(String) dgettext ("Matrix", String)
+#else
+#define _(String) (String)
+#endif
+
+/* enum constants from cblas.h and some short forms */
+enum CBLAS_ORDER {CblasRowMajor=101, CblasColMajor=102};
+enum CBLAS_TRANSPOSE {CblasNoTrans=111, CblasTrans=112, CblasConjTrans=113};
+enum CBLAS_UPLO {CblasUpper=121, CblasLower=122};
+enum CBLAS_DIAG {CblasNonUnit=131, CblasUnit=132};
+enum CBLAS_SIDE {CblasLeft=141, CblasRight=142};
 #define RMJ CblasRowMajor
 #define CMJ CblasColMajor
 #define NTR CblasNoTrans
@@ -193,4 +209,10 @@ make_upper_triangular(int i[], int j[], int nnz)
     }
 }
 
+void make_array_triangular(double *x, SEXP from);
+
+#ifdef __cplusplus
+}
 #endif
+
+#endif /* MATRIX_MUTILS_H_ */

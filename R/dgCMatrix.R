@@ -14,12 +14,13 @@ setMethod("tcrossprod", signature(x = "dgCMatrix"),
           function(x)
           .Call("csc_tcrossprod", x))
 
-setMethod("dim", signature(x = "dgCMatrix"),
-          function(x) x@Dim, valueClass = "integer")
-
 setMethod("diag", signature(x = "dgCMatrix"),
           function(x = 1, nrow, ncol = n)
           .Call("csc_getDiag", x))
+
+## try to define for "Matrix" -- once and for all -- but that fails -- why?
+setMethod("dim", signature(x = "dgCMatrix"),
+          function(x) x@Dim, valueClass = "integer")
 
 setAs("dgCMatrix", "dgTMatrix",
       function(from)

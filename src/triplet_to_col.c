@@ -7,8 +7,7 @@
 /* web: http://www.cise.ufl.edu/research/sparse/umfpack                       */
 /* -------------------------------------------------------------------------- */
 
-#include <R_ext/RS.h>
-
+#include "triplet_to_col.h"
 void triplet_to_col
 (
     int n_row,
@@ -38,7 +37,7 @@ void triplet_to_col
 	i = Ti [k] ;
 	j = Tj [k] ;
 	if (i < 0 || i >= n_row || j < 0 || j >= n_col)
-	    error("entry %d in matrix[%d,%d] has row %d and column %d",
+	    error(_("entry %d in matrix[%d,%d] has row %d and column %d"),
 		  k, n_row, n_col, i, j);
 	W [i]++ ;
     }

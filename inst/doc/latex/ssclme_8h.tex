@@ -67,7 +67,7 @@ Extract the upper triangles of the Omega matrices. These aren't \char`\"{}coeffi
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em x}]pointer to an ssclme object\end{description}
+\item[{\em x}]pointer to an ssclme object \item[{\em Unconstr}]pointer to a logical object indicating if the unconstrained parameterization should be used.\end{description}
 \end{Desc}
 \begin{Desc}
 \item[Returns:]numeric vector of the values in the upper triangles of the Omega matrices \end{Desc}
@@ -83,7 +83,7 @@ Assign the upper triangles of the Omega matrices. (Called coef for historical re
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em x}]pointer to an ssclme object \item[{\em coef}]pointer to an numeric vector of appropriate length\end{description}
+\item[{\em x}]pointer to an ssclme object \item[{\em coef}]pointer to an numeric vector of appropriate length \item[{\em Unc}]pointer to a logical object indicating if the unconstrained parameterization should be used.\end{description}
 \end{Desc}
 \begin{Desc}
 \item[Returns:]R\_\-Nil\-Value \end{Desc}
@@ -227,7 +227,7 @@ Return the gradient of the ML or REML deviance.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em x}]pointer to an ssclme object \item[{\em REMLp}]pointer to a logical scalar indicating if REML is to be used \item[{\em Uncp}]pointer to a logical scalar indicating if the unconstrained parameterization is to be used \item[{\em Uncp}]pointer to a logical scalar indicating if result should be a single vector\end{description}
+\item[{\em x}]pointer to an ssclme object \item[{\em REMLp}]pointer to a logical scalar indicating if REML is to be used \item[{\em Unc}]pointer to a logical scalar indicating if the unconstrained parameterization is to be used \item[{\em One\-Vector}]pointer to a logical scalar indicating if result should be a single vector.\end{description}
 \end{Desc}
 \begin{Desc}
 \item[Returns:]pointer to the gradient as a list of matrices or as a vector. \end{Desc}
@@ -346,7 +346,7 @@ Create an lme object from its components. This is not done by new(\char`\"{}lme\
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em call}]Pointer to the original call \item[{\em facs}]pointer to the list of grouping factors \item[{\em x}]pointer to the model matrices (may be of length zero) \item[{\em model}]pointer to the model frame \item[{\em REML}]pointer to a logical scalar indicating if REML is used \item[{\em rep}]pointer to the converged ssclme object \item[{\em fitted}]pointer to the fitted values \item[{\em residuals}]pointer to the residuals \item[{\em terms}]pointer to a terms object (redundant if model is non-empty) \item[{\em assign}]pointer to an integer assign vector \item[{\em contrasts}]pointer to a list of contrast function names\end{description}
+\item[{\em call}]Pointer to the original call \item[{\em facs}]pointer to the list of grouping factors \item[{\em x}]pointer to the model matrices (may be of length zero) \item[{\em model}]pointer to the model frame \item[{\em REML}]pointer to a logical scalar indicating if REML is used \item[{\em rep}]pointer to the converged ssclme object \item[{\em fitted}]pointer to the fitted values \item[{\em residuals}]pointer to the residuals \item[{\em terms}]pointer to a terms object (redundant if model is non-empty) \item[{\em assign}]pointer to an integer assign vector\end{description}
 \end{Desc}
 \begin{Desc}
 \item[Returns:]an lme object \end{Desc}

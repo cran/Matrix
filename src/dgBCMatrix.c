@@ -16,14 +16,14 @@ SEXP dgBCMatrix_validate(SEXP x)
     int nnz = pv[ncol];
 
     if (!(isReal(xp) && isArray(xp)))
-	return mkString("slot x should be a real array");
+	return mkString(_("slot x should be a real array"));
     if (length(dp) != 3)
-	return mkString("slot x should be a 3-dimensional array");
+	return mkString(_("slot x should be a 3-dimensional array"));
     if (length(ip) != nnz)
-	return mkString("length of slot i does not matck last element of slot p");
+	return mkString(_("length of slot i does not match last element of slot p"));
     if (dim[2] != nnz)
 	return
-	    mkString("third dimension of slot x does not match number of nonzeros");
+	    mkString(_("third dimension of slot x does not match number of nonzeros"));
     return ScalarLogical(1);
 }
 
@@ -67,26 +67,26 @@ cscb_mm(enum CBLAS_SIDE side, enum CBLAS_TRANSPOSE transa,
     int j;
     double *Ax = REAL(AxP);
 
-    if (ldc < m) error("incompatible dims m=%d, ldc=%d", m, ldc);
+    if (ldc < m) error(_("incompatible dims m=%d, ldc=%d"), m, ldc);
     if (side == LFT) {
 	/* B is of size k by n */
 	if (ldb < k)
-	    error("incompatible L dims k=%d, ldb=%d, n=%d, nr=%d, nc=%d",
+	    error(_("incompatible L dims k=%d, ldb=%d, n=%d, nr=%d, nc=%d"),
 		  k, ldb, n, adims[0], adims[1]);
 	if (transa == TRN) {
 	    if (m % adims[1] || k % adims[0])
-		error("incompatible LT dims m=%d, k = %d, nr=%d, nc=%d",
+		error(_("incompatible LT dims m=%d, k = %d, nr=%d, nc=%d"),
 		      m, k, adims[0], adims[1]);
 	    if (ancb != m/adims[1])
-		error("incompatible LT dims m=%d, ancb=%d, adims=[%d,%d,%d]",
+		error(_("incompatible LT dims m=%d, ancb=%d, adims=[%d,%d,%d]"),
 		      m, ancb, adims[0], adims[1], adims[2]);
 	    anrb = k/adims[0];
 	} else {
 	    if (m % adims[0] || k % adims[1])
-		error("incompatible LN dims m=%d, k = %d, nr=%d, nc=%d",
+		error(_("incompatible LN dims m=%d, k = %d, nr=%d, nc=%d"),
 		      m, k, adims[0], adims[1]);
 	    if (ancb != k/adims[1])
-		error("incompatible LN dims k=%d, ancb=%d, adims=[%d,%d,%d]",
+		error(_("incompatible LN dims k=%d, ancb=%d, adims=[%d,%d,%d]"),
 		      k, ancb, adims[0], adims[1], adims[2]);
 	    anrb = m/adims[0];
 	}
@@ -95,7 +95,7 @@ cscb_mm(enum CBLAS_SIDE side, enum CBLAS_TRANSPOSE transa,
 	    for (kk = Ap[j]; kk < j2; kk++) {
 		int ii = Ai[kk];
 		if (ii < 0 || ii >= anrb)
-		    error("improper row index ii=%d, anrb=%d", ii, anrb);
+		    error(_("improper row index ii=%d, anrb=%d"), ii, anrb);
 		if (transa == TRN) {
 		    F77_CALL(dgemm)("T", "N", adims+1, &n, adims,
 				    &alpha, Ax + kk * absz, adims,
@@ -111,7 +111,7 @@ cscb_mm(enum CBLAS_SIDE side, enum CBLAS_TRANSPOSE transa,
 	}
     } else {
 	/* B is of size m by k */
-	error("Call to cscb_mm must have side == LFT");
+	error(_("Call to cscb_mm must have side == LFT"));
     }
 }
 
@@ -153,20 +153,20 @@ cscb_syrk(enum CBLAS_UPLO uplo, enum CBLAS_TRANSPOSE trans,
 	csz = cdims[0] * cdims[1];
 
 
-    if (cdims[0] != cdims[1]) error("blocks in C must be square");
+    if (cdims[0] != cdims[1]) error(_("blocks in C must be square"));
     if (trans == TRN) {
 				/* FIXME: Write this part */
-	error("Code for trans == TRN not yet written");
+	error(_("Code for trans == TRN not yet written"));
     } else {
 	if (adims[0] != cdims[0])
-	    error("Inconsistent dimensions: A[%d,%d,%d], C[%d,%d,%d]",
+	    error(_("Inconsistent dimensions: A[%d,%d,%d], C[%d,%d,%d]"),
 		  adims[0], adims[1], adims[2],
 		  cdims[0], cdims[1], cdims[2]);
 				/* check the row indices */
 	for (k = 0; k < adims[2]; k++) {
 	    int aik = Ai[k];
 	    if (aik < 0 || aik >= cdims[2])
-		error("Row index %d = %d is out of range [0, %d]",
+		error(_("Row index %d = %d is out of range [0, %d]"),
 		      k, aik, cdims[2] - 1);
 	}
 				/* multiply C by beta */
@@ -178,7 +178,7 @@ cscb_syrk(enum CBLAS_UPLO uplo, enum CBLAS_TRANSPOSE trans,
 	    for (k = Ap[j]; k < k2; k++) {
 		int ii = Ai[k], K = check_csc_index(Cp, Ci, ii, ii, 0);
 
-		if (K < 0) error("cscb_syrk: C[%d,%d] not defined", ii, ii);
+		if (K < 0) error(_("cscb_syrk: C[%d,%d] not defined"), ii, ii);
 		if (scalar) Cx[K] += alpha * Ax[k] * Ax[k];
 		else F77_CALL(dsyrk)((uplo == UPP) ? "U" : "L", "N",
 				     cdims, adims + 1,
@@ -244,7 +244,7 @@ cscb_ldl(SEXP A, const int Parent[], SEXP L, SEXP D)
 	*Ax = REAL(AxP), *Dx = REAL(D), minus1 = -1., one = 1.;
     
     if (adims[1] != nci || nci < 1)
-	error("cscb_ldl: dim(A) is [%d, %d, %d]", adims[0], adims[1], adims[2]);
+	error(_("cscb_ldl: dim(A) is [%d, %d, %d]"), adims[0], adims[1], adims[2]);
     for (j = 0, diag = 1; j < n; j++) { /* check for trivial structure */
 	if (Parent[j] >= 0) {diag = 0; break;}
     }
@@ -279,7 +279,7 @@ cscb_ldl(SEXP A, const int Parent[], SEXP L, SEXP D)
 	    p2 = Ap[k+1];
 	    for (p = Ap[k]; p < p2; p++) {
 		i = Ai[p];	/* get A[i,k] */
-		if (i > k) error("cscb_ldl: A has nonzeros below diagonal");
+		if (i > k) error(_("cscb_ldl: A has nonzeros below diagonal"));
 				/* copy A(i,k) into Y */ 
 		Memcpy(Y + i * ncisqr, Ax + p * ncisqr, ncisqr); 
 		/* follow path from i to root of etree,
@@ -359,7 +359,7 @@ cscb_trmm(enum CBLAS_SIDE side, enum CBLAS_UPLO uplo,
 	i, j/* , nb = length(ApP) - 1 */;
     
     if (xdims[0] != xdims[1])
-	error("Argument A to cscb_trmm is not triangular");
+	error(_("Argument A to cscb_trmm is not triangular"));
     if (alpha != 1.0) {
 	for (j = 0; j < n; j++) { /* scale by alpha */
 	    for (i = 0; i < m; i++)
@@ -367,7 +367,7 @@ cscb_trmm(enum CBLAS_SIDE side, enum CBLAS_UPLO uplo,
 	}
     }
     if (diag == UNT && xdims[2] < 1) return; /* A is the identity */
-    error("Code for non-identity cases of cscb_trmm not yet written");
+    error(_("Code for non-identity cases of cscb_trmm not yet written"));
 }
 
 /** 
@@ -398,12 +398,12 @@ cscb_trsm(enum CBLAS_UPLO uplo, enum CBLAS_TRANSPOSE transa,
     double *Ax = REAL(GET_SLOT(A, Matrix_xSym)), minus1 = -1., one = 1.;
     
     if (xdims[0] != xdims[1])
-	error("Argument A to cscb_trsm is not triangular");
+	error(_("Argument A to cscb_trsm is not triangular"));
     if (ldb < m || ldb <= 0 || n <= 0)
-	error("cscb_trsm: inconsistent dims m = %d, n = %d, ldb = %d",
+	error(_("cscb_trsm: inconsistent dims m = %d, n = %d, ldb = %d"),
 	      m, n, ldb);
     if (m != (nb * xdims[0]))
-	error("cscb_trsm: inconsistent dims m = %d, A[%d,%d,]x%d",
+	error(_("cscb_trsm: inconsistent dims m = %d, A[%d,%d,]x%d"),
 	      m, xdims[0], xdims[1], xdims[2]);
     if (alpha != 1.0) {
 	for (j = 0; j < n; j++) { /* scale by alpha */
@@ -414,7 +414,7 @@ cscb_trsm(enum CBLAS_UPLO uplo, enum CBLAS_TRANSPOSE transa,
     if (diag == UNT) {
 	if (xdims[2] < 1) return; /* A is the identity */
 	if (xdims[0] == 1) {	/* scalar case */
-	    if (uplo == UPP) error("Code for upper triangle not yet written");
+	    if (uplo == UPP) error(_("Code for upper triangle not yet written"));
 	    if (transa == TRN) {
 		for (j = 0; j < n; j++)
 		    R_ldl_ltsolve(m, B + j * ldb, Ap, Ai, Ax);
@@ -426,7 +426,7 @@ cscb_trsm(enum CBLAS_UPLO uplo, enum CBLAS_TRANSPOSE transa,
 	} else {
 	    int p, p2, sza = xdims[0] * xdims[0];
 
-	    if (uplo == UPP) error("Code for upper triangle not yet written");
+	    if (uplo == UPP) error(_("Code for upper triangle not yet written"));
 	    if (transa == TRN) {
 		for (j = nb - 1; j >= 0; j--) {
 		    p2 = Ap[j+1];
@@ -447,7 +447,7 @@ cscb_trsm(enum CBLAS_UPLO uplo, enum CBLAS_TRANSPOSE transa,
 		}
 	    }
 	}
-    } else {error("Code for non-unit cases of cscb_trsm not yet written");}
+    } else {error(_("Code for non-unit cases of cscb_trsm not yet written"));}
 }
 
 /** 
@@ -485,14 +485,14 @@ cscb_trcbm(enum CBLAS_SIDE side, enum CBLAS_UPLO uplo,
     int i, nbx = bxdims[0] * bxdims[1] * bxdims[2];
 
     if (axdims[0] != axdims[1])
-	error("Argument A to cscb_trcbm is not triangular");
+	error(_("Argument A to cscb_trcbm is not triangular"));
     if (alpha != 1.0) {
 	for (i = 0; i < nbx; i++) { /* scale by alpha */
 	    REAL(BxP)[i] *= alpha;
 	}
     }
     if (diag == UNT && axdims[2] < 1) return; /* A is the identity */
-    error("Code for non-trivial cscb_trcbm not yet written");
+    error(_("Code for non-trivial cscb_trcbm not yet written"));
 }
 
 /** 
@@ -529,7 +529,7 @@ cscb_trcbsm(enum CBLAS_SIDE side, enum CBLAS_UPLO uplo,
     double *Ax = REAL(AxP), *Bx = REAL(BxP);
 
     if (axdims[0] != axdims[1])
-	error("Argument A to cscb_trcbm is not triangular");
+	error(_("Argument A to cscb_trcbm is not triangular"));
     if (alpha != 1.0) {
 	for (i = 0; i < nbx; i++) { /* scale by alpha */
 	    REAL(BxP)[i] *= alpha;
@@ -549,7 +549,7 @@ cscb_trcbsm(enum CBLAS_SIDE side, enum CBLAS_UPLO uplo,
 	    BTp = Calloc(nrbB, int);
 	    triplet_to_col(ncbB, nrbB, nnz, tmp, Bi, Bx, BTp, BTi, BTx);
 				/* sanity check */
-	    if (BTp[nrbB] != nnz) error("cscb_trcbsm: transpose operation failed");
+	    if (BTp[nrbB] != nnz) error(_("cscb_trcbsm: transpose operation failed"));
 	    Free(tmp);
 				/* Solve one column at a time */
 	    rhs = Calloc(ncbB, double);
@@ -565,9 +565,9 @@ cscb_trcbsm(enum CBLAS_SIDE side, enum CBLAS_UPLO uplo,
 		Free(rhs); Free(BTp); Free(BTx); Free(BTi);
 	    }
 	}
-	error("cscb_trcbsm: method not yet written");
+	error(_("cscb_trcbsm: method not yet written"));
     }
-    error("cscb_trcbsm: method not yet written");
+    error(_("cscb_trcbsm: method not yet written"));
 }
 
 /** 
@@ -617,12 +617,12 @@ cscb_cscbm(enum CBLAS_TRANSPOSE transa, enum CBLAS_TRANSPOSE transb,
 	if (adims[1] != bdims[1] ||
 	    adims[0] != cdims[0] ||
 	    bdims[0] != cdims[1])
-	    error("C[%d,%d,%d] := A[%d,%d,%d] %*% t(B[%d,%d,%d])",
+	    error(_("C[%d,%d,%d] := A[%d,%d,%d] %*% t(B[%d,%d,%d])"),
 		  cdims[0], cdims[1], cdims[2],
 		  adims[0], adims[1], adims[2],
 		  bdims[0], bdims[1], bdims[2]);
 	if (nca != ncb)
-	    error("C := A(ncblocks = %d) %*% t(B(ncblocks = %d)", nca, ncb);
+	    error(_("C := A(ncblocks = %d) %*% t(B(ncblocks = %d)"), nca, ncb);
 	if (beta != 1.) {	/* scale C by beta */
 	    int ctot = cdims[0] * cdims[1] * cdims[2];
 	    for (jj = 0; jj < ctot; jj++) Cx[jj] *= beta;
@@ -641,7 +641,7 @@ cscb_cscbm(enum CBLAS_TRANSPOSE transa, enum CBLAS_TRANSPOSE transb,
 	}
 	return;
     }
-    error("Code not yet written");
+    error(_("Code not yet written"));
 }
 
 /** 

@@ -1,6 +1,50 @@
+2005-02-28  Douglas Bates  <bates@bates1-home>
+
+	* src/*.c,po/,inst/po: Internationalization and localization of
+	the package.
+
+	* src/ldl.[ch]: Removed these as their contents are referenced in the
+	R_ldl.c file.
+
+	* src/flame.[ch]: Removed these source files.
+	
+	* src/dtrMatrix.c (make_array_triangular): Move to Mutils
+
+	* src/LU.[ch],src/init.c: absorb in factorizations
+
+	* src/Mutils.h: prepare for internationalization
+
+	* src/cblas.h: move the enum definitions to Mutils.h and remove
+	this file
+
+2005-02-26  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/dgeMatrix.R: provide "dimnames" and "dimnames<-" methods
+
+	* R/dtrMatrix.R: fix t() method
+
+	* R/dgeMatrix.R: define group methods "Arith", "Math", "Math2"
+        * NAMESPACE: export them (and import generics from "methods")
+	* tests/group-methods.R : and test them.
+
+	* src/dtrMatrix.c (dtrMatrix_as_dgeMatrix): prevent seg.fault in
+	border case
+
+2005-02-24  Douglas Bates  <bates@stat.wisc.edu>
+
+	* DESCRIPTION (Version): 0.95-2  released to CRAN
+
+	* src/dgBCMatrix.c:
+	* src/lmer.c: many changes
+	* ...
+
 2005-02-04  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/Matrix.R: add more sophisticated show() method.
+
+2005-02-02  Douglas Bates  <bates@stat.wisc.edu>
+
+	* */* : almost complete reorganization of classes.
 
 2005-01-26  Douglas Bates  <bates@bates7>
 

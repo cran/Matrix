@@ -1,0 +1,39 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: R 2.1.0\n"
+"Report-Msgid-Bugs-To: bugs@r-project.org\n"
+"POT-Creation-Date: 2005-02-28 11:49\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+
+msgid "flist must be a non-empty list of factors"
+msgstr ""
+
+msgid "all factors in flist must have the same length"
+msgstr ""
+
+msgid "Dimensions not compatible for addition"
+msgstr ""
+
+msgid "Matrices must have same number of rows for arithmetic"
+msgstr ""
+
+msgid "number of rows are not compatible for arithmetic"
+msgstr ""
+
+msgid "not using incompatible 'Dimnames' in arithmetical result"
+msgstr ""
+
+msgid "length of 2nd arg does not match dimension of first"
+msgstr ""
+
+msgid "length of 1st arg does not match dimension of 2nd"
+msgstr ""
+
+msgid "invalid dimnames given for '%s' object"
+msgstr ""

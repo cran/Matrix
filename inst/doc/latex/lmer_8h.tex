@@ -92,7 +92,7 @@ Create an lmer object from a list of grouping factors and a list of model matric
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em facs}]pointer to a list of grouping factors \item[{\em ncv}]pointer to a list of model matrices\end{description}
+\item[{\em flist}]pointer to a list of grouping factors \item[{\em mmats}]pointer to a list of model matrices\end{description}
 \end{Desc}
 \begin{Desc}
 \item[Returns:]pointer to an lmer object \end{Desc}
@@ -115,7 +115,7 @@ Perform ECME steps for the REML or ML criterion.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em x}]pointer to an ssclme object \item[{\em nsteps}]pointer to an integer scalar - the number of ECME steps to perform \item[{\em REMLp}]pointer to a logical scalar indicating if REML is to be used \item[{\em verb}]pointer to a logical scalar indicating verbose output\end{description}
+\item[{\em x}]pointer to an ssclme object \item[{\em nsteps}]pointer to an integer scalar - the number of ECME steps to perform \item[{\em REMLp}]pointer to a logical scalar indicating if REML is to be used \item[{\em Verbp}]pointer to a logical scalar indicating verbose output\end{description}
 \end{Desc}
 \begin{Desc}
 \item[Returns:]R\_\-Nil\-Value if verb == FALSE, otherwise a list of iteration numbers, deviances, parameters, and gradients. \end{Desc}

@@ -8,7 +8,8 @@ SEXP dpoMatrix_validate(SEXP obj)
 
     /* quick but nondefinitive check on positive definiteness */
     for (i = 0; i < n; i++)
-	if (x[i * np1] < 0) return mkString("dpoMatrix is not positive definite");
+	if (x[i * np1] < 0)
+	    return mkString(_("dpoMatrix is not positive definite"));
     return ScalarLogical(1);
 }
 
@@ -30,7 +31,7 @@ SEXP dpoMatrix_chol(SEXP x)
     SET_SLOT(val, Matrix_DimSym, duplicate(dimP));
     F77_CALL(dpotrf)(CHAR(asChar(uploP)), dims,
 		     REAL(GET_SLOT(val, Matrix_xSym)), dims, &info);
-    if (info) error("Lapack routine dpotrf returned error code %d", info);
+    if (info) error(_("Lapack routine dpotrf returned error code %d"), info);
     UNPROTECT(1);
     return set_factors(x, val, "Cholesky");
 }
@@ -89,7 +90,7 @@ SEXP dpoMatrix_dgeMatrix_solve(SEXP a, SEXP b)
 	info;
 
     if (*adims != *bdims || bdims[1] < 1 || *adims < 1)
-	error("Dimensions of system to be solved are inconsistent");
+	error(_("Dimensions of system to be solved are inconsistent"));
     SET_SLOT(val, Matrix_rcondSym, allocVector(REALSXP, 0));
     SET_SLOT(val, Matrix_factorSym, allocVector(VECSXP, 0));
     SET_SLOT(val, Matrix_DimSym, duplicate(GET_SLOT(b, Matrix_DimSym)));
@@ -112,9 +113,9 @@ SEXP dpoMatrix_matrix_solve(SEXP a, SEXP b)
 	info;
 
     if (!(isReal(b) && isMatrix(b)))
-	error("Argument b must be a numeric matrix");
+	error(_("Argument b must be a numeric matrix"));
     if (*adims != *bdims || bdims[1] < 1 || *adims < 1)
-	error("Dimensions of system to be solved are inconsistent");
+	error(_("Dimensions of system to be solved are inconsistent"));
     F77_CALL(dpotrs)(CHAR(asChar(GET_SLOT(Chol, Matrix_uploSym))),
 		     adims, bdims + 1,
 		     REAL(GET_SLOT(Chol, Matrix_xSym)), adims,

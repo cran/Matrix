@@ -45,19 +45,21 @@
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a15">nlme_check_Lapack_error</a> (int info, const char *laName)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a16">nlme_replaceSlot</a> (SEXP obj, SEXP names, SEXP value)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a16">make_array_triangular</a> (double *to, SEXP from)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a17">nlme_weight_matrix_list</a> (SEXP MLin, SEXP wts, SEXP adjst, SEXP MLout)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a17">nlme_replaceSlot</a> (SEXP obj, SEXP names, SEXP value)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a18">Matrix_make_named</a> (int TYP, char **names)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a18">nlme_weight_matrix_list</a> (SEXP MLin, SEXP wts, SEXP adjst, SEXP MLout)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a19">alloc3Darray</a> (SEXPTYPE mode, int nrow, int ncol, int nface)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a19">Matrix_make_named</a> (int TYP, char **names)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">double *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a20">expand_csc_column</a> (double *dest, int m, int j, const int Ap[], const int Ai[], const double Ax[])</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a20">alloc3Darray</a> (SEXPTYPE mode, int nrow, int ncol, int nface)</td></tr>
+
+<tr><td class="memItemLeft" nowrap align="right" valign="top">double *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="Mutils_8c.html#a21">expand_csc_column</a> (double *dest, int m, int j, const int Ap[], const int Ai[], const double Ax[])</td></tr>
 
 </table>
 <hr><h2>Function Documentation</h2>
-<a class="anchor" name="a19" doxytag="Mutils.c::alloc3Darray"></a><p>
+<a class="anchor" name="a20" doxytag="Mutils.c::alloc3Darray"></a><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -420,7 +422,7 @@ Check for unsorted columns in the row indices<p>
     </td>
   </tr>
 </table>
-<a class="anchor" name="a20" doxytag="Mutils.c::expand_csc_column"></a><p>
+<a class="anchor" name="a21" doxytag="Mutils.c::expand_csc_column"></a><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -567,7 +569,44 @@ Expand a column of a compressed, sparse, column-oriented matrix.<p>
     </td>
   </tr>
 </table>
-<a class="anchor" name="a18" doxytag="Mutils.c::Matrix_make_named"></a><p>
+<a class="anchor" name="a16" doxytag="Mutils.c::make_array_triangular"></a><p>
+<table class="mdTable" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top">void make_array_triangular           </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">double *&nbsp;</td>
+          <td class="mdname" nowrap> <em>to</em>, </td>
+        </tr>
+        <tr>
+          <td class="md" nowrap align="right"></td>
+          <td class="md"></td>
+          <td class="md" nowrap>SEXP&nbsp;</td>
+          <td class="mdname" nowrap> <em>from</em></td>
+        </tr>
+        <tr>
+          <td class="md"></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"></td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing="5" cellpadding="0" border="0">
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a class="anchor" name="a19" doxytag="Mutils.c::Matrix_make_named"></a><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -656,7 +695,7 @@ Check the error code returned by an Lapack routine and create an appropriate err
     </td>
   </tr>
 </table>
-<a class="anchor" name="a16" doxytag="Mutils.c::nlme_replaceSlot"></a><p>
+<a class="anchor" name="a17" doxytag="Mutils.c::nlme_replaceSlot"></a><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -753,7 +792,7 @@ Symmetrize a matrix by copying the strict upper triangle into the lower triangle
     </td>
   </tr>
 </table>
-<a class="anchor" name="a17" doxytag="Mutils.c::nlme_weight_matrix_list"></a><p>
+<a class="anchor" name="a18" doxytag="Mutils.c::nlme_weight_matrix_list"></a><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -1076,7 +1115,7 @@ Produce a weighted copy of the matrices in MLin in the storage allocated to MLou
     </td>
   </tr>
 </table>
-<hr size="1"><address style="align: right;"><small>Generated on Fri Feb 18 08:49:35 2005 for Matrix by&nbsp;
+<hr size="1"><address style="align: right;"><small>Generated on Tue Mar 1 16:58:11 2005 for Matrix by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.1 </small></address>
 </body>

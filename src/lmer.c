@@ -46,13 +46,13 @@ SEXP lmer_validate(SEXP x)
 	*XtXd = INTEGER(getAttrib(XtXP, R_DimSymbol));
 
     if (!(isReal(ZtXP) && isReal(XtXP) && isReal(RZXP) && isReal(RXXP) ))
-	return mkString("Slots ZtX, XtX, RZX, and RXX must be real matrices");
+	return mkString(_("Slots ZtX, XtX, RZX, and RXX must be real matrices"));
     if (!match_mat_dims(ZtXd, INTEGER(getAttrib(RZXP, R_DimSymbol))))
-	return mkString("Dimensions of slots ZtX and RZX must match");
+	return mkString(_("Dimensions of slots ZtX and RZX must match"));
     if (!match_mat_dims(XtXd, INTEGER(getAttrib(RXXP, R_DimSymbol))))
-	return mkString("Dimensions of slots XtX and RXX must match");
+	return mkString(_("Dimensions of slots XtX and RXX must match"));
     if (ZtXd[1] != XtXd[0] || XtXd[0] != XtXd[1])
-	return mkString("Slots XtX must be a square matrix with same no. of cols as ZtX");
+	return mkString(_("Slots XtX must be a square matrix with same no. of cols as ZtX"));
     return ScalarLogical(1);
 }
 
@@ -144,18 +144,18 @@ SEXP lmer_update_mm(SEXP x, SEXP mmats)
 	one = 1.0, zero = 0.0;
 
     if (!isNewList(mmats) || length(mmats) != nfp1)
-	error("mmats must be a list of %d model matrices", nfp1);
+	error(_("mmats must be a list of %d model matrices"), nfp1);
     for (i = 0; i <= nf; i++) {
 	SEXP mmat = VECTOR_ELT(mmats, i);
 	int *mdims = INTEGER(getAttrib(mmat, R_DimSymbol));
 
 	if (!isMatrix(mmat) || !isReal(mmat))
-	    error("element %d of mmats is not a numeric matrix", i + 1);
+	    error(_("element %d of mmats is not a numeric matrix"), i + 1);
 	if (nobs != mdims[0])
-	    error("Expected %d rows in the %d'th model matrix. Got %d",
+	    error(_("Expected %d rows in the %d'th model matrix. Got %d"),
 		  nobs, i+1, mdims[0]);
 	if (nc[i] != mdims[1])
-	    error("Expected %d columns in the %d'th model matrix. Got %d",
+	    error(_("Expected %d columns in the %d'th model matrix. Got %d"),
 		  nc[i], i+1, mdims[1]);
     }
 				/* Create XtX */
@@ -230,19 +230,19 @@ SEXP lmer_create(SEXP flist, SEXP mmats)
 
 				/* Check validity of flist */
     if (!(nf > 0 && isNewList(flist)))
-	error("flist must be a non-empty list");
+	error(_("flist must be a non-empty list"));
     nobs = length(VECTOR_ELT(flist, 0));
-    if (nobs < 1) error("flist[[0]] must be a non-null factor");
+    if (nobs < 1) error(_("flist[[0]] must be a non-null factor"));
     for (i = 0; i < nf; i++) {
 	SEXP fi = VECTOR_ELT(flist, i);
 	if (!(isFactor(fi) && length(fi) == nobs))
-	    error("flist[[%d]] must be a factor of length %d",
+	    error(_("flist[[%d]] must be a factor of length %d"),
 		  i + 1, nobs);
     }
     SET_SLOT(val, Matrix_flistSym, duplicate(flist));
 				/* Check mmats; allocate and populate nc */
     if (!(isNewList(mmats) && length(mmats) == (nf + 1)))
-	error("mmats must be a list of length %d", nf + 1);
+	error(_("mmats must be a list of length %d"), nf + 1);
     SET_SLOT(val, Matrix_ncSym, allocVector(INTSXP, nf + 2));
     nc = INTEGER(GET_SLOT(val, Matrix_ncSym));
     nc[nf + 1] = nobs;
@@ -251,12 +251,12 @@ SEXP lmer_create(SEXP flist, SEXP mmats)
 	int *dims;
 
 	if (!(isMatrix(mi) && isReal(mi)))
-	    error("mmats[[%d]] must be a numeric matrix", i + 1);
+	    error(_("mmats[[%d]] must be a numeric matrix"), i + 1);
 	dims = INTEGER(getAttrib(mi, R_DimSymbol));
 	if (dims[0] != nobs)
-	    error("mmats[[%d]] must have %d rows", i + 1, nobs);
+	    error(_("mmats[[%d]] must have %d rows"), i + 1, nobs);
 	if (dims[1] < 1)
-	    error("mmats[[%d]] must have at least 1 column", i + 1);
+	    error(_("mmats[[%d]] must have at least 1 column"), i + 1);
 	nc[i] = dims[1];
     }   /* Arguments have now been checked for type, dimension, etc. */
 				/* Create pairwise crosstabulation in ZtZ */
@@ -353,7 +353,7 @@ lmer_inflate(SEXP x)
 
 	F77_CALL(dpotrf)("U", &nci, tmp, &nci, &j);
 	if (j)
-	    error("Leading %d minor of Omega[[%d]] not positive definite",
+	    error(_("Leading %d minor of Omega[[%d]] not positive definite"),
 		  j, i + 1);
 				/* update dcmp[1] */
 	for (j = 0; j < nci; j++) { /* nlev * logDet(Omega_i) */
@@ -469,7 +469,7 @@ SEXP lmer_factor(SEXP x)
 	    double *D = REAL(DiP);
 
 	    jj = cscb_ldl(ZZOiP, Pari, LiP, DiP);
-	    if (jj != nlev) error("cscb_ldl returned %d < nlev = %d", jj, nlev);
+	    if (jj != nlev) error(_("cscb_ldl returned %d < nlev = %d"), jj, nlev);
 	    for (j = 0; j < nlev; j++) { /* accumulate dcmp[0] */
 		double *Dj = D + j * ncisqr;
 		for (jj = 0; jj < nci; jj++) /* accumulate determinant */
@@ -590,8 +590,8 @@ lmer_sm(enum CBLAS_SIDE side, enum CBLAS_TRANSPOSE trans, int nf, const int Gp[]
 			    B + Gp[j], ldb, alpha, B + Gp[k], ldb);
 		}
 	    }
-	} else error("Code for non-transpose case not yet written");
-    } else error("Code for right-side solutions not yet written");
+	} else error(_("Code for non-transpose case not yet written"));
+    } else error(_("Code for right-side solutions not yet written"));
 }
 
 static 
@@ -661,7 +661,7 @@ int fsrch(int target, const int vals[], int nvals)
 {
     int i;
     for (i = 0; i < nvals; i++) if (vals[i] == target) return i;
-    error("fsrch: unable to find target %d in nvals %d ", target, nvals);
+    error(_("fsrch: unable to find target %d in nvals %d "), target, nvals);
     return -1;			/* -Wall */
 }
 
@@ -680,7 +680,7 @@ SEXP lmer_invert(SEXP x)
     int *status = LOGICAL(GET_SLOT(x, Matrix_statusSym));
     if (!status[0]) lmer_factor(x);
     if (!R_FINITE(REAL(GET_SLOT(x, Matrix_devianceSym))[0]))
-	error("Unable to invert singular factor of downdated X'X");
+	error(_("Unable to invert singular factor of downdated X'X"));
     if (!status[1]) {
 	SEXP DP = GET_SLOT(x, Matrix_DSym),
 	    LP = GET_SLOT(x, Matrix_LSym),
@@ -701,7 +701,7 @@ SEXP lmer_invert(SEXP x)
 	/* RXX := RXX^{-1} */
 	F77_CALL(dtrtri)("U", "N", dims + 1, RXX, dims + 1, &i);
 	if (i)
-	    error("Leading minor of size %d of downdated X'X,is indefinite",
+	    error(_("Leading minor of size %d of downdated X'X,is indefinite"),
 		    i + 1);
 
 	/* RZX := - RZX %*% RXX */
@@ -724,7 +724,7 @@ SEXP lmer_invert(SEXP x)
 		for (j = 0; j < nlev; j++) {
 		    F77_CALL(dtrtri)("U", "N", &nci, Di + j * ncisqr, &nci, &info);
 		    if (info)
-			error("D[,,%d] for factor %d is singular", j + 1, i + 1);
+			error(_("D[,,%d] for factor %d is singular"), j + 1, i + 1);
 		    F77_CALL(dtrmm)("L", "U", "N", "N", &nci, dims + 1, &one,
 				    Di + j * ncisqr, &nci, RZXi + j * nci, dims);
 		}
@@ -864,7 +864,7 @@ SEXP lmer_coef(SEXP x, SEXP Unc)
 				     REAL(VECTOR_ELT(Omega, i)), ncisq);
 		F77_CALL(dpotrf)("U", &nci, tmp, &nci, &j);
 		if (j)		/* should never happen */
-		    error("DPOTRF returned error code %d on Omega[[%d]]",
+		    error(_("DPOTRF returned error code %d on Omega[[%d]]"),
 			  j, i+1);
 		for (j = 0; j < nci; j++) {
 		    double diagj = tmp[j * ncip1];
@@ -919,7 +919,7 @@ SEXP lmer_coefGets(SEXP x, SEXP coef, SEXP Unc)
     double *cc = REAL(coef);
 
     if (length(coef) != coef_length(nf, nc) || !isReal(coef))
-	error("coef must be a numeric vector of length %d",
+	error(_("coef must be a numeric vector of length %d"),
 	      coef_length(nf, nc));
     cind = 0;
     for (i = 0; i < nf; i++) {
@@ -1094,10 +1094,10 @@ SEXP lmer_firstDer(SEXP x, SEXP val)
 	    AZERO(mm, 4 * ncisqr);
 	    F77_CALL(dpotrf)("U", &nci, tmp, &nci, &j);
 	    if (j)
-		error("Omega[[%d]] is not positive definite", i + 1);
+		error(_("Omega[[%d]] is not positive definite"), i + 1);
 	    F77_CALL(dtrtri)("U", "N", &nci, tmp, &nci, &j);
 	    if (j)
-		error("Omega[[%d]] is not positive definite", i + 1);
+		error(_("Omega[[%d]] is not positive definite"), i + 1);
 	    F77_CALL(dsyrk)("U", "N", &nci, &nci, &dlev, tmp, &nci,
 			    &zero, mm, &nci);
 	    mm += ncisqr;	/* \bB_i term */
@@ -1280,10 +1280,10 @@ SEXP lmer_ECMEsteps(SEXP x, SEXP nsteps, SEXP REMLp, SEXP Verbp)
 			    cc, &ifour, &zero, Omgi, &ncisqr);
 	    F77_CALL(dpotrf)("U", &nci, Omgi, &nci, &info);
 	    if (info)
-		error("DPOTRF in ECME update gave code %d", info);
+		error(_("DPOTRF in ECME update gave code %d"), info);
 	    F77_CALL(dpotri)("U", &nci, Omgi, &nci, &info);
 	    if (info)
-		error("Matrix inverse in ECME update gave code %d", info);
+		error(_("Matrix inverse in ECME update gave code %d"), info);
 	}
 	status[0] = status[1] = 0;
 	lmer_firstDer(x, firstDer);
@@ -1336,7 +1336,7 @@ SEXP lmer_gradient(SEXP x, SEXP REMLp, SEXP Uncp)
 
 		F77_CALL(dpotrf)("U", &nci, chol, &nci, &info);
 		if (info)
-		    error("Omega[[%d]] is not positive definite", i + 1);
+		    error(_("Omega[[%d]] is not positive definite"), i + 1);
 		/* tmp2 := chol %*% tmp using only upper triangle of tmp */
 		F77_CALL(dsymm)("R", "U", &nci, &nci, &one, tmp, &nci,
 				chol, &nci, &zero, tmp2, &nci);
@@ -1486,11 +1486,11 @@ SEXP lmer_variances(SEXP x)
 
 	F77_CALL(dpotrf)("U", &nci, mm, &nci, &j);
 	if (j)			/* shouldn't happen */
-	    error("DPOTRF returned error code %d on Omega[%d]",
+	    error(_("DPOTRF returned error code %d on Omega[%d]"),
 		  j, i + 1);
 	F77_CALL(dpotri)("U", &nci, mm, &nci, &j);
 	if (j)			/* shouldn't happen */
-	    error("DTRTRI returned error code %d on Omega[%d]",
+	    error(_("DTRTRI returned error code %d on Omega[%d]"),
 		  j, i + 1);
 	nlme_symmetrize(mm, nci);
     }
@@ -1505,13 +1505,13 @@ SEXP lmer_Crosstab(SEXP flist)
     int *nc = Calloc(nf, int);
 
     if (!(nf > 0 && isNewList(flist)))
-	error("flist must be a non-empty list");
+	error(_("flist must be a non-empty list"));
     nobs = length(VECTOR_ELT(flist, 0));
-    if (nobs < 1) error("flist[[0]] must be a non-null factor");
+    if (nobs < 1) error(_("flist[[0]] must be a non-null factor"));
     for (i = 0; i < nf; i++) {
 	SEXP fi = VECTOR_ELT(flist, i);
 	if (!(isFactor(fi) && length(fi) == nobs))
-	    error("flist[[%d]] must be a factor of length %d",
+	    error(_("flist[[%d]] must be a factor of length %d"),
 		  i + 1, nobs);
 	nc[i] = 1;
     }

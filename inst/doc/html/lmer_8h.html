@@ -188,8 +188,8 @@ Assign the upper triangles of the Omega matrices. (Called coef for historical re
 Create an lmer object from a list of grouping factors and a list of model matrices. There is one more model matrix than grouping factor. The last model matrix is the fixed effects and the response.<p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>facs</em>&nbsp;</td><td>pointer to a list of grouping factors </td></tr>
-    <tr><td valign="top"></td><td valign="top"><em>ncv</em>&nbsp;</td><td>pointer to a list of model matrices</td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>flist</em>&nbsp;</td><td>pointer to a list of grouping factors </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>mmats</em>&nbsp;</td><td>pointer to a list of model matrices</td></tr>
   </table>
 </dl>
 <dl compact><dt><b>Returns:</b></dt><dd>pointer to an lmer object </dd></dl>
@@ -276,7 +276,7 @@ Perform ECME steps for the REML or ML criterion.<p>
     <tr><td valign="top"></td><td valign="top"><em>x</em>&nbsp;</td><td>pointer to an ssclme object </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>nsteps</em>&nbsp;</td><td>pointer to an integer scalar - the number of ECME steps to perform </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>REMLp</em>&nbsp;</td><td>pointer to a logical scalar indicating if REML is to be used </td></tr>
-    <tr><td valign="top"></td><td valign="top"><em>verb</em>&nbsp;</td><td>pointer to a logical scalar indicating verbose output</td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>Verbp</em>&nbsp;</td><td>pointer to a logical scalar indicating verbose output</td></tr>
   </table>
 </dl>
 <dl compact><dt><b>Returns:</b></dt><dd>R_NilValue if verb == FALSE, otherwise a list of iteration numbers, deviances, parameters, and gradients. </dd></dl>
@@ -740,7 +740,7 @@ Return the unscaled variances<p>
     </td>
   </tr>
 </table>
-<hr size="1"><address style="align: right;"><small>Generated on Fri Feb 18 08:49:35 2005 for Matrix by&nbsp;
+<hr size="1"><address style="align: right;"><small>Generated on Tue Mar 1 16:58:11 2005 for Matrix by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.1 </small></address>
 </body>

@@ -7,14 +7,14 @@ SEXP dsCMatrix_validate(SEXP obj)
     char *val;
 
     if (length(uplo) != 1)
-	return mkString("uplo slot must have length 1");
+	return mkString(_("uplo slot must have length 1"));
     val = CHAR(STRING_ELT(uplo, 0));
     if (strlen(val) != 1)
-    	return mkString("uplo[1] must have string length 1");
+    	return mkString(_("uplo[1] must have string length 1"));
     if (*val != 'U' && *val != 'L')
-    	return mkString("uplo[1] must be \"U\" or \"L\"");
+    	return mkString(_("uplo[1] must be \"U\" or \"L\""));
     if (Dim[0] != Dim[1])
-	return mkString("Symmetric matrix must be square");
+	return mkString(_("Symmetric matrix must be square"));
     csc_check_column_sorting(obj);
     return ScalarLogical(1);
 }
@@ -86,7 +86,7 @@ SEXP dsCMatrix_chol(SEXP x, SEXP pivot)
 			 (piv) ? P : (int *)NULL,
 			 (piv) ? Pinv : (int *)NULL);
     if (info != n)
-	error("Leading minor of size %d (possibly after permutation) is indefinite",
+	error(_("Leading minor of size %d (possibly after permutation) is indefinite"),
 	      info + 1);
     if (piv) {
 	Free(Pinv); Free(Ax); Free(Ai); Free(Ap);
@@ -105,9 +105,9 @@ SEXP dsCMatrix_matrix_solve(SEXP a, SEXP b)
     double *Lx, *D, *in = REAL(b), *out = REAL(val), *tmp = (double *) NULL;
 
     if (!(isReal(b) && isMatrix(b)))
-	error("Argument b must be a numeric matrix");
+	error(_("Argument b must be a numeric matrix"));
     if (*adims != *bdims || bdims[1] < 1 || *adims < 1)
-	error("Dimensions of system to be solved are inconsistent");
+	error(_("Dimensions of system to be solved are inconsistent"));
     if (Chol == R_NilValue) Chol = dsCMatrix_chol(a, ScalarLogical(1));
     perm = GET_SLOT(Chol, Matrix_permSym);
     piv = length(perm);

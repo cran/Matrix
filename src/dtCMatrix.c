@@ -120,7 +120,7 @@ SEXP Parent_inverse(SEXP par, SEXP unitdiag)
 	j, n = length(par), nnz;
     double *ax;
 
-    if (!isInteger(par)) error("par argument must be an integer vector");
+    if (!isInteger(par)) error(_("par argument must be an integer vector"));
     SET_SLOT(ans, Matrix_pSym, allocVector(INTSXP, n + 1));
     ap = INTEGER(GET_SLOT(ans, Matrix_pSym));
     nnz = parent_inv_ap(n, countDiag, pr, ap);

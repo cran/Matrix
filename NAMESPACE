@@ -26,6 +26,8 @@ export(
 #       "pdFactor",
 #       "pdMatrix",
        "rcond",
+       "round", # "Math2" group (needs explicit setGeneric(.))
+       "signif",#  {dito}
        "sscCrosstab",
        "tcrossprod",
        "unpack"
@@ -66,6 +68,8 @@ exportClasses(
 exportMethods(
               ## Group Methods
               "Arith",
+              "Math",
+              "Math2",
 
               "+",# for dgT(Matrix) only
               "%*%",
@@ -80,6 +84,8 @@ exportMethods(
               "determinant",
               "diag",
               "dim",
+              "dimnames",
+              "dimnames<-",
               "expand",
               "expm",
               "image",

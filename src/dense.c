@@ -25,11 +25,11 @@ int left_cyclic(double x[], int ldx, int j, int k,
     int i, jj;
 
     if (j >= k)
-	error("incorrect left cyclic shift, j (%d) >= k (%d)", j, k);
+	error(_("incorrect left cyclic shift, j (%d) >= k (%d)"), j, k);
     if (j < 0)
-	error("incorrect left cyclic shift, j (%d) < 0", j, k);
+	error(_("incorrect left cyclic shift, j (%d) < 0"), j, k);
     if (ldx < k)
-	error("incorrect left cyclic shift, k (%d) > ldx (%d)", k, ldx);
+	error(_("incorrect left cyclic shift, k (%d) > ldx (%d)"), k, ldx);
     lastcol = (double*) R_alloc(k+1, sizeof(double));
 				/* keep a copy of column j */
     for(i = 0; i <= j; i++) lastcol[i] = x[i + j*ldx];
@@ -74,7 +74,7 @@ SEXP getGivens(double x[], int ldx, int jmin, int rank)
     SET_STRING_ELT(nms, 2, mkChar("cosines"));
     SET_STRING_ELT(nms, 3, mkChar("sines"));
     if (left_cyclic(x, ldx, jmin, rank - 1, REAL(cosines), REAL(sines)))
-	error("Unknown error in getGivens");
+	error(_("Unknown error in getGivens"));
     UNPROTECT(1);
     return ans;
 }
@@ -86,7 +86,7 @@ SEXP checkGivens(SEXP X, SEXP jmin, SEXP rank)
     int  *Xdims;
 
     if (!(isReal(X) & isMatrix(X)))
-	error("X must be a numeric (double precision) matrix");
+	error(_("X must be a numeric (double precision) matrix"));
     Xdims = INTEGER(coerceVector(getAttrib(X, R_DimSymbol), INTSXP));
     SET_VECTOR_ELT(ans, 1, getGivens(REAL(Xcp), Xdims[0],
 				     asInteger(jmin), asInteger(rank)));
@@ -102,16 +102,16 @@ SEXP lsq_dense_Chol(SEXP X, SEXP y)
     double *xpx, d_one = 1., d_zero = 0.;
 
     if (!(isReal(X) & isMatrix(X)))
-	error("X must be a numeric (double precision) matrix");
+	error(_("X must be a numeric (double precision) matrix"));
     Xdims = INTEGER(coerceVector(getAttrib(X, R_DimSymbol), INTSXP));
     n = Xdims[0];
     p = Xdims[1];
     if (!(isReal(y) & isMatrix(y)))
-	error("y must be a numeric (double precision) matrix");
+	error(_("y must be a numeric (double precision) matrix"));
     ydims = INTEGER(coerceVector(getAttrib(y, R_DimSymbol), INTSXP));
     if (ydims[0] != n)
-	error(
-	    "number of rows in y (%d) does not match number of rows in X (%d)",
+	error(_(
+	    "number of rows in y (%d) does not match number of rows in X (%d)"),
 	    ydims[0], n);
     k = ydims[1];
     if (k < 1 || p < 1) return allocMatrix(REALSXP, p, k);
@@ -122,7 +122,7 @@ SEXP lsq_dense_Chol(SEXP X, SEXP y)
     F77_CALL(dsyrk)("U", "T", &p, &n, &d_one, REAL(X), &n, &d_zero,
 		    xpx, &p);
     F77_CALL(dposv)("U", &p, &k, xpx, &p, REAL(ans), &p, &info);
-    if (info) error("Lapack routine dposv returned error code %d", info);
+    if (info) error(_("Lapack routine dposv returned error code %d"), info);
     UNPROTECT(1);
     return ans;
 }
@@ -135,16 +135,16 @@ SEXP lsq_dense_QR(SEXP X, SEXP y)
     double *work, tmp, *xvals;
 
     if (!(isReal(X) & isMatrix(X)))
-	error("X must be a numeric (double precision) matrix");
+	error(_("X must be a numeric (double precision) matrix"));
     Xdims = INTEGER(coerceVector(getAttrib(X, R_DimSymbol), INTSXP));
     n = Xdims[0];
     p = Xdims[1];
     if (!(isReal(y) & isMatrix(y)))
-	error("y must be a numeric (double precision) matrix");
+	error(_("y must be a numeric (double precision) matrix"));
     ydims = INTEGER(coerceVector(getAttrib(y, R_DimSymbol), INTSXP));
     if (ydims[0] != n)
-	error(
-	    "number of rows in y (%d) does not match number of rows in X (%d)",
+	error(_(
+	    "number of rows in y (%d) does not match number of rows in X (%d)"),
 	    ydims[0], n);
     k = ydims[1];
     if (k < 1 || p < 1) return allocMatrix(REALSXP, p, k);
@@ -155,14 +155,14 @@ SEXP lsq_dense_QR(SEXP X, SEXP y)
     F77_CALL(dgels)("N", &n, &p, &k, xvals, &n, REAL(ans), &n,
 		    &tmp, &lwork, &info);
     if (info)
-	error("First call to Lapack routine dgels returned error code %d",
+	error(_("First call to Lapack routine dgels returned error code %d"),
 	      info);
     lwork = (int) tmp;
     work = (double *) R_alloc(lwork, sizeof(double));
     F77_CALL(dgels)("N", &n, &p, &k, xvals, &n, REAL(ans), &n,
 		    work, &lwork, &info);
     if (info)
-	error("Second call to Lapack routine dgels returned error code %d",
+	error(_("Second call to Lapack routine dgels returned error code %d"),
 	      info);
     UNPROTECT(1);
     return ans;
@@ -175,9 +175,9 @@ SEXP lapack_qr(SEXP Xin, SEXP tl)
     double rcond = 0., tol = asReal(tl), *work;
 
     if (!(isReal(Xin) & isMatrix(Xin)))
-	error("X must be a real (numeric) matrix");
-    if (tol < 0.) error("tol, given as %g, must be non-negative", tol);
-    if (tol > 1.) error("tol, given as %g, must be <= 1", tol);
+	error(_("X must be a real (numeric) matrix"));
+    if (tol < 0.) error(_("tol, given as %g, must be non-negative"), tol);
+    if (tol > 1.) error(_("tol, given as %g, must be <= 1"), tol);
     ans = PROTECT(allocVector(VECSXP,5));
     SET_VECTOR_ELT(ans, 0, X = duplicate(Xin));
     Xdims = INTEGER(coerceVector(getAttrib(X, R_DimSymbol), INTSXP));
@@ -201,18 +201,18 @@ SEXP lapack_qr(SEXP Xin, SEXP tl)
 	lwork = -1;
 	F77_CALL(dgeqrf)(&n, &p, xpt, &n, REAL(qraux), &tmp, &lwork, &info);
 	if (info)
-	    error("First call to dgeqrf returned error code %d", info);
+	    error(_("First call to dgeqrf returned error code %d"), info);
 	lwork = (int) tmp;
 	work = (double *) R_alloc((lwork < 3*trsz) ? 3*trsz : lwork,
 				  sizeof(double));
 	F77_CALL(dgeqrf)(&n, &p, xpt, &n, REAL(qraux), work, &lwork, &info);
 	if (info)
-	    error("Second call to dgeqrf returned error code %d", info);
+	    error(_("Second call to dgeqrf returned error code %d"), info);
 	iwork = (int *) R_alloc(trsz, sizeof(int));
 	F77_CALL(dtrcon)("1", "U", "N", &rank, xpt, &n, &rcond,
 			 work, iwork, &info);
 	if (info)
-	    error("Lapack routine dtrcon returned error code %d", info);
+	    error(_("Lapack routine dtrcon returned error code %d"), info);
 	while (rcond < tol) {	/* check diagonal elements */
 	    double minabs = (xpt[0] < 0.) ? -xpt[0]: xpt[0];
 	    int jmin = 0;
@@ -232,7 +232,7 @@ SEXP lapack_qr(SEXP Xin, SEXP tl)
 	    F77_CALL(dtrcon)("1", "U", "N", &rank, xpt, &n, &rcond,
 			     work, iwork, &info);
 	    if (info)
-		error("Lapack routine dtrcon returned error code %d", info);
+		error(_("Lapack routine dtrcon returned error code %d"), info);
 	}
     }
     SET_VECTOR_ELT(ans, 4, Gcpy = allocVector(VECSXP, nGivens));

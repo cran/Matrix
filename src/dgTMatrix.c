@@ -15,15 +15,15 @@ SEXP dgTMatrix_validate(SEXP x)
 	*xi = INTEGER(islot);
 
     if (length(xslot) != nnz || length(jslot) != nnz)
-	return mkString("lengths of slots i, j, and x must match");
+	return mkString(_("lengths of slots i, j, and x must match"));
     if (length(dimslot) != 2)
-	return mkString("slot Dim must have length 2");
+	return mkString(_("slot Dim must have length 2"));
     nrow = dims[0]; ncol = dims[1];
     for (j = 0; j < nnz; j++) {
 	if (xi[j] < 0 || xi[j] >= nrow)
-	    return mkString("all row indices must be between 0 and nrow-1");
+	    return mkString(_("all row indices must be between 0 and nrow-1"));
 	if (xj[j] < 0 || xj[j] >= ncol)
-	    return mkString("all column indices must be between 0 and ncol-1");
+	    return mkString(_("all column indices must be between 0 and ncol-1"));
     }
     return ScalarLogical(1);
 }

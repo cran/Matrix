@@ -31,7 +31,7 @@ symbolic_right_unit_sm(int anc, const int Parent[], SEXP C)
 	i, j;
 
     if ((length(cpp) - 1) != anc) /* A is square so can compare no of cols */
-	error("No. of rows in A (%d) does not match no. of cols in C (%d)",
+	error(_("No. of rows in A (%d) does not match no. of cols in C (%d)"),
 	      anc, length(cpp) - 1); 
     i = 1;			/* check for A being the identity */
     for (j = 0; j < anc; j++) {
@@ -111,7 +111,7 @@ symbolic_right_unit_mm_trans(int anc, const int Parent[], SEXP C)
 	i, j, nextra = 0;
 
     if ((length(cpp) - 1) != anc)
-	error("No. of cols in A (%d) does not match no. of cols in C (%d)",
+	error(_("No. of cols in A (%d) does not match no. of cols in C (%d)"),
 	      anc, length(cpp) - 1);
     
     i = 1;			/* check for A being the identity */
@@ -193,7 +193,7 @@ block_update(SEXP L, SEXP ZZpO, int j, int k, int i)
     int jj, extra;
 
     if (k > i || j >= k)
-	error("i,j,k values of %d,%d,%d do not satisfy j < k <= i",
+	error(_("i,j,k values of %d,%d,%d do not satisfy j < k <= i"),
 	      i, j, k);
 				/* bound the number of extra elements */
     extra = 0;
@@ -330,9 +330,9 @@ factor_levels_permute(SEXP dest, SEXP src, const int perm[],
     int *d = INTEGER(dest), *s = INTEGER(src), i;
 
     if (length(slev) != nlev)
-	error("number of levels in src and dest must match");
+	error(_("number of levels in src and dest must match"));
     if (length(src) != flen)
-	error("length of src and dest must match");
+	error(_("length of src and dest must match"));
     for (i = 0; i < nlev; i++)
 	SET_STRING_ELT(dlev, i, STRING_ELT(slev, perm[i]));
     for (i = 0; i < flen; i++)

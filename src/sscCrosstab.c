@@ -12,16 +12,16 @@ SEXP sscCrosstab(SEXP flist, SEXP upper)
     SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("sscCrosstab")));
 
     if (!isNewList(flist) || nfac < 1)
-	error("flist must be a non-empty list");
+	error(_("flist must be a non-empty list"));
     SET_SLOT(val, Matrix_GpSym, allocVector(INTSXP, nfac + 1));
     Gp = INTEGER(GET_SLOT(val, Matrix_GpSym));
     fpt = (int **) R_alloc(nfac, sizeof(int *));
     for (i = 0; i < nfac; i++) {
 	SEXP el = VECTOR_ELT(flist, i);
 	if (!inherits(el, "factor"))
-	    error("flist must be a non-empty list of factors");
+	    error(_("flist must be a non-empty list of factors"));
 	if (length(el) != nobs)
-	    error("All elements of flist must have the same length");
+	    error(_("All elements of flist must have the same length"));
 	Gp[i] = ncol;
 	ncol += length(getAttrib(el, R_LevelsSymbol));
 	fpt[i] = INTEGER(el);
@@ -286,7 +286,7 @@ SEXP sscCrosstab_project2(SEXP ctab)
     SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("dsCMatrix")));
 
 
-    if (nf < 2) error("sscCrosstab_project2 requires more than one group");
+    if (nf < 2) error(_("sscCrosstab_project2 requires more than one group"));
     up = *CHAR(STRING_ELT(GET_SLOT(ctab, Matrix_uploSym), 0)) != 'L';
     if (up) {			/* tranpose */
 	int n = length(pSlot) - 1;	/* number of columns */

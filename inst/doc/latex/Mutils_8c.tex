@@ -40,24 +40,26 @@ double $\ast$ \hyperlink{Mutils_8c_a14}{nlme\_\-symmetrize} (double $\ast$a, con
 \item 
 void \hyperlink{Mutils_8c_a15}{nlme\_\-check\_\-Lapack\_\-error} (int info, const char $\ast$la\-Name)
 \item 
-SEXP \hyperlink{Mutils_8c_a16}{nlme\_\-replace\-Slot} (SEXP obj, SEXP names, SEXP value)
+void \hyperlink{Mutils_8c_a16}{make\_\-array\_\-triangular} (double $\ast$to, SEXP from)
 \item 
-SEXP \hyperlink{Mutils_8c_a17}{nlme\_\-weight\_\-matrix\_\-list} (SEXP MLin, SEXP wts, SEXP adjst, SEXP MLout)
+SEXP \hyperlink{Mutils_8c_a17}{nlme\_\-replace\-Slot} (SEXP obj, SEXP names, SEXP value)
 \item 
-SEXP \hyperlink{Mutils_8c_a18}{Matrix\_\-make\_\-named} (int TYP, char $\ast$$\ast$names)
+SEXP \hyperlink{Mutils_8c_a18}{nlme\_\-weight\_\-matrix\_\-list} (SEXP MLin, SEXP wts, SEXP adjst, SEXP MLout)
 \item 
-SEXP \hyperlink{Mutils_8c_a19}{alloc3Darray} (SEXPTYPE mode, int nrow, int ncol, int nface)
+SEXP \hyperlink{Mutils_8c_a19}{Matrix\_\-make\_\-named} (int TYP, char $\ast$$\ast$names)
 \item 
-double $\ast$ \hyperlink{Mutils_8c_a20}{expand\_\-csc\_\-column} (double $\ast$dest, int m, int j, const int Ap\mbox{[}$\,$\mbox{]}, const int Ai\mbox{[}$\,$\mbox{]}, const double Ax\mbox{[}$\,$\mbox{]})
+SEXP \hyperlink{Mutils_8c_a20}{alloc3Darray} (SEXPTYPE mode, int nrow, int ncol, int nface)
+\item 
+double $\ast$ \hyperlink{Mutils_8c_a21}{expand\_\-csc\_\-column} (double $\ast$dest, int m, int j, const int Ap\mbox{[}$\,$\mbox{]}, const int Ai\mbox{[}$\,$\mbox{]}, const double Ax\mbox{[}$\,$\mbox{]})
 \end{CompactItemize}
 
 
 \subsubsection{Function Documentation}
-\hypertarget{Mutils_8c_a19}{
+\hypertarget{Mutils_8c_a20}{
 \index{Mutils.c@{Mutils.c}!alloc3Darray@{alloc3Darray}}
 \index{alloc3Darray@{alloc3Darray}!Mutils.c@{Mutils.c}}
 \paragraph[alloc3Darray]{\setlength{\rightskip}{0pt plus 5cm}SEXP alloc3Darray (SEXPTYPE {\em mode}, int {\em nrow}, int {\em ncol}, int {\em nface})}\hfill}
-\label{Mutils_8c_a19}
+\label{Mutils_8c_a20}
 
 
 Allocate a 3-dimensional array
@@ -136,11 +138,11 @@ Check for unsorted columns in the row indices
 \label{Mutils_8c_a7}
 
 
-\hypertarget{Mutils_8c_a20}{
+\hypertarget{Mutils_8c_a21}{
 \index{Mutils.c@{Mutils.c}!expand_csc_column@{expand\_\-csc\_\-column}}
 \index{expand_csc_column@{expand\_\-csc\_\-column}!Mutils.c@{Mutils.c}}
 \paragraph[expand\_\-csc\_\-column]{\setlength{\rightskip}{0pt plus 5cm}double$\ast$ expand\_\-csc\_\-column (double $\ast$ {\em dest}, int {\em m}, int {\em j}, const int {\em Ap}\mbox{[}$\,$\mbox{]}, const int {\em Ai}\mbox{[}$\,$\mbox{]}, const double {\em Ax}\mbox{[}$\,$\mbox{]})}\hfill}
-\label{Mutils_8c_a20}
+\label{Mutils_8c_a21}
 
 
 Expand a column of a compressed, sparse, column-oriented matrix.
@@ -166,11 +168,18 @@ Expand a column of a compressed, sparse, column-oriented matrix.
 \label{Mutils_8c_a5}
 
 
-\hypertarget{Mutils_8c_a18}{
+\hypertarget{Mutils_8c_a16}{
+\index{Mutils.c@{Mutils.c}!make_array_triangular@{make\_\-array\_\-triangular}}
+\index{make_array_triangular@{make\_\-array\_\-triangular}!Mutils.c@{Mutils.c}}
+\paragraph[make\_\-array\_\-triangular]{\setlength{\rightskip}{0pt plus 5cm}void make\_\-array\_\-triangular (double $\ast$ {\em to}, SEXP {\em from})}\hfill}
+\label{Mutils_8c_a16}
+
+
+\hypertarget{Mutils_8c_a19}{
 \index{Mutils.c@{Mutils.c}!Matrix_make_named@{Matrix\_\-make\_\-named}}
 \index{Matrix_make_named@{Matrix\_\-make\_\-named}!Mutils.c@{Mutils.c}}
 \paragraph[Matrix\_\-make\_\-named]{\setlength{\rightskip}{0pt plus 5cm}SEXP Matrix\_\-make\_\-named (int {\em TYP}, char $\ast$$\ast$ {\em names})}\hfill}
-\label{Mutils_8c_a18}
+\label{Mutils_8c_a19}
 
 
 Create a named vector of type TYP
@@ -196,11 +205,11 @@ Check the error code returned by an Lapack routine and create an appropriate err
 \begin{description}
 \item[{\em info}]Error code as returned from the Lapack routine \item[{\em la\-Name}]Character string containing the name of the Lapack routine \end{description}
 \end{Desc}
-\hypertarget{Mutils_8c_a16}{
+\hypertarget{Mutils_8c_a17}{
 \index{Mutils.c@{Mutils.c}!nlme_replaceSlot@{nlme\_\-replaceSlot}}
 \index{nlme_replaceSlot@{nlme\_\-replaceSlot}!Mutils.c@{Mutils.c}}
 \paragraph[nlme\_\-replaceSlot]{\setlength{\rightskip}{0pt plus 5cm}SEXP nlme\_\-replace\-Slot (SEXP {\em obj}, SEXP {\em names}, SEXP {\em value})}\hfill}
-\label{Mutils_8c_a16}
+\label{Mutils_8c_a17}
 
 
 Replace the value of a slot or subslot of an object in place. This routine purposely does not copy the value of obj. Use with caution.
@@ -228,11 +237,11 @@ Symmetrize a matrix by copying the strict upper triangle into the lower triangle
 \end{Desc}
 \begin{Desc}
 \item[Returns:]a, symmetrized \end{Desc}
-\hypertarget{Mutils_8c_a17}{
+\hypertarget{Mutils_8c_a18}{
 \index{Mutils.c@{Mutils.c}!nlme_weight_matrix_list@{nlme\_\-weight\_\-matrix\_\-list}}
 \index{nlme_weight_matrix_list@{nlme\_\-weight\_\-matrix\_\-list}!Mutils.c@{Mutils.c}}
 \paragraph[nlme\_\-weight\_\-matrix\_\-list]{\setlength{\rightskip}{0pt plus 5cm}SEXP nlme\_\-weight\_\-matrix\_\-list (SEXP {\em MLin}, SEXP {\em wts}, SEXP {\em adjst}, SEXP {\em MLout})}\hfill}
-\label{Mutils_8c_a17}
+\label{Mutils_8c_a18}
 
 
 Produce a weighted copy of the matrices in MLin in the storage allocated to MLout

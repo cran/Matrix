@@ -20,6 +20,13 @@ prMatrix <-
 
 setMethod("show", signature(object = "Matrix"), prMatrix)
 
+if(FALSE) {## FIXME: we should do this here (for all subclasses),
+    ##        -----  but it coerces some to "Matrix" {with no @x slot}
+setMethod("dim", signature(x = "Matrix"),
+          function(x) x@Dim, valueClass = "integer")
+setMethod("dimnames", signature(x = "Matrix"), function(x) x@Dimnames)
+}# FIXME
+
 Matrix <-
     function (data = NA, nrow = 1, ncol = 1, byrow = FALSE, dimnames = NULL)
 {
@@ -37,9 +44,9 @@ Matrix <-
 }
 
 
-if(FALSE) { ##--- never used --
+if(FALSE) { ##--- not-yet used -- {almost same code also in ./dgeMatrix.R }
 
-## utility for as.Matrix() :
+## utility for as.Matrix() {which is currently invalid }
 Matrix.class <- function(x, tol = 0, symmetry = TRUE, unit.diagonal = TRUE,
                          triangularity = c(TRUE, TRUE),
                          orthogonality = c(TRUE, TRUE),
@@ -91,4 +98,4 @@ as.Matrix <- function(x, tol = .Machine$double.eps)
 	     Matrix.class(x, tol = tol))
 }
 
-}## never used
+}## not-yet used

@@ -1,13 +1,5 @@
 #### Define those generics that we need, if they don't exist
 
-### In order to be able to define group generics
-### {MM : I think this is a workaround for a basic "methods"+NAMESPACE bug}
-## This errors out in R 2.1.0
-##- setGeneric("+", function(e1,e2) standardGeneric("+"), group = "Arith")
-##- setGeneric("-", function(e1,e2) standardGeneric("-"), group = "Arith")
-##- setGeneric("*", function(e1,e2) standardGeneric("*"), group = "Arith")
-##- setGeneric("/", function(e1,e2) standardGeneric("/"), group = "Arith")
-
 
 if (!isGeneric("expand"))
     setGeneric("expand", function(x, ...) standardGeneric("expand"))
@@ -78,4 +70,3 @@ if (!isGeneric("coef<-"))
 
 if (!isGeneric("expm"))
     setGeneric("expm", function(x) standardGeneric("expm"))
-

@@ -10,6 +10,8 @@
 \alias{Arith,dgeMatrix,dgeMatrix-method}
 \alias{Arith,dgeMatrix,numeric-method}
 \alias{Arith,numeric,dgeMatrix-method}
+\alias{Math,dgeMatrix-method}
+\alias{Math2,dgeMatrix,numeric-method}
 % others
 \alias{\%*\%,dgeMatrix,dgeMatrix-method}
 \alias{Schur,dgeMatrix,logical-method}
@@ -24,6 +26,10 @@
 \alias{determinant,dgeMatrix,missing-method}
 \alias{diag,dgeMatrix-method}
 \alias{dim,dgeMatrix-method}
+\alias{dimnames,dgeMatrix-method}
+\alias{dimnames<-,dgeMatrix,list-method}
+\alias{eigen,dgeMatrix,missing-method}
+\alias{eigen,dgeMatrix,logical-method}
 \alias{lu,dgeMatrix-method}
 \alias{norm,dgeMatrix,missing-method}
 \alias{norm,dgeMatrix,character-method}
@@ -31,6 +37,7 @@
 \alias{rcond,dgeMatrix,character-method}
 \alias{solve,dgeMatrix,matrix-method}
 \alias{solve,dgeMatrix,missing-method}
+\alias{t,dgeMatrix-method}
 %
 \description{A general, numeric matrix in the S4 Matrix representation}
 \section{Objects from the Class}{
@@ -60,6 +67,8 @@
     \item{Arith}{\code{signature(e1 = "dgeMatrix", e2 = "dgeMatrix")}: ... }
     \item{Arith}{\code{signature(e1 = "dgeMatrix", e2 = "numeric")}: ... }
     \item{Arith}{\code{signature(e1 = "numeric", e2 = "dgeMatrix")}: ... }
+    \item{Math}{\code{signature(x = "dgeMatrix")}: ... }
+    \item{Math2}{\code{signature(x = "dgeMatrix", digits = "numeric")}: ...}
   }
   and other matrix methods available:
   \describe{
@@ -73,6 +82,10 @@
     \item{crossprod}{\code{signature(x = "dgeMatrix", y = "numeric")}: ... }
     \item{diag}{\code{signature(x = "dgeMatrix")}: ... }
     \item{dim}{\code{signature(x = "dgeMatrix")}: ... }
+    \item{dimnames}{\code{signature(x = "dgeMatrix")}: ... }
+    \item{dimnames<-}{\code{signature(x = "dgeMatrix", value = "list")}: ... }
+    \item{eigen}{\code{signature(x = "dgeMatrix", only.values= "logical")}: ...}
+    \item{eigen}{\code{signature(x = "dgeMatrix", only.values= "missing")}: ...}
     \item{lu}{\code{signature(x = "dgeMatrix")}: ... }
     \item{norm}{\code{signature(x = "dgeMatrix", type = "character")}: ... }
     \item{norm}{\code{signature(x = "dgeMatrix", type = "missing")}: ... }
@@ -80,13 +93,16 @@
     \item{rcond}{\code{signature(x = "dgeMatrix", type = "missing")}: ... }
     \item{solve}{\code{signature(a = "dgeMatrix", b = "dgeMatrix")}: ... }
     \item{solve}{\code{signature(a = "dgeMatrix", b = "missing")}: ... }
+    \item{t}{\code{signature(x = "dgeMatrix")}: ... }
   }
 }
 %\references{}
 %\author{}
 %\note{}
 \seealso{
-  \code{\link{Matrix-class}}, \code{\link{dtrMatrix-class}}, \code{\link{dsyMatrix-class}}
+  \code{\link{Matrix-class}},
+  \code{\link{dtrMatrix-class}},
+  \code{\link{dsyMatrix-class}}
 }
 %\examples{}
 \keyword{classes}

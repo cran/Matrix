@@ -7,14 +7,14 @@ SEXP dsyMatrix_validate(SEXP obj)
     char *val;
 
     if (length(uplo) != 1)
-	return mkString("uplo slot must have length 1");
+	return mkString(_("uplo slot must have length 1"));
     val = CHAR(STRING_ELT(uplo, 0));
     if (strlen(val) != 1)
-    	return mkString("uplo must have string length 1");
+    	return mkString(_("uplo must have string length 1"));
     if (*val != 'U' && *val != 'L')
-    	return mkString("uplo must be \"U\" or \"L\"");
+    	return mkString(_("uplo must be \"U\" or \"L\""));
     if (Dim[0] != Dim[1])
-	return mkString("Symmetric matrix must be square");
+	return mkString(_("Symmetric matrix must be square"));
     return ScalarLogical(1);
 }
 
@@ -54,7 +54,7 @@ double set_rcond_sy(SEXP obj, char *typstr)
 	int *dims = INTEGER(GET_SLOT(obj, Matrix_DimSym)), info;
 	double anorm = get_norm_sy(obj, "O");
 
-	error("Code for set_rcond_sy not yet written");
+	error(_("Code for set_rcond_sy not yet written"));
 	F77_CALL(dsycon)(CHAR(asChar(GET_SLOT(obj, Matrix_uploSym))),
 			 dims, REAL(GET_SLOT(obj, Matrix_xSym)),
 			 dims, INTEGER(GET_SLOT(obj, install("pivot"))),
@@ -96,14 +96,14 @@ void make_symmetric(double *to, SEXP from, int n)
 SEXP dsyMatrix_solve(SEXP a)
 {
 /* FIXME: Write the code */
-    error("code for dsyMatrix_solve not yet written");
+    error(_("code for dsyMatrix_solve not yet written"));
     return R_NilValue;
 }
 
 SEXP dsyMatrix_matrix_solve(SEXP a, SEXP b)
 {
 /* FIXME: Write the code */
-    error("code for dsyMatrix_matrix_solve not yet written");
+    error(_("code for dsyMatrix_matrix_solve not yet written"));
     return R_NilValue;
 }
 
@@ -146,9 +146,9 @@ SEXP dsyMatrix_dgeMatrix_mm(SEXP a, SEXP b)
     double one = 1., zero = 0.;
 
     if (bdims[0] != k)
-	error("Matrices are not conformable for multiplication");
+	error(_("Matrices are not conformable for multiplication"));
     if (m < 1 || n < 1 || k < 1)
-	error("Matrices with zero extents cannot be multiplied");
+	error(_("Matrices with zero extents cannot be multiplied"));
     SET_SLOT(val, Matrix_factorSym, allocVector(VECSXP, 0));
     SET_SLOT(val, Matrix_rcondSym, allocVector(REALSXP, 0));
     SET_SLOT(val, Matrix_xSym, allocVector(REALSXP, m * n));
@@ -174,9 +174,9 @@ SEXP dsyMatrix_dgeMatrix_mm_R(SEXP a, SEXP b)
     double one = 1., zero = 0.;
 
     if (bdims[0] != k)
-	error("Matrices are not conformable for multiplication");
+	error(_("Matrices are not conformable for multiplication"));
     if (m < 1 || n < 1 || k < 1)
-	error("Matrices with zero extents cannot be multiplied");
+	error(_("Matrices with zero extents cannot be multiplied"));
     SET_SLOT(val, Matrix_rcondSym, allocVector(REALSXP, 0));
     SET_SLOT(val, Matrix_factorSym, allocVector(VECSXP, 0));
     SET_SLOT(val, Matrix_xSym, allocVector(REALSXP, m * n));

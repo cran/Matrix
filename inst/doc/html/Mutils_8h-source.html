@@ -10,110 +10,151 @@
 <h1>Mutils.h</h1><a href="Mutils_8h.html">Go to the documentation of this file.</a><div class="fragment"><pre class="fragment">00001 <span class="preprocessor">#ifndef MATRIX_MUTILS_H</span>
 00002 <span class="preprocessor"></span><span class="preprocessor">#define MATRIX_MUTILS_H</span>
 00003 <span class="preprocessor"></span>
-00004 <span class="preprocessor">#include &lt;Rdefines.h&gt;</span>
-00005 <span class="preprocessor">#include &lt;Rconfig.h&gt;</span>
-00006 <span class="preprocessor">#include "<a class="code" href="cblas_8h.html">cblas.h</a>"</span>
-00007 
-00008 <span class="comment">/* short forms of some enum constants from cblas.h */</span>
-<a name="l00009"></a><a class="code" href="Mutils_8h.html#a0">00009</a> <span class="preprocessor">#define RMJ CblasRowMajor</span>
-<a name="l00010"></a><a class="code" href="Mutils_8h.html#a1">00010</a> <span class="preprocessor"></span><span class="preprocessor">#define CMJ CblasColMajor</span>
-<a name="l00011"></a><a class="code" href="Mutils_8h.html#a2">00011</a> <span class="preprocessor"></span><span class="preprocessor">#define NTR CblasNoTrans</span>
-<a name="l00012"></a><a class="code" href="Mutils_8h.html#a3">00012</a> <span class="preprocessor"></span><span class="preprocessor">#define TRN CblasTrans</span>
-<a name="l00013"></a><a class="code" href="Mutils_8h.html#a4">00013</a> <span class="preprocessor"></span><span class="preprocessor">#define CTR CblasConjTrans</span>
-<a name="l00014"></a><a class="code" href="Mutils_8h.html#a5">00014</a> <span class="preprocessor"></span><span class="preprocessor">#define UPP CblasUpper</span>
-<a name="l00015"></a><a class="code" href="Mutils_8h.html#a6">00015</a> <span class="preprocessor"></span><span class="preprocessor">#define LOW CblasLower</span>
-<a name="l00016"></a><a class="code" href="Mutils_8h.html#a7">00016</a> <span class="preprocessor"></span><span class="preprocessor">#define NUN CblasNonUnit</span>
-<a name="l00017"></a><a class="code" href="Mutils_8h.html#a8">00017</a> <span class="preprocessor"></span><span class="preprocessor">#define UNT CblasUnit</span>
-<a name="l00018"></a><a class="code" href="Mutils_8h.html#a9">00018</a> <span class="preprocessor"></span><span class="preprocessor">#define LFT CblasLeft</span>
-<a name="l00019"></a><a class="code" href="Mutils_8h.html#a10">00019</a> <span class="preprocessor"></span><span class="preprocessor">#define RGT CblasRight</span>
-00020 <span class="preprocessor"></span>
-00021 <span class="keywordtype">char</span> <a class="code" href="Mutils_8c.html#a0">norm_type</a>(<span class="keywordtype">char</span> *typstr);
-00022 <span class="keywordtype">char</span> <a class="code" href="Mutils_8c.html#a1">rcond_type</a>(<span class="keywordtype">char</span> *typstr);
-00023 <span class="keywordtype">double</span> <a class="code" href="Mutils_8c.html#a2">get_double_by_name</a>(SEXP obj, <span class="keywordtype">char</span> *nm);
-00024 SEXP <a class="code" href="Mutils_8c.html#a3">set_double_by_name</a>(SEXP obj, <span class="keywordtype">double</span> val, <span class="keywordtype">char</span> *nm);
-00025 SEXP <a class="code" href="Mutils_8c.html#a4">as_det_obj</a>(<span class="keywordtype">double</span> val, <span class="keywordtype">int</span> log, <span class="keywordtype">int</span> sign);
-00026 SEXP <a class="code" href="Mutils_8c.html#a5">get_factors</a>(SEXP obj, <span class="keywordtype">char</span> *nm);
-00027 SEXP <a class="code" href="Mutils_8c.html#a6">set_factors</a>(SEXP obj, SEXP val, <span class="keywordtype">char</span> *nm);
-00028 SEXP <a class="code" href="Mutils_8c.html#a7">dgCMatrix_set_Dim</a>(SEXP x, <span class="keywordtype">int</span> nrow);
-00029 <span class="keywordtype">int</span> <a class="code" href="Mutils_8c.html#a8">csc_unsorted_columns</a>(<span class="keywordtype">int</span> ncol, <span class="keyword">const</span> <span class="keywordtype">int</span> p[], <span class="keyword">const</span> <span class="keywordtype">int</span> i[]);
-00030 <span class="keywordtype">void</span> <a class="code" href="Mutils_8c.html#a9">csc_sort_columns</a>(<span class="keywordtype">int</span> ncol, <span class="keyword">const</span> <span class="keywordtype">int</span> p[], <span class="keywordtype">int</span> i[], <span class="keywordtype">double</span> x[]);
-00031 SEXP <a class="code" href="Mutils_8c.html#a11">triple_as_SEXP</a>(<span class="keywordtype">int</span> nrow, <span class="keywordtype">int</span> ncol, <span class="keywordtype">int</span> nz,
-00032                     <span class="keyword">const</span> <span class="keywordtype">int</span> Ti [], <span class="keyword">const</span> <span class="keywordtype">int</span> Tj [], <span class="keyword">const</span> <span class="keywordtype">double</span> Tx [],
-00033                     <span class="keywordtype">char</span> *Rclass);
-00034 SEXP <a class="code" href="Mutils_8c.html#a10">csc_check_column_sorting</a>(SEXP A);
-00035 <span class="keywordtype">void</span> <a class="code" href="Mutils_8c.html#a12">csc_components_transpose</a>(<span class="keywordtype">int</span> m, <span class="keywordtype">int</span> n, <span class="keywordtype">int</span> nnz,
-00036                               <span class="keyword">const</span> <span class="keywordtype">int</span> xp[], <span class="keyword">const</span> <span class="keywordtype">int</span> xi[],
-00037                               <span class="keyword">const</span> <span class="keywordtype">double</span> xx[],
-00038                               <span class="keywordtype">int</span> ap[], <span class="keywordtype">int</span> ai[], <span class="keywordtype">double</span> ax[]);
-00039 <span class="keywordtype">void</span> <a class="code" href="Mutils_8c.html#a13">ssc_symbolic_permute</a>(<span class="keywordtype">int</span> n, <span class="keywordtype">int</span> upper, <span class="keyword">const</span> <span class="keywordtype">int</span> perm[],
-00040                           <span class="keywordtype">int</span> Ap[], <span class="keywordtype">int</span> Ai[]);
-00041 <span class="keywordtype">double</span> *<a class="code" href="Mutils_8c.html#a14">nlme_symmetrize</a>(<span class="keywordtype">double</span> *a, <span class="keyword">const</span> <span class="keywordtype">int</span> nc);
-00042 <span class="keywordtype">void</span> <a class="code" href="Mutils_8c.html#a15">nlme_check_Lapack_error</a>(<span class="keywordtype">int</span> info, <span class="keyword">const</span> <span class="keywordtype">char</span> *laName);
-00043 SEXP <a class="code" href="Mutils_8c.html#a16">nlme_replaceSlot</a>(SEXP obj, SEXP names, SEXP value);
-00044 SEXP <a class="code" href="Mutils_8c.html#a17">nlme_weight_matrix_list</a>(SEXP MLin, SEXP wts, SEXP adjst, SEXP MLout);
-00045 SEXP <a class="code" href="Mutils_8c.html#a18">Matrix_make_named</a>(<span class="keywordtype">int</span> TYP, <span class="keywordtype">char</span> **names);
-00046                                 <span class="comment">/* stored pointers to symbols */</span>
-00047                                 <span class="comment">/* initialized in R_init_Matrix */</span>
-00048 <span class="keyword">extern</span>
-00049 <span class="preprocessor">#include "<a class="code" href="Syms_8h.html">Syms.h</a>"</span>
-00050 
-00051 <span class="comment">/* zero an array */</span>
-<a name="l00052"></a><a class="code" href="Mutils_8h.html#a11">00052</a> <span class="preprocessor">#define AZERO(x, n) {int _I_, _SZ_ = (n); for(_I_ = 0; _I_ &lt; _SZ_; _I_++) (x)[_I_] = 0;}</span>
-00053 <span class="preprocessor"></span>
-00069 <span class="keyword">static</span> R_INLINE
-<a name="l00070"></a><a class="code" href="Mutils_8h.html#a31">00070</a> SEXP <a class="code" href="Mutils_8h.html#a31">ALLOC_SLOT</a>(SEXP obj, SEXP nm, SEXPTYPE type, <span class="keywordtype">int</span> length)
-00071 {
-00072     SEXP val = allocVector(type, length);
-00073 
-00074     SET_SLOT(obj, nm, val);
-00075     <span class="keywordflow">return</span> val;
-00076 }
-00077 
-00088 <span class="keyword">static</span> R_INLINE
-<a name="l00089"></a><a class="code" href="Mutils_8h.html#a32">00089</a> <span class="keywordtype">int</span>* <a class="code" href="Mutils_8h.html#a32">expand_column_pointers</a>(<span class="keywordtype">int</span> ncol, <span class="keyword">const</span> <span class="keywordtype">int</span> mp[], <span class="keywordtype">int</span> mj[])
-00090 {
-00091     <span class="keywordtype">int</span> j;
-00092     <span class="keywordflow">for</span> (j = 0; j &lt; ncol; j++) {
-00093         <span class="keywordtype">int</span> j2 = mp[j+1], jj;
-00094         <span class="keywordflow">for</span> (jj = mp[j]; jj &lt; j2; jj++) mj[jj] = j;
-00095     }
-00096     <span class="keywordflow">return</span> mj;
-00097 }
-00098 
-00099 
-00115 <span class="keyword">static</span> R_INLINE <span class="keywordtype">int</span>
-<a name="l00116"></a><a class="code" href="Mutils_8h.html#a33">00116</a> <a class="code" href="Mutils_8h.html#a33">check_csc_index</a>(<span class="keyword">const</span> <span class="keywordtype">int</span> p[], <span class="keyword">const</span> <span class="keywordtype">int</span> i[], <span class="keywordtype">int</span> row, <span class="keywordtype">int</span> col, <span class="keywordtype">int</span> missing)
-00117 {
-00118     <span class="keywordtype">int</span> k, k2 = p[col + 1];
-00119                                 <span class="comment">/* linear search - perhaps replace by bsearch */</span>
-00120     <span class="keywordflow">for</span> (k = p[col]; k &lt; k2; k++) <span class="keywordflow">if</span> (i[k] == row) <span class="keywordflow">return</span> k;
-00121     <span class="keywordflow">if</span> (!missing)
-00122         error(<span class="stringliteral">"row %d and column %d not defined in rowind and colptr"</span>,
-00123               row, col);
-00124     <span class="keywordflow">return</span> missing;
-00125 }
-00126 
-00127 SEXP <a class="code" href="Mutils_8c.html#a19">alloc3Darray</a>(SEXPTYPE mode, <span class="keywordtype">int</span> nrow, <span class="keywordtype">int</span> ncol, <span class="keywordtype">int</span> nface);
-00128 
-00138 <span class="keyword">static</span> R_INLINE
-<a name="l00139"></a><a class="code" href="Mutils_8h.html#a35">00139</a> <span class="keywordtype">int</span> <a class="code" href="Mutils_8h.html#a35">Lind</a>(<span class="keywordtype">int</span> k, <span class="keywordtype">int</span> i)
-00140 {
-00141     <span class="keywordflow">if</span> (k &lt; i) error("Lind(k = %d, i = %d) must have k &gt;= i<span class="stringliteral">", k, i);</span>
-00142 <span class="stringliteral">    return (k * (k + 1))/2 + i;</span>
-00143 <span class="stringliteral">}</span>
-00144 <span class="stringliteral"></span>
-00153 <span class="stringliteral">static R_INLINE</span>
-<a name="l00154"></a><a class="code" href="Mutils_8h.html#a36">00154</a> <span class="stringliteral">int match_mat_dims(const int xd[], const int yd[])</span>
-00155 <span class="stringliteral">{</span>
-00156 <span class="stringliteral">    return xd[0] == yd[0] &amp;&amp; xd[1] == yd[1];</span>
-00157 <span class="stringliteral">}</span>
-00158 <span class="stringliteral"></span>
-00159 <span class="stringliteral">double *expand_csc_column(double *dest, int m, int j,</span>
-00160 <span class="stringliteral">                          const int Ap[], const int Ai[], const double Ax[]);</span>
-00161 <span class="stringliteral"></span>
-00162 <span class="stringliteral">#endif</span>
-00163 <span class="stringliteral"></span>
-</pre></div><hr size="1"><address style="align: right;"><small>Generated on Fri Feb 18 08:49:34 2005 for Matrix by&nbsp;
+00004 <span class="preprocessor">#ifdef __cplusplus</span>
+00005 <span class="preprocessor"></span><span class="keyword">extern</span> <span class="stringliteral">"C"</span> {
+00006 <span class="preprocessor">#endif</span>
+00007 <span class="preprocessor"></span>
+00008 <span class="preprocessor">#include &lt;Rdefines.h&gt;</span>
+00009 <span class="preprocessor">#include &lt;Rconfig.h&gt;</span>
+00010 <span class="preprocessor">#include &lt;R.h&gt;</span>  <span class="comment">/* to include Rconfig.h */</span>
+00011 
+00012 <span class="preprocessor">#ifdef ENABLE_NLS</span>
+00013 <span class="preprocessor"></span><span class="preprocessor">#include &lt;libintl.h&gt;</span>
+00014 <span class="preprocessor">#define _(String) dgettext ("Matrix", String)</span>
+00015 <span class="preprocessor"></span><span class="preprocessor">#else</span>
+<a name="l00016"></a><a class="code" href="Mutils_8h.html#a0">00016</a> <span class="preprocessor"></span><span class="preprocessor">#define _(String) (String)</span>
+00017 <span class="preprocessor"></span><span class="preprocessor">#endif</span>
+00018 <span class="preprocessor"></span>
+00019 <span class="comment">/* enum constants from cblas.h and some short forms */</span>
+<a name="l00020"></a><a class="code" href="Mutils_8h.html#a53">00020</a> <span class="keyword">enum</span> <a class="code" href="Mutils_8h.html#a53">CBLAS_ORDER</a> {<a class="code" href="Mutils_8h.html#a53a13">CblasRowMajor</a>=101, <a class="code" href="Mutils_8h.html#a53a14">CblasColMajor</a>=102};
+<a name="l00021"></a><a class="code" href="Mutils_8h.html#a54">00021</a> <span class="keyword">enum</span> <a class="code" href="Mutils_8h.html#a54">CBLAS_TRANSPOSE</a> {<a class="code" href="Mutils_8h.html#a54a15">CblasNoTrans</a>=111, <a class="code" href="Mutils_8h.html#a54a16">CblasTrans</a>=112, <a class="code" href="Mutils_8h.html#a54a17">CblasConjTrans</a>=113};
+<a name="l00022"></a><a class="code" href="Mutils_8h.html#a55">00022</a> <span class="keyword">enum</span> <a class="code" href="Mutils_8h.html#a55">CBLAS_UPLO</a> {<a class="code" href="Mutils_8h.html#a55a18">CblasUpper</a>=121, <a class="code" href="Mutils_8h.html#a55a19">CblasLower</a>=122};
+<a name="l00023"></a><a class="code" href="Mutils_8h.html#a56">00023</a> <span class="keyword">enum</span> <a class="code" href="Mutils_8h.html#a56">CBLAS_DIAG</a> {<a class="code" href="Mutils_8h.html#a56a20">CblasNonUnit</a>=131, <a class="code" href="Mutils_8h.html#a56a21">CblasUnit</a>=132};
+<a name="l00024"></a><a class="code" href="Mutils_8h.html#a57">00024</a> <span class="keyword">enum</span> <a class="code" href="Mutils_8h.html#a57">CBLAS_SIDE</a> {<a class="code" href="Mutils_8h.html#a57a22">CblasLeft</a>=141, <a class="code" href="Mutils_8h.html#a57a23">CblasRight</a>=142};
+<a name="l00025"></a><a class="code" href="Mutils_8h.html#a1">00025</a> <span class="preprocessor">#define RMJ CblasRowMajor</span>
+<a name="l00026"></a><a class="code" href="Mutils_8h.html#a2">00026</a> <span class="preprocessor"></span><span class="preprocessor">#define CMJ CblasColMajor</span>
+<a name="l00027"></a><a class="code" href="Mutils_8h.html#a3">00027</a> <span class="preprocessor"></span><span class="preprocessor">#define NTR CblasNoTrans</span>
+<a name="l00028"></a><a class="code" href="Mutils_8h.html#a4">00028</a> <span class="preprocessor"></span><span class="preprocessor">#define TRN CblasTrans</span>
+<a name="l00029"></a><a class="code" href="Mutils_8h.html#a5">00029</a> <span class="preprocessor"></span><span class="preprocessor">#define CTR CblasConjTrans</span>
+<a name="l00030"></a><a class="code" href="Mutils_8h.html#a6">00030</a> <span class="preprocessor"></span><span class="preprocessor">#define UPP CblasUpper</span>
+<a name="l00031"></a><a class="code" href="Mutils_8h.html#a7">00031</a> <span class="preprocessor"></span><span class="preprocessor">#define LOW CblasLower</span>
+<a name="l00032"></a><a class="code" href="Mutils_8h.html#a8">00032</a> <span class="preprocessor"></span><span class="preprocessor">#define NUN CblasNonUnit</span>
+<a name="l00033"></a><a class="code" href="Mutils_8h.html#a9">00033</a> <span class="preprocessor"></span><span class="preprocessor">#define UNT CblasUnit</span>
+<a name="l00034"></a><a class="code" href="Mutils_8h.html#a10">00034</a> <span class="preprocessor"></span><span class="preprocessor">#define LFT CblasLeft</span>
+<a name="l00035"></a><a class="code" href="Mutils_8h.html#a11">00035</a> <span class="preprocessor"></span><span class="preprocessor">#define RGT CblasRight</span>
+00036 <span class="preprocessor"></span>
+00037 <span class="keywordtype">char</span> <a class="code" href="Mutils_8c.html#a0">norm_type</a>(<span class="keywordtype">char</span> *typstr);
+00038 <span class="keywordtype">char</span> <a class="code" href="Mutils_8c.html#a1">rcond_type</a>(<span class="keywordtype">char</span> *typstr);
+00039 <span class="keywordtype">double</span> <a class="code" href="Mutils_8c.html#a2">get_double_by_name</a>(SEXP obj, <span class="keywordtype">char</span> *nm);
+00040 SEXP <a class="code" href="Mutils_8c.html#a3">set_double_by_name</a>(SEXP obj, <span class="keywordtype">double</span> val, <span class="keywordtype">char</span> *nm);
+00041 SEXP <a class="code" href="Mutils_8c.html#a4">as_det_obj</a>(<span class="keywordtype">double</span> val, <span class="keywordtype">int</span> log, <span class="keywordtype">int</span> sign);
+00042 SEXP <a class="code" href="Mutils_8c.html#a5">get_factors</a>(SEXP obj, <span class="keywordtype">char</span> *nm);
+00043 SEXP <a class="code" href="Mutils_8c.html#a6">set_factors</a>(SEXP obj, SEXP val, <span class="keywordtype">char</span> *nm);
+00044 SEXP <a class="code" href="Mutils_8c.html#a7">dgCMatrix_set_Dim</a>(SEXP x, <span class="keywordtype">int</span> nrow);
+00045 <span class="keywordtype">int</span> <a class="code" href="Mutils_8c.html#a8">csc_unsorted_columns</a>(<span class="keywordtype">int</span> ncol, <span class="keyword">const</span> <span class="keywordtype">int</span> p[], <span class="keyword">const</span> <span class="keywordtype">int</span> i[]);
+00046 <span class="keywordtype">void</span> <a class="code" href="Mutils_8c.html#a9">csc_sort_columns</a>(<span class="keywordtype">int</span> ncol, <span class="keyword">const</span> <span class="keywordtype">int</span> p[], <span class="keywordtype">int</span> i[], <span class="keywordtype">double</span> x[]);
+00047 SEXP <a class="code" href="Mutils_8c.html#a11">triple_as_SEXP</a>(<span class="keywordtype">int</span> nrow, <span class="keywordtype">int</span> ncol, <span class="keywordtype">int</span> nz,
+00048                     <span class="keyword">const</span> <span class="keywordtype">int</span> Ti [], <span class="keyword">const</span> <span class="keywordtype">int</span> Tj [], <span class="keyword">const</span> <span class="keywordtype">double</span> Tx [],
+00049                     <span class="keywordtype">char</span> *Rclass);
+00050 SEXP <a class="code" href="Mutils_8c.html#a10">csc_check_column_sorting</a>(SEXP A);
+00051 <span class="keywordtype">void</span> <a class="code" href="Mutils_8c.html#a12">csc_components_transpose</a>(<span class="keywordtype">int</span> m, <span class="keywordtype">int</span> n, <span class="keywordtype">int</span> nnz,
+00052                               <span class="keyword">const</span> <span class="keywordtype">int</span> xp[], <span class="keyword">const</span> <span class="keywordtype">int</span> xi[],
+00053                               <span class="keyword">const</span> <span class="keywordtype">double</span> xx[],
+00054                               <span class="keywordtype">int</span> ap[], <span class="keywordtype">int</span> ai[], <span class="keywordtype">double</span> ax[]);
+00055 <span class="keywordtype">void</span> <a class="code" href="Mutils_8c.html#a13">ssc_symbolic_permute</a>(<span class="keywordtype">int</span> n, <span class="keywordtype">int</span> upper, <span class="keyword">const</span> <span class="keywordtype">int</span> perm[],
+00056                           <span class="keywordtype">int</span> Ap[], <span class="keywordtype">int</span> Ai[]);
+00057 <span class="keywordtype">double</span> *<a class="code" href="Mutils_8c.html#a14">nlme_symmetrize</a>(<span class="keywordtype">double</span> *a, <span class="keyword">const</span> <span class="keywordtype">int</span> nc);
+00058 <span class="keywordtype">void</span> <a class="code" href="Mutils_8c.html#a15">nlme_check_Lapack_error</a>(<span class="keywordtype">int</span> info, <span class="keyword">const</span> <span class="keywordtype">char</span> *laName);
+00059 SEXP <a class="code" href="Mutils_8c.html#a17">nlme_replaceSlot</a>(SEXP obj, SEXP names, SEXP value);
+00060 SEXP <a class="code" href="Mutils_8c.html#a18">nlme_weight_matrix_list</a>(SEXP MLin, SEXP wts, SEXP adjst, SEXP MLout);
+00061 SEXP <a class="code" href="Mutils_8c.html#a19">Matrix_make_named</a>(<span class="keywordtype">int</span> TYP, <span class="keywordtype">char</span> **names);
+00062                                 <span class="comment">/* stored pointers to symbols */</span>
+00063                                 <span class="comment">/* initialized in R_init_Matrix */</span>
+00064 <span class="keyword">extern</span>
+00065 <span class="preprocessor">#include "<a class="code" href="Syms_8h.html">Syms.h</a>"</span>
+00066 
+00067 <span class="comment">/* zero an array */</span>
+<a name="l00068"></a><a class="code" href="Mutils_8h.html#a12">00068</a> <span class="preprocessor">#define AZERO(x, n) {int _I_, _SZ_ = (n); for(_I_ = 0; _I_ &lt; _SZ_; _I_++) (x)[_I_] = 0;}</span>
+00069 <span class="preprocessor"></span>
+00085 <span class="keyword">static</span> R_INLINE
+<a name="l00086"></a><a class="code" href="Mutils_8h.html#a43">00086</a> SEXP <a class="code" href="Mutils_8h.html#a43">ALLOC_SLOT</a>(SEXP obj, SEXP nm, SEXPTYPE type, <span class="keywordtype">int</span> length)
+00087 {
+00088     SEXP val = allocVector(type, length);
+00089 
+00090     SET_SLOT(obj, nm, val);
+00091     <span class="keywordflow">return</span> val;
+00092 }
+00093 
+00104 <span class="keyword">static</span> R_INLINE
+<a name="l00105"></a><a class="code" href="Mutils_8h.html#a44">00105</a> <span class="keywordtype">int</span>* <a class="code" href="Mutils_8h.html#a44">expand_column_pointers</a>(<span class="keywordtype">int</span> ncol, <span class="keyword">const</span> <span class="keywordtype">int</span> mp[], <span class="keywordtype">int</span> mj[])
+00106 {
+00107     <span class="keywordtype">int</span> j;
+00108     <span class="keywordflow">for</span> (j = 0; j &lt; ncol; j++) {
+00109         <span class="keywordtype">int</span> j2 = mp[j+1], jj;
+00110         <span class="keywordflow">for</span> (jj = mp[j]; jj &lt; j2; jj++) mj[jj] = j;
+00111     }
+00112     <span class="keywordflow">return</span> mj;
+00113 }
+00114 
+00115 
+00131 <span class="keyword">static</span> R_INLINE <span class="keywordtype">int</span>
+<a name="l00132"></a><a class="code" href="Mutils_8h.html#a45">00132</a> <a class="code" href="Mutils_8h.html#a45">check_csc_index</a>(<span class="keyword">const</span> <span class="keywordtype">int</span> p[], <span class="keyword">const</span> <span class="keywordtype">int</span> i[], <span class="keywordtype">int</span> row, <span class="keywordtype">int</span> col, <span class="keywordtype">int</span> missing)
+00133 {
+00134     <span class="keywordtype">int</span> k, k2 = p[col + 1];
+00135                                 <span class="comment">/* linear search - perhaps replace by bsearch */</span>
+00136     <span class="keywordflow">for</span> (k = p[col]; k &lt; k2; k++) <span class="keywordflow">if</span> (i[k] == row) <span class="keywordflow">return</span> k;
+00137     <span class="keywordflow">if</span> (!missing)
+00138         error(<span class="stringliteral">"row %d and column %d not defined in rowind and colptr"</span>,
+00139               row, col);
+00140     <span class="keywordflow">return</span> missing;
+00141 }
+00142 
+00143 SEXP <a class="code" href="Mutils_8c.html#a20">alloc3Darray</a>(SEXPTYPE mode, <span class="keywordtype">int</span> nrow, <span class="keywordtype">int</span> ncol, <span class="keywordtype">int</span> nface);
+00144 
+00154 <span class="keyword">static</span> R_INLINE
+<a name="l00155"></a><a class="code" href="Mutils_8h.html#a47">00155</a> <span class="keywordtype">int</span> <a class="code" href="Mutils_8h.html#a47">Lind</a>(<span class="keywordtype">int</span> k, <span class="keywordtype">int</span> i)
+00156 {
+00157     <span class="keywordflow">if</span> (k &lt; i) error("Lind(k = %d, i = %d) must have k &gt;= i<span class="stringliteral">", k, i);</span>
+00158 <span class="stringliteral">    return (k * (k + 1))/2 + i;</span>
+00159 <span class="stringliteral">}</span>
+00160 <span class="stringliteral"></span>
+00169 <span class="stringliteral">static R_INLINE</span>
+<a name="l00170"></a><a class="code" href="Mutils_8h.html#a48">00170</a> <span class="stringliteral">int match_mat_dims(const int xd[], const int yd[])</span>
+00171 <span class="stringliteral">{</span>
+00172 <span class="stringliteral">    return xd[0] == yd[0] &amp;&amp; xd[1] == yd[1];</span>
+00173 <span class="stringliteral">}</span>
+00174 <span class="stringliteral"></span>
+00175 <span class="stringliteral">double *expand_csc_column(double *dest, int m, int j,</span>
+00176 <span class="stringliteral">                          const int Ap[], const int Ai[], const double Ax[]);</span>
+00177 <span class="stringliteral"></span>
+00185 <span class="stringliteral">static R_INLINE void</span>
+<a name="l00186"></a><a class="code" href="Mutils_8h.html#a50">00186</a> <span class="stringliteral">int_permute(int i[], int n, const int perm[])</span>
+00187 <span class="stringliteral">{</span>
+00188 <span class="stringliteral">    int j;</span>
+00189 <span class="stringliteral">    for (j = 0; j &lt; n; j++) i[j] = perm[i[j]];</span>
+00190 <span class="stringliteral">}</span>
+00191 <span class="stringliteral"></span>
+00199 <span class="stringliteral">static R_INLINE void</span>
+<a name="l00200"></a><a class="code" href="Mutils_8h.html#a51">00200</a> <span class="stringliteral">make_upper_triangular(int i[], int j[], int nnz)</span>
+00201 <span class="stringliteral">{</span>
+00202 <span class="stringliteral">    int k;</span>
+00203 <span class="stringliteral">    for (k = 0; k &lt; nnz; k++) {</span>
+00204 <span class="stringliteral">        if (i[k] &gt; j[k]) {</span>
+00205 <span class="stringliteral">            int tmp = i[k];</span>
+00206 <span class="stringliteral">            i[k] = j[k];</span>
+00207 <span class="stringliteral">            j[k] = tmp;</span>
+00208 <span class="stringliteral">        }</span>
+00209 <span class="stringliteral">    }</span>
+00210 <span class="stringliteral">}</span>
+00211 <span class="stringliteral"></span>
+00212 <span class="stringliteral">void make_array_triangular(double *x, SEXP from);</span>
+00213 <span class="stringliteral"></span>
+00214 <span class="stringliteral">#ifdef __cplusplus</span>
+00215 <span class="stringliteral">}</span>
+00216 <span class="stringliteral">#endif</span>
+00217 <span class="stringliteral"></span>
+00218 <span class="stringliteral">#endif /* MATRIX_MUTILS_H_ */</span>
+</pre></div><hr size="1"><address style="align: right;"><small>Generated on Tue Mar 1 16:58:10 2005 for Matrix by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.1 </small></address>
 </body>

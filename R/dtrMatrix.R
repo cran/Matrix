@@ -69,7 +69,9 @@ setMethod("solve", signature(a = "dtrMatrix", b="matrix"),
 
 setMethod("t", signature(x = "dtrMatrix"),
 	  function(x) {
-	      val <- new("dtrMatrix", Dim = x@Dim, x = t(as(x, "matrix"))@x)
+	      val <- new("dtrMatrix",
+                         Dim = x@Dim, Dimnames = x@Dimnames[2:1],
+                         x = as.vector(t(as(x, "matrix"))))
 	      if (x@uplo == "U") val@uplo <- "L"
 	      if (x@diag == "U") val@diag <- "U"
 	      val

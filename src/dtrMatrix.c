@@ -2,6 +2,10 @@
 
 #include "dtrMatrix.h"
 
+/* FIXME: dtrMatrix_as_dgeMatrix()  {below}
+ * -----  is called *before* the following - presumably in order to
+ *        apply the higher level validation first
+*/
 SEXP dtrMatrix_validate(SEXP obj)
 {
     SEXP uplo = GET_SLOT(obj, Matrix_uploSym),
@@ -9,19 +13,19 @@ SEXP dtrMatrix_validate(SEXP obj)
     char *val;
 
     if (length(uplo) != 1)
-	return mkString("'uplo' slot must have length 1");
+	return mkString(_("'uplo' slot must have length 1"));
     if (length(diag) != 1)
-	return mkString("'diag' slot must have length 1");
+	return mkString(_("'diag' slot must have length 1"));
     val = CHAR(STRING_ELT(uplo, 0));
     if (strlen(val) != 1)
-    	return mkString("'uplo' must have string length 1");
+    	return mkString(_("'uplo' must have string length 1"));
     if (*val != 'U' && *val != 'L')
-    	return mkString("'uplo' must be \"U\" or \"L\"");
+    	return mkString(_("'uplo' must be \"U\" or \"L\""));
     val = CHAR(STRING_ELT(diag, 0));
     if (strlen(val) != 1)
-    	return mkString("'diag' must have string length 1");
+    	return mkString(_("'diag' must have string length 1"));
     if (*val != 'U' && *val != 'N')
-    	return mkString("'diag' must be \"U\" or \"N\"");
+    	return mkString(_("'diag' must be \"U\" or \"N\""));
     return ScalarLogical(1);
 }
 
@@ -97,7 +101,7 @@ SEXP dtrMatrix_matrix_solve(SEXP a, SEXP b)
     double one = 1.0;
 
     if (bDim[0] != Dim[1])
-	error("Dimensions of a (%d,%d) and b (%d,%d) do not conform",
+	error(_("Dimensions of a (%d,%d) and b (%d,%d) do not conform"),
 	      Dim[0], Dim[1], bDim[0], bDim[1]);
     F77_CALL(dtrsm)("L", CHAR(asChar(GET_SLOT(val, Matrix_uploSym))),
 		    "N", CHAR(asChar(GET_SLOT(val, Matrix_diagSym))),
@@ -108,32 +112,6 @@ SEXP dtrMatrix_matrix_solve(SEXP a, SEXP b)
     return val;
 }
 
-void make_array_triangular(double *to, SEXP from)
-{
-    int i, j, *dims = INTEGER(GET_SLOT(from, Matrix_DimSym));
-    int n = dims[0], m = dims[1];
-
-    if (*CHAR(asChar(GET_SLOT(from, Matrix_uploSym))) == 'U') {
-	for (j = 0; j < n; j++) {
-	    for (i = j+1; i < m; i++) {
-		to[i + j*m] = 0.;
-	    }
-	}
-    } else {
-	for (j = 1; j < n; j++) {
-	    for (i = 0; i < j && i < m; i++) {
-		to[i + j*m] = 0.;
-	    }
-	}
-    }
-    if (*CHAR(asChar(GET_SLOT(from, Matrix_diagSym))) == 'U') {
-	j = (n < m) ? n : m;
-	for (i = 0; i < j; i++) {
-	    to[i * (m + 1)] = 1.;
-	}
-    }
-}
-
 SEXP dtrMatrix_as_dgeMatrix(SEXP from)
 {
     SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dgeMatrix")));
@@ -141,6 +119,9 @@ SEXP dtrMatrix_as_dgeMatrix(SEXP from)
     SET_SLOT(val, Matrix_rcondSym,
 	     duplicate(GET_SLOT(from, Matrix_rcondSym)));
     SET_SLOT(val, Matrix_xSym, duplicate(GET_SLOT(from, Matrix_xSym)));
+    /* Dim < 2 can give a seg.fault problem in make_array_triangular(): */
+    if (LENGTH(GET_SLOT(from, Matrix_DimSym)) < 2)
+	error(_(_("'Dim' slot has length less than two")));
     SET_SLOT(val, Matrix_DimSym,
 	     duplicate(GET_SLOT(from, Matrix_DimSym)));
     SET_SLOT(val, Matrix_factorSym, allocVector(VECSXP, 0));
@@ -188,9 +169,9 @@ SEXP dtrMatrix_dgeMatrix_mm(SEXP a, SEXP b)
     double one = 1.;
 
     if (bdims[0] != k)
-	error("Matrices are not conformable for multiplication");
+	error(_("Matrices are not conformable for multiplication"));
     if (m < 1 || n < 1 || k < 1)
-	error("Matrices with zero extents cannot be multiplied");
+	error(_("Matrices with zero extents cannot be multiplied"));
     F77_CALL(dtrmm)("L", CHAR(asChar(GET_SLOT(a, Matrix_uploSym))), "N",
 		    CHAR(asChar(GET_SLOT(a, Matrix_diagSym))),
 		    adims, bdims+1, &one,
@@ -209,9 +190,9 @@ SEXP dtrMatrix_dgeMatrix_mm_R(SEXP a, SEXP b)
     double one = 1.;
 
     if (bdims[0] != k)
-	error("Matrices are not conformable for multiplication");
+	error(_("Matrices are not conformable for multiplication"));
     if (m < 1 || n < 1 || k < 1)
-	error("Matrices with zero extents cannot be multiplied");
+	error(_("Matrices with zero extents cannot be multiplied"));
     F77_CALL(dtrmm)("R", CHAR(asChar(GET_SLOT(a, Matrix_uploSym))), "N",
 		    CHAR(asChar(GET_SLOT(a, Matrix_diagSym))),
 		    adims, bdims+1, &one,

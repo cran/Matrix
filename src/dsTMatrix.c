@@ -9,9 +9,9 @@ SEXP dsTMatrix_validate(SEXP x)
     int *dims = INTEGER(GET_SLOT(x, Matrix_DimSym));
 
     if (dims[0] != dims[1])
-	return mkString("dsTMatrix must have ncol == nrow");
+	return mkString(_("dsTMatrix must have ncol == nrow"));
     if (length(xiP) != length(xjP) || length(xjP) != length(xxP))
-	return mkString("slots i, j and x must have the same length");
+	return mkString(_("slots i, j and x must have the same length"));
     return ScalarLogical(1);
 }
 

@@ -25,21 +25,19 @@
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="dtrMatrix_8c.html#a6">dtrMatrix_matrix_solve</a> (SEXP a, SEXP b)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="dtrMatrix_8c.html#a7">make_array_triangular</a> (double *to, SEXP from)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="dtrMatrix_8c.html#a7">dtrMatrix_as_dgeMatrix</a> (SEXP from)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="dtrMatrix_8c.html#a8">dtrMatrix_as_dgeMatrix</a> (SEXP from)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="dtrMatrix_8c.html#a8">dtrMatrix_as_matrix</a> (SEXP from)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="dtrMatrix_8c.html#a9">dtrMatrix_as_matrix</a> (SEXP from)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="dtrMatrix_8c.html#a9">dtrMatrix_getDiag</a> (SEXP x)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="dtrMatrix_8c.html#a10">dtrMatrix_getDiag</a> (SEXP x)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="dtrMatrix_8c.html#a10">dtrMatrix_dgeMatrix_mm</a> (SEXP a, SEXP b)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="dtrMatrix_8c.html#a11">dtrMatrix_dgeMatrix_mm</a> (SEXP a, SEXP b)</td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="dtrMatrix_8c.html#a12">dtrMatrix_dgeMatrix_mm_R</a> (SEXP a, SEXP b)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">SEXP&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="dtrMatrix_8c.html#a11">dtrMatrix_dgeMatrix_mm_R</a> (SEXP a, SEXP b)</td></tr>
 
 </table>
 <hr><h2>Function Documentation</h2>
-<a class="anchor" name="a8" doxytag="dtrMatrix.c::dtrMatrix_as_dgeMatrix"></a><p>
+<a class="anchor" name="a7" doxytag="dtrMatrix.c::dtrMatrix_as_dgeMatrix"></a><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -67,7 +65,7 @@
     </td>
   </tr>
 </table>
-<a class="anchor" name="a9" doxytag="dtrMatrix.c::dtrMatrix_as_matrix"></a><p>
+<a class="anchor" name="a8" doxytag="dtrMatrix.c::dtrMatrix_as_matrix"></a><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -95,7 +93,7 @@
     </td>
   </tr>
 </table>
-<a class="anchor" name="a11" doxytag="dtrMatrix.c::dtrMatrix_dgeMatrix_mm"></a><p>
+<a class="anchor" name="a10" doxytag="dtrMatrix.c::dtrMatrix_dgeMatrix_mm"></a><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -132,7 +130,7 @@
     </td>
   </tr>
 </table>
-<a class="anchor" name="a12" doxytag="dtrMatrix.c::dtrMatrix_dgeMatrix_mm_R"></a><p>
+<a class="anchor" name="a11" doxytag="dtrMatrix.c::dtrMatrix_dgeMatrix_mm_R"></a><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -169,7 +167,7 @@
     </td>
   </tr>
 </table>
-<a class="anchor" name="a10" doxytag="dtrMatrix.c::dtrMatrix_getDiag"></a><p>
+<a class="anchor" name="a9" doxytag="dtrMatrix.c::dtrMatrix_getDiag"></a><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -401,43 +399,6 @@
     </td>
   </tr>
 </table>
-<a class="anchor" name="a7" doxytag="dtrMatrix.c::make_array_triangular"></a><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">void make_array_triangular           </td>
-          <td class="md" valign="top">(&nbsp;</td>
-          <td class="md" nowrap valign="top">double *&nbsp;</td>
-          <td class="mdname" nowrap> <em>to</em>, </td>
-        </tr>
-        <tr>
-          <td class="md" nowrap align="right"></td>
-          <td class="md"></td>
-          <td class="md" nowrap>SEXP&nbsp;</td>
-          <td class="mdname" nowrap> <em>from</em></td>
-        </tr>
-        <tr>
-          <td class="md"></td>
-          <td class="md">)&nbsp;</td>
-          <td class="md" colspan="2"></td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-    </td>
-  </tr>
-</table>
 <a class="anchor" name="a3" doxytag="dtrMatrix.c::set_rcond"></a><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
@@ -475,7 +436,7 @@
     </td>
   </tr>
 </table>
-<hr size="1"><address style="align: right;"><small>Generated on Fri Feb 18 08:49:35 2005 for Matrix by&nbsp;
+<hr size="1"><address style="align: right;"><small>Generated on Tue Mar 1 16:58:11 2005 for Matrix by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.1 </small></address>
 </body>

@@ -23,8 +23,8 @@ int coef_length(int nf, const int nc[])
 }
 
 /** 
- * Calculate the zero-based index in a packed lower triangular matrix.  This is
- * used for the arrays of blocked sparse matrices.
+ * Calculate the zero-based index in a row-wise packed lower triangular matrix.
+ * This is used for the arrays of blocked sparse matrices.
  * 
  * @param i column number (zero-based)
  * @param k row number (zero-based)
@@ -35,7 +35,7 @@ static R_INLINE
 int Lind(int k, int i)
 {
     if (k < i) error("Lind(k = %d, i = %d) must have k >= i", k, i);
-    return (i * (i + 1))/2 + k;
+    return (k * (k + 1))/2 + i;
 }
 
 /** 
@@ -105,7 +105,7 @@ int Tind(const int rowind[], const int colptr[], int i, int j)
 	if (rowind[k] == i) return k;
     error("row %d and column %d not defined in rowind and colptr",
 	  i, j);
-    return -1;			/* to keep -Wall happy */
+    return -1;			/* -Wall */
 }
 
 /** 
@@ -123,7 +123,7 @@ lmer_crosstab(SEXP flist, int nobs, const int nc[])
     int i, nf = length(flist);
     int npairs = (nf * (nf + 1))/2;
     SEXP val = PROTECT(allocVector(VECSXP, npairs));
-    SEXP cscbCl = MAKE_CLASS("cscBlocked");
+    SEXP cscbCl = PROTECT(MAKE_CLASS("cscBlocked"));
     int *Ti = Calloc(nobs, int),
 	*nlevs = Calloc(nf, int),
 	**zb = Calloc(nf, int*); /* zero-based indices */
@@ -161,7 +161,7 @@ lmer_crosstab(SEXP flist, int nobs, const int nc[])
     
     for (i = 0; i < nf; i++) Free(zb[i]);
     Free(zb); Free(nlevs); Free(ones); Free(Ti); Free(Tx);
-    UNPROTECT(1);
+    UNPROTECT(2);
     return val;
 }
 
@@ -1532,3 +1532,24 @@ SEXP lmer_variances(SEXP x)
     return Omg;
 }
 
+SEXP lmer_Crosstab(SEXP flist)
+{
+    SEXP val;
+    int i, nf = length(flist), nobs;
+    int *nc = Calloc(nf, int);
+
+    if (!(nf > 0 && isNewList(flist)))
+	error("flist must be a non-empty list");
+    nobs = length(VECTOR_ELT(flist, 0));
+    if (nobs < 1) error("flist[[0]] must be a non-null factor");
+    for (i = 0; i < nf; i++) {
+	SEXP fi = VECTOR_ELT(flist, i);
+	if (!(isFactor(fi) && length(fi) == nobs))
+	    error("flist[[%d]] must be a factor of length %d",
+		  i + 1, nobs);
+	nc[i] = 1;
+    }
+    val = lmer_crosstab(flist, nobs, nc);
+    Free(nc);
+    return val;
+}

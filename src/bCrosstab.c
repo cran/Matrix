@@ -27,19 +27,19 @@ SEXP alloc3Darray(int TYP, int nr, int nc, int nf)
 }
 
 /** 
- * Calculate the zero-based index in a row-wise packed lower
- * triangular matrix.  This is used for the arrays of blocked sparse matrices.
+ * Calculate the zero-based index in a row-wise packed lower triangular matrix.
+ * This is used for the arrays of blocked sparse matrices.
  * 
- * @param i row number (0-based)
- * @param k column number (0-based)
+ * @param i column number (zero-based)
+ * @param k row number (zero-based)
  * 
- * @return The 0-based index of the (i,k) element of a row-wise packed lower
- * triangular matrix.
+ * @return The index of the (k,i) element of a packed lower triangular matrix
  */    
-static R_INLINE int
-Lind(int i, int k)
+static R_INLINE
+int Lind(int k, int i)
 {
-    return (i * (i + 1))/2 + k;
+    if (k < i) error("Lind(k = %d, i = %d) must have k >= i", k, i);
+    return (k * (k + 1))/2 + i;
 }
 
 /** 

@@ -1,3 +1,14 @@
+2005-01-24  Douglas Bates  <bates@bates7>
+
+	* src/Makefile (clean): Remove *.a and *.so
+
+	* man/cscBlocked-class.Rd: Remove reference to the lmer-class.
+
+2005-01-23  Douglas Bates  <bates@bates7>
+
+	* src/lmer.c (Lind): Definition of Lind was backwards.  This only
+	had an effect in cases with more than 2 grouping factors.
+
 2005-01-03  Douglas Bates  <bates@bates1-home>
 
 	* src/lmeRep.c (lmer_variances): change from lmeRep to lmer

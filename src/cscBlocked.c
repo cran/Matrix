@@ -177,8 +177,8 @@ cscb_syrk(enum CBLAS_UPLO uplo, enum CBLAS_TRANSPOSE trans,
 
     if (cdims[0] != cdims[1]) error("blocks in C must be square");
     if (trans == TRN) {
-	error("Code for trans == 'T' not yet written");
 				/* FIXME: Write this part */
+	error("Code for trans == 'T' not yet written");
     } else {
 	if (adims[0] != cdims[0])
 	    error("Inconsistent dimensions: A[%d,%d,%d], C[%d,%d,%d]",
@@ -221,8 +221,11 @@ cscb_syrk(enum CBLAS_UPLO uplo, enum CBLAS_TRANSPOSE trans,
 }
 
 /** 
- * Create the LDL' decomposition of the positive definite symmetric
- * cscBlocked matrix A (upper triangle stored) in L and D.
+ * Create the LD^{T/2}D^{1/2}L' decomposition of the positive definite
+ * symmetric cscBlocked matrix A (upper triangle stored) in L and
+ * D^{1/2}.  The notation D^{1/2} denotes the upper Cholesky factor of
+ * the positive definite positive definite block diagonal matrix D.
+ * The diagonal blocks are of size nci.
  * 
  * @param A pointer to a cscBlocked object containing the upper
  * triangle of a positive definite symmetric matrix.
@@ -314,11 +317,11 @@ cscb_ldl(SEXP A, const int Parent[], SEXP L, SEXP D)
 				    &one, Y + Li[p]*ncisqr, &nci);
 		}
 		/* FIXME: Check that this is the correct order and transposition */
-		F77_CALL(dtrsm)("L", "U", "N", "N", &nci, &nci,
+		F77_CALL(dtrsm)("R", "U", "N", "N", &nci, &nci,
 				&one, Dx + i*ncisqr, &nci, Yi, &nci);
 		F77_CALL(dsyrk)("U", "N", &nci, &nci, &minus1, Yi, &nci,
 				&one, Dx + k*ncisqr, &nci);
-		F77_CALL(dtrsm)("L", "U", "T", "N", &nci, &nci,
+		F77_CALL(dtrsm)("R", "U", "T", "N", &nci, &nci,
 				&one, Dx + i*ncisqr, &nci, Yi, &nci);
 		Li[p] = k;	/* store L[k,i] in column form of L */
 		Memcpy(Lx + p * ncisqr, Yi, ncisqr);
@@ -355,12 +358,12 @@ cscb_trmm(enum CBLAS_SIDE side, enum CBLAS_UPLO uplo,
 	  enum CBLAS_TRANSPOSE transa, enum CBLAS_DIAG diag,
 	  double alpha, SEXP A, double B[], int m, int n, int ldb)
 {
-    SEXP ApP = GET_SLOT(A, Matrix_pSym),
+    SEXP /* ApP = GET_SLOT(A, Matrix_pSym), */
 	AxP = GET_SLOT(A, Matrix_xSym);
-    int *Ai = INTEGER(GET_SLOT(A, Matrix_iSym)),
-	*Ap = INTEGER(ApP),
+    int /* *Ai = INTEGER(GET_SLOT(A, Matrix_iSym)), */
+/* 	*Ap = INTEGER(ApP), */
 	*xdims = INTEGER(getAttrib(AxP, R_DimSymbol)),
-	i, j, nb = length(ApP) - 1;
+	i, j/* , nb = length(ApP) - 1 */;
     
     if (xdims[0] != xdims[1])
 	error("Argument A to cscb_trmm is not triangular");
@@ -479,20 +482,21 @@ cscb_trcbm(enum CBLAS_SIDE side, enum CBLAS_UPLO uplo,
 	   enum CBLAS_TRANSPOSE transa, enum CBLAS_DIAG diag,
 	   double alpha, SEXP A, SEXP B)
 {
-    int
-	iunit = (diag == UNT);
-    SEXP ApP = GET_SLOT(A, Matrix_pSym),
+    SEXP
+/* 	ApP = GET_SLOT(A, Matrix_pSym), */
 	AxP = GET_SLOT(A, Matrix_xSym),
-	BpP = GET_SLOT(B, Matrix_pSym),
-	BxP = GET_SLOT(B, Matrix_xSym);
-    int *Ai = INTEGER(GET_SLOT(A, Matrix_iSym)),
-	*Ap = INTEGER(ApP),
-	*Bi = INTEGER(GET_SLOT(B, Matrix_iSym)),
-	*Bp = INTEGER(BpP),
+/*	, BpP = GET_SLOT(B, Matrix_pSym) */
+ 	BxP = GET_SLOT(B, Matrix_xSym);
+    int
+/* 	*Ai = INTEGER(GET_SLOT(A, Matrix_iSym)), */
+/* 	*Ap = INTEGER(ApP), */
+/* 	*Bi = INTEGER(GET_SLOT(B, Matrix_iSym)), */
+/* 	*Bp = INTEGER(BpP), */
 	*axdims = INTEGER(getAttrib(AxP, R_DimSymbol)),
-	*bxdims = INTEGER(getAttrib(BxP, R_DimSymbol)),
-	ncbA = length(ApP) - 1,
-	ncbB = length(BpP) - 1;
+ 	*bxdims = INTEGER(getAttrib(BxP, R_DimSymbol)) 
+/* 	, ncbA = length(ApP) - 1 */
+/* 	, ncbB = length(BpP) - 1 */
+	;
     int i, nbx = bxdims[0] * bxdims[1] * bxdims[2];
 
     if (axdims[0] != axdims[1])
@@ -556,7 +560,7 @@ cscb_trcbsm(enum CBLAS_SIDE side, enum CBLAS_UPLO uplo,
 	*Bp = INTEGER(BpP),
 	*axdims = INTEGER(getAttrib(AxP, R_DimSymbol)),
 	*bxdims = INTEGER(getAttrib(BxP, R_DimSymbol)),
-	ncbA = length(ApP) - 1,
+/* 	ncbA = length(ApP) - 1, */
 	ncbB = length(BpP) - 1;
     int i, j, nbx = bxdims[0] * bxdims[1] * bxdims[2];
     double *Ax = REAL(AxP), *Bx = REAL(BxP);
@@ -671,4 +675,75 @@ cscb_cscbm(enum CBLAS_TRANSPOSE transa, enum CBLAS_TRANSPOSE transb,
 	return;
     }
     error("Code not yet written");
+}
+
+SEXP cscBlocked_2cscMatrix(SEXP A)
+{
+    SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("cscMatrix"))),
+	ApP = GET_SLOT(A, Matrix_pSym),
+	AiP = GET_SLOT(A, Matrix_iSym),
+	AxP = GET_SLOT(A, Matrix_xSym);
+    int *Ai = INTEGER(AiP), *Ap = INTEGER(ApP), *Bi, *Bp, *Dims,
+	*adims = INTEGER(getAttrib(AxP, R_DimSymbol)),
+	ii, j, ncb = length(ApP) - 1, nnz, nrb;
+    int nc = adims[1], nr = adims[0];
+    int sz = nc * nr;
+    double *Ax = REAL(AxP), *Bx;
+
+    SET_SLOT(val, Matrix_factorization, allocVector(VECSXP, 0));
+    SET_SLOT(val, Matrix_DimSym, allocVector(INTSXP, 2));
+    Dims = INTEGER(GET_SLOT(val, Matrix_DimSym));
+    Dims[1] = ncb * adims[1];
+				/* find number of row blocks */
+    for (j = 0, nrb = -1; j < adims[2]; j++) if (Ai[j] > nrb) nrb = Ai[j];
+    Dims[0] = nrb * adims[0];
+    nnz = length(AxP);
+
+    if (nc == 1) {		/* x slot is in the correct order */
+	SET_SLOT(val, Matrix_pSym, duplicate(ApP));
+	SET_SLOT(val, Matrix_iSym, allocVector(INTSXP, nnz));
+	SET_SLOT(val, Matrix_xSym, allocVector(REALSXP, nnz));
+	Memcpy(REAL(GET_SLOT(val, Matrix_xSym)), Ax, nnz);
+	if (nr == 1) {
+	    Memcpy(INTEGER(GET_SLOT(val, Matrix_iSym)), Ai, nnz);
+	} else {
+	    Bi = INTEGER(GET_SLOT(val, Matrix_iSym));
+	    Bp = INTEGER(GET_SLOT(val, Matrix_pSym));
+	    for (j = 0; j <= ncb; j++) Bp[j] *= nr;
+	    for (j = 0; j < adims[2]; j++) {
+		for (ii = 0; ii < nr; ii++) {
+		    Bi[j * nr + ii] = Ai[j] * nr + ii;
+		}
+	    }
+	}
+    } else {
+	SET_SLOT(val, Matrix_pSym, allocVector(INTSXP, Dims[1] + 1));
+	Bp = INTEGER(GET_SLOT(val, Matrix_pSym));
+	SET_SLOT(val, Matrix_iSym, allocVector(INTSXP, nnz));
+	Bi = INTEGER(GET_SLOT(val, Matrix_iSym));
+	SET_SLOT(val, Matrix_xSym, allocVector(REALSXP, nnz));
+	Bx = REAL(GET_SLOT(val, Matrix_xSym));
+
+	Bp[0] = 0;
+	for (j = 0; j < ncb; j++) { /* Column blocks of A */
+	    int i, i1 = Ap[j], i2 = Ap[j + 1], jj;
+	    int nzbc = (i2 - i1) * nr; /* No. of non-zeroes in B column */
+
+	    for (jj = 0; jj < nc; jj++) { /* column within blocks */
+		int jb = nc * j + jj; /* Column number in B */
+
+		Bp[jb] = i1 * sz + jj * nzbc;
+		for (i = i1; i < i2; i++) { /* index in Ai and Ax */
+		    for (ii = 0; ii < adims[0]; ii++) {	/* row within blocks */
+			int ind = ii + (i - i1) * nr + Bp[jb];
+
+			Bi[ind] = Ai[i] * sz + jj * nzbc + ii;
+			Bx[ind] = Ax[i * sz + jj * nc + ii];
+		    }
+		}
+	    }
+	}
+    }
+    UNPROTECT(1);
+    return val;
 }

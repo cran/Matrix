@@ -23,7 +23,7 @@ $(SUBLIBS):
 
 clean:
 	@-rm -rf .libs _libs
-	@-rm -f *.o
+	@-rm -f *.o *.so *.a
 	@for d in $(SUBDIRS); do \
 	  (cd $${d} && $(MAKE) clean) || exit 1; \
 	done

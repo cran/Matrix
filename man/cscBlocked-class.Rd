@@ -16,7 +16,7 @@
   \code{cscMatrix} class except that each nonzero "element" is itself a
   dense matrix with a given number of rows and columns.  These objects
   are used in the representation of linear mixed-effects model
-  structures, \code{lmer}.
+  structures in the \code{lme4} package.
 }
 \section{Slots}{
   \describe{
@@ -42,7 +42,7 @@
 %\author{}
 %\note{}
 \seealso{
- \code{\link{cscMatrix-class}}, \code{\link{lmer-class}}
+ \code{\link{cscMatrix-class}}
 }
 %\examples{}
 \keyword{classes}

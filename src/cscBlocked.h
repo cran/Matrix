@@ -30,4 +30,5 @@ void cscb_cscbm(enum CBLAS_TRANSPOSE transa, enum CBLAS_TRANSPOSE transb,
 void cscb_mm(enum CBLAS_SIDE side, enum CBLAS_TRANSPOSE transa,
 	     int m, int n, int k, double alpha, SEXP A,
 	     const double B[], int ldb, double beta, double C[], int ldc);
+SEXP cscBlocked_2cscMatrix(SEXP A);
 #endif

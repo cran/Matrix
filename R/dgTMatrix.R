@@ -7,6 +7,82 @@ setAs("dgTMatrix", "dgeMatrix",
 setAs("dgTMatrix", "matrix",
       function(from) .Call("dgTMatrix_to_matrix", from) )
 
+setAs("dgeMatrix", "dgTMatrix",
+      function(from) as(as(from, "dgCMatrix"), "dgTMatrix"))
+
+setMethod("[", signature(x = "dgTMatrix",
+			 i = "missing", j = "missing", drop = "ANY"),
+	  function (x, i, j, ..., drop) x)
+
+setMethod("[", signature(x = "dgTMatrix", i = "numeric", j = "missing",
+			 drop = "logical"),
+	  function (x, i, j, ..., drop) { ## select rows
+	      storage.mode(i) <- "integer"
+              xi <- x@i + 1:1 # 1-indexing
+	      sel <- xi %in% i
+              nd <- c(length(i), ncol(x))
+	      x <- new("dgTMatrix", Dim = nd,
+		       i = match(xi[sel], i) - 1:1,
+		       j = x@j[sel],
+		       x = x@x[sel])
+	      if (drop && any(nd == 1)) drop(as(x,"matrix")) else x
+	  })
+
+
+setMethod("[", signature(x = "dgTMatrix", i = "missing", j = "numeric",
+			 drop = "logical"),
+	  function (x, i, j, ..., drop) { ## select columns
+	      storage.mode(j) <- "integer"
+              xj <- x@j + 1:1 # 1-indexing
+	      sel <- xj %in% j
+              nd <- c(nrow(x), length(j))
+	      x <- new("dgTMatrix", Dim = nd,
+		       i = x@i[sel],
+		       j = match(xj[sel], j) - 1:1,
+		       x = x@x[sel])
+	      if (drop && any(nd == 1)) drop(as(x,"matrix")) else x
+	  })
+
+
+## How can we get at   A[ ij ]	where ij is (i,j) 2-column matrix?
+##  and                A[ LL ]	where LL is a logical *vector*
+
+setMethod("[", signature(x = "dgTMatrix", i = "numeric", j = "missing",
+			 drop = "missing"),
+	  function(x,i,j, ..., drop)
+	  callGeneric(x, i=i, drop = TRUE)# or rather 'FALSE' ?
+	  )
+setMethod("[", signature(x = "dgTMatrix", i = "missing", j = "numeric",
+			 drop = "missing"),
+	  function(x,i,j, ..., drop)
+	  callGeneric(x, j=j, drop = TRUE)# or rather 'FALSE' ?
+	  )
+
+## [.data.frame has : drop = if (missing(i)) TRUE else length(cols) == 1)
+
+setMethod("[", signature(x = "dgTMatrix",
+			 i = "numeric", j = "numeric", drop = "logical"),
+	  function (x, i, j, ..., drop)
+      {
+	  ## (i,j, drop) all specified
+	  storage.mode(i) <- "integer"
+	  storage.mode(j) <- "integer"
+          xi <- x@i + 1:1
+          xj <- x@j + 1:1
+	  sel <- (xi %in% i) & (xj %in% j)
+          nd <- c(length(i), length(j))
+          x <- new("dgTMatrix", Dim = nd,
+                   i = match(xi[sel], i) - 1:1,
+                   j = match(xj[sel], j) - 1:1,
+                   x = x@x[sel])
+          if (drop && any(nd == 1)) drop(as(x,"matrix")) else x
+      })
+
+setMethod("[", signature(x = "dgTMatrix",
+			 i = "numeric", j = "numeric", drop = "missing"),
+	  function(x,i,j, drop) callGeneric(x,i,j,drop= TRUE))
+
+
 setMethod("crossprod", signature(x = "dgTMatrix", y = "missing"),
           function(x, y = NULL)
           .Call("csc_crossprod", as(x, "dgCMatrix")))

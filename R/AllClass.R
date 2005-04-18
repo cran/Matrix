@@ -31,8 +31,9 @@ setClass("iMatrix",
          representation(x = "integer", "VIRTUAL"), contains = "Matrix")
 
 # Virtual class of logical matrices
-setClass("lMatrix",
-         representation(x = "logical", "VIRTUAL"), contains = "Matrix")
+setClass("lMatrix", representation("VIRTUAL"), contains = "Matrix")
+## Note that logical sparse matrices do not need an x slot so the x
+## slot is part of the ldenseMatrix class
 
 # Virtual class of complex matrices
 setClass("zMatrix", # letter 'z' is as in the names of Lapack subroutines
@@ -43,11 +44,18 @@ setClass("ddenseMatrix",
          representation(rcond = "numeric", factors = "list", "VIRTUAL"),
          contains = "dMatrix")
 
+# Virtual class of dense, logical matrices
+setClass("ldenseMatrix",
+         representation(x = "logical", factors = "list", "VIRTUAL"),
+         contains = "lMatrix")
+
 ## virtual SPARSE ------------
 
 setClass("sparseMatrix", contains = "Matrix")# "VIRTUAL"
 
 setClass("dsparseMatrix", contains = c("dMatrix", "sparseMatrix"))# "VIRTUAL"
+
+setClass("lsparseMatrix", contains = c("lMatrix", "sparseMatrix"))# "VIRTUAL"
 
 ## ------------------ Proper (non-virtual) Classes ----------------------------
 
@@ -104,6 +112,8 @@ setClass("dppMatrix", contains = "dspMatrix",
 
 ##-------------------- S P A R S E (non-virtual) --------------------------
 
+##---------- numeric sparse matrix classes --------------------------------
+    
 # numeric, sparse, triplet general matrices
 setClass("dgTMatrix",
          representation(i = "integer", j = "integer", factors = "list"),
@@ -167,9 +177,80 @@ setClass("dsRMatrix",
          validity = function(object) .Call("dsRMatrix_validate", object)
          )
 
+##---------- logical sparse matrix classes --------------------------------
+
+## these classes are used in symbolic analysis to determine the
+## locations of non-zero entries 
+
+# logical, sparse, triplet general matrices
+setClass("lgTMatrix",
+         representation(i = "integer", j = "integer"),
+         contains = "lsparseMatrix",
+         validity = function(object) .Call("lgTMatrix_validate", object)
+         )
+
+# logical, sparse, triplet triangular matrices
+setClass("ltTMatrix",
+         representation(uplo = "character", diag = "character"),
+         contains = "lgTMatrix",
+         validity = function(object) .Call("ltTMatrix_validate", object)
+         )
+
+# logical, sparse, triplet symmetric matrices
+setClass("lsTMatrix",
+         representation(uplo = "character"),
+         contains = "lgTMatrix",
+         validity = function(object) .Call("lsTMatrix_validate", object)
+         )
+
+# logical, sparse, sorted compressed sparse column-oriented general matrices
+setClass("lgCMatrix",
+         representation(i = "integer", p = "integer"),
+         contains = "lsparseMatrix",
+         validity = function(object) .Call("lgCMatrix_validate", object)
+         )
+
+# logical, sparse, sorted compressed sparse column-oriented triangular matrices
+setClass("ltCMatrix",
+         representation(uplo = "character", diag = "character"),
+         contains = "lgCMatrix",
+         validity = function(object) .Call("ltCMatrix_validate", object)
+         )
+
+# logical, sparse, sorted compressed sparse column-oriented symmetric matrices
+setClass("lsCMatrix",
+         representation(uplo = "character"),
+         contains = "lgCMatrix",
+         validity = function(object) .Call("lsCMatrix_validate", object)
+         )
+
+# logical, sparse, sorted compressed sparse row-oriented general matrices
+setClass("lgRMatrix",
+         representation(j = "integer", p = "integer"),
+         contains = "lsparseMatrix",
+         validity = function(object) .Call("lgRMatrix_validate", object)
+         )
+
+# logical, sparse, sorted compressed sparse row-oriented triangular matrices
+setClass("ltRMatrix",
+         representation(uplo = "character", diag = "character"),
+         contains = "lgRMatrix",
+         validity = function(object) .Call("ltRMatrix_validate", object)
+         )
+
+# logical, sparse, sorted compressed sparse row-oriented symmetric matrices
+setClass("lsRMatrix",
+         representation(uplo = "character"),
+         contains = "lgRMatrix",
+         validity = function(object) .Call("lsRMatrix_validate", object)
+         )
+
 ## Compressed sparse column matrix in blocks
+
 setClass("dgBCMatrix",
          representation(p = "integer", i = "integer", x = "array"))
+
+## Factorization classes
 
 setClass("Cholesky", contains = "dtrMatrix")
 

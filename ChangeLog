@@ -1,3 +1,42 @@
+2005-04-18  Douglas Bates  <bates@bates1-home>
+
+	* src/lgCMatrix.[ch]: code for _validate method and stub for
+	multiplication operation.
+
+	* src/dgeMatrix.c (dgeMatrix_matrix_solve): Passing wrong argument
+	to dgetrs.
+
+	* src/init.c: Fix cut-and-paste error in definition of
+	dgeMatrix_matrix_solve
+
+	* src/{many files}: Tighten code by using ALLOC_SLOT.
+
+2005-04-15  Douglas Bates  <bates@bates1-home>
+
+	* R/AllClass.R: Add lgTMatrix and lgCMatrix classes
+
+	* DESCRIPTION: Eliminate import of stats.
+	
+
+2005-04-06  Douglas Bates  <bates@bates1-home>
+
+	* R/AllClass.R : add logical sparse matrix classes
+
+2005-04-01  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/dgTMatrix.R: add "[" method for triplet matrices
+	* R/sparseMatrix.R: and other sparse ones; --> add show() for sparse
+
+2005-03-31  Douglas Bates  <bates@bates1-home>
+
+	* DESCRIPTION (Version): release 0.95-5 to CRAN
+
+	* R/dMatrix.R: add %*%, crossprod and solve "fallback" methods
+	* R/sparseMatrix.R: %*%, crossprod()
+	* R/dgeMatrix.R: more "fallback" methods for numeric/dense matrices
+	* man/*.Rd: move method definitions to 'Matrix' and 'dMatrix'
+	* src/lmer.c (lmer_fitted): fix thinko
+
 2005-03-26  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/AllClass.R: add two virtual sparse classes ``on top''

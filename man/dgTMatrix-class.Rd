@@ -6,6 +6,7 @@
 \alias{coerce,dgTMatrix,dgeMatrix-method}
 \alias{coerce,dgTMatrix,dsCMatrix-method}
 \alias{coerce,dgTMatrix,matrix-method}
+\alias{coerce,dgeMatrix,dgTMatrix-method}
 \alias{coerce,matrix,dgTMatrix-method}
 \alias{crossprod,dgTMatrix,missing-method}
 \alias{crossprod,dgTMatrix,matrix-method}
@@ -57,6 +58,12 @@ Objects can be created by calls of the form \code{new("dgTMatrix", ...)}.
 \seealso{
   \code{\link{dgCMatrix-class}}
 }
-%\examples{}
+\examples{
+m <- Matrix(1:28, nrow = 4)
+(mT <- as(m, "dgTMatrix"))
+
+mT[1,]
+mT[4, drop = FALSE]
+}
 \keyword{classes}
 \keyword{algebra}

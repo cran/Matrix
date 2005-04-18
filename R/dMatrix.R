@@ -11,31 +11,26 @@ setAs("dMatrix", "matrix",
       function(from) as(as(from, "dgeMatrix"), "matrix"))
 
 ## Methods for operations where one argument is integer
+## No longer made use of (and confusing hence) since R version 2.1.0
+## where "integer" goes as part ofa "numeric"
 
-setMethod("%*%", signature(x = "dMatrix", y = "integer"),
-          function(x, y)
-          callGeneric(x, array(as.numeric(y), c(length(y), 1))),
-          valueClass = "dgeMatrix")
+## Note: Use as.matrix() {not directly array()} :
+##  1) to ensure consistency with "numeric" (non-matrix)
+##  2) names -> dimnames {potentially}
+## setMethod("%*%", signature(x = "dMatrix", y = "integer"),
+##           function(x, y) callGeneric(x, as.numeric(y)))
 
-setMethod("%*%", signature(x = "integer", y = "dMatrix"),
-          function(x, y)
-          callGeneric(array(as.numeric(x), c(1, length(x))), y),
-          valueClass = "dgeMatrix")
+## setMethod("%*%", signature(x = "integer", y = "dMatrix"),
+##           function(x, y) callGeneric(as.numeric(x), y))
 
-setMethod("crossprod", signature(x = "dMatrix", y = "integer"),
-          function(x, y = NULL)
-          callGeneric(x, array(as.numeric(y), c(length(y), 1))),
-          valueClass = "dgeMatrix")
+## setMethod("crossprod", signature(x = "dMatrix", y = "integer"),
+##           function(x, y = NULL) callGeneric(x, as.numeric(y)))
 
-setMethod("crossprod", signature(x = "integer", y = "dMatrix"),
-          function(x, y = NULL)
-          callGeneric(array(as.numeric(x), c(1, length(x))), y),
-          valueClass = "dgeMatrix")
+## setMethod("crossprod", signature(x = "integer", y = "dMatrix"),
+##           function(x, y = NULL) callGeneric(as.numeric(x), y))
 
-setMethod("solve", signature(a = "dMatrix", b = "integer"),
-          function(a, b, ...)
-          callGeneric(a, array(as.numeric(b), c(length(b), 1))),
-          valueClass = "dgeMatrix")
+## setMethod("solve", signature(a = "dMatrix", b = "integer"),
+##           function(a, b, ...) callGeneric(a, as.numeric(b)))
 
 
 ## Group Methods, see ?Arith (e.g.)

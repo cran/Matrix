@@ -28,6 +28,8 @@ lu                      Triangular Decomposition of a Square Matrix
 LU-class                LU Matrix Decompositions
 Matrix                  Construct a Classed Matrix
 Matrix-class            Virtual Class "Matrix" Class of Matrices
+[-methods               Methods for "[": Extraction or Subsetting in
+                        Package 'Matrix'.
 mm                      A sample sparse model matrix
 norm                    Norm of a Matrix
 pdmatrix-class          Positive-definite matrices

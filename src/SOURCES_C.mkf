@@ -22,6 +22,8 @@ SOURCES_C =  \
             dtrMatrix.c \
             dtpMatrix.c \
             factorizations.c \
+	    lgCMatrix.c \
+	    lgTMatrix.c \
             sscCrosstab.c \
             ssclme.c \
             triplet_to_col.c

@@ -116,7 +116,7 @@ SEXP dtrMatrix_matrix_mm(SEXP a, SEXP b, SEXP classed, SEXP right)
 
     if (!cl && !(isReal(b) && isMatrix(b)))
 	error(_("Argument b must be a numeric matrix"));
-    if (adims[0] != adims[1]) error(_("dtrMatrix in \%*\% must be square"));
+    if (adims[0] != adims[1]) error(_("dtrMatrix in %*% must be square"));
     m = rt ? bdims[0] : adims[0];
     n = rt ? adims[1] : bdims[1];
     if ((rt && (adims[0] != m)) || (!rt && (bdims[0] != m)))

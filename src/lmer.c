@@ -90,15 +90,12 @@ lmer_crosstab(SEXP flist, int nobs, const int nc[])
 	    int *ijp, ind = Lind(i, j), nnz;
 	    SEXP ZZij;
 
-	    SET_VECTOR_ELT(val, ind, NEW_OBJECT(cscbCl));
-	    ZZij = VECTOR_ELT(val, ind);
-	    SET_SLOT(ZZij, Matrix_pSym, allocVector(INTSXP, nlevs[j] + 1));
-	    ijp = INTEGER(GET_SLOT(ZZij, Matrix_pSym));
+	    SET_VECTOR_ELT(val, ind, ZZij = NEW_OBJECT(cscbCl));
+	    ijp = INTEGER(ALLOC_SLOT(ZZij, Matrix_pSym, INTSXP, nlevs[j] + 1));
 	    triplet_to_col(nlevs[i], nlevs[j], nobs, zb[i], zb[j], ones,
 			   ijp, Ti, Tx);
 	    nnz = ijp[nlevs[j]];
-	    SET_SLOT(ZZij, Matrix_iSym, allocVector(INTSXP, nnz));
-	    Memcpy(INTEGER(GET_SLOT(ZZij, Matrix_iSym)), Ti, nnz);
+	    Memcpy(INTEGER(ALLOC_SLOT(ZZij, Matrix_iSym, INTSXP, nnz)), Ti, nnz);
 	    SET_SLOT(ZZij, Matrix_xSym, alloc3Darray(REALSXP, nc[i], nc[j], nnz));
 	    /* The crosstab counts are copied into the first nnz elements */
 	    /* of the x slot.  These aren't the correct array positions */
@@ -243,8 +240,7 @@ SEXP lmer_create(SEXP flist, SEXP mmats)
 				/* Check mmats; allocate and populate nc */
     if (!(isNewList(mmats) && length(mmats) == (nf + 1)))
 	error(_("mmats must be a list of length %d"), nf + 1);
-    SET_SLOT(val, Matrix_ncSym, allocVector(INTSXP, nf + 2));
-    nc = INTEGER(GET_SLOT(val, Matrix_ncSym));
+    nc = INTEGER(ALLOC_SLOT(val, Matrix_ncSym, INTSXP, nf + 2));
     nc[nf + 1] = nobs;
     for (i = 0; i <= nf; i++) {
 	SEXP mi = VECTOR_ELT(mmats, i);
@@ -267,8 +263,7 @@ SEXP lmer_create(SEXP flist, SEXP mmats)
      * number of levels (columns?) in the leading nested sequence. */
     fnms = getAttrib(flist, R_NamesSymbol);
 				/* Allocate and populate cnames */
-    SET_SLOT(val, Matrix_cnamesSym, allocVector(VECSXP, nf + 1));
-    cnames = GET_SLOT(val, Matrix_cnamesSym);
+    cnames = ALLOC_SLOT(val, Matrix_cnamesSym, VECSXP, nf + 1);
     setAttrib(cnames, R_NamesSymbol, allocVector(STRSXP, nf + 1));
     nms = getAttrib(cnames, R_NamesSymbol);
     for (i = 0; i <= nf; i++) {
@@ -1507,7 +1502,7 @@ SEXP lmer_Crosstab(SEXP flist)
     if (!(nf > 0 && isNewList(flist)))
 	error(_("flist must be a non-empty list"));
     nobs = length(VECTOR_ELT(flist, 0));
-    if (nobs < 1) error(_("flist[[0]] must be a non-null factor"));
+    if (nobs < 1) error(_("flist[[1]] must be a non-null factor"));
     for (i = 0; i < nf; i++) {
 	SEXP fi = VECTOR_ELT(flist, i);
 	if (!(isFactor(fi) && length(fi) == nobs))

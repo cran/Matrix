@@ -21,6 +21,10 @@ setAs("matrix", "dgCMatrix",
           .Call("matrix_to_csc", from)
       })
 
+setAs("dgeMatrix", "dgCMatrix", # dgeM* is "double":
+      function(from) .Call("matrix_to_csc", as(from, "matrix")))
+
+
 setMethod("crossprod", signature(x = "dgCMatrix", y = "missing"),
           function(x, y = NULL) .Call("csc_crossprod", x),
           valueClass = "dsCMatrix")
@@ -36,6 +40,9 @@ setMethod("crossprod", signature(x = "dgCMatrix", y = "matrix"),
 ##setMethod("crossprod", signature(x = "dgCMatrix", y = "numeric"),
 ##          function(x, y = NULL) callGeneric(x, as.matrix(y)),
 ##          valueClass = "dgeMatrix")
+
+## setMethod("crossprod", signature(x = "dgCMatrix", y = "numeric"),
+##           function(x, y = NULL) .Call("csc_matrix_crossprod", x, as.matrix(y)))
 
 setMethod("tcrossprod", signature(x = "dgCMatrix"),
           function(x) .Call("csc_tcrossprod", x))

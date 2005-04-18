@@ -190,18 +190,21 @@ void csc_sort_columns(int ncol, const int p[], int i[], double x[])
 	if (diff > maxdiff) maxdiff = diff;
     }
     ord = Calloc(maxdiff, int);
-    dd = Calloc(maxdiff, double);
+    if (x) dd = Calloc(maxdiff, double);
     for (j = 0; j < ncol; j++) {
 	int cLen = p[j+1] - p[j];
 	if (cLen > 1) {
 	    int k, offset = p[j];
 	    for (k = 0; k < cLen; k++) ord[k] = k;
 	    R_qsort_int_I(i + offset, ord, 1, cLen);
-	    for (k = 0; k < cLen; k++) dd[k] = x[ord[k] + offset];
-	    Memcpy(x + offset, dd, cLen);
+	    if (x) {
+	      for (k = 0; k < cLen; k++) dd[k] = x[ord[k] + offset];
+	      Memcpy(x + offset, dd, cLen);
+	    }
 	}
     }
-    Free(ord); Free(dd);
+    Free(ord);
+    if (x) Free(dd);
 }
 
 /**

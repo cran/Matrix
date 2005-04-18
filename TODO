@@ -57,3 +57,9 @@ We have a (at least one) basic problem :
     and for _crossprod()]
 
 - add more comprehensive examples / tests for Schur decomposition
+
+- arithmetic for sparse matrices:
+	     <sparseMatrix>  o  { <scalar> | <same-dim-sparseMatrix> }
+  should return a sparse matrix  for at least "+" and "*" , also %%,
+  and "/" and "%/%" at least when the RHS is non-zero a scalar.
+

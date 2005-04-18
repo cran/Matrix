@@ -3,7 +3,6 @@ useDynLib(Matrix)
 importFrom("graphics",image)
 importFrom("lattice", levelplot)
 importFrom("grid",    grid.rect, gpar, grob)
-importFrom("stats",   deviance, formula, coef)
 
 ## Currently, group generics need to be explicitly imported (Bug?):
 importFrom("methods", Arith, Compare, Math, Math2, Summary, Complex)

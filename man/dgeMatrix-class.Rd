@@ -19,6 +19,8 @@
 \alias{\%*\%,dgeMatrix,dgeMatrix-method}
 \alias{\%*\%,dgeMatrix,matrix-method}
 \alias{\%*\%,matrix,dgeMatrix-method}
+\alias{\%*\%,dgeMatrix,numeric-method}
+\alias{\%*\%,numeric,dgeMatrix-method}
 \alias{chol,dgeMatrix,ANY-method}
 \alias{coerce,matrix,dgeMatrix-method}
 \alias{coerce,dgeMatrix,matrix-method}
@@ -51,6 +53,7 @@
 \alias{solve,dgeMatrix,matrix-method}
 \alias{solve,dgeMatrix,dgeMatrix-method}
 \alias{solve,dgeMatrix,missing-method}
+\alias{solve,dgeMatrix,numeric-method}
 \alias{solve,ddenseMatrix,missing-method}
 \alias{solve,ddenseMatrix,ANY-method}
 \alias{t,dgeMatrix-method}

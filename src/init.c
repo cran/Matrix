@@ -15,6 +15,8 @@
 #include "dtrMatrix.h"
 #include "dtpMatrix.h"
 #include "factorizations.h"
+#include "lgCMatrix.h"
+#include "lgTMatrix.h"
 #include "lmer.h"
 #include "sscCrosstab.h"
 #include "ssclme.h"
@@ -55,7 +57,7 @@ static R_CallMethodDef CallEntries[] = {
     {"dgeMatrix_determinant", (DL_FUNC) &dgeMatrix_determinant, 2},
     {"dgeMatrix_dgeMatrix_crossprod", (DL_FUNC) &dgeMatrix_dgeMatrix_crossprod, 2},
     {"dgeMatrix_matrix_mm", (DL_FUNC) &dgeMatrix_matrix_mm, 4},
-    {"dgeMatrix_matrix_solve", (DL_FUNC) &dgeMatrix_matrix_mm, 3},
+    {"dgeMatrix_matrix_solve", (DL_FUNC) &dgeMatrix_matrix_solve, 3},
     {"dgeMatrix_dtpMatrix_mm", (DL_FUNC) &dgeMatrix_dtpMatrix_mm, 2},
     {"dgeMatrix_exp", (DL_FUNC) &dgeMatrix_exp, 1},
     {"dgeMatrix_getDiag", (DL_FUNC) &dgeMatrix_getDiag, 1},
@@ -126,6 +128,8 @@ static R_CallMethodDef CallEntries[] = {
     {"dtrMatrix_solve", (DL_FUNC) &dtrMatrix_solve, 1},
     {"dtrMatrix_validate", (DL_FUNC) &dtrMatrix_validate, 1},
     {"lapack_qr", (DL_FUNC) &lapack_qr, 2},
+    {"lgCMatrix_validate", (DL_FUNC) &lgCMatrix_validate, 1},
+    {"lgTMatrix_validate", (DL_FUNC) &lgTMatrix_validate, 1},
     {"lmer_Crosstab", (DL_FUNC) &lmer_Crosstab, 1},
     {"lmer_ECMEsteps", (DL_FUNC) &lmer_ECMEsteps, 4},
     {"lmer_coef", (DL_FUNC) &lmer_coef, 2},

@@ -4,6 +4,7 @@
 \alias{\%*\%,dgCMatrix,dgeMatrix-method}
 \alias{\%*\%,dgCMatrix,matrix-method}
 \alias{coerce,matrix,dgCMatrix-method}
+\alias{coerce,dgeMatrix,dgCMatrix-method}
 \alias{coerce,dgCMatrix,dgTMatrix-method}
 \alias{coerce,dgCMatrix,dgBCMatrix-method}
 \alias{coerce,dgCMatrix,matrix-method}
@@ -61,6 +62,11 @@
 \seealso{
   \code{\link{dsCMatrix-class}}, \code{\link{dtCMatrix-class}}
 }
-%\examples{}
+\examples{
+m <- Matrix(1:12, nrow = 3)
+(mC <- as(m, "dgCMatrix"))
+str(mC)
+mC[,1]
+}
 \keyword{classes}
 \keyword{algebra}

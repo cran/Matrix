@@ -82,8 +82,8 @@ SEXP dgeMatrix_crossprod(SEXP x, SEXP trans)
     SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dpoMatrix")));
     int *Dims = INTEGER(GET_SLOT(x, Matrix_DimSym)),
 	*vDims = INTEGER(ALLOC_SLOT(val, Matrix_DimSym, INTSXP, 2));
-    int i, k = tr ? Dims[1] : Dims[0], n = tr ? Dims[0] : Dims[1];
-    double one = 1.0, *xvals, zero = 0.0;
+    int k = tr ? Dims[1] : Dims[0], n = tr ? Dims[0] : Dims[1];
+    double one = 1.0, zero = 0.0;
 
     SET_SLOT(val, Matrix_uploSym, mkString("U"));
     vDims[0] = vDims[1] = n;
@@ -183,8 +183,10 @@ SEXP dgeMatrix_LU(SEXP x)
 		     dims,
 		     INTEGER(ALLOC_SLOT(val, Matrix_permSym, INTSXP, npiv)),
 		     &info);
-    if (info)
+    if (info < 0)
 	error(_("Lapack routine %s returned error code %d"), "dgetrf", info);
+    else if (info > 0)
+	warning(_("Exact singularity detected during LU decomposition."));
     UNPROTECT(1);
     return set_factors(x, val, "LU");
 }
@@ -257,7 +259,7 @@ SEXP dgeMatrix_matrix_solve(SEXP a, SEXP b, SEXP classed)
     if (*adims != *bdims || bdims[1] < 1 || *adims < 1 || *adims != adims[1])
 	error(_("Dimensions of system to be solved are inconsistent"));
     Memcpy(INTEGER(ALLOC_SLOT(val, Matrix_DimSym, INTSXP, 2)), bdims, 2);
-    F77_CALL(dgetrs)("N", &n, &nrhs, REAL(GET_SLOT(val, Matrix_xSym)), &n,
+    F77_CALL(dgetrs)("N", &n, &nrhs, REAL(GET_SLOT(lu, Matrix_xSym)), &n,
 		     INTEGER(GET_SLOT(lu, Matrix_permSym)),
 		     Memcpy(REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, sz)),
 			    REAL(cl ? GET_SLOT(b, Matrix_xSym):b), sz),

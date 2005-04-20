@@ -163,7 +163,7 @@ setMethod("isSymmetric", signature(object = "dgTMatrix"),
 
 setAs("dgTMatrix", "dsCMatrix",
       function(from) {
-          if (!Matrix:::isSymmetric(from))
+          if (!isSymmetric(from))
               stop("cannot coerce non-symmetric matrix to dsCMatrix class")
           upper <- from@i <= from@j
           uC <- as(new("dgTMatrix", Dim = from@Dim, i = from@i[upper],
@@ -172,7 +172,14 @@ setAs("dgTMatrix", "dsCMatrix",
       })
 
 setAs("matrix", "dgTMatrix",
-      function(from) as(as(from, "dgCMatrix"), "dgTMatrix"))
+      function(from) {
+          x <- as.double(from)
+          nz <- as.logical(x)
+          new("dgTMatrix", Dim = dim(from),
+              i = as.integer(row(from) - 1)[nz] ,
+              j = as.integer(col(from) - 1)[nz],
+              x = x[nz])
+      })
 
 setMethod("kronecker", signature(X = "dgTMatrix", Y = "dgTMatrix"),
           function (X, Y, FUN = "*", make.dimnames = FALSE, ...)

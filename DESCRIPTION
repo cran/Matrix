@@ -1,6 +1,6 @@
 Package: Matrix
-Version: 0.95-6
-Date: 2005-04-18
+Version: 0.95-7
+Date: 2005-04-20
 Title: A Matrix package for R
 Author: Douglas Bates <bates@stat.wisc.edu> and Martin Maechler <maechler@stat.math.ethz.ch>
 Maintainer: Douglas Bates <bates@stat.wisc.edu>
@@ -14,4 +14,4 @@ License: GPL version 2 or later.
  This R package includes code from the LDL and Metis packages,
  which are covered by separate copyrights.  See the file Copyrights for
  details.
-Packaged: Mon Apr 18 16:55:14 2005; bates
+Packaged: Wed Apr 20 08:26:00 2005; bates

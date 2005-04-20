@@ -12,6 +12,7 @@
 \alias{crossprod,dgTMatrix,matrix-method}
 \alias{crossprod,dgTMatrix,numeric-method}
 \alias{image,dgTMatrix-method}
+\alias{kronecker,dgTMatrix,dgTMatrix-method}
 \alias{t,dgTMatrix-method}
 \title{Sparse matrices in triplet form}
 \description{The \code{"dgTMatrix"} class is the class of sparse

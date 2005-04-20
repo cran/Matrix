@@ -82,6 +82,7 @@ exportMethods(
 	      "dimnames<-",
 	      "expand",
 	      "expm",
+              "kronecker",
 	      "image",
 	      "norm",
 	      "rcond",

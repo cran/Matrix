@@ -4,7 +4,7 @@
 \bibliographystyle{plainnat}
 %%\VignetteIndexEntry{Comparisons of Least Squares calculation speeds}
 %%\VignetteDepends{Matrix}
-\usepackage{/usr/local/lib/R/share/texmf/Sweave}
+\usepackage{/usr/lib/R/share/texmf/Sweave}
 \begin{document}
 
 \setkeys{Gin}{width=\textwidth}
@@ -101,7 +101,7 @@ be timed accurately in \RR{}
 > system.time(solve(t(mm) %*% mm) %*% t(mm) %*% y, gc = TRUE)
 \end{Sinput}
 \begin{Soutput}
-[1] 0.00 0.00 0.01 0.00 0.00
+[1] 0 0 0 0 0
 \end{Soutput}
 \end{Schunk}
 and it provides essentially the same results as the standard
@@ -155,7 +155,7 @@ Attaching package: 'Matrix'
 +     y, gc = TRUE)
 \end{Sinput}
 \begin{Soutput}
-[1] 3.38 0.09 3.49 0.00 0.00
+[1] 3.19 0.09 3.37 0.00 0.00
 \end{Soutput}
 \end{Schunk}
 
@@ -184,7 +184,7 @@ Combining these optimizations we obtain
 +     y)), gc = TRUE)
 \end{Sinput}
 \begin{Soutput}
-[1] 0.69 0.04 0.73 0.00 0.00
+[1] 0.65 0.03 0.68 0.00 0.00
 \end{Soutput}
 \begin{Sinput}
 > all.equal(naive.sol, cpod.sol)
@@ -203,7 +203,7 @@ faster than simply calculating $\bX\trans\bX$ the naive way.
 > system.time(t(mm) %*% mm, gc = TRUE)
 \end{Sinput}
 \begin{Soutput}
-[1] 0.86 0.02 0.89 0.00 0.00
+[1] 0.81 0.02 0.84 0.00 0.00
 \end{Soutput}
 \end{Schunk}
 
@@ -223,14 +223,14 @@ but it is rather awkward
 > system.time(ch <- chol(crossprod(mm)), gc = TRUE)
 \end{Sinput}
 \begin{Soutput}
-[1] 0.49 0.03 0.52 0.00 0.00
+[1] 0.47 0.02 0.49 0.00 0.00
 \end{Soutput}
 \begin{Sinput}
 > system.time(chol.sol <- backsolve(ch, forwardsolve(ch, crossprod(mm, 
 +     y), upper = TRUE, trans = TRUE)), gc = TRUE)
 \end{Sinput}
 \begin{Soutput}
-[1] 0.13 0.03 0.16 0.00 0.00
+[1] 0.12 0.03 0.15 0.00 0.00
 \end{Soutput}
 \begin{Sinput}
 > all.equal(chol.sol, naive.sol)
@@ -263,7 +263,7 @@ attr(,"package")
 +     y)), gc = TRUE)
 \end{Sinput}
 \begin{Soutput}
-[1] 0.52 0.02 0.54 0.00 0.00
+[1] 0.48 0.03 0.50 0.00 0.00
 \end{Soutput}
 \begin{Sinput}
 > all.equal(naive.sol, as(Mat.sol, "matrix"))
@@ -283,13 +283,13 @@ the original object so that it can be reused without recalculation.
 > system.time(solve(xpx, xpy), gc = TRUE)
 \end{Sinput}
 \begin{Soutput}
-[1] 0.10 0.01 0.11 0.00 0.00
+[1] 0.09 0.02 0.11 0.00 0.00
 \end{Soutput}
 \begin{Sinput}
 > system.time(solve(xpx, xpy), gc = TRUE)
 \end{Sinput}
 \begin{Soutput}
-[1] 0 0 0 0 0
+[1] 0.01 0.00 0.01 0.00 0.00
 \end{Soutput}
 \end{Schunk}
 
@@ -312,7 +312,7 @@ attr(,"package")
 +     y)), gc = TRUE)
 \end{Sinput}
 \begin{Soutput}
-[1] 0.05 0.00 0.05 0.00 0.00
+[1] 0.05 0.00 0.06 0.00 0.00
 \end{Soutput}
 \begin{Sinput}
 > all.equal(naive.sol, as(sparse.sol, "matrix"))
@@ -334,13 +334,13 @@ difficult to determine the difference in the solution times.
 > system.time(solve(xpx, xpy), gc = TRUE)
 \end{Sinput}
 \begin{Soutput}
-[1] 0.01 0.00 0.01 0.00 0.00
+[1] 0 0 0 0 0
 \end{Soutput}
 \begin{Sinput}
 > system.time(solve(xpx, xpy), gc = TRUE)
 \end{Sinput}
 \begin{Soutput}
-[1] 0.01 0.00 0.00 0.00 0.00
+[1] 0 0 0 0 0
 \end{Soutput}
 \end{Schunk}
 

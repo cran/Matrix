@@ -34,9 +34,11 @@ exportClasses(
 	      "Matrix",
 	      ## also intermediate `virtual' ones:
 	      "dMatrix",
+              "lMatrix",
 	      "sparseMatrix",
 	      "dsparseMatrix",
-	      ## not yet:   "iMatrix", "lMatrix", "zMatrix",
+              "lsparseMatrix",
+	      ## not yet:   "iMatrix", "zMatrix",
 
 	      "ddenseMatrix",
 
@@ -54,6 +56,16 @@ exportClasses(
 	      "dtTMatrix",
 	      "dtpMatrix",
 	      "dtrMatrix",
+
+              "lgCMatrix",
+              "lsCMatrix",
+              "ltCMatrix",
+              "lgRMatrix",
+              "lsRMatrix",
+              "ltRMatrix",
+              "lgTMatrix",
+              "lsTMatrix",
+              "ltTMatrix",
 
 	      "corrmatrix",
 	      "pMatrix",
@@ -73,6 +85,8 @@ exportMethods(
 	      "Schur",
 	      "as.matrix",
 	      "chol",
+              "colMeans",
+              "colSums",
 	      "coerce",
 	      "crossprod",
 	      "determinant",
@@ -86,6 +100,8 @@ exportMethods(
 	      "image",
 	      "norm",
 	      "rcond",
+              "rowMeans",
+              "rowSums",
 	      "show",
 	      "solve",
 	      "t",

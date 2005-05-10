@@ -96,7 +96,8 @@ SEXP dsCMatrix_matrix_solve(SEXP a, SEXP b, SEXP classed)
 	bdP = cl ? GET_SLOT(b, Matrix_DimSym) : getAttrib(b, R_DimSymbol),
 	val = PROTECT(NEW_OBJECT(MAKE_CLASS("dgeMatrix")));
     int *adims = INTEGER(GET_SLOT(a, Matrix_DimSym)),
-	*bdims = INTEGER(bdP), *Li, *Lp, j, piv;
+	*bdims = INTEGER(bdP),
+	*Li, *Lp, j, piv;
     int n = adims[1], ncol = bdims[1];
     double *Lx, *D, *in = REAL(cl ? GET_SLOT(b, Matrix_xSym) : b),
 	*out = REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, n * ncol)),
@@ -107,6 +108,7 @@ SEXP dsCMatrix_matrix_solve(SEXP a, SEXP b, SEXP classed)
     if (*adims != *bdims || ncol < 1 || *adims < 1)
 	error(_("Dimensions of system to be solved are inconsistent"));
     if (Chol == R_NilValue) Chol = dsCMatrix_chol(a, ScalarLogical(1));
+    SET_SLOT(val, Matrix_DimSym, duplicate(bdP));
     perm = GET_SLOT(Chol, Matrix_permSym);
     piv = length(perm);
     if (piv) tmp = Calloc(n, double);

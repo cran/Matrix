@@ -24,6 +24,7 @@ expand                  Expand a Decomposition into Factors
 expm                    Matrix exponential
 facmul                  Multiplication by Decomposition Factors
 Hilbert                 Generate a Hilbert matrix
+lsparseMatrix-class     Sparse logical matrices
 lu                      Triangular Decomposition of a Square Matrix
 LU-class                LU Matrix Decompositions
 Matrix                  Construct a Classed Matrix

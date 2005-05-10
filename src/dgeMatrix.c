@@ -527,3 +527,60 @@ SEXP dgeMatrix_Schur(SEXP x, SEXP vectors)
     UNPROTECT(1);
     return val;
 }
+
+SEXP dgeMatrix_colsums(SEXP x, SEXP naRmP, SEXP cols, SEXP mean)
+{
+    int keepNA = !asLogical(naRmP);
+    int doMean = asLogical(mean);
+    int useCols = asLogical(cols);
+    int *dims = INTEGER(GET_SLOT(x, Matrix_DimSym));
+    int cnt = 0, i, j, n = dims[0], p = dims[1];
+    SEXP ans = PROTECT(allocVector(REALSXP, (useCols) ? p : n));
+    double *xx = REAL(GET_SLOT(x, Matrix_xSym)), *rx, sum;
+    
+    if (useCols) {
+	cnt = n;
+	for (j = 0; j < p; j++) {
+	    rx = xx + n*j;
+	    if (keepNA)
+		for (sum = 0., i = 0; i < n; i++) sum += *rx++;
+	    else {
+		for (cnt = 0, sum = 0., i = 0; i < n; i++, rx++)
+		    if (!ISNAN(*rx)) {cnt++; sum += *rx;}
+	    }
+	    if (doMean) {
+		if (cnt > 0) sum /= cnt; else sum = NA_REAL;
+	    }
+	    REAL(ans)[j] = sum;
+	}
+    } else {
+	double *rans = REAL(ans), *ra = rans, *rx = xx, *Cnt = NULL, *c;
+	cnt = p;
+	if (!keepNA && doMean) Cnt = Calloc(n, double);
+	for (ra = rans, i = 0; i < n; i++) *ra++ = 0.0;
+	for (j = 0; j < p; j++) {
+	    ra = rans;
+	    if (keepNA)
+		for (i = 0; i < n; i++) *ra++ += *rx++;
+	    else
+		for (c = Cnt, i = 0; i < n; i++, ra++, rx++, c++)
+		    if (!ISNAN(*rx)) {
+			*ra += *rx;
+			if (doMean) (*c)++;
+		    }
+	}
+	if (doMean) {
+	    if (keepNA)
+		for (ra = rans, i = 0; i < n; i++)
+		    *ra++ /= p;
+	    else {
+		for (ra = rans, c = Cnt, i = 0; i < n; i++, c++)
+		    if (*c > 0) *ra++ /= *c; else *ra++ = NA_REAL;
+		Free(Cnt);
+	    }
+	}
+    }
+
+    UNPROTECT(1);
+    return ans;
+}

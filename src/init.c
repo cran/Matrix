@@ -53,6 +53,7 @@ static R_CallMethodDef CallEntries[] = {
     {"dgTMatrix_validate", (DL_FUNC) &dgTMatrix_validate, 1},
     {"dgeMatrix_LU", (DL_FUNC) &dgeMatrix_LU, 1},
     {"dgeMatrix_Schur", (DL_FUNC) &dgeMatrix_Schur, 2},
+    {"dgeMatrix_colsums", (DL_FUNC) &dgeMatrix_colsums, 4},
     {"dgeMatrix_crossprod", (DL_FUNC) &dgeMatrix_crossprod, 2},
     {"dgeMatrix_determinant", (DL_FUNC) &dgeMatrix_determinant, 2},
     {"dgeMatrix_dgeMatrix_crossprod", (DL_FUNC) &dgeMatrix_dgeMatrix_crossprod, 2},
@@ -128,6 +129,9 @@ static R_CallMethodDef CallEntries[] = {
     {"dtrMatrix_solve", (DL_FUNC) &dtrMatrix_solve, 1},
     {"dtrMatrix_validate", (DL_FUNC) &dtrMatrix_validate, 1},
     {"lapack_qr", (DL_FUNC) &lapack_qr, 2},
+    {"lgCMatrix_crossprod", (DL_FUNC) &lgCMatrix_crossprod, 2},
+    {"lgCMatrix_lgCMatrix_mm", (DL_FUNC) &lgCMatrix_lgCMatrix_mm, 2},
+    {"lgCMatrix_trans", (DL_FUNC) &lgCMatrix_trans, 1},
     {"lgCMatrix_validate", (DL_FUNC) &lgCMatrix_validate, 1},
     {"lgTMatrix_validate", (DL_FUNC) &lgTMatrix_validate, 1},
     {"lmer_Crosstab", (DL_FUNC) &lmer_Crosstab, 1},
@@ -148,6 +152,12 @@ static R_CallMethodDef CallEntries[] = {
     {"lmer_update_mm", (DL_FUNC) &lmer_update_mm, 2},
     {"lmer_validate", (DL_FUNC) &lmer_validate, 1},
     {"lmer_variances", (DL_FUNC) &lmer_variances, 1},
+
+    /* added by deepayan */
+    {"lmer_collapse", (DL_FUNC) &lmer_collapse, 1},
+    {"lmer_laplace_devComp", (DL_FUNC) &lmer_laplace_devComp, 1},
+
+
     {"lsq_dense_Chol", (DL_FUNC) &lsq_dense_Chol, 2},
     {"lsq_dense_QR", (DL_FUNC) &lsq_dense_QR, 2},
     {"matrix_to_csc", (DL_FUNC) &matrix_to_csc, 1},
@@ -227,4 +237,15 @@ void R_init_Matrix(DllInfo *dll)
     Matrix_uploSym = install("uplo");
     Matrix_xSym = install("x");
     Matrix_zSym = install("z");
+
+    /* added by deepayan */
+
+    Matrix_REMLSym = install("REML");
+    Matrix_callSym = install("call");
+    Matrix_termsSym = install("terms");
+    Matrix_assignSym = install("assign");
+    Matrix_fittedSym = install("fitted");
+    Matrix_residualsSym = install("residuals");
+    Matrix_frameSym = install("frame");
+
 }

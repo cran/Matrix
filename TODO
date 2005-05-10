@@ -63,3 +63,8 @@ We have a (at least one) basic problem :
   should return a sparse matrix  for at least "+" and "*" , also %%,
   and "/" and "%/%" at least when the RHS is non-zero a scalar.
 
+---
+
+- in lmer.c check all instances of the use of ZtX and XtX and change
+  them so that having a negative last element of nc means use the
+  response only (but look for it in the right place).

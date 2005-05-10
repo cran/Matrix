@@ -1,6 +1,7 @@
 \name{dMatrix-class}
 \docType{class}
 \alias{dMatrix-class}
+\alias{lMatrix-class}
 \alias{show,dMatrix-method}
 \alias{coerce,dMatrix,matrix-method}
 \alias{coerce,dMatrix,dgeMatrix-method}
@@ -22,7 +23,9 @@
 \title{(Virtual) Class "dMatrix" of "double" Matrices}
 \description{
   The \code{dMatrix} class is a virtual class contained by all actual
-  classes in the \pkg{Matrix} package.
+  classes of numeric matrices in the \pkg{Matrix} package.  Similarly,
+  all the actual classes of logical matrices inherit from the
+  \code{lMatrix} class.
 }
 %\section{Objects from the Class}{A virtual Class: No objects may be
 %  created from it.

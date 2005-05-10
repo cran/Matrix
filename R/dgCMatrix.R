@@ -15,6 +15,10 @@ setAs("dgCMatrix", "dgBCMatrix",
       function(from) new("dgBCMatrix", p = from@p, i = from@i,
                          x = array(from@x, c(1, 1, length(from@x)))))
 
+setAs("dgCMatrix", "lgCMatrix",
+      function(from) new("lgCMatrix", i = from@i, p = from@p,
+                         Dim = from@Dim, Dimnames = from@Dimnames))
+
 setAs("matrix", "dgCMatrix",
       function(from) {
           storage.mode(from) <- "double"

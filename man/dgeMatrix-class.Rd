@@ -24,6 +24,8 @@
 \alias{chol,dgeMatrix,ANY-method}
 \alias{coerce,matrix,dgeMatrix-method}
 \alias{coerce,dgeMatrix,matrix-method}
+\alias{colMeans,dgeMatrix-method}
+\alias{colSums,dgeMatrix-method}
 \alias{crossprod,dgeMatrix,dgeMatrix-method}
 \alias{crossprod,dgeMatrix,matrix-method}
 \alias{crossprod,dgeMatrix,numeric-method}
@@ -50,6 +52,8 @@
 \alias{rcond,dgeMatrix,character-method}
 \alias{rcond,ddenseMatrix,missing-method}
 \alias{rcond,ddenseMatrix,character-method}
+\alias{rowMeans,dgeMatrix-method}
+\alias{rowSums,dgeMatrix-method}
 \alias{solve,dgeMatrix,matrix-method}
 \alias{solve,dgeMatrix,dgeMatrix-method}
 \alias{solve,dgeMatrix,missing-method}
@@ -102,9 +106,12 @@
     \item{chol}{\code{signature(x = "dgeMatrix")}: works via
       \code{"dpoMatrix"}, see \code{\link{dpoMatrix-class}}.}
     \item{coerce}{\code{signature(from = "dgeMatrix", to = "matrix")}: ... }
-    \item{coerce}{\code{signature(from = "matrix", to = "dgeMatrix")}: ... }
+    \item{coerce}{\code{signature(from = "matrix", to = "dgeMatrix")}:
+      ... }
+    \item{colMeans}{\code{signature(x = "dgeMatrix")}: columnwise means (averages)}
+    \item{colSums}{\code{signature(x = "dgeMatrix")}: columnwise sums}
     \item{crossprod}{\code{signature(x = "dgeMatrix", y = "dgeMatrix")}:
-      dito for several other signatures, use
+      ditto for several other signatures, use
       \code{showMethods("crossprod", class = "dgeMatrix")}, matrix
       crossproduct, an efficient version of \code{t(x) \%*\% y}.}
     \item{diag}{\code{signature(x = "dgeMatrix")}: ... }
@@ -118,6 +125,8 @@
     \item{norm}{\code{signature(x = "dgeMatrix", type = "missing")}: ... }
     \item{rcond}{\code{signature(x = "dgeMatrix", type = "character")}: ... }
     \item{rcond}{\code{signature(x = "dgeMatrix", type = "missing")}: ... }
+    \item{rowMeans}{\code{signature(x = "dgeMatrix")}: rowwise means (averages)}
+    \item{rowSums}{\code{signature(x = "dgeMatrix")}: rowwise sums}
     \item{solve}{\code{signature(a = "dgeMatrix", b = "dgeMatrix")}: ... }
     \item{solve}{\code{signature(a = "dgeMatrix", b = "missing")}: ... }
     \item{t}{\code{signature(x = "dgeMatrix")}: ... }

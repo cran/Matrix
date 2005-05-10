@@ -237,7 +237,25 @@ setMethod("expm", signature(x = "dgeMatrix"),
 	  function(x) .Call("dgeMatrix_exp", x),
 	  valueClass = "dgeMatrix")
 
+setMethod("colSums", signature(x = "dgeMatrix"),
+	  function(x, na.rm = FALSE, dims = 1)
+          .Call("dgeMatrix_colsums", x, na.rm, TRUE, FALSE),
+	  valueClass = "numeric")
 
+setMethod("colMeans", signature(x = "dgeMatrix"),
+	  function(x, na.rm = FALSE, dims = 1)
+          .Call("dgeMatrix_colsums", x, na.rm, TRUE, TRUE),
+	  valueClass = "numeric")
+
+setMethod("rowSums", signature(x = "dgeMatrix"),
+	  function(x, na.rm = FALSE, dims = 1)
+          .Call("dgeMatrix_colsums", x, na.rm, FALSE, FALSE),
+	  valueClass = "numeric")
+
+setMethod("rowMeans", signature(x = "dgeMatrix"),
+	  function(x, na.rm = FALSE, dims = 1)
+          .Call("dgeMatrix_colsums", x, na.rm, FALSE, TRUE),
+	  valueClass = "numeric")
 
 ### The following all serve for	 as.Matrix()
 ### which is not yet exported (nor tested):
@@ -357,3 +375,4 @@ as.Matrix <- function(x, tol = .Machine$double.eps)
     as(if(is.matrix(x)) x else as.matrix(x),
        Matrix.class(x, tol = tol))
 }
+

@@ -6,10 +6,14 @@
 #include "triplet_to_col.h"
 
 SEXP lgCMatrix_validate(SEXP x);
-void Matrix_lgClgCmm(int tra, int trb, int m, int n, int k,
+SEXP Matrix_lgClgCmm(int tra, int trb, int m, int n, int k,
 		     const int ai[], const int ap[],
 		     const int bi[], const int bp[],
-		     int beta, SEXP *CIP, int cp[]);
-SEXP lgCMatrix_lgCMatrix_mm(SEXP a, SEXP b, SEXP transa, SEXP transb);
+		     int beta, SEXP CIP, int cp[]);
+SEXP lgCMatrix_lgCMatrix_mm(SEXP a, SEXP b);
+SEXP lgCMatrix_trans(SEXP x);
+SEXP Matrix_lgCsyrk(int up, int tra, int n, int k, const int ai[],
+		    const int ap[], int beta, SEXP CIP, int cp[]);
+SEXP lgCMatrix_crossprod(SEXP x, SEXP trans);
 
 #endif

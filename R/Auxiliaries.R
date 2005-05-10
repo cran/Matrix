@@ -11,7 +11,6 @@
 ## chol() via "dpoMatrix"
 cholMat <- function(x, pivot, LINPACK) {
     px <- as(x, "dpoMatrix")
-    if(identical(TRUE, validObject(px, test=TRUE)))
-        chol(px)
+    if (isTRUE(validObject(px, test=TRUE))) chol(px)
     else stop("'x' is not positive definite -- chol() undefined.")
 }

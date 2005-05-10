@@ -157,9 +157,8 @@ setMethod("t", signature(x = "dgTMatrix"),
 
 setMethod("isSymmetric", signature(object = "dgTMatrix"),
           function(object, ...)
-              identical(TRUE,
-                        all.equal(as(object, "dgCMatrix"),
-                                  as(t(object), "dgCMatrix"))))
+              isTRUE(all.equal(as(object, "dgCMatrix"),
+                               as(t(object), "dgCMatrix"))))
 
 setAs("dgTMatrix", "dsCMatrix",
       function(from) {

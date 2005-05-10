@@ -1,3 +1,17 @@
+2005-05-10  Douglas Bates  <bates@bates1-home>
+
+	* src/lgCMatrix.c (Matrix_lgClgCmm): Implementation of methods for
+	logical sparse matrices.  These will also be used in the symbolic
+	analysis for lmer objects.
+
+	* src/dsCMatrix.c (dsCMatrix_matrix_solve): Copied the dimensions
+	of b to the result.  Fixes bug reported by Jean.Coursol@math.u-psud.fr
+	
+2005-05-06  Douglas Bates  <bates@bates1-home>
+
+	* src/dgeMatrix.c (dgeMatrix_colsums): Added an implementation of
+	colMeans, colSums, rowMeans and rowSums.
+
 2005-04-18  Douglas Bates  <bates@bates1-home>
 
 	* src/lgCMatrix.[ch]: code for _validate method and stub for

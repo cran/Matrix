@@ -1,3 +1,8 @@
+2005-05-11  Douglas Bates  <bates@bates1-home>
+
+	* src/dgCMatrix.c (csc_transpose): Simplified function fixing a
+	bug reported by Kurt Hornik and Michael Hahsler.
+
 2005-05-10  Douglas Bates  <bates@bates1-home>
 
 	* src/lgCMatrix.c (Matrix_lgClgCmm): Implementation of methods for

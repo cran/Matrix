@@ -164,12 +164,15 @@ SEXP lgCMatrix_trans(SEXP x)
 	*xdims = INTEGER(GET_SLOT(x, Matrix_DimSym)),
 	nz = length(xi);
     int *xj = Calloc(nz, int);
+    SEXP adn = ALLOC_SLOT(ans, Matrix_DimNamesSym, VECSXP, 2),
+	xdn = GET_SLOT(x, Matrix_DimNamesSym);
     
-    adims[1] = xdims[0];
-    adims[0] = xdims[1];
+    adims[1] = xdims[0]; adims[0] = xdims[1];
+    SET_VECTOR_ELT(adn, 0, VECTOR_ELT(xdn, 1));
+    SET_VECTOR_ELT(adn, 1, VECTOR_ELT(xdn, 0));
     triplet_to_col(adims[0], adims[1], nz, 
 		   expand_cmprPt(xdims[1], INTEGER(GET_SLOT(x, Matrix_pSym)), xj),
-		   INTEGER(GET_SLOT(x, Matrix_iSym)), (double *) NULL,
+		   INTEGER(xi), (double *) NULL,
 		   INTEGER(ALLOC_SLOT(ans, Matrix_pSym, INTSXP,  adims[1] + 1)),
 		   INTEGER(ALLOC_SLOT(ans, Matrix_iSym, INTSXP,  nz)),
 		   (double *) NULL);

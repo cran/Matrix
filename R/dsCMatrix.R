@@ -7,8 +7,13 @@ setAs("dsCMatrix", "dgTMatrix",
 
 setAs("dsCMatrix", "dgeMatrix",
       function(from) as(as(from, "dgTMatrix"), "dgeMatrix"))
+
 setAs("dsCMatrix", "matrix",
       function(from) as(as(from, "dgTMatrix"), "matrix"))
+
+setAs("dsCMatrix", "lsCMatrix",
+      function(from) new("lsCMatrix", i = from@i, p = from@p, uplo = from@uplo,
+                         Dim = from@Dim, Dimnames = from@Dimnames))
 
 if(FALSE) { ## << FIXME
 setAs("dsCMatrix", "dsTMatrix",

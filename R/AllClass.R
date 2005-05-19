@@ -267,6 +267,11 @@ setClass("dCholCMatrix",
          contains = "dtCMatrix",
          validity = function(object) .Call("dCholCMatrix_validate", object))
 
+setClass("lCholCMatrix",
+         representation(perm = "integer", Parent = "integer"),
+         contains = "ltCMatrix",
+         validity = function(object) .Call("lCholCMatrix_validate", object))
+
 ##-------------------- permutation ----------------------------------------
 
 setClass("pMatrix", representation(perm = "integer"), contains = "Matrix",

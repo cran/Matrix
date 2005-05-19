@@ -72,24 +72,24 @@ SEXP Matrix_lgClgCmm(int tra, int trb, int m, int n, int k,
     if (tra) {			/* replace ai and ap by els for transpose */
 	int nz = ap[m];
 	int *Ai = Calloc(nz, int),
-	    *Ti = Calloc(nz, int),
+	    *aj = expand_cmprPt(m, ap, Calloc(nz, int)),
 	    *Ap = Calloc(k + 1, int);
 	
-	triplet_to_col(k, m, nz, expand_cmprPt(m, ap, Ti), ai, 
-		       (double *) NULL, Ap, Ai, (double *) NULL);
-	Free(Ti);
+	triplet_to_col(m, k, nz, aj, ai, (double *) NULL,
+		       Ap, Ai, (double *) NULL);
+	Free(aj);
 	ai = Ai; ap = Ap;
     }
 
     if (trb) {			/* replace bi and bp by els for transpose */
 	int nz = bp[k];
 	int *Bi = Calloc(nz, int),
-	    *Ti = Calloc(nz, int),
+	    *bj = expand_cmprPt(k, bp, Calloc(nz, int)),
 	    *Bp = Calloc(n + 1, int);
 	
-	triplet_to_col(n, k, nz, expand_cmprPt(k, bp, Ti), bi, 
-		       (double *) NULL, Bp, Bi, (double *) NULL);
-	Free(Ti);
+	triplet_to_col(k, n, nz, bj, bi, (double *) NULL,
+		       Bp, Bi, (double *) NULL);
+	Free(bj);
 	bi = Bi; bp = Bp;
     }
 
@@ -105,26 +105,31 @@ SEXP Matrix_lgClgCmm(int tra, int trb, int m, int n, int k,
 
     if (extra) {
 	int ntot = cnnz + extra;
-	int *Ti = Calloc(ntot, int),
+	int *Cp = Calloc(n + 1, int),
+	    *Ti = Calloc(ntot, int),
 	    *rwInd = Calloc(m, int), /* indicator of TRUE in column j */
 	    pos = 0;
 	
-	cp[0] = 0;
+	Cp[0] = 0;
 	for (j = 0; j < n; j++) {
 	    int ii, ii2 = bp[j + 1];
-	    cp[j + 1] = cp[j];
-	    AZERO(rwInd, m); /* initialize column j of C to FALSE */
+				
+	    AZERO(rwInd, m);	/* initialize column j of C */
+	    for (i = cp[j]; i < cp[j+1]; i++) rwInd[ci[i]] = 1;
+
+	    Cp[j + 1] = Cp[j];
 	    for (ii = bp[j]; ii < ii2; ii++) { /* index into bi */
 		int jj = bi[ii]; /* row index of B; col index of A */
 		int i, i2 = ap[jj + 1]; /* index into ai */
 		for (i = ap[jj]; i < i2; i++) rwInd[ai[i]] = 1;
 	    }
 	    for (i = 0; i < m; i++)
-		if (rwInd[i]) {cp[j + 1]++; Ti[pos++] = i;}
+		if (rwInd[i]) {Cp[j + 1]++; Ti[pos++] = i;}
 	}
-	PROTECT(CIP = allocVector(INTSXP, cp[n])); prot++;
-	Memcpy(INTEGER(CIP), Ti, cp[n]);
-	Free(Ti); Free(rwInd);
+	PROTECT(CIP = allocVector(INTSXP, Cp[n])); prot++;
+	Memcpy(INTEGER(CIP), Ti, Cp[n]);
+	Memcpy(cp, Cp, n + 1);
+	Free(Cp); Free(Ti); Free(rwInd);
     }
 
     if (tra) {Free(ai); Free(ap);}
@@ -213,20 +218,25 @@ SEXP Matrix_lgCsyrk(int up, int tra, int n, int k, const int ai[], const int ap[
     if (tra) {			/* replace ai and ap by els for transpose */
 	int nz = ap[n];
 	int *Ai = Calloc(nz, int),
-	    *Ti = Calloc(nz, int),
+	    *aj = expand_cmprPt(n, ap, Calloc(nz, int)),
 	    *Ap = Calloc(k + 1, int);
 	
-	triplet_to_col(k, n, nz, expand_cmprPt(k, ap, Ti), ai, 
-		       (double *) NULL, Ap, Ai, (double *) NULL);
-	Free(Ti);
+	triplet_to_col(n, k, nz, aj, ai, (double *) NULL,
+		       Ap, Ai, (double *) NULL);
+	Free(aj);
 	ai = Ai; ap = Ap;
     }
+
     for (j = 0; j < k; j++) {
 	int i2 = ap[j + 1];
 	for (i = ap[j]; i < i2; i++) {
 	    int r1 = ai[i];
+	    if (r1 < 0 || r1 >= n)
+		error(_("row %d not in row range [0,%d]"), r1, n - 1);
 	    for (ii = i; ii < i2; ii++) {
 		int r2 = ai[ii];
+		if (r2 < 0 || r2 >= n)
+		    error(_("row %d not in row range [0,%d]"), r2, n - 1);
 		if (check_csc_index(cp, ci, up?r1:r2, up?r2:r1, -1) < 0)
 		    extra++;
 	    }
@@ -276,26 +286,99 @@ SEXP Matrix_lgCsyrk(int up, int tra, int n, int k, const int ai[], const int ap[
  * 
  * @param x Pointer to a lgCMatrix
  * @param trans logical indicator of transpose, in the sense of dsyrk.
- * That is, trans TRUE is used for crossprod.
+ * That is, trans == TRUE is used for crossprod.
+ * @param C 
  * 
  * @return An lsCMatrix of the form if(trans) X'X else XX'
  */
-SEXP lgCMatrix_crossprod(SEXP x, SEXP trans)
+SEXP lgCMatrix_crossprod(SEXP x, SEXP trans, SEXP C)
 {
     int tra = asLogical(trans);
-    SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("lsCMatrix")));
-    int *adims = INTEGER(ALLOC_SLOT(ans, Matrix_DimSym, INTSXP, 2)),
-	*xdims = INTEGER(GET_SLOT(x, Matrix_DimSym));
+    int *adims, *xdims = INTEGER(GET_SLOT(x, Matrix_DimSym));
     int k = xdims[tra ? 0 : 1], n = xdims[tra ? 1 : 0];
     
-    adims[0] = adims[1] = n;
-    SET_SLOT(ans, Matrix_uploSym, mkString("U"));
-    SET_SLOT(ans, Matrix_iSym,
-	     Matrix_lgCsyrk(1, tra, n, k,
+    if (C == R_NilValue) {
+	SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("lsCMatrix")));
+
+	adims = INTEGER(ALLOC_SLOT(ans, Matrix_DimSym, INTSXP, 2));
+	adims[0] = adims[1] = n;
+	SET_SLOT(ans, Matrix_uploSym, mkString("U"));
+	SET_SLOT(ans, Matrix_iSym,
+		 Matrix_lgCsyrk(1, tra, n, k,
+				INTEGER(GET_SLOT(x, Matrix_iSym)),
+				INTEGER(GET_SLOT(x, Matrix_pSym)),
+				0, R_NilValue,
+				INTEGER(ALLOC_SLOT(ans, Matrix_pSym, INTSXP, n + 1))));
+	UNPROTECT(1);
+	return ans;
+    }
+    adims = INTEGER(GET_SLOT(C, Matrix_DimSym));
+    if (adims[0] != n || adims[1] != n)
+	error(_("Dimensions of x and y are not compatible for crossprod"));
+    SET_SLOT(C, Matrix_iSym,
+	     Matrix_lgCsyrk(CHAR(asChar(GET_SLOT(C, Matrix_uploSym)))[0] == 'U',
+			    tra, n, k,
 			    INTEGER(GET_SLOT(x, Matrix_iSym)),
 			    INTEGER(GET_SLOT(x, Matrix_pSym)),
-			    0, R_NilValue,
-			    INTEGER(ALLOC_SLOT(ans, Matrix_pSym, INTSXP, n + 1))));
+			    1, GET_SLOT(C, Matrix_iSym),
+			    INTEGER(GET_SLOT(C, Matrix_pSym))));
+    return C;
+}
+
+/** 
+ * Special-purpose function that returns a permutation of the columns
+ * of a lgTMatrix for which nrow(x) > ncol(x).  The ordering puts
+ * columns with fewer entries on the left.  Once a column has been
+ * moved to the left the rows in where that column is TRUE are removed
+ * from the counts.
+ * 
+ * @param x Pointer to an lgTMatrix object
+ * 
+ * @return 0-based permutation vector for the columns of x
+ */
+SEXP lgCMatrix_picky_column(SEXP x)
+{
+    int *xdims = INTEGER(GET_SLOT(x, Matrix_DimSym));
+    int *xi = INTEGER(GET_SLOT(x, Matrix_iSym)),
+	*xp = INTEGER(GET_SLOT(x, Matrix_pSym)),
+	m = xdims[0], n = xdims[1];
+    SEXP ans = PROTECT(allocVector(INTSXP, n));
+    int *actr = Calloc(m, int),
+	*actc = Calloc(n, int),
+	cj, i, j, mincount, minloc, pos;
+
+    for (i = 0; i < m; i++) actr[i] = 1;
+    mincount = m + 1;
+    for (j = 0; j < n; j++) {
+	cj = xp[j + 1] - xp[j];
+	actc[j] = 1;
+	if (cj < mincount) {
+	    mincount = cj;
+	    minloc = j;
+	}
+    }
+    
+    pos = 0;
+    while (pos < n) {
+	INTEGER(ans)[pos++] = minloc;
+	actc[minloc] = 0;
+	for (i = xp[minloc]; i < xp[minloc + 1]; i++) actr[xi[i]] = 0;
+	mincount = m + 1;
+	for (j = 0; j < n; j++) {
+	    if (actc[j]) {
+		cj = 0;
+		for (i = xp[j]; i < xp[j + 1]; i++) {
+		    if (actr[xi[i]]) cj++;
+		    if (cj < mincount) {
+			mincount = cj;
+			minloc = j;
+		    }
+		}
+	    }
+	}
+    }
+
+    Free(actr); Free(actc);
     UNPROTECT(1);
     return ans;
 }

@@ -64,7 +64,7 @@ setMethod("t", signature(x = "dgCMatrix"),
 
 setMethod("image", "dgCMatrix",
           function(x, ...) {
-              x = as(x, "dgTMatrix")
+              x <- as(x, "dgTMatrix")
               callGeneric()
           })
 

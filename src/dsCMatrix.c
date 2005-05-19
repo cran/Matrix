@@ -38,12 +38,9 @@ SEXP dsCMatrix_chol(SEXP x, SEXP pivot)
     SET_SLOT(val, Matrix_uploSym, mkString("L"));
     SET_SLOT(val, Matrix_diagSym, mkString("U"));
     SET_SLOT(val, Matrix_DimSym, duplicate(GET_SLOT(x, Matrix_DimSym)));
-    SET_SLOT(val, Matrix_ParentSym, allocVector(INTSXP, n));
-    Parent = INTEGER(GET_SLOT(val, Matrix_ParentSym));
-    SET_SLOT(val, Matrix_pSym, allocVector(INTSXP, n + 1));
-    Lp = INTEGER(GET_SLOT(val, Matrix_pSym));
-    SET_SLOT(val, Matrix_permSym, allocVector(INTSXP, n));
-    P = INTEGER(GET_SLOT(val, Matrix_permSym));
+    Parent = INTEGER(ALLOC_SLOT(val, Matrix_ParentSym, INTSXP, n));
+    Lp = INTEGER(ALLOC_SLOT(val, Matrix_pSym, INTSXP, n + 1));
+    P = INTEGER(ALLOC_SLOT(val, Matrix_permSym, INTSXP, n));
     if (piv) {
 	SEXP trip = PROTECT(dsCMatrix_to_dgTMatrix(x));
 	SEXP Ti = GET_SLOT(trip, Matrix_iSym);

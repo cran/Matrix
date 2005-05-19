@@ -1,4 +1,4 @@
-				/* Sparse triangular matrices */
+				/* Sparse triangular numeric matrices */
 #include "dtCMatrix.h"
 
 SEXP tsc_validate(SEXP x)
@@ -19,11 +19,11 @@ SEXP tsc_transpose(SEXP x)
 	islot = GET_SLOT(x, Matrix_iSym);
     int nnz = length(islot),
 	*adims, *xdims = INTEGER(GET_SLOT(x, Matrix_DimSym));
+    int up = CHAR(asChar(GET_SLOT(x, Matrix_uploSym)))[0] == 'U';
 
     adims = INTEGER(ALLOC_SLOT(ans, Matrix_DimSym, INTSXP, 2));
     adims[0] = xdims[1]; adims[1] = xdims[0];
-    if (CHAR(asChar(GET_SLOT(x, Matrix_uploSym)))[0] == 'U')
-	SET_SLOT(ans, Matrix_uploSym, mkString("L"));
+    SET_SLOT(ans, Matrix_uploSym, mkString(up ? "L" : "U"));
     csc_compTr(xdims[0], xdims[1], nnz,
 	       INTEGER(GET_SLOT(x, Matrix_pSym)), INTEGER(islot),
 	       REAL(GET_SLOT(x, Matrix_xSym)),

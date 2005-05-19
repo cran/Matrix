@@ -1,5 +1,5 @@
 #ifndef MATRIX_LGCMATRIX_H
-#define MATRIX_LCGMATRIX_H
+#define MATRIX_LGCMATRIX_H
 
 #include <Rdefines.h>
 #include "Mutils.h"
@@ -14,6 +14,7 @@ SEXP lgCMatrix_lgCMatrix_mm(SEXP a, SEXP b);
 SEXP lgCMatrix_trans(SEXP x);
 SEXP Matrix_lgCsyrk(int up, int tra, int n, int k, const int ai[],
 		    const int ap[], int beta, SEXP CIP, int cp[]);
-SEXP lgCMatrix_crossprod(SEXP x, SEXP trans);
+SEXP lgCMatrix_crossprod(SEXP x, SEXP trans, SEXP C);
+SEXP lgCMatrix_picky_column(SEXP x);
 
 #endif

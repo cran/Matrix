@@ -65,6 +65,7 @@ double *full_to_packed(double *dest, const double *src, int n,
 		       enum CBLAS_UPLO uplo, enum CBLAS_DIAG diag);
 double *packed_getDiag(double *dest, SEXP x);
 
+
 extern	 /* stored pointers to symbols initialized in R_init_Matrix */
 #include "Syms.h"
 
@@ -73,6 +74,9 @@ extern	 /* stored pointers to symbols initialized in R_init_Matrix */
 
 /* number of elements in one triangle of a square matrix of order n */
 #define PACKED_LENGTH(n)   ((n) * ((n) + 1))/2
+
+/* duplicate the slot with name given by sym from src to dest */
+#define slot_dup(dest, src, sym)  SET_SLOT(dest, sym, duplicate(GET_SLOT(src, sym)))
 
 /** 
  * Check for valid length of a packed triangular array and return the
@@ -236,6 +240,8 @@ make_upper_triangular(int i[], int j[], int nnz)
 }
 
 void make_array_triangular(double *x, SEXP from);
+
+SEXP Matrix_expand_pointers(SEXP pP);
 
 #ifdef __cplusplus
 }

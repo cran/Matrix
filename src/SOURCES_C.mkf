@@ -5,7 +5,6 @@ SOURCES_C =  \
 	    init.c \
 	    lmer.c \
             Mutils.c \
-            bCrosstab.c \
             dense.c \
             dCholCMatrix.c \
             dgCMatrix.c \
@@ -22,8 +21,9 @@ SOURCES_C =  \
             dtrMatrix.c \
             dtpMatrix.c \
             factorizations.c \
+	    lCholCMatrix.c \
 	    lgCMatrix.c \
 	    lgTMatrix.c \
-            sscCrosstab.c \
-            ssclme.c \
+	    lsCMatrix.c \
+	    ltCMatrix.c \
             triplet_to_col.c

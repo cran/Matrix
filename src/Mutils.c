@@ -637,3 +637,16 @@ double *packed_getDiag(double *dest, SEXP x)
     }
     return dest;
 }
+
+SEXP Matrix_expand_pointers(SEXP pP)
+{
+    int n = length(pP) - 1;
+    int *p = INTEGER(pP);
+    SEXP ans = PROTECT(allocVector(INTSXP, p[n]));
+
+    expand_cmprPt(n, p, INTEGER(ans));
+    UNPROTECT(1);
+    return ans;
+}
+
+	

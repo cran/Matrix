@@ -1,13 +1,20 @@
 \name{dCholCMatrix-class}
 \docType{class}
 \alias{dCholCMatrix-class}
+\alias{lCholCMatrix-class}
+\alias{solve,lCholCMatrix,missing-method}
+\alias{solve,lCholCMatrix,lgCMatrix-method}
+\alias{t,lCholCMatrix-method}
 \title{Cholesky Decompositions of dsCMatrix Objects}
-\description{The class of Cholesky decompositions of symmetric, sparse
-  compressed column matrices from the \code{"dsCMatrix"} class.}
+\description{\code{"dCholCMatrix"} is class of Cholesky decompositions
+  of symmetric, sparse, compressed, column-oriented matrices (the
+  \code{"dsCMatrix"} class).  \code{"lCholCMatrix"} is class showing the
+  logical structure (positions of the non-zeros) of these Cholesky decompositions.
+}
 \section{Objects from the Class}{
   Objects can be created by calls of the form \code{new("dCholCMatrix", ...)}
-  but are more commonly created from \code{chol} applied to an
-  \code{dsCMatrix} object.
+  but are more commonly created from \code{chol} applied to
+  \code{dsCMatrix} or \code{lsCMatrix} objects.
 }
 \section{Slots}{
   \describe{
@@ -29,7 +36,8 @@
       (number of non-zero elements).  These are the row numbers for
       each non-zero element in the matrix.}
     \item{\code{x}:}{Object of class \code{"numeric"} - the non-zero
-      elements of the matrix.}
+      elements of the matrix.  Present only in the \code{"dCholCMatrix"}
+      class.}
     \item{\code{factors}:}{Object of class \code{"list"} - a list
       of factorizations of the matrix. }
     \item{\code{Dim}:}{Object of class \code{"integer"} - the dimensions
@@ -38,7 +46,8 @@
     \item{\code{Dimnames}:}{list of length two; inherited from the
       \code{"Matrix"} class, see \code{\link{Matrix-class}}.}
     \item{\code{D}:}{Object of class \code{"numeric"} - the diagonal
-      elements of the matrix D in the LDL' decomposition.}
+      elements of the matrix D in the LDL' decomposition. Present only
+      in the \code{"dCholCMatrix"} class.}
     \item{\code{Parent}:}{Object of class \code{"integer"} - the
       elimination tree of the (possibly permuted) symmetric matrix.}
   }

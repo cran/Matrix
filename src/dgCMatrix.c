@@ -449,6 +449,3 @@ SEXP csc_col_permute(SEXP x, SEXP perm)
     UNPROTECT(1);
     return val;
 }
-
-
-

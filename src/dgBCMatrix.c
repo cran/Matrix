@@ -176,9 +176,9 @@ cscb_syrk(enum CBLAS_UPLO uplo, enum CBLAS_TRANSPOSE trans,
 	for (j = 0; j < anc; j++) {
 	    int k, kk, k2 = Ap[j+1];
 	    for (k = Ap[j]; k < k2; k++) {
-		int ii = Ai[k], K = check_csc_index(Cp, Ci, ii, ii, 0);
+		int ii = Ai[k];
+		int K = check_csc_index(Cp, Ci, ii, ii, 0);
 
-		if (K < 0) error(_("cscb_syrk: C[%d,%d] not defined"), ii, ii);
 		if (scalar) Cx[K] += alpha * Ax[k] * Ax[k];
 		else F77_CALL(dsyrk)((uplo == UPP) ? "U" : "L", "N",
 				     cdims, adims + 1,
@@ -546,6 +546,7 @@ cscb_trcbsm(enum CBLAS_SIDE side, enum CBLAS_UPLO uplo,
 				/* transpose B */
 	    for (i = 0, nrbB = -1; i < nnz; i++)
 		if (Bi[i] > nrbB) nrbB = Bi[i];
+	    nrbB++;		/* max 0-based index is 1 too small */
 	    BTp = Calloc(nrbB, int);
 	    triplet_to_col(ncbB, nrbB, nnz, tmp, Bi, Bx, BTp, BTi, BTx);
 				/* sanity check */
@@ -560,10 +561,11 @@ cscb_trcbsm(enum CBLAS_SIDE side, enum CBLAS_UPLO uplo,
 			     Ap, Ai, Ax);
 		/* write non-zeros in sol'n into B */
 		for (j = 0; j < ncbB; j++) {
-		    if (BTx[j]) Bx[check_csc_index(Bp, Bi, j, i, 0)] = BTx[j];
+		    if (rhs[j]) Bx[check_csc_index(Bp, Bi, i, j, 0)] = rhs[j];
 		}
-		Free(rhs); Free(BTp); Free(BTx); Free(BTi);
 	    }
+	    Free(rhs); Free(BTp); Free(BTx); Free(BTi);
+	    return;
 	}
 	error(_("cscb_trcbsm: method not yet written"));
     }

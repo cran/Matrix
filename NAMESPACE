@@ -70,7 +70,8 @@ exportClasses(
 	      "corrmatrix",
 	      "pMatrix",
 	      "pdmatrix",
-	      "dCholCMatrix"
+	      "dCholCMatrix",
+              "lCholCMatrix"
 	      )
 
 exportMethods(

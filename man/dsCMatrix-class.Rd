@@ -11,6 +11,7 @@
 \alias{coerce,dsCMatrix,dgTMatrix-method}
 \alias{coerce,dsCMatrix,dgeMatrix-method}
 \alias{coerce,dsCMatrix,matrix-method}
+\alias{coerce,dsCMatrix,lsCMatrix-method}
 \alias{coerce,dsTMatrix,matrix-method}
 \alias{coerce,dsTMatrix,dgeMatrix-method}
 \alias{coerce,dsTMatrix,dsCMatrix-method}

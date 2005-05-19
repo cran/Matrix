@@ -15,11 +15,12 @@
 #include "dtrMatrix.h"
 #include "dtpMatrix.h"
 #include "factorizations.h"
+#include "lCholCMatrix.h"
 #include "lgCMatrix.h"
 #include "lgTMatrix.h"
+#include "lsCMatrix.h"
+#include "ltCMatrix.h"
 #include "lmer.h"
-#include "sscCrosstab.h"
-#include "ssclme.h"
 #include <R_ext/Rdynload.h>
 
 #include "Syms.h"
@@ -31,6 +32,7 @@ static R_CallMethodDef CallEntries[] = {
     {"pCholesky_validate", (DL_FUNC) &pCholesky_validate, 1},
     {"LU_expand", (DL_FUNC) &LU_expand, 1},
     {"LU_validate", (DL_FUNC) &LU_validate, 1},
+    {"Matrix_expand_pointers", (DL_FUNC) &Matrix_expand_pointers, 1},
     {"SVD_validate", (DL_FUNC) &SVD_validate, 1},
     {"csc_check_column_sorting", (DL_FUNC) &csc_check_column_sorting, 1},
     {"csc_crossprod", (DL_FUNC) &csc_crossprod, 1},
@@ -129,10 +131,15 @@ static R_CallMethodDef CallEntries[] = {
     {"dtrMatrix_solve", (DL_FUNC) &dtrMatrix_solve, 1},
     {"dtrMatrix_validate", (DL_FUNC) &dtrMatrix_validate, 1},
     {"lapack_qr", (DL_FUNC) &lapack_qr, 2},
-    {"lgCMatrix_crossprod", (DL_FUNC) &lgCMatrix_crossprod, 2},
+    {"lCholCMatrix_solve", (DL_FUNC) &lCholCMatrix_solve, 1},
+    {"lCholCMatrix_lgCMatrix_solve", (DL_FUNC) &lCholCMatrix_lgCMatrix_solve, 2},
+    {"lCholCMatrix_validate", (DL_FUNC) &lCholCMatrix_validate, 1},
+    {"lgCMatrix_crossprod", (DL_FUNC) &lgCMatrix_crossprod, 3},
     {"lgCMatrix_lgCMatrix_mm", (DL_FUNC) &lgCMatrix_lgCMatrix_mm, 2},
+    {"lgCMatrix_picky_column", (DL_FUNC) &lgCMatrix_picky_column, 1},
     {"lgCMatrix_trans", (DL_FUNC) &lgCMatrix_trans, 1},
     {"lgCMatrix_validate", (DL_FUNC) &lgCMatrix_validate, 1},
+    {"lgTMatrix_as_lgCMatrix", (DL_FUNC) &lgTMatrix_as_lgCMatrix, 1},
     {"lgTMatrix_validate", (DL_FUNC) &lgTMatrix_validate, 1},
     {"lmer_Crosstab", (DL_FUNC) &lmer_Crosstab, 1},
     {"lmer_ECMEsteps", (DL_FUNC) &lmer_ECMEsteps, 4},
@@ -157,38 +164,17 @@ static R_CallMethodDef CallEntries[] = {
     {"lmer_collapse", (DL_FUNC) &lmer_collapse, 1},
     {"lmer_laplace_devComp", (DL_FUNC) &lmer_laplace_devComp, 1},
 
-
+    {"lsCMatrix_chol", (DL_FUNC) &lsCMatrix_chol, 2},
+    {"lsCMatrix_trans", (DL_FUNC) &lsCMatrix_trans, 1},
+    {"lsCMatrix_validate", (DL_FUNC) &lsCMatrix_validate, 1},
+    {"ltCMatrix_trans", (DL_FUNC) &ltCMatrix_trans, 1},
+    {"ltCMatrix_validate", (DL_FUNC) &ltCMatrix_validate, 1},
     {"lsq_dense_Chol", (DL_FUNC) &lsq_dense_Chol, 2},
     {"lsq_dense_QR", (DL_FUNC) &lsq_dense_QR, 2},
     {"matrix_to_csc", (DL_FUNC) &matrix_to_csc, 1},
     {"nlme_replaceSlot", (DL_FUNC) &nlme_replaceSlot, 3},
     {"nlme_weight_matrix_list", (DL_FUNC) &nlme_weight_matrix_list, 4},
-    {"sscCrosstab", (DL_FUNC) &sscCrosstab, 2},
-    {"sscCrosstab_groupedPerm", (DL_FUNC) &sscCrosstab_groupedPerm, 1},
-    {"sscCrosstab_project2", (DL_FUNC) &sscCrosstab_project2, 1},
     {"ssc_transpose", (DL_FUNC) &ssc_transpose, 1},
-    {"ssclme_EMsteps", (DL_FUNC) &ssclme_EMsteps, 4},
-    {"ssclme_Hessian", (DL_FUNC) &ssclme_Hessian, 3},
-    {"ssclme_coef", (DL_FUNC) &ssclme_coef, 2},
-    {"ssclme_coefGets", (DL_FUNC) &ssclme_coefGets, 3},
-    {"ssclme_coefGetsUnc", (DL_FUNC) &ssclme_coefGetsUnc, 2},
-    {"ssclme_coefUnc", (DL_FUNC) &ssclme_coefUnc, 1},
-    {"ssclme_collapse", (DL_FUNC) &ssclme_collapse, 1},
-    {"ssclme_create", (DL_FUNC) &ssclme_create, 2},
-    {"ssclme_factor", (DL_FUNC) &ssclme_factor, 1},
-    {"ssclme_fitted", (DL_FUNC) &ssclme_fitted, 4},
-    {"ssclme_fixef", (DL_FUNC) &ssclme_fixef, 1},
-    {"ssclme_grad", (DL_FUNC) &ssclme_grad, 4},
-    {"ssclme_gradient", (DL_FUNC) &ssclme_gradient, 3},
-    {"ssclme_inflate_and_factor", (DL_FUNC) &ssclme_inflate_and_factor, 1},
-    {"ssclme_initial", (DL_FUNC) &ssclme_initial, 1},
-    {"ssclme_invert", (DL_FUNC) &ssclme_invert, 1},
-    {"ssclme_ranef", (DL_FUNC) &ssclme_ranef, 1},
-    {"ssclme_sigma", (DL_FUNC) &ssclme_sigma, 2},
-    {"ssclme_to_lme", (DL_FUNC) &ssclme_to_lme, 10},
-    {"ssclme_transfer_dimnames", (DL_FUNC) &ssclme_transfer_dimnames, 3},
-    {"ssclme_update_mm", (DL_FUNC) &ssclme_update_mm, 3},
-    {"ssclme_variances", (DL_FUNC) &ssclme_variances, 1},
     {"tsc_to_dgTMatrix", (DL_FUNC) &tsc_to_dgTMatrix, 1},
     {"tsc_transpose", (DL_FUNC) &tsc_transpose, 1},
     {"tsc_validate", (DL_FUNC) &tsc_validate, 1},

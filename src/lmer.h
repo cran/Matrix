@@ -4,7 +4,13 @@
 #include "Mutils.h"
 #include "triplet_to_col.h"
 #include "dgBCMatrix.h"
-#include "bCrosstab.h"
+#include "dgCMatrix.h"
+#include "Metis_utils.h"
+#include "R_ldl.h"
+#include "dsCMatrix.h"
+#include "dtCMatrix.h"
+#include "lgCMatrix.h"
+#include "lCholCMatrix.h"
 #include <R_ext/Lapack.h>
 #include <R_ext/Constants.h>
 
@@ -26,9 +32,8 @@ SEXP lmer_gradient(SEXP x, SEXP REMLp, SEXP Uncp);
 SEXP lmer_variances(SEXP x);
 SEXP lmer_Crosstab(SEXP flist);
 SEXP lmer_firstDer(SEXP x, SEXP val);
-
-/*   EXPERIMENTAL!   EXPERIMENTAL!   EXPERIMENTAL!  */
 SEXP lmer_collapse(SEXP x);
 SEXP lmer_laplace_devComp(SEXP x);
+void lmer_populate(SEXP val);
 
 #endif

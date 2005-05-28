@@ -1,14 +1,4 @@
 #include "lmer.h"
-/* TODO
- * - The egsingle example with ~year|childid+schoolid shows an unusual
- *   drop in the deviance when switching from ECME to optim.  Is it real?
- *   (Apparently so.)
- * - Remove the fill_nnz function and the PAR and BLK macros.  Do the
- *   allocation of temporary storage once only.
- * - Perhaps change lmer_crosstab to omit to counts and work with
- *   logical sparse matrix forms only.  (We only use the form, not the
- *   counts)
- */
 
 /**
  * Check validity of an lmer object.
@@ -199,7 +189,8 @@ factor_levels_permute(SEXP dest, SEXP src, const int perm[],
 void
 lmer_populate(SEXP val)
 {
-    SEXP D, L, Parent, ZZpO, flist = GET_SLOT(val, Matrix_flistSym),
+    SEXP D, L, Parent, ZZpO, 
+	flist = GET_SLOT(val, Matrix_flistSym),
 	perm, Omega, ZtZ = GET_SLOT(val, Matrix_ZtZSym);
     SEXP fnms = getAttrib(flist, R_NamesSymbol);
     int j, k, nf = length(flist);
@@ -233,6 +224,7 @@ lmer_populate(SEXP val)
 	nlev[j] = length(getAttrib(VECTOR_ELT(flist, j), R_LevelsSymbol));
 	Gp[j + 1] = Gp[j] + nc[j] * nlev[j];
 	SET_VECTOR_ELT(D, j, alloc3Darray(REALSXP, nc[j], nc[j], nlev[j]));
+	AZERO(REAL(VECTOR_ELT(D, j)), nc[j] * nc[j] * nlev[j]);
 	SET_VECTOR_ELT(Omega, j, allocMatrix(REALSXP, nc[j], nc[j]));
 	SET_VECTOR_ELT(ZZpO, j, duplicate(VECTOR_ELT(ZtZ, Lind(j, j))));
 	for (k = j; k < nf; k++)
@@ -977,13 +969,13 @@ SEXP lmer_invert(SEXP x)
 
 	alloc_tmp_ind(nf, nc, nlevs, ParP, tmp, ind);
 	/* Create bVar arrays as crossprod of column blocks of D^{-T/2}%*%L^{-1} */
-	for (i = 0; i < nf; i++) {
+	for (i = 0; i < nf; i++) { /* ith column of outer blocks */
 	    int j, k, kj, nci = nc[i];
 	    int ncisqr = nci * nci;
 	    double *Di = REAL(VECTOR_ELT(DP, i)),
 		*bVi = REAL(VECTOR_ELT(bVarP, i));
 
-	    AZERO(bVi, nlevs[i] * ncisqr); /* zero the accumulator */
+	    AZERO(bVi, ncisqr * nlevs[i]);
 	    for (j = 0; j < nlevs[i]; j++) {
 		double *bVij = bVi + j * ncisqr, *Dij = Di + j * ncisqr;
 		
@@ -991,8 +983,8 @@ SEXP lmer_invert(SEXP x)
 				&nci, &zero, bVij, &nci);
 		/* count non-zero blocks; allocate and zero storage */
 		fill_ind(i, j, nf, ParP, nnz, ind);
-		/* kth row of outer blocks */
-		for (k = i; k < nf; k++) {
+
+		for (k = i; k < nf; k++) { /* kth row of outer blocks */
 		    SEXP Lki = VECTOR_ELT(LP, Lind(k, i));
 		    int *Lkii = INTEGER(GET_SLOT(Lki, Matrix_iSym)),
 			*Lkip = INTEGER(GET_SLOT(Lki, Matrix_pSym));
@@ -1015,16 +1007,17 @@ SEXP lmer_invert(SEXP x)
 			Lkip = INTEGER(GET_SLOT(Lki, Matrix_pSym));
 			Lkix = REAL(GET_SLOT(Lki, Matrix_xSym));
 			for (kj = 0; kj < nnz[kk]; kj++) {
-			    int col = ind[kk][kj], k1;
+			    int col = ind[kk][kj], k1, szkk = nc[i] * nc[kk];
 			    
 			    for (k1 = Lkip[col]; k1 < Lkip[col + 1]; k1++) {
 				if ((kk == k) && col >= Lkii[k1]) break;
-				F77_CALL(dgemm)("N", "N", nc+k, &nci, nc+kk,
+				F77_CALL(dgemm)("N", "N", &nc[k], &nci, &nc[kk],
 						&minus1, Lkix + k1 * szk,
-						nc + k, tmp[kk] + kj * szk,
-						nc + k, &one,
-						tmp[k]+fsrch(Lkii[k1],ind[k],nnz[k])*sz,
-						nc + k);
+						&nc[k], tmp[kk] + kj * szkk,
+						&nc[kk], &one,
+						tmp[k] +
+						fsrch(Lkii[k1],ind[k],nnz[k])*sz,
+						&nc[k]);
 			    }
 			}
 		    }
@@ -1094,24 +1087,31 @@ int coef_length(int nf, const int nc[])
 }
 
 /**
- * Extract the upper triangles of the Omega matrices.  These aren't
+ * Extract parameters from the Omega matrices.  These aren't
  * "coefficients" but the extractor is called coef for historical
  * reasons.  Within each group these values are in the order of the
  * diagonal entries first then the strict upper triangle in row
  * order.
+ * 
+ * The parameters can be returned in three forms:
+ *   0 - nonlinearly constrained - elements of the relative precision matrix
+ *   1 - unconstrained - from the LDL' decomposition - logarithms of
+ *       the diagonal elements of D
+ *   2 - box constrained - also from the LDL' decomposition - inverses
+ *       of the diagonal elements of D
  *
  * @param x pointer to an lme object
- * @param Unc pointer to a logical scalar indicating if the parameters
- * are in the unconstrained form.
+ * @param pType pointer to an integer scalar indicating the form of the 
+ *        parameters to be returned.
  *
  * @return numeric vector of the values in the upper triangles of the
  * Omega matrices
  */
-SEXP lmer_coef(SEXP x, SEXP Unc)
+SEXP lmer_coef(SEXP x, SEXP pType)
 {
     SEXP Omega = GET_SLOT(x, Matrix_OmegaSym);
     int	*nc = INTEGER(GET_SLOT(x, Matrix_ncSym)),
-	i, nf = length(Omega), unc = asLogical(Unc), vind;
+	i, nf = length(Omega), ptyp = asInteger(pType), vind;
     SEXP val = PROTECT(allocVector(REALSXP, coef_length(nf, nc)));
     double *vv = REAL(val);
 
@@ -1119,11 +1119,10 @@ SEXP lmer_coef(SEXP x, SEXP Unc)
     for (i = 0; i < nf; i++) {
 	int nci = nc[i], ncip1 = nci + 1;
 	if (nci == 1) {
-	    vv[vind++] = (unc ?
-			  log(REAL(VECTOR_ELT(Omega, i))[0]) :
-			  REAL(VECTOR_ELT(Omega, i))[0]);
+	    double dd = REAL(VECTOR_ELT(Omega, i))[0];
+	    vv[vind++] = ptyp ? ((ptyp == 1) ? log(dd) : 1./dd) : dd;
 	} else {
-	    if (unc) {		/* L log(D) L' factor of Omega[,,i] */
+	    if (ptyp) {	/* L log(D) L' factor of Omega[,,i] */
 		int j, k, ncisq = nci * nci;
 		double *tmp = Memcpy(Calloc(ncisq, double),
 				     REAL(VECTOR_ELT(Omega, i)), ncisq);
@@ -1133,7 +1132,8 @@ SEXP lmer_coef(SEXP x, SEXP Unc)
 			  j, i+1);
 		for (j = 0; j < nci; j++) {
 		    double diagj = tmp[j * ncip1];
-		    vv[vind++] = 2. * log(diagj);
+		    vv[vind++] = (ptyp == 1) ? (2. * log(diagj)) :
+			1./(diagj * diagj);
 		    for (k = j + 1; k < nci; k++) {
 			tmp[j + k * nci] /= diagj;
 		    }
@@ -1164,23 +1164,22 @@ SEXP lmer_coef(SEXP x, SEXP Unc)
 
 
 /**
- * Assign the upper triangles of the Omega matrices.
- * (Called coef for historical reasons.)
+ * Assign the upper triangles of the Omega matrices according to a
+ * vector of parameters.
  *
  * @param x pointer to an lme object
  * @param coef pointer to an numeric vector of appropriate length
- * @param Unc pointer to a logical scalar indicating if the parameters
- * are in the unconstrained form.
+ * @param pType pointer to an integer scalar 
  *
  * @return R_NilValue
  */
-SEXP lmer_coefGets(SEXP x, SEXP coef, SEXP Unc)
+SEXP lmer_coefGets(SEXP x, SEXP coef, SEXP pType)
 {
     SEXP Omega = GET_SLOT(x, Matrix_OmegaSym);
     int	*nc = INTEGER(GET_SLOT(x, Matrix_ncSym)),
 	*status = LOGICAL(GET_SLOT(x, Matrix_statusSym)),
 	cind, i, nf = length(Omega),
-	unc = asLogical(Unc);
+	ptyp = asInteger(pType);
     double *cc = REAL(coef);
 
     if (length(coef) != coef_length(nf, nc) || !isReal(coef))
@@ -1190,9 +1189,9 @@ SEXP lmer_coefGets(SEXP x, SEXP coef, SEXP Unc)
     for (i = 0; i < nf; i++) {
 	int nci = nc[i];
 	if (nci == 1) {
-	    REAL(VECTOR_ELT(Omega, i))[0] = (unc ?
-					     exp(cc[cind++]) :
-					     cc[cind++]);
+	    double dd = cc[cind++];
+	    REAL(VECTOR_ELT(Omega, i))[0] =
+		ptyp ? ((ptyp == 1) ? exp(dd) : 1./dd) : dd;
 	} else {
 	    int odind = cind + nci, /* off-diagonal index */
 		j, k,
@@ -1200,14 +1199,15 @@ SEXP lmer_coefGets(SEXP x, SEXP coef, SEXP Unc)
 		ncisq = nci * nci;
 	    double
 		*omgi = REAL(VECTOR_ELT(Omega, i));
-	    if (unc) {
-		double
-		    *tmp = Calloc(ncisq, double),
+	    if (ptyp) {
+		double *tmp = Calloc(ncisq, double),
 		    diagj, one = 1., zero = 0.;
 
 		AZERO(omgi, ncisq);
 		for (j = 0; j < nci; j++) {
-		    tmp[j * ncip1] = diagj = exp(cc[cind++]/2.);
+		    double dd = cc[cind++];
+		    tmp[j * ncip1] = diagj =
+			(ptyp == 1) ? exp(dd/2.) : sqrt(1./dd);
 		    for (k = j + 1; k < nci; k++) {
 			tmp[k*nci + j] = cc[odind++] * diagj;
 		    }
@@ -1560,12 +1560,12 @@ SEXP lmer_ECMEsteps(SEXP x, SEXP nsteps, SEXP REMLp, SEXP Verbp)
     return val;
 }
 
-SEXP lmer_gradient(SEXP x, SEXP REMLp, SEXP Uncp)
+SEXP lmer_gradient(SEXP x, SEXP REMLp, SEXP pType)
 {
     SEXP Omega = GET_SLOT(x, Matrix_OmegaSym);
     int *nc = INTEGER(GET_SLOT(x, Matrix_ncSym)),
 	dind, i, ifour = 4, info, ione = 1, nf = length(Omega),
-	odind, unc = asLogical(Uncp);
+	odind, ptyp = asInteger(pType);
     SEXP
 	firstDer = lmer_firstDer(x, PROTECT(EM_grad_array(nf, nc))),
 	val = PROTECT(allocVector(REALSXP, coef_length(nf, nc)));
@@ -1585,12 +1585,13 @@ SEXP lmer_gradient(SEXP x, SEXP REMLp, SEXP Uncp)
 			REAL(VECTOR_ELT(firstDer, i)), &ncisqr,
 			cc, &ifour, &zero, tmp, &ncisqr);
 	if (nci == 1) {
-	    REAL(val)[dind++] = (unc ? Omgi[0] : 1.) * tmp[0];
+	    REAL(val)[dind++] =
+		(ptyp?((ptyp == 1)?Omgi[0]: -Omgi[0] * Omgi[0]) : 1) * tmp[0];
 	} else {
 	    int ii, j, ncip1 = nci + 1;
 
 	    odind = dind + nci; /* index into val for off-diagonals */
-	    if (unc) {
+	    if (ptyp) {
 		double *chol = Memcpy(Calloc(ncisqr, double),
 				      REAL(VECTOR_ELT(Omega, i)), ncisqr),
 		    *tmp2 = Calloc(ncisqr, double);
@@ -1615,7 +1616,12 @@ SEXP lmer_gradient(SEXP x, SEXP REMLp, SEXP Uncp)
 			tmp[ii + j*nci] = 0.;
 		    }
 		}
-		Free(chol); Free(tmp2);
+		if (ptyp > 1)
+		    for (ii = 0; ii < nci; ii++) {
+			int ind = ii * ncip1;
+			double sqrtd = chol[ind];
+			tmp[ind] *= -(sqrtd*sqrtd);
+		    }
 	    }
 	    for (j = 0; j < nci; j++) {
 		REAL(val)[dind + j] = tmp[j * ncip1];

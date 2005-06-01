@@ -35,5 +35,6 @@ SEXP lmer_firstDer(SEXP x, SEXP val);
 SEXP lmer_collapse(SEXP x);
 SEXP lmer_laplace_devComp(SEXP x);
 void lmer_populate(SEXP val);
+SEXP Matrix_GHQ_coef(SEXP np);
 
 #endif

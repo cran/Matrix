@@ -33,6 +33,7 @@ static R_CallMethodDef CallEntries[] = {
     {"LU_expand", (DL_FUNC) &LU_expand, 1},
     {"LU_validate", (DL_FUNC) &LU_validate, 1},
     {"Matrix_expand_pointers", (DL_FUNC) &Matrix_expand_pointers, 1},
+    {"Matrix_GHQ_coef", (DL_FUNC) &Matrix_GHQ_coef, 1},
     {"SVD_validate", (DL_FUNC) &SVD_validate, 1},
     {"csc_check_column_sorting", (DL_FUNC) &csc_check_column_sorting, 1},
     {"csc_crossprod", (DL_FUNC) &csc_crossprod, 1},
@@ -159,11 +160,8 @@ static R_CallMethodDef CallEntries[] = {
     {"lmer_update_mm", (DL_FUNC) &lmer_update_mm, 2},
     {"lmer_validate", (DL_FUNC) &lmer_validate, 1},
     {"lmer_variances", (DL_FUNC) &lmer_variances, 1},
-
-    /* added by deepayan */
     {"lmer_collapse", (DL_FUNC) &lmer_collapse, 1},
     {"lmer_laplace_devComp", (DL_FUNC) &lmer_laplace_devComp, 1},
-
     {"lsCMatrix_chol", (DL_FUNC) &lsCMatrix_chol, 2},
     {"lsCMatrix_trans", (DL_FUNC) &lsCMatrix_trans, 1},
     {"lsCMatrix_validate", (DL_FUNC) &lsCMatrix_validate, 1},

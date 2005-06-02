@@ -1887,6 +1887,47 @@ SEXP lmer_collapse(SEXP x)
     return ans;
 }
 
+/* Gauss-Hermite Quadrature x positions */
+static const double
+    GHQ_x1[1] = {0},
+    GHQ_w1[1] = {1},
+    GHQ_x2[1] = {1},
+    GHQ_w2[1] = {0.5},
+    GHQ_x3[2] = {1.7320507779261, 0},
+    GHQ_w3[2] = {0.166666666666667, 0.666666666666667},
+    GHQ_x4[2] = {2.3344141783872, 0.74196377160456},
+    GHQ_w4[2] = {0.0458758533899086, 0.454124131589555},
+    GHQ_x5[3] = {2.85696996497785, 1.35562615677371, 0},
+    GHQ_w5[3] = {0.0112574109895360, 0.222075915334214, 0.533333317311434},
+    GHQ_x6[3] = {3.32425737665988, 1.88917584542184, 0.61670657963811},
+    GHQ_w6[3] = {0.00255578432527774, 0.0886157433798025, 0.408828457274383},
+    GHQ_x7[4] = {3.7504396535397, 2.36675937022918, 1.15440537498316, 0},
+    GHQ_w7[4] = {0.000548268839501628, 0.0307571230436095, 0.240123171391455,
+		 0.457142843409801},
+    GHQ_x8[4] = {4.14454711519499, 2.80248581332504, 1.63651901442728,
+		 0.539079802125417},
+    GHQ_w8[4] = {0.000112614534992306, 0.0096352198313359, 0.117239904139746,
+		 0.373012246473389},
+    GHQ_x9[5] = {4.51274578616743, 3.20542894799789, 2.07684794313409,
+		 1.02325564627686, 0},
+    GHQ_w9[5] = {2.23458433364535e-05, 0.00278914123744297, 0.0499164052656755,
+		 0.244097495561989, 0.406349194142045},
+    GHQ_x10[5] = {4.85946274516615, 3.58182342225163, 2.48432579912153,
+		  1.46598906930182, 0.484935699216176},
+    GHQ_w10[5] = {4.31065250122166e-06, 0.000758070911538954, 0.0191115799266379,
+		  0.135483698910192, 0.344642324578594},
+    GHQ_x11[6] = {5.18800113558601, 3.93616653976536, 2.86512311160915,
+		  1.87603498804787, 0.928868981484148, 0},
+    GHQ_w11[6] = {8.12184954622583e-07, 0.000195671924393029, 0.0067202850336527,
+		  0.066138744084179, 0.242240292596812, 0.36940835831095};
+
+static const double*
+    GHQ_x[12] = {(double *) NULL, GHQ_x1, GHQ_x2, GHQ_x3, GHQ_x4, GHQ_x5,
+		 GHQ_x6, GHQ_x7, GHQ_x8, GHQ_x9, GHQ_x10, GHQ_x11};
+static const double*
+    GHQ_w[12] = {(double *) NULL, GHQ_w1, GHQ_w2, GHQ_w3, GHQ_w4, GHQ_w5,
+		 GHQ_w6, GHQ_w7, GHQ_w8, GHQ_w9, GHQ_w10, GHQ_w11};
+
 /** 
  * Compute certain components of the Laplace likelihood approximation 
  * 
@@ -1948,7 +1989,7 @@ SEXP lmer_laplace_devComp(SEXP x) {
     UNPROTECT(1);
     return ScalarReal(ans);
 }
-
+				 
 /* R-callable drivers to test some utilities */
 
 SEXP lmer_Crosstab(SEXP flist)
@@ -1972,17 +2013,3 @@ SEXP lmer_Crosstab(SEXP flist)
     Free(nc);
     return val;
 }
-
-SEXP Matrix_GHQ_coef(SEXP np)
-{
-    int n = asInteger(np);
-    char *nms[] = {"x", "w", ""};
-    SEXP ans = PROTECT(Matrix_make_named(VECSXP, nms));
-
-    SET_VECTOR_ELT(ans, 0, allocVector(REALSXP, n));
-    SET_VECTOR_ELT(ans, 1, allocVector(REALSXP, n));
-    F77_CALL(ghq)(&n, REAL(VECTOR_ELT(ans, 0)), REAL(VECTOR_ELT(ans, 1)));
-    UNPROTECT(1);
-    return ans;
-}
-

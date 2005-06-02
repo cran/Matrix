@@ -4,8 +4,7 @@ pkg = Matrix
 PKG_CFLAGS = -I./Metis
 PKG_LIBS = ${LAPACK_LIBS} ${BLAS_LIBS}
 include SOURCES_C.mkf
-SOURCES.F = ghq.f
-OBJECTS = $(SOURCES_C:.c=.o) $(SOURCES.F:.f=.o)
+OBJECTS = $(SOURCES_C:.c=.o)
 SHLIB = $(pkg)$(SHLIB_EXT)
 SUBDIRS = Metis
 SUBLIBS = $(SUBDIRS:=.a)

@@ -33,7 +33,6 @@ static R_CallMethodDef CallEntries[] = {
     {"LU_expand", (DL_FUNC) &LU_expand, 1},
     {"LU_validate", (DL_FUNC) &LU_validate, 1},
     {"Matrix_expand_pointers", (DL_FUNC) &Matrix_expand_pointers, 1},
-    {"Matrix_GHQ_coef", (DL_FUNC) &Matrix_GHQ_coef, 1},
     {"SVD_validate", (DL_FUNC) &SVD_validate, 1},
     {"csc_check_column_sorting", (DL_FUNC) &csc_check_column_sorting, 1},
     {"csc_crossprod", (DL_FUNC) &csc_crossprod, 1},
@@ -221,9 +220,6 @@ void R_init_Matrix(DllInfo *dll)
     Matrix_uploSym = install("uplo");
     Matrix_xSym = install("x");
     Matrix_zSym = install("z");
-
-    /* added by deepayan */
-
     Matrix_REMLSym = install("REML");
     Matrix_callSym = install("call");
     Matrix_termsSym = install("terms");
@@ -231,5 +227,4 @@ void R_init_Matrix(DllInfo *dll)
     Matrix_fittedSym = install("fitted");
     Matrix_residualsSym = install("residuals");
     Matrix_frameSym = install("frame");
-
 }

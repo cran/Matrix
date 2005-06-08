@@ -2,6 +2,7 @@
 #define MATRIX_CSC_H
 
 #include <Rdefines.h>
+#include <R_ext/BLAS.h>
 #include "Mutils.h"
 #include "R_ldl.h"
 #include "triplet_to_col.h"
@@ -17,7 +18,7 @@ SEXP matrix_to_csc(SEXP A);
 SEXP dgTMatrix_to_csc(SEXP dgTMatrix);
 SEXP csc_getDiag(SEXP x);
 SEXP csc_transpose(SEXP x);
-SEXP csc_matrix_mm(SEXP a, SEXP b);
+SEXP csc_matrix_mm(SEXP a, SEXP b, SEXP classed, SEXP right);
 SEXP csc_col_permute(SEXP x, SEXP perm);
 
 #endif

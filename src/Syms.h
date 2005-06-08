@@ -29,6 +29,7 @@ SEXP
     Matrix_ipermSym,
     Matrix_jSym,
     Matrix_matSym,
+    Matrix_methodSym,
     Matrix_ncSym,
     Matrix_pSym,
     Matrix_permSym,
@@ -37,8 +38,6 @@ SEXP
     Matrix_uploSym,
     Matrix_xSym,
     Matrix_zSym,
-
-    /* added by deepayan */
     Matrix_REMLSym,
     Matrix_callSym,
     Matrix_termsSym,

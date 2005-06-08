@@ -92,15 +92,14 @@ Class \code{"Matrix"}, by class \code{"dgeMatrix"}.
 ## Only upper triangular part matters (when uplo == "U" as per default)
 (sy2 <- new("dsyMatrix", Dim = as.integer(c(2,2)), x = c(14, NA,32,77)))
 (c2 <- chol(sy2))
+all.equal(c2, c2. <- chol(as(sy2, "dpoMatrix")))# equal, but not same class
 str(c2)
 
 ## An example where chol() can't work
 (sy3 <- new("dsyMatrix", Dim = as.integer(c(2,2)), x = c(14, -1, 2, -7)))
 
-## gives an error in R <= 2.0.0 :
-\dontrun{
 validObject(as(sy3, "dpoMatrix"), test=TRUE) # >> is not pos.def.
-}
+% .... Lapack routine dpotrf returned error code 2 -- FIXME: better message
 try(chol(sy3)) ## Error: not pos.def
 }
 \keyword{classes}

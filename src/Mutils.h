@@ -53,10 +53,6 @@ void csc_compTr(int m, int n, int nnz,
 		int ap[], int ai[], double ax[]);
 void ssc_symbolic_permute(int n, int upper, const int perm[],
 			  int Ap[], int Ai[]);
-double *nlme_symmetrize(double *a, const int nc);
-void nlme_check_Lapack_error(int info, const char *laName);
-SEXP nlme_replaceSlot(SEXP obj, SEXP names, SEXP value);
-SEXP nlme_weight_matrix_list(SEXP MLin, SEXP wts, SEXP adjst, SEXP MLout);
 SEXP Matrix_make_named(int TYP, char **names);
 SEXP check_scalar_string(SEXP sP, char *vals, char *nm);
 double *packed_to_full(double *dest, const double *src, int n,

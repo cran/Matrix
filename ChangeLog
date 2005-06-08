@@ -1,3 +1,8 @@
+2005-06-04  Douglas Bates  <bates@bates1-home>
+
+	* R/dgCMatrix.R: Call to csc_matrix_mm used undefined arguments
+	(reported by Guissepe Ragusa <gragusa@ucsd.edu>)
+
 2005-06-02  Douglas Bates  <bates@bates1-home>
 
 	* src/Makefile.win: Forgot to update this when Makefile changed.

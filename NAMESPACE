@@ -1,8 +1,10 @@
 useDynLib(Matrix)
 
 importFrom("graphics",image)
+importFrom("graphics",plot)             ## lmer-related
 importFrom("lattice", levelplot)
 importFrom("grid",    grid.rect, gpar, grob)
+import("stats")                         ## lmer-related
 
 ## Currently, group generics need to be explicitly imported (Bug?):
 importFrom("methods", Arith, Compare, Math, Math2, Summary, Complex)
@@ -24,6 +26,9 @@ export(
        "tcrossprod",
        "unpack"
        )
+
+## lmer-related
+export("lmer")
 
 exportClasses(
 	      "BunchKaufman",
@@ -74,6 +79,10 @@ exportClasses(
               "lCholCMatrix"
 	      )
 
+## lmer-related
+exportClasses("VarCorr", "lmer", "mer", "summary.lmer")
+
+
 exportMethods(
 	      ## Group Methods
 	      "Arith",
@@ -108,3 +117,8 @@ exportMethods(
 	      "t",
 	      "tcrossprod"
 	      )
+
+## lmer-related
+exportMethods("BIC", "anova", "coef", "confint", "deviance", "fitted", "fixef",
+              "formula", "lmer", "logLik", "plot", "ranef", "residuals", "resid",
+              "summary", "update", "vcov", "VarCorr", "with")

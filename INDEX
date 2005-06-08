@@ -1,4 +1,5 @@
 bCrosstab               Create pairwise crosstabulation
+BIC                     Bayesian Information Criterion
 Cholesky-class          Cholesky and Bunch-Kaufman Decompositions
 corrmatrix-class        Class "corrmatrix"
 dCholCMatrix-class      Cholesky Decompositions of dsCMatrix Objects
@@ -23,7 +24,10 @@ dtrMatrix-class         Triangular, dense, numeric matrices
 expand                  Expand a Decomposition into Factors
 expm                    Matrix exponential
 facmul                  Multiplication by Decomposition Factors
+fixef                   Extract Fixed Effects
 Hilbert                 Generate a Hilbert matrix
+lmer                    Fit linear mixed-effects models
+lmer-class              Mixed model representations
 lsparseMatrix-class     Sparse logical matrices
 lu                      Triangular Decomposition of a Square Matrix
 LU-class                LU Matrix Decompositions
@@ -35,10 +39,13 @@ mm                      A sample sparse model matrix
 norm                    Norm of a Matrix
 pdmatrix-class          Positive-definite matrices
 pMatrix-class           Permutation matrices
+ranef                   Extract Random Effects
 rcond                   Estimate the Reciprocal Condition Number
 Schur                   Schur Decomposition of a Matrix
 sparseMatrix-class      Virtual Class "sparseMatrix" -- Mother of
                         Sparse Matrices
 tcrossprod              Cross-product of transpose
 unpack                  Full Storage Representation of Packed Matrices
+VarCorr                 Extract variance and correlation components
+VarCorr-class           Class "VarCorr"
 y                       A sample response vector

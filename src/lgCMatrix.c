@@ -345,7 +345,7 @@ SEXP lgCMatrix_picky_column(SEXP x)
     SEXP ans = PROTECT(allocVector(INTSXP, n));
     int *actr = Calloc(m, int),
 	*actc = Calloc(n, int),
-	cj, i, j, mincount, minloc, pos;
+	cj, i, j, mincount, minloc = -1, pos;
 
     for (i = 0; i < m; i++) actr[i] = 1;
     mincount = m + 1;

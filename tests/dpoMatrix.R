@@ -25,7 +25,6 @@ str(hp9 <- as(h9, "dppMatrix"))
 
 s9 <- solve(hp9, seq(nrow(hp9)))
 signif(t(s9)/10000, 4)# only rounded numbers are platform-independent
-hp9 %*% s9
-## Works in 2.1.0, but not earlier:
-## stopifnot(all.equal(cbind(1:9), as.matrix(hp9 %*% s9)))
-stopifnot(all.equal(1:9, (hp9 %*% s9)@x))
+(I9 <- hp9 %*% s9)
+stopifnot(all.equal(cbind(1:9), as.matrix(I9), tol = 2e-9))
+

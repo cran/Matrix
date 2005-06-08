@@ -27,7 +27,6 @@ chk.matrix(new("dgeMatrix"))
 
 ## "dge"
 assertError( new("dgeMatrix", Dim = c(2,2), x= 1:4) )# double 'Dim'
-if(paste(R.version$major, R.version$minor, sep=".") >= "2.0.1")
 assertError( new("dgeMatrix", Dim = as.integer(c(2,2)), x= 1:4) )# int 'x'
 assertError( new("dgeMatrix", Dim = 2:2, x=as.double(1:4)) )# length(Dim) !=2
 assertError( new("dgeMatrix", Dim = as.integer(c(2,2)), x= as.double(1:5)))
@@ -51,14 +50,17 @@ stopifnot(identical(dimnames(t34N),
 ## "dpo"
 chk.matrix(cm <- crossprod(m1))
 chk.matrix(as(cm, "dsyMatrix"))
-chk.matrix(as(cm, "dgeMatrix"))
-chk.matrix(as(cm, "dMatrix"))
+chk.matrix(dcm <- as(cm, "dgeMatrix"))
+chk.matrix(mcm <- as(cm, "dMatrix"))
+#BUG - FIXME: stopifnot(identical(dcm, mcm))
 try( chk.matrix(as(cm, "Matrix")) )# gives an error: "Matrix" has NULL 'dim()'
 
 ## Cholesky
 chk.matrix(ch <- chol(cm))
+#if(FALSE)# fails for Doug in R-devel (2005-06-06) :
 chk.matrix(ch2 <- chol(as(cm, "dsyMatrix")))
-#chk.matrix(ch3 <- chol(as(cm, "dgeMatrix")))
+#not yet{FIXME}: chk.matrix(ch3 <- chol(as(cm, "dgeMatrix")))
+#if(FALSE)# ...R-devel
 stopifnot(all.equal(as(ch, "matrix"), as(ch2, "matrix")))
 
 ### Very basic  triangular matrix stuff

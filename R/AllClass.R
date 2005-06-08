@@ -308,3 +308,74 @@ setClass("pdmatrix", contains="matrix")
 
                        # correlation matrices and standard deviations
 setClass("corrmatrix", representation("matrix", stdDev = "numeric"))
+
+## -------------------- lmer-related Classes --------------------------------
+
+setOldClass("data.frame")
+setOldClass("family")
+setOldClass("logLik")
+setOldClass("terms")
+
+setClass("VarCorr",
+         representation(scale="numeric",
+                        reSumry="list",
+                        useScale="logical"),
+         prototype = list(scale = 1.0, useScale = TRUE))
+
+## mixed effects representation
+setClass("mer",
+         representation(
+                        flist = "list", # list of grouping factors
+                        perm = "list",  # list of permutations of levels (0-based)
+                        Parent = "list",# list of Parent arrays for ZZpO
+                        D = "list",     # list of diagonal factors (upper triangle)
+                        bVar = "list",  # list of conditional variance factors (upper triangle)
+                        L = "list",     # list of blocks of L
+                        ZZpO = "list",  # list of diagonal blocks of Z'Z+Omega
+                        Omega = "list", # list of relative precision matrices
+                        method = "character", # parameter estimation method
+                        RXX = "matrix", # Augmented RXX component or its inverse
+                        RZX = "matrix", # Augmented RZX component or its inverse
+                        XtX = "matrix", # Original X'X matrix
+                        ZtZ = "list",   # list of blocks of Z'Z
+                        ZtX = "matrix", # Original Z'X matrix
+                        cnames = "list",# column names of model matrices
+                        devComp = "numeric", # Components of deviance
+                        deviance = "numeric", # Current deviance (ML and REML)
+                        nc = "integer", # number of columns in (augmented)
+                                        # model matrices and number of observations
+                        Gp = "integer", # Pointers to groups of rows in RZX
+                        status = "logical"
+                        ),
+         validity = function(object) {
+             .Call("lmer_validate", object, PACKAGE = "Matrix")
+         })
+
+## Representation of a linear or generalized linear mixed effects model
+setClass("lmer",
+         representation(assign = "integer", call = "call",
+                        family = "family", fitted = "numeric",
+                        fixed = "numeric", frame = "data.frame",
+                        logLik = "logLik", residuals = "numeric",
+                        terms = "terms"),
+         contains = "mer")
+                                
+## Representation of a generalized linear mixed effects model
+##setClass("glmer",
+##         representation(family = "family", glmmll = "numeric", fixed = "numeric"),
+##         contains = "lmer")
+
+setClass("summary.lmer",
+         representation(useScale="logical",
+                        showCorrelation="logical"),
+         contains = "lmer")
+
+setClass("lmer.ranef",
+         representation(varFac = "list", stdErr = "numeric"),
+         contains = "list")
+
+setClass("lmer.ranef.confint", contains = "list")
+
+setClass("lmer.coef",
+         representation(varFac = "list", stdErr = "numeric"),
+         contains = "list")

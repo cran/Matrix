@@ -1,5 +1,12 @@
 library(Matrix)
 
+is.all.equal3 <- function(x,y,z, tol = .Machine$double.eps^0.5)
+    isTRUE(all.equal(x,y, tol=tol)) && isTRUE(all.equal(y,z, tol=tol))
+
+is.all.equal4 <- function(x,y,z,u, tol = .Machine$double.eps^0.5)
+    is.all.equal3(x,y,z, tol=tol) && isTRUE(all.equal(z,u, tol=tol))
+
+
 data(mm)
 stopifnot(##is(mm) == c("dgCMatrix", "dMatrix", "Matrix"),
           dim(mm) == (dm <- c(1850, 712)),
@@ -22,5 +29,20 @@ stopifnot(validObject(tmm), dim(tmm) == dm[2:1],
           validObject(mTm), dim(mTm) == dm[c(2,2)],
           validObject(mmT), dim(mmT) == dm[c(1,1)],
           identical(as(tmm, "matrix"), t(as(mm, "matrix"))))
+
+## from a bug report by Guissepe Ragusa <gragusa@ucsd.edu>
+set.seed(101)
+for(i in 1:10) {
+    A <- matrix(rnorm(400), nrow = 100, ncol = 4)
+    A[A < +1] <- 0
+    Acsc <- as(A, "dgCMatrix")
+    A <- as(A, "dgeMatrix")
+    b <- matrix(rnorm(400), nrow = 4, ncol = 100)
+    B <- as(b, "dgeMatrix")
+    stopifnot(is.all.equal4(A %*% B, Acsc %*% B,
+                            A %*% b, Acsc %*% b),
+              is.all.equal4(b %*% A, b %*% Acsc,
+                            B %*% A, B %*% Acsc))
+}
 
 proc.time() # for ``statistical reasons''

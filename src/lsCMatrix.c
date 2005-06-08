@@ -61,7 +61,7 @@ SEXP lsCMatrix_chol(SEXP x, SEXP pivot)
     int j, n = INTEGER(GET_SLOT(x, Matrix_DimSym))[0];
     int *Xi = INTEGER(GET_SLOT(x, Matrix_iSym)),
 	*Xp = INTEGER(GET_SLOT(x, Matrix_pSym)),
-	*P, *Pinv, *Parent, *Lp;
+	*P, *Pinv = (int *) NULL, *Parent, *Lp;
     double *D = Calloc(n, double), *Tx, *Xx = Calloc(Xp[n], double);
 
     if (CHAR(asChar(GET_SLOT(x, Matrix_uploSym)))[0] != 'U')

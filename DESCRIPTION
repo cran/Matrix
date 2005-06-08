@@ -1,17 +1,17 @@
 Package: Matrix
-Version: 0.95-13
-Date: 2005-06-02
+Version: 0.96-1
+Date: 2005-06-08
 Title: A Matrix package for R
 Author: Douglas Bates <bates@stat.wisc.edu> and Martin Maechler <maechler@stat.math.ethz.ch>
 Maintainer: Douglas Bates <bates@stat.wisc.edu>
 Description: Classes and methods for numerical linear algebra
     using Lapack, LDL, and Metis.
 Depends: R (>= 2.1.0), methods
-Imports: graphics, lattice, grid
+Imports: graphics, lattice, grid, stats
 LazyLoad: yes
 LazyData: yes
 License: GPL version 2 or later.
  This R package includes code from the LDL and Metis packages,
  which are covered by separate copyrights.  See the file Copyrights for
  details.
-Packaged: Thu Jun  2 08:58:12 2005; bates
+Packaged: Fri Jun 10 12:41:16 2005; bates

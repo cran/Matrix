@@ -373,32 +373,51 @@ SEXP csc_transpose(SEXP x)
     return ans;
 }
 
-SEXP csc_matrix_mm(SEXP a, SEXP b)
+SEXP csc_matrix_mm(SEXP a, SEXP b, SEXP classed, SEXP right)
 {
-    int *adim = INTEGER(GET_SLOT(a, Matrix_DimSym)),
+    int cl = asLogical(classed), rt = asLogical(right);
+    SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dgeMatrix")));
+    int *adims = INTEGER(GET_SLOT(a, Matrix_DimSym)),
 	*ai = INTEGER(GET_SLOT(a, Matrix_iSym)),
 	*ap = INTEGER(GET_SLOT(a, Matrix_pSym)),
-	*bdim = INTEGER(getAttrib(b, R_DimSymbol));
-    int j, k, m = adim[0], n = bdim[1], r = adim[1];
-    double *ax = REAL(GET_SLOT(a, Matrix_xSym));
-    SEXP val;
+	*bdims = INTEGER(cl ? GET_SLOT(b, Matrix_DimSym) :
+			 getAttrib(b, R_DimSymbol)),
+	*cdims = INTEGER(ALLOC_SLOT(val, Matrix_DimSym, INTSXP, 2)),
+	chk, ione = 1, j, jj, k, m, n;
+    double *ax = REAL(GET_SLOT(a, Matrix_xSym)),
+	*bx = REAL(cl ? GET_SLOT(b, Matrix_xSym) : b), *cx;
 
-    if (bdim[0] != r)
-	error(_("Matrices of sizes (%d,%d) and (%d,%d) cannot be multiplied"),
-	      m, r, bdim[0], n);
-    val = PROTECT(allocMatrix(REALSXP, m, n));
-    for (j = 0; j < n; j++) {	/* across columns of b */
-	double *ccol = REAL(val) + j * m,
-	    *bcol = REAL(b) + j * r;
+    if (rt) {
+	m = bdims[0]; n = adims[1]; k = bdims[1]; chk = adims[0];
+    } else {
+	m = adims[0]; n = bdims[1]; k = adims[1]; chk = bdims[0];
+    }
+    if (chk != k)
+	error(_("Matrices are not conformable for multiplication"));
+    if (m < 1 || n < 1 || k < 1)
+	error(_("Matrices with zero extents cannot be multiplied"));
+    cx = REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, m * n));
+    AZERO(cx, m * n); /* zero the accumulators */
+    for (j = 0; j < n; j++) { /* across columns of c */
+	if (rt) {
+	    int kk, k2 = ap[j + 1];
+	    for (kk = ap[j]; kk < k2; kk++) {
+		F77_CALL(daxpy)(&m, &ax[kk], &bx[ai[kk]*m],
+				&ione, &cx[j*m], &ione);
+	    }
+	} else {
+	    double *ccol = cx + j * m,
+		*bcol = bx + j * k;
 
-	for (k = 0; k < m; k++) ccol[k] = 0.; /* zero the accumulators */
-	for (k = 0; k < r; k++) { /* across columns of a */
-	    int kk, k2 = ap[k + 1];
-	    for (kk = ap[k]; kk < k2; kk++) {
-		ccol[ai[kk]] += ax[kk] * bcol[k];
+	    for (jj = 0; jj < k; jj++) { /* across columns of a */
+		int kk, k2 = ap[jj + 1];
+		for (kk = ap[jj]; kk < k2; kk++) {
+		    ccol[ai[kk]] += ax[kk] * bcol[jj];
+		}
 	    }
 	}
     }
+    cdims[0] = m; cdims[1] = n;
     UNPROTECT(1);
     return val;
 }

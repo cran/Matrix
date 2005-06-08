@@ -38,7 +38,7 @@ static R_CallMethodDef CallEntries[] = {
     {"csc_crossprod", (DL_FUNC) &csc_crossprod, 1},
     {"csc_getDiag", (DL_FUNC) &csc_getDiag, 1},
     {"csc_matrix_crossprod", (DL_FUNC) &csc_matrix_crossprod, 3},
-    {"csc_matrix_mm", (DL_FUNC) &csc_matrix_mm, 2},
+    {"csc_matrix_mm", (DL_FUNC) &csc_matrix_mm, 4},
     {"csc_tcrossprod", (DL_FUNC) &csc_tcrossprod, 1},
     {"compressed_to_dgTMatrix", (DL_FUNC) &compressed_to_dgTMatrix, 2},
     {"csc_to_dgeMatrix", (DL_FUNC) &csc_to_dgeMatrix, 1},
@@ -130,6 +130,8 @@ static R_CallMethodDef CallEntries[] = {
     {"dtrMatrix_rcond", (DL_FUNC) &dtrMatrix_rcond, 2},
     {"dtrMatrix_solve", (DL_FUNC) &dtrMatrix_solve, 1},
     {"dtrMatrix_validate", (DL_FUNC) &dtrMatrix_validate, 1},
+    {"glmer_Laplace_devComp", (DL_FUNC) &glmer_Laplace_devComp, 1},
+    {"glmer_weight_matrix_list", (DL_FUNC) &glmer_weight_matrix_list, 4},
     {"lapack_qr", (DL_FUNC) &lapack_qr, 2},
     {"lCholCMatrix_solve", (DL_FUNC) &lCholCMatrix_solve, 1},
     {"lCholCMatrix_lgCMatrix_solve", (DL_FUNC) &lCholCMatrix_lgCMatrix_solve, 2},
@@ -142,15 +144,16 @@ static R_CallMethodDef CallEntries[] = {
     {"lgTMatrix_as_lgCMatrix", (DL_FUNC) &lgTMatrix_as_lgCMatrix, 1},
     {"lgTMatrix_validate", (DL_FUNC) &lgTMatrix_validate, 1},
     {"lmer_Crosstab", (DL_FUNC) &lmer_Crosstab, 1},
-    {"lmer_ECMEsteps", (DL_FUNC) &lmer_ECMEsteps, 4},
+    {"lmer_ECMEsteps", (DL_FUNC) &lmer_ECMEsteps, 3},
     {"lmer_coef", (DL_FUNC) &lmer_coef, 2},
     {"lmer_coefGets", (DL_FUNC) &lmer_coefGets, 3},
-    {"lmer_create", (DL_FUNC) &lmer_create, 2},
+    {"lmer_create", (DL_FUNC) &lmer_create, 3},
+    {"lmer_devLaplace", (DL_FUNC) &lmer_devLaplace, 3},
     {"lmer_factor", (DL_FUNC) &lmer_factor, 1},
     {"lmer_firstDer", (DL_FUNC) &lmer_firstDer, 2},
     {"lmer_fitted", (DL_FUNC) &lmer_fitted, 3},
     {"lmer_fixef", (DL_FUNC) &lmer_fixef, 1},
-    {"lmer_gradient", (DL_FUNC) &lmer_gradient, 3},
+    {"lmer_gradient", (DL_FUNC) &lmer_gradient, 2},
     {"lmer_inflate", (DL_FUNC) &lmer_inflate, 1},
     {"lmer_initial", (DL_FUNC) &lmer_initial, 1},
     {"lmer_invert", (DL_FUNC) &lmer_invert, 1},
@@ -160,7 +163,6 @@ static R_CallMethodDef CallEntries[] = {
     {"lmer_validate", (DL_FUNC) &lmer_validate, 1},
     {"lmer_variances", (DL_FUNC) &lmer_variances, 1},
     {"lmer_collapse", (DL_FUNC) &lmer_collapse, 1},
-    {"lmer_laplace_devComp", (DL_FUNC) &lmer_laplace_devComp, 1},
     {"lsCMatrix_chol", (DL_FUNC) &lsCMatrix_chol, 2},
     {"lsCMatrix_trans", (DL_FUNC) &lsCMatrix_trans, 1},
     {"lsCMatrix_validate", (DL_FUNC) &lsCMatrix_validate, 1},
@@ -169,8 +171,6 @@ static R_CallMethodDef CallEntries[] = {
     {"lsq_dense_Chol", (DL_FUNC) &lsq_dense_Chol, 2},
     {"lsq_dense_QR", (DL_FUNC) &lsq_dense_QR, 2},
     {"matrix_to_csc", (DL_FUNC) &matrix_to_csc, 1},
-    {"nlme_replaceSlot", (DL_FUNC) &nlme_replaceSlot, 3},
-    {"nlme_weight_matrix_list", (DL_FUNC) &nlme_weight_matrix_list, 4},
     {"ssc_transpose", (DL_FUNC) &ssc_transpose, 1},
     {"tsc_to_dgTMatrix", (DL_FUNC) &tsc_to_dgTMatrix, 1},
     {"tsc_transpose", (DL_FUNC) &tsc_transpose, 1},
@@ -212,6 +212,7 @@ void R_init_Matrix(DllInfo *dll)
     Matrix_ipermSym = install("iperm");
     Matrix_jSym = install("j");
     Matrix_matSym = install("mat");
+    Matrix_methodSym = install("method");
     Matrix_ncSym = install("nc");
     Matrix_pSym = install("p");
     Matrix_permSym = install("perm");

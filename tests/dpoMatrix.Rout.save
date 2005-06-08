@@ -1,6 +1,7 @@
 
 R : Copyright 2005, The R Foundation for Statistical Computing
-Version 2.1.0 alpha (2005-03-31), ISBN 3-900051-07-0
+Version 2.2.0 Under development (unstable) (2005-06-06 r34587)
+ISBN 3-900051-07-0
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -115,7 +116,7 @@ Formal class 'dppMatrix' [package "Matrix"] with 6 slots
 1 x 9 Matrix of class "dgeMatrix"
        [,1]  [,2]  [,3]   [,4] [,5]  [,6] [,7]  [,8] [,9]
 [1,] 0.0729 -5.76 109.5 -864.9 3468 -7668 9459 -6095 1597
-> hp9 %*% s9
+> (I9 <- hp9 %*% s9)
 9 x 1 Matrix of class "dgeMatrix"
       [,1]
  [1,]    1
@@ -127,7 +128,6 @@ Formal class 'dppMatrix' [package "Matrix"] with 6 slots
  [7,]    7
  [8,]    8
  [9,]    9
-> ## Works in 2.1.0, but not earlier:
-> ## stopifnot(all.equal(cbind(1:9), as.matrix(hp9 %*% s9)))
-> stopifnot(all.equal(1:9, (hp9 %*% s9)@x))
+> stopifnot(all.equal(cbind(1:9), as.matrix(I9), tol = 2e-9))
+> 
 > 

@@ -16,7 +16,7 @@
 
 SEXP lmer_validate(SEXP x);
 SEXP lmer_update_mm(SEXP x, SEXP mmats);
-SEXP lmer_create(SEXP flist, SEXP mmats);
+SEXP lmer_create(SEXP flist, SEXP mmats, SEXP method);
 SEXP lmer_inflate(SEXP x);
 SEXP lmer_initial(SEXP x);
 SEXP lmer_factor(SEXP x);
@@ -26,13 +26,15 @@ SEXP lmer_coef(SEXP x, SEXP pType);
 SEXP lmer_coefGets(SEXP x, SEXP coef, SEXP pType);
 SEXP lmer_fixef(SEXP x);
 SEXP lmer_ranef(SEXP x);
-SEXP lmer_ECMEsteps(SEXP x, SEXP nsteps, SEXP REMLp, SEXP Verbp);
+SEXP lmer_ECMEsteps(SEXP x, SEXP nsteps, SEXP Verbp);
 SEXP lmer_fitted(SEXP x, SEXP mmats, SEXP useRf);
-SEXP lmer_gradient(SEXP x, SEXP REMLp, SEXP pType);
+SEXP lmer_gradient(SEXP x, SEXP pType);
 SEXP lmer_variances(SEXP x);
 SEXP lmer_Crosstab(SEXP flist);
 SEXP lmer_firstDer(SEXP x, SEXP val);
 SEXP lmer_collapse(SEXP x);
-SEXP lmer_laplace_devComp(SEXP x);
+SEXP lmer_devLaplace(SEXP pars, SEXP tolp, SEXP rho);
+SEXP glmer_Laplace_devComp(SEXP x);
+SEXP glmer_weight_matrix_list(SEXP unwt, SEXP w, SEXP z, SEXP wtd);
 
 #endif

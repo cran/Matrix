@@ -36,37 +36,68 @@ if (!isGeneric("unpack"))
 
 ##- if (!isGeneric("%p%"))
 ##-     setGeneric("%p%", function(a, b) standardGeneric("%p%"))
-##-
-##- if (!isGeneric("coef<-"))
-##-     setGeneric("coef<-", function(object, ..., value)
-##-                standardGeneric("coef<-"))
-
-
-## The generics pdFactor, pdMatrix, corFactor and corMatrix will be deprecated
-
-# if (!isGeneric("pdFactor"))
-#     setGeneric("pdFactor", function(object) standardGeneric("pdFactor"))
-
-# if (!isGeneric("pdMatrix"))
-#     setGeneric("pdMatrix", function(object) standardGeneric("pdMatrix"))
-
-# if (!isGeneric("corFactor"))
-#     ## extractor for transpose inverse square root factor of corr matrix
-#     setGeneric("corFactor", function(object, ...) standardGeneric("corFactor"))
-
-# if (!isGeneric("corMatrix"))
-#     ## extractor for correlation matrix or the transpose inverse
-#     ## square root matrix
-#     setGeneric("corMatrix", function(object, ...) standardGeneric("corMatrix"))
-
-# if (!isGeneric("isInitialized"))
-#     setGeneric("isInitialized",
-#                function(object) standardGeneric("isInitialized"),
-#                valueClass = "logical")
-#
-
-# if (!isGeneric("matrix<-"))
-#     setGeneric("matrix<-", function(object, value) standardGeneric("matrix<-"))
 
 if (!isGeneric("expm"))
     setGeneric("expm", function(x) standardGeneric("expm"))
+
+## ----------------------- lmer-related Generics ---------------------------
+
+setGeneric("lmer",
+           function(formula, data, family,
+                    method = c("REML", "ML", "PQL", "Laplace", "AGQ"),
+                    control = list(),
+                    subset, weights, na.action, offset,
+                    model = TRUE, x = FALSE, y = FALSE,...)
+           standardGeneric("lmer"))
+
+if (!isGeneric("LMEoptimize<-")) {
+    setGeneric("LMEoptimize<-", function(x, ..., value)
+               standardGeneric("LMEoptimize<-"))
+}
+
+if (!isGeneric("fixef")) {
+    setGeneric("fixef", function(object, ...) standardGeneric("fixef"))
+}
+
+fixed.effects <- function(object, ...) {
+    ## fixed.effects was an alternative name for fixef
+    .Deprecated("fixef")
+    mCall = match.call()
+    mCall[[1]] = as.name("fixef")
+    eval(mCall, parent.frame())
+}
+
+if (!isGeneric("ranef")) {
+    setGeneric("ranef", function(object, ...)
+               standardGeneric("ranef"))
+}
+
+random.effects <- function(object, ...) {
+    ## random.effects was an alternative name for ranef
+    .Deprecated("ranef")
+    mCall = match.call()
+    mCall[[1]] = as.name("ranef")
+    eval(mCall, parent.frame())
+}
+
+if (!isGeneric("BIC")) {
+    setGeneric("BIC", function(object, ...) standardGeneric("BIC"))
+}
+
+setMethod("BIC", "logLik",
+          function(object, ...)
+          -2 * (c(object) - attr(object, "df") * log(attr(object, "nobs"))/2)
+          )
+
+if (!isGeneric("VarCorr")) {
+    setGeneric("VarCorr", function(x, ...) standardGeneric("VarCorr"))
+}
+
+if (!isGeneric("gradient")) {           # not exported
+    setGeneric("gradient", function(x, ...) standardGeneric("gradient"))
+}
+
+if (!isGeneric("getFixDF")) {           # not exported
+    setGeneric("getFixDF", function(object, ...) standardGeneric("getFixDF"))
+}
+

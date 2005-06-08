@@ -23,7 +23,7 @@ SEXP dsCMatrix_chol(SEXP x, SEXP pivot)
 	n = length(pSlot)-1,
 	nnz, piv = asLogical(pivot);
     SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dCholCMatrix")));
-    int *P, *Pinv;
+    int *P, *Pinv = (int *) NULL;
     double *Ax;
 
     /* FIXME: Check if there is a Cholesky factorization.  If yes,

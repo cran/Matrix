@@ -2470,8 +2470,17 @@ glmer_bhat(double pars[], GlmerStruct GS)
     Free(etaold);
 }
 
+/** 
+ * Evaluate the difference in the quadratic form in the
+ * random effects and the delb's.
+ * 
+ * @param GS a GlmerStruct object
+ * @param b random effects
+ * 
+ * @return the quadratic form
+ */
 static double
-b_quadratic_form(GlmerStruct GS, SEXP b) {
+b_qf(GlmerStruct GS, SEXP b, SEXP delb) {
     SEXP Omega = GET_SLOT(GS->mer, Matrix_OmegaSym);
     int *nc = INTEGER(GET_SLOT(GS->mer, Matrix_ncSym)),
 	*Gp = INTEGER(GET_SLOT(GS->mer, Matrix_GpSym)),
@@ -2481,43 +2490,88 @@ b_quadratic_form(GlmerStruct GS, SEXP b) {
     for (i = 0, ans = 0; i < GS->nf; i++) {
 	int nci = nc[i], ntot = Gp[i + 1] - Gp[i];
 	int nlev = ntot/nci;
-	double *tmp = Calloc(ntot, double);
+	double *tmp = Calloc(ntot, double),
+	    *delbi = REAL(VECTOR_ELT(delb, i));
 
 	F77_CALL(dgemm)("N", "T", &nlev, &nci, &nci, &one,
 			REAL(VECTOR_ELT(b, i)), &nlev,
 			REAL(VECTOR_ELT(Omega, i)), &nci,
 			&zero, tmp, &nlev);
         ans += F77_CALL(ddot)(&ntot, tmp, &ione, tmp, &ione);
+	ans -= F77_CALL(ddot)(&ntot, delbi, &ione, delbi, &ione);
     }
     return ans;
 }
 	
+/** 
+ * Evaluate the marginal deviance, given a value of the random
+ * effects
+ * 
+ * @param GS a GlmerStruct object
+ * @param b random effects
+ * 
+ * @return the quadratic form
+ */
 static double
-marginal_deviance(GlmerStruct GS) {
-    SEXP devr = PROTECT(eval_check(GS->dev_resids, GS->rho,
-				   REALSXP, GS->n));
+marginal_deviance(GlmerStruct GS, SEXP b) {
+    SEXP devr;
     int i;
     double ans = 0;
-    
-    for (i = 0; i < GS->n; i++) ans += REAL(devr)[i];
+
+    fitted_ranef(GET_SLOT(GS->mer, Matrix_flistSym), GS->unwtd, b,
+		 INTEGER(GET_SLOT(GS->mer, Matrix_ncSym)),
+		 Memcpy(REAL(GS->eta), REAL(GS->off), GS->n));
+    eval_check_store(GS->linkinv, GS->rho, GS->mu);
+    devr = PROTECT(eval_check(GS->dev_resids, GS->rho,
+			      REALSXP, GS->n));    
+    for (i = 0, ans = 0; i < GS->n; i++) ans += REAL(devr)[i];
     UNPROTECT(1);
     return ans;
 }
 
+/** 
+ * Evaluate the relative likelihood
+ * 
+ * @param GS a GlmerStruct object
+ * @param b random effects
+ * @param delb change from bhat on the delb scale
+ * @param cnst additive constant
+ * 
+ * @return the relative likelihood
+ */
+static R_INLINE double
+relLik(GlmerStruct GS, SEXP b, SEXP delb, double cnst)
+{
+    return exp(cnst -
+	       (marginal_deviance(GS, b) + b_qf(GS, b, delb))/2);
+}
+	
 SEXP glmer_devAGQ(SEXP pars, SEXP GSp, SEXP nAGQp)
 {
+    SEXP bhat, btrial, delb;
     GlmerStruct GS = (GlmerStruct) R_ExternalPtrAddr(GSp);
-    int nAGQ = asInteger(nAGQp);
+    double *x, *wt, cnst, liklhd;
+    int i, n2, nAGQ = asInteger(nAGQp);
 	
     if (!isReal(pars) || LENGTH(pars) != GS->npar)
 	error(_("`%s' must be a numeric vector of length %d"),
 	      "pars", GS->npar);
     glmer_bhat(REAL(pars), GS);
-    if (nAGQ > 1) error("code not yet written");
-
-    return ScalarReal(marginal_deviance(GS)
-		      - 2 * Sigma_bVar_det(GS)
-		      - b_quadratic_form(GS, lmer_ranef(GS->mer)));
+    bhat = PROTECT(lmer_ranef(GS->mer));
+    delb = PROTECT(duplicate(bhat));
+    for (i = 0; i < GS->nf; i++) {
+	SEXP delbi = VECTOR_ELT(delb, i);
+	AZERO(REAL(delbi), LENGTH(delbi));
+    }
+    cnst = Sigma_bVar_det(GS);
+    liklhd = relLik(GS, bhat, delb, cnst);
+    if (nAGQ > 1) {
+	if (GS->nf > 1)
+	    error(_("AGQ available only for a single grouping factor"));
+	n2 = (nAGQ + 1)/2;
+	wt = Calloc(nAGQ, double);
+    }
+    UNPROTECT(2);
+    return ScalarReal(-2 * log(liklhd));
 }
-
 

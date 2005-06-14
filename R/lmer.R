@@ -2,13 +2,13 @@
 
 ## Some utilities
 
+## Return the index into the packed lower triangle
 Lind <- function(i,j) {
     if (i < j) stop(paste("Index i=", i,"must be >= index j=", j))
     ((i - 1) * i)/2 + j
 }
 
-# Return the pairs of expressions separated by vertical bars
-
+## Return the pairs of expressions separated by vertical bars
 findbars <- function(term)
 {
     if (is.name(term) || is.numeric(term)) return(NULL)
@@ -19,8 +19,8 @@ findbars <- function(term)
     c(findbars(term[[2]]), findbars(term[[3]]))
 }
 
-# Return the formula omitting the pairs of expressions separated by vertical bars
-
+## Return the formula omitting the pairs of expressions
+## that are separated by vertical bars
 nobars <- function(term)
 {
     # FIXME: is the is.name in the condition redundant?
@@ -42,8 +42,7 @@ nobars <- function(term)
     term
 }
 
-# Substitute the '+' function for the '|' function
-
+## Substitute the '+' function for the '|' function
 subbars <- function(term)
 {
     if (is.name(term) || is.numeric(term)) return(term)
@@ -58,7 +57,8 @@ subbars <- function(term)
     term
 }
     
-lmerControl <-                            # Control parameters for lmer
+## Control parameters for lmer
+lmerControl <-
   function(maxIter = 50,
            msMaxIter = 200,
            tolerance = sqrt((.Machine$double.eps)),
@@ -68,18 +68,18 @@ lmerControl <-                            # Control parameters for lmer
            PQLmaxIt = 30,
            EMverbose = getOption("verbose"),
            analyticGradient = TRUE,
-           analyticHessian=FALSE)
+           analyticHessian = FALSE)
 {
-    list(maxIter = maxIter,
-         msMaxIter = msMaxIter,
-         tolerance = tolerance,
-         niterEM = niterEM,
-         msTol = msTol,
-         msVerbose = msVerbose,
-         PQLmaxIt = PQLmaxIt,
-         EMverbose=EMverbose,
-         analyticHessian=analyticHessian,
-         analyticGradient=analyticGradient)
+    list(maxIter = as.integer(maxIter),
+         msMaxIter = as.integer(msMaxIter),
+         tolerance = as.double(tolerance),
+         niterEM = as.integer(niterEM),
+         msTol = as.double(msTol),
+         msVerbose = as.logical(msVerbose),
+         PQLmaxIt = as.integer(PQLmaxIt),
+         EMverbose = as.logical(EMverbose),
+         analyticGradient = as.logical(analyticGradient),
+         analyticHessian = as.logical(analyticHessian))
 }
 
 setMethod("lmer", signature(formula = "formula"),
@@ -177,117 +177,77 @@ setMethod("lmer", signature(formula = "formula"),
 
           ## The rest of the function applies to generalized linear mixed models
           gVerb <- getOption("verbose")
-          etaold <- eta <- glm.fit$linear.predictors
+          eta <- glm.fit$linear.predictors
           wts <- glm.fit$prior.weights
           wtssqr <- wts * wts
           offset <- glm.fit$offset
           if (is.null(offset)) offset <- numeric(length(eta))
+          off <- numeric(length(eta))
+          mu <- numeric(length(eta))
 
           dev.resids <- quote(family$dev.resids(y, mu, wtssqr))
           linkinv <- quote(family$linkinv(eta))
           mu.eta <- quote(family$mu.eta(eta))
           variance <- quote(family$variance(mu))
+          LMEopt <- get("LMEoptimize<-")
+          doLMEopt <- quote(LMEopt(x = mer, value = cv))
 
-          mmo <- mmats
-          mmats[[1]][1,1] <- mmats[[1]][1,1]
-          conv <- FALSE
-          firstIter <- TRUE
-          msMaxIter.orig <- cv$msMaxIter
-
-          for (iter in seq(length = cv$PQLmaxIt))
-          {
-              mu <- eval(linkinv) # family$linkinv(eta)
-              dmu.deta <- eval(mu.eta) # family$mu.eta(eta)
-              ## weights (note: wts is already square-rooted)
-              .Call("glmer_weight_matrix_list", mmo,
-                    wts * dmu.deta / sqrt(eval(variance)), ## weights 
-                    eta - offset + (y - mu) / dmu.deta, ## working residual
-                    mmats, PACKAGE="Matrix")
-              .Call("lmer_update_mm", mer, mmats, PACKAGE="Matrix")
-              if (firstIter) {
-                  .Call("lmer_initial", mer, PACKAGE="Matrix")
-                  if (gVerb) cat(" PQL iterations convergence criterion\n")
-              }
-              .Call("lmer_ECMEsteps", mer, cv$niterEM, cv$EMverbose,
-                    PACKAGE = "Matrix")
-              LMEoptimize(mer) <- cv
-              eta <- offset + .Call("lmer_fitted", mer, mmo, TRUE,
-                                    PACKAGE = "Matrix")
-              crit <- max(abs(eta - etaold)) / (0.1 + max(abs(eta)))
-              if (gVerb) cat(sprintf("%03d: %#11g\n", as.integer(iter), crit))
-              ## use this to determine convergence
-              if (crit < cv$tolerance) {
-                  conv <- TRUE
-                  break
-              }
-              etaold[] <- eta
-              if (firstIter) {          # Change the number of EM and optimization 
-                  cv$niterEM <- 2       # iterations for subsequent PQL iterations.
-                  cv$msMaxIter <- 10
-                  firstIter <- FALSE
-              }
-          }
-          if (!conv) warning("IRLS iterations for glmm did not converge")
-          cv$msMaxIter <- msMaxIter.orig
+          GSpt <- .Call("glmer_init", environment())
+          .Call("glmer_PQL", GSpt)  # obtain PQL estimates
 
           fixInd <- seq(ncol(x))
           ## pars[fixInd] == beta, pars[-fixInd] == theta
           PQLpars <- c(fixef(mer),
                        .Call("lmer_coef", mer, 2, PACKAGE = "Matrix"))
-          env <- environment()
+          ## set flag to skip fixed-effects in subsequent calls
+          mer@nc[length(mmats)] <- -mer@nc[length(mmats)]
+          ## indicator of constrained parameters
+          const <- c(rep(FALSE, length(fixInd)),
+                     unlist(lapply(mer@nc[seq(along = random)],
+                                   function(k) 1:((k*(k+1))/2) <= k)
+                            ))
+          devAGQ <- function(pars)
+              .Call("glmer_devAGQ", pars, GSpt, nAGQ, PACKAGE = "Matrix")
 
-          devLaplace <- function(pars)
-              .Call("lmer_devLaplace", pars, cv$tolerance, env, PACKAGE = "Matrix")
+          nAGQ <- 1            # Laplacian approximation
+          loglik <- -devAGQ(PQLpars)/2
+          fxd <- PQLpars[fixInd]
 
-          if (method == "Laplace") {
-              nc <- mer@nc
-              const <- c(rep(FALSE, length(fixInd)),
-                         unlist(lapply(nc[1:(length(nc) - 2)],
-                                       function(k) 1:((k*(k+1))/2) <= k)))
-              ## set flag to skip fixed-effects in subsequent mer computations
-              mer@nc[length(mmats)] <- -mer@nc[length(mmats)]
-              RV <- lapply(R.Version()[c("major", "minor")], as.numeric)
-              if (RV$major == 2 && RV$minor >= 2.0) {
+          if (method %in% c("Laplace", "AGQ")) {
+              if (exists("nlminb", mode = "function")) {
                   optimRes <-
-                      nlminb(PQLpars, devLaplace,
+                      nlminb(PQLpars, devAGQ,
                              lower = ifelse(const, 5e-10, -Inf),
                              control = list(trace = getOption("verbose"),
                              iter.max = cv$msMaxIter))
                   optpars <- optimRes$par
                   if (optimRes$convergence != 0)
                       warning("nlminb failed to converge")
+                  loglik <- -optimRes$objective/2
               } else {
                   optimRes <-
-                      optim(PQLpars, devLaplace, method = "L-BFGS-B",
+                      optim(PQLpars, devAGQ, method = "L-BFGS-B",
                             lower = ifelse(const, 5e-10, -Inf),
                             control = list(trace = getOption("verbose"),
-                                 reltol = cv$msTol, maxit = cv$msMaxIter))
+                                           maxit = cv$msMaxIter))
                   optpars <- optimRes$par
                   if (optimRes$convergence != 0)
                       warning("optim failed to converge")
+                  loglik <- -optimRes$value
               }
-
               if (gVerb) {
                   cat(paste("convergence message", optimRes$message, "\n"))
-                  cat("Fixed effects:\n")
-                  print(optimRes$par[fixInd])
-                  cat("(box constrained) variance coefficients:\n")
-                  print(optimRes$par[-fixInd])
-              } 
-              loglik <- -optimRes$objective/2
-              fxd <- optpars[fixInd]
-              names(fxd) <- names(PQLpars)[fixInd]
-              ## reset flag to skip fixed-effects in mer computations
-              mer@nc[length(mmats)] <- -mer@nc[length(mmats)]
-          } else {
-              loglik <- -devLaplace(PQLpars)/2
-              fxd <- PQLpars[fixInd]
+              }
+              fxd[] <- optpars[fixInd]  ## preserve the names
           }
 
+          .Call("glmer_finalize", GSpt, PACKAGE = "Matrix")
+          
           attributes(loglik) <- attributes(logLik(mer))
           new("lmer", mer, frame = frm, terms = glm.fit$terms,
-              assign = attr(glm.fit$x, "assign"), call = match.call(),
-              family = family, logLik = loglik, fixed = fxd)
+              assign = attr(glm.fit$x, "assign"),
+              call = match.call(), family = family,
+              logLik = loglik, fixed = fxd)
       })
 
 setReplaceMethod("LMEoptimize", signature(x="mer", value="list"),
@@ -309,23 +269,23 @@ setReplaceMethod("LMEoptimize", signature(x="mer", value="list"),
                                  .Call("lmer_coefGets", x, pars, 2, PACKAGE = "Matrix")
                              .Call("lmer_gradient", x, 2, PACKAGE = "Matrix")
                          }
-                 RV <- lapply(R.Version()[c("major", "minor")], as.numeric)
-                 if (RV$major == 2 && RV$minor >= 2.0) {
-                     optimRes <- nlminb(.Call("lmer_coef", x, 2, PACKAGE = "Matrix"),
-                                        fn, gr,
-                                        lower = ifelse(constr, 5e-10, -Inf),
-                                        control = list(iter.max = value$msMaxIter,
-                                        trace = as.integer(value$msVerbose)))
-                 } else {
-                     optimRes <- optim(.Call("lmer_coef", x, 2, PACKAGE = "Matrix"),
-                                       fn, gr, method = "L-BFGS-B",
-                                       lower = ifelse(constr, 5e-10, -Inf),
-                                       control = list(maxit = value$msMaxIter,
-                                       trace = as.integer(value$msVerbose)))
-                 }
+                 optimRes <- 
+                     if (exists("nlminb", mode = "function"))
+                         nlminb(.Call("lmer_coef", x, 2, PACKAGE = "Matrix"),
+                                fn, gr,
+                                lower = ifelse(constr, 5e-10, -Inf),
+                                control = list(iter.max = value$msMaxIter,
+                                trace = as.integer(value$msVerbose)))
+                     else
+                         optim(.Call("lmer_coef", x, 2, PACKAGE = "Matrix"),
+                               fn, gr, method = "L-BFGS-B",
+                               lower = ifelse(constr, 5e-10, -Inf),
+                               control = list(maxit = value$msMaxIter,
+                               trace = as.integer(value$msVerbose)))
                  .Call("lmer_coefGets", x, optimRes$par, 2, PACKAGE = "Matrix")
                  if (optimRes$convergence != 0) {
-                     warning(paste("optim returned message",optimRes$message,"\n"))
+                     warning(paste("optim or nlminb returned message",
+                                   optimRes$message,"\n"))
                  }
                  return(x)
              })
@@ -349,7 +309,6 @@ setMethod("ranef", signature(object = "lmer"),
 setMethod("fixef", signature(object = "mer"),
           function(object, ...)
               .Call("lmer_fixef", object, PACKAGE = "Matrix"))
-
 
 setMethod("fixef", signature(object = "lmer"),
           function(object, ...) object@fixed)
@@ -432,7 +391,7 @@ setMethod("show", "summary.lmer",
                                row.names = ""))
               }
               cat("Random effects:\n")
-              show(VarCorr(object))
+              show(VarCorr(object, useScale = useScale))
               ngrps <- lapply(object@flist, function(x) length(levels(x)))
               cat(sprintf("# of obs: %d, groups: ", object@nc[length(object@nc)]))
               cat(paste(paste(names(ngrps), ngrps, sep = ", "), collapse = "; "))
@@ -489,7 +448,7 @@ setMethod("getFixDF", signature(object="lmer"),
           function(object, ...)
       {
           nc <- object@nc[-seq(along = object@Omega)]
-          p <- nc[1] - 1
+          p <- abs(nc[1]) - 1
           n <- nc[2]
           rep(n-p, p)
       })
@@ -625,11 +584,6 @@ setMethod("confint", signature(object = "lmer"),
           ci
       })
 
-##setMethod("param", signature(object = "lmer"),
-##          function(object, unconst = FALSE, ...) {
-##              .Call("lmer_coef", object, unconst, PACKAGE = "Matrix")
-##          })
-
 setMethod("deviance", "mer",
           function(object, REML = NULL, ...) {
               .Call("lmer_factor", object, PACKAGE = "Matrix")
@@ -760,33 +714,40 @@ setMethod("coef", signature(object = "lmer"),
 setMethod("plot", signature(x = "lmer.coef"),
           function(x, y, ...)
       {
-          varying <- unique(do.call("c",
-                                    lapply(x, function(el)
-                                           names(el)[sapply(el,
-                                                            function(col)
-                                                            any(col != col[1]))])))
-          gf <- do.call("rbind", lapply(x, "[", j = varying))
-          gf$.grp <- factor(rep(names(x), sapply(x, nrow)))
-          switch(min(length(varying), 3),
-                 qqmath(eval(substitute(~ x | .grp,
-                                        list(x = as.name(varying[1])))), gf, ...),
-                 xyplot(eval(substitute(y ~ x | .grp,
-                                        list(y = as.name(varying[1]),
-                                             x = as.name(varying[2])))), gf, ...),
-                 splom(~ gf | .grp, ...))
+          if (require("lattice", quietly = TRUE)) {
+              varying <- unique(do.call("c",
+                                        lapply(x, function(el)
+                                               names(el)[sapply(el,
+                                                                function(col)
+                                                                any(col != col[1]))])))
+              gf <- do.call("rbind", lapply(x, "[", j = varying))
+              gf$.grp <- factor(rep(names(x), sapply(x, nrow)))
+              switch(min(length(varying), 3),
+                     qqmath(eval(substitute(~ x | .grp,
+                                            list(x = as.name(varying[1])))), gf, ...),
+                     xyplot(eval(substitute(y ~ x | .grp,
+                                            list(y = as.name(varying[1]),
+                                                 x = as.name(varying[2])))), gf, ...),
+                     splom(~ gf | .grp, ...))
+          }
       })
 
 setMethod("plot", signature(x = "lmer.ranef"),
           function(x, y, ...)
       {
-          lapply(x, function(x) {
-              cn <- lapply(colnames(x), as.name)
-              switch(min(ncol(x), 3),
-                     qqmath(eval(substitute(~ x, list(x = cn[[1]]))), x, ...),
-                     xyplot(eval(substitute(y ~ x, list(y = cn[[1]], x = cn[[2]]))),
-                            x, ...),
-                     splom(~ x, ...))
-          })
+          if (require("lattice", quietly = TRUE)) 
+              lapply(x, function(x) {
+                  cn <- lapply(colnames(x), as.name)
+                  switch(min(ncol(x), 3),
+                         qqmath(eval(substitute(~ x,
+                                                list(x = cn[[1]]))),
+                                x, ...),
+                         xyplot(eval(substitute(y ~ x,
+                                                list(y = cn[[1]],
+                                                     x = cn[[2]]))),
+                                x, ...),
+                         splom(~ x, ...))
+              })
       })
 
 setMethod("with", signature(data = "lmer"),

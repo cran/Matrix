@@ -1,26 +1,17 @@
+bCrosstab               Create pairwise crosstabulation
 BIC                     Bayesian Information Criterion
 Cholesky-class          Cholesky and Bunch-Kaufman Decompositions
-Hilbert                 Generate a Hilbert matrix
-LU-class                LU Matrix Decompositions
-Matrix                  Construct a Classed Matrix
-Matrix-class            Virtual Class "Matrix" Class of Matrices
-Schur                   Schur Decomposition of a Matrix
-VarCorr                 Extract variance and correlation components
-VarCorr-class           Class "VarCorr"
-[-methods               Methods for "[": Extraction or Subsetting in
-                        Package 'Matrix'.
-bCrosstab               Create pairwise crosstabulation
 corrmatrix-class        Class "corrmatrix"
 dCholCMatrix-class      Cholesky Decompositions of dsCMatrix Objects
-dMatrix-class           (Virtual) Class "dMatrix" of "double" Matrices
 dgBCMatrix-class        Class "dgBCMatrix" Real Sparse Blocked Column
                         Compressed Matrix
 dgCMatrix-class         Compressed, sparse, column-oriented numeric
                         matrices
+dgeMatrix-class         General S4 Matrix class
 dgRMatrix-class         Compressed, sparse, row-oriented numeric
                         matrices
 dgTMatrix-class         Sparse matrices in triplet form
-dgeMatrix-class         General S4 Matrix class
+dMatrix-class           (Virtual) Class "dMatrix" of "double" Matrices
 dpoMatrix-class         Positive semi-definite, dense, numeric
                         matrices
 dsCMatrix-class         Symmetric, compressed, sparse column matrices
@@ -34,18 +25,27 @@ expand                  Expand a Decomposition into Factors
 expm                    Matrix exponential
 facmul                  Multiplication by Decomposition Factors
 fixef                   Extract Fixed Effects
+Hilbert                 Generate a Hilbert matrix
 lmer                    Fit linear mixed-effects models
 lmer-class              Mixed model representations
 lsparseMatrix-class     Sparse logical matrices
 lu                      Triangular Decomposition of a Square Matrix
+LU-class                LU Matrix Decompositions
+Matrix                  Construct a Classed Matrix
+Matrix-class            Virtual Class "Matrix" Class of Matrices
+[-methods               Methods for "[": Extraction or Subsetting in
+                        Package 'Matrix'.
 mm                      A sample sparse model matrix
 norm                    Norm of a Matrix
-pMatrix-class           Permutation matrices
 pdmatrix-class          Positive-definite matrices
+pMatrix-class           Permutation matrices
 ranef                   Extract Random Effects
 rcond                   Estimate the Reciprocal Condition Number
+Schur                   Schur Decomposition of a Matrix
 sparseMatrix-class      Virtual Class "sparseMatrix" -- Mother of
                         Sparse Matrices
 tcrossprod              Cross-product of transpose
 unpack                  Full Storage Representation of Packed Matrices
+VarCorr                 Extract variance and correlation components
+VarCorr-class           Class "VarCorr"
 y                       A sample response vector

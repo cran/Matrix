@@ -106,8 +106,6 @@ setMethod("lmer", signature(formula = "formula"),
                   warning(paste('Argument method = "REML" is not meaningful',
                                 'for a generalized linear mixed model.',
                                 '\nUsing method = "PQL".\n'))
-              if (method %in% c("AGQ"))
-                  stop("AGQ method not yet implemented")
           }
 
           ## evaluate glm.fit, a generalized linear fit of fixed effects only
@@ -124,7 +122,6 @@ setMethod("lmer", signature(formula = "formula"),
           mf$x <- mf$model <- mf$y <- TRUE
           mf[[1]] <- as.name("glm")
           glm.fit <- eval(mf, parent.frame())
-          family <- glm.fit$family
           x <- glm.fit$x
           y <- as.double(glm.fit$y)
           family <- glm.fit$family
@@ -206,34 +203,45 @@ setMethod("lmer", signature(formula = "formula"),
                      unlist(lapply(mer@nc[seq(along = random)],
                                    function(k) 1:((k*(k+1))/2) <= k)
                             ))
-          devAGQ <- function(pars)
-              .Call("glmer_devAGQ", pars, GSpt, nAGQ, PACKAGE = "Matrix")
-
-          nAGQ <- 1            # Laplacian approximation
-          loglik <- -devAGQ(PQLpars)/2
+          devAGQ <- function(pars, n)
+              .Call("glmer_devAGQ", pars, GSpt, n, PACKAGE = "Matrix")
+          ## FIXME:  Change this to start at 11 and decrease.  The
+          ## evaluation at the PQL estimates is done once only.
+          
+          deviance <- devAGQ(PQLpars, 1) # Laplacian approximation
           fxd <- PQLpars[fixInd]
+          loglik <- logLik(mer)
 
           if (method %in% c("Laplace", "AGQ")) {
+              nAGQ <- 1
+              if (method == "AGQ") {    # determine nAGQ at PQL estimates
+                  dev11 <- devAGQ(PQLpars, 11)
+                  devTol <- sqrt(.Machine$double.eps) * abs(dev11)
+                  for (nAGQ in c(11, 9, 7, 5, 3))
+                      if (abs(dev11 - devAGQ(PQLpars, nAGQ - 2)) > devTol) break
+              }
+              obj <- function(pars)
+                  .Call("glmer_devAGQ", pars, GSpt, nAGQ, PACKAGE = "Matrix")
               if (exists("nlminb", mode = "function")) {
                   optimRes <-
-                      nlminb(PQLpars, devAGQ,
+                      nlminb(PQLpars, obj,
                              lower = ifelse(const, 5e-10, -Inf),
                              control = list(trace = getOption("verbose"),
                              iter.max = cv$msMaxIter))
                   optpars <- optimRes$par
                   if (optimRes$convergence != 0)
                       warning("nlminb failed to converge")
-                  loglik <- -optimRes$objective/2
+                  deviance <- optimRes$objective
               } else {
                   optimRes <-
-                      optim(PQLpars, devAGQ, method = "L-BFGS-B",
+                      optim(PQLpars, obj, method = "L-BFGS-B",
                             lower = ifelse(const, 5e-10, -Inf),
                             control = list(trace = getOption("verbose"),
                                            maxit = cv$msMaxIter))
                   optpars <- optimRes$par
                   if (optimRes$convergence != 0)
                       warning("optim failed to converge")
-                  loglik <- -optimRes$value
+                  deviance <- optimRes$value
               }
               if (gVerb) {
                   cat(paste("convergence message", optimRes$message, "\n"))
@@ -242,8 +250,7 @@ setMethod("lmer", signature(formula = "formula"),
           }
 
           .Call("glmer_finalize", GSpt, PACKAGE = "Matrix")
-          
-          attributes(loglik) <- attributes(logLik(mer))
+          loglik[] <- -deviance/2
           new("lmer", mer, frame = frm, terms = glm.fit$terms,
               assign = attr(glm.fit$x, "assign"),
               call = match.call(), family = family,

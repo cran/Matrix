@@ -1,8 +1,10 @@
 ### Define Methods that can be inherited for all subclasses
 
+## -- see also ./Matrix.R  e.g., for a show() method
+
 ## These methods are the 'fallback' methods for all dense numeric
-## matricess in that they simply coerce the ddenseMatrix to a
-## dgeMatrix. Methods for special forms override these. 
+## matrices in that they simply coerce the ddenseMatrix to a
+## dgeMatrix. Methods for special forms override these.
 
 setMethod("norm", signature(x = "ddenseMatrix", type = "missing"),
           function(x, type, ...) callGeneric(as(x, "dgeMatrix")))
@@ -53,4 +55,4 @@ setMethod("Schur", signature(x = "ddenseMatrix", vectors = "missing"),
 setMethod("Schur", signature(x = "ddenseMatrix", vectors = "logical"),
           function(x, vectors, ...) callGeneric(as(x, "dgeMatrix"), vectors))
 
-          
+

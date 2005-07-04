@@ -2,8 +2,6 @@
 \title{General S4 Matrix class}
 \docType{class}
 \alias{dgeMatrix-class}
-% FIXME: This is not yet documented below:
-\alias{ddenseMatrix-class}
 % METHODS:
 % Group ones
 \alias{Arith,dgeMatrix,dgeMatrix-method}
@@ -12,9 +10,6 @@
 \alias{Math,dgeMatrix-method}
 \alias{Math2,dgeMatrix,numeric-method}
 % Others
-% undocu (FIXME)
-\alias{show,ddenseMatrix-method}
-\alias{coerce,ddenseMatrix,matrix-method}
 %
 \alias{\%*\%,dgeMatrix,dgeMatrix-method}
 \alias{\%*\%,dgeMatrix,matrix-method}
@@ -30,12 +25,10 @@
 \alias{crossprod,dgeMatrix,matrix-method}
 \alias{crossprod,dgeMatrix,numeric-method}
 \alias{crossprod,dgeMatrix,missing-method}
-\alias{crossprod,ddenseMatrix,missing-method}
 \alias{crossprod,matrix,dgeMatrix-method}
 \alias{crossprod,numeric,dgeMatrix-method}
 \alias{determinant,dgeMatrix,logical-method}
 \alias{determinant,dgeMatrix,missing-method}
-\alias{diag,ddenseMatrix-method}
 \alias{diag,dgeMatrix-method}
 \alias{dim,dgeMatrix-method}
 \alias{dimnames,dgeMatrix-method}
@@ -43,27 +36,18 @@
 \alias{eigen,dgeMatrix,missing-method}
 \alias{eigen,dgeMatrix,logical-method}
 \alias{lu,dgeMatrix-method}
-\alias{lu,ddenseMatrix-method}
-\alias{norm,ddenseMatrix,missing-method}
-\alias{norm,ddenseMatrix,character-method}
 \alias{norm,dgeMatrix,missing-method}
 \alias{norm,dgeMatrix,character-method}
 \alias{rcond,dgeMatrix,missing-method}
 \alias{rcond,dgeMatrix,character-method}
-\alias{rcond,ddenseMatrix,missing-method}
-\alias{rcond,ddenseMatrix,character-method}
 \alias{rowMeans,dgeMatrix-method}
 \alias{rowSums,dgeMatrix-method}
 \alias{solve,dgeMatrix,matrix-method}
 \alias{solve,dgeMatrix,dgeMatrix-method}
 \alias{solve,dgeMatrix,missing-method}
 \alias{solve,dgeMatrix,numeric-method}
-\alias{solve,ddenseMatrix,missing-method}
-\alias{solve,ddenseMatrix,ANY-method}
 \alias{t,dgeMatrix-method}
-\alias{t,ddenseMatrix-method}
 \alias{tcrossprod,dgeMatrix-method}
-\alias{tcrossprod,ddenseMatrix-method}
 %
 \description{A general, numeric matrix in the S4 Matrix representation}
 \section{Objects from the Class}{

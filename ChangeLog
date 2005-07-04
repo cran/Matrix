@@ -1,3 +1,14 @@
+2005-07-03  Douglas Bates  <bates@bates1-home>
+
+	* src/lmer.c (glmer_devAGQ): Added AGQ for single grouping factor,
+	unidimensional case.
+
+2005-06-08  Douglas Bates  <bates@bates1-home>
+
+	* DESCRIPTION (Version): 0.96-1
+
+	* moved  lmer-class' R and C code moved from lme4 to here
+
 2005-06-04  Douglas Bates  <bates@bates1-home>
 
 	* R/dgCMatrix.R: Call to csc_matrix_mm used undefined arguments
@@ -20,7 +31,7 @@
 
 	* src/dsCMatrix.c (dsCMatrix_matrix_solve): Copied the dimensions
 	of b to the result.  Fixes bug reported by Jean.Coursol@math.u-psud.fr
-	
+
 2005-05-06  Douglas Bates  <bates@bates1-home>
 
 	* src/dgeMatrix.c (dgeMatrix_colsums): Added an implementation of
@@ -44,7 +55,7 @@
 	* R/AllClass.R: Add lgTMatrix and lgCMatrix classes
 
 	* DESCRIPTION: Eliminate import of stats.
-	
+
 
 2005-04-06  Douglas Bates  <bates@bates1-home>
 

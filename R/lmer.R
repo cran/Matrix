@@ -59,7 +59,7 @@ subbars <- function(term)
     
 ## Control parameters for lmer
 lmerControl <-
-  function(maxIter = 50,
+  function(maxIter = 200,
            msMaxIter = 200,
            tolerance = sqrt((.Machine$double.eps)),
            niterEM = 15,
@@ -179,7 +179,6 @@ setMethod("lmer", signature(formula = "formula"),
           wtssqr <- wts * wts
           offset <- glm.fit$offset
           if (is.null(offset)) offset <- numeric(length(eta))
-          off <- numeric(length(eta))
           mu <- numeric(length(eta))
 
           dev.resids <- quote(family$dev.resids(y, mu, wtssqr))
@@ -216,9 +215,13 @@ setMethod("lmer", signature(formula = "formula"),
               nAGQ <- 1
               if (method == "AGQ") {    # determine nAGQ at PQL estimates
                   dev11 <- devAGQ(PQLpars, 11)
+                  ## FIXME: Should this be an absolute or a relative tolerance?
                   devTol <- sqrt(.Machine$double.eps) * abs(dev11)
-                  for (nAGQ in c(11, 9, 7, 5, 3))
+                  for (nAGQ in c(9, 7, 5, 3, 1))
                       if (abs(dev11 - devAGQ(PQLpars, nAGQ - 2)) > devTol) break
+                  nAGQ <- nAGQ + 2
+                  if (gVerb)
+                      cat(paste("Using", nAGQ, "quadrature points per column\n"))
               }
               obj <- function(pars)
                   .Call("glmer_devAGQ", pars, GSpt, nAGQ, PACKAGE = "Matrix")
@@ -465,7 +468,7 @@ setMethod("logLik", signature(object="mer"),
               val <- -deviance(object, REML = REML)/2
               nc <- object@nc[-seq(a = object@Omega)]
               attr(val, "nall") <- attr(val, "nobs") <- nc[2]
-              attr(val, "df") <- nc[1] +
+              attr(val, "df") <- abs(nc[1]) +
                   length(.Call("lmer_coef", object, 0, PACKAGE = "Matrix"))
               attr(val, "REML") <- REML 
               class(val) <- "logLik"
@@ -805,4 +808,71 @@ setMethod("show", signature(object="VarCorr"),
           if (!useScale) reMat <- reMat[-nrow(reMat),]
           print(reMat, quote = FALSE)
       })
+
+glmmMCMC <- function(obj, method = c("full"), nsamp = 1)
+{
+    if (!inherits(obj, "lmer")) stop("obj must be of class `lmer'")
+    if (obj@family$family == "gaussian" && obj@family$link == "identity")
+        warn("glmmMCMC not indended for Gaussian family with identity link")
+    cv <- Matrix:::lmerControl()
+    family <- obj@family
+    frm <- obj@frame
+    fixed.form <- Matrix:::nobars(obj@call$formula)
+    if (inherits(fixed.form, "name")) # RHS is empty - use a constant
+        fixed.form <- substitute(foo ~ 1, list(foo = fixed.form))
+    glm.fit <- glm(eval(fixed.form), family, frm, x = TRUE,
+                   y = TRUE)
+    x <- glm.fit$x
+    y <- as.double(glm.fit$y)
+    bars <- Matrix:::findbars(obj@call$formula[[3]])
+    random <-
+        lapply(bars,
+               function(x) list(model.matrix(eval(substitute(~term,
+                                                             list(term=x[[2]]))),
+                                             frm),
+                                eval(substitute(as.factor(fac)[,drop = TRUE],
+                                                list(fac = x[[3]])), frm)))
+    names(random) <- unlist(lapply(bars, function(x) deparse(x[[3]])))
+    if (any(names(random) != names(obj@flist)))
+        random <- random[names(obj@flist)]
+    mmats <- c(lapply(random, "[[", 1),
+               .fixed = list(cbind(glm.fit$x, .response = glm.fit$y)))
+    mer <- as(obj, "mer")
+
+    eta <- glm.fit$linear.predictors # perhaps later change this to obj@fitted?
+    wts <- glm.fit$prior.weights
+    wtssqr <- wts * wts
+    offset <- glm.fit$offset
+    if (is.null(offset)) offset <- numeric(length(eta))
+    off <- numeric(length(eta))
+    mu <- numeric(length(eta))
+
+    dev.resids <- quote(family$dev.resids(y, mu, wtssqr))
+    linkinv <- quote(family$linkinv(eta))
+    mu.eta <- quote(family$mu.eta(eta))
+    variance <- quote(family$variance(mu))
+    LMEopt <- getAnywhere("LMEoptimize<-")
+    doLMEopt <- quote(LMEopt(x = mer, value = cv))
+
+    GSpt <- .Call("glmer_init", environment())
+    nf <- length(obj@flist)
+    fixed <- obj@fixed
+    varc <- .Call("lmer_coef", mer, 2, PACKAGE = "Matrix")
+    b <- .Call("lmer_ranef", mer, PACKAGE = "Matrix")
+    ans <- list(fixed = matrix(0, nr = length(fixed), nc = nsamp),
+                varc = matrix(0, nr = length(varc), nc = nsamp))
+    for (i in 1:nsamp) {
+        ## conditional means and variances of fixed effects
+        fixed <- .Call("glmer_fixed_update", GSpt, b, fixed, PACKAGE = "Matrix")
+        ans$fixed[,i] <- fixed
+        ## sample from the conditional distribution of beta given b and y
+        ## conditional means and variances of random_effects
+        .Call("glmer_bhat", GSpt, fixed, varc, PACKAGE = "Matrix")
+        print(bhat <- .Call("lmer_ranef", mer, PACKAGE = "Matrix"))
+        ## sample from the conditional distribution of b given beta and y
+        ## sample from the conditional distribution of varc given b
+        ans$varc[,i] <- varc
+    }
+    ans
+}
 

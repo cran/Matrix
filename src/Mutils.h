@@ -239,6 +239,41 @@ void make_array_triangular(double *x, SEXP from);
 
 SEXP Matrix_expand_pointers(SEXP pP);
 
+
+/** 
+ * Elementwise increment dest by src
+ * 
+ * @param dest vector to be incremented
+ * @param src vector to be added to dest
+ * @param n length of vectors
+ * 
+ * @return dest
+ */
+static R_INLINE double*
+vecIncrement(double dest[], const double src[], int n) {
+    int i;
+    for (i = 0; i < n; i++) dest[i] += src[i];
+    return dest;
+}
+
+/** 
+ * Elementwise sum of src1 and src2 into dest
+ * 
+ * @param dest vector to be incremented
+ * @param src1 vector to be added
+ * @param src1 second vector to be added
+ * @param n length of vectors
+ * 
+ * @return dest
+ */
+static R_INLINE double*
+vecSum(double dest[], const double src1[], const double src2[],
+       int n) {
+    int i;
+    for (i = 0; i < n; i++) dest[i] = src1[i] + src2[i];
+    return dest;
+}
+
 #ifdef __cplusplus
 }
 #endif

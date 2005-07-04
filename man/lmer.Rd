@@ -2,7 +2,8 @@
 \docType{genericFunction}
 \alias{lmer}
 \alias{lmer,formula-method}
-\title{Fit linear mixed-effects models}
+\concept{GLMM}% << so it's found
+\title{Fit (Generalized) Linear Mixed-Effects Models}
 \description{
   This generic function fits a linear mixed-effects model with nested or
   crossed grouping factors for the random effects.
@@ -48,11 +49,11 @@ lmer(formula, data, family,
   }
 }
 \details{
-  This is a revised version of the \code{lme} function from the
-  \code{nlme} package.  This version uses a different method of
+  This is a revised version of the \code{\link[nlme]{lme}} function from the
+  \pkg{nlme} package.  This version uses a different method of
   specifying random-effects terms and allows for fitting generalized
   linear mixed models as well as linear mixed models.
-  
+
   Additional standard arguments to model-fitting functions can be passed
   to \code{lmer}.
   \describe{
@@ -69,7 +70,7 @@ lmer(formula, data, family,
       algorithm.  Possible control options and their values are:
       \describe{
 	\item{maxIter}{maximum number of iterations for the \code{lme}
-	  optimization algorithm. Default is 50.} 
+	  optimization algorithm. Default is 50.}
 	\item{msMaxIter}{maximum number of iterations
 	  for the \code{nlminb} optimization step inside the \code{lme}
 	  optimization. Default is 200.}
@@ -78,13 +79,13 @@ lmer(formula, data, family,
 	  coefficients. Default is 15.}
 	\item{msVerbose}{a logical value passed as the \code{trace} argument to
 	  \code{nlminb} (see documentation on that function). Default is
-	  \code{getOption("verbose")}.} 
+	  \code{getOption("verbose")}.}
 	\item{PQLmaxIt}{maximum number of iterations for the PQL
 	  algorithm when fitting generalized linear mixed models.
 	  Default is 30.}
 	\item{EMverbose}{a logical value indicating if verbose output
 	  should be produced during the EM iterations.  Default is
-	  \code{getOption("verbose"}.} 
+	  \code{getOption("verbose"}.}
 	\item{analyticGradient}{a logical value indicating if the
 	  analytic gradient of the objective should be used.  This
 	  option is for testing purposes and would not normally be
@@ -93,7 +94,7 @@ lmer(formula, data, family,
 	  analytic Hessian of the objective should be calculated. This
 	  is an experimental feature and at present the default is
 	  \code{FALSE}. In the future we may use the analytic Hessian in
-	  the optimization.} 
+	  the optimization.}
       }
       Defaults to an empty list.}
     \item{model, x}{logicals.  If \code{TRUE} the corresponding

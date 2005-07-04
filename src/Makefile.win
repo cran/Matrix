@@ -1,4 +1,4 @@
-#
+# -*- Makefile -*- for Windows
 include $(RHOME)/src/gnuwin32/MkRules
 BLAS_LIBS=-lRblas
 LAPACK_LIBS=-L$(RHOME)/lib -lRlapack
@@ -6,7 +6,7 @@ CPPFLAGS=$(PKG_CPPFLAGS) -I$(RHOME)/src/include
 CFLAGS=$(CPPFLAGS) $(DEBUGFLAG) -O2 $(PKG_CFLAGS)
 CXXFLAGS=$(CPPFLAGS) $(DEBUGFLAG) -O2 $(PKG_CXXFLAGS)
 
-DLLLIBS=-L$(RHOME)/src/gnuwin32 $(PKG_LIBS) $(FLIBS) -lR 
+DLLLIBS=-L$(RHOME)/src/gnuwin32 $(PKG_LIBS) $(FLIBS) -lR
 
 pkg = Matrix
 
@@ -25,7 +25,7 @@ all: $(SHLIB)
 
 mostlyclean: clean
 
-$(SUBLIBS): 
+$(SUBLIBS):
 	@for d in $(SUBDIRS); do \
 	  (cd $${d} && $(MAKE) -f Makefile.win lib) || exit 1; \
 	done

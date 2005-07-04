@@ -130,8 +130,10 @@ static R_CallMethodDef CallEntries[] = {
     {"dtrMatrix_rcond", (DL_FUNC) &dtrMatrix_rcond, 2},
     {"dtrMatrix_solve", (DL_FUNC) &dtrMatrix_solve, 1},
     {"dtrMatrix_validate", (DL_FUNC) &dtrMatrix_validate, 1},
+    {"glmer_bhat", (DL_FUNC) &glmer_bhat, 3},
     {"glmer_devAGQ", (DL_FUNC) &glmer_devAGQ, 3},
     {"glmer_finalize", (DL_FUNC) &glmer_finalize, 1},
+    {"glmer_fixed_update", (DL_FUNC) &glmer_fixed_update, 3},
     {"glmer_init", (DL_FUNC) &glmer_init, 1},
     {"glmer_PQL", (DL_FUNC) &glmer_PQL, 1},
     {"lapack_qr", (DL_FUNC) &lapack_qr, 2},
@@ -181,7 +183,7 @@ static R_CallMethodDef CallEntries[] = {
 void R_init_Matrix(DllInfo *dll)
 {
     R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
-    R_useDynamicSymbols(dll, FALSE);
+    R_useDynamicSymbols(dll, FALSE); 
     Matrix_DIsqrtSym = install("DIsqrt");
     Matrix_DSym = install("D");
     Matrix_DimSym = install("Dim");

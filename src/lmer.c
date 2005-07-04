@@ -28,7 +28,7 @@ SEXP lmer_validate(SEXP x)
     if (!match_mat_dims(XtXd, INTEGER(getAttrib(RXXP, R_DimSymbol))))
 	return mkString(_("Dimensions of slots XtX and RXX must match"));
     if (ZtXd[1] != XtXd[0] || XtXd[0] != XtXd[1])
-	return mkString(_("Slots XtX must be a square matrix with same no. of cols as ZtX"));
+	return mkString(_("Slot XtX must be a square matrix with same ncol as ZtX"));
     return ScalarLogical(1);
 }
 
@@ -712,7 +712,7 @@ SEXP lmer_factor(SEXP x)
 	    *deviance = REAL(GET_SLOT(x, Matrix_devianceSym)),
 	    minus1 = -1., one = 1.;
 
-	if (nc[nf] < 0) {	/* indicates that fixed effects should be skipped */
+	if (nc[nf] < 0) {	/* skip the fixed effects part */
 	    int ZXshift = dims[0] * (dims[1] - 1),
 		XXshift = dims[1]*dims[1] - 1;
 	    
@@ -963,7 +963,7 @@ SEXP lmer_invert(SEXP x)
 	    *RZX = REAL(RZXP),
 	    minus1 = -1., one = 1., zero = 0.;
 
-	if (nc[nf] < 0) {	/* indicates that fixed effects should be skipped */
+	if (nc[nf] < 0) {	/* skip the fixed effects part */
 	    RZX += dims[0] * (dims[1] - 1);
 	    RXX += dims[1]*dims[1] - 1;
 	    ncX = 1;
@@ -993,11 +993,13 @@ SEXP lmer_invert(SEXP x)
 		}
 	    } else {
 		for (j = 0; j < nlevs[i]; j++) {
-		    F77_CALL(dtrtri)("U", "N", &nci, Di + j * ncisqr, &nci, &info);
-		    if (info)
-			error(_("D[,,%d] for factor %d is singular"), j + 1, i + 1);
+		    F77_CALL(dtrtri)("U", "N", &nci, Di + j * ncisqr,
+				     &nci, &info);
+		    if (info) error(_("D[,,%d] for factor %d is singular"),
+				    j + 1, i + 1);
 		    F77_CALL(dtrmm)("L", "U", "N", "N", &nci, &ncX, &one,
-				    Di + j * ncisqr, &nci, RZXi + j * nci, &dims[0]);
+				    Di + j * ncisqr, &nci, RZXi + j * nci,
+				    &dims[0]);
 		}
 	    }
 	}
@@ -1006,7 +1008,7 @@ SEXP lmer_invert(SEXP x)
 	internal_sm(LFT, TRN, nf, Gp, ncX, 1.0, LP, RZX, dims[0]);
 
 	alloc_tmp_ind(nf, nc, nlevs, ParP, tmp, ind);
-	/* Create bVar arrays as crossprod of column blocks of D^{-T/2}%*%L^{-1} */
+	/* Create bVar as crossprod of column blocks of D^{-T/2}%*%L^{-1} */
 	for (i = 0; i < nf; i++) { /* ith column of outer blocks */
 	    int j, k, kj, nci = nc[i];
 	    int ncisqr = nci * nci;
@@ -1049,11 +1051,11 @@ SEXP lmer_invert(SEXP x)
 			    
 			    for (k1 = Lkip[col]; k1 < Lkip[col + 1]; k1++) {
 				if ((kk == k) && col >= Lkii[k1]) break;
-				F77_CALL(dgemm)("N", "N", &nc[k], &nci, &nc[kk],
-						&minus1, Lkix + k1 * szk,
-						&nc[k], tmp[kk] + kj * szkk,
-						&nc[kk], &one,
-						tmp[k] +
+				F77_CALL(dgemm)("N", "N", &nc[k], &nci,
+						&nc[kk], &minus1,
+						Lkix + k1 * szk, &nc[k],
+						tmp[kk] + kj * szkk, &nc[kk],
+						&one, tmp[k] +
 						fsrch(Lkii[k1],ind[k],nnz[k])*sz,
 						&nc[k]);
 			    }
@@ -1062,8 +1064,10 @@ SEXP lmer_invert(SEXP x)
 		}
 		for (k = 0; k < nf; k++) {
 		    for (kj = 0; kj < nnz[k]; kj++) {
-			F77_CALL(dtrmm)("L", "U", "T", "N", nc + k, &nci, &minus1,
-					REAL(VECTOR_ELT(DP, k))+ind[k][kj]*nc[k]*nc[k],
+			F77_CALL(dtrmm)("L", "U", "T", "N", nc + k, &nci,
+					&minus1,
+					REAL(VECTOR_ELT(DP, k))+
+					ind[k][kj]*nc[k]*nc[k],
 					nc + k, tmp[k] + kj * nc[i] * nc[k],
 					nc + k);
 		    }
@@ -1490,74 +1494,6 @@ double *EM_grad_lc(double *cc, int EM, int REML, int ns[])
     return cc;
 }
 
-#if 0
-
-/**
- * Print the verbose output in the ECME iterations
- *
- * @param x pointer to an ssclme object
- * @param iter iteration number
- * @param REML non-zero for REML, zero for ML
- * @param firstDer arrays for calculating ECME steps and the first derivative
- * @param val Pointer to a list of arrays to receive the calculated values
- */
-static void
-EMsteps_verbose_print(SEXP x, int iter, int REML, SEXP firstDer,
-		      SEXP val)
-{
-    SEXP Omega = GET_SLOT(x, Matrix_OmegaSym),
-	pMat = VECTOR_ELT(val, 2);
-    int *nc = INTEGER(GET_SLOT(x, Matrix_ncSym)),
-	*Its = INTEGER(VECTOR_ELT(val, 0)),
-	i, ifour = 4, ii, ione = 1, jj, nf = length(Omega),
-	niter = INTEGER(getAttrib(pMat, R_DimSymbol))[0];
-    double
-	*dev = REAL(GET_SLOT(x, Matrix_devianceSym)),
-	*cc = EM_grad_lc(Calloc(4, double), 0, REML, nc + nf),
-	*Devs = REAL(VECTOR_ELT(val, 1)),
-	*pars = REAL(pMat) + iter,
-	*grds = REAL(VECTOR_ELT(val, 3)) + iter,
-	one = 1., zero = 0.;
-
-    lmer_factor(x);
-    if (iter == 0) Rprintf("  EM iterations\n");
-    Rprintf("%3d %.3f", Its[iter] = iter, Devs[iter] = dev[REML ? 1 : 0]);
-    for (i = 0; i < nf; i++) {
-	int nci = nc[i], ncip1 = nci + 1, ncisqr = nci * nci;
-	double
-	    *Omgi = REAL(VECTOR_ELT(Omega, i)),
-	    *Grad = Calloc(ncisqr, double);
-
-				/* diagonals */
-	Rprintf(" (%#8g", *pars = Omgi[0]);
-	pars += niter;
-	for (jj = 1; jj < nci; jj++, pars += niter) {
-	    Rprintf(" %#8g", *pars = Omgi[jj * ncip1]);
-	}
-	for (jj = 1; jj < nci; jj++) /* offdiagonals */
-	    for (ii = 0; ii < jj; ii++, pars += niter)
-		Rprintf(" %#8g", *pars = Omgi[ii + jj * nci]);
-				/* Evaluate and print the gradient */
-	F77_CALL(dgemv)("N", &ncisqr, &ifour, &one,
-			REAL(VECTOR_ELT(firstDer, i)), &ncisqr,
-			cc, &ione, &zero, Grad, &ione);
-	Rprintf(":%#8.3g", *grds = Grad[0]);
-	grds += niter;
-				/* diagonals */
-	for (jj = 1; jj < nci; jj++, grds += niter) {
-	    Rprintf(" %#8.3g", *grds = Grad[jj * ncip1]);
-	}
-	for (jj = 1; jj < nci; jj++) /* offdiagonals */
-	    for (ii = 0; ii < jj; ii++, grds += niter)
-		Rprintf(" %#8.3g", *grds = Grad[ii + jj * nci]);
-	Rprintf(")");
-	Free(Grad);
-    }
-    Rprintf("\n");
-    Free(cc);
-}
-#endif
-
 /**
  * Print the verbose output in the ECME iterations
  *
@@ -1815,7 +1751,7 @@ SEXP lmer_secondDer(SEXP x, SEXP Valp)
 		       REAL(val) + 2 * Qsqr + pos * Q, &Q);
 	pos += ncisqr;
     }
-				/* fifth face of val is outer product of bbface */
+				/* fifth face is outer product of bbface */
     F77_CALL(dsyr)("U", &Q, &one, bbface, &ione, REAL(val) + 4 * Qsqr, &Q);
 				/* fourth face from \bb\trans\der\vb\der\bb */
     AZERO(REAL(val) + 3 * Qsqr, Qsqr); /* zero accumulator */
@@ -2265,7 +2201,7 @@ SEXP glmer_init(SEXP rho) {
     GS->offset = find_and_check(rho, install("offset"),
 				REALSXP, GS->n);
     defineVar(offSym, duplicate(GS->offset), rho);
-    GS->off = find_and_check(rho, install("off"), REALSXP, GS->n);
+    GS->off = find_and_check(rho, offSym, REALSXP, GS->n);
     GS->x = find_and_check(rho, install("x"), REALSXP, 0);
     if (!isMatrix(GS->x))
 	error(_("%s must be a model matrix"), "x");
@@ -2343,25 +2279,20 @@ reweight_update(GlmerStruct GS) {
  * @return convergence criterion
  */
 static double
-conv_crit(GlmerStruct GS, double etaold[]) {
-    double *fitted = Calloc(GS->n, double),
-	max_eta = -1, max_diff = -1;
+conv_crit(double etaold[], double eta[], int n) {
+    double max_abs_eta = -1, max_abs_diff = -1;
     int i;
 
-    internal_fitted(GS->mer, GS->unwtd, 1, fitted);
-    for (i = 0; i < GS->n; i++) {
+    for (i = 0; i < n; i++) {
 	double abs_eta, abs_diff;
-	    
-	REAL(GS->eta)[i] = REAL(GS->off)[i] + fitted[i];
-	abs_eta = fabs(REAL(GS->eta)[i]);
-	if (abs_eta > max_eta) max_eta = abs_eta;
-	abs_diff = fabs(REAL(GS->eta)[i] - etaold[i]);
-	if (abs_diff > max_diff) max_diff = abs_diff;
-	etaold[i] = REAL(GS->eta)[i];
-    }
-    Free(fitted);
 
-    return max_diff / (0.1 + max_eta);
+	abs_eta = fabs(eta[i]);
+	if (abs_eta > max_abs_eta) max_abs_eta = abs_eta;
+	abs_diff = fabs(eta[i] - etaold[i]);
+	if (abs_diff > max_abs_diff) max_abs_diff = abs_diff;
+	etaold[i] = eta[i];
+    }
+    return max_abs_diff / (0.1 + max_abs_eta);
 }
 
 /** 
@@ -2374,71 +2305,30 @@ conv_crit(GlmerStruct GS, double etaold[]) {
 SEXP glmer_PQL(SEXP GSp)
 {
     GlmerStruct GS = (GlmerStruct) R_ExternalPtrAddr(GSp);
-    int conv, i;
+    int i;
     double *etaold = Memcpy(Calloc(GS->n, double),
-			    REAL(GS->eta), GS->n);
+			    REAL(GS->eta), GS->n),
+	*fitted = Calloc(GS->n, double), crit;
 
-    for (i = 0, conv = 0; i < GS->maxiter && !conv; i++) {
+    for (i = 0, crit = GS->tol + 1;
+	 i < GS->maxiter && crit > GS->tol; i++) {
 	reweight_update(GS);
 	if (!i) lmer_initial(GS->mer); /* initialize first fit */
 	internal_ECMEsteps(GS->mer, i ? 2 : GS->niterEM,
 			   GS->EMverbose);
 	eval(GS->LMEopt, GS->rho);
-	conv = conv_crit(GS, etaold) < GS->tol;
+	vecSum(REAL(GS->eta), REAL(GS->off), 
+	       internal_fitted(GS->mer, GS->unwtd, 1, fitted),
+	       GS->n);
+	crit = conv_crit(etaold, REAL(GS->eta), GS->n);
     }
-    if (!conv)
+    if (crit > GS->tol)
 	warning(_("IRLS iterations for PQL did not converge"));
 
-    Free(etaold);
+    Free(etaold); Free(fitted);
     return R_NilValue;
 }
-
-/** 
- * Evaluate half the difference of the logarithm of the
- * determinant of Sigma and the log determinant of bVar.
- * This function has a side effect of factoring Sigma and the
- * matrices in bVar.
- * 
- * @param GS a GlmerStruct object
- * @param b a random-effects object
- * 
- * @return difference of log determinants
- */
-static double
-Sigma_bVar_det(GlmerStruct GS) {
-    SEXP Omega = GET_SLOT(GS->mer, Matrix_OmegaSym),
-	bVar = GET_SLOT(GS->mer, Matrix_bVarSym);
-    int *nc = INTEGER(GET_SLOT(GS->mer, Matrix_ncSym)),
-	*Gp = INTEGER(GET_SLOT(GS->mer, Matrix_GpSym)), i;
-    double ans;
-
-    for (i = 0, ans = 0; i < GS->nf; i++) {
-        int j, k, nci = nc[i];
-        int ncip1 = nci + 1, ncisqr = nci * nci,
-	    nlev = (Gp[i + 1] - Gp[i])/nci;
-	double *bVi = REAL(VECTOR_ELT(bVar, i)),
-	    *Omgi = REAL(VECTOR_ELT(Omega, i));
-
-        F77_CALL(dpotrf)("U", &nci, Omgi, &nci, &j);
-        if (j)
-            error(_("Leading %d minor of Omega[[%d]] not positive definite"),
-                  j, i + 1);
-        for (j = 0; j < nci; j++) { /* nlev * logDet(Omega_i) */
-            ans += nlev * log(Omgi[j * ncip1]);
-            /* Note: we are adding because Omega has been inverted */
-        }
-        for (k = 0; k < nlev; k++) {
-	    double *bVik = bVi + k * ncisqr;
-            F77_CALL(dpotrf)("U", &nci, bVik, &nci, &j);
-            if (j)
-                error(_("Leading %d minor of bVar[[%d]][,,%d] not positive definite"),
-                      j, i + 1, k + 1);
-            for (j = 0; j < nci; j++) ans += log(bVik[j * ncip1]);
-        }
-    }
-    return ans;
-}
-
+    
 /** 
  * Establish off, the effective offset for the fixed effects, and
  * iterate to determine the conditional modes.  Factor Omega and bVar
@@ -2448,159 +2338,336 @@ Sigma_bVar_det(GlmerStruct GS) {
  * @param GS a GlmerStruct object
  */
 static void
-glmer_bhat(double pars[], GlmerStruct GS)
+internal_bhat(GlmerStruct GS, const double fixed[], const double varc[])
 {
-    int conv, i, ione = 1;
-    double *etaold, one = 1, zero = 0;
+    SEXP flist = GET_SLOT(GS->mer, Matrix_flistSym);
+    int *nc = INTEGER(GET_SLOT(GS->mer, Matrix_ncSym)),
+	i, ione = 1;
+    double *etaold = Calloc(GS->n, double),
+	*fitted = Calloc(GS->n, double),
+	crit, one = 1, zero = 0;
 	
-    F77_CALL(dgemv)("N", &(GS->n), &(GS->p), &one,
-		    REAL(GS->x), &(GS->n), pars,
-		    &ione, &zero, REAL(GS->off), &ione);
-    for (i = 0; i < GS->n; i++)
-	REAL(GS->eta)[i] =
-	    (REAL(GS->off)[i] += REAL(GS->offset)[i]);
-    internal_coefGets(GS->mer, pars + GS->p, 2);
-    etaold = Memcpy(Calloc(GS->n, double), REAL(GS->eta), GS->n);
+    internal_coefGets(GS->mer, varc, 2);
 
-    for (i = 0, conv = 0; i < GS->maxiter && !conv; i++) {
+    F77_CALL(dgemv)("N", &(GS->n), &(GS->p), &one,
+		    REAL(GS->x), &(GS->n), fixed,
+		    &ione, &zero, REAL(GS->off), &ione);
+    vecIncrement(REAL(GS->off), REAL(GS->offset), GS->n);
+    Memcpy(REAL(GS->eta), REAL(GS->off), GS->n);
+    Memcpy(etaold, REAL(GS->eta), GS->n);
+
+    for (i = 0, crit = GS->tol + 1;
+	 i < GS->maxiter && crit > GS->tol; i++) {
 	reweight_update(GS);
-	conv = conv_crit(GS, etaold) < GS->tol;
+	AZERO(fitted, GS->n);
+	fitted_ranef(flist, GS->unwtd, lmer_ranef(GS->mer),
+		     nc, fitted);
+	vecSum(REAL(GS->eta), REAL(GS->off), fitted, GS->n);
+	crit = conv_crit(etaold, REAL(GS->eta), GS->n);
     }
-    if (!conv) warning(_("iterations for bhat did not converge"));
-    Free(etaold);
+    if (crit > GS->tol)
+	warning(_("iterations for bhat did not converge"));
+    Free(etaold); Free(fitted);
 }
 
 /** 
- * Evaluate the difference in the quadratic form in the
- * random effects and the delb's.
+ * Determine the deviance components associated with each of the
+ * levels of a grouping factor at the conditional modes or an value
+ * offset from the conditional modes by delb.
  * 
- * @param GS a GlmerStruct object
- * @param b random effects
+ * @param GS pointer to a GlmerStruct
+ * @param b pointer to the conditional modes of the random effects 
+ * @param nlev number of levels of the kth grouping factor
+ * @param nc number of columns in the model matrix for the kth
+ * grouping factor
+ * @param k index (0-based) of the grouping factor
+ * @param delb vector of length nc giving the changes in the
+ * orthonormalized random effects 
+ * @param OmgFac Cholesky factor of the inverse of the penalty matrix
+ * for this grouping factor 
+ * @param bVfac 3-dimensional array holding the factors of the
+ * conditional variance-covariance matrix of the random effects 
+ * @param devcmp array to hold the deviance components
  * 
- * @return the quadratic form
+ * @return devcmp
  */
-static double
-b_qf(GlmerStruct GS, SEXP b, SEXP delb) {
-    SEXP Omega = GET_SLOT(GS->mer, Matrix_OmegaSym);
-    int *nc = INTEGER(GET_SLOT(GS->mer, Matrix_ncSym)),
-	*Gp = INTEGER(GET_SLOT(GS->mer, Matrix_GpSym)),
-	i, ione = 1;
-    double ans, one = 1, zero = 0;
-    
-    for (i = 0, ans = 0; i < GS->nf; i++) {
-	int nci = nc[i], ntot = Gp[i + 1] - Gp[i];
-	int nlev = ntot/nci;
-	double *tmp = Calloc(ntot, double);
+static double*
+rel_dev_1(GlmerStruct GS, SEXP b, int nlev, int nc, int k,
+	  const double delb[], const double OmgFac[],
+	  const double bVfac[], double devcmp[])
+{
+    SEXP devs, flist = GET_SLOT(GS->mer, Matrix_flistSym);
+    int *fv = INTEGER(VECTOR_ELT(flist, k)), i, ione = 1,
+	j, ntot = nlev * nc;
+    double *bb = REAL(VECTOR_ELT(b, k)), *bcp = (double *) NULL;
 
-	F77_CALL(dgemm)("N", "T", &nlev, &nci, &nci, &one,
-			REAL(VECTOR_ELT(b, i)), &nlev,
-			REAL(VECTOR_ELT(Omega, i)), &nci,
-			&zero, tmp, &nlev);
-        ans += F77_CALL(ddot)(&ntot, tmp, &ione, tmp, &ione);
-	if (delb != R_NilValue) {
-	    double *delbi = REAL(VECTOR_ELT(delb, i));
-	    ans -= F77_CALL(ddot)(&ntot, delbi, &ione, delbi, &ione);
+    AZERO(devcmp, nlev);
+    if (delb) {
+	double sumsq = 0;
+				/* copy the contents of b */
+	bcp = Memcpy(Calloc(ntot, double), bb, ntot);
+	if (nc == 1) {
+	    sumsq = delb[0] * delb[0];
+	    for (i = 0; i < nlev; i++) bb[i] += delb[0] * bVfac[i];
+	} else {
+	    int ncsq = nc * nc;
+	    double *tmp = Calloc(nc, double);
+	    for (i = 0; i < nlev; i++) {
+		Memcpy(tmp, delb, nc);
+		F77_CALL(dtrmv)("U", "N", "N", &nc, &(bVfac[i * ncsq]),
+				&nc, tmp, &ione);
+		for (j = 0; j < nc; j++) bb[i + j * nc] = tmp[j];
+	    }
+				/* sum of squares of delb */
+	    for (j = 0; j < nc; j++) sumsq += delb[j] * delb[j];
+	}
+	for (i = 0; i < nlev; i++) devcmp[i] = -sumsq;
+    }
+    Memcpy(REAL(GS->eta), REAL(GS->off), GS->n);
+    fitted_ranef(flist, GS->unwtd, b, &nc, REAL(GS->eta));
+    eval_check_store(GS->linkinv, GS->rho, GS->mu);
+    devs = PROTECT(eval_check(GS->dev_resids, GS->rho, REALSXP, GS->n));
+    for (i = 0; i < GS->n; i++)
+	devcmp[fv[i] - 1] += REAL(devs)[i];
+    UNPROTECT(1);
+    if (nc == 1) {
+	for (i = 0; i < nlev; i++) {
+	    double tmp = *OmgFac * bb[i];
+	    devcmp[i] += tmp * tmp;
+	}
+    } else {
+	double *tmp = Calloc(nc, double);
+	int ione = 1;
+	
+	for (i = 0; i < nlev; i++) {
+	    for (j = 0; j < nc; j++) tmp[j] = bb[i + j * nlev];
+	    F77_CALL(dtrmv)("U", "N", "N", &nc, OmgFac, &nc,
+			    tmp, &ione);
+	    for (j = 0; j < nc; j++) 
+		devcmp[i] += tmp[j] * tmp[j];
 	}
     }
-    return ans;
+    if (delb) {
+	Memcpy(bb, bcp, ntot);
+	Free(bcp);
+    }
+    return devcmp;
 }
-	
-/** 
- * Evaluate the conditional deviance, given a value of the random
- * effects
- * 
- * @param GS a GlmerStruct object
- * @param b random effects
- * 
- * @return the conditional deviance
- */
-static double
-cond_dev(GlmerStruct GS, SEXP b) {
-    SEXP devr;
-    int i;
-    double ans = 0;
 
-    fitted_ranef(GET_SLOT(GS->mer, Matrix_flistSym), GS->unwtd, b,
-		 INTEGER(GET_SLOT(GS->mer, Matrix_ncSym)),
-		 Memcpy(REAL(GS->eta), REAL(GS->off), GS->n));
-    eval_check_store(GS->linkinv, GS->rho, GS->mu);
-    devr = PROTECT(eval_check(GS->dev_resids, GS->rho,
-			      REALSXP, GS->n));    
-    for (i = 0, ans = 0; i < GS->n; i++) ans += REAL(devr)[i];
-    UNPROTECT(1);
-    return ans;
-}
 
 /** 
- * Evaluate the deviance at b/delb relative to that at bhat/0
+ * Compute the approximation to the deviance using adaptive
+ * Gauss-Hermite quadrature (AGQ).  When nAGQ == 1 this is the Laplace
+ * approximation.
  * 
- * @param GS a GlmerStruct object
- * @param b random effects
- * @param delb change from bhat on the delb scale
- * @param cnst additive constant
+ * @param pars pointer to a numeric vector of parameters
+ * @param GSp pointer to a GlmerStruct object
+ * @param nAGQp pointer to a scalar integer representing the number of points in AGQ to use
  * 
- * @return the relative deviance
+ * @return the approximation to the deviance as computed using AGQ
  */
-static R_INLINE double
-relDev(GlmerStruct GS, SEXP b, SEXP delb, double cnst)
-{
-    return cond_dev(GS, b) + b_qf(GS, b, delb) - cnst;
-}
-	
-static void
-update_delb_b(double x, int nc, int nlev, const double bvFac[],
-	      const double bhat[], double delb[], double bt[])
-{
-    int i;
-    if (nc != 1) error("code not yet written");
-    for (i = 0; i < nlev; i++)
-	bt[i] = bhat[i] + (delb[i] = x * bvFac[i]);
-}
-
 SEXP glmer_devAGQ(SEXP pars, SEXP GSp, SEXP nAGQp)
 {
-    SEXP bhat;
     GlmerStruct GS = (GlmerStruct) R_ExternalPtrAddr(GSp);
-    double bvd, cnst, deviance, rmlik;
-    int nAGQ = asInteger(nAGQp);
+    SEXP bhat, Omega, bVar;
+    int i, j, k, nAGQ = asInteger(nAGQp);
+    int n2 = (nAGQ + 1)/2;
+    double *f0, LaplaceDev = 0, AGQadjst = 0;
 	
     if (!isReal(pars) || LENGTH(pars) != GS->npar)
 	error(_("`%s' must be a numeric vector of length %d"),
 	      "pars", GS->npar);
-    glmer_bhat(REAL(pars), GS);
-    bvd = -2 * Sigma_bVar_det(GS); /* also factors Omega and bVar */
-    bhat = PROTECT(lmer_ranef(GS->mer));
-    deviance = cnst = cond_dev(GS, bhat) + b_qf(GS, bhat, R_NilValue);
-    rmlik = 1;			/* relative marginal likelihood */
-    if (nAGQ > 1) {
-	SEXP delb = PROTECT(duplicate(bhat)), btrial = PROTECT(duplicate(bhat));
-	SEXP bvFac, delb0, btrial0, bhat0;
-	int *dims, i, odd = nAGQ % 2;
-	int n2 = (nAGQ + odd)/2;
+    if (GS->nf > 1 && nAGQ > 1) {
+	warning(_("AGQ not available for multiple grouping factors - using Laplace"));
+	nAGQ = 1;
+    }
+    internal_bhat(GS, REAL(pars), REAL(pars) + (GS->p));
+    bhat = PROTECT(lmer_ranef(GS->mer)); /* forces an inversion of GS->mer */
+    bVar = GET_SLOT(GS->mer, Matrix_bVarSym);
+    Omega = GET_SLOT(GS->mer, Matrix_OmegaSym);
 
-	rmlik = 0;
-	if (GS->nf > 1)
-	    error(_("AGQ available only for a single grouping factor"));
-	bvFac = VECTOR_ELT(GET_SLOT(GS->mer, Matrix_bVarSym), 0);
-	delb0 = VECTOR_ELT(delb, 0);
-	bhat0 = VECTOR_ELT(bhat, 0);
-	btrial0 = VECTOR_ELT(btrial, 0);
-	dims = INTEGER(getAttrib(bhat0, R_DimSymbol));
-	for (i = 0; i < n2; i++) {
-	    update_delb_b(GHQ_x[nAGQ][i], dims[1], dims[0], REAL(bvFac),
-			  REAL(bhat0), REAL(delb0), REAL(btrial0));
-	    rmlik += GHQ_w[nAGQ][i] * exp(-relDev(GS, btrial, delb, cnst)/2);
-	    if (GS->EMverbose) Rprintf("%10g ", rmlik);
+    for (i = 0; i < GS->nf; i++) {
+	int *dims = INTEGER(getAttrib(VECTOR_ELT(bVar, i),
+				      R_DimSymbol));
+	int nci = dims[0], nlev = dims[2];
+	int ncip1 = nci + 1, ncisqr = nci * nci;
+	double *omg = Memcpy(Calloc(ncisqr, double),
+			     REAL(VECTOR_ELT(Omega, i)), ncisqr),
+	    *bvar = Memcpy(Calloc(ncisqr * nlev, double),
+			   REAL(VECTOR_ELT(bVar, i)), ncisqr * nlev);
+
+	LaplaceDev = 0;
+				/* Calculate difference of determinants */
+        F77_CALL(dpotrf)("U", &nci, omg, &nci, &j);
+        if (j)
+            error(_("Leading %d minor of Omega[[%d]] not positive definite"),
+                  j, i + 1);
+        for (j = 0; j < nci; j++) { /* nlev * logDet(Omega_i) */
+            /* Note: we subtract because Omega has been inverted */
+            LaplaceDev -= 2 * nlev * log(omg[j * ncip1]);
+        }
+        for (k = 0; k < nlev; k++) {
+	    double *bVik = bvar + k * ncisqr;
+            F77_CALL(dpotrf)("U", &nci, bVik, &nci, &j);
+            if (j)
+                error(_("Leading %d minor of bVar[[%d]][,,%d] not positive definite"),
+                      j, i + 1, k + 1);
+            for (j = 0; j < nci; j++) LaplaceDev -= 2 * log(bVik[j * ncip1]);
+        }
+
+	f0 = Calloc(nlev, double);
+	rel_dev_1(GS, bhat, nlev, nci, i, (double *) NULL,
+		  omg, bvar, f0);
+	for (k = 0; k < nlev; k++) LaplaceDev += f0[k];
+	if (nAGQ > 1) {
+	    double *fx = Calloc(nlev, double),
+		*rellik = Calloc(nlev, double),
+		*delb = Calloc(nci, double);
+
+	    if (nci > 1) error(_("code not yet written"));
+	    AZERO(rellik, nlev);	/* zero accumulator */
+	    for (k = 0; k < n2; k++) {	
+		delb[0] = GHQ_x[nAGQ][k];
+		if (delb[0]) {
+		    rel_dev_1(GS, bhat, nlev, nci, i, delb,
+			      omg, bvar, fx);
+		    for (j = 0; j < nlev; j++) {
+			rellik[j] += GHQ_w[nAGQ][k] *
+			    exp(-(fx[j] - f0[j])/2);
+		    }
+		    delb[0] *= -1;
+		    rel_dev_1(GS, bhat, nlev, nci, i, delb,
+			      omg, bvar, fx);
+		    for (j = 0; j < nlev; j++) {
+			rellik[j] += GHQ_w[nAGQ][k] *
+			    exp(-(fx[j] - f0[j])/2);
+		    }
+		} else {
+		    for (j = 0; j < nlev; j++)
+			rellik[j] += GHQ_w[nAGQ][k];
+		}
+	    }
+	    for (j = 0; j < nlev; j++)
+		AGQadjst -= 2 * log(rellik[j]);
+	    Free(fx); Free(rellik);
 	}
-	for (i = (n2 - 1) - odd; i >= 0; i--) {
-	    update_delb_b(-GHQ_x[nAGQ][i], dims[1], dims[0], REAL(bvFac),
-			  REAL(bhat0), REAL(delb0), REAL(btrial0));
-	    rmlik += GHQ_w[nAGQ][i] * exp(-relDev(GS, btrial, delb, cnst)/2);
-	    if (GS->EMverbose) Rprintf("%10g ", rmlik);
-	}
-	if (GS->EMverbose) Rprintf("\n", rmlik);
-	UNPROTECT(2);
+	Free(f0); Free(omg); Free(bvar);
     }
     UNPROTECT(1);
-    return ScalarReal(deviance - 2*log(rmlik) + bvd);
+    return ScalarReal(LaplaceDev + AGQadjst);
+}
+
+/** 
+ * Evaluate the conditional modes of the random effects.
+ * 
+ * @param GSp pointer to a GlmerStruct
+ * @param fixed pointer to a numeric vector of the fixed effects
+ * @param varc pointer to a numeric vector of the variance components
+ * 
+ * @return R_NilValue.  As a side effect it evaluates bhat.
+ */
+SEXP glmer_bhat(SEXP GSp, SEXP fixed, SEXP varc)
+{
+    GlmerStruct GS = (GlmerStruct) R_ExternalPtrAddr(GSp);
+    int nvarc = GS->npar - GS->p;
+
+    if (!isReal(fixed) || LENGTH(fixed) != GS->p)
+	error(_("`%s' must be a numeric vector of length %d"),
+	      "fixed", GS->p);
+    if (!isReal(varc) || LENGTH(varc) != nvarc)
+	error(_("`%s' must be a numeric vector of length %d"),
+	      "varc", nvarc);
+    if (INTEGER(GET_SLOT(GS->mer, Matrix_ncSym))[GS->nf] > 0)
+	error(_("the mer object must be set to skip fixed effects"));
+    internal_bhat(GS, REAL(fixed), REAL(varc));
+    return R_NilValue;
+}
+
+/** 
+ * Update the fixed effects vector to the conditional modes given the
+ * data and the current random effects.
+ * 
+ * @param GSp pointer to a GlmerStruct
+ * @param b list of random effects
+ * @param fixed current value of the fixed effects
+ * 
+ * @return updated value of the fixed effects
+ */
+SEXP glmer_fixed_update(SEXP GSp, SEXP b, SEXP fixed)
+{
+    GlmerStruct GS = (GlmerStruct) R_ExternalPtrAddr(GSp);
+    SEXP dmu_deta, var, ans = PROTECT(duplicate(fixed));
+    int i, ione = 1, it, j, lwork = -1;
+    double *etaold = Calloc(GS->n, double),
+	*w = Calloc(GS->n, double), *work,
+	*wtd = Calloc(GS->n * GS->p, double),
+	*z = Calloc(GS->n, double),
+	crit, one = 1, tmp, zero = 0;
+    
+    if (!isNewList(b) || LENGTH(b) != GS->nf)
+	error(_("%s must be a %s of length %d"), "b", "list", GS->nf);
+    for (i = 0; i < GS->nf; i++) {
+	SEXP bi = VECTOR_ELT(b, i);
+	if (!isReal(bi) || !isMatrix(bi))
+	    error(_("b[[%d]] must be a numeric matrix"), i);
+    }
+    if (!isReal(fixed) || LENGTH(fixed) != GS->p)
+	error(_("%s must be a %s of length %d"), "fixed",
+		"numeric vector", GS->p);
+    AZERO(z, GS->n);		/* -Wall */
+
+				/* calculate optimal size of work array */
+    F77_CALL(dgels)("N", &(GS->n), &(GS->p), &ione, wtd, &(GS->n),
+		    z,  &(GS->n), &tmp, &lwork, &j);
+    if (j)			/* shouldn't happen */
+	error(_("%s returned error code %d"), "dgels", j);
+    lwork = (int) tmp;
+    work = Calloc(lwork, double);
+				
+    AZERO(REAL(GS->off), GS->n); /* fitted values from random effects */
+    fitted_ranef(GET_SLOT(GS->mer, Matrix_flistSym), GS->unwtd, b,
+		 INTEGER(GET_SLOT(GS->mer, Matrix_ncSym)), REAL(GS->off));
+    for (i = 0; i < GS->n; i++)
+	etaold[i] = (REAL(GS->off)[i] += REAL(GS->offset)[i]);
+    
+    for (it = 0, crit = GS->tol + 1;
+	 it < GS->maxiter && crit > GS->tol; it++) {
+	Rprintf("%2d ", it);
+	for (j = 0; j < GS->p; j++) Rprintf("%#10g ", REAL(ans)[j]);
+	Rprintf("\n");
+				/* fitted values from current beta */
+	F77_CALL(dgemv)("N", &(GS->n), &(GS->p), &one,
+			REAL(GS->x), &(GS->n), REAL(ans),
+			&ione, &zero, REAL(GS->eta), &ione);
+				/* add in random effects and offset */
+	vecIncrement(REAL(GS->eta), REAL(GS->off), GS->n);
+				/* check for convergence */
+	crit = conv_crit(etaold, REAL(GS->eta), GS->n);
+				/* obtain mu, dmu_deta, var */
+	eval_check_store(GS->linkinv, GS->rho, GS->mu);
+	dmu_deta = PROTECT(eval_check(GS->mu_eta, GS->rho,
+				      REALSXP, GS->n));
+	var = PROTECT(eval_check(GS->var, GS->rho, REALSXP, GS->n));
+				/* calculate weights and working residual */
+	for (i = 0; i < GS->n; i++) {
+	    w[i] = REAL(GS->wts)[i] *
+		REAL(dmu_deta)[i]/sqrt(REAL(var)[i]);
+	    z[i] = w[i] * (REAL(GS->eta)[i] - REAL(GS->off)[i] +
+			   (REAL(GS->y)[i] - REAL(GS->mu)[i]) /
+			   REAL(dmu_deta)[i]);
+	}
+	UNPROTECT(2);
+				/* weighted copy of the model matrix */
+	for (j = 0; j < GS->p; j++)
+	    for (i = 0; i < GS->n; i++)
+		wtd[i + j * GS->n] = REAL(GS->x)[i + j * GS->n] * w[i];
+				/* weighted least squares solution */
+	F77_CALL(dgels)("N", &(GS->n), &(GS->p), &ione, wtd, &(GS->n),
+			z, &(GS->n), work, &lwork, &j);
+	if (j) error(_("%s returned error code %d"), "dgels", j);
+	Memcpy(REAL(ans), z, GS->p);
+    }
+    Free(etaold); Free(w); Free(work); Free(wtd); Free(z);
+    UNPROTECT(1);
+    return ans;
 }

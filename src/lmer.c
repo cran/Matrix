@@ -2372,7 +2372,7 @@ internal_bhat(GlmerStruct GS, const double fixed[], const double varc[])
 
 /** 
  * Determine the deviance components associated with each of the
- * levels of a grouping factor at the conditional modes or an value
+ * levels of a grouping factor at the conditional modes or a value
  * offset from the conditional modes by delb.
  * 
  * @param GS pointer to a GlmerStruct
@@ -2596,9 +2596,10 @@ SEXP glmer_bhat(SEXP GSp, SEXP fixed, SEXP varc)
 SEXP glmer_fixed_update(SEXP GSp, SEXP b, SEXP fixed)
 {
     GlmerStruct GS = (GlmerStruct) R_ExternalPtrAddr(GSp);
-    SEXP dmu_deta, var, ans = PROTECT(duplicate(fixed));
+    char *nms[] = {"fixed", "R", ""};
+    SEXP dmu_deta, var, ans = PROTECT(Matrix_make_named(VECSXP, nms));
     int i, ione = 1, it, j, lwork = -1;
-    double *etaold = Calloc(GS->n, double),
+    double *R, *ans0, *etaold = Calloc(GS->n, double),
 	*w = Calloc(GS->n, double), *work,
 	*wtd = Calloc(GS->n * GS->p, double),
 	*z = Calloc(GS->n, double),
@@ -2614,6 +2615,8 @@ SEXP glmer_fixed_update(SEXP GSp, SEXP b, SEXP fixed)
     if (!isReal(fixed) || LENGTH(fixed) != GS->p)
 	error(_("%s must be a %s of length %d"), "fixed",
 		"numeric vector", GS->p);
+    SET_VECTOR_ELT(ans, 0, duplicate(fixed));
+    ans0 = REAL(VECTOR_ELT(ans, 0));
     AZERO(z, GS->n);		/* -Wall */
 
 				/* calculate optimal size of work array */
@@ -2632,12 +2635,14 @@ SEXP glmer_fixed_update(SEXP GSp, SEXP b, SEXP fixed)
     
     for (it = 0, crit = GS->tol + 1;
 	 it < GS->maxiter && crit > GS->tol; it++) {
-	Rprintf("%2d ", it);
-	for (j = 0; j < GS->p; j++) Rprintf("%#10g ", REAL(ans)[j]);
-	Rprintf("\n");
+	if (asLogical(getElement(GS->cv, "msVerbose"))) {
+	    Rprintf("%2d ", it);
+	    for (j = 0; j < GS->p; j++) Rprintf("%#10g ", ans0[j]);
+	    Rprintf("\n");
+	}
 				/* fitted values from current beta */
 	F77_CALL(dgemv)("N", &(GS->n), &(GS->p), &one,
-			REAL(GS->x), &(GS->n), REAL(ans),
+			REAL(GS->x), &(GS->n), ans0,
 			&ione, &zero, REAL(GS->eta), &ione);
 				/* add in random effects and offset */
 	vecIncrement(REAL(GS->eta), REAL(GS->off), GS->n);
@@ -2665,8 +2670,13 @@ SEXP glmer_fixed_update(SEXP GSp, SEXP b, SEXP fixed)
 	F77_CALL(dgels)("N", &(GS->n), &(GS->p), &ione, wtd, &(GS->n),
 			z, &(GS->n), work, &lwork, &j);
 	if (j) error(_("%s returned error code %d"), "dgels", j);
-	Memcpy(REAL(ans), z, GS->p);
+	Memcpy(ans0, z, GS->p);
     }
+				/* copy R matrix to ans */
+    SET_VECTOR_ELT(ans, 1, allocMatrix(REALSXP, GS->p, GS->p));
+    R = REAL(VECTOR_ELT(ans, 1));
+    AZERO(R, GS->p * GS->p);
+    F77_CALL(dlacpy)("U", &(GS->p), &(GS->p), wtd, &(GS->n), R, &(GS->p));
     Free(etaold); Free(w); Free(work); Free(wtd); Free(z);
     UNPROTECT(1);
     return ans;

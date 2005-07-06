@@ -204,10 +204,10 @@ setMethod("lmer", signature(formula = "formula"),
                             ))
           devAGQ <- function(pars, n)
               .Call("glmer_devAGQ", pars, GSpt, n, PACKAGE = "Matrix")
-          ## FIXME:  Change this to start at 11 and decrease.  The
-          ## evaluation at the PQL estimates is done once only.
           
-          deviance <- devAGQ(PQLpars, 1) # Laplacian approximation
+          deviance <- devAGQ(PQLpars, 1)
+### FIXME: Change this to an AGQ evaluation once when nf == 1.  Needs
+### AGQ for nc > 1 first.
           fxd <- PQLpars[fixInd]
           loglik <- logLik(mer)
 
@@ -250,6 +250,8 @@ setMethod("lmer", signature(formula = "formula"),
                   cat(paste("convergence message", optimRes$message, "\n"))
               }
               fxd[] <- optpars[fixInd]  ## preserve the names
+              .Call("lmer_coefGets", mer, optpars[-fixInd], 2,
+                    PACKAGE = "Matrix")
           }
 
           .Call("glmer_finalize", GSpt, PACKAGE = "Matrix")
@@ -863,8 +865,8 @@ glmmMCMC <- function(obj, method = c("full"), nsamp = 1)
                 varc = matrix(0, nr = length(varc), nc = nsamp))
     for (i in 1:nsamp) {
         ## conditional means and variances of fixed effects
-        fixed <- .Call("glmer_fixed_update", GSpt, b, fixed, PACKAGE = "Matrix")
-        ans$fixed[,i] <- fixed
+        fupd <- .Call("glmer_fixed_update", GSpt, b, fixed, PACKAGE = "Matrix")
+        ans$fixed[,i] <- fixed <- fupd$fixed
         ## sample from the conditional distribution of beta given b and y
         ## conditional means and variances of random_effects
         .Call("glmer_bhat", GSpt, fixed, varc, PACKAGE = "Matrix")

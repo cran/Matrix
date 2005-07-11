@@ -206,7 +206,7 @@ setMethod("lmer", signature(formula = "formula"),
               .Call("glmer_devAGQ", pars, GSpt, n, PACKAGE = "Matrix")
           
           deviance <- devAGQ(PQLpars, 1)
-### FIXME: Change this to an AGQ evaluation once when nf == 1.  Needs
+### FIXME: For nf == 1 change this to an AGQ evaluation.  Needs
 ### AGQ for nc > 1 first.
           fxd <- PQLpars[fixInd]
           loglik <- logLik(mer)
@@ -811,12 +811,16 @@ setMethod("show", signature(object="VarCorr"),
           print(reMat, quote = FALSE)
       })
 
-glmmMCMC <- function(obj, method = c("full"), nsamp = 1)
+glmmMCMC <- function(obj, nsamp = 1, alpha = 1, beta = 1, burnIn =
+                     100, thining = 5, method = c("full"), verbose = FALSE)
 {
     if (!inherits(obj, "lmer")) stop("obj must be of class `lmer'")
     if (obj@family$family == "gaussian" && obj@family$link == "identity")
         warn("glmmMCMC not indended for Gaussian family with identity link")
-    cv <- Matrix:::lmerControl()
+    if (length(obj@Omega) > 1 || obj@nc[1] > 1)
+        stop("glmmMCMC currently defined for models with a single variance component")
+    cv <- lmerControl()
+    if (verbose) cv$msVerbose <- 1
     family <- obj@family
     frm <- obj@frame
     fixed.form <- Matrix:::nobars(obj@call$formula)
@@ -863,16 +867,21 @@ glmmMCMC <- function(obj, method = c("full"), nsamp = 1)
     b <- .Call("lmer_ranef", mer, PACKAGE = "Matrix")
     ans <- list(fixed = matrix(0, nr = length(fixed), nc = nsamp),
                 varc = matrix(0, nr = length(varc), nc = nsamp))
+    row.names(ans$fixed) <- names(fixed)
+    shape <- nrow(b[[1]])/2 + alpha
+    betainv <- 1/beta
+    ## FIXME: Adjust this for burnIn and thinning
     for (i in 1:nsamp) {
-        ## conditional means and variances of fixed effects
-        fupd <- .Call("glmer_fixed_update", GSpt, b, fixed, PACKAGE = "Matrix")
-        ans$fixed[,i] <- fixed <- fupd$fixed
         ## sample from the conditional distribution of beta given b and y
-        ## conditional means and variances of random_effects
-        .Call("glmer_bhat", GSpt, fixed, varc, PACKAGE = "Matrix")
-        print(bhat <- .Call("lmer_ranef", mer, PACKAGE = "Matrix"))
-        ## sample from the conditional distribution of b given beta and y
+        fixed <- .Call("glmer_fixed_update", GSpt, b,
+                            fixed, PACKAGE = "Matrix")
+        ans$fixed[ ,i] <- fixed
+        ## sample from the conditional distribution of b given beta, varc and y.
+        b <- .Call("glmer_ranef_update", GSpt, fixed, varc,
+                   b, PACKAGE = "Matrix")
         ## sample from the conditional distribution of varc given b
+        varc <- 1/rgamma(1, shape = shape,
+                         scale = 1/(sum(b[[1]]^2)/2 + betainv))
         ans$varc[,i] <- varc
     }
     ans

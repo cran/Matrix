@@ -1,3 +1,8 @@
+2005-07-12  Douglas Bates  <bates@localhost.localdomain>
+
+	* R/lmer.R (glmmMCMC): Added PACKAGE = "Matrix" in a couple of
+	.Call calls that were producing spurious output.
+
 2005-07-05  Douglas Bates  <bates@bates1-home>
 
 	* R/lmer.R (lmer): stored updated variance component estimates in

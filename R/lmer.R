@@ -188,8 +188,8 @@ setMethod("lmer", signature(formula = "formula"),
           LMEopt <- get("LMEoptimize<-")
           doLMEopt <- quote(LMEopt(x = mer, value = cv))
 
-          GSpt <- .Call("glmer_init", environment())
-          .Call("glmer_PQL", GSpt)  # obtain PQL estimates
+          GSpt <- .Call("glmer_init", environment(), PACKAGE = "Matrix")
+          .Call("glmer_PQL", GSpt, PACKAGE = "Matrix")  # obtain PQL estimates
 
           fixInd <- seq(ncol(x))
           ## pars[fixInd] == beta, pars[-fixInd] == theta
@@ -250,8 +250,7 @@ setMethod("lmer", signature(formula = "formula"),
                   cat(paste("convergence message", optimRes$message, "\n"))
               }
               fxd[] <- optpars[fixInd]  ## preserve the names
-              .Call("lmer_coefGets", mer, optpars[-fixInd], 2,
-                    PACKAGE = "Matrix")
+              .Call("lmer_coefGets", mer, optpars[-fixInd], 2, PACKAGE = "Matrix")
           }
 
           .Call("glmer_finalize", GSpt, PACKAGE = "Matrix")
@@ -860,14 +859,13 @@ glmmMCMC <- function(obj, nsamp = 1, alpha = 1, beta = 1, burnIn =
     LMEopt <- getAnywhere("LMEoptimize<-")
     doLMEopt <- quote(LMEopt(x = mer, value = cv))
 
-    GSpt <- .Call("glmer_init", environment())
+    GSpt <- .Call("glmer_init", environment(), PACKAGE = "Matrix")
     nf <- length(obj@flist)
     fixed <- obj@fixed
     varc <- .Call("lmer_coef", mer, 2, PACKAGE = "Matrix")
     b <- .Call("lmer_ranef", mer, PACKAGE = "Matrix")
     ans <- list(fixed = matrix(0, nr = length(fixed), nc = nsamp),
                 varc = matrix(0, nr = length(varc), nc = nsamp))
-    row.names(ans$fixed) <- names(fixed)
     shape <- nrow(b[[1]])/2 + alpha
     betainv <- 1/beta
     ## FIXME: Adjust this for burnIn and thinning

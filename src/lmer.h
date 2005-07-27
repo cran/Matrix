@@ -11,9 +11,12 @@
 #include "dtCMatrix.h"
 #include "lgCMatrix.h"
 #include "lCholCMatrix.h"
+#include "Rmath.h"
 #include <R_ext/Lapack.h>
 #include <R_ext/Constants.h>
 
+SEXP Matrix_rWishart(SEXP ns, SEXP df, SEXP scal);
+SEXP lmer_MCMCsamp(SEXP x, SEXP savebp, SEXP nsampp);
 SEXP lmer_validate(SEXP x);
 SEXP lmer_update_mm(SEXP x, SEXP mmats);
 SEXP lmer_create(SEXP flist, SEXP mmats, SEXP method);
@@ -32,6 +35,8 @@ SEXP lmer_gradient(SEXP x, SEXP pType);
 SEXP lmer_variances(SEXP x);
 SEXP lmer_Crosstab(SEXP flist);
 SEXP lmer_firstDer(SEXP x, SEXP val);
+SEXP glmer_MCMCsamp(SEXP GSpt, SEXP b, SEXP fixedp, SEXP varcp,
+		    SEXP savebp, SEXP nsampp);
 SEXP glmer_PQL(SEXP GSp);
 SEXP glmer_ranef_update(SEXP GSp, SEXP fixed, SEXP varc, SEXP b);
 SEXP glmer_devAGQ(SEXP pars, SEXP GSp, SEXP nAGQp);

@@ -110,8 +110,9 @@ lmer(formula, data, family,
 %\note{}
 \seealso{\code{\link[Matrix]{lmer-class}}, \code{\link[stats]{lm}}}
 \examples{
-(fm1 <- lmer(decrease ~ treatment + (1|rowpos) + (1|colpos),
-             OrchardSprays))
+(fm1 <- lmer(Reaction ~ Days + (Days|Subject), sleepstudy))
+(fm2 <- lmer(Reaction ~ Days + (1|Subject) + (0+Days|Subject), sleepstudy))
+anova(fm1, fm2)
 }
 \keyword{models}
 \keyword{methods}

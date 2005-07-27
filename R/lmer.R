@@ -810,78 +810,75 @@ setMethod("show", signature(object="VarCorr"),
           print(reMat, quote = FALSE)
       })
 
-glmmMCMC <- function(obj, nsamp = 1, alpha = 1, beta = 1, burnIn =
-                     100, thining = 5, method = c("full"), verbose = FALSE)
-{
-    if (!inherits(obj, "lmer")) stop("obj must be of class `lmer'")
-    if (obj@family$family == "gaussian" && obj@family$link == "identity")
-        warn("glmmMCMC not indended for Gaussian family with identity link")
-    if (length(obj@Omega) > 1 || obj@nc[1] > 1)
-        stop("glmmMCMC currently defined for models with a single variance component")
-    cv <- lmerControl()
-    if (verbose) cv$msVerbose <- 1
-    family <- obj@family
-    frm <- obj@frame
-    fixed.form <- Matrix:::nobars(obj@call$formula)
-    if (inherits(fixed.form, "name")) # RHS is empty - use a constant
-        fixed.form <- substitute(foo ~ 1, list(foo = fixed.form))
-    glm.fit <- glm(eval(fixed.form), family, frm, x = TRUE,
-                   y = TRUE)
-    x <- glm.fit$x
-    y <- as.double(glm.fit$y)
-    bars <- Matrix:::findbars(obj@call$formula[[3]])
-    random <-
-        lapply(bars,
-               function(x) list(model.matrix(eval(substitute(~term,
-                                                             list(term=x[[2]]))),
-                                             frm),
-                                eval(substitute(as.factor(fac)[,drop = TRUE],
-                                                list(fac = x[[3]])), frm)))
-    names(random) <- unlist(lapply(bars, function(x) deparse(x[[3]])))
-    if (any(names(random) != names(obj@flist)))
-        random <- random[names(obj@flist)]
-    mmats <- c(lapply(random, "[[", 1),
-               .fixed = list(cbind(glm.fit$x, .response = glm.fit$y)))
-    mer <- as(obj, "mer")
+setMethod("mcmcsamp", signature(obj = "lmer"),
+          function(obj, nsamp = 1, verbose = FALSE, saveb = FALSE, ...)
+      {
+          if (obj@family$family == "gaussian" &&
+              obj@family$link == "identity") {
+              ans <- .Call("lmer_MCMCsamp", obj, saveb, nsamp,
+                            PACKAGE = "Matrix")
+          } else {
+              ## Check arguments
+              if (length(obj@Omega) > 1 || obj@nc[1] > 1)
+                  stop("mcmcsamp currently defined for glmm models with only one variance component")
+              cv <- Matrix:::lmerControl()
+              if (verbose) cv$msVerbose <- 1
+              family <- obj@family
+              frm <- obj@frame
 
-    eta <- glm.fit$linear.predictors # perhaps later change this to obj@fitted?
-    wts <- glm.fit$prior.weights
-    wtssqr <- wts * wts
-    offset <- glm.fit$offset
-    if (is.null(offset)) offset <- numeric(length(eta))
-    off <- numeric(length(eta))
-    mu <- numeric(length(eta))
+              ## recreate model matrices
+              fixed.form <- Matrix:::nobars(obj@call$formula)
+              if (inherits(fixed.form, "name")) # RHS is empty - use a constant
+                  fixed.form <- substitute(foo ~ 1, list(foo = fixed.form))
+              glm.fit <- glm(eval(fixed.form), family, frm, x = TRUE,
+                             y = TRUE)
+              x <- glm.fit$x
+              y <- as.double(glm.fit$y)
+              bars <- Matrix:::findbars(obj@call$formula[[3]])
+              random <-
+                  lapply(bars,
+                         function(x) list(model.matrix(eval(substitute(~term,
+                                                                       list(term=x[[2]]))),
+                                                       frm),
+                                          eval(substitute(as.factor(fac)[,drop = TRUE],
+                                                          list(fac = x[[3]])), frm)))
+              names(random) <- unlist(lapply(bars, function(x) deparse(x[[3]])))
+              if (any(names(random) != names(obj@flist)))
+                  random <- random[names(obj@flist)]
+              mmats <- c(lapply(random, "[[", 1),
+                         .fixed = list(cbind(glm.fit$x, .response = glm.fit$y)))
+              mer <- as(obj, "mer")
 
-    dev.resids <- quote(family$dev.resids(y, mu, wtssqr))
-    linkinv <- quote(family$linkinv(eta))
-    mu.eta <- quote(family$mu.eta(eta))
-    variance <- quote(family$variance(mu))
-    LMEopt <- getAnywhere("LMEoptimize<-")
-    doLMEopt <- quote(LMEopt(x = mer, value = cv))
+              ## establish the GS object and the ans matrix
+              eta <- glm.fit$linear.predictors # perhaps later change this to obj@fitted?
+              wts <- glm.fit$prior.weights
+              wtssqr <- wts * wts
+              offset <- glm.fit$offset
+              if (is.null(offset)) offset <- numeric(length(eta))
+              off <- numeric(length(eta))
+              mu <- numeric(length(eta))
+              dev.resids <- quote(family$dev.resids(y, mu, wtssqr))
+              linkinv <- quote(family$linkinv(eta))
+              mu.eta <- quote(family$mu.eta(eta))
+              variance <- quote(family$variance(mu))
+              LMEopt <- getAnywhere("LMEoptimize<-")
+              doLMEopt <- quote(LMEopt(x = mer, value = cv))
+              GSpt <- .Call("glmer_init", environment(), PACKAGE = "Matrix")
+              fixed <- obj@fixed
+              varc <- .Call("lmer_coef", mer, 2, PACKAGE = "Matrix")
+              b <- .Call("lmer_ranef", mer, PACKAGE = "Matrix")
+              ans <- .Call("glmer_MCMCsamp", GSpt, b, fixed, varc, saveb, nsamp, 
+                           PACKAGE = "Matrix") 
+              .Call("glmer_finalize", GSpt, PACKAGE = "Matrix");
+          }
+          cn <- as.character(seq(len = ncol(ans)))
+          fxd <- fixef(obj)
+          cn[seq(along = fxd)] <- names(fxd)
+          cn[length(fxd) + 1] <- "sigma^2"
+          colnames(ans) <- cn
+          ans
+      })
 
-    GSpt <- .Call("glmer_init", environment(), PACKAGE = "Matrix")
-    nf <- length(obj@flist)
-    fixed <- obj@fixed
-    varc <- .Call("lmer_coef", mer, 2, PACKAGE = "Matrix")
-    b <- .Call("lmer_ranef", mer, PACKAGE = "Matrix")
-    ans <- list(fixed = matrix(0, nr = length(fixed), nc = nsamp),
-                varc = matrix(0, nr = length(varc), nc = nsamp))
-    shape <- nrow(b[[1]])/2 + alpha
-    betainv <- 1/beta
-    ## FIXME: Adjust this for burnIn and thinning
-    for (i in 1:nsamp) {
-        ## sample from the conditional distribution of beta given b and y
-        fixed <- .Call("glmer_fixed_update", GSpt, b,
-                            fixed, PACKAGE = "Matrix")
-        ans$fixed[ ,i] <- fixed
-        ## sample from the conditional distribution of b given beta, varc and y.
-        b <- .Call("glmer_ranef_update", GSpt, fixed, varc,
-                   b, PACKAGE = "Matrix")
-        ## sample from the conditional distribution of varc given b
-        varc <- 1/rgamma(1, shape = shape,
-                         scale = 1/(sum(b[[1]]^2)/2 + betainv))
-        ans$varc[,i] <- varc
-    }
-    ans
-}
+rWishart <- function(n, df, invScal)
+  .Call("Matrix_rWishart", n, df, invScal)
 

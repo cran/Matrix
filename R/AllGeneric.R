@@ -101,3 +101,7 @@ if (!isGeneric("getFixDF")) {           # not exported
     setGeneric("getFixDF", function(object, ...) standardGeneric("getFixDF"))
 }
 
+if (!isGeneric("mcmcsamp")) {
+    setGeneric("mcmcsamp", function(obj, nsamp = 1, verbose =
+    FALSE, ...) standardGeneric("mcmcsamp"))
+}

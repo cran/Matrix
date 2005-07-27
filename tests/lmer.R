@@ -19,11 +19,11 @@ options(show.signif.stars = FALSE)
              OrchardSprays, poisson()))
 
 ## Laplace approximation
-(fm4 <- lmer(decrease ~ treatment + (1|rowpos) + (1|colpos),
-             OrchardSprays, poisson(), method = "Laplace"))
+#(fm4 <- lmer(decrease ~ treatment + (1|rowpos) + (1|colpos),
+#             OrchardSprays, poisson(), method = "Laplace"))
 
 if (isTRUE(try(data(Contraception, package = 'mlmRev')) ==
-           'Contraception')) {
+           'Contraception') && exists("nlminb", mode = "function")) {
     print(fm1 <- lmer(use ~ urban + age + livch + (1 | district),
                       Contraception, binomial))
     print(system.time(fm1 <- lmer(use ~ urban + age + livch + (1 | district),
@@ -43,7 +43,7 @@ if (isTRUE(try(data(Contraception, package = 'mlmRev')) ==
     print(fm4 <- lmer(use ~ urban + age + livch + (urban | district),
                  Contraception, binomial, method = 'Laplace'))
 }
-if (require('MASS', quietly = TRUE)) {
+if (require('MASS', quietly = TRUE) && exists("nlminb", mode = "function")) {
     bacteria$wk2 <- bacteria$week > 2
     contrasts(bacteria$trt) <-
         structure(contr.sdif(3),

@@ -35,6 +35,7 @@ lu                      Triangular Decomposition of a Square Matrix
 LU-class                LU Matrix Decompositions
 Matrix                  Construct a Classed Matrix
 Matrix-class            Virtual Class "Matrix" Class of Matrices
+mcmcsamp                Generate and MCMC sample
 [-methods               Methods for "[": Extraction or Subsetting in
                         Package 'Matrix'.
 mm                      A sample sparse model matrix
@@ -44,6 +45,7 @@ pMatrix-class           Permutation matrices
 ranef                   Extract Random Effects
 rcond                   Estimate the Reciprocal Condition Number
 Schur                   Schur Decomposition of a Matrix
+sleepstudy              Reaction times in a sleep deprivation study
 sparseMatrix-class      Virtual Class "sparseMatrix" -- Mother of
                         Sparse Matrices
 tcrossprod              Cross-product of transpose

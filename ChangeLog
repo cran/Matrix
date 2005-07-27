@@ -1,3 +1,7 @@
+2005-07-27  Douglas Bates  <bates@localhost.localdomain>
+
+	* man/sleep.Rd: Added the sleep data set.
+
 2005-07-12  Douglas Bates  <bates@localhost.localdomain>
 
 	* R/lmer.R (glmmMCMC): Added PACKAGE = "Matrix" in a couple of

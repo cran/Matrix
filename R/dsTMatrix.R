@@ -19,3 +19,15 @@ setMethod("t", signature(x = "dsTMatrix"),
               i = x@j, j = x@i, x = x@x,
               uplo = if (x@uplo == "U") "L" else "U"),
           valueClass = "dsTMatrix")
+
+setMethod("writeHB", signature(obj = "dsTMatrix"),
+          function(obj, file, ...)
+          .Call("Matrix_writeHarwellBoeing",
+                if (obj@uplo == "U") t(obj) else obj,
+                as.character(file), "DST"))
+
+setMethod("writeMM", signature(obj = "dsTMatrix"),
+          function(obj, file, ...)
+          .Call("Matrix_writeMatrixMarket",
+                if (obj@uplo == "U") t(obj) else obj,
+                as.character(file), "DST"))

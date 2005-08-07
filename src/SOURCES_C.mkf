@@ -1,4 +1,5 @@
 SOURCES_C =  \
+	    HBMM.c \
 	    Metis_utils.c \
 	    R_ldl.c \
 	    dgBCMatrix.c \
@@ -21,9 +22,11 @@ SOURCES_C =  \
             dtrMatrix.c \
             dtpMatrix.c \
             factorizations.c \
+	    iohb.c \
 	    lCholCMatrix.c \
 	    lgCMatrix.c \
 	    lgTMatrix.c \
 	    lsCMatrix.c \
 	    ltCMatrix.c \
+            mmio.c \
             triplet_to_col.c

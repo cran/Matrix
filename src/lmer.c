@@ -1388,7 +1388,7 @@ SEXP lmer_ranef(SEXP x)
  *  3) \tr\left[\der_{\bOmega_i}\bOmega\left(\bZ\trans\bZ+\bOmega\right)\inv\right]
  *  4) The term added to 3) to get \tr\left[\der_{\bOmega_i}\bOmega\vb\right]
  *
- * @param x pointer to an lme object
+ * @param x pointer to an mer object
  * @param val pointer to a list of matrices of the correct sizes
  *
  * @return val
@@ -1716,25 +1716,24 @@ SEXP lmer_gradient(SEXP x, SEXP pType)
 }
 
 /**
- * Fill in five symmetric matrices, providing the
- * information to generate the Hessian.
-
- * @param x pointer to an lme object
- * @param Valp ignored at present
+ * Fill in five symmetric matrices, providing the information to
+ * generate the Hessian.
  *
- * @return Valp an array consisting of five symmetric faces
+ * @param x pointer to an mer object
+ *
+ * @return an array consisting of five symmetric faces
  */
-static
-SEXP lmer_secondDer(SEXP x, SEXP Valp)
+/* static */
+SEXP lmer_secondDer(SEXP x)
 {
     SEXP
 	D = GET_SLOT(x, Matrix_DSym),
 	Omega = GET_SLOT(x, Matrix_OmegaSym),
 	RZXP = GET_SLOT(x, Matrix_RZXSym),
-	levels = GET_SLOT(x, R_LevelsSymbol),
 	val;
     int *dRZX = INTEGER(getAttrib(RZXP, R_DimSymbol)),
 	*nc = INTEGER(GET_SLOT(x, Matrix_ncSym)),
+	*Gp = INTEGER(GET_SLOT(x, Matrix_GpSym)),
 	Q, Qsqr, RZXpos, facepos,
 	i, ione = 1, j, nf = length(Omega), p = dRZX[1] - 1, pos;
     SEXP
@@ -1755,9 +1754,10 @@ SEXP lmer_secondDer(SEXP x, SEXP Valp)
 
     pos = 0;
     for (i = 0; i < nf; i++) {
-	int nci = nc[i], ncisqr = nci * nci;
+	int nci = nc[i];
+	int ncisqr = nci * nci;
 	double *fDi = REAL(VECTOR_ELT(firstDer, i)),
-	    mult = 1./((double) length(VECTOR_ELT(levels, i)));
+	    mult = 1./((double)(Gp[i + 1] - Gp[i])/nci);
 
 	Memcpy(bbface + pos, fDi + ncisqr, ncisqr);
 	/* outer product of the third face of firstDer on the diagonal
@@ -1773,8 +1773,9 @@ SEXP lmer_secondDer(SEXP x, SEXP Valp)
     RZXpos = 0;
     facepos = 0;
     for (i = 0; i < nf; i++) {
-	int ii, jj, nci = nc[i], ncisqr = nci * nci, nctp = nci * p,
-	    nlev = length(VECTOR_ELT(levels, i));
+	int ii, jj, nci = nc[i];
+	int ncisqr = nci * nci, nctp = nci * p, 
+	    nlev = (Gp[i + 1] - Gp[i])/nci;
 	int maxpq = (p > nci) ? p : nci;
 	double
 	    *Di = REAL(VECTOR_ELT(D, i)),
@@ -3140,7 +3141,8 @@ Matrix_rWishart(SEXP ns, SEXP dfp, SEXP scal)
  */
 static void
 lmer_Omega_update(SEXP Omega, const double b[], double sigma, int nf,
-		  const int nc[], const int Gp[], double *bi, int nsamp)
+		  const int nc[], const int Gp[], double *bi, int nsamp,
+		  int trans)
 {
     int i, j, k, info;
     double one = 1, zero = 0;
@@ -3174,12 +3176,14 @@ lmer_Omega_update(SEXP Omega, const double b[], double sigma, int nf,
 	F77_CALL(dsyrk)("U", "T", &nci, &nci, &one, tmp, &nci,
 			&zero, var, &nci);
 	for (j = 0; j < nci; j++) {
-	    *bi = var[j * ncip1];
+	    *bi = (trans ? log(var[j * ncip1]) : var[j * ncip1]);
 	    bi += nsamp;
 	}
 	for (j = 1; j < nci; j++) {
 	    for (k = 0; k < j; k++) {
-		*bi = var[k + j * nci];
+		*bi = (trans ? atanh(var[k + j * nci]/
+				     sqrt(var[j * ncip1] * var[k * ncip1]))
+		       : var[k + j * nci]);
 		bi += nsamp;
 	    }
 	}
@@ -3207,7 +3211,7 @@ lmer_Omega_update(SEXP Omega, const double b[], double sigma, int nf,
  * @return a matrix
  */
 SEXP
-lmer_MCMCsamp(SEXP x, SEXP savebp, SEXP nsampp) 
+lmer_MCMCsamp(SEXP x, SEXP savebp, SEXP nsampp, SEXP transp)
 {
     SEXP ans, DP = GET_SLOT(x, Matrix_DSym),
 	LP = GET_SLOT(x, Matrix_LSym),
@@ -3224,7 +3228,8 @@ lmer_MCMCsamp(SEXP x, SEXP savebp, SEXP nsampp)
 		       "REML"),
 	i, ione = 1, j, nf = LENGTH(Omega),
 	nsamp = asInteger(nsampp),
-	saveb = asLogical(savebp);
+	saveb = asLogical(savebp),
+	trans = asLogical(transp);
     int ncol = coef_length(nf, nc) + dims[1] + (saveb ? dims[0] : 0),
 	nobs = nc[nf + 1],
 	p = dims[1] - 1, pp1 = dims[1];
@@ -3248,7 +3253,8 @@ lmer_MCMCsamp(SEXP x, SEXP savebp, SEXP nsampp)
 	/* simulate and store new value of sigma */
 	ryyinv = REAL(RXXsl)[pp1 * pp1 - 1];
 	sigma = 1/(ryyinv * sqrt(rchisq(df)));
-	REAL(ans)[i + p * nsamp] = sigma * sigma;
+	REAL(ans)[i + p * nsamp] =
+	    (trans ? 2 * log(sigma) : sigma * sigma);
 
 	/* determine bhat and betahat */
 	Memcpy(bhat, REAL(RZXsl) + dims[0] * p, dims[0]);
@@ -3291,7 +3297,7 @@ lmer_MCMCsamp(SEXP x, SEXP savebp, SEXP nsampp)
 
 	/* Update and store variance-covariance of the random effects */
 	lmer_Omega_update(Omega, bnew, sigma, nf, nc, Gp,
-			  REAL(ans) + i + (p + 1) * nsamp, nsamp);
+			  REAL(ans) + i + (p + 1) * nsamp, nsamp, trans);
     }
     PutRNGstate();
     Free(betanew); Free(bnew);

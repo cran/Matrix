@@ -148,6 +148,12 @@ setMethod("crossprod", signature(x = "dgeMatrix", y = "missing"),
 setMethod("tcrossprod", signature(x = "dgeMatrix"),
 	  function(x) .Call("dgeMatrix_crossprod", x, TRUE),
 	  valueClass = "dpoMatrix")
+setMethod("tcrossprod", signature(x = "matrix"),
+	  function(x) .Call("dgeMatrix_crossprod", as(x, "dgeMatrix"), TRUE),
+	  valueClass = "dpoMatrix")
+setMethod("tcrossprod", signature(x = "numeric"),
+	  function(x) callGeneric(as.matrix(as.double(x))))
+
 
 setMethod("crossprod", signature(x = "dgeMatrix", y = "dgeMatrix"),
 	  function(x, y = NULL) .Call("dgeMatrix_dgeMatrix_crossprod", x, y),
@@ -274,19 +280,22 @@ is.Hermitian <- function(x, tol = 0) { Hermitian.test(x) <= tol }
 
 LowerTriangular.test <- function(x)
 {
+    ## return largest |value| in the lower triangle of x
     if ((!inherits(x, "Matrix") && !is.matrix(x))) return(Inf)
-    if (is.complex(x)) return(max(Mod(x[row(x) < col(x)])))
-    max(abs(x[row(x) < col(x)]))
+    i <- row(x) < col(x)
+    if(!any(i)) return(Inf)
+    max(if (is.complex(x)) abs(x[i]) else Mod(x[i]))
 }
-
-is.LowerTriangular <- function(x, tol = 0) { LowerTriangular.test(x) <= tol }
 
 UpperTriangular.test <- function(x)
 {
     if ((!inherits(x, "Matrix") && !is.matrix(x))) return(Inf)
-    if (is.complex(x)) return(max(Mod(x[row(x) > col(x)])))
-    max(abs(x[row(x) > col(x)]))
+    i <- row(x) > col(x)
+    if(!any(i)) return(Inf)
+    max(if (is.complex(x)) abs(x[i]) else Mod(x[i]))
 }
+
+is.LowerTriangular <- function(x, tol = 0) { LowerTriangular.test(x) <= tol }
 
 is.UpperTriangular <- function(x, tol = 0) { UpperTriangular.test(x) <= tol }
 
@@ -375,4 +384,3 @@ as.Matrix <- function(x, tol = .Machine$double.eps)
     as(if(is.matrix(x)) x else as.matrix(x),
        Matrix.class(x, tol = tol))
 }
-

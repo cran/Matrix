@@ -40,15 +40,26 @@ if (!isGeneric("unpack"))
 if (!isGeneric("expm"))
     setGeneric("expm", function(x) standardGeneric("expm"))
 
+if (!isGeneric("writeHB"))
+    setGeneric("writeHB", function(obj, file, ...)
+               standardGeneric("writeHB"))
+
+if (!isGeneric("writeMM"))
+    setGeneric("writeMM", function(obj, file, ...)
+               standardGeneric("writeMM"))
+
 ## ----------------------- lmer-related Generics ---------------------------
 
+## Hmm: If this does not match *exactly* the "formula" - method in ./lmer.R
+## ---  the  match.call() in there may give a very different result
 setGeneric("lmer",
            function(formula, data, family,
                     method = c("REML", "ML", "PQL", "Laplace", "AGQ"),
-                    control = list(),
-                    subset, weights, na.action, offset,
-                    model = TRUE, x = FALSE, y = FALSE,...)
+                    control = list(), subset, weights, na.action, offset,
+                    model = TRUE, x = FALSE, y = FALSE,
+                    ...)
            standardGeneric("lmer"))
+
 
 if (!isGeneric("LMEoptimize<-")) {
     setGeneric("LMEoptimize<-", function(x, ..., value)

@@ -3,6 +3,9 @@
 \alias{tcrossprod-methods}
 \alias{tcrossprod,dgCMatrix-method}
 \alias{tcrossprod,dgTMatrix-method}
+\alias{tcrossprod,matrix-method}
+\alias{tcrossprod,numeric-method}
+% more \alias{tcrossprod,...}es in *-class*.Rd files
 \alias{tcrossprod}
 \title{Cross-product of transpose}
 \description{
@@ -41,8 +44,9 @@ tcrossprod(x)
  object.size(m) / object.size(mm) # smaller by a factor of 242.88
 
  ## tcrossprod() is very fast:
- system.time(tCmm <- tcrossprod(mm))# "0" practically
- system.time(cm <- crossprod(t(m))) #
+ system.time(tCmm <- tcrossprod(mm))# 0   (PIII, 933 MHz)
+ system.time(cm <- crossprod(t(m))) # 0.16
+ system.time(cm. <- tcrossprod(m))  # 0.02
 
  stopifnot(identical(cm, as(tCmm, "matrix")))
 

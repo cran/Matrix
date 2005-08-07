@@ -8,14 +8,16 @@
   This generic function fits a linear mixed-effects model with nested or
   crossed grouping factors for the random effects.
 }
-\synopsis{
-lmer(formula, data, family, method = c("REML", "ML", "PQL", "Laplace", "AGQ"),
-    control = list(), subset, weights, na.action, offset,
-    model = TRUE, x = FALSE, y = FALSE, \dots)
-}
 \usage{
 lmer(formula, data, family,
-     method = c("REML", "ML", "PQL", "Laplace", "AGQ"),\dots)
+     method = c("REML", "ML", "PQL", "Laplace", "AGQ"),
+     control = list(), subset, weights, na.action, offset,
+     model = TRUE, x = FALSE, y = FALSE, \dots)
+
+\S4method{lmer}{formula}(formula, data, family,
+    method = c("REML", "ML", "PQL", "Laplace", "AGQ"),
+    control = list(), subset, weights, na.action, offset,
+    model = TRUE, x = FALSE, y = FALSE, \dots)
 }
 \arguments{
   \item{formula}{a two-sided linear formula object describing the
@@ -45,7 +47,14 @@ lmer(formula, data, family,
     \code{"Laplace"} method is intermediate in speed and accuracy.
     The \code{"AGQ"} method is the most accurate but can be
     considerably slower than the others.}
-  \item{\dots}{Optional arguments for methods.  Currently none are used.}
+  \item{control}{a list of control parameters. See below for details.}
+  \item{subset, weights, na.action, offset}{further model specification
+    arguments as in \code{\link[stats]{lm}}; see there for details.}
+  \item{model, x, y}{logicals indicating if the corresponding model component
+    should be returned.  Note that \code{x} and \code{y} are not yet
+    implemented.}
+  \item{\dots}{potentially further arguments for methods.  Currently
+    none are used.}
   }
 }
 \details{
@@ -66,44 +75,46 @@ lmer(formula, data, family,
       data contain \code{NA}s.  The default action (\code{na.fail}) causes
       \code{lme} to print an error message and terminate if there are any
       incomplete observations.}
-    \item{control}{a named list of control values for the estimation
-      algorithm.  Possible control options and their values are:
+    \item{control}{a named list of control parameters for the estimation
+      algorithm, specifying only the ones to be changed from their
+      default values.  Hence defaults to an empty list.\cr
+      Possible control options and their default values are:
       \describe{
-	\item{maxIter}{maximum number of iterations for the \code{lme}
+	\item{\code{maxIter}:}{maximum number of iterations for the \code{lme}
 	  optimization algorithm. Default is 50.}
-	\item{msMaxIter}{maximum number of iterations
+	\item{\code{msMaxIter}:}{maximum number of iterations
 	  for the \code{nlminb} optimization step inside the \code{lme}
 	  optimization. Default is 200.}
-	\item{niterEM}{number of iterations for the EM algorithm used to refine
-	  the initial estimates of the random effects variance-covariance
-	  coefficients. Default is 15.}
-	\item{msVerbose}{a logical value passed as the \code{trace} argument to
-	  \code{nlminb} (see documentation on that function). Default is
-	  \code{getOption("verbose")}.}
-	\item{PQLmaxIt}{maximum number of iterations for the PQL
+	\item{\code{niterEM}:}{number of iterations for the EM algorithm
+	  used to refine the initial estimates of the random effects
+	  variance-covariance coefficients.  Default is 15.}
+	\item{\code{msVerbose}:}{a logical value passed as the
+	  \code{trace} argument to \code{nlminb} (see documentation on
+	  that function). Default is \code{getOption("verbose")}.}
+	\item{\code{PQLmaxIt}:}{maximum number of iterations for the PQL
 	  algorithm when fitting generalized linear mixed models.
 	  Default is 30.}
-	\item{EMverbose}{a logical value indicating if verbose output
+	\item{\code{EMverbose}:}{a logical value indicating if verbose output
 	  should be produced during the EM iterations.  Default is
-	  \code{getOption("verbose"}.}
-	\item{analyticGradient}{a logical value indicating if the
+	  \code{getOption("verbose")}.}
+	\item{\code{analyticGradient}:}{a logical value indicating if the
 	  analytic gradient of the objective should be used.  This
 	  option is for testing purposes and would not normally be
 	  changed from the default.  Default is \code{TRUE}.}
-	\item{analyticHessian}{a logical value indicating if the
-	  analytic Hessian of the objective should be calculated. This
+	\item{\code{analyticHessian}:}{a logical value indicating if the
+	  analytic Hessian of the objective should be calculated.  This
 	  is an experimental feature and at present the default is
-	  \code{FALSE}. In the future we may use the analytic Hessian in
+	  \code{FALSE}.  In the future we may use the analytic Hessian in
 	  the optimization.}
       }
-      Defaults to an empty list.}
+    }
     \item{model, x}{logicals.  If \code{TRUE} the corresponding
       components of the fit (the model frame, the model matrices)
       are returned.}
   }
 }
 \value{
-  An \code{\link[Matrix]{lmer-class}{lmer}} object.
+  An object of class \code{"\link[Matrix:lmer-class]{lmer}"}.
 }
 %\references{ ~put references to the literature/web site here ~ }
 %\author{}

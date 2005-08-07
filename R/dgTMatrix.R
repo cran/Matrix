@@ -194,3 +194,14 @@ setMethod("kronecker", signature(X = "dgTMatrix", Y = "dgTMatrix"),
               j = rep.int(Y@j, xnnz) + ydim[2] * rep.int(X@j, rep.int(ynnz, xnnz)),
               x = as.vector(outer(Y@x, X@x)))
       }, valueClass = "dgTMatrix")
+
+setMethod("writeHB", signature(obj = "dgTMatrix"),
+          function(obj, file, ...) 
+          .Call("Matrix_writeHarwellBoeing", obj, as.character(file), "DGT"))
+
+setMethod("writeMM", signature(obj = "dgTMatrix"),
+          function(obj, file, ...)
+          .Call("Matrix_writeMatrixMarket", obj, as.character(file), "DGT"))
+
+
+          

@@ -22,10 +22,14 @@ export(
        "mcmcsamp", ## lmer-related
        "norm",
        "rcond",
+       "readHB",
+       "readMM",
        "round", # "Math2" group (needs explicit setGeneric(.))
        "signif",#  {ditto}
        "tcrossprod",
-       "unpack"
+       "unpack",
+       "writeHB",
+       "writeMM"
        )
 
 ## lmer-related

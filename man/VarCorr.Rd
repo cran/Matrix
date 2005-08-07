@@ -25,8 +25,7 @@ VarCorr(x, \dots)
 }
 \seealso{\code{\link{lmer}}, \code{\link{VarCorr-class}}}
 \examples{
-(fm1 <- lmer(decrease ~ treatment + (1|rowpos) + (1|colpos),
-             OrchardSprays))
-VarCorr(fm1)
+(fm2 <- lmer(Reaction ~ Days + (1|Subject) + (0+Days|Subject), sleepstudy))
+VarCorr(fm2)
 }
 \keyword{models}

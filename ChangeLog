@@ -1,44 +1,75 @@
-2005-07-27  Douglas Bates  <bates@localhost.localdomain>
+2005-08-07  Douglas Bates  <bates@wisc.edu>
 
-	* man/sleep.Rd: Added the sleep data set.
+	* DESCRIPTION (Version): 0.98-2
 
-2005-07-12  Douglas Bates  <bates@localhost.localdomain>
+	* R/HBMM.R (readHB), (readMM): read Matrix Market formats
+
+	* R/lmer.R (abbrvNms): new
+	* R/lmer.R (mcmcsamp): allow transformed parameters
+	* src/HBMM.c (Matrix_writeMatrixMarket): Added read/write routines
+	for the Harwell-Boeing and the MatrixMarket formats.
+
+2005-08-04  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* man/dtrMatrix-class.Rd: add examples
+	* man/dtpMatrix-class.Rd: ditto; plus note about PROBLEM
+
+	* TODO: note the dtpMatrix (docu) bug
+
+	* R/zzz.R (.onLoad): assignInNamespace("as.matrix", *, "base")
+	in order to ensure that new as.matrix() is used by old functions,
+	e.g., svd(), qr(), eigen(), dist(),..;
+	      apply(), also matplot() or pairs().
+
+
+2005-08-03  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/lmer.R: add 'fixme' comments and move the linear vs glm check;
+	  add comments about 'control' / lmerControl() arguments
+
+2005-07-27  Douglas Bates  <bates@wisc.edu>
+
+	* man/sleepstudy.Rd: Added the sleep data set.
+	* DESCRIPTION (Version): 0.98-1  released to CRAN
+
+2005-07-12  Douglas Bates  <bates@wisc.edu>
+	* man/sleepstudy.Rd: Added the sleep data set.
 
 	* R/lmer.R (glmmMCMC): Added PACKAGE = "Matrix" in a couple of
 	.Call calls that were producing spurious output.
 
-2005-07-05  Douglas Bates  <bates@bates1-home>
+2005-07-05  Douglas Bates  <bates@wisc.edu>
 
 	* R/lmer.R (lmer): stored updated variance component estimates in
 	mer object for the generalized model.  (Bug reported by Renaud
 	Lancelot).
 
-2005-07-03  Douglas Bates  <bates@bates1-home>
+2005-07-03  Douglas Bates  <bates@wisc.edu>
 
 	* src/lmer.c (glmer_devAGQ): Added AGQ for single grouping factor,
 	unidimensional case.
 
-2005-06-08  Douglas Bates  <bates@bates1-home>
+2005-06-08  Douglas Bates  <bates@wisc.edu>
 
 	* DESCRIPTION (Version): 0.96-1
 
 	* moved  lmer-class' R and C code moved from lme4 to here
 
-2005-06-04  Douglas Bates  <bates@bates1-home>
+2005-06-04  Douglas Bates  <bates@wisc.edu>
 
 	* R/dgCMatrix.R: Call to csc_matrix_mm used undefined arguments
 	(reported by Guissepe Ragusa <gragusa@ucsd.edu>)
 
-2005-06-02  Douglas Bates  <bates@bates1-home>
+2005-06-02  Douglas Bates  <bates@wisc.edu>
 
 	* src/Makefile.win: Forgot to update this when Makefile changed.
 
-2005-05-11  Douglas Bates  <bates@bates1-home>
+2005-05-11  Douglas Bates  <bates@wisc.edu>
 
 	* src/dgCMatrix.c (csc_transpose): Simplified function fixing a
 	bug reported by Kurt Hornik and Michael Hahsler.
 
-2005-05-10  Douglas Bates  <bates@bates1-home>
+2005-05-10  Douglas Bates  <bates@wisc.edu>
 
 	* src/lgCMatrix.c (Matrix_lgClgCmm): Implementation of methods for
 	logical sparse matrices.  These will also be used in the symbolic
@@ -47,12 +78,12 @@
 	* src/dsCMatrix.c (dsCMatrix_matrix_solve): Copied the dimensions
 	of b to the result.  Fixes bug reported by Jean.Coursol@math.u-psud.fr
 
-2005-05-06  Douglas Bates  <bates@bates1-home>
+2005-05-06  Douglas Bates  <bates@wisc.edu>
 
 	* src/dgeMatrix.c (dgeMatrix_colsums): Added an implementation of
 	colMeans, colSums, rowMeans and rowSums.
 
-2005-04-18  Douglas Bates  <bates@bates1-home>
+2005-04-18  Douglas Bates  <bates@wisc.edu>
 
 	* src/lgCMatrix.[ch]: code for _validate method and stub for
 	multiplication operation.
@@ -65,14 +96,14 @@
 
 	* src/{many files}: Tighten code by using ALLOC_SLOT.
 
-2005-04-15  Douglas Bates  <bates@bates1-home>
+2005-04-15  Douglas Bates  <bates@wisc.edu>
 
 	* R/AllClass.R: Add lgTMatrix and lgCMatrix classes
 
 	* DESCRIPTION: Eliminate import of stats.
 
 
-2005-04-06  Douglas Bates  <bates@bates1-home>
+2005-04-06  Douglas Bates  <bates@wisc.edu>
 
 	* R/AllClass.R : add logical sparse matrix classes
 
@@ -81,7 +112,7 @@
 	* R/dgTMatrix.R: add "[" method for triplet matrices
 	* R/sparseMatrix.R: and other sparse ones; --> add show() for sparse
 
-2005-03-31  Douglas Bates  <bates@bates1-home>
+2005-03-31  Douglas Bates  <bates@wisc.edu>
 
 	* DESCRIPTION (Version): release 0.95-5 to CRAN
 
@@ -107,12 +138,12 @@
 	* tests/dpoMatrix.R: tests should now be less platform dependent;
 	  also run for R 2.1.0; using as.matrix()
 
-2005-03-15  Douglas Bates  <bates@bates1-home>
+2005-03-15  Douglas Bates  <bates@wisc.edu>
 
 	* R/pMatrix.R: "pMatrix" class added
 	* ....
 
-2005-03-14  Douglas Bates  <bates@bates1-home>
+2005-03-14  Douglas Bates  <bates@wisc.edu>
 
 	* R/dtpMatrix.R: Add unpack method and an example.
 
@@ -127,15 +158,15 @@
 	  crossprod() and "%*%" methods added; tests, too.
 	* tests/matprod.R: new, for testing these
 
-2005-03-03  Douglas Bates  <bates@bates1-home>
+2005-03-03  Douglas Bates  <bates@wisc.edu>
 
 	* src/lmer.c (lmer_fitted): Added.
 
-2005-03-02  Douglas Bates  <bates@bates1-home>
+2005-03-02  Douglas Bates  <bates@wisc.edu>
 
 	* R/dsTMatrix.R: Conversion from dsTMatrix to dsCMatrix
 
-2005-02-28  Douglas Bates  <bates@bates1-home>
+2005-02-28  Douglas Bates  <bates@wisc.edu>
 
 	* src/*.c,po/,inst/po: Internationalization and localization of
 	the package.
@@ -183,39 +214,39 @@
 
 	* */* : almost complete reorganization of classes.
 
-2005-01-26  Douglas Bates  <bates@bates7>
+2005-01-26  Douglas Bates  <bates@wisc.edu>
 
 	* R/AllGeneric.R: Added matrix exponential generic expm and a method
 	for the geMatrix class.
 
-2005-01-24  Douglas Bates  <bates@bates7>
+2005-01-24  Douglas Bates  <bates@wisc.edu>
 
 	* src/Makefile (clean): Remove *.a and *.so
 
 	* man/cscBlocked-class.Rd: Remove reference to the lmer-class.
 
-2005-01-23  Douglas Bates  <bates@bates7>
+2005-01-23  Douglas Bates  <bates@wisc.edu>
 
 	* src/lmer.c (Lind): Definition of Lind was backwards.	This only
 	had an effect in cases with more than 2 grouping factors.
 
-2005-01-03  Douglas Bates  <bates@bates1-home>
+2005-01-03  Douglas Bates  <bates@wisc.edu>
 
 	* src/lmeRep.c (lmer_variances): change from lmeRep to lmer
 
-2004-12-23  Douglas Bates  <bates@bates1-home>
+2004-12-23  Douglas Bates  <bates@wisc.edu>
 
 	* src/init.c (R_init_Matrix): Reorder calls to R_registerRoutines
 	and R_useDynamicSymbols (suggested by B.D.Ripley).
 
-2004-12-14  Douglas Bates  <bates@bates1-home>
+2004-12-14  Douglas Bates  <bates@wisc.edu>
 
 	* R/sscMatrix.R: Add determinant methods
 
 	* src/triplet.[ch],src/init.c (triplet_to_matrix): Add a coercion
 	for tripletMatrix to matrix.
 
-2004-12-13  Douglas Bates  <bates@bates1-home>
+2004-12-13  Douglas Bates  <bates@wisc.edu>
 
 	* R/AllClass.R (.onLoad): Eliminate the bbCrosstab class, which is
 	no longer used.
@@ -227,53 +258,53 @@
 	for multivariate random effects with multiple grouping factors.
 	Fixes part but not all of #15.
 
-2004-12-03  Douglas Bates  <bates@bates1-home>
+2004-12-03  Douglas Bates  <bates@wisc.edu>
 
 	* src/lmeRep.c (lmeRep_factor): order of operations for multiple
 	scalar grouping factors corrected.
 
-2004-11-29  Douglas Bates  <bates@bates1-home>
+2004-11-29  Douglas Bates  <bates@wisc.edu>
 
 	* src/bCrosstab.c: remove diag_update which is no longer used
 
-2004-11-16  Douglas Bates  <bates@bates1-home>
+2004-11-16  Douglas Bates  <bates@wisc.edu>
 
 	* src/Metis_utils.c: Move metis.h include to C sources so that the
 	.h file can be included.
 
-2004-11-12  Douglas Bates  <bates@bates1-home>
+2004-11-12  Douglas Bates  <bates@wisc.edu>
 
 	* src/LU.c,geMatrix.c,trMatrix.c, etc.:
 	Complete allocation of slots in NEW_OBJECT.
 
 	* src/Mutils.h: Moved list of symbols to an include file
 
-2004-11-11  Douglas Bates  <bates@bates1-home>
+2004-11-11  Douglas Bates  <bates@wisc.edu>
 
 	* src/geMutils.c (Matrix_init): remove unused function
 
-2004-11-10  Douglas Bates  <bates@bates1-home>
+2004-11-10  Douglas Bates  <bates@wisc.edu>
 
 	* src/cscMatrix.c (csc_to_imagemat): removed unused function
 
-2004-11-05  Douglas Bates  <bates@bates1-home>
+2004-11-05  Douglas Bates  <bates@wisc.edu>
 
 	* src/Makefile.win (SOURCES_C): Keep consistent with Makefile
 
-2004-10-27  Douglas Bates  <bates@bates1-home>
+2004-10-27  Douglas Bates  <bates@wisc.edu>
 
 	* R/pdmatrix.R: remove PACKAGE="Matrix" in .Call calls
 
-2004-10-04  Douglas Bates  <bates@bates1-home>
+2004-10-04  Douglas Bates  <bates@wisc.edu>
 
 	* src/init.c: Created R_init_Matrix and added registration of C
 	routines.
 
-2004-10-02  Douglas Bates  <bates@bates1-home>
+2004-10-02  Douglas Bates  <bates@wisc.edu>
 
 	* R/tripletMatrix.R: Force a require(lattice) for the image methods.
 
-2004-06-15  Douglas Bates  <bates@bates7>
+2004-06-15  Douglas Bates  <bates@wisc.edu>
 
 	* man/trMatrix-class.Rd: Escape the % chars in .Rd files.
 

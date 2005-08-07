@@ -23,7 +23,6 @@ fixed.effects(object, \dots)  # deprecated
   a named numeric vector of fixed effects estimates.
 }
 \examples{
-fixef(lmer(decrease ~ treatment + (1|rowpos) + (1|colpos),
-             OrchardSprays))
+fixef(lmer(Reaction ~ Days + (1|Subject) + (0+Days|Subject), sleepstudy))
 }
 \keyword{models}

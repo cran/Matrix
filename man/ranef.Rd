@@ -28,8 +28,7 @@ random.effects(object, \dots)   # deprecated
   a list of matrices.
 }
 \examples{
-ranef(lmer(decrease ~ treatment + (1|rowpos) + (1|colpos),
-             OrchardSprays))
+ranef(lmer(Reaction ~ Days + (1|Subject) + (0+Days|Subject), sleepstudy))
 }
 \keyword{models}
 \keyword{methods}

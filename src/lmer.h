@@ -16,7 +16,7 @@
 #include <R_ext/Constants.h>
 
 SEXP Matrix_rWishart(SEXP ns, SEXP df, SEXP scal);
-SEXP lmer_MCMCsamp(SEXP x, SEXP savebp, SEXP nsampp);
+SEXP lmer_MCMCsamp(SEXP x, SEXP savebp, SEXP nsampp, SEXP transp);
 SEXP lmer_validate(SEXP x);
 SEXP lmer_update_mm(SEXP x, SEXP mmats);
 SEXP lmer_create(SEXP flist, SEXP mmats, SEXP method);
@@ -35,6 +35,7 @@ SEXP lmer_gradient(SEXP x, SEXP pType);
 SEXP lmer_variances(SEXP x);
 SEXP lmer_Crosstab(SEXP flist);
 SEXP lmer_firstDer(SEXP x, SEXP val);
+SEXP lmer_secondDer(SEXP x);
 SEXP glmer_MCMCsamp(SEXP GSpt, SEXP b, SEXP fixedp, SEXP varcp,
 		    SEXP savebp, SEXP nsampp);
 SEXP glmer_PQL(SEXP GSp);

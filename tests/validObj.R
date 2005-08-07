@@ -32,7 +32,7 @@ assertError( new("dgeMatrix", Dim = 2:2, x=as.double(1:4)) )# length(Dim) !=2
 assertError( new("dgeMatrix", Dim = as.integer(c(2,2)), x= as.double(1:5)))
 
 chk.matrix(m1 <- Matrix(1:6, ncol=2))
-chk.matrix(m2 <- Matrix(1:7, ncol=3)) # a warning
+chk.matrix(m2 <- Matrix(1:7, ncol=3)) # a (desired) warning
 stopifnot(is(m1) == c("dgeMatrix", "ddenseMatrix", "dMatrix", "Matrix"),
           dim(t(m1)) == 2:3,
           identical(m1, t(t(m1))))
@@ -52,7 +52,8 @@ chk.matrix(cm <- crossprod(m1))
 chk.matrix(as(cm, "dsyMatrix"))
 chk.matrix(dcm <- as(cm, "dgeMatrix"))
 chk.matrix(mcm <- as(cm, "dMatrix"))
-#BUG - FIXME: stopifnot(identical(dcm, mcm))
+##BUG - FIXME: stopifnot(identical(dcm, mcm))
+##---   ------  mcm[2,1] is garbage
 try( chk.matrix(as(cm, "Matrix")) )# gives an error: "Matrix" has NULL 'dim()'
 
 ## Cholesky

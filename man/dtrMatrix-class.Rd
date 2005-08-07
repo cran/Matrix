@@ -73,5 +73,14 @@ Class \code{"Matrix"}, by class \code{"dgeMatrix"}.
   \code{\link{dgeMatrix-class}}, \code{\link{dtpMatrix-class}},
   \code{\link{Matrix-class}}
 }
-%\examples{}
+\examples{
+(m <- rbind(2:3, 0:-1))
+(M <- as(m, "dgeMatrix"))
+(T <- as(M, "dtrMatrix")) ## upper triangular is default
+## hence this may surprise at first:
+(T2 <- as(t(M), "dtrMatrix"))# is factually diagonal
+## and different from
+(T3 <- t(T)) # which is *lower* triangular:
+str(T3)
+}
 \keyword{classes}

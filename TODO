@@ -8,6 +8,9 @@
   see ?Math  and the examples in ?SetGeneric
 
 - methods for rbind and cbind where they make sense
+  (Kurt is particularly interested in dgCMatrix ones, for pkg 'arules')
+  ****> UNFEASIBLE as long cbind is function(..., *) !!!! <*******
+    --> follow John's proposition  cbind(x, ...) via Generic cbind2(x,y)?
 
 - consider moving alloc3Darray from ./src/Mutils.c to
   $(RSRC)/src/base/array.c
@@ -45,8 +48,19 @@ We have a (at least one) basic problem :
   matrices; particularly something like pack() and unpack()  [to/from our
   classes from/to "numeric"] --- have already man/unpack.Rd but no method yet!
 
+  (have some dtr* <-> dtp*)
+
 - implement diagonal Matrix class  "ddiMatrix" etc
   using constructor function Diagonal() or Diag().
+
+- FIXME: dtpMatrix(... diag = "U") (i.e., unit-diagonal packed triangular)
+  -----  *does* need 'x' entries for the diagonal but these are never looked at.
+    -> change doc {or code ? - depends on what Lapack expects !}
+
+BUG: rcond() of a singular dpoMatrix gives a LaPack error instead of just 0:
+  MM <- crossprod(M <- Matrix(c(1:4,9:6), 2,4)) ; rcond(MM)
+  ##> Error in rcond(MM) : Lapack routine dpotrf returned error code 4
+
 
 ---
 

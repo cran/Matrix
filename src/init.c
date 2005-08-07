@@ -1,4 +1,5 @@
 #include "Mutils.h"
+#include "HBMM.h"
 #include "dense.h"
 #include "dgBCMatrix.h"
 #include "dgCMatrix.h"
@@ -33,7 +34,11 @@ static R_CallMethodDef CallEntries[] = {
     {"LU_expand", (DL_FUNC) &LU_expand, 1},
     {"LU_validate", (DL_FUNC) &LU_validate, 1},
     {"Matrix_expand_pointers", (DL_FUNC) &Matrix_expand_pointers, 1},
+    {"Matrix_readHarwellBoeing", (DL_FUNC) &Matrix_readHarwellBoeing, 1},
+    {"Matrix_readMatrixMarket", (DL_FUNC) &Matrix_readMatrixMarket, 1},
     {"Matrix_rWishart", (DL_FUNC) &Matrix_rWishart, 3},
+    {"Matrix_writeHarwellBoeing", (DL_FUNC) &Matrix_writeHarwellBoeing, 3},
+    {"Matrix_writeMatrixMarket", (DL_FUNC) &Matrix_writeMatrixMarket, 3},
     {"SVD_validate", (DL_FUNC) &SVD_validate, 1},
     {"csc_check_column_sorting", (DL_FUNC) &csc_check_column_sorting, 1},
     {"csc_crossprod", (DL_FUNC) &csc_crossprod, 1},
@@ -150,7 +155,7 @@ static R_CallMethodDef CallEntries[] = {
     {"lgTMatrix_as_lgCMatrix", (DL_FUNC) &lgTMatrix_as_lgCMatrix, 1},
     {"lgTMatrix_validate", (DL_FUNC) &lgTMatrix_validate, 1},
     {"lmer_Crosstab", (DL_FUNC) &lmer_Crosstab, 1},
-    {"lmer_MCMCsamp", (DL_FUNC) &lmer_MCMCsamp, 3},
+    {"lmer_MCMCsamp", (DL_FUNC) &lmer_MCMCsamp, 4},
     {"lmer_ECMEsteps", (DL_FUNC) &lmer_ECMEsteps, 3},
     {"lmer_coef", (DL_FUNC) &lmer_coef, 2},
     {"lmer_coefGets", (DL_FUNC) &lmer_coefGets, 3},
@@ -164,6 +169,7 @@ static R_CallMethodDef CallEntries[] = {
     {"lmer_initial", (DL_FUNC) &lmer_initial, 1},
     {"lmer_invert", (DL_FUNC) &lmer_invert, 1},
     {"lmer_ranef", (DL_FUNC) &lmer_ranef, 1},
+    {"lmer_secondDer", (DL_FUNC) &lmer_secondDer, 1},
     {"lmer_sigma", (DL_FUNC) &lmer_sigma, 2},
     {"lmer_update_mm", (DL_FUNC) &lmer_update_mm, 2},
     {"lmer_validate", (DL_FUNC) &lmer_validate, 1},

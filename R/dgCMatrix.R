@@ -83,3 +83,11 @@ setMethod("%*%", signature(x = "dgeMatrix", y = "dgCMatrix"),
 setMethod("%*%", signature(x = "matrix", y = "dgCMatrix"),
           function(x, y) .Call("csc_matrix_mm", y, x, FALSE, TRUE),
           valueClass = "dgeMatrix")
+
+setMethod("writeHB", signature(obj = "dgCMatrix"),
+          function(obj, file, ...)
+          .Call("Matrix_writeHarwellBoeing", obj, as.character(file), "DGC"))
+
+setMethod("writeMM", signature(obj = "dgCMatrix"),
+          function(obj, file, ...)
+          .Call("Matrix_writeMatrixMarket", obj, as.character(file), "DGC"))

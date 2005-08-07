@@ -39,6 +39,7 @@
       either \code{"U"}, for unit triangular (diagonal is all ones), or
       \code{"N"} for non-unit.  The implicit diagonal elements are not
       explicitly stored when \code{diag} is \code{"U"}.}
+%%% FIXME: The above is not true -- they *are* stored (but values not considered)
     \item{\code{x}:}{Object of class \code{"numeric"}. The numeric
       values that constitute the matrix, stored in column-major order.}
     \item{\code{Dim}:}{Object of class \code{"integer"}. The dimensions
@@ -84,5 +85,10 @@ Class \code{"Matrix"}, by class \code{"ddenseMatrix"}.
 \seealso{
   \code{\link{dtrMatrix-class}}
 }
-%\examples{}
+\examples{
+example("dtrMatrix-class")
+(p1 <- as(T3, "dtpMatrix"))
+str(p1)
+(pp <- as(T, "dtpMatrix"))
+}
 \keyword{classes}

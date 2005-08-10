@@ -81,22 +81,25 @@ lmer(formula, data, family,
       Possible control options and their default values are:
       \describe{
 	\item{\code{maxIter}:}{maximum number of iterations for the \code{lme}
-	  optimization algorithm. Default is 50.}
+	  optimization algorithm.  Default is 50.}
+	\item{\code{tolerance}:}{relative convergence tolerance for the
+	  \code{lme} optimization algorithm.  Default is
+	  \code{sqrt(.Machine$double.eps)}.}
 	\item{\code{msMaxIter}:}{maximum number of iterations
 	  for the \code{nlminb} optimization step inside the \code{lme}
-	  optimization. Default is 200.}
+	  optimization.  Default is 200.}
+	\item{\code{msVerbose}:}{a logical value passed as the
+	  \code{trace} argument to \code{nlminb} (see documentation on
+	  that function).  Default is \code{getOption("verbose")}.}
 	\item{\code{niterEM}:}{number of iterations for the EM algorithm
 	  used to refine the initial estimates of the random effects
 	  variance-covariance coefficients.  Default is 15.}
-	\item{\code{msVerbose}:}{a logical value passed as the
-	  \code{trace} argument to \code{nlminb} (see documentation on
-	  that function). Default is \code{getOption("verbose")}.}
-	\item{\code{PQLmaxIt}:}{maximum number of iterations for the PQL
-	  algorithm when fitting generalized linear mixed models.
-	  Default is 30.}
 	\item{\code{EMverbose}:}{a logical value indicating if verbose output
 	  should be produced during the EM iterations.  Default is
 	  \code{getOption("verbose")}.}
+	\item{\code{PQLmaxIt}:}{maximum number of iterations for the PQL
+	  algorithm when fitting generalized linear mixed models.
+	  Default is 30.}%% unused currently?
 	\item{\code{analyticGradient}:}{a logical value indicating if the
 	  analytic gradient of the objective should be used.  This
 	  option is for testing purposes and would not normally be

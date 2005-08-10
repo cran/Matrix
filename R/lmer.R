@@ -897,10 +897,27 @@ setMethod("mcmcsamp", signature(obj = "lmer"),
           }
           gnms <- names(obj@flist)
           cnms <- obj@cnames
-          colnames(ans) <- c(names(fixef(obj)), "sigma^2",
-                             unlist(lapply(seq(along = gnms),
-                                           function(i)
-                                           abbrvNms(gnms[i],cnms[[i]]))))
+          ff <- fixef(obj)
+          colnms <- c(names(ff), "sigma^2",
+                    unlist(lapply(seq(along = gnms),
+                                  function(i)
+                                  abbrvNms(gnms[i],cnms[[i]]))))
+          if (trans) {
+              ## parameter type: 0 => fixed effect, 1 => variance,
+              ##                 2 => covariance
+              ptyp <- c(integer(length(ff)), 1:1,
+                        unlist(lapply(seq(along = gnms),
+                                      function(i)
+                                  {
+                                      k <- length(cnms[[i]])
+                                      rep(1:2, c(k, (k*(k-1))/2))
+                                  })))
+              colnms[ptyp == 1] <-
+                  paste("log(", colnms[ptyp == 1], ")", sep = "")
+              colnms[ptyp == 2] <-
+                  paste("atanh(", colnms[ptyp == 2], ")", sep = "")
+          }
+          colnames(ans) <- colnms
           ans
       })
 

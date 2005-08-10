@@ -257,8 +257,6 @@ upcase(char* S)
     return S;
 }
 
-void IOHBTerminate(char* message);
-
 int readHB_info(const char* filename, int* M, int* N, int* nz, char** Type, 
                                                       int* Nrhs)
 {

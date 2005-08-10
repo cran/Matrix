@@ -82,10 +82,10 @@ stopifnot(identical(10 * tPt, tPt * 10),
 
 
 ## non-square  triagonal Matrices --- should this be forbidden anyway? ---
-tru <- new("dtrMatrix", Dim = 2:3, x=as.double(1:6), uplo="L", diag="U")
-trn <- new("dtrMatrix", Dim = 2:3, x=as.double(1:6), uplo="L", diag="N")
-tru + trn  # a 'dgeMatrix'
+try(tru <- new("dtrMatrix", Dim = 2:3, x=as.double(1:6), uplo="L", diag="U"))
+try(trn <- new("dtrMatrix", Dim = 2:3, x=as.double(1:6), uplo="L", diag="N"))
+#tru + trn  # a 'dgeMatrix'
 
-as(t(tru),"dgeMatrix")
-as(t(trn),"dgeMatrix")
-as(t(t(tru)), "dgeMatrix")# pretty non sense
+#as(t(tru),"dgeMatrix")
+#as(t(trn),"dgeMatrix")
+#as(t(t(tru)), "dgeMatrix")# pretty non sense

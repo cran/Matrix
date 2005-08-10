@@ -1,3 +1,8 @@
+2005-08-10  Douglas Bates  <bates@wisc.edu>
+
+	* src/dtrMatrix.c (dtrMatrix_validate): fixed up validation and
+	matrix_solve code (which was really, really wrong).
+
 2005-08-07  Douglas Bates  <bates@wisc.edu>
 
 	* DESCRIPTION (Version): 0.98-2

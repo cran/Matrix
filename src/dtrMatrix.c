@@ -9,7 +9,10 @@
 SEXP dtrMatrix_validate(SEXP obj)
 {
     SEXP val;
+    int *Dims = INTEGER(GET_SLOT(obj, Matrix_DimSym));
 
+    if (Dims[0] != Dims[1])
+        return mkString(_("Matrix is not square"));
     if (isString(val = check_scalar_string(GET_SLOT(obj, Matrix_uploSym),
 					   "LU", "uplo"))) return val;
     if (isString(val = check_scalar_string(GET_SLOT(obj, Matrix_diagSym),
@@ -84,7 +87,7 @@ SEXP dtrMatrix_solve(SEXP a)
 SEXP dtrMatrix_matrix_solve(SEXP a, SEXP b, SEXP classed)
 {
     int cl = asLogical(classed);
-    SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dgeMatrix")));
+    SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("dgeMatrix")));
     int *adims = INTEGER(GET_SLOT(a, Matrix_DimSym)),
 	*bdims = INTEGER(cl ? GET_SLOT(b, Matrix_DimSym) :
 			 getAttrib(b, R_DimSymbol));
@@ -94,13 +97,14 @@ SEXP dtrMatrix_matrix_solve(SEXP a, SEXP b, SEXP classed)
 
     if (*adims != *bdims || bdims[1] < 1 || *adims < 1 || *adims != adims[1])
 	error(_("Dimensions of system to be solved are inconsistent"));
-    F77_CALL(dtrsm)("L", CHAR(asChar(GET_SLOT(val, Matrix_uploSym))),
-		    "N", CHAR(asChar(GET_SLOT(val, Matrix_diagSym))),
+    Memcpy(INTEGER(ALLOC_SLOT(ans, Matrix_DimSym, INTSXP, 2)), bdims, 2);
+    F77_CALL(dtrsm)("L", CHAR(asChar(GET_SLOT(a, Matrix_uploSym))),
+		    "N", CHAR(asChar(GET_SLOT(a, Matrix_diagSym))),
 		    &n, &nrhs, &one, REAL(GET_SLOT(a, Matrix_xSym)), &n,
-		    Memcpy(REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, sz)),
+		    Memcpy(REAL(ALLOC_SLOT(ans, Matrix_xSym, REALSXP, sz)),
 			   REAL(cl ? GET_SLOT(b, Matrix_xSym):b), sz), &n);
     UNPROTECT(1);
-    return val;
+    return ans;
 }
 
 SEXP dtrMatrix_matrix_mm(SEXP a, SEXP b, SEXP classed, SEXP right)

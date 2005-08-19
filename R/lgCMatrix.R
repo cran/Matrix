@@ -28,6 +28,10 @@ setAs("lgCMatrix", "lgTMatrix",
                          j = .Call("Matrix_expand_pointers", from@p),
                          Dim = from@Dim, Dimnames = from@Dimnames))
 
+setAs("lgCMatrix", "matrix",
+      function(from) .Call("lcsc_to_matrix", from))
+
+
 setMethod("image", "lgCMatrix",
           function(x, ...) {
               x <- as(as(x, "dgCMatrix"), "dgTMatrix")

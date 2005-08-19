@@ -32,9 +32,30 @@ SEXP lgCMatrix_validate(SEXP x)
     return ScalarLogical(1);
 }
 
-/** 
+/* very parallel to csc_matrix() in ./dgeMatrix.c */
+SEXP lcsc_to_matrix(SEXP x)
+{
+    SEXP ans, pslot = GET_SLOT(x, Matrix_pSym);
+    int j, ncol = length(pslot) - 1,
+	nrow = INTEGER(GET_SLOT(x, Matrix_DimSym))[0],
+	*xp = INTEGER(pslot),
+	*xi = INTEGER(GET_SLOT(x, Matrix_iSym));
+    int *ax;
+
+    ax = LOGICAL(ans = PROTECT(allocMatrix(LGLSXP, nrow, ncol)));
+    for (j = 0; j < (nrow * ncol); j++) ax[j] = 0;
+    for (j = 0; j < ncol; j++) {
+	int ind;
+	for (ind = xp[j]; ind < xp[j+1]; ind++)
+	    ax[j * nrow + xi[ind]] = 1;
+    }
+    UNPROTECT(1);
+    return ans;
+}
+
+/**
  * C := op(A) %*% op(B) + beta ^ C for logical sparse column-oriented matrices
- * 
+ *
  * @param tra nonzero if A is to be transposed
  * @param trb nonzero if B is to be transposed
  * @param m number of rows in C
@@ -60,21 +81,21 @@ SEXP Matrix_lgClgCmm(int tra, int trb, int m, int n, int k,
 {
     int cnnz = cp[n], extra = 0;
     int *ci, i, j, prot = 0;	/* prot is the number of PROTECTs to UNPROTECT */
-    
+
     if (beta) {
 	ci = INTEGER(CIP);
     } else {			/* blank the C matrix */
 	for (j = 0; j <= n; j++) cp[j] = 0;
 	cnnz = 0;
 	ci = (int *) NULL;
-    } 
+    }
 
     if (tra) {			/* replace ai and ap by els for transpose */
 	int nz = ap[m];
 	int *Ai = Calloc(nz, int),
 	    *aj = expand_cmprPt(m, ap, Calloc(nz, int)),
 	    *Ap = Calloc(k + 1, int);
-	
+
 	triplet_to_col(m, k, nz, aj, ai, (double *) NULL,
 		       Ap, Ai, (double *) NULL);
 	Free(aj);
@@ -86,7 +107,7 @@ SEXP Matrix_lgClgCmm(int tra, int trb, int m, int n, int k,
 	int *Bi = Calloc(nz, int),
 	    *bj = expand_cmprPt(k, bp, Calloc(nz, int)),
 	    *Bp = Calloc(n + 1, int);
-	
+
 	triplet_to_col(k, n, nz, bj, bi, (double *) NULL,
 		       Bp, Bi, (double *) NULL);
 	Free(bj);
@@ -109,11 +130,11 @@ SEXP Matrix_lgClgCmm(int tra, int trb, int m, int n, int k,
 	    *Ti = Calloc(ntot, int),
 	    *rwInd = Calloc(m, int), /* indicator of TRUE in column j */
 	    pos = 0;
-	
+
 	Cp[0] = 0;
 	for (j = 0; j < n; j++) {
 	    int ii, ii2 = bp[j + 1];
-				
+
 	    AZERO(rwInd, m);	/* initialize column j of C */
 	    for (i = cp[j]; i < cp[j+1]; i++) rwInd[ci[i]] = 1;
 
@@ -137,7 +158,7 @@ SEXP Matrix_lgClgCmm(int tra, int trb, int m, int n, int k,
     UNPROTECT(prot);
     return CIP;
 }
-	    
+
 SEXP lgCMatrix_lgCMatrix_mm(SEXP a, SEXP b)
 {
     SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("lgCMatrix")));
@@ -146,7 +167,7 @@ SEXP lgCMatrix_lgCMatrix_mm(SEXP a, SEXP b)
 	*cdims = INTEGER(ALLOC_SLOT(ans, Matrix_DimSym, INTSXP, 2));
     int k = adims[1], m = adims[0], n = bdims[1];
     int *cp = INTEGER(ALLOC_SLOT(ans, Matrix_pSym, INTSXP, n + 1));
-    
+
     if (bdims[0] != k)
 	error(_("Matrices are not conformable for multiplication"));
     cdims[0] = m; cdims[1] = n;
@@ -171,11 +192,11 @@ SEXP lgCMatrix_trans(SEXP x)
     int *xj = Calloc(nz, int);
     SEXP adn = ALLOC_SLOT(ans, Matrix_DimNamesSym, VECSXP, 2),
 	xdn = GET_SLOT(x, Matrix_DimNamesSym);
-    
+
     adims[1] = xdims[0]; adims[0] = xdims[1];
     SET_VECTOR_ELT(adn, 0, VECTOR_ELT(xdn, 1));
     SET_VECTOR_ELT(adn, 1, VECTOR_ELT(xdn, 0));
-    triplet_to_col(adims[0], adims[1], nz, 
+    triplet_to_col(adims[0], adims[1], nz,
 		   expand_cmprPt(xdims[1], INTEGER(GET_SLOT(x, Matrix_pSym)), xj),
 		   INTEGER(xi), (double *) NULL,
 		   INTEGER(ALLOC_SLOT(ans, Matrix_pSym, INTSXP,  adims[1] + 1)),
@@ -186,9 +207,9 @@ SEXP lgCMatrix_trans(SEXP x)
     return ans;
 }
 
-/** 
+/**
  * Replace C by AA' + beta*C or A'A + beta*C
- * 
+ *
  * @param up Indicator of upper/lower triangle in the symmetric sparse matrix
  * @param tra Transpose, in the sense of dsyrk.  That is, tra TRUE indicates A'A
  * @param n size of the product matrix
@@ -198,7 +219,7 @@ SEXP lgCMatrix_trans(SEXP x)
  * @param beta TRUE if existing elements in C are to be preserved
  * @param CIP SEXP whose INTEGER part is the row indices of C (not used if beta is FALSE)
  * @param cp column pointers for C
- * 
+ *
  * @return SEXP whose INTEGER part is the updated row indices of C
  */
 SEXP Matrix_lgCsyrk(int up, int tra, int n, int k, const int ai[], const int ap[],
@@ -213,14 +234,14 @@ SEXP Matrix_lgCsyrk(int up, int tra, int n, int k, const int ai[], const int ap[
 	for (j = 0; j <= n; j++) cp[j] = 0;
 	cnnz = 0;
 	ci = (int *) NULL;
-    } 
-    
+    }
+
     if (tra) {			/* replace ai and ap by els for transpose */
 	int nz = ap[n];
 	int *Ai = Calloc(nz, int),
 	    *aj = expand_cmprPt(n, ap, Calloc(nz, int)),
 	    *Ap = Calloc(k + 1, int);
-	
+
 	triplet_to_col(n, k, nz, aj, ai, (double *) NULL,
 		       Ap, Ai, (double *) NULL);
 	Free(aj);
@@ -249,7 +270,7 @@ SEXP Matrix_lgCsyrk(int up, int tra, int n, int k, const int ai[], const int ap[
 	    *Tj = expand_cmprPt(n, cp, Calloc(ntot, int)),
 	    *Ci = Calloc(ntot, int),
 	    pos = cnnz;
-	
+
 	for (j = 0; j < k; j++) {
 	    int i2 = ap[j + 1];
 	    for (i = ap[j]; i < i2; i++) {
@@ -267,28 +288,28 @@ SEXP Matrix_lgCsyrk(int up, int tra, int n, int k, const int ai[], const int ap[
 		}
 	    }
 	}
-	
+
 	triplet_to_col(n, n, pos, Ti, Tj, (double *) NULL,
 		       cp, Ci, (double *) NULL);
 	PROTECT(CIP = allocVector(INTSXP, cp[n])); prot++;
 	Memcpy(INTEGER(CIP), Ci, cp[n]);
 	Free(Ti); Free(Tj); Free(Ci);
     }
-    
+
     if (tra) {Free(ai); Free(ap);}
     UNPROTECT(prot);
     return CIP;
 }
 
-/** 
+/**
  * Create the cross-product or transpose cross-product of a logical
  * sparse matrix in column-oriented compressed storage mode.
- * 
+ *
  * @param x Pointer to a lgCMatrix
  * @param trans logical indicator of transpose, in the sense of dsyrk.
  * That is, trans == TRUE is used for crossprod.
- * @param C 
- * 
+ * @param C
+ *
  * @return An lsCMatrix of the form if(trans) X'X else XX'
  */
 SEXP lgCMatrix_crossprod(SEXP x, SEXP trans, SEXP C)
@@ -296,7 +317,7 @@ SEXP lgCMatrix_crossprod(SEXP x, SEXP trans, SEXP C)
     int tra = asLogical(trans);
     int *adims, *xdims = INTEGER(GET_SLOT(x, Matrix_DimSym));
     int k = xdims[tra ? 0 : 1], n = xdims[tra ? 1 : 0];
-    
+
     if (C == R_NilValue) {
 	SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("lsCMatrix")));
 
@@ -325,15 +346,15 @@ SEXP lgCMatrix_crossprod(SEXP x, SEXP trans, SEXP C)
     return C;
 }
 
-/** 
+/**
  * Special-purpose function that returns a permutation of the columns
  * of a lgTMatrix for which nrow(x) > ncol(x).  The ordering puts
  * columns with fewer entries on the left.  Once a column has been
  * moved to the left the rows in where that column is TRUE are removed
  * from the counts.
- * 
+ *
  * @param x Pointer to an lgTMatrix object
- * 
+ *
  * @return 0-based permutation vector for the columns of x
  */
 SEXP lgCMatrix_picky_column(SEXP x)
@@ -357,7 +378,7 @@ SEXP lgCMatrix_picky_column(SEXP x)
 	    minloc = j;
 	}
     }
-    
+
     pos = 0;
     while (pos < n) {
 	INTEGER(ans)[pos++] = minloc;

@@ -6,10 +6,14 @@
 \alias{\%*\%,ddenseMatrix,sparseMatrix-method}
 \alias{crossprod,sparseMatrix,ddenseMatrix-method}
 \alias{crossprod,ddenseMatrix,sparseMatrix-method}
+\alias{coerce,graphNEL,sparseMatrix-method}
 \title{Virtual Class "sparseMatrix" --- Mother of Sparse Matrices}
 \description{Virtual Mother Class of All Sparse Matrices}
 \section{Slots}{
   \code{Dim}, and \code{Dimnames}, see \code{\link{Matrix-class}}.
+% Should this be "written in stone" or should they be added?
+%   Note that the current implementation keeps \code{Dimnames} empty for
+%   sparse matrices.
 }
 \section{Extends}{
   Class \code{"Matrix"}, directly.
@@ -23,7 +27,7 @@
 }
 \note{
   In method selection for multiplication operations (i.e. \code{\%*\%}
-  and the two-argument form of \code{\link[base]{crossprod}}) 
+  and the two-argument form of \code{\link[base]{crossprod}})
   the sparseMatrix class takes precedence in the sense that if one
   operand is a sparse matrix and the other is any type of dense matrix
   then the dense matrix is coerced to a \code{dgeMatrix} and the

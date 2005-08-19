@@ -58,4 +58,3 @@ SEXP dsTMatrix_as_dsCMatrix(SEXP x)
     UNPROTECT(1);
     return val;
 }
-    

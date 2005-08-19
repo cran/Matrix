@@ -61,6 +61,7 @@ Objects can be created by calls of the form \code{new("dgTMatrix", ...)}.
 }
 \examples{
 m <- Matrix(1:28, nrow = 4)
+##FIXME: m[c()...] <- 0
 (mT <- as(m, "dgTMatrix"))
 
 mT[1,]

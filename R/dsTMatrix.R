@@ -12,7 +12,7 @@ setAs("dsTMatrix", "dgeMatrix",
 
 setAs("dsTMatrix", "matrix",
       function(from) as(as(from, "dsyMatrix"), "matrix"))
-      
+
 setMethod("t", signature(x = "dsTMatrix"),
           function(x)
           new("dsTMatrix", Dim = x@Dim,

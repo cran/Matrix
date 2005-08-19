@@ -31,5 +31,21 @@ assert.EQ.mat(p1, cbind(c(20,30,33,38,54)))
 assert.EQ.mat(pd1, as(m5,"matrix") %*% diag(1:6))
 assert.EQ.mat(pd2, diag(10:6) %*% as(m5,"matrix"))
 
+## <FIXME>  -- maybe several things:
+M <- mm[1:500, 1:200] # dgT*
+
+showMethods("%*%", class=class(M)) ## really is empty ``at first''
+
+v1 <- rep(1, ncol(M))
+if(FALSE) ## infinite recursion !
+r <- M %*% Matrix(v1)
+if(FALSE) ## infinite recursion !
+r2 <- Matrix(rep(1,nrow(M))) %*% M
+try(r3 <- M %*% cbind(v1))# dispatches to old ("S3") default method!
+## same result as {but cbind() slightly differs: has dimnames!}:
+try(r3. <- M %*% as(v1, "matrix"))
+
+## </FIXME>
+
 
 proc.time() # for ``statistical reasons''

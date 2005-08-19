@@ -1,4 +1,51 @@
+2005-08-19  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/lgCMatrix.c (lcsc_to_matrix): new; need for
+		as( <logical>, "matrix")
+
+	* R/pMatrix.R: coercion to "lgTMatrix"
+
+	* R/gTMatrix.R: new virtual class to define "[" methods for.
+	* man/gTMatrix-class.Rd:
+	* General slight re-organization of where "[" methods are defined.
+	  more to come.
+
+
+2005-08-18  Douglas Bates  <bates@localhost.localdomain>
+
+	* R/lmer.R: Corrected naming scheme in mcmcsamp to work with lmer
+	or glmer objects.
+
+2005-08-17  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.98-4 : upload to CRAN
+
+2005-08-16  Douglas Bates  <bates@localhost.localdomain>
+
+	* R/HBMM.R: finish re-writing R-only code.
+
+2005-08-15  Douglas Bates  <bates@localhost.localdomain>
+
+	* man/externalFormats.Rd: move documentation for writeHB and
+	writeMM here.
+
+	* src/mmio.c: replace inclusion of <malloc.h> by <stdlib.h>
+	(suggested by Paul Roecker).
+
+	* tests/validObj.R (assertError): Comment out test that is failing
+	after recent changes in r-devel.
+
+
+2005-08-11  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/AllClass.R: intermediate virtual class "denseMatrix"
+	* man/denseMatrix-class.Rd
+	* NAMESPACE: export it, and also export
+	* man/unused-classes.Rd: "iMatrix", "zMatrix" and "ldenseMatrix"
+
 2005-08-10  Douglas Bates  <bates@wisc.edu>
+
+	* DESCRIPTION (Version): 0.98-3 to CRAN
 
 	* src/dtrMatrix.c (dtrMatrix_validate): fixed up validation and
 	matrix_solve code (which was really, really wrong).

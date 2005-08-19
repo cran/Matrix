@@ -16,7 +16,9 @@
 \alias{coerce,dgCMatrix,lgCMatrix-method}
 \alias{coerce,lgCMatrix,dgCMatrix-method}
 \alias{coerce,lgCMatrix,lgTMatrix-method}
+\alias{coerce,lgCMatrix,matrix-method}
 \alias{coerce,lgTMatrix,lgCMatrix-method}
+\alias{coerce,lgTMatrix,matrix-method}
 \alias{coerce,lsCMatrix,dsCMatrix-method}
 \alias{coerce,ltCMatrix,dtCMatrix-method}
 \alias{crossprod,lgCMatrix,missing-method}
@@ -36,11 +38,11 @@
   elements that are \code{TRUE} are stored.  These can be stored in the
   ``triplet'' form (classes \code{lgTMatrix}, \code{lsTMatrix}, and
   \code{ltTMatrix} which really contain pairs, not triplets) or in
-  compressed column-oriented form (classes \code{lgCMatrix}, \code{lsCMatrix}, and
-  \code{ltCMatrix}) or in compressed row-oriented form (classes \code{lgRMatrix}, \code{lsRMatrix}, and
-  \code{ltRMatrix}).  The second
-  letter in the name of these non-virtual classes indicates
-  \code{g}eneral, \code{s}ymmetric, or \code{t}riangular.
+  compressed column-oriented form (classes \code{lgCMatrix},
+  \code{lsCMatrix}, and \code{ltCMatrix}) or in compressed row-oriented
+  form (classes \code{lgRMatrix}, \code{lsRMatrix}, and
+  \code{ltRMatrix}).  The second letter in the name of these non-virtual
+  classes indicates \code{g}eneral, \code{s}ymmetric, or \code{t}riangular.
 }
 \section{Objects from the Class}{
   Objects can be created by calls of the form \code{new("lgCMatrix",
@@ -95,6 +97,11 @@
 \seealso{
   \code{\link{dgCMatrix-class}}
 }
-%\examples{}
+\examples{
+m <- Matrix(c(0,0,2:0), 3,5, dimnames=list(LETTERS[1:3],NULL))
+(dm <- as(m, "dgCMatrix"))# no dimnames for sparse here
+(lm <- as(dm, "lgCMatrix"))
+str(lm)
+}
 \keyword{classes}
 \keyword{algebra}

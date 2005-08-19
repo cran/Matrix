@@ -65,7 +65,7 @@
   \code{\link{dsCMatrix-class}}, \code{\link{dtCMatrix-class}}
 }
 \examples{
-m <- Matrix(1:12, nrow = 3)
+m <- Matrix(c(0,0,2:0), 3,5)
 (mC <- as(m, "dgCMatrix"))
 str(mC)
 mC[,1]

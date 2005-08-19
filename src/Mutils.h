@@ -60,6 +60,7 @@ double *packed_to_full(double *dest, const double *src, int n,
 double *full_to_packed(double *dest, const double *src, int n,
 		       enum CBLAS_UPLO uplo, enum CBLAS_DIAG diag);
 double *packed_getDiag(double *dest, SEXP x);
+SEXP Matrix_getElement(SEXP list, char *nm);
 
 
 extern	 /* stored pointers to symbols initialized in R_init_Matrix */

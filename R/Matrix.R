@@ -96,3 +96,44 @@ setMethod("crossprod", signature(x = "numeric", y = "Matrix"),
 
 setMethod("solve", signature(a = "Matrix", b = "numeric"),
 	  function(a, b, ...) callGeneric(a, as.matrix(b)))
+
+## Subsetting : The "missing" cases can be dealt with here, "at the top":
+
+## "x[]":
+setMethod("[", signature(x = "Matrix",
+			 i = "missing", j = "missing", drop = "ANY"),
+	  function (x, i, j, drop) x)
+
+## missing 'drop' --> 'drop = TRUE'
+##                     -----------
+## select rows
+setMethod("[", signature(x = "Matrix", i = "numeric", j = "missing",
+			 drop = "missing"),
+	  function(x,i,j, drop) callGeneric(x, i=i, drop= TRUE))
+## select columns
+setMethod("[", signature(x = "Matrix", i = "missing", j = "numeric",
+			 drop = "missing"),
+	  function(x,i,j, drop) callGeneric(x, j=j, drop= TRUE))
+setMethod("[", signature(x = "Matrix", i = "numeric", j = "numeric",
+                         drop = "missing"),
+	  function(x,i,j, drop) callGeneric(x, i=i, j=j, drop= TRUE))
+
+
+## "FIXME:"
+## How can we get at   A[ ij ]	where ij is (i,j) 2-column matrix?
+##  and                A[ LL ]	where LL is a logical *vector*
+
+
+
+
+if(FALSE) ## The following can't work as long as cbind is function(..., *)
+setMethod("cbind", signature(a = "Matrix", b = "Matrix"),
+          function(a, b, ...) {
+              da <- Dim(a)
+              db <- Dim(b)
+              if(da[1] != db[1])
+                  stop("Matrices must have same number of rows for cbind()ing")
+          })
+
+
+

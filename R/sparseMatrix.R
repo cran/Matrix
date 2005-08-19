@@ -1,5 +1,17 @@
 ### Define Methods that can be inherited for all subclasses
 
+## An idea: Coercion between *VIRTUAL* classes
+## -- making sure that result is *actual*!
+
+## setAs("denseMatrix", "sparseMatrix",
+##       function(from) {
+##       })
+
+## setAs("dMatrix", "lMatrix",
+##       function(from) {
+##       })
+
+
 ## For multiplication operations, sparseMatrix overrides other method
 ## selections.  Coerce a ddensematrix argument to a dgeMatrix.
 
@@ -15,12 +27,17 @@ setMethod("crossprod", signature(x = "sparseMatrix", y = "ddenseMatrix"),
 setMethod("crossprod", signature(x = "ddenseMatrix", y = "sparseMatrix"),
           function(x, y = NULL) callGeneric(as(x, "dgeMatrix"), y))
 
+setAs("graphNEL", "sparseMatrix",
+      function(from) {
+          if (from@edgemode == "undirected")
+              return(.Call("graphNEL_as_dsTMatrix", from))
+          error("directed graphs not currently allowed")
+      })
 
 
-setMethod("[", signature(x = "dsparseMatrix",
-			 i = "missing", j = "missing", drop = "ANY"), ## "x[]"
-	  function (x, i, j, drop) x)
+### Subsetting -- basic things (drop = "missing") are done in ./Matrix.R
 
+## 1)  dsparse -> dgT
 setMethod("[", signature(x = "dsparseMatrix", i = "numeric", j = "missing",
 			 drop = "logical"),
 	  function (x, i, j, drop)
@@ -31,22 +48,29 @@ setMethod("[", signature(x = "dsparseMatrix", i = "missing", j = "numeric",
 	  function (x, i, j, drop)
           callGeneric(x = as(x, "dgTMatrix"), j=j, drop=drop))
 
-setMethod("[", signature(x = "dsparseMatrix", i = "numeric", j = "missing",
-			 drop = "missing"),
-	  function(x,i,j, drop) callGeneric(x, i=i, drop= TRUE))
-
-setMethod("[", signature(x = "dsparseMatrix", i = "missing", j = "numeric",
-			 drop = "missing"),
-	  function(x,i,j, drop) callGeneric(x, j=j, drop= TRUE))
-
 setMethod("[", signature(x = "dsparseMatrix",
 			 i = "numeric", j = "numeric", drop = "logical"),
 	  function (x, i, j, drop)
           callGeneric(x = as(x, "dgTMatrix"), i=i, j=j, drop=drop))
 
-setMethod("[", signature(x = "dsparseMatrix",
-			 i = "numeric", j = "numeric", drop = "missing"),
-	  function(x,i,j, drop) callGeneric(x, i=i, j=j, drop= TRUE))
+## 2)  lsparse -> lgT
+setMethod("[", signature(x = "lsparseMatrix", i = "numeric", j = "missing",
+			 drop = "logical"),
+	  function (x, i, j, drop)
+          callGeneric(x = as(x, "lgTMatrix"), i=i, drop=drop))
+
+setMethod("[", signature(x = "lsparseMatrix", i = "missing", j = "numeric",
+			 drop = "logical"),
+	  function (x, i, j, drop)
+          callGeneric(x = as(x, "lgTMatrix"), j=j, drop=drop))
+
+setMethod("[", signature(x = "lsparseMatrix",
+			 i = "numeric", j = "numeric", drop = "logical"),
+	  function (x, i, j, drop)
+          callGeneric(x = as(x, "lgTMatrix"), i=i, j=j, drop=drop))
+
+
+
 
 ### --- show() method ---
 
@@ -72,6 +96,8 @@ prSpMatrix <- function(object, zero.print = ".")
 	zero.print <- if(zero.print) "0" else " "
     ## FIXME: show only "structural" zeros as 'zero.print', not all of them..
     x[m == 0.] <- zero.print
+    if(is(object,"lsparseMatrix"))
+        x[m] <- "|"
     print(noquote(x))
     invisible(object)
 }

@@ -1,22 +1,48 @@
 \name{externalFormats}
+\docType{genericFunction}
 \alias{readHB}
 \alias{readMM}
+\alias{writeHB}
+\alias{writeMM}
+\alias{writeHB,dgCMatrix-method}
+\alias{writeHB,dgTMatrix-method}
+\alias{writeHB,dsCMatrix-method}
+\alias{writeHB,dsTMatrix-method}
+\alias{writeMM,dgCMatrix-method}
+\alias{writeMM,dgTMatrix-method}
+\alias{writeMM,dsCMatrix-method}
+\alias{writeMM,dsTMatrix-method}
 \title{Read and write external matrix formats}
 \description{
-    Read matrices stored in the Harwell-Boeing or MatrixMarket formats.
+    Read matrices stored in the Harwell-Boeing or MatrixMarket formats
+    or write sparseMatrix objects to one of these formats.
 }
 \usage{
-readHB(filename)
-readMM(filename)
+readHB(file)
+readMM(file)
+writeHB(obj, file, ...)
+writeMM(obj, file, ...)
 }
 \arguments{
-  \item{filename}{the name of the file to read, as a character scalar.
-    The names of files storing matrices in the Harwell-Boeing format
-    usually end in \code{".rua"} or \code{".rsa"}.  Those storing
-    matrices in the MatrixMarket format usually end in {".mtx"}.}
+ \item{obj}{a real sparse matrix}
+ \item{file}{for \code{writeHB} and \code{writeMM} - the name of the
+   file to be written.  For \code{readHB} and \code{readMM}
+   the name of the file to read, as a character scalar.
+   The names of files storing matrices in the Harwell-Boeing format
+   usually end in \code{".rua"} or \code{".rsa"}.  Those storing
+   matrices in the MatrixMarket format usually end in {".mtx"}.
+
+   Alternatively, \code{readHB} accepts a connection object.}
+ \item{\dots}{optional additional arguments. Currently none are used in
+   any methods.}
 }
 \value{
-  An object that inherits from the \code{"Matrix"} class.
+  The \code{readHB} and \code{readMM} functions return an object that
+  inherits from the \code{"Matrix"} class.  Methods for the
+  \code{writeHB} and \code{writeMM} generic functions usually return
+  \code{NULL} and, as a side effect, the matrix \code{obj} is written to
+  \code{file} in the Harwell-Boeing format (writeHB)
+  or the MatrixMarket format (writeMM).
 }
 \references{
   \url{http://math.nist.gov/MatrixMarket}
@@ -32,7 +58,18 @@ str(lundA <- readMM(system.file("external/lund_a.mtx",
                                 package = "Matrix")))
 str(lundA <- readHB(system.file("external/lund_a.rsa",
                                 package = "Matrix")))
+\dontrun{
+## NOTE: The following examples take quite some time
+## ----  even on a fast internet connection:
+str(sm <-
+ readHB(gzcon(url("http://www.cise.ufl.edu/research/sparse/HBformat/Boeing/msc00726.rsa.gz"))))
+str(jgl009 <-
+ readMM(gzcon(url("ftp://math.nist.gov/pub/MatrixMarket2/Harwell-Boeing/counterx/jgl009.mtx.gz"))))
+}
+writeHB(mm, "mmHB.rua")
+writeMM(mm, "mmMM.mtx")
 }
 \keyword{IO}
+\keyword{array}
 \keyword{algebra}
 

@@ -3,6 +3,7 @@
 \alias{Matrix-class}
 \alias{\%*\%,Matrix,numeric-method}
 \alias{\%*\%,numeric,Matrix-method}
+% "[" are in ./Xtrct-methods.Rd
 \alias{crossprod,Matrix,numeric-method}
 \alias{crossprod,numeric,Matrix-method}
 \alias{solve,Matrix,numeric-method}

@@ -31,11 +31,12 @@ static R_CallMethodDef CallEntries[] = {
     {"pBunchKaufman_validate", (DL_FUNC) &pBunchKaufman_validate, 1},
     {"Cholesky_validate", (DL_FUNC) &Cholesky_validate, 1},
     {"pCholesky_validate", (DL_FUNC) &pCholesky_validate, 1},
+    {"graphNEL_as_dgTMatrix", (DL_FUNC) &graphNEL_as_dgTMatrix, 1},
     {"LU_expand", (DL_FUNC) &LU_expand, 1},
     {"LU_validate", (DL_FUNC) &LU_validate, 1},
     {"Matrix_expand_pointers", (DL_FUNC) &Matrix_expand_pointers, 1},
-    {"Matrix_readHarwellBoeing", (DL_FUNC) &Matrix_readHarwellBoeing, 1},
-    {"Matrix_readMatrixMarket", (DL_FUNC) &Matrix_readMatrixMarket, 1},
+/*     {"Matrix_readHarwellBoeing", (DL_FUNC) &Matrix_readHarwellBoeing, 1}, */
+/*     {"Matrix_readMatrixMarket", (DL_FUNC) &Matrix_readMatrixMarket, 1}, */
     {"Matrix_rWishart", (DL_FUNC) &Matrix_rWishart, 3},
     {"Matrix_writeHarwellBoeing", (DL_FUNC) &Matrix_writeHarwellBoeing, 3},
     {"Matrix_writeMatrixMarket", (DL_FUNC) &Matrix_writeMatrixMarket, 3},
@@ -147,6 +148,7 @@ static R_CallMethodDef CallEntries[] = {
     {"lCholCMatrix_solve", (DL_FUNC) &lCholCMatrix_solve, 1},
     {"lCholCMatrix_lgCMatrix_solve", (DL_FUNC) &lCholCMatrix_lgCMatrix_solve, 2},
     {"lCholCMatrix_validate", (DL_FUNC) &lCholCMatrix_validate, 1},
+    {"lcsc_to_matrix", (DL_FUNC) &lcsc_to_matrix, 1},
     {"lgCMatrix_crossprod", (DL_FUNC) &lgCMatrix_crossprod, 3},
     {"lgCMatrix_lgCMatrix_mm", (DL_FUNC) &lgCMatrix_lgCMatrix_mm, 2},
     {"lgCMatrix_picky_column", (DL_FUNC) &lgCMatrix_picky_column, 1},
@@ -192,7 +194,7 @@ static R_CallMethodDef CallEntries[] = {
 void R_init_Matrix(DllInfo *dll)
 {
     R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
-    R_useDynamicSymbols(dll, FALSE); 
+    R_useDynamicSymbols(dll, FALSE);
     Matrix_DIsqrtSym = install("DIsqrt");
     Matrix_DSym = install("D");
     Matrix_DimSym = install("Dim");

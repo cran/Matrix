@@ -2,6 +2,7 @@
 #include "iohb.h"
 #include "mmio.h"
 
+#if 0
 SEXP Matrix_readHarwellBoeing(SEXP filename)
 {
     char *fnm = CHAR(asChar(filename)), *Type = Calloc(4, char);
@@ -40,7 +41,7 @@ SEXP Matrix_readHarwellBoeing(SEXP filename)
 
 SEXP Matrix_readMatrixMarket(SEXP filename)
 {
-    FILE *conn; 
+    FILE *conn = (FILE *) NULL; /* -Wall */
     MM_typecode code;
     int *dims, M, N, i, nz;
     SEXP ans = R_NilValue;
@@ -128,13 +129,15 @@ SEXP Matrix_readMatrixMarket(SEXP filename)
     UNPROTECT(1);
     return ans;
 }
+#endif 
 
 SEXP Matrix_writeHarwellBoeing(SEXP obj, SEXP file, SEXP typep)
 {
     char *type = CHAR(asChar(typep)), Type[4] = "RUA";
-    int *dims = INTEGER(GET_SLOT(obj, Matrix_DimSym)), *ii, *pp;
-    int M = dims[0], N = dims[1], nz;
-    double *xx;
+    int *dims = INTEGER(GET_SLOT(obj, Matrix_DimSym)),
+	*ii = (int *) NULL, *pp = (int *) NULL;
+    int M = dims[0], N = dims[1], nz = -1;
+    double *xx = (double *) NULL;
 
     if (type[2] == 'C' || type[2] == 'T') {
 	SEXP islot = GET_SLOT(obj, Matrix_iSym);
@@ -179,11 +182,11 @@ SEXP Matrix_writeHarwellBoeing(SEXP obj, SEXP file, SEXP typep)
 SEXP Matrix_writeMatrixMarket(SEXP obj, SEXP file, SEXP typep)
 {
     char *type = CHAR(asChar(typep));
-    int *dims = INTEGER(GET_SLOT(obj, Matrix_DimSym)), *ii,
-	*jj = (int *) NULL;
-    int M = dims[0], N = dims[1], nz;
+    int *dims = INTEGER(GET_SLOT(obj, Matrix_DimSym)),
+	*ii = (int *) NULL, *jj = (int *) NULL;
+    int M = dims[0], N = dims[1], nz = -1;
     MM_typecode matcode;
-    double *xx;
+    double *xx = (double *) NULL;
 
     mm_set_matrix(&matcode);
     if (type[2] == 'C' || type[2] == 'T') {

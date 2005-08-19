@@ -39,10 +39,10 @@ setMethod("solve", signature(a = "ddenseMatrix", b = "ANY"),
 setMethod("lu", signature(x = "ddenseMatrix"),
           function(x, ...) callGeneric(as(x, "dgeMatrix")))
 
-setMethod("determinant", signature(x = "dgeMatrix", logarithm = "missing"),
+setMethod("determinant", signature(x = "ddenseMatrix", logarithm = "missing"),
           function(x, logarithm, ...) callGeneric(as(x, "dgeMatrix")))
 
-setMethod("determinant", signature(x = "dgeMatrix", logarithm = "logical"),
+setMethod("determinant", signature(x = "ddenseMatrix", logarithm = "logical"),
           function(x, logarithm, ...)
           callGeneric(as(x, "dgeMatrix"), logarithm))
 

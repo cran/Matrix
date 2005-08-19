@@ -1,7 +1,7 @@
 - Report the problem in the Linux ldexp manual page.  The second and
   third calls in the Synopsis should be to ldexpf and ldexpl.
 
-- [,] indexing
+- [,] indexing: for sparse "works", but not yet for negative indices!
 
 - group generics: "Arith" (partly done),
   but also "Compare", "Math" etc;

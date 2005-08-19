@@ -16,6 +16,15 @@ setAs("pMatrix", "matrix",
 	  r
       })
 
+## coerce to 0/1 sparse matrix, i.e. sparse logical :
+setAs("pMatrix", "lgTMatrix",
+      function(from) {
+	  fp <- from@perm
+          d <- from@Dim
+	  new("lgTMatrix", i = seq(length = d[1]) - 1:1, j = from@perm - 1:1,
+              Dim = d, Dimnames = from@Dimnames)
+      })
+
 setMethod("solve", signature(a = "pMatrix", b = "missing"),
           function(a, b) {
               bp <- ap <- a@perm
@@ -42,7 +51,7 @@ setMethod("%*%", signature(x = "pMatrix", y = "pMatrix"),
               x
           })
 
-## the following methods can be rewritten when "[" methods for
+## FIXME: the following methods can be rewritten when "[" methods for
 ## dgeMatrix are available
 
 setMethod("%*%", signature(x = "dgeMatrix", y = "pMatrix"),

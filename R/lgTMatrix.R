@@ -5,6 +5,9 @@
 setAs("lgTMatrix", "lgCMatrix",
       function(from) .Call("lgTMatrix_as_lgCMatrix", from))
 
+setAs("lgTMatrix", "matrix",
+      function(from) as(as(from, "lgCMatrix"), "matrix"))
+
 setMethod("t", signature(x = "lgTMatrix"),
           function(x) new("lgTMatrix", i = from@j, j = from@i,
                           Dim = from@Dim[c(2,1)],

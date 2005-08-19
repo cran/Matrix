@@ -2094,25 +2094,6 @@ eval_check(SEXP fcn, SEXP rho, SEXPTYPE mode, int len) {
     return v;
 }
 
-/** 
- * Return the element of a given name from a named list
- * 
- * @param list 
- * @param nm name of desired element
- * 
- * @return element of list with name nm
- */
-static SEXP
-getElement(SEXP list, char *nm) {
-    SEXP names = getAttrib(list, R_NamesSymbol);
-    int i;
-
-    for (i = 0; i < LENGTH(list); i++)
-	if (!strcmp(CHAR(STRING_ELT(names, i)), nm))
-	    return(VECTOR_ELT(list, i));
-    return R_NilValue;
-}
-
 typedef struct glmer_struct
 {
     SEXP cv;         /* control values */
@@ -2166,10 +2147,10 @@ SEXP glmer_init(SEXP rho) {
     GS->mer = find_and_check(rho, install("mer"), VECSXP, 0);
     GS->nf = LENGTH(GET_SLOT(GS->mer, Matrix_flistSym));
     GS->cv = find_and_check(rho, install("cv"), VECSXP, 0);
-    GS->niterEM = asInteger(getElement(GS->cv, "niterEM"));
-    GS->EMverbose = asLogical(getElement(GS->cv, "EMverbose"));
-    GS->tol = asReal(getElement(GS->cv, "tolerance"));
-    GS->maxiter = asInteger(getElement(GS->cv, "maxIter"));
+    GS->niterEM = asInteger(Matrix_getElement(GS->cv, "niterEM"));
+    GS->EMverbose = asLogical(Matrix_getElement(GS->cv, "EMverbose"));
+    GS->tol = asReal(Matrix_getElement(GS->cv, "tolerance"));
+    GS->maxiter = asInteger(Matrix_getElement(GS->cv, "maxIter"));
 
     GS->mu = find_and_check(rho, install("mu"), REALSXP, GS->n);
     GS->offset = find_and_check(rho, install("offset"),
@@ -2701,7 +2682,7 @@ internal_glmer_ranef_update(GlmerStruct GS, SEXP b)
 		   dims[0] * dims[1]);
 	}
     
-    if (asLogical(getElement(GS->cv, "msVerbose"))) {
+    if (asLogical(Matrix_getElement(GS->cv, "msVerbose"))) {
 	double *b0 = REAL(VECTOR_ELT(bprop, 0));
 	Rprintf("%5.3f:", exp(-0.5 * devr));
 	for (k = 0; k < 5; k++) Rprintf("%#10g ", b0[j]);
@@ -2906,7 +2887,7 @@ internal_glmer_fixef_update(GlmerStruct GS, SEXP b,
     devr += fixed_effects_deviance(GS, ans);
     crit = exp(-0.5 * devr);	/* acceptance probability */
     tmp = unif_rand();
-    if (asLogical(getElement(GS->cv, "msVerbose"))) {
+    if (asLogical(Matrix_getElement(GS->cv, "msVerbose"))) {
 	Rprintf("%5.3f: ", crit);
 	for (j = 0; j < GS->p; j++) Rprintf("%#10g ", ans[j]);
 	Rprintf("\n");

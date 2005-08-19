@@ -5,6 +5,8 @@ corrmatrix-class        Class "corrmatrix"
 dCholCMatrix-class      Cholesky Decompositions of dsCMatrix Objects
 ddenseMatrix-class      Virtual Class "ddenseMatrix" of Numeric Dense
                         Matrices
+denseMatrix-class       Virtual Class "denseMatrix" of All Dense
+                        Matrices
 dgBCMatrix-class        Class "dgBCMatrix" Real Sparse Blocked Column
                         Compressed Matrix
 dgCMatrix-class         Compressed, sparse, column-oriented numeric
@@ -19,15 +21,20 @@ dpoMatrix-class         Positive semi-definite, dense, numeric
 dsCMatrix-class         Symmetric, compressed, sparse column matrices
 dsparseMatrix-class     Virtual Class "dsparseMatrix" of Numeric
                         Sparse Matrices
+dsRMatrix-class         Symmetric Sparse Compressed Row Matrices
 dsyMatrix-class         Symmetric, dense matrices
 dtCMatrix-class         Triangular, compressed, sparse column matrices
 dtpMatrix-class         Packed triangular dense matrices
 dtrMatrix-class         Triangular, dense, numeric matrices
+dtRMatrix-class         Triangular Sparse Compressed Row Matrices
 expand                  Expand a Decomposition into Factors
 expm                    Matrix exponential
 facmul                  Multiplication by Decomposition Factors
 fixef                   Extract Fixed Effects
+gTMatrix-class          Class "gTMatrix" of General Sparse Matrices in
+                        Triplet Form
 Hilbert                 Generate a Hilbert matrix
+ldenseMatrix-class      Virtual Classes Not Yet Used
 lmer                    Fit (Generalized) Linear Mixed-Effects Models
 lmer-class              Mixed model representations
 lsparseMatrix-class     Sparse logical matrices
@@ -37,7 +44,7 @@ Matrix                  Construct a Classed Matrix
 Matrix-class            Virtual Class "Matrix" Class of Matrices
 mcmcsamp                Generate and MCMC sample
 [-methods               Methods for "[": Extraction or Subsetting in
-                        Package 'Matrix'.
+                        Package 'Matrix'
 mm                      A sample sparse model matrix
 norm                    Norm of a Matrix
 pdmatrix-class          Positive-definite matrices
@@ -53,5 +60,4 @@ tcrossprod              Cross-product of transpose
 unpack                  Full Storage Representation of Packed Matrices
 VarCorr                 Extract variance and correlation components
 VarCorr-class           Class "VarCorr"
-writeHB                 Write Harwell-Boeing or MatrixMarket formats
 y                       A sample response vector

@@ -6,6 +6,9 @@
 #include "triplet_to_col.h"
 
 SEXP lgCMatrix_validate(SEXP x);
+
+SEXP lcsc_to_matrix(SEXP x);
+
 SEXP Matrix_lgClgCmm(int tra, int trb, int m, int n, int k,
 		     const int ai[], const int ap[],
 		     const int bi[], const int bp[],

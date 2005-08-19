@@ -24,7 +24,7 @@ Fri Aug 15 16:29:47 EDT 1997
 */
 #include <stdio.h>
 #include <string.h>
-#include <malloc.h>
+#include <stdlib.h>
 #include <ctype.h>
 
 #include "mmio.h"
@@ -331,7 +331,7 @@ int mm_read_mtx_crd(char *fname, int *M, int *N, int *nz, int **I, int **J,
     return 0;
 }
 
-int mm_write_banner(FILE *f, MM_typecode matcode)
+void mm_write_banner(FILE *f, MM_typecode matcode)
 {
     char *str = mm_typecode_to_str(matcode);
 

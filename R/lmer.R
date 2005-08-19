@@ -80,7 +80,7 @@ lmerControl <-
            msVerbose = getOption("verbose"),
            niterEM = 15,
            EMverbose = getOption("verbose"),
-           PQLmaxIt = 30,# unused _FIXME_
+           PQLmaxIt = 30,# FIXME: unused; PQL currently uses 'maxIter' instead
            analyticGradient = TRUE,
            analyticHessian = FALSE # unused _FIXME_
            )
@@ -839,9 +839,14 @@ setMethod("mcmcsamp", signature(obj = "lmer"),
       {
           if (obj@family$family == "gaussian" &&
               obj@family$link == "identity") {
+              glmer <- FALSE
               ans <- .Call("lmer_MCMCsamp", obj, saveb, nsamp, trans,
                             PACKAGE = "Matrix")
           } else {
+              glmer <- TRUE
+              if (trans)
+                  warning("trans option not currently allowed for generalized models")
+              trans <- FALSE
               ## Check arguments
               if (length(obj@Omega) > 1 || obj@nc[1] > 1)
                   stop("mcmcsamp currently defined for glmm models with only one variance component")
@@ -898,14 +903,14 @@ setMethod("mcmcsamp", signature(obj = "lmer"),
           gnms <- names(obj@flist)
           cnms <- obj@cnames
           ff <- fixef(obj)
-          colnms <- c(names(ff), "sigma^2",
+          colnms <- c(names(ff), if (glmer) character(0) else "sigma^2",
                     unlist(lapply(seq(along = gnms),
                                   function(i)
                                   abbrvNms(gnms[i],cnms[[i]]))))
           if (trans) {
               ## parameter type: 0 => fixed effect, 1 => variance,
               ##                 2 => covariance
-              ptyp <- c(integer(length(ff)), 1:1,
+              ptyp <- c(integer(length(ff)), if (glmer) integer(0) else 1:1,
                         unlist(lapply(seq(along = gnms),
                                       function(i)
                                   {

@@ -10,6 +10,8 @@
 %
 \alias{crossprod,ddenseMatrix,missing-method}
 \alias{diag,ddenseMatrix-method}
+\alias{determinant,ddenseMatrix,missing-method}
+\alias{determinant,ddenseMatrix,logical-method}
 \alias{lu,ddenseMatrix-method}
 \alias{norm,ddenseMatrix,missing-method}
 \alias{norm,ddenseMatrix,character-method}
@@ -51,6 +53,7 @@
 }
 \examples{
 showClass("ddenseMatrix")
+
+showMethods(class = "ddenseMatrix", where = "package:Matrix")
 }
 \keyword{classes}
-

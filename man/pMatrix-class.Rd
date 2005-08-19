@@ -8,6 +8,7 @@
 \alias{\%*\%,pMatrix,dgeMatrix-method}
 \alias{coerce,integer,pMatrix-method}
 \alias{coerce,pMatrix,matrix-method}
+\alias{coerce,pMatrix,lgTMatrix-method}
 \alias{solve,pMatrix,missing-method}
 \alias{t,pMatrix-method}
 \title{Permutation matrices}
@@ -41,6 +42,8 @@
       This is enables typical \code{"pmatrix"} construction, given
       a permutation vector of \code{1:n}, see the first example.}
     \item{coerce}{\code{signature(from = "pMatrix", to = "matrix")}: ... }
+    \item{coerce}{\code{signature(from = "pMatrix", to = "lgTMatrix")}:
+      coercion to sparse logical matrix of class \code{\link{lgTMatrix-class}}.}
     \item{solve}{\code{signature(a = "pMatrix", b = "missing")}: return
       the inverse permutation matrix.}
     \item{t}{\code{signature(x = "pMatrix")}: return the transpose of
@@ -59,5 +62,8 @@ stopifnot(identical(diag(3), as(pm1 \%*\% t(pm1), "matrix")))
 mm \%*\% pm1
 pm1 \%*\% mm
 try(as(as.integer(c(3,3,1)), "pMatrix"))# Error: not a permutation
+
+as(pm1, "lgTMatrix")
 }
 \keyword{classes}
+

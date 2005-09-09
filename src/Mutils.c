@@ -140,6 +140,8 @@ SEXP set_factors(SEXP obj, SEXP val, char *nm)
     return val;
 }
 
+/*MM: this is useful for all the ..CMatrix classes
+  (and ..R by [0] <-> [1]): */
 SEXP dgCMatrix_set_Dim(SEXP x, int nrow)
 {
     int *dims = INTEGER(GET_SLOT(x, Matrix_DimSym));
@@ -149,7 +151,10 @@ SEXP dgCMatrix_set_Dim(SEXP x, int nrow)
     return x;
 }
 
-/**
+
+
+/**  The following two csc_ functions are identically usable for rcs__
+ *
  * Check for unsorted columns in the row indices
  *
  * @param ncol number of columns
@@ -198,8 +203,8 @@ void csc_sort_columns(int ncol, const int p[], int i[], double x[])
 	    for (k = 0; k < cLen; k++) ord[k] = k;
 	    R_qsort_int_I(i + offset, ord, 1, cLen);
 	    if (x) {
-	      for (k = 0; k < cLen; k++) dd[k] = x[ord[k] + offset];
-	      Memcpy(x + offset, dd, cLen);
+		for (k = 0; k < cLen; k++) dd[k] = x[ord[k] + offset];
+		Memcpy(x + offset, dd, cLen);
 	    }
 	}
     }
@@ -523,13 +528,13 @@ SEXP Matrix_expand_pointers(SEXP pP)
     return ans;
 }
 
-	
-/** 
+
+/**
  * Return the element of a given name from a named list
- * 
- * @param list 
+ *
+ * @param list
  * @param nm name of desired element
- * 
+ *
  * @return element of list with name nm
  */
 SEXP

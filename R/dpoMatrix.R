@@ -3,6 +3,7 @@
 setAs("dpoMatrix", "dppMatrix",
       function(from) as(as(from, "dspMatrix"), "dppMatrix"))
 
+
 setMethod("chol", signature(x = "dpoMatrix"),
           function(x, pivot, LINPACK)
           .Call("dpoMatrix_chol", x))

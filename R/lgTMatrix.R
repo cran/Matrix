@@ -1,6 +1,7 @@
 #### Logical Sparse Matrices in triplet format
 
 ### contains = "lsparseMatrix"
+###             ============= ---> superclass methods in ./lsparseMatrix.R
 
 setAs("lgTMatrix", "lgCMatrix",
       function(from) .Call("lgTMatrix_as_lgCMatrix", from))
@@ -9,18 +10,7 @@ setAs("lgTMatrix", "matrix",
       function(from) as(as(from, "lgCMatrix"), "matrix"))
 
 setMethod("t", signature(x = "lgTMatrix"),
-          function(x) new("lgTMatrix", i = from@j, j = from@i,
-                          Dim = from@Dim[c(2,1)],
-                          DimNames=from@DimNames[c(2,1)]),
-          valueClass = "lgTMatrix")
-
-setMethod("crossprod", signature(x = "lgTMatrix", y = "missing"),
-	  function(x, y = NULL)
-          .Call("lgCMatrix_crossprod", as(x, "lgCMatrix"), TRUE, NULL),
-	  valueClass = "lsCMatrix")
-
-setMethod("tcrossprod", signature(x = "lgTMatrix"),
-	  function(x)
-          .Call("lgCMatrix_crossprod", as(x, "lgCMatrix"), FALSE, NULL),
-	  valueClass = "lsCMatrix")
-
+	  function(x) new("lgTMatrix", i = x@j, j = x@i,
+			  Dim = x@Dim[2:1],
+			  Dimnames= x@Dimnames[2:1]),
+	  valueClass = "lgTMatrix")

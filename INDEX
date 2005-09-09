@@ -16,14 +16,13 @@ dgRMatrix-class         Compressed, sparse, row-oriented numeric
                         matrices
 dgTMatrix-class         Sparse matrices in triplet form
 dMatrix-class           (Virtual) Class "dMatrix" of "double" Matrices
-dpoMatrix-class         Positive semi-definite, dense, numeric
-                        matrices
+dpoMatrix-class         Positive semi-definite, dense, numeric matrices
 dsCMatrix-class         Symmetric, compressed, sparse column matrices
-dsparseMatrix-class     Virtual Class "dsparseMatrix" of Numeric
-                        Sparse Matrices
+dsparseMatrix-class     Virtual Class "dsparseMatrix" of Numeric Sparse
+                        Matrices
 dsRMatrix-class         Symmetric Sparse Compressed Row Matrices
 dsyMatrix-class         Symmetric, dense matrices
-dtCMatrix-class         Triangular, compressed, sparse column matrices
+dtCMatrix-class         Triangular, (compressed) sparse column matrices
 dtpMatrix-class         Packed triangular dense matrices
 dtrMatrix-class         Triangular, dense, numeric matrices
 dtRMatrix-class         Triangular Sparse Compressed Row Matrices
@@ -34,6 +33,8 @@ fixef                   Extract Fixed Effects
 gTMatrix-class          Class "gTMatrix" of General Sparse Matrices in
                         Triplet Form
 Hilbert                 Generate a Hilbert matrix
+index-class             Virtual Class "index" - Simple Class for Matrix
+                        Indices
 ldenseMatrix-class      Virtual Classes Not Yet Used
 lmer                    Fit (Generalized) Linear Mixed-Effects Models
 lmer-class              Mixed model representations
@@ -42,7 +43,9 @@ lu                      Triangular Decomposition of a Square Matrix
 LU-class                LU Matrix Decompositions
 Matrix                  Construct a Classed Matrix
 Matrix-class            Virtual Class "Matrix" Class of Matrices
-mcmcsamp                Generate and MCMC sample
+mcmcsamp                Generate an MCMC sample
+[<--methods             Methods for "[<-" - Assigning to Subsets for
+                        'Matrix'
 [-methods               Methods for "[": Extraction or Subsetting in
                         Package 'Matrix'
 mm                      A sample sparse model matrix
@@ -53,10 +56,16 @@ ranef                   Extract Random Effects
 rcond                   Estimate the Reciprocal Condition Number
 readHB                  Read and write external matrix formats
 Schur                   Schur Decomposition of a Matrix
+simulate                Simulate responses from a fitted model
 sleepstudy              Reaction times in a sleep deprivation study
 sparseMatrix-class      Virtual Class "sparseMatrix" -- Mother of
                         Sparse Matrices
+symmetricMatrix-class   Virtual Class of Symmetric Matrices in
+                        package:Matrix
 tcrossprod              Cross-product of transpose
+triangularMatrix-class
+                        Virtual Class of Triangular Matrices in
+                        package:Matrix
 unpack                  Full Storage Representation of Packed Matrices
 VarCorr                 Extract variance and correlation components
 VarCorr-class           Class "VarCorr"

@@ -55,8 +55,8 @@ if (!isGeneric("writeMM"))
 setGeneric("lmer",
            function(formula, data, family,
                     method = c("REML", "ML", "PQL", "Laplace", "AGQ"),
-                    control = list(), subset, weights, na.action, offset,
-                    model = TRUE, x = FALSE, y = FALSE,
+                    control = list(), start, subset, weights, na.action,
+                    offset, model = TRUE, x = FALSE, y = FALSE,
                     ...)
            standardGeneric("lmer"))
 
@@ -113,6 +113,14 @@ if (!isGeneric("getFixDF")) {           # not exported
 }
 
 if (!isGeneric("mcmcsamp")) {
-    setGeneric("mcmcsamp", function(obj, nsamp = 1, verbose =
+    setGeneric("mcmcsamp", function(object, n = 1, verbose =
     FALSE, ...) standardGeneric("mcmcsamp"))
+}
+
+if (!exists("simulate", mode = "function")) {
+    setGeneric("simulate",
+               function(object, nsim = 1,
+                        seed = as.integer(runif(1, 0, .Machine$integer.max)),
+                        ...)
+               standardGeneric("simulate"))
 }

@@ -12,7 +12,7 @@ setAs("dMatrix", "matrix",
 
 ## Methods for operations where one argument is integer
 ## No longer made use of (and confusing hence) since R version 2.1.0
-## where "integer" goes as part ofa "numeric"
+## where "integer" goes as part of "numeric"
 
 ## Note: Use as.matrix() {not directly array()} :
 ##  1) to ensure consistency with "numeric" (non-matrix)
@@ -56,6 +56,10 @@ setMethod("Math",
 setMethod("Math2",
           signature(x = "dMatrix", digits = "numeric"),
           function(x, digits) callGeneric(as(x, "dgeMatrix"), digits = digits))
+
+## This doesn't work yet because of an R bug (2005-08-26):
+setMethod("Summary", signature(x = "dMatrix", na.rm = "ANY"),
+          function(x, ..., na.rm) callGeneric(x = x@x))
 
 ## TODO :  "Compare" -> returning  logical Matrices
 

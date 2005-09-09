@@ -27,45 +27,83 @@ setMethod("crossprod", signature(x = "sparseMatrix", y = "ddenseMatrix"),
 setMethod("crossprod", signature(x = "ddenseMatrix", y = "sparseMatrix"),
           function(x, y = NULL) callGeneric(as(x, "dgeMatrix"), y))
 
+## "graph" coercions -- this needs the graph package which is currently
+##  -----               *not* required on purpose
+## Note: 'undirected' graph <==> 'symmetric' matrix
+
 setAs("graphNEL", "sparseMatrix",
       function(from) {
-          if (from@edgemode == "undirected")
-              return(.Call("graphNEL_as_dsTMatrix", from))
-          error("directed graphs not currently allowed")
+          .Call("graphNEL_as_dgTMatrix",
+                from,
+                symmetric = (from@edgemode == "undirected"))
       })
+setAs("graph", "sparseMatrix",
+      function(from) as(as(from,"graphNEL"), "sparseMatrix"))
+
+##! if(FALSE) {##--- not yet
+
+setAs("sparseMatrix", "graph", function(from) as(from, "graphNEL"))
+setAs("sparseMatrix", "graphNEL",
+      function(from) as(as(from, "dgTMatrix"), "graphNEL"))
+setAs("dgTMatrix", "graphNEL",
+      function(from) {
+          d <- dim(from)
+          if(d[1] != d[2])
+              stop("only square matrices can be used as incidence matrices for grphs")
+          n <- d[1]
+          if(n == 0) return(new("graphNEL"))
+          if(is.null(rn <- dimnames(from)[[1]]))
+              rn <- as.character(1:n)
+          if(isSymmetric(from)) { # because it's "dsTMatrix" or otherwise
+              ## Need to 'uniquify' the triplets!
+              upper <- from@i <= from@j
+              graph::ftM2graphNEL(cbind(from@i + 1:1, from@j + 1:1),
+                                  W = from@x, V=rn, edgemode="undirected")
+
+          } else { ## not symmetric
+
+              graph::ftM2graphNEL(cbind(from@i + 1:1, from@j + 1:1),
+                                  W = from@x, V=rn, edgemode="directed")
+          }
+          stop("'dgTMatrix -> 'graphNEL' method is not yet implemented")
+          ## new("graphNEL", nodes = paste(1:n) , edgeL = ...)
+      })
+
+##! }#--not_yet
+
 
 
 ### Subsetting -- basic things (drop = "missing") are done in ./Matrix.R
 
 ## 1)  dsparse -> dgT
-setMethod("[", signature(x = "dsparseMatrix", i = "numeric", j = "missing",
+setMethod("[", signature(x = "dsparseMatrix", i = "index", j = "missing",
 			 drop = "logical"),
 	  function (x, i, j, drop)
           callGeneric(x = as(x, "dgTMatrix"), i=i, drop=drop))
 
-setMethod("[", signature(x = "dsparseMatrix", i = "missing", j = "numeric",
+setMethod("[", signature(x = "dsparseMatrix", i = "missing", j = "index",
 			 drop = "logical"),
 	  function (x, i, j, drop)
           callGeneric(x = as(x, "dgTMatrix"), j=j, drop=drop))
 
 setMethod("[", signature(x = "dsparseMatrix",
-			 i = "numeric", j = "numeric", drop = "logical"),
+			 i = "index", j = "index", drop = "logical"),
 	  function (x, i, j, drop)
           callGeneric(x = as(x, "dgTMatrix"), i=i, j=j, drop=drop))
 
 ## 2)  lsparse -> lgT
-setMethod("[", signature(x = "lsparseMatrix", i = "numeric", j = "missing",
+setMethod("[", signature(x = "lsparseMatrix", i = "index", j = "missing",
 			 drop = "logical"),
 	  function (x, i, j, drop)
           callGeneric(x = as(x, "lgTMatrix"), i=i, drop=drop))
 
-setMethod("[", signature(x = "lsparseMatrix", i = "missing", j = "numeric",
+setMethod("[", signature(x = "lsparseMatrix", i = "missing", j = "index",
 			 drop = "logical"),
 	  function (x, i, j, drop)
           callGeneric(x = as(x, "lgTMatrix"), j=j, drop=drop))
 
 setMethod("[", signature(x = "lsparseMatrix",
-			 i = "numeric", j = "numeric", drop = "logical"),
+			 i = "index", j = "index", drop = "logical"),
 	  function (x, i, j, drop)
           callGeneric(x = as(x, "lgTMatrix"), i=i, j=j, drop=drop))
 
@@ -122,3 +160,22 @@ setMethod("show", signature(object = "sparseMatrix"),
            invisible(object)
        }
    })
+
+
+## not exported:
+setMethod("isSymmetric", signature(object = "sparseMatrix"),
+	  function(object, ...) {
+	      ## pretest: is it square?
+	      d <- dim(object)
+	      if(d[1] != d[2]) return(FALSE)
+	      ## else slower test
+	      if (is(object("dMatrix")))
+		  ## use gC; "T" (triplet) is *not* unique!
+		  isTRUE(all.equal(as(object, "dgCMatrix"),
+				   as(t(object), "dgCMatrix"), ...))
+	      else if (is(object("lMatrix")))
+		  ## test for exact equality; FIXME(?): identical() too strict?
+		  identical(as(object, "lgCMatrix"),
+			    as(t(object), "lgCMatrix"))
+	      else stop("not yet implemented")
+	  })

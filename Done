@@ -41,3 +41,12 @@
   because it does not provide the permutation.
 
 - tcrossprod() now works: C code now "exported" via init.c
+
+- FIXME: dtpMatrix(... diag = "U") (i.e., unit-diagonal packed triangular)
+  -----  *does* need 'x' entries for the diagonal but these are never looked at.
+    -> changed doc -- Lapack also says they are not referenced but assumed 1.
+
+
+- in lmer.c check all instances of the use of ZtX and XtX and change
+  them so that having a negative last element of nc means use the
+  response only (but look for it in the right place).

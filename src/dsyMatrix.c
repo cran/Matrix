@@ -1,15 +1,21 @@
 #include "dsyMatrix.h"
 
-SEXP dsyMatrix_validate(SEXP obj)
+SEXP symmetricMatrix_validate(SEXP obj)
 {
-    SEXP val;
-    int *Dim = INTEGER(GET_SLOT(obj, Matrix_DimSym));
-
+    SEXP val = GET_SLOT(obj, Matrix_DimSym);
+    if (LENGTH(val) < 2)
+	return mkString(_("'Dim' slot has length less than two"));
+    if (INTEGER(val)[0] != INTEGER(val)[1])
+        return mkString(_("Matrix is not square"));
     if (isString(val = check_scalar_string(GET_SLOT(obj, Matrix_uploSym),
 					   "LU", "uplo"))) return val;
-    if (Dim[0] != Dim[1])
-	return mkString(_("Symmetric matrix must be square"));
     return ScalarLogical(1);
+}
+
+SEXP dsyMatrix_validate(SEXP obj)
+{
+    return symmetricMatrix_validate(obj);
+    /* see ./dspMatrix.c  for how to do further checks */
 }
 
 double get_norm_sy(SEXP obj, char *typstr)

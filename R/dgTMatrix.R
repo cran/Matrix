@@ -10,7 +10,7 @@ setAs("dgTMatrix", "matrix",
 setAs("dgeMatrix", "dgTMatrix",
       function(from) as(as(from, "dgCMatrix"), "dgTMatrix"))
 
-## "[" methods now in
+## "[" methods are now in ./gTMatrix.R
 
 setMethod("crossprod", signature(x = "dgTMatrix", y = "missing"),
           function(x, y = NULL)
@@ -92,7 +92,7 @@ setMethod("isSymmetric", signature(object = "dgTMatrix"),
 setAs("dgTMatrix", "dsCMatrix",
       function(from) {
           if (!isSymmetric(from))
-              stop("cannot coerce non-symmetric matrix to dsCMatrix class")
+              stop("cannot coerce non-symmetric dgTMatrix to dsCMatrix class")
           upper <- from@i <= from@j
           uC <- as(new("dgTMatrix", Dim = from@Dim, i = from@i[upper],
                        j = from@j[upper], x = from@x[upper]), "dgCMatrix")
@@ -101,12 +101,12 @@ setAs("dgTMatrix", "dsCMatrix",
 
 setAs("matrix", "dgTMatrix",
       function(from) {
-          x <- as.double(from)
-          nz <- as.logical(x)
-          new("dgTMatrix", Dim = dim(from),
-              i = as.integer(row(from) - 1)[nz] ,
-              j = as.integer(col(from) - 1)[nz],
-              x = x[nz])
+	  x <- as.double(from)
+	  nz <- as.logical(x)
+	  new("dgTMatrix", Dim = dim(from),
+	      i = row(from)[nz] - 1:1,
+	      j = col(from)[nz] - 1:1,
+	      x = x[nz])
       })
 
 setMethod("kronecker", signature(X = "dgTMatrix", Y = "dgTMatrix"),

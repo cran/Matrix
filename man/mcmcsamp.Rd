@@ -2,20 +2,20 @@
 \docType{genericFunction}
 \alias{mcmcsamp}
 \alias{mcmcsamp,lmer-method}
-\title{Generate and MCMC sample}
+\title{Generate an MCMC sample}
 \description{
   This generic function generates a sample from the posterior
   distribution of the parameters of a fitted model using Markov Chain
   Monte Carlo methods.
 }
 \usage{
-mcmcsamp(obj, nsamp, verbose, \dots)
+mcmcsamp(object, n, verbose, \dots)
 }
 \arguments{
-  \item{obj}{An object of a suitable class - usually an
+  \item{object}{An object of a suitable class - usually an
     \code{\link{lmer-class}{lmer}} object. 
   }
-  \item{nsamp}{integer - number of samples to generate. Defaults to 1.}
+  \item{n}{integer - number of samples to generate. Defaults to 1.}
   \item{verbose}{logical - if \code{TRUE} verbose output is printed.
     Defaults to \code{FALSE}.}
   \item{\dots}{Some methods for this generic function may take
@@ -35,7 +35,7 @@ mcmcsamp(obj, nsamp, verbose, \dots)
 }
 \section{Methods}{
   \describe{
-    \item{obj = "lmer"}{generate MCMC samples from the posterior
+    \item{object = "lmer"}{generate MCMC samples from the posterior
       distribution of the parameters of a linear mixed model or a
       generalized linear mixed model.  The prior on the fixed effects
       parameters is taken to be locally uniform.  The prior on the
@@ -48,7 +48,7 @@ mcmcsamp(obj, nsamp, verbose, \dots)
 \examples{
 require("lattice", quietly = TRUE, character = TRUE)
 (fm1 <- lmer(Reaction ~ Days + (Days|Subject), sleepstudy))
-samp1 <- mcmcsamp(fm1, nsamp = 1000)
+samp1 <- mcmcsamp(fm1, n = 1000)
 frm <-
     data.frame(vals = c(samp1), iter = rep(1:nrow(samp1), ncol(samp1)),
     par = factor(rep(1:ncol(samp1), each = nrow(samp1)),labels = colnames(samp1)))

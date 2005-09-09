@@ -53,10 +53,6 @@ We have a (at least one) basic problem :
 - implement diagonal Matrix class  "ddiMatrix" etc
   using constructor function Diagonal() or Diag().
 
-- FIXME: dtpMatrix(... diag = "U") (i.e., unit-diagonal packed triangular)
-  -----  *does* need 'x' entries for the diagonal but these are never looked at.
-    -> change doc {or code ? - depends on what Lapack expects !}
-
 BUG: rcond() of a singular dpoMatrix gives a LaPack error instead of just 0:
   MM <- crossprod(M <- Matrix(c(1:4,9:6), 2,4)) ; rcond(MM)
   ##> Error in rcond(MM) : Lapack routine dpotrf returned error code 4
@@ -79,6 +75,6 @@ BUG: rcond() of a singular dpoMatrix gives a LaPack error instead of just 0:
 
 ---
 
-- in lmer.c check all instances of the use of ZtX and XtX and change
-  them so that having a negative last element of nc means use the
-  response only (but look for it in the right place).
+- Create a Harwell-Boeing version of the matrix mm and the response
+  vector y in inst/external and remove them from the data directory.
+  Modify any examples that use them and modify the Comparisons vignette.

@@ -2,14 +2,7 @@ library(Matrix)
 
 ### Matrix Products including  cross products
 
-## checking;  'show' is for convenience of the developer
-assert.EQ.mat <- function(M, m, tol = if(show) 0 else 1e-15, show=FALSE) {
-    ## temporary fix for R-2.0.1
-    MM <- as(M, "matrix")
-    attr(MM, "dimnames") <- attr(m, "dimnames") <- NULL
-    if(show) all.equal(MM, m, tol = tol)
-    else stopifnot(all.equal(MM, m, tol = tol))
-}
+source(system.file("test-tools.R", package = "Matrix"))
 
 m5 <- 1 + as(diag(-1:4)[-5,], "dgeMatrix")
 ## named dimnames:
@@ -46,6 +39,31 @@ try(r3 <- M %*% cbind(v1))# dispatches to old ("S3") default method!
 try(r3. <- M %*% as(v1, "matrix"))
 
 ## </FIXME>
+
+###--- "logical" Matrices : ---------------------
+
+## Robert's Example, a bit more readable
+fromTo <- rbind(c(2,10),
+                c(3, 9))
+N <- 10
+nrFT <- nrow(fromTo)
+rowi <- rep.int(1:nrFT, fromTo[,2]-fromTo[,1] + 1) - 1:1
+coli <- unlist(lapply(1:nrFT, function(x) fromTo[x,1]:fromTo[x,2])) - 1:1
+sM  <- new("lgTMatrix", i = rowi, j=coli, Dim=as.integer(c(N,N)))
+sM # nice
+
+sm <- as(sM, "matrix")
+assert.EQ.mat(sM %*% sM,        sm %*% sm)
+all.equal(as(t(sM) %*% sM, "matrix"),
+          (t(sm) %*% sm) > 0, tol=0)
+
+## is it intended that these are so different?
+crossprod(sM)
+t(sM) %*% sM
+
+## These two are *not* TRUE !
+## assert.EQ.mat(crossprod(sM),    crossprod(sm))
+## assert.EQ.mat(tcrossprod(sM),   tcrossprod(sm))
 
 
 proc.time() # for ``statistical reasons''

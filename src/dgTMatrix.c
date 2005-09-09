@@ -105,14 +105,17 @@ SEXP dgTMatrix_to_matrix(SEXP x)
     return ans;
 }
 
-SEXP graphNEL_as_dgTMatrix(SEXP x)
+SEXP graphNEL_as_dgTMatrix(SEXP x, SEXP symmetric)
 {
+    int sym = asLogical(symmetric);
     SEXP nodes = GET_SLOT(x, install("nodes")),
 	edgeL = GET_SLOT(x, install("edgeL")),
-	ans = PROTECT(NEW_OBJECT(MAKE_CLASS("dsTMatrix")));
+	ans = PROTECT(NEW_OBJECT(MAKE_CLASS(sym
+					    ? "dsTMatrix"
+					    : "dgTMatrix")));
     int *ii, *jj, *dims, i, j, nnd = LENGTH(nodes), pos, totl;
     double *xx;
-    
+
     totl = 0;
     for (i = 0; i < nnd; i++)
 	totl += LENGTH(Matrix_getElement(VECTOR_ELT(edgeL, i), "edges"));
@@ -123,23 +126,35 @@ SEXP graphNEL_as_dgTMatrix(SEXP x)
 	SET_VECTOR_ELT(dnms, 0, duplicate(nodes));
 	SET_VECTOR_ELT(dnms, 1, duplicate(nodes));
     }
-    ii = INTEGER(ALLOC_SLOT(ans, Matrix_iSym, INTSXP, totl));
-    jj = INTEGER(ALLOC_SLOT(ans, Matrix_jSym, INTSXP, totl));
-    xx = REAL(ALLOC_SLOT(ans, Matrix_xSym, REALSXP, totl));
+    ii = Calloc(totl, int);
+    jj = Calloc(totl, int);
+    xx = Calloc(totl, double);
     pos = 0;
     for (i = 0; i < nnd; i++) {
 	SEXP edg = VECTOR_ELT(edgeL, i);
 	SEXP edges = Matrix_getElement(edg, "edges"),
 	    weights = Matrix_getElement(edg, "weights");
-	int *edgs = INTEGER(edges), nedg = LENGTH(edges);
+	int *edgs = INTEGER(PROTECT(coerceVector(edges, INTSXP))),
+	    nedg = LENGTH(edges);
 	double *wts = REAL(weights);
-	
+
 	for (j = 0; j < nedg; j++) {
-	    ii[pos] = i;
-	    jj[pos] = edgs[j] - 1;
-	    xx[pos] = wts[j];
+	    int j1 = edgs[j] - 1;
+			/* symmetric case stores upper triangle only */
+	    if ((!sym) || i <= j1) {
+		ii[pos] = i;
+		jj[pos] = j1;
+		xx[pos] = wts[j];
+		pos++;
+	    }
 	}
+	UNPROTECT(1);
     }
+    Memcpy(INTEGER(ALLOC_SLOT(ans, Matrix_iSym, INTSXP, pos)), ii, pos);
+    Memcpy(INTEGER(ALLOC_SLOT(ans, Matrix_jSym, INTSXP, pos)), jj, pos);
+    Memcpy(REAL(ALLOC_SLOT(ans, Matrix_xSym, REALSXP, pos)), xx, pos);
+
+    Free(ii); Free(jj); Free(xx);
     UNPROTECT(1);
     return ans;
 }

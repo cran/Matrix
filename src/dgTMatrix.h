@@ -8,6 +8,6 @@ SEXP dgTMatrix_validate(SEXP x);
 SEXP dgTMatrix_to_dgCMatrix(SEXP x);
 SEXP dgTMatrix_to_dgeMatrix(SEXP x);
 SEXP dgTMatrix_to_matrix(SEXP x);
-SEXP graphNEL_as_dgTMatrix(SEXP x);
+SEXP graphNEL_as_dgTMatrix(SEXP x, SEXP symmetric);
 
 #endif

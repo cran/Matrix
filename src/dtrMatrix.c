@@ -2,16 +2,13 @@
 
 #include "dtrMatrix.h"
 
-/* FIXME: Validation works "funny": dtrMatrix_as_dgeMatrix()  {below}
- * -----  is called *before* the following - presumably in order to
- *        apply the higher level validation first
-*/
-SEXP dtrMatrix_validate(SEXP obj)
+SEXP triangularMatrix_validate(SEXP obj)
 {
-    SEXP val;
-    int *Dims = INTEGER(GET_SLOT(obj, Matrix_DimSym));
+    SEXP val = GET_SLOT(obj, Matrix_DimSym);
 
-    if (Dims[0] != Dims[1])
+    if (LENGTH(val) < 2)
+	return mkString(_("'Dim' slot has length less than two"));
+    if (INTEGER(val)[0] != INTEGER(val)[1])
         return mkString(_("Matrix is not square"));
     if (isString(val = check_scalar_string(GET_SLOT(obj, Matrix_uploSym),
 					   "LU", "uplo"))) return val;
@@ -19,6 +16,16 @@ SEXP dtrMatrix_validate(SEXP obj)
 					   "NU", "diag"))) return val;
     return ScalarLogical(1);
 }
+
+/* FIXME: validObject(.) works "funny": dtrMatrix_as_dgeMatrix()  {below}
+ * -----  is called *before* the following - presumably in order to
+ *        apply the higher level validation first.
+*/
+SEXP dtrMatrix_validate(SEXP obj)
+{
+    return triangularMatrix_validate(obj);
+}
+
 
 static
 double get_norm(SEXP obj, char *typstr)

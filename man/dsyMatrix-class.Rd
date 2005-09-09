@@ -34,12 +34,14 @@
 \alias{t,dsyMatrix-method}
 \alias{unpack,dspMatrix-method}
 \title{Symmetric, dense matrices}
-\description{The \code{"dsyMatrix"} class is the class of symmetric, dense
-  matrices in non-packed storage and \code{"dsyMatrix"} is the class of
-  symmetric dense matrices in packed storage.  Only the upper triangle or the lower
-  triangle is stored.}
+\description{
+  The \code{"dsyMatrix"} class is the class of symmetric, dense matrices
+  in non-packed storage and \code{"dspMatrix"} is the class of symmetric
+  dense matrices in packed storage.  Only the upper triangle or the
+  lower triangle is stored.
+}
 \section{Objects from the Class}{
-Objects can be created by calls of the form \code{new("dsyMatrix", ...)}.
+  Objects can be created by calls of the form \code{new("dsyMatrix", ...)}.
 }
 \section{Slots}{
   \describe{
@@ -47,9 +49,9 @@ Objects can be created by calls of the form \code{new("dsyMatrix", ...)}.
       either "U", for upper triangular, and "L", for lower triangular.}
     \item{\code{x}:}{Object of class \code{"numeric"}. The numeric
       values that constitute the matrix, stored in column-major order.}
-    \item{\code{Dim}:}{Object of class \code{"integer"}. The dimensions
-      of the matrix which must be a two-element vector of non-negative
-      integers.}
+    \item{\code{Dim},\code{Dimnames}:}{The dimension (a length-2
+      \code{"integer"}) and corresponding names (or \code{NULL}), see the
+      \code{\link{Matrix-class}}.}
     \item{\code{rcond}:}{Object of class \code{"numeric"}. A named
       numeric vector of reciprocal condition numbers in either the
       1-norm \code{"O"} or the infinity norm \code{"I"}.}
@@ -59,7 +61,8 @@ Objects can be created by calls of the form \code{new("dsyMatrix", ...)}.
 }
 \section{Extends}{
 Class \code{"dgeMatrix"}, directly.
-Class \code{"Matrix"}, by class \code{"dgeMatrix"}.
+Class \code{"symmetricMatrix"}, directly.
+Class \code{"Matrix"} and others, by class \code{"dgeMatrix"}.
 }
 \section{Methods}{
   \describe{

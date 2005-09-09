@@ -2,14 +2,15 @@
 
 SEXP dspMatrix_validate(SEXP obj)
 {
-    SEXP val;
-    int *Dim = INTEGER(GET_SLOT(obj, Matrix_DimSym));
-
-    if (isString(val = check_scalar_string(GET_SLOT(obj, Matrix_uploSym),
-					   "LU", "uplo"))) return val;
-    if (Dim[0] != Dim[1])
-	return mkString(_("Symmetric matrix must be square"));
-    return ScalarLogical(1);
+    SEXP val = symmetricMatrix_validate(obj);
+    if(isString(val))
+	return(val);
+    else { /* identical to the test in dtpMatrix_validate() : */
+	int *dims = INTEGER(GET_SLOT(obj, Matrix_DimSym));
+	if (dims[0] != packed_ncol(length(GET_SLOT(obj, Matrix_xSym))))
+	    return(mkString(_("Incorrect length of 'x' slot")));
+	return ScalarLogical(1);
+    }
 }
 
 double get_norm_sp(SEXP obj, char *typstr)

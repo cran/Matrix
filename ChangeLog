@@ -1,3 +1,41 @@
+2005-09-08  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* inst/test-tools.R: new file collecting the utility functions used
+		in ./tests/*.R
+
+	* R/ddenseMatrix.R (cbind2): new methods for "numeric" and "matrix"
+	* R/Matrix.R (cbind2): methods for NULL and missing
+
+2005-08-31  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/AllClass.R: new "index" class for "[" and "[<-":
+		First cut at "symmetricMatrix" and "triangularMatrix"
+	* R/gTMatrix.R (.ind.prep): new function;
+	        Logical and character indexing now work too.
+	* R/Matrix.R: cheap "[<-" methods for denseMatrix now work
+	* tests/indexing.R: new, including *.Rout.save
+	* tests/dgTMatrix.R: new
+
+2005-08-29  Douglas Bates  <bates@wisc.edu>
+
+	* src/dgTMatrix.c (graphNEL_as_dgTMatrix): Corrected the position
+	indicator pos not being updated.  Also enforced upper triangular
+	for symmetric case.  Need to coerce edges component of elements of
+	edge list - grr! (Why don't they define their classes cleanly?)
+
+2005-08-26  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Matrix.R:  added first "[<-" methods; not yet functional
+	* R/denseMatrix.R: dito
+	* man/Subassign-methods.Rd: new help file for these
+
+2005-08-25  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.98-6
+
+	* R/denseMatrix.R: new file for "[" fallback methods for all dense
+	matrices.
+
 2005-08-19  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* src/lgCMatrix.c (lcsc_to_matrix): new; need for
@@ -10,6 +48,12 @@
 	* General slight re-organization of where "[" methods are defined.
 	  more to come.
 
+2005-08-18  Douglas Bates  <bates@wisc.edu>
+
+	* DESCRIPTION (Version): 0.98-5  released to CRAN
+
+	* src/dgTMatrix.c (graphNEL_as_dgTMatrix): add first graphNEL methods
+	* .....
 
 2005-08-18  Douglas Bates  <bates@localhost.localdomain>
 

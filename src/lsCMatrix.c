@@ -1,31 +1,39 @@
 #include "lsCMatrix.h"
 
-/** 
+/**
  * Check the validity of the slots of an lsCMatrix object
- * 
+ *
  * @param x Pointer to an lsCMatrix object
- * 
+ *
  * @return an SEXP that is either TRUE or a character string
  * describing the way in which the object failed the validity check
  */
 SEXP lsCMatrix_validate(SEXP x)
 {
-    SEXP val = check_scalar_string(GET_SLOT(x, Matrix_uploSym),
-				   "LU", "uplo");
-    int *Dim = INTEGER(GET_SLOT(x, Matrix_DimSym));
+    SEXP val = symmetricMatrix_validate(x);
+    if(isString(val))
+	return(val);
+    else {
+	/* FIXME needed? ltC* inherits from lgC* which does this in validate*/
+	SEXP pslot = GET_SLOT(x, Matrix_pSym),
+	    islot = GET_SLOT(x, Matrix_iSym);
+	int
+	    ncol = length(pslot) - 1,
+	    *xp = INTEGER(pslot),
+	    *xi = INTEGER(islot);
 
-    if (isString(val)) return val;
-    if (Dim[0] != Dim[1])
-	return mkString(_("Symmetric matrix must be square"));
-    csc_check_column_sorting(x);
-    return ScalarLogical(1);
+	if (csc_unsorted_columns(ncol, xp, xi))
+	    csc_sort_columns(ncol, xp, xi, (double *) NULL);
+
+	return ScalarLogical(1);
+    }
 }
 
-/** 
+/**
  * Transpose an lsCMatrix
- * 
+ *
  * @param x Pointer to an lsCMatrix object
- * 
+ *
  * @return the transpose of x.  It represents the same matrix but is
  * stored in the opposite triangle.
  */
@@ -54,6 +62,15 @@ SEXP lsCMatrix_trans(SEXP x)
     return ans;
 }
 
+/**
+ * Create the symbolic Cholesky decomposition of an lsCMatrix object
+ *
+ * @param x Pointer to an lsCMatrix object
+ * @param pivot Pointer to a scalar logical indicating if a
+ * fill-reducing permutation should be determined
+ *
+ * @return an lCholCMatrix object
+ */
 SEXP lsCMatrix_chol(SEXP x, SEXP pivot)
 {
     int piv = asLogical(pivot);

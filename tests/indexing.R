@@ -2,12 +2,47 @@
 
 library(Matrix)
 
-identical3 <- function(x,y,z)	identical(x,y) && identical (y,z)
-identical4 <- function(a,b,c,d) identical(a,b) && identical3(b,c,d)
+source(system.file("test-tools.R", package = "Matrix"))# identical3() etc
+
+### Dense Matrices
 
 m <- Matrix(1:28, nrow = 7)
+validObject(m) ; m@x <- as.double(m@x) ; validObject(m)
+stopifnot(identical(m, m[]),
+          identical(m[2, 3],  16), # simple number
+          identical(m[2, 3:4], c(16,23))) # simple numeric of length 2
 
-## TODO: not yet for dense matrices
+m[2, 3:4, drop=FALSE] # sub matrix of class 'dgeMatrix'
+m[-(4:7), 3:4]        # dito; the upper right corner of 'm'
+
+## rows or columns only:
+m[1,]     # first row, as simple numeric vector
+m[,2]     # 2nd column
+m[,1:2]   # sub matrix of first two columns
+m[-(1:6),, drop=FALSE] # not the first 6 rows, i.e. only the 7th
+
+## logical indexing
+stopifnot(identical(m[2,3], m[(1:nrow(m)) == 2, (1:ncol(m)) == 3]),
+          identical(m[2,], m[(1:nrow(m)) == 2, ]),
+          identical(m[,3:4], m[, (1:4) >= 3]))
+
+## dimnames indexing:
+mn <- m
+dimnames(mn) <- list(paste("r",letters[1:nrow(mn)],sep=""),
+                     LETTERS[1:ncol(mn)])
+mn["rd", "D"]
+stopifnot(identical(mn["rc", "D"], mn[3,4]),
+          identical(mn[, "A"], mn[,1]),
+          identical(mn[c("re", "rb"), "B"], mn[c(5,2), 2])
+          )
+
+mo <- m
+m[2,3] <- 100
+m[1:2, 4] <- 200
+m[, 1] <- -1
+m[1:3,]
+
+## TODO: more --- particularly once we have "m > 10" working!
 
 
 ### Sparse Matrices
@@ -37,4 +72,6 @@ stopifnot(identical3(mm[,1], mC[,1], mT[,1]),
 	  identical3(as(mC[c(3,7), 2:4],"matrix"), mm[c(3,7), 2:4],
 		     as(mT[c(3,7), 2:4],"matrix")))
 
-
+## At least these now give a nicely understandable error:
+try(mT[1, 4] <- -99)
+try(mT[2:3, ] <- 0)

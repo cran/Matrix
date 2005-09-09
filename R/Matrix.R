@@ -40,6 +40,13 @@ setMethod("show", signature(object = "Matrix"), prMatrix)
 ## should propagate to all subclasses:
 setMethod("as.matrix", signature(x = "Matrix"), function(x) as(x, "matrix"))
 
+## Note that isSymmetric is *not* exported
+setMethod("isSymmetric", signature(object = "symmetricMatrix"),
+          function(object) TRUE)
+setMethod("isSymmetric", signature(object = "triangularMatrix"),
+          ## FIXME: 'TRUE' if *diagonal*, i.e. return(isDiagonal(object))
+          function(object) FALSE)
+
 setMethod("dim", signature(x = "Matrix"),
 	  function(x) x@Dim, valueClass = "integer")
 setMethod("dimnames", signature(x = "Matrix"), function(x) x@Dimnames)
@@ -97,43 +104,86 @@ setMethod("crossprod", signature(x = "numeric", y = "Matrix"),
 setMethod("solve", signature(a = "Matrix", b = "numeric"),
 	  function(a, b, ...) callGeneric(a, as.matrix(b)))
 
-## Subsetting : The "missing" cases can be dealt with here, "at the top":
+### --------------------------------------------------------------------------
+###
+### Subsetting "["  and
+### SubAssign  "[<-" : The "missing" cases can be dealt with here, "at the top":
+
+## Using "index" for indices should allow
+## integer (numeric), logical, or character (names!) indices :
 
 ## "x[]":
 setMethod("[", signature(x = "Matrix",
 			 i = "missing", j = "missing", drop = "ANY"),
 	  function (x, i, j, drop) x)
-
 ## missing 'drop' --> 'drop = TRUE'
 ##                     -----------
 ## select rows
-setMethod("[", signature(x = "Matrix", i = "numeric", j = "missing",
+setMethod("[", signature(x = "Matrix", i = "index", j = "missing",
 			 drop = "missing"),
 	  function(x,i,j, drop) callGeneric(x, i=i, drop= TRUE))
 ## select columns
-setMethod("[", signature(x = "Matrix", i = "missing", j = "numeric",
+setMethod("[", signature(x = "Matrix", i = "missing", j = "index",
 			 drop = "missing"),
 	  function(x,i,j, drop) callGeneric(x, j=j, drop= TRUE))
-setMethod("[", signature(x = "Matrix", i = "numeric", j = "numeric",
+setMethod("[", signature(x = "Matrix", i = "index", j = "index",
                          drop = "missing"),
 	  function(x,i,j, drop) callGeneric(x, i=i, j=j, drop= TRUE))
 
+## bail out if any of (i,j,drop) is "non-sense"
+setMethod("[", signature(x = "Matrix", i = "ANY", j = "ANY", drop = "ANY"),
+	  function(x,i,j, drop)
+          stop("invalid or not-yet-implemented 'Matrix' subsetting"))
 
 ## "FIXME:"
 ## How can we get at   A[ ij ]	where ij is (i,j) 2-column matrix?
 ##  and                A[ LL ]	where LL is a logical *vector*
+## -> [.data.frame uses nargs() - can we do this in the *generic* ?
+
+
+### "[<-" : -----------------
+
+## x[] <- value :
+setReplaceMethod("[", signature(x = "Matrix", i = "missing", j = "missing",
+                                value = "index"),##  double/logical/...
+	  function (x, value) { x@x <- value ; validObject(x); x })
+
+## Otherwise (value is not "index"): bail out
+setReplaceMethod("[", signature(x = "Matrix", i = "ANY", j = "ANY",
+                                value = "ANY"),
+	  function (x, i, j, value)
+                 if(!is(value,"index"))
+                 stop("RHS 'value' must be of class \"index\"")
+                 else stop("unimplemented 'Matrix[<-' method"))
 
 
 
+## NOTE: the following only works for R 2.2.x (and later) ---
+## ----  *and* 'Matrix' must have been *installed* by R >= 2.2.x
 
-if(FALSE) ## The following can't work as long as cbind is function(..., *)
-setMethod("cbind", signature(a = "Matrix", b = "Matrix"),
-          function(a, b, ...) {
-              da <- Dim(a)
-              db <- Dim(b)
-              if(da[1] != db[1])
-                  stop("Matrices must have same number of rows for cbind()ing")
-          })
+if(paste(R.version$major, R.version$minor, sep=".") >= "2.2") {
 
+    ## The trivial methods :
+    setMethod("cbind2", signature(x = "Matrix", y = "NULL"),
+	      function(x, y) x)
+    setMethod("cbind2", signature(x = "Matrix", y = "missing"),
+	      function(x, y) x)
+    setMethod("cbind2", signature(x = "NULL", y="Matrix"),
+	      function(x, y) x)
 
+    ## Makes sure one gets x decent error message for the unimplemented cases:
+    setMethod("cbind2", signature(x = "Matrix", y = "Matrix"),
+              function(x, y) {
+                  rowCheck(x,y)
+                  stop(gettextf("cbind2() method for (%s,%s) not-yet defined",
+                                class(x), class(y)))
+              })
 
+    if (isGeneric("rbind2"))
+    setMethod("rbind2", signature(x = "Matrix", y = "Matrix"),
+              function(x, y) {
+                  colCheck(x,y)
+                  stop(gettextf("rbind2() method for (%s,%s) not-yet defined",
+                                class(x), class(y)))
+              })
+}## R-2.2.x and newer

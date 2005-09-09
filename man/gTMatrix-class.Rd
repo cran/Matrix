@@ -18,7 +18,8 @@ Class \code{"sparseMatrix"}, directly.
 Class \code{"Matrix"}, by class \code{"sparseMatrix"}.
 }
 \section{Methods}{
-  Extraction (\code{"["}) methods, see \code{\link{[-methods}}.
+  Extraction (\code{"["}) methods, see
+  \code{\link{[-methods}}.%-> ./Xtrct-methods.Rd
 }
 % \author{Martin Maechler}
 \seealso{

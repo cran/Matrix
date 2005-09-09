@@ -1,7 +1,6 @@
 
 R : Copyright 2005, The R Foundation for Statistical Computing
-Version 2.2.0 Under development (unstable) (2005-06-06 r34587)
-ISBN 3-900051-07-0
+Version 2.1.1 Patched (2005-09-01), ISBN 3-900051-07-0
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -25,7 +24,6 @@ Type 'q()' to quit R.
 +           c(9,9) == h9)
 > str(h9)
 Formal class 'dpoMatrix' [package "Matrix"] with 6 slots
-  ..@ uplo    : chr "U"
   ..@ rcond   : num(0) 
   ..@ factors : list()
   ..@ x       : num [1:81] 1.000 0.500 0.333 0.250 0.200 ...
@@ -33,14 +31,13 @@ Formal class 'dpoMatrix' [package "Matrix"] with 6 slots
   ..@ Dimnames:List of 2
   .. ..$ : NULL
   .. ..$ : NULL
+  ..@ uplo    : chr "U"
 > all.equal(determinant(h9)$modulus, -96.7369450737858, tol= 1e-15)
-[1] TRUE
+[1] "Mean relative  difference: 1.043917e-08"
 > ##-> TRUE only on some platforms; seen relative difference of 10^-8
 > stopifnot(0 == length(h9@factors))# nothing yet
 > str(f9 <- as(chol(h9), "dtrMatrix"))
 Formal class 'dtrMatrix' [package "Matrix"] with 7 slots
-  ..@ uplo    : chr "U"
-  ..@ diag    : chr "N"
   ..@ rcond   : num(0) 
   ..@ factors : list()
   ..@ x       : num [1:81] 1 0 0 0 0 0 0 0 0 0.5 ...
@@ -48,19 +45,18 @@ Formal class 'dtrMatrix' [package "Matrix"] with 7 slots
   ..@ Dimnames:List of 2
   .. ..$ : NULL
   .. ..$ : NULL
+  ..@ uplo    : chr "U"
+  ..@ diag    : chr "N"
 > ## h9 now has factorization
 > stopifnot(names(h9@factors) == "Cholesky",
 +           all.equal(rcond(h9), 9.0938e-13),
 +           all.equal(rcond(f9), 9.1272e-7, tol = 1e-6))# more precision fails
 > str(h9)# has 'rcond' and 'factors'
 Formal class 'dpoMatrix' [package "Matrix"] with 6 slots
-  ..@ uplo    : chr "U"
   ..@ rcond   : Named num 9.1e-13
   .. ..- attr(*, "names")= chr "O"
   ..@ factors :List of 1
   .. ..$ Cholesky:Formal class 'Cholesky' [package "Matrix"] with 7 slots
-  .. .. .. ..@ uplo    : chr "U"
-  .. .. .. ..@ diag    : chr "N"
   .. .. .. ..@ rcond   : num(0) 
   .. .. .. ..@ factors : list()
   .. .. .. ..@ x       : num [1:81] 1 0 0 0 0 0 0 0 0 0.5 ...
@@ -68,11 +64,14 @@ Formal class 'dpoMatrix' [package "Matrix"] with 6 slots
   .. .. .. ..@ Dimnames:List of 2
   .. .. .. .. ..$ : NULL
   .. .. .. .. ..$ : NULL
+  .. .. .. ..@ uplo    : chr "U"
+  .. .. .. ..@ diag    : chr "N"
   ..@ x       : num [1:81] 1.000 0.500 0.333 0.250 0.200 ...
   ..@ Dim     : int [1:2] 9 9
   ..@ Dimnames:List of 2
   .. ..$ : NULL
   .. ..$ : NULL
+  ..@ uplo    : chr "U"
 > options(digits=4)
 > (cf9 <- crossprod(f9))# looks the same as  h9 :
 9 x 9 Matrix of class "dpoMatrix"
@@ -91,13 +90,10 @@ Formal class 'dpoMatrix' [package "Matrix"] with 6 slots
 > 
 > str(hp9 <- as(h9, "dppMatrix"))
 Formal class 'dppMatrix' [package "Matrix"] with 6 slots
-  ..@ uplo    : chr "U"
   ..@ rcond   : Named num 9.1e-13
   .. ..- attr(*, "names")= chr "O"
   ..@ factors :List of 1
   .. ..$ pCholesky:Formal class 'pCholesky' [package "Matrix"] with 7 slots
-  .. .. .. ..@ uplo    : chr "U"
-  .. .. .. ..@ diag    : chr "N"
   .. .. .. ..@ rcond   : num(0) 
   .. .. .. ..@ factors : list()
   .. .. .. ..@ x       : num [1:45] 1.000 0.500 0.289 0.333 0.289 ...
@@ -105,11 +101,14 @@ Formal class 'dppMatrix' [package "Matrix"] with 6 slots
   .. .. .. ..@ Dimnames:List of 2
   .. .. .. .. ..$ : NULL
   .. .. .. .. ..$ : NULL
+  .. .. .. ..@ uplo    : chr "U"
+  .. .. .. ..@ diag    : chr "N"
   ..@ x       : num [1:45] 1.000 0.500 0.333 0.333 0.250 ...
   ..@ Dim     : int [1:2] 9 9
   ..@ Dimnames:List of 2
   .. ..$ : NULL
   .. ..$ : NULL
+  ..@ uplo    : chr "U"
 > 
 > s9 <- solve(hp9, seq(nrow(hp9)))
 > signif(t(s9)/10000, 4)# only rounded numbers are platform-independent

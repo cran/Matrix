@@ -4,18 +4,21 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-    
+
 #include <Rdefines.h>
 #include <Rconfig.h>
 #include <R.h>  /* to include Rconfig.h */
-    
+
 #ifdef ENABLE_NLS
 #include <libintl.h>
 #define _(String) dgettext ("Matrix", String)
 #else
 #define _(String) (String)
 #endif
-    
+
+SEXP triangularMatrix_validate(SEXP obj);
+SEXP symmetricMatrix_validate(SEXP obj);
+
 /* enum constants from cblas.h and some short forms */
 enum CBLAS_ORDER {CblasRowMajor=101, CblasColMajor=102};
 enum CBLAS_TRANSPOSE {CblasNoTrans=111, CblasTrans=112, CblasConjTrans=113};
@@ -75,16 +78,16 @@ extern	 /* stored pointers to symbols initialized in R_init_Matrix */
 /* duplicate the slot with name given by sym from src to dest */
 #define slot_dup(dest, src, sym)  SET_SLOT(dest, sym, duplicate(GET_SLOT(src, sym)))
 
-/** 
+/**
  * Check for valid length of a packed triangular array and return the
  * corresponding number of columns
- * 
+ *
  * @param len length of a packed triangular array
- * 
+ *
  * @return number of columns
  */
 static R_INLINE
-int packed_ncol(int len) 
+int packed_ncol(int len)
 {
     int disc = 8 * len + 1;	/* discriminant */
     int sqrtd = (int) sqrt((double) disc);
@@ -94,19 +97,19 @@ int packed_ncol(int len)
     return (sqrtd - 1)/2;
 }
 
-/** 
+/**
  * Allocate an SEXP of given type and length, assign it as slot nm in
  * the object, and return the SEXP.  The validity of this function
  * depends on SET_SLOT not duplicating val when NAMED(val) == 0.  If
  * this behavior changes then ALLOC_SLOT must use SET_SLOT followed by
  * GET_SLOT to ensure that the value returned is indeed the SEXP in
  * the slot.
- * 
+ *
  * @param obj object in which to assign the slot
  * @param nm name of the slot, as an R name object
  * @param type type of SEXP to allocate
  * @param length length of SEXP to allocate
- * 
+ *
  * @return SEXP of given type and length assigned as slot nm in obj
  */
 static R_INLINE
@@ -118,14 +121,14 @@ SEXP ALLOC_SLOT(SEXP obj, SEXP nm, SEXPTYPE type, int length)
     return val;
 }
 
-/** 
+/**
  * Expand compressed pointers in the array mp into a full set of indices
  * in the array mj.
- * 
+ *
  * @param ncol number of columns (or rows)
  * @param mp column pointer vector of length ncol + 1
  * @param mj vector of length mp[ncol] to hold the result
- * 
+ *
  * @return mj
  */
 static R_INLINE
@@ -140,11 +143,11 @@ int* expand_cmprPt(int ncol, const int mp[], int mj[])
 }
 
 
-/** 
+/**
  * Return the linear index of the (row, col) entry in a csc structure.
  * If the entry is not found and missing is 0 an error is signaled;
  * otherwise the missing value is returned.
- * 
+ *
  * @param p vector of column pointers
  * @param i vector of row indices
  * @param row row index
@@ -152,7 +155,7 @@ int* expand_cmprPt(int ncol, const int mp[], int mj[])
  * @param missing the value to return is the row, col entry does not
  * exist.  If this is zero and the row, col entry does not exist an
  * error is signaled.
- * 
+ *
  * @return index of element at (row, col) if it exists, otherwise missing
  */
 static R_INLINE int
@@ -185,12 +188,12 @@ int Lind(int k, int i)
     return (k * (k + 1))/2 + i;
 }
 
-/** 
+/**
  * Check for a complete match on matrix dimensions
- * 
+ *
  * @param xd dimensions of first matrix
  * @param yd dimensions of second matrix
- * 
+ *
  * @return 1 if dimensions match, otherwise 0
  */
 static R_INLINE
@@ -202,9 +205,9 @@ int match_mat_dims(const int xd[], const int yd[])
 double *expand_csc_column(double *dest, int m, int j,
 			  const int Ap[], const int Ai[], const double Ax[]);
 
-/** 
+/**
  * Apply a permutation to an integer vector
- * 
+ *
  * @param i vector of 0-based indices
  * @param n length of vector i
  * @param perm 0-based permutation vector of length max(i) + 1
@@ -216,9 +219,9 @@ int_permute(int i[], int n, const int perm[])
     for (j = 0; j < n; j++) i[j] = perm[i[j]];
 }
 
-/** 
+/**
  * Force index pairs to be in the upper triangle of a matrix
- * 
+ *
  * @param i vector of 0-based row indices
  * @param j vector of 0-based column indices
  * @param nnz length of index vectors
@@ -241,13 +244,13 @@ void make_array_triangular(double *x, SEXP from);
 SEXP Matrix_expand_pointers(SEXP pP);
 
 
-/** 
+/**
  * Elementwise increment dest by src
- * 
+ *
  * @param dest vector to be incremented
  * @param src vector to be added to dest
  * @param n length of vectors
- * 
+ *
  * @return dest
  */
 static R_INLINE double*
@@ -257,14 +260,14 @@ vecIncrement(double dest[], const double src[], int n) {
     return dest;
 }
 
-/** 
+/**
  * Elementwise sum of src1 and src2 into dest
- * 
+ *
  * @param dest vector to be incremented
  * @param src1 vector to be added
  * @param src1 second vector to be added
  * @param n length of vectors
- * 
+ *
  * @return dest
  */
 static R_INLINE double*

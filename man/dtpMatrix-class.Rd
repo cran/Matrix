@@ -37,29 +37,24 @@
       either "U", for upper triangular, and "L", for lower triangular.}
     \item{\code{diag}:}{Object of class \code{"character"}. Must be
       either \code{"U"}, for unit triangular (diagonal is all ones), or
-      \code{"N"} for non-unit.  The implicit diagonal elements are not
-      explicitly stored when \code{diag} is \code{"U"}.}
-%%% FIXME: The above is not true -- they *are* stored (but values not considered)
+      \code{"N"}; see \code{\link{triangularMatrix-class}}.}
     \item{\code{x}:}{Object of class \code{"numeric"}. The numeric
       values that constitute the matrix, stored in column-major order.}
-    \item{\code{Dim}:}{Object of class \code{"integer"}. The dimensions
-      of the matrix which must be a two-element vector of non-negative
-      integers.}
+    \item{\code{Dim},\code{Dimnames}:}{The dimension (a length-2
+      \code{"integer"}) and corresponding names (or \code{NULL}),
+      inherited from the \code{\link{Matrix-class}}, see there.}
     \item{\code{rcond}:}{Object of class \code{"numeric"}. A named
       numeric vector of reciprocal condition numbers in either the
       1-norm \code{"O"} or the infinity norm \code{"I"}.}
     \item{\code{factors}:}{Object of class \code{"list"}.  A named
       list of factorizations that have been computed for the matrix.}
-    \item{\code{Dimnames}:}{Object of class \code{"list"}. The dimnames
-      of the matrix which must be a list of two elements.  The elements
-      should be either \code{NULL} or a character vector whose length
-      matches the corresponding dimension.}
   }
 }
 \section{Extends}{
-Class \code{"ddenseMatrix"}, directly.
-Class \code{"dMatrix"}, by class \code{"ddenseMatrix"}.
-Class \code{"Matrix"}, by class \code{"ddenseMatrix"}.
+  Class \code{"ddenseMatrix"}, directly.
+  Class \code{"triangularMatrix"}, directly.
+  Class \code{"dMatrix"} and more by class \code{"ddenseMatrix"} etc, see
+  the examples.
 }
 \section{Methods}{
   \describe{
@@ -86,6 +81,8 @@ Class \code{"Matrix"}, by class \code{"ddenseMatrix"}.
   \code{\link{dtrMatrix-class}}
 }
 \examples{
+showClass("dtrMatrix")
+
 example("dtrMatrix-class")
 (p1 <- as(T3, "dtpMatrix"))
 str(p1)

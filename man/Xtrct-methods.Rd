@@ -4,29 +4,27 @@
 \title{Methods for "[": Extraction or Subsetting in Package 'Matrix'}
 %
 \alias{[,Matrix,missing,missing,ANY-method}
-\alias{[,Matrix,missing,numeric,missing-method}
-\alias{[,Matrix,numeric,missing,missing-method}
-\alias{[,Matrix,numeric,numeric,missing-method}
+\alias{[,Matrix,missing,index,missing-method}
+\alias{[,Matrix,index,missing,missing-method}
+\alias{[,Matrix,index,index,missing-method}
+\alias{[,Matrix,ANY,ANY,ANY-method}% bail out if no explicit method
 %
-\alias{[,gTMatrix,numeric,missing,logical-method}
-\alias{[,gTMatrix,missing,numeric,logical-method}
-\alias{[,gTMatrix,numeric,numeric,logical-method}
+\alias{[,denseMatrix,index,missing,logical-method}
+\alias{[,denseMatrix,index,index,logical-method}
+\alias{[,denseMatrix,missing,index,logical-method}
 %
-\alias{[,dgTMatrix,missing,missing,ANY-method}
-\alias{[,dgTMatrix,missing,numeric,logical-method}
-\alias{[,dgTMatrix,missing,numeric,missing-method}
-\alias{[,dgTMatrix,numeric,missing,logical-method}
-\alias{[,dgTMatrix,numeric,missing,missing-method}
-\alias{[,dgTMatrix,numeric,numeric,logical-method}
-\alias{[,dgTMatrix,numeric,numeric,missing-method}
+% \alias{[,gTMatrix,missing,missing,ANY-method}
+\alias{[,gTMatrix,index,missing,logical-method}
+\alias{[,gTMatrix,missing,index,logical-method}
+\alias{[,gTMatrix,index,index,logical-method}
 %
-\alias{[,dsparseMatrix,missing,numeric,logical-method}
-\alias{[,dsparseMatrix,numeric,missing,logical-method}
-\alias{[,dsparseMatrix,numeric,numeric,logical-method}
+\alias{[,dsparseMatrix,missing,index,logical-method}
+\alias{[,dsparseMatrix,index,missing,logical-method}
+\alias{[,dsparseMatrix,index,index,logical-method}
 %
-\alias{[,lsparseMatrix,missing,numeric,logical-method}
-\alias{[,lsparseMatrix,numeric,missing,logical-method}
-\alias{[,lsparseMatrix,numeric,numeric,logical-method}
+\alias{[,lsparseMatrix,missing,index,logical-method}
+\alias{[,lsparseMatrix,index,missing,logical-method}
+\alias{[,lsparseMatrix,index,index,logical-method}
 %-------
 \description{
   Methods for \code{"["}, i.e., extraction or subsetting mostly of
@@ -45,18 +43,20 @@
   }
 }
 \seealso{
+  \code{\link{[<--methods}} for sub\emph{assign}ment to \code{"Matrix"}
+  objects.
   \code{\link{Extract}} about the standard extraction.
 }
 \examples{
+% regression tests are in ../tests/indexing.R
 str(m <- Matrix(round(rnorm(7*4),2), nrow = 7))
 stopifnot(identical(m, m[]))
-\dontshow{
- if(FALSE) {## FIXME: still all fail
-   m[2,3]
-   m[1,]
-   m[,2]
- }
-}
+m[2, 3]   # simple number
+m[2, 3:4] # simple numeric of length 2
+m[2, 3:4, drop=FALSE] # sub matrix of class 'dgeMatrix'
+## rows or columns only:
+m[1,]     # first row, as simple numeric vector
+m[,1:2]   # sub matrix of first two columns
 }
 \keyword{methods}
 \keyword{array}

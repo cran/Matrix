@@ -3,13 +3,8 @@
 
 SEXP tsc_validate(SEXP x)
 {
-    SEXP val;
-
-    if (isString(val = check_scalar_string(GET_SLOT(x, Matrix_uploSym),
-					   "LU", "uplo"))) return val;
-    if (isString(val = check_scalar_string(GET_SLOT(x, Matrix_diagSym),
-					   "NU", "diag"))) return val;
-    return ScalarLogical(1);
+    return triangularMatrix_validate(x);
+    /* see ./dsCMatrix.c or ./dtpMatrix.c  on how to do more testing here */
 }
 
 SEXP tsc_transpose(SEXP x)

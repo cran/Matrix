@@ -2,18 +2,7 @@ library(Matrix)
 
 ## Matrix Exponential
 
-
-## checking;  'show' is for convenience of the developer
-assert.EQ.mat <- function(M, m, tol = if(show) 0 else 1e-15, show=FALSE) {
-    ## temporary fix for R-2.0.1
-    MM <- as(M, "matrix")
-    attr(MM, "dimnames") <- NULL
-    if(show) all.equal(MM, m, tol = tol)
-    else stopifnot(all.equal(MM, m, tol = tol))
-}
-## The relative error typically returned by all.equal:
-relErr <- function(target, current)
-    mean(abs(target - current)) / mean(abs(target))
+source(system.file("test-tools.R", package = "Matrix"))
 
 ## e ^ 0 = 1  - for matrices:
 assert.EQ.mat(expm(Matrix(0, 3,3)), diag(3), tol = 0)# exactly

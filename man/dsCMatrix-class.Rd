@@ -10,6 +10,8 @@
 \alias{t,dsCMatrix-method}
 \alias{t,dsTMatrix-method}
 \alias{coerce,dsCMatrix,dgTMatrix-method}
+\alias{coerce,dsCMatrix,dsTMatrix-method}
+\alias{coerce,dsCMatrix,dsyMatrix-method}
 \alias{coerce,dsCMatrix,dgeMatrix-method}
 \alias{coerce,dsCMatrix,matrix-method}
 \alias{coerce,dsCMatrix,lsCMatrix-method}

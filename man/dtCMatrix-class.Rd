@@ -9,11 +9,11 @@
 \alias{coerce,dtTMatrix,matrix-method}
 \alias{t,dtCMatrix-method}
 \alias{t,dtTMatrix-method}
-\title{Triangular, compressed, sparse column matrices}
-\description{The \code{dtCMatrix} class is a class of triangular, sparse
+\title{Triangular, (compressed) sparse column matrices}
+\description{The \code{"dtCMatrix"} class is a class of triangular, sparse
   matrices in the compressed, column-oriented format.  In this
   implementation the non-zero elements in the columns are sorted into
-  increasing row order.  The \code{dtTMatrix} class is a class of
+  increasing row order.  The \code{"dtTMatrix"} class is a class of
   triangular, sparse matrices in triplet format.}
 \section{Objects from the Class}{
   Objects can be created by calls of the form \code{new("dtCMatrix",
@@ -21,9 +21,11 @@
 }
 \section{Slots}{
   \describe{
-    \item{\code{uplo}:}{A character object indicating if the matrix is upper
-      triangular (\code{"U"} or \code{"u"}) or lower triangular
-      (\code{"L"} or \code{"l"}).}
+    \item{\code{uplo}:}{Object of class \code{"character"}. Must be
+      either "U", for upper triangular, and "L", for lower triangular.}
+    \item{\code{diag}:}{Object of class \code{"character"}. Must be
+      either \code{"U"}, for unit triangular (diagonal is all ones), or
+      \code{"N"}; see \code{\link{triangularMatrix-class}}.}
     \item{\code{p}:}{Object of class \code{"integer"} of pointers, one
       for each column, to the initial (zero-based) index of elements in
       the column. (Only present in the \code{dtCMatrix} class.)}
@@ -33,18 +35,21 @@
     \item{\code{j}:}{Object of class \code{"integer"} of length nnzero
       (number of non-zero elements).  These are the column numbers for
       each non-zero element in the matrix. (Only present in the
-      \code{dtTMatrix} class.)} 
+      \code{dtTMatrix} class.)}
     \item{\code{x}:}{Object of class \code{"numeric"} - the non-zero
       elements of the matrix.}
     \item{\code{factors}:}{Object of class \code{"list"} - a list
       of factorizations of the matrix. }
-    \item{\code{Dim}:}{Object of class \code{"integer"} - the dimensions
-     of the matrix - must be an integer vector with exactly two
-     non-negative values.}
+    \item{\code{Dim},\code{Dimnames}:}{The dimension (a length-2
+      \code{"integer"}) and corresponding names (or \code{NULL}),
+      inherited from the \code{\link{Matrix-class}}, see there.}
   }
 }
 \section{Extends}{
   Class \code{"dgCMatrix"}, directly.
+  Class \code{"triangularMatrix"}, directly.
+  Class \code{"dMatrix"}, \code{"sparseMatrix"}, and more by class
+  \code{"dgCMatrix"} etc, see the examples.
 }
 \section{Methods}{
   \describe{
@@ -66,6 +71,10 @@
   \code{\link{dgCMatrix-class}}, \code{\link{dgTMatrix-class}},
   \code{\link{dgeMatrix-class}}, \code{\link{dtrMatrix-class}}
 }
-%\examples{}
+\examples{
+showClass("dtCMatrix")
+
+showClass("dtTMatrix")
+}
 \keyword{classes}
 \keyword{algebra}

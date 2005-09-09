@@ -14,3 +14,27 @@ cholMat <- function(x, pivot, LINPACK) {
     if (isTRUE(validObject(px, test=TRUE))) chol(px)
     else stop("'x' is not positive definite -- chol() undefined.")
 }
+
+rowCheck <- function(a, b) {
+    da <- dim(a)
+    db <- dim(b)
+    if(da[1] != db[1])
+	stop(gettextf("Matrices must have same number of rows in %s",
+		      deparse(sys.call(sys.parent()))),
+	     call. = FALSE)
+    ## return the common nrow()
+    da[1]
+}
+
+colCheck <- function(a, b) {
+    da <- dim(a)
+    db <- dim(b)
+    if(da[2] != db[2])
+	stop(gettextf("Matrices must have same number of columns in %s",
+		      deparse(sys.call(sys.parent()))),
+	     call. = FALSE)
+    ## return the common ncol()
+    da[2]
+}
+
+

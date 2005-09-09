@@ -31,12 +31,10 @@ static R_CallMethodDef CallEntries[] = {
     {"pBunchKaufman_validate", (DL_FUNC) &pBunchKaufman_validate, 1},
     {"Cholesky_validate", (DL_FUNC) &Cholesky_validate, 1},
     {"pCholesky_validate", (DL_FUNC) &pCholesky_validate, 1},
-    {"graphNEL_as_dgTMatrix", (DL_FUNC) &graphNEL_as_dgTMatrix, 1},
+    {"graphNEL_as_dgTMatrix", (DL_FUNC) &graphNEL_as_dgTMatrix, 2},
     {"LU_expand", (DL_FUNC) &LU_expand, 1},
     {"LU_validate", (DL_FUNC) &LU_validate, 1},
     {"Matrix_expand_pointers", (DL_FUNC) &Matrix_expand_pointers, 1},
-/*     {"Matrix_readHarwellBoeing", (DL_FUNC) &Matrix_readHarwellBoeing, 1}, */
-/*     {"Matrix_readMatrixMarket", (DL_FUNC) &Matrix_readMatrixMarket, 1}, */
     {"Matrix_rWishart", (DL_FUNC) &Matrix_rWishart, 3},
     {"Matrix_writeHarwellBoeing", (DL_FUNC) &Matrix_writeHarwellBoeing, 3},
     {"Matrix_writeMatrixMarket", (DL_FUNC) &Matrix_writeMatrixMarket, 3},
@@ -172,8 +170,11 @@ static R_CallMethodDef CallEntries[] = {
     {"lmer_invert", (DL_FUNC) &lmer_invert, 1},
     {"lmer_ranef", (DL_FUNC) &lmer_ranef, 1},
     {"lmer_secondDer", (DL_FUNC) &lmer_secondDer, 1},
+    {"lmer_set_initial", (DL_FUNC) &lmer_set_initial, 2},
     {"lmer_sigma", (DL_FUNC) &lmer_sigma, 2},
+    {"lmer_simulate", (DL_FUNC) &lmer_simulate, 5},
     {"lmer_update_mm", (DL_FUNC) &lmer_update_mm, 2},
+    {"lmer_update_y", (DL_FUNC) &lmer_update_y, 3},
     {"lmer_validate", (DL_FUNC) &lmer_validate, 1},
     {"lmer_variances", (DL_FUNC) &lmer_variances, 1},
     {"lsCMatrix_chol", (DL_FUNC) &lsCMatrix_chol, 2},
@@ -188,6 +189,8 @@ static R_CallMethodDef CallEntries[] = {
     {"tsc_to_dgTMatrix", (DL_FUNC) &tsc_to_dgTMatrix, 1},
     {"tsc_transpose", (DL_FUNC) &tsc_transpose, 1},
     {"tsc_validate", (DL_FUNC) &tsc_validate, 1},
+    {"triangularMatrix_validate", (DL_FUNC) &triangularMatrix_validate, 1},
+    {"symmetricMatrix_validate", (DL_FUNC) &symmetricMatrix_validate, 1},
     {NULL, NULL, 0}
 };
 

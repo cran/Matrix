@@ -9,15 +9,13 @@
   crossed grouping factors for the random effects.
 }
 \usage{
-lmer(formula, data, family,
-     method = c("REML", "ML", "PQL", "Laplace", "AGQ"),
-     control = list(), subset, weights, na.action, offset,
-     model = TRUE, x = FALSE, y = FALSE, \dots)
+lmer(formula, data, family, method,
+     control, start, subset, weights, na.action, offset,
+     model, x, y, \dots)
 
-\S4method{lmer}{formula}(formula, data, family,
-    method = c("REML", "ML", "PQL", "Laplace", "AGQ"),
-    control = list(), subset, weights, na.action, offset,
-    model = TRUE, x = FALSE, y = FALSE, \dots)
+\S4method{lmer}{formula}(formula, data, family, method,
+    control, start, subset, weights, na.action, offset,
+    model, x, y, \dots)
 }
 \arguments{
   \item{formula}{a two-sided linear formula object describing the
@@ -48,6 +46,10 @@ lmer(formula, data, family,
     The \code{"AGQ"} method is the most accurate but can be
     considerably slower than the others.}
   \item{control}{a list of control parameters. See below for details.}
+  \item{start}{a list of relative precision matrices for the random
+    effects.  This has the same form as the slot \code{"Omega"} in a
+    fitted model.  Only the upper triangle of these symmetric matrices
+    should be stored.}
   \item{subset, weights, na.action, offset}{further model specification
     arguments as in \code{\link[stats]{lm}}; see there for details.}
   \item{model, x, y}{logicals indicating if the corresponding model component

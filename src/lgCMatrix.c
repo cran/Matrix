@@ -2,8 +2,8 @@
 
 SEXP lgCMatrix_validate(SEXP x)
 {
-   SEXP pslot = GET_SLOT(x, Matrix_pSym),
-      islot = GET_SLOT(x, Matrix_iSym);
+    SEXP pslot = GET_SLOT(x, Matrix_pSym),
+	islot = GET_SLOT(x, Matrix_iSym);
     int j,
 	ncol = length(pslot) - 1,
 	*dims = INTEGER(GET_SLOT(x, Matrix_DimSym)),
@@ -26,9 +26,9 @@ SEXP lgCMatrix_validate(SEXP x)
 	if (xi[j] < 0 || xi[j] >= nrow)
 	    return mkString(_("all row indices must be between 0 and nrow-1"));
     }
-    if (csc_unsorted_columns(ncol, xp, xi)) {
-      csc_sort_columns(ncol, xp, xi, (double *) NULL);
-    }
+    if (csc_unsorted_columns(ncol, xp, xi))
+	csc_sort_columns(ncol, xp, xi, (double *) NULL);
+
     return ScalarLogical(1);
 }
 

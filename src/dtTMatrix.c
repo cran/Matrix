@@ -3,13 +3,8 @@
 
 SEXP dtTMatrix_validate(SEXP x)
 {
-    SEXP val;
-
-    if (isString(val = check_scalar_string(GET_SLOT(x, Matrix_uploSym),
-					   "LU", "uplo"))) return val;
-    if (isString(val = check_scalar_string(GET_SLOT(x, Matrix_diagSym),
-					   "NU", "diag"))) return val;
-    return ScalarLogical(1);
+    return triangularMatrix_validate(x);
+    /* see ./dtpMatrix.c as example to do more testing here */
 }
 
 SEXP dtTMatrix_as_dtrMatrix(SEXP x)
@@ -22,7 +17,7 @@ SEXP dtTMatrix_as_dtrMatrix(SEXP x)
 	sz = m * n;
     double *tx = REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, sz)),
 	*xx = REAL(GET_SLOT(x, Matrix_xSym));
-    
+
     SET_SLOT(val, Matrix_DimSym, duplicate(DimP));
     SET_SLOT(val, Matrix_uploSym, duplicate(GET_SLOT(x, Matrix_uploSym)));
     SET_SLOT(val, Matrix_diagSym, duplicate(GET_SLOT(x, Matrix_diagSym)));

@@ -8,6 +8,11 @@
 \alias{show,ddenseMatrix-method}
 \alias{coerce,ddenseMatrix,matrix-method}
 %
+\alias{cbind2,ddenseMatrix,ddenseMatrix-method}
+\alias{cbind2,ddenseMatrix,matrix-method}
+\alias{cbind2,matrix,ddenseMatrix-method}
+\alias{cbind2,ddenseMatrix,numeric-method}
+\alias{cbind2,numeric,ddenseMatrix-method}
 \alias{crossprod,ddenseMatrix,missing-method}
 \alias{diag,ddenseMatrix-method}
 \alias{determinant,ddenseMatrix,missing-method}

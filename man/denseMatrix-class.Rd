@@ -26,10 +26,13 @@
   see \code{\link{Matrix-class}}.
 }
 %
-% \section{Methods}{
-%   Use \code{\link{showMethods}(class = "denseMatrix", where =
-%       "package:Matrix")} for an overview.
-% }
+\section{Methods}{
+  Use \code{\link{showMethods}(class = "denseMatrix", where =
+    "package:Matrix")} for an overview of methods.
+
+  Extraction (\code{"["}) methods,
+  see \code{\link{[-methods}}.%-> ./Xtrct-methods.Rd
+}
 \seealso{
   \code{\link{Matrix-class}},
   \code{\link{ddenseMatrix-class}}

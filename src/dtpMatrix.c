@@ -6,17 +6,15 @@
 
 SEXP dtpMatrix_validate(SEXP obj)
 {
-    SEXP val;
-    int *dims = INTEGER(GET_SLOT(obj, Matrix_DimSym));
-
-    if (isString(val = check_scalar_string(GET_SLOT(obj, Matrix_uploSym),
-					   "LU", "uplo"))) return val;
-    if (isString(val = check_scalar_string(GET_SLOT(obj, Matrix_diagSym),
-					   "NU", "diag"))) return val;
-    if (dims[0] != dims[1]) return mkString(_("Matrix is not square"));
-    if (dims[0] != packed_ncol(length(GET_SLOT(obj, Matrix_xSym))))
-	return(mkString(_("Incorrect length of 'x' slot")));
-    return ScalarLogical(1);
+    SEXP val = triangularMatrix_validate(obj);
+    if(isString(val))
+	return(val);
+    else {
+	int *dims = INTEGER(GET_SLOT(obj, Matrix_DimSym));
+	if (dims[0] != packed_ncol(length(GET_SLOT(obj, Matrix_xSym))))
+	    return(mkString(_("Incorrect length of 'x' slot")));
+	return ScalarLogical(1);
+    }
 }
 
 static

@@ -11,6 +11,7 @@
 \alias{ltTMatrix-class}
 \alias{lsTMatrix-class}
 \alias{\%*\%,lgCMatrix,lgCMatrix-method}
+\alias{\%*\%,lsparseMatrix,lsparseMatrix-method}
 \alias{chol,lsCMatrix,logical-method}
 \alias{chol,lsCMatrix,missing-method}
 \alias{coerce,dgCMatrix,lgCMatrix-method}
@@ -23,6 +24,8 @@
 \alias{coerce,ltCMatrix,dtCMatrix-method}
 \alias{crossprod,lgCMatrix,missing-method}
 \alias{crossprod,lgTMatrix,missing-method}
+\alias{crossprod,lsparseMatrix-method}
+\alias{crossprod,lsparseMatrix,missing-method}
 \alias{image,lgCMatrix-method}
 \alias{image,lsCMatrix-method}
 \alias{image,ltCMatrix-method}
@@ -32,6 +35,7 @@
 \alias{t,ltCMatrix-method}
 \alias{tcrossprod,lgCMatrix-method}
 \alias{tcrossprod,lgTMatrix-method}
+\alias{tcrossprod,lsparseMatrix-method}
 \title{Sparse logical matrices}
 \description{The \code{lsparseMatrix} class is a virtual class of sparse
   matrices with \code{TRUE}/\code{FALSE} entries.  Only the positions of the

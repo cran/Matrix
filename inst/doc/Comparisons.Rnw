@@ -182,7 +182,7 @@ all.equal(naive.sol, as(sparse.sol, "matrix"))
 @ 
 
 As with other classes in the \code{Matrix} package, the
-\code{sscMatrix} retains any factorization that has been calculated
+\code{dsCMatrix} retains any factorization that has been calculated
 although, in this case, the decomposition is so fast that it is
 difficult to determine the difference in the solution times.
 

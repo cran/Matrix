@@ -3,16 +3,17 @@
 
 SEXP dsTMatrix_validate(SEXP x)
 {
-    SEXP xiP = GET_SLOT(x, Matrix_iSym),
-	xjP = GET_SLOT(x, Matrix_jSym),
+    SEXP xxP = symmetricMatrix_validate(x);
+    if(isString(xxP))
+	return(xxP);
+    else {
+	SEXP xiP = GET_SLOT(x, Matrix_iSym),
+	    xjP = GET_SLOT(x, Matrix_jSym);
 	xxP = GET_SLOT(x, Matrix_xSym);
-    int *dims = INTEGER(GET_SLOT(x, Matrix_DimSym));
-
-    if (dims[0] != dims[1])
-	return mkString(_("dsTMatrix must be square"));
-    if (length(xiP) != length(xjP) || length(xjP) != length(xxP))
-	return mkString(_("slots i, j and x must have the same length"));
-    return ScalarLogical(1);
+	if (length(xiP) != length(xjP) || length(xjP) != length(xxP))
+	    return mkString(_("slots i, j and x must have the same length"));
+	return ScalarLogical(1);
+    }
 }
 
 SEXP dsTMatrix_as_dsyMatrix(SEXP x)
@@ -25,7 +26,7 @@ SEXP dsTMatrix_as_dsyMatrix(SEXP x)
 	sz = n * n;
     double *tx = REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, sz)),
 	*xx = REAL(GET_SLOT(x, Matrix_xSym));
-    
+
     SET_SLOT(val, Matrix_DimSym, duplicate(DimP));
     SET_SLOT(val, Matrix_uploSym, duplicate(GET_SLOT(x, Matrix_uploSym)));
     AZERO(tx, sz);
@@ -44,7 +45,7 @@ SEXP dsTMatrix_as_dsCMatrix(SEXP x)
     int *ti = Calloc(nnz, int),
         *vp = INTEGER(ALLOC_SLOT(val, Matrix_pSym, INTSXP, n + 1));
     double *tx = Calloc(nnz, double);
-    
+
     SET_SLOT(val, Matrix_uploSym, duplicate(GET_SLOT(x, Matrix_uploSym)));
     SET_SLOT(val, Matrix_DimSym, duplicate(dimP));
     triplet_to_col(n, n, nnz, INTEGER(xiP),
@@ -53,7 +54,7 @@ SEXP dsTMatrix_as_dsCMatrix(SEXP x)
 		   vp, ti, tx);
     nnz = vp[n];
     Memcpy(INTEGER(ALLOC_SLOT(val, Matrix_iSym, INTSXP, nnz)), ti, nnz);
-    Memcpy(REAL(ALLOC_SLOT(val, Matrix_iSym, REALSXP, nnz)), tx, nnz);	   
+    Memcpy(REAL(ALLOC_SLOT(val, Matrix_iSym, REALSXP, nnz)), tx, nnz);
     Free(ti); Free(tx);
     UNPROTECT(1);
     return val;

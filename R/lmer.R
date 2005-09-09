@@ -73,7 +73,7 @@ abbrvNms <- function(gnm, cnms)
 ## Control parameters for lmer
 lmerControl <-
   function(maxIter = 200, # used in ../src/lmer.c only
-           tolerance = sqrt(.Machine$double.eps),# dito
+           tolerance = sqrt(.Machine$double.eps),# ditto
            msMaxIter = 200,
            ## msTol = sqrt(.Machine$double.eps),
            ## FIXME:  should be able to pass tolerances to nlminb()
@@ -100,7 +100,7 @@ lmerControl <-
 setMethod("lmer", signature(formula = "formula"),
           function(formula, data, family,
                    method = c("REML", "ML", "PQL", "Laplace", "AGQ"),
-                   control = list(),
+                   control = list(), start,
                    subset, weights, na.action, offset,
                    model = TRUE, x = FALSE, y = FALSE , ...)
           ## x, y : not dealt with at all -- FIXME ? .NotYetImplemented(
@@ -180,7 +180,8 @@ setMethod("lmer", signature(formula = "formula"),
           mer <- .Call("lmer_create", lapply(random, "[[", 2),
                        mmats, method, PACKAGE = "Matrix")
           if (lmm) {                    ## linear mixed model
-              .Call("lmer_initial", mer, PACKAGE="Matrix")
+              if (missing(start)) .Call("lmer_initial", mer, PACKAGE="Matrix")
+              else .Call("lmer_set_initial", mer, start, PACKAGE = "Matrix")  
               .Call("lmer_ECMEsteps", mer, cv$niterEM, cv$EMverbose, PACKAGE = "Matrix")
               LMEoptimize(mer) <- cv
               fits <- .Call("lmer_fitted", mer, mmats, TRUE, PACKAGE = "Matrix")
@@ -352,6 +353,8 @@ setMethod("fixef", signature(object = "lmer"),
           function(object, ...) object@fixed)
 
 setMethod("VarCorr", signature(x = "lmer"),
+##FIXME - change this for reasonable defaults of useScale according to
+          ##the family slot.
           function(x, REML = TRUE, useScale = TRUE, ...) {
               val <- .Call("lmer_variances", x, PACKAGE = "Matrix")
               for (i in seq(along = val)) {
@@ -473,9 +476,6 @@ setMethod("show", "summary.lmer",
               }
               invisible(object)
           })
-
-
-
 
 ## calculates degrees of freedom for fixed effects Wald tests
 ## This is a placeholder.  The answers are generally wrong.  It will
@@ -833,14 +833,14 @@ setMethod("show", signature(object="VarCorr"),
           print(reMat, quote = FALSE)
       })
 
-setMethod("mcmcsamp", signature(obj = "lmer"),
-          function(obj, nsamp = 1, verbose = FALSE, saveb = FALSE,
+setMethod("mcmcsamp", signature(object = "lmer"),
+          function(object, n = 1, verbose = FALSE, saveb = FALSE,
                    trans = TRUE, ...)
       {
-          if (obj@family$family == "gaussian" &&
-              obj@family$link == "identity") {
+          if (object@family$family == "gaussian" &&
+              object@family$link == "identity") {
               glmer <- FALSE
-              ans <- .Call("lmer_MCMCsamp", obj, saveb, nsamp, trans,
+              ans <- .Call("lmer_MCMCsamp", object, saveb, n, trans,
                             PACKAGE = "Matrix")
           } else {
               glmer <- TRUE
@@ -848,22 +848,22 @@ setMethod("mcmcsamp", signature(obj = "lmer"),
                   warning("trans option not currently allowed for generalized models")
               trans <- FALSE
               ## Check arguments
-              if (length(obj@Omega) > 1 || obj@nc[1] > 1)
+              if (length(object@Omega) > 1 || object@nc[1] > 1)
                   stop("mcmcsamp currently defined for glmm models with only one variance component")
               cv <- Matrix:::lmerControl()
               if (verbose) cv$msVerbose <- 1
-              family <- obj@family
-              frm <- obj@frame
+              family <- object@family
+              frm <- object@frame
 
               ## recreate model matrices
-              fixed.form <- Matrix:::nobars(obj@call$formula)
+              fixed.form <- Matrix:::nobars(object@call$formula)
               if (inherits(fixed.form, "name")) # RHS is empty - use a constant
                   fixed.form <- substitute(foo ~ 1, list(foo = fixed.form))
               glm.fit <- glm(eval(fixed.form), family, frm, x = TRUE,
                              y = TRUE)
               x <- glm.fit$x
               y <- as.double(glm.fit$y)
-              bars <- Matrix:::findbars(obj@call$formula[[3]])
+              bars <- Matrix:::findbars(object@call$formula[[3]])
               random <-
                   lapply(bars,
                          function(x) list(model.matrix(eval(substitute(~term,
@@ -872,14 +872,14 @@ setMethod("mcmcsamp", signature(obj = "lmer"),
                                           eval(substitute(as.factor(fac)[,drop = TRUE],
                                                           list(fac = x[[3]])), frm)))
               names(random) <- unlist(lapply(bars, function(x) deparse(x[[3]])))
-              if (any(names(random) != names(obj@flist)))
-                  random <- random[names(obj@flist)]
+              if (any(names(random) != names(object@flist)))
+                  random <- random[names(object@flist)]
               mmats <- c(lapply(random, "[[", 1),
                          .fixed = list(cbind(glm.fit$x, .response = glm.fit$y)))
-              mer <- as(obj, "mer")
+              mer <- as(object, "mer")
 
               ## establish the GS object and the ans matrix
-              eta <- glm.fit$linear.predictors # perhaps later change this to obj@fitted?
+              eta <- glm.fit$linear.predictors # perhaps later change this to object@fitted?
               wts <- glm.fit$prior.weights
               wtssqr <- wts * wts
               offset <- glm.fit$offset
@@ -893,16 +893,16 @@ setMethod("mcmcsamp", signature(obj = "lmer"),
               LMEopt <- getAnywhere("LMEoptimize<-")
               doLMEopt <- quote(LMEopt(x = mer, value = cv))
               GSpt <- .Call("glmer_init", environment(), PACKAGE = "Matrix")
-              fixed <- obj@fixed
+              fixed <- object@fixed
               varc <- .Call("lmer_coef", mer, 2, PACKAGE = "Matrix")
               b <- .Call("lmer_ranef", mer, PACKAGE = "Matrix")
-              ans <- .Call("glmer_MCMCsamp", GSpt, b, fixed, varc, saveb, nsamp,
+              ans <- .Call("glmer_MCMCsamp", GSpt, b, fixed, varc, saveb, n,
                            PACKAGE = "Matrix")
               .Call("glmer_finalize", GSpt, PACKAGE = "Matrix");
           }
-          gnms <- names(obj@flist)
-          cnms <- obj@cnames
-          ff <- fixef(obj)
+          gnms <- names(object@flist)
+          cnms <- object@cnames
+          ff <- fixef(object)
           colnms <- c(names(ff), if (glmer) character(0) else "sigma^2",
                     unlist(lapply(seq(along = gnms),
                                   function(i)
@@ -929,3 +929,144 @@ setMethod("mcmcsamp", signature(obj = "lmer"),
 rWishart <- function(n, df, invScal)
   .Call("Matrix_rWishart", n, df, invScal)
 
+
+setMethod("model.matrix", signature(object = "lmer"),
+          function(object, ...)
+      {
+          frm <- object@frame
+          fixed.form <- Matrix:::nobars(object@call$formula)
+          if (inherits(fixed.form, "name")) # RHS is empty - use a constant
+              fixed.form <- substitute(foo ~ 1, list(foo = fixed.form))
+          glm.fit <- glm(eval(fixed.form), object@family, frm, x = TRUE, y = TRUE)
+          fxd <- unname(drop(glm.fit$x %*% fixef(object)))
+
+          ## Create the random effects model matrices
+          bars <- Matrix:::findbars(object@call$formula[[3]])
+          random <-
+              lapply(bars,
+                     function(x) list(model.matrix(eval(substitute(~term,
+                                                                   list(term=x[[2]]))),
+                                                   frm),
+                                      eval(substitute(as.factor(fac)[,drop = TRUE],
+                                                      list(fac = x[[3]])), frm)))
+          names(random) <- unlist(lapply(bars, function(x) deparse(x[[3]])))
+          ## re-order the random effects pairs if necessary
+          if (any(names(random) != names(object@flist)))
+              random <- random[names(object@flist)]
+          c(lapply(random, "[[", 1),
+            .fixed = list(cbind(glm.fit$x, .response = glm.fit$y)))
+      })
+
+setMethod("simulate", signature(object = "lmer"),
+          function(object, nsim = 1,
+                   seed = runif(1, 0, .Machine$integer.max),
+                   ...)
+      {
+          runif(1) ## to initialize the RNG if necessary
+          RNGstate <- .Random.seed
+          set.seed(seed)
+
+          family <- object@family
+          if (family$family != "gaussian" ||
+              family$link != "identity") 
+              stop("simulation of generalized linear mixed models not yet implemented")
+
+          ## pieces we will need later
+          scale <- .Call("lmer_sigma", object, object@method == "REML",
+                         PACKAGE = "Matrix")
+          mmats <- model.matrix(object)
+          ff <- fixef(object)
+
+###_FIXME: If the factor levels have been permuted, has the
+###        permutation been applied in the stored frame?  Otherwise we
+###        need to check this.
+
+          ## similate the linear predictors
+          lpred <- .Call("lmer_simulate", as(object, "mer"), nsim,
+                         unname(drop(mmats[[length(mmats)]][,seq(a = ff)] %*% ff)),
+                         mmats, TRUE, PACKAGE = "Matrix")
+          ## add per-observation noise term
+          lpred <- as.data.frame(lpred + rnorm(prod(dim(lpred)), sd = scale))
+
+          ## save the seed and restore the RNG state
+          attr(lpred, "seed") <- seed
+          assign(".Random.seed", RNGstate, envir = .GlobalEnv)
+          lpred
+      })
+
+simulate2 <- function(object, n = 1, ...)
+{
+    family <- object@family
+    if (family$family != "gaussian" ||
+        family$link != "identity") 
+        stop("simulation of generalized linear mixed models not implemented yet")
+
+    ## create the mean from the fixed effects
+    frm <- object@frame
+    fixed.form <- Matrix:::nobars(object@call$formula)
+    if (inherits(fixed.form, "name")) # RHS is empty - use a constant
+        fixed.form <- substitute(foo ~ 1, list(foo = fixed.form))
+    glm.fit <- glm(eval(fixed.form), family, frm, x = TRUE, y = TRUE)
+    lpred <- matrix(glm.fit$x %*% fixef(object), nr = nrow(frm), nc = n)
+
+    ## Create the random effects model matrices
+    bars <- Matrix:::findbars(object@call$formula[[3]])
+    random <-
+        lapply(bars,
+               function(x) list(model.matrix(eval(substitute(~term,
+                                                             list(term=x[[2]]))),
+                                             frm),
+                                eval(substitute(as.factor(fac)[,drop = TRUE],
+                                                list(fac = x[[3]])), frm)))
+    names(random) <- unlist(lapply(bars, function(x) deparse(x[[3]])))
+    ## re-order the random effects pairs if necessary
+    flist <- object@flist
+    if (any(names(random) != names(flist)))
+        random <- random[names(flist)]
+    mmats <- lapply(random, "[[", 1)
+    
+    ## simulate the random effects
+    scale <- .Call("lmer_sigma", object, object@method == "REML",
+                   PACKAGE = "Matrix")
+    Omega <- object@Omega
+    re <- lapply(seq(along = Omega),
+                 function(i) {
+                     om <- Omega[[i]]
+                     nr <- nrow(om)
+                     nlev <- length(levels(flist[[i]]))
+                     scale * array(solve(chol(new("dpoMatrix", Dim = dim(om),
+                                                  uplo = "U", x = c(om))),
+                                         matrix(rnorm(nr * n * nlev),
+                                                nr = nr))@x, c(nr, n, nlev))
+                 })
+    ## apply the random effects
+    for (j in seq(along = Omega)) {
+        for (i in 1:nrow(lpred))
+        lpred[i,] <- lpred[i,] + mmats[[j]][i,] %*% re[[j]][, , as.integer(flist[[j]])[i]]
+    }
+    ## add per-observation noise term
+    lpred <- lpred + rnorm(prod(dim(lpred)), sd = scale)
+    attr(lpred, "re") <- re
+    lpred
+}
+
+refdist <- function(fm1, fm2, n, ...)
+{
+    cv <- lmerControl()
+    obs <- deviance(fm2) - deviance(fm1)
+    newy <- simulate(fm2, n)
+    mm1 <- model.matrix(fm1)
+    mm2 <- model.matrix(fm2)
+    ref <- numeric(n)
+    mer1 <- as(fm1, "mer")
+    mer2 <- as(fm2, "mer")
+    for (j in 1:n) {
+        .Call("lmer_update_y", mer2, newy[[j]], mm2, PACKAGE = "Matrix")
+        LMEoptimize(mer2) <- cv
+        .Call("lmer_update_y", mer1, newy[[j]], mm1, PACKAGE = "Matrix")
+        LMEoptimize(mer1) <- cv
+        ref[j] <- deviance(mer2) - deviance(mer1)
+    }
+    attr(ref, "observed") <- obs
+    ref
+}

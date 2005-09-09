@@ -6,10 +6,16 @@
     ## Now all the functions in 'base' that start with something like
     ##  "x <- as.matrix(x)"
     ## will work for 'Matrix'-matrices
+
+    if(paste(R.version$major, R.version$minor, sep=".") >= "2.2")
+        methods:::bind_activation(TRUE)
 }
 
 .onUnload <- function(libpath)
 {
     assignInNamespace("as.matrix", base::..Old..as.matrix, ns = "base")
     library.dynam.unload("Matrix", libpath)
+
+    if(paste(R.version$major, R.version$minor, sep=".") >= "2.2")
+        methods:::bind_activation(FALSE)
 }

@@ -15,12 +15,15 @@ setAs("dsCMatrix", "lsCMatrix",
       function(from) new("lsCMatrix", i = from@i, p = from@p, uplo = from@uplo,
                          Dim = from@Dim, Dimnames = from@Dimnames))
 
-if(FALSE) { ## << FIXME
 setAs("dsCMatrix", "dsTMatrix",
-      function(from) { }) ## < follow "csc_to_dgTMatrix" in ../src/dgTMatrix.c
+      function(from)
+      new("dsTMatrix", i = from@i,
+          j = .Call("Matrix_expand_pointers", from@p, PACKAGE = "Matrix"),
+          x = from@x, uplo = from@uplo, Dim@from@Dim, Dimnames = from@Dimnames)
+      )
+
 setAs("dsCMatrix", "dsyMatrix",
       function(from) as(as(from, "dsTMatrix"), "dsyMatrix"))
-}# not yet
 
 setMethod("solve", signature(a = "dsCMatrix", b = "dgeMatrix"),
           function(a, b, ...)

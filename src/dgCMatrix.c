@@ -29,9 +29,9 @@ SEXP dgCMatrix_validate(SEXP x)
 	if (xi[j] < 0 || xi[j] >= nrow)
 	    return mkString(_("all row indices must be between 0 and nrow-1"));
     }
-    if (csc_unsorted_columns(ncol, xp, xi)) {
+    if (csc_unsorted_columns(ncol, xp, xi))
 	csc_sort_columns(ncol, xp, xi, REAL(xslot));
-    }
+
     return ScalarLogical(1);
 }
 
@@ -199,7 +199,7 @@ SEXP csc_matrix_crossprod(SEXP x, SEXP y, SEXP classed)
 
 SEXP compressed_to_dgTMatrix(SEXP x, SEXP colP)
 {
-    int col = asLogical(colP);
+    int col = asLogical(colP); /* 1 if "C"olumn compressed;  0 if "R"ow */
     SEXP indSym = col ? Matrix_iSym : Matrix_jSym;
     SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("dgTMatrix"))),
 	indP = GET_SLOT(x, indSym),
@@ -361,9 +361,9 @@ SEXP csc_transpose(SEXP x)
     adims[0] = xdims[1]; adims[1] = xdims[0];
     SET_VECTOR_ELT(adn, 0, VECTOR_ELT(xdn, 1));
     SET_VECTOR_ELT(adn, 1, VECTOR_ELT(xdn, 0));
-    triplet_to_col(adims[0], adims[1], nz, 
+    triplet_to_col(adims[0], adims[1], nz,
 		   expand_cmprPt(xdims[1], INTEGER(GET_SLOT(x, Matrix_pSym)), xj),
-		   INTEGER(xi), 
+		   INTEGER(xi),
 		   REAL(GET_SLOT(x, Matrix_xSym)),
 		   INTEGER(ALLOC_SLOT(ans, Matrix_pSym, INTSXP, adims[1] + 1)),
 		   INTEGER(ALLOC_SLOT(ans, Matrix_iSym, INTSXP, nz)),

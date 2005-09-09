@@ -1,11 +1,6 @@
 library(Matrix)
 
-is.all.equal3 <- function(x,y,z, tol = .Machine$double.eps^0.5)
-    isTRUE(all.equal(x,y, tol=tol)) && isTRUE(all.equal(y,z, tol=tol))
-
-is.all.equal4 <- function(x,y,z,u, tol = .Machine$double.eps^0.5)
-    is.all.equal3(x,y,z, tol=tol) && isTRUE(all.equal(z,u, tol=tol))
-
+source(system.file("test-tools.R", package = "Matrix"))
 
 data(mm)
 stopifnot(##is(mm) == c("dgCMatrix", "dMatrix", "Matrix"),

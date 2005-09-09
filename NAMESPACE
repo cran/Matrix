@@ -1,10 +1,10 @@
 useDynLib(Matrix)
 
 importFrom("graphics",image)
-importFrom("graphics",plot)             ## lmer-related
+importFrom("graphics",plot)		## lmer-related
 importFrom("lattice", levelplot)
 importFrom("grid",    grid.rect, gpar, grob)
-import("stats")                         ## lmer-related
+import("stats")				## lmer-related
 
 ## Currently, group generics need to be explicitly imported (Bug?):
 importFrom("methods", Arith, Compare, Math, Math2, Summary, Complex)
@@ -18,8 +18,8 @@ export(
        "expand",
        "expm",
        "facmul",
+       #not on purpose: "isSymmetric",
        "lu",
-       "mcmcsamp", ## lmer-related
        "norm",
        "rcond",
        "readHB",
@@ -33,9 +33,11 @@ export(
        )
 
 ## lmer-related
-export("lmer")
+export("lmer", "mcmcsamp", "simulate")
 
 exportClasses(
+	      "index",
+
 	      "BunchKaufman",
 	      "pBunchKaufman",
 	      "Cholesky",
@@ -44,18 +46,19 @@ exportClasses(
 	      "Matrix",
 	      ## also intermediate `virtual' ones:
 	      "dMatrix",
-              "lMatrix",
+	      "lMatrix",
 	      "denseMatrix",
 	      "sparseMatrix",
+              "symmetricMatrix",
+              "triangularMatrix",
 	      "dsparseMatrix",
-              "lsparseMatrix",
-
+	      "lsparseMatrix",
 	      "ddenseMatrix",
 	      ## not yet used, but as sub-classes;
-              ## need to provide them for 'hierarchy-analysis':
-              "iMatrix",
-              "zMatrix",
-              "ldenseMatrix",
+	      ## need to provide them for 'hierarchy-analysis':
+	      "iMatrix",
+	      "zMatrix",
+	      "ldenseMatrix",
 
 	      "dgBCMatrix",
 	      "dgCMatrix",
@@ -75,21 +78,21 @@ exportClasses(
 	      "dtpMatrix",
 	      "dtrMatrix",
 
-              "lgCMatrix",
-              "lsCMatrix",
-              "ltCMatrix",
-              "lgRMatrix",
-              "lsRMatrix",
-              "ltRMatrix",
-              "lgTMatrix",
-              "lsTMatrix",
-              "ltTMatrix",
+	      "lgCMatrix",
+	      "lsCMatrix",
+	      "ltCMatrix",
+	      "lgRMatrix",
+	      "lsRMatrix",
+	      "ltRMatrix",
+	      "lgTMatrix",
+	      "lsTMatrix",
+	      "ltTMatrix",
 
 	      "corrmatrix",
 	      "pMatrix",
 	      "pdmatrix",
 	      "dCholCMatrix",
-              "lCholCMatrix"
+	      "lCholCMatrix"
 	      )
 
 ## lmer-related
@@ -108,8 +111,8 @@ exportMethods(
 	      "Schur",
 	      "as.matrix",
 	      "chol",
-              "colMeans",
-              "colSums",
+	      "colMeans",
+	      "colSums",
 	      "coerce",
 	      "crossprod",
 	      "determinant",
@@ -119,20 +122,29 @@ exportMethods(
 	      "dimnames<-",
 	      "expand",
 	      "expm",
-              "kronecker",
+	      "kronecker",
 	      "image",
-              "mcmcsamp", ## lmer-related
 	      "norm",
 	      "rcond",
-              "rowMeans",
-              "rowSums",
+	      "rowMeans",
+	      "rowSums",
 	      "show",
 	      "solve",
 	      "t",
 	      "tcrossprod"
 	      )
 
+## only for R >= 2.2:
+if(paste(R.version$major, R.version$minor, sep=".") >= "2.2") {
+
+exportMethods("cbind2")
+
+}
+
+
 ## lmer-related
-exportMethods("BIC", "anova", "coef", "confint", "deviance", "fitted", "fixef",
-              "formula", "lmer", "logLik", "plot", "ranef", "residuals", "resid",
-              "summary", "update", "vcov", "VarCorr", "with")
+exportMethods("BIC", "anova", "coef", "confint", "deviance", "fitted",
+	      "fixef", "formula", "lmer", "logLik", "mcmcsamp",
+	      "plot", "ranef", "residuals", "resid", "simulate",
+	      "summary", "update", "vcov", "VarCorr", "with")
+

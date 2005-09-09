@@ -22,11 +22,13 @@
 \alias{t,dtrMatrix-method}
 \alias{dtrMatrix-class}
 \title{Triangular, dense, numeric matrices}
-\description{The \code{"dtrMatrix"} class is the class of triangular,
-  dense, numeric matrices in nonpacked storage.  The \code{"dtpMatrix"}
-  class is the same except in packed storage.}
+\description{
+  The \code{"dtrMatrix"} class is the class of triangular, dense,
+  numeric matrices in nonpacked storage.  The \code{"dtpMatrix"} class
+  is the same except in packed storage.
+}
 \section{Objects from the Class}{
-Objects can be created by calls of the form \code{new("dtrMatrix", ...)}.
+  Objects can be created by calls of the form \code{new("dtrMatrix", ...)}.
 }
 \section{Slots}{
   \describe{
@@ -34,8 +36,7 @@ Objects can be created by calls of the form \code{new("dtrMatrix", ...)}.
       either "U", for upper triangular, and "L", for lower triangular.}
     \item{\code{diag}:}{Object of class \code{"character"}. Must be
       either \code{"U"}, for unit triangular (diagonal is all ones), or
-      \code{"N"} for non-unit.  The implicit diagonal elements are not
-      explicitly stored when \code{diag} is \code{"U"}.}
+      \code{"N"}; see \code{\link{triangularMatrix-class}}.}
     \item{\code{x}:}{Object of class \code{"numeric"}. The numeric
       values that constitute the matrix, stored in column-major order.}
     \item{\code{Dim}:}{Object of class \code{"integer"}. The dimensions
@@ -50,7 +51,8 @@ Objects can be created by calls of the form \code{new("dtrMatrix", ...)}.
 }
 \section{Extends}{
 Class \code{"dgeMatrix"}, directly.
-Class \code{"Matrix"}, by class \code{"dgeMatrix"}.
+Class \code{"triangularMatrix"}, directly.
+Class \code{"Matrix"} and others, by class \code{"dgeMatrix"}.
 }
 \section{Methods}{
   \describe{

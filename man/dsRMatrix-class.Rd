@@ -2,7 +2,6 @@
 \title{Symmetric Sparse Compressed Row Matrices}
 \docType{class}
 \alias{dsRMatrix-class}
-%%--- No methods currently --- see ./dsRMatrix-class.Rd for more
 \description{The \code{dsRMatrix} class is a class of symmetric, sparse
   matrices in the compressed, row-oriented format.  In this
   implementation the non-zero elements in the rows are sorted into
@@ -46,7 +45,7 @@ Class \code{"Matrix"}, by class \code{"dgRMatrix"}.
 Class \code{"Matrix"}, by class \code{"dgRMatrix"}.
 }
 \section{Methods}{
-  No methods currently with class "dsRMatrix" in the signature.
+  No methods currently with class \code{"dsRMatrix"} in the signature.
 %   \describe{
 %     \item{solve}{\code{signature(a = "dsRMatrix", b = "matrix")}: Solve
 %       a linear system of equations defined by \code{x} using a Cholesky

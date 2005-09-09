@@ -104,20 +104,29 @@ setMethod("t", signature(x = "dtrMatrix"),
 
 ###
 
-## in construction -> not yet exported
-Diagonal <- function(n, x = NULL, ncol = n)
+## Basing 'Diagonal' on  dtpMatrix:   This is cheap but inefficient:
+## TODO:  ddiagonalMatrix : contains = c("diagonalMatrix", "dMatrix")
+##        diagonalMatrix :  ddiag = [U/N], contains = "Matrix"
+Diagonal <- function(n, x = NULL)
 {
-    ## Purpose: Constructor of diagonal matrices -- *not* diag() extractor!
-    stopifnot(length(n) == 1, n == as.integer(n), n >= 0)
-    n <- as.integer(n)
-    stopifnot(length(ncol <- as.integer(ncol)) == 1, ncol >= 0)
-    if(missing(x)) # unit diagonal matrix
-        new("dtrMatrix", Dim = c(n,ncol), diag = "U",
-            x = rep(0, .......))
+    ## Purpose: Constructor of diagonal matrices -- ~= diag() ,
+    ##          but *not* diag() extractor!
+
+    ## Allow  Diagonal(4)  and  Diagonal(x=1:5)
+    if(missing(n))
+        n <- length(x)
     else {
-        x <- as.numeric(x)
-        stopifnot(length(x) == min(n, ncol))
-        new("dtrMatrix", Dim = c(n,ncol), diag = "N",
-            x = ..x..and..many..0s)
+        stopifnot(length(n) == 1, n == as.integer(n), n >= 0)
+        n <- as.integer(n)
     }
+    r <-
+        if(missing(x)) # unit diagonal matrix
+            new("dtrMatrix", Dim = c(n,n), diag = "U", x = rep.int(0, n*n))
+        else {
+            x <- as.numeric(x)
+            stopifnot(length(x) == n)
+            new("dtrMatrix", Dim = c(n,n), diag = "N",
+                x = rbind(x, matrix(0, n,n))[1:(n*n)])
+        }
+    as(r, "dtpMatrix")# at least 'packed'
 }

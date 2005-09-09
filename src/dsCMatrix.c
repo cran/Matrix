@@ -1,16 +1,17 @@
 #include "dsCMatrix.h"
 
+/* 'ssc' [symmetric sparse compressed] is an "alias" for our "dsC" */
+
 SEXP dsCMatrix_validate(SEXP obj)
 {
-    SEXP val = check_scalar_string(GET_SLOT(obj, Matrix_uploSym),
-				   "LU", "uplo");
-    int *Dim = INTEGER(GET_SLOT(obj, Matrix_DimSym));
-
-    if (isString(val)) return val;
-    if (Dim[0] != Dim[1])
-	return mkString(_("Symmetric matrix must be square"));
-    csc_check_column_sorting(obj);
-    return ScalarLogical(1);
+    SEXP val = symmetricMatrix_validate(obj);
+    if(isString(val))
+	return(val);
+    else {
+	/* FIXME needed? dsC* inherits from dgC* which does this in validate*/
+	csc_check_column_sorting(obj);
+	return ScalarLogical(1);
+    }
 }
 
 SEXP dsCMatrix_chol(SEXP x, SEXP pivot)

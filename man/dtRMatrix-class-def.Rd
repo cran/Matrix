@@ -15,15 +15,12 @@
 }
 \section{Slots}{
   \describe{
-    \item{\code{uplo}:}{A character object indicating if the upper
-      triangle (\code{"U"} or \code{"u"}) or the lower triangle
-      (\code{"L"} or \code{"l"}) is stored.  At present only the lower
-      triangle form is allowed.}
-    \item{\code{diag}:}{A character object indicating if the upper
-      triangle (\code{"U"} or \code{"u"}) or the lower triangle
-      (\code{"L"} or \code{"l"}) is stored.  At present only the lower
-      triangle form is allowed.}
-%% FIXME: this was by copy-paste-edit: is it ok?
+    \item{\code{uplo}:}{Object of class \code{"character"}. Must be
+      either "U", for upper triangular, and "L", for lower triangular.
+      At present only the lower triangle form is allowed.}
+    \item{\code{diag}:}{Object of class \code{"character"}. Must be
+      either \code{"U"}, for unit triangular (diagonal is all ones), or
+      \code{"N"}; see \code{\link{triangularMatrix-class}}.}
     \item{\code{j}:}{Object of class \code{"integer"} of length
       \code{nnzero} (number of non-zero elements).  These are the row
       numbers for each non-zero element in the matrix.}
@@ -34,10 +31,9 @@
       of factorizations of the matrix. }
     \item{\code{x}:}{Object of class \code{"numeric"} - the non-zero
       elements of the matrix.}
-    \item{\code{Dim}:}{Object of class \code{"integer"} - the dimensions
-     of the matrix - must be an integer vector with exactly two
-     non-negative values.}
-    \item{\code{Dimnames}:}{List of length two, see \code{\link{Matrix}}.}
+    \item{\code{Dim}:}{The dimension (a length-2 \code{"integer"})}
+    \item{\code{Dimnames}:}{corresponding names (or \code{NULL}),
+      inherited from the \code{\link{Matrix-class}}, see there.}
   }
 }
 \section{Extends}{

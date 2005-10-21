@@ -1,9 +1,8 @@
 \name{denseMatrix-class}
 \docType{class}
-\alias{denseMatrix-class}
 \title{Virtual Class "denseMatrix" of All Dense Matrices}
-%% not yet any Methods:
-%\alias{show,denseMatrix-method}
+\alias{denseMatrix-class}
+\alias{show,denseMatrix-method}
 %
 \description{This is the virtual class of all dense (S4) matrices.
   It is the direct superclass of
@@ -19,6 +18,8 @@
   %%   or ./sparseMatrix-class.Rd  ???
   exactly those of its superclass \code{"Matrix"}, i.e.,
   \describe{
+    \item{\code{factors}:}{Object of class \code{"list"} - a list
+      of factorizations of the matrix.}
     \item{\code{Dim}:}{length 2 \code{"integer"}}
     \item{\code{Dimnames}:}{\code{"list"} of length 2,}
   }
@@ -34,7 +35,8 @@
   see \code{\link{[-methods}}.%-> ./Xtrct-methods.Rd
 }
 \seealso{
-  \code{\link{Matrix-class}},
+  Its superclass \code{\link{Matrix-class}},
+  and main subclasses,
   \code{\link{ddenseMatrix-class}}
   \code{\link{sparseMatrix-class}}
 }

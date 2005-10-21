@@ -3,7 +3,6 @@
 
 #include "Rdefines.h"
 #include "R_ext/Lapack.h"
-/* #include "flame.h" */
 
 SEXP lsq_dense_Chol(SEXP X, SEXP y);
 SEXP lsq_dense_QR(SEXP X, SEXP y);

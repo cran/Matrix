@@ -8,10 +8,13 @@
 \alias{\%*\%,dsyMatrix,dgeMatrix-method}
 \alias{coerce,dspMatrix,dgeMatrix-method}
 \alias{coerce,dspMatrix,dsyMatrix-method}
+\alias{coerce,dspMatrix,lspMatrix-method}
 \alias{coerce,dspMatrix,matrix-method}
 \alias{coerce,dsyMatrix,dgeMatrix-method}
 \alias{coerce,dsyMatrix,dspMatrix-method}
+\alias{coerce,dsyMatrix,lsyMatrix-method}
 \alias{coerce,dsyMatrix,matrix-method}
+\alias{show,dsyMatrix-method}
 \alias{dspMatrix-class}
 \alias{dsyMatrix-class}
 \alias{norm,dspMatrix,character-method}
@@ -33,7 +36,7 @@
 \alias{t,dspMatrix-method}
 \alias{t,dsyMatrix-method}
 \alias{unpack,dspMatrix-method}
-\title{Symmetric, dense matrices}
+\title{Symmetric Dense Numeric Matrices}
 \description{
   The \code{"dsyMatrix"} class is the class of symmetric, dense matrices
   in non-packed storage and \code{"dspMatrix"} is the class of symmetric
@@ -60,9 +63,12 @@
   }
 }
 \section{Extends}{
-Class \code{"dgeMatrix"}, directly.
-Class \code{"symmetricMatrix"}, directly.
-Class \code{"Matrix"} and others, by class \code{"dgeMatrix"}.
+  \code{"dsyMatrix"} extends class \code{"dgeMatrix"}, directly, whereas\cr
+  \code{"dspMatrix"} extends class \code{"ddenseMatrix"}, directly.
+
+  Both extend class \code{"symmetricMatrix"}, directly,
+  and class \code{"Matrix"} and others, \emph{in}directly, use
+  \code{\link{showClass}("dsyMatrix")}, e.g., for details.
 }
 \section{Methods}{
   \describe{

@@ -337,7 +337,7 @@ SEXP lgCMatrix_crossprod(SEXP x, SEXP trans, SEXP C)
     if (adims[0] != n || adims[1] != n)
 	error(_("Dimensions of x and y are not compatible for crossprod"));
     SET_SLOT(C, Matrix_iSym,
-	     Matrix_lgCsyrk(CHAR(asChar(GET_SLOT(C, Matrix_uploSym)))[0] == 'U',
+	     Matrix_lgCsyrk(uplo_P(C)[0] == 'U',
 			    tra, n, k,
 			    INTEGER(GET_SLOT(x, Matrix_iSym)),
 			    INTEGER(GET_SLOT(x, Matrix_pSym)),

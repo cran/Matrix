@@ -28,8 +28,7 @@ double get_norm_sy(SEXP obj, char *typstr)
     if (*typnm == 'I' || *typnm == 'O') {
         work = (double *) R_alloc(dims[0], sizeof(double));
     }
-    return F77_CALL(dlansy)(typnm,
-			    CHAR(asChar(GET_SLOT(obj, Matrix_uploSym))),
+    return F77_CALL(dlansy)(typnm, uplo_P(obj),
 			    dims, REAL(GET_SLOT(obj, Matrix_xSym)),
 			    dims, work);
 }
@@ -54,9 +53,9 @@ double set_rcond_sy(SEXP obj, char *typstr)
 	int *dims = INTEGER(GET_SLOT(obj, Matrix_DimSym)), info;
 	double anorm = get_norm_sy(obj, "O");
 
-	F77_CALL(dsycon)(CHAR(asChar(GET_SLOT(trf, Matrix_uploSym))),
-			 dims, REAL(GET_SLOT(trf, Matrix_xSym)),
-			 dims, INTEGER(GET_SLOT(trf, Matrix_permSym)),
+	F77_CALL(dsycon)(uplo_P(trf), dims,
+			 REAL   (GET_SLOT(trf, Matrix_xSym)), dims,
+			 INTEGER(GET_SLOT(trf, Matrix_permSym)),
 			 &anorm, &rcond,
 			 (double *) R_alloc(2*dims[0], sizeof(double)),
 			 (int *) R_alloc(dims[0], sizeof(int)), &info);
@@ -75,7 +74,7 @@ static
 void make_symmetric(double *to, SEXP from, int n)
 {
     int i, j;
-    if (*CHAR(asChar(GET_SLOT(from, Matrix_uploSym))) == 'U') {
+    if (*uplo_P(from) == 'U') {
 	for (j = 0; j < n; j++) {
 	    for (i = j+1; i < n; i++) {
 		to[i + j*n] = to[j + i*n];
@@ -100,8 +99,8 @@ SEXP dsyMatrix_solve(SEXP a)
     SET_SLOT(val, Matrix_xSym, duplicate(GET_SLOT(trf, Matrix_xSym)));
     SET_SLOT(val, Matrix_DimSym, duplicate(GET_SLOT(trf, Matrix_DimSym)));
     SET_SLOT(val, Matrix_rcondSym, duplicate(GET_SLOT(a, Matrix_rcondSym)));
-    F77_CALL(dsytri)(CHAR(asChar(GET_SLOT(val, Matrix_uploSym))),
-		     dims, REAL(GET_SLOT(val, Matrix_xSym)), dims,
+    F77_CALL(dsytri)(uplo_P(val), dims,
+		     REAL(GET_SLOT(val, Matrix_xSym)), dims,
 		     INTEGER(GET_SLOT(trf, Matrix_permSym)),
 		     (double *) R_alloc((long) dims[0], sizeof(double)),
 		     &info);
@@ -121,8 +120,7 @@ SEXP dsyMatrix_dgeMatrix_solve(SEXP a, SEXP b)
 	error(_("Dimensions of system to be solved are inconsistent"));
     SET_SLOT(val, Matrix_DimSym, duplicate(GET_SLOT(b, Matrix_DimSym)));
     SET_SLOT(val, Matrix_xSym, duplicate(GET_SLOT(b, Matrix_xSym)));
-    F77_CALL(dsytrs)(CHAR(asChar(GET_SLOT(trf, Matrix_uploSym))),
-		     adims, bdims + 1,
+    F77_CALL(dsytrs)(uplo_P(trf), adims, bdims + 1,
 		     REAL(GET_SLOT(trf, Matrix_xSym)), adims,
 		     INTEGER(GET_SLOT(trf, Matrix_permSym)),
 		     REAL(GET_SLOT(val, Matrix_xSym)),
@@ -143,8 +141,7 @@ SEXP dsyMatrix_matrix_solve(SEXP a, SEXP b)
 	error(_("Argument b must be a numeric matrix"));
     if (*adims != *bdims || bdims[1] < 1 || *adims < 1)
 	error(_("Dimensions of system to be solved are inconsistent"));
-    F77_CALL(dsytrs)(CHAR(asChar(GET_SLOT(trf, Matrix_uploSym))),
-		     adims, bdims + 1,
+    F77_CALL(dsytrs)(uplo_P(trf), adims, bdims + 1,
 		     REAL(GET_SLOT(trf, Matrix_xSym)), adims,
 		     INTEGER(GET_SLOT(trf, Matrix_permSym)),
 		     REAL(val), bdims, &info);
@@ -201,8 +198,7 @@ SEXP dsyMatrix_dgeMatrix_mm(SEXP a, SEXP b)
     SET_SLOT(val, Matrix_DimSym, allocVector(INTSXP, 2));
     cdims = INTEGER(GET_SLOT(val, Matrix_DimSym));
     cdims[0] = m; cdims[1] = n;
-    F77_CALL(dsymm)("L", CHAR(asChar(GET_SLOT(a, Matrix_uploSym))),
-		    adims, bdims+1, &one,
+    F77_CALL(dsymm)("L", uplo_P(a), adims, bdims+1, &one,
 		    REAL(GET_SLOT(a, Matrix_xSym)), adims,
 		    REAL(GET_SLOT(b, Matrix_xSym)), bdims,
 		    &zero, REAL(GET_SLOT(val, Matrix_xSym)), adims);
@@ -229,8 +225,7 @@ SEXP dsyMatrix_dgeMatrix_mm_R(SEXP a, SEXP b)
     SET_SLOT(val, Matrix_DimSym, allocVector(INTSXP, 2));
     cdims = INTEGER(GET_SLOT(val, Matrix_DimSym));
     cdims[0] = m; cdims[1] = n;
-    F77_CALL(dsymm)("R", CHAR(asChar(GET_SLOT(a, Matrix_uploSym))),
-		    adims, bdims+1, &one,
+    F77_CALL(dsymm)("R", uplo_P(a), adims, bdims+1, &one,
 		    REAL(GET_SLOT(a, Matrix_xSym)), adims,
 		    REAL(GET_SLOT(b, Matrix_xSym)), bdims,
 		    &zero, REAL(GET_SLOT(val, Matrix_xSym)), adims);
@@ -279,9 +274,10 @@ SEXP dsyMatrix_as_dspMatrix(SEXP from)
 	     duplicate(GET_SLOT(from, Matrix_rcondSym)));
     SET_SLOT(val, Matrix_DimSym, duplicate(dimP));
     SET_SLOT(val, Matrix_uploSym, duplicate(uplo));
-    full_to_packed(REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, (n*(n+1))/2)),
-		   REAL(GET_SLOT(from, Matrix_xSym)), n,
-		   *CHAR(STRING_ELT(uplo, 0)) == 'U' ? UPP : LOW, NUN);
+    full_to_packed_double(
+	REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, (n*(n+1))/2)),
+	REAL(GET_SLOT(from, Matrix_xSym)), n,
+	*CHAR(STRING_ELT(uplo, 0)) == 'U' ? UPP : LOW, NUN);
     UNPROTECT(1);
     return val;
 }

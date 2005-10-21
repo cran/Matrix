@@ -70,7 +70,7 @@ setMethod("norm", signature(x = "dspMatrix", type = "missing"),
           function(x, type, ...) .Call("dspMatrix_norm", x, "O"),
           valueClass = "numeric")
 
-setMethod("t", signature(x = "dsyMatrix"), # need a t method for dsyMatrix
+setMethod("t", signature(x = "dspMatrix"),
           function(x) as(t(as(x, "dsyMatrix")), "dspMatrix"),
           valueClass = "dspMatrix")
 
@@ -78,6 +78,10 @@ setMethod("unpack", signature(x = "dspMatrix"),
           function(x, ...) as(x, "dsyMatrix"),
           valueClass = "dsyMatrix")
 
+## The following allows  as(*, "dppMatrix").
+## However it *requires* that dppMatrix_chol() gives an error
+## for non-positive-semi-definite matrices -- which it does since 2005-10-03
+## FIXME: This gives an error for singular pos.SEMI-def. matrices:
 setIs("dspMatrix", "dppMatrix",
       test = function(obj)
           "try-error" != class(try(.Call("dppMatrix_chol", obj), TRUE)),

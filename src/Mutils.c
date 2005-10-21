@@ -321,12 +321,18 @@ void ssc_symbolic_permute(int n, int upper, const int perm[],
     Free(Aj); Free(ord); Free(ii);
 }
 
+/* FIXME: make this work for double/logical/int/complex
+ *        maybe checking CHAR(asChar(getAttrib(x, R_ClassSymbol)))[0]
+ *        for 'd', 'l', 'i', or 'z' */
 void make_array_triangular(double *to, SEXP from)
 {
+/* fill in the "trivial remainder" in  n*m  array ;
+ *  typically the 'x' slot of a "dtrMatrix" : */
+
     int i, j, *dims = INTEGER(GET_SLOT(from, Matrix_DimSym));
     int n = dims[0], m = dims[1];
 
-    if (*CHAR(asChar(GET_SLOT(from, Matrix_uploSym))) == 'U') {
+    if (*uplo_P(from) == 'U') {
 	for (j = 0; j < n; j++) {
 	    for (i = j+1; i < m; i++) {
 		to[i + j*m] = 0.;
@@ -339,7 +345,7 @@ void make_array_triangular(double *to, SEXP from)
 	    }
 	}
     }
-    if (*CHAR(asChar(GET_SLOT(from, Matrix_diagSym))) == 'U') {
+    if (*diag_P(from) == 'U') {
 	j = (n < m) ? n : m;
 	for (i = 0; i < j; i++) {
 	    to[i * (m + 1)] = 1.;
@@ -453,48 +459,59 @@ SEXP check_scalar_string(SEXP sP, char *vals, char *nm)
 #undef SPRINTF
 }
 
-double *packed_to_full(double *dest, const double *src, int n,
-		       enum CBLAS_UPLO uplo)
-{
-    int i, j, pos = 0;
 
-    AZERO(dest, n*n);
-    for (j = 0; j < n; j++) {
-	switch(uplo) {
-	case UPP:
-	    for (i = 0; i <= j; i++) dest[i + j * n] = src[pos++];
-	    break;
-	case LOW:
-	    for (i = j; i < n; i++) dest[i + j * n] = src[pos++];
-	    break;
-	default:
-	    error(_("'uplo' must be UPP or LOW"));
-	}
-    }
-    return dest;
+#define PACKED_TO_FULL(TYPE)						\
+TYPE *packed_to_full_ ## TYPE(TYPE *dest, const TYPE *src,		\
+		        int n, enum CBLAS_UPLO uplo)			\
+{									\
+    int i, j, pos = 0;							\
+									\
+    AZERO(dest, n*n);							\
+    for (j = 0; j < n; j++) {						\
+	switch(uplo) {							\
+	case UPP:							\
+	    for (i = 0; i <= j; i++) dest[i + j * n] = src[pos++];	\
+	    break;							\
+	case LOW:							\
+	    for (i = j; i < n; i++) dest[i + j * n] = src[pos++];	\
+	    break;							\
+	default:							\
+	    error(_("'uplo' must be UPP or LOW"));			\
+	}								\
+    }									\
+    return dest;							\
 }
 
-double *full_to_packed(double *dest, const double *src, int n,
-		       enum CBLAS_UPLO uplo, enum CBLAS_DIAG diag)
-{
-    int i, j, pos = 0;
+PACKED_TO_FULL(double)
+PACKED_TO_FULL(int)
 
-    for (j = 0; j < n; j++) {
-	switch(uplo) {
-	case UPP:
-	    for (i = 0; i <= j; i++)
-		dest[pos++] = (i == j && diag == UNT) ? 1. : src[i + j * n];
-	    break;
-	case LOW:
-	    for (i = j; i < n; i++)
-		dest[pos++] = (i == j && diag == UNT) ? 1. : src[i + j * n];
-	    break;
-	default:
-	    error(_("'uplo' must be UPP or LOW"));
-	}
-    }
-    return dest;
+#define FULL_TO_PACKED(TYPE)						\
+TYPE *full_to_packed_ ## TYPE(TYPE *dest, const TYPE *src, int n,	\
+		      enum CBLAS_UPLO uplo, enum CBLAS_DIAG diag)	\
+{									\
+    int i, j, pos = 0;							\
+									\
+    for (j = 0; j < n; j++) {						\
+	switch(uplo) {							\
+	case UPP:							\
+	    for (i = 0; i <= j; i++)					\
+		dest[pos++] = (i == j && diag== UNT) ? 1 : src[i + j*n]; \
+	    break;							\
+	case LOW:							\
+	    for (i = j; i < n; i++)					\
+		dest[pos++] = (i == j && diag== UNT) ? 1 : src[i + j*n]; \
+	    break;							\
+	default:							\
+	    error(_("'uplo' must be UPP or LOW"));			\
+	}								\
+    }									\
+    return dest;							\
 }
+
+FULL_TO_PACKED(double)
+FULL_TO_PACKED(int)
+
+
 
 /**
  * Copy the diagonal elements of the packed array x to dest
@@ -509,7 +526,7 @@ double *packed_getDiag(double *dest, SEXP x)
     int j, n = *INTEGER(GET_SLOT(x, Matrix_DimSym)), pos;
     double *xx = REAL(GET_SLOT(x, Matrix_xSym));
 
-    if (*CHAR(STRING_ELT(GET_SLOT(x, Matrix_uploSym), 0)) == 'U') {
+    if (*uplo_P(x) == 'U') {
 	for (pos = 0, j = 0; j < n; pos += ++j) dest[j] = xx[pos];
     } else {
 	for (pos = 0, j = 0; j < n; pos += (n - j), j++) dest[j] = xx[pos];
@@ -546,4 +563,23 @@ Matrix_getElement(SEXP list, char *nm) {
 	if (!strcmp(CHAR(STRING_ELT(names, i)), nm))
 	    return(VECTOR_ELT(list, i));
     return R_NilValue;
+}
+
+/** 
+ * Allocate a real classed matrix
+ * 
+ * @param class character string of the type of Matrix to allocate
+ * @param nrow number of rows
+ * @param ncol number of columns
+ * 
+ * @return pointer to a classed real matrix
+ */
+SEXP alloc_real_classed_matrix(char *class, int nrow, int ncol)
+{
+    SEXP val = NEW_OBJECT(MAKE_CLASS(class));
+    int *dims = INTEGER(ALLOC_SLOT(val, Matrix_DimSym, INTSXP, 2));
+    
+    dims[0] = nrow; dims[1] = ncol;
+    ALLOC_SLOT(val, Matrix_xSym, REALSXP, nrow * ncol);
+    return val;
 }

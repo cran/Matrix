@@ -1,5 +1,11 @@
 #include "dgCMatrix.h"
 
+#ifdef USE_CHOLMOD
+#include "chm_common.h"
+#endif
+
+/* FIXME -- we "forget" about dimnames almost everywhere : */
+
 SEXP dgCMatrix_validate(SEXP x)
 {
     SEXP pslot = GET_SLOT(x, Matrix_pSym),
@@ -102,6 +108,15 @@ SEXP csc_crossprod(SEXP x)
 
 SEXP csc_tcrossprod(SEXP x)
 {
+#ifdef USE_CHOLMOD
+    cholmod_sparse *cha = cholmod_aat(as_cholmod_sparse(x),
+	(int *) NULL, 0, 1, &c);
+
+    cha->stype = -1;		/* set the symmetry */
+    cholmod_sort(cha, &c);	/* drop redundant entries */
+    return chm_sparse_to_SEXP(cha, -1);
+#else
+
     SEXP pslot = GET_SLOT(x, Matrix_pSym),
 	ans = PROTECT(NEW_OBJECT(MAKE_CLASS("dsCMatrix")));
     int *xp = INTEGER(pslot),
@@ -159,6 +174,7 @@ SEXP csc_tcrossprod(SEXP x)
     Free(itmp); Free(xtmp); Free(iVal); Free(jVal); Free(xVal);
     UNPROTECT(1);
     return ans;
+#endif /* USE_CHOLMOD */
 }
 
 SEXP csc_matrix_crossprod(SEXP x, SEXP y, SEXP classed)
@@ -207,11 +223,34 @@ SEXP compressed_to_dgTMatrix(SEXP x, SEXP colP)
     int npt = length(pP) - 1;
 
     SET_SLOT(ans, Matrix_DimSym, duplicate(GET_SLOT(x, Matrix_DimSym)));
-    SET_SLOT(ans, Matrix_xSym, duplicate(GET_SLOT(x, Matrix_xSym)));
+    SET_SLOT(ans, Matrix_xSym,  duplicate(GET_SLOT(x, Matrix_xSym)));
     SET_SLOT(ans, indSym, duplicate(indP));
     expand_cmprPt(npt, INTEGER(pP),
 		  INTEGER(ALLOC_SLOT(ans, col ? Matrix_jSym : Matrix_iSym,
 				     INTSXP, length(indP))));
+    UNPROTECT(1);
+    return ans;
+}
+
+SEXP compressed_non_0_ij(SEXP x, SEXP colP)
+{
+    int col = asLogical(colP); /* 1 if "C"olumn compressed;  0 if "R"ow */
+    SEXP ans, indSym = col ? Matrix_iSym : Matrix_jSym;
+    SEXP indP = GET_SLOT(x, indSym),
+	pP = GET_SLOT(x, Matrix_pSym);
+    int n_el = length(indP), i, *ij;
+
+    ij = INTEGER(ans = PROTECT(allocMatrix(INTSXP, n_el, 2)));
+    /* expand the compressed margin to 'i' or 'j' : */
+    expand_cmprPt(length(pP) - 1, INTEGER(pP), &ij[col ? n_el : 0]);
+    /* and copy the other one: */
+    if (col)
+	for(i = 0; i < n_el; i++)
+	    ij[i] = INTEGER(indP)[i];
+    else /* row compressed */
+	for(i = 0; i < n_el; i++)
+	    ij[i + n_el] = INTEGER(indP)[i];
+
     UNPROTECT(1);
     return ans;
 }
@@ -263,17 +302,13 @@ SEXP csc_to_dgeMatrix(SEXP x)
     return ans;
 }
 
-SEXP matrix_to_csc(SEXP A)
+SEXP double_to_csc(double *a, int *dim_a)
 {
     SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dgCMatrix")));
-    int *adims = INTEGER(getAttrib(A, R_DimSymbol)), j,
-	maxnz, nrow, ncol, nnz, *vp, *vi;
-
+    int j, maxnz, nrow, ncol, nnz, *vp, *vi;
     double *vx;
 
-    if (!(isMatrix(A) && isReal(A)))
-	error(_("A must be a numeric matrix"));
-    nrow = adims[0]; ncol = adims[1];
+    nrow = dim_a[0]; ncol = dim_a[1];
     SET_SLOT(val, Matrix_factorSym, allocVector(VECSXP, 0));
     SET_SLOT(val, Matrix_DimSym, allocVector(INTSXP, 2));
     SET_SLOT(val, Matrix_pSym, allocVector(INTSXP, ncol + 1));
@@ -285,7 +320,7 @@ SEXP matrix_to_csc(SEXP A)
 	int i;
 	vp[j] = nnz;
 	for (i = 0; i < nrow; i++) {
-	    double val = REAL(A)[i + j * nrow];
+	    double val = a[i + j * nrow];
 	    if (val != 0.) {
 		vi[nnz] = i;
 		vx[nnz] = val;
@@ -302,6 +337,21 @@ SEXP matrix_to_csc(SEXP A)
     UNPROTECT(1);
     return dgCMatrix_set_Dim(val, nrow);
 }
+
+SEXP matrix_to_csc(SEXP A)
+{
+    if (!(isMatrix(A) && isReal(A)))
+	error(_("A must be a numeric matrix"));
+    return double_to_csc(REAL(A),
+			 INTEGER(getAttrib(A, R_DimSymbol)));
+}
+
+SEXP dgeMatrix_to_csc(SEXP x)
+{
+    return double_to_csc(   REAL(GET_SLOT(x, Matrix_xSym)),
+			 INTEGER(GET_SLOT(x, Matrix_DimSym)));
+}
+
 
 
 SEXP dgTMatrix_to_csc(SEXP dgTMatrix)
@@ -349,6 +399,13 @@ SEXP csc_getDiag(SEXP x)
 
 SEXP csc_transpose(SEXP x)
 {
+#ifdef USE_CHOLMOD
+    cholmod_sparse *chx = as_cholmod_sparse(x);
+    SEXP ans =
+	chm_sparse_to_SEXP(cholmod_transpose(chx, 1, &c), 1);
+    Free(chx);
+    return ans;
+#else
     SEXP xi = GET_SLOT(x, Matrix_iSym);
     SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("dgCMatrix")));
     int *adims = INTEGER(ALLOC_SLOT(ans, Matrix_DimSym, INTSXP, 2)),
@@ -371,6 +428,7 @@ SEXP csc_transpose(SEXP x)
     Free(xj);
     UNPROTECT(1);
     return ans;
+#endif /* USE_CHOLMOD */
 }
 
 SEXP csc_matrix_mm(SEXP a, SEXP b, SEXP classed, SEXP right)

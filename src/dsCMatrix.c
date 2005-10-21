@@ -1,4 +1,7 @@
 #include "dsCMatrix.h"
+#ifdef USE_CHOLMOD
+#include "chm_common.h"
+#endif /* USE_CHOLMOD */
 
 /* 'ssc' [symmetric sparse compressed] is an "alias" for our "dsC" */
 
@@ -20,7 +23,7 @@ SEXP dsCMatrix_chol(SEXP x, SEXP pivot)
     int *Ai = INTEGER(GET_SLOT(x, Matrix_iSym)),
 	*Ap = INTEGER(pSlot),
 	*Lp, *Parent, info,
-	lo = CHAR(asChar(GET_SLOT(x, Matrix_uploSym)))[0] == 'L',
+	lo = uplo_P(x)[0] == 'L',
 	n = length(pSlot)-1,
 	nnz, piv = asLogical(pivot);
     SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dCholCMatrix")));
@@ -141,7 +144,7 @@ SEXP ssc_transpose(SEXP x)
 
     adims = INTEGER(ALLOC_SLOT(ans, Matrix_DimSym, INTSXP, 2));
     adims[0] = xdims[1]; adims[1] = xdims[0];
-    if (CHAR(asChar(GET_SLOT(x, Matrix_uploSym)))[0] == 'U')
+    if (uplo_P(x)[0] == 'U')
 	SET_SLOT(ans, Matrix_uploSym, mkString("L"));
     else
 	SET_SLOT(ans, Matrix_uploSym, mkString("U"));
@@ -155,6 +158,7 @@ SEXP ssc_transpose(SEXP x)
     return ans;
 }
 
+/* TODO: still needed with Csparse_to_Tsparse()  [ which does dsC -> dsT ] */
 SEXP dsCMatrix_to_dgTMatrix(SEXP x)
 {
     SEXP
@@ -209,7 +213,7 @@ SEXP dsCMatrix_ldl_symbolic(SEXP x, SEXP doPerm)
 	*P = (int *) NULL, *Pinv = (int *) NULL;
 
 
-    if (CHAR(asChar(GET_SLOT(x, Matrix_uploSym)))[0] == 'L') {
+    if (uplo_P(x)[0] == 'L') {
 	x = PROTECT(ssc_transpose(x));
     } else {
 	x = PROTECT(duplicate(x));
@@ -268,3 +272,12 @@ SEXP dsCMatrix_metis_perm(SEXP x)
     return ans;
 }
 
+SEXP sCMatrix_to_gCMatrix(SEXP x)
+{
+    cholmod_sparse *chx = as_cholmod_sparse(x);
+    cholmod_sparse *ans = cholmod_copy(chx, /* stype: */ 0, chx->xtype, &c);
+    /* xtype: pattern, "real", complex or .. */
+
+    Free(chx);
+    return chm_sparse_to_SEXP(ans, 1);
+}

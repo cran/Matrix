@@ -78,7 +78,7 @@ SEXP dgeMatrix_rcond(SEXP obj, SEXP type)
 
 SEXP dgeMatrix_crossprod(SEXP x, SEXP trans)
 {
-    int tr = asLogical(trans);
+    int tr = asLogical(trans);/* trans=TRUE: tcrossprod(x) */
     SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dpoMatrix")));
     int *Dims = INTEGER(GET_SLOT(x, Matrix_DimSym)),
 	*vDims = INTEGER(ALLOC_SLOT(val, Matrix_DimSym, INTSXP, 2));
@@ -537,7 +537,7 @@ SEXP dgeMatrix_colsums(SEXP x, SEXP naRmP, SEXP cols, SEXP mean)
     int cnt = 0, i, j, n = dims[0], p = dims[1];
     SEXP ans = PROTECT(allocVector(REALSXP, (useCols) ? p : n));
     double *xx = REAL(GET_SLOT(x, Matrix_xSym)), *rx, sum;
-    
+
     if (useCols) {
 	cnt = n;
 	for (j = 0; j < p; j++) {

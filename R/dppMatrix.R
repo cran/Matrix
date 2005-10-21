@@ -41,3 +41,8 @@ setMethod("solve", signature(a = "dppMatrix", b = "integer"),
               storage.mode(b) <- "double"
               .Call("dppMatrix_matrix_solve", a, as.matrix(b), FALSE)
           }, valueClass = "dgeMatrix")
+
+setMethod("t", signature(x = "dppMatrix"),
+          function(x) as(t(as(x, "dspMatrix")), "dppMatrix"),
+          valueClass = "dppMatrix")
+

@@ -1,6 +1,6 @@
 
 R : Copyright 2005, The R Foundation for Statistical Computing
-Version 2.2.0 Under development (unstable) (2005-09-07 r35516)
+Version 2.2.0 beta (2005-09-27 r35689)
 ISBN 3-900051-07-0
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -103,21 +103,21 @@ Type 'q()' to quit R.
 Formal class 'dgCMatrix' [package "Matrix"] with 6 slots
   ..@ i       : int [1:200] 2 6 11 21 24 29 37 38 1 4 ...
   ..@ p       : int [1:21] 0 8 22 28 37 41 50 63 71 81 ...
-  ..@ factors : list()
-  ..@ x       : num [1:200] 3 7 12 22 25 30 38 39 42 45 ...
   ..@ Dim     : int [1:2] 40 20
   ..@ Dimnames:List of 2
   .. ..$ : NULL
   .. ..$ : NULL
+  ..@ factors : list()
+  ..@ x       : num [1:200] 3 7 12 22 25 30 38 39 42 45 ...
 > str(mT <- as(m, "dgTMatrix"))
 Formal class 'dgTMatrix' [package "Matrix"] with 6 slots
-  ..@ factors : list()
   ..@ i       : int [1:200] 2 6 11 21 24 29 37 38 1 4 ...
   ..@ j       : int [1:200] 0 0 0 0 0 0 0 0 1 1 ...
   ..@ Dim     : int [1:2] 40 20
   ..@ Dimnames:List of 2
   .. ..$ : NULL
   .. ..$ : NULL
+  ..@ factors : list()
   ..@ x       : num [1:200] 3 7 12 22 25 30 38 39 42 45 ...
 > stopifnot(identical(mT, as(mC, "dgTMatrix")),
 + 	  identical(mC, as(mT, "dgCMatrix")))
@@ -126,15 +126,16 @@ Formal class 'dgTMatrix' [package "Matrix"] with 6 slots
  [1]  0  0  3  0  0  0  7  0  0  0  0 12  0  0  0  0  0  0  0  0  0 22  0  0 25
 [26]  0  0  0  0 30  0  0  0  0  0  0  0 38 39  0
 > mC[1:2,]
-2 x 20 sparse Matrix of class "dgTMatrix"
+2 x 20 sparse Matrix of class "dgCMatrix"
                                                                
 [1,] . .  . 121 . .   241 . . . . 441 .   .   561 . 641 . .   .
 [2,] . 42 . .   . 202 .   . . . . .   482 522 .   . .   . 722 .
-> mC[7, drop = FALSE]
-1 x 20 sparse Matrix of class "dgTMatrix"
+> mC[7,  drop = FALSE]
+1 x 20 sparse Matrix of class "dgCMatrix"
                                                       
 [1,] 7 . . . . . . 287 . . 407 . 487 527 . . . . 727 .
-> 
+> stopifnot(identical(mC[7,  drop = FALSE],
++                     mC[7,, drop = FALSE]))
 > mT[,c(2,4)]
 40 x 2 sparse Matrix of class "dgTMatrix"
             
@@ -189,15 +190,30 @@ Formal class 'dgTMatrix' [package "Matrix"] with 6 slots
 + 	  identical3(mm[3,], mC[3,], mT[3,]),
 + 	  identical3(mT[2,3], mC[2,3], 0),
 + 	  identical(mT[], mT),
-+ 	  ## TODO: identical4() with  m[c(3,7), 2:4]
++ 	  ## TODO: identical4() with  m[c(3,7), 2:4] - fail because of 'dimnames'
 + 	  identical3(as(mC[c(3,7), 2:4],"matrix"), mm[c(3,7), 2:4],
 + 		     as(mT[c(3,7), 2:4],"matrix")))
+> 
+> ## --- negative indices ----------
+> mc <- mC[1:5, 1:7]
+> mt <- mT[1:5, 1:7]
+> ## sub matrix
+> stopifnot(identical(mc[-(3:5), 0:2], mC[1:2, 0:2]),
++           identical(mt[-(3:5), 0:2], mT[1:2, 0:2]))
+> ## sub vector
+> stopifnot(identical4(mc[-(1:4), ], mC[5, 1:7],
++                      mt[-(1:4), ], mT[5, 1:7]))
+> stopifnot(identical4(mc[-(1:4), -(2:4)], mC[5, c(1,5:7)],
++                      mt[-(1:4), -(2:4)], mT[5, c(1,5:7)]))
+> 
+> ## mixing of negative and positive must give error
+> assertError(mT[-1:1,])
 > 
 > ## At least these now give a nicely understandable error:
 > try(mT[1, 4] <- -99)
 Error in "[<-"(`*tmp*`, 1, 4, value = -99) : 
-	unimplemented 'Matrix[<-' method
+	not-yet-implemented 'Matrix[<-' method
 > try(mT[2:3, ] <- 0)
 Error in "[<-"(`*tmp*`, 2:3, , value = 0) : 
-	unimplemented 'Matrix[<-' method
+	not-yet-implemented 'Matrix[<-' method
 > 

@@ -1,5 +1,6 @@
 #include "dspMatrix.h"
 
+/* Note:  also used for lspMatrix */
 SEXP dspMatrix_validate(SEXP obj)
 {
     SEXP val = symmetricMatrix_validate(obj);
@@ -21,12 +22,10 @@ double get_norm_sp(SEXP obj, char *typstr)
 
     typnm[0] = norm_type(typstr);
     if (*typnm == 'I' || *typnm == 'O') {
-        work = (double *) R_alloc(dims[0], sizeof(double));
+	work = (double *) R_alloc(dims[0], sizeof(double));
     }
-    return F77_CALL(dlansp)(typnm,
-			    CHAR(asChar(GET_SLOT(obj, Matrix_uploSym))),
-			    dims, REAL(GET_SLOT(obj, Matrix_xSym)),
-			    work);
+    return F77_CALL(dlansp)(typnm, uplo_P(obj), dims,
+			    REAL(GET_SLOT(obj, Matrix_xSym)), work);
 }
 
 SEXP dspMatrix_norm(SEXP obj, SEXP type)
@@ -49,8 +48,8 @@ double set_rcond_sp(SEXP obj, char *typstr)
 	int *dims = INTEGER(GET_SLOT(obj, Matrix_DimSym)), info;
 	double anorm = get_norm_sp(obj, "O");
 
-	F77_CALL(dspcon)(CHAR(asChar(GET_SLOT(trf, Matrix_uploSym))),
-			 dims, REAL(GET_SLOT(trf, Matrix_xSym)),
+	F77_CALL(dspcon)(uplo_P(trf), dims,
+			 REAL   (GET_SLOT(trf, Matrix_xSym)),
 			 INTEGER(GET_SLOT(trf, Matrix_permSym)),
 			 &anorm, &rcond,
 			 (double *) R_alloc(2*dims[0], sizeof(double)),
@@ -76,8 +75,7 @@ SEXP dspMatrix_solve(SEXP a)
     SET_SLOT(val, Matrix_xSym, duplicate(GET_SLOT(trf, Matrix_xSym)));
     SET_SLOT(val, Matrix_DimSym, duplicate(GET_SLOT(trf, Matrix_DimSym)));
     SET_SLOT(val, Matrix_rcondSym, duplicate(GET_SLOT(a, Matrix_rcondSym)));
-    F77_CALL(dsptri)(CHAR(asChar(GET_SLOT(val, Matrix_uploSym))),
-		     dims, REAL(GET_SLOT(val, Matrix_xSym)),
+    F77_CALL(dsptri)(uplo_P(val), dims, REAL(GET_SLOT(val, Matrix_xSym)),
 		     INTEGER(GET_SLOT(trf, Matrix_permSym)),
 		     (double *) R_alloc((long) dims[0], sizeof(double)),
 		     &info);
@@ -102,7 +100,7 @@ SEXP dspMatrix_matrix_solve(SEXP a, SEXP b, SEXP classedP)
     if (*adims != *bdims || bdims[1] < 1 || *adims < 1)
 	error(_("Dimensions of system to be solved are inconsistent"));
     Memcpy(INTEGER(ALLOC_SLOT(val, Matrix_DimSym, INTSXP, 2)), bdims, 2);
-    F77_CALL(dsptrs)(CHAR(asChar(GET_SLOT(trf, Matrix_uploSym))),
+    F77_CALL(dsptrs)(uplo_P(trf),
 		     &n, &nrhs, REAL(GET_SLOT(trf, Matrix_xSym)),
 		     INTEGER(GET_SLOT(trf, Matrix_permSym)),
 		     Memcpy(REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, sz)),
@@ -124,9 +122,9 @@ SEXP dspMatrix_as_dsyMatrix(SEXP from)
     SET_SLOT(val, Matrix_DimSym, duplicate(dimP));
     SET_SLOT(val, Matrix_DimNamesSym, duplicate(dmnP));
     SET_SLOT(val, Matrix_uploSym, duplicate(uplo));
-    packed_to_full(REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, n*n)),
-		   REAL(GET_SLOT(from, Matrix_xSym)), n,
-		   *CHAR(STRING_ELT(uplo, 0)) == 'U' ? UPP : LOW);
+    packed_to_full_double(REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, n*n)),
+			  REAL(GET_SLOT(from, Matrix_xSym)), n,
+			  *CHAR(STRING_ELT(uplo, 0)) == 'U' ? UPP : LOW);
     UNPROTECT(1);
     return val;
 }
@@ -140,7 +138,7 @@ SEXP dspMatrix_matrix_mm(SEXP a, SEXP b, SEXP classedP)
     int *bdims = INTEGER(bdimP);
     int i, ione = 1, n = bdims[0], nrhs = bdims[1];
     int sz = n * nrhs;
-    char *uplo = CHAR(STRING_ELT(GET_SLOT(a, Matrix_uploSym), 0));
+    char *uplo = uplo_P(a);
     double *ax = REAL(GET_SLOT(a, Matrix_xSym)), one = 1., zero = 0.,
 	*bx = (classed ? REAL(GET_SLOT(b, Matrix_xSym)) : REAL(b)),
 	*vx = REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, sz));

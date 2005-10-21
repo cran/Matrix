@@ -10,13 +10,18 @@ DLLLIBS=-L$(RHOME)/src/gnuwin32 $(PKG_LIBS) $(FLIBS) -lR
 
 pkg = Matrix
 
-PKG_CFLAGS = -I./Metis
+PKG_CFLAGS = -DUSE_CHOLMOD
 PKG_LIBS = ${LAPACK_LIBS} ${BLAS_LIBS}
 include SOURCES_C.mkf
-OBJECTS = $(SOURCES_C:.c=.o)
+
+## zherk.f is part of BLAS, but not of R's BLAS sources
+SOURCES_F = zpotf2.f zpotrf.f zherk.f
+
+OBJECTS = $(SOURCES_C:.c=.o) $(SOURCES_F:.f=.o)
 SHLIB = $(pkg)$(SHLIB_EXT)
-SUBDIRS = Metis
+SUBDIRS = CHOLMOD UMFPACK Metis AMD COLAMD LDL CCOLAMD
 SUBLIBS = $(SUBDIRS:=.a)
+SUBSTAMP = $(SUBDIRS:=.stamp)
 
 $(SHLIB): $(OBJECTS) $(SUBLIBS)
 	gcc --shared -s -o Matrix.dll $(OBJECTS) $(SUBLIBS) $(ALL_LIBS) $(DLLLIBS)
@@ -25,12 +30,15 @@ all: $(SHLIB)
 
 mostlyclean: clean
 
-$(SUBLIBS):
+UFconfig.stamp: 
+	@$(CP) UFconfig/UFconfig_win.mk UFconfig/UFconfig.mk 
+
+$(SUBLIBS): UFconfig.stamp
 	@for d in $(SUBDIRS); do \
-	  (cd $${d} && $(MAKE) -f Makefile.win lib) || exit 1; \
+	  (cd $${d} && $(MAKE) lib) || exit 1; \
 	done
 
-clean:
+clean: UFconfig.stamp
 	@-rm -rf .libs _libs
 	@-rm -f *.o
 

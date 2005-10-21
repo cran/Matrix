@@ -1,6 +1,6 @@
 \name{expm}
 \alias{expm}
-\alias{expm,ddenseMatrix-method}
+\alias{expm,dMatrix-method}
 \alias{expm,dgeMatrix-method}
 \title{Matrix exponential}
 \description{
@@ -10,7 +10,7 @@
 expm(x)
 }
 \arguments{
-  \item{x}{an \R object that inherits from the \code{Matrix} class}
+  \item{x}{an \R object that inherits from the \code{dMatrix} class.}
 }
 \details{
   The exponential of a matrix is defined as the infinite Taylor
@@ -36,7 +36,7 @@ expm(x)
 stopifnot(all.equal(e1@x, c(e,0,e,e), tol = 1e-15))
 (m2 <- Matrix(c(-49, -64, 24, 31), nc = 2))
 (e2 <- expm(m2))
-(m3 <- Matrix(cbind(0,rbind(6*diag(3),0)), nc = 4))
+(m3 <- Matrix(cbind(0,rbind(6*diag(3),0)), nc = 4))# sparse!
 (e3 <- expm(m3))
 }
 \keyword{algebra}

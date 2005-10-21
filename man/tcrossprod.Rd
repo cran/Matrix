@@ -50,11 +50,8 @@ tcrossprod(x)
 
  stopifnot(identical(cm, as(tCmm, "matrix")))
 
- ## show "sparse" (sub) matrix
- tc <- cm[1:16, 1:30]
- storage.mode(tc) <- "character" ; tc[tc == "0"] <- "."
- dimnames(tc)[[2]] <- rep("", ncol(tc))
- noquote(tc)
+ ## show sparse sub matrix
+ tCmm[1:16, 1:30]
 }
 \keyword{methods}
 \keyword{algebra}

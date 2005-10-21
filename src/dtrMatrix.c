@@ -17,12 +17,13 @@ SEXP triangularMatrix_validate(SEXP obj)
     return ScalarLogical(1);
 }
 
-/* FIXME: validObject(.) works "funny": dtrMatrix_as_dgeMatrix()  {below}
- * -----  is called *before* the following - presumably in order to
- *        apply the higher level validation first.
+/* FIXME? validObject(.) works "unexpectedly": dtrMatrix_as_dgeMatrix()  {below}
+ * -----  is called *before* the following - in order to
+ *        apply the higher level validation first, since dtr* contains dge*
 */
 SEXP dtrMatrix_validate(SEXP obj)
 {
+    /* FIXME: Is the following unnecessary, since "dtr" inherits from "triangular" ? */
     return triangularMatrix_validate(obj);
 }
 
@@ -38,12 +39,8 @@ double get_norm(SEXP obj, char *typstr)
     if (*typnm == 'I') {
 	work = (double *) R_alloc(dims[0], sizeof(double));
     }
-    return F77_CALL(dlantr)(typnm,
-			    CHAR(asChar(GET_SLOT(obj, Matrix_uploSym))),
-			    CHAR(asChar(GET_SLOT(obj, Matrix_diagSym))),
-			    dims, dims+1,
-			    REAL(GET_SLOT(obj, Matrix_xSym)),
-			    dims, work);
+    return F77_CALL(dlantr)(typnm, uplo_P(obj), diag_P(obj), dims, dims+1,
+			    REAL(GET_SLOT(obj, Matrix_xSym)), dims, work);
 }
 
 
@@ -62,11 +59,8 @@ double set_rcond(SEXP obj, char *typstr)
     typnm[0] = rcond_type(typstr);
     if (R_IsNA(rcond)) {
 	int *dims = INTEGER(GET_SLOT(obj, Matrix_DimSym)), info;
-	F77_CALL(dtrcon)(typnm,
-			 CHAR(asChar(GET_SLOT(obj, Matrix_uploSym))),
-			 CHAR(asChar(GET_SLOT(obj, Matrix_diagSym))),
-			 dims, REAL(GET_SLOT(obj, Matrix_xSym)),
-			 dims, &rcond,
+	F77_CALL(dtrcon)(typnm, uplo_P(obj), diag_P(obj), dims,
+			 REAL(GET_SLOT(obj, Matrix_xSym)), dims, &rcond,
 			 (double *) R_alloc(3*dims[0], sizeof(double)),
 			 (int *) R_alloc(dims[0], sizeof(int)), &info);
 	SET_SLOT(obj, Matrix_rcondSym,
@@ -84,9 +78,8 @@ SEXP dtrMatrix_solve(SEXP a)
 {
     SEXP val = PROTECT(duplicate(a));
     int info, *Dim = INTEGER(GET_SLOT(val, Matrix_DimSym));
-    F77_CALL(dtrtri)(CHAR(asChar(GET_SLOT(val, Matrix_uploSym))),
-		     CHAR(asChar(GET_SLOT(val, Matrix_diagSym))),
-		     Dim, REAL(GET_SLOT(val, Matrix_xSym)), Dim, &info);
+    F77_CALL(dtrtri)(uplo_P(val), diag_P(val), Dim,
+		     REAL(GET_SLOT(val, Matrix_xSym)), Dim, &info);
     UNPROTECT(1);
     return val;
 }
@@ -105,8 +98,8 @@ SEXP dtrMatrix_matrix_solve(SEXP a, SEXP b, SEXP classed)
     if (*adims != *bdims || bdims[1] < 1 || *adims < 1 || *adims != adims[1])
 	error(_("Dimensions of system to be solved are inconsistent"));
     Memcpy(INTEGER(ALLOC_SLOT(ans, Matrix_DimSym, INTSXP, 2)), bdims, 2);
-    F77_CALL(dtrsm)("L", CHAR(asChar(GET_SLOT(a, Matrix_uploSym))),
-		    "N", CHAR(asChar(GET_SLOT(a, Matrix_diagSym))),
+    F77_CALL(dtrsm)("L", uplo_P(a),
+		    "N", diag_P(a),
 		    &n, &nrhs, &one, REAL(GET_SLOT(a, Matrix_xSym)), &n,
 		    Memcpy(REAL(ALLOC_SLOT(ans, Matrix_xSym, REALSXP, sz)),
 			   REAL(cl ? GET_SLOT(b, Matrix_xSym):b), sz), &n);
@@ -135,8 +128,8 @@ SEXP dtrMatrix_matrix_mm(SEXP a, SEXP b, SEXP classed, SEXP right)
     if (m < 1 || n < 1)
 	error(_("Matrices with zero extents cannot be multiplied"));
     cdims[0] = m; cdims[1] = n; sz = m * n;
-    F77_CALL(dtrmm)(rt ? "R" : "L", CHAR(asChar(GET_SLOT(a, Matrix_uploSym))),
-		    "N", CHAR(asChar(GET_SLOT(a, Matrix_diagSym))), &m, &n,
+    F77_CALL(dtrmm)(rt ? "R" : "L", uplo_P(a),
+		    "N", diag_P(a), &m, &n,
 		    &one, REAL(GET_SLOT(a, Matrix_xSym)), rt ? &n : &m,
 		    Memcpy(REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, sz)),
 			   REAL(cl ? GET_SLOT(b, Matrix_xSym) : b), sz),
@@ -182,7 +175,7 @@ SEXP dtrMatrix_getDiag(SEXP x)
     SEXP ret = PROTECT(allocVector(REALSXP, n)),
 	xv = GET_SLOT(x, Matrix_xSym);
 
-    if ('U' == CHAR(STRING_ELT(GET_SLOT(x, Matrix_diagSym), 0))[0]) {
+    if ('U' == diag_P(x)[0]) {
 	for (i = 0; i < n; i++) REAL(ret)[i] = 1.;
     } else {
 	for (i = 0; i < n; i++) {
@@ -205,9 +198,7 @@ SEXP dtrMatrix_dgeMatrix_mm_R(SEXP a, SEXP b)
 	error(_("Matrices are not conformable for multiplication"));
     if (m < 1 || n < 1 || k < 1)
 	error(_("Matrices with zero extents cannot be multiplied"));
-    F77_CALL(dtrmm)("R", CHAR(asChar(GET_SLOT(a, Matrix_uploSym))), "N",
-		    CHAR(asChar(GET_SLOT(a, Matrix_diagSym))),
-		    adims, bdims+1, &one,
+    F77_CALL(dtrmm)("R", uplo_P(a), "N", diag_P(a), adims, bdims+1, &one,
 		    REAL(GET_SLOT(a, Matrix_xSym)), adims,
 		    REAL(GET_SLOT(val, Matrix_xSym)), bdims);
     UNPROTECT(1);
@@ -227,10 +218,11 @@ SEXP dtrMatrix_as_dtpMatrix(SEXP from)
     SET_SLOT(val, Matrix_DimSym, duplicate(dimP));
     SET_SLOT(val, Matrix_diagSym, duplicate(diag));
     SET_SLOT(val, Matrix_uploSym, duplicate(uplo));
-    full_to_packed(REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, (n*(n+1))/2)),
-		   REAL(GET_SLOT(from, Matrix_xSym)), n,
-		   *CHAR(STRING_ELT(uplo, 0)) == 'U' ? UPP : LOW,
-		   *CHAR(STRING_ELT(diag, 0)) == 'U' ? UNT : NUN);
+    full_to_packed_double(
+	REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, (n*(n+1))/2)),
+	REAL(GET_SLOT(from, Matrix_xSym)), n,
+	*CHAR(STRING_ELT(uplo, 0)) == 'U' ? UPP : LOW,
+	*CHAR(STRING_ELT(diag, 0)) == 'U' ? UNT : NUN);
     UNPROTECT(1);
     return val;
 }

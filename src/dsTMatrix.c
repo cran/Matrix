@@ -35,6 +35,7 @@ SEXP dsTMatrix_as_dsyMatrix(SEXP x)
     return val;
 }
 
+/* FIXME: no longer needed, with Tsparse_to_Csparse() ! */
 SEXP dsTMatrix_as_dsCMatrix(SEXP x)
 {
     SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dsCMatrix"))),
@@ -54,8 +55,45 @@ SEXP dsTMatrix_as_dsCMatrix(SEXP x)
 		   vp, ti, tx);
     nnz = vp[n];
     Memcpy(INTEGER(ALLOC_SLOT(val, Matrix_iSym, INTSXP, nnz)), ti, nnz);
-    Memcpy(REAL(ALLOC_SLOT(val, Matrix_iSym, REALSXP, nnz)), tx, nnz);
+    Memcpy(   REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, nnz)), tx, nnz);
     Free(ti); Free(tx);
+    UNPROTECT(1);
+    return val;
+}
+
+/* this corresponds to changing 'stype' of a cholmod_triplet; seems not available there */
+SEXP dsTMatrix_as_dgTMatrix(SEXP x)
+{
+    SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dgTMatrix"))),
+	dimP = GET_SLOT(x, Matrix_DimSym),
+	xiP = GET_SLOT(x, Matrix_iSym),
+	uplo = GET_SLOT(x, Matrix_uploSym);
+    int i, nnz = length(xiP);
+    int *vi = INTEGER(ALLOC_SLOT(val, Matrix_iSym, INTSXP, 2 * nnz)),
+	*vj = INTEGER(ALLOC_SLOT(val, Matrix_jSym, INTSXP, 2 * nnz)),
+	*vx = INTEGER(ALLOC_SLOT(val, Matrix_xSym,REALSXP, 2 * nnz));
+
+    SET_SLOT(val, Matrix_DimSym, duplicate(dimP));
+
+    if(*CHAR(STRING_ELT(uplo, 0)) == 'U') { /* x stored in upper triangle */
+
+	Memcpy(&vi[nnz], INTEGER(GET_SLOT(x, Matrix_iSym)), nnz);
+	Memcpy(&vj[nnz], INTEGER(GET_SLOT(x, Matrix_jSym)), nnz);
+	Memcpy(&vx[nnz],    REAL(GET_SLOT(x, Matrix_xSym)), nnz);
+
+	for(i = 0; i < nnz; i++) { /* copy the other triangle */
+	    vi[i] = INTEGER(GET_SLOT(x, Matrix_jSym))[i];
+	    vj[i] = INTEGER(GET_SLOT(x, Matrix_iSym))[i];
+	    vx[i] = INTEGER(GET_SLOT(x, Matrix_xSym))[i];
+	}
+
+    }
+    else { /* x is stored in lower triangle */
+
+	error("dsTMatrix_as_dgTMatrix(.) not yet for  uplo != 'U'");
+
+    }
+
     UNPROTECT(1);
     return val;
 }

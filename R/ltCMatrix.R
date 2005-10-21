@@ -2,9 +2,12 @@
 
 ### contains = "lsparseMatrix"
 
+setAs("ltCMatrix", "matrix",
+      function(from) as(as(from, "dtCMatrix"), "matrix"))
+
 setAs("ltCMatrix", "dtCMatrix",
       function(from) new("dtCMatrix", i = from@i, p = from@p,
-                         x = rep(1, length(from@i)), uplo = from@uplo,
+                         x = rep.int(1, length(from@i)), uplo = from@uplo,
                          diag = from@diag,
                          Dim = from@Dim, Dimnames = from@Dimnames))
 

@@ -42,11 +42,44 @@
 
 - tcrossprod() now works: C code now "exported" via init.c
 
-- FIXME: dtpMatrix(... diag = "U") (i.e., unit-diagonal packed triangular)
-  -----  *does* need 'x' entries for the diagonal but these are never looked at.
+- Fixed: dtpMatrix(... diag = "U") (i.e., unit-diagonal packed triangular)
+         *does* need 'x' entries for the diagonal but these are never looked at.
     -> changed doc -- Lapack also says they are not referenced but assumed 1.
 
 
 - in lmer.c check all instances of the use of ZtX and XtX and change
   them so that having a negative last element of nc means use the
   response only (but look for it in the right place).
+
+- Solved:
+
+   Currently the show() method fail sometime after coercion:
+   e.g. 'sy' show()s wrongly, even though it "str()" fine :
+
+      (po <- crossprod(Matrix(0:3, 2))) # ok
+      (ge <- as(po, "dgeMatrix")) # ok
+      (sy <- as(po, "dsyMatrix")) # BAD
+      str(sy) # looks fine
+
+  or
+      example(expand) # -> ex$L and ex$U look bad, however
+      as(ex$L, "dgeMatrix") # `works'
+
+  {Of course, we don't need a workaround but must understand
+   and solve the problem}
+
+- slot "factors" maybe should move up to "Matrix" -- done, 2005-09-28
+
+- group generics: "Arith", also "Compare", "Math" etc;
+  see ?Math  and the examples in ?SetGeneric
+
+- methods for rbind and cbind where they make sense:
+  R 2.2.0 (and newer) provide cbind2() and rbind2() generics and default
+  methods [following John Chambers's proposition], and we have implemented
+  methods for them.
+
+- arithmetic for sparse matrices:
+     done for    <sparseMatrix>  o  <scalar>
+  {more needed: see TODO}
+
+

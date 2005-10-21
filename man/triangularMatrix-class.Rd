@@ -24,6 +24,8 @@
     \item{\code{Dim, Dimnames}:}{The dimension (a length-2
       \code{"integer"}) and corresponding names (or \code{NULL}),
       inherited from the \code{\link{Matrix-class}}, see there.}
+    \item{\code{factors}:}{a list of matrix factorizations, also from the
+      \code{Matrix} class.}
   }
 }
 \section{Extends}{

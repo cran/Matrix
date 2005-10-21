@@ -45,6 +45,9 @@ SEXP as_det_obj(double val, int log, int sign);
 SEXP get_factors(SEXP obj, char *nm);
 SEXP set_factors(SEXP obj, SEXP val, char *nm);
 SEXP dgCMatrix_set_Dim(SEXP x, int nrow);
+char uplo_value(SEXP x);
+char diag_value(SEXP x);
+
 int csc_unsorted_columns(int ncol, const int p[], const int i[]);
 void csc_sort_columns(int ncol, const int p[], int i[], double x[]);
 SEXP triple_as_SEXP(int nrow, int ncol, int nz,
@@ -58,12 +61,22 @@ void ssc_symbolic_permute(int n, int upper, const int perm[],
 			  int Ap[], int Ai[]);
 SEXP Matrix_make_named(int TYP, char **names);
 SEXP check_scalar_string(SEXP sP, char *vals, char *nm);
-double *packed_to_full(double *dest, const double *src, int n,
-		       enum CBLAS_UPLO uplo);
-double *full_to_packed(double *dest, const double *src, int n,
-		       enum CBLAS_UPLO uplo, enum CBLAS_DIAG diag);
 double *packed_getDiag(double *dest, SEXP x);
 SEXP Matrix_getElement(SEXP list, char *nm);
+
+#define PACKED_TO_FULL(TYPE)						\
+TYPE *packed_to_full_ ## TYPE(TYPE *dest, const TYPE *src,		\
+			     int n, enum CBLAS_UPLO uplo)
+PACKED_TO_FULL(double);
+PACKED_TO_FULL(int);
+#undef PACKED_TO_FULL
+
+#define FULL_TO_PACKED(TYPE)						\
+TYPE *full_to_packed_ ## TYPE(TYPE *dest, const TYPE *src, int n,	\
+			      enum CBLAS_UPLO uplo, enum CBLAS_DIAG diag)
+FULL_TO_PACKED(double);
+FULL_TO_PACKED(int);
+#undef FULL_TO_PACKED
 
 
 extern	 /* stored pointers to symbols initialized in R_init_Matrix */
@@ -77,6 +90,10 @@ extern	 /* stored pointers to symbols initialized in R_init_Matrix */
 
 /* duplicate the slot with name given by sym from src to dest */
 #define slot_dup(dest, src, sym)  SET_SLOT(dest, sym, duplicate(GET_SLOT(src, sym)))
+
+#define uplo_P(_x_) CHAR(STRING_ELT(GET_SLOT(_x_, Matrix_uploSym), 0))
+#define diag_P(_x_) CHAR(STRING_ELT(GET_SLOT(_x_, Matrix_diagSym), 0))
+
 
 /**
  * Check for valid length of a packed triangular array and return the
@@ -277,6 +294,8 @@ vecSum(double dest[], const double src1[], const double src2[],
     for (i = 0; i < n; i++) dest[i] = src1[i] + src2[i];
     return dest;
 }
+
+SEXP alloc_real_classed_matrix(char *class, int nrow, int ncol);
 
 #ifdef __cplusplus
 }

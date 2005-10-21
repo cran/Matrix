@@ -28,6 +28,13 @@ SEXP dppMatrix_chol(SEXP x)
     SET_SLOT(val, Matrix_DimSym, duplicate(dimP));
     SET_SLOT(val, Matrix_xSym, duplicate(GET_SLOT(x, Matrix_xSym)));
     F77_CALL(dpptrf)(uplo, dims, REAL(GET_SLOT(val, Matrix_xSym)), &info);
+    if (info) {
+	if(info > 0) /* e.g. x singular */
+	    error(_("the leading minor of order %d is not positive definite"),
+		    info);
+	else /* should never happen! */
+	    error(_("Lapack routine %s returned error code %d"), "dpptrf", info);
+    }
     UNPROTECT(1);
     return set_factors(x, val, "pCholesky");
 }
@@ -44,9 +51,8 @@ double set_rcond(SEXP obj, char *typstr)
 	int *dims = INTEGER(GET_SLOT(Chol, Matrix_DimSym)), info;
 	double anorm = get_norm_sp(obj, typnm);
 
-	F77_CALL(dppcon)(CHAR(asChar(GET_SLOT(Chol, Matrix_uploSym))),
-			 dims, REAL(GET_SLOT(Chol, Matrix_xSym)),
-			 &anorm, &rcond,
+	F77_CALL(dppcon)(uplo_P(Chol), dims,
+			 REAL(GET_SLOT(Chol, Matrix_xSym)), &anorm, &rcond,
 			 (double *) R_alloc(3*dims[0], sizeof(double)),
 			 (int *) R_alloc(dims[0], sizeof(int)), &info);
 	SET_SLOT(obj, Matrix_rcondSym,
@@ -69,8 +75,8 @@ SEXP dppMatrix_solve(SEXP x)
     SET_SLOT(val, Matrix_uploSym, duplicate(GET_SLOT(Chol, Matrix_uploSym)));
     SET_SLOT(val, Matrix_xSym, duplicate(GET_SLOT(Chol, Matrix_xSym)));
     SET_SLOT(val, Matrix_DimSym, duplicate(GET_SLOT(Chol, Matrix_DimSym)));
-    F77_CALL(dpptri)(CHAR(asChar(GET_SLOT(val, Matrix_uploSym))),
-		     dims, REAL(GET_SLOT(val, Matrix_xSym)), &info);
+    F77_CALL(dpptri)(uplo_P(val), dims,
+		     REAL(GET_SLOT(val, Matrix_xSym)), &info);
     UNPROTECT(1);
     return val;
 }
@@ -91,11 +97,11 @@ SEXP dppMatrix_matrix_solve(SEXP a, SEXP b, SEXP classed)
     if (*adims != *bdims || bdims[1] < 1 || *adims < 1)
 	error(_("Dimensions of system to be solved are inconsistent"));
     Memcpy(INTEGER(ALLOC_SLOT(val, Matrix_DimSym, INTSXP, 2)), bdims, 2);
-    F77_CALL(dpptrs)
-	(CHAR(asChar(GET_SLOT(Chol, Matrix_uploSym))), &n, &nrhs,
-	 REAL(GET_SLOT(Chol, Matrix_xSym)),
-	 Memcpy(REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, sz)),
-		REAL(cl ? GET_SLOT(b, Matrix_xSym) : b), sz), &n, &info);
+    F77_CALL(dpptrs)(uplo_P(Chol), &n, &nrhs,
+		     REAL(GET_SLOT(Chol, Matrix_xSym)),
+		     Memcpy(REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, sz)),
+			    REAL(cl ? GET_SLOT(b, Matrix_xSym) : b), sz),
+		     &n, &info);
     UNPROTECT(1);
     return val;
 }

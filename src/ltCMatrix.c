@@ -45,7 +45,7 @@ SEXP ltCMatrix_trans(SEXP x)
     SEXP adn = ALLOC_SLOT(ans, Matrix_DimNamesSym, VECSXP, 2);
     int *adims = INTEGER(ALLOC_SLOT(ans, Matrix_DimSym, INTSXP, 2)),
 	*xdims = INTEGER(GET_SLOT(x, Matrix_DimSym)),
-	up = CHAR(asChar(GET_SLOT(x, Matrix_uploSym)))[0] == 'U';
+	up = uplo_P(x)[0] == 'U';
     int m = xdims[0], n = xdims[1], nz = length(Xi);
     int *xj = expand_cmprPt(n, INTEGER(GET_SLOT(x, Matrix_pSym)),
 			    Calloc(nz, int));

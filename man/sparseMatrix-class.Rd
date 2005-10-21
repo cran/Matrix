@@ -1,23 +1,26 @@
 \name{sparseMatrix-class}
 \docType{class}
+\title{Virtual Class "sparseMatrix" --- Mother of Sparse Matrices}
 \alias{sparseMatrix-class}
+
+\alias{-,sparseMatrix,missing-method}
 \alias{show,sparseMatrix-method}
-\alias{\%*\%,sparseMatrix,ddenseMatrix-method}
-\alias{\%*\%,ddenseMatrix,sparseMatrix-method}
-\alias{crossprod,sparseMatrix,ddenseMatrix-method}
-\alias{crossprod,ddenseMatrix,sparseMatrix-method}
 \alias{coerce,graph,sparseMatrix-method}
 \alias{coerce,graphNEL,sparseMatrix-method}
 \alias{coerce,sparseMatrix,graph-method}
 \alias{coerce,sparseMatrix,graphNEL-method}
 \alias{coerce,dgTMatrix,graphNEL-method}
-\title{Virtual Class "sparseMatrix" --- Mother of Sparse Matrices}
 \description{Virtual Mother Class of All Sparse Matrices}
 \section{Slots}{
-  \code{Dim}, and \code{Dimnames}, see \code{\link{Matrix-class}}.
-% Should this be "written in stone" or should they be added?
-%   Note that the current implementation keeps \code{Dimnames} empty for
-%   sparse matrices.
+  \describe{
+    \item{\code{Dim}:}{Object of class \code{"integer"} - the dimensions
+     of the matrix - must be an integer vector with exactly two
+     non-negative values.}
+    \item{\code{Dimnames}:}{a list of length two - inherited from class
+      \code{Matrix}, see \code{\link{Matrix-class}}.}
+    \item{\code{factors}:}{Object of class \code{"list"} - a list
+      of factorizations of the matrix. }
+  }
 }
 \section{Extends}{
   Class \code{"Matrix"}, directly.

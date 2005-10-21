@@ -58,6 +58,25 @@ subbars <- function(term)
     term
 }
 
+## Expand an expression with colons to the sum of the lhs
+## and the current expression
+
+colExpand <- function(term)
+{
+    if (is.name(term) || is.numeric(term)) return(term)
+    if (length(term) == 2) {
+        term[[2]] <- colExpand(term[[2]])
+        return(term)
+    }
+    stopifnot(length(term) == 3)
+    if (is.call(term) && term[[1]] == as.name(':')) {
+        return(substitute(A+B, list(A = term, B = colExpand(term[[2]]))))
+    }
+    term[[2]] <- colExpand(term[[2]])
+    term[[3]] <- colExpand(term[[3]])
+    term
+}
+
 abbrvNms <- function(gnm, cnms)
 {
     ans <- paste(abbreviate(gnm), abbreviate(cnms), sep = '.')
@@ -124,9 +143,9 @@ setMethod("lmer", signature(formula = "formula"),
           glm.fit <- eval(mf, parent.frame())
           x <- glm.fit$x
           y <- as.double(glm.fit$y)
-          lmm <- missing(family) # => linear mixed model
           family <- glm.fit$family
-
+          ## check for a linear mixed model
+          lmm <- family$family == "gaussian" && family$link == "identity"
           if (lmm) { # linear mixed model
               method <- match.arg(method)
               if (method %in% c("PQL", "Laplace", "AGQ")) {
@@ -139,15 +158,11 @@ setMethod("lmer", signature(formula = "formula"),
               if (missing(method)) method <- "PQL"
               else {
                   method <- match.arg(method)
-
-                  ## <FIXME>: only
-                  ## if( !(family == "gaussian" && link == "identity") ) {
                   if (method == "ML") method <- "PQL"
                   if (method == "REML")
                       warning('Argument method = "REML" is not meaningful ',
                               'for a generalized linear mixed model.',
                               '\nUsing method = "PQL".\n')
-                  ## } </FIXME>
               }
           }
 
@@ -181,7 +196,7 @@ setMethod("lmer", signature(formula = "formula"),
                        mmats, method, PACKAGE = "Matrix")
           if (lmm) {                    ## linear mixed model
               if (missing(start)) .Call("lmer_initial", mer, PACKAGE="Matrix")
-              else .Call("lmer_set_initial", mer, start, PACKAGE = "Matrix")  
+              else .Call("lmer_set_initial", mer, start, PACKAGE = "Matrix")
               .Call("lmer_ECMEsteps", mer, cv$niterEM, cv$EMverbose, PACKAGE = "Matrix")
               LMEoptimize(mer) <- cv
               fits <- .Call("lmer_fitted", mer, mmats, TRUE, PACKAGE = "Matrix")
@@ -958,17 +973,22 @@ setMethod("model.matrix", signature(object = "lmer"),
       })
 
 setMethod("simulate", signature(object = "lmer"),
-          function(object, nsim = 1,
-                   seed = runif(1, 0, .Machine$integer.max),
-                   ...)
+          function(object, nsim = 1, seed = NULL, ...)
       {
-          runif(1) ## to initialize the RNG if necessary
-          RNGstate <- .Random.seed
-          set.seed(seed)
+          if(!exists(".Random.seed", envir = .GlobalEnv))
+              runif(1)               # initialize the RNG if necessary
+          if(is.null(seed))
+              RNGstate <- .Random.seed
+          else {
+              R.seed <- .Random.seed
+              set.seed(seed)
+              RNGstate <- structure(seed, kind = as.list(RNGkind()))
+              on.exit(assign(".Random.seed", R.seed, envir = .GlobalEnv))
+          }
 
           family <- object@family
           if (family$family != "gaussian" ||
-              family$link != "identity") 
+              family$link != "identity")
               stop("simulation of generalized linear mixed models not yet implemented")
 
           ## pieces we will need later
@@ -983,14 +1003,13 @@ setMethod("simulate", signature(object = "lmer"),
 
           ## similate the linear predictors
           lpred <- .Call("lmer_simulate", as(object, "mer"), nsim,
-                         unname(drop(mmats[[length(mmats)]][,seq(a = ff)] %*% ff)),
+                         unname(drop(mmats[[length(mmats)]][,seq(a = ff),drop = FALSE] %*% ff)),
                          mmats, TRUE, PACKAGE = "Matrix")
           ## add per-observation noise term
           lpred <- as.data.frame(lpred + rnorm(prod(dim(lpred)), sd = scale))
 
-          ## save the seed and restore the RNG state
-          attr(lpred, "seed") <- seed
-          assign(".Random.seed", RNGstate, envir = .GlobalEnv)
+          ## save the seed
+          attr(lpred, "seed") <- RNGstate
           lpred
       })
 
@@ -998,7 +1017,7 @@ simulate2 <- function(object, n = 1, ...)
 {
     family <- object@family
     if (family$family != "gaussian" ||
-        family$link != "identity") 
+        family$link != "identity")
         stop("simulation of generalized linear mixed models not implemented yet")
 
     ## create the mean from the fixed effects
@@ -1024,7 +1043,7 @@ simulate2 <- function(object, n = 1, ...)
     if (any(names(random) != names(flist)))
         random <- random[names(flist)]
     mmats <- lapply(random, "[[", 1)
-    
+
     ## simulate the random effects
     scale <- .Call("lmer_sigma", object, object@method == "REML",
                    PACKAGE = "Matrix")
@@ -1070,3 +1089,4 @@ refdist <- function(fm1, fm2, n, ...)
     attr(ref, "observed") <- obs
     ref
 }
+

@@ -10,6 +10,14 @@ if(paste(R.version$major, R.version$minor, sep=".") < "2.0.1") {
 setAs("dMatrix", "matrix",
       function(from) as(as(from, "dgeMatrix"), "matrix"))
 
+### Idea: Coercion between *VIRTUAL* classes -- as() chooses "closest" classes
+### ----  should also work e.g. for  triangular --> triangular !
+##
+## setAs("dMatrix", "lMatrix",
+##       function(from) {
+##       })
+
+
 ## Methods for operations where one argument is integer
 ## No longer made use of (and confusing hence) since R version 2.1.0
 ## where "integer" goes as part of "numeric"
@@ -32,12 +40,15 @@ setAs("dMatrix", "matrix",
 ## setMethod("solve", signature(a = "dMatrix", b = "integer"),
 ##           function(a, b, ...) callGeneric(a, as.numeric(b)))
 
+setMethod("expm", signature(x = "dMatrix"),
+          function(x) callGeneric(as(x, "dgeMatrix")))
+
 
 ## Group Methods, see ?Arith (e.g.)
 ## -----
 
 ## Cheap version: work via "dgeMatrix" and use the group methods there:
-
+## FIXME: To improve by doing some of these for dsparse* !
 setMethod("Arith", ##  "+", "-", "*", "^", "%%", "%/%", "/"
           signature(e1 = "dMatrix", e2 = "dMatrix"),
           function(e1, e2) callGeneric(as(e1, "dgeMatrix"),
@@ -54,13 +65,91 @@ setMethod("Math",
           function(x) callGeneric(as(x, "dgeMatrix")))
 
 setMethod("Math2",
+          ## Assume that  Generic(u, k) |--> u for u in {0,1}
+          ## which is true for round(), signif() ==> all structure maintained
           signature(x = "dMatrix", digits = "numeric"),
-          function(x, digits) callGeneric(as(x, "dgeMatrix"), digits = digits))
+	  function(x, digits) {
+              x@x <- callGeneric(x@x, digits = digits)
+              x
+          })
 
-## This doesn't work yet because of an R bug (2005-08-26):
+## This needs extra work in ./AllGeneric.R :
 setMethod("Summary", signature(x = "dMatrix", na.rm = "ANY"),
-          function(x, ..., na.rm) callGeneric(x = x@x))
+          function(x, ..., na.rm) callGeneric(x@x, ..., na.rm = na.rm))
 
 ## TODO :  "Compare" -> returning  logical Matrices
+setMethod("Compare", signature(e1 = "numeric", e2 = "dMatrix"),
+          function(e1,e2) {
+              switch(.Generic,
+                     "==" =, "!=" = callGeneric(e2, e1),
+                     "<" =, ">" =, "<=" =, ">=" = !callGeneric(e2, e1))
+          })
+
+setMethod("Compare", signature(e1 = "dMatrix", e2 = "numeric"),
+	  function(e1, e2) {
+	      lClass <- sub("^d", "l", class(e1))
+              fullCl <- if(isSymmetric(e1)) "lsyMatrix" else "lgeMatrix"
+	      ## Dbg cat("Compare", class(e1), "|-> ",lClass, "\n")
+	      r  <- callGeneric(e1@x, e2)
+              r0 <- callGeneric(0, e2)
+	      if(is(e1, "denseMatrix")) {
+                  full <- !is(e1, "packedMatrix")
+                  if(full || identical(r0, FALSE))
+                      r <- new(lClass, x = r,
+                               Dim = dim(e1), Dimnames = dimnames(e1))
+                  else { ## packed matrix and r0 is not FALSE:
+                      ##--> result cannot be packed anymore
+                      dr <- as(e1, fullCl)
+
+                  }
+	      }
+              else { ## dsparseMatrix
+                  r <- new(lClass, Dim = dim(e1), Dimnames = dimnames(e1),
+                           x = r)
+                  for(n in setdiff(c("i","j","p"), slotNames(r)))
+                      slot(r, n) <- slot(e1, n)
+
+		  if(!identical(r0, FALSE)) {
+                      warning("sparse to dense coercion in ",.Generic)
+
+                      .bail.out.2(.Generic, class(e1), class(e2))
+                      ## NOT YET:
+
+                      ## non sparse result
+                      dr <- as(r,
+                               if(isSymmetric(r))"lsyMatrix" else "lgeMatrix")
+                      ## FIXME: implement this:
+                      dr[ind.0(e1)] <- r0
+		  }
+	      }
+              r
+	  })
+
+setMethod("Compare", signature(e1 = "dMatrix", e2 = "dMatrix"),
+          function(e1, e2) {
+              d <- dimCheck(e1,e2)
+	      lClass <- sub("^d", "l", class(e1))
+
+              ## FIXME: if (the 'x' are slots compatible)
+	      r <- callGeneric(e1@x, e2@x)
+	      if(is(e1, "denseMatrix")) {
+		  r <- new(lClass, x = r,
+                           Dim = dim(e1), Dimnames = dimnames(e1))
+	      }
+              else { ## dsparseMatrix
+
+		  stop("'Compare' for sparse dMatrix not yet implemented")
+
+		  if(identical(FALSE, r0 <- callGeneric(0, e2))) {
+		      ## return (potentially even more) sparse logical Matrix
+		      r <- new(lClass, x = r,
+                               Dim = dim(e1), Dimnames = dimnames(e1))
+
+		  } else { ## non sparse result
+
+		  }
+	      }
+              r
+	  })
 
 ## -- end{group generics} -----------------------

@@ -13,18 +13,14 @@
 \alias{[,denseMatrix,index,index,logical-method}
 \alias{[,denseMatrix,missing,index,logical-method}
 %
-% \alias{[,gTMatrix,missing,missing,ANY-method}
-\alias{[,gTMatrix,index,missing,logical-method}
-\alias{[,gTMatrix,missing,index,logical-method}
-\alias{[,gTMatrix,index,index,logical-method}
+% \alias{[,TsparseTMatrix,missing,missing,ANY-method}
+\alias{[,TsparseMatrix,index,missing,logical-method}
+\alias{[,TsparseMatrix,missing,index,logical-method}
+\alias{[,TsparseMatrix,index,index,logical-method}
 %
-\alias{[,dsparseMatrix,missing,index,logical-method}
-\alias{[,dsparseMatrix,index,missing,logical-method}
-\alias{[,dsparseMatrix,index,index,logical-method}
-%
-\alias{[,lsparseMatrix,missing,index,logical-method}
-\alias{[,lsparseMatrix,index,missing,logical-method}
-\alias{[,lsparseMatrix,index,index,logical-method}
+\alias{[,sparseMatrix,missing,index,logical-method}
+\alias{[,sparseMatrix,index,missing,logical-method}
+\alias{[,sparseMatrix,index,index,logical-method}
 %-------
 \description{
   Methods for \code{"["}, i.e., extraction or subsetting mostly of
@@ -57,6 +53,8 @@ m[2, 3:4, drop=FALSE] # sub matrix of class 'dgeMatrix'
 ## rows or columns only:
 m[1,]     # first row, as simple numeric vector
 m[,1:2]   # sub matrix of first two columns
+
+showMethods("[", inherited = FALSE)
 }
 \keyword{methods}
 \keyword{array}

@@ -67,7 +67,7 @@ SEXP Matrix_readMatrixMarket(SEXP filename)
 
     if (mm_is_sparse(code)) mm_read_mtx_crd_size(conn, &M, &N, &nz);
     if (mm_is_dense(code)) mm_read_mtx_array_size(conn, &M, &N);
-    
+
     if (mm_is_real(code)) {
 	if (mm_is_sparse(code)) {
 	    int *ii, *jj;
@@ -129,7 +129,7 @@ SEXP Matrix_readMatrixMarket(SEXP filename)
     UNPROTECT(1);
     return ans;
 }
-#endif 
+#endif
 
 SEXP Matrix_writeHarwellBoeing(SEXP obj, SEXP file, SEXP typep)
 {
@@ -146,7 +146,7 @@ SEXP Matrix_writeHarwellBoeing(SEXP obj, SEXP file, SEXP typep)
 	if (type[2] == 'T') {	/* create column pointers */
 	    int *i1 = Calloc(nz, int);
 	    double *x1 = Calloc(nz, double);
-	    
+
 	    pp = Calloc(N + 1, int);
 	    triplet_to_col(M, N, nz, ii,
 			   INTEGER(GET_SLOT(obj, Matrix_jSym)), xx,
@@ -161,19 +161,19 @@ SEXP Matrix_writeHarwellBoeing(SEXP obj, SEXP file, SEXP typep)
 	xx = REAL(GET_SLOT(obj, Matrix_xSym));
     } else error("Only real matrices allowed");
 
-    if (!isString(file)) 
+    if (!isString(file))
 	error("non-string values for file not presently accepted");
 
     if (type[1] == 'S') {
-	if (CHAR(STRING_ELT(GET_SLOT(obj, Matrix_uploSym), 0))[0] != 'L')
+	if (*uplo_P(obj) != 'L')
 	    error("Symmetric matrices must be stored in lower triangle");
 	Type[1] = 'S';
     }
 
     writeHB_mat_double(CHAR(asChar(file)), M, N, nz, pp, ii, xx, 0,
-		       (double *)NULL, (double *)NULL, (double *)NULL, 
+		       (double *)NULL, (double *)NULL, (double *)NULL,
 		       "", "", Type, (char*)NULL, (char*)NULL,
-		       (char*)NULL, (char*)NULL, "RUA"); 
+		       (char*)NULL, (char*)NULL, "RUA");
 
     if (type[2] == 'T') {Free(ii); Free(pp); Free(xx);}
     return R_NilValue;
@@ -201,11 +201,11 @@ SEXP Matrix_writeMatrixMarket(SEXP obj, SEXP file, SEXP typep)
 	mm_set_real(&matcode);
     } else error("Only real matrices allowed");
 
-    if (!isString(file)) 
+    if (!isString(file))
 	error("non-string values for file not currently allowed");
 
     if (type[1] == 'S') {
-	if (CHAR(STRING_ELT(GET_SLOT(obj, Matrix_uploSym), 0))[0] != 'L')
+	if (*uplo_P(obj) != 'L')
 	    error("Symmetric matrices must be stored in lower triangle");
 	mm_set_symmetric(&matcode);
     }
@@ -223,5 +223,5 @@ SEXP Matrix_writeMatrixMarket(SEXP obj, SEXP file, SEXP typep)
 
     if (type[2] == 'C') Free(jj);
     return R_NilValue;
-    
+
 }

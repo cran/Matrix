@@ -33,7 +33,13 @@ SEXP dpoMatrix_chol(SEXP x)
     AZERO(vx, n * n);
     F77_CALL(dlacpy)(uplo, &n, &n, REAL(GET_SLOT(x, Matrix_xSym)), &n, vx, &n);
     F77_CALL(dpotrf)(uplo, &n, vx, &n, &info);
-    if (info) error(_("Lapack routine %s returned error code %d"), "dpotrf", info);
+    if (info) {
+	if(info > 0)
+	    error(_("the leading minor of order %d is not positive definite"),
+		    info);
+	else /* should never happen! */
+	    error(_("Lapack routine %s returned error code %d"), "dpotrf", info);
+    }
     UNPROTECT(1);
     return set_factors(x, val, "Cholesky");
 }
@@ -50,7 +56,7 @@ double set_rcond(SEXP obj, char *typstr)
 	int *dims = INTEGER(GET_SLOT(Chol, Matrix_DimSym)), info;
 	double anorm = get_norm_sy(obj, typnm);
 
-	F77_CALL(dpocon)(CHAR(asChar(GET_SLOT(Chol, Matrix_uploSym))),
+	F77_CALL(dpocon)(uplo_P(Chol),
 			 dims, REAL(GET_SLOT(Chol, Matrix_xSym)),
 			 dims, &anorm, &rcond,
 			 (double *) R_alloc(3*dims[0], sizeof(double)),
@@ -76,8 +82,8 @@ SEXP dpoMatrix_solve(SEXP x)
     SET_SLOT(val, Matrix_uploSym, duplicate(GET_SLOT(Chol, Matrix_uploSym)));
     SET_SLOT(val, Matrix_xSym, duplicate(GET_SLOT(Chol, Matrix_xSym)));
     SET_SLOT(val, Matrix_DimSym, duplicate(GET_SLOT(Chol, Matrix_DimSym)));
-    F77_CALL(dpotri)(CHAR(asChar(GET_SLOT(val, Matrix_uploSym))),
-		     dims, REAL(GET_SLOT(val, Matrix_xSym)), dims, &info);
+    F77_CALL(dpotri)(uplo_P(val), dims,
+		     REAL(GET_SLOT(val, Matrix_xSym)), dims, &info);
     SET_SLOT(val, Matrix_rcondSym, duplicate(GET_SLOT(x, Matrix_rcondSym)));
     UNPROTECT(1);
     return val;
@@ -97,8 +103,7 @@ SEXP dpoMatrix_dgeMatrix_solve(SEXP a, SEXP b)
     SET_SLOT(val, Matrix_factorSym, allocVector(VECSXP, 0));
     SET_SLOT(val, Matrix_DimSym, duplicate(GET_SLOT(b, Matrix_DimSym)));
     SET_SLOT(val, Matrix_xSym, duplicate(GET_SLOT(b, Matrix_xSym)));
-    F77_CALL(dpotrs)(CHAR(asChar(GET_SLOT(Chol, Matrix_uploSym))),
-		     adims, bdims + 1,
+    F77_CALL(dpotrs)(uplo_P(Chol), adims, bdims + 1,
 		     REAL(GET_SLOT(Chol, Matrix_xSym)), adims,
 		     REAL(GET_SLOT(val, Matrix_xSym)),
 		     bdims, &info);
@@ -118,8 +123,7 @@ SEXP dpoMatrix_matrix_solve(SEXP a, SEXP b)
 	error(_("Argument b must be a numeric matrix"));
     if (*adims != *bdims || bdims[1] < 1 || *adims < 1)
 	error(_("Dimensions of system to be solved are inconsistent"));
-    F77_CALL(dpotrs)(CHAR(asChar(GET_SLOT(Chol, Matrix_uploSym))),
-		     adims, bdims + 1,
+    F77_CALL(dpotrs)(uplo_P(Chol), adims, bdims + 1,
 		     REAL(GET_SLOT(Chol, Matrix_xSym)), adims,
 		     REAL(val), bdims, &info);
     UNPROTECT(1);

@@ -2,7 +2,8 @@
 \alias{Matrix}
 \title{Construct a Classed Matrix}
 \usage{
-Matrix(data=NA, nrow=1, ncol=1, byrow=FALSE, dimnames=NULL)
+Matrix(data=NA, nrow=1, ncol=1, byrow=FALSE, dimnames=NULL,
+       sparse = NULL)
 }
 \description{
   Construct a Matrix of a class that inherits from \code{Matrix}.
@@ -15,6 +16,9 @@ Matrix(data=NA, nrow=1, ncol=1, byrow=FALSE, dimnames=NULL)
     filled by columns, otherwise the matrix is filled by rows.}
   \item{dimnames}{a \code{\link{dimnames}} attribute for the matrix: a
     \code{list} of two character components.}
+  \item{sparse}{logical or \code{NULL}, specifying if the result should
+    be sparse or not.  By default, it is made sparse when more than half
+    of the entries are 0.}
 }
 \value{
   Returns an \code{nrow} by \code{ncol} matrix of a class that
@@ -34,12 +38,14 @@ Matrix(data=NA, nrow=1, ncol=1, byrow=FALSE, dimnames=NULL)
   \code{\link{Matrix-class}}; \code{\link{matrix}}.
 }
 \examples{
-Matrix(0, 3, 2)             # a 3 by 2 matrix of zeros
+Matrix(0, 3, 2)             # 3 by 2 matrix of zeros -> sparse
+Matrix(0, 3, 2, sparse=FALSE)# forced 'dense'
 Matrix(1:6, 3, 2)           # a 3 by 2 matrix
 Matrix(1:6, nrow=3)
 Matrix(1:6, ncol=2)
 Matrix(1:9, nrow=3,
        dimnames = list(c("a", "b", "c"), c("A", "B", "C")))
+Matrix(diag(3))# identity matrix (sparse)
 }
 \keyword{array}
 \keyword{algebra}

@@ -1,3 +1,70 @@
+2005-10-21  Douglas Bates  <bates@stat.wisc.edu>
+
+	* R/lmer.R (simulate method): Fixed a drop=FALSE problem reported
+	by Julian Faraway.
+
+2005-10-06  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Auxiliaries.R (try_as): new utility
+	* R/sparseMatrix.R: use try_as() in coercion to original class
+
+2005-09-30  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/dgCMatrix.c (double_to_csc): and dgeMatrix_to_csc()
+
+2005-09-29  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Auxiliaries.R (dimNamesCheck): added
+
+	* R/Matrix.R (as.array), (as.vector): new
+
+2005-09-28  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Matrix.R (Matrix): get logical argument 'sparse' with a smart
+		default.
+	* R/AllClass.R: move 'factors' slot toplevel "Matrix";
+		"pMatrix" now contains "sparseMatrix"
+
+2005-09-26  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* tests/Class+Meth.R: new tests; t(t(m)) == m
+
+	* src/dtCMatrix.c (tsc_transpose): add forgotten "diag" slot
+
+	* src/dsTMatrix.c (dsTMatrix_as_dsCMatrix): bad typo (segfault!)
+	* src/dtTMatrix.c (dtTMatrix_as_dtCMatrix): new
+
+	* R/dspMatrix.R: typo in "t" method
+
+2005-09-18  Douglas Bates  <bates@wisc.edu>
+
+	* R/AllClass.R (TsparseMatrix), CsparseM* and RsparseM*
+	* R/Tsparse.R: instead of R/gTMatrix.R
+	* R/Csparse.R: new
+	* src/Tsparse.c (Tsparse_to_Csparse): new; -> cholmod_()
+	* src/Tsparse.c: new; many trivial methods calling cholmod_()
+	* src/Csparse.c (Csparse_to_Tsparse), transpose, (mat|cross)prod:
+			via cholmod
+
+2005-09-16  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Auxiliaries.R (non0ind): new function using new C code
+	* src/dgCMatrix.c (compressed_non_0_ij): new utility
+
+2005-09-15  Douglas Bates  <bates@localhost.localdomain>
+
+	* src/chm_common.h: header file required by all C sources that
+	call CHOLMOD functions.  It defines a cholmod_common structure
+	called 'c' whose address is passed as the last argument to
+	(virtually) every CHOLMOD function.
+
+	* src/Pattern.c: Simple example of the use of CHOLMOD.
+
+	* src/init.c: initialize and finalize the cholmod_common structure.
+
+	* src/Makefile: Added source packages CHOLMOD UMFPACK AMD COLAMD
+	LDL and CCOLAMD from the U. of Florida sparse matrix library.
+
 2005-09-08  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* inst/test-tools.R: new file collecting the utility functions used

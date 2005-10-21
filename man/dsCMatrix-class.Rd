@@ -1,32 +1,41 @@
 \name{dsCMatrix-class}
-\title{Symmetric, compressed, sparse column matrices}
+\title{Numeric Symmetric Sparse (column compressed) Matrices}
 \docType{class}
 \alias{dsCMatrix-class}
 \alias{dsTMatrix-class}
+%
 \alias{solve,dsCMatrix,matrix-method}
 \alias{solve,dsCMatrix,dgeMatrix-method}
 \alias{chol,dsCMatrix,missing-method}
 \alias{chol,dsCMatrix,logical-method}
 \alias{t,dsCMatrix-method}
 \alias{t,dsTMatrix-method}
+\alias{coerce,dsCMatrix,dgCMatrix-method}
 \alias{coerce,dsCMatrix,dgTMatrix-method}
+\alias{coerce,dsCMatrix,dgeMatrix-method}
 \alias{coerce,dsCMatrix,dsTMatrix-method}
 \alias{coerce,dsCMatrix,dsyMatrix-method}
-\alias{coerce,dsCMatrix,dgeMatrix-method}
-\alias{coerce,dsCMatrix,matrix-method}
 \alias{coerce,dsCMatrix,lsCMatrix-method}
-\alias{coerce,dsTMatrix,matrix-method}
+\alias{coerce,dsCMatrix,matrix-method}
+\alias{coerce,dsTMatrix,dgTMatrix-method}
 \alias{coerce,dsTMatrix,dgeMatrix-method}
 \alias{coerce,dsTMatrix,dsCMatrix-method}
 \alias{coerce,dsTMatrix,dsyMatrix-method}
+\alias{coerce,dsTMatrix,lsTMatrix-method}
+\alias{coerce,dsTMatrix,matrix-method}
+\alias{coerce,dsyMatrix,dsCMatrix-method}
+\alias{coerce,dsyMatrix,dsTMatrix-method}
 \alias{coerce,graphNEL,dsCMatrix-method}
 \alias{determinant,dsCMatrix,missing-method}
 \alias{determinant,dsCMatrix,logical-method}
+\alias{image,dsCMatrix-method}
 \description{The \code{dsCMatrix} class is a class of symmetric, sparse
-  matrices in the compressed, column-oriented format.  In this
+  numeric matrices in the compressed, column-oriented format.  In this
   implementation the non-zero elements in the columns are sorted into
-  increasing row order. The \code{dsTMatrix} class is a class of
-  symmetric, sparse matrices in triplet format.}
+  increasing row order.
+  The \code{dsTMatrix} class is the class of
+  symmetric, sparse numeric matrices in triplet format.
+}
 \section{Objects from the Class}{
   Objects can be created by calls of the form \code{new("dsCMatrix",
     ...)} or \code{new("dsTMatrix", ...)}
@@ -98,6 +107,12 @@ Class \code{"dgCMatrix"}, directly.
   \code{\link{dgCMatrix-class}}, \code{\link{dgTMatrix-class}},
   \code{\link{dgeMatrix-class}}
 }
-%\examples{}
+\examples{
+## First a "dgCMatrix"
+mm <- Matrix(toeplitz(c(10, 0, 1, 0, 3)), sparse = TRUE)
+mT <- as(mm, "dgTMatrix")
+(symM <- as(mT, "dsCMatrix"))
+str(symM)
+}
 \keyword{classes}
 \keyword{algebra}

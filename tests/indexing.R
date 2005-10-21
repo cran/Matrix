@@ -59,8 +59,9 @@ stopifnot(identical(mT, as(mC, "dgTMatrix")),
 
 mC[,1]
 mC[1:2,]
-mC[7, drop = FALSE]
-
+mC[7,  drop = FALSE]
+stopifnot(identical(mC[7,  drop = FALSE],
+                    mC[7,, drop = FALSE]))
 mT[,c(2,4)]
 mT[1,]
 mT[4, drop = FALSE]
@@ -68,9 +69,24 @@ stopifnot(identical3(mm[,1], mC[,1], mT[,1]),
 	  identical3(mm[3,], mC[3,], mT[3,]),
 	  identical3(mT[2,3], mC[2,3], 0),
 	  identical(mT[], mT),
-	  ## TODO: identical4() with  m[c(3,7), 2:4]
+	  ## TODO: identical4() with  m[c(3,7), 2:4] - fail because of 'dimnames'
 	  identical3(as(mC[c(3,7), 2:4],"matrix"), mm[c(3,7), 2:4],
 		     as(mT[c(3,7), 2:4],"matrix")))
+
+## --- negative indices ----------
+mc <- mC[1:5, 1:7]
+mt <- mT[1:5, 1:7]
+## sub matrix
+stopifnot(identical(mc[-(3:5), 0:2], mC[1:2, 0:2]),
+          identical(mt[-(3:5), 0:2], mT[1:2, 0:2]))
+## sub vector
+stopifnot(identical4(mc[-(1:4), ], mC[5, 1:7],
+                     mt[-(1:4), ], mT[5, 1:7]))
+stopifnot(identical4(mc[-(1:4), -(2:4)], mC[5, c(1,5:7)],
+                     mt[-(1:4), -(2:4)], mT[5, c(1,5:7)]))
+
+## mixing of negative and positive must give error
+assertError(mT[-1:1,])
 
 ## At least these now give a nicely understandable error:
 try(mT[1, 4] <- -99)

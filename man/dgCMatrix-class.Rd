@@ -1,5 +1,6 @@
 \name{dgCMatrix-class}
 \docType{class}
+\title{Compressed, sparse, column-oriented numeric matrices}
 \alias{dgCMatrix-class}
 \alias{\%*\%,dgCMatrix,dgeMatrix-method}
 \alias{\%*\%,dgCMatrix,matrix-method}
@@ -9,6 +10,7 @@
 \alias{coerce,dgeMatrix,dgCMatrix-method}
 \alias{coerce,dgCMatrix,dgTMatrix-method}
 \alias{coerce,dgCMatrix,dgBCMatrix-method}
+\alias{coerce,dgCMatrix,lgCMatrix-method}
 \alias{coerce,dgCMatrix,matrix-method}
 \alias{coerce,dgCMatrix,dgeMatrix-method}
 \alias{crossprod,dgCMatrix,missing-method}
@@ -18,26 +20,33 @@
 \alias{dim,dgCMatrix-method}
 \alias{image,dgCMatrix-method}
 \alias{t,dgCMatrix-method}
-\title{Compressed, sparse, column-oriented numeric matrices}
+%% Group methods --------- FIXME: These are not tested yet (or documented)
+\alias{Arith,numeric,dgCMatrix-method}
+\alias{Arith,dgCMatrix,numeric-method}
+%\alias{Math2,dgCMatrix,numeric-method}
+\alias{Math,dgCMatrix-method}
+% for silly reasons, need these 2+3 as well:
+\alias{round,dgCMatrix,numeric-method}
+\alias{signif,dgCMatrix,numeric-method}
+\alias{log,dgCMatrix-method}
+\alias{gamma,dgCMatrix-method}
+\alias{lgamma,dgCMatrix-method}
+%
 \description{The \code{dgCMatrix} class is a class of sparse numeric
   matrices in the compressed, sparse, column-oriented format.  In this
   implementation the non-zero elements in the columns are sorted into
   increasing row order.}
 \section{Objects from the Class}{
-  Objects can be created by calls of the form \code{new("dgCMatrix", ...)}.
+  Objects can be created by calls of the form \code{new("dgCMatrix", ...)} or
+  often more easily via \code{\link{Matrix}(*, sparse = TRUE)}.
 }
 \section{Slots}{
   \describe{
-    \item{\code{p}:}{Object of class \code{"integer"} of pointers, one
-      for each column, to the initial (zero-based) index of elements in
-      the column.}
-    \item{\code{i}:}{Object of class \code{"integer"} of length nnzero
-      (number of non-zero elements).  These are the row numbers for
-      each non-zero element in the matrix.}
     \item{\code{x}:}{Object of class \code{"numeric"} - the non-zero
       elements of the matrix.}
-    \item{\code{nrow}:}{Object of class \code{"integer"} - the number of
-      rows in the matrix.}
+    \item{\dots}{all other slots are inherited from the superclasse
+      \code{"CsparseMatrix"}, see \code{\link{CsparseMatrix-class}}.
+    }
   }
 }
 \section{Methods}{
@@ -65,10 +74,9 @@
   \code{\link{dsCMatrix-class}}, \code{\link{dtCMatrix-class}}
 }
 \examples{
-m <- Matrix(c(0,0,2:0), 3,5)
-(mC <- as(m, "dgCMatrix"))
-str(mC)
-mC[,1]
+(m <- Matrix(c(0,0,2:0), 3,5))
+str(m)
+m[,1]
 }
 \keyword{classes}
 \keyword{algebra}

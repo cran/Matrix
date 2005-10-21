@@ -25,8 +25,8 @@ setAs("matrix", "dgCMatrix",
           .Call("matrix_to_csc", from)
       })
 
-setAs("dgeMatrix", "dgCMatrix", # dgeM* is "double":
-      function(from) .Call("matrix_to_csc", as(from, "matrix")))
+setAs("dgeMatrix", "dgCMatrix",
+      function(from) .Call("dgeMatrix_to_csc", from))
 
 
 setMethod("crossprod", signature(x = "dgCMatrix", y = "missing"),
@@ -83,6 +83,117 @@ setMethod("%*%", signature(x = "dgeMatrix", y = "dgCMatrix"),
 setMethod("%*%", signature(x = "matrix", y = "dgCMatrix"),
           function(x, y) .Call("csc_matrix_mm", y, x, FALSE, TRUE),
           valueClass = "dgeMatrix")
+
+## Group Methods, see ?Arith (e.g.)
+## -----
+
+### TODO:
+
+if(FALSE) ## FIXME
+setMethod("Arith", ##  "+", "-", "*", "^", "%%", "%/%", "/"
+          signature(e1 = "dgCMatrix", e2 = "dgCMatrix"),
+          function(e1, e2) {
+              d <- dimCheck(e1, e2)
+              dn <- dimNamesCheck(e1, e2)
+              ij1 <- non0ind(e1)
+              ij2 <- non0ind(e2)
+              switch(.Generic,
+                     "+" =, "-" =, "*" =
+                     new("dgTMatrix", Dim = d, Dimnames = dn,
+                         i = c(ij1[,1], ij2[,1]),
+                         j = c(ij1[,2], ij2[,2]),
+                         x = c(callGeneric(e1@x, 0), callGeneric(0, e2@x)))
+                     ,
+                     "^" = { ## X^0 |-> 1 (also for X=0)
+                         r <- new("dgTMatrix", Dim = d, Dimnames = dn,
+                                  i = c(ij1[,1], ij2[,1]),
+                                  j = c(ij1[,2], ij2[,2]),
+                                  x = c(rep.int(1, nrow(ij1)), 0 ^ e2@x))
+                         ...
+                     },
+                     "%%" = , "%/%" = , "/" = {## 0 op 0  |-> NaN
+                         ...
+                     })
+          })
+
+setMethod("Arith",
+	  signature(e1 = "dgCMatrix", e2 = "numeric"),
+	  function(e1, e2) {
+	      if(length(e2) == 1) {
+		  f0 <- callGeneric(0, e2)
+                  if(!is.na(f0) && f0 == 0.) {
+		      e1@x <- callGeneric(e1@x, e2)
+		      e1
+		  } else {
+		      ## FIXME: dgeMatrix [cbind(i,j)] <- .. is not yet possible
+		      ##		  r <- as(e1, "dgeMatrix")
+		      ##		  r[] <- f0
+		      ##		  r[non0ind(e1)] <- callGeneric(e1@x, e2)
+		      r <- as(e1, "matrix")
+		      r[] <- f0
+		      r[non0ind(e1)] <- callGeneric(e1@x, e2)
+		      as(r, "dgeMatrix")
+		  }
+	      } else {
+		  ## FIXME: maybe far from optimal:
+		  warning("coercing sparse to dense matrix for arithmetic")
+		  callGeneric(as(e1, "dgeMatrix"), e2)
+	      }
+	  })
+
+setMethod("Arith",
+	  signature(e1 = "numeric", e2 = "dgCMatrix"),
+	  function(e1, e2) {
+	      if(length(e1) == 1) {
+		  f0 <- callGeneric(e1, 0)
+                  if(!is.na(f0) && f0 == 0.) {
+		      e2@x <- callGeneric(e1, e2@x)
+		      e2
+		  } else {
+		      ## FIXME: dgeMatrix [cbind(i,j)] <- .. is not yet possible
+		      r <- as(e2, "matrix")
+		      r[] <- f0
+		      r[non0ind(e2)] <- callGeneric(e1, e2@x)
+		      as(r, "dgeMatrix")
+		  }
+	      } else {
+		  ## FIXME: maybe far from optimal:
+		  warning("coercing sparse to dense matrix for arithmetic")
+		  callGeneric(e1, as(e2, "dgeMatrix"))
+	      }
+	  })
+
+
+setMethod("Math",
+	  signature(x = "dgCMatrix"),
+	  function(x) {
+              f0 <- callGeneric(0.)
+	      if(!is.na(f0) && f0 == 0.) {
+		  ## sparseness preserved
+		  x@x <- callGeneric(x@x)
+		  x
+	      } else { ## no sparseness
+		  callGeneric(as(x, "dgeMatrix"))
+	      }
+	  })
+
+if(FALSE) ## unneeded with "Math2" in ./dMatrix.R
+setMethod("Math2",
+	  signature(x = "dgCMatrix", digits = "numeric"),
+	  function(x, digits) {
+	      f0 <- callGeneric(0., digits = digits)
+	      if(!is.na(f0) && f0 == 0.) {
+		  ## sparseness preserved
+		  x@x <- callGeneric(x@x, digits = digits)
+		  x
+	      } else { ## no sparseness
+		  callGeneric(as(x, "dgeMatrix"), digits = digits)
+	      }
+	  })
+
+###---- end {Group Methods} -----------------
+
+
 
 setMethod("writeHB", signature(obj = "dgCMatrix"),
           function(obj, file, ...)

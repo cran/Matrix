@@ -65,7 +65,6 @@
 \seealso{
   \code{\link{dgCMatrix-class}}
 }
-%\examples{}
 \examples{
 data(mm)
 xpx <- crossprod(mm)
@@ -73,8 +72,9 @@ str(xpx)
 str(ch <- chol(xpx))
 
 ## Visualize the sparseness:
-image(xpx, main=paste("crossprod(mm) : Sparse",dQuote(class(xpx))))
-image(ch, main=paste("chol (crossprod(mm)) : Sparse", dQuote(class(ch))))
+dq <- function(ch) paste('"',ch,'"', sep="") ## dQuote(<UTF-8>) gives bad plots
+image(xpx, main=paste("crossprod(mm) : Sparse", dq(class(xpx))))
+image(ch, main= paste("chol (crossprod(mm)) : Sparse", dq(class(ch))))
 }
 \keyword{classes}
 \keyword{algebra}

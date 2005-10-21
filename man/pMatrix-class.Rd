@@ -1,11 +1,12 @@
 \name{pMatrix-class}
 \docType{class}
 \alias{pMatrix-class}
+\alias{-,pMatrix,missing-method}
 \alias{\%*\%,matrix,pMatrix-method}
 \alias{\%*\%,pMatrix,matrix-method}
 \alias{\%*\%,pMatrix,pMatrix-method}
-\alias{\%*\%,dgeMatrix,pMatrix-method}
-\alias{\%*\%,pMatrix,dgeMatrix-method}
+\alias{\%*\%,Matrix,pMatrix-method}
+\alias{\%*\%,pMatrix,Matrix-method}
 \alias{coerce,integer,pMatrix-method}
 \alias{coerce,pMatrix,matrix-method}
 \alias{coerce,pMatrix,lgTMatrix-method}

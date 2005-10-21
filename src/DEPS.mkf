@@ -1,35 +1,74 @@
-Metis_utils.o: Metis_utils.c \
-  Metis/struct.h Metis/macros.h Metis/rename.h Metis/proto.h \
-  Metis_utils.h
-Mutils.o: Mutils.c Mutils.h triplet_to_col.h
-R_ldl.o: R_ldl.c R_ldl.h
-dgBCMatrix.o: dgBCMatrix.c dgBCMatrix.h Mutils.h \
-  Syms.h R_ldl.h triplet_to_col.h
-dense.o: dense.c dense.h Mutils.h Syms.h
-dgCMatrix.o: dgCMatrix.c dgCMatrix.h Mutils.h Syms.h R_ldl.h \
-  triplet_to_col.h
-dgTMatrix.o: dgTMatrix.c dgTMatrix.h Mutils.h Syms.h
-triplet_to_col.o: triplet_to_col.c triplet_to_col.h
-dgeMatrix.o: dgeMatrix.c dgeMatrix.h Syms.h
-dpoMatrix.o: dpoMatrix.c dpoMatrix.h Syms.h
-dppMatrix.o: dppMatrix.c dppMatrix.h Syms.h
-dsCMatrix.o: dsCMatrix.c dsCMatrix.h Mutils.h Syms.h R_ldl.h \
-  triplet_to_col.h
-dsyMatrix.o: dsyMatrix.c dsyMatrix.h dgeMatrix.h Syms.h
-dspMatrix.o: dspMatrix.c dspMatrix.h dgeMatrix.h Syms.h
+Tsparse.o: Tsparse.c Tsparse.h Mutils.h Syms.h
+chm_common.o: chm_common.c chm_common.h CHOLMOD/Include/cholmod.h \
+  CHOLMOD/Include/cholmod_config.h CHOLMOD/Include/cholmod_core.h \
+  CHOLMOD/Include/cholmod_check.h \
+  CHOLMOD/Include/cholmod_cholesky.h CHOLMOD/Include/cholmod_partition.h \
+  CHOLMOD/Include/cholmod_supernodal.h \
+  CHOLMOD/Include/cholmod_matrixops.h CHOLMOD/Include/cholmod_modify.h \
+  Mutils.h Syms.h
+Csparse.o: Csparse.c Csparse.h Mutils.h Syms.h
+mmio.o: mmio.c mmio.h
+HBMM.o: HBMM.c HBMM.h Mutils.h Syms.h triplet_to_col.h iohb.h mmio.h
+iohb.o: iohb.c iohb.h 
+lgCMatrix.o: lgCMatrix.c lgCMatrix.h \
+  Mutils.h Syms.h triplet_to_col.h
+lCholCMatrix.o: lCholCMatrix.c lCholCMatrix.h \
+  Mutils.h Syms.h triplet_to_col.h R_ldl.h
+dsyMatrix.o: dsyMatrix.c dsyMatrix.h dgeMatrix.h Mutils.h Syms.h
+dgCMatrix.o: dgCMatrix.c dgCMatrix.h Mutils.h \
+  Syms.h  R_ldl.h triplet_to_col.h
+dCholCMatrix.o: dCholCMatrix.c dCholCMatrix.h dtCMatrix.h Mutils.h \
+  Syms.h dgCMatrix.h R_ldl.h triplet_to_col.h
+dtTMatrix.o: dtTMatrix.c dtTMatrix.h Mutils.h Syms.h
+Mutils.o: Mutils.c Mutils.h Syms.h triplet_to_col.h
+dspMatrix.o: dspMatrix.c dspMatrix.h dgeMatrix.h \
+  Mutils.h Syms.h
+ltCMatrix.o: ltCMatrix.c ltCMatrix.h Mutils.h Syms.h triplet_to_col.h
+factorizations.o: factorizations.c factorizations.h Mutils.h Syms.h
 dtCMatrix.o: dtCMatrix.c dtCMatrix.h Mutils.h Syms.h dgCMatrix.h \
   R_ldl.h triplet_to_col.h
-dtTMatrix.o: dtTMatrix.c dtTMatrix.h Mutils.h Syms.h
+lmer.o: lmer.c lmer.h Mutils.h Syms.h \
+  triplet_to_col.h dgBCMatrix.h R_ldl.h \
+  dgCMatrix.h Metis_utils.h \
+  dsCMatrix.h dtCMatrix.h lgCMatrix.h lCholCMatrix.h
+dense.o: dense.c dense.h Mutils.h Syms.h
+R_ldl.o: R_ldl.c R_ldl.h 
+dgBCMatrix.o: dgBCMatrix.c dgBCMatrix.h Mutils.h Syms.h \
+  R_ldl.h triplet_to_col.h
+dgeMatrix.o: dgeMatrix.c dgeMatrix.h \
+  Mutils.h Syms.h
+triplet_to_col.o: triplet_to_col.c triplet_to_col.h
 dsTMatrix.o: dsTMatrix.c dsTMatrix.h Mutils.h Syms.h
 dtrMatrix.o: dtrMatrix.c dtrMatrix.h Mutils.h Syms.h
 dtpMatrix.o: dtpMatrix.c dtpMatrix.h Mutils.h Syms.h
-factorizations.o: factorizations.c factorizations.h Mutils.h Syms.h
-init.o: init.c dtrMatrix.h Syms.h dgBCMatrix.h \
-  R_ldl.h triplet_to_col.h dgCMatrix.h dense.h factorizations.h \
-  dgeMatrix.h lmer.h Metis_utils.h dsCMatrix.h dtCMatrix.h \
-  dpoMatrix.h dsyMatrix.h dgTMatrix.h
-lmer.o: lmer.c lmer.h Mutils.h Syms.h \
-  triplet_to_col.h dgBCMatrix.h R_ldl.h \
-  dgCMatrix.h Metis_utils.h dsCMatrix.h dtCMatrix.h
-dCholCMatrix.o: dCholCMatrix.c dCholCMatrix.h dtCMatrix.h Mutils.h \
-  Syms.h dgCMatrix.h R_ldl.h triplet_to_col.h
+lgTMatrix.o: lgTMatrix.c lgTMatrix.h \
+  Mutils.h Syms.h triplet_to_col.h
+dppMatrix.o: dppMatrix.c dppMatrix.h Mutils.h Syms.h
+dpoMatrix.o: dpoMatrix.c dpoMatrix.h \
+  Mutils.h Syms.h
+lsCMatrix.o: lsCMatrix.c lsCMatrix.h \
+  Mutils.h Syms.h \
+  triplet_to_col.h Metis_utils.h R_ldl.h
+dgTMatrix.o: dgTMatrix.c dgTMatrix.h Mutils.h \
+  Syms.h \
+  triplet_to_col.h
+init.o: init.c Mutils.h Syms.h \
+  HBMM.h triplet_to_col.h chm_common.h CHOLMOD/Include/cholmod.h \
+  CHOLMOD/Include/cholmod_config.h CHOLMOD/Include/cholmod_core.h \
+  CHOLMOD/Include/cholmod_check.h CHOLMOD/Include/cholmod_cholesky.h \
+  CHOLMOD/Include/cholmod_partition.h \
+  CHOLMOD/Include/cholmod_supernodal.h \
+  CHOLMOD/Include/cholmod_matrixops.h CHOLMOD/Include/cholmod_modify.h \
+  Csparse.h Tsparse.h dense.h \
+  dgBCMatrix.h R_ldl.h \
+  dgCMatrix.h dgTMatrix.h dgeMatrix.h dpoMatrix.h dppMatrix.h dsCMatrix.h \
+  dsTMatrix.h dspMatrix.h dsyMatrix.h dtCMatrix.h dtTMatrix.h dtrMatrix.h \
+  dtpMatrix.h factorizations.h lCholCMatrix.h lgCMatrix.h lgTMatrix.h \
+  lsCMatrix.h Metis_utils.h ltCMatrix.h lmer.h \
+  Metis_utils.c \
+  Metis/metis.h Metis/defs.h \
+  Metis/struct.h Metis/macros.h Metis/rename.h Metis/proto.h \
+  Metis_utils.h Mutils.h \
+  Syms.h
+dsCMatrix.o: dsCMatrix.c dsCMatrix.h Mutils.h Syms.h \
+  R_ldl.h triplet_to_col.h

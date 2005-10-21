@@ -1,5 +1,5 @@
 #include <Rdefines.h>
-#include "metis.h"
+#include "Metis/metis.h"
 #include "Metis_utils.h"
 
 

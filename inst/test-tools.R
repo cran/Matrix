@@ -48,7 +48,24 @@ assert.EQ.mat <- function(M, m, tol = if(show) 0 else 1e-15, show=FALSE) {
     else stopifnot(all.equal(MM, m, tol = tol))
 }
 
+Qidentical <- function(x,y) {
+    ## quasi-identical:
+    if(class(x) != class(y)) return(FALSE)
+    slts <- slotNames(x)
+    if("factors" %in% slts) { ## allow one empty and one non-empty 'factors'
+        slts <- slts[slts != "factors"]
+        ## if both are not empty, they must be the same:
+        if(length(xf <- x@factors) && length(yf <- y@factors))
+            if(!identical(xf, yf)) return(FALSE)
+    }
+    for(sl in slts)
+        if(!identical(slot(x,sl), slot(y,sl)))
+            return(FALSE)
+    TRUE
+}
 
 ## The relative error typically returned by all.equal:
 relErr <- function(target, current)
     mean(abs(target - current)) / mean(abs(target))
+
+is.R22 <- (paste(R.version$major, R.version$minor, sep=".") >= "2.2")

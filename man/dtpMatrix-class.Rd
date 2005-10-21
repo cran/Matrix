@@ -10,6 +10,7 @@
 \alias{\%*\%,numeric,dtpMatrix-method}
 \alias{coerce,dtpMatrix,dtrMatrix-method}
 \alias{coerce,dtpMatrix,dgeMatrix-method}
+\alias{coerce,dtpMatrix,ltpMatrix-method}
 \alias{coerce,dtpMatrix,matrix-method}
 \alias{coerce,matrix,dtpMatrix-method}
 \alias{determinant,dtpMatrix,missing-method}

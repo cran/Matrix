@@ -6,8 +6,9 @@
 \alias{\%*\%,dtrMatrix,matrix-method}
 \alias{\%*\%,matrix,dtrMatrix-method}
 \alias{coerce,dtrMatrix,dgeMatrix-method}
-\alias{coerce,dtrMatrix,matrix-method}
 \alias{coerce,dtrMatrix,dtpMatrix-method}
+\alias{coerce,dtrMatrix,ltrMatrix-method}
+\alias{coerce,dtrMatrix,matrix-method}
 \alias{coerce,matrix,dtrMatrix-method}
 \alias{crossprod,dtrMatrix,missing-method}
 \alias{determinant,dtrMatrix,logical-method}
@@ -16,6 +17,7 @@
 \alias{norm,dtrMatrix,missing-method}
 \alias{rcond,dtrMatrix,character-method}
 \alias{rcond,dtrMatrix,missing-method}
+\alias{show,dtrMatrix-method}
 \alias{solve,dtrMatrix,dgeMatrix-method}
 \alias{solve,dtrMatrix,matrix-method}
 \alias{solve,dtrMatrix,missing-method}

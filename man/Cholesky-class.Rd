@@ -9,7 +9,8 @@
   decompositions of positive-semidefinite, real matrices.  The
   \code{"BunchKaufman"} class is the class of Bunch-Kaufman
   decompositions of symmetric, real matrices.  The \code{"pCholesky"}
-  and \code{"pBunchKaufman"} classes are their packed storage versions.
+  and \code{"pBunchKaufman"} classes are their \emph{\bold{p}acked}
+  storage versions.
 }
 \section{Objects from the Class}{
   Objects can be created by calls of the form \code{new("Cholesky",
@@ -49,6 +50,9 @@
   \code{\link{dpoMatrix-class}}.
 }
 \examples{
+(sm <- as(as(Matrix(diag(5) + 1), "dsyMatrix"), "dspMatrix"))
+signif(csm <- chol(sm), 4)
+
 (pm <- crossprod(Matrix(rnorm(18), nrow = 6, ncol = 3)))
 (ch <- chol(pm))
 if (toupper(ch@uplo) == "U") # which is TRUE

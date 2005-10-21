@@ -1,7 +1,7 @@
-#### Thanks to  our as.matrix() maniplation in base namespace,  ../R/zzz.R ,
-#### all the functions (in 'base' or namespaces that import) and
-#### start with something like
-####	" x <- as.matrix(x) "
+#### Thanks to the manipulation in base namespace, see  ../R/zzz.R ,
+#### all the functions (in 'base' or namespaces that import it)
+#### starting with something like
+####	" x <- as.matrix(x) "  or   " X <- as.array(X) "
 #### will work for 'Matrix'-matrices
 
 library(Matrix)
@@ -12,8 +12,19 @@ m11 <- m1[1:100, 1:20]
 str(D1 <- dist(m11))
 str(rs <- apply(m1, 1, sum))
 
-kappa(Matrix(2:5, 2))
+stopifnot(identical(kappa(Matrix(2:5, 2)),
+                    kappa(matrix(2:5, 2))))
 ## used to seg.fault, PR#7984,
 ## because qr() was calling the wrong as.matrix()
 
 ## also matplot() or pairs().
+
+### outer() works thanks to  as.array() :
+## Doesn't work in R-2.3.0 because the definition of outer has changed
+##m <- Matrix(0:5, 3, 2)
+##(m2 <- Matrix(diag(c(3,1))))
+##(m3 <- crossprod(t(m)))
+##stopifnot(identical(outer(m, m2),
+##                    outer(as(m,"matrix"), as(m2,"matrix"))),
+##          identical(outer(m3, m2),
+##                    outer(as(m3,"matrix"), as(m2,"matrix"))))

@@ -1,5 +1,5 @@
-#### Define those generics that we need, if they don't exist
-
+#### Define those generics that we need, if they don't exist;
+#### not all will be exported
 
 if (!isGeneric("expand"))
     setGeneric("expand", function(x, ...) standardGeneric("expand"))
@@ -7,9 +7,19 @@ if (!isGeneric("expand"))
 if (!isGeneric("tcrossprod"))
     setGeneric("tcrossprod", function(x) standardGeneric("tcrossprod"))
 
+if (!isGeneric("isDiagonal"))
+    setGeneric("isDiagonal", function(object, ...)
+               standardGeneric("isDiagonal"))
+
 if (!isGeneric("isSymmetric"))
-    setGeneric("isSymmetric", function(object, ...)
-               standardGeneric("isSymmetric"))
+    ## no "..." here at the moment; must match isSymmetric()
+    ## R 2.3.x base/R/eigen.R
+    setGeneric("isSymmetric", function(object, tol)
+	       standardGeneric("isSymmetric"))
+
+if (!isGeneric("isTriangular"))
+    setGeneric("isTriangular", function(object, ...)
+               standardGeneric("isTriangular"))
 
 if (!isGeneric("isNested"))
     setGeneric("isNested", function(object, ...) standardGeneric("isNested"))
@@ -118,9 +128,44 @@ if (!isGeneric("mcmcsamp")) {
 }
 
 if (!exists("simulate", mode = "function")) {
-    setGeneric("simulate",
-               function(object, nsim = 1,
-                        seed = as.integer(runif(1, 0, .Machine$integer.max)),
-                        ...)
+    setGeneric("simulate", function(object, nsim = 1, seed = NULL, ...)
                standardGeneric("simulate"))
 }
+
+###---- Group Generics ----
+## The following are **WORKAROUND** s currently needed for all non-Primitives:
+
+##  "Math"
+setGeneric("log", group="Math")
+setGeneric("gamma", group="Math")
+setGeneric("lgamma", group="Math")
+
+## "Math2"
+setGeneric("round",  group="Math2")
+setGeneric("signif", group="Math2")
+
+## "Summary" --- this needs some hoop jumping that may become unnecessary
+##               in a future version of R (>= 2.3.x):
+
+.max_def <- function(x, ..., na.rm = FALSE) base::max(x, ..., na.rm = na.rm)
+.min_def <- function(x, ..., na.rm = FALSE) base::min(x, ..., na.rm = na.rm)
+.range_def <- function(x, ..., na.rm = FALSE) base::range(x, ..., na.rm = na.rm)
+.prod_def <- function(x, ..., na.rm = FALSE) base::prod(x, ..., na.rm = na.rm)
+.sum_def <- function(x, ..., na.rm = FALSE) base::sum(x, ..., na.rm = na.rm)
+.any_def <- function(x, ..., na.rm = FALSE) base::any(x, ..., na.rm = na.rm)
+.all_def <- function(x, ..., na.rm = FALSE) base::all(x, ..., na.rm = na.rm)
+
+setGeneric("max", function(x, ..., na.rm = FALSE) standardGeneric("max"),
+           useAsDefault = .max_def, group = "Summary")
+setGeneric("min", function(x, ..., na.rm = FALSE) standardGeneric("min"),
+           useAsDefault = .min_def, group="Summary")
+setGeneric("range", function(x, ..., na.rm = FALSE) standardGeneric("range"),
+           useAsDefault = .range_def, group="Summary")
+setGeneric("prod", function(x, ..., na.rm = FALSE) standardGeneric("prod"),
+           useAsDefault = .prod_def, group="Summary")
+setGeneric("sum", function(x, ..., na.rm = FALSE) standardGeneric("sum"),
+           useAsDefault = .sum_def, group="Summary")
+setGeneric("any", function(x, ..., na.rm = FALSE) standardGeneric("any"),
+           useAsDefault = .any_def, group="Summary")
+setGeneric("all", function(x, ..., na.rm = FALSE) standardGeneric("all"),
+           useAsDefault = .all_def, group="Summary")

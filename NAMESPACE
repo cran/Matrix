@@ -24,16 +24,37 @@ export(
        "rcond",
        "readHB",
        "readMM",
-       "round", # "Math2" group (needs explicit setGeneric(.))
-       "signif",#  {ditto}
        "tcrossprod",
        "unpack",
        "writeHB",
        "writeMM"
        )
 
+## workaround S4-Group(generic|method) quirk: R/AllGeneric.R
+## needs setGeneric(*, group=) and this for all non-Primitives :
+export(
+       ## "Math"
+       "log",
+       "gamma",
+       "lgamma",
+
+       ## "Math2"
+       "round",
+       "signif",
+
+       ## "Summary"
+       "max",
+       "min",
+       "range",
+       "prod",
+       "sum",
+       "any",
+       "all"
+)
+
+
 ## lmer-related
-export("lmer", "mcmcsamp", "simulate")
+export("lmer", "mcmcsamp")
 
 exportClasses(
 	      "index",
@@ -53,6 +74,8 @@ exportClasses(
               "triangularMatrix",
 	      "dsparseMatrix",
 	      "lsparseMatrix",
+	      "TsparseMatrix",
+	      "CsparseMatrix",
 	      "ddenseMatrix",
 	      ## not yet used, but as sub-classes;
 	      ## need to provide them for 'hierarchy-analysis':
@@ -78,14 +101,20 @@ exportClasses(
 	      "dtpMatrix",
 	      "dtrMatrix",
 
+	      "lgeMatrix",
+	      "lspMatrix",
+	      "lsyMatrix",
+	      "ltpMatrix",
+	      "ltrMatrix",
+
 	      "lgCMatrix",
-	      "lsCMatrix",
-	      "ltCMatrix",
 	      "lgRMatrix",
-	      "lsRMatrix",
-	      "ltRMatrix",
 	      "lgTMatrix",
+	      "lsCMatrix",
+	      "lsRMatrix",# unused
 	      "lsTMatrix",
+	      "ltCMatrix",
+	      "ltRMatrix",# unused
 	      "ltTMatrix",
 
 	      "corrmatrix",
@@ -104,12 +133,17 @@ exportMethods(
 	      "Arith",
 	      "Math",
 	      "Math2",
+	      "Summary",
+	      "Compare",
 
+	      "!",
 	      "+",# for dgT(Matrix) only
 	      "%*%",
 
 	      "Schur",
+	      "as.array",
 	      "as.matrix",
+	      "as.vector",
 	      "chol",
 	      "colMeans",
 	      "colSums",
@@ -137,6 +171,7 @@ exportMethods(
 ## only for R >= 2.2:
 if(paste(R.version$major, R.version$minor, sep=".") >= "2.2") {
 
+exportMethods("rbind2")
 exportMethods("cbind2")
 
 }

@@ -17,6 +17,11 @@ setAs("matrix", "dtrMatrix",
 ## TODO: carefully check for the cases where the result remains triangular
 ## instead : inherit them from "dgeMatrix" via definition in ./dMatrix.R
 
+## Note: Just *because* we have an explicit  dtr -> dge coercion,
+##       show( <ddenseMatrix> ) is not okay, and we need our own:
+setMethod("show", "dtrMatrix", function(object) prMatrix(object))
+
+
 setMethod("%*%", signature(x = "dtrMatrix", y = "dgeMatrix"),
 	  function(x, y) .Call("dtrMatrix_matrix_mm", x, y, TRUE, FALSE),
           valueClass = "dgeMatrix")
@@ -93,20 +98,14 @@ setMethod("solve", signature(a = "dtrMatrix", b="matrix"),
 	  function(a, b, ...) .Call("dtrMatrix_matrix_solve", a, b, FALSE),
 	  valueClass = "dgeMatrix")
 
-setMethod("t", signature(x = "dtrMatrix"),
-	  function(x) {
-	      new("dtrMatrix",
-                  Dim = x@Dim[2:1], Dimnames = x@Dimnames[2:1],
-                  x = as.vector(t(as(x, "matrix"))),
-	          uplo = if (x@uplo == "U") "L" else "U",
-                  diag = x@diag)
-	  }, valueClass = "dtrMatrix")
+setMethod("t", signature(x = "dtrMatrix"), t_trMatrix)
+
 
 ###
 
 ## Basing 'Diagonal' on  dtpMatrix:   This is cheap but inefficient:
 ## TODO:  ddiagonalMatrix : contains = c("diagonalMatrix", "dMatrix")
-##        diagonalMatrix :  ddiag = [U/N], contains = "Matrix"
+##        diagonalMatrix :  diag = [U/N], contains = "Matrix"
 Diagonal <- function(n, x = NULL)
 {
     ## Purpose: Constructor of diagonal matrices -- ~= diag() ,

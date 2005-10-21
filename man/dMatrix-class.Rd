@@ -11,9 +11,17 @@
 \alias{Arith,numeric,dMatrix-method}
 \alias{Math,dMatrix-method}
 \alias{Math2,dMatrix,numeric-method}% Math2 = round + signif, but
-% for silly reasons, need these 2 as well:
+\alias{Summary,dMatrix-method}
+\alias{Compare,dMatrix,dMatrix-method}
+\alias{Compare,dMatrix,numeric-method}
+\alias{Compare,numeric,dMatrix-method}
+% for silly reasons, need these 2+3 as well:
 \alias{round,dMatrix,numeric-method}
 \alias{signif,dMatrix,numeric-method}
+\alias{log,dMatrix-method}
+\alias{gamma,dMatrix-method}
+\alias{lgamma,dMatrix-method}
+%
 % operations with one argument from the "integer" class
 \alias{crossprod,dMatrix,integer-method}
 \alias{crossprod,integer,dMatrix-method}
@@ -57,12 +65,8 @@
   \code{\link{dgeMatrix-class}}, \code{\link{dgCMatrix-class}}, and
   \code{\link{Matrix-class}}.
 }
-% \examples{
-%  M <- new("dMatrix")
-%  M <- new("dMatrix", x = c(pi,1), Dim = 1:2,
-%            Dimnames = list("r1", c("c1","c2")))
-%  str(M)
-%  M # show() needs as(*, "matrix")
-% }
+\examples{
+ showClass("dMatrix")
+}
 \keyword{classes}
 \keyword{algebra}

@@ -9,16 +9,19 @@ SEXP tsc_validate(SEXP x)
 
 SEXP tsc_transpose(SEXP x)
 {
-    SEXP
-	ans = PROTECT(NEW_OBJECT(MAKE_CLASS("dtCMatrix"))),
+    SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("dtCMatrix"))),
 	islot = GET_SLOT(x, Matrix_iSym);
     int nnz = length(islot),
 	*adims, *xdims = INTEGER(GET_SLOT(x, Matrix_DimSym));
-    int up = CHAR(asChar(GET_SLOT(x, Matrix_uploSym)))[0] == 'U';
+    int up = uplo_P(x)[0] == 'U';
 
     adims = INTEGER(ALLOC_SLOT(ans, Matrix_DimSym, INTSXP, 2));
     adims[0] = xdims[1]; adims[1] = xdims[0];
+
+    if(*diag_P(x) == 'U')
+	SET_SLOT(ans, Matrix_diagSym, duplicate(GET_SLOT(x, Matrix_diagSym)));
     SET_SLOT(ans, Matrix_uploSym, mkString(up ? "L" : "U"));
+
     csc_compTr(xdims[0], xdims[1], nnz,
 	       INTEGER(GET_SLOT(x, Matrix_pSym)), INTEGER(islot),
 	       REAL(GET_SLOT(x, Matrix_xSym)),
@@ -32,7 +35,7 @@ SEXP tsc_transpose(SEXP x)
 SEXP tsc_to_dgTMatrix(SEXP x)
 {
     SEXP ans;
-    if (CHAR(STRING_ELT(GET_SLOT(x, Matrix_diagSym), 0))[0] != 'U')
+    if (*diag_P(x) != 'U')
 	ans = compressed_to_dgTMatrix(x, ScalarLogical(1));
     else {			/* unit triangular matrix */
 	SEXP islot = GET_SLOT(x, Matrix_iSym),

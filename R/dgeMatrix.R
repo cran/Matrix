@@ -27,27 +27,23 @@ setMethod("Arith", ##  "+", "-", "*", "^", "%%", "%/%", "/"
 	      if (!eqD[1])
 		  stop("Matrices must have same number of rows for arithmetic")
 	      same.dim <- eqD[2]
-	      if (same.dim)
+	      if (same.dim) {
 		  d <- d1
+		  dn <- dimNamesCheck(e1, e2)
+	      }
 	      else { # nrows differ
 		  if(d2[2] %% d1[2] == 0) { # nrow(e2) is a multiple
 		      e1@x <- rep.int(e1@x, d2[2] %/% d1[2])
 		      d <- d2
+		      dn <- e2@Dimnames
 		  } else if(d1[2] %% d2[2] == 0) { # nrow(e1) is a multiple
 		      e2@x <- rep.int(e2@x, d1[2] %/% d2[2])
 		      d <- d1
-		  }
-		  else
+		      dn <- e1@Dimnames
+		  } else
 		      stop("number of rows are not compatible for arithmetic")
 	      }
-	      dn0 <- list(NULL,NULL)
-	      if(identical(dn0, dn <- e1@Dimnames))
-		  dn <- e2@Dimnames
-	      else if(!identical(dn0, e2@Dimnames) &&
-		      !identical(dn,  e2@Dimnames)) {
-		  dn <- dn0
-		  warning("not using incompatible 'Dimnames' in arithmetical result")
-	      }
+
 	      ## be smart and preserve, e.g., triangular, or symmetric
 	      ## but this sucks: For these,
 	      ## 'uplo' and 'diag' also must coincide or be dealt with properly
@@ -101,10 +97,7 @@ setMethod("Math",
 	      x
 	  })
 
-## help(Math2)	mentions this uglyness:
-setGeneric("round",  group="Math2")
-setGeneric("signif", group="Math2")
-
+if(FALSE) ## unneeded with "Math2" in ./dMatrix.R
 setMethod("Math2",
 	  signature(x = "dgeMatrix", digits = "numeric"),
 	  function(x, digits) {
@@ -112,11 +105,16 @@ setMethod("Math2",
 	      x
 	  })
 
+## "Summary"
+
+
 ## TODO :  "Compare" -> returning  logical Matrices
 
 
 ## -- end{group generics} -----------------------
 
+setMethod("as.vector", signature(x = "dgeMatrix", mode = "missing"),
+          function(x) x@x)
 
 setMethod("norm", signature(x = "dgeMatrix", type = "missing"),
 	  function(x, type, ...) norm(x, type = "O", ...))
@@ -134,12 +132,7 @@ setMethod("rcond", signature(x = "dgeMatrix", type = "character"),
 	  .Call("dgeMatrix_rcond", x, type),
 	  valueClass = "numeric")
 
-setMethod("t", signature(x = "dgeMatrix"),
-	  function(x) {
-	      x@x <- as.vector(t(array(x@x, dim = x@Dim)))# no dimnames here!
-	      x@Dim <- x@Dim[2:1]
-	      x@Dimnames <- x@Dimnames[2:1]
-	      x })
+setMethod("t", signature(x = "dgeMatrix"), t_geMatrix)
 
 setMethod("crossprod", signature(x = "dgeMatrix", y = "missing"),
 	  function(x, y = NULL) .Call("dgeMatrix_crossprod", x, FALSE),
@@ -268,15 +261,17 @@ setMethod("rowMeans", signature(x = "dgeMatrix"),
 
 ## utilities for Matrix.class() :
 
+## FIXME  base::eigen() has a more sensible test for Hermitian/symmetry !
 Hermitian.test <- function(x)
 {
-    if ((!inherits(x, "Matrix") && !is.matrix(x)) ||
-	(nrow(x) != ncol(x))) return(Inf)
-    if (is.complex(x)) return(max(Mod(x - t(Conj(x)))))
-    max(x - t(x))
+    ## Includes Symmetry test for non-complex 'x'
+    if ((!inherits(x, "Matrix") && !is.matrix(x)) || (nrow(x) != ncol(x)))
+        return(Inf)
+    if (is.complex(x))
+        max(Mod(x - t(Conj(x))))
+    else
+        max(abs(x - t(x)))
 }
-
-is.Hermitian <- function(x, tol = 0) { Hermitian.test(x) <= tol }
 
 LowerTriangular.test <- function(x)
 {
@@ -295,40 +290,38 @@ UpperTriangular.test <- function(x)
     max(if (is.complex(x)) abs(x[i]) else Mod(x[i]))
 }
 
-is.LowerTriangular <- function(x, tol = 0) { LowerTriangular.test(x) <= tol }
-
-is.UpperTriangular <- function(x, tol = 0) { UpperTriangular.test(x) <= tol }
-
 Orthogonal.test <- function(x, byrow = FALSE, normal = TRUE)
 {
     if ((!inherits(x, "Matrix") && !is.matrix(x))) return(Inf)
     if (byrow) { x <- t(x) }
     xx <- crossprod(x)
-    if (normal) {			# check for orthonormal
-	return(max(Mod(xx[row(xx) > col(xx)]), Mod(diag(xx) - 1)))
-    }
-    max(Mod(xx[row(xx) > col(xx)]))
+    if (normal) # check for orthonormal
+	max(Mod(xx[row(xx) > col(xx)]), Mod(diag(xx) - 1))
+    else
+        max(Mod(xx[row(xx) > col(xx)]))
 }
 
 Orthonormal.test <- function(x, byrow = FALSE)
-{
-    Orthogonal.test(x, byrow, normal = TRUE)
-}
+{ Orthogonal.test(x, byrow, normal = TRUE) }
+
+is.Hermitian <- function(x, tol = 0) { Hermitian.test(x) <= tol }
+
+is.LowerTriangular <- function(x, tol = 0) { LowerTriangular.test(x) <= tol }
+
+is.UpperTriangular <- function(x, tol = 0) { UpperTriangular.test(x) <= tol }
 
 is.ColOrthonormal <- function(x, tol = sqrt(.Machine$double.eps))
-{
-    Orthonormal.test(x, byrow = FALSE) <= tol
-}
+{ Orthonormal.test(x, byrow = FALSE) <= tol }
 
 is.RowOrthonormal <- function(x, tol = sqrt(.Machine$double.eps))
-{
-    Orthonormal.test(x, byrow = TRUE) <= tol
-}
+{ Orthonormal.test(x, byrow = TRUE) <= tol }
 
 is.Orthonormal <- function(x, tol = sqrt(.Machine$double.eps), byrow = FALSE)
 {
-    if (byrow) return(is.RowOrthonormal(x, tol))
-    is.ColOrthonormal(x, tol)
+    if (byrow)
+	is.RowOrthonormal(x, tol)
+    else
+	is.ColOrthonormal(x, tol)
 }
 
 
@@ -377,10 +370,19 @@ Matrix.class <- function(x, tol = 0, symmetry = TRUE, unit.diagonal = TRUE,
 }
 
 
-as.Matrix <- function(x, tol = .Machine$double.eps)
+as.Matrix <- function(x, tol = .Machine$double.eps,
+                      integer.max = .Machine$integer.max)
 {
     if(is(x, "Matrix")) return(x)
     ## else
-    as(if(is.matrix(x)) x else as.matrix(x),
-       Matrix.class(x, tol = tol))
+    if(!is.matrix(x)) x <- as.matrix(x)
+    mc <- Matrix.class(x, tol = tol) ## a character *vector*
+    xmode <-
+        if(is.logical(x)) "l" else if(is.complex(x)) "z"
+        else if(is.numeric(x)) {
+            if(is.integer(x) || all(abs(x) < integer.max)) "i" else "d"
+        }
+        else stop("invalid data type")
+    ## .... .... fixme
+    as(x, smartFunction(mc))
 }

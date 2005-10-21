@@ -10,7 +10,7 @@ setAs("dgTMatrix", "matrix",
 setAs("dgeMatrix", "dgTMatrix",
       function(from) as(as(from, "dgCMatrix"), "dgTMatrix"))
 
-## "[" methods are now in ./gTMatrix.R
+## "[" methods are now in ./Tsparse.R
 
 setMethod("crossprod", signature(x = "dgTMatrix", y = "missing"),
           function(x, y = NULL)
@@ -74,8 +74,7 @@ setMethod("image", "dgTMatrix",
 ## Uses the triplet convention of *adding* entries with same (i,j):
 setMethod("+", signature(e1 = "dgTMatrix", e2 = "dgTMatrix"),
           function(e1, e2) {
-              if (any(e1@Dim != e2@Dim))
-                  stop("Dimensions not compatible for addition")
+              dimCheck(e1, e2)
               new("dgTMatrix", i = c(e1@i, e2@i), j = c(e1@j, e2@j),
                   x = c(e1@x, e2@x), Dim = e1@Dim)
           })
@@ -83,11 +82,6 @@ setMethod("+", signature(e1 = "dgTMatrix", e2 = "dgTMatrix"),
 setMethod("t", signature(x = "dgTMatrix"),
           function(x)
           new("dgTMatrix", i = x@j, j = x@i, x = x@x, Dim = rev(x@Dim)))
-
-setMethod("isSymmetric", signature(object = "dgTMatrix"),
-          function(object, ...)
-              isTRUE(all.equal(as(object, "dgCMatrix"),
-                               as(t(object), "dgCMatrix"))))
 
 setAs("dgTMatrix", "dsCMatrix",
       function(from) {
@@ -131,6 +125,3 @@ setMethod("writeHB", signature(obj = "dgTMatrix"),
 setMethod("writeMM", signature(obj = "dgTMatrix"),
           function(obj, file, ...)
           .Call("Matrix_writeMatrixMarket", obj, as.character(file), "DGT"))
-
-
-

@@ -1,7 +1,9 @@
 \name{dpoMatrix-class}
+\title{Positive Semi-definite Dense Numeric Matrices}
 \docType{class}
 \alias{dpoMatrix-class}
 \alias{dppMatrix-class}
+%
 \alias{coerce,dpoMatrix,dppMatrix-method}
 \alias{coerce,dppMatrix,dpoMatrix-method}
 \alias{rcond,dpoMatrix,character-method}
@@ -23,11 +25,14 @@
 \alias{solve,dpoMatrix,numeric-method}
 \alias{solve,dppMatrix,numeric-method}
 \alias{solve,dppMatrix,integer-method}
-\title{Positive semi-definite, dense, numeric matrices}
-\description{The \code{"dpoMatrix"} class is the class of
-  positive-semidefinite symmetric matrices in nonpacked storage.  The
-  \code{"dppMatrix"} class is the same except in packed storage. Only the
-  upper triangle or the lower triangle is required to be available.}
+\alias{t,dppMatrix-method}
+\description{
+  The \code{"dpoMatrix"} class is the class of
+  positive-semidefinite symmetric matrices in nonpacked storage.
+  The \code{"dppMatrix"} class is the same except in packed storage.
+  Only the upper triangle or the lower triangle is required to be
+  available.
+}
 \section{Objects from the Class}{Objects can be created by calls of the
   form \code{new("dpoMatrix", ...)} or from \code{crossprod} applied to
   an \code{"dgeMatrix"} object.}

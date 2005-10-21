@@ -15,9 +15,9 @@
 \alias{[<-,denseMatrix,index,index,numeric-method}
 \alias{[<-,denseMatrix,missing,index,numeric-method}
 %
-% \alias{[<-,gTMatrix,numeric,missing,logical-method}
-% \alias{[<-,gTMatrix,missing,numeric,logical-method}
-% \alias{[<-,gTMatrix,numeric,numeric,logical-method}
+% \alias{[<-,TsparseTMatrix,numeric,missing,logical-method}
+% \alias{[<-,TsparseTMatrix,missing,numeric,logical-method}
+% \alias{[<-,TsparseTMatrix,numeric,numeric,logical-method}
 % %
 % \alias{[<-,dgTMatrix,missing,missing,ANY-method}
 % \alias{[<-,dgTMatrix,missing,numeric,logical-method}

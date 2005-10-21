@@ -46,7 +46,7 @@ SEXP lsCMatrix_trans(SEXP x)
     int *xj = expand_cmprPt(n, INTEGER(GET_SLOT(x, Matrix_pSym)),
 			    Calloc(nz, int)),
 	*xi = Memcpy(Calloc(nz, int), Xi, nz);
-    int up = CHAR(asChar(GET_SLOT(x, Matrix_uploSym)))[0] == 'U';
+    int up = uplo_P(x)[0] == 'U';
 
     SET_SLOT(ans, Matrix_DimSym, duplicate(xDim));
     SET_SLOT(ans, Matrix_DimNamesSym,
@@ -81,7 +81,7 @@ SEXP lsCMatrix_chol(SEXP x, SEXP pivot)
 	*P, *Pinv = (int *) NULL, *Parent, *Lp;
     double *D = Calloc(n, double), *Tx, *Xx = Calloc(Xp[n], double);
 
-    if (CHAR(asChar(GET_SLOT(x, Matrix_uploSym)))[0] != 'U')
+    if (uplo_P(x)[0] != 'U')
 	error(_("Must have uplo == 'U' in x argument to lsCMatrix_chol"));
     SET_SLOT(ans, Matrix_uploSym, mkString("L"));
     SET_SLOT(ans, Matrix_diagSym, mkString("U"));

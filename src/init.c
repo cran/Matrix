@@ -1,5 +1,8 @@
 #include "Mutils.h"
 #include "HBMM.h"
+#include "chm_common.h"
+#include "Csparse.h"
+#include "Tsparse.h"
 #include "dense.h"
 #include "dgBCMatrix.h"
 #include "dgCMatrix.h"
@@ -16,6 +19,7 @@
 #include "dtrMatrix.h"
 #include "dtpMatrix.h"
 #include "factorizations.h"
+#include "ldense.h"
 #include "lCholCMatrix.h"
 #include "lgCMatrix.h"
 #include "lgTMatrix.h"
@@ -30,6 +34,12 @@ static R_CallMethodDef CallEntries[] = {
     {"BunchKaufman_validate", (DL_FUNC) &BunchKaufman_validate, 1},
     {"pBunchKaufman_validate", (DL_FUNC) &pBunchKaufman_validate, 1},
     {"Cholesky_validate", (DL_FUNC) &Cholesky_validate, 1},
+    {"Csparse_Csparse_prod", (DL_FUNC) &Csparse_Csparse_prod, 2},
+    {"Csparse_dense_prod", (DL_FUNC) &Csparse_dense_prod, 2},
+    {"Csparse_crossprod", (DL_FUNC) &Csparse_crossprod, 3},
+    {"Csparse_to_Tsparse", (DL_FUNC) &Csparse_to_Tsparse, 1},
+    {"Csparse_transpose", (DL_FUNC) &Csparse_transpose, 1},
+    {"Csparse_validate", (DL_FUNC) &Csparse_validate, 1},
     {"pCholesky_validate", (DL_FUNC) &pCholesky_validate, 1},
     {"graphNEL_as_dgTMatrix", (DL_FUNC) &graphNEL_as_dgTMatrix, 2},
     {"LU_expand", (DL_FUNC) &LU_expand, 1},
@@ -39,13 +49,17 @@ static R_CallMethodDef CallEntries[] = {
     {"Matrix_writeHarwellBoeing", (DL_FUNC) &Matrix_writeHarwellBoeing, 3},
     {"Matrix_writeMatrixMarket", (DL_FUNC) &Matrix_writeMatrixMarket, 3},
     {"SVD_validate", (DL_FUNC) &SVD_validate, 1},
+    {"Tsparse_validate", (DL_FUNC) &Tsparse_validate, 1},
+    {"Tsparse_to_Csparse", (DL_FUNC) &Tsparse_to_Csparse, 1},
     {"csc_check_column_sorting", (DL_FUNC) &csc_check_column_sorting, 1},
+    {"Tsparse_validate", (DL_FUNC) &Tsparse_validate, 1},
     {"csc_crossprod", (DL_FUNC) &csc_crossprod, 1},
     {"csc_getDiag", (DL_FUNC) &csc_getDiag, 1},
     {"csc_matrix_crossprod", (DL_FUNC) &csc_matrix_crossprod, 3},
     {"csc_matrix_mm", (DL_FUNC) &csc_matrix_mm, 4},
     {"csc_tcrossprod", (DL_FUNC) &csc_tcrossprod, 1},
     {"compressed_to_dgTMatrix", (DL_FUNC) &compressed_to_dgTMatrix, 2},
+    {"compressed_non_0_ij", (DL_FUNC) &compressed_non_0_ij, 2},
     {"csc_to_dgeMatrix", (DL_FUNC) &csc_to_dgeMatrix, 1},
     {"csc_to_matrix", (DL_FUNC) &csc_to_matrix, 1},
     {"csc_transpose", (DL_FUNC) &csc_transpose, 1},
@@ -53,6 +67,7 @@ static R_CallMethodDef CallEntries[] = {
     {"dgBCMatrix_to_dgTMatrix", (DL_FUNC) &dgBCMatrix_to_dgTMatrix, 1},
     {"dgBCMatrix_validate", (DL_FUNC) &dgBCMatrix_validate, 1},
     {"dgCMatrix_validate", (DL_FUNC) &dgCMatrix_validate, 1},
+    {"dgeMatrix_to_csc", (DL_FUNC) &dgeMatrix_to_csc, 1},
     {"dgTMatrix_to_csc", (DL_FUNC) &dgTMatrix_to_csc, 1},
     {"dgTMatrix_to_dgCMatrix", (DL_FUNC) &dgTMatrix_to_dgCMatrix, 1},
     {"dgTMatrix_to_dgeMatrix", (DL_FUNC) &dgTMatrix_to_dgeMatrix, 1},
@@ -90,7 +105,9 @@ static R_CallMethodDef CallEntries[] = {
     {"dsCMatrix_ldl_symbolic", (DL_FUNC) &dsCMatrix_ldl_symbolic, 2},
     {"dsCMatrix_matrix_solve", (DL_FUNC) &dsCMatrix_matrix_solve, 3},
     {"dsCMatrix_to_dgTMatrix", (DL_FUNC) &dsCMatrix_to_dgTMatrix, 1},
+    {"sCMatrix_to_gCMatrix", (DL_FUNC) &sCMatrix_to_gCMatrix, 1},
     {"dsCMatrix_validate", (DL_FUNC) &dsCMatrix_validate, 1},
+    {"dsTMatrix_as_dgTMatrix", (DL_FUNC) &dsTMatrix_as_dgTMatrix, 1},
     {"dsTMatrix_as_dsCMatrix", (DL_FUNC) &dsTMatrix_as_dsCMatrix, 1},
     {"dsTMatrix_as_dsyMatrix", (DL_FUNC) &dsTMatrix_as_dsyMatrix, 1},
     {"dsTMatrix_validate", (DL_FUNC) &dsTMatrix_validate, 1},
@@ -115,6 +132,7 @@ static R_CallMethodDef CallEntries[] = {
     {"dspMatrix_trf", (DL_FUNC) &dspMatrix_trf, 1},
     {"dspMatrix_validate", (DL_FUNC) &dspMatrix_validate, 1},
     {"dtTMatrix_as_dtrMatrix", (DL_FUNC) &dtTMatrix_as_dtrMatrix, 1},
+    {"dtTMatrix_as_dtCMatrix", (DL_FUNC) &dtTMatrix_as_dtCMatrix, 1},
     {"dtTMatrix_validate", (DL_FUNC) &dtTMatrix_validate, 1},
     {"dtpMatrix_as_dtrMatrix", (DL_FUNC) &dtpMatrix_as_dtrMatrix, 1},
     {"dtpMatrix_dgeMatrix_mm", (DL_FUNC) &dtpMatrix_dgeMatrix_mm, 2},
@@ -143,6 +161,7 @@ static R_CallMethodDef CallEntries[] = {
     {"glmer_init", (DL_FUNC) &glmer_init, 1},
     {"glmer_ranef_update", (DL_FUNC) &glmer_ranef_update, 4},
     {"lapack_qr", (DL_FUNC) &lapack_qr, 2},
+
     {"lCholCMatrix_solve", (DL_FUNC) &lCholCMatrix_solve, 1},
     {"lCholCMatrix_lgCMatrix_solve", (DL_FUNC) &lCholCMatrix_lgCMatrix_solve, 2},
     {"lCholCMatrix_validate", (DL_FUNC) &lCholCMatrix_validate, 1},
@@ -154,6 +173,12 @@ static R_CallMethodDef CallEntries[] = {
     {"lgCMatrix_validate", (DL_FUNC) &lgCMatrix_validate, 1},
     {"lgTMatrix_as_lgCMatrix", (DL_FUNC) &lgTMatrix_as_lgCMatrix, 1},
     {"lgTMatrix_validate", (DL_FUNC) &lgTMatrix_validate, 1},
+
+    {"lspMatrix_as_lsyMatrix", (DL_FUNC) &lspMatrix_as_lsyMatrix, 1},
+    {"lsyMatrix_as_lspMatrix", (DL_FUNC) &lsyMatrix_as_lspMatrix, 1},
+    {"ltpMatrix_as_ltrMatrix", (DL_FUNC) &ltpMatrix_as_ltrMatrix, 1},
+    {"ltrMatrix_as_ltpMatrix", (DL_FUNC) &ltrMatrix_as_ltpMatrix, 1},
+
     {"lmer_Crosstab", (DL_FUNC) &lmer_Crosstab, 1},
     {"lmer_MCMCsamp", (DL_FUNC) &lmer_MCMCsamp, 4},
     {"lmer_ECMEsteps", (DL_FUNC) &lmer_ECMEsteps, 3},
@@ -184,6 +209,13 @@ static R_CallMethodDef CallEntries[] = {
     {"ltCMatrix_validate", (DL_FUNC) &ltCMatrix_validate, 1},
     {"lsq_dense_Chol", (DL_FUNC) &lsq_dense_Chol, 2},
     {"lsq_dense_QR", (DL_FUNC) &lsq_dense_QR, 2},
+    {"mer2_coef", (DL_FUNC) &mer2_coef, 2},
+    {"mer2_coefGets", (DL_FUNC) &mer2_coefGets, 3},
+    {"mer2_create", (DL_FUNC) &mer2_create, 4},
+    {"mer2_dtCMatrix", (DL_FUNC) &mer2_dtCMatrix, 1},
+    {"mer2_factor", (DL_FUNC) &mer2_factor, 1},
+    {"mer2_initial", (DL_FUNC) &mer2_initial, 1},
+    {"mer2_pMatrix", (DL_FUNC) &mer2_pMatrix, 1},
     {"matrix_to_csc", (DL_FUNC) &matrix_to_csc, 1},
     {"ssc_transpose", (DL_FUNC) &ssc_transpose, 1},
     {"tsc_to_dgTMatrix", (DL_FUNC) &tsc_to_dgTMatrix, 1},
@@ -198,6 +230,7 @@ void R_init_Matrix(DllInfo *dll)
 {
     R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
     R_useDynamicSymbols(dll, FALSE);
+    cholmod_start(&c);
     Matrix_DIsqrtSym = install("DIsqrt");
     Matrix_DSym = install("D");
     Matrix_DimSym = install("Dim");
@@ -213,10 +246,12 @@ void R_init_Matrix(DllInfo *dll)
     Matrix_RXXSym = install("RXX");
     Matrix_RZXSym = install("RZX");
     Matrix_XtXSym = install("XtX");
+    Matrix_XtySym = install("Xty");
     Matrix_ZZxSym = install("ZZx");
     Matrix_ZZpOSym = install("ZZpO");
     Matrix_ZtXSym = install("ZtX");
     Matrix_ZtZSym = install("ZtZ");
+    Matrix_ZtySym = install("Zty");
     Matrix_bVarSym = install("bVar");
     Matrix_cnamesSym = install("cnames");
     Matrix_devCompSym = install("devComp");
@@ -233,8 +268,15 @@ void R_init_Matrix(DllInfo *dll)
     Matrix_pSym = install("p");
     Matrix_permSym = install("perm");
     Matrix_rcondSym = install("rcond");
+    Matrix_rXySym = install("rXy");
+    Matrix_rZySym = install("rZy");
     Matrix_statusSym = install("status");
     Matrix_uploSym = install("uplo");
     Matrix_xSym = install("x");
     Matrix_zSym = install("z");
+}
+
+void R_unload_Matrix(DllInfo *dll)
+{
+    cholmod_finish(&c);
 }

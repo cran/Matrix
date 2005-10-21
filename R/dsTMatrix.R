@@ -1,7 +1,28 @@
   ### Coercion and Methods for Symmetric Triplet Matrices
 
 setAs("dsTMatrix", "dsCMatrix",
-      function(from) .Call("dsTMatrix_as_dsCMatrix", from))
+      function(from)
+      ## pre-Cholmod: .Call("dsTMatrix_as_dsCMatrix", from)
+      .Call("Tsparse_to_Csparse", from)
+      )
+
+if(FALSE) # have C method below
+setAs("dsTMatrix", "dgTMatrix",
+      function(from) {
+          d <- from@Dim
+          new("dgTMatrix", Dim = d, Dimnames = from@Dimnames,
+              i = c(from@i, from@j),
+              j = c(from@j, from@i),
+              x = c(from@x, from@x))
+      })
+
+setAs("dsTMatrix", "dgTMatrix",
+      function(from) .Call("dsTMatrix_as_dgTMatrix", from))
+
+setAs("dsTMatrix", "lsTMatrix",
+      function(from) new("lsTMatrix", i = from@i, j = from@j, uplo = from@uplo,
+                         Dim = from@Dim, Dimnames = from@Dimnames))
+
 
 ## Conversion to dense storage is first to a dsyMatrix
 setAs("dsTMatrix", "dsyMatrix",

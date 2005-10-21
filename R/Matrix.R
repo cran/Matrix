@@ -1,51 +1,35 @@
 #### Toplevel ``virtual'' class "Matrix"
 
-## probably not needed eventually:
-setAs(from = "ddenseMatrix", to = "matrix",
-      function(from) {
-	  if(length(d <- dim(from)) != 2) stop("dim(.) has not length 2")
-	  array(from@x, dim = d, dimnames = dimnames(from))
-      })
-
-## private function to be used as show() method possibly more than once
-prMatrix <- function(object) {
-    d <- dim(object)
-    cl <- class(object)
-    cat(sprintf('%d x %d Matrix of class "%s"\n', d[1], d[2], cl))
-    m <- as(object, "matrix")
-    maxp <- getOption("max.print")
-    if(prod(d) <= maxp) print(m)
-    else { ## d[1] > maxp / d[2] >= nr :
-	nr <- maxp %/% d[2]
-	n2 <- ceiling(nr / 2)
-	print(head(m, max(1, n2)))
-	cat("\n ..........\n\n")
-	print(tail(m, max(1, nr - n2)))
-    }
-    ## DEBUG: cat("str(.):\n") ; str(object)
-    invisible(object)# as print() S3 methods do
-}
-
-setMethod("show", signature(object = "ddenseMatrix"), prMatrix)
-
-##- ## FIXME: The following is only for the "dMatrix" objects that are not
-##- ##	      "dense" nor "sparse" -- i.e. "packed" ones :
-##- ## But these could be printed better -- "." for structural zeros.
-##- setMethod("show", signature(object = "dMatrix"), prMatrix)
-##- ## and improve this as well:
-##- setMethod("show", signature(object = "pMatrix"), prMatrix)
-##- ## this should now be superfluous [keep for safety for the moment]:
-setMethod("show", signature(object = "Matrix"), prMatrix)
+## ## probably not needed eventually:
+## setAs(from = "ddenseMatrix", to = "matrix",
+##       function(from) {
+## 	  if(length(d <- dim(from)) != 2) stop("dim(.) has not length 2")
+## 	  array(from@x, dim = d, dimnames = dimnames(from))
+##       })
 
 ## should propagate to all subclasses:
 setMethod("as.matrix", signature(x = "Matrix"), function(x) as(x, "matrix"))
+## for 'Matrix' objects, as.array() should be equivalent:
+setMethod("as.array",  signature(x = "Matrix"), function(x) as(x, "matrix"))
 
-## Note that isSymmetric is *not* exported
-setMethod("isSymmetric", signature(object = "symmetricMatrix"),
-          function(object) TRUE)
-setMethod("isSymmetric", signature(object = "triangularMatrix"),
+## slow "fall back" method {subclasses should have faster ones}:
+setMethod("as.vector", signature(x = "Matrix", mode = "missing"),
+          function(x) as.vector(as(x, "matrix")))
+
+
+## Note that isSymmetric is *not* exported ---
+### but also note that "base" eigen may get an isSymmetric() that *would* be exported!
+setMethod("isSymmetric", signature(object = "symmetricMatrix", tol="ANY"),
+          function(object,tol) TRUE)
+setMethod("isSymmetric", signature(object = "triangularMatrix", tol="ANY"),
           ## FIXME: 'TRUE' if *diagonal*, i.e. return(isDiagonal(object))
-          function(object) FALSE)
+          function(object,tol) FALSE)
+
+setMethod("isDiagonal", signature(object = "sparseMatrix"),
+          function(object) {
+              gT <- as(object, "TsparseMatrix")
+              all(gT@i == gT@j)
+          })
 
 setMethod("dim", signature(x = "Matrix"),
 	  function(x) x@Dim, valueClass = "integer")
@@ -69,19 +53,42 @@ setMethod("unname", signature("Matrix", force="missing"),
 	  function(obj) { obj@Dimnames <- list(NULL,NULL); obj})
 
 Matrix <-
-    function (data = NA, nrow = 1, ncol = 1, byrow = FALSE, dimnames = NULL)
+    function (data = NA, nrow = 1, ncol = 1, byrow = FALSE, dimnames = NULL,
+              sparse = NULL)
 {
-    if (is(data, "Matrix")) return(data)
-    if (is.matrix(data)) { val <- data }
-    else { ## cut & paste from "base::matrix" :
+    sparseDefault <- function(m)
+        prod(dim(m)) > 2*sum(as(m, "matrix") != 0)
+
+    i.M <- is(data, "Matrix")
+    if(is.null(sparse) && (i.M || is(data, "matrix")))
+        sparse <- sparseDefault(data)
+
+    if (i.M) {
+        sM <- is(data,"sparseMatrix")
+        if((sparse && sM) || (!sparse && !sM))
+            return(data)
+        ## else : convert  dense <-> sparse -> at end
+    }
+    else if (!is.matrix(data)) { ## cut & paste from "base::matrix" :
 	if (missing(nrow))
 	    nrow <- ceiling(length(data)/ncol)
 	else if (missing(ncol))
 	    ncol <- ceiling(length(data)/nrow)
-	val <- .Internal(matrix(data, nrow, ncol, byrow))
-	dimnames(val) <- dimnames
+	data <- .Internal(matrix(data, nrow, ncol, byrow))
+        if(is.null(sparse))
+            sparse <- sparseDefault(data)
+	dimnames(data) <- dimnames
     }
-    as(val, "dgeMatrix")
+
+    ## 'data' is now a "matrix" or "Matrix"
+    ## FIXME: consider it's type (logical,....)
+    ## ctype <- substr(class(data), 1,1) # "d", "l", ...
+    ## FIXME(2): check for symmetric / triangular / ...
+### TODO: Compare with as.Matrix() and its tests in ./dgeMatrix.R
+    if(sparse)
+        as(data, "dgCMatrix")
+    else
+        as(data, "dgeMatrix")
 }
 
 ## Methods for operations where one argument is numeric
@@ -103,6 +110,53 @@ setMethod("crossprod", signature(x = "numeric", y = "Matrix"),
 
 setMethod("solve", signature(a = "Matrix", b = "numeric"),
 	  function(a, b, ...) callGeneric(a, as.matrix(b)))
+
+## bail-out methods in order to get better error messages
+setMethod("%*%", signature(x = "Matrix", y = "Matrix"),
+	  function (x, y)
+          stop(gettextf('not-yet-implemented method for <%s> %%*%% <%s>',
+                        class(x), class(y))))
+
+setMethod("crossprod", signature(x = "Matrix", y = "ANY"),
+	  function (x, y = NULL) .bail.out.2(.Generic, class(x), class(y)))
+setMethod("crossprod", signature(x = "ANY", y = "Matrix"),
+	  function (x, y = NULL) .bail.out.2(.Generic, class(x), class(y)))
+
+## There are special sparse methods; this is a "fall back":
+setMethod("kronecker", signature(X = "Matrix", Y = "ANY",
+                                 FUN = "ANY", make.dimnames = "ANY"),
+          function(X, Y, FUN, make.dimnames, ...) {
+              X <- as(X, "matrix") ; Matrix(callGeneric()) })
+setMethod("kronecker", signature(X = "ANY", Y = "Matrix",
+                                 FUN = "ANY", make.dimnames = "ANY"),
+          function(X, Y, FUN, make.dimnames, ...) {
+              Y <- as(Y, "matrix") ; Matrix(callGeneric()) })
+
+
+setMethod("t", signature(x = "Matrix"),
+	  function(x) .bail.out.1(.Generic, class(x)))
+
+## Group Methods
+setMethod("+", signature(e1 = "Matrix", e2 = "missing"), function(e1) e1)
+## "fallback":
+setMethod("-", signature(e1 = "Matrix", e2 = "missing"),
+          function(e1) {
+              warning("inefficient method used for \"- e1\"")
+              0-e1
+          })
+
+## bail-outs:
+setMethod("Compare", signature(e1 = "Matrix", e2 = "Matrix"),
+          function(e1, e2) {
+              d <- dimCheck(e1,e2)
+              .bail.out.2(.Generic, class(e1), class(e2))
+          })
+setMethod("Compare", signature(e1 = "Matrix", e2 = "ANY"),
+          function(e1, e2) .bail.out.2(.Generic, class(e1), class(e2)))
+setMethod("Compare", signature(e1 = "ANY", e2 = "Matrix"),
+          function(e1, e2) .bail.out.2(.Generic, class(e1), class(e2)))
+
+
 
 ### --------------------------------------------------------------------------
 ###
@@ -154,7 +208,7 @@ setReplaceMethod("[", signature(x = "Matrix", i = "ANY", j = "ANY",
 	  function (x, i, j, value)
                  if(!is(value,"index"))
                  stop("RHS 'value' must be of class \"index\"")
-                 else stop("unimplemented 'Matrix[<-' method"))
+                 else stop("not-yet-implemented 'Matrix[<-' method"))
 
 
 
@@ -171,6 +225,13 @@ if(paste(R.version$major, R.version$minor, sep=".") >= "2.2") {
     setMethod("cbind2", signature(x = "NULL", y="Matrix"),
 	      function(x, y) x)
 
+    setMethod("rbind2", signature(x = "Matrix", y = "NULL"),
+	      function(x, y) x)
+    setMethod("rbind2", signature(x = "Matrix", y = "missing"),
+	      function(x, y) x)
+    setMethod("rbind2", signature(x = "NULL", y="Matrix"),
+	      function(x, y) x)
+
     ## Makes sure one gets x decent error message for the unimplemented cases:
     setMethod("cbind2", signature(x = "Matrix", y = "Matrix"),
               function(x, y) {
@@ -179,11 +240,12 @@ if(paste(R.version$major, R.version$minor, sep=".") >= "2.2") {
                                 class(x), class(y)))
               })
 
-    if (isGeneric("rbind2"))
+    ## Use a working fall back {particularly useful for sparse}:
+    ## FIXME: implement rbind2 via "cholmod" for C* and Tsparse ones
     setMethod("rbind2", signature(x = "Matrix", y = "Matrix"),
               function(x, y) {
                   colCheck(x,y)
-                  stop(gettextf("rbind2() method for (%s,%s) not-yet defined",
-                                class(x), class(y)))
+                  t(cbind2(t(x), t(y)))
               })
+
 }## R-2.2.x and newer

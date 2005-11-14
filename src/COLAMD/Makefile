@@ -1,38 +1,19 @@
-#default: libcolamd.a colamd_example colamd_l_example
-default: libcolamd.a
+include ${MkInclude}
 
-include ../UFconfig/UFconfig.mk
+OBJS = colamd.o colamd_global.o
 
-colamd_example: colamd_example.c libcolamd.a
-	$(CC) $(CFLAGS) -o colamd_example colamd_example.c libcolamd.a -lm
-	- ./colamd_example > my_colamd_example.out
-	- diff colamd_example.out my_colamd_example.out
+LIB = ../COLAMD.a
 
-colamd_l_example: colamd_l_example.c libcolamd.a
-	$(CC) $(CFLAGS) -o colamd_l_example colamd_l_example.c libcolamd.a -lm
-	- ./colamd_l_example > my_colamd_l_example.out
-	- diff colamd_example.out my_colamd_example.out
+lib: $(LIB)
 
-purge: distclean
+$(LIB): $(OBJS)
+	$(AR) -rucs $(LIB) $(OBJS)
 
-distclean: clean2
-	- $(RM) libcolamd.a
+mostlyclean: clean
 
-clean2: clean
-	- $(RM) *.o *.dll colamd_example colamd_l_example
-	- $(RM) colamdmex.mex* symamdmex.mex*
-	- $(RM) colamdtestmex.mex* symamdtestmex.mex*
-	- $(RM) my_colamd_example.out my_colamd_l_example.out
+clean:
+	@-rm -rf .libs _libs $(LIB)
+	@-rm -f *.o 
 
-# creates libcolamd.a, a C-callable COLAMD library
-libcolamd.a:  colamd.c colamd_global.c colamd.h
-	$(CC) $(CFLAGS) ${CPICFLAGS} -c colamd_global.c
-	$(CC) $(CFLAGS) ${CPICFLAGS} -c colamd.c
-	$(AR) libcolamd.a colamd.o colamd_global.o
-	- cp libcolamd.a ../COLAMD.a
+colamd.o: colamd.h
 
-ccode: libcolamd.a
-
-library: libcolamd.a
-
-lib: library

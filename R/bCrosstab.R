@@ -71,10 +71,10 @@ Lstruct <- function(bcr, nc = rep(1, nf)) {
                      x = array(0, dim = c(nc[1], nc[1], length(ct11@x))))
     for (i in 1:(nf - 1)) {
         ip1 <- i + 1
-        res <- .Call("bCrosstab_project", ctab, i)
+        res <- .Call("bCrosstab_project", ctab, i, PACKAGE = "Matrix")
         fac <- fl[[ip1]]
         fl[[ip1]] <- factor(as.character(fac), levels = levels(fac)[1+res$perm])
-        ctab <- .Call("bCrosstab_permute", res$ctab, i, res$perm)
+        ctab <- .Call("bCrosstab_permute", res$ctab, i, res$perm, PACKAGE = "Matrix")
         rLi <- res$Linv
         Linv[[ip1]] <- new("dgBCMatrix", p = rLi@p, i = rLi@i,
                            x = array(0, dim = c(nc[ip1], nc[ip1], length(rLi@x))))

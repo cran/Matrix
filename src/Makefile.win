@@ -1,45 +1,50 @@
 # -*- Makefile -*- for Windows
-include $(RHOME)/src/gnuwin32/MkRules
+PKG_HOME=$(shell $(RHOME)/src/gnuwin32/Rpwd.exe .)
+MkInclude=$(PKG_HOME)/Win.mk
+
+include Win.mk
+#       |-> gnuwin32/MkRules
+
 BLAS_LIBS=-lRblas
-LAPACK_LIBS=-L$(RHOME)/lib -lRlapack
+LAPACK_LIBS=-L$(RHOME)/lib -L$(RHOME)/src/gnuwin32 -lRlapack
 CPPFLAGS=$(PKG_CPPFLAGS) -I$(RHOME)/include
 CFLAGS=$(CPPFLAGS) $(DEBUGFLAG) -O2 $(PKG_CFLAGS)
 CXXFLAGS=$(CPPFLAGS) $(DEBUGFLAG) -O2 $(PKG_CXXFLAGS)
 
-DLLLIBS=-L$(RHOME)/src/gnuwin32 $(PKG_LIBS) $(FLIBS) -lR
+DLLLIBS= $(PKG_LIBS) $(FLIBS) -lR
 
 pkg = Matrix
 
 PKG_CFLAGS = -DUSE_CHOLMOD
-PKG_LIBS = ${LAPACK_LIBS} ${BLAS_LIBS}
+PKG_LIBS = $(LAPACK_LIBS) $(BLAS_LIBS)
 include SOURCES_C.mkf
 
 ## zherk.f is part of BLAS, but not of R's BLAS sources
 SOURCES_F = zpotf2.f zpotrf.f zherk.f
 
 OBJECTS = $(SOURCES_C:.c=.o) $(SOURCES_F:.f=.o)
-SHLIB = $(pkg)$(SHLIB_EXT)
-SUBDIRS = CHOLMOD UMFPACK Metis AMD COLAMD LDL CCOLAMD
+SHLIB = $(pkg).dll
+SUBDIRS = CHOLMOD UMFPACK COLAMD CCOLAMD AMD Metis LDL
 SUBLIBS = $(SUBDIRS:=.a)
 SUBSTAMP = $(SUBDIRS:=.stamp)
 
 $(SHLIB): $(OBJECTS) $(SUBLIBS)
-	gcc --shared -s -o Matrix.dll $(OBJECTS) $(SUBLIBS) $(ALL_LIBS) $(DLLLIBS)
+	$(DLL) --shared -s -o $@ $(OBJECTS) $(SUBLIBS) $(DLLLIBS)
 
 all: $(SHLIB)
 
 mostlyclean: clean
 
-UFconfig.stamp: 
-	@$(CP) UFconfig/UFconfig_win.mk UFconfig/UFconfig.mk 
-
-$(SUBLIBS): UFconfig.stamp
+$(SUBLIBS):
 	@for d in $(SUBDIRS); do \
-	  (cd $${d} && $(MAKE) lib) || exit 1; \
+	  (cd $${d} && MkInclude=$(MkInclude) $(MAKE) lib) || exit 1; \
 	done
 
-clean: UFconfig.stamp
+clean:
 	@-rm -rf .libs _libs
-	@-rm -f *.o
+	@-rm -f *.o *.dll
+	@for d in $(SUBDIRS); do \
+	  (cd $${d} && $(MAKE) clean) || exit 1; \
+	done
 
 include DEPS.mkf

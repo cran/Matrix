@@ -401,9 +401,8 @@ SEXP csc_transpose(SEXP x)
 {
 #ifdef USE_CHOLMOD
     cholmod_sparse *chx = as_cholmod_sparse(x);
-    SEXP ans =
-	chm_sparse_to_SEXP(cholmod_transpose(chx, 1, &c), 1);
-    Free(chx);
+    SEXP ans = chm_sparse_to_SEXP(cholmod_transpose(chx, 1, &c), 1);
+    free(chx);/* since as_cholmod_sparse() malloc()s */
     return ans;
 #else
     SEXP xi = GET_SLOT(x, Matrix_iSym);

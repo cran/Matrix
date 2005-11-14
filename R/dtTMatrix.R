@@ -1,7 +1,8 @@
 ### Coercion and Methods for Triangular Triplet Matrices
 
 setAs("dtTMatrix", "dtCMatrix",
-      function(from) .Call("dtTMatrix_as_dtCMatrix", from))
+      function(from)
+      .Call("dtTMatrix_as_dtCMatrix", from, PACKAGE = "Matrix"))
 
 setAs("dtTMatrix", "dgTMatrix",
       function(from) {
@@ -21,7 +22,7 @@ setAs("dtTMatrix", "ltTMatrix",
 
 ## Conversion to dense storage is first to a dtrMatrix
 setAs("dtTMatrix", "dtrMatrix",
-      function(from) .Call("dtTMatrix_as_dtrMatrix", from))
+      function(from) .Call("dtTMatrix_as_dtrMatrix", from, PACKAGE = "Matrix"))
 
 setAs("dtTMatrix", "matrix",
       function(from) as(as(from, "dtrMatrix"), "matrix"))

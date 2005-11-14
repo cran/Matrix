@@ -942,7 +942,7 @@ setMethod("mcmcsamp", signature(object = "lmer"),
       })
 
 rWishart <- function(n, df, invScal)
-  .Call("Matrix_rWishart", n, df, invScal)
+  .Call("Matrix_rWishart", n, df, invScal, PACKAGE = "Matrix")
 
 
 setMethod("model.matrix", signature(object = "lmer"),

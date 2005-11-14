@@ -10,10 +10,12 @@ setMethod("t", signature(x = "lCholCMatrix"),
           valueClass = "lCholCMatrix")
 
 setMethod("solve", signature(a = "lCholCMatrix", b = "missing"),
-          function(a, b) .Call("lCholCMatrix_solve", a),
+          function(a, b)
+          .Call("lCholCMatrix_solve", a, PACKAGE = "Matrix"),
           valueClass = "ltCMatrix")
           
 setMethod("solve", signature(a = "lCholCMatrix", b = "lgCMatrix"),
-          function(a, b) .Call("lCholCMatrix_lgCMatrix_solve", a, b),
+          function(a, b)
+          .Call("lCholCMatrix_lgCMatrix_solve", a, b, PACKAGE = "Matrix"),
           valueClass = "lgCMatrix")
 

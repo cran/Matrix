@@ -44,7 +44,7 @@
 #elif defined (_WIN32) || defined (WIN32)
 #define CHOLMOD_WINDOWS
 #define CHOLMOD_ARCHITECTURE "Microsoft Windows"
-#define BLAS_NO_UNDERSCORE
+/* #define BLAS_NO_UNDERSCORE */
 
 #elif defined (__hppa) || defined (__hpux) || defined (MHPUX) || defined (ARCH_HPUX)
 #define CHOLMOD_HP

@@ -1,7 +1,7 @@
  ### Coercion and Methods for Symmetric Matrices
 
 setAs("dsyMatrix", "dgeMatrix",
-      function(from) .Call("dsyMatrix_as_dgeMatrix", from) )
+      function(from) .Call("dsyMatrix_as_dgeMatrix", from, PACKAGE = "Matrix"))
 
 ## I can't get this to work - at least inside Namespace -- FIXME
 ## setIs("dgeMatrix", "dsyMatrix",
@@ -12,10 +12,10 @@ setAs("dsyMatrix", "dgeMatrix",
 ##       )
 
 setAs("dsyMatrix", "matrix",
-      function(from) .Call("dsyMatrix_as_matrix", from) )
+      function(from) .Call("dsyMatrix_as_matrix", from, PACKAGE = "Matrix"))
 
 setAs("dsyMatrix", "dspMatrix",
-      function(from) .Call("dsyMatrix_as_dspMatrix", from) )
+      function(from) .Call("dsyMatrix_as_dspMatrix", from, PACKAGE = "Matrix"))
 
 setAs("dsyMatrix", "dsTMatrix",
       function(from) {
@@ -35,40 +35,45 @@ setMethod("show", "dsyMatrix", function(object) prMatrix(object))
 
 setMethod("rcond", signature(x = "dsyMatrix", type = "character"),
           function(x, type, ...)
-          .Call("dsyMatrix_rcond", x, type),
+          .Call("dsyMatrix_rcond", x, type, PACKAGE = "Matrix"),
           valueClass = "numeric")
 
 setMethod("rcond", signature(x = "dsyMatrix", type = "missing"),
           function(x, type, ...)
-          .Call("dsyMatrix_rcond", x, "O"),
+          .Call("dsyMatrix_rcond", x, "O", PACKAGE = "Matrix"),
           valueClass = "numeric")
 
 setMethod("%*%", signature(x = "dsyMatrix", y = "dgeMatrix"),
-          function(x, y) .Call("dsyMatrix_dgeMatrix_mm", x, y) )
+          function(x, y)
+          .Call("dsyMatrix_dgeMatrix_mm", x, y, PACKAGE = "Matrix"))
 
 setMethod("%*%", signature(x = "dgeMatrix", y = "dsyMatrix"),
-          function(x, y) .Call("dsyMatrix_dgeMatrix_mm_R", y, x) )
+          function(x, y)
+          .Call("dsyMatrix_dgeMatrix_mm_R", y, x, PACKAGE = "Matrix"))
 
 setMethod("solve", signature(a = "dsyMatrix", b = "missing"),
-          function(a, b, ...) .Call("dsyMatrix_solve", a),
+          function(a, b, ...)
+          .Call("dsyMatrix_solve", a, PACKAGE = "Matrix"),
           valueClass = "dsyMatrix")
 
 setMethod("solve", signature(a = "dsyMatrix", b = "matrix"),
           function(a, b, ...)
-          .Call("dsyMatrix_matrix_solve", a, b),
+          .Call("dsyMatrix_matrix_solve", a, b, PACKAGE = "Matrix"),
           valueClass = "matrix")
 
 setMethod("solve", signature(a = "dsyMatrix", b = "dgeMatrix"),
           function(a, b, ...)
-          .Call("dsyMatrix_dgeMatrix_solve", a, b),
+          .Call("dsyMatrix_dgeMatrix_solve", a, b, PACKAGE = "Matrix"),
           valueClass = "dgeMatrix")
 
 setMethod("norm", signature(x = "dsyMatrix", type = "character"),
-          function(x, type, ...) .Call("dsyMatrix_norm", x, type),
+          function(x, type, ...)
+          .Call("dsyMatrix_norm", x, type, PACKAGE = "Matrix"),
           valueClass = "numeric")
 
 setMethod("norm", signature(x = "dsyMatrix", type = "missing"),
-          function(x, type, ...) .Call("dsyMatrix_norm", x, "O"),
+          function(x, type, ...)
+          .Call("dsyMatrix_norm", x, "O", PACKAGE = "Matrix"),
           valueClass = "numeric")
 
 ## Should this create the opposite storage format - i.e. "U" -> "L"
@@ -84,7 +89,7 @@ setMethod("t", signature(x = "dsyMatrix"), t_trMatrix,
 ##
 setIs("dsyMatrix", "dpoMatrix",
       test = function(obj)
-          "try-error" != class(try(.Call("dpoMatrix_chol", obj), silent=TRUE)),
+          "try-error" != class(try(.Call("dpoMatrix_chol", obj, PACKAGE = "Matrix"), silent=TRUE)),
       ## MM: The following copying is necessary
       ## -- but shouldn't it be the default in such a case ??
       replace = function(obj, value) ## copy all slots

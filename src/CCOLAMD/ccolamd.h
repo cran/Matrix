@@ -349,7 +349,7 @@ long ccolamd_l_post_tree
     long Stack [ ]
 ) ;
 
-int (*ccolamd_printf) (const char *, ...) ;
+extern int (*ccolamd_printf) (const char *, ...) ;
 
 #ifdef __cplusplus
 }

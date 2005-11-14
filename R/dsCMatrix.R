@@ -35,12 +35,12 @@ setAs("dsCMatrix", "dsyMatrix",
 
 setMethod("solve", signature(a = "dsCMatrix", b = "dgeMatrix"),
           function(a, b, ...)
-          .Call("dsCMatrix_matrix_solve", a, b, TRUE),
+          .Call("dsCMatrix_matrix_solve", a, b, TRUE, PACKAGE = "Matrix"),
           valueClass = "dgeMatrix")
 
 setMethod("solve", signature(a = "dsCMatrix", b = "matrix"),
           function(a, b, ...)
-          .Call("dsCMatrix_matrix_solve", a, b, FALSE),
+          .Call("dsCMatrix_matrix_solve", a, b, FALSE, PACKAGE = "Matrix"),
           valueClass = "dgeMatrix")
 
 ##setMethod("solve", signature(a = "dsCMatrix", b = "numeric"),
@@ -48,13 +48,13 @@ setMethod("solve", signature(a = "dsCMatrix", b = "matrix"),
 ##          valueClass = "dgeMatrix")
 
 setMethod("chol", signature(x = "dsCMatrix", pivot = "missing"),
-          function(x, pivot, LINPACK) .Call("dsCMatrix_chol", x, TRUE))
+          function(x, pivot, LINPACK) .Call("dsCMatrix_chol", x, TRUE, PACKAGE = "Matrix"))
 
 setMethod("chol", signature(x = "dsCMatrix", pivot = "logical"),
-          function(x, pivot, LINPACK) .Call("dsCMatrix_chol", x, pivot))
+          function(x, pivot, LINPACK) .Call("dsCMatrix_chol", x, pivot, PACKAGE = "Matrix"))
 
 setMethod("t", signature(x = "dsCMatrix"),
-          function(x) .Call("ssc_transpose", x),
+          function(x) .Call("ssc_transpose", x, PACKAGE = "Matrix"),
           valueClass = "dsCMatrix")
 
 setMethod("determinant", signature(x = "dsCMatrix", logarithm = "missing"),
@@ -75,10 +75,10 @@ setMethod("writeHB", signature(obj = "dsCMatrix"),
           function(obj, file, ...)
           .Call("Matrix_writeHarwellBoeing",
                 if (obj@uplo == "U") t(obj) else obj,
-                as.character(file), "DSC"))
+                as.character(file), "DSC", PACKAGE = "Matrix"))
 
 setMethod("writeMM", signature(obj = "dsCMatrix"),
           function(obj, file, ...)
           .Call("Matrix_writeMatrixMarket",
                 if (obj@uplo == "U") t(obj) else obj,
-                as.character(file), "DSC"))
+                as.character(file), "DSC", PACKAGE = "Matrix"))

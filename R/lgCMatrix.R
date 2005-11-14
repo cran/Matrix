@@ -3,19 +3,22 @@
 ### contains = "lsparseMatrix"
 
 setMethod("%*%", signature(x = "lgCMatrix", y = "lgCMatrix"),
-          function(x, y) .Call("lgCMatrix_lgCMatrix_mm", x, y),
+          function(x, y)
+          .Call("lgCMatrix_lgCMatrix_mm", x, y, PACKAGE = "Matrix"),
           valueClass = "lgCMatrix")
 
 setMethod("t", signature(x = "lgCMatrix"),
-          function(x) .Call("lgCMatrix_trans", x),
+          function(x) .Call("lgCMatrix_trans", x, PACKAGE = "Matrix"),
           valueClass = "lgCMatrix")
 
 setMethod("crossprod", signature(x = "lgCMatrix", y = "missing"),
-	  function(x, y = NULL) .Call("lgCMatrix_crossprod", x, TRUE, NULL),
+	  function(x, y = NULL)
+          .Call("lgCMatrix_crossprod", x, TRUE, NULL, PACKAGE = "Matrix"),
 	  valueClass = "lsCMatrix")
 
 setMethod("tcrossprod", signature(x = "lgCMatrix"),
-	  function(x) .Call("lgCMatrix_crossprod", x, FALSE, NULL),
+	  function(x)
+          .Call("lgCMatrix_crossprod", x, FALSE, NULL, PACKAGE = "Matrix"),
 	  valueClass = "lsCMatrix")
 
 setAs("lgCMatrix", "dgCMatrix",
@@ -25,11 +28,11 @@ setAs("lgCMatrix", "dgCMatrix",
 
 setAs("lgCMatrix", "lgTMatrix",
       function(from) new("lgTMatrix", i = from@i,
-                         j = .Call("Matrix_expand_pointers", from@p),
+                         j = .Call("Matrix_expand_pointers", from@p, PACKAGE = "Matrix"),
                          Dim = from@Dim, Dimnames = from@Dimnames))
 
 setAs("lgCMatrix", "matrix",
-      function(from) .Call("lcsc_to_matrix", from))
+      function(from) .Call("lcsc_to_matrix", from, PACKAGE = "Matrix"))
 
 
 setMethod("image", "lgCMatrix",

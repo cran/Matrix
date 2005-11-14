@@ -37,7 +37,7 @@ SEXP Csparse_to_Tsparse(SEXP x)
     cholmod_sparse *chxs = as_cholmod_sparse(x);
     cholmod_triplet *chxt = cholmod_sparse_to_triplet(chxs, &c);
 
-    Free(chxs);
+    free(chxs);
     return chm_triplet_to_SEXP(chxt, 1);
 #else
     error("General conversion requires CHOLMOD");
@@ -51,7 +51,7 @@ SEXP Csparse_transpose(SEXP x)
     cholmod_sparse *chx = as_cholmod_sparse(x);
     cholmod_sparse *chxt = cholmod_transpose(chx, (int) chx->xtype, &c);
 
-    Free(chx);
+    free(chx);
     return chm_sparse_to_SEXP(chxt, 1);
 #else
     error("General conversion requires CHOLMOD");
@@ -66,7 +66,7 @@ SEXP Csparse_Csparse_prod(SEXP a, SEXP b)
     cholmod_sparse *cha = as_cholmod_sparse(a), *chb = as_cholmod_sparse(b);
     cholmod_sparse *chc = cholmod_ssmult(cha, chb, 0, (int) cha->xtype, 1, &c);
 
-    Free(cha); Free(chb);
+    free(cha); free(chb);
     return chm_sparse_to_SEXP(chc, 1);
 #else
     error("General multiplication requires CHOLMOD");
@@ -84,7 +84,7 @@ SEXP Csparse_dense_prod(SEXP a, SEXP b)
     double alpha = 1, beta = 0;
 
     cholmod_sdmult(cha, 0, &alpha, &beta, chb, chc, &c);
-    Free(cha); Free(chb);
+    free(cha); free(chb);
     return chm_dense_to_SEXP(chc, 1);
 #else
     error("General multiplication requires CHOLMOD");
@@ -111,9 +111,9 @@ SEXP Csparse_crossprod(SEXP x, SEXP trans, SEXP triplet)
 
     if (trip) {
 	cholmod_free_sparse(&chx, &c);
-	Free(cht);
+	free(cht);
     } else {
-	Free(chx);
+	free(chx);
     }
     if (!tr) cholmod_free_sparse(&chxt, &c);
     return chm_sparse_to_SEXP(chcp, 1);

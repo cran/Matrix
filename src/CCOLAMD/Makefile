@@ -1,24 +1,18 @@
-# default: ccolamd_example ccolamd_l_example libccolamd.a
-default: libccolamd.a
+include $(MkInclude)
 
-include ../UFconfig/UFconfig.mk
+OBJS = ccolamd_global.o ccolamd.o
 
-purge: distclean
+LIB = ../CCOLAMD.a
 
-distclean: clean2
-	- $(RM) libccolamd.a
+lib: $(LIB)
 
-clean2: clean
+$(LIB): $(OBJS)
+	$(AR) -rucs $(LIB) $(OBJS)
 
-# creates libccolamd.a, a C-callable CCOLAMD library
-libccolamd.a:  ccolamd.c ccolamd_global.c ccolamd.h
-	$(CC) $(CFLAGS) ${CPICFLAGS} -c ccolamd_global.c
-	$(CC) $(CFLAGS) ${CPICFLAGS} -c ccolamd.c
-	$(AR) libccolamd.a ccolamd.o ccolamd_global.o
-	- cp libccolamd.a ../CCOLAMD.a
+mostlyclean: clean
 
-ccode: libccolamd.a
+clean:
+	@-rm -rf .libs _libs $(LIB)
+	@-rm -f *.o 
 
-library: libccolamd.a
-
-lib: libccolamd.a
+ccolamd.o: ccolamd.h

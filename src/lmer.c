@@ -2722,7 +2722,7 @@ internal_glmer_ranef_update(GlmerStruct GS, SEXP b)
     if (asLogical(Matrix_getElement(GS->cv, "msVerbose"))) {
 	double *b0 = REAL(VECTOR_ELT(bprop, 0));
 	Rprintf("%5.3f:", exp(-0.5 * devr));
-	for (k = 0; k < 5; k++) Rprintf("%#10g ", b0[j]);
+	for (k = 0; k < 5; k++) Rprintf("%#10g ", b0[k]);
 	Rprintf("\n");
     }
 	

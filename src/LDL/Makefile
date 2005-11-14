@@ -1,52 +1,18 @@
-#-------------------------------------------------------------------------------
-# Makefile for the LDL mexFunction
-#-------------------------------------------------------------------------------
+include $(MkInclude)
 
-ldlLIB = ../LDL.a
+OBJS = ldl.o
 
-#default: all
-default: lib
+LIB = ../LDL.a
 
-include ../UFconfig/UFconfig.mk
+lib: $(LIB)
 
-all: intro $(ldlLIB) ldlsimple ldlmain ldlamd
+$(LIB): $(OBJS)
+	$(AR) -rucs $(LIB) $(OBJS)
 
-#-------------------------------------------------------------------------------
-# the ldl library:
-#-------------------------------------------------------------------------------
+mostlyclean: clean
 
-$(ldlLIB): ldl.c ldl.h
-	$(CC) -c -O ldl.c -o ldl.o
-	$(AR) $(ldlLIB) ldl.o
-	- $(RANLIB) $(ldlLIB)
-lib: $(ldlLIB)
-	@touch lib
+clean:
+	@-rm -rf .libs _libs $(LIB)
+	@-rm -f *.o 
 
-#-------------------------------------------------------------------------------
-# clean-up:
-#-------------------------------------------------------------------------------
-
-distclean: purge
-	- 'rm' $(ldlLIB)
-
-purge: clean
-	- 'rm' ldl.mex* ldl.dll ldlmain ldlamd ldlsimple
-	- 'rm' my_ldlmain.out my_ldlamd.out my_ldlsimple.out
-	- 'rm' ldlmain.mex* ldlamd.mex* ldlmain.dll ldlamd.dll
-	- 'rm' ldlsymbol.mex* ldlsymbol.dll
-	- 'rm' *.dvi *.aux *.log *.bak *.bbl *.blg
-
-
-#-------------------------------------------------------------------------------
-# user guide:
-#-------------------------------------------------------------------------------
-
-doc: ldl_userguide.tex ldl.bib
-	latex ldl_userguide
-	- bibtex ldl_userguide
-	latex ldl_userguide
-	latex ldl_userguide
-	dvips ldl_userguide -o ldl_userguide.ps
-	pdflatex ldl_userguide
-	pdflatex ldl_userguide
-
+ldl.o: ldl.h

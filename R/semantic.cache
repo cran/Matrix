@@ -1,9 +1,0 @@
-;; Object R/
-;; SEMANTICDB Tags save file
-(semanticdb-project-database-file "R/"
-  :tables (list 
-    )
-  :file "semantic.cache"
-  :semantic-tag-version "2.0beta3"
-  :semanticdb-version "2.0beta3"
-  )

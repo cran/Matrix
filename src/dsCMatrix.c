@@ -278,6 +278,6 @@ SEXP sCMatrix_to_gCMatrix(SEXP x)
     cholmod_sparse *ans = cholmod_copy(chx, /* stype: */ 0, chx->xtype, &c);
     /* xtype: pattern, "real", complex or .. */
 
-    Free(chx);
+    free(chx);
     return chm_sparse_to_SEXP(ans, 1);
 }

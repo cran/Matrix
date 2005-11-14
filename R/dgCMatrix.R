@@ -3,13 +3,13 @@
 ### contains = "dsparseMatrix"
 
 setAs("dgCMatrix", "dgTMatrix",
-      function(from) .Call("compressed_to_dgTMatrix", from, TRUE))
+      function(from) .Call("compressed_to_dgTMatrix", from, TRUE, PACKAGE = "Matrix"))
 
 setAs("dgCMatrix", "matrix",
-      function(from) .Call("csc_to_matrix", from))
+      function(from) .Call("csc_to_matrix", from, PACKAGE = "Matrix"))
 
 setAs("dgCMatrix", "dgeMatrix",
-      function(from) .Call("csc_to_dgeMatrix", from))
+      function(from) .Call("csc_to_dgeMatrix", from, PACKAGE = "Matrix"))
 
 setAs("dgCMatrix", "dgBCMatrix",
       function(from) new("dgBCMatrix", p = from@p, i = from@i,
@@ -22,23 +22,25 @@ setAs("dgCMatrix", "lgCMatrix",
 setAs("matrix", "dgCMatrix",
       function(from) {
           storage.mode(from) <- "double"
-          .Call("matrix_to_csc", from)
+          .Call("matrix_to_csc", from, PACKAGE = "Matrix")
       })
 
 setAs("dgeMatrix", "dgCMatrix",
-      function(from) .Call("dgeMatrix_to_csc", from))
+      function(from) .Call("dgeMatrix_to_csc", from, PACKAGE = "Matrix"))
 
 
 setMethod("crossprod", signature(x = "dgCMatrix", y = "missing"),
-          function(x, y = NULL) .Call("csc_crossprod", x),
+          function(x, y = NULL) .Call("csc_crossprod", x, PACKAGE = "Matrix"),
           valueClass = "dsCMatrix")
 
 setMethod("crossprod", signature(x = "dgCMatrix", y = "dgeMatrix"),
-          function(x, y = NULL) .Call("csc_matrix_crossprod", x, y, TRUE),
+          function(x, y = NULL)
+          .Call("csc_matrix_crossprod", x, y, TRUE, PACKAGE = "Matrix"),
           valueClass = "dgeMatrix")
 
 setMethod("crossprod", signature(x = "dgCMatrix", y = "matrix"),
-          function(x, y = NULL) .Call("csc_matrix_crossprod", x, y, FALSE),
+          function(x, y = NULL)
+          .Call("csc_matrix_crossprod", x, y, FALSE, PACKAGE = "Matrix"),
           valueClass = "dgeMatrix")
 
 ##setMethod("crossprod", signature(x = "dgCMatrix", y = "numeric"),
@@ -49,17 +51,18 @@ setMethod("crossprod", signature(x = "dgCMatrix", y = "matrix"),
 ##           function(x, y = NULL) .Call("csc_matrix_crossprod", x, as.matrix(y)))
 
 setMethod("tcrossprod", signature(x = "dgCMatrix"),
-          function(x) .Call("csc_tcrossprod", x))
+          function(x) .Call("csc_tcrossprod", x, PACKAGE = "Matrix"))
 
 setMethod("diag", signature(x = "dgCMatrix"),
-          function(x = 1, nrow, ncol = n) .Call("csc_getDiag", x))
+          function(x = 1, nrow, ncol = n)
+          .Call("csc_getDiag", x, PACKAGE = "Matrix"))
 
 ## try to define for "Matrix" -- once and for all -- but that fails -- why?
 setMethod("dim", signature(x = "dgCMatrix"),
           function(x) x@Dim, valueClass = "integer")
 
 setMethod("t", signature(x = "dgCMatrix"),
-          function(x) .Call("csc_transpose", x),
+          function(x) .Call("csc_transpose", x, PACKAGE = "Matrix"),
           valueClass = "dgCMatrix")
 
 setMethod("image", "dgCMatrix",
@@ -69,19 +72,19 @@ setMethod("image", "dgCMatrix",
           })
 
 setMethod("%*%", signature(x = "dgCMatrix", y = "dgeMatrix"),
-          function(x, y) .Call("csc_matrix_mm", x, y, TRUE, FALSE),
+          function(x, y) .Call("csc_matrix_mm", x, y, TRUE, FALSE, PACKAGE = "Matrix"),
           valueClass = "dgeMatrix")
 
 setMethod("%*%", signature(x = "dgCMatrix", y = "matrix"),
-          function(x, y) .Call("csc_matrix_mm", x, y, FALSE, FALSE),
+          function(x, y) .Call("csc_matrix_mm", x, y, FALSE, FALSE, PACKAGE = "Matrix"),
           valueClass = "dgeMatrix")
 
 setMethod("%*%", signature(x = "dgeMatrix", y = "dgCMatrix"),
-          function(x, y) .Call("csc_matrix_mm", y, x, TRUE, TRUE),
+          function(x, y) .Call("csc_matrix_mm", y, x, TRUE, TRUE, PACKAGE = "Matrix"),
           valueClass = "dgeMatrix")
 
 setMethod("%*%", signature(x = "matrix", y = "dgCMatrix"),
-          function(x, y) .Call("csc_matrix_mm", y, x, FALSE, TRUE),
+          function(x, y) .Call("csc_matrix_mm", y, x, FALSE, TRUE, PACKAGE = "Matrix"),
           valueClass = "dgeMatrix")
 
 ## Group Methods, see ?Arith (e.g.)
@@ -197,8 +200,8 @@ setMethod("Math2",
 
 setMethod("writeHB", signature(obj = "dgCMatrix"),
           function(obj, file, ...)
-          .Call("Matrix_writeHarwellBoeing", obj, as.character(file), "DGC"))
+          .Call("Matrix_writeHarwellBoeing", obj, as.character(file), "DGC", PACKAGE = "Matrix"))
 
 setMethod("writeMM", signature(obj = "dgCMatrix"),
           function(obj, file, ...)
-          .Call("Matrix_writeMatrixMarket", obj, as.character(file), "DGC"))
+          .Call("Matrix_writeMatrixMarket", obj, as.character(file), "DGC", PACKAGE = "Matrix"))

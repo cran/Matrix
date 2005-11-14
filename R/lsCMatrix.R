@@ -27,11 +27,14 @@ setMethod("image", "lsCMatrix",
           })
 
 setMethod("chol", signature(x = "lsCMatrix", pivot = "missing"),
-          function(x, pivot, LINPACK) .Call("lsCMatrix_chol", x, TRUE))
+          function(x, pivot, LINPACK)
+          .Call("lsCMatrix_chol", x, TRUE, PACKAGE = "Matrix"))
 
 setMethod("chol", signature(x = "lsCMatrix", pivot = "logical"),
-          function(x, pivot, LINPACK) .Call("lsCMatrix_chol", x, pivot))
+          function(x, pivot, LINPACK)
+          .Call("lsCMatrix_chol", x, pivot, PACKAGE = "Matrix"))
 
 setMethod("t", signature(x = "lsCMatrix"),
-          function(x) .Call("lsCMatrix_trans", x),
+          function(x)
+          .Call("lsCMatrix_trans", x, PACKAGE = "Matrix"),
           valueClass = "lsCMatrix")

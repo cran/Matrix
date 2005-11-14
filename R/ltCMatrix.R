@@ -18,5 +18,5 @@ setMethod("image", "ltCMatrix",
           })
 
 setMethod("t", signature(x = "ltCMatrix"),
-          function(x) .Call("ltCMatrix_trans", x),
+          function(x) .Call("ltCMatrix_trans", x, PACKAGE = "Matrix"),
           valueClass = "ltCMatrix")

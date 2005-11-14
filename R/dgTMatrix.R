@@ -1,11 +1,14 @@
 setAs("dgTMatrix", "dgCMatrix",
-      function(from) .Call("dgTMatrix_to_dgCMatrix", from) )
+      function(from) .Call("dgTMatrix_to_dgCMatrix", from, PACKAGE = "Matrix")
+      )
 
 setAs("dgTMatrix", "dgeMatrix",
-      function(from) .Call("dgTMatrix_to_dgeMatrix", from) )
+      function(from) .Call("dgTMatrix_to_dgeMatrix", from, PACKAGE = "Matrix")
+      )
 
 setAs("dgTMatrix", "matrix",
-      function(from) .Call("dgTMatrix_to_matrix", from) )
+      function(from) .Call("dgTMatrix_to_matrix", from, PACKAGE = "Matrix")
+      )
 
 setAs("dgeMatrix", "dgTMatrix",
       function(from) as(as(from, "dgCMatrix"), "dgTMatrix"))
@@ -14,19 +17,19 @@ setAs("dgeMatrix", "dgTMatrix",
 
 setMethod("crossprod", signature(x = "dgTMatrix", y = "missing"),
           function(x, y = NULL)
-          .Call("csc_crossprod", as(x, "dgCMatrix")))
+          .Call("csc_crossprod", as(x, "dgCMatrix"), PACKAGE = "Matrix"))
 
 setMethod("crossprod", signature(x = "dgTMatrix", y = "matrix"),
           function(x, y = NULL)
-          .Call("csc_matrix_crossprod", as(x, "dgCMatrix"), y))
+          .Call("csc_matrix_crossprod", as(x, "dgCMatrix"), y, PACKAGE = "Matrix"))
 
 ##setMethod("crossprod", signature(x = "dgTMatrix", y = "numeric"),
 ##          function(x, y = NULL)
-##          .Call("csc_matrix_crossprod", as(x, "dgCMatrix"), as.matrix(y)))
+##          .Call("csc_matrix_crossprod", as(x, "dgCMatrix"), as.matrix(y), PACKAGE = "Matrix"))
 
 setMethod("tcrossprod", signature(x = "dgTMatrix"),
           function(x)
-          .Call("csc_tcrossprod", as(x, "dgCMatrix")))
+          .Call("csc_tcrossprod", as(x, "dgCMatrix"), PACKAGE = "Matrix"))
 
 setMethod("image", "dgTMatrix",
           function(x,
@@ -120,8 +123,8 @@ setMethod("kronecker", signature(X = "dgTMatrix", Y = "dgTMatrix"),
 
 setMethod("writeHB", signature(obj = "dgTMatrix"),
           function(obj, file, ...)
-          .Call("Matrix_writeHarwellBoeing", obj, as.character(file), "DGT"))
+          .Call("Matrix_writeHarwellBoeing", obj, as.character(file), "DGT", PACKAGE = "Matrix"))
 
 setMethod("writeMM", signature(obj = "dgTMatrix"),
           function(obj, file, ...)
-          .Call("Matrix_writeMatrixMarket", obj, as.character(file), "DGT"))
+          .Call("Matrix_writeMatrixMarket", obj, as.character(file), "DGT", PACKAGE = "Matrix"))

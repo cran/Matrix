@@ -1,4 +1,4 @@
-include ${R_HOME}/etc/Makeconf
+include $(MkInclude)
 
 PKG_CFLAGS = -I.
 

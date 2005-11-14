@@ -2,8 +2,8 @@
 
 setAs("dsTMatrix", "dsCMatrix",
       function(from)
-      ## pre-Cholmod: .Call("dsTMatrix_as_dsCMatrix", from)
-      .Call("Tsparse_to_Csparse", from)
+      ## pre-Cholmod: .Call("dsTMatrix_as_dsCMatrix", from, PACKAGE = "Matrix")
+      .Call("Tsparse_to_Csparse", from, PACKAGE = "Matrix")
       )
 
 if(FALSE) # have C method below
@@ -17,7 +17,7 @@ setAs("dsTMatrix", "dgTMatrix",
       })
 
 setAs("dsTMatrix", "dgTMatrix",
-      function(from) .Call("dsTMatrix_as_dgTMatrix", from))
+      function(from) .Call("dsTMatrix_as_dgTMatrix", from, PACKAGE = "Matrix"))
 
 setAs("dsTMatrix", "lsTMatrix",
       function(from) new("lsTMatrix", i = from@i, j = from@j, uplo = from@uplo,
@@ -26,7 +26,7 @@ setAs("dsTMatrix", "lsTMatrix",
 
 ## Conversion to dense storage is first to a dsyMatrix
 setAs("dsTMatrix", "dsyMatrix",
-      function(from) .Call("dsTMatrix_as_dsyMatrix", from))
+      function(from) .Call("dsTMatrix_as_dsyMatrix", from, PACKAGE = "Matrix"))
 
 setAs("dsTMatrix", "dgeMatrix",
       function(from) as(as(from, "dsyMatrix"), "dgeMatrix"))
@@ -45,10 +45,10 @@ setMethod("writeHB", signature(obj = "dsTMatrix"),
           function(obj, file, ...)
           .Call("Matrix_writeHarwellBoeing",
                 if (obj@uplo == "U") t(obj) else obj,
-                as.character(file), "DST"))
+                as.character(file), "DST", PACKAGE = "Matrix"))
 
 setMethod("writeMM", signature(obj = "dsTMatrix"),
           function(obj, file, ...)
           .Call("Matrix_writeMatrixMarket",
                 if (obj@uplo == "U") t(obj) else obj,
-                as.character(file), "DST"))
+                as.character(file), "DST", PACKAGE = "Matrix"))

@@ -24,6 +24,7 @@
 \alias{show,glmer-method}
 \alias{show,lmer-method}
 \alias{show,summary.lmer-method}
+\alias{simulate,lmer-method}
 \alias{solve,lmer,missing-method}
 \alias{summary,lmer-method}
 \alias{terms,lmer-method}

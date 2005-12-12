@@ -28,8 +28,8 @@ setMethod("rcond", signature(x = "ddenseMatrix", type = "character"),
 ## setMethod("t", signature(x = "ddenseMatrix"),
 ## 	  function(x) callGeneric(as(x, "dgeMatrix")))
 
-setMethod("tcrossprod", signature(x = "ddenseMatrix"),
-	  function(x) callGeneric(as(x, "dgeMatrix")))
+setMethod("tcrossprod", signature(x = "ddenseMatrix", y = "missing"),
+	  function(x, y = NULL) callGeneric(as(x, "dgeMatrix")))
 
 setMethod("crossprod", signature(x = "ddenseMatrix", y = "missing"),
           function(x, y = NULL) callGeneric(as(x, "dgeMatrix")))

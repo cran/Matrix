@@ -3,9 +3,10 @@
 \docType{class}
 \alias{TsparseMatrix-class}
 %% Methods:
+\alias{coerce,TsparseMatrix,CsparseMatrix-method}
 % "[" are in ./Xtrct-methods.Rd
 \alias{crossprod,TsparseMatrix,missing-method}
-\alias{tcrossprod,TsparseMatrix-method}
+\alias{tcrossprod,TsparseMatrix,missing-method}
 %
 \description{The \code{"TsparseMatrix"} class is the virtual class of
   all sparse matrices coded in triplet form.  Since it is a virtual class,

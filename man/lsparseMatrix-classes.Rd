@@ -48,9 +48,9 @@
 \alias{t,lgTMatrix-method}
 \alias{t,lsCMatrix-method}
 \alias{t,ltCMatrix-method}
-\alias{tcrossprod,lgCMatrix-method}
-\alias{tcrossprod,lgTMatrix-method}
-\alias{tcrossprod,lsparseMatrix-method}
+\alias{tcrossprod,lgCMatrix,missing-method}
+\alias{tcrossprod,lgTMatrix,missing-method}
+\alias{tcrossprod,lsparseMatrix,missing-method}
 \title{Sparse logical matrices}
 \description{The \code{lsparseMatrix} class is a virtual class of sparse
   matrices with \code{TRUE}/\code{FALSE} entries.  Only the positions of the

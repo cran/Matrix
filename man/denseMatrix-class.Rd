@@ -3,6 +3,7 @@
 \title{Virtual Class "denseMatrix" of All Dense Matrices}
 \alias{denseMatrix-class}
 \alias{show,denseMatrix-method}
+\alias{coerce,denseMatrix,CsparseMatrix-method}
 %
 \description{This is the virtual class of all dense (S4) matrices.
   It is the direct superclass of

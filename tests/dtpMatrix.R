@@ -6,6 +6,11 @@ tp6 <- as(cp6,"dtpMatrix")
 round(tp6, 3)## round() is "Math2" group method
 1/tp6        ## "Arith" group : gives 'dgeMatrix'
 str(tp6)
+## arithmetic with a mix of dimnames / no dimnames
+tp <- tp6; dimnames(tp) <- list(LETTERS[1:6], letters[11:16])
+stopifnot(all(tp - tp6 == tp6 - tp),
+          0 == as.matrix(tp - tp6)) # FIXME: fails w/o 'as.matrix'
+
 stopifnot(validObject(tp6),
           all.equal(tp6 %*% diag(6), as(tp6, "dgeMatrix")),
           validObject(tp6. <- diag(6) %*% tp6),

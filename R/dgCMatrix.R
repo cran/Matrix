@@ -50,8 +50,8 @@ setMethod("crossprod", signature(x = "dgCMatrix", y = "matrix"),
 ## setMethod("crossprod", signature(x = "dgCMatrix", y = "numeric"),
 ##           function(x, y = NULL) .Call("csc_matrix_crossprod", x, as.matrix(y)))
 
-setMethod("tcrossprod", signature(x = "dgCMatrix"),
-          function(x) .Call("csc_tcrossprod", x, PACKAGE = "Matrix"))
+setMethod("tcrossprod", signature(x = "dgCMatrix", y = "missing"),
+          function(x, y = NULL) .Call("csc_tcrossprod", x, PACKAGE = "Matrix"))
 
 setMethod("diag", signature(x = "dgCMatrix"),
           function(x = 1, nrow, ncol = n)

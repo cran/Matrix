@@ -27,8 +27,8 @@ setMethod("crossprod", signature(x = "dgTMatrix", y = "matrix"),
 ##          function(x, y = NULL)
 ##          .Call("csc_matrix_crossprod", as(x, "dgCMatrix"), as.matrix(y), PACKAGE = "Matrix"))
 
-setMethod("tcrossprod", signature(x = "dgTMatrix"),
-          function(x)
+setMethod("tcrossprod", signature(x = "dgTMatrix", y = "missing"),
+          function(x, y = NULL)
           .Call("csc_tcrossprod", as(x, "dgCMatrix"), PACKAGE = "Matrix"))
 
 setMethod("image", "dgTMatrix",

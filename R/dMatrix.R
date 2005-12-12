@@ -153,3 +153,13 @@ setMethod("Compare", signature(e1 = "dMatrix", e2 = "dMatrix"),
 	  })
 
 ## -- end{group generics} -----------------------
+
+## Methods for single-argument transformations
+
+setMethod("zapsmall", signature = list(x = "dMatrix"),
+          function(x, digits = getOption("digits")) {
+              x@x <- zapsmall(x@x, digits)
+              x
+          })
+
+## -- end(single-argument transformations) ------

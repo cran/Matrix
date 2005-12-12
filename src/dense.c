@@ -1,5 +1,5 @@
 #include "dense.h"
-#include "Mutils.h"
+#include "chm_common.h"
 
 /** 
  * Perform a left cyclic shift of columns j to k in the upper triangular
@@ -243,4 +243,13 @@ SEXP lapack_qr(SEXP Xin, SEXP tl)
     setAttrib(ans, Matrix_rcondSym, ScalarReal(rcond));
     UNPROTECT(2);
     return ans;
+}
+
+SEXP dense_to_Csparse(SEXP x)
+{
+    cholmod_dense *chxd = as_cholmod_dense(x);
+    cholmod_sparse *chxs = cholmod_dense_to_sparse(chxd, 1, &c);
+
+    free(chxd);
+    return chm_sparse_to_SEXP(chxs, 1);
 }

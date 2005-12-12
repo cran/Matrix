@@ -49,7 +49,7 @@
 \alias{solve,dgeMatrix,missing-method}
 \alias{solve,dgeMatrix,numeric-method}
 \alias{t,dgeMatrix-method}
-\alias{tcrossprod,dgeMatrix-method}
+\alias{tcrossprod,dgeMatrix,missing-method}
 %
 \description{A general numeric dense matrix in the S4 Matrix
   representation.
@@ -87,7 +87,7 @@
   and other matrix methods available:
   \describe{
     \item{\%*\%}{\code{signature(x = "dgeMatrix", y = "dgeMatrix")}:
-      Matrix multiplication; dito for several other signature
+      Matrix multiplication; ditto for several other signature
       combinations, see \code{showMethods("\%*\%", class = "dgeMatrix")}.}
     \item{Schur}{\code{signature(x = "dgeMatrix", vectors = "logical")}: ... }
     \item{Schur}{\code{signature(x = "dgeMatrix", vectors = "missing")}: ... }

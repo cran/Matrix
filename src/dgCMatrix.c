@@ -1,8 +1,6 @@
 #include "dgCMatrix.h"
 
-#ifdef USE_CHOLMOD
 #include "chm_common.h"
-#endif
 
 /* FIXME -- we "forget" about dimnames almost everywhere : */
 
@@ -108,73 +106,12 @@ SEXP csc_crossprod(SEXP x)
 
 SEXP csc_tcrossprod(SEXP x)
 {
-#ifdef USE_CHOLMOD
     cholmod_sparse *cha = cholmod_aat(as_cholmod_sparse(x),
 	(int *) NULL, 0, 1, &c);
 
     cha->stype = -1;		/* set the symmetry */
     cholmod_sort(cha, &c);	/* drop redundant entries */
     return chm_sparse_to_SEXP(cha, -1);
-#else
-
-    SEXP pslot = GET_SLOT(x, Matrix_pSym),
-	ans = PROTECT(NEW_OBJECT(MAKE_CLASS("dsCMatrix")));
-    int *xp = INTEGER(pslot),
-	*xi = INTEGER(GET_SLOT(x, Matrix_iSym)),
-	*dims = INTEGER(GET_SLOT(x, Matrix_DimSym));
-    double *xx = REAL(GET_SLOT(x, Matrix_xSym));
-
-    int j, ntrip, *iVal, nrow = dims[0], ncol = dims[1], *jVal, nnz, pos;
-    int *itmp, *ansp;
-    double *xVal, *xtmp;
-
-    SET_SLOT(ans, Matrix_factorSym, allocVector(VECSXP, 0));
-    SET_SLOT(ans, Matrix_DimSym, allocVector(INTSXP, 2));
-    ntrip = nrow;  		/* number of triplets */
-    for (j = 0; j < ncol; j++) {
-	int nzj = xp[j+1] - xp[j];
-	ntrip += (nzj * (nzj - 1))/2;
-    }
-    iVal = Calloc(ntrip, int); jVal = Calloc(ntrip, int);
-    xVal = Calloc(ntrip, double);
-    for (j = 0; j < nrow; j++) {
-	iVal[j] = jVal[j] = j;
-	xVal[j] = 0.;
-    }
-    pos = nrow;
-    for (j = 0; j < ncol; j++) {
-	int k, kk, k2 = xp[j+1];
-	for (k = xp[j]; k < k2; k++) {
-	    int r1 = xi[k];
-	    double x1 = xx[k];
-	    xVal[r1] += x1 * x1;
-	    for (kk = k + 1; kk < k2; kk++) {
-		int r2 = xi[kk];
-		double x2 = xx[kk];
-		jVal[pos] = r1;
-		iVal[pos] = r2;
-		xVal[pos] = x1 * x2;
-		pos++;
-	    }
-	}
-    }
-    SET_SLOT(ans, Matrix_pSym, allocVector(INTSXP, nrow + 1));
-    ansp = INTEGER(GET_SLOT(ans, Matrix_pSym));
-    itmp = Calloc(ntrip, int); xtmp = Calloc(ntrip, double);
-    triplet_to_col(nrow, nrow, ntrip, iVal, jVal, xVal,
-		   ansp, itmp, xtmp);
-    nnz = ansp[nrow];
-    SET_SLOT(ans, Matrix_uploSym, mkString("L"));
-    SET_SLOT(ans, Matrix_iSym, allocVector(INTSXP, nnz));
-    SET_SLOT(ans, Matrix_xSym, allocVector(REALSXP, nnz));
-    Memcpy(INTEGER(GET_SLOT(ans, Matrix_iSym)), itmp, nnz);
-    Memcpy(REAL(GET_SLOT(ans, Matrix_xSym)), xtmp, nnz);
-    dims = INTEGER(GET_SLOT(ans, Matrix_DimSym));
-    dims[0] = dims[1] = nrow;
-    Free(itmp); Free(xtmp); Free(iVal); Free(jVal); Free(xVal);
-    UNPROTECT(1);
-    return ans;
-#endif /* USE_CHOLMOD */
 }
 
 SEXP csc_matrix_crossprod(SEXP x, SEXP y, SEXP classed)
@@ -399,35 +336,10 @@ SEXP csc_getDiag(SEXP x)
 
 SEXP csc_transpose(SEXP x)
 {
-#ifdef USE_CHOLMOD
     cholmod_sparse *chx = as_cholmod_sparse(x);
     SEXP ans = chm_sparse_to_SEXP(cholmod_transpose(chx, 1, &c), 1);
     free(chx);/* since as_cholmod_sparse() malloc()s */
     return ans;
-#else
-    SEXP xi = GET_SLOT(x, Matrix_iSym);
-    SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("dgCMatrix")));
-    int *adims = INTEGER(ALLOC_SLOT(ans, Matrix_DimSym, INTSXP, 2)),
-	*xdims = INTEGER(GET_SLOT(x, Matrix_DimSym)),
-	nz = length(xi);
-    int *xj = Calloc(nz, int);
-    SEXP adn = ALLOC_SLOT(ans, Matrix_DimNamesSym, VECSXP, 2),
-	xdn = GET_SLOT(x, Matrix_DimNamesSym);
-
-    adims[0] = xdims[1]; adims[1] = xdims[0];
-    SET_VECTOR_ELT(adn, 0, VECTOR_ELT(xdn, 1));
-    SET_VECTOR_ELT(adn, 1, VECTOR_ELT(xdn, 0));
-    triplet_to_col(adims[0], adims[1], nz,
-		   expand_cmprPt(xdims[1], INTEGER(GET_SLOT(x, Matrix_pSym)), xj),
-		   INTEGER(xi),
-		   REAL(GET_SLOT(x, Matrix_xSym)),
-		   INTEGER(ALLOC_SLOT(ans, Matrix_pSym, INTSXP, adims[1] + 1)),
-		   INTEGER(ALLOC_SLOT(ans, Matrix_iSym, INTSXP, nz)),
-		   REAL(ALLOC_SLOT(ans, Matrix_xSym, REALSXP, nz)));
-    Free(xj);
-    UNPROTECT(1);
-    return ans;
-#endif /* USE_CHOLMOD */
 }
 
 SEXP csc_matrix_mm(SEXP a, SEXP b, SEXP classed, SEXP right)

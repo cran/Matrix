@@ -103,3 +103,5 @@
   methods at once by a ``method constructor'', i.e.,
   for all  "dsparse*" -> "lsparse*" and vice versa.
   How can one do this {in a documented way} ?
+
+- tcrossprod(x, y) : do provide methods for y != NULL  -- at least dummy ones!

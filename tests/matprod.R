@@ -15,6 +15,13 @@ tc.m5 <- m5 %*% t(m5)
 (tcm5 <- tcrossprod(m5)) # "dpo*"
 assert.EQ.mat(tc.m5, as(tcm5, "matrix"))# missing dimnames - FIXME
 
+## simple cases with 'scalars' treated as 1x1 matrices:
+d <- Matrix(1:5)
+d %*% 2
+10 %*% t(d)
+assertError(3 %*% d)             # must give an error , similar to
+assertError(5 %*% as.matrix(d))  # -> error
+
 ## right and left "numeric" and "matrix" multiplication:
 (p1 <- m5 %*% c(10, 2:6))
 (p2 <- c(10, 2:5) %*% m5)
@@ -29,7 +36,7 @@ assert.EQ.mat(pd2, diag(10:6) %*% as(m5,"matrix"))
 
 
 M <- mm[1:500, 1:200]
-
+cpr <- t(mm) %*% mm
 showMethods("%*%", class=class(M))
 
 v1 <- rep(1, ncol(M))

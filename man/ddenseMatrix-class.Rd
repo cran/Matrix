@@ -30,7 +30,7 @@
 \alias{solve,ddenseMatrix,missing-method}
 \alias{solve,ddenseMatrix,ANY-method}
 \alias{t,ddenseMatrix-method}
-\alias{tcrossprod,ddenseMatrix-method}
+\alias{tcrossprod,ddenseMatrix,missing-method}
 %
 \description{This is the virtual class of all dense numeric (i.e.,
   \bold{d}ouble, hence \emph{\dQuote{ddense}}) S4 matrices.

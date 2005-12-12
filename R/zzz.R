@@ -3,6 +3,8 @@
 
 .onLoad <- function(libname, pkgname)
 {
+    require(methods)
+
     ## The following works around namespace-protection on purpose:
     assignInNamespace("..Old..as.matrix", base::as.matrix, ns = "base")
     assignInNamespace("..Old..as.array", base::as.array, ns = "base")

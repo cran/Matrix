@@ -12,16 +12,17 @@ options(show.signif.stars = FALSE)
 
 ## generalized linear mixed model
 (fm3 <- lmer(decrease ~ treatment + (1|rowpos) + (1|colpos),
-             OrchardSprays, poisson(), method = "PQL"))
+             OrchardSprays, family = poisson(), method = "PQL"))
 
 ## should use PQL
 (fm3 <- lmer(decrease ~ treatment + (1|rowpos) + (1|colpos),
-             OrchardSprays, poisson()))
+             OrchardSprays, family = poisson()))
 
 ## Laplace approximation
 #(fm4 <- lmer(decrease ~ treatment + (1|rowpos) + (1|colpos),
 #             OrchardSprays, poisson(), method = "Laplace"))
 
+## Many family = binomial cases
 if (isTRUE(try(data(Contraception, package = 'mlmRev')) ==
            'Contraception') && exists("nlminb", mode = "function")) {
     print(fm1 <- lmer(use ~ urban + age + livch + (1 | district),

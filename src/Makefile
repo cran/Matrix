@@ -1,7 +1,6 @@
 #
 pkg = Matrix
 
-PKG_CFLAGS = -DUSE_CHOLMOD
 PKG_LIBS = $(LAPACK_LIBS) $(BLAS_LIBS)
 include SOURCES_C.mkf
 
@@ -29,11 +28,6 @@ SUBSTAMP = $(SUBDIRS:=.stamp)
 
 $(SHLIB): $(OBJECTS) $(SUBLIBS)
 	$(SHLIB_LINK) -o $@ $(OBJECTS) $(SUBLIBS) $(ALL_LIBS)
-	echo "LAPACK_LIBS:" $(LAPACK_LIBS)
-	echo "BLAS_LIBS:" $(BLAS_LIBS)
-	echo "SOURCES_LAPACK:" $(SOURCES_LAPACK)
-	echo "SOURCES_BLAS:" $(SOURCES_BLAS)
-	echo "SOURCES_F:" $(SOURCES_F)
 
 all: $(SHLIB)
 
@@ -55,11 +49,5 @@ clean:
 	  (cd $${d} && $(MAKE) clean) || exit 1; \
 	  rm -f $${d}.stamp; \
 	done
-	echo "LAPACK_LIBS:" $(LAPACK_LIBS)
-	echo "BLAS_LIBS:" $(BLAS_LIBS)
-	echo "SOURCES_LAPACK:" $(SOURCES_LAPACK)
-	echo "SOURCES_BLAS:" $(SOURCES_BLAS)
-	echo "SOURCES_F:" $(SOURCES_F)
-	echo "findstring:" $(findstring -lRlapack, $(LAPACK_LIBS))
 
 include DEPS.mkf

@@ -1,3 +1,17 @@
+2005-12-12  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/AllGeneric.R (tcrossprod): 2-argument version; here, and for
+	all methods (and help files).
+
+2005-12-09  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Auxiliaries.R (dimNamesCheck): fixed thinko -> bug
+		for case (dimn.	 op  no_dimn.)
+
+2005-11-14  Douglas Bates  <bates@stat.wisc.edu>
+
+	* DESCRIPTION (Version): 0.99-2  released to CRAN
+
 2005-10-21  Douglas Bates  <bates@stat.wisc.edu>
 
 	* R/lmer.R (simulate method): Fixed a drop=FALSE problem reported

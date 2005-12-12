@@ -55,8 +55,8 @@ the \code{Formaldehyde} data.
 <<modelMatrix>>=
 data(Formaldehyde)
 str(Formaldehyde)
-print(mm <- cbind(1, Formaldehyde$carb))
-print(y <- Formaldehyde$optden)
+(mm <- cbind(1, Formaldehyde$carb))
+(y <- Formaldehyde$optden)
 @ 
 Using \code{t} to evaluate
 the transpose, \code{solve} to take an inverse, and the \code{\%*\%}

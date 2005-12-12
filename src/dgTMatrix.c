@@ -1,9 +1,7 @@
 #include "dgTMatrix.h"
 
-#ifdef USE_CHOLMOD
 #include "chm_common.h"
 #include "Tsparse.h"
-#endif /* USE_CHOLMOD */
 
 SEXP dgTMatrix_validate(SEXP x)
 {
@@ -18,33 +16,7 @@ SEXP dgTMatrix_validate(SEXP x)
 
 SEXP dgTMatrix_to_dgCMatrix(SEXP x)
 {
-#ifdef USE_CHOLMOD
     return Tsparse_to_Csparse(x);
-#else
-    SEXP dd = GET_SLOT(x, Matrix_DimSym),
-	iP = GET_SLOT(x, Matrix_iSym),
-	ans = PROTECT(NEW_OBJECT(MAKE_CLASS("dgCMatrix")));
-    int *dims = INTEGER(dd), nnz = length(iP);
-    int *p = INTEGER(GET_SLOT(ans, Matrix_pSym)),
-        *ti = Calloc(nnz, int), m = dims[0], n = dims[1];
-    double *tx = Calloc(nnz, double);
-
-    SET_SLOT(ans, Matrix_pSym, allocVector(INTSXP, n + 1));
-    SET_SLOT(ans, Matrix_DimSym, duplicate(dd));
-    triplet_to_col(m, n, nnz, INTEGER(iP),
-		   INTEGER(GET_SLOT(x, Matrix_jSym)),
-		   REAL(GET_SLOT(x, Matrix_xSym)),
-		   p, ti, tx);
-    nnz = p[n];
-    SET_SLOT(ans, Matrix_iSym, allocVector(INTSXP, nnz));
-    Memcpy(INTEGER(GET_SLOT(ans, Matrix_iSym)), ti, nnz);
-    SET_SLOT(ans, Matrix_xSym, allocVector(REALSXP, nnz));
-    Memcpy(REAL(GET_SLOT(ans, Matrix_xSym)), tx, nnz);
-
-    Free(ti); Free(tx);
-    UNPROTECT(1);
-    return ans;
-#endif /* USE_CHOLMOD */
 }
 
 static void

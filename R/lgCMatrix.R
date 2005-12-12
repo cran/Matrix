@@ -16,8 +16,8 @@ setMethod("crossprod", signature(x = "lgCMatrix", y = "missing"),
           .Call("lgCMatrix_crossprod", x, TRUE, NULL, PACKAGE = "Matrix"),
 	  valueClass = "lsCMatrix")
 
-setMethod("tcrossprod", signature(x = "lgCMatrix"),
-	  function(x)
+setMethod("tcrossprod", signature(x = "lgCMatrix", y = "missing"),
+	  function(x, y = NULL)
           .Call("lgCMatrix_crossprod", x, FALSE, NULL, PACKAGE = "Matrix"),
 	  valueClass = "lsCMatrix")
 

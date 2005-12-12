@@ -1,7 +1,5 @@
 #include "dsCMatrix.h"
-#ifdef USE_CHOLMOD
 #include "chm_common.h"
-#endif /* USE_CHOLMOD */
 
 /* 'ssc' [symmetric sparse compressed] is an "alias" for our "dsC" */
 

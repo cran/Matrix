@@ -1,8 +1,6 @@
 				/* Sparse matrices in triplet form */
 #include "Tsparse.h"
-#ifdef USE_CHOLMOD
 #include "chm_common.h"
-#endif	/* USE_CHOLMOD */
 
 SEXP Tsparse_validate(SEXP x)
 {
@@ -32,14 +30,10 @@ SEXP Tsparse_validate(SEXP x)
 
 SEXP Tsparse_to_Csparse(SEXP x)
 {
-#ifdef USE_CHOLMOD
     cholmod_triplet *chxt = as_cholmod_triplet(x);
     cholmod_sparse *chxs = cholmod_triplet_to_sparse(chxt, chxt->nnz, &c);
 
     free(chxt);
     return chm_sparse_to_SEXP(chxs, 1);
-#else
-    error("General conversion requires CHOLMOD");
-#endif	/* USE_CHOLMOD */
 }
 

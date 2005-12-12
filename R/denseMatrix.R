@@ -95,3 +95,6 @@ setMethod("isSymmetric", signature(object = "denseMatrix", tol = "ANY"),
 			    as(t(object), "lgeMatrix"))
 	      else stop("not yet implemented")
 	  })
+
+setAs("denseMatrix", "CsparseMatrix",
+      function(from) .Call("dense_to_Csparse", from, PACKAGE = "Matrix"))

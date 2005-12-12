@@ -40,8 +40,8 @@ dimNamesCheck <- function(a, b) {
     h.a <- !identical(nullDN, dna <- dimnames(a))
     h.b <- !identical(nullDN, dnb <- dimnames(b))
     if(h.a || h.b) {
-	if (!h.b) h.a
-	else if(!h.a) h.b
+	if (!h.b) dna
+	else if(!h.a) dnb
 	else { ## both have non-trivial dimnames
 	    r <- dna # "default" result
 	    for(j in 1:2) {

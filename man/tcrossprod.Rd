@@ -1,23 +1,26 @@
 \name{tcrossprod}
 \docType{methods}
 \alias{tcrossprod-methods}
-\alias{tcrossprod,dgCMatrix-method}
-\alias{tcrossprod,dgTMatrix-method}
-\alias{tcrossprod,matrix-method}
-\alias{tcrossprod,numeric-method}
+\alias{tcrossprod,dgCMatrix,missing-method}
+\alias{tcrossprod,dgTMatrix,missing-method}
+\alias{tcrossprod,matrix,missing-method}
+\alias{tcrossprod,numeric,missing-method}
 % more \alias{tcrossprod,...}es in *-class*.Rd files
 \alias{tcrossprod}
 \title{Cross-product of transpose}
 \description{
   Take the cross-product of the transpose of a matrix.
-  This is formally equivalent to, but faster than, the
-  call \code{x \%*\% t(x)}.
+  \code{tcrossprod(x)} is formally equivalent to, but faster than, the
+  call \code{x \%*\% t(x)}, and so is \code{tcrossprod(x, y)} instead of
+  \code{x \%*\% t(y)}.
 }
 \usage{
-tcrossprod(x)
+tcrossprod(x, y = NULL)
 }
 \arguments{
   \item{x}{a matrix-like object}
+  \item{y}{a matrix-like object or \code{NULL} (by default); the latter
+    case is formally equivalent to \code{y = x}.}
 }
 \details{
   For some classes in the \code{Matrix} package, such as the

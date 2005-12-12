@@ -7,5 +7,6 @@
 SEXP lsq_dense_Chol(SEXP X, SEXP y);
 SEXP lsq_dense_QR(SEXP X, SEXP y);
 SEXP lapack_qr(SEXP Xin, SEXP tl);
+SEXP dense_to_Csparse(SEXP x);
 
 #endif

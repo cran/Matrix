@@ -37,7 +37,7 @@ all.equal(as(e2,"matrix"), te2, tol = 0) # 1.48e-14 on "lynne"
 
 ## The ``surprising identity''      det(exp(A)) == exp( tr(A) )
 ## or                           log det(exp(A)) == tr(A) :
-stopifnot(all.equal(determinant(e2)$modulus, sum(diag(m2))))
+stopifnot(all.equal(c(determinant(e2)$modulus), sum(diag(m2))))
 
 m3 <- Matrix(cbind(0,rbind(6*diag(3),0)), nc = 4)#  sparse
 e3 <- expm(m3)

@@ -153,7 +153,7 @@ setMethod("show", signature(object = "sparseMatrix"),
 
 
 ## not exported:
-setMethod("isSymmetric", signature(object = "sparseMatrix", tol = "ANY"),
+setMethod("isSymmetric", signature(object = "sparseMatrix"),
 	  function(object, tol = 100*.Machine$double.eps) {
 	      ## pretest: is it square?
 	      d <- dim(object)

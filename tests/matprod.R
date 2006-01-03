@@ -13,7 +13,11 @@ assert.EQ.mat((c.m5 <- t(m5) %*% m5), as(cm5, "matrix"))
 ## classes differ; but the 'dimnames' are *both* missing -- FIXME
 tc.m5 <- m5 %*% t(m5)
 (tcm5 <- tcrossprod(m5)) # "dpo*"
-assert.EQ.mat(tc.m5, as(tcm5, "matrix"))# missing dimnames - FIXME
+assert.EQ.mat(tc.m5, mm5 <- as(tcm5, "matrix"))# missing dimnames - FIXME
+## tcrossprod(x,y) :
+assert.EQ.mat(tcrossprod(m5, m5), mm5)
+assert.EQ.mat(tcrossprod(m5, as(m5,"matrix")), mm5)
+assert.EQ.mat(tcrossprod(as(m5,"matrix"), m5), mm5)
 
 ## simple cases with 'scalars' treated as 1x1 matrices:
 d <- Matrix(1:5)

@@ -23,7 +23,7 @@ all.equal(as(tp6.,"matrix"),
 (tr6 <- as(tp6, "dtrMatrix")) ## prints using wrong class name
 D. <- determinant(tp6)
 rc <- rcond(tp6)
-stopifnot(all.equal(D.$modulus, -6.579251212),
+stopifnot(all.equal(c(D.$modulus), -6.579251212),
           all.equal(rc, 1.791511257e-4),
           rc == tp6@rcond,
           all.equal(norm(tp6, "I") , 2.45),

@@ -17,7 +17,7 @@ if (!isGeneric("isDiagonal"))
 if (!isGeneric("isSymmetric"))
     ## no "..." here at the moment; must match isSymmetric()
     ## R 2.3.x base/R/eigen.R
-    setGeneric("isSymmetric", function(object, tol)
+    setGeneric("isSymmetric", function(object, ...)# no 'tol' in generic
 	       standardGeneric("isSymmetric"))
 
 if (!isGeneric("isTriangular"))

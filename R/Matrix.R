@@ -19,9 +19,9 @@ setMethod("as.vector", signature(x = "Matrix", mode = "missing"),
 
 ## Note that isSymmetric is *not* exported ---
 ### but also note that "base" eigen may get an isSymmetric() that *would* be exported!
-setMethod("isSymmetric", signature(object = "symmetricMatrix", tol="ANY"),
+setMethod("isSymmetric", signature(object = "symmetricMatrix"),
           function(object,tol) TRUE)
-setMethod("isSymmetric", signature(object = "triangularMatrix", tol="ANY"),
+setMethod("isSymmetric", signature(object = "triangularMatrix"),
           ## FIXME: 'TRUE' if *diagonal*, i.e. return(isDiagonal(object))
           function(object,tol) FALSE)
 

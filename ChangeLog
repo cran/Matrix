@@ -1,3 +1,14 @@
+2006-01-03  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.99-4 to be released to CRAN
+		(Depends): also on 'utils'
+
+	* R/AllClass.R (diagonalMatrix): new class with "ddi*" and "ldi*"
+	* R/diagMatrix.R (Diagonal): constructor and methods for
+	diagonal matrices
+
+	* R/ltTMatrix.R: new "minimal methods"
+
 2005-12-12  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/AllGeneric.R (tcrossprod): 2-argument version; here, and for

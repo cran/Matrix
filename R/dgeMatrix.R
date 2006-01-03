@@ -134,6 +134,7 @@ setMethod("rcond", signature(x = "dgeMatrix", type = "character"),
 
 setMethod("t", signature(x = "dgeMatrix"), t_geMatrix)
 
+## crossprod(x) & tcrossprod(x) :
 setMethod("crossprod", signature(x = "dgeMatrix", y = "missing"),
 	  function(x, y = NULL) .Call("dgeMatrix_crossprod", x, FALSE, PACKAGE = "Matrix"),
 	  valueClass = "dpoMatrix")
@@ -147,17 +148,17 @@ setMethod("tcrossprod", signature(x = "matrix", y = "missing"),
 setMethod("tcrossprod", signature(x = "numeric", y = "missing"),
 	  function(x, y = NULL) callGeneric(as.matrix(as.double(x))))
 
-
+## crossprod (x,y)
 setMethod("crossprod", signature(x = "dgeMatrix", y = "dgeMatrix"),
-	  function(x, y = NULL) .Call("dgeMatrix_dgeMatrix_crossprod", x, y, PACKAGE = "Matrix"),
+	  function(x, y = NULL) .Call("dgeMatrix_dgeMatrix_crossprod", x, y, FALSE, PACKAGE = "Matrix"),
 	  valueClass = "dgeMatrix")
 
 setMethod("crossprod", signature(x = "dgeMatrix", y = "matrix"),
-	  function(x, y = NULL) .Call("dgeMatrix_matrix_crossprod", x, y, PACKAGE = "Matrix"),
+	  function(x, y = NULL) .Call("dgeMatrix_matrix_crossprod", x, y, FALSE, PACKAGE = "Matrix"),
 	  valueClass = "dgeMatrix")
 setMethod("crossprod", signature(x = "dgeMatrix", y = "numeric"),
 	  function(x, y = NULL)
-	  .Call("dgeMatrix_matrix_crossprod", x, as.matrix(as.double(y)), PACKAGE = "Matrix"),
+	  .Call("dgeMatrix_matrix_crossprod", x, as.matrix(as.double(y)), FALSE, PACKAGE = "Matrix"),
 	  valueClass = "dgeMatrix")
 setMethod("crossprod", signature(x = "matrix", y = "dgeMatrix"),
 	  function(x, y = NULL) callGeneric(as(x, "dgeMatrix"), y),
@@ -165,6 +166,26 @@ setMethod("crossprod", signature(x = "matrix", y = "dgeMatrix"),
 setMethod("crossprod", signature(x = "numeric", y = "dgeMatrix"),
 	  function(x, y = NULL) callGeneric(as.matrix(as.double(x)), y),
 	  valueClass = "dgeMatrix")
+
+## tcrossprod (x,y)
+setMethod("tcrossprod", signature(x = "dgeMatrix", y = "dgeMatrix"),
+	  function(x, y = NULL) .Call("dgeMatrix_dgeMatrix_crossprod", x, y, TRUE, PACKAGE = "Matrix"),
+	  valueClass = "dgeMatrix")
+
+setMethod("tcrossprod", signature(x = "dgeMatrix", y = "matrix"),
+	  function(x, y = NULL) .Call("dgeMatrix_matrix_crossprod", x, y, TRUE, PACKAGE = "Matrix"),
+	  valueClass = "dgeMatrix")
+setMethod("tcrossprod", signature(x = "dgeMatrix", y = "numeric"),
+	  function(x, y = NULL)
+	  .Call("dgeMatrix_matrix_crossprod", x, as.matrix(as.double(y)), TRUE, PACKAGE = "Matrix"),
+	  valueClass = "dgeMatrix")
+setMethod("tcrossprod", signature(x = "matrix", y = "dgeMatrix"),
+	  function(x, y = NULL) callGeneric(as(x, "dgeMatrix"), y),
+	  valueClass = "dgeMatrix")
+setMethod("tcrossprod", signature(x = "numeric", y = "dgeMatrix"),
+	  function(x, y = NULL) callGeneric(as.matrix(as.double(x)), y),
+	  valueClass = "dgeMatrix")
+
 
 setMethod("%*%", signature(x = "dgeMatrix", y = "dgeMatrix"),
 	  function(x, y) .Call("dgeMatrix_matrix_mm", x, y, TRUE, FALSE, PACKAGE = "Matrix"),
@@ -387,3 +408,4 @@ as.Matrix <- function(x, tol = .Machine$double.eps,
     ## .... .... fixme
     as(x, smartFunction(mc))
 }
+

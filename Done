@@ -82,4 +82,12 @@
      done for    <sparseMatrix>  o  <scalar>
   {more needed: see TODO}
 
+- rcond() of a singular dpoMatrix gives a LaPack error instead of just 0:
+  MM <- crossprod(M <- Matrix(c(1:4,9:6), 2,4)) ; rcond(MM)
+  Done(2005-10-03): The error message is more helpful now.
 
+- implement diagonal Matrix class  "ddiMatrix" etc
+  using constructor function Diagonal() {and extractor diag()}.
+  Done(2006-01-03)
+
+- new("ltTMatrix") now at least prints

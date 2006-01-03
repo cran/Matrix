@@ -101,33 +101,3 @@ setMethod("solve", signature(a = "dtrMatrix", b="matrix"),
 	  valueClass = "dgeMatrix")
 
 setMethod("t", signature(x = "dtrMatrix"), t_trMatrix)
-
-
-###
-
-## Basing 'Diagonal' on  dtpMatrix:   This is cheap but inefficient:
-## TODO:  ddiagonalMatrix : contains = c("diagonalMatrix", "dMatrix")
-##        diagonalMatrix :  diag = [U/N], contains = "Matrix"
-Diagonal <- function(n, x = NULL)
-{
-    ## Purpose: Constructor of diagonal matrices -- ~= diag() ,
-    ##          but *not* diag() extractor!
-
-    ## Allow  Diagonal(4)  and  Diagonal(x=1:5)
-    if(missing(n))
-        n <- length(x)
-    else {
-        stopifnot(length(n) == 1, n == as.integer(n), n >= 0)
-        n <- as.integer(n)
-    }
-    r <-
-        if(missing(x)) # unit diagonal matrix
-            new("dtrMatrix", Dim = c(n,n), diag = "U", x = rep.int(0, n*n))
-        else {
-            x <- as.numeric(x)
-            stopifnot(length(x) == n)
-            new("dtrMatrix", Dim = c(n,n), diag = "N",
-                x = rbind(x, matrix(0, n,n))[1:(n*n)])
-        }
-    as(r, "dtpMatrix")# at least 'packed'
-}

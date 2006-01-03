@@ -80,7 +80,7 @@ setReplaceMethod("[", signature(x = "denseMatrix", i = "index", j = "index",
 
 
 ## not exported:
-setMethod("isSymmetric", signature(object = "denseMatrix", tol = "ANY"),
+setMethod("isSymmetric", signature(object = "denseMatrix"),
 	  function(object, tol = 100*.Machine$double.eps) {
 	      ## pretest: is it square?
 	      d <- dim(object)

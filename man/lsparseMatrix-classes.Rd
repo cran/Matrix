@@ -34,6 +34,9 @@
 \alias{coerce,ltCMatrix,dtCMatrix-method}
 \alias{coerce,ltCMatrix,matrix-method}
 %
+\alias{coerce,ltTMatrix,dtTMatrix-method}
+\alias{coerce,ltTMatrix,matrix-method}
+%
 \alias{crossprod,lgCMatrix,missing-method}
 \alias{crossprod,lgTMatrix,missing-method}
 \alias{crossprod,lsparseMatrix-method}
@@ -44,6 +47,7 @@
 \alias{image,lgCMatrix-method}
 \alias{image,lsCMatrix-method}
 \alias{image,ltCMatrix-method}
+\alias{image,ltTMatrix-method}
 \alias{t,lgCMatrix-method}
 \alias{t,lgTMatrix-method}
 \alias{t,lsCMatrix-method}

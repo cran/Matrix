@@ -7,7 +7,7 @@ h9 <- Hilbert(9)
 stopifnot(c(0,0) == dim(Hilbert(0)),
           c(9,9) == dim(h9))
 str(h9)
-all.equal(determinant(h9)$modulus, -96.7369456, tol= 2e-8)
+all.equal(c(determinant(h9)$modulus), -96.7369456, tol= 2e-8)
 stopifnot(0 == length(h9@factors))# nothing yet
 round(ch9 <- chol(h9), 3) ## round() preserves 'triangular' !
 str(f9 <- as(chol(h9), "dtrMatrix"))
@@ -26,7 +26,8 @@ str(hp9 <- as(h9, "dppMatrix"))
 s9 <- solve(hp9, seq(nrow(hp9)))
 signif(t(s9)/10000, 4)# only rounded numbers are platform-independent
 (I9 <- hp9 %*% s9)
-stopifnot(all.equal(cbind(1:9), as.matrix(I9), tol = 2e-9))
+m9 <- matrix(1:9, dimnames = list(NULL,NULL))
+stopifnot(all.equal(m9, as.matrix(I9), tol = 2e-9))
 
 cat('Time elapsed: ', proc.time(),'\n') # "stats"
 

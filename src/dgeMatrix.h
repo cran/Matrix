@@ -7,9 +7,11 @@
 SEXP dgeMatrix_validate(SEXP obj);
 SEXP dgeMatrix_norm(SEXP obj, SEXP norm);
 SEXP dgeMatrix_rcond(SEXP obj, SEXP type);
+/* for crossprod() and tcrossprod() : */
 SEXP dgeMatrix_crossprod(SEXP x, SEXP trans);
-SEXP dgeMatrix_dgeMatrix_crossprod(SEXP x, SEXP y);
-SEXP dgeMatrix_matrix_crossprod(SEXP x, SEXP y);
+SEXP dgeMatrix_dgeMatrix_crossprod(SEXP x, SEXP y, SEXP trans);
+SEXP dgeMatrix_matrix_crossprod(SEXP x, SEXP y, SEXP trans);
+
 SEXP dgeMatrix_getDiag(SEXP x);
 SEXP dgeMatrix_LU(SEXP x);
 SEXP dgeMatrix_determinant(SEXP x, SEXP logarithm);

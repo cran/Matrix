@@ -10,7 +10,7 @@ import("stats")				## lmer-related
 importFrom("methods", Arith, Compare, Math, Math2, Summary, Complex)
 
 ## Generics and functions defined in this package
-export(
+export("Diagonal",
        "Hilbert",
        "Matrix",
        "Schur",
@@ -18,7 +18,7 @@ export(
        "expand",
        "expm",
        "facmul",
-       #not on purpose: "isSymmetric",
+       #not yet on purpose: "isSymmetric",
        "lu",
        "norm",
        "rcond",
@@ -72,6 +72,7 @@ exportClasses(
 	      "sparseMatrix",
               "symmetricMatrix",
               "triangularMatrix",
+              "diagonalMatrix",
 	      "dsparseMatrix",
 	      "lsparseMatrix",
 	      "TsparseMatrix",
@@ -100,12 +101,14 @@ exportClasses(
 	      "dtTMatrix",
 	      "dtpMatrix",
 	      "dtrMatrix",
+              "ddiMatrix",
 
 	      "lgeMatrix",
 	      "lspMatrix",
 	      "lsyMatrix",
 	      "ltpMatrix",
 	      "ltrMatrix",
+              "ldiMatrix",
 
 	      "lgCMatrix",
 	      "lgRMatrix",

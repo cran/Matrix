@@ -48,7 +48,7 @@ setClass("lMatrix", representation("VIRTUAL"), contains = "Matrix")
 setClass("zMatrix", # letter 'z' is as in the names of Lapack subroutines
 	 representation(x = "complex", "VIRTUAL"), contains = "Matrix")
 
-## Virtual class of dense matrices
+## Virtual class of dense matrices (including "packed")
 setClass("denseMatrix", representation("VIRTUAL"),
          contains = "Matrix")
 
@@ -59,6 +59,22 @@ setClass("ddenseMatrix", representation(rcond = "numeric", "VIRTUAL"),
 ## Virtual class of dense, logical matrices
 setClass("ldenseMatrix", representation(x = "logical", "VIRTUAL"),
 	 contains = c("lMatrix", "denseMatrix"))
+
+## diagonal: has 'diag' slot;  diag = "U"  <--> have identity matrix
+setClass("diagonalMatrix", representation(diag = "character", "VIRTUAL"),
+         contains = "denseMatrix",
+         validity = function(object) {
+             d <- object@Dim
+             if(d[1] != (n <- d[2])) return("matrix is not square")
+             lx <- length(object@x)
+             if(object@diag == "U" && lx != 0)
+                 return("diag = \"U\" (identity matrix) requires empty 'x' slot")
+             if(object@diag == "N" && lx != n)
+                 return("diagonal matrix has 'x' slot of length != 'n'")
+             TRUE
+         },
+	 prototype = prototype(diag = "N")
+         )
 
 ## virtual SPARSE ------------
 
@@ -183,6 +199,13 @@ setClass("lspMatrix",
          ## "dsp" and "lsp" have the same validate
 	 )
 
+## 'diagonalMatrix' already has validity checking
+## diagonal, numeric matrices;      "d*" has 'x' slot :
+setClass("ddiMatrix", contains = c("diagonalMatrix", "dMatrix"))
+## diagonal, logical matrices; "ldense*" has 'x' slot :
+setClass("ldiMatrix", contains = c("diagonalMatrix", "ldenseMatrix"))
+
+
 ##-------------------- S P A R S E (non-virtual) --------------------------
 
 ##---------- numeric sparse matrix classes --------------------------------
@@ -279,6 +302,7 @@ setClass("lgTMatrix",
 ## logical, sparse, triplet triangular matrices
 setClass("ltTMatrix",
 	 contains = c("TsparseMatrix", "lsparseMatrix", "triangularMatrix"),
+	 prototype = prototype(uplo = "U", diag = "N"),
 	 validity =
          function(object) .Call("ltTMatrix_validate", object, PACKAGE = "Matrix")
 	 )
@@ -481,7 +505,7 @@ setClass("mer2",
 			ZtX = "dgeMatrix", # Original Z'X matrix
                         Zty = "numeric", # Original Z'y vector
                         Xty = "numeric", # Original X'y vector
-                        rZy = "numeric", 
+                        rZy = "numeric",
                         rXy = "numeric",
 			Omega = "list", # list of relative precision matrices
 			method = "character", # parameter estimation method

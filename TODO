@@ -55,17 +55,6 @@
 
   (have some dtr* <-> dtp*)
 
-- implement diagonal Matrix class  "ddiMatrix" etc
-  using constructor function Diagonal() or Diag().
-
-- rcond() of a singular dpoMatrix gives a LaPack error instead of just 0:
-  MM <- crossprod(M <- Matrix(c(1:4,9:6), 2,4)) ; rcond(MM)
-  ##> Error in rcond(MM) : Lapack routine dpotrf returned error code 4
-  It's .Call("dpoMatrix_rcond") --> set_rcond() in src/dpoMatrix.c
-  and in src/dppMatrix.c similarly.
-
-  Done(2005-10-03): The error message is more helpful now.
-
 ---
 
 - combine the C functions for multiplication by special forms and
@@ -104,4 +93,9 @@
   for all  "dsparse*" -> "lsparse*" and vice versa.
   How can one do this {in a documented way} ?
 
-- tcrossprod(x, y) : do provide methods for y != NULL  -- at least dummy ones!
+- tcrossprod(x, y) : do provide methods for y != NULL
+  calling Lapack's DGEMM for "dense"
+  [2005-12-xx: done for dgeMatrix at least]
+
+- "ltTmatrix" :
+  2) new("ltTMatrix", diag = "U", Dim = c(2:2, 2:2)) shows lack of ltTM*_validate

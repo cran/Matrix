@@ -1,6 +1,6 @@
 
-R : Copyright 2005, The R Foundation for Statistical Computing
-Version 2.2.0 beta (2005-09-27 r35689)
+R : Copyright 2006, The R Foundation for Statistical Computing
+Version 2.3.0 Under development (unstable) (2006-01-02 r36956)
 ISBN 3-900051-07-0
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -12,7 +12,7 @@ Type 'contributors()' for more information and
 'citation()' on how to cite R or R packages in publications.
 
 Type 'demo()' for some demos, 'help()' for on-line help, or
-'help.start()' for a HTML browser interface to help.
+'help.start()' for an HTML browser interface to help.
 Type 'q()' to quit R.
 
 > ### Testing positive definite matrices
@@ -33,7 +33,7 @@ Formal class 'dpoMatrix' [package "Matrix"] with 6 slots
   .. ..$ : NULL
   ..@ factors : list()
   ..@ uplo    : chr "U"
-> all.equal(determinant(h9)$modulus, -96.7369456, tol= 2e-8)
+> all.equal(c(determinant(h9)$modulus), -96.7369456, tol= 2e-8)
 [1] TRUE
 > stopifnot(0 == length(h9@factors))# nothing yet
 > round(ch9 <- chol(h9), 3) ## round() preserves 'triangular' !
@@ -139,9 +139,10 @@ Formal class 'dppMatrix' [package "Matrix"] with 6 slots
  [7,]    7
  [8,]    8
  [9,]    9
-> stopifnot(all.equal(cbind(1:9), as.matrix(I9), tol = 2e-9))
+> m9 <- matrix(1:9, dimnames = list(NULL,NULL))
+> stopifnot(all.equal(m9, as.matrix(I9), tol = 2e-9))
 > 
 > cat('Time elapsed: ', proc.time(),'\n') # "stats"
-Time elapsed:  5.82 0.09 6.57 0 0 
+Time elapsed:  8.44 0.06 8.5 0 0 
 > 
 > 

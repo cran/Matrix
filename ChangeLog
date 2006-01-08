@@ -1,3 +1,8 @@
+2006-01-07  Douglas Bates  <bates@stat.wisc.edu>
+
+	* src/dgBCMatrix.c (cscb_trcbsm): Fix due to Peter Dalgaard for
+	segfault in cases with multiple non-nested grouping factors.
+
 2006-01-03  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* DESCRIPTION (Version): 0.99-4 to be released to CRAN

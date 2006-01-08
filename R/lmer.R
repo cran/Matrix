@@ -404,12 +404,12 @@ setMethod("show", "summary.lmer",
               useScale <- object@useScale
               corF <- as(as(vcov(object, useScale = useScale), "pdmatrix"),
                          "corrmatrix")
-              DF <- getFixDF(object)
-              coefs <- cbind(fcoef, corF@stdDev, DF)
+              #DF <- getFixDF(object)
+              coefs <- cbind(fcoef, corF@stdDev) #, DF)
               nc <- object@nc
               dimnames(coefs) <-
-                  list(names(fcoef), c("Estimate", "Std. Error", "DF"))
-                            digits <- max(3, getOption("digits") - 2)
+                  list(names(fcoef), c("Estimate", "Std. Error")) #, "DF"))
+              digits <- max(3, getOption("digits") - 2)
               REML <- object@method == "REML"
               llik <- object@logLik
               dev <- object@deviance
@@ -457,22 +457,25 @@ setMethod("show", "summary.lmer",
                       .Call("lmer_sigma", object, FALSE, PACKAGE = "Matrix"),
                       "\n")
               if (nrow(coefs) > 0) {
-                  if (useScale) {
-                      stat <- coefs[,1]/coefs[,2]
-                      pval <- 2*pt(abs(stat), coefs[,3], lower = FALSE)
-                      nms <- colnames(coefs)
-                      coefs <- cbind(coefs, stat, pval)
-                      colnames(coefs) <- c(nms, "t value", "Pr(>|t|)")
-                  } else {
-                      coefs <- coefs[, 1:2, drop = FALSE]
-                      stat <- coefs[,1]/coefs[,2]
-                      pval <- 2*pnorm(abs(stat), lower = FALSE)
-                      nms <- colnames(coefs)
-                      coefs <- cbind(coefs, stat, pval)
-                      colnames(coefs) <- c(nms, "z value", "Pr(>|z|)")
+                  if (0) {              #this section removed because of objections to its validity
+                      if (useScale) {
+                          stat <- coefs[,1]/coefs[,2]
+                          pval <- 2*pt(abs(stat), coefs[,3], lower = FALSE)
+                          nms <- colnames(coefs)
+                          coefs <- cbind(coefs, stat, pval)
+                          colnames(coefs) <- c(nms, "t value", "Pr(>|t|)")
+                      } else {
+                          coefs <- coefs[, 1:2, drop = FALSE]
+                          stat <- coefs[,1]/coefs[,2]
+                          pval <- 2*pnorm(abs(stat), lower = FALSE)
+                          nms <- colnames(coefs)
+                          coefs <- cbind(coefs, stat, pval)
+                          colnames(coefs) <- c(nms, "z value", "Pr(>|z|)")
+                      }
                   }
                   cat("\nFixed effects:\n")
-                  printCoefmat(coefs, tst.ind = 4, zap.ind = 3)
+                  printCoefmat(coefs)
+                  #printCoefmat(coefs, tst.ind = 4, zap.ind = 3)
                   if (length(object@showCorrelation) > 0 && object@showCorrelation[1]) {
                       rn <- rownames(coefs)
                       dimnames(corF) <- list(
@@ -580,14 +583,16 @@ setMethod("anova", signature(object = "lmer"),
                   nmeffects <- c("(Intercept)", nmeffects)
               ss <- unlist(lapply(split(ss, asgn), sum))
               df <- unlist(lapply(split(asgn,  asgn), length))
-              dfr <- unlist(lapply(split(dfr, asgn), function(x) x[1]))
+              #dfr <- unlist(lapply(split(dfr, asgn), function(x) x[1]))
               ms <- ss/df
-              f <- ms/(ssr/dfr)
-              P <- pf(f, df, dfr, lower.tail = FALSE)
-              table <- data.frame(df, ss, ms, dfr, f, P)
+              #f <- ms/(ssr/dfr)
+              #P <- pf(f, df, dfr, lower.tail = FALSE)
+              #table <- data.frame(df, ss, ms, dfr, f, P)
+              table <- data.frame(df, ss, ms)
               dimnames(table) <-
                   list(nmeffects,
-                       c("Df", "Sum Sq", "Mean Sq", "Denom", "F value", "Pr(>F)"))
+#                       c("Df", "Sum Sq", "Mean Sq", "Denom", "F value", "Pr(>F)"))
+                       c("Df", "Sum Sq", "Mean Sq"))
               if ("(Intercept)" %in% nmeffects) table <- table[-1,]
               attr(table, "heading") <- "Analysis of Variance Table"
               class(table) <- c("anova", "data.frame")
@@ -620,22 +625,24 @@ setMethod("update", signature(object = "lmer"),
 
 setMethod("confint", signature(object = "lmer"),
           function (object, parm, level = 0.95, ...)
-      {
-          cf <- fixef(object)
-          pnames <- names(cf)
-          if (missing(parm))
-              parm <- seq(along = pnames)
-          else if (is.character(parm))
-              parm <- match(parm, pnames, nomatch = 0)
-          a <- (1 - level)/2
-          a <- c(a, 1 - a)
-          pct <- paste(round(100 * a, 1), "%")
-          ci <- array(NA, dim = c(length(parm), 2),
-                      dimnames = list(pnames[parm], pct))
-          ses <- sqrt(diag(vcov(object)))[parm]
-          ci[] <- cf[parm] + ses * t(outer(a, getFixDF(object)[parm], qt))
-          ci
-      })
+          warning("confint method for lmer objects has been withdrawn")
+##       {
+##           cf <- fixef(object)
+##           pnames <- names(cf)
+##           if (missing(parm))
+##               parm <- seq(along = pnames)
+##           else if (is.character(parm))
+##               parm <- match(parm, pnames, nomatch = 0)
+##           a <- (1 - level)/2
+##           a <- c(a, 1 - a)
+##           pct <- paste(round(100 * a, 1), "%")
+##           ci <- array(NA, dim = c(length(parm), 2),
+##                       dimnames = list(pnames[parm], pct))
+##           ses <- sqrt(diag(vcov(object)))[parm]
+##           ci[] <- cf[parm] + ses * t(outer(a, getFixDF(object)[parm], qt))
+##           ci
+##       }
+          )
 
 setMethod("deviance", "mer",
           function(object, REML = NULL, ...) {

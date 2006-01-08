@@ -7,6 +7,7 @@ CsparseMatrix-class     Class "CsparseMatrix" of Sparse Matrices in
 dCholCMatrix-class      Cholesky Decompositions of dsCMatrix Objects
 ddenseMatrix-class      Virtual Class "ddenseMatrix" of Numeric Dense
                         Matrices
+ddiMatrix-class         Class "ddiMatrix" of Diagonal Numeric Matrices
 denseMatrix-class       Virtual Class "denseMatrix" of All Dense
                         Matrices
 dgBCMatrix-class        Class "dgBCMatrix" Real Sparse Blocked Column
@@ -18,6 +19,8 @@ dgeMatrix-class         Class "dgeMatrix" of Dense Numeric (S4 Class)
 dgRMatrix-class         Compressed, sparse, row-oriented numeric
                         matrices
 dgTMatrix-class         Sparse matrices in triplet form
+Diagonal                Create Diagonal Matrix Object
+diagonalMatrix-class    Class "diagonalMatrix" of Diagonal Matrices
 dMatrix-class           (Virtual) Class "dMatrix" of "double" Matrices
 dpoMatrix-class         Positive Semi-definite Dense Numeric Matrices
 dsCMatrix-class         Numeric Symmetric Sparse (column compressed)
@@ -40,6 +43,7 @@ index-class             Virtual Class "index" - Simple Class for Matrix
                         Indices
 ldenseMatrix-class      Virtual Class "ldenseMatrix" of Dense Logical
                         Matrices
+ldiMatrix-class         Class "ldiMatrix" of Diagonal Logical Matrices
 lgeMatrix-class         Class "lgeMatrix" of General Dense Logical
                         Matrices
 lmer                    Fit (Generalized) Linear Mixed-Effects Models
@@ -64,7 +68,6 @@ ranef                   Extract Random Effects
 rcond                   Estimate the Reciprocal Condition Number
 readHB                  Read and write external matrix formats
 Schur                   Schur Decomposition of a Matrix
-simulate                Simulate responses from a fitted model
 sleepstudy              Reaction times in a sleep deprivation study
 sparseMatrix-class      Virtual Class "sparseMatrix" -- Mother of
                         Sparse Matrices

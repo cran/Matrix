@@ -547,7 +547,7 @@ cscb_trcbsm(enum CBLAS_SIDE side, enum CBLAS_UPLO uplo,
 	    for (i = 0, nrbB = -1; i < nnz; i++)
 		if (Bi[i] > nrbB) nrbB = Bi[i];
 	    nrbB++;		/* max 0-based index is 1 too small */
-	    BTp = Calloc(nrbB, int);
+	    BTp = Calloc(nrbB + 1, int); /* need to index 1 past end */
 	    triplet_to_col(ncbB, nrbB, nnz, tmp, Bi, Bx, BTp, BTi, BTx);
 				/* sanity check */
 	    if (BTp[nrbB] != nnz) error(_("cscb_trcbsm: transpose operation failed"));

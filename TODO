@@ -11,7 +11,7 @@
    This is especially important for Omega but I think I have done
    those changes already.
 
-   - The components named *X* in an mer object refer to an augmented
+   - The components named *X* in an mer object refers to an augmented
    design matrix of p+1 columns.  In the mer2 object there are
    separate slots for rZy and rXy.  The scalar y'y is the first
    element of devComp.

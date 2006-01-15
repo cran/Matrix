@@ -1,4 +1,26 @@
+2006-01-16  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Matrix.R (Matrix): has become much "smarter" now auto-producing
+		many different kinds of matrices.
+	* R/*.R: quite a few new methods were needed for R CMD check with
+		new Matrix().  Very good for users playing around.
+
+
+2006-01-15  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/dgeMatrix.c (dMatrix_validate): new
+	* src/Mutils.c (dense_nonpacked_validate): new
+
+	* src/dtrMatrix.c (dtrMatrix_validate): improved/fixed
+
+
+2006-01-14  Douglas Bates  <bates@stat.wisc.edu>
+
+	* R/AllClass.R (compMatrix), (generalMatrix): new virtual classes
+
 2006-01-07  Douglas Bates  <bates@stat.wisc.edu>
+
+	* DESCRIPTION (Version): 0.99-6 released to CRAN
 
 	* src/dgBCMatrix.c (cscb_trcbsm): Fix due to Peter Dalgaard for
 	segfault in cases with multiple non-nested grouping factors.
@@ -26,7 +48,7 @@
 
 2005-11-14  Douglas Bates  <bates@stat.wisc.edu>
 
-	* DESCRIPTION (Version): 0.99-2  released to CRAN
+	* DESCRIPTION (Version): 0.99-2	 released to CRAN
 
 2005-10-21  Douglas Bates  <bates@stat.wisc.edu>
 
@@ -84,7 +106,7 @@
 2005-09-15  Douglas Bates  <bates@localhost.localdomain>
 
 	* src/chm_common.h: header file required by all C sources that
-	call CHOLMOD functions.  It defines a cholmod_common structure
+	call CHOLMOD functions.	 It defines a cholmod_common structure
 	called 'c' whose address is passed as the last argument to
 	(virtually) every CHOLMOD function.
 
@@ -108,7 +130,7 @@
 	* R/AllClass.R: new "index" class for "[" and "[<-":
 		First cut at "symmetricMatrix" and "triangularMatrix"
 	* R/gTMatrix.R (.ind.prep): new function;
-	        Logical and character indexing now work too.
+		Logical and character indexing now work too.
 	* R/Matrix.R: cheap "[<-" methods for denseMatrix now work
 	* tests/indexing.R: new, including *.Rout.save
 	* tests/dgTMatrix.R: new
@@ -147,7 +169,7 @@
 
 2005-08-18  Douglas Bates  <bates@wisc.edu>
 
-	* DESCRIPTION (Version): 0.98-5  released to CRAN
+	* DESCRIPTION (Version): 0.98-5	 released to CRAN
 
 	* src/dgTMatrix.c (graphNEL_as_dgTMatrix): add first graphNEL methods
 	* .....
@@ -223,7 +245,7 @@
 2005-07-27  Douglas Bates  <bates@wisc.edu>
 
 	* man/sleepstudy.Rd: Added the sleep data set.
-	* DESCRIPTION (Version): 0.98-1  released to CRAN
+	* DESCRIPTION (Version): 0.98-1	 released to CRAN
 
 2005-07-12  Douglas Bates  <bates@wisc.edu>
 	* man/sleepstudy.Rd: Added the sleep data set.
@@ -246,7 +268,7 @@
 
 	* DESCRIPTION (Version): 0.96-1
 
-	* moved  lmer-class' R and C code moved from lme4 to here
+	* moved	 lmer-class' R and C code moved from lme4 to here
 
 2005-06-04  Douglas Bates  <bates@wisc.edu>
 

@@ -8,8 +8,9 @@
 \alias{\%*\%,matrix,dtpMatrix-method}
 \alias{\%*\%,dtpMatrix,numeric-method}
 \alias{\%*\%,numeric,dtpMatrix-method}
-\alias{coerce,dtpMatrix,dtrMatrix-method}
 \alias{coerce,dtpMatrix,dgeMatrix-method}
+\alias{coerce,dtpMatrix,dtTMatrix-method}
+\alias{coerce,dtpMatrix,dtrMatrix-method}
 \alias{coerce,dtpMatrix,ltpMatrix-method}
 \alias{coerce,dtpMatrix,matrix-method}
 \alias{coerce,matrix,dtpMatrix-method}
@@ -44,11 +45,6 @@
     \item{\code{Dim},\code{Dimnames}:}{The dimension (a length-2
       \code{"integer"}) and corresponding names (or \code{NULL}),
       inherited from the \code{\link{Matrix-class}}, see there.}
-    \item{\code{rcond}:}{Object of class \code{"numeric"}. A named
-      numeric vector of reciprocal condition numbers in either the
-      1-norm \code{"O"} or the infinity norm \code{"I"}.}
-    \item{\code{factors}:}{Object of class \code{"list"}.  A named
-      list of factorizations that have been computed for the matrix.}
   }
 }
 \section{Extends}{
@@ -84,9 +80,11 @@
 \examples{
 showClass("dtrMatrix")
 
-example("dtrMatrix-class")
-(p1 <- as(T3, "dtpMatrix"))
-str(p1)
-(pp <- as(T, "dtpMatrix"))
+if (0) {
+  example("dtrMatrix-class")
+  (p1 <- as(T3, "dtpMatrix"))
+  str(p1)
+  (pp <- as(T, "dtpMatrix"))
+}
 }
 \keyword{classes}

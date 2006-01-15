@@ -5,6 +5,7 @@
 \alias{\%*\%,dtrMatrix,dgeMatrix-method}
 \alias{\%*\%,dtrMatrix,matrix-method}
 \alias{\%*\%,matrix,dtrMatrix-method}
+\alias{coerce,dgeMatrix,dtrMatrix-method}% or rather setIs?
 \alias{coerce,dtrMatrix,dgeMatrix-method}
 \alias{coerce,dtrMatrix,dtpMatrix-method}
 \alias{coerce,dtrMatrix,ltrMatrix-method}
@@ -44,17 +45,12 @@
     \item{\code{Dim}:}{Object of class \code{"integer"}. The dimensions
       of the matrix which must be a two-element vector of non-negative
       integers.}
-    \item{\code{rcond}:}{Object of class \code{"numeric"}. A named
-      numeric vector of reciprocal condition numbers in either the
-      1-norm \code{"O"} or the infinity norm \code{"I"}.}
-    \item{\code{factors}:}{Object of class \code{"list"}.  A named
-      list of factorizations that have been computed for the matrix.}
   }
 }
 \section{Extends}{
-Class \code{"dgeMatrix"}, directly.
-Class \code{"triangularMatrix"}, directly.
-Class \code{"Matrix"} and others, by class \code{"dgeMatrix"}.
+  Class \code{"ddenseMatrix"}, directly.
+  Class \code{"triangularMatrix"}, directly.
+  Class \code{"Matrix"} and others, by class \code{"ddenseMatrix"}.
 }
 \section{Methods}{
   \describe{
@@ -74,17 +70,19 @@ Class \code{"Matrix"} and others, by class \code{"dgeMatrix"}.
 %\references{}
 %\author{}
 \seealso{
-  \code{\link{dgeMatrix-class}}, \code{\link{dtpMatrix-class}},
-  \code{\link{Matrix-class}}
+  \code{\link{ddenseMatrix-class}}, \code{\link{dtpMatrix-class}},
+  \code{\link{triangularMatrix-class}}
 }
 \examples{
 (m <- rbind(2:3, 0:-1))
 (M <- as(m, "dgeMatrix"))
+% if(FALSE) {  #(failed in some verions)
 (T <- as(M, "dtrMatrix")) ## upper triangular is default
 ## hence this may surprise at first:
 (T2 <- as(t(M), "dtrMatrix"))# is factually diagonal
 ## and different from
 (T3 <- t(T)) # which is *lower* triangular:
 str(T3)
+% }
 }
 \keyword{classes}

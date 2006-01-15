@@ -43,6 +43,21 @@ setAs("diagonalMatrix", "matrix",
                nrow = n, ncol = n)
       })
 
+setAs("diagonalMatrix", "generalMatrix",
+      function(from) {
+          x <- as(from, "matrix")
+          as(x,
+             if(is.logical(x)) "lgeMatrix"
+## Not yet:
+##              else if(is.complex(x)) "zgeMatrix"
+##              else if(is.integer(x)) "igeMatrix"
+             else "dgeMatrix")
+      })
+
+setAs("ddiMatrix", "dgeMatrix",
+      function(from) as(as(from, "matrix"), "dgeMatrix"))
+
+
 setAs("matrix", "diagonalMatrix",
       function(from) {
           d <- dim(from)

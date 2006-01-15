@@ -39,29 +39,18 @@ SEXP dtpMatrix_norm(SEXP obj, SEXP type)
     return ScalarReal(get_norm(obj, CHAR(asChar(type))));
 }
 
-static
-double set_rcond(SEXP obj, char *typstr)
-{
-    char typnm[] = {'\0', '\0'};
-    SEXP rcv = GET_SLOT(obj, Matrix_rcondSym);
-    double rcond = get_double_by_name(rcv, typnm);
-
-    typnm[0] = rcond_type(typstr);
-    if (R_IsNA(rcond)) {
-	int *dims = INTEGER(GET_SLOT(obj, Matrix_DimSym)), info;
-	F77_CALL(dtpcon)(typnm, uplo_P(obj), diag_P(obj), dims,
-			 REAL(GET_SLOT(obj, Matrix_xSym)), &rcond,
-			 (double *) R_alloc(3*dims[0], sizeof(double)),
-			 (int *) R_alloc(dims[0], sizeof(int)), &info);
-	SET_SLOT(obj, Matrix_rcondSym,
-		 set_double_by_name(rcv, rcond, typnm));
-    }
-    return rcond;
-}
-
 SEXP dtpMatrix_rcond(SEXP obj, SEXP type)
 {
-    return ScalarReal(set_rcond(obj, CHAR(asChar(type))));
+    int *dims = INTEGER(GET_SLOT(obj, Matrix_DimSym)), info;
+    char typnm[] = {'\0', '\0'};
+    double rcond;
+
+    typnm[0] = rcond_type(CHAR(asChar(type)));
+    F77_CALL(dtpcon)(typnm, uplo_P(obj), diag_P(obj), dims,
+		     REAL(GET_SLOT(obj, Matrix_xSym)), &rcond,
+		     (double *) R_alloc(3*dims[0], sizeof(double)),
+		     (int *) R_alloc(dims[0], sizeof(int)), &info);
+    return ScalarReal(rcond);
 }
 
 SEXP dtpMatrix_solve(SEXP a)
@@ -179,8 +168,6 @@ SEXP dtpMatrix_as_dtrMatrix(SEXP from)
 	dmnP = GET_SLOT(from, Matrix_DimNamesSym);
     int n = *INTEGER(dimP);
 
-    SET_SLOT(val, Matrix_rcondSym,
-	     duplicate(GET_SLOT(from, Matrix_rcondSym)));
     SET_SLOT(val, Matrix_DimSym, duplicate(dimP));
     SET_SLOT(val, Matrix_DimNamesSym, duplicate(dmnP));
     SET_SLOT(val, Matrix_diagSym, duplicate(diag));

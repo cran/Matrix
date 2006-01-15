@@ -34,7 +34,7 @@ SEXP Csparse_to_dense(SEXP x)
     cholmod_sparse *chxs = as_cholmod_sparse(x);
     cholmod_dense *chxd = cholmod_sparse_to_dense(chxs, &c);
 
-    free(chxs);
+    Free(chxs);
     return chm_dense_to_SEXP(chxd, 1);
 }
 
@@ -43,7 +43,7 @@ SEXP Csparse_to_Tsparse(SEXP x)
     cholmod_sparse *chxs = as_cholmod_sparse(x);
     cholmod_triplet *chxt = cholmod_sparse_to_triplet(chxs, &c);
 
-    free(chxs);
+    Free(chxs);
     return chm_triplet_to_SEXP(chxt, 1);
 }
 
@@ -52,7 +52,7 @@ SEXP Csparse_transpose(SEXP x)
     cholmod_sparse *chx = as_cholmod_sparse(x);
     cholmod_sparse *chxt = cholmod_transpose(chx, (int) chx->xtype, &c);
 
-    free(chx);
+    Free(chx);
     return chm_sparse_to_SEXP(chxt, 1);
 }
 
@@ -62,7 +62,7 @@ SEXP Csparse_Csparse_prod(SEXP a, SEXP b)
 	*chb = as_cholmod_sparse(b);
     cholmod_sparse *chc = cholmod_ssmult(cha, chb, 0, cha->xtype, 1, &c);
 
-    free(cha); free(chb);
+    Free(cha); Free(chb);
     return chm_sparse_to_SEXP(chc, 1);
 }
 
@@ -75,7 +75,7 @@ SEXP Csparse_dense_prod(SEXP a, SEXP b)
     double alpha = 1, beta = 0;
 
     cholmod_sdmult(cha, 0, &alpha, &beta, chb, chc, &c);
-    free(cha); free(chb);
+    Free(cha); Free(chb);
     return chm_dense_to_SEXP(chc, 1);
 }
 
@@ -110,9 +110,9 @@ SEXP Csparse_crossprod(SEXP x, SEXP trans, SEXP triplet)
 
     if (trip) {
 	cholmod_free_sparse(&chx, &c);
-	free(cht);
+	Free(cht);
     } else {
-	free(chx);
+	Free(chx);
     }
     if (!tr) cholmod_free_sparse(&chxt, &c);
     return chm_sparse_to_SEXP(chcp, 1);

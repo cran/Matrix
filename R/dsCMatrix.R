@@ -15,6 +15,8 @@ setAs("dsCMatrix", "dgeMatrix",
 
 setAs("dsCMatrix", "matrix",
       function(from) as(as(from, "dgTMatrix"), "matrix"))
+setAs("matrix", "dsCMatrix",
+      function(from) as(as(from, "dgTMatrix"), "dsCMatrix"))
 
 setAs("dsCMatrix", "lsCMatrix",
       function(from) new("lsCMatrix", i = from@i, p = from@p, uplo = from@uplo,

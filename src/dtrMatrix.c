@@ -17,14 +17,10 @@ SEXP triangularMatrix_validate(SEXP obj)
     return ScalarLogical(1);
 }
 
-/* FIXME? validObject(.) works "unexpectedly": dtrMatrix_as_dgeMatrix()  {below}
- * -----  is called *before* the following - in order to
- *        apply the higher level validation first, since dtr* contains dge*
-*/
 SEXP dtrMatrix_validate(SEXP obj)
 {
-    /* FIXME: Is the following unnecessary, since "dtr" inherits from "triangular" ? */
-    return triangularMatrix_validate(obj);
+    /* since "dtr" inherits from "triangular", and "dMatrix", only need this:*/
+    return dense_nonpacked_validate(obj);
 }
 
 
@@ -49,29 +45,18 @@ SEXP dtrMatrix_norm(SEXP obj, SEXP type)
     return ScalarReal(get_norm(obj, CHAR(asChar(type))));
 }
 
-static
-double set_rcond(SEXP obj, char *typstr)
-{
-    char typnm[] = {'\0', '\0'};
-    SEXP rcv = GET_SLOT(obj, Matrix_rcondSym);
-    double rcond = get_double_by_name(rcv, typnm);
-
-    typnm[0] = rcond_type(typstr);
-    if (R_IsNA(rcond)) {
-	int *dims = INTEGER(GET_SLOT(obj, Matrix_DimSym)), info;
-	F77_CALL(dtrcon)(typnm, uplo_P(obj), diag_P(obj), dims,
-			 REAL(GET_SLOT(obj, Matrix_xSym)), dims, &rcond,
-			 (double *) R_alloc(3*dims[0], sizeof(double)),
-			 (int *) R_alloc(dims[0], sizeof(int)), &info);
-	SET_SLOT(obj, Matrix_rcondSym,
-		 set_double_by_name(rcv, rcond, typnm));
-    }
-    return rcond;
-}
-
 SEXP dtrMatrix_rcond(SEXP obj, SEXP type)
 {
-    return ScalarReal(set_rcond(obj, CHAR(asChar(type))));
+    char typnm[] = {'\0', '\0'};
+    int *dims = INTEGER(GET_SLOT(obj, Matrix_DimSym)), info;
+    double rcond;
+
+    typnm[0] = rcond_type(CHAR(asChar(type)));
+    F77_CALL(dtrcon)(typnm, uplo_P(obj), diag_P(obj), dims,
+		     REAL(GET_SLOT(obj, Matrix_xSym)), dims, &rcond,
+		     (double *) R_alloc(3*dims[0], sizeof(double)),
+		     (int *) R_alloc(dims[0], sizeof(int)), &info);
+    return ScalarReal(rcond);
 }
 
 SEXP dtrMatrix_solve(SEXP a)
@@ -142,12 +127,7 @@ SEXP dtrMatrix_as_dgeMatrix(SEXP from)
 {
     SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dgeMatrix")));
 
-    SET_SLOT(val, Matrix_rcondSym, duplicate(GET_SLOT(from, Matrix_rcondSym)));
     SET_SLOT(val, Matrix_xSym, duplicate(GET_SLOT(from, Matrix_xSym)));
-    /* Dim < 2 can give a seg.fault problem in make_array_triangular(),
-     * by new("dtrMatrix", Dim = 2:2, x=as.double(1:4)) )# length(Dim) !=2 */
-    if (LENGTH(GET_SLOT(from, Matrix_DimSym)) < 2)
-	error(_("'Dim' slot has length less than two"));
     SET_SLOT(val, Matrix_DimSym, duplicate(GET_SLOT(from, Matrix_DimSym)));
     SET_SLOT(val, Matrix_DimNamesSym, duplicate(GET_SLOT(from, Matrix_DimNamesSym)));
     SET_SLOT(val, Matrix_factorSym, allocVector(VECSXP, 0));
@@ -213,8 +193,6 @@ SEXP dtrMatrix_as_dtpMatrix(SEXP from)
 	dimP = GET_SLOT(from, Matrix_DimSym);
     int n = *INTEGER(dimP);
 
-    SET_SLOT(val, Matrix_rcondSym,
-	     duplicate(GET_SLOT(from, Matrix_rcondSym)));
     SET_SLOT(val, Matrix_DimSym, duplicate(dimP));
     SET_SLOT(val, Matrix_diagSym, duplicate(diag));
     SET_SLOT(val, Matrix_uploSym, duplicate(uplo));

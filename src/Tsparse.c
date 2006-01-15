@@ -33,7 +33,7 @@ SEXP Tsparse_to_Csparse(SEXP x)
     cholmod_triplet *chxt = as_cholmod_triplet(x);
     cholmod_sparse *chxs = cholmod_triplet_to_sparse(chxt, chxt->nnz, &c);
 
-    free(chxt);
+    Free(chxt);
     return chm_sparse_to_SEXP(chxs, 1);
 }
 

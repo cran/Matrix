@@ -1,17 +1,17 @@
-bCrosstab               Create pairwise crosstabulation
 BIC                     Bayesian Information Criterion
 Cholesky-class          Cholesky and Bunch-Kaufman Decompositions
+compMatrix-class        Class "compMatrix" of Composite (Factorizable)
+                        Matrices
 corrmatrix-class        Class "corrmatrix"
 CsparseMatrix-class     Class "CsparseMatrix" of Sparse Matrices in
                         Column-compressed Form
+dCHMsimpl-class         CHOLMOD-based Cholesky factorizations
 dCholCMatrix-class      Cholesky Decompositions of dsCMatrix Objects
 ddenseMatrix-class      Virtual Class "ddenseMatrix" of Numeric Dense
                         Matrices
 ddiMatrix-class         Class "ddiMatrix" of Diagonal Numeric Matrices
 denseMatrix-class       Virtual Class "denseMatrix" of All Dense
                         Matrices
-dgBCMatrix-class        Class "dgBCMatrix" Real Sparse Blocked Column
-                        Compressed Matrix
 dgCMatrix-class         Compressed, sparse, column-oriented numeric
                         matrices
 dgeMatrix-class         Class "dgeMatrix" of Dense Numeric (S4 Class)
@@ -37,6 +37,7 @@ expand                  Expand a Decomposition into Factors
 expm                    Matrix exponential
 facmul                  Multiplication by Decomposition Factors
 fixef                   Extract Fixed Effects
+generalMatrix-class     Class "generalMatrix" of General Matrices
 Hilbert                 Generate a Hilbert matrix
 iMatrix-class           Virtual Classes Not Yet Used
 index-class             Virtual Class "index" - Simple Class for Matrix
@@ -62,7 +63,6 @@ mcmcsamp                Generate an MCMC sample
                         Package 'Matrix'
 mm                      A sample sparse model matrix
 norm                    Norm of a Matrix
-pdmatrix-class          Positive-definite matrices
 pMatrix-class           Permutation matrices
 ranef                   Extract Random Effects
 rcond                   Estimate the Reciprocal Condition Number

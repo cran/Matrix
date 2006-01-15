@@ -18,6 +18,7 @@ extern "C" {
 
 SEXP triangularMatrix_validate(SEXP obj);
 SEXP symmetricMatrix_validate(SEXP obj);
+SEXP dense_nonpacked_validate(SEXP obj);
 
 /* enum constants from cblas.h and some short forms */
 enum CBLAS_ORDER {CblasRowMajor=101, CblasColMajor=102};
@@ -296,6 +297,10 @@ vecSum(double dest[], const double src1[], const double src2[],
 }
 
 SEXP alloc_real_classed_matrix(char *class, int nrow, int ncol);
+SEXP alloc_dgeMatrix(int m, int n, SEXP rownms, SEXP colnms);
+SEXP alloc_dpoMatrix(int n, char *uplo, SEXP rownms, SEXP colnms);
+SEXP alloc_dtrMatrix(int n, char *uplo, char *diag, SEXP rownms, SEXP colnms);
+SEXP alloc_dsCMatrix(int n, int nz, char *uplo, SEXP rownms, SEXP colnms);
 
 #ifdef __cplusplus
 }

@@ -6,6 +6,38 @@ setAs("dtpMatrix", "dtrMatrix",
 setAs("dtpMatrix", "dgeMatrix",
       function(from) as(as(from, "dtrMatrix"), "dgeMatrix"))
 
+setAs("dtpMatrix", "dtTMatrix",
+      ## FIXME this is NOT efficient:
+      function(from) {
+	  x <- as(from, "TsparseMatrix")
+	  if(is(x, "dtTMatrix"))
+	      x
+	  else
+	      gt2tT(as(x, "dgTMatrix"), uplo = from@uplo, diag = from@diag)
+      })
+
+gt2tT <- function(x, uplo, diag) {
+    ## coerce *gtMatrix to *tTMatrix {general -> triangular}
+    i <- x@i
+    j <- x@j
+    sel <-
+	if(uplo == "U") {
+	    if(diag == "U") i < j else i <= j
+	} else {
+	    if(diag == "U") i > j else i >= j
+	}
+    i <- i[sel]
+    j <- j[sel]
+    if(is(x, "lMatrix"))
+	new("ltTMatrix", i = i, j = j, uplo = uplo, diag = diag,
+	    Dim = x@Dim, Dimnames = x@Dimnames) # no 'x' slot
+    else
+	new(paste(substr(class(x), 1,1), # "d", "l", "i" or "z"
+		  "tTMatrix", sep=''),
+	    i = i, j = j, uplo = uplo, diag = diag,
+	    x = x@x[sel], Dim = x@Dim, Dimnames = x@Dimnames)
+}
+
 setAs("dtpMatrix", "matrix",
       function(from) as(as(from, "dtrMatrix"), "matrix"))
 setAs("matrix", "dtpMatrix",

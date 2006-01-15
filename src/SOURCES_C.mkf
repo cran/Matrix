@@ -4,7 +4,6 @@ SOURCES_C =  \
 	    Metis_utils.c \
 	    R_ldl.c \
 	    Tsparse.c \
-	    dgBCMatrix.c \
 	    init.c \
 	    lmer.c \
             Mutils.c \

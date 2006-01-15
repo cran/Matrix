@@ -4,7 +4,6 @@
 #include "Csparse.h"
 #include "Tsparse.h"
 #include "dense.h"
-#include "dgBCMatrix.h"
 #include "dgCMatrix.h"
 #include "dgTMatrix.h"
 #include "dgeMatrix.h"
@@ -54,6 +53,7 @@ static R_CallMethodDef CallEntries[] = {
     {"Tsparse_validate", (DL_FUNC) &Tsparse_validate, 1},
     {"Tsparse_to_Csparse", (DL_FUNC) &Tsparse_to_Csparse, 1},
     {"csc_check_column_sorting", (DL_FUNC) &csc_check_column_sorting, 1},
+    {"Zt_create", (DL_FUNC) &Zt_create, 2},
     {"csc_crossprod", (DL_FUNC) &csc_crossprod, 1},
     {"csc_getDiag", (DL_FUNC) &csc_getDiag, 1},
     {"csc_matrix_crossprod", (DL_FUNC) &csc_matrix_crossprod, 3},
@@ -65,9 +65,9 @@ static R_CallMethodDef CallEntries[] = {
     {"csc_to_matrix", (DL_FUNC) &csc_to_matrix, 1},
     {"csc_transpose", (DL_FUNC) &csc_transpose, 1},
     {"dense_to_Csparse", (DL_FUNC) &dense_to_Csparse, 1},
-    {"dgBCMatrix_to_dgCMatrix", (DL_FUNC) &dgBCMatrix_to_dgCMatrix, 1},
-    {"dgBCMatrix_to_dgTMatrix", (DL_FUNC) &dgBCMatrix_to_dgTMatrix, 1},
-    {"dgBCMatrix_validate", (DL_FUNC) &dgBCMatrix_validate, 1},
+    {"dense_nonpacked_validate", (DL_FUNC) &dense_nonpacked_validate, 1},
+    {"dMatrix_validate", (DL_FUNC) &dMatrix_validate, 1},
+
     {"dgCMatrix_validate", (DL_FUNC) &dgCMatrix_validate, 1},
     {"dgeMatrix_to_csc", (DL_FUNC) &dgeMatrix_to_csc, 1},
     {"dgTMatrix_to_csc", (DL_FUNC) &dgTMatrix_to_csc, 1},
@@ -124,7 +124,6 @@ static R_CallMethodDef CallEntries[] = {
     {"dsyMatrix_rcond", (DL_FUNC) &dsyMatrix_rcond, 2},
     {"dsyMatrix_solve", (DL_FUNC) &dsyMatrix_solve, 1},
     {"dsyMatrix_validate", (DL_FUNC) &dsyMatrix_validate, 1},
-    {"dspMatrix_trf", (DL_FUNC) &dspMatrix_trf, 1},
     {"dspMatrix_as_dsyMatrix", (DL_FUNC) &dspMatrix_as_dsyMatrix, 1},
     {"dspMatrix_matrix_mm", (DL_FUNC) &dspMatrix_matrix_mm, 3},
     {"dspMatrix_matrix_solve", (DL_FUNC) &dspMatrix_matrix_solve, 3},
@@ -155,13 +154,14 @@ static R_CallMethodDef CallEntries[] = {
     {"dtrMatrix_rcond", (DL_FUNC) &dtrMatrix_rcond, 2},
     {"dtrMatrix_solve", (DL_FUNC) &dtrMatrix_solve, 1},
     {"dtrMatrix_validate", (DL_FUNC) &dtrMatrix_validate, 1},
-    {"glmer_MCMCsamp", (DL_FUNC) &glmer_MCMCsamp, 6},
+/*     {"glmer_MCMCsamp", (DL_FUNC) &glmer_MCMCsamp, 6}, */
     {"glmer_PQL", (DL_FUNC) &glmer_PQL, 1},
-    {"glmer_devAGQ", (DL_FUNC) &glmer_devAGQ, 3},
+/*     {"glmer_devAGQ", (DL_FUNC) &glmer_devAGQ, 3}, */
+    {"glmer_devLaplace", (DL_FUNC) &glmer_devLaplace, 2},
     {"glmer_finalize", (DL_FUNC) &glmer_finalize, 1},
-    {"glmer_fixed_update", (DL_FUNC) &glmer_fixed_update, 3},
+/*     {"glmer_fixed_update", (DL_FUNC) &glmer_fixed_update, 3}, */
     {"glmer_init", (DL_FUNC) &glmer_init, 1},
-    {"glmer_ranef_update", (DL_FUNC) &glmer_ranef_update, 4},
+/*     {"glmer_ranef_update", (DL_FUNC) &glmer_ranef_update, 4}, */
     {"lapack_qr", (DL_FUNC) &lapack_qr, 2},
 
     {"lCholCMatrix_solve", (DL_FUNC) &lCholCMatrix_solve, 1},
@@ -181,29 +181,6 @@ static R_CallMethodDef CallEntries[] = {
     {"ltpMatrix_as_ltrMatrix", (DL_FUNC) &ltpMatrix_as_ltrMatrix, 1},
     {"ltrMatrix_as_ltpMatrix", (DL_FUNC) &ltrMatrix_as_ltpMatrix, 1},
 
-    {"lmer_Crosstab", (DL_FUNC) &lmer_Crosstab, 1},
-    {"lmer_MCMCsamp", (DL_FUNC) &lmer_MCMCsamp, 4},
-    {"lmer_ECMEsteps", (DL_FUNC) &lmer_ECMEsteps, 3},
-    {"lmer_coef", (DL_FUNC) &lmer_coef, 2},
-    {"lmer_coefGets", (DL_FUNC) &lmer_coefGets, 3},
-    {"lmer_create", (DL_FUNC) &lmer_create, 3},
-    {"lmer_factor", (DL_FUNC) &lmer_factor, 1},
-    {"lmer_firstDer", (DL_FUNC) &lmer_firstDer, 2},
-    {"lmer_fitted", (DL_FUNC) &lmer_fitted, 3},
-    {"lmer_fixef", (DL_FUNC) &lmer_fixef, 1},
-    {"lmer_gradient", (DL_FUNC) &lmer_gradient, 2},
-    {"lmer_inflate", (DL_FUNC) &lmer_inflate, 1},
-    {"lmer_initial", (DL_FUNC) &lmer_initial, 1},
-    {"lmer_invert", (DL_FUNC) &lmer_invert, 1},
-    {"lmer_ranef", (DL_FUNC) &lmer_ranef, 1},
-    {"lmer_secondDer", (DL_FUNC) &lmer_secondDer, 1},
-    {"lmer_set_initial", (DL_FUNC) &lmer_set_initial, 2},
-    {"lmer_sigma", (DL_FUNC) &lmer_sigma, 2},
-    {"lmer_simulate", (DL_FUNC) &lmer_simulate, 5},
-    {"lmer_update_mm", (DL_FUNC) &lmer_update_mm, 2},
-    {"lmer_update_y", (DL_FUNC) &lmer_update_y, 3},
-    {"lmer_validate", (DL_FUNC) &lmer_validate, 1},
-    {"lmer_variances", (DL_FUNC) &lmer_variances, 1},
     {"lsCMatrix_chol", (DL_FUNC) &lsCMatrix_chol, 2},
     {"lsCMatrix_trans", (DL_FUNC) &lsCMatrix_trans, 1},
     {"lsCMatrix_validate", (DL_FUNC) &lsCMatrix_validate, 1},
@@ -211,13 +188,27 @@ static R_CallMethodDef CallEntries[] = {
     {"ltCMatrix_validate", (DL_FUNC) &ltCMatrix_validate, 1},
     {"lsq_dense_Chol", (DL_FUNC) &lsq_dense_Chol, 2},
     {"lsq_dense_QR", (DL_FUNC) &lsq_dense_QR, 2},
-    {"mer2_coef", (DL_FUNC) &mer2_coef, 2},
-    {"mer2_coefGets", (DL_FUNC) &mer2_coefGets, 3},
-    {"mer2_create", (DL_FUNC) &mer2_create, 4},
-    {"mer2_dtCMatrix", (DL_FUNC) &mer2_dtCMatrix, 1},
-    {"mer2_factor", (DL_FUNC) &mer2_factor, 1},
-    {"mer2_initial", (DL_FUNC) &mer2_initial, 1},
-    {"mer2_pMatrix", (DL_FUNC) &mer2_pMatrix, 1},
+
+    {"mer_ECMEsteps", (DL_FUNC) &mer_ECMEsteps, 3},
+    {"mer_MCMCsamp", (DL_FUNC) &mer_MCMCsamp, 4},
+    {"mer_coef", (DL_FUNC) &mer_coef, 2},
+    {"mer_coefGets", (DL_FUNC) &mer_coefGets, 3},
+    {"mer_create", (DL_FUNC) &mer_create, 10},
+    {"mer_dtCMatrix", (DL_FUNC) &mer_dtCMatrix, 1},
+    {"mer_dtCMatrix_inv", (DL_FUNC) &mer_dtCMatrix_inv, 1},
+    {"mer_factor", (DL_FUNC) &mer_factor, 1},
+    {"mer_fitted", (DL_FUNC) &mer_fitted, 1},
+    {"mer_fixef", (DL_FUNC) &mer_fixef, 1},
+    {"mer_gradComp", (DL_FUNC) &mer_gradComp, 1},
+    {"mer_gradient", (DL_FUNC) &mer_gradient, 2},
+    {"mer_initial", (DL_FUNC) &mer_initial, 1},
+    {"mer_ranef", (DL_FUNC) &mer_ranef, 1},
+    {"mer_secondary", (DL_FUNC) &mer_secondary, 1},
+    {"mer_sigma", (DL_FUNC) &mer_sigma, 2},
+    {"mer_simulate", (DL_FUNC) &mer_simulate, 2},
+    {"mer_update_ZXy", (DL_FUNC) &mer_update_ZXy, 1},
+    {"mer_update_y", (DL_FUNC) &mer_update_y, 2},
+
     {"matrix_to_csc", (DL_FUNC) &matrix_to_csc, 1},
     {"ssc_transpose", (DL_FUNC) &ssc_transpose, 1},
     {"tsc_to_dgTMatrix", (DL_FUNC) &tsc_to_dgTMatrix, 1},
@@ -228,53 +219,61 @@ static R_CallMethodDef CallEntries[] = {
     {NULL, NULL, 0}
 };
 
-void R_init_Matrix(DllInfo *dll)
+void
+#ifdef HAVE_VISIBILITY_ATTRIBUTE
+__attribute__ ((visibility ("default")))
+#endif
+R_init_Matrix(DllInfo *dll)
 {
     R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
     R_useDynamicSymbols(dll, FALSE);
     cholmod_start(&c);
-    Matrix_DIsqrtSym = install("DIsqrt");
     Matrix_DSym = install("D");
-    Matrix_DimSym = install("Dim");
     Matrix_DimNamesSym = install("Dimnames");
+    Matrix_DimSym = install("Dim");
     Matrix_GpSym = install("Gp");
     Matrix_LSym = install("L");
-    Matrix_LiSym = install("Li");
-    Matrix_LinvSym = install("Linv");
-    Matrix_LpSym = install("Lp");
-    Matrix_LxSym = install("Lx");
     Matrix_OmegaSym = install("Omega");
     Matrix_ParentSym = install("Parent");
     Matrix_RXXSym = install("RXX");
     Matrix_RZXSym = install("RZX");
+    Matrix_RZXinvSym = install("RZXinv");
+    Matrix_XSym = install("X");
     Matrix_XtXSym = install("XtX");
     Matrix_XtySym = install("Xty");
-    Matrix_ZZxSym = install("ZZx");
     Matrix_ZZpOSym = install("ZZpO");
+    Matrix_ZZxSym = install("ZZx");
+    Matrix_ZtSym = install("Zt");
     Matrix_ZtXSym = install("ZtX");
     Matrix_ZtZSym = install("ZtZ");
     Matrix_ZtySym = install("Zty");
     Matrix_bVarSym = install("bVar");
+    Matrix_callSym = install("call");
     Matrix_cnamesSym = install("cnames");
     Matrix_devCompSym = install("devComp");
     Matrix_devianceSym = install("deviance");
     Matrix_diagSym = install("diag");
     Matrix_factorSym = install("factors");
+    Matrix_familySym = install("family");
+    Matrix_fixefSym = install("fixef");
     Matrix_flistSym = install("flist");
+    Matrix_gradCompSym = install("gradComp");
     Matrix_iSym = install("i");
-    Matrix_ipermSym = install("iperm");
     Matrix_jSym = install("j");
-    Matrix_matSym = install("mat");
     Matrix_methodSym = install("method");
     Matrix_ncSym = install("nc");
     Matrix_pSym = install("p");
     Matrix_permSym = install("perm");
-    Matrix_rcondSym = install("rcond");
     Matrix_rXySym = install("rXy");
     Matrix_rZySym = install("rZy");
+    Matrix_ranefSym = install("ranef");
     Matrix_statusSym = install("status");
     Matrix_uploSym = install("uplo");
+    Matrix_useScaleSym = install("useScale");
+    Matrix_wrkresSym = install("wrkres");
+    Matrix_wtsSym = install("wts");
     Matrix_xSym = install("x");
+    Matrix_ySym = install("y");
     Matrix_zSym = install("z");
 }
 

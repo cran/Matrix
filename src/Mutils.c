@@ -459,6 +459,14 @@ SEXP check_scalar_string(SEXP sP, char *vals, char *nm)
 #undef SPRINTF
 }
 
+SEXP dense_nonpacked_validate(SEXP obj)
+{
+    int *dims = INTEGER(GET_SLOT(obj, Matrix_DimSym));
+    if ((dims[0] * dims[1]) != length(GET_SLOT(obj, Matrix_xSym)))
+	return mkString(_("length of x slot != prod(Dim)"));
+    return ScalarLogical(1);
+}
+
 
 #define PACKED_TO_FULL(TYPE)						\
 TYPE *packed_to_full_ ## TYPE(TYPE *dest, const TYPE *src,		\
@@ -565,21 +573,85 @@ Matrix_getElement(SEXP list, char *nm) {
     return R_NilValue;
 }
 
-/** 
+/**
  * Allocate a real classed matrix
- * 
+ *
  * @param class character string of the type of Matrix to allocate
  * @param nrow number of rows
  * @param ncol number of columns
- * 
+ *
  * @return pointer to a classed real matrix
  */
 SEXP alloc_real_classed_matrix(char *class, int nrow, int ncol)
 {
     SEXP val = NEW_OBJECT(MAKE_CLASS(class));
     int *dims = INTEGER(ALLOC_SLOT(val, Matrix_DimSym, INTSXP, 2));
-    
+
     dims[0] = nrow; dims[1] = ncol;
     ALLOC_SLOT(val, Matrix_xSym, REALSXP, nrow * ncol);
     return val;
 }
+
+SEXP alloc_dgeMatrix(int m, int n, SEXP rownms, SEXP colnms)
+{
+    SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("dgeMatrix"))), dn;
+    int *dims = INTEGER(ALLOC_SLOT(ans, Matrix_DimSym, INTSXP, 2));
+
+    dims[0] = m; dims[1] = n;
+    ALLOC_SLOT(ans, Matrix_xSym, REALSXP, m * n);
+    dn = ALLOC_SLOT(ans, Matrix_DimNamesSym, VECSXP, 2);
+    SET_VECTOR_ELT(dn, 0, duplicate(rownms));
+    SET_VECTOR_ELT(dn, 1, duplicate(colnms));
+    UNPROTECT(1);
+    return ans;
+}
+
+SEXP alloc_dpoMatrix(int n, char *uplo, SEXP rownms, SEXP colnms)
+{
+    SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("dpoMatrix"))), dn;
+    int *dims = INTEGER(ALLOC_SLOT(ans, Matrix_DimSym, INTSXP, 2));
+
+    dims[0] = dims[1] = n;
+    ALLOC_SLOT(ans, Matrix_xSym, REALSXP, n * n);
+    SET_SLOT(ans, Matrix_uploSym, mkString(uplo));
+    dn = ALLOC_SLOT(ans, Matrix_DimNamesSym, VECSXP, 2);
+    SET_VECTOR_ELT(dn, 0, duplicate(rownms));
+    SET_VECTOR_ELT(dn, 1, duplicate(colnms));
+    UNPROTECT(1);
+    return ans;
+}
+
+SEXP alloc_dtrMatrix(int n, char *uplo, char *diag, SEXP rownms, SEXP colnms)
+{
+    SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("dtrMatrix"))), dn;
+    int *dims = INTEGER(ALLOC_SLOT(ans, Matrix_DimSym, INTSXP, 2));
+
+    dims[0] = dims[1] = n;
+    ALLOC_SLOT(ans, Matrix_xSym, REALSXP, n * n);
+    SET_SLOT(ans, Matrix_uploSym, mkString(uplo));
+    SET_SLOT(ans, Matrix_diagSym, mkString(diag));
+    dn = ALLOC_SLOT(ans, Matrix_DimNamesSym, VECSXP, 2);
+    SET_VECTOR_ELT(dn, 0, duplicate(rownms));
+    SET_VECTOR_ELT(dn, 1, duplicate(colnms));
+    UNPROTECT(1);
+    return ans;
+}
+
+SEXP alloc_dsCMatrix(int n, int nz, char *uplo, SEXP rownms, SEXP colnms)
+{
+    SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("dsCMatrix"))), dn;
+    int *dims = INTEGER(ALLOC_SLOT(ans, Matrix_DimSym, INTSXP, 2));
+
+    dims[0] = dims[1] = n;
+    ALLOC_SLOT(ans, Matrix_xSym, REALSXP, nz);
+    ALLOC_SLOT(ans, Matrix_iSym, INTSXP, nz);
+    ALLOC_SLOT(ans, Matrix_pSym, INTSXP, n + 1);
+    SET_SLOT(ans, Matrix_uploSym, mkString(uplo));
+    dn = ALLOC_SLOT(ans, Matrix_DimNamesSym, VECSXP, 2);
+    SET_VECTOR_ELT(dn, 0, duplicate(rownms));
+    SET_VECTOR_ELT(dn, 1, duplicate(colnms));
+    UNPROTECT(1);
+    return ans;
+}
+
+

@@ -102,11 +102,13 @@ lmer(formula, data, family, method,
 	\item{\code{PQLmaxIt}:}{maximum number of iterations for the PQL
 	  algorithm when fitting generalized linear mixed models.
 	  Default is 30.}%% unused currently?
-	\item{\code{analyticGradient}:}{a logical value indicating if the
-	  analytic gradient of the objective should be used.  This
-	  option is for testing purposes and would not normally be
-	  changed from the default.  Default is \code{TRUE}.}
-	\item{\code{analyticHessian}:}{a logical value indicating if the
+	\item{\code{gradient}:}{a logical value indicating if the
+	  analytic gradient of the objective should be used.  Use of an
+	  analytic gradient results in more stable convergence but can take
+	  longer.  For models with multiple grouping factors the
+	  difference in time can be substantial.
+	  Default is \code{TRUE}.}
+	\item{\code{Hessian}:}{a logical value indicating if the
 	  analytic Hessian of the objective should be calculated.  This
 	  is an experimental feature and at present the default is
 	  \code{FALSE}.  In the future we may use the analytic Hessian in

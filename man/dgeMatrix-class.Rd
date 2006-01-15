@@ -73,9 +73,6 @@
      non-negative values.}
     \item{\code{Dimnames}:}{a list of length two - inherited from class
       \code{Matrix}, see \code{\link{Matrix-class}}.}
-    \item{\code{rcond}:}{Object of class \code{"numeric"} - an estimate
-      of the reciprocal of the condition number, if it has been computed
-      at some point.}
     \item{\code{factors}:}{Object of class \code{"list"} - a list
       of factorizations of the matrix.}
   }

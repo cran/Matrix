@@ -1,6 +1,7 @@
 \name{ddiMatrix-class}
 \docType{class}
 \alias{ddiMatrix-class}
+\alias{coerce,ddiMatrix,dgeMatrix-method}
 \alias{\%*\%,ddiMatrix,ddiMatrix-method}
 \alias{crossprod,ddiMatrix,ddiMatrix-method}
 \alias{tcrossprod,ddiMatrix,ddiMatrix-method}

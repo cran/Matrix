@@ -247,7 +247,8 @@ try_as <- function(x, classes, tryAnyway = FALSE) {
     if(ok) as(x, classes[1]) else x
 }
 
-## MM thinks the following should become part of 'methods' :
+if(paste(R.version$major, R.version$minor, sep=".") < "2.3")
+    ## This will be in R 2.3.0
 canCoerce <- function(object, Class) {
   ## Purpose:  test if 'object' is coercable to 'Class', i.e.,
   ##	       as(object, Class) will {typically} work
@@ -259,3 +260,22 @@ canCoerce <- function(object, Class) {
 			 useInherited = c(from = TRUE, to = FALSE)))
 }
 
+.is.triangular <- function(object, upper = TRUE) {
+    ## pretest: is it square?
+    d <- dim(object)
+    if(d[1] != d[2]) return(FALSE)
+    ## else slower test
+    if(!is.matrix(object))
+        object <- as(object,"matrix")
+    ## == 0 even works for logical & complex:
+    if(upper)
+        all(object[lower.tri(object)] == 0)
+    else
+        all(object[upper.tri(object)] == 0)
+}
+
+.is.diagonal <- function(object) {
+    d <- dim(object)
+    if(d[1] != (n <- d[2])) FALSE
+    else all(object[rep(c(FALSE, rep.int(TRUE,n)), length = n^2)] == 0)
+}

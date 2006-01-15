@@ -1,6 +1,6 @@
 
-R : Copyright 2005, The R Foundation for Statistical Computing
-Version 2.2.0 beta (2005-09-27 r35689)
+R : Copyright 2006, The R Foundation for Statistical Computing
+Version 2.2.1 Patched (2006-01-15 r37092)
 ISBN 3-900051-07-0
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -12,7 +12,7 @@ Type 'contributors()' for more information and
 'citation()' on how to cite R or R packages in publications.
 
 Type 'demo()' for some demos, 'help()' for on-line help, or
-'help.start()' for a HTML browser interface to help.
+'help.start()' for an HTML browser interface to help.
 Type 'q()' to quit R.
 
 > #### For both 'Extract' ("[") and 'Replace' ("[<-") Method testing
@@ -24,6 +24,8 @@ Type 'q()' to quit R.
 > ### Dense Matrices
 > 
 > m <- Matrix(1:28, nrow = 7)
+Warning message:
+integer matrices not yet implemented in 'Matrix'; using 'double' ones' in: Matrix(1:28, nrow = 7) 
 > validObject(m) ; m@x <- as.double(m@x) ; validObject(m)
 [1] TRUE
 [1] TRUE
@@ -107,8 +109,8 @@ Formal class 'dgCMatrix' [package "Matrix"] with 6 slots
   ..@ Dimnames:List of 2
   .. ..$ : NULL
   .. ..$ : NULL
-  ..@ factors : list()
   ..@ x       : num [1:200] 3 7 12 22 25 30 38 39 42 45 ...
+  ..@ factors : list()
 > str(mT <- as(m, "dgTMatrix"))
 Formal class 'dgTMatrix' [package "Matrix"] with 6 slots
   ..@ i       : int [1:200] 2 6 11 21 24 29 37 38 1 4 ...
@@ -117,8 +119,8 @@ Formal class 'dgTMatrix' [package "Matrix"] with 6 slots
   ..@ Dimnames:List of 2
   .. ..$ : NULL
   .. ..$ : NULL
-  ..@ factors : list()
   ..@ x       : num [1:200] 3 7 12 22 25 30 38 39 42 45 ...
+  ..@ factors : list()
 > stopifnot(identical(mT, as(mC, "dgTMatrix")),
 + 	  identical(mC, as(mT, "dgCMatrix")))
 > 

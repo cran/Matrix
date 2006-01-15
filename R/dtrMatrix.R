@@ -3,6 +3,20 @@
 setAs("dtrMatrix", "dgeMatrix",
       function(from) .Call("dtrMatrix_as_dgeMatrix", from, PACKAGE = "Matrix"))
 
+## or rather setIs() {since test can fail ?}
+setAs("dgeMatrix", "dtrMatrix",
+      function(from) {
+          ## FIXME: also check for unit-diagonal: 'diag = "U"'
+	  if(isTriangular(from, upper = TRUE))
+	      new("dtrMatrix", x = from@x, Dim = from@Dim, uplo = "U",
+		  Dimnames = from@Dimnames)
+	  else if(isTriangular(from, upper = FALSE))
+	      new("dtrMatrix", x = from@x, Dim = from@Dim, uplo = "L",
+		  Dimnames = from@Dimnames)
+	  else stop("not a triangular matrix")
+      })
+
+
 setAs("dtrMatrix", "dtpMatrix",
       function(from) .Call("dtrMatrix_as_dtpMatrix", from, PACKAGE = "Matrix"))
 
@@ -39,10 +53,11 @@ setMethod("%*%", signature(x = "matrix", y = "dtrMatrix"),
           valueClass = "dgeMatrix")
 
 setMethod("%*%", signature(x = "dtrMatrix", y = "dtrMatrix"),
-	  function(x, y) callNextMethod())
+	  function(x, y) callGeneric(x = x, y = as(y, "dgeMatrix")),
+          valueClass = "dgeMatrix")
 
 setMethod("crossprod", signature(x = "dtrMatrix", y = "missing"),
-	  function(x, y = NULL) callNextMethod(),
+	  function(x, y = NULL) callGeneric(x = as(x, "dgeMatrix")),
 	  valueClass = "dpoMatrix")
 
 setMethod("determinant", signature(x = "dtrMatrix", logarithm = "missing"),

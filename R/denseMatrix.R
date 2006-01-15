@@ -11,6 +11,21 @@ setAs("denseMatrix", "dsparseMatrix",
 ## setAs("denseMatrix", "dgTMatrix",
 ##       function(from) as(as(from, "dgeMatrix"), "dgTMatrix"))
 
+setAs("denseMatrix", "CsparseMatrix",
+      function(from) {
+	  if(!is(from, "generalMatrix")) { ## e.g. for triangular | symmetric
+              ## FIXME: this is a *waste* in the case of packed matrices!
+	      if     (is(from, "dMatrix")) from <- as(from, "dgeMatrix")
+	      else if(is(from, "lMatrix")) from <- as(from, "lgeMatrix")
+	      else if(is(from, "zMatrix")) from <- as(from, "zgeMatrix")
+	      else stop("undefined method for class ", class(from))
+	  }
+	  .Call("dense_to_Csparse", from, PACKAGE = "Matrix")
+      })
+
+setAs("denseMatrix", "TsparseMatrix",
+      function(from) as(as(from, "CsparseMatrix"), "TsparseMatrix"))
+
 
 setMethod("show", signature(object = "denseMatrix"),
           function(object) prMatrix(object))
@@ -79,7 +94,7 @@ setReplaceMethod("[", signature(x = "denseMatrix", i = "index", j = "index",
                  })
 
 
-## not exported:
+## not yet exported (from R 2.3.0)
 setMethod("isSymmetric", signature(object = "denseMatrix"),
 	  function(object, tol = 100*.Machine$double.eps) {
 	      ## pretest: is it square?
@@ -93,8 +108,15 @@ setMethod("isSymmetric", signature(object = "denseMatrix"),
 		  ## test for exact equality; FIXME(?): identical() too strict?
 		  identical(as(object, "lgeMatrix"),
 			    as(t(object), "lgeMatrix"))
-	      else stop("not yet implemented")
+	      else if (is(object, "zMatrix"))
+                  stop("'zMatrix' not yet implemented")
+	      else if (is(object, "iMatrix"))
+                  stop("'iMatrix' not yet implemented")
 	  })
 
-setAs("denseMatrix", "CsparseMatrix",
-      function(from) .Call("dense_to_Csparse", from, PACKAGE = "Matrix"))
+setMethod("isTriangular", signature(object = "triangularMatrix"),
+          function(object) TRUE)
+
+setMethod("isTriangular", signature(object = "denseMatrix"), .is.triangular)
+
+setMethod("isDiagonal", signature(object = "denseMatrix"), .is.diagonal)

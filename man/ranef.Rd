@@ -7,6 +7,7 @@
 \alias{ranef-methods}
 \alias{ranef,ANY-method}
 \alias{ranef,lmer-method}
+\alias{ranef,mer-method}
 \title{Extract Random Effects}
 \usage{
 ranef(object, \dots)

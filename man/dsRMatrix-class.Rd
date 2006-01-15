@@ -65,7 +65,7 @@ Class \code{"Matrix"}, by class \code{"dgRMatrix"}.
 \examples{
 m0 <- new("dsRMatrix")
 ## FIXME: print() fails
-m2 <- new("dsRMatrix", x = 1:4, Dim = as.integer(c(2,2)))
+m2 <- new("dsRMatrix", x = 0+1:4, Dim = as.integer(c(2,2)))
 ## FIXME: print() fails
 str(m2)
 if(FALSE)## FIXME

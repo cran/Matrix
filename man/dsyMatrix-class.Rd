@@ -10,10 +10,12 @@
 \alias{coerce,dspMatrix,dsyMatrix-method}
 \alias{coerce,dspMatrix,lspMatrix-method}
 \alias{coerce,dspMatrix,matrix-method}
+\alias{coerce,dgeMatrix,dsyMatrix-method}% or rather setIs?
 \alias{coerce,dsyMatrix,dgeMatrix-method}
 \alias{coerce,dsyMatrix,dspMatrix-method}
 \alias{coerce,dsyMatrix,lsyMatrix-method}
 \alias{coerce,dsyMatrix,matrix-method}
+\alias{coerce,matrix,dsyMatrix-method}
 \alias{show,dsyMatrix-method}
 \alias{dspMatrix-class}
 \alias{dsyMatrix-class}
@@ -55,9 +57,6 @@
     \item{\code{Dim},\code{Dimnames}:}{The dimension (a length-2
       \code{"integer"}) and corresponding names (or \code{NULL}), see the
       \code{\link{Matrix-class}}.}
-    \item{\code{rcond}:}{Object of class \code{"numeric"}. A named
-      numeric vector of reciprocal condition numbers in either the
-      1-norm \code{"O"} or the infinity norm \code{"I"}.}
     \item{\code{factors}:}{Object of class \code{"list"}.  A named
       list of factorizations that have been computed for the matrix.}
   }

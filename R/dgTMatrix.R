@@ -13,6 +13,31 @@ setAs("dgTMatrix", "matrix",
 setAs("dgeMatrix", "dgTMatrix",
       function(from) as(as(from, "dgCMatrix"), "dgTMatrix"))
 
+setAs("dgTMatrix", "dsCMatrix",
+      function(from) {
+          if (!isSymmetric(from))
+              stop("cannot coerce non-symmetric dgTMatrix to dsCMatrix class")
+          upper <- from@i <= from@j
+          uC <- as(new("dgTMatrix", Dim = from@Dim, i = from@i[upper],
+                       j = from@j[upper], x = from@x[upper]), "dgCMatrix")
+          new("dsCMatrix", Dim = uC@Dim, p = uC@p, i = uC@i, x = uC@x, uplo = "U")
+      })
+
+setAs("dgTMatrix", "dtTMatrix",
+      function(from) gt2tT(from, uplo = from@uplo, diag = from@diag))
+
+setAs("matrix", "dgTMatrix",
+      function(from) {
+	  x <- as.double(from)
+	  nz <- as.logical(x)
+	  new("dgTMatrix", Dim = dim(from),
+	      i = row(from)[nz] - 1:1,
+	      j = col(from)[nz] - 1:1,
+	      x = x[nz])
+      })
+
+
+
 ## "[" methods are now in ./Tsparse.R
 
 setMethod("crossprod", signature(x = "dgTMatrix", y = "missing"),
@@ -85,26 +110,6 @@ setMethod("+", signature(e1 = "dgTMatrix", e2 = "dgTMatrix"),
 setMethod("t", signature(x = "dgTMatrix"),
           function(x)
           new("dgTMatrix", i = x@j, j = x@i, x = x@x, Dim = rev(x@Dim)))
-
-setAs("dgTMatrix", "dsCMatrix",
-      function(from) {
-          if (!isSymmetric(from))
-              stop("cannot coerce non-symmetric dgTMatrix to dsCMatrix class")
-          upper <- from@i <= from@j
-          uC <- as(new("dgTMatrix", Dim = from@Dim, i = from@i[upper],
-                       j = from@j[upper], x = from@x[upper]), "dgCMatrix")
-          new("dsCMatrix", Dim = uC@Dim, p = uC@p, i = uC@i, x = uC@x, uplo = "U")
-      })
-
-setAs("matrix", "dgTMatrix",
-      function(from) {
-	  x <- as.double(from)
-	  nz <- as.logical(x)
-	  new("dgTMatrix", Dim = dim(from),
-	      i = row(from)[nz] - 1:1,
-	      j = col(from)[nz] - 1:1,
-	      x = x[nz])
-      })
 
 setMethod("kronecker", signature(X = "dgTMatrix", Y = "dgTMatrix"),
           function (X, Y, FUN = "*", make.dimnames = FALSE, ...)

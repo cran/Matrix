@@ -225,7 +225,6 @@ SEXP csc_to_dgeMatrix(SEXP x)
 
     SET_SLOT(ans, Matrix_DimSym, duplicate(Dimslot));
     SET_SLOT(ans, Matrix_xSym, allocVector(REALSXP, nrow*ncol));
-    SET_SLOT(ans, Matrix_rcondSym, allocVector(REALSXP, 0));
     SET_SLOT(ans, Matrix_factorSym, allocVector(VECSXP, 0));
     ax = REAL(GET_SLOT(ans, Matrix_xSym));
     for (j = 0; j < (nrow * ncol); j++) ax[j] = 0.;
@@ -337,8 +336,9 @@ SEXP csc_getDiag(SEXP x)
 SEXP csc_transpose(SEXP x)
 {
     cholmod_sparse *chx = as_cholmod_sparse(x);
-    SEXP ans = chm_sparse_to_SEXP(cholmod_transpose(chx, 1, &c), 1);
-    free(chx);/* since as_cholmod_sparse() malloc()s */
+    SEXP ans =
+	chm_sparse_to_SEXP(cholmod_transpose(chx, 1, &c), 1);
+    Free(chx);
     return ans;
 }
 

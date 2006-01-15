@@ -14,8 +14,8 @@ SEXP symmetricMatrix_validate(SEXP obj)
 
 SEXP dsyMatrix_validate(SEXP obj)
 {
-    return symmetricMatrix_validate(obj);
-    /* see ./dspMatrix.c  for how to do further checks */
+    /* since "dsy" inherits from "symmetric", and "dMatrix", only need this:*/
+    return dense_nonpacked_validate(obj);
 }
 
 double get_norm_sy(SEXP obj, char *typstr)
@@ -38,36 +38,23 @@ SEXP dsyMatrix_norm(SEXP obj, SEXP type)
     return ScalarReal(get_norm_sy(obj, CHAR(asChar(type))));
 }
 
-static
-double set_rcond_sy(SEXP obj, char *typstr)
-{
-    char typnm[] = {'\0', '\0'};
-    SEXP rcv = GET_SLOT(obj, Matrix_rcondSym);
-    double rcond;
-
-    typnm[0] = rcond_type(typstr);
-    rcond = get_double_by_name(rcv, typnm);
-
-    if (R_IsNA(rcond)) {
-	SEXP trf = dsyMatrix_trf(obj);
-	int *dims = INTEGER(GET_SLOT(obj, Matrix_DimSym)), info;
-	double anorm = get_norm_sy(obj, "O");
-
-	F77_CALL(dsycon)(uplo_P(trf), dims,
-			 REAL   (GET_SLOT(trf, Matrix_xSym)), dims,
-			 INTEGER(GET_SLOT(trf, Matrix_permSym)),
-			 &anorm, &rcond,
-			 (double *) R_alloc(2*dims[0], sizeof(double)),
-			 (int *) R_alloc(dims[0], sizeof(int)), &info);
-	SET_SLOT(obj, Matrix_rcondSym,
-		 set_double_by_name(rcv, rcond, typnm));
-    }
-    return rcond;
-}
 
 SEXP dsyMatrix_rcond(SEXP obj, SEXP type)
 {
-    return ScalarReal(set_rcond_sy(obj, CHAR(asChar(type))));
+    SEXP trf = dsyMatrix_trf(obj);
+    char typnm[] = {'\0', '\0'};
+    int *dims = INTEGER(GET_SLOT(obj, Matrix_DimSym)), info;
+    double anorm = get_norm_sy(obj, "O");
+    double rcond;
+
+    typnm[0] = rcond_type(CHAR(asChar(type)));
+    F77_CALL(dsycon)(uplo_P(trf), dims,
+		     REAL   (GET_SLOT(trf, Matrix_xSym)), dims,
+		     INTEGER(GET_SLOT(trf, Matrix_permSym)),
+		     &anorm, &rcond,
+		     (double *) R_alloc(2*dims[0], sizeof(double)),
+		     (int *) R_alloc(dims[0], sizeof(int)), &info);
+    return ScalarReal(rcond);
 }
 
 static
@@ -98,7 +85,6 @@ SEXP dsyMatrix_solve(SEXP a)
     SET_SLOT(val, Matrix_uploSym, duplicate(GET_SLOT(trf, Matrix_uploSym)));
     SET_SLOT(val, Matrix_xSym, duplicate(GET_SLOT(trf, Matrix_xSym)));
     SET_SLOT(val, Matrix_DimSym, duplicate(GET_SLOT(trf, Matrix_DimSym)));
-    SET_SLOT(val, Matrix_rcondSym, duplicate(GET_SLOT(a, Matrix_rcondSym)));
     F77_CALL(dsytri)(uplo_P(val), dims,
 		     REAL(GET_SLOT(val, Matrix_xSym)), dims,
 		     INTEGER(GET_SLOT(trf, Matrix_permSym)),
@@ -151,12 +137,9 @@ SEXP dsyMatrix_matrix_solve(SEXP a, SEXP b)
 
 SEXP dsyMatrix_as_dgeMatrix(SEXP from)
 {
-    SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dgeMatrix"))),
-	rcondSym = Matrix_rcondSym;
+    SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dgeMatrix")));
 
-    SET_SLOT(val, Matrix_rcondSym, allocVector(REALSXP, 0));
     SET_SLOT(val, Matrix_factorSym, allocVector(VECSXP, 0));
-    SET_SLOT(val, rcondSym, duplicate(GET_SLOT(from, rcondSym)));
     SET_SLOT(val, Matrix_xSym, duplicate(GET_SLOT(from, Matrix_xSym)));
     SET_SLOT(val, Matrix_DimSym,
 	     duplicate(GET_SLOT(from, Matrix_DimSym)));
@@ -193,7 +176,6 @@ SEXP dsyMatrix_dgeMatrix_mm(SEXP a, SEXP b)
     if (m < 1 || n < 1 || k < 1)
 	error(_("Matrices with zero extents cannot be multiplied"));
     SET_SLOT(val, Matrix_factorSym, allocVector(VECSXP, 0));
-    SET_SLOT(val, Matrix_rcondSym, allocVector(REALSXP, 0));
     SET_SLOT(val, Matrix_xSym, allocVector(REALSXP, m * n));
     SET_SLOT(val, Matrix_DimSym, allocVector(INTSXP, 2));
     cdims = INTEGER(GET_SLOT(val, Matrix_DimSym));
@@ -219,7 +201,6 @@ SEXP dsyMatrix_dgeMatrix_mm_R(SEXP a, SEXP b)
 	error(_("Matrices are not conformable for multiplication"));
     if (m < 1 || n < 1 || k < 1)
 	error(_("Matrices with zero extents cannot be multiplied"));
-    SET_SLOT(val, Matrix_rcondSym, allocVector(REALSXP, 0));
     SET_SLOT(val, Matrix_factorSym, allocVector(VECSXP, 0));
     SET_SLOT(val, Matrix_xSym, allocVector(REALSXP, m * n));
     SET_SLOT(val, Matrix_DimSym, allocVector(INTSXP, 2));
@@ -270,8 +251,6 @@ SEXP dsyMatrix_as_dspMatrix(SEXP from)
 	dimP = GET_SLOT(from, Matrix_DimSym);
     int n = *INTEGER(dimP);
 
-    SET_SLOT(val, Matrix_rcondSym,
-	     duplicate(GET_SLOT(from, Matrix_rcondSym)));
     SET_SLOT(val, Matrix_DimSym, duplicate(dimP));
     SET_SLOT(val, Matrix_uploSym, duplicate(uplo));
     full_to_packed_double(

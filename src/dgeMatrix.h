@@ -4,6 +4,8 @@
 #include <R_ext/Lapack.h>
 #include "Mutils.h"
 
+SEXP dMatrix_validate(SEXP obj);
+
 SEXP dgeMatrix_validate(SEXP obj);
 SEXP dgeMatrix_norm(SEXP obj, SEXP norm);
 SEXP dgeMatrix_rcond(SEXP obj, SEXP type);

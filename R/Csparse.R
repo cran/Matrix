@@ -24,8 +24,28 @@ setMethod("%*%", signature(x = "CsparseMatrix", y = "CsparseMatrix"),
 setMethod("%*%", signature(x = "CsparseMatrix", y = "denseMatrix"),
           function(x, y) .Call("Csparse_dense_prod", x, y, PACKAGE = "Matrix"))
 
+
+## FIXME: the is(*,"generalMatrix") test at least makes these work,
+##        but they are still ``wrong'', since triangularity is lost  :
+
 setAs("CsparseMatrix", "TsparseMatrix",
-      function(from) .Call("Csparse_to_Tsparse", from, PACKAGE = "Matrix"))
+      function(from) {
+	  if(!is(from, "generalMatrix")) { ## e.g. for triangular | symmetric
+	      if     (is(from, "dMatrix")) from <- as(from, "dgCMatrix")
+	      else if(is(from, "lMatrix")) from <- as(from, "lgCMatrix")
+	      else if(is(from, "zMatrix")) from <- as(from, "zgCMatrix")
+	      else stop("undefined method for class ", class(from))
+	  }
+          .Call("Csparse_to_Tsparse", from, PACKAGE = "Matrix")
+      })
 
 setAs("CsparseMatrix", "denseMatrix",
-      function(from) .Call("Csparse_to_dense", from, PACKAGE = "Matrix"))
+      function(from) {
+	  if(!is(from, "generalMatrix")) { ## e.g. for triangular | symmetric
+	      if     (is(from, "dMatrix")) from <- as(from, "dgCMatrix")
+	      else if(is(from, "lMatrix")) from <- as(from, "lgCMatrix")
+	      else if(is(from, "zMatrix")) from <- as(from, "zgCMatrix")
+	      else stop("undefined method for class ", class(from))
+	  }
+          .Call("Csparse_to_dense", from, PACKAGE = "Matrix")
+      })

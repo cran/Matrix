@@ -39,31 +39,18 @@ SEXP dppMatrix_chol(SEXP x)
     return set_factors(x, val, "pCholesky");
 }
 
-static
-double set_rcond(SEXP obj, char *typstr)
-{
-    char typnm[] = {'O', '\0'};	/* always use the one norm */
-    SEXP rcv = GET_SLOT(obj, Matrix_rcondSym);
-    double rcond = get_double_by_name(rcv, typnm);
-
-    if (R_IsNA(rcond)) {
-        SEXP Chol = dppMatrix_chol(obj);
-	int *dims = INTEGER(GET_SLOT(Chol, Matrix_DimSym)), info;
-	double anorm = get_norm_sp(obj, typnm);
-
-	F77_CALL(dppcon)(uplo_P(Chol), dims,
-			 REAL(GET_SLOT(Chol, Matrix_xSym)), &anorm, &rcond,
-			 (double *) R_alloc(3*dims[0], sizeof(double)),
-			 (int *) R_alloc(dims[0], sizeof(int)), &info);
-	SET_SLOT(obj, Matrix_rcondSym,
-		 set_double_by_name(rcv, rcond, typnm));
-    }
-    return rcond;
-}
-
 SEXP dppMatrix_rcond(SEXP obj, SEXP type)
 {
-    return ScalarReal(set_rcond(obj, CHAR(asChar(type))));
+    SEXP Chol = dppMatrix_chol(obj);
+    char typnm[] = {'O', '\0'};	/* always use the one norm */
+    int *dims = INTEGER(GET_SLOT(Chol, Matrix_DimSym)), info;
+    double anorm = get_norm_sp(obj, typnm), rcond;
+
+    F77_CALL(dppcon)(uplo_P(Chol), dims,
+		     REAL(GET_SLOT(Chol, Matrix_xSym)), &anorm, &rcond,
+		     (double *) R_alloc(3*dims[0], sizeof(double)),
+		     (int *) R_alloc(dims[0], sizeof(int)), &info);
+    return ScalarReal(rcond);
 }
 
 SEXP dppMatrix_solve(SEXP x)

@@ -1,11 +1,9 @@
 #include "dgeMatrix.h"
 
-SEXP dgeMatrix_validate(SEXP obj)
+SEXP dMatrix_validate(SEXP obj)
 {
     SEXP x = GET_SLOT(obj, Matrix_xSym),
-	Dim = GET_SLOT(obj, Matrix_DimSym),
-	fact = GET_SLOT(obj, Matrix_factorSym),
-	rc = GET_SLOT(obj, Matrix_rcondSym);
+	Dim = GET_SLOT(obj, Matrix_DimSym);
     int m, n;
 
     if (length(Dim) != 2)
@@ -13,14 +11,21 @@ SEXP dgeMatrix_validate(SEXP obj)
     m = INTEGER(Dim)[0]; n = INTEGER(Dim)[1];
     if (m < 0 || n < 0)
 	return mkString(_("Negative value(s) in Dim"));
-    if (length(x) != m * n)
-	return mkString(_("length of x slot != prod(Dim)"));
     if (!isReal(x))
 	return mkString(_("x slot must be numeric \"double\""));
+    return ScalarLogical(1);
+}
+
+SEXP dgeMatrix_validate(SEXP obj)
+{
+    SEXP val,
+	fact = GET_SLOT(obj, Matrix_factorSym);
+
+    if (isString(val = dense_nonpacked_validate(obj)))
+	return(val);
+
     if (length(fact) > 0 && getAttrib(fact, R_NamesSymbol) == R_NilValue)
 	return mkString(_("factors slot must be named list"));
-    if (length(rc) > 0 && getAttrib(rc, R_NamesSymbol) == R_NilValue)
-	return mkString(_("rcond slot must be named numeric vector"));
     return ScalarLogical(1);
 }
 
@@ -45,35 +50,23 @@ SEXP dgeMatrix_norm(SEXP obj, SEXP type)
     return ScalarReal(get_norm(obj, CHAR(asChar(type))));
 }
 
-static
-double set_rcond(SEXP obj, char *typstr)
-{
-    char typnm[] = {'\0', '\0'};
-    SEXP rcv = GET_SLOT(obj, Matrix_rcondSym);
-    double rcond = get_double_by_name(rcv, typnm);
-
-    typnm[0] = rcond_type(typstr);
-    if (R_IsNA(rcond)) {
-        SEXP LU = dgeMatrix_LU(obj);
-	int *dims = INTEGER(GET_SLOT(LU, Matrix_DimSym)), info;
-	double anorm = get_norm(obj, typstr);
-
-	if (dims[0] != dims[1] || dims[0] < 1)
-            error(_("rcond requires a square, non-empty matrix"));
-	F77_CALL(dgecon)(typnm,
-			 dims, REAL(GET_SLOT(LU, Matrix_xSym)),
-			 dims, &anorm, &rcond,
-			 (double *) R_alloc(4*dims[0], sizeof(double)),
-			 (int *) R_alloc(dims[0], sizeof(int)), &info);
-	SET_SLOT(obj, Matrix_rcondSym,
-		 set_double_by_name(rcv, rcond, typnm));
-    }
-    return rcond;
-}
-
 SEXP dgeMatrix_rcond(SEXP obj, SEXP type)
 {
-  return ScalarReal(set_rcond(obj, CHAR(asChar(type))));
+    SEXP LU = dgeMatrix_LU(obj);
+    char typnm[] = {'\0', '\0'};
+    int *dims = INTEGER(GET_SLOT(LU, Matrix_DimSym)), info;
+    double anorm, rcond;
+
+    if (dims[0] != dims[1] || dims[0] < 1)
+	error(_("rcond requires a square, non-empty matrix"));
+    typnm[0] = rcond_type(CHAR(asChar(type)));
+    anorm = get_norm(obj, typnm);
+    F77_CALL(dgecon)(typnm,
+		     dims, REAL(GET_SLOT(LU, Matrix_xSym)),
+		     dims, &anorm, &rcond,
+		     (double *) R_alloc(4*dims[0], sizeof(double)),
+		     (int *) R_alloc(dims[0], sizeof(int)), &info);
+    return ScalarReal(rcond);
 }
 
 SEXP dgeMatrix_crossprod(SEXP x, SEXP trans)
@@ -105,7 +98,6 @@ SEXP dgeMatrix_dgeMatrix_crossprod(SEXP x, SEXP y, SEXP trans)
     int xd = xDims[ tr], yd = yDims[ tr];/* the conformable dims */
     double one = 1.0, zero = 0.0;
 
-    SET_SLOT(val, Matrix_rcondSym, allocVector(REALSXP, 0));
     SET_SLOT(val, Matrix_factorSym, allocVector(VECSXP, 0));
     SET_SLOT(val, Matrix_DimSym, allocVector(INTSXP, 2));
     vDims = INTEGER(GET_SLOT(val, Matrix_DimSym));
@@ -137,7 +129,6 @@ SEXP dgeMatrix_matrix_crossprod(SEXP x, SEXP y, SEXP trans)
 
     if (!(isMatrix(y) && isReal(y)))
 	error(_("Argument y must be a numeric (real) matrix"));
-    SET_SLOT(val, Matrix_rcondSym, allocVector(REALSXP, 0));
     SET_SLOT(val, Matrix_factorSym, allocVector(VECSXP, 0));
     SET_SLOT(val, Matrix_DimSym, allocVector(INTSXP, 2));
     vDims = INTEGER(GET_SLOT(val, Matrix_DimSym));

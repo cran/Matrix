@@ -1,7 +1,7 @@
 \name{mcmcsamp}
 \docType{genericFunction}
 \alias{mcmcsamp}
-\alias{mcmcsamp,lmer-method}
+\alias{mcmcsamp,mer-method}
 \title{Generate an MCMC sample}
 \description{
   This generic function generates a sample from the posterior

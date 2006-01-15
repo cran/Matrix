@@ -30,6 +30,10 @@ setAs("dtTMatrix", "matrix",
 setAs("dtTMatrix", "dgeMatrix",
       function(from) as(as(from, "dtrMatrix"), "dgeMatrix"))
 
+setAs("matrix", "dtTMatrix",
+      function(from) as(as(from, "dtpMatrix"), "dtTMatrix"))
+
+
 setMethod("t", signature(x = "dtTMatrix"),
           function(x)
           new("dtTMatrix", Dim = rev(x@Dim), diag = x@diag,

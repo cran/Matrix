@@ -2,6 +2,7 @@
 \docType{class}
 \alias{diagonalMatrix-class}
 \alias{coerce,matrix,diagonalMatrix-method}
+\alias{coerce,diagonalMatrix,generalMatrix-method}
 \alias{coerce,diagonalMatrix,triangularMatrix-method}
 \alias{coerce,diagonalMatrix,matrix-method}
 \alias{coerce,Matrix,diagonalMatrix-method}

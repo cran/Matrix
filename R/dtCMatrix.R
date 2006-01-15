@@ -7,6 +7,9 @@ setAs("dtCMatrix", "ltCMatrix",
                          uplo = from@uplo, diag = from@diag,
                          Dim = from@Dim, Dimnames = from@Dimnames))
 
+setAs("matrix", "dtCMatrix",
+      function(from) as(as(from, "dtTMatrix"), "dtCMatrix"))
+
 setAs("dtCMatrix", "dgCMatrix",
       function(from) {
           if(from@diag == "U") { ## add diagonal of 1's
@@ -25,3 +28,18 @@ setAs("dtCMatrix", "dgTMatrix",
 
 setAs("dtCMatrix", "dgeMatrix",
       function(from) as(as(from, "dgTMatrix"), "dgeMatrix"))
+
+## These are all needed because cholmod doesn't support triangular:
+## (see end of ./Csparse.R )
+setAs("dtCMatrix", "dtTMatrix",
+      function(from) {# and this is not elegant:
+          x <- as(from, "dgTMatrix")
+          ## FIXME: if(from@diag == "U") should drop diagonal entries:
+          new("dtTMatrix", x = x@x, i = x@i, j = x@j,
+              Dim = x@Dim, Dimnames = x@Dimnames,
+              uplo = from@uplo, diag = "N")
+      })
+
+setAs("dtCMatrix", "TsparseMatrix", function(from) as(from, "dtTMatrix"))
+setAs("dtCMatrix", "dtrMatrix",
+      function(from) as(as(from, "dtTMatrix"), "dtrMatrix"))

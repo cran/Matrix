@@ -17,19 +17,38 @@ setMethod("as.vector", signature(x = "Matrix", mode = "missing"),
           function(x) as.vector(as(x, "matrix")))
 
 
-## Note that isSymmetric is *not* exported ---
-### but also note that "base" eigen may get an isSymmetric() that *would* be exported!
+## Note that isSymmetric is *not* exported
+## but that "base" has an isSymmetric() S3-generic since R 2.3.0
 setMethod("isSymmetric", signature(object = "symmetricMatrix"),
           function(object,tol) TRUE)
 setMethod("isSymmetric", signature(object = "triangularMatrix"),
-          ## FIXME: 'TRUE' if *diagonal*, i.e. return(isDiagonal(object))
-          function(object,tol) FALSE)
-
-setMethod("isDiagonal", signature(object = "sparseMatrix"),
-          function(object) {
-              gT <- as(object, "TsparseMatrix")
-              all(gT@i == gT@j)
+          ## TRUE iff diagonal:
+          function(object,tol) isDiagonal(object))
+if(paste(R.version$major, R.version$minor, sep=".") < "2.3")
+    ## need a "matrix" method as in R 2.3 and later
+    setMethod("isSymmetric", signature(object = "matrix"),
+              function(object, tol = 100*.Machine$double.eps, ...)
+          {
+              ## pretest: is it square?
+              d <- dim(object)
+              if(d[1] != d[2]) return(FALSE)
+              test <-
+                  if(is.complex(object))
+                      all.equal.numeric(object, Conj(t(object)), tol = tol, ...)
+                  else              # numeric, character, ..
+                      all.equal(object, t(object), tol = tol, ...)
+              isTRUE(test)
           })
+
+
+setMethod("isTriangular", signature(object = "triangularMatrix"),
+          function(object,tol) TRUE)
+setMethod("isTriangular", signature(object = "matrix"),
+          .is.triangular)
+
+setMethod("isDiagonal", signature(object = "matrix"), .is.diagonal)
+
+
 
 setMethod("dim", signature(x = "Matrix"),
 	  function(x) x@Dim, valueClass = "integer")
@@ -54,20 +73,20 @@ setMethod("unname", signature("Matrix", force="missing"),
 
 Matrix <-
     function (data = NA, nrow = 1, ncol = 1, byrow = FALSE, dimnames = NULL,
-              sparse = NULL)
+	      sparse = NULL)
 {
     sparseDefault <- function(m)
-        prod(dim(m)) > 2*sum(as(m, "matrix") != 0)
+	prod(dim(m)) > 2*sum(as(m, "matrix") != 0)
 
     i.M <- is(data, "Matrix")
     if(is.null(sparse) && (i.M || is(data, "matrix")))
-        sparse <- sparseDefault(data)
+	sparse <- sparseDefault(data)
 
     if (i.M) {
-        sM <- is(data,"sparseMatrix")
-        if((sparse && sM) || (!sparse && !sM))
-            return(data)
-        ## else : convert  dense <-> sparse -> at end
+	sM <- is(data,"sparseMatrix")
+	if((sparse && sM) || (!sparse && !sM))
+	    return(data)
+	## else : convert  dense <-> sparse -> at end
     }
     else if (!is.matrix(data)) { ## cut & paste from "base::matrix" :
 	if (missing(nrow))
@@ -75,20 +94,55 @@ Matrix <-
 	else if (missing(ncol))
 	    ncol <- ceiling(length(data)/nrow)
 	data <- .Internal(matrix(data, nrow, ncol, byrow))
-        if(is.null(sparse))
-            sparse <- sparseDefault(data)
+	if(is.null(sparse))
+	    sparse <- sparseDefault(data)
 	dimnames(data) <- dimnames
     }
 
     ## 'data' is now a "matrix" or "Matrix"
-    ## FIXME: consider it's type (logical,....)
-    ## ctype <- substr(class(data), 1,1) # "d", "l", ...
-    ## FIXME(2): check for symmetric / triangular / ...
+
+    ## check for symmetric / triangular / diagonal :
+    isSym <- isSymmetric(data)
+    if((isTri <- !isSym))
+	isTri <- isTriangular(data)
+    isDiag <- isSym # cannot be diagonal if it isn't symmetric
+    if(isDiag)
+	isDiag <- isDiagonal(data)
+
 ### TODO: Compare with as.Matrix() and its tests in ./dgeMatrix.R
-    if(sparse)
-        as(data, "dgCMatrix")
-    else
-        as(data, "dgeMatrix")
+
+    ## Find proper matrix class 'cl'
+    cl <-
+	if(isDiag)
+	    "diagonalMatrix" # -> will automatically check for type
+	else {
+	    ## consider it's type
+	    ctype <-
+		if(is(data,"Matrix")) class(data)
+		else {
+		    if("complex" == (ctype <- typeof(data)))
+			"z" else ctype
+		}
+	    ctype <- substr(ctype, 1,1) # "d", "l", "i" or "z"
+	    if(ctype == "z")
+		stop("complex matrices not yet implemented in Matrix package")
+	    if(ctype == "i") {
+		warning("integer matrices not yet implemented in 'Matrix'; ",
+			"using 'double' ones'")
+		ctype <- "d"
+	    }
+	    paste(ctype,
+		  if(sparse) {
+		      if(isSym) "sCMatrix" else
+		      if(isTri) "tCMatrix" else "gCMatrix"
+		  } else { ## dense
+		      if(isSym) "syMatrix" else
+		      if(isTri) "trMatrix" else "geMatrix"
+		  }, sep="")
+	}
+
+    ## Now coerce and return
+    as(data, cl)
 }
 
 ## Methods for operations where one argument is numeric

@@ -3,15 +3,20 @@
 \alias{dtCMatrix-class}
 \alias{dtTMatrix-class}
 \alias{coerce,dtCMatrix,dgCMatrix-method}
-\alias{coerce,dtCMatrix,dgTMatrix-method}
 \alias{coerce,dtCMatrix,dgeMatrix-method}
+\alias{coerce,dtCMatrix,dgTMatrix-method}
+\alias{coerce,dtCMatrix,dtTMatrix-method}
+\alias{coerce,dtCMatrix,dtrMatrix-method}
 \alias{coerce,dtCMatrix,ltCMatrix-method}
+\alias{coerce,dtCMatrix,TsparseMatrix-method}
 \alias{coerce,dtTMatrix,dgTMatrix-method}
 \alias{coerce,dtTMatrix,dgeMatrix-method}
 \alias{coerce,dtTMatrix,dtCMatrix-method}
 \alias{coerce,dtTMatrix,dtrMatrix-method}
 \alias{coerce,dtTMatrix,ltTMatrix-method}
 \alias{coerce,dtTMatrix,matrix-method}
+\alias{coerce,matrix,dtCMatrix-method}
+\alias{coerce,matrix,dtTMatrix-method}
 \alias{t,dtCMatrix-method}
 \alias{t,dtTMatrix-method}
 \title{Triangular, (compressed) sparse column matrices}
@@ -43,8 +48,6 @@
       \code{dtTMatrix} class.)}
     \item{\code{x}:}{Object of class \code{"numeric"} - the non-zero
       elements of the matrix.}
-    \item{\code{factors}:}{Object of class \code{"list"} - a list
-      of factorizations of the matrix. }
     \item{\code{Dim},\code{Dimnames}:}{The dimension (a length-2
       \code{"integer"}) and corresponding names (or \code{NULL}),
       inherited from the \code{\link{Matrix-class}}, see there.}

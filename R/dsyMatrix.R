@@ -3,13 +3,18 @@
 setAs("dsyMatrix", "dgeMatrix",
       function(from) .Call("dsyMatrix_as_dgeMatrix", from, PACKAGE = "Matrix"))
 
-## I can't get this to work - at least inside Namespace -- FIXME
-## setIs("dgeMatrix", "dsyMatrix",
-##       ## R BUG:  test() doesn't see Matrix-internal functions
-##       test = function(from) Matrix:::isSymmetric(from),
-##       replace = function(obj, value) ## copy all slots
-##       for(n in slotNames(obj)) slot(obj, n) <- slot(value, n)
-##       )
+## or rather setIs() {since test can fail ?}
+setAs("dgeMatrix", "dsyMatrix",
+      function(from) {
+	  if(isSymmetric(from))
+	      new("dsyMatrix", x = from@x, Dim = from@Dim,
+		  Dimnames = from@Dimnames, factors = from@factors)
+	  else stop("not a symmetric matrix")
+      })
+
+setAs("matrix", "dsyMatrix",
+      function(from) as(as(from, "dgeMatrix"), "dsyMatrix"))
+
 
 setAs("dsyMatrix", "matrix",
       function(from) .Call("dsyMatrix_as_matrix", from, PACKAGE = "Matrix"))

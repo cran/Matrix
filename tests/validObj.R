@@ -15,8 +15,8 @@ assertError( new("dgeMatrix", Dim = as.integer(c(2,2)), x= as.double(1:5)))
 
 chk.matrix(m1 <- Matrix(1:6, ncol=2))
 chk.matrix(m2 <- Matrix(1:7, ncol=3)) # a (desired) warning
-stopifnot(unique(is(m1)) == c("dgeMatrix", "ddenseMatrix",
-	    "dMatrix", "denseMatrix", "Matrix"),
+stopifnot(unique(is(m1)) == c("dgeMatrix", "ddenseMatrix", "generalMatrix",
+	    "dMatrix", "denseMatrix", "Matrix", "compMatrix"),
 	  dim(t(m1)) == 2:3,
 	  identical(m1, t(t(m1))))
 c.nam <- paste("C",1:2, sep='')
@@ -38,14 +38,12 @@ chk.matrix(dcm <- as(cm, "dgeMatrix"))
 chk.matrix(mcm <- as(cm, "dMatrix"))
 ##BUG - FIXME: stopifnot(identical(dcm, mcm))
 ##---	------	mcm[2,1] is garbage
-try( chk.matrix(as(cm, "Matrix")) )# gives an error: "Matrix" has NULL 'dim()'
+chk.matrix(as(cm, "Matrix"))
 
 ## Cholesky
 chk.matrix(ch <- chol(cm))
-#if(FALSE)# fails for Doug in R-devel (2005-06-06) :
 chk.matrix(ch2 <- chol(as(cm, "dsyMatrix")))
 #not yet{FIXME}: chk.matrix(ch3 <- chol(as(cm, "dgeMatrix")))
-#if(FALSE)# ...R-devel
 stopifnot(all.equal(as(ch, "matrix"), as(ch2, "matrix")))
 
 ### Very basic	triangular matrix stuff
@@ -64,7 +62,6 @@ stopifnot(identical(10 * tPt, tPt * 10),
 	  (t.22 <- (tr22 / .5)* .5)@x == c(1,0,3,4),
 	  TRUE) ## not yet: class(t.22) == "dtrMatrix")
 
-
 ## non-square triagonal Matrices --- are forbidden ---
-try(tru <- new("dtrMatrix", Dim = 2:3,
-	       x=as.double(1:6), uplo="L", diag="U"))
+assertError(new("dtrMatrix", Dim = 2:3,
+                x=as.double(1:6), uplo="L", diag="U"))

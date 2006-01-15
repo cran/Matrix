@@ -5,11 +5,14 @@
 setAs("ltCMatrix", "matrix",
       function(from) as(as(from, "dtCMatrix"), "matrix"))
 
-setAs("ltCMatrix", "dtCMatrix",
+setAs("ltCMatrix", "dMatrix", # < instead of "dtCMatrix"
       function(from) new("dtCMatrix", i = from@i, p = from@p,
                          x = rep.int(1, length(from@i)), uplo = from@uplo,
                          diag = from@diag,
                          Dim = from@Dim, Dimnames = from@Dimnames))
+
+## setAs("ltCMatrix", "generalMatrix",
+##       function(from) ......)
 
 setMethod("image", "ltCMatrix",
           function(x, ...) {

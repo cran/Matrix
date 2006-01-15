@@ -28,6 +28,10 @@ Matrix(data=NA, nrow=1, ncol=1, byrow=FALSE, dimnames=NULL,
   If either of \code{nrow} or \code{ncol} is not given, an attempt is
   made to infer it from the length of \code{data} and the other
   parameter.
+  Further, \code{Matrix()} makes efforts to keep \code{\link{logical}}
+  matrices logical, i.e., inheriting from \code{\link{lMatrix-class}},
+  and to determine specially structured matrices such as symmetric,
+  triangular or diagonal ones.
 
   Although it is sometime possible to mix unclassed matrices (created
   with \code{matrix}) with ones of class \code{"Matrix"}, it is much
@@ -35,7 +39,11 @@ Matrix(data=NA, nrow=1, ncol=1, byrow=FALSE, dimnames=NULL,
   \code{"Matrix"}.
 }
 \seealso{
-  \code{\link{Matrix-class}}; \code{\link{matrix}}.
+  \code{\link{Matrix-class}};
+  \code{\link{symmetricMatrix-class}},
+  \code{\link{triangularMatrix-class}},
+  \code{\link{diagonalMatrix-class}};
+  \code{\link{matrix}}.
 }
 \examples{
 Matrix(0, 3, 2)             # 3 by 2 matrix of zeros -> sparse

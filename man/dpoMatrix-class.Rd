@@ -3,8 +3,10 @@
 \docType{class}
 \alias{dpoMatrix-class}
 \alias{dppMatrix-class}
+\alias{correlation-class}
 %
 \alias{coerce,dpoMatrix,dppMatrix-method}
+\alias{coerce,dpoMatrix,correlation-method}
 \alias{coerce,dppMatrix,dpoMatrix-method}
 \alias{rcond,dpoMatrix,character-method}
 \alias{rcond,dppMatrix,character-method}
@@ -45,17 +47,15 @@
     \item{\code{Dim}:}{Object of class \code{"integer"}. The dimensions
       of the matrix which must be a two-element vector of non-negative
       integers.}
-    \item{\code{rcond}:}{Object of class \code{"numeric"}. A named
-      numeric vector of reciprocal condition numbers in either the
-      1-norm \code{"O"} or the infinity norm \code{"I"}.}
+    \item{\code{Dimnames}:}{inherited from class \code{"Matrix"}}
     \item{\code{factors}:}{Object of class \code{"list"}.  A named
       list of factorizations that have been computed for the matrix.}
   }
 }
 \section{Extends}{
-Class \code{"dsyMatrix"}, directly.
-Class \code{"dgeMatrix"}, by class \code{"dsyMatrix"}.
-Class \code{"Matrix"}, by class \code{"dsyMatrix"}.
+  Class \code{"dsyMatrix"}, directly.\cr
+  Classes \code{"dgeMatrix"}, \code{"symmetricMatrix"}, and many more
+  by class \code{"dsyMatrix"}.
 }
 \section{Methods}{
   \describe{

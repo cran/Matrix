@@ -27,8 +27,6 @@
     \item{\code{p}:}{Object of class \code{"integer"} of pointers, one
       for each row, to the initial (zero-based) index of elements in
       the row. (Only present in the \code{dsRMatrix} class.)}
-    \item{\code{factors}:}{Object of class \code{"list"} - a list
-      of factorizations of the matrix. }
     \item{\code{x}:}{Object of class \code{"numeric"} - the non-zero
       elements of the matrix.}
     \item{\code{Dim}:}{The dimension (a length-2 \code{"integer"})}
@@ -64,7 +62,7 @@ Class \code{"Matrix"}, by class \code{"dgRMatrix"}.
 \examples{
 m0 <- new("dtRMatrix")
 ## FIXME: show() fails
-m2 <- new("dtRMatrix", x = 1:4, Dim = as.integer(c(2,2)))
+m2 <- new("dtRMatrix", x = 0+ 0:3, Dim = as.integer(c(2,2)))
 str(m2)
 if(FALSE)# FIXME: missing coerce
 str(m3 <- as(Matrix(diag(2)), "dtRMatrix"))

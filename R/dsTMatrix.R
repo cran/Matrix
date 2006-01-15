@@ -1,4 +1,4 @@
-  ### Coercion and Methods for Symmetric Triplet Matrices
+### Coercion and Methods for Symmetric Triplet Matrices
 
 setAs("dsTMatrix", "dsCMatrix",
       function(from)

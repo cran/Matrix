@@ -5,6 +5,16 @@ library(Matrix)
 
 source(system.file("test-tools.R", package = "Matrix"))# identical3() etc
 
+### Matrix() ''smartness''
+(d4 <- Matrix(diag(4)))
+(z4 <- Matrix(0*diag(4)))
+(o4 <- Matrix(1+diag(4)))
+(m4 <- Matrix(cbind(0,rbind(6*diag(3),0))))
+dm4 <- Matrix(m4, sparse = FALSE)
+stopifnot(validObject(d4), validObject(z4), validObject(o4),
+          validObject(m4), validObject(dm4))
+assert.EQ.mat(dm4, as(m4, "matrix"))
+
 ###--  Sparse Triangular :
 
 (t1 <- new("dtTMatrix", x= c(3,7), i= 0:1, j=3:2,

@@ -19,11 +19,11 @@ stopifnot(identical(kappa(Matrix(2:5, 2)),
 
 ## also matplot() or pairs().
 
-### outer() works thanks to  as.array() :
+m <- Matrix(0:5, 3, 2)
+(m2 <- Matrix(diag(c(3,1))))
+(m3 <- crossprod(t(m)))
+### outer() works thanks to  as.array() -- up to R 2.2.1
 ## Doesn't work in R-2.3.0 because the definition of outer has changed
-##m <- Matrix(0:5, 3, 2)
-##(m2 <- Matrix(diag(c(3,1))))
-##(m3 <- crossprod(t(m)))
 ##stopifnot(identical(outer(m, m2),
 ##                    outer(as(m,"matrix"), as(m2,"matrix"))),
 ##          identical(outer(m3, m2),

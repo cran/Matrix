@@ -11,10 +11,6 @@ setAs("dgCMatrix", "matrix",
 setAs("dgCMatrix", "dgeMatrix",
       function(from) .Call("csc_to_dgeMatrix", from, PACKAGE = "Matrix"))
 
-setAs("dgCMatrix", "dgBCMatrix",
-      function(from) new("dgBCMatrix", p = from@p, i = from@i,
-                         x = array(from@x, c(1, 1, length(from@x)))))
-
 setAs("dgCMatrix", "lgCMatrix",
       function(from) new("lgCMatrix", i = from@i, p = from@p,
                          Dim = from@Dim, Dimnames = from@Dimnames))

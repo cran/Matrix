@@ -15,7 +15,7 @@ str(f9 <- as(chol(h9), "dtrMatrix"))
 stopifnot(names(h9@factors) == "Cholesky",
           all.equal(rcond(h9), 9.0938e-13),
           all.equal(rcond(f9), 9.1272e-7, tol = 1e-6))# more precision fails
-str(h9)# has 'rcond' and 'factors'
+str(h9)# has 'factors'
 options(digits=4)
 (cf9 <- crossprod(f9))# looks the same as  h9 :
 stopifnot(all.equal(as.matrix(h9),

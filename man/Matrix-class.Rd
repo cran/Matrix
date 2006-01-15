@@ -50,10 +50,6 @@
     \item{\code{Dimnames}:}{list of length two; each component
       containing NULL or a \code{\link{character}} vector length
       equal the corresponding \code{Dim} element.}
-    \item{\code{factors}:}{Object of class \code{"list"} - a list
-      of factorizations of the matrix.  Note that this is typically
-      empty, i.e. \code{list()} initially and is updated automagically
-      whenever a matrix factorization is computed.}
   }
 }
 \section{Methods}{

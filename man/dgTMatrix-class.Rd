@@ -5,6 +5,7 @@
 \alias{coerce,dgTMatrix,dgCMatrix-method}
 \alias{coerce,dgTMatrix,dgeMatrix-method}
 \alias{coerce,dgTMatrix,dsCMatrix-method}
+\alias{coerce,dgTMatrix,dtTMatrix-method}
 \alias{coerce,dgTMatrix,matrix-method}
 \alias{coerce,dgeMatrix,dgTMatrix-method}
 \alias{coerce,matrix,dgTMatrix-method}

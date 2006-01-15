@@ -28,13 +28,11 @@ factorizations.o: factorizations.c factorizations.h Mutils.h Syms.h
 dtCMatrix.o: dtCMatrix.c dtCMatrix.h Mutils.h Syms.h dgCMatrix.h \
   R_ldl.h triplet_to_col.h
 lmer.o: lmer.c lmer.h Mutils.h Syms.h \
-  triplet_to_col.h dgBCMatrix.h R_ldl.h \
+  triplet_to_col.h R_ldl.h \
   dgCMatrix.h Metis_utils.h \
   dsCMatrix.h dtCMatrix.h lgCMatrix.h lCholCMatrix.h
 dense.o: dense.c dense.h Mutils.h Syms.h
 R_ldl.o: R_ldl.c R_ldl.h 
-dgBCMatrix.o: dgBCMatrix.c dgBCMatrix.h Mutils.h Syms.h \
-  R_ldl.h triplet_to_col.h
 dgeMatrix.o: dgeMatrix.c dgeMatrix.h \
   Mutils.h Syms.h
 triplet_to_col.o: triplet_to_col.c triplet_to_col.h
@@ -59,14 +57,12 @@ init.o: init.c Mutils.h Syms.h \
   CHOLMOD/Include/cholmod_partition.h \
   CHOLMOD/Include/cholmod_supernodal.h \
   CHOLMOD/Include/cholmod_matrixops.h CHOLMOD/Include/cholmod_modify.h \
-  Csparse.h Tsparse.h dense.h \
-  dgBCMatrix.h R_ldl.h \
+  Csparse.h Tsparse.h dense.h R_ldl.h \
   dgCMatrix.h dgTMatrix.h dgeMatrix.h dpoMatrix.h dppMatrix.h dsCMatrix.h \
   dsTMatrix.h dspMatrix.h dsyMatrix.h dtCMatrix.h dtTMatrix.h dtrMatrix.h \
   dtpMatrix.h factorizations.h lCholCMatrix.h lgCMatrix.h lgTMatrix.h \
   lsCMatrix.h Metis_utils.h ltCMatrix.h lmer.h \
-  Metis_utils.c \
-  Metis/metis.h Metis/defs.h \
+  Metis_utils.c Metis/metis.h Metis/defs.h \
   Metis/struct.h Metis/macros.h Metis/rename.h Metis/proto.h \
   Metis_utils.h Mutils.h \
   Syms.h

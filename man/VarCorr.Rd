@@ -1,6 +1,7 @@
 \name{VarCorr}
 \docType{genericFunction}
 \alias{VarCorr}
+\alias{VarCorr,mer-method}
 \title{Extract variance and correlation components}
 \usage{
 VarCorr(x, \dots)

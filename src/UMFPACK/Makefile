@@ -2,8 +2,8 @@
 
 # compile just the C-callable library
 lib:
-	( cd Source ; make lib )
+	( cd Source ; $(MAKE) lib )
 
 # remove object files and library
 clean:
-	( cd Source ; make clean )
+	( cd Source ; $(MAKE) clean )

@@ -6,7 +6,7 @@ include Win.mk
 #       |-> gnuwin32/MkRules
 
 BLAS_LIBS=-lRblas
-LAPACK_LIBS=-L$(RHOME)/src/gnuwin32 -L$(RHOME)/lib -lRlapack
+LAPACK_LIBS=-L$(RHOME)/src/gnuwin32 -L$(RHOME)/bin -lRlapack
 CPPFLAGS=$(PKG_CPPFLAGS) -I$(RHOME)/include
 CFLAGS=$(CPPFLAGS) $(DEBUGFLAG) -O2 $(PKG_CFLAGS)
 CXXFLAGS=$(CPPFLAGS) $(DEBUGFLAG) -O2 $(PKG_CXXFLAGS)

@@ -9,12 +9,12 @@
   crossed grouping factors for the random effects.
 }
 \usage{
-lmer(formula, data, family, method,
-     control, start, subset, weights, na.action, offset,
+lmer(formula, data, family, method, control, start,
+     subset, weights, na.action, offset, contrasts,
      model, x, y, \dots)
 
 \S4method{lmer}{formula}(formula, data, family, method,
-    control, start, subset, weights, na.action, offset,
+    control, start, subset, weights, na.action, offset, contrasts,
     model, x, y, \dots)
 }
 \arguments{
@@ -50,11 +50,12 @@ lmer(formula, data, family, method,
     effects.  This has the same form as the slot \code{"Omega"} in a
     fitted model.  Only the upper triangle of these symmetric matrices
     should be stored.}
-  \item{subset, weights, na.action, offset}{further model specification
-    arguments as in \code{\link[stats]{lm}}; see there for details.}
+  \item{subset, weights, na.action, offset, contrasts}{further model
+    specification arguments as in \code{\link[stats]{lm}}; see there for
+    details.}
   \item{model, x, y}{logicals indicating if the corresponding model component
-    should be returned.  Note that \code{x} and \code{y} are not yet
-    implemented.}
+    should be returned.  Note that \code{x} and \code{y} default to
+    \code{TRUE} for these models.  Changing either of these would be unwise.}
   \item{\dots}{potentially further arguments for methods.  Currently
     none are used.}
   }

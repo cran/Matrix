@@ -87,7 +87,7 @@
   \code{\link{dgeMatrix-class}}, \code{\link{dgCMatrix-class}}, and
   \code{\link{Matrix}} for construction (and examples).
 }
-\example{
+\examples{
 slotNames("Matrix")
 
 cl <- getClass("Matrix")

@@ -174,11 +174,11 @@ setMethod("terms", signature(x = "lmer"),
 
 
 setMethod("lmer", signature(formula = "formula"),
-          function(formula, data, family,
+          function(formula, data, family = gaussian,
                    method = c("REML", "ML", "PQL", "Laplace", "AGQ"),
                    control = list(), start,
-                   subset, weights, na.action, offset,
-                   model = TRUE, x = FALSE, y = FALSE , ...)
+                   subset, weights, na.action, offset, contrasts = NULL,
+                   model = TRUE, x = TRUE, y = TRUE , ...)
       {
           ## match and check parameters
           if (length(formula) < 3) stop("formula must be a two-sided formula")
@@ -188,9 +188,9 @@ setMethod("lmer", signature(formula = "formula"),
           ## that frame.  Otherwise missing values in the grouping factors
           ## cause inconsistent numbers of observations.
           mf <- match.call()
-          m <- match(c("family", "data", "subset", "weights",
+          m <- match(c("data", "subset", "weights",
                        "na.action", "offset"), names(mf), 0)
-          mf <- fe <- mf[c(1, m)]
+          mf <- mf[c(1, m)]
           frame.form <- subbars(formula) # substitute `+' for `|'
           fixed.form <- nobars(formula)  # remove any terms with `|'
           if (inherits(fixed.form, "name")) # RHS is empty - use a constant
@@ -199,22 +199,53 @@ setMethod("lmer", signature(formula = "formula"),
 
           ## evaluate a model frame for fixed and random effects
           mf$formula <- frame.form
-          mf$family <- NULL
           mf$drop.unused.levels <- TRUE
           mf[[1]] <- as.name("model.frame")
-          frm <- eval(mf, parent.frame())
+          fe <- mf
+          mf <- eval(mf, parent.frame())
 
-          ## fit a glm model to the fixed formula
+          ## get the terms for the fixed-effects only
           fe$formula <- fixed.form
-          fe$subset <- NULL             # subset has already been created in call to data.frame
-          fe$data <- frm
-          fe$x <- fe$model <- fe$y <- TRUE
-          fe[[1]] <- as.name("glm")
-          glm.fit <- eval(fe, parent.frame())
-          x <- glm.fit$x
-          y <- as.double(glm.fit$y)
-          family <- glm.fit$family
+          fe <- eval(fe, parent.frame())
+          mt <- attr(fe, "terms")   # allow model.frame to update them
+          ## response vector
+          Y <- model.response(mf, "numeric")
+          ## avoid problems with 1D arrays, but keep names
+          if(length(dim(Y)) == 1) {
+              nm <- rownames(Y)
+              dim(Y) <- NULL
+              if(!is.null(nm)) names(Y) <- nm
+          }
+          ## null model support
+          X <- if (!is.empty.model(mt)) model.matrix(mt, mf, contrasts) else matrix(,NROW(Y),0)
+          
+          weights <- model.weights(mf)
+          offset <- model.offset(mf)
+          ## check weights and offset
+          if( !is.null(weights) && any(weights < 0) )
+              stop("negative weights not allowed")
+          if(!is.null(offset) && length(offset) != NROW(Y))
+              stop(gettextf("number of offsets is %d should equal %d (number of observations)", length(offset), NROW(Y)), domain = NA)
+          if (is.null(weights)) weights <- rep.int(1, length(Y))
+          if (is.null(offset)) offset <- numeric(length(Y))
+          
+          ## fit a glm model to the fixed formula
+##           fe$formula <- fixed.form
+##           fe$subset <- NULL             # subset has already been created in call to data.frame
+##           fe$data <- frm
+##           fe$x <- fe$model <- fe$y <- TRUE
+##           fe[[1]] <- as.name("glm")
+##           glmFit <- eval(fe, parent.frame())
+##           x <- glmFit$x
+##           y <- as.double(glmFit$y)
 
+          if(is.character(family))
+              family <- get(family, mode = "function", envir = parent.frame())
+          if(is.function(family)) family <- family()
+          if(is.null(family$family)) {
+              print(family)
+              stop("'family' not recognized")
+          }
           ## check for a linear mixed model
           lmm <- family$family == "gaussian" && family$link == "identity"
           if (lmm) { # linear mixed model
@@ -244,7 +275,7 @@ setMethod("lmer", signature(formula = "formula"),
           fl <- lapply(bars,
                        function(x)
                        eval(substitute(as.factor(fac)[,drop = TRUE],
-                                       list(fac = x[[3]])), frm))
+                                       list(fac = x[[3]])), mf))
           ## order factor list by decreasing number of levels
           nlev <- sapply(fl, function(x) length(levels(x)))
           if (any(diff(nlev) > 0)) {
@@ -256,37 +287,44 @@ setMethod("lmer", signature(formula = "formula"),
           Ztl <- lapply(bars, function(x)
                         t(model.matrix(eval(substitute(~ expr,
                                                        list(expr = x[[2]]))),
-                                       frm)))
-          ## Create the mixed-effects representation (mer) object
-          mer <- .Call("mer_create", fl,
-                       .Call("Zt_create", fl, Ztl, PACKAGE = "Matrix"),
-                       x, y, method, sapply(Ztl, nrow),
-                       c(lapply(Ztl, rownames), list(.fixed = colnames(x))),
-                       !(family$family %in% c("binomial", "poisson")),
-                       match.call(), family,
-                       PACKAGE = "Matrix")
+                                       mf)))
           if (lmm) {
+              ## Create the mixed-effects representation (mer) object
+              mer <- .Call("mer_create", fl,
+                           .Call("Zt_create", fl, Ztl, PACKAGE = "Matrix"),
+                           X, Y, method, sapply(Ztl, nrow),
+                           c(lapply(Ztl, rownames), list(.fixed = colnames(X))),
+                           !(family$family %in% c("binomial", "poisson")),
+                           match.call(), family,
+                           PACKAGE = "Matrix")
               .Call("mer_ECMEsteps", mer, cv$niterEM, cv$EMverbose, PACKAGE = "Matrix")
               LMEoptimize(mer) <- cv
               return(new("lmer", mer,
-                         frame = if (model) frm else data.frame(),
-                         terms = glm.fit$terms))
+                         frame = if (model) mf else data.frame(),
+                         terms = mt))
           }
 
           ## The rest of the function applies to generalized linear mixed models
           gVerb <- getOption("verbose")
-          eta <- glm.fit$linear.predictors
-          wts <- glm.fit$prior.weights
-          wtssqr <- wts * wts
-          offset <- glm.fit$offset
-          if (is.null(offset)) offset <- numeric(length(eta))
+          glmFit <- glm.fit(X, Y, weights = weights, offset = offset, family = family,
+                            intercept = attr(mt, "intercept") > 0)
+          eta <- glmFit$linear.predictors
+          Y <- as.double(glmFit$y)
+          wtssqr <- weights * weights
           linkinv <- quote(family$linkinv(eta))
           mu.eta <- quote(family$mu.eta(eta))
           mu <- family$linkinv(eta)
           variance <- quote(family$variance(mu))
-          dev.resids <- quote(family$dev.resids(y, mu, wtssqr))
+          dev.resids <- quote(family$dev.resids(Y, mu, wtssqr))
           LMEopt <- get("LMEoptimize<-")
           doLMEopt <- quote(LMEopt(x = mer, value = cv))
+          mer <- .Call("mer_create", fl,
+                       .Call("Zt_create", fl, Ztl, PACKAGE = "Matrix"),
+                       X, Y, method, sapply(Ztl, nrow),
+                       c(lapply(Ztl, rownames), list(.fixed = colnames(X))),
+                       !(family$family %in% c("binomial", "poisson")),
+                       match.call(), family,
+                       PACKAGE = "Matrix")
 
           GSpt <- .Call("glmer_init", environment(), PACKAGE = "Matrix")
           .Call("glmer_PQL", GSpt, PACKAGE = "Matrix")  # obtain PQL estimates
@@ -296,11 +334,11 @@ setMethod("lmer", signature(formula = "formula"),
               .Call("glmer_devLaplace", PQLpars, GSpt, PACKAGE = "Matrix")
               .Call("glmer_finalize", GSpt, PACKAGE = "Matrix")
               return(new("lmer", mer,
-                         frame = if (model) frm else data.frame(),
-                         terms = glm.fit$terms))
+                         frame = if (model) mf else data.frame(),
+                         terms = mt))
           }
 
-          fixInd <- seq(ncol(x))
+          fixInd <- seq(ncol(X))
           ## pars[fixInd] == beta, pars[-fixInd] == theta
           ## indicator of constrained parameters
           const <- c(rep(FALSE, length(fixInd)),
@@ -317,8 +355,8 @@ setMethod("lmer", signature(formula = "formula"),
                      iter.max = cv$msMaxIter))
           .Call("glmer_finalize", GSpt, PACKAGE = "Matrix")
           return(new("lmer", mer,
-                     frame = if (model) frm else data.frame(),
-                     terms = glm.fit$terms))
+                     frame = if (model) mf else data.frame(),
+                     terms = mt))
 
       })
 
@@ -729,10 +767,26 @@ setMethod("summary", signature(object = "mer"),
           )
 
 setMethod("update", signature(object = "mer"),
-          function(object, ...)
-          .NotYetImplemented()
-          )
-
+          function(object, formula., ..., evaluate = TRUE)
+      {
+          call <- object@call
+          if (is.null(call))
+              stop("need an object with call slot")
+          extras <- match.call(expand.dots = FALSE)$...
+          if (!missing(formula.))
+              call$formula <- update.formula(formula(object), formula.)
+          if (length(extras) > 0) {
+              existing <- !is.na(match(names(extras), names(call)))
+              for (a in names(extras)[existing]) call[[a]] <- extras[[a]]
+              if (any(!existing)) {
+                  call <- c(as.list(call), extras[!existing])
+                  call <- as.call(call)
+              }
+          }
+          if (evaluate)
+              eval(call, parent.frame())
+          else call
+      })
 
 simss <- function(fm0, fma, nsim)
 {

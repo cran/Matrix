@@ -1170,10 +1170,11 @@ SEXP glmer_init(SEXP rho) {
     GS->p = LENGTH(GET_SLOT(GS->mer, Matrix_rXySym));
     GS->y = Memcpy(Calloc(GS->n, double), REAL(y), GS->n);
     Ztx = GET_SLOT(GET_SLOT(GS->mer, Matrix_ZtSym), Matrix_xSym);
+    GS->eta = find_and_check(rho, install("eta"), REALSXP, GS->n);
     GS->mu = find_and_check(rho, install("mu"), REALSXP, GS->n);
     tmp = find_and_check(rho, install("offset"), REALSXP, GS->n);
     GS->offset = Memcpy(Calloc(GS->n, double), REAL(tmp), GS->n);
-    tmp = find_and_check(rho, install("wts"), REALSXP, GS->n);
+    tmp = find_and_check(rho, install("weights"), REALSXP, GS->n);
     GS->wts = Memcpy(Calloc(GS->n, double), REAL(tmp), GS->n);
     GS->etaold = Calloc(GS->n, double);
     GS->cv = find_and_check(rho, install("cv"), VECSXP, 0);
@@ -1184,7 +1185,6 @@ SEXP glmer_init(SEXP rho) {
     GS->nf = LENGTH(GET_SLOT(GS->mer, Matrix_flistSym));
     GS->npar = GS->p +
 	coef_length(GS->nf, INTEGER(GET_SLOT(GS->mer, Matrix_ncSym)));
-    GS->eta = find_and_check(rho, install("eta"), REALSXP, GS->n);
 
     GS->linkinv = find_and_check(rho, install("linkinv"),
 				 LANGSXP, 0);

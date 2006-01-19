@@ -7,6 +7,10 @@ options(show.signif.stars = FALSE)
 ## should produce a warning but fit by REML
 (fm1b <- lmer(Reaction ~ Days + (Days|Subject), sleepstudy, method = "AGQ"))
 
+## transformed vars [failed in 0.995-1]
+(fm2l <- lmer(log(Reaction) ~ log(Days+1) + (log(Days+1)|Subject),
+              data = sleepstudy, method = "ML"))
+
 ## generalized linear mixed model
 (fm3 <- lmer(decrease ~ treatment + (1|rowpos) + (1|colpos),
              OrchardSprays, family = poisson(), method = "PQL"))
@@ -16,8 +20,8 @@ options(show.signif.stars = FALSE)
              OrchardSprays, family = poisson()))
 
 ## Laplace approximation {takes time}
-## (fm4 <- lmer(decrease ~ treatment + (1|rowpos) + (1|colpos),
-##              OrchardSprays, poisson(), method = "Laplace"))
+(fm4 <- lmer(decrease ~ treatment + (1|rowpos) + (1|colpos),
+              OrchardSprays, poisson(), method = "Laplace"))
 
 ## Simple example by Andrew Gelman (2006-01-10) ----
 n.groups <- 10 ; n.reps <- 2

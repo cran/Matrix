@@ -66,10 +66,11 @@ if (!isGeneric("writeMM"))
 ## Hmm: If this does not match *exactly* the "formula" - method in ./lmer.R
 ## ---  the  match.call() in there may give a very different result
 setGeneric("lmer",
-           function(formula, data, family,
+           function(formula, data, family = gaussian,
                     method = c("REML", "ML", "PQL", "Laplace", "AGQ"),
                     control = list(), start, subset, weights, na.action,
-                    offset, model = TRUE, x = FALSE, y = FALSE,
+                    offset, contrasts = NULL, model = TRUE,
+                    x = TRUE, y = TRUE,
                     ...)
            standardGeneric("lmer"))
 

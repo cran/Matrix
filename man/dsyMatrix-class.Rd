@@ -10,6 +10,8 @@
 \alias{coerce,dspMatrix,dsyMatrix-method}
 \alias{coerce,dspMatrix,lspMatrix-method}
 \alias{coerce,dspMatrix,matrix-method}
+\alias{coerce,dgeMatrix,dspMatrix-method}
+\alias{coerce,matrix,dspMatrix-method}
 \alias{coerce,dgeMatrix,dsyMatrix-method}% or rather setIs?
 \alias{coerce,dsyMatrix,dgeMatrix-method}
 \alias{coerce,dsyMatrix,dspMatrix-method}

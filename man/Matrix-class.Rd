@@ -6,7 +6,7 @@
 \alias{\%*\%,Matrix,numeric-method}
 \alias{\%*\%,numeric,Matrix-method}
 \alias{\%*\%,Matrix,Matrix-method}
-% "[" are in ./Xtrct-methods.Rd
+% "[" are in ./Xtrct-methods.Rd <<<<<<<<
 \alias{cbind2,Matrix,Matrix-method}
 \alias{cbind2,Matrix,NULL-method}
 \alias{cbind2,Matrix,missing-method}

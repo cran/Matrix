@@ -24,15 +24,18 @@ setAs("dsTMatrix", "lsTMatrix",
                          Dim = from@Dim, Dimnames = from@Dimnames))
 
 
-## Conversion to dense storage is first to a dsyMatrix
+## Conversion <--> dense storage is via dsyMatrix :
 setAs("dsTMatrix", "dsyMatrix",
       function(from) .Call("dsTMatrix_as_dsyMatrix", from, PACKAGE = "Matrix"))
 
 setAs("dsTMatrix", "dgeMatrix",
       function(from) as(as(from, "dsyMatrix"), "dgeMatrix"))
-
 setAs("dsTMatrix", "matrix",
       function(from) as(as(from, "dsyMatrix"), "matrix"))
+
+to_dsT <- function(from) as(as(from, "dsyMatrix"), "dsTMatrix")
+setAs("dgeMatrix", "dsTMatrix", to_dsT)
+setAs("matrix",    "dsTMatrix", to_dsT)
 
 setMethod("t", signature(x = "dsTMatrix"),
           function(x)

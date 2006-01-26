@@ -3,11 +3,19 @@
 setAs("dspMatrix", "dsyMatrix",
       function(from) .Call("dspMatrix_as_dsyMatrix", from, PACKAGE = "Matrix"))
 
+## dge <--> dsp   via  dsy
 setAs("dspMatrix", "dgeMatrix",
       function(from) as(as(from, "dsyMatrix"), "dgeMatrix"))
+setAs("dgeMatrix", "dspMatrix",
+      function(from) as(as(from, "dsyMatrix"), "dspMatrix"))
 
+## S3-matrix <--> dsp   via  dsy
 setAs("dspMatrix", "matrix",
       function(from) as(as(from, "dsyMatrix"), "matrix"))
+setAs("matrix", "dspMatrix",
+      function(from) as(as(from, "dsyMatrix"), "dspMatrix"))
+
+
 
 setMethod("rcond", signature(x = "dspMatrix", type = "character"),
           function(x, type, ...)
@@ -89,12 +97,8 @@ setIs("dspMatrix", "dppMatrix",
       test = function(obj)
           "try-error" != class(try(.Call("dppMatrix_chol", obj, PACKAGE = "Matrix"), TRUE)),
       replace = function(obj, value) {
-          obj@uplo <- value@uplo
-          obj@rcond <- value@rcond
-          obj@factors <- value@factors
-          obj@x <- value@x
-          obj@Dim <- value@Dim
-          obj@Dimnames <- value@Dimnames
-          obj}
-      )
+          ## copy all slots
+          for(n in slotNames(obj)) slot(obj, n) <- slot(value, n)
+          obj
+      })
 

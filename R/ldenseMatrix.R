@@ -1,8 +1,27 @@
+#### "ldenseMatrix" - virtual class of logical dense matrices
+####  ------------
+#### Contains  lge*;  ltr*, ltp*;  lsy*, lsp*;   ldi*
+
+## Logical -> Double {of same structure}:
+
 setAs("lgeMatrix", "dgeMatrix", l2d_Matrix)
-setAs("ltrMatrix", "dtrMatrix", l2d_Matrix)
-setAs("ltpMatrix", "dtpMatrix", l2d_Matrix)
 setAs("lsyMatrix", "dsyMatrix", l2d_Matrix)
 setAs("lspMatrix", "dspMatrix", l2d_Matrix)
+setAs("ltrMatrix", "dtrMatrix", l2d_Matrix)
+setAs("ltpMatrix", "dtpMatrix", l2d_Matrix)
+
+## all need be coercable to "lgeMatrix":
+
+setAs("lsyMatrix", "lgeMatrix",  function(from)
+      .Call("lsyMatrix_as_lgeMatrix", from, PACKAGE = "Matrix"))
+setAs("ltrMatrix", "lgeMatrix",  function(from)
+      .Call("ltrMatrix_as_lgeMatrix", from, PACKAGE = "Matrix"))
+setAs("ltpMatrix", "lgeMatrix",
+      function(from) as(as(from, "ltrMatrix"), "lgeMatrix"))
+setAs("lspMatrix", "lgeMatrix",
+      function(from) as(as(from, "lsyMatrix"), "lgeMatrix"))
+
+## packed <->  non-packed :
 
 setAs("lspMatrix", "lsyMatrix",
       function(from)
@@ -20,11 +39,69 @@ setAs("ltrMatrix", "ltpMatrix",
       function(from)
       .Call("ltrMatrix_as_ltpMatrix", from, PACKAGE = "Matrix"))
 
-setAs("ldenseMatrix", "matrix",
-      function(from) as(as(from, sub("^l", "d", class(from))), "matrix"))
 
-setAs("matrix", "ldenseMatrix",
-      function(from) callGeneric(as(from, "lgeMatrix")))
+### -> symmetric :
+
+if(FALSE) ## cannot easily work around R bug  -- FIXME --
+setIs("lgeMatrix", "lsyMatrix",
+### BUG in R: this fails, because isSymmetric() is namespace hidden and NOT found
+##B      test = function(obj) isSymmetric(obj),
+##B and this fails too:
+##B      test = function(obj) Matrix:::isSymmetric(obj),
+      replace = function(obj, value) {
+          ## copy all slots
+          for(n in slotNames(obj)) slot(obj, n) <- slot(value, n)
+      })
+
+### Alternative (at least works):
+setAs("lgeMatrix", "lsyMatrix",
+      function(from) {
+	  if(isSymmetric(from))
+	      new("lsyMatrix", x = from@x, Dim = from@Dim,
+		  Dimnames = from@Dimnames, factors = from@factors)
+	  else stop("not a symmetric matrix")
+      })
+
+
+###  ldense* <-> "matrix" :
+
+## 1) "lge* :
+setAs("lgeMatrix", "matrix",
+      function(from) array(from@x, dim = from@Dim, dimnames = from@Dimnames))
+
+setAs("matrix", "lgeMatrix",
+      function(from) {
+	  new("lgeMatrix",
+	      x = as.logical(from),
+	      Dim = as.integer(dim(from)),
+	      Dimnames =
+	      if(!is.null(dn <- dimnames(from))) dn else list(NULL,NULL)
+	      )
+      })
+
+## 2) base others on "lge*":
+
+## Useful if this was called e.g. for as(*, "lsyMatrix"), but it isn't:
+setAs("matrix", "ldenseMatrix", function(from) as(from, "lgeMatrix"))
+setAs("matrix", "lsyMatrix",
+      function(from) as(as(from, "lgeMatrix"), "lsyMatrix"))
+
+setAs("ldenseMatrix", "matrix", ## uses the above l*M. -> lgeM.
+      function(from) as(as(from, "lgeMatrix"), "matrix"))
+
+## dense |-> compressed :
+
+setAs("lgeMatrix", "lgTMatrix",
+      function(from) {
+          ##  cheap but not so efficient:
+          ij <- which(as(from,"matrix"), arr.ind = TRUE) - 1:1
+          new("lgTMatrix", i = ij[,1], j = ij[,2],
+              Dim = from@Dim, Dimnames = from@Dimnames,
+              factors = from@factors)
+      })
+
+###----------------------------------------------------------------------
+
 
 setMethod("t", signature(x = "lgeMatrix"), t_geMatrix)
 setMethod("t", signature(x = "ltrMatrix"), t_trMatrix)
@@ -61,3 +138,8 @@ setMethod("!", "ltpMatrix", function(e1) !as(x, "ltrMatrix"))
 ## for the other ldense* ones:
 setMethod("!", "ldenseMatrix",
           function(e1) { e1@x <- !e1@x ; e1 })
+
+
+setMethod("as.vector", signature(x = "ldenseMatrix", mode = "missing"),
+          function(x) as(x, "lgeMatrix")@x)
+

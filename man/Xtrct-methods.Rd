@@ -2,7 +2,8 @@
 \docType{methods}
 \alias{[-methods}
 \title{Methods for "[": Extraction or Subsetting in Package 'Matrix'}
-%
+% NB: "[<-" are in ./Subassign-methods.Rd
+%                  ~~~~~~~~~~~~~~~~~~~~~~
 \alias{[,Matrix,missing,missing,ANY-method}
 \alias{[,Matrix,missing,index,missing-method}
 \alias{[,Matrix,index,missing,missing-method}

@@ -5,8 +5,10 @@
 
 SEXP lspMatrix_as_lsyMatrix(SEXP from);
 SEXP lsyMatrix_as_lspMatrix(SEXP from);
+SEXP lsyMatrix_as_lgeMatrix(SEXP from);
 SEXP ltpMatrix_as_ltrMatrix(SEXP from);
 SEXP ltrMatrix_as_ltpMatrix(SEXP from);
+SEXP ltrMatrix_as_lgeMatrix(SEXP from);
 
 #endif
 

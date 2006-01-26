@@ -7,8 +7,11 @@ SEXP tsc_validate(SEXP x)
     /* see ./dsCMatrix.c or ./dtpMatrix.c  on how to do more testing here */
 }
 
+#if 0    
 SEXP tsc_transpose(SEXP x)
 {
+    cholmod_sparse *cx = as_cholmod_sparse(x);
+    
     SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("dtCMatrix"))),
 	islot = GET_SLOT(x, Matrix_iSym);
     int nnz = length(islot),
@@ -31,6 +34,7 @@ SEXP tsc_transpose(SEXP x)
     UNPROTECT(1);
     return ans;
 }
+#endif
 
 SEXP tsc_to_dgTMatrix(SEXP x)
 {

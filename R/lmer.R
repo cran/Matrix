@@ -218,7 +218,7 @@ setMethod("lmer", signature(formula = "formula"),
           }
           ## null model support
           X <- if (!is.empty.model(mt)) model.matrix(mt, mf, contrasts) else matrix(,NROW(Y),0)
-          
+
           weights <- model.weights(mf)
           offset <- model.offset(mf)
           ## check weights and offset
@@ -228,7 +228,7 @@ setMethod("lmer", signature(formula = "formula"),
               stop(gettextf("number of offsets is %d should equal %d (number of observations)", length(offset), NROW(Y)), domain = NA)
           if (is.null(weights)) weights <- rep.int(1, length(Y))
           if (is.null(offset)) offset <- numeric(length(Y))
-          
+
           ## fit a glm model to the fixed formula
 ##           fe$formula <- fixed.form
 ##           fe$subset <- NULL             # subset has already been created in call to data.frame
@@ -447,6 +447,8 @@ setMethod("mcmcsamp", signature(object = "mer"),
               colnms[ptyp == 2] <-
                   paste("atanh(", colnms[ptyp == 2], ")", sep = "")
           }
+	  if(saveb) ## maybe better colnames, "RE.1","RE.2", ... ?
+	      colnms <- c(colnms, rep.int("", length(object@rZy)))
           colnames(ans) <- colnms
           ans
       })
@@ -809,7 +811,7 @@ if (FALSE) {
 ### AGQ for nc > 1 first.
     fxd <- PQLpars[fixInd]
     loglik <- logLik(mer)
-    
+
     if (method %in% c("Laplace", "AGQ")) {
         nAGQ <- 1
         if (method == "AGQ") {    # determine nAGQ at PQL estimates
@@ -838,7 +840,7 @@ if (FALSE) {
         fxd[] <- optpars[fixInd]  ## preserve the names
         .Call("lmer_coefGets", mer, optpars[-fixInd], 2, PACKAGE = "Matrix")
     }
-    
+
     .Call("glmer_finalize", GSpt, PACKAGE = "Matrix")
     loglik[] <- -deviance/2
-}    
+}

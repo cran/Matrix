@@ -57,25 +57,6 @@ SEXP dsyMatrix_rcond(SEXP obj, SEXP type)
     return ScalarReal(rcond);
 }
 
-static
-void make_symmetric(double *to, SEXP from, int n)
-{
-    int i, j;
-    if (*uplo_P(from) == 'U') {
-	for (j = 0; j < n; j++) {
-	    for (i = j+1; i < n; i++) {
-		to[i + j*n] = to[j + i*n];
-	    }
-	}
-    } else {
-	for (j = 1; j < n; j++) {
-	    for (i = 0; i < j && i < n; i++) {
-		to[i + j*n] = to[j + i*n];
-	    }
-	}
-    }
-}
-
 SEXP dsyMatrix_solve(SEXP a)
 {
     SEXP trf = dsyMatrix_trf(a);
@@ -143,8 +124,9 @@ SEXP dsyMatrix_as_dgeMatrix(SEXP from)
     SET_SLOT(val, Matrix_xSym, duplicate(GET_SLOT(from, Matrix_xSym)));
     SET_SLOT(val, Matrix_DimSym,
 	     duplicate(GET_SLOT(from, Matrix_DimSym)));
-    make_symmetric(REAL(GET_SLOT(val, Matrix_xSym)), from,
-		   INTEGER(GET_SLOT(val, Matrix_DimSym))[0]);
+    SET_SLOT(val, Matrix_DimNamesSym,
+	     duplicate(GET_SLOT(from, Matrix_DimNamesSym)));
+    make_d_matrix_symmetric(REAL(GET_SLOT(val, Matrix_xSym)), from);
     UNPROTECT(1);
     return val;
 }
@@ -154,9 +136,9 @@ SEXP dsyMatrix_as_matrix(SEXP from)
     int n = INTEGER(GET_SLOT(from, Matrix_DimSym))[0];
     SEXP val = PROTECT(allocMatrix(REALSXP, n, n));
 
-    make_symmetric(Memcpy(REAL(val),
-			  REAL(GET_SLOT(from, Matrix_xSym)), n * n),
-		   from, n);
+    make_d_matrix_symmetric(Memcpy(REAL(val),
+				   REAL(GET_SLOT(from, Matrix_xSym)), n * n),
+			    from);
     setAttrib(val, R_DimNamesSymbol, GET_SLOT(from, Matrix_DimNamesSym));
     UNPROTECT(1);
     return val;

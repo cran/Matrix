@@ -72,17 +72,25 @@ SEXP dgeMatrix_rcond(SEXP obj, SEXP type)
 SEXP dgeMatrix_crossprod(SEXP x, SEXP trans)
 {
     int tr = asLogical(trans);/* trans=TRUE: tcrossprod(x) */
-    SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dpoMatrix")));
+    SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dpoMatrix"))),
+	nms = VECTOR_ELT(GET_SLOT(x, Matrix_DimNamesSym), tr ? 0 : 1),
+	vDnms = ALLOC_SLOT(val, Matrix_DimNamesSym, VECSXP, 2);
     int *Dims = INTEGER(GET_SLOT(x, Matrix_DimSym)),
 	*vDims = INTEGER(ALLOC_SLOT(val, Matrix_DimSym, INTSXP, 2));
     int k = tr ? Dims[1] : Dims[0], n = tr ? Dims[0] : Dims[1];
-    double one = 1.0, zero = 0.0;
+    double *vx = REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, n * n)),
+	one = 1.0, zero = 0.0;
 
+    AZERO(vx, n * n);
     SET_SLOT(val, Matrix_uploSym, mkString("U"));
+    ALLOC_SLOT(val, Matrix_factorSym, VECSXP, 0);
     vDims[0] = vDims[1] = n;
+    SET_VECTOR_ELT(vDnms, 0, duplicate(nms));
+    SET_VECTOR_ELT(vDnms, 1, duplicate(nms));
     F77_CALL(dsyrk)("U", tr ? "N" : "T", &n, &k,
-		    &one, REAL(GET_SLOT(x, Matrix_xSym)), Dims, &zero,
-		    REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, n * n)), &n);
+		    &one, REAL(GET_SLOT(x, Matrix_xSym)), Dims,
+		    &zero, vx, &n);
+
     UNPROTECT(1);
     return val;
 }

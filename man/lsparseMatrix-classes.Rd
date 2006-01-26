@@ -33,9 +33,12 @@
 \alias{coerce,lsCMatrix,matrix-method}
 \alias{coerce,ltCMatrix,dtCMatrix-method}
 \alias{coerce,ltCMatrix,dMatrix-method}
+\alias{coerce,ltCMatrix,lgCMatrix-method}
 \alias{coerce,ltCMatrix,matrix-method}
+\alias{coerce,matrix,ltCMatrix-method}
 %
 \alias{coerce,ltTMatrix,dtTMatrix-method}
+\alias{coerce,ltTMatrix,lgTMatrix-method}
 \alias{coerce,ltTMatrix,matrix-method}
 %
 \alias{crossprod,lgCMatrix,missing-method}

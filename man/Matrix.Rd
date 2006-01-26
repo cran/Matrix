@@ -15,7 +15,8 @@ Matrix(data=NA, nrow=1, ncol=1, byrow=FALSE, dimnames=NULL,
   \item{byrow}{logical.  If \code{FALSE} (the default) the matrix is
     filled by columns, otherwise the matrix is filled by rows.}
   \item{dimnames}{a \code{\link{dimnames}} attribute for the matrix: a
-    \code{list} of two character components.}
+    \code{list} of two character components.  They are set if not
+    \code{\link{NULL}} (as per default).}
   \item{sparse}{logical or \code{NULL}, specifying if the result should
     be sparse or not.  By default, it is made sparse when more than half
     of the entries are 0.}
@@ -31,7 +32,9 @@ Matrix(data=NA, nrow=1, ncol=1, byrow=FALSE, dimnames=NULL,
   Further, \code{Matrix()} makes efforts to keep \code{\link{logical}}
   matrices logical, i.e., inheriting from \code{\link{lMatrix-class}},
   and to determine specially structured matrices such as symmetric,
-  triangular or diagonal ones.
+  triangular or diagonal ones.  Note that a \emph{symmetric} matrix also
+  needs symmetric \code{\link{dimnames}}, e.g., by specifying
+  \code{dimnames = list(NULL,NULL)}, see the examples.
 
   Although it is sometime possible to mix unclassed matrices (created
   with \code{matrix}) with ones of class \code{"Matrix"}, it is much
@@ -51,9 +54,21 @@ Matrix(0, 3, 2, sparse=FALSE)# forced 'dense'
 Matrix(1:6, 3, 2)           # a 3 by 2 matrix
 Matrix(1:6, nrow=3)
 Matrix(1:6, ncol=2)
+
+## logical ones:
+Matrix(diag(4) >  0)# -> "ldiMatrix" with diag = "U"
+Matrix(diag(4) >= 0)# -> "lsyMatrix"
+Matrix(upper.tri(matrix(,3,3)))# -> "ltCMatrix"
+
 Matrix(1:9, nrow=3,
        dimnames = list(c("a", "b", "c"), c("A", "B", "C")))
-Matrix(diag(3))# identity matrix (sparse)
+(I3 <- Matrix(diag(3)))# identity, i.e., unit "diagonalMatrix"
+str(I3) # note the empty 'x' slot
+
+(A <- cbind(a=c(2,1), b=1:2))# symmetric *apart* from dimnames
+Matrix(A)                    # hence 'dgeMatrix'
+(As <- Matrix(A, dimnames = list(NULL,NULL)))# -> symmetric
+stopifnot(is(As, "symmetricMatrix"))
 }
 \keyword{array}
 \keyword{algebra}

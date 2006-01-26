@@ -27,8 +27,20 @@ SEXP dtTMatrix_as_dtrMatrix(SEXP x)
     return val;
 }
 
-SEXP dtTMatrix_as_dtCMatrix(SEXP x)
+SEXP dtTMatrix_as_dgCMatrix(SEXP x)
 {
+    cholmod_triplet *tx = as_cholmod_triplet(x);
+    cholmod_sparse *cx = cholmod_triplet_to_sparse(tx, tx->nzmax, &c);
+    SEXP val = PROTECT(chm_sparse_to_SEXP(cx, 1)); /* cholmod_frees cx */
+
+
+    SET_SLOT(val, Matrix_DimSym, duplicate(GET_SLOT(x, Matrix_DimSym)));
+    SET_SLOT(val, Matrix_DimNamesSym, duplicate(GET_SLOT(x, Matrix_DimNamesSym)));
+    Free(tx);
+    UNPROTECT(1);
+    return val;
+
+#if 0
     SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dtCMatrix"))),
 	dimP = GET_SLOT(x, Matrix_DimSym),
 	xiP = GET_SLOT(x, Matrix_iSym);
@@ -52,5 +64,6 @@ SEXP dtTMatrix_as_dtCMatrix(SEXP x)
     Free(ti); Free(tx);
     UNPROTECT(1);
     return val;
+#endif
 }
 

@@ -6,8 +6,11 @@
 %
 \alias{coerce,lspMatrix,dspMatrix-method}
 \alias{coerce,lspMatrix,lsyMatrix-method}
+\alias{coerce,lspMatrix,lgeMatrix-method}
 \alias{coerce,lsyMatrix,dsyMatrix-method}
+\alias{coerce,lsyMatrix,lgeMatrix-method}
 \alias{coerce,lsyMatrix,lspMatrix-method}
+\alias{coerce,matrix,lsyMatrix-method}
 \alias{t,lspMatrix-method}
 \alias{t,lsyMatrix-method}
 %

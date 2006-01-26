@@ -14,6 +14,5 @@ SEXP dtrMatrix_as_dgeMatrix(SEXP from);
 SEXP dtrMatrix_as_matrix(SEXP from);
 SEXP dtrMatrix_as_dtpMatrix(SEXP from);
 SEXP dtrMatrix_getDiag(SEXP x);
-void make_array_triangular(double *x, SEXP from);
 
 #endif

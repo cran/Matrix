@@ -6,6 +6,7 @@
 \alias{coerce,lgeMatrix,dgeMatrix-method}
 \alias{coerce,lgeMatrix,matrix-method}
 \alias{coerce,lgeMatrix,lgTMatrix-method}
+\alias{coerce,lgeMatrix,lsyMatrix-method}
 \alias{t,lgeMatrix-method}
 
 \title{Class "lgeMatrix" of General Dense Logical Matrices}
@@ -36,7 +37,7 @@ Class \code{"Matrix"}, by class \code{"ldenseMatrix"}.
   \code{\link{showMethods}(class="lgeMatrix")} for details.
 }
 \seealso{
-  Special logical dense classes such as
+  Non-general logical dense classes such as
   \code{\link{ltrMatrix-class}}, or \code{\link{lsyMatrix-class}};
   \emph{sparse} logical matrices such as \code{\link{lgCMatrix-class}}.
 }

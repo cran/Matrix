@@ -13,18 +13,23 @@
 \description{The \code{dgRMatrix} class is a class of sparse numeric
   matrices in the compressed, sparse, column-oriented format.  In this
   implementation the non-zero elements in the columns are sorted into
-  increasing row order.}
+  increasing row order.
+
+  \bold{Note:} Currently, the column-oriented sparse classes, e.g.,
+  \code{\link{dgCMatrix-class}}, are preferred and better supported in
+  the \pkg{Matrix} package.
+}
 \section{Objects from the Class}{
   Objects can be created by calls of the form \code{new("dgRMatrix", ...)}.
 }
 \section{Slots}{
   \describe{
-    \item{\code{p}:}{Object of class \code{"integer"} of pointers, one
-      for each row, to the initial (zero-based) index of elements in
-      the row.}
     \item{\code{j}:}{Object of class \code{"integer"} of length nnzero
       (number of non-zero elements).  These are the column numbers for
       each non-zero element in the matrix.}
+    \item{\code{p}:}{Object of class \code{"integer"} of pointers, one
+      for each row, to the initial (zero-based) index of elements in
+      the row.}
     \item{\code{x}:}{Object of class \code{"numeric"} - the non-zero
       elements of the matrix.}
     \item{\code{Dim}:}{Object of class \code{"integer"} - the dimensions
@@ -35,7 +40,6 @@
   \describe{
     \item{coerce}{\code{signature(from = "matrix", to = "dgRMatrix")}}
     \item{coerce}{\code{signature(from = "dgRMatrix", to = "matrix")}}
-    \item{coerce}{\code{signature(from = "dgRMatrix", to = "dgBCMatrix")}}
     \item{coerce}{\code{signature(from = "dgRMatrix", to = "dgTMatrix")}}
     \item{diag}{\code{signature(x = "dgRMatrix")}: returns the diagonal
       of \code{x}}

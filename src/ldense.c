@@ -78,3 +78,35 @@ SEXP ltrMatrix_as_ltpMatrix(SEXP from)
     UNPROTECT(1);
     return val;
 }
+
+/* this is very close to dtrMatrix_as_dge*() :*/
+SEXP ltrMatrix_as_lgeMatrix(SEXP from)
+{
+    SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("lgeMatrix")));
+
+    SET_SLOT(val, Matrix_xSym, duplicate(GET_SLOT(from, Matrix_xSym)));
+    SET_SLOT(val, Matrix_DimSym, duplicate(GET_SLOT(from, Matrix_DimSym)));
+    SET_SLOT(val, Matrix_DimNamesSym, duplicate(GET_SLOT(from, Matrix_DimNamesSym)));
+    SET_SLOT(val, Matrix_factorSym, allocVector(VECSXP, 0));
+
+    make_i_matrix_triangular(LOGICAL(GET_SLOT(val, Matrix_xSym)), from);
+    UNPROTECT(1);
+    return val;
+}
+
+/* this is very close to dsyMatrix_as_dge*() :*/
+SEXP lsyMatrix_as_lgeMatrix(SEXP from)
+{
+    SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("lgeMatrix")));
+
+    SET_SLOT(val, Matrix_xSym, duplicate(GET_SLOT(from, Matrix_xSym)));
+    SET_SLOT(val, Matrix_DimSym, duplicate(GET_SLOT(from, Matrix_DimSym)));
+    SET_SLOT(val, Matrix_DimNamesSym, duplicate(GET_SLOT(from, Matrix_DimNamesSym)));
+    SET_SLOT(val, Matrix_factorSym, allocVector(VECSXP, 0));
+
+    make_i_matrix_symmetric(LOGICAL(GET_SLOT(val, Matrix_xSym)), from);
+
+    UNPROTECT(1);
+    return val;
+}
+

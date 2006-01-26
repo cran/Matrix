@@ -20,9 +20,9 @@ setAs("dgRMatrix", "dgTMatrix",
 ##setMethod("diag", signature(x = "dgRMatrix"),
 ##          function(x = 1, nrow, ncol = n) .Call("csc_getDiag", x, PACKAGE = "Matrix"))
 
-## try to define for "Matrix" -- once and for all -- but that fails -- why?
-setMethod("dim", signature(x = "dgRMatrix"),
-          function(x) x@Dim, valueClass = "integer")
+## try to define for "Matrix" -- once and for all -- but that fails -- why? __ FIXME __
+## setMethod("dim", signature(x = "dgRMatrix"),
+##           function(x) x@Dim, valueClass = "integer")
 
 ##setMethod("t", signature(x = "dgRMatrix"),
 ##          function(x) .Call("csc_transpose", x, PACKAGE = "Matrix"),
@@ -30,6 +30,6 @@ setMethod("dim", signature(x = "dgRMatrix"),
 
 setMethod("image", "dgRMatrix",
           function(x, ...) {
-              x = as(x, "dgTMatrix")
+              x <- as(x, "dgTMatrix")
               callGeneric()
           })

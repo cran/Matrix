@@ -12,6 +12,8 @@ setAs("dsCMatrix", "dgTMatrix", # needed for image()
 
 setAs("dsCMatrix", "dgeMatrix",
       function(from) as(as(from, "dgTMatrix"), "dgeMatrix"))
+setAs("dgeMatrix", "dsCMatrix",
+      function(from) as(as(from, "dsyMatrix"), "dsTMatrix"))
 
 setAs("dsCMatrix", "matrix",
       function(from) as(as(from, "dgTMatrix"), "matrix"))
@@ -25,11 +27,13 @@ setAs("dsCMatrix", "lsCMatrix",
 setAs("dsCMatrix", "dgCMatrix",
       function(from) .Call("sCMatrix_to_gCMatrix", from, PACKAGE = "Matrix"))
 
+if(FALSE) # have 'C' version above
 setAs("dsCMatrix", "dsTMatrix",
       function(from)
       new("dsTMatrix", i = from@i,
           j = .Call("Matrix_expand_pointers", from@p, PACKAGE = "Matrix"),
-          x = from@x, uplo = from@uplo, Dim@from@Dim, Dimnames = from@Dimnames)
+          x = from@x, uplo = from@uplo,
+          Dim= from@Dim, Dimnames = from@Dimnames)
       )
 
 setAs("dsCMatrix", "dsyMatrix",

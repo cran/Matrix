@@ -106,12 +106,13 @@ SEXP csc_crossprod(SEXP x)
 
 SEXP csc_tcrossprod(SEXP x)
 {
-    cholmod_sparse *cha = cholmod_aat(as_cholmod_sparse(x),
-	(int *) NULL, 0, 1, &c);
+    cholmod_sparse *chx = as_cholmod_sparse(x);
+    cholmod_sparse *cha = cholmod_aat(chx, (int *) NULL, 0, 1, &c);
+    cholmod_sparse *chas = cholmod_copy(cha, 1, 1, &c);
 
-    cha->stype = -1;		/* set the symmetry */
-    cholmod_sort(cha, &c);	/* drop redundant entries */
-    return chm_sparse_to_SEXP(cha, -1);
+    Free(chx);
+    cholmod_free_sparse(&cha, &c);
+    return chm_sparse_to_SEXP(chas, 1);
 }
 
 SEXP csc_matrix_crossprod(SEXP x, SEXP y, SEXP classed)

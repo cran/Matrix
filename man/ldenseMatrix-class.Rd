@@ -4,6 +4,7 @@
 \alias{!,ldenseMatrix-method}
 \alias{coerce,matrix,ldenseMatrix-method}
 \alias{coerce,ldenseMatrix,matrix-method}
+\alias{as.vector,ldenseMatrix,missing-method}
 %%-- These are already in ./lsparseMatrix-classes.Rd :
 %\alias{\%*\%,lsparseMatrix,ldenseMatrix-method}
 %\alias{\%*\%,ldenseMatrix,lsparseMatrix-method}
@@ -38,6 +39,7 @@ Class \code{"Matrix"}, by class \code{"denseMatrix"}.
     \item{coerce}{\code{signature(from = "ldenseMatrix", to = "matrix")}: ... }
     \item{crossprod}{\code{signature(x = "lsparseMatrix", y = "ldenseMatrix")}: ... }
     \item{crossprod}{\code{signature(x = "ldenseMatrix", y = "lsparseMatrix")}: ... }
+    \item{as.vector}{\code{signature(x = "ldenseMatrix", mode = "missing")}: ...}
   }
 }
 \seealso{
@@ -45,5 +47,7 @@ Class \code{"Matrix"}, by class \code{"denseMatrix"}.
 }
 \examples{
 showClass("ldenseMatrix")
+
+as(diag(3) > 0, "ldenseMatrix")
 }
 \keyword{classes}

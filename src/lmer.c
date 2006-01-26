@@ -132,7 +132,7 @@ internal_mer_bVar(SEXP x)
 		 INTEGER(GET_SLOT(x, Matrix_ncSym)), 
 		 GET_SLOT(x, Matrix_bVarSym), "U");
     cholmod_free_sparse(&Linv, &c);
-    Free(L);
+    Free(L); Free(iperm);
 }
 
 /** 
@@ -1952,6 +1952,7 @@ SEXP mer_gradient(SEXP x, SEXP pType)
 			double sqrtd = chol[ind];
 			tmp[ind] *= -(sqrtd*sqrtd);
 		    }
+		Free(tmp2);
 	    }
 	    for (j = 0; j < nci; j++) {
 		REAL(val)[dind + j] = tmp[j * ncip1];

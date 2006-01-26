@@ -86,6 +86,7 @@ exportClasses(
 	      "lsparseMatrix",
 	      "TsparseMatrix",
 	      "CsparseMatrix",
+	      "RsparseMatrix",
 	      "ddenseMatrix",
 	      ## not yet used, but as sub-classes;
 	      ## need to provide them for 'hierarchy-analysis':

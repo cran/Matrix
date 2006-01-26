@@ -221,7 +221,8 @@ setMethod("diag", signature(x = "dgeMatrix"),
 
 
 ## DB - I don't think this is a good idea without first checking symmetry
-#setMethod("chol", signature(x = "dgeMatrix", pivot = "ANY"), cholMat)
+## MM - cholMat() does check implicitly; not defining it is worse
+setMethod("chol", signature(x = "dgeMatrix", pivot = "ANY"), cholMat)
 
 setMethod("solve", signature(a = "dgeMatrix", b = "missing"),
 	  function(a, b, ...) .Call("dgeMatrix_solve", a, PACKAGE = "Matrix"),

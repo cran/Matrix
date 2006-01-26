@@ -4,7 +4,7 @@
 #include "CHOLMOD/Include/cholmod.h"
 #include "Mutils.h"
 
-cholmod_common c;
+extern cholmod_common c;
 
 cholmod_sparse *as_cholmod_sparse(SEXP x);
 cholmod_triplet *as_cholmod_triplet(SEXP x);

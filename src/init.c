@@ -133,7 +133,7 @@ static R_CallMethodDef CallEntries[] = {
     {"dspMatrix_trf", (DL_FUNC) &dspMatrix_trf, 1},
     {"dspMatrix_validate", (DL_FUNC) &dspMatrix_validate, 1},
     {"dtTMatrix_as_dtrMatrix", (DL_FUNC) &dtTMatrix_as_dtrMatrix, 1},
-    {"dtTMatrix_as_dtCMatrix", (DL_FUNC) &dtTMatrix_as_dtCMatrix, 1},
+    {"dtTMatrix_as_dgCMatrix", (DL_FUNC) &dtTMatrix_as_dgCMatrix, 1},
     {"dtTMatrix_validate", (DL_FUNC) &dtTMatrix_validate, 1},
     {"dtpMatrix_as_dtrMatrix", (DL_FUNC) &dtpMatrix_as_dtrMatrix, 1},
     {"dtpMatrix_dgeMatrix_mm", (DL_FUNC) &dtpMatrix_dgeMatrix_mm, 2},
@@ -178,7 +178,9 @@ static R_CallMethodDef CallEntries[] = {
 
     {"lspMatrix_as_lsyMatrix", (DL_FUNC) &lspMatrix_as_lsyMatrix, 1},
     {"lsyMatrix_as_lspMatrix", (DL_FUNC) &lsyMatrix_as_lspMatrix, 1},
+    {"lsyMatrix_as_lgeMatrix", (DL_FUNC) &lsyMatrix_as_lgeMatrix, 1},
     {"ltpMatrix_as_ltrMatrix", (DL_FUNC) &ltpMatrix_as_ltrMatrix, 1},
+    {"ltrMatrix_as_lgeMatrix", (DL_FUNC) &ltrMatrix_as_lgeMatrix, 1},
     {"ltrMatrix_as_ltpMatrix", (DL_FUNC) &ltrMatrix_as_ltpMatrix, 1},
 
     {"lsCMatrix_chol", (DL_FUNC) &lsCMatrix_chol, 2},
@@ -212,7 +214,7 @@ static R_CallMethodDef CallEntries[] = {
     {"matrix_to_csc", (DL_FUNC) &matrix_to_csc, 1},
     {"ssc_transpose", (DL_FUNC) &ssc_transpose, 1},
     {"tsc_to_dgTMatrix", (DL_FUNC) &tsc_to_dgTMatrix, 1},
-    {"tsc_transpose", (DL_FUNC) &tsc_transpose, 1},
+/*     {"tsc_transpose", (DL_FUNC) &tsc_transpose, 1}, */
     {"tsc_validate", (DL_FUNC) &tsc_validate, 1},
     {"triangularMatrix_validate", (DL_FUNC) &triangularMatrix_validate, 1},
     {"symmetricMatrix_validate", (DL_FUNC) &symmetricMatrix_validate, 1},

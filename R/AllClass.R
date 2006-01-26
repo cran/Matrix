@@ -145,7 +145,7 @@ setClass("dsyMatrix",
          ##> WITHOUT a coerce to dge* (losing symmetry)
          ##> gives error in crossprod() dispatch
 	 ##> contains = c("ddenseMatrix", "dgeMatrix", "symmetricMatrix"),
-	 contains = c("dgeMatrix", "symmetricMatrix"),
+	 contains = c("ddenseMatrix", "symmetricMatrix"),
 	 prototype = prototype(uplo = "U"),
 	 validity =
          function(object) .Call("dsyMatrix_validate", object, PACKAGE = "Matrix")
@@ -194,15 +194,15 @@ setClass("ltpMatrix",
 
 ## numeric, dense, non-packed symmetric matrices
 setClass("lsyMatrix",
-	 contains = c("lgeMatrix", "symmetricMatrix"),
+	 contains = c("ldenseMatrix", "symmetricMatrix"),
 	 prototype = prototype(uplo = "U")
          ##, validity = function(object) .Call("lsyMatrix_validate", object, PACKAGE = "Matrix")
 	 )
 
 ## numeric, dense, packed symmetric matrices
 setClass("lspMatrix",
-	 prototype = prototype(uplo = "U"),
 	 contains = c("ldenseMatrix", "symmetricMatrix"),
+	 prototype = prototype(uplo = "U"),
          validity = function(object)
          .Call("dspMatrix_validate", object, PACKAGE = "Matrix")
          ## "dsp" and "lsp" have the same validate
@@ -210,7 +210,7 @@ setClass("lspMatrix",
 
 ## 'diagonalMatrix' already has validity checking
 ## diagonal, numeric matrices;      "d*" has 'x' slot :
-setClass("ddiMatrix", contains = c("diagonalMatrix", "dMatrix"))
+setClass("ddiMatrix", contains = c("diagonalMatrix", "ddenseMatrix"))# or "dMatrix"
 ## diagonal, logical matrices; "ldense*" has 'x' slot :
 setClass("ldiMatrix", contains = c("diagonalMatrix", "ldenseMatrix"))
 
@@ -279,8 +279,7 @@ setClass("dsCMatrix",
 
 ## numeric, sparse, sorted compressed sparse row-oriented general matrices
 setClass("dgRMatrix",
-	 representation(j = "integer", p = "integer"),
-	 contains = c("dsparseMatrix", "generalMatrix"),
+	 contains = c("RsparseMatrix", "dsparseMatrix", "generalMatrix"),
 	 prototype = prototype(p = 0:0),
 	 ##TODO: validity = function(object) .Call("dgRMatrix_validate", object, PACKAGE = "Matrix")
 	 )
@@ -329,7 +328,7 @@ setClass("lsTMatrix",
 
 ## logical, sparse, sorted compressed sparse column-oriented general matrices
 setClass("lgCMatrix",
-	 contains = c("lsparseMatrix", "CsparseMatrix", "generalMatrix"),
+	 contains = c("CsparseMatrix", "lsparseMatrix", "generalMatrix"),
 	 prototype = prototype(p = 0:0),# to be valid
 	 validity =
          function(object) .Call("lgCMatrix_validate", object, PACKAGE = "Matrix")
@@ -337,7 +336,7 @@ setClass("lgCMatrix",
 
 ## logical, sparse, sorted compressed sparse column-oriented triangular matrices
 setClass("ltCMatrix",
-	 contains = c("lsparseMatrix", "CsparseMatrix", "triangularMatrix"),
+	 contains = c("CsparseMatrix", "lsparseMatrix", "triangularMatrix"),
 	 prototype = prototype(p = 0:0, uplo = "U", diag = "N"),# to be valid
 	 validity =
          function(object) .Call("ltCMatrix_validate", object, PACKAGE = "Matrix")
@@ -345,7 +344,7 @@ setClass("ltCMatrix",
 
 ## logical, sparse, sorted compressed sparse column-oriented symmetric matrices
 setClass("lsCMatrix",
-	 contains = c("lsparseMatrix", "CsparseMatrix", "symmetricMatrix"),
+	 contains = c("CsparseMatrix", "lsparseMatrix", "symmetricMatrix"),
 	 prototype = prototype(p = 0:0, uplo = "U"),# to be valid
 	 validity =
          function(object) .Call("lsCMatrix_validate", object, PACKAGE = "Matrix")
@@ -354,26 +353,26 @@ setClass("lsCMatrix",
 ## logical, sparse, sorted compressed sparse row-oriented general matrices
 setClass("lgRMatrix",
 	 representation(j = "integer", p = "integer"),
-	 contains = "lsparseMatrix",
+	 contains = c("RsparseMatrix", "lsparseMatrix", "generalMatrix"),
 	 validity =
          function(object) .Call("lgRMatrix_validate", object, PACKAGE = "Matrix")
 	 )
 
 ## logical, sparse, sorted compressed sparse row-oriented triangular matrices
 setClass("ltRMatrix",
-	 contains = c("lgRMatrix", "triangularMatrix"),
+	 contains = c("RsparseMatrix", "lsparseMatrix", "triangularMatrix"),
 	 validity =
          function(object) .Call("ltRMatrix_validate", object, PACKAGE = "Matrix")
 	 )
 
 ## logical, sparse, sorted compressed sparse row-oriented symmetric matrices
 setClass("lsRMatrix",
-	 contains = c("lgRMatrix", "symmetricMatrix"),
+	 contains = c("RsparseMatrix", "lsparseMatrix", "symmetricMatrix"),
 	 validity =
          function(object) .Call("lsRMatrix_validate", object, PACKAGE = "Matrix")
 	 )
 
-## Factorization classes
+### Factorization classes ---------------------------------------------
 
 setClass("Cholesky", contains = "dtrMatrix")
 
@@ -457,9 +456,12 @@ setClass("pMatrix", representation(perm = "integer"),
 	 })
 
 ### Class Union :  no inheritance, but is(*, <class>) :
+
+## Definition  Packed := dense with length( . @x) < prod( . @Dim)
+##             ~~~~~~
 setClassUnion("packedMatrix",
               members = c("dspMatrix", "dppMatrix", "dtpMatrix",
-               "lspMatrix", "ltpMatrix"))
+               "lspMatrix", "ltpMatrix", "diagonalMatrix"))
 
 
 ## --------------------- non-"Matrix" Classes --------------------------------

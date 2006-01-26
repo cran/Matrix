@@ -67,6 +67,8 @@ pMatrix-class           Permutation matrices
 ranef                   Extract Random Effects
 rcond                   Estimate the Reciprocal Condition Number
 readHB                  Read and write external matrix formats
+RsparseMatrix-class     Class "RsparseMatrix" of Sparse Matrices in
+                        Column-compressed Form
 Schur                   Schur Decomposition of a Matrix
 sleepstudy              Reaction times in a sleep deprivation study
 sparseMatrix-class      Virtual Class "sparseMatrix" -- Mother of

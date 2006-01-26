@@ -215,9 +215,9 @@ l2d_Matrix <- function(from) {
     stopifnot(is(from, "lMatrix"))
     fixupDense(new(sub("^l", "d", class(from)),
                    x = as.double(from@x),
-                   Dim = from@Dim, Dimnames = from@Dimnames,
-                   factors = list()), ## FIXME: treat 'factors' smartly
+                   Dim = from@Dim, Dimnames = from@Dimnames),
                from)
+    ## FIXME: treat 'factors' smartly {not for triangular!}
 }
 
 if(FALSE)# unused
@@ -230,9 +230,9 @@ l2d_meth <- function(x) {
 d2l_Matrix <- function(from) {
     stopifnot(is(from, "dMatrix"))
     fixupDense(new(sub("^d", "l", class(from)),
-                   Dim = from@Dim, Dimnames = from@Dimnames,
-                   factors = list()), ## FIXME: treat 'factors' smartly
+                   Dim = from@Dim, Dimnames = from@Dimnames),
                from)
+    ## FIXME: treat 'factors' smartly {not for triangular!}
 }
 
 

@@ -24,21 +24,25 @@ setMethod("isSymmetric", signature(object = "symmetricMatrix"),
 setMethod("isSymmetric", signature(object = "triangularMatrix"),
           ## TRUE iff diagonal:
           function(object,tol) isDiagonal(object))
+
 if(paste(R.version$major, R.version$minor, sep=".") < "2.3")
     ## need a "matrix" method as in R 2.3 and later
     setMethod("isSymmetric", signature(object = "matrix"),
-              function(object, tol = 100*.Machine$double.eps, ...)
-          {
-              ## pretest: is it square?
-              d <- dim(object)
-              if(d[1] != d[2]) return(FALSE)
-              test <-
-                  if(is.complex(object))
-                      all.equal.numeric(object, Conj(t(object)), tol = tol, ...)
-                  else              # numeric, character, ..
-                      all.equal(object, t(object), tol = tol, ...)
-              isTRUE(test)
-          })
+	      function(object, tol = 100*.Machine$double.eps, ...)
+	  {
+	      ## pretest: is it square?
+	      d <- dim(object)
+	      if(d[1] != d[2]) return(FALSE)
+	      ## for `broken' all.equal in R <= 2.2.x:
+	      dn <- dimnames(object)
+	      if(!identical(dn[1], dn[2])) return(FALSE)
+	      test <-
+		  if(is.complex(object))
+		      all.equal.numeric(object, Conj(t(object)), tol = tol, ...)
+		  else		    # numeric, character, ..
+		      all.equal(object, t(object), tol = tol, ...)
+	      isTRUE(test)
+	  })
 
 
 setMethod("isTriangular", signature(object = "triangularMatrix"),
@@ -97,7 +101,8 @@ Matrix <-
 	if(is.null(sparse))
 	    sparse <- sparseDefault(data)
 	dimnames(data) <- dimnames
-    }
+    } else if (!is.null(dimnames))
+	dimnames(data) <- dimnames
 
     ## 'data' is now a "matrix" or "Matrix"
 
@@ -253,16 +258,22 @@ setMethod("[", signature(x = "Matrix", i = "ANY", j = "ANY", drop = "ANY"),
 
 ## x[] <- value :
 setReplaceMethod("[", signature(x = "Matrix", i = "missing", j = "missing",
-                                value = "index"),##  double/logical/...
-	  function (x, value) { x@x <- value ; validObject(x); x })
+                                value = "ANY"),## double/logical/...
+	  function (x, value) {
+              x@x <- value
+              validObject(x)# check if type and lengths above match
+              x
+          })
 
-## Otherwise (value is not "index"): bail out
+## Method for all 'Matrix' kinds (rather than incomprehensible error messages);
+## (ANY,ANY,ANY) is used when no `real method' is implemented :
 setReplaceMethod("[", signature(x = "Matrix", i = "ANY", j = "ANY",
                                 value = "ANY"),
-	  function (x, i, j, value)
-                 if(!is(value,"index"))
-                 stop("RHS 'value' must be of class \"index\"")
-                 else stop("not-yet-implemented 'Matrix[<-' method"))
+	  function (x, i, j, value) {
+              if(!is.atomic(value))
+                  stop("RHS 'value' must match matrix class ", class(x))
+              else stop("not-yet-implemented 'Matrix[<-' method")
+          })
 
 
 

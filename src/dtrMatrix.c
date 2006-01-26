@@ -131,7 +131,7 @@ SEXP dtrMatrix_as_dgeMatrix(SEXP from)
     SET_SLOT(val, Matrix_DimSym, duplicate(GET_SLOT(from, Matrix_DimSym)));
     SET_SLOT(val, Matrix_DimNamesSym, duplicate(GET_SLOT(from, Matrix_DimNamesSym)));
     SET_SLOT(val, Matrix_factorSym, allocVector(VECSXP, 0));
-    make_array_triangular(REAL(GET_SLOT(val, Matrix_xSym)), from);
+    make_d_matrix_triangular(REAL(GET_SLOT(val, Matrix_xSym)), from);
     UNPROTECT(1);
     return val;
 }
@@ -141,9 +141,9 @@ SEXP dtrMatrix_as_matrix(SEXP from)
     int *Dim = INTEGER(GET_SLOT(from, Matrix_DimSym));
     int m = Dim[0], n = Dim[1];
     SEXP val = PROTECT(allocMatrix(REALSXP, m, n));
-    make_array_triangular(Memcpy(REAL(val),
-				 REAL(GET_SLOT(from, Matrix_xSym)), m * n),
-			  from);
+    make_d_matrix_triangular(Memcpy(REAL(val),
+				    REAL(GET_SLOT(from, Matrix_xSym)), m * n),
+			     from);
     setAttrib(val, R_DimNamesSymbol, GET_SLOT(from, Matrix_DimNamesSym));
     UNPROTECT(1);
     return val;

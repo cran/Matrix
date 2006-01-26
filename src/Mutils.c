@@ -321,37 +321,60 @@ void ssc_symbolic_permute(int n, int upper, const int perm[],
     Free(Aj); Free(ord); Free(ii);
 }
 
-/* FIXME: make this work for double/logical/int/complex
- *        maybe checking CHAR(asChar(getAttrib(x, R_ClassSymbol)))[0]
- *        for 'd', 'l', 'i', or 'z' */
-void make_array_triangular(double *to, SEXP from)
-{
-/* fill in the "trivial remainder" in  n*m  array ;
- *  typically the 'x' slot of a "dtrMatrix" : */
 
-    int i, j, *dims = INTEGER(GET_SLOT(from, Matrix_DimSym));
-    int n = dims[0], m = dims[1];
+/* Fill in the "trivial remainder" in  n*m  array ;
+ *  typically the 'x' slot of a "dtrMatrix" :
+ * But should be usable for double/logical/int/complex : */
 
-    if (*uplo_P(from) == 'U') {
-	for (j = 0; j < n; j++) {
-	    for (i = j+1; i < m; i++) {
-		to[i + j*m] = 0.;
-	    }
-	}
-    } else {
-	for (j = 1; j < n; j++) {
-	    for (i = 0; i < j && i < m; i++) {
-		to[i + j*m] = 0.;
-	    }
-	}
-    }
-    if (*diag_P(from) == 'U') {
-	j = (n < m) ? n : m;
-	for (i = 0; i < j; i++) {
-	    to[i * (m + 1)] = 1.;
-	}
-    }
+#define MAKE_TRIANGULAR_BODY(_TO_, _FROM_, _ZERO_, _ONE_)	\
+{								\
+    int i, j, *dims = INTEGER(GET_SLOT(_FROM_, Matrix_DimSym));	\
+    int n = dims[0], m = dims[1];				\
+								\
+    if (*uplo_P(_FROM_) == 'U') {				\
+	for (j = 0; j < n; j++)					\
+	    for (i = j+1; i < m; i++)				\
+		_TO_[i + j*m] = _ZERO_;				\
+    } else {							\
+	for (j = 1; j < n; j++)					\
+	    for (i = 0; i < j && i < m; i++)			\
+		_TO_[i + j*m] = _ZERO_;				\
+    }								\
+    if (*diag_P(_FROM_) == 'U') {				\
+	j = (n < m) ? n : m;					\
+	for (i = 0; i < j; i++)					\
+	    _TO_[i * (m + 1)] = _ONE_;				\
+    }								\
 }
+
+void make_d_matrix_triangular(double *to, SEXP from)
+    MAKE_TRIANGULAR_BODY(to, from, 0., 1.)
+void make_i_matrix_triangular(int *to, SEXP from)
+    MAKE_TRIANGULAR_BODY(to, from, 0, 1)
+
+
+/* Should work for double/logical/int/complex : */
+#define MAKE_SYMMETRIC_BODY(_TO_, _FROM_)			\
+{								\
+    int i, j, n = INTEGER(GET_SLOT(_FROM_, Matrix_DimSym))[0];	\
+								\
+    if (*uplo_P(_FROM_) == 'U') {				\
+	for (j = 0; j < n; j++)					\
+	    for (i = j+1; i < n; i++)				\
+		_TO_[i + j*n] = _TO_[j + i*n];			\
+    } else {							\
+	for (j = 1; j < n; j++)					\
+	    for (i = 0; i < j && i < n; i++)			\
+		_TO_[i + j*n] = _TO_[j + i*n];			\
+    }								\
+}
+
+void make_d_matrix_symmetric(double *to, SEXP from)
+    MAKE_SYMMETRIC_BODY(to, from)
+
+void make_i_matrix_symmetric(int *to, SEXP from)
+    MAKE_SYMMETRIC_BODY(to, from)
+
 
 /**
  * Create a named vector of type TYP

@@ -5,7 +5,7 @@
 #include "dgCMatrix.h"
 
 SEXP tsc_validate(SEXP x);
-SEXP tsc_transpose(SEXP x);
+/* SEXP tsc_transpose(SEXP x); */
 SEXP tsc_to_dgTMatrix(SEXP x);
 SEXP Parent_inverse(SEXP par, SEXP unitdiag);
 int parent_inv_ap(int n, int countDiag, const int pr[], int ap[]);

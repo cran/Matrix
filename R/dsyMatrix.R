@@ -1,4 +1,4 @@
- ### Coercion and Methods for Symmetric Matrices
+### Coercion and Methods for Dense Numeric Symmetric Matrices
 
 setAs("dsyMatrix", "dgeMatrix",
       function(from) .Call("dsyMatrix_as_dgeMatrix", from, PACKAGE = "Matrix"))
@@ -23,14 +23,19 @@ setAs("dsyMatrix", "dspMatrix",
       function(from) .Call("dsyMatrix_as_dspMatrix", from, PACKAGE = "Matrix"))
 
 setAs("dsyMatrix", "dsTMatrix",
-      function(from) {
-          ## This is not very efficient (FIXME)
-          ij <- which(as(from,"matrix") != 0, arr.ind = TRUE)
-          new("dsTMatrix", i = ij[,1], j = ij[,2],
+      function(from) { # 'dsT': only store upper *or* lower
+          ## working via "matrix" : not very efficient  (FIXME)
+          ij <- which((m <- as(from,"matrix")) != 0, arr.ind = TRUE)
+          uplo <- from@uplo
+          ij <- ij[if(uplo == "U") ij[,1] <= ij[,2] else ij[,1] >= ij[,2] ,
+                   , drop = FALSE]
+          new("dsTMatrix", i = ij[,1] - 1:1, j = ij[,2] - 1:1,
+              x = as.vector(m[ij]), uplo = uplo,
               Dim = from@Dim, Dimnames = from@Dimnames)
       })
+
 setAs("dsyMatrix", "dsCMatrix",
-      function(from) callGeneric(as(from, "dsTMatrix")))
+      function(from) as(as(from, "dsTMatrix"), "dsCMatrix"))
 
 
 ## Note: Just *because* we have an explicit  dtr -> dge coercion,
@@ -95,11 +100,10 @@ setMethod("t", signature(x = "dsyMatrix"), t_trMatrix,
 setIs("dsyMatrix", "dpoMatrix",
       test = function(obj)
           "try-error" != class(try(.Call("dpoMatrix_chol", obj, PACKAGE = "Matrix"), silent=TRUE)),
-      ## MM: The following copying is necessary
-      ## -- but shouldn't it be the default in such a case ??
-      replace = function(obj, value) ## copy all slots
-      for(n in slotNames(obj)) slot(obj, n) <- slot(value, n)
-      )
+      replace = function(obj, value) { ## copy all slots (is needed)
+          for(n in slotNames(obj)) slot(obj, n) <- slot(value, n)
+          obj
+      })
 
 ## Now that we have "chol", we can define  "determinant" methods,
 ## exactly like in ./dsCMatrix.R

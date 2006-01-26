@@ -56,6 +56,7 @@ if (isTRUE(try(data(Contraception, package = 'mlmRev')) == 'Contraception')) {
     print(fm.4 <- lmer(use ~ urban + age + livch + (urban | district),
                        Contraception, binomial, method = 'Laplace'))
 }
+
 if (require('MASS', quietly = TRUE)) {
     bacteria$wk2 <- bacteria$week > 2
     contrasts(bacteria$trt) <-
@@ -73,5 +74,18 @@ if (require('MASS', quietly = TRUE)) {
 ##     print(system.time(lmer(y ~ trt + wk2 + (1|ID), bacteria, binomial,
 ##                            method = 'AGQ'), gc = TRUE))
 }
+
+
+### mcmcsamp() :
+## From: Andrew Gelman <gelman@stat.columbia.edu>
+## Date: Wed, 18 Jan 2006 22:00:53 -0500
+
+## Very simple example
+y <- 1:10
+group <- gl(2,5)
+(M1 <- lmer (y ~ 1 + (1 | group))) # works fine
+(r1 <- mcmcsamp (M1))              # dito
+r2 <- mcmcsamp (M1, saveb = TRUE)  # gave error in 0.99-* and 0.995-[12]
+(r10 <- mcmcsamp (M1, n = 10, saveb = TRUE))
 
 proc.time() # for ``statistical reasons''

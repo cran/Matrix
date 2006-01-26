@@ -3,6 +3,10 @@
 setAs("dppMatrix", "dpoMatrix",
       function(from) as(as(from, "dsyMatrix"), "dpoMatrix"))
 
+to_dpp <- function(from) as(as(from, "dpoMatrix"), "dppMatrix")
+setAs("dgeMatrix", "dppMatrix", to_dpp)
+setAs("matrix",    "dppMatrix", to_dpp)
+
 setMethod("chol", signature(x = "dppMatrix"),
           function(x, pivot, LINPACK)
           .Call("dppMatrix_chol", x, PACKAGE = "Matrix"))

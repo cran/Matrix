@@ -1531,9 +1531,12 @@ int ParseIfmt(char* fmt, int* perline, int* width)
     tmp = strchr(fmt,'(');
     tmp = substr(fmt,tmp - fmt + 1, strchr(fmt,'I') - tmp - 1);
     *perline = atoi(tmp);
+    if (tmp) free(tmp);
     tmp = strchr(fmt,'I');
     tmp = substr(fmt,tmp - fmt + 1, strchr(fmt,')') - tmp - 1);
-    return *width = atoi(tmp);
+    *width = atoi(tmp);
+    if (tmp) free(tmp);
+    return *width;
 }
 
 int ParseRfmt(char* fmt, int* perline, int* width, int* prec, int* flag)
@@ -1591,15 +1594,20 @@ int ParseRfmt(char* fmt, int* perline, int* width, int* prec, int* flag)
       return 0;
     }
     tmp = strchr(fmt,'(');
-    tmp = substr(fmt,tmp - fmt + 1, strchr(fmt,*flag) - tmp - 1);
+    tmp = substr(fmt, tmp - fmt + 1, strchr(fmt,*flag) - tmp - 1);
     *perline = atoi(tmp);
+    if (tmp) free(tmp);
     tmp = strchr(fmt,*flag);
     if ( strchr(fmt,'.') ) {
-      *prec = atoi( substr( fmt, strchr(fmt,'.') - fmt + 1, strchr(fmt,')') - strchr(fmt,'.')-1) );
-      tmp = substr(fmt,tmp - fmt + 1, strchr(fmt,'.') - tmp - 1);
+	char *tmp1 = substr(fmt, strchr(fmt,'.') - fmt + 1, strchr(fmt,')') - strchr(fmt,'.')-1);
+	*prec = atoi(tmp1);
+	if (tmp1) free(tmp1);
+	tmp = substr(fmt,tmp - fmt + 1, strchr(fmt,'.') - tmp - 1);
     } else {
-      tmp = substr(fmt,tmp - fmt + 1, strchr(fmt,')') - tmp - 1);
+	tmp = substr(fmt,tmp - fmt + 1, strchr(fmt,')') - tmp - 1);
     }
-    return *width = atoi(tmp);
+    *width = atoi(tmp);
+    if (tmp) free(tmp);
+    return *width;
 }
 

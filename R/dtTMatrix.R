@@ -1,8 +1,11 @@
 ### Coercion and Methods for Triangular Triplet Matrices
 
 setAs("dtTMatrix", "dtCMatrix",
-      function(from)
-      .Call("dtTMatrix_as_dtCMatrix", from, PACKAGE = "Matrix"))
+      function(from) {
+          gC <- .Call("dtTMatrix_as_dgCMatrix", from, PACKAGE = "Matrix")
+          new("dtCMatrix", Dim = gC@Dim, Dimnames = gC@Dimnames, p = gC@p,
+              i = gC@i, x = gC@x, uplo = from@uplo, diag = from@diag)
+      })      
 
 setAs("dtTMatrix", "dgTMatrix",
       function(from) {

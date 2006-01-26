@@ -257,7 +257,11 @@ make_upper_triangular(int i[], int j[], int nnz)
     }
 }
 
-void make_array_triangular(double *x, SEXP from);
+void make_d_matrix_triangular(double *x, SEXP from);
+void make_i_matrix_triangular(   int *x, SEXP from);
+
+void make_d_matrix_symmetric(double *to, SEXP from);
+void make_i_matrix_symmetric(   int *to, SEXP from);
 
 SEXP Matrix_expand_pointers(SEXP pP);
 

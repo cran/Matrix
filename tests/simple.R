@@ -35,10 +35,10 @@ assert.EQ.mat(cu, as(tu,"matrix"), tol=0)
 ###-- Numeric Dense: Crossprod & Solve
 
 set.seed(123)
-mm <- Matrix(rnorm(500 * 150), nc = 150)
+mm. <- mm <- Matrix(rnorm(500 * 150), nc = 150)
 stopifnot(validObject(mm))
-xpx <- crossprod(mm)# alters mm !
-stopifnot(validObject(mm),
+xpx <- crossprod(mm)
+stopifnot(identical(mm, mm.),# once upon a time, mm was altered by crossprod()
           validObject(xpx))
 str(mm) # 'dge*"
 str(xpx)# 'dpo*"

@@ -44,7 +44,7 @@
   \describe{
     \item{\code{x}:}{Object of class \code{"numeric"} - the non-zero
       elements of the matrix.}
-    \item{\dots}{all other slots are inherited from the superclasse
+    \item{\dots}{all other slots are inherited from the superclass
       \code{"CsparseMatrix"}, see \code{\link{CsparseMatrix-class}}.
     }
   }

@@ -3,7 +3,11 @@
 ### contains = "lsparseMatrix"
 
 setAs("ltTMatrix", "matrix",
-      function(from) as(as(from, "dtTMatrix"), "matrix"))
+      function(from) as(as(from, "lgTMatrix"), "matrix"))
+
+setAs("ltTMatrix", "lgTMatrix",
+      function(from) new("lgTMatrix", i = from@i, j = from@j, x = from@x,
+                         Dim = from@Dim, Dimnames = from@Dimnames))
 
 setAs("ltTMatrix", "dtTMatrix",
       function(from) new("dtTMatrix", i = from@i, j = from@j,

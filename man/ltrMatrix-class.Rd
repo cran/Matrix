@@ -6,8 +6,10 @@
 \alias{!,ltpMatrix-method}
 \alias{!,ltrMatrix-method}
 \alias{coerce,ltpMatrix,dtpMatrix-method}
+\alias{coerce,ltpMatrix,lgeMatrix-method}
 \alias{coerce,ltpMatrix,ltrMatrix-method}
 \alias{coerce,ltrMatrix,dtrMatrix-method}
+\alias{coerce,ltrMatrix,lgeMatrix-method}
 \alias{coerce,ltrMatrix,ltpMatrix-method}
 \alias{t,ltpMatrix-method}
 \alias{t,ltrMatrix-method}
@@ -56,5 +58,9 @@
 showClass("ltrMatrix")
 
 str(new("ltpMatrix"))
+\dontshow{
+if(FALSE) ## FIXME -- Fails, needs "matrix" -> "ltrMatrix" :
+as(upper.tri(matrix(,4,4)), "ltrMatrix")
+}
 }
 \keyword{classes}

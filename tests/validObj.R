@@ -40,6 +40,15 @@ chk.matrix(mcm <- as(cm, "dMatrix"))
 ##---	------	mcm[2,1] is garbage
 chk.matrix(as(cm, "Matrix"))
 
+## Coercion to 'dpo' should give an error if result would be invalid
+M <- Matrix(diag(4) - 1)
+if(FALSE)## FIXME?: dsy -> dpo works here{chol() check too expensive ?}
+assertError(as(M, "dpoMatrix"))
+M. <- as(M, "dgeMatrix")
+M.[1,2] <- 10 # -> not even symmetric anymore
+assertError(as(M., "dpoMatrix"))
+
+
 ## Cholesky
 chk.matrix(ch <- chol(cm))
 chk.matrix(ch2 <- chol(as(cm, "dsyMatrix")))

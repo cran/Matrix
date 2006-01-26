@@ -49,16 +49,16 @@ SEXP LU_expand(SEXP x)
     SET_SLOT(L, Matrix_DimSym, duplicate(dd));
     SET_SLOT(L, Matrix_uploSym, mkString("L"));
     SET_SLOT(L, Matrix_diagSym, mkString("U"));
-    make_array_triangular(REAL(GET_SLOT(L, Matrix_xSym)), L);
+    make_d_matrix_triangular(REAL(GET_SLOT(L, Matrix_xSym)), L);
     SET_SLOT(U, Matrix_xSym, duplicate(lux));
     SET_SLOT(U, Matrix_DimSym, duplicate(dd));
     SET_SLOT(U, Matrix_uploSym, mkString("U"));
     SET_SLOT(U, Matrix_diagSym, mkString("N"));
-    make_array_triangular(REAL(GET_SLOT(U, Matrix_xSym)), U);
+    make_d_matrix_triangular(REAL(GET_SLOT(U, Matrix_xSym)), U);
     SET_SLOT(P, Matrix_DimSym, duplicate(dd));
     iperm = Calloc(n, int);
     perm = INTEGER(ALLOC_SLOT(P, Matrix_permSym, INTSXP, n));
-			
+
     for (i = 0; i < n; i++) iperm[i] = i + 1; /* initialize permutation*/
     for (i = 0; i < n; i++) {	/* generate inverse permutation */
 	int newpos = pivot[i] - 1;
@@ -71,6 +71,7 @@ SEXP LU_expand(SEXP x)
     }
 				/* invert the inverse */
     for (i = 0; i < n; i++) perm[iperm[i] - 1] = i + 1;
+    Free(iperm);
     UNPROTECT(1);
     return val;
 }

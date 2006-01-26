@@ -99,3 +99,8 @@
 
 - "ltTmatrix" :
   2) new("ltTMatrix", diag = "U", Dim = c(2:2, 2:2)) shows lack of ltTM*_validate
+
+- BUGlet:  Shouldn't lose factorization here:
+  h6 <- Hilbert(6); chol(h6) ; str(h6) # has factor
+  str(H6 <- as(h6, "dspMatrix"))       # has lost factor
+  ## and the same in a similar situation involving  "dpo", "dpp"

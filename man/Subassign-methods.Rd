@@ -6,7 +6,7 @@
 \title{Methods for "[<-" - Assigning to Subsets for 'Matrix'}
 % in ../R/Matrix.R
 \alias{[<-,Matrix,ANY,ANY,ANY-method}
-\alias{[<-,Matrix,missing,missing,index-method}
+\alias{[<-,Matrix,missing,missing,ANY-method}
 % \alias{[<-,Matrix,missing,numeric,missing-method}
 % \alias{[<-,Matrix,numeric,missing,missing-method}
 % \alias{[<-,Matrix,numeric,numeric,missing-method}
@@ -42,8 +42,9 @@
 \section{Methods}{
   There are more than these:
   \describe{
-    \item{x = "Matrix", i = "missing", j = "missing", value= "index"}{
-      is currently a simple fallback method implementation.}
+    \item{x = "Matrix", i = "missing", j = "missing", value= "ANY"}{
+      is currently a simple fallback method implementation which ensures
+      \dQuote{readable} error messages.}
     \item{x = "Matrix", i = "ANY", j = "ANY", value= "ANY"}{ currently
       gives an error }
 

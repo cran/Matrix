@@ -53,9 +53,9 @@ setMethod("diag", signature(x = "dgCMatrix"),
           function(x = 1, nrow, ncol = n)
           .Call("csc_getDiag", x, PACKAGE = "Matrix"))
 
-## try to define for "Matrix" -- once and for all -- but that fails -- why?
-setMethod("dim", signature(x = "dgCMatrix"),
-          function(x) x@Dim, valueClass = "integer")
+## try to define for "Matrix" -- once and for all -- but that fails -- why? __ FIXME __
+## setMethod("dim", signature(x = "dgCMatrix"),
+##           function(x) x@Dim, valueClass = "integer")
 
 setMethod("t", signature(x = "dgCMatrix"),
           function(x) .Call("csc_transpose", x, PACKAGE = "Matrix"),

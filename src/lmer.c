@@ -663,6 +663,29 @@ internal_mer_Zfactor(SEXP x, cholmod_factor *L)
     status[1] = status[2] = status[3] = 0;
 }
 
+
+/** 
+ * Downdate and factor XtX into RXX
+ * 
+ * @param x pointer to an mer object
+ * 
+ * @return info from the call to dpotrf
+ */
+static int internal_mer_Xfactor(SEXP x)
+{
+    int info, p = LENGTH(GET_SLOT(x, Matrix_rXySym)),
+	q = LENGTH(GET_SLOT(x, Matrix_rZySym));
+    double *RXX = REAL(GET_SLOT(GET_SLOT(x, Matrix_RXXSym), Matrix_xSym)),
+	*RZX = REAL(GET_SLOT(GET_SLOT(x, Matrix_RZXSym), Matrix_xSym)),
+	one[2] = {1, 0}, m1[2] = {-1, 0};
+
+    Memcpy(RXX, REAL(GET_SLOT(GET_SLOT(x, Matrix_XtXSym), Matrix_xSym)), p * p);
+    F77_CALL(dsyrk)("U", "T", &p, &q, m1, RZX, &q, one, RXX, &p);
+    F77_CALL(dpotrf)("U", &p, RXX, &p, &info);
+    return info;
+}
+
+
 /** 
  * Update the relative precision matrices by sampling from a Wishart
  * distribution with scale factor determined by the current sample of
@@ -892,6 +915,7 @@ internal_bhat(GlmerStruct GS, const double fixed[], const double varc[])
 	internal_mer_fitted(GS->mer, GS->offset, REAL(GS->eta));
 	crit = conv_crit(GS->etaold, REAL(GS->eta), GS->n);
     }
+    internal_mer_Xfactor(GS->mer);
     Free(L);
     return (crit > GS->tol) ? 0 : i;
 }
@@ -1705,12 +1729,9 @@ SEXP mer_factor(SEXP x)
 	
 	/* Inflate Z'Z to Z'Z+Omega and factor to form L. Form RZX and
 	 * rZy. Update status flags, dcmp[4] and dcmp[5]. */
-	internal_mer_Zfactor(x, L); 
+	internal_mer_Zfactor(x, L);
 				/* downdate XtX and factor */
-	Memcpy(RXX, REAL(GET_SLOT(GET_SLOT(x, Matrix_XtXSym), Matrix_xSym)), p * p);
-	F77_CALL(dsyrk)("U", "T", &p, &q, m1, RZX, &q, one, RXX, &p);
-	F77_CALL(dpotrf)("U", &p, RXX, &p, &info);
-	if (info) {
+	if ((info = internal_mer_Xfactor(x))) { /* unable to factor downdated XtX */
 	    error(_("Leading minor of order %d in downdated X'X is not positive definite"),
 		  info);
 	    dcmp[3] = dcmp[6] = dev[0] = dev[1] = NA_REAL;
@@ -2185,7 +2206,6 @@ SEXP mer_update_y(SEXP x, SEXP ynew)
     flag_not_factored(x);
     Free(L);
     return R_NilValue;
-
 }
 
 /**

@@ -91,6 +91,7 @@ lmerControl <-
            niterEM = 15,
            EMverbose = getOption("verbose"),
            PQLmaxIt = 30,# FIXME: unused; PQL currently uses 'maxIter' instead
+           usePQL = TRUE,
            gradient = TRUE,
            Hessian = FALSE # unused _FIXME_
            )
@@ -103,6 +104,7 @@ lmerControl <-
          niterEM = as.integer(niterEM),
          EMverbose = as.logical(EMverbose),
          PQLmaxIt = as.integer(PQLmaxIt),
+         usePQL = as.logical(usePQL),
          gradient = as.logical(gradient),
          Hessian = as.logical(Hessian))
 }
@@ -226,8 +228,8 @@ setMethod("lmer", signature(formula = "formula"),
               stop("negative weights not allowed")
           if(!is.null(offset) && length(offset) != NROW(Y))
               stop(gettextf("number of offsets is %d should equal %d (number of observations)", length(offset), NROW(Y)), domain = NA)
-          if (is.null(weights)) weights <- rep.int(1, length(Y))
-          if (is.null(offset)) offset <- numeric(length(Y))
+          if (is.null(weights)) weights <- rep.int(1, NROW(Y))
+          if (is.null(offset)) offset <- numeric(NROW(Y))
 
           ## fit a glm model to the fixed formula
 ##           fe$formula <- fixed.form
@@ -308,6 +310,7 @@ setMethod("lmer", signature(formula = "formula"),
           gVerb <- getOption("verbose")
           glmFit <- glm.fit(X, Y, weights = weights, offset = offset, family = family,
                             intercept = attr(mt, "intercept") > 0)
+          weights <- glmFit$prior.weights
           eta <- glmFit$linear.predictors
           Y <- as.double(glmFit$y)
           wtssqr <- weights * weights
@@ -327,9 +330,14 @@ setMethod("lmer", signature(formula = "formula"),
                        PACKAGE = "Matrix")
 
           GSpt <- .Call("glmer_init", environment(), PACKAGE = "Matrix")
-          .Call("glmer_PQL", GSpt, PACKAGE = "Matrix")  # obtain PQL estimates
-          PQLpars <- c(fixef(mer),
-                       .Call("mer_coef", mer, 2, PACKAGE = "Matrix"))
+          if (cv$usePQL) {
+              .Call("glmer_PQL", GSpt, PACKAGE = "Matrix")  # obtain PQL estimates
+              PQLpars <- c(fixef(mer),
+                           .Call("mer_coef", mer, 2, PACKAGE = "Matrix"))
+          } else {
+              PQLpars <- c(coef(glmFit),
+                           .Call("mer_coef", mer, 2, PACKAGE = "Matrix"))
+          }
           if (method == "PQL") {
               .Call("glmer_devLaplace", PQLpars, GSpt, PACKAGE = "Matrix")
               .Call("glmer_finalize", GSpt, PACKAGE = "Matrix")

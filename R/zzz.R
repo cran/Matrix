@@ -4,6 +4,7 @@
 .onLoad <- function(libname, pkgname)
 {
     require(methods)
+    require(utils) # -> assignInNamespace {but "anyway"}
 
     ## The following works around namespace-protection on purpose:
     assignInNamespace("..Old..as.matrix", base::as.matrix, ns = "base")
@@ -14,7 +15,7 @@
     ##  "x <- as.matrix(x)" or  "X <- as.array(X)"
     ## will work for 'Matrix'-matrices
 
-    ## kronecker() / %x% -- in principle should re-assigne base::kronecker
+    ## kronecker() / %x% -- in principle should re-assign base::kronecker
     ## -----------> ?? performance hit ?? in mantelhaen.test() ??
     ##
     ## This is formally identical to the base definition, but should use the

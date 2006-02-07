@@ -1,3 +1,14 @@
+2006-02-07  Douglas Bates  <bates@stat.wisc.edu>
+
+	* R/lmer.R (lmer): fix initial values of offset and weights for glm.fit.
+	Use glmFit$prior.weights for weights in a glmm.
+	Allow an option usePQL = FALSE to skip the PQL steps for the
+	Laplace method (and, in time, the AGQ method).
+
+	* src/lmer.c (mer_factor): Move downdating and factoring of XtX
+	into a separate function internal_mer_Xfactor to be able to call
+	it from internal_bhat.
+
 2006-01-23  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* tests/Class+Meth.R (tstMatrixClass): function for much better

@@ -130,8 +130,8 @@ m <- Matrix(c(0,0,2:0), 3,5, dimnames=list(LETTERS[1:3],NULL))
 (lm <- as(dm, "lgCMatrix"))
 str(lm)
 
-data(mm)
-lmm <- as(mm, "lgCMatrix")
+data(KNex)
+lmm <- as(KNex $ mm, "lgCMatrix")
 xlx <- crossprod(lmm)
 image(xlx, main=paste("crossprod(lmm) : Sparse", class(xlx)))
 }

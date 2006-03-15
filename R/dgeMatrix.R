@@ -107,11 +107,13 @@ setMethod("Math2",
 
 ## "Summary"
 
-
-## TODO :  "Compare" -> returning  logical Matrices
-
+## "Compare"  now happens in ./dMatrix.R
 
 ## -- end{group generics} -----------------------
+
+
+##  "[" settings are "up in"  Matrix.R & denseMatrix.R
+
 
 setMethod("as.vector", signature(x = "dgeMatrix", mode = "missing"),
           function(x) x@x)

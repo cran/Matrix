@@ -53,4 +53,4 @@ object.size(as(rl, "matrix"))# ditto
 determinant(rl)
 
 
-proc.time() # for ``statistical reasons''
+cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''

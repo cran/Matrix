@@ -1,4 +1,4 @@
-			/* Sparse matrices in compress column-oriented form */
+			/* Sparse matrices in compressed column-oriented form */
 #include "Csparse.h"
 #include "chm_common.h"
 
@@ -118,3 +118,22 @@ SEXP Csparse_crossprod(SEXP x, SEXP trans, SEXP triplet)
     return chm_sparse_to_SEXP(chcp, 1);
 }
 
+SEXP Csparse_horzcat(SEXP x, SEXP y)
+{
+    cholmod_sparse *chx = as_cholmod_sparse(x),
+	*chy = as_cholmod_sparse(y), *ans;
+    
+    ans = cholmod_horzcat(chx, chy, 1, &c);
+    Free(chx); Free(chy);
+    return chm_sparse_to_SEXP(ans, 1);
+}
+
+SEXP Csparse_vertcat(SEXP x, SEXP y)
+{
+    cholmod_sparse *chx = as_cholmod_sparse(x),
+	*chy = as_cholmod_sparse(y), *ans;
+    
+    ans = cholmod_vertcat(chx, chy, 1, &c);
+    Free(chx); Free(chy);
+    return chm_sparse_to_SEXP(ans, 1);
+}

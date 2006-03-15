@@ -15,7 +15,7 @@ endif
 ifeq (, $(findstring -lRlapack, $(LAPACK_LIBS)))
 SOURCES_LAPACK =
 else
-SOURCES_LAPACK = zpotf2.f zpotrf.f 
+SOURCES_LAPACK = zpotf2.f zpotrf.f
 endif
 
 SOURCES_F = $(SOURCES_BLAS) $(SOURCES_LAPACK)
@@ -35,7 +35,7 @@ mostlyclean: clean
 
 $(SUBLIBS): $(SUBSTAMP)
 	@for d in $(SUBDIRS); do \
-	  (cd $${d} && MkInclude=$(R_HOME)/etc/Makeconf $(MAKE) lib) || exit 1; \
+	  (cd $${d} && MkInclude=$(R_HOME)/etc${R_ARCH}/Makeconf $(MAKE) lib) || exit 1; \
 	  touch $${d}.stamp; \
 	done
 

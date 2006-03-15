@@ -2,14 +2,11 @@
 ### These are "cheap" to program, but potentially far from efficient;
 ### Methods for specific subclasses will overwrite these:
 
-## dense to sparse: as() will take the ``closest'' match
+## dense to sparse:
 setAs("denseMatrix", "dsparseMatrix",
-      function(from) as(as(from, "dgeMatrix"), "dsparseMatrix"))
-
-## setAs("denseMatrix", "dgCMatrix",
-##       function(from) as(as(from, "dgeMatrix"), "dgCMatrix"))
-## setAs("denseMatrix", "dgTMatrix",
-##       function(from) as(as(from, "dgeMatrix"), "dgTMatrix"))
+## MM thought that  as() will take the ``closest'' match; but that fails!
+##      function(from) as(as(from, "dgeMatrix"), "dsparseMatrix"))
+      function(from) as(as(from, "dgeMatrix"), "dgCMatrix"))
 
 setAs("denseMatrix", "CsparseMatrix",
       function(from) {

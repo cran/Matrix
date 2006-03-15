@@ -29,5 +29,5 @@ signif(t(s9)/10000, 4)# only rounded numbers are platform-independent
 m9 <- matrix(1:9, dimnames = list(NULL,NULL))
 stopifnot(all.equal(m9, as.matrix(I9), tol = 2e-9))
 
-cat('Time elapsed: ', proc.time(),'\n') # "stats"
+cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
 

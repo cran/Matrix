@@ -229,6 +229,7 @@ setMethod("Compare", signature(e1 = "ANY", e2 = "Matrix"),
 setMethod("[", signature(x = "Matrix",
 			 i = "missing", j = "missing", drop = "ANY"),
 	  function (x, i, j, drop) x)
+
 ## missing 'drop' --> 'drop = TRUE'
 ##                     -----------
 ## select rows
@@ -247,6 +248,19 @@ setMethod("[", signature(x = "Matrix", i = "index", j = "index",
 setMethod("[", signature(x = "Matrix", i = "ANY", j = "ANY", drop = "ANY"),
 	  function(x,i,j, drop)
           stop("invalid or not-yet-implemented 'Matrix' subsetting"))
+
+##  "logical *vector* indexing, such as  M [ M >= 10 ] :
+setMethod("[", signature(x = "Matrix", i = "lMatrix", j = "missing",
+			 drop = "ANY"),
+	  function (x, i, j, drop) {
+	      as(x, geClass(x))@x[as.vector(i)]
+                                        # -> error when lengths don't match
+          })
+
+setMethod("[", signature(x = "Matrix", i = "logical", j = "missing",
+			 drop = "ANY"),
+	  function (x, i, j, drop) as(x, geClass(x))@x[i])
+
 
 ## "FIXME:"
 ## How can we get at   A[ ij ]	where ij is (i,j) 2-column matrix?

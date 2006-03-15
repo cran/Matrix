@@ -39,6 +39,7 @@ assert.EQ.mat(pd1, as(m5,"matrix") %*% diag(1:6))
 assert.EQ.mat(pd2, diag(10:6) %*% as(m5,"matrix"))
 
 
+data(KNex); mm <- KNex$mm
 M <- mm[1:500, 1:200]
 cpr <- t(mm) %*% mm
 showMethods("%*%", class=class(M))
@@ -79,4 +80,5 @@ stopifnot(identical( crossprod(sM), t(sM) %*%   sM),
 assert.EQ.mat( crossprod(sM),  crossprod(sm) > 0)
 assert.EQ.mat(tcrossprod(sM), as(tcrossprod(sm),"matrix") > 0)
 
-proc.time() # for ``statistical reasons''
+cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
+

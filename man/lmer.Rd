@@ -11,11 +11,11 @@
 \usage{
 lmer(formula, data, family, method, control, start,
      subset, weights, na.action, offset, contrasts,
-     model, x, y, \dots)
+     model, \dots)
 
 \S4method{lmer}{formula}(formula, data, family, method,
     control, start, subset, weights, na.action, offset, contrasts,
-    model, x, y, \dots)
+    model, \dots)
 }
 \arguments{
   \item{formula}{a two-sided linear formula object describing the
@@ -53,9 +53,8 @@ lmer(formula, data, family, method, control, start,
   \item{subset, weights, na.action, offset, contrasts}{further model
     specification arguments as in \code{\link[stats]{lm}}; see there for
     details.}
-  \item{model, x, y}{logicals indicating if the corresponding model component
-    should be returned.  Note that \code{x} and \code{y} default to
-    \code{TRUE} for these models.  Changing either of these would be unwise.}
+  \item{model}{logical indicating if the model component
+    should be returned (in slot \code{frame}).}
   \item{\dots}{potentially further arguments for methods.  Currently
     none are used.}
   }
@@ -100,6 +99,7 @@ lmer(formula, data, family, method, control, start,
 	\item{\code{EMverbose}:}{a logical value indicating if verbose output
 	  should be produced during the EM iterations.  Default is
 	  \code{getOption("verbose")}.}
+
 	\item{\code{PQLmaxIt}:}{maximum number of iterations for the PQL
 	  algorithm when fitting generalized linear mixed models.
 	  Default is 30.}%% unused currently?
@@ -126,11 +126,14 @@ lmer(formula, data, family, method, control, start,
 }
 \value{
   An object of class \code{"\link[Matrix:lmer-class]{lmer}"}.
+  There are many methods applicable to \code{"lmer"} objects, see the
+  above help page. %% Hmm.. or \code{\link{showMethods}(class = "lmer")}
 }
 %\references{ ~put references to the literature/web site here ~ }
 %\author{}
 %\note{}
-\seealso{\code{\link[Matrix]{lmer-class}}, \code{\link[stats]{lm}}}
+\seealso{\code{\link[Matrix]{lmer-class}}, \code{\link[stats]{lm}}
+}
 \examples{
 (fm1 <- lmer(Reaction ~ Days + (Days|Subject), sleepstudy))
 (fm2 <- lmer(Reaction ~ Days + (1|Subject) + (0+Days|Subject), sleepstudy))

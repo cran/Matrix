@@ -2,8 +2,8 @@ library(Matrix)
 
 ### Rebuild the 'mm' example matrix
 ### Use this if classes are changed
-
-mmT <- as(mm, "dgTMatrix")
+data(KNex)
+mmT <- as(KNex$mm, "dgTMatrix")
 str(mmT)
 mm3 <- cbind(i = mmT@i, j = mmT@j, x = mmT@x)
 write.table(mm3, file = "mm-Matrix.tab", row.names=FALSE)# -> ASCII version
@@ -21,4 +21,5 @@ stopifnot(all.equal(as(mmN, "matrix"),
                     as(mmT, "matrix"), tol=0))
 
 mm <- as(mmN, "dgCMatrix")
+stopifnot(all.equal(mm, KNex$mm))
 ## save(mm, file = "....../Matrix/data/mm.rda", compress = TRUE)

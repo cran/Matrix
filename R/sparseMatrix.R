@@ -100,6 +100,34 @@ setMethod("[", signature(x = "sparseMatrix",
           })
 
 
+## setReplaceMethod("[", signature(x = "sparseMatrix", i = "index", j = "missing",
+##                                 value = "numeric"),
+##                  function (x, i, value) {
+
+##                      stop("NOT YET")
+
+##                      as(r, class(x))
+##                  })
+
+## setReplaceMethod("[", signature(x = "sparseMatrix", i = "missing", j = "index",
+##                                 value = "numeric"),
+##                  function (x, j, value) {
+
+##                      stop("NOT YET")
+
+##                      as(r, class(x))
+##                  })
+
+## setReplaceMethod("[", signature(x = "sparseMatrix", i = "index", j = "index",
+##                                 value = "numeric"),
+
+##                      stop("NOT YET")
+
+##                      as(r, class(x))
+##                  })
+
+
+
 setMethod("-", signature(e1 = "sparseMatrix", e2 = "missing"),
           function(e1) { e1@x <- -e1@x ; e1 })
 ## with the following exceptions:

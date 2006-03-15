@@ -22,28 +22,69 @@
     dn <- dn[[margin]]
     has.dn <- is.character(dn)
     if(is(i, "numeric")) {
-        storage.mode(i) <- "integer"
+	storage.mode(i) <- "integer"
 	if(any(ineg <- i < 0:0)) {
 	    if(any(i > 0:0))
 		stop("you cannot mix negative and positive indices")
 	    i0 <- (0:(di[margin]-1:1))[i]
-	} else	{
+	} else {
+	    if(max(i) > di[margin])
+		stop("indexing out of range 0:",di[margin])
+	    if(any(z <- i == 0)) i <- i[!z]
 	    i0 <- i - 1:1 # transform to 0-indexing
 	}
 	if(has.dn) dn <- dn[i]
     }
     else if (is(i, "logical")) {
-        i0 <- (0:(di[margin]-1:1))[i]
-        if(has.dn) dn <- dn[i]
+	i0 <- (0:(di[margin]-1:1))[i]
+	if(has.dn) dn <- dn[i]
+    } else { ## character
+	if(!has.dn)
+	    stop(gettextf("no 'dimnames[[%d]]': cannot use character indexing"),
+		 margin, domain = NA)
+	i0 <- match(i, dn)
+	if(any(is.na(i0))) stop("invalid character indexing")
+	dn <- dn[i0]
+	i0 <- i0 - 1:1
+    }
+    list(m = match(xi, i0, nomatch=0), li = length(i0), dn = dn)
+}
+
+
+.ind.prep2 <- function(i, margin, di, dn)
+{
+    ## Purpose: do the ``common things'' for "*gTMatrix" sub-assignment
+    ##		for 1 dimension, 'margin' ,
+    ##          and return match(.,.) + li = length of corresponding dimension
+    ##
+    ## i is "index"; margin in {1,2};
+    ## di = dim(x)      { used when i is "logical" }
+
+    dn <- dn[[margin]]
+    has.dn <- is.character(dn)
+    if(is(i, "numeric")) {
+        storage.mode(i) <- "integer"
+	if(any(ineg <- i < 0:0)) {
+	    if(any(i > 0:0))
+		stop("you cannot mix negative and positive indices")
+	    i0 <- (1:di[margin])[i]
+	} else	{
+	    if(max(i) > di[margin])
+		stop("indexing out of range 0:",di[margin])
+	    if(any(z <- i == 0)) i <- i[!z]
+	    i0 <- i
+	}
+    }
+    else if (is(i, "logical")) {
+        i0 <- (1:di[margin])[i]
     } else { ## character
         if(!has.dn)
             stop(gettextf("no 'dimnames[[%d]]': cannot use character indexing"),
                  margin, domain = NA)
-        i0 <- match(i, dn, nomatch=0)
-        dn <- dn[i0]
-        i0 <- i0 - 1:1
+        i0 <- match(i, dn)
+        if(any(is.na(i0))) stop("invalid character indexing")
     }
-    list(m = match(xi, i0, nomatch=0), li = length(i0), dn = dn)
+    i0 - 1:1  # transform to 0-indexing
 }
 
 
@@ -114,3 +155,4 @@ setMethod("tcrossprod", signature(x = "TsparseMatrix", y = "missing"),
 
 setAs("TsparseMatrix", "CsparseMatrix",
       function(from) .Call("Tsparse_to_Csparse", x, PACKAGE = "Matrix"))
+

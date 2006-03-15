@@ -31,8 +31,8 @@ mn <- m
 dimnames(mn) <- list(paste("r",letters[1:nrow(mn)],sep=""),
                      LETTERS[1:ncol(mn)])
 mn["rd", "D"]
-stopifnot(identical(mn["rc", "D"], mn[3,4]),
-          identical(mn[, "A"], mn[,1]),
+stopifnot(identical(mn["rc", "D"], mn[3,4]), mn[3,4] == 24,
+          identical(mn[, "A"], mn[,1]), mn[,1] == 1:7,
           identical(mn[c("re", "rb"), "B"], mn[c(5,2), 2])
           )
 
@@ -42,10 +42,14 @@ m[1:2, 4] <- 200
 m[, 1] <- -1
 m[1:3,]
 
-## TODO: more --- particularly once we have "m > 10" working!
+g10 <- m [ m > 10 ]
+stopifnot(18 == length(g10))
+if(paste(R.version$major, R.version$minor, sep=".") >= "2.3")
+    ## Buglet in R(<= 2.2.1)'s possibleExtends()
+    stopifnot(10 == length(m[ m <= 10 ]))
 
 
-### Sparse Matrices
+### Sparse Matrices --------------------------------------
 
 m <- 1:800
 set.seed(101) ; m[sample(800, 600)] <- 0
@@ -60,11 +64,15 @@ stopifnot(identical(mT, as(mC, "dgTMatrix")),
 mC[,1]
 mC[1:2,]
 mC[7,  drop = FALSE]
+assert.EQ.mat(mC[1:2,], mm[1:2,])
+stopifnot(all.equal(mC[,3],   mm[,3]))
+assert.EQ.mat(mC[7, , drop=FALSE], mm[7, , drop=FALSE])
+
 stopifnot(identical(mC[7,  drop = FALSE],
                     mC[7,, drop = FALSE]))
 mT[,c(2,4)]
-mT[1,]
-mT[4, drop = FALSE]
+stopifnot(all.equal(mT[1,], mm[1,]))
+assert.EQ.mat(mT[4,, drop = FALSE], mm[4,, drop = FALSE])
 stopifnot(identical3(mm[,1], mC[,1], mT[,1]),
 	  identical3(mm[3,], mC[3,], mT[3,]),
 	  identical3(mT[2,3], mC[2,3], 0),
@@ -77,8 +85,11 @@ stopifnot(identical3(mm[,1], mC[,1], mT[,1]),
 mc <- mC[1:5, 1:7]
 mt <- mT[1:5, 1:7]
 ## sub matrix
+assert.EQ.mat(mC[1:2, 0:3], mm[1:2, 0:3]) # test 0-index
 stopifnot(identical(mc[-(3:5), 0:2], mC[1:2, 0:2]),
-          identical(mt[-(3:5), 0:2], mT[1:2, 0:2]))
+          identical(mt[-(3:5), 0:2], mT[1:2, 0:2]),
+          identical(mC[2:3, 4],      mm[2:3, 4]))
+assert.EQ.mat(mC[1:2,], mm[1:2,])
 ## sub vector
 stopifnot(identical4(mc[-(1:4), ], mC[5, 1:7],
                      mt[-(1:4), ], mT[5, 1:7]))
@@ -88,6 +99,47 @@ stopifnot(identical4(mc[-(1:4), -(2:4)], mC[5, c(1,5:7)],
 ## mixing of negative and positive must give error
 assertError(mT[-1:1,])
 
-## At least these now give a nicely understandable error:
-try(mT[1, 4] <- -99)
-try(mT[2:3, ] <- 0)
+## Sub *Assignment* ---- now works (partially):
+mt0 <- mt
+mt[1, 4] <- -99
+mt[2:3, 1:6] <- 0
+mt
+m2 <- mt+mt
+m2[1,4] <- -200
+m2[c(1,3), c(5:6,2)] <- 1:6
+stopifnot(m2[1,4] == -200,
+          as.vector(m2[c(1,3), c(5:6,2)]) == 1:6)
+mt[,3] <- 30
+mt[2:3,] <- 250
+mt[1:5 %% 2 == 1, 3] <- 0
+mt[3:1, 1:7 > 5] <- 0
+mt
+
+tt <- as(mt,"matrix")
+ii <- c(0,2,5)
+jj <- c(2:3,5)
+tt[ii, jj] <- 1:6 # 0 is just "dropped"
+mt[ii, jj] <- 1:6
+assert.EQ.mat(mt, tt)
+
+mt[1:5, 2:6]
+as((mt0 - mt)[1:5,], "dsparseMatrix")# [1,5] and lines 2:3
+
+mt[c(2,4), ] <- 0
+mt[2:3, 4:7] <- 33
+validObject(mt)
+mt
+
+mc[1,4] <- -99
+mc[-1, 3] <- -2:1 # 0 should not be entered; 'value' recycled
+mt[-1, 3] <- -2:1
+stopifnot(mc@x != 0, mt@x != 0)
+mc[1:5 %% 2 == 0, 3] <- 0
+validObject(mc)
+mc
+mc[ii, jj] <- 1:6
+mc[c(2,5), c(3,5)] <- 3.2
+validObject(mc)
+mc
+
+cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''

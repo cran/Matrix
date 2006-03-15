@@ -77,7 +77,7 @@ setMethod("Math2",
 setMethod("Summary", signature(x = "dMatrix", na.rm = "ANY"),
           function(x, ..., na.rm) callGeneric(x@x, ..., na.rm = na.rm))
 
-## TODO :  "Compare" -> returning  logical Matrices
+## "Compare" -> returning  logical Matrices
 setMethod("Compare", signature(e1 = "numeric", e2 = "dMatrix"),
           function(e1,e2) {
               switch(.Generic,
@@ -87,20 +87,21 @@ setMethod("Compare", signature(e1 = "numeric", e2 = "dMatrix"),
 
 setMethod("Compare", signature(e1 = "dMatrix", e2 = "numeric"),
 	  function(e1, e2) {
-	      lClass <- sub("^d", "l", class(e1))
+              lClass <- dClass2(class(e1), "l")
               fullCl <- if(isSymmetric(e1)) "lsyMatrix" else "lgeMatrix"
 	      ## Dbg cat("Compare", class(e1), "|-> ",lClass, "\n")
 	      r  <- callGeneric(e1@x, e2)
               r0 <- callGeneric(0, e2)
 	      if(is(e1, "denseMatrix")) {
-                  full <- !is(e1, "packedMatrix")
-                  if(full || identical(r0, FALSE))
+                  full <- !isPacked(e1)
+                  if(full || identical(r0, FALSE) || is(e1, "symmetricMatrix"))
                       r <- new(lClass, x = r,
                                Dim = dim(e1), Dimnames = dimnames(e1))
-                  else { ## packed matrix and r0 is not FALSE:
+                  else { ## packed matrix with structural 0 and r0 is not FALSE:
                       ##--> result cannot be packed anymore
-                      dr <- as(e1, fullCl)
-
+                      dr <- as(r, fullCl)
+                      ## FIXME: implement this:
+                      dr[ind.0(e1)] <- r0
                   }
 	      }
               else { ## dsparseMatrix
@@ -128,7 +129,7 @@ setMethod("Compare", signature(e1 = "dMatrix", e2 = "numeric"),
 setMethod("Compare", signature(e1 = "dMatrix", e2 = "dMatrix"),
           function(e1, e2) {
               d <- dimCheck(e1,e2)
-	      lClass <- sub("^d", "l", class(e1))
+              lClass <- dClass2(class(e1), "l")
 
               ## FIXME: if (the 'x' are slots compatible)
 	      r <- callGeneric(e1@x, e2@x)
@@ -138,8 +139,6 @@ setMethod("Compare", signature(e1 = "dMatrix", e2 = "dMatrix"),
 	      }
               else { ## dsparseMatrix
 
-		  stop("'Compare' for sparse dMatrix not yet implemented")
-
 		  if(identical(FALSE, r0 <- callGeneric(0, e2))) {
 		      ## return (potentially even more) sparse logical Matrix
 		      r <- new(lClass, x = r,
@@ -147,12 +146,17 @@ setMethod("Compare", signature(e1 = "dMatrix", e2 = "dMatrix"),
 
 		  } else { ## non sparse result
 
+		  stop("'Compare' for sparse dMatrix not yet implemented for all cases")
+### FIXME
 		  }
 	      }
               r
 	  })
 
 ## -- end{group generics} -----------------------
+
+
+
 
 ## Methods for single-argument transformations
 

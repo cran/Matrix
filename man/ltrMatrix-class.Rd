@@ -11,6 +11,8 @@
 \alias{coerce,ltrMatrix,dtrMatrix-method}
 \alias{coerce,ltrMatrix,lgeMatrix-method}
 \alias{coerce,ltrMatrix,ltpMatrix-method}
+\alias{coerce,matrix,ltrMatrix-method}
+\alias{coerce,matrix,ltpMatrix-method}
 \alias{t,ltpMatrix-method}
 \alias{t,ltrMatrix-method}
 %

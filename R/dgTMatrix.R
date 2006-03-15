@@ -40,6 +40,100 @@ setAs("matrix", "dgTMatrix",
 
 ## "[" methods are now in ./Tsparse.R
 
+## FIXME? -- should these be moved to /Tsparse.R -- for *all* Tsparse ones?
+
+replTmat <- function (x, i, j, value)
+{
+    di <- dim(x)
+    dn <- dimnames(x)
+    i1 <- if(missing(i)) 0:(di[1] - 1:1) else .ind.prep2(i, 1, di, dn)
+    i2 <- if(missing(j)) 0:(di[2] - 1:1) else .ind.prep2(j, 2, di, dn)
+    dind <- c(length(i1), length(i2)) # dimension of replacement region
+    lenRepl <- prod(dind)
+    lenV <- length(value)
+    if(lenV == 0) {
+        if(lenRepl != 0)
+            stop("nothing to replace with")
+        else return(x)
+    }
+    ## else: lenV := length(value)	 is > 0
+    if(lenRepl %% lenV != 0)
+        stop("number of items to replace is not a multiple of replacement length")
+    ## Note: *T*matrix maybe non-unique: an entry can be split
+    ##	  into a *sum* of several ones
+    x <- uniq(x)
+
+    sel <- ((m1 <- match(x@i, i1, nomatch=0)) > 0:0 &
+            (m2 <- match(x@j, i2, nomatch=0)) > 0:0)
+
+    ## the simplest case: for all Tsparse, even for i or j missing
+    if(all(value == 0)) { ## just drop the non-zero entries
+        if(any(sel)) { ## non-zero there
+            x@i <- x@i[!sel]
+            x@j <- x@j[!sel]
+            x@x <- x@x[!sel]
+        }
+        return(x)
+    }
+
+    ## else --  some( value != 0 ) --
+    if(lenV > lenRepl)
+        stop("too many replacement values")
+
+    ## another simple, typical case:
+    if(lenRepl == 1) {
+        if(any(sel)) { ## non-zero there
+            x@x[sel] <- value
+        } else { ## new non-zero
+            x@i <- c(x@i, i1)
+            x@j <- c(x@j, i2)
+            x@x <- c(x@x, value)
+        }
+        return(x)
+    }
+
+    v0 <- 0 == (value <- rep(value, length = lenRepl))
+    ## value[1:lenRepl]:  which *are structural 0 now, which not?
+
+    if(any(sel)) {
+	## the 0-based indices of non-zero -- WRT to submatrix
+	non0 <- cbind(match(x@i[sel], i1),
+		      match(x@j[sel], i2)) - 1:1
+	iN0 <- 1:1 + encodeInd(non0, nr = dind[1])
+
+	## 1) replace those that are already non-zero (when value != 0)
+	vN0 <- !v0[iN0]
+	x@x[sel[vN0]] <- value[iN0[vN0]]
+
+	iI0 <- (1:lenRepl)[-iN0]	# == complementInd(non0, dind)
+    } else iI0 <- 1:lenRepl
+
+    if(length(iI0)) {
+	## 2) add those that were structural 0 (where value != 0)
+	vN0 <- !v0[iI0]
+	ij0 <- decodeInd(iI0[vN0] - 1:1, nr = dind[1])
+	x@i <- c(x@i, i1[ij0[,1] + 1:1])
+	x@j <- c(x@j, i2[ij0[,2] + 1:1])
+	x@x <- c(x@x, value[iI0[vN0]])
+    }
+    x
+}
+
+### TODO (FIXME): almost the same for  "lgTMatrix" and "logical"
+
+setReplaceMethod("[", signature(x = "dgTMatrix", i = "index", j = "missing",
+                                value = "numeric"),
+                 function (x, i, value) replTmat(x, i=i, value=value))
+
+setReplaceMethod("[", signature(x = "dgTMatrix", i = "missing", j = "index",
+                                value = "numeric"),
+                 function (x, j, value) replTmat(x, j=j, value=value))
+
+setReplaceMethod("[", signature(x = "dgTMatrix", i = "index", j = "index",
+				value = "numeric"),
+                 replTmat)
+
+
 setMethod("crossprod", signature(x = "dgTMatrix", y = "missing"),
           function(x, y = NULL)
           .Call("csc_crossprod", as(x, "dgCMatrix"), PACKAGE = "Matrix"))

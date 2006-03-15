@@ -86,9 +86,6 @@ setMethod("%*%", signature(x = "matrix", y = "dgCMatrix"),
 ## Group Methods, see ?Arith (e.g.)
 ## -----
 
-### TODO:
-
-if(FALSE) ## FIXME
 setMethod("Arith", ##  "+", "-", "*", "^", "%%", "%/%", "/"
           signature(e1 = "dgCMatrix", e2 = "dgCMatrix"),
           function(e1, e2) {
@@ -97,33 +94,61 @@ setMethod("Arith", ##  "+", "-", "*", "^", "%%", "%/%", "/"
               ij1 <- non0ind(e1)
               ij2 <- non0ind(e2)
               switch(.Generic,
-                     "+" =, "-" =, "*" =
-                     new("dgTMatrix", Dim = d, Dimnames = dn,
-                         i = c(ij1[,1], ij2[,1]),
-                         j = c(ij1[,2], ij2[,2]),
-                         x = c(callGeneric(e1@x, 0), callGeneric(0, e2@x)))
-                     ,
-                     "^" = { ## X^0 |-> 1 (also for X=0)
-                         r <- new("dgTMatrix", Dim = d, Dimnames = dn,
-                                  i = c(ij1[,1], ij2[,1]),
-                                  j = c(ij1[,2], ij2[,2]),
-                                  x = c(rep.int(1, nrow(ij1)), 0 ^ e2@x))
-                         ...
-                     },
-                     "%%" = , "%/%" = , "/" = {## 0 op 0  |-> NaN
-                         ...
-                     })
+                     "+" = , "-" =
+                     ## special "T" convention: repeated entries are *summed*
+                     as(new("dgTMatrix", Dim = d, Dimnames = dn,
+                            i = c(ij1[,1], ij2[,1]),
+                            j = c(ij1[,2], ij2[,2]),
+                            x = c(callGeneric(e1@x, 0), callGeneric(0,e2@x))),
+                        "dgCMatrix"),
+
+                     "*" =
+                 { ##  X * 0 == 0 * X == 0 --> keep common non-0
+                     ii <- WhichintersectInd(ij1, ij2, nrow=d[1])
+                     ij <- ij1[ii[[1]], , drop = FALSE]
+                     as(new("dgTMatrix", Dim = d, Dimnames = dn,
+                            i = ij[,1],
+                            j = ij[,2],
+                            x = e1@x[ii[[1]]] * e2@x[ii[[2]]]),
+                        "dgCMatrix")
+                 },
+
+                     "^" =
+                 {
+                     ii <- WhichintersectInd(ij1, ij2, nrow=d[1])
+                     ## 3 cases:
+                     ## 1) X^0 := 1  (even for X=0) ==> dense
+                     ## 2) 0^Y := 0  for Y != 0         =====
+                     ## 3) x^y :
+
+                     ## FIXME:  dgeM[cbind(i,j)] <- V  is not yet possible
+                     ##     nor dgeM[ i_vect   ] <- V
+                     ## r <- as(e2, "dgeMatrix")
+                     ## ...
+                     r <- as(e2, "matrix")
+                     Yis0 <- r == 0
+                     r[complementInd(ij1, dim=d)] <- 0      ## 2)
+                     r[1:1 + ij2[ii[[2]], , drop=FALSE]] <-
+                         e1@x[ii[[1]]] ^ e2@x[ii[[2]]]      ## 3)
+                     r[Yis0] <- 1                           ## 1)
+                     as(r, "dgeMatrix")
+                 },
+
+                     "%%" = , "%/%" = , "/" = ## 0 op 0  |-> NaN => dense
+                     callGeneric(as(e1, "dgeMatrix"), e2)
+                     )
           })
 
 setMethod("Arith",
 	  signature(e1 = "dgCMatrix", e2 = "numeric"),
 	  function(e1, e2) {
-	      if(length(e2) == 1) {
+	      if(length(e2) == 1) { ## e.g.,  Mat ^ a
 		  f0 <- callGeneric(0, e2)
-                  if(!is.na(f0) && f0 == 0.) {
+                  if(!is.na(f0) && f0 == 0.) { # remain sparse
 		      e1@x <- callGeneric(e1@x, e2)
 		      e1
-		  } else {
+		  } else { ## non-sparse, since '0 o e2' is not 0
+
 		      ## FIXME: dgeMatrix [cbind(i,j)] <- .. is not yet possible
 		      ##		  r <- as(e1, "dgeMatrix")
 		      ##		  r[] <- f0
@@ -191,6 +216,58 @@ setMethod("Math2",
 	  })
 
 ###---- end {Group Methods} -----------------
+
+
+replCmat <- function (x, i, j, value)
+{
+    di <- dim(x)
+    dn <- dimnames(x)
+    i1 <- if(missing(i)) 0:(di[1] - 1:1) else .ind.prep2(i, 1, di, dn)
+    i2 <- if(missing(j)) 0:(di[2] - 1:1) else .ind.prep2(j, 2, di, dn)
+    dind <- c(length(i1), length(i2)) # dimension of replacement region
+    lenRepl <- prod(dind)
+    lenV <- length(value)
+    if(lenV == 0) {
+        if(lenRepl != 0)
+            stop("nothing to replace with")
+        else return(x)
+    }
+    ## else: lenV := length(value)	 is > 0
+    if(lenRepl %% lenV != 0)
+        stop("number of items to replace is not a multiple of replacement length")
+    if(lenV > lenRepl)
+        stop("too many replacement values")
+
+    xj <- .Call("Matrix_expand_pointers", x@p, PACKAGE = "Matrix")
+    sel <- (!is.na(match(x@i, i1)) &
+            !is.na(match( xj, i2)))
+
+    if(sum(sel) == lenRepl) { ## all are already non-zero
+        ## replace them (when value != 0):
+        v0 <- 0 == (value <- rep(value, length = lenRepl))
+        x@x[sel[!v0]] <- value[!v0]
+        return(x)
+    }
+    ## else go via dgT
+    x <- as(x, "dgTMatrix")
+    x[i,j] <- value
+    as(x, "dgCMatrix")
+}
+
+### TODO (FIXME): almost the same for  "lgCMatrix" and "logical"
+
+setReplaceMethod("[", signature(x = "dgCMatrix", i = "index", j = "missing",
+                                value = "numeric"),
+                 function (x, i, value) replCmat(x, i=i, value=value))
+
+setReplaceMethod("[", signature(x = "dgCMatrix", i = "missing", j = "index",
+                                value = "numeric"),
+                 function (x, j, value) replCmat(x, j=j, value=value))
+
+setReplaceMethod("[", signature(x = "dgCMatrix", i = "index", j = "index",
+				value = "numeric"),
+                 replCmat)
+
 
 
 

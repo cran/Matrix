@@ -1,5 +1,6 @@
 \name{lgeMatrix-class}
 \docType{class}
+\title{Class "lgeMatrix" of General Dense Logical Matrices}
 \alias{lgeMatrix-class}
 \alias{as.vector,lgeMatrix,missing-method}
 \alias{coerce,matrix,lgeMatrix-method}
@@ -7,9 +8,9 @@
 \alias{coerce,lgeMatrix,matrix-method}
 \alias{coerce,lgeMatrix,lgTMatrix-method}
 \alias{coerce,lgeMatrix,lsyMatrix-method}
+\alias{coerce,lgeMatrix,ltrMatrix-method}
 \alias{t,lgeMatrix-method}
-
-\title{Class "lgeMatrix" of General Dense Logical Matrices}
+%
 \description{This is the class of general dense \code{\link{logical}}
   matrices.
 }

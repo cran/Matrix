@@ -62,6 +62,15 @@ setAs("lgeMatrix", "lsyMatrix",
 	  else stop("not a symmetric matrix")
       })
 
+setAs("lgeMatrix", "ltrMatrix",
+      function(from) {
+	  if(isT <- isTriangular(from))
+	      new("ltrMatrix", x = from@x, Dim = from@Dim,
+		  Dimnames = from@Dimnames, uplo = attr(isT, "kind"))
+          ## TODO: also check 'diag'
+	  else stop("not a triangular matrix")
+      })
+
 
 ###  ldense* <-> "matrix" :
 
@@ -81,10 +90,17 @@ setAs("matrix", "lgeMatrix",
 
 ## 2) base others on "lge*":
 
-## Useful if this was called e.g. for as(*, "lsyMatrix"), but it isn't:
-setAs("matrix", "ldenseMatrix", function(from) as(from, "lgeMatrix"))
 setAs("matrix", "lsyMatrix",
       function(from) as(as(from, "lgeMatrix"), "lsyMatrix"))
+setAs("matrix", "lspMatrix",
+      function(from) as(as(from, "lsyMatrix"), "lspMatrix"))
+setAs("matrix", "ltrMatrix",
+      function(from) as(as(from, "lgeMatrix"), "ltrMatrix"))
+setAs("matrix", "ltpMatrix",
+      function(from) as(as(from, "ltrMatrix"), "ltpMatrix"))
+
+## Useful if this was called e.g. for as(*, "lsyMatrix"), but it isn't
+setAs("matrix", "ldenseMatrix", function(from) as(from, "lgeMatrix"))
 
 setAs("ldenseMatrix", "matrix", ## uses the above l*M. -> lgeM.
       function(from) as(as(from, "lgeMatrix"), "matrix"))
@@ -142,4 +158,3 @@ setMethod("!", "ldenseMatrix",
 
 setMethod("as.vector", signature(x = "ldenseMatrix", mode = "missing"),
           function(x) as(x, "lgeMatrix")@x)
-

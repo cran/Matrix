@@ -114,7 +114,8 @@ if(FALSE)
 
 
 ### "d" <-> "l"  for (symmetric) sparse :
-data(mm)
+data(KNex)
+mm <- KNex$mm
 xpx <- crossprod(mm)
 lxpx <- as(xpx, "lsCMatrix")
 if(FALSE)

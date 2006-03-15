@@ -1,3 +1,41 @@
+2006-03-15  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.995-6  -- to be released to CRAN
+
+	* data/KNex.rda: replacing 'mm' and 'y' by KNex <- list(mm=mm, y=y)
+	* man/KNex.Rd: and other help files
+	* tests/*.R: several ones needed adaption
+	* inst/doc/Comparisons.Rnw: dito
+
+2006-03-11  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/dgCMatrix.R (replCmat): "[<-" methods for dgCMatrix
+
+	* tests/indexing.R: tests for new [<- methods for sparse matrices.
+
+2006-03-10  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/dgTMatrix.R (replTmat): "[<-" methods for dgTMatrix
+
+	* R/Tsparse.R (.ind.prep): fix out-of-range indexing
+
+2006-03-08  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/dMatrix.R: enable things like  M [ M < 10 ]
+	* R/dgeMatrix.R: implement it
+
+2006-03-06  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/AllClass.R: define "summary.mer" and "*.lmer"
+	* R/lmer.R (summary): summary(<mer>) computes & returns the above;
+	* R/lmer.R (show): now works with summary()
+
+2006-03-04  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/dgCMatrix.R: finally direct "Arith"  dgC o dgC
+	* R/Auxiliaries.R (WhichintersectInd): and other utilities to
+		support the above
+
 2006-02-07  Douglas Bates  <bates@stat.wisc.edu>
 
 	* R/lmer.R (lmer): fix initial values of offset and weights for glm.fit.

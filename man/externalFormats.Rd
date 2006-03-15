@@ -66,8 +66,9 @@ str(sm <-
 str(jgl009 <-
  readMM(gzcon(url("ftp://math.nist.gov/pub/MatrixMarket2/Harwell-Boeing/counterx/jgl009.mtx.gz"))))
 }
-writeHB(mm, "mmHB.rua")
-writeMM(mm, "mmMM.mtx")
+data(KNex)
+writeHB(KNex$mm, "mmHB.rua")
+writeMM(KNex$mm, "mmMM.mtx")
 }
 \keyword{IO}
 \keyword{array}

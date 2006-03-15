@@ -40,17 +40,16 @@ setMethod("kronecker", signature(X = "dsparseMatrix", Y = "dsparseMatrix"),
 ## Group Methods, see ?Arith (e.g.)
 ## -----
 
-## NOT YET (first need 'dgCMatrix' method):
-## setMethod("Arith", ##  "+", "-", "*", "^", "%%", "%/%", "/"
-##           signature(e1 = "dsparseMatrix", e2 = "dsparseMatrix"),
-##           function(e1, e2) callGeneric(as(e1, "dgCMatrix"),
-##                                        as(e2, "dgCMatrix")))
-## setMethod("Arith",
-##           signature(e1 = "dsparseMatrix", e2 = "numeric"),
-##           function(e1, e2) callGeneric(as(e1, "dgCMatrix"), e2))
-## setMethod("Arith",
-##           signature(e1 = "numeric", e2 = "dsparseMatrix"),
-##           function(e1, e2) callGeneric(e1, as(e2, "dgCMatrix")))
+setMethod("Arith", ##  "+", "-", "*", "^", "%%", "%/%", "/"
+          signature(e1 = "dsparseMatrix", e2 = "dsparseMatrix"),
+          function(e1, e2) callGeneric(as(e1, "dgCMatrix"),
+                                       as(e2, "dgCMatrix")))
+setMethod("Arith",
+          signature(e1 = "dsparseMatrix", e2 = "numeric"),
+          function(e1, e2) callGeneric(as(e1, "dgCMatrix"), e2))
+setMethod("Arith",
+          signature(e1 = "numeric", e2 = "dsparseMatrix"),
+          function(e1, e2) callGeneric(e1, as(e2, "dgCMatrix")))
 
 setMethod("Math",
 	  signature(x = "dsparseMatrix"),
@@ -121,32 +120,43 @@ if(paste(R.version$major, R.version$minor, sep=".") >= "2.2") {
     setMethod("cbind2", signature(x = "dsparseMatrix", y = "dsparseMatrix"),
 	      function(x, y) {
 		  nr <- rowCheck(x,y)
-		  ncx <- x@Dim[2]
-		  ncy <- y@Dim[2]
 		  ## beware of (packed) triangular, symmetric, ...
-		  hasDN <- !is.null(dnx <- dimnames(x)) |
-			   !is.null(dny <- dimnames(y))
-                  x <- as(x, "dgCMatrix")
-                  y <- as(y, "dgCMatrix")
-                  ne.x <- length(x@i)
-                  x@i <- c(x@i, y@i)
-                  x@p <- c(x@p, ne.x + y@p[-1])
-		  x@x <- c(x@x, y@x)
-		  x@Dim[2] <- ncx + ncy
+		  hasDN <- !all(lapply(c(dnx <- dimnames(x),
+                                         dny <- dimnames(y)), is.null))
+                  ans <- .Call("Csparse_horzcat",
+                               as(x, "dgCMatrix"), as(y, "dgCMatrix"))
 		  if(hasDN) {
 		      ## R and S+ are different in which names they take
 		      ## if they differ -- but there's no warning in any case
 		      rn <- if(!is.null(dnx[[1]])) dnx[[1]] else dny[[1]]
 		      cx <- dnx[[2]] ; cy <- dny[[2]]
 		      cn <- if(is.null(cx) && is.null(cy)) NULL
-		      else c(if(!is.null(cx)) cx else rep.int("", ncx),
-			     if(!is.null(cy)) cy else rep.int("", ncy))
-		      x@Dimnames <- list(rn, cn)
+		      else c(if(!is.null(cx)) cx else rep.int("", ncol(x)),
+			     if(!is.null(cy)) cy else rep.int("", ncol(y)))
+		      ans@Dimnames <- list(rn, cn)
 		  }
-		  x
+                  ans
 	      })
 
-### rbind2 -- analogous to cbind2 --- more to do for @x though:
-
+    setMethod("rbind2", signature(x = "dsparseMatrix", y = "dsparseMatrix"),
+	      function(x, y) {
+		  nr <- colCheck(x,y)
+		  ## beware of (packed) triangular, symmetric, ...
+		  hasDN <- !all(lapply(c(dnx <- dimnames(x),
+                                         dny <- dimnames(y)), is.null))
+                  ans <- .Call("Csparse_vertcat",
+                               as(x, "dgCMatrix"), as(y, "dgCMatrix"))
+		  if(hasDN) {
+		      ## R and S+ are different in which names they take
+		      ## if they differ -- but there's no warning in any case
+		      cn <- if(!is.null(dnx[[2]])) dnx[[2]] else dny[[2]]
+		      rx <- dnx[[1]] ; ry <- dny[[1]]
+		      rn <- if(is.null(rx) && is.null(ry)) NULL
+		      else c(if(!is.null(rx)) rx else rep.int("", nrow(x)),
+			     if(!is.null(ry)) ry else rep.int("", nrow(y)))
+		      ans@Dimnames <- list(rn, cn)
+		  }
+		  ans
+	      })
 
 }## R-2.2.x ff

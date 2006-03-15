@@ -23,6 +23,7 @@
 %% Group methods --------- FIXME: These are not tested yet (or documented)
 \alias{Arith,numeric,dgCMatrix-method}
 \alias{Arith,dgCMatrix,numeric-method}
+\alias{Arith,dgCMatrix,dgCMatrix-method}
 %\alias{Math2,dgCMatrix,numeric-method}
 \alias{Math,dgCMatrix-method}
 % for silly reasons, need these 2+3 as well:

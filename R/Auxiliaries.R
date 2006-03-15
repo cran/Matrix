@@ -82,6 +82,12 @@ colCheck <- function(a, b) {
     da[2]
 }
 
+isPacked <- function(x)
+{
+    ## Is 'x' a packed (dense) matrix ?
+    is(x,"Matrix") && !is.null(x@x) && length(x@x) < prod(dim(x))
+}
+
 emptyColnames <- function(x)
 {
     ## Useful for compact printing of (parts) of sparse matrices
@@ -133,17 +139,50 @@ prMatrix <- function(x, digits = getOption("digits")) {
 ## For sparseness handling
 non0ind <- function(x) {
     if(is.numeric(x))
-        return(if((n <- length(x))) (0:(n-1))[x != 0] else integer(0))
-
-    ## else return a (i,j) matrix of non-zero-indices
-
+	return(if((n <- length(x))) (0:(n-1))[x != 0] else integer(0))
+    ## else
     stopifnot(is(x, "sparseMatrix"))
+    ## return a 2-column (i,j) matrix of
+    ## 0-based indices of non-zero entries  :
     if(is(x, "TsparseMatrix"))
 	return(unique(cbind(x@i,x@j)))
-
-    isCol <- function(M) any("i" == slotNames(M))
-    .Call("compressed_non_0_ij", x, isCol(x), PACKAGE = "Matrix")
+    ## else:
+    isC <- any("i" == slotNames(x))# is Csparse (not Rsparse)
+    .Call("compressed_non_0_ij", x, isC, PACKAGE = "Matrix")
 }
+
+## nr= nrow: since  i in {0,1,.., nrow-1}  these are 1:1 "decimal" encodings:
+## Further, these map to and from the usual "Fortran-indexing" (but 0-based)
+encodeInd <- function(ij, nr) ij[,1] + ij[,2] * nr
+decodeInd <- function(code, nr) cbind(code %% nr, code %/% nr)
+
+complementInd <- function(ij, dim)
+{
+    ## Purpose: Compute the complement of the 2-column 0-based ij-matrix
+    ##          but as 1-based indices
+    n <- prod(dim)
+    if(n == 0) return(integer(0))
+    ii <- 1:n
+    ii[-(1 + encodeInd(ij, nr = dim[1]))]
+}
+
+unionInd <- function(ij1, ij2) unique(rbind(ij1, ij2))
+
+intersectInd <- function(ij1, ij2, nrow) {
+    ## from 2-column (i,j) matrices where i in {0,.., nrow-1},
+    ## return only the *common* entries
+    decodeInd(intersect(encodeInd(ij1, nrow),
+			encodeInd(ij2, nrow)), nrow)
+}
+
+WhichintersectInd <- function(ij1, ij2, nrow) {
+    ## from 2-column (i,j) matrices where i \in {0,.., nrow-1},
+    ## find *where*  common entries are in ij1 & ij2
+    m1 <- match(encodeInd(ij1, nrow), encodeInd(ij2, nrow))
+    ni <- !is.na(m1)
+    list(which(ni), m1[ni])
+}
+
 
 ### There is a test on this in ../tests/dgTMatrix.R !
 uniq <- function(x) {
@@ -151,12 +190,13 @@ uniq <- function(x) {
         ## Purpose: produce a *unique* triplet representation:
         ##		by having (i,j) sorted and unique
         ## -----------------------------------------------------------
-        ## The following is *not* efficient {but easy to program}:
+        ## The following is not quite efficient {but easy to program,
+        ## and both as() are based on C code
         if(is(x, "dgTMatrix")) as(as(x, "dgCMatrix"), "dgTMatrix")
         else if(is(x, "lgTMatrix")) as(as(x, "lgCMatrix"), "lgTMatrix")
         else stop("not implemented for class", class(x))
 
-    } else x      # not 'gT' ; i.e. "uniquely" represented in any case
+    } else x  ## not 'gT' ; i.e. "uniquely" represented in any case
 }
 
 if(FALSE) ## try an "efficient" version
@@ -164,7 +204,7 @@ uniq_gT <- function(x)
 {
     ## Purpose: produce a *unique* triplet representation:
     ##		by having (i,j) sorted and unique
-    ## ----------------------------------------------------------------------
+    ## ------------------------------------------------------------------
     ## Arguments: a "gT" Matrix
     stopifnot(is(x, "gTMatrix"))
     if((n <- length(x@i)) == 0) return(x)
@@ -226,10 +266,25 @@ l2d_meth <- function(x) {
     as(callGeneric(as(x, sub("^l", "d", cl))), cl)
 }
 
+dClass2 <- function(dClass, kind = "l") {
+    ## Find "corresponding" class for a dMatrix;
+    #  since pos.def. matrices have no pendant:
+    if(dClass == "dpoMatrix") paste(kind,"syMatrix", sep='')
+    else if(dClass == "dppMatrix") paste(kind,"spMatrix", sep='')
+    else sub("^d", kind, dClass)
+}
+
+geClass <- function(x) {
+    if(is(x, "dMatrix")) "dgeMatrix"
+    else if(is(x, "lMatrix")) "lgeMatrix"
+    else stop("general Matrix class not yet implemented for",
+	      class(x))
+}
+
 ## -> ./ddenseMatrix.R :
 d2l_Matrix <- function(from) {
     stopifnot(is(from, "dMatrix"))
-    fixupDense(new(sub("^d", "l", class(from)),
+    fixupDense(new(sub("^d", "l", class(from)), # no need for dClass2 here
                    Dim = from@Dim, Dimnames = from@Dimnames),
                from)
     ## FIXME: treat 'factors' smartly {not for triangular!}
@@ -260,18 +315,24 @@ canCoerce <- function(object, Class) {
 			 useInherited = c(from = TRUE, to = FALSE)))
 }
 
-.is.triangular <- function(object, upper = TRUE) {
+.is.triangular <- function(object, upper = NA) {
     ## pretest: is it square?
     d <- dim(object)
     if(d[1] != d[2]) return(FALSE)
     ## else slower test
     if(!is.matrix(object))
-        object <- as(object,"matrix")
+	object <- as(object,"matrix")
     ## == 0 even works for logical & complex:
-    if(upper)
-        all(object[lower.tri(object)] == 0)
-    else
-        all(object[upper.tri(object)] == 0)
+    if(is.na(upper)) {
+	if(all(object[lower.tri(object)] == 0))
+	    structure(TRUE, kind = "U")
+	else if(all(object[upper.tri(object)] == 0))
+	    structure(TRUE, kind = "L")
+	else FALSE
+    } else if(upper)
+	all(object[lower.tri(object)] == 0)
+    else ## upper is FALSE
+	all(object[upper.tri(object)] == 0)
 }
 
 .is.diagonal <- function(object) {

@@ -11,6 +11,7 @@
 \alias{coerce,lsyMatrix,lgeMatrix-method}
 \alias{coerce,lsyMatrix,lspMatrix-method}
 \alias{coerce,matrix,lsyMatrix-method}
+\alias{coerce,matrix,lspMatrix-method}
 \alias{t,lspMatrix-method}
 \alias{t,lsyMatrix-method}
 %

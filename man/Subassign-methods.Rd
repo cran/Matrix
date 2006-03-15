@@ -15,21 +15,18 @@
 \alias{[<-,denseMatrix,index,index,numeric-method}
 \alias{[<-,denseMatrix,missing,index,numeric-method}
 %
-% \alias{[<-,TsparseTMatrix,numeric,missing,logical-method}
-% \alias{[<-,TsparseTMatrix,missing,numeric,logical-method}
-% \alias{[<-,TsparseTMatrix,numeric,numeric,logical-method}
+% % -- maybe replace dgT* by Tsparse* ?
+\alias{[<-,dgTMatrix,index,index,numeric-method}
+\alias{[<-,dgTMatrix,index,missing,numeric-method}
+\alias{[<-,dgTMatrix,missing,index,numeric-method}
+% \alias{[<-,dgTMatrix,missing,missing,numeric-method}
+\alias{[<-,dgCMatrix,index,index,numeric-method}
+\alias{[<-,dgCMatrix,index,missing,numeric-method}
+\alias{[<-,dgCMatrix,missing,index,numeric-method}
 % %
-% \alias{[<-,dgTMatrix,missing,missing,ANY-method}
-% \alias{[<-,dgTMatrix,missing,numeric,logical-method}
-% \alias{[<-,dgTMatrix,missing,numeric,missing-method}
-% \alias{[<-,dgTMatrix,numeric,missing,logical-method}
-% \alias{[<-,dgTMatrix,numeric,missing,missing-method}
-% \alias{[<-,dgTMatrix,numeric,numeric,logical-method}
-% \alias{[<-,dgTMatrix,numeric,numeric,missing-method}
-% %
-% \alias{[<-,dsparseMatrix,missing,numeric,logical-method}
-% \alias{[<-,dsparseMatrix,numeric,missing,logical-method}
-% \alias{[<-,dsparseMatrix,numeric,numeric,logical-method}
+% \alias{[<-,dsparseMatrix,missing,index,numeric-method}
+% \alias{[<-,dsparseMatrix,index,missing,numeric-method}
+% \alias{[<-,dsparseMatrix,index,index,numeric-method}
 % %
 % \alias{[<-,lsparseMatrix,missing,numeric,logical-method}
 % \alias{[<-,lsparseMatrix,numeric,missing,logical-method}

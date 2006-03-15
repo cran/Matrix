@@ -58,7 +58,9 @@ Matrix(1:6, ncol=2)
 ## logical ones:
 Matrix(diag(4) >  0)# -> "ldiMatrix" with diag = "U"
 Matrix(diag(4) >= 0)# -> "lsyMatrix"
-Matrix(upper.tri(matrix(,3,3)))# -> "ltCMatrix"
+l3 <- upper.tri(matrix(,3,3))
+Matrix(l3)  # -> "ltCMatrix"
+Matrix(! l3)# -> "ltrMatrix"
 
 Matrix(1:9, nrow=3,
        dimnames = list(c("a", "b", "c"), c("A", "B", "C")))

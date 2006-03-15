@@ -49,4 +49,4 @@ e3. <- rbind(c(1,6,18,36),
              c(0,0, 0, 1))
 assert.EQ.mat(e3, e3.)
 
-proc.time() # for ``statistical reasons''
+cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''

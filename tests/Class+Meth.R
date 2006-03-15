@@ -105,11 +105,11 @@ tstMatrixClass <-
                 cat.("----- end{class :", clNam, "}---------------------\n")
             }
         } else {
-            cat("; new(..):")
+            cat("; new(..): ")
             m <- new(clNam)
 
             if(any(clNam == not.ok.classes)) {
-                cat(" in 'stop list' - no validity\n")
+                cat("in 'stop list' - no validity\n")
             } else {
                 cat("valid: ", validObject(m))
 
@@ -126,12 +126,15 @@ tstMatrixClass <-
                   ## improve: cat.(  captureOutput(show(m) ) )
                 else cat.("	-- no show() yet \n")
 
-                if(all(clNam != not.coerce0)) {## coer
+                if(all(clNam != not.coerce0)) {## coerce to 'matrix'
                     m.m <- as(m, "matrix")
                     ## and test 'dim()' as well:
                     stopifnot(identical(dim(m.m), dim(m)))
                 } else stopifnot(length(dim(m)) == 2)
 
+### FIXME: organize differently :
+### 1) produce 'mM'  and 'mm' for the other cases,
+### 2) use identical code for all cases
                 if(is(m, "dMatrix") && is(m, "compMatrix")) {
                     if(any(clNam == not.coerce1))
                         cat.("not coercable_1\n")
@@ -139,6 +142,8 @@ tstMatrixClass <-
                         cat.("as(dge*, <class>): ")
                         m2 <- as(mM, clNam)
                         cat("valid:", validObject(m2), "\n")
+                        ## as.vector()
+                        stopifnot(as.vector(m2) == as.vector(mM))
                     }
                     if(all(clNam != not.coerce2)) {
                         cat.("as(matrix, <class>): ")
@@ -147,9 +152,24 @@ tstMatrixClass <-
                     }
                 }
                 else { ## not numeric composite: logical / triangular/diagonal ..
-                    ## FIXME: also add tests for these
-                    if(is(m, "triangularMatrix")) {
-
+                    if(any(clNam == not.coerce1))
+                        cat.("not coercable_1\n")
+                    else {
+                        ## FIXME: also add tests for these
+                        if(is(m, "lMatrix")) {
+                        }
+                        else if(is(m, "triangularMatrix")) {
+                            mm. <- mm
+                            i0 <- if(m@uplo == "L")
+                                upper.tri(mm.) else lower.tri(mm.)
+                            mm.[i0] <- 0
+                            cat.("as(matrix, <class>): ")
+                            m3 <- as(mm., clNam)
+                            cat("valid:", validObject(m3), "\n")
+                        }
+                        else { ## diagonal (only one)?
+                            ## TODO
+                        }
                     }
                 }
 
@@ -185,3 +205,5 @@ tstMatrixClass("Matrix")
 if(FALSE)## or just a sub class
 tstMatrixClass("triangularMatrix")
 
+
+cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''

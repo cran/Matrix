@@ -38,8 +38,8 @@ setClass("symmetricMatrix",
 setClass("triangularMatrix",
 	 representation(uplo = "character", diag = "character", "VIRTUAL"),
          contains = "Matrix",
-         validity =
-        function(object) .Call("triangularMatrix_validate", object, PACKAGE = "Matrix")
+         validity = function(object)
+         .Call("triangularMatrix_validate", object, PACKAGE = "Matrix")
          )
 
 
@@ -459,9 +459,10 @@ setClass("pMatrix", representation(perm = "integer"),
 
 ## Definition  Packed := dense with length( . @x) < prod( . @Dim)
 ##             ~~~~~~
-setClassUnion("packedMatrix",
-              members = c("dspMatrix", "dppMatrix", "dtpMatrix",
-               "lspMatrix", "ltpMatrix", "diagonalMatrix"))
+## REPLACED the following with  isPacked() in ./Auxiliaries.R :
+## setClassUnion("packedMatrix",
+##               members = c("dspMatrix", "dppMatrix", "dtpMatrix",
+##                "lspMatrix", "ltpMatrix", "diagonalMatrix"))
 
 
 ## --------------------- non-"Matrix" Classes --------------------------------
@@ -542,6 +543,23 @@ setClass("lmer",
 	 representation(assign = "integer", frame = "data.frame",
 			terms = "terms"),
 	 contains = "mer")
+
+setClass("summary.mer", # the "mer" result ``enhanced'' :
+	 representation(
+			isG   = "logical",
+			methTitle = "character",
+			logLik= "logLik",
+			ngrps = "integer",
+			sigma = "numeric", # scale, non-negative number
+			coefs = "matrix",
+			vcov = "dpoMatrix",
+			REmat = "matrix",
+			AICtab= "data.frame"
+			),
+	 contains = "mer")
+
+setClass("summary.lmer", contains = c("summary.mer", "lmer"))
+
 
 setClass("lmer.ranef", contains = "list")
 

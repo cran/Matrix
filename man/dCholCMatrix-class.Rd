@@ -66,8 +66,8 @@
   \code{\link{dgCMatrix-class}}
 }
 \examples{
-data(mm)
-xpx <- crossprod(mm)
+data(KNex)
+xpx <- with(KNex, crossprod(mm))
 str(xpx)
 str(ch <- chol(xpx))
 

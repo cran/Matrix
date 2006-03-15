@@ -16,7 +16,7 @@
   to be solved.  There are several ways to perform this calculation,
   using objects from the base R system and using objects in the
   classes defined in the \code{Matrix} package.
-  
+
   We compare the speed of some of these methods on a very small
   example and on a example for which the model matrix is large and
   sparse.
@@ -55,28 +55,30 @@ the \code{Formaldehyde} data.
 <<modelMatrix>>=
 data(Formaldehyde)
 str(Formaldehyde)
-(mm <- cbind(1, Formaldehyde$carb))
-(y <- Formaldehyde$optden)
-@ 
+(m <- cbind(1, Formaldehyde$carb))
+(yo <- Formaldehyde$optden)
+@
 Using \code{t} to evaluate
 the transpose, \code{solve} to take an inverse, and the \code{\%*\%}
 operator for matrix multiplication, we can translate \ref{eq:XPX} into
 the \Slang{} as
 <<naiveCalc>>=
-solve(t(mm) %*% mm) %*% t(mm) %*% y
-@ 
+solve(t(m) %*% m) %*% t(m) %*% yo
+@
 
 On modern computers this calculation is performed so quickly that it cannot
 be timed accurately in \RR{}
+\footnote{From R version 2.2.0, \code{system.time()} has default argument
+  \code{gcFirst = TRUE} which is assumed and relevant for all subsequent timings}
 <<timedNaive>>=
-system.time(solve(t(mm) %*% mm) %*% t(mm) %*% y, gc = TRUE)
-@ 
+system.time(solve(t(m) %*% m) %*% t(m) %*% yo)
+@
 and it provides essentially the same results as the standard
 \code{lm.fit} function that is called by \code{lm}.
 <<catNaive>>=
-dput(c(solve(t(mm) %*% mm) %*% t(mm) %*% y))
-dput(lm.fit(mm, y)$coefficients)
-@ 
+dput(c(solve(t(m) %*% m) %*% t(m) %*% yo))
+dput(unname(lm.fit(m, yo)$coefficients))
+@
 %$
 
 \subsection{A large example}
@@ -87,12 +89,12 @@ described in \citet{koen:ng:2003}, the literal translation of
 (\ref{eq:XPX}) does not perform well.
 <<KoenNg>>=
 library(Matrix)
-data(mm, package = "Matrix")
-data(y, package = "Matrix")
-mm <- as(mm, "matrix")
+data(KNex, package = "Matrix")
+ y <- KNex$y
+mm <- as(KNex$mm, "matrix")
 dim(mm)
-system.time(naive.sol <- solve(t(mm) %*% mm) %*% t(mm) %*% y, gc = TRUE)
-@ 
+system.time(naive.sol <- solve(t(mm) %*% mm) %*% t(mm) %*% y)
+@
 
 Because the calculation of a ``cross-product'' matrix, such as
 $\bX\trans\bX$ or $\bX\trans\bm{y}$, is a common operation in
@@ -114,17 +116,18 @@ is solved directly.
 
 Combining these optimizations we obtain
 <<crossKoenNg>>=
-system.time(cpod.sol <- solve(crossprod(mm), crossprod(mm,y)), gc = TRUE)
+system.time(cpod.sol <- solve(crossprod(mm), crossprod(mm,y)))
 all.equal(naive.sol, cpod.sol)
-@ 
+@
 
 On this computer (2.0 GHz Pentium-4, 1 GB Memory, Goto's BLAS) the
+%% ---- which one ? {every time the vignette's is rebuilt ..}
 crossprod form of the calculation is about four times as fast as the
 naive calculation.  In fact, the entire crossprod solution is
 faster than simply calculating $\bX\trans\bX$ the naive way.
 <<xpxKoenNg>>=
-system.time(t(mm) %*% mm, gc = TRUE)
-@ 
+system.time(t(mm) %*% mm)
+@
 
 \subsection{Least squares calculations with Matrix classes}
 \label{sec:MatrixLSQ}
@@ -138,12 +141,12 @@ decomposition when it would be faster, and more stable numerically, to
 use a Cholesky decomposition.  The Cholesky decomposition could be used
 but it is rather awkward
 <<naiveChol>>=
-system.time(ch <- chol(crossprod(mm)), gc = TRUE)
+system.time(ch <- chol(crossprod(mm)))
 system.time(chol.sol <- backsolve(ch,
-   forwardsolve(ch, crossprod(mm, y), upper = TRUE, trans = TRUE)),
-   gc = TRUE)
+   forwardsolve(ch, crossprod(mm, y), upper = TRUE, trans = TRUE)))
+
 all.equal(chol.sol, naive.sol)
-@ 
+@
 
 The \code{Matrix} package uses the S4 class system
 \citep{R:Chambers:1998} to retain information on the structure of
@@ -153,12 +156,11 @@ dense storage, created by the \code{Matrix} function, has class
 The \code{solve} methods for the \code{"dpoMatrix"} class use the
 Cholesky decomposition.
 <<MatrixKoenNg>>=
-data(mm, package = "Matrix")
-mm <- as(mm, "dgeMatrix")
+mm <- as(KNex$mm, "dgeMatrix")
 class(crossprod(mm))
-system.time(Mat.sol <- solve(crossprod(mm), crossprod(mm, y)), gc=TRUE)
-all.equal(naive.sol, as(Mat.sol, "matrix"))
-@ 
+system.time(Mat.sol <- solve(crossprod(mm), crossprod(mm, y)))
+all.equal(naive.sol, unname(as(Mat.sol, "matrix")))
+@
 
 Furthermore, any method that calculates a
 decomposition or factorization stores the resulting factorization with
@@ -166,20 +168,20 @@ the original object so that it can be reused without recalculation.
 <<saveFactor>>=
 xpx <- crossprod(mm)
 xpy <- crossprod(mm, y)
-system.time(solve(xpx, xpy), gc=TRUE)
-system.time(solve(xpx, xpy), gc=TRUE)
-@ 
+system.time(solve(xpx, xpy))
+system.time(solve(xpx, xpy))
+@
 
 The model matrix \code{mm} is sparse; that is, most of the elements of
 \code{mm} are zero.  The \code{Matrix} package incorporates special
 methods for sparse matrices, which produce the fastest results of all.
 
 <<SparseKoenNg>>=
-data(mm, package = "Matrix")
+mm <- KNex$mm
 class(mm)
-system.time(sparse.sol <- solve(crossprod(mm), crossprod(mm, y)), gc=TRUE)
+system.time(sparse.sol <- solve(crossprod(mm), crossprod(mm, y)))
 all.equal(naive.sol, as(sparse.sol, "matrix"))
-@ 
+@
 
 As with other classes in the \code{Matrix} package, the
 \code{dsCMatrix} retains any factorization that has been calculated
@@ -189,9 +191,9 @@ difficult to determine the difference in the solution times.
 <<SparseSaveFactor>>=
 xpx <- crossprod(mm)
 xpy <- crossprod(mm, y)
-system.time(solve(xpx, xpy), gc=TRUE)
-system.time(solve(xpx, xpy), gc=TRUE)
-@ 
+system.time(solve(xpx, xpy))
+system.time(solve(xpx, xpy))
+@
 
 \bibliography{Matrix}
 \end{document}

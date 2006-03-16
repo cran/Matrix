@@ -1,3 +1,10 @@
+2006-03-16  Douglas Bates  <bates@bates2>
+
+	* src/dpoMatrix.c (dpoMatrix_chol): Require n > 0 in call to
+	dpotrf - otherwise the BLAS on Mac OS X complains and quits.
+
+	* DESCRIPTION (Date): New release
+
 2006-03-15  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* DESCRIPTION (Version): 0.995-6  -- to be released to CRAN

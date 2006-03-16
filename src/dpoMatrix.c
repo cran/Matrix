@@ -32,13 +32,15 @@ SEXP dpoMatrix_chol(SEXP x)
     vx = REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, n * n));
     AZERO(vx, n * n);
     F77_CALL(dlacpy)(uplo, &n, &n, REAL(GET_SLOT(x, Matrix_xSym)), &n, vx, &n);
-    F77_CALL(dpotrf)(uplo, &n, vx, &n, &info);
-    if (info) {
-	if(info > 0)
-	    error(_("the leading minor of order %d is not positive definite"),
-		    info);
-	else /* should never happen! */
-	    error(_("Lapack routine %s returned error code %d"), "dpotrf", info);
+    if (n > 0) {
+	F77_CALL(dpotrf)(uplo, &n, vx, &n, &info);
+	if (info) {
+	    if(info > 0)
+		error(_("the leading minor of order %d is not positive definite"),
+		      info);
+	    else /* should never happen! */
+		error(_("Lapack routine %s returned error code %d"), "dpotrf", info);
+	}
     }
     UNPROTECT(1);
     return set_factors(x, val, "Cholesky");

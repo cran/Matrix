@@ -1,0 +1,339 @@
+\documentclass{article}
+\usepackage{myVignette}
+\usepackage[authoryear,round]{natbib}
+\bibliographystyle{plainnat}
+%%\VignetteIndexEntry{Comparisons of Least Squares calculation speeds}
+%%\VignetteDepends{Matrix}
+\usepackage{/Library/Frameworks/R.framework/Resources/share/texmf/Sweave}
+\begin{document}
+
+\setkeys{Gin}{width=\textwidth}
+\title{Comparing Least Squares Calculations}
+\author{Douglas Bates\\R Development Core Team\\\email{Douglas.Bates@R-project.org}}
+\date{\today}
+\maketitle
+\begin{abstract}
+  Many statistics methods require one or more least squares problems
+  to be solved.  There are several ways to perform this calculation,
+  using objects from the base R system and using objects in the
+  classes defined in the \code{Matrix} package.
+
+  We compare the speed of some of these methods on a very small
+  example and on a example for which the model matrix is large and
+  sparse.
+\end{abstract}
+
+\section{Linear least squares calculations}
+\label{sec:LeastSquares}
+
+Many statistical techniques require least squares solutions
+\begin{equation}
+  \label{eq:LeastSquares}
+  \widehat{\bm{\beta}}=
+  \arg\min_{\bm{\beta}}\left\|\bm{y}-\bX\bm{\beta}\right\|^2
+\end{equation}
+where $\bX$ is an $n\times p$ model matrix ($p\leq n$), $\bm{y}$ is
+$n$-dimensional and $\bm{\beta}$ is $p$ dimensional.  Most statistics
+texts state that the solution to (\ref{eq:LeastSquares}) is
+\begin{equation}
+  \label{eq:XPX}
+  \widehat{\bm{\beta}}=\left(\bX\trans\bX\right)^{-1}\bX\trans\bm{y}
+\end{equation}
+when $\bX$ has full column rank (i.e. the columns of $\bX$ are
+linearly independent) and all too frequently it is calculated in
+exactly this way.
+
+
+\subsection{A small example}
+\label{sec:smallLSQ}
+
+As an example, let's create a model matrix, \code{mm}, and corresponding
+response vector, \code{y}, for a simple linear regression model using
+the \code{Formaldehyde} data.
+\begin{Schunk}
+\begin{Sinput}
+> data(Formaldehyde)
+> str(Formaldehyde)
+\end{Sinput}
+\begin{Soutput}
+`data.frame':	6 obs. of  2 variables:
+ $ carb  : num  0.1 0.3 0.5 0.6 0.7 0.9
+ $ optden: num  0.086 0.269 0.446 0.538 0.626 0.782
+\end{Soutput}
+\begin{Sinput}
+> (m <- cbind(1, Formaldehyde$carb))
+\end{Sinput}
+\begin{Soutput}
+     [,1] [,2]
+[1,]    1  0.1
+[2,]    1  0.3
+[3,]    1  0.5
+[4,]    1  0.6
+[5,]    1  0.7
+[6,]    1  0.9
+\end{Soutput}
+\begin{Sinput}
+> (yo <- Formaldehyde$optden)
+\end{Sinput}
+\begin{Soutput}
+[1] 0.086 0.269 0.446 0.538 0.626 0.782
+\end{Soutput}
+\end{Schunk}
+Using \code{t} to evaluate
+the transpose, \code{solve} to take an inverse, and the \code{\%*\%}
+operator for matrix multiplication, we can translate \ref{eq:XPX} into
+the \Slang{} as
+\begin{Schunk}
+\begin{Sinput}
+> solve(t(m) %*% m) %*% t(m) %*% yo
+\end{Sinput}
+\begin{Soutput}
+            [,1]
+[1,] 0.005085714
+[2,] 0.876285714
+\end{Soutput}
+\end{Schunk}
+
+On modern computers this calculation is performed so quickly that it cannot
+be timed accurately in \RR{}
+\footnote{From R version 2.2.0, \code{system.time()} has default argument
+  \code{gcFirst = TRUE} which is assumed and relevant for all subsequent timings}
+\begin{Schunk}
+\begin{Sinput}
+> system.time(solve(t(m) %*% m) %*% t(m) %*% yo)
+\end{Sinput}
+\begin{Soutput}
+[1] 0 0 0 0 0
+\end{Soutput}
+\end{Schunk}
+and it provides essentially the same results as the standard
+\code{lm.fit} function that is called by \code{lm}.
+\begin{Schunk}
+\begin{Sinput}
+> dput(c(solve(t(m) %*% m) %*% t(m) %*% yo))
+\end{Sinput}
+\begin{Soutput}
+c(0.00508571428571443, 0.876285714285715)
+\end{Soutput}
+\begin{Sinput}
+> dput(unname(lm.fit(m, yo)$coefficients))
+\end{Sinput}
+\begin{Soutput}
+c(0.00508571428571428, 0.876285714285714)
+\end{Soutput}
+\end{Schunk}
+%$
+
+\subsection{A large example}
+\label{sec:largeLSQ}
+
+For a large, ill-conditioned least squares problem, such as that
+described in \citet{koen:ng:2003}, the literal translation of
+(\ref{eq:XPX}) does not perform well.
+\begin{Schunk}
+\begin{Sinput}
+> library(Matrix)
+> data(KNex, package = "Matrix")
+> y <- KNex$y
+> mm <- as(KNex$mm, "matrix")
+> dim(mm)
+\end{Sinput}
+\begin{Soutput}
+[1] 1850  712
+\end{Soutput}
+\begin{Sinput}
+> system.time(naive.sol <- solve(t(mm) %*% mm) %*% t(mm) %*% 
++     y)
+\end{Sinput}
+\begin{Soutput}
+[1] 2.14 0.16 3.22 0.00 0.00
+\end{Soutput}
+\end{Schunk}
+
+Because the calculation of a ``cross-product'' matrix, such as
+$\bX\trans\bX$ or $\bX\trans\bm{y}$, is a common operation in
+statistics, the \code{crossprod} function has been provided to do
+this efficiently.  In the single argument form \code{crossprod(mm)}
+calculates $\bX\trans\bX$, taking advantage of the symmetry of the
+product.  That is, instead of calculating the $712^2=506944$ elements of
+$\bX\trans\bX$ separately, it only calculates the $(712\cdot
+713)/2=253828$ elements in the upper triangle and replicates them in
+the lower triangle. Furthermore, there is no need to calculate the
+inverse of a matrix explicitly when solving a
+linear system of equations.  When the two argument form of the \code{solve}
+function is used the linear system
+\begin{equation}
+  \label{eq:LSQsol}
+  \left(\bX\trans\bX\right) \widehat{\bm{\beta}} = \bX\trans\by
+\end{equation}
+is solved directly.
+
+Combining these optimizations we obtain
+\begin{Schunk}
+\begin{Sinput}
+> system.time(cpod.sol <- solve(crossprod(mm), crossprod(mm, 
++     y)))
+\end{Sinput}
+\begin{Soutput}
+[1] 2.00 0.07 2.12 0.00 0.00
+\end{Soutput}
+\begin{Sinput}
+> all.equal(naive.sol, cpod.sol)
+\end{Sinput}
+\begin{Soutput}
+[1] TRUE
+\end{Soutput}
+\end{Schunk}
+
+On this computer (2.0 GHz Pentium-4, 1 GB Memory, Goto's BLAS) the
+%% ---- which one ? {every time the vignette's is rebuilt ..}
+crossprod form of the calculation is about four times as fast as the
+naive calculation.  In fact, the entire crossprod solution is
+faster than simply calculating $\bX\trans\bX$ the naive way.
+\begin{Schunk}
+\begin{Sinput}
+> system.time(t(mm) %*% mm)
+\end{Sinput}
+\begin{Soutput}
+[1] 0.09 0.02 0.11 0.00 0.00
+\end{Soutput}
+\end{Schunk}
+
+\subsection{Least squares calculations with Matrix classes}
+\label{sec:MatrixLSQ}
+
+The \code{crossprod} function applied to a single matrix takes
+advantage of symmetry when calculating the product but does not retain
+the information that the product is symmetric (and positive
+semidefinite).  As a result the solution of (\ref{eq:LSQsol}) is
+performed using general linear system solver based on an LU
+decomposition when it would be faster, and more stable numerically, to
+use a Cholesky decomposition.  The Cholesky decomposition could be used
+but it is rather awkward
+\begin{Schunk}
+\begin{Sinput}
+> system.time(ch <- chol(crossprod(mm)))
+\end{Sinput}
+\begin{Soutput}
+[1] 1.81 0.04 1.94 0.00 0.00
+\end{Soutput}
+\begin{Sinput}
+> system.time(chol.sol <- backsolve(ch, forwardsolve(ch, crossprod(mm, 
++     y), upper = TRUE, trans = TRUE)))
+\end{Sinput}
+\begin{Soutput}
+[1] 0.06 0.05 0.13 0.00 0.00
+\end{Soutput}
+\begin{Sinput}
+> all.equal(chol.sol, naive.sol)
+\end{Sinput}
+\begin{Soutput}
+[1] TRUE
+\end{Soutput}
+\end{Schunk}
+
+The \code{Matrix} package uses the S4 class system
+\citep{R:Chambers:1998} to retain information on the structure of
+matrices from the intermediate calculations.  A general matrix in
+dense storage, created by the \code{Matrix} function, has class
+\code{"dgeMatrix"} but its cross-product has class \code{"dpoMatrix"}.
+The \code{solve} methods for the \code{"dpoMatrix"} class use the
+Cholesky decomposition.
+\begin{Schunk}
+\begin{Sinput}
+> mm <- as(KNex$mm, "dgeMatrix")
+> class(crossprod(mm))
+\end{Sinput}
+\begin{Soutput}
+[1] "dpoMatrix"
+attr(,"package")
+[1] "Matrix"
+\end{Soutput}
+\begin{Sinput}
+> system.time(Mat.sol <- solve(crossprod(mm), crossprod(mm, 
++     y)))
+\end{Sinput}
+\begin{Soutput}
+[1] 1.84 0.04 2.02 0.00 0.00
+\end{Soutput}
+\begin{Sinput}
+> all.equal(naive.sol, unname(as(Mat.sol, "matrix")))
+\end{Sinput}
+\begin{Soutput}
+[1] TRUE
+\end{Soutput}
+\end{Schunk}
+
+Furthermore, any method that calculates a
+decomposition or factorization stores the resulting factorization with
+the original object so that it can be reused without recalculation.
+\begin{Schunk}
+\begin{Sinput}
+> xpx <- crossprod(mm)
+> xpy <- crossprod(mm, y)
+> system.time(solve(xpx, xpy))
+\end{Sinput}
+\begin{Soutput}
+[1] 0.13 0.02 0.16 0.00 0.00
+\end{Soutput}
+\begin{Sinput}
+> system.time(solve(xpx, xpy))
+\end{Sinput}
+\begin{Soutput}
+[1] 0.01 0.00 0.01 0.00 0.00
+\end{Soutput}
+\end{Schunk}
+
+The model matrix \code{mm} is sparse; that is, most of the elements of
+\code{mm} are zero.  The \code{Matrix} package incorporates special
+methods for sparse matrices, which produce the fastest results of all.
+
+\begin{Schunk}
+\begin{Sinput}
+> mm <- KNex$mm
+> class(mm)
+\end{Sinput}
+\begin{Soutput}
+[1] "dgCMatrix"
+attr(,"package")
+[1] "Matrix"
+\end{Soutput}
+\begin{Sinput}
+> system.time(sparse.sol <- solve(crossprod(mm), crossprod(mm, 
++     y)))
+\end{Sinput}
+\begin{Soutput}
+[1] 0.05 0.00 0.06 0.00 0.00
+\end{Soutput}
+\begin{Sinput}
+> all.equal(naive.sol, as(sparse.sol, "matrix"))
+\end{Sinput}
+\begin{Soutput}
+[1] "Attributes: < Length mismatch: comparison on first 1 components >"
+\end{Soutput}
+\end{Schunk}
+
+As with other classes in the \code{Matrix} package, the
+\code{dsCMatrix} retains any factorization that has been calculated
+although, in this case, the decomposition is so fast that it is
+difficult to determine the difference in the solution times.
+
+\begin{Schunk}
+\begin{Sinput}
+> xpx <- crossprod(mm)
+> xpy <- crossprod(mm, y)
+> system.time(solve(xpx, xpy))
+\end{Sinput}
+\begin{Soutput}
+[1] 0.01 0.00 0.01 0.00 0.00
+\end{Soutput}
+\begin{Sinput}
+> system.time(solve(xpx, xpy))
+\end{Sinput}
+\begin{Soutput}
+[1] 0 0 0 0 0
+\end{Soutput}
+\end{Schunk}
+
+\bibliography{Matrix}
+\end{document}

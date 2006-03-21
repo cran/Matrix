@@ -1,3 +1,11 @@
+-----
+- Revive the "lmer" and "glmer" classes.  Slots like "family" should
+  be in "glmer" only.  Many methods for "lmer" can be simplified as,
+  for example, they will always use the scale factor.
+
+- Add a "pedigree" class and methods for it.  Allow a pedigree
+  argument in lmer.
+
 ------
 - Sparse matrix methods can now be based on the CHOLMOD package.  We
    will need to migrate from the current code to CHOLMOD-based code

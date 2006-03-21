@@ -1,8 +1,10 @@
 library(Matrix)
+library(lattice)
 options(show.signif.stars = FALSE)
 
 (fm1 <- lmer(Reaction ~ Days + (Days|Subject), sleepstudy))
-(fm2 <- lmer(Reaction ~ Days + (Days|Subject), sleepstudy, method = "ML"))
+(fm1a <- lmer(Reaction ~ Days + (Days|Subject), sleepstudy, method = "ML"))
+(fm2 <- lmer(Reaction ~ Days + (1|Subject) + (0+Days|Subject), sleepstudy))
 
 ## should produce a warning but fit by REML
 (fm1b <- lmer(Reaction ~ Days + (Days|Subject), sleepstudy, method = "AGQ"))
@@ -36,6 +38,22 @@ y <- rnorm (n, a.group[group.id], 1)
 fit.1 <- lmer (y ~ 1 + (1 | group.id))
 coef (fit.1)# failed in Matrix 0.99-6
 (sf1 <- summary(fit.1)) # show() is as without summary()
+## ranef and coef
+rr <- ranef(fm1)
+stopifnot(is.list(rr), length(rr) == 1, class(rr[[1]]) == "data.frame")
+print(plot(rr))
+cc <- coef(fm1)
+stopifnot(is.list(cc), length(cc) == 1, class(cc[[1]]) == "data.frame")
+print(plot(cc))
+rr <- ranef(fm2)
+stopifnot(is.list(rr), length(rr) == 2,
+          all((sapply(rr, class) == "data.frame")))
+print(plot(rr))
+cc <- coef(fm2)
+stopifnot(is.list(cc), length(cc) == 2,
+          all((sapply(cc, class) == "data.frame")))
+print(plot(cc))
+
 
 ## Many family = binomial cases
 if (isTRUE(try(data(Contraception, package = 'mlmRev')) == 'Contraception')) {

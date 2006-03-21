@@ -1,13 +1,16 @@
 \name{lmer-class}
 \title{Mixed Model Representations and *mer Methods}
 \docType{class}
+% Classes
 \alias{lmer-class}
 \alias{mer-class}
+\alias{coef.lmer-class}
 \alias{summary.mer-class}
 \alias{summary.lmer-class}
-\alias{lmer.ranef-class}
+\alias{ranef.lmer-class}
 % Methods
 \alias{anova,mer-method}
+\alias{coef,mer-method}
 \alias{coef,mer-method}
 \alias{coerce,lmer,dsTMatrix-method}
 \alias{coerce,mer,dtCMatrix-method}
@@ -18,13 +21,10 @@
 \alias{fitted,mer-method}
 \alias{formula,mer-method}
 \alias{logLik,mer-method}
-%\alias{plot,lmer.coef-method}
-\alias{plot,lmer.ranef-method}
-\alias{resid,lmer-method}
+\alias{plot,coef.lmer-method}
+\alias{plot,ranef.lmer-method}
 \alias{resid,mer-method}
-\alias{residuals,lmer-method}
 \alias{residuals,mer-method}
-\alias{show,lmer-method}
 \alias{show,mer-method}
 \alias{simulate,mer-method}
 \alias{summary,mer-method}
@@ -42,7 +42,9 @@
   blocked, sparse, symmetric, column-oriented matrix and dense
   matrices.  The \code{lmer} class extends \code{mer} to represent a
   fitted linear mixed-effects model.  The \code{summary.mer} and
-  \code{summary.lmer} classes represent summaries of these objects.
+  \code{summary.lmer} classes represent summaries of these objects.  The
+  \code{coef.lmer} and \code{ranef.lmer} classes represent fixed and
+  random effect \dQuote{coefficients}.
 }
 \section{Objects from the Class}{
   Objects can be created by calls of the form \code{new("lmer", ...)}

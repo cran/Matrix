@@ -1,12 +1,31 @@
 BIC                     Bayesian Information Criterion
 Cholesky-class          Cholesky and Bunch-Kaufman Decompositions
+CsparseMatrix-class     Class "CsparseMatrix" of Sparse Matrices in
+                        Column-compressed Form
+Diagonal                Create Diagonal Matrix Object
+Hilbert                 Generate a Hilbert matrix
+KNex                    Koenker-Ng Example Sparse Model Matrix and
+                        Response Vector
+LU-class                LU Matrix Decompositions
+Matrix                  Construct a Classed Matrix
+Matrix-class            Virtual Class "Matrix" Class of Matrices
+RsparseMatrix-class     Class "RsparseMatrix" of Sparse Matrices in
+                        Column-compressed Form
+Schur                   Schur Decomposition of a Matrix
+TsparseMatrix-class     Class "TsparseMatrix" of Sparse Matrices in
+                        Triplet Form
+VarCorr                 Extract variance and correlation components
+VarCorr-class           Class "VarCorr"
+[-methods               Methods for "[": Extraction or Subsetting in
+                        Package 'Matrix'
+[<--methods             Methods for "[<-" - Assigning to Subsets for
+                        'Matrix'
 compMatrix-class        Class "compMatrix" of Composite (Factorizable)
                         Matrices
 corrmatrix-class        Class "corrmatrix"
-CsparseMatrix-class     Class "CsparseMatrix" of Sparse Matrices in
-                        Column-compressed Form
 dCHMsimpl-class         CHOLMOD-based Cholesky factorizations
 dCholCMatrix-class      Cholesky Decompositions of dsCMatrix Objects
+dMatrix-class           (Virtual) Class "dMatrix" of "double" Matrices
 ddenseMatrix-class      Virtual Class "ddenseMatrix" of Numeric Dense
                         Matrices
 ddiMatrix-class         Class "ddiMatrix" of Diagonal Numeric Matrices
@@ -14,36 +33,31 @@ denseMatrix-class       Virtual Class "denseMatrix" of All Dense
                         Matrices
 dgCMatrix-class         Compressed, sparse, column-oriented numeric
                         matrices
-dgeMatrix-class         Class "dgeMatrix" of Dense Numeric (S4 Class)
-                        Matrices
 dgRMatrix-class         Compressed, sparse, row-oriented numeric
                         matrices
 dgTMatrix-class         Sparse matrices in triplet form
-Diagonal                Create Diagonal Matrix Object
+dgeMatrix-class         Class "dgeMatrix" of Dense Numeric (S4 Class)
+                        Matrices
 diagonalMatrix-class    Class "diagonalMatrix" of Diagonal Matrices
-dMatrix-class           (Virtual) Class "dMatrix" of "double" Matrices
 dpoMatrix-class         Positive Semi-definite Dense Numeric Matrices
 dsCMatrix-class         Numeric Symmetric Sparse (column compressed)
                         Matrices
+dsRMatrix-class         Symmetric Sparse Compressed Row Matrices
 dsparseMatrix-class     Virtual Class "dsparseMatrix" of Numeric Sparse
                         Matrices
-dsRMatrix-class         Symmetric Sparse Compressed Row Matrices
 dsyMatrix-class         Symmetric Dense Numeric Matrices
 dtCMatrix-class         Triangular, (compressed) sparse column matrices
+dtRMatrix-class         Triangular Sparse Compressed Row Matrices
 dtpMatrix-class         Packed triangular dense matrices
 dtrMatrix-class         Triangular, dense, numeric matrices
-dtRMatrix-class         Triangular Sparse Compressed Row Matrices
 expand                  Expand a Decomposition into Factors
 expm                    Matrix exponential
 facmul                  Multiplication by Decomposition Factors
 fixef                   Extract Fixed Effects
 generalMatrix-class     Class "generalMatrix" of General Matrices
-Hilbert                 Generate a Hilbert matrix
 iMatrix-class           Virtual Classes Not Yet Used
 index-class             Virtual Class "index" - Simple Class for Matrix
                         Indices
-KNex                    Koenker-Ng Example Sparse Model Matrix and
-                        Response Vector
 ldenseMatrix-class      Virtual Class "ldenseMatrix" of Dense Logical
                         Matrices
 ldiMatrix-class         Class "ldiMatrix" of Diagonal Logical Matrices
@@ -55,22 +69,12 @@ lsparseMatrix-class     Sparse logical matrices
 lsyMatrix-class         Symmetric Dense Logical Matrices
 ltrMatrix-class         Triangular Dense Logical Matrices
 lu                      Triangular Decomposition of a Square Matrix
-LU-class                LU Matrix Decompositions
-Matrix                  Construct a Classed Matrix
-Matrix-class            Virtual Class "Matrix" Class of Matrices
 mcmcsamp                Generate an MCMC sample
-[<--methods             Methods for "[<-" - Assigning to Subsets for
-                        'Matrix'
-[-methods               Methods for "[": Extraction or Subsetting in
-                        Package 'Matrix'
 norm                    Norm of a Matrix
 pMatrix-class           Permutation matrices
 ranef                   Extract Random Effects
 rcond                   Estimate the Reciprocal Condition Number
 readHB                  Read and write external matrix formats
-RsparseMatrix-class     Class "RsparseMatrix" of Sparse Matrices in
-                        Column-compressed Form
-Schur                   Schur Decomposition of a Matrix
 sleepstudy              Reaction times in a sleep deprivation study
 sparseMatrix-class      Virtual Class "sparseMatrix" -- Mother of
                         Sparse Matrices
@@ -80,8 +84,4 @@ tcrossprod              Cross-product of transpose
 triangularMatrix-class
                         Virtual Class of Triangular Matrices in
                         package:Matrix
-TsparseMatrix-class     Class "TsparseMatrix" of Sparse Matrices in
-                        Triplet Form
 unpack                  Full Storage Representation of Packed Matrices
-VarCorr                 Extract variance and correlation components
-VarCorr-class           Class "VarCorr"

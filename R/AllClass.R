@@ -560,7 +560,8 @@ setClass("summary.mer", # the "mer" result ``enhanced'' :
 
 setClass("summary.lmer", contains = c("summary.mer", "lmer"))
 
+setClass("ranef.lmer", contains = "list")
 
-setClass("lmer.ranef", contains = "list")
+setClass("coef.lmer", contains = "list")
 
 

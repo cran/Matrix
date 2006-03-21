@@ -1345,7 +1345,7 @@ SEXP mer_Hessian(SEXP x)
  * Generate a Markov-Chain Monte Carlo sample from a fitted
  * linear mixed model.
  *
- * @param mer pointer to an mer object
+ * @param x pointer to an mer object
  * @param savebp pointer to a logical scalar indicating if the
  * random-effects should be saved
  * @param nsampp pointer to an integer scalar of the number of samples

@@ -137,8 +137,8 @@ exportClasses(
 	      )
 
 ## lmer-related
-exportClasses("lmer", "lmer.ranef", "mer", "summary.mer", "summary.lmer")
-
+exportClasses("coef.lmer", "lmer", "mer", "ranef.lmer",
+              "summary.mer", "summary.lmer")
 
 exportMethods(
 	      ## Group Methods

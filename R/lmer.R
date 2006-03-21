@@ -115,40 +115,40 @@ rWishart <- function(n, df, invScal)
 setMethod("coef", signature(object = "mer"),
 	  function(object, ...)
       {
-	   fef <- data.frame(rbind(fixef(object)), check.names = FALSE)
-	   ref <- ranef(object)
-	   val <- lapply(ref, function(x) fef[rep(1, nrow(x)),,drop = FALSE])
-	   for (i in seq(a = val)) {
-	       refi <- ref[[i]]
-	       row.names(val[[i]]) <- row.names(refi)
-	       nmsi <- colnames(refi)
-	       if (!all(nmsi %in% names(fef)))
-		   stop("unable to align random and fixed effects")
-	       for (nm in nmsi) val[[i]][[nm]] <- val[[i]][[nm]] + refi[,nm]
-	   }
-	   val
+          fef <- data.frame(rbind(fixef(object)), check.names = FALSE)
+          ref <- ranef(object)
+          val <- lapply(ref, function(x) fef[rep(1, nrow(x)),,drop = FALSE])
+          for (i in seq(a = val)) {
+              refi <- ref[[i]]
+              row.names(val[[i]]) <- row.names(refi)
+              nmsi <- colnames(refi)
+              if (!all(nmsi %in% names(fef)))
+                  stop("unable to align random and fixed effects")
+              for (nm in nmsi) val[[i]][[nm]] <- val[[i]][[nm]] + refi[,nm]
+          }
+          new("coef.lmer", val)
        })
 
-## setMethod("plot", signature(x = "lmer.coef"),
-##	     function(x, y, ...)
-##	 {
-##	     varying <- unique(do.call("c",
-##				       lapply(x, function(el)
-##					      names(el)[sapply(el,
-##							       function(col)
-##							       any(col != col[1]))])))
-##	     gf <- do.call("rbind", lapply(x, "[", j = varying))
-##	     gf$.grp <- factor(rep(names(x), sapply(x, nrow)))
-##	     switch(min(length(varying), 3),
-##		    qqmath(eval(substitute(~ x | .grp,
-##					   list(x = as.name(varying[1])))), gf, ...),
-##		    xyplot(eval(substitute(y ~ x | .grp,
-##					   list(y = as.name(varying[1]),
-##						x = as.name(varying[2])))), gf, ...),
-##		    splom(~ gf | .grp, ...))
-##	 })
+setMethod("plot", signature(x = "coef.lmer"),
+          function(x, y, ...)
+      {
+          varying <- unique(do.call("c",
+                                    lapply(x, function(el)
+                                           names(el)[sapply(el,
+                                                            function(col)
+                                                            any(col != col[1]))])))
+          gf <- do.call("rbind", lapply(x, "[", j = varying))
+          gf$.grp <- factor(rep(names(x), sapply(x, nrow)))
+          switch(min(length(varying), 3),
+                 qqmath(eval(substitute(~ x | .grp,
+                                        list(x = as.name(varying[1])))), gf, ...),
+                 xyplot(eval(substitute(y ~ x | .grp,
+                                        list(y = as.name(varying[1]),
+                                             x = as.name(varying[2])))), gf, ...),
+                 splom(~ gf | .grp, ...))
+      })
 
-setMethod("plot", signature(x = "lmer.ranef"),
+setMethod("plot", signature(x = "ranef.lmer"),
 	  function(x, y, ...)
       {
 	  lapply(x, function(x) {
@@ -381,9 +381,13 @@ setMethod("fixef", signature(object = "mer"),
 
 ## Extract the random effects
 setMethod("ranef", signature(object = "mer"),
-	  function(object, ...)
-	      new("lmer.ranef", .Call("mer_ranef", object, PACKAGE = "Matrix"))
-	  )
+	  function(object, ...) {
+	      ans <- new("ranef.lmer",
+                         lapply(.Call("mer_ranef", object, PACKAGE = "Matrix"),
+                                data.frame, check.names = FALSE))
+              names(ans) <- names(object@flist)
+              ans
+	  })
 
 ## Optimization for mer objects
 setReplaceMethod("LMEoptimize", signature(x="mer", value="list"),
@@ -729,16 +733,24 @@ setMethod("formula", signature(x = "mer"),
 	  x@call$formula
 	  )
 
-## FIXME -- residuals *are* wanted
 setMethod("residuals", signature(object = "mer"),
-	  function(object, ...)
-	  .NotYetImplemented()
-	  )
+	  function(object, ...) {
+              fam <- object@family
+              if (fam$family == "gaussian" && fam$link == "identity")
+                  return(object@y - fitted(object))
+              .NotYetImplemented()
+	  })
 
+## FIXME: There should not be two identical methods like this but I'm not
+##        sure how to pass the ... argument to a method for another generic
+##        cleanly.
 setMethod("resid", signature(object = "mer"),
-	  function(object, ...)
-	  .NotYetImplemented()
-	  )
+	  function(object, ...) {
+              fam <- object@family
+              if (fam$family == "gaussian" && fam$link == "identity")
+                  return(object@y - fitted(object))
+              .NotYetImplemented()
+	  })
 
 setMethod("summary", signature(object = "mer"),
 	  function(object, ...) {

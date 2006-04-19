@@ -1,6 +1,11 @@
 #### Symmetric Sparse Matrices in compressed column-oriented format
 
-### contains = "dgCMatrix"
+setAs("dgCMatrix", "dsCMatrix",
+      function(from) {
+	  if(isSymmetric(from))
+	      ## FIXME: should be able to *not* need Tsparse route
+	      as(as(as(from, "dgTMatrix"), "dsTMatrix"), "dsCMatrix")
+	  else stop("not a symmetric matrix")})
 
 setAs("dsCMatrix", "dsTMatrix",
       function(from) ## Cholmod:

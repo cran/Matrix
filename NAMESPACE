@@ -4,9 +4,11 @@ useDynLib(Matrix)
 
 importFrom("graphics",image)
 importFrom("graphics",plot)		## lmer-related
-importFrom("lattice", levelplot)
+#importFrom("lattice", levelplot)
+import("stats", "lattice")		## lmer-related
+importFrom("utils", "head", "tail")     ## lmer-related
 importFrom("grid",    grid.rect, gpar, grob)
-import("stats")				## lmer-related
+
 
 ## Currently, group generics need to be explicitly imported (Bug?):
 importFrom("methods", Arith, Compare, Math, Math2, Summary, Complex)
@@ -24,6 +26,7 @@ export("Diagonal",
 #        "isSymmetric" is in R 2.3.0
        "lu",
        "norm",
+       "pedigree",
        "rcond",
        "readHB",
        "readMM",
@@ -137,7 +140,7 @@ exportClasses(
 	      )
 
 ## lmer-related
-exportClasses("coef.lmer", "lmer", "mer", "ranef.lmer",
+exportClasses("coef.lmer", "lmer", "mer", "pedigree", "ranef.lmer",
               "summary.mer", "summary.lmer")
 
 exportMethods(
@@ -191,10 +194,9 @@ exportMethods("cbind2")
 
 }
 
-
 ## lmer-related
 exportMethods("BIC", "anova", "coef", "confint", "deviance", "fitted",
-	      "fixef", "formula", "lmer", "logLik", "mcmcsamp",
-              "plot", "ranef", "residuals", "resid", "simulate",
-	      "summary", "terms", "update", "vcov", "VarCorr", "with")
-
+              "fixef", "formula", "head", "lmer", "logLik", "mcmcsamp",
+              "plot", "qqmath", "ranef", "residuals",
+              "resid", "simulate", "summary", "tail", "terms", "update",
+              "vcov", "VarCorr", "with")

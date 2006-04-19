@@ -27,8 +27,11 @@ assert.EQ.mat(t1, as(t1c, "matrix"))
 tu <- t1 ; tu@diag <- "U"
 tu
 stopifnot(validObject(cu <- as(tu, "dtCMatrix")),
-          validObject(t(cu)),
-          validObject(t(tu)))
+	  validObject(tu. <- as(cu, "dtTMatrix")),
+          ## NOT: identical(tu, tu.), # since T* is not unique!
+	  identical(cu, as(tu., "dtCMatrix")),
+	  validObject(t(cu)),
+	  validObject(t(tu)))
 assert.EQ.mat(cu, as(tu,"matrix"), tol=0)
 
 
@@ -99,16 +102,36 @@ assert.EQ.mat(kt1, ktf, tol= 0)
 assert.EQ.mat(kt2, ktf, tol= 0)
 ## but kt1 and kt2, both "dgT" are different since entries are not ordered!
 
+tm <- matrix(0, 8,8)
+tm[cbind(c(1,1,2,7,8),
+         c(3,6,4,8,8))] <- c(2,-30,15,20,80)
+(tM <- Matrix(tm))                ## dtC
+(mM <- Matrix(m <- (tm + t(tm)))) ## dsC
+mT <- as(mM, "dsTMatrix")
+assert.EQ.mat(tM, tm, tol=0)
+assert.EQ.mat(mT, m,  tol=0)
+stopifnot(is(mM, "dsCMatrix"), is(tM, "dtCMatrix"),
+          ## coercions  general <-> symmetric
+          identical(as(as(mM, "dgCMatrix"), "dsCMatrix"), mM),
+          identical(as(as(mM, "dgTMatrix"), "dsTMatrix"), mT),
+          identical(as(as(tM, "dgCMatrix"), "dtCMatrix"), tM)
+)
+eM <- eigen(mM) # works thanks to base::as.matrix hack in ../R/zzz.R
+stopifnot(all.equal(eM$values,
+                { v <- c(162.462112512353, 30.0665927567458)
+                  c(v, 15, 0, 0, 160-v[1], -15, -v[2])}, tol=1e-14))
+
 ##--- symmetric -> pos.def. needs valid test:
-if(FALSE) # this happily "works" but MM thinks it shouldn't:
-assertError(as(as(Matrix(diag(5)-1), "dsyMatrix"), "dpoMatrix"))
+m5 <- Matrix(diag(5) - 1)
+if(FALSE) # FIXME: this happily "works" but MM thinks it shouldn't:
+assertError(as(m5, "dpoMatrix"))
 
 
 ###-- logical sparse : ----------
 
 (lkt <- as(as(kt1, "dgCMatrix"), "lgCMatrix"))# ok
 (clt <- crossprod(lkt))
-if(FALSE)
+if(FALSE) ## FIXME!
     crossprod(clt)
 ## CHOLMOD error: matrix cannot be symmetric
 
@@ -138,4 +161,3 @@ stopifnot(all(ij(A) %in% ij(B)))
 
 
 cat('Time elapsed: ', proc.time(),'\n') # "stats"
-

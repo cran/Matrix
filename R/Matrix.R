@@ -46,9 +46,9 @@ if(paste(R.version$major, R.version$minor, sep=".") < "2.3")
 
 
 setMethod("isTriangular", signature(object = "triangularMatrix"),
-          function(object,tol) TRUE)
-setMethod("isTriangular", signature(object = "matrix"),
-          .is.triangular)
+          function(object, ...) TRUE)
+
+setMethod("isTriangular", signature(object = "matrix"), isTriMat)
 
 setMethod("isDiagonal", signature(object = "matrix"), .is.diagonal)
 

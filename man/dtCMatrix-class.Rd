@@ -17,6 +17,10 @@
 \alias{coerce,dtTMatrix,matrix-method}
 \alias{coerce,matrix,dtCMatrix-method}
 \alias{coerce,matrix,dtTMatrix-method}
+\alias{solve,dtCMatrix,matrix-method}
+\alias{solve,dtCMatrix,dgeMatrix-method}
+\alias{solve,dtCMatrix,missing-method}
+\alias{solve,dtCMatrix,numeric-method}
 \alias{t,dtCMatrix-method}
 \alias{t,dtTMatrix-method}
 \title{Triangular, (compressed) sparse column matrices}
@@ -27,7 +31,9 @@
   triangular, sparse matrices in triplet format.}
 \section{Objects from the Class}{
   Objects can be created by calls of the form \code{new("dtCMatrix",
-    ...)} or calls of the form  \code{new("dtTMatrix", ...)}.
+    ...)} or calls of the form  \code{new("dtTMatrix", ...)}, but more
+  typically automatically via \code{\link{Matrix}()} or coercion such as
+  \code{as(x, "dtCMatrix")}.
 }
 \section{Slots}{
   \describe{
@@ -66,6 +72,10 @@
     \item{coerce}{\code{signature(from = "dtTMatrix", to = "dgeMatrix")}}
     \item{coerce}{\code{signature(from = "dtTMatrix", to = "dtrMatrix")}}
     \item{coerce}{\code{signature(from = "dtTMatrix", to = "matrix")}}
+    \item{solve}{\code{signature(a = "dtCMatrix", b = "matrix")}}
+    \item{solve}{\code{signature(a = "dtCMatrix", b = "dgeMatrix")}}
+    \item{solve}{\code{signature(a = "dtTMatrix", b = "missing")}}
+    \item{solve}{\code{signature(a = "dtTMatrix", b = "numeric")}}
     \item{t}{\code{signature(x = "dtCMatrix")}: returns the transpose of
       \code{x}}
     \item{t}{\code{signature(x = "dtTMatrix")}: returns the transpose of

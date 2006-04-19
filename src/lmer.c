@@ -2087,6 +2087,45 @@ SEXP mer_secondary(SEXP x)
 }
 
 /**
+ * Extract the posterior variances of the random effects
+ *
+ * @param x pointer to a mer object
+ *
+ * @return pointer to a list of arrays
+ */
+SEXP mer_postVar(SEXP x)
+{
+    SEXP ans;
+    double sc = (asLogical(GET_SLOT(x, Matrix_useScaleSym))) ?
+	internal_mer_sigma(x, -1) : 1;
+    int i, ione = 1, nf;
+
+    sc = sc * sc;
+    mer_gradComp(x);
+    ans = PROTECT(duplicate(GET_SLOT(x, Matrix_bVarSym)));
+    nf = LENGTH(ans);
+    for (i = 0; i < nf; i++) {
+	SEXP vv = VECTOR_ELT(ans, i);
+	int *dims = INTEGER(getAttrib(vv, R_DimSymbol));
+	int j, nc = dims[1], nlev = dims[2];
+	int ntot = dims[0] * nc * nlev;
+
+	if (dims[0] != nc)
+	    error(_("rows and columns of element %d of bVar do not match"),
+		  i + 1);
+	if (sc != 1)
+	    F77_CALL(dscal)(&ntot, &sc, REAL(vv), &ione);
+	if (nc > 1) {
+	    int ncsqr = dims[0] * dims[1];
+	    for (j = 0; j < nlev; j++)
+		internal_symmetrize(REAL(vv) + j * ncsqr, nc);
+	}
+    }
+    UNPROTECT(1);
+    return ans;
+}
+
+/**
  * Extract the ML or REML conditional estimate of sigma
  *
  * @param x pointer to an mer object

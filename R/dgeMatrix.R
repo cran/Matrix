@@ -190,7 +190,8 @@ setMethod("tcrossprod", signature(x = "numeric", y = "dgeMatrix"),
 
 
 setMethod("%*%", signature(x = "dgeMatrix", y = "dgeMatrix"),
-	  function(x, y) .Call("dgeMatrix_matrix_mm", x, y, TRUE, FALSE, PACKAGE = "Matrix"),
+	  function(x, y)
+          .Call("dgeMatrix_matrix_mm", x, y, TRUE, FALSE, PACKAGE = "Matrix"),
 	  valueClass = "dgeMatrix")
 
 ## dgeMatrix <-> matrix ("matrix" dispatches before "numeric" since R 2.1.0)
@@ -227,11 +228,13 @@ setMethod("diag", signature(x = "dgeMatrix"),
 setMethod("chol", signature(x = "dgeMatrix", pivot = "ANY"), cholMat)
 
 setMethod("solve", signature(a = "dgeMatrix", b = "missing"),
-	  function(a, b, ...) .Call("dgeMatrix_solve", a, PACKAGE = "Matrix"),
+	  function(a, b, ...)
+          .Call("dgeMatrix_solve", a, PACKAGE = "Matrix"),
 	  valueClass = "dgeMatrix")
 
 setMethod("solve", signature(a = "dgeMatrix", b = "dgeMatrix"),
-	  function(a, b, ...) .Call("dgeMatrix_matrix_solve", a, b, TRUE, PACKAGE = "Matrix"),
+	  function(a, b, ...)
+          .Call("dgeMatrix_matrix_solve", a, b, TRUE, PACKAGE = "Matrix"),
 	  valueClass = "dgeMatrix")
 
 setMethod("solve", signature(a = "dgeMatrix", b = "matrix"),

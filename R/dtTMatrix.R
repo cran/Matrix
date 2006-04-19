@@ -1,11 +1,33 @@
 ### Coercion and Methods for Triangular Triplet Matrices
 
+gt2tT <- function(x, uplo, diag) {
+    ## coerce *gTMatrix to *tTMatrix {general -> triangular}
+    i <- x@i
+    j <- x@j
+    sel <-
+	if(uplo == "U") {
+	    if(diag == "U") i < j else i <= j
+	} else {
+	    if(diag == "U") i > j else i >= j
+	}
+    i <- i[sel]
+    j <- j[sel]
+    if(is(x, "lMatrix"))
+	new("ltTMatrix", i = i, j = j, uplo = uplo, diag = diag,
+	    Dim = x@Dim, Dimnames = x@Dimnames) # no 'x' slot
+    else
+	new(paste(substr(class(x), 1,1), # "d", "l", "i" or "z"
+		  "tTMatrix", sep=''),
+	    i = i, j = j, uplo = uplo, diag = diag,
+	    x = x@x[sel], Dim = x@Dim, Dimnames = x@Dimnames)
+}
+
 setAs("dtTMatrix", "dtCMatrix",
       function(from) {
           gC <- .Call("dtTMatrix_as_dgCMatrix", from, PACKAGE = "Matrix")
           new("dtCMatrix", Dim = gC@Dim, Dimnames = gC@Dimnames, p = gC@p,
               i = gC@i, x = gC@x, uplo = from@uplo, diag = from@diag)
-      })      
+      })
 
 setAs("dtTMatrix", "dgTMatrix",
       function(from) {

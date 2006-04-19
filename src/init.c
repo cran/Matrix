@@ -25,6 +25,7 @@
 #include "lsCMatrix.h"
 #include "ltCMatrix.h"
 #include "lmer.h"
+#include "pedigree.h"
 #include <R_ext/Rdynload.h>
 
 #include "Syms.h"
@@ -134,6 +135,9 @@ static R_CallMethodDef CallEntries[] = {
     {"dspMatrix_solve", (DL_FUNC) &dspMatrix_solve, 1},
     {"dspMatrix_trf", (DL_FUNC) &dspMatrix_trf, 1},
     {"dspMatrix_validate", (DL_FUNC) &dspMatrix_validate, 1},
+    {"dtCMatrix_solve", (DL_FUNC) &dtCMatrix_solve, 1},
+    {"dtCMatrix_matrix_solve", (DL_FUNC) &dtCMatrix_matrix_solve, 3},
+    {"dtCMatrix_upper_solve", (DL_FUNC) &dtCMatrix_upper_solve, 1},
     {"dtTMatrix_as_dtrMatrix", (DL_FUNC) &dtTMatrix_as_dtrMatrix, 1},
     {"dtTMatrix_as_dgCMatrix", (DL_FUNC) &dtTMatrix_as_dgCMatrix, 1},
     {"dtTMatrix_validate", (DL_FUNC) &dtTMatrix_validate, 1},
@@ -206,6 +210,7 @@ static R_CallMethodDef CallEntries[] = {
     {"mer_gradComp", (DL_FUNC) &mer_gradComp, 1},
     {"mer_gradient", (DL_FUNC) &mer_gradient, 2},
     {"mer_initial", (DL_FUNC) &mer_initial, 1},
+    {"mer_postVar", (DL_FUNC) &mer_postVar, 1},
     {"mer_ranef", (DL_FUNC) &mer_ranef, 1},
     {"mer_secondary", (DL_FUNC) &mer_secondary, 1},
     {"mer_sigma", (DL_FUNC) &mer_sigma, 2},
@@ -214,6 +219,7 @@ static R_CallMethodDef CallEntries[] = {
     {"mer_update_y", (DL_FUNC) &mer_update_y, 2},
 
     {"matrix_to_csc", (DL_FUNC) &matrix_to_csc, 1},
+    {"pedigree_chol", (DL_FUNC) &pedigree_chol, 2},
     {"ssc_transpose", (DL_FUNC) &ssc_transpose, 1},
     {"tsc_to_dgTMatrix", (DL_FUNC) &tsc_to_dgTMatrix, 1},
 /*     {"tsc_transpose", (DL_FUNC) &tsc_transpose, 1}, */

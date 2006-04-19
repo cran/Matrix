@@ -21,7 +21,7 @@ if (!isGeneric("isSymmetric"))
 	       standardGeneric("isSymmetric"))
 
 if (!isGeneric("isTriangular"))
-    setGeneric("isTriangular", function(object, ...)
+    setGeneric("isTriangular", function(object, ...) ## 'upper = NA'
                standardGeneric("isTriangular"))
 
 if (!isGeneric("isNested"))

@@ -35,9 +35,10 @@ setMethod("crossprod", signature(x = "dgCMatrix", y = "dgeMatrix"),
           valueClass = "dgeMatrix")
 
 setMethod("crossprod", signature(x = "dgCMatrix", y = "matrix"),
-          function(x, y = NULL)
-          .Call("csc_matrix_crossprod", x, y, FALSE, PACKAGE = "Matrix"),
-          valueClass = "dgeMatrix")
+          function(x, y = NULL) {
+	      storage.mode(y) <- "double"
+              .Call("csc_matrix_crossprod", x, y, FALSE, PACKAGE = "Matrix")
+          }, valueClass = "dgeMatrix")
 
 ##setMethod("crossprod", signature(x = "dgCMatrix", y = "numeric"),
 ##          function(x, y = NULL) callGeneric(x, as.matrix(y)),
@@ -72,16 +73,20 @@ setMethod("%*%", signature(x = "dgCMatrix", y = "dgeMatrix"),
           valueClass = "dgeMatrix")
 
 setMethod("%*%", signature(x = "dgCMatrix", y = "matrix"),
-          function(x, y) .Call("csc_matrix_mm", x, y, FALSE, FALSE, PACKAGE = "Matrix"),
-          valueClass = "dgeMatrix")
+          function(x, y) {
+	      storage.mode(y) <- "double"
+              .Call("csc_matrix_mm", x, y, FALSE, FALSE, PACKAGE = "Matrix")
+          }, valueClass = "dgeMatrix")
 
 setMethod("%*%", signature(x = "dgeMatrix", y = "dgCMatrix"),
           function(x, y) .Call("csc_matrix_mm", y, x, TRUE, TRUE, PACKAGE = "Matrix"),
           valueClass = "dgeMatrix")
 
 setMethod("%*%", signature(x = "matrix", y = "dgCMatrix"),
-          function(x, y) .Call("csc_matrix_mm", y, x, FALSE, TRUE, PACKAGE = "Matrix"),
-          valueClass = "dgeMatrix")
+          function(x, y) {
+	      storage.mode(x) <- "double"
+              .Call("csc_matrix_mm", y, x, FALSE, TRUE, PACKAGE = "Matrix")
+          }, valueClass = "dgeMatrix")
 
 ## Group Methods, see ?Arith (e.g.)
 ## -----

@@ -3,7 +3,7 @@
 setAs("dtrMatrix", "dgeMatrix",
       function(from) .Call("dtrMatrix_as_dgeMatrix", from, PACKAGE = "Matrix"))
 
-## or rather setIs() {since test can fail ?}
+## or rather setIs() {since test can fail }?
 setAs("dgeMatrix", "dtrMatrix",
       function(from) {
           ## FIXME: also check for unit-diagonal: 'diag = "U"'

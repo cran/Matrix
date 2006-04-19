@@ -43,6 +43,7 @@ SEXP mer_fixef(SEXP x);
 SEXP mer_gradComp(SEXP x);
 SEXP mer_gradient(SEXP x, SEXP pType);
 SEXP mer_initial(SEXP x);
+SEXP mer_postVar(SEXP x);
 SEXP mer_ranef(SEXP x);
 SEXP mer_secondary(SEXP x);
 SEXP mer_sigma(SEXP x, SEXP REML);

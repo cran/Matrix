@@ -12,15 +12,15 @@
     \log(n_{obs})}{-2*log-likelihood + npar*log(nobs)}, where
   \eqn{n_{par}}{npar}  represents the
   number of parameters and \eqn{n_{obs}}{nobs} the number of
-  observations in the fitted model. 
+  observations in the fitted model.
 }
 \usage{
 BIC(object, \dots)
 }
 \arguments{
   \item{object}{An object of a suitable class for the BIC to be
-    calculated - usually a \code{\link[base:logLik]{logLik}} object
-    created by a call to the \code{\link[base:logLik]{logLik}} generic.
+    calculated - usually a \code{\link[base]{logLik}} object
+    created by a call to the \code{\link[base]{logLik}} generic.
   }
   \item{\dots}{Some methods for this generic function may take
     additional, optional arguments.  At present none do.}
@@ -33,9 +33,9 @@ BIC(object, \dots)
   BIC.
 }
 \references{
-  Schwarz, G. (1978) "Estimating the Dimension of a Model", Annals of
-  Statistics, 6, 461-464.
+  Schwarz, G. (1978)
+  Estimating the Dimension of a Model,
+  \emph{Annals of Statistics} \bold{6}, 461--464.
 }
 \seealso{\code{\link[base]{logLik}}, \code{\link[stats]{AIC}}}
 \keyword{models}
-

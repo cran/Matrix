@@ -1,4 +1,6 @@
 BIC                     Bayesian Information Criterion
+CAex                    Albers' example Matrix with "Difficult" Eigen
+                        Factorization
 Cholesky-class          Cholesky and Bunch-Kaufman Decompositions
 CsparseMatrix-class     Class "CsparseMatrix" of Sparse Matrices in
                         Column-compressed Form
@@ -72,6 +74,8 @@ lu                      Triangular Decomposition of a Square Matrix
 mcmcsamp                Generate an MCMC sample
 norm                    Norm of a Matrix
 pMatrix-class           Permutation matrices
+pedigree                Pedigree Constructor
+pedigree-class          Class "pedigree"
 ranef                   Extract Random Effects
 rcond                   Estimate the Reciprocal Condition Number
 readHB                  Read and write external matrix formats

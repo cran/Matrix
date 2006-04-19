@@ -1,4 +1,12 @@
 -----
+Modify the one-argument form of the anova method for lmer objects (yet
+  again) to calculate the F ratios.  It is the df, not the ratio that
+  is controversial.
+Should there be an extractor function for the mean square error?  If
+so,
+-----
+Check for DimNames propagation in coercion and other operations.
+-----
 - Revive the "lmer" and "glmer" classes.  Slots like "family" should
   be in "glmer" only.  Many methods for "lmer" can be simplified as,
   for example, they will always use the scale factor.
@@ -82,3 +90,19 @@
   ## and the same in a similar situation involving  "dpo", "dpp"
 
 - "Compare" for dgC & dgT  --- want to be able to do  M[M > 10]  etc
+
+- Things like  M[upper.tri(M)] are not really most useful for  sparse
+  matrices.  --> provide generic functions
+  upperTriMatrix(), lowerTriMatrix()  both with argument  'diag = TRUE'
+  (which can be set to FALSE of course) which are used to extract a
+  triangle from an arbitrary sparse matrix and  return a  "dtCMatrix".
+
+- Factorizations: LU [ -> solve() ] and Schur()  for  *sparse*  Matrices.
+  -----------------  LU-sparse is the purpose of all of ./src/UMFPACK/
+  	-->  ./inst/doc/UFsparse/*
+  And then, possibly eigen(), svd(), qr(), ... for sparse
+  {probably base some on the fast  chol() of CHOLMOD}.
+
+  2006-04-15 : now with 'CSparse' { src/cs.c }, have at least solve( <dtC*> )
+
+- pedigree examples and tests

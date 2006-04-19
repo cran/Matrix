@@ -18,13 +18,28 @@ setAs("dgTMatrix", "dsCMatrix",
           if (!isSymmetric(from))
               stop("cannot coerce non-symmetric dgTMatrix to dsCMatrix class")
           upper <- from@i <= from@j
-          uC <- as(new("dgTMatrix", Dim = from@Dim, i = from@i[upper],
+          uC <- as(new("dgTMatrix", Dim = from@Dim,  Dimnames = from@Dimnames,
+                       i = from@i[upper],
                        j = from@j[upper], x = from@x[upper]), "dgCMatrix")
           new("dsCMatrix", Dim = uC@Dim, p = uC@p, i = uC@i, x = uC@x, uplo = "U")
       })
 
+setAs("dgTMatrix", "dsTMatrix",
+      function(from) {
+	  if(isSymmetric(from)) {
+	      upper <- from@i <= from@j
+	      new("dsTMatrix", Dim = from@Dim, Dimnames = from@Dimnames,
+		  i = from@i[upper],
+		  j = from@j[upper], x = from@x[upper], uplo = "U")
+	  }
+	  else stop("not a symmetric matrix")})
+
 setAs("dgTMatrix", "dtTMatrix",
-      function(from) gt2tT(from, uplo = from@uplo, diag = from@diag))
+      function(from) {
+	  if(isTr <- isTriangular(from))
+	      gt2tT(from, uplo = attr(isTr, "kind"),
+		    diag = "N") ## improve: also test for unit diagonal
+	  else stop("not a triangular matrix")})
 
 setAs("matrix", "dgTMatrix",
       function(from) {

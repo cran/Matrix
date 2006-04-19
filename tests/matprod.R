@@ -80,5 +80,18 @@ stopifnot(identical( crossprod(sM), t(sM) %*%   sM),
 assert.EQ.mat( crossprod(sM),  crossprod(sm) > 0)
 assert.EQ.mat(tcrossprod(sM), as(tcrossprod(sm),"matrix") > 0)
 
+## A sparse example - with *integer* matrix:
+M <- Matrix(cbind(c(1,0,-2,0,0,0,0,0,2.2,0),
+                  c(2,0,0,1,0), 0, 0, c(0,0,8,0,0),0))
+t(M)
+(-4:5) %*% M
+stopifnot(as.vector(print(t(M %*% 1:6))) ==
+          c(as(M,"matrix") %*% 1:6))
+(M.M <- crossprod(M))
+MM. <- tcrossprod(M)
+stopifnot(class(MM.) == "dsCMatrix",
+          class(M.M) == "dsCMatrix")
+
+
 cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
 

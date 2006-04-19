@@ -23,6 +23,7 @@
 \alias{logLik,mer-method}
 \alias{plot,coef.lmer-method}
 \alias{plot,ranef.lmer-method}
+\alias{qqmath,ranef.lmer-method}
 \alias{resid,mer-method}
 \alias{residuals,mer-method}
 \alias{show,mer-method}
@@ -58,7 +59,7 @@
     \item{\code{flist}:}{The list of grouping factors for the random
       effects.}
     \item{\code{Zt}:}{The transpose of the model matrix for the random
-      effects stored as a \code{\link[dgCMatrix-class]{dgCMatrix}}.}
+      effects stored as a \code{\link[Matrix:dgCMatrix-class]{dgCMatrix}}.}
     \item{\code{X}:}{Model matrix for the fixed effects.}
     \item{\code{y}:}{Numeric response vector.}
     \item{\code{wts}:}{Numeric weights vector.}
@@ -90,33 +91,34 @@
       in the matrix in the \code{Zt} slot).}
     \item{\code{XtX}:}{The crossproduct matrix of the model matrix in
       the \code{X} slot, stored as a
-      \code{\link{dpoMatrix-class}{"dpoMatrix"}} object.}
+      \code{"\link[Matrix:dpoMatrix-class]{dpoMatrix}"} object.}
     \item{\code{ZtZ}:}{The crossproduct matrix of the model matrix for
-      the random effects, stored as a \code{\link{dpoMatrix-class}{"dpoMatrix"}} object.
-      representation of the original Z'Z matrix.}
-    \item{\code{ZtX}:}{The original Z'X matrix, stored as a
-      \code{\link{dgeMatrix-class}{"dgeMatrix"}} object.}
-    \item{\code{Zty}:}{The numeric vector Z'y.}
-    \item{\code{Xty}:}{The numeric vector X'y.}
+      the random effects, stored as a \code{"\link[Matrix:dpoMatrix-class]{dpoMatrix}"} object.
+      representation of the original \eqn{Z'Z} matrix.}
+    \item{\code{ZtX}:}{The original \eqn{Z'X} matrix, stored as a
+      \code{"\link[Matrix:dgeMatrix-class]{dgeMatrix}"} object.}
+    \item{\code{Zty}:}{The numeric vector \eqn{Z'y}.}
+    \item{\code{Xty}:}{The numeric vector \eqn{X'y}.}
     \item{\code{Omega}:}{A list of positive-definite matrices stored as
-      \code{\link{dpoMatrix-class}{"dpoMatrix"}} objects that are the
+      \code{"\link[Matrix:dpoMatrix-class]{dpoMatrix}"} objects that are the
       relative precision matrices of the random effects associated with
       each of the grouping factors.}
     \item{\code{L}:}{The sparse, supernodal lower Cholesky factor of
-      Z'Z+Omega, stored as a \code{\link[CHMfactor-class]{"dCHMsuper"}} object.}
-    \item{\code{RZX}:}{An rectangular matrix, stored as a
-      \code{\link[dgeMatrix-class]{"dgeMatrix"}} object, which is the RZX
-	component of the Cholesky factor of \code{Z'Z+Omega} at the
+      \eqn{Z'Z+\Omega}, stored as a
+      \code{"\link[Matrix:CHMfactor-class]{dCHMsuper}"} object.}
+    \item{\code{RZX}:}{A rectangular matrix, stored as a
+      \code{"\link[Matrix:dgeMatrix-class]{dgeMatrix}"} object, which is the RZX
+	component of the Cholesky factor of \eqn{Z'Z+\Omega} at the
 	current values of the parameters.}
     \item{\code{RXX}:}{An upper triangular matrix, stored as a
-      \code{\link[dtrMatrix-class]{"dtrMatrix"}} object, which is the RXX
-	component of the Cholesky factor of \code{Z'Z+Omega} at the
+      \code{"\link[Matrix:dtrMatrix-class]{dtrMatrix}"} object, which is the RXX
+	component of the Cholesky factor of \eqn{Z'Z+\Omega} at the
 	current values of the parameters.}
     \item{\code{rZy}:}{A numeric vector - the rZy
-	component of the Cholesky factor of \code{Z'Z+Omega} at the
+	component of the Cholesky factor of \eqn{Z'Z+\Omega} at the
 	current values of the parameters.}
     \item{\code{rXy}:}{A numeric vector - the rXy
-	component of the Cholesky factor of \code{Z'Z+Omega} at the
+	component of the Cholesky factor of \eqn{Z'Z+\Omega} at the
 	current values of the parameters.}
     \item{\code{devComp}:}{Numeric vector of components from which the
       deviance can be calculated.  The named components are: \code{"n"},
@@ -140,10 +142,10 @@
     \item{\code{ranef}:}{Numeric vector containing the conditional modes
       of the random effects.  This slot's contents are current if
       \code{status$secondary} is \code{TRUE}.}
-    \item{\code{RZXinv}:}{An rectangular matrix, stored as a
-      \code{\link[dgeMatrix-class]{"dgeMatrix"}} object, which is the RZX
+    \item{\code{RZXinv}:}{A rectangular matrix, stored as a
+      \code{"\link[Matrix:dgeMatrix-class]{dgeMatrix}"} object, which is the RZX
 	component of the inverse of the Cholesky factor of
-	\code{Z'Z+Omega} at the current values of the parameters. This
+	\eqn{Z'Z+\Omega} at the current values of the parameters. This
 	slot's contents are current if \code{status$gradComp} is
 	\code{TRUE}.}
     \item{\code{bVar}:}{A list of the diagonal inner blocks (upper

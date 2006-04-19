@@ -10,6 +10,8 @@
 \alias{coerce,dgeMatrix,dgCMatrix-method}
 \alias{coerce,dgCMatrix,dgTMatrix-method}
 \alias{coerce,dgCMatrix,dgBCMatrix-method}
+\alias{coerce,dgCMatrix,dsCMatrix-method}
+\alias{coerce,dgCMatrix,dtCMatrix-method}
 \alias{coerce,dgCMatrix,lgCMatrix-method}
 \alias{coerce,dgCMatrix,matrix-method}
 \alias{coerce,dgCMatrix,dgeMatrix-method}

@@ -197,20 +197,10 @@ setMethod("isSymmetric", signature(object = "sparseMatrix"),
 	      else stop("not yet implemented")
 	  })
 
+
 setMethod("isTriangular", signature(object = "sparseMatrix"),
-	  function(object, upper) {
-	      ## pretest: is it square?
-	      d <- dim(object)
-	      if(d[1] != d[2]) return(FALSE)
-	      ## else slower test
-              object <- as(object, "TsparseMatrix")
-              i <- object@i
-              j <- object@j
-              if(upper)
-                  all(i < j)## FIXME or "0" that are not structural..
-              else
-                  all(i > j)## FIXME or "0" that are not structural..
-          })
+	  function(object, upper = NA)
+              isTriC(as(object, "CsparseMatrix"), upper))
 
 setMethod("isDiagonal", signature(object = "sparseMatrix"),
 	  function(object) {

@@ -8,6 +8,8 @@ SOURCES_C =  \
 	    lmer.c \
             Mutils.c \
 	    chm_common.c \
+	    cs.c \
+	    cs_utils.c \
             dense.c \
             dCholCMatrix.c \
             dgCMatrix.c \
@@ -32,4 +34,5 @@ SOURCES_C =  \
 	    lsCMatrix.c \
 	    ltCMatrix.c \
             mmio.c \
+	    pedigree.c \
             triplet_to_col.c

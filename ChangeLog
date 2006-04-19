@@ -1,3 +1,69 @@
+2006-04-25  Douglas Bates  <bates@stat.wisc.edu>
+
+	* R/dtCMatrix.R: avoid coercion of dtCMatrix object to dgCMatrix
+	in method for "t" so as not to lose the unit diagonal property.
+
+2006-04-19  Douglas Bates  <bates@stat.wisc.edu>
+
+	* R/lmer.R, R/AllGeneric.R, NAMESPACE: Remove the postVar generic
+	and methods.  This is now an option to the ranef method for the
+	mer class.
+
+	* src/cs_utils.c: Ensure that the nz component is -1 for a
+	compressed column-oriented matrix.  Minor formatting cleanup.
+
+	* man/lmer-class.Rd: Document the qqmath method for ranef.lmer
+	objects.
+
+2006-04-19  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Auxiliaries.R (diagU2N): new for the solve() methods in
+	* R/dtCMatrix.R: where dgC -> dgT coercion now preserves diag = "U".
+
+2006-04-15  Douglas Bates  <bates@stat.wisc.edu>
+
+	* src/cs.[ch],src/cs_utils.[ch] : Added Tim Davis' CSparse library
+	in cs.[ch] and utilities to interface to that code in cs_utils.[ch].
+
+	* R/dtCMatrix.R, src/dtCMatrix.[ch] : CSparse-based solve methods
+	for the dtCMatrix class.
+
+2006-04-12  Douglas Bates  <bates@stat.wisc.edu>
+
+	* R/pedigree.R, R/AllClass.R, NAMESPACE: added a pedigree class
+	and methods for it.
+
+2006-04-12  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/dgCMatrix.R: add  storage.mode(.) <- "double" for "matrix"
+	arguments, such that M %*% 1:6 now works
+	* Tests/matprod.R: test the above
+
+2006-04-03  Douglas Bates  <bates@stat.wisc.edu>
+
+	* R/lmer.R (qqmath,ranef.lmer-method): added a qqmath method for
+	the ranef.lmer class.
+
+	* R/AllClass.R, NAMESPACE, R/lmer.R: Added a postVar generic and
+	methods to extract the posterior variances from the bVar slot.
+
+2006-03-30  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/dtCMatrix.R: allow coercion from  dgC* to triangular (dtC*)
+	* R/dsCMatrix.R: and symmetric (dsC*) 'Csparse' matrices.
+
+	* R/Tsparse.R: Tsparse* -> Csparse* coercion now works and is tested in
+	* tests/simple: (extended)
+
+	* R/sparseMatrix.R (isTriangular): now using much improved
+	* R/Auxiliaries.R (isTriC): new triangularity check for *CMatrix
+
+2006-03-23  Douglas Bates  <bates@stat.wisc.edu>
+
+	* src/dsyMatrix.c (dsyMatrix_as_dspMatrix): Propagate DimNames
+	(problem report from Franklin Parlamis).  This should be done
+	generally.
+
 2006-03-21  Douglas Bates  <bates@stat.wisc.edu>
 
 	* R/AllClass.R,lmer.R: Change the name of the lmer.ranef class to

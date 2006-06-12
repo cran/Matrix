@@ -13,31 +13,38 @@ setAs("ltpMatrix", "dtpMatrix", l2d_Matrix)
 ## all need be coercable to "lgeMatrix":
 
 setAs("lsyMatrix", "lgeMatrix",  function(from)
-      .Call("lsyMatrix_as_lgeMatrix", from, PACKAGE = "Matrix"))
+      .Call(lsyMatrix_as_lgeMatrix, from))
 setAs("ltrMatrix", "lgeMatrix",  function(from)
-      .Call("ltrMatrix_as_lgeMatrix", from, PACKAGE = "Matrix"))
+      .Call(ltrMatrix_as_lgeMatrix, from))
 setAs("ltpMatrix", "lgeMatrix",
       function(from) as(as(from, "ltrMatrix"), "lgeMatrix"))
 setAs("lspMatrix", "lgeMatrix",
       function(from) as(as(from, "lsyMatrix"), "lgeMatrix"))
+## and the reverse
+setAs("lgeMatrix", "ltpMatrix",
+      function(from) as(as(from, "ltrMatrix"), "ltpMatrix"))
+setAs("lgeMatrix", "lspMatrix",
+      function(from) as(as(from, "lsyMatrix"), "lspMatrix"))
+
 
 ## packed <->  non-packed :
 
 setAs("lspMatrix", "lsyMatrix",
       function(from)
-      .Call("lspMatrix_as_lsyMatrix", from, PACKAGE = "Matrix"))
+      .Call(lspMatrix_as_lsyMatrix, from))
 
 setAs("lsyMatrix", "lspMatrix",
       function(from)
-      .Call("lsyMatrix_as_lspMatrix", from, PACKAGE = "Matrix"))
+      .Call(lsyMatrix_as_lspMatrix, from))
 
 setAs("ltpMatrix", "ltrMatrix",
       function(from)
-      .Call("ltpMatrix_as_ltrMatrix", from, PACKAGE = "Matrix"))
+      .Call(ltpMatrix_as_ltrMatrix, from))
 
 setAs("ltrMatrix", "ltpMatrix",
       function(from)
-      .Call("ltrMatrix_as_ltpMatrix", from, PACKAGE = "Matrix"))
+      .Call(ltrMatrix_as_ltpMatrix, from))
+
 
 
 ### -> symmetric :
@@ -116,6 +123,9 @@ setAs("lgeMatrix", "lgTMatrix",
               factors = from@factors)
       })
 
+setAs("lgeMatrix", "lgCMatrix",
+      function(from) as(as(from, "lgTMatrix"), "lgCMatrix"))
+
 ###----------------------------------------------------------------------
 
 
@@ -128,33 +138,32 @@ setMethod("t", signature(x = "lspMatrix"),
           function(x) as(callGeneric(as(x, "lsyMatrix")), "lspMatrix"))
 
 setMethod("!", "ltrMatrix",
-          function(e1) {
-              e1@x <- !e1@x
-              ## And now we must fill in the '!FALSE' results :
+	  function(e1) {
+	      e1@x <- !e1@x
+	      ## And now we must fill one triangle with '!FALSE' results :
 
-              ## FIXME: the following should be .Call using
-              ##        a variation of make_array_triangular:
-              r <- as(e1, "lgeMatrix")
-              n <- e1@Dim[1]
-              coli <- rep(1:n, each=n)
-              rowi <- rep(1:n, n)
-              Udiag <- e1@diag == "U"
-              log.i <-
-                  if(e1@uplo == "U") {
-                      if(Udiag) rowi >= coli else rowi > coli
-                  } else {
-                      if(Udiag) rowi <= coli else rowi < coli
-                  }
-              r[log.i] <- TRUE
-              r
-          })
+	      ## TODO: the following should be .Call using
+	      ##	a variation of make_array_triangular:
+	      r <- as(e1, "lgeMatrix")
+	      n <- e1@Dim[1]
+	      coli <- rep(1:n, each=n)
+	      rowi <- rep(1:n, n)
+	      Udiag <- e1@diag == "U"
+	      log.i <-
+		  if(e1@uplo == "U") {
+		      if(Udiag) rowi >= coli else rowi > coli
+		  } else {
+		      if(Udiag) rowi <= coli else rowi < coli
+		  }
+	      r@x[log.i] <- TRUE
+	      r
+	  })
 
-setMethod("!", "ltpMatrix", function(e1) !as(x, "ltrMatrix"))
+setMethod("!", "ltpMatrix", function(e1) !as(e1, "ltrMatrix"))
 
 ## for the other ldense* ones:
 setMethod("!", "ldenseMatrix",
           function(e1) { e1@x <- !e1@x ; e1 })
-
 
 setMethod("as.vector", signature(x = "ldenseMatrix", mode = "missing"),
           function(x) as(x, "lgeMatrix")@x)

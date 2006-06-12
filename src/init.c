@@ -35,6 +35,7 @@ static R_CallMethodDef CallEntries[] = {
     {"pBunchKaufman_validate", (DL_FUNC) &pBunchKaufman_validate, 1},
     {"Cholesky_validate", (DL_FUNC) &Cholesky_validate, 1},
     {"Csparse_Csparse_prod", (DL_FUNC) &Csparse_Csparse_prod, 2},
+    {"Csparse_band", (DL_FUNC) &Csparse_band, 3},
     {"Csparse_crossprod", (DL_FUNC) &Csparse_crossprod, 3},
     {"Csparse_dense_crossprod", (DL_FUNC) &Csparse_dense_crossprod, 2},
     {"Csparse_dense_prod", (DL_FUNC) &Csparse_dense_prod, 2},
@@ -45,7 +46,9 @@ static R_CallMethodDef CallEntries[] = {
     {"Csparse_validate", (DL_FUNC) &Csparse_validate, 1},
     {"Csparse_vertcat", (DL_FUNC) &Csparse_vertcat, 2},
     {"pCholesky_validate", (DL_FUNC) &pCholesky_validate, 1},
+#ifdef _valid_only_for_old_graph_package
     {"graphNEL_as_dgTMatrix", (DL_FUNC) &graphNEL_as_dgTMatrix, 2},
+#endif
     {"LU_expand", (DL_FUNC) &LU_expand, 1},
     {"LU_validate", (DL_FUNC) &LU_validate, 1},
     {"Matrix_expand_pointers", (DL_FUNC) &Matrix_expand_pointers, 1},
@@ -209,7 +212,10 @@ static R_CallMethodDef CallEntries[] = {
     {"mer_fixef", (DL_FUNC) &mer_fixef, 1},
     {"mer_gradComp", (DL_FUNC) &mer_gradComp, 1},
     {"mer_gradient", (DL_FUNC) &mer_gradient, 2},
+    {"mer_hat_trace", (DL_FUNC) &mer_hat_trace, 1},
+    {"mer_hat_trace2", (DL_FUNC) &mer_hat_trace2, 1},
     {"mer_initial", (DL_FUNC) &mer_initial, 1},
+    {"mer_isNested", (DL_FUNC) &mer_isNested, 1},
     {"mer_postVar", (DL_FUNC) &mer_postVar, 1},
     {"mer_ranef", (DL_FUNC) &mer_ranef, 1},
     {"mer_secondary", (DL_FUNC) &mer_secondary, 1},

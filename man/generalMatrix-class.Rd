@@ -13,7 +13,7 @@
     \item{\code{factors}}{,}
     \item{\code{Dim}}{,}
     \item{\code{Dimnames}:}{all slots inherited from
-      \code{\link{compMatrix-class}}; see its description.}
+      \code{\linkS4class{compMatrix}}; see its description.}
   }
 }
 \section{Extends}{
@@ -24,10 +24,11 @@
 % No methods defined with class "generalMatrix" in the signature.
 % }
 \seealso{
- \code{\link{compMatrix-class}}, and the non-general virtual classes:
- \code{\link{symmetricMatrix-class}},
- \code{\link{triangularMatrix-class}},
- \code{\link{diagonalMatrix-class}}.
+  Classes \code{\linkS4class{compMatrix}}, and the non-general virtual
+  classes:
+  \code{\linkS4class{symmetricMatrix}},
+  \code{\linkS4class{triangularMatrix}},
+  \code{\linkS4class{diagonalMatrix}}.
 }
 % \examples{
 % ##---- Should be DIRECTLY executable !! ----

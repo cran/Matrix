@@ -16,7 +16,7 @@ Hilbert(n)
   the \code{n} by \code{n} symmetric Hilbert matrix as a
   \code{"dpoMatrix"} object.
 }
-\seealso{\code{\link{dpoMatrix-class}}}
+\seealso{the class \code{\linkS4class{dpoMatrix}}}
 \examples{
 Hilbert(6)
 }

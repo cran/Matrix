@@ -18,9 +18,10 @@ pedigree(sire, dam, label)
       corresponding entry.}
 }
 \value{
-  an object of formal class \code{"pedigree"}, see \code{\link{pedigree-class}}.
+  an object of formal class \code{"pedigree"}, see
+  \code{\linkS4class{pedigree}}.
 }
-\seealso{\code{\link{pedigree-class}}}
+\seealso{\code{\linkS4class{pedigree}}}
 \examples{
 example("pedigree-class") ## 'p1' pedigree object `the hard way'
 

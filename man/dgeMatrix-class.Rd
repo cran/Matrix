@@ -62,7 +62,7 @@
 \section{Objects from the Class}{
   Objects can be created by calls of the form \code{new("dgeMatrix", ...)}
   or, more commonly, by coercion from the \code{Matrix} class (see
-  \link{Matrix-class}).
+  \linkS4class{Matrix}) or by \code{\link{Matrix}(..)}.
 }
 \section{Slots}{
   \describe{
@@ -72,7 +72,7 @@
      of the matrix - must be an integer vector with exactly two
      non-negative values.}
     \item{\code{Dimnames}:}{a list of length two - inherited from class
-      \code{Matrix}, see \code{\link{Matrix-class}}.}
+      \code{\linkS4class{Matrix}}.}
     \item{\code{factors}:}{Object of class \code{"list"} - a list
       of factorizations of the matrix.}
   }
@@ -94,7 +94,7 @@
     \item{Schur}{\code{signature(x = "dgeMatrix", vectors = "logical")}: ... }
     \item{Schur}{\code{signature(x = "dgeMatrix", vectors = "missing")}: ... }
     \item{chol}{\code{signature(x = "dgeMatrix")}: works via
-      \code{"dpoMatrix"}, see \code{\link{dpoMatrix-class}}.}
+      \code{"dpoMatrix"}, see class \code{\linkS4class{dpoMatrix}}.}
     \item{coerce}{\code{signature(from = "dgeMatrix", to = "matrix")}: ... }
     \item{coerce}{\code{signature(from = "matrix", to = "dgeMatrix")}:
       ... }
@@ -126,9 +126,9 @@
 %\author{}
 %\note{}
 \seealso{
-  \code{\link{Matrix-class}},
-  \code{\link{dtrMatrix-class}},
-  \code{\link{dsyMatrix-class}}
+  Classes \code{\linkS4class{Matrix}},
+  \code{\linkS4class{dtrMatrix}}, and \code{\linkS4class{dsyMatrix}}.
+
 }
 %\examples{}
 \keyword{classes}

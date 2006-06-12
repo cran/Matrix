@@ -1,7 +1,7 @@
  ### Coercion and Methods for Symmetric Matrices
 
 setAs("dspMatrix", "dsyMatrix",
-      function(from) .Call("dspMatrix_as_dsyMatrix", from, PACKAGE = "Matrix"))
+      function(from) .Call(dspMatrix_as_dsyMatrix, from))
 
 ## dge <--> dsp   via  dsy
 setAs("dspMatrix", "dgeMatrix",
@@ -19,66 +19,66 @@ setAs("matrix", "dspMatrix",
 
 setMethod("rcond", signature(x = "dspMatrix", type = "character"),
           function(x, type, ...)
-          .Call("dspMatrix_rcond", x, type, PACKAGE = "Matrix"),
+          .Call(dspMatrix_rcond, x, type),
           valueClass = "numeric")
 
 setMethod("rcond", signature(x = "dspMatrix", type = "missing"),
           function(x, type, ...)
-          .Call("dspMatrix_rcond", x, "O", PACKAGE = "Matrix"),
+          .Call(dspMatrix_rcond, x, "O"),
           valueClass = "numeric")
 
 setMethod("%*%", signature(x = "dspMatrix", y = "dgeMatrix"),
           function(x, y)
-          .Call("dspMatrix_matrix_mm", x, y, TRUE, PACKAGE = "Matrix"),
+          .Call(dspMatrix_matrix_mm, x, y, TRUE),
           valueClass = "dgeMatrix")
 
 setMethod("%*%", signature(x = "dspMatrix", y = "matrix"),
           function(x, y)
-          .Call("dspMatrix_matrix_mm", x, y, FALSE, PACKAGE = "Matrix"),
+          .Call(dspMatrix_matrix_mm, x, y, FALSE),
           valueClass = "dgeMatrix")
 
 ##setMethod("%*%", signature(x = "dspMatrix", y = "numeric"),
 ##          function(x, y)
-##          .Call("dspMatrix_matrix_mm", x, as.matrix(y), FALSE, PACKAGE = "Matrix"),
+##          .Call(dspMatrix_matrix_mm, x, as.matrix(y), FALSE),
 ##          valueClass = "dgeMatrix")
 
 setMethod("%*%", signature(x = "dspMatrix", y = "integer"),
           function(x, y) {
               storage.mode(y) <- "double"
-              .Call("dspMatrix_matrix_mm", x, as.matrix(y), FALSE, PACKAGE = "Matrix")
+              .Call(dspMatrix_matrix_mm, x, as.matrix(y), FALSE)
           }, valueClass = "dgeMatrix")
 
 setMethod("solve", signature(a = "dspMatrix", b = "missing"),
-	  function(a, b, ...) .Call("dspMatrix_solve", a, PACKAGE = "Matrix"),
+	  function(a, b, ...) .Call(dspMatrix_solve, a),
 	  valueClass = "dspMatrix")
 
 setMethod("solve", signature(a = "dspMatrix", b = "matrix"),
 	  function(a, b, ...)
-	  .Call("dspMatrix_matrix_solve", a, b, FALSE, PACKAGE = "Matrix"),
+	  .Call(dspMatrix_matrix_solve, a, b, FALSE),
 	  valueClass = "dgeMatrix")
 
 setMethod("solve", signature(a = "dspMatrix", b = "dgeMatrix"),
 	  function(a, b, ...)
-	  .Call("dspMatrix_matrix_solve", a, as(b,"matrix"), TRUE, PACKAGE = "Matrix"),
+	  .Call(dspMatrix_matrix_solve, a, as(b,"matrix"), TRUE),
 	  valueClass = "dgeMatrix")
 
 ##setMethod("solve", signature(a = "dspMatrix", b = "numeric"),
 ##	  function(a, b, ...)
-##	  .Call("dspMatrix_matrix_solve", a, as.matrix(b), FALSE, PACKAGE = "Matrix"),
+##	  .Call(dspMatrix_matrix_solve, a, as.matrix(b), FALSE),
 ##	  valueClass = "dgeMatrix")
 
 setMethod("solve", signature(a = "dspMatrix", b = "integer"),
 	  function(a, b, ...) {
 	      storage.mode(b) <- "double"
-	      .Call("dspMatrix_matrix_solve", a, as.matrix(b), FALSE, PACKAGE = "Matrix")
+	      .Call(dspMatrix_matrix_solve, a, as.matrix(b), FALSE)
 	  }, valueClass = "dgeMatrix")
 
 setMethod("norm", signature(x = "dspMatrix", type = "character"),
-          function(x, type, ...) .Call("dspMatrix_norm", x, type, PACKAGE = "Matrix"),
+          function(x, type, ...) .Call(dspMatrix_norm, x, type),
           valueClass = "numeric")
 
 setMethod("norm", signature(x = "dspMatrix", type = "missing"),
-          function(x, type, ...) .Call("dspMatrix_norm", x, "O", PACKAGE = "Matrix"),
+          function(x, type, ...) .Call(dspMatrix_norm, x, "O"),
           valueClass = "numeric")
 
 setMethod("t", signature(x = "dspMatrix"),
@@ -95,7 +95,7 @@ setMethod("unpack", signature(x = "dspMatrix"),
 ## FIXME: This gives an error for singular pos.SEMI-def. matrices:
 setIs("dspMatrix", "dppMatrix",
       test = function(obj)
-          "try-error" != class(try(.Call("dppMatrix_chol", obj, PACKAGE = "Matrix"), TRUE)),
+          "try-error" != class(try(.Call(dppMatrix_chol, obj), TRUE)),
       replace = function(obj, value) {
           ## copy all slots
           for(n in slotNames(obj)) slot(obj, n) <- slot(value, n)

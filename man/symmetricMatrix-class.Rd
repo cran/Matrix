@@ -19,7 +19,7 @@
     %% \item{\code{Dim},\code{Dimnames}:}{The dimension (a length-2
     \item{\code{Dim, Dimnames}:}{The dimension (a length-2
       \code{"integer"}) and corresponding names (or \code{NULL}),
-      inherited from the \code{\link{Matrix-class}}, see there.}
+      inherited from the \code{\linkS4class{Matrix}}, see there.}
     \item{\code{factors}:}{a list of matrix factorizations, also from the
       \code{Matrix} class.}
   }
@@ -34,9 +34,9 @@
   %% No methods defined with class "symmetricMatrix" in the signature.
 }
 \seealso{
-  \code{\link{triangularMatrix-class}}, and, e.g.,
-  \code{\link{dsyMatrix-class}} for numeric \emph{dense} matrices, or
-  \code{\link{lsCMatrix-class}} for a logical \emph{sparse} matrix class.
+  Classes \code{\linkS4class{triangularMatrix}}, and, e.g.,
+  \code{\linkS4class{dsyMatrix}} for numeric \emph{dense} matrices, or
+  \code{\linkS4class{lsCMatrix}} for a logical \emph{sparse} matrix class.
 }
 \examples{
 showClass("symmetricMatrix")

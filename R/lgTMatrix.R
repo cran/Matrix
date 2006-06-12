@@ -5,10 +5,23 @@
 
 setAs("lgTMatrix", "lgCMatrix",
       function(from)
-      .Call("lgTMatrix_as_lgCMatrix", from, PACKAGE = "Matrix"))
+      .Call(lgTMatrix_as_lgCMatrix, from))
 
-setAs("lgTMatrix", "matrix",
+setAs("lgTMatrix", "matrix", # go via fast C code:
       function(from) as(as(from, "lgCMatrix"), "matrix"))
+
+setAs("matrix", "lgTMatrix",
+      function(from) {
+	  stopifnot(is.logical(from))
+	  ij <- which(from, arr.ind = TRUE) - 1:1
+	  new("lgTMatrix",
+	      i = ij[,1],
+	      j = ij[,2],
+	      Dim = as.integer(dim(from)),
+	      Dimnames =
+	      if(!is.null(dn <- dimnames(from))) dn else list(NULL,NULL)
+	      )
+	  })
 
 setAs("lgTMatrix", "dgTMatrix",
       function(from)

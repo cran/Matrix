@@ -4,9 +4,10 @@
 pedigree <- function(sire, dam, label) {
     n <- length(sire)
     stopifnot(n == length(dam), n == length(label))
-    new("pedigree",
-	sire = as.integer(sire),
-	dam = as.integer(dam),
+    sire <- as.integer(sire); dam <- as.integer(dam)
+    sire[sire < 1 | sire > n] <- NA
+    dam[dam < 1 | dam > n] <- NA
+    new("pedigree", sire = sire, dam = dam,
 	label = as.character(label))
 }
 
@@ -49,7 +50,7 @@ setMethod("tail", "pedigree", function(x, ...)
 setMethod("chol", "pedigree",
           function(x, pivot, LINPACK) {
               ttrans <- solve(t(as(x, "dtCMatrix")))
-              .Call("pedigree_chol", x,
+              .Call(pedigree_chol, x,
                     as(diagU2N(t(ttrans)), "dtCMatrix"),
                     PACKAGE = "Matrix")
           })

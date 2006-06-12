@@ -12,7 +12,7 @@ lu(x, \dots)
   \item{\dots}{further arguments passed to or from other methods.}
 }
 \value{
-  an object of class \code{"LU"}, see \code{\link{LU-class}}; this is
+  an object of class \code{"LU"}, see \code{\linkS4class{LU}}; this is
   a representation of a triangular decomposition of \code{x}.
 }
 \details{
@@ -26,7 +26,7 @@ lu(x, \dots)
   2nd edition, Johns Hopkins, Baltimore.
 }
 \seealso{
-  \code{\link{LU-class}} and \code{\link{expand}};
+  Class definition \code{\linkS4class{LU}} and function \code{\link{expand}};
   \code{\link{qr}}, \code{\link{chol}}.
 }
 \examples{

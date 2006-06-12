@@ -8,7 +8,7 @@
 }
 \arguments{
   \item{x}{a fitted model object, usually an object inheriting from
-    class \code{\link[Matrix:lmer-class]{lmer}}.
+    class \code{\linkS4class{lmer}}.
   }
   \item{REML}{logical indicating if REML should be used.}
   \item{useScale}{logical indicating if a scale should be computed and
@@ -27,8 +27,9 @@
 \value{
   an object of class \code{VarCorr}.
 }
-\seealso{\code{\link{lmer}}, \code{\link{lmer-class}},
-  \code{\link{VarCorr-class}}
+\seealso{
+  the \code{\link{lmer}} function and \code{\linkS4class{lmer}} class;
+  the result class \code{\linkS4class{VarCorr}}.
 }
 \examples{
 (fm2 <- lmer(Reaction ~ Days + (1|Subject) + (0+Days|Subject),

@@ -2,14 +2,21 @@
 \docType{class}
 \title{Virtual Class "sparseMatrix" --- Mother of Sparse Matrices}
 \alias{sparseMatrix-class}
-
 \alias{-,sparseMatrix,missing-method}
 \alias{show,sparseMatrix-method}
+\alias{colMeans,sparseMatrix-method}
+\alias{colSums,sparseMatrix-method}
+\alias{rowMeans,sparseMatrix-method}
+\alias{rowSums,sparseMatrix-method}
+% graph stuff
 \alias{coerce,graph,sparseMatrix-method}
+\alias{coerce,graphAM,sparseMatrix-method}
 \alias{coerce,graphNEL,sparseMatrix-method}
 \alias{coerce,sparseMatrix,graph-method}
 \alias{coerce,sparseMatrix,graphNEL-method}
+\alias{coerce,TsparseMatrix,graphNEL-method}
 \alias{coerce,dgTMatrix,graphNEL-method}
+%
 \description{Virtual Mother Class of All Sparse Matrices}
 \section{Slots}{
   \describe{
@@ -17,7 +24,7 @@
      of the matrix - must be an integer vector with exactly two
      non-negative values.}
     \item{\code{Dimnames}:}{a list of length two - inherited from class
-      \code{Matrix}, see \code{\link{Matrix-class}}.}
+      \code{Matrix}, see \code{\linkS4class{Matrix}}.}
     \item{\code{factors}:}{Object of class \code{"list"} - a list
       of factorizations of the matrix. }
   }

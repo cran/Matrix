@@ -108,8 +108,8 @@ Class \code{"dgCMatrix"}, directly.
 %\author{}
 %\note{}
 \seealso{
-  \code{\link{dgCMatrix-class}}, \code{\link{dgTMatrix-class}},
-  \code{\link{dgeMatrix-class}}
+  Classes \code{\linkS4class{dgCMatrix}}, \code{\linkS4class{dgTMatrix}},
+  \code{\linkS4class{dgeMatrix}}
 }
 \examples{
 ## First a "dgCMatrix"

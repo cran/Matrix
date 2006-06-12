@@ -16,7 +16,7 @@
   increasing row order.
 
   \bold{Note:} Currently, the column-oriented sparse classes, e.g.,
-  \code{\link{dgCMatrix-class}}, are preferred and better supported in
+  \code{\linkS4class{dgCMatrix}}, are preferred and better supported in
   the \pkg{Matrix} package.
 }
 \section{Objects from the Class}{
@@ -50,7 +50,7 @@
   }
 }
 \seealso{
-  \code{\link{dgCMatrix-class}}
+  the \code{\linkS4class{dgCMatrix}} class.
 }
 \keyword{classes}
 \keyword{algebra}

@@ -5,11 +5,15 @@
 \alias{show,denseMatrix-method}
 \alias{coerce,denseMatrix,CsparseMatrix-method}
 \alias{coerce,denseMatrix,TsparseMatrix-method}
+\alias{colMeans,denseMatrix-method}
+\alias{colSums,denseMatrix-method}
+\alias{rowMeans,denseMatrix-method}
+\alias{rowSums,denseMatrix-method}
 %
 \description{This is the virtual class of all dense (S4) matrices.
   It is the direct superclass of
-  \code{\link{ddenseMatrix-class}},
-  \code{\link{ldenseMatrix-class}}
+  \code{\linkS4class{ddenseMatrix}},
+  \code{\linkS4class{ldenseMatrix}}
 }
 \section{Extends}{
   class \code{"Matrix"} directly.
@@ -26,7 +30,7 @@
     \item{\code{Dimnames}:}{\code{"list"} of length 2,}
   }
   %% not sufficient: \code{Dim}, and \code{Dimnames},
-  see \code{\link{Matrix-class}}.
+  see \code{\linkS4class{Matrix}}.
 }
 %
 \section{Methods}{
@@ -37,10 +41,8 @@
   see \code{\link{[-methods}}.%-> ./Xtrct-methods.Rd
 }
 \seealso{
-  Its superclass \code{\link{Matrix-class}},
-  and main subclasses,
-  \code{\link{ddenseMatrix-class}}
-  \code{\link{sparseMatrix-class}}
+  Its superclass \code{\linkS4class{Matrix}}, and main subclasses,
+  \code{\linkS4class{ddenseMatrix}} and \code{\linkS4class{sparseMatrix}}.
 }
 \examples{
 showClass("denseMatrix")

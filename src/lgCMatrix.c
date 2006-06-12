@@ -32,7 +32,7 @@ SEXP lgCMatrix_validate(SEXP x)
     return ScalarLogical(1);
 }
 
-/* very parallel to csc_matrix() in ./dgeMatrix.c */
+/* very parallel to csc_to_matrix() in ./dgCMatrix.c */
 SEXP lcsc_to_matrix(SEXP x)
 {
     SEXP ans, pslot = GET_SLOT(x, Matrix_pSym);
@@ -52,6 +52,17 @@ SEXP lcsc_to_matrix(SEXP x)
     UNPROTECT(1);
     return ans;
 }
+
+#ifdef _NEED_logical_to_csc_FIRST_
+/* very parallel to matrix_to_csc() in ./dgCMatrix.c */
+SEXP matrix_to_lcsc(SEXP A)
+{
+    if (!(isMatrix(A) && isLogical(A)))
+	error(_("A must be a logical matrix"));
+    return logical_to_csc(LOGICAL(A),
+			  INTEGER(getAttrib(A, R_DimSymbol)));
+}
+#endif
 
 /**
  * C := op(A) %*% op(B) + beta ^ C for logical sparse column-oriented matrices

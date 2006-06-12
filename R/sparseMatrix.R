@@ -2,36 +2,90 @@
 
 ### Idea: Coercion between *VIRTUAL* classes -- as() chooses "closest" classes
 ### ----  should also work e.g. for  dense-triangular --> sparse-triangular !
-## setAs("denseMatrix", "sparseMatrix",
-##        function(from) {
-##            as(as(from, "dgeMatrix")
-##        })
 
-## setAs("dMatrix", "lMatrix",
-##       function(from) {
-##       })
+##-> see  ./dMatrix.R  and  ./lMatrix.R
 
 
 ## "graph" coercions -- this needs the graph package which is currently
 ##  -----               *not* required on purpose
 ## Note: 'undirected' graph <==> 'symmetric' matrix
 
+## Add some utils that may no longer be needed in future versions of the 'graph' package
+graph.has.weights <- function(g) "weight" %in% names(edgeDataDefaults(g))
+
+graph.wgtMatrix <- function(g)
+{
+    ## Purpose: work around "graph" package's  as(g, "matrix") bug
+    ## ----------------------------------------------------------------------
+    ## Arguments: g: an object inheriting from (S4) class "graph"
+    ## ----------------------------------------------------------------------
+    ## Author: Martin Maechler, based on Seth Falcon's code;  Date: 12 May 2006
+
+    ## MM: another buglet for the case of  "no edges":
+    if(numEdges(g) == 0) {
+      p <- length(nd <- nodes(g))
+      return( matrix(0, p,p, dimnames = list(nd, nd)) )
+    }
+    ## Usual case, when there are edges:
+    has.w <- "weight" %in% names(edgeDataDefaults(g))
+    if(has.w) {
+        w <- unlist(edgeData(g, attr = "weight"))
+        has.w <- any(w != 1)
+    } ## now 'has.w' is TRUE  iff  there are weights != 1
+    m <- as(g, "matrix")
+    ## now is a 0/1 - matrix (instead of 0/wgts) with the 'graph' bug
+    if(has.w) { ## fix it if needed
+        tm <- t(m)
+        tm[tm != 0] <- w
+        t(tm)
+    }
+    else m
+}
+
+
+setAs("graphAM", "sparseMatrix",
+      function(from) {
+	  symm <- edgemode(from) == "undirected" && isSymmetric(from@adjMat)
+	  ## This is only ok if there are no weights...
+	  if(graph.has.weights(from)) {
+	      as(graph.wgtMatrix(from),
+		 if(symm) "dsTMatrix" else "dgTMatrix")
+	  }
+	  else { ## no weights: 0/1 matrix -> logical
+	      as(as(from, "matrix"),
+		 if(symm) "lsTMatrix" else "lgTMatrix")
+	  }
+      })
+
+## FIXME: in the case of NEL or other sparse graphs, we really should *NOT* go
+##        via a *dense* adjacency matrix as we do here :
+setAs("graph", "sparseMatrix",
+      function(from) as(as(from, "graphAM"), "sparseMatrix"))
+## but rather
+if(FALSE) { #------------------------- NOT YET -----------------
+setAs("graph", "sparseMatrix",
+      function(from) as(as(from, "graphNEL"), "sparseMatrix"))
+
 setAs("graphNEL", "sparseMatrix",
       function(from) {
-          .Call("graphNEL_as_dgTMatrix",
-                from,
-                symmetric = (from@edgemode == "undirected"),
-                PACKAGE = "Matrix")
+	  nd <- nodes(from)
+	  symm <- edgemode(from) == "undirected"
+	  if(graph.has.weights(from)) {
+	      ## symm <- symm && <weights must also be symmetric>: improbable
+	      ## if(symm) new("dsTMatrix", .....) else
+	      new("dgTMatrix", .....)
+	  }
+	  else { ## no weights: 0/1 matrix -> logical
+	      if(symm) new("lsTMatrix", .....)
+	      else     new("lgTMatrix", .....)
+	  }
       })
-setAs("graph", "sparseMatrix",
-      function(from) as(as(from,"graphNEL"), "sparseMatrix"))
-
-##! if(FALSE) {##--- not yet
+}# not yet
 
 setAs("sparseMatrix", "graph", function(from) as(from, "graphNEL"))
 setAs("sparseMatrix", "graphNEL",
-      function(from) as(as(from, "dgTMatrix"), "graphNEL"))
-setAs("dgTMatrix", "graphNEL",
+      function(from) as(as(from, "TsparseMatrix"), "graphNEL"))
+setAs("TsparseMatrix", "graphNEL",
       function(from) {
           d <- dim(from)
           if(d[1] != d[2])
@@ -40,10 +94,11 @@ setAs("dgTMatrix", "graphNEL",
           if(n == 0) return(new("graphNEL"))
           if(is.null(rn <- dimnames(from)[[1]]))
               rn <- as.character(1:n)
+          from <- uniq(from) ## Need to 'uniquify' the triplets!
           if(isSymmetric(from)) { # because it's "dsTMatrix" or otherwise
-              ## Need to 'uniquify' the triplets!
               upper <- from@i <= from@j
-              graph::ftM2graphNEL(cbind(from@i + 1:1, from@j + 1:1),
+              ft1 <- cbind(from@i + 1:1, from@j + 1:1)
+              graph::ftM2graphNEL(rbind(ft1, ft1[, 2:1]),
                                   W = from@x, V=rn, edgemode="undirected")
 
           } else { ## not symmetric
@@ -51,11 +106,9 @@ setAs("dgTMatrix", "graphNEL",
               graph::ftM2graphNEL(cbind(from@i + 1:1, from@j + 1:1),
                                   W = from@x, V=rn, edgemode="directed")
           }
-          stop("'dgTMatrix -> 'graphNEL' method is not yet implemented")
-          ## new("graphNEL", nodes = paste(1:n) , edgeL = ...)
+          ## stop("'dgTMatrix -> 'graphNEL' method is not yet implemented")
       })
 
-##! }#--not_yet
 
 
 
@@ -207,4 +260,12 @@ setMethod("isDiagonal", signature(object = "sparseMatrix"),
 	      gT <- as(object, "TsparseMatrix")
 	      all(gT@i == gT@j)
 	  })
+
+
+## .as.dgT.Fun is in ./Tsparse.R
+setMethod("colSums",  signature(x = "sparseMatrix"), .as.dgT.Fun)
+setMethod("colMeans", signature(x = "sparseMatrix"), .as.dgT.Fun)
+## .as.dgC.Fun is in ./Csparse.R
+setMethod("rowSums", signature(x = "sparseMatrix"), .as.dgC.Fun)
+setMethod("rowMeans", signature(x = "sparseMatrix"),.as.dgC.Fun)
 

@@ -3,13 +3,13 @@
 ### contains = "dsparseMatrix"
 
 setAs("dgCMatrix", "dgTMatrix",
-      function(from) .Call("compressed_to_dgTMatrix", from, TRUE, PACKAGE = "Matrix"))
+      function(from) .Call(compressed_to_dgTMatrix, from, TRUE))
 
 setAs("dgCMatrix", "matrix",
-      function(from) .Call("csc_to_matrix", from, PACKAGE = "Matrix"))
+      function(from) .Call(csc_to_matrix, from))
 
 setAs("dgCMatrix", "dgeMatrix",
-      function(from) .Call("csc_to_dgeMatrix", from, PACKAGE = "Matrix"))
+      function(from) .Call(csc_to_dgeMatrix, from))
 
 setAs("dgCMatrix", "lgCMatrix",
       function(from) new("lgCMatrix", i = from@i, p = from@p,
@@ -18,26 +18,26 @@ setAs("dgCMatrix", "lgCMatrix",
 setAs("matrix", "dgCMatrix",
       function(from) {
           storage.mode(from) <- "double"
-          .Call("matrix_to_csc", from, PACKAGE = "Matrix")
+          .Call(matrix_to_csc, from)
       })
 
 setAs("dgeMatrix", "dgCMatrix",
-      function(from) .Call("dgeMatrix_to_csc", from, PACKAGE = "Matrix"))
+      function(from) .Call(dgeMatrix_to_csc, from))
 
 
 setMethod("crossprod", signature(x = "dgCMatrix", y = "missing"),
-          function(x, y = NULL) .Call("csc_crossprod", x, PACKAGE = "Matrix"),
+          function(x, y = NULL) .Call(csc_crossprod, x),
           valueClass = "dsCMatrix")
 
 setMethod("crossprod", signature(x = "dgCMatrix", y = "dgeMatrix"),
           function(x, y = NULL)
-          .Call("csc_matrix_crossprod", x, y, TRUE, PACKAGE = "Matrix"),
+          .Call(csc_matrix_crossprod, x, y, TRUE),
           valueClass = "dgeMatrix")
 
 setMethod("crossprod", signature(x = "dgCMatrix", y = "matrix"),
           function(x, y = NULL) {
 	      storage.mode(y) <- "double"
-              .Call("csc_matrix_crossprod", x, y, FALSE, PACKAGE = "Matrix")
+              .Call(csc_matrix_crossprod, x, y, FALSE)
           }, valueClass = "dgeMatrix")
 
 ##setMethod("crossprod", signature(x = "dgCMatrix", y = "numeric"),
@@ -45,21 +45,21 @@ setMethod("crossprod", signature(x = "dgCMatrix", y = "matrix"),
 ##          valueClass = "dgeMatrix")
 
 ## setMethod("crossprod", signature(x = "dgCMatrix", y = "numeric"),
-##           function(x, y = NULL) .Call("csc_matrix_crossprod", x, as.matrix(y)))
+##           function(x, y = NULL) .Call(csc_matrix_crossprod, x, as.matrix(y)))
 
 setMethod("tcrossprod", signature(x = "dgCMatrix", y = "missing"),
-          function(x, y = NULL) .Call("csc_tcrossprod", x, PACKAGE = "Matrix"))
+          function(x, y = NULL) .Call(csc_tcrossprod, x))
 
 setMethod("diag", signature(x = "dgCMatrix"),
           function(x = 1, nrow, ncol = n)
-          .Call("csc_getDiag", x, PACKAGE = "Matrix"))
+          .Call(csc_getDiag, x))
 
 ## try to define for "Matrix" -- once and for all -- but that fails -- why? __ FIXME __
 ## setMethod("dim", signature(x = "dgCMatrix"),
 ##           function(x) x@Dim, valueClass = "integer")
 
 setMethod("t", signature(x = "dgCMatrix"),
-          function(x) .Call("csc_transpose", x, PACKAGE = "Matrix"),
+          function(x) .Call(csc_transpose, x),
           valueClass = "dgCMatrix")
 
 setMethod("image", "dgCMatrix",
@@ -69,23 +69,23 @@ setMethod("image", "dgCMatrix",
           })
 
 setMethod("%*%", signature(x = "dgCMatrix", y = "dgeMatrix"),
-          function(x, y) .Call("csc_matrix_mm", x, y, TRUE, FALSE, PACKAGE = "Matrix"),
+          function(x, y) .Call(csc_matrix_mm, x, y, TRUE, FALSE),
           valueClass = "dgeMatrix")
 
 setMethod("%*%", signature(x = "dgCMatrix", y = "matrix"),
           function(x, y) {
 	      storage.mode(y) <- "double"
-              .Call("csc_matrix_mm", x, y, FALSE, FALSE, PACKAGE = "Matrix")
+              .Call(csc_matrix_mm, x, y, FALSE, FALSE)
           }, valueClass = "dgeMatrix")
 
 setMethod("%*%", signature(x = "dgeMatrix", y = "dgCMatrix"),
-          function(x, y) .Call("csc_matrix_mm", y, x, TRUE, TRUE, PACKAGE = "Matrix"),
+          function(x, y) .Call(csc_matrix_mm, y, x, TRUE, TRUE),
           valueClass = "dgeMatrix")
 
 setMethod("%*%", signature(x = "matrix", y = "dgCMatrix"),
           function(x, y) {
 	      storage.mode(x) <- "double"
-              .Call("csc_matrix_mm", y, x, FALSE, TRUE, PACKAGE = "Matrix")
+              .Call(csc_matrix_mm, y, x, FALSE, TRUE)
           }, valueClass = "dgeMatrix")
 
 ## Group Methods, see ?Arith (e.g.)
@@ -243,7 +243,7 @@ replCmat <- function (x, i, j, value)
     if(lenV > lenRepl)
         stop("too many replacement values")
 
-    xj <- .Call("Matrix_expand_pointers", x@p, PACKAGE = "Matrix")
+    xj <- .Call(Matrix_expand_pointers, x@p)
     sel <- (!is.na(match(x@i, i1)) &
             !is.na(match( xj, i2)))
 
@@ -278,8 +278,34 @@ setReplaceMethod("[", signature(x = "dgCMatrix", i = "index", j = "index",
 
 setMethod("writeHB", signature(obj = "dgCMatrix"),
           function(obj, file, ...)
-          .Call("Matrix_writeHarwellBoeing", obj, as.character(file), "DGC", PACKAGE = "Matrix"))
+          .Call(Matrix_writeHarwellBoeing, obj, as.character(file), "DGC"))
 
 setMethod("writeMM", signature(obj = "dgCMatrix"),
           function(obj, file, ...)
-          .Call("Matrix_writeMatrixMarket", obj, as.character(file), "DGC", PACKAGE = "Matrix"))
+          .Call(Matrix_writeMatrixMarket, obj, as.character(file), "DGC"))
+
+
+## TODO (in C):
+## setMethod("colSums", signature(x = "dgCMatrix"),
+## 	  function(x, na.rm = FALSE, dims = 1)
+##           .Call(dgCMatrix_colsums, x, na.rm, TRUE, FALSE),
+## 	  valueClass = "numeric")
+
+## setMethod("colMeans", signature(x = "dgCMatrix"),
+## 	  function(x, na.rm = FALSE, dims = 1)
+##           .Call(dgCMatrix_colsums, x, na.rm, TRUE, TRUE),
+## 	  valueClass = "numeric")
+
+setMethod("colSums",  signature(x = "dgCMatrix"), .as.dgT.Fun)
+setMethod("colMeans", signature(x = "dgCMatrix"), .as.dgT.Fun)
+
+setMethod("rowSums", signature(x = "dgCMatrix"),
+	  function(x, na.rm = FALSE, dims = 1)
+          tapply1(x@x, factor(x@i, 0:(x@Dim[1]-1)), sum, na.rm = na.rm),
+	  valueClass = "numeric")
+
+setMethod("rowMeans", signature(x = "dgCMatrix"),
+	  function(x, na.rm = FALSE, dims = 1)
+          tapply1(x@x, factor(x@i, 0:(x@Dim[1]-1)), mean, na.rm = na.rm),
+	  valueClass = "numeric")
+

@@ -17,7 +17,7 @@ setAs("denseMatrix", "CsparseMatrix",
 	      else if(is(from, "zMatrix")) from <- as(from, "zgeMatrix")
 	      else stop("undefined method for class ", class(from))
 	  }
-	  .Call("dense_to_Csparse", from, PACKAGE = "Matrix")
+	  .Call(dense_to_Csparse, from)
       })
 
 setAs("denseMatrix", "TsparseMatrix",
@@ -117,3 +117,12 @@ setMethod("isTriangular", signature(object = "triangularMatrix"),
 setMethod("isTriangular", signature(object = "denseMatrix"), isTriMat)
 
 setMethod("isDiagonal", signature(object = "denseMatrix"), .is.diagonal)
+
+.as.dge.Fun <- function(x, na.rm = FALSE, dims = 1) {
+    x <- as(x, "dgeMatrix")
+    callGeneric()
+}
+setMethod("colSums",  signature(x = "denseMatrix"), .as.dge.Fun)
+setMethod("colMeans", signature(x = "denseMatrix"), .as.dge.Fun)
+setMethod("rowSums",  signature(x = "denseMatrix"), .as.dge.Fun)
+setMethod("rowMeans", signature(x = "denseMatrix"), .as.dge.Fun)

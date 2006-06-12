@@ -39,7 +39,8 @@
 % \author{}
 % \note{}
 \seealso{
-  \code{\link{dgeMatrix-class}}, \code{\link{lu}}, \code{\link{expand}}
+  class \code{\linkS4class{dgeMatrix}} and functions \code{\link{lu}},
+  \code{\link{expand}}.
 }
 \examples{
 mm <- Matrix(round(rnorm(9),2), nrow = 3, ncol = 3)

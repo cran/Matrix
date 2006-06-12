@@ -55,7 +55,7 @@ MODIFY = cholmod_rowadd.o cholmod_rowdel.o cholmod_updown.o
 SUPERNODAL = cholmod_super_numeric.o cholmod_super_solve.o \
 	cholmod_super_symbolic.o
 
-OBJS = $(CORE) $(CHOLESKY) $(MATRIXOPS) $(MODIFY) $(SUPERNODAL) $(PARTITION)
+OBJS = $(CORE) $(CHOLESKY) $(MATRIXOPS) $(MODIFY) $(SUPERNODAL) $(PARTITION) $(CHECK)
 
 LIB = ../../CHOLMOD.a
 
@@ -196,4 +196,13 @@ cholmod_super_symbolic.o: ../Supernodal/cholmod_super_symbolic.c
 	$(CC) $(ALL_CPPFLAGS) $(ALL_CFLAGS) -c $< -o $@
 cholmod_super_solve.o: ../Supernodal/cholmod_super_solve.c \
 	../Supernodal/t_cholmod_super_solve.c
+	$(CC) $(ALL_CPPFLAGS) $(ALL_CFLAGS) -c $< -o $@
+
+#-------------------------------------------------------------------------------
+# check Module:
+#-------------------------------------------------------------------------------
+
+cholmod_check.o: ../Check/cholmod_check.c
+	$(CC) $(ALL_CPPFLAGS) $(ALL_CFLAGS) -c $< -o $@
+cholmod_read.o: ../Check/cholmod_read.c
 	$(CC) $(ALL_CPPFLAGS) $(ALL_CFLAGS) -c $< -o $@

@@ -123,7 +123,7 @@ if(paste(R.version$major, R.version$minor, sep=".") >= "2.2") {
 		  ## beware of (packed) triangular, symmetric, ...
 		  hasDN <- !all(lapply(c(dnx <- dimnames(x),
                                          dny <- dimnames(y)), is.null))
-                  ans <- .Call("Csparse_horzcat",
+                  ans <- .Call(Csparse_horzcat,
                                as(x, "dgCMatrix"), as(y, "dgCMatrix"))
 		  if(hasDN) {
 		      ## R and S+ are different in which names they take
@@ -144,7 +144,7 @@ if(paste(R.version$major, R.version$minor, sep=".") >= "2.2") {
 		  ## beware of (packed) triangular, symmetric, ...
 		  hasDN <- !all(lapply(c(dnx <- dimnames(x),
                                          dny <- dimnames(y)), is.null))
-                  ans <- .Call("Csparse_vertcat",
+                  ans <- .Call(Csparse_vertcat,
                                as(x, "dgCMatrix"), as(y, "dgCMatrix"))
 		  if(hasDN) {
 		      ## R and S+ are different in which names they take

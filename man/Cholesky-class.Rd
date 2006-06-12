@@ -17,7 +17,7 @@
     ...)} or \code{new("BunchKaufman", ...)}
   or by calls of the form \code{chol(pm)} where \code{pm} inherits from
   the \code{"dpoMatrix"} class or as a side-effect of other functions
-  applied to \code{"dpoMatrix"} objects (see \code{\link{dpoMatrix-class}}).
+  applied to \code{"dpoMatrix"} objects (see \code{\linkS4class{dpoMatrix}}).
 }
 \section{Slots}{
   A Cholesky decomposition is basically a triangular matrix extending
@@ -42,8 +42,8 @@
   No methods defined with class "Cholesky" in the signature.
 }
 \seealso{
-  \code{\link{dtrMatrix-class}}, \code{\link{chol}},
-  \code{\link{dpoMatrix-class}}.
+  Classes \code{\linkS4class{dtrMatrix}}, \code{\linkS4class{dpoMatrix}};
+  function \code{\link{chol}}.
 }
 \examples{
 (sm <- as(as(Matrix(diag(5) + 1), "dsyMatrix"), "dspMatrix"))

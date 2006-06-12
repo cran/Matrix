@@ -59,8 +59,8 @@ Class \code{"Matrix"}, by class \code{"dgRMatrix"}.
 %\author{}
 %\note{}
 \seealso{
-  \code{\link{dgCMatrix-class}}, \code{\link{dgTMatrix-class}},
-  \code{\link{dgeMatrix-class}}
+  the classes \code{\linkS4class{dgCMatrix}},
+  \code{\linkS4class{dgTMatrix}}, and \code{\linkS4class{dgeMatrix}}.
 }
 \examples{
 m0 <- new("dsRMatrix")

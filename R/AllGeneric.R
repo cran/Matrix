@@ -24,9 +24,6 @@ if (!isGeneric("isTriangular"))
     setGeneric("isTriangular", function(object, ...) ## 'upper = NA'
                standardGeneric("isTriangular"))
 
-if (!isGeneric("isNested"))
-    setGeneric("isNested", function(object, ...) standardGeneric("isNested"))
-
 if (!isGeneric("facmul"))
     setGeneric("facmul",
                function(x, factor, y, transpose, left, ...)
@@ -61,6 +58,23 @@ if (!isGeneric("writeMM"))
     setGeneric("writeMM", function(obj, file, ...)
                standardGeneric("writeMM"))
 
+## if (!isGeneric("qqmath"))
+##     setGeneric("qqmath", function(x, data, ...)
+##                standardGeneric("qqmath"))
+
+if (!isGeneric("tril"))
+    setGeneric("tril", function(x, k = 0, ...)
+               standardGeneric("tril"))
+
+if (!isGeneric("triu"))
+    setGeneric("triu", function(x, k = 0, ...)
+               standardGeneric("triu"))
+
+if (!isGeneric("band"))
+    setGeneric("band", function(x, k1, k2, ...)
+               standardGeneric("band"))
+
+
 ## ----------------------- lmer-related Generics ---------------------------
 
 ## Hmm: If this does not match *exactly* the "formula" - method in ./lmer.R
@@ -73,6 +87,8 @@ setGeneric("lmer",
 		    ...)
 	   standardGeneric("lmer"))
 
+if (!isGeneric("isNested"))
+    setGeneric("isNested", function(x, ...) standardGeneric("isNested"))
 
 if (!isGeneric("LMEoptimize<-")) {
     setGeneric("LMEoptimize<-", function(x, ..., value)
@@ -81,6 +97,10 @@ if (!isGeneric("LMEoptimize<-")) {
 
 if (!isGeneric("fixef")) {
     setGeneric("fixef", function(object, ...) standardGeneric("fixef"))
+}
+
+if (!isGeneric("denomDF")) {
+    setGeneric("denomDF", function(x, ...) standardGeneric("denomDF"))
 }
 
 fixed.effects <- function(object, ...) {
@@ -115,6 +135,11 @@ setMethod("BIC", "logLik",
 
 if (!isGeneric("VarCorr")) {
     setGeneric("VarCorr", function(x, ...) standardGeneric("VarCorr"))
+}
+
+if (!isGeneric("postVar")) {            # posterior variances
+    setGeneric("postVar", function(object, ...)
+               standardGeneric("postVar"))
 }
 
 if (!isGeneric("gradient")) {           # not exported

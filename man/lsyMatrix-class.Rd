@@ -32,7 +32,7 @@
       values that constitute the matrix, stored in column-major order.}
     \item{\code{Dim},\code{Dimnames}:}{The dimension (a length-2
       \code{"integer"}) and corresponding names (or \code{NULL}), see the
-      \code{\link{Matrix-class}}.}
+      \code{\linkS4class{Matrix}} class.}
     \item{\code{factors}:}{Object of class \code{"list"}.  A named
       list of factorizations that have been computed for the matrix.}
   }
@@ -53,7 +53,7 @@
 %\references{}
 %\author{}
 \seealso{
-  \code{\link{lgeMatrix-class}}, \code{\link{Matrix-class}},
+  \code{\linkS4class{lgeMatrix}}, \code{\linkS4class{Matrix}},
   \code{\link[base]{t}}
 }
 \examples{

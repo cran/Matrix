@@ -68,6 +68,7 @@ SEXP dgTMatrix_to_matrix(SEXP x)
     return ans;
 }
 
+#ifdef _valid_only_for_old_graph_package
 SEXP graphNEL_as_dgTMatrix(SEXP x, SEXP symmetric)
 {
     int sym = asLogical(symmetric);
@@ -121,3 +122,4 @@ SEXP graphNEL_as_dgTMatrix(SEXP x, SEXP symmetric)
     UNPROTECT(1);
     return ans;
 }
+#endif

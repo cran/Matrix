@@ -17,7 +17,7 @@
       for each row, to the initial (zero-based) index of elements in
       the row.}
     \item{\code{Dim}, \code{Dimnames}:}{inherited from
-      the superclass, see \code{\link{sparseMatrix-class}}.}
+      the superclass, see \code{\linkS4class{sparseMatrix}}.}
   }
 }
 \section{Extends}{
@@ -26,7 +26,7 @@
 }
 \section{Methods}{
   \bold{NO} methods are defined currently, since we rather use the
-  \code{\link{CsparseMatrix-class}} in \pkg{Matrix}.
+  \code{\linkS4class{CsparseMatrix}} in \pkg{Matrix}.
 %   \describe{
 %     \item{crossprod}{\code{signature(x = "RsparseMatrix", y = "missing")}: ... }
 %     \item{t}{\code{signature(x = "RsparseMatrix")}: ... }
@@ -37,8 +37,8 @@
 %   }
 }
 \seealso{
-  its superclass, \code{\link{sparseMatrix-class}}, and, e.g.,
-  \code{\link{dgRMatrix-class}} for the links to other classes.
+  its superclass, \code{\linkS4class{sparseMatrix}}, and, e.g., class
+  \code{\linkS4class{dgRMatrix}} for the links to other classes.
 }
 \examples{
 showClass("RsparseMatrix")

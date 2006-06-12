@@ -1,3 +1,78 @@
+2006-06-10  Douglas Bates  <bates@R-project.org>
+
+	* R/lmer.R (simulestimate): added
+
+2006-06-09  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/diagMatrix.R (setAs): define coercion methods to sparse matrix
+	classes.
+
+2006-06-08  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/dgTMatrix.R (colSums): etc. All four of
+	colSums(), rowSums(), colMeans(), rowMeans() now should work for
+	all "Matrices".
+
+2006-06-01  Douglas Bates  <bates@stat.wisc.edu>
+
+	* R/lmer.R (panel.ci): Add a reference line at zero and a
+	background grid to the qqmath plot of ranef.lmer.
+
+2006-05-30  Douglas Bates  <bates@stat.wisc.edu>
+
+	* R/lmer.R (expandSlash): Functions (non-exported) to allow nested
+	grouping factors to be specified in the formula as (1|foo/bar).
+
+2006-05-27  Douglas Bates  <bates@stat.wisc.edu>
+
+	* R/lmer.R (findbars and others): Change check of is.numeric to
+	!is.language to resolve the bug reported by Jacob Wegelin.
+
+	* src/pedigree.c (pedigree_inbreeding): Initial implementation of
+	code to evaluate inbreeding coefficients without calculating T,
+	based on code in Sargolzaei and Iwaisaki's paper.
+
+2006-05-27  Douglas Bates  <bates@stat.wisc.edu>
+
+	* R/{lmer.R,AllGeneric.R}, src/{init.c,lmer.[ch]}: Added local
+	generic and mer methods for isNested and denomDF. This denomDF was
+	an attempt to emulate that in lme but I don't think that makes
+	sense.  Use the trace of the hat matrix instead.
+
+2006-05-17  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/sparseMatrix.R: Matrix <-> graph methods: can no longer use
+	the C code depending on a slot structure that's no longer valid.
+	* src/dgTMatrix.c: dito (also: src/init.c src/dgTMatrix.h)
+
+
+2006-05-17  Douglas Bates  <bates@stat.wisc.edu>
+
+	*  R/{AllGeneric.R,Csparse.R},man/band.Rd,NAMESPACE: changed name
+	of lowerTriMatrix generic and methods to tril (also upper to triu)
+	and added a general band extractor.
+
+2006-05-16  Douglas Bates  <bates@stat.wisc.edu>
+
+	* R/pedigree.R (pedigree): Replace sire and dam values outside the
+	allowable range with NAs. Added a corresponding check in the
+	validity check for the pedigree class.
+
+	* R/[CT]sparse.R ([t]crossprod): The result of single-argument
+	crossprod methods now inherits from symmetricMatrix.
+
+2006-05-15  Douglas Bates  <bates@stat.wisc.edu>
+
+	* R/AllGeneric.R (lowerTriMatrix): Added (but did not export)
+	generics lowerTriMatrix and upperTriMatrix along with methods for
+	the Csparse virtual class.  Also added a C function Csparse_band
+	that implements these methods by calling cholmod_band.
+
+2006-05-15  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Tsparse.R ("["): column or row subsetting; @Dimnames[k] got
+	erased when it was NULL.  This led to invalid subselections!
+
 2006-04-25  Douglas Bates  <bates@stat.wisc.edu>
 
 	* R/dtCMatrix.R: avoid coercion of dtCMatrix object to dgCMatrix

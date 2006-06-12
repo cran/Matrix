@@ -24,7 +24,7 @@ gt2tT <- function(x, uplo, diag) {
 
 setAs("dtTMatrix", "dtCMatrix",
       function(from) {
-          gC <- .Call("dtTMatrix_as_dgCMatrix", from, PACKAGE = "Matrix")
+          gC <- .Call(dtTMatrix_as_dgCMatrix, from)
           new("dtCMatrix", Dim = gC@Dim, Dimnames = gC@Dimnames, p = gC@p,
               i = gC@i, x = gC@x, uplo = from@uplo, diag = from@diag)
       })
@@ -47,7 +47,7 @@ setAs("dtTMatrix", "ltTMatrix",
 
 ## Conversion to dense storage is first to a dtrMatrix
 setAs("dtTMatrix", "dtrMatrix",
-      function(from) .Call("dtTMatrix_as_dtrMatrix", from, PACKAGE = "Matrix"))
+      function(from) .Call(dtTMatrix_as_dtrMatrix, from))
 
 setAs("dtTMatrix", "matrix",
       function(from) as(as(from, "dtrMatrix"), "matrix"))

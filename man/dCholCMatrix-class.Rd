@@ -44,7 +44,7 @@
      of the matrix - must be an integer vector with exactly two
      non-negative values.}
     \item{\code{Dimnames}:}{list of length two; inherited from the
-      \code{"Matrix"} class, see \code{\link{Matrix-class}}.}
+      \code{"Matrix"} class, see \code{\linkS4class{Matrix}}.}
     \item{\code{D}:}{Object of class \code{"numeric"} - the diagonal
       elements of the matrix D in the LDL' decomposition. Present only
       in the \code{"dCholCMatrix"} class.}
@@ -63,7 +63,7 @@
 %\author{}
 %\note{}
 \seealso{
-  \code{\link{dgCMatrix-class}}
+  Class \code{\linkS4class{dgCMatrix}}
 }
 \examples{
 data(KNex)

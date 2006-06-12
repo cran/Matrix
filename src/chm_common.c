@@ -408,6 +408,7 @@ cholmod_factor *as_cholmod_factor(SEXP x)
 				/* slots always present */
     tmp = GET_SLOT(x, Matrix_permSym);
     ans->minor = ans->n = LENGTH(tmp); ans->Perm = INTEGER(tmp);
+    ans->ColCount = INTEGER(GET_SLOT(x, install("colcount")));
     if (ctype < 2) {
 	tmp = GET_SLOT(x, Matrix_xSym);
 	ans->x = REAL(tmp);
@@ -435,7 +436,6 @@ cholmod_factor *as_cholmod_factor(SEXP x)
 	ans->nzmax = LENGTH(tmp);
 	ans->p = INTEGER(GET_SLOT(x, Matrix_pSym));
 	ans->i = INTEGER(GET_SLOT(x, Matrix_iSym));
-	ans->ColCount = INTEGER(GET_SLOT(x, install("colcount")));
 	ans->nz = INTEGER(GET_SLOT(x, install("nz")));
 	ans->next = INTEGER(GET_SLOT(x, install("nxt")));
 	ans->prev = INTEGER(GET_SLOT(x, install("prv")));
@@ -474,6 +474,8 @@ SEXP chm_factor_to_SEXP(cholmod_factor *f, int dofree)
 				/* copy component of known length */
     Memcpy(INTEGER(ALLOC_SLOT(ans, Matrix_permSym, INTSXP, f->n)),
 	   (int*)f->Perm, f->n);
+    Memcpy(INTEGER(ALLOC_SLOT(ans, install("colcount"), INTSXP, f->n)),
+	   (int*)f->ColCount, f->n);
     type = INTEGER(ALLOC_SLOT(ans, install("type"), INTSXP, f->is_super ? 6 : 4));
     type[0] = f->ordering; type[1] = f->is_ll;
     type[2] = f->is_super; type[3] = f->is_monotonic;

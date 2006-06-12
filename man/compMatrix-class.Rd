@@ -17,7 +17,7 @@
       whenever a matrix factorization is computed.}
     \item{\code{Dim}}{,}
     \item{\code{Dimnames}:}{inherited from the
-      \code{\link{Matrix-class}}, see there.}
+      \code{\linkS4class{Matrix}} class, see there.}
   }
 }
 \section{Extends}{

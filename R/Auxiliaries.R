@@ -82,6 +82,8 @@ colCheck <- function(a, b) {
     da[2]
 }
 
+## Note: !isPacked(.)  i.e. `full' still contains
+## ----  "*sy" and "*tr" which have "undefined" lower or upper part
 isPacked <- function(x)
 {
     ## Is 'x' a packed (dense) matrix ?
@@ -148,7 +150,7 @@ non0ind <- function(x) {
 	return(unique(cbind(x@i,x@j)))
     ## else:
     isC <- any("i" == slotNames(x))# is Csparse (not Rsparse)
-    .Call("compressed_non_0_ij", x, isC, PACKAGE = "Matrix")
+    .Call(compressed_non_0_ij, x, isC)
 }
 
 ## nr= nrow: since  i in {0,1,.., nrow-1}  these are 1:1 "decimal" encodings:
@@ -186,6 +188,13 @@ WhichintersectInd <- function(ij1, ij2, nrow) {
 
 ### There is a test on this in ../tests/dgTMatrix.R !
 uniq <- function(x) {
+
+### Note: maybe, using
+### ----    xj <- .Call(Matrix_expand_pointers, x@p)
+### would be slightly more efficient than as( <dgC> , "dgTMatrix")
+### but really efficient would be to use only one .Call(.) for uniq(.) !
+### Try to do it particularly fast for the case where 'x' is already a 'uniq' <dgT>
+
     if(is(x, "TsparseMatrix")) {
 	## Purpose: produce a *unique* triplet representation:
 	##		by having (i,j) sorted and unique
@@ -302,18 +311,6 @@ try_as <- function(x, classes, tryAnyway = FALSE) {
     if(ok) as(x, classes[1]) else x
 }
 
-if(paste(R.version$major, R.version$minor, sep=".") < "2.3")
-    ## This will be in R 2.3.0
-canCoerce <- function(object, Class) {
-  ## Purpose:  test if 'object' is coercable to 'Class', i.e.,
-  ##	       as(object, Class) will {typically} work
-  ## ----------------------------------------------------------------------
-  ## Author: John Chambers, Date:  6 Oct 2005
-   is(object, Class) ||
-   !is.null(selectMethod("coerce", c(class(object), Class),
-			 optional = TRUE,
-			 useInherited = c(from = TRUE, to = FALSE)))
-}
 
 ## For *dense* matrices
 isTriMat <- function(object, upper = NA) {
@@ -382,3 +379,24 @@ diagU2N <- function(x)
     new("dtTMatrix", x = xT@x, i = xT@i, j = xT@j, Dim = x@Dim,
 	Dimnames = x@Dimnames, uplo = x@uplo, diag = "N")
 }
+
+.as.dgC.Fun <- function(x, na.rm = FALSE, dims = 1) {
+    x <- as(x, "dgCMatrix")
+    callGeneric()
+}
+
+.as.dgT.Fun <- function(x, na.rm = FALSE, dims = 1) {
+    x <- as(x, "dgTMatrix")
+    callGeneric()
+}
+
+
+### Fast much simplified version of tapply()
+tapply1 <- function (X, INDEX, FUN = NULL, ..., simplify = TRUE) {
+    sapply(split(X, INDEX), FUN, ..., simplify = simplify, USE.NAMES = FALSE)
+}
+
+## tapply.x <- function (X, n, INDEX, FUN = NULL, ..., simplify = TRUE) {
+##     tapply1(X, factor(INDEX, 0:(n-1)), FUN = FUN, ..., simplify = simplify)
+## }
+

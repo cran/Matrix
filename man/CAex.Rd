@@ -13,7 +13,7 @@
 \format{
   This is a \eqn{72 \times 72}{72 * 72} symmetric matrix with 216
   non-zero entries in five bands, stored as sparse matrix of class
-  \code{\link[Matrix:dgCMatrix-class]{dgCMatrix}}.
+  \code{\linkS4class{dgCMatrix}}.
 }
 \details{
   In some versions of \R, \code{\link{eigen}(CAex)} fell into an

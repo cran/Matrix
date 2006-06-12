@@ -103,7 +103,7 @@ be timed accurately in \RR{}
 > system.time(solve(t(m) %*% m) %*% t(m) %*% yo)
 \end{Sinput}
 \begin{Soutput}
-[1] 0 0 0 0 0
+[1] 0.001 0.000 0.001 0.000 0.000
 \end{Soutput}
 \end{Schunk}
 and it provides essentially the same results as the standard
@@ -113,13 +113,13 @@ and it provides essentially the same results as the standard
 > dput(c(solve(t(m) %*% m) %*% t(m) %*% yo))
 \end{Sinput}
 \begin{Soutput}
-c(0.00508571428571443, 0.876285714285715)
+c(0.00508571428571437, 0.876285714285715)
 \end{Soutput}
 \begin{Sinput}
 > dput(unname(lm.fit(m, yo)$coefficients))
 \end{Sinput}
 \begin{Soutput}
-c(0.00508571428571428, 0.876285714285714)
+c(0.00508571428571436, 0.876285714285714)
 \end{Soutput}
 \end{Schunk}
 %$
@@ -133,6 +133,11 @@ described in \citet{koen:ng:2003}, the literal translation of
 \begin{Schunk}
 \begin{Sinput}
 > library(Matrix)
+\end{Sinput}
+\begin{Soutput}
+Loading required package: lattice
+\end{Soutput}
+\begin{Sinput}
 > data(KNex, package = "Matrix")
 > y <- KNex$y
 > mm <- as(KNex$mm, "matrix")
@@ -146,7 +151,7 @@ described in \citet{koen:ng:2003}, the literal translation of
 +     y)
 \end{Sinput}
 \begin{Soutput}
-[1] 2.14 0.16 3.22 0.00 0.00
+[1] 4.426 0.177 3.442 0.000 0.000
 \end{Soutput}
 \end{Schunk}
 
@@ -175,7 +180,7 @@ Combining these optimizations we obtain
 +     y)))
 \end{Sinput}
 \begin{Soutput}
-[1] 2.00 0.07 2.12 0.00 0.00
+[1] 0.991 0.069 0.763 0.000 0.000
 \end{Soutput}
 \begin{Sinput}
 > all.equal(naive.sol, cpod.sol)
@@ -195,7 +200,7 @@ faster than simply calculating $\bX\trans\bX$ the naive way.
 > system.time(t(mm) %*% mm)
 \end{Sinput}
 \begin{Soutput}
-[1] 0.09 0.02 0.11 0.00 0.00
+[1] 1.258 0.039 0.723 0.000 0.000
 \end{Soutput}
 \end{Schunk}
 
@@ -215,14 +220,14 @@ but it is rather awkward
 > system.time(ch <- chol(crossprod(mm)))
 \end{Sinput}
 \begin{Soutput}
-[1] 1.81 0.04 1.94 0.00 0.00
+[1] 0.804 0.046 0.647 0.000 0.000
 \end{Soutput}
 \begin{Sinput}
 > system.time(chol.sol <- backsolve(ch, forwardsolve(ch, crossprod(mm, 
 +     y), upper = TRUE, trans = TRUE)))
 \end{Sinput}
 \begin{Soutput}
-[1] 0.06 0.05 0.13 0.00 0.00
+[1] 0.075 0.058 0.124 0.000 0.000
 \end{Soutput}
 \begin{Sinput}
 > all.equal(chol.sol, naive.sol)
@@ -254,7 +259,7 @@ attr(,"package")
 +     y)))
 \end{Sinput}
 \begin{Soutput}
-[1] 1.84 0.04 2.02 0.00 0.00
+[1] 0.820 0.055 0.602 0.000 0.000
 \end{Soutput}
 \begin{Sinput}
 > all.equal(naive.sol, unname(as(Mat.sol, "matrix")))
@@ -274,13 +279,13 @@ the original object so that it can be reused without recalculation.
 > system.time(solve(xpx, xpy))
 \end{Sinput}
 \begin{Soutput}
-[1] 0.13 0.02 0.16 0.00 0.00
+[1] 0.144 0.020 0.164 0.000 0.000
 \end{Soutput}
 \begin{Sinput}
 > system.time(solve(xpx, xpy))
 \end{Sinput}
 \begin{Soutput}
-[1] 0.01 0.00 0.01 0.00 0.00
+[1] 0.004 0.001 0.005 0.000 0.000
 \end{Soutput}
 \end{Schunk}
 
@@ -303,7 +308,7 @@ attr(,"package")
 +     y)))
 \end{Sinput}
 \begin{Soutput}
-[1] 0.05 0.00 0.06 0.00 0.00
+[1] 0.057 0.002 0.060 0.000 0.000
 \end{Soutput}
 \begin{Sinput}
 > all.equal(naive.sol, as(sparse.sol, "matrix"))
@@ -325,13 +330,13 @@ difficult to determine the difference in the solution times.
 > system.time(solve(xpx, xpy))
 \end{Sinput}
 \begin{Soutput}
-[1] 0.01 0.00 0.01 0.00 0.00
+[1] 0.008 0.001 0.010 0.000 0.000
 \end{Soutput}
 \begin{Sinput}
 > system.time(solve(xpx, xpy))
 \end{Sinput}
 \begin{Soutput}
-[1] 0 0 0 0 0
+[1] 0.001 0.000 0.001 0.000 0.000
 \end{Soutput}
 \end{Schunk}
 

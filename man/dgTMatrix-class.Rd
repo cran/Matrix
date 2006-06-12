@@ -1,4 +1,5 @@
 \name{dgTMatrix-class}
+\title{Sparse matrices in triplet form}
 \docType{class}
 \alias{dgTMatrix-class}
 \alias{+,dgTMatrix,dgTMatrix-method}
@@ -16,7 +17,10 @@
 \alias{image,dgTMatrix-method}
 \alias{kronecker,dgTMatrix,dgTMatrix-method}
 \alias{t,dgTMatrix-method}
-\title{Sparse matrices in triplet form}
+\alias{colMeans,dgTMatrix-method}
+\alias{colSums,dgTMatrix-method}
+\alias{rowMeans,dgTMatrix-method}
+\alias{rowSums,dgTMatrix-method}
 \description{The \code{"dgTMatrix"} class is the class of sparse
   matrices stored as (possibly redundant) triplets.}
 \section{Objects from the Class}{
@@ -59,13 +63,13 @@ Objects can be created by calls of the form \code{new("dgTMatrix", ...)}.
 \note{Triplet matrices are a convenient form in which to construct sparse
   matrices after which they can be coerced to \code{dgCMatrix} objects.}
 \seealso{
-  \code{\link{dgCMatrix-class}}
+  Class \code{\linkS4class{dgCMatrix}}
 }
 \examples{
-m <- Matrix(1:28, nrow = 4)
-##FIXME: m[c()...] <- 0
+m <- Matrix(0+1:28, nrow = 4)
+m[-3,c(2,4:5,7)] <- m[ 3, 1:4] <- m[1:3, 6] <- 0
 (mT <- as(m, "dgTMatrix"))
-
+str(mT)
 mT[1,]
 mT[4, drop = FALSE]
 }

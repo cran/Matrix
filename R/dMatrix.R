@@ -1,11 +1,5 @@
 ### Define Methods that can be inherited for all subclasses
 
-if(paste(R.version$major, R.version$minor, sep=".") < "2.0.1") {
-    ## for R 2.0.0 (and earlier)
-    setAs("dMatrix", "dgeMatrix",
-	  function(from) new("dgeMatrix", x = from@x,
-			     Dim = from@Dim, Dimnames = from@Dimnames))
-}
 
 setAs("dMatrix", "matrix",
       function(from) as(as(from, "dgeMatrix"), "matrix"))
@@ -17,6 +11,7 @@ setAs("dMatrix", "matrix",
 ##       function(from) {
 ##       })
 
+setAs("dMatrix", "sparseMatrix", function(from) as(from, "dgCMatrix"))
 
 ## Methods for operations where one argument is integer
 ## No longer made use of (and confusing hence) since R version 2.1.0
@@ -93,7 +88,7 @@ setMethod("Compare", signature(e1 = "dMatrix", e2 = "numeric"),
 	      r  <- callGeneric(e1@x, e2)
               r0 <- callGeneric(0, e2)
 	      if(is(e1, "denseMatrix")) {
-                  full <- !isPacked(e1)
+                  full <- !isPacked(e1) # << both "dtr" and "dsy" are 'full'
                   if(full || identical(r0, FALSE) || is(e1, "symmetricMatrix"))
                       r <- new(lClass, x = r,
                                Dim = dim(e1), Dimnames = dimnames(e1))
@@ -126,6 +121,7 @@ setMethod("Compare", signature(e1 = "dMatrix", e2 = "numeric"),
               r
 	  })
 
+## "dMatrix <-> work with 'x' slot
 setMethod("Compare", signature(e1 = "dMatrix", e2 = "dMatrix"),
           function(e1, e2) {
               d <- dimCheck(e1,e2)

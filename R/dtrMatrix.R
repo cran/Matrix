@@ -1,7 +1,7 @@
 #### Triangular Matrices -- Coercion and Methods
 
 setAs("dtrMatrix", "dgeMatrix",
-      function(from) .Call("dtrMatrix_as_dgeMatrix", from, PACKAGE = "Matrix"))
+      function(from) .Call(dtrMatrix_as_dgeMatrix, from))
 
 ## or rather setIs() {since test can fail }?
 setAs("dgeMatrix", "dtrMatrix",
@@ -18,11 +18,11 @@ setAs("dgeMatrix", "dtrMatrix",
 
 
 setAs("dtrMatrix", "dtpMatrix",
-      function(from) .Call("dtrMatrix_as_dtpMatrix", from, PACKAGE = "Matrix"))
+      function(from) .Call(dtrMatrix_as_dtpMatrix, from))
 
 ## needed for t() method
 setAs("dtrMatrix", "matrix",
-      function(from) .Call("dtrMatrix_as_matrix", from, PACKAGE = "Matrix"))
+      function(from) .Call(dtrMatrix_as_matrix, from))
 
 setAs("matrix", "dtrMatrix",
       function(from) as(as(from, "dgeMatrix"), "dtrMatrix"))
@@ -37,19 +37,19 @@ setMethod("show", "dtrMatrix", function(object) prMatrix(object))
 
 
 setMethod("%*%", signature(x = "dtrMatrix", y = "dgeMatrix"),
-	  function(x, y) .Call("dtrMatrix_matrix_mm", x, y, TRUE, FALSE, PACKAGE = "Matrix"),
+	  function(x, y) .Call(dtrMatrix_matrix_mm, x, y, TRUE, FALSE),
           valueClass = "dgeMatrix")
 
 setMethod("%*%", signature(x = "dtrMatrix", y = "matrix"),
-	  function(x, y) .Call("dtrMatrix_matrix_mm", x, y, FALSE, FALSE, PACKAGE = "Matrix"),
+	  function(x, y) .Call(dtrMatrix_matrix_mm, x, y, FALSE, FALSE),
           valueClass = "dgeMatrix")
 
 setMethod("%*%", signature(x = "dgeMatrix", y = "dtrMatrix"),
-	  function(x, y) .Call("dtrMatrix_matrix_mm", y, x, TRUE, TRUE, PACKAGE = "Matrix"),
+	  function(x, y) .Call(dtrMatrix_matrix_mm, y, x, TRUE, TRUE),
           valueClass = "dgeMatrix")
 
 setMethod("%*%", signature(x = "matrix", y = "dtrMatrix"),
-	  function(x, y) .Call("dtrMatrix_matrix_mm", y, x, FALSE, TRUE, PACKAGE = "Matrix"),
+	  function(x, y) .Call(dtrMatrix_matrix_mm, y, x, FALSE, TRUE),
           valueClass = "dgeMatrix")
 
 setMethod("%*%", signature(x = "dtrMatrix", y = "dtrMatrix"),
@@ -82,37 +82,37 @@ setMethod("determinant", signature(x = "dtrMatrix", logarithm = "logical"),
 
 setMethod("norm", signature(x = "dtrMatrix", type = "character"),
 	  function(x, type, ...)
-	  .Call("dtrMatrix_norm", x, type, PACKAGE = "Matrix"),
+	  .Call(dtrMatrix_norm, x, type),
 	  valueClass = "numeric")
 
 setMethod("norm", signature(x = "dtrMatrix", type = "missing"),
 	  function(x, type, ...)
-	  .Call("dtrMatrix_norm", x, "O", PACKAGE = "Matrix"),
+	  .Call(dtrMatrix_norm, x, "O"),
 	  valueClass = "numeric")
 
 setMethod("rcond", signature(x = "dtrMatrix", type = "character"),
 	  function(x, type, ...)
-	  .Call("dtrMatrix_rcond", x, type, PACKAGE = "Matrix"),
+	  .Call(dtrMatrix_rcond, x, type),
 	  valueClass = "numeric")
 
 setMethod("rcond", signature(x = "dtrMatrix", type = "missing"),
 	  function(x, type, ...)
-	  .Call("dtrMatrix_rcond", x, "O", PACKAGE = "Matrix"),
+	  .Call(dtrMatrix_rcond, x, "O"),
 	  valueClass = "numeric")
 
 setMethod("solve", signature(a = "dtrMatrix", b="missing"),
 	  function(a, b, ...)
-	  .Call("dtrMatrix_solve", a, PACKAGE = "Matrix"),
+	  .Call(dtrMatrix_solve, a),
 	  valueClass = "dtrMatrix")
 
 setMethod("solve", signature(a = "dtrMatrix", b="dgeMatrix"),
 	  function(a, b, ...)
-          .Call("dtrMatrix_matrix_solve", a, b, TRUE, PACKAGE = "Matrix"),
+          .Call(dtrMatrix_matrix_solve, a, b, TRUE),
 	  valueClass = "dgeMatrix")
 
 setMethod("solve", signature(a = "dtrMatrix", b="matrix"),
 	  function(a, b, ...)
-          .Call("dtrMatrix_matrix_solve", a, b, FALSE, PACKAGE = "Matrix"),
+          .Call(dtrMatrix_matrix_solve, a, b, FALSE),
 	  valueClass = "dgeMatrix")
 
 setMethod("t", signature(x = "dtrMatrix"), t_trMatrix)

@@ -39,12 +39,12 @@
       either "U", for upper triangular, and "L", for lower triangular.}
     \item{\code{diag}:}{Object of class \code{"character"}. Must be
       either \code{"U"}, for unit triangular (diagonal is all ones), or
-      \code{"N"}; see \code{\link{triangularMatrix-class}}.}
+      \code{"N"}; see \code{\linkS4class{triangularMatrix}}.}
     \item{\code{x}:}{Object of class \code{"numeric"}. The numeric
       values that constitute the matrix, stored in column-major order.}
     \item{\code{Dim},\code{Dimnames}:}{The dimension (a length-2
       \code{"integer"}) and corresponding names (or \code{NULL}),
-      inherited from the \code{\link{Matrix-class}}, see there.}
+      inherited from the \code{\linkS4class{Matrix}}, see there.}
   }
 }
 \section{Extends}{
@@ -75,7 +75,7 @@
   }
 }
 \seealso{
-  \code{\link{dtrMatrix-class}}
+  Class \code{\linkS4class{dtrMatrix}}
 }
 \examples{
 showClass("dtrMatrix")

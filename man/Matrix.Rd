@@ -30,7 +30,7 @@ Matrix(data=NA, nrow=1, ncol=1, byrow=FALSE, dimnames=NULL,
   made to infer it from the length of \code{data} and the other
   parameter.
   Further, \code{Matrix()} makes efforts to keep \code{\link{logical}}
-  matrices logical, i.e., inheriting from \code{\link{lMatrix-class}},
+  matrices logical, i.e., inheriting from class \code{\linkS4class{lMatrix}},
   and to determine specially structured matrices such as symmetric,
   triangular or diagonal ones.  Note that a \emph{symmetric} matrix also
   needs symmetric \code{\link{dimnames}}, e.g., by specifying
@@ -42,10 +42,10 @@ Matrix(data=NA, nrow=1, ncol=1, byrow=FALSE, dimnames=NULL,
   \code{"Matrix"}.
 }
 \seealso{
-  \code{\link{Matrix-class}};
-  \code{\link{symmetricMatrix-class}},
-  \code{\link{triangularMatrix-class}},
-  \code{\link{diagonalMatrix-class}};
+  The classes \code{\linkS4class{Matrix}},
+  \code{\linkS4class{symmetricMatrix}},
+  \code{\linkS4class{triangularMatrix}}, and
+  \code{\linkS4class{diagonalMatrix}}; further,
   \code{\link{matrix}}.
 }
 \examples{

@@ -72,6 +72,14 @@
       \code{as.vector(m)} should be identical to \code{as.vector(as(m,
 	"matrix"))}, implemented more efficiently for some subclasses.}
   }
+  There are many more methods that (conceptually should) work for all
+  \code{"Matrix"} objects, e.g., \code{\link{colSums}},
+  \code{\link{rowMeans}}.  Even \pkg{base} functions may work
+  automagically (if they first call \code{\link{as.matrix}()} on their
+  principal argument), e.g., \code{\link{apply}}, \code{\link{eigen}},
+  \code{\link{svd}} or \code{\link{kappa}} all do work via coercion to a
+  \dQuote{traditional} (dense) \code{\link{matrix}}.
+  %% --> ../tests/base-matrix-fun.R
 }
 \note{
   Loading the \code{Matrix} namespace \dQuote{overloads}
@@ -86,7 +94,8 @@
 %\references{}
 \author{Douglas Bates \email{bates@stat.wisc.edu} and Martin Maechler}
 \seealso{
-  \code{\link{dgeMatrix-class}}, \code{\link{dgCMatrix-class}}, and
+  the classes \code{\linkS4class{dgeMatrix}},
+  \code{\linkS4class{dgCMatrix}}, and function
   \code{\link{Matrix}} for construction (and examples).
 }
 \examples{

@@ -23,7 +23,7 @@
     %% below {Dim, Dimnames} work around Slot parsing buglet (< 2.2.0)
     \item{\code{Dim, Dimnames}:}{The dimension (a length-2
       \code{"integer"}) and corresponding names (or \code{NULL}),
-      inherited from the \code{\link{Matrix-class}}, see there.}
+      inherited from the \code{\linkS4class{Matrix}}, see there.}
   }
 }
 \section{Extends}{
@@ -36,9 +36,9 @@
   %% No methods defined with class "triangularMatrix" in the signature.
 }
 \seealso{
-  \code{\link{symmetricMatrix-class}}, and, e.g.,
-  \code{\link{dtrMatrix-class}} for numeric \emph{dense} matrices, or
-  \code{\link{ltCMatrix-class}} for a logical \emph{sparse} matrix
+  Classes \code{\linkS4class{symmetricMatrix}}, and, e.g.,
+  \code{\linkS4class{dtrMatrix}} for numeric \emph{dense} matrices, or
+  \code{\linkS4class{ltCMatrix}} for a logical \emph{sparse} matrix
   subclass of \code{"triangularMatrix"}.
 }
 \examples{

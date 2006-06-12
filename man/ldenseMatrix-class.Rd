@@ -14,15 +14,15 @@
 \title{Virtual Class "ldenseMatrix" of Dense Logical Matrices}
 \description{
   \code{ldenseMatrix} is the virtual class of all dense \bold{l}ogical
-  (S4) matrices.  It extends both \code{\link{denseMatrix-class}}
-  and \code{\link{lMatrix-class}} directly.
+  (S4) matrices.  It extends both \code{\linkS4class{denseMatrix}}
+  and \code{\linkS4class{lMatrix}} directly.
 }
 \section{Slots}{
   \describe{
     \item{\code{x}:}{logical vector containing the entries of the matrix.}
     \item{\code{factors}:}{Object of class \code{"list"}, possibly
       containing matrix factorizations.}
-    \item{\code{Dim}, \code{Dimnames}:}{see \code{\link{Matrix-class}}.}
+    \item{\code{Dim}, \code{Dimnames}:}{see \code{\linkS4class{Matrix}}.}
   }
 }
 \section{Extends}{
@@ -43,7 +43,7 @@ Class \code{"Matrix"}, by class \code{"denseMatrix"}.
   }
 }
 \seealso{
- \code{\link{lgeMatrix-class}} and the other subclasses.
+ Class \code{\linkS4class{lgeMatrix}} and the other subclasses.
 }
 \examples{
 showClass("ldenseMatrix")

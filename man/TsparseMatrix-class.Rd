@@ -7,6 +7,10 @@
 % "[" are in ./Xtrct-methods.Rd
 \alias{crossprod,TsparseMatrix,missing-method}
 \alias{tcrossprod,TsparseMatrix,missing-method}
+\alias{colMeans,TsparseMatrix-method}
+\alias{colSums,TsparseMatrix-method}
+\alias{rowMeans,TsparseMatrix-method}
+\alias{rowSums,TsparseMatrix-method}
 %
 \description{The \code{"TsparseMatrix"} class is the virtual class of
   all sparse matrices coded in triplet form.  Since it is a virtual class,
@@ -17,7 +21,7 @@
   \describe{
     \item{\code{Dim}, \code{Dimnames}:}{from the \code{"Matrix"} class,}
     \item{\code{factors}:}{from class \code{"sparseMatrix"}, see
-      \code{\link{sparseMatrix-class}}.}
+      \code{\linkS4class{sparseMatrix}}.}
     \item{\code{i}:}{Object of class \code{"integer"} - the row indices
       of non-zero entries.}
     \item{\code{j}:}{Object of class \code{"integer"} - the column
@@ -34,8 +38,8 @@ Class \code{"Matrix"}, by class \code{"sparseMatrix"}.
 }
 % \author{Martin Maechler}
 \seealso{
-  its superclass, \code{\link{sparseMatrix-class}}, and
-  \code{\link{dgTMatrix-class}} for the  links to other classes
+  its superclass, \code{\linkS4class{sparseMatrix}}, and the
+  \code{\linkS4class{dgTMatrix}} class, for the links to other classes.
 }
 \examples{
 showClass("TsparseMatrix")

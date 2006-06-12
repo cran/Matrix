@@ -34,7 +34,7 @@
   \describe{
     \item{chol}{\code{signature(x = "pedigree"}}: returns the
       lower-triangular, sparse matrix (a
-      \code{\link[Matrix:dtCMatrix-class]{dtCMatrix}} object) that is
+      \code{\linkS4class{dtCMatrix}} object) that is
       the left Cholesky factor of the relationship matrix of the pedigree.}
     \item{coerce}{\code{signature(from = "pedigree", to = "dtCMatrix")}: ... }
     \item{coerce}{\code{signature(from = "pedigree", to = "data.frame")}: ... }

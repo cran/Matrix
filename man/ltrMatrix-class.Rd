@@ -30,10 +30,10 @@
       either "U", for upper triangular, and "L", for lower triangular.}
     \item{\code{diag}:}{Object of class \code{"character"}. Must be
       either \code{"U"}, for unit triangular (diagonal is all ones), or
-      \code{"N"}; see \code{\link{triangularMatrix-class}}.}
+      \code{"N"}; see \code{\linkS4class{triangularMatrix}}.}
     \item{\code{Dim},\code{Dimnames}:}{The dimension (a length-2
       \code{"integer"}) and corresponding names (or \code{NULL}), see the
-      \code{\link{Matrix-class}}.}
+      \code{\linkS4class{Matrix}} class.}
     \item{\code{factors}:}{Object of class \code{"list"}.  A named
       list of factorizations that have been computed for the matrix.}
   }
@@ -53,16 +53,17 @@
   \code{\link{showMethods}(class="lsyMatrix")} for details.
 }
 \seealso{
-  \code{\link{lgeMatrix-class}}, \code{\link{Matrix-class}},
-  \code{\link[base]{t}}
+  Classes \code{\linkS4class{lgeMatrix}}, \code{\linkS4class{Matrix}};
+  function \code{\link[base]{t}}
 }
 \examples{
 showClass("ltrMatrix")
 
 str(new("ltpMatrix"))
-\dontshow{
-if(FALSE) ## FIXME -- Fails, needs "matrix" -> "ltrMatrix" :
-as(upper.tri(matrix(,4,4)), "ltrMatrix")
-}
+(lutr <- as(upper.tri(matrix(,4,4)), "ltrMatrix"))
+str(lutp <- as(lutr, "ltpMatrix"))# packed matrix: only 10 = (4+1)*4/2 entries
+!lutp ## the logical negation (is *not* logical triangular !)
+## but this one is:
+stopifnot(all.equal(lutp, as(!!lutp, "ltpMatrix")))
 }
 \keyword{classes}

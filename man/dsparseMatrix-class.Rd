@@ -36,7 +36,7 @@
 }
 \section{Slots}{
   \describe{
-    \item{\code{Dim}:}{the matrix dimension, see \link{Matrix-class}.}
+    \item{\code{Dim}:}{the matrix dimension, see class \linkS4class{Matrix}.}
     \item{\code{Dimnames}:}{see the "Matrix" class.}
     \item{\code{x}:}{a \code{\link{numeric}} vector containing the
       (non-zero) matrix entries.}
@@ -55,8 +55,8 @@
 \seealso{
   the documentation of the (non virtual) sub classes, see
   \code{showClass("dsparseMatrix")}; in particular,
-  \link{dgTMatrix-class}, \link{dgCMatrix-class}, and
-  \link{dgRMatrix-class}.
+  \linkS4class{dgTMatrix}, \linkS4class{dgCMatrix}, and
+  \linkS4class{dgRMatrix}.
 }
 \examples{
 showClass("dsparseMatrix")

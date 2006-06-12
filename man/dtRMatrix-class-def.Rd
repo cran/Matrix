@@ -20,7 +20,7 @@
       At present only the lower triangle form is allowed.}
     \item{\code{diag}:}{Object of class \code{"character"}. Must be
       either \code{"U"}, for unit triangular (diagonal is all ones), or
-      \code{"N"}; see \code{\link{triangularMatrix-class}}.}
+      \code{"N"}; see \code{\linkS4class{triangularMatrix}}.}
     \item{\code{j}:}{Object of class \code{"integer"} of length
       \code{nnzero} (number of non-zero elements).  These are the row
       numbers for each non-zero element in the matrix.}
@@ -31,7 +31,7 @@
       elements of the matrix.}
     \item{\code{Dim}:}{The dimension (a length-2 \code{"integer"})}
     \item{\code{Dimnames}:}{corresponding names (or \code{NULL}),
-      inherited from the \code{\link{Matrix-class}}, see there.}
+      inherited from the \code{\linkS4class{Matrix}}, see there.}
   }
 }
 \section{Extends}{
@@ -56,8 +56,8 @@ Class \code{"Matrix"}, by class \code{"dgRMatrix"}.
 %\author{}
 %\note{}
 \seealso{
-  \code{\link{dgCMatrix-class}}, \code{\link{dgTMatrix-class}},
-  \code{\link{dgeMatrix-class}}
+  Classes \code{\linkS4class{dgCMatrix}}, \code{\linkS4class{dgTMatrix}},
+  \code{\linkS4class{dgeMatrix}}
 }
 \examples{
 m0 <- new("dtRMatrix")

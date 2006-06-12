@@ -39,7 +39,7 @@
 %\author{}
 %\note{}
 \seealso{
-  \code{\link{dgCMatrix-class}}
+  Class \code{\linkS4class{dgCMatrix}}
 }
 %\examples{}
 \keyword{classes}

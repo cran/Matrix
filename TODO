@@ -105,4 +105,4 @@ Check for DimNames propagation in coercion and other operations.
 
   2006-04-15 : now with 'CSparse' { src/cs.c }, have at least solve( <dtC*> )
 
-- pedigree examples and tests
+- nicer pedigree examples and tests

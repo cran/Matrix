@@ -12,7 +12,8 @@
   (\code{\link{setClassUnion}}) of
   \code{"numeric"},  \code{"logical"} and \code{"character"}.
 }
-\section{Objects from the Class}{A virtual Class: No objects may be created from it.}
+\section{Objects from the Class}{Since it is a virtual Class, no objects
+  may be created from it.}
 \seealso{
   \code{\link{[-methods}}, and
   %% FIXME: bug in Rdconv needs '[Matrix]' below:

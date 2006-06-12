@@ -3,7 +3,7 @@
 \title{Create Diagonal Matrix Object}
 \description{
   Create a diagonal matrix object, i.e., an object inheriting from
-  \code{\link{diagonalMatrix-class}}.
+  \code{\linkS4class{diagonalMatrix}}.
 }
 \usage{
 Diagonal(n, x = NULL)
@@ -19,13 +19,13 @@ Diagonal(n, x = NULL)
 % }
 \value{
   an object of class
-  \code{\link{ddiMatrix-class}} or \code{\link{ldiMatrix-class}}
-  (with \dQuote{superclass} \code{\link{diagonalMatrix-class}}).
+  \code{\linkS4class{ddiMatrix}} or \code{\linkS4class{ldiMatrix}}
+  (with \dQuote{superclass} \code{\linkS4class{diagonalMatrix}}).
 }
 %\author{Martin Maechler}
 \seealso{the generic function \code{\link{diag}} for \emph{extraction}
   of the diagonal from a matrix;
-  \code{\link{Matrix}}, \code{\link{diagonalMatrix-class}}
+  \code{\link{Matrix}}, class \code{\linkS4class{diagonalMatrix}}.
 }
 \examples{
 Diagonal(3)

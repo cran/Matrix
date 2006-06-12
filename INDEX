@@ -22,6 +22,7 @@ VarCorr-class           Class "VarCorr"
                         Package 'Matrix'
 [<--methods             Methods for "[<-" - Assigning to Subsets for
                         'Matrix'
+band                    Extract bands of a matrix
 compMatrix-class        Class "compMatrix" of Composite (Factorizable)
                         Matrices
 corrmatrix-class        Class "corrmatrix"

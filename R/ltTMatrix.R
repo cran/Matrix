@@ -24,5 +24,5 @@ setMethod("image", "ltTMatrix",
 
 ## FIXME
 ## setMethod("t", signature(x = "ltTMatrix"),
-##           function(x) .Call("ltTMatrix_trans", x, PACKAGE = "Matrix"),
+##           function(x) .Call(ltTMatrix_trans, x),
 ##           valueClass = "ltTMatrix")

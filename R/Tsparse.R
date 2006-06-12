@@ -1,7 +1,7 @@
 #### "TsparseMatrix" : Virtual class of sparse matrices in triplet-format
 
 setAs("TsparseMatrix", "CsparseMatrix",
-      function(from) .Call("Tsparse_to_Csparse", from, PACKAGE = "Matrix"))
+      function(from) .Call(Tsparse_to_Csparse, from))
 
 ### "[" :
 ### -----
@@ -100,9 +100,9 @@ setAs("TsparseMatrix", "CsparseMatrix",
 setMethod("[", signature(x = "TsparseMatrix", i = "index", j = "missing",
 			 drop = "logical"),
 	  function (x, i, j, ..., drop) { ## select rows
-              ip <- .ind.prep(x@i, i, 1, dim(x), dimnames(x))
+	      ip <- .ind.prep(x@i, i, 1, dim(x), dimnames(x))
 	      x@Dim[1] <- ip$li
-              x@Dimnames[1] <- ip$dn
+	      if(!is.null(ip$dn)) x@Dimnames[[1]] <- ip$dn
 	      sel <- ip$m > 0
 	      x@i <- ip$m[sel] - 1:1
 	      x@j <- x@j[sel]
@@ -115,13 +115,13 @@ setMethod("[", signature(x = "TsparseMatrix", i = "index", j = "missing",
 setMethod("[", signature(x = "TsparseMatrix", i = "missing", j = "index",
 			 drop = "logical"),
 	  function (x, i, j, ..., drop) { ## select columns
-              ip <- .ind.prep(x@j, j, 2, dim(x), dimnames(x))
+	      ip <- .ind.prep(x@j, j, 2, dim(x), dimnames(x))
 	      x@Dim[2] <- ip$li
-              x@Dimnames[2] <- ip$dn
+	      if(!is.null(ip$dn)) x@Dimnames[[2]] <- ip$dn
 	      sel <- ip$m > 0
 	      x@i <- x@i[sel]
 	      x@j <- ip$m[sel] - 1:1
-              if (!is(x, "lsparseMatrix")) x@x <- x@x[sel]
+	      if (!is(x, "lsparseMatrix")) x@x <- x@x[sel]
 	      if (drop && any(x@Dim == 1:1)) drop(as(x,"matrix")) else x
 	  })
 
@@ -147,11 +147,36 @@ setMethod("[", signature(x = "TsparseMatrix",
       })
 
 setMethod("crossprod", signature(x = "TsparseMatrix", y = "missing"),
-	  function(x, y = NULL)
-	  .Call("Csparse_crossprod", x, trans = FALSE, triplet = TRUE,
-		PACKAGE = "Matrix"))
+	  function(x, y = NULL) {
+	      a <- .Call(Csparse_crossprod, x, trans = FALSE, triplet = TRUE,
+			 PACKAGE = "Matrix")
+	      switch(substr(class(a)[1], 1, 1),
+		     "d" ={ new("dsCMatrix", i = a@i, p = a@p, x = a@x,
+				Dim = a@Dim, Dimnames = a@Dimnames, uplo = "U",
+				factors = list()) },
+		     "l" ={ new("lsCMatrix", i = a@i, p = a@p,
+				Dim = a@Dim, Dimnames = a@Dimnames, uplo = "U",
+				factors = list())})
+	  })
 
 setMethod("tcrossprod", signature(x = "TsparseMatrix", y = "missing"),
-	  function(x, y = NULL)
-	  .Call("Csparse_crossprod", x, trans = TRUE, triplet = TRUE,
-		PACKAGE = "Matrix"))
+	  function(x, y = NULL) {
+	      a <- .Call(Csparse_crossprod, x, trans = TRUE, triplet = TRUE,
+			 PACKAGE = "Matrix")
+	      switch(substr(class(a)[1], 1, 1),
+		     "d" ={ new("dsCMatrix", i = a@i, p = a@p, x = a@x,
+				Dim = a@Dim, Dimnames = a@Dimnames, uplo = "L",
+				factors = list()) },
+		     "l" ={ new("lsCMatrix", i = a@i, p = a@p,
+				Dim = a@Dim, Dimnames = a@Dimnames, uplo = "L",
+				factors = list()) })
+	  })
+
+setMethod("colSums", signature(x = "TsparseMatrix"), .as.dgT.Fun,
+	  valueClass = "numeric")
+setMethod("colMeans", signature(x = "TsparseMatrix"), .as.dgT.Fun,
+	  valueClass = "numeric")
+setMethod("rowSums", signature(x = "TsparseMatrix"), .as.dgT.Fun,
+	  valueClass = "numeric")
+setMethod("rowMeans", signature(x = "TsparseMatrix"), .as.dgT.Fun,
+	  valueClass = "numeric")

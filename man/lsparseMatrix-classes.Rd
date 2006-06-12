@@ -22,6 +22,7 @@
 
 \alias{coerce,lgCMatrix,dgCMatrix-method}
 \alias{coerce,lgCMatrix,lgTMatrix-method}
+\alias{coerce,lgCMatrix,lgeMatrix-method}
 \alias{coerce,lgCMatrix,matrix-method}
 \alias{coerce,lgTMatrix,dgTMatrix-method}
 \alias{coerce,lgTMatrix,lgCMatrix-method}
@@ -35,6 +36,8 @@
 \alias{coerce,ltCMatrix,dMatrix-method}
 \alias{coerce,ltCMatrix,lgCMatrix-method}
 \alias{coerce,ltCMatrix,matrix-method}
+\alias{coerce,matrix,lgCMatrix-method}
+\alias{coerce,matrix,lgTMatrix-method}
 \alias{coerce,matrix,ltCMatrix-method}
 %
 \alias{coerce,ltTMatrix,dtTMatrix-method}
@@ -122,13 +125,14 @@
 %\author{}
 %\note{}
 \seealso{
-  \code{\link{dgCMatrix-class}}
+  the class \code{\linkS4class{dgCMatrix}}
 }
 \examples{
 m <- Matrix(c(0,0,2:0), 3,5, dimnames=list(LETTERS[1:3],NULL))
 (dm <- as(m, "dgCMatrix"))# no dimnames for sparse here
 (lm <- as(dm, "lgCMatrix"))
-str(lm)
+str(lm) # no 'x' slot
+!lm     # no longer sparse
 
 data(KNex)
 lmm <- as(KNex $ mm, "lgCMatrix")

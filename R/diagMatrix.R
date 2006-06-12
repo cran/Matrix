@@ -34,7 +34,6 @@ setAs("diagonalMatrix", "triangularMatrix",
               x = x, i = i, j = i)
           })
 
-
 setAs("diagonalMatrix", "matrix",
       function(from) {
           n <- from@Dim[1]
@@ -54,27 +53,51 @@ setAs("diagonalMatrix", "generalMatrix",
              else "dgeMatrix")
       })
 
+setAs("ddiMatrix", "dgTMatrix",
+      function(from) {
+	  n <- from@Dim[1]
+	  i <- seq(length = n) - 1:1
+	  new("dgTMatrix", i = i, j = i,
+	      x = if(from@diag == "U") rep(1,n) else from@x,
+	      Dim = c(n,n), Dimnames = from@Dimnames) })
+
+setAs("ddiMatrix", "dgCMatrix",
+      function(from) as(as(from, "dgTMatrix"), "dgCMatrix"))
+
+setAs("ldiMatrix", "lgTMatrix",
+      function(from) {
+	  n <- from@Dim[1]
+	  i <- (if(from@diag == "U") seq(length = n) else which(from@x)) - 1:1
+	  new("lgTMatrix", i = i, j = i,
+	      Dim = c(n,n), Dimnames = from@Dimnames) })
+
+setAs("ldiMatrix", "lgCMatrix",
+      function(from) as(as(from, "lgTMatrix"), "lgCMatrix"))
+
+setAs("diagonalMatrix", "sparseMatrix",
+      function(from)
+	  as(from, if(is(from, "dMatrix")) "dgCMatrix" else "lgCMatrix"))
+
 setAs("ddiMatrix", "dgeMatrix",
       function(from) as(as(from, "matrix"), "dgeMatrix"))
 
-
 setAs("matrix", "diagonalMatrix",
       function(from) {
-          d <- dim(from)
+	  d <- dim(from)
 	  if(d[1] != (n <- d[2])) stop("non-square matrix")
 	  if(any(from[row(from) != col(from)] != 0))
 	      stop("has non-zero off-diagonal entries")
-          x <- diag(from)
-          if(is.logical(x)) {
-              cl <- "ldiMatrix"
-              uni <- all(x)
-          } else {
-              cl <- "ddiMatrix"
-              uni <- all(x == 1)
-              storage.mode(x) <- "double"
-          }
-          new(cl, Dim = c(n,n), diag = if(uni) "U" else "N",
-              x = if(uni) x[FALSE] else x)
+	  x <- diag(from)
+	  if(is.logical(x)) {
+	      cl <- "ldiMatrix"
+	      uni <- all(x)
+	  } else {
+	      cl <- "ddiMatrix"
+	      uni <- all(x == 1)
+	      storage.mode(x) <- "double"
+	  }
+	  new(cl, Dim = c(n,n), diag = if(uni) "U" else "N",
+	      x = if(uni) x[FALSE] else x)
       })
 
 ## ``generic'' coercion to  diagonalMatrix : build on  isDiagonal() and diag()
@@ -188,10 +211,45 @@ setMethod("%*%", signature(x = "dgeMatrix", y = "diagonalMatrix"),
               x
           })
 
-## crossprod
+## crossprod {more of these}
+
+## tcrossprod --- all are not yet there: do the dense ones here:
+
+## FIXME:
+## setMethod("tcrossprod", signature(x = "diagonalMatrix", y = "denseMatrix"),
+## 	  function(x, y = NULL) {
+##           })
+
+## setMethod("tcrossprod", signature(x = "denseMatrix", y = "diagonalMatrix"),
+## 	  function(x, y = NULL) {
+##           })
 
 
-## tcrossprod
+### ---------------- diagonal  o   sparse  -----------------------------
+
+## These are cheap implementations via coercion
+
+## FIXME?: In theory, this can be done *FASTER*, in some cases, via tapply1()
+
+setMethod("%*%", signature(x = "diagonalMatrix", y = "sparseMatrix"),
+	  function(x, y) as(x, "sparseMatrix") %*% y)
+
+setMethod("%*%", signature(x = "sparseMatrix", y = "diagonalMatrix"),
+	  function(x, y) x %*% as(y, "sparseMatrix"))
+
+setMethod("crossprod", signature(x = "diagonalMatrix", y = "sparseMatrix"),
+	  function(x, y = NULL) { x <- as(x, "sparseMatrix"); callGeneric() })
+
+setMethod("crossprod", signature(x = "sparseMatrix", y = "diagonalMatrix"),
+	  function(x, y = NULL) { y <- as(y, "sparseMatrix"); callGeneric() })
+
+setMethod("tcrossprod", signature(x = "diagonalMatrix", y = "sparseMatrix"),
+	  function(x, y = NULL) { x <- as(x, "sparseMatrix"); callGeneric() })
+
+setMethod("tcrossprod", signature(x = "sparseMatrix", y = "diagonalMatrix"),
+	  function(x, y = NULL) { y <- as(y, "sparseMatrix"); callGeneric() })
+
+
 
 
 ## similar to prTriang() in ./Auxiliaries.R :

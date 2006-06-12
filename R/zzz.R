@@ -9,8 +9,22 @@
     ## The following works around namespace-protection on purpose:
     assignInNamespace("..Old..as.matrix", base::as.matrix, ns = "base")
     assignInNamespace("..Old..as.array", base::as.array, ns = "base")
-    assignInNamespace("as.matrix", as.matrix, ns = "base")
-    assignInNamespace("as.array", as.array, ns = "base")
+
+    if(paste(R.version$major, R.version$minor, sep=".") >= "2.4") {
+	## For R 2.4.0 and newer, need to also set the baseenv() --
+        ##  the following being really a hack:
+        tmp <- function(x) {
+            if(methods:::seemsS4Object(x)) Matrix::as.matrix(x)
+            else UseMethod("as.matrix")
+        }
+        environment(tmp) <- baseenv()
+        assignInNamespace("as.matrix", tmp, ns = "base")
+    } else {
+	assignInNamespace("as.matrix", as.matrix, ns = "base")
+    }
+    ## does not (yet) need special treatment, since it's not S3 generic:
+    assignInNamespace("as.array",  as.array, ns = "base")
+
     ## Now all the functions in 'base' that start with something like
     ##  "x <- as.matrix(x)" or  "X <- as.array(X)"
     ## will work for 'Matrix'-matrices

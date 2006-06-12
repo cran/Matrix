@@ -14,7 +14,7 @@ assertError( new("dgeMatrix", Dim = 2:2, x=as.double(1:4)) )# length(Dim) !=2
 assertError( new("dgeMatrix", Dim = as.integer(c(2,2)), x= as.double(1:5)))
 
 chk.matrix(m1 <- Matrix(1:6, ncol=2))
-chk.matrix(m2 <- Matrix(1:7, ncol=3)) # a (desired) warning
+chk.matrix(m2 <- Matrix(1:7 +0, ncol=3)) # a (desired) warning
 stopifnot(unique(is(m1)) == c("dgeMatrix", "ddenseMatrix", "generalMatrix",
 	    "dMatrix", "denseMatrix", "Matrix", "compMatrix"),
 	  dim(t(m1)) == 2:3,
@@ -28,17 +28,25 @@ stopifnot(colnames(m1) == c.nam,
 ## an example of *named* dimnames
 (t34N <- as(unclass(table(x = gl(3,4), y=gl(4,3))), "dgeMatrix"))
 stopifnot(identical(dimnames(t34N),
-		    dimnames(as(t34N, "matrix"))))
+		    dimnames(as(t34N, "matrix"))),
+          identical(t34N, t(t(t34N))))
 
 ## "dpo"
 chk.matrix(cm <- crossprod(m1))
-chk.matrix(cp <- as(cm, "dppMatrix"))# 'dpp'
-chk.matrix(as(cm, "dsyMatrix"))
-chk.matrix(dcm <- as(cm, "dgeMatrix"))
-chk.matrix(mcm <- as(cm, "dMatrix"))
-##BUG - FIXME: stopifnot(identical(dcm, mcm))
-##---	------	mcm[2,1] is garbage
-chk.matrix(as(cm, "Matrix"))
+chk.matrix(cp <- as(cm, "dppMatrix"))# 'dpp' + factors
+chk.matrix(cs <- as(cm, "dsyMatrix"))# 'dsy' + factors
+chk.matrix(dcm <- as(cm, "dgeMatrix"))#'dge'
+chk.matrix(mcm <- as(cm, "dMatrix")) # 'dsy' + factors -- buglet? rather == cm?
+chk.matrix(mc. <- as(cm, "Matrix"))
+stopifnot(identical(mc., mcm),
+          identical4(2*cm, cm + cp, cp + cs, mcm * 2))
+chk.matrix(eq <- cm == cs)
+stopifnot(all(eq))
+if(FALSE) ##FIXME
+identical3(eq, cs == cp, cm == cp)
+if(FALSE) ##FIXME
+all(!(cp > cs))
+##
 
 ## Coercion to 'dpo' should give an error if result would be invalid
 M <- Matrix(diag(4) - 1)

@@ -1,6 +1,6 @@
 
 R : Copyright 2006, The R Foundation for Statistical Computing
-Version 2.3.0 Under development (unstable) (2006-03-12 r37524)
+Version 2.3.0 Patched (2006-05-16 r38086)
 ISBN 3-900051-07-0
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -146,7 +146,7 @@ Formal class 'dgTMatrix' [package "Matrix"] with 6 slots
 > 
 > stopifnot(identical(mC[7,  drop = FALSE],
 +                     mC[7,, drop = FALSE]))
-> mT[,c(2,4)]
+> validObject(print(mT[,c(2,4)]))
 40 x 2 sparse Matrix of class "dgTMatrix"
             
  [1,] .  121
@@ -189,7 +189,13 @@ Formal class 'dgTMatrix' [package "Matrix"] with 6 slots
 [38,] .  .  
 [39,] .  159
 [40,] 80 .  
-> stopifnot(all.equal(mT[1,], mm[1,]))
+[1] TRUE
+> stopifnot(all.equal(mT[2,], mm[2,]),
++           ## row or column indexing in combination with t() :
++           identical(mT[2,], t(mT)[,2]),
++           identical(mT[-2,], t(t(mT)[,-2])),
++           identical(mT[c(2,5),], t(t(mT)[,c(2,5)]))
++           )
 > assert.EQ.mat(mT[4,, drop = FALSE], mm[4,, drop = FALSE])
 > stopifnot(identical3(mm[,1], mC[,1], mT[,1]),
 + 	  identical3(mm[3,], mC[3,], mT[3,]),
@@ -313,5 +319,5 @@ Formal class 'dgTMatrix' [package "Matrix"] with 6 slots
 [5,] . 2  3.2 .   3.2 .   .  
 > 
 > cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
-Time elapsed:  16.01 0.15 16.88 0 0 
+Time elapsed:  16.358 0.276 18.093 0 0 
 > 

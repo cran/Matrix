@@ -44,7 +44,7 @@
       a permutation vector of \code{1:n}, see the first example.}
     \item{coerce}{\code{signature(from = "pMatrix", to = "matrix")}: ... }
     \item{coerce}{\code{signature(from = "pMatrix", to = "lgTMatrix")}:
-      coercion to sparse logical matrix of class \code{\link{lgTMatrix-class}}.}
+      coercion to sparse logical matrix of class \code{\linkS4class{lgTMatrix}}.}
     \item{solve}{\code{signature(a = "pMatrix", b = "missing")}: return
       the inverse permutation matrix.}
     \item{t}{\code{signature(x = "pMatrix")}: return the transpose of

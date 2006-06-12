@@ -83,9 +83,9 @@
 %\references{}
 %\author{}
 \seealso{
-  \code{\link{dsyMatrix-class}}, \code{\link{dgeMatrix-class}},
-  \code{\link{Matrix}}, \code{\link{rcond}}, \code{\link[base]{chol}},
-  \code{\link[base]{solve}}, \code{\link{crossprod}}
+  Classes \code{\linkS4class{dsyMatrix}} and \code{\linkS4class{dgeMatrix}};
+  further, \code{\link{Matrix}}, \code{\link{rcond}},
+  \code{\link[base]{chol}}, \code{\link[base]{solve}}, \code{\link{crossprod}}.
 }
 \examples{
 h6 <- Hilbert(6)

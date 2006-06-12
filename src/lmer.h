@@ -17,8 +17,7 @@
 #include <R_ext/Utils.h>
 
 SEXP Matrix_rWishart(SEXP ns, SEXP df, SEXP scal);
-/* SEXP glmer_MCMCsamp(SEXP GSpt, SEXP b, SEXP fixedp, SEXP varcp, */
-/* 		    SEXP savebp, SEXP nsampp); */
+SEXP glmer_MCMCsamp(SEXP GSp, SEXP savebp, SEXP nsampp, SEXP transp);
 SEXP glmer_PQL(SEXP GSp);
 /* SEXP glmer_bhat(SEXP pars, SEXP GSp); */
 /* SEXP glmer_devAGQ(SEXP pars, SEXP GSp, SEXP nAGQp); */
@@ -42,7 +41,10 @@ SEXP mer_fitted(SEXP x);
 SEXP mer_fixef(SEXP x);
 SEXP mer_gradComp(SEXP x);
 SEXP mer_gradient(SEXP x, SEXP pType);
+SEXP mer_hat_trace(SEXP x);
+SEXP mer_hat_trace2(SEXP x);
 SEXP mer_initial(SEXP x);
+SEXP mer_isNested(SEXP x);
 SEXP mer_postVar(SEXP x);
 SEXP mer_ranef(SEXP x);
 SEXP mer_secondary(SEXP x);

@@ -20,8 +20,9 @@ options(show.signif.stars = FALSE)
 ## PQL is used per default:
 fm3. <- lmer(decrease ~ treatment + (1|rowpos) + (1|colpos),
              OrchardSprays, family = poisson())
-fm3.@call <- fm3@call
-stopifnot(all.equal(fm3, fm3., tol = 0))
+fm3.@call <- fm3@call # so that they should be almost identical:
+##MM: 'tol=0' now (2006-05-24) fails (on 32-bit Ubuntu; not 64-bit RHEL 4) ???
+stopifnot(all.equal(fm3, fm3., tol = 1e-6))
 
 ## Laplace approximation {takes time}
 (fm4 <- lmer(decrease ~ treatment + (1|rowpos) + (1|colpos),
@@ -61,6 +62,7 @@ if (isTRUE(try(data(Contraception, package = 'mlmRev')) == 'Contraception')) {
                        Contraception, binomial))
     print(system.time(fm1 <- lmer(use ~ urban + age + livch + (1 | district),
                                   Contraception, binomial), gc = TRUE))
+    ## same model, using  "Laplace" :
     print(fm.2 <- lmer(use ~ urban + age + livch + (1 | district),
                        Contraception, binomial, method = 'Laplace'))
     print(system.time(lmer(use ~ urban + age + livch + (1 | district),
@@ -71,6 +73,8 @@ if (isTRUE(try(data(Contraception, package = 'mlmRev')) == 'Contraception')) {
 ##     print(system.time(lmer(use ~ urban + age + livch + (1 | district),
 ##                            Contraception, binomial, method = 'AGQ'),
 ##                       gc = TRUE))
+
+    ## model + random intercept, with and w/o using  "Laplace" :
     print(fm.3 <- lmer(use ~ urban + age + livch + (urban | district),
                        Contraception, binomial))
     print(fm.4 <- lmer(use ~ urban + age + livch + (urban | district),

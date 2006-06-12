@@ -70,8 +70,13 @@ assert.EQ.mat(mC[7, , drop=FALSE], mm[7, , drop=FALSE])
 
 stopifnot(identical(mC[7,  drop = FALSE],
                     mC[7,, drop = FALSE]))
-mT[,c(2,4)]
-stopifnot(all.equal(mT[1,], mm[1,]))
+validObject(print(mT[,c(2,4)]))
+stopifnot(all.equal(mT[2,], mm[2,]),
+          ## row or column indexing in combination with t() :
+          identical(mT[2,], t(mT)[,2]),
+          identical(mT[-2,], t(t(mT)[,-2])),
+          identical(mT[c(2,5),], t(t(mT)[,c(2,5)]))
+          )
 assert.EQ.mat(mT[4,, drop = FALSE], mm[4,, drop = FALSE])
 stopifnot(identical3(mm[,1], mC[,1], mT[,1]),
 	  identical3(mm[3,], mC[3,], mT[3,]),

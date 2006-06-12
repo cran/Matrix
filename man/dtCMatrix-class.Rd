@@ -41,7 +41,7 @@
       either "U", for upper triangular, and "L", for lower triangular.}
     \item{\code{diag}:}{Object of class \code{"character"}. Must be
       either \code{"U"}, for unit triangular (diagonal is all ones), or
-      \code{"N"}; see \code{\link{triangularMatrix-class}}.}
+      \code{"N"}; see \code{\linkS4class{triangularMatrix}}.}
     \item{\code{p}:}{Object of class \code{"integer"} of pointers, one
       for each column, to the initial (zero-based) index of elements in
       the column. (Only present in the \code{dtCMatrix} class.)}
@@ -56,7 +56,7 @@
       elements of the matrix.}
     \item{\code{Dim},\code{Dimnames}:}{The dimension (a length-2
       \code{"integer"}) and corresponding names (or \code{NULL}),
-      inherited from the \code{\link{Matrix-class}}, see there.}
+      inherited from the \code{\linkS4class{Matrix}}, see there.}
   }
 }
 \section{Extends}{
@@ -86,8 +86,8 @@
 %\author{}
 %\note{}
 \seealso{
-  \code{\link{dgCMatrix-class}}, \code{\link{dgTMatrix-class}},
-  \code{\link{dgeMatrix-class}}, \code{\link{dtrMatrix-class}}
+  Classes \code{\linkS4class{dgCMatrix}}, \code{\linkS4class{dgTMatrix}},
+  \code{\linkS4class{dgeMatrix}}, and \code{\linkS4class{dtrMatrix}}.
 }
 \examples{
 showClass("dtCMatrix")

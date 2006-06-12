@@ -7,10 +7,10 @@
 
 \description{
   \code{iMatrix} is the virtual class of all \bold{i}nteger
-  (S4) matrices.  It extends the \code{\link{Matrix-class}} directly.
+  (S4) matrices.  It extends the \code{\linkS4class{Matrix}} class directly.
 
   \code{zMatrix} is the virtual class of all \code{\link{complex}}
-  (S4) matrices.  It extends the \code{\link{Matrix-class}} directly.
+  (S4) matrices.  It extends the \code{\linkS4class{Matrix}} class directly.
 }
 \examples{
 showClass("iMatrix")

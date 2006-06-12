@@ -39,7 +39,7 @@
       either "U", for upper triangular, and "L", for lower triangular.}
     \item{\code{diag}:}{Object of class \code{"character"}. Must be
       either \code{"U"}, for unit triangular (diagonal is all ones), or
-      \code{"N"}; see \code{\link{triangularMatrix-class}}.}
+      \code{"N"}; see \code{\linkS4class{triangularMatrix}}.}
     \item{\code{x}:}{Object of class \code{"numeric"}. The numeric
       values that constitute the matrix, stored in column-major order.}
     \item{\code{Dim}:}{Object of class \code{"integer"}. The dimensions
@@ -70,8 +70,8 @@
 %\references{}
 %\author{}
 \seealso{
-  \code{\link{ddenseMatrix-class}}, \code{\link{dtpMatrix-class}},
-  \code{\link{triangularMatrix-class}}
+  Classes \code{\linkS4class{ddenseMatrix}}, \code{\linkS4class{dtpMatrix}},
+  \code{\linkS4class{triangularMatrix}}
 }
 \examples{
 (m <- rbind(2:3, 0:-1))

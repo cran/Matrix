@@ -35,7 +35,7 @@
 \description{This is the virtual class of all dense numeric (i.e.,
   \bold{d}ouble, hence \emph{\dQuote{ddense}}) S4 matrices.
 
-  Its most important subclass is the \code{\link{dgeMatrix-class}}.
+  Its most important subclass is the \code{\linkS4class{dgeMatrix}} class.
   %% and now say what the difference is ! __ FIXME __
 }
 \section{Extends}{
@@ -43,7 +43,7 @@
   class \code{"Matrix"}, by the above.
 }
 \section{Slots}{
-  the same slots at its subclass \code{\link{dgeMatrix-class}}, see
+  the same slots at its subclass \code{\linkS4class{dgeMatrix}}, see
   there.
 }
 \section{Methods}{
@@ -57,9 +57,8 @@
 %\references{}
 %\note{}
 \seealso{
-  \code{\link{Matrix-class}},
-  \code{\link{dMatrix-class}},
-  \code{\link{dsparseMatrix-class}}
+  The virtual classes \code{\linkS4class{Matrix}},
+  \code{\linkS4class{dMatrix}}, and \code{\linkS4class{dsparseMatrix}}.
 }
 \examples{
 showClass("ddenseMatrix")

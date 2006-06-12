@@ -11,11 +11,11 @@ setMethod("t", signature(x = "lCholCMatrix"),
 
 setMethod("solve", signature(a = "lCholCMatrix", b = "missing"),
           function(a, b)
-          .Call("lCholCMatrix_solve", a, PACKAGE = "Matrix"),
+          .Call(lCholCMatrix_solve, a),
           valueClass = "ltCMatrix")
-          
+
 setMethod("solve", signature(a = "lCholCMatrix", b = "lgCMatrix"),
           function(a, b)
-          .Call("lCholCMatrix_lgCMatrix_solve", a, b, PACKAGE = "Matrix"),
+          .Call(lCholCMatrix_lgCMatrix_solve, a, b),
           valueClass = "lgCMatrix")
 

@@ -22,6 +22,10 @@
 \alias{dim,dgCMatrix-method}
 \alias{image,dgCMatrix-method}
 \alias{t,dgCMatrix-method}
+\alias{colMeans,dgCMatrix-method}
+\alias{colSums,dgCMatrix-method}
+\alias{rowMeans,dgCMatrix-method}
+\alias{rowSums,dgCMatrix-method}
 %% Group methods --------- FIXME: These are not tested yet (or documented)
 \alias{Arith,numeric,dgCMatrix-method}
 \alias{Arith,dgCMatrix,numeric-method}
@@ -48,7 +52,7 @@
     \item{\code{x}:}{Object of class \code{"numeric"} - the non-zero
       elements of the matrix.}
     \item{\dots}{all other slots are inherited from the superclass
-      \code{"CsparseMatrix"}, see \code{\link{CsparseMatrix-class}}.
+      \code{"\linkS4class{CsparseMatrix}"}.
     }
   }
 }
@@ -74,7 +78,7 @@
 %\author{}
 %\note{}
 \seealso{
-  \code{\link{dsCMatrix-class}}, \code{\link{dtCMatrix-class}}
+  Classes \code{\linkS4class{dsCMatrix}}, \code{\linkS4class{dtCMatrix}}
 }
 \examples{
 (m <- Matrix(c(0,0,2:0), 3,5))

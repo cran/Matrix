@@ -23,8 +23,8 @@ tcrossprod(x, y = NULL)
     case is formally equivalent to \code{y = x}.}
 }
 \details{
-  For some classes in the \code{Matrix} package, such as the
-  \code{\link{dgCMatrix-class}}, it is much faster to calculate the
+  For some classes in the \code{Matrix} package, such as
+  \code{\linkS4class{dgCMatrix}}, it is much faster to calculate the
   cross-product of the transpose directly instead of calculating the
   transpose first and then its cross-product.
 }

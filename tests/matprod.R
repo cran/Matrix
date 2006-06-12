@@ -74,8 +74,8 @@ assert.EQ.mat(t(sM) %*% sM,
               (t(sm) %*% sm) > 0, tol=0)
 crossprod(sM)
 tcrossprod(sM)
-stopifnot(identical( crossprod(sM), t(sM) %*%   sM),
-          identical(tcrossprod(sM),   sM  %*% t(sM)))
+stopifnot(identical(as( crossprod(sM), "lgCMatrix"), t(sM) %*%   sM),
+          identical(as(tcrossprod(sM), "lgCMatrix"),  sM  %*% t(sM)))
 
 assert.EQ.mat( crossprod(sM),  crossprod(sm) > 0)
 assert.EQ.mat(tcrossprod(sM), as(tcrossprod(sm),"matrix") > 0)

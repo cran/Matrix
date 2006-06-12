@@ -125,7 +125,7 @@ lmer(formula, data, family, method, control, start,
   }
 }
 \value{
-  An object of class \code{"\link[Matrix:lmer-class]{lmer}"}.
+  An object of class \code{"\linkS4class{lmer}"}.
   There are many methods applicable to \code{"lmer"} objects, see the
   above help page. %% Hmm.. or \code{\link{showMethods}(class = "lmer")}
 }

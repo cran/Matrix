@@ -123,7 +123,7 @@ setMethod("norm", signature(x = "dgeMatrix", type = "missing"),
 
 setMethod("norm", signature(x = "dgeMatrix", type = "character"),
 	  function(x, type, ...)
-	  .Call("dgeMatrix_norm", x, type, PACKAGE = "Matrix"),
+	  .Call(dgeMatrix_norm, x, type),
 	  valueClass = "numeric")
 
 setMethod("rcond", signature(x = "dgeMatrix", type = "missing"),
@@ -131,36 +131,36 @@ setMethod("rcond", signature(x = "dgeMatrix", type = "missing"),
 
 setMethod("rcond", signature(x = "dgeMatrix", type = "character"),
 	  function(x, type, ...)
-	  .Call("dgeMatrix_rcond", x, type, PACKAGE = "Matrix"),
+	  .Call(dgeMatrix_rcond, x, type),
 	  valueClass = "numeric")
 
 setMethod("t", signature(x = "dgeMatrix"), t_geMatrix)
 
 ## crossprod(x) & tcrossprod(x) :
 setMethod("crossprod", signature(x = "dgeMatrix", y = "missing"),
-	  function(x, y = NULL) .Call("dgeMatrix_crossprod", x, FALSE, PACKAGE = "Matrix"),
+	  function(x, y = NULL) .Call(dgeMatrix_crossprod, x, FALSE),
 	  valueClass = "dpoMatrix")
 
 setMethod("tcrossprod", signature(x = "dgeMatrix", y = "missing"),
-	  function(x, y = NULL) .Call("dgeMatrix_crossprod", x, TRUE, PACKAGE = "Matrix"),
+	  function(x, y = NULL) .Call(dgeMatrix_crossprod, x, TRUE),
 	  valueClass = "dpoMatrix")
 setMethod("tcrossprod", signature(x = "matrix", y = "missing"),
-	  function(x, y = NULL) .Call("dgeMatrix_crossprod", as(x, "dgeMatrix"), TRUE, PACKAGE = "Matrix"),
+	  function(x, y = NULL) .Call(dgeMatrix_crossprod, as(x, "dgeMatrix"), TRUE),
 	  valueClass = "dpoMatrix")
 setMethod("tcrossprod", signature(x = "numeric", y = "missing"),
 	  function(x, y = NULL) callGeneric(as.matrix(as.double(x))))
 
 ## crossprod (x,y)
 setMethod("crossprod", signature(x = "dgeMatrix", y = "dgeMatrix"),
-	  function(x, y = NULL) .Call("dgeMatrix_dgeMatrix_crossprod", x, y, FALSE, PACKAGE = "Matrix"),
+	  function(x, y = NULL) .Call(dgeMatrix_dgeMatrix_crossprod, x, y, FALSE),
 	  valueClass = "dgeMatrix")
 
 setMethod("crossprod", signature(x = "dgeMatrix", y = "matrix"),
-	  function(x, y = NULL) .Call("dgeMatrix_matrix_crossprod", x, y, FALSE, PACKAGE = "Matrix"),
+	  function(x, y = NULL) .Call(dgeMatrix_matrix_crossprod, x, y, FALSE),
 	  valueClass = "dgeMatrix")
 setMethod("crossprod", signature(x = "dgeMatrix", y = "numeric"),
 	  function(x, y = NULL)
-	  .Call("dgeMatrix_matrix_crossprod", x, as.matrix(as.double(y)), FALSE, PACKAGE = "Matrix"),
+	  .Call(dgeMatrix_matrix_crossprod, x, as.matrix(as.double(y)), FALSE),
 	  valueClass = "dgeMatrix")
 setMethod("crossprod", signature(x = "matrix", y = "dgeMatrix"),
 	  function(x, y = NULL) callGeneric(as(x, "dgeMatrix"), y),
@@ -171,15 +171,15 @@ setMethod("crossprod", signature(x = "numeric", y = "dgeMatrix"),
 
 ## tcrossprod (x,y)
 setMethod("tcrossprod", signature(x = "dgeMatrix", y = "dgeMatrix"),
-	  function(x, y = NULL) .Call("dgeMatrix_dgeMatrix_crossprod", x, y, TRUE, PACKAGE = "Matrix"),
+	  function(x, y = NULL) .Call(dgeMatrix_dgeMatrix_crossprod, x, y, TRUE),
 	  valueClass = "dgeMatrix")
 
 setMethod("tcrossprod", signature(x = "dgeMatrix", y = "matrix"),
-	  function(x, y = NULL) .Call("dgeMatrix_matrix_crossprod", x, y, TRUE, PACKAGE = "Matrix"),
+	  function(x, y = NULL) .Call(dgeMatrix_matrix_crossprod, x, y, TRUE),
 	  valueClass = "dgeMatrix")
 setMethod("tcrossprod", signature(x = "dgeMatrix", y = "numeric"),
 	  function(x, y = NULL)
-	  .Call("dgeMatrix_matrix_crossprod", x, as.matrix(as.double(y)), TRUE, PACKAGE = "Matrix"),
+	  .Call(dgeMatrix_matrix_crossprod, x, as.matrix(as.double(y)), TRUE),
 	  valueClass = "dgeMatrix")
 setMethod("tcrossprod", signature(x = "matrix", y = "dgeMatrix"),
 	  function(x, y = NULL) callGeneric(as(x, "dgeMatrix"), y),
@@ -191,36 +191,36 @@ setMethod("tcrossprod", signature(x = "numeric", y = "dgeMatrix"),
 
 setMethod("%*%", signature(x = "dgeMatrix", y = "dgeMatrix"),
 	  function(x, y)
-          .Call("dgeMatrix_matrix_mm", x, y, TRUE, FALSE, PACKAGE = "Matrix"),
+          .Call(dgeMatrix_matrix_mm, x, y, TRUE, FALSE),
 	  valueClass = "dgeMatrix")
 
 ## dgeMatrix <-> matrix ("matrix" dispatches before "numeric" since R 2.1.0)
 setMethod("%*%", signature(x = "dgeMatrix", y = "matrix"),
 	  function(x, y) {
 	      storage.mode(y) <- "double"
-	      .Call("dgeMatrix_matrix_mm", x, y, FALSE, FALSE, PACKAGE = "Matrix")
+	      .Call(dgeMatrix_matrix_mm, x, y, FALSE, FALSE)
 	  }, valueClass = "dgeMatrix")
 
 
 setMethod("%*%", signature(x = "matrix", y = "dgeMatrix"),
 	  function(x, y) {
 	      storage.mode(x) <- "double"
-	      .Call("dgeMatrix_matrix_mm", y, x, FALSE, TRUE, PACKAGE = "Matrix")
+	      .Call(dgeMatrix_matrix_mm, y, x, FALSE, TRUE)
 	  }, valueClass = "dgeMatrix")
 
 ## dgeMatrix <-> numeric: conceptually dispatch to "matrix" one, but shortcut
 setMethod("%*%", signature(x = "dgeMatrix", y = "numeric"),
 	  function(x, y)
-	  .Call("dgeMatrix_matrix_mm", x, as.matrix(as.double(y)), FALSE, FALSE, PACKAGE = "Matrix"),
+	  .Call(dgeMatrix_matrix_mm, x, as.matrix(as.double(y)), FALSE, FALSE),
 	  valueClass = "dgeMatrix")
 setMethod("%*%", signature(x = "numeric", y = "dgeMatrix"),
 	  function(x, y)
-	  .Call("dgeMatrix_matrix_mm", y, rbind(as.double(x)), FALSE, TRUE, PACKAGE = "Matrix"),
+	  .Call(dgeMatrix_matrix_mm, y, rbind(as.double(x)), FALSE, TRUE),
 	  valueClass = "dgeMatrix")
 
 setMethod("diag", signature(x = "dgeMatrix"),
 	  function(x = 1, nrow, ncol = n)
-	  .Call("dgeMatrix_getDiag", x, PACKAGE = "Matrix"))
+	  .Call(dgeMatrix_getDiag, x))
 
 
 ## DB - I don't think this is a good idea without first checking symmetry
@@ -229,59 +229,59 @@ setMethod("chol", signature(x = "dgeMatrix", pivot = "ANY"), cholMat)
 
 setMethod("solve", signature(a = "dgeMatrix", b = "missing"),
 	  function(a, b, ...)
-          .Call("dgeMatrix_solve", a, PACKAGE = "Matrix"),
+          .Call(dgeMatrix_solve, a),
 	  valueClass = "dgeMatrix")
 
 setMethod("solve", signature(a = "dgeMatrix", b = "dgeMatrix"),
 	  function(a, b, ...)
-          .Call("dgeMatrix_matrix_solve", a, b, TRUE, PACKAGE = "Matrix"),
+          .Call(dgeMatrix_matrix_solve, a, b, TRUE),
 	  valueClass = "dgeMatrix")
 
 setMethod("solve", signature(a = "dgeMatrix", b = "matrix"),
 	  function(a, b, ...) {
 	      storage.mode(b) <- "double"
-	      .Call("dgeMatrix_matrix_solve", a, b, FALSE, PACKAGE = "Matrix")
+	      .Call(dgeMatrix_matrix_solve, a, b, FALSE)
 	  }, valueClass = "dgeMatrix")
 
 setMethod("solve", signature(a = "dgeMatrix", b = "numeric"),
 	  function(a, b, ...)
-	  .Call("dgeMatrix_matrix_solve", a, as.matrix(as.double(b)), FALSE, PACKAGE = "Matrix"))
+	  .Call(dgeMatrix_matrix_solve, a, as.matrix(as.double(b)), FALSE))
 
 setMethod("lu", signature(x = "dgeMatrix"),
-	  function(x, ...) .Call("dgeMatrix_LU", x, PACKAGE = "Matrix"),
+	  function(x, ...) .Call(dgeMatrix_LU, x),
           valueClass = "LU")
 
 setMethod("determinant", signature(x = "dgeMatrix", logarithm = "missing"),
 	  function(x, logarithm, ...)
-	  .Call("dgeMatrix_determinant", x, TRUE, PACKAGE = "Matrix"))
+	  .Call(dgeMatrix_determinant, x, TRUE))
 
 setMethod("determinant", signature(x = "dgeMatrix", logarithm = "logical"),
 	  function(x, logarithm, ...)
-	  .Call("dgeMatrix_determinant", x, logarithm, PACKAGE = "Matrix"))
+	  .Call(dgeMatrix_determinant, x, logarithm))
 
 
 setMethod("expm", signature(x = "dgeMatrix"),
-	  function(x) .Call("dgeMatrix_exp", x, PACKAGE = "Matrix"),
+	  function(x) .Call(dgeMatrix_exp, x),
 	  valueClass = "dgeMatrix")
 
 setMethod("colSums", signature(x = "dgeMatrix"),
 	  function(x, na.rm = FALSE, dims = 1)
-          .Call("dgeMatrix_colsums", x, na.rm, TRUE, FALSE, PACKAGE = "Matrix"),
+          .Call(dgeMatrix_colsums, x, na.rm, TRUE, FALSE),
 	  valueClass = "numeric")
 
 setMethod("colMeans", signature(x = "dgeMatrix"),
 	  function(x, na.rm = FALSE, dims = 1)
-          .Call("dgeMatrix_colsums", x, na.rm, TRUE, TRUE, PACKAGE = "Matrix"),
+          .Call(dgeMatrix_colsums, x, na.rm, TRUE, TRUE),
 	  valueClass = "numeric")
 
 setMethod("rowSums", signature(x = "dgeMatrix"),
 	  function(x, na.rm = FALSE, dims = 1)
-          .Call("dgeMatrix_colsums", x, na.rm, FALSE, FALSE, PACKAGE = "Matrix"),
+          .Call(dgeMatrix_colsums, x, na.rm, FALSE, FALSE),
 	  valueClass = "numeric")
 
 setMethod("rowMeans", signature(x = "dgeMatrix"),
 	  function(x, na.rm = FALSE, dims = 1)
-          .Call("dgeMatrix_colsums", x, na.rm, FALSE, TRUE, PACKAGE = "Matrix"),
+          .Call(dgeMatrix_colsums, x, na.rm, FALSE, TRUE),
 	  valueClass = "numeric")
 
 ### The following all serve for	 as.Matrix()

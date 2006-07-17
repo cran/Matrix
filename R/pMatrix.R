@@ -19,11 +19,13 @@ setAs("pMatrix", "matrix",
 ## coerce to 0/1 sparse matrix, i.e. sparse logical :
 setAs("pMatrix", "lgTMatrix",
       function(from) {
-	  fp <- from@perm
           d <- from@Dim
 	  new("lgTMatrix", i = seq(length = d[1]) - 1:1, j = from@perm - 1:1,
               Dim = d, Dimnames = from@Dimnames)
       })
+
+setAs("pMatrix", "TsparseMatrix",
+      function(from) as(from, "lgTMatrix"))
 
 setMethod("solve", signature(a = "pMatrix", b = "missing"),
           function(a, b) {

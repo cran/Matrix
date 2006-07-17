@@ -1,0 +1,205 @@
+
+R : Copyright 2006, The R Foundation for Statistical Computing
+Version 2.3.1 Patched (2006-07-08 r38523)
+ISBN 3-900051-07-0
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> #### Testing  cbind() & rbind()
+> 
+> library(Matrix)
+Loading required package: lattice
+> 
+> source(system.file("test-tools.R", package = "Matrix"))# identical3() etc
+> 
+> ### --- Dense Matrices ---
+> 
+> m1 <- m2 <- m <- Matrix(1:12, 3,4)
+Warning message:
+integer matrices not yet implemented in 'Matrix'; using 'double' ones' in: Matrix(1:12, 3, 4) 
+> dimnames(m2) <- list(LETTERS[1:3],
++                      letters[1:4])
+> dimnames(m1) <- list(NULL,letters[1:4])
+> 
+> stopifnot(identical(cbind ( m, 10*m) -> R,
++                     cbind2( m, 10*m))); R
+3 x 8 Matrix of class "dgeMatrix"
+     [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8]
+[1,]    1    4    7   10   10   40   70  100
+[2,]    2    5    8   11   20   50   80  110
+[3,]    3    6    9   12   30   60   90  120
+> stopifnot(identical(cbind (m1,100+m1) -> R,
++                     cbind2(m1,100+m1))); R
+3 x 8 Matrix of class "dgeMatrix"
+     a b c  d   a   b   c   d
+[1,] 1 4 7 10 101 104 107 110
+[2,] 2 5 8 11 102 105 108 111
+[3,] 3 6 9 12 103 106 109 112
+> stopifnot(identical(cbind (m1, 10*m2) -> R,
++                     cbind2(m1, 10*m2))); R
+3 x 8 Matrix of class "dgeMatrix"
+  a b c  d  a  b  c   d
+A 1 4 7 10 10 40 70 100
+B 2 5 8 11 20 50 80 110
+C 3 6 9 12 30 60 90 120
+> 
+> ## TODO: m1+m2 "warning" - improve dimnames() automatism
+> stopifnot(identical(cbind (m2, m1+m2) -> R,
++                     cbind2(m2, m1+m2))); R
+3 x 8 Matrix of class "dgeMatrix"
+  a b c  d a  b  c  d
+A 1 4 7 10 2  8 14 20
+B 2 5 8 11 4 10 16 22
+C 3 6 9 12 6 12 18 24
+> 
+> cbind(m2, 10*m2[nrow(m2):1 ,])# keeps the rownames from the first
+3 x 8 Matrix of class "dgeMatrix"
+  a b c  d  a  b  c   d
+A 1 4 7 10 30 60 90 120
+B 2 5 8 11 20 50 80 110
+C 3 6 9 12 10 40 70 100
+> 
+> (im <- cbind(I = 100, m))
+3 x 5 Matrix of class "dgeMatrix"
+       I         
+[1,] 100 1 4 7 10
+[2,] 100 2 5 8 11
+[3,] 100 3 6 9 12
+> str(im)
+Formal class 'dgeMatrix' [package "Matrix"] with 4 slots
+  ..@ x       : num [1:15] 100 100 100 1 2 3 4 5 6 7 ...
+  ..@ Dim     : int [1:2] 3 5
+  ..@ Dimnames:List of 2
+  .. ..$ : NULL
+  .. ..$ : chr [1:5] "I" "" "" "" ...
+  ..@ factors : list()
+> (mi <- cbind(m2, I = 1000))
+3 x 5 Matrix of class "dgeMatrix"
+  a b c  d    I
+A 1 4 7 10 1000
+B 2 5 8 11 1000
+C 3 6 9 12 1000
+> str(mi)
+Formal class 'dgeMatrix' [package "Matrix"] with 4 slots
+  ..@ x       : num [1:15] 1 2 3 4 5 6 7 8 9 10 ...
+  ..@ Dim     : int [1:2] 3 5
+  ..@ Dimnames:List of 2
+  .. ..$ : chr [1:3] "A" "B" "C"
+  .. ..$ : chr [1:5] "a" "b" "c" "d" ...
+  ..@ factors : list()
+> (m1m <- cbind(m,I=100,m2))
+3 x 9 Matrix of class "dgeMatrix"
+             I a b c  d
+A 1 4 7 10 100 1 4 7 10
+B 2 5 8 11 100 2 5 8 11
+C 3 6 9 12 100 3 6 9 12
+> 
+> ### --- Sparse Matrices ---
+> 
+> m <- Matrix(c(0, 0, 2:0), 3, 5)
+> (mC <- as(m, "dgCMatrix"))
+3 x 5 sparse Matrix of class "dgCMatrix"
+              
+[1,] . 1 . . 2
+[2,] . . 2 . 1
+[3,] 2 . 1 . .
+> (mT <- as(m, "dgTMatrix"))
+3 x 5 sparse Matrix of class "dgTMatrix"
+              
+[1,] . 1 . . 2
+[2,] . . 2 . 1
+[3,] 2 . 1 . .
+> stopifnot(identical(mT, as(mC, "dgTMatrix")))
+> cbind(0, mC)
+3 x 6 sparse Matrix of class "dgCMatrix"
+                
+[1,] . . 1 . . 2
+[2,] . . . 2 . 1
+[3,] . 2 . 1 . .
+> cbind(0, mT)
+3 x 6 sparse Matrix of class "dgCMatrix"
+                
+[1,] . . 1 . . 2
+[2,] . . . 2 . 1
+[3,] . 2 . 1 . .
+> cbind(diag(3), mT)
+3 x 8 sparse Matrix of class "dgCMatrix"
+                    
+[1,] 1 . . . 1 . . 2
+[2,] . 1 . . . 2 . 1
+[3,] . . 1 2 . 1 . .
+> (cc <- cbind(mC, 0,7,0, diag(3), 0))
+3 x 12 sparse Matrix of class "dgCMatrix"
+                            
+[1,] . 1 . . 2 . 7 . 1 . . .
+[2,] . . 2 . 1 . 7 . . 1 . .
+[3,] 2 . 1 . . . 7 . . . 1 .
+> stopifnot(identical3(cc, cbind(mT, 0,7,0, diag(3), 0),
++                      as( cbind(m, 0,7,0, diag(3), 0), "dgCMatrix")))
+> 
+> cbind(mC, 1, 100*mC, 0, 0:2)
+3 x 13 sparse Matrix of class "dgCMatrix"
+                                      
+[1,] . 1 . . 2 1 .   100 .   . 200 . .
+[2,] . . 2 . 1 1 .   .   200 . 100 . 1
+[3,] 2 . 1 . . 1 200 .   100 . .   . 2
+> cbind(mT, 1, 0, mT+10*mT, 0, 0:2)
+3 x 14 sparse Matrix of class "dgCMatrix"
+                                    
+[1,] . 1 . . 2 1 . .  11 .  . 22 . .
+[2,] . . 2 . 1 1 . .  .  22 . 11 . 1
+[3,] 2 . 1 . . 1 . 22 .  11 . .  . 2
+> 
+> ## print() / show() of  non-structural zeros:
+> (m <- Matrix(c(0, 0, 2:0), 3, 5))
+3 x 5 sparse Matrix of class "dgCMatrix"
+              
+[1,] . 1 . . 2
+[2,] . . 2 . 1
+[3,] 2 . 1 . .
+> (m2 <- cbind(m,m))
+3 x 10 sparse Matrix of class "dgCMatrix"
+                        
+[1,] . 1 . . 2 . 1 . . 2
+[2,] . . 2 . 1 . . 2 . 1
+[3,] 2 . 1 . . 2 . 1 . .
+> (m4 <- rbind(m2,m2))
+6 x 10 sparse Matrix of class "dgCMatrix"
+                        
+[1,] . 1 . . 2 . 1 . . 2
+[2,] . . 2 . 1 . . 2 . 1
+[3,] 2 . 1 . . 2 . 1 . .
+[4,] . 1 . . 2 . 1 . . 2
+[5,] . . 2 . 1 . . 2 . 1
+[6,] 2 . 1 . . 2 . 1 . .
+> diag(m4)
+[1] 0 0 1 0 1 2
+> 
+> for(i in 1:6) {
++     m4[i, i ] <- i
++     m4[i,i+1] <- 0
++ }
+> m4 ## now show some non-structural zeros:
+6 x 10 sparse Matrix of class "dgCMatrix"
+                        
+[1,] 1 0 . . 2 . 1 . . 2
+[2,] . 2 0 . 1 . . 2 . 1
+[3,] 2 . 3 . . 2 . 1 . .
+[4,] . 1 . 4 0 . 1 . . 2
+[5,] . . 2 . 5 . . 2 . 1
+[6,] 2 . 1 . . 6 . 1 . .
+> 
+> 
+> cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
+Time elapsed:  9.135 0.137 9.722 0 0 
+> 

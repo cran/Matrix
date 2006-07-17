@@ -4,19 +4,16 @@
 /* TODO: */
 /* - change the status vector to a scalar.  The steps are
  * cumulative so there is no need for a vector of flags. */
-/* - Consider the steps in reimplementing AGQ.  First you need to
-     find bhat, then evaluate the posterior variances, then step out
-     according to the posterior variance, evaluate the integrand
-     relative to the step */
-/* However, AGQ will only work when the response vector can be split
- * into sections that are conditionally independent. */
-
-/* MCMCsamp for generalized linear mixed models.  1) Detect if there
- * is a scale factor or not. 2) Sample beta and b according to the
- * normal approximation 3) Evaluate the Metropolis-Hastings ratio and
- * accept or reject 4) If step is accepted then reweight/update 5)
- * Sample from the Wishart for the variance matrix. 6) If necessary,
- * sample from the scale factor distribution. */
+/* Consider the steps in reimplementing AGQ.  First you need to find
+   bhat, then evaluate the posterior variances, then step out
+   according to the posterior variance, evaluate the integrand
+   relative to the step. */
+/* Because the Gauss-Hermite quadrature is formed as a sum, it is
+ * necessary to divide the contributions to the deviance according to
+ * the levels of the random effects.  This means that it is only
+ * practical to use AGQ when the response vector can be split into
+ * sections that are conditionally independent. As far as I can see
+ * this will mean a single grouping factor only. */
 
 /* Some of these utility functions should be moved to the R sources */
 
@@ -403,7 +400,7 @@ internal_mer_fitted(SEXP x, const double initial[], double val[])
     else AZERO(val, n);
     F77_CALL(dgemv)("N", &n, &p, one, X, &n, REAL(fixef), &ione, one, val, &ione);
     if (!cholmod_sdmult(Zt, 1, one, one, chb, chv, &c))
-	error(_("Error return from sdmult"));
+	error(_("Error return from cholmod_sdmult"));
     Free(chv); Free(chb); Free(Zt);
     return val;
 }
@@ -652,7 +649,7 @@ internal_mer_update_ZXy(SEXP x, int *perm)
 				/* PZ'X into ZtX */
     td1 = cholmod_allocate_dense(q, p, q, CHOLMOD_REAL, &c);
     if (!cholmod_sdmult(Ztcp, 0, one, zero, Xcp, td1, &c))
-	error(_("cholmod_sdmult failed"));
+	error(_("Error return from cholmod_sdmult"));
     for (j = 0; j < p; j++) { 	/* apply the permutation to each column */
 	double *dcol = ZtX + j * q,
 	    *scol = (double*)(td1->x) + j * q;
@@ -662,7 +659,7 @@ internal_mer_update_ZXy(SEXP x, int *perm)
 				/* PZ'y into Zty */
     td1 = cholmod_allocate_dense(q, 1, q, CHOLMOD_REAL, &c);
     if (!cholmod_sdmult(Ztcp, 0, one, zero, wkrcp, td1, &c))
-	error(_("cholmod_sdmult failed"));
+	error(_("Error return from cholmod_sdmult"));
     for (i = 0; i < q; i++) Zty[i] = ((double *)(td1->x))[perm[i]];
     cholmod_free_dense(&td1, &c); cholmod_free_sparse(&Ztcp, &c);
 				/* XtX and Xty */
@@ -908,18 +905,28 @@ internal_Omega_update(SEXP Omega, const double b[], double sigma, int nf,
  * @param bhat conditional modes of random effects
  * @param betanew overwritten with proposal point
  * @param bnew overwritten with proposal point
+ *
+ * @return Gaussian kernel value for proposal point
  */
-static void
+static double
 internal_betab_update(int p, int q, double sigma, cholmod_factor *L,
 		      double RZX[], double RXX[], double betahat[],
 		      double bhat[], double betanew[], double bnew[])
 {
     cholmod_dense *chb, *chbnew = numeric_as_chm_dense(bnew, q);
     int j, ione = 1;
-    double m1[] = {-1,0}, one[] = {1,0};
+    double m1[] = {-1,0}, one[] = {1,0}, ans = 0;
 				/* simulate scaled, independent normals */
-    for (j = 0; j < p; j++) betanew[j] = sigma * norm_rand();
-    for (j = 0; j < q; j++) bnew[j] = sigma * norm_rand();
+    for (j = 0; j < p; j++) {
+	double nr = norm_rand();
+	ans += nr * nr;
+	betanew[j] = sigma * nr;
+    }
+    for (j = 0; j < q; j++) {
+	double nr = norm_rand();
+	ans += nr * nr;
+	bnew[j] = sigma * nr;
+    }
 				/* betanew := RXX^{-1} %*% betanew */
     F77_CALL(dtrsv)("U", "N", "N", &p, RXX, &p, betanew, &ione);
 				/* bnew := bnew - RZX %*% betanew */
@@ -932,7 +939,39 @@ internal_betab_update(int p, int q, double sigma, cholmod_factor *L,
     for (j = 0; j < q; j++) bnew[j] = ((double*)(chb->x))[j] + bhat[j];
     cholmod_free_dense(&chb, &c);
     Free(chbnew);
+    return ans;
 }
+
+static double
+internal_Gaussian_deviance(int p, int q, cholmod_factor *L,
+			   double RZX[], double RXX[], double betahat[],
+			   double bhat[], double beta[], double b[])
+{
+    int i, ione = 1;
+    double *bb = Calloc(q, double), *betab = Calloc(p, double), ans = 0;
+    cholmod_sparse *Lm;
+    cholmod_dense *chb = numeric_as_chm_dense(bb, q),
+	*Ltb = cholmod_allocate_dense(q, 1, q, CHOLMOD_REAL, &c);
+    cholmod_factor *Lcp;
+    double one[] = {1,0}, zero[] = {0,0};
+
+    for (i = 0; i < p; i++) betab[i] = beta[i] - betahat[i];
+    for (i = 0; i < q; i++) bb[i] = b[i] - bhat[i];
+    Lcp = cholmod_copy_factor(L, &c); /* next call changes Lcp */
+    Lm = cholmod_factor_to_sparse(Lcp, &c); cholmod_free_factor(&Lcp, &c);
+    if (!cholmod_sdmult(Lm, 1 /* transpose */, one, zero, chb, Ltb, &c))
+	error(_("Error return from cholmod_sdmult"));
+    Memcpy(bb, (double *)(Ltb->x), q);
+    cholmod_free_sparse(&Lm, &c); cholmod_free_dense(&Ltb, &c);
+    F77_CALL(dgemv)("N", &q, &p, one, RZX, &q, betab, &ione, one, bb, &ione);
+    for (i = 0; i < q; i++) ans += bb[i] * bb[i];
+
+    F77_CALL(dtrmv)("U", "N", "N", &p, RXX, &p, betab, &ione);
+    for (i = 0; i < p; i++) ans += betab[i] * betab[i];
+    Free(chb); Free(bb); Free(betab);
+    return ans;
+}
+    
 
 /**
  * Evaluate new weights and working residuals.
@@ -1224,6 +1263,42 @@ random_effects_deviance(GlmerStruct GS)
     return ans;
 }
 
+/**
+ * Calculate the deviance for a generalizedlinear mixed model at
+ * arbitrary parameter values.  This version restores the original
+ * values of the fixef and ranef slots after evaluating at arbitrary
+ * beta and b.
+ *
+ * @param GS a generalized mixed-effects model pointer
+ * @param beta fixed-effects parameter vector
+ * @param b random-effects vector
+ *
+ * @return deviance
+ */
+static
+double glmm_deviance(GlmerStruct GS, const double beta[], const double b[])
+{
+    SEXP x = GS->mer;
+    SEXP fixefp = GET_SLOT(x, Matrix_fixefSym),
+	ranefp = GET_SLOT(x, Matrix_ranefSym);
+    int p = LENGTH(fixefp), q = LENGTH(ranefp);
+    double *fixcp = Memcpy(Calloc(p, double), REAL(fixefp), p),
+	*rancp = Memcpy(Calloc(q, double), REAL(ranefp), q), ans;
+
+    mer_factor(x);
+    Memcpy(REAL(fixefp), beta, p);
+    Memcpy(REAL(ranefp), b, q);
+    ans = random_effects_deviance(GS) +
+	b_quadratic(b, GET_SLOT(x, Matrix_OmegaSym),
+		    INTEGER(GET_SLOT(x, Matrix_GpSym)),
+		    INTEGER(GET_SLOT(x, Matrix_ncSym)));
+    Memcpy(REAL(fixefp), fixcp, p);
+    Memcpy(REAL(ranefp), rancp, q);
+    Free(fixcp); Free(rancp);
+    return ans;
+}
+
+
 /* Externally accessible functions */
 
 /**
@@ -1265,7 +1340,7 @@ Matrix_rWishart(SEXP ns, SEXP dfp, SEXP scal)
 			&one, tmp, &(dims[1]),
 			&zero, ansj, &(dims[1]));
 	internal_symmetrize(ansj, dims[0]);
-	}
+    }
 
     PutRNGstate();
     Free(scCp); Free(tmp);
@@ -1398,95 +1473,6 @@ SEXP glmer_init(SEXP rho) {
     return R_MakeExternalPtr(GS, R_NilValue, GS->mer);
 }
 
-/**
- * Generate a Markov-Chain Monte Carlo sample from a fitted
- * generalized linear mixed model.
- *
- * @param GSp External pointer to a  GlmerStruct
- * @param savebp pointer to a logical scalar indicating if the
- * random-effects should be saved
- * @param nsampp pointer to an integer scalar of the number of samples
- * to generate
- * @param transp pointer to an logical scalar indicating if the
- * variance components should be transformed.
- *
- * @return a matrix
- */
-SEXP
-glmer_MCMCsamp(SEXP GSp, SEXP savebp, SEXP nsampp, SEXP transp)
-{
-    GlmerStruct GS = (GlmerStruct) R_ExternalPtrAddr(GSp);
-    SEXP ans, 
-	Omega = GET_SLOT(GS->mer, Matrix_OmegaSym),
-	Omegacp = PROTECT(duplicate(Omega));
-    cholmod_factor *L = as_cholmod_factor(GET_SLOT(GS->mer, Matrix_LSym));
-    int *Gp = INTEGER(GET_SLOT(GS->mer, Matrix_GpSym)),
-	*nc = INTEGER(GET_SLOT(GS->mer, Matrix_ncSym)),
-	i, ione = 1, j, n = LENGTH(GET_SLOT(GS->mer, Matrix_ySym)),
-	nf = LENGTH(Omega), nsamp = asInteger(nsampp),
-	p = LENGTH(GET_SLOT(GS->mer, Matrix_rXySym)),
-	q = LENGTH(GET_SLOT(GS->mer, Matrix_rZySym)),
-	saveb = asLogical(savebp),
-	trans = asLogical(transp);
-    double
-	*RXX = REAL(GET_SLOT(GET_SLOT(GS->mer, Matrix_RXXSym), Matrix_xSym)),
-	*RZX = REAL(GET_SLOT(GET_SLOT(GS->mer, Matrix_RZXSym), Matrix_xSym)),
-	*bhat = REAL(GET_SLOT(GS->mer, Matrix_ranefSym)),
-	*betahat = REAL(GET_SLOT(GS->mer, Matrix_fixefSym)),
-	*bnew = Calloc(q, double), *betanew = Calloc(p, double),
-	*dcmp = REAL(GET_SLOT(GS->mer, Matrix_devCompSym)),
-	df = n, m1[] = {-1,0}, one[] = {1,0};
-    int nrbase = p + 1 + coef_length(nf, nc); /* rows always included */
-    int nrtot = nrbase + (saveb ? q : 0);
-    cholmod_dense *chb, *chbnew = numeric_as_chm_dense(bnew, q);
-
-    if (nsamp <= 0) nsamp = 1;
-    ans = PROTECT(allocMatrix(REALSXP, nrtot, nsamp));
-    GetRNGstate();
-    for (i = 0; i < nsamp; i++) {
-	double *col = REAL(ans) + i * nrtot, sigma;
-				/* factor x and get secondary values */
-	mer_secondary(GS->mer);
-				/* simulate and store new value of sigma */
-	sigma = exp(dcmp[3]/2)/sqrt(rchisq(df));
-	col[p] = (trans ? 2 * log(sigma) : sigma * sigma);
-				/* simulate scaled, independent normals */
-	for (j = 0; j < p; j++) betanew[j] = sigma * norm_rand();
-	for (j = 0; j < q; j++) bnew[j] = sigma * norm_rand();
-				/* betanew := RXX^{-1} %*% betanew */
-	F77_CALL(dtrsv)("U", "N", "N", &p, RXX, &p, betanew, &ione);
-				/* bnew := bnew - RZX %*% betanew */
-	F77_CALL(dgemv)("N", &q, &p, m1, RZX, &q, betanew, &ione,
-			one, bnew, &ione);
-				/* chb := L^{-T} %*% bnew */
-	chb = cholmod_solve(CHOLMOD_Lt, L, chbnew, &c);
-				/* Copy chb to bnew and free chb */
-	Memcpy(bnew, (double *)(chb->x), q);
- 	cholmod_free_dense(&chb, &c);
-				/* Add conditional modes and store beta */
-	for (j = 0; j < p; j++) {
-	    col[j] = (betanew[j] += betahat[j]);
-	}
-				/* Add conditional modes and
-				 * optionally store b */
-	for (j = 0; j < q; j++) {
-	    bnew[j] += bhat[j];
-	    if (saveb) col[nrbase + j] = bnew[j];
-	}
-	/* Update and store variance-covariance of the random effects */
-	internal_Omega_update(Omega, bnew, sigma, nf, nc, Gp, col + p + 1, trans);
-	internal_mer_refactor(GS->mer);
-    }
-    PutRNGstate();
-    Free(betanew); Free(bnew); Free(chbnew);
-				/* Restore original Omega */
-    SET_SLOT(GS->mer, Matrix_OmegaSym, Omegacp);
-    internal_mer_refactor(GS->mer);
-
-    Free(L);
-    UNPROTECT(2);
-    return ans;
-}
 
 /**
  * Perform ECME steps for the REML or ML criterion.
@@ -2104,6 +2090,9 @@ SEXP mer_factor(SEXP x)
 	if ((info = internal_mer_Xfactor(x))) { /* unable to factor downdated XtX */
 	    error(_("Leading minor of order %d in downdated X'X is not positive definite"),
 		  info);
+/* FIXME: Why are values being assigned after a call to error? I think
+ * this is vestigial.  At one point a warning was given but it got
+ * changed to an error. */
 	    dcmp[3] = dcmp[6] = dev[0] = dev[1] = NA_REAL;
 	} else {
 	    for (dcmp[6] = 0, i = 0; i < p; i++) /* 2 * logDet(RXX) */
@@ -2732,6 +2721,99 @@ SEXP Zt_create(SEXP fl, SEXP Ztl)
     return ans;
 }
 
+/* MCMCsamp for generalized linear mixed models.  1) Detect if there
+ * is a scale factor or not (not done yet). 2) Sample beta and b
+ * according to the normal approximation 3) Evaluate the
+ * Metropolis-Hastings ratio and accept or reject 4) If step is
+ * accepted then reweight/update 5) Sample from the Wishart for the
+ * variance matrix. 6) If necessary, sample from the scale factor
+ * distribution (not done yet). */
+
+/**
+ * Create a Markov Chain Monte Carlo sample from a fitted generalized
+ * linear mixed model
+ *
+ * @param GSpt External pointer to a GlmerStruct
+ * @param savebp Logical indicator of whether or not to save the
+ *   random effects in the MCMC sample
+ * @param nsampp number of samples to generate
+ * @param transp pointer to an logical scalar indicating if the
+ * variance components should be transformed.
+ *
+ * @return a matrix
+ */
+SEXP
+glmer_MCMCsamp(SEXP GSpt, SEXP savebp, SEXP nsampp, SEXP transp)
+{
+    GlmerStruct GS = (GlmerStruct) R_ExternalPtrAddr(GSpt);
+    SEXP ans, x = GS->mer;
+    SEXP Omega = GET_SLOT(x, Matrix_OmegaSym),
+	Omegacp = PROTECT(duplicate(Omega));
+    cholmod_factor *L = as_cholmod_factor(GET_SLOT(x, Matrix_LSym));
+    int *Gp = INTEGER(GET_SLOT(x, Matrix_GpSym)),
+	*nc = INTEGER(GET_SLOT(x, Matrix_ncSym)),
+	i, j, nf = LENGTH(Omega), nsamp = asInteger(nsampp),
+	p = LENGTH(GET_SLOT(x, Matrix_rXySym)),
+	q = LENGTH(GET_SLOT(x, Matrix_rZySym)),
+	saveb = asLogical(savebp),
+	trans = asLogical(transp);
+    double
+	*RXX = REAL(GET_SLOT(GET_SLOT(x, Matrix_RXXSym), Matrix_xSym)),
+	*RZX = REAL(GET_SLOT(GET_SLOT(x, Matrix_RZXSym), Matrix_xSym)),
+	*bhat = REAL(GET_SLOT(x, Matrix_ranefSym)),
+	*betahat = REAL(GET_SLOT(x, Matrix_fixefSym)),
+	*bcur = Calloc(q, double), *betacur = Calloc(p, double), /* current */
+	*bnew = Calloc(q, double), *betanew = Calloc(p, double), /* proposed */
+	MHratio;
+    int nrbase = p + 1 + coef_length(nf, nc); /* rows always included */
+    int nrtot = nrbase + (saveb ? q : 0);
+
+    if (nsamp <= 0) nsamp = 1;
+    ans = PROTECT(allocMatrix(REALSXP, nrtot, nsamp));
+    for (i = 0; i < nrtot * nsamp; i++) REAL(ans)[i] = NA_REAL;
+    GetRNGstate();
+    /* initialize current values of b and beta to estimates */
+    Memcpy(betacur, REAL(GET_SLOT(x, Matrix_fixefSym)), p);
+    Memcpy(bcur, REAL(GET_SLOT(x, Matrix_ranefSym)), q);
+    for (i = 0; i < nsamp; i++) {
+	double *col = REAL(ans) + i * nrtot;
+				/* generate proposal for b and beta */
+				/* save Gaussian deviance at proposal */
+	MHratio = -internal_betab_update(p, q, 1, L, RZX, RXX,
+					betahat, bhat, betanew, bnew);
+				/* evaluate Metropolis-Hastings ratio */
+	MHratio += glmm_deviance(GS, betanew, bnew)
+	    - glmm_deviance(GS, betacur, bcur)
+	    + internal_Gaussian_deviance(p, q, L, RZX, RXX, betahat, bhat,
+					 betacur, bcur);
+	MHratio = exp(-MHratio/2); Rprintf("%7.3\n", MHratio);
+	/* Accept proposal with probability min(MHratio, 1) */
+	if (unif_rand() < MHratio) {
+	    Memcpy(betacur, betanew, p);
+	    Memcpy(bcur, bnew, q);
+	}
+				/* Store beta */
+	for (j = 0; j < p; j++) col[j] = betacur[j];
+				/* Optionally store b */
+	if (saveb) for (j = 0; j < q; j++) col[nrbase + j] = bcur[j];
+				/* Update and store Omega */
+	internal_Omega_update(Omega, bcur, 1, nf, nc, Gp, col + p, trans);
+	internal_mer_refactor(x);
+	mer_secondary(x);
+
+	col[nrbase - 1] = glmm_deviance(GS, betacur, bcur); /* store deviance */
+    }
+    PutRNGstate();
+    Free(bcur); Free(betacur); Free(betanew); Free(bnew); 
+				/* Restore original Omega */
+    SET_SLOT(x, Matrix_OmegaSym, Omegacp);
+    internal_mer_refactor(x);
+
+    Free(L);
+    UNPROTECT(2);
+    return ans;
+}
+
 #if 0
 
 /* Gauss-Hermite Quadrature x positions and weights */
@@ -2928,77 +3010,6 @@ rel_dev_1(GlmerStruct GS, const double b[], int nlev, int nc, int k,
     return devcmp;
 }
 
-
-/**
- * Create a Markov Chain Monte Carlo sample from a fitted generalized
- * linear mixed model
- *
- * @param GSpt External pointer to a GlmerStruct
- * @param b Conditional modes of the random effects at the parameter
- * estimates
- * @param fixed Estimates of the fixed effects
- * @param varc Estimates of the variance components
- * @param savebp Logical indicator of whether or not to save the
- * random effects in the MCMC sample
- * @param nsampp Integer value of the number of samples to generate
- *
- * @return
- */
-SEXP
-glmer_MCMCsamp(SEXP GSpt, SEXP b, SEXP fixed, SEXP varc,
-	       SEXP savebp, SEXP nsampp)
-{
-    GlmerStruct GS = (GlmerStruct) R_ExternalPtrAddr(GSpt);
-    int i, j, nf = LENGTH(b), nsamp = asInteger(nsampp),
-	p = LENGTH(fixed), q = LENGTH(varc),
-	saveb = asLogical(savebp);
-    int *mcpar, nc = p + q;
-    SEXP ans, mcparSym = install("mcpar");
-
-    if (nsamp <= 0) nsamp = 1;
-    nc = p + q;
-    if (saveb)
-	for (i = 0; i < nf; i++) {
-	    int *dims = INTEGER(getAttrib(VECTOR_ELT(b, i),
-					  R_DimSymbol));
-	    nc += dims[0] * dims[1];
-	}
-    ans = PROTECT(allocMatrix(REALSXP, nsamp, nc));
-    GetRNGstate();
-    for (i = 0; i < nsamp; i++) {
-	internal_glmer_fixef_update(GS, b, REAL(fixed));
-	internal_bhat(GS, REAL(fixed), REAL(varc));
-	internal_glmer_ranef_update(GS, b);
- 	internal_Omega_update(GS->mer, b);
-	internal_mer_coef(GS->mer, 2, REAL(varc));
-	for (j = 0; j < p; j++)
-	    REAL(ans)[i + j * nsamp] = REAL(fixed)[j];
-	for (j = 0; j < q; j++)
-	    REAL(ans)[i + (j + p) * nsamp] = REAL(varc)[j];
-	if (saveb) {
-	    int base = p + q, k;
-	    for (k = 0; k < nf; k++) {
-		SEXP bk = VECTOR_ELT(b, k);
-		int *dims = INTEGER(getAttrib(bk, R_DimSymbol));
-		int klen = dims[0] * dims[1];
-
-		for (j = 0; j < klen; j++)
-		    REAL(ans)[i + (j + base) * nsamp] = REAL(bk)[j];
-		base += klen;
-	    }
-	}
-    }
-    PutRNGstate();
-    UNPROTECT(1);
-				/* set (S3) class and mcpar attribute */
-    setAttrib(ans, R_ClassSymbol, mkString("mcmc"));
-    setAttrib(ans, mcparSym, allocVector(INTSXP, 3));
-    mcpar = INTEGER(getAttrib(ans, mcparSym));
-    mcpar[0] = mcpar[2] = 1;
-    mcpar[1] = nsamp;
-
-    return ans;
-}
 
 /**
  * Determine the conditional modes and the conditional variance of the

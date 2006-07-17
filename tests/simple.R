@@ -14,6 +14,9 @@ dm4 <- Matrix(m4, sparse = FALSE)
 stopifnot(validObject(d4), validObject(z4), validObject(o4),
           validObject(m4), validObject(dm4))
 assert.EQ.mat(dm4, as(m4, "matrix"))
+## large sparse ones: these now directly "go sparse":
+str(m0 <- Matrix(0,     nrow=100, ncol = 1000))
+str(l0 <- Matrix(FALSE, nrow=100, ncol = 200))
 
 ###--  Sparse Triangular :
 
@@ -108,7 +111,14 @@ tm[cbind(c(1,1,2,7,8),
 (tM <- Matrix(tm))                ## dtC
 (mM <- Matrix(m <- (tm + t(tm)))) ## dsC
 mT <- as(mM, "dsTMatrix")
+gC <- as(as(mT, "dgTMatrix"), "dgCMatrix")
+## Check that 'mT' and gC print properly :
+pr.mT <- capture.output(mT)
+nn <- unlist(strsplit(gsub(" +\\.", "", sub("^....", "", pr.mT[-(1:2)])), " "))
+stopifnot(as.numeric(nn[nn != ""]) == m[m != 0],
+          capture.output(gC)[-1] == pr.mT[-1])
 assert.EQ.mat(tM, tm, tol=0)
+assert.EQ.mat(gC, m,  tol=0)
 assert.EQ.mat(mT, m,  tol=0)
 stopifnot(is(mM, "dsCMatrix"), is(tM, "dtCMatrix"),
           ## coercions  general <-> symmetric

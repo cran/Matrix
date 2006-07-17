@@ -19,6 +19,12 @@ lu(x, \dots)
   This is a generic function with special methods for different types
   of matrices.  Use \code{\link{methods}("lu")} to list all the methods
   for the \code{lu} generic.
+
+  The method for class \code{\linkS4class{dgeMatrix}} is based on
+  LAPACK's \code{"dgetrf"} subroutine.
+
+ Currently, there is no method for \emph{sparse} matrices, but for sparse
+ positive-definite ones, \code{\link{chol}} is available.
 }
 \references{
   Golub, G., and Van Loan, C. F. (1989).

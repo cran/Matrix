@@ -130,21 +130,35 @@ assert.EQ.mat(mt, tt)
 mt[1:5, 2:6]
 as((mt0 - mt)[1:5,], "dsparseMatrix")# [1,5] and lines 2:3
 
-mt[c(2,4), ] <- 0
+mt[c(2,4), ] <- 0; stopifnot(as(mt[c(2,4), ],"matrix") == 0)
 mt[2:3, 4:7] <- 33
 validObject(mt)
 mt
 
-mc[1,4] <- -99
+mc[1,4] <- -99 ; stopifnot(mc[1,4] == -99)
+mc[1,4] <-  00 ; stopifnot(mc[1,4] ==  00)
+mc[1,4] <- -99 ; stopifnot(mc[1,4] == -99)
+mc[1:2,4:3] <- 4:1; stopifnot(as.matrix(mc[1:2,4:3]) == 4:1)
+
+## Debugging:  R bug --   debug(Matrix:::replCmat)  has no effect
+
 mc[-1, 3] <- -2:1 # 0 should not be entered; 'value' recycled
 mt[-1, 3] <- -2:1
-stopifnot(mc@x != 0, mt@x != 0)
-mc[1:5 %% 2 == 0, 3] <- 0
+stopifnot(mc@x != 0, mt@x != 0,
+          mc[-1,3] == -2:1, mt[-1,3] == -2:1) ##--> BUG -- fixed
+## source("~/R/Pkgs/Matrix/R/Tsparse.R")
+## Matrix_expand_pointers <- Matrix:::Matrix_expand_pointers
+## -> open ../R/dgCMatrix.R  --> replCmat  .. now eval-line by line ..
+
+ev <- 1:5 %% 2 == 0
+mc[ev, 3] <- 0:1
+##FIXME stopifnot(mc[ev, 3] == 0:1) ##-> BUG  {very peculiar; the 2nd time it works ...}
 validObject(mc)
-mc
+mc # now shows a non-structural zeros
 mc[ii, jj] <- 1:6
 mc[c(2,5), c(3,5)] <- 3.2
 validObject(mc)
-mc
+(m. <- mc)
+## FIXME: mc[4,] <- 0 # -> error -- another Bug
 
 cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''

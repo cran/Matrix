@@ -193,6 +193,30 @@ SEXP lgCMatrix_lgCMatrix_mm(SEXP a, SEXP b)
     return ans;
 }
 
+SEXP lgCMatrix_diag(SEXP x)
+{
+    SEXP pslot = GET_SLOT(x, Matrix_pSym), ans;
+    int *xp = INTEGER(pslot),
+	*xi = INTEGER(GET_SLOT(x, Matrix_iSym)),
+	j,
+	ncol = length(pslot) - 1,
+	nrow = INTEGER(GET_SLOT(x, Matrix_DimSym))[0], ndiag;
+    int *diag;
+
+    ndiag = (nrow < ncol) ? nrow : ncol;
+    ans = PROTECT(allocVector(LGLSXP, ndiag));
+    diag = LOGICAL(ans);
+    for (j = 0; j < ndiag; j++) {
+	int ind;
+	diag[j] = 0;
+	for (ind = xp[j]; ind < xp[j+1]; ind++) {
+	    if (xi[ind] == j) diag[j] = 1;
+	}
+    }
+    UNPROTECT(1);
+    return ans;
+}
+
 SEXP lgCMatrix_trans(SEXP x)
 {
     SEXP xi = GET_SLOT(x, Matrix_iSym);

@@ -265,9 +265,9 @@ SEXP dtCMatrix_upper_solve(SEXP a)
 {
     SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("dtCMatrix")));
     int lo = uplo_P(a)[0] == 'L', unit = diag_P(a)[0] == 'U',
-	n = INTEGER(GET_SLOT(a, Matrix_DimSym))[0], nnz,
+	n = INTEGER(GET_SLOT(a, Matrix_DimSym))[0],
 	*ai = INTEGER(GET_SLOT(a,Matrix_iSym)),
-	*ap = INTEGER(GET_SLOT(a, Matrix_pSym)), *bi,
+	*ap = INTEGER(GET_SLOT(a, Matrix_pSym)), 
 	*bp = INTEGER(ALLOC_SLOT(ans, Matrix_pSym, INTSXP, n + 1));
     int bnz = 10 * ap[n];	  /* initial estimate of nnz in b */
     int *ti = Calloc(bnz, int), j, nz;

@@ -66,32 +66,38 @@ SEXP dsTMatrix_as_dgTMatrix(SEXP x)
 {
     SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dgTMatrix"))),
 	dimP = GET_SLOT(x, Matrix_DimSym),
-	xiP = GET_SLOT(x, Matrix_iSym),
-	uplo = GET_SLOT(x, Matrix_uploSym);
-    int i, nnz = length(xiP);
-    int *vi = INTEGER(ALLOC_SLOT(val, Matrix_iSym, INTSXP, 2 * nnz)),
-	*vj = INTEGER(ALLOC_SLOT(val, Matrix_jSym, INTSXP, 2 * nnz)),
-	*vx = INTEGER(ALLOC_SLOT(val, Matrix_xSym,REALSXP, 2 * nnz));
+	xiP = GET_SLOT(x, Matrix_iSym);
+    /* , uplo = GET_SLOT(x, Matrix_uploSym); */
+    int i, nnz = length(xiP), n0d, nv,
+	*xi = INTEGER(xiP),
+	*xj = INTEGER(GET_SLOT(x, Matrix_jSym)),
+	*vi, *vj;
+    double *xx = REAL(GET_SLOT(x, Matrix_xSym)), *vx;
+
+    /* Find *length* of result slots:  = 2 * nnz - n0d; n0d := #{non-0 diagonals} :*/
+    for(i = 0, n0d = 0; i < nnz; i++)
+	if(xi[i] == xj[i]) n0d++ ;
+    nv = 2 * nnz - n0d;
+
+    vi = INTEGER(ALLOC_SLOT(val, Matrix_iSym, INTSXP, nv));
+    vj = INTEGER(ALLOC_SLOT(val, Matrix_jSym, INTSXP, nv));
+    vx =    REAL(ALLOC_SLOT(val, Matrix_xSym,REALSXP, nv));
 
     SET_SLOT(val, Matrix_DimSym, duplicate(dimP));
 
-    if(*CHAR(STRING_ELT(uplo, 0)) == 'U') { /* x stored in upper triangle */
+    /* copy the upper/lower triangle (including the diagonal) "at end" ([nv]): */
+    nv = nnz - n0d;
+    Memcpy(&vi[nv], xi, nnz);
+    Memcpy(&vj[nv], xj, nnz);
+    Memcpy(&vx[nv], xx, nnz);
 
-	Memcpy(&vi[nnz], INTEGER(GET_SLOT(x, Matrix_iSym)), nnz);
-	Memcpy(&vj[nnz], INTEGER(GET_SLOT(x, Matrix_jSym)), nnz);
-	Memcpy(&vx[nnz],    REAL(GET_SLOT(x, Matrix_xSym)), nnz);
-
-	for(i = 0; i < nnz; i++) { /* copy the other triangle */
-	    vi[i] = INTEGER(GET_SLOT(x, Matrix_jSym))[i];
-	    vj[i] = INTEGER(GET_SLOT(x, Matrix_iSym))[i];
-	    vx[i] = INTEGER(GET_SLOT(x, Matrix_xSym))[i];
+    for(i = 0, nv = 0; i < nnz; i++) { /* copy the other triangle */
+	if(xi[i] != xj[i]) { /* but not the diagonal */
+	    vi[nv] = xj[i];
+	    vj[nv] = xi[i];
+	    vx[nv] = xx[i];
+	    nv++;
 	}
-
-    }
-    else { /* x is stored in lower triangle */
-
-	error("dsTMatrix_as_dgTMatrix(.) not yet for  uplo != 'U'");
-
     }
 
     UNPROTECT(1);

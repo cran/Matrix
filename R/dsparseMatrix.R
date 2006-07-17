@@ -13,6 +13,9 @@ setMethod("crossprod", signature(x = "dsparseMatrix", y = "ddenseMatrix"),
 setMethod("crossprod", signature(x = "ddenseMatrix", y = "dsparseMatrix"),
           function(x, y = NULL) callGeneric(as(x, "dgeMatrix"), y))
 
+setMethod("diag", signature(x = "dsparseMatrix"),
+	  function(x, nrow, ncol = n) diag(as(x, "dgCMatrix")))
+
 ## and coerce dsparse* to dgC*
 setMethod("%*%", signature(x = "dsparseMatrix", y = "dgeMatrix"),
           function(x, y) callGeneric(as(x, "dgCMatrix"), y))

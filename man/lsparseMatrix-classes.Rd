@@ -51,6 +51,8 @@
 \alias{crossprod,lsparseMatrix,lsparseMatrix-method}
 \alias{crossprod,lsparseMatrix,ldenseMatrix-method}
 \alias{crossprod,ldenseMatrix,lsparseMatrix-method}
+\alias{diag,lgCMatrix-method}
+\alias{diag,lsparseMatrix-method}
 \alias{image,lgCMatrix-method}
 \alias{image,lsCMatrix-method}
 \alias{image,ltCMatrix-method}

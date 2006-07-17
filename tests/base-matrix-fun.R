@@ -27,8 +27,8 @@ m <- Matrix(0:5, 3, 2)
 (m2 <- Matrix(diag(c(3,1))))
 (m3 <- crossprod(t(m))) # <- that's an S4 method; nothing "base"
 
-svd(m)
-eigen(m3)
+str( svd(m) )
+str( lapply(eigen(m3), zapsmall))
 
 ### outer()  used to work thanks to  as.array() -- up to R 2.2.1
 ##  no longer, because the definition of outer has changed
@@ -36,3 +36,6 @@ eigen(m3)
 ##                    outer(as(m,"matrix"), as(m2,"matrix"))),
 ##          identical(outer(m3, m2),
 ##                    outer(as(m3,"matrix"), as(m2,"matrix"))))
+
+
+cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''

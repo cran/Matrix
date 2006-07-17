@@ -83,6 +83,7 @@ SEXP pedigree_inbreeding(SEXP x)
     
     F[0] =-1; LAP[0] =-1; /* set F and lap for unknown parents */
     for(i = 1, t = -1; i <= n; i++) { 	/* evaluate LAP and its maximum */
+	S = sire[i]; D = dam[i]; /* parents of animal i */
 	LAP[i] = ((LAP[S] < LAP[D]) ? LAP[D] : LAP[S]) + 1;
 	if (LAP[i] > t) t = LAP[i];
     }

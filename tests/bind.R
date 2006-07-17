@@ -4,12 +4,6 @@ library(Matrix)
 
 source(system.file("test-tools.R", package = "Matrix"))# identical3() etc
 
-if(paste(R.version$major, R.version$minor, sep=".") < "2.2")
- q('no')
-
-## else : R 2.2.0 and later --- and when Matrix was built with R >= 2.2.0:
-
-
 ### --- Dense Matrices ---
 
 m1 <- m2 <- m <- Matrix(1:12, 3,4)
@@ -50,5 +44,19 @@ stopifnot(identical3(cc, cbind(mT, 0,7,0, diag(3), 0),
                      as( cbind(m, 0,7,0, diag(3), 0), "dgCMatrix")))
 
 cbind(mC, 1, 100*mC, 0, 0:2)
-if(FALSE) ## FIXME:  cbind2() method for (dgTMatrix,dgeMatrix)
 cbind(mT, 1, 0, mT+10*mT, 0, 0:2)
+
+## print() / show() of  non-structural zeros:
+(m <- Matrix(c(0, 0, 2:0), 3, 5))
+(m2 <- cbind(m,m))
+(m4 <- rbind(m2,m2))
+diag(m4)
+
+for(i in 1:6) {
+    m4[i, i ] <- i
+    m4[i,i+1] <- 0
+}
+m4 ## now show some non-structural zeros:
+
+
+cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''

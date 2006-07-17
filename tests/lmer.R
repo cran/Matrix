@@ -99,6 +99,15 @@ if (require('MASS', quietly = TRUE)) {
 ##                            method = 'AGQ'), gc = TRUE))
 }
 
+## Invalid factor specification -- used to seg.fault:
+set.seed(1)
+dat <- data.frame(y = round(10*rnorm(100)), lagoon = factor(rep(1:4,each = 25)),
+                  habitat = factor(rep(1:20, each = 5)))
+r1  <- lmer(y ~ habitat + (1|habitat:lagoon), data = dat) # ok
+try(
+reg <- lmer(y ~ habitat + (1|habitat*lagoon), data = dat) # did seg.fault
+) # now gives error                 ^- should be ":"
+
 
 ### mcmcsamp() :
 ## From: Andrew Gelman <gelman@stat.columbia.edu>

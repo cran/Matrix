@@ -3,7 +3,7 @@ Modify the one-argument form of the anova method for lmer objects (yet
   again) to calculate the F ratios.  It is the df, not the ratio that
   is controversial.
 Should there be an extractor function for the mean square error?  If
-so,
+  so, what should it be called?
 -----
 Check for DimNames propagation in coercion and other operations.
 -----
@@ -100,9 +100,13 @@ Check for DimNames propagation in coercion and other operations.
 - Factorizations: LU [ -> solve() ] and Schur()  for  *sparse*  Matrices.
   -----------------  LU-sparse is the purpose of all of ./src/UMFPACK/
   	-->  ./inst/doc/UFsparse/*
+  Note that UMFPACK is a bit slow compared to TAUCS etc, according to
+  Gould et al.(2005)
   And then, possibly eigen(), svd(), qr(), ... for sparse
   {probably base some on the fast  chol() of CHOLMOD}.
+  ./man/lu.Rd notes that lu() is not yet available for sparse
 
   2006-04-15 : now with 'CSparse' { src/cs.c }, have at least solve( <dtC*> )
+
 
 - nicer pedigree examples and tests

@@ -21,6 +21,7 @@
 \alias{crossprod,dgeMatrix,dsparseMatrix-method}
 \alias{crossprod,dsparseMatrix,ddenseMatrix-method}
 \alias{crossprod,dsparseMatrix,dgeMatrix-method}
+\alias{diag,dsparseMatrix-method}
 \alias{image,dsparseMatrix-method}
 \alias{kronecker,dsparseMatrix,dsparseMatrix-method}
 %% group methods

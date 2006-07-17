@@ -3,6 +3,7 @@
 \docType{class}
 % Classes
 \alias{lmer-class}
+\alias{glmer-class}
 \alias{mer-class}
 \alias{coef.lmer-class}
 \alias{summary.mer-class}
@@ -164,6 +165,12 @@
     \item{\code{useScale}:}{logical indicator of the use of the scale
       factor when calculating variance-covariance objects.  Only present
       in the \code{summary.lmer} class.}
+    \item{\code{frame}:}{the model frame for the model or an empty data
+      frame}
+    \item{\code{terms}:}{the terms attribute of the model frame for the
+      fixed-effects terms only}
+    \item{\code{weights}:}{prior weights on the responses.  Only present
+	in the \code{glmer} class.}
     \item{\code{showCorrelation}:}{Logical indicator of whether to
       display the correlation of the fixed-effects estimates when
       showing the object. Only present in the \code{summary.lmer} class.}

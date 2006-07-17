@@ -84,6 +84,11 @@
 (m <- Matrix(c(0,0,2:0), 3,5))
 str(m)
 m[,1]
+\dontshow{## regression test: this must give a validity-check error:
+stopifnot(inherits(try(new("dgCMatrix", i = 0:1, p = 0:2,
+                           x = c(2,3), Dim = 3:4)),
+          "try-error"))
+}
 }
 \keyword{classes}
 \keyword{algebra}

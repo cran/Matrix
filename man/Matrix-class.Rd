@@ -18,6 +18,7 @@
 \alias{crossprod,Matrix,numeric-method}
 \alias{crossprod,Matrix,ANY-method}
 \alias{crossprod,numeric,Matrix-method}
+\alias{diag,Matrix-method}
 \alias{solve,Matrix,numeric-method}
 \alias{dim,Matrix-method}
 \alias{dimnames,Matrix-method}

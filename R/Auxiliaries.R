@@ -146,11 +146,23 @@ non0ind <- function(x) {
     stopifnot(is(x, "sparseMatrix"))
     ## return a 2-column (i,j) matrix of
     ## 0-based indices of non-zero entries  :
-    if(is(x, "TsparseMatrix"))
-	return(unique(cbind(x@i,x@j)))
-    ## else:
-    isC <- any("i" == slotNames(x))# is Csparse (not Rsparse)
-    .Call(compressed_non_0_ij, x, isC)
+    non0.i <- function(M) {
+	if(is(M, "TsparseMatrix"))
+	    return(unique(cbind(M@i,M@j)))
+	if(is(M, "pMatrix"))
+	    return(cbind(seq(length=nrow(M)), M@perm) - 1:1)
+	## else:
+	isC <- any("i" == slotNames(M)) # is Csparse (not Rsparse)
+	.Call(compressed_non_0_ij, M, isC)
+    }
+
+    if(is(x, "symmetricMatrix")) { # also get "other" triangle
+	ij <- non0.i(x)
+	notdiag <- ij[,1] != ij[,2]# but not the diagonals again
+	rbind(ij, ij[notdiag, 2:1])
+    }
+    else
+	non0.i(x)
 }
 
 ## nr= nrow: since  i in {0,1,.., nrow-1}  these are 1:1 "decimal" encodings:
@@ -340,7 +352,7 @@ isTriC <- function(x, upper = NA) {
     if(d[1] != d[2]) return(FALSE)
     ## else
     if(d[1] == 0) return(TRUE)
-    ni <- 1:d[1]
+    ni <- 1:d[2]
     ## the row indices split according to column:
     ilist <- split(x@i, factor(rep.int(ni, diff(x@p)), levels= ni))
     lil <- unlist(lapply(ilist, length), use.names = FALSE)
@@ -351,16 +363,17 @@ isTriC <- function(x, upper = NA) {
 	ilist <- ilist[pos]
 	ni <- ni[pos]
     }
+    ni0 <- ni - 1:1 # '0-based ni'
     if(is.na(upper)) {
-	if(all(sapply(ilist, max, USE.NAMES = FALSE) <= ni))
+	if(all(sapply(ilist, max, USE.NAMES = FALSE) <= ni0))
 	    structure(TRUE, kind = "U")
-	else if(all(sapply(ilist, min, USE.NAMES = FALSE) >= ni))
+	else if(all(sapply(ilist, min, USE.NAMES = FALSE) >= ni0))
 	    structure(TRUE, kind = "L")
 	else FALSE
     } else if(upper) {
-	all(sapply(ilist, max, USE.NAMES = FALSE) <= ni)
+	all(sapply(ilist, max, USE.NAMES = FALSE) <= ni0)
     } else { ## 'lower'
-	all(sapply(ilist, min, USE.NAMES = FALSE) >= ni)
+	all(sapply(ilist, min, USE.NAMES = FALSE) >= ni0)
     }
 }
 

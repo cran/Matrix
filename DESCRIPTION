@@ -1,6 +1,6 @@
 Package: Matrix
-Version: 0.995-11
-Date: 2006-06-12
+Version: 0.995-12
+Date: 2006-07-17
 Title: A Matrix package for R
 Author: Douglas Bates <bates@stat.wisc.edu> and Martin Maechler <maechler@stat.math.ethz.ch>
 Maintainer: Douglas Bates <bates@stat.wisc.edu>
@@ -18,4 +18,4 @@ License: GPL version 2 or later.
  includes code from the University of Florida sparse matrix library maintained by
  Tim Davis.  All sections of that code are covered by the GPL or LGPL licenses.  See the
  directory UFsparse for details.
-Packaged: Tue Jun 13 10:31:42 2006; hornik
+Packaged: Mon Jul 17 22:19:42 2006; maechler

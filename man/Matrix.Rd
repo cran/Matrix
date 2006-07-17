@@ -36,6 +36,11 @@ Matrix(data=NA, nrow=1, ncol=1, byrow=FALSE, dimnames=NULL,
   needs symmetric \code{\link{dimnames}}, e.g., by specifying
   \code{dimnames = list(NULL,NULL)}, see the examples.
 
+  Most of the time, the function works via a traditional (\emph{full})
+  \code{\link{matrix}}.  However, \code{Matrix(0, nrow,ncol)} directly
+  constructs an \dQuote{empty} \linkS4class{sparseMatrix}, as does
+  \code{Matrix(FALSE, *)}.
+
   Although it is sometime possible to mix unclassed matrices (created
   with \code{matrix}) with ones of class \code{"Matrix"}, it is much
   safer to always use carefully constructed ones of class

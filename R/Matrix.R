@@ -97,10 +97,21 @@ Matrix <-
 	    nrow <- ceiling(length(data)/ncol)
 	else if (missing(ncol))
 	    ncol <- ceiling(length(data)/nrow)
-	data <- .Internal(matrix(data, nrow, ncol, byrow))
-	if(is.null(sparse))
-	    sparse <- sparseDefault(data)
-	dimnames(data) <- dimnames
+	if(length(data) == 1 && data == 0 && !identical(sparse,FALSE)) {
+	    if(is.null(sparse)) sparse <- TRUE
+	    ## will be sparse: do NOT construct full matrix!
+	    data <- new(if(is.numeric(data)) "dgTMatrix" else
+			if(is.logical(data)) "lgTMatrix" else
+			stop("invalid 'data'"),
+			Dim = as.integer(c(nrow,ncol)),
+			Dimnames = if(is.null(dimnames))
+			list(NULL,NULL) else dimnames)
+	} else { ## normal case
+	    data <- .Internal(matrix(data, nrow, ncol, byrow))
+	    if(is.null(sparse))
+		sparse <- sparseDefault(data)
+	    dimnames(data) <- dimnames
+	}
     } else if (!is.null(dimnames))
 	dimnames(data) <- dimnames
 
@@ -192,6 +203,8 @@ setMethod("kronecker", signature(X = "ANY", Y = "Matrix",
               Y <- as(Y, "matrix") ; Matrix(callGeneric()) })
 
 
+setMethod("diag", signature(x = "Matrix"),
+	  function(x, nrow, ncol) .bail.out.1(.Generic, class(x)))
 setMethod("t", signature(x = "Matrix"),
 	  function(x) .bail.out.1(.Generic, class(x)))
 

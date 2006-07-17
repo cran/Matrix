@@ -141,7 +141,7 @@ exportClasses(
 	      )
 
 ## lmer-related
-exportClasses("coef.lmer", "lmer", "mer", "pedigree", "ranef.lmer",
+exportClasses("coef.lmer", "glmer", "lmer", "mer", "pedigree", "ranef.lmer",
               "summary.mer", "summary.lmer")
 
 exportMethods(

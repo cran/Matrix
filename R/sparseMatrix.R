@@ -195,18 +195,28 @@ prSpMatrix <- function(object, zero.print = ".")
 {
     stopifnot(is(object, "sparseMatrix"))
     m <- as(object, "matrix")
-    x <- apply(m, 2, format)
-    if(is.null(dim(x))) {# e.g. in  1 x 1 case
-        dim(x) <- dim(m)
-        dimnames(x) <- dimnames(m)
+    logi <- is(object,"lsparseMatrix")
+    if(logi)
+	x <- array(character(length(m)), dim(m), dimnames=dimnames(m))
+    else {
+	x <- apply(m, 2, format)
+	if(is.null(dim(x))) {# e.g. in	1 x 1 case
+	    dim(x) <- dim(m)
+	    dimnames(x) <- dimnames(m)
+	}
     }
     x <- emptyColnames(x)
     if(is.logical(zero.print))
 	zero.print <- if(zero.print) "0" else " "
-    ## FIXME: show only "structural" zeros as 'zero.print', not all of them..
-    x[m == 0.] <- zero.print
-    if(is(object,"lsparseMatrix"))
-        x[m] <- "|"
+    if(logi) {
+	x[!m] <- zero.print
+	x[m] <- "|"
+    } else { # non logical
+	## show only "structural" zeros as 'zero.print', not all of them..
+	## -> cannot use 'm'
+	iN0 <- 1:1 + encodeInd(non0ind(object), nr = nrow(x))
+	x[-iN0] <- zero.print
+    }
     print(noquote(x))
     invisible(object)
 }
@@ -262,10 +272,10 @@ setMethod("isDiagonal", signature(object = "sparseMatrix"),
 	  })
 
 
-## .as.dgT.Fun is in ./Tsparse.R
+## .as.dgT.Fun
 setMethod("colSums",  signature(x = "sparseMatrix"), .as.dgT.Fun)
 setMethod("colMeans", signature(x = "sparseMatrix"), .as.dgT.Fun)
-## .as.dgC.Fun is in ./Csparse.R
+## .as.dgC.Fun
 setMethod("rowSums", signature(x = "sparseMatrix"), .as.dgC.Fun)
 setMethod("rowMeans", signature(x = "sparseMatrix"),.as.dgC.Fun)
 

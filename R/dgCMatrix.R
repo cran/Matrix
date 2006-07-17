@@ -51,8 +51,7 @@ setMethod("tcrossprod", signature(x = "dgCMatrix", y = "missing"),
           function(x, y = NULL) .Call(csc_tcrossprod, x))
 
 setMethod("diag", signature(x = "dgCMatrix"),
-          function(x = 1, nrow, ncol = n)
-          .Call(csc_getDiag, x))
+	  function(x, nrow, ncol = n) .Call(csc_getDiag, x))
 
 ## try to define for "Matrix" -- once and for all -- but that fails -- why? __ FIXME __
 ## setMethod("dim", signature(x = "dgCMatrix"),
@@ -247,10 +246,15 @@ replCmat <- function (x, i, j, value)
     sel <- (!is.na(match(x@i, i1)) &
             !is.na(match( xj, i2)))
 
-    if(sum(sel) == lenRepl) { ## all are already non-zero
-        ## replace them (when value != 0):
-        v0 <- 0 == (value <- rep(value, length = lenRepl))
-        x@x[sel[!v0]] <- value[!v0]
+    if(sum(sel) == lenRepl) { ## all entries to be replaced are non-zero:
+        value <- rep(value, length = lenRepl)
+        ## Ideally we only replace them where value != 0 and drop the value==0
+        ## ones; but that would have to (?) go through dgT*
+        ## v0 <- 0 == value
+        ## if (lenRepl == 1) and v0 is TRUE, the following is not doing anything
+        ##-  --> ./dgTMatrix.R  and its  replTmat()
+        ## x@x[sel[!v0]] <- value[!v0]
+        x@x[sel] <- value
         return(x)
     }
     ## else go via dgT

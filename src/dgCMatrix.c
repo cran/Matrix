@@ -10,17 +10,16 @@ SEXP dgCMatrix_validate(SEXP x)
 	islot = GET_SLOT(x, Matrix_iSym),
 	xslot = GET_SLOT(x, Matrix_xSym);
     int j,
-	ncol = length(pslot) - 1,
 	*dims = INTEGER(GET_SLOT(x, Matrix_DimSym)),
-	nrow,
+	nrow = dims[0],
+	ncol = dims[1],
 	*xp = INTEGER(pslot),
 	*xi = INTEGER(islot);
 
-    nrow = dims[0];
     if (length(islot) != length(xslot))
 	return mkString(_("lengths of slots i and x must match"));
-    if (length(pslot) <= 0)
-	return mkString(_("slot p must have length > 0"));
+    if (length(pslot) != ncol + 1)
+	return mkString(_("slot p must have length ncol + 1"));
     if (xp[0] != 0)
 	return mkString(_("first element of slot p must be zero"));
     if (length(islot) != xp[ncol])

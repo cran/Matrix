@@ -10,6 +10,7 @@
 \alias{coerce,integer,pMatrix-method}
 \alias{coerce,pMatrix,matrix-method}
 \alias{coerce,pMatrix,lgTMatrix-method}
+\alias{coerce,pMatrix,TsparseMatrix-method}
 \alias{solve,pMatrix,missing-method}
 \alias{t,pMatrix-method}
 \title{Permutation matrices}

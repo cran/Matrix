@@ -4,6 +4,7 @@
 \alias{lCHMsimpl-class}
 \alias{dCHMsuper-class}
 \alias{lCHMsuper-class}
+\alias{coerce,CHMfactor,sparseMatrix-method}
 \title{CHOLMOD-based Cholesky factorizations}
 \description{The hidden class \code{"CHMfactor"} is a class of
   CHOLMOD-based Cholesky factorizations of symmetric, sparse,
@@ -34,7 +35,11 @@
       elements of the matrix.}
   }
 }
-%\section{Methods}{}
+\section{Methods}{
+  \describe{
+    \item{coerce}{\code{signature(from = "CHMfactor", to = "sparseMatrix")}}
+  }
+}
 %\references{}
 %\author{}
 %\note{}

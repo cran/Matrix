@@ -21,6 +21,10 @@ setMethod("tcrossprod", signature(x = "lgCMatrix", y = "missing"),
           .Call(lgCMatrix_crossprod, x, FALSE, NULL),
 	  valueClass = "lsCMatrix")
 
+setMethod("diag", signature(x = "lgCMatrix"),
+	  function(x, nrow, ncol = n) .Call(lgCMatrix_diag, x))
+
+
 setAs("lgCMatrix", "dgCMatrix",
       function(from) new("dgCMatrix", i = from@i, p = from@p,
                          x = rep(1, length(from@i)),

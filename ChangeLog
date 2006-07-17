@@ -1,11 +1,74 @@
+2006-07-15  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* tests/simple.R: add check for correct dsT -> dgT coercion;
+		add check for correct printing of symmetric sparse matrices.
+
+	* R/Auxiliaries.R (non0ind): return *all* non-0 entry indices also
+	for sparse symmetric matrices.
+
+	* src/dsTMatrix.c (dsTMatrix_as_dgTMatrix): do not copy the
+	diagonal twice.
+
+2006-07-11  Douglas Bates  <Douglas.Bates@R-project.org>
+
+	* src/dsTMatrix.c (dsTMatrix_as_dgTMatrix): Fix a case of INTEGER
+	being applied to the x slot (detected by Brian Ripley).
+
+2006-07-10  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/dgCMatrix.c (dgCMatrix_validate): 'p' slot must have correct length.
+
+	* R/Auxiliaries.R (isTriC): fix buglet (we were 1-based!)
+
+2006-07-08  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/lgCMatrix.c (lgCMatrix_diag): new function
+	* R/lgCMatrix.R (diag): for new method
+
+	* R/AllClass.R (TsparseMatrix): do use Tsparse_validate
+	     ==> construction of illegal "*gTMatrix" via new() should
+	     now be much less easy:
+	* tests/Class+Meth.R: assertError() for some illegal "dgT*"
+
+	* R/Matrix.R (Matrix): Matrix(0, nrow,ncol) now "goes sparse"
+		directly.
+	* man/Matrix.Rd: documents it.
+
+2006-07-06  Douglas Bates  <bates@R-project.org>
+
+	* src/pedigree.c (pedigree_inbreeding): Correction in
+	initialization.  This function is not currently being used and is
+	not fully tested.
+
+	* NAMESPACE, R/{AllClass.R,lmer.R}, src/{init.c,lmer.c}:
+	Introduced the glmer class.  Added code for mcmcmsamp on glmer
+	objects.  Modified validity check on pedigree objects to account
+	for nonparallel patterns of missingness of parents.
+
+	* man/{lmer-class.Rd,mcmcsamp.Rd}: Update documentation for glmer
+	class.
+
+2006-07-01  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/pMatrix.R: coercion pMatrix -> Tsparse
+
+2006-06-12  Douglas Bates  <bates@R-project.org>
+
+	* DESCRIPTION (Version): 0.995-11 released to CRAN
+
+	* R/lmer.R (mcmcsamp method): Corrected arrangments of names on
+	the output from mcmcsamp.
+
 2006-06-10  Douglas Bates  <bates@R-project.org>
 
-	* R/lmer.R (simulestimate): added
+	* R/lmer.R (simulestimate): added C code for calculating the trace
+	of the hat matrix.
 
 2006-06-09  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/diagMatrix.R (setAs): define coercion methods to sparse matrix
 	classes.
+	* R/sparseMatrix.R etc: multiplication of diagonal and sparse
 
 2006-06-08  Martin Maechler  <maechler@stat.math.ethz.ch>
 

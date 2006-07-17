@@ -26,6 +26,14 @@ cat("\n\n")
 cat("All (S4) methods in the 'Matrix' package:\n")
 showMethods(where="package:Matrix")
 
+## 1-indexing instead of 0-indexing for direct "dgT" should give error:
+ii <- as.integer(c(1,2,2))
+jj <- as.integer(c(1,1,3))
+assertError(new("dgTMatrix",  i=ii, j=jj,        x= 10*(1:3), Dim=2:3))
+assertError(new("dgTMatrix",  i=ii, j=jj - 1:1,  x= 10*(1:3), Dim=2:3))
+assertError(new("dgTMatrix",  i=ii - 1:1, j=jj,  x= 10*(1:3), Dim=2:3))
+(mm <- new("dgTMatrix",  i=ii - 1:1, j=jj - 1:1, x= 10*(1:3), Dim=2:3))
+validObject(mm)
 
 ### Sparse Logical:
 m <- Matrix(c(0,0,2:0), 3,5)

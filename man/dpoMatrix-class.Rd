@@ -3,12 +3,12 @@
 \docType{class}
 \alias{dpoMatrix-class}
 \alias{dppMatrix-class}
-\alias{correlation-class}
+\alias{corMatrix-class}
 %
 \alias{coerce,dgeMatrix,dpoMatrix-method}
 \alias{coerce,dgeMatrix,dppMatrix-method}
 \alias{coerce,dpoMatrix,dppMatrix-method}
-\alias{coerce,dpoMatrix,correlation-method}
+\alias{coerce,dpoMatrix,corMatrix-method}
 \alias{coerce,dppMatrix,dpoMatrix-method}
 \alias{coerce,matrix,dpoMatrix-method}
 \alias{coerce,matrix,dppMatrix-method}

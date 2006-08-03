@@ -43,6 +43,10 @@ setMethod("kronecker", signature(X = "dsparseMatrix", Y = "dsparseMatrix"),
 ## Group Methods, see ?Arith (e.g.)
 ## -----
 
+## Cheap version: work via "dgCMatrix" and use the group methods there:
+## NB: have also CsparseMatrix methods (-> ./Csparse.R )
+## which may preserve "symmetric", "triangular", ...
+## those must trigger *before* these [currently works via alphabetic order..!]
 setMethod("Arith", ##  "+", "-", "*", "^", "%%", "%/%", "/"
           signature(e1 = "dsparseMatrix", e2 = "dsparseMatrix"),
           function(e1, e2) callGeneric(as(e1, "dgCMatrix"),
@@ -54,6 +58,7 @@ setMethod("Arith",
           signature(e1 = "numeric", e2 = "dsparseMatrix"),
           function(e1, e2) callGeneric(e1, as(e2, "dgCMatrix")))
 
+
 setMethod("Math",
 	  signature(x = "dsparseMatrix"),
 	  function(x) {
@@ -61,13 +66,7 @@ setMethod("Math",
 	      if(is(r, "dsparseMatrix")) as(r, class(x))
 	  })
 
-if(FALSE) ## unneeded with "Math2" in ./dMatrix.R
-setMethod("Math2",
-	  signature(x = "dsparseMatrix", digits = "numeric"),
-	  function(x, digits) {
-	      r <- callGeneric(as(x, "dgCMatrix"), digits = digits)
-	      if(is(r, "dsparseMatrix")) as(r, class(x))
-	  })
+##  "Math2" is in ./dMatrix.R
 
 
 ### cbind2 / rbind2

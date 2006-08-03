@@ -50,11 +50,12 @@ mcmcsamp(object, n, verbose, \dots)
       the random effects is taken to be the locally non-informative
       prior described in Box and Tiao (1973). Conditional on the current
       values of the random effects these are sampled from a Wishart
-      distribution.} 
+      distribution.}
   }
 }
 \examples{
 require("lattice", quietly = TRUE, character = TRUE)
+data(sleepstudy)
 (fm1 <- lmer(Reaction ~ Days + (Days|Subject), sleepstudy))
 set.seed(101)
 samp1 <- mcmcsamp(fm1, n = 1000)

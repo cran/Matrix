@@ -5,6 +5,8 @@
 .M.v <- function(x, y) callGeneric(x, as.matrix(y))
 .v.M <- function(x, y) callGeneric(rbind(x), y)
 
+.M.DN <- function(x) if(!is.null(dn <- dimnames(x))) dn else list(NULL,NULL)
+
 .has.DN <- ## has non-trivial Dimnames slot?
     function(x) !identical(list(NULL,NULL), x@Dimnames)
 
@@ -199,25 +201,36 @@ WhichintersectInd <- function(ij1, ij2, nrow) {
 
 
 ### There is a test on this in ../tests/dgTMatrix.R !
+
+uniqTsparse <- function(x, class.x = c(class(x))) {
+    ## Purpose: produce a *unique* triplet representation:
+    ##		by having (i,j) sorted and unique
+    ## -----------------------------------------------------------
+    ## The following is not quite efficient {but easy to program,
+    ## and as() are based on C code  (all of them?)
+    ##
+    ## FIXME: Do it fast for the case where 'x' is already 'uniq'
+
+    switch(class.x,
+	   "dgTMatrix" = as(as(x, "dgCMatrix"), "dgTMatrix"),
+	   "dsTMatrix" = as(as(x, "dsCMatrix"), "dsTMatrix"),
+	   "dtTMatrix" = as(as(x, "dtCMatrix"), "dtTMatrix"),
+	   ## do we need this for "logical" ones, there's no sum() there!
+	   "lgTMatrix" = as(as(x, "lgCMatrix"), "lgTMatrix"),
+	   "lsTMatrix" = as(as(x, "lsCMatrix"), "lsTMatrix"),
+	   "ltTMatrix" = as(as(x, "ltCMatrix"), "ltTMatrix"),
+	   ## otherwise:
+	   stop("not yet implemented for class ", clx))
+}
+
+## Note: maybe, using
+## ----    xj <- .Call(Matrix_expand_pointers, x@p)
+## would be slightly more efficient than as( <dgC> , "dgTMatrix")
+## but really efficient would be to use only one .Call(.) for uniq(.) !
+
 uniq <- function(x) {
-
-### Note: maybe, using
-### ----    xj <- .Call(Matrix_expand_pointers, x@p)
-### would be slightly more efficient than as( <dgC> , "dgTMatrix")
-### but really efficient would be to use only one .Call(.) for uniq(.) !
-### Try to do it particularly fast for the case where 'x' is already a 'uniq' <dgT>
-
-    if(is(x, "TsparseMatrix")) {
-	## Purpose: produce a *unique* triplet representation:
-	##		by having (i,j) sorted and unique
-	## -----------------------------------------------------------
-	## The following is not quite efficient {but easy to program,
-	## and both as() are based on C code
-	if(is(x, "dgTMatrix")) as(as(x, "dgCMatrix"), "dgTMatrix")
-	else if(is(x, "lgTMatrix")) as(as(x, "lgCMatrix"), "lgTMatrix")
-	else stop("not implemented for class", class(x))
-
-    } else x  ## not 'gT' ; i.e. "uniquely" represented in any case
+    if(is(x, "TsparseMatrix")) uniqTsparse(x) else x
+    ## else:  not 'Tsparse', i.e. "uniquely" represented in any case
 }
 
 if(FALSE) ## try an "efficient" version
@@ -287,20 +300,91 @@ l2d_meth <- function(x) {
     as(callGeneric(as(x, sub("^l", "d", cl))), cl)
 }
 
-dClass2 <- function(dClass, kind = "l") {
-    ## Find "corresponding" class for a dMatrix;
-    #  since pos.def. matrices have no pendant:
-    if(dClass == "dpoMatrix") paste(kind,"syMatrix", sep='')
-    else if(dClass == "dppMatrix") paste(kind,"spMatrix", sep='')
-    else sub("^d", kind, dClass)
+## return "d" or "l" or "z"
+.M.kind <- function(x, clx = class(x)) {
+    if(is.matrix(x)) { ## 'old style matrix'
+	if     (is.numeric(x)) "d"
+	else if(is.logical(x)) "l"
+	else if(is.complex(x)) "z"
+	else stop("not yet implemented for matrix w/ typeof ", typeof(x))
+    }
+    else if(extends(clx, "dMatrix")) "d"
+    else if(extends(clx, "lMatrix")) "l"
+    else if(extends(clx, "zMatrix")) "z"
+    else stop(" not yet be implemented for ", clx)
+}
+
+.M.shape <- function(x, clx = class(x)) {
+    if(is.matrix(x)) { ## 'old style matrix'
+	if     (isDiagonal  (x)) "d"
+	else if(isTriangular(x)) "t"
+	else if(isSymmetric (x)) "s"
+	else "g" # general
+    }
+    else if(extends(clx, "diagonalMatrix"))  "d"
+    else if(extends(clx, "triangularMatrix"))"t"
+    else if(extends(clx, "symmetricMatrix")) "s"
+    else "g"
+}
+
+
+class2 <- function(cl, kind = "l", do.sub = TRUE) {
+    ## Find "corresponding" class; since pos.def. matrices have no pendant:
+    if	   (cl == "dpoMatrix") paste(kind, "syMatrix", sep='')
+    else if(cl == "dppMatrix") paste(kind, "spMatrix", sep='')
+    else if(do.sub) sub("^d", kind, cl)
+    else cl
 }
 
 geClass <- function(x) {
-    if(is(x, "dMatrix")) "dgeMatrix"
+    if     (is(x, "dMatrix")) "dgeMatrix"
     else if(is(x, "lMatrix")) "lgeMatrix"
-    else stop("general Matrix class not yet implemented for",
+    else if(is(x, "zMatrix")) "zgeMatrix"
+    else stop("general Matrix class not yet implemented for ",
 	      class(x))
 }
+
+.dense.prefixes <- c("d" = "di",
+                     "t" = "tr",
+                     "s" = "sy",
+                     "g" = "ge")
+
+.Csparse.prefix <- function(ch) {
+    switch(ch,
+	   "d" =, "t" = "tC",
+	   "s" = "sC",
+	   "g" = "gC",
+           stop("invalid Matrix shape: ", ch))
+}
+
+## Used, e.g. after subsetting: Try to use specific class -- if feasible :
+as_dense <- function(x) {
+    as(x, paste(.M.kind(x), .dense.prefixes[.M.shape(x)], "Matrix", sep=''))
+}
+
+as_Csparse <- function(x) {
+    as(x, paste(.M.kind(x), .Csparse.prefix(.M.shape(x)), "Matrix", sep=''))
+}
+
+as_geClass <- function(x, cl) {
+    if	   (extends(cl, "diagonalMatrix")  && isDiagonal(x))
+	as(x, cl)
+    else if(extends(cl, "symmetricMatrix") &&  isSymmetric(x))
+	as(x, class2(cl, kind, do.sub= kind != "d"))
+    else if(extends(cl, "triangularMatrix") && isTriangular(x))
+	as(x, cl)
+    else
+	as(x, paste(.M.kind(x), "geMatrix", sep=''))
+}
+
+as_CspClass <- function(x, cl) {
+    if ((extends(cl, "diagonalMatrix")	&& isDiagonal(x)) ||
+	(extends(cl, "symmetricMatrix") &&  isSymmetric(x)) ||
+	(extends(cl, "triangularMatrix")&& isTriangular(x)))
+	as(x, cl)
+    else as(x, paste(.M.kind(x), "gCMatrix", sep=''))
+}
+
 
 ## -> ./ddenseMatrix.R :
 d2l_Matrix <- function(from) {

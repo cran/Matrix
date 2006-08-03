@@ -22,9 +22,13 @@
 \alias{rowMeans,dgTMatrix-method}
 \alias{rowSums,dgTMatrix-method}
 \description{The \code{"dgTMatrix"} class is the class of sparse
-  matrices stored as (possibly redundant) triplets.}
+  matrices stored as (possibly redundant) triplets.  The internal
+  representation is not at all unique, contrary to the one for class
+  \code{\linkS4class{dgCMatrix}}.
+}
 \section{Objects from the Class}{
-Objects can be created by calls of the form \code{new("dgTMatrix", ...)}.
+  Objects can be created by calls of the form \code{new("dgTMatrix",
+    ...)}, but more typically via \code{as(*, "dgTMatrix")}.
 }
 \section{Slots}{
   \describe{
@@ -63,9 +67,12 @@ Objects can be created by calls of the form \code{new("dgTMatrix", ...)}.
 %\references{}
 %\author{}
 \note{Triplet matrices are a convenient form in which to construct sparse
-  matrices after which they can be coerced to \code{dgCMatrix} objects.}
+  matrices after which they can be coerced to
+  \code{\linkS4class{dgCMatrix}} objects.}
 \seealso{
-  Class \code{\linkS4class{dgCMatrix}}
+  Class \code{\linkS4class{dgCMatrix}} or the superclasses
+  \code{\linkS4class{dsparseMatrix}} and
+  \code{\linkS4class{TsparseMatrix}}.
 }
 \examples{
 m <- Matrix(0+1:28, nrow = 4)

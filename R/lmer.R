@@ -78,6 +78,14 @@ makeInteraction <- function(x) {
     list(substitute(foo:bar, list(foo=x[[2]], bar = trm11)), trm1)
 }
 
+
+factorNames2char <- function(nms, collapse = ", ") {
+    ## utility in messages / print etc:
+    nms <- sQuote(nms)
+    if(length(nms) == 1) paste("factor", nms)
+    else paste("factors", paste(nms, collapse = collapse))
+}
+
 ## expand any slashes in the grouping factors returned by findbars
 expandSlash <- function(bb) {
     ## I really do mean lapply(unlist(... - unlist returns a
@@ -302,7 +310,7 @@ setMethod("lmer", signature(formula = "formula"),
 	  nlev <- sapply(fl, function(x) length(levels(x)))
 	  if(any(nlev == 0))
 	      stop("resulting factor(s) with 0 levels in random effects part:\n ",
-		   names(nlev[nlev == 0]))
+		   paste(sQuote(names(nlev[nlev == 0])), collapse=", "))
 	  if (any(diff(nlev) > 0)) {
 	      ord <- rev(order(nlev))
 	      bars <- bars[ord]
@@ -348,8 +356,7 @@ setMethod("lmer", signature(formula = "formula"),
 		       X, Y, method, sapply(Ztl, nrow),
 		       c(lapply(Ztl, rownames), list(.fixed = colnames(X))),
 		       !(family$family %in% c("binomial", "poisson")),
-		       match.call(), family,
-		       PACKAGE = "Matrix")
+		       match.call(), family)
 
 	  GSpt <- .Call(glmer_init, environment())
 	  if (cv$usePQL) {
@@ -437,10 +444,31 @@ setReplaceMethod("LMEoptimize", signature(x="mer", value="list"),
 				    lower = ifelse(constr, 5e-10, -Inf),
 				    control = list(iter.max = value$msMaxIter,
 				    trace = as.integer(value$msVerbose)))
-		 .Call(mer_coefGets, x, optimRes$par, 2)
+                 estPar <- optimRes$par
+		 .Call(mer_coefGets, x, estPar, 2)
+
+                 ## check for convergence on boundary
+		 if (any(bd <- (estPar[constr] < 1e-9))) {
+		     bpar <- rep.int(FALSE, length(estPar))
+		     bpar[constr] <- bd
+		     bgrp <- split(bpar,
+				   rep(seq(along = nc),
+				       unlist(lapply(nc,
+						     function(k) (k*(k+1))/2))))
+		     bdd <- unlist(lapply(bgrp, any))
+		     lens <- unlist(lapply(bgrp, length))
+		     if (all(lens[bdd] == 1)) { # variance components only
+			 warning("Estimated variance for ",
+				 factorNames2char(names(x@flist)[bdd]),
+				 " is effectively zero\n")
+		     } else {
+			 warning("Estimated variance-covariance for ",
+				 factorNames2char(names(x@flist)[bdd]),
+				 " is singular\n")
+		     }
+		 }
 		 if (optimRes$convergence != 0) {
-		     warning(paste("nlminb returned message",
-				   optimRes$message,"\n"))
+		     warning("nlminb returned message ", optimRes$message,"\n")
 		 }
 		 return(x)
 	     })
@@ -539,12 +567,12 @@ mcmccompnames <- function(ans, object, saveb, trans, glmer)
     colnames(ans) <- colnms
     ans
 }
-                          
+
 setMethod("mcmcsamp", signature(object = "lmer"),
 	  function(object, n = 1, verbose = FALSE, saveb = FALSE,
 		   trans = TRUE, ...)
       {
-          ans <- t(.Call(mer_MCMCsamp, object, saveb, n, trans))
+          ans <- t(.Call(mer_MCMCsamp, object, saveb, n, trans, verbose))
 	  attr(ans, "mcpar") <- as.integer(c(1, n, 1))
 	  class(ans) <- "mcmc"
           mcmccompnames(ans, object, saveb, trans, FALSE)
@@ -570,7 +598,7 @@ setMethod("mcmcsamp", signature(object = "glmer"),
           LMEopt <- get("LMEoptimize<-")
           doLMEopt <- quote(LMEopt(x = mer, value = cv))
           GSpt <- .Call(glmer_init, environment())
-          ans <- t(.Call(glmer_MCMCsamp, GSpt, saveb, n, trans))
+          ans <- t(.Call(glmer_MCMCsamp, GSpt, saveb, n, trans, verbose))
           .Call(glmer_finalize, GSpt)
 	  attr(ans, "mcpar") <- as.integer(c(1, n, 1))
 	  class(ans) <- "mcmc"
@@ -597,10 +625,11 @@ setMethod("simulate", signature(object = "mer"),
 	      stop("simulation of generalized linear mixed models not yet implemented")
 	  ## similate the linear predictors
 	  lpred <- .Call(mer_simulate, object, nsim)
-	  sc <- 1
-	  if (object@useScale)
-	      sc <- .Call(mer_sigma, object, object@method == "REML",
-			  PACKAGE = "Matrix")
+	  sc <-
+              if (object@useScale)
+                  .Call(mer_sigma, object, object@method == "REML")
+              else 1
+
 	  ## add fixed-effects contribution and per-observation noise term
 	  lpred <- as.data.frame(lpred + drop(object@X %*% fixef(object)) +
 				 rnorm(prod(dim(lpred)), sd = sc))
@@ -614,21 +643,8 @@ simulestimate <- function(x, FUN, nsim = 1, seed = NULL, control = list())
     FUN <- match.fun(FUN)
     nsim <- as.integer(nsim[1])
     stopifnot(nsim > 0)
-    if(!exists(".Random.seed", envir = .GlobalEnv))
-        runif(1)		     # initialize the RNG if necessary
-    if(is.null(seed))
-        RNGstate <- .Random.seed
-    else {
-        R.seed <- .Random.seed
-        set.seed(seed)
-        RNGstate <- structure(seed, kind = as.list(RNGkind()))
-        on.exit(assign(".Random.seed", R.seed, envir = .GlobalEnv))
-    }
-
-    family <- x@family
-    if (family$family != "gaussian" ||
-        family$link != "identity")
-        stop("simulation of generalized linear mixed models not yet implemented")
+    if (!is.null(seed)) set.seed(seed)
+    stopifnot(inherits(x, "lmer"))
     ## similate the linear predictors
     lpred <- .Call(mer_simulate, x, nsim)
     sc <- 1
@@ -657,6 +673,7 @@ simulestimate <- function(x, FUN, nsim = 1, seed = NULL, control = list())
     }
     ans
 }
+
 
 formatVC <- function(varc, digits = max(3, getOption("digits") - 2))
 {  ## "format()" the 'VarCorr'	matrix of the random effects -- for show()ing
@@ -705,7 +722,7 @@ setMethod("show", "mer",
 	      if (!is.null(so@call$formula))
 		  cat("Formula:", deparse(so@call$formula),"\n")
 	      if (!is.null(so@call$data))
-		  cat("Data:", deparse(so@call$data), "\n")
+		  cat("   Data:", deparse(so@call$data), "\n")
 	      if (!is.null(so@call$subset))
 		  cat(" Subset:",
 		      deparse(asOneSidedFormula(so@call$subset)[[2]]),"\n")
@@ -751,7 +768,7 @@ setMethod("vcov", signature(object = "mer"),
 		  .Call(mer_sigma, object, REML)
 	      } else { 1 }
 	      rr <- as(sc^2 * tcrossprod(solve(object@RXX)), "dpoMatrix")
-	      rr@factors$correlation <- as(rr, "correlation")
+	      rr@factors$correlation <- as(rr, "corMatrix")
 	      rr
 	  })
 
@@ -790,7 +807,7 @@ setMethod("VarCorr", signature(x = "mer"),
 	  for (i in seq(a = ans)) {
 	      el <- as(sc2 * solve(ans[[i]]), "dpoMatrix")
 	      el@Dimnames <- list(cnames[[i]], cnames[[i]])
-	      el@factors$correlation <- as(el, "correlation")
+	      el@factors$correlation <- as(el, "corMatrix")
 	      ans[[i]] <- el
 	  }
 	  attr(ans, "sc") <- sc
@@ -1060,7 +1077,7 @@ if (FALSE) {
 
     .Call(glmer_finalize, GSpt)
     loglik[] <- -deviance/2
-}
+}## end{leftover}
 
 setMethod("isNested", "mer",
           function(x, ...) !(x@L@type[1]),
@@ -1102,3 +1119,9 @@ setMethod("denomDF", "mer",
           if (hasintercept) asgn$"(Intercept)" <- NULL
           list(ml = ml, nco = nco, nlev = nlev)
       })
+
+hatTrace <- function(x)
+{
+    stopifnot(is(x, "mer"))
+    .Call(mer_hat_trace2, x)
+}

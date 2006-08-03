@@ -10,12 +10,14 @@ setAs("denseMatrix", "dsparseMatrix",
 
 setAs("denseMatrix", "CsparseMatrix",
       function(from) {
-	  if(!is(from, "generalMatrix")) { ## e.g. for triangular | symmetric
+          cl <- class(from)
+	  notGen <- !is(from, "generalMatrix")
+	  if (notGen) { ## e.g. for triangular | symmetric
               ## FIXME: this is a *waste* in the case of packed matrices!
-	      if     (is(from, "dMatrix")) from <- as(from, "dgeMatrix")
-	      else if(is(from, "lMatrix")) from <- as(from, "lgeMatrix")
-	      else if(is(from, "zMatrix")) from <- as(from, "zgeMatrix")
-	      else stop("undefined method for class ", class(from))
+	      if     (extends(cl, "dMatrix")) from <- as(from, "dgeMatrix")
+	      else if(extends(cl, "lMatrix")) from <- as(from, "lgeMatrix")
+	      else if(extends(cl, "zMatrix")) from <- as(from, "zgeMatrix")
+	      else stop("undefined method for class ", cl)
 	  }
 	  .Call(dense_to_Csparse, from)
       })
@@ -34,30 +36,31 @@ setMethod("show", signature(object = "denseMatrix"),
 ##- setMethod("show", signature(object = "pMatrix"), prMatrix)
 ##- ## this should now be superfluous [keep for safety for the moment]:
 
-
 ## Using "index" for indices should allow
 ## integer (numeric), logical, or character (names!) indices :
 
+## use geClass() when 'i' or 'j' are missing:
+## since  symmetric, triangular, .. will not be preserved anyway:
 setMethod("[", signature(x = "denseMatrix", i = "index", j = "missing",
 			 drop = "logical"),
-          function (x, i, drop) {
-              r <- as(x, "matrix")[i, , drop=drop]
-              if(is.null(dim(r))) r else as(r, class(x))
-          })
+	  function (x, i, drop) {
+	      r <- as(x, "matrix")[i, , drop=drop]
+	      if(is.null(dim(r))) r else as(r, geClass(x))
+	  })
 
 setMethod("[", signature(x = "denseMatrix", i = "missing", j = "index",
 			 drop = "logical"),
-          function (x, j, drop) {
-              r <- as(x, "matrix")[, j, drop=drop]
-              if(is.null(dim(r))) r else as(r, class(x))
-          })
+	  function (x, j, drop) {
+	      r <- as(x, "matrix")[, j, drop=drop]
+	      if(is.null(dim(r))) r else as(r, geClass(x))
+	  })
 
 setMethod("[", signature(x = "denseMatrix", i = "index", j = "index",
 			 drop = "logical"),
-          function (x, i, j, drop) {
-              r <- callGeneric(x = as(x, "matrix"), i=i, j=j, drop=drop)
-              if(is.null(dim(r))) r else as(r, class(x))
-          })
+	  function (x, i, j, drop) {
+	      r <- callGeneric(x = as(x, "matrix"), i=i, j=j, drop=drop)
+	      if(is.null(dim(r))) r else as_geClass(r, class(x))
+	  })
 
 ## Now the "[<-" ones --- see also those in ./Matrix.R
 ## It's recommended to use setReplaceMethod() rather than setMethod("[<-",.)
@@ -65,33 +68,31 @@ setMethod("[", signature(x = "denseMatrix", i = "index", j = "index",
 
 ## FIXME: 1) These are far from efficient
 ## -----  2) value = "numeric" is only ok for "ddense*"
-##        3) as(<matrix>, class(x)) can be very wrong for symmetric, triangular..
 setReplaceMethod("[", signature(x = "denseMatrix", i = "index", j = "missing",
-                                value = "numeric"),
-                 function (x, i, value) {
-                     r <- as(x, "matrix")
-                     r[i, ] <- value
-                     as(r, class(x))
-                 })
+				value = "numeric"),
+		 function (x, i, value) {
+		     r <- as(x, "matrix")
+		     r[i, ] <- value
+		     as(r, geClass(x))
+		 })
 
 setReplaceMethod("[", signature(x = "denseMatrix", i = "missing", j = "index",
-                                value = "numeric"),
-                 function (x, j, value) {
-                     r <- as(x, "matrix")
-                     r[, j] <- value
-                     as(r, class(x))
-                 })
+				value = "numeric"),
+		 function (x, j, value) {
+		     r <- as(x, "matrix")
+		     r[, j] <- value
+		     as(r, geClass(x))
+		 })
 
 setReplaceMethod("[", signature(x = "denseMatrix", i = "index", j = "index",
-                                value = "numeric"),
-                 function (x, i, j, value) {
-                     r <- as(x, "matrix")
-                     r[i, j] <- value
-                     as(r, class(x))
-                 })
+				value = "numeric"),
+		 function (x, i, j, value) {
+		     r <- as(x, "matrix")
+		     r[i, j] <- value
+		     as_geClass(r, class(x)) ## was as(r, class(x))
+		 })
 
 
-## not yet exported (from R 2.3.0)
 setMethod("isSymmetric", signature(object = "denseMatrix"),
 	  function(object, tol = 100*.Machine$double.eps) {
 	      ## pretest: is it square?

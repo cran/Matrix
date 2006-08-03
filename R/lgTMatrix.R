@@ -18,9 +18,7 @@ setAs("matrix", "lgTMatrix",
 	      i = ij[,1],
 	      j = ij[,2],
 	      Dim = as.integer(dim(from)),
-	      Dimnames =
-	      if(!is.null(dn <- dimnames(from))) dn else list(NULL,NULL)
-	      )
+	      Dimnames = .M.DN(from))
 	  })
 
 setAs("lgTMatrix", "dgTMatrix",

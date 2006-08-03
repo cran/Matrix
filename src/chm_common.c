@@ -86,7 +86,7 @@ cholmod_sparse *as_cholmod_sparse(SEXP x)
 }
 
 /**
- * Copy the contents of a to an appropriate TsparseMatrix object and,
+ * Copy the contents of a to an appropriate CsparseMatrix object and,
  * optionally, free a or free both a and its the pointers to its contents.
  *
  * @param a matrix to be converted
@@ -142,9 +142,9 @@ SEXP chm_sparse_to_SEXP(cholmod_sparse *a, int dofree)
 }
 
 /**
- * Create a cholmod_triplet object with the contents of x.  Note that
- * the result should *not* be freed with cholmod_triplet_free.  Use
- * Free on the result.
+ * Create a cholmod_triplet object with the contents of Tsparse x.
+ * Note that the result should *not* be freed with
+ * cholmod_triplet_free.  Use Free on the result.
  *
  * @param x pointer to an object that inherits from TsparseMatrix
  *

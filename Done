@@ -133,3 +133,13 @@
 - rowSums(), colSums(), rowMeans & colMeans() now should work for all
   sparse and dense matrices, via "dgeMatrix", "dgC*" and "dgT*".
 
+- Suitably adjust classes of matrices after subscripting.
+  head(Hilbert(9)) and the equivalent expression Hilbert(9)[1:4,]
+  now work and return "dgeMatrix" (and not ..symmetric..).
+
+  We try to propagate the class to the subscripted matrix
+  but, if that fails its test, fall back on a general matrix class. -- for dense
+  That is, the fallback class for dsyMatrix, etc. is dgeMatrix; the
+  fallback class for dsCMatrix is dgCMatrix, etc.
+
+- tril(), triu()  now return matrices of *triangular* classes.

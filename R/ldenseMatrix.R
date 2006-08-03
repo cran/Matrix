@@ -90,9 +90,7 @@ setAs("matrix", "lgeMatrix",
 	  new("lgeMatrix",
 	      x = as.logical(from),
 	      Dim = as.integer(dim(from)),
-	      Dimnames =
-	      if(!is.null(dn <- dimnames(from))) dn else list(NULL,NULL)
-	      )
+	      Dimnames = .M.DN(from))
       })
 
 ## 2) base others on "lge*":

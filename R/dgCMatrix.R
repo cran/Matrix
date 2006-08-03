@@ -192,92 +192,15 @@ setMethod("Arith",
 	  })
 
 
-setMethod("Math",
-	  signature(x = "dgCMatrix"),
-	  function(x) {
-              f0 <- callGeneric(0.)
-	      if(!is.na(f0) && f0 == 0.) {
-		  ## sparseness preserved
-		  x@x <- callGeneric(x@x)
-		  x
-	      } else { ## no sparseness
-		  callGeneric(as(x, "dgeMatrix"))
-	      }
-	  })
+## "Math" is up in ./Csparse.R
 
-if(FALSE) ## unneeded with "Math2" in ./dMatrix.R
-setMethod("Math2",
-	  signature(x = "dgCMatrix", digits = "numeric"),
-	  function(x, digits) {
-	      f0 <- callGeneric(0., digits = digits)
-	      if(!is.na(f0) && f0 == 0.) {
-		  ## sparseness preserved
-		  x@x <- callGeneric(x@x, digits = digits)
-		  x
-	      } else { ## no sparseness
-		  callGeneric(as(x, "dgeMatrix"), digits = digits)
-	      }
-	  })
+## "Math2" is up in ./dMatrix.R
+
 
 ###---- end {Group Methods} -----------------
 
 
-replCmat <- function (x, i, j, value)
-{
-    di <- dim(x)
-    dn <- dimnames(x)
-    i1 <- if(missing(i)) 0:(di[1] - 1:1) else .ind.prep2(i, 1, di, dn)
-    i2 <- if(missing(j)) 0:(di[2] - 1:1) else .ind.prep2(j, 2, di, dn)
-    dind <- c(length(i1), length(i2)) # dimension of replacement region
-    lenRepl <- prod(dind)
-    lenV <- length(value)
-    if(lenV == 0) {
-        if(lenRepl != 0)
-            stop("nothing to replace with")
-        else return(x)
-    }
-    ## else: lenV := length(value)	 is > 0
-    if(lenRepl %% lenV != 0)
-        stop("number of items to replace is not a multiple of replacement length")
-    if(lenV > lenRepl)
-        stop("too many replacement values")
-
-    xj <- .Call(Matrix_expand_pointers, x@p)
-    sel <- (!is.na(match(x@i, i1)) &
-            !is.na(match( xj, i2)))
-
-    if(sum(sel) == lenRepl) { ## all entries to be replaced are non-zero:
-        value <- rep(value, length = lenRepl)
-        ## Ideally we only replace them where value != 0 and drop the value==0
-        ## ones; but that would have to (?) go through dgT*
-        ## v0 <- 0 == value
-        ## if (lenRepl == 1) and v0 is TRUE, the following is not doing anything
-        ##-  --> ./dgTMatrix.R  and its  replTmat()
-        ## x@x[sel[!v0]] <- value[!v0]
-        x@x[sel] <- value
-        return(x)
-    }
-    ## else go via dgT
-    x <- as(x, "dgTMatrix")
-    x[i,j] <- value
-    as(x, "dgCMatrix")
-}
-
-### TODO (FIXME): almost the same for  "lgCMatrix" and "logical"
-
-setReplaceMethod("[", signature(x = "dgCMatrix", i = "index", j = "missing",
-                                value = "numeric"),
-                 function (x, i, value) replCmat(x, i=i, value=value))
-
-setReplaceMethod("[", signature(x = "dgCMatrix", i = "missing", j = "index",
-                                value = "numeric"),
-                 function (x, j, value) replCmat(x, j=j, value=value))
-
-setReplaceMethod("[", signature(x = "dgCMatrix", i = "index", j = "index",
-				value = "numeric"),
-                 replCmat)
-
-
+## "[<-" methods { setReplaceMethod()s }  are now in ./Csparse.R
 
 
 setMethod("writeHB", signature(obj = "dgCMatrix"),

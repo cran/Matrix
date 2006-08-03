@@ -1,4 +1,11 @@
 -----
+Modify mcmcsamp to return the deviance in the sample only when the
+optional argument 'deviance' is TRUE (default FALSE).
+-----
+Replace the use of the unexported replacement function LMEoptimize<-
+in lmer.R by the function LMEopt, which always returns NULL but
+(in contradiction to the language specification) modifies its first argument.
+-----
 Modify the one-argument form of the anova method for lmer objects (yet
   again) to calculate the F ratios.  It is the df, not the ratio that
   is controversial.
@@ -107,6 +114,5 @@ Check for DimNames propagation in coercion and other operations.
   ./man/lu.Rd notes that lu() is not yet available for sparse
 
   2006-04-15 : now with 'CSparse' { src/cs.c }, have at least solve( <dtC*> )
-
 
 - nicer pedigree examples and tests

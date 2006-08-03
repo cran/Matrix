@@ -61,15 +61,13 @@ setAs("dtCMatrix", "dtrMatrix",
 ## using  diagU2N() from ./Auxiliaries.R :
 setMethod("solve", signature(a = "dtCMatrix", b = "missing"),
 	  function(a, b, ...) {
-              if (a@diag == "U") {
-                  if (a@uplo == "U")
-                      return(.Call(dtCMatrix_upper_solve, a,
-                                   PACKAGE = "Matrix"))
-                  else
-                      return(t(.Call(dtCMatrix_upper_solve, t(a),
-                                     PACKAGE = "Matrix")))
-              }
-              .Call(dtCMatrix_solve, a)
+	      if (a@diag == "U") {
+		  if (a@uplo == "U")
+		      return(.Call(dtCMatrix_upper_solve, a))
+		  else
+		      return(t(.Call(dtCMatrix_upper_solve, t(a))))
+	      }
+	      .Call(dtCMatrix_solve, a)
 	  }, valueClass = "dtCMatrix")
 
 setMethod("solve", signature(a = "dtCMatrix", b = "dgeMatrix"),

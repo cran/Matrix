@@ -1,6 +1,6 @@
 
 R : Copyright 2006, The R Foundation for Statistical Computing
-Version 2.3.1 Patched (2006-07-08 r38523)
+Version 2.3.1 Patched (2006-07-13 r38676)
 ISBN 3-900051-07-0
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -52,8 +52,6 @@ integer matrices not yet implemented in 'Matrix'; using 'double' ones' in: Matri
 A 1 4 7 10 10 40 70 100
 B 2 5 8 11 20 50 80 110
 C 3 6 9 12 30 60 90 120
-> 
-> ## TODO: m1+m2 "warning" - improve dimnames() automatism
 > stopifnot(identical(cbind (m2, m1+m2) -> R,
 +                     cbind2(m2, m1+m2))); R
 3 x 8 Matrix of class "dgeMatrix"
@@ -184,7 +182,6 @@ C 3 6 9 12 100 3 6 9 12
 [6,] 2 . 1 . . 2 . 1 . .
 > diag(m4)
 [1] 0 0 1 0 1 2
-> 
 > for(i in 1:6) {
 +     m4[i, i ] <- i
 +     m4[i,i+1] <- 0
@@ -201,5 +198,5 @@ C 3 6 9 12 100 3 6 9 12
 > 
 > 
 > cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
-Time elapsed:  9.135 0.137 9.722 0 0 
+Time elapsed:  10.76 0.18 11.43 0 0 
 > 

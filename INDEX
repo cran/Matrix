@@ -14,6 +14,9 @@ Matrix-class            Virtual Class "Matrix" Class of Matrices
 RsparseMatrix-class     Class "RsparseMatrix" of Sparse Matrices in
                         Column-compressed Form
 Schur                   Schur Decomposition of a Matrix
+SparseM-coerce-methods
+                        Sparse Matrix Coercion from and to those from
+                        package "SparseM"
 TsparseMatrix-class     Class "TsparseMatrix" of Sparse Matrices in
                         Triplet Form
 VarCorr                 Extract variance and correlation components
@@ -25,7 +28,6 @@ VarCorr-class           Class "VarCorr"
 band                    Extract bands of a matrix
 compMatrix-class        Class "compMatrix" of Composite (Factorizable)
                         Matrices
-corrmatrix-class        Class "corrmatrix"
 dCHMsimpl-class         CHOLMOD-based Cholesky factorizations
 dCholCMatrix-class      Cholesky Decompositions of dsCMatrix Objects
 dMatrix-class           (Virtual) Class "dMatrix" of "double" Matrices
@@ -58,9 +60,12 @@ expm                    Matrix exponential
 facmul                  Multiplication by Decomposition Factors
 fixef                   Extract Fixed Effects
 generalMatrix-class     Class "generalMatrix" of General Matrices
+hatTrace                Extract the trace of the 'hat' matrix
 iMatrix-class           Virtual Classes Not Yet Used
 index-class             Virtual Class "index" - Simple Class for Matrix
                         Indices
+isSymmetric-methods     Methods for Function isSymmetric in Package
+                        'Matrix'
 ldenseMatrix-class      Virtual Class "ldenseMatrix" of Dense Logical
                         Matrices
 ldiMatrix-class         Class "ldiMatrix" of Diagonal Logical Matrices
@@ -80,6 +85,8 @@ pedigree-class          Class "pedigree"
 ranef                   Extract Random Effects
 rcond                   Estimate the Reciprocal Condition Number
 readHB                  Read and write external matrix formats
+replValue-class         Virtual Class "replValue" - Simple Class for
+                        subassignment Values
 sleepstudy              Reaction times in a sleep deprivation study
 sparseMatrix-class      Virtual Class "sparseMatrix" -- Mother of
                         Sparse Matrices

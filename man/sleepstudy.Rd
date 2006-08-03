@@ -32,6 +32,7 @@
   \emph{Journal of Sleep Research} \bold{12}, 1--12.
 }
 \examples{
+data(sleepstudy)
 str(sleepstudy)
 if (require("lattice", quietly = TRUE, character.only = TRUE))
     xyplot(Reaction ~ Days | Subject, sleepstudy, type = c("g","p","r"),

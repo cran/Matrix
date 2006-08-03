@@ -135,6 +135,7 @@ lmer(formula, data, family, method, control, start,
 \seealso{\code{\link[Matrix]{lmer-class}}, \code{\link[stats]{lm}}
 }
 \examples{
+data(sleepstudy)
 (fm1 <- lmer(Reaction ~ Days + (Days|Subject), sleepstudy))
 (fm2 <- lmer(Reaction ~ Days + (1|Subject) + (0+Days|Subject), sleepstudy))
 anova(fm1, fm2)

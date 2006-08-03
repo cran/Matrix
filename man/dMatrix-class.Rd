@@ -4,16 +4,12 @@
 \alias{lMatrix-class}
 \alias{show,dMatrix-method}
 \alias{coerce,dMatrix,matrix-method}
-\alias{coerce,dMatrix,dgeMatrix-method}
-\alias{coerce,dMatrix,sparseMatrix-method}
+%\alias{coerce,dMatrix,dgeMatrix-method}
 \alias{[,dMatrix,lMatrix,missing,ANY-method}
 \alias{[,dMatrix,logical,missing,ANY-method}
 % Group methods
-\alias{Arith,dMatrix,dMatrix-method}
-\alias{Arith,dMatrix,numeric-method}
-\alias{Arith,numeric,dMatrix-method}
-\alias{Math,dMatrix-method}
 \alias{Math2,dMatrix,numeric-method}% Math2 = round + signif, but
+\alias{Math2,dMatrix,missing-method}
 \alias{Summary,dMatrix-method}
 \alias{Compare,dMatrix,dMatrix-method}
 \alias{Compare,dMatrix,numeric-method}

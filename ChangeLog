@@ -1,3 +1,103 @@
+2006-08-03  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.995-13 to be released to CRAN
+
+	* DESCRIPTION (Lazydata): no, instead of 'yes' because it fails for:
+	* data/CAex.R, inst/external/CAex_slots.rda: replacing data/CAex.rda
+	* data/KNex.R, inst/external/KNex_slots.rda: replacing data/KNex.rda
+	such that the S4 objects are always created by the current version
+	of R and 'Matrix' class definitions.
+
+2006-08-01  Douglas Bates  <bates@R-project.org>
+
+	* R/lmer.R (LMEoptimize method), tests/lmer.R,
+	inst/external/test3comp.rda: Added warnings for convergence on
+	boundary and test cases.
+
+	* src/lmer.c (mer_postVar): Modified to return the variances that
+	are marginal to the fixed effects, not conditional on them (which
+	is what the bVar slot contents represent).
+
+2006-07-31  Douglas Bates  <bates@R-project.org>
+
+	* NAMESPACE, src/lmer.c, R/lmer.R (hatTrace):  Add the hatTrace
+	function which calls the C function mer_hat_trace2.
+
+	* man/ranef.Rd: Include description of "postVar" argument and
+	producing a caterpillar plot.
+
+2006-07-31  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* NAMESPACE:    change  "correlation" to "corMatrix"
+	* R/AllClass.R: to avoid clash with S3 class in 'nlme'.
+	* R/dpoMatrix.R: dito
+	* R/lmer.R:	 dito
+
+2006-07-28  Douglas Bates  <bates@R-project.org>
+
+	* src/lmer.c (internal_mer_RZXinv): Split the calculation of the
+	RZXinv slot's contents into a separate internal function that can
+	be used in mer_hat_trace.
+
+2006-07-22  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Matrix.R: Coercions "Matrix" -> (sparse|dense)Matrix
+	via new smart
+	* R/Auxiliaries.R (as_Csparse, as_dense, .M.shapse): new
+	utility functions.
+
+
+2006-07-21  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Csparse.R (tril, triu, band): do return *triangular* classed
+	matrices when appropriate; band() even symmetric ones.
+	(replCmat): extend to potentially all "CsparseMatrix"
+	* R/Tsparse.R (replTmat): extend to all "TsparseMatrix"; hence
+	allow subassignment for special sparse matrices.
+
+	* R/Auxiliaries.R (as_geClass): factor out the  .M.kind() functionality
+
+	* src/lmer.c (mer_MCMCsamp, glmer_MCMCsamp): new 'verbose'
+	argument; in glmer_*(): print only if(verbose).
+
+	speed-optimize a few places by moving REAL(.) out of loops.
+
+	* src/lmer.h, src/init.h, R/lmer.R:  related to above.
+
+2006-07-20  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Matrix.R("["): disable ("Matrix", i = "logical", j = "missing"),
+		since that wrongly triggers also for M[ logi , ]
+
+	* R/denseMatrix.R: "[" methods now also work e.g. when indexing
+	a symmetric matrix that results in a non-symmetric one.
+	* R/Auxiliaries.R (as_geClass): new function used in "[" above.
+
+	* R/dMatrix.R: make round(M) work as round(M, 0)
+
+	* R/dgTMatrix.R (image): coordinate system and axis now use
+	1-based indices, not 0-based ones.
+
+	* R/Tsparse.R (.ind.prep for "["): get rid of max(<empty>) warning.
+	* tests/indexing.R: test it.
+
+	* NAMESPACE: export isSymmetric(); has been a generic in "base"	for a while;
+	* man/isSymmetric-methods.Rd: and document it.
+
+	* R/SparseM-conv.R: added coercion methods for some 'SparseM' matrices.
+	* man/SparseM-conv.Rd: docu them
+
+	* tests/other-pkgs.R: renamed from tests/graph.R and add example
+		for 'SparseM' conversions
+
+2006-07-17  Douglas Bates  <Douglas.Bates@R-project.org>
+
+	* R/Matrix.R (head): added head() and tail() methods.
+
+2006-07-17  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.995-12 released to CRAN
+
 2006-07-15  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* tests/simple.R: add check for correct dsT -> dgT coercion;

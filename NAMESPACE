@@ -22,7 +22,6 @@ export("Diagonal",
        "facmul",
 #        "isTriangular",
 #        "isDiagonal",
-#        "isSymmetric" is in R 2.3.0
        "lu",
        "norm",
        "pedigree",
@@ -61,10 +60,11 @@ export(
 
 
 ## lmer-related
-export("lmer", "mcmcsamp")
+export("lmer", "mcmcsamp", "hatTrace")
 
 exportClasses(
 	      "index",
+	      "replValue", # if we don't export it, things fail in dispatch
 
 	      "BunchKaufman",
 	      "pBunchKaufman",
@@ -137,7 +137,7 @@ exportClasses(
 	      "lCholCMatrix",
               "dCHMsuper",
               "dCHMsimpl",
-              "correlation" # unused
+              "corMatrix" # unused
 	      )
 
 ## lmer-related
@@ -175,8 +175,8 @@ exportMethods(
 	      "expm",
 	      "kronecker",
 	      "image",
+              "isSymmetric",
 ## 	       "isDiagonal",
-## 	       "isSymmetric",
 ## 	       "isTriangular",
 	      "norm",
 	      "rcond",

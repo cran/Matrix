@@ -20,6 +20,8 @@ m[1,]     # first row, as simple numeric vector
 m[,2]     # 2nd column
 m[,1:2]   # sub matrix of first two columns
 m[-(1:6),, drop=FALSE] # not the first 6 rows, i.e. only the 7th
+m[integer(0),] #-> 0 x 4 Matrix
+m[2:4, numeric(0)] #-> 3 x 0 Matrix
 
 ## logical indexing
 stopifnot(identical(m[2,3], m[(1:nrow(m)) == 2, (1:ncol(m)) == 3]),
@@ -68,7 +70,10 @@ assert.EQ.mat(mC[1:2,], mm[1:2,])
 stopifnot(all.equal(mC[,3],   mm[,3]))
 assert.EQ.mat(mC[7, , drop=FALSE], mm[7, , drop=FALSE])
 
-stopifnot(identical(mC[7,  drop = FALSE],
+stopifnot(dim(mC[numeric(0), ]) == c(0,20), # used to give warnings
+          dim(mC[, integer(0)]) == c(40,0),
+          identical(mC[, integer(0)], mC[, FALSE]),
+          identical(mC[7,  drop = FALSE],
                     mC[7,, drop = FALSE]))
 validObject(print(mT[,c(2,4)]))
 stopifnot(all.equal(mT[2,], mm[2,]),
@@ -85,6 +90,17 @@ stopifnot(identical3(mm[,1], mC[,1], mT[,1]),
 	  ## TODO: identical4() with  m[c(3,7), 2:4] - fail because of 'dimnames'
 	  identical3(as(mC[c(3,7), 2:4],"matrix"), mm[c(3,7), 2:4],
 		     as(mT[c(3,7), 2:4],"matrix")))
+
+x.x <- crossprod(mC)
+stopifnot(class(x.x) == "dsCMatrix",
+          class(x.x. <- round(x.x / 10000)) == "dsCMatrix")
+head(x.x.) # Note the *non*-structural 0's printed as "0"
+
+lx.x <- as(x.x, "lsCMatrix") # FALSE only for "structural" 0
+if(FALSE) { ## FIXME: needs coercion  "lsCMatrix" to "lgTMatrix"
+    lx.x[1:10, 1:10]
+    lx.x[1:3, ]
+}
 
 ## --- negative indices ----------
 mc <- mC[1:5, 1:7]
@@ -160,5 +176,15 @@ mc[c(2,5), c(3,5)] <- 3.2
 validObject(mc)
 (m. <- mc)
 ## FIXME: mc[4,] <- 0 # -> error -- another Bug
+
+H <- Hilbert(9)
+Hc <- as(round(H, 3), "dsCMatrix")
+tril(Hc[1:5, 1:5])
+
+H[c(1:2, 4, 6:7), c(2:4,6)] <- 0
+(H. <- round(as(H, "sparseMatrix"), 3)[ , 2:7])
+Hc. <- Hc
+Hc.[c(1:2, 4, 6:7), c(2:4,6)] <- 0
+Hc.[, 1:6]
 
 cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''

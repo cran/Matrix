@@ -60,12 +60,19 @@ t(pm1) # is the same as
 solve(pm1)
 pm1 \%*\% t(pm1) # check that the transpose is the inverse
 stopifnot(identical(diag(3), as(pm1 \%*\% t(pm1), "matrix")))
+
+set.seed(11)
+## random permutation matrix :
+(p10 <- as(sample(10),"pMatrix"))
+
+## Permute rows / columns of a numeric matrix :
 (mm <- round(array(rnorm(3 * 3), c(3, 3)), 2))
 mm \%*\% pm1
 pm1 \%*\% mm
 try(as(as.integer(c(3,3,1)), "pMatrix"))# Error: not a permutation
 
 as(pm1, "lgTMatrix")
+p10[1:7, 1:4] # gives an "lgTMatrix" (most economic!)
 }
 \keyword{classes}
 

@@ -123,6 +123,10 @@ setAs("Matrix", "diagonalMatrix",
 setMethod("t", signature(x = "diagonalMatrix"),
           function(x) { x@Dimnames <- x@Dimnames[2:1] ; x })
 
+setMethod("isDiagonal", signature(object = "diagonalMatrix"),
+          function(object) TRUE)
+setMethod("isTriangular", signature(object = "diagonalMatrix"),
+          function(object) TRUE)
 setMethod("isSymmetric", signature(object = "diagonalMatrix"),
           function(object) TRUE)
 

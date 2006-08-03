@@ -165,7 +165,7 @@ static R_CallMethodDef CallEntries[] = {
     {"dtrMatrix_rcond", (DL_FUNC) &dtrMatrix_rcond, 2},
     {"dtrMatrix_solve", (DL_FUNC) &dtrMatrix_solve, 1},
     {"dtrMatrix_validate", (DL_FUNC) &dtrMatrix_validate, 1},
-    {"glmer_MCMCsamp", (DL_FUNC) &glmer_MCMCsamp, 4},
+    {"glmer_MCMCsamp", (DL_FUNC) &glmer_MCMCsamp, 5},
     {"glmer_PQL", (DL_FUNC) &glmer_PQL, 1},
 /*     {"glmer_devAGQ", (DL_FUNC) &glmer_devAGQ, 3}, */
     {"glmer_devLaplace", (DL_FUNC) &glmer_devLaplace, 2},
@@ -204,7 +204,7 @@ static R_CallMethodDef CallEntries[] = {
     {"lsq_dense_QR", (DL_FUNC) &lsq_dense_QR, 2},
 
     {"mer_ECMEsteps", (DL_FUNC) &mer_ECMEsteps, 3},
-    {"mer_MCMCsamp", (DL_FUNC) &mer_MCMCsamp, 4},
+    {"mer_MCMCsamp", (DL_FUNC) &mer_MCMCsamp, 5},
     {"mer_coef", (DL_FUNC) &mer_coef, 2},
     {"mer_coefGets", (DL_FUNC) &mer_coefGets, 3},
     {"mer_create", (DL_FUNC) &mer_create, 10},

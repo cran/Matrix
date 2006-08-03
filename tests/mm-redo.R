@@ -1,8 +1,24 @@
 library(Matrix)
 
-### Rebuild the 'mm' example matrix
-### Use this if classes are changed
+### Rebuild the 'mm' example matrix, now in KNex data
+
+### This is no longer really important, as we now use
+### ../data/KNex.R  which creates the S4 object *every time*
 data(KNex)
+
+## recreate 'mm' from list :
+sNms <- c("Dim", "i","p","x")
+L <- lapply(sNms, function(SN) slot(KNex$mm, SN)); names(L) <- sNms
+mm2 <- new(class(KNex$mm))
+for (n in sNms) slot(mm2, n) <- L[[n]]
+
+stopifnot(validObject(mm2),
+          identical(mm2, KNex$mm))
+L$y <- KNex$y
+## save(L, file = "/u/maechler/R/Pkgs/Matrix/inst/external/KNex_slots.rda")
+
+
+## recreate 'mm' from ASCI file :
 mmT <- as(KNex$mm, "dgTMatrix")
 str(mmT)
 mm3 <- cbind(i = mmT@i, j = mmT@j, x = mmT@x)

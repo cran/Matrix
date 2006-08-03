@@ -17,8 +17,6 @@ stopifnot(identical(cbind (m1,100+m1) -> R,
                     cbind2(m1,100+m1))); R
 stopifnot(identical(cbind (m1, 10*m2) -> R,
                     cbind2(m1, 10*m2))); R
-
-## TODO: m1+m2 "warning" - improve dimnames() automatism
 stopifnot(identical(cbind (m2, m1+m2) -> R,
                     cbind2(m2, m1+m2))); R
 
@@ -51,7 +49,6 @@ cbind(mT, 1, 0, mT+10*mT, 0, 0:2)
 (m2 <- cbind(m,m))
 (m4 <- rbind(m2,m2))
 diag(m4)
-
 for(i in 1:6) {
     m4[i, i ] <- i
     m4[i,i+1] <- 0

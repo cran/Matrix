@@ -5,8 +5,14 @@
 setAs("dgRMatrix", "dgTMatrix",
       function(from) .Call(compressed_to_dgTMatrix, from, FALSE))
 
+### FIXME: Activate the following with "little" change in ../src/dgCMatrix.c
+### -----  similar to compressed_to_dgTMatrix above       ~~~~~~~~~~~~~~~~~~
+
 ##setAs("dgRMatrix", "matrix",
 ##      function(from) .Call(csc_to_matrix, from))
+## easy "cheap" alternative:
+setAs("dgRMatrix", "matrix",
+      function(from) as(as(from, "dgTMatrix"), "matrix"))
 
 ##setAs("dgRMatrix", "dgeMatrix",
 ##      function(from) .Call(csc_to_dgeMatrix, from))
@@ -17,8 +23,35 @@ setAs("dgRMatrix", "dgTMatrix",
 ##          .Call(matrix_to_csc, from)
 ##      })
 
+
 ##setMethod("diag", signature(x = "dgRMatrix"),
 ##          function(x = 1, nrow, ncol = n) .Call(csc_getDiag, x))
+
+setAs("dgRMatrix", "dgCMatrix",
+      function(from) as(as(from, "dgTMatrix"), "dgCMatrix"))
+
+## **VERY** cheap substitutes:  work via dgC and t(.)
+.to.dgR <- function(from) {
+    m <- as(t(from), "dgCMatrix")
+    new("dgRMatrix", Dim = dim(from), Dimnames = .M.DN(from),
+        p = m@p, j = m@i, x = m@x)
+}
+
+setAs("matrix",    "dgRMatrix", .to.dgR)
+setAs("dgCMatrix", "dgRMatrix", .to.dgR)
+setAs("dgTMatrix", "dgRMatrix", .to.dgR)
+
+
+
+##setAs("dgRMatrix", "dgeMatrix",
+##      function(from) .Call(csc_to_dgeMatrix, from))
+
+##setAs("matrix", "dgRMatrix",
+##      function(from) {
+##          storage.mode(from) <- "double"
+##          .Call(matrix_to_csc, from)
+##      })
+
 
 ## try to define for "Matrix" -- once and for all -- but that fails -- why? __ FIXME __
 ## setMethod("dim", signature(x = "dgRMatrix"),

@@ -254,6 +254,7 @@
   correlation components of the \emph{random}-effects terms.
 }
 \examples{
+data(sleepstudy)
 (fm2 <- lmer(Reaction ~ Days + (1|Subject) + (0+Days|Subject),
              data = sleepstudy))
 logLik(fm2)

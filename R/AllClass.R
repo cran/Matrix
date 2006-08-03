@@ -380,7 +380,7 @@ setClass("Cholesky", contains = "dtrMatrix")
 
 setClass("LDL", contains = "dtrMatrix")
 
-setClass("correlation", representation(sd = "numeric"), contains = "dpoMatrix")
+setClass("corMatrix", representation(sd = "numeric"), contains = "dpoMatrix")
 
 setClass("pCholesky", contains = "dtpMatrix")
 
@@ -474,6 +474,10 @@ setClass("pMatrix", representation(perm = "integer"),
 
 ## for 'i' in x[i] or A[i,] :
 setClassUnion("index", members =  c("numeric", "logical", "character"))
+
+### for 'value' in   x[..] <- value :
+setClassUnion("replValue", members =  c("numeric", "logical"))
+
 
 
 ## --- Matrix - related ----

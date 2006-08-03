@@ -57,7 +57,8 @@
 \alias{tcrossprod,numeric,dgeMatrix-method}
 %
 \description{A general numeric dense matrix in the S4 Matrix
-  representation.
+  representation.  \code{dgeMatrix} is the \emph{\dQuote{standard}}
+  class for dense numeric matrices in the \pkg{Matrix} package.
 }
 \section{Objects from the Class}{
   Objects can be created by calls of the form \code{new("dgeMatrix", ...)}

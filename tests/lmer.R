@@ -1,7 +1,8 @@
-library(Matrix)
-library(lattice)
+library(Matrix)# well, library(lme4), ...
+require(lattice)# (is there anyway)
 options(show.signif.stars = FALSE)
 
+data(sleepstudy)
 (fm1 <- lmer(Reaction ~ Days + (Days|Subject), sleepstudy))
 (fm1a <- lmer(Reaction ~ Days + (Days|Subject), sleepstudy, method = "ML"))
 (fm2 <- lmer(Reaction ~ Days + (1|Subject) + (0+Days|Subject), sleepstudy))
@@ -19,14 +20,14 @@ options(show.signif.stars = FALSE)
 
 ## PQL is used per default:
 fm3. <- lmer(decrease ~ treatment + (1|rowpos) + (1|colpos),
-             OrchardSprays, family = poisson())
+             OrchardSprays, family = poisson)
 fm3.@call <- fm3@call # so that they should be almost identical:
 ##MM: 'tol=0' now (2006-05-24) fails (on 32-bit Ubuntu; not 64-bit RHEL 4) ???
 stopifnot(all.equal(fm3, fm3., tol = 1e-6))
 
 ## Laplace approximation {takes time}
 (fm4 <- lmer(decrease ~ treatment + (1|rowpos) + (1|colpos),
-              OrchardSprays, poisson(), method = "Laplace"))
+             data = OrchardSprays, family = poisson(), method = "Laplace"))
 
 ## Simple example by Andrew Gelman (2006-01-10) ----
 n.groups <- 10 ; n.reps <- 2
@@ -113,6 +114,10 @@ reg <- lmer(y ~ habitat + (1|habitat*lagoon), data = dat) # did seg.fault
 ## From: Andrew Gelman <gelman@stat.columbia.edu>
 ## Date: Wed, 18 Jan 2006 22:00:53 -0500
 
+has.coda <- require(coda)
+if(!has.coda)
+    cat("'coda' package not available; some outputs will look suboptimal\n")
+
 ## Very simple example
 y <- 1:10
 group <- gl(2,5)
@@ -134,6 +139,43 @@ M2 <- lmer (y ~ x + ( x | group))#  false convergence -> simulation doesn't work
 if(FALSE) ## try(..) fails here (in R CMD check) [[why ??]]
     mcmcsamp (M2, saveb=TRUE)
 ## Error: inconsistent degrees of freedom and dimension ...
+
+## mcmc for glmer:
+rG1k <- mcmcsamp(fm3., n = 1000)
+summary(rG1k)
+rG2 <- mcmcsamp(fm4, n = 3, verbose = TRUE)
+
+# convergence on boundary warnings
+load(system.file("external/test3comp.rda", package = "Matrix"))
+b3 <- lmer(Y3 ~ (1|Sample) + (1|Operator/Run), test3comp)
+if (isTRUE(try(data(Early, package = 'mlmRev')) == 'Early')) {
+    Early$tos <- Early$age - 0.5        # time on study
+    b1 <- lmer(cog ~ tos + trt:tos + (tos|id), Early,
+               control = list(msV = TRUE, nit=0))
+}
+
+## Spencer Graves' example (from a post to S-news, 2006-08-03): ----------------
+## FIXME?
+tstDF <- data.frame(group = letters[1:5], y = 1:5)
+var(tstDF$y) # == 2.5
+f.oops <- lmer(y ~ 1 + (1|group), data = tstDF)
+summary(f.oops) ## or print(Matrix:::formatVC(VarCorr(f.oops)), quote = FALSE)
+## ...
+##   Groups   Name        Variance Std.Dev.
+##   group    (Intercept) 1.81818  1.34840
+##   Residual             0.68182  0.82572
+## ...
+
+##SG> This is ... silly, because there are zero degrees of freedom
+##SG> to distinguish "group" from Residual.  It is comforting that the sum of
+##SG> the variances sum to the variance of "y", ......
+
+##SG> However, I would prefer to have the multilevel software catch this
+##SG> case and optionally return an error or drop the redundant group
+##SG> with a warning.
+
+
+
 
 cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
 

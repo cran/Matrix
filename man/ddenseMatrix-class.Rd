@@ -8,6 +8,11 @@
 \alias{show,ddenseMatrix-method}
 \alias{coerce,ddenseMatrix,matrix-method}
 %
+\alias{Arith,ddenseMatrix,ddenseMatrix-method}
+\alias{Arith,ddenseMatrix,numeric-method}
+\alias{Arith,numeric,ddenseMatrix-method}
+\alias{Math,ddenseMatrix-method}
+%
 \alias{cbind2,ddenseMatrix,ddenseMatrix-method}
 \alias{cbind2,ddenseMatrix,matrix-method}
 \alias{cbind2,matrix,ddenseMatrix-method}

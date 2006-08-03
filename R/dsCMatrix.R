@@ -44,6 +44,25 @@ setAs("dsCMatrix", "dsTMatrix",
 setAs("dsCMatrix", "dsyMatrix",
       function(from) as(as(from, "dsTMatrix"), "dsyMatrix"))
 
+## have rather tril() and triu() methods than
+## setAs("dsCMatrix", "dtCMatrix", ....)
+setMethod("tril", "dsCMatrix",
+	  function(x, k = 0, ...) {
+	      if(x@uplo == "L" && k == 0)
+		  ## same internal structure (speedup potential !?)
+		  new("dtCMatrix", uplo = x@uplo, i = x@i, p = x@p,
+		      x = x@x, Dim = x@Dim, Dimnames = x@Dimnames)
+	      else tril(as(x, "dgCMatrix"), k = k, ...)
+	  })
+setMethod("triu", "dsCMatrix",
+	  function(x, k = 0, ...) {
+	      if(x@uplo == "U" && k == 0)
+		  ## same internal structure (speedup potential !?)
+		  new("dtCMatrix", uplo = x@uplo, i = x@i, p = x@p,
+		      x = x@x, Dim = x@Dim, Dimnames = x@Dimnames)
+	      else triu(as(x, "dgCMatrix"), k = k, ...)
+	  })
+
 setMethod("solve", signature(a = "dsCMatrix", b = "dgeMatrix"),
           function(a, b, ...)
           .Call(dsCMatrix_matrix_solve, a, b, TRUE),

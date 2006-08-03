@@ -14,15 +14,14 @@
 \alias{[<-,denseMatrix,index,missing,numeric-method}
 \alias{[<-,denseMatrix,index,index,numeric-method}
 \alias{[<-,denseMatrix,missing,index,numeric-method}
-%
-% % -- maybe replace dgT* by Tsparse* ?
-\alias{[<-,dgTMatrix,index,index,numeric-method}
-\alias{[<-,dgTMatrix,index,missing,numeric-method}
-\alias{[<-,dgTMatrix,missing,index,numeric-method}
+% -> ../R/Tsparse.R : replValue = { numeric, logical }
+\alias{[<-,TsparseMatrix,index,index,replValue-method}
+\alias{[<-,TsparseMatrix,index,missing,replValue-method}
+\alias{[<-,TsparseMatrix,missing,index,replValue-method}
 % \alias{[<-,dgTMatrix,missing,missing,numeric-method}
-\alias{[<-,dgCMatrix,index,index,numeric-method}
-\alias{[<-,dgCMatrix,index,missing,numeric-method}
-\alias{[<-,dgCMatrix,missing,index,numeric-method}
+\alias{[<-,CsparseMatrix,index,index,replValue-method}
+\alias{[<-,CsparseMatrix,index,missing,replValue-method}
+\alias{[<-,CsparseMatrix,missing,index,replValue-method}
 % %
 % \alias{[<-,dsparseMatrix,missing,index,numeric-method}
 % \alias{[<-,dsparseMatrix,index,missing,numeric-method}

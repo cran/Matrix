@@ -7,9 +7,17 @@ source(system.file("test-tools.R", package = "Matrix"))
 m5 <- 1 + as(diag(-1:4)[-5,], "dgeMatrix")
 ## named dimnames:
 dimnames(m5) <- list(Rows= LETTERS[1:5], paste("C", 1:6, sep=""))
+m. <- as(m5,"matrix")
 stopifnot(dim(m5) == 5:6,
           class(cm5 <- crossprod(m5)) == "dpoMatrix")
 assert.EQ.mat((c.m5 <- t(m5) %*% m5), as(cm5, "matrix"))
+## crossprod() with numeric vector RHS and LHS
+## not sensical for tcrossprod() because of 'vec' --> cbind(vec) promotion:
+assert.EQ.mat( crossprod(rep(1,5), m5),  rbind( colSums(m5)))
+assert.EQ.mat( crossprod(rep(1,5), m.),  rbind( colSums(m5)))
+assert.EQ.mat( crossprod(m5, rep(1,5)),  cbind( colSums(m5)))
+assert.EQ.mat( crossprod(m., rep(1,5)),  cbind( colSums(m5)))
+
 ## classes differ; but the 'dimnames' are *both* missing -- FIXME
 tc.m5 <- m5 %*% t(m5)
 (tcm5 <- tcrossprod(m5)) # "dpo*"

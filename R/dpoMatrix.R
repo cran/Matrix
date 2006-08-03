@@ -3,11 +3,11 @@
 setAs("dpoMatrix", "dppMatrix",
       function(from) as(as(from, "dspMatrix"), "dppMatrix"))
 
-setAs("dpoMatrix", "correlation",
+setAs("dpoMatrix", "corMatrix",
       function(from) {
           sd <- sqrt(diag(from))
           if (!is.null(nms <- from@Dimnames[[1]])) names(sd) <- nms
-          ans <- new("correlation", as(t(from/sd)/sd, "dpoMatrix"), sd = sd)
+          ans <- new("corMatrix", as(t(from/sd)/sd, "dpoMatrix"), sd = sd)
           ans@Dimnames <- from@Dimnames
           ans
       })

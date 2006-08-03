@@ -105,6 +105,11 @@ assert.EQ.mat(kt1, ktf, tol= 0)
 assert.EQ.mat(kt2, ktf, tol= 0)
 ## but kt1 and kt2, both "dgT" are different since entries are not ordered!
 
+## coercion from "dpo" or "dsy"
+xx <- as(xpx, "dsyMatrix")
+stopifnot(isSymmetric(xxS  <- as(xx,  "sparseMatrix")),
+          isSymmetric(xpxS <- as(xpx, "sparseMatrix")))
+
 tm <- matrix(0, 8,8)
 tm[cbind(c(1,1,2,7,8),
          c(3,6,4,8,8))] <- c(2,-30,15,20,80)

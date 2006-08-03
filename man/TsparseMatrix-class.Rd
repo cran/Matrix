@@ -22,10 +22,13 @@
     \item{\code{Dim}, \code{Dimnames}:}{from the \code{"Matrix"} class,}
     \item{\code{factors}:}{from class \code{"sparseMatrix"}, see
       \code{\linkS4class{sparseMatrix}}.}
+
     \item{\code{i}:}{Object of class \code{"integer"} - the row indices
-      of non-zero entries.}
+      of non-zero entries \emph{in 0-base}, i.e., must be in
+      \code{0:(nrow(.)-1)}.}
     \item{\code{j}:}{Object of class \code{"integer"} - the column
-      indices of non-zero entries.  Must be the same length as slot \code{i}.}
+      indices of non-zero entries.  Must be the same length as slot
+      \code{i} and \emph{0-based} as well, i.e., in \code{0:(ncol(.)-1)}.}
   }
 }
 \section{Extends}{

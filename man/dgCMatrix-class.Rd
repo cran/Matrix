@@ -42,7 +42,10 @@
 \description{The \code{dgCMatrix} class is a class of sparse numeric
   matrices in the compressed, sparse, column-oriented format.  In this
   implementation the non-zero elements in the columns are sorted into
-  increasing row order.}
+  increasing row order.  \code{dsCMatrix} is the
+  \emph{\dQuote{standard}} class for sparse numeric matrices in the
+  \pkg{Matrix} package.
+}
 \section{Objects from the Class}{
   Objects can be created by calls of the form \code{new("dgCMatrix", ...)} or
   often more easily via \code{\link{Matrix}(*, sparse = TRUE)}.

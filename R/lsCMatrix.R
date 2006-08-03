@@ -19,6 +19,25 @@ setAs("lsCMatrix", "dsCMatrix",
 setAs("lsCMatrix", "dgTMatrix",
       function(from) as(as(x, "dsCMatrix"), "dgTMatrix"))
 
+## have rather tril() and triu() methods than
+## setAs("lsCMatrix", "ltCMatrix", ....)
+setMethod("tril", "lsCMatrix",
+	  function(x, k = 0, ...) {
+	      if(x@uplo == "L" && k == 0)
+		  ## same internal structure (speedup potential !?)
+		  new("ltCMatrix", uplo = x@uplo, i = x@i, p = x@p,
+		      Dim = x@Dim, Dimnames = x@Dimnames)
+	      else tril(as(x, "lgCMatrix"), k = k, ...)
+	  })
+setMethod("triu", "lsCMatrix",
+	  function(x, k = 0, ...) {
+	      if(x@uplo == "U" && k == 0)
+		  ## same internal structure (speedup potential !?)
+		  new("ltCMatrix", uplo = x@uplo, i = x@i, p = x@p,
+		      Dim = x@Dim, Dimnames = x@Dimnames)
+	      else triu(as(x, "lgCMatrix"), k = k, ...)
+	  })
+
 ## FIXME: generalize to "lsparseMatrix" or (class union)  "symmetric sparse"
 setMethod("image", "lsCMatrix",
           function(x, ...) {

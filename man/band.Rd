@@ -6,6 +6,11 @@
 \alias{band,CsparseMatrix-method}
 \alias{tril,CsparseMatrix-method}
 \alias{triu,CsparseMatrix-method}
+\alias{tril,dsCMatrix-method}
+\alias{tril,lsCMatrix-method}
+\alias{triu,dsCMatrix-method}
+\alias{triu,lsCMatrix-method}
+%
 \alias{band}
 \alias{tril}
 \alias{triu}
@@ -34,7 +39,8 @@ triu(x, k = 0, \dots)
 }
 \value{
   An object of an appropriate matrix class.  The class of the value of
-  \code{tril} or \code{triu} inherits from \code{\linkS4class{triangularMatrix}}.
+  \code{tril} or \code{triu} inherits from
+  \code{\linkS4class{triangularMatrix}} when appropriate.
 }
 \section{Methods}{
   \describe{
@@ -43,15 +49,23 @@ triu(x, k = 0, \dots)
   }
 }
 \examples{
- ## A random sparce "incidence" matrix :
- m <- matrix(0, 5, 5)
- set.seed(12)
- m[runif(10, 0, length(m))] <- 1
- (mm <- as(m, "dgCMatrix"))
- tril(mm)        # lower triangle
-tril(mm, -1)   # strict lower triangle
-triu(mm, 1)    # strict upper triangle
-band(mm, -1, 1) # general band
+## A random sparse matrix :
+set.seed(7)
+m <- matrix(0, 5, 5)
+m[sample(length(m), size = 14)] <- rep(1:9, length=14)
+(mm <- as(m, "dgCMatrix"))
+
+tril(mm)        # lower triangle
+tril(mm, -1)    # strict lower triangle
+triu(mm,  1)    # strict upper triangle
+band(mm, -1, 2) # general band
+\dontshow{ ## this uses special methods
+(x.x <- crossprod(mm))
+tril(x.x)
+xx <- tril(x.x) + triu(x.x, 1) ## the same as x.x (but stored differently):
+stopifnot(identical(triu(x.x), t(tril(x.x))),
+          identical(x.x, t(as(xx, "dsCMatrix"))))
+}
 }
 \keyword{methods}
 \keyword{algebra}

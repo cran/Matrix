@@ -36,7 +36,7 @@
 \description{The \code{dsCMatrix} class is a class of symmetric, sparse
   numeric matrices in the compressed, column-oriented format.  In this
   implementation the non-zero elements in the columns are sorted into
-  increasing row order.
+  increasing row order.\cr
   The \code{dsTMatrix} class is the class of
   symmetric, sparse numeric matrices in triplet format.
 }
@@ -48,20 +48,19 @@
   \describe{
     \item{\code{uplo}:}{A character object indicating if the upper
       triangle (\code{"U"} or \code{"u"}) or the lower triangle
-      (\code{"L"} or \code{"l"}) is stored.  At present only the lower
-      triangle form is allowed.}
+      (\code{"L"} or \code{"l"}) is stored.}
     \item{\code{p}:}{Object of class \code{"integer"} of pointers, one
       for each column, to the initial (zero-based) index of elements in
       the column. (Only present in the \code{dsCMatrix} class.)}
     \item{\code{i}:}{Object of class \code{"integer"} of length nnzero
-      (number of non-zero elements).  These are the row numbers for
-      each non-zero element in the matrix.}
+      (half number of non-zero elements).  These are the row numbers for
+      each non-zero element in the lower triangle of the matrix.}
     \item{\code{j}:}{Object of class \code{"integer"} of length nnzero
-      (number of non-zero elements).  These are the column numbers for
-      each non-zero element in the matrix. (Only present in the
-      \code{dsTMatrix} class.)}
+      (half number of non-zero elements).  These are the column numbers for
+      each non-zero element in the lower triangle of the matrix. (Only
+      present in the \code{dsTMatrix} class.)}
     \item{\code{x}:}{Object of class \code{"numeric"} - the non-zero
-      elements of the matrix.}
+      elements of the matrix (to be duplicated for full matrix).}
     \item{\code{factors}:}{Object of class \code{"list"} - a list
       of factorizations of the matrix. }
     \item{\code{Dim}:}{Object of class \code{"integer"} - the dimensions

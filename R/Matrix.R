@@ -1,5 +1,11 @@
 #### Toplevel ``virtual'' class "Matrix"
 
+
+### Virtual coercions -- via smart "helpers" (-> ./Auxiliaries.R)
+
+setAs("Matrix", "sparseMatrix", function(from) as_Csparse(from))
+setAs("Matrix", "denseMatrix",  function(from) as_dense(from))
+
 ## ## probably not needed eventually:
 ## setAs(from = "ddenseMatrix", to = "matrix",
 ##       function(from) {
@@ -11,10 +17,24 @@
 setMethod("as.matrix", signature(x = "Matrix"), function(x) as(x, "matrix"))
 ## for 'Matrix' objects, as.array() should be equivalent:
 setMethod("as.array",  signature(x = "Matrix"), function(x) as(x, "matrix"))
+## head and tail apply to all Matrix objects for which subscripting is allowed
+setMethod("head", signature(x = "Matrix"),
+          function(x, n = 6, ...)
+          x[seq(len = min(n, nrow(x))), , drop = FALSE])
+setMethod("tail", signature(x = "Matrix"),
+          function (x, n = 6, addrownums = TRUE, ...)
+      {
+          nrx <- nrow(x)
+          sel <- seq(to = nrx, length = min(n, nrx))
+          ans <- x[sel, , drop = FALSE]
+          if (addrownums && is.null(rownames(x)))
+              rownames(ans) <- paste("[", sel, ",]", sep = "")
+          ans
+      })
 
 ## slow "fall back" method {subclasses should have faster ones}:
 setMethod("as.vector", signature(x = "Matrix", mode = "missing"),
-          function(x) as.vector(as(x, "matrix")))
+	  function(x) as.vector(as(x, "matrix")))
 
 
 ## Note that isSymmetric is *not* exported
@@ -104,8 +124,8 @@ Matrix <-
 			if(is.logical(data)) "lgTMatrix" else
 			stop("invalid 'data'"),
 			Dim = as.integer(c(nrow,ncol)),
-			Dimnames = if(is.null(dimnames))
-			list(NULL,NULL) else dimnames)
+			Dimnames = if(is.null(dimnames)) list(NULL,NULL)
+			else dimnames)
 	} else { ## normal case
 	    data <- .Internal(matrix(data, nrow, ncol, byrow))
 	    if(is.null(sparse))
@@ -174,9 +194,15 @@ setMethod("%*%", signature(x = "numeric", y = "Matrix"),
 
 setMethod("crossprod", signature(x = "Matrix", y = "numeric"),
 	  function(x, y = NULL) callGeneric(x, as.matrix(y)))
-
 setMethod("crossprod", signature(x = "numeric", y = "Matrix"),
-	  function(x, y = NULL)	 callGeneric(rbind(x), y))
+	  function(x, y = NULL)	 callGeneric(as.matrix(x), y))
+
+## The as.matrix() promotion seems illogical to MM,
+## but is according to help(tcrossprod, package = "base") :
+setMethod("tcrossprod", signature(x = "Matrix", y = "numeric"),
+	  function(x, y = NULL) callGeneric(x, as.matrix(y)))
+setMethod("tcrossprod", signature(x = "numeric", y = "Matrix"),
+	  function(x, y = NULL)	 callGeneric(as.matrix(x), y))
 
 setMethod("solve", signature(a = "Matrix", b = "numeric"),
 	  function(a, b, ...) callGeneric(a, as.matrix(b)))
@@ -191,6 +217,16 @@ setMethod("crossprod", signature(x = "Matrix", y = "ANY"),
 	  function (x, y = NULL) .bail.out.2(.Generic, class(x), class(y)))
 setMethod("crossprod", signature(x = "ANY", y = "Matrix"),
 	  function (x, y = NULL) .bail.out.2(.Generic, class(x), class(y)))
+setMethod("tcrossprod", signature(x = "Matrix", y = "ANY"),
+	  function (x, y = NULL) .bail.out.2(.Generic, class(x), class(y)))
+setMethod("tcrossprod", signature(x = "ANY", y = "Matrix"),
+	  function (x, y = NULL) .bail.out.2(.Generic, class(x), class(y)))
+
+## cheap fallbacks
+setMethod("crossprod", signature(x = "Matrix", y = "Matrix"),
+	  function(x, y = NULL) t(x) %*% y)
+setMethod("tcrossprod", signature(x = "Matrix", y = "Matrix"),
+	  function(x, y = NULL) x %*% t(y))
 
 ## There are special sparse methods; this is a "fall back":
 setMethod("kronecker", signature(X = "Matrix", Y = "ANY",
@@ -267,12 +303,19 @@ setMethod("[", signature(x = "Matrix", i = "lMatrix", j = "missing",
 			 drop = "ANY"),
 	  function (x, i, j, drop) {
 	      as(x, geClass(x))@x[as.vector(i)]
-                                        # -> error when lengths don't match
+              ## -> error when lengths don't match
           })
 
+## FIXME: The following is good for    M [ <logical>   ]
+##        *BUT* it also triggers for   M [ <logical> , ] where it is *WRONG*
+##       using nargs() does not help: it gives '3' for both cases
+if(FALSE)
 setMethod("[", signature(x = "Matrix", i = "logical", j = "missing",
 			 drop = "ANY"),
-	  function (x, i, j, drop) as(x, geClass(x))@x[i])
+	  function (x, i, j, drop) {
+	      ## DEBUG
+	      cat("[(Matrix,i,..): nargs=", nargs(),"\n")
+	      as(x, geClass(x))@x[i] })
 
 
 ## "FIXME:"

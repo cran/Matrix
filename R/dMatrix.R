@@ -11,7 +11,7 @@ setAs("dMatrix", "matrix",
 ##       function(from) {
 ##       })
 
-setAs("dMatrix", "sparseMatrix", function(from) as(from, "dgCMatrix"))
+##-> this is now in ./Matrix.R
 
 ## Methods for operations where one argument is integer
 ## No longer made use of (and confusing hence) since R version 2.1.0
@@ -42,23 +42,6 @@ setMethod("expm", signature(x = "dMatrix"),
 ## Group Methods, see ?Arith (e.g.)
 ## -----
 
-## Cheap version: work via "dgeMatrix" and use the group methods there:
-## FIXME: To improve by doing some of these for dsparse* !
-setMethod("Arith", ##  "+", "-", "*", "^", "%%", "%/%", "/"
-          signature(e1 = "dMatrix", e2 = "dMatrix"),
-          function(e1, e2) callGeneric(as(e1, "dgeMatrix"),
-                                       as(e2, "dgeMatrix")))
-setMethod("Arith",
-          signature(e1 = "dMatrix", e2 = "numeric"),
-          function(e1, e2) callGeneric(as(e1, "dgeMatrix"), e2))
-setMethod("Arith",
-          signature(e1 = "numeric", e2 = "dMatrix"),
-          function(e1, e2) callGeneric(e1, as(e2, "dgeMatrix")))
-
-setMethod("Math",
-          signature(x = "dMatrix"),
-          function(x) callGeneric(as(x, "dgeMatrix")))
-
 setMethod("Math2",
           ## Assume that  Generic(u, k) |--> u for u in {0,1}
           ## which is true for round(), signif() ==> all structure maintained
@@ -67,6 +50,11 @@ setMethod("Math2",
               x@x <- callGeneric(x@x, digits = digits)
               x
           })
+
+## round(x) == round(x, 0)  etc
+setMethod("Math2",
+	  signature(x = "dMatrix", digits = "missing"),
+	  function(x, digits) callGeneric(x, digits = 0))
 
 ## This needs extra work in ./AllGeneric.R :
 setMethod("Summary", signature(x = "dMatrix", na.rm = "ANY"),
@@ -82,7 +70,7 @@ setMethod("Compare", signature(e1 = "numeric", e2 = "dMatrix"),
 
 setMethod("Compare", signature(e1 = "dMatrix", e2 = "numeric"),
 	  function(e1, e2) {
-              lClass <- dClass2(class(e1), "l")
+              lClass <- class2(class(e1), "l")
               fullCl <- if(isSymmetric(e1)) "lsyMatrix" else "lgeMatrix"
 	      ## Dbg cat("Compare", class(e1), "|-> ",lClass, "\n")
 	      r  <- callGeneric(e1@x, e2)
@@ -125,7 +113,7 @@ setMethod("Compare", signature(e1 = "dMatrix", e2 = "numeric"),
 setMethod("Compare", signature(e1 = "dMatrix", e2 = "dMatrix"),
           function(e1, e2) {
               d <- dimCheck(e1,e2)
-              lClass <- dClass2(class(e1), "l")
+              lClass <- class2(class(e1), "l")
 
               ## FIXME: if (the 'x' are slots compatible)
 	      r <- callGeneric(e1@x, e2@x)

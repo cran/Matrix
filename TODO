@@ -116,3 +116,5 @@ Check for DimNames propagation in coercion and other operations.
   2006-04-15 : now with 'CSparse' { src/cs.c }, have at least solve( <dtC*> )
 
 - nicer pedigree examples and tests
+
+- band(), triu(), tril() for *all*, not just sparse matrices

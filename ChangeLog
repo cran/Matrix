@@ -1,3 +1,22 @@
+2006-08-07  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.995-14  for CRAN
+
+	* tests/other-pkgs.R: oops: library(Matrix) outside *if* !
+
+	* R/sparseMatrix.R (Tsp2grNEL): fixed Tsparse -> graph coercion
+	* tests/other-pkgs.R:  more checks, sparseMatrix -> graph
+
+	* R/Auxiliaries.R (as_Tsparse, as_Rsparse): new
+	* R/Tsparse.R (tril, triu, band): methods
+	* R/dgRMatrix.R (tril, ...):	dito
+	* man/band.Rd:			dito
+
+2006-08-04  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Matrix.R (head, tail): directly use utils:::head.matrix
+		to be up-to-date automatically.
+
 2006-08-03  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* DESCRIPTION (Version): 0.995-13 to be released to CRAN

@@ -284,3 +284,13 @@ setMethod("rowSums", signature(x = "TsparseMatrix"), .as.dgT.Fun,
 	  valueClass = "numeric")
 setMethod("rowMeans", signature(x = "TsparseMatrix"), .as.dgT.Fun,
 	  valueClass = "numeric")
+
+## Want tril(), triu(), band() --- just as "indexing" ---
+## return a "close" class:
+setMethod("tril", "TsparseMatrix",
+	  function(x, k = 0, ...) as_Tsparse(tril(as_Csparse(x), k = k, ...)))
+setMethod("triu", "TsparseMatrix",
+	  function(x, k = 0, ...) as_Tsparse(triu(as_Csparse(x), k = k, ...)))
+setMethod("band", "TsparseMatrix",
+	  function(x, k1, k2, ...)
+	  as_Tsparse(band(as_Csparse(x), k1 = k1, k2 = k2, ...)))

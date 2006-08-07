@@ -349,13 +349,10 @@ geClass <- function(x) {
                      "s" = "sy",
                      "g" = "ge")
 
-.Csparse.prefix <- function(ch) {
-    switch(ch,
-	   "d" =, "t" = "tC",
-	   "s" = "sC",
-	   "g" = "gC",
-           stop("invalid Matrix shape: ", ch))
-}
+.sparse.prefixes <- c("d" = "t", ## map diagonal to triangular
+                      "t" = "t",
+                      "s" = "s",
+                      "g" = "g")
 
 ## Used, e.g. after subsetting: Try to use specific class -- if feasible :
 as_dense <- function(x) {
@@ -363,7 +360,13 @@ as_dense <- function(x) {
 }
 
 as_Csparse <- function(x) {
-    as(x, paste(.M.kind(x), .Csparse.prefix(.M.shape(x)), "Matrix", sep=''))
+    as(x, paste(.M.kind(x), .sparse.prefixes[.M.shape(x)], "CMatrix", sep=''))
+}
+as_Rsparse <- function(x) {
+    as(x, paste(.M.kind(x), .sparse.prefixes[.M.shape(x)], "RMatrix", sep=''))
+}
+as_Tsparse <- function(x) {
+    as(x, paste(.M.kind(x), .sparse.prefixes[.M.shape(x)], "TMatrix", sep=''))
 }
 
 as_geClass <- function(x, cl) {
@@ -477,12 +480,14 @@ diagU2N <- function(x)
 	Dimnames = x@Dimnames, uplo = x@uplo, diag = "N")
 }
 
+## FIXME: this should probably be dropped / replaced by as_Csparse
 .as.dgC.Fun <- function(x, na.rm = FALSE, dims = 1) {
     x <- as(x, "dgCMatrix")
     callGeneric()
 }
 
 .as.dgT.Fun <- function(x, na.rm = FALSE, dims = 1) {
+    ## used e.g. inside colSums() etc methods
     x <- as(x, "dgTMatrix")
     callGeneric()
 }

@@ -85,31 +85,36 @@ setAs("graphNEL", "sparseMatrix",
 setAs("sparseMatrix", "graph", function(from) as(from, "graphNEL"))
 setAs("sparseMatrix", "graphNEL",
       function(from) as(as(from, "TsparseMatrix"), "graphNEL"))
-setAs("TsparseMatrix", "graphNEL",
-      function(from) {
-          d <- dim(from)
-          if(d[1] != d[2])
-              stop("only square matrices can be used as incidence matrices for grphs")
-          n <- d[1]
-          if(n == 0) return(new("graphNEL"))
-          if(is.null(rn <- dimnames(from)[[1]]))
-              rn <- as.character(1:n)
-          from <- uniq(from) ## Need to 'uniquify' the triplets!
-          if(isSymmetric(from)) { # because it's "dsTMatrix" or otherwise
-              upper <- from@i <= from@j
-              ft1 <- cbind(from@i + 1:1, from@j + 1:1)
-              graph::ftM2graphNEL(rbind(ft1, ft1[, 2:1]),
-                                  W = from@x, V=rn, edgemode="undirected")
 
-          } else { ## not symmetric
+Tsp2grNEL <- function(from) {
+    d <- dim(from)
+    if(d[1] != d[2])
+	stop("only square matrices can be used as incidence matrices for grphs")
+    n <- d[1]
+    if(n == 0) return(new("graphNEL"))
+    if(is.null(rn <- dimnames(from)[[1]]))
+	rn <- as.character(1:n)
+    from <- uniq(from) ## Need to 'uniquify' the triplets!
 
-              graph::ftM2graphNEL(cbind(from@i + 1:1, from@j + 1:1),
-                                  W = from@x, V=rn, edgemode="directed")
-          }
-          ## stop("'dgTMatrix -> 'graphNEL' method is not yet implemented")
-      })
+    if(isSymmetric(from)) { # either "symmetricMatrix" or otherwise
+	##-> undirected graph: every edge only once!
+	if(!is(from, "symmetricMatrix")) {
+	    ## a general matrix which happens to be symmetric
+	    ## ==> remove the double indices
+	    from <- tril(from)
+	}
+	## every edge is there only once, either upper or lower triangle
+	ft1 <- cbind(from@i + 1:1, from@j + 1:1)
+	graph::ftM2graphNEL(ft1, W = from@x, V= rn, edgemode= "undirected")
 
+    } else { ## not symmetric
 
+	graph::ftM2graphNEL(cbind(from@i + 1:1, from@j + 1:1),
+			    W = from@x, V= rn, edgemode= "directed")
+    }
+
+}
+setAs("TsparseMatrix", "graphNEL", Tsp2grNEL)
 
 
 ### Subsetting -- basic things (drop = "missing") are done in ./Matrix.R

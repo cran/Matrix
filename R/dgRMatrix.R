@@ -66,3 +66,14 @@ setMethod("image", "dgRMatrix",
               x <- as(x, "dgTMatrix")
               callGeneric()
           })
+
+
+## Want tril(), triu(), band() --- just as "indexing" ---
+## return a "close" class:
+setMethod("tril", "RsparseMatrix",
+	  function(x, k = 0, ...) as_Rsparse(tril(as_Csparse(x), k = k, ...)))
+setMethod("triu", "RsparseMatrix",
+	  function(x, k = 0, ...) as_Rsparse(triu(as_Csparse(x), k = k, ...)))
+setMethod("band", "RsparseMatrix",
+	  function(x, k1, k2, ...)
+	  as_Rsparse(band(as_Csparse(x), k1 = k1, k2 = k2, ...)))

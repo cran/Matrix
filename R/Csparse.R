@@ -173,7 +173,7 @@ setMethod("%*%", signature(x = "CsparseMatrix", y = "CsparseMatrix"),
 setMethod("%*%", signature(x = "CsparseMatrix", y = "denseMatrix"),
           function(x, y) .Call(Csparse_dense_prod, x, y))
 
-## NB: have extra tril(), triu() methods for "dsC" and "lsC"
+## NB: have extra tril(), triu() methods for symmetric ["dsC" and "lsC"]
 setMethod("tril", "CsparseMatrix",
 	  function(x, k = 0, ...) {
 	      k <- as.integer(k[1])

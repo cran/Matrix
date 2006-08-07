@@ -6,6 +6,12 @@
 \alias{band,CsparseMatrix-method}
 \alias{tril,CsparseMatrix-method}
 \alias{triu,CsparseMatrix-method}
+\alias{band,RsparseMatrix-method}
+\alias{tril,RsparseMatrix-method}
+\alias{triu,RsparseMatrix-method}
+\alias{band,TsparseMatrix-method}
+\alias{tril,TsparseMatrix-method}
+\alias{triu,TsparseMatrix-method}
 \alias{tril,dsCMatrix-method}
 \alias{tril,lsCMatrix-method}
 \alias{triu,dsCMatrix-method}
@@ -46,6 +52,9 @@ triu(x, k = 0, \dots)
   \describe{
     \item{x = "CsparseMatrix"}{method for compressed, sparse,
       column-oriented matrices.}
+    \item{x = "TsparseMatrix"}{method for sparse matrices in triplet format.}
+    \item{x = "RsparseMatrix"}{method for compressed, sparse,
+      row-oriented matrices.}
   }
 }
 \examples{

@@ -1,44 +1,67 @@
 ####--------- Test interfaces to other non-standard Packages ---------------
 
+library(Matrix)
+
 ###-- 1)  'graph' (from Bioconductor) ---------------------------
 ###-- ==  =======                     ---------------------------
 if(require(graph)) {
 
-if(packageDescription("graph")$Version <= "1.10.2") {
-    ## graph 1.10.x for x <= 2  had too much problems in  as(<graph>, "matrix")
-    cat("Version of 'graph' is too old --- no tests done here!\n")
-    q('no')
-}
+    if(packageDescription("graph")$Version <= "1.10.2") {
+        ## graph 1.10.x for x <= 2 had too many problems  as(<graph>, "matrix")
+        cat("Version of 'graph' is too old --- no tests done here!\n")
+        q('no')
+    }
 
-## else do things
+    ## else do things
 
-library(Matrix)
+    ## 1) undirected
 
-example("graphNEL-class", echo = FALSE)
-nodes(gR)
+    V <- LETTERS[1:4]
+    edL <- vector("list", length=4)
+    names(edL) <- V
+    ## 1a) unweighted
+    for(i in 1:4)
+        edL[[i]] <- list(edges = 5-i)
+    gR <- new("graphNEL", nodes=V, edgeL=edL)
+    str(edges(gR))
+    sm.g <- as(gR, "sparseMatrix")
+    str(sm.g) ## dgT: FIXME: want 'dsT'  and Dimnames!
+    validObject(sm.g)
+    sm.g ## should show the Dimnames - at least row ones
 
-## 1) undirected
-sm.g <- as(gR, "sparseMatrix")
-str(sm.g)## 'dsT' - fine; even has Dimnames!
-validObject(sm.g)
-sm.g # should show the Dimnames - at least row ones
+    ## 1b) weighted
+    set.seed(123)
+    for(i in 1:4)
+        edL[[i]] <- list(edges = 5-i, weights=runif(1))
+    gRw <- new("graphNEL", nodes=V, edgeL=edL)
+    str(edgeWeights(gRw))
+    sm.gw <- as(gRw, "sparseMatrix")
+    str(sm.gw) ## dgT
+    validObject(sm.gw)
+    sm.gw ## should show the Dimnames - at least row ones
 
-## 2) directed
-gU <- gR; edgemode(gU) <- "directed"
-sgU <- as(gU, "sparseMatrix")
-str(sgU)## 'dgT' with dimnames
-validObject(sgU)
-sgU # should now show the Dimnames!
+    ## 2) directed
+    gU <- gR; edgemode(gU) <- "directed"
+    sgU <- as(gU, "sparseMatrix")
+    str(sgU) ## 'dgT' -- FIXME: dimnames
+    validObject(sgU)
+    sgU
 
-### Reverse :  sparseMatrix -> graph
-if(FALSE) { ## not yet (FIXME!)
-    gmg  <- as(sm.g, "graph")
-    gmg2 <- as(sm.g, "graphNEL")
-    gmgU <- as(sgU, "graph")
-    gmgU <- as(sgU, "graphNEL")
-}
+    ## Reverse :  sparseMatrix -> graph
 
-}## end{graph}
+    gmg  <-  as(sm.g, "graph")
+    validObject(gmg2 <-  as(sm.g, "graphNEL"))
+    gmgw <-  as(sm.gw, "graph")
+    validObject(gmgw2 <- as(sm.gw, "graphNEL"))
+    gmgU <-  as(sgU, "graph")
+    validObject(gmgU2 <- as(sgU, "graphNEL"))
+    stopifnot(identical(gmg, gmg2),
+              identical(gmgw, gmgw2),
+              identical(gmgU, gmgU2))
+
+    detach("package:graph")
+
+} ## end{graph}
 
 ###-- 2)  'SparseM' ---------------------------------------------
 ###-- ==  ========  ---------------------------------------------
@@ -60,5 +83,7 @@ stopifnot(
           )
 
 ## TODO: More tests; in particular for triplets !
+
+  detach("package:SparseM")
 
 }## end{SparseM}

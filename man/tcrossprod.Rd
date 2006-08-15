@@ -44,7 +44,7 @@ tcrossprod(x, y = NULL)
  set.seed(12)
  m[runif(314, 0, length(m))] <- 1
  mm <- as(m, "dgCMatrix")
- object.size(m) / object.size(mm) # smaller by a factor of 242.88
+ object.size(m) / object.size(mm) # smaller by a factor of > 200
 
  ## tcrossprod() is very fast:
  system.time(tCmm <- tcrossprod(mm))# 0   (PIII, 933 MHz)

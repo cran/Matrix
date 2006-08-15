@@ -72,8 +72,10 @@ band(mm, -1, 2) # general band
 (x.x <- crossprod(mm))
 tril(x.x)
 xx <- tril(x.x) + triu(x.x, 1) ## the same as x.x (but stored differently):
+txx <- t(as(xx, "dsCMatrix"))
 stopifnot(identical(triu(x.x), t(tril(x.x))),
-          identical(x.x, t(as(xx, "dsCMatrix"))))
+	  identical(class(x.x), class(txx)),
+	  identical(as(x.x, "dgCMatrix"), as(txx, "dgCMatrix")))
 }
 }
 \keyword{methods}

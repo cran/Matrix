@@ -269,13 +269,3 @@ SEXP dsCMatrix_metis_perm(SEXP x)
     UNPROTECT(1);
     return ans;
 }
-
-SEXP sCMatrix_to_gCMatrix(SEXP x)
-{
-    cholmod_sparse *chx = as_cholmod_sparse(x);
-    cholmod_sparse *ans = cholmod_copy(chx, /* stype: */ 0, chx->xtype, &c);
-    /* xtype: pattern, "real", complex or .. */
-
-    Free(chx);
-    return chm_sparse_to_SEXP(ans, 1);
-}

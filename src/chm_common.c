@@ -91,27 +91,34 @@ cholmod_sparse *as_cholmod_sparse(SEXP x)
  *
  * @param a matrix to be converted
  * @param dofree 0 - don't free a; > 0 cholmod_free a; < 0 Free a
+ * @param uploT 0 - not triangular; > 0 upper triangular; < 0 lower
+ * @param diag character string suitable for the diag slot of a
+ *          triangular matrix (not accessed if uploT == 0).
+ * @param dn either R_NilValue or an SEXP suitable for the Dimnames slot.
  *
  * @return SEXP containing a copy of a
  */
-SEXP chm_sparse_to_SEXP(cholmod_sparse *a, int dofree)
+SEXP chm_sparse_to_SEXP(cholmod_sparse *a, int dofree, int uploT,
+			char* diag, SEXP dn)
 {
     SEXP ans;
     char *cl = "";		/* -Wall */
     int *dims, nnz;
+
+    PROTECT(dn);  /* dn is usually UNPROTECTed before the call */
 				/* ensure a is sorted and packed */
     if (!a->sorted || !a->packed) cholmod_sort(a, &c);
     nnz = cholmod_nnz(a, &c);
 				/* determine the class of the result */
     switch(a->xtype){
     case CHOLMOD_PATTERN:
-	cl = (a->stype) ? "lsCMatrix" : "lgCMatrix";
+	cl = uploT ? "ltCMatrix": ((a->stype) ? "lsCMatrix" : "lgCMatrix");
 	break;
     case CHOLMOD_REAL:
-	cl = (a->stype) ? "dsCMatrix" : "dgCMatrix";
+	cl = uploT ? "dtCMatrix": ((a->stype) ? "dsCMatrix" : "dgCMatrix");
 	break;
     case CHOLMOD_COMPLEX:
-	cl = (a->stype) ? "zsCMatrix" : "zgCMatrix";
+	cl = uploT ? "ztCMatrix": ((a->stype) ? "zsCMatrix" : "zgCMatrix");
 	break;
     default: error("unknown xtype in cholmod_sparse object");
     }
@@ -131,13 +138,21 @@ SEXP chm_sparse_to_SEXP(cholmod_sparse *a, int dofree)
 	error("complex sparse matrix code not yet written");
 /* 	Memcpy(COMPLEX(ALLOC_SLOT(ans, Matrix_xSym, CPLXSXP, nnz)), */
 /* 	       (complex *) a->x, nnz); */
-				/* set symmetry attributes */
-    if (a->stype)
+    if (uploT) {		/* slots for triangularMatrix */
+	if (a->stype) error("Symmetric and triangular both set");
+	SET_SLOT(ans, Matrix_uploSym, mkString((uploT > 0) ? "U" : "L"));
+	SET_SLOT(ans, Matrix_diagSym, mkString(diag));
+    }
+    if (a->stype)		/* slot for symmetricMatrix */
 	SET_SLOT(ans, Matrix_uploSym,
 		 mkString((a->stype > 0) ? "U" : "L"));
     if (dofree > 0) cholmod_free_sparse(&a, &c);
     if (dofree < 0) Free(a);
-    UNPROTECT(1);
+    if (dn != R_NilValue)
+	SET_SLOT(ans, Matrix_DimNamesSym, duplicate(dn));
+
+
+    UNPROTECT(2);
     return ans;
 }
 
@@ -217,24 +232,34 @@ cholmod_triplet *as_cholmod_triplet(SEXP x)
  *
  * @param a matrix to be converted
  * @param dofree 0 - don't free a; > 0 cholmod_free a; < 0 Free a
+ * @param uploT 0 - not triangular; > 0 upper triangular; < 0 lower
+ * @param diag character string suitable for the diag slot of a
+ *          triangular matrix (not accessed if uploT == 0).
+ * @param dn either R_NilValue or an SEXP suitable for the Dimnames slot.
  *
  * @return SEXP containing a copy of a
  */
-SEXP chm_triplet_to_SEXP(cholmod_triplet *a, int dofree)
+SEXP chm_triplet_to_SEXP(cholmod_triplet *a, int dofree, int uploT,
+			 char* diag, SEXP dn)
 {
     SEXP ans;
     char *cl = "";		/* -Wall */
     int *dims;
+
+    PROTECT(dn);  /* dn is usually UNPROTECTed before the call */
 				/* determine the class of the result */
     switch(a->xtype){
     case CHOLMOD_PATTERN:
-	cl = (a->stype) ? "lsTMatrix" : "lgTMatrix";
+	cl = uploT ? "ltTMatrix" :
+	    ((a->stype) ? "lsTMatrix" : "lgTMatrix");
 	break;
     case CHOLMOD_REAL:
-	cl = (a->stype) ? "dsTMatrix" : "dgTMatrix";
+	cl = uploT ? "dtTMatrix" :
+	    ((a->stype) ? "dsTMatrix" : "dgTMatrix");
 	break;
     case CHOLMOD_COMPLEX:
-	cl = (a->stype) ? "zsTMatrix" : "zgTMatrix";
+	cl = uploT ? "ztTMatrix" :
+	    ((a->stype) ? "zsTMatrix" : "zgTMatrix");
 	break;
     default: error("unknown xtype in cholmod_triplet object");
     }
@@ -254,13 +279,20 @@ SEXP chm_triplet_to_SEXP(cholmod_triplet *a, int dofree)
 	error("complex sparse matrix code not yet written");
 /* 	Memcpy(COMPLEX(ALLOC_SLOT(ans, Matrix_xSym, CPLXSXP, a->nnz)), */
 /* 	       (complex *) a->x, a->nz); */
+    if (uploT) {		/* slots for triangularMatrix */
+	if (a->stype) error("Symmetric and triangular both set");
+	SET_SLOT(ans, Matrix_uploSym, mkString((uploT > 0) ? "U" : "L"));
+	SET_SLOT(ans, Matrix_diagSym, mkString(diag));
+    }
 				/* set symmetry attributes */
     if (a->stype)
 	SET_SLOT(ans, Matrix_uploSym,
 		 mkString((a->stype > 0) ? "U" : "L"));
     if (dofree > 0) cholmod_free_triplet(&a, &c);
     if (dofree < 0) Free(a);
-    UNPROTECT(1);
+    if (dn != R_NilValue)
+	SET_SLOT(ans, Matrix_DimNamesSym, duplicate(dn));
+    UNPROTECT(2);
     return ans;
 }
 
@@ -281,14 +313,18 @@ cholmod_dense *as_cholmod_dense(SEXP x)
 		     "lmatrix", "lgeMatrix",
 		     "zmatrix", "zgeMatrix", ""},
 	*cl = CHAR(asChar(getAttrib(x, R_ClassSymbol)));
-    int dims[2], ctype = check_class(cl, valid);
+    int dims[2], ctype = check_class(cl, valid), nprot = 0;
 
-    if (ctype < 0) {
+    if (ctype < 0) {		/* not a classed matrix */
+	if (isMatrix(x)) Memcpy(dims, INTEGER(getAttrib(x, R_DimSymbol)), 2);
+	else {dims[0] = LENGTH(x); dims[1] = 1;}
+	if (isInteger(x)) {
+	    x = PROTECT(coerceVector(x, REALSXP));
+	    nprot++;
+	}
 	ctype = (isReal(x) ? 0 :
 		 (isLogical(x) ? 2 :
 		  (isComplex(x) ? 4 : -1)));
-	if (isMatrix(x)) Memcpy(dims, INTEGER(getAttrib(x, R_DimSymbol)), 2);
-	else {dims[0] = LENGTH(x); dims[1] = 1;}
     } else Memcpy(dims, INTEGER(GET_SLOT(x, Matrix_DimSym)), 2);
     if (ctype < 0) error("invalid class of object to as_cholmod_dense");
 				/* characteristics of the system */
@@ -313,7 +349,7 @@ cholmod_dense *as_cholmod_dense(SEXP x)
 	ans->x = (void *) COMPLEX((ctype % 2) ? GET_SLOT(x, Matrix_xSym) : x);
 	break;
     }
-
+    UNPROTECT(nprot);
     return ans;
 }
 
@@ -355,6 +391,48 @@ SEXP chm_dense_to_SEXP(cholmod_dense *a, int dofree)
     if (dofree > 0) cholmod_free_dense(&a, &c);
     if (dofree < 0) Free(a);
     UNPROTECT(1);
+    return ans;
+}
+
+/**
+ * Copy the contents of a to a matrix object and, optionally, free a
+ * or free both a and its pointer to its contents.
+ *
+ * @param a cholmod_dense structure to be converted
+ * @param dofree 0 - don't free a; > 0 cholmod_free a; < 0 Free a
+ * @param dn either R_NilValue or an SEXP suitable for the Dimnames slot.
+ *
+ * @return SEXP containing a copy of a as a matrix object
+ */
+SEXP chm_dense_to_matrix(cholmod_dense *a, int dofree, SEXP dn)
+{
+    SEXP ans;
+    SEXPTYPE typ;
+
+    PROTECT(dn);
+				/* determine the class of the result */
+    typ = (a->xtype == CHOLMOD_PATTERN) ? LGLSXP :
+	((a->xtype == CHOLMOD_REAL) ? REALSXP :
+	 ((a->xtype == CHOLMOD_COMPLEX) ? CPLXSXP : NILSXP));
+    if (typ == NILSXP) error("unknown xtype");
+
+    ans = PROTECT(allocMatrix(typ, a->nrow, a->ncol));
+    if (a->d == a->nrow) {	/* copy data slot if present */
+	if (a->xtype == CHOLMOD_REAL)
+	    Memcpy(REAL(ans), (double *) a->x, a->nrow * a->ncol);
+	if (a->xtype == CHOLMOD_COMPLEX)
+	    error("complex sparse matrix code not yet written");
+	if (a->xtype == CHOLMOD_PATTERN)
+	    error("don't know if a dense pattern matrix makes sense");
+/* 	Memcpy(COMPLEX(ALLOC_SLOT(ans, Matrix_xSym, CPLXSXP, a->nnz)), */
+/* 	       (complex *) a->x, a->nz); */
+    } else error("code for cholmod_dense with holes not yet written");
+
+    if (dofree > 0) cholmod_free_dense(&a, &c);
+    if (dofree < 0) Free(a);
+    if (dn != R_NilValue)
+        setAttrib(ans, R_DimNamesSymbol, duplicate(dn));
+    UNPROTECT(2);
     return ans;
 }
 

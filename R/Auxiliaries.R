@@ -88,7 +88,7 @@ colCheck <- function(a, b) {
 ## ----  "*sy" and "*tr" which have "undefined" lower or upper part
 isPacked <- function(x)
 {
-    ## Is 'x' a packed (dense) matrix ?
+    ## Is 'x' a packed (dense) matrix ? -- gives also TRUE for sparse
     is(x,"Matrix") && !is.null(x@x) && length(x@x) < prod(dim(x))
 }
 
@@ -372,9 +372,10 @@ as_Tsparse <- function(x) {
 as_geClass <- function(x, cl) {
     if	   (extends(cl, "diagonalMatrix")  && isDiagonal(x))
 	as(x, cl)
-    else if(extends(cl, "symmetricMatrix") &&  isSymmetric(x))
+    else if(extends(cl, "symmetricMatrix") &&  isSymmetric(x)) {
+        kind <- .M.kind(x)
 	as(x, class2(cl, kind, do.sub= kind != "d"))
-    else if(extends(cl, "triangularMatrix") && isTriangular(x))
+    } else if(extends(cl, "triangularMatrix") && isTriangular(x))
 	as(x, cl)
     else
 	as(x, paste(.M.kind(x), "geMatrix", sep=''))
@@ -465,10 +466,31 @@ isTriC <- function(x, upper = NA) {
 }
 
 .is.diagonal <- function(object) {
+    ## "matrix" or "denseMatrix" (but not "diagonalMatrix")
     d <- dim(object)
     if(d[1] != (n <- d[2])) FALSE
-    else all(object[rep(c(FALSE, rep.int(TRUE,n)), length = n^2)] == 0)
+    else if(is.matrix(object))
+        ## requires that "vector-indexing" works for 'object' :
+        all(object[rep(c(FALSE, rep.int(TRUE,n)), length = n^2)] == 0)
+    else ## "denseMatrix" -- packed or unpacked
+        if(is(object, "generalMatrix")) # "dge", "lge", ...
+            all(object@x[rep(c(FALSE, rep.int(TRUE,n)), length = n^2)] == 0)
+        else { ## "dense" but not {diag, general}, i.e. triangular or symmetric:
+            ## -> has 'uplo'  differentiate between packed and unpacked
+
+### .......... FIXME ...............
+
+            packed <- isPacked(object)
+            if(object@uplo == "U") {
+            } else { ## uplo == "L"
+            }
+
+### very cheap workaround
+	    all(as.matrix(object)[rep(c(FALSE, rep.int(TRUE,n)), length = n^2)]
+		== 0)
+        }
 }
+
 
 diagU2N <- function(x)
 {

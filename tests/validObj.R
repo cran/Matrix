@@ -41,7 +41,7 @@ chk.matrix(mc. <- as(cm, "Matrix"))
 stopifnot(identical(mc., mcm),
           identical4(2*cm, cm + cp, cp + cs, mcm * 2))
 chk.matrix(eq <- cm == cs)
-stopifnot(all(eq))
+stopifnot(all(eq@x))
 if(FALSE) ##FIXME
 identical3(eq, cs == cp, cm == cp)
 if(FALSE) ##FIXME

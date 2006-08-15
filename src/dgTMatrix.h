@@ -5,7 +5,7 @@
 #include "triplet_to_col.h"
 
 SEXP dgTMatrix_validate(SEXP x);
-SEXP dgTMatrix_to_dgCMatrix(SEXP x);
+/* SEXP dgTMatrix_to_dgCMatrix(SEXP x); */  /* no longer used */
 SEXP dgTMatrix_to_dgeMatrix(SEXP x);
 SEXP dgTMatrix_to_matrix(SEXP x);
 #ifdef _valid_only_for_old_graph_package

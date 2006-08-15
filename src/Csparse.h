@@ -1,13 +1,23 @@
+#ifndef MATRIX_CSPARSE_H
+#define MATRIX_CSPARSE_H
+
 #include "Mutils.h"
 
 SEXP Csparse_Csparse_prod(SEXP a, SEXP b);
+SEXP Csparse_band(SEXP x, SEXP k1, SEXP k2);
 SEXP Csparse_crossprod(SEXP x, SEXP trans, SEXP triplet);
 SEXP Csparse_dense_crossprod(SEXP a, SEXP b);
 SEXP Csparse_dense_prod(SEXP a, SEXP b);
+SEXP Csparse_diagU2N(SEXP x);
 SEXP Csparse_horzcat(SEXP x, SEXP y);
-SEXP Csparse_to_Tsparse(SEXP x);
+SEXP Csparse_submatrix(SEXP x, SEXP i, SEXP j);
+SEXP Csparse_symmetric_to_general(SEXP x);
+SEXP Csparse_to_Tsparse(SEXP x, SEXP tri);
 SEXP Csparse_to_dense(SEXP x);
-SEXP Csparse_transpose(SEXP x);
+SEXP Csparse_to_logical(SEXP x, SEXP tri);
+SEXP Csparse_to_matrix(SEXP x);
+SEXP Csparse_transpose(SEXP x, SEXP tri);
 SEXP Csparse_validate(SEXP x);
 SEXP Csparse_vertcat(SEXP x, SEXP y);
-SEXP Csparse_band(SEXP x, SEXP k1, SEXP k2);
+
+#endif

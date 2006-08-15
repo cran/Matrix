@@ -302,7 +302,7 @@ int coef_length(int nf, const int nc[])
  * @param rho Environment in which to find the variable
  * @param nm Name of the variable to find
  * @param mode Desired mode
- * @param len Desired length
+ * @param len Desired length (ignored if <= 0)
  *
  * @return
  */
@@ -316,8 +316,8 @@ SEXP find_and_check(SEXP rho, SEXP nm, SEXPTYPE mode, int len)
     if (TYPEOF(ans) != mode)
 	error(_("object `%s' of incorrect type"),
 	      CHAR(PRINTNAME(nm)));
-    if (len && LENGTH(ans) != len)
-	error(_("object `%s' must be of length `%d'"),
+    if (len > 0 && LENGTH(ans) != len)
+	error(_("object `%s' must be of length %d"),
 	      CHAR(PRINTNAME(nm)), len);
     UNPROTECT(1);
     return ans;
@@ -944,8 +944,10 @@ internal_betab_update(int p, int q, double sigma, cholmod_factor *L,
 		      double bhat[], double betanew[], double bnew[])
 {
     cholmod_dense *chb, *chbnew = numeric_as_chm_dense(bnew, q);
+    int *perm = (int *)L->Perm;
     int j, ione = 1;
     double m1[] = {-1,0}, one[] = {1,0}, ans = 0;
+    
 				/* simulate scaled, independent normals */
     for (j = 0; j < p; j++) {
 	double nr = norm_rand();
@@ -955,7 +957,7 @@ internal_betab_update(int p, int q, double sigma, cholmod_factor *L,
     for (j = 0; j < q; j++) {
 	double nr = norm_rand();
 	ans += nr * nr;
-	bnew[j] = sigma * nr;
+	bnew[perm[j]] = sigma * nr; /* RZX has permutation in it */
     }
 				/* betanew := RXX^{-1} %*% betanew */
     F77_CALL(dtrsv)("U", "N", "N", &p, RXX, &p, betanew, &ione);
@@ -965,8 +967,10 @@ internal_betab_update(int p, int q, double sigma, cholmod_factor *L,
     for (j = 0; j < p; j++) betanew[j] += betahat[j];
 				/* chb := L^{-T} %*% bnew */
     chb = cholmod_solve(CHOLMOD_Lt, L, chbnew, &c);
-				/* Copy chb to bnew and free chb */
-    for (j = 0; j < q; j++) bnew[j] = ((double*)(chb->x))[j] + bhat[j];
+    for (j = 0; j < q; j++) {	/* Copy chb to bnew applying P-inverse */
+	int pj = perm[j];
+	bnew[j] = ((double*)(chb->x))[pj] + bhat[pj];
+    }
     cholmod_free_dense(&chb, &c);
     Free(chbnew);
     return ans;
@@ -1468,7 +1472,11 @@ SEXP glmer_init(SEXP rho) {
     if (!isEnvironment(rho))
 	error(_("`rho' must be an environment"));
     GS->rho = rho;
+#ifdef S4SXP
+    GS->mer = find_and_check(rho, install("mer"), S4SXP, 0);
+#else
     GS->mer = find_and_check(rho, install("mer"), VECSXP, 0);
+#endif /* S4SXP */
     y = GET_SLOT(GS->mer, Matrix_ySym);
     GS->n = LENGTH(y);
     GS->p = LENGTH(GET_SLOT(GS->mer, Matrix_rXySym));

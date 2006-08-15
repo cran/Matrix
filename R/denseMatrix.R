@@ -113,7 +113,7 @@ setMethod("isSymmetric", signature(object = "denseMatrix"),
 	  })
 
 setMethod("isTriangular", signature(object = "triangularMatrix"),
-          function(object, ...) TRUE)
+	  function(object, ...) TRUE)
 
 setMethod("isTriangular", signature(object = "denseMatrix"), isTriMat)
 

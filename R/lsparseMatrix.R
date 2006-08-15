@@ -1,5 +1,10 @@
 #### Superclass Methods for all sparse logical matrices
 
+setAs("CsparseMatrix", "lsparseMatrix",
+      function(from) .Call(Csparse_to_logical, from,
+			   is(from, "triangularMatrix")))
+
+
 ###------- Work via  as(*, lgC) : ------------
 
 ## For multiplication operations, sparseMatrix overrides other method
@@ -31,4 +36,3 @@ setMethod("!", "lsparseMatrix",
 
 setMethod("diag", signature(x = "lsparseMatrix"),
 	  function(x, nrow, ncol = n) diag(as(x, "lgCMatrix")))
-

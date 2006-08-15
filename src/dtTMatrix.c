@@ -31,7 +31,8 @@ SEXP dtTMatrix_as_dgCMatrix(SEXP x)
 {
     cholmod_triplet *tx = as_cholmod_triplet(x);
     cholmod_sparse *cx = cholmod_triplet_to_sparse(tx, tx->nzmax, &c);
-    SEXP val = PROTECT(chm_sparse_to_SEXP(cx, 1)); /* cholmod_frees cx */
+				/* chm_sparse_to_SEXP cholmod_frees cx */
+    SEXP val = PROTECT(chm_sparse_to_SEXP(cx, 1, 0, "", R_NilValue));
 
 
     SET_SLOT(val, Matrix_DimSym, duplicate(GET_SLOT(x, Matrix_DimSym)));

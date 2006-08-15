@@ -80,11 +80,11 @@
 \examples{
 showClass("dtrMatrix")
 
-if (0) {
-  example("dtrMatrix-class")
-  (p1 <- as(T3, "dtpMatrix"))
-  str(p1)
-  (pp <- as(T, "dtpMatrix"))
-}
+example("dtrMatrix-class")
+(p1 <- as(T2, "dtpMatrix"))
+str(p1)
+(pp <- as(T, "dtpMatrix"))
+stopifnot(length(p1@x) == 3, length(pp@x) == 3,
+          p1 @ uplo == T2 @ uplo, pp @ uplo == T @ uplo)
 }
 \keyword{classes}

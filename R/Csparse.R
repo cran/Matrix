@@ -2,30 +2,48 @@
 ####  "column compressed" format.
 #### -- many more specific things are e.g. in ./dgCMatrix.R
 
-## FIXME: the is(*,"generalMatrix") test at least makes these work,
-##        but they are still ``wrong'', since triangularity is lost  :
-
 setAs("CsparseMatrix", "TsparseMatrix",
-      function(from) {
-	  if(!is(from, "generalMatrix")) { ## e.g. for triangular | symmetric
-	      if     (is(from, "dMatrix")) from <- as(from, "dgCMatrix")
-	      else if(is(from, "lMatrix")) from <- as(from, "lgCMatrix")
-	      else if(is(from, "zMatrix")) from <- as(from, "zgCMatrix")
-	      else stop("undefined method for class ", class(from))
-	  }
-          .Call(Csparse_to_Tsparse, from) # ../src/Csparse.c
-          ## |-> cholmod_C -> cholmod_T -> chm_triplet_to_SEXP(* , 1)
-      })
+      function(from)
+          ## |-> cholmod_C -> cholmod_T -> chm_triplet_to_SEXP
+          ## modified to support triangular (../src/Csparse.c)
+          .Call(Csparse_to_Tsparse, from, is(from, "triangularMatrix")))
 
+## special cases (when a specific "to" class is specified)
+setAs("dgCMatrix", "dgTMatrix",
+      function(from) .Call(Csparse_to_Tsparse, from, FALSE))
+
+setAs("dsCMatrix", "dsTMatrix",
+      function(from) .Call(Csparse_to_Tsparse, from, FALSE))
+
+setAs("dsCMatrix", "dgCMatrix",
+      function(from) .Call(Csparse_symmetric_to_general, from))
+
+setAs("dtCMatrix", "dtTMatrix",
+      function(from) .Call(Csparse_to_Tsparse, from, TRUE))
+
+## Current code loses symmetry and triangularity properties.  With suitable
+## changes to chm_dense_to_SEXP (../src/chm_common.c) we can avoid this.
 setAs("CsparseMatrix", "denseMatrix",
       function(from) {
-	  if(!is(from, "generalMatrix")) { ## e.g. for triangular | symmetric
-	      if     (is(from, "dMatrix")) from <- as(from, "dgCMatrix")
-	      else if(is(from, "lMatrix")) from <- as(from, "lgCMatrix")
-	      else if(is(from, "zMatrix")) from <- as(from, "zgCMatrix")
-	      else stop("undefined method for class ", class(from))
-	  }
+          ## |-> cholmod_C -> cholmod_dense -> chm_dense_to_dense
+          if (is(from, "triangularMatrix") && from@diag == "U")
+              from <- .Call(Csparse_diagU2N, from)
           .Call(Csparse_to_dense, from)
+      })
+
+## special cases (when a specific "to" class is specified)
+setAs("dgCMatrix", "dgeMatrix",
+      function(from) .Call(Csparse_to_dense, from))
+
+## cholmod_sparse_to_dense converts symmetric storage to general
+## storage so symmetric classes are ok for conversion to matrix.
+## unit triangular needs special handling
+setAs("CsparseMatrix", "matrix",
+      function(from) {
+          ## |-> cholmod_C -> cholmod_dense -> chm_dense_to_matrix
+          if (is(from, "triangularMatrix") && from@diag == "U")
+              from <- .Call(Csparse_diagU2N, from)
+          .Call(Csparse_to_matrix, from)
       })
 
 ### Some group methods:
@@ -95,14 +113,15 @@ replCmat <- function (x, i, j, value)
     if(lenV > lenRepl)
         stop("too many replacement values")
 
+    if(is(x, "symmetricMatrix")) ## only half the indices are there..
+	x <- .Call(Csparse_symmetric_to_general, x)
     clx <- c(class(x))
+
     xj <- .Call(Matrix_expand_pointers, x@p)
     sel <- (!is.na(match(x@i, i1)) &
             !is.na(match( xj, i2)))
-
     has.x <- any("x" == slotNames(x)) # i.e. *not* logical
-
-    if(sum(sel) == lenRepl) { ## all entries to be replaced are non-zero:
+    if(has.x && sum(sel) == lenRepl) { ## all entries to be replaced are non-zero:
         value <- rep(value, length = lenRepl)
         ## Ideally we only replace them where value != 0 and drop the value==0
         ## ones; but that would have to (?) go through dgT*
@@ -113,7 +132,7 @@ replCmat <- function (x, i, j, value)
         x@x[sel] <- value
         return(x)
     }
-    ## else go via Tsparse..
+    ## else go via Tsparse.. {FIXME "waste": we already have 'xj' ..}
     x <- as(x, "TsparseMatrix")
     x[i,j] <- value
     as_CspClass(x, clx)
@@ -134,32 +153,25 @@ setReplaceMethod("[", signature(x = "CsparseMatrix", i = "index", j = "index",
 
 setMethod("crossprod", signature(x = "CsparseMatrix", y = "missing"),
 	  function(x, y = NULL) {
-	      a <- .Call(Csparse_crossprod, x, trans = FALSE, triplet = FALSE)
-	      switch(substr(class(a)[1], 1, 1),
-		     "d" ={ new("dsCMatrix", i = a@i, p = a@p, x = a@x,
-				Dim = a@Dim, Dimnames = a@Dimnames, uplo = "U",
-				factors = list()) },
-		     "l" ={ new("lsCMatrix", i = a@i, p = a@p,
-				Dim = a@Dim, Dimnames = a@Dimnames, uplo = "U",
-				factors = list()) })
+	      .Call(Csparse_crossprod, x, trans = FALSE, triplet = FALSE)
 	  })
 
+## FIXME: Generalize the class of y.  This specific method is to replace one
+##        in dgCMatrix.R
+setMethod("crossprod", signature(x = "CsparseMatrix", y = "dgeMatrix"),
+	  function(x, y = NULL) .Call(Csparse_dense_crossprod, x, y))
 
-setMethod("t", signature(x = "CsparseMatrix"),
-	  function(x)
-	  .Call(Csparse_transpose, x))
+## as_cholmod_dense handles different storage modes for y appropriately
+setMethod("crossprod", signature(x = "CsparseMatrix", y = "matrix"),
+	  function(x, y = NULL) .Call(Csparse_dense_crossprod, x, y))
 
 setMethod("tcrossprod", signature(x = "CsparseMatrix", y = "missing"),
 	  function(x, y = NULL) {
-	      a <- .Call(Csparse_crossprod, x, trans = TRUE, triplet = FALSE)
-	      switch(substr(class(a)[1], 1, 1),
-		     "d" ={ new("dsCMatrix", i = a@i, p = a@p, x = a@x,
-				Dim = a@Dim, Dimnames = a@Dimnames, uplo = "L",
-				factors = list()) },
-		     "l" ={ new("lsCMatrix", i = a@i, p = a@p,
-				Dim = a@Dim, Dimnames = a@Dimnames, uplo = "L",
-				factors = list()) })
+              .Call(Csparse_crossprod, x, trans = TRUE, triplet = FALSE)
 	  })
+
+setMethod("t", signature(x = "CsparseMatrix"),
+	  function(x) .Call(Csparse_transpose, x, is(x, "triangularMatrix")))
 
 ## FIXME (TODO):
 ## setMethod("tcrossprod", signature(x = "CsparseMatrix", y = "CsparseMatrix"),
@@ -171,6 +183,9 @@ setMethod("%*%", signature(x = "CsparseMatrix", y = "CsparseMatrix"),
           function(x, y) .Call(Csparse_Csparse_prod, x, y))
 
 setMethod("%*%", signature(x = "CsparseMatrix", y = "denseMatrix"),
+          function(x, y) .Call(Csparse_dense_prod, x, y))
+
+setMethod("%*%", signature(x = "CsparseMatrix", y = "matrix"),
           function(x, y) .Call(Csparse_dense_prod, x, y))
 
 ## NB: have extra tril(), triu() methods for symmetric ["dsC" and "lsC"]
@@ -208,6 +223,24 @@ setMethod("band", "CsparseMatrix",
 	      else
 		  r
 	  })
+
+setMethod("diag", "CsparseMatrix",
+          function(x, nrow, ncol = n) {
+              dm <- .Call(Csparse_band, x, 0, 0)
+              dlen <- min(dm@Dim)
+              ind1 <- dm@i + 1:1        # 1-based index vector
+              if (is(dm, "lMatrix")) {
+                  val <- rep.int(FALSE, dlen)
+                  val[ind1] <- TRUE
+                  return(val)
+              }
+              val <- rep.int(0, dlen)
+              ## cMatrix not yet active but for future expansion
+              if (is(dm, "cMatrix")) val <- as.complex(val)
+              val[ind1] <- dm@x
+              val
+          })
+
 
 setMethod("colSums", signature(x = "CsparseMatrix"), .as.dgC.Fun,
 	  valueClass = "numeric")

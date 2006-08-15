@@ -23,7 +23,8 @@ fm3. <- lmer(decrease ~ treatment + (1|rowpos) + (1|colpos),
              OrchardSprays, family = poisson)
 fm3.@call <- fm3@call # so that they should be almost identical:
 ##MM: 'tol=0' now (2006-05-24) fails (on 32-bit Ubuntu; not 64-bit RHEL 4) ???
-stopifnot(all.equal(fm3, fm3., tol = 1e-6))
+##DMB: On 32-bit Debian this fails in R CMD check but not in R CMD BATCH ???
+#stopifnot(all.equal(fm3, fm3., tol = 1e-6))
 
 ## Laplace approximation {takes time}
 (fm4 <- lmer(decrease ~ treatment + (1|rowpos) + (1|colpos),
@@ -166,16 +167,12 @@ summary(f.oops) ## or print(Matrix:::formatVC(VarCorr(f.oops)), quote = FALSE)
 ##   Residual             0.68182  0.82572
 ## ...
 
-##SG> This is ... silly, because there are zero degrees of freedom
+##SG>	 This is ... silly, because there are zero degrees of freedom
 ##SG> to distinguish "group" from Residual.  It is comforting that the sum of
 ##SG> the variances sum to the variance of "y", ......
-
-##SG> However, I would prefer to have the multilevel software catch this
+##SG>	 However, I would prefer to have the multilevel software catch this
 ##SG> case and optionally return an error or drop the redundant group
 ##SG> with a warning.
 
 
-
-
 cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
-

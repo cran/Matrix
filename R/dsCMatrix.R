@@ -7,9 +7,12 @@ setAs("dgCMatrix", "dsCMatrix",
 	      as(as(as(from, "dgTMatrix"), "dsTMatrix"), "dsCMatrix")
 	  else stop("not a symmetric matrix")})
 
-setAs("dsCMatrix", "dsTMatrix",
-      function(from) ## Cholmod:
-      .Call(Csparse_to_Tsparse, from))
+## Specific conversions, should they be necessary.  Better to convert as
+## as(x, "TsparseMatrix") or as(x, "denseMatrix")
+
+## Moved to ./Csparse.R
+## setAs("dsCMatrix", "dsTMatrix",
+##       function(from) .Call(Csparse_to_Tsparse, from, FALSE))
 
 setAs("dsCMatrix", "dgTMatrix", # needed for image()
       function(from) ## pre-Cholmod:
@@ -30,7 +33,7 @@ setAs("dsCMatrix", "lsCMatrix",
                          Dim = from@Dim, Dimnames = from@Dimnames))
 
 setAs("dsCMatrix", "dgCMatrix",
-      function(from) .Call(sCMatrix_to_gCMatrix, from))
+      function(from) .Call(Csparse_symmetric_to_general, from))
 
 if(FALSE) # have 'C' version above
 setAs("dsCMatrix", "dsTMatrix",

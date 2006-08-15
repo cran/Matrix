@@ -14,10 +14,12 @@ SEXP dgTMatrix_validate(SEXP x)
     return ScalarLogical(1);
 }
 
+#if 0				/* no longer used */
 SEXP dgTMatrix_to_dgCMatrix(SEXP x)
 {
-    return Tsparse_to_Csparse(x);
+    return Tsparse_to_Csparse(x, scalarLogical(0));
 }
+#endif
 
 static void
 insert_triplets_in_array(int m, int n, int nnz,

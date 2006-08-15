@@ -1,11 +1,27 @@
 #### "TsparseMatrix" : Virtual class of sparse matrices in triplet-format
 
 setAs("TsparseMatrix", "CsparseMatrix",
-      ## FIXME: this loses 'triangular' (and 'symmetric' ??)
-      function(from)
-      .Call(Tsparse_to_Csparse, from) ## ../src/Tsparse.c
-      ## |-> cholmod_T -> cholmod_C -> chm_sparse_to_SEXP(* , 1)
+      ## |-> cholmod_T -> cholmod_C -> chm_sparse_to_SEXP
+      ## adjusted for triangular matrices not represented in cholmod
+      function(from) .Call(Tsparse_to_Csparse, from, ## ../src/Tsparse.c
+                           is(from, "triangularMatrix"))
       )
+##           ans <- .Call(Tsparse_to_Csparse, from) ## ../src/Tsparse.c
+##
+##           if (is(from, "triangularMatrix")) {
+##               ## regenerate the matrix with the triangular properties
+##               ## FIXME: move this to the C code
+##               if (is(ans, "lMatrix"))
+##                   return(new("ltCMatrix", i = ans@i, p = ans@p,
+##                              Dim = ans@Dim, Dimnames = ans@Dimnames,
+##                              uplo = from@uplo, diag = from@diag))
+##               return(new(ifelse(is(ans, "dMatrix"), "dtCMatrix", "ztCMatrix"),
+##                          i = ans@i, p = ans@p, x = ans@x,
+##                          Dim = ans@Dim, Dimnames = ans@Dimnames,
+##                          uplo = from@uplo, diag = from@diag))
+##           }
+##           ans
+##       })
 
 ### "[" :
 ### -----
@@ -254,27 +270,29 @@ setReplaceMethod("[", signature(x = "TsparseMatrix", i = "index", j = "index",
 
 setMethod("crossprod", signature(x = "TsparseMatrix", y = "missing"),
 	  function(x, y = NULL) {
-	      a <- .Call(Csparse_crossprod, x, trans = FALSE, triplet = TRUE)
-	      switch(substr(class(a)[1], 1, 1),
-		     "d" ={ new("dsCMatrix", i = a@i, p = a@p, x = a@x,
-				Dim = a@Dim, Dimnames = a@Dimnames, uplo = "U",
-				factors = list()) },
-		     "l" ={ new("lsCMatrix", i = a@i, p = a@p,
-				Dim = a@Dim, Dimnames = a@Dimnames, uplo = "U",
-				factors = list())})
+	      .Call(Csparse_crossprod, x, trans = FALSE, triplet = TRUE)
 	  })
 
 setMethod("tcrossprod", signature(x = "TsparseMatrix", y = "missing"),
 	  function(x, y = NULL) {
-	      a <- .Call(Csparse_crossprod, x, trans = TRUE, triplet = TRUE)
-	      switch(substr(class(a)[1], 1, 1),
-		     "d" ={ new("dsCMatrix", i = a@i, p = a@p, x = a@x,
-				Dim = a@Dim, Dimnames = a@Dimnames, uplo = "L",
-				factors = list()) },
-		     "l" ={ new("lsCMatrix", i = a@i, p = a@p,
-				Dim = a@Dim, Dimnames = a@Dimnames, uplo = "L",
-				factors = list()) })
+	      .Call(Csparse_crossprod, x, trans = TRUE, triplet = TRUE)
 	  })
+
+## Must define methods for y = "missing" first so they have precedence
+## (this will change in R-2.4.0).
+
+setMethod("crossprod", signature(x = "TsparseMatrix", y = "ANY"),
+	  function(x, y = NULL) callGeneric(as(x, "CsparseMatrix"), y))
+
+setMethod("tcrossprod", signature(x = "TsparseMatrix", y = "ANY"),
+	  function(x, y = NULL) callGeneric(as(x, "CsparseMatrix"), y))
+
+setMethod("%*%", signature(x = "TsparseMatrix", y = "ANY"),
+          function(x, y) callGeneric(as(x, "CsparseMatrix"), y))
+
+## Not yet.  Don't have methods for y = "CsparseMatrix" and general x
+#setMethod("%*%", signature(x = "ANY", y = "TsparseMatrix"),
+#          function(x, y) callGeneric(x, as(y, "CsparseMatrix")))
 
 setMethod("colSums", signature(x = "TsparseMatrix"), .as.dgT.Fun,
 	  valueClass = "numeric")

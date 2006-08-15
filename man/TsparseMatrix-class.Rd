@@ -5,8 +5,11 @@
 %% Methods:
 \alias{coerce,TsparseMatrix,CsparseMatrix-method}
 % "[" are in ./Xtrct-methods.Rd
+\alias{\%*\%,TsparseMatrix,ANY-method}
 \alias{crossprod,TsparseMatrix,missing-method}
+\alias{crossprod,TsparseMatrix,ANY-method}
 \alias{tcrossprod,TsparseMatrix,missing-method}
+\alias{tcrossprod,TsparseMatrix,ANY-method}
 \alias{colMeans,TsparseMatrix-method}
 \alias{colSums,TsparseMatrix-method}
 \alias{rowMeans,TsparseMatrix-method}

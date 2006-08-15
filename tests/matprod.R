@@ -100,6 +100,15 @@ MM. <- tcrossprod(M)
 stopifnot(class(MM.) == "dsCMatrix",
           class(M.M) == "dsCMatrix")
 
+## even simpler
+m <- matrix(0, 4,7); m[c(1, 3, 6, 9, 11, 22, 27)] <- 1
+(mm <- Matrix(m))
+(cm <- Matrix(crossprod(m)))
+stopifnot(identical(crossprod(mm), cm))
+(tm1 <- Matrix(tcrossprod(m))) #-> had bug in 'Matrix()' !
+(tm2 <- tcrossprod(mm))
+stopifnot(class(tm1) == class(tm2),
+	  class(tm1) == "dsCMatrix")# but they differ by "uplo"
 
 cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
 

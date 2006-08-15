@@ -41,10 +41,16 @@ static R_CallMethodDef CallEntries[] = {
     {"Csparse_crossprod", (DL_FUNC) &Csparse_crossprod, 3},
     {"Csparse_dense_crossprod", (DL_FUNC) &Csparse_dense_crossprod, 2},
     {"Csparse_dense_prod", (DL_FUNC) &Csparse_dense_prod, 2},
+    {"Csparse_diagU2N", (DL_FUNC) &Csparse_diagU2N, 1},
     {"Csparse_horzcat", (DL_FUNC) &Csparse_horzcat, 2},
-    {"Csparse_to_Tsparse", (DL_FUNC) &Csparse_to_Tsparse, 1},
+    {"Csparse_to_Tsparse", (DL_FUNC) &Csparse_to_Tsparse, 2},
     {"Csparse_to_dense", (DL_FUNC) &Csparse_to_dense, 1},
-    {"Csparse_transpose", (DL_FUNC) &Csparse_transpose, 1},
+    {"Csparse_to_logical", (DL_FUNC) &Csparse_to_logical, 2},
+    {"Csparse_to_matrix", (DL_FUNC) &Csparse_to_matrix, 1},
+    {"Csparse_submatrix", (DL_FUNC) &Csparse_submatrix, 3},
+    {"Csparse_symmetric_to_general",
+     (DL_FUNC) &Csparse_symmetric_to_general, 1},
+    {"Csparse_transpose", (DL_FUNC) &Csparse_transpose, 2},
     {"Csparse_validate", (DL_FUNC) &Csparse_validate, 1},
     {"Csparse_vertcat", (DL_FUNC) &Csparse_vertcat, 2},
     {"pCholesky_validate", (DL_FUNC) &pCholesky_validate, 1},
@@ -59,27 +65,27 @@ static R_CallMethodDef CallEntries[] = {
     {"Matrix_writeMatrixMarket", (DL_FUNC) &Matrix_writeMatrixMarket, 3},
     {"SVD_validate", (DL_FUNC) &SVD_validate, 1},
     {"Tsparse_validate", (DL_FUNC) &Tsparse_validate, 1},
-    {"Tsparse_to_Csparse", (DL_FUNC) &Tsparse_to_Csparse, 1},
+    {"Tsparse_to_Csparse", (DL_FUNC) &Tsparse_to_Csparse, 2},
     {"csc_check_column_sorting", (DL_FUNC) &csc_check_column_sorting, 1},
     {"Zt_create", (DL_FUNC) &Zt_create, 2},
-    {"csc_crossprod", (DL_FUNC) &csc_crossprod, 1},
-    {"csc_getDiag", (DL_FUNC) &csc_getDiag, 1},
-    {"csc_matrix_crossprod", (DL_FUNC) &csc_matrix_crossprod, 3},
+/*     {"csc_crossprod", (DL_FUNC) &csc_crossprod, 1}, */
+/*     {"csc_getDiag", (DL_FUNC) &csc_getDiag, 1}, */
+/*     {"csc_matrix_crossprod", (DL_FUNC) &csc_matrix_crossprod, 3}, */
     {"csc_matrix_mm", (DL_FUNC) &csc_matrix_mm, 4},
-    {"csc_tcrossprod", (DL_FUNC) &csc_tcrossprod, 1},
+/*     {"csc_tcrossprod", (DL_FUNC) &csc_tcrossprod, 1}, */
     {"compressed_to_dgTMatrix", (DL_FUNC) &compressed_to_dgTMatrix, 2},
     {"compressed_non_0_ij", (DL_FUNC) &compressed_non_0_ij, 2},
-    {"csc_to_dgeMatrix", (DL_FUNC) &csc_to_dgeMatrix, 1},
-    {"csc_to_matrix", (DL_FUNC) &csc_to_matrix, 1},
-    {"csc_transpose", (DL_FUNC) &csc_transpose, 1},
+/*     {"csc_to_dgeMatrix", (DL_FUNC) &csc_to_dgeMatrix, 1}, */
+/*     {"csc_to_matrix", (DL_FUNC) &csc_to_matrix, 1}, */
+/*     {"csc_transpose", (DL_FUNC) &csc_transpose, 1}, */
     {"dense_to_Csparse", (DL_FUNC) &dense_to_Csparse, 1},
     {"dense_nonpacked_validate", (DL_FUNC) &dense_nonpacked_validate, 1},
     {"dMatrix_validate", (DL_FUNC) &dMatrix_validate, 1},
 
     {"dgCMatrix_validate", (DL_FUNC) &dgCMatrix_validate, 1},
-    {"dgeMatrix_to_csc", (DL_FUNC) &dgeMatrix_to_csc, 1},
-    {"dgTMatrix_to_csc", (DL_FUNC) &dgTMatrix_to_csc, 1},
-    {"dgTMatrix_to_dgCMatrix", (DL_FUNC) &dgTMatrix_to_dgCMatrix, 1},
+/*     {"dgeMatrix_to_csc", (DL_FUNC) &dgeMatrix_to_csc, 1}, */
+/*     {"dgTMatrix_to_csc", (DL_FUNC) &dgTMatrix_to_csc, 1}, */
+/*    {"dgTMatrix_to_dgCMatrix", (DL_FUNC) &dgTMatrix_to_dgCMatrix, 1}, */
     {"dgTMatrix_to_dgeMatrix", (DL_FUNC) &dgTMatrix_to_dgeMatrix, 1},
     {"dgTMatrix_to_matrix", (DL_FUNC) &dgTMatrix_to_matrix, 1},
     {"dgTMatrix_validate", (DL_FUNC) &dgTMatrix_validate, 1},
@@ -115,7 +121,6 @@ static R_CallMethodDef CallEntries[] = {
     {"dsCMatrix_ldl_symbolic", (DL_FUNC) &dsCMatrix_ldl_symbolic, 2},
     {"dsCMatrix_matrix_solve", (DL_FUNC) &dsCMatrix_matrix_solve, 3},
     {"dsCMatrix_to_dgTMatrix", (DL_FUNC) &dsCMatrix_to_dgTMatrix, 1},
-    {"sCMatrix_to_gCMatrix", (DL_FUNC) &sCMatrix_to_gCMatrix, 1},
     {"dsCMatrix_validate", (DL_FUNC) &dsCMatrix_validate, 1},
     {"dsTMatrix_as_dgTMatrix", (DL_FUNC) &dsTMatrix_as_dgTMatrix, 1},
     {"dsTMatrix_as_dsCMatrix", (DL_FUNC) &dsTMatrix_as_dsCMatrix, 1},
@@ -227,7 +232,7 @@ static R_CallMethodDef CallEntries[] = {
     {"mer_update_ZXy", (DL_FUNC) &mer_update_ZXy, 1},
     {"mer_update_y", (DL_FUNC) &mer_update_y, 2},
 
-    {"matrix_to_csc", (DL_FUNC) &matrix_to_csc, 1},
+/*     {"matrix_to_csc", (DL_FUNC) &matrix_to_csc, 1}, */
     {"pedigree_chol", (DL_FUNC) &pedigree_chol, 2},
     {"ssc_transpose", (DL_FUNC) &ssc_transpose, 1},
     {"tsc_to_dgTMatrix", (DL_FUNC) &tsc_to_dgTMatrix, 1},

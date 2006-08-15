@@ -251,5 +251,7 @@ SEXP dense_to_Csparse(SEXP x)
     cholmod_sparse *chxs = cholmod_dense_to_sparse(chxd, 1, &c);
 
     Free(chxd);
-    return chm_sparse_to_SEXP(chxs, 1);
+    return chm_sparse_to_SEXP(chxs, 1, 0, "",
+			      isMatrix(x) ? getAttrib(x, R_DimNamesSymbol)
+			      : GET_SLOT(x, Matrix_DimNamesSym));
 }

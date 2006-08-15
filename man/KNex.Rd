@@ -22,9 +22,12 @@
 data(KNex)
 class(KNex$mm)
   dim(KNex$mm)
+image(KNex$mm)
 str(KNex)
 
-sparse.sol <- with(KNex, solve(crossprod(mm), crossprod(mm, y)))
-str(sparse.sol)
+system.time( # a fraction of a second
+  sparse.sol <- with(KNex, solve(crossprod(mm), crossprod(mm, y))))
+
+head(round(sparse.sol,3))
 }
 \keyword{datasets}

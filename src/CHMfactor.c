@@ -8,6 +8,6 @@ SEXP CHMfactor_to_sparse(SEXP x)
 
     Lcp = cholmod_copy_factor(L, &c); Free(L); /* next call changes Lcp */
     Lm = cholmod_factor_to_sparse(Lcp, &c); cholmod_free_factor(&Lcp, &c);
-    return chm_sparse_to_SEXP(Lm, -1);
+    return chm_sparse_to_SEXP(Lm, 1, -1, "N", R_NilValue);
 }
 

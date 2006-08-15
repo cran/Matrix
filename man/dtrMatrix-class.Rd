@@ -73,16 +73,12 @@
   Classes \code{\linkS4class{ddenseMatrix}}, \code{\linkS4class{dtpMatrix}},
   \code{\linkS4class{triangularMatrix}}
 }
-\examples{
+\examples{%% this is used from ./dtpMatrix-class.Rd (change with care!)
 (m <- rbind(2:3, 0:-1))
 (M <- as(m, "dgeMatrix"))
-% if(FALSE) {  #(failed in some verions)
+
 (T <- as(M, "dtrMatrix")) ## upper triangular is default
-## hence this may surprise at first:
-(T2 <- as(t(M), "dtrMatrix"))# is factually diagonal
-## and different from
-(T3 <- t(T)) # which is *lower* triangular:
-str(T3)
-% }
+(T2 <- as(t(M), "dtrMatrix"))
+stopifnot(T@uplo == "U", T2@uplo == "L", identical(T2, t(T)))
 }
 \keyword{classes}

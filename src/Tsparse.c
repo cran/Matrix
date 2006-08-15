@@ -28,12 +28,19 @@ SEXP Tsparse_validate(SEXP x)
     return ScalarLogical(1);
 }
 
-SEXP Tsparse_to_Csparse(SEXP x)
+SEXP Tsparse_to_Csparse(SEXP x, SEXP tri)
 {
     cholmod_triplet *chxt = as_cholmod_triplet(x);
     cholmod_sparse *chxs = cholmod_triplet_to_sparse(chxt, chxt->nnz, &c);
+    int uploT = 0; char *diag = "";
 
     Free(chxt);
-    return chm_sparse_to_SEXP(chxs, 1);
+    if (asLogical(tri)) {	/* triangular sparse matrices */
+	uploT = (strcmp(CHAR(asChar(GET_SLOT(x, Matrix_uploSym))), "U")) ?
+	    -1 : 1;
+	diag = CHAR(asChar(GET_SLOT(x, Matrix_diagSym)));
+    }
+    return chm_sparse_to_SEXP(chxs, 1, uploT, diag,
+			      duplicate(GET_SLOT(x, Matrix_DimNamesSym)));
 }
 

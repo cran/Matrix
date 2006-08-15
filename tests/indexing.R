@@ -46,9 +46,8 @@ m[1:3,]
 
 g10 <- m [ m > 10 ]
 stopifnot(18 == length(g10))
-if(paste(R.version$major, R.version$minor, sep=".") >= "2.3")
-    ## Buglet in R(<= 2.2.1)'s possibleExtends()
-    stopifnot(10 == length(m[ m <= 10 ]))
+## needs R >= 2.3.0 [Buglet in R(<= 2.2.1)'s possibleExtends()]:
+stopifnot(10 == length(m[ m <= 10 ]))
 
 
 ### Sparse Matrices --------------------------------------
@@ -88,15 +87,17 @@ stopifnot(identical3(mm[,1], mC[,1], mT[,1]),
 	  identical3(mT[2,3], mC[2,3], 0),
 	  identical(mT[], mT),
 	  ## TODO: identical4() with  m[c(3,7), 2:4] - fail because of 'dimnames'
-	  identical3(as(mC[c(3,7), 2:4],"matrix"), mm[c(3,7), 2:4],
-		     as(mT[c(3,7), 2:4],"matrix")))
+	  ## TODO: identical3() with as(mC[c(3,7), 2:4],"matrix"),
+          ##       fails because of 'dimnames'
+          identical(mm[c(3,7), 2:4], as(mT[c(3,7), 2:4],"matrix"))
+          )
 
 x.x <- crossprod(mC)
 stopifnot(class(x.x) == "dsCMatrix",
           class(x.x. <- round(x.x / 10000)) == "dsCMatrix")
 head(x.x.) # Note the *non*-structural 0's printed as "0"
-if(paste(R.version$major, R.version$minor, sep=".") >= "2.4")
-    tail(x.x., -2) # the last two lines
+## FIXME (once we require 2.4.x or higher):
+##  tail(x.x., -2) # the last two lines
 
 lx.x <- as(x.x, "lsCMatrix") # FALSE only for "structural" 0
 if(FALSE) { ## FIXME: needs coercion  "lsCMatrix" to "lgTMatrix"
@@ -158,35 +159,35 @@ mc[1,4] <-  00 ; stopifnot(mc[1,4] ==  00)
 mc[1,4] <- -99 ; stopifnot(mc[1,4] == -99)
 mc[1:2,4:3] <- 4:1; stopifnot(as.matrix(mc[1:2,4:3]) == 4:1)
 
-## Debugging:  R bug --   debug(Matrix:::replCmat)  has no effect
-
 mc[-1, 3] <- -2:1 # 0 should not be entered; 'value' recycled
 mt[-1, 3] <- -2:1
 stopifnot(mc@x != 0, mt@x != 0,
           mc[-1,3] == -2:1, mt[-1,3] == -2:1) ##--> BUG -- fixed
-## source("~/R/Pkgs/Matrix/R/Tsparse.R")
-## Matrix_expand_pointers <- Matrix:::Matrix_expand_pointers
-## -> open ../R/dgCMatrix.R  --> replCmat  .. now eval-line by line ..
 
 ev <- 1:5 %% 2 == 0
 mc[ev, 3] <- 0:1
-##FIXME stopifnot(mc[ev, 3] == 0:1) ##-> BUG  {very peculiar; the 2nd time it works ...}
+if(FALSE)## FIXME
+ stopifnot(mc[ev, 3] == 0:1) ##-> BUG  {very peculiar; the 2nd time it works ...}
 validObject(mc)
 mc # now shows a non-structural zeros
 mc[ii, jj] <- 1:6
 mc[c(2,5), c(3,5)] <- 3.2
 validObject(mc)
 (m. <- mc)
-## FIXME: mc[4,] <- 0 # -> error -- another Bug
+if(FALSE)## FIXME:
+ mc[4,] <- 0 # -> error -- another Bug
 
 H <- Hilbert(9)
-Hc <- as(round(H, 3), "dsCMatrix")
-tril(Hc[1:5, 1:5])
+Hc <- as(round(H, 3), "dsCMatrix")# a sparse matrix with no 0 ...
+(trH <- tril(Hc[1:5, 1:5]))
+stopifnot(is(trH, "triangularMatrix"), trH@uplo == "L")
 
-H[c(1:2, 4, 6:7), c(2:4,6)] <- 0
+i <- c(1:2, 4, 6:7); j <- c(2:4,6)
+H[i,j] <- 0
 (H. <- round(as(H, "sparseMatrix"), 3)[ , 2:7])
 Hc. <- Hc
-Hc.[c(1:2, 4, 6:7), c(2:4,6)] <- 0
+Hc.[i,j] <- 0 ## now "works", but setting "non-structural" 0s
+stopifnot(as.matrix(Hc.[i,j]) == 0)
 Hc.[, 1:6]
 
 cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''

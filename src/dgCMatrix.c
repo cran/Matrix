@@ -38,6 +38,7 @@ SEXP dgCMatrix_validate(SEXP x)
     return ScalarLogical(1);
 }
 
+#if 0 		/* more general methods now defined in ./Csparse.c */
 SEXP csc_crossprod(SEXP x)
 {
     SEXP pslot = GET_SLOT(x, Matrix_pSym),
@@ -111,7 +112,7 @@ SEXP csc_tcrossprod(SEXP x)
 
     Free(chx);
     cholmod_free_sparse(&cha, &c);
-    return chm_sparse_to_SEXP(chas, 1);
+    return chm_sparse_to_SEXP(chas, 1, 0, "", R_NilValue);
 }
 
 SEXP csc_matrix_crossprod(SEXP x, SEXP y, SEXP classed)
@@ -149,6 +150,7 @@ SEXP csc_matrix_crossprod(SEXP x, SEXP y, SEXP classed)
     UNPROTECT(1);
     return val;
 }
+#endif	/* more general methods */
 
 SEXP compressed_to_dgTMatrix(SEXP x, SEXP colP)
 {
@@ -192,6 +194,7 @@ SEXP compressed_non_0_ij(SEXP x, SEXP colP)
     return ans;
 }
 
+#if 0 				/* more general methods in ./Csparse.c */
 SEXP csc_to_matrix(SEXP x)
 {
     SEXP ans, pslot = GET_SLOT(x, Matrix_pSym);
@@ -273,7 +276,9 @@ SEXP double_to_csc(double *a, int *dim_a)
     UNPROTECT(1);
     return dgCMatrix_set_Dim(val, nrow);
 }
+#endif	/* more general methods */
 
+#if 0 				/* use dense_to_Csparse in ./dense.c */
 SEXP matrix_to_csc(SEXP A)
 {
     if (!(isMatrix(A) && isReal(A)))
@@ -287,9 +292,9 @@ SEXP dgeMatrix_to_csc(SEXP x)
     return double_to_csc(   REAL(GET_SLOT(x, Matrix_xSym)),
 			 INTEGER(GET_SLOT(x, Matrix_DimSym)));
 }
+#endif	/* use dense_to_Csparse */
 
-
-
+#if 0 				/* more general method in Tsparse */
 SEXP dgTMatrix_to_csc(SEXP dgTMatrix)
 {
     SEXP Tisl = GET_SLOT(dgTMatrix, Matrix_iSym);
@@ -307,7 +312,9 @@ SEXP dgTMatrix_to_csc(SEXP dgTMatrix)
 			  REAL(GET_SLOT(dgTMatrix, Matrix_xSym)),
 			  "dgCMatrix");
 }
+#endif 				/* more general method */
 
+#if 0 				/* use Csparse_band and R code */
 SEXP csc_getDiag(SEXP x)
 {
     SEXP pslot = GET_SLOT(x, Matrix_pSym), ans;
@@ -332,15 +339,18 @@ SEXP csc_getDiag(SEXP x)
     UNPROTECT(1);
     return ans;
 }
+#endif	/* use Csparse_band */
 
+#if 0 				/* more general method in Csparse.c */
 SEXP csc_transpose(SEXP x)
 {
     cholmod_sparse *chx = as_cholmod_sparse(x);
     SEXP ans =
-	chm_sparse_to_SEXP(cholmod_transpose(chx, 1, &c), 1);
+	chm_sparse_to_SEXP(cholmod_transpose(chx, 1, &c), 1, 0, "", R_NilValue);
     Free(chx);
     return ans;
 }
+#endif	/* more general method */
 
 SEXP csc_matrix_mm(SEXP a, SEXP b, SEXP classed, SEXP right)
 {
@@ -391,6 +401,7 @@ SEXP csc_matrix_mm(SEXP a, SEXP b, SEXP classed, SEXP right)
     return val;
 }
 
+#if 0				/* no longer used */
 SEXP csc_col_permute(SEXP x, SEXP perm)
 {
     SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dgCMatrix"))), tmp;
@@ -437,3 +448,4 @@ SEXP csc_col_permute(SEXP x, SEXP perm)
     UNPROTECT(1);
     return val;
 }
+#endif	/* no longer used */

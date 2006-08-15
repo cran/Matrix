@@ -3,7 +3,7 @@
 setAs("dsTMatrix", "dsCMatrix",
       function(from)
       ## pre-Cholmod: .Call(dsTMatrix_as_dsCMatrix, from)
-      .Call(Tsparse_to_Csparse, from)
+      .Call(Tsparse_to_Csparse, from, FALSE)
       )
 
 if(FALSE) # have C method below

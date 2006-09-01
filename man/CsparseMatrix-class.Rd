@@ -2,15 +2,22 @@
 \docType{class}
 \alias{CsparseMatrix-class}
 \alias{\%*\%,CsparseMatrix,CsparseMatrix-method}
-\alias{\%*\%,CsparseMatrix,denseMatrix-method}
+\alias{\%*\%,CsparseMatrix,ddenseMatrix-method}
 \alias{\%*\%,CsparseMatrix,matrix-method}
+\alias{\%*\%,CsparseMatrix,numeric-method}
+\alias{\%*\%,ddenseMatrix,CsparseMatrix-method}
+\alias{\%*\%,matrix,CsparseMatrix-method}
+\alias{\%*\%,numeric,CsparseMatrix-method}
 \alias{coerce,CsparseMatrix,lsparseMatrix-method}
 \alias{coerce,CsparseMatrix,TsparseMatrix-method}
 \alias{coerce,CsparseMatrix,denseMatrix-method}
 \alias{coerce,CsparseMatrix,matrix-method}
+\alias{coerce,matrix,CsparseMatrix-method}
+\alias{coerce,numeric,CsparseMatrix-method}
 \alias{crossprod,CsparseMatrix,missing-method}
-\alias{crossprod,CsparseMatrix,dgeMatrix-method}
+\alias{crossprod,CsparseMatrix,ddenseMatrix-method}
 \alias{crossprod,CsparseMatrix,matrix-method}
+\alias{crossprod,CsparseMatrix,numeric-method}
 \alias{diag,CsparseMatrix-method}
 \alias{t,CsparseMatrix-method}
 \alias{tcrossprod,CsparseMatrix,missing-method}
@@ -18,9 +25,10 @@
 \alias{colSums,CsparseMatrix-method}
 \alias{rowMeans,CsparseMatrix-method}
 \alias{rowSums,CsparseMatrix-method}
-%% Group methods --------- FIXME: These are not tested yet (or documented)
-\alias{Arith,numeric,CsparseMatrix-method}
+%% Group methods --------- FIXME: not tested yet (or documented)
+\alias{Arith,CsparseMatrix,CsparseMatrix-method}
 \alias{Arith,CsparseMatrix,numeric-method}
+\alias{Arith,numeric,CsparseMatrix-method}
 \alias{Math,CsparseMatrix-method}
 %
 \title{Class "CsparseMatrix" of Sparse Matrices in Column-compressed Form}

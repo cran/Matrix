@@ -16,6 +16,9 @@
 \alias{tril,lsCMatrix-method}
 \alias{triu,dsCMatrix-method}
 \alias{triu,lsCMatrix-method}
+\alias{band,ddenseMatrix-method}
+\alias{tril,ddenseMatrix-method}
+\alias{triu,ddenseMatrix-method}
 %
 \alias{band}
 \alias{tril}
@@ -55,6 +58,8 @@ triu(x, k = 0, \dots)
     \item{x = "TsparseMatrix"}{method for sparse matrices in triplet format.}
     \item{x = "RsparseMatrix"}{method for compressed, sparse,
       row-oriented matrices.}
+    \item{x = "ddenseMatrix"}{method for dense numeric matrices,
+      including packed numeric matrices.}
   }
 }
 \examples{
@@ -62,12 +67,21 @@ triu(x, k = 0, \dots)
 set.seed(7)
 m <- matrix(0, 5, 5)
 m[sample(length(m), size = 14)] <- rep(1:9, length=14)
-(mm <- as(m, "dgCMatrix"))
+(mm <- as(m, "CsparseMatrix"))
 
 tril(mm)        # lower triangle
 tril(mm, -1)    # strict lower triangle
 triu(mm,  1)    # strict upper triangle
 band(mm, -1, 2) # general band
+(m5 <- Matrix(rnorm(25), nc = 5))
+tril(m5)        # lower triangle
+tril(m5, -1)    # strict lower triangle
+triu(m5, 1)     # strict upper triangle
+band(m5, -1, 2) # general band
+(m65 <- Matrix(rnorm(30), nc = 5))  # not square
+triu(m65)       # result in not dtrMatrix unless square
+(sm5 <- crossprod(m65)) # symmetric
+band(sm5, -1, 1)# symmetric band preserves symmetry property
 \dontshow{ ## this uses special methods
 (x.x <- crossprod(mm))
 tril(x.x)

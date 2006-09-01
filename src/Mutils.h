@@ -5,9 +5,8 @@
 extern "C" {
 #endif
 
-#include <Rdefines.h>
-#include <Rconfig.h>
-#include <R.h>  /* to include Rconfig.h */
+#include <Rdefines.h> /* Rinternals.h + GET_SLOT etc */
+#include <R.h>  /* includes Rconfig.h */
 
 #ifdef ENABLE_NLS
 #include <libintl.h>
@@ -51,15 +50,7 @@ char diag_value(SEXP x);
 
 int csc_unsorted_columns(int ncol, const int p[], const int i[]);
 void csc_sort_columns(int ncol, const int p[], int i[], double x[]);
-SEXP triple_as_SEXP(int nrow, int ncol, int nz,
-		    const int Ti [], const int Tj [], const double Tx [],
-		    char *Rclass);
 SEXP csc_check_column_sorting(SEXP A);
-void csc_compTr(int m, int n, int nnz,
-		const int xp[], const int xi[], const double xx[],
-		int ap[], int ai[], double ax[]);
-void ssc_symbolic_permute(int n, int upper, const int perm[],
-			  int Ap[], int Ai[]);
 SEXP Matrix_make_named(int TYP, char **names);
 SEXP check_scalar_string(SEXP sP, char *vals, char *nm);
 double *packed_getDiag(double *dest, SEXP x);
@@ -94,7 +85,7 @@ extern	 /* stored pointers to symbols initialized in R_init_Matrix */
 
 #define uplo_P(_x_) CHAR(STRING_ELT(GET_SLOT(_x_, Matrix_uploSym), 0))
 #define diag_P(_x_) CHAR(STRING_ELT(GET_SLOT(_x_, Matrix_diagSym), 0))
-
+#define class_P(_x_) CHAR(asChar(getAttrib(_x_, R_ClassSymbol)))
 
 /**
  * Check for valid length of a packed triangular array and return the
@@ -305,6 +296,33 @@ SEXP alloc_dgeMatrix(int m, int n, SEXP rownms, SEXP colnms);
 SEXP alloc_dpoMatrix(int n, char *uplo, SEXP rownms, SEXP colnms);
 SEXP alloc_dtrMatrix(int n, char *uplo, char *diag, SEXP rownms, SEXP colnms);
 SEXP alloc_dsCMatrix(int n, int nz, char *uplo, SEXP rownms, SEXP colnms);
+
+SEXP dup_mMatrix_as_dgeMatrix(SEXP A);
+
+static R_INLINE SEXP
+mMatrix_as_dgeMatrix(SEXP A)
+{
+    return strcmp(class_P(A), "dgeMatrix") ? dup_mMatrix_as_dgeMatrix(A) : A;
+}
+
+/**
+ * Return the 0-based index of a string match in a vector of strings
+ * terminated by an empty string.  Returns -1 for no match.
+ *
+ * @param dest class string to match
+ * @param valid vector of possible matches terminated by an empty string
+ *
+ * @return index of match or -1 for no match
+ */
+static R_INLINE int
+Matrix_check_class(char *class, char **valid)
+{
+    int ans;
+    for (ans = 0; ; ans++) {
+	if (!strlen(valid[ans])) return -1;
+	if (!strcmp(class, valid[ans])) return ans;
+    }
+}
 
 #ifdef __cplusplus
 }

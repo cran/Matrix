@@ -163,14 +163,12 @@ setClass("dspMatrix",
 
 ## numeric, dense, non-packed, positive-definite, symmetric matrices
 setClass("dpoMatrix", contains = "dsyMatrix",
-	 validity =
-	 function(object) .Call(dpoMatrix_validate, object)
+	 validity = function(object) .Call(dpoMatrix_validate, object)
 	 )
 
 ## numeric, dense, packed, positive-definite, symmetric matrices
 setClass("dppMatrix", contains = "dspMatrix",
-	 validity =
-	 function(object) .Call(dppMatrix_validate, object)
+	 validity = function(object) .Call(dppMatrix_validate, object)
 	 )
 
 ##----- logical dense Matrices -- e.g. as result of <ddenseMatrix>  COMPARISON
@@ -215,6 +213,8 @@ setClass("lspMatrix",
 setClass("ddiMatrix", contains = c("diagonalMatrix", "ddenseMatrix"))# or "dMatrix"
 ## diagonal, logical matrices; "ldense*" has 'x' slot :
 setClass("ldiMatrix", contains = c("diagonalMatrix", "ldenseMatrix"))
+
+setClass("corMatrix", representation(sd = "numeric"), contains = "dpoMatrix")
 
 
 ##-------------------- S P A R S E (non-virtual) --------------------------
@@ -374,74 +374,6 @@ setClass("lsRMatrix",
 	 function(object) .Call(lsRMatrix_validate, object)
 	 )
 
-### Factorization classes ---------------------------------------------
-
-setClass("Cholesky", contains = "dtrMatrix")
-
-setClass("LDL", contains = "dtrMatrix")
-
-setClass("corMatrix", representation(sd = "numeric"), contains = "dpoMatrix")
-
-setClass("pCholesky", contains = "dtpMatrix")
-
-setClass("BunchKaufman",
-	 representation(perm = "integer"),
-	 contains = "dtrMatrix",
-	 validity =
-	 function(object) .Call(BunchKaufman_validate, object)
-	 )
-
-setClass("pBunchKaufman",
-	 representation(perm = "integer"),
-	 contains = "dtpMatrix",
-	 validity =
-	 function(object) .Call(pBunchKaufman_validate, object)
-	 )
-
-setClass("dCholCMatrix",
-	 representation(perm = "integer", Parent = "integer", D = "numeric"),
-	 contains = "dtCMatrix",
-	 validity =
-	 function(object) .Call(dCholCMatrix_validate, object)
-	 )
-
-setClass("lCholCMatrix",
-	 representation(perm = "integer", Parent = "integer"),
-	 contains = "ltCMatrix",
-	 validity =
-	 function(object) .Call(lCholCMatrix_validate, object)
-	 )
-
-setClass("CHMfactor",		 # cholmod_factor struct as S4 object
-	 representation(colcount = "integer", perm = "integer",
-                        type = "integer", "VIRTUAL"),
-	 validity =
-	 function(object) .Call(CHMfactor_validate, object)
-	 )
-
-setClass("CHMsuper",		       # supernodal cholmod_factor
-	 representation(super = "integer", pi = "integer", px = "integer",
-			s = "integer", "VIRTUAL"),
-	 contains = "CHMfactor",
-	 validity =
-	 function(object) .Call(CHMsuper_validate, object))
-
-setClass("CHMsimpl",		       # simplicial cholmod_factor
-	 representation(p = "integer", i = "integer",
-			nz = "integer", nxt = "integer", prv = "integer", "VIRTUAL"),
-	 contains = "CHMfactor",
-	 validity =
-	 function(object) .Call(CHMsuper_validate, object))
-
-setClass("dCHMsuper", representation(x = "numeric"), contains = "CHMsuper")
-
-setClass("lCHMsuper", contains = "CHMsuper")
-
-setClass("dCHMsimpl", representation(x = "numeric"), contains = "CHMsimpl")
-
-setClass("lCHMsimpl", contains = "CHMsimpl")
-
-
 ##-------------------- permutation ----------------------------------------
 
 setClass("pMatrix", representation(perm = "integer"),
@@ -457,6 +389,104 @@ setClass("pMatrix", representation(perm = "integer"),
 		 return("'perm' slot is not a valid permutation")
 	     TRUE
 	 })
+
+
+### Factorization classes ---------------------------------------------
+
+## Mother class:
+setClass("MatrixFactorization", representation(Dim = "integer", "VIRTUAL"))
+
+## -- Those (exceptions) inheriting from "Matrix" : ---
+
+## FIXME: not yet containing "MatrixFactorization" because of
+## -----  multiple-dispatch bug: show(<pCholesky>) would call the
+##  method of "MatrixFactorization" instead of the one for "dtpMatrix":
+setClass("Cholesky", contains = c("dtrMatrix" ##, "MatrixFactorization"
+                     ))
+
+setClass("LDL", contains = c("dtrMatrix" ##, "MatrixFactorization"
+                ))
+
+setClass("pCholesky", contains = c("dtpMatrix" ##, "MatrixFactorization"
+                      ))
+
+setClass("BunchKaufman",
+	 contains = c("dtrMatrix"), ##, "MatrixFactorization"),
+	 representation(perm = "integer"),
+	 validity =
+	 function(object) .Call(BunchKaufman_validate, object)
+	 )
+
+setClass("pBunchKaufman",
+	 contains = c("dtpMatrix"), ##, "MatrixFactorization"),
+	 representation(perm = "integer"),
+	 validity =
+	 function(object) .Call(pBunchKaufman_validate, object)
+	 )
+
+## -- the usual ``non-Matrix'' factorizations : ---------
+
+setClass("CHMfactor",		 # cholmod_factor struct as S4 object
+         contains = "MatrixFactorization",
+	 representation(colcount = "integer", perm = "integer",
+                        type = "integer", "VIRTUAL"),
+	 validity = function(object) .Call(CHMfactor_validate, object)
+	 )
+
+setClass("CHMsuper",		       # supernodal cholmod_factor
+	 contains = "CHMfactor",
+	 representation(super = "integer", pi = "integer", px = "integer",
+			s = "integer", "VIRTUAL"),
+	 validity = function(object) .Call(CHMsuper_validate, object))
+
+setClass("CHMsimpl",		       # simplicial cholmod_factor
+	 contains = "CHMfactor",
+	 representation(p = "integer", i = "integer",
+			nz = "integer", nxt = "integer", prv = "integer", "VIRTUAL"),
+	 validity = function(object) .Call(CHMsimpl_validate, object))
+
+setClass("dCHMsuper", contains = "CHMsuper", representation(x = "numeric"))
+
+setClass("lCHMsuper", contains = "CHMsuper")
+
+setClass("dCHMsimpl", contains = "CHMsimpl", representation(x = "numeric"))
+
+setClass("lCHMsimpl", contains = "CHMsimpl")
+
+##--- LU ---
+
+setClass("LU", contains = "MatrixFactorization", representation("VIRTUAL"))
+
+setClass("denseLU", contains = "LU",
+	 representation(x = "numeric", perm = "integer"),
+	 validity = function(object) .Call(LU_validate, object))
+
+setClass("sparseLU", contains = "LU",
+	 representation(L = "dgCMatrix", U = "dgCMatrix",
+			p = "integer", q = "integer"))
+
+##--- QR ---
+
+setClass("sparseQR", contains = "MatrixFactorization",
+	 representation(V = "dgCMatrix", beta = "numeric",
+			p = "integer", R = "dgCMatrix", q = "integer"))
+
+## "denseQR" -- ?  (``a version of''  S3 class "qr")
+
+if (FALSE) { ## unused classes
+setClass("csn_QR", representation(U = "dgCMatrix", L = "dgCMatrix",
+                                  beta = "numeric"))
+
+setClass("csn_LU", representation(U = "dgCMatrix", L = "dgCMatrix",
+                                  Pinv = "integer"))
+
+setClass("css_QR", representation(Pinv = "integer", Q = "integer",
+                                  parent = "integer", cp = "integer",
+                                  nz = "integer"))
+
+setClass("css_LU", representation(Q = "integer", nz = "integer"))
+}
+
 
 ### Class Union :  no inheritance, but is(*, <class>) :
 
@@ -479,8 +509,7 @@ setClassUnion("index", members =  c("numeric", "logical", "character"))
 setClassUnion("replValue", members =  c("numeric", "logical"))
 
 
-
-## --- Matrix - related ----
+## --- Matrix - related (but not "Matrix" nor "Decomposition/Factorization):
 
 setClass("determinant",
 	 representation(modulus = "numeric",
@@ -488,10 +517,7 @@ setClass("determinant",
 			sign = "integer",
 			call = "call"))
 
-setClass("LU",
-	 representation(x = "numeric", perm = "integer"),
-	 validity = function(object) .Call(LU_validate, object)
-	 )
+
 
 ## -------------------- lmer-related Classes --------------------------------
 

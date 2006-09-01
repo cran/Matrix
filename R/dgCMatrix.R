@@ -8,6 +8,7 @@
 ## Moved to ./Csparse.R :
 ## setAs("dgCMatrix", "dgTMatrix", ....
 ## setAs("dgCMatrix", "dgeMatrix", ....
+## setAs("dgeMatrix", "dgCMatrix", ....
 
 ## Can use method in Csparse.R
 ## setAs("dgCMatrix", "matrix", ....
@@ -19,13 +20,6 @@ setAs("dgCMatrix", "lgCMatrix",
                            is(from, "triangularMatrix")))
 ##was:       function(from) new("lgCMatrix", i = from@i, p = from@p,
 ##                               Dim = from@Dim, Dimnames = from@Dimnames)
-
-setAs("matrix", "dgCMatrix",
-      function(from) .Call(dense_to_Csparse, from))
-
-setAs("dgeMatrix", "dgCMatrix",
-      function(from) .Call(dense_to_Csparse, from))
-
 
 ## can use method for CsparseMatrix
 ## setMethod("crossprod", signature(x = "dgCMatrix", y = "missing"),
@@ -91,17 +85,6 @@ setMethod("image", "dgCMatrix",
 ##               .Call(csc_matrix_mm, x, y, FALSE, FALSE)
 ##           }, valueClass = "dgeMatrix")
 
-## FIXME: need to define more general methods for these, perhaps in
-## ../src/Csparse.c
-setMethod("%*%", signature(x = "dgeMatrix", y = "dgCMatrix"),
-          function(x, y) .Call(csc_matrix_mm, y, x, TRUE, TRUE),
-          valueClass = "dgeMatrix")
-
-setMethod("%*%", signature(x = "matrix", y = "dgCMatrix"),
-          function(x, y) {
-	      storage.mode(x) <- "double"
-              .Call(csc_matrix_mm, y, x, FALSE, TRUE)
-          }, valueClass = "dgeMatrix")
 
 ## Group Methods, see ?Arith (e.g.)
 ## -----
@@ -146,7 +129,7 @@ setMethod("Arith", ##  "+", "-", "*", "^", "%%", "%/%", "/"
                      ## r <- as(e2, "dgeMatrix")
                      ## ...
                      r <- as(e2, "matrix")
-                     Yis0 <- r == 0
+                     Yis0 <- is0(r)
                      r[complementInd(ij1, dim=d)] <- 0      ## 2)
                      r[1:1 + ij2[ii[[2]], , drop=FALSE]] <-
                          e1@x[ii[[1]]] ^ e2@x[ii[[2]]]      ## 3)
@@ -164,7 +147,7 @@ setMethod("Arith",
 	  function(e1, e2) {
 	      if(length(e2) == 1) { ## e.g.,  Mat ^ a
 		  f0 <- callGeneric(0, e2)
-                  if(!is.na(f0) && f0 == 0.) { # remain sparse
+		  if(is0(f0)) { # remain sparse
 		      e1@x <- callGeneric(e1@x, e2)
 		      e1
 		  } else { ## non-sparse, since '0 o e2' is not 0
@@ -175,7 +158,7 @@ setMethod("Arith",
 		      ##		  r[non0ind(e1)] <- callGeneric(e1@x, e2)
 		      r <- as(e1, "matrix")
 		      r[] <- f0
-		      r[non0ind(e1)] <- callGeneric(e1@x, e2)
+		      r[non0ind(e1) + 1:1] <- callGeneric(e1@x, e2)
 		      as(r, "dgeMatrix")
 		  }
 	      } else {
@@ -190,14 +173,14 @@ setMethod("Arith",
 	  function(e1, e2) {
 	      if(length(e1) == 1) {
 		  f0 <- callGeneric(e1, 0)
-                  if(!is.na(f0) && f0 == 0.) {
+                  if(is0(f0)) {
 		      e2@x <- callGeneric(e1, e2@x)
 		      e2
 		  } else {
 		      ## FIXME: dgeMatrix [cbind(i,j)] <- .. is not yet possible
 		      r <- as(e2, "matrix")
 		      r[] <- f0
-		      r[non0ind(e2)] <- callGeneric(e1, e2@x)
+		      r[non0ind(e2) + 1:1] <- callGeneric(e1, e2@x)
 		      as(r, "dgeMatrix")
 		  }
 	      } else {
@@ -252,3 +235,17 @@ setMethod("rowMeans", signature(x = "dgCMatrix"),
           tapply1(x@x, factor(x@i, 0:(x@Dim[1]-1)), mean, na.rm = na.rm),
 	  valueClass = "numeric")
 
+setMethod("qr", signature(x = "dgCMatrix"),
+          function(x, tol = 1e-07, LAPACK = FALSE)
+          .Call(dgCMatrix_QR, x, TRUE))
+
+setMethod("lu", signature(x = "dgCMatrix"),
+          function(x, ...) .Call(dgCMatrix_LU, x, TRUE, 1))
+
+setMethod("solve", signature(a = "dgCMatrix", b = "matrix"),
+          function(a, b, ...) .Call(dgCMatrix_matrix_solve, a, b),
+          valueClass = "dgeMatrix")
+
+setMethod("solve", signature(a = "dgCMatrix", b = "ddenseMatrix"),
+          function(a, b, ...) .Call(dgCMatrix_matrix_solve, a, b),
+          valueClass = "dgeMatrix")

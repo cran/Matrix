@@ -1,6 +1,7 @@
-setAs("dgTMatrix", "dgCMatrix",
-      function(from) .Call(Tsparse_to_Csparse, from, FALSE)
-      )
+## Now in ./Tsparse.R
+## setAs("dgTMatrix", "dgCMatrix",
+##       function(from) .Call(Tsparse_to_Csparse, from, FALSE)
+##       )
 
 setAs("dgTMatrix", "dgeMatrix",
       function(from) .Call(dgTMatrix_to_dgeMatrix, from)

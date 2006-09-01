@@ -247,11 +247,50 @@ SEXP lapack_qr(SEXP Xin, SEXP tl)
 
 SEXP dense_to_Csparse(SEXP x)
 {
-    cholmod_dense *chxd = as_cholmod_dense(x);
+    cholmod_dense *chxd = as_cholmod_dense(PROTECT(mMatrix_as_dgeMatrix(x)));
     cholmod_sparse *chxs = cholmod_dense_to_sparse(chxd, 1, &c);
 
-    Free(chxd);
+    Free(chxd); UNPROTECT(1);
     return chm_sparse_to_SEXP(chxs, 1, 0, "",
 			      isMatrix(x) ? getAttrib(x, R_DimNamesSymbol)
 			      : GET_SLOT(x, Matrix_DimNamesSym));
+}
+
+
+/* Always returns a full matrix with entries outside the band zeroed
+ * Class of the value can be dtrMatrix or dgeMatrix 
+ *
+ */
+
+SEXP ddense_band(SEXP x, SEXP k1P, SEXP k2P)
+{
+    SEXP aa, ans = PROTECT(dup_mMatrix_as_dgeMatrix(x));
+    int *adims = INTEGER(GET_SLOT(ans, Matrix_DimSym)),
+	i, j, k1 = asInteger(k1P), k2 = asInteger(k2P);
+    int m = adims[0], n = adims[1], sqr = (adims[0] == adims[1]),
+	tru = (k1 >= 0), trl = (k2 <= 0);
+    double *ax = REAL(GET_SLOT(ans, Matrix_xSym));
+
+    if (k1 > k2)
+	error(_("Lower band %d > upper band %d"), k1, k2);
+    for (j = 0; j < n; j++) {
+	int i1 = j - k2, i2 = j + 1 - k1;
+	for (i = 0; i < i1; i++) ax[i + j * m] = 0.;
+	for (i = i2; i < m; i++) ax[i + j * m] = 0.;
+    }
+    if (!sqr || (!tru && !trl)) { /* return the dgeMatrix */
+	UNPROTECT(1);
+	return ans;
+    }
+    /* Copy ans to a dtrMatrix object (must be square) */
+    /* Because slots of ans are freshly allocated and ans will not be
+     * used with use the slots themselves and don't duplicate */
+    aa = PROTECT(NEW_OBJECT(MAKE_CLASS("dtrMatrix")));
+    SET_SLOT(aa, Matrix_xSym, GET_SLOT(ans, Matrix_xSym));
+    SET_SLOT(aa, Matrix_DimSym, GET_SLOT(ans, Matrix_DimSym));
+    SET_SLOT(aa, Matrix_DimNamesSym, GET_SLOT(ans, Matrix_DimNamesSym));
+    SET_SLOT(aa, Matrix_diagSym, mkString("N"));
+    SET_SLOT(aa, Matrix_uploSym, mkString(tru ? "U" : "L"));
+    UNPROTECT(2);
+    return aa;
 }

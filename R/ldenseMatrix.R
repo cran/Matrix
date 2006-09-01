@@ -124,6 +124,9 @@ setAs("lgeMatrix", "lgTMatrix",
 setAs("lgeMatrix", "lgCMatrix",
       function(from) as(as(from, "lgTMatrix"), "lgCMatrix"))
 
+setMethod("as.logical", signature(x = "ldenseMatrix"),
+	  function(x, ...) as(x, "lgeMatrix")@x)
+
 ###----------------------------------------------------------------------
 
 

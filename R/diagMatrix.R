@@ -78,6 +78,7 @@ setAs("diagonalMatrix", "sparseMatrix",
       function(from)
 	  as(from, if(is(from, "dMatrix")) "dgCMatrix" else "lgCMatrix"))
 
+if(FALSE) # now have faster  "ddense" -> "dge"
 setAs("ddiMatrix", "dgeMatrix",
       function(from) as(as(from, "matrix"), "dgeMatrix"))
 

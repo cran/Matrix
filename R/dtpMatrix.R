@@ -3,6 +3,7 @@
 setAs("dtpMatrix", "dtrMatrix",
       function(from) .Call(dtpMatrix_as_dtrMatrix, from))
 
+if(FALSE) # now have faster  "ddense" -> "dge"
 setAs("dtpMatrix", "dgeMatrix",
       function(from) as(as(from, "dtrMatrix"), "dgeMatrix"))
 
@@ -22,21 +23,22 @@ setAs("matrix", "dtpMatrix",
       function(from) as(as(from, "dtrMatrix"), "dtpMatrix"))
 
 
-setMethod("%*%", signature(x = "dtpMatrix", y = "dgeMatrix"),
-	  function(x, y) .Call(dtpMatrix_dgeMatrix_mm, x, y))
+setMethod("%*%", signature(x = "dtpMatrix", y = "ddenseMatrix"),
+	  function(x, y) .Call(dtpMatrix_matrix_mm, x, y))
 setMethod("%*%", signature(x = "dgeMatrix", y = "dtpMatrix"),
 	  function(x, y) .Call(dgeMatrix_dtpMatrix_mm, x, y))
+## DB: I don't think this is needed any more
 ## %*% should always work for  <fooMatrix> %*% <fooMatrix>
-setMethod("%*%", signature(x = "dtpMatrix", y = "dtpMatrix"),
-          function(x, y)
-          ## FIXME: this is cheap; could we optimize chosing the better of
-          ## callGeneric(x, as(y, "dgeMatrix"))  and
-          ## callGeneric(as(x "dgeMatrix"), y))  depending on their 'uplo' ?
-          callGeneric(x, as(y, "dgeMatrix")))
+## setMethod("%*%", signature(x = "dtpMatrix", y = "dtpMatrix"),
+##           function(x, y)
+##           ## FIXME: this is cheap; could we optimize chosing the better of
+##           ## callGeneric(x, as(y, "dgeMatrix"))  and
+##           ## callGeneric(as(x "dgeMatrix"), y))  depending on their 'uplo' ?
+##           callGeneric(x, as(y, "dgeMatrix")))
 
 ## dtpMatrix <-> matrix : will be used by the "numeric" one
 setMethod("%*%", signature(x = "dtpMatrix", y = "matrix"),
-          function(x, y) callGeneric(x, as(y, "dgeMatrix")))
+          function(x, y) .Call(dtpMatrix_matrix_mm, x, y))
 setMethod("%*%", signature(x = "matrix", y = "dtpMatrix"),
           function(x, y) callGeneric(as(x, "dgeMatrix"), y))
 
@@ -90,14 +92,16 @@ setMethod("rcond", signature(x = "dtpMatrix", type = "missing"),
 	  valueClass = "numeric")
 
 setMethod("solve", signature(a = "dtpMatrix", b="missing"),
-	  function(a, b, ...)
-	  .Call(dtpMatrix_solve, a),
+	  function(a, b, ...) .Call(dtpMatrix_solve, a),
 	  valueClass = "dtpMatrix")
 
+setMethod("solve", signature(a = "dtpMatrix", b="ddenseMatrix"),
+	  function(a, b, ...) .Call(dtpMatrix_matrix_solve, a, b),
+	  valueClass = "dgeMatrix")
+
 setMethod("solve", signature(a = "dtpMatrix", b="matrix"),
-	  function(a, b, ...)
-	  .Call(dtpMatrix_matrix_solve, a, b),
-	  valueClass = "matrix")
+	  function(a, b, ...) .Call(dtpMatrix_matrix_solve, a, b),
+	  valueClass = "dgeMatrix")
 
 setMethod("t", signature(x = "dtpMatrix"),
           function(x) as(t(as(x, "dtrMatrix")), "dtpMatrix"),

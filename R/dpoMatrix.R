@@ -13,8 +13,8 @@ setAs("dpoMatrix", "corMatrix",
       })
 
 to_dpo <- function(from) as(as(from, "dsyMatrix"), "dpoMatrix")
-setAs("dgeMatrix", "dpoMatrix", to_dpo)
-setAs("matrix",    "dpoMatrix", to_dpo)
+setAs("Matrix", "dpoMatrix", to_dpo)
+setAs("matrix", "dpoMatrix", to_dpo)
 
 
 setMethod("chol", signature(x = "dpoMatrix"),

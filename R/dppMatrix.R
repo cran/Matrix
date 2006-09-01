@@ -4,8 +4,8 @@ setAs("dppMatrix", "dpoMatrix",
       function(from) as(as(from, "dsyMatrix"), "dpoMatrix"))
 
 to_dpp <- function(from) as(as(from, "dpoMatrix"), "dppMatrix")
-setAs("dgeMatrix", "dppMatrix", to_dpp)
-setAs("matrix",    "dppMatrix", to_dpp)
+setAs("Matrix", "dppMatrix", to_dpp)# some may fail, but this tries
+setAs("matrix", "dppMatrix", to_dpp)
 
 setMethod("chol", signature(x = "dppMatrix"),
           function(x, pivot, LINPACK)
@@ -28,23 +28,23 @@ setMethod("solve", signature(a = "dppMatrix", b = "missing"),
 
 setMethod("solve", signature(a = "dppMatrix", b = "dgeMatrix"),
           function(a, b, ...)
-          .Call(dppMatrix_matrix_solve, a, b, TRUE),
+          .Call(dppMatrix_matrix_solve, a, b),
           valueClass = "dgeMatrix")
 
 setMethod("solve", signature(a = "dppMatrix", b = "matrix"),
           function(a, b, ...)
-          .Call(dppMatrix_matrix_solve, a, b, FALSE),
+          .Call(dppMatrix_matrix_solve, a, b),
           valueClass = "dgeMatrix")
 
 ##setMethod("solve", signature(a = "dppMatrix", b = "numeric"),
 ##          function(a, b, ...)
-##          .Call(dppMatrix_matrix_solve, a, as.matrix(b), FALSE),
+##          .Call(dppMatrix_matrix_solve, a, as.matrix(b)),
 ##          valueClass = "dgeMatrix")
 
 setMethod("solve", signature(a = "dppMatrix", b = "integer"),
           function(a, b, ...) {
               storage.mode(b) <- "double"
-              .Call(dppMatrix_matrix_solve, a, as.matrix(b), FALSE)
+              .Call(dppMatrix_matrix_solve, a, as.matrix(b))
           }, valueClass = "dgeMatrix")
 
 setMethod("t", signature(x = "dppMatrix"),

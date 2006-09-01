@@ -8,34 +8,6 @@ SEXP tsc_validate(SEXP x)
     /* see ./dsCMatrix.c or ./dtpMatrix.c  on how to do more testing here */
 }
 
-#if 0    
-SEXP tsc_transpose(SEXP x)
-{
-    cholmod_sparse *cx = as_cholmod_sparse(x);
-    
-    SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("dtCMatrix"))),
-	islot = GET_SLOT(x, Matrix_iSym);
-    int nnz = length(islot),
-	*adims, *xdims = INTEGER(GET_SLOT(x, Matrix_DimSym));
-    int up = uplo_P(x)[0] == 'U';
-
-    adims = INTEGER(ALLOC_SLOT(ans, Matrix_DimSym, INTSXP, 2));
-    adims[0] = xdims[1]; adims[1] = xdims[0];
-
-    if(*diag_P(x) == 'U')
-	SET_SLOT(ans, Matrix_diagSym, duplicate(GET_SLOT(x, Matrix_diagSym)));
-    SET_SLOT(ans, Matrix_uploSym, mkString(up ? "L" : "U"));
-
-    csc_compTr(xdims[0], xdims[1], nnz,
-	       INTEGER(GET_SLOT(x, Matrix_pSym)), INTEGER(islot),
-	       REAL(GET_SLOT(x, Matrix_xSym)),
-	       INTEGER(ALLOC_SLOT(ans, Matrix_pSym, INTSXP, xdims[0] + 1)),
-	       INTEGER(ALLOC_SLOT(ans, Matrix_iSym, INTSXP, nnz)),
-	       REAL(ALLOC_SLOT(ans, Matrix_xSym, REALSXP, nnz)));
-    UNPROTECT(1);
-    return ans;
-}
-#endif
 
 SEXP tsc_to_dgTMatrix(SEXP x)
 {
@@ -274,7 +246,8 @@ SEXP dtCMatrix_upper_solve(SEXP a)
     double *ax = REAL(GET_SLOT(a, Matrix_xSym)), *tx = Calloc(bnz, double),
 	*tmp = Calloc(n, double);
     
-    if (lo || (!unit)) error(_("Code written for unit upper triangular unit matrices"));
+    if (lo || (!unit))
+	error(_("Code written for unit upper triangular unit matrices"));
     bp[0] = 0;
     for (j = 0; j < n; j++) {
 	int i, i1 = ap[j + 1];

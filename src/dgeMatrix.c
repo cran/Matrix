@@ -90,7 +90,7 @@ SEXP dgeMatrix_crossprod(SEXP x, SEXP trans)
     F77_CALL(dsyrk)("U", tr ? "N" : "T", &n, &k,
 		    &one, REAL(GET_SLOT(x, Matrix_xSym)), Dims,
 		    &zero, vx, &n);
-
+    SET_SLOT(val, Matrix_factorSym, allocVector(VECSXP, 0));
     UNPROTECT(1);
     return val;
 }
@@ -174,12 +174,13 @@ SEXP dgeMatrix_LU(SEXP x)
     SEXP val = get_factors(x, "LU");
     int *dims, npiv, info;
 
-    if (val != R_NilValue) return val;
+    if (val != R_NilValue) /* nothing to do if it's there in 'factors' slot */
+	return val;
     dims = INTEGER(GET_SLOT(x, Matrix_DimSym));
     if (dims[0] < 1 || dims[1] < 1)
 	error(_("Cannot factor a matrix with zero extents"));
     npiv = (dims[0] <dims[1]) ? dims[0] : dims[1];
-    val = PROTECT(NEW_OBJECT(MAKE_CLASS("LU")));
+    val = PROTECT(NEW_OBJECT(MAKE_CLASS("denseLU")));
     SET_SLOT(val, Matrix_xSym, duplicate(GET_SLOT(x, Matrix_xSym)));
     SET_SLOT(val, Matrix_DimSym, duplicate(GET_SLOT(x, Matrix_DimSym)));
     F77_CALL(dgetrf)(dims, dims + 1, REAL(GET_SLOT(val, Matrix_xSym)),
@@ -248,36 +249,29 @@ SEXP dgeMatrix_solve(SEXP a)
     return val;
 }
 
-SEXP dgeMatrix_matrix_solve(SEXP a, SEXP b, SEXP classed)
+SEXP dgeMatrix_matrix_solve(SEXP a, SEXP b)
 {
-    int cl = asLogical(classed);
-    SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dgeMatrix"))),
-	lu = dgeMatrix_LU(a);
+    SEXP val = PROTECT(dup_mMatrix_as_dgeMatrix(b)),
+	lu = PROTECT(dgeMatrix_LU(a));
     int *adims = INTEGER(GET_SLOT(lu, Matrix_DimSym)),
-	*bdims = INTEGER(cl ? GET_SLOT(b, Matrix_DimSym) :
-			 getAttrib(b, R_DimSymbol));
+	*bdims = INTEGER(GET_SLOT(val, Matrix_DimSym));
     int info, n = bdims[0], nrhs = bdims[1];
-    int sz = n * nrhs;
 
     if (*adims != *bdims || bdims[1] < 1 || *adims < 1 || *adims != adims[1])
 	error(_("Dimensions of system to be solved are inconsistent"));
-    Memcpy(INTEGER(ALLOC_SLOT(val, Matrix_DimSym, INTSXP, 2)), bdims, 2);
     F77_CALL(dgetrs)("N", &n, &nrhs, REAL(GET_SLOT(lu, Matrix_xSym)), &n,
 		     INTEGER(GET_SLOT(lu, Matrix_permSym)),
-		     Memcpy(REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, sz)),
-			    REAL(cl ? GET_SLOT(b, Matrix_xSym):b), sz),
-		     &n, &info);
-    UNPROTECT(1);
+		     REAL(GET_SLOT(val, Matrix_xSym)), &n, &info);
+    UNPROTECT(2);
     return val;
 }
 
-SEXP dgeMatrix_matrix_mm(SEXP a, SEXP b, SEXP classed, SEXP right)
+SEXP dgeMatrix_matrix_mm(SEXP a, SEXP bP, SEXP right)
 {
-    int cl = asLogical(classed);
-    SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dgeMatrix")));
+    SEXP b = PROTECT(mMatrix_as_dgeMatrix(bP)),
+	val = PROTECT(NEW_OBJECT(MAKE_CLASS("dgeMatrix")));
     int *adims = INTEGER(GET_SLOT(a, Matrix_DimSym)),
-	*bdims = INTEGER(cl ? GET_SLOT(b, Matrix_DimSym) :
-			 getAttrib(b, R_DimSymbol)),
+	*bdims = INTEGER(GET_SLOT(b, Matrix_DimSym)),
 	*cdims = INTEGER(ALLOC_SLOT(val, Matrix_DimSym, INTSXP, 2));
     double one = 1., zero = 0.;
 
@@ -289,7 +283,7 @@ SEXP dgeMatrix_matrix_mm(SEXP a, SEXP b, SEXP classed, SEXP right)
 	    error(_("Matrices with zero extents cannot be multiplied"));
 	cdims[0] = m; cdims[1] = n;
 	F77_CALL(dgemm) ("N", "N", &m, &n, &k, &one,
-			 REAL(cl ? GET_SLOT(b, Matrix_xSym) : b), &m,
+			 REAL(GET_SLOT(b, Matrix_xSym)), &m,
 			 REAL(GET_SLOT(a, Matrix_xSym)), &k, &zero,
 			 REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, m * n)),
 			 &m);
@@ -303,10 +297,11 @@ SEXP dgeMatrix_matrix_mm(SEXP a, SEXP b, SEXP classed, SEXP right)
 	cdims[0] = m; cdims[1] = n;
 	F77_CALL(dgemm)
 	    ("N", "N", &m, &n, &k, &one, REAL(GET_SLOT(a, Matrix_xSym)),
-	     &m, REAL(cl ? GET_SLOT(b, Matrix_xSym) : b), &k, &zero,
+	     &m, REAL(GET_SLOT(b, Matrix_xSym)), &k, &zero,
 	     REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, m * n)), &m);
     }
-    UNPROTECT(1);
+    ALLOC_SLOT(val, Matrix_DimNamesSym, VECSXP, 2);
+    UNPROTECT(2);
     return val;
 }
 

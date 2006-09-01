@@ -5,13 +5,13 @@
 \alias{dppMatrix-class}
 \alias{corMatrix-class}
 %
-\alias{coerce,dgeMatrix,dpoMatrix-method}
-\alias{coerce,dgeMatrix,dppMatrix-method}
 \alias{coerce,dpoMatrix,dppMatrix-method}
 \alias{coerce,dpoMatrix,corMatrix-method}
 \alias{coerce,dppMatrix,dpoMatrix-method}
 \alias{coerce,matrix,dpoMatrix-method}
+\alias{coerce,Matrix,dpoMatrix-method}
 \alias{coerce,matrix,dppMatrix-method}
+\alias{coerce,Matrix,dppMatrix-method}
 \alias{rcond,dpoMatrix,character-method}
 \alias{rcond,dppMatrix,character-method}
 \alias{rcond,dpoMatrix,missing-method}

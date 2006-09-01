@@ -29,6 +29,7 @@ SEXP ltCMatrix_validate(SEXP x)
     }
 }
 
+#if 0				/* no longer used */
 /**
  * Transpose an ltCMatrix
  *
@@ -63,21 +64,4 @@ SEXP ltCMatrix_trans(SEXP x)
     UNPROTECT(1);
     return ans;
 }
-
-/**
- * Solve  one  of the matrix equations  op(A)*C = B, or
- * C*op(A) = B where A is a square ltCMatrix and B and C are lgCMatrix
- * objects.
- *
- * @param side LFT or RGT
- * @param transa TRN or NTR
- * @param A pointer to an ltCMatrix object
- * @param B pointer to an lgCMatrix object
- * @param C pointer to an lgCMatrix object
- */
-void
-ltClgCsm(enum CBLAS_SIDE side, enum CBLAS_TRANSPOSE transa,
-	 SEXP A, SEXP B, SEXP C)
-{
-    error(_("code not yet written"));
-}
+#endif

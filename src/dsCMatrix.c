@@ -1,7 +1,4 @@
 #include "dsCMatrix.h"
-#include "chm_common.h"
-
-/* 'ssc' [symmetric sparse compressed] is an "alias" for our "dsC" */
 
 SEXP dsCMatrix_validate(SEXP obj)
 {
@@ -17,255 +14,134 @@ SEXP dsCMatrix_validate(SEXP obj)
 
 SEXP dsCMatrix_chol(SEXP x, SEXP pivot)
 {
-    SEXP pSlot = GET_SLOT(x, Matrix_pSym), xorig = x;
-    int *Ai = INTEGER(GET_SLOT(x, Matrix_iSym)),
-	*Ap = INTEGER(pSlot),
-	*Lp, *Parent, info,
-	lo = uplo_P(x)[0] == 'L',
-	n = length(pSlot)-1,
-	nnz, piv = asLogical(pivot);
-    SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dCholCMatrix")));
-    int *P, *Pinv = (int *) NULL;
-    double *Ax;
-
-    /* FIXME: Check if there is a Cholesky factorization.  If yes,
-       check if the permutation status matches that of the call.  If
-       so, return it. */
-
-    if (lo) {
-	x = PROTECT(ssc_transpose(x));
-	Ai = INTEGER(GET_SLOT(x, Matrix_iSym));
-	Ap = INTEGER(GET_SLOT(x, Matrix_pSym));
-    }
-    SET_SLOT(val, Matrix_uploSym, mkString("L"));
-    SET_SLOT(val, Matrix_diagSym, mkString("U"));
-    SET_SLOT(val, Matrix_DimSym, duplicate(GET_SLOT(x, Matrix_DimSym)));
-    Parent = INTEGER(ALLOC_SLOT(val, Matrix_ParentSym, INTSXP, n));
-    Lp = INTEGER(ALLOC_SLOT(val, Matrix_pSym, INTSXP, n + 1));
-    P = INTEGER(ALLOC_SLOT(val, Matrix_permSym, INTSXP, n));
-    if (piv) {
-	SEXP trip = PROTECT(dsCMatrix_to_dgTMatrix(x));
-	SEXP Ti = GET_SLOT(trip, Matrix_iSym);
-
-	/* determine the permutation with Metis */
-	Pinv = Calloc(n, int);
-	ssc_metis_order(n, Ap, Ai, P, Pinv);
-	/* create a symmetrized form of x */
-	nnz = length(Ti);
-	Ai = Calloc(nnz, int);
-	Ax = Calloc(nnz, double);
-	Ap = Calloc(n + 1, int);
-	triplet_to_col(n, n, nnz, INTEGER(Ti),
-		       INTEGER(GET_SLOT(trip, Matrix_jSym)),
-		       REAL(GET_SLOT(trip, Matrix_xSym)),
-		       Ap, Ai, Ax);
+    cholmod_factor
+	*N = as_cholmod_factor(dsCMatrix_Cholesky(x, pivot,
+						  ScalarLogical(FALSE),
+						  ScalarLogical(FALSE)));
+    /* Must use a copy; cholmod_factor_to_sparse modifies first arg. */
+    cholmod_factor *Ncp = cholmod_copy_factor(N, &c);
+    cholmod_sparse *L, *R;
+    SEXP ans;
+    
+    L = cholmod_factor_to_sparse(Ncp, &c); cholmod_free_factor(&Ncp, &c);
+    R = cholmod_transpose(L, /*values*/ 1, &c); cholmod_free_sparse(&L, &c);
+    ans = PROTECT(chm_sparse_to_SEXP(R, /*cholmod_free*/ 1,
+				     /*uploT*/ 1, /*diag*/ "N",
+				     GET_SLOT(x, Matrix_DimNamesSym)));
+    if (asLogical(pivot)) {
+	SEXP piv = PROTECT(allocVector(INTSXP, N->n));
+	int *dest = INTEGER(piv), *src = (int*)N->Perm, i;
+	
+	for (i = 0; i < N->n; i++) dest[i] = src[i] + 1;
+	setAttrib(ans, install("pivot"), piv);
+	/* FIXME: Because of the cholmod_factor -> S4 obj ->
+	 * cholmod_factor conversions, the value of N->minor will
+	 * always be N->n.  Change as_cholmod_factor and
+	 * chm_factor_as_SEXP to keep track of Minor.
+	 */
+	setAttrib(ans, install("rank"), ScalarInteger((size_t) N->minor));
 	UNPROTECT(1);
-    } else {
-	int i;
-	for (i = 0; i < n; i++) P[i] = i;
-	Ax = REAL(GET_SLOT(x, Matrix_xSym));
-
     }
-    R_ldl_symbolic(n, Ap, Ai, Lp, Parent, (piv) ? P : (int *)NULL,
-		   (piv) ? Pinv : (int *)NULL);
-    nnz = Lp[n];
-    SET_SLOT(val, Matrix_iSym, allocVector(INTSXP, nnz));
-    SET_SLOT(val, Matrix_xSym, allocVector(REALSXP, nnz));
-    SET_SLOT(val, Matrix_DSym, allocVector(REALSXP, n));
-    info = R_ldl_numeric(n, Ap, Ai, Ax, Lp, Parent,
-			 INTEGER(GET_SLOT(val, Matrix_iSym)),
-			 REAL(GET_SLOT(val, Matrix_xSym)),
-			 REAL(GET_SLOT(val, Matrix_DSym)),
-			 (piv) ? P : (int *)NULL,
-			 (piv) ? Pinv : (int *)NULL);
-    if (info != n)
-	error(_("Leading minor of size %d (possibly after permutation) is indefinite"),
-	      info + 1);
-    if (piv) {
-	Free(Pinv); Free(Ax); Free(Ai); Free(Ap);
-    }
-    UNPROTECT(lo ? 2 : 1);
-    return set_factors(xorig, val, "Cholesky");
-}
-
-SEXP dsCMatrix_matrix_solve(SEXP a, SEXP b, SEXP classed)
-{
-    int cl = asLogical(classed);
-    SEXP Chol = get_factors(a, "Cholesky"), perm,
-	bdP = cl ? GET_SLOT(b, Matrix_DimSym) : getAttrib(b, R_DimSymbol),
-	val = PROTECT(NEW_OBJECT(MAKE_CLASS("dgeMatrix")));
-    int *adims = INTEGER(GET_SLOT(a, Matrix_DimSym)),
-	*bdims = INTEGER(bdP),
-	*Li, *Lp, j, piv;
-    int n = adims[1], ncol = bdims[1];
-    double *Lx, *D, *in = REAL(cl ? GET_SLOT(b, Matrix_xSym) : b),
-	*out = REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, n * ncol)),
-	*tmp = (double *) NULL;
-
-    if (!cl && !(isReal(b) && isMatrix(b)))
-	error(_("Argument b must be a numeric matrix"));
-    if (*adims != *bdims || ncol < 1 || *adims < 1)
-	error(_("Dimensions of system to be solved are inconsistent"));
-    if (Chol == R_NilValue) Chol = dsCMatrix_chol(a, ScalarLogical(1));
-    SET_SLOT(val, Matrix_DimSym, duplicate(bdP));
-    perm = GET_SLOT(Chol, Matrix_permSym);
-    piv = length(perm);
-    if (piv) tmp = Calloc(n, double);
-    Li = INTEGER(GET_SLOT(Chol, Matrix_iSym));
-    Lp = INTEGER(GET_SLOT(Chol, Matrix_pSym));
-    Lx = REAL(GET_SLOT(Chol, Matrix_xSym));
-    D = REAL(GET_SLOT(Chol, Matrix_DSym));
-    for (j = 0; j < ncol; j++, in += n, out += n) {
-	if (piv) R_ldl_perm(n, out, in, INTEGER(perm));
-	else Memcpy(out, in, n);
-	R_ldl_lsolve(n, out, Lp, Li, Lx);
-	R_ldl_dsolve(n, out, D);
-	R_ldl_ltsolve(n, out, Lp, Li, Lx);
-	if (piv) R_ldl_permt(n, out, Memcpy(tmp, out, n), INTEGER(perm));
-    }
-    if (piv) Free(tmp);
-    UNPROTECT(1);
-    return val;
-}
-
-SEXP dsCMatrix_inverse_factor(SEXP A)
-{
-    return R_NilValue;		/* FIXME: Write this function. */
-}
-
-SEXP ssc_transpose(SEXP x)
-{
-    SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("dsCMatrix"))),
-	islot = GET_SLOT(x, Matrix_iSym);
-    int nnz = length(islot), *adims,
-	*xdims = INTEGER(GET_SLOT(x, Matrix_DimSym));
-
-    adims = INTEGER(ALLOC_SLOT(ans, Matrix_DimSym, INTSXP, 2));
-    adims[0] = xdims[1]; adims[1] = xdims[0];
-    if (uplo_P(x)[0] == 'U')
-	SET_SLOT(ans, Matrix_uploSym, mkString("L"));
-    else
-	SET_SLOT(ans, Matrix_uploSym, mkString("U"));
-    csc_compTr(xdims[0], xdims[1], nnz,
-	       INTEGER(GET_SLOT(x, Matrix_pSym)), INTEGER(islot),
-	       REAL(GET_SLOT(x, Matrix_xSym)),
-	       INTEGER(ALLOC_SLOT(ans, Matrix_pSym, INTSXP, xdims[0] + 1)),
-	       INTEGER(ALLOC_SLOT(ans, Matrix_iSym, INTSXP, nnz)),
-	       REAL(ALLOC_SLOT(ans, Matrix_xSym, REALSXP, nnz)));
+    Free(N);
     UNPROTECT(1);
     return ans;
 }
 
-/* TODO: still needed with Csparse_to_Tsparse()  [ which does dsC -> dsT ] */
+SEXP dsCMatrix_Cholesky(SEXP Ap, SEXP permP, SEXP LDLp, SEXP superP)
+{
+    char *fname = strdup("spdCholesky"); /* template for factorization name */
+    int perm = asLogical(permP),
+	LDL = asLogical(LDLp),
+	super = asLogical(superP);
+    SEXP Chol;
+    cholmod_sparse *A;
+    cholmod_factor *L;
+    int sup, ll;
+
+    if (super) fname[0] = 'S';
+    if (perm) fname[1] = 'P';
+    if (LDL) fname[2] = 'D';
+    Chol = get_factors(Ap, "fname");
+    if (Chol != R_NilValue) return Chol;
+    A = as_cholmod_sparse(Ap);
+    sup = c.supernodal;
+    ll = c.final_ll;
+	
+    if (!A->stype) error("Non-symmetric matrix passed to dsCMatrix_chol");
+    
+    c.final_ll = !LDL;	/* leave as LL' or form LDL' */
+    c.supernodal = super ? CHOLMOD_SUPERNODAL : CHOLMOD_SIMPLICIAL; 
+
+    if (perm) {
+	L = cholmod_analyze(A, &c); /* get fill-reducing permutation */
+    } else {			    /* require identity permutation */
+	int nmethods = c.nmethods, ord0 = c.method[0].ordering,
+	    postorder = c.postorder;
+	c.nmethods = 1;
+	c.method[0].ordering = CHOLMOD_NATURAL;
+	c.postorder = FALSE;
+	L = cholmod_analyze(A, &c);
+	c.nmethods = nmethods; c.method[0].ordering = ord0;
+	c.postorder = postorder;
+    }
+    c.supernodal = sup;	/* restore previous setting */
+    c.final_ll = ll;
+    if (!cholmod_factorize(A, L, &c))
+	error(_("Cholesky factorization failed"));
+    Free(A);
+    Chol = set_factors(Ap, chm_factor_to_SEXP(L, 1), fname);
+    free(fname);		/* note, this must be free, not Free */
+    return Chol;
+}
+
+static
+SEXP get_factor_pattern(SEXP obj, char *pat, int offset)
+{
+    SEXP facs = GET_SLOT(obj, Matrix_factorSym), nms;
+    int i;
+
+    /* Why should this be nessary?  Shouldn't nms have length 0 if facs does? */
+    if (!LENGTH(facs)) return R_NilValue;
+    nms = getAttrib(facs, R_NamesSymbol);
+    for (i = 0; i < LENGTH(nms); i++) {
+	char *nm = CHAR(STRING_ELT(nms, i));
+	if (strlen(nm) > offset && !strcmp(pat + offset, nm + offset))
+	    return VECTOR_ELT(facs, i);
+    }
+    return R_NilValue;
+}
+
+SEXP dsCMatrix_matrix_solve(SEXP a, SEXP b)
+{
+    SEXP Chol = get_factor_pattern(a, "spdCholesky", 3);
+    cholmod_factor *L;
+    cholmod_dense  *cx,
+	*cb = as_cholmod_dense(PROTECT(mMatrix_as_dgeMatrix(b)));
+    
+    if (Chol == R_NilValue)
+	Chol = dsCMatrix_Cholesky(a,
+				  ScalarLogical(1),  /* permuted */
+				  ScalarLogical(1),  /* LDL' */
+				  ScalarLogical(0)); /* simplicial */
+    L = as_cholmod_factor(Chol);
+    cx = cholmod_solve(CHOLMOD_A, L, cb, &c);
+    Free(cb); Free(L);
+    UNPROTECT(1);
+    return chm_dense_to_SEXP(cx, 1);
+}
+
+/* Needed for printing dsCMatrix objects */
+/* FIXME: Create a more general version of this operation */
 SEXP dsCMatrix_to_dgTMatrix(SEXP x)
 {
-    SEXP
-	ans = PROTECT(NEW_OBJECT(MAKE_CLASS("dgTMatrix"))),
-	islot = GET_SLOT(x, Matrix_iSym),
-	pslot = GET_SLOT(x, Matrix_pSym);
-    int *ai, *aj, *iv = INTEGER(islot),
-	j, jj, nnz = length(islot), nout,
-	n = length(pslot) - 1,
-	*p = INTEGER(pslot), pos;
-    double *ax, *xv = REAL(GET_SLOT(x, Matrix_xSym));
+    cholmod_sparse *A = as_cholmod_sparse(x);
+    cholmod_sparse *Afull = cholmod_copy(A, /*stype*/ 0, /*mode*/ 1, &c);
+    cholmod_triplet *At = cholmod_sparse_to_triplet(Afull, &c);
 
-    /* increment output count by number of off-diagonals */
-    nout = nnz;
-    for (j = 0; j < n; j++) {
-	int p2 = p[j+1];
-	for (jj = p[j]; jj < p2; jj++) {
-	    if (iv[jj] != j) nout++;
-	}
-    }
-    SET_SLOT(ans, Matrix_DimSym, duplicate(GET_SLOT(x, Matrix_DimSym)));
-    SET_SLOT(ans, Matrix_iSym, allocVector(INTSXP, nout));
-    ai = INTEGER(GET_SLOT(ans, Matrix_iSym));
-    SET_SLOT(ans, Matrix_jSym, allocVector(INTSXP, nout));
-    aj = INTEGER(GET_SLOT(ans, Matrix_jSym));
-    SET_SLOT(ans, Matrix_xSym, allocVector(REALSXP, nout));
-    ax = REAL(GET_SLOT(ans, Matrix_xSym));
-    pos = 0;
-    for (j = 0; j < n; j++) {
-	int p2 = p[j+1];
-	for (jj = p[j]; jj < p2; jj++) {
-	    int ii = iv[jj];
-	    double xx = xv[jj];
-
-	    ai[pos] = ii; aj[pos] = j; ax[pos] = xx; pos++;
-	    if (ii != j) {
-		aj[pos] = ii; ai[pos] = j; ax[pos] = xx; pos++;
-	    }
-	}
-    }
-    UNPROTECT(1);
-    return ans;
+    if (!A->stype)
+	error("Non-symmetric matrix passed to dsCMatrix_to_dgTMatrix");
+    Free(A); cholmod_free_sparse(&Afull, &c);
+    return chm_triplet_to_SEXP(At, 1, /*uploT*/ 0, "",
+			       GET_SLOT(x, Matrix_DimNamesSym));
 }
 
-SEXP dsCMatrix_ldl_symbolic(SEXP x, SEXP doPerm)
-{
-    SEXP Ax, Dims = GET_SLOT(x, Matrix_DimSym),
-	ans = PROTECT(allocVector(VECSXP, 3)), tsc;
-    int i, n = INTEGER(Dims)[0], nz, nza,
-	*Ap, *Ai, *Lp, *Li, *Parent,
-	doperm = asLogical(doPerm),
-	*P = (int *) NULL, *Pinv = (int *) NULL;
-
-
-    if (uplo_P(x)[0] == 'L') {
-	x = PROTECT(ssc_transpose(x));
-    } else {
-	x = PROTECT(duplicate(x));
-    }
-    Ax = GET_SLOT(x, Matrix_xSym);
-    nza = length(Ax);
-    Ap = INTEGER(GET_SLOT(x, Matrix_pSym));
-    Ai = INTEGER(GET_SLOT(x, Matrix_iSym));
-    if (doperm) {
-	int *perm, *iperm = Calloc(n, int);
-
-	SET_VECTOR_ELT(ans, 2, allocVector(INTSXP, n));
-	perm = INTEGER(VECTOR_ELT(ans, 2));
-	ssc_metis_order(n, Ap, Ai, perm, iperm);
-	ssc_symbolic_permute(n, 1, iperm, Ap, Ai);
-	Free(iperm);
-    }
-    SET_VECTOR_ELT(ans, 0, allocVector(INTSXP, n));
-    Parent = INTEGER(VECTOR_ELT(ans, 0));
-    SET_VECTOR_ELT(ans, 1, NEW_OBJECT(MAKE_CLASS("dtCMatrix")));
-    tsc = VECTOR_ELT(ans, 1);
-    SET_SLOT(tsc, Matrix_uploSym, mkString("L"));
-    SET_SLOT(tsc, Matrix_diagSym, mkString("U"));
-    SET_SLOT(tsc, Matrix_DimSym, Dims);
-    SET_SLOT(tsc, Matrix_pSym, allocVector(INTSXP, n + 1));
-    Lp = INTEGER(GET_SLOT(tsc, Matrix_pSym));
-    R_ldl_symbolic(n, Ap, Ai, Lp, Parent, P, Pinv);
-    nz = Lp[n];
-    SET_SLOT(tsc, Matrix_iSym, allocVector(INTSXP, nz));
-    Li = INTEGER(GET_SLOT(tsc, Matrix_iSym));
-    SET_SLOT(tsc, Matrix_xSym, allocVector(REALSXP, nz));
-    for (i = 0; i < nza; i++) REAL(Ax)[i] = 0.00001;
-    for (i = 0; i < n; i++) REAL(Ax)[Ap[i+1]-1] = 10000.;
-    i = R_ldl_numeric(n, Ap, Ai, REAL(Ax), Lp, Parent, Li,
-		    REAL(GET_SLOT(tsc, Matrix_xSym)),
-		    (double *) R_alloc(n, sizeof(double)), /* D */
-		    P, Pinv);
-    UNPROTECT(2);
-    return ans;
-}
-
-SEXP dsCMatrix_metis_perm(SEXP x)
-{
-    SEXP pSlot = GET_SLOT(x, Matrix_pSym),
-	ans = PROTECT(allocVector(VECSXP, 2));
-    int n = length(pSlot) - 1;
-
-    SET_VECTOR_ELT(ans, 0, allocVector(INTSXP, n));
-    SET_VECTOR_ELT(ans, 1, allocVector(INTSXP, n));
-    ssc_metis_order(n,
-		    INTEGER(pSlot),
-		    INTEGER(GET_SLOT(x, Matrix_iSym)),
-		    INTEGER(VECTOR_ELT(ans, 0)),
-		    INTEGER(VECTOR_ELT(ans, 1)));
-    UNPROTECT(1);
-    return ans;
-}

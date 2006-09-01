@@ -46,19 +46,32 @@ assert.EQ.mat(p1, cbind(c(20,30,33,38,54)))
 assert.EQ.mat(pd1, as(m5,"matrix") %*% diag(1:6))
 assert.EQ.mat(pd2, diag(10:6) %*% as(m5,"matrix"))
 
+## check that 'solve' and '%*%' are inverses
+set.seed(1)
+A <- Matrix(rnorm(25), nc = 5)
+y <- rnorm(5)
+all.equal((A %*% solve(A, y))@x, y)
+Atr <- new("dtrMatrix", Dim = A@Dim, x = A@x, uplo = "U")
+all.equal((Atr %*% solve(Atr, y))@x, y)
+
+## sparse matrix products
 
 data(KNex); mm <- KNex$mm
 M <- mm[1:500, 1:200]
+MT <- as(M, "TsparseMatrix")
 cpr <- t(mm) %*% mm
 showMethods("%*%", class=class(M))
 
 v1 <- rep(1, ncol(M))
 str(r <-  M %*% Matrix(v1))
+str(rT <- MT %*% Matrix(v1))
+stopifnot(identical(r, rT))
 str(r. <- M %*% cbind(v1))
-stopifnot(identical3(r, r., M %*% as(v1, "matrix")))
+stopifnot(identical4(r, r., rT, M %*% as(v1, "matrix")))
 
 v2 <- rep(1,nrow(M))
 r2 <- t(Matrix(v2)) %*% M
+r2T <- v2 %*% MT
 str(r2. <- v2 %*% M)
 stopifnot(identical4(r2, r2., rbind(v2) %*% M, t(as(v2, "matrix")) %*% M))
 

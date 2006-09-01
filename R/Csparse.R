@@ -49,11 +49,16 @@ setAs("CsparseMatrix", "matrix",
 ### Some group methods:
 
 setMethod("Arith",
+	  signature(e1 = "CsparseMatrix", e2 = "CsparseMatrix"),
+	  function(e1, e2) callGeneric(as(e1, "dgCMatrix"),
+				       as(e2, "dgCMatrix")))
+
+setMethod("Arith",
 	  signature(e1 = "CsparseMatrix", e2 = "numeric"),
 	  function(e1, e2) {
 	      if(length(e2) == 1) { ## e.g.,  Mat ^ a
 		  f0 <- callGeneric(0, e2)
-		  if(!is.na(f0) && f0 == 0.) { # remain sparse, symm., tri.,...
+		  if(is0(f0)) { # remain sparse, symm., tri.,...
 		      e1@x <- callGeneric(e1@x, e2)
 		      return(e1)
 		  }
@@ -68,7 +73,7 @@ setMethod("Arith",
 	  function(e1, e2) {
 	      if(length(e1) == 1) {
 		  f0 <- callGeneric(e1, 0)
-		  if(!is.na(f0) && f0 == 0.) {
+		  if(is0(f0)) {
 		      e2@x <- callGeneric(e1, e2@x)
 		      return(e2)
 		  }
@@ -77,11 +82,12 @@ setMethod("Arith",
 	  })
 
 
+
 setMethod("Math",
 	  signature(x = "CsparseMatrix"),
 	  function(x) {
 	      f0 <- callGeneric(0.)
-	      if(!is.na(f0) && f0 == 0.) {
+	      if(is0(f0)) {
 		  ## sparseness, symm., triang.,... preserved
 		  x@x <- callGeneric(x@x)
 		  x
@@ -158,11 +164,13 @@ setMethod("crossprod", signature(x = "CsparseMatrix", y = "missing"),
 
 ## FIXME: Generalize the class of y.  This specific method is to replace one
 ##        in dgCMatrix.R
-setMethod("crossprod", signature(x = "CsparseMatrix", y = "dgeMatrix"),
+setMethod("crossprod", signature(x = "CsparseMatrix", y = "ddenseMatrix"),
 	  function(x, y = NULL) .Call(Csparse_dense_crossprod, x, y))
 
-## as_cholmod_dense handles different storage modes for y appropriately
 setMethod("crossprod", signature(x = "CsparseMatrix", y = "matrix"),
+	  function(x, y = NULL) .Call(Csparse_dense_crossprod, x, y))
+
+setMethod("crossprod", signature(x = "CsparseMatrix", y = "numeric"),
 	  function(x, y = NULL) .Call(Csparse_dense_crossprod, x, y))
 
 setMethod("tcrossprod", signature(x = "CsparseMatrix", y = "missing"),
@@ -182,41 +190,60 @@ setMethod("t", signature(x = "CsparseMatrix"),
 setMethod("%*%", signature(x = "CsparseMatrix", y = "CsparseMatrix"),
           function(x, y) .Call(Csparse_Csparse_prod, x, y))
 
-setMethod("%*%", signature(x = "CsparseMatrix", y = "denseMatrix"),
+setMethod("%*%", signature(x = "CsparseMatrix", y = "ddenseMatrix"),
           function(x, y) .Call(Csparse_dense_prod, x, y))
 
 setMethod("%*%", signature(x = "CsparseMatrix", y = "matrix"),
           function(x, y) .Call(Csparse_dense_prod, x, y))
 
+## Not needed because of c("Matrix", "numeric") method
+##setMethod("%*%", signature(x = "CsparseMatrix", y = "numeric"),
+##          function(x, y) .Call(Csparse_dense_prod, x, y))
+
+setMethod("%*%", signature(x = "ddenseMatrix", y = "CsparseMatrix"),
+          function(x, y) t(.Call(Csparse_dense_crossprod, y, t(x))),
+          valueClass = "dgeMatrix")
+
+setMethod("%*%", signature(x = "matrix", y = "CsparseMatrix"),
+          function(x, y) t(.Call(Csparse_dense_crossprod, y, t(x))),
+          valueClass = "dgeMatrix")
+
+## Not needed because of c("numeric", "Matrix") method
+##setMethod("%*%", signature(x = "numeric", y = "CsparseMatrix"),
+##          function(x, y) t(.Call(Csparse_dense_crossprod, y, x)),
+##          valueClass = "dgeMatrix")
+
 ## NB: have extra tril(), triu() methods for symmetric ["dsC" and "lsC"]
 setMethod("tril", "CsparseMatrix",
 	  function(x, k = 0, ...) {
 	      k <- as.integer(k[1])
-	      dd <- dim(x)
+	      dd <- dim(x); sqr <- dd[1] == dd[2]
 	      stopifnot(-dd[1] <= k, k <= dd[1]) # had k <= 0
 	      r <- .Call(Csparse_band, x, -dd[1], k)
 	      ## return "lower triangular" if k <= 0
-	      if(k <= 0) as(r, paste(.M.kind(x), "tCMatrix", sep='')) else r
+	      if(sqr && k <= 0)
+		  as(r, paste(.M.kind(x), "tCMatrix", sep='')) else r
 	  })
 
 setMethod("triu", "CsparseMatrix",
 	  function(x, k = 0, ...) {
 	      k <- as.integer(k[1])
-	      dd <- dim(x)
+	      dd <- dim(x); sqr <- dd[1] == dd[2]
 	      stopifnot(-dd[1] <= k, k <= dd[1]) # had k >= 0
 	      r <- .Call(Csparse_band, x, k, dd[2])
 	      ## return "upper triangular" if k >= 0
-	      if(k >= 0) as(r, paste(.M.kind(x), "tCMatrix", sep='')) else r
+	      if(sqr && k >= 0)
+		  as(r, paste(.M.kind(x), "tCMatrix", sep='')) else r
 	  })
 
 setMethod("band", "CsparseMatrix",
 	  function(x, k1, k2, ...) {
 	      k1 <- as.integer(k1[1])
 	      k2 <- as.integer(k2[1])
-	      dd <- dim(x)
+	      dd <- dim(x); sqr <- dd[1] == dd[2]
 	      stopifnot(-dd[1] <= k1, k1 <= k2, k2 <= dd[1])
 	      r <- .Call(Csparse_band, x, k1, k2)
-	      if(k1 * k2 >= 0) ## triangular
+	      if(sqr && k1 * k2 >= 0) ## triangular
 		  as(r, paste(.M.kind(x), "tCMatrix", sep=''))
 	      else if (k1 < 0  &&  k1 == -k2  && isSymmetric(x)) ## symmetric
 		  as(r, paste(.M.kind(x), "sCMatrix", sep=''))

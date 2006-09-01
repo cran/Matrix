@@ -12,7 +12,8 @@ importFrom("grid",    grid.rect, gpar, grob)
 importFrom("methods", Arith, Compare, Math, Math2, Summary, Complex)
 
 ## Generics and functions defined in this package
-export("Diagonal",
+export("Cholesky",
+       "Diagonal",
        "Hilbert",
        "Matrix",
        "Schur",
@@ -66,12 +67,7 @@ exportClasses(
 	      "index",
 	      "replValue", # if we don't export it, things fail in dispatch
 
-	      "BunchKaufman",
-	      "pBunchKaufman",
-	      "Cholesky",
-	      "pCholesky",
-	      "LU",
-
+              ## --- 'Matrix' mother and all its daughters : ---------------
 	      "Matrix",
 	      ## also intermediate `virtual' ones:
 	      "dMatrix",
@@ -133,11 +129,31 @@ exportClasses(
 	      "ltTMatrix",
               "pMatrix",
 
-	      "dCholCMatrix",
-	      "lCholCMatrix",
+              "corMatrix", # unused
+
+              ## --- inheriting "Matrix", but also factorizations:
+	      "BunchKaufman",
+	      "pBunchKaufman",
+	      "Cholesky",
+	      "pCholesky",
+
+              ## --- 'MatrixFactorization' mother and all its daughters : ---
+
+              "MatrixFactorization",
+
+	      "LU",
+              "denseLU",
+              "sparseLU",
+
+              "CHMfactor",
+              "CHMsuper",
+              "CHMsimpl",
               "dCHMsuper",
               "dCHMsimpl",
-              "corMatrix" # unused
+              "lCHMsuper",# unused
+              "lCHMsimpl",# unused
+
+              "sparseQR"
 	      )
 
 ## lmer-related
@@ -156,10 +172,13 @@ exportMethods(
 	      "+",# for dgT(Matrix) only
 	      "%*%",
 
+              "Cholesky",
 	      "Schur",
 	      "as.array",
 	      "as.matrix",
 	      "as.vector",
+	      "as.numeric",
+	      "as.logical",
               "band",
 	      "chol",
 	      "colMeans",
@@ -179,6 +198,12 @@ exportMethods(
 ## 	       "isDiagonal",
 ## 	       "isTriangular",
 	      "norm",
+              "qr",
+              "qr.qy",
+              "qr.qty",
+              "qr.coef",
+              "qr.resid",
+              "qr.fitted",
 	      "rcond",
 	      "rowMeans",
 	      "rowSums",
@@ -187,7 +212,8 @@ exportMethods(
 	      "t",
 	      "tcrossprod",
               "tril",
-              "triu"
+              "triu",
+              "zapsmall"
 	      )
 
 ## only for R >= 2.2:

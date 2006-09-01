@@ -150,7 +150,7 @@ setMethod("coef", signature(object = "mer"),
           if (length(list(...)))
               warning(paste('arguments named "',
                             paste(names(list(...)), collapse = ", "),
-                                  '" ignored'))
+                                  '" ignored', sep = ''))
           fef <- data.frame(rbind(fixef(object)), check.names = FALSE)
           ref <- ranef(object)
           val <- lapply(ref, function(x) fef[rep(1, nrow(x)),,drop = FALSE])
@@ -494,9 +494,7 @@ setMethod("qqmath", signature(x = "ranef.lmer"),
                   panel.xyplot(x, y, pch = pch, ...)
               }
               f <- function(x) {
-                  if (!is.null(attr(x, "postVar"))) {
-               #       require("lattice", quietly = TRUE)
-                      pv <- attr(x, "postVar")
+                  if (!is.null(pv <- attr(x, "postVar"))) {
                       cols <- 1:(dim(pv)[1])
                       se <- unlist(lapply(cols, function(i) sqrt(pv[i, i, ])))
                       nr <- nrow(x)
@@ -507,7 +505,7 @@ setMethod("qqmath", signature(x = "ranef.lmer"),
                       ind <- gl(ncol(x), nrow(x), labels = names(x))
                       xyplot(unlist(x)[ord] ~
                              rep(qnorm((rr - 0.5)/nr), ncol(x)) | ind[ord],
-                             se = se, prepanel = prepanel.ci, panel = panel.ci,
+                             se = se[ord], prepanel = prepanel.ci, panel = panel.ci,
                              scales = list(y = list(relation = "free")),
                              xlab = "Standard normal quantiles",
                              ylab = NULL, aspect = 1, ...)
@@ -707,59 +705,75 @@ formatVC <- function(varc, digits = max(3, getOption("digits") - 2))
     } else reMat
 }
 
-setMethod("show", "mer",
-	  function(object) {
+## use S3 print method -- which can have non-trivial arguments
+##     ^^ (such that print() remains S3 generic rather than S4)
 
-              so <- summary(object)
-	      useScale <- so@useScale
-	      REML <- so@method == "REML"
-	      llik <- so@logLik
-	      dev <- so@deviance
-	      devc <- so@devComp
-              glz <- so@isG
+## This is modeled a bit after  print.summary.lm :
+print.mer <- function(x, digits = max(3, getOption("digits") - 3),
+                      correlation = TRUE, symbolic.cor = x$symbolic.cor,
+                      signif.stars = getOption("show.signif.stars"), ...)
+{
+    so <- summary(x)
+    useScale <- so@useScale
+    REML <- so@method == "REML"
+    llik <- so@logLik
+    dev <- so@deviance
+    devc <- so@devComp
+    glz <- so@isG
 
-              cat(so@methTitle, "\n")
-	      if (!is.null(so@call$formula))
-		  cat("Formula:", deparse(so@call$formula),"\n")
-	      if (!is.null(so@call$data))
-		  cat("   Data:", deparse(so@call$data), "\n")
-	      if (!is.null(so@call$subset))
-		  cat(" Subset:",
-		      deparse(asOneSidedFormula(so@call$subset)[[2]]),"\n")
-	      if (glz)
-		  cat(" Family: ", so@family$family, "(",
-		      so@family$link, " link)\n", sep = "")
-              print(so@AICtab)
+    cat(so@methTitle, "\n")
+    if (!is.null(so@call$formula))
+        cat("Formula:", deparse(so@call$formula),"\n")
+    if (!is.null(so@call$data))
+        cat("   Data:", deparse(so@call$data), "\n")
+    if (!is.null(so@call$subset))
+        cat(" Subset:",
+            deparse(asOneSidedFormula(so@call$subset)[[2]]),"\n")
+    if (glz)
+        cat(" Family: ", so@family$family, "(",
+            so@family$link, " link)\n", sep = "")
+    print(so@AICtab, digits = digits)
 
-	      cat("Random effects:\n")
-	      print(so@REmat, quote = FALSE)
+    cat("Random effects:\n")
+    print(so@REmat, quote = FALSE, digits = digits, ...)
 
-	      ngrps <- so@ngrps
-	      cat(sprintf("number of obs: %d, groups: ", devc[1]))
-	      cat(paste(paste(names(ngrps), ngrps, sep = ", "), collapse = "; "))
-	      cat("\n")
-	      if (!useScale)
-		  cat("\nEstimated scale (compare to 1) ", so@sigma, "\n")
-	      if (nrow(so@coefs) > 0) {
-		  cat("\nFixed effects:\n")
-		  printCoefmat(so@coefs, zap.ind = 3)#, tst.ind = 4)
-		  rn <- rownames(so@coefs)
-                  corF <- so@vcov@factors$correlation
-		  if (!is.null(corF)) {
-		      p <- ncol(corF)
-		      if (p > 1) {
-			  cat("\nCorrelation of Fixed Effects:\n")
-			  corF <- matrix(format(round(corF@x, 3), nsmall = 3),
-					 nc = p)
-			  dimnames(corF) <- list(abbreviate(rn, minlen=11),
-						 abbreviate(rn, minlen=6))
-                          corF[!lower.tri(corF)] <- ""
-			  print(corF[-1, -p, drop=FALSE], quote = FALSE)
-		      }
-		  }
-	      }
-	      invisible(object)
-	  })
+    ngrps <- so@ngrps
+    cat(sprintf("number of obs: %d, groups: ", devc[1]))
+    cat(paste(paste(names(ngrps), ngrps, sep = ", "), collapse = "; "))
+    cat("\n")
+    if (!useScale)
+	cat("\nEstimated scale (compare to 1) ", so@sigma, "\n")
+    if (nrow(so@coefs) > 0) {
+	cat("\nFixed effects:\n")
+	printCoefmat(so@coefs, zap.ind = 3, #, tst.ind = 4
+		     digits = digits, signif.stars = signif.stars)
+	if(correlation) {
+	    rn <- rownames(so@coefs)
+	    corF <- so@vcov@factors$correlation
+	    if (!is.null(corF)) {
+		p <- ncol(corF)
+		if (p > 1) {
+		    cat("\nCorrelation of Fixed Effects:\n")
+		    if (is.logical(symbolic.cor) && symbolic.cor) {
+			print(symnum(as(corF, "matrix"), abbr.col = NULL))
+		    }
+		    else {
+			corF <- matrix(format(round(corF@x, 3), nsmall = 3),
+				       nc = p)
+			dimnames(corF) <- list(abbreviate(rn, minlen=11),
+					       abbreviate(rn, minlen=6))
+			corF[!lower.tri(corF)] <- ""
+			print(corF[-1, -p, drop=FALSE], quote = FALSE)
+		    }
+		}
+	    }
+	}
+    }
+    invisible(x)
+}
+
+setMethod("show", "mer", function(object) print.mer(object))
+
 
 setMethod("vcov", signature(object = "mer"),
 	  function(object, REML = object@method == "REML",

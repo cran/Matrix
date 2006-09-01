@@ -8,6 +8,7 @@
 \alias{\%*\%,Matrix,pMatrix-method}
 \alias{\%*\%,pMatrix,Matrix-method}
 \alias{coerce,integer,pMatrix-method}
+\alias{coerce,numeric,pMatrix-method}
 \alias{coerce,pMatrix,matrix-method}
 \alias{coerce,pMatrix,lgTMatrix-method}
 \alias{coerce,pMatrix,TsparseMatrix-method}
@@ -41,8 +42,11 @@
     \item{\%*\%}{\code{signature(x = "matrix", y = "pMatrix")} and other
       signatures (use \code{showMethods("\%*\%", class="pMatrix")}): ... }
     \item{coerce}{\code{signature(from = "integer", to = "pMatrix")}:
-      This is enables typical \code{"pmatrix"} construction, given
+      This is enables typical \code{"pMatrix"} construction, given
       a permutation vector of \code{1:n}, see the first example.}
+    \item{coerce}{\code{signature(from = "numeric", to = "pMatrix")}:
+      a user convenience, to allow \code{as(perm, "pMatrix")} for
+      numeric \code{perm} with integer values.}
     \item{coerce}{\code{signature(from = "pMatrix", to = "matrix")}: ... }
     \item{coerce}{\code{signature(from = "pMatrix", to = "lgTMatrix")}:
       coercion to sparse logical matrix of class \code{\linkS4class{lgTMatrix}}.}
@@ -52,6 +56,10 @@
       the permuation matrix (which is also the inverse of the
       permutation matrix).}
   }
+}
+\note{
+  The inverse of the typical \code{"pMatrix"} constructor,
+  \code{P <- as(ip, "pMatrix")} is simply \code{ip <- P@perm}.
 }
 %\seealso{}
 \examples{
@@ -75,4 +83,3 @@ as(pm1, "lgTMatrix")
 p10[1:7, 1:4] # gives an "lgTMatrix" (most economic!)
 }
 \keyword{classes}
-

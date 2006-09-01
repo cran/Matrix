@@ -6,6 +6,7 @@
 \alias{coerce,TsparseMatrix,CsparseMatrix-method}
 % "[" are in ./Xtrct-methods.Rd
 \alias{\%*\%,TsparseMatrix,ANY-method}
+\alias{\%*\%,ANY,TsparseMatrix-method}
 \alias{crossprod,TsparseMatrix,missing-method}
 \alias{crossprod,TsparseMatrix,ANY-method}
 \alias{tcrossprod,TsparseMatrix,missing-method}
@@ -41,6 +42,22 @@ Class \code{"Matrix"}, by class \code{"sparseMatrix"}.
 \section{Methods}{
   Extraction (\code{"["}) methods, see
   \code{\link{[-methods}}.%-> ./Xtrct-methods.Rd
+}
+\note{
+  Most operations with sparse matrices are performed using the
+  compressed, column-oriented or \code{\linkS4class{CsparseMatrix}}
+  representation.  The triplet representation is convenient for
+  creating a sparse matrix or for reading and writing such
+  matrices.  Once it is created, however, the matrix is generally
+  coerced to a \code{\linkS4class{CsparseMatrix}} for further
+  operations.
+  
+  For convenience, methods for some operations such as \code{\%*\%}
+  and \code{crossprod} are defined for
+  \code{\linkS4class{TsparseMatrix}} objects.  These methods simply
+  coerce the \code{\linkS4class{TsparseMatrix}} object to a
+  \code{\linkS4class{CsparseMatrix}} object then perform the
+  operation.
 }
 % \author{Martin Maechler}
 \seealso{

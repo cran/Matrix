@@ -2,6 +2,9 @@
 ### These are "cheap" to program, but potentially far from efficient;
 ### Methods for specific subclasses will overwrite these:
 
+setAs("ANY", "denseMatrix", function(from) Matrix(from, sparse=FALSE))
+
+
 ## dense to sparse:
 setAs("denseMatrix", "dsparseMatrix",
 ## MM thought that  as() will take the ``closest'' match; but that fails!

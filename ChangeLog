@@ -1,9 +1,145 @@
+2006-09-01  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/sparseMatrix.R: add coercion from "ANY" to "sparseMatrix"
+	* R/denseMatrix.R:  add coercion from "ANY" to "denseMatrix"
+
+	* R/Matrix.R ([): use nargs() to disambiguate M[i] and M[i,]
+
+2006-08-31  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/sparseMatrix.R (Arith): moved Arith group method one-level up
+	from "dsparse" to "sparse" and now go via "Csparse" instead of "dgC"
+	* R/dsparseMatrix.R: dito
+	* R/Csparse.R: dito
+
+2006-08-31  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/dMatrix.R (Compare): improve availability of "<", etc
+	* R/Auxiliaries.R (asTuniq): new; also make use of R 2.4.x print(*,max)
+
+2006-08-30  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/dgCMatrix.R: aargh: "Arith(<dgC>, numeric)" was wrong because
+	of a 0-index which was used as 1-index (..hmm)
+
+	* R/sparseMatrix.R (prSpMatrix): fix printing an all-0 sparse Matrix
+
+	* R/Auxiliaries.R (all0, is0): for 0-testing in presence of NA's
+	* R/Auxiliaries.R (isTriMat): use all0() for 0-testing.
+	(.is.diagonal): dito
+
+	* R/lgTMatrix.R: as("matrix", "lgTMatrix"): warn about NA's
+
+	* R/Matrix.R (Matrix): also work for NA data
+
+2006-08-28  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Matrix.R (Matrix): + 'forceCheck' argument; dimnames setting
+	in all cases.
+
+2006-08-27  Douglas Bates  <bates@R-project.org>
+
+	* src/dense.[ch],init.c, R/ddenseMatrix.R, man/band.Rd
+	(ddense_band): Added triu, tril and band for ddenseMatrix objects.
+
+2006-08-25  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/Mutils.c (dup_mMatrix_as_dgeMatrix): added all subclasses of
+	subclasses of "ddenseMatrix"
+	* src/init.c et al: outcomment dtrM*_as_dge* and dsyM*_as_dge*_
+	* R/ddenseMatrix.R et al: setAs("ddenseMatrix", "dgeMatrix", ..)
+	instead of half dozen specialized ones.
+
+2006-08-25  Douglas Bates  <bates@R-project.org>
+
+	* R/lmer.R (qqmath method): Bug fix provided by Emmanuel Tillard
+	<tillard@cirad.fr> - ordering standard errors to match effects.
+
+2006-08-24  Douglas Bates  <bates@R-project.org>
+
+	* src/lsCMatrix.c (lsCMatrix_trans): Remove lsCMatrix_chol based
+	on R_ldl.
+	* R/lCholCMatrix.R,
+	src/[dl]CholCMatrix.[ch],R_ldl.[ch],Metis_utils.[ch]: removed
+	* src/dsCMatrix.c (dsCMatrix_to_dgTMatrix): use CHOLMOD
+	* many files in ./R and ./src: Use more general version of
+	dup_mMatrix_as_dgeMatrix to simplify method definitions.
+	* src/Mutils.c (dup_mMatrix_as_dgeMatrix): Add ddiMatrix,
+	dtpMatrix, dspMatrix and dppMatrix conversions.
+
+
+2006-08-23  Douglas Bates  <bates@R-project.org>
+
+	* R/AllClass.R,lCholCMatrix.R,src/SOURCES_C.mkf,init.c,NAMESPACE:
+	Remove classes lCholCMatrix and dCholCMatrix based on R_ldl code.
+	* src/dgeMatrix.c: Ensure 'factors' slot exists in result of
+	dgeMatrix_crossprod (may need to do this in other places).
+	* R/AllGeneric.R,dsCMatrix.R, src/dscMatrix.[ch]: Add Cholesky
+	generic and method for dsCMatrix.  Use CHOLMOD for chol().
+
+2006-08-22  Douglas Bates  <bates@R-project.org>
+
+	* src/Mutils.c (dup_mMatrix_as_dgeMatrix): updated for general
+	types of classed Matrices, matrices or numeric or logical vectors.
+	* src/init.c: register dup_mMatrix_as_dgeMatrix for coercions.
+	* src/chm_common.c,Mutils.h (as_cholmod_factor): Move check_class
+	to Mutils.h (as an inline) and change name to Matrix_check_class;
+	fixes in as_cholmod_factor and chm_factor_to_SEXP.
+	* src/dsCMatrix.[ch]: Use CHOLMOD for dsCMatrix_chol and
+	dsCMatrix_matrix_solve.  Comment out vestigial functions.
+	* src/Csparse.c: use diag_P and uplo_P macros.
+
+2006-08-21  Douglas Bates  <bates@R-project.org>
+
+	* src/lmer.c (internal_mer_RZXinv): Fix memory leak caught by
+	valgrind.
+	* tests/matprod.R: Add tests to verify that 'solve' and '%*%' are
+	inverses.
+	* src/sparseQR.c (sparseQR_validate): add new validation test, fix
+	-Wall warnings.
+	* src/dppMatrix.c,dtrMatrix.c,dgCMatrix.c,dgeMatrix.c,dspMatrix.c:
+	Use dup_mMatrix_as_dgeMatrix.
+
+2006-08-20  Douglas Bates  <bates@R-project.org>
+
+	* src/sparseQR.c: Fix thinko in sparseQR_resid_fitted.
+	* tests/sparseQR.R: Added
+	* man/sparseQR-class.Rd: Document methods for qr.* generics
+	* R/sparseQR.R: Return correct # of coefs; fix cut-and-paste errors
+
+2006-08-19  Douglas Bates  <bates@R-project.org>
+
+	* NAMESPACE, R/sparseQR.R, src/init.c,sparseQR.[ch],SOURCES_C.mkf:
+	Added methods for sparseQR for qr.qy, qr.qty, qr.coef, qr.resid
+	and qr.fitted.
+	* src/Mutils.[ch]: Added dup_mMatrix_as_dgeMatrix utility
+	* src/dgCMatrix.c: Check for ordering before storing q in dgCMatrix_QR
+
+2006-08-18  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/AllGeneric.R: add "qr" and "chol" generics; via 'trick' since
+	the base version has no "..." argument.
+
+	* R/sparseMatrix.R (prSpMatrix): fix the triangular unit diagonal case.
+
+	* R/Matrix.R: define and
+	* NAMESPACE: export as.numeric() and as.logical() methods.
+		Let's hope these do not badly slow down something...
+	Finally export the zapsmall() method.
+
+2006-08-17  Douglas Bates  <bates@R-project.org>
+
+	* src/dgCMatrix.[ch] (dgCMatrix_matrix_solve), src/init.c,
+	R/dgCMatrix.R: solve methods for dgCMatrix and dense RHS.
+	* src/dtCMatrix.c :Remove code that is no longer used
+	* R/dtCMatrix.R: Use C code for diagU2N in CsparseMatrix classes
+
 2006-08-14  Douglas Bates  <bates@R-project.org>
 
 	* src/Csparse.[ch],init.c (Csparse_to_logical): Added utilities
 	Csparse_to_logical and Csparse_symmetric_to_general.
 	* R/dgCMatrix.R,dsCMatrix.R,Csparse.R : Consolidate general
-	coercion methods between CsparseMatrix and TsparseMatrix.	
+	coercion methods between CsparseMatrix and TsparseMatrix.
 
 2006-08-14  Douglas Bates  <bates@R-project.org>
 
@@ -32,7 +168,7 @@
 	* src/Csparse.c (Csparse_crossprod): tcrossprod result has stype = -1.
 	Later modified to return the upper triangle only.
 	* R/dgTMatrix.R: Remove vestigial crossprod and tcrossprod methods.
-	
+
 2006-08-07  Douglas Bates  <bates@R-project.org>
 
 	* src/Csparse.c (Csparse_crossprod): Set stype on result to avoid

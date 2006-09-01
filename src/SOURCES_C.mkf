@@ -2,8 +2,6 @@ SOURCES_C =  \
 	    CHMfactor.c \
 	    Csparse.c \
 	    HBMM.c \
-	    Metis_utils.c \
-	    R_ldl.c \
 	    Tsparse.c \
 	    init.c \
 	    lmer.c \
@@ -12,7 +10,6 @@ SOURCES_C =  \
 	    cs.c \
 	    cs_utils.c \
             dense.c \
-            dCholCMatrix.c \
             dgCMatrix.c \
             dgTMatrix.c \
             dgeMatrix.c \
@@ -29,11 +26,11 @@ SOURCES_C =  \
             factorizations.c \
 	    iohb.c \
 	    ldense.c \
-	    lCholCMatrix.c \
 	    lgCMatrix.c \
 	    lgTMatrix.c \
 	    lsCMatrix.c \
 	    ltCMatrix.c \
             mmio.c \
 	    pedigree.c \
+	    sparseQR.c \
             triplet_to_col.c

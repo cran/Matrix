@@ -2,19 +2,18 @@
 #define MATRIX_LMER_H
 
 #include "Mutils.h"
-#include "triplet_to_col.h"
-#include "dgCMatrix.h"
+/* #include "dgCMatrix.h" */
 #include "dpoMatrix.h"
-#include "R_ldl.h"
-#include "dsCMatrix.h"
-#include "dtCMatrix.h"
-#include "lgCMatrix.h"
-#include "lCholCMatrix.h"
-#include "Rmath.h"
+/* #include "dsCMatrix.h" */
+/* #include "dtCMatrix.h" */
+/* #include "lgCMatrix.h" */
+/* #include "lCholCMatrix.h" */
 #include "chm_common.h"
+#include "Rmath.h"
+#include <Rversion.h>
 #include <R_ext/Lapack.h>
 #include <R_ext/Constants.h>
-#include <R_ext/Utils.h>
+/* #include <R_ext/Utils.h> */
 
 SEXP Matrix_rWishart(SEXP ns, SEXP df, SEXP scal);
 SEXP glmer_MCMCsamp(SEXP GSp, SEXP savebp, SEXP nsampp, SEXP transp, SEXP verbose);

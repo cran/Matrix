@@ -1,4 +1,7 @@
 setAs("matrix", "dgeMatrix",
+      function(from) .Call(dup_mMatrix_as_dgeMatrix, from))
+if(FALSE)## the above is MUCH faster than
+setAs("matrix", "dgeMatrix",
       function(from) {
 	  new("dgeMatrix",
 	      x = as.double(from),
@@ -136,9 +139,12 @@ setMethod("crossprod", signature(x = "dgeMatrix", y = "missing"),
 setMethod("tcrossprod", signature(x = "dgeMatrix", y = "missing"),
 	  function(x, y = NULL) .Call(dgeMatrix_crossprod, x, TRUE),
 	  valueClass = "dpoMatrix")
+
 setMethod("tcrossprod", signature(x = "matrix", y = "missing"),
-	  function(x, y = NULL) .Call(dgeMatrix_crossprod, as(x, "dgeMatrix"), TRUE),
+	  function(x, y = NULL)
+          .Call(dgeMatrix_crossprod, as(x, "dgeMatrix"), TRUE),
 	  valueClass = "dpoMatrix")
+
 setMethod("tcrossprod", signature(x = "numeric", y = "missing"),
 	  function(x, y = NULL) callGeneric(as.matrix(as.double(x))))
 
@@ -180,43 +186,35 @@ setMethod("tcrossprod", signature(x = "numeric", y = "dgeMatrix"),
 	  function(x, y = NULL) callGeneric(rbind(as.double(x)), y),
 	  valueClass = "dgeMatrix")
 
-
+## %*% methods
 setMethod("%*%", signature(x = "dgeMatrix", y = "dgeMatrix"),
-	  function(x, y)
-          .Call(dgeMatrix_matrix_mm, x, y, TRUE, FALSE),
+	  function(x, y) .Call(dgeMatrix_matrix_mm, x, y, FALSE),
 	  valueClass = "dgeMatrix")
 
-## dgeMatrix <-> matrix ("matrix" dispatches before "numeric" since R 2.1.0)
 setMethod("%*%", signature(x = "dgeMatrix", y = "matrix"),
-	  function(x, y) {
-	      storage.mode(y) <- "double"
-	      .Call(dgeMatrix_matrix_mm, x, y, FALSE, FALSE)
-	  }, valueClass = "dgeMatrix")
-
+	  function(x, y) .Call(dgeMatrix_matrix_mm, x, y, FALSE),
+          valueClass = "dgeMatrix")
 
 setMethod("%*%", signature(x = "matrix", y = "dgeMatrix"),
-	  function(x, y) {
-	      storage.mode(x) <- "double"
-	      .Call(dgeMatrix_matrix_mm, y, x, FALSE, TRUE)
-	  }, valueClass = "dgeMatrix")
+	  function(x, y) .Call(dgeMatrix_matrix_mm, y, x, TRUE),
+          valueClass = "dgeMatrix")
 
+## DB: Should we retain these methods?  Does the shortcut save enough
+## to justify additional signatures? 
 ## dgeMatrix <-> numeric: conceptually dispatch to "matrix" one, but shortcut
 setMethod("%*%", signature(x = "dgeMatrix", y = "numeric"),
-	  function(x, y)
-	  .Call(dgeMatrix_matrix_mm, x, as.matrix(as.double(y)), FALSE, FALSE),
+	  function(x, y) .Call(dgeMatrix_matrix_mm, x, y, FALSE),
 	  valueClass = "dgeMatrix")
+
 setMethod("%*%", signature(x = "numeric", y = "dgeMatrix"),
 	  function(x, y)
-	  .Call(dgeMatrix_matrix_mm, y, rbind(as.double(x)), FALSE, TRUE),
+	  .Call(dgeMatrix_matrix_mm, y, rbind(x), TRUE),
 	  valueClass = "dgeMatrix")
 
 setMethod("diag", signature(x = "dgeMatrix"),
 	  function(x = 1, nrow, ncol = n)
 	  .Call(dgeMatrix_getDiag, x))
 
-
-## DB - I don't think this is a good idea without first checking symmetry
-## MM - cholMat() does check implicitly; not defining it is worse
 setMethod("chol", signature(x = "dgeMatrix", pivot = "ANY"), cholMat)
 
 setMethod("solve", signature(a = "dgeMatrix", b = "missing"),
@@ -224,24 +222,22 @@ setMethod("solve", signature(a = "dgeMatrix", b = "missing"),
           .Call(dgeMatrix_solve, a),
 	  valueClass = "dgeMatrix")
 
-setMethod("solve", signature(a = "dgeMatrix", b = "dgeMatrix"),
-	  function(a, b, ...)
-          .Call(dgeMatrix_matrix_solve, a, b, TRUE),
+setMethod("solve", signature(a = "dgeMatrix", b = "ddenseMatrix"),
+	  function(a, b, ...) .Call(dgeMatrix_matrix_solve, a, b),
 	  valueClass = "dgeMatrix")
 
 setMethod("solve", signature(a = "dgeMatrix", b = "matrix"),
-	  function(a, b, ...) {
-	      storage.mode(b) <- "double"
-	      .Call(dgeMatrix_matrix_solve, a, b, FALSE)
-	  }, valueClass = "dgeMatrix")
+	  function(a, b, ...) .Call(dgeMatrix_matrix_solve, a, b),
+          valueClass = "dgeMatrix")
 
-setMethod("solve", signature(a = "dgeMatrix", b = "numeric"),
-	  function(a, b, ...)
-	  .Call(dgeMatrix_matrix_solve, a, as.matrix(as.double(b)), FALSE))
+## not needed - method for numeric defined for Matrix class
+## setMethod("solve", signature(a = "dgeMatrix", b = "numeric"),
+## 	  function(a, b, ...)
+## 	  .Call(dgeMatrix_matrix_solve, a, as.matrix(as.double(b))))
 
 setMethod("lu", signature(x = "dgeMatrix"),
 	  function(x, ...) .Call(dgeMatrix_LU, x),
-          valueClass = "LU")
+	  valueClass = "denseLU")
 
 setMethod("determinant", signature(x = "dgeMatrix", logarithm = "missing"),
 	  function(x, logarithm, ...)

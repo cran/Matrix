@@ -19,41 +19,31 @@ setMethod("as.matrix", signature(x = "Matrix"), function(x) as(x, "matrix"))
 setMethod("as.array",  signature(x = "Matrix"), function(x) as(x, "matrix"))
 
 ## head and tail apply to all Matrix objects for which subscripting is allowed:
-setMethod("head", signature(x = "Matrix"), utils:::head.matrix)
-setMethod("tail", signature(x = "Matrix"), utils:::tail.matrix)
+## if(paste(R.version$major, R.version$minor, sep=".") < "2.4") {
+    setMethod("head", signature(x = "Matrix"), utils:::head.matrix)
+    setMethod("tail", signature(x = "Matrix"), utils:::tail.matrix)
+## } else { # R 2.4.0 and newer
+##     setMethod("head", signature(x = "Matrix"), utils::head.matrix)
+##     setMethod("tail", signature(x = "Matrix"), utils::tail.matrix)
+## }
 
 ## slow "fall back" method {subclasses should have faster ones}:
 setMethod("as.vector", signature(x = "Matrix", mode = "missing"),
 	  function(x) as.vector(as(x, "matrix")))
 
+## mainly need these for "dMatrix" or "lMatrix" respectively, but why not general:
+setMethod("as.numeric", signature(x = "Matrix"),
+	  function(x, ...) as.numeric(as.vector(x)))
+setMethod("as.logical", signature(x = "Matrix"),
+	  function(x, ...) as.logical(as.vector(x)))
 
-## Note that isSymmetric is *not* exported
-## but that "base" has an isSymmetric() S3-generic since R 2.3.0
+
+## "base" has an isSymmetric() S3-generic since R 2.3.0
 setMethod("isSymmetric", signature(object = "symmetricMatrix"),
           function(object,tol) TRUE)
 setMethod("isSymmetric", signature(object = "triangularMatrix"),
           ## TRUE iff diagonal:
           function(object,tol) isDiagonal(object))
-
-if(paste(R.version$major, R.version$minor, sep=".") < "2.3")
-    ## need a "matrix" method as in R 2.3 and later
-    setMethod("isSymmetric", signature(object = "matrix"),
-	      function(object, tol = 100*.Machine$double.eps, ...)
-	  {
-	      ## pretest: is it square?
-	      d <- dim(object)
-	      if(d[1] != d[2]) return(FALSE)
-	      ## for `broken' all.equal in R <= 2.2.x:
-	      dn <- dimnames(object)
-	      if(!identical(dn[1], dn[2])) return(FALSE)
-	      test <-
-		  if(is.complex(object))
-		      all.equal.numeric(object, Conj(t(object)), tol = tol, ...)
-		  else		    # numeric, character, ..
-		      all.equal(object, t(object), tol = tol, ...)
-	      isTRUE(test)
-	  })
-
 
 setMethod("isTriangular", signature(object = "triangularMatrix"),
           function(object, ...) TRUE)
@@ -87,16 +77,17 @@ setMethod("unname", signature("Matrix", force="missing"),
 
 Matrix <-
     function (data = NA, nrow = 1, ncol = 1, byrow = FALSE, dimnames = NULL,
-	      sparse = NULL)
+	      sparse = NULL, forceCheck = FALSE)
 {
     sparseDefault <- function(m)
-	prod(dim(m)) > 2*sum(as(m, "matrix") != 0)
+	prod(dim(m)) > 2*sum(is.na(m <- as(m, "matrix")) | m != 0)
 
     i.M <- is(data, "Matrix")
     if(is.null(sparse) && (i.M || is(data, "matrix")))
 	sparse <- sparseDefault(data)
 
-    if (i.M) {
+    doDN <- TRUE
+    if (i.M && !forceCheck) {
 	sM <- is(data,"sparseMatrix")
 	if((sparse && sM) || (!sparse && !sM))
 	    return(data)
@@ -107,7 +98,9 @@ Matrix <-
 	    nrow <- ceiling(length(data)/ncol)
 	else if (missing(ncol))
 	    ncol <- ceiling(length(data)/nrow)
-	if(length(data) == 1 && data == 0 && !identical(sparse,FALSE)) {
+	if(length(data) == 1 && !is.na(data) && data == 0 &&
+           !identical(sparse, FALSE)) {
+
 	    if(is.null(sparse)) sparse <- TRUE
 	    ## will be sparse: do NOT construct full matrix!
 	    data <- new(if(is.numeric(data)) "dgTMatrix" else
@@ -122,10 +115,11 @@ Matrix <-
 		sparse <- sparseDefault(data)
 	    dimnames(data) <- dimnames
 	}
-    } else if (!is.null(dimnames))
-	dimnames(data) <- dimnames
-
+        doDN <- FALSE
+    }
     ## 'data' is now a "matrix" or "Matrix"
+    if (doDN && !is.null(dimnames))
+	dimnames(data) <- dimnames
 
     ## check for symmetric / triangular / diagonal :
     isSym <- isSymmetric(data)
@@ -288,30 +282,32 @@ setMethod("[", signature(x = "Matrix", i = "ANY", j = "ANY", drop = "ANY"),
 	  function(x,i,j, drop)
           stop("invalid or not-yet-implemented 'Matrix' subsetting"))
 
-##  "logical *vector* indexing, such as  M [ M >= 10 ] :
+## logical indexing, such as M[ M >= 7 ] *BUT* also M[ M[,1] >= 3,],
+## The following is *both* for    M [ <logical>   ]
+##                 and also for   M [ <logical> , ]
+.M.sub.i.logical <- function (x, i, j, drop)
+{
+    nA <- nargs()
+    if(nA == 2) { ##  M [ M >= 7 ]
+	as(x, geClass(x))@x[as.vector(i)]
+	## -> error when lengths don't match
+    } else if(nA == 3) { ##  M [ M[,1, drop=FALSE] >= 7, ]
+	stop("not-yet-implemented 'Matrix' subsetting") ## FIXME
+
+    } else stop("nargs() = ", nA,
+		" should never happen; please report.")
+}
 setMethod("[", signature(x = "Matrix", i = "lMatrix", j = "missing",
 			 drop = "ANY"),
-	  function (x, i, j, drop) {
-	      as(x, geClass(x))@x[as.vector(i)]
-              ## -> error when lengths don't match
-          })
-
-## FIXME: The following is good for    M [ <logical>   ]
-##        *BUT* it also triggers for   M [ <logical> , ] where it is *WRONG*
-##       using nargs() does not help: it gives '3' for both cases
-if(FALSE)
+	  .M.sub.i.logical)
 setMethod("[", signature(x = "Matrix", i = "logical", j = "missing",
 			 drop = "ANY"),
-	  function (x, i, j, drop) {
-	      ## DEBUG
-	      cat("[(Matrix,i,..): nargs=", nargs(),"\n")
-	      as(x, geClass(x))@x[i] })
+	  .M.sub.i.logical)
 
 
 ## "FIXME:"
-## How can we get at   A[ ij ]	where ij is (i,j) 2-column matrix?
-##  and                A[ LL ]	where LL is a logical *vector*
-## -> [.data.frame uses nargs() - can we do this in the *generic* ?
+## ------ get at  A[ ij ]  where ij is (i,j) 2-column matrix?
+
 
 
 ### "[<-" : -----------------

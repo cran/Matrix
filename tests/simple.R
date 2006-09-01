@@ -11,9 +11,18 @@ source(system.file("test-tools.R", package = "Matrix"))# identical3() etc
 (o4 <- Matrix(1+diag(4)))
 (m4 <- Matrix(cbind(0,rbind(6*diag(3),0))))
 dm4 <- Matrix(m4, sparse = FALSE)
+class(mN <-  Matrix(NA, 3,4)) # NA *is* logical
 stopifnot(validObject(d4), validObject(z4), validObject(o4),
-          validObject(m4), validObject(dm4))
+          validObject(m4), validObject(dm4), validObject(mN))
 assert.EQ.mat(dm4, as(m4, "matrix"))
+if(FALSE)# assert.EQ.. fails for all NA
+assert.EQ.mat(mN, matrix(NA, 3,4))
+sN <- Matrix(, 3,4, sparse=TRUE)# warning: NA coerced to FALSE
+stopifnot(length(sN@i) == 0, # all "FALSE"
+          validObject(Matrix(c(NA,0), 4, 3, byrow = TRUE)),
+          validObject(Matrix(c(NA,0), 4, 4)),
+          is(Matrix(c(NA,0,0,0), 4, 4), "sparseMatrix"))
+
 ## large sparse ones: these now directly "go sparse":
 str(m0 <- Matrix(0,     nrow=100, ncol = 1000))
 str(l0 <- Matrix(FALSE, nrow=100, ncol = 200))
@@ -75,20 +84,13 @@ stopifnot(identical(i6, as(cbind(c(-4, rep(1,5))), "dgeMatrix")),
 ###-- row- and column operations  {was ./rowcolOps.R }
 
 set.seed(321)
+(m1 <- round(Matrix(rnorm(25), 5), 2))
 m1k <- Matrix(round(rnorm(1000), 2), 50, 20)
 m.m <- as(m1k, "matrix")
 stopifnot(all.equal(colMeans(m1k), colMeans(m.m)),
           all.equal(colSums (m1k), colSums (m.m)),
           all.equal(rowMeans(m1k), rowMeans(m.m)),
           all.equal(rowSums (m1k), rowSums (m.m)))
-
-###-- Testing expansions of factorizations {was ./expand.R }
-
-(m1 <- round(Matrix(rnorm(25), 5), 2))
-(lul <- expand(lu(m1)))
-stopifnot(all.equal(as(m1, "matrix"),
-                    as(lul$P %*% (lul$L %*% lul$U), "matrix")))
-
 
 ###-- kronecker for nonsparse uses Matrix(.):
 stopifnot(is(kr <- kronecker(m1, m6), "Matrix"))

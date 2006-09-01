@@ -2,7 +2,16 @@
 \docType{class}
 \title{Virtual Class "sparseMatrix" --- Mother of Sparse Matrices}
 \alias{sparseMatrix-class}
+%% Group methods
+\alias{Arith,sparseMatrix,sparseMatrix-method}
+\alias{Arith,sparseMatrix,numeric-method}
+\alias{Arith,numeric,sparseMatrix-method}
+\alias{Math,sparseMatrix-method}
+%\alias{Math2,sparseMatrix,numeric-method}
+%
+\alias{coerce,ANY,sparseMatrix-method}
 \alias{-,sparseMatrix,missing-method}
+\alias{diag,sparseMatrix-method}
 \alias{show,sparseMatrix-method}
 \alias{colMeans,sparseMatrix-method}
 \alias{colSums,sparseMatrix-method}

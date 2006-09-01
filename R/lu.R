@@ -1,3 +1,2 @@
-setMethod("expand", signature(x = "LU"),
-          function(x, ...)
-          .Call(LU_expand, x))
+setMethod("expand", signature(x = "denseLU"),
+	  function(x, ...) .Call(LU_expand, x))

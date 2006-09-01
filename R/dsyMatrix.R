@@ -1,8 +1,5 @@
 ### Coercion and Methods for Dense Numeric Symmetric Matrices
 
-setAs("dsyMatrix", "dgeMatrix",
-      function(from) .Call(dsyMatrix_as_dgeMatrix, from))
-
 ## or rather setIs() {since test can fail ?}
 setAs("dgeMatrix", "dsyMatrix",
       function(from) {
@@ -14,7 +11,6 @@ setAs("dgeMatrix", "dsyMatrix",
 
 setAs("matrix", "dsyMatrix",
       function(from) as(as(from, "dgeMatrix"), "dsyMatrix"))
-
 
 setAs("dsyMatrix", "matrix",
       function(from) .Call(dsyMatrix_as_matrix, from))
@@ -53,37 +49,33 @@ setMethod("rcond", signature(x = "dsyMatrix", type = "missing"),
           .Call(dsyMatrix_rcond, x, "O"),
           valueClass = "numeric")
 
-setMethod("%*%", signature(x = "dsyMatrix", y = "dgeMatrix"),
-          function(x, y)
-          .Call(dsyMatrix_dgeMatrix_mm, x, y))
+setMethod("%*%", signature(x = "dsyMatrix", y = "ddenseMatrix"),
+          function(x, y) .Call(dsyMatrix_matrix_mm, x, y, FALSE))
 
-setMethod("%*%", signature(x = "dgeMatrix", y = "dsyMatrix"),
-          function(x, y)
-          .Call(dsyMatrix_dgeMatrix_mm_R, y, x))
+setMethod("%*%", signature(x = "dsyMatrix", y = "matrix"),
+          function(x, y) .Call(dsyMatrix_matrix_mm, x, y, FALSE))
+
+setMethod("%*%", signature(x = "ddenseMatrix", y = "dsyMatrix"),
+          function(x, y) .Call(dsyMatrix_matrix_mm, y, x, TRUE))
 
 setMethod("solve", signature(a = "dsyMatrix", b = "missing"),
-          function(a, b, ...)
-          .Call(dsyMatrix_solve, a),
+          function(a, b, ...) .Call(dsyMatrix_solve, a),
           valueClass = "dsyMatrix")
 
 setMethod("solve", signature(a = "dsyMatrix", b = "matrix"),
-          function(a, b, ...)
-          .Call(dsyMatrix_matrix_solve, a, b),
-          valueClass = "matrix")
+          function(a, b, ...) .Call(dsyMatrix_matrix_solve, a, b),
+          valueClass = "dgeMatrix")
 
-setMethod("solve", signature(a = "dsyMatrix", b = "dgeMatrix"),
-          function(a, b, ...)
-          .Call(dsyMatrix_dgeMatrix_solve, a, b),
+setMethod("solve", signature(a = "dsyMatrix", b = "ddenseMatrix"),
+          function(a, b, ...) .Call(dsyMatrix_matrix_solve, a, b),
           valueClass = "dgeMatrix")
 
 setMethod("norm", signature(x = "dsyMatrix", type = "character"),
-          function(x, type, ...)
-          .Call(dsyMatrix_norm, x, type),
+          function(x, type, ...) .Call(dsyMatrix_norm, x, type),
           valueClass = "numeric")
 
 setMethod("norm", signature(x = "dsyMatrix", type = "missing"),
-          function(x, type, ...)
-          .Call(dsyMatrix_norm, x, "O"),
+          function(x, type, ...) .Call(dsyMatrix_norm, x, "O"),
           valueClass = "numeric")
 
 ## Should this create the opposite storage format - i.e. "U" -> "L"

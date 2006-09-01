@@ -21,15 +21,9 @@
 \alias{crossprod,dgeMatrix,dsparseMatrix-method}
 \alias{crossprod,dsparseMatrix,ddenseMatrix-method}
 \alias{crossprod,dsparseMatrix,dgeMatrix-method}
-\alias{diag,dsparseMatrix-method}
 \alias{image,dsparseMatrix-method}
 \alias{kronecker,dsparseMatrix,dsparseMatrix-method}
-%% group methods
-\alias{Arith,dsparseMatrix,dsparseMatrix-method}
-\alias{Arith,dsparseMatrix,numeric-method}
-\alias{Arith,numeric,dsparseMatrix-method}
-%\alias{Math2,dsparseMatrix,numeric-method}
-\alias{Math,dsparseMatrix-method}
+\alias{lu,dsparseMatrix-method}
 %
 \title{Virtual Class "dsparseMatrix" of Numeric Sparse Matrices}
 \description{The Class \code{"dsparseMatrix"} is the virtual (super) class of

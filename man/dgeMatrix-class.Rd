@@ -13,14 +13,14 @@
 %
 \alias{\%*\%,dgeMatrix,dgeMatrix-method}
 \alias{\%*\%,dgeMatrix,matrix-method}
-\alias{\%*\%,matrix,dgeMatrix-method}
 \alias{\%*\%,dgeMatrix,numeric-method}
+\alias{\%*\%,matrix,dgeMatrix-method}
 \alias{\%*\%,numeric,dgeMatrix-method}
 \alias{as.vector,dgeMatrix,missing-method}
 \alias{chol,dgeMatrix,ANY-method}
-\alias{coerce,matrix,dgeMatrix-method}
 \alias{coerce,dgeMatrix,matrix-method}
 \alias{coerce,dgeMatrix,lgeMatrix-method}
+\alias{coerce,matrix,dgeMatrix-method}
 \alias{colMeans,dgeMatrix-method}
 \alias{colSums,dgeMatrix-method}
 \alias{crossprod,dgeMatrix,dgeMatrix-method}
@@ -45,9 +45,8 @@
 \alias{rowMeans,dgeMatrix-method}
 \alias{rowSums,dgeMatrix-method}
 \alias{solve,dgeMatrix,matrix-method}
-\alias{solve,dgeMatrix,dgeMatrix-method}
+\alias{solve,dgeMatrix,ddenseMatrix-method}
 \alias{solve,dgeMatrix,missing-method}
-\alias{solve,dgeMatrix,numeric-method}
 \alias{t,dgeMatrix-method}
 \alias{tcrossprod,dgeMatrix,missing-method}
 \alias{tcrossprod,dgeMatrix,dgeMatrix-method}
@@ -96,9 +95,9 @@
     \item{Schur}{\code{signature(x = "dgeMatrix", vectors = "missing")}: ... }
     \item{chol}{\code{signature(x = "dgeMatrix")}: works via
       \code{"dpoMatrix"}, see class \code{\linkS4class{dpoMatrix}}.}
+    \item{coerce}{\code{signature(from = "dgeMatrix", to = "lgeMatrix")}: ... }
     \item{coerce}{\code{signature(from = "dgeMatrix", to = "matrix")}: ... }
-    \item{coerce}{\code{signature(from = "matrix", to = "dgeMatrix")}:
-      ... }
+    \item{coerce}{\code{signature(from = "matrix", to = "dgeMatrix")}: ... }
     \item{colMeans}{\code{signature(x = "dgeMatrix")}: columnwise means (averages)}
     \item{colSums}{\code{signature(x = "dgeMatrix")}: columnwise sums}
     \item{crossprod}{\code{signature(x = "dgeMatrix", y = "dgeMatrix")}:

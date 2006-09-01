@@ -24,6 +24,15 @@ if (!isGeneric("facmul"))
 if (!isGeneric("lu"))
     setGeneric("lu", function(x, ...) standardGeneric("lu"))
 
+if (!isGeneric("chol"))
+    setGeneric("chol", def = function(x, pivot= FALSE,...) standardGeneric("chol"),
+               useAsDefault= function(x, pivot= FALSE,...) base::chol(x, pivot, ...))
+
+
+if (!isGeneric("qr"))
+    setGeneric("qr", def =   function(x, tol=1e-7,...) standardGeneric("qr"),
+               useAsDefault= function(x, tol=1e-7,...) base::qr(x, tol, ...))
+
 if (!isGeneric("norm"))
     setGeneric("norm", function(x, type, ...) standardGeneric("norm"))
 
@@ -65,6 +74,11 @@ if (!isGeneric("triu"))
 if (!isGeneric("band"))
     setGeneric("band", function(x, k1, k2, ...)
                standardGeneric("band"))
+
+if (!isGeneric("Cholesky"))
+    setGeneric("Cholesky",
+               function(A, perm = TRUE, LDL = TRUE, super = FALSE, ...)
+               standardGeneric("Cholesky"))
 
 
 ## ----------------------- lmer-related Generics ---------------------------

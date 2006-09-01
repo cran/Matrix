@@ -6,22 +6,20 @@ setAs("TsparseMatrix", "CsparseMatrix",
       function(from) .Call(Tsparse_to_Csparse, from, ## ../src/Tsparse.c
                            is(from, "triangularMatrix"))
       )
-##           ans <- .Call(Tsparse_to_Csparse, from) ## ../src/Tsparse.c
-##
-##           if (is(from, "triangularMatrix")) {
-##               ## regenerate the matrix with the triangular properties
-##               ## FIXME: move this to the C code
-##               if (is(ans, "lMatrix"))
-##                   return(new("ltCMatrix", i = ans@i, p = ans@p,
-##                              Dim = ans@Dim, Dimnames = ans@Dimnames,
-##                              uplo = from@uplo, diag = from@diag))
-##               return(new(ifelse(is(ans, "dMatrix"), "dtCMatrix", "ztCMatrix"),
-##                          i = ans@i, p = ans@p, x = ans@x,
-##                          Dim = ans@Dim, Dimnames = ans@Dimnames,
-##                          uplo = from@uplo, diag = from@diag))
-##           }
-##           ans
-##       })
+
+## special cases
+
+setAs("dgTMatrix", "dgCMatrix",
+      function(from) .Call(Tsparse_to_Csparse, from, FALSE))
+
+setAs("dsTMatrix", "dsCMatrix",
+      function(from) .Call(Tsparse_to_Csparse, from, FALSE))
+
+setAs("dtTMatrix", "dtCMatrix",
+      function(from) .Call(Tsparse_to_Csparse, from, TRUE))
+
+setAs("lgTMatrix", "lgCMatrix",
+      function(from) .Call(Tsparse_to_Csparse, from, FALSE))
 
 ### "[" :
 ### -----
@@ -289,6 +287,9 @@ setMethod("tcrossprod", signature(x = "TsparseMatrix", y = "ANY"),
 
 setMethod("%*%", signature(x = "TsparseMatrix", y = "ANY"),
           function(x, y) callGeneric(as(x, "CsparseMatrix"), y))
+
+setMethod("%*%", signature(x = "ANY", y = "TsparseMatrix"),
+          function(x, y) callGeneric(x, as(y, "CsparseMatrix")))
 
 ## Not yet.  Don't have methods for y = "CsparseMatrix" and general x
 #setMethod("%*%", signature(x = "ANY", y = "TsparseMatrix"),

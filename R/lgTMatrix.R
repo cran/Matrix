@@ -3,9 +3,6 @@
 ### contains = "lsparseMatrix"
 ###             ============= ---> superclass methods in ./lsparseMatrix.R
 
-setAs("lgTMatrix", "lgCMatrix",
-      function(from)
-      .Call(lgTMatrix_as_lgCMatrix, from))
 
 setAs("lgTMatrix", "matrix", # go via fast C code:
       function(from) as(as(from, "lgCMatrix"), "matrix"))
@@ -13,7 +10,10 @@ setAs("lgTMatrix", "matrix", # go via fast C code:
 setAs("matrix", "lgTMatrix",
       function(from) {
 	  stopifnot(is.logical(from))
+	  if(any(is.na(from)))
+	      warning("'NA's coerced to 'FALSE' in coercion to logical sparse")
 	  ij <- which(from, arr.ind = TRUE) - 1:1
+	  if(length(ij) == 0) ij <- matrix(ij, 0, 2)
 	  new("lgTMatrix",
 	      i = ij[,1],
 	      j = ij[,2],

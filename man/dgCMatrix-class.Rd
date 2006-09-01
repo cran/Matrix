@@ -4,6 +4,8 @@
 \alias{dgCMatrix-class}
 \alias{\%*\%,dgCMatrix,dgeMatrix-method}
 \alias{\%*\%,dgCMatrix,matrix-method}
+\alias{\%*\%,numeric,dgCMatrix-method}
+\alias{\%*\%,ddenseMatrix,dgCMatrix-method}
 \alias{\%*\%,dgeMatrix,dgCMatrix-method}
 \alias{\%*\%,matrix,dgCMatrix-method}
 \alias{coerce,matrix,dgCMatrix-method}
@@ -21,11 +23,14 @@
 \alias{diag,dgCMatrix-method}
 \alias{dim,dgCMatrix-method}
 \alias{image,dgCMatrix-method}
+\alias{lu,dgCMatrix-method}
 \alias{t,dgCMatrix-method}
 \alias{colMeans,dgCMatrix-method}
 \alias{colSums,dgCMatrix-method}
 \alias{rowMeans,dgCMatrix-method}
 \alias{rowSums,dgCMatrix-method}
+\alias{solve,dgCMatrix,matrix-method}
+\alias{solve,dgCMatrix,ddenseMatrix-method}
 %% Group methods --------- FIXME: These are not tested yet (or documented)
 \alias{Arith,numeric,dgCMatrix-method}
 \alias{Arith,dgCMatrix,numeric-method}
@@ -75,13 +80,16 @@
       of \code{x}}
     \item{image}{\code{signature(x = "dgCMatrix")}: plots an image of
       \code{x} using the \code{\link[lattice]{levelplot}} function}
+    \item{lu}{\code{signature(x = "dgCMatrix")}: computes the LU
+      decomposition of a square \code{dgCMatrix} object}
   }
 }
 %\references{}
 %\author{}
 %\note{}
 \seealso{
-  Classes \code{\linkS4class{dsCMatrix}}, \code{\linkS4class{dtCMatrix}}
+  Classes \code{\linkS4class{dsCMatrix}},
+  \code{\linkS4class{dtCMatrix}}, \code{\link{lu}}
 }
 \examples{
 (m <- Matrix(c(0,0,2:0), 3,5))

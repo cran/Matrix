@@ -3,7 +3,9 @@
 ### Idea: Coercion between *VIRTUAL* classes -- as() chooses "closest" classes
 ### ----  should also work e.g. for  dense-triangular --> sparse-triangular !
 
-##-> see  ./dMatrix.R  and  ./lMatrix.R
+##-> see als ./dMatrix.R, ./ddenseMatrix.R  and  ./lMatrix.R
+
+setAs("ANY", "sparseMatrix", function(from) as(from, "CsparseMatrix"))
 
 
 ## "graph" coercions -- this needs the graph package which is currently
@@ -194,12 +196,44 @@ setMethod("-", signature(e1 = "lsparseMatrix", e2 = "missing"),
 setMethod("-", signature(e1 = "pMatrix", e2 = "missing"),
           function(e1) callGeneric(as(e1, "lgTMatrix")))
 
+## Group method  "Arith"
+
+## have CsparseMatrix methods (-> ./Csparse.R )
+## which may preserve "symmetric", "triangular" -- simply defer to those:
+
+setMethod("Arith", ##  "+", "-", "*", "^", "%%", "%/%", "/"
+	  signature(e1 = "sparseMatrix", e2 = "sparseMatrix"),
+	  function(e1, e2) callGeneric(as(e1, "CsparseMatrix"),
+				       as(e2, "CsparseMatrix")))
+setMethod("Arith",
+	  signature(e1 = "sparseMatrix", e2 = "numeric"),
+	  function(e1, e2) callGeneric(as(e1, "CsparseMatrix"), e2))
+setMethod("Arith",
+	  signature(e1 = "numeric", e2 = "sparseMatrix"),
+	  function(e1, e2) callGeneric(e1, as(e2, "CsparseMatrix")))
+
+setMethod("Math",
+	  signature(x = "sparseMatrix"),
+	  function(x) callGeneric(as(x, "CsparseMatrix")))
+
+
+
 ### --- show() method ---
 
-prSpMatrix <- function(object, zero.print = ".")
+## FIXME(?) -- ``merge this'' (at least ``synchronize'') with
+## - - -   prMatrix() from ./Auxiliaries.R
+prSpMatrix <- function(object, digits = getOption("digits"),
+                       maxp = getOption("max.print"), zero.print = ".")
 {
     stopifnot(is(object, "sparseMatrix"))
-    m <- as(object, "matrix")
+    d <- dim(object)
+    if(prod(d) > maxp) { # "Large" => will be "cut"
+        ## only coerce to dense that part which won't be cut :
+        nr <- maxp %/% d[2]
+	m <- as(object[1:max(1, nr), ,drop=FALSE], "Matrix")
+    } else {
+        m <- as(object, "matrix")
+    }
     logi <- is(object,"lsparseMatrix")
     if(logi)
 	x <- array(character(length(m)), dim(m), dimnames=dimnames(m))
@@ -220,7 +254,7 @@ prSpMatrix <- function(object, zero.print = ".")
 	## show only "structural" zeros as 'zero.print', not all of them..
 	## -> cannot use 'm'
 	iN0 <- 1:1 + encodeInd(non0ind(object), nr = nrow(x))
-	x[-iN0] <- zero.print
+	if(length(iN0)) x[-iN0] <- zero.print else x[] <- zero.print
     }
     print(noquote(x))
     invisible(object)
@@ -233,7 +267,7 @@ setMethod("show", signature(object = "sparseMatrix"),
        cat(sprintf('%d x %d sparse Matrix of class "%s"\n', d[1], d[2], cl))
        maxp <- getOption("max.print")
        if(prod(d) <= maxp)
-	   prSpMatrix(object)
+	   prSpMatrix(object, maxp = maxp)
        else { ## d[1] > maxp / d[2] >= nr : -- this needs [,] working:
 	   nr <- maxp %/% d[2]
 	   n2 <- ceiling(nr / 2)
@@ -276,6 +310,9 @@ setMethod("isDiagonal", signature(object = "sparseMatrix"),
 	      all(gT@i == gT@j)
 	  })
 
+
+setMethod("diag", signature(x = "sparseMatrix"),
+	  function(x, nrow, ncol = n) diag(as(x, "CsparseMatrix")))
 
 ## .as.dgT.Fun
 setMethod("colSums",  signature(x = "sparseMatrix"), .as.dgT.Fun)

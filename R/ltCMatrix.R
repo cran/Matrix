@@ -24,6 +24,6 @@ setMethod("image", "ltCMatrix",
               callGeneric()
           })
 
-setMethod("t", signature(x = "ltCMatrix"),
-          function(x) .Call(ltCMatrix_trans, x),
-          valueClass = "ltCMatrix")
+## setMethod("t", signature(x = "ltCMatrix"),
+##           function(x) .Call(ltCMatrix_trans, x),
+##           valueClass = "ltCMatrix")

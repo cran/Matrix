@@ -27,6 +27,7 @@ SEXP lgTMatrix_validate(SEXP x)
     return ScalarLogical(1);
 }
 
+#if 0 				/* no longer used */
 SEXP lgTMatrix_as_lgCMatrix(SEXP x)
 {
     SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("lgCMatrix"))),
@@ -45,3 +46,4 @@ SEXP lgTMatrix_as_lgCMatrix(SEXP x)
     UNPROTECT(1);
     return ans;
 }
+#endif

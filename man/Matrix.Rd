@@ -3,7 +3,7 @@
 \title{Construct a Classed Matrix}
 \usage{
 Matrix(data=NA, nrow=1, ncol=1, byrow=FALSE, dimnames=NULL,
-       sparse = NULL)
+       sparse = NULL, forceCheck = FALSE)
 }
 \description{
   Construct a Matrix of a class that inherits from \code{Matrix}.
@@ -20,6 +20,9 @@ Matrix(data=NA, nrow=1, ncol=1, byrow=FALSE, dimnames=NULL,
   \item{sparse}{logical or \code{NULL}, specifying if the result should
     be sparse or not.  By default, it is made sparse when more than half
     of the entries are 0.}
+  \item{forceCheck}{logical indicating if the checks for structure
+    should even happen when \code{data} is already a \code{"Matrix"}
+    object.}
 }
 \value{
   Returns an \code{nrow} by \code{ncol} matrix of a class that

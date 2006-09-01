@@ -36,6 +36,8 @@
 \alias{as.array,Matrix-method}
 \alias{as.matrix,Matrix-method}
 \alias{as.vector,Matrix,missing-method}
+\alias{as.numeric,Matrix-method}
+\alias{as.logical,Matrix-method}
 \alias{t,Matrix-method}
 \alias{unname,Matrix-method}
 %\alias{coerce,Matrix,matrix-method}

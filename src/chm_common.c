@@ -3,16 +3,6 @@
 
 cholmod_common c;
 
-static R_INLINE int
-check_class(char *class, char **valid)
-{
-    int ans;
-    for (ans = 0; ; ans++) {
-	if (!strlen(valid[ans])) return -1;
-	if (!strcmp(class, valid[ans])) return ans;
-    }
-}
-
 /**
  * Create a cholmod_sparse object with the contents of x.  Note that
  * the result should *not* be freed with cholmod_sparse_free.  Use
@@ -30,8 +20,7 @@ cholmod_sparse *as_cholmod_sparse(SEXP x)
 		     "lgCMatrix", "lsCMatrix", "ltCMatrix",
 		     "zgCMatrix", "zsCMatrix", "ztCMatrix",
 		     ""};
-    int *dims, ctype = check_class(CHAR(asChar(getAttrib(x, R_ClassSymbol))),
-				   valid);
+    int *dims, ctype = Matrix_check_class(class_P(x), valid);
     SEXP islot;
 
     if (ctype < 0) error("invalid class of object to as_cholmod_sparse");
@@ -173,8 +162,7 @@ cholmod_triplet *as_cholmod_triplet(SEXP x)
 		     "lgTMatrix", "lsTMatrix", "ltTMatrix",
 		     "zgTMatrix", "zsTMatrix", "ztTMatrix",
 		     ""};
-    int *dims, ctype = check_class(CHAR(asChar(getAttrib(x, R_ClassSymbol))),
-				   valid);
+    int *dims, ctype = Matrix_check_class(class_P(x), valid);
     SEXP islot;
 
     if (ctype < 0) error("invalid class of object to as_cholmod_triplet");
@@ -311,9 +299,8 @@ cholmod_dense *as_cholmod_dense(SEXP x)
     cholmod_dense *ans = Calloc(1, cholmod_dense);
     char *valid[] = {"dmatrix", "dgeMatrix",
 		     "lmatrix", "lgeMatrix",
-		     "zmatrix", "zgeMatrix", ""},
-	*cl = CHAR(asChar(getAttrib(x, R_ClassSymbol)));
-    int dims[2], ctype = check_class(cl, valid), nprot = 0;
+		     "zmatrix", "zgeMatrix", ""};
+    int dims[2], ctype = Matrix_check_class(class_P(x), valid), nprot = 0;
 
     if (ctype < 0) {		/* not a classed matrix */
 	if (isMatrix(x)) Memcpy(dims, INTEGER(getAttrib(x, R_DimSymbol)), 2);
@@ -463,7 +450,7 @@ cholmod_factor *as_cholmod_factor(SEXP x)
     cholmod_factor *ans = Calloc(1, cholmod_factor);
     char *valid[] = {"dCHMsuper", "dCHMsimpl", "lCHMsuper", "lCHMsimpl", ""};
     int *type = INTEGER(GET_SLOT(x, install("type"))),
-	ctype = check_class(CHAR(asChar(getAttrib(x, R_ClassSymbol))), valid);
+	ctype = Matrix_check_class(class_P(x), valid);
     SEXP tmp;
 
     if (ctype < 0) error("invalid class of object to as_cholmod_factor");
@@ -487,10 +474,11 @@ cholmod_factor *as_cholmod_factor(SEXP x)
     tmp = GET_SLOT(x, Matrix_permSym);
     ans->minor = ans->n = LENGTH(tmp); ans->Perm = INTEGER(tmp);
     ans->ColCount = INTEGER(GET_SLOT(x, install("colcount")));
+    ans->z = ans->x = (void *) NULL;
     if (ctype < 2) {
 	tmp = GET_SLOT(x, Matrix_xSym);
 	ans->x = REAL(tmp);
-    } else ans->x = (void*)NULL;
+    }
     if (ans->is_super) {	/* supernodal factorization */
 	ans->xsize = LENGTH(tmp);
 	ans->maxcsize = type[4]; ans->maxesize = type[5];
@@ -518,6 +506,8 @@ cholmod_factor *as_cholmod_factor(SEXP x)
 	ans->next = INTEGER(GET_SLOT(x, install("nxt")));
 	ans->prev = INTEGER(GET_SLOT(x, install("prv")));
     }
+    if (!cholmod_check_factor(ans, &c))
+	error(_("failure in as_cholmod_factor"));
     return ans;
 }
 
@@ -541,7 +531,7 @@ SEXP chm_factor_to_SEXP(cholmod_factor *f, int dofree)
 	class = f->is_super ? "dCHMsuper" : "dCHMsimpl";
 	break;
     case CHOLMOD_PATTERN:
-	class = f->is_super ? "dCHMsuper" : "dCHMsimpl";
+	class = f->is_super ? "lCHMsuper" : "lCHMsimpl";
 	break;
     default:
 	error(_("f->xtype of %d not recognized"), f->xtype);
@@ -576,12 +566,15 @@ SEXP chm_factor_to_SEXP(cholmod_factor *f, int dofree)
 	   (int*)f->p, f->n + 1);
 	Memcpy(REAL(ALLOC_SLOT(ans, Matrix_xSym, REALSXP, f->nzmax)),
 	       (double*)f->x, f->nzmax);
+	Memcpy(INTEGER(ALLOC_SLOT(ans, install("nz"), INTSXP, f->n + 1)),
+	       (int*)f->nz, f->n + 1);
 	Memcpy(INTEGER(ALLOC_SLOT(ans, install("colcount"), INTSXP, f->n)),
 	       (int*)f->ColCount, f->n);
 	Memcpy(INTEGER(ALLOC_SLOT(ans, install("nxt"), INTSXP, f->n + 2)),
 	       (int*)f->next, f->n + 2);
 	Memcpy(INTEGER(ALLOC_SLOT(ans, install("prv"), INTSXP, f->n + 2)),
 	       (int*)f->prev, f->n + 2);
+
     }
     if (dofree > 0) cholmod_free_factor(&f, &c);
     if (dofree < 0) Free(f);

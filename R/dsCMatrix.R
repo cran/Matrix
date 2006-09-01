@@ -35,15 +35,6 @@ setAs("dsCMatrix", "lsCMatrix",
 setAs("dsCMatrix", "dgCMatrix",
       function(from) .Call(Csparse_symmetric_to_general, from))
 
-if(FALSE) # have 'C' version above
-setAs("dsCMatrix", "dsTMatrix",
-      function(from)
-      new("dsTMatrix", i = from@i,
-          j = .Call(Matrix_expand_pointers, from@p),
-          x = from@x, uplo = from@uplo,
-          Dim= from@Dim, Dimnames = from@Dimnames)
-      )
-
 setAs("dsCMatrix", "dsyMatrix",
       function(from) as(as(from, "dsTMatrix"), "dsyMatrix"))
 
@@ -57,6 +48,7 @@ setMethod("tril", "dsCMatrix",
 		      x = x@x, Dim = x@Dim, Dimnames = x@Dimnames)
 	      else tril(as(x, "dgCMatrix"), k = k, ...)
 	  })
+
 setMethod("triu", "dsCMatrix",
 	  function(x, k = 0, ...) {
 	      if(x@uplo == "U" && k == 0)
@@ -66,14 +58,24 @@ setMethod("triu", "dsCMatrix",
 	      else triu(as(x, "dgCMatrix"), k = k, ...)
 	  })
 
-setMethod("solve", signature(a = "dsCMatrix", b = "dgeMatrix"),
-          function(a, b, ...)
-          .Call(dsCMatrix_matrix_solve, a, b, TRUE),
+setMethod("solve", signature(a = "dsCMatrix", b = "ddenseMatrix"),
+          function(a, b, ...) {
+              if (class(b) != "dgeMatrix")
+                  b <- .Call(dup_mMatrix_as_dgeMatrix, b)
+              .Call(dsCMatrix_matrix_solve, a, b)
+          },
           valueClass = "dgeMatrix")
 
 setMethod("solve", signature(a = "dsCMatrix", b = "matrix"),
           function(a, b, ...)
-          .Call(dsCMatrix_matrix_solve, a, b, FALSE),
+          .Call(dsCMatrix_matrix_solve, a,
+                .Call(dup_mMatrix_as_dgeMatrix, b)),
+          valueClass = "dgeMatrix")
+
+setMethod("solve", signature(a = "dsCMatrix", b = "numeric"),
+          function(a, b, ...)
+          .Call(dsCMatrix_matrix_solve, a,
+                .Call(dup_mMatrix_as_dgeMatrix, b)),
           valueClass = "dgeMatrix")
 
 ##setMethod("solve", signature(a = "dsCMatrix", b = "numeric"),
@@ -81,13 +83,20 @@ setMethod("solve", signature(a = "dsCMatrix", b = "matrix"),
 ##          valueClass = "dgeMatrix")
 
 setMethod("chol", signature(x = "dsCMatrix", pivot = "missing"),
-          function(x, pivot, LINPACK) .Call(dsCMatrix_chol, x, TRUE))
+          function(x, pivot, LINPACK) .Call(dsCMatrix_chol, x, FALSE),
+          valueClass = "dtCMatrix")
 
 setMethod("chol", signature(x = "dsCMatrix", pivot = "logical"),
-          function(x, pivot, LINPACK) .Call(dsCMatrix_chol, x, pivot))
+          function(x, pivot, LINPACK) .Call(dsCMatrix_chol, x, pivot),
+          valueClass = "dtCMatrix")
+
+setMethod("Cholesky", signature(A = "dsCMatrix"),
+          function(A, perm = TRUE, LDL = TRUE, super = FALSE, ...)
+          .Call(dsCMatrix_Cholesky, A, perm, LDL, super))
+
 
 setMethod("t", signature(x = "dsCMatrix"),
-          function(x) .Call(ssc_transpose, x),
+          function(x) .Call(Csparse_transpose, x, FALSE),
           valueClass = "dsCMatrix")
 
 setMethod("determinant", signature(x = "dsCMatrix", logarithm = "missing"),
@@ -96,6 +105,7 @@ setMethod("determinant", signature(x = "dsCMatrix", logarithm = "missing"),
 setMethod("determinant", signature(x = "dsCMatrix", logarithm = "logical"),
           function(x, logarithm, ...)
       {
+          stop("Temporarily disabled until we work out the LDL factorization diagonal")
           ldet <- sum(log(chol(x)@D))
           modulus <- if (logarithm) ldet else exp(ldet)
           attr(modulus, "logarithm") <- logarithm

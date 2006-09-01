@@ -2,7 +2,6 @@
 \title{Class "ddiMatrix" of Diagonal Numeric Matrices}
 \docType{class}
 \alias{ddiMatrix-class}
-\alias{coerce,ddiMatrix,dgeMatrix-method}
 \alias{coerce,ddiMatrix,dgCMatrix-method}
 \alias{coerce,ddiMatrix,dgTMatrix-method}
 \alias{\%*\%,ddiMatrix,ddiMatrix-method}

@@ -1,20 +1,8 @@
 ### Coercion and Methods for Symmetric Triplet Matrices
 
-setAs("dsTMatrix", "dsCMatrix",
-      function(from)
-      ## pre-Cholmod: .Call(dsTMatrix_as_dsCMatrix, from)
-      .Call(Tsparse_to_Csparse, from, FALSE)
-      )
-
-if(FALSE) # have C method below
-setAs("dsTMatrix", "dgTMatrix",
-      function(from) {
-          d <- from@Dim
-          new("dgTMatrix", Dim = d, Dimnames = from@Dimnames,
-              i = c(from@i, from@j),
-              j = c(from@j, from@i),
-              x = c(from@x, from@x))
-      })
+## Now in ./Tsparse.R
+## setAs("dsTMatrix", "dsCMatrix",
+##       function(from) .Call(Tsparse_to_Csparse, from, FALSE))
 
 setAs("dsTMatrix", "dgTMatrix",
       function(from) .Call(dsTMatrix_as_dgTMatrix, from))

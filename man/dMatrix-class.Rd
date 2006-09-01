@@ -8,6 +8,7 @@
 \alias{[,dMatrix,lMatrix,missing,ANY-method}
 \alias{[,dMatrix,logical,missing,ANY-method}
 % Group methods
+\alias{Arith,dMatrix,dMatrix-method}
 \alias{Math2,dMatrix,numeric-method}% Math2 = round + signif, but
 \alias{Math2,dMatrix,missing-method}
 \alias{Summary,dMatrix-method}
@@ -20,6 +21,8 @@
 \alias{log,dMatrix-method}
 \alias{gamma,dMatrix-method}
 \alias{lgamma,dMatrix-method}
+%
+\alias{zapsmall,dMatrix-method}
 %
 % operations with one argument from the "integer" class
 \alias{crossprod,dMatrix,integer-method}
@@ -49,13 +52,30 @@
   }
 }
 \section{Methods}{
-  There are (very simplistic) group methods (see, e.g., \code{\link{Arith}})
+  There are (relatively simple) group methods (see, e.g., \code{\link{Arith}})
   \describe{
     \item{Arith}{\code{signature(e1 = "dMatrix", e2 = "dMatrix")}: ... }
     \item{Arith}{\code{signature(e1 = "dMatrix", e2 = "numeric")}: ... }
     \item{Arith}{\code{signature(e1 = "numeric", e2 = "dMatrix")}: ... }
     \item{Math}{\code{signature(x = "dMatrix")}: ... }
-    \item{Math2}{\code{signature(x = "dMatrix", digits = "numeric")}: ...}
+    \item{Math2}{\code{signature(x = "dMatrix", digits = "numeric")}:
+      this group contains \code{\link{round}()} and \code{\link{signif}()}.}
+    \item{Compare}{\code{signature(e1 = "numeric", e2 = "dMatrix")}: ... }
+    \item{Compare}{\code{signature(e1 = "dMatrix", e2 = "numeric")}: ... }
+    \item{Compare}{\code{signature(e1 = "dMatrix", e2 = "dMatrix")}: ... }
+    \item{Summary}{\code{signature(x = "dMatrix")}: The \code{"Summary"}
+      group contains the seven functions
+      \code{\link{max}()}, \code{\link{min}()}, \code{\link{range}()},
+      \code{\link{prod}()}, \code{\link{sum}()},
+      \code{\link{any}()}, and \code{\link{all}()}.}
+  }
+  The following methods are also defined for all double matrices:
+  \describe{
+    \item{coerce}{\code{signature(from = "dMatrix", to = "matrix")}: ... }
+    %
+    \item{expm}{\code{signature(x = "dMatrix")}: computes the
+      \emph{\dQuote{Matrix Exponential}}, see \code{\link{expm}}.}
+    \item{zapsmall}{\code{signature(x = "dMatrix")}: ... }
   }
 }
 %\references{}
@@ -66,6 +86,11 @@
 }
 \examples{
  showClass("dMatrix")
+
+ set.seed(101)
+ round(Matrix(rnorm(28), 4,7), 2)
+ (M <- zapsmall(Matrix(rlnorm(56, sd=10), 4,14)))
+ table(as.logical(M == 0))
 }
 \keyword{classes}
 \keyword{algebra}

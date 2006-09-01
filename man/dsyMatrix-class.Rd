@@ -1,19 +1,16 @@
 \name{dsyMatrix-class}
 \docType{class}
-\alias{\%*\%,dgeMatrix,dsyMatrix-method}
-\alias{\%*\%,dspMatrix,dgeMatrix-method}
-\alias{\%*\%,dspMatrix,integer-method}
+\alias{\%*\%,ddenseMatrix,dsyMatrix-method}
+\alias{\%*\%,dspMatrix,ddenseMatrix-method}
 \alias{\%*\%,dspMatrix,matrix-method}
-\alias{\%*\%,dspMatrix,numeric-method}
-\alias{\%*\%,dsyMatrix,dgeMatrix-method}
-\alias{coerce,dspMatrix,dgeMatrix-method}
+\alias{\%*\%,dsyMatrix,ddenseMatrix-method}
+\alias{\%*\%,dsyMatrix,matrix-method}
 \alias{coerce,dspMatrix,dsyMatrix-method}
 \alias{coerce,dspMatrix,lspMatrix-method}
 \alias{coerce,dspMatrix,matrix-method}
 \alias{coerce,dgeMatrix,dspMatrix-method}
 \alias{coerce,matrix,dspMatrix-method}
 \alias{coerce,dgeMatrix,dsyMatrix-method}% or rather setIs?
-\alias{coerce,dsyMatrix,dgeMatrix-method}
 \alias{coerce,dsyMatrix,dspMatrix-method}
 \alias{coerce,dsyMatrix,lsyMatrix-method}
 \alias{coerce,dsyMatrix,matrix-method}
@@ -29,12 +26,10 @@
 \alias{rcond,dspMatrix,missing-method}
 \alias{rcond,dsyMatrix,character-method}
 \alias{rcond,dsyMatrix,missing-method}
-\alias{solve,dspMatrix,dgeMatrix-method}
-\alias{solve,dspMatrix,integer-method}
+\alias{solve,dspMatrix,ddenseMatrix-method}
 \alias{solve,dspMatrix,matrix-method}
 \alias{solve,dspMatrix,missing-method}
-\alias{solve,dspMatrix,numeric-method}
-\alias{solve,dsyMatrix,dgeMatrix-method}
+\alias{solve,dsyMatrix,ddenseMatrix-method}
 \alias{solve,dsyMatrix,matrix-method}
 \alias{solve,dsyMatrix,missing-method}
 \alias{t,dspMatrix-method}
@@ -73,8 +68,8 @@
 }
 \section{Methods}{
   \describe{
-    \item{coerce}{\code{signature(from = "dspMatrix", to = "dgeMatrix")}}
-    \item{coerce}{\code{signature(from = "dsyMatrix", to = "dgeMatrix")}}
+    \item{coerce}{\code{signature(from = "ddenseMatrix", to = "dgeMatrix")}}
+    %
     \item{coerce}{\code{signature(from = "dspMatrix", to = "matrix")}}
     \item{coerce}{\code{signature(from = "dsyMatrix", to = "matrix")}}
     \item{coerce}{\code{signature(from = "dsyMatrix", to = "dspMatrix")}}
@@ -85,8 +80,6 @@
     \item{norm}{\code{signature(x = "dsyMatrix", type = "missing")}}
     \item{solve}{\code{signature(a = "dspMatrix", b = "missing")}}
     \item{solve}{\code{signature(a = "dsyMatrix", b = "missing")}}
-    \item{solve}{\code{signature(a = "dspMatrix", b = "dgeMatrix")}}
-    \item{solve}{\code{signature(a = "dsyMatrix", b = "dgeMatrix")}}
     \item{solve}{\code{signature(a = "dspMatrix", b = "matrix")}}
     \item{solve}{\code{signature(a = "dsyMatrix", b = "matrix")}}
   }

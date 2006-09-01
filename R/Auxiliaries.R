@@ -1,6 +1,12 @@
 #### "Namespace private" Auxiliaries  such as method functions
 #### (called from more than one place --> need to be defined early)
 
+.isR_24 <- (paste(R.version$major, R.version$minor, sep=".") >= "2.4")
+
+## Need to consider NAs ;  "== 0" even works for logical & complex:
+is0  <- function(x) !is.na(x) & x == 0
+all0 <- function(x) !any(is.na(x)) && all(x == 0)
+
 ## For %*% (M = Matrix; v = vector (double or integer {complex maybe?}):
 .M.v <- function(x, y) callGeneric(x, as.matrix(y))
 .v.M <- function(x, y) callGeneric(rbind(x), y)
@@ -88,8 +94,9 @@ colCheck <- function(a, b) {
 ## ----  "*sy" and "*tr" which have "undefined" lower or upper part
 isPacked <- function(x)
 {
-    ## Is 'x' a packed (dense) matrix ? -- gives also TRUE for sparse
-    is(x,"Matrix") && !is.null(x@x) && length(x@x) < prod(dim(x))
+    ## Is 'x' a packed (dense) matrix ?
+    is(x, "denseMatrix") &&
+    any("x" == slotNames(x)) && length(x@x) < prod(dim(x))
 }
 
 emptyColnames <- function(x)
@@ -101,10 +108,10 @@ emptyColnames <- function(x)
 }
 
 prTriang <- function(x, digits = getOption("digits"),
+                     maxp = getOption("max.print"),
 		     justify = "none", right = TRUE)
 {
     ## modeled along stats:::print.dist
-    diag <- TRUE
     upper <- x@uplo == "U"
 
     m <- as(x, "matrix")
@@ -113,20 +120,25 @@ prTriang <- function(x, digits = getOption("digits"),
 	cf[row(cf) > col(cf)] <- "."
     else
 	cf[row(cf) < col(cf)] <- "."
-    print(cf, quote = FALSE, right = right)
+    if(.isR_24)
+	 print(cf, quote = FALSE, right = right, max = maxp)
+    else print(cf, quote = FALSE, right = right)
     invisible(x)
 }
 
-prMatrix <- function(x, digits = getOption("digits")) {
+prMatrix <- function(x, digits = getOption("digits"),
+                     maxp = getOption("max.print")) {
     d <- dim(x)
     cl <- class(x)
     cat(sprintf('%d x %d Matrix of class "%s"\n', d[1], d[2], cl))
-    maxp <- getOption("max.print")
     if(prod(d) <= maxp) {
 	if(is(x, "triangularMatrix"))
-	    prTriang(x, digits = digits)
-	else
-	    print(as(x, "matrix"), digits = digits)
+	    prTriang(x, digits = digits, maxp = maxp)
+	else {
+	    if(.isR_24)
+		 print(as(x, "matrix"), digits = digits, max = maxp)
+	    else print(as(x, "matrix"), digits = digits)
+	}
     }
     else { ## d[1] > maxp / d[2] >= nr :
 	m <- as(x, "matrix")
@@ -141,13 +153,14 @@ prMatrix <- function(x, digits = getOption("digits")) {
 }
 
 ## For sparseness handling
+## return a 2-column (i,j) matrix of
+## 0-based indices of non-zero entries  :
 non0ind <- function(x) {
+
     if(is.numeric(x))
 	return(if((n <- length(x))) (0:(n-1))[x != 0] else integer(0))
     ## else
     stopifnot(is(x, "sparseMatrix"))
-    ## return a 2-column (i,j) matrix of
-    ## 0-based indices of non-zero entries  :
     non0.i <- function(M) {
 	if(is(M, "TsparseMatrix"))
 	    return(unique(cbind(M@i,M@j)))
@@ -162,6 +175,12 @@ non0ind <- function(x) {
 	ij <- non0.i(x)
 	notdiag <- ij[,1] != ij[,2]# but not the diagonals again
 	rbind(ij, ij[notdiag, 2:1])
+    }
+    else if(is(x, "triangularMatrix")) { # check for "U" diag
+	if(x@diag == "U") {
+	    i <- seq(length = dim(x)[1]) - 1:1
+	    rbind(non0.i(x), cbind(i,i))
+	} else non0.i(x)
     }
     else
 	non0.i(x)
@@ -220,7 +239,7 @@ uniqTsparse <- function(x, class.x = c(class(x))) {
 	   "lsTMatrix" = as(as(x, "lsCMatrix"), "lsTMatrix"),
 	   "ltTMatrix" = as(as(x, "ltCMatrix"), "ltTMatrix"),
 	   ## otherwise:
-	   stop("not yet implemented for class ", clx))
+	   stop("not yet implemented for class ", class.x))
 }
 
 ## Note: maybe, using
@@ -231,6 +250,10 @@ uniqTsparse <- function(x, class.x = c(class(x))) {
 uniq <- function(x) {
     if(is(x, "TsparseMatrix")) uniqTsparse(x) else x
     ## else:  not 'Tsparse', i.e. "uniquely" represented in any case
+}
+
+asTuniq <- function(x) {
+    if(is(x, "TsparseMatrix")) uniqTsparse(x) else as(x,"TsparseMatrix")
 }
 
 if(FALSE) ## try an "efficient" version
@@ -420,17 +443,16 @@ isTriMat <- function(object, upper = NA) {
     ## else slower test
     if(!is.matrix(object))
 	object <- as(object,"matrix")
-    ## == 0 even works for logical & complex:
     if(is.na(upper)) {
-	if(all(object[lower.tri(object)] == 0))
+	if(all0(object[lower.tri(object)]))
 	    structure(TRUE, kind = "U")
-	else if(all(object[upper.tri(object)] == 0))
+	else if(all0(object[upper.tri(object)]))
 	    structure(TRUE, kind = "L")
 	else FALSE
     } else if(upper)
-	all(object[lower.tri(object)] == 0)
+	all0(object[lower.tri(object)])
     else ## upper is FALSE
-	all(object[upper.tri(object)] == 0)
+	all0(object[upper.tri(object)])
 }
 
 ## For Csparse matrices
@@ -471,10 +493,10 @@ isTriC <- function(x, upper = NA) {
     if(d[1] != (n <- d[2])) FALSE
     else if(is.matrix(object))
         ## requires that "vector-indexing" works for 'object' :
-        all(object[rep(c(FALSE, rep.int(TRUE,n)), length = n^2)] == 0)
+        all0(object[rep(c(FALSE, rep.int(TRUE,n)), length = n^2)])
     else ## "denseMatrix" -- packed or unpacked
         if(is(object, "generalMatrix")) # "dge", "lge", ...
-            all(object@x[rep(c(FALSE, rep.int(TRUE,n)), length = n^2)] == 0)
+            all0(object@x[rep(c(FALSE, rep.int(TRUE,n)), length = n^2)])
         else { ## "dense" but not {diag, general}, i.e. triangular or symmetric:
             ## -> has 'uplo'  differentiate between packed and unpacked
 
@@ -486,8 +508,7 @@ isTriC <- function(x, upper = NA) {
             }
 
 ### very cheap workaround
-	    all(as.matrix(object)[rep(c(FALSE, rep.int(TRUE,n)), length = n^2)]
-		== 0)
+	    all0(as.matrix(object)[rep(c(FALSE, rep.int(TRUE,n)), length = n^2)])
         }
 }
 

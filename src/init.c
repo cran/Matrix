@@ -20,13 +20,13 @@
 #include "dtpMatrix.h"
 #include "factorizations.h"
 #include "ldense.h"
-#include "lCholCMatrix.h"
 #include "lgCMatrix.h"
 #include "lgTMatrix.h"
 #include "lsCMatrix.h"
 #include "ltCMatrix.h"
 #include "lmer.h"
 #include "pedigree.h"
+#include "sparseQR.h"
 #include <R_ext/Rdynload.h>
 
 #include "Syms.h"
@@ -68,24 +68,19 @@ static R_CallMethodDef CallEntries[] = {
     {"Tsparse_to_Csparse", (DL_FUNC) &Tsparse_to_Csparse, 2},
     {"csc_check_column_sorting", (DL_FUNC) &csc_check_column_sorting, 1},
     {"Zt_create", (DL_FUNC) &Zt_create, 2},
-/*     {"csc_crossprod", (DL_FUNC) &csc_crossprod, 1}, */
-/*     {"csc_getDiag", (DL_FUNC) &csc_getDiag, 1}, */
-/*     {"csc_matrix_crossprod", (DL_FUNC) &csc_matrix_crossprod, 3}, */
-    {"csc_matrix_mm", (DL_FUNC) &csc_matrix_mm, 4},
-/*     {"csc_tcrossprod", (DL_FUNC) &csc_tcrossprod, 1}, */
     {"compressed_to_dgTMatrix", (DL_FUNC) &compressed_to_dgTMatrix, 2},
     {"compressed_non_0_ij", (DL_FUNC) &compressed_non_0_ij, 2},
-/*     {"csc_to_dgeMatrix", (DL_FUNC) &csc_to_dgeMatrix, 1}, */
-/*     {"csc_to_matrix", (DL_FUNC) &csc_to_matrix, 1}, */
-/*     {"csc_transpose", (DL_FUNC) &csc_transpose, 1}, */
     {"dense_to_Csparse", (DL_FUNC) &dense_to_Csparse, 1},
     {"dense_nonpacked_validate", (DL_FUNC) &dense_nonpacked_validate, 1},
+    {"ddense_band", (DL_FUNC) &ddense_band, 3},
     {"dMatrix_validate", (DL_FUNC) &dMatrix_validate, 1},
 
+    {"dgCMatrix_LU", (DL_FUNC) &dgCMatrix_LU, 3},
+    {"dgCMatrix_QR", (DL_FUNC) &dgCMatrix_QR, 2},
     {"dgCMatrix_validate", (DL_FUNC) &dgCMatrix_validate, 1},
-/*     {"dgeMatrix_to_csc", (DL_FUNC) &dgeMatrix_to_csc, 1}, */
-/*     {"dgTMatrix_to_csc", (DL_FUNC) &dgTMatrix_to_csc, 1}, */
-/*    {"dgTMatrix_to_dgCMatrix", (DL_FUNC) &dgTMatrix_to_dgCMatrix, 1}, */
+    {"dgCMatrix_lusol", (DL_FUNC) &dgCMatrix_lusol, 2},
+    {"dgCMatrix_matrix_solve", (DL_FUNC) &dgCMatrix_matrix_solve, 2},
+    {"dgCMatrix_qrsol", (DL_FUNC) &dgCMatrix_qrsol, 2},
     {"dgTMatrix_to_dgeMatrix", (DL_FUNC) &dgTMatrix_to_dgeMatrix, 1},
     {"dgTMatrix_to_matrix", (DL_FUNC) &dgTMatrix_to_matrix, 1},
     {"dgTMatrix_validate", (DL_FUNC) &dgTMatrix_validate, 1},
@@ -95,8 +90,8 @@ static R_CallMethodDef CallEntries[] = {
     {"dgeMatrix_crossprod", (DL_FUNC) &dgeMatrix_crossprod, 2},
     {"dgeMatrix_determinant", (DL_FUNC) &dgeMatrix_determinant, 2},
     {"dgeMatrix_dgeMatrix_crossprod", (DL_FUNC) &dgeMatrix_dgeMatrix_crossprod, 3},
-    {"dgeMatrix_matrix_mm", (DL_FUNC) &dgeMatrix_matrix_mm, 4},
-    {"dgeMatrix_matrix_solve", (DL_FUNC) &dgeMatrix_matrix_solve, 3},
+    {"dgeMatrix_matrix_mm", (DL_FUNC) &dgeMatrix_matrix_mm, 3},
+    {"dgeMatrix_matrix_solve", (DL_FUNC) &dgeMatrix_matrix_solve, 2},
     {"dgeMatrix_dtpMatrix_mm", (DL_FUNC) &dgeMatrix_dtpMatrix_mm, 2},
     {"dgeMatrix_exp", (DL_FUNC) &dgeMatrix_exp, 1},
     {"dgeMatrix_getDiag", (DL_FUNC) &dgeMatrix_getDiag, 1},
@@ -112,34 +107,29 @@ static R_CallMethodDef CallEntries[] = {
     {"dpoMatrix_solve", (DL_FUNC) &dpoMatrix_solve, 1},
     {"dpoMatrix_validate", (DL_FUNC) &dpoMatrix_validate, 1},
     {"dppMatrix_chol", (DL_FUNC) &dppMatrix_chol, 1},
-    {"dppMatrix_matrix_solve", (DL_FUNC) &dppMatrix_matrix_solve, 3},
+    {"dppMatrix_matrix_solve", (DL_FUNC) &dppMatrix_matrix_solve, 2},
     {"dppMatrix_rcond", (DL_FUNC) &dppMatrix_rcond, 2},
     {"dppMatrix_solve", (DL_FUNC) &dppMatrix_solve, 1},
     {"dppMatrix_validate", (DL_FUNC) &dppMatrix_validate, 1},
+    {"dsCMatrix_Cholesky", (DL_FUNC) &dsCMatrix_Cholesky, 4},
     {"dsCMatrix_chol", (DL_FUNC) &dsCMatrix_chol, 2},
-    {"dsCMatrix_inverse_factor", (DL_FUNC) &dsCMatrix_inverse_factor, 1},
-    {"dsCMatrix_ldl_symbolic", (DL_FUNC) &dsCMatrix_ldl_symbolic, 2},
-    {"dsCMatrix_matrix_solve", (DL_FUNC) &dsCMatrix_matrix_solve, 3},
+    {"dsCMatrix_matrix_solve", (DL_FUNC) &dsCMatrix_matrix_solve, 2},
     {"dsCMatrix_to_dgTMatrix", (DL_FUNC) &dsCMatrix_to_dgTMatrix, 1},
     {"dsCMatrix_validate", (DL_FUNC) &dsCMatrix_validate, 1},
     {"dsTMatrix_as_dgTMatrix", (DL_FUNC) &dsTMatrix_as_dgTMatrix, 1},
-    {"dsTMatrix_as_dsCMatrix", (DL_FUNC) &dsTMatrix_as_dsCMatrix, 1},
     {"dsTMatrix_as_dsyMatrix", (DL_FUNC) &dsTMatrix_as_dsyMatrix, 1},
     {"dsTMatrix_validate", (DL_FUNC) &dsTMatrix_validate, 1},
-    {"dsyMatrix_as_dgeMatrix", (DL_FUNC) &dsyMatrix_as_dgeMatrix, 1},
     {"dsyMatrix_as_dspMatrix", (DL_FUNC) &dsyMatrix_as_dspMatrix, 1},
     {"dsyMatrix_as_matrix", (DL_FUNC) &dsyMatrix_as_matrix, 1},
-    {"dsyMatrix_dgeMatrix_mm", (DL_FUNC) &dsyMatrix_dgeMatrix_mm, 2},
-    {"dsyMatrix_dgeMatrix_mm_R", (DL_FUNC) &dsyMatrix_dgeMatrix_mm_R, 2},
+    {"dsyMatrix_matrix_mm", (DL_FUNC) &dsyMatrix_matrix_mm, 3},
     {"dsyMatrix_matrix_solve", (DL_FUNC) &dsyMatrix_matrix_solve, 2},
-    {"dsyMatrix_dgeMatrix_solve", (DL_FUNC) &dsyMatrix_dgeMatrix_solve, 2},
     {"dsyMatrix_norm", (DL_FUNC) &dsyMatrix_norm, 2},
     {"dsyMatrix_rcond", (DL_FUNC) &dsyMatrix_rcond, 2},
     {"dsyMatrix_solve", (DL_FUNC) &dsyMatrix_solve, 1},
     {"dsyMatrix_validate", (DL_FUNC) &dsyMatrix_validate, 1},
     {"dspMatrix_as_dsyMatrix", (DL_FUNC) &dspMatrix_as_dsyMatrix, 1},
-    {"dspMatrix_matrix_mm", (DL_FUNC) &dspMatrix_matrix_mm, 3},
-    {"dspMatrix_matrix_solve", (DL_FUNC) &dspMatrix_matrix_solve, 3},
+    {"dspMatrix_matrix_mm", (DL_FUNC) &dspMatrix_matrix_mm, 2},
+    {"dspMatrix_matrix_solve", (DL_FUNC) &dspMatrix_matrix_solve, 2},
     {"dspMatrix_norm", (DL_FUNC) &dspMatrix_norm, 2},
     {"dspMatrix_rcond", (DL_FUNC) &dspMatrix_rcond, 2},
     {"dspMatrix_solve", (DL_FUNC) &dspMatrix_solve, 1},
@@ -152,7 +142,6 @@ static R_CallMethodDef CallEntries[] = {
     {"dtTMatrix_as_dgCMatrix", (DL_FUNC) &dtTMatrix_as_dgCMatrix, 1},
     {"dtTMatrix_validate", (DL_FUNC) &dtTMatrix_validate, 1},
     {"dtpMatrix_as_dtrMatrix", (DL_FUNC) &dtpMatrix_as_dtrMatrix, 1},
-    {"dtpMatrix_dgeMatrix_mm", (DL_FUNC) &dtpMatrix_dgeMatrix_mm, 2},
     {"dtpMatrix_getDiag", (DL_FUNC) &dtpMatrix_getDiag, 1},
     {"dtpMatrix_matrix_mm", (DL_FUNC) &dtpMatrix_matrix_mm, 2},
     {"dtpMatrix_matrix_solve", (DL_FUNC) &dtpMatrix_matrix_solve, 2},
@@ -160,37 +149,26 @@ static R_CallMethodDef CallEntries[] = {
     {"dtpMatrix_rcond", (DL_FUNC) &dtpMatrix_rcond, 2},
     {"dtpMatrix_solve", (DL_FUNC) &dtpMatrix_solve, 1},
     {"dtpMatrix_validate", (DL_FUNC) &dtpMatrix_validate, 1},
-    {"dtrMatrix_as_dgeMatrix", (DL_FUNC) &dtrMatrix_as_dgeMatrix, 1},
     {"dtrMatrix_as_dtpMatrix", (DL_FUNC) &dtrMatrix_as_dtpMatrix, 1},
     {"dtrMatrix_as_matrix", (DL_FUNC) &dtrMatrix_as_matrix, 1},
-    {"dtrMatrix_matrix_mm", (DL_FUNC) &dtrMatrix_matrix_mm, 4},
+    {"dtrMatrix_matrix_mm", (DL_FUNC) &dtrMatrix_matrix_mm, 3},
     {"dtrMatrix_getDiag", (DL_FUNC) &dtrMatrix_getDiag, 1},
-    {"dtrMatrix_matrix_solve", (DL_FUNC) &dtrMatrix_matrix_solve, 3},
+    {"dtrMatrix_matrix_solve", (DL_FUNC) &dtrMatrix_matrix_solve, 2},
     {"dtrMatrix_norm", (DL_FUNC) &dtrMatrix_norm, 2},
     {"dtrMatrix_rcond", (DL_FUNC) &dtrMatrix_rcond, 2},
     {"dtrMatrix_solve", (DL_FUNC) &dtrMatrix_solve, 1},
     {"dtrMatrix_validate", (DL_FUNC) &dtrMatrix_validate, 1},
+    {"dup_mMatrix_as_dgeMatrix", (DL_FUNC) &dup_mMatrix_as_dgeMatrix, 1},
     {"glmer_MCMCsamp", (DL_FUNC) &glmer_MCMCsamp, 5},
     {"glmer_PQL", (DL_FUNC) &glmer_PQL, 1},
-/*     {"glmer_devAGQ", (DL_FUNC) &glmer_devAGQ, 3}, */
     {"glmer_devLaplace", (DL_FUNC) &glmer_devLaplace, 2},
     {"glmer_finalize", (DL_FUNC) &glmer_finalize, 1},
-/*     {"glmer_fixed_update", (DL_FUNC) &glmer_fixed_update, 3}, */
     {"glmer_init", (DL_FUNC) &glmer_init, 1},
-/*     {"glmer_ranef_update", (DL_FUNC) &glmer_ranef_update, 4}, */
+
     {"lapack_qr", (DL_FUNC) &lapack_qr, 2},
 
-    {"lCholCMatrix_solve", (DL_FUNC) &lCholCMatrix_solve, 1},
-    {"lCholCMatrix_lgCMatrix_solve", (DL_FUNC) &lCholCMatrix_lgCMatrix_solve, 2},
-    {"lCholCMatrix_validate", (DL_FUNC) &lCholCMatrix_validate, 1},
     {"lcsc_to_matrix", (DL_FUNC) &lcsc_to_matrix, 1},
-    {"lgCMatrix_crossprod", (DL_FUNC) &lgCMatrix_crossprod, 3},
-    {"lgCMatrix_diag", (DL_FUNC) &lgCMatrix_diag, 1},
-    {"lgCMatrix_lgCMatrix_mm", (DL_FUNC) &lgCMatrix_lgCMatrix_mm, 2},
-    {"lgCMatrix_picky_column", (DL_FUNC) &lgCMatrix_picky_column, 1},
-    {"lgCMatrix_trans", (DL_FUNC) &lgCMatrix_trans, 1},
     {"lgCMatrix_validate", (DL_FUNC) &lgCMatrix_validate, 1},
-    {"lgTMatrix_as_lgCMatrix", (DL_FUNC) &lgTMatrix_as_lgCMatrix, 1},
     {"lgTMatrix_validate", (DL_FUNC) &lgTMatrix_validate, 1},
 
     {"lspMatrix_as_lsyMatrix", (DL_FUNC) &lspMatrix_as_lsyMatrix, 1},
@@ -200,10 +178,7 @@ static R_CallMethodDef CallEntries[] = {
     {"ltrMatrix_as_lgeMatrix", (DL_FUNC) &ltrMatrix_as_lgeMatrix, 1},
     {"ltrMatrix_as_ltpMatrix", (DL_FUNC) &ltrMatrix_as_ltpMatrix, 1},
 
-    {"lsCMatrix_chol", (DL_FUNC) &lsCMatrix_chol, 2},
-    {"lsCMatrix_trans", (DL_FUNC) &lsCMatrix_trans, 1},
     {"lsCMatrix_validate", (DL_FUNC) &lsCMatrix_validate, 1},
-    {"ltCMatrix_trans", (DL_FUNC) &ltCMatrix_trans, 1},
     {"ltCMatrix_validate", (DL_FUNC) &ltCMatrix_validate, 1},
     {"lsq_dense_Chol", (DL_FUNC) &lsq_dense_Chol, 2},
     {"lsq_dense_QR", (DL_FUNC) &lsq_dense_QR, 2},
@@ -234,7 +209,11 @@ static R_CallMethodDef CallEntries[] = {
 
 /*     {"matrix_to_csc", (DL_FUNC) &matrix_to_csc, 1}, */
     {"pedigree_chol", (DL_FUNC) &pedigree_chol, 2},
-    {"ssc_transpose", (DL_FUNC) &ssc_transpose, 1},
+/*     {"ssc_transpose", (DL_FUNC) &ssc_transpose, 1}, */
+    {"sparseQR_validate", (DL_FUNC) &sparseQR_validate, 1},
+    {"sparseQR_qty", (DL_FUNC) &sparseQR_qty, 3},
+    {"sparseQR_coef", (DL_FUNC) &sparseQR_coef, 2},
+    {"sparseQR_resid_fitted", (DL_FUNC) &sparseQR_resid_fitted, 3},
     {"tsc_to_dgTMatrix", (DL_FUNC) &tsc_to_dgTMatrix, 1},
 /*     {"tsc_transpose", (DL_FUNC) &tsc_transpose, 1}, */
     {"tsc_validate", (DL_FUNC) &tsc_validate, 1},

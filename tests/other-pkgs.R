@@ -2,17 +2,25 @@
 
 library(Matrix)
 
+pkgRversion <- function(pkgname)
+    substring(packageDescription(pkgname)[["Built"]], 3,5)
+
+MatrixRversion <- pkgRversion("Matrix")
+
 ###-- 1)  'graph' (from Bioconductor) ---------------------------
 ###-- ==  =======                     ---------------------------
-if(require(graph)) {
+if(isTRUE(try(require(graph)))) { # may be there and fail (with R-devel)
 
     if(packageDescription("graph")$Version <= "1.10.2") {
         ## graph 1.10.x for x <= 2 had too many problems  as(<graph>, "matrix")
         cat("Version of 'graph' is too old --- no tests done here!\n")
-        q('no')
-    }
 
-    ## else do things
+    } else if(pkgRversion("graph") != MatrixRversion) {
+
+        cat(sprintf("The R version (%s) of 'graph' installation differs from the Matrix one (%s)\n",
+                    pkgRversion("graph"), MatrixRversion))
+
+    } else { ## do things
 
     ## 1) undirected
 
@@ -60,6 +68,7 @@ if(require(graph)) {
               identical(gmgU, gmgU2))
 
     detach("package:graph")
+}
 
 } ## end{graph}
 
@@ -67,6 +76,13 @@ if(require(graph)) {
 ###-- ==  ========  ---------------------------------------------
 
 if(require(SparseM)) {
+
+    if(pkgRversion("SparseM") != MatrixRversion) {
+
+        cat(sprintf("The R version (%s) of 'SparseM' installation differs from the Matrix one (%s)\n",
+                    pkgRversion("SparseM"), MatrixRversion))
+
+    } else { ## do things
 
 set.seed(1)
 a <- round(rnorm(5*4), 2)
@@ -84,6 +100,8 @@ stopifnot(
 
 ## TODO: More tests; in particular for triplets !
 
-  detach("package:SparseM")
+detach("package:SparseM")
+
+    }
 
 }## end{SparseM}

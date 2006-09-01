@@ -75,58 +75,21 @@ SEXP dsyMatrix_solve(SEXP a)
     return val;
 }
 
-SEXP dsyMatrix_dgeMatrix_solve(SEXP a, SEXP b)
+SEXP dsyMatrix_matrix_solve(SEXP a, SEXP b)
 {
     SEXP trf = dsyMatrix_trf(a),
-	val = PROTECT(NEW_OBJECT(MAKE_CLASS("dgeMatrix")));
+	val = PROTECT(dup_mMatrix_as_dgeMatrix(b));
     int *adims = INTEGER(GET_SLOT(a, Matrix_DimSym)),
-	*bdims = INTEGER(GET_SLOT(b, Matrix_DimSym)),
+	*bdims = INTEGER(GET_SLOT(val, Matrix_DimSym)),
 	info;
 
     if (*adims != *bdims || bdims[1] < 1 || *adims < 1)
 	error(_("Dimensions of system to be solved are inconsistent"));
-    SET_SLOT(val, Matrix_DimSym, duplicate(GET_SLOT(b, Matrix_DimSym)));
-    SET_SLOT(val, Matrix_xSym, duplicate(GET_SLOT(b, Matrix_xSym)));
     F77_CALL(dsytrs)(uplo_P(trf), adims, bdims + 1,
 		     REAL(GET_SLOT(trf, Matrix_xSym)), adims,
 		     INTEGER(GET_SLOT(trf, Matrix_permSym)),
 		     REAL(GET_SLOT(val, Matrix_xSym)),
 		     bdims, &info);
-    UNPROTECT(1);
-    return val;
-}
-
-SEXP dsyMatrix_matrix_solve(SEXP a, SEXP b)
-{
-    SEXP trf = dsyMatrix_trf(a),
-	val = PROTECT(duplicate(b));
-    int *adims = INTEGER(GET_SLOT(a, Matrix_DimSym)),
-	*bdims = INTEGER(getAttrib(b, R_DimSymbol)),
-	info;
-
-    if (!(isReal(b) && isMatrix(b)))
-	error(_("Argument b must be a numeric matrix"));
-    if (*adims != *bdims || bdims[1] < 1 || *adims < 1)
-	error(_("Dimensions of system to be solved are inconsistent"));
-    F77_CALL(dsytrs)(uplo_P(trf), adims, bdims + 1,
-		     REAL(GET_SLOT(trf, Matrix_xSym)), adims,
-		     INTEGER(GET_SLOT(trf, Matrix_permSym)),
-		     REAL(val), bdims, &info);
-    UNPROTECT(1);
-    return val;
-}
-
-SEXP dsyMatrix_as_dgeMatrix(SEXP from)
-{
-    SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dgeMatrix")));
-
-    SET_SLOT(val, Matrix_factorSym, allocVector(VECSXP, 0));
-    SET_SLOT(val, Matrix_xSym, duplicate(GET_SLOT(from, Matrix_xSym)));
-    SET_SLOT(val, Matrix_DimSym,
-	     duplicate(GET_SLOT(from, Matrix_DimSym)));
-    SET_SLOT(val, Matrix_DimNamesSym,
-	     duplicate(GET_SLOT(from, Matrix_DimNamesSym)));
-    make_d_matrix_symmetric(REAL(GET_SLOT(val, Matrix_xSym)), from);
     UNPROTECT(1);
     return val;
 }
@@ -144,54 +107,22 @@ SEXP dsyMatrix_as_matrix(SEXP from)
     return val;
 }
 
-SEXP dsyMatrix_dgeMatrix_mm(SEXP a, SEXP b)
+SEXP dsyMatrix_matrix_mm(SEXP a, SEXP b, SEXP rtP)
 {
+    SEXP val = PROTECT(dup_mMatrix_as_dgeMatrix(b));
     int *adims = INTEGER(GET_SLOT(a, Matrix_DimSym)),
 	*bdims = INTEGER(GET_SLOT(b, Matrix_DimSym)),
-	*cdims,
-	m = adims[0], n = bdims[1], k = adims[1];
-    SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dgeMatrix")));
+	m = bdims[0], n = bdims[1], rt = asLogical(rtP);
     double one = 1., zero = 0.;
 
-    if (bdims[0] != k)
+    if ((rt && n != adims[0]) || (!rt && m != adims[0]))
 	error(_("Matrices are not conformable for multiplication"));
-    if (m < 1 || n < 1 || k < 1)
+    if (m < 1 || n < 1)
 	error(_("Matrices with zero extents cannot be multiplied"));
-    SET_SLOT(val, Matrix_factorSym, allocVector(VECSXP, 0));
-    SET_SLOT(val, Matrix_xSym, allocVector(REALSXP, m * n));
-    SET_SLOT(val, Matrix_DimSym, allocVector(INTSXP, 2));
-    cdims = INTEGER(GET_SLOT(val, Matrix_DimSym));
-    cdims[0] = m; cdims[1] = n;
-    F77_CALL(dsymm)("L", uplo_P(a), adims, bdims+1, &one,
+    F77_CALL(dsymm)(rt ? "R" :"L", uplo_P(a), &m, &n, &one,
 		    REAL(GET_SLOT(a, Matrix_xSym)), adims,
-		    REAL(GET_SLOT(b, Matrix_xSym)), bdims,
-		    &zero, REAL(GET_SLOT(val, Matrix_xSym)), adims);
-    UNPROTECT(1);
-    return val;
-}
-
-SEXP dsyMatrix_dgeMatrix_mm_R(SEXP a, SEXP b)
-{
-    int *adims = INTEGER(GET_SLOT(a, Matrix_DimSym)),
-	*bdims = INTEGER(GET_SLOT(b, Matrix_DimSym)),
-	*cdims,
-	m = adims[0], n = bdims[1], k = adims[1];
-    SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dgeMatrix")));
-    double one = 1., zero = 0.;
-
-    if (bdims[0] != k)
-	error(_("Matrices are not conformable for multiplication"));
-    if (m < 1 || n < 1 || k < 1)
-	error(_("Matrices with zero extents cannot be multiplied"));
-    SET_SLOT(val, Matrix_factorSym, allocVector(VECSXP, 0));
-    SET_SLOT(val, Matrix_xSym, allocVector(REALSXP, m * n));
-    SET_SLOT(val, Matrix_DimSym, allocVector(INTSXP, 2));
-    cdims = INTEGER(GET_SLOT(val, Matrix_DimSym));
-    cdims[0] = m; cdims[1] = n;
-    F77_CALL(dsymm)("R", uplo_P(a), adims, bdims+1, &one,
-		    REAL(GET_SLOT(a, Matrix_xSym)), adims,
-		    REAL(GET_SLOT(b, Matrix_xSym)), bdims,
-		    &zero, REAL(GET_SLOT(val, Matrix_xSym)), adims);
+		    REAL(GET_SLOT(b, Matrix_xSym)), &m,
+		    &zero, REAL(GET_SLOT(val, Matrix_xSym)), &m);
     UNPROTECT(1);
     return val;
 }

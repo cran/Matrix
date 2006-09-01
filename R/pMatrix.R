@@ -1,5 +1,6 @@
 #### Permutation Matrices -- Coercion and Methods
 
+## The typical   'constructor' : coerce from  'index'
 setAs("integer", "pMatrix",
       function(from) {
           n <- length(from)
@@ -7,6 +8,11 @@ setAs("integer", "pMatrix",
           new("pMatrix", Dim = rep.int(n, 2), Dimnames = list(nn,nn),
               perm = from)
       })
+
+setAs("numeric", "pMatrix",
+      function(from)
+	  if(all(from == (i <- as.integer(from)))) as(i, "pMatrix")
+	  else stop("coercion to 'pMatrix' only works from integer numeric"))
 
 setAs("pMatrix", "matrix",
       function(from) {

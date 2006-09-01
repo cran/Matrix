@@ -73,15 +73,14 @@ SEXP Csparse_to_Tsparse(SEXP x, SEXP tri)
 
     Free(chxs);
     if (asLogical(tri)) {	/* triangular sparse matrices */
-	uploT = (strcmp(CHAR(asChar(GET_SLOT(x, Matrix_uploSym))), "U")) ?
-	    -1 : 1;
-	diag = CHAR(asChar(GET_SLOT(x, Matrix_diagSym)));
+	uploT = (*uplo_P(x) == 'U') ? -1 : 1;
+	diag = diag_P(x);
     }
     return chm_triplet_to_SEXP(chxt, 1, uploT, diag,
 			       GET_SLOT(x, Matrix_DimNamesSym));
 }
 
-/* this use to be called  sCMatrix_to_gCMatrix(..)   [in ./dsCMatrix.c ]: */
+/* this used to be called  sCMatrix_to_gCMatrix(..)   [in ./dsCMatrix.c ]: */
 SEXP Csparse_symmetric_to_general(SEXP x)
 {
     cholmod_sparse *chx = as_cholmod_sparse(x), *chgx;
@@ -108,9 +107,8 @@ SEXP Csparse_transpose(SEXP x, SEXP tri)
     SET_VECTOR_ELT(dn, 1, tmp);
     UNPROTECT(1);
     if (asLogical(tri)) {	/* triangular sparse matrices */
-	uploT = (strcmp(CHAR(asChar(GET_SLOT(x, Matrix_uploSym))), "U")) ?
-	    1 : -1;		/* switch upper and lower for transpose */
-	diag = CHAR(asChar(GET_SLOT(x, Matrix_diagSym)));
+	uploT = (*uplo_P(x) == 'U') ? -1 : 1;
+	diag = diag_P(x);
     }
     return chm_sparse_to_SEXP(chxt, 1, uploT, diag, dn);
 }
@@ -133,26 +131,28 @@ SEXP Csparse_Csparse_prod(SEXP a, SEXP b)
 SEXP Csparse_dense_prod(SEXP a, SEXP b)
 {
     cholmod_sparse *cha = as_cholmod_sparse(a);
-    cholmod_dense *chb = as_cholmod_dense(b);
-    cholmod_dense *chc = cholmod_allocate_dense(cha->nrow, chb->ncol,
-						cha->nrow, chb->xtype, &c);
-    double alpha = 1, beta = 0;
+    cholmod_dense *chb = as_cholmod_dense(PROTECT(mMatrix_as_dgeMatrix(b)));
+    cholmod_dense *chc = 
+	cholmod_allocate_dense(cha->nrow, chb->ncol, cha->nrow, chb->xtype, &c);
+    double alpha[] = {1,0}, beta[] = {0,0};
 
-    cholmod_sdmult(cha, 0, &alpha, &beta, chb, chc, &c);
+    cholmod_sdmult(cha, 0, alpha, beta, chb, chc, &c);
     Free(cha); Free(chb);
+    UNPROTECT(1);
     return chm_dense_to_SEXP(chc, 1);
 }
 
 SEXP Csparse_dense_crossprod(SEXP a, SEXP b)
 {
     cholmod_sparse *cha = as_cholmod_sparse(a);
-    cholmod_dense *chb = as_cholmod_dense(b);
-    cholmod_dense *chc = cholmod_allocate_dense(cha->ncol, chb->ncol,
-						cha->ncol, chb->xtype, &c);
-    double alpha = 1, beta = 0;
+    cholmod_dense *chb = as_cholmod_dense(PROTECT(mMatrix_as_dgeMatrix(b)));
+    cholmod_dense *chc =
+	cholmod_allocate_dense(cha->ncol, chb->ncol, cha->ncol, chb->xtype, &c);
+    double alpha[] = {1,0}, beta[] = {0,0};
 
-    cholmod_sdmult(cha, 1, &alpha, &beta, chb, chc, &c);
+    cholmod_sdmult(cha, 1, alpha, beta, chb, chc, &c);
     Free(cha); Free(chb);
+    UNPROTECT(1);
     return chm_dense_to_SEXP(chc, 1);
 }
 

@@ -22,12 +22,13 @@ gt2tT <- function(x, uplo, diag) {
 	    x = x@x[sel], Dim = x@Dim, Dimnames = x@Dimnames)
 }
 
-setAs("dtTMatrix", "dtCMatrix",
-      function(from) {
-          gC <- .Call(dtTMatrix_as_dgCMatrix, from)
-          new("dtCMatrix", Dim = gC@Dim, Dimnames = gC@Dimnames, p = gC@p,
-              i = gC@i, x = gC@x, uplo = from@uplo, diag = from@diag)
-      })
+## Use general method for TsparseMatrix instead
+## setAs("dtTMatrix", "dtCMatrix",
+##       function(from) {
+##           gC <- .Call(dtTMatrix_as_dgCMatrix, from)
+##           new("dtCMatrix", Dim = gC@Dim, Dimnames = gC@Dimnames, p = gC@p,
+##               i = gC@i, x = gC@x, uplo = from@uplo, diag = from@diag)
+##       })
 
 setAs("dtTMatrix", "dgTMatrix",
       function(from) {

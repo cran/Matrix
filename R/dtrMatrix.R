@@ -1,8 +1,5 @@
 #### Triangular Matrices -- Coercion and Methods
 
-setAs("dtrMatrix", "dgeMatrix",
-      function(from) .Call(dtrMatrix_as_dgeMatrix, from))
-
 ## or rather setIs() {since test can fail }?
 setAs("dgeMatrix", "dtrMatrix",
       function(from) {
@@ -25,7 +22,7 @@ setAs("dtrMatrix", "matrix",
       function(from) .Call(dtrMatrix_as_matrix, from))
 
 setAs("matrix", "dtrMatrix",
-      function(from) as(as(from, "dgeMatrix"), "dtrMatrix"))
+      function(from) as(.Call(dup_mMatrix_as_dgeMatrix, from), "dtrMatrix"))
 
 ## Group Methods:
 ## TODO: carefully check for the cases where the result remains triangular
@@ -35,26 +32,26 @@ setAs("matrix", "dtrMatrix",
 ##       show( <ddenseMatrix> ) is not okay, and we need our own:
 setMethod("show", "dtrMatrix", function(object) prMatrix(object))
 
-
-setMethod("%*%", signature(x = "dtrMatrix", y = "dgeMatrix"),
-	  function(x, y) .Call(dtrMatrix_matrix_mm, x, y, TRUE, FALSE),
+setMethod("%*%", signature(x = "dtrMatrix", y = "ddenseMatrix"),
+	  function(x, y) .Call(dtrMatrix_matrix_mm, x, y, FALSE),
           valueClass = "dgeMatrix")
 
 setMethod("%*%", signature(x = "dtrMatrix", y = "matrix"),
-	  function(x, y) .Call(dtrMatrix_matrix_mm, x, y, FALSE, FALSE),
+	  function(x, y) .Call(dtrMatrix_matrix_mm, x, y, FALSE),
           valueClass = "dgeMatrix")
 
 setMethod("%*%", signature(x = "dgeMatrix", y = "dtrMatrix"),
-	  function(x, y) .Call(dtrMatrix_matrix_mm, y, x, TRUE, TRUE),
+	  function(x, y) .Call(dtrMatrix_matrix_mm, y, x, TRUE),
           valueClass = "dgeMatrix")
 
 setMethod("%*%", signature(x = "matrix", y = "dtrMatrix"),
-	  function(x, y) .Call(dtrMatrix_matrix_mm, y, x, FALSE, TRUE),
+	  function(x, y) .Call(dtrMatrix_matrix_mm, y, x, TRUE),
           valueClass = "dgeMatrix")
 
-setMethod("%*%", signature(x = "dtrMatrix", y = "dtrMatrix"),
-	  function(x, y) callGeneric(x = x, y = as(y, "dgeMatrix")),
-          valueClass = "dgeMatrix")
+## no longer needed
+## setMethod("%*%", signature(x = "dtrMatrix", y = "dtrMatrix"),
+## 	  function(x, y) callGeneric(x = x, y = as(y, "dgeMatrix")),
+##           valueClass = "dgeMatrix")
 
 setMethod("crossprod", signature(x = "dtrMatrix", y = "missing"),
 	  function(x, y = NULL) callGeneric(x = as(x, "dgeMatrix")),
@@ -105,14 +102,14 @@ setMethod("solve", signature(a = "dtrMatrix", b="missing"),
 	  .Call(dtrMatrix_solve, a),
 	  valueClass = "dtrMatrix")
 
-setMethod("solve", signature(a = "dtrMatrix", b="dgeMatrix"),
+setMethod("solve", signature(a = "dtrMatrix", b="ddenseMatrix"),
 	  function(a, b, ...)
-          .Call(dtrMatrix_matrix_solve, a, b, TRUE),
+          .Call(dtrMatrix_matrix_solve, a, b),
 	  valueClass = "dgeMatrix")
 
 setMethod("solve", signature(a = "dtrMatrix", b="matrix"),
 	  function(a, b, ...)
-          .Call(dtrMatrix_matrix_solve, a, b, FALSE),
+          .Call(dtrMatrix_matrix_solve, a, b),
 	  valueClass = "dgeMatrix")
 
 setMethod("t", signature(x = "dtrMatrix"), t_trMatrix)

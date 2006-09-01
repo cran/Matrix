@@ -1,5 +1,4 @@
 #include "Mutils.h"
-#include "triplet_to_col.h"
 #include <R_ext/Lapack.h>
 
 char norm_type(char *typstr)
@@ -230,97 +229,6 @@ SEXP csc_check_column_sorting(SEXP m)
 	csc_sort_columns(ncol, mp, mi, REAL(GET_SLOT(m, Matrix_xSym)));
     return m;
 }
-
-SEXP triple_as_SEXP(int nrow, int ncol, int nz,
-		    const int Ti [], const int Tj [], const double Tx [],
-		    char *Rclass)
-{
-    SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS(Rclass)));
-    int *Ai, *Ap;
-    double *Ax;
-
-    SET_SLOT(val, Matrix_pSym, allocVector(INTSXP, ncol + 1));
-    Ap = INTEGER(GET_SLOT(val, Matrix_pSym));
-    Ai = Calloc(nz, int); Ax = Calloc(nz, double);
-    triplet_to_col(nrow, ncol, nz, Ti, Tj, Tx, Ap, Ai, Ax);
-    nz = Ap[ncol];
-    SET_SLOT(val, Matrix_iSym, allocVector(INTSXP, nz));
-    Memcpy(INTEGER(GET_SLOT(val, Matrix_iSym)), Ai, nz); Free(Ai);
-    SET_SLOT(val, Matrix_xSym, allocVector(REALSXP, nz));
-    Memcpy(REAL(GET_SLOT(val, Matrix_xSym)), Ax, nz); Free(Ax);
-    SET_SLOT(val, Matrix_factorSym, allocVector(VECSXP, 0));
-    UNPROTECT(1);
-    return dgCMatrix_set_Dim(val, nrow);
-}
-
-/* Create the components of the transpose of a csc matrix from its components */
-
-void csc_compTr(int m, int n, int nnz,
-		const int xp[], const int xi[],
-		const double xx[],
-		int ap[], int ai[], double ax[])
-{
-    int k, kk,
-	*ind = (int *) R_alloc(nnz, sizeof(int)),
-	*aj = (int *) R_alloc(nnz, sizeof(int));
-
-    Memcpy(aj, xi, nnz);	/* copy xi into aj and sort */
-    for (k = 0; k < nnz; k++) ind[k] = k;
-    R_qsort_int_I(aj, ind, 1, nnz);
-
-    ap[0] = 0; kk = 0;		/* generate ap from aj */
-    for (k = 1; k < m; k++) {
-	while (aj[kk] < k) kk++;
-	ap[k] = kk;
-    }
-    ap[m] = nnz;
-
-    for (k = 0; k < n; k++) { /* overwrite aj with (implicit) xj */
-	for (kk = xp[k]; kk < xp[k+1]; kk++) aj[kk] = k;
-    }
-    for (k = 0; k < nnz; k++) {	/* write ax and ai from xx and xj */
-	kk = ind[k];
-	ax[k] = xx[kk];
-	ai[k] = aj[kk];
-    }
-    if (csc_unsorted_columns(m, ap, ai)) csc_sort_columns(m, ap, ai, ax);
-}
-
-void ssc_symbolic_permute(int n, int upper, const int perm[],
-			  int Ap[], int Ai[])
-{
-    int
-	j, k,
-	nnz = Ap[n],
-	*Aj = Calloc(nnz, int),
-	*ord = Calloc(nnz, int),
-	*ii = Calloc(nnz, int);
-
-    for (j = 0; j < n; j++) {
-	int pj = perm[j];
-	for (k = Ap[j]; k < Ap[j+1]; k++) {
-	    Aj[k] = pj;
-	}
-    }
-    for (k = 0; k < nnz; k++) {
-	Ai[k] = perm[Ai[k]];
-	ord[k] = k;
-	if ((upper && Ai[k] > Aj[k]) || (!upper && Ai[k] < Aj[k])) {
-	    int tmp = Ai[k]; Ai[k] = Aj[k]; Aj[k] = tmp;
-	}
-    }
-    R_qsort_int_I(Aj, ord, 1, nnz); /* sort Aj carrying along ind */
-
-    k = nnz - 1;
-    for (j = n - 1; j >= 0; j--) {	/* generate new Ap */
-	for(; k >= 0 && Aj[k] >= j; k--) Ap[j] = k;
-    }
-    for (k = 0; k < nnz; k++) ii[k] = Ai[ord[k]];
-    Memcpy(Ai, ii, nnz);
-    for (j = 0; j < n; j++) R_isort(Ai + Ap[j], Ap[j+1] - Ap[j]);
-    Free(Aj); Free(ord); Free(ii);
-}
-
 
 /* Fill in the "trivial remainder" in  n*m  array ;
  *  typically the 'x' slot of a "dtrMatrix" :
@@ -677,4 +585,120 @@ SEXP alloc_dsCMatrix(int n, int nz, char *uplo, SEXP rownms, SEXP colnms)
     return ans;
 }
 
+/**
+ * Zero a square matrix of size nc then copy a vector to the diagonal
+ *
+ * @param dest destination array of length nc * nc
+ * @param src diagonal elements in an array of length nc
+ * @param nc number of columns (and rows) in the matrix
+ *
+ * @return dest
+ */
 
+static double *
+install_diagonal(double *dest, SEXP A)
+{
+    int nc = INTEGER(GET_SLOT(A, Matrix_DimSym))[0];
+    int i, ncp1 = nc + 1, unit = *diag_P(A) == 'U';
+    double *ax = REAL(GET_SLOT(A, Matrix_xSym));
+
+    AZERO(dest, nc * nc);
+    for (i = 0; i < nc; i++)
+	dest[i * ncp1] = (unit) ? 1. : ax[i];
+    return dest;
+}
+
+/**  Duplicate a ddenseMatrix or a numeric matrix or vector
+ *  as a dgeMatrix.
+ *  This is for the many *_matrix_{prod,crossprod,tcrossprod,etc.}
+ *  functions that work with both classed and unclassed matrices.
+ *
+ *
+ * @param A	  either a ddenseMatrix object or a matrix object
+ */
+
+SEXP dup_mMatrix_as_dgeMatrix(SEXP A)
+{
+    SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("dgeMatrix"))),
+	ad = R_NilValue , an = R_NilValue;	/* -Wall */
+    char *cl = class_P(A),
+	*valid[] = {"_NOT_A_CLASS_", "dgeMatrix", "dtrMatrix",
+		    "dsyMatrix", "dpoMatrix", "ddiMatrix",
+		    "dtpMatrix", "dspMatrix", "dppMatrix",
+		    /* sub classes of those above:*/
+		    /* dtr */ "Cholesky", "LDL", "BunchKaufman",
+		    /* dtp */ "pCholesky", "pBunchKaufman",
+		    /* dpo */ "corMatrix",
+		    ""};
+    int ctype = Matrix_check_class(cl, valid), nprot = 1, sz;
+    double *ansx;
+
+    if (ctype > 0) {		/* a ddenseMatrix object */
+	ad = GET_SLOT(A, Matrix_DimSym);
+	an = GET_SLOT(A, Matrix_DimNamesSym);
+    }
+    else if (ctype < 0) {	/* not a (recognized) classed matrix */
+	if (isMatrix(A)) {	/* "matrix" */
+	    ad = getAttrib(A, R_DimSymbol);
+	    an = getAttrib(A, R_DimNamesSymbol);
+	} else { /* maybe "numeric" (incl "integer","logical") -->  (n x 1) */
+	    int* dd = INTEGER(ad = PROTECT(allocVector(INTSXP, 2)));
+	    nprot++;
+	    dd[0] = LENGTH(A); dd[1] = 1;
+	    an = R_NilValue;
+	}
+	if (isInteger(A) || isLogical(A)) {
+	    A = PROTECT(coerceVector(A, REALSXP));
+	    nprot++;
+	}
+	if (!isReal(A))
+	    error(_("invalid class `%s' to dup_mMatrix_as_dgeMatrix"), cl);
+	ctype = 0;
+    }
+
+    SET_SLOT(ans, Matrix_DimSym, duplicate(ad));
+    SET_SLOT(ans, Matrix_DimNamesSym, (LENGTH(an) == 2) ? duplicate(an) :
+	     allocVector(VECSXP, 2));
+    sz = INTEGER(ad)[0] * INTEGER(ad)[1];
+    ansx = REAL(ALLOC_SLOT(ans, Matrix_xSym, REALSXP, sz));
+    switch(ctype) {
+    case 0:			/* unclassed real matrix */
+	Memcpy(ansx, REAL(A), sz);
+	break;
+    case 1:			/* dgeMatrix */
+	Memcpy(ansx, REAL(GET_SLOT(A, Matrix_xSym)), sz);
+	break;
+    case 2:			/* dtrMatrix   and subclasses */
+    case 9: case 10: case 11:   /* ---	Cholesky, LDL, BunchKaufman */
+	Memcpy(ansx, REAL(GET_SLOT(A, Matrix_xSym)), sz);
+	make_d_matrix_triangular(ansx, A);
+	break;
+    case 3:			/* dsyMatrix */
+    case 4:			/* dpoMatrix  + subclass */
+    case 14:	 		/* ---	corMatrix */
+	Memcpy(ansx, REAL(GET_SLOT(A, Matrix_xSym)), sz);
+	make_d_matrix_symmetric(ansx, A);
+	break;
+    case 5:			/* ddiMatrix */
+	install_diagonal(ansx, A);
+	break;
+    case 6:			/* dtpMatrix  + subclasses */
+    case 12: case 13: 		/* ---	pCholesky, pBunchKaufman */
+	packed_to_full_double(ansx, REAL(GET_SLOT(A, Matrix_xSym)),
+			      INTEGER(ad)[0],
+			      *uplo_P(A) == 'U' ? UPP : LOW);
+	make_d_matrix_triangular(ansx, A);
+	break;
+    case 7:			/* dspMatrix */
+    case 8:			/* dppMatrix */
+	packed_to_full_double(ansx, REAL(GET_SLOT(A, Matrix_xSym)),
+			      INTEGER(ad)[0],
+			      *uplo_P(A) == 'U' ? UPP : LOW);
+	make_d_matrix_symmetric(ansx, A);
+	break;
+    default:
+	error(_("unexpected ctype = %d in dup_mMatrix_as_dgeMatrix"), ctype);
+    }
+    UNPROTECT(nprot);
+    return ans;
+}

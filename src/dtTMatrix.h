@@ -3,7 +3,6 @@
 
 #include "Mutils.h"
 #include "chm_common.h"
-#include "triplet_to_col.h"
 
 SEXP dtTMatrix_validate(SEXP x);
 SEXP dtTMatrix_as_dtrMatrix(SEXP x);

@@ -1,11 +1,11 @@
 ## For multiplication operations, sparseMatrix overrides other method
 ## selections.  Coerce a ddensematrix argument to a dgeMatrix.
 
-setMethod("%*%", signature(x = "dsparseMatrix", y = "ddenseMatrix"),
-          function(x, y) callGeneric(x, as(y, "dgeMatrix")))
+## setMethod("%*%", signature(x = "dsparseMatrix", y = "ddenseMatrix"),
+##           function(x, y) callGeneric(x, as(y, "dgeMatrix")))
 
-setMethod("%*%", signature(x = "ddenseMatrix", y = "dsparseMatrix"),
-          function(x, y) callGeneric(as(x, "dgeMatrix"), y))
+## setMethod("%*%", signature(x = "ddenseMatrix", y = "dsparseMatrix"),
+##           function(x, y) callGeneric(as(x, "dgeMatrix"), y))
 
 setMethod("crossprod", signature(x = "dsparseMatrix", y = "ddenseMatrix"),
           function(x, y = NULL) callGeneric(x, as(y, "dgeMatrix")))
@@ -13,15 +13,12 @@ setMethod("crossprod", signature(x = "dsparseMatrix", y = "ddenseMatrix"),
 setMethod("crossprod", signature(x = "ddenseMatrix", y = "dsparseMatrix"),
           function(x, y = NULL) callGeneric(as(x, "dgeMatrix"), y))
 
-setMethod("diag", signature(x = "dsparseMatrix"),
-	  function(x, nrow, ncol = n) diag(as(x, "dgCMatrix")))
-
 ## and coerce dsparse* to dgC*
-setMethod("%*%", signature(x = "dsparseMatrix", y = "dgeMatrix"),
-          function(x, y) callGeneric(as(x, "dgCMatrix"), y))
+## setMethod("%*%", signature(x = "dsparseMatrix", y = "dgeMatrix"),
+##           function(x, y) callGeneric(as(x, "dgCMatrix"), y))
 
-setMethod("%*%", signature(x = "dgeMatrix", y = "dsparseMatrix"),
-          function(x, y) callGeneric(x, as(y, "dgCMatrix")))
+## setMethod("%*%", signature(x = "dgeMatrix", y = "dsparseMatrix"),
+##           function(x, y) callGeneric(x, as(y, "dgCMatrix")))
 
 setMethod("crossprod", signature(x = "dsparseMatrix", y = "dgeMatrix"),
           function(x, y = NULL) callGeneric(as(x, "dgCMatrix"), y))
@@ -37,41 +34,18 @@ setMethod("image", "dsparseMatrix",
 
 setMethod("kronecker", signature(X = "dsparseMatrix", Y = "dsparseMatrix"),
           function (X, Y, FUN = "*", make.dimnames = FALSE, ...)
-          callGeneric(as(X, "dgTMatrix"),as(Y, "dgTMatrix")))
+          callGeneric(as(X, "dgTMatrix"), as(Y, "dgTMatrix")))
+
+setMethod("lu", signature(x = "dsparseMatrix"),
+	  function(x, ...) callGeneric(as(x, "dgCMatrix")))
 
 
 ## Group Methods, see ?Arith (e.g.)
 ## -----
 
-## Cheap version: work via "dgCMatrix" and use the group methods there:
-## NB: have also CsparseMatrix methods (-> ./Csparse.R )
-## which may preserve "symmetric", "triangular", ...
-## those must trigger *before* these [currently works via alphabetic order..!]
-setMethod("Arith", ##  "+", "-", "*", "^", "%%", "%/%", "/"
-          signature(e1 = "dsparseMatrix", e2 = "dsparseMatrix"),
-          function(e1, e2) callGeneric(as(e1, "dgCMatrix"),
-                                       as(e2, "dgCMatrix")))
-setMethod("Arith",
-          signature(e1 = "dsparseMatrix", e2 = "numeric"),
-          function(e1, e2) callGeneric(as(e1, "dgCMatrix"), e2))
-setMethod("Arith",
-          signature(e1 = "numeric", e2 = "dsparseMatrix"),
-          function(e1, e2) callGeneric(e1, as(e2, "dgCMatrix")))
-
-
-setMethod("Math",
-	  signature(x = "dsparseMatrix"),
-	  function(x) {
-	      r <- callGeneric(as(x, "dgCMatrix"))
-	      if(is(r, "dsparseMatrix")) as(r, class(x))
-	  })
-
+##-> now moved to ./Csparse.R (and 'up' to ./sparseMatrix.R):
 ##  "Math2" is in ./dMatrix.R
 
-
-### cbind2 / rbind2
-if(paste(R.version$major, R.version$minor, sep=".") >= "2.2") {
-    ## for R 2.2.x (and later):
 
 ### cbind2
     setMethod("cbind2", signature(x = "dsparseMatrix", y = "numeric"),
@@ -161,4 +135,3 @@ if(paste(R.version$major, R.version$minor, sep=".") >= "2.2") {
 		  ans
 	      })
 
-}## R-2.2.x ff

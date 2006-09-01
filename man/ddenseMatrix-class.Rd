@@ -5,14 +5,18 @@
 % now separated from ./dgeMatrix-class.Rd - on purpose
 % METHODS:
 % undocu (FIXME)
+\alias{\%*\%,ddenseMatrix,ddenseMatrix-method}
 \alias{show,ddenseMatrix-method}
 \alias{coerce,ddenseMatrix,matrix-method}
+\alias{coerce,ddenseMatrix,dgeMatrix-method}
+\alias{coerce,ddenseMatrix,CsparseMatrix-method}
 %
 \alias{Arith,ddenseMatrix,ddenseMatrix-method}
 \alias{Arith,ddenseMatrix,numeric-method}
 \alias{Arith,numeric,ddenseMatrix-method}
 \alias{Math,ddenseMatrix-method}
 %
+\alias{as.numeric,ddenseMatrix-method}
 \alias{cbind2,ddenseMatrix,ddenseMatrix-method}
 \alias{cbind2,ddenseMatrix,matrix-method}
 \alias{cbind2,matrix,ddenseMatrix-method}

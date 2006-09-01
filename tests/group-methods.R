@@ -42,7 +42,11 @@ stopifnot(class(sm) == class(mC), class(mC) == class(mC^2),
 
 x <- Matrix(rbind(0,cbind(0, 0:3,0,0,-1:2,0),0))
 x # sparse
-stopifnot(is(show(x + 10*t(x)), "sparseMatrix"))
+(x2 <- x + 10*t(x))
+stopifnot(is(x2, "sparseMatrix"),
+          identical(x2, t(x*10 + t(x))),
+	  identical(x, as((x + 10) - 10, class(x))))
+
 (px <- Matrix(x^x - 1))#-> sparse again
 stopifnot(px@i == c(3,4,1,4),
           px@x == c(3,26,-2,3))

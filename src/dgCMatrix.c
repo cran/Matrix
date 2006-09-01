@@ -23,7 +23,8 @@ SEXP dgCMatrix_validate(SEXP x)
     if (xp[0] != 0)
 	return mkString(_("first element of slot p must be zero"));
     if (length(islot) != xp[ncol])
-	return mkString(_("last element of slot p must match length of slots i and x"));
+	return
+	    mkString(_("last element of slot p must match length of slot i"));
     for (j = 0; j < ncol; j++) {
 	if (xp[j] > xp[j+1])
 	    return mkString(_("slot p must be non-decreasing"));
@@ -38,119 +39,6 @@ SEXP dgCMatrix_validate(SEXP x)
     return ScalarLogical(1);
 }
 
-#if 0 		/* more general methods now defined in ./Csparse.c */
-SEXP csc_crossprod(SEXP x)
-{
-    SEXP pslot = GET_SLOT(x, Matrix_pSym),
-	ans = PROTECT(NEW_OBJECT(MAKE_CLASS("dsCMatrix"))), tmp;
-    int *xp = INTEGER(pslot),
-	*xi = INTEGER(GET_SLOT(x, Matrix_iSym));
-    double *xx = REAL(GET_SLOT(x, Matrix_xSym));
-
-    int j, *iVal, ncol = length(pslot) - 1, maxnz, nnz = 0, *pVal;
-    double *xVal;
-
-    SET_SLOT(ans, Matrix_factorSym, allocVector(VECSXP, 0));
-    SET_SLOT(ans, Matrix_DimSym, allocVector(INTSXP, 2));
-    SET_SLOT(ans, Matrix_uploSym, mkString("L"));
-    maxnz = (ncol * (ncol + 1))/2;
-    iVal = Calloc(maxnz, int); xVal = Calloc(maxnz, double);
-    SET_SLOT(ans, Matrix_pSym, allocVector(INTSXP, ncol + 1));
-    tmp = GET_SLOT(ans, Matrix_pSym);
-    pVal = INTEGER(tmp);
-    for (j = 0; j < ncol; j++) {
-	pVal[j] = nnz;
-	if (xp[j] < xp[j+1]) {	/* column j contains some non-zeros */
-	    int ind, jj;
-	    double accum = 0.;
-				/* diagonal elements */
-	    for (ind = xp[j]; ind < xp[j+1]; ind++)
-		accum += xx[ind] * xx[ind];
-	    iVal[nnz] = j;
-	    xVal[nnz] = accum;
-	    nnz++;
-				/* off-diagonals (lower triangle only) */
-	    for (jj = j+1; jj < ncol; jj++) {
-		int ind2;
-
-		ind = xp[j];
-		ind2 = xp[jj];
-		accum = 0.;
-		while (ind < xp[j+1] && ind2 < xp[jj+1]) {
-		    if (xi[ind] < xi[ind2]) ind++;
-		    else {
-			if (xi[ind] > xi[ind2]) ind2++;
-			else {
-			    accum += xx[ind] * xx[ind2];
-			    ind++; ind2++;
-			}
-		    }
-		}
-		if (accum != 0.) {
-		    iVal[nnz] = jj;
-		    xVal[nnz] = accum;
-		    nnz++;
-		}
-	    }
-	}
-    }
-    pVal[ncol] = nnz;
-
-    SET_SLOT(ans, Matrix_iSym, allocVector(INTSXP, nnz));
-    Memcpy(INTEGER(GET_SLOT(ans, Matrix_iSym)), iVal, nnz);
-    SET_SLOT(ans, Matrix_xSym, allocVector(REALSXP, nnz));
-    Memcpy(REAL(GET_SLOT(ans, Matrix_xSym)), xVal, nnz);
-    Free(iVal); Free(xVal); UNPROTECT(1);
-    return dgCMatrix_set_Dim(ans, ncol);
-}
-
-SEXP csc_tcrossprod(SEXP x)
-{
-    cholmod_sparse *chx = as_cholmod_sparse(x);
-    cholmod_sparse *cha = cholmod_aat(chx, (int *) NULL, 0, 1, &c);
-    cholmod_sparse *chas = cholmod_copy(cha, 1, 1, &c);
-
-    Free(chx);
-    cholmod_free_sparse(&cha, &c);
-    return chm_sparse_to_SEXP(chas, 1, 0, "", R_NilValue);
-}
-
-SEXP csc_matrix_crossprod(SEXP x, SEXP y, SEXP classed)
-{
-    int cl = asLogical(classed);
-    SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dgeMatrix")));
-    int *xdims = INTEGER(GET_SLOT(x, Matrix_DimSym)),
-	*ydims = INTEGER(cl ? GET_SLOT(y, Matrix_DimSym) :
-			 getAttrib(y, R_DimSymbol)),
-	*vdims = INTEGER(ALLOC_SLOT(val, Matrix_DimSym, INTSXP, 2));
-    int *xi = INTEGER(GET_SLOT(x, Matrix_iSym)),
-	*xp = INTEGER(GET_SLOT(x, Matrix_pSym));
-    int j, k = xdims[0], m = xdims[1], n = ydims[1];
-    double *vx, *xx = REAL(GET_SLOT(x, Matrix_xSym)),
-	*yx = REAL(cl ? GET_SLOT(y, Matrix_xSym) : y);
-
-    if (!cl && !(isMatrix(y) && isReal(y)))
-	error(_("y must be a numeric matrix"));
-    if (ydims[0] != k)
-	error(_("x and y must have the same number of rows"));
-    if (m < 1 || n < 1 || k < 1)
-	error(_("Matrices with zero extents cannot be multiplied"));
-    vdims[0] = m; vdims[1] = n;
-    vx = REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, m * n));
-    for (j = 0; j < n; j++) {
-	int i; double *ypt = yx + j * k;
-	for(i = 0; i < m; i++) {
-	    int ii; double accum = 0.;
-	    for (ii = xp[i]; ii < xp[i+1]; ii++) {
-		accum += xx[ii] * ypt[xi[ii]];
-	    }
-	    vx[i + j * m] = accum;
-	}
-    }
-    UNPROTECT(1);
-    return val;
-}
-#endif	/* more general methods */
 
 SEXP compressed_to_dgTMatrix(SEXP x, SEXP colP)
 {
@@ -194,258 +82,167 @@ SEXP compressed_non_0_ij(SEXP x, SEXP colP)
     return ans;
 }
 
-#if 0 				/* more general methods in ./Csparse.c */
-SEXP csc_to_matrix(SEXP x)
+SEXP dgCMatrix_lusol(SEXP x, SEXP y)
 {
-    SEXP ans, pslot = GET_SLOT(x, Matrix_pSym);
-    int j, ncol = length(pslot) - 1,
-	nrow = INTEGER(GET_SLOT(x, Matrix_DimSym))[0],
-	*xp = INTEGER(pslot),
-	*xi = INTEGER(GET_SLOT(x, Matrix_iSym));
-    double *xx = REAL(GET_SLOT(x, Matrix_xSym)), *ax;
+    SEXP ycp = PROTECT(duplicate(y));
+    cs *xc = Matrix_as_cs(x);
 
-    ax = REAL(ans = PROTECT(allocMatrix(REALSXP, nrow, ncol)));
-    for (j = 0; j < (nrow * ncol); j++) ax[j] = 0.;
-    for (j = 0; j < ncol; j++) {
-	int ind;
-	for (ind = xp[j]; ind < xp[j+1]; ind++) {
-	    ax[j * nrow + xi[ind]] = xx[ind];
-	}
-    }
+    if (xc->m != xc->n || xc->m <= 0)
+	error(_("dgCMatrix_lusol requires a square, non-empty matrix"));
+    if (!isReal(ycp) || LENGTH(ycp) != xc->m)
+	error(_("Dimensions of system to be solved are inconsistent"));
+    if (!cs_lusol(/*order*/ 1, xc, REAL(ycp), /*tol*/ 1e-7))
+	error(_("cs_lusol failed"));
+    Free(xc);
+    UNPROTECT(1);
+    return ycp;
+}
+
+SEXP dgCMatrix_qrsol(SEXP x, SEXP y)
+{
+    SEXP ycp = PROTECT(duplicate(y));
+    cs *xc = Matrix_as_cs(x);
+
+    if (xc->m < xc->n || xc->n <= 0)
+	error(_("dgCMatrix_qrsol requires a 'tall' rectangular matrix"));
+    if (!isReal(ycp) || LENGTH(ycp) != xc->m)
+	error(_("Dimensions of system to be solved are inconsistent"));
+    if (!cs_qrsol(/*order*/ 1, xc, REAL(ycp)))
+	error(_("cs_qrsol failed"));
+    Free(xc);
+    UNPROTECT(1);
+    return ycp;
+}
+
+/* Modified version of Tim Davis's cs_qr_mex.c file for MATLAB */
+SEXP dgCMatrix_QR(SEXP Ap, SEXP order)
+{
+    SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("sparseQR")));
+    cs *A = Matrix_as_cs(Ap), *D;
+    css *S;
+    csn *N;
+    int m = A->m, n = A->n, ord = asLogical(order) ? 3 : 0, *p;
+
+    if (m < n) error("A must have # rows >= # columns") ;
+    S = cs_sqr(ord, A, 1);	/* symbolic QR ordering & analysis*/
+    if (!S) error("cs_sqr failed");
+    N = cs_qr(A, S);		/* numeric QR factorization */
+    if (!N) error("cs_qr failed") ;
+    cs_dropzeros(N->L);		/* drop zeros from V and sort */
+    D = cs_transpose(N->L, 1);
+    cs_spfree(N->L);
+    N->L = cs_transpose(D, 1);
+    cs_spfree(D);
+    cs_dropzeros(N->U);		/* drop zeros from R and sort */
+    D = cs_transpose(N->U, 1);
+    cs_spfree(N->U) ;
+    N->U = cs_transpose(D, 1);
+    cs_spfree(D);
+    m = N->L->m;		/* m may be larger now */
+    p = cs_pinv(S->pinv, m);	/* p = pinv' */
+    SET_SLOT(ans, install("V"),
+	     Matrix_cs_to_SEXP(N->L, "dgCMatrix", 0));
+    Memcpy(REAL(ALLOC_SLOT(ans, install("beta"),
+			   REALSXP, n)), N->B, n);
+    Memcpy(INTEGER(ALLOC_SLOT(ans, Matrix_pSym,
+			      INTSXP, m)), p, m);
+    SET_SLOT(ans, install("R"),
+	     Matrix_cs_to_SEXP(N->U, "dgCMatrix", 0));
+    if (ord)
+	Memcpy(INTEGER(ALLOC_SLOT(ans, install("q"),
+				  INTSXP, n)), S->q, n);
+    else
+	ALLOC_SLOT(ans, install("q"), INTSXP, 0);
+    cs_nfree(N);
+    cs_sfree(S);
+    cs_free(p);
     UNPROTECT(1);
     return ans;
 }
 
-SEXP csc_to_dgeMatrix(SEXP x)
+/* Modified version of Tim Davis's cs_lu_mex.c file for MATLAB */
+SEXP dgCMatrix_LU(SEXP Ap, SEXP orderp, SEXP tolp)
 {
-    SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("dgeMatrix"))),
-	Dimslot = GET_SLOT(x, Matrix_DimSym);
-    int *dims = INTEGER(Dimslot),
-	*xp = INTEGER(GET_SLOT(x, Matrix_pSym)),
-	*xi = INTEGER(GET_SLOT(x, Matrix_iSym));
-    double *xx = REAL(GET_SLOT(x, Matrix_xSym)), *ax;
-    int j, nrow = dims[0], ncol = dims[1];
+    SEXP ans = get_factors(Ap, "LU");
+    cs *A, *D;
+    css *S;
+    csn *N;
+    int n, order = asInteger(orderp), *p;
+    double tol = asReal(tolp);
 
-    SET_SLOT(ans, Matrix_DimSym, duplicate(Dimslot));
-    SET_SLOT(ans, Matrix_xSym, allocVector(REALSXP, nrow*ncol));
-    SET_SLOT(ans, Matrix_factorSym, allocVector(VECSXP, 0));
-    ax = REAL(GET_SLOT(ans, Matrix_xSym));
-    for (j = 0; j < (nrow * ncol); j++) ax[j] = 0.;
-    for (j = 0; j < ncol; j++) {
-	int ind;
-	for (ind = xp[j]; ind < xp[j+1]; ind++) {
-	    ax[j * nrow + xi[ind]] = xx[ind];
-	}
+    /* FIXME: dgCMatrix_LU should check ans for consistency in
+     * permutation type with the requested value - Should have two
+     * classes or two different names in the factors list for LU with
+     * permuted columns or not. */
+
+    if (ans != R_NilValue) return ans;
+    ans = PROTECT(NEW_OBJECT(MAKE_CLASS("sparseLU")));
+    A = Matrix_as_cs(Ap);
+    n = A->n;
+    if (A->m != n)
+	error("LU decomposition applies only to square matrices");
+    if (order) {		/* not using natural order */
+	order = (tol == 1) ? 2	/* amd(S'*S) w/dense rows or I */
+	    : 1;		/* amd (A+A'), or natural */
     }
+    S = cs_sqr (order, A, 0) ;	/* symbolic ordering, no QR bound */
+    N = cs_lu (A, S, tol) ;	/* numeric factorization */
+    if (!N) error ("cs_lu failed (singular, or out of memory)") ;
+    cs_dropzeros (N->L) ;	/* drop zeros from L and sort it */
+    D = cs_transpose (N->L, 1) ;
+    cs_spfree (N->L) ;
+    N->L = cs_transpose (D, 1) ;
+    cs_spfree (D) ;
+    cs_dropzeros (N->U) ;	/* drop zeros from U and sort it */
+    D = cs_transpose (N->U, 1) ;
+    cs_spfree (N->U) ;
+    N->U = cs_transpose (D, 1) ;
+    cs_spfree (D) ;
+    p = cs_pinv (N->pinv, n) ;	/* p=pinv' */
+    SET_SLOT(ans, install("L"),
+	     Matrix_cs_to_SEXP(N->L, "dgCMatrix", 0));
+    SET_SLOT(ans, install("U"),
+	     Matrix_cs_to_SEXP(N->U, "dgCMatrix", 0));
+    Memcpy(INTEGER(ALLOC_SLOT(ans, Matrix_pSym,
+			      INTSXP, n)), p, n);
+    if (order)
+	Memcpy(INTEGER(ALLOC_SLOT(ans, install("q"),
+				  INTSXP, n)), S->q, n);
+    cs_nfree(N);
+    cs_sfree(S);
+    cs_free(p);
+    Free(A);
+    UNPROTECT(1);
+    return set_factors(Ap, ans, "LU");
+}
+
+SEXP dgCMatrix_matrix_solve(SEXP Ap, SEXP b)
+{
+    SEXP ans = PROTECT(dup_mMatrix_as_dgeMatrix(b));
+    SEXP lu = dgCMatrix_LU(Ap, ScalarLogical(1), ScalarReal(1));
+    SEXP qslot = GET_SLOT(lu, install("q"));
+    cs *L = Matrix_as_cs(GET_SLOT(lu, install("L"))),
+	*U = Matrix_as_cs(GET_SLOT(lu, install("U")));
+    int *bdims = INTEGER(GET_SLOT(ans, Matrix_DimSym));
+    int j, n = bdims[0], nrhs = bdims[1];
+    int *p = INTEGER(GET_SLOT(lu, Matrix_pSym)),
+	*q = LENGTH(qslot) ? INTEGER(qslot) : (int *) NULL;
+    double *ax = REAL(GET_SLOT(ans, Matrix_xSym)),
+	*x = Calloc(n, double);
+
+    if (U->n != n || nrhs < 1 || n < 1)
+	error(_("Dimensions of system to be solved are inconsistent"));
+    for (j = 0; j < nrhs; j++) {
+	cs_pvec(p, ax + j * n, x, n);  /* x = b(p) */
+	cs_lsolve(L, x);	       /* x = L\x */
+	cs_usolve(U, x);	       /* x = U\x */
+	if (q)			       /* b(q) = x */
+	    cs_ipvec(q, x, ax + j * n, n);
+	else
+	    Memcpy(ax + j * n, x, n);
+    }
+    Free(L); Free(U); Free(x);
     UNPROTECT(1);
     return ans;
 }
 
-SEXP double_to_csc(double *a, int *dim_a)
-{
-    SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dgCMatrix")));
-    int j, maxnz, nrow, ncol, nnz, *vp, *vi;
-    double *vx;
-
-    nrow = dim_a[0]; ncol = dim_a[1];
-    SET_SLOT(val, Matrix_factorSym, allocVector(VECSXP, 0));
-    SET_SLOT(val, Matrix_DimSym, allocVector(INTSXP, 2));
-    SET_SLOT(val, Matrix_pSym, allocVector(INTSXP, ncol + 1));
-    vp = INTEGER(GET_SLOT(val, Matrix_pSym));
-    maxnz = nrow * ncol;
-    vi = Calloc(maxnz, int); vx = Calloc(maxnz, double);
-    nnz = 0;
-    for (j = 0; j < ncol; j++) {
-	int i;
-	vp[j] = nnz;
-	for (i = 0; i < nrow; i++) {
-	    double val = a[i + j * nrow];
-	    if (val != 0.) {
-		vi[nnz] = i;
-		vx[nnz] = val;
-		nnz++;
-	    }
-	}
-    }
-    vp[ncol] = nnz;
-    SET_SLOT(val, Matrix_iSym, allocVector(INTSXP, nnz));
-    Memcpy(INTEGER(GET_SLOT(val, Matrix_iSym)), vi, nnz);
-    SET_SLOT(val, Matrix_xSym, allocVector(REALSXP, nnz));
-    Memcpy(REAL(GET_SLOT(val, Matrix_xSym)), vx, nnz);
-    Free(vi); Free(vx);
-    UNPROTECT(1);
-    return dgCMatrix_set_Dim(val, nrow);
-}
-#endif	/* more general methods */
-
-#if 0 				/* use dense_to_Csparse in ./dense.c */
-SEXP matrix_to_csc(SEXP A)
-{
-    if (!(isMatrix(A) && isReal(A)))
-	error(_("A must be a numeric matrix"));
-    return double_to_csc(REAL(A),
-			 INTEGER(getAttrib(A, R_DimSymbol)));
-}
-
-SEXP dgeMatrix_to_csc(SEXP x)
-{
-    return double_to_csc(   REAL(GET_SLOT(x, Matrix_xSym)),
-			 INTEGER(GET_SLOT(x, Matrix_DimSym)));
-}
-#endif	/* use dense_to_Csparse */
-
-#if 0 				/* more general method in Tsparse */
-SEXP dgTMatrix_to_csc(SEXP dgTMatrix)
-{
-    SEXP Tisl = GET_SLOT(dgTMatrix, Matrix_iSym);
-    int *Ti = INTEGER(Tisl),
-	*Tj = INTEGER(GET_SLOT(dgTMatrix, Matrix_jSym)),
-	i, nrow, ncol,
-	nz = length(Tisl);
-
-    nrow = ncol = -1;
-    for(i = 0; i < nz; i++) {
-	if (Ti[i] > nrow) nrow = Ti[i];
-	if (Tj[i] > ncol) ncol = Tj[i];
-    }
-    return triple_as_SEXP(nrow + 1, ncol + 1, nz, Ti, Tj,
-			  REAL(GET_SLOT(dgTMatrix, Matrix_xSym)),
-			  "dgCMatrix");
-}
-#endif 				/* more general method */
-
-#if 0 				/* use Csparse_band and R code */
-SEXP csc_getDiag(SEXP x)
-{
-    SEXP pslot = GET_SLOT(x, Matrix_pSym), ans;
-    int *xp = INTEGER(pslot),
-	*xi = INTEGER(GET_SLOT(x, Matrix_iSym)),
-	j,
-	ncol = length(pslot) - 1,
-	nrow = INTEGER(GET_SLOT(x, Matrix_DimSym))[0],
-	ndiag;
-    double *xx = REAL(GET_SLOT(x, Matrix_xSym)), *diag;
-
-    ndiag = (nrow < ncol) ? nrow : ncol;
-    ans = PROTECT(allocVector(REALSXP, ndiag));
-    diag = REAL(ans);
-    for (j = 0; j < ndiag; j++) {
-	int ind;
-	diag[j] = 0.;
-	for (ind = xp[j]; ind < xp[j+1]; ind++) {
-	    if (xi[ind] == j) diag[j] = xx[ind];
-	}
-    }
-    UNPROTECT(1);
-    return ans;
-}
-#endif	/* use Csparse_band */
-
-#if 0 				/* more general method in Csparse.c */
-SEXP csc_transpose(SEXP x)
-{
-    cholmod_sparse *chx = as_cholmod_sparse(x);
-    SEXP ans =
-	chm_sparse_to_SEXP(cholmod_transpose(chx, 1, &c), 1, 0, "", R_NilValue);
-    Free(chx);
-    return ans;
-}
-#endif	/* more general method */
-
-SEXP csc_matrix_mm(SEXP a, SEXP b, SEXP classed, SEXP right)
-{
-    int cl = asLogical(classed), rt = asLogical(right);
-    SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dgeMatrix")));
-    int *adims = INTEGER(GET_SLOT(a, Matrix_DimSym)),
-	*ai = INTEGER(GET_SLOT(a, Matrix_iSym)),
-	*ap = INTEGER(GET_SLOT(a, Matrix_pSym)),
-	*bdims = INTEGER(cl ? GET_SLOT(b, Matrix_DimSym) :
-			 getAttrib(b, R_DimSymbol)),
-	*cdims = INTEGER(ALLOC_SLOT(val, Matrix_DimSym, INTSXP, 2)),
-	chk, ione = 1, j, jj, k, m, n;
-    double *ax = REAL(GET_SLOT(a, Matrix_xSym)),
-	*bx = REAL(cl ? GET_SLOT(b, Matrix_xSym) : b), *cx;
-
-    if (rt) {
-	m = bdims[0]; n = adims[1]; k = bdims[1]; chk = adims[0];
-    } else {
-	m = adims[0]; n = bdims[1]; k = adims[1]; chk = bdims[0];
-    }
-    if (chk != k)
-	error(_("Matrices are not conformable for multiplication"));
-    if (m < 1 || n < 1 || k < 1)
-	error(_("Matrices with zero extents cannot be multiplied"));
-    cx = REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, m * n));
-    AZERO(cx, m * n); /* zero the accumulators */
-    for (j = 0; j < n; j++) { /* across columns of c */
-	if (rt) {
-	    int kk, k2 = ap[j + 1];
-	    for (kk = ap[j]; kk < k2; kk++) {
-		F77_CALL(daxpy)(&m, &ax[kk], &bx[ai[kk]*m],
-				&ione, &cx[j*m], &ione);
-	    }
-	} else {
-	    double *ccol = cx + j * m,
-		*bcol = bx + j * k;
-
-	    for (jj = 0; jj < k; jj++) { /* across columns of a */
-		int kk, k2 = ap[jj + 1];
-		for (kk = ap[jj]; kk < k2; kk++) {
-		    ccol[ai[kk]] += ax[kk] * bcol[jj];
-		}
-	    }
-	}
-    }
-    cdims[0] = m; cdims[1] = n;
-    UNPROTECT(1);
-    return val;
-}
-
-#if 0				/* no longer used */
-SEXP csc_col_permute(SEXP x, SEXP perm)
-{
-    SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dgCMatrix"))), tmp;
-    int *iperm, *prm, *vi, *vp, *xi, *xp, j, k, ncol, pos;
-    double *vx, *xx;
-
-    SET_SLOT(val, Matrix_factorSym, allocVector(VECSXP, 0));
-    tmp = GET_SLOT(x, Matrix_DimSym);
-    SET_SLOT(val, Matrix_DimSym, duplicate(tmp));
-    ncol = INTEGER(tmp)[1];
-    if (!(isInteger(perm) && length(perm) == ncol))
-	error(_("perm must be an integer vector of length %d"),
-	      ncol);
-    prm = INTEGER(perm);
-    if (!R_ldl_valid_perm(ncol, prm))
-	error(_("perm is not a valid 0-based permutation"));
-    iperm = Calloc(ncol, int);
-    for (j = 0; j < ncol; j++) iperm[prm[j]] = j;
-    tmp = GET_SLOT(x, Matrix_pSym);
-    xp = INTEGER(tmp);
-    SET_SLOT(val, Matrix_pSym, duplicate(tmp));
-    vp = INTEGER(GET_SLOT(val, Matrix_pSym));
-    tmp = GET_SLOT(x, Matrix_iSym);
-    xi = INTEGER(tmp);
-    SET_SLOT(val, Matrix_iSym, duplicate(tmp));
-    vi = INTEGER(GET_SLOT(val, Matrix_iSym));
-    tmp = GET_SLOT(x, Matrix_xSym);
-    xx = REAL(tmp);
-    SET_SLOT(val, Matrix_xSym, duplicate(tmp));
-    vx = REAL(GET_SLOT(val, Matrix_xSym));
-
-    pos = vp[0] = 0;
-    for (j = 0; j < ncol; j++) {
-	int jj = iperm[j];
-	int j1 = xp[jj], j2 = xp[jj+1];
-	vp[j + 1] = vp[j] + (j2 - j1);
-	for (k = j1; k < j2; k++) {
-	    vi[pos] = xi[k];
-	    vx[pos] = xx[k];
-	    pos++;
-	}
-    }
-    Free(iperm);
-    UNPROTECT(1);
-    return val;
-}
-#endif	/* no longer used */

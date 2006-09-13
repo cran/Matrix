@@ -1,3 +1,7 @@
+2006-09-01  Douglas Bates  <bates@R-project.org>
+
+	* R/sparseMatrix.R: Added direct method to CsparseMatrix from graphNEL
+
 2006-09-01  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/sparseMatrix.R: add coercion from "ANY" to "sparseMatrix"

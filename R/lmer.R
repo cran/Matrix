@@ -88,10 +88,11 @@ factorNames2char <- function(nms, collapse = ", ") {
 
 ## expand any slashes in the grouping factors returned by findbars
 expandSlash <- function(bb) {
+    if (!is.list(bb)) return(expandSlash(list(bb)))
     ## I really do mean lapply(unlist(... - unlist returns a
     ## flattened list in this case
     unlist(lapply(bb, function(x) {
-        if (is.list(trms <- slashTerms(x[[3]])))
+        if (length(x) > 2 && is.list(trms <- slashTerms(x[[3]])))
             return(lapply(unlist(makeInteraction(trms)),
                           function(trm) substitute(foo|bar,
                                                    list(foo = x[[2]],

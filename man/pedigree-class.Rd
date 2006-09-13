@@ -1,6 +1,7 @@
 \name{pedigree-class}
 \docType{class}
 \alias{pedigree-class}
+\alias{chol,pedigree,ANY-method}
 \alias{chol,pedigree-method}
 \alias{coerce,pedigree,dtCMatrix-method}
 \alias{coerce,pedigree,data.frame-method}

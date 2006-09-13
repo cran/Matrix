@@ -1,12 +1,12 @@
 Package: Matrix
-Version: 0.995-16
-Date: 2006-09-01
+Version: 0.995-18
+Date: 2006-09-13
 Title: A Matrix package for R
 Author: Douglas Bates <bates@stat.wisc.edu> and Martin Maechler <maechler@stat.math.ethz.ch>
 Maintainer: Douglas Bates <bates@stat.wisc.edu>
 Description: Classes and methods for numerical linear algebra
     using Lapack, LDL, and Metis.
-Depends: R (>= 2.3.1), stats, methods, utils, lattice
+Depends: R (<= 2.3.1), stats, methods, utils, lattice
 Imports: graphics, lattice, grid, stats
 Suggests: mlmRev, MASS, coda
 Enhances: graph, SparseM
@@ -21,4 +21,4 @@ License: GPL version 2 or later.
  Florida sparse matrix library maintained by Tim Davis.  All sections
  of that code are covered by the GPL or LGPL licenses.  See the
  directory doc/UFsparse for details.
-Packaged: Sat Sep  2 18:15:48 2006; maechler
+Packaged: Wed Sep 13 14:30:30 2006; bates

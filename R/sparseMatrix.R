@@ -59,30 +59,41 @@ setAs("graphAM", "sparseMatrix",
 	  }
       })
 
-## FIXME: in the case of NEL or other sparse graphs, we really should *NOT* go
-##        via a *dense* adjacency matrix as we do here :
-setAs("graph", "sparseMatrix",
-      function(from) as(as(from, "graphAM"), "sparseMatrix"))
-## but rather
-if(FALSE) { #------------------------- NOT YET -----------------
-setAs("graph", "sparseMatrix",
-      function(from) as(as(from, "graphNEL"), "sparseMatrix"))
+setAs("graph", "CsparseMatrix",
+      function(from) as(as(from, "graphNEL"), "CsparseMatrix"))
 
-setAs("graphNEL", "sparseMatrix",
+setAs("graphNEL", "CsparseMatrix",
       function(from) {
 	  nd <- nodes(from)
+          dm <- rep.int(length(nd), 2)
 	  symm <- edgemode(from) == "undirected"
-	  if(graph.has.weights(from)) {
-	      ## symm <- symm && <weights must also be symmetric>: improbable
-	      ## if(symm) new("dsTMatrix", .....) else
-	      new("dgTMatrix", .....)
-	  }
-	  else { ## no weights: 0/1 matrix -> logical
-	      if(symm) new("lsTMatrix", .....)
-	      else     new("lgTMatrix", .....)
-	  }
+
+## 	  if(graph.has.weights(from)) {
+##               .bail.out.2(.Generic, class(from), to)
+## 	      ## symm <- symm && <weights must also be symmetric>: improbable
+## 	      ## if(symm) new("dsTMatrix", .....) else
+## 	      ##new("dgTMatrix", )
+## 	  }
+## 	  else { ## no weights: 0/1 matrix -> logical
+          edges <- lapply(from@edgeL[nd], "[[", "edges")
+          lens <- unlist(lapply(edges, length))
+          nnz <- sum(unlist(lens))  # number of non-zeros
+          i <- unname(unlist(edges) - 1:1) # row indices (0-based)
+          j <- rep.int(0:(dm[1]-1), lens) # column indices (0-based)
+          if(symm) {                    # ensure upper triangle
+              tmp <- i
+              flip <- i > j
+              i[flip] <- j[flip]
+              j[flip] <- tmp[flip]
+              dtm <- new("lsTMatrix", i = i, j = j, Dim = dm,
+                           Dimnames = list(nd, nd), uplo = "U")
+          } else {
+	      dtm <- new("lgTMatrix", i = i, j = j, Dim = dm,
+                           Dimnames = list(nd, nd))
+          }
+          as(dtm, "CsparseMatrix")
+## 	  }
       })
-}# not yet
 
 setAs("sparseMatrix", "graph", function(from) as(from, "graphNEL"))
 setAs("sparseMatrix", "graphNEL",
@@ -320,4 +331,3 @@ setMethod("colMeans", signature(x = "sparseMatrix"), .as.dgT.Fun)
 ## .as.dgC.Fun
 setMethod("rowSums", signature(x = "sparseMatrix"), .as.dgC.Fun)
 setMethod("rowMeans", signature(x = "sparseMatrix"),.as.dgC.Fun)
-

@@ -284,7 +284,7 @@ SEXP ddense_band(SEXP x, SEXP k1P, SEXP k2P)
     }
     /* Copy ans to a dtrMatrix object (must be square) */
     /* Because slots of ans are freshly allocated and ans will not be
-     * used with use the slots themselves and don't duplicate */
+     * used, we use the slots themselves and don't duplicate */
     aa = PROTECT(NEW_OBJECT(MAKE_CLASS("dtrMatrix")));
     SET_SLOT(aa, Matrix_xSym, GET_SLOT(ans, Matrix_xSym));
     SET_SLOT(aa, Matrix_DimSym, GET_SLOT(ans, Matrix_DimSym));

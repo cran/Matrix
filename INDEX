@@ -1,6 +1,8 @@
 BIC                     Bayesian Information Criterion
 CAex                    Albers' example Matrix with "Difficult" Eigen
                         Factorization
+CHMfactor-class         CHOLMOD-based Cholesky factorizations
+Cholesky                Cholesky Decomposition of a Sparse Matrix
 Cholesky-class          Cholesky and Bunch-Kaufman Decompositions
 CsparseMatrix-class     Class "CsparseMatrix" of Sparse Matrices in
                         Column-compressed Form
@@ -8,9 +10,12 @@ Diagonal                Create Diagonal Matrix Object
 Hilbert                 Generate a Hilbert matrix
 KNex                    Koenker-Ng Example Sparse Model Matrix and
                         Response Vector
-LU-class                LU Matrix Decompositions
+LU-class                LU (dense) Matrix Decompositions
 Matrix                  Construct a Classed Matrix
 Matrix-class            Virtual Class "Matrix" Class of Matrices
+MatrixFactorization-class
+                        Class "MatrixFactorization" of Matrix
+                        Factorizations
 RsparseMatrix-class     Class "RsparseMatrix" of Sparse Matrices in
                         Column-compressed Form
 Schur                   Schur Decomposition of a Matrix
@@ -28,7 +33,6 @@ VarCorr-class           Class "VarCorr"
 band                    Extract bands of a matrix
 compMatrix-class        Class "compMatrix" of Composite (Factorizable)
                         Matrices
-dCHMsimpl-class         CHOLMOD-based Cholesky factorizations
 dCholCMatrix-class      Cholesky Decompositions of dsCMatrix Objects
 dMatrix-class           (Virtual) Class "dMatrix" of "double" Matrices
 ddenseMatrix-class      Virtual Class "ddenseMatrix" of Numeric Dense

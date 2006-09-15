@@ -63,36 +63,43 @@ setAs("graph", "CsparseMatrix",
       function(from) as(as(from, "graphNEL"), "CsparseMatrix"))
 
 setAs("graphNEL", "CsparseMatrix",
+      function(from) as(as(from, "TsparseMatrix"), "CsparseMatrix"))
+
+setAs("graphNEL", "TsparseMatrix",
       function(from) {
-	  nd <- nodes(from)
+          nd <- nodes(from)
           dm <- rep.int(length(nd), 2)
 	  symm <- edgemode(from) == "undirected"
 
-## 	  if(graph.has.weights(from)) {
-##               .bail.out.2(.Generic, class(from), to)
-## 	      ## symm <- symm && <weights must also be symmetric>: improbable
-## 	      ## if(symm) new("dsTMatrix", .....) else
-## 	      ##new("dgTMatrix", )
-## 	  }
-## 	  else { ## no weights: 0/1 matrix -> logical
-          edges <- lapply(from@edgeL[nd], "[[", "edges")
-          lens <- unlist(lapply(edges, length))
-          nnz <- sum(unlist(lens))  # number of non-zeros
-          i <- unname(unlist(edges) - 1:1) # row indices (0-based)
-          j <- rep.int(0:(dm[1]-1), lens) # column indices (0-based)
-          if(symm) {                    # ensure upper triangle
-              tmp <- i
-              flip <- i > j
-              i[flip] <- j[flip]
-              j[flip] <- tmp[flip]
-              dtm <- new("lsTMatrix", i = i, j = j, Dim = dm,
-                           Dimnames = list(nd, nd), uplo = "U")
-          } else {
-	      dtm <- new("lgTMatrix", i = i, j = j, Dim = dm,
-                           Dimnames = list(nd, nd))
+ 	  if(graph.has.weights(from)) {
+	      eWts <- edgeWeights(from)
+	      lens <- unlist(lapply(eWts, length))
+	      i <- rep.int(0:(dm[1]-1), lens) # column indices (0-based)
+	      To <- unlist(lapply(eWts, names))
+	      j <- as.integer(match(To,nd) - 1:1) # row indices (0-based)
+	      ## symm <- symm && <weights must also be symmetric>: improbable
+	      ## if(symm) new("dsTMatrix", .....) else
+	      new("dgTMatrix", i = i, j = j, x = unlist(eWts),
+		  Dim = dm, Dimnames = list(nd, nd))
+	  }
+ 	  else { ## no weights: 0/1 matrix -> logical
+              edges <- lapply(from@edgeL[nd], "[[", "edges")
+              lens <- unlist(lapply(edges, length))
+              ## nnz <- sum(unlist(lens))  # number of non-zeros
+              i <- rep.int(0:(dm[1]-1), lens) # column indices (0-based)
+              j <- as.integer(unlist(edges) - 1) # row indices (0-based)
+              if(symm) {            # symmetric: ensure upper triangle
+                  tmp <- i
+                  flip <- i > j
+                  i[flip] <- j[flip]
+                  j[flip] <- tmp[flip]
+                  new("nsTMatrix", i = i, j = j, Dim = dm,
+                      Dimnames = list(nd, nd), uplo = "U")
+              } else {
+                  new("ngTMatrix", i = i, j = j, Dim = dm,
+                      Dimnames = list(nd, nd))
+              }
           }
-          as(dtm, "CsparseMatrix")
-## 	  }
       })
 
 setAs("sparseMatrix", "graph", function(from) as(from, "graphNEL"))
@@ -102,7 +109,7 @@ setAs("sparseMatrix", "graphNEL",
 Tsp2grNEL <- function(from) {
     d <- dim(from)
     if(d[1] != d[2])
-	stop("only square matrices can be used as incidence matrices for grphs")
+	stop("only square matrices can be used as incidence matrices for graphs")
     n <- d[1]
     if(n == 0) return(new("graphNEL"))
     if(is.null(rn <- dimnames(from)[[1]]))
@@ -116,15 +123,14 @@ Tsp2grNEL <- function(from) {
 	    ## ==> remove the double indices
 	    from <- tril(from)
 	}
-	## every edge is there only once, either upper or lower triangle
-	ft1 <- cbind(from@i + 1:1, from@j + 1:1)
-	graph::ftM2graphNEL(ft1, W = from@x, V= rn, edgemode= "undirected")
-
-    } else { ## not symmetric
-
-	graph::ftM2graphNEL(cbind(from@i + 1:1, from@j + 1:1),
-			    W = from@x, V= rn, edgemode= "directed")
+        eMode <- "undirected"
+    } else {
+        eMode <- "directed"
     }
+    ## every edge is there only once, either upper or lower triangle
+    ft1 <- cbind(rn[from@i + 1:1], rn[from@j + 1:1])
+    ## not yet: graph::ftM2graphNEL(.........)
+    ftM2graphNEL(ft1, W = from@x, V= rn, edgemode= eMode)
 
 }
 setAs("TsparseMatrix", "graphNEL", Tsp2grNEL)

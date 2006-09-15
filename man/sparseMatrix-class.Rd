@@ -22,6 +22,7 @@
 \alias{coerce,graph,CsparseMatrix-method}
 \alias{coerce,graphAM,sparseMatrix-method}
 \alias{coerce,graphNEL,CsparseMatrix-method}
+\alias{coerce,graphNEL,TsparseMatrix-method}
 \alias{coerce,sparseMatrix,graph-method}
 \alias{coerce,sparseMatrix,graphNEL-method}
 \alias{coerce,TsparseMatrix,graphNEL-method}

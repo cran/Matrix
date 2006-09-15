@@ -33,9 +33,9 @@ if(isTRUE(try(require(graph)))) { # may be there and fail (with R-devel)
     gR <- new("graphNEL", nodes=V, edgeL=edL)
     str(edges(gR))
     sm.g <- as(gR, "sparseMatrix")
-    str(sm.g) ## dgT: FIXME: want 'dsT'  and Dimnames!
+    str(sm.g) ## dgC: TODO: want 'ds.' (symmetric)
     validObject(sm.g)
-    sm.g ## should show the Dimnames - at least row ones
+    sm.g ## TODO: should also show the colnames
 
     ## 1b) weighted
     set.seed(123)
@@ -44,19 +44,19 @@ if(isTRUE(try(require(graph)))) { # may be there and fail (with R-devel)
     gRw <- new("graphNEL", nodes=V, edgeL=edL)
     str(edgeWeights(gRw))
     sm.gw <- as(gRw, "sparseMatrix")
-    str(sm.gw) ## dgT
+    str(sm.gw) ## *numeric* dgCMatrix
     validObject(sm.gw)
-    sm.gw ## should show the Dimnames - at least row ones
+    sm.gw ## U[0,1] numbers in anti-diagonal
 
     ## 2) directed
     gU <- gR; edgemode(gU) <- "directed"
     sgU <- as(gU, "sparseMatrix")
-    str(sgU) ## 'dgT' -- FIXME: dimnames
+    str(sgU) ## 'dgC'
     validObject(sgU)
     sgU
 
     ## Reverse :  sparseMatrix -> graph
-
+    sm.g[1,2] <- 1
     gmg  <-  as(sm.g, "graph")
     validObject(gmg2 <-  as(sm.g, "graphNEL"))
     gmgw <-  as(sm.gw, "graph")
@@ -100,6 +100,7 @@ stopifnot(
 
 ## TODO: More tests; in particular for triplets !
 
+if(FALSE) # detaching the package gives an error (.GenericTable ...)
 detach("package:SparseM")
 
     }

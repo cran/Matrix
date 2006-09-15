@@ -1,3 +1,12 @@
+2006-09-15  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.995-19  {since *-18 made it to CRAN !?!}
+
+	* tests/other-pkgs.R (graph): small extenion in "graph" checks.
+
+	* R/sparseMatrix.R (graphNEL -> Tsparse): method for weight case.
+	(Tsp2grNEL): other fixes needed
+
 2006-09-01  Douglas Bates  <bates@R-project.org>
 
 	* R/sparseMatrix.R: Added direct method to CsparseMatrix from graphNEL

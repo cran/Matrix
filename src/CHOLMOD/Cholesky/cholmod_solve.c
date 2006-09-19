@@ -3,7 +3,8 @@
 /* ========================================================================== */
 
 /* -----------------------------------------------------------------------------
- * CHOLMOD/Cholesky Module.  Version 0.6.  Copyright (C) 2005, Timothy A. Davis
+ * CHOLMOD/Cholesky Module.  Version 1.2.  Copyright (C) 2005-2006,
+ * Timothy A. Davis
  * The CHOLMOD/Cholesky Module is licensed under Version 2.1 of the GNU
  * Lesser General Public License.  See lesser.txt for a text of the license.
  * CHOLMOD is also available under other licenses; contact authors for details.
@@ -50,8 +51,8 @@
 
 #ifndef NCHOLESKY
 
-#include "cholmod_cholesky.h"
 #include "cholmod_internal.h"
+#include "cholmod_cholesky.h"
 
 #ifndef NSUPERNODAL
 #include "cholmod_supernodal.h"
@@ -953,7 +954,7 @@ cholmod_dense *CHOLMOD(solve)
 {
     cholmod_dense *Y = NULL, *X = NULL ;
     Int *Perm ;
-    Int n, nrhs, ncols, ctype, xtype, k1, nr, ok ;
+    Int n, nrhs, ncols, ctype, xtype, k1, nr, ytype ;
 
     /* ---------------------------------------------------------------------- */
     /* check inputs */
@@ -1057,6 +1058,7 @@ cholmod_dense *CHOLMOD(solve)
 	/* ------------------------------------------------------------------ */
 
 #ifndef NSUPERNODAL
+	Int ok ;
 
 	/* allocate workspace */
 	cholmod_dense *E ;
@@ -1088,7 +1090,7 @@ cholmod_dense *CHOLMOD(solve)
 	}
 	else if (sys == CHOLMOD_Lt || sys == CHOLMOD_DLt)
 	{
-	    ok = CHOLMOD(super_ltsolve) (L, Y, E, Common) ;	   /* Y = L'\Y */
+	    ok = CHOLMOD(super_ltsolve) (L, Y, E, Common) ;	   /* Y = L'\Y*/
 	}
 	CHOLMOD(free_dense) (&E, Common) ;
 
@@ -1113,30 +1115,31 @@ cholmod_dense *CHOLMOD(solve)
 	/* solve using a simplicial LL' or LDL' factorization */
 	/* ------------------------------------------------------------------ */
 
-	if (L->xtype == CHOLMOD_REAL)
+	if (L->xtype == CHOLMOD_REAL && B->xtype == CHOLMOD_REAL)
 	{
-	    /* L is real, B is real/complex/zomplex, Y is real */
-	    if (B->xtype == CHOLMOD_REAL)
-	    {
-		/* solve with up to 4 columns of B at a time */
-		ncols = 4 ;
-		nr = MAX (4, nrhs) ;
-		Y = CHOLMOD(allocate_dense) (nr, n, nr, CHOLMOD_REAL, Common) ;
-	    }
-	    else
-	    {
-		/* solve with one column of B (real/imag), at a time */
-		ncols = 1 ;
-		Y = CHOLMOD(allocate_dense) (2, n, 2, CHOLMOD_REAL, Common) ;
-	    }
+	    /* L, B, and Y are all real */
+	    /* solve with up to 4 columns of B at a time */
+	    ncols = 4 ;
+	    nr = MAX (4, nrhs) ;
+	    ytype = CHOLMOD_REAL ;
+	}
+	else if (L->xtype == CHOLMOD_REAL)
+	{
+	    /* solve with one column of B (real/imag), at a time */
+	    ncols = 1 ;
+	    nr = 2 ;
+	    ytype = CHOLMOD_REAL ;
 	}
 	else
 	{
 	    /* L is complex or zomplex, B is real/complex/zomplex, Y has the
 	     * same complexity as L.  Solve with one column of B at a time. */
 	    ncols = 1 ;
-	    Y = CHOLMOD(allocate_dense) (1, n, 1, L->xtype, Common) ;
+	    nr = 1 ;
+	    ytype = L->xtype ;
 	}
+
+	Y = CHOLMOD(allocate_dense) (nr, n, nr, ytype, Common) ;
 
 	if (Common->status < CHOLMOD_OK)
 	{

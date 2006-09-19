@@ -3,20 +3,22 @@
 /* ========================================================================= */
 
 /* ------------------------------------------------------------------------- */
-/* AMD Version 1.2, Copyright (c) 2005 by Timothy A. Davis,		     */
+/* AMD Version 2.0, Copyright (c) 2006 by Timothy A. Davis,		     */
 /* Patrick R. Amestoy, and Iain S. Duff.  See ../README.txt for License.     */
 /* email: davis at cise.ufl.edu    CISE Department, Univ. of Florida.        */
 /* web: http://www.cise.ufl.edu/research/sparse/amd                          */
 /* ------------------------------------------------------------------------- */
 
 /* AMD_aat:  compute the symmetry of the pattern of A, and count the number of
- * nonzeros each column of A+A' (excluding the diagonal).  Assume the input
- * matrix has no errors.
+ * nonzeros each column of A+A' (excluding the diagonal).  Assumes the input
+ * matrix has no errors, with sorted columns and no duplicates
+ * (AMD_valid (n, n, Ap, Ai) must be AMD_OK, but this condition is not
+ * checked).
  */
 
 #include "amd_internal.h"
 
-GLOBAL Int AMD_aat	/* returns nz in A+A' */
+GLOBAL size_t AMD_aat	/* returns nz in A+A' */
 (
     Int n,
     const Int Ap [ ],
@@ -24,15 +26,16 @@ GLOBAL Int AMD_aat	/* returns nz in A+A' */
     Int Len [ ],	/* Len [j]: length of column j of A+A', excl diagonal*/
     Int Tp [ ],		/* workspace of size n */
     double Info [ ]
-) 
+)
 {
-    Int p1, p2, p, i, j, pj, pj2, k, nzdiag, nzboth, nz, nzaat ;
+    Int p1, p2, p, i, j, pj, pj2, k, nzdiag, nzboth, nz ;
     double sym ;
+    size_t nzaat ;
 
 #ifndef NDEBUG
     AMD_debug_init ("AMD AAT") ;
     for (k = 0 ; k < n ; k++) Tp [k] = EMPTY ;
-    ASSERT (AMD_valid (n, n, Ap, Ai)) ;
+    ASSERT (AMD_valid (n, n, Ap, Ai) == AMD_OK) ;
 #endif
 
     if (Info != (double *) NULL)
@@ -154,7 +157,7 @@ GLOBAL Int AMD_aat	/* returns nz in A+A' */
     }
     else
     {
-	sym = ((double) (2 * nzboth)) / ((double) (nz - nzdiag)) ;
+	sym = (2 * (double) nzboth) / ((double) (nz - nzdiag)) ;
     }
 
     nzaat = 0 ;
@@ -162,7 +165,9 @@ GLOBAL Int AMD_aat	/* returns nz in A+A' */
     {
 	nzaat += Len [k] ;
     }
-    AMD_DEBUG1 (("AMD nz in A+A', excluding diagonal (nzaat) = "ID"\n",nzaat));
+
+    AMD_DEBUG1 (("AMD nz in A+A', excluding diagonal (nzaat) = %g\n",
+	(double) nzaat)) ;
     AMD_DEBUG1 (("   nzboth: "ID" nz: "ID" nzdiag: "ID" symmetry: %g\n",
 		nzboth, nz, nzdiag, sym)) ;
 

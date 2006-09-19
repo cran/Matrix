@@ -3,8 +3,8 @@
 /* ========================================================================== */
 
 /* -----------------------------------------------------------------------------
- * CHOLMOD/Core Module.  Version 0.6.  Copyright (C) 2005, Univ. of Florida.
- * Author: Timothy A. Davis
+ * CHOLMOD/Core Module.  Version 1.2.  Copyright (C) 2005-2006,
+ * Univ. of Florida.  Author: Timothy A. Davis
  * The CHOLMOD/Core Module is licensed under Version 2.1 of the GNU
  * Lesser General Public License.  See lesser.txt for a text of the license.
  * CHOLMOD is also available under other licenses; contact authors for details.
@@ -18,8 +18,8 @@
  * or any matrix (dense, sparse, triplet, or factor) with more space allocated
  * than is used.  You can safely ignore any of these complaints by valgrind. */
 
-#include "cholmod_core.h"
 #include "cholmod_internal.h"
+#include "cholmod_core.h"
 
 /* ========================================================================== */
 /* === cholmod_hypot ======================================================== */

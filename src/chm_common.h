@@ -1,6 +1,7 @@
 #ifndef CHM_COMMON_H
 #define CHM_COMMON_H
 
+#include "UFconfig/UFconfig.h"
 #include "CHOLMOD/Include/cholmod.h"
 #include "Mutils.h"
 
@@ -14,12 +15,12 @@ cholmod_factor *as_cholmod_factor(SEXP x);
 
 SEXP chm_factor_to_SEXP(cholmod_factor *f, int dofree);
 SEXP chm_sparse_to_SEXP(cholmod_sparse *a, int dofree,
-			int uploT, char *diag, SEXP dn);
+			int uploT, int Rkind, char *diag, SEXP dn);
 SEXP chm_triplet_to_SEXP(cholmod_triplet *a, int dofree,
- 			 int uploT, char* diag, SEXP dn);
-SEXP chm_dense_to_SEXP(cholmod_dense *a, int dofree);
+ 			 int uploT, int Rkind, char* diag, SEXP dn);
+SEXP chm_dense_to_SEXP(cholmod_dense *a, int dofree, int Rkind);
 /* 		       int uploST, char *diag, SEXP dn); */
-SEXP chm_dense_to_matrix(cholmod_dense *a, int dofree, SEXP dn); 
+SEXP chm_dense_to_matrix(cholmod_dense *a, int dofree, SEXP dn);
 
 SEXP CHMfactor_validate(SEXP obj);
 SEXP CHMsimpl_validate(SEXP obj);

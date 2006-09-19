@@ -2,8 +2,12 @@
 \docType{class}
 \alias{dMatrix-class}
 \alias{lMatrix-class}
+%
 \alias{show,dMatrix-method}
 \alias{coerce,dMatrix,matrix-method}
+\alias{coerce,dMatrix,lMatrix-method}
+\alias{coerce,lMatrix,dMatrix-method}
+\alias{coerce,lMatrix,dgCMatrix-method}
 %\alias{coerce,dMatrix,dgeMatrix-method}
 \alias{[,dMatrix,lMatrix,missing,ANY-method}
 \alias{[,dMatrix,logical,missing,ANY-method}
@@ -81,7 +85,8 @@
 %\references{}
 % Martin + Doug\author{Douglas Bates \email{bates@stat.wisc.edu}}
 \seealso{
-  The classes \code{\linkS4class{dgeMatrix}},
+  The nonzero-pattern matrix class \code{\linkS4class{nMatrix}},
+  and the numeric matrix classes \code{\linkS4class{dgeMatrix}},
   \code{\linkS4class{dgCMatrix}}, and \code{\linkS4class{Matrix}}.
 }
 \examples{

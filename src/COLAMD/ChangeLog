@@ -1,3 +1,22 @@
+Aug 31, 2006: Version 2.5.1
+
+	* minor change to colamd.m and symamd.m, to use etree instead
+	    of sparsfun.
+
+Apr. 30, 2006: Version 2.5
+
+	* colamd_recommended modified, to do more careful integer overflow
+	    checking.  It now returns size_t, not int.  colamd_l_recommended
+	    also returns size_t.  A zero is returned if an error occurs.  A
+	    postive return value denotes success.  In v2.4 and earlier,
+	    -1 was returned on error (an int or long).
+
+	* long replaced with UF_long integer, which is long except on WIN64.
+
+Nov 15, 2005:
+
+	* minor editting of comments; version number (2.4) unchanged.
+
 Changes from Version 2.3 to 2.4 (Aug 30, 2005)
 
 	* Makefile now relies on ../UFconfig/UFconfig.mk
@@ -26,7 +45,7 @@ Changes from Version 2.3 to 2.4 (Aug 30, 2005)
 	    use symamd.  The bug has no affect on the colamd ordering
 	    routine in v2.3.
 
-    Changes from Version 2.2 to 2.3 (Sept. 8, 2003)
+Changes from Version 2.2 to 2.3 (Sept. 8, 2003)
 
 	* removed the call to the MATLAB spparms ('spumoni') function.
 	    This can take a lot of time if you are ordering many small
@@ -35,7 +54,7 @@ Changes from Version 2.3 to 2.4 (Aug 30, 2005)
 	    usage of the optional 2nd argument to the colamd and symamd
 	    mexFunctions was changed accordingly.
 
-    Changes from Version 2.1 to 2.2 (Sept. 23, 2002)
+Changes from Version 2.1 to 2.2 (Sept. 23, 2002)
 
 	* extensive testing routines added (colamd_test.m, colamdtestmex.c,
 	    and symamdtestmex.c), and the Makefile modified accordingly.
@@ -51,7 +70,7 @@ Changes from Version 2.3 to 2.4 (Aug 30, 2005)
 	* #include <stdio.h> added to colamd_example.c
 
 
-    Changes from Version 2.0 to 2.1 (May 4, 2001)
+Changes from Version 2.0 to 2.1 (May 4, 2001)
 
 	* TRUE and FALSE are predefined on some systems, so they are defined
 		here only if not already defined.
@@ -61,7 +80,7 @@ Changes from Version 2.3 to 2.4 (Aug 30, 2005)
 	* UNIX Makefile modified, to handle the case if "." is not in your path.
 
 
-    Changes from Version 1.0 to 2.0 (January 31, 2000)
+Changes from Version 1.0 to 2.0 (January 31, 2000)
 
 	No bugs were found in version 1.1.  These changes merely add new
 	functionality.

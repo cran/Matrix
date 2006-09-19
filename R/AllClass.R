@@ -3,6 +3,9 @@
 	options(max.print = 10000)#-> show() of large matrices
 }
 
+## --- New "logic" class -- currently using "raw" instead of "logical"
+## LOGIC setClass("logic", contains = "raw")
+
 ## ------------- Virtual Classes ----------------------------------------
 
 ## Mother class of all Matrix objects
@@ -33,14 +36,13 @@ setClass("generalMatrix", representation = "VIRTUAL", contains = "compMatrix")
 
 setClass("symmetricMatrix",
 	 representation(uplo = "character", "VIRTUAL"),
-	 contains = "compMatrix")
+	 contains = "compMatrix",
+	 validity = function(object) .Call(symmetricMatrix_validate, object))
 
 setClass("triangularMatrix",
 	 representation(uplo = "character", diag = "character", "VIRTUAL"),
 	 contains = "Matrix",
-	 validity = function(object)
-	 .Call(triangularMatrix_validate, object)
-	 )
+	 validity = function(object) .Call(triangularMatrix_validate, object))
 
 
 ## Virtual class of numeric matrices
@@ -54,9 +56,13 @@ setClass("iMatrix",
 	 representation(x = "integer", "VIRTUAL"), contains = "Matrix")
 
 ## Virtual class of logical matrices
-setClass("lMatrix", representation("VIRTUAL"), contains = "Matrix")
-## Note that logical sparse matrices do not need an x slot so the x
-## slot is part of the ldenseMatrix class
+setClass("lMatrix",
+## LOGIC representation(x = "logic", "VIRTUAL"), contains = "Matrix")
+         representation(x = "logical", "VIRTUAL"), contains = "Matrix")
+
+## Virtual class of nonzero pattern matrices
+setClass("nMatrix", representation("VIRTUAL"), contains = "Matrix")
+## aka 'pattern' matrices -- have no x slot
 
 ## Virtual class of complex matrices
 setClass("zMatrix", # letter 'z' is as in the names of Lapack subroutines
@@ -71,8 +77,12 @@ setClass("ddenseMatrix", representation("VIRTUAL"),
 	 contains = c("dMatrix", "denseMatrix"))
 
 ## Virtual class of dense, logical matrices
-setClass("ldenseMatrix", representation(x = "logical", "VIRTUAL"),
+setClass("ldenseMatrix", representation("VIRTUAL"),
 	 contains = c("lMatrix", "denseMatrix"))
+
+## Virtual class of dense, nonzero pattern matrices - rarely used, for completeness
+setClass("ndenseMatrix", representation(x = "logical", "VIRTUAL"),
+	 contains = c("nMatrix", "denseMatrix"))
 
 ## diagonal: has 'diag' slot;  diag = "U"  <--> have identity matrix
 setClass("diagonalMatrix", representation(diag = "character", "VIRTUAL"),
@@ -101,16 +111,25 @@ setClass("TsparseMatrix", representation(i = "integer", j = "integer", "VIRTUAL"
          )
 
 setClass("CsparseMatrix", representation(i = "integer", p = "integer", "VIRTUAL"),
-	 contains = "sparseMatrix")
+	 contains = "sparseMatrix",
+         validity = function(object) .Call(Csparse_validate, object)
+         )
 
 setClass("RsparseMatrix", representation(p = "integer", j = "integer", "VIRTUAL"),
-	 contains = "sparseMatrix")
+	 contains = "sparseMatrix"
+	 ## TODO:
+	 ## , validity = function(object) .Call(Rsparse_validate, object)
+         )
 
 setClass("dsparseMatrix", representation("VIRTUAL"),
 	 contains = c("dMatrix", "sparseMatrix"))
 
 setClass("lsparseMatrix", representation("VIRTUAL"),
 	 contains = c("lMatrix", "sparseMatrix"))
+
+## these are the "pattern" matrices for "symbolic analysis" of sparse OPs:
+setClass("nsparseMatrix", representation("VIRTUAL"),
+	 contains = c("nMatrix", "sparseMatrix"))
 
 ## ------------------ Proper (non-virtual) Classes ----------------------------
 
@@ -169,37 +188,37 @@ setClass("dpoMatrix", contains = "dsyMatrix",
 ## numeric, dense, packed, positive-definite, symmetric matrices
 setClass("dppMatrix", contains = "dspMatrix",
 	 validity = function(object) .Call(dppMatrix_validate, object)
-	 )
 
+)
 ##----- logical dense Matrices -- e.g. as result of <ddenseMatrix>  COMPARISON
 
-## numeric, dense, general matrices
+## logical, dense, general matrices
 setClass("lgeMatrix", contains = c("ldenseMatrix", "generalMatrix"),
 	 ## checks that length( @ x) == prod( @ Dim):
 	 validity = function(object) stopifnot(length(object@x) == prod(object@Dim))
 	 )
 ## i.e. "lgeMatrix" cannot be packed, but "ldenseMatrix" can ..
 
-## numeric, dense, non-packed, triangular matrices
+## logical, dense, non-packed, triangular matrices
 setClass("ltrMatrix",
 	 contains = c("ldenseMatrix", "triangularMatrix"),
 	 prototype = prototype(uplo = "U", diag = "N"))
 
-## numeric, dense, packed, triangular matrices
+## logical, dense, packed, triangular matrices
 setClass("ltpMatrix",
 	 contains = c("ldenseMatrix", "triangularMatrix"),
 	 prototype = prototype(uplo = "U", diag = "N")
 	 ## validity: ldense*, triangular*  should suffice
 	 )
 
-## numeric, dense, non-packed symmetric matrices
+## logical, dense, non-packed symmetric matrices
 setClass("lsyMatrix",
 	 contains = c("ldenseMatrix", "symmetricMatrix"),
 	 prototype = prototype(uplo = "U")
 	 ##, validity = function(object) .Call(lsyMatrix_validate, object)
 	 )
 
-## numeric, dense, packed symmetric matrices
+## logical, dense, packed symmetric matrices
 setClass("lspMatrix",
 	 contains = c("ldenseMatrix", "symmetricMatrix"),
 	 prototype = prototype(uplo = "U"),
@@ -207,6 +226,44 @@ setClass("lspMatrix",
 	 .Call(dspMatrix_validate, object)
 	 ## "dsp" and "lsp" have the same validate
 	 )
+
+##----- nonzero pattern dense Matrices -- "for completeness"
+
+## logical, dense, general matrices
+setClass("ngeMatrix", contains = c("ndenseMatrix", "generalMatrix"),
+	 ## checks that length( @ x) == prod( @ Dim):
+	 validity = function(object) stopifnot(length(object@x) == prod(object@Dim))
+	 )
+## i.e. "ngeMatrix" cannot be packed, but "ndenseMatrix" can ..
+
+## logical, dense, non-packed, triangular matrices
+setClass("ntrMatrix",
+	 contains = c("ndenseMatrix", "triangularMatrix"),
+	 prototype = prototype(uplo = "U", diag = "N"))
+
+## logical, dense, packed, triangular matrices
+setClass("ntpMatrix",
+	 contains = c("ndenseMatrix", "triangularMatrix"),
+	 prototype = prototype(uplo = "U", diag = "N")
+	 ## validity: ndense*, triangular*  should suffice
+	 )
+
+## logical, dense, non-packed symmetric matrices
+setClass("nsyMatrix",
+	 contains = c("ndenseMatrix", "symmetricMatrix"),
+	 prototype = prototype(uplo = "U")
+	 ## validity: ndense*, symmetric*  should suffice
+	 )
+
+## logical, dense, packed symmetric matrices
+setClass("nspMatrix",
+	 contains = c("ndenseMatrix", "symmetricMatrix"),
+	 prototype = prototype(uplo = "U"),
+	 validity = function(object)
+	 .Call(dspMatrix_validate, object)
+	 ## "dsp" and "nsp" have the same validate
+	 )
+
 
 ## 'diagonalMatrix' already has validity checking
 ## diagonal, numeric matrices;	    "d*" has 'x' slot :
@@ -267,7 +324,7 @@ setClass("dtCMatrix",
 	 contains = c("CsparseMatrix", "dsparseMatrix", "triangularMatrix"),
 	 prototype = prototype(p = 0:0, uplo = "U", diag = "N"),# to be valid
 	 validity =
-	 function(object) .Call(tsc_validate, object)
+	 function(object) .Call(dtCMatrix_validate, object)
 	 )
 
 ## see comments for dsTMatrix above
@@ -318,14 +375,14 @@ setClass("ltTMatrix",
 	 contains = c("TsparseMatrix", "lsparseMatrix", "triangularMatrix"),
 	 prototype = prototype(uplo = "U", diag = "N"),
 	 validity =
-	 function(object) .Call(ltTMatrix_validate, object)
+	 function(object) .Call(dtTMatrix_validate, object)
 	 )
 
 ## logical, sparse, triplet symmetric matrices
 setClass("lsTMatrix",
 	 contains = c("TsparseMatrix", "lsparseMatrix", "symmetricMatrix"),
 	 validity =
-	 function(object) .Call(lsTMatrix_validate, object)
+	 function(object) .Call(dsTMatrix_validate, object)
 	 )
 
 ## logical, sparse, sorted compressed sparse column-oriented general matrices
@@ -374,6 +431,67 @@ setClass("lsRMatrix",
 	 function(object) .Call(lsRMatrix_validate, object)
 	 )
 
+##---------- nonzero pattern sparse matrix classes ---------------------------
+
+## these classes are used in symbolic analysis to determine the
+## locations of non-zero entries
+
+## nonzero pattern, sparse, triplet general matrices
+setClass("ngTMatrix",
+	 contains = c("TsparseMatrix", "nsparseMatrix", "generalMatrix")
+         ## validity: Tsparse_validate should be enough
+	 )
+
+## nonzero pattern, sparse, triplet triangular matrices
+setClass("ntTMatrix",
+	 contains = c("TsparseMatrix", "nsparseMatrix", "triangularMatrix"),
+	 prototype = prototype(uplo = "U", diag = "N")
+         ## validity: Tsparse_ and triangular*_validate should be enough
+	 )
+
+## nonzero pattern, sparse, triplet symmetric matrices
+setClass("nsTMatrix",
+	 contains = c("TsparseMatrix", "nsparseMatrix", "symmetricMatrix")
+         ## validity: Tsparse_ and symmetric*_validate should be enough
+	 )
+
+## nonzero pattern, sparse, sorted compressed column-oriented general matrices
+setClass("ngCMatrix",
+	 contains = c("CsparseMatrix", "nsparseMatrix", "generalMatrix"),
+	 prototype = prototype(p = 0:0)# to be valid
+         ## validity: Csparse_validate should be enough
+	 )
+
+## nonzero pattern, sparse, sorted compressed column-oriented triangular matrices
+setClass("ntCMatrix",
+	 contains = c("CsparseMatrix", "nsparseMatrix", "triangularMatrix"),
+	 prototype = prototype(p = 0:0, uplo = "U", diag = "N")# to be valid
+         ## validity: Csparse_ and triangular*_validate should be enough
+	 )
+
+## nonzero pattern, sparse, sorted compressed column-oriented symmetric matrices
+setClass("nsCMatrix",
+	 contains = c("CsparseMatrix", "nsparseMatrix", "symmetricMatrix"),
+	 prototype = prototype(p = 0:0, uplo = "U")# to be valid
+         ## validity: Csparse_ and symmetric*_validate should be enough
+	 )
+
+## nonzero pattern, sparse, sorted compressed row-oriented general matrices
+setClass("ngRMatrix",
+	 representation(j = "integer", p = "integer"),
+	 contains = c("RsparseMatrix", "nsparseMatrix", "generalMatrix")
+	 )
+
+## nonzero pattern, sparse, sorted compressed row-oriented triangular matrices
+setClass("ntRMatrix",
+	 contains = c("RsparseMatrix", "nsparseMatrix", "triangularMatrix")
+	 )
+
+## nonzero pattern, sparse, sorted compressed row-oriented symmetric matrices
+setClass("nsRMatrix",
+	 contains = c("RsparseMatrix", "nsparseMatrix", "symmetricMatrix")
+	 )
+
 ##-------------------- permutation ----------------------------------------
 
 setClass("pMatrix", representation(perm = "integer"),
@@ -398,40 +516,32 @@ setClass("MatrixFactorization", representation(Dim = "integer", "VIRTUAL"))
 
 ## -- Those (exceptions) inheriting from "Matrix" : ---
 
-## FIXME: not yet containing "MatrixFactorization" because of
-## -----  multiple-dispatch bug: show(<pCholesky>) would call the
-##  method of "MatrixFactorization" instead of the one for "dtpMatrix":
-setClass("Cholesky", contains = c("dtrMatrix" ##, "MatrixFactorization"
-                     ))
+setClass("Cholesky",  contains = c("dtrMatrix", "MatrixFactorization"))
 
-setClass("LDL", contains = c("dtrMatrix" ##, "MatrixFactorization"
-                ))
+setClass("LDL",       contains = c("dtrMatrix", "MatrixFactorization"))
 
-setClass("pCholesky", contains = c("dtpMatrix" ##, "MatrixFactorization"
-                      ))
+setClass("pCholesky", contains = c("dtpMatrix", "MatrixFactorization"))
 
 setClass("BunchKaufman",
-	 contains = c("dtrMatrix"), ##, "MatrixFactorization"),
+	 contains = c("dtrMatrix", "MatrixFactorization"),
 	 representation(perm = "integer"),
 	 validity =
 	 function(object) .Call(BunchKaufman_validate, object)
 	 )
 
 setClass("pBunchKaufman",
-	 contains = c("dtpMatrix"), ##, "MatrixFactorization"),
+	 contains = c("dtpMatrix", "MatrixFactorization"),
 	 representation(perm = "integer"),
 	 validity =
-	 function(object) .Call(pBunchKaufman_validate, object)
-	 )
+	 function(object) .Call(pBunchKaufman_validate, object))
 
 ## -- the usual ``non-Matrix'' factorizations : ---------
 
 setClass("CHMfactor",		 # cholmod_factor struct as S4 object
-         contains = "MatrixFactorization",
+	 contains = "MatrixFactorization",
 	 representation(colcount = "integer", perm = "integer",
-                        type = "integer", "VIRTUAL"),
-	 validity = function(object) .Call(CHMfactor_validate, object)
-	 )
+			type = "integer", "VIRTUAL"),
+	 validity = function(object) .Call(CHMfactor_validate, object))
 
 setClass("CHMsuper",		       # supernodal cholmod_factor
 	 contains = "CHMfactor",
@@ -441,17 +551,17 @@ setClass("CHMsuper",		       # supernodal cholmod_factor
 
 setClass("CHMsimpl",		       # simplicial cholmod_factor
 	 contains = "CHMfactor",
-	 representation(p = "integer", i = "integer",
-			nz = "integer", nxt = "integer", prv = "integer", "VIRTUAL"),
+	 representation(p = "integer", i = "integer", nz = "integer",
+			nxt = "integer", prv = "integer", "VIRTUAL"),
 	 validity = function(object) .Call(CHMsimpl_validate, object))
 
 setClass("dCHMsuper", contains = "CHMsuper", representation(x = "numeric"))
 
-setClass("lCHMsuper", contains = "CHMsuper")
+setClass("nCHMsuper", contains = "CHMsuper")
 
 setClass("dCHMsimpl", contains = "CHMsimpl", representation(x = "numeric"))
 
-setClass("lCHMsimpl", contains = "CHMsimpl")
+setClass("nCHMsimpl", contains = "CHMsimpl")
 
 ##--- LU ---
 
@@ -517,111 +627,3 @@ setClass("determinant",
 			sign = "integer",
 			call = "call"))
 
-
-
-## -------------------- lmer-related Classes --------------------------------
-
-setOldClass("data.frame")
-setOldClass("family")
-setOldClass("logLik")
-setOldClass("terms")
-
-## mixed effects representation
-setClass("mer",
-	 representation(## original data
-			flist = "list", # list of grouping factors
-			Zt = "dgCMatrix",  # sparse representation of Z'
-			X = "matrix",	   # X
-			y = "numeric",	   # y
-			wts = "numeric",   # weights
-			wrkres = "numeric",# working residuals (copy of y for LMMs)
-			method = "character", # parameter estimation method
-			useScale = "logical", # should scale factor be included
-                        family = "family",
-			call = "call",	   # call to model-fitting function
-			## invariants derived from data structure
-			cnames = "list",   # column names of model matrices
-			nc = "integer",	   # dimensions of blocks in Omega
-			Gp = "integer",	   # Pointers to groups of rows in Zt
-			## quantities that vary when Z, X or y are updated
-			XtX = "dpoMatrix", # X'X
-			ZtZ = "dsCMatrix", # Z'Z
-			ZtX = "dgeMatrix", # Z'X
-			Zty = "numeric",   # Z'y
-			Xty = "numeric",   # X'y
-			## primary slots that vary during the optimization
-			## When Omega is updated, these are updated
-			Omega = "list", # list of relative precision matrices
-			## Cholesky factor of inflated [Z:X:y]'[Z:X:y]
-			L = "dCHMsuper", # sparse Cholesky factor of Z'Z + Omega
-			RZX = "dgeMatrix",
-			RXX = "dtrMatrix",
-			rZy = "numeric",
-			rXy = "numeric",
-			devComp = "numeric", # Components of deviance
-			deviance = "numeric", # Current deviance (ML and REML)
-			## Secondary slots only evaluated when requested.
-			fixef = "numeric",
-			ranef = "numeric",
-			RZXinv = "dgeMatrix",
-			bVar = "list",
-			gradComp = "list",
-			## status indicator
-			status = "logical"
-			)
-	)
-
-## Representation of linear and generalized linear mixed effects model
-setClass("lmer",
-	 representation(frame = "data.frame",
-			terms = "terms"),
-	 contains = "mer")
-
-setClass("glmer",
-	 representation(#family = "family", # glm family - move here later
-                        frame = "data.frame",
-			terms = "terms",
-                        weights = "numeric"),
-	 contains = "mer")
-
-setClass("summary.mer", # the "mer" result ``enhanced'' :
-	 representation(
-			isG   = "logical",
-			methTitle = "character",
-			logLik= "logLik",
-			ngrps = "integer",
-			sigma = "numeric", # scale, non-negative number
-			coefs = "matrix",
-			vcov = "dpoMatrix",
-			REmat = "matrix",
-			AICtab= "data.frame"
-			),
-	 contains = "mer")
-
-setClass("summary.lmer", contains = c("summary.mer", "lmer"))
-
-setClass("ranef.lmer", contains = "list")
-
-setClass("coef.lmer", contains = "list")
-
-setClass("pedigree", representation =
-	 list(sire = "integer", dam = "integer", label = "character"),
-	 validity = function(object) {
-	     n <- length(sire <- object@sire)
-	     if (length(dam <- object@dam) != n)
-		 return("sire and dam slots must be the same length")
-	     if (length(object@label) != n)
-		 return("'label' slot must have the same length as 'sire' and 'dam'")
-	     if(n == 0) return(TRUE)
-	     animal <- 1:n
-	     snmiss <- !is.na(sire)
-	     dnmiss <- !is.na(dam)
-	     if (any(sire[snmiss] >= animal[snmiss]) ||
-		 any(dam[dnmiss] >= animal[dnmiss]))
-		 return("the sire and dam must precede the offspring")
-             if (any(sire[snmiss] < 1 | sire[snmiss] > n) |
-                 any(dam[dnmiss] < 1 | dam[dnmiss] > n))
-                 return(paste("Non-missing sire or dam must be in [1,",
-                              n, "]", sep = ''))
-	     TRUE
-	 })

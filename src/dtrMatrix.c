@@ -109,21 +109,6 @@ SEXP dtrMatrix_matrix_mm(SEXP a, SEXP b, SEXP right)
     return val;
 }
 
-#if 0				/* no longer used */
-SEXP dtrMatrix_as_dgeMatrix(SEXP from)
-{
-    SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dgeMatrix")));
-
-    SET_SLOT(val, Matrix_xSym, duplicate(GET_SLOT(from, Matrix_xSym)));
-    SET_SLOT(val, Matrix_DimSym, duplicate(GET_SLOT(from, Matrix_DimSym)));
-    SET_SLOT(val, Matrix_DimNamesSym, duplicate(GET_SLOT(from, Matrix_DimNamesSym)));
-    SET_SLOT(val, Matrix_factorSym, allocVector(VECSXP, 0));
-    make_d_matrix_triangular(REAL(GET_SLOT(val, Matrix_xSym)), from);
-    UNPROTECT(1);
-    return val;
-}
-#endif
-
 SEXP dtrMatrix_as_matrix(SEXP from)
 {
     int *Dim = INTEGER(GET_SLOT(from, Matrix_DimSym));

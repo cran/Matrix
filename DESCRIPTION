@@ -1,24 +1,21 @@
 Package: Matrix
-Version: 0.995-20
+Version: 0.9975-0
 Date: 2006-09-19
 Title: A Matrix package for R
 Author: Douglas Bates <bates@stat.wisc.edu> and Martin Maechler <maechler@stat.math.ethz.ch>
 Maintainer: Douglas Bates <bates@stat.wisc.edu>
-Description: Classes and methods for numerical linear algebra
-    using Lapack, LDL, and Metis.
-Depends: R (<= 2.3.1), stats, methods, utils, lattice
+Description: Classes and methods for dense and sparse matrices and
+    operations on them using Lapack, CSparse and CHOLMOD
+Depends: R (>= 2.4.0), stats, methods, utils, lattice
 Imports: graphics, lattice, grid, stats
-Suggests: mlmRev, MASS, coda
 Enhances: graph, SparseM
 SystemRequirements: GNU make
 LazyLoad: yes
 LazyData: no
 LazyDataNote: no longer available, since we use data/*.R
 License: GPL version 2 or later.
- This R package includes code from the Metis package and from NIST.
- This code is covered by separate copyrights; see the file Copyrights
- for details.  This R package includes code from the University of
- Florida sparse matrix library maintained by Tim Davis.  All sections
- of that code are covered by the GPL or LGPL licenses.  See the
- directory doc/UFsparse for details.
-Packaged: Tue Sep 19 14:31:19 2006; bates
+ This R package includes libraries CHOLMOD, AMD, COLAMD and CSparse
+ from the University of Florida sparse matrix library maintained by Tim
+ Davis.  All sections of that code are covered by the GPL or LGPL
+ licenses.  See the directory doc/UFsparse for details.
+Packaged: Tue Sep 19 10:37:52 2006; maechler

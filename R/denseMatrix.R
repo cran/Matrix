@@ -18,6 +18,7 @@ setAs("denseMatrix", "CsparseMatrix",
 	  if (notGen) { ## e.g. for triangular | symmetric
               ## FIXME: this is a *waste* in the case of packed matrices!
 	      if     (extends(cl, "dMatrix")) from <- as(from, "dgeMatrix")
+	      else if(extends(cl, "nMatrix")) from <- as(from, "ngeMatrix")
 	      else if(extends(cl, "lMatrix")) from <- as(from, "lgeMatrix")
 	      else if(extends(cl, "zMatrix")) from <- as(from, "zgeMatrix")
 	      else stop("undefined method for class ", cl)
@@ -105,6 +106,9 @@ setMethod("isSymmetric", signature(object = "denseMatrix"),
 	      if (is(object,"dMatrix"))
 		  isTRUE(all.equal(as(object, "dgeMatrix"),
 				   as(t(object), "dgeMatrix"), tol = tol))
+	      else if (is(object, "nMatrix"))
+		  identical(as(object, "ngeMatrix"),
+			    as(t(object), "ngeMatrix"))
 	      else if (is(object, "lMatrix"))# not possible currently
 		  ## test for exact equality; FIXME(?): identical() too strict?
 		  identical(as(object, "lgeMatrix"),

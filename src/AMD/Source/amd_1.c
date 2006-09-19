@@ -3,7 +3,7 @@
 /* ========================================================================= */
 
 /* ------------------------------------------------------------------------- */
-/* AMD Version 1.2, Copyright (c) 2005 by Timothy A. Davis,		     */
+/* AMD Version 2.0, Copyright (c) 2006 by Timothy A. Davis,		     */
 /* Patrick R. Amestoy, and Iain S. Duff.  See ../README.txt for License.     */
 /* email: davis at cise.ufl.edu    CISE Department, Univ. of Florida.        */
 /* web: http://www.cise.ufl.edu/research/sparse/amd                          */
@@ -22,7 +22,7 @@
  * number of entries in each row/column in A+A', excluding the diagonal.
  * Len [j], on input, is the number of entries in row/column j of A+A'.  This
  * routine constructs the matrix A+A' and then calls AMD_2.  No error checking
- * is performed (this was done in AMD_aat).
+ * is performed (this was done in AMD_valid).
  */
 
 #include "amd_internal.h"
@@ -61,7 +61,7 @@ GLOBAL void AMD_1
     W = s ;	    s += n ;
     Iw = s ;	    s += iwlen ;
 
-    ASSERT (AMD_valid (n, n, Ap, Ai)) ;
+    ASSERT (AMD_valid (n, n, Ap, Ai) == AMD_OK) ;
 
     /* construct the pointers for A+A' */
     Sp = Nv ;			/* use Nv and W as workspace for Sp and Tp [ */

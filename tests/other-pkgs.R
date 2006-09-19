@@ -75,7 +75,7 @@ if(isTRUE(try(require(graph)))) { # may be there and fail (with R-devel)
 ###-- 2)  'SparseM' ---------------------------------------------
 ###-- ==  ========  ---------------------------------------------
 
-if(require(SparseM)) {
+if(isTRUE(try(require(SparseM)))) { # may be there and fail
 
     if(pkgRversion("SparseM") != MatrixRversion) {
 

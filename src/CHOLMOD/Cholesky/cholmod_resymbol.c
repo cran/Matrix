@@ -3,7 +3,8 @@
 /* ========================================================================== */
 
 /* -----------------------------------------------------------------------------
- * CHOLMOD/Cholesky Module.  Version 0.6.  Copyright (C) 2005, Timothy A. Davis
+ * CHOLMOD/Cholesky Module.  Version 1.2.  Copyright (C) 2005-2006,
+ * Timothy A. Davis
  * The CHOLMOD/Cholesky Module is licensed under Version 2.1 of the GNU
  * Lesser General Public License.  See lesser.txt for a text of the license.
  * CHOLMOD is also available under other licenses; contact authors for details.
@@ -28,8 +29,8 @@
 
 #ifndef NCHOLESKY
 
-#include "cholmod_cholesky.h"
 #include "cholmod_internal.h"
+#include "cholmod_cholesky.h"
 
 /* ========================================================================== */
 /* === cholmod_resymbol ===================================================== */
@@ -56,7 +57,9 @@ int CHOLMOD(resymbol)
 )
 {
     cholmod_sparse *H, *F, *G ;
-    Int ok, stype, nrow, ncol ;
+    Int stype, nrow, ncol ;
+    size_t s ;
+    int ok = TRUE ;
 
     /* ---------------------------------------------------------------------- */
     /* check inputs */
@@ -88,7 +91,17 @@ int CHOLMOD(resymbol)
     stype = A->stype ;
     nrow = A->nrow ;
     ncol = A->ncol ;
-    CHOLMOD(allocate_work) (nrow, 2*nrow + (stype ? 0 : ncol), 0, Common) ;
+
+    /* s = 2*nrow + (stype ? 0 : ncol) */
+    s = CHOLMOD(mult_size_t) (nrow, 2, &ok) ;
+    s = CHOLMOD(add_size_t) (s, (stype ? 0 : ncol), &ok) ;
+    if (!ok)
+    {
+	ERROR (CHOLMOD_TOO_LARGE, "problem too large") ;
+	return (FALSE) ;
+    }
+
+    CHOLMOD(allocate_work) (nrow, s, 0, Common) ;
     if (Common->status < CHOLMOD_OK)
     {
 	return (FALSE) ;
@@ -232,6 +245,8 @@ int CHOLMOD(resymbol_noperm)
     Int i, j, k, row, parent, p, pend, pdest, ncol, apacked, sorted, nrow, nf,
 	use_fset, mark, jj, stype, xtype ;
     Int *Ap, *Ai, *Anz, *Li, *Lp, *Lnz, *Flag, *Head, *Link, *Anext, *Iwork ;
+    size_t s ;
+    int ok = TRUE ;
 
     /* ---------------------------------------------------------------------- */
     /* check inputs */
@@ -270,7 +285,19 @@ int CHOLMOD(resymbol_noperm)
     /* allocate workspace */
     /* ---------------------------------------------------------------------- */
 
-    CHOLMOD(allocate_work) (nrow, 2*nrow + (stype ? 0 : ncol), 0, Common) ;
+    /* s = 2*nrow + (stype ? 0 : ncol) */
+    s = CHOLMOD(mult_size_t) (nrow, 2, &ok) ;
+    if (stype != 0)
+    {
+	s = CHOLMOD(add_size_t) (s, ncol, &ok) ;
+    }
+    if (!ok)
+    {
+	ERROR (CHOLMOD_TOO_LARGE, "problem too large") ;
+	return (FALSE) ;
+    }
+
+    CHOLMOD(allocate_work) (nrow, s, 0, Common) ;
     if (Common->status < CHOLMOD_OK)
     {
 	return (FALSE) ;	/* out of memory */
@@ -321,7 +348,7 @@ int CHOLMOD(resymbol_noperm)
     Iwork = Common->Iwork ;
     Link  = Iwork ;		/* size nrow (i/i/l) [ */
     Lnz   = Iwork + nrow ;	/* size nrow (i/i/l), if L not packed */
-    Anext = Iwork + 2*nrow ;	/* size ncol (i/i/l), unsym. only */
+    Anext = Iwork + 2*((size_t) nrow) ;	/* size ncol (i/i/l), unsym. only */
     for (j = 0 ; j < nrow ; j++)
     {
 	Link [j] = EMPTY ;

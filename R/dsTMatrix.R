@@ -33,10 +33,7 @@ setMethod("t", signature(x = "dsTMatrix"),
           valueClass = "dsTMatrix")
 
 setMethod("writeHB", signature(obj = "dsTMatrix"),
-          function(obj, file, ...)
-          .Call(Matrix_writeHarwellBoeing,
-                if (obj@uplo == "U") t(obj) else obj,
-                as.character(file), "DST"))
+          function(obj, file, ...) callGeneric(as(obj, "CsparseMatrix"), file, ...))
 
 setMethod("writeMM", signature(obj = "dsTMatrix"),
           function(obj, file, ...)

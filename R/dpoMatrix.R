@@ -18,8 +18,7 @@ setAs("matrix", "dpoMatrix", to_dpo)
 
 
 setMethod("chol", signature(x = "dpoMatrix"),
-          function(x, pivot, LINPACK)
-          .Call(dpoMatrix_chol, x))
+	  function(x, pivot, ...) .Call(dpoMatrix_chol, x))
 
 setMethod("rcond", signature(x = "dpoMatrix", type = "character"),
           function(x, type, ...)

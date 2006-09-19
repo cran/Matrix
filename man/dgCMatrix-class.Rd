@@ -15,6 +15,7 @@
 \alias{coerce,dgCMatrix,dsCMatrix-method}
 \alias{coerce,dgCMatrix,dtCMatrix-method}
 \alias{coerce,dgCMatrix,lgCMatrix-method}
+\alias{coerce,dgCMatrix,ngCMatrix-method}
 \alias{coerce,dgCMatrix,matrix-method}
 \alias{coerce,dgCMatrix,dgeMatrix-method}
 \alias{crossprod,dgCMatrix,missing-method}

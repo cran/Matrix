@@ -10,81 +10,27 @@
 ## setAs("dgCMatrix", "dgeMatrix", ....
 ## setAs("dgeMatrix", "dgCMatrix", ....
 
-## Can use method in Csparse.R
-## setAs("dgCMatrix", "matrix", ....
-
 ## rather use Csparse* to lsparse* in ./lsparseMatrix.R ,
 ## but this is for "back-compatibility" (have had tests for it..):
+
+setAs("dgCMatrix", "ngCMatrix",
+      function(from) .Call(Csparse_to_nz_pattern, from, FALSE))
+
 setAs("dgCMatrix", "lgCMatrix",
-      function(from) .Call(Csparse_to_logical, from,
-                           is(from, "triangularMatrix")))
-##was:       function(from) new("lgCMatrix", i = from@i, p = from@p,
-##                               Dim = from@Dim, Dimnames = from@Dimnames)
-
-## can use method for CsparseMatrix
-## setMethod("crossprod", signature(x = "dgCMatrix", y = "missing"),
-##           function(x, y = NULL) .Call(csc_crossprod, x),
-##           valueClass = "dsCMatrix")
-
-## inherits method for x = "CsparseMatrix", y = "dgeMatrix" from ./Csparse.R
-## setMethod("crossprod", signature(x = "dgCMatrix", y = "dgeMatrix"),
-##           function(x, y = NULL)
-##           .Call(csc_matrix_crossprod, x, y, TRUE),
-##           valueClass = "dgeMatrix")
-
-## can use method for x = "CsparseMatrix" from ./Csparse.R
-## setMethod("crossprod", signature(x = "dgCMatrix", y = "matrix"),
-##           function(x, y = NULL) {
-## 	      storage.mode(y) <- "double"
-##               .Call(csc_matrix_crossprod, x, y, FALSE)
-##           }, valueClass = "dgeMatrix")
-
-## can use method for x = "CsparseMatrix" from ./Csparse.R
-##setMethod("crossprod", signature(x = "dgCMatrix", y = "numeric"),
-##          function(x, y = NULL) callGeneric(x, as.matrix(y)),
-##          valueClass = "dgeMatrix")
-
-## can use method for y = "numeric" from ./Matrix.R followed by
-## method for x = "CsparseMatrix" from ./Csparse.R
-## setMethod("crossprod", signature(x = "dgCMatrix", y = "numeric"),
-##           function(x, y = NULL)
-##               .Call(csc_matrix_crossprod, x, as.matrix(y)))
-
-## can use method for x = "CsparseMatrix" from ./Csparse.R
-## setMethod("tcrossprod", signature(x = "dgCMatrix", y = "missing"),
-##           function(x, y = NULL) .Call(csc_tcrossprod, x))
-
-## can use method for x = "CsparseMatrix" from ./Csparse.R
-## setMethod("diag", signature(x = "dgCMatrix"),
-## 	  function(x, nrow, ncol = n) .Call(csc_getDiag, x))
-
-## try to define for "Matrix" -- once and for all -- but that fails -- why? __ FIXME __
-## setMethod("dim", signature(x = "dgCMatrix"),
-##           function(x) x@Dim, valueClass = "integer")
-
-## can use method for x = "CsparseMatrix" from ./Csparse.R
-## setMethod("t", signature(x = "dgCMatrix"),
-##           function(x) .Call(csc_transpose, x),
-##           valueClass = "dgCMatrix")
+      function(from) { ## FIXME use .Call() too!
+	  r <- new("lgCMatrix")
+	  r@x <- as.logical(from@x)
+	  ## and copy the other slots
+	  for(nm in c("i", "p", "Dim", "Dimnames"))
+	      slot(r, nm) <- slot(from, nm)
+          r
+      })
 
 setMethod("image", "dgCMatrix",
           function(x, ...) {
               x <- as(x, "dgTMatrix")
               callGeneric()
           })
-
-## inherits from x = "CsparseMatrix", y = "denseMatrix"
-## setMethod("%*%", signature(x = "dgCMatrix", y = "dgeMatrix"),
-##           function(x, y) .Call(csc_matrix_mm, x, y, TRUE, FALSE),
-##           valueClass = "dgeMatrix")
-
-## inherits from x = "CsparseMatrix", y = "matrix"
-## setMethod("%*%", signature(x = "dgCMatrix", y = "matrix"),
-##           function(x, y) {
-## 	      storage.mode(y) <- "double"
-##               .Call(csc_matrix_mm, x, y, FALSE, FALSE)
-##           }, valueClass = "dgeMatrix")
-
 
 ## Group Methods, see ?Arith (e.g.)
 ## -----

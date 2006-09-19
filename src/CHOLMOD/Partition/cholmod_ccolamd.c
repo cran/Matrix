@@ -3,8 +3,8 @@
 /* ========================================================================== */
 
 /* -----------------------------------------------------------------------------
- * CHOLMOD/Partition Module.  Version 0.6.
- * Copyright (C) 2005, Univ. of Florida.  Author: Timothy A. Davis
+ * CHOLMOD/Partition Module.  Version 1.2.
+ * Copyright (C) 2005-2006, Univ. of Florida.  Author: Timothy A. Davis
  * The CHOLMOD/Partition Module is licensed under Version 2.1 of the GNU
  * Lesser General Public License.  See lesser.txt for a text of the license.
  * CHOLMOD is also available under other licenses; contact authors for details.
@@ -25,9 +25,13 @@
 
 #ifndef NPARTITION
 
-#include "cholmod_partition.h"
-#include "cholmod_internal.h"
 #include "ccolamd.h"
+#include "cholmod_internal.h"
+#include "cholmod_partition.h"
+
+#if (CCOLAMD_VERSION < CCOLAMD_VERSION_CODE (2,5))
+#error "CCOLAMD v2.0 or later is required"
+#endif
 
 /* ========================================================================== */
 /* === ccolamd_interface ==================================================== */
@@ -38,7 +42,7 @@
 static int ccolamd_interface
 (
     cholmod_sparse *A,
-    Int alen,
+    size_t alen,
     Int *Perm,
     Int *Cmember,
     Int *fset,
@@ -135,7 +139,8 @@ int CHOLMOD(ccolamd)
 )
 {
     cholmod_sparse *C ;
-    Int ok, alen, nrow, ncol ;
+    Int ok, nrow, ncol ;
+    size_t alen ;
 
     /* ---------------------------------------------------------------------- */
     /* check inputs */
@@ -163,27 +168,24 @@ int CHOLMOD(ccolamd)
     /* allocate workspace */
     /* ---------------------------------------------------------------------- */
 
+#ifdef LONG
+    alen = ccolamd_l_recommended (A->nzmax, ncol, nrow) ;
+#else
+    alen = ccolamd_recommended (A->nzmax, ncol, nrow) ;
+#endif
+
+    if (alen == 0)
+    {
+	ERROR (CHOLMOD_TOO_LARGE, "matrix invalid or too large") ;
+	return (FALSE) ;
+    }
+
     CHOLMOD(allocate_work) (0, MAX (nrow,ncol), 0, Common) ;
     if (Common->status < CHOLMOD_OK)
     {
 	return (FALSE) ;
     }
 
-    /* ---------------------------------------------------------------------- */
-    /* allocate workspace for ccolamd */
-    /* ---------------------------------------------------------------------- */
-
-#ifdef LONG
-    alen = ccolamd_l_recommended ((long) A->nzmax, ncol, nrow) ;
-#else
-    alen = ccolamd_recommended ((int) A->nzmax, ncol, nrow) ;
-#endif
-
-    if (alen < 0)
-    {
-	ERROR (CHOLMOD_INVALID, "matrix invalid or too large") ;
-	return (FALSE) ;
-    }
     C = CHOLMOD(allocate_sparse) (ncol, nrow, alen, TRUE, TRUE, 0,
 	    CHOLMOD_PATTERN, Common) ;
 

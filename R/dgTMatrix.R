@@ -146,8 +146,7 @@ setMethod("kronecker", signature(X = "dgTMatrix", Y = "dgTMatrix"),
       }, valueClass = "dgTMatrix")
 
 setMethod("writeHB", signature(obj = "dgTMatrix"),
-          function(obj, file, ...)
-          .Call(Matrix_writeHarwellBoeing, obj, as.character(file), "DGT"))
+          function(obj, file, ...) callGeneric(as(obj, "CsparseMatrix"), file, ...))
 
 setMethod("writeMM", signature(obj = "dgTMatrix"),
           function(obj, file, ...)

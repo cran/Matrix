@@ -1,36 +1,6 @@
------
-Modify mcmcsamp to return the deviance in the sample only when the
-optional argument 'deviance' is TRUE (default FALSE).
------
-Replace the use of the unexported replacement function LMEoptimize<-
-in lmer.R by the function LMEopt, which always returns NULL but
-(in contradiction to the language specification) modifies its first argument.
------
-Modify the one-argument form of the anova method for lmer objects (yet
-  again) to calculate the F ratios.  It is the df, not the ratio that
-  is controversial.
-Should there be an extractor function for the mean square error?  If
-  so, what should it be called?
------
 Check for DimNames propagation in coercion and other operations.
------
-- Revive the "lmer" and "glmer" classes.  Slots like "family" should
-  be in "glmer" only.  Many methods for "lmer" can be simplified as,
-  for example, they will always use the scale factor.
-
-- Add a "pedigree" class and methods for it.  Allow a pedigree
-  argument in lmer.
-
 ------
-- Sparse matrix methods can now be based on the CHOLMOD package.  We
-   will need to migrate from the current code to CHOLMOD-based code
-   using #ifdef USE_CHOLMOD.  Some of the things to be done
-
-   - Move documentation from subdirectories of src to inst/doc
-   - Write utilities to create a cholmod_sparse pointer from a
-   dgCMatrix or lgCMatrix (or zgCMatrix) object without copying and
-   allocating.
-   - Start adding simple S4 methods (rcond, %*%, +, cbind, t).
+- rcond methods for sparseMatrix classes
 
 - Report the problem in the Linux ldexp manual page.  The second and
   third calls in the Synopsis should be to ldexpf and ldexpl.
@@ -39,9 +9,7 @@ Check for DimNames propagation in coercion and other operations.
 
 - consider moving alloc3Darray from ./src/Mutils.c to
   $(RSRC)/src/base/array.c
-
--------
-
+------
 - provide methods for "dspMatrix" and "dppMatrix"!
 
 - implement (more) methods for supporting "packed" (symmetric / triangular)
@@ -50,7 +18,7 @@ Check for DimNames propagation in coercion and other operations.
 
   (have some dtr* <-> dtp*)
 
----
+-----
 
 - combine the C functions for multiplication by special forms and
   solution wrt special forms by using a 'right' argument and a
@@ -66,7 +34,7 @@ Check for DimNames propagation in coercion and other operations.
   and "/" and "%/%" at least when the RHS is non-zero a scalar.
   Challenge: nice implementation (``common non-0''; but Tsparse* is not uniq).
 
----
+-----
 
 - "Math2" , "Math", "Arith":
    keep triangular and symmetric Matrices when appropriate:
@@ -118,3 +86,5 @@ Check for DimNames propagation in coercion and other operations.
 - nicer pedigree examples and tests
 
 - band(), triu(), tril() for *all*, not just sparse matrices
+
+- is.na() method for all our matrices [ ==> which(*, arr.ind=TRUE) might work ]

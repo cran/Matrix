@@ -3,7 +3,8 @@
 /* ========================================================================== */
 
 /* -----------------------------------------------------------------------------
- * CHOLMOD/Cholesky Module.  Version 0.6.  Copyright (C) 2005, Timothy A. Davis
+ * CHOLMOD/Cholesky Module.  Version 1.2.  Copyright (C) 2005-2006,
+ * Timothy A. Davis
  * The CHOLMOD/Cholesky Module is licensed under Version 2.1 of the GNU
  * Lesser General Public License.  See lesser.txt for a text of the license.
  * CHOLMOD is also available under other licenses; contact authors for details.
@@ -36,8 +37,8 @@
 
 #ifndef NCHOLESKY
 
-#include "cholmod_cholesky.h"
 #include "cholmod_internal.h"
+#include "cholmod_cholesky.h"
 
 /* ========================================================================== */
 /* === update_etree ========================================================= */
@@ -94,6 +95,8 @@ int CHOLMOD(etree)
 {
     Int *Ap, *Ai, *Anz, *Ancestor, *Prev, *Iwork ;
     Int i, j, jprev, p, pend, nrow, ncol, packed, stype ;
+    size_t s ;
+    int ok = TRUE ;
 
     /* ---------------------------------------------------------------------- */
     /* check inputs */
@@ -110,7 +113,16 @@ int CHOLMOD(etree)
     /* ---------------------------------------------------------------------- */
 
     stype = A->stype ;
-    CHOLMOD(allocate_work) (0, A->nrow + (stype ? 0 : A->ncol), 0, Common) ;
+
+    /* s = A->nrow + (stype ? 0 : A->ncol) */
+    s = CHOLMOD(add_size_t) (A->nrow, (stype ? 0 : A->ncol), &ok) ;
+    if (!ok)
+    {
+	ERROR (CHOLMOD_TOO_LARGE, "problem too large") ;
+	return (FALSE) ;
+    }
+
+    CHOLMOD(allocate_work) (0, s, 0, Common) ;
     if (Common->status < CHOLMOD_OK)
     {
 	return (FALSE) ;	/* out of memory */

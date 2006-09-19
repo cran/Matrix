@@ -3,8 +3,8 @@
 /* ========================================================================== */
 
 /* -----------------------------------------------------------------------------
- * CHOLMOD/Core Module.  Version 0.6.  Copyright (C) 2005, Univ. of Florida.
- * Author: Timothy A. Davis
+ * CHOLMOD/Core Module.  Version 1.2.  Copyright (C) 2005-2006,
+ * Univ. of Florida.  Author: Timothy A. Davis
  * The CHOLMOD/Core Module is licensed under Version 2.1 of the GNU
  * Lesser General Public License.  See lesser.txt for a text of the license.
  * CHOLMOD is also available under other licenses; contact authors for details.
@@ -46,8 +46,8 @@
  * cholmod_factor object.
  */
 
-#include "cholmod_core.h"
 #include "cholmod_internal.h"
+#include "cholmod_core.h"
 
 
 /* ========================================================================== */
@@ -81,11 +81,20 @@ cholmod_factor *CHOLMOD(allocate_factor)
     Int j ;
     Int *Perm, *ColCount ;
     cholmod_factor *L ;
+    int ok = TRUE ;
 
     RETURN_IF_NULL_COMMON (FALSE) ;
     Common->status = CHOLMOD_OK ;
 
-    L = CHOLMOD(malloc) (1, sizeof (cholmod_factor), Common) ;
+    /* ensure the dimension does not cause integer overflow */
+    (void) CHOLMOD(add_size_t) (n, 2, &ok) ;
+    if (!ok || n > Int_max)
+    {
+	ERROR (CHOLMOD_TOO_LARGE, "problem too large") ;
+	return (NULL) ;
+    }
+
+    L = CHOLMOD(malloc) (sizeof (cholmod_factor), 1, Common) ;
     if (Common->status < CHOLMOD_OK)
     {
 	return (NULL) ;	    /* out of memory */
@@ -261,7 +270,7 @@ int CHOLMOD(reallocate_factor)
 	return (FALSE) ;
     }
     Common->status = CHOLMOD_OK ;
-    PRINT1 (("realloc factor %ld to %ld\n", (long) L->nzmax, (long) nznew)) ;
+    PRINT1 (("realloc factor %g to %g\n", (double) L->nzmax, (double) nznew)) ;
 
     /* ---------------------------------------------------------------------- */
     /* resize (or allocate) the L->i and L->x components of the factor */
@@ -335,7 +344,7 @@ int CHOLMOD(reallocate_column)
 
     ASSERT (Lnz != NULL) ;
     ASSERT (Lnext != NULL && Lprev != NULL) ;
-    PRINT1 (("col %ld need %ld\n", (long) j, (long) need)) ;
+    PRINT1 (("col %g need %g\n", (double) j, (double) need)) ;
 
     /* column j cannot have more than n-j entries if all entries are present */
     need = MIN (need, n-j) ;
@@ -348,8 +357,18 @@ int CHOLMOD(reallocate_column)
 	xneed = MIN (xneed, n-j) ;
 	need = (Int) xneed ;
     }
-    PRINT1 (("new need %ld\n", (long) need)) ;
+    PRINT1 (("really new need %g current %g\n", (double) need,
+	    (double) (Lp [Lnext [j]] - Lp [j]))) ;
     ASSERT (need >= 1 && need <= n-j) ;
+
+    if (Lp [Lnext [j]] - Lp [j] >= (Int) need)
+    {
+	/* no need to reallocate the column, it's already big enough */
+	PRINT1 (("colrealloc: quick return %g %g\n",
+	    (double) (Lp [Lnext [j]] - Lp [j]), (double) need)) ;
+	return (TRUE) ;
+
+    }
 
     if (Lp [tail] + need > L->nzmax)
     {
@@ -373,16 +392,19 @@ int CHOLMOD(reallocate_column)
 	    ERROR (CHOLMOD_OUT_OF_MEMORY, "out of memory; L now symbolic") ;
 	    return (FALSE) ;	    /* out of memory */
 	}
-	PRINT1 (("\n=== GROW L from %ld to %ld\n",
-		    (long) L->nzmax, (long) xneed)) ;
+	PRINT1 (("\n=== GROW L from %g to %g\n",
+		    (double) L->nzmax, (double) xneed)) ;
 	/* pack all columns so that each column has at most grow2 free space */
 	CHOLMOD(pack_factor) (L, Common) ;
 	ASSERT (Common->status == CHOLMOD_OK) ;
+	Common->nrealloc_factor++ ;
     }
 
     /* ---------------------------------------------------------------------- */
     /* reallocate the column */
     /* ---------------------------------------------------------------------- */
+
+    Common->nrealloc_col++ ;
 
     Li = L->i ;
     Lx = L->x ;
@@ -615,7 +637,7 @@ cholmod_sparse *CHOLMOD(factor_to_sparse)
     /* ---------------------------------------------------------------------- */
 
     /* allocate the header for Lsparse, the sparse matrix version of L */
-    Lsparse = CHOLMOD(malloc) (1, sizeof (cholmod_sparse), Common) ;
+    Lsparse = CHOLMOD(malloc) (sizeof (cholmod_sparse), 1, Common) ;
     if (Common->status < CHOLMOD_OK)
     {
 	return (NULL) ;		/* out of memory */
@@ -905,6 +927,7 @@ cholmod_factor *CHOLMOD(copy_factor)
     }
 
     L2->minor = L->minor ;
+    L2->is_monotonic = L->is_monotonic ;
 
     DEBUG (CHOLMOD(dump_factor) (L2, "L2 got copied", Common)) ;
     ASSERT (L2->xtype == L->xtype && L2->is_super == L->is_super) ;

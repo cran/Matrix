@@ -10,7 +10,7 @@
 \alias{coerce,integer,pMatrix-method}
 \alias{coerce,numeric,pMatrix-method}
 \alias{coerce,pMatrix,matrix-method}
-\alias{coerce,pMatrix,lgTMatrix-method}
+\alias{coerce,pMatrix,ngTMatrix-method}
 \alias{coerce,pMatrix,TsparseMatrix-method}
 \alias{solve,pMatrix,missing-method}
 \alias{t,pMatrix-method}
@@ -48,8 +48,8 @@
       a user convenience, to allow \code{as(perm, "pMatrix")} for
       numeric \code{perm} with integer values.}
     \item{coerce}{\code{signature(from = "pMatrix", to = "matrix")}: ... }
-    \item{coerce}{\code{signature(from = "pMatrix", to = "lgTMatrix")}:
-      coercion to sparse logical matrix of class \code{\linkS4class{lgTMatrix}}.}
+    \item{coerce}{\code{signature(from = "pMatrix", to = "ngTMatrix")}:
+      coercion to sparse logical matrix of class \code{\linkS4class{ngTMatrix}}.}
     \item{solve}{\code{signature(a = "pMatrix", b = "missing")}: return
       the inverse permutation matrix.}
     \item{t}{\code{signature(x = "pMatrix")}: return the transpose of
@@ -79,7 +79,7 @@ mm \%*\% pm1
 pm1 \%*\% mm
 try(as(as.integer(c(3,3,1)), "pMatrix"))# Error: not a permutation
 
-as(pm1, "lgTMatrix")
-p10[1:7, 1:4] # gives an "lgTMatrix" (most economic!)
+as(pm1, "ngTMatrix")
+p10[1:7, 1:4] # gives an "ngTMatrix" (most economic!)
 }
 \keyword{classes}

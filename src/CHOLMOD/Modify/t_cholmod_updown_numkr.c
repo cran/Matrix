@@ -3,8 +3,8 @@
 /* ========================================================================== */
 
 /* -----------------------------------------------------------------------------
- * CHOLMOD/Modify Module.  Version 0.6.  Copyright (C) 2005, Timothy A. Davis
- * and William W. Hager.
+ * CHOLMOD/Modify Module.  Version 1.2.  Copyright (C) 2005-2006,
+ * Timothy A. Davis and William W. Hager.
  * The CHOLMOD/Modify Module is licensed under Version 2.0 of the GNU
  * General Public License.  See gpl.txt for a text of the license.
  * CHOLMOD is also available under other licenses; contact authors for details.
@@ -182,6 +182,8 @@
  *	cleanup iteration since length is odd:
  *	42      .  .  1  2  3  4  5  .       x x x x
  *
+ *
+ * ----- CHOLMOD v1.1.1 did the following --------------------------------------
  *	then each iteration does two rows of all four colummns of L:
  *
  *	43      .  .  1  3  5  7  9  .       x x x x
@@ -195,6 +197,18 @@
  *
  *	83      .  .  1  3  5  7  9  .       x x x x
  *	84      .  .  2  4  6  8 10  .       x x x x
+ *
+ * ----- CHOLMOD v1.2.0 does the following -------------------------------------
+ *	then each iteration does one rows of all four colummns of L:
+ *
+ *	43      .  .  1  2  3  4  5  .       x x x x
+ *	44      .  .  1  2  3  4  5  .       x x x x
+ *	50      .  .  1  3  5  4  5  .       x x x x
+ *	51      .  .  1  2  3  4  5  .       x x x x
+ *	67      .  .  1  3  5  4  5  .       x x x x
+ *	81      .  .  1  2  3  4  5  .       x x x x
+ *	83      .  .  1  3  5  4  5  .       x x x x
+ *	84      .  .  1  2  3  4  5  .       x x x x
  *
  * This file is included in t_cholmod_updown.c, only.
  * It is not compiled separately.  It contains no user-callable routines.
@@ -215,48 +229,48 @@
 #undef RANK7
 #undef RANK8
 
-#define RANK1(s) s
+#define RANK1(statement) statement
 
 #if RANK < 2
-#define RANK2(s)
+#define RANK2(statement)
 #else
-#define RANK2(s) s
+#define RANK2(statement) statement
 #endif
 
 #if RANK < 3
-#define RANK3(s)
+#define RANK3(statement)
 #else
-#define RANK3(s) s
+#define RANK3(statement) statement
 #endif
 
 #if RANK < 4
-#define RANK4(s)
+#define RANK4(statement)
 #else
-#define RANK4(s) s
+#define RANK4(statement) statement
 #endif
 
 #if RANK < 5
-#define RANK5(s)
+#define RANK5(statement)
 #else
-#define RANK5(s) s
+#define RANK5(statement) statement
 #endif
 
 #if RANK < 6
-#define RANK6(s)
+#define RANK6(statement)
 #else
-#define RANK6(s) s
+#define RANK6(statement) statement
 #endif
 
 #if RANK < 7
-#define RANK7(s)
+#define RANK7(statement)
 #else
-#define RANK7(s) s
+#define RANK7(statement) statement
 #endif
 
 #if RANK < 8
-#define RANK8(s)
+#define RANK8(statement)
 #else
-#define RANK8(s) s
+#define RANK8(statement) statement
 #endif
 
 #define FOR_ALL_K \
@@ -370,10 +384,11 @@ static void NUMERIC (WDIM, RANK)
     /* dynamic supernodal version: supernodes detected dynamically */
     /* ---------------------------------------------------------------------- */
 
-    double G0 [WDIM], G1 [WDIM], G2 [WDIM], G3 [WDIM] ;
+    double G0 [RANK], G1 [RANK], G2 [RANK], G3 [RANK] ;
+    double Z0 [RANK], Z1 [RANK], Z2 [RANK], Z3 [RANK] ;
     double *W0, *W1, *W2, *W3, *Lx ;
     Int *Li, *Lp, *Lnz ;
-    Int j1, j2, j3, parent, lnz, p, q, r, s, pend, k ;
+    Int j1, j2, j3, p0, p1, p2, p3, parent, lnz, pend, k ;
     Int use_dbound = IS_GT_ZERO (Common->dbound) ;
 
     Li = L->i ;
@@ -385,18 +400,28 @@ static void NUMERIC (WDIM, RANK)
     for ( ; j <= e ; j = parent)
     {
 
-	p = Lp [j] ;		/* col j is Li,Lx [p ... p+lnz-1] */
+	p0 = Lp [j] ;		/* col j is Li,Lx [p0 ... p0+lnz-1] */
 	lnz = Lnz [j] ;
 
 	W0 = W + WDIM * j ;	/* pointer to row j of W */
-	pend = p + lnz ;
+	pend = p0 + lnz ;
+
+	/* for k = 0 to RANK-1 do: */
+	#define DO(k) Z0 [k] = W0 [k] ;
+	FOR_ALL_K
+	#undef DO
+
+	/* for k = 0 to RANK-1 do: */
+	#define DO(k) W0 [k] = 0 ;
+	FOR_ALL_K
+	#undef DO
 
 	/* update D (j,j) */
-	ALPHA_GAMMA (Lx [p], Alpha, G0, W0) ;
-	p++ ;
+	ALPHA_GAMMA (Lx [p0], Alpha, G0, Z0) ;
+	p0++ ;
 
 	/* determine how many columns of L to update at the same time */
-	parent = (lnz > 1) ? (Li [p]) : Int_max ;
+	parent = (lnz > 1) ? (Li [p0]) : Int_max ;
 	if (parent <= e && lnz == Lnz [parent] + 1)
 	{
 
@@ -405,28 +430,38 @@ static void NUMERIC (WDIM, RANK)
 	    /* -------------------------------------------------------------- */
 
 	    j1 = parent ;
-	    j2 = (lnz > 2) ? (Li [p+1]) : Int_max ;
-	    j3 = (lnz > 3) ? (Li [p+2]) : Int_max ;
+	    j2 = (lnz > 2) ? (Li [p0+1]) : Int_max ;
+	    j3 = (lnz > 3) ? (Li [p0+2]) : Int_max ;
 	    W1 = W + WDIM * j1 ;	/* pointer to row j1 of W */
-	    q = Lp [j1] ;
+	    p1 = Lp [j1] ;
+
+	    /* for k = 0 to RANK-1 do: */
+	    #define DO(k) Z1 [k] = W1 [k] ;
+	    FOR_ALL_K
+	    #undef DO
+
+	    /* for k = 0 to RANK-1 do: */
+	    #define DO(k) W1 [k] = 0 ;
+	    FOR_ALL_K
+	    #undef DO
 
 	    /* update L (j1,j) */
 	    {
-		double lx = Lx [p] ;
+		double lx = Lx [p0] ;
 
 		/* for k = 0 to RANK-1 do: */
 		#define DO(k) \
-		    W1 [k] -= W0 [k] * lx ; \
-		    lx -= G0 [k] * W1 [k] ;
+		    Z1 [k] -= Z0 [k] * lx ; \
+		    lx -= G0 [k] * Z1 [k] ;
 		FOR_ALL_K
 		#undef DO
 
-		Lx [p++] = lx ;
+		Lx [p0++] = lx ;
 	    }
 
 	    /* update D (j1,j1) */
-	    ALPHA_GAMMA (Lx [q], Alpha, G1, W1) ;
-	    q++ ;
+	    ALPHA_GAMMA (Lx [p1], Alpha, G1, Z1) ;
+	    p1++ ;
 
 	    /* -------------------------------------------------------------- */
 	    /* update 2 or 4 columns of L */
@@ -442,177 +477,21 @@ static void NUMERIC (WDIM, RANK)
 		/* update 4 columns of L */
 		/* ---------------------------------------------------------- */
 
-		/* p and q currently points to row j2 in cols j and j1 of L */
+		/* p0 and p1 currently point to row j2 in cols j and j1 of L */
 
-		parent = (lnz > 4) ? (Li [p+2]) : Int_max ;
+		parent = (lnz > 4) ? (Li [p0+2]) : Int_max ;
 		W2 = W + WDIM * j2 ;	    /* pointer to row j2 of W */
 		W3 = W + WDIM * j3 ;	    /* pointer to row j3 of W */
-		r = Lp [j2] ;
-		s = Lp [j3] ;
-
-		/* update L (j2,j) */
-		{
-		    double lx = Lx [p] ;
-
-		    /* for k = 0 to RANK-1 do: */
-		    #define DO(k) \
-			W2 [k] -= W0 [k] * lx ; \
-			lx -= G0 [k] * W2 [k] ;
-		    FOR_ALL_K
-		    #undef DO
-
-		    Lx [p++] = lx ;
-		}
-
-		/* update L (j2,j1) */
-		{
-		    double lx = Lx [q] ;
-
-		    /* for k = 0 to RANK-1 do: */
-		    #define DO(k) \
-			W2 [k] -= W1 [k] * lx ; \
-			lx -= G1 [k] * W2 [k] ;
-		    FOR_ALL_K
-		    #undef DO
-
-		    Lx [q++] = lx ;
-		}
-
-		/* update L (j3,j) */
-		{
-		    double lx = Lx [p] ;
-
-		    /* for k = 0 to RANK-1 do: */
-		    #define DO(k) \
-			W3 [k] -= W0 [k] * lx ; \
-			lx -= G0 [k] * W3 [k] ;
-		    FOR_ALL_K
-		    #undef DO
-
-		    Lx [p++] = lx ;
-		}
-
-		/* update L (j3,j1) */
-		{
-		    double lx = Lx [q] ;
-
-		    /* for k = 0 to RANK-1 do: */
-		    #define DO(k) \
-			W3 [k] -= W1 [k] * lx ; \
-			lx -= G1 [k] * W3 [k] ;
-		    FOR_ALL_K
-		    #undef DO
-
-		    Lx [q++] = lx ;
-		}
-
-		/* update D (j2,j2) */
-		ALPHA_GAMMA (Lx [r], Alpha, G2, W2) ;
-		r++ ;
-
-		/* update L (j3,j2) */
-		{
-		    double lx = Lx [r] ;
-
-		    /* for k = 0 to RANK-1 do: */
-		    #define DO(k) \
-			W3 [k] -= W2 [k] * lx ; \
-			lx -= G2 [k] * W3 [k] ;
-		    FOR_ALL_K
-		    #undef DO
-
-		    Lx [r++] = lx ;
-		}
-
-		/* update D (j3,j3) */
-		ALPHA_GAMMA (Lx [s], Alpha, G3, W3) ;
-		s++ ;
-
-		/* cleanup iteration if length is odd */
-		if ((lnz - 2) % 2)
-		{
-		    double lx [4] , *w0 ;
-		    lx [0] = Lx [p] ;
-		    lx [1] = Lx [q] ;
-		    lx [2] = Lx [r] ;
-		    lx [3] = Lx [s] ;
-		    w0 = W + WDIM * Li [p] ;
-
-		    /* for k = 0 to RANK-1 do: */
-		    #define DO(k) \
-			w0 [k] -= W0 [k] * lx [0] ; \
-			lx [0] -= G0 [k] * w0 [k] ; \
-			w0 [k] -= W1 [k] * lx [1] ; \
-			lx [1] -= G1 [k] * w0 [k] ; \
-			w0 [k] -= W2 [k] * lx [2] ; \
-			lx [2] -= G2 [k] * w0 [k] ; \
-			w0 [k] -= W3 [k] * lx [3] ; \
-			lx [3] -= G3 [k] * w0 [k] ;
-		    FOR_ALL_K
-		    #undef DO
-
-		    Lx [p++] = lx [0] ;
-		    Lx [q++] = lx [1] ;
-		    Lx [r++] = lx [2] ;
-		    Lx [s++] = lx [3] ;
-		}
-
-		for ( ; p < pend ; p += 2, q += 2, r += 2, s += 2)
-		{
-		    double lx [2][4], w [2], *w0, *w1 ;
-		    lx [0][0] = Lx [p  ] ;
-		    lx [1][0] = Lx [p+1] ;
-		    lx [0][1] = Lx [q  ] ;
-		    lx [1][1] = Lx [q+1] ;
-		    lx [0][2] = Lx [r  ] ;
-		    lx [1][2] = Lx [r+1] ;
-		    lx [0][3] = Lx [s  ] ;
-		    lx [1][3] = Lx [s+1] ;
-		    w0 = W + WDIM * Li [p  ] ;
-		    w1 = W + WDIM * Li [p+1] ;
-
-		    /* for k = 0 to RANK-1 do: */
-		    #define DO(k) \
-			w [0] = w0 [k] ; \
-			w [1] = w1 [k] ; \
-			w [0] -= W0 [k] * lx [0][0] ; \
-			w [1] -= W0 [k] * lx [1][0] ; \
-			lx [0][0] -= G0 [k] * w [0] ; \
-			lx [1][0] -= G0 [k] * w [1] ; \
-			w [0] -= W1 [k] * lx [0][1] ; \
-			w [1] -= W1 [k] * lx [1][1] ; \
-			lx [0][1] -= G1 [k] * w [0] ; \
-			lx [1][1] -= G1 [k] * w [1] ; \
-			w [0] -= W2 [k] * lx [0][2] ; \
-			w [1] -= W2 [k] * lx [1][2] ; \
-			lx [0][2] -= G2 [k] * w [0] ; \
-			lx [1][2] -= G2 [k] * w [1] ; \
-			w [0] -= W3 [k] * lx [0][3] ; \
-			w [1] -= W3 [k] * lx [1][3] ; \
-			lx [0][3] -= G3 [k] * w [0] ; \
-			lx [1][3] -= G3 [k] * w [1] ; \
-			w0 [k] = w [0] ; \
-			w1 [k] = w [1] ;
-		    FOR_ALL_K
-		    #undef DO
-
-		    Lx [p  ] = lx [0][0] ;
-		    Lx [p+1] = lx [1][0] ;
-		    Lx [q  ] = lx [0][1] ;
-		    Lx [q+1] = lx [1][1] ;
-		    Lx [r  ] = lx [0][2] ;
-		    Lx [r+1] = lx [1][2] ;
-		    Lx [s  ] = lx [0][3] ;
-		    Lx [s+1] = lx [1][3] ;
-		}
+		p2 = Lp [j2] ;
+		p3 = Lp [j3] ;
 
 		/* for k = 0 to RANK-1 do: */
-		#define DO(k) W0 [k] = 0 ;
+		#define DO(k) Z2 [k] = W2 [k] ;
 		FOR_ALL_K
 		#undef DO
 
 		/* for k = 0 to RANK-1 do: */
-		#define DO(k) W1 [k] = 0 ;
+		#define DO(k) Z3 [k] = W3 [k] ;
 		FOR_ALL_K
 		#undef DO
 
@@ -626,6 +505,75 @@ static void NUMERIC (WDIM, RANK)
 		FOR_ALL_K
 		#undef DO
 
+		/* update L (j2,j) and update L (j2,j1) */
+		{
+		    double lx [2] ;
+		    lx [0] = Lx [p0] ;
+		    lx [1] = Lx [p1] ;
+
+		    /* for k = 0 to RANK-1 do: */
+		    #define DO(k) \
+		    Z2 [k] -= Z0 [k] * lx [0] ; lx [0] -= G0 [k] * Z2 [k] ; \
+		    Z2 [k] -= Z1 [k] * lx [1] ; lx [1] -= G1 [k] * Z2 [k] ;
+		    FOR_ALL_K
+		    #undef DO
+
+		    Lx [p0++] = lx [0] ;
+		    Lx [p1++] = lx [1] ;
+		}
+
+		/* update D (j2,j2) */
+		ALPHA_GAMMA (Lx [p2], Alpha, G2, Z2) ;
+		p2++ ;
+
+		/* update L (j3,j), L (j3,j1), and L (j3,j2) */
+		{
+		    double lx [3] ;
+		    lx [0] = Lx [p0] ;
+		    lx [1] = Lx [p1] ;
+		    lx [2] = Lx [p2] ;
+
+		    /* for k = 0 to RANK-1 do: */
+		    #define DO(k) \
+		    Z3 [k] -= Z0 [k] * lx [0] ; lx [0] -= G0 [k] * Z3 [k] ; \
+		    Z3 [k] -= Z1 [k] * lx [1] ; lx [1] -= G1 [k] * Z3 [k] ; \
+		    Z3 [k] -= Z2 [k] * lx [2] ; lx [2] -= G2 [k] * Z3 [k] ;
+		    FOR_ALL_K
+		    #undef DO
+
+		    Lx [p0++] = lx [0] ;
+		    Lx [p1++] = lx [1] ;
+		    Lx [p2++] = lx [2] ;
+		}
+
+		/* update D (j3,j3) */
+		ALPHA_GAMMA (Lx [p3], Alpha, G3, Z3) ;
+		p3++ ;
+
+		/* each iteration updates L (i, [j j1 j2 j3]) */
+		for ( ; p0 < pend ; p0++, p1++, p2++, p3++)
+		{
+		    double lx [4], *w0 ;
+		    lx [0] = Lx [p0] ;
+		    lx [1] = Lx [p1] ;
+		    lx [2] = Lx [p2] ;
+		    lx [3] = Lx [p3] ;
+		    w0 = W + WDIM * Li [p0] ;
+
+		    /* for k = 0 to RANK-1 do: */
+		    #define DO(k) \
+		    w0 [k] -= Z0 [k] * lx [0] ; lx [0] -= G0 [k] * w0 [k] ; \
+		    w0 [k] -= Z1 [k] * lx [1] ; lx [1] -= G1 [k] * w0 [k] ; \
+		    w0 [k] -= Z2 [k] * lx [2] ; lx [2] -= G2 [k] * w0 [k] ; \
+		    w0 [k] -= Z3 [k] * lx [3] ; lx [3] -= G3 [k] * w0 [k] ;
+		    FOR_ALL_K
+		    #undef DO
+
+		    Lx [p0] = lx [0] ;
+		    Lx [p1] = lx [1] ;
+		    Lx [p2] = lx [2] ;
+		    Lx [p3] = lx [3] ;
+		}
 	    }
 	    else
 	    {
@@ -640,67 +588,50 @@ static void NUMERIC (WDIM, RANK)
 		if ((lnz - 2) % 2)
 		{
 		    double lx [2] , *w0 ;
-		    lx [0] = Lx [p] ;
-		    lx [1] = Lx [q] ;
-		    w0 = W + WDIM * Li [p] ;
+		    lx [0] = Lx [p0] ;
+		    lx [1] = Lx [p1] ;
+		    w0 = W + WDIM * Li [p0] ;
 
 		    /* for k = 0 to RANK-1 do: */
 		    #define DO(k) \
-			w0 [k] -= W0 [k] * lx [0] ; \
-			lx [0] -= G0 [k] * w0 [k] ; \
-			w0 [k] -= W1 [k] * lx [1] ; \
-			lx [1] -= G1 [k] * w0 [k] ;
+		    w0 [k] -= Z0 [k] * lx [0] ; lx [0] -= G0 [k] * w0 [k] ; \
+		    w0 [k] -= Z1 [k] * lx [1] ; lx [1] -= G1 [k] * w0 [k] ;
 		    FOR_ALL_K
 		    #undef DO
 
-		    Lx [p++] = lx [0] ;
-		    Lx [q++] = lx [1] ;
+		    Lx [p0++] = lx [0] ;
+		    Lx [p1++] = lx [1] ;
 		}
 
-		for ( ; p < pend ; p += 2, q += 2)
+		for ( ; p0 < pend ; p0 += 2, p1 += 2)
 		{
 		    double lx [2][2], w [2], *w0, *w1 ;
-		    lx [0][0] = Lx [p  ] ;
-		    lx [1][0] = Lx [p+1] ;
-		    lx [0][1] = Lx [q  ] ;
-		    lx [1][1] = Lx [q+1] ;
-		    w0 = W + WDIM * Li [p  ] ;
-		    w1 = W + WDIM * Li [p+1] ;
+		    lx [0][0] = Lx [p0  ] ;
+		    lx [1][0] = Lx [p0+1] ;
+		    lx [0][1] = Lx [p1  ] ;
+		    lx [1][1] = Lx [p1+1] ;
+		    w0 = W + WDIM * Li [p0  ] ;
+		    w1 = W + WDIM * Li [p0+1] ;
 
 		    /* for k = 0 to RANK-1 do: */
 		    #define DO(k) \
-			w [0] = w0 [k] ; \
-			w [1] = w1 [k] ; \
-			w [0] -= W0 [k] * lx [0][0] ; \
-			w [1] -= W0 [k] * lx [1][0] ; \
-			lx [0][0] -= G0 [k] * w [0] ; \
-			lx [1][0] -= G0 [k] * w [1] ; \
-			w [0] -= W1 [k] * lx [0][1] ; \
-			w [1] -= W1 [k] * lx [1][1] ; \
-			lx [0][1] -= G1 [k] * w [0] ; \
-			lx [1][1] -= G1 [k] * w [1] ; \
-			w0 [k] = w [0] ; \
-			w1 [k] = w [1] ;
+		    w [0] = w0 [k] - Z0 [k] * lx [0][0] ; \
+		    w [1] = w1 [k] - Z0 [k] * lx [1][0] ; \
+		    lx [0][0] -= G0 [k] * w [0] ; \
+		    lx [1][0] -= G0 [k] * w [1] ; \
+		    w0 [k] = w [0] -= Z1 [k] * lx [0][1] ; \
+		    w1 [k] = w [1] -= Z1 [k] * lx [1][1] ; \
+		    lx [0][1] -= G1 [k] * w [0] ; \
+		    lx [1][1] -= G1 [k] * w [1] ;
 		    FOR_ALL_K
 		    #undef DO
 
-		    Lx [p  ] = lx [0][0] ;
-		    Lx [p+1] = lx [1][0] ;
-		    Lx [q  ] = lx [0][1] ;
-		    Lx [q+1] = lx [1][1] ;
+		    Lx [p0  ] = lx [0][0] ;
+		    Lx [p0+1] = lx [1][0] ;
+		    Lx [p1  ] = lx [0][1] ;
+		    Lx [p1+1] = lx [1][1] ;
 		}
-
-		/* for k = 0 to RANK-1 do: */
-		#define DO(k) W0 [k] = 0 ;
-		FOR_ALL_K
-		#undef DO
-
-		/* for k = 0 to RANK-1 do: */
-		#define DO(k) W1 [k] = 0 ;
-		FOR_ALL_K
-		#undef DO
 	    }
-
 	}
 	else
 	{
@@ -715,106 +646,98 @@ static void NUMERIC (WDIM, RANK)
 		case 1:
 		{
 		    double lx , *w0 ;
-		    lx = Lx [p] ;
-		    w0 = W + WDIM * Li [p] ;
+		    lx = Lx [p0] ;
+		    w0 = W + WDIM * Li [p0] ;
 
 		    /* for k = 0 to RANK-1 do: */
 		    #define DO(k) \
-			w0 [k] -= W0 [k] * lx ; \
-			lx -= G0 [k] * w0 [k] ;
+		    w0 [k] -= Z0 [k] * lx ; lx -= G0 [k] * w0 [k] ;
 		    FOR_ALL_K
 		    #undef DO
 
-		    Lx [p++] = lx ;
+		    Lx [p0++] = lx ;
 		}
 		break ;
 
 		case 2:
 		{
 		    double lx [2], *w0, *w1 ;
-		    lx [0] = Lx [p  ] ;
-		    lx [1] = Lx [p+1] ;
-		    w0 = W + WDIM * Li [p  ] ;
-		    w1 = W + WDIM * Li [p+1] ;
+		    lx [0] = Lx [p0  ] ;
+		    lx [1] = Lx [p0+1] ;
+		    w0 = W + WDIM * Li [p0  ] ;
+		    w1 = W + WDIM * Li [p0+1] ;
 
 		    /* for k = 0 to RANK-1 do: */
 		    #define DO(k) \
-			w0 [k] -= W0 [k] * lx [0] ; \
-			w1 [k] -= W0 [k] * lx [1] ; \
-			lx [0] -= G0 [k] * w0 [k] ; \
-			lx [1] -= G0 [k] * w1 [k] ;
+		    w0 [k] -= Z0 [k] * lx [0] ; \
+		    w1 [k] -= Z0 [k] * lx [1] ; \
+		    lx [0] -= G0 [k] * w0 [k] ; \
+		    lx [1] -= G0 [k] * w1 [k] ;
 		    FOR_ALL_K
 		    #undef DO
 
-		    Lx [p++] = lx [0] ;
-		    Lx [p++] = lx [1] ;
+		    Lx [p0++] = lx [0] ;
+		    Lx [p0++] = lx [1] ;
 		}
 		break ;
 
 		case 3:
 		{
 		    double lx [3], *w0, *w1, *w2 ;
-		    lx [0] = Lx [p  ] ;
-		    lx [1] = Lx [p+1] ;
-		    lx [2] = Lx [p+2] ;
-		    w0 = W + WDIM * Li [p  ] ;
-		    w1 = W + WDIM * Li [p+1] ;
-		    w2 = W + WDIM * Li [p+2] ;
+		    lx [0] = Lx [p0  ] ;
+		    lx [1] = Lx [p0+1] ;
+		    lx [2] = Lx [p0+2] ;
+		    w0 = W + WDIM * Li [p0  ] ;
+		    w1 = W + WDIM * Li [p0+1] ;
+		    w2 = W + WDIM * Li [p0+2] ;
 
 		    /* for k = 0 to RANK-1 do: */
 		    #define DO(k) \
-			w0 [k] -= W0 [k] * lx [0] ; \
-			w1 [k] -= W0 [k] * lx [1] ; \
-			w2 [k] -= W0 [k] * lx [2] ; \
-			lx [0] -= G0 [k] * w0 [k] ; \
-			lx [1] -= G0 [k] * w1 [k] ; \
-			lx [2] -= G0 [k] * w2 [k] ;
+		    w0 [k] -= Z0 [k] * lx [0] ; \
+		    w1 [k] -= Z0 [k] * lx [1] ; \
+		    w2 [k] -= Z0 [k] * lx [2] ; \
+		    lx [0] -= G0 [k] * w0 [k] ; \
+		    lx [1] -= G0 [k] * w1 [k] ; \
+		    lx [2] -= G0 [k] * w2 [k] ;
 		    FOR_ALL_K
 		    #undef DO
 
-		    Lx [p++] = lx [0] ;
-		    Lx [p++] = lx [1] ;
-		    Lx [p++] = lx [2] ;
+		    Lx [p0++] = lx [0] ;
+		    Lx [p0++] = lx [1] ;
+		    Lx [p0++] = lx [2] ;
 		}
 	    }
 
-	    for ( ; p < pend ; p += 4)
+	    for ( ; p0 < pend ; p0 += 4)
 	    {
 		double lx [4], *w0, *w1, *w2, *w3 ;
-		lx [0] = Lx [p  ] ;
-		lx [1] = Lx [p+1] ;
-		lx [2] = Lx [p+2] ;
-		lx [3] = Lx [p+3] ;
-		w0 = W + WDIM * Li [p  ] ;
-		w1 = W + WDIM * Li [p+1] ;
-		w2 = W + WDIM * Li [p+2] ;
-		w3 = W + WDIM * Li [p+3] ;
+		lx [0] = Lx [p0  ] ;
+		lx [1] = Lx [p0+1] ;
+		lx [2] = Lx [p0+2] ;
+		lx [3] = Lx [p0+3] ;
+		w0 = W + WDIM * Li [p0  ] ;
+		w1 = W + WDIM * Li [p0+1] ;
+		w2 = W + WDIM * Li [p0+2] ;
+		w3 = W + WDIM * Li [p0+3] ;
 
 		/* for k = 0 to RANK-1 do: */
 		#define DO(k) \
-		    w0 [k] -= W0 [k] * lx [0] ; \
-		    w1 [k] -= W0 [k] * lx [1] ; \
-		    w2 [k] -= W0 [k] * lx [2] ; \
-		    w3 [k] -= W0 [k] * lx [3] ; \
-		    lx [0] -= G0 [k] * w0 [k] ; \
-		    lx [1] -= G0 [k] * w1 [k] ; \
-		    lx [2] -= G0 [k] * w2 [k] ; \
-		    lx [3] -= G0 [k] * w3 [k] ;
+		w0 [k] -= Z0 [k] * lx [0] ; \
+		w1 [k] -= Z0 [k] * lx [1] ; \
+		w2 [k] -= Z0 [k] * lx [2] ; \
+		w3 [k] -= Z0 [k] * lx [3] ; \
+		lx [0] -= G0 [k] * w0 [k] ; \
+		lx [1] -= G0 [k] * w1 [k] ; \
+		lx [2] -= G0 [k] * w2 [k] ; \
+		lx [3] -= G0 [k] * w3 [k] ;
 		FOR_ALL_K
 		#undef DO
 
-		Lx [p  ] = lx [0] ;
-		Lx [p+1] = lx [1] ;
-		Lx [p+2] = lx [2] ;
-		Lx [p+3] = lx [3] ;
+		Lx [p0  ] = lx [0] ;
+		Lx [p0+1] = lx [1] ;
+		Lx [p0+2] = lx [2] ;
+		Lx [p0+3] = lx [3] ;
 	    }
-
-	    /* for k = 0 to RANK-1 do: */
-	    #define DO(k) \
-		W0 [k] = 0 ;
-	    FOR_ALL_K
-	    #undef DO
-
 	}
     }
 #endif

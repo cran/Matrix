@@ -3,8 +3,8 @@
 /* ========================================================================== */
 
 /* -----------------------------------------------------------------------------
- * CHOLMOD/Core Module.  Version 0.6.  Copyright (C) 2005, Univ. of Florida.
- * Author: Timothy A. Davis
+ * CHOLMOD/Core Module.  Version 1.2.  Copyright (C) 2005-2006,
+ * Univ. of Florida.  Author: Timothy A. Davis
  * The CHOLMOD/Core Module is licensed under Version 2.1 of the GNU
  * Lesser General Public License.  See lesser.txt for a text of the license.
  * CHOLMOD is also available under other licenses; contact authors for details.
@@ -34,8 +34,8 @@
  * cholmod_allocate_work and cholmod_free_work.
  */
 
-#include "cholmod_core.h"
 #include "cholmod_internal.h"
+#include "cholmod_core.h"
 
 /* ========================================================================== */
 /* === cholmod_start ======================================================== */
@@ -138,6 +138,7 @@ int CHOLMOD(start)
     Common->Head = NULL ;
     Common->Iwork = NULL ;
     Common->Xwork = NULL ;
+    Common->no_workspace_reallocate = FALSE ;
 
     /* ---------------------------------------------------------------------- */
     /* statistics */
@@ -156,6 +157,15 @@ int CHOLMOD(start)
     Common->malloc_count = 0 ;	/* # calls to malloc minus # calls to free */
     Common->memory_usage = 0 ;	/* peak memory usage (in bytes) */
     Common->memory_inuse = 0 ;	/* current memory in use (in bytes) */
+
+    Common->nrealloc_col = 0 ;
+    Common->nrealloc_factor = 0 ;
+    Common->ndbounds_hit = 0 ;
+    Common->rowfacfl = 0 ;
+    Common->aatfl = EMPTY ;
+
+    /* Common->called_nd is TRUE if cholmod_analyze called or NESDIS */
+    Common->called_nd = FALSE ;
 
     DEBUG_INIT ("cholmod start") ;
     return (TRUE) ;
@@ -210,6 +220,7 @@ int CHOLMOD(defaults)
 
     Common->prefer_zomplex = FALSE ;
     Common->prefer_upper = TRUE ;
+    Common->quick_return_if_not_posdef = FALSE ;
 
     /* METIS workarounds */
     Common->metis_memory = 0.0 ;    /* > 0 for memory guard (2 is reasonable) */
@@ -232,8 +243,13 @@ int CHOLMOD(defaults)
 #error "CHOLMOD_MAXMETHODS must be 9 or more (defined in cholmod_core.h)."
 #endif
 
-    Common->nmethods = 0 ;	/* try methods 0, 1, and 2 and pick the best */
-    Common->current = 0 ;
+    /* default strategy: try given, AMD, and then METIS if AMD reports high
+     * fill-in.  NESDIS can be used instead, if Common->default_nesdis is TRUE.
+     */
+    Common->nmethods = 0 ;		/* use default strategy */
+    Common->default_nesdis = FALSE ;	/* use METIS in default strategy */
+
+    Common->current = 0 ;	/* current method being tried */
     Common->selected = 0 ;	/* the best method selected */
 
     /* first, fill each method with default parameters */
@@ -245,7 +261,7 @@ int CHOLMOD(defaults)
 	/* CHOLMOD nested dissection and minimum degree parameter */
 	Common->method [i].prune_dense = 10.0 ;	/* dense row/col control */
 
-	/* min degree ordering parameters */
+	/* min degree parameters (AMD, COLAMD, SYMAMD, CAMD, CCOLAMD, CSYMAMD)*/
 	Common->method [i].prune_dense2 = -1 ;	/* COLAMD dense row control */
 	Common->method [i].aggressive = TRUE ;	/* aggressive absorption */
 	Common->method [i].order_for_lu = FALSE ;/* order for Cholesky not LU */
@@ -253,7 +269,9 @@ int CHOLMOD(defaults)
 	/* CHOLMOD's nested dissection (METIS + constrained AMD) */
 	Common->method [i].nd_small = 200 ;	/* small graphs aren't cut */
 	Common->method [i].nd_compress = TRUE ;	/* compress graph & subgraphs */
-	Common->method [i].nd_camd = TRUE ;	/* use constrained AMD */
+	Common->method [i].nd_camd = 1 ;	/* use CAMD */
+	Common->method [i].nd_components = FALSE ;  /* lump connected comp. */
+	Common->method [i].nd_oksep = 1.0 ;	/* sep ok if < oksep*n */
 
 	/* statistics for each method are not yet computed */
 	Common->method [i].fl = EMPTY ;
@@ -276,7 +294,7 @@ int CHOLMOD(defaults)
     /* CHOLMOD's nested dissection with tiny leaves, and no AMD ordering */
     Common->method [6].ordering = CHOLMOD_NESDIS ;
     Common->method [6].nd_small = 4 ;
-    Common->method [6].nd_camd = FALSE ;
+    Common->method [6].nd_camd = 0 ;		/* no CSYMAMD or CAMD */
 
     /* CHOLMOD's nested dissection with no dense node removal */
     Common->method [7].ordering = CHOLMOD_NESDIS ;
@@ -335,6 +353,8 @@ int CHOLMOD(allocate_work)
     double *W ;
     Int *Head ;
     Int i ;
+    size_t nrow1 ;
+    int ok = TRUE ;
 
     /* ---------------------------------------------------------------------- */
     /* get inputs */
@@ -348,15 +368,34 @@ int CHOLMOD(allocate_work)
     /* ---------------------------------------------------------------------- */
 
     nrow = MAX (1, nrow) ;
+
+    /* nrow1 = nrow + 1 */
+    nrow1 = CHOLMOD(add_size_t) (nrow, 1, &ok) ;
+    if (!ok)
+    {
+	/* nrow+1 causes size_t overflow ; problem is too large */
+	Common->status = CHOLMOD_TOO_LARGE ;
+	CHOLMOD(free_work) (Common) ;
+	return (FALSE) ;
+    }
+
     if (nrow > Common->nrow)
     {
+
+	if (Common->no_workspace_reallocate)
+	{
+	    /* CHOLMOD is not allowed to change the workspace here */
+	    Common->status = CHOLMOD_INVALID ;
+	    return (FALSE) ;
+	}
+
 	/* free the old workspace (if any) and allocate new space */
 	Common->Flag = CHOLMOD(free) (Common->nrow,  sizeof (Int), Common->Flag,
 		Common) ;
 	Common->Head = CHOLMOD(free) (Common->nrow+1,sizeof (Int), Common->Head,
 		Common) ;
 	Common->Flag = CHOLMOD(malloc) (nrow,   sizeof (Int), Common) ;
-	Common->Head = CHOLMOD(malloc) (nrow+1, sizeof (Int), Common) ;
+	Common->Head = CHOLMOD(malloc) (nrow1, sizeof (Int), Common) ;
 
 	/* record the new size of Flag and Head */
 	Common->nrow = nrow ;
@@ -384,6 +423,14 @@ int CHOLMOD(allocate_work)
     iworksize = MAX (1, iworksize) ;
     if (iworksize > Common->iworksize)
     {
+
+	if (Common->no_workspace_reallocate)
+	{
+	    /* CHOLMOD is not allowed to change the workspace here */
+	    Common->status = CHOLMOD_INVALID ;
+	    return (FALSE) ;
+	}
+
 	/* free the old workspace (if any) and allocate new space.
 	 * integer overflow safely detected in cholmod_malloc */
 	CHOLMOD(free) (Common->iworksize, sizeof (Int), Common->Iwork, Common) ;
@@ -409,6 +456,14 @@ int CHOLMOD(allocate_work)
     xworksize = MAX (1, xworksize) ;
     if (xworksize > Common->xworksize)
     {
+
+	if (Common->no_workspace_reallocate)
+	{
+	    /* CHOLMOD is not allowed to change the workspace here */
+	    Common->status = CHOLMOD_INVALID ;
+	    return (FALSE) ;
+	}
+
 	/* free the old workspace (if any) and allocate new space */
 	CHOLMOD(free) (Common->xworksize, sizeof (double), Common->Xwork,
 		Common) ;
@@ -476,7 +531,7 @@ int CHOLMOD(free_work)
  * workspace: Flag (nrow).  Does not modify Flag if nrow is zero.
  */
 
-long CHOLMOD(clear_flag)
+UF_long CHOLMOD(clear_flag)
 (
     cholmod_common *Common
 )
@@ -577,6 +632,7 @@ double CHOLMOD(dbound)	/* returns modified diagonal entry of D */
 	    if (dj > -dbound)
 	    {
 		dj = -dbound ;
+		Common->ndbounds_hit++ ;
 		if (Common->status == CHOLMOD_OK)
 		{
 		    ERROR (CHOLMOD_DSMALL, "diagonal below threshold") ;
@@ -588,6 +644,7 @@ double CHOLMOD(dbound)	/* returns modified diagonal entry of D */
 	    if (dj < dbound)
 	    {
 		dj = dbound ;
+		Common->ndbounds_hit++ ;
 		if (Common->status == CHOLMOD_OK)
 		{
 		    ERROR (CHOLMOD_DSMALL, "diagonal below threshold") ;

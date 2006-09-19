@@ -3,8 +3,8 @@
 /* ========================================================================== */
 
 /* -----------------------------------------------------------------------------
- * CHOLMOD/Core Module.  Version 0.6.  Copyright (C) 2005, Univ. of Florida.
- * Author: Timothy A. Davis
+ * CHOLMOD/Core Module.  Version 1.2.  Copyright (C) 2005-2006,
+ * Univ. of Florida.  Author: Timothy A. Davis
  * The CHOLMOD/Core Module is licensed under Version 2.1 of the GNU
  * Lesser General Public License.  See lesser.txt for a text of the license.
  * CHOLMOD is also available under other licenses; contact authors for details.
@@ -36,8 +36,8 @@
  * All xtypes are supported (pattern, real, complex, and zomplex)
  */
 
-#include "cholmod_core.h"
 #include "cholmod_internal.h"
+#include "cholmod_core.h"
 
 
 /* ========================================================================== */
@@ -69,6 +69,7 @@ cholmod_sparse *CHOLMOD(allocate_sparse)
     Int *Ap, *Anz ;
     size_t nzmax0 ;
     Int j ;
+    int ok = TRUE ;
 
     /* ---------------------------------------------------------------------- */
     /* get inputs */
@@ -85,13 +86,20 @@ cholmod_sparse *CHOLMOD(allocate_sparse)
 	ERROR (CHOLMOD_INVALID, "xtype invalid") ;
 	return (NULL) ;
     }
+    /* ensure the dimensions do not cause integer overflow */
+    (void) CHOLMOD(add_size_t) (ncol, 2, &ok) ;
+    if (!ok || nrow > Int_max || ncol > Int_max || nzmax > Int_max)
+    {
+	ERROR (CHOLMOD_TOO_LARGE, "problem too large") ;
+	return (NULL) ;
+    }
     Common->status = CHOLMOD_OK ;
 
     /* ---------------------------------------------------------------------- */
     /* allocate header */
     /* ---------------------------------------------------------------------- */
 
-    A = CHOLMOD(malloc) (1, sizeof (cholmod_sparse), Common) ;
+    A = CHOLMOD(malloc) (sizeof (cholmod_sparse), 1, Common) ;
     if (Common->status < CHOLMOD_OK)
     {
 	return (NULL) ;	    /* out of memory */
@@ -124,7 +132,7 @@ cholmod_sparse *CHOLMOD(allocate_sparse)
     /* ---------------------------------------------------------------------- */
 
     /* allocate O(ncol) space */
-    A->p = CHOLMOD(malloc) (ncol+1, sizeof (Int), Common) ;
+    A->p = CHOLMOD(malloc) (((size_t) ncol)+1, sizeof (Int), Common) ;
     if (!packed)
     {
 	A->nz = CHOLMOD(malloc) (ncol, sizeof (Int), Common) ;
@@ -405,7 +413,7 @@ cholmod_sparse *CHOLMOD(spzeros)
  * integer overflow cannot occur, since the matrix is already allocated.
  */
 
-long CHOLMOD(nnz)
+UF_long CHOLMOD(nnz)
 (
     /* ---- input ---- */
     cholmod_sparse *A,

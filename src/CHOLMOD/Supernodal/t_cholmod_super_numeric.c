@@ -3,8 +3,8 @@
 /* ========================================================================== */
 
 /* -----------------------------------------------------------------------------
- * CHOLMOD/Supernodal Module.  Version 0.6.
- * Copyright (C) 2005, Timothy A. Davis
+ * CHOLMOD/Supernodal Module.  Version 1.2.
+ * Copyright (C) 2005-2006, Timothy A. Davis
  * The CHOLMOD/Supernodal Module is licensed under Version 2.0 of the GNU
  * General Public License.  See gpl.txt for a text of the license.
  * CHOLMOD is also available under other licenses; contact authors for details.
@@ -140,10 +140,10 @@ static int TEMPLATE (cholmod_super_numeric)
     Iwork = Common->Iwork ;
     SuperMap    = Iwork ;		    /* size n (i/i/l) */
     RelativeMap = Iwork + n ;		    /* size n (i/i/l) */
-    Next        = Iwork + 2*n ;		    /* size nsuper */
-    Lpos        = Iwork + 2*n + nsuper ;    /* size nsuper */
-    Next_save   = Iwork + 2*n + 2*nsuper ;  /* size nsuper */
-    Lpos_save   = Iwork + 2*n + 3*nsuper ;  /* size nsuper */
+    Next        = Iwork + 2*((size_t) n) ;			/* size nsuper */
+    Lpos        = Iwork + 2*((size_t) n) + nsuper ;		/* size nsuper */
+    Next_save   = Iwork + 2*((size_t) n) + 2*((size_t) nsuper) ;/* size nsuper */
+    Lpos_save   = Iwork + 2*((size_t) n) + 3*((size_t) nsuper) ;/* size nsuper */
 
     Map  = Common->Flag ;   /* size n, use Flag as workspace for Map array */
     Head = Common->Head ;   /* size n+1, only Head [0..nsuper-1] used */
@@ -328,9 +328,10 @@ static int TEMPLATE (cholmod_super_numeric)
 	    }
 	}
 
-	PRINT1 (("Supernode with just A: ")) ;
+	PRINT1 (("Supernode with just A: repeat: "ID"\n", repeat_supernode)) ;
 	DEBUG (CHOLMOD(dump_super) (s, Super, Lpi, Ls, Lpx, Lx, L_ENTRY,
 		    Common)) ;
+	PRINT1 (("\n\n")) ;
 
 	/* ------------------------------------------------------------------ */
 	/* save/restore the list of supernodes */
@@ -359,6 +360,16 @@ static int TEMPLATE (cholmod_super_numeric)
 	/* ------------------------------------------------------------------ */
 	/* update supernode s with each pending descendant d */
 	/* ------------------------------------------------------------------ */
+
+#ifndef NDEBUG
+	for (d = Head [s] ; d != EMPTY ; d = Next [d])
+	{
+	    PRINT1 (("\nWill update "ID" with Child: "ID"\n", s, d)) ;
+	    DEBUG (CHOLMOD(dump_super) (d, Super, Lpi, Ls, Lpx, Lx, L_ENTRY,
+			Common)) ;
+	}
+	PRINT1 (("\nNow factorizing supernode "ID":\n", s)) ;
+#endif
 
 	for (d = Head [s] ; d != EMPTY ; d = dnext)
 	{
@@ -533,6 +544,12 @@ static int TEMPLATE (cholmod_super_numeric)
 	    }
 	}
 
+	PRINT1 (("\nSupernode with contributions A: repeat: "ID"\n",
+		    repeat_supernode)) ;
+	DEBUG (CHOLMOD(dump_super) (s, Super, Lpi, Ls, Lpx, Lx, L_ENTRY,
+		    Common)) ;
+	PRINT1 (("\n\n")) ;
+
 	/* ------------------------------------------------------------------ */
 	/* factorize diagonal block of supernode s in LL' */
 	/* ------------------------------------------------------------------ */
@@ -568,6 +585,9 @@ static int TEMPLATE (cholmod_super_numeric)
 
 	if (repeat_supernode)
 	{
+	    /* the leading part has been refactorized; it must have succeeded */
+	    info = 0 ;
+
 	    /* zero out the rest of this supernode */
 	    p = psx + nsrow * nscol_new ;
 	    pend = psx + nsrow * nscol ;	    /* s is nsrow-by-nscol */
@@ -576,13 +596,6 @@ static int TEMPLATE (cholmod_super_numeric)
 		/* Lx [p] = 0 ; */
 		L_CLEAR (Lx,p) ;
 	    }
-
-	    /* Clear link list for supernode s.  All others already cleared */
-	    Head [s] = EMPTY ;
-
-	    /* Supernode s has been successfully repeated.  The factorization
-	     * is now terminated.  Recovery is complete. */
-	    return (TRUE) ;
 	}
 
 	/* info is set to one in LAPACK_*potrf if blas_ok is FALSE.  It is
@@ -606,7 +619,7 @@ static int TEMPLATE (cholmod_super_numeric)
 	    L->minor = k1 + info - 1 ;
 
 	    /* clear the link lists of all subsequent supernodes */
-	    for (ss = s ; ss < nsuper ; ss++)
+	    for (ss = s+1 ; ss < nsuper ; ss++)
 	    {
 		Head [ss] = EMPTY ;
 	    }
@@ -626,9 +639,12 @@ static int TEMPLATE (cholmod_super_numeric)
 	     * left of it in supernode s are also all zero.  This differs from
 	     * [R,p]=chol(A), which contains nonzero rows 1 to p-1.  Fix this
 	     * by setting repeat_supernode to TRUE, and repeating supernode s.
+	     *
+	     * If Common->quick_return_if_not_posdef is true, then the entire
+	     * supernode s is not factorized; it is left as all zero.
 	     */
 
-	    if (info == 1)
+	    if (info == 1 || Common->quick_return_if_not_posdef)
 	    {
 		/* If the first column of supernode s contains a zero or
 		 * negative diagonal entry, then it is already properly set to
@@ -653,7 +669,7 @@ static int TEMPLATE (cholmod_super_numeric)
 	/* compute the subdiagonal block and prepare supernode for its parent */
 	/* ------------------------------------------------------------------ */
 
-	nsrow2 = nsrow - nscol ;
+	nsrow2 = nsrow - nscol2 ;
 	if (nsrow2 > 0)
 	{
 	    /* The current supernode is columns k1 to k2-1 of L.  Let L1 be the
@@ -662,38 +678,43 @@ static int TEMPLATE (cholmod_super_numeric)
 	     * triangular system to solve is L2*L1' = S2, where S2 is
 	     * overwritten with L2.  More precisely, L2 = S2 / L1' in MATLAB
 	     * notation.
-	     *
-	     * If integer overflow occurs in the BLAS here, it is treated as if
-	     * the next supernode cause the overflow.
 	     */
 
 #ifdef REAL
 	    BLAS_dtrsm ("R", "L", "C", "N",
-		nsrow2, nscol,			/* M, N */
+		nsrow2, nscol2,			/* M, N */
 		one,				/* ALPHA: 1 */
 		Lx + L_ENTRY*psx, nsrow,	/* A, LDA: L1, nsrow */
-		Lx + L_ENTRY*(psx + nscol),	/* B, LDB, L2, nsrow */
+		Lx + L_ENTRY*(psx + nscol2),	/* B, LDB, L2, nsrow */
 		nsrow) ;
 #else
 	    BLAS_ztrsm ("R", "L", "C", "N",
-		nsrow2, nscol,			/* M, N */
+		nsrow2, nscol2,			/* M, N */
 		one,				/* ALPHA: 1 */
 		Lx + L_ENTRY*psx, nsrow,	/* A, LDA: L1, nsrow */
-		Lx + L_ENTRY*(psx + nscol),	/* B, LDB, L2, nsrow */
+		Lx + L_ENTRY*(psx + nscol2),	/* B, LDB, L2, nsrow */
 		nsrow) ;
 #endif
 
-	    /* Lpos [s] is the offset of first row of s affecting its parent */
-	    Lpos [s] = nscol ;
-	    sparent = SuperMap [Ls [psi + nscol]] ;
-	    ASSERT (sparent != EMPTY) ;
-	    ASSERT (Ls [psi + nscol] >= Super [sparent]) ;
-	    ASSERT (Ls [psi + nscol] <  Super [sparent+1]) ;
-	    ASSERT (SuperMap [Ls [psi + nscol]] == sparent) ;
-	    ASSERT (sparent > s && sparent < nsuper) ;
-	    /* place s in link list of its parent */
-	    Next [s] = Head [sparent] ;
-	    Head [sparent] = s ;
+	    if (CHECK_BLAS_INT && !blas_ok)
+	    {
+		ERROR (CHOLMOD_TOO_LARGE, "problem too large for the BLAS") ;
+	    }
+
+	    if (!repeat_supernode)
+	    {
+		/* Lpos [s] is offset of first row of s affecting its parent */
+		Lpos [s] = nscol ;
+		sparent = SuperMap [Ls [psi + nscol]] ;
+		ASSERT (sparent != EMPTY) ;
+		ASSERT (Ls [psi + nscol] >= Super [sparent]) ;
+		ASSERT (Ls [psi + nscol] <  Super [sparent+1]) ;
+		ASSERT (SuperMap [Ls [psi + nscol]] == sparent) ;
+		ASSERT (sparent > s && sparent < nsuper) ;
+		/* place s in link list of its parent */
+		Next [s] = Head [sparent] ;
+		Head [sparent] = s ;
+	    }
 	}
 
 	Head [s] = EMPTY ;	/* link list for supernode s no longer needed */
@@ -702,11 +723,18 @@ static int TEMPLATE (cholmod_super_numeric)
 	DEBUG (for (k = 0 ; k < nsrow ; k++) Map [Ls [psi + k]] = EMPTY) ;
 	DEBUG (CHOLMOD(dump_super) (s, Super, Lpi, Ls, Lpx, Lx, L_ENTRY,
 		    Common)) ;
+
+	if (repeat_supernode)
+	{
+	    /* matrix is not positive definite; finished clean-up for supernode
+	     * containing negative diagonal */
+	    return (Common->status >= CHOLMOD_OK) ;
+	}
     }
 
     /* success; matrix is positive definite */
     L->minor = n ;
-    return (TRUE) ;
+    return (Common->status >= CHOLMOD_OK) ;
 }
 #undef PATTERN
 #undef REAL

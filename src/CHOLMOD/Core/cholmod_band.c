@@ -3,8 +3,8 @@
 /* ========================================================================== */
 
 /* -----------------------------------------------------------------------------
- * CHOLMOD/Core Module.  Version 0.6.  Copyright (C) 2005, Univ. of Florida.
- * Author: Timothy A. Davis
+ * CHOLMOD/Core Module.  Version 1.2.  Copyright (C) 2005-2006,
+ * Univ. of Florida.  Author: Timothy A. Davis
  * The CHOLMOD/Core Module is licensed under Version 2.1 of the GNU
  * Lesser General Public License.  See lesser.txt for a text of the license.
  * CHOLMOD is also available under other licenses; contact authors for details.
@@ -44,16 +44,16 @@
  * only if mode <= 0 (in which case the numerical values are ignored).
  */
 
-#include "cholmod_core.h"
 #include "cholmod_internal.h"
+#include "cholmod_core.h"
 
 static cholmod_sparse *band		/* returns C, or NULL if failure */
 (
     /* ---- input or in/out if inplace is TRUE --- */
     cholmod_sparse *A,
     /* ---- input ---- */
-    long k1,	    /* ignore entries below the k1-st diagonal */
-    long k2,	    /* ignore entries above the k2-nd diagonal */
+    UF_long k1,	    /* ignore entries below the k1-st diagonal */
+    UF_long k2,	    /* ignore entries above the k2-nd diagonal */
     int mode,	    /* >0: numerical, 0: pattern, <0: pattern (no diagonal) */
     int inplace,    /* if TRUE, then convert A in place */
     /* --------------- */
@@ -343,8 +343,8 @@ cholmod_sparse *CHOLMOD(band)
 (
     /* ---- input ---- */
     cholmod_sparse *A,	/* matrix to extract band matrix from */
-    long k1,		/* ignore entries below the k1-st diagonal */
-    long k2,		/* ignore entries above the k2-nd diagonal */
+    UF_long k1,		/* ignore entries below the k1-st diagonal */
+    UF_long k2,		/* ignore entries above the k2-nd diagonal */
     int mode,		/* >0: numerical, 0: pattern, <0: pattern (no diag) */
     /* --------------- */
     cholmod_common *Common
@@ -361,8 +361,8 @@ cholmod_sparse *CHOLMOD(band)
 int CHOLMOD(band_inplace)
 (
     /* ---- input ---- */
-    long k1,		/* ignore entries below the k1-st diagonal */
-    long k2,		/* ignore entries above the k2-nd diagonal */
+    UF_long k1,		/* ignore entries below the k1-st diagonal */
+    UF_long k2,		/* ignore entries above the k2-nd diagonal */
     int mode,		/* >0: numerical, 0: pattern, <0: pattern (no diag) */
     /* ---- in/out --- */
     cholmod_sparse *A,	/* matrix from which entries not in band are removed */

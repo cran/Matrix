@@ -1,6 +1,6 @@
 
-R : Copyright 2006, The R Foundation for Statistical Computing
-Version 2.3.1 Patched (2006-08-13 r38879)
+R version 2.4.0 alpha (2006-09-17 r39373)
+Copyright (C) 2006 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -103,11 +103,24 @@ integer matrices not yet implemented in 'Matrix'; using 'double' ones' in: Matri
 > 
 > g10 <- m [ m > 10 ]
 > stopifnot(18 == length(g10))
-> ## needs R >= 2.3.0 [Buglet in R(<= 2.2.1)'s possibleExtends()]:
 > stopifnot(10 == length(m[ m <= 10 ]))
+> sel <- (20 < m) & (m < 150)
+> (ssel <- as(sel, "sparseMatrix"))
+7 x 4 sparse Matrix of class "lgCMatrix"
+            
+[1,] . . . .
+[2,] . . | .
+[3,] . . . |
+[4,] . . . |
+[5,] . . . |
+[6,] . . | |
+[7,] . . | |
+> stopifnot(is(sel, "lMatrix"), is(ssel, "lsparseMatrix"),
++ 	  identical(  m[ ssel], as.matrix( m)[as.matrix( ssel)]),
++ 	  identical(  m[!ssel], as.matrix(m)[ as.matrix(!ssel)])
++ 	  )
 > 
-> 
-> ### Sparse Matrices --------------------------------------
+> ## more sparse Matrices --------------------------------------
 > 
 > m <- 1:800
 > set.seed(101) ; m[sample(800, 600)] <- 0
@@ -231,8 +244,26 @@ Formal class 'dgTMatrix' [package "Matrix"] with 6 slots
 [4,] 1 1 . 17 .   8 10 13  8  6 18 18 29 35 14  8 25 10 19 21
 [5,] . 3 4 .  14  4 10 .  .  29  8  9 19 11 11 .  .  26 26 16
 [6,] 1 5 2  8  4 42  5 19 14  9  8 10 42 56 50 27 29 32 64 16
-> ## FIXME (once we require 2.4.x or higher):
-> ##  tail(x.x., -2) # the last two lines
+> tail(x.x., -3) # all but the first three lines
+17 x 20 sparse Matrix of class "dgCMatrix"
+                                                                             
+[4,]  1  1 .  17 .   8  10 13   8   6  18  18  29  35  14   8  25  10  19  21
+[5,]  .  3  4 .  14  4  10 .  .    29   8   9  19  11  11 .   .    26  26  16
+[6,]  1  5  2  8  4 42   5 19  14   9   8  10  42  56  50  27  29  32  64  16
+[7,]  1  7  5 10 10  5  87 14   9  31  77  47  79  43  28  17  67 110  36 121
+[8,]  3  5  3 13 .  19  14 70  10  24  37  13  59  62  34  19  58  21  64  44
+[9,]  . 12  8  8 .  14   9 10 116  41  58  33  33  72  78  43  69  72  75  25
+[10,] 3 14 12  6 29  9  31 24  41 167  69  56  99  44  70  24 105  82  85  32
+[11,] 2 14  5 18  8  8  77 37  58  69 267  80  86 139  49 105 194 119 122 129
+[12,] 1  9 16 18  9 10  47 13  33  56  80 194  70  77  81 .    90  32 .   106
+[13,] 6 11  9 29 19 42  79 59  33  99  86  70 324 157  55 .    69 142 144 155
+[14,] 1 16 11 35 11 56  43 62  72  44 139  77 157 375 123 102 145  39 196  81
+[15,] . 12 23 14 11 50  28 34  78  70  49  81  55 123 368  71 112  41  41  86
+[16,] 2 13 .   8 .  27  17 19  43  24 105 .   .   102  71 233 124  44 139 .  
+[17,] 4 17 .  25 .  29  67 58  69 105 194  90  69 145 112 124 523 141 245 100
+[18,] 6 19  6 10 26 32 110 21  72  82 119  32 142  39  41  44 141 497 104 111
+[19,] 5 19  7 19 26 64  36 64  75  85 122 .   144 196  41 139 245 104 542  55
+[20,] 1 10  7 21 16 16 121 44  25  32 129 106 155  81  86 .   100 111  55 541
 > 
 > lx.x <- as(x.x, "lsCMatrix") # FALSE only for "structural" 0
 > if(FALSE) { ## FIXME: needs coercion  "lsCMatrix" to "lgTMatrix"
@@ -311,6 +342,11 @@ Formal class 'dgTMatrix' [package "Matrix"] with 6 slots
 [3,] -247 -250 .   -250 -250 .   243
 [4,] .    .    -30 .    .    .   .  
 [5,] .      43  -4 .      -6 .   .  
+Warning message:
+Ambiguous method selection for "-", target "dgTMatrix#dgTMatrix" (the first of the signatures shown will be used)
+    sparseMatrix#sparseMatrix
+    dMatrix#dMatrix
+ in: .findInheritedMethods(classes, fdef, mtable) 
 > 
 > mt[c(2,4), ] <- 0; stopifnot(as(mt[c(2,4), ],"matrix") == 0)
 > mt[2:3, 4:7] <- 33
@@ -407,5 +443,5 @@ Formal class 'dgTMatrix' [package "Matrix"] with 6 slots
  [9,] 0.111 0.100 0.091 0.083 0.077 0.071
 > 
 > cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
-Time elapsed:  22.532 0.256 24.283 0 0 
+Time elapsed:  2.594 0.132 3.419 0 0 
 > 

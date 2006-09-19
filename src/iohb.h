@@ -7,6 +7,8 @@
 extern "C" {
 #endif
 
+#pragma GCC visibility push(hidden)
+
 int readHB_info(const char* filename, int* M, int* N, int* nz, char** Type, 
                                                       int* Nrhs);
 
@@ -57,6 +59,7 @@ int ParseIfmt(char* fmt, int* perline, int* width);
 int ParseRfmt(char* fmt, int* perline, int* width, int* prec, int* flag);
 
 void IOHBTerminate(char* message);
+#pragma GCC visibility pop
 #ifdef __cplusplus
 }
 #endif

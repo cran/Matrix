@@ -3,8 +3,8 @@
 /* ========================================================================== */
 
 /* -----------------------------------------------------------------------------
- * CHOLMOD/Modify Module.  Version 0.6.  Copyright (C) 2005, Timothy A. Davis
- * and William W. Hager.
+ * CHOLMOD/Modify Module.  Version 1.2.
+ * Copyright (C) 2005-2006, Timothy A. Davis and William W. Hager.
  * The CHOLMOD/Modify Module is licensed under Version 2.0 of the GNU
  * General Public License.  See gpl.txt for a text of the license.
  * CHOLMOD is also available under other licenses; contact authors for details.
@@ -63,8 +63,8 @@
 
 #ifndef NMODIFY
 
-#include "cholmod_modify.h"
 #include "cholmod_internal.h"
+#include "cholmod_modify.h"
 
 
 /* ========================================================================== */
@@ -86,8 +86,8 @@ int CHOLMOD(updown)
     cholmod_common *Common
 )
 {
-    return (CHOLMOD(updown_mark) (update, C, NULL, L, NULL, NULL, NULL,
-		Common)) ;
+    return (CHOLMOD(updown_mask) (update, C, NULL, NULL, L, NULL, NULL,
+	Common)) ;
 }
 
 
@@ -115,8 +115,8 @@ int CHOLMOD(updown_solve)
     cholmod_common *Common
 )
 {
-    return (CHOLMOD(updown_mark) (update, C, NULL, L, X, DeltaB, NULL,
-		Common)) ;
+    return (CHOLMOD(updown_mask) (update, C, NULL, NULL, L, X, DeltaB,
+	Common)) ;
 }
 
 
@@ -215,6 +215,7 @@ typedef struct Path_struct
     Int order ;		/* dfs order of this path */
     Int wfirst ;	/* first column of W to affect this path */
     Int pending ;	/* column at which the path is pending */
+    Int botrow ;	/* for partial update/downdate of solution to Lx=b */ 
 
 } Path_type ;
 
@@ -298,6 +299,11 @@ static void dfs
  *
  * The solution to Lx=b is not modified if either X or DeltaB are NULL.
  *
+
+--------------------------------------------------------------------------------
+TODO update this discussion about rowmark/colmark:
+--------------------------------------------------------------------------------
+
  * rowmark and colmark affect which portions of L take part in the update/
  * downdate of the solution to Lx=b.  They do not affect how L itself is
  * updated/downdated.  They are both ignored if X or DeltaB are NULL.
@@ -358,6 +364,10 @@ static void dfs
  * Unless it leads to no changes in rowmark, colmark should be used only if
  * C->ncol <= Common->maxrank, because the update/downdate is done with maxrank
  * columns at a time.  Otherwise, the results are undefined.
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+
  *
  * This routine is an "expert" routine.  It is meant for use in LPDASA only.
  */
@@ -372,7 +382,30 @@ int CHOLMOD(updown_mark)
     cholmod_factor *L,	/* factor to modify */
     cholmod_dense *X,	/* solution to Lx=b (size n-by-1) */
     cholmod_dense *DeltaB,  /* change in b, zero on output */
-    Int *rowmark,	/* Int array of size n.  See cholmod_updown.c */
+    /* --------------- */
+    cholmod_common *Common
+)
+{
+    return (CHOLMOD(updown_mask) (update, C, colmark, NULL, L, X, DeltaB,
+	Common)) ;
+}
+
+
+/* ========================================================================== */
+/* === cholmod_updown_mask ================================================== */
+/* ========================================================================== */
+
+int CHOLMOD(updown_mask)
+(
+    /* ---- input ---- */
+    int update,		/* TRUE for update, FALSE for downdate */
+    cholmod_sparse *C,	/* the incoming sparse update */
+    Int *colmark,	/* Int array of size n.  See cholmod_updown.c */
+    Int *mask,		/* size n */
+    /* ---- in/out --- */
+    cholmod_factor *L,	/* factor to modify */
+    cholmod_dense *X,	/* solution to Lx=b (size n-by-1) */
+    cholmod_dense *DeltaB,  /* change in b, zero on output */
     /* --------------- */
     cholmod_common *Common
 )
@@ -384,10 +417,12 @@ int CHOLMOD(updown_mark)
     size_t maxrank ;
     Path_type OrderedPath [32], Path [32] ;
     Int n, wdim, k1, k2, npaths, i, j, row, packed, ccol, p, cncol, do_solve,
-	mark, jj, j2, kk, nextj, p1, p2, c, use_rowmark, use_colmark, newlnz,
+	mark, jj, j2, kk, nextj, p1, p2, c, use_colmark, newlnz,
 	k, newpath, path_order, w_order, scattered, path, newparent, pp1, pp2,
 	smax, maxrow, row1, nsets, s, p3, newlnz1, Set [32], top, len, lnz, m,
 	botrow ;
+    size_t w ;
+    int ok = TRUE ;
     DEBUG (Int oldparent) ;
 
     /* ---------------------------------------------------------------------- */
@@ -401,7 +436,6 @@ int CHOLMOD(updown_mark)
     RETURN_IF_XTYPE_INVALID (C, CHOLMOD_REAL, CHOLMOD_REAL, FALSE) ;
     n = L->n ;
     cncol = C->ncol ;
-    Common->modfl = 0 ;
     if (!(C->sorted))
     {
 	ERROR (CHOLMOD_INVALID, "C must have sorted columns") ;
@@ -432,9 +466,9 @@ int CHOLMOD(updown_mark)
 	Nx = NULL ;
     }
     Common->status = CHOLMOD_OK ;
+    Common->modfl = 0 ;
 
     fl = 0 ;
-    use_rowmark = (rowmark != NULL) ;
     use_colmark = (colmark != NULL) ;
 
     /* ---------------------------------------------------------------------- */
@@ -455,7 +489,16 @@ int CHOLMOD(updown_mark)
     wdim = Power2 [k] ;		/* number of columns needed in W */
     ASSERT (wdim <= (Int) maxrank) ;
     PRINT1 (("updown wdim final "ID" k "ID"\n", wdim, k)) ;
-    CHOLMOD(allocate_work) (n, n, wdim * n, Common) ;
+
+    /* w = wdim * n */
+    w = CHOLMOD(mult_size_t) (n, wdim, &ok) ;
+    if (!ok)
+    {
+	ERROR (CHOLMOD_TOO_LARGE, "problem too large") ;
+	return (FALSE) ;
+    }
+
+    CHOLMOD(allocate_work) (n, n, w, Common) ;
     if (Common->status < CHOLMOD_OK || maxrank == 0)
     {
 	/* out of memory, L is returned unchanged */
@@ -484,7 +527,7 @@ int CHOLMOD(updown_mark)
 
     mark = CHOLMOD(clear_flag) (Common) ;
 
-    PRINT1 (("updown, rank %ld update %d\n", (long) C->ncol, update)) ;
+    PRINT1 (("updown, rank %g update %d\n", (double) C->ncol, update)) ;
     DEBUG (CHOLMOD(dump_factor) (L, "input L for updown", Common)) ;
     ASSERT (CHOLMOD(dump_sparse) (C, "input C for updown", Common) >= 0) ;
 
@@ -594,6 +637,10 @@ int CHOLMOD(updown_mark)
 		    "j "ID" ccol "ID"\n", path, Path [path].start,
 		    Path [path].end, Path [path].parent,
 		    Path [path].c, j, ccol)) ;
+
+	    /* initialize botrow for this path */
+	    Path [path].botrow = (use_colmark) ? colmark [ccol] : n ;
+
 	    path++ ;
 	}
 
@@ -658,6 +705,13 @@ int CHOLMOD(updown_mark)
 #endif
 
 	    /* -------------------------------------------------------------- */
+	    /* determine the path we're on */
+	    /* -------------------------------------------------------------- */
+
+	    /* get the first old path at column j */
+	    path = Head [j] ;
+
+	    /* -------------------------------------------------------------- */
 	    /* update/downdate of forward solve, Lx=b */
 	    /* -------------------------------------------------------------- */
 
@@ -672,7 +726,10 @@ int CHOLMOD(updown_mark)
 
 		    /* DeltaB += Lold (j:botrow-1,j) * X (j) */
 		    Nx [j] += xj ;			/* diagonal of L */
-		    botrow = (use_rowmark) ? (rowmark [j]) : n ;
+
+		    /* find the botrow for this column */
+		    botrow = (use_colmark) ? Path [path].botrow : n ;
+
 		    for (p = p1 + 1 ; p < p2 ; p++)
 		    {
 			i = Li [p] ;
@@ -695,9 +752,6 @@ int CHOLMOD(updown_mark)
 	    /* start a new path at this column if two or more paths merge */
 	    /* -------------------------------------------------------------- */
 
-	    /* get the first old path at column j */
-	    path = Head [j] ;
-
 	    newpath =
 		/* start a new path if paths have merged */
 		(Path [path].next != EMPTY)
@@ -706,6 +760,9 @@ int CHOLMOD(updown_mark)
 
 	    if (newpath)
 	    {
+		/* get the botrow of the first path at column j */
+		botrow = (use_colmark) ? Path [path].botrow : n ;
+
 		path = npaths++ ;
 		ASSERT (npaths <= 3*k) ;
 		Path [path].ccol = EMPTY ; /* no single col of C for this path*/
@@ -715,6 +772,9 @@ int CHOLMOD(updown_mark)
 		Path [path].rank = 0 ;	/* rank is sum of child path ranks */
 		PRINT1 (("Path "ID" starts: start "ID" end "ID" parent "ID"\n",
 		path, Path [path].start, Path [path].end, Path [path].parent)) ;
+
+		/* set the botrow of the new path */
+		Path [path].botrow = (use_colmark) ? botrow : n ;
 	    }
 
 	    /* -------------------------------------------------------------- */
@@ -1332,16 +1392,20 @@ int CHOLMOD(updown_mark)
 	switch (wdim)
 	{
 	    case 1:
-		updown_1_r (update, C, k, L, W, OrderedPath, npaths, Common) ;
+		updown_1_r (update, C, k, L, W, OrderedPath, npaths, mask,
+		    Common) ;
 		break ;
 	    case 2:
-		updown_2_r (update, C, k, L, W, OrderedPath, npaths, Common) ;
+		updown_2_r (update, C, k, L, W, OrderedPath, npaths, mask,
+		    Common) ;
 		break ;
 	    case 4:
-		updown_4_r (update, C, k, L, W, OrderedPath, npaths, Common) ;
+		updown_4_r (update, C, k, L, W, OrderedPath, npaths, mask,
+		    Common) ;
 		break ;
 	    case 8:
-		updown_8_r (update, C, k, L, W, OrderedPath, npaths, Common) ;
+		updown_8_r (update, C, k, L, W, OrderedPath, npaths, mask,
+		    Common) ;
 		break ;
 	}
 
@@ -1354,7 +1418,6 @@ int CHOLMOD(updown_mark)
 
     if (do_solve)
     {
-
 	/* We now have DeltaB += Lold (:,j) * X (j) for all columns j in union
 	 * of all paths seen during the entire rank-cncol update/downdate. For
 	 * each j in path, do DeltaB -= Lnew (:,j)*DeltaB(j) 
@@ -1414,7 +1477,7 @@ int CHOLMOD(updown_mark)
 	     * or if colmark [ccol] is EMPTY.
 	     */
 
-	    botrow = (use_colmark && use_rowmark) ? (colmark [ccol]) : EMPTY ;
+	    botrow = (use_colmark) ? (colmark [ccol]) : EMPTY ;
 
 	    /* -------------------------------------------------------------- */
 	    /* traverse from j towards root, stopping if node already visited */
@@ -1427,12 +1490,11 @@ int CHOLMOD(updown_mark)
 		Stack [len++] = j ;		/* place j on the stack */
 		Flag [j] = mark ;		/* flag j as visited */
 
-		/* redefine the parts of column j of L that take part in
-		 * the triangular solve. */
-		if (botrow != EMPTY)
+		/* if using colmark, mark column j with botrow */
+		ASSERT (Li [Lp [j]] == j) ;	/* diagonal is always present */
+		if (use_colmark)
 		{
-		    /* update rowmark to keep track of botrow for col j */
-		    rowmark [j] = botrow ;
+		    Li [Lp [j]] = botrow ;	/* use the space for botrow */
 		}
 
 		/* go up the tree, to the parent of j */
@@ -1475,15 +1537,23 @@ int CHOLMOD(updown_mark)
 	    Nx [j] = 0. ;
 
 	    /* DeltaB -= Lnew (j+1:botrow-1,j) * deltab(j) */
-	    botrow = (use_rowmark) ? (rowmark [j]) : n ;
-	    for (p = p1 + 1 ; p < p2 ; p++)
+	    if (use_colmark)
 	    {
-		i = Li [p] ;
-		if (i >= botrow)
+		botrow = Li [p1] ;	/* get botrow */
+		Li [p1] = j ;		/* restore diagonal entry */
+		for (p = p1 + 1 ; p < p2 ; p++)
 		{
-		    break ;
+		    i = Li [p] ;
+		    if (i >= botrow) break ;
+		    Nx [i] -= Lx [p] * xj ;
 		}
-		Nx [i] -= Lx [p] * xj ;
+	    }
+	    else
+	    {
+		for (p = p1 + 1 ; p < p2 ; p++)
+		{
+		    Nx [Li [p]] -= Lx [p] * xj ;
+		}
 	    }
 	}
 

@@ -4,7 +4,6 @@ SOURCES_C =  \
 	    HBMM.c \
 	    Tsparse.c \
 	    init.c \
-	    lmer.c \
             Mutils.c \
 	    chm_common.c \
 	    cs.c \
@@ -31,6 +30,4 @@ SOURCES_C =  \
 	    lsCMatrix.c \
 	    ltCMatrix.c \
             mmio.c \
-	    pedigree.c \
-	    sparseQR.c \
-            triplet_to_col.c
+	    sparseQR.c

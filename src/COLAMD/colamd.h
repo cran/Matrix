@@ -2,7 +2,7 @@
 /* === colamd/symamd prototypes and definitions ============================= */
 /* ========================================================================== */
 
-/* COLAMD Version 2.4
+/* COLAMD Version 2.5
 
     You must include this file (colamd.h) in any routine that uses colamd,
     symamd, or the related macros and definitions.
@@ -21,7 +21,7 @@
 
     Notice:
 
-	Copyright (c) 1998-2005, Timothy A. Davis, All Rights Reserved.
+	Copyright (c) 1998-2006, Timothy A. Davis, All Rights Reserved.
 
 	THIS MATERIAL IS PROVIDED AS IS, WITH ABSOLUTELY NO WARRANTY
 	EXPRESSED OR IMPLIED.  ANY USE IS AT YOUR OWN RISK.
@@ -81,10 +81,10 @@ extern "C" {
  * Versions 2.3 and earlier of COLAMD do not include a #define'd version number.
  */
 
-#define COLAMD_DATE "Aug. 30, 2005"
+#define COLAMD_DATE "May 5, 2006"
 #define COLAMD_VERSION_CODE(main,sub) ((main) * 1000 + (sub))
 #define COLAMD_MAIN_VERSION 2
-#define COLAMD_SUB_VERSION 4
+#define COLAMD_SUB_VERSION 5
 #define COLAMD_VERSION \
 	COLAMD_VERSION_CODE(COLAMD_MAIN_VERSION,COLAMD_SUB_VERSION)
 
@@ -138,20 +138,23 @@ extern "C" {
 /* === Prototypes of user-callable routines ================================= */
 /* ========================================================================== */
 
-int colamd_recommended		/* returns recommended value of Alen, */
-				/* or (-1) if input arguments are erroneous */
+/* define UF_long */
+#include "UFconfig.h"
+
+size_t colamd_recommended	/* returns recommended value of Alen, */
+				/* or 0 if input arguments are erroneous */
 (
     int nnz,			/* nonzeros in A */
     int n_row,			/* number of rows in A */
     int n_col			/* number of columns in A */
 ) ;
 
-long colamd_l_recommended	/* returns recommended value of Alen, */
-				/* or (-1) if input arguments are erroneous */
+size_t colamd_l_recommended	/* returns recommended value of Alen, */
+				/* or 0 if input arguments are erroneous */
 (
-    long nnz,			/* nonzeros in A */
-    long n_row,			/* number of rows in A */
-    long n_col			/* number of columns in A */
+    UF_long nnz,		/* nonzeros in A */
+    UF_long n_row,		/* number of rows in A */
+    UF_long n_col		/* number of columns in A */
 ) ;
 
 void colamd_set_defaults	/* sets default parameters */
@@ -175,15 +178,15 @@ int colamd			/* returns (1) if successful, (0) otherwise*/
     int stats [COLAMD_STATS]	/* colamd output statistics and error codes */
 ) ;
 
-long colamd_l			/* returns (1) if successful, (0) otherwise*/
+UF_long colamd_l		/* returns (1) if successful, (0) otherwise*/
 (				/* A and p arguments are modified on output */
-    long n_row,			/* number of rows in A */
-    long n_col,			/* number of columns in A */
-    long Alen,			/* size of the array A */
-    long A [],			/* row indices of A, of size Alen */
-    long p [],			/* column pointers of A, of size n_col+1 */
+    UF_long n_row,		/* number of rows in A */
+    UF_long n_col,		/* number of columns in A */
+    UF_long Alen,		/* size of the array A */
+    UF_long A [],		/* row indices of A, of size Alen */
+    UF_long p [],		/* column pointers of A, of size n_col+1 */
     double knobs [COLAMD_KNOBS],/* parameter settings for colamd */
-    long stats [COLAMD_STATS]	/* colamd output statistics and error codes */
+    UF_long stats [COLAMD_STATS]/* colamd output statistics and error codes */
 ) ;
 
 int symamd				/* return (1) if OK, (0) otherwise */
@@ -202,14 +205,14 @@ int symamd				/* return (1) if OK, (0) otherwise */
     					/* mxFree (for MATLAB mexFunction) */
 ) ;
 
-long symamd_l				/* return (1) if OK, (0) otherwise */
+UF_long symamd_l			/* return (1) if OK, (0) otherwise */
 (
-    long n,				/* number of rows and columns of A */
-    long A [],				/* row indices of A */
-    long p [],				/* column pointers of A */
-    long perm [],			/* output permutation, size n_col+1 */
+    UF_long n,				/* number of rows and columns of A */
+    UF_long A [],			/* row indices of A */
+    UF_long p [],			/* column pointers of A */
+    UF_long perm [],			/* output permutation, size n_col+1 */
     double knobs [COLAMD_KNOBS],	/* parameters (uses defaults if NULL) */
-    long stats [COLAMD_STATS],		/* output statistics and error codes */
+    UF_long stats [COLAMD_STATS],	/* output statistics and error codes */
     void * (*allocate) (size_t, size_t),
     					/* pointer to calloc (ANSI C) or */
 					/* mxCalloc (for MATLAB mexFunction) */
@@ -225,7 +228,7 @@ void colamd_report
 
 void colamd_l_report
 (
-    long stats [COLAMD_STATS]
+    UF_long stats [COLAMD_STATS]
 ) ;
 
 void symamd_report
@@ -235,10 +238,14 @@ void symamd_report
 
 void symamd_l_report
 (
-    long stats [COLAMD_STATS]
+    UF_long stats [COLAMD_STATS]
 ) ;
 
-extern int (*colamd_printf) (const char *, ...) ;
+#ifndef EXTERN
+#define EXTERN extern
+#endif
+
+EXTERN int (*colamd_printf) (const char *, ...) ;
 
 #ifdef __cplusplus
 }

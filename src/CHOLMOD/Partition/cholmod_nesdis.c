@@ -3,8 +3,8 @@
 /* ========================================================================== */
 
 /* -----------------------------------------------------------------------------
- * CHOLMOD/Partition Module.  Version 0.6.
- * Copyright (C) 2005, Univ. of Florida.  Author: Timothy A. Davis
+ * CHOLMOD/Partition Module.  Version 1.2.
+ * Copyright (C) 2005-2006, Univ. of Florida.  Author: Timothy A. Davis
  * The CHOLMOD/Partition Module is licensed under Version 2.1 of the GNU
  * Lesser General Public License.  See lesser.txt for a text of the license.
  * CHOLMOD is also available under other licenses; contact authors for details.
@@ -26,10 +26,9 @@
  *	gives better orderings than METIS_NodeND (about 5% to 10% fewer
  *	nonzeros in L).
  *
- *	FUTURE WORK: CSYMAMD is not a "native" symmetric ordering, but recasts
- *	the problem for CCOLAMD.  It gives good orderings, but the related
- *	SYMAMD can be up to 4 times slower than COLAMD.  A constrained AMD
- *	would be faster.
+ * cholmod_collapse_septree:
+ *
+ *	Prune the separator tree returned by cholmod_nested_dissection.
  *
  * This file contains several routines private to this file:
  *
@@ -42,9 +41,9 @@
 
 #ifndef NPARTITION
 
+#include "cholmod_internal.h"
 #include "cholmod_partition.h"
 #include "cholmod_cholesky.h"
-#include "cholmod_internal.h"
 
 /* ========================================================================== */
 /* === partition ============================================================ */
@@ -63,12 +62,14 @@
  * separator, respectively.  Note that the input graph need not be connected,
  * and the output subgraphs (the three parts) may also be unconnected.
  *
- * The size of the separator is guaranteed to be between 1 and n nodes.
- * If it is of size less than n, then both the left and right parts are
- * guaranteed to be non-empty.
+ * Returns the size of the separator, in terms of the sum of the weights of
+ * the nodes.  It is guaranteed to be between 1 and the total weight of all
+ * the nodes.  If it is of size less than the total weight, then both the left
+ * and right parts are guaranteed to be non-empty (this guarantee depends on
+ * cholmod_metis_bisector).
  */
 
-static int partition	/* size of separator or -1 if failure */
+static UF_long partition    /* size of separator or -1 if failure */
 (
     /* inputs, not modified on output */
 #ifndef NDEBUG
@@ -106,8 +107,7 @@ static int partition	/* size of separator or -1 if failure */
 )
 {
     Int n, hash, head, i, j, k, p, pend, ilen, ilast, pi, piend,
-	jlen, ok, cn, csep, pdest, nodes_pruned, nz, total_weight,
-	jscattered ;
+	jlen, ok, cn, csep, pdest, nodes_pruned, nz, total_weight, jscattered ;
     Int *Cp, *Ci, *Next, *Hhead ;
 
 #ifndef NDEBUG
@@ -116,7 +116,7 @@ static int partition	/* size of separator or -1 if failure */
 #endif
 
     /* ---------------------------------------------------------------------- */
-    /* quick return for empty graphs */
+    /* quick return for small or empty graphs */
     /* ---------------------------------------------------------------------- */
 
     n = C->nrow ;
@@ -124,12 +124,28 @@ static int partition	/* size of separator or -1 if failure */
     Ci = C->i ;
     nz = Cp [n] ;
 
-    PRINT1 (("Partition start, n "ID" nz "ID"\n", n, nz)) ;
+    PRINT2 (("Partition start, n "ID" nz "ID"\n", n, nz)) ;
 
-    if (n <= 1 || nz <= 0)
+    total_weight = 0 ;
+    for (j = 0 ; j < n ; j++)
+    {
+	ASSERT (Cnw [j] > 0) ;
+	total_weight += Cnw [j] ;
+    }
+
+    if (n <= 2)
+    {
+	/* very small graph */
+	for (j = 0 ; j < n ; j++)
+	{
+	    Part [j] = 2 ;
+	}
+	return (total_weight) ;
+    }
+    else if (nz <= 0)
     {
 	/* no edges, this is easy */
-	PRINT1 (("diagonal matrix\n")) ;
+	PRINT2 (("diagonal matrix\n")) ;
 	k = n/2 ;
 	for (j = 0 ; j < k ; j++)
 	{
@@ -140,23 +156,13 @@ static int partition	/* size of separator or -1 if failure */
 	    Part [j] = 1 ;
 	}
 	/* ensure the separator is not empty (required by nested dissection) */
-	if (n > 0)
-	{
-	    Part [n-1] = 2 ;
-	}
-	return ((n > 0) ? 1 : 0) ;
-    }
-
-    total_weight = 0 ;
-    for (j = 0 ; j < n ; j++)
-    {
-	ASSERT (Cnw [j] > 0) ;
-	total_weight += Cnw [j] ;
+	Part [n-1] = 2 ;
+	return (Cnw [n-1]) ;
     }
 
 #ifndef NDEBUG
     ASSERT (n > 1 && nz > 0) ;
-    PRINT1 (("original graph:\n")) ;
+    PRINT2 (("original graph:\n")) ;
     for (j = 0 ; j < n ; j++)
     {
 	PRINT2 ((""ID": ", j)) ;
@@ -346,8 +352,8 @@ static int partition	/* size of separator or -1 if failure */
 	}
 
 	DEBUG (if (((work - goodwork) / (double) nz) > 0.20) PRINT0 ((
-	    "work %12g good %12g nz %12ld (wasted work/nz: %6.2f )\n",
-	    work, goodwork, (long) nz, (work - goodwork) / ((double) nz)))) ;
+	    "work %12g good %12g nz %12g (wasted work/nz: %6.2f )\n",
+	    work, goodwork, (double) nz, (work - goodwork) / ((double) nz)))) ;
 
 	/* All hash buckets now empty.  Cmap no longer needed as workspace. ]
 	 * Cew no longer needed as Hhead; Cew is now restored to all ones. ]
@@ -381,7 +387,7 @@ static int partition	/* size of separator or -1 if failure */
 	/* only one node left.  This is a dense graph */
 	/* ------------------------------------------------------------------ */
 
-	PRINT1 (("completely dense graph\n")) ;
+	PRINT2 (("completely dense graph\n")) ;
 	csep = total_weight ;
 	for (j = 0 ; j < n ; j++)
 	{
@@ -418,7 +424,7 @@ static int partition	/* size of separator or -1 if failure */
 	    }
 	}
 	cn = k ;	    /* # of nodes in compressed graph */
-	PRINT1 (("compressed graph from "ID" to "ID" nodes\n", n, cn)) ;
+	PRINT2 (("compressed graph from "ID" to "ID" nodes\n", n, cn)) ;
 	ASSERT (cn > 1 && cn == n - nodes_pruned) ;
 
 	/* ------------------------------------------------------------------ */
@@ -458,9 +464,9 @@ static int partition	/* size of separator or -1 if failure */
 	C->ncol = cn ;	/* affects mem stats unless restored when C free'd */
 
 #ifndef NDEBUG
-	PRINT1 (("pruned graph ("ID"/"ID") nodes, ("ID"/"ID") edges\n",
+	PRINT2 (("pruned graph ("ID"/"ID") nodes, ("ID"/"ID") edges\n",
 		    cn, n, pdest, nz)) ;
-	PRINT1 (("compressed graph:\n")) ;
+	PRINT2 (("compressed graph:\n")) ;
 	for (cnt = 0, j = 0 ; j < cn ; j++)
 	{
 	    PRINT2 ((""ID": ", j)) ;
@@ -492,9 +498,9 @@ static int partition	/* size of separator or -1 if failure */
 	    return (-1) ;
 	}
 
-	PRINT1 (("Part: ")) ;
+	PRINT2 (("Part: ")) ;
 	DEBUG (for (j = 0 ; j < cn ; j++) PRINT2 ((""ID" ", Part [j]))) ;
-	PRINT1 (("\n")) ;
+	PRINT2 (("\n")) ;
 
 	/* Cp and Ci no longer needed */
 
@@ -539,15 +545,15 @@ static int partition	/* size of separator or -1 if failure */
 	}
 
 #ifndef NDEBUG
-	PRINT1 (("Part: ")) ;
+	PRINT2 (("Part: ")) ;
 	for (cnt = 0, j = 0 ; j < n ; j++)
 	{
 	    ASSERT (Part [j] != EMPTY) ;
 	    PRINT2 ((""ID" ", Part [j])) ;
 	    if (Part [j] == 2) cnt += Cnw [j] ;
 	}
-	PRINT1 (("\n")) ;
-	PRINT1 (("csep "ID" "ID"\n", cnt, csep)) ;
+	PRINT2 (("\n")) ;
+	PRINT2 (("csep "ID" "ID"\n", cnt, csep)) ;
 	ASSERT (cnt == csep) ;
 	for (cnt = 0, j = 0 ; j < n ; j++) cnt += Cnw [j] ;
 	ASSERT (cnt == total_weight) ;
@@ -559,7 +565,7 @@ static int partition	/* size of separator or -1 if failure */
     /* return the separator (or -1 if error) */
     /* ---------------------------------------------------------------------- */
 
-    PRINT1 (("Partition done, n "ID" csep "ID"\n", n, csep)) ;
+    PRINT2 (("Partition done, n "ID" csep "ID"\n", n, csep)) ;
     return (csep) ;
 }
 
@@ -581,7 +587,7 @@ static int partition	/* size of separator or -1 if failure */
  * workspace: Flag (nrow)
  */
 
-static long clear_flag (cholmod_common *Common)
+static UF_long clear_flag (cholmod_common *Common)
 {
     Int nrow, i ;
     Int *Flag ;
@@ -625,6 +631,14 @@ static long clear_flag (cholmod_common *Common)
  * A component S is defined by a "representative node" (repnode for short)
  * called the snode, which is one of the nodes in the subgraph.  Likewise, the
  * subgraph C is defined by its repnode, called cnode.
+ * 
+ * If Part is not NULL on input, then Part [i] determines how the components
+ * are placed on the stack.  Components containing nodes i with Part [i] == 0
+ * are placed first, followed by components with Part [i] == 1. 
+ *
+ * The first node placed in each of the two parts is flipped when placed in
+ * the Cstack.  This allows the components of the two parts to be found simply
+ * by traversing the Cstack.
  *
  * workspace: Flag (nrow)
  */
@@ -637,6 +651,8 @@ static void find_components
     Int cn,		    /* # of nodes in C */
     Int cnode,		    /* root node of component C, or EMPTY if C is the
 			     * entire graph B */
+
+    Int Part [ ],	    /* size cn, optional */
 
     /* input/output */
     Int Bnz [ ],	    /* size n.  Bnz [j] = # nonzeros in column j of B.
@@ -657,13 +673,15 @@ static void find_components
     cholmod_common *Common
 )
 {
-    Int n, mark, cj, j, sj, sn, p, i, snode, pstart, pdest, pend, nd_small ;
+    Int n, mark, cj, j, sj, sn, p, i, snode, pstart, pdest, pend, nd_components,
+	part, first ;
     Int *Bp, *Bi, *Flag ;
 
     /* ---------------------------------------------------------------------- */
     /* get workspace */
     /* ---------------------------------------------------------------------- */
 
+    PRINT2 (("find components: cn %d\n", cn)) ;
     Flag = Common->Flag ;	    /* size n */
     Common->mark = EMPTY ;	    /* force initialization of Flag array */
     mark = clear_flag (Common) ;    /* clear Flag but preserve Flag [i]<EMPTY */
@@ -674,93 +692,107 @@ static void find_components
     ASSERT (IMPLIES (cnode >= 0, Flag [cnode] < EMPTY)) ;
 
     /* get ordering parameters */
-    nd_small = Common->method [Common->current].nd_small ;
-    nd_small = MAX (4, nd_small) ;
+    nd_components = Common->method [Common->current].nd_components ;
 
     /* ---------------------------------------------------------------------- */
     /* find the connected components of C via a breadth-first search */
     /* ---------------------------------------------------------------------- */
 
-    for (cj = 0 ; cj < cn ; cj++)
+    part = (Part == NULL) ? 0 : 1 ;
+
+    /* examine each part (part 1 and then part 0) */
+    for (part = (Part == NULL) ? 0 : 1 ; part >= 0 ; part--)
     {
-	/* get node snode, which is node cj of C.  It might already be in the
-	 * separator of C (and thus ordered, with Flag [snode] < EMPTY) */
-	snode = (Map == NULL) ? (cj) : (Map [cj]) ;
-	ASSERT (snode >= 0 && snode < n) ;
 
-	if (Flag [snode] >= EMPTY && Flag [snode] < mark)
+	/* first is TRUE for the first connected component in each part */
+	first = TRUE ;
+
+	/* find all connected components in the current part */
+	for (cj = 0 ; cj < cn ; cj++)
 	{
+	    /* get node snode, which is node cj of C.  It might already be in
+	     * the separator of C (and thus ordered, with Flag [snode] < EMPTY)
+	     */
+	    snode = (Map == NULL) ? (cj) : (Map [cj]) ;
+	    ASSERT (snode >= 0 && snode < n) ;
 
-	    /* -------------------------------------------------------------- */
-	    /* find new connected component S */
-	    /* -------------------------------------------------------------- */
-
-	    /* node snode is the repnode of a connected component S, the
-	     * parent of which is cnode, the repnode of C.  If cnode is
-	     * EMPTY then C is the original graph B. */
-	    PRINT1 (("-------------:::snode "ID" cnode "ID"\n", snode, cnode)) ;
-	    ASSERT (CParent [snode] == -2) ;
-	    CParent [snode] = cnode ;
-
-	    /* place j in the queue and mark it */
-	    sj = 0 ;
-	    Queue [0] = snode ;
-	    Flag [snode] = mark ;
-	    sn = 1 ;
-
-	    /* breadth-first traversal, starting at node j */
-	    for (sj = 0 ; sj < sn ; sj++)
+	    if (Flag [snode] >= EMPTY && Flag [snode] < mark
+		    && ((Part == NULL) || Part [cj] == part))
 	    {
-		/* get node j from head of Queue and traverse its edges */
-		j = Queue [sj] ;
-		PRINT2 (("    j: "ID"\n", j)) ;
-		ASSERT (j >= 0 && j < n) ;
-		ASSERT (Flag [j] == mark) ;
-		pstart = Bp [j] ;
-		pdest = pstart ;
-		pend = pstart + Bnz [j] ;
-		for (p = pstart ; p < pend ; p++)
+
+		/* ---------------------------------------------------------- */
+		/* find new connected component S */
+		/* ---------------------------------------------------------- */
+
+		/* node snode is the repnode of a connected component S, the
+		 * parent of which is cnode, the repnode of C.  If cnode is
+		 * EMPTY then C is the original graph B. */
+		PRINT2 (("----------:::snode "ID" cnode "ID"\n", snode, cnode));
+
+		ASSERT (CParent [snode] == -2) ;
+		if (first || nd_components)
 		{
-		    i = Bi [p] ;
-		    if (i != j && Flag [i] >= EMPTY)
-		    {
-			/* node is still in the graph */
-			Bi [pdest++] = i ;
-			if (Flag [i] < mark)
-			{
-			    /* node i is in this component S, and is unflagged
-			     * (first time node i has been seen in this BFS).
-			     * place node i in the queue and mark it */
-			    Queue [sn++] = i ;
-			    Flag [i] = mark ;
-			}
-		    }
+		    /* If this is the first node in this part, then it becomes
+		     * the repnode of all components in this part, and all
+		     * components in this part form a single node in the
+		     * separator tree.  If nd_components is TRUE, then all
+		     * connected components form their own node in the
+		     * separator tree.
+		     */
+		    CParent [snode] = cnode ;
 		}
-		/* edges to dead nodes have been removed */
-		Bnz [j] = pdest - pstart ;
-	    }
 
-	    /* -------------------------------------------------------------- */
-	    /* order S if it is small; place it on Cstack otherwise */
-	    /* -------------------------------------------------------------- */
+		/* place j in the queue and mark it */
+		sj = 0 ;
+		Queue [0] = snode ;
+		Flag [snode] = mark ;
+		sn = 1 ;
 
-	    PRINT2 (("sn "ID"\n", sn)) ;
-	    if (sn <= nd_small)
-	    {
-		/* the S component is tiny, order it now */
+		/* breadth-first traversal, starting at node j */
 		for (sj = 0 ; sj < sn ; sj++)
 		{
+		    /* get node j from head of Queue and traverse its edges */
 		    j = Queue [sj] ;
+		    PRINT2 (("    j: "ID"\n", j)) ;
 		    ASSERT (j >= 0 && j < n) ;
 		    ASSERT (Flag [j] == mark) ;
-		    Flag [j] = FLIP (snode) ;
+		    pstart = Bp [j] ;
+		    pdest = pstart ;
+		    pend = pstart + Bnz [j] ;
+		    for (p = pstart ; p < pend ; p++)
+		    {
+			i = Bi [p] ;
+			if (i != j && Flag [i] >= EMPTY)
+			{
+			    /* node is still in the graph */
+			    Bi [pdest++] = i ;
+			    if (Flag [i] < mark)
+			    {
+				/* node i is in this component S, and unflagged
+				 * (first time node i has been seen in this BFS).
+				 * place node i in the queue and mark it */
+				Queue [sn++] = i ;
+				Flag [i] = mark ;
+			    }
+			}
+		    }
+		    /* edges to dead nodes have been removed */
+		    Bnz [j] = pdest - pstart ;
 		}
-		ASSERT (Flag [snode] == FLIP (snode)) ;
-	    }
-	    else
-	    {
-		/* place the new component on the Cstack */
-		Cstack [++(*top)] = snode ;
+
+		/* ---------------------------------------------------------- */
+		/* order S if it is small; place it on Cstack otherwise */
+		/* ---------------------------------------------------------- */
+
+		PRINT2 (("sn "ID"\n", sn)) ;
+
+		/* place the new component on the Cstack.  Flip the node if
+		 * is the first connected component of the current part,
+		 * or if all components are treated as their own node in
+		 * the separator tree. */
+		Cstack [++(*top)] =
+			(first || nd_components) ? FLIP (snode) : snode ;
+		first = FALSE ;
 	    }
 	}
     }
@@ -782,7 +814,7 @@ static void find_components
  *	and O(nnz(A)) temporary memory space.
  */
 
-long CHOLMOD(bisect)	/* returns # of nodes in separator */
+UF_long CHOLMOD(bisect)	/* returns # of nodes in separator */
 (
     /* ---- input ---- */
     cholmod_sparse *A,	/* matrix to bisect */
@@ -800,7 +832,9 @@ long CHOLMOD(bisect)	/* returns # of nodes in separator */
     Int *Bp, *Bi, *Hash, *Cmap, *Bnw, *Bew, *Iwork ;
     cholmod_sparse *B ;
     unsigned Int hash ;
-    Int j, n, bnz, csize, sepsize, p, pend ;
+    Int j, n, bnz, sepsize, p, pend ;
+    size_t csize, s ;
+    int ok = TRUE ;
 
     /* ---------------------------------------------------------------------- */
     /* check inputs */
@@ -826,10 +860,18 @@ long CHOLMOD(bisect)	/* returns # of nodes in separator */
     /* allocate workspace */
     /* ---------------------------------------------------------------------- */
 
-    CHOLMOD(allocate_work) (n, n + MAX (n, ((Int) (A->ncol))), 0, Common) ;
+    /* s = n + MAX (n, A->ncol) */
+    s = CHOLMOD(add_size_t) (A->nrow, MAX (A->nrow, A->ncol), &ok) ;
+    if (!ok)
+    {
+	ERROR (CHOLMOD_TOO_LARGE, "problem too large") ;
+	return (EMPTY) ;
+    }
+
+    CHOLMOD(allocate_work) (n, s, 0, Common) ;
     if (Common->status < CHOLMOD_OK)
     {
-	return (-1) ;
+	return (EMPTY) ;
     }
     ASSERT (CHOLMOD(dump_work) (TRUE, TRUE, 0, Common)) ;
 
@@ -871,10 +913,11 @@ long CHOLMOD(bisect)	/* returns # of nodes in separator */
 
     /* B does not include the diagonal, and both upper and lower parts.
      * Common->anz includes the diagonal, and just the lower part of B */
-    Common->anz = bnz / 2 + n ;
+    Common->anz = bnz / 2 + ((double) n) ;
 
     /* Bew should be at least size n for the hash function to work well */
-    csize = MAX (n+1, bnz) ;
+    /* this cannot cause overflow, because the matrix is already created */
+    csize = MAX (((size_t) n) + 1, (size_t) bnz) ;
 
     /* create the graph using Flag as workspace for node weights [ */
     Bnw = Common->Flag ;    /* size n workspace */
@@ -913,9 +956,9 @@ long CHOLMOD(bisect)	/* returns # of nodes in separator */
     {
 	Bnw [j] = 1 ;
     }
-    for (p = 0 ; p < csize ; p++)
+    for (s = 0 ; s < csize ; s++)
     {
-	Bew [p] = 1 ;
+	Bew [s] = 1 ;
     }
 
     /* ---------------------------------------------------------------------- */
@@ -951,16 +994,16 @@ long CHOLMOD(bisect)	/* returns # of nodes in separator */
 
 /* This method uses a node bisector, applied recursively (but using a
  * non-recursive algorithm).  Once the graph is partitioned, it calls a
- * constrained min degree code (CSYMAMD for A+A', and CCOLAMD for A*A') to
- * order all the nodes in the graph - but obeying the constraints determined
+ * constrained min degree code (CAMD or CSYMAMD for A+A', and CCOLAMD for A*A')
+ * to order all the nodes in the graph - but obeying the constraints determined
  * by the separators.  This routine is similar to METIS_NodeND, except for how
  * it treats the leaf nodes.  METIS_NodeND orders the leaves of the separator
  * tree with MMD, ignoring the rest of the matrix when ordering a single leaf.
  * This routine orders the whole matrix with CSYMAMD or CCOLAMD, all at once,
  * when the graph partitioning is done.
  *
- * FUTURE WORK: write CAMD, a constrained AMD ordering, which would be much
- * faster for the symmetric case.
+ * This function also returns a postorderd separator tree (CParent), and a
+ * mapping of nodes in the graph to nodes in the separator tree (Cmember).
  *
  * workspace: Flag (nrow), Head (nrow+1), Iwork (4*nrow + (ncol if unsymmetric))
  *	Allocates a temporary matrix B=A*A' or B=A,
@@ -968,7 +1011,7 @@ long CHOLMOD(bisect)	/* returns # of nodes in separator */
  *	Allocates an additional 3*n*sizeof(Int) temporary workspace
  */
 
-long CHOLMOD(nested_dissection)	/* returns # of components, or -1 if error */
+UF_long CHOLMOD(nested_dissection) /* returns # of components, or -1 if error */
 (
     /* ---- input ---- */
     cholmod_sparse *A,	/* matrix to order */
@@ -985,15 +1028,18 @@ long CHOLMOD(nested_dissection)	/* returns # of components, or -1 if error */
     cholmod_common *Common
 )
 {
-    double prune_dense ;
+    double prune_dense, nd_oksep ;
     Int *Bp, *Bi, *Bnz, *Cstack, *Imap, *Map, *Flag, *Head, *Next, *Bnw, *Iwork,
 	*Ipost, *NewParent, *Hash, *Cmap, *Cp, *Ci, *Cew, *Cnw, *Part, *Post,
 	*Work3n ;
     unsigned Int hash ;
-    Int n, bnz, top, i, j, k, cnode, p, cj, cn, ci, cnz, mark, c, uncol,
+    Int n, bnz, top, i, j, k, cnode, cdense, p, cj, cn, ci, cnz, mark, c, uncol,
 	sepsize, parent, ncomponents, threshold, ndense, pstart, pdest, pend,
-	ok, nd_compress, nd_camd, csize, jnext ;
+	nd_compress, nd_camd, csize, jnext, nd_small, total_weight,
+	nchild, child = EMPTY ;
     cholmod_sparse *B, *C ;
+    size_t s ;
+    int ok = TRUE ;
     DEBUG (Int cnt) ;
 
     /* ---------------------------------------------------------------------- */
@@ -1027,14 +1073,32 @@ long CHOLMOD(nested_dissection)	/* returns # of components, or -1 if error */
     /* get ordering parameters */
     prune_dense = Common->method [Common->current].prune_dense ;
     nd_compress = Common->method [Common->current].nd_compress ;
+    nd_oksep = Common->method [Common->current].nd_oksep ;
+    nd_oksep = MAX (0, nd_oksep) ;
+    nd_oksep = MIN (1, nd_oksep) ;
     nd_camd = Common->method [Common->current].nd_camd ;
+    nd_small = Common->method [Common->current].nd_small ;
+    nd_small = MAX (4, nd_small) ;
+
+    PRINT0 (("nd_components %d nd_small %d nd_oksep %g\n", 
+	Common->method [Common->current].nd_components,
+	nd_small, nd_oksep)) ;
 
     /* ---------------------------------------------------------------------- */
     /* allocate workspace */
     /* ---------------------------------------------------------------------- */
 
-    uncol = (A->stype == 0) ? (A->ncol) : 0 ;
-    CHOLMOD(allocate_work) (n, 4*n + uncol, 0, Common) ;
+    /* s = 4*n + uncol */
+    uncol = (A->stype == 0) ? A->ncol : 0 ;
+    s = CHOLMOD(mult_size_t) (n, 4, &ok) ;
+    s = CHOLMOD(add_size_t) (s, uncol, &ok) ;
+    if (!ok)
+    {
+	ERROR (CHOLMOD_TOO_LARGE, "problem too large") ;
+	return (EMPTY) ;
+    }
+
+    CHOLMOD(allocate_work) (n, s, 0, Common) ;
     if (Common->status < CHOLMOD_OK)
     {
 	return (EMPTY) ;
@@ -1051,13 +1115,13 @@ long CHOLMOD(nested_dissection)	/* returns # of components, or -1 if error */
     Iwork = Common->Iwork ;
     Imap = Iwork ;		/* size n, same as Queue in find_components */
     Map  = Iwork + n ;		/* size n */
-    Bnz  = Iwork + 2*n ;	/* size n */
-    Hash = Iwork + 3*n ;	/* size n */
+    Bnz  = Iwork + 2*((size_t) n) ;	/* size n */
+    Hash = Iwork + 3*((size_t) n) ;	/* size n */
 
-    Work3n = CHOLMOD(malloc) (3*n, sizeof (Int), Common) ;
+    Work3n = CHOLMOD(malloc) (n, 3*sizeof (Int), Common) ;
     Part = Work3n ;		/* size n */
-    Bnw  = Work3n + n ;		/* size n */
-    Cnw  = Work3n + 2*n ;	/* size n */
+    Bnw  = Part + n ;		/* size n */
+    Cnw  = Bnw + n ;		/* size n */
 
     Cstack = Perm ;		/* size n, use Perm as workspace for Cstack [ */
     Cmap = Cmember ;		/* size n, use Cmember as workspace [ */
@@ -1122,11 +1186,13 @@ long CHOLMOD(nested_dissection)	/* returns # of components, or -1 if error */
     }
     else
     {
+	/* remove nodes with degree more than threshold */
 	threshold = (Int) (MAX (16, prune_dense * sqrt ((double) (n)))) ;
 	threshold = MIN (n, threshold) ;
     }
     ndense = 0 ;
     cnode = EMPTY ;
+    cdense = EMPTY ;
 
     for (j = 0 ; j < n ; j++)
     {
@@ -1134,11 +1200,13 @@ long CHOLMOD(nested_dissection)	/* returns # of components, or -1 if error */
 	if (Bnz [j] > threshold)
 	{
 	    /* node j is dense, prune it from B */
+	    PRINT2 (("j is dense %d\n", j)) ;
 	    ndense++ ;
 	    if (cnode == EMPTY)
 	    {
 		/* first dense node found becomes root of this component,
 		 * which contains all of the dense nodes found here */
+		cdense = j ;
 		cnode = j ;
 		CParent [cnode] = EMPTY ;
 	    }
@@ -1152,7 +1220,7 @@ long CHOLMOD(nested_dissection)	/* returns # of components, or -1 if error */
     {
 	/* all nodes removed: Perm is identity, all nodes in component zero,
 	 * and the separator tree has just one node. */
-	PRINT1 (("all nodes are dense\n")) ;
+	PRINT2 (("all nodes are dense\n")) ;
 	for (k = 0 ; k < n ; k++)
 	{
 	    Perm [k] = k ;
@@ -1180,7 +1248,7 @@ long CHOLMOD(nested_dissection)	/* returns # of components, or -1 if error */
 	CHOLMOD(free) (3*n, sizeof (Int), Work3n, Common) ;
 	Common->mark = EMPTY ;
 	CHOLMOD(clear_flag) (Common) ;
-	PRINT1 (("out of memory for C, etc\n")) ;
+	PRINT2 (("out of memory for C, etc\n")) ;
 	return (EMPTY) ;
     }
 
@@ -1200,8 +1268,8 @@ long CHOLMOD(nested_dissection)	/* returns # of components, or -1 if error */
     /* push the initial connnected components of B onto the Cstack */
     top = EMPTY ;	/* Cstack is empty */
     /* workspace: Flag (nrow), Iwork (nrow); use Imap as workspace for Queue [*/
-    find_components (B, NULL, n, cnode, Bnz, CParent, Cstack, &top, Imap,
-	    Common) ;
+    find_components (B, NULL, n, cnode, NULL,
+	    Bnz, CParent, Cstack, &top, Imap, Common) ;
     /* done using Imap as workspace for Queue ] */
 
     /* Nodes can now be of Type 0, 1, 2, or 4 (see definition below) */
@@ -1213,14 +1281,43 @@ long CHOLMOD(nested_dissection)	/* returns # of components, or -1 if error */
     while (top >= 0)
     {
 
+	/* clear the Flag array, but do not modify negative entries in Flag  */
+	mark = clear_flag (Common) ;
+
+	DEBUG (for (i = 0 ; i < n ; i++) Imap [i] = EMPTY) ;
+
 	/* ------------------------------------------------------------------ */
-	/* get a node from the top of the Cstack */
+	/* get node(s) from the top of the Cstack */
 	/* ------------------------------------------------------------------ */
 
-	/* cnode is the repnode of its (unordered) connected component. */
-	cnode = Cstack [top--] ;
-	ASSERT (cnode >= 0 && cnode < n && Flag [cnode] >= EMPTY) ;
-	ASSERT (CParent [cnode] >= EMPTY && CParent [cnode] < n) ;
+	/* i is the repnode of its (unordered) connected component.  Get
+	 * all repnodes for all connected components of a single part.  If
+	 * each connected component is to be ordered separately (nd_components
+	 * is TRUE), then this while loop iterates just once. */
+
+	cnode = EMPTY ;
+	cn = 0 ;
+	while (cnode == EMPTY)
+	{
+	    i = Cstack [top--] ;
+
+	    if (i < 0)
+	    {
+		/* this is the last node in this component */
+		i = FLIP (i) ;
+		cnode = i ;
+	    }
+
+	    ASSERT (i >= 0 && i < n && Flag [i] >= EMPTY) ;
+
+	    /* place i in the queue and mark it */
+	    Map [cn] = i ;
+	    Flag [i] = mark ;
+	    Imap [i] = cn ;
+	    cn++ ;
+	}
+
+	ASSERT (cnode != EMPTY) ;
 
 	/* During ordering, there are five kinds of nodes in the graph of B,
 	 * based on Flag [j] and CParent [j] for nodes j = 0 to n-1:
@@ -1264,17 +1361,8 @@ long CHOLMOD(nested_dissection)	/* returns # of components, or -1 if error */
 	 * use Imap [i] for all nodes i in B that are in the component C [
 	 */
 
-	/* clear the Flag array, but do not modify negative entries in Flag  */
-	mark = clear_flag (Common) ;
-	DEBUG (for (i = 0 ; i < n ; i++) Imap [i] = EMPTY) ;
-
-	/* place cnode in the queue and mark it */
-	Map [0] = cnode ;
-	Flag [cnode] = mark ;
-	Imap [cnode] = 0 ;
-	cn = 1 ;
-
 	cnz = 0 ;
+	total_weight = 0 ;
 	for (cj = 0 ; cj < cn ; cj++)
 	{
 	    /* get node j from the head of the queue; it is node cj of C */
@@ -1283,6 +1371,7 @@ long CHOLMOD(nested_dissection)	/* returns # of components, or -1 if error */
 	    Cp [cj] = cnz ;
 	    Cnw [cj] = Bnw [j] ;
 	    ASSERT (Cnw [cj] >= 0) ;
+	    total_weight += Cnw [cj] ;
 	    pstart = Bp [j] ;
 	    pdest = pstart ;
 	    pend = pstart + Bnz [j] ;
@@ -1344,69 +1433,79 @@ long CHOLMOD(nested_dissection)	/* returns # of components, or -1 if error */
 	}
 #endif
 
-	/* small components are never placed on the stack */
-	ASSERT (cn > MAX (4, (Int) Common->method [Common->current].nd_small)) ;
+	PRINT0 (("consider cn %d nd_small %d ", cn, nd_small)) ;
+	if (cn < nd_small)  /* TODO should be 'total_weight < nd_small' */
+	{
+	    /* place all nodes in the separator */
+	    PRINT0 ((" too small\n")) ;
+	    sepsize = total_weight ;
+	}
+	else
+	{
 
-	/* Cp and Ci now contain the component, with cn nodes and cnz nonzeros.
-	 * The mapping of a node cj into node j the main graph B is given by
-	 * Map [cj] = j */
+	    /* Cp and Ci now contain the component, with cn nodes and cnz
+	     * nonzeros.  The mapping of a node cj into node j the main graph
+	     * B is given by Map [cj] = j */
+	    PRINT0 ((" cut\n")) ;
 
-	/* ------------------------------------------------------------------ */
-	/* compress and partition the graph C */
-	/* ------------------------------------------------------------------ */
+	    /* -------------------------------------------------------------- */
+	    /* compress and partition the graph C */
+	    /* -------------------------------------------------------------- */
 
-	/* The edge weights Cew [0..csize-1] are all 1's on input to and output
-	 * from the partition routine. */
+	    /* The edge weights Cew [0..csize-1] are all 1's on input to and
+	     * output from the partition routine. */
 
-	sepsize = partition (
+	    sepsize = partition (
 #ifndef NDEBUG
-		csize,
+		    csize,
 #endif
-		nd_compress, Hash, C, Cnw, Cew,
-		Cmap, Part, Common) ;
+		    nd_compress, Hash, C, Cnw, Cew,
+		    Cmap, Part, Common) ;
 
-	/* contents of Cp and Ci no longer needed ] */
+	    /* contents of Cp and Ci no longer needed ] */
 
-	if (sepsize < 0)
-	{
-	    /* failed */
-	    C->ncol = n ;   /* restore size for memory usage statistics */
-	    CHOLMOD(free_sparse) (&C, Common) ;
-	    CHOLMOD(free_sparse) (&B, Common) ;
-	    CHOLMOD(free) (csize, sizeof (Int), Cew, Common) ;
-	    CHOLMOD(free) (3*n, sizeof (Int), Work3n, Common) ;
-	    Common->mark = EMPTY ;
-	    CHOLMOD(clear_flag) (Common) ;
-	    return (EMPTY) ;
-	}
-
-	/* ------------------------------------------------------------------ */
-	/* compress B based on how C was compressed */
-	/* ------------------------------------------------------------------ */
-
-	for (ci = 0 ; ci < cn ; ci++)
-	{
-	    if (Hash [ci] < EMPTY)
+	    if (sepsize < 0)
 	    {
-		/* ci is dead in C, having been absorbed into cj */
-		cj = FLIP (Hash [ci]) ;
-		PRINT1 (("In C, "ID" absorbed into "ID" (wgt now "ID")\n", ci,
-			cj, Cnw [cj])) ;
-		/* i is dead in B, having been absorbed into j */
-		i = Map [ci] ;
-		j = Map [cj] ;
-		PRINT1 (("In B, "ID" (wgt "ID") absorbed into "ID" (wgt "ID""
-			    "-> "ID")\n", i, Bnw [i], j, Bnw [j], Cnw [cj])) ;
-		/* more than one node may be absorbed into j.  This is accounted
-		 * for in Cnw [cj].  Assign it here rather than += Bnw [i] */
-		Bnw [i] = 0 ;
-		Bnw [j] = Cnw [cj] ;
-		Flag [i] = FLIP (j) ;
+		/* failed */
+		C->ncol = n ;   /* restore size for memory usage statistics */
+		CHOLMOD(free_sparse) (&C, Common) ;
+		CHOLMOD(free_sparse) (&B, Common) ;
+		CHOLMOD(free) (csize, sizeof (Int), Cew, Common) ;
+		CHOLMOD(free) (3*n, sizeof (Int), Work3n, Common) ;
+		Common->mark = EMPTY ;
+		CHOLMOD(clear_flag) (Common) ;
+		return (EMPTY) ;
 	    }
-	}
 
-	DEBUG (for (cnt = 0, j = 0 ; j < n ; j++) cnt += Bnw [j]) ;
-	ASSERT (cnt == n) ;
+	    /* -------------------------------------------------------------- */
+	    /* compress B based on how C was compressed */
+	    /* -------------------------------------------------------------- */
+
+	    for (ci = 0 ; ci < cn ; ci++)
+	    {
+		if (Hash [ci] < EMPTY)
+		{
+		    /* ci is dead in C, having been absorbed into cj */
+		    cj = FLIP (Hash [ci]) ;
+		    PRINT2 (("In C, "ID" absorbed into "ID" (wgt now "ID")\n",
+			    ci, cj, Cnw [cj])) ;
+		    /* i is dead in B, having been absorbed into j */
+		    i = Map [ci] ;
+		    j = Map [cj] ;
+		    PRINT2 (("In B, "ID" (wgt "ID") => "ID" (wgt "ID")\n",
+				i, Bnw [i], j, Bnw [j], Cnw [cj])) ;
+		    /* more than one node may be absorbed into j.  This is
+		     * accounted for in Cnw [cj].  Assign it here rather
+		     * than += Bnw [i] */
+		    Bnw [i] = 0 ;
+		    Bnw [j] = Cnw [cj] ;
+		    Flag [i] = FLIP (j) ;
+		}
+	    }
+
+	    DEBUG (for (cnt = 0, j = 0 ; j < n ; j++) cnt += Bnw [j]) ;
+	    ASSERT (cnt == n) ;
+	}
 
 	/* contents of Cnw [0..cn-1] no longer needed ] */
 
@@ -1417,30 +1516,40 @@ long CHOLMOD(nested_dissection)	/* returns # of components, or -1 if error */
 	/* one more component has been found: either the separator of C,
 	 * or all of C */
 
-	if (sepsize == cn || sepsize == 0)
+	ASSERT (sepsize >= 0 && sepsize <= total_weight) ;
+
+	PRINT0 (("sepsize %d tot %d : %8.4f ", sepsize, total_weight,
+	    ((double) sepsize) / ((double) total_weight))) ;
+
+	if (sepsize == total_weight || sepsize == 0 ||
+	    sepsize > nd_oksep * total_weight)
 	{
 	    /* Order the nodes in the component.  The separator is too large,
 	     * or empty.  Note that the partition routine cannot return a
 	     * sepsize of zero, but it can return a separator consisting of the
 	     * whole graph.  The "sepsize == 0" test is kept, above, in case the
-	     * partition routine changes.  In either case, this is component
+	     * partition routine changes.  In either case, this component
 	     * remains unsplit, and becomes a leaf of the separator tree. */
-	    PRINT1 (("sepsize zero or all of graph: "ID"\n", sepsize)) ;
+	    PRINT2 (("cnode %d sepsize zero or all of graph: "ID"\n",
+		cnode, sepsize)) ;
 	    for (cj = 0 ; cj < cn ; cj++)
 	    {
 		j = Map [cj] ;
 		Flag [j] = FLIP (cnode) ;
 		PRINT2 (("      node cj: "ID" j: "ID" ordered\n", cj, j)) ;
 	    }
-	    ASSERT (cnode == Map [0]) ;
+	    ASSERT (Flag [cnode] == FLIP (cnode)) ;
 	    ASSERT (cnode != EMPTY && Flag [cnode] < EMPTY) ;
+	    PRINT0 (("discarded\n")) ;
+
 	}
 	else
 	{
+
 	    /* Order the nodes in the separator of C and find a new repnode
 	     * cnode that is in the separator of C.  This requires the separator
 	     * to be non-empty. */
-	    PRINT1 (("sepsize not tiny: "ID"\n", sepsize)) ;
+	    PRINT0 (("sepsize not tiny: "ID"\n", sepsize)) ;
 	    parent = CParent [cnode] ;
 	    ASSERT (parent >= EMPTY && parent < n) ;
 	    CParent [cnode] = -2 ;
@@ -1472,9 +1581,9 @@ long CHOLMOD(nested_dissection)	/* returns # of components, or -1 if error */
 	    CParent [cnode] = parent ;
 
 	    /* find the connected components when C is split, and push
-	     * then on the Cstack.  Use Imap as workspace for Queue. [ */
+	     * them on the Cstack.  Use Imap as workspace for Queue. [ */
 	    /* workspace: Flag (nrow) */
-	    find_components (B, Map, cn, cnode, Bnz,
+	    find_components (B, Map, cn, cnode, Part, Bnz,
 		    CParent, Cstack, &top, Imap, Common) ;
 	    /* done using Imap as workspace for Queue ] */
 	}
@@ -1521,7 +1630,7 @@ long CHOLMOD(nested_dissection)	/* returns # of components, or -1 if error */
 	{
 	    ASSERT (j >= 0 && j < n) ;
 	    jnext = FLIP (Flag [j]) ;
-	    PRINT1 (("    "ID" walk "ID" set cnode to "ID"\n", i, j, cnode)) ;
+	    PRINT2 (("    "ID" walk "ID" set cnode to "ID"\n", i, j, cnode)) ;
 	    ASSERT (cnt < n) ;
 	    DEBUG (cnt++) ;
 	    Flag [j] = FLIP (cnode) ;
@@ -1534,15 +1643,18 @@ long CHOLMOD(nested_dissection)	/* returns # of components, or -1 if error */
 #ifndef NDEBUG
     for (j = 0 ; j < n ; j++)
     {
+	PRINT2 (("j %d CParent %d  ", j, CParent [j])) ;
 	if (CParent [j] >= EMPTY && CParent [j] < n)
 	{
 	    /* case 1: j is a repnode of a component */
 	    cnode = j ;
+	    PRINT2 ((" a repnode\n")) ;
 	}
 	else
 	{
 	    /* case 2: j is not a repnode of a component */
 	    cnode = FLIP (Flag [j]) ;
+	    PRINT2 ((" repnode is %d\n", cnode)) ;
 	    ASSERT (cnode >= 0 && cnode < n) ;
 	    ASSERT (CParent [cnode] >= EMPTY && CParent [cnode] < n) ;
 	}
@@ -1560,6 +1672,46 @@ long CHOLMOD(nested_dissection)	/* returns # of components, or -1 if error */
     CHOLMOD(free_sparse) (&B, Common) ;
     CHOLMOD(free) (csize, sizeof (Int), Cew, Common) ;
     CHOLMOD(free) (3*n, sizeof (Int), Work3n, Common) ;
+
+    /* ---------------------------------------------------------------------- */
+    /* handle dense nodes */
+    /* ---------------------------------------------------------------------- */
+
+    /* The separator tree has nodes with either no children or two or more
+     * children - with one exception.  There may exist a single root node with
+     * exactly one child, which holds the dense rows/columns of the matrix.
+     * Delete this node if it exists. */
+
+    if (ndense > 0)
+    {
+	ASSERT (CParent [cdense] == EMPTY) ;	/* cdense has no parent */
+	/* find the children of cdense */
+	nchild = 0 ;
+	for (j = 0 ; j < n ; j++)
+	{
+	    if (CParent [j] == cdense)
+	    {
+		nchild++ ;
+		child = j ;
+	    }
+	}
+	if (nchild == 1)
+	{
+	    /* the cdense node has just one child; merge the two nodes */
+	    PRINT1 (("root has one child\n")) ;
+	    CParent [cdense] = -2 ;		/* cdense is deleted */
+	    CParent [child] = EMPTY ;		/* child becomes a root */
+	    for (j = 0 ; j < n ; j++)
+	    {
+		if (Flag [j] == FLIP (cdense))
+		{
+		    /* j is a dense node */
+		    PRINT1 (("dense %d\n", j)) ;
+		    Flag [j] = FLIP (child) ;
+		}
+	    }
+	}
+    }
 
     /* ---------------------------------------------------------------------- */
     /* postorder the components */
@@ -1607,13 +1759,30 @@ long CHOLMOD(nested_dissection)	/* returns # of components, or -1 if error */
     /* Iwork [n..2n-1] no longer needed for NewParent ] */
     /* Cmember no longer needed for Post ] */
 
+#ifndef NDEBUG
+    /* count the number of children of each node */
+    for (c = 0 ; c < ncomponents ; c++)
+    {
+	Cmember [c] = 0 ;
+    }
+    for (c = 0 ; c < ncomponents ; c++)
+    {
+	if (CParent [c] != EMPTY) Cmember [CParent [c]]++ ;
+    }
+    for (c = 0 ; c < ncomponents ; c++)
+    {
+	/* a node is either a leaf, or has 2 or more children */
+	ASSERT (Cmember [c] == 0 || Cmember [c] >= 2) ;
+    }
+#endif
+
     /* ---------------------------------------------------------------------- */
     /* place each node in its component */
     /* ---------------------------------------------------------------------- */
 
     for (j = 0 ; j < n ; j++)
     {
-	/* node j is in the cth component, whose root node is cnode */
+	/* node j is in the cth component, whose repnode is cnode */
 	cnode = FLIP (Flag [j]) ;
 	PRINT2 (("j "ID"  flag "ID" cnode "ID"\n",
 		    j, Flag [j], FLIP (Flag [j]))) ;
@@ -1639,11 +1808,13 @@ long CHOLMOD(nested_dissection)	/* returns # of components, or -1 if error */
     /* find the permutation */
     /* ---------------------------------------------------------------------- */
 
+    PRINT1 (("nd_camd: %d A->stype %d\n", nd_camd, A->stype)) ;
+
     if (nd_camd)
     {
 
 	/* ------------------------------------------------------------------ */
-	/* apply csymamd or ccolamd using the Cmember constraints */
+	/* apply camd, csymamd, or ccolamd using the Cmember constraints */
 	/* ------------------------------------------------------------------ */
 
 	if (A->stype != 0)
@@ -1659,15 +1830,23 @@ long CHOLMOD(nested_dissection)	/* returns # of components, or -1 if error */
 		return (EMPTY) ;
 	    }
 	    ASSERT ((Int) (B->nrow) == n && (Int) (B->ncol) == n) ;
-	    PRINT1 (("nested dissection (2)\n")) ;
+	    PRINT2 (("nested dissection (2)\n")) ;
 	    B->stype = -1 ;
-	    /* workspace:  Head (nrow+1), Iwork (nrow) if symmetric-upper */
-	    ok = CHOLMOD(csymamd) (B, Cmember, Perm, Common) ;
+	    if (nd_camd == 2)
+	    {
+		/* workspace:  Head (nrow+1), Iwork (nrow) if symmetric-upper */
+		ok = CHOLMOD(csymamd) (B, Cmember, Perm, Common) ;
+	    }
+	    else
+	    {
+		/* workspace: Head (nrow), Iwork (4*nrow) */
+		ok = CHOLMOD(camd) (B, NULL, 0, Cmember, Perm, Common) ;
+	    }
 	    CHOLMOD(free_sparse) (&B, Common) ;
 	    if (!ok)
 	    {
-		/* csymamd failed */
-		PRINT0 (("csymamd failed\n")) ;
+		/* failed */
+		PRINT0 (("camd/csymamd failed\n")) ;
 		return (EMPTY) ;
 	    }
 	}
@@ -1678,7 +1857,7 @@ long CHOLMOD(nested_dissection)	/* returns # of components, or -1 if error */
 	    if (!CHOLMOD(ccolamd) (A, fset, fsize, Cmember, Perm, Common))
 	    {
 		/* ccolamd failed */
-		PRINT1 (("ccolamd failed\n")) ;
+		PRINT2 (("ccolamd failed\n")) ;
 		return (EMPTY) ;
 	    }
 	}
@@ -1733,5 +1912,229 @@ long CHOLMOD(nested_dissection)	/* returns # of components, or -1 if error */
 
     ASSERT (CHOLMOD(dump_work) (TRUE, TRUE, 0, Common)) ;
     return (ncomponents) ;
+}
+
+/* ========================================================================== */
+/* === cholmod_collapse_septree ============================================= */
+/* ========================================================================== */
+
+/* cholmod_nested_dissection returns the separator tree that was used in the
+ * constrained minimum degree algorithm.  Parameter settings (nd_small,
+ * nd_oksep, etc) that give a good fill-reducing ordering may give too fine of
+ * a separator tree for other uses (parallelism, multi-level LPDASA, etc).  This
+ * function takes as input the separator tree computed by
+ * cholmod_nested_dissection, and collapses selected subtrees into single
+ * nodes.  A subtree is collapsed if its root node (the separator) is large
+ * compared to the total number of nodes in the subtree, or if the subtree is
+ * small.  Note that the separator tree may actually be a forest.
+ *
+ * nd_oksep and nd_small act just like the ordering parameters in Common.
+ * Returns the new number of nodes in the separator tree.
+ */
+
+UF_long CHOLMOD(collapse_septree)
+(
+    /* ---- input ---- */
+    size_t n,		/* # of nodes in the graph */
+    size_t ncomponents,	/* # of nodes in the separator tree (must be <= n) */
+    double nd_oksep,    /* collapse if #sep >= nd_oksep * #nodes in subtree */
+    size_t nd_small,    /* collapse if #nodes in subtree < nd_small */
+    /* ---- in/out --- */
+    Int *CParent,	/* size ncomponents; from cholmod_nested_dissection */
+    Int *Cmember,	/* size n; from cholmod_nested_dissection */
+    /* --------------- */
+    cholmod_common *Common
+)
+{
+    Int *First, *Count, *Csubtree, *W, *Map ;
+    Int c, j, k, nc, sepsize, total_weight, parent, nc_new, first ;
+    int collapse = FALSE, ok = TRUE ;
+    size_t s ;
+
+    /* ---------------------------------------------------------------------- */
+    /* get inputs */
+    /* ---------------------------------------------------------------------- */
+
+    RETURN_IF_NULL_COMMON (EMPTY) ;
+    RETURN_IF_NULL (CParent, EMPTY) ;
+    RETURN_IF_NULL (Cmember, EMPTY) ;
+    if (n < ncomponents)
+    {
+	ERROR (CHOLMOD_INVALID, "invalid separator tree") ;
+	return (EMPTY) ;
+    }
+    Common->status = CHOLMOD_OK ;
+    nc = ncomponents ;
+    if (n <= 1 || ncomponents <= 1)
+    {
+	/* no change; tree is one node already */
+	return (nc) ;
+    }
+
+    nd_oksep = MAX (0, nd_oksep) ;
+    nd_oksep = MIN (1, nd_oksep) ;
+    nd_small = MAX (4, nd_small) ;
+
+    /* ---------------------------------------------------------------------- */
+    /* allocate workspace */
+    /* ---------------------------------------------------------------------- */
+
+    /* s = 3*ncomponents */
+    s = CHOLMOD(mult_size_t) (ncomponents, 3, &ok) ;
+    if (!ok)
+    {
+	ERROR (CHOLMOD_TOO_LARGE, "problem too large") ;
+	return (EMPTY) ;
+    }
+    CHOLMOD(allocate_work) (0, s, 0, Common) ;
+    if (Common->status < CHOLMOD_OK)
+    {
+	return (EMPTY) ;
+    }
+    W = Common->Iwork ;
+    Count    = W ; W += ncomponents ;	    /* size ncomponents */
+    Csubtree = W ; W += ncomponents ;	    /* size ncomponents */
+    First    = W ; W += ncomponents ;	    /* size ncomponents */
+
+    /* ---------------------------------------------------------------------- */
+    /* find the first descendant of each node of the separator tree */
+    /* ---------------------------------------------------------------------- */
+
+    for (c = 0 ; c < nc ; c++)
+    {
+	First [c] = EMPTY ;
+    }
+    for (k = 0 ; k < nc ; k++)
+    {
+	for (c = k ; c != EMPTY && First [c] == -1 ; c = CParent [c])
+	{
+	    ASSERT (c >= 0 && c < nc) ;
+	    First [c] = k ;
+	}
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /* find the number of nodes of the graph in each node of the tree */
+    /* ---------------------------------------------------------------------- */
+
+    for (c = 0 ; c < nc ; c++)
+    {
+	Count [c] = 0 ;
+    }
+    for (j = 0 ; j < (Int) n ; j++)
+    {
+	ASSERT (Cmember [j] >= 0 && Cmember [j] < nc) ;
+	Count [Cmember [j]]++ ;
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /* find the number of nodes in each subtree */
+    /* ---------------------------------------------------------------------- */
+
+    for (c = 0 ; c < nc ; c++)
+    {
+	/* each subtree includes its root */
+	Csubtree [c] = Count [c] ;
+	PRINT1 ((ID" size "ID" parent "ID" first "ID"\n",
+	    c, Count [c], CParent [c], First [c])) ;
+    }
+
+    for (c = 0 ; c < nc ; c++)
+    {
+	/* add the subtree of the child, c, into the count of its parent */
+	parent = CParent [c] ;
+	ASSERT (parent >= EMPTY && parent < nc) ;
+	if (parent != EMPTY)
+	{
+	    Csubtree [parent] += Csubtree [c] ;
+	}
+    }
+
+#ifndef NDEBUG
+    /* the sum of the roots should be n */
+    j = 0 ;
+    for (c = 0 ; c < nc ; c++) if (CParent [c] == EMPTY) j += Csubtree [c] ;
+    ASSERT (j == (Int) n) ;
+#endif
+
+    /* ---------------------------------------------------------------------- */
+    /* find subtrees to collapse */
+    /* ---------------------------------------------------------------------- */
+
+    /* consider all nodes in reverse post-order */
+    for (c = nc-1 ; c >= 0 ; c--)
+    {
+	/* consider the subtree rooted at node c */
+	sepsize = Count [c] ;
+	total_weight = Csubtree [c] ;
+	PRINT1 (("Node "ID" sepsize "ID" subtree "ID" ratio %g\n", c, sepsize,
+	    total_weight, ((double) sepsize)/((double) total_weight))) ;
+	first = First [c] ;
+	if (first < c &&    /* c must not be a leaf */
+	   (sepsize > nd_oksep * total_weight || total_weight < (int) nd_small))
+	{
+	    /* this separator is too large, or the subtree is too small.
+	     * collapse the tree, by converting the entire subtree rooted at
+	     * c into a single node.  The subtree consists of all nodes from
+	     * First[c] to the root c.  Flag all nodes from First[c] to c-1
+	     * as dead.
+	     */
+	    collapse = TRUE ;
+	    for (k = first ; k < c ; k++)
+	    {
+		CParent [k] = -2 ;
+		PRINT1 (("   collapse node "ID"\n", k)) ;
+	    }
+	    /* continue at the next node, first-1 */
+	    c = first ;
+	}
+    }
+
+    PRINT1 (("collapse: %d\n", collapse)) ;
+
+    /* ---------------------------------------------------------------------- */
+    /* compress the tree */
+    /* ---------------------------------------------------------------------- */
+
+    Map = Count ;	/* Count no longer needed */
+
+    nc_new = nc ;
+    if (collapse)
+    {
+	nc_new = 0 ;
+	for (c = 0 ; c < nc ; c++)
+	{
+	    Map [c] = nc_new ;
+	    if (CParent [c] >= EMPTY)
+	    {
+		/* node c is alive, and becomes node Map[c] in the new tree.
+		 * Increment nc_new for the next node c. */
+		nc_new++ ;
+	    }
+	}
+	PRINT1 (("Collapse the tree from "ID" to "ID" nodes\n", nc, nc_new)) ;
+	ASSERT (nc_new > 0) ;
+	for (c = 0 ; c < nc ; c++)
+	{
+	    parent = CParent [c] ;
+	    if (parent >= EMPTY)
+	    {
+		/* node c is alive */
+		CParent [Map [c]] = (parent == EMPTY) ? EMPTY : Map [parent] ;
+	    }
+	}
+	for (j = 0 ; j < (Int) n ; j++)
+	{
+	    PRINT1 (("j "ID" Cmember[j] "ID" Map[Cmember[j]] "ID"\n",
+		j, Cmember [j], Map [Cmember [j]])) ;
+	    Cmember [j] = Map [Cmember [j]] ;
+	}
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /* return new size of separator tree */
+    /* ---------------------------------------------------------------------- */
+
+    return (nc_new) ;
 }
 #endif

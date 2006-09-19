@@ -3,8 +3,8 @@
 /* ========================================================================== */
 
 /* -----------------------------------------------------------------------------
- * CHOLMOD/Modify Module.  Version 0.6.  Copyright (C) 2005, Timothy A. Davis
- * and William W. Hager.
+ * CHOLMOD/Modify Module.  Version 1.2.  Copyright (C) 2005-2006,
+ * Timothy A. Davis and William W. Hager.
  * The CHOLMOD/Modify Module is licensed under Version 2.0 of the GNU
  * General Public License.  See gpl.txt for a text of the license.
  * CHOLMOD is also available under other licenses; contact authors for details.
@@ -92,12 +92,13 @@ static void NUMERIC (WDIM, r)
     double W [ ],	/* n-by-WDIM dense matrix, initially zero */
     Path_type Path [ ],
     Int npaths,
+    Int mask [ ],	/* size n */
     cholmod_common *Common
 )
 {
     double Alpha [8] ;
     double *Cx, *Wpath, *W1, *a ;
-    Int j, p, ccol, pend, wfirst, e, path, packed ;
+    Int i, j, p, ccol, pend, wfirst, e, path, packed ;
     Int *Ci, *Cp, *Cnz ;
 
     /* ---------------------------------------------------------------------- */
@@ -128,9 +129,14 @@ static void NUMERIC (WDIM, r)
 	/* column C can be empty */
 	for ( ; p < pend ; p++)
 	{
-	    ASSERT (Ci [p] >= 0 && Ci [p] < (Int) (C->nrow)) ;
-	    Wpath [WDIM * Ci [p]] = Cx [p] ;
-	    PRINT1 (("    row "ID" : %g\n", Ci [p], Cx [p])) ;
+	    i = Ci [p] ;
+	    ASSERT (i >= 0 && i < (Int) (C->nrow)) ;
+	    if (mask == NULL || mask [i] < 0)
+	    {
+		Wpath [WDIM * i] = Cx [p] ;
+	    }
+	    PRINT1 (("    row "ID" : %g mask "ID"\n", i, Cx [p],
+		    (mask) ? mask [i] : 0)) ;
 	}
 	Alpha [path] = 1.0 ;
     }

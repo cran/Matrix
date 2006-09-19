@@ -2,25 +2,28 @@
 ##          but *not* diag() extractor!
 Diagonal <- function(n, x = NULL)
 {
-    ## Allow  Diagonal(4)  and  Diagonal(x=1:5)
+    ## Allow  Diagonal(4)  and	Diagonal(x=1:5)
     if(missing(n))
-        n <- length(x)
+	n <- length(x)
     else {
-        stopifnot(length(n) == 1, n == as.integer(n), n >= 0)
-        n <- as.integer(n)
+	stopifnot(length(n) == 1, n == as.integer(n), n >= 0)
+	n <- as.integer(n)
     }
 
     if(missing(x)) # unit diagonal matrix
-        new("ddiMatrix", Dim = c(n,n), diag = "U")
+	new("ddiMatrix", Dim = c(n,n), diag = "U")
     else {
-        stopifnot(length(x) == n)
-        if(is.logical(x))
-            cl <- "ldiMatrix"
-        else {
-            cl <- "ddiMatrix"
-            x <- as.numeric(x)
-        }
-        new(cl, Dim = c(n,n), diag = "N", x = x)
+	stopifnot(length(x) == n)
+	if(is.logical(x))
+	    cl <- "ldiMatrix"
+	else if(is.numeric(x)) {
+	    cl <- "ddiMatrix"
+	    x <- as.numeric(x)
+	}
+	else if(is.complex(x)) {
+	    cl <- "zdiMatrix"  # will not yet work
+	} else stop("'x' has invalid data type")
+	new(cl, Dim = c(n,n), diag = "N", x = x)
     }
 }
 
@@ -29,7 +32,7 @@ setAs("diagonalMatrix", "triangularMatrix",
           n <- from@Dim[1]
           i <- seq(length = n)
           x <- from@x
-          new(if(is.numeric(x)) "dtTMatrix" else "ltTMatrix",
+          new(paste(.M.kind(from), "tTMatrix", sep=''),
               diag = from@diag, Dim = from@Dim, Dimnames = from@Dimnames,
               x = x, i = i, j = i)
           })
@@ -43,15 +46,7 @@ setAs("diagonalMatrix", "matrix",
       })
 
 setAs("diagonalMatrix", "generalMatrix",
-      function(from) {
-          x <- as(from, "matrix")
-          as(x,
-             if(is.logical(x)) "lgeMatrix"
-## Not yet:
-##              else if(is.complex(x)) "zgeMatrix"
-##              else if(is.integer(x)) "igeMatrix"
-             else "dgeMatrix")
-      })
+      function(from) as(from, paste(.M.kind(from), "geMatrix", sep='')))
 
 setAs("ddiMatrix", "dgTMatrix",
       function(from) {
@@ -67,8 +62,15 @@ setAs("ddiMatrix", "dgCMatrix",
 setAs("ldiMatrix", "lgTMatrix",
       function(from) {
 	  n <- from@Dim[1]
-	  i <- (if(from@diag == "U") seq(length = n) else which(from@x)) - 1:1
-	  new("lgTMatrix", i = i, j = i,
+	  if(from@diag == "U") { # unit-diagonal
+	      x <- rep.int(TRUE, n)
+	      i <- seq(length = n)
+	  } else { # "normal"
+	      nz <- nz.NA(from@x, na. = TRUE)
+	      x <- from@x[nz]
+	      i <- which(nz) - 1:1
+	  }
+	  new("lgTMatrix", i = i, j = i, x = x,
 	      Dim = c(n,n), Dimnames = from@Dimnames) })
 
 setAs("ldiMatrix", "lgCMatrix",
@@ -96,7 +98,7 @@ setAs("matrix", "diagonalMatrix",
 	      cl <- "ddiMatrix"
 	      uni <- all(x == 1)
 	      storage.mode(x) <- "double"
-	  }
+	  } ## TODO: complex
 	  new(cl, Dim = c(n,n), diag = if(uni) "U" else "N",
 	      x = if(uni) x[FALSE] else x)
       })

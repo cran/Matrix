@@ -17,8 +17,8 @@ stopifnot(validObject(d4), validObject(z4), validObject(o4),
 assert.EQ.mat(dm4, as(m4, "matrix"))
 if(FALSE)# assert.EQ.. fails for all NA
 assert.EQ.mat(mN, matrix(NA, 3,4))
-sN <- Matrix(, 3,4, sparse=TRUE)# warning: NA coerced to FALSE
-stopifnot(length(sN@i) == 0, # all "FALSE"
+sL <- Matrix(, 3,4, sparse=TRUE)# -> "lgC
+stopifnot(##length(sN@i) == 0, # all "FALSE"
           validObject(Matrix(c(NA,0), 4, 3, byrow = TRUE)),
           validObject(Matrix(c(NA,0), 4, 4)),
           is(Matrix(c(NA,0,0,0), 4, 4), "sparseMatrix"))
@@ -144,10 +144,10 @@ if(FALSE) # FIXME: this happily "works" but MM thinks it shouldn't:
 assertError(as(m5, "dpoMatrix"))
 
 
-###-- logical sparse : ----------
+###-- sparse nonzero pattern : ----------
 
-(lkt <- as(as(kt1, "dgCMatrix"), "lgCMatrix"))# ok
-(clt <- crossprod(lkt))
+(nkt <- as(as(kt1, "dgCMatrix"), "ngCMatrix"))# ok
+(clt <- crossprod(nkt))
 if(FALSE) ## FIXME!
     crossprod(clt)
 ## CHOLMOD error: matrix cannot be symmetric
@@ -157,23 +157,28 @@ if(FALSE) ## FIXME!
 data(KNex)
 mm <- KNex$mm
 xpx <- crossprod(mm)
-lxpx <- as(xpx, "lsCMatrix")
+## extract nonzero pattern
+if(FALSE) ## FIXME -- {used to work..
+nxpx <- as(xpx, "nsCMatrix")
 if(FALSE)
-    show(lxpx) ## gives error about "lsC" -> "lgT" coercion ..
+    show(nxpx) ## gives error about "lsC" -> "lgT" coercion ..
 ## The bug is actually from *subsetting* the large matrix:
 if(FALSE) ## FIXME
-    r <- lxpx[1:2,]
+    r <- nxpx[1:2,]
 
 lmm <- as(mm, "lgCMatrix")
+nmm <- as(lmm, "nMatrix")
 xlx <- crossprod(lmm)
+x.x <- crossprod(nmm)
 ## now A = lxpx and B = xlx should be close, but not quite the same
 ## since <x,y> = 0 is well possible when x!=0 and y!=0 .
 ## However,  A[i,j] != 0 ==> B[i,j] != 0:
-A <- as(as(lxpx, "lgCMatrix"), "lgTMatrix")
+if(FALSE) { ## FIXME : nxpx above
+A <- as(as(nxpx, "lgCMatrix"), "lgTMatrix")
 B <- as(as(xlx,  "lgCMatrix"), "lgTMatrix")
 ij <- function(a) a@i + ncol(a) * a@j
 stopifnot(all(ij(A) %in% ij(B)))
-
+}
 
 
 

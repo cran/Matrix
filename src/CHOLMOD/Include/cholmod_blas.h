@@ -3,8 +3,8 @@
 /* ========================================================================== */
 
 /* -----------------------------------------------------------------------------
- * CHOLMOD/Include/cholmod_blas.h.  Version 0.6.
- * Copyright (C) 2005, Univ. of Florida.  Author: Timothy A. Davis
+ * CHOLMOD/Include/cholmod_blas.h.  Version 1.2.
+ * Copyright (C) 2005-2006, Univ. of Florida.  Author: Timothy A. Davis
  * CHOLMOD/Include/cholmod_blas.h is licensed under Version 2.1 of the GNU
  * Lesser General Public License.  See lesser.txt for a text of the license.
  * CHOLMOD is also available under other licenses; contact authors for details.
@@ -41,10 +41,16 @@
 #define CHOLMOD_ALPHA
 #define CHOLMOD_ARCHITECTURE "Compaq Alpha"
 
-#elif defined (_WIN32) || defined (WIN32)
+#elif defined (_WIN32) || defined (WIN32) || defined (_WIN64) || defined (WIN64)
+#if defined (__MINGW32__) || defined (__MINGW32__)
+#define CHOLMOD_MINGW
+#elif defined (__CYGWIN32__) || defined (__CYGWIN32__)
+#define CHOLMOD_CYGWIN
+#else
 #define CHOLMOD_WINDOWS
+#define BLAS_NO_UNDERSCORE
+#endif
 #define CHOLMOD_ARCHITECTURE "Microsoft Windows"
-/* #define BLAS_NO_UNDERSCORE */
 
 #elif defined (__hppa) || defined (__hpux) || defined (MHPUX) || defined (ARCH_HPUX)
 #define CHOLMOD_HP
@@ -81,12 +87,17 @@
 #define BLAS_DTRSM dtrsm_64_
 #define BLAS_DGEMM dgemm_64_
 #define BLAS_DSYRK dsyrk_64_
+#define BLAS_DGER  dger_64_
+#define BLAS_DSCAL dscal_64_
 #define LAPACK_DPOTRF dpotrf_64_
+
 #define BLAS_ZTRSV ztrsv_64_
 #define BLAS_ZGEMV zgemv_64_
 #define BLAS_ZTRSM ztrsm_64_
 #define BLAS_ZGEMM zgemm_64_
 #define BLAS_ZHERK zherk_64_
+#define BLAS_ZGER  zgeru_64_
+#define BLAS_ZSCAL zscal_64_
 #define LAPACK_ZPOTRF zpotrf_64_
 
 #elif defined (BLAS_NO_UNDERSCORE)
@@ -96,12 +107,17 @@
 #define BLAS_DTRSM dtrsm
 #define BLAS_DGEMM dgemm
 #define BLAS_DSYRK dsyrk
+#define BLAS_DGER  dger
+#define BLAS_DSCAL dscal
 #define LAPACK_DPOTRF dpotrf
+
 #define BLAS_ZTRSV ztrsv
 #define BLAS_ZGEMV zgemv
 #define BLAS_ZTRSM ztrsm
 #define BLAS_ZGEMM zgemm
 #define BLAS_ZHERK zherk
+#define BLAS_ZGER  zgeru
+#define BLAS_ZSCAL zscal
 #define LAPACK_ZPOTRF zpotrf
 
 #else
@@ -111,12 +127,17 @@
 #define BLAS_DTRSM dtrsm_
 #define BLAS_DGEMM dgemm_
 #define BLAS_DSYRK dsyrk_
+#define BLAS_DGER  dger_
+#define BLAS_DSCAL dscal_
 #define LAPACK_DPOTRF dpotrf_
+
 #define BLAS_ZTRSV ztrsv_
 #define BLAS_ZGEMV zgemv_
 #define BLAS_ZTRSM ztrsm_
 #define BLAS_ZGEMM zgemm_
 #define BLAS_ZHERK zherk_
+#define BLAS_ZGER  zgeru_
+#define BLAS_ZSCAL zscal_
 #define LAPACK_ZPOTRF zpotrf_
 
 #endif
@@ -360,7 +381,71 @@ void LAPACK_ZPOTRF (char *uplo, BLAS_INT *n, double *A, BLAS_INT *lda,
 }
 
 /* ========================================================================== */
-/* === BLAS and LAPACK macros =============================================== */
-/* ========================================================================== */
+
+void BLAS_DSCAL (BLAS_INT *n, double *alpha, double *Y, BLAS_INT *incy) ;
+
+#define BLAS_dscal(n,alpha,Y,incy) \
+{ \
+    BLAS_INT N = n, INCY = incy ; \
+    if (CHECK_BLAS_INT) \
+    { \
+	blas_ok &= EQ (N,n) && EQ (INCY,incy) ; \
+    } \
+    if (blas_ok) \
+    { \
+	BLAS_DSCAL (&N, alpha, Y, &INCY) ; \
+    } \
+}
+
+void BLAS_ZSCAL (BLAS_INT *n, double *alpha, double *Y, BLAS_INT *incy) ;
+
+#define BLAS_zscal(n,alpha,Y,incy) \
+{ \
+    BLAS_INT N = n, INCY = incy ; \
+    if (CHECK_BLAS_INT) \
+    { \
+	blas_ok &= EQ (N,n) && EQ (INCY,incy) ; \
+    } \
+    if (blas_ok) \
+    { \
+	BLAS_ZSCAL (&N, alpha, Y, &INCY) ; \
+    } \
+}
+
+void BLAS_DGER (BLAS_INT *m, BLAS_INT *n, double *alpha,
+	double *X, BLAS_INT *incx, double *Y, BLAS_INT *incy,
+	double *A, BLAS_INT *lda) ;
+
+#define BLAS_dger(m,n,alpha,X,incx,Y,incy,A,lda) \
+{ \
+    BLAS_INT M = m, N = n, LDA = lda, INCX = incx, INCY = incy ; \
+    if (CHECK_BLAS_INT) \
+    { \
+	blas_ok &= EQ (M,m) && EQ (N,n) && EQ (LDA,lda) && EQ (INCX,incx) \
+		&& EQ (INCY,incy) ; \
+    } \
+    if (blas_ok) \
+    { \
+	BLAS_DGER (&M, &N, alpha, X, &INCX, Y, &INCY, A, &LDA) ; \
+    } \
+}
+
+void BLAS_ZGERU (BLAS_INT *m, BLAS_INT *n, double *alpha,
+	double *X, BLAS_INT *incx, double *Y, BLAS_INT *incy,
+	double *A, BLAS_INT *lda) ;
+
+#define BLAS_zgeru(m,n,alpha,X,incx,Y,incy,A,lda) \
+{ \
+    BLAS_INT M = m, N = n, LDA = lda, INCX = incx, INCY = incy ; \
+    if (CHECK_BLAS_INT) \
+    { \
+	blas_ok &= EQ (M,m) && EQ (N,n) && EQ (LDA,lda) && EQ (INCX,incx) \
+		&& EQ (INCY,incy) ; \
+    } \
+    if (blas_ok) \
+    { \
+	BLAS_ZGER (&M, &N, alpha, X, &INCX, Y, &INCY, A, &LDA) ; \
+    } \
+}
 
 #endif

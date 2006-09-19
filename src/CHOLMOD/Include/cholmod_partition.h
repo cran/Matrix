@@ -3,8 +3,8 @@
 /* ========================================================================== */
 
 /* -----------------------------------------------------------------------------
- * CHOLMOD/Include/cholmod_partition.h.  Version 0.6.
- * Copyright (C) 2005, Univ. of Florida.  Author: Timothy A. Davis
+ * CHOLMOD/Include/cholmod_partition.h.  Version 1.2.
+ * Copyright (C) 2005-2006, Univ. of Florida.  Author: Timothy A. Davis
  * CHOLMOD/Include/cholmod_partition.h is licensed under Version 2.1 of the GNU
  * Lesser General Public License.  See lesser.txt for a text of the license.
  * CHOLMOD is also available under other licenses; contact authors for details.
@@ -22,16 +22,18 @@
  * cholmod_metis		METIS nested dissection ordering (METIS_NodeND)
  * cholmod_ccolamd		interface to CCOLAMD ordering
  * cholmod_csymamd		interface to CSYMAMD ordering
+ * cholmod_camd			interface to CAMD ordering
  * cholmod_bisect		graph partitioner (currently based on METIS)
  * cholmod_metis_bisector	direct interface to METIS_NodeComputeSeparator
  *
- * Requires the Core and Cholesky modules, and two packages: METIS and CCOLAMD.
- * Optionally used by the Cholesky module.
+ * Requires the Core and Cholesky modules, and three packages: METIS, CAMD,
+ * and CCOLAMD.  Optionally used by the Cholesky module.
  *
- * Note that METIS does not have a version that uses long integers.  If you
+ * Note that METIS does not have a version that uses UF_long integers.  If you
  * try to use cholmod_nested_dissection, cholmod_metis, cholmod_bisect, or
  * cholmod_metis_bisector on a matrix that is too large, an error code will be
- * returned.
+ * returned.  METIS does have an "idxtype", which could be redefined as UF_long,
+ * if you wish to edit METIS or use compile-time flags to redefine idxtype.
  */
 
 #ifndef CHOLMOD_PARTITION_H
@@ -49,7 +51,7 @@
  * finds better orderings than METIS_NodeND, but takes longer.
  */
 
-long cholmod_nested_dissection	/* returns # of components */
+UF_long cholmod_nested_dissection	/* returns # of components */
 (
     /* ---- input ---- */
     cholmod_sparse *A,	/* matrix to order */
@@ -66,8 +68,8 @@ long cholmod_nested_dissection	/* returns # of components */
     cholmod_common *Common
 ) ;
 
-long cholmod_l_nested_dissection (cholmod_sparse *, long *, size_t, long *,
-    long *, long *, cholmod_common *) ;
+UF_long cholmod_l_nested_dissection (cholmod_sparse *, UF_long *, size_t,
+    UF_long *, UF_long *, UF_long *, cholmod_common *) ;
 
 /* -------------------------------------------------------------------------- */
 /* cholmod_metis */
@@ -88,7 +90,7 @@ int cholmod_metis
     cholmod_common *Common
 ) ;
 
-int cholmod_l_metis (cholmod_sparse *, long *, size_t, int, long *,
+int cholmod_l_metis (cholmod_sparse *, UF_long *, size_t, int, UF_long *,
     cholmod_common *) ;
 
 /* -------------------------------------------------------------------------- */
@@ -114,8 +116,8 @@ int cholmod_ccolamd
     cholmod_common *Common
 ) ;
 
-int cholmod_l_ccolamd (cholmod_sparse *, long *, size_t, long *, long *,
-    cholmod_common *) ;
+int cholmod_l_ccolamd (cholmod_sparse *, UF_long *, size_t, UF_long *,
+    UF_long *, cholmod_common *) ;
 
 /* -------------------------------------------------------------------------- */
 /* cholmod_csymamd */
@@ -134,7 +136,30 @@ int cholmod_csymamd
     cholmod_common *Common
 ) ;
 
-int cholmod_l_csymamd (cholmod_sparse *, long *, long *, cholmod_common *) ;
+int cholmod_l_csymamd (cholmod_sparse *, UF_long *, UF_long *,
+    cholmod_common *) ;
+
+/* -------------------------------------------------------------------------- */
+/* cholmod_camd */
+/* -------------------------------------------------------------------------- */
+
+/* Order A using CAMD. */
+
+int cholmod_camd
+(
+    /* ---- input ---- */
+    cholmod_sparse *A,	/* matrix to order */
+    int *fset,		/* subset of 0:(A->ncol)-1 */
+    size_t fsize,	/* size of fset */
+    /* ---- output --- */
+    int *Cmember,	/* size nrow.  see cholmod_ccolamd above */
+    int *Perm,		/* size A->nrow, output permutation */
+    /* --------------- */
+    cholmod_common *Common
+) ;
+
+int cholmod_l_camd (cholmod_sparse *, UF_long *, size_t, UF_long *, UF_long *,
+    cholmod_common *) ;
 
 /* -------------------------------------------------------------------------- */
 /* cholmod_bisect */
@@ -142,7 +167,7 @@ int cholmod_l_csymamd (cholmod_sparse *, long *, long *, cholmod_common *) ;
 
 /* Finds a node bisector of A, A*A', A(:,f)*A(:,f)'. */
 
-long cholmod_bisect	/* returns # of nodes in separator */
+UF_long cholmod_bisect	/* returns # of nodes in separator */
 (
     /* ---- input ---- */
     cholmod_sparse *A,	/* matrix to bisect */
@@ -157,7 +182,7 @@ long cholmod_bisect	/* returns # of nodes in separator */
     cholmod_common *Common
 ) ;
 
-long cholmod_l_bisect (cholmod_sparse *, long *, size_t, int, long *,
+UF_long cholmod_l_bisect (cholmod_sparse *, UF_long *, size_t, int, UF_long *,
     cholmod_common *) ;
 
 /* -------------------------------------------------------------------------- */
@@ -167,7 +192,7 @@ long cholmod_l_bisect (cholmod_sparse *, long *, size_t, int, long *,
 /* Find a set of nodes that bisects the graph of A or AA' (direct interface
  * to METIS_NodeComputeSeparator). */
 
-long cholmod_metis_bisector	/* returns separator size */
+UF_long cholmod_metis_bisector	/* returns separator size */
 (
     /* ---- input ---- */
     cholmod_sparse *A,	/* matrix to bisect */
@@ -179,7 +204,30 @@ long cholmod_metis_bisector	/* returns separator size */
     cholmod_common *Common
 ) ;
 
-long cholmod_l_metis_bisector (cholmod_sparse *, long *, long *, long *,
-    cholmod_common *) ;
+UF_long cholmod_l_metis_bisector (cholmod_sparse *, UF_long *, UF_long *,
+    UF_long *, cholmod_common *) ;
+
+/* -------------------------------------------------------------------------- */
+/* cholmod_collapse_septree */
+/* -------------------------------------------------------------------------- */
+
+/* Collapse nodes in a separator tree. */
+
+UF_long cholmod_collapse_septree
+(
+    /* ---- input ---- */
+    size_t n,		/* # of nodes in the graph */
+    size_t ncomponents,	/* # of nodes in the separator tree (must be <= n) */
+    double nd_oksep,    /* collapse if #sep >= nd_oksep * #nodes in subtree */
+    size_t nd_small,    /* collapse if #nodes in subtree < nd_small */
+    /* ---- in/out --- */
+    int *CParent,	/* size ncomponents; from cholmod_nested_dissection */
+    int *Cmember,	/* size n; from cholmod_nested_dissection */
+    /* --------------- */
+    cholmod_common *Common
+) ;
+
+UF_long cholmod_l_collapse_septree (size_t, size_t, double, size_t, UF_long *,
+    UF_long *, cholmod_common *) ;
 
 #endif

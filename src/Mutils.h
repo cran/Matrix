@@ -45,12 +45,10 @@ SEXP as_det_obj(double val, int log, int sign);
 SEXP get_factors(SEXP obj, char *nm);
 SEXP set_factors(SEXP obj, SEXP val, char *nm);
 SEXP dgCMatrix_set_Dim(SEXP x, int nrow);
-char uplo_value(SEXP x);
-char diag_value(SEXP x);
 
-int csc_unsorted_columns(int ncol, const int p[], const int i[]);
-void csc_sort_columns(int ncol, const int p[], int i[], double x[]);
-SEXP csc_check_column_sorting(SEXP A);
+/* int csc_unsorted_columns(int ncol, const int p[], const int i[]); */
+/* void csc_sort_columns(int ncol, const int p[], int i[], double x[]); */
+/* SEXP csc_check_column_sorting(SEXP A); */
 SEXP Matrix_make_named(int TYP, char **names);
 SEXP check_scalar_string(SEXP sP, char *vals, char *nm);
 double *packed_getDiag(double *dest, SEXP x);
@@ -86,6 +84,11 @@ extern	 /* stored pointers to symbols initialized in R_init_Matrix */
 #define uplo_P(_x_) CHAR(STRING_ELT(GET_SLOT(_x_, Matrix_uploSym), 0))
 #define diag_P(_x_) CHAR(STRING_ELT(GET_SLOT(_x_, Matrix_diagSym), 0))
 #define class_P(_x_) CHAR(asChar(getAttrib(_x_, R_ClassSymbol)))
+
+#define Real_kind(_x_)	(isReal(GET_SLOT(_x_, Matrix_xSym)) ? 0	:	\
+			 (isLogical(GET_SLOT(_x_, Matrix_xSym)) ? 1 :	\
+			  -1))
+
 
 /**
  * Check for valid length of a packed triangular array and return the
@@ -151,103 +154,6 @@ int* expand_cmprPt(int ncol, const int mp[], int mj[])
     return mj;
 }
 
-
-/**
- * Return the linear index of the (row, col) entry in a csc structure.
- * If the entry is not found and missing is 0 an error is signaled;
- * otherwise the missing value is returned.
- *
- * @param p vector of column pointers
- * @param i vector of row indices
- * @param row row index
- * @param col column index
- * @param missing the value to return is the row, col entry does not
- * exist.  If this is zero and the row, col entry does not exist an
- * error is signaled.
- *
- * @return index of element at (row, col) if it exists, otherwise missing
- */
-static R_INLINE int
-check_csc_index(const int p[], const int i[], int row, int col, int missing)
-{
-    int k, k2 = p[col + 1];
-				/* linear search - perhaps replace by bsearch */
-    for (k = p[col]; k < k2; k++) if (i[k] == row) return k;
-    if (!missing)
-	error("row %d and column %d not defined in rowind and colptr",
-	      row, col);
-    return missing;
-}
-
-SEXP alloc3Darray(SEXPTYPE mode, int nrow, int ncol, int nface);
-
-/**
- * Calculate the zero-based index in a row-wise packed lower triangular matrix.
- * This is used for the arrays of blocked sparse matrices.
- *
- * @param i column number (zero-based)
- * @param k row number (zero-based)
- *
- * @return The index of the (k,i) element of a packed lower triangular matrix
- */
-static R_INLINE
-int Lind(int k, int i)
-{
-    if (k < i) error("Lind(k = %d, i = %d) must have k >= i", k, i);
-    return (k * (k + 1))/2 + i;
-}
-
-/**
- * Check for a complete match on matrix dimensions
- *
- * @param xd dimensions of first matrix
- * @param yd dimensions of second matrix
- *
- * @return 1 if dimensions match, otherwise 0
- */
-static R_INLINE
-int match_mat_dims(const int xd[], const int yd[])
-{
-    return xd[0] == yd[0] && xd[1] == yd[1];
-}
-
-double *expand_csc_column(double *dest, int m, int j,
-			  const int Ap[], const int Ai[], const double Ax[]);
-
-/**
- * Apply a permutation to an integer vector
- *
- * @param i vector of 0-based indices
- * @param n length of vector i
- * @param perm 0-based permutation vector of length max(i) + 1
- */
-static R_INLINE void
-int_permute(int i[], int n, const int perm[])
-{
-    int j;
-    for (j = 0; j < n; j++) i[j] = perm[i[j]];
-}
-
-/**
- * Force index pairs to be in the upper triangle of a matrix
- *
- * @param i vector of 0-based row indices
- * @param j vector of 0-based column indices
- * @param nnz length of index vectors
- */
-static R_INLINE void
-make_upper_triangular(int i[], int j[], int nnz)
-{
-    int k;
-    for (k = 0; k < nnz; k++) {
-	if (i[k] > j[k]) {
-	    int tmp = i[k];
-	    i[k] = j[k];
-	    j[k] = tmp;
-	}
-    }
-}
-
 void make_d_matrix_triangular(double *x, SEXP from);
 void make_i_matrix_triangular(   int *x, SEXP from);
 
@@ -255,47 +161,6 @@ void make_d_matrix_symmetric(double *to, SEXP from);
 void make_i_matrix_symmetric(   int *to, SEXP from);
 
 SEXP Matrix_expand_pointers(SEXP pP);
-
-
-/**
- * Elementwise increment dest by src
- *
- * @param dest vector to be incremented
- * @param src vector to be added to dest
- * @param n length of vectors
- *
- * @return dest
- */
-static R_INLINE double*
-vecIncrement(double dest[], const double src[], int n) {
-    int i;
-    for (i = 0; i < n; i++) dest[i] += src[i];
-    return dest;
-}
-
-/**
- * Elementwise sum of src1 and src2 into dest
- *
- * @param dest vector to be incremented
- * @param src1 vector to be added
- * @param src1 second vector to be added
- * @param n length of vectors
- *
- * @return dest
- */
-static R_INLINE double*
-vecSum(double dest[], const double src1[], const double src2[],
-       int n) {
-    int i;
-    for (i = 0; i < n; i++) dest[i] = src1[i] + src2[i];
-    return dest;
-}
-
-SEXP alloc_real_classed_matrix(char *class, int nrow, int ncol);
-SEXP alloc_dgeMatrix(int m, int n, SEXP rownms, SEXP colnms);
-SEXP alloc_dpoMatrix(int n, char *uplo, SEXP rownms, SEXP colnms);
-SEXP alloc_dtrMatrix(int n, char *uplo, char *diag, SEXP rownms, SEXP colnms);
-SEXP alloc_dsCMatrix(int n, int nz, char *uplo, SEXP rownms, SEXP colnms);
 
 SEXP dup_mMatrix_as_dgeMatrix(SEXP A);
 

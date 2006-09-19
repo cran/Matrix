@@ -12,7 +12,7 @@ setAs("ddenseMatrix", "dgeMatrix",
               from <- .Call(dup_mMatrix_as_dgeMatrix, from)
           from
       })
-      
+
 ## d(ouble) to l(ogical):
 setAs("dgeMatrix", "lgeMatrix", d2l_Matrix)
 setAs("dtrMatrix", "ltrMatrix", d2l_Matrix)
@@ -236,6 +236,10 @@ setMethod("rbind2", signature(x = "ddenseMatrix", y = "ddenseMatrix"),
 	      new("dgeMatrix", Dim = c(nrx + nry, nc), Dimnames = dn,
 		  x = c(rbind2(as(x,"matrix"), as(y,"matrix"))))
 	  })
+
+### FIXME: band() et al should be extended from "ddense" to "dense" !
+###        However, needs much work to generalize dup_mMatrix_as_dgeMatrix()
+
 ## NB: have extra tril(), triu() methods for symmetric ["dsy" and "dsp"] and
 ##     for triangular ["dtr" and "dtp"]
 setMethod("tril", "ddenseMatrix",

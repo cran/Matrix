@@ -53,7 +53,7 @@
 \section{Methods}{
   \describe{
     \item{\%*\%}{\code{signature(x = "dtpMatrix", y = "dgeMatrix")}:
-      Matrix multiplication; dito for several other signature
+      Matrix multiplication; ditto for several other signature
       combinations, see \code{showMethods("\%*\%", class = "dtpMatrix")}.}
     \item{coerce}{\code{signature(from = "dtpMatrix", to = "dtrMatrix")}}
     \item{coerce}{\code{signature(from = "dtpMatrix", to = "matrix")}}

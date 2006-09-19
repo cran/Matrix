@@ -3,7 +3,8 @@
 /* ========================================================================== */
 
 /* -----------------------------------------------------------------------------
- * CHOLMOD/MatrixOps Module.  Version 0.6.  Copyright (C) 2005, Timothy A. Davis
+ * CHOLMOD/MatrixOps Module.  Version 1.2.  Copyright (C) 2005-2006,
+ * Timothy A. Davis
  * The CHOLMOD/MatrixOps Module is licensed under Version 2.0 of the GNU
  * General Public License.  See gpl.txt for a text of the license.
  * CHOLMOD is also available under other licenses; contact authors for details.
@@ -40,8 +41,8 @@
 
 #ifndef NMATRIXOPS
 
-#include "cholmod_matrixops.h"
 #include "cholmod_internal.h"
+#include "cholmod_matrixops.h"
 
 /* ========================================================================== */
 /* === check_subset ========================================================= */
@@ -76,9 +77,9 @@ cholmod_sparse *CHOLMOD(submatrix)
     /* ---- input ---- */
     cholmod_sparse *A,	/* matrix to subreference */
     Int *rset,		/* set of row indices, duplicates OK */
-    long rsize,		/* size of rset, or -1 for ":" */
+    UF_long rsize,	/* size of rset, or -1 for ":" */
     Int *cset,		/* set of column indices, duplicates OK */
-    long csize,		/* size of cset, or -1 for ":" */
+    UF_long csize,	/* size of cset, or -1 for ":" */
     int values,		/* if TRUE compute the numerical values of C */
     int sorted,		/* if TRUE then return C with sorted columns */
     /* --------------- */
@@ -91,6 +92,8 @@ cholmod_sparse *CHOLMOD(submatrix)
     cholmod_sparse *C ;
     Int packed, ancol, anrow, cnrow, cncol, nnz, i, j, csorted, ilast, p,
 	pend, pdest, ci, cj, head, nr, nc ;
+    size_t s ;
+    int ok = TRUE ;
 
     /* ---------------------------------------------------------------------- */
     /* check inputs */
@@ -151,7 +154,16 @@ cholmod_sparse *CHOLMOD(submatrix)
     PRINT1 (("submatrix nr "ID" nc "ID" Cnrow "ID" Cncol "ID""
 	    "  Anrow "ID" Ancol "ID"\n", nr, nc, cnrow, cncol, anrow, ancol)) ;
 
-    CHOLMOD(allocate_work) (anrow, MAX3 (anrow + nr, cncol, cnrow), 0, Common) ;
+    /* s = MAX3 (anrow+MAX(0,nr), cncol, cnrow) ; */
+    s = CHOLMOD(add_size_t) (anrow, MAX (0,nr), &ok) ;
+    if (!ok)
+    {
+	ERROR (CHOLMOD_TOO_LARGE, "problem too large") ;
+	return (NULL) ;
+    }
+    s = MAX3 (s, cncol, cnrow) ;
+
+    CHOLMOD(allocate_work) (anrow, s, 0, Common) ;
     if (Common->status < CHOLMOD_OK)
     {
 	/* out of memory */
@@ -177,7 +189,7 @@ cholmod_sparse *CHOLMOD(submatrix)
     Head  = Common->Head ;	    /* size anrow */
     Iwork = Common->Iwork ;
     Rlen  = Iwork ;		    /* size anrow (i/i/l) */
-    Rnext = Iwork + anrow ;	    /* size nr (i/i/l) */
+    Rnext = Iwork + anrow ;	    /* size nr (i/i/l), not used if nr < 0 */
 
     /* ---------------------------------------------------------------------- */
     /* construct inverse of rset and compute nnz (C) */
@@ -243,7 +255,8 @@ cholmod_sparse *CHOLMOD(submatrix)
 	for (i = 0 ; i < anrow ; i++)
 	{
 	    Int k = 0 ;
-	    PRINT1 (("Row "ID" Rlen "ID": ", i, Rlen [i])) ;
+	    Int rlen = (Head [i] != EMPTY) ? Rlen [i] : -1 ;
+	    PRINT1 (("Row "ID" Rlen "ID": ", i, rlen)) ;
 	    for (ci = Head [i] ; ci != EMPTY ; ci = Rnext [ci])
 	    {
 		k++ ;

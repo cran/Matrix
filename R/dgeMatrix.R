@@ -140,6 +140,7 @@ setMethod("tcrossprod", signature(x = "dgeMatrix", y = "missing"),
 	  function(x, y = NULL) .Call(dgeMatrix_crossprod, x, TRUE),
 	  valueClass = "dpoMatrix")
 
+if(FALSE) { ## this would mask 'base::tcrossprod'
 setMethod("tcrossprod", signature(x = "matrix", y = "missing"),
 	  function(x, y = NULL)
           .Call(dgeMatrix_crossprod, as(x, "dgeMatrix"), TRUE),
@@ -147,6 +148,7 @@ setMethod("tcrossprod", signature(x = "matrix", y = "missing"),
 
 setMethod("tcrossprod", signature(x = "numeric", y = "missing"),
 	  function(x, y = NULL) callGeneric(as.matrix(as.double(x))))
+}
 
 ## crossprod (x,y)
 setMethod("crossprod", signature(x = "dgeMatrix", y = "dgeMatrix"),
@@ -200,7 +202,7 @@ setMethod("%*%", signature(x = "matrix", y = "dgeMatrix"),
           valueClass = "dgeMatrix")
 
 ## DB: Should we retain these methods?  Does the shortcut save enough
-## to justify additional signatures? 
+## to justify additional signatures?
 ## dgeMatrix <-> numeric: conceptually dispatch to "matrix" one, but shortcut
 setMethod("%*%", signature(x = "dgeMatrix", y = "numeric"),
 	  function(x, y) .Call(dgeMatrix_matrix_mm, x, y, FALSE),
@@ -271,135 +273,3 @@ setMethod("rowMeans", signature(x = "dgeMatrix"),
 	  function(x, na.rm = FALSE, dims = 1)
           .Call(dgeMatrix_colsums, x, na.rm, FALSE, TRUE),
 	  valueClass = "numeric")
-
-### The following all serve for	 as.Matrix()
-### which is not yet exported (nor tested):
-
-## utilities for Matrix.class() :
-
-## FIXME  base::eigen() has a more sensible test for Hermitian/symmetry !
-Hermitian.test <- function(x)
-{
-    ## Includes Symmetry test for non-complex 'x'
-    if ((!inherits(x, "Matrix") && !is.matrix(x)) || (nrow(x) != ncol(x)))
-        return(Inf)
-    if (is.complex(x))
-        max(Mod(x - t(Conj(x))))
-    else
-        max(abs(x - t(x)))
-}
-
-LowerTriangular.test <- function(x)
-{
-    ## return largest |value| in the lower triangle of x
-    if ((!inherits(x, "Matrix") && !is.matrix(x))) return(Inf)
-    i <- row(x) < col(x)
-    if(!any(i)) return(Inf)
-    max(if (is.complex(x)) abs(x[i]) else Mod(x[i]))
-}
-
-UpperTriangular.test <- function(x)
-{
-    if ((!inherits(x, "Matrix") && !is.matrix(x))) return(Inf)
-    i <- row(x) > col(x)
-    if(!any(i)) return(Inf)
-    max(if (is.complex(x)) abs(x[i]) else Mod(x[i]))
-}
-
-Orthogonal.test <- function(x, byrow = FALSE, normal = TRUE)
-{
-    if ((!inherits(x, "Matrix") && !is.matrix(x))) return(Inf)
-    if (byrow) { x <- t(x) }
-    xx <- crossprod(x)
-    if (normal) # check for orthonormal
-	max(Mod(xx[row(xx) > col(xx)]), Mod(diag(xx) - 1))
-    else
-        max(Mod(xx[row(xx) > col(xx)]))
-}
-
-Orthonormal.test <- function(x, byrow = FALSE)
-{ Orthogonal.test(x, byrow, normal = TRUE) }
-
-is.Hermitian <- function(x, tol = 0) { Hermitian.test(x) <= tol }
-
-is.LowerTriangular <- function(x, tol = 0) { LowerTriangular.test(x) <= tol }
-
-is.UpperTriangular <- function(x, tol = 0) { UpperTriangular.test(x) <= tol }
-
-is.ColOrthonormal <- function(x, tol = sqrt(.Machine$double.eps))
-{ Orthonormal.test(x, byrow = FALSE) <= tol }
-
-is.RowOrthonormal <- function(x, tol = sqrt(.Machine$double.eps))
-{ Orthonormal.test(x, byrow = TRUE) <= tol }
-
-is.Orthonormal <- function(x, tol = sqrt(.Machine$double.eps), byrow = FALSE)
-{
-    if (byrow)
-	is.RowOrthonormal(x, tol)
-    else
-	is.ColOrthonormal(x, tol)
-}
-
-
-Matrix.class <- function(x, tol = 0, symmetry = TRUE, unit.diagonal = TRUE,
-			 triangularity = c(TRUE, TRUE),
-			 orthogonality = c(TRUE, TRUE),
-			 normality = c(TRUE, TRUE))
-{
-    ## basic work horse for as.Matrix()
-
-    val <- "Matrix"
-    x <- as.matrix(x)
-    if (symmetry) {
-	if (is.Hermitian(x, tol)) val <- c("Hermitian", val)
-    }
-    if (triangularity[1]) {
-	if (is.LowerTriangular(x, tol)) {
-	    val <- c("LowerTriangular", val)
-	    if (unit.diagonal)
-		if (max(Mod(diag(x) - 1)) <= tol)
-		    val <- c("UnitLowerTriangular", val)
-	}
-    }
-    if (triangularity[2]) {
-	if (is.UpperTriangular(x, tol)) {
-	    val <- c("UpperTriangular", val)
-	    if (unit.diagonal)
-		if (max(Mod(diag(x) - 1)) <= tol)
-		    val <- c("UnitUpperTriangular", val)
-	}
-    }
-    if (orthogonality[1]) {
-	if (is.ColOrthonormal(x, tol))
-	    val <- c("ColOrthoNormal", "ColOrthogonal", val)
-	else if (Orthogonal.test(x, normal = FALSE) <= tol)
-	    val <- c("ColOrthogonal", val)
-    }
-
-    if (orthogonality[2]) {
-	if (normality[2] && is.RowOrthonormal(x, tol))
-	    val <- c("RowOrthoNormal", "RowOrthogonal", val)
-	else if (Orthogonal.test(x, byrow = TRUE, normal = FALSE) <= tol)
-	    val <- c("RowOrthogonal", val)
-    }
-    val
-}
-
-
-as.Matrix <- function(x, tol = .Machine$double.eps,
-                      integer.max = .Machine$integer.max)
-{
-    if(is(x, "Matrix")) return(x)
-    ## else
-    if(!is.matrix(x)) x <- as.matrix(x)
-    mc <- Matrix.class(x, tol = tol) ## a character *vector*
-    xmode <-
-        if(is.logical(x)) "l" else if(is.complex(x)) "z"
-        else if(is.numeric(x)) {
-            if(is.integer(x) || all(abs(x) < integer.max)) "i" else "d"
-        }
-        else stop("invalid data type")
-    ## .... .... fixme
-    as(x, smartFunction(mc))
-}
-

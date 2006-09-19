@@ -1,11 +1,21 @@
 #### Will be sourced by several R scripts in ../tests/
 
+paste0 <- function(...) paste(..., sep = '')
+
 identical3 <- function(x,y,z)	identical(x,y) && identical (y,z)
 identical4 <- function(a,b,c,d) identical(a,b) && identical3(b,c,d)
 
+as.mat <- function(m) {
+    ## as(., "matrix")	but with no extraneous empty dimnames
+    m <- as(m, "matrix")
+    if(identical(dimnames(m), list(NULL,NULL)))
+	dimnames(m) <- NULL
+    m
+}
+
 ## checking;  'show' is for convenience of the developer
 assert.EQ.mat <- function(M, m, tol = if(show) 0 else 1e-15, show=FALSE) {
-    MM <- as(M, "matrix")
+    MM <- as.mat(M) # as(M, "matrix")
     if(is.logical(MM) && is.numeric(m))
 	storage.mode(MM) <- "integer"
     attr(MM, "dimnames") <- attr(m, "dimnames") <- NULL

@@ -20,8 +20,9 @@
   applied to \code{"dpoMatrix"} objects (see \code{\linkS4class{dpoMatrix}}).
 }
 \section{Slots}{
-  A Cholesky decomposition is basically a triangular matrix extending
-  the \code{"dtrMatrix"} class.
+  A Cholesky decomposition extends class
+  \code{\linkS4class{MatrixFactorization}} but is basically a triangular
+  matrix extending the \code{"\linkS4class{dtrMatrix}"} class.
   \describe{
     \item{\code{uplo}:}{inherited from the \code{"dtrMatrix"} class.}
     \item{\code{diag}:}{inherited from the \code{"dtrMatrix"} class.}
@@ -34,7 +35,7 @@
   The packed versions extend the \code{"dtpMatrix"} class.
 }
 \section{Extends}{
-  Class \code{"dtrMatrix"}, directly.
+  Class \code{"MatrixFactorization"} and \code{"dtrMatrix"}, directly.
   Class \code{"dgeMatrix"}, by class \code{"dtrMatrix"}.
   Class \code{"Matrix"}, by class \code{"dtrMatrix"}.
 }

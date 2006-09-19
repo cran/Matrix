@@ -3,8 +3,8 @@
 /* ========================================================================== */
 
 /* -----------------------------------------------------------------------------
- * CHOLMOD/Core Module.  Version 0.6.  Copyright (C) 2005, Univ. of Florida.
- * Author: Timothy A. Davis
+ * CHOLMOD/Core Module.  Version 1.2.  Copyright (C) 2005-2006,
+ * Univ. of Florida.  Author: Timothy A. Davis
  * The CHOLMOD/Core Module is licensed under Version 2.1 of the GNU
  * Lesser General Public License.  See lesser.txt for a text of the license.
  * CHOLMOD is also available under other licenses; contact authors for details.
@@ -42,8 +42,8 @@
  * There can be no duplicate entries in p or f.
  *
  * The set f is held in fset and fsize.
- *	fset = NULL means ":" in MATLAB. fset is ignored.
- *	fset != NULL means f = fset [0..fset-1].
+ *	fset = NULL means ":" in MATLAB. fsize is ignored.
+ *	fset != NULL means f = fset [0..fsize-1].
  *	fset != NULL and fsize = 0 means f is the empty set.
  *
  * Columns not in the set f are considered to be zero.  That is,
@@ -113,8 +113,8 @@
  * not modified.  F can still be properly free'd with cholmod_free_sparse.
  */
 
-#include "cholmod_core.h"
 #include "cholmod_internal.h"
+#include "cholmod_core.h"
 
 
 /* ========================================================================== */
@@ -168,8 +168,10 @@ int CHOLMOD(transpose_unsym)
 )
 {
     Int *Fp, *Fnz, *Ap, *Ai, *Anz, *Wi ;
-    Int nrow, ncol, ok = FALSE, permute, use_fset, Apacked, Fpacked, p, pend,
+    Int nrow, ncol, permute, use_fset, Apacked, Fpacked, p, pend,
 	i, j, k, Fsorted, nf, jj, jlast ;
+    size_t s ;
+    int ok = TRUE ;
 
     /* ---------------------------------------------------------------------- */
     /* check inputs */
@@ -215,7 +217,15 @@ int CHOLMOD(transpose_unsym)
     /* allocate workspace */
     /* ---------------------------------------------------------------------- */
 
-    CHOLMOD(allocate_work) (0, nrow + (fset != NULL) ? ncol : 0, 0, Common) ;
+    /* s = nrow + ((fset != NULL) ? ncol : 0) */
+    s = CHOLMOD(add_size_t) (nrow, ((fset != NULL) ? ncol : 0), &ok) ;
+    if (!ok)
+    {
+	ERROR (CHOLMOD_TOO_LARGE, "problem too large") ;
+	return (FALSE) ;
+    }
+
+    CHOLMOD(allocate_work) (0, s, 0, Common) ;
     if (Common->status < CHOLMOD_OK)
     {
 	return (FALSE) ;	/* out of memory */
@@ -408,6 +418,7 @@ int CHOLMOD(transpose_unsym)
     /* transpose matrix, using template routine */
     /* ---------------------------------------------------------------------- */
 
+    ok = FALSE ;
     if (values == 0 || F->xtype == CHOLMOD_PATTERN)
     {
 	ok = p_cholmod_transpose_unsym (A, Perm, fset, nf, F, Common) ;
@@ -481,7 +492,8 @@ int CHOLMOD(transpose_sym)
 {
     Int *Ap, *Anz, *Ai, *Fp, *Wi, *Pinv, *Iwork ;
     Int p, pend, packed, upper, permute, jold, n, i, j, k, iold ;
-    Int ok = FALSE ;
+    size_t s ;
+    int ok = TRUE ;
 
     /* ---------------------------------------------------------------------- */
     /* check inputs */
@@ -524,7 +536,15 @@ int CHOLMOD(transpose_sym)
     /* allocate workspace */
     /* ---------------------------------------------------------------------- */
 
-    CHOLMOD(allocate_work) (0, (Perm != NULL) ? 2*n : n, 0, Common) ;
+    /* s = (Perm != NULL) ? 2*n : n */
+    s = CHOLMOD(add_size_t) (n, ((Perm != NULL) ? n : 0), &ok) ;
+    if (!ok)
+    {
+	ERROR (CHOLMOD_TOO_LARGE, "problem too large") ;
+	return (FALSE) ;
+    }
+
+    CHOLMOD(allocate_work) (0, s, 0, Common) ;
     if (Common->status < CHOLMOD_OK)
     {
 	return (FALSE) ;	/* out of memory */
@@ -757,6 +777,7 @@ int CHOLMOD(transpose_sym)
     /* transpose matrix, using template routine */
     /* ---------------------------------------------------------------------- */
 
+    ok = FALSE ;
     if (values == 0 || F->xtype == CHOLMOD_PATTERN)
     {
 	PRINT2 (("\n:::: p_transpose_sym Perm %p\n", Perm)) ;
@@ -866,8 +887,9 @@ cholmod_sparse *CHOLMOD(ptranspose)
 {
     Int *Ap, *Anz ;
     cholmod_sparse *F ;
-    Int nrow, ncol, use_fset, j, jj, fnz, packed, stype, nf, ineed, ok,
-	xtype ;
+    Int nrow, ncol, use_fset, j, jj, fnz, packed, stype, nf, xtype ;
+    size_t ineed ;
+    int ok = TRUE ;
 
     nf = fsize ;
 
@@ -893,11 +915,11 @@ cholmod_sparse *CHOLMOD(ptranspose)
 	use_fset = FALSE ;
 	if (Perm != NULL)
 	{
-	    ineed = 2*nrow ;
+	    ineed = CHOLMOD(mult_size_t) (A->nrow, 2, &ok) ;
 	}
 	else
 	{
-	    ineed = nrow ;
+	    ineed = A->nrow ;
 	}
     }
     else
@@ -905,12 +927,18 @@ cholmod_sparse *CHOLMOD(ptranspose)
 	use_fset = (fset != NULL) ;
 	if (use_fset)
 	{
-	    ineed = MAX (nrow, ncol) ;
+	    ineed = MAX (A->nrow, A->ncol) ;
 	}
 	else
 	{
-	    ineed = nrow ;
+	    ineed = A->nrow ;
 	}
+    }
+
+    if (!ok)
+    {
+	ERROR (CHOLMOD_TOO_LARGE, "problem too large") ;
+	return (NULL) ;
     }
 
     CHOLMOD(allocate_work) (0, ineed, 0, Common) ;

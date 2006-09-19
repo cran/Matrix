@@ -1,3 +1,16 @@
+- Sparse matrix methods can now be based on the CHOLMOD package.  We
+   will need to migrate from the current code to CHOLMOD-based code
+   using #ifdef USE_CHOLMOD.  Some of the things to be done
+
+   - Move documentation from subdirectories of src to inst/doc
+
+   - Write utilities to create a cholmod_sparse pointer from a
+   dgCMatrix or lgCMatrix (or zgCMatrix) object without copying and
+   allocating.
+
+   - Start adding simple S4 methods ( %*%, +, cbind, t) for
+     CsparseMatrix using CHOLMOD.
+
 - check to see if the .onLoad function to require the methods package
   (in the AllClass.R file) is needed
   -- no, it is not:  "Depends: " in DESCRIPTION suffices.

@@ -3,7 +3,8 @@
 /* ========================================================================== */
 
 /* -----------------------------------------------------------------------------
- * CHOLMOD/Cholesky Module.  Version 0.6.  Copyright (C) 2005, Timothy A. Davis
+ * CHOLMOD/Cholesky Module.  Version 1.2.  Copyright (C) 2005-2006,
+ * Timothy A. Davis
  * The CHOLMOD/Cholesky Module is licensed under Version 2.1 of the GNU
  * Lesser General Public License.  See lesser.txt for a text of the license.
  * CHOLMOD is also available under other licenses; contact authors for details.
@@ -12,8 +13,8 @@
 
 /* Compute the postorder of a tree. */
 
-#include "cholmod_cholesky.h"
 #include "cholmod_internal.h"
+#include "cholmod_cholesky.h"
 
 
 /* ========================================================================== */
@@ -137,7 +138,7 @@ static Int dfs		/* return the new value of k */
  * workspace: Head (n), Iwork (2*n)
  */
 
-long CHOLMOD(postorder)	/* return # of nodes postordered */
+UF_long CHOLMOD(postorder)	/* return # of nodes postordered */
 (
     /* ---- input ---- */
     Int *Parent,	/* size n. Parent [j] = p if p is the parent of j */
@@ -151,6 +152,8 @@ long CHOLMOD(postorder)	/* return # of nodes postordered */
 {
     Int *Head, *Next, *Pstack, *Iwork ;
     Int j, p, k, w, nextj ;
+    size_t s ;
+    int ok = TRUE ;
 
     /* ---------------------------------------------------------------------- */
     /* check inputs */
@@ -165,7 +168,15 @@ long CHOLMOD(postorder)	/* return # of nodes postordered */
     /* allocate workspace */
     /* ---------------------------------------------------------------------- */
 
-    CHOLMOD(allocate_work) (n, 2*n, 0, Common) ;
+    /* s = 2*n */
+    s = CHOLMOD(mult_size_t) (n, 2, &ok) ;
+    if (!ok)
+    {
+	ERROR (CHOLMOD_TOO_LARGE, "problem too large") ;
+	return (EMPTY) ;
+    }
+
+    CHOLMOD(allocate_work) (n, s, 0, Common) ;
     if (Common->status < CHOLMOD_OK)
     {
 	return (EMPTY) ;

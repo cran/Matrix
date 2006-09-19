@@ -39,7 +39,8 @@ validObject(mm)
 m <- Matrix(c(0,0,2:0), 3,5)
 mT <- as(mC <- as(m, "dgCMatrix"), "dgTMatrix")
 stopifnot(identical(as(mT,"dgCMatrix"), mC))
-(mlC <- as(as(mT[1:2, 2:3], "dgCMatrix"), "lgCMatrix"))
+(mC. <- as(mT[1:2, 2:3], "dgCMatrix"))
+(mlC <- as(mC. , "lgCMatrix"))
 
 if(FALSE) ## ltC no longer extends lgC -- want coercion possibility FIXME
 as(mlC,"ltCMatrix")
@@ -48,19 +49,16 @@ as(mlC,"ltCMatrix")
 ### Test all classes:  validObject(new( * )) should be fulfilled -----------
 
 ## need stoplist for now:
-not.ok.classes <- paste(c("lgR", # only stub implementation
-			  "lsR", # dito
-			  "ltR", # dito
-
-			  "ltT", # ltTMatrix_validate missing; as(*,"matrix")
-			  "lsT", # lsTMatrix_validate  "	"
-
+Rcl.struc <- c("gR", "sR", "tR")
+not.ok.classes <- paste(c(sort(outer(c("l", "n"), Rcl.struc, paste0)),
+                                        # only stub implementation
+                          ## FIXME: do these
+                          outer(c("l","n"), c("tT", "sT"), paste0),
+			  ## ltTMatrix_validate missing; as(*,"matrix")
 			  ""), "Matrix", sep='')
 ## From the rest, those that don't show :
-no.show.classes <- paste(c("dgR", # only stub implementation
-			   "dsR", # dito
-			   "dtR", #  "
-			   ), "Matrix", sep='')
+no.show.classes <-
+    paste(paste("d", Rcl.struc, sep=''), "Matrix", sep='')
 
 no.t.classes  <- no.show.classes # no t() available
 not.coerce0   <- no.show.classes # not coercable to   "matrix"

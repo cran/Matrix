@@ -33,6 +33,7 @@ SEXP Tsparse_to_Csparse(SEXP x, SEXP tri)
     cholmod_triplet *chxt = as_cholmod_triplet(x);
     cholmod_sparse *chxs = cholmod_triplet_to_sparse(chxt, chxt->nnz, &c);
     int uploT = 0; char *diag = "";
+    int Rkind = (chxt->xtype == CHOLMOD_REAL) ? Real_kind(x) : 0;
 
     Free(chxt);
     if (asLogical(tri)) {	/* triangular sparse matrices */
@@ -40,7 +41,7 @@ SEXP Tsparse_to_Csparse(SEXP x, SEXP tri)
 	    -1 : 1;
 	diag = CHAR(asChar(GET_SLOT(x, Matrix_diagSym)));
     }
-    return chm_sparse_to_SEXP(chxs, 1, uploT, diag,
+    return chm_sparse_to_SEXP(chxs, 1, uploT, Rkind, diag,
 			      duplicate(GET_SLOT(x, Matrix_DimNamesSym)));
 }
 

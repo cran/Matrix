@@ -3,7 +3,8 @@
 /* ========================================================================== */
 
 /* -----------------------------------------------------------------------------
- * CHOLMOD/Cholesky Module.  Version 0.6.  Copyright (C) 2005, Timothy A. Davis
+ * CHOLMOD/Cholesky Module.  Version 1.2.  Copyright (C) 2005-2006,
+ * Timothy A. Davis
  * The CHOLMOD/Cholesky Module is licensed under Version 2.1 of the GNU
  * Lesser General Public License.  See lesser.txt for a text of the license.
  * CHOLMOD is also available under other licenses; contact authors for details.
@@ -28,19 +29,17 @@
  * Allocates a temporary copy of A+A' or A*A' (with
  * both upper and lower triangular parts) as input to AMD.
  *
- * Requires AMD v1.2 or later.
- *
  * Supports any xtype (pattern, real, complex, or zomplex)
  */
 
 #ifndef NCHOLESKY
 
 #include "amd.h"
-#include "cholmod_cholesky.h"
 #include "cholmod_internal.h"
+#include "cholmod_cholesky.h"
 
-#if (!defined (AMD_VERSION) || (AMD_VERSION < AMD_VERSION_CODE (1,2)))
-#error "AMD v1.2 or later is required"
+#if (!defined (AMD_VERSION) || (AMD_VERSION < AMD_VERSION_CODE (2,0)))
+#error "AMD v2.0 or later is required"
 #endif
 
 /* ========================================================================== */
@@ -63,6 +62,8 @@ int CHOLMOD(amd)
     Int *Cp, *Len, *Nv, *Head, *Elen, *Degree, *Wi, *Iwork, *Next ;
     cholmod_sparse *C ;
     Int j, n, cnz ;
+    size_t s ;
+    int ok = TRUE ;
 
     /* ---------------------------------------------------------------------- */
     /* get inputs */
@@ -70,10 +71,11 @@ int CHOLMOD(amd)
 
     RETURN_IF_NULL_COMMON (FALSE) ;
     RETURN_IF_NULL (A, FALSE) ;
+    n = A->nrow ;
+
     RETURN_IF_NULL (Perm, FALSE) ;
     RETURN_IF_XTYPE_INVALID (A, CHOLMOD_PATTERN, CHOLMOD_ZOMPLEX, FALSE) ;
     Common->status = CHOLMOD_OK ;
-    n = A->nrow ;
     if (n == 0)
     {
 	/* nothing to do */
@@ -92,19 +94,28 @@ int CHOLMOD(amd)
      * allocated.
      */
 
-    CHOLMOD(allocate_work) (n, 6*n, 0, Common) ;
+    /* s = MAX (6*n, A->ncol) */
+    s = CHOLMOD(mult_size_t) (n, 6, &ok) ;
+    if (!ok)
+    {
+	ERROR (CHOLMOD_TOO_LARGE, "problem too large") ;
+	return (FALSE) ;
+    }
+    s = MAX (s, A->ncol) ;
+
+    CHOLMOD(allocate_work) (n, s, 0, Common) ;
     if (Common->status < CHOLMOD_OK)
     {
 	return (FALSE) ;
     }
 
     Iwork  = Common->Iwork ;
-    Degree = Iwork ;	    /* size n */
-    Wi     = Iwork + n ;    /* size n */
-    Len    = Iwork + 2*n ;  /* size n */
-    Nv     = Iwork + 3*n ;  /* size n */
-    Next   = Iwork + 4*n ;  /* size n */
-    Elen   = Iwork + 5*n ;  /* size n */
+    Degree = Iwork ;			/* size n */
+    Wi     = Iwork + n ;		/* size n */
+    Len    = Iwork + 2*((size_t) n) ;	/* size n */
+    Nv     = Iwork + 3*((size_t) n) ;   /* size n */
+    Next   = Iwork + 4*((size_t) n) ;   /* size n */
+    Elen   = Iwork + 5*((size_t) n) ;   /* size n */
 
     Head = Common->Head ;   /* size n+1, but only n is used */
 

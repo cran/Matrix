@@ -1,15 +1,9 @@
 #
 pkg = Matrix
 
-PKG_LIBS = $(LAPACK_LIBS) $(BLAS_LIBS)
+## we use the BLAS and the LAPACK library:
+PKG_LIBS = $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)
 include SOURCES_C.mkf
-
-## zherk.f and lsame.f are part of BLAS, but not of R's BLAS sources
-ifeq (, $(strip $(BLAS_LIBS)))
-SOURCES_BLAS = zherk.f lsame.f
-else
-SOURCES_BLAS =
-endif
 
 ## zpotrf.f and zpotf2.f are part of LAPACK, but not of R's LAPACK sources
 ifeq (, $(findstring -lRlapack, $(LAPACK_LIBS)))
@@ -18,11 +12,11 @@ else
 SOURCES_LAPACK = zpotf2.f zpotrf.f
 endif
 
-SOURCES_F = $(SOURCES_BLAS) $(SOURCES_LAPACK)
+SOURCES_F = $(SOURCES_LAPACK)
 
 OBJECTS = $(SOURCES_C:.c=.o) $(SOURCES_F:.f=.o)
 SHLIB = $(pkg)$(SHLIB_EXT)
-SUBDIRS = CHOLMOD UMFPACK COLAMD CCOLAMD AMD Metis LDL
+SUBDIRS = CHOLMOD COLAMD AMD
 SUBLIBS = $(SUBDIRS:=.a)
 SUBSTAMP = $(SUBDIRS:=.stamp)
 

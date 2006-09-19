@@ -14,8 +14,10 @@
 \alias{triu,TsparseMatrix-method}
 \alias{tril,dsCMatrix-method}
 \alias{tril,lsCMatrix-method}
+\alias{tril,nsCMatrix-method}
 \alias{triu,dsCMatrix-method}
 \alias{triu,lsCMatrix-method}
+\alias{triu,nsCMatrix-method}
 \alias{band,ddenseMatrix-method}
 \alias{tril,ddenseMatrix-method}
 \alias{triu,ddenseMatrix-method}

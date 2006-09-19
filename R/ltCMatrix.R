@@ -6,12 +6,11 @@ setAs("matrix", "ltCMatrix",
       function(from) as(as(from, "dtCMatrix"), "ltCMatrix"))
 
 setAs("ltCMatrix", "lgCMatrix",
-      function(from) new("lgCMatrix", i = from@i, p = from@p,
-                         Dim = from@Dim, Dimnames = from@Dimnames))
+      function(from) copyClass(from, "lgCMatrix"))
 
 setAs("ltCMatrix", "dMatrix", # < instead of "dtCMatrix"
       function(from) new("dtCMatrix", i = from@i, p = from@p,
-                         x = rep.int(1, length(from@i)), uplo = from@uplo,
+                         x = as.double(from@x), uplo = from@uplo,
                          diag = from@diag,
                          Dim = from@Dim, Dimnames = from@Dimnames))
 

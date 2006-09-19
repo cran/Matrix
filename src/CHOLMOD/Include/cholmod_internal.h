@@ -3,8 +3,8 @@
 /* ========================================================================== */
 
 /* -----------------------------------------------------------------------------
- * CHOLMOD/Include/cholmod_internal.h.  Version 0.6.
- * Copyright (C) 2005, Univ. of Florida.  Author: Timothy A. Davis
+ * CHOLMOD/Include/cholmod_internal.h.  Version 1.2.
+ * Copyright (C) 2005-2006, Univ. of Florida.  Author: Timothy A. Davis
  * CHOLMOD/Include/cholmod_internal.h is licensed under Version 2.1 of the GNU
  * Lesser General Public License.  See lesser.txt for a text of the license.
  * CHOLMOD is also available under other licenses; contact authors for details.
@@ -129,14 +129,14 @@
 #define IS_LE_ZERO(x)	CHOLMOD_IS_LE_ZERO(x)
 
 /* ========================================================================== */
-/* === int/long and double/float definitions ================================ */
+/* === int/UF_long and double/float definitions ============================= */
 /* ========================================================================== */
 
 /* CHOLMOD is designed for 3 types of integer variables:
  *
  *	(1) all integers are int
- *	(2) most integers are int, some are long
- *	(3) all integers are long
+ *	(2) most integers are int, some are UF_long
+ *	(3) all integers are UF_long
  *
  * and two kinds of floating-point values:
  *
@@ -150,18 +150,18 @@
  * This gives 6 different modes in which CHOLMOD can be compiled (only the
  * first two are currently supported):
  *
- *	DINT	double, int		prefix: cholmod_
- *	DLONG	double, long		prefix: cholmod_l_
- *	DMIX	double, mixed int/long	prefix: cholmod_m_
- *	SINT	float, int		prefix: cholmod_si_
- *	SLONG	float, long		prefix: cholmod_sl_
- *	SMIX	float, mixed int/log	prefix: cholmod_sm_
+ *	DINT	double, int			prefix: cholmod_
+ *	DLONG	double, UF_long			prefix: cholmod_l_
+ *	DMIX	double, mixed int/UF_long	prefix: cholmod_m_
+ *	SINT	float, int			prefix: cholmod_si_
+ *	SLONG	float, UF_long			prefix: cholmod_sl_
+ *	SMIX	float, mixed int/log		prefix: cholmod_sm_
  *
  * These are selected with compile time flags (-DDLONG, for example).  If no
  * flag is selected, the default is DINT.
  *
  * All six versions use the same include files.  The user-visible include files
- * are completely independent of which int/long/double/float version is being
+ * are completely independent of which int/UF_long/double/float version is being
  * used.  The integer / real types in all data structures (sparse, triplet,
  * dense, common, and triplet) are defined at run-time, not compile-time, so
  * there is only one "cholmod_sparse" data type.  Void pointers are used inside
@@ -169,31 +169,47 @@
  * structure has an itype and dtype field which determines the kind of basic
  * types used.  These are defined in Include/cholmod_core.h.
  *
- * FUTURE WORK: support all six types (float, and mixed int/long)
+ * FUTURE WORK: support all six types (float, and mixed int/UF_long)
+ *
+ * UF_long is normally defined as long.  However, for WIN64 it is __int64.
+ * It can also be redefined for other platforms, by modifying UFconfig.h.
  */
 
+#include "UFconfig.h"
+
 /* -------------------------------------------------------------------------- */
-/* double, long */
+/* Size_max: the largest value of size_t */
+/* -------------------------------------------------------------------------- */
+
+#define Size_max ((size_t) (-1))
+
+/* routines for doing arithmetic on size_t, and checking for overflow */
+size_t cholmod_add_size_t (size_t a, size_t b, int *ok) ;
+size_t cholmod_mult_size_t (size_t a, size_t k, int *ok) ;
+size_t cholmod_l_add_size_t (size_t a, size_t b, int *ok) ;
+size_t cholmod_l_mult_size_t (size_t a, size_t k, int *ok) ;
+
+/* -------------------------------------------------------------------------- */
+/* double, UF_long */
 /* -------------------------------------------------------------------------- */
 
 #ifdef DLONG
 #define Real double
-#define Int long
-#define Int_max LONG_MAX
-#define Size_max LONG_MAX
+#define Int UF_long
+#define Int_max UF_long_max
 #define CHOLMOD(name) cholmod_l_ ## name
 #define LONG
 #define DOUBLE
 #define ITYPE CHOLMOD_LONG
 #define DTYPE CHOLMOD_DOUBLE
-#define ID "%ld"
+#define ID UF_long_id
 
 /* -------------------------------------------------------------------------- */
-/* double, int/long */
+/* double, int/UF_long */
 /* -------------------------------------------------------------------------- */
 
 #elif defined (DMIX)
-#error "mixed int/long not yet supported"
+#error "mixed int/UF_long not yet supported"
 
 /* -------------------------------------------------------------------------- */
 /* single, int */
@@ -203,14 +219,14 @@
 #error "single-precision not yet supported"
 
 /* -------------------------------------------------------------------------- */
-/* single, long */
+/* single, UF_long */
 /* -------------------------------------------------------------------------- */
 
 #elif defined (SLONG)
 #error "single-precision not yet supported"
 
 /* -------------------------------------------------------------------------- */
-/* single, int/long */
+/* single, int/UF_long */
 /* -------------------------------------------------------------------------- */
 
 #elif defined (SMIX)
@@ -231,7 +247,6 @@
 #define Real double
 #define Int int
 #define Int_max INT_MAX
-#define Size_max INT_MAX
 #define CHOLMOD(name) cholmod_ ## name
 #define ITYPE CHOLMOD_INT
 #define DTYPE CHOLMOD_DOUBLE
@@ -267,10 +282,14 @@
  * use the cholmod_dump_* routines defined there, which allocate their own
  * workspace if they need it. */
 
+#ifndef EXTERN
+#define EXTERN extern
+#endif
+
 /* double, int */
-extern int cholmod_dump ;
-extern int cholmod_dump_malloc ;
-long cholmod_dump_sparse (cholmod_sparse  *, char *, cholmod_common *) ;
+EXTERN int cholmod_dump ;
+EXTERN int cholmod_dump_malloc ;
+UF_long cholmod_dump_sparse (cholmod_sparse  *, char *, cholmod_common *) ;
 int  cholmod_dump_factor (cholmod_factor  *, char *, cholmod_common *) ;
 int  cholmod_dump_triplet (cholmod_triplet *, char *, cholmod_common *) ;
 int  cholmod_dump_dense (cholmod_dense   *, char *, cholmod_common *) ;
@@ -278,34 +297,35 @@ int  cholmod_dump_subset (int *, size_t, size_t, char *, cholmod_common *) ;
 int  cholmod_dump_perm (int *, size_t, size_t, char *, cholmod_common *) ;
 int  cholmod_dump_parent (int *, size_t, char *, cholmod_common *) ;
 void cholmod_dump_init (char *, cholmod_common *) ;
-int  cholmod_dump_mem (char *, long, cholmod_common *) ;
-void cholmod_dump_real (char *, Real *, long, long, int, int,
+int  cholmod_dump_mem (char *, UF_long, cholmod_common *) ;
+void cholmod_dump_real (char *, Real *, UF_long, UF_long, int, int,
 	cholmod_common *) ;
-void cholmod_dump_super (long, int *, int *, int *, int *, double *, int,
+void cholmod_dump_super (UF_long, int *, int *, int *, int *, double *, int,
 	cholmod_common *) ;
-int  cholmod_dump_partition (long, int *, int *, int *, int *, long,
+int  cholmod_dump_partition (UF_long, int *, int *, int *, int *, UF_long,
 	cholmod_common *) ;
-int  cholmod_dump_work(int, int, long, cholmod_common *) ;
+int  cholmod_dump_work(int, int, UF_long, cholmod_common *) ;
 
-/* double, long */
-extern int cholmod_l_dump ;
-extern int cholmod_l_dump_malloc ;
-long cholmod_l_dump_sparse (cholmod_sparse  *, char *, cholmod_common *) ;
+/* double, UF_long */
+EXTERN int cholmod_l_dump ;
+EXTERN int cholmod_l_dump_malloc ;
+UF_long cholmod_l_dump_sparse (cholmod_sparse  *, char *, cholmod_common *) ;
 int  cholmod_l_dump_factor (cholmod_factor  *, char *, cholmod_common *) ;
 int  cholmod_l_dump_triplet (cholmod_triplet *, char *, cholmod_common *) ;
 int  cholmod_l_dump_dense (cholmod_dense   *, char *, cholmod_common *) ;
-int  cholmod_l_dump_subset (long *, size_t, size_t, char *, cholmod_common *) ;
-int  cholmod_l_dump_perm (long *, size_t, size_t, char *, cholmod_common *) ;
-int  cholmod_l_dump_parent (long *, size_t, char *, cholmod_common *) ;
+int  cholmod_l_dump_subset (UF_long *, size_t, size_t, char *,
+    cholmod_common *) ;
+int  cholmod_l_dump_perm (UF_long *, size_t, size_t, char *, cholmod_common *) ;
+int  cholmod_l_dump_parent (UF_long *, size_t, char *, cholmod_common *) ;
 void cholmod_l_dump_init (char *, cholmod_common *) ;
-int  cholmod_l_dump_mem (char *, long, cholmod_common *) ;
-void cholmod_l_dump_real (char *, Real *, long, long, int, int,
+int  cholmod_l_dump_mem (char *, UF_long, cholmod_common *) ;
+void cholmod_l_dump_real (char *, Real *, UF_long, UF_long, int, int,
 	cholmod_common *) ;
-void cholmod_l_dump_super (long, long *, long *, long *, long *, double *, int,
-	cholmod_common *) ;
-int  cholmod_l_dump_partition (long, long *, long *, long *, long *, long,
-	cholmod_common *) ;
-int  cholmod_l_dump_work(int, int, long, cholmod_common *) ;
+void cholmod_l_dump_super (UF_long, UF_long *, UF_long *, UF_long *, UF_long *,
+        double *, int, cholmod_common *) ;
+int  cholmod_l_dump_partition (UF_long, UF_long *, UF_long *, UF_long *,
+	UF_long *, UF_long, cholmod_common *) ;
+int  cholmod_l_dump_work(int, int, UF_long, cholmod_common *) ;
 
 #define DEBUG_INIT(s)  { CHOLMOD(dump_init)(s, Common) ; }
 #define ASSERT(expression) (assert (expression))
@@ -314,7 +334,7 @@ int  cholmod_l_dump_work(int, int, long, cholmod_common *) ;
 { \
     if (CHOLMOD(dump) >= (k) && Common->print_function != NULL) \
     { \
-	/* (Common->print_function) */ printf params ; \
+	(Common->print_function) params ; \
     } \
 }
 

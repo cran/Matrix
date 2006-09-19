@@ -1,5 +1,7 @@
 include ${MkInclude}
 
+PKG_CFLAGS=-I../UFconfig
+
 OBJS = colamd.o colamd_global.o
 
 LIB = ../COLAMD.a

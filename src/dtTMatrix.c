@@ -31,9 +31,13 @@ SEXP dtTMatrix_as_dgCMatrix(SEXP x)
 {
     cholmod_triplet *tx = as_cholmod_triplet(x);
     cholmod_sparse *cx = cholmod_triplet_to_sparse(tx, tx->nzmax, &c);
+/* Should generalize this, also for ltT -> lgC ... .. or drop completely
+ * FIXME
+ * int Rkind = (tx->xtype == CHOLMOD_REAL) ? Real_kind(x) : 0;
+ */
     Free(tx);
 				/* chm_sparse_to_SEXP cholmod_frees cx */
-    return chm_sparse_to_SEXP(cx, 1, 0, "",
+    return chm_sparse_to_SEXP(cx, 1, 0, /*Rkind*/ 0, "",
 			      GET_SLOT(x, Matrix_DimNamesSym));
 }
 

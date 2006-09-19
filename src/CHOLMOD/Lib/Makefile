@@ -5,8 +5,11 @@ include ${MkInclude}
 
 default: lib
 
-PKG_CFLAGS = -I../../AMD/Include -I../../AMD/Source -I../../COLAMD \
-	-I../../Metis -I../../CCOLAMD -I../Include
+PKG_CFLAGS = -I../../AMD/Include -I../../AMD/Source \
+        -I../../COLAMD  -I../../CCOLAMD \
+	-I../Include -I../../UFconfig -DNPARTITION
+#        -I../../CAMD/Include -I../../CAMD/Source \
+#	-I../../Metis \
 
 #-------------------------------------------------------------------------------
 # ../Include/ directory contains all include files:
@@ -22,9 +25,9 @@ INC =   ../Include/cholmod.h \
 	../Include/cholmod_internal.h \
 	../Include/cholmod_matrixops.h \
 	../Include/cholmod_modify.h \
-	../Include/cholmod_partition.h \
 	../Include/cholmod_supernodal.h \
 	../Include/cholmod_template.h
+#	../Include/cholmod_partition.h \
 
 #-------------------------------------------------------------------------------
 # The 7 CHOLMOD library modules (int, double)
@@ -48,14 +51,14 @@ MATRIXOPS = cholmod_drop.o cholmod_horzcat.o cholmod_norm.o \
 	cholmod_submatrix.o cholmod_vertcat.o
 
 PARTITION = cholmod_ccolamd.o cholmod_csymamd.o \
-	cholmod_metis.o cholmod_nesdis.o
+	cholmod_metis.o cholmod_nesdis.o cholmod_camd.o
 
 MODIFY = cholmod_rowadd.o cholmod_rowdel.o cholmod_updown.o
 
 SUPERNODAL = cholmod_super_numeric.o cholmod_super_solve.o \
 	cholmod_super_symbolic.o
 
-OBJS = $(CORE) $(CHOLESKY) $(MATRIXOPS) $(MODIFY) $(SUPERNODAL) $(PARTITION) $(CHECK)
+OBJS = $(CORE) $(CHOLESKY) $(MATRIXOPS) $(MODIFY) $(SUPERNODAL) $(CHECK) #$(PARTITION) 
 
 LIB = ../../CHOLMOD.a
 
@@ -147,6 +150,8 @@ cholmod_csymamd.o: ../Partition/cholmod_csymamd.c
 cholmod_metis.o: ../Partition/cholmod_metis.c
 	$(CC) $(ALL_CPPFLAGS) $(ALL_CFLAGS) -c $< -o $@
 cholmod_nesdis.o: ../Partition/cholmod_nesdis.c
+	$(CC) $(ALL_CPPFLAGS) $(ALL_CFLAGS) -c $< -o $@
+cholmod_camd.o: ../Partition/cholmod_camd.c
 	$(CC) $(ALL_CPPFLAGS) $(ALL_CFLAGS) -c $< -o $@
 
 #-------------------------------------------------------------------------------

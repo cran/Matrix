@@ -3,8 +3,8 @@
 /* ========================================================================== */
 
 /* -----------------------------------------------------------------------------
- * CHOLMOD/Modify Module.  Version 0.6.  Copyright (C) 2005, Timothy A. Davis
- * and William W. Hager.
+ * CHOLMOD/Modify Module.  Version 1.2.
+ * Copyright (C) 2005-2006, Timothy A. Davis and William W. Hager.
  * The CHOLMOD/Modify Module is licensed under Version 2.0 of the GNU
  * General Public License.  See gpl.txt for a text of the license.
  * CHOLMOD is also available under other licenses; contact authors for details.
@@ -23,8 +23,8 @@
 
 #ifndef NMODIFY
 
-#include "cholmod_modify.h"
 #include "cholmod_internal.h"
+#include "cholmod_modify.h"
 
 
 /* ========================================================================== */
@@ -53,7 +53,7 @@ int CHOLMOD(rowdel)
     double yk [2] ;
     yk [0] = 0. ;
     yk [1] = 0. ;
-    return (CHOLMOD(rowdel_mark) (k, R, yk, NULL, L, NULL, NULL, NULL, Common));
+    return (CHOLMOD(rowdel_mark) (k, R, yk, NULL, L, NULL, NULL, Common)) ;
 }
 
 
@@ -80,7 +80,7 @@ int CHOLMOD(rowdel_solve)
     cholmod_common *Common
 )
 {
-    return (CHOLMOD(rowdel_mark) (k, R, yk, NULL, L, X, DeltaB, NULL, Common)) ;
+    return (CHOLMOD(rowdel_mark) (k, R, yk, NULL, L, X, DeltaB, Common)) ;
 }
 
 
@@ -104,22 +104,23 @@ int CHOLMOD(rowdel_mark)
     size_t kdel,	/* row/column index to delete */
     cholmod_sparse *R,	/* NULL, or the nonzero pattern of kth row of L */
     double yk [2],	/* kth entry in the solution to A*y=b */
-    Int *colmark,	/* Int array of size n.  See cholmod_updown.c */
+    Int *colmark,	/* Int array of size 1.  See cholmod_updown.c */
     /* ---- in/out --- */
     cholmod_factor *L,	/* factor to modify */
     cholmod_dense *X,	/* solution to Lx=b (size n-by-1) */
     cholmod_dense *DeltaB,  /* change in b, zero on output */
-    Int *rowmark,	/* Int array of size n.  See cholmod_updown.c */
     /* --------------- */
     cholmod_common *Common
 )
 {
-    double dk, sqrt_dk, xk, dj ;
+    double dk, sqrt_dk, xk, dj, fl ;
     double *Lx, *Cx, *W, *Xx, *Nx ;
     Int *Li, *Lp, *Lnz, *Ci, *Rj, *Rp, *Iwork ;
     cholmod_sparse *C, Cmatrix ;
     Int j, p, pend, kk, lnz, n, Cp [2], do_solve, do_update, left, k,
-	right, middle, i, klast, given_row, rnz, ok ;
+	right, middle, i, klast, given_row, rnz ;
+    size_t s ;
+    int ok = TRUE ;
 
     /* ---------------------------------------------------------------------- */
     /* check inputs */
@@ -130,7 +131,7 @@ int CHOLMOD(rowdel_mark)
     RETURN_IF_XTYPE_INVALID (L, CHOLMOD_PATTERN, CHOLMOD_REAL, FALSE) ;
     n = L->n ;
     k = kdel ;
-    if (k >= n || k < 0)
+    if (kdel >= L->n || k < 0)
     {
 	ERROR (CHOLMOD_INVALID, "k invalid") ;
 	return (FALSE) ;
@@ -177,7 +178,15 @@ int CHOLMOD(rowdel_mark)
     /* allocate workspace */
     /* ---------------------------------------------------------------------- */
 
-    CHOLMOD(allocate_work) (n, 2*n, 2*n, Common) ;
+    /* s = 2*n */
+    s = CHOLMOD(mult_size_t) (n, 2, &ok) ;
+    if (!ok)
+    {
+	ERROR (CHOLMOD_TOO_LARGE, "problem too large") ;
+	return (FALSE) ;
+    }
+
+    CHOLMOD(allocate_work) (n, s, s, Common) ;
     if (Common->status < CHOLMOD_OK)
     {
 	return (FALSE) ;
@@ -269,7 +278,7 @@ int CHOLMOD(rowdel_mark)
 		{
 		    Xx [j] -= yk [0] * dj * Lx [right] ;
 		}
-		Lnz [j]-- ;
+		Lx [right] = 0 ;
 	    }
 	    else
 	    {
@@ -322,12 +331,7 @@ int CHOLMOD(rowdel_mark)
 			Xx [j] -= yk [0] * dj * Lx [left] ;
 		    }
 		    /* found row k in column j.  Prune it from the column.*/
-		    for (p = left + 1 ; p < pend ; p++)
-		    {
-			Li [p-1] = Li [p] ;
-			Lx [p-1] = Lx [p] ;
-		    }
-		    Lnz [j]-- ;
+		    Lx [left] = 0 ;
 		}
 	    }
 	}
@@ -347,11 +351,12 @@ int CHOLMOD(rowdel_mark)
 	{
 	    i = Li [p] ;
 	    PRINT2 ((" "ID"", i)) ;
-	    ASSERT (i != k) ;
+	    PRINT2 ((" %g\n", Lx [p])) ;
+	    ASSERT (IMPLIES (i == k, Lx [p] == 0)) ;
 	    ASSERT (i > lasti) ;
 	    lasti = i ;
 	}
-	PRINT2 (("\n")) ;
+	PRINT1 (("\n")) ;
     }
 #endif
 
@@ -380,6 +385,7 @@ int CHOLMOD(rowdel_mark)
     Lx [p++] = 1 ;
     PRINT2 (("D [k = "ID"] = %g\n", k, dk)) ;
     ok = TRUE ;
+    fl = 0 ;
 
     if (lnz > 0)
     {
@@ -404,8 +410,9 @@ int CHOLMOD(rowdel_mark)
 	{
 	    Ci [kk] = Li [p] ;
 	    Cx [kk] = Lx [p] * sqrt_dk ;
+	    Lx [p] = 0 ;		/* clear column k */
 	}
-	Common->modfl += lnz + 1 ;
+	fl = lnz + 1 ;
 
 	/* create a n-by-1 sparse matrix to hold the single column */
 	C = &Cmatrix ;
@@ -430,11 +437,7 @@ int CHOLMOD(rowdel_mark)
 	/* numeric update if dk > 0, and with Lx=b change */
 	/* workspace: Flag (nrow), Head (nrow+1), W (nrow), Iwork (2*nrow) */
 	ok = CHOLMOD(updown_mark) (do_update ? (1) : (0), C, colmark,
-		L, X, DeltaB, rowmark, Common) ;
-	if (ok)
-	{
-	    Lnz [k] = 1 ;
-	}
+		L, X, DeltaB, Common) ;
 
 	/* clear workspace */
 	for (kk = 0 ; kk < lnz ; kk++)
@@ -442,6 +445,8 @@ int CHOLMOD(rowdel_mark)
 	    Cx [kk] = 0 ;
 	}
     }
+
+    Common->modfl += fl ;
 
     if (do_solve)
     {

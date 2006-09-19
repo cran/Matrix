@@ -3,8 +3,8 @@
 /* ========================================================================== */
 
 /* -----------------------------------------------------------------------------
- * CHOLMOD/Include/cholmod_cholesky.h.  Version 0.6.
- * Copyright (C) 2005, Timothy A. Davis
+ * CHOLMOD/Include/cholmod_cholesky.h.  Version 1.2.
+ * Copyright (C) 2005-2006, Timothy A. Davis
  * CHOLMOD/Include/cholmod_cholesky.h is licensed under Version 2.1 of the GNU
  * Lesser General Public License.  See lesser.txt for a text of the license.
  * CHOLMOD is also available under other licenses; contact authors for details.
@@ -41,6 +41,7 @@
  * cholmod_amd			order using AMD
  * cholmod_colamd		order using COLAMD
  * cholmod_rowfac		incremental simplicial factorization
+ * cholmod_rowfac_mask		rowfac, specific to LPDASA
  * cholmod_row_subtree		find the nonzero pattern of a row of L
  * cholmod_resymbol		recompute the symbolic pattern of L
  * cholmod_resymbol_noperm	recompute the symbolic pattern of L, no L->Perm
@@ -102,8 +103,8 @@ cholmod_factor *cholmod_analyze_p
     cholmod_common *Common
 ) ;
 
-cholmod_factor *cholmod_l_analyze_p (cholmod_sparse *, long *, long *, size_t,
-    cholmod_common *) ;
+cholmod_factor *cholmod_l_analyze_p (cholmod_sparse *, UF_long *, UF_long *,
+    size_t, cholmod_common *) ;
 
 /* -------------------------------------------------------------------------- */
 /* cholmod_factorize:  simplicial or supernodal Cholesky factorization */
@@ -145,7 +146,7 @@ int cholmod_factorize_p
     cholmod_common *Common
 ) ;
 
-int cholmod_l_factorize_p (cholmod_sparse *, double *, long *, size_t,
+int cholmod_l_factorize_p (cholmod_sparse *, double *, UF_long *, size_t,
     cholmod_factor *, cholmod_common *) ;
 
 /* -------------------------------------------------------------------------- */
@@ -210,7 +211,7 @@ int cholmod_etree
     cholmod_common *Common
 ) ;
 
-int cholmod_l_etree (cholmod_sparse *, long *, cholmod_common *) ;
+int cholmod_l_etree (cholmod_sparse *, UF_long *, cholmod_common *) ;
 
 /* -------------------------------------------------------------------------- */
 /* cholmod_rowcolcounts: compute the row/column counts of L */
@@ -238,8 +239,8 @@ int cholmod_rowcolcounts
     cholmod_common *Common
 ) ;
 
-int cholmod_l_rowcolcounts (cholmod_sparse *, long *, size_t, long *, long *,
-    long *, long *, long *, long *, cholmod_common *) ;
+int cholmod_l_rowcolcounts (cholmod_sparse *, UF_long *, size_t, UF_long *,
+    UF_long *, UF_long *, UF_long *, UF_long *, UF_long *, cholmod_common *) ;
 
 /* -------------------------------------------------------------------------- */
 /* cholmod_analyze_ordering:  analyze a fill-reducing ordering */
@@ -264,8 +265,9 @@ int cholmod_analyze_ordering
     cholmod_common *Common
 ) ;
 
-int cholmod_l_analyze_ordering (cholmod_sparse *, int, long *, long *, size_t,
-    long *, long *, long *, long *, long *, cholmod_common *) ;
+int cholmod_l_analyze_ordering (cholmod_sparse *, int, UF_long *, UF_long *,
+    size_t, UF_long *, UF_long *, UF_long *, UF_long *, UF_long *,
+    cholmod_common *) ;
 
 /* -------------------------------------------------------------------------- */
 /* cholmod_amd:  order using AMD */
@@ -286,7 +288,8 @@ int cholmod_amd
     cholmod_common *Common
 ) ;
 
-int cholmod_l_amd (cholmod_sparse *, long *, size_t, long *, cholmod_common *) ;
+int cholmod_l_amd (cholmod_sparse *, UF_long *, size_t, UF_long *,
+    cholmod_common *) ;
 
 /* -------------------------------------------------------------------------- */
 /* cholmod_colamd:  order using COLAMD */
@@ -308,7 +311,7 @@ int cholmod_colamd
     cholmod_common *Common
 ) ;
 
-int cholmod_l_colamd (cholmod_sparse *, long *, size_t, int, long *,
+int cholmod_l_colamd (cholmod_sparse *, UF_long *, size_t, int, UF_long *,
     cholmod_common *) ;
 
 /* -------------------------------------------------------------------------- */
@@ -338,6 +341,32 @@ int cholmod_l_rowfac (cholmod_sparse *, cholmod_sparse *, double *, size_t,
     size_t, cholmod_factor *, cholmod_common *) ;
 
 /* -------------------------------------------------------------------------- */
+/* cholmod_rowfac_mask:  incremental simplicial factorization */
+/* -------------------------------------------------------------------------- */
+
+/* cholmod_rowfac_mask is a version of cholmod_rowfac that is specific to
+ * LPDASA.  It is unlikely to be needed by any other application. */
+
+int cholmod_rowfac_mask
+(
+    /* ---- input ---- */
+    cholmod_sparse *A,	/* matrix to factorize */
+    cholmod_sparse *F,	/* used for A*A' case only. F=A' or A(:,fset)' */
+    double beta [2],	/* factorize beta*I+A or beta*I+A'*A */
+    size_t kstart,	/* first row to factorize */
+    size_t kend,	/* last row to factorize is kend-1 */
+    int *mask,		/* if mask[i] >= 0, then set row i to zero */
+    int *RLinkUp,	/* link list of rows to compute */
+    /* ---- in/out --- */
+    cholmod_factor *L,
+    /* --------------- */
+    cholmod_common *Common
+) ;
+
+int cholmod_l_rowfac_mask (cholmod_sparse *, cholmod_sparse *, double *, size_t,
+    size_t, UF_long *, UF_long *, cholmod_factor *, cholmod_common *) ;
+
+/* -------------------------------------------------------------------------- */
 /* cholmod_row_subtree:  find the nonzero pattern of a row of L */
 /* -------------------------------------------------------------------------- */
 
@@ -357,8 +386,32 @@ int cholmod_row_subtree
     cholmod_common *Common
 ) ;
 
-int cholmod_l_row_subtree (cholmod_sparse *, cholmod_sparse *, size_t, long *,
-    cholmod_sparse *, cholmod_common *) ;
+int cholmod_l_row_subtree (cholmod_sparse *, cholmod_sparse *, size_t,
+    UF_long *, cholmod_sparse *, cholmod_common *) ;
+
+/* -------------------------------------------------------------------------- */
+/* cholmod_row_lsubtree:  find the nonzero pattern of a row of L */
+/* -------------------------------------------------------------------------- */
+
+/* Identical to cholmod_row_subtree, except that it finds the elimination tree
+ * from L itself. */
+
+int cholmod_row_lsubtree
+(
+    /* ---- input ---- */
+    cholmod_sparse *A,	/* matrix to analyze */
+    int *Fi, size_t fnz,    /* nonzero pattern of kth row of A', not required
+			     * for the symmetric case.  Need not be sorted. */
+    size_t k,		/* row k of L */
+    cholmod_factor *L,	/* the factor L from which parent(i) is derived */
+    /* ---- output --- */
+    cholmod_sparse *R,	/* pattern of L(k,:), 1-by-n with R->nzmax >= n */
+    /* --------------- */
+    cholmod_common *Common
+) ;
+
+int cholmod_l_row_lsubtree (cholmod_sparse *, UF_long *, size_t,
+    size_t, cholmod_factor *, cholmod_sparse *, cholmod_common *) ;
 
 /* -------------------------------------------------------------------------- */
 /* cholmod_resymbol:  recompute the symbolic pattern of L */
@@ -384,8 +437,8 @@ int cholmod_resymbol
     cholmod_common *Common
 ) ;
 
-int cholmod_l_resymbol (cholmod_sparse *, long *, size_t, int, cholmod_factor *,
-    cholmod_common *) ;
+int cholmod_l_resymbol (cholmod_sparse *, UF_long *, size_t, int,
+    cholmod_factor *, cholmod_common *) ;
 
 /* -------------------------------------------------------------------------- */
 /* cholmod_resymbol_noperm:  recompute the symbolic pattern of L, no L->Perm */
@@ -407,7 +460,7 @@ int cholmod_resymbol_noperm
     cholmod_common *Common
 ) ;
 
-int cholmod_l_resymbol_noperm (cholmod_sparse *, long *, size_t, int,
+int cholmod_l_resymbol_noperm (cholmod_sparse *, UF_long *, size_t, int,
     cholmod_factor *, cholmod_common *) ;
 
 /* -------------------------------------------------------------------------- */
@@ -428,7 +481,7 @@ double cholmod_l_rcond (cholmod_factor *, cholmod_common *) ;
 /* cholmod_postorder: Compute the postorder of a tree */
 /* -------------------------------------------------------------------------- */
 
-long cholmod_postorder	/* return # of nodes postordered */
+UF_long cholmod_postorder	/* return # of nodes postordered */
 (
     /* ---- input ---- */
     int *Parent,	/* size n. Parent [j] = p if p is the parent of j */
@@ -440,6 +493,7 @@ long cholmod_postorder	/* return # of nodes postordered */
     cholmod_common *Common
 ) ;
 
-long cholmod_l_postorder (long *, size_t, long *, long *, cholmod_common *) ;
+UF_long cholmod_l_postorder (UF_long *, size_t, UF_long *, UF_long *,
+    cholmod_common *) ;
 
 #endif

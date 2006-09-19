@@ -3,7 +3,8 @@
 /* ========================================================================== */
 
 /* -----------------------------------------------------------------------------
- * CHOLMOD/Cholesky Module.  Version 0.6.  Copyright (C) 2005, Timothy A. Davis
+ * CHOLMOD/Cholesky Module.  Version 1.2.  Copyright (C) 2005-2006,
+ * Timothy A. Davis
  * The CHOLMOD/Cholesky Module is licensed under Version 2.1 of the GNU
  * Lesser General Public License.  See lesser.txt for a text of the license.
  * CHOLMOD is also available under other licenses; contact authors for details.
@@ -12,17 +13,20 @@
 
 /* Return a rough estimate of the reciprocal of the condition number:
  * the minimum entry on the diagonal of L (or absolute entry of D for an LDL'
- * factorization) divided by the maximum entry.  L can be real, complex, or
- * zomplex.  Returns -1 on error, 0 if the matrix is singular or has a zero
- * entry on the diagonal of L, 1 if the matrix is 0-by-0, or
+ * factorization) divided by the maximum entry (squared for LL').  L can be
+ * real, complex, or zomplex.  Returns -1 on error, 0 if the matrix is singular
+ * or has a zero entry on the diagonal of L, 1 if the matrix is 0-by-0, or
  * min(diag(L))/max(diag(L)) otherwise.  Never returns NaN; if L has a NaN on
  * the diagonal it returns zero instead.
+ *
+ * For an LL' factorization,  (min(diag(L))/max(diag(L)))^2 is returned.
+ * For an LDL' factorization, (min(diag(D))/max(diag(D))) is returned.
  */
 
 #ifndef NCHOLESKY
 
-#include "cholmod_cholesky.h"
 #include "cholmod_internal.h"
+#include "cholmod_cholesky.h"
 
 /* ========================================================================== */
 /* === LMINMAX ============================================================== */
@@ -70,7 +74,7 @@ double CHOLMOD(rcond)	    /* return min(diag(L)) / max(diag(L)) */
     cholmod_common *Common
 )
 {
-    double lmin, lmax ;
+    double lmin, lmax, rcond ;
     double *Lx ;
     Int *Lpi, *Lpx, *Super, *Lp ;
     Int n, e, nsuper, s, k1, k2, psi, psend, psx, nsrow, nscol, jj, j ;
@@ -148,6 +152,11 @@ double CHOLMOD(rcond)	    /* return min(diag(L)) / max(diag(L)) */
 	    }
 	}
     }
-    return (lmin / lmax) ;
+    rcond = lmin / lmax ;
+    if (L->is_ll)
+    {
+	rcond = rcond*rcond ;
+    }
+    return (rcond) ;
 }
 #endif

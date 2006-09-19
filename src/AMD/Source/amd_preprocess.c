@@ -3,15 +3,18 @@
 /* ========================================================================= */
 
 /* ------------------------------------------------------------------------- */
-/* AMD Version 1.2, Copyright (c) 2005 by Timothy A. Davis,		     */
+/* AMD Version 2.0, Copyright (c) 2006 by Timothy A. Davis,		     */
 /* Patrick R. Amestoy, and Iain S. Duff.  See ../README.txt for License.     */
 /* email: davis at cise.ufl.edu    CISE Department, Univ. of Florida.        */
 /* web: http://www.cise.ufl.edu/research/sparse/amd                          */
 /* ------------------------------------------------------------------------- */
 
 /* Sorts, removes duplicate entries, and transposes from the nonzero pattern of
- * a column-form matrix A, to obtain the matrix R.
- * See amd.h for a complete description of AMD_preprocess 
+ * a column-form matrix A, to obtain the matrix R.  The input matrix can have
+ * duplicate entries and/or unsorted columns (AMD_valid (n,Ap,Ai) must not be
+ * AMD_INVALID).
+ *
+ * This input condition is NOT checked.  This routine is not user-callable.
  */
 
 #include "amd_internal.h"
@@ -20,76 +23,11 @@
 /* === AMD_preprocess ====================================================== */
 /* ========================================================================= */
 
-GLOBAL Int AMD_preprocess   /* returns AMD_OK if input is OK, AMD_INVALID
-			     * if the matrix is invalid, or AMD_OUT_OF_MEMORY
-			     * if out of memory for the 2n workspace. */
-(
-    Int n,		/* input matrix: A is n-by-n */
-    const Int Ap [ ],	/* size n+1 */
-    const Int Ai [ ],	/* size nz = Ap [n] */
+/* AMD_preprocess does not check its input for errors or allocate workspace.
+ * On input, the condition (AMD_valid (n,n,Ap,Ai) != AMD_INVALID) must hold.
+ */
 
-    /* output matrix R: */
-    Int Rp [ ],		/* size n+1 */
-    Int Ri [ ]		/* size nz (or less, if duplicates present) */
-)
-{
-
-    /* --------------------------------------------------------------------- */
-    /* local variables */
-    /* --------------------------------------------------------------------- */
-
-    Int *Flag, *W ;
-
-    /* --------------------------------------------------------------------- */
-    /* check inputs (note: fewer restrictions than AMD_order) */
-    /* --------------------------------------------------------------------- */
-
-    if (!AMD_preprocess_valid (n, Ap, Ai) || !Ri || !Rp)
-    {
-	return (AMD_INVALID) ;
-    }
-
-    /* --------------------------------------------------------------------- */
-    /* allocate workspace */
-    /* --------------------------------------------------------------------- */
-
-    W = (Int *) amd_malloc (MAX (n,1) * sizeof (Int)) ;
-    if (!W)
-    {
-	return (AMD_OUT_OF_MEMORY) ;
-    }
-    Flag = (Int *) amd_malloc (MAX (n,1) * sizeof (Int)) ;
-    if (!Flag)
-    {
-	amd_free (W) ;
-	return (AMD_OUT_OF_MEMORY) ;
-    }
-
-    /* --------------------------------------------------------------------- */
-    /* preprocess the matrix:  sort, remove duplicates, and transpose */
-    /* --------------------------------------------------------------------- */
-
-    AMD_wpreprocess (n, Ap, Ai, Rp, Ri, W, Flag) ;
-
-    /* --------------------------------------------------------------------- */
-    /* free the workspace */
-    /* --------------------------------------------------------------------- */
-
-    amd_free (W) ;
-    amd_free (Flag) ;
-    return (AMD_OK) ;
-}
-
-
-/* ========================================================================= */
-/* === AMD_wpreprocess ===================================================== */
-/* ========================================================================= */
-
-/* The AMD_wpreprocess routine is not user-callable.  It does not check its
- * input for errors or allocate workspace (that is done by the user-callable
- * AMD_preprocess routine).  It does handle the n=0 case. */
-
-GLOBAL void AMD_wpreprocess
+GLOBAL void AMD_preprocess
 (
     Int n,		/* input matrix: A is n-by-n */
     const Int Ap [ ],	/* size n+1 */
@@ -109,6 +47,8 @@ GLOBAL void AMD_wpreprocess
     /* --------------------------------------------------------------------- */
 
     Int i, j, p, p2 ;
+
+    ASSERT (AMD_valid (n, n, Ap, Ai) != AMD_INVALID) ;
 
     /* --------------------------------------------------------------------- */
     /* count the entries in each row of A (excluding duplicates) */
@@ -170,61 +110,10 @@ GLOBAL void AMD_wpreprocess
     }
 
 #ifndef NDEBUG
+    ASSERT (AMD_valid (n, n, Rp, Ri) == AMD_OK) ;
     for (j = 0 ; j < n ; j++)
     {
 	ASSERT (W [j] == Rp [j+1]) ;
     }
-    ASSERT (AMD_valid (n, n, Rp, Ri)) ;
 #endif
-}
-
-
-/* ========================================================================= */
-/* === AMD_preprocess_valid ================================================ */
-/* ========================================================================= */
-
-/* Not user-callable.  Checks a matrix and returns TRUE if it is valid as input
- * to AMD_wpreprocess, FALSE otherwise. */
-
-GLOBAL Int AMD_preprocess_valid
-(
-    Int n,
-    const Int Ap [ ],
-    const Int Ai [ ]
-)
-{
-    Int i, j, p, nz ;
-
-    if (n < 0 || !Ai || !Ap)
-    {
-	return (FALSE) ;
-    }
-    nz = Ap [n] ;
-    if (Ap [0] != 0 || nz < 0)
-    {
-	/* column pointers must start at Ap [0] = 0, and Ap [n] must be >= 0 */
-	AMD_DEBUG0 (("column 0 pointer bad or nz < 0\n")) ;
-	return (FALSE) ;
-    }
-    for (j = 0 ; j < n ; j++)
-    {
-	if (Ap [j] > Ap [j+1])
-	{
-	    /* column pointers must be ascending */
-	    AMD_DEBUG0 (("column "ID" pointer bad\n", j)) ;
-	    return (FALSE) ;
-	}
-    }
-    for (p = 0 ; p < nz ; p++)
-    {
-	i = Ai [p] ;
-	AMD_DEBUG3 (("row: "ID"\n", i)) ;
-	if (i < 0 || i >= n)
-	{
-	    /* row index out of range */
-	    AMD_DEBUG0 (("index out of range, col "ID" row "ID"\n", j, i)) ;
-	    return (FALSE) ;
-	}
-    }
-    return (TRUE) ;
 }

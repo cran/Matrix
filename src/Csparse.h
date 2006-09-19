@@ -14,7 +14,7 @@ SEXP Csparse_submatrix(SEXP x, SEXP i, SEXP j);
 SEXP Csparse_symmetric_to_general(SEXP x);
 SEXP Csparse_to_Tsparse(SEXP x, SEXP tri);
 SEXP Csparse_to_dense(SEXP x);
-SEXP Csparse_to_logical(SEXP x, SEXP tri);
+SEXP Csparse_to_nz_pattern(SEXP x, SEXP tri);
 SEXP Csparse_to_matrix(SEXP x);
 SEXP Csparse_transpose(SEXP x, SEXP tri);
 SEXP Csparse_validate(SEXP x);

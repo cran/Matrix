@@ -8,7 +8,6 @@
 SEXP dgCMatrix_validate(SEXP x);
 SEXP compressed_to_dgTMatrix(SEXP x, SEXP colP);
 SEXP compressed_non_0_ij(SEXP x, SEXP colP);
-/* SEXP csc_matrix_mm(SEXP a, SEXP b, SEXP classed, SEXP right); */
 SEXP dgCMatrix_lusol(SEXP x, SEXP y);
 SEXP dgCMatrix_qrsol(SEXP x, SEXP y);
 SEXP dgCMatrix_QR(SEXP Ap, SEXP order);

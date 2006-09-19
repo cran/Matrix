@@ -3,8 +3,8 @@
 /* ========================================================================== */
 
 /* -----------------------------------------------------------------------------
- * CHOLMOD/Core Module.  Version 0.6.  Copyright (C) 2005, Univ. of Florida.
- * Author: Timothy A. Davis
+ * CHOLMOD/Core Module.  Version 1.2.  Copyright (C) 2005-2006,
+ * Univ. of Florida.  Author: Timothy A. Davis
  * The CHOLMOD/Core Module is licensed under Version 2.1 of the GNU
  * Lesser General Public License.  See lesser.txt for a text of the license.
  * CHOLMOD is also available under other licenses; contact authors for details.
@@ -183,8 +183,8 @@ static void TEMPLATE (change_simplicial_numeric)
 	    ASSERT (pnew > 0) ;	    /* integer overflow case already covered */
 	}
 	Lp [n] = pnew ;
-	PRINT1 (("final pnew = "ID", lnz "ID" lnzmax %ld\n",
-		    pnew, lnz, (long) L->nzmax)) ;
+	PRINT1 (("final pnew = "ID", lnz "ID" lnzmax %g\n",
+		    pnew, lnz, (double) L->nzmax)) ;
 	ASSERT (pnew <= lnz) ;
 
 	/* free the old L->i and L->x and replace with the new ones */
@@ -289,7 +289,7 @@ static void TEMPLATE (change_simplicial_numeric)
 		len = Lnz [j] ;
 
 		/* ljj = Lx [pold] ; */
-		ASSIGN_REAL (ljj, 0, Lx, pnew) ;
+		ASSIGN_REAL (ljj, 0, Lx, pold) ;
 
 		ASSERT (len > 0) ;
 		PRINT2 (("col "ID" pnew "ID" pold "ID"\n", j, pnew, pold)) ;

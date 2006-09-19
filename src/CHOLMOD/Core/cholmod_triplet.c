@@ -3,8 +3,8 @@
 /* ========================================================================== */
 
 /* -----------------------------------------------------------------------------
- * CHOLMOD/Core Module.  Version 0.6.  Copyright (C) 2005, Univ. of Florida.
- * Author: Timothy A. Davis
+ * CHOLMOD/Core Module.  Version 1.2.  Copyright (C) 2005-2006,
+ * Univ. of Florida.  Author: Timothy A. Davis
  * The CHOLMOD/Core Module is licensed under Version 2.1 of the GNU
  * Lesser General Public License.  See lesser.txt for a text of the license.
  * CHOLMOD is also available under other licenses; contact authors for details.
@@ -97,8 +97,8 @@
  * Supports all xtypes (pattern, real, complex, and zomplex).
  */
  
-#include "cholmod_core.h"
 #include "cholmod_internal.h"
+#include "cholmod_core.h"
 
 
 /* ========================================================================== */
@@ -138,6 +138,7 @@ cholmod_triplet *CHOLMOD(allocate_triplet)
 {
     cholmod_triplet *T ;
     size_t nzmax0 ;
+    int ok = TRUE ;
 
     /* ---------------------------------------------------------------------- */
     /* get inputs */
@@ -149,6 +150,13 @@ cholmod_triplet *CHOLMOD(allocate_triplet)
 	ERROR (CHOLMOD_INVALID, "xtype invalid") ;
 	return (NULL) ;
     }
+    /* ensure the dimensions do not cause integer overflow */
+    (void) CHOLMOD(add_size_t) (ncol, 2, &ok) ;
+    if (!ok || nrow > Int_max || ncol > Int_max || nzmax > Int_max)
+    {
+	ERROR (CHOLMOD_TOO_LARGE, "problem too large") ;
+	return (NULL) ;
+    }
 
     Common->status = CHOLMOD_OK ;
 
@@ -156,7 +164,7 @@ cholmod_triplet *CHOLMOD(allocate_triplet)
     /* allocate header */
     /* ---------------------------------------------------------------------- */
 
-    T = CHOLMOD(malloc) (1, sizeof (cholmod_triplet), Common) ;
+    T = CHOLMOD(malloc) (sizeof (cholmod_triplet), 1, Common) ;
     if (Common->status < CHOLMOD_OK)
     {
 	return (NULL) ;	    /* out of memory */

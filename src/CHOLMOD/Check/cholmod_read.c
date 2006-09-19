@@ -3,7 +3,8 @@
 /* ========================================================================== */
 
 /* -----------------------------------------------------------------------------
- * CHOLMOD/Check Module.  Version 0.6.  Copyright (C) 2005, Timothy A. Davis
+ * CHOLMOD/Check Module.  Version 1.2.  Copyright (C) 2005-2006,
+ * Timothy A. Davis.
  * The CHOLMOD/Check Module is licensed under Version 2.1 of the GNU
  * Lesser General Public License.  See lesser.txt for a text of the license.
  * CHOLMOD is also available under other licenses; contact authors for details.
@@ -91,9 +92,8 @@
 
 #ifndef NCHECK
 
-#include "cholmod_check.h"
 #include "cholmod_internal.h"
-
+#include "cholmod_check.h"
 #include <string.h>
 #include <ctype.h>
 
@@ -136,8 +136,8 @@ static int is_blank_line	/* TRUE if s is a blank line, FALSE otherwise */
 static int get_line	/* returns # of items read, or -1 if error */
 (
     FILE *f,		/* file to read from */
-    long *i,		/* row index */
-    long *j,		/* column index */
+    long long *i,	/* row index */
+    long long *j,	/* column index */
     double *x,		/* real part */
     double *z,		/* imaginary part */
     Int *stype)		/* stype, as determined from Matrix Market header,
@@ -152,7 +152,7 @@ static int get_line	/* returns # of items read, or -1 if error */
 	*/
 {
     char *p, s [MAXLINE+1] ;
-    int k, c, c2, nitems, is_complex ;
+    int c, c2, is_complex ;
     *i = 0 ;
     *j = 0 ;
     *x = 0 ;
@@ -260,7 +260,7 @@ static int get_line	/* returns # of items read, or -1 if error */
 		continue ;
 	    }
 	    /* this line contains an entry */
-	    return (sscanf (s, "%ld %ld %lg %lg\n", i, j, x, z)) ;
+	    return (sscanf (s, "%lld %lld %lg %lg\n", i, j, x, z)) ;
 	}
     }
 }
@@ -282,10 +282,11 @@ cholmod_triplet *CHOLMOD(read_triplet)
     double *Tx ;
     Int *Ti, *Tj, *Rdeg, *Cdeg ;
     cholmod_triplet *T ;
-    long l1, l2 ;
-    Int nitems, nrow, ncol, nnz, stype, xtype, unknown, k, nshould, is_lower,
-	is_upper, one_based, i, j, imax, jmax, ignore, skew_symmetric,
-	extra, p ;
+    long long l1, l2 ;
+    Int nitems, stype, xtype, unknown, k, nshould, is_lower, is_upper,
+	one_based, i, j, imax, jmax, ignore, skew_symmetric, p ;
+    size_t s, nrow, ncol, nnz, nnz2, extra ;
+    int ok = TRUE ;
 
     /* ---------------------------------------------------------------------- */
     /* check inputs */
@@ -326,7 +327,7 @@ cholmod_triplet *CHOLMOD(read_triplet)
     }
     unknown = (stype == 999) ;
 
-    if (nnz < 0 || nrow < 0 || ncol < 0 || nitems < 3)
+    if (x < 0 || l1 < 0 || l2 < 0 || nitems < 3)
     {
 	/* invalid matrix */
 	ERROR (CHOLMOD_INVALID, "invalid format") ;
@@ -349,12 +350,21 @@ cholmod_triplet *CHOLMOD(read_triplet)
 	stype = 0 ;
 	extra = nnz ;
     }
+    nnz2 = CHOLMOD(add_size_t) (nnz, extra, &ok) ;
 
     /* ---------------------------------------------------------------------- */
     /* allocate workspace */
     /* ---------------------------------------------------------------------- */
 
-    CHOLMOD(allocate_work) (0, nrow + ncol, 0, Common) ;
+    /* s = nrow + ncol */
+    s = CHOLMOD(add_size_t) (nrow, ncol, &ok) ;
+    if (!ok || nrow > Int_max || ncol > Int_max || nnz > Int_max)
+    {
+	ERROR (CHOLMOD_TOO_LARGE, "problem too large") ;
+	return (NULL) ;
+    }
+
+    CHOLMOD(allocate_work) (0, s, 0, Common) ;
     Rdeg = Common->Iwork ;	/* size nrow */
     Cdeg = Rdeg + nrow ;	/* size ncol */
 
@@ -374,7 +384,7 @@ cholmod_triplet *CHOLMOD(read_triplet)
     xtype = 999 ;
     nshould = 0 ;
 
-    for (k = 0 ; k < nnz ; k++)
+    for (k = 0 ; k < (Int) nnz ; k++)
     {
 	nitems = get_line (f, &l1, &l2, &x, &z, &ignore) ;
 
@@ -411,7 +421,7 @@ cholmod_triplet *CHOLMOD(read_triplet)
 	    /* the rest of the lines should have the same number of entries */
 	    nshould = nitems ;
 
-	    T = CHOLMOD(allocate_triplet) (nrow, ncol, nnz+extra, stype,
+	    T = CHOLMOD(allocate_triplet) (nrow, ncol, nnz2, stype,
 		    (xtype == CHOLMOD_PATTERN ? CHOLMOD_REAL : xtype), Common) ;
 	    if (Common->status < CHOLMOD_OK)
 	    {
@@ -476,14 +486,16 @@ cholmod_triplet *CHOLMOD(read_triplet)
     if (one_based)
     {
 	/* input matrix is one-based; convert matrix to zero-based */
-	for (k = 0 ; k < nnz ; k++)
+	for (k = 0 ; k < (Int) nnz ; k++)
 	{
 	    Ti [k]-- ;
 	    Tj [k]-- ;
 	}
     }
 
-    if (one_based ? (imax > nrow || jmax > ncol):(imax >= nrow || jmax >= ncol))
+    if (one_based ?
+	(imax >  (Int) nrow || jmax >  (Int) ncol) :
+	(imax >= (Int) nrow || jmax >= (Int) ncol))
     {
 	/* indices out of range */
 	CHOLMOD(free_triplet) (&T, Common) ;
@@ -498,7 +510,7 @@ cholmod_triplet *CHOLMOD(read_triplet)
     if (extra > 0)
     {
 	p = nnz ;
-	for (k = 0 ; k < nnz ; k++)
+	for (k = 0 ; k < (Int) nnz ; k++)
 	{
 	    i = Ti [k] ;
 	    j = Tj [k] ;
@@ -560,7 +572,7 @@ cholmod_triplet *CHOLMOD(read_triplet)
 	if (stype == 0)
 	{
 	    /* unsymmetric case */
-	    for (k = 0 ; k < nnz ; k++)
+	    for (k = 0 ; k < (Int) nnz ; k++)
 	    {
 		Tx [k] = 1 ;
 	    }
@@ -568,15 +580,15 @@ cholmod_triplet *CHOLMOD(read_triplet)
 	else
 	{
 	    /* compute the row and columm degrees (excluding the diagonal) */
-	    for (i = 0 ; i < nrow ; i++)
+	    for (i = 0 ; i < (Int) nrow ; i++)
 	    {
 		Rdeg [i] = 0 ;
 	    }
-	    for (j = 0 ; j < ncol ; j++)
+	    for (j = 0 ; j < (Int) ncol ; j++)
 	    {
 		Cdeg [j] = 0 ;
 	    }
-	    for (k = 0 ; k < nnz ; k++)
+	    for (k = 0 ; k < (Int) nnz ; k++)
 	    {
 		i = Ti [k] ;
 		j = Tj [k] ;
@@ -590,7 +602,7 @@ cholmod_triplet *CHOLMOD(read_triplet)
 		}
 	    }
 	    /* assign the numerical values */
-	    for (k = 0 ; k < nnz ; k++)
+	    for (k = 0 ; k < (Int) nnz ; k++)
 	    {
 		i = Ti [k] ;
 		j = Tj [k] ;

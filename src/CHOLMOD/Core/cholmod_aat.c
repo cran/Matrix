@@ -3,8 +3,8 @@
 /* ========================================================================== */
 
 /* -----------------------------------------------------------------------------
- * CHOLMOD/Core Module.  Version 0.6.  Copyright (C) 2005, Univ. of Florida.
- * Author: Timothy A. Davis
+ * CHOLMOD/Core Module.  Version 1.2.  Copyright (C) 2005-2006,
+ * Univ. of Florida.  Author: Timothy A. Davis
  * The CHOLMOD/Core Module is licensed under Version 2.1 of the GNU
  * Lesser General Public License.  See lesser.txt for a text of the license.
  * CHOLMOD is also available under other licenses; contact authors for details.
@@ -19,6 +19,9 @@
  * cholmod_ssmult in the MatrixOps Module for a more general matrix-matrix
  * multiply.
  *
+ * You can trivially convert C into a symmetric upper/lower matrix by
+ * changing C->stype = 1 or -1 after calling this routine.
+ *
  * workspace:
  *	Flag (A->nrow),
  *	Iwork (max (A->nrow, A->ncol)) if fset present,
@@ -30,8 +33,8 @@
  * if the mode is <= 0 (in which case the numerical values are ignored).
  */
 
-#include "cholmod_core.h"
 #include "cholmod_internal.h"
+#include "cholmod_core.h"
 
 cholmod_sparse *CHOLMOD(aat)
 (

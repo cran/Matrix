@@ -1,39 +1,39 @@
-## can use the method for x = "CsparseMatrix" in ./Csparse.R
-## setMethod("t", signature(x = "dtCMatrix"),
-##           function(x) {
-##               tg <- .Call(csc_transpose, x)
-##               new("dtCMatrix", Dim = tg@Dim, Dimnames = x@Dimnames[2:1],
-##                   p = tg@p, i = tg@i, x = tg@x, diag = x@diag,
-##                   uplo = ifelse(x@uplo == "U", "L", "U"))
-##           }, valueClass = "dtCMatrix")
+#### Triangular Sparse Matrices in compressed column-oriented format
 
-setAs("dtCMatrix", "ltCMatrix", # just drop 'x' slot:
+setAs("dtCMatrix", "ltCMatrix",
       function(from) new("ltCMatrix", i = from@i, p = from@p,
-                         uplo = from@uplo, diag = from@diag,
-                         ## FIXME?: use from@factors smartly
-                         Dim = from@Dim, Dimnames = from@Dimnames))
+			 uplo = from@uplo, diag = from@diag,
+                         x = as.logical(from@x),
+			 ## FIXME?: use from@factors smartly
+			 Dim = from@Dim, Dimnames = from@Dimnames))
+setAs("dtCMatrix", "ntCMatrix", # just drop 'x' slot:
+      function(from) new("ntCMatrix", i = from@i, p = from@p,
+			 uplo = from@uplo, diag = from@diag,
+			 ## FIXME?: use from@factors smartly
+			 Dim = from@Dim, Dimnames = from@Dimnames))
+
 
 setAs("matrix", "dtCMatrix",
       function(from) as(as(from, "dtTMatrix"), "dtCMatrix"))
 
 setAs("dtCMatrix", "dgCMatrix",
       function(from) {
-          if(from@diag == "U") { ## add diagonal of 1's
-              ##FIXME: do this smartly - directly {in C or R}
-              as(as(from, "dgTMatrix"), "dgCMatrix")
-          }
-          else
-              new("dgCMatrix",
-                  i = from@i, p = from@p, x = from@x,
-                  Dim = from@Dim, Dimnames = from@Dimnames)
+          if (from@diag == "U")
+              from <- .Call(Csparse_diagU2N, from)
+          new("dgCMatrix",
+              i = from@i, p = from@p, x = from@x,
+              Dim = from@Dim, Dimnames = from@Dimnames)
+      })
+
+setAs("dtCMatrix", "dgTMatrix",
+      function(from) {
+          if (from@diag == "U") from <- .Call(Csparse_diagU2N, from)
+          ## ignore triangularity in conversion to TsparseMatrix
+          .Call(Csparse_to_Tsparse, from, FALSE)
       })
 
 setAs("dgCMatrix", "dtCMatrix", # to triangular:
       function(from) as(as(as(from, "dgTMatrix"), "dtTMatrix"), "dtCMatrix"))
-
-setAs("dtCMatrix", "dgTMatrix",
-      function(from)
-      .Call(tsc_to_dgTMatrix, from))
 
 setAs("dtCMatrix", "dgeMatrix",
       function(from) as(as(from, "dgTMatrix"), "dgeMatrix"))

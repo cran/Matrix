@@ -3,7 +3,8 @@
 /* ========================================================================== */
 
 /* -----------------------------------------------------------------------------
- * CHOLMOD/Cholesky Module.  Version 0.6.  Copyright (C) 2005, Timothy A. Davis
+ * CHOLMOD/Cholesky Module.  Version 1.2.  Copyright (C) 2005-2006,
+ * Timothy A. Davis
  * The CHOLMOD/Cholesky Module is licensed under Version 2.1 of the GNU
  * Lesser General Public License.  See lesser.txt for a text of the license.
  * CHOLMOD is also available under other licenses; contact authors for details.
@@ -58,8 +59,8 @@
 
 #ifndef NCHOLESKY
 
-#include "cholmod_cholesky.h"
 #include "cholmod_internal.h"
+#include "cholmod_cholesky.h"
 
 #ifndef NSUPERNODAL
 #include "cholmod_supernodal.h"
@@ -112,7 +113,9 @@ int CHOLMOD(factorize_p)
 )
 {
     cholmod_sparse *S, *F, *A1, *A2 ;
-    Int nrow, ncol, stype, convert, n, ok, uncol, nsuper, grow2, status ;
+    Int nrow, ncol, stype, convert, n, nsuper, grow2, status ;
+    size_t s, t, uncol ;
+    int ok = TRUE ;
 
     /* ---------------------------------------------------------------------- */
     /* check inputs */
@@ -135,6 +138,7 @@ int CHOLMOD(factorize_p)
     if (stype != 0 && nrow != ncol)
     {
 	ERROR (CHOLMOD_INVALID, "matrix invalid") ;
+	return (FALSE) ;
     }
     DEBUG (CHOLMOD(dump_sparse) (A, "A for cholmod_factorize", Common)) ;
     Common->status = CHOLMOD_OK ;
@@ -145,7 +149,19 @@ int CHOLMOD(factorize_p)
 
     nsuper = (L->is_super ? L->nsuper : 0) ;
     uncol = ((stype != 0) ? 0 : ncol) ;
-    CHOLMOD(allocate_work) (nrow, 2*nrow + MAX (uncol, 2*nsuper), 0, Common) ;
+
+    /* s = 2*nrow + MAX (uncol, 2*nsuper) */
+    s = CHOLMOD(mult_size_t) (nsuper, 2, &ok) ;
+    s = MAX (uncol, s) ;
+    t = CHOLMOD(mult_size_t) (nrow, 2, &ok) ;
+    s = CHOLMOD(add_size_t) (s, t, &ok) ;
+    if (!ok)
+    {
+	ERROR (CHOLMOD_TOO_LARGE, "problem too large") ;
+	return (FALSE) ;
+    }
+
+    CHOLMOD(allocate_work) (nrow, s, 0, Common) ;
     if (Common->status < CHOLMOD_OK)
     {
 	return (FALSE) ;
@@ -282,6 +298,7 @@ int CHOLMOD(factorize_p)
 	/* CHOLMOD Supernodal module not installed */
 	/* ------------------------------------------------------------------ */
 
+	status = CHOLMOD_NOT_INSTALLED ;
 	ERROR (CHOLMOD_NOT_INSTALLED,"Supernodal module not installed") ;
 
 #endif
@@ -407,7 +424,6 @@ int CHOLMOD(factorize_p)
 
     CHOLMOD(free_sparse) (&A1, Common) ;
     CHOLMOD(free_sparse) (&A2, Common) ;
-    DEBUG (CHOLMOD(dump_factor) (L, "L from cholmod_factorize", Common)) ;
     Common->status = MAX (Common->status, status) ;
     return (Common->status >= CHOLMOD_OK) ;
 }

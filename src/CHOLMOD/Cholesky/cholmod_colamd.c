@@ -3,7 +3,8 @@
 /* ========================================================================== */
 
 /* -----------------------------------------------------------------------------
- * CHOLMOD/Cholesky Module.  Version 0.6.  Copyright (C) 2005, Timothy A. Davis
+ * CHOLMOD/Cholesky Module.  Version 1.2.  Copyright (C) 2005-2006,
+ * Timothy A. Davis
  * The CHOLMOD/Cholesky Module is licensed under Version 2.1 of the GNU
  * Lesser General Public License.  See lesser.txt for a text of the license.
  * CHOLMOD is also available under other licenses; contact authors for details.
@@ -23,20 +24,17 @@
  *	Allocates a copy of its input matrix, which
  *	is then used as CCOLAMD's workspace.
  *
- * Note that v2.4 corrected a bug in v2.3, but the bug only affected symamd,
- * not colamd.  This routine requires colamd v2.4 or later.
- *
  * Supports any xtype (pattern, real, complex, or zomplex)
  */
 
 #ifndef NCHOLESKY
 
 #include "colamd.h"
-#include "cholmod_cholesky.h"
 #include "cholmod_internal.h"
+#include "cholmod_cholesky.h"
 
-#if (!defined (COLAMD_VERSION) || (COLAMD_VERSION < COLAMD_VERSION_CODE (2,4)))
-#error "COLAMD v2.4 or later is required"
+#if (!defined (COLAMD_VERSION) || (COLAMD_VERSION < COLAMD_VERSION_CODE (2,5)))
+#error "COLAMD v2.5 or later is required"
 #endif
 
 /* ========================================================================== */
@@ -59,7 +57,9 @@ int CHOLMOD(colamd)
     double knobs [COLAMD_KNOBS] ;
     cholmod_sparse *C ;
     Int *NewPerm, *Parent, *Post, *Work2n ;
-    Int alen, ok, k, nrow, ncol ;
+    Int k, nrow, ncol ;
+    size_t s, alen ;
+    int ok = TRUE ;
 
     /* ---------------------------------------------------------------------- */
     /* check inputs */
@@ -92,7 +92,25 @@ int CHOLMOD(colamd)
      * allocated.
      */
 
-    CHOLMOD(allocate_work) (0, 4*nrow + ncol, 0, Common) ;
+    /* s = 4*nrow + ncol */
+    s = CHOLMOD(mult_size_t) (nrow, 4, &ok) ;
+    s = CHOLMOD(add_size_t) (s, ncol, &ok) ;
+
+#ifdef LONG
+    alen = colamd_l_recommended (A->nzmax, ncol, nrow) ;
+    colamd_l_set_defaults (knobs) ;
+#else
+    alen = colamd_recommended (A->nzmax, ncol, nrow) ;
+    colamd_set_defaults (knobs) ;
+#endif
+
+    if (!ok || alen == 0)
+    {
+	ERROR (CHOLMOD_TOO_LARGE, "matrix invalid or too large") ;
+	return (FALSE) ;
+    }
+
+    CHOLMOD(allocate_work) (0, s, 0, Common) ;
     if (Common->status < CHOLMOD_OK)
     {
 	return (FALSE) ;
@@ -104,20 +122,6 @@ int CHOLMOD(colamd)
 
     /* colamd_printf is only available in colamd v2.4 or later */
     colamd_printf = Common->print_function ;
-
-#ifdef LONG
-    alen = colamd_l_recommended (A->nzmax, ncol, nrow) ;
-    colamd_l_set_defaults (knobs) ;
-#else
-    alen = colamd_recommended (A->nzmax, ncol, nrow) ;
-    colamd_set_defaults (knobs) ;
-#endif
-
-    if (alen < 0)
-    {
-	ERROR (CHOLMOD_INVALID, "matrix invalid or too large") ;
-	return (FALSE) ;
-    }
 
     C = CHOLMOD(allocate_sparse) (ncol, nrow, alen, TRUE, TRUE, 0,
 	    CHOLMOD_PATTERN, Common) ;
@@ -150,16 +154,13 @@ int CHOLMOD(colamd)
 
     if (ok)
     {
+	Int *Cp ;
+	Int stats [COLAMD_STATS] ;
+	Cp = C->p ;
 
 #ifdef LONG
-	long *Cp ;
-	long stats [COLAMD_STATS] ;
-	Cp = C->p ;
 	colamd_l (ncol, nrow, alen, C->i, Cp, knobs, stats) ;
 #else
-	int *Cp ;
-	int stats [COLAMD_STATS] ;
-	Cp = C->p ;
 	colamd (ncol, nrow, alen, C->i, Cp, knobs, stats) ;
 #endif
 
@@ -182,7 +183,7 @@ int CHOLMOD(colamd)
     {
 	/* use the last 2*n space in Iwork for Parent and Post */
 	Work2n = Common->Iwork ;
-	Work2n += 2*nrow + ncol ;
+	Work2n += 2*((size_t) nrow) + ncol ;
 	Parent = Work2n ;		/* size nrow (i/i/l) */
 	Post   = Work2n + nrow ;	/* size nrow (i/i/l) */
 

@@ -6,6 +6,9 @@
 setAs("Matrix", "sparseMatrix", function(from) as_Csparse(from))
 setAs("Matrix", "denseMatrix",  function(from) as_dense(from))
 
+setAs(from = "Matrix", to = "matrix", # do *not* call base::as.matrix() here:
+      function(from) .bail.out.2("coerce", class(from), class(to)))
+
 ## ## probably not needed eventually:
 ## setAs(from = "ddenseMatrix", to = "matrix",
 ##       function(from) {
@@ -19,13 +22,8 @@ setMethod("as.matrix", signature(x = "Matrix"), function(x) as(x, "matrix"))
 setMethod("as.array",  signature(x = "Matrix"), function(x) as(x, "matrix"))
 
 ## head and tail apply to all Matrix objects for which subscripting is allowed:
-## if(paste(R.version$major, R.version$minor, sep=".") < "2.4") {
-    setMethod("head", signature(x = "Matrix"), utils:::head.matrix)
-    setMethod("tail", signature(x = "Matrix"), utils:::tail.matrix)
-## } else { # R 2.4.0 and newer
-##     setMethod("head", signature(x = "Matrix"), utils::head.matrix)
-##     setMethod("tail", signature(x = "Matrix"), utils::tail.matrix)
-## }
+setMethod("head", signature(x = "Matrix"), utils::head.matrix)
+setMethod("tail", signature(x = "Matrix"), utils::tail.matrix)
 
 ## slow "fall back" method {subclasses should have faster ones}:
 setMethod("as.vector", signature(x = "Matrix", mode = "missing"),
@@ -87,9 +85,9 @@ Matrix <-
 	sparse <- sparseDefault(data)
 
     doDN <- TRUE
-    if (i.M && !forceCheck) {
+    if (i.M) {
 	sM <- is(data,"sparseMatrix")
-	if((sparse && sM) || (!sparse && !sM))
+	if(!forceCheck && ((sparse && sM) || (!sparse && !sM)))
 	    return(data)
 	## else : convert  dense <-> sparse -> at end
     }

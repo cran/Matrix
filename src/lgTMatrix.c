@@ -26,24 +26,3 @@ SEXP lgTMatrix_validate(SEXP x)
     }
     return ScalarLogical(1);
 }
-
-#if 0 				/* no longer used */
-SEXP lgTMatrix_as_lgCMatrix(SEXP x)
-{
-    SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("lgCMatrix"))),
-	xDim = GET_SLOT(x, Matrix_DimSym),
-        xiP = GET_SLOT(x, Matrix_iSym);
-    int m = INTEGER(xDim)[0], n = INTEGER(xDim)[1], nz = length(xiP);
-
-    SET_SLOT(ans, Matrix_DimSym, duplicate(xDim));
-    SET_SLOT(ans, Matrix_DimNamesSym,
-	     duplicate(GET_SLOT(x, Matrix_DimNamesSym)));
-    triplet_to_col(m, n, nz, INTEGER(xiP),
-		   INTEGER(GET_SLOT(x, Matrix_jSym)), (double *) NULL,
-		   INTEGER(ALLOC_SLOT(ans, Matrix_pSym, INTSXP, n + 1)),
-		   INTEGER(ALLOC_SLOT(ans, Matrix_iSym, INTSXP, nz)),
-		   (double *) NULL);
-    UNPROTECT(1);
-    return ans;
-}
-#endif

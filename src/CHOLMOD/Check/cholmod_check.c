@@ -3,8 +3,7 @@
 /* ========================================================================== */
 
 /* -----------------------------------------------------------------------------
- * CHOLMOD/Check Module.  Version 0.6.
- * Copyright (C) 2005, Timothy A. Davis
+ * CHOLMOD/Check Module.  Version 1.2. Copyright (C) 2005-2006, Timothy A. Davis
  * The CHOLMOD/Check Module is licensed under Version 2.1 of the GNU
  * Lesser General Public License.  See lesser.txt for a text of the license.
  * CHOLMOD is also available under other licenses; contact authors for details.
@@ -66,8 +65,8 @@
 
 #ifndef NCHECK
 
-#include "cholmod_check.h"
 #include "cholmod_internal.h"
+#include "cholmod_check.h"
 
 /* ========================================================================== */
 /* === printing definitions ================================================= */
@@ -85,7 +84,7 @@
 { \
     if (print >= i && Common->print_function != NULL) \
     { \
-	/* (Common->print_function) */ printf (format, arg) ; \
+	(Common->print_function) (format, arg) ; \
     } \
 }
 
@@ -205,7 +204,7 @@ static int check_common
     double fl, lnz ;
     double *Xwork ;
     Int *Flag, *Head ;
-    long mark ;
+    UF_long mark ;
     Int i, nrow, nmethods, ordering, xworksize, amd_printed, init_print ;
     char *type = "common" ;
 
@@ -220,6 +219,7 @@ static int check_common
 
     P1 ("CHOLMOD version %d", CHOLMOD_MAIN_VERSION) ;
     P1 (".%d", CHOLMOD_SUB_VERSION) ;
+    P1 (".%d", CHOLMOD_SUBSUB_VERSION) ;
     P1 (", %s: ", CHOLMOD_DATE) ;
 
     if (name != NULL)
@@ -263,7 +263,7 @@ static int check_common
 
     P2 ("  Architecture: %s\n", CHOLMOD_ARCHITECTURE) ;
     P3 ("    sizeof(int):      %d\n", (int) sizeof (int)) ;
-    P3 ("    sizeof(long):     %d\n", (int) sizeof (long)) ;
+    P3 ("    sizeof(UF_long):  %d\n", (int) sizeof (UF_long)) ;
     P3 ("    sizeof(void *):   %d\n", (int) sizeof (void *)) ;
     P3 ("    sizeof(double):   %d\n", (int) sizeof (double)) ;
     P3 ("    sizeof(Int):      %d (CHOLMOD's basic integer)\n", (int) sizeof (Int)) ;
@@ -281,7 +281,7 @@ static int check_common
 	P2 ("    Update/downdate flop count: %.5g\n", Common->modfl) ;
     }
 
-    P2 ("  memory blocks in use:    %8ld\n", (long) (Common->malloc_count)) ;
+    P2 ("  memory blocks in use:    %8.0f\n", (double) (Common->malloc_count)) ;
     P2 ("  memory in use (MB):      %8.1f\n", 
 	(double) (Common->memory_inuse) / 1048576.) ;
     P2 ("  peak memory usage (MB):  %8.1f\n", 
@@ -321,8 +321,16 @@ static int check_common
 	P3 ("%s", "  nmethods=0: default strategy:  Try user permutation if "
 		"given.  Try AMD.\n") ;
 #ifndef NPARTITION
-	P3 ("%s", "    Try METIS if AMD reports flops/nnz(L) >= 500 and "
+	if (Common->default_nesdis)
+	{
+	    P3 ("%s", "    Try NESDIS if AMD reports flops/nnz(L) >= 500 and "
 		"nnz(L)/nnz(A) >= 5.\n") ;
+	}
+	else
+	{
+	    P3 ("%s", "    Try METIS if AMD reports flops/nnz(L) >= 500 and "
+		"nnz(L)/nnz(A) >= 5.\n") ;
+	}
 #endif
 	P3 ("%s", "    Select best ordering tried.\n") ;
 	Common->method [0].ordering = CHOLMOD_GIVEN ;
@@ -489,17 +497,17 @@ static int check_common
 
     P4 ("  grow0: memory reallocation: % .5g\n", Common->grow0) ;
     P4 ("  grow1: memory reallocation: % .5g\n", Common->grow1) ;
-    P4 ("  grow2: memory reallocation: %ld\n", (long) (Common->grow2)) ;
+    P4 ("  grow2: memory reallocation: %g\n", (double) (Common->grow2)) ;
 
     P4 ("%s", "  nrelax, zrelax:  supernodal amalgamation rule:\n") ;
     P4 ("%s", "    s = # columns in two adjacent supernodes\n") ;
     P4 ("%s", "    z = % of zeros in new supernode if they are merged.\n") ;
     P4 ("%s", "    Two supernodes are merged if") ;
-    P4 (" (s <= %ld) or (no new zero entries) or\n",
-	    (long) (Common->nrelax [0])) ;
-    P4 ("    (s <= %ld and ",  (long) (Common->nrelax [1])) ;
+    P4 (" (s <= %g) or (no new zero entries) or\n",
+	    (double) (Common->nrelax [0])) ;
+    P4 ("    (s <= %g and ",  (double) (Common->nrelax [1])) ;
     P4 ("z < %.5g%%) or",      Common->zrelax [0] * 100) ;
-    P4 (" (s <= %ld and ",     (long) (Common->nrelax [2])) ;
+    P4 (" (s <= %g and ",     (double) (Common->nrelax [2])) ;
     P4 ("z < %.5g%%) or",      Common->zrelax [1] * 100) ;
     P4 (" (z < %.5g%%)\n",     Common->zrelax [2] * 100) ;
 
@@ -590,13 +598,13 @@ int CHOLMOD(print_common)
  * workspace: Iwork (nrow)
  */
 
-static long check_sparse
+static UF_long check_sparse
 (
     Int *Wi,
     Int print,
     char *name,
     cholmod_sparse *A,
-    long *nnzdiag,
+    UF_long *nnzdiag,
     cholmod_common *Common
 )
 {
@@ -670,8 +678,8 @@ static long check_sparse
     switch (A->itype)
     {
 	case CHOLMOD_INT:     P4 ("%s", "\n  scalar types: int, ") ; break ;
-	case CHOLMOD_INTLONG: ERR ("int/long type unsupported") ;
-	case CHOLMOD_LONG:    P4 ("%s", "\n  scalar types: long, ") ; break ;
+	case CHOLMOD_INTLONG: ERR ("mixed int/UF_long type unsupported") ;
+	case CHOLMOD_LONG:    P4 ("%s", "\n  scalar types: UF_long, ") ; break ;
 	default:	      ERR ("unknown itype") ;
     }
 
@@ -728,7 +736,7 @@ static long check_sparse
     {
 	ERR ("p [0] must be zero") ;
     }
-    if (Ap [ncol] < Ap [0] || Ap [ncol] > nzmax)
+    if (packed && (Ap [ncol] < Ap [0] || Ap [ncol] > nzmax))
     {
 	ERR ("p [ncol] invalid") ;
     }
@@ -777,6 +785,7 @@ static long check_sparse
 	    nz = MAX (0, Anz [j]) ;
 	    pend = p + nz ;
 	}
+	/* Note that space can be negative if the matrix is non-monotonic */
 	space = Ap [j+1] - p ;
 	P4 ("  col "ID":", j) ;
 	P4 (" nz "ID"", nz) ;
@@ -787,11 +796,11 @@ static long check_sparse
 	    P4 (" space "ID"", space) ;
 	}
 	P4 ("%s", ":\n") ;
-	if (p < 0 || pend > nzmax || space < 0)
+	if (p < 0 || pend > nzmax)
 	{
 	    ERR ("pointer invalid") ;
 	}
-	if (nz < 0 || nz > nrow || nz > space)
+	if (nz < 0 || nz > nrow)
 	{
 	    ERR ("nz invalid") ;
 	}
@@ -846,7 +855,7 @@ int CHOLMOD(check_sparse)
     cholmod_common *Common
 )
 {
-    long nnzdiag ;
+    UF_long nnzdiag ;
     RETURN_IF_NULL_COMMON (FALSE) ;
     Common->status = CHOLMOD_OK ;
     return (check_sparse (NULL, 0, NULL, A, &nnzdiag, Common)) ;
@@ -862,7 +871,7 @@ int CHOLMOD(print_sparse)
     cholmod_common *Common
 )
 {
-    long nnzdiag ;
+    UF_long nnzdiag ;
     RETURN_IF_NULL_COMMON (FALSE) ;
     Common->status = CHOLMOD_OK ;
     return (check_sparse (NULL, Common->print, name, A, &nnzdiag, Common)) ;
@@ -1023,7 +1032,7 @@ int CHOLMOD(print_dense)
 static int check_subset
 (
     Int *S,
-    long len,
+    UF_long len,
     size_t n,
     Int print,
     char *name,
@@ -1097,7 +1106,7 @@ int CHOLMOD(check_subset)
 (
     /* ---- input ---- */
     Int *Set,		/* Set [0:len-1] is a subset of 0:n-1.  Duplicates OK */
-    long len,		/* size of Set (an integer array), or < 0 if 0:n-1 */
+    UF_long len,	/* size of Set (an integer array), or < 0 if 0:n-1 */
     size_t n,		/* 0:n-1 is valid range */
     /* --------------- */
     cholmod_common *Common
@@ -1113,7 +1122,7 @@ int CHOLMOD(print_subset)
 (
     /* ---- input ---- */
     Int *Set,		/* Set [0:len-1] is a subset of 0:n-1.  Duplicates OK */
-    long len,		/* size of Set (an integer array), or < 0 if 0:n-1 */
+    UF_long len,	/* size of Set (an integer array), or < 0 if 0:n-1 */
     size_t n,		/* 0:n-1 is valid range */
     char *name,		/* printed name of Set */
     /* --------------- */
@@ -1467,8 +1476,8 @@ static int check_factor
     switch (L->itype)
     {
 	case CHOLMOD_INT:     P4 ("%s", "\n  scalar types: int, ") ; break ;
-	case CHOLMOD_INTLONG: ERR ("int/long type unsupported") ;
-	case CHOLMOD_LONG:    P4 ("%s", "\n  scalar types: long, ") ; break ;
+	case CHOLMOD_INTLONG: ERR ("mixed int/UF_long type unsupported") ;
+	case CHOLMOD_LONG:    P4 ("%s", "\n  scalar types: UF_long, ") ; break ;
 	default:	      ERR ("unknown itype") ;
     }
 
@@ -2028,8 +2037,8 @@ static int check_triplet
     switch (T->itype)
     {
 	case CHOLMOD_INT:     P4 ("%s", "\n  scalar types: int, ") ; break ;
-	case CHOLMOD_INTLONG: ERR ("int/long type unsupported") ;
-	case CHOLMOD_LONG:    P4 ("%s", "\n  scalar types: long, ") ; break ;
+	case CHOLMOD_INTLONG: ERR ("mixed int/UF_long type unsupported") ;
+	case CHOLMOD_LONG:    P4 ("%s", "\n  scalar types: UF_long, ") ; break ;
 	default:	      ERR ("unknown itype") ;
     }
 
@@ -2181,7 +2190,7 @@ void CHOLMOD(dump_init) (char *s, cholmod_common *Common)
 /* === cholmod_dump_sparse ================================================== */
 /* ========================================================================== */
 
-long CHOLMOD(dump_sparse)	/* returns nnz (diag (A)) or EMPTY if error */
+UF_long CHOLMOD(dump_sparse)	/* returns nnz (diag (A)) or EMPTY if error */
 (
     cholmod_sparse *A,
     char *name,
@@ -2189,7 +2198,7 @@ long CHOLMOD(dump_sparse)	/* returns nnz (diag (A)) or EMPTY if error */
 )
 {
     Int *Wi ;
-    long nnzdiag ;
+    UF_long nnzdiag ;
     Int ok ;
 
     if (CHOLMOD(dump) < -1)
@@ -2357,12 +2366,12 @@ int CHOLMOD(dump_parent)
 
 void CHOLMOD(dump_real)
 (
-    char *name, Real *X, long nrow, long ncol, int lower, int xentry,
+    char *name, Real *X, UF_long nrow, UF_long ncol, int lower, int xentry,
     cholmod_common *Common
 )
 {
     /* dump an nrow-by-ncol real dense matrix */
-    long i, j ;
+    UF_long i, j ;
     double x, z ;
     if (CHOLMOD(dump) < -1)
     {
@@ -2404,7 +2413,7 @@ void CHOLMOD(dump_real)
 
 void CHOLMOD(dump_super)
 (
-    long s,
+    UF_long s,
     Int *Super, Int *Lpi, Int *Ls, Int *Lpx, double *Lx,
     int xentry,
     cholmod_common *Common
@@ -2448,14 +2457,14 @@ void CHOLMOD(dump_super)
 /* === cholmod_dump_mem ===================================================== */
 /* ========================================================================== */
 
-int CHOLMOD(dump_mem) (char *where, long should, cholmod_common *Common)
+int CHOLMOD(dump_mem) (char *where, UF_long should, cholmod_common *Common)
 {
-    long diff = should - Common->memory_inuse ;
+    UF_long diff = should - Common->memory_inuse ;
     if (diff != 0)
     {
-	PRINT0 (("mem: %-15s peak %10ld inuse %10ld should %10ld\n",
-	    where, (long) Common->memory_usage, (long) Common->memory_inuse,
-	    should)) ;
+	PRINT0 (("mem: %-15s peak %10g inuse %10g should %10g\n",
+	    where, (double) Common->memory_usage, (double) Common->memory_inuse,
+	    (double) should)) ;
 	PRINT0 (("mem: %s diff %ld !\n", where, diff)) ;
     }
     return (diff == 0) ;
@@ -2473,12 +2482,12 @@ int CHOLMOD(dump_mem) (char *where, long should, cholmod_common *Common)
 
 int CHOLMOD(dump_partition)
 (
-    long n,
+    UF_long n,
     Int *Cp,
     Int *Ci,
     Int *Cnw,
     Int *Part,
-    long sepsize,
+    UF_long sepsize,
     cholmod_common *Common
 )
 {
@@ -2535,7 +2544,8 @@ int CHOLMOD(dump_partition)
 /* === cholmod_dump_work ==================================================== */
 /* ========================================================================== */
 
-int CHOLMOD(dump_work) (int flag, int head, long wsize, cholmod_common *Common)
+int CHOLMOD(dump_work) (int flag, int head, UF_long wsize,
+    cholmod_common *Common)
 {
     double *W ;
     Int *Flag, *Head ;
@@ -2553,7 +2563,7 @@ int CHOLMOD(dump_work) (int flag, int head, long wsize, cholmod_common *Common)
     Head = Common->Head ;
     W = Common->Xwork ;
     mark = Common->mark ;
-    
+
     if (wsize < 0)
     {
 	/* check all of Xwork */

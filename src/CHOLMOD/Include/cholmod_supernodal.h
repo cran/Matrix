@@ -3,8 +3,8 @@
 /* ========================================================================== */
 
 /* -----------------------------------------------------------------------------
- * CHOLMOD/Include/cholmod_supernodal.h.  Version 0.6.
- * Copyright (C) 2005, Timothy A. Davis
+ * CHOLMOD/Include/cholmod_supernodal.h.  Version 1.2.
+ * Copyright (C) 2005-2006, Timothy A. Davis
  * CHOLMOD/Include/cholmod_supernodal.h is licensed under Version 2.0 of the GNU
  * General Public License.  See gpl.txt for a text of the license.
  * CHOLMOD is also available under other licenses; contact authors for details.
@@ -71,7 +71,7 @@ int cholmod_super_symbolic
     cholmod_common *Common
 ) ;
 
-int cholmod_l_super_symbolic (cholmod_sparse *, cholmod_sparse *, long *,
+int cholmod_l_super_symbolic (cholmod_sparse *, cholmod_sparse *, UF_long *,
     cholmod_factor *, cholmod_common *) ;
 
 /* -------------------------------------------------------------------------- */

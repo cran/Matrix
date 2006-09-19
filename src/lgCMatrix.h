@@ -6,5 +6,6 @@
 SEXP lgCMatrix_validate(SEXP x);
 
 SEXP lcsc_to_matrix(SEXP x);
+SEXP ncsc_to_matrix(SEXP x);
 
 #endif

@@ -3,8 +3,8 @@
 /* ========================================================================== */
 
 /* -----------------------------------------------------------------------------
- * CHOLMOD/Supernodal Module.  Version 0.6.
- * Copyright (C) 2005, Timothy A. Davis
+ * CHOLMOD/Supernodal Module.  Version 1.2.
+ * Copyright (C) 2005-2006, Timothy A. Davis
  * The CHOLMOD/Supernodal Module is licensed under Version 2.0 of the GNU
  * General Public License.  See gpl.txt for a text of the license.
  * CHOLMOD is also available under other licenses; contact authors for details.
@@ -59,8 +59,8 @@
 
 #ifndef NSUPERNODAL
 
-#include "cholmod_supernodal.h"
 #include "cholmod_internal.h"
+#include "cholmod_supernodal.h"
 
 /* ========================================================================== */
 /* === TEMPLATE ============================================================= */
@@ -99,6 +99,7 @@ int CHOLMOD(super_numeric)
     size_t maxcsize ;
     Int nsuper, n, i, k, s, stype, nrow ;
     int ok = TRUE, symbolic ;
+    size_t t, w ;
 
     /* ---------------------------------------------------------------------- */
     /* check inputs */
@@ -170,10 +171,20 @@ int CHOLMOD(super_numeric)
     nrow = A->nrow ;
     n = nrow ;
 
-    PRINT1 (("nsuper "ID" maxcsize %ld\n", nsuper, (long) maxcsize)) ;
+    PRINT1 (("nsuper "ID" maxcsize %g\n", nsuper, (double) maxcsize)) ;
     ASSERT (nsuper >= 0 && maxcsize > 0) ;
 
-    CHOLMOD(allocate_work) (n, 2*n+4*nsuper, 0, Common) ;
+    /* w = 2*n + 4*nsuper */
+    w = CHOLMOD(mult_size_t) (n, 2, &ok) ;
+    t = CHOLMOD(mult_size_t) (nsuper, 4, &ok) ;
+    w = CHOLMOD(add_size_t) (w, t, &ok) ;
+    if (!ok)
+    {
+	ERROR (CHOLMOD_TOO_LARGE, "problem too large") ;
+	return (FALSE) ;
+    }
+
+    CHOLMOD(allocate_work) (n, w, 0, Common) ;
     if (Common->status < CHOLMOD_OK)
     {
 	return (FALSE) ;
@@ -211,6 +222,7 @@ int CHOLMOD(super_numeric)
     C = CHOLMOD(allocate_dense) (maxcsize, 1, maxcsize, L->xtype, Common) ;
     if (Common->status < CHOLMOD_OK)
     {
+	int status = Common->status ;
 	if (symbolic)
 	{
 	    /* Change L back to symbolic, since the numeric values are not
@@ -219,6 +231,7 @@ int CHOLMOD(super_numeric)
 		    L, Common) ;
 	}
 	/* the factor L is now back to the form it had on input */
+	Common->status = status ;
 	return (FALSE) ;
     }
 

@@ -15,7 +15,7 @@ setAs("lsCMatrix", "lsTMatrix",
 
 setAs("lsCMatrix", "dsCMatrix",
       function(from) new("dsCMatrix", i = from@i, p = from@p,
-                         x = rep(1, length(from@i)), uplo = from@uplo,
+                         x = as.double(from@x), uplo = from@uplo,
                          Dim = from@Dim, Dimnames = from@Dimnames))
 
 setAs("lsCMatrix", "dgTMatrix",
@@ -48,12 +48,12 @@ setMethod("image", "lsCMatrix",
           })
 
 setMethod("chol", signature(x = "lsCMatrix", pivot = "missing"),
-          function(x, pivot, LINPACK) stop("temporarily disabled"))
-##          .Call(lsCMatrix_chol, x, TRUE))
+	  function(x, pivot, ...) chol(as(x, "dgCMatrix"), pivot = FALSE))
+##          .Call(lsCMatrix_chol, x, FALSE))
 
 setMethod("chol", signature(x = "lsCMatrix", pivot = "logical"),
-          function(x, pivot, LINPACK) stop("temporarily disabled"))
-##          .Call(lsCMatrix_chol, x, pivot))
+	  function(x, pivot, ...) chol(as(x, "dgCMatrix"), pivot = pivot))
+##	    .Call(lsCMatrix_chol, x, pivot))
 
 ## Use more general method from CsparseMatrix class
 ## setMethod("t", signature(x = "lsCMatrix"),

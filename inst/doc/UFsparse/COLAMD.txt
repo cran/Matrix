@@ -1,4 +1,4 @@
-The COLAMD ordering method - Version 2.4
+The COLAMD ordering method - Version 2.5
 -------------------------------------------------------------------------------
 
 The COLAMD column approximate minimum degree ordering algorithm computes
@@ -12,25 +12,28 @@ ordering of M.  Colamd and symamd tend to be faster and generate better
 orderings than their MATLAB counterparts, colmmd and symmmd.
 
 To compile and test the colamd m-files and mexFunctions, just unpack the
-colamd2.4/ directory from the colamd2.4.tar.gz file, and run MATLAB from
+COLAMD/ directory from the COLAMD.tar.gz file, and run MATLAB from
 within that directory.  Next, type colamd_test to compile and test colamd
 and symamd.  This will work on any computer with MATLAB (Unix, PC, or Mac).
 Alternatively, type "make" (in Unix) to compile and run a simple example C
 code, without using MATLAB.
 
-Colamd 2.0 is a built-in routine in MATLAB V6.0, available from The 
+Colamd is a built-in routine in MATLAB, available from The 
 Mathworks, Inc.  Under most cases, the compiled codes from Versions 2.0
-through 2.2 do not differ.  Colamd Versions 2.2 and 2.3 differ only in their
+through 2.5 do not differ.  Colamd Versions 2.2 and 2.3 differ only in their
 mexFunction interaces to MATLAB.  v2.4 fixes a bug in the symamd routine in
 v2.3.  The bug (in v2.3 and earlier) has no effect on the MATLAB symamd
-mexFunction.
+mexFunction.  v2.5 adds additional checks for integer overflow, so that
+the "int" version can be safely used with 64-bit pointers.
 
 To use colamd and symamd within an application written in C, all you need are
-colamd.c and colamd.h, which are the C-callable colamd/symamd codes.
-See colamd.c for more information on how to call colamd from a C program.
+colamd.c, colamd_global.c, and colamd.h, which are the C-callable
+colamd/symamd codes.  See colamd.c for more information on how to call
+colamd from a C program.
 
+Requires UFconfig, in the ../UFconfig directory relative to this directory.
 
-	Copyright (c) 1998-2005, Timothy A. Davis, All Rights Reserved.
+	Copyright (c) 1998-2006, Timothy A. Davis, All Rights Reserved.
 
 	See http://www.cise.ufl.edu/research/sparse/colamd (the colamd.c
 	file) for the License.
@@ -65,11 +68,7 @@ in collaboration with John Gilbert, Xerox PARC (now at UC Santa Barbara),
 and Esmong Ng, Lawrence Berkeley National Laboratory (much of this work
 he did while at Oak Ridge National Laboratory). 
 
-COLAMD files (Version 2.4.)
-
-	colamd2.4.tar.gz:
-		All files, as a gzipped, Unix tar file.
-		The *.m, and *mex.c files are for use in MATLAB.
+COLAMD files
 
 	colamd.c: the primary colamd computational kernel.
 
@@ -103,4 +102,3 @@ COLAMD files (Version 2.4.)
 	luflops.m:  test code
 
 	symamdtestmex.c:  test code
-

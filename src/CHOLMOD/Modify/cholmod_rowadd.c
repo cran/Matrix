@@ -3,8 +3,8 @@
 /* ========================================================================== */
 
 /* -----------------------------------------------------------------------------
- * CHOLMOD/Modify Module.  Version 0.6.  Copyright (C) 2005, Timothy A. Davis
- * and William W. Hager.
+ * CHOLMOD/Modify Module.  Version 1.2.
+ * Copyright (C) 2005-2006, Timothy A. Davis and William W. Hager.
  * The CHOLMOD/Modify Module is licensed under Version 2.0 of the GNU
  * General Public License.  See gpl.txt for a text of the license.
  * CHOLMOD is also available under other licenses; contact authors for details.
@@ -22,8 +22,8 @@
 
 #ifndef NMODIFY
 
-#include "cholmod_modify.h"
 #include "cholmod_internal.h"
+#include "cholmod_modify.h"
 
 
 /* ========================================================================== */
@@ -32,10 +32,11 @@
 
 /* cholmod_rowadd adds a row to the LDL' factorization.  It computes the kth
  * row and kth column of L, and then updates the submatrix L (k+1:n,k+1:n)
- * accordingly.  The kth row and column of L must originally be equal to the
- * kth row and column of the identity matrix.  The kth row/column of L is
- * computed as the factorization of the kth row/column of the matrix to
- * factorize, which is provided as a single n-by-1 sparse matrix R.
+ * accordingly.  The kth row and column of L should originally be equal to the
+ * kth row and column of the identity matrix (they are treated as such, if they
+ * are not).  The kth row/column of L is computed as the factorization of the
+ * kth row/column of the matrix to factorize, which is provided as a single
+ * n-by-1 sparse matrix R.  The sparse vector R need not be sorted.
  */
 
 int CHOLMOD(rowadd)
@@ -52,7 +53,7 @@ int CHOLMOD(rowadd)
     double bk [2] ;
     bk [0] = 0. ;
     bk [1] = 0. ;
-    return (CHOLMOD(rowadd_mark) (k, R, bk, NULL, L, NULL, NULL, NULL, Common));
+    return (CHOLMOD(rowadd_mark) (k, R, bk, NULL, L, NULL, NULL, Common)) ;
 }
 
 
@@ -78,7 +79,7 @@ int CHOLMOD(rowadd_solve)
     cholmod_common *Common
 )
 {
-    return (CHOLMOD(rowadd_mark) (k, R, bk, NULL, L, X, DeltaB, NULL, Common)) ;
+    return (CHOLMOD(rowadd_mark) (k, R, bk, NULL, L, X, DeltaB, Common)) ;
 }
 
 
@@ -114,12 +115,11 @@ int CHOLMOD(rowadd_mark)
     size_t kadd,	/* row/column index to add */
     cholmod_sparse *R,	/* row/column of matrix to factorize (n-by-1) */
     double bk [2],	/* kth entry of the right hand side, b */
-    Int *colmark,	/* integer array of size n.  See cholmod_updown.c */
+    Int *colmark,	/* Int array of size 1.  See cholmod_updown.c */
     /* ---- in/out --- */
     cholmod_factor *L,	/* factor to modify */
     cholmod_dense *X,	/* solution to Lx=b (size n-by-1) */
     cholmod_dense *DeltaB,  /* change in b, zero on output */
-    Int *rowmark,	/* integer array of size n.  See cholmod_updown.c */
     /* --------------- */
     cholmod_common *Common
 )
@@ -129,7 +129,9 @@ int CHOLMOD(rowadd_mark)
     Int *Li, *Lp, *Lnz, *Flag, *Stack, *Ci, *Rj, *Rp, *Lnext, *Iwork ;
     cholmod_sparse *C, Cmatrix ;
     Int i, j, p, pend, top, len, kk, li, lnz, mark, k, n, parent, Cp [2],
-	do_solve, do_update, ok ;
+	do_solve, do_update ;
+    size_t s ;
+    int ok = TRUE ;
     DEBUG (Int lastrow) ;
 
     /* ---------------------------------------------------------------------- */
@@ -143,7 +145,7 @@ int CHOLMOD(rowadd_mark)
     RETURN_IF_XTYPE_INVALID (R, CHOLMOD_REAL, CHOLMOD_REAL, FALSE) ;
     n = L->n ;
     k = kadd ;
-    if (k >= n || k < 0)
+    if (kadd >= L->n || k < 0)
     {
 	ERROR (CHOLMOD_INVALID, "k invalid") ;
 	return (FALSE) ;
@@ -156,7 +158,7 @@ int CHOLMOD(rowadd_mark)
     Rj = R->i ;
     Rx = R->x ;
     Rp = R->p ;
-    rnz = Rp [1] ;
+    rnz = Rp [1] ;  /* TODO: should check if R->packed or not */
     do_solve = (X != NULL) && (DeltaB != NULL) ;
     if (do_solve)
     {
@@ -182,12 +184,20 @@ int CHOLMOD(rowadd_mark)
     /* allocate workspace */
     /* ---------------------------------------------------------------------- */
 
-    CHOLMOD(allocate_work) (n, 2*n, 2*n, Common) ;
+    /* s = 2*n */
+    s = CHOLMOD(mult_size_t) (n, 2, &ok) ;
+    if (!ok)
+    {
+	ERROR (CHOLMOD_TOO_LARGE, "problem too large") ;
+	return (FALSE) ;
+    }
+
+    CHOLMOD(allocate_work) (n, s, s, Common) ;
     if (Common->status < CHOLMOD_OK)
     {
 	return (FALSE) ;
     }
-    ASSERT (CHOLMOD(dump_work) (TRUE, TRUE, 2*n, Common)) ;
+    ASSERT (CHOLMOD(dump_work) (TRUE, TRUE, s, Common)) ;
 
     /* ---------------------------------------------------------------------- */
     /* convert to simplicial numeric LDL' factor, if not already */
@@ -223,12 +233,13 @@ int CHOLMOD(rowadd_mark)
     PRINT1 (("rowadd:\n")) ;
     fl = 0 ;
 
-    /* column k of L must be empty, except for the diagonal */
-    if (Lnz [k] != 1)
-    {
-	ERROR (CHOLMOD_INVALID,"column k of L must be initially empty") ;
-	return (FALSE) ;
-    }
+#if 0
+#ifndef NDEBUG
+    /* column k of L should be zero, except for the diagonal.  This test is
+     * overly cautious. */
+    for (p = Lp [k] + 1 ; p < Lp [k] + Lnz [k] ; p++) ASSERT (Lx [p] == 0) ;
+#endif
+#endif
 
     /* ---------------------------------------------------------------------- */
     /* get workspace */
@@ -326,6 +337,7 @@ int CHOLMOD(rowadd_mark)
 
     for (kk = top ; kk < n ; kk++)
     {
+	/* could skip this if we knew column j already included row k */
 	j = Stack [kk] ;
 	if (Lp [j] + Lnz [j] >= Lp [Lnext [j]])
 	{
@@ -344,7 +356,8 @@ int CHOLMOD(rowadd_mark)
 	    Li = L->i ;
 	    Lx = L->x ;
 	}
-	ASSERT (Lp [j] + Lnz [j] < Lp [Lnext [j]]) ;
+	ASSERT (Lp [j] + Lnz [j] < Lp [Lnext [j]]
+	    || (Lp [Lnext [j]] - Lp [j] == n-j)) ;
     }
 
     /* ---------------------------------------------------------------------- */
@@ -358,7 +371,7 @@ int CHOLMOD(rowadd_mark)
     /* D (k) = B (k,k) - L (k, 1:k-1) * y (1:k-1) */
 
     PRINT2 (("\nForward solve: "ID" to "ID"\n", top, n)) ;
-    ASSERT (Lnz [k] == 1 && Li [Lp [k]] == k) ;
+    ASSERT (Lnz [k] >= 1 && Li [Lp [k]] == k) ;
     DEBUG (for (i = top ; i < n ; i++) PRINT2 ((" Path: "ID"\n", Stack [i]))) ;
 
     dk = W [k] ;
@@ -371,6 +384,7 @@ int CHOLMOD(rowadd_mark)
     for (kk = top ; kk < n ; kk++)
     {
 	j = Stack [kk] ;
+	i = j ;
 	PRINT2 (("Forward solve col j = "ID":\n", j)) ;
 	ASSERT (j >= 0 && j < k) ;
 
@@ -379,7 +393,6 @@ int CHOLMOD(rowadd_mark)
 	W [j] = 0.0 ;
 	p = Lp [j] ;
 	pend = p + Lnz [j] ;
-	fl += 2 * lnz + 3 ;
 	ASSERT (Lnz [j] > 0) ;
 	dj = Lx [p++] ;
 	for ( ; p < pend ; p++)
@@ -387,15 +400,18 @@ int CHOLMOD(rowadd_mark)
 	    i = Li [p] ;
 	    PRINT2 (("    row "ID"\n", i)) ;
 	    ASSERT (i > j) ;
-	    ASSERT (i != k) ;
 	    ASSERT (i < n) ;
 	    /* stop at row k */
-	    if (i > k)
+	    if (i >= k)
 	    {
 		break ;
 	    }
 	    W [i] -= Lx [p] * yj ;
 	}
+
+	/* each iteration of the above for loop did 2 flops, and 3 flops
+	 * are done below.  so: fl += 2 * (Lp [j] - p - 1) + 3 becomes: */
+	fl += 2 * (Lp [j] - p) + 1 ;
 
 	/* scale L (k,1:k-1) and compute dot product for D (k,k) */
 	l_kj = yj / dj ;
@@ -413,39 +429,97 @@ int CHOLMOD(rowadd_mark)
 	li = k ;
 	lx = l_kj ;
 
-	PRINT2 (("Shift col j = "ID", apply saxpy to col k of L\n", j)) ;
-	for ( ; p < pend ; p++)
+	if (i == k)
 	{
-	    /* swap (Li [p],Lx [p]) with (li,lx) */
-	    i    = Li [p] ;
-	    l_ij = Lx [p] ;
-	    Li [p] = li ;
-	    Lx [p] = lx ;
-	    li = i ;
-	    lx = l_ij ;
-	    ASSERT (li > k && li < n) ;
-	    PRINT2 (("   apply to row "ID" of column k of L\n", li)) ;
+	    /* no need to modify the nonzero pattern of L, since it already
+	     * contains row index k. */
+	    ASSERT (Li [p] == k) ;
+	    Lx [p] = l_kj ;
 
-	    /* add to the pattern of the kth column of L */
-	    if (Flag [li] < mark)
+	    for (p++ ; p < pend ; p++)
 	    {
-		PRINT2 (("   add Ci["ID"] = "ID"\n", lnz, i)) ;
-		ASSERT (i > k) ;
-		Ci [lnz++] = i ;
-		Flag [li] = mark ;
+		i    = Li [p] ;
+		l_ij = Lx [p] ;
+		ASSERT (i > k && i < n) ;
+		PRINT2 (("   apply to row "ID" of column k of L\n", i)) ;
+
+		/* add to the pattern of the kth column of L */
+		if (Flag [i] < mark)
+		{
+		    PRINT2 (("   add Ci["ID"] = "ID"\n", lnz, i)) ;
+		    ASSERT (i > k) ;
+		    Ci [lnz++] = i ;
+		    Flag [i] = mark ;
+		}
+
+		/* apply the update to the kth column of L */
+		/* yj is equal to l_kj * d_j */
+
+		W [i] -= l_ij * yj ;
 	    }
 
-	    /* apply the update to the kth column of L */
-	    /* yj is equal to l_kj * d_j */
-
-	    W [i] -= l_ij * yj ;
 	}
+	else
+	{
 
-	/* store the last value in the jth column of L */
-	Li [p] = li ;
-	Lx [p] = lx ;
-	Lnz [j]++ ;
+	    PRINT2 (("Shift col j = "ID", apply saxpy to col k of L\n", j)) ;
+	    for ( ; p < pend ; p++)
+	    {
+		/* swap (Li [p],Lx [p]) with (li,lx) */
+		i    = Li [p] ;
+		l_ij = Lx [p] ;
+		Li [p] = li ;
+		Lx [p] = lx ;
+		li = i ;
+		lx = l_ij ;
+		ASSERT (i > k && i < n) ;
+		PRINT2 (("   apply to row "ID" of column k of L\n", i)) ;
+
+		/* add to the pattern of the kth column of L */
+		if (Flag [i] < mark)
+		{
+		    PRINT2 (("   add Ci["ID"] = "ID"\n", lnz, i)) ;
+		    ASSERT (i > k) ;
+		    Ci [lnz++] = i ;
+		    Flag [i] = mark ;
+		}
+
+		/* apply the update to the kth column of L */
+		/* yj is equal to l_kj * d_j */
+
+		W [i] -= l_ij * yj ;
+	    }
+
+	    /* store the last value in the jth column of L */
+	    Li [p] = li ;
+	    Lx [p] = lx ;
+	    Lnz [j]++ ;
+
+	}
     }
+
+    /* ---------------------------------------------------------------------- */
+    /* merge C with the pattern of the existing column of L */
+    /* ---------------------------------------------------------------------- */
+
+    /* This column should be zero, but it may contain explicit zero entries.
+     * These entries should be kept, not dropped. */
+    p = Lp [k] ;
+    pend = p + Lnz [k] ;
+    for (p++ ; p < pend ; p++)
+    {
+	i = Li [p] ;
+	/* add to the pattern of the kth column of L */
+	if (Flag [i] < mark)
+	{
+	    PRINT2 (("   add Ci["ID"] = "ID" from existing col k\n", lnz, i)) ;
+	    ASSERT (i > k) ;
+	    Ci [lnz++] = i ;
+	    Flag [i] = mark ;
+	}
+    }
+
+    /* ---------------------------------------------------------------------- */
 
     if (do_solve)
     {
@@ -541,8 +615,8 @@ int CHOLMOD(rowadd_mark)
      * Do a numeric update if D[k] < 0, numeric downdate otherwise.
      */
 
-    Common->modfl += fl ;
     ok = TRUE ;
+    Common->modfl = 0 ;
 
     PRINT1 (("rowadd update lnz = "ID"\n", lnz)) ;
     if (lnz > 0)
@@ -558,7 +632,7 @@ int CHOLMOD(rowadd_mark)
 	{
 	    Cx [kk] = Lx [p] * sqrt_dk ;
 	}
-	Common->modfl += lnz + 1 ;
+	fl += lnz + 1 ;
 
 	/* create a n-by-1 sparse matrix to hold the single column */
 	C = &Cmatrix ;
@@ -583,7 +657,7 @@ int CHOLMOD(rowadd_mark)
 	/* numeric downdate if dk > 0, and optional Lx=b change */
 	/* workspace: Flag (nrow), Head (nrow+1), W (nrow), Iwork (2*nrow) */
 	ok = CHOLMOD(updown_mark) (do_update ? (1) : (0), C, colmark,
-		L, X, DeltaB, rowmark, Common) ;
+		L, X, DeltaB, Common) ;
 
 	/* clear workspace */
 	for (kk = 0 ; kk < lnz ; kk++)
@@ -591,6 +665,8 @@ int CHOLMOD(rowadd_mark)
 	    Cx [kk] = 0 ;
 	}
     }
+
+    Common->modfl += fl ;
 
     DEBUG (CHOLMOD(dump_factor) (L, "LDL factorization, L:", Common)) ;
     ASSERT (CHOLMOD(dump_work) (TRUE, TRUE, 2*n, Common)) ;

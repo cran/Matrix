@@ -57,8 +57,11 @@
   \code{\link[base]{t}}
 }
 \examples{
-## Only upper triangular part matters (when uplo == "U" as per default)
-(sy2 <- new("lsyMatrix", Dim = as.integer(c(2,2)),
-            x = c(TRUE, NA,FALSE,FALSE)))
+(M2 <- Matrix(c(TRUE, NA,FALSE,FALSE), 2,2)) # logical dense (ltr)
+str(M2)
+# can
+(sM <- M2 | t(M2)) # "lge"
+as(sM, "lsyMatrix")
+str(sM <- as(sM, "lspMatrix")) # packed symmetric
 }
 \keyword{classes}

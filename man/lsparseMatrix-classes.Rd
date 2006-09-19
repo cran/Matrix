@@ -40,6 +40,7 @@
 \alias{coerce,matrix,lgTMatrix-method}
 \alias{coerce,matrix,ltCMatrix-method}
 %
+\alias{coerce,lsparseMatrix,matrix-method}
 \alias{coerce,ltTMatrix,dtTMatrix-method}
 \alias{coerce,ltTMatrix,lgTMatrix-method}
 \alias{coerce,ltTMatrix,matrix-method}
@@ -91,6 +92,8 @@
 }
 \section{Slots}{
   \describe{
+    \item{\code{x}:}{Object of class \code{"logical"}, i.e., either
+      \code{TRUE}, \code{\link{NA}}, or \code{FALSE}.}
     \item{\code{uplo}:}{Object of class \code{"character"}. Must be
       either "U", for upper triangular, and "L", for lower
       triangular. Present in the triangular and symmetric classes but not
@@ -130,16 +133,28 @@
   the class \code{\linkS4class{dgCMatrix}}
 }
 \examples{
-m <- Matrix(c(0,0,2:0), 3,5, dimnames=list(LETTERS[1:3],NULL))
-(dm <- as(m, "dgCMatrix"))# no dimnames for sparse here
-(lm <- as(dm, "lgCMatrix"))
-str(lm) # no 'x' slot
+str(m <- Matrix(c(0,0,2:0), 3,5, dimnames=list(LETTERS[1:3],NULL)))
+(lm <- (m > 1)) # lgC
+stopifnot(is(lm,"lsparseMatrix"))
 !lm     # no longer sparse
+%% FIXME:  m <= 1   -- unfinished implementation ( ../R/dMatrix.R )
 
 data(KNex)
-lmm <- as(KNex $ mm, "lgCMatrix")
-xlx <- crossprod(lmm)
-image(xlx, main=paste("crossprod(lmm) : Sparse", class(xlx)))
+str(mmG.1 <- (KNex $ mm) > 0.1)# "lgC..."
+## from logical to nz_pattern -- okay when there are no NA's :
+nmG.1 <- as(mmG.1, "nMatrix")
+## from logical to "double"
+dmG.1 <- as(mmG.1, "dMatrix") # and back:
+lmG.1 <- as(dmG.1, "lMatrix")
+stopifnot(validObject(lmG.1), identical(lmG.1, mmG.1))
+
+class(xnx <- crossprod(nmG.1))# "nsC.."
+class(xlx <- crossprod(mmG.1))# "dsC.." : numeric
+table(xlx@x != 0)# almost have are (non-structural!) 0
+stopifnot(isSymmetric(xlx), isSymmetric(xnx),
+          ## compare xnx and xlx :
+          sapply(slotNames(xnx),
+                 function(n) identical(slot(xnx, n), slot(xlx, n))))
 }
 \keyword{classes}
 \keyword{algebra}

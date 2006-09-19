@@ -3,8 +3,8 @@
 /* ========================================================================== */
 
 /* -----------------------------------------------------------------------------
- * CHOLMOD/Partition Module.  Version 0.6.
- * Copyright (C) 2005, Univ. of Florida.  Author: Timothy A. Davis
+ * CHOLMOD/Partition Module.  Version 1.2.
+ * Copyright (C) 2005-2006, Univ. of Florida.  Author: Timothy A. Davis
  * The CHOLMOD/Partition Module is licensed under Version 2.1 of the GNU
  * Lesser General Public License.  See lesser.txt for a text of the license.
  * CHOLMOD is also available under other licenses; contact authors for details.
@@ -24,9 +24,13 @@
 
 #ifndef NPARTITION
 
-#include "cholmod_partition.h"
-#include "cholmod_internal.h"
 #include "ccolamd.h"
+#include "cholmod_internal.h"
+#include "cholmod_partition.h"
+
+#if (CCOLAMD_VERSION < CCOLAMD_VERSION_CODE (2,5))
+#error "CCOLAMD v2.0 or later is required"
+#endif
 
 /* ========================================================================== */
 /* === cholmod_csymamd ====================================================== */

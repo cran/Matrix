@@ -8,8 +8,7 @@ setAs("Matrix", "dppMatrix", to_dpp)# some may fail, but this tries
 setAs("matrix", "dppMatrix", to_dpp)
 
 setMethod("chol", signature(x = "dppMatrix"),
-          function(x, pivot, LINPACK)
-          .Call(dppMatrix_chol, x))
+	  function(x, pivot, LINPACK) .Call(dppMatrix_chol, x))
 
 setMethod("rcond", signature(x = "dppMatrix", type = "character"),
           function(x, type, ...)

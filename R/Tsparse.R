@@ -18,6 +18,8 @@ setAs("dsTMatrix", "dsCMatrix",
 setAs("dtTMatrix", "dtCMatrix",
       function(from) .Call(Tsparse_to_Csparse, from, TRUE))
 
+setAs("ngTMatrix", "ngCMatrix",
+      function(from) .Call(Tsparse_to_Csparse, from, FALSE))
 setAs("lgTMatrix", "lgCMatrix",
       function(from) .Call(Tsparse_to_Csparse, from, FALSE))
 
@@ -124,7 +126,7 @@ setMethod("[", signature(x = "TsparseMatrix", i = "index", j = "missing",
 	      sel <- ip$m > 0
 	      x@i <- ip$m[sel] - 1:1
 	      x@j <- x@j[sel]
-	      if (!is(x, "lsparseMatrix")) x@x <- x@x[sel]
+	      if (!is(x, "nsparseMatrix")) x@x <- x@x[sel]
 	      if (drop && any(x@Dim == 1:1)) drop(as(x,"matrix")) else x
 	  })
 
@@ -139,7 +141,7 @@ setMethod("[", signature(x = "TsparseMatrix", i = "missing", j = "index",
 	      sel <- ip$m > 0
 	      x@i <- x@i[sel]
 	      x@j <- ip$m[sel] - 1:1
-	      if (!is(x, "lsparseMatrix")) x@x <- x@x[sel]
+	      if (!is(x, "nsparseMatrix")) x@x <- x@x[sel]
 	      if (drop && any(x@Dim == 1:1)) drop(as(x,"matrix")) else x
 	  })
 
@@ -160,7 +162,7 @@ setMethod("[", signature(x = "TsparseMatrix",
           sel <- ip1$m > 0:0  &  ip2$m > 0:0
           x@i <- ip1$m[sel] - 1:1
           x@j <- ip2$m[sel] - 1:1
-          if (!is(x, "lsparseMatrix")) x@x <- x@x[sel]
+          if (!is(x, "nsparseMatrix")) x@x <- x@x[sel]
 	  if (drop && any(nd == 1)) drop(as(x,"matrix")) else x
       })
 
@@ -263,11 +265,13 @@ setReplaceMethod("[", signature(x = "TsparseMatrix", i = "index", j = "index",
 				value = "replValue"),
                  replTmat)
 
-
-
-
 setMethod("crossprod", signature(x = "TsparseMatrix", y = "missing"),
 	  function(x, y = NULL) {
+              if (is(x, "symmetricMatrix")) {
+                  x <- as(x, "CsparseMatrix")
+                  warning("crossprod(x) calculated as x %*% x for sparse, symmetric x")
+                  return(x %*% x)
+              }
 	      .Call(Csparse_crossprod, x, trans = FALSE, triplet = TRUE)
 	  })
 

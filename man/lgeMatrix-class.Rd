@@ -2,6 +2,10 @@
 \docType{class}
 \title{Class "lgeMatrix" of General Dense Logical Matrices}
 \alias{lgeMatrix-class}
+%
+\alias{!,lgeMatrix-method}
+\alias{|,lgeMatrix,lgeMatrix-method}
+\alias{&,lgeMatrix,lgeMatrix-method}
 \alias{as.vector,lgeMatrix,missing-method}
 \alias{coerce,matrix,lgeMatrix-method}
 \alias{coerce,lgeMatrix,dgeMatrix-method}

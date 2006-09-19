@@ -9,6 +9,7 @@
 \alias{\%*\%,matrix,CsparseMatrix-method}
 \alias{\%*\%,numeric,CsparseMatrix-method}
 \alias{coerce,CsparseMatrix,lsparseMatrix-method}
+\alias{coerce,CsparseMatrix,nsparseMatrix-method}
 \alias{coerce,CsparseMatrix,TsparseMatrix-method}
 \alias{coerce,CsparseMatrix,denseMatrix-method}
 \alias{coerce,CsparseMatrix,matrix-method}
@@ -80,6 +81,7 @@ Class \code{"Matrix"}, by class \code{"sparseMatrix"}.
     \item{coerce}{\code{signature(from = "CsparseMatrix", to = "denseMatrix")}: ... }
     \item{coerce}{\code{signature(from = "CsparseMatrix", to = "matrix")}: ... }
     \item{coerce}{\code{signature(from = "CsparseMatrix", to = "lsparseMatrix")}: ... }
+    \item{coerce}{\code{signature(from = "CsparseMatrix", to = "nsparseMatrix")}: ... }
     \item{coerce}{\code{signature(from = "TsparseMatrix", to = "CsparseMatrix")}: ... }
     \item{coerce}{\code{signature(from = "denseMatrix", to = "CsparseMatrix")}: ... }
     \item{colMeans}{\code{signature(x = "CsparseMatrix")}: ... }

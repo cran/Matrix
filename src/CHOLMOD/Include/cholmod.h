@@ -3,8 +3,8 @@
 /* ========================================================================== */
 
 /* -----------------------------------------------------------------------------
- * CHOLMOD/Include/cholmod.h.  Version 0.6.
- * Copyright (C) 2005, Univ. of Florida.  Author: Timothy A. Davis
+ * CHOLMOD/Include/cholmod.h.  Version 1.2.
+ * Copyright (C) 2005-2006, Univ. of Florida.  Author: Timothy A. Davis
  * CHOLMOD/Include/cholmod.h is licensed under Version 2.1 of the GNU
  * Lesser General Public License.  See lesser.txt for a text of the license.
  * CHOLMOD is also available under other licenses; contact authors for details.
@@ -37,7 +37,7 @@
  * -------------
  *
  *	Most CHOLMOD routines return an int (TRUE (1) if successful, or FALSE
- *	(0) otherwise.  A long or double return value is >= 0 if successful,
+ *	(0) otherwise.  A UF_long or double return value is >= 0 if successful,
  *	or -1 otherwise.  A size_t return value is > 0 if successful, or 0
  *	otherwise.
  *
@@ -79,6 +79,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/* define UF_long */
+/* #include "UFconfig.h" */
 
 #include "cholmod_config.h"
 

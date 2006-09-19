@@ -3,8 +3,8 @@
 /* ========================================================================== */
 
 /* -----------------------------------------------------------------------------
- * CHOLMOD/Core Module.  Version 0.6.  Copyright (C) 2005, Univ. of Florida.
- * Author: Timothy A. Davis
+ * CHOLMOD/Core Module.  Version 1.2.  Copyright (C) 2005-2006,
+ * Univ. of Florida.  Author: Timothy A. Davis
  * The CHOLMOD/Core Module is licensed under Version 2.1 of the GNU
  * Lesser General Public License.  See lesser.txt for a text of the license.
  * CHOLMOD is also available under other licenses; contact authors for details.
@@ -104,8 +104,8 @@
  * use cholmod_factor_xtype instead.
  */
 
-#include "cholmod_core.h"
 #include "cholmod_internal.h"
+#include "cholmod_core.h"
 
 static void natural_list (cholmod_factor *L) ;
 
@@ -206,6 +206,7 @@ static int allocate_simplicial_numeric
 {
     Int n ;
     Int *Lp, *Lnz, *Lprev, *Lnext ;
+    size_t n1, n2 ;
 
     PRINT1 (("Allocate simplicial\n")) ;
 
@@ -217,17 +218,21 @@ static int allocate_simplicial_numeric
 
     n = L->n ;
 
-    Lp = CHOLMOD(malloc) (n+1, sizeof (Int), Common) ;
+    /* this cannot cause size_t overflow */
+    n1 = ((size_t) n) + 1 ;
+    n2 = ((size_t) n) + 2 ;
+
+    Lp = CHOLMOD(malloc) (n1, sizeof (Int), Common) ;
     Lnz = CHOLMOD(malloc) (n, sizeof (Int), Common) ;
-    Lprev = CHOLMOD(malloc) (n+2, sizeof (Int), Common) ;
-    Lnext = CHOLMOD(malloc) (n+2, sizeof (Int), Common) ;
+    Lprev = CHOLMOD(malloc) (n2, sizeof (Int), Common) ;
+    Lnext = CHOLMOD(malloc) (n2, sizeof (Int), Common) ;
 
     if (Common->status < CHOLMOD_OK)
     {
-	CHOLMOD(free) (n+1, sizeof (Int), Lp,    Common) ;
+	CHOLMOD(free) (n1, sizeof (Int), Lp,    Common) ;
 	CHOLMOD(free) (n,   sizeof (Int), Lnz,   Common) ;
-	CHOLMOD(free) (n+2, sizeof (Int), Lprev, Common) ;
-	CHOLMOD(free) (n+2, sizeof (Int), Lnext, Common) ;
+	CHOLMOD(free) (n2, sizeof (Int), Lprev, Common) ;
+	CHOLMOD(free) (n2, sizeof (Int), Lnext, Common) ;
 	PRINT1 (("Allocate simplicial failed\n")) ;
 	return (FALSE) ;	/* out of memory */
     }
@@ -260,29 +265,31 @@ static int simplicial_symbolic_to_super_symbolic
 {
     Int nsuper, xsize, ssize ;
     Int *Lsuper, *Lpi, *Lpx, *Ls ;
+    size_t nsuper1 ;
 
     ASSERT (L->xtype == CHOLMOD_PATTERN && !(L->is_super)) ;
 
     xsize  = L->xsize ;
     ssize  = L->ssize ;
     nsuper = L->nsuper ;
+    nsuper1 = ((size_t) nsuper) + 1 ;
 
     PRINT1 (("simple sym to super sym: ssize "ID" xsize "ID" nsuper "ID""
 	" status %d\n", ssize, xsize, nsuper, Common->status)) ;
 
     /* O(nsuper) arrays, where nsuper <= n */
-    Lsuper = CHOLMOD(malloc) (nsuper+1, sizeof (Int), Common) ;
-    Lpi    = CHOLMOD(malloc) (nsuper+1, sizeof (Int), Common) ;
-    Lpx    = CHOLMOD(malloc) (nsuper+1, sizeof (Int), Common) ;
+    Lsuper = CHOLMOD(malloc) (nsuper1, sizeof (Int), Common) ;
+    Lpi    = CHOLMOD(malloc) (nsuper1, sizeof (Int), Common) ;
+    Lpx    = CHOLMOD(malloc) (nsuper1, sizeof (Int), Common) ;
 
     /* O(ssize) array, where ssize <= nnz(L), and usually much smaller */
     Ls = CHOLMOD(malloc) (ssize, sizeof (Int), Common) ;
 
     if (Common->status < CHOLMOD_OK)
     {
-	CHOLMOD(free) (nsuper+1, sizeof (Int), Lsuper, Common) ;
-	CHOLMOD(free) (nsuper+1, sizeof (Int), Lpi,    Common) ;
-	CHOLMOD(free) (nsuper+1, sizeof (Int), Lpx,    Common) ;
+	CHOLMOD(free) (nsuper1, sizeof (Int), Lsuper, Common) ;
+	CHOLMOD(free) (nsuper1, sizeof (Int), Lpi,    Common) ;
+	CHOLMOD(free) (nsuper1, sizeof (Int), Lpx,    Common) ;
 	CHOLMOD(free) (ssize,    sizeof (Int), Ls,     Common) ;
 	return (FALSE) ;	/* out of memory */
     }
@@ -325,6 +332,7 @@ static void any_to_simplicial_symbolic
 )
 {
     Int n, lnz, xs, ss, s, e ;
+    size_t n1, n2 ;
 
     /* ============================================== commit the changes to L */
 
@@ -335,14 +343,18 @@ static void any_to_simplicial_symbolic
     e = (L->xtype == CHOLMOD_COMPLEX ? 2 : 1) ;
     ss = L->ssize ;
 
+    /* this cannot cause size_t overflow */
+    n1 = ((size_t) n) + 1 ;
+    n2 = ((size_t) n) + 2 ;
+
     /* free all but the symbolic analysis (Perm and ColCount) */
-    L->p     = CHOLMOD(free) (n+1, sizeof (Int),      L->p,     Common) ;
+    L->p     = CHOLMOD(free) (n1,  sizeof (Int),      L->p,     Common) ;
     L->i     = CHOLMOD(free) (lnz, sizeof (Int),      L->i,     Common) ;
     L->x     = CHOLMOD(free) (xs,  e*sizeof (double), L->x,     Common) ;
     L->z     = CHOLMOD(free) (lnz, sizeof (double),   L->z,     Common) ;
     L->nz    = CHOLMOD(free) (n,   sizeof (Int),      L->nz,    Common) ;
-    L->next  = CHOLMOD(free) (n+2, sizeof (Int),      L->next,  Common) ;
-    L->prev  = CHOLMOD(free) (n+2, sizeof (Int),      L->prev,  Common) ;
+    L->next  = CHOLMOD(free) (n2,  sizeof (Int),      L->next,  Common) ;
+    L->prev  = CHOLMOD(free) (n2,  sizeof (Int),      L->prev,  Common) ;
     L->super = CHOLMOD(free) (s,   sizeof (Int),      L->super, Common) ;
     L->pi    = CHOLMOD(free) (s,   sizeof (Int),      L->pi,    Common) ;
     L->px    = CHOLMOD(free) (s,   sizeof (Int),      L->px,    Common) ;
@@ -870,8 +882,8 @@ static void ll_super_to_simplicial_numeric
 	lnz = L->xsize ;
     }
     ASSERT (lnz >= 0) ;
-    PRINT1 (("simplicial lnz = "ID"  to_packed: %d  to_ll: %d L->xsize %ld\n",
-		lnz, to_ll, to_packed, (long) L->xsize)) ;
+    PRINT1 (("simplicial lnz = "ID"  to_packed: %d  to_ll: %d L->xsize %g\n",
+		lnz, to_ll, to_packed, (double) L->xsize)) ;
 
     Li = CHOLMOD(malloc) (lnz, sizeof (Int), Common) ;
     if (Common->status < CHOLMOD_OK)
@@ -947,7 +959,7 @@ static int super_symbolic_to_ll_super
     PRINT1 (("convert super sym to num\n")) ;
     ASSERT (L->xtype == CHOLMOD_PATTERN && L->is_super) ;
     Lx = CHOLMOD(malloc) (L->xsize, wentry * sizeof (double), Common) ;
-    PRINT1 (("xsize %ld\n", (long) L->xsize)) ;
+    PRINT1 (("xsize %g\n", (double) L->xsize)) ;
     if (Common->status < CHOLMOD_OK)
     {
 	return (FALSE) ;	/* out of memory */

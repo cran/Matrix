@@ -1,7 +1,7 @@
 				/* Sparse symmetric matrices in triplet format */
 #include "dsTMatrix.h"
 
-SEXP dsTMatrix_validate(SEXP x)
+SEXP dsTMatrix_validate(SEXP x) /* == lsTMatrix_validate */
 {
     SEXP xxP = symmetricMatrix_validate(x);
     if(isString(xxP))

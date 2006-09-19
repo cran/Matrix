@@ -151,7 +151,7 @@ SEXP dgCMatrix_set_Dim(SEXP x, int nrow)
 }
 
 
-
+#if 0
 /**  The following two csc_ functions are identically usable for rcs__
  *
  * Check for unsorted columns in the row indices
@@ -210,7 +210,9 @@ void csc_sort_columns(int ncol, const int p[], int i[], double x[])
     Free(ord);
     if (x) Free(dd);
 }
+#endif
 
+#if 0
 /**
  * Check for sorted columns in an object that inherits from the
  * dgCMatrix class.  Resort the columns if necessary.
@@ -229,6 +231,7 @@ SEXP csc_check_column_sorting(SEXP m)
 	csc_sort_columns(ncol, mp, mi, REAL(GET_SLOT(m, Matrix_xSym)));
     return m;
 }
+#endif
 
 /* Fill in the "trivial remainder" in  n*m  array ;
  *  typically the 'x' slot of a "dtrMatrix" :
@@ -305,58 +308,6 @@ Matrix_make_named(int TYP, char **names)
     setAttrib(ans, R_NamesSymbol, nms);
     UNPROTECT(2);
     return ans;
-}
-
-/**
- * Allocate a 3-dimensional array
- *
- * @param mode The R mode (e.g. INTSXP)
- * @param nrow number of rows
- * @param ncol number of columns
- * @param nface number of faces
- *
- * @return A 3-dimensional array of the indicated dimensions and mode
- */
-SEXP alloc3Darray(SEXPTYPE mode, int nrow, int ncol, int nface)
-{
-    SEXP s, t;
-    int n;
-
-    if (nrow < 0 || ncol < 0 || nface < 0)
-	error(_("negative extents to 3D array"));
-    if ((double)nrow * (double)ncol * (double)nface > INT_MAX)
-	error(_("alloc3Darray: too many elements specified"));
-    n = nrow * ncol * nface;
-    PROTECT(s = allocVector(mode, n));
-    PROTECT(t = allocVector(INTSXP, 3));
-    INTEGER(t)[0] = nrow;
-    INTEGER(t)[1] = ncol;
-    INTEGER(t)[2] = nface;
-    setAttrib(s, R_DimSymbol, t);
-    UNPROTECT(2);
-    return s;
-}
-
-/**
- * Expand a column of a compressed, sparse, column-oriented matrix.
- *
- * @param dest array to hold the result
- * @param m number of rows in the matrix
- * @param j index (0-based) of column to expand
- * @param Ap array of column pointers
- * @param Ai array of row indices
- * @param Ax array of non-zero values
- *
- * @return dest
- */
-double *expand_csc_column(double *dest, int m, int j,
-			  const int Ap[], const int Ai[], const double Ax[])
-{
-    int k, k2 = Ap[j + 1];
-
-    for (k = 0; k < m; k++) dest[k] = 0.;
-    for (k = Ap[j]; k < k2; k++) dest[Ai[k]] = Ax[k];
-    return dest;
 }
 
 #define Matrix_Error_Bufsiz    4096
@@ -505,87 +456,6 @@ Matrix_getElement(SEXP list, char *nm) {
 }
 
 /**
- * Allocate a real classed matrix
- *
- * @param class character string of the type of Matrix to allocate
- * @param nrow number of rows
- * @param ncol number of columns
- *
- * @return pointer to a classed real matrix
- */
-SEXP alloc_real_classed_matrix(char *class, int nrow, int ncol)
-{
-    SEXP val = NEW_OBJECT(MAKE_CLASS(class));
-    int *dims = INTEGER(ALLOC_SLOT(val, Matrix_DimSym, INTSXP, 2));
-
-    dims[0] = nrow; dims[1] = ncol;
-    ALLOC_SLOT(val, Matrix_xSym, REALSXP, nrow * ncol);
-    return val;
-}
-
-SEXP alloc_dgeMatrix(int m, int n, SEXP rownms, SEXP colnms)
-{
-    SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("dgeMatrix"))), dn;
-    int *dims = INTEGER(ALLOC_SLOT(ans, Matrix_DimSym, INTSXP, 2));
-
-    dims[0] = m; dims[1] = n;
-    ALLOC_SLOT(ans, Matrix_xSym, REALSXP, m * n);
-    dn = ALLOC_SLOT(ans, Matrix_DimNamesSym, VECSXP, 2);
-    SET_VECTOR_ELT(dn, 0, duplicate(rownms));
-    SET_VECTOR_ELT(dn, 1, duplicate(colnms));
-    UNPROTECT(1);
-    return ans;
-}
-
-SEXP alloc_dpoMatrix(int n, char *uplo, SEXP rownms, SEXP colnms)
-{
-    SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("dpoMatrix"))), dn;
-    int *dims = INTEGER(ALLOC_SLOT(ans, Matrix_DimSym, INTSXP, 2));
-
-    dims[0] = dims[1] = n;
-    ALLOC_SLOT(ans, Matrix_xSym, REALSXP, n * n);
-    SET_SLOT(ans, Matrix_uploSym, mkString(uplo));
-    dn = ALLOC_SLOT(ans, Matrix_DimNamesSym, VECSXP, 2);
-    SET_VECTOR_ELT(dn, 0, duplicate(rownms));
-    SET_VECTOR_ELT(dn, 1, duplicate(colnms));
-    UNPROTECT(1);
-    return ans;
-}
-
-SEXP alloc_dtrMatrix(int n, char *uplo, char *diag, SEXP rownms, SEXP colnms)
-{
-    SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("dtrMatrix"))), dn;
-    int *dims = INTEGER(ALLOC_SLOT(ans, Matrix_DimSym, INTSXP, 2));
-
-    dims[0] = dims[1] = n;
-    ALLOC_SLOT(ans, Matrix_xSym, REALSXP, n * n);
-    SET_SLOT(ans, Matrix_uploSym, mkString(uplo));
-    SET_SLOT(ans, Matrix_diagSym, mkString(diag));
-    dn = ALLOC_SLOT(ans, Matrix_DimNamesSym, VECSXP, 2);
-    SET_VECTOR_ELT(dn, 0, duplicate(rownms));
-    SET_VECTOR_ELT(dn, 1, duplicate(colnms));
-    UNPROTECT(1);
-    return ans;
-}
-
-SEXP alloc_dsCMatrix(int n, int nz, char *uplo, SEXP rownms, SEXP colnms)
-{
-    SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("dsCMatrix"))), dn;
-    int *dims = INTEGER(ALLOC_SLOT(ans, Matrix_DimSym, INTSXP, 2));
-
-    dims[0] = dims[1] = n;
-    ALLOC_SLOT(ans, Matrix_xSym, REALSXP, nz);
-    ALLOC_SLOT(ans, Matrix_iSym, INTSXP, nz);
-    ALLOC_SLOT(ans, Matrix_pSym, INTSXP, n + 1);
-    SET_SLOT(ans, Matrix_uploSym, mkString(uplo));
-    dn = ALLOC_SLOT(ans, Matrix_DimNamesSym, VECSXP, 2);
-    SET_VECTOR_ELT(dn, 0, duplicate(rownms));
-    SET_VECTOR_ELT(dn, 1, duplicate(colnms));
-    UNPROTECT(1);
-    return ans;
-}
-
-/**
  * Zero a square matrix of size nc then copy a vector to the diagonal
  *
  * @param dest destination array of length nc * nc
@@ -617,6 +487,9 @@ install_diagonal(double *dest, SEXP A)
  * @param A	  either a ddenseMatrix object or a matrix object
  */
 
+/* FIXME: since we also use this for other things, e.g. band(),
+ * -----  should generalize to  "...as_geMatrix"
+ */
 SEXP dup_mMatrix_as_dgeMatrix(SEXP A)
 {
     SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("dgeMatrix"))),

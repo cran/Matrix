@@ -3,8 +3,9 @@
 \alias{tcrossprod-methods}
 \alias{tcrossprod,dgCMatrix,missing-method}
 \alias{tcrossprod,dgTMatrix,missing-method}
-\alias{tcrossprod,matrix,missing-method}
-\alias{tcrossprod,numeric,missing-method}
+%% no longer (don't want to mask 'base' functionality):
+% \alias{tcrossprod,matrix,missing-method}
+% \alias{tcrossprod,numeric,missing-method}
 % more \alias{tcrossprod,...}es in *-class*.Rd files
 \alias{tcrossprod}
 \title{Cross-product of transpose}

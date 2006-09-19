@@ -3,13 +3,8 @@
 SEXP dsCMatrix_validate(SEXP obj)
 {
     SEXP val = symmetricMatrix_validate(obj);
-    if(isString(val))
-	return(val);
-    else {
-	/* FIXME needed? dsC* inherits from dgC* which does this in validate*/
-	csc_check_column_sorting(obj);
-	return ScalarLogical(1);
-    }
+    if(isString(val)) return(val);
+    return ScalarLogical(1);
 }
 
 SEXP dsCMatrix_chol(SEXP x, SEXP pivot)
@@ -22,22 +17,22 @@ SEXP dsCMatrix_chol(SEXP x, SEXP pivot)
     cholmod_factor *Ncp = cholmod_copy_factor(N, &c);
     cholmod_sparse *L, *R;
     SEXP ans;
-    
+
     L = cholmod_factor_to_sparse(Ncp, &c); cholmod_free_factor(&Ncp, &c);
     R = cholmod_transpose(L, /*values*/ 1, &c); cholmod_free_sparse(&L, &c);
     ans = PROTECT(chm_sparse_to_SEXP(R, /*cholmod_free*/ 1,
-				     /*uploT*/ 1, /*diag*/ "N",
+				     /*uploT*/ 1, /*Rkind*/ 0, /*diag*/ "N",
 				     GET_SLOT(x, Matrix_DimNamesSym)));
     if (asLogical(pivot)) {
 	SEXP piv = PROTECT(allocVector(INTSXP, N->n));
 	int *dest = INTEGER(piv), *src = (int*)N->Perm, i;
-	
+
 	for (i = 0; i < N->n; i++) dest[i] = src[i] + 1;
 	setAttrib(ans, install("pivot"), piv);
 	/* FIXME: Because of the cholmod_factor -> S4 obj ->
 	 * cholmod_factor conversions, the value of N->minor will
 	 * always be N->n.  Change as_cholmod_factor and
-	 * chm_factor_as_SEXP to keep track of Minor.
+	 * chm_factor_to_SEXP to keep track of Minor.
 	 */
 	setAttrib(ans, install("rank"), ScalarInteger((size_t) N->minor));
 	UNPROTECT(1);
@@ -49,7 +44,7 @@ SEXP dsCMatrix_chol(SEXP x, SEXP pivot)
 
 SEXP dsCMatrix_Cholesky(SEXP Ap, SEXP permP, SEXP LDLp, SEXP superP)
 {
-    char *fname = strdup("spdCholesky"); /* template for factorization name */
+    char fname[12] = "spdCholesky"; /* template for factorization name */
     int perm = asLogical(permP),
 	LDL = asLogical(LDLp),
 	super = asLogical(superP);
@@ -61,16 +56,16 @@ SEXP dsCMatrix_Cholesky(SEXP Ap, SEXP permP, SEXP LDLp, SEXP superP)
     if (super) fname[0] = 'S';
     if (perm) fname[1] = 'P';
     if (LDL) fname[2] = 'D';
-    Chol = get_factors(Ap, "fname");
+    Chol = get_factors(Ap, fname);
     if (Chol != R_NilValue) return Chol;
     A = as_cholmod_sparse(Ap);
     sup = c.supernodal;
     ll = c.final_ll;
-	
+
     if (!A->stype) error("Non-symmetric matrix passed to dsCMatrix_chol");
-    
+
     c.final_ll = !LDL;	/* leave as LL' or form LDL' */
-    c.supernodal = super ? CHOLMOD_SUPERNODAL : CHOLMOD_SIMPLICIAL; 
+    c.supernodal = super ? CHOLMOD_SUPERNODAL : CHOLMOD_SIMPLICIAL;
 
     if (perm) {
 	L = cholmod_analyze(A, &c); /* get fill-reducing permutation */
@@ -84,13 +79,12 @@ SEXP dsCMatrix_Cholesky(SEXP Ap, SEXP permP, SEXP LDLp, SEXP superP)
 	c.nmethods = nmethods; c.method[0].ordering = ord0;
 	c.postorder = postorder;
     }
-    c.supernodal = sup;	/* restore previous setting */
-    c.final_ll = ll;
     if (!cholmod_factorize(A, L, &c))
 	error(_("Cholesky factorization failed"));
+    c.supernodal = sup;	/* restore previous setting */
+    c.final_ll = ll;
     Free(A);
     Chol = set_factors(Ap, chm_factor_to_SEXP(L, 1), fname);
-    free(fname);		/* note, this must be free, not Free */
     return Chol;
 }
 
@@ -117,7 +111,7 @@ SEXP dsCMatrix_matrix_solve(SEXP a, SEXP b)
     cholmod_factor *L;
     cholmod_dense  *cx,
 	*cb = as_cholmod_dense(PROTECT(mMatrix_as_dgeMatrix(b)));
-    
+
     if (Chol == R_NilValue)
 	Chol = dsCMatrix_Cholesky(a,
 				  ScalarLogical(1),  /* permuted */
@@ -127,7 +121,7 @@ SEXP dsCMatrix_matrix_solve(SEXP a, SEXP b)
     cx = cholmod_solve(CHOLMOD_A, L, cb, &c);
     Free(cb); Free(L);
     UNPROTECT(1);
-    return chm_dense_to_SEXP(cx, 1);
+    return chm_dense_to_SEXP(cx, 1, 0);
 }
 
 /* Needed for printing dsCMatrix objects */
@@ -141,7 +135,7 @@ SEXP dsCMatrix_to_dgTMatrix(SEXP x)
     if (!A->stype)
 	error("Non-symmetric matrix passed to dsCMatrix_to_dgTMatrix");
     Free(A); cholmod_free_sparse(&Afull, &c);
-    return chm_triplet_to_SEXP(At, 1, /*uploT*/ 0, "",
+    return chm_triplet_to_SEXP(At, 1, /*uploT*/ 0, /*Rkind*/ 0, "",
 			       GET_SLOT(x, Matrix_DimNamesSym));
 }
 

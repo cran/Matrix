@@ -3,7 +3,8 @@
 /* ========================================================================== */
 
 /* -----------------------------------------------------------------------------
- * CHOLMOD/Cholesky Module.  Version 0.6.  Copyright (C) 2005, Timothy A. Davis
+ * CHOLMOD/Cholesky Module.  Version 1.2.  Copyright (C) 2005-2006,
+ * Timothy A. Davis
  * The CHOLMOD/Cholesky Module is licensed under Version 2.1 of the GNU
  * Lesser General Public License.  See lesser.txt for a text of the license.
  * CHOLMOD is also available under other licenses; contact authors for details.
@@ -18,7 +19,11 @@
 
 #include "cholmod_template.h"
 
+#ifdef MASK
+static int TEMPLATE (cholmod_rowfac_mask)
+#else
 static int TEMPLATE (cholmod_rowfac)
+#endif
 (
     /* ---- input ---- */
     cholmod_sparse *A,	/* matrix to factorize */
@@ -26,20 +31,25 @@ static int TEMPLATE (cholmod_rowfac)
     double beta [2],	/* factorize beta*I+A or beta*I+AA' (beta [0] only) */
     size_t kstart,	/* first row to factorize */
     size_t kend,	/* last row to factorize is kend-1 */
+#ifdef MASK
+    /* These inputs are used for cholmod_rowfac_mask only */
+    Int *mask,		/* size A->nrow. if mask[i] then W(i) is set to zero */
+    Int *RLinkUp,	/* size A->nrow. link list of rows to compute */
+#endif
     /* ---- in/out --- */
     cholmod_factor *L,
     /* --------------- */
     cholmod_common *Common
 )
 {
-    double yx [2], lx [2], fx [2], dk [1], di [1] ;
+    double yx [2], lx [2], fx [2], dk [1], di [1], fl = 0 ;
 #ifdef ZOMPLEX
     double yz [1], lz [1], fz [1] ;
 #endif
     double *Ax, *Az, *Lx, *Lz, *Wx, *Wz, *Fx, *Fz ;
     Int *Ap, *Anz, *Ai, *Lp, *Lnz, *Li, *Lnext, *Flag, *Stack, *Fp, *Fi, *Fnz,
 	*Iwork ;
-    Int i, p, k, t, pf, pfend, top, s, mark, pend, n, lnz, is_ll,
+    Int i, p, k, t, pf, pfend, top, s, mark, pend, n, lnz, is_ll, multadds,
 	use_dbound, packed, stype, Fpacked, sorted, nzmax, len, parent ;
 #ifndef REAL
     Int dk_imaginary ;
@@ -154,7 +164,13 @@ static int TEMPLATE (cholmod_rowfac)
     /* compute LDL' or LL' factorization by rows */
     /* ---------------------------------------------------------------------- */
 
-    for (k = kstart ; k < ((Int) kend) ; k++)
+#ifdef MASK
+#define NEXT(k) k = RLinkUp [k]
+#else
+#define NEXT(k) k++
+#endif
+
+    for (k = kstart ; k < ((Int) kend) ; NEXT(k))
     {
 	PRINT1 (("\n===============K "ID" Lnz [k] "ID"\n", k, Lnz [k])) ;
 
@@ -195,14 +211,53 @@ static int TEMPLATE (cholmod_rowfac)
 		ASSIGN (fx, fz, 0, Fx, Fz, pf) ;
 		p = Ap [t] ;
 		pend = (packed) ? (Ap [t+1]) : (p + Anz [t]) ;
+		multadds = 0 ;
 		/* W [i] += Ax [p] * fx ; scatter column of A*A' */
-#define SCATTER MULTADD (Wx,Wz,i, Ax,Az,p, fx,fz,0)
+#define SCATTER MULTADD (Wx,Wz,i, Ax,Az,p, fx,fz,0) ; multadds++  ;
 		SUBTREE ;
 #undef SCATTER
+#ifdef REAL
+		fl += 2 * ((double) multadds) ;
+#else
+		fl += 8 * ((double) multadds) ;
+#endif
 	    }
 	}
 
 #undef PARENT
+
+	/* ------------------------------------------------------------------ */
+	/* if mask is present, set the corresponding entries in W to zero */
+	/* ------------------------------------------------------------------ */
+
+#ifdef MASK
+        /* remove the dead element of Wx */
+        if (mask != NULL)
+        {
+
+#if 0
+	    /* older version */
+            for (p = n; p > top;)
+            {
+                i = Stack [--p] ;
+                if ( mask [i] >= 0 )
+		{
+		    CLEAR (Wx,Wz,i) ;	/* set W(i) to zero */
+		}
+            }
+#endif
+
+            for (s = top ; s < n ; s++)
+            {
+                i = Stack [s] ;
+                if (mask [i] >= 0)
+		{
+		    CLEAR (Wx,Wz,i) ;	/* set W(i) to zero */
+		}
+            }
+
+        }
+#endif
 
 	/* nonzero pattern of kth row of L is now in Stack [top..n-1].
 	 * Flag [Stack [top..n-1]] is equal to mark, but no longer needed */
@@ -268,6 +323,11 @@ static int TEMPLATE (cholmod_rowfac)
 	    }
 	    else if (is_ll)
 	    {
+#ifdef REAL
+		fl += 2 * ((double) (pend - p - 1)) + 3 ;
+#else
+		fl += 8 * ((double) (pend - p - 1)) + 6 ;
+#endif
 		/* forward solve using L (i:(k-1),i) */
 		/* divide by L(i,i), which must be real and nonzero */
 		/* y /= di [0] */
@@ -285,6 +345,11 @@ static int TEMPLATE (cholmod_rowfac)
 	    }
 	    else
 	    {
+#ifdef REAL
+		fl += 2 * ((double) (pend - p - 1)) + 3 ;
+#else
+		fl += 8 * ((double) (pend - p - 1)) + 6 ;
+#endif
 		/* forward solve using D (i,i) and L ((i+1):(k-1),i) */
 		for (p++ ; p < pend ; p++)
 		{
@@ -305,7 +370,6 @@ static int TEMPLATE (cholmod_rowfac)
 		/* d -= conj(y) * y / di */
 		LDLDOT (dk,0, yx,yz,0, di,0) ;
 #endif
-
 	    }
 
 	    /* determine if column i of L can hold the new L(k,i) entry */
@@ -369,6 +433,7 @@ static int TEMPLATE (cholmod_rowfac)
 
 	if (is_ll)
 	{
+	    /* this is counted as one flop, below */
 	    dk [0] = sqrt (dk [0]) ;
 	}
 
@@ -376,6 +441,11 @@ static int TEMPLATE (cholmod_rowfac)
 	ASSIGN_REAL (Lx,p, dk,0) ;
 	CLEAR_IMAG (Lx,Lz,p) ;
     }
+
+#undef NEXT
+
+    if (is_ll) fl += MAX ((Int) kend - (Int) kstart, 0) ;   /* count sqrt's */
+    Common->rowfacfl = fl ;
 
     DEBUG (CHOLMOD(dump_factor) (L, "final cholmod_rowfac", Common)) ;
     ASSERT (CHOLMOD(dump_work) (TRUE, TRUE, n, Common)) ;

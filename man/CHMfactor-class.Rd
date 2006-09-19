@@ -5,9 +5,9 @@
 \alias{CHMsimpl-class}% virtual
 \alias{CHMsuper-class}% virtual
 \alias{dCHMsimpl-class}
-\alias{lCHMsimpl-class}
+\alias{nCHMsimpl-class}
 \alias{dCHMsuper-class}
-\alias{lCHMsuper-class}
+\alias{nCHMsuper-class}
 %
 \alias{coerce,CHMfactor,sparseMatrix-method}
 %
@@ -18,7 +18,7 @@
   class \code{"CHMsuper"}).  Objects that inherit from these classes are
   either numeric factorizations (classes \code{"dCHMsimpl"} and
   \code{"dCHMsuper"}) or symbolic factorizations (classes
-  \code{"lCHMsimpl"} and \code{"lCHMsuper"}).
+  \code{"nCHMsimpl"} and \code{"nCHMsuper"}).
 }
 \section{Objects from the Class}{
   Objects can be created by calls of the form \code{new("dCHMsuper", ...)}

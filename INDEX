@@ -1,4 +1,3 @@
-BIC                     Bayesian Information Criterion
 CAex                    Albers' example Matrix with "Difficult" Eigen
                         Factorization
 CHMfactor-class         CHOLMOD-based Cholesky factorizations
@@ -24,8 +23,6 @@ SparseM-coerce-methods
                         package "SparseM"
 TsparseMatrix-class     Class "TsparseMatrix" of Sparse Matrices in
                         Triplet Form
-VarCorr                 Extract variance and correlation components
-VarCorr-class           Class "VarCorr"
 [-methods               Methods for "[": Extraction or Subsetting in
                         Package 'Matrix'
 [<--methods             Methods for "[<-" - Assigning to Subsets for
@@ -62,9 +59,7 @@ dtrMatrix-class         Triangular, dense, numeric matrices
 expand                  Expand a Decomposition into Factors
 expm                    Matrix exponential
 facmul                  Multiplication by Decomposition Factors
-fixef                   Extract Fixed Effects
 generalMatrix-class     Class "generalMatrix" of General Matrices
-hatTrace                Extract the trace of the 'hat' matrix
 iMatrix-class           Virtual Classes Not Yet Used
 index-class             Virtual Class "index" - Simple Class for Matrix
                         Indices
@@ -75,24 +70,26 @@ ldenseMatrix-class      Virtual Class "ldenseMatrix" of Dense Logical
 ldiMatrix-class         Class "ldiMatrix" of Diagonal Logical Matrices
 lgeMatrix-class         Class "lgeMatrix" of General Dense Logical
                         Matrices
-lmer                    Fit (Generalized) Linear Mixed-Effects Models
-lmer-class              Mixed Model Representations and *mer Methods
 lsparseMatrix-class     Sparse logical matrices
 lsyMatrix-class         Symmetric Dense Logical Matrices
 ltrMatrix-class         Triangular Dense Logical Matrices
 lu                      Triangular Decomposition of a Square Matrix
-mcmcsamp                Generate an MCMC sample
+nMatrix-class           Class "nMatrix" of Non-zero Pattern Matrices
+ndenseMatrix-class      Virtual Class "ndenseMatrix" of Dense Logical
+                        Matrices
+ndiMatrix-class         Class "ndiMatrix" of Diagonal Logical Matrices
+ngeMatrix-class         Class "ngeMatrix" of General Dense
+                        Nonzero-pattern Matrices
 norm                    Norm of a Matrix
+nsparseMatrix-class     Sparse logical matrices
+nsyMatrix-class         Symmetric Dense Nonzero-Pattern Matrices
+ntrMatrix-class         Triangular Dense Logical Matrices
 pMatrix-class           Permutation matrices
-pedigree                Pedigree Constructor
-pedigree-class          Class "pedigree"
 qr-methods              Methods for the qr generic
-ranef                   Extract Random Effects
 rcond                   Estimate the Reciprocal Condition Number
 readHB                  Read and write external matrix formats
 replValue-class         Virtual Class "replValue" - Simple Class for
                         subassignment Values
-sleepstudy              Reaction times in a sleep deprivation study
 sparseLU-class          Sparse LU decomposition of a square sparse
                         matrix
 sparseMatrix-class      Virtual Class "sparseMatrix" -- Mother of

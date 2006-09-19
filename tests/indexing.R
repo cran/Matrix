@@ -46,11 +46,15 @@ m[1:3,]
 
 g10 <- m [ m > 10 ]
 stopifnot(18 == length(g10))
-## needs R >= 2.3.0 [Buglet in R(<= 2.2.1)'s possibleExtends()]:
 stopifnot(10 == length(m[ m <= 10 ]))
+sel <- (20 < m) & (m < 150)
+(ssel <- as(sel, "sparseMatrix"))
+stopifnot(is(sel, "lMatrix"), is(ssel, "lsparseMatrix"),
+	  identical(  m[ ssel], as.matrix(m)[as.matrix( ssel)]),
+	  identical(  m[!ssel], as.matrix(m)[as.matrix(!ssel)])
+	  )
 
-
-### Sparse Matrices --------------------------------------
+## more sparse Matrices --------------------------------------
 
 m <- 1:800
 set.seed(101) ; m[sample(800, 600)] <- 0
@@ -96,8 +100,7 @@ x.x <- crossprod(mC)
 stopifnot(class(x.x) == "dsCMatrix",
           class(x.x. <- round(x.x / 10000)) == "dsCMatrix")
 head(x.x.) # Note the *non*-structural 0's printed as "0"
-## FIXME (once we require 2.4.x or higher):
-##  tail(x.x., -2) # the last two lines
+tail(x.x., -3) # all but the first three lines
 
 lx.x <- as(x.x, "lsCMatrix") # FALSE only for "structural" 0
 if(FALSE) { ## FIXME: needs coercion  "lsCMatrix" to "lgTMatrix"

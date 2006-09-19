@@ -2,47 +2,10 @@
 #include "dtCMatrix.h"
 #include "cs_utils.h"
 
-SEXP tsc_validate(SEXP x)
+SEXP dtCMatrix_validate(SEXP x)
 {
     return triangularMatrix_validate(x);
     /* see ./dsCMatrix.c or ./dtpMatrix.c  on how to do more testing here */
-}
-
-
-SEXP tsc_to_dgTMatrix(SEXP x)
-{
-    SEXP ans;
-    if (*diag_P(x) != 'U')
-	ans = compressed_to_dgTMatrix(x, ScalarLogical(1));
-    else {			/* unit triangular matrix */
-	SEXP islot = GET_SLOT(x, Matrix_iSym),
-	    pslot = GET_SLOT(x, Matrix_pSym);
-	int *ai, *aj, j,
-	    n = length(pslot) - 1,
-	    nod = length(islot),
-	    nout = n + nod,
-	    *p = INTEGER(pslot);
-	double *ax;
-
-	ans = PROTECT(NEW_OBJECT(MAKE_CLASS("dgTMatrix")));
-	SET_SLOT(ans, Matrix_DimSym, duplicate(GET_SLOT(x, Matrix_DimSym)));
-	SET_SLOT(ans, Matrix_iSym, allocVector(INTSXP, nout));
-	ai = INTEGER(GET_SLOT(ans, Matrix_iSym));
-	Memcpy(ai, INTEGER(islot), nod);
-	SET_SLOT(ans, Matrix_jSym, allocVector(INTSXP, nout));
-	aj = INTEGER(GET_SLOT(ans, Matrix_jSym));
-	SET_SLOT(ans, Matrix_xSym, allocVector(REALSXP, nout));
-	ax = REAL(GET_SLOT(ans, Matrix_xSym));
-	Memcpy(ax, REAL(GET_SLOT(x, Matrix_xSym)), nod);
-	for (j = 0; j < n; j++) {
-	    int jj, npj = nod + j,  p2 = p[j+1];
-	    aj[npj] = ai[npj] = j;
-	    ax[npj] = 1.;
-	    for (jj = p[j]; jj < p2; jj++) aj[jj] = j;
-	}
-	UNPROTECT(1);
-    }
-    return ans;
 }
 
 /**
@@ -114,61 +77,6 @@ SEXP Parent_inverse(SEXP par, SEXP unitdiag)
     return ans;
 }
 
-#if 0
-SEXP dtCMatrix_solve(SEXP a)
-{
-    SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("dtCMatrix")));
-    int lo = uplo_P(a)[0] == 'L', unit = diag_P(a)[0] == 'U',
-	n = INTEGER(GET_SLOT(a, Matrix_DimSym))[0], nnz,
-	*ai = INTEGER(GET_SLOT(a,Matrix_iSym)),
-	*ap = INTEGER(GET_SLOT(a, Matrix_pSym)), *bi,
-	*bp = INTEGER(ALLOC_SLOT(ans, Matrix_pSym, INTSXP, n + 1));
-    int bnz = 10 * ap[n];	  /* initial estimate of nnz in b */
-    int *ri = Calloc(bnz, int), *ind = Calloc(n, int), j;
-    double *ax = REAL(GET_SLOT(a, Matrix_xSym)), *bx;
-
-    SET_SLOT(ans, Matrix_DimSym, duplicate(GET_SLOT(a, Matrix_DimSym)));
-    SET_SLOT(ans, Matrix_DimNamesSym,
-	     duplicate(GET_SLOT(a, Matrix_DimNamesSym)));
-    SET_SLOT(ans, Matrix_uploSym, duplicate(GET_SLOT(a, Matrix_uploSym)));
-    SET_SLOT(ans, Matrix_diagSym, duplicate(GET_SLOT(a, Matrix_diagSym)));
-    
-    if (!(lo && unit))
-	error("code for non-unit or upper triangular not yet written");
-    /* Initially bp will contain increasing negative values ending at zero. */
-    /* Later we add the negative of bp[0] to all values. */
-    bp[n] = 0;
-    for (j = n - 1; j >= 0; j--) { /* columns in reverse order */
-	int i, i1 = ap[j], i2 = ap[j + 1], k, nr;
-	if (i1 < i2) AZERO(ind, n);
-	for (i = i1; i < i2; i++) {
-	    ind[ai[i]] = 1;
-	    for (k = -bp[ai[i] + 1]; k < -bp[ai[i]]; k++) ind[ri[k]] = 1;
-	}
-	for (k = 0, nr = 0; k < n; k++) if (ind[k]) nr++;
-	if ((nr - bp[j + 1]) > bnz) {
-	    while (nr > (bnz + bp[j + 1])) bnz *= 2;
-	    ri = Realloc(ri, bnz, int);
-	}
-	bp[j] = bp[j + 1] - nr;
-	for (k = 0, i = -bp[j + 1]; k < n; k++) if (ind[k]) ri[i++] = k;
-    }
-    bnz = -bp[0];
-    bi = INTEGER(ALLOC_SLOT(ans, Matrix_iSym, INTSXP, bnz));
-    bx = REAL(ALLOC_SLOT(ans, Matrix_xSym, REALSXP, bnz));
-    for (j = 0; j < n; j++) {
-	int bpnew = bp[j] + bnz;
-	Memcpy(bi + bpnew, ri - bp[j], bp[j + 1] - bp[j]);
-	bp[j] = bpnew;
-    }
-    /* insert code for calculating the actual values here */
-    for (j = 0; j < bnz; j++) bx[j] = 1;
-
-    Free(ind); Free(ri);
-    UNPROTECT(1);
-    return ans;
-}
-#else
 SEXP dtCMatrix_solve(SEXP a)
 {
     SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("dtCMatrix")));
@@ -207,7 +115,6 @@ SEXP dtCMatrix_solve(SEXP a)
     UNPROTECT(1);
     return ans;
 }
-#endif
 
 SEXP dtCMatrix_matrix_solve(SEXP a, SEXP b, SEXP classed)
 {

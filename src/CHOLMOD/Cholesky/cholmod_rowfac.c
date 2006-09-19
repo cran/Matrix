@@ -3,7 +3,8 @@
 /* ========================================================================== */
 
 /* -----------------------------------------------------------------------------
- * CHOLMOD/Cholesky Module.  Version 0.6.  Copyright (C) 2005, Timothy A. Davis
+ * CHOLMOD/Cholesky Module.  Version 1.2.  Copyright (C) 2005-2006,
+ * Timothy A. Davis
  * The CHOLMOD/Cholesky Module is licensed under Version 2.1 of the GNU
  * Lesser General Public License.  See lesser.txt for a text of the license.
  * CHOLMOD is also available under other licenses; contact authors for details.
@@ -103,8 +104,8 @@
 
 #ifndef NCHOLESKY
 
-#include "cholmod_cholesky.h"
 #include "cholmod_internal.h"
+#include "cholmod_cholesky.h"
 
 /* ========================================================================== */
 /* === subtree ============================================================== */
@@ -171,6 +172,15 @@
 #include "t_cholmod_rowfac.c"
 #define ZOMPLEX
 #include "t_cholmod_rowfac.c"
+
+#define MASK
+#define REAL
+#include "t_cholmod_rowfac.c"
+#define COMPLEX
+#include "t_cholmod_rowfac.c"
+#define ZOMPLEX
+#include "t_cholmod_rowfac.c"
+#undef MASK
 
 
 /* ========================================================================== */
@@ -308,7 +318,7 @@ int CHOLMOD(row_subtree)
 
     if (stype != 0)
     {
-	/* scatter kth col of triu (beta*I+AA'), get pattern L(k,:) */
+	/* scatter kth col of triu (A), get pattern L(k,:) */
 	p = Ap [k] ;
 	pend = (packed) ? (Ap [k+1]) : (p + Anz [k]) ;
 	SUBTREE ;
@@ -350,8 +360,163 @@ int CHOLMOD(row_subtree)
 
 
 /* ========================================================================== */
+/* === cholmod_row_lsubtree ================================================= */
+/* ========================================================================== */
+
+/* Identical to cholmod_row_subtree, except that the elimination tree is
+ * obtained from L itself, as the first off-diagonal entry in each column.
+ * L must be simplicial, not supernodal */
+
+int CHOLMOD(row_lsubtree)
+(
+    /* ---- input ---- */
+    cholmod_sparse *A,	/* matrix to analyze */
+    Int *Fi, size_t fnz,    /* nonzero pattern of kth row of A', not required
+			     * for the symmetric case.  Need not be sorted. */
+    size_t krow,	/* row k of L */
+    cholmod_factor *L,	/* the factor L from which parent(i) is derived */
+    /* ---- output --- */
+    cholmod_sparse *R,	/* pattern of L(k,:), 1-by-n with R->nzmax >= n */
+    /* --------------- */
+    cholmod_common *Common
+)
+{
+    Int *Rp, *Stack, *Flag, *Ap, *Ai, *Anz, *Lp, *Li, *Lnz ;
+    Int p, pend, parent, t, stype, nrow, k, pf, packed, sorted, top, len, i,
+	mark ;
+
+    /* ---------------------------------------------------------------------- */
+    /* check inputs */
+    /* ---------------------------------------------------------------------- */
+
+    RETURN_IF_NULL_COMMON (FALSE) ;
+    RETURN_IF_NULL (A, FALSE) ;
+    RETURN_IF_NULL (R, FALSE) ;
+    RETURN_IF_NULL (L, FALSE) ;
+    RETURN_IF_XTYPE_INVALID (A, CHOLMOD_PATTERN, CHOLMOD_ZOMPLEX, FALSE) ;
+    RETURN_IF_XTYPE_INVALID (R, CHOLMOD_PATTERN, CHOLMOD_ZOMPLEX, FALSE) ;
+    RETURN_IF_XTYPE_INVALID (L, CHOLMOD_REAL, CHOLMOD_ZOMPLEX, FALSE) ;
+    stype = A->stype ;
+    if (stype == 0)
+    {
+	RETURN_IF_NULL (Fi, FALSE) ;
+    }
+    if (krow >= A->nrow)
+    {
+	ERROR (CHOLMOD_INVALID, "lsubtree: k invalid") ;
+	return (FALSE) ;
+    }
+    if (R->ncol != 1 || A->nrow != R->nrow || A->nrow > R->nzmax)
+    {
+	ERROR (CHOLMOD_INVALID, "lsubtree: R invalid") ;
+	return (FALSE) ;
+    }
+    if (L->is_super)
+    {
+	ERROR (CHOLMOD_INVALID, "lsubtree: L invalid (cannot be supernodal)") ;
+	return (FALSE) ;
+    }
+    Common->status = CHOLMOD_OK ;
+
+    /* ---------------------------------------------------------------------- */
+    /* allocate workspace */
+    /* ---------------------------------------------------------------------- */
+
+    nrow = A->nrow ;
+    CHOLMOD(allocate_work) (nrow, 0, 0, Common) ;
+    if (Common->status < CHOLMOD_OK)
+    {
+	return (FALSE) ;
+    }
+    ASSERT (CHOLMOD(dump_work) (TRUE, TRUE, 0, Common)) ;
+
+    /* ---------------------------------------------------------------------- */
+    /* get inputs */
+    /* ---------------------------------------------------------------------- */
+
+    if (stype < 0)
+    {
+	/* symmetric lower triangular form not supported */
+	ERROR (CHOLMOD_INVALID, "symmetric lower not supported") ;
+	return (FALSE) ;
+    }
+
+    Ap = A->p ;
+    Ai = A->i ;
+    Anz = A->nz ;
+    packed = A->packed ;
+    sorted = A->sorted ;
+
+    k = krow ;
+    Stack = R->i ;
+
+    Lp = L->p ;
+    Li = L->i ;
+    Lnz = L->nz ;
+
+    /* ---------------------------------------------------------------------- */
+    /* get workspace */
+    /* ---------------------------------------------------------------------- */
+
+    Flag = Common->Flag ;	/* size nrow, Flag [i] < mark must hold */
+    mark = CHOLMOD(clear_flag) (Common) ;
+
+    /* ---------------------------------------------------------------------- */
+    /* compute the pattern of L(k,:) */
+    /* ---------------------------------------------------------------------- */
+
+    top = nrow ;		/* Stack is empty */
+    Flag [k] = mark ;		/* do not include diagonal entry in Stack */
+
+#define SCATTER			/* do not scatter numerical values */
+#define PARENT(i) (Lnz [i] > 1) ? (Li [Lp [i] + 1]) : EMPTY
+
+    if (stype != 0)
+    {
+	/* scatter kth col of triu (A), get pattern L(k,:) */
+	p = Ap [k] ;
+	pend = (packed) ? (Ap [k+1]) : (p + Anz [k]) ;
+	SUBTREE ;
+    }
+    else
+    {
+	/* scatter kth col of triu (beta*I+AA'), get pattern L(k,:) */
+	for (pf = 0 ; pf < (Int) fnz ; pf++)
+	{
+	    /* get nonzero entry F (t,k) */
+	    t = Fi [pf] ;
+	    p = Ap [t] ;
+	    pend = (packed) ? (Ap [t+1]) : (p + Anz [t]) ;
+	    SUBTREE ;
+	}
+    }
+
+#undef SCATTER
+#undef PARENT
+
+    /* shift the stack upwards, to the first part of R */
+    len = nrow - top ;
+    for (i = 0 ; i < len ; i++)
+    {
+	Stack [i] = Stack [top + i] ;
+    }
+
+    Rp = R->p ;
+    Rp [0] = 0 ;
+    Rp [1] = len ;
+    R->sorted = FALSE ;
+
+    CHOLMOD(clear_flag) (Common) ;
+    ASSERT (CHOLMOD(dump_work) (TRUE, TRUE, 0, Common)) ;
+    return (TRUE) ;
+}
+
+
+/* ========================================================================== */
 /* === cholmod_rowfac ======================================================= */
 /* ========================================================================== */
+
+/* This is the incremental factorization for general purpose usage. */
 
 int CHOLMOD(rowfac)
 (
@@ -367,7 +532,36 @@ int CHOLMOD(rowfac)
     cholmod_common *Common
 )
 {
-    Int n, ok = FALSE ;
+    return (CHOLMOD(rowfac_mask) (A, F, beta, kstart, kend, NULL, NULL, L,
+	Common)) ;
+}
+
+
+/* ========================================================================== */
+/* === cholmod_rowfac_mask ================================================== */
+/* ========================================================================== */
+
+/* This is meant for use in LPDASA only. */
+
+int CHOLMOD(rowfac_mask)
+(
+    /* ---- input ---- */
+    cholmod_sparse *A,	/* matrix to factorize */
+    cholmod_sparse *F,	/* used for A*A' case only. F=A' or A(:,f)' */
+    double beta [2],	/* factorize beta*I+A or beta*I+AA' */
+    size_t kstart,	/* first row to factorize */
+    size_t kend,	/* last row to factorize is kend-1 */
+    Int *mask,		/* size A->nrow. if mask[i] >= 0 row i is set to zero */
+    Int *RLinkUp,	/* size A->nrow. link list of rows to compute */
+    /* ---- in/out --- */
+    cholmod_factor *L,
+    /* --------------- */
+    cholmod_common *Common
+)
+{
+    Int n ;
+    size_t s ;
+    int ok = TRUE ;
 
     /* ---------------------------------------------------------------------- */
     /* check inputs */
@@ -414,6 +608,7 @@ int CHOLMOD(rowfac)
 	return (FALSE) ;
     }
     Common->status = CHOLMOD_OK ;
+    Common->rowfacfl = 0 ;
 
     /* ---------------------------------------------------------------------- */
     /* allocate workspace */
@@ -421,7 +616,16 @@ int CHOLMOD(rowfac)
 
     /* Xwork is of size n for the real case, 2*n for complex/zomplex */
     n = L->n  ;
-    CHOLMOD(allocate_work) (n, n, ((A->xtype != CHOLMOD_REAL) ? 2:1)*n, Common);
+
+    /* s = ((A->xtype != CHOLMOD_REAL) ? 2:1)*n */
+    s = CHOLMOD(mult_size_t) (n, ((A->xtype != CHOLMOD_REAL) ? 2:1), &ok) ;
+    if (!ok)
+    {
+	ERROR (CHOLMOD_TOO_LARGE, "problem too large") ;
+	return (FALSE) ;
+    }
+
+    CHOLMOD(allocate_work) (n, n, s, Common) ;
     if (Common->status < CHOLMOD_OK)
     {
 	return (FALSE) ;
@@ -432,20 +636,47 @@ int CHOLMOD(rowfac)
     /* factorize the matrix, using template routine */
     /* ---------------------------------------------------------------------- */
 
-    switch (A->xtype)
+    if (RLinkUp == NULL)
     {
-	case CHOLMOD_REAL:
-	    ok = r_cholmod_rowfac (A, F, beta, kstart, kend, L, Common) ;
-	    break ;
 
-	case CHOLMOD_COMPLEX:
-	    ok = c_cholmod_rowfac (A, F, beta, kstart, kend, L, Common) ;
-	    break ;
+	switch (A->xtype)
+	{
+	    case CHOLMOD_REAL:
+		ok = r_cholmod_rowfac (A, F, beta, kstart, kend, L, Common) ;
+		break ;
 
-	case CHOLMOD_ZOMPLEX:
-	    ok = z_cholmod_rowfac (A, F, beta, kstart, kend, L, Common) ;
-	    break ;
+	    case CHOLMOD_COMPLEX:
+		ok = c_cholmod_rowfac (A, F, beta, kstart, kend, L, Common) ;
+		break ;
+
+	    case CHOLMOD_ZOMPLEX:
+		ok = z_cholmod_rowfac (A, F, beta, kstart, kend, L, Common) ;
+		break ;
+	}
+
     }
+    else
+    {
+
+	switch (A->xtype)
+	{
+	    case CHOLMOD_REAL:
+		ok = r_cholmod_rowfac_mask (A, F, beta, kstart, kend,
+		    mask, RLinkUp, L, Common) ;
+		break ;
+
+	    case CHOLMOD_COMPLEX:
+		ok = c_cholmod_rowfac_mask (A, F, beta, kstart, kend,
+		    mask, RLinkUp, L, Common) ;
+		break ;
+
+	    case CHOLMOD_ZOMPLEX:
+		ok = z_cholmod_rowfac_mask (A, F, beta, kstart, kend,
+		    mask, RLinkUp, L, Common) ;
+		break ;
+	}
+    }
+
     return (ok) ;
 }
 #endif

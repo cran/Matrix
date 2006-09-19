@@ -3,7 +3,7 @@
 /* ========================================================================= */
 
 /* ------------------------------------------------------------------------- */
-/* AMD Version 1.2, Copyright (c) 2005 by Timothy A. Davis,		     */
+/* AMD Version 2.0, Copyright (c) 2006 by Timothy A. Davis,		     */
 /* Patrick R. Amestoy, and Iain S. Duff.  See ../README.txt for License.     */
 /* email: davis at cise.ufl.edu    CISE Department, Univ. of Florida.        */
 /* web: http://www.cise.ufl.edu/research/sparse/amd                          */
@@ -29,7 +29,9 @@ GLOBAL Int AMD_order
     double Info [ ]
 )
 {
-    Int slen, *Len, *S, nz, nzaat, i, *Pinv, info ;
+    Int *Len, *S, nz, i, *Pinv, info, status, *Rp, *Ri, *Cp, *Ci, ok ;
+    size_t nzaat, slen ;
+    double mem = 0 ;
 
 #ifndef NDEBUG
     AMD_debug_init ("amd") ;
@@ -70,74 +72,129 @@ GLOBAL Int AMD_order
 	return (AMD_INVALID) ;
     }
 
-    /* Avoid integer overflow in memory size calculations.  The space required
-     * by AMD is at most 2.4nz + 8n for S, and n for Len.
-     * Note nz - n <= nzaat <= 2*nz, below. */
-    if ((2.4 * (double) nz + 8 * (double) n) > (double) Int_MAX / sizeof (Int))
+    /* check if n or nz will cause size_t overflow */
+    if (((size_t) n) >= SIZE_T_MAX / sizeof (Int)
+     || ((size_t) nz) >= SIZE_T_MAX / sizeof (Int))
     {
-	/* :: int overflow :: */
+	if (info) Info [AMD_STATUS] = AMD_OUT_OF_MEMORY ;
+	return (AMD_OUT_OF_MEMORY) ;	    /* problem too large */
+    }
+
+    /* check the input matrix:	AMD_OK, AMD_INVALID, or AMD_OK_BUT_JUMBLED */
+    status = AMD_valid (n, n, Ap, Ai) ;
+
+    if (status == AMD_INVALID)
+    {
+	if (info) Info [AMD_STATUS] = AMD_INVALID ;
+	return (AMD_INVALID) ;	    /* matrix is invalid */
+    }
+
+    /* allocate two size-n integer workspaces */
+    Len = amd_malloc (n * sizeof (Int)) ;
+    Pinv = amd_malloc (n * sizeof (Int)) ;
+    mem += n ;
+    mem += n ;
+    if (!Len || !Pinv)
+    {
+	/* :: out of memory :: */
+	amd_free (Len) ;
+	amd_free (Pinv) ;
 	if (info) Info [AMD_STATUS] = AMD_OUT_OF_MEMORY ;
 	return (AMD_OUT_OF_MEMORY) ;
     }
 
-    if (!AMD_valid (n, n, Ap, Ai))
+    if (status == AMD_OK_BUT_JUMBLED)
     {
-	if (info) Info [AMD_STATUS] = AMD_INVALID ;
-	return (AMD_INVALID) ;	    /* matrix is invalid */
+	/* sort the input matrix and remove duplicate entries */
+	AMD_DEBUG1 (("Matrix is jumbled\n")) ;
+	Rp = amd_malloc ((n+1) * sizeof (Int)) ;
+	Ri = amd_malloc (MAX (nz,1) * sizeof (Int)) ;
+	mem += (n+1) ;
+	mem += MAX (nz,1) ;
+	if (!Rp || !Ri)
+	{
+	    /* :: out of memory :: */
+	    amd_free (Rp) ;
+	    amd_free (Ri) ;
+	    amd_free (Len) ;
+	    amd_free (Pinv) ;
+	    if (info) Info [AMD_STATUS] = AMD_OUT_OF_MEMORY ;
+	    return (AMD_OUT_OF_MEMORY) ;
+	}
+	/* use Len and Pinv as workspace to create R = A' */
+	AMD_preprocess (n, Ap, Ai, Rp, Ri, Len, Pinv) ;
+	Cp = Rp ;
+	Ci = Ri ;
+    }
+    else
+    {
+	/* order the input matrix as-is.  No need to compute R = A' first */
+	Rp = NULL ;
+	Ri = NULL ;
+	Cp = (Int *) Ap ;
+	Ci = (Int *) Ai ;
     }
 
     /* --------------------------------------------------------------------- */
     /* determine the symmetry and count off-diagonal nonzeros in A+A' */
     /* --------------------------------------------------------------------- */
 
-    /* allocate size-n integer workspace */
-    Len = (Int *) amd_malloc (n * sizeof (Int)) ;
-    if (!Len)
+    nzaat = AMD_aat (n, Cp, Ci, Len, P, Info) ;
+    AMD_DEBUG1 (("nzaat: %g\n", (double) nzaat)) ;
+    ASSERT ((MAX (nz-n, 0) <= nzaat) && (nzaat <= 2 * (size_t) nz)) ;
+
+    /* --------------------------------------------------------------------- */
+    /* allocate workspace for matrix, elbow room, and 6 size-n vectors */
+    /* --------------------------------------------------------------------- */
+
+    S = NULL ;
+    slen = nzaat ;			/* space for matrix */
+    ok = ((slen + nzaat/5) >= slen) ;	/* check for size_t overflow */
+    slen += nzaat/5 ;			/* add elbow room */
+    for (i = 0 ; ok && i < 7 ; i++)
     {
-	/* :: out of memory :: */
+	ok = ((slen + n) > slen) ;	/* check for size_t overflow */
+	slen += n ;			/* size-n elbow room, 6 size-n work */
+    }
+    mem += slen ;
+    ok = ok && (slen < SIZE_T_MAX / sizeof (Int)) ; /* check for overflow */
+    ok = ok && (slen < Int_MAX) ;	/* S[i] for Int i must be OK */
+    if (ok)
+    {
+	S = amd_malloc (slen * sizeof (Int)) ;
+    }
+    AMD_DEBUG1 (("slen %g\n", (double) slen)) ;
+    if (!S)
+    {
+	/* :: out of memory :: (or problem too large) */
+	amd_free (Rp) ;
+	amd_free (Ri) ;
+	amd_free (Len) ;
+	amd_free (Pinv) ;
 	if (info) Info [AMD_STATUS] = AMD_OUT_OF_MEMORY ;
 	return (AMD_OUT_OF_MEMORY) ;
     }
-    nzaat = AMD_aat (n, Ap, Ai, Len, P, Info) ;
-    AMD_DEBUG1 (("nzaat: "ID"\n", nzaat)) ;
-    ASSERT (nz-n <= nzaat && nzaat <= 2*nz) ;
-
-    /* --------------------------------------------------------------------- */
-    /* allocate workspace for matrix, elbow room, and 7 size-n vectors */
-    /* --------------------------------------------------------------------- */
-
-    slen = (nzaat + nzaat/5 + n) + 7*n ;
     if (info)
     {
-	/* memory usage (Len and S), in bytes. */
-	Info [AMD_MEMORY] = ((double) slen + n) * sizeof (Int) ;
+	/* memory usage, in bytes. */
+	Info [AMD_MEMORY] = mem * sizeof (Int) ;
     }
-    S = (Int *) amd_malloc (slen * sizeof (Int)) ;
-    AMD_DEBUG1 ((" S "ID" Len "ID" n "ID" nzaat "ID" slen "ID"\n",
-	(Int) S, (Int) Len, n, nzaat, slen)) ;
-    if (S == (Int *) NULL)
-    {
-	/* :: out of memory :: */
-	amd_free (Len) ;
-	if (Info != (double *) NULL) Info [AMD_STATUS] = AMD_OUT_OF_MEMORY ;
-	return (AMD_OUT_OF_MEMORY) ;
-    }
-
-    /* allocate space from S for Pinv */
-    Pinv = S + slen - n ;
-    slen -= n ;
 
     /* --------------------------------------------------------------------- */
     /* order the matrix */
     /* --------------------------------------------------------------------- */
 
-    AMD_1 (n, Ap, Ai, P, Pinv, Len, slen, S, Control, Info) ;
+    AMD_1 (n, Cp, Ci, P, Pinv, Len, slen, S, Control, Info) ;
 
     /* --------------------------------------------------------------------- */
     /* free the workspace */
     /* --------------------------------------------------------------------- */
 
+    amd_free (Rp) ;
+    amd_free (Ri) ;
     amd_free (Len) ;
+    amd_free (Pinv) ;
     amd_free (S) ;
-    return (AMD_OK) ;	    /* successful ordering */
+    if (info) Info [AMD_STATUS] = status ;
+    return (status) ;	    /* successful ordering */
 }

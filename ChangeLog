@@ -1,15 +1,109 @@
-2006-09-19  Douglas Bates  <bates@dyn-51-101.uwnet.wisc.edu>
+2006-09-19  Martin Maechler  <maechler@stat.math.ethz.ch>
 
-	* man/mcmcsamp.Rd: Fix problem with densityplot in example
+	* DESCRIPTION (Date): ready to release 0.9975-0 to CRAN
+
+2006-09-18  Douglas Bates  <bates@stat.wisc.edu>
+
+	* R/[CT]sparse.R (crossprod and tcrossprod): Handle the cases for x
+	symmetric and y missing in R code using %*% (cholmod_aat doesn't
+	accept a symmetric matrix).
+	* tests/group-methods.R: Uncomment test of crossprod applied to
+	lsCMatrix objects.
+
+2006-09-18  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/AllClass.R (symmetricMatrix): add validity method (available
+	in C for a long time). Many "n..Matrix": drop (wrong) validity arg.
+
+	* src/lgCMatrix.c (lgCMatrix_validate): check 'x' slot (!)
+
+	* tests/indexing.Rout.save:
+	* tests/indexing.R: additions, mainly for 'lsparse'
+
+	* R/diagMatrix.R (Diagonal) & coercion to lgTMatrix: fixes for NA
+	case.
+
+	* R/Auxiliaries.R (nz.NA): new utility now used in nnzero()
+
+2006-09-16  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/sparseMatrix.R (prSpMatrix): print logical NAs "visibly"
+		as 'N' (1-letter - Ok?)
+
+	* tests/group-methods.R: add test for logical + NAs
+
+	* R/dMatrix.R ("Compare"): fix to work with NA's
+
+	* R/AllClass.R: "Cholesky" etc now inherit from MatrixFactorization.
+
+	* src/lgCMatrix.c (ncsc_to_matrix): renamed from lcsc_to_matrix()
+		which is implemented.
 
 2006-09-15  Martin Maechler  <maechler@stat.math.ethz.ch>
 
-	* DESCRIPTION (Version): 0.995-19  {since *-18 made it to CRAN !?!}
+	* src/chm_common.c: coerce logical <-> double instead of
+	typecasting;  needed for "l" matrix handling in cholmod.
 
-	* tests/other-pkgs.R (graph): small extenion in "graph" checks.
+	* tests/other-pkgs.R (graph): small extension in "graph" checks.
 
 	* R/sparseMatrix.R (graphNEL -> Tsparse): method for weight case.
 	(Tsp2grNEL): other fixes needed
+
+2006-09-11  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/AllClass.R ("nMatrix"): and subclasses for "nonzero pattern"
+		Matrices, since "lMatrix", also "lsparseM" can have NA
+	* R/ndenseMatrix.R, etc: new source files
+	* man/nsparseMatrix-classes.Rd, etc: new help files
+	* tests/: adaptions
+	* src/chm_common.c (chm_dense_to_SEXP): and others:
+		new 'Rkind' argument: "l*" and "d*" both use CHOLMOD_REAL
+	* src/Csparse.c, etc: ditto
+
+2006-09-11  Douglas Bates  <bates@R-project.org>
+
+	* src/Mutils.[ch],init.c inst/include/*.h: Move the
+	alloc_d**Matrix functions to the lme4 package.
+
+2006-09-09  Douglas Bates  <bates@R-project.org>
+
+	* src/dsCMatrix.c (dsCMatrix_Cholesky): igoring LDL = FALSE now
+	fixed
+
+2006-09-09  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/lMatrix.R: new
+
+	* R/sparseMatrix.R (Tsp2grNEL): do not yet use graph::foo()
+
+	* R/dgeMatrix.R: do not define tcrossprod() methods for "matrix"
+	* man/tcrossprod.Rd: ditto
+
+2006-09-08  Douglas Bates  <bates@stat.wisc.edu>
+
+	* inst/include/Matrix_stubs.c,Matrix.h: Add declarations and stubs
+	for exported functions
+	* src/Makefile, src/CHOLMOD/Lib/Makefile, src/Metis,CAMD,CCOLAMD:
+	Remove partitioning algorithms for sparse matrix reordering.  The
+	copyright on the Metis code was problematic and the methods were
+	rarely used.
+	* src/triplet_to_col.[ch],MMHB.[ch]: Remove triplet_to_col.  Such
+	operations are now done entirely in CHOLMOD code.
+
+2006-09-06  Douglas Bates  <bates@R-project.org>
+
+	* src/Mutils.h: Remove functions that are no longer used.
+
+2006-09-04  Douglas Bates  <bates@R-project.org>
+
+	* src/dtCMatrix.c (dtCMatrix_validate): rename functions.
+	* src/DEPS.mkf: update
+
+2006-09-02  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* created branches/Matrix-for-R-2.3.x;  on trunk: do
+	* DESCRIPTION (Version): 0.9975-0
+	(Depends): R (>= 2.4.0)
 
 2006-09-01  Douglas Bates  <bates@R-project.org>
 
@@ -26,8 +120,8 @@
 
 	* R/sparseMatrix.R (Arith): moved Arith group method one-level up
 	from "dsparse" to "sparse" and now go via "Csparse" instead of "dgC"
-	* R/dsparseMatrix.R: dito
-	* R/Csparse.R: dito
+	* R/dsparseMatrix.R: ditto
+	* R/Csparse.R: ditto
 
 2006-08-31  Martin Maechler  <maechler@stat.math.ethz.ch>
 
@@ -43,7 +137,7 @@
 
 	* R/Auxiliaries.R (all0, is0): for 0-testing in presence of NA's
 	* R/Auxiliaries.R (isTriMat): use all0() for 0-testing.
-	(.is.diagonal): dito
+	(.is.diagonal): ditto
 
 	* R/lgTMatrix.R: as("matrix", "lgTMatrix"): warn about NA's
 

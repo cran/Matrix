@@ -3,7 +3,8 @@
 /* ========================================================================== */
 
 /* -----------------------------------------------------------------------------
- * CHOLMOD/MatrixOps Module.  Version 0.6.  Copyright (C) 2005, Timothy A. Davis
+ * CHOLMOD/MatrixOps Module.  Version 1.2.  Copyright (C) 2005-2006,
+ * Timothy A. Davis
  * The CHOLMOD/MatrixOps Module is licensed under Version 2.0 of the GNU
  * General Public License.  See gpl.txt for a text of the license.
  * CHOLMOD is also available under other licenses; contact authors for details.
@@ -25,8 +26,8 @@
 
 #ifndef NMATRIXOPS
 
-#include "cholmod_matrixops.h"
 #include "cholmod_internal.h"
+#include "cholmod_matrixops.h"
 
 
 /* ========================================================================== */

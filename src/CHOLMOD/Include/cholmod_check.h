@@ -3,8 +3,8 @@
 /* ========================================================================== */
 
 /* -----------------------------------------------------------------------------
- * CHOLMOD/Include/cholmod_check.h.  Version 0.6.
- * Copyright (C) 2005, Timothy A. Davis
+ * CHOLMOD/Include/cholmod_check.h.  Version 1.2.
+ * Copyright (C) 2005-2006, Timothy A. Davis
  * CHOLMOD/Include/cholmod_check.h is licensed under Version 2.1 of the GNU
  * Lesser General Public License.  See lesser.txt for a text of the license.
  * CHOLMOD is also available under other licenses; contact authors for details.
@@ -209,13 +209,13 @@ int cholmod_check_subset
 (
     /* ---- input ---- */
     int *Set,		/* Set [0:len-1] is a subset of 0:n-1.  Duplicates OK */
-    long len,		/* size of Set (an integer array) */
+    UF_long len,	/* size of Set (an integer array) */
     size_t n,		/* 0:n-1 is valid range */
     /* --------------- */
     cholmod_common *Common
 ) ;
 
-int cholmod_l_check_subset (long *, long, size_t, cholmod_common *) ;
+int cholmod_l_check_subset (UF_long *, UF_long, size_t, cholmod_common *) ;
 
 /* -------------------------------------------------------------------------- */
 /* cholmod_print_subset:  print a subset */
@@ -225,14 +225,15 @@ int cholmod_print_subset
 (
     /* ---- input ---- */
     int *Set,		/* Set [0:len-1] is a subset of 0:n-1.  Duplicates OK */
-    long len,		/* size of Set (an integer array) */
+    UF_long len,	/* size of Set (an integer array) */
     size_t n,		/* 0:n-1 is valid range */
     char *name,		/* printed name of Set */
     /* --------------- */
     cholmod_common *Common
 ) ;
 
-int cholmod_l_print_subset (long *, long, size_t, char *, cholmod_common *) ;
+int cholmod_l_print_subset (UF_long *, UF_long, size_t, char *,
+    cholmod_common *) ;
 
 /* -------------------------------------------------------------------------- */
 /* cholmod_check_perm:  check a permutation */
@@ -248,7 +249,7 @@ int cholmod_check_perm
     cholmod_common *Common
 ) ;
 
-int cholmod_l_check_perm (long *, size_t, size_t, cholmod_common *) ;
+int cholmod_l_check_perm (UF_long *, size_t, size_t, cholmod_common *) ;
 
 /* -------------------------------------------------------------------------- */
 /* cholmod_print_perm:  print a permutation vector */
@@ -265,7 +266,7 @@ int cholmod_print_perm
     cholmod_common *Common
 ) ;
 
-int cholmod_l_print_perm (long *, size_t, size_t, char *, cholmod_common *) ;
+int cholmod_l_print_perm (UF_long *, size_t, size_t, char *, cholmod_common *) ;
 
 /* -------------------------------------------------------------------------- */
 /* cholmod_check_parent:  check an elimination tree */
@@ -280,7 +281,7 @@ int cholmod_check_parent
     cholmod_common *Common
 ) ;
 
-int cholmod_l_check_parent (long *, size_t, cholmod_common *) ;
+int cholmod_l_check_parent (UF_long *, size_t, cholmod_common *) ;
 
 /* -------------------------------------------------------------------------- */
 /* cholmod_print_parent */
@@ -296,7 +297,7 @@ int cholmod_print_parent
     cholmod_common *Common
 ) ;
 
-int cholmod_l_print_parent (long *, size_t, char *, cholmod_common *) ;
+int cholmod_l_print_parent (UF_long *, size_t, char *, cholmod_common *) ;
 
 /* -------------------------------------------------------------------------- */
 /* cholmod_read_sparse: read a sparse matrix from a file */

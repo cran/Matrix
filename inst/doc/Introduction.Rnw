@@ -85,7 +85,7 @@ implemented.  These classes are
 \item[dtpMatrix] Triangular real matrices in packed storage (triangle only)
 \item[dpoMatrix] Positive semi-definite symmetric real matrices in
   non-packed storage
-\item[dppMatrix] \ \ dito \ \ in packed storage
+\item[dppMatrix] \ \ ditto \ \ in packed storage
 \end{description}
 Methods for these classes include coercion between these classes, when
 appropriate, and coercion to the \code{matrix} class; methods for

@@ -5,7 +5,12 @@
 
 ## Need to consider NAs ;  "== 0" even works for logical & complex:
 is0  <- function(x) !is.na(x) & x == 0
+isN0 <- function(x)  is.na(x) | x != 0
 all0 <- function(x) !any(is.na(x)) && all(x == 0)
+
+allTrue  <- function(x) !any(is.na(x)) && all(x)
+allFalse <- function(x) !any(is.na(x)) && !any(x)
+
 
 ## For %*% (M = Matrix; v = vector (double or integer {complex maybe?}):
 .M.v <- function(x, y) callGeneric(x, as.matrix(y))
@@ -25,8 +30,17 @@ all0 <- function(x) !any(is.na(x)) && all(x == 0)
 		  fun, cl1, cl2), call. = FALSE)
 }
 
+## This should be done in C and be exported by 'methods':  [FIXME - ask JMC ]
+copyClass <- function(x, newCl, sNames =
+		      intersect(slotNames(newCl), slotNames(x))) {
+    r <- new(newCl)
+    for(n in sNames)
+	slot(r, n) <- slot(x, n)
+    r
+}
+
 ## chol() via "dpoMatrix"
-cholMat <- function(x, pivot, LINPACK) {
+cholMat <- function(x, pivot, ...) {
     px <- as(x, "dpoMatrix")
     if (isTRUE(validObject(px, test=TRUE))) chol(px)
     else stop("'x' is not positive definite -- chol() undefined.")
@@ -152,13 +166,48 @@ prMatrix <- function(x, digits = getOption("digits"),
     invisible(x)# as print() S3 methods do
 }
 
+nonFALSE <- function(x) {
+    ## typically used for lMatrices:  (TRUE,NA,FALSE) |-> (TRUE,FALSE)
+    if(any(ix <- is.na(x))) x[ix] <- TRUE
+    x
+}
+
+nz.NA <- function(x, na.value) {
+    ## Non-Zeros of x
+    ## na.value: TRUE: NA's give TRUE, they are not 0
+    ##             NA: NA's are not known ==> result := NA
+    ##          FALSE: NA's give FALSE, could be 0
+    stopifnot(is.logical(na.value) && length(na.value) == 1)
+    if(is.na(na.value)) x != 0
+    else  if(na.value)	isN0(x)
+    else		x != 0 & !is.na(x)
+}
+
+### FIXME? -- make this into a generic function (?)
+nnzero <- function(x, na.counted = NA) {
+    ## na.counted: TRUE: NA's are counted, they are not 0
+    ##               NA: NA's are not known (0 or not) ==>  result := NA
+    ##            FALSE: NA's are omitted before counting
+    cl <- class(x)
+    if(!extends(cl, "Matrix"))
+	sum(nz.NA(x, na.counted))
+    else if(extends(cl, "sparseMatrix"))
+	## NOTA BENE: The number of *structural* non-zeros {could have other '0'}!
+       switch(.sp.class(cl),
+	       "CsparseMatrix" = length(x@i),
+	       "TsparseMatrix" = length(x@i),
+	       "RsparseMatrix" = length(x@j))
+    else ## denseMatrix
+	sum(nz.NA(as_geClass(x, cl)@x, na.counted))
+}
+
 ## For sparseness handling
 ## return a 2-column (i,j) matrix of
 ## 0-based indices of non-zero entries  :
 non0ind <- function(x) {
 
     if(is.numeric(x))
-	return(if((n <- length(x))) (0:(n-1))[x != 0] else integer(0))
+	return(if((n <- length(x))) (0:(n-1))[isN0(x)] else integer(0))
     ## else
     stopifnot(is(x, "sparseMatrix"))
     non0.i <- function(M) {
@@ -238,6 +287,10 @@ uniqTsparse <- function(x, class.x = c(class(x))) {
 	   "lgTMatrix" = as(as(x, "lgCMatrix"), "lgTMatrix"),
 	   "lsTMatrix" = as(as(x, "lsCMatrix"), "lsTMatrix"),
 	   "ltTMatrix" = as(as(x, "ltCMatrix"), "ltTMatrix"),
+	   ## do we need this for "logical" ones, there's no sum() there!
+	   "ngTMatrix" = as(as(x, "ngCMatrix"), "ngTMatrix"),
+	   "nsTMatrix" = as(as(x, "nsCMatrix"), "nsTMatrix"),
+	   "ntTMatrix" = as(as(x, "ntCMatrix"), "ntTMatrix"),
 	   ## otherwise:
 	   stop("not yet implemented for class ", class.x))
 }
@@ -317,23 +370,41 @@ l2d_Matrix <- function(from) {
     ## FIXME: treat 'factors' smartly {not for triangular!}
 }
 
+## -> ./ndenseMatrix.R :
+n2d_Matrix <- function(from) {
+    stopifnot(is(from, "nMatrix"))
+    fixupDense(new(sub("^n", "d", class(from)),
+		   x = as.double(from@x),
+		   Dim = from@Dim, Dimnames = from@Dimnames),
+	       from)
+    ## FIXME: treat 'factors' smartly {not for triangular!}
+}
+n2l_spMatrix <- function(from) {
+    stopifnot(is(from, "nMatrix"))
+    new(sub("^n", "l", class(from)),
+        ##x = as.double(from@x),
+        Dim = from@Dim, Dimnames = from@Dimnames)
+}
+
 if(FALSE)# unused
 l2d_meth <- function(x) {
     cl <- class(x)
     as(callGeneric(as(x, sub("^l", "d", cl))), cl)
 }
 
-## return "d" or "l" or "z"
+## return "d" or "l" or "n" or "z"
 .M.kind <- function(x, clx = class(x)) {
     if(is.matrix(x)) { ## 'old style matrix'
 	if     (is.numeric(x)) "d"
-	else if(is.logical(x)) "l"
+	else if(is.logical(x)) "l" ## FIXME ? "n" if no NA ??
 	else if(is.complex(x)) "z"
 	else stop("not yet implemented for matrix w/ typeof ", typeof(x))
     }
     else if(extends(clx, "dMatrix")) "d"
+    else if(extends(clx, "nMatrix")) "n"
     else if(extends(clx, "lMatrix")) "l"
     else if(extends(clx, "zMatrix")) "z"
+    else if(extends(clx, "pMatrix")) "n" # permutation -> pattern
     else stop(" not yet be implemented for ", clx)
 }
 
@@ -362,6 +433,7 @@ class2 <- function(cl, kind = "l", do.sub = TRUE) {
 geClass <- function(x) {
     if     (is(x, "dMatrix")) "dgeMatrix"
     else if(is(x, "lMatrix")) "lgeMatrix"
+    else if(is(x, "nMatrix")) "ngeMatrix"
     else if(is(x, "zMatrix")) "zgeMatrix"
     else stop("general Matrix class not yet implemented for ",
 	      class(x))
@@ -380,6 +452,15 @@ geClass <- function(x) {
 ## Used, e.g. after subsetting: Try to use specific class -- if feasible :
 as_dense <- function(x) {
     as(x, paste(.M.kind(x), .dense.prefixes[.M.shape(x)], "Matrix", sep=''))
+}
+
+.sp.class <- function(x) { ## find and return the "sparseness class"
+    if(!is.character(x)) x <- class(x)
+    for(cl in paste(c("C","T","R"), "sparseMatrix", sep=''))
+	if(extends(x, cl))
+	    return(cl)
+    ## else (should rarely happen)
+    as.character(NA)
 }
 
 as_Csparse <- function(x) {

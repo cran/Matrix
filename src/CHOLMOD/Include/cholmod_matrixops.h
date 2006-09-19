@@ -3,8 +3,8 @@
 /* ========================================================================== */
 
 /* -----------------------------------------------------------------------------
- * CHOLMOD/Include/cholmod_matrixops.h.  Version 0.6.
- * Copyright (C) 2005, Timothy A. Davis
+ * CHOLMOD/Include/cholmod_matrixops.h.  Version 1.2.
+ * Copyright (C) 2005-2006, Timothy A. Davis
  * CHOLMOD/Include/cholmod_matrixops.h is licensed under Version 2.0 of the GNU
  * General Public License.  See gpl.txt for a text of the license.
  * CHOLMOD is also available under other licenses; contact authors for details.
@@ -182,17 +182,17 @@ cholmod_sparse *cholmod_submatrix
     /* ---- input ---- */
     cholmod_sparse *A,	/* matrix to subreference */
     int *rset,		/* set of row indices, duplicates OK */
-    long rsize,		/* size of r; rsize < 0 denotes ":" */
+    UF_long rsize,	/* size of r; rsize < 0 denotes ":" */
     int *cset,		/* set of column indices, duplicates OK */
-    long csize,		/* size of c; csize < 0 denotes ":" */
+    UF_long csize,	/* size of c; csize < 0 denotes ":" */
     int values,		/* if TRUE compute the numerical values of C */
     int sorted,		/* if TRUE then return C with sorted columns */
     /* --------------- */
     cholmod_common *Common
 ) ;
 
-cholmod_sparse *cholmod_l_submatrix (cholmod_sparse *, long *, long, long *,
-    long, int, int, cholmod_common *) ;
+cholmod_sparse *cholmod_l_submatrix (cholmod_sparse *, UF_long *, UF_long,
+    UF_long *, UF_long, int, int, cholmod_common *) ;
 
 /* -------------------------------------------------------------------------- */
 /* cholmod_vertcat:  C = [A ; B] */

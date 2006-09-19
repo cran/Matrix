@@ -13,6 +13,8 @@
 #define MatrixMarketBanner "%%MatrixMarket"
 #define MM_MAX_TOKEN_LENGTH 64
 
+#pragma GCC visibility push(hidden)
+
 typedef char MM_typecode[4];
 
 char *mm_typecode_to_str(MM_typecode matcode);
@@ -125,7 +127,7 @@ int mm_read_mtx_crd_data(FILE *f, int M, int N, int nz, int I[], int J[],
 int mm_read_mtx_crd_entry(FILE *f, int *I, int *J, double *real, double *img,
 			MM_typecode matcode);
 
-
+#pragma GCC visibility pop
 
 
 #endif

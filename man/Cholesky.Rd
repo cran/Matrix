@@ -26,7 +26,7 @@ Cholesky(A, perm, LDL, super, \dots)
   \item{\dots}{further arguments passed to or from other methods.}
 }
 \value{
-  an object of class \code{"CHMfactor"}, i.e., \code{"\linkS4class{CHMfactor}"}
+  an object of class \code{"\linkS4class{CHMfactor}"}.
 }
 \details{
   This is a generic function with special methods for different types
@@ -57,8 +57,8 @@ Cholesky(A, perm, LDL, super, \dots)
 \examples{
 data(KNex)
 mtm <- with(KNex, crossprod(mm))
-str(Cholesky(mtm))
-str(Cholesky(mtm, super = TRUE))
+Cholesky(mtm)             # uses show(<MatrixFactorization>)
+Cholesky(mtm, super = TRUE)
 }
 \keyword{array}
 \keyword{algebra}

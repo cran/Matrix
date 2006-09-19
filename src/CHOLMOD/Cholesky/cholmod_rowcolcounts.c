@@ -3,7 +3,8 @@
 /* ========================================================================== */
 
 /* -----------------------------------------------------------------------------
- * CHOLMOD/Cholesky Module.  Version 0.6.  Copyright (C) 2005, Timothy A. Davis
+ * CHOLMOD/Cholesky Module.  Version 1.2.  Copyright (C) 2005-2006,
+ * Timothy A. Davis
  * The CHOLMOD/Cholesky Module is licensed under Version 2.1 of the GNU
  * Lesser General Public License.  See lesser.txt for a text of the license.
  * CHOLMOD is also available under other licenses; contact authors for details.
@@ -51,8 +52,8 @@
 
 #ifndef NCHOLESKY
 
-#include "cholmod_cholesky.h"
 #include "cholmod_internal.h"
+#include "cholmod_cholesky.h"
 
 /* ========================================================================== */
 /* === initialize_node ====================================================== */
@@ -212,6 +213,8 @@ int CHOLMOD(rowcolcounts)
 	*Iwork ;
     Int i, j, r, k, len, s, p, pend, inew, stype, nf, anz, inode, parent,
 	nrow, ncol, packed, use_fset, jj ;
+    size_t w ;
+    int ok = TRUE ;
 
     /* ---------------------------------------------------------------------- */
     /* check inputs */
@@ -240,7 +243,17 @@ int CHOLMOD(rowcolcounts)
 
     nrow = A->nrow ;	/* the number of rows of A */
     ncol = A->ncol ;	/* the number of columns of A */
-    CHOLMOD(allocate_work) (nrow, 2*nrow + (stype ? 0 : ncol), 0, Common) ;
+
+    /* w = 2*nrow + (stype ? 0 : ncol) */
+    w = CHOLMOD(mult_size_t) (nrow, 2, &ok) ;
+    w = CHOLMOD(add_size_t) (w, (stype ? 0 : ncol), &ok) ;
+    if (!ok)
+    {
+	ERROR (CHOLMOD_TOO_LARGE, "problem too large") ;
+	return (FALSE) ;
+    }
+
+    CHOLMOD(allocate_work) (nrow, w, 0, Common) ;
     if (Common->status < CHOLMOD_OK)
     {
 	return (FALSE) ;
@@ -266,7 +279,7 @@ int CHOLMOD(rowcolcounts)
     Iwork = Common->Iwork ;
     SetParent = Iwork ;		    /* size nrow (i/i/l) */
     PrevNbr   = Iwork + nrow ;	    /* size nrow (i/i/l) */
-    Anext     = Iwork + 2*nrow ;    /* size ncol (i/i/l) (unsym only) */
+    Anext     = Iwork + 2*((size_t) nrow) ;    /* size ncol (i/i/l) (unsym only) */
     PrevLeaf  = Common->Flag ;	    /* size nrow */
     Head      = Common->Head ;	    /* size nrow+1 (unsym only)*/
 
@@ -505,7 +518,9 @@ int CHOLMOD(rowcolcounts)
     /* ---------------------------------------------------------------------- */
 
     /* use double to avoid integer overflow.  lnz cannot be NaN. */
+    Common->aatfl = fl ;
     Common->lnz = 0. ;
+    fl = 0 ;
     for (j = 0 ; j < nrow ; j++)
     {
 	ff = (double) (ColCount [j]) ;

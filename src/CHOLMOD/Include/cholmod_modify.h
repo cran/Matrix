@@ -3,8 +3,8 @@
 /* ========================================================================== */
 
 /* -----------------------------------------------------------------------------
- * CHOLMOD/Include/cholmod_modify.h.  Version 0.6.
- * Copyright (C) 2005, Timothy A. Davis and William W. Hager
+ * CHOLMOD/Include/cholmod_modify.h.  Version 1.2.
+ * Copyright (C) 2005-2006, Timothy A. Davis and William W. Hager
  * CHOLMOD/Include/cholmod_modify.h is licensed under Version 2.0 of the GNU
  * General Public License.  See gpl.txt for a text of the license.
  * CHOLMOD is also available under other licenses; contact authors for details.
@@ -32,6 +32,7 @@
  *
  * cholmod_updown_solve	    update/downdate, and modify solution to Lx=b
  * cholmod_updown_mark	    update/downdate, and modify solution to partial Lx=b
+ * cholmod_updown_mask	    update/downdate for LPDASA
  * cholmod_rowadd_solve	    add a row, and update solution to Lx=b
  * cholmod_rowadd_mark	    add a row, and update solution to partial Lx=b
  * cholmod_rowdel_solve	    delete a row, and downdate Lx=b
@@ -100,7 +101,7 @@ int cholmod_l_updown_solve (int, cholmod_sparse *, cholmod_factor *,
 /* Does the same as cholmod_updown_solve, except only part of L is used in
  * the update/downdate of the solution to Lx=b.  This routine is an "expert"
  * routine.  It is meant for use in LPDASA only.  See cholmod_updown.c for
- * a description of rowmark and colmark. */
+ * a description of colmark. */
 
 int cholmod_updown_mark
 (
@@ -112,13 +113,38 @@ int cholmod_updown_mark
     cholmod_factor *L,	/* factor to modify */
     cholmod_dense *X,	/* solution to Lx=b (size n-by-1) */
     cholmod_dense *DeltaB,  /* change in b, zero on output */
-    int *rowmark,	/* int array of size n.  See cholmod_updown.c */
     /* --------------- */
     cholmod_common *Common
 ) ;
 
-int cholmod_l_updown_mark (int, cholmod_sparse *, long *, cholmod_factor *,
-    cholmod_dense *, cholmod_dense *, long *, cholmod_common *) ;
+int cholmod_l_updown_mark (int, cholmod_sparse *, UF_long *, cholmod_factor *,
+    cholmod_dense *, cholmod_dense *, cholmod_common *) ;
+
+/* -------------------------------------------------------------------------- */
+/* cholmod_updown_mask:  update/downdate, for LPDASA */
+/* -------------------------------------------------------------------------- */
+
+/* Does the same as cholmod_updown_mark, except has an additional "mask"
+ * argument.  This routine is an "expert" routine.  It is meant for use in
+ * LPDASA only.  See cholmod_updown.c for a description of mask. */
+
+int cholmod_updown_mask
+(
+    /* ---- input ---- */
+    int update,		/* TRUE for update, FALSE for downdate */
+    cholmod_sparse *C,	/* the incoming sparse update */
+    int *colmark,	/* int array of size n.  See cholmod_updown.c */
+    int *mask,		/* size n */
+    /* ---- in/out --- */
+    cholmod_factor *L,	/* factor to modify */
+    cholmod_dense *X,	/* solution to Lx=b (size n-by-1) */
+    cholmod_dense *DeltaB,  /* change in b, zero on output */
+    /* --------------- */
+    cholmod_common *Common
+) ;
+
+int cholmod_l_updown_mask (int, cholmod_sparse *, UF_long *, UF_long *,
+    cholmod_factor *, cholmod_dense *, cholmod_dense *, cholmod_common *) ;
 
 /* -------------------------------------------------------------------------- */
 /* cholmod_rowadd:  add a row to an LDL' factorization (a rank-2 update) */
@@ -189,13 +215,12 @@ int cholmod_rowadd_mark
     cholmod_factor *L,	/* factor to modify */
     cholmod_dense *X,	/* solution to Lx=b (size n-by-1) */
     cholmod_dense *DeltaB,  /* change in b, zero on output */
-    int *rowmark,	/* int array of size n.  See cholmod_updown.c */
     /* --------------- */
     cholmod_common *Common
 ) ;
 
-int cholmod_l_rowadd_mark (size_t, cholmod_sparse *, double *, long *,
-    cholmod_factor *, cholmod_dense *, cholmod_dense *, long *,
+int cholmod_l_rowadd_mark (size_t, cholmod_sparse *, double *, UF_long *,
+    cholmod_factor *, cholmod_dense *, cholmod_dense *,
     cholmod_common *) ;
 
 /* -------------------------------------------------------------------------- */
@@ -269,13 +294,11 @@ int cholmod_rowdel_mark
     cholmod_factor *L,	/* factor to modify */
     cholmod_dense *X,	/* solution to Lx=b (size n-by-1) */
     cholmod_dense *DeltaB,  /* change in b, zero on output */
-    int *rowmark,	/* int array of size n.  See cholmod_updown.c */
     /* --------------- */
     cholmod_common *Common
 ) ;
 
-int cholmod_l_rowdel_mark (size_t, cholmod_sparse *, double *, long *,
-    cholmod_factor *, cholmod_dense *, cholmod_dense *, long *,
-    cholmod_common *) ;
+int cholmod_l_rowdel_mark (size_t, cholmod_sparse *, double *, UF_long *,
+    cholmod_factor *, cholmod_dense *, cholmod_dense *, cholmod_common *) ;
 
 #endif

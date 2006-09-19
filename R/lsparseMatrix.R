@@ -1,8 +1,11 @@
 #### Superclass Methods for all sparse logical matrices
 
 setAs("CsparseMatrix", "lsparseMatrix",
-      function(from) .Call(Csparse_to_logical, from,
-			   is(from, "triangularMatrix")))
+      function(from) as(.Call(Csparse_to_nz_pattern, from,
+			      is(from, "triangularMatrix")), "lsparseMatrix"))
+
+setAs("lsparseMatrix", "matrix",
+      function(from) as(as(from, "ldenseMatrix"), "matrix"))
 
 
 ###------- Work via  as(*, lgC) : ------------

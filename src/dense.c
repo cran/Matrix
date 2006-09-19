@@ -1,20 +1,20 @@
 #include "dense.h"
 #include "chm_common.h"
 
-/** 
+/**
  * Perform a left cyclic shift of columns j to k in the upper triangular
  * matrix x, then restore it to upper triangular form with Givens rotations.
  * The algorithm is based on the Fortran routine DCHEX from Linpack.
  *
  * The lower triangle of x is not modified.
- * 
+ *
  * @param x Matrix stored in column-major order
  * @param ldx leading dimension of x
  * @param j column number (0-based) that will be shifted to position k
  * @param k last column number (0-based) to be shifted
  * @param cosines cosines of the Givens rotations
  * @param sines sines of the Givens rotations
- * 
+ *
  * @return 0 for success
  */
 static
@@ -126,8 +126,8 @@ SEXP lsq_dense_Chol(SEXP X, SEXP y)
     UNPROTECT(1);
     return ans;
 }
- 
-    
+
+
 SEXP lsq_dense_QR(SEXP X, SEXP y)
 {
     SEXP ans;
@@ -167,7 +167,7 @@ SEXP lsq_dense_QR(SEXP X, SEXP y)
     UNPROTECT(1);
     return ans;
 }
- 
+
 SEXP lapack_qr(SEXP Xin, SEXP tl)
 {
     SEXP ans, Givens, Gcpy, nms, pivot, qraux, X;
@@ -227,7 +227,7 @@ SEXP lapack_qr(SEXP Xin, SEXP tl)
 	    if (jmin < (rank - 1)) {
 		SET_VECTOR_ELT(Givens, nGivens, getGivens(xpt, n, jmin, rank));
 		nGivens++;
-	    }		
+	    }
 	    rank--;
 	    F77_CALL(dtrcon)("1", "U", "N", &rank, xpt, &n, &rcond,
 			     work, iwork, &info);
@@ -249,20 +249,22 @@ SEXP dense_to_Csparse(SEXP x)
 {
     cholmod_dense *chxd = as_cholmod_dense(PROTECT(mMatrix_as_dgeMatrix(x)));
     cholmod_sparse *chxs = cholmod_dense_to_sparse(chxd, 1, &c);
+    int Rkind = 0; /* FIXME : Real_kind(x) does not work:
+		    * (chxd->xtype == CHOLMOD_REAL) ? Real_kind(x) : 0; */
 
     Free(chxd); UNPROTECT(1);
-    return chm_sparse_to_SEXP(chxs, 1, 0, "",
+    return chm_sparse_to_SEXP(chxs, 1, 0, Rkind, "",
 			      isMatrix(x) ? getAttrib(x, R_DimNamesSymbol)
 			      : GET_SLOT(x, Matrix_DimNamesSym));
 }
 
 
-/* Always returns a full matrix with entries outside the band zeroed
- * Class of the value can be dtrMatrix or dgeMatrix 
- *
- */
+/* FIXME: generalize this to  dense_band() : */
 
 SEXP ddense_band(SEXP x, SEXP k1P, SEXP k2P)
+/* Always returns a full matrix with entries outside the band zeroed
+ * Class of the value can be dtrMatrix or dgeMatrix
+ */
 {
     SEXP aa, ans = PROTECT(dup_mMatrix_as_dgeMatrix(x));
     int *adims = INTEGER(GET_SLOT(ans, Matrix_DimSym)),

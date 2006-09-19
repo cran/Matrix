@@ -2,7 +2,7 @@
 /* === colamd/symamd - a sparse matrix column ordering algorithm ============ */
 /* ========================================================================== */
 
-/* COLAMD Version 2.4.
+/* COLAMD Version 2.5.
 
     colamd:  an approximate minimum degree column ordering algorithm,
     	for LU factorization of symmetric or unsymmetric matrices,
@@ -46,7 +46,7 @@
 
     Copyright and License:
 
-	Copyright (c) 1998-2005, Timothy A. Davis, All Rights Reserved.
+	Copyright (c) 1998-2006, Timothy A. Davis, All Rights Reserved.
 	COLAMD is also available under alternate licenses, contact T. Davis
 	for details.
 
@@ -105,9 +105,9 @@
 /* === Description of user-callable routines ================================ */
 /* ========================================================================== */
 
-/* COLAMD includes both int and long versions of all its routines.  The
- * description below os fir the int version.  For long, all int arguments
- * become long.
+/* COLAMD includes both int and UF_long versions of all its routines.  The
+ * description below is for the int version.  For UF_long, all int arguments
+ * become UF_long.  UF_long is normally defined as long, except for WIN64.
 
     ----------------------------------------------------------------------------
     colamd_recommended:
@@ -116,17 +116,19 @@
 	C syntax:
 
 	    #include "colamd.h"
-	    int colamd_recommended (int nnz, int n_row, int n_col) ;
-	    long colamd_l_recommended (long nnz, long n_row, long n_col) ;
+	    size_t colamd_recommended (int nnz, int n_row, int n_col) ;
+	    size_t colamd_l_recommended (UF_long nnz, UF_long n_row,
+		UF_long n_col) ;
 
 	Purpose:
 
-	    Returns recommended value of Alen for use by colamd.  Returns -1
+	    Returns recommended value of Alen for use by colamd.  Returns 0
 	    if any input argument is negative.  The use of this routine
-	    or macro is optional.  Note that the macro uses its arguments
-	    more than once, so be careful for side effects, if you pass
-	    expressions as arguments to COLAMD_RECOMMENDED.  Not needed for
-	    symamd, which dynamically allocates its own memory.
+	    is optional.  Not needed for symamd, which dynamically allocates
+	    its own memory.
+
+	    Note that in v2.4 and earlier, these routines returned int or long.
+	    They now return a value of type size_t.
 
 	Arguments (all input arguments):
 
@@ -199,8 +201,9 @@
 	    #include "colamd.h"
 	    int colamd (int n_row, int n_col, int Alen, int *A, int *p,
 	    	double knobs [COLAMD_KNOBS], int stats [COLAMD_STATS]) ;
-	    long colamd_l (long n_row, long n_col, long Alen, long *A, long *p,
-	    	double knobs [COLAMD_KNOBS], long stats [COLAMD_STATS]) ;
+	    UF_long colamd_l (UF_long n_row, UF_long n_col, UF_long Alen,
+		UF_long *A, UF_long *p, double knobs [COLAMD_KNOBS],
+		UF_long stats [COLAMD_STATS]) ;
 
 	Purpose:
 
@@ -238,10 +241,6 @@
 		We do, however, guarantee that
 
 			Alen >= colamd_recommended (nnz, n_row, n_col)
-		
-		or equivalently as a C preprocessor macro: 
-
-			Alen >= COLAMD_RECOMMENDED (nnz, n_row, n_col)
 
 		will be sufficient.  Note: the macro version does not check
 		for integer overflow, and thus is not recommended.  Use
@@ -413,8 +412,8 @@
 	    int symamd (int n, int *A, int *p, int *perm,
 	    	double knobs [COLAMD_KNOBS], int stats [COLAMD_STATS],
 		void (*allocate) (size_t, size_t), void (*release) (void *)) ;
-	    long symamd_l (long n, long *A, long *p, long *perm,
-	    	double knobs [COLAMD_KNOBS], long stats [COLAMD_STATS],
+	    UF_long symamd_l (UF_long n, UF_long *A, UF_long *p, UF_long *perm,
+	    	double knobs [COLAMD_KNOBS], UF_long stats [COLAMD_STATS],
 		void (*allocate) (size_t, size_t), void (*release) (void *)) ;
 
 	Purpose:
@@ -582,7 +581,7 @@
 
 	    #include "colamd.h"
 	    colamd_report (int stats [COLAMD_STATS]) ;
-	    colamd_l_report (long stats [COLAMD_STATS]) ;
+	    colamd_l_report (UF_long stats [COLAMD_STATS]) ;
 
 	Purpose:
 
@@ -603,7 +602,7 @@
 
 	    #include "colamd.h"
 	    symamd_report (int stats [COLAMD_STATS]) ;
-	    symamd_l_report (long stats [COLAMD_STATS]) ;
+	    symamd_l_report (UF_long stats [COLAMD_STATS]) ;
 
 	Purpose:
 
@@ -682,14 +681,18 @@
 #endif
 
 /* ========================================================================== */
-/* === int or long ========================================================== */
+/* === int or UF_long ======================================================= */
 /* ========================================================================== */
+
+/* define UF_long */
+#include "UFconfig.h"
 
 #ifdef DLONG
 
-#define Int long
-#define ID "%ld"
-#define Int_MAX LONG_MAX
+#define Int UF_long
+#define ID  UF_long_id
+#define Int_MAX UF_long_max
+
 #define COLAMD_recommended colamd_l_recommended
 #define COLAMD_set_defaults colamd_l_set_defaults
 #define COLAMD_MAIN colamd_l
@@ -702,6 +705,7 @@
 #define Int int
 #define ID "%d"
 #define Int_MAX INT_MAX
+
 #define COLAMD_recommended colamd_recommended
 #define COLAMD_set_defaults colamd_set_defaults
 #define COLAMD_MAIN colamd
@@ -716,8 +720,7 @@
 /* ========================================================================== */
 
 /* User code that makes use of the colamd/symamd routines need not directly */
-/* reference these structures.  They are used only for the COLAMD_RECOMMENDED */
-/* macro. */
+/* reference these structures.  They are used only for colamd_recommended. */
 
 typedef struct Colamd_Col_struct
 {
@@ -768,13 +771,6 @@ typedef struct Colamd_Row_struct
     } shared2 ;
 
 } Colamd_Row ;
-
-/* size of the Col and Row structures */
-#define COLAMD_C(n_col) \
-    ((Int) (((n_col) + 1) * sizeof (Colamd_Col) / sizeof (Int)))
-
-#define COLAMD_R(n_row) \
-    ((Int) (((n_row) + 1) * sizeof (Colamd_Row) / sizeof (Int)))
 
 /* ========================================================================== */
 /* === Definitions ========================================================== */
@@ -1027,39 +1023,46 @@ PRIVATE void debug_structures
     The colamd_recommended routine returns the suggested size for Alen.  This
     value has been determined to provide good balance between the number of
     garbage collections and the memory requirements for colamd.  If any
-    argument is negative, a -1 is returned as an error condition.  This
-    function is also available as a macro defined in colamd.h, so that you
-    can use it for a statically-allocated array size.
-
-    The recommended length Alen of the array A passed to colamd is given by
-    the COLAMD_RECOMMENDED (nnz, n_row, n_col) macro.  It returns -1 if any
-    argument is negative.  2*nnz space is required for the row and column
+    argument is negative, or if integer overflow occurs, a 0 is returned as an
+    error condition.  2*nnz space is required for the row and column
     indices of the matrix. COLAMD_C (n_col) + COLAMD_R (n_row) space is
     required for the Col and Row arrays, respectively, which are internal to
-    colamd.  An additional n_col space is the minimal amount of "elbow room",
-    and nnz/5 more space is recommended for run time efficiency.
+    colamd (roughly 6*n_col + 4*n_row).  An additional n_col space is the
+    minimal amount of "elbow room", and nnz/5 more space is recommended for
+    run time efficiency.
 
-    This macro is not needed when using symamd.
+    Alen is approximately 2.2*nnz + 7*n_col + 4*n_row + 10.
 
-    Explicit typecast to Int added Sept. 23, 2002, COLAMD version 2.2, to avoid
-    gcc -pedantic warning messages.
-
-    Change in version 2.4:
-    The COLAMD_RECOMMEND macro does not check for integer overflow, but the
-    routine colamd_recommended does.  The macro is thus no longer available
-    to the user.
+    This function is not needed when using symamd.
 */
 
-#define COLAMD_RECOMMENDED(nnz, n_row, n_col)                                 \
-(                                                                             \
-((nnz) < 0 || (n_row) < 0 || (n_col) < 0)                                     \
-?                                                                             \
-    (-1)                                                                      \
-:                                                                             \
-    (2 * (nnz) + COLAMD_C (n_col) + COLAMD_R (n_row) + (n_col) + ((nnz) / 5)) \
-)
+/* add two values of type size_t, and check for integer overflow */
+static size_t t_add (size_t a, size_t b, int *ok)
+{
+    (*ok) = (*ok) && ((a + b) >= MAX (a,b)) ;
+    return ((*ok) ? (a + b) : 0) ;
+}
 
-PUBLIC Int COLAMD_recommended	/* returns recommended value of Alen. */
+/* compute a*k where k is a small integer, and check for integer overflow */
+static size_t t_mult (size_t a, size_t k, int *ok)
+{
+    size_t i, s = 0 ;
+    for (i = 0 ; i < k ; i++)
+    {
+	s = t_add (s, a, ok) ;
+    }
+    return (s) ;
+}
+
+/* size of the Col and Row structures */
+#define COLAMD_C(n_col,ok) \
+    ((t_mult (t_add (n_col, 1, ok), sizeof (Colamd_Col), ok) / sizeof (Int)))
+
+#define COLAMD_R(n_row,ok) \
+    ((t_mult (t_add (n_row, 1, ok), sizeof (Colamd_Row), ok) / sizeof (Int)))
+
+
+PUBLIC size_t COLAMD_recommended	/* returns recommended value of Alen. */
 (
     /* === Parameters ======================================================= */
 
@@ -1068,17 +1071,21 @@ PUBLIC Int COLAMD_recommended	/* returns recommended value of Alen. */
     Int n_col			/* number of columns in A */
 )
 {
-    double xnz = nnz ;
-    double xncol = n_col ;
-    double xnrow = n_row ;
-
-    /* change for version 2.4: check Alen for integer overflow */
-    if (COLAMD_RECOMMENDED (xnz, xnrow, xncol) >= INT_MAX)
+    size_t s, c, r ;
+    int ok = TRUE ;
+    if (nnz < 0 || n_row < 0 || n_col < 0)
     {
-	return (-1) ;
+	return (0) ;
     }
-
-    return (COLAMD_RECOMMENDED (nnz, n_row, n_col)) ; 
+    s = t_mult (nnz, 2, &ok) ;	    /* 2*nnz */
+    c = COLAMD_C (n_col, &ok) ;	    /* size of column structures */
+    r = COLAMD_R (n_row, &ok) ;	    /* size of row structures */
+    s = t_add (s, c, &ok) ;
+    s = t_add (s, r, &ok) ;
+    s = t_add (s, n_col, &ok) ;	    /* elbow room */
+    s = t_add (s, nnz/5, &ok) ;	    /* elbow room */
+    ok = ok && (s < Int_MAX) ;
+    return (ok ? s : 0) ;
 }
 
 
@@ -1088,19 +1095,25 @@ PUBLIC Int COLAMD_recommended	/* returns recommended value of Alen. */
 
 /*
     The colamd_set_defaults routine sets the default values of the user-
-    controllable parameters for colamd:
+    controllable parameters for colamd and symamd:
 
-	knobs [0]	rows with knobs[0]*n_col entries or more are removed
-			prior to ordering in colamd.  Rows and columns with
-			knobs[0]*n_col entries or more are removed prior to
-			ordering in symamd and placed last in the output
-			ordering.
+	Colamd: rows with more than max (16, knobs [0] * sqrt (n_col))
+	entries are removed prior to ordering.  Columns with more than
+	max (16, knobs [1] * sqrt (MIN (n_row,n_col))) entries are removed
+	prior to ordering, and placed last in the output column ordering. 
 
-	knobs [1]	columns with knobs[1]*n_row entries or more are removed
-			prior to ordering in colamd, and placed last in the
-			column permutation.  Symamd ignores this knob.
+	Symamd: Rows and columns with more than max (16, knobs [0] * sqrt (n))
+	entries are removed prior to ordering, and placed last in the
+	output ordering.
 
-	knobs [2..19]	unused, but future versions might use this
+	knobs [0]	dense row control
+
+	knobs [1]	dense column control
+
+	knobs [2]	if nonzero, do aggresive absorption
+
+	knobs [3..19]	unused, but future versions might use this
+
 */
 
 PUBLIC void COLAMD_set_defaults
@@ -1155,7 +1168,7 @@ PUBLIC Int SYMAMD_MAIN			/* return TRUE if OK, FALSE otherwise */
     Int *count ;		/* length of each column of M, and col pointer*/
     Int *mark ;			/* mark array for finding duplicate entries */
     Int *M ;			/* row indices of matrix M */
-    Int Mlen ;			/* length of M */
+    size_t Mlen ;		/* length of M */
     Int n_row ;			/* number of rows in M */
     Int nnz ;			/* number of entries in A */
     Int i ;			/* row index of A */
@@ -1342,15 +1355,15 @@ PUBLIC Int SYMAMD_MAIN			/* return TRUE if OK, FALSE otherwise */
     n_row = mnz / 2 ;
     Mlen = COLAMD_recommended (mnz, n_row, n) ;
     M = (Int *) ((*allocate) (Mlen, sizeof (Int))) ;
-    DEBUG0 (("symamd: M is %d-by-%d with %d entries, Mlen = %d\n",
-    	n_row, n, mnz, Mlen)) ;
+    DEBUG0 (("symamd: M is %d-by-%d with %d entries, Mlen = %g\n",
+    	n_row, n, mnz, (double) Mlen)) ;
 
     if (!M)
     {
 	stats [COLAMD_STATUS] = COLAMD_ERROR_out_of_memory ;
 	(*release) ((void *) count) ;
 	(*release) ((void *) mark) ;
-	DEBUG0 (("symamd: allocate M (size %d) failed\n", Mlen)) ;
+	DEBUG0 (("symamd: allocate M (size %g) failed\n", (double) Mlen)) ;
 	return (FALSE) ;
     }
 
@@ -1423,7 +1436,7 @@ PUBLIC Int SYMAMD_MAIN			/* return TRUE if OK, FALSE otherwise */
     /* === Order the columns of M =========================================== */
 
     /* v2.4: colamd cannot fail here, so the error check is removed */
-    (void) COLAMD_MAIN (n_row, n, Mlen, M, perm, cknobs, stats) ;
+    (void) COLAMD_MAIN (n_row, n, (Int) Mlen, M, perm, cknobs, stats) ;
 
     /* Note that the output permutation is now in perm */
 
@@ -1469,9 +1482,9 @@ PUBLIC Int COLAMD_MAIN		/* returns TRUE if successful, FALSE otherwise*/
 
     Int i ;			/* loop index */
     Int nnz ;			/* nonzeros in A */
-    Int Row_size ;		/* size of Row [], in integers */
-    Int Col_size ;		/* size of Col [], in integers */
-    Int need ;			/* minimum required length of A */
+    size_t Row_size ;		/* size of Row [], in integers */
+    size_t Col_size ;		/* size of Col [], in integers */
+    size_t need ;		/* minimum required length of A */
     Colamd_Row *Row ;		/* pointer into A of Row [0..n_row] array */
     Colamd_Col *Col ;		/* pointer into A of Col [0..n_col] array */
     Int n_col2 ;		/* number of non-dense, non-empty columns */
@@ -1480,6 +1493,7 @@ PUBLIC Int COLAMD_MAIN		/* returns TRUE if successful, FALSE otherwise*/
     Int max_deg ;		/* maximum row degree */
     double default_knobs [COLAMD_KNOBS] ;	/* default knobs array */
     Int aggressive ;		/* do aggressive absorption */
+    int ok ;
 
 #ifndef NDEBUG
     colamd_get_debug ("colamd") ;
@@ -1559,11 +1573,17 @@ PUBLIC Int COLAMD_MAIN		/* returns TRUE if successful, FALSE otherwise*/
 
     /* === Allocate the Row and Col arrays from array A ===================== */
 
-    Col_size = COLAMD_C (n_col) ;
-    Row_size = COLAMD_R (n_row) ;
-    need = 2*nnz + n_col + Col_size + Row_size ;
+    ok = TRUE ;
+    Col_size = COLAMD_C (n_col, &ok) ;	    /* size of Col array of structs */
+    Row_size = COLAMD_R (n_row, &ok) ;	    /* size of Row array of structs */
 
-    if (need > Alen)
+    /* need = 2*nnz + n_col + Col_size + Row_size ; */
+    need = t_mult (nnz, 2, &ok) ;
+    need = t_add (need, n_col, &ok) ;
+    need = t_add (need, Col_size, &ok) ;
+    need = t_add (need, Row_size, &ok) ;
+
+    if (!ok || need > (size_t) Alen || need > Int_MAX)
     {
 	/* not enough space in array A to perform the ordering */
 	stats [COLAMD_STATUS] = COLAMD_ERROR_A_too_small ;

@@ -3,8 +3,8 @@
 /* ========================================================================== */
 
 /* -----------------------------------------------------------------------------
- * CHOLMOD/Supernodal Module.  Version 0.6.
- * Copyright (C) 2005, Timothy A. Davis
+ * CHOLMOD/Supernodal Module.  Version 1.2.
+ * Copyright (C) 2005-2006, Timothy A. Davis
  * The CHOLMOD/Supernodal Module is licensed under Version 2.0 of the GNU
  * General Public License.  See gpl.txt for a text of the license.
  * CHOLMOD is also available under other licenses; contact authors for details.
@@ -43,8 +43,8 @@
 
 #ifndef NSUPERNODAL
 
-#include "cholmod_supernodal.h"
 #include "cholmod_internal.h"
+#include "cholmod_supernodal.h"
 
 
 /* ========================================================================== */
@@ -157,6 +157,8 @@ int CHOLMOD(super_symbolic)
 	nsrow, ndrow1, ndrow2, stype, ssize, xsize, sparent, plast, slast,
 	csize, maxcsize, ss, nscol0, nscol1, ns, nfsuper, newzeros, totzeros,
 	merge, snext, esize, maxesize, nrelax0, nrelax1, nrelax2 ;
+    size_t w ;
+    int ok = TRUE ;
 
     /* ---------------------------------------------------------------------- */
     /* check inputs */
@@ -196,7 +198,16 @@ int CHOLMOD(super_symbolic)
     /* ---------------------------------------------------------------------- */
 
     n = A->nrow ;
-    CHOLMOD(allocate_work) (n, 5*n, 0, Common) ;
+
+    /* w = 5*n */
+    w = CHOLMOD(mult_size_t) (n, 5, &ok) ;
+    if (!ok)
+    {
+	ERROR (CHOLMOD_TOO_LARGE, "problem too large") ;
+	return (FALSE) ;
+    }
+
+    CHOLMOD(allocate_work) (n, w, 0, Common) ;
     if (Common->status < CHOLMOD_OK)
     {
 	/* out of memory */
@@ -260,9 +271,9 @@ int CHOLMOD(super_symbolic)
     Iwork = Common->Iwork ;
     Wi      = Iwork ;	    /* size n (i/l/l).  Lpi2 is i/l/l */
     Wj      = Iwork + n ;   /* size n (i/l/l).  Zeros is i/l/l */
-    Sparent = Iwork + 2*n ; /* size nfsuper <= n [ */
-    Snz     = Iwork + 3*n ; /* size nfsuper <= n [ */
-    Merged  = Iwork + 4*n ; /* size nfsuper <= n [ */
+    Sparent = Iwork + 2*((size_t) n) ; /* size nfsuper <= n [ */
+    Snz     = Iwork + 3*((size_t) n) ; /* size nfsuper <= n [ */
+    Merged  = Iwork + 4*((size_t) n) ; /* size nfsuper <= n [ */
 
     Flag = Common->Flag ;   /* size n */
     Head = Common->Head ;   /* size n+1 */

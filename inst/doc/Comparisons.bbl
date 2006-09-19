@@ -1,0 +1,19 @@
+\begin{thebibliography}{2}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Chambers(1998)]{R:Chambers:1998}
+John~M. Chambers.
+\newblock \emph{Programming with Data}.
+\newblock Springer, New York, 1998.
+\newblock ISBN 0-387-98503-4.
+
+\bibitem[Koenker and Ng(2003)]{koen:ng:2003}
+Roger Koenker and Pin Ng.
+\newblock {SparseM}: A sparse matrix package for {R}.
+\newblock \emph{J. of Statistical Software}, 8\penalty0 (6), 2003.
+
+\end{thebibliography}

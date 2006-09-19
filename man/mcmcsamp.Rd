@@ -62,7 +62,7 @@ samp1 <- mcmcsamp(fm1, n = 1000)
 frm <-
     data.frame(vals = c(samp1), iter = rep(1:nrow(samp1), ncol(samp1)),
     par = factor(rep(1:ncol(samp1), each = nrow(samp1)),labels = colnames(samp1)))
-densityplot(~ vals | par, frm, plot = FALSE,
+densityplot(~ vals | par, frm, plot.points = FALSE,
             scales = list(relation = 'free', x = list(axs='i')))
 xyplot(vals ~ iter | par, frm, layout = c(1, ncol(samp1)),
        scales = list(x = list(axs = "i"), y = list(relation = "free")),

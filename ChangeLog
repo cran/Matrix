@@ -1,3 +1,7 @@
+2006-09-19  Douglas Bates  <bates@dyn-51-101.uwnet.wisc.edu>
+
+	* man/mcmcsamp.Rd: Fix problem with densityplot in example
+
 2006-09-15  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* DESCRIPTION (Version): 0.995-19  {since *-18 made it to CRAN !?!}

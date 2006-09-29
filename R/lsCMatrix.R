@@ -8,6 +8,10 @@ setAs("lsCMatrix", "matrix",
 setAs("lsCMatrix", "lgCMatrix",
       function(from) .Call(Csparse_symmetric_to_general, from))
 
+if(FALSE) ## FIXME : partially done in C ../src/Csparse.c :
+setAs("lgCMatrix", "lsCMatrix",
+      function(from) .Call(Csparse_general_to_symmetric, from))
+
 ## Specific conversions, should they be necessary.  Better to convert as
 ## as(x, "TsparseMatrix") or as(x, "denseMatrix")
 setAs("lsCMatrix", "lsTMatrix",

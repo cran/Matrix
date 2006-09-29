@@ -22,7 +22,7 @@ SOURCES_F = zpotf2.f zpotrf.f
 
 OBJECTS = $(SOURCES_C:.c=.o) $(SOURCES_F:.f=.o)
 SHLIB = $(pkg).dll
-SUBDIRS = CHOLMOD COLAMD CAMD
+SUBDIRS = CHOLMOD COLAMD AMD
 SUBLIBS = $(SUBDIRS:=.a)
 SUBSTAMP = $(SUBDIRS:=.stamp)
 

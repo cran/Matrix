@@ -156,3 +156,9 @@
   fallback class for dsCMatrix is dgCMatrix, etc.
 
 - tril(), triu()  now return matrices of *triangular* classes.
+
+- Factorizations: LU and solve() for  *sparse*  Matrices is now done,
+  -----------------  using CSparse (and not UMFPACK as originally thought)
+
+
+

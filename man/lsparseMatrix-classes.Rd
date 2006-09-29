@@ -32,6 +32,9 @@
 \alias{coerce,lsCMatrix,lgCMatrix-method}
 \alias{coerce,lsCMatrix,lsTMatrix-method}
 \alias{coerce,lsCMatrix,matrix-method}
+\alias{coerce,lsTMatrix,dsTMatrix-method}
+\alias{coerce,lsTMatrix,lgTMatrix-method}
+\alias{coerce,lsTMatrix,matrix-method}
 \alias{coerce,ltCMatrix,dtCMatrix-method}
 \alias{coerce,ltCMatrix,dMatrix-method}
 \alias{coerce,ltCMatrix,lgCMatrix-method}
@@ -56,6 +59,7 @@
 \alias{diag,lsparseMatrix-method}
 \alias{image,lgCMatrix-method}
 \alias{image,lsCMatrix-method}
+\alias{image,lsTMatrix-method}
 \alias{image,ltCMatrix-method}
 \alias{image,ltTMatrix-method}
 \alias{t,lgCMatrix-method}

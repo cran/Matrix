@@ -72,19 +72,15 @@ Check for DimNames propagation in coercion and other operations.
   (which can be set to FALSE of course) which are used to extract a
   triangle from an arbitrary sparse matrix and  return a  "dtCMatrix".
 
-- Factorizations: LU [ -> solve() ] and Schur()  for  *sparse*  Matrices.
-  -----------------  LU-sparse is the purpose of all of ./src/UMFPACK/
-  	-->  ./inst/doc/UFsparse/*
-  Note that UMFPACK is a bit slow compared to TAUCS etc, according to
-  Gould et al.(2005)
-  And then, possibly eigen(), svd(), qr(), ... for sparse
-  {probably base some on the fast  chol() of CHOLMOD}.
-  ./man/lu.Rd notes that lu() is not yet available for sparse
-
-  2006-04-15 : now with 'CSparse' { src/cs.c }, have at least solve( <dtC*> )
-
-- nicer pedigree examples and tests
+- Factorizations: LU done; also Schur()  for  *sparse*  Matrices.
 
 - band(), triu(), tril() for *all*, not just sparse matrices
 
 - is.na() method for all our matrices [ ==> which(*, arr.ind=TRUE) might work ]
+
+- When we have a packed matrix, it's a waste to go through "full" to "sparse":
+  ==> implement
+	setAs("dspMatrix", "sparseMatrix")
+	setAs("dppMatrix", "sparseMatrix")
+	setAs("dtpMatrix", "sparseMatrix")
+  and the same for "lsp" , "ltp"  and  "nsp" , "ntp" !

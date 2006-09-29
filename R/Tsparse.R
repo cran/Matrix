@@ -193,10 +193,10 @@ replTmat <- function (x, i, j, value)
     sel <- ((m1 <- match(x@i, i1, nomatch=0)) > 0:0 &
             (m2 <- match(x@j, i2, nomatch=0)) > 0:0)
 
-    has.x <- any("x" == slotNames(x)) # i.e. *not* logical
+    has.x <- any("x" == slotNames(x)) # i.e. *not* nonzero-pattern
 
     ## the simplest case: for all Tsparse, even for i or j missing
-    if(all(value == 0)) { ## just drop the non-zero entries
+    if(all0(value)) { ## just drop the non-zero entries
 	if(any(sel)) { ## non-zero there
 	    x@i <- x@i[!sel]
 	    x@j <- x@j[!sel]
@@ -224,7 +224,7 @@ replTmat <- function (x, i, j, value)
         return(x)
     }
 
-    v0 <- 0 == (value <- rep(value, length = lenRepl))
+    v0 <- is0(value <- rep(value, length = lenRepl))
     ## value[1:lenRepl]:  which are structural 0 now, which not?
 
     if(any(sel)) {
@@ -317,3 +317,16 @@ setMethod("triu", "TsparseMatrix",
 setMethod("band", "TsparseMatrix",
 	  function(x, k1, k2, ...)
 	  as_Tsparse(band(as_Csparse(x), k1 = k1, k2 = k2, ...)))
+
+setMethod("t", signature(x = "TsparseMatrix"),
+	  function(x) {
+	      r <- new(class(x))
+	      r@i <- x@j
+	      r@j <- x@i
+	      if(any("x" == slotNames(x)))
+		  r@x <- x@x
+	      r@Dim <- rev(x@Dim)
+	      r@Dimnames <- rev(x@Dimnames)
+	      r
+      })
+

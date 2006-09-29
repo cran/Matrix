@@ -12,9 +12,9 @@ gt2tT <- function(x, uplo, diag) {
 	}
     i <- i[sel]
     j <- j[sel]
-    if(is(x, "lMatrix"))
-	new("ltTMatrix", i = i, j = j, uplo = uplo, diag = diag,
-	    Dim = x@Dim, Dimnames = x@Dimnames) # no 'x' slot
+    if(is(x, "nMatrix")) # no 'x' slot
+	new("ntTMatrix", i = i, j = j, uplo = uplo, diag = diag,
+	    Dim = x@Dim, Dimnames = x@Dimnames)
     else
 	new(paste(substr(class(x), 1,1), # "d", "l", "i" or "z"
 		  "tTMatrix", sep=''),
@@ -41,8 +41,15 @@ setAs("dtTMatrix", "dgTMatrix",
               x = c(from@x, if(uDiag) rep.int(1,n)))
       })
 
+## needed?
 setAs("dtTMatrix", "ltTMatrix",
       function(from) new("ltTMatrix", i = from@i, j = from@j,
+                         x = as.logical(from@x),
+                         uplo = from@uplo, diag = from@diag,
+                         Dim = from@Dim, Dimnames = from@Dimnames))
+## needed ?
+setAs("dtTMatrix", "ntTMatrix",
+      function(from) new("ntTMatrix", i = from@i, j = from@j,
                          uplo = from@uplo, diag = from@diag,
                          Dim = from@Dim, Dimnames = from@Dimnames))
 

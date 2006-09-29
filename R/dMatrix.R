@@ -79,10 +79,10 @@ setMethod("Compare", signature(e1 = "dMatrix", e2 = "numeric"),
 	      ## Dbg cat("Compare", class(e1), "|-> ",lClass, "\n")
 	      r	 <- callGeneric(e1@x, e2)
 	      r0 <- callGeneric(0, e2)
+              d <- e1@Dim
 	      ## trivial case first
 	      if(isTRUE(r0) && all(r)) {
 		  r <- new(fullCl)
-		  d <- e1@Dim
 		  r@Dim <- d
 		  r@Dimnames <- e1@Dimnames
 		  r@x <- rep.int(TRUE, prod(d))
@@ -90,21 +90,23 @@ setMethod("Compare", signature(e1 = "dMatrix", e2 = "numeric"),
 	      else if(is(e1, "denseMatrix")) {
 		  full <- !isPacked(e1) # << both "dtr" and "dsy" are 'full'
 		  if(full || identical(r0, FALSE) || is(e1, "symmetricMatrix"))
-		      r <- new(lClass, x = r,
-			       Dim = dim(e1), Dimnames = dimnames(e1))
+		      r <- new(lClass, x = r, Dim = d, Dimnames = dimnames(e1))
 		  else { ## packed matrix with structural 0 and r0 is not FALSE:
 		      ##--> result cannot be packed anymore
-		      .bail.out.2(.Generic, class(e1), class(e2))
-		      dr <- as(r, fullCl)
-		      ## FIXME: implement this:
-		      dr[ind.0(e1)] <- r0
+                      ## [dense & packed & not symmetric ] ==> must be "dtp*" :
+                      if(!is(e1, "dtpMatrix"))
+                          stop("internal bug in \"Compare\" method for \"dMatrix\"; please report")
+                      rx <- rep.int(r0, d[1]*d[2])
+                      rx[indTri(d[1], upper = (e1@uplo == "U"))] <- r
+                      r <- new(fullCl, x = rx, Dim = d, Dimnames = dimnames(e1))
 		  }
+
 	      }
 	      else { ## dsparseMatrix => lClass is "lsparse*"
 
 		  if(identical(r0, FALSE)) { ## things remain sparse
 		      if(!any(is.na(r)) && ((Ar <- all(r)) || !any(r))) {
-			  r <- new(lClass, Dim= dim(e1), Dimnames= dimnames(e1))
+			  r <- new(lClass, Dim = d, Dimnames= dimnames(e1))
 			  if(Ar) { # 'TRUE' instead of 'x': same sparsity:
 			      r@x <- rep.int(TRUE, length(e1@x))
 			      for(n in intersect(c("i","j","p"), slotNames(r)))
@@ -130,14 +132,11 @@ setMethod("Compare", signature(e1 = "dMatrix", e2 = "numeric"),
 		      ## non sparse result
 		      message(sprintf("sparse to dense (%s) coercion in '%s'",
 				      lClass, .Generic))
-		      ## NOT YET:
-		      .bail.out.2(.Generic, class(e1), class(e2))
-
-		      ## FIXME: implement this:
-		      r[ind.0(e1)] <- r0
-
-		      r <- new(lClass, x = r,
-			       Dim = dim(e1), Dimnames = dimnames(e1))
+		      rx <- rep.int(r0, d[1]*d[2])
+		      if(isTriangular(e1) && e1@diag == "U")
+			  r <- c(r, rep.int(callGeneric(1, e2),d[1]))
+		      rx[1:1 + encodeInd(non0ind(e1), nr = d[1])] <- r
+		      r <- new(fullCl, x = rx, Dim = d, Dimnames = dimnames(e1))
 		  }
 	      }
 	      r

@@ -38,7 +38,10 @@
       either \code{"U"}, for unit triangular (diagonal is all ones), or
       \code{"N"}; see \code{\linkS4class{triangularMatrix}}.}
     \item{\code{x}:}{Object of class \code{"numeric"}. The numeric
-      values that constitute the matrix, stored in column-major order.}
+      values that constitute the matrix, stored in column-major order.
+      For a packed square matrix of dimension \eqn{d \times d}{d * d},
+      \code{length(x)} is of length \eqn{d(d+1)/2} (also when
+      \code{diag == "U"}!).}
     \item{\code{Dim},\code{Dimnames}:}{The dimension (a length-2
       \code{"integer"}) and corresponding names (or \code{NULL}),
       inherited from the \code{\linkS4class{Matrix}}, see there.}

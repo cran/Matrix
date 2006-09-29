@@ -32,6 +32,9 @@
 \alias{coerce,nsCMatrix,ngCMatrix-method}
 \alias{coerce,nsCMatrix,nsTMatrix-method}
 \alias{coerce,nsCMatrix,matrix-method}
+\alias{coerce,nsTMatrix,dsTMatrix-method}
+\alias{coerce,nsTMatrix,ngTMatrix-method}
+\alias{coerce,nsTMatrix,matrix-method}
 \alias{coerce,ntCMatrix,dtCMatrix-method}
 \alias{coerce,ntCMatrix,dMatrix-method}
 \alias{coerce,ntCMatrix,ngCMatrix-method}
@@ -43,6 +46,7 @@
 \alias{coerce,ntTMatrix,dtTMatrix-method}
 \alias{coerce,ntTMatrix,ngTMatrix-method}
 \alias{coerce,ntTMatrix,matrix-method}
+\alias{coerce,matrix,ntTMatrix-method}
 %
 \alias{crossprod,ngCMatrix,missing-method}
 \alias{crossprod,ngTMatrix,missing-method}
@@ -55,6 +59,7 @@
 \alias{diag,nsparseMatrix-method}
 \alias{image,ngCMatrix-method}
 \alias{image,nsCMatrix-method}
+\alias{image,nsTMatrix-method}
 \alias{image,ntCMatrix-method}
 \alias{image,ntTMatrix-method}
 \alias{t,ngCMatrix-method}

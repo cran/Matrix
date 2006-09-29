@@ -16,7 +16,6 @@
 \alias{crossprod,dgTMatrix,numeric-method}
 \alias{image,dgTMatrix-method}
 \alias{kronecker,dgTMatrix,dgTMatrix-method}
-\alias{t,dgTMatrix-method}
 \alias{colMeans,dgTMatrix-method}
 \alias{colSums,dgTMatrix-method}
 \alias{rowMeans,dgTMatrix-method}

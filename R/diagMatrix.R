@@ -271,5 +271,10 @@ prDiag <-
 }
 
 setMethod("show", signature(object = "diagonalMatrix"),
-          function(object) prDiag(object))
-
+	  function(object) {
+	      d <- dim(object)
+	      cl <- class(object)
+	      cat(sprintf('%d x %d diagonal matrix of class "%s"\n',
+			  d[1], d[2], cl))
+	      prDiag(object)
+	  })

@@ -14,8 +14,9 @@ setAs("dgCMatrix", "dsCMatrix",
 ## setAs("dsCMatrix", "dsTMatrix",
 ##       function(from) .Call(Csparse_to_Tsparse, from, FALSE))
 
-setAs("dsCMatrix", "dgTMatrix", # needed for image()
-      function(from) ## pre-Cholmod -- FIXME: get rid of
+setAs("dsCMatrix", "dgTMatrix", # needed for show(), image()
+      function(from)
+      ## pre-Cholmod -- FIXME: get rid of
       .Call(dsCMatrix_to_dgTMatrix, from))
 
 setAs("dsCMatrix", "dgeMatrix",

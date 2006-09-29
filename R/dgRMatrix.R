@@ -1,4 +1,5 @@
 #### Sparse Matrices in Compressed row-oriented format
+####                               --- "R"
 
 ### contains = "dMatrix"
 

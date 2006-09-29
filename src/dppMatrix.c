@@ -9,7 +9,7 @@ SEXP dppMatrix_validate(SEXP obj)
 /*     for (i = 0; i < n; i++) */
 /* 	if (x[i * np1] < 0) */
 /* 	    return mkString(_("dppMatrix is not positive definite")); */
-    return ScalarLogical(1);
+    return dspMatrix_validate(obj);
 }
 
 SEXP dppMatrix_chol(SEXP x)

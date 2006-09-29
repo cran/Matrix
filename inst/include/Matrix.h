@@ -15,6 +15,8 @@ cholmod_dense* M_as_cholmod_dense(SEXP x);
 cholmod_dense* M_numeric_as_chm_dense(double *v, int n);
 cholmod_factor* M_as_cholmod_factor(SEXP x);
 SEXP M_chm_factor_to_SEXP(cholmod_factor *f, int dofree);
+SEXP M_chm_sparse_to_SEXP(cholmod_sparse *a, int dofree,
+			  int uploT, int Rkind, char *diag, SEXP dn);
 SEXP M_dpoMatrix_chol(SEXP x);
 
 #endif /* MATRIX_H */

@@ -1,3 +1,48 @@
+2006-09-29  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Csparse.R (replCmat): improve for missing i / j in non-simple cases
+
+	* R/lsTMatrix.R: new files w/ missing methods
+	* R/nsTMatrix.R:  "  'for completeness'
+
+	* tests/Class+Meth.R: a bit less 'not.ok.classes'
+
+	* R/Tsparse.R (t): generalized "t" method from "dgT*" to "Tsparse*"
+
+
+2006-09-28  Douglas Bates  <bates@R-project.org>
+
+	* src/dppMatrix.h: Ensure definition of dspMatrix_validate is
+	included.
+
+	* src/init.c, inst/include/{Matrix.h,Matrix_stubs.h,cholmod.h}:
+	Export C-callable functions used in Zt_create in lme4.
+
+2006-09-28  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.9975-1
+
+	* tests/simple.R: less checks fail; using NA, found that our
+		kronecker() is not base-compatible with NA's.
+
+	* R/dMatrix.R: "Compare" method now implemented for all cases
+
+	* R/Auxiliaries.R (indTri): == which([lower/upper].tri( * )) new utility
+
+	* man/dtpMatrix-class.Rd: mention length of 'x' slot
+
+	* src/dtpMatrix.c (dtpMatrix_validate): fix check
+	* src/dspMatrix.c (dspMatrix_validate): ditto
+
+	* R/dtTMatrix.R (gt2tT): fix ("l" -> "n")
+	  including coercion to [nl]tTMatrix.
+
+	* R/diagMatrix.R (show): print a header line as for other classes.
+
+2006-09-27  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/Makefile.win (SUBDIRS): fix typo
+
 2006-09-19  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* DESCRIPTION (Date): ready to release 0.9975-0 to CRAN

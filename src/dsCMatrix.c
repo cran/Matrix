@@ -125,7 +125,8 @@ SEXP dsCMatrix_matrix_solve(SEXP a, SEXP b)
 }
 
 /* Needed for printing dsCMatrix objects */
-/* FIXME: Create a more general version of this operation */
+/* FIXME: Create a more general version of this operation: also for lsC, (dsR?),..
+*         e.g. make  compressed_to_dgTMatrix() in ./dgCMatrix.c work for dsC */
 SEXP dsCMatrix_to_dgTMatrix(SEXP x)
 {
     cholmod_sparse *A = as_cholmod_sparse(x);
@@ -138,4 +139,3 @@ SEXP dsCMatrix_to_dgTMatrix(SEXP x)
     return chm_triplet_to_SEXP(At, 1, /*uploT*/ 0, /*Rkind*/ 0, "",
 			       GET_SLOT(x, Matrix_DimNamesSym));
 }
-

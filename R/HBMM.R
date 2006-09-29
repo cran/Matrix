@@ -10,16 +10,16 @@ readone <- function(ln, iwd, nper, conv)
 readmany <- function(conn, nlines, nvals, fmt, conv)
 {
     if (!grep("[[:digit:]]+[DEFGI][[:digit:]]+", fmt))
-        stop("Not a valid format")
+	stop("Not a valid format")
     Iind <- regexpr('[DEFGI]', fmt)
     nper <- as.integer(substr(fmt, regexpr('[[:digit:]]+[DEFGI]', fmt), Iind - 1))
-    iwd <- as.integer(substr(fmt, Iind + 1, regexpr('[\\\.\\\)]', fmt) - 1)) 
+    iwd <- as.integer(substr(fmt, Iind + 1, regexpr('[\\.\\)]', fmt) - 1))
     rem <- nvals %% nper
     full <- nvals %/% nper
     ans <- vector("list", nvals %/% nper)
     for (i in seq(len = full))
-        ans[[i]] <- readone(readLines(conn, 1, ok = FALSE),
-                            iwd, nper, conv)
+	ans[[i]] <- readone(readLines(conn, 1, ok = FALSE),
+			    iwd, nper, conv)
     if (!rem) return(unlist(ans))
     c(unlist(ans),
       readone(readLines(conn, 1, ok = FALSE), iwd, rem, conv))
@@ -27,12 +27,9 @@ readmany <- function(conn, nlines, nvals, fmt, conv)
 
 readHB <- function(file)
 {
-    if (is.character(file)) 
-        if (file == "") 
-            file <- stdin()
-        else 
-            file <- file(file)
-    if (!inherits(file, "connection")) 
+    if (is.character(file))
+	file <- if (file == "") stdin() else file(file)
+    if (!inherits(file, "connection"))
         stop("'file' must be a character string or connection")
     if (!isOpen(file)) {
         open(file)
@@ -64,14 +61,14 @@ readHB <- function(file)
     rhsfmt <- toupper(sub('[[:space:]]+$', '', substr(hdr[4], 53, 72)))
     if (!is.na(rhsln) && rhsln > 0) {
         h5 <- readLines(file, 1, ok = FALSE)
-    }        
+    }
     ptr <- readmany(file, ptrln, nc + 1, ptrfmt, as.integer)
     ind <- readmany(file, indln, nz, indfmt, as.integer)
     vals <- readmany(file, valln, nz, valfmt, as.numeric)
     if (t2 == 'S')
         new("dsCMatrix", uplo = "L", p = ptr - 1:1,
             i = ind - 1:1, x = vals, Dim = c(nr, nc))
-    else 
+    else
         new("dgCMatrix", p = ptr - 1:1,
             i = ind - 1:1, x = vals, Dim = c(nr, nc))
 
@@ -79,12 +76,12 @@ readHB <- function(file)
 
 readMM <- function(file)
 {
-    if (is.character(file)) 
-        if (file == "") 
+    if (is.character(file))
+        if (file == "")
             file <- stdin()
-        else 
+        else
             file <- file(file)
-    if (!inherits(file, "connection")) 
+    if (!inherits(file, "connection"))
         stop("'file' must be a character string or connection")
     if (!isOpen(file)) {
         open(file)

@@ -10,12 +10,12 @@ SEXP dtpMatrix_validate(SEXP obj)
     if(isString(val))
 	return(val);
     else {
-	int *dims = INTEGER(GET_SLOT(obj, Matrix_DimSym));
-	if (dims[0] != packed_ncol(length(GET_SLOT(obj, Matrix_xSym))))
+	int d = INTEGER(GET_SLOT(obj, Matrix_DimSym))[0],
+	    lx = length(GET_SLOT(obj, Matrix_xSym));
+	/* packed_ncol() [Mutils.h] checks, but gives *error* .. need string: */
+	if(lx * 2 != d*(d+1))
 	    return(mkString(_("Incorrect length of 'x' slot")));
 	return ScalarLogical(1);
-
-
     }
 }
 

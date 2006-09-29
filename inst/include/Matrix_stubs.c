@@ -49,6 +49,18 @@ M_chm_factor_to_SEXP(cholmod_factor *f, int dofree)
     return fun(f, dofree);
 }
 
+SEXP attribute_hidden
+M_chm_sparse_to_SEXP(cholmod_sparse *a, int dofree,
+		     int uploT, int Rkind, char *diag, SEXP dn)
+{
+    static SEXP(*fun)(cholmod_sparse*, int,
+		     int, int, char*, SEXP) = NULL;
+    if(fun == NULL)
+	fun = (SEXP(*)(cholmod_sparse*, int, int, int, char*, SEXP))
+	    R_GetCCallable("Matrix", "chm_sparse_to_SEXP");
+    return fun(a, dofree, uploT, Rkind, diag, dn);
+}
+
 cholmod_sparse attribute_hidden
 *M_cholmod_aat(cholmod_sparse *A, int *fset, size_t fsize,
 	       int mode, cholmod_common *Common)
@@ -301,6 +313,19 @@ cholmod_sparse attribute_hidden
 				  cholmod_common*))
 	    R_GetCCallable("Matrix", "cholmod_transpose");
     return fun(A, values, Common);
+}
+
+cholmod_sparse attribute_hidden
+*M_cholmod_vertcat(cholmod_sparse *A, cholmod_sparse *B,
+		   int values, cholmod_common *Common)
+{
+    static cholmod_sparse*(*fun)(cholmod_sparse*, cholmod_sparse*,
+				 int, cholmod_common*) = NULL;
+    if (fun == NULL)
+	fun = (cholmod_sparse*(*)(cholmod_sparse*,cholmod_sparse*,
+				  int, cholmod_common*))
+	    R_GetCCallable("Matrix", "cholmod_vertcat");
+    return fun(A, B, values, Common);
 }
 
 SEXP attribute_hidden

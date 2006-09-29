@@ -121,6 +121,24 @@ emptyColnames <- function(x)
     x
 }
 
+### TODO:  write in C and port to base (or 'utils') R
+indTri <- function(n, upper = TRUE) {
+    ## == which(upper.tri(diag(n)) or
+    ##	  which(lower.tri(diag(n)) -- but much more efficiently for largish 'n'
+    stopifnot(length(n) == 1, n == (n. <- as.integer(n)), (n <- n.) >= 0)
+    if(n <= 2)
+	return(if(n == 2) as.integer(if(upper) n+1 else n) else integer(0))
+    ## First, compute the 'diff(.)'  fast.  Use integers
+    one <- 1:1 ; two <- 2:2
+    n1 <- n - one
+    n2 <- n1 - one
+    r <- rep.int(one, n*n1/two - one)
+    r[cumsum(if(upper) 1:n2 else c(n1, if(n >= 4) n2:two))] <- if(upper) n:3 else 3:n
+    ## now have "dliu" difference; revert to "liu":
+    cumsum(c(if(upper) n+one else two, r))
+}
+
+
 prTriang <- function(x, digits = getOption("digits"),
                      maxp = getOption("max.print"),
 		     justify = "none", right = TRUE)
@@ -183,7 +201,8 @@ nz.NA <- function(x, na.value) {
     else		x != 0 & !is.na(x)
 }
 
-### FIXME? -- make this into a generic function (?)
+## Number of non-zeros :
+## FIXME? -- make this into a generic function (?)
 nnzero <- function(x, na.counted = NA) {
     ## na.counted: TRUE: NA's are counted, they are not 0
     ##               NA: NA's are not known (0 or not) ==>  result := NA
@@ -594,9 +613,10 @@ isTriC <- function(x, upper = NA) {
 }
 
 
+## FIXME? -- this should also work for "ltT", "ntT", ... :
 diagU2N <- function(x)
 {
-    ## Purpose: Transform a *unit diagonal* triangular matrix
+    ## Purpose: Transform a *unit diagonal* sparse triangular matrix
     ##	into one with explicit diagonal entries '1'
     xT <- as(x, "dgTMatrix")
     ## leave it as  T* - the caller can always coerce to C* if needed:

@@ -105,6 +105,23 @@ SEXP Csparse_symmetric_to_general(SEXP x)
 			      GET_SLOT(x, Matrix_DimNamesSym));
 }
 
+#ifdef _not_yet_FIXME_
+/* MM: This would seem useful; e.g. lsC* can hardly be coerced to ! */
+SEXP Csparse_general_to_symmetric(SEXP x,
+				  int stype)/*-1 : "L", +1 : "U" */
+{
+    cholmod_sparse *chx = as_cholmod_sparse(x), *chgx;
+    int Rkind = (chx->xtype == CHOLMOD_REAL) ? Real_kind(x) : 0;
+
+    chgx = cholmod_copy(chx, /* stype: */ stype, chx->xtype, &c);
+    /* xtype: pattern, "real", complex or .. */
+    Free(chx);
+    return chm_sparse_to_SEXP(chgx, 1, 0, Rkind, "",
+			      GET_SLOT(x, Matrix_DimNamesSym));
+}
+
+#endif
+
 SEXP Csparse_transpose(SEXP x, SEXP tri)
 {
     cholmod_sparse *chx = as_cholmod_sparse(x);

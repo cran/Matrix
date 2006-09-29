@@ -6,6 +6,10 @@
 
 SEXP dgCMatrix_validate(SEXP x)
 {
+    /* FIXME? almost all is now done in Csparse_validate;
+       should only check xslot here!
+       ==> *identical*  to lgCMatrix_validate ==> call it 'gCMatrix_validate'
+     */
     SEXP pslot = GET_SLOT(x, Matrix_pSym),
 	islot = GET_SLOT(x, Matrix_iSym),
 	xslot = GET_SLOT(x, Matrix_xSym);
@@ -41,6 +45,7 @@ SEXP dgCMatrix_validate(SEXP x)
 }
 
 
+/* TODO: make this work also for "dsC" {where 'x' stores only triangle} */
 SEXP compressed_to_dgTMatrix(SEXP x, SEXP colP)
 {
     int col = asLogical(colP); /* 1 if "C"olumn compressed;  0 if "R"ow */

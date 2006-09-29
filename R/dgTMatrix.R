@@ -126,10 +126,6 @@ setMethod("+", signature(e1 = "dgTMatrix", e2 = "dgTMatrix"),
                   x = c(e1@x, e2@x), Dim = e1@Dim)
           })
 
-setMethod("t", signature(x = "dgTMatrix"),
-          function(x)
-          new("dgTMatrix", i = x@j, j = x@i, x = x@x, Dim = rev(x@Dim)))
-
 setMethod("kronecker", signature(X = "dgTMatrix", Y = "dgTMatrix"),
           function (X, Y, FUN = "*", make.dimnames = FALSE, ...)
       {

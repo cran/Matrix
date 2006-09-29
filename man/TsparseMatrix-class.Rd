@@ -15,6 +15,7 @@
 \alias{colSums,TsparseMatrix-method}
 \alias{rowMeans,TsparseMatrix-method}
 \alias{rowSums,TsparseMatrix-method}
+\alias{t,TsparseMatrix-method}
 %
 \description{The \code{"TsparseMatrix"} class is the virtual class of
   all sparse matrices coded in triplet form.  Since it is a virtual class,
@@ -51,7 +52,7 @@ Class \code{"Matrix"}, by class \code{"sparseMatrix"}.
   matrices.  Once it is created, however, the matrix is generally
   coerced to a \code{\linkS4class{CsparseMatrix}} for further
   operations.
-  
+
   For convenience, methods for some operations such as \code{\%*\%}
   and \code{crossprod} are defined for
   \code{\linkS4class{TsparseMatrix}} objects.  These methods simply

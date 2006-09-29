@@ -15,7 +15,6 @@ class(mN <-  Matrix(NA, 3,4)) # NA *is* logical
 stopifnot(validObject(d4), validObject(z4), validObject(o4),
           validObject(m4), validObject(dm4), validObject(mN))
 assert.EQ.mat(dm4, as(m4, "matrix"))
-if(FALSE)# assert.EQ.. fails for all NA
 assert.EQ.mat(mN, matrix(NA, 3,4))
 sL <- Matrix(, 3,4, sparse=TRUE)# -> "lgC
 stopifnot(##length(sN@i) == 0, # all "FALSE"
@@ -45,7 +44,11 @@ stopifnot(validObject(cu <- as(tu, "dtCMatrix")),
 	  validObject(t(cu)),
 	  validObject(t(tu)))
 assert.EQ.mat(cu, as(tu,"matrix"), tol=0)
-
+cu[1,2] <- tu[1,2] <- NA
+mu <- as(tu,"matrix")
+assert.EQ.mat(cu, mu, tol=0)
+stopifnot(identical3(cu[cu > 1],  tu [tu > 1], mu [mu > 1]),
+	  identical3(cu[cu <= 1], tu[tu <= 1], mu[mu <= 1]))
 
 ###-- Numeric Dense: Crossprod & Solve
 
@@ -101,11 +104,11 @@ assert.EQ.mat(kr,
 ## sparse:
 (kt1 <- kronecker(t1, tu))
 kt2 <- kronecker(t1c, cu)
-ktf <- kronecker(as.matrix(t1), as.matrix(tu))
-
-assert.EQ.mat(kt1, ktf, tol= 0)
-assert.EQ.mat(kt2, ktf, tol= 0)
+stopifnot(identical(Matrix:::uniq(kt1), Matrix:::uniq(kt2)))
 ## but kt1 and kt2, both "dgT" are different since entries are not ordered!
+ktf <- kronecker(as.matrix(t1), as.matrix(tu))
+if(FALSE) # FIXME? our kronecker treats "0 * NA" as "0" for structural-0
+assert.EQ.mat(kt2, ktf, tol= 0)
 
 ## coercion from "dpo" or "dsy"
 xx <- as(xpx, "dsyMatrix")
@@ -148,9 +151,7 @@ assertError(as(m5, "dpoMatrix"))
 
 (nkt <- as(as(kt1, "dgCMatrix"), "ngCMatrix"))# ok
 (clt <- crossprod(nkt))
-if(FALSE) ## FIXME!
-    crossprod(clt)
-## CHOLMOD error: matrix cannot be symmetric
+crossprod(clt) ## a warning: crossprod() of symmetric
 
 
 ### "d" <-> "l"  for (symmetric) sparse :
@@ -158,10 +159,9 @@ data(KNex)
 mm <- KNex$mm
 xpx <- crossprod(mm)
 ## extract nonzero pattern
-if(FALSE) ## FIXME -- {used to work..
 nxpx <- as(xpx, "nsCMatrix")
 if(FALSE)
-    show(nxpx) ## gives error about "lsC" -> "lgT" coercion ..
+    show(nxpx) ## gives error about "nsC" -> "ngT" coercion ..
 ## The bug is actually from *subsetting* the large matrix:
 if(FALSE) ## FIXME
     r <- nxpx[1:2,]
@@ -170,15 +170,14 @@ lmm <- as(mm, "lgCMatrix")
 nmm <- as(lmm, "nMatrix")
 xlx <- crossprod(lmm)
 x.x <- crossprod(nmm)
+
 ## now A = lxpx and B = xlx should be close, but not quite the same
 ## since <x,y> = 0 is well possible when x!=0 and y!=0 .
 ## However,  A[i,j] != 0 ==> B[i,j] != 0:
-if(FALSE) { ## FIXME : nxpx above
-A <- as(as(nxpx, "lgCMatrix"), "lgTMatrix")
-B <- as(as(xlx,  "lgCMatrix"), "lgTMatrix")
+A <- as(as(nxpx, "lMatrix"), "TsparseMatrix")
+B <- as(as(xlx,  "lMatrix"), "TsparseMatrix")
 ij <- function(a) a@i + ncol(a) * a@j
 stopifnot(all(ij(A) %in% ij(B)))
-}
 
 
 

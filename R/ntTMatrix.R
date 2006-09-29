@@ -4,9 +4,11 @@
 
 setAs("ntTMatrix", "matrix",
       function(from) as(as(from, "ngTMatrix"), "matrix"))
+setAs("matrix", "ntTMatrix",
+      function(from) as(as(from, "dtTMatrix"), "ntTMatrix"))
 
 setAs("ntTMatrix", "ngTMatrix",
-      function(from) new("ngTMatrix", i = from@i, j = from@j, x = from@x,
+      function(from) new("ngTMatrix", i = from@i, j = from@j,
                          Dim = from@Dim, Dimnames = from@Dimnames))
 
 setAs("ntTMatrix", "dtTMatrix",

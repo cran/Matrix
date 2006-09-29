@@ -381,8 +381,8 @@ setClass("ltTMatrix",
 ## logical, sparse, triplet symmetric matrices
 setClass("lsTMatrix",
 	 contains = c("TsparseMatrix", "lsparseMatrix", "symmetricMatrix"),
-	 validity =
-	 function(object) .Call(dsTMatrix_validate, object)
+	 prototype = prototype(uplo = "U"),
+	 validity = function(object) .Call(dsTMatrix_validate, object)
 	 )
 
 ## logical, sparse, sorted compressed sparse column-oriented general matrices
@@ -451,7 +451,8 @@ setClass("ntTMatrix",
 
 ## nonzero pattern, sparse, triplet symmetric matrices
 setClass("nsTMatrix",
-	 contains = c("TsparseMatrix", "nsparseMatrix", "symmetricMatrix")
+	 contains = c("TsparseMatrix", "nsparseMatrix", "symmetricMatrix"),
+	 prototype = prototype(uplo = "U")
          ## validity: Tsparse_ and symmetric*_validate should be enough
 	 )
 

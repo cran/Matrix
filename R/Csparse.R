@@ -138,9 +138,14 @@ replCmat <- function (x, i, j, value)
         x@x[sel] <- value
         return(x)
     }
-    ## else go via Tsparse.. {FIXME "waste": we already have 'xj' ..}
+    ## else go via Tsparse.. {FIXME: a waste! - we already have 'xj' ..}
     x <- as(x, "TsparseMatrix")
-    x[i,j] <- value
+    if(missing(i))
+	x[ ,j] <- value
+    else if(missing(j))
+	x[i, ] <- value
+    else
+	x[i,j] <- value
     as_CspClass(x, clx)
 }
 

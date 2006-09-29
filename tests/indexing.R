@@ -44,14 +44,17 @@ m[1:2, 4] <- 200
 m[, 1] <- -1
 m[1:3,]
 
+## testing operations on logical Matrices rather more than indexing:
 g10 <- m [ m > 10 ]
 stopifnot(18 == length(g10))
 stopifnot(10 == length(m[ m <= 10 ]))
-sel <- (20 < m) & (m < 150)
+sel <- (20 <  m) & (m <  150)
+nsel <-(20 >= m) | (m >= 150)
 (ssel <- as(sel, "sparseMatrix"))
 stopifnot(is(sel, "lMatrix"), is(ssel, "lsparseMatrix"),
-	  identical(  m[ ssel], as.matrix(m)[as.matrix( ssel)]),
-	  identical(  m[!ssel], as.matrix(m)[as.matrix(!ssel)])
+          identical3(!sel, !ssel, nsel), # !<sparse> is typically dense
+	  identical3(m[ sel],  m[ ssel], as.matrix(m)[as.matrix( ssel)]),
+	  identical3(m[!sel],  m[!ssel], as.matrix(m)[as.matrix(!ssel)])
 	  )
 
 ## more sparse Matrices --------------------------------------
@@ -176,9 +179,9 @@ mc # now shows a non-structural zeros
 mc[ii, jj] <- 1:6
 mc[c(2,5), c(3,5)] <- 3.2
 validObject(mc)
-(m. <- mc)
-if(FALSE)## FIXME:
- mc[4,] <- 0 # -> error -- another Bug
+m. <- mc
+mc[4,] <- 0
+mc
 
 H <- Hilbert(9)
 Hc <- as(round(H, 3), "dsCMatrix")# a sparse matrix with no 0 ...

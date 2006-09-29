@@ -3,6 +3,7 @@
 
 #include <R_ext/Lapack.h>
 #include "Mutils.h"
+#include "dspMatrix.h"
 
 SEXP dppMatrix_rcond(SEXP obj, SEXP type);
 SEXP dppMatrix_validate(SEXP obj);

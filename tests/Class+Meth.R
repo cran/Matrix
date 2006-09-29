@@ -42,7 +42,7 @@ stopifnot(identical(as(mT,"dgCMatrix"), mC))
 (mC. <- as(mT[1:2, 2:3], "dgCMatrix"))
 (mlC <- as(mC. , "lgCMatrix"))
 
-if(FALSE) ## ltC no longer extends lgC -- want coercion possibility FIXME
+if(FALSE) ## ltC no longer extends lgC -- want coercion to triangular; FIXME
 as(mlC,"ltCMatrix")
 
 
@@ -52,18 +52,14 @@ as(mlC,"ltCMatrix")
 Rcl.struc <- c("gR", "sR", "tR")
 not.ok.classes <- paste(c(sort(outer(c("l", "n"), Rcl.struc, paste0)),
                                         # only stub implementation
-                          ## FIXME: do these
-                          outer(c("l","n"), c("tT", "sT"), paste0),
-			  ## ltTMatrix_validate missing; as(*,"matrix")
 			  ""), "Matrix", sep='')
 ## From the rest, those that don't show :
 no.show.classes <-
     paste(paste("d", Rcl.struc, sep=''), "Matrix", sep='')
-
-no.t.classes  <- no.show.classes # no t() available
-not.coerce0   <- no.show.classes # not coercable to   "matrix"
-not.coerce1   <- no.show.classes # not coercable from "dgeMatrix"
-not.coerce2   <- no.show.classes # not coercable from "matrix"
+no.t.classes <- no.show.classes # no t() available
+not.coerce0  <- no.show.classes # not coercable to   "matrix" & "dgeMatrix"
+not.coerce1  <- no.show.classes # not coercable from "dgeMatrix"
+not.coerce2  <- no.show.classes # not coercable from "matrix"
 
 tstMatrixClass <-
     function(cl, mM = Matrix(c(2,1,1,2) + 0, 2,2), mm = as(mM, "matrix"),

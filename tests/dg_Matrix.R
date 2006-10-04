@@ -11,14 +11,16 @@ tmm <- t(mm)
 str(tmm)
 
 str(mTm <- crossprod(mm))
-mmT  <- crossprod(tmm) ## should be the same as
+mmT  <- crossprod(tmm)
 mmT. <- tcrossprod(mm)
-## but not quite: even length( * @ x ) differs!
-str(mmT, max=2)# much larger than mTm (i.e less sparse)
-str(mmT., max=2)# x slot is currently slightly larger --> improve tcrossprod()?
-system.time(ae <- all.equal(as(mmT.,"matrix"), as(mmT,"matrix"), tol = 1e-14))
+stopifnot(all.equal(mmT, mmT.))
+## Previously these were not the same           
+## Should be the same but not quite: even length( * @ x ) differs!
+##str(mmT, max=2)# much larger than mTm (i.e less sparse)
+##str(mmT., max=2)# x slot is currently slightly larger --> improve tcrossprod()?
+##system.time(ae <- all.equal(as(mmT.,"matrix"), as(mmT,"matrix"), tol = 1e-14))
 ## 4-5 seconds on a 850 MHz, P III
-stopifnot(ae)
+##stopifnot(ae)
 
 stopifnot(validObject(tmm), dim(tmm) == dm[2:1],
           validObject(mTm), dim(mTm) == dm[c(2,2)],

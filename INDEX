@@ -77,7 +77,6 @@ lu                      Triangular Decomposition of a Square Matrix
 nMatrix-class           Class "nMatrix" of Non-zero Pattern Matrices
 ndenseMatrix-class      Virtual Class "ndenseMatrix" of Dense Logical
                         Matrices
-ndiMatrix-class         Class "ndiMatrix" of Diagonal Logical Matrices
 ngeMatrix-class         Class "ngeMatrix" of General Dense
                         Nonzero-pattern Matrices
 norm                    Norm of a Matrix

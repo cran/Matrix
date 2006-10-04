@@ -1,5 +1,5 @@
-#ifndef LME4_CHOLMOD_H
-#define LME4_CHOLMOD_H
+#ifndef MATRIX_CHOLMOD_H
+#define MATRIX_CHOLMOD_H
 
 #include <stddef.h>
 #include <limits.h>
@@ -765,6 +765,25 @@ typedef struct cholmod_dense_struct
 
 } cholmod_dense ;
 
+typedef struct cholmod_triplet_struct
+{
+    size_t nrow ;	/* the matrix is nrow-by-ncol */
+    size_t ncol ;
+    size_t nzmax ;	/* maximum number of entries in the matrix */
+    size_t nnz ;	/* number of nonzeros in the matrix */
+
+    void *i ;		/* i [0..nzmax-1], the row indices */
+    void *j ;		/* j [0..nzmax-1], the column indices */
+    void *x ;		/* size nzmax or 2*nzmax, if present */
+    void *z ;		/* size nzmax, if present */
+
+    int stype ;		/* symmetry type */
+    int itype ;		/* CHOLMOD_LONG: i and j are UF_long.  Otherwise int. */
+    int xtype ;		/* pattern, real, complex, or zomplex */
+    int dtype ;		/* x and z are double or float */
+
+} cholmod_triplet ;
+
 int M_cholmod_start(cholmod_common *Common);
 int M_cholmod_finish(cholmod_common *Common);
 
@@ -775,6 +794,7 @@ cholmod_sparse* M_cholmod_allocate_sparse(size_t nrow, size_t ncol,
 int M_cholmod_free_factor(cholmod_factor **L, cholmod_common *Common);
 int M_cholmod_free_dense(cholmod_dense **A, cholmod_common *Common);
 int M_cholmod_free_sparse(cholmod_sparse **A, cholmod_common *Common);
+int M_cholmod_free_triplet(cholmod_triplet **T, cholmod_common *Common);
 
 long M_cholmod_nnz(cholmod_sparse *A, cholmod_common *Common);
 cholmod_sparse* M_cholmod_speye(size_t nrow, size_t ncol,
@@ -825,4 +845,14 @@ cholmod_factor* M_cholmod_copy_factor(cholmod_factor *L,
 cholmod_sparse* M_cholmod_factor_to_sparse(cholmod_factor *L,
 					   cholmod_common *Common);
 
-#endif /* LME4_CHOLMOD_H */
+cholmod_sparse* M_cholmod_triplet_to_sparse(cholmod_triplet *T, int nzmax,
+					    cholmod_common *Common);
+
+cholmod_triplet* M_cholmod_sparse_to_triplet(cholmod_sparse *A,
+					     cholmod_common *Common);
+
+cholmod_triplet* M_cholmod_allocate_triplet (size_t nrow, size_t ncol,
+					     size_t nzmax, int stype, int xtype,
+					     cholmod_common *Common);
+
+#endif  /* MATRIX_CHOLMOD_H */

@@ -204,6 +204,7 @@ R_init_Matrix(DllInfo *dll)
     R_RegisterCCallable("Matrix", "cholmod_add", (DL_FUNC)cholmod_add);
     R_RegisterCCallable("Matrix", "cholmod_allocate_dense", (DL_FUNC)cholmod_allocate_dense);
     R_RegisterCCallable("Matrix", "cholmod_allocate_sparse", (DL_FUNC)cholmod_allocate_sparse);
+    R_RegisterCCallable("Matrix", "cholmod_allocate_triplet", (DL_FUNC)cholmod_allocate_triplet);
     R_RegisterCCallable("Matrix", "cholmod_analyze", (DL_FUNC)cholmod_analyze);
     R_RegisterCCallable("Matrix", "cholmod_copy", (DL_FUNC)cholmod_copy);
     R_RegisterCCallable("Matrix", "cholmod_copy_dense", (DL_FUNC)cholmod_copy_dense);
@@ -215,13 +216,16 @@ R_init_Matrix(DllInfo *dll)
     R_RegisterCCallable("Matrix", "cholmod_free_dense", (DL_FUNC)cholmod_free_dense);
     R_RegisterCCallable("Matrix", "cholmod_free_factor", (DL_FUNC)cholmod_free_sparse);
     R_RegisterCCallable("Matrix", "cholmod_free_sparse", (DL_FUNC)cholmod_free_sparse);
+    R_RegisterCCallable("Matrix", "cholmod_free_triplet", (DL_FUNC)cholmod_free_triplet);
     R_RegisterCCallable("Matrix", "cholmod_nnz", (DL_FUNC)cholmod_nnz);
     R_RegisterCCallable("Matrix", "cholmod_sdmult", (DL_FUNC)cholmod_sdmult);
     R_RegisterCCallable("Matrix", "cholmod_solve", (DL_FUNC)cholmod_solve);
+    R_RegisterCCallable("Matrix", "cholmod_sparse_to_triplet", (DL_FUNC)cholmod_sparse_to_triplet);
     R_RegisterCCallable("Matrix", "cholmod_speye", (DL_FUNC)cholmod_speye);
     R_RegisterCCallable("Matrix", "cholmod_spsolve", (DL_FUNC)cholmod_spsolve);
     R_RegisterCCallable("Matrix", "cholmod_start", (DL_FUNC)cholmod_start);
     R_RegisterCCallable("Matrix", "cholmod_transpose", (DL_FUNC)cholmod_transpose);
+    R_RegisterCCallable("Matrix", "cholmod_triplet_to_sparse", (DL_FUNC)cholmod_triplet_to_sparse);
     R_RegisterCCallable("Matrix", "cholmod_vertcat", (DL_FUNC)cholmod_vertcat);
 
     R_RegisterCCallable("Matrix", "dpoMatrix_chol", (DL_FUNC)dpoMatrix_chol);

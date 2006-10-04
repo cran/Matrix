@@ -117,6 +117,42 @@ cholmod_sparse attribute_hidden
     return fun(nrow,ncol,nzmax,sorted,packed,stype,xtype,Common);
 }
 
+cholmod_triplet attribute_hidden
+*M_cholmod_allocate_triplet(size_t nrow, size_t ncol, size_t nzmax,
+			    int stype, int xtype, cholmod_common *Common)
+{
+    static cholmod_triplet*(*fun)(size_t,size_t,size_t,
+				 int,int,cholmod_common*) = NULL;
+    if (fun == NULL)
+	fun = (cholmod_triplet*(*)
+	       (size_t,size_t,size_t,int,int,cholmod_common*))
+	    R_GetCCallable("Matrix", "cholmod_allocate_triplet");
+    return fun(nrow,ncol,nzmax,stype,xtype,Common);
+}
+
+cholmod_sparse attribute_hidden
+*M_cholmod_triplet_to_sparse(cholmod_triplet *T, int nzmax,
+			     cholmod_common *Common)
+{
+    static cholmod_sparse*(*fun)
+	(cholmod_triplet*,int,cholmod_common*) = NULL;
+    if (fun == NULL)
+	fun = (cholmod_sparse*(*)(cholmod_triplet*,int,cholmod_common*))
+	    R_GetCCallable("Matrix", "cholmod_triplet_to_sparse");
+    return fun(T, nzmax, Common);
+}
+
+cholmod_triplet attribute_hidden
+*M_cholmod_sparse_to_triplet(cholmod_sparse *A, cholmod_common *Common)
+{
+    static cholmod_triplet*(*fun)
+	(cholmod_sparse*,cholmod_common*) = NULL;
+    if (fun == NULL)
+	fun = (cholmod_triplet*(*)(cholmod_sparse*,cholmod_common*))
+	    R_GetCCallable("Matrix", "cholmod_sparse_to_triplet");
+    return fun(A, Common);
+}
+
 cholmod_factor attribute_hidden
 *M_cholmod_analyze(cholmod_sparse *A, cholmod_common *Common)
 {
@@ -229,6 +265,16 @@ M_cholmod_free_sparse(cholmod_sparse **A, cholmod_common *Common)
 	fun = (int(*)(cholmod_sparse**,cholmod_common*))
 	    R_GetCCallable("Matrix", "cholmod_free_sparse");
     return fun(A, Common);
+}
+
+int attribute_hidden
+M_cholmod_free_triplet(cholmod_triplet **T, cholmod_common *Common)
+{
+    static int(*fun)(cholmod_triplet**,cholmod_common*) = NULL;
+    if (fun == NULL)
+	fun = (int(*)(cholmod_triplet**,cholmod_common*))
+	    R_GetCCallable("Matrix", "cholmod_free_triplet");
+    return fun(T, Common);
 }
 
 long attribute_hidden

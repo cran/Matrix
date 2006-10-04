@@ -1,3 +1,13 @@
+2006-10-04  Douglas Bates  <bates@stat.wisc.edu>
+
+	* DESCRIPTION (Version): 0.9975-2
+	
+	* inst/include/Matrix_stubs.c (M_cholmod_sparse_to_triplet): export more symbols
+
+2006-10-02  Douglas Bates  <bates@R-project.org>
+
+	* tests/dg_Matrix.R: Simplify test taking into account new code.
+
 2006-09-29  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/Csparse.R (replCmat): improve for missing i / j in non-simple cases

@@ -245,6 +245,7 @@ SEXP lapack_qr(SEXP Xin, SEXP tl)
     return ans;
 }
 
+/* FIXME: 'dense_' really still means 'ddense_' .. : */
 SEXP dense_to_Csparse(SEXP x)
 {
     cholmod_dense *chxd = as_cholmod_dense(PROTECT(mMatrix_as_dgeMatrix(x)));

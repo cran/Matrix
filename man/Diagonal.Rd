@@ -31,6 +31,10 @@ Diagonal(n, x = NULL)
 Diagonal(3)
 Diagonal(x = 10^(3:1))
 Diagonal(x = (1:4) >= 2)#-> "ldiMatrix"
+
+## Use Diagonal() + kronecker() for "repeated-block" matrices:
+M1 <- Matrix(0+0:5, 2,3)
+(M <- kronecker(Diagonal(3), M1))
 }
 \keyword{array}
 \keyword{algebra}

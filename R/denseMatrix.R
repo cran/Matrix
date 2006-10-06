@@ -23,6 +23,7 @@ setAs("denseMatrix", "CsparseMatrix",
 	      else if(extends(cl, "zMatrix")) from <- as(from, "zgeMatrix")
 	      else stop("undefined method for class ", cl)
 	  }
+          ## FIXME: contrary to its name, this only works for "dge*" :
 	  .Call(dense_to_Csparse, from)
       })
 

@@ -37,8 +37,8 @@ assert.EQ.mat(t1, as(t1c, "matrix"))
 ## from  0-diagonal to unit-diagonal {low-level step}:
 tu <- t1 ; tu@diag <- "U"
 tu
-stopifnot(validObject(cu <- as(tu, "dtCMatrix")),
-	  validObject(tu. <- as(cu, "dtTMatrix")),
+cu <- as(tu, "dtCMatrix")
+stopifnot(validObject(cu), validObject(tu. <- as(cu, "dtTMatrix")),
           ## NOT: identical(tu, tu.), # since T* is not unique!
 	  identical(cu, as(tu., "dtCMatrix")),
 	  validObject(t(cu)),
@@ -179,6 +179,8 @@ B <- as(as(xlx,  "lMatrix"), "TsparseMatrix")
 ij <- function(a) a@i + ncol(a) * a@j
 stopifnot(all(ij(A) %in% ij(B)))
 
-
+l3 <- upper.tri(matrix(,3,3))
+(c3 <- as(l3, "CsparseMatrix"))
+stopifnot(validObject(c3), is(c3, "CsparseMatrix"), is(c3, "triangularMatrix"))
 
 cat('Time elapsed: ', proc.time(),'\n') # "stats"

@@ -1,3 +1,6 @@
+#### All methods for "diagonalMatrix" and its subclasses,
+####  currently "ddiMatrix", "ldiMatrix"
+
 ## Purpose: Constructor of diagonal matrices -- ~= diag() ,
 ##          but *not* diag() extractor!
 Diagonal <- function(n, x = NULL)
@@ -25,6 +28,34 @@ Diagonal <- function(n, x = NULL)
 	} else stop("'x' has invalid data type")
 	new(cl, Dim = c(n,n), diag = "N", x = x)
     }
+}
+
+### This is modified from a post of Bert Gunter to R-help on  1 Sep 2005.
+### Bert's code built on a post by Andy Liaw who most probably was influenced
+### by earlier posts, notably one by Scott Chasalow on S-news, 16 Jan 2002
+### who posted his bdiag() function written in December 1995.
+
+bdiag <- function(...) {
+    if(nargs() == 0) return(new("dgCMatrix"))
+    ## else :
+    mlist <- if (nargs() == 1) as.list(...) else list(...)
+    dims <- sapply(mlist, dim)
+    ## make sure we had all matrices:
+    if(!(is.matrix(dims) && nrow(dims) == 2))
+	stop("some arguments are not matrices")
+    csdim <- rbind(rep.int(0:0, 2),
+                   apply(sapply(mlist, dim), 1, cumsum))
+    ret <- new("dgTMatrix", Dim = as.integer(csdim[nrow(csdim),]))
+    add1 <- matrix(1:0, 2,2)
+    for(i in seq(along = mlist)) {
+	indx <- apply(csdim[i:(i+1),] + add1, 2, function(n) n[1]:n[2])
+	if(is.null(dim(indx))) ## non-square matrix
+	    ret[indx[[1]],indx[[2]]] <- mlist[[i]]
+	else ## square matrix
+	    ret[indx[,1],indx[,2]] <- mlist[[i]]
+    }
+    ## slightly debatable if we really should return Csparse.. :
+    as(ret, "CsparseMatrix")
 }
 
 setAs("diagonalMatrix", "triangularMatrix",
@@ -122,6 +153,17 @@ setAs("Matrix", "diagonalMatrix",
           new(cl, Dim = c(n,n), diag = if(uni) "U" else "N",
               x = if(uni) x[FALSE] else x)
       })
+
+## When you assign to a diagonalMatrix, the result should be
+## diagonal or sparse
+setReplaceMethod("[", signature(x = "diagonalMatrix",
+				i = "ANY", j = "ANY", value = "ANY"),
+		 function(x, i, j, value) {
+		     r <- callGeneric(x = as(x,"sparseMatrix"),
+				      i=i, j=j, value=value)
+		     if(isDiagonal(r)) as(r, "diagonalMatrix") else r
+		 })
+
 
 setMethod("t", signature(x = "diagonalMatrix"),
           function(x) { x@Dimnames <- x@Dimnames[2:1] ; x })

@@ -22,10 +22,12 @@
 
 \alias{coerce,lgCMatrix,dgCMatrix-method}
 \alias{coerce,lgCMatrix,lgTMatrix-method}
+\alias{coerce,lgCMatrix,lsCMatrix-method}
 \alias{coerce,lgCMatrix,lgeMatrix-method}
 \alias{coerce,lgCMatrix,matrix-method}
 \alias{coerce,lgTMatrix,dgTMatrix-method}
 \alias{coerce,lgTMatrix,lgCMatrix-method}
+\alias{coerce,lgTMatrix,lsCMatrix-method}
 \alias{coerce,lgTMatrix,matrix-method}
 \alias{coerce,lsCMatrix,dgTMatrix-method}
 \alias{coerce,lsCMatrix,dsCMatrix-method}
@@ -40,6 +42,7 @@
 \alias{coerce,ltCMatrix,lgCMatrix-method}
 \alias{coerce,ltCMatrix,matrix-method}
 \alias{coerce,matrix,lgCMatrix-method}
+\alias{coerce,matrix,lsCMatrix-method}
 \alias{coerce,matrix,lgTMatrix-method}
 \alias{coerce,matrix,ltCMatrix-method}
 %

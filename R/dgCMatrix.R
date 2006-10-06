@@ -149,8 +149,11 @@ setMethod("Arith",
 
 
 setMethod("writeHB", signature(obj = "dgCMatrix"),
-          function(obj, file, ...)
-          .Call(Matrix_writeHarwellBoeing, obj, as.character(file), "DGC"))
+          function(obj, file, ...) {
+              .Deprecated("writeMM")
+              .Call(Matrix_writeHarwellBoeing, obj,
+                    as.character(file), "DGC")
+          })
 
 setMethod("writeMM", signature(obj = "dgCMatrix"),
           function(obj, file, ...)

@@ -41,6 +41,7 @@
 \alias{t,Matrix-method}
 \alias{unname,Matrix-method}
 \alias{coerce,Matrix,matrix-method}%
+\alias{coerce,matrix,Matrix-method}
 \alias{coerce,Matrix,denseMatrix-method}
 \alias{coerce,Matrix,sparseMatrix-method}
 \alias{Compare,Matrix,Matrix-method}

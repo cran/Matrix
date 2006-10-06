@@ -28,6 +28,7 @@ TsparseMatrix-class     Class "TsparseMatrix" of Sparse Matrices in
 [<--methods             Methods for "[<-" - Assigning to Subsets for
                         'Matrix'
 band                    Extract bands of a matrix
+bdiag                   Construct a Block Diagonal Matrix
 compMatrix-class        Class "compMatrix" of Composite (Factorizable)
                         Matrices
 dCholCMatrix-class      Cholesky Decompositions of dsCMatrix Objects

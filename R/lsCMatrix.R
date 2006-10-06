@@ -8,9 +8,12 @@ setAs("lsCMatrix", "matrix",
 setAs("lsCMatrix", "lgCMatrix",
       function(from) .Call(Csparse_symmetric_to_general, from))
 
-if(FALSE) ## FIXME : partially done in C ../src/Csparse.c :
 setAs("lgCMatrix", "lsCMatrix",
-      function(from) .Call(Csparse_general_to_symmetric, from))
+      function(from) .Call(Csparse_general_to_symmetric, from, uplo = "U"))
+## now use it:
+aslsC.by.lgC <- function(from) as(as(from, "lgCMatrix"), "lsCMatrix")
+setAs("lgTMatrix", "lsCMatrix", aslsC.by.lgC) # <-> needed for Matrix()
+setAs("matrix",    "lsCMatrix", aslsC.by.lgC)
 
 ## Specific conversions, should they be necessary.  Better to convert as
 ## as(x, "TsparseMatrix") or as(x, "denseMatrix")

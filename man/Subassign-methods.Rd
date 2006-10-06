@@ -6,6 +6,8 @@
 \title{Methods for "[<-" - Assigning to Subsets for 'Matrix'}
 % in ../R/Matrix.R
 \alias{[<-,Matrix,ANY,ANY,ANY-method}
+\alias{[<-,Matrix,ANY,ANY,Matrix-method}
+\alias{[<-,Matrix,ANY,ANY,matrix-method}
 \alias{[<-,Matrix,missing,missing,ANY-method}
 % \alias{[<-,Matrix,missing,numeric,missing-method}
 % \alias{[<-,Matrix,numeric,missing,missing-method}
@@ -14,6 +16,8 @@
 \alias{[<-,denseMatrix,index,missing,numeric-method}
 \alias{[<-,denseMatrix,index,index,numeric-method}
 \alias{[<-,denseMatrix,missing,index,numeric-method}
+% in ../R/diagMatrix.R
+\alias{[<-,diagonalMatrix,ANY,ANY,ANY-method}
 % -> ../R/Tsparse.R : replValue = { numeric, logical }
 \alias{[<-,TsparseMatrix,index,index,replValue-method}
 \alias{[<-,TsparseMatrix,index,missing,replValue-method}
@@ -50,24 +54,31 @@
   }
 }
 \seealso{
+  %% ./Xtrct-methods.Rd:
   \code{\link{[-methods}} for subsetting \code{"Matrix"} objects; the
   \code{\linkS4class{index}} class;
   \code{\link{Extract}} about the standard subset assignment (and extraction).
 }
 \examples{
-(m <- Matrix(round(rnorm(7*4),2), nrow = 7))
-stopifnot(identical(m, m[]))
-m[2, 3]   # simple number
-m[2, 3:4] # simple numeric of length 2
+%% Note that ./Xtrct-methods.Rd has the indexing ones
+set.seed(101)
+(a <- m <- Matrix(round(rnorm(7*4),2), nrow = 7))
+% not yet available%% FIXME!
+% a[] <- 2.2
+m[2, 3]  <- 3.14 # simple number
+m[3, 3:4]<- 3:4  # simple numeric of length 2
 
-m[2, 3:4, drop=FALSE] # sub matrix of class 'dgeMatrix'
-m[-(4:7), 3:4]        # dito; the upper right corner of 'm'
+## sub matrix assignment:
+m[-(4:7), 3:4] <- cbind(1,2:4) #-> upper right corner of 'm'
+m[3:5, 2:3] <- 0
+m[6:7, 1:2] <- Diagonal(2)
+m
 
 ## rows or columns only:
-m[1,]     # first row, as simple numeric vector
-m[,2]     # 2nd column
-m[,1:2]   # sub matrix of first two columns
-m[-(1:6),, drop=FALSE] # not the first 6 rows, i.e. only the 7th
+m[1,] <- 10
+m[,2] <- 1:7
+m[-(1:6), ] <- 3:0 # not the first 6 rows, i.e. only the 7th
+as(m, "sparseMatrix")
 }
 \keyword{methods}
 \keyword{array}

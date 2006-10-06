@@ -59,16 +59,18 @@ Matrix(data=NA, nrow=1, ncol=1, byrow=FALSE, dimnames=NULL,
 \examples{
 Matrix(0, 3, 2)             # 3 by 2 matrix of zeros -> sparse
 Matrix(0, 3, 2, sparse=FALSE)# forced 'dense'
-Matrix(1:6, 3, 2)           # a 3 by 2 matrix
-Matrix(1:6, nrow=3)
-Matrix(1:6, ncol=2)
+Matrix(1:6, 3, 2)           # a 3 by 2 matrix (+ integer warning)
+Matrix(1:6 + 1, nrow=3)
 
 ## logical ones:
 Matrix(diag(4) >  0)# -> "ldiMatrix" with diag = "U"
-Matrix(diag(4) >= 0)# -> "lsyMatrix"
+Matrix(diag(4) >  0, sparse=TRUE)# -> sparse...
+Matrix(diag(4) >= 0)# -> "lsyMatrix" (of all 'TRUE')
+## triangular
 l3 <- upper.tri(matrix(,3,3))
 Matrix(l3)  # -> "ltCMatrix"
 Matrix(! l3)# -> "ltrMatrix"
+as(l3, "CsparseMatrix")
 
 Matrix(1:9, nrow=3,
        dimnames = list(c("a", "b", "c"), c("A", "B", "C")))
@@ -78,7 +80,9 @@ str(I3) # note the empty 'x' slot
 (A <- cbind(a=c(2,1), b=1:2))# symmetric *apart* from dimnames
 Matrix(A)                    # hence 'dgeMatrix'
 (As <- Matrix(A, dimnames = list(NULL,NULL)))# -> symmetric
-stopifnot(is(As, "symmetricMatrix"))
+stopifnot(is(As, "symmetricMatrix"),
+          is(Matrix(0, 3,3), "sparseMatrix"),
+          is(Matrix(FALSE, 1,1), "sparseMatrix"))
 }
 \keyword{array}
 \keyword{algebra}

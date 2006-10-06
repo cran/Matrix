@@ -105,22 +105,18 @@ SEXP Csparse_symmetric_to_general(SEXP x)
 			      GET_SLOT(x, Matrix_DimNamesSym));
 }
 
-#ifdef _not_yet_FIXME_
-/* MM: This would seem useful; e.g. lsC* can hardly be coerced to ! */
-SEXP Csparse_general_to_symmetric(SEXP x,
-				  int stype)/*-1 : "L", +1 : "U" */
+SEXP Csparse_general_to_symmetric(SEXP x, SEXP uplo)
 {
     cholmod_sparse *chx = as_cholmod_sparse(x), *chgx;
+    int uploT = (*CHAR(asChar(uplo)) == 'U') ? -1 : 1;
     int Rkind = (chx->xtype == CHOLMOD_REAL) ? Real_kind(x) : 0;
 
-    chgx = cholmod_copy(chx, /* stype: */ stype, chx->xtype, &c);
+    chgx = cholmod_copy(chx, /* stype: */ uploT, chx->xtype, &c);
     /* xtype: pattern, "real", complex or .. */
     Free(chx);
     return chm_sparse_to_SEXP(chgx, 1, 0, Rkind, "",
 			      GET_SLOT(x, Matrix_DimNamesSym));
 }
-
-#endif
 
 SEXP Csparse_transpose(SEXP x, SEXP tri)
 {
@@ -200,7 +196,7 @@ SEXP Csparse_crossprod(SEXP x, SEXP trans, SEXP triplet)
 	chxt = cholmod_transpose(chx, chx->xtype, &c);
     chcp = cholmod_aat((!tr) ? chxt : chx, (int *) NULL, 0, chx->xtype, &c);
     if(!chcp)
-	error("Csparse_crossprod(): error return from cholmod_aat()");
+	error(_("Csparse_crossprod(): error return from cholmod_aat()"));
     cholmod_band_inplace(0, chcp->ncol, chcp->xtype, chcp, &c);
     chcp->stype = 1;
     if (trip) {
@@ -218,6 +214,21 @@ SEXP Csparse_crossprod(SEXP x, SEXP trans, SEXP triplet)
     UNPROTECT(1);
     return chm_sparse_to_SEXP(chcp, 1, 0, 0, "", dn);
 }
+
+SEXP Csparse_drop(SEXP x, SEXP tol)
+{
+    cholmod_sparse *chx = as_cholmod_sparse(x),
+	*ans = cholmod_copy(chx, chx->stype, chx->xtype, &c);
+    double dtol = asReal(tol);
+    int Rkind = (chx->xtype == CHOLMOD_REAL) ? Real_kind(x) : 0;
+
+    if(!cholmod_drop(dtol, ans, &c))
+	error(_("cholmod_drop() failed"));
+    Free(chx);
+    /* FIXME: currently drops dimnames */
+    return chm_sparse_to_SEXP(ans, 1, 0, Rkind, "", R_NilValue);
+}
+
 
 SEXP Csparse_horzcat(SEXP x, SEXP y)
 {

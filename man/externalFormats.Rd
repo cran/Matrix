@@ -20,29 +20,33 @@
 \usage{
 readHB(file)
 readMM(file)
-writeHB(obj, file, ...)
+writeHB(obj, file, ...)  # deprecated
 writeMM(obj, file, ...)
 }
 \arguments{
  \item{obj}{a real sparse matrix}
- \item{file}{for \code{writeHB} and \code{writeMM} - the name of the
-   file to be written.  For \code{readHB} and \code{readMM}
-   the name of the file to read, as a character scalar.
-   The names of files storing matrices in the Harwell-Boeing format
-   usually end in \code{".rua"} or \code{".rsa"}.  Those storing
-   matrices in the MatrixMarket format usually end in {".mtx"}.
+ \item{file}{for \code{writeMM} - the name of the file to be written.
+   For \code{readHB} and \code{readMM} the name of the file to read, as
+   a character scalar.  The names of files storing matrices in the
+   Harwell-Boeing format usually end in \code{".rua"} or \code{".rsa"}.
+   Those storing matrices in the MatrixMarket format usually end in
+   {".mtx"}.
 
-   Alternatively, \code{readHB} accepts a connection object.}
+   Alternatively, \code{readHB} and \code{readMM} accept connection objects.}
  \item{\dots}{optional additional arguments. Currently none are used in
    any methods.}
 }
 \value{
   The \code{readHB} and \code{readMM} functions return an object that
   inherits from the \code{"Matrix"} class.  Methods for the
-  \code{writeHB} and \code{writeMM} generic functions usually return
+  \code{writeMM} generic functions usually return
   \code{NULL} and, as a side effect, the matrix \code{obj} is written to
-  \code{file} in the Harwell-Boeing format (writeHB)
-  or the MatrixMarket format (writeMM).
+  \code{file} in the MatrixMarket format (writeMM).
+}
+\note{
+  The Harwell-Boeing format is older and less flexible than the
+ MatrixMarket format.  The function \code{writeHB} is now deprecated.
+ We recommend the use of \code{writeMM} instead.
 }
 \references{
   \url{http://math.nist.gov/MatrixMarket}
@@ -67,7 +71,9 @@ str(jgl009 <-
  readMM(gzcon(url("ftp://math.nist.gov/pub/MatrixMarket2/Harwell-Boeing/counterx/jgl009.mtx.gz"))))
 }
 data(KNex)
+\dontrun{
 writeHB(KNex$mm, "mmHB.rua")
+}
 writeMM(KNex$mm, "mmMM.mtx")
 }
 \keyword{IO}

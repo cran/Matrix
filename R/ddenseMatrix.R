@@ -32,8 +32,14 @@ setAs("dgeMatrix", "dgCMatrix",
       function(from) .Call(dense_to_Csparse, from))
 
 setAs("matrix", "CsparseMatrix",
-      function(from)
-      .Call(dense_to_Csparse, .Call(dup_mMatrix_as_dgeMatrix, from)))
+      function(from) {
+	    if(is.numeric(from))
+		.Call(dense_to_Csparse, .Call(dup_mMatrix_as_dgeMatrix, from))
+	    else if(is.logical(from)) ## FIXME: this works, but maybe wastefully
+                as(Matrix(from, sparse=TRUE), "CsparseMatrix")
+	    else stop('not-yet-implemented coercion to "CsparseMatrix"')
+      })
+
 
 ## special case needed in the Matrix function
 setAs("matrix", "dgCMatrix",

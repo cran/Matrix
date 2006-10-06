@@ -84,3 +84,7 @@ Check for DimNames propagation in coercion and other operations.
 	setAs("dppMatrix", "sparseMatrix")
 	setAs("dtpMatrix", "sparseMatrix")
   and the same for "lsp" , "ltp"  and  "nsp" , "ntp" !
+
+- use  .Call(Csparse_drop, M, tol) in more places,
+  both with 'tol = 0.' to drop "values that happen to be 0" and for
+  zapsmall() methods for Csparse*

@@ -1,7 +1,32 @@
+2006-10-06  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.9975-3
+
+	* R/diagMatrix.R (bdiag): new function constructing block diagonal
+	(sparse) matrices.
+	* man/bdiag.Rd: docu + examples
+
+	* R/Csparse.R (replCmat): calling new Csparse_drop() now.
+
+	* src/Csparse.c (Csparse_general_to_symmetric, Csparse_drop): new functions
+	* R/lsCMatrix.R: three more coercions to lsC (thanks to the above)
+
+	* R/diagMatrix.R (Diagonal): '[<-' method for diag.matrices such
+	that result is sparse or diagonal (and not dense).
+
+	* man/Subassign-methods.Rd: fix examples
+
+	* R/Matrix.R (Matrix):  Matrix(0, *) or Matrix(*, sparse=TRUE)
+	should always return a sparse (and not sometimes a diagonal) matrix.
+
+2006-10-05  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Matrix.R ([<-): also for value "Matrix" or "matrix"
+
 2006-10-04  Douglas Bates  <bates@stat.wisc.edu>
 
 	* DESCRIPTION (Version): 0.9975-2
-	
+
 	* inst/include/Matrix_stubs.c (M_cholmod_sparse_to_triplet): export more symbols
 
 2006-10-02  Douglas Bates  <bates@R-project.org>

@@ -160,5 +160,5 @@
 - Factorizations: LU and solve() for  *sparse*  Matrices is now done,
   -----------------  using CSparse (and not UMFPACK as originally thought)
 
-
+- M[i,j] <- "sub-Matrix"  now works.
 

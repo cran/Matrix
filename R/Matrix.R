@@ -6,8 +6,10 @@
 setAs("Matrix", "sparseMatrix", function(from) as_Csparse(from))
 setAs("Matrix", "denseMatrix",  function(from) as_dense(from))
 
+## Most of these work; this is a last resort:
 setAs(from = "Matrix", to = "matrix", # do *not* call base::as.matrix() here:
       function(from) .bail.out.2("coerce", class(from), class(to)))
+setAs(from = "matrix", to = "Matrix", function(from) Matrix(from))
 
 ## ## probably not needed eventually:
 ## setAs(from = "ddenseMatrix", to = "matrix",
@@ -81,7 +83,8 @@ Matrix <-
 	prod(dim(m)) > 2*sum(is.na(m <- as(m, "matrix")) | m != 0)
 
     i.M <- is(data, "Matrix")
-    if(is.null(sparse) && (i.M || is(data, "matrix")))
+
+    if(is.null(sparse1 <- sparse) && (i.M || is(data, "matrix")))
 	sparse <- sparseDefault(data)
 
     doDN <- TRUE
@@ -96,10 +99,9 @@ Matrix <-
 	    nrow <- ceiling(length(data)/ncol)
 	else if (missing(ncol))
 	    ncol <- ceiling(length(data)/nrow)
-	if(length(data) == 1 && !is.na(data) && data == 0 &&
-           !identical(sparse, FALSE)) {
-
-	    if(is.null(sparse)) sparse <- TRUE
+	if(length(data) == 1 && is0(data) && !identical(sparse, FALSE)) {
+            ## Matrix(0, ...) : always sparse unless "sparse = FALSE":
+	    if(is.null(sparse)) sparse1 <- sparse <- TRUE
 	    ## will be sparse: do NOT construct full matrix!
 	    data <- new(if(is.numeric(data)) "dgTMatrix" else
 			if(is.logical(data)) "lgTMatrix" else
@@ -127,11 +129,9 @@ Matrix <-
     if(isDiag)
 	isDiag <- isDiagonal(data)
 
-### TODO: Compare with as.Matrix() and its tests in ./dgeMatrix.R
-
     ## Find proper matrix class 'cl'
     cl <-
-	if(isDiag)
+	if(isDiag && !isTRUE(sparse1))
 	    "diagonalMatrix" # -> will automatically check for type
 	else {
 	    ## consider it's type
@@ -314,18 +314,28 @@ setMethod("[", signature(x = "Matrix", i = "logical", j = "missing",
 setReplaceMethod("[", signature(x = "Matrix", i = "missing", j = "missing",
                                 value = "ANY"),## double/logical/...
 	  function (x, value) {
-              x@x <- value
-              validObject(x)# check if type and lengths above match
-              x
+	      ## Fails for 'nMatrix' ... FIXME : make sure have method there
+	      x@x <- value
+	      validObject(x)# check if type and lengths above match
+	      x
           })
 
-## Method for all 'Matrix' kinds (rather than incomprehensible error messages);
+setReplaceMethod("[", signature(x = "Matrix", i = "ANY", j = "ANY",
+				value = "Matrix"),
+		 function (x, i, j, value)
+		 callGeneric(x=x, i=i, j=j, value = as.vector(value)))
+setReplaceMethod("[", signature(x = "Matrix", i = "ANY", j = "ANY",
+				value = "matrix"),
+		 function (x, i, j, value)
+		 callGeneric(x=x, i=i, j=j, value = c(value)))
+
 ## (ANY,ANY,ANY) is used when no `real method' is implemented :
 setReplaceMethod("[", signature(x = "Matrix", i = "ANY", j = "ANY",
                                 value = "ANY"),
 	  function (x, i, j, value) {
               if(!is.atomic(value))
-                  stop("RHS 'value' must match matrix class ", class(x))
+		  stop(sprintf("RHS 'value' (class %s) matches 'ANY', but must match matrix class %s",
+			       class(value),class(x)))
               else stop("not-yet-implemented 'Matrix[<-' method")
           })
 

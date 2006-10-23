@@ -15,7 +15,7 @@ for(cln in allCl) {
         paste(rep("~",nchar(cln)),collapse=''),"\n")
     ## A smarter version would use  getClass() instead of showClass(),
     ## build the "graph" and only then display.
-
+    ##
     showClass(cln)
 }
 
@@ -56,10 +56,13 @@ not.ok.classes <- paste(c(sort(outer(c("l", "n"), Rcl.struc, paste0)),
 ## From the rest, those that don't show :
 no.show.classes <-
     paste(paste("d", Rcl.struc, sep=''), "Matrix", sep='')
-no.t.classes <- no.show.classes # no t() available
+Mat.MatFact <- c("Cholesky", "pCholesky",
+                 "BunchKaufman", "pBunchKaufman")##, "LDL"
+no.t.etc <- c(no.show.classes, Mat.MatFact)
+no.t.classes <- no.t.etc        # no t() available
 not.coerce0  <- no.show.classes # not coercable to   "matrix" & "dgeMatrix"
-not.coerce1  <- no.show.classes # not coercable from "dgeMatrix"
-not.coerce2  <- no.show.classes # not coercable from "matrix"
+not.coerce1  <- no.t.etc        # not coercable from "dgeMatrix"
+not.coerce2  <- no.t.etc        # not coercable from "matrix"
 
 tstMatrixClass <-
     function(cl, mM = Matrix(c(2,1,1,2) + 0, 2,2), mm = as(mM, "matrix"),
@@ -144,8 +147,9 @@ tstMatrixClass <-
                         cat.("as(dge*, <class>): ")
                         m2 <- as(mM, clNam)
                         cat("valid:", validObject(m2), "\n")
-                        ## as.vector()
-                        stopifnot(as.vector(m2) == as.vector(mM))
+                        if(clNam != "corMatrix") # has diagonal divided out
+                            ## as.vector()
+                            stopifnot(as.vector(m2) == as.vector(mM))
                     }
                     if(all(clNam != not.coerce2)) {
                         cat.("as(matrix, <class>): ")

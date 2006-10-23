@@ -244,21 +244,21 @@ setMethod("crossprod", signature(x = "diagonalMatrix", y = "dgeMatrix"),
 
 setMethod("%*%", signature(x = "matrix", y = "diagonalMatrix"),
 	  function(x, y) {
-              dx <- dim(x)
-              dy <- dim(y)
-              if(dx[2] != dy[1]) stop("non-matching dimensions")
-              as(if(y@diag == "U") x else x * rep.int(y@x, dx[1]), "Matrix")
-          })
+	      dx <- dim(x)
+	      dy <- dim(y)
+	      if(dx[2] != dy[1]) stop("non-matching dimensions")
+	      as(if(y@diag == "U") x else x * rep(y@x, each = dx[1]), "Matrix")
+	  })
 
 setMethod("%*%", signature(x = "dgeMatrix", y = "diagonalMatrix"),
 	  function(x, y) {
-              dx <- dim(x)
-              dy <- dim(y)
-              if(dx[2] != dy[1]) stop("non-matching dimensions")
-              if(y@diag == "N")
-                  x@x <- x@x * rep.int(y@x, dx[1])
-              x
-          })
+	      dx <- dim(x)
+	      dy <- dim(y)
+	      if(dx[2] != dy[1]) stop("non-matching dimensions")
+	      if(y@diag == "N")
+		  x@x <- x@x * rep(y@x, each = dx[1])
+	      x
+	  })
 
 ## crossprod {more of these}
 

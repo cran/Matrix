@@ -8,6 +8,8 @@
 \alias{coerce,dpoMatrix,dppMatrix-method}
 \alias{coerce,dpoMatrix,corMatrix-method}
 \alias{coerce,dppMatrix,dpoMatrix-method}
+\alias{coerce,matrix,corMatrix-method}
+\alias{coerce,Matrix,corMatrix-method}
 \alias{coerce,matrix,dpoMatrix-method}
 \alias{coerce,Matrix,dpoMatrix-method}
 \alias{coerce,matrix,dppMatrix-method}

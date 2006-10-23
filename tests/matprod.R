@@ -7,7 +7,7 @@ source(system.file("test-tools.R", package = "Matrix"))
 m5 <- 1 + as(diag(-1:4)[-5,], "dgeMatrix")
 ## named dimnames:
 dimnames(m5) <- list(Rows= LETTERS[1:5], paste("C", 1:6, sep=""))
-m. <- as(m5,"matrix")
+m. <- as(m5, "matrix")
 stopifnot(dim(m5) == 5:6,
           class(cm5 <- crossprod(m5)) == "dpoMatrix")
 assert.EQ.mat((c.m5 <- t(m5) %*% m5), as(cm5, "matrix"))
@@ -24,8 +24,8 @@ tc.m5 <- m5 %*% t(m5)    # "dge*", no dimnames (FIXME)
 assert.EQ.mat(tc.m5, mm5 <- as(tcm5, "matrix"))
 ## tcrossprod(x,y) :
 assert.EQ.mat(tcrossprod(m5, m5), mm5)
-assert.EQ.mat(tcrossprod(m5, as(m5,"matrix")), mm5)
-assert.EQ.mat(tcrossprod(as(m5,"matrix"), m5), mm5)
+assert.EQ.mat(tcrossprod(m5, m.), mm5)
+assert.EQ.mat(tcrossprod(m., m5), mm5)
 
 ## simple cases with 'scalars' treated as 1x1 matrices:
 d <- Matrix(1:5)
@@ -38,13 +38,17 @@ assertError(5 %*% as.matrix(d))  # -> error
 (p1 <- m5 %*% c(10, 2:6))
 (p2 <- c(10, 2:5) %*% m5)
 (pd1 <- m5 %*% diag(1:6))
-(pd2 <- diag(10:6) %*% m5)
+(pd. <- m5 %*% Diagonal(x = 1:6))
+(pd2 <- diag (10:6)        %*% m5)
+(pd..<- Diagonal(x = 10:6) %*% m5)
 stopifnot(dim(crossprod(t(m5))) == c(5,5),
-          c(class(p1),class(p2),class(pd1),class(pd2)) == "dgeMatrix"
-          )
+          c(class(p1),class(p2),class(pd1),class(pd2),
+            class(pd.),class(pd..)) == "dgeMatrix")
 assert.EQ.mat(p1, cbind(c(20,30,33,38,54)))
-assert.EQ.mat(pd1, as(m5,"matrix") %*% diag(1:6))
-assert.EQ.mat(pd2, diag(10:6) %*% as(m5,"matrix"))
+assert.EQ.mat(pd1, m. %*% diag(1:6))
+assert.EQ.mat(pd2, diag(10:6) %*% m.)
+assert.EQ.mat(pd., as(pd1,"matrix"))
+assert.EQ.mat(pd..,as(pd2,"matrix"))
 
 ## check that 'solve' and '%*%' are inverses
 set.seed(1)

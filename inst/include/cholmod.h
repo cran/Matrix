@@ -784,7 +784,8 @@ typedef struct cholmod_triplet_struct
 
 } cholmod_triplet ;
 
-int M_cholmod_start(cholmod_common *Common);
+int M_R_cholmod_start(cholmod_common *Common);
+void M_R_cholmod_error(int status, char *file, int line, char *message);
 int M_cholmod_finish(cholmod_common *Common);
 
 cholmod_sparse* M_cholmod_allocate_sparse(size_t nrow, size_t ncol,
@@ -801,6 +802,7 @@ cholmod_sparse* M_cholmod_speye(size_t nrow, size_t ncol,
 				int xtype, cholmod_common *Common);
 cholmod_sparse* M_cholmod_transpose(cholmod_sparse *A, int values,
 				    cholmod_common *Common);
+int M_cholmod_sort(cholmod_sparse *A, cholmod_common *Common);
 cholmod_sparse* M_cholmod_vertcat(cholmod_sparse *A, cholmod_sparse *B,
 				  int values, cholmod_common *Common);
 cholmod_sparse* M_cholmod_copy(cholmod_sparse *A, int stype,
@@ -849,6 +851,9 @@ cholmod_sparse* M_cholmod_triplet_to_sparse(cholmod_triplet *T, int nzmax,
 					    cholmod_common *Common);
 
 cholmod_triplet* M_cholmod_sparse_to_triplet(cholmod_sparse *A,
+					     cholmod_common *Common);
+
+cholmod_dense* M_cholmod_sparse_to_dense(cholmod_sparse *A,
 					     cholmod_common *Common);
 
 cholmod_triplet* M_cholmod_allocate_triplet (size_t nrow, size_t ncol,

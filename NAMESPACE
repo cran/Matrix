@@ -149,6 +149,7 @@ exportClasses(
 	      "pBunchKaufman",
 	      "Cholesky",
 	      "pCholesky",
+	      ## "LDL",
 
               ## --- 'MatrixFactorization' mother and all its daughters : ---
 

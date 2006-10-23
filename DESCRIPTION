@@ -1,6 +1,6 @@
 Package: Matrix
-Version: 0.9975-3
-Date: 2006-10-06
+Version: 0.9975-5
+Date: 2006-10-23
 Title: A Matrix package for R
 Author: Douglas Bates <bates@stat.wisc.edu> and Martin Maechler <maechler@stat.math.ethz.ch>
 Maintainer: Douglas Bates <bates@stat.wisc.edu>
@@ -12,10 +12,10 @@ Enhances: graph, SparseM
 SystemRequirements: GNU make
 LazyLoad: yes
 LazyData: no
-LazyDataNote: no longer available, since we use data/*.R
+LazyDataNote: no longer available, since we use data/*.R *and* our classes
 License: GPL version 2 or later.
  This R package includes libraries CHOLMOD, AMD, COLAMD and CSparse
  from the University of Florida sparse matrix library maintained by Tim
  Davis.  All sections of that code are covered by the GPL or LGPL
  licenses.  See the directory doc/UFsparse for details.
-Packaged: Sun Oct  8 20:46:21 2006; hornik
+Packaged: Mon Oct 23 15:45:58 2006; maechler

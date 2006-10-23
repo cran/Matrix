@@ -13,6 +13,9 @@ cholmod_dense *as_cholmod_dense(SEXP x);
 cholmod_dense *numeric_as_chm_dense(double *v, int n);
 cholmod_factor *as_cholmod_factor(SEXP x);
 
+int R_cholmod_start(cholmod_common *Common);
+void R_cholmod_error(int status, char *file, int line, char *message);
+
 SEXP chm_factor_to_SEXP(cholmod_factor *f, int dofree);
 SEXP chm_sparse_to_SEXP(cholmod_sparse *a, int dofree,
 			int uploT, int Rkind, char *diag, SEXP dn);

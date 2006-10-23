@@ -1,7 +1,12 @@
 #include "HBMM.h"
+
+#if 0
 #include "iohb.h"
+#endif
+
 #include "mmio.h"
 
+#if 0
 SEXP Matrix_writeHarwellBoeing(SEXP obj, SEXP file, SEXP typep)
 {
     char *type = CHAR(asChar(typep)), *Type = strdup("RUA");
@@ -38,6 +43,7 @@ SEXP Matrix_writeHarwellBoeing(SEXP obj, SEXP file, SEXP typep)
     Free(Type);
     return R_NilValue;
 }
+#endif
 
 SEXP Matrix_writeMatrixMarket(SEXP obj, SEXP file, SEXP typep)
 {
@@ -61,9 +67,6 @@ SEXP Matrix_writeMatrixMarket(SEXP obj, SEXP file, SEXP typep)
 	mm_set_real(&matcode);
     } else error("Only real matrices allowed");
 
-    if (!isString(file))
-	error("non-string values for file not currently allowed");
-
     if (type[1] == 'S') {
 	if (*uplo_P(obj) != 'L')
 	    error("Symmetric matrices must be stored in lower triangle");
@@ -78,7 +81,7 @@ SEXP Matrix_writeMatrixMarket(SEXP obj, SEXP file, SEXP typep)
 	jj = INTEGER(GET_SLOT(obj, Matrix_jSym));
     if (!jj) error("storage mode must be T or C");
 
-    mm_write_mtx_crd(CHAR(STRING_ELT(file, 0)), M, N, nz, ii, jj, xx,
+    mm_write_mtx_crd(CHAR(asChar(file)), M, N, nz, ii, jj, xx,
 		     matcode);
 
     if (type[2] == 'C') Free(jj);

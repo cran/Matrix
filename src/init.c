@@ -59,7 +59,7 @@ static R_CallMethodDef CallEntries[] = {
     {"LU_expand", (DL_FUNC) &LU_expand, 1},
     {"LU_validate", (DL_FUNC) &LU_validate, 1},
     {"Matrix_expand_pointers", (DL_FUNC) &Matrix_expand_pointers, 1},
-    {"Matrix_writeHarwellBoeing", (DL_FUNC) &Matrix_writeHarwellBoeing, 3},
+/*     {"Matrix_writeHarwellBoeing", (DL_FUNC) &Matrix_writeHarwellBoeing, 3}, */
     {"Matrix_writeMatrixMarket", (DL_FUNC) &Matrix_writeMatrixMarket, 3},
     {"SVD_validate", (DL_FUNC) &SVD_validate, 1},
     {"Tsparse_validate", (DL_FUNC) &Tsparse_validate, 1},
@@ -220,7 +220,9 @@ R_init_Matrix(DllInfo *dll)
     R_RegisterCCallable("Matrix", "cholmod_free_triplet", (DL_FUNC)cholmod_free_triplet);
     R_RegisterCCallable("Matrix", "cholmod_nnz", (DL_FUNC)cholmod_nnz);
     R_RegisterCCallable("Matrix", "cholmod_sdmult", (DL_FUNC)cholmod_sdmult);
-    R_RegisterCCallable("Matrix", "cholmod_solve", (DL_FUNC)cholmod_solve);
+    R_RegisterCCallable("Matrix", "cholmod_solve", (DL_FUNC)cholmod_solve); 
+    R_RegisterCCallable("Matrix", "cholmod_sort", (DL_FUNC)cholmod_sort);
+    R_RegisterCCallable("Matrix", "cholmod_sparse_to_dense", (DL_FUNC)cholmod_sparse_to_dense);
     R_RegisterCCallable("Matrix", "cholmod_sparse_to_triplet", (DL_FUNC)cholmod_sparse_to_triplet);
     R_RegisterCCallable("Matrix", "cholmod_speye", (DL_FUNC)cholmod_speye);
     R_RegisterCCallable("Matrix", "cholmod_spsolve", (DL_FUNC)cholmod_spsolve);
@@ -232,7 +234,7 @@ R_init_Matrix(DllInfo *dll)
     R_RegisterCCallable("Matrix", "dpoMatrix_chol", (DL_FUNC)dpoMatrix_chol);
     R_RegisterCCallable("Matrix", "numeric_as_chm_dense", (DL_FUNC)numeric_as_chm_dense);
 
-    cholmod_start(&c);
+    R_cholmod_start(&c);
 
     Matrix_DimNamesSym = install("Dimnames");
     Matrix_DimSym = install("Dim");

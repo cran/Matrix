@@ -1,3 +1,39 @@
+2006-10-23  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.9975-5 ready for release
+
+2006-10-20  Douglas Bates  <bates@stat.wisc.edu>
+
+	* src/init.c (R_init_Matrix): export more cholmod CCallable functions.
+
+2006-10-20  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/AllClass.R (corMatrix): add 'validity' check;
+		comment out unused "LDL" class definition
+	* NAMESPACE: mention, but do not export "LDL" class
+	* R/corMatrix.R: new (simple), needed for R-devel with
+	* tests/Class+Meth.R (tstMatrixClass): 1 exception for corMatrix
+	  coerce and t() exceptions for all 5 'Mat.MatFact' classes.
+
+2006-10-19  Douglas Bates  <bates@stat.wisc.edu>
+
+	* src/chm_common.h: Add R_cholmod_start to initialize cholmod to
+	use Rprintf and R's error handling.
+
+2006-10-17  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/diagMatrix.R (%*%): rep(*, each = .) in Matrix %*% diagonal.
+	* tests/matprod.R: add tests for the bug fixed.
+
+2006-10-11  Douglas Bates  <bates@stat.wisc.edu>
+
+	* src/HBMM.[ch]: remove HarwellBoeing format for writing.
+	* src/SOURCES_C.mkf (SOURCES_C): no longer compile iohb.c
+
+2006-10-06  Douglas Bates  <bates@stat.wisc.edu>
+
+	* R/d[gs]CMatrix.R: deprecate the writeHB function.  Use writeMM instead.
+
 2006-10-06  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* DESCRIPTION (Version): 0.9975-3

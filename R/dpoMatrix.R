@@ -7,9 +7,7 @@ setAs("dpoMatrix", "corMatrix",
       function(from) {
           sd <- sqrt(diag(from))
           if (!is.null(nms <- from@Dimnames[[1]])) names(sd) <- nms
-          ans <- new("corMatrix", as(t(from/sd)/sd, "dpoMatrix"), sd = sd)
-          ans@Dimnames <- from@Dimnames
-          ans
+          new("corMatrix", as(t(from/sd)/sd, "dpoMatrix"), sd = sd)
       })
 
 to_dpo <- function(from) as(as(from, "dsyMatrix"), "dpoMatrix")

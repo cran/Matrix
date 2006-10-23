@@ -360,6 +360,29 @@ cholmod_dense *as_cholmod_dense(SEXP x)
     return ans;
 }
 
+void R_cholmod_error(int status, char *file, int line, char *message)
+{
+    error(_("Cholmod error `%s' at file:%s, line %d"), message, file, line);
+}
+
+/**
+ * Initialize the CHOLMOD library and replace the print and error functions
+ * by R-specific versions.
+ *
+ * @param Common pointer to a cholmod_common structure to be initialized
+ *
+ * @return CHOLMOD_OK if successful
+ */
+int R_cholmod_start(cholmod_common *c)
+{
+    int res;
+    if (!cholmod_start(c))
+	error(_("Unable to initialize cholmod: error code %d"), res);
+    c->print_function = Rprintf;
+    c->error_handler = R_cholmod_error;
+    return TRUE;
+}
+
 /**
  * Copy the contents of a to an appropriate denseMatrix object and,
  * optionally, free a or free both a and its pointer to its contents.

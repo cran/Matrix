@@ -271,7 +271,16 @@ setClass("ddiMatrix", contains = c("diagonalMatrix", "ddenseMatrix"))# or "dMatr
 ## diagonal, logical matrices; "ldense*" has 'x' slot :
 setClass("ldiMatrix", contains = c("diagonalMatrix", "ldenseMatrix"))
 
-setClass("corMatrix", representation(sd = "numeric"), contains = "dpoMatrix")
+setClass("corMatrix", representation(sd = "numeric"), contains = "dpoMatrix",
+	 validity = function(object) {
+	     ## assuming that 'dpoMatrix' validity check has already happened:
+	     n <- object@Dim[2]
+	     if(length(sd <- object@sd) != n)
+		 return("'sd' slot must be of length 'dim(.)[1]'")
+	     if(any(sd < 0))
+		 return("'sd' slot has negative entries")
+	     TRUE
+	 })
 
 
 ##-------------------- S P A R S E (non-virtual) --------------------------
@@ -519,7 +528,7 @@ setClass("MatrixFactorization", representation(Dim = "integer", "VIRTUAL"))
 
 setClass("Cholesky",  contains = c("dtrMatrix", "MatrixFactorization"))
 
-setClass("LDL",       contains = c("dtrMatrix", "MatrixFactorization"))
+#unUsed: setClass("LDL", contains = c("dtrMatrix", "MatrixFactorization"))
 
 setClass("pCholesky", contains = c("dtpMatrix", "MatrixFactorization"))
 

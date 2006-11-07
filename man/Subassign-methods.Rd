@@ -9,13 +9,14 @@
 \alias{[<-,Matrix,ANY,ANY,Matrix-method}
 \alias{[<-,Matrix,ANY,ANY,matrix-method}
 \alias{[<-,Matrix,missing,missing,ANY-method}
+\alias{[<-,Matrix,matrix,missing,replValue-method}
 % \alias{[<-,Matrix,missing,numeric,missing-method}
 % \alias{[<-,Matrix,numeric,missing,missing-method}
 % \alias{[<-,Matrix,numeric,numeric,missing-method}
 % in ../R/denseMatrix.R
-\alias{[<-,denseMatrix,index,missing,numeric-method}
-\alias{[<-,denseMatrix,index,index,numeric-method}
-\alias{[<-,denseMatrix,missing,index,numeric-method}
+\alias{[<-,denseMatrix,index,missing,replValue-method}
+\alias{[<-,denseMatrix,index,index,replValue-method}
+\alias{[<-,denseMatrix,missing,index,replValue-method}
 % in ../R/diagMatrix.R
 \alias{[<-,diagonalMatrix,ANY,ANY,ANY-method}
 % -> ../R/Tsparse.R : replValue = { numeric, logical }

@@ -30,6 +30,7 @@ setAs("dgRMatrix", "matrix",
 
 setAs("dgRMatrix", "dgCMatrix",
       function(from) as(as(from, "dgTMatrix"), "dgCMatrix"))
+setAs("dgRMatrix", "CsparseMatrix", function(from) as(from, "dgCMatrix"))
 
 ## **VERY** cheap substitutes:  work via dgC and t(.)
 .to.dgR <- function(from) {
@@ -39,6 +40,7 @@ setAs("dgRMatrix", "dgCMatrix",
 }
 
 setAs("matrix",    "dgRMatrix", .to.dgR)
+setAs("dgeMatrix", "dgRMatrix", .to.dgR)
 setAs("dgCMatrix", "dgRMatrix", .to.dgR)
 setAs("dgTMatrix", "dgRMatrix", .to.dgR)
 
@@ -67,6 +69,9 @@ setMethod("image", "dgRMatrix",
               x <- as(x, "dgTMatrix")
               callGeneric()
           })
+
+setMethod("t", "RsparseMatrix",
+	  function(x) as_Rsparse(t(as_Tsparse(x))))
 
 
 ## Want tril(), triu(), band() --- just as "indexing" ---

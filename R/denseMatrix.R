@@ -64,7 +64,15 @@ setMethod("[", signature(x = "denseMatrix", i = "index", j = "index",
 			 drop = "logical"),
 	  function (x, i, j, drop) {
 	      r <- callGeneric(x = as(x, "matrix"), i=i, j=j, drop=drop)
-	      if(is.null(dim(r))) r else as_geClass(r, class(x))
+	      if(is.null(dim(r)))
+		  r
+	      else {
+		  cl <- class(x)
+		  if(extends(cl, "symmetricMatrix") &&
+		     length(i) == length(j) && all(i == j))
+		      as(r, cl) ## keep original symmetric class
+		  else as_geClass(r, cl)
+	      }
 	  })
 
 ## Now the "[<-" ones --- see also those in ./Matrix.R
@@ -74,7 +82,7 @@ setMethod("[", signature(x = "denseMatrix", i = "index", j = "index",
 ## FIXME: 1) These are far from efficient
 ## -----  2) value = "numeric" is only ok for "ddense*"
 setReplaceMethod("[", signature(x = "denseMatrix", i = "index", j = "missing",
-				value = "numeric"),
+				value = "replValue"),
 		 function (x, i, value) {
 		     r <- as(x, "matrix")
 		     r[i, ] <- value
@@ -82,7 +90,7 @@ setReplaceMethod("[", signature(x = "denseMatrix", i = "index", j = "missing",
 		 })
 
 setReplaceMethod("[", signature(x = "denseMatrix", i = "missing", j = "index",
-				value = "numeric"),
+				value = "replValue"),
 		 function (x, j, value) {
 		     r <- as(x, "matrix")
 		     r[, j] <- value
@@ -90,7 +98,7 @@ setReplaceMethod("[", signature(x = "denseMatrix", i = "missing", j = "index",
 		 })
 
 setReplaceMethod("[", signature(x = "denseMatrix", i = "index", j = "index",
-				value = "numeric"),
+				value = "replValue"),
 		 function (x, i, j, value) {
 		     r <- as(x, "matrix")
 		     r[i, j] <- value

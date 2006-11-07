@@ -173,10 +173,11 @@ exportClasses(
 exportMethods(
 	      ## Group Methods
 	      "Arith",
+	      "Compare",
 	      "Math",
 	      "Math2",
+	      "Ops",
 	      "Summary",
-	      "Compare",
 
 	      "!",
 	      "+",# for dgT(Matrix) only

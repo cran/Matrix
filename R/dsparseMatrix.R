@@ -21,7 +21,8 @@ setMethod("crossprod", signature(x = "ddenseMatrix", y = "dsparseMatrix"),
 ##           function(x, y) callGeneric(x, as(y, "dgCMatrix")))
 
 setMethod("crossprod", signature(x = "dsparseMatrix", y = "dgeMatrix"),
-          function(x, y = NULL) callGeneric(as(x, "dgCMatrix"), y))
+## NB: using   callGeneric(.) here, leads to infinite recursion :
+          function(x, y = NULL) .Call(Csparse_dense_crossprod, as(x, "dgCMatrix"), y))
 
 ## NB: there's already
 ##     ("CsparseMatrix", "missing") and ("TsparseMatrix", "missing") methods
@@ -35,6 +36,13 @@ setMethod("image", "dsparseMatrix",
 setMethod("kronecker", signature(X = "dsparseMatrix", Y = "dsparseMatrix"),
           function (X, Y, FUN = "*", make.dimnames = FALSE, ...)
           callGeneric(as(X, "dgTMatrix"), as(Y, "dgTMatrix")))
+
+setMethod("chol", signature(x = "dsparseMatrix", pivot = "ANY"),
+           function(x, pivot, ...) {
+               px <- as(x, "dsCMatrix")
+               if (isTRUE(validObject(px, test=TRUE))) chol(px, pivot)
+               else stop("'x' is not positive definite -- chol() undefined.")
+           })
 
 setMethod("lu", signature(x = "dsparseMatrix"),
 	  function(x, ...) callGeneric(as(x, "dgCMatrix")))

@@ -162,7 +162,6 @@ SEXP chm_sparse_to_SEXP(cholmod_sparse *a, int dofree, int uploT, int Rkind,
     if (dn != R_NilValue)
 	SET_SLOT(ans, Matrix_DimNamesSym, duplicate(dn));
 
-
     UNPROTECT(2);
     return ans;
 }
@@ -376,7 +375,7 @@ void R_cholmod_error(int status, char *file, int line, char *message)
 int R_cholmod_start(cholmod_common *c)
 {
     int res;
-    if (!cholmod_start(c))
+    if (!(res = cholmod_start(c)))
 	error(_("Unable to initialize cholmod: error code %d"), res);
     c->print_function = Rprintf;
     c->error_handler = R_cholmod_error;
@@ -389,16 +388,22 @@ int R_cholmod_start(cholmod_common *c)
  *
  * @param a matrix to be converted
  * @param dofree 0 - don't free a; > 0 cholmod_free a; < 0 Free a
+ * @param dn   -- dimnames [list(.,.) or NULL]
  *
  * @return SEXP containing a copy of a
  */
-SEXP chm_dense_to_SEXP(cholmod_dense *a, int dofree, int Rkind)
+
+/* FIXME: should also have args  (int uploST, char *diag) */
+
+SEXP chm_dense_to_SEXP(cholmod_dense *a, int dofree, int Rkind, SEXP dn)
 {
     SEXP ans;
     char *cl = ""; /* -Wall */
     int *dims, ntot;
-				/* determine the class of the result */
-    switch(a->xtype) {
+
+    PROTECT(dn); /* << (why? -- just cut&paste from chm_dense_to_mat.. below*/
+
+    switch(a->xtype) {		/* determine the class of the result */
     case CHOLMOD_PATTERN:
 	cl = "ngeMatrix"; break;
     case CHOLMOD_REAL:
@@ -444,7 +449,9 @@ SEXP chm_dense_to_SEXP(cholmod_dense *a, int dofree, int Rkind)
 
     if (dofree > 0) cholmod_free_dense(&a, &c);
     if (dofree < 0) Free(a);
-    UNPROTECT(1);
+    if (dn != R_NilValue)
+	SET_SLOT(ans, Matrix_DimNamesSym, duplicate(dn));
+    UNPROTECT(2);
     return ans;
 }
 
@@ -507,7 +514,7 @@ cholmod_dense *numeric_as_chm_dense(double *v, int n)
  * the result should *not* be freed with cholmod_free_factor.  Use
  * Free on the result.
  *
- * @param x pointer to an object that inherits from ddenseMatrix
+ * @param x pointer to an object that inherits from CHMfactor
  *
  * @return pointer to a cholmod_dense object that contains a pointer
  * to the contents of x.

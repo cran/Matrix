@@ -3,13 +3,12 @@
 #include "chm_common.h"
 #include "Tsparse.h"
 
-SEXP dgTMatrix_validate(SEXP x)
+SEXP xTMatrix_validate(SEXP x)
 {
-    SEXP
-	islot = GET_SLOT(x, Matrix_iSym),
-	xslot = GET_SLOT(x, Matrix_xSym);
-
-    if (LENGTH(xslot) != LENGTH(islot))
+    /* Almost everything now in Tsparse_validate ( ./Tsparse.c )
+     * *but* the checking of the 'x' slot : */
+    if (LENGTH(GET_SLOT(x, Matrix_iSym)) !=
+	LENGTH(GET_SLOT(x, Matrix_xSym)))
 	return mkString(_("lengths of slots i and x must match"));
     return ScalarLogical(1);
 }

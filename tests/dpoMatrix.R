@@ -20,13 +20,11 @@ options(digits=4)
 stopifnot(all.equal(as.matrix(h9),
                     as.matrix(cf9), tol= 1e-15))
 
-h9. <- round(h9, 2)
+h9. <- round(h9, 2)# actually loses pos.def. "slightly"
 h9.p <- as(h9., "dppMatrix")
 h4  <- h9.[1:4, 1:4] # this and the next
 h9.[1,1] <- 10       # had failed in 0.995-14
-if(FALSE) # FIXME: Error in insertMethod(methods, sig, args, def, TRUE) :...
 h9.p. <- as(h9., "dppMatrix")
-
 h9.p[1,1] <- 10 # failed in 0.995-14
 
 stopifnot(is(h9., "symmetricMatrix"),

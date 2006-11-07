@@ -8,6 +8,10 @@ setAs("lsCMatrix", "matrix",
 setAs("lsCMatrix", "lgCMatrix",
       function(from) .Call(Csparse_symmetric_to_general, from))
 
+## for indexing
+setAs("lsCMatrix", "lgTMatrix",
+      function(from) as(as(from, "lgCMatrix"), "lgTMatrix"))
+
 setAs("lgCMatrix", "lsCMatrix",
       function(from) .Call(Csparse_general_to_symmetric, from, uplo = "U"))
 ## now use it:

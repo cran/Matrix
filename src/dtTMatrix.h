@@ -4,7 +4,6 @@
 #include "Mutils.h"
 #include "chm_common.h"
 
-SEXP dtTMatrix_validate(SEXP x);
 SEXP dtTMatrix_as_dtrMatrix(SEXP x);
 SEXP dtTMatrix_as_dgCMatrix(SEXP x);
 

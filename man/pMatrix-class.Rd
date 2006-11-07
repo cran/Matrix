@@ -14,6 +14,9 @@
 \alias{coerce,pMatrix,TsparseMatrix-method}
 \alias{solve,pMatrix,missing-method}
 \alias{t,pMatrix-method}
+\alias{[<-,pMatrix,index,ANY,ANY-method}
+\alias{[<-,pMatrix,missing,index,ANY-method}
+%
 \title{Permutation matrices}
 \description{The \code{"pMatrix"} class is the class of permutation
   matrices, stored as 1-based integer permutation vectors.}
@@ -35,7 +38,8 @@
   }
 }
 \section{Extends}{
-  Class \code{"Matrix"}, directly.
+  Class \code{"\linkS4class{sparseMatrix}"} and
+  \code{"\linkS4class{generalMatrix}"}, directly.
 }
 \section{Methods}{
   \describe{
@@ -60,6 +64,12 @@
 \note{
   The inverse of the typical \code{"pMatrix"} constructor,
   \code{P <- as(ip, "pMatrix")} is simply \code{ip <- P@perm}.
+
+  Subsetting (\dQuote{indexing}) \code{"pMatrix"} objects treats them as
+  nonzero-pattern matrices, i.e., as \code{"linkS4class{ngTMatrix}"}
+  such that non-matrix subsetting result in \code{\link{logical}}
+  vectors.  Sub-assignment (\code{M[i,j] <- v}) is not sensible and
+  hence an error for these permutation matrices.
 }
 %\seealso{}
 \examples{

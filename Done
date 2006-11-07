@@ -162,3 +162,18 @@
 
 - M[i,j] <- "sub-Matrix"  now works.
 
+- "Compare" for dgC & dgT  --- to be able to do  M[M > 10]  etc
+
+-  new("ltTMatrix", diag = "U", Dim = c(2:2, 2:2))   now works
+
+- Diagonal(3) - toeplitz(c(0,1,0))  or
+  Diagonal(4) >= 0		    now work
+
+- .Call(Csparse_Csparse_crossprod, ...)  for crossprod(x,y) {2-args}
+
+- When 'x' is a symmetric matrix,
+  a)  x[i,i] should return a *symmetric* matrix too (when 'i' has length > 1)
+  b)  x[i,i] <- scalar_value  should ``keep x symmetric'',
+      i.e. also return symmetricM*
+
+

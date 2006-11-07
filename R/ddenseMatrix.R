@@ -103,6 +103,8 @@ setMethod("%*%", signature(x = "ddenseMatrix", y = "ddenseMatrix"),
 setMethod("lu", signature(x = "ddenseMatrix"),
           function(x, ...) callGeneric(as(x, "dgeMatrix")))
 
+setMethod("chol", signature(x = "ddenseMatrix", pivot = "ANY"), cholMat)
+
 setMethod("determinant", signature(x = "ddenseMatrix", logarithm = "missing"),
           function(x, logarithm, ...) callGeneric(as(x, "dgeMatrix")))
 

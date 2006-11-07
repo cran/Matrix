@@ -7,22 +7,34 @@
 \alias{coerce,diagonalMatrix,triangularMatrix-method}
 \alias{coerce,diagonalMatrix,matrix-method}
 \alias{coerce,diagonalMatrix,sparseMatrix-method}
+\alias{coerce,diagonalMatrix,CsparseMatrix-method}
 \alias{coerce,Matrix,diagonalMatrix-method}
+\alias{Ops,diagonalMatrix,diagonalMatrix-method}
+\alias{Ops,diagonalMatrix,ddiMatrix-method}
+\alias{Ops,ddiMatrix,diagonalMatrix-method}
+\alias{Ops,diagonalMatrix,ANY-method}
+\alias{Ops,ANY,diagonalMatrix-method}
 \alias{t,diagonalMatrix-method}
 \alias{diag,diagonalMatrix-method}
 \alias{show,diagonalMatrix-method}
 \alias{\%*\%,dgeMatrix,diagonalMatrix-method}
 \alias{\%*\%,sparseMatrix,diagonalMatrix-method}
 \alias{\%*\%,matrix,diagonalMatrix-method}
-\alias{\%*\%,diagonalMatrix,matrix-method}
 \alias{\%*\%,diagonalMatrix,dgeMatrix-method}
+\alias{\%*\%,diagonalMatrix,diagonalMatrix-method}
+\alias{\%*\%,diagonalMatrix,matrix-method}
 \alias{\%*\%,diagonalMatrix,sparseMatrix-method}
-\alias{crossprod,diagonalMatrix,matrix-method}
 \alias{crossprod,diagonalMatrix,dgeMatrix-method}
-\alias{crossprod,sparseMatrix,diagonalMatrix-method}
+\alias{crossprod,diagonalMatrix,diagonalMatrix-method}
+\alias{crossprod,diagonalMatrix,matrix-method}
+\alias{crossprod,diagonalMatrix,missing-method}
 \alias{crossprod,diagonalMatrix,sparseMatrix-method}
-\alias{tcrossprod,sparseMatrix,diagonalMatrix-method}
+\alias{crossprod,sparseMatrix,diagonalMatrix-method}
+\alias{tcrossprod,diagonalMatrix,diagonalMatrix-method}
 \alias{tcrossprod,diagonalMatrix,sparseMatrix-method}
+\alias{tcrossprod,diagonalMatrix,matrix-method}
+\alias{tcrossprod,diagonalMatrix,missing-method}
+\alias{tcrossprod,sparseMatrix,diagonalMatrix-method}
 \description{
   Class "diagonalMatrix" is the virtual class of all diagonal matrices.
 }
@@ -30,15 +42,16 @@
   created from it.}
 \section{Slots}{
   \describe{
-    \item{\code{diag}:}{Object of class \code{"character"} ~~ }
-    \item{\code{Dim}:}{Object of class \code{"integer"} ~~ }
-    \item{\code{Dimnames}:}{a \code{\link{list}}, typically
-      \code{list(NULL,NULL)} for diagonal matrices.}
-    \item{\code{factors}:}{a \code{\link{list}}, typically empty.}
+    \item{\code{diag}:}{code{"character"} string, either \code{"U"} or
+      \code{"N"}, where \code{"U"} means \sQuote{unit-diagonal}.}
+    \item{\code{Dim}:}{matrix dimension, and}
+    \item{\code{Dimnames}:}{the \code{\link{dimnames}}, a
+      \code{\link{list}}, see the \code{\linkS4class{Matrix}} class
+      description.  Typically \code{list(NULL,NULL)} for diagonal matrices.}
   }
 }
 \section{Extends}{
-  Class \code{"denseMatrix"}, directly.
+  Class \code{"\linkS4class{denseMatrix}"}, directly.
 }
 \section{Methods}{
   \describe{
@@ -57,6 +70,13 @@
   \code{\linkS4class{ddiMatrix}} and \code{\linkS4class{ldiMatrix}} are
   \dQuote{actual} classes extending \code{"diagonalMatrix"}.
 }
-% \examples{
-% }
+\examples{
+I5 <- Diagonal(5)
+D5 <- Diagonal(x = 10*(1:5))
+## trivial (but explicitly defined) methods:
+stopifnot(identical(crossprod(I5), I5),
+          identical(tcrossprod(I5), I5),
+          identical(crossprod(I5, D5), D5),
+          identical(tcrossprod(D5, I5), D5))
+}
 \keyword{classes}

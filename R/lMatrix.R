@@ -4,6 +4,8 @@ setAs("lMatrix", "nMatrix",
 	      stop("\"lMatrix\" object with NAs cannot be coerced to \"nMatrix\"")
 	  ## i.e. from@x are only TRUE (or FALSE in dense case)
 	  cl <- class(from)
+	  if(extends(cl, "diagonalMatrix")) # have no "ndi*" etc class
+	      cl <- class(from <- as(from, "sparseMatrix"))
 	  nCl <- sub("^l", "n", cl)
 	  sNams <- slotNames(if(extends(cl, "sparseMatrix")) .sp.class(cl) else cl)
 	  r <- new(nCl)# default => no validity check; and copy slots:

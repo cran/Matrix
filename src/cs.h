@@ -7,10 +7,10 @@
 #ifdef MATLAB_MEX_FILE
 #include "mex.h"
 #endif
-#define CS_VER 2		    /* CSparse Version 2.0.1 */
+#define CS_VER 2		    /* CSparse Version 2.0.3 */
 #define CS_SUBVER 0
-#define CS_SUBSUB 1
-#define CS_DATE "May 27, 2006"	    /* CSparse release date */
+#define CS_SUBSUB 3
+#define CS_DATE "Sept 28, 2006"	    /* CSparse release date */
 #define CS_COPYRIGHT "Copyright (c) Timothy A. Davis, 2006"
 
 /* --- primary CSparse routines and data structures ------------------------- */

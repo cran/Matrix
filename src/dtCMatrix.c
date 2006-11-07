@@ -2,12 +2,6 @@
 #include "dtCMatrix.h"
 #include "cs_utils.h"
 
-SEXP dtCMatrix_validate(SEXP x)
-{
-    return triangularMatrix_validate(x);
-    /* see ./dsCMatrix.c or ./dtpMatrix.c  on how to do more testing here */
-}
-
 /**
  * Derive the column pointer vector for the inverse of L from the parent array
  *
@@ -120,7 +114,7 @@ SEXP dtCMatrix_matrix_solve(SEXP a, SEXP b, SEXP classed)
 {
     int cl = asLogical(classed);
     SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("dgeMatrix")));
-    cs *A = Matrix_as_cs(a);    
+    cs *A = Matrix_as_cs(a);
     int *adims = INTEGER(GET_SLOT(a, Matrix_DimSym)),
 	*bdims = INTEGER(cl ? GET_SLOT(b, Matrix_DimSym) :
 			 getAttrib(b, R_DimSymbol));
@@ -146,13 +140,13 @@ SEXP dtCMatrix_upper_solve(SEXP a)
     int lo = uplo_P(a)[0] == 'L', unit = diag_P(a)[0] == 'U',
 	n = INTEGER(GET_SLOT(a, Matrix_DimSym))[0],
 	*ai = INTEGER(GET_SLOT(a,Matrix_iSym)),
-	*ap = INTEGER(GET_SLOT(a, Matrix_pSym)), 
+	*ap = INTEGER(GET_SLOT(a, Matrix_pSym)),
 	*bp = INTEGER(ALLOC_SLOT(ans, Matrix_pSym, INTSXP, n + 1));
     int bnz = 10 * ap[n];	  /* initial estimate of nnz in b */
     int *ti = Calloc(bnz, int), j, nz;
     double *ax = REAL(GET_SLOT(a, Matrix_xSym)), *tx = Calloc(bnz, double),
 	*tmp = Calloc(n, double);
-    
+
     if (lo || (!unit))
 	error(_("Code written for unit upper triangular unit matrices"));
     bp[0] = 0;

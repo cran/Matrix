@@ -1,21 +1,6 @@
 				/* Sparse symmetric matrices in triplet format */
 #include "dsTMatrix.h"
 
-SEXP dsTMatrix_validate(SEXP x) /* == lsTMatrix_validate */
-{
-    SEXP xxP = symmetricMatrix_validate(x);
-    if(isString(xxP))
-	return(xxP);
-    else {
-	SEXP xiP = GET_SLOT(x, Matrix_iSym),
-	    xjP = GET_SLOT(x, Matrix_jSym);
-	xxP = GET_SLOT(x, Matrix_xSym);
-	if (length(xiP) != length(xjP) || length(xjP) != length(xxP))
-	    return mkString(_("slots i, j and x must have the same length"));
-	return ScalarLogical(1);
-    }
-}
-
 SEXP dsTMatrix_as_dsyMatrix(SEXP x)
 {
     SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dsyMatrix"))),

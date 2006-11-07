@@ -1,17 +1,7 @@
 #include "lgCMatrix.h"
 
-SEXP lgCMatrix_validate(SEXP x)
-{
-    /* Almost all is now done in Csparse_validate
-     * *but* the checking of the 'x' slot */
-    SEXP islot = GET_SLOT(x, Matrix_iSym),
-	xslot = GET_SLOT(x, Matrix_xSym);
-
-    if (length(islot) != length(xslot))
-	return mkString(_("lengths of slots 'i' and 'x' must match"));
-
-    return ScalarLogical(1);
-}
+#include "dgCMatrix.h"
+/* validate: -> xCMatrix_validate() in ./dgCMatrix.c */
 
 SEXP lcsc_to_matrix(SEXP x)
 {

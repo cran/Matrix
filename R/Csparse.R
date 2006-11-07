@@ -48,6 +48,8 @@ setAs("CsparseMatrix", "matrix",
 
 ### Some group methods:
 
+## TODO : Consider going a level up, and do this for all "Ops"
+
 setMethod("Arith",
 	  signature(e1 = "CsparseMatrix", e2 = "CsparseMatrix"),
 	  function(e1, e2) callGeneric(as(e1, "dgCMatrix"),
@@ -119,24 +121,31 @@ replCmat <- function (x, i, j, value)
     if(lenV > lenRepl)
 	stop("too many replacement values")
 
-    if(is(x, "symmetricMatrix")) ## only half the indices are there..
+    clx <- c(class(x)) # keep "symmetry" if changed here:
+
+    x.sym <- is(x, "symmetricMatrix")
+    if(x.sym) { ## only half the indices are there..
+	x.sym <-
+	    (dind[1] == dind[2] && i1 == i2 &&
+	     (lenRepl == 1 || isSymmetric(array(value, dim=dind))))
+	## x.sym : result is *still* symmetric
 	x <- .Call(Csparse_symmetric_to_general, x)
-    clx <- c(class(x))
+    }
 
     xj <- .Call(Matrix_expand_pointers, x@p)
     sel <- (!is.na(match(x@i, i1)) &
-            !is.na(match( xj, i2)))
-    has.x <- any("x" == slotNames(x)) # i.e. *not* logical
+	    !is.na(match( xj, i2)))
+    has.x <- any("x" == slotNames(x)) # i.e. *not* nonzero-pattern
     if(has.x && sum(sel) == lenRepl) { ## all entries to be replaced are non-zero:
-        value <- rep(value, length = lenRepl)
-        ## Ideally we only replace them where value != 0 and drop the value==0
-        ## ones; but that would have to (?) go through dgT*
-        ## v0 <- 0 == value
-        ## if (lenRepl == 1) and v0 is TRUE, the following is not doing anything
-        ##-  --> ./dgTMatrix.R  and its  replTmat()
-        ## x@x[sel[!v0]] <- value[!v0]
-        x@x[sel] <- value
-        return(x)
+	value <- rep(value, length = lenRepl)
+	## Ideally we only replace them where value != 0 and drop the value==0
+	## ones; but that would have to (?) go through dgT*
+	## v0 <- 0 == value
+	## if (lenRepl == 1) and v0 is TRUE, the following is not doing anything
+	##-  --> ./dgTMatrix.R	and its	 replTmat()
+	## x@x[sel[!v0]] <- value[!v0]
+	x@x[sel] <- value
+	return(if(x.sym) as_CspClass(x, clx) else x)
     }
     ## else go via Tsparse.. {FIXME: a waste! - we already have 'xj' ..}
     x <- as(x, "TsparseMatrix")
@@ -147,14 +156,8 @@ replCmat <- function (x, i, j, value)
     else
 	x[i,j] <- value
 
-    ## Careful: 'Csparse_drop' also drops triangularity,...
-    ## .Call(Csparse_drop, as_CspClass(x, clx), 0)
-
-    if(any(is0(x@x))) { ## drop all values that "happen to be 0"
-	## FIXME: Csparse_drop should do this
-	as_CspClass(.Call(Csparse_drop, as_CspClass(x, clx), 0),
-		    clx)
-    }
+    if(any(is0(x@x))) ## drop all values that "happen to be 0"
+	drop0(x, clx)
     else as_CspClass(x, clx)
 }
 
@@ -173,12 +176,20 @@ setReplaceMethod("[", signature(x = "CsparseMatrix", i = "index", j = "index",
 
 setMethod("crossprod", signature(x = "CsparseMatrix", y = "missing"),
 	  function(x, y = NULL) {
-              if (is(x, "symmetricMatrix")) {
-                  warning("crossprod(x) calculated as x %*% x for sparse, symmetric x")
-                  return(x %*% x)
-              }
+	      if (is(x, "symmetricMatrix")) {
+		  warning("crossprod(x) calculated as x %*% x for sparse, symmetric x")
+		  return(x %*% x)
+	      }
 	      .Call(Csparse_crossprod, x, trans = FALSE, triplet = FALSE)
 	  })
+
+setMethod("crossprod", signature(x = "CsparseMatrix", y = "CsparseMatrix"),
+	  function(x, y = NULL)
+	  .Call(Csparse_Csparse_crossprod, x, y, trans = FALSE))
+
+setMethod("tcrossprod", signature(x = "CsparseMatrix", y = "CsparseMatrix"),
+	  function(x, y = NULL)
+	  .Call(Csparse_Csparse_crossprod, x, y, trans = TRUE))
 
 ## FIXME: Generalize the class of y.  This specific method is to replace one
 ##        in dgCMatrix.R
@@ -203,12 +214,6 @@ setMethod("tcrossprod", signature(x = "CsparseMatrix", y = "missing"),
 setMethod("t", signature(x = "CsparseMatrix"),
 	  function(x) .Call(Csparse_transpose, x, is(x, "triangularMatrix")))
 
-## FIXME (TODO):
-## setMethod("tcrossprod", signature(x = "CsparseMatrix", y = "CsparseMatrix"),
-## 	  function(x, y)
-## 	  .Call(Csparse_crossprod_2, x, y, trans = TRUE, triplet = FALSE)
-
-
 setMethod("%*%", signature(x = "CsparseMatrix", y = "CsparseMatrix"),
           function(x, y) .Call(Csparse_Csparse_prod, x, y))
 
@@ -222,6 +227,7 @@ setMethod("%*%", signature(x = "CsparseMatrix", y = "matrix"),
 ##setMethod("%*%", signature(x = "CsparseMatrix", y = "numeric"),
 ##          function(x, y) .Call(Csparse_dense_prod, x, y))
 
+## FIXME(2): These two are sub-optimal : has  2 x  t(<dense>)  :
 setMethod("%*%", signature(x = "ddenseMatrix", y = "CsparseMatrix"),
           function(x, y) t(.Call(Csparse_dense_crossprod, y, t(x))),
           valueClass = "dgeMatrix")

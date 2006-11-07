@@ -17,7 +17,7 @@ readmany <- function(conn, nlines, nvals, fmt, conv)
     rem <- nvals %% nper
     full <- nvals %/% nper
     ans <- vector("list", nvals %/% nper)
-    for (i in seq(len = full))
+    for (i in seq_len(full))
 	ans[[i]] <- readone(readLines(conn, 1, ok = FALSE),
 			    iwd, nper, conv)
     if (!rem) return(unlist(ans))

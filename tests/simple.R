@@ -26,6 +26,15 @@ stopifnot(##length(sN@i) == 0, # all "FALSE"
 str(m0 <- Matrix(0,     nrow=100, ncol = 1000))
 str(l0 <- Matrix(FALSE, nrow=100, ncol = 200))
 
+## with dimnames:
+m. <- matrix(c(0, 0, 2:0), 3, 5)
+dimnames(m.) <- list(LETTERS[1:3], letters[1:5])
+(m <- Matrix(m.))
+m@Dimnames[[2]] <- m@Dimnames[[1]]
+## not valid anymore:
+(val <- validObject(m, test=TRUE))
+stopifnot(is.character(val))
+
 ###--  Sparse Triangular :
 
 (t1 <- new("dtTMatrix", x= c(3,7), i= 0:1, j=3:2,
@@ -83,6 +92,30 @@ stopifnot(identical(i6, as(cbind(c(-4, rep(1,5))), "dgeMatrix")),
           identical(i6, solve(m6, matrix(1:6))),
           identical(i6, solve(m6, matrix(c(1,2,3,4,5,6))))
           )
+
+## solve(<sparse>)
+(m <- t1+ t(t1) + Diagonal(4))
+i.m <- solve(as.mat(m))
+I1 <- m %*% i.m
+o4 <- diag(I1)
+im <- solve(m)
+(I2 <- m %*% im)
+(ms <- as(m, "dsCMatrix"))
+## solve(<sparse>, <sparse>):
+s.mm <-  solve(m,m)
+s.mms <- solve(m, ms)
+## these now work "fully-sparse"
+s.ms2 <- solve(ms, ms)
+s.msm <- solve(ms, m)
+I4c <- as(Matrix(diag(4),sparse=TRUE), "dgCMatrix")
+stopifnot(is(im, "Matrix"), is(I2, "Matrix"),
+          all.equal(I1, I2, tol = 1e-14),
+          all.equal(diag(4), as.mat(I2), tol = 1e-12),
+          all.equal(s.mm,  I2, tol = 1e-14),
+          all.equal(s.mms, I2, tol = 1e-14),
+          all.equal(s.ms2, s.msm, tol = 4e-15),
+          all.equal(s.ms2, I4c  , tol = 4e-15),
+          abs(o4 - 1) < 1e-14)
 
 ###-- row- and column operations  {was ./rowcolOps.R }
 
@@ -182,5 +215,14 @@ stopifnot(all(ij(A) %in% ij(B)))
 l3 <- upper.tri(matrix(,3,3))
 (c3 <- as(l3, "CsparseMatrix"))
 stopifnot(validObject(c3), is(c3, "CsparseMatrix"), is(c3, "triangularMatrix"))
+
+## diagonal, sparse & interactions
+stopifnot(is(X <- Diagonal(7) + 1.5 * tM[1:7,1:7], "sparseMatrix"))
+X
+(XX <- X - chol(crossprod(X)))
+## hmm, if we use drop0() here, maybe we should export it ...
+XX <- as(Matrix:::drop0(XX), "dsCMatrix")
+stopifnot(identical(XX, Matrix(0, nrow(X), ncol(X))))
+
 
 cat('Time elapsed: ', proc.time(),'\n') # "stats"

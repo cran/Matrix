@@ -102,5 +102,6 @@ setIs("dsyMatrix", "dpoMatrix",
 ## DB - Probably figure out how to use the BunchKaufman decomposition instead
 ## {{FIXME: Shouldn't it be possible to have "determinant" work by
 ## default automatically for "Matrix"es  when there's a "chol" method available?
+## ..> work with ss <- selectMethod("chol", signature("dgCMatrix"))
 ## -- not have to define showMethod("determinant", ...) for all classes
 

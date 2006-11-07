@@ -164,6 +164,8 @@ SEXP Matrix_expand_pointers(SEXP pP);
 
 SEXP dup_mMatrix_as_dgeMatrix(SEXP A);
 
+SEXP new_dgeMatrix(int nrow, int ncol);
+
 static R_INLINE SEXP
 mMatrix_as_dgeMatrix(SEXP A)
 {

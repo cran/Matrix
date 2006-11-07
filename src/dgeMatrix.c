@@ -352,7 +352,7 @@ SEXP dgeMatrix_svd(SEXP x, SEXP nnu, SEXP nnv)
     return val;
 }
 
-static double padec [] =   /*  Constants for matrix exponential calculation. */
+const static double padec [] = /* for matrix exponential calculation. */
 {
   5.0000000000000000e-1,
   1.1666666666666667e-1,

@@ -21,7 +21,6 @@ setMethod("Arith", ##  "+", "-", "*", "^", "%%", "%/%", "/"
 	  signature(e1 = "dgeMatrix", e2 = "dgeMatrix"),
 	  function(e1, e2) {
 	      ## NB:  triangular, symmetric, etc may need own method
-
 	      d1 <- e1@Dim
 	      d2 <- e2@Dim
 	      eqD <- d1 == d2
@@ -32,7 +31,7 @@ setMethod("Arith", ##  "+", "-", "*", "^", "%%", "%/%", "/"
 		  d <- d1
 		  dn <- dimNamesCheck(e1, e2)
 	      }
-	      else { # nrows differ
+	      else { # nrows differ ----> maybe recycling
 		  if(d2[2] %% d1[2] == 0) { # nrow(e2) is a multiple
 		      e1@x <- rep.int(e1@x, d2[2] %/% d1[2])
 		      d <- d2
@@ -42,7 +41,7 @@ setMethod("Arith", ##  "+", "-", "*", "^", "%%", "%/%", "/"
 		      d <- d1
 		      dn <- e1@Dimnames
 		  } else
-		      stop("number of rows are not compatible for arithmetic")
+		      stop("number of rows are not compatible for ", .Generic)
 	      }
 
 	      ## be smart and preserve, e.g., triangular, or symmetric
@@ -220,8 +219,7 @@ setMethod("diag", signature(x = "dgeMatrix"),
 setMethod("chol", signature(x = "dgeMatrix", pivot = "ANY"), cholMat)
 
 setMethod("solve", signature(a = "dgeMatrix", b = "missing"),
-	  function(a, b, ...)
-          .Call(dgeMatrix_solve, a),
+	  function(a, b, ...) .Call(dgeMatrix_solve, a),
 	  valueClass = "dgeMatrix")
 
 setMethod("solve", signature(a = "dgeMatrix", b = "ddenseMatrix"),

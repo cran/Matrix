@@ -2,6 +2,7 @@
 #### (called from more than one place --> need to be defined early)
 
 .isR_24 <- (paste(R.version$major, R.version$minor, sep=".") >= "2.4")
+.isR_25 <- (paste(R.version$major, R.version$minor, sep=".") >= "2.5")
 
 ## Need to consider NAs ;  "== 0" even works for logical & complex:
 is0  <- function(x) !is.na(x) & x == 0
@@ -22,11 +23,11 @@ allFalse <- function(x) !any(is.na(x)) && !any(x)
     function(x) !identical(list(NULL,NULL), x@Dimnames)
 
 .bail.out.1 <- function(fun, cl) {
-    stop(gettextf('not-yet-implemented method for %s(<%s>)', fun, cl),
+    stop(gettextf('not-yet-implemented method for %s(<%s>).\n ->>  Ask the package authors to implement the missing feature.', fun, cl),
 	 call. = FALSE)
 }
 .bail.out.2 <- function(fun, cl1, cl2) {
-    stop(gettextf('not-yet-implemented method for %s(<%s>, <%s>)',
+    stop(gettextf('not-yet-implemented method for %s(<%s>, <%s>).\n ->>  Ask the package authors to implement the missing feature.',
 		  fun, cl1, cl2), call. = FALSE)
 }
 
@@ -233,7 +234,7 @@ non0ind <- function(x) {
 	if(is(M, "TsparseMatrix"))
 	    return(unique(cbind(M@i,M@j)))
 	if(is(M, "pMatrix"))
-	    return(cbind(seq(length=nrow(M)), M@perm) - 1:1)
+	    return(cbind(seq_len(nrow(M)), M@perm) - 1:1)
 	## else:
 	isC <- any("i" == slotNames(M)) # is Csparse (not Rsparse)
 	.Call(compressed_non_0_ij, M, isC)
@@ -246,7 +247,7 @@ non0ind <- function(x) {
     }
     else if(is(x, "triangularMatrix")) { # check for "U" diag
 	if(x@diag == "U") {
-	    i <- seq(length = dim(x)[1]) - 1:1
+	    i <- seq_len(dim(x)[1]) - 1:1
 	    rbind(non0.i(x), cbind(i,i))
 	} else non0.i(x)
     }
@@ -319,9 +320,17 @@ uniqTsparse <- function(x, class.x = c(class(x))) {
 ## would be slightly more efficient than as( <dgC> , "dgTMatrix")
 ## but really efficient would be to use only one .Call(.) for uniq(.) !
 
+drop0 <- function(x, clx = c(class(x))) {
+    ## FIXME: Csparse_drop should do this (not losing symm./triang.):
+    ## Careful: 'Csparse_drop' also drops triangularity,...
+    ## .Call(Csparse_drop, as_CspClass(x, clx), 0)
+    as_CspClass(.Call(Csparse_drop, as_CspClass(x, clx), 0.),
+                clx)
+}
+
 uniq <- function(x) {
-    if(is(x, "TsparseMatrix")) uniqTsparse(x) else x
-    ## else:  not 'Tsparse', i.e. "uniquely" represented in any case
+    if(is(x, "TsparseMatrix")) uniqTsparse(x) else
+    if(is(x, "sparseMatrix")) drop0(x) else x
 }
 
 asTuniq <- function(x) {
@@ -427,6 +436,11 @@ l2d_meth <- function(x) {
     else stop(" not yet be implemented for ", clx)
 }
 
+.type.kind <- c("d" = "double",
+                "l" = "logical",
+                "n" = "logical",
+                "z" = "complex")
+
 .M.shape <- function(x, clx = class(x)) {
     if(is.matrix(x)) { ## 'old style matrix'
 	if     (isDiagonal  (x)) "d"
@@ -505,10 +519,12 @@ as_geClass <- function(x, cl) {
 }
 
 as_CspClass <- function(x, cl) {
-    if ((extends(cl, "diagonalMatrix")	&& isDiagonal(x)) ||
-	(extends(cl, "symmetricMatrix") &&  isSymmetric(x)) ||
+    if (## diagonal is *not* sparse:
+	##(extends(cl, "diagonalMatrix") && isDiagonal(x)) ||
+	(extends(cl, "symmetricMatrix") && isSymmetric(x)) ||
 	(extends(cl, "triangularMatrix")&& isTriangular(x)))
 	as(x, cl)
+    else if(is(x, "CsparseMatrix")) x
     else as(x, paste(.M.kind(x), "gCMatrix", sep=''))
 }
 
@@ -613,21 +629,32 @@ isTriC <- function(x, upper = NA) {
 }
 
 
-## FIXME? -- this should also work for "ltT", "ntT", ... :
 diagU2N <- function(x)
 {
     ## Purpose: Transform a *unit diagonal* sparse triangular matrix
     ##	into one with explicit diagonal entries '1'
+    if(is(x, "CsparseMatrix"))
+	return(.Call(Csparse_diagU2N, x))
+    ## else
+
+    ## FIXME! -- for "ltT", "ntT", ... :
     xT <- as(x, "dgTMatrix")
     ## leave it as  T* - the caller can always coerce to C* if needed:
     new("dtTMatrix", x = xT@x, i = xT@i, j = xT@j, Dim = x@Dim,
 	Dimnames = x@Dimnames, uplo = x@uplo, diag = "N")
 }
 
-## FIXME: this should probably be dropped / replaced by as_Csparse
+## Needed, e.g., in ./Csparse.R for colSums() etc:
 .as.dgC.Fun <- function(x, na.rm = FALSE, dims = 1) {
     x <- as(x, "dgCMatrix")
     callGeneric()
+}
+
+.as.dgC.0.factors <- function(x) {
+    if(!is(x, "dgCMatrix"))
+	as(x, "dgCMatrix") # will not have 'factors'
+    else ## dgCMatrix
+	if(!length(x@factors)) x else { x@factors <- list() ; x }
 }
 
 .as.dgT.Fun <- function(x, na.rm = FALSE, dims = 1) {

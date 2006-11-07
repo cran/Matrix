@@ -63,21 +63,66 @@ all.equal((Atr %*% solve(Atr, y))@x, y)
 data(KNex); mm <- KNex$mm
 M <- mm[1:500, 1:200]
 MT <- as(M, "TsparseMatrix")
-cpr <- t(mm) %*% mm
+cpr   <- t(mm) %*% mm
+cpr.  <- crossprod(mm)
+cpr.. <- crossprod(mm, mm)
+stopifnot(is(cpr., "symmetricMatrix"),
+          identical3(cpr, as(cpr., class(cpr)), cpr..))
+## with dimnames:
+m <- Matrix(c(0, 0, 2:0), 3, 5)
+dimnames(m) <- list(LETTERS[1:3], letters[1:5])
+m
+p1 <- t(m) %*% m
+(p1. <- crossprod(m)) # FIXME: show() does not even show row names
+t1 <- m %*% t(m)
+(t1. <- tcrossprod(m))
+stopifnot(isSymmetric(p1.),
+          isSymmetric(t1.),
+          identical(p1, as(p1., class(p1))),
+          identical(t1, as(t1., class(t1))),
+          identical(dimnames(p1), dimnames(p1.)),
+          identical(dimnames(t1), dimnames(t1.))
+          )
+
 showMethods("%*%", class=class(M))
 
 v1 <- rep(1, ncol(M))
 str(r <-  M %*% Matrix(v1))
 str(rT <- MT %*% Matrix(v1))
 stopifnot(identical(r, rT))
-str(r. <- M %*% cbind(v1))
+str(r. <- M %*% as.matrix(v1))
 stopifnot(identical4(r, r., rT, M %*% as(v1, "matrix")))
 
 v2 <- rep(1,nrow(M))
 r2 <- t(Matrix(v2)) %*% M
 r2T <- v2 %*% MT
 str(r2. <- v2 %*% M)
-stopifnot(identical4(r2, r2., rbind(v2) %*% M, t(as(v2, "matrix")) %*% M))
+stopifnot(identical3(r2, r2., t(as(v2, "matrix")) %*% M))
+
+
+## Sparse Cov.matrices from  Harri Kiiveri @ CSIRO
+a <- matrix(0,5,5)
+a[1,2] <- a[2,3] <- a[3,4] <- a[4,5] <- 1
+a <- a + t(a) + 2*diag(5)
+b <- as(a, "dsCMatrix") ## ok, but we recommend to use Matrix() ``almost always'' :
+(b. <- Matrix(a, sparse = TRUE))
+stopifnot(identical(b, b.))
+
+## calculate conditional variance matrix ( vars 3 4 5 given 1 2 )
+(B2 <- b[1:2, 1:2])
+stopifnot(is(B2, "dsCMatrix"))# symmetric indexing keeps symmetry
+bb <- b[1:2, 3:5]
+stopifnot(identical(as.mat(bb), rbind(0, c(1,0,0))))
+if(FALSE)## FIXME: use fully-sparse cholmod_spsolve() based solution !!
+z.s <- solve(B2, bb)
+## -> dense RHS and dense result
+z. <- solve(as(B2, "dgCMatrix"), bb)
+z  <- solve( B2, as(bb,"dgeMatrix"))
+stopifnot(identical(z, z.))
+## finish calculating conditional variance matrix
+v <- b[3:5,3:5] - crossprod(bb,z)
+stopifnot(all.equal(as.mat(v),
+		    matrix(c(4/3, 1:0, 1,2,1, 0:2), 3), tol = 1e-14))
 
 
 ###--- "logical" Matrices : ---------------------
@@ -144,8 +189,10 @@ m <- matrix(0, 4,7); m[c(1, 3, 6, 9, 11, 22, 27)] <- 1
 stopifnot(identical(crossprod(mm), cm))
 (tm1 <- Matrix(tcrossprod(m))) #-> had bug in 'Matrix()' !
 (tm2 <- tcrossprod(mm))
+Im2 <- solve(tm2[-4,-4])
 stopifnot(class(tm1) == class(tm2),
-	  class(tm1) == "dsCMatrix")# but they differ by "uplo"
-
+	  class(tm1) == "dsCMatrix",# but they differ by "uplo"
+          identical(Im2 %*% tm2[1:3,], Matrix(cbind(diag(3),0),sparse=FALSE))
+          )
 cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
 

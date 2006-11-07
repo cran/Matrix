@@ -36,8 +36,26 @@
     ## generic kronecker
     assignInNamespace("%x%", function (X, Y) kronecker(X, Y), ns = "base")
 
-    if(paste(R.version$major, R.version$minor, sep=".") >= "2.2")
-        methods:::bind_activation(TRUE)
+    if(paste(R.version$major, R.version$minor, sep=".") < "2.5") {
+	## For	R  versions prior to 2.5.0 -- replace "diag<-" in base :
+	tmp <- function(x, value) {
+	    dx <- dim(x)
+	    if(length(dx) != 2)
+		## no further check, to also work with 'Matrix'
+		stop("only matrix diagonals can be replaced")
+	    len.i <- min(dx)
+	    i <- seq_len(len.i)
+	    len.v <- length(value)
+	    if(len.v != 1 && len.v != len.i)
+		stop("replacement diagonal has wrong length")
+	    if(len.i > 0) x[cbind(i, i)] <- value
+	    x
+	}
+	environment(tmp) <- baseenv()
+	assignInNamespace("diag<-", tmp, ns = "base")
+    }
+
+    methods:::bind_activation(TRUE)
 }
 
 .onUnload <- function(libpath)
@@ -46,6 +64,5 @@
     assignInNamespace("as.array",  base::..Old..as.array,  ns = "base")
     library.dynam.unload("Matrix", libpath)
 
-    if(paste(R.version$major, R.version$minor, sep=".") >= "2.2")
-        methods:::bind_activation(FALSE)
+    methods:::bind_activation(FALSE)
 }

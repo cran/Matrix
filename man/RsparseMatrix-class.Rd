@@ -1,7 +1,9 @@
 \name{RsparseMatrix-class}
 \docType{class}
 \alias{RsparseMatrix-class}
-%% No methods currently !
+%
+\alias{t,RsparseMatrix-method}
+%
 \title{Class "RsparseMatrix" of Sparse Matrices in Column-compressed Form}
 \description{The \code{"RsparseMatrix"} class is the virtual class of
   all sparse matrices coded in sorted compressed row-oriented form.

@@ -5,6 +5,9 @@
 setAs("lsTMatrix", "matrix",
       function(from) as(as(from, "lgTMatrix"), "matrix"))
 
+setAs("lsTMatrix", "lsCMatrix",
+      function(from) .Call(Tsparse_to_Csparse, from, FALSE))
+
 setAs("lsTMatrix", "lgTMatrix",
       function(from) new("lgTMatrix", i = from@i, j = from@j, x = from@x,
                          Dim = from@Dim, Dimnames = from@Dimnames))

@@ -83,9 +83,16 @@ setMethod("solve", signature(a = "dsCMatrix", b = "numeric"),
                 .Call(dup_mMatrix_as_dgeMatrix, b)),
           valueClass = "dgeMatrix")
 
-##setMethod("solve", signature(a = "dsCMatrix", b = "numeric"),
-##          function(a, b, ...) callGeneric(a, as.matrix(b)),
-##          valueClass = "dgeMatrix")
+## `` Fully-sparse'' solve() :
+setMethod("solve", signature(a = "dsCMatrix", b = "dsparseMatrix"),
+	  function(a, b, ...) {
+	      if (!is(b, "CsparseMatrix"))
+		  b <- as(b, "CsparseMatrix")
+	      if (is(b, "symmetricMatrix")) ## not supported (yet) by cholmod_spsolve
+		  b <- as(b, "dgCMatrix")
+	      .Call(dsCMatrix_Csparse_solve, a, b)
+	  })
+
 
 setMethod("chol", signature(x = "dsCMatrix", pivot = "missing"),
 	  function(x, pivot, ...) .Call(dsCMatrix_chol, x, FALSE),

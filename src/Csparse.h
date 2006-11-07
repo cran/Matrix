@@ -6,6 +6,7 @@
 SEXP Csparse_Csparse_prod(SEXP a, SEXP b);
 SEXP Csparse_band(SEXP x, SEXP k1, SEXP k2);
 SEXP Csparse_crossprod(SEXP x, SEXP trans, SEXP triplet);
+SEXP Csparse_Csparse_crossprod(SEXP a, SEXP b, SEXP trans);
 SEXP Csparse_dense_crossprod(SEXP a, SEXP b);
 SEXP Csparse_dense_prod(SEXP a, SEXP b);
 SEXP Csparse_diagU2N(SEXP x);

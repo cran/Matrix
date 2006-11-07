@@ -5,7 +5,7 @@
 #include "Mutils.h"
 #include "cs_utils.h"
 
-SEXP dgCMatrix_validate(SEXP x);
+SEXP xCMatrix_validate(SEXP x);
 SEXP compressed_to_dgTMatrix(SEXP x, SEXP colP);
 SEXP compressed_non_0_ij(SEXP x, SEXP colP);
 SEXP dgCMatrix_lusol(SEXP x, SEXP y);

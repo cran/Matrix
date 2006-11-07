@@ -1,12 +1,5 @@
 #include "dsCMatrix.h"
 
-SEXP dsCMatrix_validate(SEXP obj)
-{
-    SEXP val = symmetricMatrix_validate(obj);
-    if(isString(val)) return(val);
-    return ScalarLogical(1);
-}
-
 SEXP dsCMatrix_chol(SEXP x, SEXP pivot)
 {
     cholmod_factor
@@ -45,6 +38,10 @@ SEXP dsCMatrix_chol(SEXP x, SEXP pivot)
 SEXP dsCMatrix_Cholesky(SEXP Ap, SEXP permP, SEXP LDLp, SEXP superP)
 {
     char fname[12] = "spdCholesky"; /* template for factorization name */
+    /* S|s : super or not
+     * P|p : permuted or not
+     * D|d :  LDL' or not (= LL')
+     */
     int perm = asLogical(permP),
 	LDL = asLogical(LDLp),
 	super = asLogical(superP);
@@ -57,12 +54,14 @@ SEXP dsCMatrix_Cholesky(SEXP Ap, SEXP permP, SEXP LDLp, SEXP superP)
     if (perm) fname[1] = 'P';
     if (LDL) fname[2] = 'D';
     Chol = get_factors(Ap, fname);
+    /* If Ap has already cached the factor, we return it immediately */
     if (Chol != R_NilValue) return Chol;
     A = as_cholmod_sparse(Ap);
+    if (!A->stype)
+	error("Non-symmetric matrix passed to dsCMatrix_chol");
+
     sup = c.supernodal;
     ll = c.final_ll;
-
-    if (!A->stype) error("Non-symmetric matrix passed to dsCMatrix_chol");
 
     c.final_ll = !LDL;	/* leave as LL' or form LDL' */
     c.supernodal = super ? CHOLMOD_SUPERNODAL : CHOLMOD_SIMPLICIAL;
@@ -105,23 +104,46 @@ SEXP get_factor_pattern(SEXP obj, char *pat, int offset)
     return R_NilValue;
 }
 
+SEXP dsCMatrix_Csparse_solve(SEXP a, SEXP b)
+{
+    SEXP Chol = get_factor_pattern(a, "sPDCholesky", 3);
+    /* "sPD" corresponds to choice below */
+    cholmod_factor *L;
+    cholmod_sparse *cx, *cb = as_cholmod_sparse(b);
+
+    if (Chol == R_NilValue)
+	/* FIXME(2): maybe first try other cached [...]Cholesky factors */
+	Chol = dsCMatrix_Cholesky(a,
+				  ScalarLogical(1),  /* permuted  : "P" */
+				  ScalarLogical(1),  /* LDL'	  : "D" */
+				  ScalarLogical(0)); /* simplicial: "s" */
+    L = as_cholmod_factor(Chol);
+    cx = cholmod_spsolve(CHOLMOD_A, L, cb, &c);
+    Free(cb); Free(L);
+    return chm_sparse_to_SEXP(cx, /*cholmod_free*/ 1, /*uploT*/ 0,
+			      /*Rkind*/ 0, /*diag*/ "N",
+			      /*dimnames = */ R_NilValue);
+}
+
 SEXP dsCMatrix_matrix_solve(SEXP a, SEXP b)
 {
-    SEXP Chol = get_factor_pattern(a, "spdCholesky", 3);
+    SEXP Chol = get_factor_pattern(a, "sPDCholesky", 3);
+    /* "sPD" corresponds to choice below */
     cholmod_factor *L;
     cholmod_dense  *cx,
 	*cb = as_cholmod_dense(PROTECT(mMatrix_as_dgeMatrix(b)));
 
     if (Chol == R_NilValue)
+	/* FIXME(2): maybe try other  [...]Cholesky factors */
 	Chol = dsCMatrix_Cholesky(a,
-				  ScalarLogical(1),  /* permuted */
-				  ScalarLogical(1),  /* LDL' */
-				  ScalarLogical(0)); /* simplicial */
+				  ScalarLogical(1),  /* permuted  : "P" */
+				  ScalarLogical(1),  /* LDL'      : "D" */
+				  ScalarLogical(0)); /* simplicial: "s" */
     L = as_cholmod_factor(Chol);
     cx = cholmod_solve(CHOLMOD_A, L, cb, &c);
     Free(cb); Free(L);
     UNPROTECT(1);
-    return chm_dense_to_SEXP(cx, 1, 0);
+    return chm_dense_to_SEXP(cx, 1, 0, /*dimnames = */ R_NilValue);
 }
 
 /* Needed for printing dsCMatrix objects */

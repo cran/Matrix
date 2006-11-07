@@ -4,6 +4,7 @@
 \alias{dsCMatrix-class}
 \alias{dsTMatrix-class}
 %
+\alias{solve,dsCMatrix,dsparseMatrix-method}
 \alias{solve,dsCMatrix,matrix-method}
 \alias{solve,dsCMatrix,numeric-method}
 \alias{solve,dsCMatrix,ddenseMatrix-method}
@@ -75,6 +76,10 @@ Class \code{"dgCMatrix"}, directly.
 }
 \section{Methods}{
   \describe{
+    \item{solve}{\code{signature(a = "dsCMatrix", b = "dsparseMatrix")}: Solve
+      a linear system of equations defined by \code{x} using a Cholesky
+      decomposition.  All steps will be based on \emph{sparse}
+      representations.}
     \item{solve}{\code{signature(a = "dsCMatrix", b = "matrix")}: Solve
       a linear system of equations defined by \code{x} using a Cholesky
       decomposition.}

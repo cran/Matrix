@@ -26,7 +26,7 @@ setAs("pMatrix", "matrix",
 setAs("pMatrix", "ngTMatrix",
       function(from) {
           d <- from@Dim
-	  new("ngTMatrix", i = seq(length = d[1]) - 1:1, j = from@perm - 1:1,
+	  new("ngTMatrix", i = seq_len(d[1]) - 1:1, j = from@perm - 1:1,
               Dim = d, Dimnames = from@Dimnames)
       })
 
@@ -34,12 +34,12 @@ setAs("pMatrix", "TsparseMatrix",
       function(from) as(from, "ngTMatrix"))
 
 setMethod("solve", signature(a = "pMatrix", b = "missing"),
-          function(a, b) {
-              bp <- ap <- a@perm
-              bp[ap] <- seq(along = ap)
-              new("pMatrix", perm = bp, Dim = a@Dim,
-                  Dimnames = rev(a@Dimnames))
-          }, valueClass = "pMatrix")
+	  function(a, b) {
+	      bp <- ap <- a@perm
+	      bp[ap] <- seq_along(ap)
+	      new("pMatrix", perm = bp, Dim = a@Dim,
+		  Dimnames = rev(a@Dimnames))
+	  }, valueClass = "pMatrix")
 
 setMethod("t", signature(x = "pMatrix"), function(x) solve(x))
 
@@ -63,3 +63,10 @@ setMethod("%*%", signature(x = "Matrix", y = "pMatrix"),
 
 setMethod("%*%", signature(x = "pMatrix", y = "Matrix"),
           function(x, y) y[x@perm , ])
+
+
+.pMat.nosense <- function (x, i, j, ..., value)
+    stop('partially replacing "pMatrix" entries is not sensible')
+setReplaceMethod("[", signature(x = "pMatrix", i = "index"), .pMat.nosense)
+setReplaceMethod("[", signature(x = "pMatrix", i = "missing", j = "index"),
+		 .pMat.nosense) ##   explicit  ^^^^^^^^^^^^ for disambiguation

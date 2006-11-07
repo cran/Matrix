@@ -13,7 +13,7 @@ Diagonal <- function(n, x = NULL)
 	n <- as.integer(n)
     }
 
-    if(missing(x)) # unit diagonal matrix
+    if(missing(x)) ## unit diagonal matrix
 	new("ddiMatrix", Dim = c(n,n), diag = "U")
     else {
 	stopifnot(length(x) == n)
@@ -47,7 +47,7 @@ bdiag <- function(...) {
                    apply(sapply(mlist, dim), 1, cumsum))
     ret <- new("dgTMatrix", Dim = as.integer(csdim[nrow(csdim),]))
     add1 <- matrix(1:0, 2,2)
-    for(i in seq(along = mlist)) {
+    for(i in seq_along(mlist)) {
 	indx <- apply(csdim[i:(i+1),] + add1, 2, function(n) n[1]:n[2])
 	if(is.null(dim(indx))) ## non-square matrix
 	    ret[indx[[1]],indx[[2]]] <- mlist[[i]]
@@ -58,15 +58,22 @@ bdiag <- function(...) {
     as(ret, "CsparseMatrix")
 }
 
-setAs("diagonalMatrix", "triangularMatrix",
-      function(from) {
-          n <- from@Dim[1]
-          i <- seq(length = n)
-          x <- from@x
-          new(paste(.M.kind(from), "tTMatrix", sep=''),
-              diag = from@diag, Dim = from@Dim, Dimnames = from@Dimnames,
-              x = x, i = i, j = i)
-          })
+diag2T <- function(from) {
+    i <- if(from@diag == "U") integer(0) else seq_len(from@Dim[1]) - 1:1
+    new(paste(.M.kind(from), "tTMatrix", sep=''),
+	diag = from@diag, Dim = from@Dim, Dimnames = from@Dimnames,
+	x = from@x, # <- ok for diag = "U" and "N" (!)
+	i = i, j = i)
+}
+
+setAs("diagonalMatrix", "triangularMatrix", diag2T)
+setAs("diagonalMatrix", "sparseMatrix", diag2T)
+## is better than this:
+## setAs("diagonalMatrix", "sparseMatrix",
+##       function(from)
+## 	  as(from, if(is(from, "dMatrix")) "dgCMatrix" else "lgCMatrix"))
+setAs("diagonalMatrix", "CsparseMatrix",
+      function(from) as(diag2T(from), "CsparseMatrix"))
 
 setAs("diagonalMatrix", "matrix",
       function(from) {
@@ -76,26 +83,41 @@ setAs("diagonalMatrix", "matrix",
                nrow = n, ncol = n)
       })
 
-setAs("diagonalMatrix", "generalMatrix",
-      function(from) as(from, paste(.M.kind(from), "geMatrix", sep='')))
+setAs("diagonalMatrix", "generalMatrix", # prefer sparse:
+      function(from) as(from, paste(.M.kind(from), "gCMatrix", sep='')))
 
+.diag.x <- function(m) {
+    if(m@diag == "U")
+	rep.int(if(is.numeric(m@x)) 1. else TRUE,
+		m@Dim[1])
+    else m@x
+}
+
+.diag.2N <- function(m) {
+    if(m@diag == "U") m@diag <- "N"
+    m
+}
+
+## given the above, the following  4  coercions should be all unneeded;
+## we prefer triangular to general:
 setAs("ddiMatrix", "dgTMatrix",
       function(from) {
+	  .Deprecated("as(, \"sparseMatrix\")")
 	  n <- from@Dim[1]
-	  i <- seq(length = n) - 1:1
-	  new("dgTMatrix", i = i, j = i,
-	      x = if(from@diag == "U") rep(1,n) else from@x,
+	  i <- seq_len(n) - 1:1
+	  new("dgTMatrix", i = i, j = i, x = .diag.x(from),
 	      Dim = c(n,n), Dimnames = from@Dimnames) })
 
 setAs("ddiMatrix", "dgCMatrix",
-      function(from) as(as(from, "dgTMatrix"), "dgCMatrix"))
+      function(from) as(as(from, "sparseMatrix"), "dgCMatrix"))
 
 setAs("ldiMatrix", "lgTMatrix",
       function(from) {
+	  .Deprecated("as(, \"sparseMatrix\")")
 	  n <- from@Dim[1]
 	  if(from@diag == "U") { # unit-diagonal
 	      x <- rep.int(TRUE, n)
-	      i <- seq(length = n)
+	      i <- seq_len(n) - 1:1
 	  } else { # "normal"
 	      nz <- nz.NA(from@x, na. = TRUE)
 	      x <- from@x[nz]
@@ -107,9 +129,6 @@ setAs("ldiMatrix", "lgTMatrix",
 setAs("ldiMatrix", "lgCMatrix",
       function(from) as(as(from, "lgTMatrix"), "lgCMatrix"))
 
-setAs("diagonalMatrix", "sparseMatrix",
-      function(from)
-	  as(from, if(is(from, "dMatrix")) "dgCMatrix" else "lgCMatrix"))
 
 if(FALSE) # now have faster  "ddense" -> "dge"
 setAs("ddiMatrix", "dgeMatrix",
@@ -175,6 +194,16 @@ setMethod("isTriangular", signature(object = "diagonalMatrix"),
 setMethod("isSymmetric", signature(object = "diagonalMatrix"),
           function(object) TRUE)
 
+setMethod("chol", signature(x = "ddiMatrix"),# pivot = "ANY"
+	  function(x, pivot) {
+	      if(any(x@x < 0)) stop("chol() is undefined for diagonal matrix with negative entries")
+	      x@x <- sqrt(x@x)
+	      x
+	  })
+## chol(L) is L for logical diagonal:
+setMethod("chol", signature(x = "ldiMatrix"), function(x, pivot) x)
+
+
 setMethod("diag", signature(x = "diagonalMatrix"),
 	  function(x = 1, nrow, ncol = n) {
              if(x@diag == "U")
@@ -193,24 +222,33 @@ setMethod("!", "ldiMatrix", function(e1) {
 })
 
 ## Basic Matrix Multiplication {many more to add}
-
-## FIXME: extend this for 'ldi', i.e. do "diagonalMatrix"
+##       ---------------------
+## Note that "ldi" logical are treated as numeric
 diagdiagprod <- function(x, y) {
     if(any(dim(x) != dim(y))) stop("non-matching dimensions")
     if(x@diag != "U") {
-        if(y@diag != "U") x@x <- x@x * y@x
-        return(x)
+	if(y@diag != "U") {
+	    nx <- x@x * y@x
+	    if(is.numeric(nx) && !is.numeric(x@x))
+		x <- as(x, "dMatrix")
+	    x@x <- as.numeric(nx)
+	}
+	return(x)
     } else ## x is unit diagonal
     return(y)
 }
 
-setMethod("%*%", signature(x = "ddiMatrix", y = "ddiMatrix"),
+setMethod("%*%", signature(x = "diagonalMatrix", y = "diagonalMatrix"),
 	  diagdiagprod, valueClass = "ddiMatrix")
 
-formals(diagdiagprod) <- alist(x=, y=NULL)
-setMethod("crossprod", signature(x = "ddiMatrix", y = "ddiMatrix"),
+formals(diagdiagprod) <- alist(x=, y=x)
+setMethod("crossprod", signature(x = "diagonalMatrix", y = "diagonalMatrix"),
 	  diagdiagprod, valueClass = "ddiMatrix")
-setMethod("tcrossprod", signature(x = "ddiMatrix", y = "ddiMatrix"),
+setMethod("tcrossprod", signature(x = "diagonalMatrix", y = "diagonalMatrix"),
+	  diagdiagprod, valueClass = "ddiMatrix")
+setMethod("crossprod", signature(x = "diagonalMatrix", y = "missing"),
+	  diagdiagprod, valueClass = "ddiMatrix")
+setMethod("tcrossprod", signature(x = "diagonalMatrix", y = "missing"),
 	  diagdiagprod, valueClass = "ddiMatrix")
 
 
@@ -223,10 +261,12 @@ diagmatprod <- function(x, y) {
 }
 
 setMethod("%*%", signature(x = "diagonalMatrix", y = "matrix"),
-          diagmatprod)
+	  diagmatprod)
 formals(diagmatprod) <- alist(x=, y=NULL)
 setMethod("crossprod", signature(x = "diagonalMatrix", y = "matrix"),
-          diagmatprod)
+	  diagmatprod)
+setMethod("tcrossprod", signature(x = "diagonalMatrix", y = "matrix"),
+	  diagmatprod)
 
 diagdgeprod <- function(x, y) {
     dx <- dim(x)
@@ -274,9 +314,50 @@ setMethod("%*%", signature(x = "dgeMatrix", y = "diagonalMatrix"),
 ##           })
 
 
-### ---------------- diagonal  o   sparse  -----------------------------
+### ---------------- diagonal  o  sparse  -----------------------------
 
+
+## Use function for several signatures, in order to evade
+## ambiguous dispatch for "ddi", since there's also Arith(ddense., ddense.)
+diagOdiag <- function(e1,e2) { # result should also be diagonal
+    r <- callGeneric(.diag.x(e1), .diag.x(e2)) # error if not "compatible"
+    if(is.numeric(r)) {
+        if(is.numeric(e2@x)) {
+            e2@x <- r; return(.diag.2N(e2)) }
+        if(!is.numeric(e1@x))
+            ## e.g. e1, e2 are logical;
+            e1 <- as(e1, "dMatrix")
+    }
+    else if(is.logical(r))
+        e1 <- as(e1, "lMatrix")
+    else stop("intermediate 'r' is of type", typeof(r))
+    e1@x <- r
+    .diag.2N(e1)
+}
+
+setMethod("Ops", signature(e1 = "diagonalMatrix", e2 = "diagonalMatrix"),
+          diagOdiag)
+## These two are just for method disambiguation:
+setMethod("Ops", signature(e1 = "ddiMatrix", e2 = "diagonalMatrix"),
+          diagOdiag)
+setMethod("Ops", signature(e1 = "diagonalMatrix", e2 = "ddiMatrix"),
+          diagOdiag)
+
+## For almost everything else, diag* shall be treated "as sparse" :
 ## These are cheap implementations via coercion
+
+## for disambiguation
+setMethod("Ops", signature(e1 = "diagonalMatrix", e2 = "sparseMatrix"),
+	  function(e1,e2) callGeneric(as(e1, "sparseMatrix"), e2))
+setMethod("Ops", signature(e1 = "sparseMatrix", e2 = "diagonalMatrix"),
+	  function(e1,e2) callGeneric(e1, as(e2, "sparseMatrix")))
+## in general:
+setMethod("Ops", signature(e1 = "diagonalMatrix", e2 = "ANY"),
+          function(e1,e2) callGeneric(as(e1,"sparseMatrix"), e2))
+setMethod("Ops", signature(e1 = "ANY", e2 = "diagonalMatrix"),
+          function(e1,e2) callGeneric(e1, as(e2,"sparseMatrix")))
+
+
 
 ## FIXME?: In theory, this can be done *FASTER*, in some cases, via tapply1()
 

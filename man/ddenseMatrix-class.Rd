@@ -7,6 +7,7 @@
 % undocu (FIXME)
 \alias{\%*\%,ddenseMatrix,ddenseMatrix-method}
 \alias{show,ddenseMatrix-method}
+\alias{chol,ddenseMatrix,ANY-method}
 \alias{coerce,ddenseMatrix,matrix-method}
 \alias{coerce,ddenseMatrix,dgeMatrix-method}
 \alias{coerce,ddenseMatrix,CsparseMatrix-method}

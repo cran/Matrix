@@ -8,6 +8,9 @@
 \alias{[,Matrix,missing,index,missing-method}
 \alias{[,Matrix,index,missing,missing-method}
 \alias{[,Matrix,index,index,missing-method}
+\alias{[,Matrix,lMatrix,missing,ANY-method}
+\alias{[,Matrix,logical,missing,ANY-method}
+\alias{[,Matrix,matrix,missing,ANY-method}
 \alias{[,Matrix,ANY,ANY,ANY-method}% bail out if no explicit method
 %
 \alias{[,denseMatrix,index,missing,logical-method}

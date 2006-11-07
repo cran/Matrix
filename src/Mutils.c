@@ -575,3 +575,21 @@ SEXP dup_mMatrix_as_dgeMatrix(SEXP A)
     UNPROTECT(nprot);
     return ans;
 }
+
+SEXP new_dgeMatrix(int nrow, int ncol)
+{
+    SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("dgeMatrix"))),
+	 ad = PROTECT(allocVector(INTSXP, 2));
+    double *ansx;
+    int sz = nrow * ncol;
+
+    INTEGER(ad)[0] = nrow;
+    INTEGER(ad)[1] = ncol;
+    SET_SLOT(ans, Matrix_DimSym, ad);
+    SET_SLOT(ans, Matrix_DimNamesSym, allocVector(VECSXP, 2));
+    ansx = REAL(ALLOC_SLOT(ans, Matrix_xSym, REALSXP, sz));
+
+    UNPROTECT(2);
+    return ans;
+}
+

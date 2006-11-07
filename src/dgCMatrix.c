@@ -4,46 +4,17 @@
 
 /* FIXME -- we "forget" about dimnames almost everywhere : */
 
-SEXP dgCMatrix_validate(SEXP x)
+/* for dgCMatrix  _and_ lgCMatrix and others  (but *not*  ngC...) : */
+SEXP xCMatrix_validate(SEXP x)
 {
-    /* FIXME? almost all is now done in Csparse_validate;
-       should only check xslot here!
-       ==> *identical*  to lgCMatrix_validate ==> call it 'gCMatrix_validate'
-     */
-    SEXP pslot = GET_SLOT(x, Matrix_pSym),
-	islot = GET_SLOT(x, Matrix_iSym),
-	xslot = GET_SLOT(x, Matrix_xSym);
-    int j,
-	*dims = INTEGER(GET_SLOT(x, Matrix_DimSym)),
-	nrow = dims[0],
-	ncol = dims[1],
-	*xp = INTEGER(pslot),
-	*xi = INTEGER(islot);
-
-    if (length(islot) != length(xslot))
-	return mkString(_("lengths of slots i and x must match"));
-    if (length(pslot) != ncol + 1)
-	return mkString(_("slot p must have length ncol + 1"));
-    if (xp[0] != 0)
-	return mkString(_("first element of slot p must be zero"));
-    if (length(islot) != xp[ncol])
-	return
-	    mkString(_("last element of slot p must match length of slot i"));
-    for (j = 0; j < ncol; j++) {
-	if (xp[j] > xp[j+1])
-	    return mkString(_("slot p must be non-decreasing"));
-    }
-    for (j = 0; j < length(islot); j++) {
-	if (xi[j] < 0 || xi[j] >= nrow)
-	    return mkString(_("all row indices must be between 0 and nrow-1"));
-    }
-    /* Checking column sorting now done in Csparse_validate */
-/*     if (csc_unsorted_columns(ncol, xp, xi)) */
-/* 	csc_sort_columns(ncol, xp, xi, REAL(xslot)); */
+    /* Almost everything now in Csparse_validate ( ./Csparse.c )
+     * *but* the checking of the 'x' slot : */
+    if (length(GET_SLOT(x, Matrix_iSym)) !=
+	length(GET_SLOT(x, Matrix_xSym)))
+	return mkString(_("lengths of slots 'i' and 'x' must match"));
 
     return ScalarLogical(1);
 }
-
 
 /* TODO: make this work also for "dsC" {where 'x' stores only triangle} */
 SEXP compressed_to_dgTMatrix(SEXP x, SEXP colP)
@@ -224,11 +195,13 @@ SEXP dgCMatrix_LU(SEXP Ap, SEXP orderp, SEXP tolp)
 
 SEXP dgCMatrix_matrix_solve(SEXP Ap, SEXP b)
 {
-    SEXP ans = PROTECT(dup_mMatrix_as_dgeMatrix(b));
+    /* b is dense or NULL [ <--> solve(A) */
     SEXP lu = dgCMatrix_LU(Ap, ScalarLogical(1), ScalarReal(1));
     SEXP qslot = GET_SLOT(lu, install("q"));
-    cs *L = Matrix_as_cs(GET_SLOT(lu, install("L"))),
+    cs  *L = Matrix_as_cs(GET_SLOT(lu, install("L"))),
 	*U = Matrix_as_cs(GET_SLOT(lu, install("U")));
+    SEXP ans = PROTECT( !isNull(b) ? dup_mMatrix_as_dgeMatrix(b)
+			: new_dgeMatrix(U->n, U->n));
     int *bdims = INTEGER(GET_SLOT(ans, Matrix_DimSym));
     int j, n = bdims[0], nrhs = bdims[1];
     int *p = INTEGER(GET_SLOT(lu, Matrix_pSym)),
@@ -239,7 +212,12 @@ SEXP dgCMatrix_matrix_solve(SEXP Ap, SEXP b)
     if (U->n != n || nrhs < 1 || n < 1)
 	error(_("Dimensions of system to be solved are inconsistent"));
     for (j = 0; j < nrhs; j++) {
-	cs_pvec(p, ax + j * n, x, n);  /* x = b(p) */
+	if(!isNull(b))
+	    cs_pvec(p, ax + j * n, x, n);  /* x = b(p) */
+	else { /* solve(A): (RHS) B = I_n,  hence  b = e_j (j-th unit vector) */
+	    int i;
+	    for(i=0; i < n; i++) x[i] = (p[i] == j) ? 1. : 0.;
+	}
 	cs_lsolve(L, x);	       /* x = L\x */
 	cs_usolve(U, x);	       /* x = U\x */
 	if (q)			       /* b(q) = x */

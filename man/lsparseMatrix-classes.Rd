@@ -32,10 +32,12 @@
 \alias{coerce,lsCMatrix,dgTMatrix-method}
 \alias{coerce,lsCMatrix,dsCMatrix-method}
 \alias{coerce,lsCMatrix,lgCMatrix-method}
+\alias{coerce,lsCMatrix,lgTMatrix-method}
 \alias{coerce,lsCMatrix,lsTMatrix-method}
 \alias{coerce,lsCMatrix,matrix-method}
 \alias{coerce,lsTMatrix,dsTMatrix-method}
 \alias{coerce,lsTMatrix,lgTMatrix-method}
+\alias{coerce,lsTMatrix,lsCMatrix-method}
 \alias{coerce,lsTMatrix,matrix-method}
 \alias{coerce,ltCMatrix,dtCMatrix-method}
 \alias{coerce,ltCMatrix,dMatrix-method}

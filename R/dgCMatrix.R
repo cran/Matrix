@@ -23,70 +23,70 @@ setAs("dgCMatrix", "lgCMatrix",
 	  ## and copy the other slots
 	  for(nm in c("i", "p", "Dim", "Dimnames"))
 	      slot(r, nm) <- slot(from, nm)
-          r
+	  r
       })
 
 setMethod("image", "dgCMatrix",
-          function(x, ...) {
-              x <- as(x, "dgTMatrix")
-              callGeneric()
-          })
+	  function(x, ...) {
+	      x <- as(x, "dgTMatrix")
+	      callGeneric()
+	  })
 
 ## Group Methods, see ?Arith (e.g.)
 ## -----
 
 setMethod("Arith", ##  "+", "-", "*", "^", "%%", "%/%", "/"
-          signature(e1 = "dgCMatrix", e2 = "dgCMatrix"),
-          function(e1, e2) {
-              d <- dimCheck(e1, e2)
-              dn <- dimNamesCheck(e1, e2)
-              ij1 <- non0ind(e1)
-              ij2 <- non0ind(e2)
-              switch(.Generic,
-                     "+" = , "-" =
-                     ## special "T" convention: repeated entries are *summed*
-                     as(new("dgTMatrix", Dim = d, Dimnames = dn,
-                            i = c(ij1[,1], ij2[,1]),
-                            j = c(ij1[,2], ij2[,2]),
-                            x = c(callGeneric(e1@x, 0), callGeneric(0,e2@x))),
-                        "dgCMatrix"),
+	  signature(e1 = "dgCMatrix", e2 = "dgCMatrix"),
+	  function(e1, e2) {
+	      d <- dimCheck(e1, e2)
+	      dn <- dimNamesCheck(e1, e2)
+	      ij1 <- non0ind(e1)
+	      ij2 <- non0ind(e2)
+	      switch(.Generic,
+		     "+" = , "-" =
+		     ## special "T" convention: repeated entries are *summed*
+		     as(new("dgTMatrix", Dim = d, Dimnames = dn,
+			    i = c(ij1[,1], ij2[,1]),
+			    j = c(ij1[,2], ij2[,2]),
+			    x = c(callGeneric(e1@x, 0), callGeneric(0,e2@x))),
+			"dgCMatrix"),
 
-                     "*" =
-                 { ##  X * 0 == 0 * X == 0 --> keep common non-0
-                     ii <- WhichintersectInd(ij1, ij2, nrow=d[1])
-                     ij <- ij1[ii[[1]], , drop = FALSE]
-                     as(new("dgTMatrix", Dim = d, Dimnames = dn,
-                            i = ij[,1],
-                            j = ij[,2],
-                            x = e1@x[ii[[1]]] * e2@x[ii[[2]]]),
-                        "dgCMatrix")
-                 },
+		     "*" =
+		 { ##  X * 0 == 0 * X == 0 --> keep common non-0
+		     ii <- WhichintersectInd(ij1, ij2, nrow=d[1])
+		     ij <- ij1[ii[[1]], , drop = FALSE]
+		     as(new("dgTMatrix", Dim = d, Dimnames = dn,
+			    i = ij[,1],
+			    j = ij[,2],
+			    x = e1@x[ii[[1]]] * e2@x[ii[[2]]]),
+			"dgCMatrix")
+		 },
 
-                     "^" =
-                 {
-                     ii <- WhichintersectInd(ij1, ij2, nrow=d[1])
-                     ## 3 cases:
-                     ## 1) X^0 := 1  (even for X=0) ==> dense
-                     ## 2) 0^Y := 0  for Y != 0         =====
-                     ## 3) x^y :
+		     "^" =
+		 {
+		     ii <- WhichintersectInd(ij1, ij2, nrow=d[1])
+		     ## 3 cases:
+		     ## 1) X^0 := 1  (even for X=0) ==> dense
+		     ## 2) 0^Y := 0  for Y != 0		=====
+		     ## 3) x^y :
 
-                     ## FIXME:  dgeM[cbind(i,j)] <- V  is not yet possible
-                     ##     nor dgeM[ i_vect   ] <- V
-                     ## r <- as(e2, "dgeMatrix")
-                     ## ...
-                     r <- as(e2, "matrix")
-                     Yis0 <- is0(r)
-                     r[complementInd(ij1, dim=d)] <- 0      ## 2)
-                     r[1:1 + ij2[ii[[2]], , drop=FALSE]] <-
-                         e1@x[ii[[1]]] ^ e2@x[ii[[2]]]      ## 3)
-                     r[Yis0] <- 1                           ## 1)
-                     as(r, "dgeMatrix")
-                 },
+		     ## FIXME:	dgeM[cbind(i,j)] <- V  is not yet possible
+		     ##	    nor dgeM[ i_vect   ] <- V
+		     ## r <- as(e2, "dgeMatrix")
+		     ## ...
+		     r <- as(e2, "matrix")
+		     Yis0 <- is0(r)
+		     r[complementInd(ij1, dim=d)] <- 0	    ## 2)
+		     r[1:1 + ij2[ii[[2]], , drop=FALSE]] <-
+			 e1@x[ii[[1]]] ^ e2@x[ii[[2]]]	    ## 3)
+		     r[Yis0] <- 1			    ## 1)
+		     as(r, "dgeMatrix")
+		 },
 
-                     "%%" = , "%/%" = , "/" = ## 0 op 0  |-> NaN => dense
-                     callGeneric(as(e1, "dgeMatrix"), e2)
-                     )
-          })
+		     "%%" = , "%/%" = , "/" = ## 0 op 0	 |-> NaN => dense
+		     callGeneric(as(e1, "dgeMatrix"), e2)
+		     )
+	  })
 
 setMethod("Arith",
 	  signature(e1 = "dgCMatrix", e2 = "numeric"),
@@ -119,7 +119,7 @@ setMethod("Arith",
 	  function(e1, e2) {
 	      if(length(e1) == 1) {
 		  f0 <- callGeneric(e1, 0)
-                  if(is0(f0)) {
+		  if(is0(f0)) { # stay sparse, even "dgC"
 		      e2@x <- callGeneric(e1, e2@x)
 		      e2
 		  } else {
@@ -149,52 +149,60 @@ setMethod("Arith",
 
 
 setMethod("writeHB", signature(obj = "dgCMatrix"),
-          function(obj, file, ...) {
-              .Deprecated("writeMM")
-              .Call(Matrix_writeHarwellBoeing, obj,
-                    as.character(file), "DGC")
-          })
+	  function(obj, file, ...) {
+	      .Deprecated("writeMM")
+	      .Call(Matrix_writeHarwellBoeing, obj,
+		    as.character(file), "DGC")
+	  })
 
 setMethod("writeMM", signature(obj = "dgCMatrix"),
-          function(obj, file, ...)
-          .Call(Matrix_writeMatrixMarket, obj, as.character(file), "DGC"))
+	  function(obj, file, ...)
+	  .Call(Matrix_writeMatrixMarket, obj, as.character(file), "DGC"))
 
 
 ## TODO (in C):
 ## setMethod("colSums", signature(x = "dgCMatrix"),
-## 	  function(x, na.rm = FALSE, dims = 1)
-##           .Call(dgCMatrix_colsums, x, na.rm, TRUE, FALSE),
-## 	  valueClass = "numeric")
+##	  function(x, na.rm = FALSE, dims = 1)
+##	     .Call(dgCMatrix_colsums, x, na.rm, TRUE, FALSE),
+##	  valueClass = "numeric")
 
 ## setMethod("colMeans", signature(x = "dgCMatrix"),
-## 	  function(x, na.rm = FALSE, dims = 1)
-##           .Call(dgCMatrix_colsums, x, na.rm, TRUE, TRUE),
-## 	  valueClass = "numeric")
+##	  function(x, na.rm = FALSE, dims = 1)
+##	     .Call(dgCMatrix_colsums, x, na.rm, TRUE, TRUE),
+##	  valueClass = "numeric")
 
 setMethod("colSums",  signature(x = "dgCMatrix"), .as.dgT.Fun)
 setMethod("colMeans", signature(x = "dgCMatrix"), .as.dgT.Fun)
 
 setMethod("rowSums", signature(x = "dgCMatrix"),
 	  function(x, na.rm = FALSE, dims = 1)
-          tapply1(x@x, factor(x@i, 0:(x@Dim[1]-1)), sum, na.rm = na.rm),
+	  tapply1(x@x, factor(x@i, 0:(x@Dim[1]-1)), sum, na.rm = na.rm),
 	  valueClass = "numeric")
 
 setMethod("rowMeans", signature(x = "dgCMatrix"),
 	  function(x, na.rm = FALSE, dims = 1)
-          tapply1(x@x, factor(x@i, 0:(x@Dim[1]-1)), mean, na.rm = na.rm),
+	  tapply1(x@x, factor(x@i, 0:(x@Dim[1]-1)), mean, na.rm = na.rm),
 	  valueClass = "numeric")
 
 setMethod("qr", signature(x = "dgCMatrix"),
-          function(x, tol = 1e-07, LAPACK = FALSE)
-          .Call(dgCMatrix_QR, x, TRUE))
+	  function(x, tol = 1e-07, LAPACK = FALSE)
+	  .Call(dgCMatrix_QR, x, TRUE))
 
 setMethod("lu", signature(x = "dgCMatrix"),
-          function(x, ...) .Call(dgCMatrix_LU, x, TRUE, 1))
+	  function(x, ...) .Call(dgCMatrix_LU, x, TRUE, 1))
 
 setMethod("solve", signature(a = "dgCMatrix", b = "matrix"),
-          function(a, b, ...) .Call(dgCMatrix_matrix_solve, a, b),
-          valueClass = "dgeMatrix")
+	  function(a, b, ...) .Call(dgCMatrix_matrix_solve, a, b),
+	  valueClass = "dgeMatrix")
 
 setMethod("solve", signature(a = "dgCMatrix", b = "ddenseMatrix"),
-          function(a, b, ...) .Call(dgCMatrix_matrix_solve, a, b),
-          valueClass = "dgeMatrix")
+	  function(a, b, ...) .Call(dgCMatrix_matrix_solve, a, b),
+	  valueClass = "dgeMatrix")
+setMethod("solve", signature(a = "dgCMatrix", b = "dsparseMatrix"),
+	  function(a, b, ...)
+	  .Call(dgCMatrix_matrix_solve, a, as(b, "denseMatrix")),
+	  valueClass = "dgeMatrix")
+
+setMethod("solve", signature(a = "dgCMatrix", b = "missing"),
+	  function(a, b, ...) .Call(dgCMatrix_matrix_solve, a, b=NULL),
+	  valueClass = "dgeMatrix")

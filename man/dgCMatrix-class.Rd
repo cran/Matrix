@@ -31,7 +31,9 @@
 \alias{rowMeans,dgCMatrix-method}
 \alias{rowSums,dgCMatrix-method}
 \alias{solve,dgCMatrix,matrix-method}
+\alias{solve,dgCMatrix,missing-method}
 \alias{solve,dgCMatrix,ddenseMatrix-method}
+\alias{solve,dgCMatrix,dsparseMatrix-method}
 %% Group methods --------- FIXME: These are not tested yet (or documented)
 \alias{Arith,numeric,dgCMatrix-method}
 \alias{Arith,dgCMatrix,numeric-method}

@@ -1,3 +1,138 @@
+2006-11-07  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Date): updated -> release 0.9975-6
+
+2006-11-06  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Csparse.R (replCmat): symmetric indexing of symmetric matrix
+	now returns symmetric.
+
+	* R/zzz.R ("diag<-"): replace "diag<-" in base for R <= 2.4.x
+
+	* R/Matrix.R (.M.sub.i.2col):  new, for  M[ cbind(i,j) ] indexing.
+	* R/Matrix.R (.M.repl.i.2col): new, for  M[ cbind(i,j) ] <- value
+
+	* R/Auxiliaries.R (.type.kind): added
+
+2006-11-04  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/cs.[ch]: updated to CSparse Version 2.0.3 by simply
+	running src/CSparse_install.sh
+
+	* R/denseMatrix.R: "[": keep symmetric on symmetric indexing.
+
+2006-11-03  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/dsCMatrix.c (dsCMatrix_Csparse_solve): new
+	* R/dsCMatrix.R (solve): "fully-sparse" using the above.
+
+	* R/AllClass.R: "pMatrix" now also inherits from "generalMatrix"
+
+	* tests/Class+Meth.R (tstMatrixClass): now assure
+	the (important in method programming) property :
+
+		###>>  Every "Matrix" is either
+		###>>  "general*", "symmetric*", "triangular*" or "diagonal*"
+
+		(where "*" stands for "Matrix")
+
+	* R/Auxiliaries.R (diagU2N): now .Call()s Csparse_diagU2N for <Csparse>
+
+	* R/dMatrix.R (Compare(<dMatrix>,<dMatrix>): update and
+	* tests/validObj.R: checks for "comparison"
+
+	* R/sparseMatrix.R ([): improved indexing for sparse;
+		trying to keep <symmetric>[ n, n] symmmetric
+
+	* tests/indexing.R: indexing for logical sparse now ok
+
+
+2006-11-02  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+        * src/Tsparse.c: use xTsparse_validate() , and hence remove
+
+        * src/{ltC,lsC,lgT}Matrix.[ch]: removed
+
+2006-11-02  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/AllClass.R (Matrix-class): check length of dimnames in validity.
+
+	* tests/simple.R: validObject() checking the above.
+
+	* src/dgCMatrix.c (xCMatrix_validate): new, small and simple,
+	replacing both dgCMatrix_validate and lgCM*.
+
+	* src/Csparse.c (Csparse_dense_prod, etc): do not lose dimnames;
+	fix dimnames setting in other places.
+	* src/chm_common.c (chm_dense_to_SEXP): now can pass dimnames
+
+2006-11-01  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Csparse.R,src/Csparse.c, etc: tcrossprod(<CsparseM>,<CsparseM>)
+
+	* R/sparseMatrix.R (isSymmetric): drop 'factors' slot for
+	symmetry test, via
+	* R/Auxiliaries.R (.as.dgC.0.factors):
+
+2006-11-01  Douglas Bates  <bates@r-project.org>
+
+	* R/Csparse.R,src/Csparse.c,tests/matprod.R,
+	man/CsparseMatrix-class.Rd: crossprod(<CsparseMatrix>,
+	<CsparseMatrix>) added
+
+2006-10-30  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* tests/matprod.R: add a variation of Harri's example
+
+	* R/dsparseMatrix.R: fix crossprod(<dsparse>, <dge>) to *not*
+	recursive infinitely.
+
+	* R/dgCMatrix.R: + solve(<sparse>, <sparse>)
+
+	* tests/indexing.R: add test for the "<" bug fixed 10-27 in R/dMatrix.R
+
+2006-10-28  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* tests/Class+Meth.R (tstMatrixClass): more: use non-trivial
+	matrix if possible; test m+m == 2*m; now test dgRMatrix.
+	* R/dgRMatrix.R (.to.dgR): a few more coercions, in order to
+	satisfy the above test.
+
+2006-10-27  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Matrix.R (Ops):  <Matrix> o <matrix>  method added
+
+	* R/dgCMatrix.R: solve(a, b="missing") based on
+	* src/dgCMatrix.c (dgCMatrix_matrix_solve): extend to work with
+	RHS = NULL.
+
+	* R/diagMatrix.R (diagdiagprod): extend %*% etc to ldiMatrix;
+	add more (needed) [t]crossprod() methods.
+
+	* man/ddiMatrix-class.Rd: more info, notably on 'diag'
+
+	* R/Auxiliaries.R (as_CspClass): cleanup
+	(drop0): internal utility for "Csparse_drop(*, 0)"
+	(.bail.out.2): encourage active feedback
+
+2006-10-26  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/dMatrix.R(Compare): new(), then slots [no validity check]
+
+	* src/Csparse.c (Csparse_validate): fixed (and more efficient in
+	non-valid or 'sorted' case).
+
+	* R/dsparseMatrix.R: add "chol" method.
+	* R/ddenseMatrix.R: ditto
+
+	* R/diagMatrix.R (Ops): group methods for  <diagonal> o <sparse>
+	* NAMESPACE (Ops)
+	* R/diagMatrix.R (diag2T): simple utility used "higher level"
+	coercion; deprecating direct lower level coercions.
+
+	* R/*.R (seq): use seq_len() and seq_along() where possible.
+
+
 2006-10-23  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* DESCRIPTION (Version): 0.9975-5 ready for release

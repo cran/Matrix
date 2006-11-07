@@ -55,11 +55,13 @@ not.ok.classes <- paste(c(sort(outer(c("l", "n"), Rcl.struc, paste0)),
 			  ""), "Matrix", sep='')
 ## From the rest, those that don't show :
 no.show.classes <-
-    paste(paste("d", Rcl.struc, sep=''), "Matrix", sep='')
+    paste(paste("d", Rcl.struc[Rcl.struc != "gR"], sep=''),
+	  "Matrix", sep='')
 Mat.MatFact <- c("Cholesky", "pCholesky",
                  "BunchKaufman", "pBunchKaufman")##, "LDL"
 no.t.etc <- c(no.show.classes, Mat.MatFact)
 no.t.classes <- no.t.etc        # no t() available
+not.Ops      <- no.show.classes # "Ops", e.g. "+" fails
 not.coerce0  <- no.show.classes # not coercable to   "matrix" & "dgeMatrix"
 not.coerce1  <- no.t.etc        # not coercable from "dgeMatrix"
 not.coerce2  <- no.t.etc        # not coercable from "matrix"
@@ -81,6 +83,7 @@ tstMatrixClass <-
 
     mM <- as(mM, "dgeMatrix")
     mm <- as(mm, "matrix")
+    trm <- mm; trm[lower.tri(mm)] <- 0
 
     if(recursive)
         cList <- character(0)
@@ -94,6 +97,11 @@ tstMatrixClass <-
         cat("\n")
         cat.(clNam)
         ##---------
+	genC <- extends(clNam, "generalMatrix")
+	symC <- extends(clNam, "symmetricMatrix")
+	triC <- extends(clNam, "triangularMatrix")
+	diaC <- extends(clNam, "diagonalMatrix")
+        ## - - - - -
         if(isVirtualClass(clNam)) {
             cat(" - is virtual\n")
             if(recursive) {
@@ -110,8 +118,21 @@ tstMatrixClass <-
                 cat.("----- end{class :", clNam, "}---------------------\n")
             }
         } else {
-            cat("; new(..): ")
-            m <- new(clNam)
+            if(!(genC || symC || triC || diaC))
+                stop("does not extend one of 'general', 'symmetric', 'triangular', or 'diagonal'")
+	    cat("; new(..): ")
+	    m <- new(clNam)
+	    if(canCoerce(mm, clNam)) { ## replace 'm' by `non-empty' version
+                m0 <- if(triC) trm else mm
+		if(extends(clNam, "lMatrix") ||
+		   extends(clNam, "nMatrix"))
+		    storage.mode(m0) <- "logical"
+		else if(extends(clNam, "zMatrix"))
+		    storage.mode(m0) <- "complex"
+                validObject(m) ## validity of trivial 'm' before replacing
+		m <- as(m0, clNam)
+	    } else m0 <- matrix(,0,0)
+            ## m0 is the 'matrix' version of our 'Matrix' m
 
             if(any(clNam == not.ok.classes)) {
                 cat("in 'stop list' - no validity\n")
@@ -140,6 +161,22 @@ tstMatrixClass <-
 ### FIXME: organize differently :
 ### 1) produce 'mM'  and 'mm' for the other cases,
 ### 2) use identical code for all cases
+
+		if(is(m, "dMatrix") && all(clNam != not.Ops)) {
+                    ## makes sense with non-trivial m (!)
+		    cat("2*m =?= m+m: ")
+		    if(identical(2*m, m+m)) cat("identical\n")
+		    else {
+			stopifnot(as(2*m,"matrix") == as(m+m, "matrix"))
+			cat("ok\n")
+		    }
+                    ## FIXME: not yet, e.g. for "dgTMatrix" :
+## 		    cat("m >= m for all: ")
+## 		    stopifnot(all(as(m >= m, "matrix"))); cat("ok\n")
+## 		    cat("m < m for none: ")
+## 		    stopifnot(all(!as(m < m, "matrix"))); cat("ok\n")
+		}
+
                 if(is(m, "dMatrix") && is(m, "compMatrix")) {
                     if(any(clNam == not.coerce1))
                         cat.("not coercable_1\n")
@@ -163,6 +200,8 @@ tstMatrixClass <-
                     else {
                         ## FIXME: also add tests for these
                         if(is(m, "lMatrix")) {
+                            ## once we have "Logic" group methods
+                            ## TODO stopifnot(all(m | m))
                         }
                         else if(is(m, "triangularMatrix")) {
                             mm. <- mm
@@ -203,7 +242,7 @@ tstMatrixClass <-
     } # end{dotestMat}
 
     for(scl in getClass(cl)@subclasses)
-        dotestMat(scl, offset)
+        dotestMat(scl, offset + 1)
 }
 
 

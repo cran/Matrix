@@ -3,11 +3,14 @@
 \title{Virtual Class "sparseMatrix" --- Mother of Sparse Matrices}
 \alias{sparseMatrix-class}
 %% Group methods
+\alias{Compare,sparseMatrix,sparseMatrix-method}
 \alias{Arith,sparseMatrix,sparseMatrix-method}
 \alias{Arith,sparseMatrix,numeric-method}
 \alias{Arith,numeric,sparseMatrix-method}
 \alias{Math,sparseMatrix-method}
 %\alias{Math2,sparseMatrix,numeric-method}
+\alias{Ops,diagonalMatrix,sparseMatrix-method}
+\alias{Ops,sparseMatrix,diagonalMatrix-method}
 %
 \alias{coerce,ANY,sparseMatrix-method}
 \alias{-,sparseMatrix,missing-method}

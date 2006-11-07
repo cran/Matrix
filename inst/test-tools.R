@@ -13,6 +13,14 @@ as.mat <- function(m) {
     m
 }
 
+asD <- function(m) { ## as "Dense"
+    if(canCoerce(m, "denseMatrix")) as(m, "denseMatrix")
+    else if(canCoerce(m, (cl <- paste(.M.kind(m), "denseMatrix", sep=''))))
+        as(m, cl)
+    else if(canCoerce(m, "dgeMatrix")) as(m, "dgeMatrix")
+    else stop("cannot coerce to a typical dense Matrix")
+}
+
 ## checking;  'show' is for convenience of the developer
 assert.EQ.mat <- function(M, m, tol = if(show) 0 else 1e-15, show=FALSE) {
     MM <- as.mat(M) # as(M, "matrix")

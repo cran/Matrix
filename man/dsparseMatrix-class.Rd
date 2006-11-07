@@ -12,6 +12,7 @@
 \alias{rbind2,dsparseMatrix,numeric-method}
 \alias{rbind2,numeric,dsparseMatrix-method}
 %
+\alias{chol,dsparseMatrix,ANY-method}
 \alias{coerce,denseMatrix,dsparseMatrix-method}
 \alias{\%*\%,ddenseMatrix,dsparseMatrix-method}
 \alias{\%*\%,dgeMatrix,dsparseMatrix-method}

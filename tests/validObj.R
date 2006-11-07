@@ -40,13 +40,12 @@ chk.matrix(mcm <- as(cm, "dMatrix")) # 'dsy' + factors -- buglet? rather == cm?
 chk.matrix(mc. <- as(cm, "Matrix"))
 stopifnot(identical(mc., mcm),
           identical4(2*cm, cm + cp, cp + cs, mcm * 2))
+
 chk.matrix(eq <- cm == cs)
-stopifnot(all(eq@x))
-if(FALSE) ##FIXME
-identical3(eq, cs == cp, cm == cp)
-if(FALSE) ##FIXME
-all(!(cp > cs))
-##
+stopifnot(all(eq@x),
+	  identical3(eq, cs == cp, cm == cp),
+	  as.logical(!(cs < cp)),
+	  identical4(!(cs < cp), !(cp > cs), cp <= cs, cs >= cp))
 
 ## Coercion to 'dpo' should give an error if result would be invalid
 M <- Matrix(diag(4) - 1)
@@ -66,7 +65,6 @@ stopifnot(all.equal(as(ch, "matrix"), as(ch2, "matrix")))
 ### Very basic	triangular matrix stuff
 
 assertError( new("dtrMatrix", Dim = c(2,2), x= 1:4) )# double 'Dim'
-if(paste(R.version$major, R.version$minor, sep=".") >= "2.0.1")
 assertError( new("dtrMatrix", Dim = as.integer(c(2,2)), x= 1:4) )# int 'x'
 ## This caused a segfault (before revision r1172 in ../src/dtrMatrix.c):
 assertError( new("dtrMatrix", Dim = 2:2, x=as.double(1:4)) )# length(Dim) !=2
@@ -82,3 +80,20 @@ stopifnot(identical(10 * tPt, tPt * 10),
 ## non-square triagonal Matrices --- are forbidden ---
 assertError(new("dtrMatrix", Dim = 2:3,
                 x=as.double(1:6), uplo="L", diag="U"))
+
+n <- 3:3
+assertError(new("dtCMatrix", Dim = c(n,n), diag = "U"))
+stopifnot(validObject(T <- new("dtTMatrix", Dim = c(n,n), diag = "U")),
+	  identical(as.mat(T), diag(n)),
+	  validObject(M <- new("dtCMatrix", Dim = c(n,n), diag = "U",
+			       p = rep.int(0:0, n+1)))
+	  )
+
+set.seed(3) ; (p9 <- as(sample(9), "pMatrix"))
+ind.try <- try(p9[1,1] <- 1, silent = TRUE)
+stopifnot(grep("replacing.*sensible", ind.try[1]) == 1,
+          is.logical(p9[1,]),
+          isTRUE(p9[-c(1:6, 8:9), 1]),
+	  identical(t(p9), solve(p9)),
+	  identical(p9[TRUE,], as(p9, "ngTMatrix"))
+          )

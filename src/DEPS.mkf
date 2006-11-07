@@ -9,27 +9,23 @@ chm_common.o: chm_common.c chm_common.h CHOLMOD/Include/cholmod.h \
 Csparse.o: Csparse.c Csparse.h Mutils.h Syms.h
 mmio.o: mmio.c mmio.h
 HBMM.o: HBMM.c HBMM.h Mutils.h Syms.h iohb.h mmio.h
-iohb.o: iohb.c iohb.h 
+iohb.o: iohb.c iohb.h
 lgCMatrix.o: lgCMatrix.c lgCMatrix.h Mutils.h Syms.h
 dsyMatrix.o: dsyMatrix.c dsyMatrix.h dgeMatrix.h Mutils.h Syms.h
 dgCMatrix.o: dgCMatrix.c dgCMatrix.h Mutils.h Syms.h cs_utils.h
 dtTMatrix.o: dtTMatrix.c dtTMatrix.h Mutils.h Syms.h
 Mutils.o: Mutils.c Mutils.h Syms.h
 dspMatrix.o: dspMatrix.c dspMatrix.h dgeMatrix.h Mutils.h Syms.h
-ltCMatrix.o: ltCMatrix.c ltCMatrix.h Mutils.h Syms.h
 factorizations.o: factorizations.c factorizations.h Mutils.h Syms.h
 dtCMatrix.o: dtCMatrix.c dtCMatrix.h Mutils.h Syms.h dgCMatrix.h
 dense.o: dense.c dense.h Mutils.h Syms.h
-R_ldl.o: R_ldl.c 
-dgeMatrix.o: dgeMatrix.c dgeMatrix.h \
-  Mutils.h Syms.h
+R_ldl.o: R_ldl.c
+dgeMatrix.o: dgeMatrix.c dgeMatrix.h Mutils.h Syms.h
 dsTMatrix.o: dsTMatrix.c dsTMatrix.h Mutils.h Syms.h
 dtrMatrix.o: dtrMatrix.c dtrMatrix.h Mutils.h Syms.h
 dtpMatrix.o: dtpMatrix.c dtpMatrix.h Mutils.h Syms.h
-lgTMatrix.o: lgTMatrix.c lgTMatrix.h Mutils.h Syms.h
 dppMatrix.o: dppMatrix.c dppMatrix.h Mutils.h Syms.h
 dpoMatrix.o: dpoMatrix.c dpoMatrix.h Mutils.h Syms.h
-lsCMatrix.o: lsCMatrix.c lsCMatrix.h Mutils.h Syms.h
 dgTMatrix.o: dgTMatrix.c dgTMatrix.h Mutils.h Syms.h
 init.o: init.c Mutils.h Syms.h HBMM.h \
   chm_common.h CHOLMOD/Include/cholmod.h \
@@ -41,6 +37,5 @@ init.o: init.c Mutils.h Syms.h HBMM.h \
   Csparse.h Tsparse.h dense.h \
   dgCMatrix.h dgTMatrix.h dgeMatrix.h dpoMatrix.h dppMatrix.h dsCMatrix.h \
   dsTMatrix.h dspMatrix.h dsyMatrix.h dtCMatrix.h dtTMatrix.h dtrMatrix.h \
-  dtpMatrix.h factorizations.h lgCMatrix.h lgTMatrix.h \
-  lsCMatrix.h ltCMatrix.h Syms.h
+  dtpMatrix.h factorizations.h lgCMatrix.h Syms.h
 dsCMatrix.o: dsCMatrix.c dsCMatrix.h Mutils.h Syms.h

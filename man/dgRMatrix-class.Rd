@@ -1,11 +1,13 @@
 \name{dgRMatrix-class}
 \docType{class}
 \alias{dgRMatrix-class}
-\alias{coerce,dgRMatrix,dgTMatrix-method}
+\alias{coerce,dgRMatrix,CsparseMatrix-method}
 \alias{coerce,dgRMatrix,dgCMatrix-method}
+\alias{coerce,dgRMatrix,dgTMatrix-method}
 \alias{coerce,dgRMatrix,matrix-method}
 \alias{coerce,dgCMatrix,dgRMatrix-method}
 \alias{coerce,dgTMatrix,dgRMatrix-method}
+\alias{coerce,dgeMatrix,dgRMatrix-method}
 \alias{coerce,matrix,dgRMatrix-method}
 %\alias{coerce,dgRMatrix,dgeMatrix-method}
 \alias{diag,dgRMatrix-method}

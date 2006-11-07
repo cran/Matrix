@@ -79,8 +79,7 @@ Matrix <-
     function (data = NA, nrow = 1, ncol = 1, byrow = FALSE, dimnames = NULL,
 	      sparse = NULL, forceCheck = FALSE)
 {
-    sparseDefault <- function(m)
-	prod(dim(m)) > 2*sum(is.na(m <- as(m, "matrix")) | m != 0)
+    sparseDefault <- function(m) prod(dim(m)) > 2*sum(isN0(as(m, "matrix")))
 
     i.M <- is(data, "Matrix")
 
@@ -172,7 +171,7 @@ setMethod("%*%", signature(x = "Matrix", y = "numeric"),
 	  function(x, y) callGeneric(x, as.matrix(y)))
 
 setMethod("%*%", signature(x = "numeric", y = "Matrix"),
-	  function(x, y) callGeneric(rbind(x), y))
+	  function(x, y) callGeneric(matrix(x, nrow = 1, byrow=TRUE), y))
 
 setMethod("crossprod", signature(x = "Matrix", y = "numeric"),
 	  function(x, y = NULL) callGeneric(x, as.matrix(y)))
@@ -186,8 +185,15 @@ setMethod("tcrossprod", signature(x = "Matrix", y = "numeric"),
 setMethod("tcrossprod", signature(x = "numeric", y = "Matrix"),
 	  function(x, y = NULL)	 callGeneric(as.matrix(x), y))
 
+## maybe not optimal
+setMethod("solve", signature(a = "Matrix", b = "missing"),
+	  function(a, b, ...) solve(a, Diagonal(nrow(a))))
+
 setMethod("solve", signature(a = "Matrix", b = "numeric"),
 	  function(a, b, ...) callGeneric(a, as.matrix(b)))
+## when no sub-class method is found, bail out
+setMethod("solve", signature(a = "Matrix", b = "matrix"),
+	  function(a, b, ...) .bail.out.2("solve", class(a), "matrix"))
 
 ## bail-out methods in order to get better error messages
 setMethod("%*%", signature(x = "Matrix", y = "Matrix"),
@@ -221,6 +227,12 @@ setMethod("kronecker", signature(X = "ANY", Y = "Matrix",
               Y <- as(Y, "matrix") ; Matrix(callGeneric()) })
 
 
+## FIXME: All of these should never be called
+setMethod("chol", signature(x = "Matrix"),
+	  function(x, pivot = FALSE) .bail.out.1(.Generic, class(x)))
+setMethod("determinant", signature(x = "Matrix"),
+	  function(x, logarithm = TRUE) .bail.out.1(.Generic, class(x)))
+
 setMethod("diag", signature(x = "Matrix"),
 	  function(x, nrow, ncol) .bail.out.1(.Generic, class(x)))
 setMethod("t", signature(x = "Matrix"),
@@ -235,15 +247,22 @@ setMethod("-", signature(e1 = "Matrix", e2 = "missing"),
               0-e1
           })
 
-## bail-outs:
-setMethod("Compare", signature(e1 = "Matrix", e2 = "Matrix"),
+## old-style matrices are made into new ones
+setMethod("Ops", signature(e1 = "Matrix", e2 = "matrix"),
+	  function(e1, e2) callGeneric(e1, Matrix(e2)))
+##	    callGeneric(e1, Matrix(e2, sparse=is(e1,"sparseMatrix"))))
+setMethod("Ops", signature(e1 = "matrix", e2 = "Matrix"),
+	  function(e1, e2) callGeneric(Matrix(e1), e2))
+
+## bail-outs -- on highest possible level, hence "Ops", not "Compare"/"Arith" :
+setMethod("Ops", signature(e1 = "Matrix", e2 = "Matrix"),
           function(e1, e2) {
               d <- dimCheck(e1,e2)
               .bail.out.2(.Generic, class(e1), class(e2))
           })
-setMethod("Compare", signature(e1 = "Matrix", e2 = "ANY"),
+setMethod("Ops", signature(e1 = "Matrix", e2 = "ANY"),
           function(e1, e2) .bail.out.2(.Generic, class(e1), class(e2)))
-setMethod("Compare", signature(e1 = "ANY", e2 = "Matrix"),
+setMethod("Ops", signature(e1 = "ANY", e2 = "Matrix"),
           function(e1, e2) .bail.out.2(.Generic, class(e1), class(e2)))
 
 
@@ -287,6 +306,7 @@ setMethod("[", signature(x = "Matrix", i = "ANY", j = "ANY", drop = "ANY"),
 {
     nA <- nargs()
     if(nA == 2) { ##  M [ M >= 7 ]
+        ## FIXME: when both 'x' and 'i' are sparse, this can be very inefficient
 	as(x, geClass(x))@x[as.vector(i)]
 	## -> error when lengths don't match
     } else if(nA == 3) { ##  M [ M[,1, drop=FALSE] >= 7, ]
@@ -303,9 +323,30 @@ setMethod("[", signature(x = "Matrix", i = "logical", j = "missing",
 	  .M.sub.i.logical)
 
 
-## "FIXME:"
-## ------ get at  A[ ij ]  where ij is (i,j) 2-column matrix?
+## A[ ij ]  where ij is (i,j) 2-column matrix :
+.M.sub.i.2col <- function (x, i, j, drop)
+{
+    nA <- nargs()
+    if(nA == 2) { ##  M [ cbind(ii,jj) ]
+	if(!is.integer(nc <- ncol(i)))
+	    stop("'i' has no integer column number",
+		 " should never happen; please report")
+	if(is.logical(i))
+	    return(.M.sub.i.logical(x,i,j,drop))
+	else if(!is.numeric(i) || nc != 2)
+	    stop("such indexing must be by logical or 2-column numeric matrix")
+	m <- nrow(i)
+        if(m == 0) return(vector(mode = .type.kind[.M.kind(x)]))
+        ## else
+	i1 <- i[,1]
+	i2 <- i[,2]
+	## potentially inefficient -- FIXME --
+	unlist(lapply(seq_len(m), function(j) x[i1[j], i2[j]]))
 
+    } else stop("nargs() = ", nA, " should never happen; please report.")
+}
+setMethod("[", signature(x = "Matrix", i = "matrix", j = "missing"),# drop="ANY"
+	  .M.sub.i.2col)
 
 
 ### "[<-" : -----------------
@@ -319,6 +360,39 @@ setReplaceMethod("[", signature(x = "Matrix", i = "missing", j = "missing",
 	      validObject(x)# check if type and lengths above match
 	      x
           })
+
+## A[ ij ] <- value,  where ij is (i,j) 2-column matrix :
+.M.repl.i.2col <- function (x, i, j, value)
+{
+    nA <- nargs()
+    if(nA == 3) { ##  M [ cbind(ii,jj) ] <- value
+	if(!is.integer(nc <- ncol(i)))
+	    stop("'i' has no integer column number",
+		 " should never happen; please report")
+	if(is.logical(i)) {
+	    i <- c(i) # drop "matrix"
+	    return( callNextMethod() )
+	} else if(!is.numeric(i) || nc != 2)
+	    stop("such indexing must be by logical or 2-column numeric matrix")
+	m <- nrow(i)
+	mod.x <- .type.kind[.M.kind(x)]
+	if(length(value) > 0 && m %% length(value) != 0)
+	    warning("number of items to replace is not a multiple of replacement length")
+	## recycle:
+	value <- rep(value, length = m)
+	i1 <- i[,1]
+	i2 <- i[,2]
+	## inefficient -- FIXME -- (also loses "symmetry" unnecessarily)
+	for(k in seq_len(m))
+	    x[i1[k], i2[k]] <- value[k]
+	x
+
+    } else stop("nargs() = ", nA, " should never happen; please report.")
+}
+setReplaceMethod("[", signature(x = "Matrix", i = "matrix", j = "missing",
+				value = "replValue"),
+	  .M.repl.i.2col)
+
 
 setReplaceMethod("[", signature(x = "Matrix", i = "ANY", j = "ANY",
 				value = "Matrix"),

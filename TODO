@@ -56,15 +56,10 @@ Check for DimNames propagation in coercion and other operations.
   calling Lapack's DGEMM for "dense"
   [2005-12-xx: done for dgeMatrix at least]
 
-- "ltTmatrix" :
-  2) new("ltTMatrix", diag = "U", Dim = c(2:2, 2:2)) shows lack of ltTM*_validate
-
 - BUGlet:  Shouldn't lose factorization here:
   h6 <- Hilbert(6); chol(h6) ; str(h6) # has factor
   str(H6 <- as(h6, "dspMatrix"))       # has lost factor
   ## and the same in a similar situation involving  "dpo", "dpp"
-
-- "Compare" for dgC & dgT  --- want to be able to do  M[M > 10]  etc
 
 - Things like  M[upper.tri(M)] are not really most useful for  sparse
   matrices.  --> provide generic functions
@@ -74,7 +69,7 @@ Check for DimNames propagation in coercion and other operations.
 
 - Factorizations: LU done; also Schur()  for  *sparse*  Matrices.
 
-- band(), triu(), tril() for *all*, not just sparse matrices
+- band(), triu(), tril() for *all* including "matrix", not just sparse matrices
 
 - is.na() method for all our matrices [ ==> which(*, arr.ind=TRUE) might work ]
 
@@ -88,3 +83,12 @@ Check for DimNames propagation in coercion and other operations.
 - use  .Call(Csparse_drop, M, tol) in more places,
   both with 'tol = 0.' to drop "values that happen to be 0" and for
   zapsmall() methods for Csparse*
+
+- implement .Call(Csparse_scale, ....) interfacing to cholmod_scale()
+  in src/CHOLMOD/Include/cholmod_matrixops.h : for another function
+  specifically for multiplying a cholmod_sparse object by a diagonal matrix.
+  Use it in %*% and [t]crossprod methods.
+
+- chol() and determinant() should ``work'': proper result or "good" error
+  message.
+

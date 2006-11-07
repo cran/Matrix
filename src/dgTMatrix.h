@@ -3,7 +3,7 @@
 
 #include "Mutils.h"
 
-SEXP dgTMatrix_validate(SEXP x);
+SEXP xTMatrix_validate(SEXP x);
 SEXP dgTMatrix_to_dgeMatrix(SEXP x);
 SEXP dgTMatrix_to_matrix(SEXP x);
 #ifdef _valid_only_for_old_graph_package

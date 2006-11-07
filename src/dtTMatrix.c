@@ -1,12 +1,6 @@
 			/* Sparse triangular matrices in triplet format */
 #include "dtTMatrix.h"
 
-SEXP dtTMatrix_validate(SEXP x)
-{
-    return triangularMatrix_validate(x);
-    /* see ./dtpMatrix.c as example to do more testing here */
-}
-
 SEXP dtTMatrix_as_dtrMatrix(SEXP x)
 {
     SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dtrMatrix"))),

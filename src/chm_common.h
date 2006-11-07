@@ -21,7 +21,7 @@ SEXP chm_sparse_to_SEXP(cholmod_sparse *a, int dofree,
 			int uploT, int Rkind, char *diag, SEXP dn);
 SEXP chm_triplet_to_SEXP(cholmod_triplet *a, int dofree,
  			 int uploT, int Rkind, char* diag, SEXP dn);
-SEXP chm_dense_to_SEXP(cholmod_dense *a, int dofree, int Rkind);
+SEXP chm_dense_to_SEXP(cholmod_dense *a, int dofree, int Rkind, SEXP dn);
 /* 		       int uploST, char *diag, SEXP dn); */
 SEXP chm_dense_to_matrix(cholmod_dense *a, int dofree, SEXP dn);
 

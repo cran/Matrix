@@ -105,7 +105,7 @@ setMethod("image", "dgTMatrix",
 			    rep(col.regions, length = numcol)
 			else col.regions[1+ ((1:numcol-1)*(num.r-1)) %/% (numcol-1)]
                     zcol <- rep.int(NA, length(z)) #numeric(length(z))
-                    for (i in seq(along = col.regions))
+		    for (i in seq_along(col.regions))
                         zcol[!is.na(x) & !is.na(y) & !is.na(z) &
                              at[i] <= z & z < at[i+1]] <- i
 

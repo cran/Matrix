@@ -75,14 +75,14 @@ setAs("lgTMatrix", "lgCMatrix",
 
 
 .ind.prep2 <- function(i, margin, di, dn)
-{
-    ## Purpose: do the ``common things'' for "*gTMatrix" sub-assignment
+{    ## Purpose: do the ``common things'' for "*gTMatrix" sub-assignment
     ##		for 1 dimension, 'margin' ,
     ##          and return match(.,.) + li = length of corresponding dimension
     ##
     ## i is "index"; margin in {1,2};
     ## di = dim(x)      { used when i is "logical" }
 
+    ## difference to .ind.prep(): use 1-indices; no match(xi,..), no dn at end
     dn <- dn[[margin]]
     has.dn <- is.character(dn)
     if(is(i, "numeric")) {
@@ -120,6 +120,8 @@ setAs("lgTMatrix", "lgCMatrix",
 setMethod("[", signature(x = "TsparseMatrix", i = "index", j = "missing",
 			 drop = "logical"),
 	  function (x, i, j, ..., drop) { ## select rows
+              if(is(x, "symmetricMatrix"))
+		  x <- as(x, paste(.M.kind(x), "geMatrix", sep=''))
 	      ip <- .ind.prep(x@i, i, 1, dim(x), dimnames(x))
 	      x@Dim[1] <- ip$li
 	      if(!is.null(ip$dn)) x@Dimnames[[1]] <- ip$dn
@@ -135,6 +137,8 @@ setMethod("[", signature(x = "TsparseMatrix", i = "index", j = "missing",
 setMethod("[", signature(x = "TsparseMatrix", i = "missing", j = "index",
 			 drop = "logical"),
 	  function (x, i, j, ..., drop) { ## select columns
+              if(is(x, "symmetricMatrix"))
+		  x <- as(x, paste(.M.kind(x), "geMatrix", sep=''))
 	      ip <- .ind.prep(x@j, j, 2, dim(x), dimnames(x))
 	      x@Dim[2] <- ip$li
 	      if(!is.null(ip$dn)) x@Dimnames[[2]] <- ip$dn
@@ -153,16 +157,35 @@ setMethod("[", signature(x = "TsparseMatrix",
 	  function (x, i, j, ..., drop)
       {
 	  ## (i,j, drop) all specified
-          di <- dim(x)
-          dn <- dimnames(x)
-          ip1 <- .ind.prep(x@i, i, 1, di, dn)
-          ip2 <- .ind.prep(x@j, j, 2, di, dn)
-          x@Dim <- nd <- c(ip1$li, ip2$li)
-          x@Dimnames <- list(ip1$dn, ip2$dn)
-          sel <- ip1$m > 0:0  &  ip2$m > 0:0
-          x@i <- ip1$m[sel] - 1:1
-          x@j <- ip2$m[sel] - 1:1
-          if (!is(x, "nsparseMatrix")) x@x <- x@x[sel]
+	  di <- dim(x)
+	  dn <- dimnames(x)
+	  if(is(x, "symmetricMatrix")) {
+	      isSym <- length(i) == length(j) && all(i == j)
+	      ## result is *still* symmetric --> keep symmetry!
+	      if(!isSym)
+		  ## result no longer symmetric -> to "generalMatrix"
+		  x <- as(x, paste(.M.kind(x), "gTMatrix", sep=''))
+	  } else isSym <- FALSE
+	  if(isSym) {
+	      offD <- x@i != x@j
+	      ip1 <- .ind.prep(c(x@i,x@j[offD]), i, 1, di, dn)
+	      ip2 <- .ind.prep(c(x@j,x@i[offD]), j, 2, di, dn)
+	  } else {
+	      ip1 <- .ind.prep(x@i, i, 1, di, dn)
+	      ip2 <- .ind.prep(x@j, j, 2, di, dn)
+	  }
+	  x@Dim <- nd <- c(ip1$li, ip2$li)
+	  x@Dimnames <- list(ip1$dn, ip2$dn)
+
+	  sel <- ip1$m > 0:0  &	 ip2$m > 0:0
+	  if(isSym) { # only those corresponding to upper/lower triangle
+	      sel <- sel &
+	      (if(x@uplo == "U") ip1$m <= ip2$m else ip2$m <= ip1$m)
+	  }
+	  x@i <- ip1$m[sel] - 1:1
+	  x@j <- ip2$m[sel] - 1:1
+	  if (!is(x, "nsparseMatrix"))
+	      x@x <- c(x@x, if(isSym) x@x[offD])[sel]
 	  if (drop && any(nd == 1)) drop(as(x,"matrix")) else x
       })
 
@@ -190,9 +213,29 @@ replTmat <- function (x, i, j, value)
     ##	  into a *sum* of several ones :
     x <- uniq(x) # -> ./Auxiliaries.R
 
-    sel <- ((m1 <- match(x@i, i1, nomatch=0)) > 0:0 &
-            (m2 <- match(x@j, i2, nomatch=0)) > 0:0)
+    get.ind.sel <- function(ii,ij)
+	(match(x@i, ii, nomatch = 0) > 0:0 &
+	 match(x@j, ij, nomatch = 0) > 0:0)
 
+    if((sym.x <- is(x, "symmetricMatrix"))) {
+	r.sym <- dind[1] == dind[2] && i1 == i2 &&
+	(lenRepl == 1 || isSymmetric(value <- array(value, dim=dind)))
+	if(r.sym) { ## result is *still* symmetric --> keep symmetry!
+	    ## now consider only those indices above / below diagonal:
+	    xU <- x@uplo == "U"
+	    useI <- if(xU) i1 <= i2 else i2 <= i1
+	    i1 <- i1[useI]
+	    i2 <- i2[useI]
+	    ## select also the corresponding triangle
+	    if(lenRepl > 1)
+		value <- value[(if(xU)upper.tri else lower.tri)(value, diag=TRUE)]
+	}
+	else { # go to "generalMatrix" and continue
+	    x <- as(x, paste(.M.kind(x), "gTMatrix", sep=''))
+	}
+    }
+
+    sel <- get.ind.sel(i1,i2)
     has.x <- any("x" == slotNames(x)) # i.e. *not* nonzero-pattern
 
     ## the simplest case: for all Tsparse, even for i or j missing
@@ -224,7 +267,12 @@ replTmat <- function (x, i, j, value)
         return(x)
     }
 
-    v0 <- is0(value <- rep(value, length = lenRepl))
+    if(sym.x && r.sym)
+       lenRepl <- length(value) # shorter (since only "triangle")
+    else
+       value <- rep(value, length = lenRepl)
+
+    v0 <- is0(value)
     ## value[1:lenRepl]:  which are structural 0 now, which not?
 
     if(any(sel)) {

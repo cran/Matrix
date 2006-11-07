@@ -2,6 +2,8 @@
 \docType{class}
 \alias{ldiMatrix-class}
 \alias{!,ldiMatrix-method}
+\alias{chol,ldiMatrix,ANY-method}
+% Deprecated:
 \alias{coerce,ldiMatrix,lgCMatrix-method}
 \alias{coerce,ldiMatrix,lgTMatrix-method}
 
@@ -14,12 +16,13 @@
   but typically rather via \code{\link{Diagonal}}.
 }
 \section{Slots}{
-	 \describe{
-    \item{\code{x}:}{Object of class \code{"logical"} ~~ }
-    \item{\code{diag}:}{Object of class \code{"character"} ~~ }
-    \item{\code{Dim}:}{Object of class \code{"integer"} ~~ }
-    \item{\code{Dimnames}:}{Object of class \code{"list"} ~~ }
-    \item{\code{factors}:}{Object of class \code{"list"} ~~ }
+  \describe{
+    \item{\code{x}:}{\code{"logical"} vector.}
+    \item{\code{diag}:}{\code{"character"} string, either "U" or "N",
+      see \code{\linkS4class{ddiMatrix}}.}
+    \item{\code{Dim},\code{Dimnames}:}{matrix dimension and
+      \code{\link{dimnames}}, see the \code{\linkS4class{Matrix}} class
+      description.}
   }
 }
 \section{Extends}{
@@ -39,7 +42,9 @@ Class \code{"Matrix"}, by class \code{"denseMatrix"} and class \code{"lMatrix"}.
 \examples{
 (lM <- Diagonal(x = c(TRUE,FALSE,FALSE)))
 str(lM)#> gory details (slots)
-%% FIXME
-#not yet: crossprod(lM)
+
+crossprod(lM) # numeric
+(nM <- as(lM, "nMatrix"))# -> sparse (not formally ``diagonal'')
+crossprod(nM) # logical sparse
 }
 \keyword{classes}

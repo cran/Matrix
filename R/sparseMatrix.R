@@ -168,43 +168,27 @@ setMethod("[", signature(x = "sparseMatrix", i = "missing", j = "index",
 setMethod("[", signature(x = "sparseMatrix",
 			 i = "index", j = "index", drop = "logical"),
 	  function (x, i, j, drop) {
-              cl <- class(x)
-              viaCl <- paste(.M.kind(x,cl), "gTMatrix", sep='')
-              x <- callGeneric(x = as(x, viaCl), i=i, j=j, drop=drop)
-              ## try_as(x, c(cl, sub("T","C", viaCl)))
-              if(is(x, "Matrix") && extends(cl, "CsparseMatrix"))
-                  as(x, sub("T","C", viaCl)) else x
-          })
+	      cl <- class(x)
+	      ## be smart to keep symmetric indexing of <symm.Mat.> symmetric:
+	      doSym <- (extends(cl, "symmetricMatrix") &&
+			length(i) == length(j) && all(i == j))
+	      viaCl <- paste(.M.kind(x,cl),
+			     if(doSym) "sTMatrix" else "gTMatrix", sep='')
+	      x <- callGeneric(x = as(x, viaCl), i=i, j=j, drop=drop)
+	      ## try_as(x, c(cl, sub("T","C", viaCl)))
+	      if(is(x, "Matrix") && extends(cl, "CsparseMatrix"))
+		  as(x, sub("T","C", viaCl)) else x
+	  })
 
 
-## setReplaceMethod("[", signature(x = "sparseMatrix", i = "index", j = "missing",
-##                                 value = "numeric"),
-##                  function (x, i, value) {
-
-##                      stop("NOT YET")
-
-##                      as(r, class(x))
-##                  })
-
-## setReplaceMethod("[", signature(x = "sparseMatrix", i = "missing", j = "index",
-##                                 value = "numeric"),
-##                  function (x, j, value) {
-
-##                      stop("NOT YET")
-
-##                      as(r, class(x))
-##                  })
-
-## setReplaceMethod("[", signature(x = "sparseMatrix", i = "index", j = "index",
-##                                 value = "numeric"),
-
-##                      stop("NOT YET")
-
-##                      as(r, class(x))
-##                  })
+## setReplaceMethod("[", .........)
+## -> ./Tsparse.R
+## &  ./Csparse.R
+## FIXME: also for RsparseMatrix
 
 
 
+## "Arith" short cuts / exceptions
 setMethod("-", signature(e1 = "sparseMatrix", e2 = "missing"),
           function(e1) { e1@x <- -e1@x ; e1 })
 ## with the following exceptions:
@@ -233,7 +217,42 @@ setMethod("Math",
 	  signature(x = "sparseMatrix"),
 	  function(x) callGeneric(as(x, "CsparseMatrix")))
 
+setMethod("Compare", signature(e1 = "sparseMatrix", e2 = "sparseMatrix"),
+	  function(e1, e2) {
+	      d <- dimCheck(e1,e2)
 
+	      ## NB non-diagonalMatrix := Union{ general, symmetric, triangular}
+	      gen1 <- is(e1, "generalMatrix")
+	      gen2 <- is(e2, "generalMatrix")
+	      sym1 <- !gen1 && is(e1, "symmetricMatrix")
+	      sym2 <- !gen2 && is(e2, "symmetricMatrix")
+	      tri1 <- !gen1 && !sym1
+	      tri2 <- !gen2 && !sym2
+
+	      if((G <- gen1 && gen2) ||
+		 (S <- sym1 && sym2 && e1@uplo == e2@uplo) ||
+		 (T <- tri1 && tri2 && e1@uplo == e2@uplo)) {
+
+		  if(T && e1@diag != e2@diag) {
+		      ## one is "U" the other "N"
+		      if(e1@diag == "U")
+			  e1 <- diagU2N(e1)
+		      else ## (e2@diag == "U"
+			  e2 <- diagU2N(e2)
+		  }
+
+	      }
+	      else { ## coerce to generalMatrix and go
+		  if(!gen1) e1 <- as(e1, "generalMatrix", strict = FALSE)
+		  if(!gen2) e2 <- as(e2, "generalMatrix", strict = FALSE)
+	      }
+
+	      ## now the 'x' slots *should* match
+
+	      new(class2(class(e1), "l"),
+		  x = callGeneric(e1@x, e2@x),
+		  Dim = d, Dimnames = dimnames(e1))
+	  })
 
 ### --- show() method ---
 
@@ -255,7 +274,7 @@ prSpMatrix <- function(object, digits = getOption("digits"),
     if(logi)
 	x <- array("N", # or as.character(NA),
 		   dim(m), dimnames=dimnames(m))
-    else {
+    else { ## numeric (or --not yet-- complex):
 	x <- apply(m, 2, format)
 	if(is.null(dim(x))) {# e.g. in	1 x 1 case
 	    dim(x) <- dim(m)
@@ -272,7 +291,11 @@ prSpMatrix <- function(object, digits = getOption("digits"),
 	## show only "structural" zeros as 'zero.print', not all of them..
 	## -> cannot use 'm'
 	iN0 <- 1:1 + encodeInd(non0ind(object), nr = nrow(x))
-	if(length(iN0)) x[-iN0] <- zero.print else x[] <- zero.print
+	if(length(iN0)) {
+            decP <- apply(m, 2, function(x) format.info(x)[2])
+	    x[-iN0] <- zero.print ## FIXME: ``format it'' such that columns align
+        }
+	else x[] <- zero.print
     }
     print(x, quote = FALSE, max = maxp)
     invisible(object)
@@ -290,7 +313,7 @@ setMethod("show", signature(object = "sparseMatrix"),
 	   nr <- maxp %/% d[2]
 	   n2 <- ceiling(nr / 2)
 	   nR <- d[1] # nrow
-	   prSpMatrix(object[seq(length = min(nR, max(1, n2))), drop = FALSE])
+	   prSpMatrix(object[seq_len(min(nR, max(1, n2))), drop = FALSE])
 	   cat("\n ..........\n\n")
 	   prSpMatrix(object[seq(to = nR, length = min(max(1, nr-n2), nR)),
                              drop = FALSE])
@@ -299,7 +322,6 @@ setMethod("show", signature(object = "sparseMatrix"),
    })
 
 
-## not exported:
 setMethod("isSymmetric", signature(object = "sparseMatrix"),
 	  function(object, tol = 100*.Machine$double.eps) {
 	      ## pretest: is it square?
@@ -308,8 +330,8 @@ setMethod("isSymmetric", signature(object = "sparseMatrix"),
 	      ## else slower test
 	      if (is(object, "dMatrix"))
 		  ## use gC; "T" (triplet) is *not* unique!
-		  isTRUE(all.equal(as(object, "dgCMatrix"),
-				   as(t(object), "dgCMatrix"), tol = tol))
+		  isTRUE(all.equal(.as.dgC.0.factors(  object),
+				   .as.dgC.0.factors(t(object)), tol = tol))
 	      else if (is(object, "lMatrix"))
 		  ## test for exact equality; FIXME(?): identical() too strict?
 		  identical(as(object, "lgCMatrix"),
@@ -322,6 +344,7 @@ setMethod("isSymmetric", signature(object = "sparseMatrix"),
 	  })
 
 
+## These two are not (yet?) exported:
 setMethod("isTriangular", signature(object = "sparseMatrix"),
 	  function(object, upper = NA)
               isTriC(as(object, "CsparseMatrix"), upper))

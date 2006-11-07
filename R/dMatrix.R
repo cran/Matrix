@@ -36,15 +36,7 @@ setMethod("expm", signature(x = "dMatrix"),
 ## -----
 ## >>> More specific methods for sub-classes (sparse), use these as "catch-all":
 
-setMethod("Arith", ##  "+", "-", "*", "^", "%%", "%/%", "/"
-	  signature(e1 = "dMatrix", e2 = "dMatrix"),
-	  function(e1, e2) {
-	      d <- dimCheck(e1,e2)
-	      callGeneric(as(e1, "denseMatrix"),
-			  as(e2, "denseMatrix"))
-	  })
-
-
+## the non-Ops ones :
 setMethod("Math2",
           ## Assume that  Generic(u, k) |--> u for u in {0,1}
           ## which is true for round(), signif() ==> all structure maintained
@@ -63,14 +55,32 @@ setMethod("Math2",
 setMethod("Summary", signature(x = "dMatrix", na.rm = "ANY"),
           function(x, ..., na.rm) callGeneric(x@x, ..., na.rm = na.rm))
 
+
+### "Ops" ---- remember Ops = {Arith, Compare} -- and + {Logic} later
+### -----
+### Note: diagonalMatrix are handled by special methods
+
+
+setMethod("Arith", ##  "+", "-", "*", "^", "%%", "%/%", "/"
+	  signature(e1 = "dMatrix", e2 = "dMatrix"),
+          ## Going -> dense* (= ddense*) -> dgeMatrix
+	  function(e1, e2) {
+	      d <- dimCheck(e1,e2)
+	      callGeneric(as(e1, "denseMatrix"),
+			  as(e2, "denseMatrix"))
+	  })
+
 ## "Compare" -> returning  logical Matrices
 setMethod("Compare", signature(e1 = "numeric", e2 = "dMatrix"),
-          function(e1,e2) {
-              ## "swap RHS and LHS" :
-              switch(.Generic,
-                     "==" =, "!=" = callGeneric(e2, e1),
-                     "<" =, ">" =, "<=" =, ">=" = !callGeneric(e2, e1))
-          })
+	  function(e1,e2) {
+	      ## "swap RHS and LHS" and use the method below:
+	      switch(.Generic,
+		     "==" =, "!=" = callGeneric(e2, e1),
+		     "<"  = e2 >  e1,
+		     "<=" = e2 >= e1,
+		     ">"  = e2 <  e1,
+		     ">=" = e2 <= e1)
+	  })
 
 setMethod("Compare", signature(e1 = "dMatrix", e2 = "numeric"),
 	  function(e1, e2) {
@@ -106,7 +116,9 @@ setMethod("Compare", signature(e1 = "dMatrix", e2 = "numeric"),
 
 		  if(identical(r0, FALSE)) { ## things remain sparse
 		      if(!any(is.na(r)) && ((Ar <- all(r)) || !any(r))) {
-			  r <- new(lClass, Dim = d, Dimnames= dimnames(e1))
+			  r <- new(lClass)
+			  r@Dim <- d
+			  r@Dimnames <- dimnames(e1)
 			  if(Ar) { # 'TRUE' instead of 'x': same sparsity:
 			      r@x <- rep.int(TRUE, length(e1@x))
 			      for(n in intersect(c("i","j","p"), slotNames(r)))
@@ -143,31 +155,40 @@ setMethod("Compare", signature(e1 = "dMatrix", e2 = "numeric"),
 	  })
 
 ## "dMatrix <-> work with 'x' slot
+## FIXME? use 'Ops' and not just 'Compare' :
 setMethod("Compare", signature(e1 = "dMatrix", e2 = "dMatrix"),
-          function(e1, e2) {
-              d <- dimCheck(e1,e2)
-              lClass <- class2(class(e1), "l")
+	  function(e1, e2) {
+	      d <- dimCheck(e1,e2)
+	      if((dens1 <- is(e1, "denseMatrix"))) gen1 <- is(e1, "generalMatrix")
+	      if((dens2 <- is(e2, "denseMatrix"))) gen2 <- is(e2, "generalMatrix")
 
-              ## FIXME: if (the 'x' are slots compatible)
-	      r <- callGeneric(e1@x, e2@x)
-	      if(is(e1, "denseMatrix")) {
-		  r <- new(lClass, x = r,
-                           Dim = dim(e1), Dimnames = dimnames(e1))
+	      if(dens1 && dens2) { ## both inherit from ddense*
+
+		  if(!gen1) e1 <- as(e1, "dgeMatrix")
+		  if(!gen2) e2 <- as(e2, "dgeMatrix")
+		  ## now, both are dge {ddense* & general*}
+
+		  r <- new("lgeMatrix", x = callGeneric(e1@x, e2@x),
+			   Dim = d, Dimnames = dimnames(e1))
 	      }
-              else { ## dsparseMatrix
-
-		  if(identical(FALSE, r0 <- callGeneric(0, e2))) {
-		      ## return (potentially even more) sparse logical Matrix
-		      r <- new(lClass, x = r,
-                               Dim = dim(e1), Dimnames = dimnames(e1))
-
-		  } else { ## non sparse result
-
-		  stop("'Compare' for sparse dMatrix not yet implemented for all cases")
-### FIXME
+	      else {
+		  if(!dens1 && !dens2) {
+		      ## both e1 _and_ e2 are sparse
+		      ## should not happen since we have <sparse> o <sparse> methods
+		      stop("Mistaken intended method dispatch -- please report to ",
+			   packageDescription("Matrix")$Author)
 		  }
+		  ## else
+		  if(dens1 && !dens2) ## go to dense
+		      r <- callGeneric(e1, as(e2, "denseMatrix"))
+		  else ## if(!dens1 && dens2)
+		      r <- callGeneric(as(e1, "denseMatrix"), e2)
+
+		  ## criterion "2 * nnz(.) < ." as in sparseDefault() in Matrix()  [./Matrix.R] :
+		  if(2 * nnzero(r, na.counted = TRUE) < prod(d))
+		      r <- as(r, "sparseMatrix")
 	      }
-              r
+	      r
 	  })
 
 ## -- end{group generics} -----------------------

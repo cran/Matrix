@@ -123,6 +123,10 @@ mm <- Matrix(toeplitz(c(10, 0, 1, 0, 3)), sparse = TRUE)
 mT <- as(mm, "dgTMatrix")
 (symM <- as(mT, "dsCMatrix"))
 str(symM)
+sym2 <- as(symM, "TsparseMatrix")
+stopifnot(class(sym2) == "dsTMatrix",
+	  identical(sym2[1,], symM[1,]),
+	  identical(sym2[,2], symM[,2]))
 }
 \keyword{classes}
 \keyword{algebra}

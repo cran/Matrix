@@ -245,6 +245,8 @@ SEXP dgeMatrix_solve(SEXP a)
     F77_CALL(dgetri)(dims, x, dims, pivot,
 		     (double *) R_alloc((size_t) lwork, sizeof(double)),
 		     &lwork, &info);
+    if (info)
+	error(_("Lapack routine dgetri: system is exactly singular"));
     UNPROTECT(1);
     return val;
 }
@@ -262,6 +264,8 @@ SEXP dgeMatrix_matrix_solve(SEXP a, SEXP b)
     F77_CALL(dgetrs)("N", &n, &nrhs, REAL(GET_SLOT(lu, Matrix_xSym)), &n,
 		     INTEGER(GET_SLOT(lu, Matrix_permSym)),
 		     REAL(GET_SLOT(val, Matrix_xSym)), &n, &info);
+    if (info)
+	error(_("Lapack routine dgetrs: system is exactly singular"));
     UNPROTECT(2);
     return val;
 }

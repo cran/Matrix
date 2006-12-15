@@ -25,6 +25,8 @@ stopifnot(##length(sN@i) == 0, # all "FALSE"
 ## large sparse ones: these now directly "go sparse":
 str(m0 <- Matrix(0,     nrow=100, ncol = 1000))
 str(l0 <- Matrix(FALSE, nrow=100, ncol = 200))
+stopifnot(all(!l0),
+          identical(FALSE, any(l0)))
 
 ## with dimnames:
 m. <- matrix(c(0, 0, 2:0), 3, 5)
@@ -48,8 +50,10 @@ tu <- t1 ; tu@diag <- "U"
 tu
 cu <- as(tu, "dtCMatrix")
 stopifnot(validObject(cu), validObject(tu. <- as(cu, "dtTMatrix")),
-          ## NOT: identical(tu, tu.), # since T* is not unique!
+	  ## NOT: identical(tu, tu.), # since T* is not unique!
 	  identical(cu, as(tu., "dtCMatrix")),
+	  all(cu >= 0),
+	  any(cu >= 7),
 	  validObject(t(cu)),
 	  validObject(t(tu)))
 assert.EQ.mat(cu, as(tu,"matrix"), tol=0)
@@ -76,6 +80,16 @@ stopifnot(validObject(xpx),
           validObject(xpy),
           validObject(res))
 stopifnot(all.equal(xpx %*% res, xpy, tol= 1e-12))
+lp <- xpx >= 1
+if(FALSE) ## FIXME
+slp <- as(lp, "sparseMatrix")
+if(FALSE) ## maybe FIXME {works with old-style matrix}:
+ltlp <- lp[ lower.tri(lp) ]
+ij <- which(lower.tri(lp), arr.ind = TRUE)
+if(FALSE) ## FIXME !!! infinite loop in lp[ij]
+stopifnot(all.equal(lp[ij], as(lp, "matrix")[ij]))
+
+stopifnot(is(lp, "lsyMatrix"), lp@uplo == "U")
 
 ###-- more solve() methods  {was ./solve.R }
 

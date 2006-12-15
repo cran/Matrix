@@ -121,7 +121,7 @@ setMethod("[", signature(x = "TsparseMatrix", i = "index", j = "missing",
 			 drop = "logical"),
 	  function (x, i, j, ..., drop) { ## select rows
               if(is(x, "symmetricMatrix"))
-		  x <- as(x, paste(.M.kind(x), "geMatrix", sep=''))
+		  x <- as(x, paste(.M.kind(x), "gTMatrix", sep=''))
 	      ip <- .ind.prep(x@i, i, 1, dim(x), dimnames(x))
 	      x@Dim[1] <- ip$li
 	      if(!is.null(ip$dn)) x@Dimnames[[1]] <- ip$dn
@@ -138,7 +138,7 @@ setMethod("[", signature(x = "TsparseMatrix", i = "missing", j = "index",
 			 drop = "logical"),
 	  function (x, i, j, ..., drop) { ## select columns
               if(is(x, "symmetricMatrix"))
-		  x <- as(x, paste(.M.kind(x), "geMatrix", sep=''))
+		  x <- as(x, paste(.M.kind(x), "gTMatrix", sep=''))
 	      ip <- .ind.prep(x@j, j, 2, dim(x), dimnames(x))
 	      x@Dim[2] <- ip$li
 	      if(!is.null(ip$dn)) x@Dimnames[[2]] <- ip$dn
@@ -187,6 +187,49 @@ setMethod("[", signature(x = "TsparseMatrix",
 	  if (!is(x, "nsparseMatrix"))
 	      x@x <- c(x@x, if(isSym) x@x[offD])[sel]
 	  if (drop && any(nd == 1)) drop(as(x,"matrix")) else x
+      })
+
+if(FALSE)
+## A[ ij ]  where ij is (i,j) 2-column matrix :
+setMethod("[", signature(x = "TsparseMatrix",
+			 i = "matrix", j = "missing"),# drop="ANY"
+	  function (x, i, j, drop)
+      {
+	  di <- dim(x)
+	  dn <- dimnames(x)
+          ## TODO check  i (= 2-column matrix of indices) ---
+          ##      as in  .M.sub.i.2col() in ./Matrix.R
+          j <- i[,2]
+          i <- i[,1]
+	  if(is(x, "symmetricMatrix")) {
+	      isSym <- all(i == j)
+	      if(!isSym)
+		  x <- as(x, paste(.M.kind(x), "gTMatrix", sep=''))
+	  } else isSym <- FALSE
+
+	  if(isSym) {
+	      offD <- x@i != x@j
+	      ip1 <- .ind.prep(c(x@i,x@j[offD]), i, 1, di, dn)
+	      ip2 <- .ind.prep(c(x@j,x@i[offD]), j, 2, di, dn)
+	  } else {
+	      ip1 <- .ind.prep(x@i, i, 1, di, dn)
+	      ip2 <- .ind.prep(x@j, j, 2, di, dn)
+	  }
+
+          stop("FIXME: NOT YET FINISHED IMPLEMENTATION")
+
+          ## The M[i_vec, j_vec] had -- we need "its diagonal" :
+          sel <- ip1$m > 0:0  &	 ip2$m > 0:0
+	  if(isSym) { # only those corresponding to upper/lower triangle
+	      sel <- sel &
+	      (if(x@uplo == "U") ip1$m <= ip2$m else ip2$m <= ip1$m)
+	  }
+	  x@i <- ip1$m[sel] - 1:1
+	  x@j <- ip2$m[sel] - 1:1
+	  if (!is(x, "nsparseMatrix"))
+	      x@x <- c(x@x, if(isSym) x@x[offD])[sel]
+	  if (drop && any(nd == 1)) drop(as(x,"matrix")) else x
+
       })
 
 

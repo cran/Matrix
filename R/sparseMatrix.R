@@ -218,48 +218,18 @@ setMethod("Math",
 	  function(x) callGeneric(as(x, "CsparseMatrix")))
 
 setMethod("Compare", signature(e1 = "sparseMatrix", e2 = "sparseMatrix"),
-	  function(e1, e2) {
-	      d <- dimCheck(e1,e2)
-
-	      ## NB non-diagonalMatrix := Union{ general, symmetric, triangular}
-	      gen1 <- is(e1, "generalMatrix")
-	      gen2 <- is(e2, "generalMatrix")
-	      sym1 <- !gen1 && is(e1, "symmetricMatrix")
-	      sym2 <- !gen2 && is(e2, "symmetricMatrix")
-	      tri1 <- !gen1 && !sym1
-	      tri2 <- !gen2 && !sym2
-
-	      if((G <- gen1 && gen2) ||
-		 (S <- sym1 && sym2 && e1@uplo == e2@uplo) ||
-		 (T <- tri1 && tri2 && e1@uplo == e2@uplo)) {
-
-		  if(T && e1@diag != e2@diag) {
-		      ## one is "U" the other "N"
-		      if(e1@diag == "U")
-			  e1 <- diagU2N(e1)
-		      else ## (e2@diag == "U"
-			  e2 <- diagU2N(e2)
-		  }
-
-	      }
-	      else { ## coerce to generalMatrix and go
-		  if(!gen1) e1 <- as(e1, "generalMatrix", strict = FALSE)
-		  if(!gen2) e2 <- as(e2, "generalMatrix", strict = FALSE)
-	      }
-
-	      ## now the 'x' slots *should* match
-
-	      new(class2(class(e1), "l"),
-		  x = callGeneric(e1@x, e2@x),
-		  Dim = d, Dimnames = dimnames(e1))
-	  })
+	  function(e1, e2) callGeneric(as(e1, "CsparseMatrix"),
+				       as(e2, "CsparseMatrix")))
+##-> ./Csparse.R
 
 ### --- show() method ---
 
 ## FIXME(?) -- ``merge this'' (at least ``synchronize'') with
 ## - - -   prMatrix() from ./Auxiliaries.R
 prSpMatrix <- function(object, digits = getOption("digits"),
-                       maxp = getOption("max.print"), zero.print = ".")
+                       maxp = getOption("max.print"), zero.print = ".",
+                       align = c("fancy", "right"))
+## FIXME: prTriang() in ./Auxiliaries.R  should also get  align = "fancy"
 {
     stopifnot(is(object, "sparseMatrix"))
     d <- dim(object)
@@ -290,14 +260,30 @@ prSpMatrix <- function(object, digits = getOption("digits"),
     } else { # non logical
 	## show only "structural" zeros as 'zero.print', not all of them..
 	## -> cannot use 'm'
-	iN0 <- 1:1 + encodeInd(non0ind(object), nr = nrow(x))
-	if(length(iN0)) {
-            decP <- apply(m, 2, function(x) format.info(x)[2])
-	    x[-iN0] <- zero.print ## FIXME: ``format it'' such that columns align
-        }
-	else x[] <- zero.print
+        d <- dim(x)
+	ne <- length(iN0 <- 1:1 + encodeInd(non0ind(object), nr = d[1]))
+	if(0 < ne && ne < prod(d)) {
+	    align <- match.arg(align)
+	    if(align == "fancy") {
+		fi <- apply(m, 2, format.info) ## fi[3,] == 0  <==> not expo.
+		## now 'format' the zero.print by padding it with ' ' on the right:
+		## case 1: non-exponent:  fi[2,] + as.logical(fi[2,] > 0)
+		## the column numbers of all 'zero' entries -- (*large*)
+		cols <- 1:1 + (0:(prod(d)-1:1))[-iN0] %/% d[1]
+		pad <-
+		    ifelse(fi[3,] == 0,
+			   fi[2,] + as.logical(fi[2,] > 0),
+			   ## exponential:
+			   fi[2,] + fi[3,] + 4)
+		zero.print <- sprintf("%-*s", pad[cols] + 1, zero.print)
+	    } ## else "right" : nothing to do
+
+	    x[-iN0] <- zero.print
+	} else if (ne == 0)# all zeroes
+	    x[] <- zero.print
     }
-    print(x, quote = FALSE, max = maxp)
+    ## right = TRUE : cheap attempt to get better "." alignment
+    print(x, quote = FALSE, right = TRUE, max = maxp)
     invisible(object)
 }
 

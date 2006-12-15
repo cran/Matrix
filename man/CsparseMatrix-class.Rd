@@ -32,6 +32,7 @@
 \alias{Arith,CsparseMatrix,CsparseMatrix-method}
 \alias{Arith,CsparseMatrix,numeric-method}
 \alias{Arith,numeric,CsparseMatrix-method}
+\alias{Compare,CsparseMatrix,CsparseMatrix-method}
 \alias{Math,CsparseMatrix-method}
 %
 \title{Class "CsparseMatrix" of Sparse Matrices in Column-compressed Form}

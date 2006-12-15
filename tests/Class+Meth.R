@@ -139,6 +139,11 @@ tstMatrixClass <-
             } else {
                 cat("valid: ", validObject(m))
 
+		## This can only work as long as 'm' has no NAs :
+                ## not yet -- have version in not.Ops below
+## 		stopifnot(all(m == m)) ## check all() and "==" [Compare]
+## 		if(any(m != m)) stop(" any (m != m) should not be true")
+
                 if(any(clNam == no.t.classes)) {
                     cat(" in t()-'stop list'\n")
                 } else {
@@ -170,11 +175,14 @@ tstMatrixClass <-
 			stopifnot(as(2*m,"matrix") == as(m+m, "matrix"))
 			cat("ok\n")
 		    }
-                    ## FIXME: not yet, e.g. for "dgTMatrix" :
-## 		    cat("m >= m for all: ")
-## 		    stopifnot(all(as(m >= m, "matrix"))); cat("ok\n")
+		    ## FIXME: this should be for all valid, not just dMatrix:
+		    stopifnot(all(m == m)) ## check all() and "==" [Compare]
+		    if(any(m != m)) stop(" any (m != m) should not be true")
+		    ## FIXME: not yet, e.g. for "dgTMatrix" :
+##		    cat("m >= m for all: ")
+## 		    stopifnot(all(m >= m)); cat("ok\n")
 ## 		    cat("m < m for none: ")
-## 		    stopifnot(all(!as(m < m, "matrix"))); cat("ok\n")
+## 		    stopifnot(all(! m < m)); cat("ok\n")
 		}
 
                 if(is(m, "dMatrix") && is(m, "compMatrix")) {

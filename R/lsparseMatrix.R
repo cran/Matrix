@@ -39,3 +39,14 @@ setMethod("!", "lsparseMatrix",
 
 setMethod("diag", signature(x = "lsparseMatrix"),
 	  function(x, nrow, ncol = n) diag(as(x, "lgCMatrix")))
+
+
+setMethod("all", signature(x = "lsparseMatrix"),
+	  function(x, ..., na.rm = TRUE)
+	  !is(x, "triangularMatrix") && all(x@x, ..., na.rm = na.rm))
+
+setMethod("any", signature(x = "lsparseMatrix"),
+	  function(x, ..., na.rm = TRUE)
+	  ## logical unit-triangular has TRUE diagonal:
+	  (is(x, "triangularMatrix") && x@diag == "U") ||
+	  any(x@x, ..., na.rm = na.rm))

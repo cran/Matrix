@@ -174,6 +174,19 @@ cholmod_factor attribute_hidden
     return fun(A, Common);
 }
 
+cholmod_factor attribute_hidden
+*M_cholmod_analyze_p(cholmod_sparse *A, int *Perm, int *fset,
+		     size_t fsize, cholmod_common *Common)
+{
+    static cholmod_factor*(*fun)(cholmod_sparse*,int*,int*,size_t,
+				 cholmod_common*) = NULL;
+    if (fun == NULL)
+	fun = (cholmod_factor*(*)(cholmod_sparse*,int*,int*,
+				  size_t,cholmod_common*))
+	    R_GetCCallable("Matrix", "cholmod_analyze_p");
+    return fun(A, Perm, fset, fsize, Common);
+}
+
 cholmod_sparse attribute_hidden
 *M_cholmod_copy(cholmod_sparse *A, int stype,
 			       int mode, cholmod_common *Common)
@@ -206,6 +219,17 @@ cholmod_factor attribute_hidden
     return fun(L, Common);
 }
 
+int attribute_hidden
+M_cholmod_change_factor(int to_xtype, int to_ll, int to_super, int to_packed,
+			int to_monotonic, cholmod_factor *L, cholmod_common *Common)
+{
+    static int(*fun)(int,int,int,int,int,cholmod_factor*,cholmod_common*) = NULL;
+    if (fun == NULL)
+	fun = (int(*)(int,int,int,int,int,cholmod_factor*,cholmod_common*))
+	    R_GetCCallable("Matrix", "cholmod_change_factor");
+    return fun(to_xtype, to_ll, to_super, to_packed, to_monotonic, L, Common);
+}
+
 cholmod_sparse attribute_hidden
 *M_cholmod_copy_sparse(cholmod_sparse *A, cholmod_common *Common)
 {
@@ -224,6 +248,29 @@ cholmod_sparse attribute_hidden
 	fun = (cholmod_sparse*(*)(cholmod_factor*,cholmod_common*))
 	    R_GetCCallable("Matrix", "cholmod_factor_to_sparse");
     return fun(L, Common);
+}
+
+cholmod_sparse attribute_hidden
+*M_cholmod_submatrix(cholmod_sparse *A, int *rset, int rsize, int *cset,
+		     int csize, int values, int sorted, cholmod_common *Common)
+{
+    static cholmod_sparse*(*fun)(cholmod_sparse*,int*,int,int*,int,
+				 int,int,cholmod_common*) = NULL;
+    if (fun == NULL)
+	fun = (cholmod_sparse*(*)(cholmod_sparse*,int*,int,int*,
+				  int,int,int,cholmod_common*))
+	    R_GetCCallable("Matrix", "cholmod_submatrix");
+    return fun(A, rset, rsize, cset, csize, values, sorted, Common);
+}
+
+cholmod_sparse attribute_hidden
+*M_cholmod_dense_to_sparse(cholmod_dense *X, int values, cholmod_common *Common)
+{
+    static cholmod_sparse*(*fun)(cholmod_dense*,int,cholmod_common*) = NULL;
+    if (fun == NULL)
+	fun = (cholmod_sparse*(*)(cholmod_dense*,int,cholmod_common*))
+	    R_GetCCallable("Matrix", "cholmod_dense_to_sparse");
+    return fun(X, values, Common);
 }
 
 int attribute_hidden

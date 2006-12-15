@@ -93,8 +93,8 @@ SEXP get_factor_pattern(SEXP obj, char *pat, int offset)
     SEXP facs = GET_SLOT(obj, Matrix_factorSym), nms;
     int i;
 
-    /* Why should this be nessary?  Shouldn't nms have length 0 if facs does? */
-    if (!LENGTH(facs)) return R_NilValue;
+    if (!LENGTH(facs)) /* Fast return for empty factor slot: */
+	return R_NilValue;
     nms = getAttrib(facs, R_NamesSymbol);
     for (i = 0; i < LENGTH(nms); i++) {
 	char *nm = CHAR(STRING_ELT(nms, i));
@@ -106,13 +106,11 @@ SEXP get_factor_pattern(SEXP obj, char *pat, int offset)
 
 SEXP dsCMatrix_Csparse_solve(SEXP a, SEXP b)
 {
-    SEXP Chol = get_factor_pattern(a, "sPDCholesky", 3);
-    /* "sPD" corresponds to choice below */
+    SEXP Chol = get_factor_pattern(a, "...Cholesky", 3);
     cholmod_factor *L;
     cholmod_sparse *cx, *cb = as_cholmod_sparse(b);
 
-    if (Chol == R_NilValue)
-	/* FIXME(2): maybe first try other cached [...]Cholesky factors */
+    if (Chol == R_NilValue) /* compute (and cache) "sPDCholesky" */
 	Chol = dsCMatrix_Cholesky(a,
 				  ScalarLogical(1),  /* permuted  : "P" */
 				  ScalarLogical(1),  /* LDL'	  : "D" */
@@ -127,14 +125,12 @@ SEXP dsCMatrix_Csparse_solve(SEXP a, SEXP b)
 
 SEXP dsCMatrix_matrix_solve(SEXP a, SEXP b)
 {
-    SEXP Chol = get_factor_pattern(a, "sPDCholesky", 3);
-    /* "sPD" corresponds to choice below */
+    SEXP Chol = get_factor_pattern(a, "...Cholesky", 3);
     cholmod_factor *L;
     cholmod_dense  *cx,
 	*cb = as_cholmod_dense(PROTECT(mMatrix_as_dgeMatrix(b)));
 
-    if (Chol == R_NilValue)
-	/* FIXME(2): maybe try other  [...]Cholesky factors */
+    if (Chol == R_NilValue) /* compute (and cache) "sPDCholesky" */
 	Chol = dsCMatrix_Cholesky(a,
 				  ScalarLogical(1),  /* permuted  : "P" */
 				  ScalarLogical(1),  /* LDL'      : "D" */

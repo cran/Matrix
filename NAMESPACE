@@ -19,8 +19,8 @@ export("Cholesky",
        "expand",
        "expm",
        "facmul",
-#        "isTriangular",
-#        "isDiagonal",
+#	 "isTriangular",
+#	 "isDiagonal",
        "lu",
        "norm",
        "rcond",
@@ -61,7 +61,7 @@ exportClasses(
 ## LOGIC      "logic",
 	      "replValue", # if we don't export it, things fail in dispatch
 
-              ## --- 'Matrix' mother and all its daughters : ---------------
+	      ## --- 'Matrix' mother and all its daughters : ---------------
 	      "Matrix",
 	      ## also intermediate `virtual' ones:
 	      "dMatrix",
@@ -75,11 +75,11 @@ exportClasses(
 	      "denseMatrix",
 	      "sparseMatrix",
 
-              "compMatrix",
-              "diagonalMatrix",
-              "generalMatrix",
-              "symmetricMatrix",
-              "triangularMatrix",
+	      "compMatrix",
+	      "diagonalMatrix",
+	      "generalMatrix",
+	      "symmetricMatrix",
+	      "triangularMatrix",
 
 	      "dsparseMatrix",
 	      "lsparseMatrix",
@@ -107,13 +107,13 @@ exportClasses(
 	      "dtTMatrix",
 	      "dtpMatrix",
 	      "dtrMatrix",
-              "ddiMatrix",
+	      "ddiMatrix",
 	      "lgeMatrix",
 	      "lspMatrix",
 	      "lsyMatrix",
 	      "ltpMatrix",
 	      "ltrMatrix",
-              "ldiMatrix",
+	      "ldiMatrix",
 	      "ngeMatrix",
 	      "nspMatrix",
 	      "nsyMatrix",
@@ -140,34 +140,34 @@ exportClasses(
 	      "ntRMatrix",# unused
 	      "ntTMatrix",
 
-              "pMatrix",
+	      "pMatrix",
 
-              "corMatrix", # unused
+	      "corMatrix", # unused
 
-              ## --- inheriting "Matrix", but also factorizations:
+	      ## --- inheriting "Matrix", but also factorizations:
 	      "BunchKaufman",
 	      "pBunchKaufman",
 	      "Cholesky",
 	      "pCholesky",
 	      ## "LDL",
 
-              ## --- 'MatrixFactorization' mother and all its daughters : ---
+	      ## --- 'MatrixFactorization' mother and all its daughters : ---
 
-              "MatrixFactorization",
+	      "MatrixFactorization",
 
 	      "LU",
-              "denseLU",
-              "sparseLU",
+	      "denseLU",
+	      "sparseLU",
 
-              "CHMfactor",
-              "CHMsuper",
-              "CHMsimpl",
-              "dCHMsuper",
-              "dCHMsimpl",
-              "nCHMsuper",# unused
-              "nCHMsimpl",# unused
+	      "CHMfactor",
+	      "CHMsuper",
+	      "CHMsimpl",
+	      "dCHMsuper",
+	      "dCHMsimpl",
+	      "nCHMsuper",# unused
+	      "nCHMsimpl",# unused
 
-              "sparseQR"
+	      "sparseQR"
 	      )
 
 exportMethods(
@@ -183,14 +183,17 @@ exportMethods(
 	      "+",# for dgT(Matrix) only
 	      "%*%",
 
-              "Cholesky",
+	      "all",
+	      "any",
+
+	      "Cholesky",
 	      "Schur",
 	      "as.array",
 	      "as.matrix",
 	      "as.vector",
 	      "as.numeric",
 	      "as.logical",
-              "band",
+	      "band",
 	      "chol",
 	      "colMeans",
 	      "colSums",
@@ -203,30 +206,30 @@ exportMethods(
 	      "dimnames<-",
 	      "expand",
 	      "expm",
-              "head",
+	      "head",
 	      "image",
-              "isSymmetric",
-## 	       "isDiagonal",
-## 	       "isTriangular",
+	      "isSymmetric",
+##	       "isDiagonal",
+##	       "isTriangular",
 	      "kronecker",
 	      "norm",
-              "qr",
-              "qr.qy",
-              "qr.qty",
-              "qr.coef",
-              "qr.resid",
-              "qr.fitted",
+	      "qr",
+	      "qr.qy",
+	      "qr.qty",
+	      "qr.coef",
+	      "qr.resid",
+	      "qr.fitted",
 	      "rcond",
 	      "rowMeans",
 	      "rowSums",
 	      "show",
 	      "solve",
 	      "t",
-              "tail",
+	      "tail",
 	      "tcrossprod",
-              "tril",
-              "triu",
-              "zapsmall"
+	      "tril",
+	      "triu",
+	      "zapsmall"
 	      )
 
 exportMethods("rbind2")

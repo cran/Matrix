@@ -23,6 +23,7 @@
 \alias{\%*\%,diagonalMatrix,dgeMatrix-method}
 \alias{\%*\%,diagonalMatrix,diagonalMatrix-method}
 \alias{\%*\%,diagonalMatrix,matrix-method}
+\alias{\%*\%,diagonalMatrix,CsparseMatrix-method}
 \alias{\%*\%,diagonalMatrix,sparseMatrix-method}
 \alias{crossprod,diagonalMatrix,dgeMatrix-method}
 \alias{crossprod,diagonalMatrix,diagonalMatrix-method}

@@ -14,7 +14,7 @@ str(mTm <- crossprod(mm))
 mmT  <- crossprod(tmm)
 mmT. <- tcrossprod(mm)
 stopifnot(all.equal(mmT, mmT.))
-## Previously these were not the same           
+## Previously these were not the same
 ## Should be the same but not quite: even length( * @ x ) differs!
 ##str(mmT, max=2)# much larger than mTm (i.e less sparse)
 ##str(mmT., max=2)# x slot is currently slightly larger --> improve tcrossprod()?
@@ -69,6 +69,13 @@ stopifnot(!isTRUE(all.equal(m1, m2)),
 ### -> uniq* functions now in ../R/Auxiliaries.R
 (t2 <- system.time(um2 <- Matrix:::uniq(m1)))
 
-
+### -> error/warning condition for solve() of a singular matrix (Barry Rowlingson)
+(M <- Matrix(0+ 1:16, nc = 4))
+tt <- try(solve(M))## -> an error + a warning about singularity -- and caches the LU decomp
+stopifnot(inherits(tt, "try-error"),
+          is(fLU <- M@factors $ LU, "MatrixFactorization"))
+(e.lu <- expand(fLU))
+M2 <- with(e.lu, P %*% L %*% U)
+assert.EQ.mat(M2, as(M, "matrix"))
 
 cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''

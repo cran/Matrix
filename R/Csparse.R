@@ -69,6 +69,58 @@ setMethod("Arith",
 	      callGeneric(as(e1, paste(.M.kind(e1), "gCMatrix", sep='')), e2)
 	  })
 
+setMethod("Compare", signature(e1 = "CsparseMatrix", e2 = "CsparseMatrix"),
+	  function(e1, e2) {
+	      d <- dimCheck(e1,e2)
+
+	      ## How do the "0" or "FALSE" entries compare?
+	      ## Depends if we have an "EQuality RELation" or not:
+	      EQrel <- switch(.Generic,
+			      "==" =, "<=" =, ">=" = TRUE,
+			      "!=" =, "<"  =, ">"  = FALSE)
+	      if(EQrel) {
+		  ## The (0 op 0) or  (FALSE op FALSE) comparison gives TRUE
+		  ## -> result becomes *dense*; the following may be suboptimal
+		  return( callGeneric(as(e1, "denseMatrix"),
+				      as(e2, "denseMatrix")))
+	      }
+
+	      ## else: INequality:   0 op 0 gives FALSE ---> remain sparse!
+
+	      ## NB non-diagonalMatrix := Union{ general, symmetric, triangular}
+	      gen1 <- is(e1, "generalMatrix")
+	      gen2 <- is(e2, "generalMatrix")
+	      sym1 <- !gen1 && is(e1, "symmetricMatrix")
+	      sym2 <- !gen2 && is(e2, "symmetricMatrix")
+	      tri1 <- !gen1 && !sym1
+	      tri2 <- !gen2 && !sym2
+	      G <- gen1 && gen2
+	      S <- sym1 && sym2 && e1@uplo == e2@uplo
+	      T <- tri1 && tri2 && e1@uplo == e2@uplo
+
+	      if(T && e1@diag != e2@diag) {
+		  ## one is "U" the other "N"
+		  if(e1@diag == "U")
+		      e1 <- diagU2N(e1)
+		  else ## (e2@diag == "U"
+		      e2 <- diagU2N(e2)
+	      }
+	      else if(!G && !S && !T) { ## coerce to generalMatrix and go
+		  message("*** sparseMatrix comparison -- *unusual* case")
+		  if(!gen1) e1 <- as(e1, "generalMatrix", strict = FALSE)
+		  if(!gen2) e2 <- as(e2, "generalMatrix", strict = FALSE)
+	      }
+
+	      ## now the 'x' slots *should* match
+
+	      newC <- sub("^.", "l", class(e1))
+	      r <- new(newC)
+	      r@x <- callGeneric(e1@x, e2@x)
+	      for(sn in c("Dim", "Dimnames", "i", "p"))
+		  slot(r, sn) <- slot(e1, sn)
+	      r
+	  })
+
 ## The same,  e1 <-> e2 :
 setMethod("Arith",
 	  signature(e1 = "numeric", e2 = "CsparseMatrix"),

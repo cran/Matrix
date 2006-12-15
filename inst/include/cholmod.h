@@ -842,14 +842,23 @@ cholmod_sparse* M_cholmod_add(cholmod_sparse *A, cholmod_sparse *B,
 cholmod_dense* M_cholmod_allocate_dense(size_t nrow, size_t ncol, size_t d,
 					int xtype, cholmod_common *Common);
 cholmod_factor* M_cholmod_analyze(cholmod_sparse *A, cholmod_common *Common);
+cholmod_factor* M_cholmod_analyze_p(cholmod_sparse *A, int *Perm,
+				    int *fset, size_t fsize,
+				    cholmod_common *Common);
+int M_cholmod_change_factor(int to_xtype, int to_ll, int to_super,
+			    int to_packed, int to_monotonic,
+			    cholmod_factor *L, cholmod_common *Common);
 cholmod_factor* M_cholmod_copy_factor(cholmod_factor *L,
 				      cholmod_common *Common);
 cholmod_sparse* M_cholmod_factor_to_sparse(cholmod_factor *L,
 					   cholmod_common *Common);
-
+cholmod_sparse* M_cholmod_dense_to_sparse(cholmod_dense *X, int values,
+					   cholmod_common *Common);
 cholmod_sparse* M_cholmod_triplet_to_sparse(cholmod_triplet *T, int nzmax,
 					    cholmod_common *Common);
-
+cholmod_sparse* M_cholmod_submatrix(cholmod_sparse *A, int *rset, int rsize,
+				    int *cset, int csize, int values,
+				    int sorted, cholmod_common *Common);
 cholmod_triplet* M_cholmod_sparse_to_triplet(cholmod_sparse *A,
 					     cholmod_common *Common);
 

@@ -200,3 +200,20 @@ setMethod("&", signature(e1="ldenseMatrix", e2="ldenseMatrix"),
 
 setMethod("as.vector", signature(x = "ldenseMatrix", mode = "missing"),
 	  function(x) as(x, "lgeMatrix")@x)
+
+setMethod("all", signature(x = "lsyMatrix"),
+          function(x, ..., na.rm = TRUE)
+          all(x@x, ..., na.rm = na.rm))
+## Note: the above "lsy*" method is needed [case below can be wrong]
+setMethod("all", signature(x = "ldenseMatrix"),
+	  function(x, ..., na.rm = TRUE) {
+	      if(prod(dim(x)) >= 1)
+		  (!is(x, "triangularMatrix") && !is(x, "diagonalMatrix") &&
+		   all(x@x, ..., na.rm = na.rm))
+	      else all(x@x, ..., na.rm = na.rm)
+	  })
+
+setMethod("any", signature(x = "ldenseMatrix"),
+	  function(x, ..., na.rm = TRUE)
+	  (prod(dim(x)) >= 1 && is(x, "triangularMatrix") && x@diag == "U") ||
+	  any(x@x, ..., na.rm = na.rm))

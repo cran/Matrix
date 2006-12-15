@@ -56,7 +56,10 @@ setMethod("isDiagonal", signature(object = "matrix"), .is.diagonal)
 
 setMethod("dim", signature(x = "Matrix"),
 	  function(x) x@Dim, valueClass = "integer")
+
 setMethod("dimnames", signature(x = "Matrix"), function(x) x@Dimnames)
+
+
 ## not exported but used more than once for "dimnames<-" method :
 ## -- or do only once for all "Matrix" classes ??
 dimnamesGets <- function (x, value) {
@@ -74,6 +77,13 @@ setMethod("dimnames<-", signature(x = "Matrix", value = "list"),
 
 setMethod("unname", signature("Matrix", force="missing"),
 	  function(obj) { obj@Dimnames <- list(NULL,NULL); obj})
+
+setMethod("all", signature(x = "Matrix"),
+          function(x, ..., na.rm) { x <- as(x, "lMatrix"); callNextMethod()})
+setMethod("any", signature(x = "Matrix"),
+          function(x, ..., na.rm) { x <- as(x, "lMatrix"); callNextMethod()})
+
+
 
 Matrix <-
     function (data = NA, nrow = 1, ncol = 1, byrow = FALSE, dimnames = NULL,
@@ -396,8 +406,22 @@ setReplaceMethod("[", signature(x = "Matrix", i = "matrix", j = "missing",
 
 setReplaceMethod("[", signature(x = "Matrix", i = "ANY", j = "ANY",
 				value = "Matrix"),
+		 function (x, i, j, value) {
+### FIXME: *TEMPORARY* diagnostic output:
+                     cat("<Matrix1>[i,j] <- <Matrix1>:\n<Matrix1> = x :")
+                     str(x)
+                     cat("<Matrix2> = value :")
+                     str(value)
+                     cat("i :"); if(!missing(i)) str(i) else cat("<missing>\n")
+                     cat("j :"); if(!missing(j)) str(j) else cat("<missing>\n")
+
+                     callGeneric(x=x, i=i, j=j, value = as.vector(value))
+                 })
+setReplaceMethod("[", signature(x = "Matrix", i = "ANY", j = "ANY",
+				value = "Matrix"),
 		 function (x, i, j, value)
 		 callGeneric(x=x, i=i, j=j, value = as.vector(value)))
+
 setReplaceMethod("[", signature(x = "Matrix", i = "ANY", j = "ANY",
 				value = "matrix"),
 		 function (x, i, j, value)

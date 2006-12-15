@@ -125,6 +125,19 @@ stopifnot(class(l10) == "lsCMatrix", # symmetric indexing -> symmetric !
           identical(as.mat(l3 ), m.x[1:3, ] != 0)
           )
 
+## used to fail
+n <- 5 ## or much larger
+sm <- new("dsTMatrix", i=as.integer(1),j=as.integer(1),
+          Dim=as.integer(c(n,n)), x = 1)
+(cm <- as(sm, "CsparseMatrix"))
+sm[2,]
+stopifnot(sm[2,] == c(0:1, rep.int(0,ncol(sm)-2)),
+	  sm[2,] == cm[2,],
+	  sm[,3] == sm[3,],
+	  all(sm[,-(1:3)] == t(sm[-(1:3),])), # all(<lge.>)
+	  all(sm[,-(1:3)] == 0)
+	  )
+
 
 ## --- negative indices ----------
 mc <- mC[1:5, 1:7]

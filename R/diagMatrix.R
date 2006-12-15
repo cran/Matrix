@@ -360,9 +360,16 @@ setMethod("Ops", signature(e1 = "ANY", e2 = "diagonalMatrix"),
 
 
 ## FIXME?: In theory, this can be done *FASTER*, in some cases, via tapply1()
-
 setMethod("%*%", signature(x = "diagonalMatrix", y = "sparseMatrix"),
 	  function(x, y) as(x, "sparseMatrix") %*% y)
+## NB: The previous is *not* triggering for  "ddi" o "dgC" (= distance 3)
+##     since there's a "ddense" o "Csparse" at dist. 2 => triggers first.
+## ==> do this:
+setMethod("%*%", signature(x = "diagonalMatrix", y = "CsparseMatrix"),
+	  function(x, y) as(x, "CsparseMatrix") %*% y)
+## NB: this is *not* needed for Tsparse & Rsparse
+## TODO: Write tests in ./tests/ which ensure that many "ops" with diagonal*
+##       do indeed work by going throug sparse (and *not* ddense)!
 
 setMethod("%*%", signature(x = "sparseMatrix", y = "diagonalMatrix"),
 	  function(x, y) x %*% as(y, "sparseMatrix"))

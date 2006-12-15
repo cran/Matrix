@@ -50,3 +50,5 @@ setAs("lMatrix", "dMatrix",
 ## needed at least for lsparse* :
 setAs("lMatrix", "dgCMatrix",
       function(from) as(as(from, "lgCMatrix"), "dgCMatrix"))
+
+## all() and any() methods ---> ldenseMatrix.R and lsparseMatrix.R

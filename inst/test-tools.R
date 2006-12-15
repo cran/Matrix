@@ -21,9 +21,13 @@ asD <- function(m) { ## as "Dense"
     else stop("cannot coerce to a typical dense Matrix")
 }
 
-## checking;  'show' is for convenience of the developer
 assert.EQ.mat <- function(M, m, tol = if(show) 0 else 1e-15, show=FALSE) {
-    MM <- as.mat(M) # as(M, "matrix")
+    ## Purpose: check equality of  'Matrix' M with  'matrix' m
+    ## ----------------------------------------------------------------------
+    ## Arguments: M: is(., "Matrix")
+    ##            m: is(., "matrix")
+    ##            show: if TRUE, return (and hence typically print) all.equal(...)
+    MM <- as.mat(M)                     # as(M, "matrix")
     if(is.logical(MM) && is.numeric(m))
 	storage.mode(MM) <- "integer"
     attr(MM, "dimnames") <- attr(m, "dimnames") <- NULL

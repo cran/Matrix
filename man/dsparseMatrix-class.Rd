@@ -1,16 +1,6 @@
 \name{dsparseMatrix-class}
 \docType{class}
 \alias{dsparseMatrix-class}
-\alias{cbind2,dsparseMatrix,dsparseMatrix-method}
-\alias{cbind2,dsparseMatrix,matrix-method}
-\alias{cbind2,matrix,dsparseMatrix-method}
-\alias{cbind2,dsparseMatrix,numeric-method}
-\alias{cbind2,numeric,dsparseMatrix-method}
-\alias{rbind2,dsparseMatrix,dsparseMatrix-method}
-\alias{rbind2,dsparseMatrix,matrix-method}
-\alias{rbind2,matrix,dsparseMatrix-method}
-\alias{rbind2,dsparseMatrix,numeric-method}
-\alias{rbind2,numeric,dsparseMatrix-method}
 %
 \alias{chol,dsparseMatrix,ANY-method}
 \alias{coerce,denseMatrix,dsparseMatrix-method}

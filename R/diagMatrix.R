@@ -173,15 +173,33 @@ setAs("Matrix", "diagonalMatrix",
               x = if(uni) x[FALSE] else x)
       })
 
+
+setMethod("diag", signature(x = "diagonalMatrix"),
+	  function(x = 1, nrow, ncol = n) .diag.x(x))
+
 ## When you assign to a diagonalMatrix, the result should be
-## diagonal or sparse
-setReplaceMethod("[", signature(x = "diagonalMatrix",
-				i = "ANY", j = "ANY", value = "ANY"),
-		 function(x, i, j, value) {
-		     r <- callGeneric(x = as(x,"sparseMatrix"),
-				      i=i, j=j, value=value)
-		     if(isDiagonal(r)) as(r, "diagonalMatrix") else r
-		 })
+## diagonal or sparse ---
+## FIXME: this now fails because the "denseMatrix" methods come first in dispatch
+
+replDiag <- function(x, i, j, value) {
+    x <- as(x, "sparseMatrix")
+    if(missing(i))
+	x[, j] <- value
+    else if(missing(j))
+	x[i, ] <- value
+    else
+	x[i,j] <- value
+    if(isDiagonal(x)) as(x, "diagonalMatrix") else x
+}
+
+setReplaceMethod("[", signature(x = "diagonalMatrix", i = "index",
+				j = "index", value = "replValue"), replDiag)
+setReplaceMethod("[", signature(x = "diagonalMatrix", i = "index",
+				j = "missing", value = "replValue"),
+		 function(x, i, value) replDiag(x, i=i, value=value))
+setReplaceMethod("[", signature(x = "diagonalMatrix", i = "missing",
+				j = "index", value = "replValue"),
+		 function(x, j, value) replDiag(x, j=j, value=value))
 
 
 setMethod("t", signature(x = "diagonalMatrix"),
@@ -202,14 +220,6 @@ setMethod("chol", signature(x = "ddiMatrix"),# pivot = "ANY"
 	  })
 ## chol(L) is L for logical diagonal:
 setMethod("chol", signature(x = "ldiMatrix"), function(x, pivot) x)
-
-
-setMethod("diag", signature(x = "diagonalMatrix"),
-	  function(x = 1, nrow, ncol = n) {
-             if(x@diag == "U")
-                 rep.int(if(is.logical(x@x)) TRUE else 1, x@Dim[1])
-             else x@x
-          })
 
 setMethod("!", "ldiMatrix", function(e1) {
     if(e1@diag == "N")
@@ -385,8 +395,6 @@ setMethod("tcrossprod", signature(x = "diagonalMatrix", y = "sparseMatrix"),
 
 setMethod("tcrossprod", signature(x = "sparseMatrix", y = "diagonalMatrix"),
 	  function(x, y = NULL) { y <- as(y, "sparseMatrix"); callGeneric() })
-
-
 
 
 ## similar to prTriang() in ./Auxiliaries.R :

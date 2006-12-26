@@ -18,7 +18,7 @@ pkg = Matrix
 
 include SOURCES_C.mkf
 
-SOURCES_F = zpotf2.f zpotrf.f
+SOURCES_F = zpotf2.f zpotrf.f zlacgv.f
 
 OBJECTS = $(SOURCES_C:.c=.o) $(SOURCES_F:.f=.o)
 SHLIB = $(pkg).dll

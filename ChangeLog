@@ -1,3 +1,54 @@
+2006-12-26  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Date, Version): 0.9975-8, ready for release
+
+	* R/Tsparse.R (replTmat): fix subassignment of triangular
+	* R/Csparse.R (replCmat): ditto
+	* tests/indexing.R: more tests, incl the above fix
+
+2006-12-23  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Auxiliaries.R (drop0): extend for non CSparse
+	* R/Auxiliaries.R (diagU2N): should work for all sparseMatrix
+
+	* src/Csparse.c (Csparse_to_Tsparse, Csparse_general_to_symmetric):
+		use uplo correctly (!); other places: use uplo_P() macro
+
+	* R/Csparse.R (replCmat): call diagU2N() when needed
+	* R/Tsparse.R (replTmat): ditto
+
+	* src/dtCMatrix.c (tCMatrix_validate): new
+	* src/dtTMatrix.c (tTMatrix_validate): new, used in
+	* R/AllClass.R: for validity of dtC, dsC, and dtT, dsT.
+
+	* R/diagMatrix.R (replDiag): to use in [<-
+
+2006-12-22  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Auxiliaries.R (as_Csparse2, as_geSimpl): new functions;
+		also more general diagU2N().
+
+2006-12-21  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/bind2.R: new file for all cbind2(), rbind() methods moved here
+	from R/<foo>Matrix.R files. Better diagonal & improved sparse methods.
+
+2006-12-20  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* tests/bind.R: a few more cases
+	* R/Auxiliaries.R (.M.kind): also work for atomic vectors
+
+	* R/denseMatrix.R (cbind2/rbind2): moved here (and generalized) from
+	* R/ddenseMatrix.R (cbind2/rbind2)
+	* R/Tsparse.R (replTmat): final(?!) fix for "[<-" ..
+	* tests/indexing.R
+	* tests/indexing.Rout.save: updated
+
+2006-12-18  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Tsparse.R (replTmat): fixed a remaining "[<-" bug in
+	* tests/indexing.R
+
 2006-12-15  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/sparseMatrix.R (prSpMatrix): "." alignment much improved:

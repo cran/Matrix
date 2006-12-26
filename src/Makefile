@@ -6,10 +6,11 @@ PKG_LIBS = $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)
 include SOURCES_C.mkf
 
 ## zpotrf.f and zpotf2.f are part of LAPACK, but not of R's LAPACK sources
+## get rid of this, once we have 'Depends: R (>= 2.5.0)':
 ifeq (, $(findstring -lRlapack, $(LAPACK_LIBS)))
 SOURCES_LAPACK =
 else
-SOURCES_LAPACK = zpotf2.f zpotrf.f
+SOURCES_LAPACK = zpotf2.f zpotrf.f zlacgv.f
 endif
 
 SOURCES_F = $(SOURCES_LAPACK)

@@ -154,6 +154,8 @@ static R_CallMethodDef CallEntries[] = {
     /* for dgC* _and_ lgC* : */
     {"xCMatrix_validate", (DL_FUNC) &xCMatrix_validate, 1},
     {"xTMatrix_validate", (DL_FUNC) &xTMatrix_validate, 1},
+    {"tCMatrix_validate", (DL_FUNC) &tCMatrix_validate, 1},
+    {"tTMatrix_validate", (DL_FUNC) &tTMatrix_validate, 1},
 
     {"lapack_qr", (DL_FUNC) &lapack_qr, 2},
 

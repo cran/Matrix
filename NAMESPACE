@@ -60,6 +60,7 @@ exportClasses(
 	      "index",
 ## LOGIC      "logic",
 	      "replValue", # if we don't export it, things fail in dispatch
+	      "atomicVector",
 
 	      ## --- 'Matrix' mother and all its daughters : ---------------
 	      "Matrix",

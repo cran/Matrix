@@ -12,6 +12,17 @@
 \alias{Ops,diagonalMatrix,sparseMatrix-method}
 \alias{Ops,sparseMatrix,diagonalMatrix-method}
 %
+\alias{cbind2,sparseMatrix,sparseMatrix-method}
+\alias{cbind2,sparseMatrix,matrix-method}
+\alias{cbind2,matrix,sparseMatrix-method}
+\alias{cbind2,sparseMatrix,numeric-method}
+\alias{cbind2,numeric,sparseMatrix-method}
+\alias{rbind2,sparseMatrix,sparseMatrix-method}
+\alias{rbind2,sparseMatrix,matrix-method}
+\alias{rbind2,matrix,sparseMatrix-method}
+\alias{rbind2,sparseMatrix,numeric-method}
+\alias{rbind2,numeric,sparseMatrix-method}
+%
 \alias{coerce,ANY,sparseMatrix-method}
 \alias{-,sparseMatrix,missing-method}
 \alias{diag,sparseMatrix-method}

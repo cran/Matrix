@@ -80,7 +80,7 @@ setMethod("[", signature(x = "denseMatrix", i = "index", j = "index",
 ## even though the former is currently just a wrapper for the latter
 
 ## FIXME: 1) These are far from efficient
-## -----  2) value = "numeric" is only ok for "ddense*"
+## -----
 setReplaceMethod("[", signature(x = "denseMatrix", i = "index", j = "missing",
 				value = "replValue"),
 		 function (x, i, value) {

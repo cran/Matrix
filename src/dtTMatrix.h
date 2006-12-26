@@ -6,5 +6,7 @@
 
 SEXP dtTMatrix_as_dtrMatrix(SEXP x);
 SEXP dtTMatrix_as_dgCMatrix(SEXP x);
+SEXP tTMatrix_validate(SEXP x);
+SEXP xTMatrix_validate(SEXP x);
 
 #endif

@@ -2,6 +2,7 @@
 \title{Class "diagonalMatrix" of Diagonal Matrices}
 \docType{class}
 \alias{diagonalMatrix-class}
+%
 \alias{coerce,matrix,diagonalMatrix-method}
 \alias{coerce,diagonalMatrix,generalMatrix-method}
 \alias{coerce,diagonalMatrix,triangularMatrix-method}
@@ -9,6 +10,30 @@
 \alias{coerce,diagonalMatrix,sparseMatrix-method}
 \alias{coerce,diagonalMatrix,CsparseMatrix-method}
 \alias{coerce,Matrix,diagonalMatrix-method}
+\alias{cbind2,sparseMatrix,diagonalMatrix-method}
+\alias{cbind2,diagonalMatrix,sparseMatrix-method}
+\alias{rbind2,sparseMatrix,diagonalMatrix-method}
+\alias{rbind2,diagonalMatrix,sparseMatrix-method}
+% Horrible-Hack: currently define for "all subclasses of diagonalMatrix"
+% ------------- in ../R/diagMatrix.R
+\alias{cbind2,ddiMatrix,matrix-method}
+\alias{cbind2,ldiMatrix,matrix-method}
+\alias{cbind2,matrix,ddiMatrix-method}
+\alias{cbind2,matrix,ldiMatrix-method}
+\alias{rbind2,ddiMatrix,matrix-method}
+\alias{rbind2,ldiMatrix,matrix-method}
+\alias{rbind2,matrix,ddiMatrix-method}
+\alias{rbind2,matrix,ldiMatrix-method}
+%
+\alias{cbind2,ddiMatrix,atomicVector-method}
+\alias{cbind2,ldiMatrix,atomicVector-method}
+\alias{cbind2,atomicVector,ddiMatrix-method}
+\alias{cbind2,atomicVector,ldiMatrix-method}
+\alias{rbind2,ddiMatrix,atomicVector-method}
+\alias{rbind2,ldiMatrix,atomicVector-method}
+\alias{rbind2,atomicVector,ddiMatrix-method}
+\alias{rbind2,atomicVector,ldiMatrix-method}
+%-end{H.Hack}
 \alias{Ops,diagonalMatrix,diagonalMatrix-method}
 \alias{Ops,diagonalMatrix,ddiMatrix-method}
 \alias{Ops,ddiMatrix,diagonalMatrix-method}

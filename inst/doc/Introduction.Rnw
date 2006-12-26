@@ -30,7 +30,7 @@
   stored as part of the original matrix so that further operations on
   the matrix can reuse this factorization.
 \end{abstract}
-<<preliminaries, echo=FALSE>>=
+<<preliminaries, echo=FALSE, keep.source=TRUE>>=
 options(width=75)
 @
 

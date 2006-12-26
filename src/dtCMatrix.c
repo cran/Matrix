@@ -2,6 +2,44 @@
 #include "dtCMatrix.h"
 #include "cs_utils.h"
 
+/* This should be use for *BOTH* triangular and symmetric Csparse: */
+SEXP tCMatrix_validate(SEXP x)
+{
+    SEXP val = xCMatrix_validate(x);/* checks x slot */
+    if(isString(val))
+	return(val);
+    else {
+	SEXP
+	    islot = GET_SLOT(x, Matrix_iSym),
+	    pslot = GET_SLOT(x, Matrix_pSym);
+	int uploT = (*uplo_P(x) == 'U'),
+	    k, nnz = length(islot),
+	    *xi = INTEGER(islot),
+	    *xj = INTEGER(PROTECT(allocVector(INTSXP, nnz)));
+
+#define RETURN(_CH_)   UNPROTECT(1); return (_CH_);
+
+	expand_cmprPt(length(pslot) - 1, INTEGER(pslot), xj);
+
+	/* Maybe FIXME: ">" should be ">="	for diag = 'U' (uplo = 'U') */
+	if(uploT) {
+	    for (k = 0; k < nnz; k++)
+		if(xi[k] > xj[k]) {
+		    RETURN(mkString(_("uplo='U' must not have sparse entries in lower diagonal")));
+		}
+	}
+	else {
+	    for (k = 0; k < nnz; k++)
+		if(xi[k] < xj[k]) {
+		    RETURN(mkString(_("uplo='L' must not have sparse entries in upper diagonal")));
+		}
+	}
+
+	RETURN(ScalarLogical(1));
+    }
+}
+#undef RETURN
+
 /**
  * Derive the column pointer vector for the inverse of L from the parent array
  *

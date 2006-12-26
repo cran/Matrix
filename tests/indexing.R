@@ -1,4 +1,4 @@
-#### For both 'Extract' ("[") and 'Replace' ("[<-") Method testing
+## For both 'Extract' ("[") and 'Replace' ("[<-") Method testing
 
 library(Matrix)
 
@@ -138,6 +138,37 @@ stopifnot(sm[2,] == c(0:1, rep.int(0,ncol(sm)-2)),
 	  all(sm[,-(1:3)] == 0)
 	  )
 
+### Diagonal -- Sparse:
+m0 <- Diagonal(5)
+(m1 <- as(m0, "sparseMatrix"))  # dtTMatrix
+(m2 <- as(m0, "CsparseMatrix")) # dtCMatrix (with an irrelevant warning)
+
+M <- m0; M[1,] <- 0
+stopifnot(identical(M, Diagonal(x=c(0, rep(1,4)))))
+M <- m0; M[,3] <- 3 ; M ; stopifnot(is(M, "sparseMatrix"), M[,3] == 3)
+validObject(M)
+M <- m0; M[1:3, 3] <- 0 ;M
+T <- m0; T[1:3, 3] <- 10
+stopifnot(identical(M, Diagonal(x=c(1,1, 0, 1,1))),
+          is(T, "triangularMatrix"), identical(T[,3], c(10,10,10,0,0)))
+
+M <- m1; M[1,] <- 0 ; M ; assert.EQ.mat(M, diag(c(0,rep(1,4))), tol=0)
+M <- m1; M[,3] <- 3 ; stopifnot(is(M,"sparseMatrix"), M[,3] == 3)
+validObject(M)
+M <- m1; M[1:3, 3] <- 0 ;M
+assert.EQ.mat(M, diag(c(1,1, 0, 1,1)), tol=0)
+T <- m1; T[1:3, 3] <- 10; validObject(T)
+stopifnot(is(T, "dtTMatrix"), identical(T[,3], c(10,10,10,0,0)))
+
+M <- m2; M[1,] <- 0 ; M ; assert.EQ.mat(M, diag(c(0,rep(1,4))), tol=0)
+M <- m2; M[,3] <- 3 ; stopifnot(is(M,"sparseMatrix"), M[,3] == 3)
+validObject(M)
+M <- m2; M[1:3, 3] <- 0 ;M
+assert.EQ.mat(M, diag(c(1,1, 0, 1,1)), tol=0)
+T <- m2; T[1:3, 3] <- 10; validObject(T)
+stopifnot(is(T, "dtCMatrix"), identical(T[,3], c(10,10,10,0,0)))
+
+
 
 ## --- negative indices ----------
 mc <- mC[1:5, 1:7]
@@ -196,14 +227,22 @@ mc[1:2,4:3] <- 4:1; stopifnot(as.matrix(mc[1:2,4:3]) == 4:1)
 mc[-1, 3] <- -2:1 # 0 should not be entered; 'value' recycled
 mt[-1, 3] <- -2:1
 stopifnot(mc@x != 0, mt@x != 0,
-          mc[-1,3] == -2:1, mt[-1,3] == -2:1) ##--> BUG -- fixed
+	  mc[-1,3] == -2:1, mt[-1,3] == -2:1) ## failed earlier
 
-ev <- 1:5 %% 2 == 0
-mc[ev, 3] <- 0:1
-if(FALSE)## FIXME
- stopifnot(mc[ev, 3] == 0:1) ##-> BUG  {very peculiar; the 2nd time it works ...}
-validObject(mc)
-mc # now shows a non-structural zeros
+mc0 <- mc
+set.seed(1)
+for(i in 1:20) {
+    mc <- mc0
+    ev <- 1:5 %% 2 == round(runif(1))# 0 or 1
+    j <- sample(ncol(mc), 1 + round(runif(1)))
+    nv <- rpois(sum(ev) * length(j), lambda = 1)
+    mc[ev, j] <- nv
+    if(i < 5) print(mc[ev,j, drop = FALSE])
+    stopifnot(as.vector(mc[ev, j]) == nv) ## failed earlier...
+    validObject(mc)
+}
+
+mc # no longer has non-structural zeros
 mc[ii, jj] <- 1:6
 mc[c(2,5), c(3,5)] <- 3.2
 validObject(mc)

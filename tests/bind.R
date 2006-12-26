@@ -20,6 +20,12 @@ stopifnot(identical(cbind (m1, 10*m2) -> R,
 stopifnot(identical(cbind (m2, m1+m2) -> R,
                     cbind2(m2, m1+m2))); R
 
+cbind(m1, MM = -1)
+rbind(R1 = 10:11, m1)
+cbind(0, Matrix(0+0:1, 1,2), 3:2)# FIXME? should warn - as with matrix()
+
+as(rbind(0, Matrix(0+0:1, 1,2), 3:2),
+   "sparseMatrix")
 cbind(m2, 10*m2[nrow(m2):1 ,])# keeps the rownames from the first
 
 (im <- cbind(I = 100, m))
@@ -28,18 +34,59 @@ str(im)
 str(mi)
 (m1m <- cbind(m,I=100,m2))
 
+### --- Diagonal / Sparse - had bugs
+
+D4 <- Diagonal(4)
+(D4T <- as(D4, "sparseMatrix"))
+D4C <- as(D4T, "CsparseMatrix")
+c1 <- Matrix(0+0:3, 4, sparse=TRUE) ; r1 <- t(c1); r1
+
+d4 <- rbind(Diagonal(4), 0:3)
+m4 <- cbind(Diagonal(x=-1:2), 0:3)
+c4. <- cbind(Diagonal(4), c1)
+c.4 <- cbind(c1, Diagonal(4))
+r4. <- rbind(Diagonal(4), r1)
+r.4 <- rbind(r1, Diagonal(4))
+assert.EQ.mat(d4, rbind(diag(4),    0:3))
+assert.EQ.mat(m4, cbind(diag(-1:2), 0:3))
+stopifnot(is(d4, "sparseMatrix"), is(m4, "sparseMatrix"),
+	  identical(t(d4), cbind(Diagonal(4),     0:3)),
+	  identical(t(m4), rbind(Diagonal(x=-1:2), 0:3)))
+
 ### --- Sparse Matrices ---
 
-m <- Matrix(c(0, 0, 2:0), 3, 5)
-(mC <- as(m, "dgCMatrix"))
-(mT <- as(m, "dgTMatrix"))
-stopifnot(identical(mT, as(mC, "dgTMatrix")))
-cbind(0, mC)
-cbind(0, mT)
-cbind(diag(3), mT)
-(cc <- cbind(mC, 0,7,0, diag(3), 0))
-stopifnot(identical3(cc, cbind(mT, 0,7,0, diag(3), 0),
-                     as( cbind(m, 0,7,0, diag(3), 0), "dgCMatrix")))
+identical4(cbind(diag(4), diag(4)),
+           cbind(D4C, D4C),
+           cbind(D4T, D4C),
+           cbind(D4C, D4T))
+nr <- 4
+m. <- matrix(c(0, 2:-1),  nr ,6)
+M <- Matrix(m.)
+(mC <- as(M, "dgCMatrix"))
+(mT <- as(M, "dgTMatrix"))
+stopifnot(identical(mT, as(mC, "dgTMatrix")),
+          identical(mC, as(mT, "dgCMatrix")))
+
+for(v in list(0, 2, 1:0))
+    for(fnam in c("cbind", "rbind")) {
+        cat(fnam,"(m, v=", deparse(v),"), class(m) :")
+        FUN <- get(fnam)
+        for(m in list(M, mC, mT)) {
+            cat("", class(m),"")
+            assert.EQ.mat(FUN(v, m), FUN(v, m.)) ; cat(",")
+            assert.EQ.mat(FUN(m, v), FUN(m., v)) ; cat(".")
+        }
+        cat("\n")
+    }
+
+cbind(0, mC); cbind(mC, 0)
+cbind(0, mT); cbind(mT, 2)
+cbind(diag(nr), mT)
+stopifnot(identical(t(cbind(diag(nr),   mT)),
+                      rbind(diag(nr), t(mT))))
+(cc <- cbind(mC, 0,7,0, diag(nr), 0))
+stopifnot(identical3(cc, cbind(mT, 0,7,0, diag(nr), 0),
+                     as( cbind( M, 0,7,0, diag(nr), 0), "dgCMatrix")))
 
 cbind(mC, 1, 100*mC, 0, 0:2)
 cbind(mT, 1, 0, mT+10*mT, 0, 0:2)

@@ -254,7 +254,7 @@ replTmat <- function (x, i, j, value)
 
     ## Note: *T*matrix maybe non-unique: an entry can be split
     ##	  into a *sum* of several ones :
-    x <- uniq(x) # -> ./Auxiliaries.R
+    x <- uniq(x)
 
     get.ind.sel <- function(ii,ij)
 	(match(x@i, ii, nomatch = 0) > 0:0 &
@@ -277,7 +277,19 @@ replTmat <- function (x, i, j, value)
 	    x <- as(x, paste(.M.kind(x), "gTMatrix", sep=''))
 	}
     }
+    else if((tri.x <- is(x, "triangularMatrix"))) {
+        xU <- x@uplo == "U"
+	r.tri <- all(if(xU) i1 <= i2 else i2 <= i1)
+	if(r.tri) { ## result is *still* triangular
+            if(any(i1 == i2)) # diagonal will be changed
+                x <- diagU2N(x)
+	}
+	else { # go to "generalMatrix" and continue
+	    x <- as(x, paste(.M.kind(x), "gTMatrix", sep=''))
+	}
+    }
 
+    ## sel[k] := TRUE iff k-th non-zero entry (typically x@x[k]) is to be replaced
     sel <- get.ind.sel(i1,i2)
     has.x <- any("x" == slotNames(x)) # i.e. *not* nonzero-pattern
 
@@ -312,29 +324,36 @@ replTmat <- function (x, i, j, value)
 
     if(sym.x && r.sym)
        lenRepl <- length(value) # shorter (since only "triangle")
-    else
+    else if(lenV < lenRepl)
        value <- rep(value, length = lenRepl)
 
     v0 <- is0(value)
     ## value[1:lenRepl]:  which are structural 0 now, which not?
 
     if(any(sel)) {
-	## the 0-based indices of non-zero -- WRT to submatrix
+	## the 0-based indices of non-zero entries -- WRT to submatrix
 	non0 <- cbind(match(x@i[sel], i1),
 		      match(x@j[sel], i2)) - 1:1
 	iN0 <- 1:1 + encodeInd(non0, nr = dind[1])
 
-	## 1) replace those that are already non-zero (when value != 0)
+	## 1a) replace those that are already non-zero with non-0 values
 	vN0 <- !v0[iN0]
-        if(has.x)
-            x@x[sel[vN0]] <- value[iN0[vN0]]
+	if(any(vN0) && has.x)
+	    x@x[sel][vN0] <- value[iN0[vN0]]
 
-	iI0 <- (1:lenRepl)[-iN0]	# == complementInd(non0, dind)
+	## 1b) replace non-zeros with 0 --> drop entries
+	if(any(!vN0)) {
+	    ii <- which(sel)[!vN0]
+	    if(has.x)
+		x@x <- x@x[-ii]
+	    x@i <- x@i[-ii]
+	    x@j <- x@j[-ii]
+	}
+	iI0 <- (1:lenRepl)[-iN0] # == complementInd(non0, dind)
     } else iI0 <- 1:lenRepl
 
-    if(length(iI0)) {
+    if(length(iI0) && any(vN0 <- !v0[iI0])) {
 	## 2) add those that were structural 0 (where value != 0)
-	vN0 <- !v0[iI0]
 	ij0 <- decodeInd(iI0[vN0] - 1:1, nr = dind[1])
 	x@i <- c(x@i, i1[ij0[,1] + 1:1])
 	x@j <- c(x@j, i2[ij0[,2] + 1:1])

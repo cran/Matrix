@@ -12,6 +12,8 @@ all0 <- function(x) !any(is.na(x)) && all(x == 0)
 allTrue  <- function(x) !any(is.na(x)) && all(x)
 allFalse <- function(x) !any(is.na(x)) && !any(x)
 
+## maybe we should have this in base, maybe via an .Internal(paste0(.)) -> do_paste(.. op=2)
+paste0 <- function(...) paste(..., sep = '')
 
 ## For %*% (M = Matrix; v = vector (double or integer {complex maybe?}):
 .M.v <- function(x, y) callGeneric(x, as.matrix(y))
@@ -321,6 +323,8 @@ uniqTsparse <- function(x, class.x = c(class(x))) {
 ## but really efficient would be to use only one .Call(.) for uniq(.) !
 
 drop0 <- function(x, clx = c(class(x))) {
+    if(!extends(clx, "CsparseMatrix"))
+        clx <- sub(".Matrix$", "CMatrix", clx)
     ## FIXME: Csparse_drop should do this (not losing symm./triang.):
     ## Careful: 'Csparse_drop' also drops triangularity,...
     ## .Call(Csparse_drop, as_CspClass(x, clx), 0)
@@ -422,7 +426,7 @@ l2d_meth <- function(x) {
 
 ## return "d" or "l" or "n" or "z"
 .M.kind <- function(x, clx = class(x)) {
-    if(is.matrix(x)) { ## 'old style matrix'
+    if(is.matrix(x) || is.atomic(x)) { ## 'old style' matrix or vector
 	if     (is.numeric(x)) "d"
 	else if(is.logical(x)) "l" ## FIXME ? "n" if no NA ??
 	else if(is.complex(x)) "z"
@@ -436,6 +440,7 @@ l2d_meth <- function(x) {
     else stop(" not yet be implemented for ", clx)
 }
 
+## typically used as .type.kind[.M.kind(x)]:
 .type.kind <- c("d" = "double",
                 "l" = "logical",
                 "n" = "logical",
@@ -463,6 +468,7 @@ class2 <- function(cl, kind = "l", do.sub = TRUE) {
     else cl
 }
 
+## see also as_geClass() below
 geClass <- function(x) {
     if     (is(x, "dMatrix")) "dgeMatrix"
     else if(is(x, "lMatrix")) "lgeMatrix"
@@ -506,16 +512,26 @@ as_Tsparse <- function(x) {
     as(x, paste(.M.kind(x), .sparse.prefixes[.M.shape(x)], "TMatrix", sep=''))
 }
 
+as_Csparse2 <- function(x) {
+    ## Csparse + U2N when needed
+    sh <- .M.shape(x)
+    x <- as(x, paste(.M.kind(x), .sparse.prefixes[sh], "CMatrix", sep=''))
+    if(sh == "t") .Call(Csparse_diagU2N, x) else x
+}
+
+as_geSimpl <- function(x) as(x, paste(.M.kind(x), "geMatrix", sep=''))
+## smarter, (but sometimes too smart!) compared to geClass() above:
 as_geClass <- function(x, cl) {
-    if	   (extends(cl, "diagonalMatrix")  && isDiagonal(x))
+    if(missing(cl)) as_geSimpl(x)
+    else if(extends(cl, "diagonalMatrix")  && isDiagonal(x))
 	as(x, cl)
     else if(extends(cl, "symmetricMatrix") &&  isSymmetric(x)) {
         kind <- .M.kind(x)
 	as(x, class2(cl, kind, do.sub= kind != "d"))
     } else if(extends(cl, "triangularMatrix") && isTriangular(x))
 	as(x, cl)
-    else
-	as(x, paste(.M.kind(x), "geMatrix", sep=''))
+    else ## forget about 'cl'
+	as_geSimpl(x)
 }
 
 as_CspClass <- function(x, cl) {
@@ -633,15 +649,19 @@ diagU2N <- function(x)
 {
     ## Purpose: Transform a *unit diagonal* sparse triangular matrix
     ##	into one with explicit diagonal entries '1'
-    if(is(x, "CsparseMatrix"))
-	return(.Call(Csparse_diagU2N, x))
-    ## else
-
-    ## FIXME! -- for "ltT", "ntT", ... :
-    xT <- as(x, "dgTMatrix")
-    ## leave it as  T* - the caller can always coerce to C* if needed:
-    new("dtTMatrix", x = xT@x, i = xT@i, j = xT@j, Dim = x@Dim,
-	Dimnames = x@Dimnames, uplo = x@uplo, diag = "N")
+    if(is(x, "triangularMatrix") && x@diag == "U") {
+	if(is(x, "CsparseMatrix")) {
+	    .Call(Csparse_diagU2N, x)
+	}
+	else {
+	    kind <- .M.kind(x)
+	    xT <- as(x, paste(kind, "gTMatrix", sep=''))
+	    ## leave it as  T* - the caller can always coerce to C* if needed:
+	    new(paste(kind, "tTMatrix", sep=''), x = xT@x, i = xT@i, j = xT@j,
+		Dim = x@Dim, Dimnames = x@Dimnames, uplo = x@uplo, diag = "N")
+	}
+    }
+    else x
 }
 
 ## Needed, e.g., in ./Csparse.R for colSums() etc:

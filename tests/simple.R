@@ -50,6 +50,7 @@ tu <- t1 ; tu@diag <- "U"
 tu
 cu <- as(tu, "dtCMatrix")
 stopifnot(validObject(cu), validObject(tu. <- as(cu, "dtTMatrix")),
+          validObject(tt <- as(cu, "TsparseMatrix")),
 	  ## NOT: identical(tu, tu.), # since T* is not unique!
 	  identical(cu, as(tu., "dtCMatrix")),
 	  all(cu >= 0),

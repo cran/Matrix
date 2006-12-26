@@ -18,7 +18,13 @@
 \alias{[<-,denseMatrix,index,index,replValue-method}
 \alias{[<-,denseMatrix,missing,index,replValue-method}
 % in ../R/diagMatrix.R
-\alias{[<-,diagonalMatrix,ANY,ANY,ANY-method}
+\alias{[<-,diagonalMatrix,index,index,replValue-method}
+\alias{[<-,diagonalMatrix,index,missing,replValue-method}
+\alias{[<-,diagonalMatrix,missing,index,replValue-method}
+% \alias{[<-,diagonalMatrix,index,index,replValue-method}
+% \alias{[<-,diagonalMatrix,index,missing,replValue-method}
+% \alias{[<-,diagonalMatrix,missing,index,replValue-method}
+% \alias{[<-,diagonalMatrix,missing,missing,replValue-method}
 % -> ../R/Tsparse.R : replValue = { numeric, logical }
 \alias{[<-,TsparseMatrix,index,index,replValue-method}
 \alias{[<-,TsparseMatrix,index,missing,replValue-method}

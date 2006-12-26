@@ -59,8 +59,7 @@ SEXP Csparse_to_nz_pattern(SEXP x, SEXP tri)
 
     Free(chxs);
     if (asLogical(tri)) {	/* triangular sparse matrices */
-	uploT = (strcmp(CHAR(asChar(GET_SLOT(x, Matrix_uploSym))), "U")) ?
-	    -1 : 1;
+	uploT = (*uplo_P(x) == 'U') ? 1 : -1;
 	diag = CHAR(asChar(GET_SLOT(x, Matrix_diagSym)));
     }
     return chm_sparse_to_SEXP(chxcp, 1, uploT, 0, diag,
@@ -87,7 +86,7 @@ SEXP Csparse_to_Tsparse(SEXP x, SEXP tri)
 
     Free(chxs);
     if (asLogical(tri)) {	/* triangular sparse matrices */
-	uploT = (*uplo_P(x) == 'U') ? -1 : 1;
+	uploT = (*uplo_P(x) == 'U') ? 1 : -1;
 	diag = diag_P(x);
     }
     return chm_triplet_to_SEXP(chxt, 1, uploT, Rkind, diag,
@@ -112,7 +111,7 @@ SEXP Csparse_symmetric_to_general(SEXP x)
 SEXP Csparse_general_to_symmetric(SEXP x, SEXP uplo)
 {
     cholmod_sparse *chx = as_cholmod_sparse(x), *chgx;
-    int uploT = (*CHAR(asChar(uplo)) == 'U') ? -1 : 1;
+    int uploT = (*CHAR(asChar(uplo)) == 'U') ? 1 : -1;
     int Rkind = (chx->xtype == CHOLMOD_REAL) ? Real_kind(x) : 0;
 
     chgx = cholmod_copy(chx, /* stype: */ uploT, chx->xtype, &c);
@@ -135,7 +134,7 @@ SEXP Csparse_transpose(SEXP x, SEXP tri)
     SET_VECTOR_ELT(dn, 0, VECTOR_ELT(dn, 1));
     SET_VECTOR_ELT(dn, 1, tmp);
     UNPROTECT(1);
-    if (asLogical(tri)) {	/* triangular sparse matrices */
+    if (asLogical(tri)) { /* triangular sparse matrices : SWAP 'uplo' */
 	uploT = (*uplo_P(x) == 'U') ? -1 : 1;
 	diag = diag_P(x);
     }
@@ -312,17 +311,21 @@ SEXP Csparse_band(SEXP x, SEXP k1, SEXP k2)
 
 SEXP Csparse_diagU2N(SEXP x)
 {
-    cholmod_sparse *chx = as_cholmod_sparse(x);
-    cholmod_sparse *eye = cholmod_speye(chx->nrow, chx->ncol, chx->xtype, &c);
-    double one[] = {1, 0};
-    cholmod_sparse *ans = cholmod_add(chx, eye, one, one, TRUE, TRUE, &c);
-    int uploT = (strcmp(CHAR(asChar(GET_SLOT(x, Matrix_uploSym))), "U")) ?
-	-1 : 1;
-    int Rkind = (chx->xtype == CHOLMOD_REAL) ? Real_kind(x) : 0;
+    if (*diag_P(x) != 'U') {/* "trivially fast" when there's no 'diag' slot at all */
+	return (x);
+    }
+    else {
+	cholmod_sparse *chx = as_cholmod_sparse(x);
+	cholmod_sparse *eye = cholmod_speye(chx->nrow, chx->ncol, chx->xtype, &c);
+	double one[] = {1, 0};
+	cholmod_sparse *ans = cholmod_add(chx, eye, one, one, TRUE, TRUE, &c);
+	int uploT = (*uplo_P(x) == 'U') ? 1 : -1;
+	int Rkind = (chx->xtype == CHOLMOD_REAL) ? Real_kind(x) : 0;
 
-    Free(chx); cholmod_free_sparse(&eye, &c);
-    return chm_sparse_to_SEXP(ans, 1, uploT, Rkind, "N",
-			      duplicate(GET_SLOT(x, Matrix_DimNamesSym)));
+	Free(chx); cholmod_free_sparse(&eye, &c);
+	return chm_sparse_to_SEXP(ans, 1, uploT, Rkind, "N",
+				  duplicate(GET_SLOT(x, Matrix_DimNamesSym)));
+    }
 }
 
 SEXP Csparse_submatrix(SEXP x, SEXP i, SEXP j)

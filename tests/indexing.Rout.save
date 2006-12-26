@@ -1,5 +1,5 @@
 
-R version 2.4.1 RC (2006-12-12 r40165)
+R version 2.4.1 Patched (2006-12-24 r40305)
 Copyright (C) 2006 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 
@@ -15,7 +15,7 @@ Type 'demo()' for some demos, 'help()' for on-line help, or
 'help.start()' for an HTML browser interface to help.
 Type 'q()' to quit R.
 
-> #### For both 'Extract' ("[") and 'Replace' ("[<-") Method testing
+> ## For both 'Extract' ("[") and 'Replace' ("[<-") Method testing
 > 
 > library(Matrix)
 Loading required package: lattice
@@ -164,8 +164,8 @@ Formal class 'dgTMatrix' [package "Matrix"] with 6 slots
 > mC[1:2,]
 2 x 20 sparse Matrix of class "dgCMatrix"
                                                                
-[1,] . .  . 121 . .   241 . . . . 441 .   .   561 . 641 . .   .
-[2,] . 42 . .   . 202 .   . . . . .   482 522 .   . .   . 722 .
+[1,] .  . . 121 .   . 241 . . . . 441   .   . 561 . 641 .   . .
+[2,] . 42 .   . . 202   . . . . .   . 482 522   . .   . . 722 .
 > mC[7,  drop = FALSE]
 1 x 20 sparse Matrix of class "dgCMatrix"
                                                       
@@ -183,46 +183,46 @@ Formal class 'dgTMatrix' [package "Matrix"] with 6 slots
 > validObject(print(mT[,c(2,4)]))
 40 x 2 sparse Matrix of class "dgTMatrix"
             
- [1,] .  121
- [2,] 42 .  
- [3,] .  .  
- [4,] .  .  
- [5,] 45 .  
- [6,] .  .  
- [7,] .  .  
- [8,] .  128
- [9,] .  129
-[10,] 50 .  
-[11,] .  .  
+ [1,]  . 121
+ [2,] 42   .
+ [3,]  .   .
+ [4,]  .   .
+ [5,] 45   .
+ [6,]  .   .
+ [7,]  .   .
+ [8,]  . 128
+ [9,]  . 129
+[10,] 50   .
+[11,]  .   .
 [12,] 52 132
-[13,] .  133
-[14,] .  .  
-[15,] 55 .  
-[16,] .  .  
-[17,] .  .  
-[18,] .  138
-[19,] .  .  
-[20,] .  .  
-[21,] .  141
-[22,] .  142
-[23,] 63 .  
-[24,] .  .  
-[25,] 65 .  
-[26,] .  .  
-[27,] 67 .  
-[28,] 68 .  
-[29,] .  .  
-[30,] .  .  
-[31,] 71 .  
-[32,] 72 .  
-[33,] .  .  
-[34,] 74 .  
-[35,] .  .  
-[36,] 76 .  
-[37,] .  .  
-[38,] .  .  
-[39,] .  159
-[40,] 80 .  
+[13,]  . 133
+[14,]  .   .
+[15,] 55   .
+[16,]  .   .
+[17,]  .   .
+[18,]  . 138
+[19,]  .   .
+[20,]  .   .
+[21,]  . 141
+[22,]  . 142
+[23,] 63   .
+[24,]  .   .
+[25,] 65   .
+[26,]  .   .
+[27,] 67   .
+[28,] 68   .
+[29,]  .   .
+[30,]  .   .
+[31,] 71   .
+[32,] 72   .
+[33,]  .   .
+[34,] 74   .
+[35,]  .   .
+[36,] 76   .
+[37,]  .   .
+[38,]  .   .
+[39,]  . 159
+[40,] 80   .
 [1] TRUE
 > stopifnot(all.equal(mT[2,], mm[2,]),
 +           ## row or column indexing in combination with t() :
@@ -247,32 +247,32 @@ Formal class 'dgTMatrix' [package "Matrix"] with 6 slots
 > head(x.x.) # Note the *non*-structural 0's printed as "0"
 6 x 20 sparse Matrix of class "dgCMatrix"
                                                              
-[1,] 1 0 .  1 .   1  1  3 .   3  2  1  6  1 .   2  4  6  5  1
+[1,] 1 0 .  1  .  1  1  3  .  3  2  1  6  1  .  2  4  6  5  1
 [2,] 0 6 2  1  3  5  7  5 12 14 14  9 11 16 12 13 17 19 19 10
-[3,] . 2 6 .   4  2  5  3  8 12  5 16  9 11 23 .  .   6  7  7
-[4,] 1 1 . 17 .   8 10 13  8  6 18 18 29 35 14  8 25 10 19 21
-[5,] . 3 4 .  14  4 10 .  .  29  8  9 19 11 11 .  .  26 26 16
+[3,] . 2 6  .  4  2  5  3  8 12  5 16  9 11 23  .  .  6  7  7
+[4,] 1 1 . 17  .  8 10 13  8  6 18 18 29 35 14  8 25 10 19 21
+[5,] . 3 4  . 14  4 10  .  . 29  8  9 19 11 11  .  . 26 26 16
 [6,] 1 5 2  8  4 42  5 19 14  9  8 10 42 56 50 27 29 32 64 16
 > tail(x.x., -3) # all but the first three lines
 17 x 20 sparse Matrix of class "dgCMatrix"
                                                                              
-[4,]  1  1 .  17 .   8  10 13   8   6  18  18  29  35  14   8  25  10  19  21
-[5,]  .  3  4 .  14  4  10 .  .    29   8   9  19  11  11 .   .    26  26  16
+[4,]  1  1  . 17  .  8  10 13   8   6  18  18  29  35  14   8  25  10  19  21
+[5,]  .  3  4  . 14  4  10  .   .  29   8   9  19  11  11   .   .  26  26  16
 [6,]  1  5  2  8  4 42   5 19  14   9   8  10  42  56  50  27  29  32  64  16
 [7,]  1  7  5 10 10  5  87 14   9  31  77  47  79  43  28  17  67 110  36 121
-[8,]  3  5  3 13 .  19  14 70  10  24  37  13  59  62  34  19  58  21  64  44
-[9,]  . 12  8  8 .  14   9 10 116  41  58  33  33  72  78  43  69  72  75  25
+[8,]  3  5  3 13  . 19  14 70  10  24  37  13  59  62  34  19  58  21  64  44
+[9,]  . 12  8  8  . 14   9 10 116  41  58  33  33  72  78  43  69  72  75  25
 [10,] 3 14 12  6 29  9  31 24  41 167  69  56  99  44  70  24 105  82  85  32
 [11,] 2 14  5 18  8  8  77 37  58  69 267  80  86 139  49 105 194 119 122 129
-[12,] 1  9 16 18  9 10  47 13  33  56  80 194  70  77  81 .    90  32 .   106
-[13,] 6 11  9 29 19 42  79 59  33  99  86  70 324 157  55 .    69 142 144 155
+[12,] 1  9 16 18  9 10  47 13  33  56  80 194  70  77  81   .  90  32   . 106
+[13,] 6 11  9 29 19 42  79 59  33  99  86  70 324 157  55   .  69 142 144 155
 [14,] 1 16 11 35 11 56  43 62  72  44 139  77 157 375 123 102 145  39 196  81
 [15,] . 12 23 14 11 50  28 34  78  70  49  81  55 123 368  71 112  41  41  86
-[16,] 2 13 .   8 .  27  17 19  43  24 105 .   .   102  71 233 124  44 139 .  
-[17,] 4 17 .  25 .  29  67 58  69 105 194  90  69 145 112 124 523 141 245 100
+[16,] 2 13  .  8  . 27  17 19  43  24 105   .   . 102  71 233 124  44 139   .
+[17,] 4 17  . 25  . 29  67 58  69 105 194  90  69 145 112 124 523 141 245 100
 [18,] 6 19  6 10 26 32 110 21  72  82 119  32 142  39  41  44 141 497 104 111
-[19,] 5 19  7 19 26 64  36 64  75  85 122 .   144 196  41 139 245 104 542  55
-[20,] 1 10  7 21 16 16 121 44  25  32 129 106 155  81  86 .   100 111  55 541
+[19,] 5 19  7 19 26 64  36 64  75  85 122   . 144 196  41 139 245 104 542  55
+[20,] 1 10  7 21 16 16 121 44  25  32 129 106 155  81  86   . 100 111  55 541
 > 
 > lx.x <- as(x.x, "lsCMatrix") # FALSE only for "structural" 0
 > (l10 <- lx.x[1:10, 1:10])# "lsC"
@@ -328,6 +328,108 @@ Ambiguous method selection for "==", target "dgTMatrix#dgTMatrix" (the first of 
     dMatrix#dMatrix
  in: .findInheritedMethods(classes, fdef, mtable) 
 > 
+> ### Diagonal -- Sparse:
+> m0 <- Diagonal(5)
+> (m1 <- as(m0, "sparseMatrix"))  # dtTMatrix
+5 x 5 sparse Matrix of class "dtTMatrix"
+              
+[1,] 1 . . . .
+[2,] . 1 . . .
+[3,] . . 1 . .
+[4,] . . . 1 .
+[5,] . . . . 1
+> (m2 <- as(m0, "CsparseMatrix")) # dtCMatrix (with an irrelevant warning)
+5 x 5 sparse Matrix of class "dtCMatrix"
+              
+[1,] 1 . . . .
+[2,] . 1 . . .
+[3,] . . 1 . .
+[4,] . . . 1 .
+[5,] . . . . 1
+Warning message:
+Ambiguous method selection for "coerce", target "ddiMatrix#CsparseMatrix" (the first of the signatures shown will be used)
+    diagonalMatrix#CsparseMatrix
+    ddenseMatrix#CsparseMatrix
+ in: .findInheritedMethods(signature, fdef, mtable = allmethods, table = mlist,  
+> 
+> M <- m0; M[1,] <- 0
+> stopifnot(identical(M, Diagonal(x=c(0, rep(1,4)))))
+> M <- m0; M[,3] <- 3 ; M ; stopifnot(is(M, "sparseMatrix"), M[,3] == 3)
+5 x 5 sparse Matrix of class "dgTMatrix"
+              
+[1,] 1 . 3 . .
+[2,] . 1 3 . .
+[3,] . . 3 . .
+[4,] . . 3 1 .
+[5,] . . 3 . 1
+> validObject(M)
+[1] TRUE
+> M <- m0; M[1:3, 3] <- 0 ;M
+5 x 5 diagonal matrix of class "ddiMatrix"
+     [,1] [,2] [,3] [,4] [,5]
+[1,]    1    .    .    .    .
+[2,]    .    1    .    .    .
+[3,]    .    .    0    .    .
+[4,]    .    .    .    1    .
+[5,]    .    .    .    .    1
+Warning message:
+Ambiguous method selection for "diag", target "ddiMatrix" (the first of the signatures shown will be used)
+    diagonalMatrix
+    ddenseMatrix
+ in: .findInheritedMethods(classes, fdef, mtable) 
+> T <- m0; T[1:3, 3] <- 10
+> stopifnot(identical(M, Diagonal(x=c(1,1, 0, 1,1))),
++           is(T, "triangularMatrix"), identical(T[,3], c(10,10,10,0,0)))
+> 
+> M <- m1; M[1,] <- 0 ; M ; assert.EQ.mat(M, diag(c(0,rep(1,4))), tol=0)
+5 x 5 sparse Matrix of class "dtTMatrix"
+              
+[1,] . . . . .
+[2,] . 1 . . .
+[3,] . . 1 . .
+[4,] . . . 1 .
+[5,] . . . . 1
+> M <- m1; M[,3] <- 3 ; stopifnot(is(M,"sparseMatrix"), M[,3] == 3)
+> validObject(M)
+[1] TRUE
+> M <- m1; M[1:3, 3] <- 0 ;M
+5 x 5 sparse Matrix of class "dtTMatrix"
+              
+[1,] 1 . . . .
+[2,] . 1 . . .
+[3,] . . . . .
+[4,] . . . 1 .
+[5,] . . . . 1
+> assert.EQ.mat(M, diag(c(1,1, 0, 1,1)), tol=0)
+> T <- m1; T[1:3, 3] <- 10; validObject(T)
+[1] TRUE
+> stopifnot(is(T, "dtTMatrix"), identical(T[,3], c(10,10,10,0,0)))
+> 
+> M <- m2; M[1,] <- 0 ; M ; assert.EQ.mat(M, diag(c(0,rep(1,4))), tol=0)
+5 x 5 sparse Matrix of class "dtCMatrix"
+              
+[1,] . . . . .
+[2,] . 1 . . .
+[3,] . . 1 . .
+[4,] . . . 1 .
+[5,] . . . . 1
+> M <- m2; M[,3] <- 3 ; stopifnot(is(M,"sparseMatrix"), M[,3] == 3)
+> validObject(M)
+[1] TRUE
+> M <- m2; M[1:3, 3] <- 0 ;M
+5 x 5 sparse Matrix of class "dtCMatrix"
+              
+[1,] 1 . . . .
+[2,] . 1 . . .
+[3,] . . . . .
+[4,] . . . 1 .
+[5,] . . . . 1
+> assert.EQ.mat(M, diag(c(1,1, 0, 1,1)), tol=0)
+> T <- m2; T[1:3, 3] <- 10; validObject(T)
+[1] TRUE
+> stopifnot(is(T, "dtCMatrix"), identical(T[,3], c(10,10,10,0,0)))
+> 
+> 
 > 
 > ## --- negative indices ----------
 > mc <- mC[1:5, 1:7]
@@ -354,11 +456,11 @@ Ambiguous method selection for "==", target "dgTMatrix#dgTMatrix" (the first of 
 > mt
 5 x 7 sparse Matrix of class "dgTMatrix"
                        
-[1,] . .  . -99 . . 241
-[2,] . .  . .   . . .  
-[3,] . .  . .   . . 243
-[4,] . .  . .   . . .  
-[5,] . 45 . .   . . .  
+[1,] .  . . -99 . . 241
+[2,] .  . .   . . .   .
+[3,] .  . .   . . . 243
+[4,] .  . .   . . .   .
+[5,] . 45 .   . . .   .
 > m2 <- mt+mt
 > m2[1,4] <- -200
 > m2[c(1,3), c(5:6,2)] <- 1:6
@@ -371,11 +473,11 @@ Ambiguous method selection for "==", target "dgTMatrix#dgTMatrix" (the first of 
 > mt
 5 x 7 sparse Matrix of class "dgTMatrix"
                             
-[1,] .   .   .   -99 .   . .
+[1,]   .   .   . -99   . . .
 [2,] 250 250 250 250 250 . .
-[3,] 250 250 .   250 250 . .
-[4,] .   .    30 .   .   . .
-[5,] .    45 .   .   .   . .
+[3,] 250 250   . 250 250 . .
+[4,]   .   .  30   .   . . .
+[5,]   .  45   .   .   . . .
 > 
 > tt <- as(mt,"matrix")
 > ii <- c(0,2,5)
@@ -387,19 +489,19 @@ Ambiguous method selection for "==", target "dgTMatrix#dgTMatrix" (the first of 
 > mt[1:5, 2:6]
 5 x 5 sparse Matrix of class "dgTMatrix"
                      
-[1,] .   .  -99 .   .
+[1,]   .  . -99   . .
 [2,]   1  3 250   5 .
-[3,] 250 .  250 250 .
-[4,] .   30 .   .   .
-[5,]   2  4 .     6 .
+[3,] 250  . 250 250 .
+[4,]   . 30   .   . .
+[5,]   2  4   .   6 .
 > as((mt0 - mt)[1:5,], "dsparseMatrix")# [1,5] and lines 2:3
 5 x 7 sparse Matrix of class "dgCMatrix"
                                     
-[1,] .    .    .    220 .    .   241
-[2,] -250   41  -3 -250   -5 202 .  
-[3,] -247 -250 .   -250 -250 .   243
-[4,] .    .    -30 .    .    .   .  
-[5,] .      43  -4 .      -6 .   .  
+[1,]    .    .   .  220    .   . 241
+[2,] -250   41  -3 -250   -5 202   .
+[3,] -247 -250   . -250 -250   . 243
+[4,]    .    . -30    .    .   .   .
+[5,]    .   43  -4    .   -6   .   .
 Warning message:
 Ambiguous method selection for "-", target "dgTMatrix#dgTMatrix" (the first of the signatures shown will be used)
     sparseMatrix#sparseMatrix
@@ -413,11 +515,11 @@ Ambiguous method selection for "-", target "dgTMatrix#dgTMatrix" (the first of t
 > mt
 5 x 7 sparse Matrix of class "dgTMatrix"
                            
-[1,] .   .   . -99 .  .  . 
-[2,] .   .   .  33 33 33 33
+[1,]   .   . . -99  .  .  .
+[2,]   .   . .  33 33 33 33
 [3,] 250 250 .  33 33 33 33
-[4,] .   .   . .   .  .  . 
-[5,] .     2 4 .    6 .  . 
+[4,]   .   . .   .  .  .  .
+[5,]   .   2 4   .  6  .  .
 > 
 > mc[1,4] <- -99 ; stopifnot(mc[1,4] == -99)
 > mc[1,4] <-  00 ; stopifnot(mc[1,4] ==  00)
@@ -427,22 +529,46 @@ Ambiguous method selection for "-", target "dgTMatrix#dgTMatrix" (the first of t
 > mc[-1, 3] <- -2:1 # 0 should not be entered; 'value' recycled
 > mt[-1, 3] <- -2:1
 > stopifnot(mc@x != 0, mt@x != 0,
-+           mc[-1,3] == -2:1, mt[-1,3] == -2:1) ##--> BUG -- fixed
++ 	  mc[-1,3] == -2:1, mt[-1,3] == -2:1) ## failed earlier
 > 
-> ev <- 1:5 %% 2 == 0
-> mc[ev, 3] <- 0:1
-> if(FALSE)## FIXME
-+  stopifnot(mc[ev, 3] == 0:1) ##-> BUG  {very peculiar; the 2nd time it works ...}
-> validObject(mc)
-[1] TRUE
-> mc # now shows a non-structural zeros
+> mc0 <- mc
+> set.seed(1)
+> for(i in 1:20) {
++     mc <- mc0
++     ev <- 1:5 %% 2 == round(runif(1))# 0 or 1
++     j <- sample(ncol(mc), 1 + round(runif(1)))
++     nv <- rpois(sum(ev) * length(j), lambda = 1)
++     mc[ev, j] <- nv
++     if(i < 5) print(mc[ev,j, drop = FALSE])
++     stopifnot(as.vector(mc[ev, j]) == nv) ## failed earlier...
++     validObject(mc)
++ }
+2 x 1 sparse Matrix of class "dgCMatrix"
+      
+[1,] 2
+[2,] .
+3 x 2 sparse Matrix of class "dgCMatrix"
+        
+[1,] . 1
+[2,] . 1
+[3,] . 2
+2 x 2 sparse Matrix of class "dgCMatrix"
+        
+[1,] 2 .
+[2,] 3 1
+2 x 1 sparse Matrix of class "dgCMatrix"
+      
+[1,] .
+[2,] 1
+> 
+> mc # no longer has non-structural zeros
 5 x 7 sparse Matrix of class "dgCMatrix"
-                        
-[1,] . .   2 4 . .   241
-[2,] . 42 -2 3 . 202 .  
-[3,] 3 .  -1 . . .   243
-[4,] . .   1 . . .   .  
-[5,] . 45  1 . . .   .  
+                      
+[1,] .  1  2 4 .   . 2
+[2,] . 42 -2 3 . 202 .
+[3,] 3  1 -1 . .   . .
+[4,] .  .  . . .   . .
+[5,] .  .  1 . .   . 2
 > mc[ii, jj] <- 1:6
 > mc[c(2,5), c(3,5)] <- 3.2
 > validObject(mc)
@@ -451,12 +577,12 @@ Ambiguous method selection for "-", target "dgTMatrix#dgTMatrix" (the first of t
 > mc[4,] <- 0
 > mc
 5 x 7 sparse Matrix of class "dgCMatrix"
-                           
-[1,] . .  2.0 4 .   .   241
-[2,] . 1  3.2 3 3.2 202 .  
-[3,] 3 . -1.0 . .   .   243
-[4,] . . .    . .   .   .  
-[5,] . 2  3.2 . 3.2 .   .  
+                         
+[1,] . 1  2.0 4 .     . 2
+[2,] . 1  3.2 3 3.2 202 .
+[3,] 3 1 -1.0 . .     . .
+[4,] . .  .   . .     . .
+[5,] . 2  3.2 . 3.2   . 2
 > 
 > H <- Hilbert(9)
 > Hc <- as(round(H, 3), "dsCMatrix")# a sparse matrix with no 0 ...
@@ -512,10 +638,10 @@ Ambiguous method selection for "kronecker", target "ddiMatrix#dsyMatrix" (the fi
 > (s2 <- as(dm, "sparseMatrix"))
 4 x 4 sparse Matrix of class "dsCMatrix"
                 
-[1,] 14  2 .  . 
-[2,]  2 -7 .  . 
-[3,] .  .  14  2
-[4,] .  .   2 -7
+[1,] 14  2  .  .
+[2,]  2 -7  .  .
+[3,]  .  . 14  2
+[4,]  .  .  2 -7
 > validObject(st <- as(s2, "TsparseMatrix"))
 [1] TRUE
 > validObject(s.32  <- st[1:3,1:2]) ## 3 x 2 - and *not* dsTMatrix
@@ -559,5 +685,5 @@ Ambiguous method selection for "kronecker", target "ddiMatrix#dsyMatrix" (the fi
 + 	  12:16 == as.mat(x.x)[cbind(2:6, 2:6)])
 > 
 > cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
-Time elapsed:  6.332 0.164 6.539 0 0 
+Time elapsed:  4.363 0.13 5.224 0 0 
 > 

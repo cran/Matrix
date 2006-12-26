@@ -6,6 +6,16 @@
 \alias{coerce,ANY,denseMatrix-method}
 \alias{coerce,denseMatrix,CsparseMatrix-method}
 \alias{coerce,denseMatrix,TsparseMatrix-method}
+\alias{cbind2,denseMatrix,denseMatrix-method}
+\alias{cbind2,denseMatrix,matrix-method}
+\alias{cbind2,matrix,denseMatrix-method}
+\alias{cbind2,denseMatrix,numeric-method}
+\alias{cbind2,numeric,denseMatrix-method}
+\alias{rbind2,denseMatrix,denseMatrix-method}
+\alias{rbind2,denseMatrix,matrix-method}
+\alias{rbind2,matrix,denseMatrix-method}
+\alias{rbind2,denseMatrix,numeric-method}
+\alias{rbind2,numeric,denseMatrix-method}
 \alias{colMeans,denseMatrix-method}
 \alias{colSums,denseMatrix-method}
 \alias{rowMeans,denseMatrix-method}

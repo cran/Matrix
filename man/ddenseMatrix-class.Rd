@@ -18,16 +18,6 @@
 \alias{Math,ddenseMatrix-method}
 %
 \alias{as.numeric,ddenseMatrix-method}
-\alias{cbind2,ddenseMatrix,ddenseMatrix-method}
-\alias{cbind2,ddenseMatrix,matrix-method}
-\alias{cbind2,matrix,ddenseMatrix-method}
-\alias{cbind2,ddenseMatrix,numeric-method}
-\alias{cbind2,numeric,ddenseMatrix-method}
-\alias{rbind2,ddenseMatrix,ddenseMatrix-method}
-\alias{rbind2,ddenseMatrix,matrix-method}
-\alias{rbind2,matrix,ddenseMatrix-method}
-\alias{rbind2,ddenseMatrix,numeric-method}
-\alias{rbind2,numeric,ddenseMatrix-method}
 \alias{crossprod,ddenseMatrix,missing-method}
 \alias{diag,ddenseMatrix-method}
 \alias{determinant,ddenseMatrix,missing-method}

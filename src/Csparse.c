@@ -40,14 +40,20 @@ SEXP Csparse_validate(SEXP x)
     return ScalarLogical(1);
 }
 
+/* Called from ../R/Csparse.R : */
+/* Can only return [dln]geMatrix (no symm/triang);
+ * FIXME: replace by non-CHOLMOD code ! */
 SEXP Csparse_to_dense(SEXP x)
 {
     cholmod_sparse *chxs = as_cholmod_sparse(x);
+    /* This loses the symmetry property, since cholmod_dense has none,
+     * BUT, much worse (FIXME!), it also transforms CHOLMOD_PATTERN ("n") matrices
+     * to numeric (CHOLMOD_REAL) ones : */
     cholmod_dense *chxd = cholmod_sparse_to_dense(chxs, &c);
+    int Rkind = (chxs->xtype == CHOLMOD_PATTERN)? -1 : Real_kind(x);
 
     Free(chxs);
-    return chm_dense_to_SEXP(chxd, 1, Real_kind(x),
-			     GET_SLOT(x, Matrix_DimNamesSym));
+    return chm_dense_to_SEXP(chxd, 1, Rkind, GET_SLOT(x, Matrix_DimNamesSym));
 }
 
 SEXP Csparse_to_nz_pattern(SEXP x, SEXP tri)
@@ -82,7 +88,7 @@ SEXP Csparse_to_Tsparse(SEXP x, SEXP tri)
     cholmod_triplet *chxt = cholmod_sparse_to_triplet(chxs, &c);
     int uploT = 0;
     char *diag = "";
-    int Rkind = (chxs->xtype == CHOLMOD_REAL) ? Real_kind(x) : 0;
+    int Rkind = (chxs->xtype != CHOLMOD_PATTERN) ? Real_kind(x) : 0;
 
     Free(chxs);
     if (asLogical(tri)) {	/* triangular sparse matrices */
@@ -97,7 +103,7 @@ SEXP Csparse_to_Tsparse(SEXP x, SEXP tri)
 SEXP Csparse_symmetric_to_general(SEXP x)
 {
     cholmod_sparse *chx = as_cholmod_sparse(x), *chgx;
-    int Rkind = (chx->xtype == CHOLMOD_REAL) ? Real_kind(x) : 0;
+    int Rkind = (chx->xtype != CHOLMOD_PATTERN) ? Real_kind(x) : 0;
 
     if (!(chx->stype))
 	error(_("Nonsymmetric matrix in Csparse_symmetric_to_general"));
@@ -112,7 +118,7 @@ SEXP Csparse_general_to_symmetric(SEXP x, SEXP uplo)
 {
     cholmod_sparse *chx = as_cholmod_sparse(x), *chgx;
     int uploT = (*CHAR(asChar(uplo)) == 'U') ? 1 : -1;
-    int Rkind = (chx->xtype == CHOLMOD_REAL) ? Real_kind(x) : 0;
+    int Rkind = (chx->xtype != CHOLMOD_PATTERN) ? Real_kind(x) : 0;
 
     chgx = cholmod_copy(chx, /* stype: */ uploT, chx->xtype, &c);
     /* xtype: pattern, "real", complex or .. */
@@ -124,7 +130,7 @@ SEXP Csparse_general_to_symmetric(SEXP x, SEXP uplo)
 SEXP Csparse_transpose(SEXP x, SEXP tri)
 {
     cholmod_sparse *chx = as_cholmod_sparse(x);
-    int Rkind = (chx->xtype == CHOLMOD_REAL) ? Real_kind(x) : 0;
+    int Rkind = (chx->xtype != CHOLMOD_PATTERN) ? Real_kind(x) : 0;
     cholmod_sparse *chxt = cholmod_transpose(chx, (int) chx->xtype, &c);
     SEXP dn = PROTECT(duplicate(GET_SLOT(x, Matrix_DimNamesSym))), tmp;
     int uploT = 0; char *diag = "";
@@ -265,13 +271,13 @@ SEXP Csparse_drop(SEXP x, SEXP tol)
     cholmod_sparse *chx = as_cholmod_sparse(x),
 	*ans = cholmod_copy(chx, chx->stype, chx->xtype, &c);
     double dtol = asReal(tol);
-    int Rkind = (chx->xtype == CHOLMOD_REAL) ? Real_kind(x) : 0;
+    int Rkind = (chx->xtype != CHOLMOD_PATTERN) ? Real_kind(x) : 0;
 
     if(!cholmod_drop(dtol, ans, &c))
 	error(_("cholmod_drop() failed"));
     Free(chx);
-    /* FIXME: currently drops dimnames */
-    return chm_sparse_to_SEXP(ans, 1, 0, Rkind, "", R_NilValue);
+    return chm_sparse_to_SEXP(ans, 1, 0, Rkind, "",
+			      GET_SLOT(x, Matrix_DimNamesSym));
 }
 
 
@@ -302,11 +308,12 @@ SEXP Csparse_vertcat(SEXP x, SEXP y)
 SEXP Csparse_band(SEXP x, SEXP k1, SEXP k2)
 {
     cholmod_sparse *chx = as_cholmod_sparse(x), *ans;
-    int Rkind = (chx->xtype == CHOLMOD_REAL) ? Real_kind(x) : 0;
+    int Rkind = (chx->xtype != CHOLMOD_PATTERN) ? Real_kind(x) : 0;
 
     ans = cholmod_band(chx, asInteger(k1), asInteger(k2), chx->xtype, &c);
     Free(chx);
-    return chm_sparse_to_SEXP(ans, 1, 0, Rkind, "", R_NilValue);
+    return chm_sparse_to_SEXP(ans, 1, 0, Rkind, "",
+			      GET_SLOT(x, Matrix_DimNamesSym));
 }
 
 SEXP Csparse_diagU2N(SEXP x)
@@ -320,11 +327,11 @@ SEXP Csparse_diagU2N(SEXP x)
 	double one[] = {1, 0};
 	cholmod_sparse *ans = cholmod_add(chx, eye, one, one, TRUE, TRUE, &c);
 	int uploT = (*uplo_P(x) == 'U') ? 1 : -1;
-	int Rkind = (chx->xtype == CHOLMOD_REAL) ? Real_kind(x) : 0;
+	int Rkind = (chx->xtype != CHOLMOD_PATTERN) ? Real_kind(x) : 0;
 
 	Free(chx); cholmod_free_sparse(&eye, &c);
 	return chm_sparse_to_SEXP(ans, 1, uploT, Rkind, "N",
-				  duplicate(GET_SLOT(x, Matrix_DimNamesSym)));
+				  GET_SLOT(x, Matrix_DimNamesSym));
     }
 }
 
@@ -333,14 +340,16 @@ SEXP Csparse_submatrix(SEXP x, SEXP i, SEXP j)
     cholmod_sparse *chx = as_cholmod_sparse(x);
     int rsize = (isNull(i)) ? -1 : LENGTH(i),
 	csize = (isNull(j)) ? -1 : LENGTH(j);
-    int Rkind = (chx->xtype == CHOLMOD_REAL) ? Real_kind(x) : 0;
+    int Rkind = (chx->xtype != CHOLMOD_PATTERN) ? Real_kind(x) : 0;
 
     if (rsize >= 0 && !isInteger(i))
 	error(_("Index i must be NULL or integer"));
     if (csize >= 0 && !isInteger(j))
 	error(_("Index j must be NULL or integer"));
+
     return chm_sparse_to_SEXP(cholmod_submatrix(chx, INTEGER(i), rsize,
 						INTEGER(j), csize,
 						TRUE, TRUE, &c),
-			      1, 0, Rkind, "", R_NilValue);
+			      1, 0, Rkind, "",
+			      /* FIXME: drops dimnames */ R_NilValue);
 }

@@ -471,3 +471,16 @@ cholmod_dense attribute_hidden
 	    R_GetCCallable("Matrix", "numeric_as_chm_dense");
     return fun(v, n);
 }
+
+int attribute_hidden
+M_cholmod_scale(cholmod_dense *S, int scale, cholmod_sparse *A,
+		cholmod_common *Common)
+{
+    static int(*fun)(cholmod_dense*,int,cholmod_sparse*,
+		     cholmod_common*) = NULL;
+    if (fun == NULL)
+	fun = (int(*)(cholmod_dense*,int,cholmod_sparse*,
+				  cholmod_common*))
+	    R_GetCCallable("Matrix", "cholmod_scale");
+    return fun(S, scale, A, Common);
+}

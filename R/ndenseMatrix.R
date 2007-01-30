@@ -4,14 +4,22 @@
 
 ## Nonzero Pattern -> Double {of same structure}:
 
-setAs("ngeMatrix", "dgeMatrix", n2d_Matrix)
-setAs("nsyMatrix", "dsyMatrix", n2d_Matrix)
-setAs("nspMatrix", "dspMatrix", n2d_Matrix)
-setAs("ntrMatrix", "dtrMatrix", n2d_Matrix)
-setAs("ntpMatrix", "dtpMatrix", n2d_Matrix)
+setAs("ngeMatrix", "dgeMatrix", function(from) n2d_Matrix(from, "ngeMatrix"))
+setAs("nsyMatrix", "dsyMatrix", function(from) n2d_Matrix(from, "nsyMatrix"))
+setAs("nspMatrix", "dspMatrix", function(from) n2d_Matrix(from, "nspMatrix"))
+setAs("ntrMatrix", "dtrMatrix", function(from) n2d_Matrix(from, "ntrMatrix"))
+setAs("ntpMatrix", "dtpMatrix", function(from) n2d_Matrix(from, "ntpMatrix"))
 
 ### NOTA BENE: Much of this is *very* parallel to ./ldenseMatrix.R
 ###						  ~~~~~~~~~~~~~~~~
+
+setAs("ndenseMatrix", "ldenseMatrix", function(from) n2l_Matrix(from))
+
+setAs("ngeMatrix", "lgeMatrix", function(from) n2l_Matrix(from, "ngeMatrix"))
+setAs("nsyMatrix", "lsyMatrix", function(from) n2l_Matrix(from, "nsyMatrix"))
+setAs("nspMatrix", "lspMatrix", function(from) n2l_Matrix(from, "nspMatrix"))
+setAs("ntrMatrix", "ltrMatrix", function(from) n2l_Matrix(from, "ntrMatrix"))
+setAs("ntpMatrix", "ltpMatrix", function(from) n2l_Matrix(from, "ntpMatrix"))
 
 ## all need be coercable to "ngeMatrix":
 
@@ -72,7 +80,7 @@ setAs("ngeMatrix", "ntrMatrix",
       function(from) {
 	  if(isT <- isTriangular(from))
 	      new("ntrMatrix", x = from@x, Dim = from@Dim,
-		  Dimnames = from@Dimnames, uplo = attr(isT, "kind"))
+		  Dimnames = from@Dimnames, uplo = .if.NULL(attr(isT, "kind"), "U"))
           ## TODO: also check 'diag'
 	  else stop("not a triangular matrix")
       })
@@ -111,6 +119,29 @@ setAs("ndenseMatrix", "matrix", ## uses the above l*M. -> lgeM.
 
 ## dense |-> compressed :
 
+## go via "l" because dense_to_Csparse can't be used for "n" [missing CHOLMOD function]
+setAs("ndenseMatrix", "CsparseMatrix",
+      function(from) as(as(as(from, "lMatrix"), "CsparseMatrix"), "nMatrix"))
+setAs("ndenseMatrix", "sparseMatrix",
+      function(from) as(as(as(from, "lMatrix"), "sparseMatrix"), "nMatrix"))
+
+setAs("ndenseMatrix", "TsparseMatrix",
+      function(from) {
+	  if(is(from, "generalMatrix")) {
+	      ##  cheap but not so efficient:
+	      ij <- which(as(from,"matrix"), arr.ind = TRUE) - 1:1
+	      new("ngTMatrix", i = ij[,1], j = ij[,2],
+		  Dim = from@Dim, Dimnames = from@Dimnames,
+		  factors = from@factors)
+	  }
+	  else
+	      ## triangular or	symmetric (have *no* diagonal nMatrix)
+	      ##     is delicate {packed or not, upper /lower indices ..} -> easy way
+	      as(as(as(from, "lMatrix"), "TsparseMatrix"), "nMatrix")
+      })
+
+## Not sure, if these are needed or more efficient than the above:
+## First one probably is
 setAs("ngeMatrix", "ngTMatrix",
       function(from) {
           ##  cheap but not so efficient:
@@ -168,31 +199,8 @@ setMethod("!", "ngeMatrix",
 setMethod("!", "ndenseMatrix",
           function(e1) !as(e1, "ngeMatrix"))
 
+## NOTE:  "&" and "|"  are now in group "Logic" c "Ops" --> ./Ops.R
 
-setMethod("|", signature(e1="ngeMatrix", e2="ngeMatrix"),
-	  function(e1,e2) {
-	      d <- dimCheck(e1, e2)
-	      e1@x <- e1@x | e2@x
-	      e1
-	  })
-setMethod("&", signature(e1="ngeMatrix", e2="ngeMatrix"),
-	  function(e1,e2) {
-	      d <- dimCheck(e1, e2)
-	      e1@x <- e1@x & e2@x
-	      e1
-	  })
-
-setMethod("|", signature(e1="ndenseMatrix", e2="ndenseMatrix"),
-	  function(e1,e2) {
-	      d <- dimCheck(e1, e2)
-	      as(e1, "ngeMatrix") | as(e2, "ngeMatrix")
-	  })
-
-setMethod("&", signature(e1="ndenseMatrix", e2="ndenseMatrix"),
-	  function(e1,e2) {
-	      d <- dimCheck(e1, e2)
-	      as(e1, "ngeMatrix") & as(e2, "ngeMatrix")
-	  })
 
 setMethod("as.vector", signature(x = "ndenseMatrix", mode = "missing"),
           function(x) as(x, "ngeMatrix")@x)

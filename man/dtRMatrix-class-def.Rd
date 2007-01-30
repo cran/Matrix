@@ -22,8 +22,8 @@
       either \code{"U"}, for unit triangular (diagonal is all ones), or
       \code{"N"}; see \code{\linkS4class{triangularMatrix}}.}
     \item{\code{j}:}{Object of class \code{"integer"} of length
-      \code{nnzero} (number of non-zero elements).  These are the row
-      numbers for each non-zero element in the matrix.}
+      \code{\link{nnzero}(.)} (number of non-zero elements).  These are
+      the row numbers for each non-zero element in the matrix.}
     \item{\code{p}:}{Object of class \code{"integer"} of pointers, one
       for each row, to the initial (zero-based) index of elements in
       the row. (Only present in the \code{dsRMatrix} class.)}

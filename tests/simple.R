@@ -36,6 +36,7 @@ m@Dimnames[[2]] <- m@Dimnames[[1]]
 ## not valid anymore:
 (val <- validObject(m, test=TRUE))
 stopifnot(is.character(val))
+rm(m)
 
 ###--  Sparse Triangular :
 
@@ -44,6 +45,7 @@ stopifnot(is.character(val))
 stopifnot(validObject(t1),
           validObject(t1c <- as(t1, "dtCMatrix")))
 assert.EQ.mat(t1, as(t1c, "matrix"))
+
 
 ## from  0-diagonal to unit-diagonal {low-level step}:
 tu <- t1 ; tu@diag <- "U"
@@ -55,14 +57,37 @@ stopifnot(validObject(cu), validObject(tu. <- as(cu, "dtTMatrix")),
 	  identical(cu, as(tu., "dtCMatrix")),
 	  all(cu >= 0),
 	  any(cu >= 7),
-	  validObject(t(cu)),
-	  validObject(t(tu)))
+	  validObject(tcu <- t(cu)),
+	  validObject(ttu <- t(tu)))
 assert.EQ.mat(cu, as(tu,"matrix"), tol=0)
+
+## <sparse> o <numeric> (of length > 1):
+stopifnot(is(tm <- tu * 1:8, "sparseMatrix"),
+          identical4(tm, cu * 1:8, 1:8 * cu, 1:8 * tu))
+
 cu[1,2] <- tu[1,2] <- NA
 mu <- as(tu,"matrix")
+stopifnot(is(cu, "CsparseMatrix"), is(cu, "triangularMatrix"),
+          is(tu, "TsparseMatrix"), is(tu, "triangularMatrix"),
+          identical(cu * 1:8, tu * 1:8), # but are no longer triangular
+          all(cu >= 0), all(tu >= 0))
+assert.EQ.mat(cu * 1:8, mu * 1:8)
+
+## tu. is diag "U", but tu2 not:
+tu2 <- as(as(tu., "dgTMatrix"), "dtTMatrix")
 assert.EQ.mat(cu, mu, tol=0)
 stopifnot(identical3(cu[cu > 1],  tu [tu > 1], mu [mu > 1]),
-	  identical3(cu[cu <= 1], tu[tu <= 1], mu[mu <= 1]))
+          identical3(cu <= 1, tu <= 1, as(mu <= 1, "lMatrix")),# all lgeMatrix
+	  identical3(cu[cu <= 1], tu[tu <= 1], mu[mu <= 1]),
+	  identical3(cu , triu(cu ), t(t(cu))),
+	  identical3(tu , triu(tu ), t(t(tu))),
+	  identical3(tu., triu(tu.), t(t(tu.))),
+	  identical(tu2, triu(tu2)),
+	  identical(tcu , tril(tcu)),
+	  identical(ttu , tril(ttu)),
+	  identical(t(tu), tril(t(tu)))
+          )
+
 
 ###-- Numeric Dense: Crossprod & Solve
 
@@ -82,12 +107,11 @@ stopifnot(validObject(xpx),
           validObject(res))
 stopifnot(all.equal(xpx %*% res, xpy, tol= 1e-12))
 lp <- xpx >= 1
-if(FALSE) ## FIXME
+if(FALSE) ## FIXME : needs lsy |-> lsC
 slp <- as(lp, "sparseMatrix")
-if(FALSE) ## maybe FIXME {works with old-style matrix}:
+
 ltlp <- lp[ lower.tri(lp) ]
 ij <- which(lower.tri(lp), arr.ind = TRUE)
-if(FALSE) ## FIXME !!! infinite loop in lp[ij]
 stopifnot(all.equal(lp[ij], as(lp, "matrix")[ij]))
 
 stopifnot(is(lp, "lsyMatrix"), lp@uplo == "U")
@@ -191,13 +215,46 @@ stopifnot(all.equal(eM$values,
 
 ##--- symmetric -> pos.def. needs valid test:
 m5 <- Matrix(diag(5) - 1)
-if(FALSE) # FIXME: this happily "works" but MM thinks it shouldn't:
-assertError(as(m5, "dpoMatrix"))
+if(FALSE) { # FIXME: this as(.,.) happily "works"
+ assertError(mpo <- as(m5, "dpoMatrix"))
+ validObject(mpo) # FIXME?  it is *not* really pos.definite!
+}
+
+###-- dense nonzero pattern:
+class(m <- Matrix(TRUE,2,2)) # lsy
+(n <- as(m, "nMatrix")) # nsy
+validObject(n)
+
+## 1)
+as(n,"CsparseMatrix") # used to give CHOLMOD error: invalid xtype...
+ls2 <- as(m, "CsparseMatrix") # works fine
+## and really  'm' and 'n' are interally slot identical (!!!)
+
+if(FALSE) ## FIXME: needs lsy |-> lsC
+as(n,"sparseMatrix")
+
+if(FALSE) ## FIXME: needs lsy |-> lsC
+as(m,"sparseMatrix")
+## Error ... no method
+
+### -- now when starting with nsparse :
+nT <- new("ngTMatrix",
+          i = as.integer(c(0, 1, 0)),
+          j = as.integer(c(0, 0, 1)), Dim = as.integer(c(2,2)),
+          Dimnames = list(NULL, NULL))
+(nC <- as(nT, "ngCMatrix"))
+str(nC)# of course, no 'x' slot
+
+stopifnot(identical(tt <- as(nT,"denseMatrix"), # lge
+		    as(as(nT, "lMatrix"),"denseMatrix")))
+tt
+as(nC,"denseMatrix")
 
 
 ###-- sparse nonzero pattern : ----------
 
 (nkt <- as(as(kt1, "dgCMatrix"), "ngCMatrix"))# ok
+dkt <- as(nkt, "denseMatrix")
 (clt <- crossprod(nkt))
 crossprod(clt) ## a warning: crossprod() of symmetric
 
@@ -239,5 +296,29 @@ X
 XX <- as(Matrix:::drop0(XX), "dsCMatrix")
 stopifnot(identical(XX, Matrix(0, nrow(X), ncol(X))))
 
+M <- Matrix(m., sparse = FALSE)
+(sM <- Matrix(m.))
+class(dlM <- M >= 1)
+stopifnot(identical(dlM, !(M < 1)),
+	  is(sM, "sparseMatrix"),
+	  is(dlM, "denseMatrix"))
+(lM  <- as(dlM, "sparseMatrix"))
+lM2 <- as(dlM, "CsparseMatrix") #-> now ok
+lM0 <- Matrix:::as_Csparse(dlM)
+stopifnot(identical3(lM, lM2, lM0))
+
+selectMethod("coerce",	c("lgeMatrix", "CsparseMatrix"),
+	     useInherited = c(from = TRUE, to = FALSE))
+
+ms0 <- Matrix(c(0,1,1,0), 2,2)
+(ms <- as(ms0, "dsTMatrix"))
+ll <- as(ms, "lMatrix")
+lt <- as(ll, "lgTMatrix")
+stopifnot(as(ms0,"matrix") == as(ll, "matrix"), # coercing num |-> log
+          as(lt, "matrix") == as(ll, "matrix")
+          )
 
 cat('Time elapsed: ', proc.time(),'\n') # "stats"
+
+if(!interactive()) warnings()
+

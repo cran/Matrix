@@ -1,27 +1,5 @@
 ### Coercion and Methods for Triangular Triplet Matrices
 
-gt2tT <- function(x, uplo, diag) {
-    ## coerce *gTMatrix to *tTMatrix {general -> triangular}
-    i <- x@i
-    j <- x@j
-    sel <-
-	if(uplo == "U") {
-	    if(diag == "U") i < j else i <= j
-	} else {
-	    if(diag == "U") i > j else i >= j
-	}
-    i <- i[sel]
-    j <- j[sel]
-    if(is(x, "nMatrix")) # no 'x' slot
-	new("ntTMatrix", i = i, j = j, uplo = uplo, diag = diag,
-	    Dim = x@Dim, Dimnames = x@Dimnames)
-    else
-	new(paste(substr(class(x), 1,1), # "d", "l", "i" or "z"
-		  "tTMatrix", sep=''),
-	    i = i, j = j, uplo = uplo, diag = diag,
-	    x = x@x[sel], Dim = x@Dim, Dimnames = x@Dimnames)
-}
-
 ## Use general method for TsparseMatrix instead
 ## setAs("dtTMatrix", "dtCMatrix",
 ##       function(from) {

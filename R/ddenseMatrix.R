@@ -4,21 +4,19 @@
 ## >> but << needs all sub(sub(sub)) classes of "ddenseMatrix" listed
 ##   -----  in  ../src/Mutils.c
 
-## Should this method return 'from' without duplication when it has
-## class dgeMatrix?
 setAs("ddenseMatrix", "dgeMatrix",
       function(from) {
-          if (class(from) != "dgeMatrix")
-              from <- .Call(dup_mMatrix_as_dgeMatrix, from)
-          from
+	  if (class(from) != "dgeMatrix")
+	      .Call(dup_mMatrix_as_dgeMatrix, from)
+	  else from
       })
 
 ## d(ouble) to l(ogical):
-setAs("dgeMatrix", "lgeMatrix", d2l_Matrix)
-setAs("dtrMatrix", "ltrMatrix", d2l_Matrix)
-setAs("dtpMatrix", "ltpMatrix", d2l_Matrix)
-setAs("dsyMatrix", "lsyMatrix", d2l_Matrix)
-setAs("dspMatrix", "lspMatrix", d2l_Matrix)
+setAs("dgeMatrix", "lgeMatrix", function(from) d2l_Matrix(from, "dgeMatrix"))
+setAs("dsyMatrix", "lsyMatrix", function(from) d2l_Matrix(from, "dsyMatrix"))
+setAs("dspMatrix", "lspMatrix", function(from) d2l_Matrix(from, "dspMatrix"))
+setAs("dtrMatrix", "ltrMatrix", function(from) d2l_Matrix(from, "dtrMatrix"))
+setAs("dtpMatrix", "ltpMatrix", function(from) d2l_Matrix(from, "dtpMatrix"))
 
 setAs("ddenseMatrix", "CsparseMatrix",
       function(from) {
@@ -84,7 +82,7 @@ setMethod("crossprod", signature(x = "ddenseMatrix", y = "missing"),
           function(x, y = NULL) callGeneric(as(x, "dgeMatrix")))
 
 setMethod("diag", signature(x = "ddenseMatrix"),
-          function(x = 1, nrow, ncol = n) callGeneric(as(x, "dgeMatrix")))
+          function(x, nrow, ncol = n) callGeneric(as(x, "dgeMatrix")))
 
 ## These methods cause an infinite loop in pre-2.4.0
 ## setMethod("solve", signature(a = "ddenseMatrix", b = "missing"),
@@ -122,19 +120,6 @@ setMethod("Schur", signature(x = "ddenseMatrix", vectors = "missing"),
 setMethod("Schur", signature(x = "ddenseMatrix", vectors = "logical"),
           function(x, vectors, ...) callGeneric(as(x, "dgeMatrix"), vectors))
 
-
-## Cheap version: work via "dgeMatrix" and use the group methods there:
-## FIXME(?): try to preserve "symmetric", "triangular", ...
-setMethod("Arith", ##  "+", "-", "*", "^", "%%", "%/%", "/"
-          signature(e1 = "ddenseMatrix", e2 = "ddenseMatrix"),
-          function(e1, e2) callGeneric(as(e1, "dgeMatrix"),
-                                       as(e2, "dgeMatrix")))
-setMethod("Arith",
-          signature(e1 = "ddenseMatrix", e2 = "numeric"),
-          function(e1, e2) callGeneric(as(e1, "dgeMatrix"), e2))
-setMethod("Arith",
-          signature(e1 = "numeric", e2 = "ddenseMatrix"),
-          function(e1, e2) callGeneric(e1, as(e2, "dgeMatrix")))
 
 setMethod("Math",
           signature(x = "ddenseMatrix"),

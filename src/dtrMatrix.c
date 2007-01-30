@@ -122,22 +122,31 @@ SEXP dtrMatrix_as_matrix(SEXP from)
     return val;
 }
 
-SEXP dtrMatrix_getDiag(SEXP x)
-{
-    int i, n = INTEGER(GET_SLOT(x, Matrix_DimSym))[0];
-    SEXP ret = PROTECT(allocVector(REALSXP, n)),
-	xv = GET_SLOT(x, Matrix_xSym);
+#define GET_trMatrix_Diag(_C_TYPE_, _SEXPTYPE_, _SEXP_, _ONE_)		\
+    int i, n = INTEGER(GET_SLOT(x, Matrix_DimSym))[0];			\
+    SEXP x_x = GET_SLOT(x, Matrix_xSym);				\
+									\
+    SEXP ret = PROTECT(allocVector(_SEXPTYPE_, n));			\
+    _C_TYPE_ *rv = _SEXP_(ret),						\
+	     *xv = _SEXP_(x_x);						\
+									\
+    if ('U' == diag_P(x)[0]) {						\
+	for (i = 0; i < n; i++) rv[i] = _ONE_;				\
+    } else {								\
+	for (i = 0; i < n; i++) rv[i] = xv[i * (n + 1)];		\
+    }									\
+    UNPROTECT(1);							\
+    return ret
 
-    if ('U' == diag_P(x)[0]) {
-	for (i = 0; i < n; i++) REAL(ret)[i] = 1.;
-    } else {
-	for (i = 0; i < n; i++) {
-	    REAL(ret)[i] = REAL(xv)[i * (n + 1)];
-	}
-    }
-    UNPROTECT(1);
-    return ret;
+
+SEXP dtrMatrix_getDiag(SEXP x) {
+    GET_trMatrix_Diag(double, REALSXP, REAL, 1.);
 }
+
+SEXP ltrMatrix_getDiag(SEXP x) {
+    GET_trMatrix_Diag(  int, LGLSXP, LOGICAL, 1);
+}
+
 
 SEXP dtrMatrix_dgeMatrix_mm_R(SEXP a, SEXP b)
 {

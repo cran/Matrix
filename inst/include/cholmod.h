@@ -869,4 +869,13 @@ cholmod_triplet* M_cholmod_allocate_triplet (size_t nrow, size_t ncol,
 					     size_t nzmax, int stype, int xtype,
 					     cholmod_common *Common);
 
+/* scaling modes, selected by the scale input parameter: */
+#define CHOLMOD_SCALAR 0	/* A = s*A */
+#define CHOLMOD_ROW 1		/* A = diag(s)*A */
+#define CHOLMOD_COL 2		/* A = A*diag(s) */
+#define CHOLMOD_SYM 3		/* A = diag(s)*A*diag(s) */
+
+int M_cholmod_scale(cholmod_dense *S, int scale,
+		    cholmod_sparse *A, cholmod_common *Common);
+
 #endif  /* MATRIX_CHOLMOD_H */

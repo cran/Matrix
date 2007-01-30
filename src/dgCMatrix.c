@@ -1,5 +1,7 @@
 #include "dgCMatrix.h"
 
+/* for Csparse_transpose() : */
+#include "Csparse.h"
 #include "chm_common.h"
 
 /* FIXME -- we "forget" about dimnames almost everywhere : */
@@ -16,23 +18,93 @@ SEXP xCMatrix_validate(SEXP x)
     return ScalarLogical(1);
 }
 
-/* TODO: make this work also for "dsC" {where 'x' stores only triangle} */
-SEXP compressed_to_dgTMatrix(SEXP x, SEXP colP)
+SEXP compressed_to_TMatrix(SEXP x, SEXP colP)
 {
     int col = asLogical(colP); /* 1 if "C"olumn compressed;  0 if "R"ow */
-    SEXP indSym = col ? Matrix_iSym : Matrix_jSym;
-    SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("dgTMatrix"))),
+    SEXP indSym = col ? Matrix_iSym : Matrix_jSym,
+	ans,
 	indP = GET_SLOT(x, indSym),
 	pP = GET_SLOT(x, Matrix_pSym);
     int npt = length(pP) - 1;
+    char *cl = class_P(x);/* maybe unduplicated */
+    char ncl[9] = "...Matrix";
+    char *valid[] = {"dgCMatrix", "dsCMatrix", "dtCMatrix", /* 0: 0:2 */
+		     "lgCMatrix", "lsCMatrix", "ltCMatrix", /* 1: 3:5 */
+		     "ngCMatrix", "nsCMatrix", "ntCMatrix", /* 2: 6:8 */
+		     "zgCMatrix", "zsCMatrix", "ztCMatrix", /* 3: 9:11 */
+
+		     "dgRMatrix", "dsRMatrix", "dtRMatrix", /* 4: 12:14 */
+		     "lgRMatrix", "lsRMatrix", "ltRMatrix", /* 5: 15:17 */
+		     "ngRMatrix", "nsRMatrix", "ntRMatrix", /* 6: 18:20 */
+		     "zgRMatrix", "zsRMatrix", "ztRMatrix", /* 7: 21:23 */
+		     ""};
+    int ctype = Matrix_check_class(cl, valid);
+
+    if (ctype < 0)
+	error(_("invalid class(x) '%s' in compressed_to_TMatrix(x)"), cl);
+
+    /* replace 'C' or 'R' with 'T'  ~~ C-level	``sub()'' : */
+    strcpy(ncl, cl); ncl[2] = 'T';
+    /* DEBUG :* / Rprintf("compressed_to_TMatrix(): new class '%s'\n", ncl); /**/
+    ans = PROTECT(NEW_OBJECT(MAKE_CLASS(ncl)));
 
     SET_SLOT(ans, Matrix_DimSym, duplicate(GET_SLOT(x, Matrix_DimSym)));
-    SET_SLOT(ans, Matrix_xSym,  duplicate(GET_SLOT(x, Matrix_xSym)));
+    if((ctype / 3) % 4 != 2) /* not n..Matrix */
+	SET_SLOT(ans, Matrix_xSym, duplicate(GET_SLOT(x, Matrix_xSym)));
+    if(ctype % 3) { /* s(ymmetric) or t(riangular) : */
+	SET_SLOT(ans, Matrix_uploSym, duplicate(GET_SLOT(x, Matrix_uploSym)));
+	if(ctype % 3 == 2) /* t(riangular) : */
+	    SET_SLOT(ans, Matrix_diagSym, duplicate(GET_SLOT(x, Matrix_diagSym)));
+    }
+    SET_DimNames(ans, x);
     SET_SLOT(ans, indSym, duplicate(indP));
     expand_cmprPt(npt, INTEGER(pP),
 		  INTEGER(ALLOC_SLOT(ans, col ? Matrix_jSym : Matrix_iSym,
 				     INTSXP, length(indP))));
     UNPROTECT(1);
+    return ans;
+}
+
+SEXP R_to_CMatrix(SEXP x)
+{
+    SEXP ans, tri = PROTECT(allocVector(LGLSXP, 1));
+    char *cl = class_P(x);/* maybe unduplicated */
+    char ncl[9];
+    char *valid[] = {"dgRMatrix", "dsRMatrix", "dtRMatrix",
+		     "lgRMatrix", "lsRMatrix", "ltRMatrix",
+		     "ngRMatrix", "nsRMatrix", "ntRMatrix",
+		     "zgRMatrix", "zsRMatrix", "ztRMatrix",
+		     ""};
+    int ctype = Matrix_check_class(cl, valid);
+    int *x_dims = INTEGER(GET_SLOT(x, Matrix_DimSym)), *a_dims;
+
+    if (ctype < 0)
+	error(_("invalid class(x) '%s' in R_to_CMatrix(x)"), cl);
+
+    /* replace 'R' with 'C'  ~~ C-level	``sub()'' : */
+    strcpy(ncl, cl); ncl[2] = 'C';
+    /* DEBUG :* / Rprintf("R_to_CMatrix(): new class '%s'\n", ncl);/**/
+    ans = PROTECT(NEW_OBJECT(MAKE_CLASS(ncl)));
+    a_dims = INTEGER(ALLOC_SLOT(ans, Matrix_DimSym, INTSXP, 2));
+    /* reversed dim() since we will transpose: */
+    a_dims[0] = x_dims[1];
+    a_dims[1] = x_dims[0];
+
+    /* triangular: */ LOGICAL(tri)[0] = 0;
+    if((ctype / 3) != 2) /* not n..Matrix */
+	SET_SLOT(ans, Matrix_xSym, duplicate(GET_SLOT(x, Matrix_xSym)));
+    if(ctype % 3) { /* s(ymmetric) or t(riangular) : */
+	SET_SLOT(ans, Matrix_uploSym, duplicate(GET_SLOT(x, Matrix_uploSym)));
+	if(ctype % 3 == 2) { /* t(riangular) : */
+	    LOGICAL(tri)[0] = 1;
+	    SET_SLOT(ans, Matrix_diagSym, duplicate(GET_SLOT(x, Matrix_diagSym)));
+	}
+    }
+    SET_SLOT(ans, Matrix_iSym, duplicate(GET_SLOT(x, Matrix_jSym)));
+    SET_SLOT(ans, Matrix_pSym, duplicate(GET_SLOT(x, Matrix_pSym)));
+    ans = Csparse_transpose(ans, tri);
+    SET_DimNames(ans, x);
+    UNPROTECT(2);
     return ans;
 }
 

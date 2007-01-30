@@ -92,3 +92,18 @@ Check for DimNames propagation in coercion and other operations.
 - chol() and determinant() should ``work'': proper result or "good" error
   message.
 
+- Think of constructing  setAs(...) calls automatically in order to
+  basically enable all ``sensible'' as(fromMatrix, toMatrix)  calls,
+  possibly using canCoerce(.)
+
+- make sure *all* group methods have (maybe "bail-out") setMethod for "Matrix".
+  e.g. zapsmall(<pMatrix>) fails "badly"
+
+- speedup: pass class definition to non0ind() [check all calls ..]
+
+- sum(): implement methods which work for *all* our matrices.
+
+- Implement  expand(.) for the Cholesky() results
+  "dCHMsimpl" and  "dCHMsuper"  -- currently have no *decent* way to get at
+  the matrix factors of the corresponding matrix factorization !!
+

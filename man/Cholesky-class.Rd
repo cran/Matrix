@@ -4,6 +4,12 @@
 \alias{pCholesky-class}
 \alias{BunchKaufman-class}
 \alias{pBunchKaufman-class}
+%
+\alias{coerce,pCholesky,lMatrix-method}
+\alias{coerce,pBunchKaufman,lMatrix-method}
+\alias{coerce,Cholesky,lMatrix-method}
+\alias{coerce,BunchKaufman,lMatrix-method}
+%
 \title{Cholesky and Bunch-Kaufman Decompositions}
 \description{The \code{"Cholesky"} class is the class of Cholesky
   decompositions of positive-semidefinite, real matrices.  The

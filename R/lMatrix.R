@@ -1,3 +1,6 @@
+setAs("matrix", "lMatrix",
+      function(from) { storage.mode(from) <- "logical" ; Matrix(from) })
+
 setAs("lMatrix", "nMatrix",
       function(from) {
 	  if(any(is.na(from@x)))

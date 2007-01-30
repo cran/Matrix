@@ -10,6 +10,9 @@ setAs("dpoMatrix", "corMatrix",
           new("corMatrix", as(t(from/sd)/sd, "dpoMatrix"), sd = sd)
       })
 
+setAs("corMatrix", "lMatrix",
+      function(from) as(as(from, "dpoMatrix"), "lMatrix"))
+
 to_dpo <- function(from) as(as(from, "dsyMatrix"), "dpoMatrix")
 setAs("Matrix", "dpoMatrix", to_dpo)
 setAs("matrix", "dpoMatrix", to_dpo)

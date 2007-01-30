@@ -176,4 +176,6 @@
   b)  x[i,i] <- scalar_value  should ``keep x symmetric'',
       i.e. also return symmetricM*
 
+- Fully implement "Logic" methods - now (R 2.4.1) that the group is in S4
+
 

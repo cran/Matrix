@@ -63,20 +63,27 @@ SEXP dtpMatrix_solve(SEXP a)
     return val;
 }
 
+
 SEXP dtpMatrix_getDiag(SEXP x)
 {
     int n = *INTEGER(GET_SLOT(x, Matrix_DimSym));
     SEXP val = PROTECT(allocVector(REALSXP, n));
 
-    if (*diag_P(x) == 'U') {
-	int j;
-	for (j = 0; j < n; j++) REAL(val)[j] = 1.;
-    } else {
-	packed_getDiag(REAL(val), x);
-    }
+    d_packed_getDiag(REAL(val), x, n);
     UNPROTECT(1);
     return val;
 }
+
+SEXP ltpMatrix_getDiag(SEXP x)
+{
+    int n = *INTEGER(GET_SLOT(x, Matrix_DimSym));
+    SEXP val = PROTECT(allocVector(LGLSXP, n));
+
+    l_packed_getDiag(LOGICAL(val), x, n);
+    UNPROTECT(1);
+    return val;
+}
+
 
 SEXP dtpMatrix_matrix_mm(SEXP x, SEXP y)
 {

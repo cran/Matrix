@@ -6,6 +6,8 @@
 \alias{coerce,ANY,denseMatrix-method}
 \alias{coerce,denseMatrix,CsparseMatrix-method}
 \alias{coerce,denseMatrix,TsparseMatrix-method}
+\alias{coerce,denseMatrix,generalMatrix-method}
+\alias{coerce,denseMatrix,sparseMatrix-method}
 \alias{cbind2,denseMatrix,denseMatrix-method}
 \alias{cbind2,denseMatrix,matrix-method}
 \alias{cbind2,matrix,denseMatrix-method}

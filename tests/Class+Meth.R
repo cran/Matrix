@@ -9,6 +9,8 @@ allCl <- getClasses("package:Matrix")
 ## Really nice would be to construct an inheritance graph and display
 ## it.  The following is just a cheap first step.
 
+if(!interactive()) { # don't want to see on source()
+
 cat("All classes in the 'Matrix' package:\n")
 for(cln in allCl) {
     cat("\n-----\n\nClass", dQuote(cln),":\n      ",
@@ -26,6 +28,8 @@ cat("\n\n")
 cat("All (S4) methods in the 'Matrix' package:\n")
 showMethods(where="package:Matrix")
 
+} # end{non-interactive}
+
 ## 1-indexing instead of 0-indexing for direct "dgT" should give error:
 ii <- as.integer(c(1,2,2))
 jj <- as.integer(c(1,1,3))
@@ -37,30 +41,31 @@ validObject(mm)
 
 ### Sparse Logical:
 m <- Matrix(c(0,0,2:0), 3,5)
-mT <- as(mC <- as(m, "dgCMatrix"), "dgTMatrix")
-stopifnot(identical(as(mT,"dgCMatrix"), mC))
-(mC. <- as(mT[1:2, 2:3], "dgCMatrix"))
-(mlC <- as(mC. , "lgCMatrix"))
-
-if(FALSE) ## ltC no longer extends lgC -- want coercion to triangular; FIXME
+mT <- as(mC <- as(m, "CsparseMatrix"), "TsparseMatrix")
+stopifnot(identical(as(mT,"CsparseMatrix"), mC))
+(mC. <- as(mT[1:2, 2:3], "CsparseMatrix"))
+(mlC <- as(mC. , "lMatrix"))
 as(mlC,"ltCMatrix")
+
 
 
 ### Test all classes:  validObject(new( * )) should be fulfilled -----------
 
 ## need stoplist for now:
 Rcl.struc <- c("gR", "sR", "tR")
-not.ok.classes <- paste(c(sort(outer(c("l", "n"), Rcl.struc, paste0)),
-                                        # only stub implementation
-			  ""), "Matrix", sep='')
-## From the rest, those that don't show :
-no.show.classes <-
-    paste(paste("d", Rcl.struc[Rcl.struc != "gR"], sep=''),
-	  "Matrix", sep='')
+(dR.classes <- paste0(paste0("d", Rcl.struc[Rcl.struc != "gR"]),   "Matrix"))
+(.R.classes <- paste0(sort(outer(c("l", "n"), Rcl.struc, paste0)), "Matrix"))
+                                        # have only stub implementation
+
+## not.ok..: are left out almost completely
+not.ok.classes <- NULL  ## was  .R.classes
+## From the rest, those that don't show {have no coerce to "dge":}
+no.show.classes <- NULL ## was  dR.classes
+##
 Mat.MatFact <- c("Cholesky", "pCholesky",
                  "BunchKaufman", "pBunchKaufman")##, "LDL"
-no.t.etc <- c(no.show.classes, Mat.MatFact)
-no.t.classes <- no.t.etc        # no t() available
+no.t.etc <- c(no.show.classes, .R.classes, dR.classes, Mat.MatFact)
+no.t.classes <- c(no.t.etc)     # no t() available
 not.Ops      <- no.show.classes # "Ops", e.g. "+" fails
 not.coerce0  <- no.show.classes # not coercable to   "matrix" & "dgeMatrix"
 not.coerce1  <- no.t.etc        # not coercable from "dgeMatrix"
@@ -141,10 +146,14 @@ tstMatrixClass <-
 
 		## This can only work as long as 'm' has no NAs :
                 ## not yet -- have version in not.Ops below
-## 		stopifnot(all(m == m)) ## check all() and "==" [Compare]
-## 		if(any(m != m)) stop(" any (m != m) should not be true")
+## once we have is.na():
+## 		stopifnot(all(m == m | is.na(m))) ## check all() and "==" [Compare]
+## 		if(any(m != m && !is.na(m)))
+		stopifnot(all(m == m)) ## check all() and "==" [Compare]
+		if(any(m != m))
+		    stop(" any (m != m) should not be true")
 
-                if(any(clNam == no.t.classes)) {
+                if(clNam %in% no.t.classes) {
                     cat(" in t()-'stop list'\n")
                 } else {
                     cat("; t(t(m)) ==?== m :")
@@ -160,12 +169,25 @@ tstMatrixClass <-
                 if(all(clNam != not.coerce0)) {## coerce to 'matrix'
                     m.m <- as(m, "matrix")
                     ## and test 'dim()' as well:
-                    stopifnot(identical(dim(m.m), dim(m)))
-                } else stopifnot(length(dim(m)) == 2)
+		    stopifnot(identical(dim(m.m), dim(m)),
+			      if(clNam %in% no.t.classes)
+			      TRUE else identical(diag(m), diag(t(m))),
+			      ## TODO: also === diag(band(m,0,0))
+			      diag(m) == diag(m.m),
+			      nnzero(m) == sum(m.m != 0))
+                }
+                else stopifnot(length(dim(m)) == 2)
 
 ### FIXME: organize differently :
 ### 1) produce 'mM'  and 'mm' for the other cases,
 ### 2) use identical code for all cases
+
+		## "!" should work (via as(*, "l...")) :
+                m11 <- as(as(!!m,"CsparseMatrix"), "lMatrix")
+                m12 <- as(as(  m, "lMatrix"),"CsparseMatrix")
+                if(!identical(m11, m12))
+                    stopifnot(identical(as(m11, "generalMatrix"),
+                                        as(m12, "generalMatrix")))
 
 		if(is(m, "dMatrix") && all(clNam != not.Ops)) {
                     ## makes sense with non-trivial m (!)
@@ -175,14 +197,11 @@ tstMatrixClass <-
 			stopifnot(as(2*m,"matrix") == as(m+m, "matrix"))
 			cat("ok\n")
 		    }
-		    ## FIXME: this should be for all valid, not just dMatrix:
-		    stopifnot(all(m == m)) ## check all() and "==" [Compare]
-		    if(any(m != m)) stop(" any (m != m) should not be true")
-		    ## FIXME: not yet, e.g. for "dgTMatrix" :
-##		    cat("m >= m for all: ")
-## 		    stopifnot(all(m >= m)); cat("ok\n")
-## 		    cat("m < m for none: ")
-## 		    stopifnot(all(! m < m)); cat("ok\n")
+                    ## m == m etc, now for all, see above
+		    cat("m >= m for all: ")
+		    stopifnot(all(m >= m)); cat("ok\n")
+		    cat("m < m for none: ")
+		    stopifnot(all(! m < m)); cat("ok\n")
 		}
 
                 if(is(m, "dMatrix") && is(m, "compMatrix")) {
@@ -207,9 +226,10 @@ tstMatrixClass <-
                         cat.("not coercable_1\n")
                     else {
                         ## FIXME: also add tests for these
-                        if(is(m, "lMatrix")) {
-                            ## once we have "Logic" group methods
-                            ## TODO stopifnot(all(m | m))
+                        if(is(m, "lMatrix")) { ## should fulfill even with NA:
+			    stopifnot(identical(m, m & TRUE),
+				      identical(m, FALSE | m),
+				      all(m | !m), !any(!m & m))
                         }
                         else if(is(m, "triangularMatrix")) {
                             mm. <- mm
@@ -253,10 +273,11 @@ tstMatrixClass <-
         dotestMat(scl, offset + 1)
 }
 
-
 tstMatrixClass("Matrix")
 if(FALSE)## or just a sub class
 tstMatrixClass("triangularMatrix")
 
 
 cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
+
+if(!interactive()) warnings()

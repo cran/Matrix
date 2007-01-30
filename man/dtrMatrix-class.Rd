@@ -13,6 +13,7 @@
 \alias{crossprod,dtrMatrix,missing-method}
 \alias{determinant,dtrMatrix,logical-method}
 \alias{determinant,dtrMatrix,missing-method}
+\alias{diag,dtrMatrix-method}
 \alias{norm,dtrMatrix,character-method}
 \alias{norm,dtrMatrix,missing-method}
 \alias{rcond,dtrMatrix,character-method}

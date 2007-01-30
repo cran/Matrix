@@ -155,19 +155,43 @@ SEXP dgeMatrix_matrix_crossprod(SEXP x, SEXP y, SEXP trans)
     return val;
 }
 
+
 SEXP dgeMatrix_getDiag(SEXP x)
 {
-    int *dims = INTEGER(GET_SLOT(x, Matrix_DimSym));
-    int i, m = dims[0], nret = (m < dims[1]) ? m : dims[1];
-    SEXP ret = PROTECT(allocVector(REALSXP, nret)),
-	xv = GET_SLOT(x, Matrix_xSym);
+#define geMatrix_getDiag_1					\
+    int *dims = INTEGER(GET_SLOT(x, Matrix_DimSym));		\
+    int i, m = dims[0], nret = (m < dims[1]) ? m : dims[1];	\
+    SEXP x_x = GET_SLOT(x, Matrix_xSym)
 
-    for (i = 0; i < nret; i++) {
-	REAL(ret)[i] = REAL(xv)[i * (m + 1)];
-    }
-    UNPROTECT(1);
-    return ret;
+    geMatrix_getDiag_1;
+    SEXP ret = PROTECT(allocVector(REALSXP, nret));
+    double *rv = REAL(ret),
+	   *xv = REAL(x_x);
+
+#define geMatrix_getDiag_2			\
+    for (i = 0; i < nret; i++) {		\
+	rv[i] = xv[i * (m + 1)];		\
+    }						\
+    UNPROTECT(1);				\
+    return ret
+
+    geMatrix_getDiag_2;
 }
+
+SEXP lgeMatrix_getDiag(SEXP x)
+{
+    geMatrix_getDiag_1;
+
+    SEXP ret = PROTECT(allocVector(LGLSXP, nret));
+    int *rv = LOGICAL(ret),
+	*xv = LOGICAL(x_x);
+
+    geMatrix_getDiag_2;
+}
+
+#undef geMatrix_getDiag_1
+#undef geMatrix_getDiag_2
+
 
 SEXP dgeMatrix_LU(SEXP x)
 {

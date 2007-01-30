@@ -8,6 +8,8 @@ SEXP dtpMatrix_validate(SEXP obj);
 SEXP dtpMatrix_norm(SEXP obj, SEXP type);
 SEXP dtpMatrix_rcond(SEXP obj, SEXP type);
 SEXP dtpMatrix_getDiag(SEXP x);
+
+SEXP ltpMatrix_getDiag(SEXP x);
 SEXP dtpMatrix_solve(SEXP a);
 SEXP dtpMatrix_matrix_solve(SEXP a, SEXP b);
 SEXP dtpMatrix_as_dtrMatrix(SEXP from);

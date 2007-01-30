@@ -169,7 +169,6 @@ T <- m2; T[1:3, 3] <- 10; validObject(T)
 stopifnot(is(T, "dtCMatrix"), identical(T[,3], c(10,10,10,0,0)))
 
 
-
 ## --- negative indices ----------
 mc <- mC[1:5, 1:7]
 mt <- mT[1:5, 1:7]
@@ -230,16 +229,22 @@ stopifnot(mc@x != 0, mt@x != 0,
 	  mc[-1,3] == -2:1, mt[-1,3] == -2:1) ## failed earlier
 
 mc0 <- mc
+mt0 <- as(mc0, "TsparseMatrix")
+m0  <- as(mc0, "matrix")
 set.seed(1)
-for(i in 1:20) {
-    mc <- mc0
+for(i in 1:50) {
+    mc <- mc0; mt <- mt0 ; m <- m0
     ev <- 1:5 %% 2 == round(runif(1))# 0 or 1
     j <- sample(ncol(mc), 1 + round(runif(1)))
     nv <- rpois(sum(ev) * length(j), lambda = 1)
     mc[ev, j] <- nv
-    if(i < 5) print(mc[ev,j, drop = FALSE])
-    stopifnot(as.vector(mc[ev, j]) == nv) ## failed earlier...
-    validObject(mc)
+     m[ev, j] <- nv
+    mt[ev, j] <- nv
+    if(i %% 10 == 1) print(mc[ev,j, drop = FALSE])
+    stopifnot(as.vector(mc[ev, j]) == nv, ## failed earlier...
+              as.vector(mt[ev, j]) == nv)
+    validObject(mc) ; assert.EQ.mat(mc, m)
+    validObject(mt) ; assert.EQ.mat(mt, m)
 }
 
 mc # no longer has non-structural zeros
@@ -263,11 +268,13 @@ Hc.[i,j] <- 0 ## now "works", but setting "non-structural" 0s
 stopifnot(as.matrix(Hc.[i,j]) == 0)
 Hc.[, 1:6]
 
-## an example that failed long
+## an example that failed for a long time
 sy3 <- new("dsyMatrix", Dim = as.integer(c(2, 2)), x = c(14, -1, 2, -7))
 validObject(dm <- kronecker(Diagonal(2), sy3))
 (s2 <- as(dm, "sparseMatrix"))
 validObject(st <- as(s2, "TsparseMatrix"))
+stopifnot(is(s2, "symmetricMatrix"),
+	  is(st, "symmetricMatrix"))
 validObject(s.32  <- st[1:3,1:2]) ## 3 x 2 - and *not* dsTMatrix
 validObject(s2.32 <- s2[1:3,1:2])
 I <- c(1,4:3)
@@ -286,7 +293,7 @@ stopifnot(is(s2.32, "generalMatrix"),
 ## symmetric subassign should keep symmetry
 st[I,I] <- 0; validObject(st); stopifnot(is(st,"symmetricMatrix"))
 s2[I,I] <- 0; validObject(s2); stopifnot(is(s2,"symmetricMatrix"))
-
+##
 m <- as.mat(st)
  m[2:1,2:1] <- 4:1
 st[2:1,2:1] <- 4:1
@@ -295,6 +302,24 @@ stopifnot(identical(m, as.mat(st)),
 	  1:4 == as.vector(s2[1:2,1:2]),
 	  identical(m, as.mat(s2)))
 
+## now a slightly different situation for 's2' (had bug)
+s2 <- as(dm, "sparseMatrix")
+s2[I,I] <- 0; diag(s2)[2:3] <- -(1:2)
+stopifnot(is(s2,"symmetricMatrix"), diag(s2) == c(0:-2,0))
+t2 <- as(s2, "TsparseMatrix")
+m <- as.mat(s2)
+s2[2:1,2:1] <- 4:1
+t2[2:1,2:1] <- 4:1
+ m[2:1,2:1] <- 4:1
+assert.EQ.mat(t2, m)
+assert.EQ.mat(s2, m)
+## and the same (for a different s2 !)
+s2[2:1,2:1] <- 4:1
+t2[2:1,2:1] <- 4:1
+assert.EQ.mat(t2, m)# ok
+assert.EQ.mat(s2, m)# failed in 0.9975-8
+
+
 ## m[cbind(i,j)] <- value:
 m.[ cbind(3:5, 1:3) ] <- 1:3
 stopifnot(m.[3,1] == 1, m.[4,2] == 2)
@@ -302,5 +327,21 @@ x.x[ cbind(2:6, 2:6)] <- 12:16
 validObject(x.x)
 stopifnot(class(x.x) == "dsCMatrix",
 	  12:16 == as.mat(x.x)[cbind(2:6, 2:6)])
+(ne1 <- (mc - m.) != 0)
+stopifnot(identical(ne1, 0 != abs(mc - m.)))
+(ge <- m. >= mc) # contains "=" -> result is dense
+ne. <- mc != m.  # was wrong (+ warning)
+stopifnot(identical(!(m. < mc), m. >= mc),
+	  identical(m. < mc, as(!ge, "sparseMatrix")),
+	  identical(ne., Matrix:::drop0(ne1)))
+
+(M3 <- Matrix(upper.tri(matrix(, 3, 3)))) # ltC; indexing used to fail
+T3 <- as(M3, "TsparseMatrix")
+stopifnot(identical(drop(M3), M3),
+	  identical4(drop(M3[,2, drop = FALSE]), M3[,2, drop = TRUE],
+		     drop(T3[,2, drop = FALSE]), T3[,2, drop = TRUE]),
+	  is(T3, "triangularMatrix"),
+	  !is(T3[,2, drop=FALSE], "triangularMatrix")
+	  )
 
 cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''

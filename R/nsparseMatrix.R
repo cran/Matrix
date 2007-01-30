@@ -30,9 +30,7 @@ setMethod("crossprod", signature(x = "nsparseMatrix", y = "nsparseMatrix"),
           function(x, y = NULL)
           callGeneric(as(x, "ngCMatrix"), as(y, "ngCMatrix")))
 
-setMethod("!", "nsparseMatrix",
-          ## turns FALSE to TRUE --> dense matrix
-          function(e1) !as(e1, "ngeMatrix"))
-
-setMethod("diag", signature(x = "nsparseMatrix"),
-	  function(x, nrow, ncol = n) diag(as(x, "ngCMatrix")))
+## Use "Matrix" method !as(. , "lMatrix")
+## setMethod("!", "nsparseMatrix",
+##           ## turns FALSE to TRUE --> dense matrix
+##           function(e1) !as(e1, "ngeMatrix"))

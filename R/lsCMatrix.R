@@ -37,17 +37,16 @@ setAs("lsCMatrix", "dgTMatrix",
 setMethod("tril", "lsCMatrix",
 	  function(x, k = 0, ...) {
 	      if(x@uplo == "L" && k == 0)
-		  ## same internal structure (speedup potential !?)
+		  ## same internal structure + diag
 		  new("ltCMatrix", uplo = x@uplo, i = x@i, p = x@p,
-		      Dim = x@Dim, Dimnames = x@Dimnames)
+		      x = x@x, Dim = x@Dim, Dimnames = x@Dimnames)
 	      else tril(as(x, "lgCMatrix"), k = k, ...)
 	  })
 setMethod("triu", "lsCMatrix",
 	  function(x, k = 0, ...) {
 	      if(x@uplo == "U" && k == 0)
-		  ## same internal structure (speedup potential !?)
 		  new("ltCMatrix", uplo = x@uplo, i = x@i, p = x@p,
-		      Dim = x@Dim, Dimnames = x@Dimnames)
+		      x = x@x, Dim = x@Dim, Dimnames = x@Dimnames)
 	      else triu(as(x, "lgCMatrix"), k = k, ...)
 	  })
 

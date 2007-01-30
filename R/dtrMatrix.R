@@ -24,6 +24,12 @@ setAs("dtrMatrix", "matrix",
 setAs("matrix", "dtrMatrix",
       function(from) as(.Call(dup_mMatrix_as_dgeMatrix, from), "dtrMatrix"))
 
+setAs("Cholesky", "lMatrix",
+      function(from) as(as(from, "dtrMatrix"), "lMatrix"))
+setAs("BunchKaufman", "lMatrix",
+      function(from) as(as(from, "dtrMatrix"), "lMatrix"))
+
+
 ## Group Methods:
 ## TODO: carefully check for the cases where the result remains triangular
 ## instead : inherit them from "dgeMatrix" via definition in ./dMatrix.R
@@ -76,6 +82,10 @@ setMethod("determinant", signature(x = "dtrMatrix", logarithm = "logical"),
 	      class(val) <- "det"
 	      val
 	  })
+
+setMethod("diag", signature(x = "dtrMatrix"),
+          function(x, nrow, ncol = n) .Call(dtrMatrix_getDiag, x),
+          valueClass = "numeric")
 
 setMethod("norm", signature(x = "dtrMatrix", type = "character"),
 	  function(x, type, ...)

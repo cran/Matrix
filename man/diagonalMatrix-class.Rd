@@ -61,6 +61,9 @@
 \alias{tcrossprod,diagonalMatrix,matrix-method}
 \alias{tcrossprod,diagonalMatrix,missing-method}
 \alias{tcrossprod,sparseMatrix,diagonalMatrix-method}
+\alias{solve,diagonalMatrix,Matrix-method}
+\alias{solve,diagonalMatrix,matrix-method}
+\alias{solve,diagonalMatrix,missing-method}
 \description{
   Class "diagonalMatrix" is the virtual class of all diagonal matrices.
 }
@@ -90,7 +93,10 @@
     \item{\%*\%}{\code{signature(x = "matrix", y = "diagonalMatrix")}: ... }
     \item{\%*\%}{\code{signature(x = "diagonalMatrix", y = "matrix")}: ... }
     \item{\%*\%}{\code{signature(x = "diagonalMatrix", y = "dgeMatrix")}: ... }
-	 }
+
+    \item{solve}{\code{signature(a = "diagonalMatrix", b, ...)}: is
+      trivially implemented, of course.}
+  }
 }
 \seealso{
   \code{\linkS4class{ddiMatrix}} and \code{\linkS4class{ldiMatrix}} are
@@ -103,6 +109,10 @@ D5 <- Diagonal(x = 10*(1:5))
 stopifnot(identical(crossprod(I5), I5),
           identical(tcrossprod(I5), I5),
           identical(crossprod(I5, D5), D5),
-          identical(tcrossprod(D5, I5), D5))
+          identical(tcrossprod(D5, I5), D5),
+          identical(solve(D5), solve(D5, I5)),
+          all.equal(D5, solve(solve(D5)), tol = 1e-12)
+          )
+solve(D5)
 }
 \keyword{classes}

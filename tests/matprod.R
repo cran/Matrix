@@ -73,7 +73,7 @@ m <- Matrix(c(0, 0, 2:0), 3, 5)
 dimnames(m) <- list(LETTERS[1:3], letters[1:5])
 m
 p1 <- t(m) %*% m
-(p1. <- crossprod(m)) # FIXME: show() does not even show row names
+(p1. <- crossprod(m))
 t1 <- m %*% t(m)
 (t1. <- tcrossprod(m))
 stopifnot(isSymmetric(p1.),
@@ -81,6 +81,7 @@ stopifnot(isSymmetric(p1.),
           identical(p1, as(p1., class(p1))),
           identical(t1, as(t1., class(t1))),
           identical(dimnames(p1), dimnames(p1.)),
+          identical(dimnames(p1), list(colnames(m), colnames(m))),
           identical(dimnames(t1), dimnames(t1.))
           )
 
@@ -110,11 +111,12 @@ stopifnot(identical(b, b.))
 
 ## calculate conditional variance matrix ( vars 3 4 5 given 1 2 )
 (B2 <- b[1:2, 1:2])
-stopifnot(is(B2, "dsCMatrix"))# symmetric indexing keeps symmetry
 bb <- b[1:2, 3:5]
-stopifnot(identical(as.mat(bb), rbind(0, c(1,0,0))))
-if(FALSE)## FIXME: use fully-sparse cholmod_spsolve() based solution !!
-z.s <- solve(B2, bb)
+stopifnot(is(B2, "dsCMatrix"), # symmetric indexing keeps symmetry
+	  identical(as.mat(bb), rbind(0, c(1,0,0))),
+	  ## TODO: use fully-sparse cholmod_spsolve() based solution :
+	  is(z.s <- solve(B2, bb), "sparseMatrix"))
+assert.EQ.mat(B2 %*% z.s, as(bb, "matrix"))
 ## -> dense RHS and dense result
 z. <- solve(as(B2, "dgCMatrix"), bb)
 z  <- solve( B2, as(bb,"dgeMatrix"))

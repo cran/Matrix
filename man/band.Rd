@@ -21,6 +21,41 @@
 \alias{band,ddenseMatrix-method}
 \alias{tril,ddenseMatrix-method}
 \alias{triu,ddenseMatrix-method}
+% Begin{UGLY-disAMBIGUATION-hack} -- in ../R/triangularMatrix.R
+% we would want to define 'triangularMatrix' methods, but they ambiguate with the above!
+% \alias{tril,triangularMatrix-method}
+% \alias{triu,triangularMatrix-method}
+\alias{tril,dtCMatrix-method}
+\alias{tril,dtRMatrix-method}
+\alias{tril,dtTMatrix-method}
+\alias{tril,dtpMatrix-method}
+\alias{tril,dtrMatrix-method}
+\alias{tril,ltCMatrix-method}
+\alias{tril,ltRMatrix-method}
+\alias{tril,ltTMatrix-method}
+\alias{tril,ltpMatrix-method}
+\alias{tril,ltrMatrix-method}
+\alias{tril,ntCMatrix-method}
+\alias{tril,ntRMatrix-method}
+\alias{tril,ntTMatrix-method}
+\alias{tril,ntpMatrix-method}
+\alias{tril,ntrMatrix-method}
+\alias{triu,dtCMatrix-method}
+\alias{triu,dtRMatrix-method}
+\alias{triu,dtTMatrix-method}
+\alias{triu,dtpMatrix-method}
+\alias{triu,dtrMatrix-method}
+\alias{triu,ltCMatrix-method}
+\alias{triu,ltRMatrix-method}
+\alias{triu,ltTMatrix-method}
+\alias{triu,ltpMatrix-method}
+\alias{triu,ltrMatrix-method}
+\alias{triu,ntCMatrix-method}
+\alias{triu,ntRMatrix-method}
+\alias{triu,ntTMatrix-method}
+\alias{triu,ntpMatrix-method}
+\alias{triu,ntrMatrix-method}
+% End{UGLY-disAMBIGUATION-hack}
 %
 \alias{band}
 \alias{tril}

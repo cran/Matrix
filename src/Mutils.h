@@ -51,7 +51,11 @@ SEXP dgCMatrix_set_Dim(SEXP x, int nrow);
 /* SEXP csc_check_column_sorting(SEXP A); */
 SEXP Matrix_make_named(int TYP, char **names);
 SEXP check_scalar_string(SEXP sP, char *vals, char *nm);
-double *packed_getDiag(double *dest, SEXP x);
+void d_packed_getDiag(double *dest, SEXP x, int n);
+void l_packed_getDiag(   int *dest, SEXP x, int n);
+void tr_d_packed_getDiag(double *dest, SEXP x);
+void tr_l_packed_getDiag(   int *dest, SEXP x);
+
 SEXP Matrix_getElement(SEXP list, char *nm);
 
 #define PACKED_TO_FULL(TYPE)						\
@@ -79,15 +83,29 @@ extern	 /* stored pointers to symbols initialized in R_init_Matrix */
 #define PACKED_LENGTH(n)   ((n) * ((n) + 1))/2
 
 /* duplicate the slot with name given by sym from src to dest */
+/* FIXME: is not yet used */
 #define slot_dup(dest, src, sym)  SET_SLOT(dest, sym, duplicate(GET_SLOT(src, sym)))
+
+#define slot_nonNull_dup(dest, src, sym)			\
+    if(GET_SLOT(src, sym) != R_NilValue)			\
+	SET_SLOT(dest, sym, duplicate(GET_SLOT(src, sym)))
+
+/* TODO: Make this faster for the case where dimnames = list(NULL,NULL)
+ *       and hence don't have to be set ! */
+#define SET_DimNames(dest, src) slot_dup(dest, src, Matrix_DimNamesSym)
+
 
 #define uplo_P(_x_) CHAR(STRING_ELT(GET_SLOT(_x_, Matrix_uploSym), 0))
 #define diag_P(_x_) CHAR(STRING_ELT(GET_SLOT(_x_, Matrix_diagSym), 0))
 #define class_P(_x_) CHAR(asChar(getAttrib(_x_, R_ClassSymbol)))
 
+/* should also work for "matrix" matrices: */
+#define Real_KIND(_x_)	(IS_S4_OBJECT(_x_) ? Real_kind(_x_) : \
+			 (isReal(_x_) ? 0 : (isLogical(_x_) ? 1 : -1)))
+
+/* requires 'x' slot: */
 #define Real_kind(_x_)	(isReal(GET_SLOT(_x_, Matrix_xSym)) ? 0	:	\
-			 (isLogical(GET_SLOT(_x_, Matrix_xSym)) ? 1 :	\
-			  -1))
+			 (isLogical(GET_SLOT(_x_, Matrix_xSym)) ? 1 : -1))
 
 
 /**
@@ -116,6 +134,9 @@ int packed_ncol(int len)
  * this behavior changes then ALLOC_SLOT must use SET_SLOT followed by
  * GET_SLOT to ensure that the value returned is indeed the SEXP in
  * the slot.
+ * NOTE:  GET_SLOT(x, what)        :== R_do_slot       (x, what)
+ * ----   SET_SLOT(x, what, value) :== R_do_slot_assign(x, what, value)
+ * and the R_do_slot* are in src/main/attrib.c
  *
  * @param obj object in which to assign the slot
  * @param nm name of the slot, as an R name object
@@ -163,6 +184,7 @@ void make_i_matrix_symmetric(   int *to, SEXP from);
 SEXP Matrix_expand_pointers(SEXP pP);
 
 SEXP dup_mMatrix_as_dgeMatrix(SEXP A);
+SEXP dup_mMatrix_as_geMatrix (SEXP A);
 
 SEXP new_dgeMatrix(int nrow, int ncol);
 
@@ -170,6 +192,12 @@ static R_INLINE SEXP
 mMatrix_as_dgeMatrix(SEXP A)
 {
     return strcmp(class_P(A), "dgeMatrix") ? dup_mMatrix_as_dgeMatrix(A) : A;
+}
+
+static R_INLINE SEXP
+mMatrix_as_geMatrix(SEXP A)
+{
+    return strcmp(class_P(A) + 1, "geMatrix") ? dup_mMatrix_as_geMatrix(A) : A;
 }
 
 /**

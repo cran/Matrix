@@ -42,11 +42,13 @@ setClass("generalMatrix", representation = "VIRTUAL", contains = "compMatrix")
 setClass("symmetricMatrix",
 	 representation(uplo = "character", "VIRTUAL"),
 	 contains = "compMatrix",
+	 prototype = prototype(uplo = "U"),
 	 validity = function(object) .Call(symmetricMatrix_validate, object))
 
 setClass("triangularMatrix",
 	 representation(uplo = "character", diag = "character", "VIRTUAL"),
 	 contains = "Matrix",
+	 prototype = prototype(uplo = "U", diag = "N"),
 	 validity = function(object) .Call(triangularMatrix_validate, object))
 
 
@@ -117,11 +119,13 @@ setClass("TsparseMatrix", representation(i = "integer", j = "integer", "VIRTUAL"
 
 setClass("CsparseMatrix", representation(i = "integer", p = "integer", "VIRTUAL"),
 	 contains = "sparseMatrix",
+	 prototype = prototype(p = 0:0),# to be valid
          validity = function(object) .Call(Csparse_validate, object)
          )
 
 setClass("RsparseMatrix", representation(p = "integer", j = "integer", "VIRTUAL"),
-	 contains = "sparseMatrix"
+	 contains = "sparseMatrix",
+	 prototype = prototype(p = 0:0),# to be valid
 	 ## TODO:
 	 ## , validity = function(object) .Call(Rsparse_validate, object)
          )
@@ -151,7 +155,6 @@ setClass("dgeMatrix", contains = c("ddenseMatrix", "generalMatrix"),
 ## numeric, dense, non-packed, triangular matrices
 setClass("dtrMatrix",
 	 contains = c("ddenseMatrix", "triangularMatrix"),
-	 prototype = prototype(uplo = "U", diag = "N"),
 	 validity =
 	 function(object) .Call(dtrMatrix_validate, object)
 	 )
@@ -159,7 +162,6 @@ setClass("dtrMatrix",
 ## numeric, dense, packed, triangular matrices
 setClass("dtpMatrix",
 	 contains = c("ddenseMatrix", "triangularMatrix"),
-	 prototype = prototype(uplo = "U", diag = "N"),
 	 validity =
 	 function(object) .Call(dtpMatrix_validate, object)
 	 )
@@ -172,14 +174,12 @@ setClass("dsyMatrix",
 	 ##> gives error in crossprod() dispatch
 	 ##> contains = c("ddenseMatrix", "dgeMatrix", "symmetricMatrix"),
 	 contains = c("ddenseMatrix", "symmetricMatrix"),
-	 prototype = prototype(uplo = "U"),
 	 validity =
 	 function(object) .Call(dsyMatrix_validate, object)
 	 )
 
 ## numeric, dense, packed symmetric matrices
 setClass("dspMatrix",
-	 prototype = prototype(uplo = "U"),
 	 contains = c("ddenseMatrix", "symmetricMatrix"),
 	 validity =
 	 function(object) .Call(dspMatrix_validate, object)
@@ -206,29 +206,20 @@ setClass("lgeMatrix", contains = c("ldenseMatrix", "generalMatrix"),
 
 ## logical, dense, non-packed, triangular matrices
 setClass("ltrMatrix",
-	 contains = c("ldenseMatrix", "triangularMatrix"),
-	 prototype = prototype(uplo = "U", diag = "N"))
+	 contains = c("ldenseMatrix", "triangularMatrix"))
 
 ## logical, dense, packed, triangular matrices
 setClass("ltpMatrix",
-	 contains = c("ldenseMatrix", "triangularMatrix"),
-	 prototype = prototype(uplo = "U", diag = "N")
-	 ## validity: ldense*, triangular*  should suffice
-	 )
+	 contains = c("ldenseMatrix", "triangularMatrix"))
 
 ## logical, dense, non-packed symmetric matrices
 setClass("lsyMatrix",
-	 contains = c("ldenseMatrix", "symmetricMatrix"),
-	 prototype = prototype(uplo = "U")
-	 ##, validity = function(object) .Call(lsyMatrix_validate, object)
-	 )
+	 contains = c("ldenseMatrix", "symmetricMatrix"))
 
 ## logical, dense, packed symmetric matrices
 setClass("lspMatrix",
 	 contains = c("ldenseMatrix", "symmetricMatrix"),
-	 prototype = prototype(uplo = "U"),
-	 validity = function(object)
-	 .Call(dspMatrix_validate, object)
+	 validity = function(object) .Call(dspMatrix_validate, object)
 	 ## "dsp" and "lsp" have the same validate
 	 )
 
@@ -237,35 +228,26 @@ setClass("lspMatrix",
 ## logical, dense, general matrices
 setClass("ngeMatrix", contains = c("ndenseMatrix", "generalMatrix"),
 	 ## checks that length( @ x) == prod( @ Dim):
-	 validity = function(object) stopifnot(length(object@x) == prod(object@Dim))
-	 )
+	 validity = function(object)
+         stopifnot(length(object@x) == prod(object@Dim)))
 ## i.e. "ngeMatrix" cannot be packed, but "ndenseMatrix" can ..
 
 ## logical, dense, non-packed, triangular matrices
 setClass("ntrMatrix",
-	 contains = c("ndenseMatrix", "triangularMatrix"),
-	 prototype = prototype(uplo = "U", diag = "N"))
+	 contains = c("ndenseMatrix", "triangularMatrix"))
 
 ## logical, dense, packed, triangular matrices
 setClass("ntpMatrix",
-	 contains = c("ndenseMatrix", "triangularMatrix"),
-	 prototype = prototype(uplo = "U", diag = "N")
-	 ## validity: ndense*, triangular*  should suffice
-	 )
+	 contains = c("ndenseMatrix", "triangularMatrix"))
 
 ## logical, dense, non-packed symmetric matrices
 setClass("nsyMatrix",
-	 contains = c("ndenseMatrix", "symmetricMatrix"),
-	 prototype = prototype(uplo = "U")
-	 ## validity: ndense*, symmetric*  should suffice
-	 )
+	 contains = c("ndenseMatrix", "symmetricMatrix"))
 
 ## logical, dense, packed symmetric matrices
 setClass("nspMatrix",
 	 contains = c("ndenseMatrix", "symmetricMatrix"),
-	 prototype = prototype(uplo = "U"),
-	 validity = function(object)
-	 .Call(dspMatrix_validate, object)
+	 validity = function(object) .Call(dspMatrix_validate, object)
 	 ## "dsp" and "nsp" have the same validate
 	 )
 
@@ -306,21 +288,18 @@ setClass("dgTMatrix",
 ## numeric, sparse, triplet triangular matrices
 setClass("dtTMatrix",
 	 contains = c("TsparseMatrix", "dsparseMatrix", "triangularMatrix"),
-	 prototype = prototype(uplo = "U", diag = "N"),
 	 validity = function(object) .Call(tTMatrix_validate, object)
 	 )
 
 ## numeric, sparse, triplet symmetric matrices(also only store one triangle)
 setClass("dsTMatrix",
 	 contains = c("TsparseMatrix", "dsparseMatrix", "symmetricMatrix"),
-	 prototype = prototype(uplo = "U"),
 	 validity = function(object) .Call(tTMatrix_validate, object)
 	 )
 
 ## numeric, sparse, sorted compressed sparse column-oriented general matrices
 setClass("dgCMatrix",
 	 contains = c("CsparseMatrix", "dsparseMatrix", "generalMatrix"),
-	 prototype = prototype(p = 0:0),# to be valid
 	 validity = function(object) .Call(xCMatrix_validate, object)
 	 )
 
@@ -328,7 +307,6 @@ setClass("dgCMatrix",
 ## numeric, sparse, sorted compressed sparse column-oriented triangular matrices
 setClass("dtCMatrix",
 	 contains = c("CsparseMatrix", "dsparseMatrix", "triangularMatrix"),
-	 prototype = prototype(p = 0:0, uplo = "U", diag = "N"),# to be valid
 	 validity = function(object) .Call(tCMatrix_validate, object)
 	 )
 
@@ -336,21 +314,18 @@ setClass("dtCMatrix",
 ## numeric, sparse, sorted compressed sparse column-oriented symmetric matrices
 setClass("dsCMatrix",
 	 contains = c("CsparseMatrix", "dsparseMatrix", "symmetricMatrix"),
-	 prototype = prototype(p = 0:0, uplo = "U"),# to be valid
 	 validity = function(object) .Call(tCMatrix_validate, object)
 	 )
 
 ## numeric, sparse, sorted compressed sparse row-oriented general matrices
 setClass("dgRMatrix",
 	 contains = c("RsparseMatrix", "dsparseMatrix", "generalMatrix"),
-	 prototype = prototype(p = 0:0),
 	 ##TODO: validity = function(object) .Call(dgRMatrix_validate, object)
 	 )
 
 ## numeric, sparse, sorted compressed sparse row-oriented triangular matrices
 setClass("dtRMatrix",
 	 contains = c("RsparseMatrix", "dsparseMatrix", "triangularMatrix"),
-	 prototype = prototype(p = 0:0, uplo = "U", diag = "N"),# to be valid
 	 ##TODO: validity = function(object) .Call(dtRMatrix_validate, object)
 
 	 )
@@ -358,7 +333,6 @@ setClass("dtRMatrix",
 ## numeric, sparse, sorted compressed sparse row-oriented symmetric matrices
 setClass("dsRMatrix",
 	 contains = c("RsparseMatrix", "dsparseMatrix", "symmetricMatrix"),
-	 prototype = prototype(p = 0:0, uplo = "U"),# to be valid
 	 ##TODO: validity = function(object) .Call(dsRMatrix_validate, object)
 	 )
 
@@ -376,35 +350,30 @@ setClass("lgTMatrix",
 ## logical, sparse, triplet triangular matrices
 setClass("ltTMatrix",
 	 contains = c("TsparseMatrix", "lsparseMatrix", "triangularMatrix"),
-	 prototype = prototype(uplo = "U", diag = "N"),
 	 validity = function(object) .Call(xTMatrix_validate, object)
 	 )
 
 ## logical, sparse, triplet symmetric matrices
 setClass("lsTMatrix",
 	 contains = c("TsparseMatrix", "lsparseMatrix", "symmetricMatrix"),
-	 prototype = prototype(uplo = "U"),
 	 validity = function(object) .Call(xTMatrix_validate, object)
 	 )
 
 ## logical, sparse, sorted compressed sparse column-oriented general matrices
 setClass("lgCMatrix",
 	 contains = c("CsparseMatrix", "lsparseMatrix", "generalMatrix"),
-	 prototype = prototype(p = 0:0),# to be valid
 	 validity = function(object) .Call(xCMatrix_validate, object)
 	 )
 
 ## logical, sparse, sorted compressed sparse column-oriented triangular matrices
 setClass("ltCMatrix",
 	 contains = c("CsparseMatrix", "lsparseMatrix", "triangularMatrix"),
-	 prototype = prototype(p = 0:0, uplo = "U", diag = "N"),# to be valid
 	 validity = function(object) .Call(xCMatrix_validate, object)
 	 )
 
 ## logical, sparse, sorted compressed sparse column-oriented symmetric matrices
 setClass("lsCMatrix",
 	 contains = c("CsparseMatrix", "lsparseMatrix", "symmetricMatrix"),
-	 prototype = prototype(p = 0:0, uplo = "U"),# to be valid
 	 validity = function(object) .Call(xCMatrix_validate, object)
 	 )
 
@@ -412,22 +381,19 @@ setClass("lsCMatrix",
 setClass("lgRMatrix",
 	 representation(j = "integer", p = "integer"),
 	 contains = c("RsparseMatrix", "lsparseMatrix", "generalMatrix"),
-	 validity =
-	 function(object) .Call(lgRMatrix_validate, object)
+	 ##TODO: validity = function(object) .Call(lgRMatrix_validate, object)
 	 )
 
 ## logical, sparse, sorted compressed sparse row-oriented triangular matrices
 setClass("ltRMatrix",
 	 contains = c("RsparseMatrix", "lsparseMatrix", "triangularMatrix"),
-	 validity =
-	 function(object) .Call(ltRMatrix_validate, object)
+	 ##TODO: validity = function(object) .Call(ltRMatrix_validate, object)
 	 )
 
 ## logical, sparse, sorted compressed sparse row-oriented symmetric matrices
 setClass("lsRMatrix",
 	 contains = c("RsparseMatrix", "lsparseMatrix", "symmetricMatrix"),
-	 validity =
-	 function(object) .Call(lsRMatrix_validate, object)
+	 ##TODO: validity = function(object) .Call(lsRMatrix_validate, object)
 	 )
 
 ##---------- nonzero pattern sparse matrix classes ---------------------------
@@ -444,52 +410,46 @@ setClass("ngTMatrix",
 ## nonzero pattern, sparse, triplet triangular matrices
 setClass("ntTMatrix",
 	 contains = c("TsparseMatrix", "nsparseMatrix", "triangularMatrix"),
-	 prototype = prototype(uplo = "U", diag = "N")
          ## validity: Tsparse_ and triangular*_validate should be enough
 	 )
 
 ## nonzero pattern, sparse, triplet symmetric matrices
 setClass("nsTMatrix",
 	 contains = c("TsparseMatrix", "nsparseMatrix", "symmetricMatrix"),
-	 prototype = prototype(uplo = "U")
          ## validity: Tsparse_ and symmetric*_validate should be enough
 	 )
 
 ## nonzero pattern, sparse, sorted compressed column-oriented general matrices
 setClass("ngCMatrix",
 	 contains = c("CsparseMatrix", "nsparseMatrix", "generalMatrix"),
-	 prototype = prototype(p = 0:0)# to be valid
          ## validity: Csparse_validate should be enough
 	 )
 
 ## nonzero pattern, sparse, sorted compressed column-oriented triangular matrices
 setClass("ntCMatrix",
 	 contains = c("CsparseMatrix", "nsparseMatrix", "triangularMatrix"),
-	 prototype = prototype(p = 0:0, uplo = "U", diag = "N")# to be valid
          ## validity: Csparse_ and triangular*_validate should be enough
 	 )
 
 ## nonzero pattern, sparse, sorted compressed column-oriented symmetric matrices
 setClass("nsCMatrix",
 	 contains = c("CsparseMatrix", "nsparseMatrix", "symmetricMatrix"),
-	 prototype = prototype(p = 0:0, uplo = "U")# to be valid
          ## validity: Csparse_ and symmetric*_validate should be enough
 	 )
 
 ## nonzero pattern, sparse, sorted compressed row-oriented general matrices
 setClass("ngRMatrix",
-	 representation(j = "integer", p = "integer"),
-	 contains = c("RsparseMatrix", "nsparseMatrix", "generalMatrix")
+	 contains = c("RsparseMatrix", "nsparseMatrix", "generalMatrix"),
 	 )
 
 ## nonzero pattern, sparse, sorted compressed row-oriented triangular matrices
 setClass("ntRMatrix",
-	 contains = c("RsparseMatrix", "nsparseMatrix", "triangularMatrix")
+	 contains = c("RsparseMatrix", "nsparseMatrix", "triangularMatrix"),
 	 )
 
 ## nonzero pattern, sparse, sorted compressed row-oriented symmetric matrices
 setClass("nsRMatrix",
-	 contains = c("RsparseMatrix", "nsparseMatrix", "symmetricMatrix")
+	 contains = c("RsparseMatrix", "nsparseMatrix", "symmetricMatrix"),
 	 )
 
 ##-------------------- permutation ----------------------------------------

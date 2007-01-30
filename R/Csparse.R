@@ -8,6 +8,7 @@ setAs("CsparseMatrix", "TsparseMatrix",
           ## modified to support triangular (../src/Csparse.c)
           .Call(Csparse_to_Tsparse, from, is(from, "triangularMatrix")))
 
+
 ## special cases (when a specific "to" class is specified)
 setAs("dgCMatrix", "dgTMatrix",
       function(from) .Call(Csparse_to_Tsparse, from, FALSE))
@@ -18,17 +19,29 @@ setAs("dsCMatrix", "dsTMatrix",
 setAs("dsCMatrix", "dgCMatrix",
       function(from) .Call(Csparse_symmetric_to_general, from))
 
+for(prefix in c("d", "l", "n"))
+    setAs(paste(prefix,"sCMatrix",sep=''), "generalMatrix",
+	  function(from) .Call(Csparse_symmetric_to_general, from))
+
 setAs("dtCMatrix", "dtTMatrix",
       function(from) .Call(Csparse_to_Tsparse, from, TRUE))
 
-## Current code loses symmetry and triangularity properties.  With suitable
-## changes to chm_dense_to_SEXP (../src/chm_common.c) we can avoid this.
 setAs("CsparseMatrix", "denseMatrix",
       function(from) {
-          ## |-> cholmod_C -> cholmod_dense -> chm_dense_to_dense
-          if (is(from, "triangularMatrix") && from@diag == "U")
-              from <- .Call(Csparse_diagU2N, from)
-          .Call(Csparse_to_dense, from)
+	  ## |-> cholmod_C -> cholmod_dense -> chm_dense_to_dense
+	  cld <- getClassDef(class(from))
+	  if (extends(cld, "generalMatrix"))
+	      .Call(Csparse_to_dense, from)
+	  else {
+	      ## Csparse_to_dense  loses symmetry and triangularity properties.
+	      ## With suitable changes to chm_dense_to_SEXP (../src/chm_common.c)
+	      ## we could do this in C code -- or do differently in C {FIXME!}
+	      if (extends(cld, "triangularMatrix") && from@diag == "U")
+		  from <- .Call(Csparse_diagU2N, from)
+	      as(.Call(Csparse_to_dense, from), # -> "[dln]geMatrix"
+		 paste(.M.kind(from, cld),
+		       .dense.prefixes[.M.shape(from, cld)], "Matrix", sep=''))
+	  }
       })
 
 ## special cases (when a specific "to" class is specified)
@@ -47,95 +60,6 @@ setAs("CsparseMatrix", "matrix",
       })
 
 ### Some group methods:
-
-## TODO : Consider going a level up, and do this for all "Ops"
-
-setMethod("Arith",
-	  signature(e1 = "CsparseMatrix", e2 = "CsparseMatrix"),
-	  function(e1, e2) callGeneric(as(e1, "dgCMatrix"),
-				       as(e2, "dgCMatrix")))
-
-setMethod("Arith",
-	  signature(e1 = "CsparseMatrix", e2 = "numeric"),
-	  function(e1, e2) {
-	      if(length(e2) == 1) { ## e.g.,  Mat ^ a
-		  f0 <- callGeneric(0, e2)
-		  if(is0(f0)) { # remain sparse, symm., tri.,...
-		      e1@x <- callGeneric(e1@x, e2)
-		      return(e1)
-		  }
-	      }
-	      ## all other (potentially non-sparse) cases: give up symm, tri,..
-	      callGeneric(as(e1, paste(.M.kind(e1), "gCMatrix", sep='')), e2)
-	  })
-
-setMethod("Compare", signature(e1 = "CsparseMatrix", e2 = "CsparseMatrix"),
-	  function(e1, e2) {
-	      d <- dimCheck(e1,e2)
-
-	      ## How do the "0" or "FALSE" entries compare?
-	      ## Depends if we have an "EQuality RELation" or not:
-	      EQrel <- switch(.Generic,
-			      "==" =, "<=" =, ">=" = TRUE,
-			      "!=" =, "<"  =, ">"  = FALSE)
-	      if(EQrel) {
-		  ## The (0 op 0) or  (FALSE op FALSE) comparison gives TRUE
-		  ## -> result becomes *dense*; the following may be suboptimal
-		  return( callGeneric(as(e1, "denseMatrix"),
-				      as(e2, "denseMatrix")))
-	      }
-
-	      ## else: INequality:   0 op 0 gives FALSE ---> remain sparse!
-
-	      ## NB non-diagonalMatrix := Union{ general, symmetric, triangular}
-	      gen1 <- is(e1, "generalMatrix")
-	      gen2 <- is(e2, "generalMatrix")
-	      sym1 <- !gen1 && is(e1, "symmetricMatrix")
-	      sym2 <- !gen2 && is(e2, "symmetricMatrix")
-	      tri1 <- !gen1 && !sym1
-	      tri2 <- !gen2 && !sym2
-	      G <- gen1 && gen2
-	      S <- sym1 && sym2 && e1@uplo == e2@uplo
-	      T <- tri1 && tri2 && e1@uplo == e2@uplo
-
-	      if(T && e1@diag != e2@diag) {
-		  ## one is "U" the other "N"
-		  if(e1@diag == "U")
-		      e1 <- diagU2N(e1)
-		  else ## (e2@diag == "U"
-		      e2 <- diagU2N(e2)
-	      }
-	      else if(!G && !S && !T) { ## coerce to generalMatrix and go
-		  message("*** sparseMatrix comparison -- *unusual* case")
-		  if(!gen1) e1 <- as(e1, "generalMatrix", strict = FALSE)
-		  if(!gen2) e2 <- as(e2, "generalMatrix", strict = FALSE)
-	      }
-
-	      ## now the 'x' slots *should* match
-
-	      newC <- sub("^.", "l", class(e1))
-	      r <- new(newC)
-	      r@x <- callGeneric(e1@x, e2@x)
-	      for(sn in c("Dim", "Dimnames", "i", "p"))
-		  slot(r, sn) <- slot(e1, sn)
-	      r
-	  })
-
-## The same,  e1 <-> e2 :
-setMethod("Arith",
-	  signature(e1 = "numeric", e2 = "CsparseMatrix"),
-	  function(e1, e2) {
-	      if(length(e1) == 1) {
-		  f0 <- callGeneric(e1, 0)
-		  if(is0(f0)) {
-		      e2@x <- callGeneric(e1, e2@x)
-		      return(e2)
-		  }
-	      }
-	      callGeneric(e1, as(e2, paste(.M.kind(e2), "gCMatrix", sep='')))
-	  })
-
-
 
 setMethod("Math",
 	  signature(x = "CsparseMatrix"),
@@ -173,41 +97,53 @@ replCmat <- function (x, i, j, value)
     if(lenV > lenRepl)
 	stop("too many replacement values")
 
-    clx <- c(class(x)) # keep "symmetry" if changed here:
+    clx <- class(x)
+    clDx <- getClassDef(clx) # extends() , is() etc all use the class definition
 
-    x.sym <- is(x, "symmetricMatrix")
+    ## keep "symmetry" if changed here:
+    x.sym <- extends(clDx, "symmetricMatrix")
     if(x.sym) { ## only half the indices are there..
 	x.sym <-
-	    (dind[1] == dind[2] && i1 == i2 &&
+	    (dind[1] == dind[2] && all(i1 == i2) &&
 	     (lenRepl == 1 || isSymmetric(array(value, dim=dind))))
 	## x.sym : result is *still* symmetric
-	x <- .Call(Csparse_symmetric_to_general, x)
+	x <- .Call(Csparse_symmetric_to_general, x) ## but do *not* redefine clx!
+
     }
-    else if((x.tri <- is(x, "triangularMatrix"))) {
+    else if((x.tri <- extends(clDx, "triangularMatrix"))) {
         xU <- x@uplo == "U"
 	r.tri <- all(if(xU) i1 <= i2 else i2 <= i1)
 	if(r.tri) { ## result is *still* triangular
             if(any(i1 == i2)) # diagonal will be changed
-                x <- diagU2N(x)
+                x <- diagU2N(x) # keeps class (!)
 	}
 	else { # go to "generalMatrix" and continue
-	    x <- as(x, paste(.M.kind(x), "gCMatrix", sep=''))
+	    x <- as(x, paste(.M.kind(x), "gCMatrix", sep='')) ## & do not redefine clx!
 	}
     }
 
     xj <- .Call(Matrix_expand_pointers, x@p)
     sel <- (!is.na(match(x@i, i1)) &
 	    !is.na(match( xj, i2)))
-    has.x <- any("x" == slotNames(x)) # i.e. *not* nonzero-pattern
+    has.x <- "x" %in% slotNames(clDx)# === slotNames(x),
+    ## has.x  <==> *not* nonzero-pattern == "nMatrix"
+
     if(has.x && sum(sel) == lenRepl) { ## all entries to be replaced are non-zero:
-	value <- rep(value, length = lenRepl)
+        ## need indices instead of just 'sel', for, e.g.,  A[2:1, 2:1] <- v
+	non0 <- cbind(match(x@i[sel], i1),
+		      match(xj [sel], i2)) - 1:1
+	iN0 <- 1:1 + encodeInd(non0, nr = dind[1])
+
+        if(lenV < lenRepl)
+            value <- rep(value, length = lenRepl)
 	## Ideally we only replace them where value != 0 and drop the value==0
 	## ones; but that would have to (?) go through dgT*
 	## v0 <- 0 == value
 	## if (lenRepl == 1) and v0 is TRUE, the following is not doing anything
 	##-  --> ./dgTMatrix.R	and its	 replTmat()
 	## x@x[sel[!v0]] <- value[!v0]
-	x@x[sel] <- value
+        x@x[sel] <- value[iN0]
+
 	return(if(x.sym) as_CspClass(x, clx) else x)
     }
     ## else go via Tsparse.. {FIXME: a waste! - we already have 'xj' ..}
@@ -236,6 +172,14 @@ setReplaceMethod("[", signature(x = "CsparseMatrix", i = "missing", j = "index",
 setReplaceMethod("[", signature(x = "CsparseMatrix", i = "index", j = "index",
 				value = "replValue"),
                  replCmat)
+
+## A[ ij ] <- value,  where ij is (i,j) 2-column matrix
+setReplaceMethod("[", signature(x = "CsparseMatrix", i = "matrix", j = "missing",
+				value = "replValue"),
+		 function(x, i, value)
+		 ## goto Tsparse modify and convert back:
+		 as(.TM.repl.i.2col(as(x, "TsparseMatrix"), i, value),
+		    "CsparseMatrix"))
 
 
 setMethod("crossprod", signature(x = "CsparseMatrix", y = "missing"),

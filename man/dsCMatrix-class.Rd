@@ -13,15 +13,17 @@
 \alias{t,dsCMatrix-method}
 \alias{t,dsTMatrix-method}
 \alias{coerce,dgeMatrix,dsCMatrix-method}
+\alias{coerce,dgeMatrix,dsTMatrix-method}
 \alias{coerce,dsCMatrix,dgCMatrix-method}
 \alias{coerce,dsCMatrix,dgTMatrix-method}
 \alias{coerce,dsCMatrix,dgeMatrix-method}
+\alias{coerce,dsCMatrix,dsRMatrix-method}
 \alias{coerce,dsCMatrix,dsTMatrix-method}
 \alias{coerce,dsCMatrix,dsyMatrix-method}
 \alias{coerce,dsCMatrix,lsCMatrix-method}
-\alias{coerce,dsCMatrix,nsCMatrix-method}
+\alias{coerce,dsCMatrix,generalMatrix-method}
 \alias{coerce,dsCMatrix,matrix-method}
-\alias{coerce,dgeMatrix,dsTMatrix-method}
+\alias{coerce,dsCMatrix,nsCMatrix-method}
 \alias{coerce,dsTMatrix,dgTMatrix-method}
 \alias{coerce,dsTMatrix,dgeMatrix-method}
 \alias{coerce,dsTMatrix,dsCMatrix-method}
@@ -30,6 +32,7 @@
 \alias{coerce,dsTMatrix,matrix-method}
 \alias{coerce,dsyMatrix,dsCMatrix-method}
 \alias{coerce,dsyMatrix,dsTMatrix-method}
+\alias{coerce,dtCMatrix,dtRMatrix-method}
 \alias{coerce,matrix,dsCMatrix-method}
 \alias{coerce,matrix,dsTMatrix-method}
 \alias{coerce,graphNEL,dsCMatrix-method}
@@ -45,25 +48,26 @@
 }
 \section{Objects from the Class}{
   Objects can be created by calls of the form \code{new("dsCMatrix",
-    ...)} or \code{new("dsTMatrix", ...)}
+    ...)} or \code{new("dsTMatrix", ...)} or (for \code{dsCMatrix}) also
+  automatically from \code{\link{Matrix}(.)}.
 }
 \section{Slots}{
   \describe{
     \item{\code{uplo}:}{A character object indicating if the upper
       triangle (\code{"U"} or \code{"u"}) or the lower triangle
       (\code{"L"} or \code{"l"}) is stored.}
-    \item{\code{p}:}{Object of class \code{"integer"} of pointers, one
-      for each column, to the initial (zero-based) index of elements in
-      the column. (Only present in the \code{dsCMatrix} class.)}
-    \item{\code{i}:}{Object of class \code{"integer"} of length nnzero
-      (half number of non-zero elements).  These are the row numbers for
-      each non-zero element in the lower triangle of the matrix.}
-    \item{\code{j}:}{Object of class \code{"integer"} of length nnzero
-      (half number of non-zero elements).  These are the column numbers for
-      each non-zero element in the lower triangle of the matrix. (Only
-      present in the \code{dsTMatrix} class.)}
-    \item{\code{x}:}{Object of class \code{"numeric"} - the non-zero
-      elements of the matrix (to be duplicated for full matrix).}
+    \item{\code{i}:}{Object of class \code{"integer"} of length nnZ
+      (\emph{half} number of non-zero elements).  These are the row
+      numbers for each non-zero element in the lower triangle of the matrix.}
+    \item{\code{p}:}{(only in class \code{"dsCMatrix"}:) Object of class
+      \code{"integer"} of pointers, one for each column, to the initial
+      (zero-based) index of elements in the column.}
+    \item{\code{j}:}{(only in class \code{"dsTMatrix"}:) Object of
+      class \code{"integer"} of length nnZ (as \code{i}).  These are the
+      column numbers for each non-zero element in the lower triangle of
+      the matrix.}
+    \item{\code{x}:}{Object of class \code{"numeric"} of length nnZ --
+      the non-zero elements of the matrix (to be duplicated for full matrix).}
     \item{\code{factors}:}{Object of class \code{"list"} - a list
       of factorizations of the matrix. }
     \item{\code{Dim}:}{Object of class \code{"integer"} - the dimensions
@@ -72,7 +76,11 @@
   }
 }
 \section{Extends}{
-Class \code{"dgCMatrix"}, directly.
+  Both classes extend classes and \code{\linkS4class{symmetricMatrix}}
+  \code{\linkS4class{dsparseMatrix}} directly;
+  \code{dsCMatrix} further directly extends
+  \code{\linkS4class{CsparseMatrix}}, where
+  \code{dsTMatrix} does \code{\linkS4class{TsparseMatrix}}.
 }
 \section{Methods}{
   \describe{
@@ -85,9 +93,12 @@ Class \code{"dgCMatrix"}, directly.
       decomposition.}
     \item{chol}{\code{signature(x = "dsCMatrix", pivot = "logical")}:
       Returns (and stores) the Cholesky decomposition of the matrix
-      \code{x}. If \code{pivot} is \code{TRUE} (the default) Metis is
+      \code{x}.  If \code{pivot} is \code{TRUE} (the default) Metis is
       used to create a reordering of the rows and columns of \code{x} so
       as to minimize fill-in.}
+    \item{Cholesky}{\code{signature(A = "dsCMatrix",...)}:
+      Computes more flexibly Cholesky decompositions,
+      see \code{\link{Cholesky}}.}
     \item{determinant}{\code{signature(x = "dsCMatrix", logarithm =
 	"missing")}: Evaluate the determinant of \code{x} on the
       logarithm scale.  This creates and stores the Cholesky factorization.}
@@ -115,7 +126,7 @@ Class \code{"dgCMatrix"}, directly.
 %\note{}
 \seealso{
   Classes \code{\linkS4class{dgCMatrix}}, \code{\linkS4class{dgTMatrix}},
-  \code{\linkS4class{dgeMatrix}}
+  \code{\linkS4class{dgeMatrix}} and those mentioned above.
 }
 \examples{
 ## First a "dgCMatrix"

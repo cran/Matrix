@@ -2,6 +2,7 @@ SOURCES_C =  \
 	    CHMfactor.c \
 	    Csparse.c \
 	    HBMM.c \
+            TMatrix_as.c \
 	    Tsparse.c \
 	    init.c \
             Mutils.c \
@@ -15,7 +16,6 @@ SOURCES_C =  \
             dpoMatrix.c \
             dppMatrix.c \
             dsCMatrix.c \
-            dsTMatrix.c \
             dsyMatrix.c \
             dspMatrix.c \
             dtCMatrix.c \

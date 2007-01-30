@@ -8,17 +8,21 @@
 \alias{coerce,dMatrix,lMatrix-method}
 \alias{coerce,lMatrix,dMatrix-method}
 \alias{coerce,lMatrix,dgCMatrix-method}
+\alias{coerce,matrix,lMatrix-method}
 %\alias{coerce,dMatrix,dgeMatrix-method}
 \alias{[,dMatrix,lMatrix,missing,ANY-method}
 \alias{[,dMatrix,logical,missing,ANY-method}
 % Group methods
 \alias{Arith,dMatrix,dMatrix-method}
-\alias{Math2,dMatrix,numeric-method}% Math2 = round + signif, but
-\alias{Math2,dMatrix,missing-method}
-\alias{Summary,dMatrix-method}
+\alias{Ops,dMatrix,dMatrix-method}
 \alias{Compare,dMatrix,dMatrix-method}
 \alias{Compare,dMatrix,numeric-method}
 \alias{Compare,numeric,dMatrix-method}
+\alias{Logic,logical,lMatrix-method}
+\alias{Logic,lMatrix,logical-method}
+\alias{Summary,dMatrix-method}
+\alias{Math2,dMatrix,numeric-method}% Math2 = round + signif, but
+\alias{Math2,dMatrix,missing-method}
 % for silly reasons, need these 2+3 as well:
 \alias{round,dMatrix,numeric-method}
 \alias{signif,dMatrix,numeric-method}

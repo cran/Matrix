@@ -24,7 +24,7 @@ Diagonal(n, x = NULL)
 }
 %\author{Martin Maechler}
 \seealso{the generic function \code{\link{diag}} for \emph{extraction}
-  of the diagonal from a matrix;
+  of the diagonal from a matrix works for all \dQuote{Matrices}.
   \code{\link{Matrix}}, class \code{\linkS4class{diagonalMatrix}}.
 }
 \examples{

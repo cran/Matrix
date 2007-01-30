@@ -14,6 +14,8 @@
 \alias{coerce,Matrix,dpoMatrix-method}
 \alias{coerce,matrix,dppMatrix-method}
 \alias{coerce,Matrix,dppMatrix-method}
+\alias{coerce,corMatrix,lMatrix-method}
+%
 \alias{rcond,dpoMatrix,character-method}
 \alias{rcond,dppMatrix,character-method}
 \alias{rcond,dpoMatrix,missing-method}
@@ -40,6 +42,8 @@
   The \code{"dppMatrix"} class is the same except in packed storage.
   Only the upper triangle or the lower triangle is required to be
   available.
+  The \code{"corMatrix"} class extends \code{"dpoMatrix"} with a slot \code{sd}.
+
 }
 \section{Objects from the Class}{Objects can be created by calls of the
   form \code{new("dpoMatrix", ...)} or from \code{crossprod} applied to
@@ -56,6 +60,11 @@
     \item{\code{Dimnames}:}{inherited from class \code{"Matrix"}}
     \item{\code{factors}:}{Object of class \code{"list"}.  A named
       list of factorizations that have been computed for the matrix.}
+
+    \item{\code{sd}:}{(for \code{"corMatrix"}) a \code{\link{numeric}}
+      vector of length \code{n} containing the (original)
+      \eqn{\sqrt{var(.)}}{sqrt(var(.))} entries which allow
+	reconstruction of a covariance matrix from the correlation matrix.}
   }
 }
 \section{Extends}{
@@ -95,6 +104,7 @@ rcond(h6)
 str(h6)
 solve(h6)
 str(hp6 <- as(h6, "dppMatrix"))
+%% FIXME: add interesting  "corMatrix" example !
 }
 \keyword{classes}
 \keyword{algebra}

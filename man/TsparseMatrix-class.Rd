@@ -11,8 +11,8 @@
 \alias{crossprod,TsparseMatrix,ANY-method}
 \alias{tcrossprod,TsparseMatrix,missing-method}
 \alias{tcrossprod,TsparseMatrix,ANY-method}
-\alias{colMeans,TsparseMatrix-method}
-\alias{colSums,TsparseMatrix-method}
+% \alias{colMeans,TsparseMatrix-method}
+% \alias{colSums,TsparseMatrix-method}
 \alias{rowMeans,TsparseMatrix-method}
 \alias{rowSums,TsparseMatrix-method}
 \alias{t,TsparseMatrix-method}

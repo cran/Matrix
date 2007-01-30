@@ -10,6 +10,7 @@ extern cholmod_common c;
 cholmod_sparse *as_cholmod_sparse(SEXP x);
 cholmod_triplet *as_cholmod_triplet(SEXP x);
 cholmod_dense *as_cholmod_dense(SEXP x);
+cholmod_dense *as_cholmod_x_dense(SEXP x);
 cholmod_dense *numeric_as_chm_dense(double *v, int n);
 cholmod_factor *as_cholmod_factor(SEXP x);
 

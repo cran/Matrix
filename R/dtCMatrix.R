@@ -32,27 +32,28 @@ setAs("dtCMatrix", "dgTMatrix",
           .Call(Csparse_to_Tsparse, from, FALSE)
       })
 
-setAs("dgCMatrix", "dtCMatrix", # to triangular:
+setAs("dgCMatrix", "dtCMatrix", # to triangular, needed for triu,..
       function(from) as(as(as(from, "dgTMatrix"), "dtTMatrix"), "dtCMatrix"))
 
 setAs("dtCMatrix", "dgeMatrix",
       function(from) as(as(from, "dgTMatrix"), "dgeMatrix"))
 
 ## These are all needed because cholmod doesn't support triangular:
-## (see end of ./Csparse.R )
+## (see end of ./Csparse.R ), e.g. for triu()
 setAs("dtCMatrix", "dtTMatrix",
-      function(from) {# and this is not elegant:
-          x <- as(from, "dgTMatrix")
- 	  if (from@diag == "U") { ## drop diagonal entries '1':
- 	      i <- x@i; j <- x@j
- 	      nonD <- i != j
- 	      xx <- x@x[nonD] ; i <- i[nonD] ; j <- j[nonD]
- 	  } else {
- 	      xx <- x@x; i <- x@i; j <- x@j
- 	  }
- 	  new("dtTMatrix", x = xx, i = i, j = j, Dim = x@Dim,
- 	      Dimnames = x@Dimnames, uplo = from@uplo, diag = from@diag)
-      })
+      function(from) .Call(Csparse_to_Tsparse, from, TRUE))
+##   {# and this is not elegant:
+##           x <- as(from, "dgTMatrix")
+##  	  if (from@diag == "U") { ## drop diagonal entries '1':
+##  	      i <- x@i; j <- x@j
+##  	      nonD <- i != j
+##  	      xx <- x@x[nonD] ; i <- i[nonD] ; j <- j[nonD]
+##  	  } else {
+##  	      xx <- x@x; i <- x@i; j <- x@j
+##  	  }
+##  	  new("dtTMatrix", x = xx, i = i, j = j, Dim = x@Dim,
+##  	      Dimnames = x@Dimnames, uplo = from@uplo, diag = from@diag)
+##       })
 
 ## Now that we support triangular matrices use the inherited method.
 ## setAs("dtCMatrix", "TsparseMatrix", function(from) as(from, "dtTMatrix"))

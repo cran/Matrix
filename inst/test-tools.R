@@ -82,4 +82,4 @@ Qidentical <- function(x,y) {
 relErr <- function(target, current)
     mean(abs(target - current)) / mean(abs(target))
 
-is.R22 <- (paste(R.version$major, R.version$minor, sep=".") >= "2.2")
+## is.R22 <- (paste(R.version$major, R.version$minor, sep=".") >= "2.2")

@@ -14,5 +14,6 @@ SEXP dtrMatrix_as_dgeMatrix(SEXP from);
 SEXP dtrMatrix_as_matrix(SEXP from);
 SEXP dtrMatrix_as_dtpMatrix(SEXP from);
 SEXP dtrMatrix_getDiag(SEXP x);
+SEXP ltrMatrix_getDiag(SEXP x);
 
 #endif

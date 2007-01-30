@@ -13,12 +13,13 @@ bdiag(\dots)
 % \details{
 % }
 \value{
-  A \emph{sparse} matrix inheriting from class \code{\linkS4class{CsparseMatrix}}
+  A \emph{sparse} matrix inheriting from class
+  \code{\linkS4class{CsparseMatrix}}
   obtained by combining the arguments into a block diagonal matrix.
 }
-\author{Martin Maechler, built on a version posted by Berton Gunter to R-help; earlier
-  versions have been posted by other authors, notably Scott Chasalow to
-  S-news.
+\author{Martin Maechler, built on a version posted by Berton Gunter to
+  R-help; earlier versions have been posted by other authors, notably
+  Scott Chasalow to S-news.
 }
 \seealso{\code{\link{Diagonal}} for constructing matrices of
   class \code{\linkS4class{diagonalMatrix}}, or \code{\link{kronecker}}

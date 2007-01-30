@@ -14,81 +14,9 @@ setAs("dgeMatrix", "matrix",
 	  array(from@x, dim = from@Dim, dimnames = from@Dimnames)
       })
 
-## Group Methods, see ?Arith (e.g.)
-## ----- only work with NAMESPACE importFrom(methods, ..)
+## Group Methods, see ?Math (e.g.)
 
-setMethod("Arith", ##  "+", "-", "*", "^", "%%", "%/%", "/"
-	  signature(e1 = "dgeMatrix", e2 = "dgeMatrix"),
-	  function(e1, e2) {
-	      ## NB:  triangular, symmetric, etc may need own method
-	      d1 <- e1@Dim
-	      d2 <- e2@Dim
-	      eqD <- d1 == d2
-	      if (!eqD[1])
-		  stop("Matrices must have same number of rows for arithmetic")
-	      same.dim <- eqD[2]
-	      if (same.dim) {
-		  d <- d1
-		  dn <- dimNamesCheck(e1, e2)
-	      }
-	      else { # nrows differ ----> maybe recycling
-		  if(d2[2] %% d1[2] == 0) { # nrow(e2) is a multiple
-		      e1@x <- rep.int(e1@x, d2[2] %/% d1[2])
-		      d <- d2
-		      dn <- e2@Dimnames
-		  } else if(d1[2] %% d2[2] == 0) { # nrow(e1) is a multiple
-		      e2@x <- rep.int(e2@x, d1[2] %/% d2[2])
-		      d <- d1
-		      dn <- e1@Dimnames
-		  } else
-		      stop("number of rows are not compatible for ", .Generic)
-	      }
-
-	      ## be smart and preserve, e.g., triangular, or symmetric
-	      ## but this sucks: For these,
-	      ## 'uplo' and 'diag' also must coincide or be dealt with properly
-
-	      ## ==> triangular, symmetric, etc may need own method
-	      ##     also since their @x is `non-typical'
-
-##		 if(same.dim) {
-##		     if(extends(class(e1), class(e2))) {
-##			 e2@x <- callGeneric(e1@x, e2@x)
-##			 e2@Dimnames <- dn
-##			 e2
-##		     }
-##		     else if(extends(class(e2), class(e1))) {
-##			 e1@x <- callGeneric(e1@x, e2@x)
-##			 e1@Dimnames <- dn
-##			 e1
-##		     }
-##		 }
-##		 else
-		  new("dgeMatrix", Dim = d, Dimnames = dn,
-		      x = callGeneric(e1@x, e2@x))
-	  })
-
-setMethod("Arith",
-	  signature(e1 = "dgeMatrix", e2 = "numeric"),
-	  function(e1, e2) {
-	      d <- e1@Dim
-	      le <- length(e2)
-	      if(le == 1 || le == d[1] || prod(d) == le) { # matching dim
-		  e1@x <- callGeneric(e1@x, as.vector(e2))
-		  e1
-	      } else stop ("length of 2nd arg does not match dimension of first")
-	  })
-
-setMethod("Arith",
-	  signature(e1 = "numeric", e2 = "dgeMatrix"),
-	  function(e1, e2) {
-	      d <- e2@Dim
-	      le <- length(e1)
-	      if(le == 1 || le == d[1] || prod(d) == le) { # matching dim
-		  e2@x <- callGeneric(as.vector(e1), e2@x)
-		  e2
-	      } else stop ("length of 1st arg does not match dimension of 2nd")
-	  })
+##  "Arith" is in ./Ops.R
 
 setMethod("Math",
 	  signature(x = "dgeMatrix"),
@@ -213,8 +141,7 @@ setMethod("%*%", signature(x = "numeric", y = "dgeMatrix"),
 	  valueClass = "dgeMatrix")
 
 setMethod("diag", signature(x = "dgeMatrix"),
-	  function(x = 1, nrow, ncol = n)
-	  .Call(dgeMatrix_getDiag, x))
+	  function(x, nrow, ncol = n) .Call(dgeMatrix_getDiag, x))
 
 setMethod("chol", signature(x = "dgeMatrix", pivot = "ANY"), cholMat)
 

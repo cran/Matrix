@@ -1,3 +1,137 @@
+2007-01-30  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Tsparse.R ([): more care when subsetting triangular Tsparse
+	* tests/indexing.R: tested now
+	* tests/indexing.Rout.save: updated
+
+	* src/Csparse.c (Csparse_to_dense): use Rkind = -1 for PATTERN to
+	* src/chm_common.c (chm_dense_to_SEXP): return "ngeMatrix" when
+	appropriate.
+
+	* NAMESPACE: export a trivial
+	* R/Matrix.R: drop() Matrix-method
+
+	* R/AllClass.R: moved all prototypes to virtual super classes.
+
+	* R/Rsparse.R: many more coercions to have less exceptions in
+	* tests/Class+Meth.R:
+
+	* R/Ops.R (Compare): tweak for case with NA
+	* tests/simpl.R: hence another 'FIXME' eliminated
+
+2007-01-29  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/diagMatrix.R (solve): the obvious methods for diagonalMatrix
+	objects.
+
+	* tests/Class+Meth.R (tstMatrixClass): now testing diag(), nnzero(),
+	  and more of "!", "&", "|", all, any; coercions
+
+	* R/Rsparse.R: many coercions (which enable quite a few other
+	methods), thanks to enhancements in
+	* src/dgCMatrix.c (R_to_CMatrix): new, and
+	* src/dgCMatrix.c (compressed_to_TMatrix): now for (d,l,n) ,
+	symmetric & triangular and ..RMatrix objects.
+
+	* src/TMatrix_as.c (Matrix_T_as_DENSE,Matrix_T_as_GENERAL):
+	renamed file from src/dsTMatrix.c;
+	now dealing with symmetric and triangular Tsparse coercions, both
+	to dense and general.
+
+2007-01-27  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/dsTMatrix.c: has now "l" and "n" methods besides the "d" ones.
+
+	* R/Ops.R (Arith): <dgCMatrix> o <numeric> now remains sparse
+	where sensible when the <numeric> is of length > 1.
+
+2007-01-26  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Matrix.R ([<-): for M[] <- value: fix length
+
+2007-01-25  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Auxiliaries.R (n2l_Matrix): new, to be used in
+	* R/ndenseMatrix.R: new coercions n* -> l*
+
+2007-01-22  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/triangularMatrix.R: new file; simple triu() and tril() methods.
+
+	* R/Ops.R ("Logic"): and other "Ops", many updates
+
+2007-01-18  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/Mutils.h (SET_DimNames): new utility
+
+	* R/Auxiliaries.R (nnzero): improved and now exported via
+
+	* NAMESPACE: + nnzero(); length() == prod(dim(.)) method for all "Matrix" objects
+
+2007-01-17  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/diagMatrix.R (!): fix typo.
+
+2007-01-16  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Auxiliaries.R (as_Csparse): and quite a few others:
+		allow to pass class definition --> speedup
+	* R/sparseMatrix.R: apply the above
+
+	* R/Csparse.R: coercion Csparse* to dense* now preserves shape properties.
+
+	* src/Mutils.h (mMatrix_as_geMatrix): new, based on
+	* src/Mutils.c (dup_mMatrix_as_geMatrix): new; generalization of
+	old dup_mMatrix_as_dgeMatrix), eliminating a long-standing "FIXME".
+
+	* src/dense.c (dense_to_Csparse): use new mMatrix_as_geMatrix()
+
+	* R/denseMatrix.R (.dense2C): based on dense_to_Csparse: name it,
+	and use it for "sparse*" as well, since it's faster than the
+	as_Csparse(.) way.
+
+2007-01-15  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Ops.R ("Logic"): more methods, notably an  <lgC> o <lgC> one.
+
+2007-01-12  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Tsparse.R (.TM.repl.i.2col): new internal function to be used
+	as method for   M[ ij ] <- v
+	* R/Csparse.R:: go via Tsparse for "M[ij] <- v"
+
+	* R/Ops.R: "Compare" for (C|R)sparse: need pointer slot for all
+	FALSE answer
+
+	* R/Csparse.R (replCmat): fix the "all non-zero" case with reordering
+	* tests/indexing.R: test it, and some of the above
+
+2007-01-05  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Auxiliaries.R (is_duplicatedT): new utility
+
+2007-01-05  Douglas Bates  <bates@stat.wisc.edu>
+
+	* src/init.c (R_init_Matrix): export cholmod_scale
+
+2006-12-30  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/zzz.R (tmp): for R >= 2.5.0, extend formals of our
+	base::as.matrix to (x, ...)
+
+2006-12-28  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Ops.R ("Arith" etc): move almost all "Ops" methods to new R
+	file; start using "Logic", hence
+
+	* DESCRIPTION (Depends): R >= 2.4.1 (since we want "Logic")
+	* NAMESPACE: import and export "Logic"
+
+2006-12-27  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/zpotfr.f and dependencies: use LAPACK 3.1 version
+	only needed previously to R version 2.5.0.
+
 2006-12-26  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* DESCRIPTION (Date, Version): 0.9975-8, ready for release

@@ -4,11 +4,11 @@
 
 ## Logical -> Double {of same structure}:
 
-setAs("lgeMatrix", "dgeMatrix", l2d_Matrix)
-setAs("lsyMatrix", "dsyMatrix", l2d_Matrix)
-setAs("lspMatrix", "dspMatrix", l2d_Matrix)
-setAs("ltrMatrix", "dtrMatrix", l2d_Matrix)
-setAs("ltpMatrix", "dtpMatrix", l2d_Matrix)
+setAs("lgeMatrix", "dgeMatrix", function(from) l2d_Matrix(from, "lgeMatrix"))
+setAs("lsyMatrix", "dsyMatrix", function(from) l2d_Matrix(from, "lsyMatrix"))
+setAs("lspMatrix", "dspMatrix", function(from) l2d_Matrix(from, "lspMatrix"))
+setAs("ltrMatrix", "dtrMatrix", function(from) l2d_Matrix(from, "ltrMatrix"))
+setAs("ltpMatrix", "dtpMatrix", function(from) l2d_Matrix(from, "ltpMatrix"))
 
 ### NOTA BENE: Much of this is *very* parallel to ./ndenseMatrix.R
 ###						  ~~~~~~~~~~~~~~~~
@@ -72,7 +72,7 @@ setAs("lgeMatrix", "ltrMatrix",
       function(from) {
 	  if(isT <- isTriangular(from))
 	      new("ltrMatrix", x = from@x, Dim = from@Dim,
-		  Dimnames = from@Dimnames, uplo = attr(isT, "kind"))
+		  Dimnames = from@Dimnames, uplo = .if.NULL(attr(isT, "kind"), "U"))
 	  ## TODO: also check 'diag'
 	  else stop("not a triangular matrix")
       })
@@ -112,16 +112,7 @@ setAs("ldenseMatrix", "matrix", ## uses the above l*M. -> lgeM.
 ## dense |-> compressed :
 
 setAs("lgeMatrix", "lgTMatrix",
-      function(from) {
-	  ## Non'zeros':
-	  nF <- nonFALSE(from@x)## == nz.NA(from@x, na. = TRUE)
-	  ## cheap but not so efficient:
-	  d <- dim(from)
-	  ij <- which(array(nF, dim = d), arr.ind = TRUE) - 1:1
-	  new("lgTMatrix", i = ij[,1], j = ij[,2], x = from@x[nF],
-	      Dim = d, Dimnames = from@Dimnames,
-	      factors = from@factors)
-      })
+      function(from) as(.dense2C(from), "lgTMatrix"))
 
 setAs("lgeMatrix", "lgCMatrix",
       function(from) as(as(from, "lgTMatrix"), "lgCMatrix"))
@@ -131,6 +122,20 @@ setMethod("as.logical", signature(x = "ldenseMatrix"),
 
 ###----------------------------------------------------------------------
 
+setMethod("diag", signature(x = "ltrMatrix"),
+          function(x, nrow, ncol = n) .Call(ltrMatrix_getDiag, x))
+
+setMethod("diag", signature(x = "ltpMatrix"),
+          function(x, nrow, ncol = n) .Call(ltpMatrix_getDiag, x))
+
+
+setMethod("diag", signature(x = "ldenseMatrix"),
+	  function(x, nrow, ncol = n) callGeneric(as(x, "lgeMatrix")))
+setMethod("diag", signature(x = "ndenseMatrix"),# << the "same"
+	  function(x, nrow, ncol = n) callGeneric(as(x, "ldenseMatrix")))
+
+setMethod("diag", signature(x = "lgeMatrix"),
+	  function(x, nrow, ncol = n) .Call(lgeMatrix_getDiag, x))
 
 setMethod("t", signature(x = "lgeMatrix"), t_geMatrix)
 setMethod("t", signature(x = "ltrMatrix"), t_trMatrix)
@@ -171,31 +176,7 @@ setMethod("!", "lgeMatrix",
 setMethod("!", "ldenseMatrix",
 	  function(e1) !as(e1, "lgeMatrix"))
 
-
-setMethod("|", signature(e1="lgeMatrix", e2="lgeMatrix"),
-	  function(e1,e2) {
-	      d <- dimCheck(e1, e2)
-	      e1@x <- e1@x | e2@x
-	      e1
-	  })
-setMethod("&", signature(e1="lgeMatrix", e2="lgeMatrix"),
-	  function(e1,e2) {
-	      d <- dimCheck(e1, e2)
-	      e1@x <- e1@x & e2@x
-	      e1
-	  })
-
-setMethod("|", signature(e1="ldenseMatrix", e2="ldenseMatrix"),
-	  function(e1,e2) {
-	      d <- dimCheck(e1, e2)
-	      as(e1, "lgeMatrix") | as(e2, "lgeMatrix")
-	  })
-
-setMethod("&", signature(e1="ldenseMatrix", e2="ldenseMatrix"),
-	  function(e1,e2) {
-	      d <- dimCheck(e1, e2)
-	      as(e1, "lgeMatrix") & as(e2, "lgeMatrix")
-	  })
+## NOTE:  "&" and "|"  are now in group "Logic" c "Ops" --> ./Ops.R
 
 
 setMethod("as.vector", signature(x = "ldenseMatrix", mode = "missing"),

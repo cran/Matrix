@@ -24,6 +24,7 @@
 \alias{rbind2,numeric,sparseMatrix-method}
 %
 \alias{coerce,ANY,sparseMatrix-method}
+\alias{coerce,sparseMatrix,generalMatrix-method}
 \alias{-,sparseMatrix,missing-method}
 \alias{diag,sparseMatrix-method}
 \alias{show,sparseMatrix-method}
@@ -61,7 +62,12 @@
   \describe{
     \item{show}{\code{signature(object = "sparseMatrix")}: The
       \code{\link{show}} method for sparse matrices prints
-      \emph{\dQuote{structural}} zeroes as \code{"."} or blank.}
+      \emph{\dQuote{structural}} zeroes as \code{"."} using the
+      non-exported \code{prSpMatrix} function which allows further
+      customization such as replacing \code{"."} by \code{" "} (blank).
+
+      Note that \code{\link{options}(max.print)} will influence how many
+      entries of large matrices are printed at all.}
   }
 }
 \note{
@@ -75,5 +81,16 @@
 %\author{Martin}
 \examples{
 showClass("sparseMatrix") ## and look at the help() of its subclasses
+M <- Matrix(0, 10000, 100)
+M[1,1] <- M[2,3] <- 3.14
+M
+\dontshow{% show() was slow in 0.9975-8 because of slow adjust="fancy"
+op <- options(max.print = 25000, width = 80)
+sink(print(tempfile()))
+stopifnot((st <- system.time(show(M)))[1] < 1.0) # only 0.09 on cmath-3
+sink()
+st
+options(op)
+}
 }
 \keyword{classes}

@@ -1,7 +1,8 @@
 ### triangular packed
 library(Matrix)
+source(system.file("test-tools.R", package = "Matrix"))# identical3() etc
 
-cp6 <- chol(Hilbert(6))
+cp6 <- chol(H6 <- Hilbert(6))
 tp6 <- as(cp6,"dtpMatrix")
 round(tp6, 3)## round() is "Math2" group method
 1/tp6        ## "Arith" group : gives 'dgeMatrix'
@@ -21,10 +22,12 @@ stopifnot(validObject(tp6),
 
 all.equal(as(tp6.,"matrix"),
           as(tp6, "matrix"), tol= 1e-15)
-(tr6 <- as(tp6, "dtrMatrix")) ## prints using wrong class name
+(tr6 <- as(tp6, "dtrMatrix"))
+dH6 <- determinant(H6)
 D. <- determinant(tp6)
 rc <- rcond(tp6)
-stopifnot(all.equal(c(D.$modulus), -6.579251212),
+stopifnot(all.equal(dH6$modulus, determinant(as.matrix(H6))$modulus),
+          is.all.equal3(c(D.$modulus), c(dH6$modulus) / 2, -19.883103353),
           all.equal(rc, 1.791511257e-4),
           all.equal(norm(tp6, "I") , 2.45),
           all.equal(norm(tp6, "1") , 1),
@@ -51,7 +54,8 @@ stopifnot(all.equal(as(rl %*% diag(1000),"matrix"),
 object.size(rl) ## 4 MB
 object.size(as(rl, "dtrMatrix"))# 8 MB
 object.size(as(rl, "matrix"))# ditto
-determinant(rl)
+print(drl <- determinant(rl), digits = 12)
+stopifnot(all.equal(c(drl$modulus), -638.257312422))
 
 
 cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''

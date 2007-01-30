@@ -1,5 +1,5 @@
 \name{CHMfactor-class}
-\title{CHOLMOD-based Cholesky factorizations}
+\title{CHOLMOD-based Cholesky Factorizations}
 \docType{class}
 \alias{CHMfactor-class}% "mother" virtual
 \alias{CHMsimpl-class}% virtual
@@ -43,7 +43,7 @@
       the column. Only present in classes that contain \code{"CHMsimpl"}.}
     \item{\code{i}:}{Object of class \code{"integer"} of length nnzero
       (number of non-zero elements).  These are the row numbers for
-      each non-zero element in the matrix. Only present in classes that
+      each non-zero element in the matrix.  Only present in classes that
       contain \code{"CHMsimpl"}.}
     \item{\code{x}:}{For the \code{"d*"} classes: \code{"numeric"} - the
       non-zero elements of the matrix.}
@@ -58,7 +58,8 @@
 %\author{}
 %\note{}
 \seealso{
-  Class \code{\linkS4class{dgCMatrix}}
+  \code{\link{Cholesky}}, also for examples;
+  class \code{\linkS4class{dgCMatrix}}.
 }
 %\examples{}
 \keyword{classes}

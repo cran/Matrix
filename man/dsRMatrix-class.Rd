@@ -2,13 +2,14 @@
 \title{Symmetric Sparse Compressed Row Matrices}
 \docType{class}
 \alias{dsRMatrix-class}
+%
 \description{The \code{dsRMatrix} class is a class of symmetric, sparse
   matrices in the compressed, row-oriented format.  In this
   implementation the non-zero elements in the rows are sorted into
   increasing row order.
 }
 \section{Objects from the Class}{
-  These classes are currently still mostly unimplemented!
+  These \code{"..RMatrix"} classes are currently still mostly unimplemented!
 
   Objects can be created by calls of the form \code{new("dsRMatrix", ...)}
   or \code{new("dtRMatrix", ...)}.

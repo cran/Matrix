@@ -11,7 +11,7 @@
 #include "dpoMatrix.h"
 #include "dppMatrix.h"
 #include "dsCMatrix.h"
-#include "dsTMatrix.h"
+#include "TMatrix_as.h"
 #include "dspMatrix.h"
 #include "dsyMatrix.h"
 #include "dtCMatrix.h"
@@ -59,11 +59,12 @@ static R_CallMethodDef CallEntries[] = {
     {"Matrix_expand_pointers", (DL_FUNC) &Matrix_expand_pointers, 1},
 /*     {"Matrix_writeHarwellBoeing", (DL_FUNC) &Matrix_writeHarwellBoeing, 3}, */
     {"Matrix_writeMatrixMarket", (DL_FUNC) &Matrix_writeMatrixMarket, 3},
+    {"R_to_CMatrix", (DL_FUNC) &R_to_CMatrix, 1},
     {"SVD_validate", (DL_FUNC) &SVD_validate, 1},
     {"Tsparse_validate", (DL_FUNC) &Tsparse_validate, 1},
     {"Tsparse_to_Csparse", (DL_FUNC) &Tsparse_to_Csparse, 2},
 /*     {"csc_check_column_sorting", (DL_FUNC) &csc_check_column_sorting, 1}, */
-    {"compressed_to_dgTMatrix", (DL_FUNC) &compressed_to_dgTMatrix, 2},
+    {"compressed_to_TMatrix", (DL_FUNC) &compressed_to_TMatrix, 2},
     {"compressed_non_0_ij", (DL_FUNC) &compressed_non_0_ij, 2},
     {"dense_to_Csparse", (DL_FUNC) &dense_to_Csparse, 1},
     {"dense_nonpacked_validate", (DL_FUNC) &dense_nonpacked_validate, 1},
@@ -76,7 +77,9 @@ static R_CallMethodDef CallEntries[] = {
     {"dgCMatrix_matrix_solve", (DL_FUNC) &dgCMatrix_matrix_solve, 2},
     {"dgCMatrix_qrsol", (DL_FUNC) &dgCMatrix_qrsol, 2},
     {"dgTMatrix_to_dgeMatrix", (DL_FUNC) &dgTMatrix_to_dgeMatrix, 1},
+    {"lgTMatrix_to_lgeMatrix", (DL_FUNC) &lgTMatrix_to_lgeMatrix, 1},
     {"dgTMatrix_to_matrix", (DL_FUNC) &dgTMatrix_to_matrix, 1},
+    {"lgTMatrix_to_matrix", (DL_FUNC) &lgTMatrix_to_matrix, 1},
     {"dgeMatrix_LU", (DL_FUNC) &dgeMatrix_LU, 1},
     {"dgeMatrix_Schur", (DL_FUNC) &dgeMatrix_Schur, 2},
     {"dgeMatrix_colsums", (DL_FUNC) &dgeMatrix_colsums, 4},
@@ -88,6 +91,7 @@ static R_CallMethodDef CallEntries[] = {
     {"dgeMatrix_dtpMatrix_mm", (DL_FUNC) &dgeMatrix_dtpMatrix_mm, 2},
     {"dgeMatrix_exp", (DL_FUNC) &dgeMatrix_exp, 1},
     {"dgeMatrix_getDiag", (DL_FUNC) &dgeMatrix_getDiag, 1},
+    {"lgeMatrix_getDiag", (DL_FUNC) &lgeMatrix_getDiag, 1},
     {"dgeMatrix_matrix_crossprod", (DL_FUNC) &dgeMatrix_matrix_crossprod, 3},
     {"dgeMatrix_norm", (DL_FUNC) &dgeMatrix_norm, 2},
     {"dgeMatrix_rcond", (DL_FUNC) &dgeMatrix_rcond, 2},
@@ -110,7 +114,11 @@ static R_CallMethodDef CallEntries[] = {
     {"dsCMatrix_matrix_solve", (DL_FUNC) &dsCMatrix_matrix_solve, 2},
     {"dsCMatrix_to_dgTMatrix", (DL_FUNC) &dsCMatrix_to_dgTMatrix, 1},
     {"dsTMatrix_as_dgTMatrix", (DL_FUNC) &dsTMatrix_as_dgTMatrix, 1},
+    {"lsTMatrix_as_lgTMatrix", (DL_FUNC) &lsTMatrix_as_lgTMatrix, 1},
+    {"nsTMatrix_as_ngTMatrix", (DL_FUNC) &nsTMatrix_as_ngTMatrix, 1},
     {"dsTMatrix_as_dsyMatrix", (DL_FUNC) &dsTMatrix_as_dsyMatrix, 1},
+    {"lsTMatrix_as_lsyMatrix", (DL_FUNC) &lsTMatrix_as_lsyMatrix, 1},
+    {"nsTMatrix_as_nsyMatrix", (DL_FUNC) &nsTMatrix_as_nsyMatrix, 1},
     {"dsyMatrix_as_dspMatrix", (DL_FUNC) &dsyMatrix_as_dspMatrix, 1},
     {"dsyMatrix_as_matrix", (DL_FUNC) &dsyMatrix_as_matrix, 1},
     {"dsyMatrix_matrix_mm", (DL_FUNC) &dsyMatrix_matrix_mm, 3},
@@ -131,9 +139,12 @@ static R_CallMethodDef CallEntries[] = {
     {"dtCMatrix_matrix_solve", (DL_FUNC) &dtCMatrix_matrix_solve, 3},
     {"dtCMatrix_upper_solve", (DL_FUNC) &dtCMatrix_upper_solve, 1},
     {"dtTMatrix_as_dtrMatrix", (DL_FUNC) &dtTMatrix_as_dtrMatrix, 1},
+    {"ltTMatrix_as_ltrMatrix", (DL_FUNC) &ltTMatrix_as_ltrMatrix, 1},
+    {"ntTMatrix_as_ntrMatrix", (DL_FUNC) &ntTMatrix_as_ntrMatrix, 1},
     {"dtTMatrix_as_dgCMatrix", (DL_FUNC) &dtTMatrix_as_dgCMatrix, 1},
     {"dtpMatrix_as_dtrMatrix", (DL_FUNC) &dtpMatrix_as_dtrMatrix, 1},
     {"dtpMatrix_getDiag", (DL_FUNC) &dtpMatrix_getDiag, 1},
+    {"ltpMatrix_getDiag", (DL_FUNC) &ltpMatrix_getDiag, 1},
     {"dtpMatrix_matrix_mm", (DL_FUNC) &dtpMatrix_matrix_mm, 2},
     {"dtpMatrix_matrix_solve", (DL_FUNC) &dtpMatrix_matrix_solve, 2},
     {"dtpMatrix_norm", (DL_FUNC) &dtpMatrix_norm, 2},
@@ -144,12 +155,14 @@ static R_CallMethodDef CallEntries[] = {
     {"dtrMatrix_as_matrix", (DL_FUNC) &dtrMatrix_as_matrix, 1},
     {"dtrMatrix_matrix_mm", (DL_FUNC) &dtrMatrix_matrix_mm, 3},
     {"dtrMatrix_getDiag", (DL_FUNC) &dtrMatrix_getDiag, 1},
+    {"ltrMatrix_getDiag", (DL_FUNC) &ltrMatrix_getDiag, 1},
     {"dtrMatrix_matrix_solve", (DL_FUNC) &dtrMatrix_matrix_solve, 2},
     {"dtrMatrix_norm", (DL_FUNC) &dtrMatrix_norm, 2},
     {"dtrMatrix_rcond", (DL_FUNC) &dtrMatrix_rcond, 2},
     {"dtrMatrix_solve", (DL_FUNC) &dtrMatrix_solve, 1},
     {"dtrMatrix_validate", (DL_FUNC) &dtrMatrix_validate, 1},
     {"dup_mMatrix_as_dgeMatrix", (DL_FUNC) &dup_mMatrix_as_dgeMatrix, 1},
+    {"dup_mMatrix_as_geMatrix",  (DL_FUNC) &dup_mMatrix_as_geMatrix, 1},
 
     /* for dgC* _and_ lgC* : */
     {"xCMatrix_validate", (DL_FUNC) &xCMatrix_validate, 1},
@@ -217,6 +230,7 @@ R_init_Matrix(DllInfo *dll)
     R_RegisterCCallable("Matrix", "cholmod_free_sparse", (DL_FUNC)cholmod_free_sparse);
     R_RegisterCCallable("Matrix", "cholmod_free_triplet", (DL_FUNC)cholmod_free_triplet);
     R_RegisterCCallable("Matrix", "cholmod_nnz", (DL_FUNC)cholmod_nnz);
+    R_RegisterCCallable("Matrix", "cholmod_scale", (DL_FUNC)cholmod_scale);
     R_RegisterCCallable("Matrix", "cholmod_sdmult", (DL_FUNC)cholmod_sdmult);
     R_RegisterCCallable("Matrix", "cholmod_solve", (DL_FUNC)cholmod_solve);
     R_RegisterCCallable("Matrix", "cholmod_sort", (DL_FUNC)cholmod_sort);

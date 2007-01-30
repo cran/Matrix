@@ -6,7 +6,7 @@ importFrom("utils", head, tail)
 importFrom("grid", grid.rect, gpar, grob)
 
 ## Currently, group generics need to be explicitly imported (Bug?):
-importFrom("methods", Arith, Compare, Math, Math2, Summary, Complex)
+importFrom("methods", Arith, Compare, Logic, Math, Math2, Summary, Complex)
 
 ## Generics and functions defined in this package
 export("Cholesky",
@@ -23,6 +23,7 @@ export("Cholesky",
 #	 "isDiagonal",
        "lu",
        "norm",
+       "nnzero",
        "rcond",
        "readHB",
        "readMM",
@@ -93,18 +94,18 @@ exportClasses(
 	      "ndenseMatrix",
 
 	      "dgCMatrix",
-	      "dgRMatrix",# unused
+	      "dgRMatrix",
 	      "dgTMatrix",
 	      "dgeMatrix",
 	      "dpoMatrix",
 	      "dppMatrix",
 	      "dsCMatrix",
-	      "dsRMatrix",# unused
+	      "dsRMatrix",
 	      "dsTMatrix",
 	      "dspMatrix",
 	      "dsyMatrix",
 	      "dtCMatrix",
-	      "dtRMatrix",# unused
+	      "dtRMatrix",
 	      "dtTMatrix",
 	      "dtpMatrix",
 	      "dtrMatrix",
@@ -125,20 +126,20 @@ exportClasses(
 	      "lgRMatrix",
 	      "lgTMatrix",
 	      "lsCMatrix",
-	      "lsRMatrix",# unused
+	      "lsRMatrix",
 	      "lsTMatrix",
 	      "ltCMatrix",
-	      "ltRMatrix",# unused
+	      "ltRMatrix",
 	      "ltTMatrix",
 
 	      "ngCMatrix",
 	      "ngRMatrix",
 	      "ngTMatrix",
 	      "nsCMatrix",
-	      "nsRMatrix",# unused
+	      "nsRMatrix",
 	      "nsTMatrix",
 	      "ntCMatrix",
-	      "ntRMatrix",# unused
+	      "ntRMatrix",
 	      "ntTMatrix",
 
 	      "pMatrix",
@@ -175,6 +176,7 @@ exportMethods(
 	      ## Group Methods
 	      "Arith",
 	      "Compare",
+	      "Logic",
 	      "Math",
 	      "Math2",
 	      "Ops",
@@ -205,6 +207,7 @@ exportMethods(
 	      "dim",
 	      "dimnames",
 	      "dimnames<-",
+              "drop",
 	      "expand",
 	      "expm",
 	      "head",
@@ -213,6 +216,7 @@ exportMethods(
 ##	       "isDiagonal",
 ##	       "isTriangular",
 	      "kronecker",
+	      "length",
 	      "norm",
 	      "qr",
 	      "qr.qy",

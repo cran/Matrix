@@ -15,6 +15,7 @@
 %
 \alias{[,denseMatrix,index,missing,logical-method}
 \alias{[,denseMatrix,index,index,logical-method}
+\alias{[,denseMatrix,matrix,missing,ANY-method}
 \alias{[,denseMatrix,missing,index,logical-method}
 %
 % \alias{[,TsparseTMatrix,missing,missing,ANY-method}

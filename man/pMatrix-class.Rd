@@ -11,6 +11,9 @@
 \alias{coerce,numeric,pMatrix-method}
 \alias{coerce,pMatrix,matrix-method}
 \alias{coerce,pMatrix,ngTMatrix-method}
+\alias{coerce,pMatrix,lMatrix-method}
+\alias{coerce,pMatrix,nMatrix-method}
+\alias{coerce,pMatrix,CsparseMatrix-method}
 \alias{coerce,pMatrix,TsparseMatrix-method}
 \alias{solve,pMatrix,missing-method}
 \alias{t,pMatrix-method}

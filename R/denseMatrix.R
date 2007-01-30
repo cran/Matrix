@@ -4,31 +4,55 @@
 
 setAs("ANY", "denseMatrix", function(from) Matrix(from, sparse=FALSE))
 
+setAs(from = "denseMatrix", to = "generalMatrix", as_geSimpl)
 
 ## dense to sparse:
-setAs("denseMatrix", "dsparseMatrix",
-## MM thought that  as() will take the ``closest'' match; but that fails!
-##      function(from) as(as(from, "dgeMatrix"), "dsparseMatrix"))
-      function(from) as(as(from, "dgeMatrix"), "dgCMatrix"))
+## : if we do this, do it "right", i.e. preserve symmetric/triangular!
+## setAs("denseMatrix", "dsparseMatrix",
+## ## MM thought that  as() will take the ``closest'' match; but that fails!
+## ##      function(from) as(as(from, "dgeMatrix"), "dsparseMatrix"))
+##       function(from) as(as(from, "dgeMatrix"), "dgCMatrix"))
 
-setAs("denseMatrix", "CsparseMatrix",
-      function(from) {
-          cl <- class(from)
-	  notGen <- !is(from, "generalMatrix")
-	  if (notGen) { ## e.g. for triangular | symmetric
-              ## FIXME: this is a *waste* in the case of packed matrices!
-	      if     (extends(cl, "dMatrix")) from <- as(from, "dgeMatrix")
-	      else if(extends(cl, "nMatrix")) from <- as(from, "ngeMatrix")
-	      else if(extends(cl, "lMatrix")) from <- as(from, "lgeMatrix")
-	      else if(extends(cl, "zMatrix")) from <- as(from, "zgeMatrix")
-	      else stop("undefined method for class ", cl)
-	  }
-          ## FIXME: contrary to its name, this only works for "dge*" :
-	  .Call(dense_to_Csparse, from)
-      })
+.dense2C <- function(from) {
+    cl <- class(from)
+    cld <- getClassDef(cl)## get it once (speedup)
+    r <- .Call(dense_to_Csparse, from)
+    if (extends(cld, "generalMatrix"))
+        r
+    else { ## i.e. triangular | symmetric
+        ## FIXME: this is a waste for these matrices, particularly if packed
+
+        if(extends(cld, "diagonalMatrix"))
+            stop("diagonalMatrix in .dense2C() -- should not happen")
+
+        sym <- extends(cld, "symmetricMatrix")
+        ## Note: if(!sym), we have "triangular"
+
+	if     (extends(cld, "dMatrix")) as(r, if(sym) "dsCMatrix" else "dtCMatrix")
+	else if(extends(cld, "nMatrix")) as(r, if(sym) "nsCMatrix" else "ntCMatrix")
+	else if(extends(cld, "lMatrix")) as(r, if(sym) "lsCMatrix" else "ltCMatrix")
+	else if(extends(cld, "zMatrix")) as(r, if(sym) "zsCMatrix" else "ztCMatrix")
+
+	else stop("undefined method for class ", cl)
+    }
+}
+
+setAs("denseMatrix", "CsparseMatrix", .dense2C)
+
+## This sometimes fails (eg. for "lsyMatrix"), and we really want to
+## use the generic ``go via Csparse'' (top of ./sparseMatrix.R) instead
+## setAs("denseMatrix",  "sparseMatrix",
+##       function(from) {
+## 	  cl <- class(from)
+## 	  cld <- getClassDef(cl)
+## 	  if (extends(cld, "generalMatrix"))
+## 	      .Call(dense_to_Csparse, from)
+## 	  else ## i.e. triangular | symmetric
+## 	      as_Csparse(from, cld)
+##       })
 
 setAs("denseMatrix", "TsparseMatrix",
-      function(from) as(as(from, "CsparseMatrix"), "TsparseMatrix"))
+      function(from) as(.dense2C(from), "TsparseMatrix"))
 
 
 setMethod("show", signature(object = "denseMatrix"),
@@ -75,6 +99,12 @@ setMethod("[", signature(x = "denseMatrix", i = "index", j = "index",
 	      }
 	  })
 
+setMethod("[", signature(x = "denseMatrix", i = "matrix", j = "missing"),#drop="ANY"
+	  function(x, i, j, drop) {
+	      r <- as(x, "matrix")[ i ]
+	      if(is.null(dim(r))) r else as(r, geClass(x))
+	  })
+
 ## Now the "[<-" ones --- see also those in ./Matrix.R
 ## It's recommended to use setReplaceMethod() rather than setMethod("[<-",.)
 ## even though the former is currently just a wrapper for the latter
@@ -103,6 +133,14 @@ setReplaceMethod("[", signature(x = "denseMatrix", i = "index", j = "index",
 		     r <- as(x, "matrix")
 		     r[i, j] <- value
 		     as_geClass(r, class(x)) ## was as(r, class(x))
+		 })
+
+setReplaceMethod("[", signature(x = "denseMatrix", i = "matrix", j = "missing",
+				value = "replValue"),
+		 function(x, i, value) {
+		     r <- as(x, "matrix")
+		     r[ i ] <- value
+		     as(r, geClass(x))
 		 })
 
 
@@ -135,11 +173,11 @@ setMethod("isTriangular", signature(object = "denseMatrix"), isTriMat)
 
 setMethod("isDiagonal", signature(object = "denseMatrix"), .is.diagonal)
 
-.as.dge.Fun <- function(x, na.rm = FALSE, dims = 1) {
-    x <- as(x, "dgeMatrix")
+.as.d.Fun <- function(x, na.rm = FALSE, dims = 1) {
+    x <- as(x, "dMatrix")
     callGeneric()
 }
-setMethod("colSums",  signature(x = "denseMatrix"), .as.dge.Fun)
-setMethod("colMeans", signature(x = "denseMatrix"), .as.dge.Fun)
-setMethod("rowSums",  signature(x = "denseMatrix"), .as.dge.Fun)
-setMethod("rowMeans", signature(x = "denseMatrix"), .as.dge.Fun)
+setMethod("colSums",  signature(x = "denseMatrix"), .as.d.Fun)
+setMethod("colMeans", signature(x = "denseMatrix"), .as.d.Fun)
+setMethod("rowSums",  signature(x = "denseMatrix"), .as.d.Fun)
+setMethod("rowMeans", signature(x = "denseMatrix"), .as.d.Fun)

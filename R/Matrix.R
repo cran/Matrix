@@ -27,6 +27,9 @@ setMethod("as.array",  signature(x = "Matrix"), function(x) as(x, "matrix"))
 setMethod("head", signature(x = "Matrix"), utils::head.matrix)
 setMethod("tail", signature(x = "Matrix"), utils::tail.matrix)
 
+setMethod("drop", signature(x = "Matrix"),
+	  function(x) if(all(dim(x) != 1)) x else drop(as(x, "matrix")))
+
 ## slow "fall back" method {subclasses should have faster ones}:
 setMethod("as.vector", signature(x = "Matrix", mode = "missing"),
 	  function(x) as.vector(as(x, "matrix")))
@@ -57,6 +60,8 @@ setMethod("isDiagonal", signature(object = "matrix"), .is.diagonal)
 setMethod("dim", signature(x = "Matrix"),
 	  function(x) x@Dim, valueClass = "integer")
 
+setMethod("length", "Matrix", function(x) prod(dim(x)))
+
 setMethod("dimnames", signature(x = "Matrix"), function(x) x@Dimnames)
 
 
@@ -79,9 +84,11 @@ setMethod("unname", signature("Matrix", force="missing"),
 	  function(obj) { obj@Dimnames <- list(NULL,NULL); obj})
 
 setMethod("all", signature(x = "Matrix"),
-          function(x, ..., na.rm) { x <- as(x, "lMatrix"); callNextMethod()})
+          function(x, ..., na.rm) { x <- as(x, "lMatrix"); callGeneric()})
 setMethod("any", signature(x = "Matrix"),
-          function(x, ..., na.rm) { x <- as(x, "lMatrix"); callNextMethod()})
+          function(x, ..., na.rm) { x <- as(x, "lMatrix"); callGeneric()})
+
+setMethod("!", "Matrix", function(e1) !as(e1, "lMatrix"))
 
 
 
@@ -98,6 +105,8 @@ Matrix <-
 
     doDN <- TRUE
     if (i.M) {
+        if(!missing(nrow) || !missing(ncol)|| !missing(byrow))
+            warning("'nrow', 'ncol', etc, are disregarded when 'data' is \"Matrix\" already")
 	sM <- is(data,"sparseMatrix")
 	if(!forceCheck && ((sparse && sM) || (!sparse && !sM)))
 	    return(data)
@@ -125,7 +134,9 @@ Matrix <-
 	    dimnames(data) <- dimnames
 	}
         doDN <- FALSE
-    }
+    } else if(!missing(nrow) || !missing(ncol)|| !missing(byrow))
+	warning("'nrow', 'ncol', etc, are disregarded for matrix 'data'")
+
     ## 'data' is now a "matrix" or "Matrix"
     if (doDN && !is.null(dimnames))
 	dimnames(data) <- dimnames
@@ -204,6 +215,8 @@ setMethod("solve", signature(a = "Matrix", b = "numeric"),
 ## when no sub-class method is found, bail out
 setMethod("solve", signature(a = "Matrix", b = "matrix"),
 	  function(a, b, ...) .bail.out.2("solve", class(a), "matrix"))
+setMethod("solve", signature(a = "Matrix", b = "Matrix"),
+	  function(a, b, ...) .bail.out.2("solve", class(a), class(b)))
 
 ## bail-out methods in order to get better error messages
 setMethod("%*%", signature(x = "Matrix", y = "Matrix"),
@@ -249,33 +262,8 @@ setMethod("t", signature(x = "Matrix"),
 	  function(x) .bail.out.1(.Generic, class(x)))
 
 ## Group Methods
-setMethod("+", signature(e1 = "Matrix", e2 = "missing"), function(e1) e1)
-## "fallback":
-setMethod("-", signature(e1 = "Matrix", e2 = "missing"),
-          function(e1) {
-              warning("inefficient method used for \"- e1\"")
-              0-e1
-          })
 
-## old-style matrices are made into new ones
-setMethod("Ops", signature(e1 = "Matrix", e2 = "matrix"),
-	  function(e1, e2) callGeneric(e1, Matrix(e2)))
-##	    callGeneric(e1, Matrix(e2, sparse=is(e1,"sparseMatrix"))))
-setMethod("Ops", signature(e1 = "matrix", e2 = "Matrix"),
-	  function(e1, e2) callGeneric(Matrix(e1), e2))
-
-## bail-outs -- on highest possible level, hence "Ops", not "Compare"/"Arith" :
-setMethod("Ops", signature(e1 = "Matrix", e2 = "Matrix"),
-          function(e1, e2) {
-              d <- dimCheck(e1,e2)
-              .bail.out.2(.Generic, class(e1), class(e2))
-          })
-setMethod("Ops", signature(e1 = "Matrix", e2 = "ANY"),
-          function(e1, e2) .bail.out.2(.Generic, class(e1), class(e2)))
-setMethod("Ops", signature(e1 = "ANY", e2 = "Matrix"),
-          function(e1, e2) .bail.out.2(.Generic, class(e1), class(e2)))
-
-
+##-> see ./Ops.R
 
 ### --------------------------------------------------------------------------
 ###
@@ -323,7 +311,7 @@ setMethod("[", signature(x = "Matrix", i = "ANY", j = "ANY", drop = "ANY"),
 	stop("not-yet-implemented 'Matrix' subsetting") ## FIXME
 
     } else stop("nargs() = ", nA,
-		" should never happen; please report.")
+		".  Extraneous illegal arguments inside '[ .. ]' ?")
 }
 setMethod("[", signature(x = "Matrix", i = "lMatrix", j = "missing",
 			 drop = "ANY"),
@@ -353,7 +341,8 @@ setMethod("[", signature(x = "Matrix", i = "logical", j = "missing",
 	## potentially inefficient -- FIXME --
 	unlist(lapply(seq_len(m), function(j) x[i1[j], i2[j]]))
 
-    } else stop("nargs() = ", nA, " should never happen; please report.")
+    } else stop("nargs() = ", nA,
+		".  Extraneous illegal arguments inside '[ .. ]' ?")
 }
 setMethod("[", signature(x = "Matrix", i = "matrix", j = "missing"),# drop="ANY"
 	  .M.sub.i.2col)
@@ -366,12 +355,13 @@ setReplaceMethod("[", signature(x = "Matrix", i = "missing", j = "missing",
                                 value = "ANY"),## double/logical/...
 	  function (x, value) {
 	      ## Fails for 'nMatrix' ... FIXME : make sure have method there
-	      x@x <- value
+	      x@x <- rep(value, length = length(x@x))
 	      validObject(x)# check if type and lengths above match
 	      x
           })
 
 ## A[ ij ] <- value,  where ij is (i,j) 2-column matrix :
+## ----------------   The cheap general method --- FIXME: provide special ones
 .M.repl.i.2col <- function (x, i, j, value)
 {
     nA <- nargs()
@@ -379,13 +369,23 @@ setReplaceMethod("[", signature(x = "Matrix", i = "missing", j = "missing",
 	if(!is.integer(nc <- ncol(i)))
 	    stop("'i' has no integer column number",
 		 " should never happen; please report")
+	else if(!is.numeric(i) || nc != 2)
+	    stop("such indexing must be by logical or 2-column numeric matrix")
 	if(is.logical(i)) {
+	    message(".M.repl.i.2col(): drop 'matrix' case ...")
 	    i <- c(i) # drop "matrix"
 	    return( callNextMethod() )
-	} else if(!is.numeric(i) || nc != 2)
-	    stop("such indexing must be by logical or 2-column numeric matrix")
+        }
+	if(!is.integer(i)) storage.mode(i) <- "integer"
+	if(any(i < 0))
+	    stop("negative values are not allowed in a matrix subscript")
+	if(any(is.na(i)))
+	    stop("NAs are not allowed in subscripted assignments")
+	if(any(i0 <- (i == 0))) # remove them
+            i <- i[ - which(i0, arr.ind = TRUE)[,"row"], ]
+        ## now have integer i >= 1
 	m <- nrow(i)
-	mod.x <- .type.kind[.M.kind(x)]
+	## mod.x <- .type.kind[.M.kind(x)]
 	if(length(value) > 0 && m %% length(value) != 0)
 	    warning("number of items to replace is not a multiple of replacement length")
 	## recycle:
@@ -395,10 +395,12 @@ setReplaceMethod("[", signature(x = "Matrix", i = "missing", j = "missing",
 	## inefficient -- FIXME -- (also loses "symmetry" unnecessarily)
 	for(k in seq_len(m))
 	    x[i1[k], i2[k]] <- value[k]
-	x
 
-    } else stop("nargs() = ", nA, " should never happen; please report.")
+	x
+    } else stop("nargs() = ", nA,
+		".  Extraneous illegal arguments inside '[ .. ]' ?")
 }
+
 setReplaceMethod("[", signature(x = "Matrix", i = "matrix", j = "missing",
 				value = "replValue"),
 	  .M.repl.i.2col)
@@ -407,13 +409,13 @@ setReplaceMethod("[", signature(x = "Matrix", i = "matrix", j = "missing",
 setReplaceMethod("[", signature(x = "Matrix", i = "ANY", j = "ANY",
 				value = "Matrix"),
 		 function (x, i, j, value) {
-### FIXME: *TEMPORARY* diagnostic output:
-                     cat("<Matrix1>[i,j] <- <Matrix1>:\n<Matrix1> = x :")
-                     str(x)
-                     cat("<Matrix2> = value :")
-                     str(value)
-                     cat("i :"); if(!missing(i)) str(i) else cat("<missing>\n")
-                     cat("j :"); if(!missing(j)) str(j) else cat("<missing>\n")
+### *TEMPORARY* diagnostic output:
+##                  cat("<Matrix1>[i,j] <- <Matrix1>:\n<Matrix1> = x :")
+##                  str(x)
+##                  cat("<Matrix2> = value :")
+##                  str(value)
+##                  cat("i :"); if(!missing(i)) str(i) else cat("<missing>\n")
+##                  cat("j :"); if(!missing(j)) str(j) else cat("<missing>\n")
 
                      callGeneric(x=x, i=i, j=j, value = as.vector(value))
                  })

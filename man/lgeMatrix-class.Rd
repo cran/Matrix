@@ -4,8 +4,7 @@
 \alias{lgeMatrix-class}
 %
 \alias{!,lgeMatrix-method}
-\alias{|,lgeMatrix,lgeMatrix-method}
-\alias{&,lgeMatrix,lgeMatrix-method}
+\alias{Ops,lgeMatrix,lgeMatrix-method}
 \alias{as.vector,lgeMatrix,missing-method}
 \alias{coerce,matrix,lgeMatrix-method}
 \alias{coerce,lgeMatrix,dgeMatrix-method}
@@ -16,6 +15,7 @@
 \alias{coerce,lgeMatrix,ltrMatrix-method}
 \alias{coerce,lgeMatrix,ltpMatrix-method}
 \alias{coerce,lgeMatrix,lspMatrix-method}
+\alias{diag,lgeMatrix-method}
 \alias{t,lgeMatrix-method}
 %
 \description{This is the class of general dense \code{\link{logical}}

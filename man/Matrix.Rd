@@ -10,8 +10,8 @@ Matrix(data=NA, nrow=1, ncol=1, byrow=FALSE, dimnames=NULL,
 }
 \arguments{
   \item{data}{an optional numeric data vector or matrix.}
-  \item{nrow}{the desired number of rows}
-  \item{ncol}{the desired number of columns}
+  \item{nrow}{when \code{data} is not a matrix, the desired number of rows}
+  \item{ncol}{when \code{data} is not a matrix, the desired number of columns}
   \item{byrow}{logical.  If \code{FALSE} (the default) the matrix is
     filled by columns, otherwise the matrix is filled by rows.}
   \item{dimnames}{a \code{\link{dimnames}} attribute for the matrix: a
@@ -25,8 +25,10 @@ Matrix(data=NA, nrow=1, ncol=1, byrow=FALSE, dimnames=NULL,
     object.}
 }
 \value{
-  Returns an \code{nrow} by \code{ncol} matrix of a class that
-  inherits from \code{"Matrix"}.
+  Returns matrix of a class that inherits from \code{"Matrix"}.
+  Only if \code{data} is not a \code{\link{matrix}} and does not already inherit
+  from class \code{\linkS4class{Matrix}} are the arguments
+  \code{nrow}, \code{ncol} and \code{byrow} made use of.
 }
 \details{
   If either of \code{nrow} or \code{ncol} is not given, an attempt is
@@ -68,7 +70,7 @@ Matrix(diag(4) >  0, sparse=TRUE)# -> sparse...
 Matrix(diag(4) >= 0)# -> "lsyMatrix" (of all 'TRUE')
 ## triangular
 l3 <- upper.tri(matrix(,3,3))
-Matrix(l3)  # -> "ltCMatrix"
+(M <- Matrix(l3))  # -> "ltCMatrix"
 Matrix(! l3)# -> "ltrMatrix"
 as(l3, "CsparseMatrix")
 

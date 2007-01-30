@@ -1,4 +1,5 @@
 #include "dense.h"
+#include "Mutils.h"
 #include "chm_common.h"
 
 /**
@@ -245,16 +246,28 @@ SEXP lapack_qr(SEXP Xin, SEXP tl)
     return ans;
 }
 
-/* FIXME: 'dense_' really still means 'ddense_' .. : */
 SEXP dense_to_Csparse(SEXP x)
 {
-    cholmod_dense *chxd = as_cholmod_dense(PROTECT(mMatrix_as_dgeMatrix(x)));
+    cholmod_dense *chxd = as_cholmod_x_dense(PROTECT(mMatrix_as_geMatrix(x)));
+
+    /* cholmod_dense_to_sparse() in CHOLMOD/Core/ below does only work for
+       "REAL" 'xtypes', i.e. *not* for "nMatrix".
+       ===> need "_x" in above call.
+
+       Also it cannot keep symmetric / triangular, hence the
+       as_geMatrix() above.  Note that this is already a *waste* for
+       symmetric matrices; However, we could conceivably use an
+       enhanced cholmod_dense_to_sparse(), with an extra boolean
+       argument for symmetry.
+    */
     cholmod_sparse *chxs = cholmod_dense_to_sparse(chxd, 1, &c);
-    int Rkind = 0; /* FIXME : Real_kind(x) does not work:
-		    * (chxd->xtype == CHOLMOD_REAL) ? Real_kind(x) : 0; */
+    int Rkind = (chxd->xtype == CHOLMOD_REAL) ? Real_KIND(x) : 0;
 
     Free(chxd); UNPROTECT(1);
-    return chm_sparse_to_SEXP(chxs, 1, 0, Rkind, "",
+    /* chm_sparse_to_SEXP() *could* deal with symmetric
+     * if chxs had such an stype; and we should be able to use uplo below */
+    return chm_sparse_to_SEXP(chxs, 1, 0/*TODO: uplo_P(x) if x has an uplo slot*/,
+			      Rkind, "",
 			      isMatrix(x) ? getAttrib(x, R_DimNamesSymbol)
 			      : GET_SLOT(x, Matrix_DimNamesSym));
 }

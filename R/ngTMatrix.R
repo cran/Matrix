@@ -4,8 +4,13 @@
 ###             ============= ---> superclass methods in ./nsparseMatrix.R
 
 
-setAs("ngTMatrix", "matrix", # go via fast C code:
-      function(from) as(as(from, "ngCMatrix"), "matrix"))
+setAs("ngTMatrix", "ngeMatrix",
+      function(from) .Call(lgTMatrix_to_lgeMatrix, as(from,"lgTMatrix")))
+
+setAs("ngTMatrix", "matrix",
+      function(from) .Call(lgTMatrix_to_matrix, as(from, "lgTMatrix")))
+## setAs("ngTMatrix", "matrix", # go via fast C code:
+##       function(from) as(as(from, "ngCMatrix"), "matrix"))
 
 setAs("matrix", "ngTMatrix",
       function(from) {
@@ -26,9 +31,20 @@ setAs("ngTMatrix", "dgTMatrix",
       ## more efficient than
       ## as(as(as(sM, "ngCMatrix"), "dgCMatrix"), "dgTMatrix")
       new("dgTMatrix", i = from@i, j = from@j,
-          x = rep.int(1, length(from@i)),
-          ## cannot copy factors, but can we use them?
-          Dim = from@Dim, Dimnames= from@Dimnames))
+	  x = rep.int(1, length(from@i)),
+	  ## cannot copy factors, but can we use them?
+	  Dim = from@Dim, Dimnames= from@Dimnames))
+
+setAs("ngTMatrix", "lgTMatrix",
+      function(from)
+      new("lgTMatrix", i = from@i, j = from@j,
+	  x = rep.int(TRUE, length(from@i)),
+	  ## cannot copy factors, but can we use them?
+	  Dim = from@Dim, Dimnames= from@Dimnames))
+
+setAs("ngTMatrix", "ntTMatrix",
+      function(from) check.gt2tT(from, getClassDef("ngTMatrix")))
+
 
 setMethod("t", signature(x = "ngTMatrix"),
 	  function(x) new("ngTMatrix", i = x@j, j = x@i,

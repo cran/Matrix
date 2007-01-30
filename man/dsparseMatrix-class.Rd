@@ -3,7 +3,6 @@
 \alias{dsparseMatrix-class}
 %
 \alias{chol,dsparseMatrix,ANY-method}
-\alias{coerce,denseMatrix,dsparseMatrix-method}
 \alias{\%*\%,ddenseMatrix,dsparseMatrix-method}
 \alias{\%*\%,dgeMatrix,dsparseMatrix-method}
 \alias{\%*\%,dsparseMatrix,ddenseMatrix-method}

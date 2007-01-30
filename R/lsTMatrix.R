@@ -5,18 +5,21 @@
 setAs("lsTMatrix", "matrix",
       function(from) as(as(from, "lgTMatrix"), "matrix"))
 
-setAs("lsTMatrix", "lsCMatrix",
-      function(from) .Call(Tsparse_to_Csparse, from, FALSE))
+setAs("lsTMatrix", "lgCMatrix", # for diag
+      function(from) as(as(from, "lsCMatrix"), "lgCMatrix"))
 
 setAs("lsTMatrix", "lgTMatrix",
-      function(from) new("lgTMatrix", i = from@i, j = from@j, x = from@x,
-                         Dim = from@Dim, Dimnames = from@Dimnames))
+      function(from) .Call(lsTMatrix_as_lgTMatrix, from))
+
 
 setAs("lsTMatrix", "dsTMatrix",
       function(from) new("dsTMatrix", i = from@i, j = from@j,
                          x = rep.int(1, length(from@i)), uplo = from@uplo,
                          diag = from@diag,
                          Dim = from@Dim, Dimnames = from@Dimnames))
+
+setAs("lsTMatrix", "lsyMatrix",
+      function(from) .Call(lsTMatrix_as_lsyMatrix, from))
 
 ## untested:
 setMethod("image", "lsTMatrix",

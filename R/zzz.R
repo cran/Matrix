@@ -6,19 +6,23 @@
     require(methods)
     require(utils) # -> assignInNamespace {but "anyway"}
 
+    Rv <- paste(R.version$major, R.version$minor, sep=".")
+
     ## The following works around namespace-protection on purpose:
     assignInNamespace("..Old..as.matrix", base::as.matrix, ns = "base")
     assignInNamespace("..Old..as.array", base::as.array, ns = "base")
 
-    if(paste(R.version$major, R.version$minor, sep=".") >= "2.4") {
+    if(Rv >= "2.4") {
 	## For R 2.4.0 and newer, need to also set the baseenv() --
-        ##  the following being really a hack:
-        tmp <- function(x) {
-            if(methods:::seemsS4Object(x)) Matrix::as.matrix(x)
-            else UseMethod("as.matrix")
-        }
-        environment(tmp) <- baseenv()
-        assignInNamespace("as.matrix", tmp, ns = "base")
+	##  the following being really a hack:
+	tmp <- function(x) {
+	    if(methods:::seemsS4Object(x)) Matrix::as.matrix(x)
+	    else UseMethod("as.matrix")
+	}
+	if(Rv >= "2.5")# change arglist to ' (x, ...) '
+	    formals(tmp) <- alist(x=, ...=)
+	environment(tmp) <- baseenv()
+	assignInNamespace("as.matrix", tmp, ns = "base")
     } else {
 	assignInNamespace("as.matrix", as.matrix, ns = "base")
     }
@@ -26,7 +30,7 @@
     assignInNamespace("as.array",  as.array, ns = "base")
 
     ## Now all the functions in 'base' that start with something like
-    ##  "x <- as.matrix(x)" or  "X <- as.array(X)"
+    ##	"x <- as.matrix(x)" or	"X <- as.array(X)"
     ## will work for 'Matrix'-matrices
 
     ## kronecker() / %x% -- in principle should re-assign base::kronecker
@@ -36,7 +40,7 @@
     ## generic kronecker
     assignInNamespace("%x%", function (X, Y) kronecker(X, Y), ns = "base")
 
-    if(paste(R.version$major, R.version$minor, sep=".") < "2.5") {
+    if(Rv < "2.5") {
 	## For	R  versions prior to 2.5.0 -- replace "diag<-" in base :
 	tmp <- function(x, value) {
 	    dx <- dim(x)

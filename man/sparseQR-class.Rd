@@ -35,10 +35,10 @@
     \item{\code{p}:}{Object of class \code{"integer"} Permutation
       applied to the rows of the original matrix.}
     \item{\code{R}:}{Object of class \code{"dgCMatrix"} An upper
-      triangular matrix of dimension \ }
+      triangular matrix of dimension \ } % << FIXME
     \item{\code{q}:}{Object of class \code{"integer"} Permutation
       applied from the right. Can be of length 0 which implies no
-      permutation.} 
+      permutation.}
   }
 }
 \section{Methods}{
@@ -64,7 +64,7 @@
 %\references{}
 %\author{}
 \note{The decomposition is of the form \code{A[p+1:1,] == Q \%*\% R}, if
-  the \code{q} slot if of length 0 or \code{A[p+1:1,q+1:1] == Q \%*\% R} 
+  the \code{q} slot if of length 0 or \code{A[p+1:1,q+1:1] == Q \%*\% R}
   where A is a sparse \eqn{m\times n}{m by n} matrix (\eqn{m\ge n}{m >= n}),
   \eqn{R} is an \eqn{m\times n}{m by n} matrix that is zero below the
  main diagonal.  The \code{p} slot is a 0-based permutation of

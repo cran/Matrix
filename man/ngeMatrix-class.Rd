@@ -4,8 +4,7 @@
 \alias{ngeMatrix-class}
 %
 \alias{!,ngeMatrix-method}
-\alias{|,ngeMatrix,ngeMatrix-method}
-\alias{&,ngeMatrix,ngeMatrix-method}
+\alias{Ops,ngeMatrix,ngeMatrix-method}
 \alias{as.vector,ngeMatrix,missing-method}
 \alias{coerce,matrix,ngeMatrix-method}
 \alias{coerce,ngeMatrix,dgeMatrix-method}

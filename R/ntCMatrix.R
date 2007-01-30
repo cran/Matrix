@@ -5,6 +5,9 @@ setAs("ntCMatrix", "matrix",
 setAs("matrix", "ntCMatrix",
       function(from) as(as(from, "dtCMatrix"), "ntCMatrix"))
 
+setAs("ntCMatrix", "ntTMatrix",
+      function(from) .Call(Csparse_to_Tsparse, from, TRUE))
+
 setAs("ntCMatrix", "ngCMatrix",
       function(from) new("ngCMatrix", i = from@i, p = from@p,
                          Dim = from@Dim, Dimnames = from@Dimnames))
@@ -14,6 +17,9 @@ setAs("ntCMatrix", "dMatrix", # < instead of "dtCMatrix"
                          x = rep.int(1, length(from@i)), uplo = from@uplo,
                          diag = from@diag,
                          Dim = from@Dim, Dimnames = from@Dimnames))
+
+setAs("ngCMatrix", "ntCMatrix", # to triangular, needed for triu,..
+      function(from) as(as(as(from, "ngTMatrix"), "ntTMatrix"), "ntCMatrix"))
 
 ## setAs("ntCMatrix", "generalMatrix",
 ##       function(from) ......)

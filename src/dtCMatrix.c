@@ -120,8 +120,7 @@ SEXP dtCMatrix_solve(SEXP a)
     double *tx = Calloc(bnz, double), *wrk = Calloc(A->n, double);
 
     SET_SLOT(ans, Matrix_DimSym, duplicate(GET_SLOT(a, Matrix_DimSym)));
-    SET_SLOT(ans, Matrix_DimNamesSym,
-	     duplicate(GET_SLOT(a, Matrix_DimNamesSym)));
+    SET_DimNames(ans, a);
     SET_SLOT(ans, Matrix_uploSym, duplicate(GET_SLOT(a, Matrix_uploSym)));
     SET_SLOT(ans, Matrix_diagSym, duplicate(GET_SLOT(a, Matrix_diagSym)));
     bp[0] = 0;
@@ -162,7 +161,7 @@ SEXP dtCMatrix_matrix_solve(SEXP a, SEXP b, SEXP classed)
     if (*adims != n || nrhs < 1 || *adims < 1 || *adims != adims[1])
 	error(_("Dimensions of system to be solved are inconsistent"));
     Memcpy(INTEGER(ALLOC_SLOT(ans, Matrix_DimSym, INTSXP, 2)), bdims, 2);
-    /* copy dimnames or Dimnames as well */
+    /* FIXME: copy dimnames or Dimnames as well */
     bx = Memcpy(REAL(ALLOC_SLOT(ans, Matrix_xSym, REALSXP, n * nrhs)),
 		REAL(cl ? GET_SLOT(b, Matrix_xSym):b), n * nrhs);
     for (j = 0; j < nrhs; j++)
@@ -211,7 +210,7 @@ SEXP dtCMatrix_upper_solve(SEXP a)
     Memcpy(REAL(ALLOC_SLOT(ans, Matrix_xSym, REALSXP, nz)), tx, nz);
     Free(tmp); Free(tx); Free(ti);
     SET_SLOT(ans, Matrix_DimSym, duplicate(GET_SLOT(a, Matrix_DimSym)));
-    SET_SLOT(ans, Matrix_DimNamesSym, duplicate(GET_SLOT(a, Matrix_DimNamesSym)));
+    SET_DimNames(ans, a);
     SET_SLOT(ans, Matrix_uploSym, duplicate(GET_SLOT(a, Matrix_uploSym)));
     SET_SLOT(ans, Matrix_diagSym, duplicate(GET_SLOT(a, Matrix_diagSym)));
     UNPROTECT(1);

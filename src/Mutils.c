@@ -404,24 +404,69 @@ FULL_TO_PACKED(int)
 
 
 /**
- * Copy the diagonal elements of the packed array x to dest
+ * Copy the diagonal elements of the packed denseMatrix x to dest
  *
  * @param dest vector of length ncol(x)
  * @param x pointer to an object representing a packed array
  *
  * @return dest
  */
-double *packed_getDiag(double *dest, SEXP x)
+void d_packed_getDiag(double *dest, SEXP x, int n)
 {
-    int j, n = *INTEGER(GET_SLOT(x, Matrix_DimSym)), pos;
     double *xx = REAL(GET_SLOT(x, Matrix_xSym));
 
-    if (*uplo_P(x) == 'U') {
-	for (pos = 0, j = 0; j < n; pos += ++j) dest[j] = xx[pos];
+#define END_packed_getDiag						\
+    int j, pos = 0;							\
+									\
+    if (*uplo_P(x) == 'U') {						\
+	for(pos= 0, j=0; j < n; pos += 1+(++j))	 dest[j] = xx[pos];	\
+    } else {								\
+	for(pos= 0, j=0; j < n; pos += (n - j), j++) dest[j] = xx[pos]; \
+    }									\
+    return
+
+    END_packed_getDiag;
+}
+
+void l_packed_getDiag(int *dest, SEXP x, int n)
+{
+    int *xx = LOGICAL(GET_SLOT(x, Matrix_xSym));
+
+    END_packed_getDiag;
+}
+
+#undef END_packed_getDiag
+
+void tr_d_packed_getDiag(double *dest, SEXP x)
+{
+    int n = INTEGER(GET_SLOT(x, Matrix_DimSym))[0];
+    SEXP val = PROTECT(allocVector(REALSXP, n));
+    double *v = REAL(val);
+
+    if (*diag_P(x) == 'U') {
+	int j;
+	for (j = 0; j < n; j++) v[j] = 1.;
     } else {
-	for (pos = 0, j = 0; j < n; pos += (n - j), j++) dest[j] = xx[pos];
+	d_packed_getDiag(v, x, n);
     }
-    return dest;
+    UNPROTECT(1);
+    return;
+}
+
+void tr_l_packed_getDiag(   int *dest, SEXP x)
+{
+    int n = INTEGER(GET_SLOT(x, Matrix_DimSym))[0];
+    SEXP val = PROTECT(allocVector(LGLSXP, n));
+    int *v = LOGICAL(val);
+
+    if (*diag_P(x) == 'U') {
+	int j;
+	for (j = 0; j < n; j++) v[j] = 1;
+    } else {
+	l_packed_getDiag(v, x, n);
+    }
+    UNPROTECT(1);
+    return;
 }
 
 SEXP Matrix_expand_pointers(SEXP pP)
@@ -478,31 +523,208 @@ install_diagonal(double *dest, SEXP A)
     return dest;
 }
 
-/**  Duplicate a ddenseMatrix or a numeric matrix or vector
- *  as a dgeMatrix.
+static int *
+install_diagonal_int(int *dest, SEXP A)
+{
+    int nc = INTEGER(GET_SLOT(A, Matrix_DimSym))[0];
+    int i, ncp1 = nc + 1, unit = *diag_P(A) == 'U';
+    int *ax = INTEGER(GET_SLOT(A, Matrix_xSym));
+
+    AZERO(dest, nc * nc);
+    for (i = 0; i < nc; i++)
+	dest[i * ncp1] = (unit) ? 1 : ax[i];
+    return dest;
+}
+
+
+/**  Duplicate a [dln]denseMatrix or a numeric matrix or vector
+ *  as a [dln]geMatrix.
  *  This is for the many *_matrix_{prod,crossprod,tcrossprod,etc.}
  *  functions that work with both classed and unclassed matrices.
  *
- *
- * @param A	  either a ddenseMatrix object or a matrix object
+ * @param A	  either a denseMatrix object or a matrix object
  */
+/* NOTA BENE: If you enlarge this list, do change '14' and '6' below !*/
 
-/* FIXME: since we also use this for other things, e.g. band(),
- * -----  should generalize to  "...as_geMatrix"
- */
+#define ddense_CLASSES							\
+		    "dgeMatrix", "dtrMatrix",				\
+		    "dsyMatrix", "dpoMatrix", "ddiMatrix",		\
+		    "dtpMatrix", "dspMatrix", "dppMatrix",		\
+		    /* sub classes of those above:*/			\
+		    /* dtr */ "Cholesky", "LDL", "BunchKaufman",	\
+		    /* dtp */ "pCholesky", "pBunchKaufman",		\
+		    /* dpo */ "corMatrix"
+
+#define ldense_CLASSES					\
+		    "lgeMatrix", "ltrMatrix",		\
+		    "lsyMatrix", "ldiMatrix",		\
+		    "ltpMatrix", "lspMatrix"
+
+#define ndense_CLASSES					\
+		    "ngeMatrix", "ntrMatrix",		\
+		    "nsyMatrix",			\
+		    "ntpMatrix", "nspMatrix"
+
+/* Generalized -- "geMatrix" -- dispatch where needed : */
+SEXP dup_mMatrix_as_geMatrix(SEXP A)
+{
+    SEXP ans, ad = R_NilValue, an = R_NilValue;	/* -Wall */
+    char *cl = class_P(A),
+	*valid[] = {"_NOT_A_CLASS_",/* *_CLASSES defined in ./Mutils.h */
+		    ddense_CLASSES, /* 14 */
+		    ldense_CLASSES, /* 6  */
+		    ndense_CLASSES, /* 5  */
+		    ""};
+    int sz, ctype = Matrix_check_class(cl, valid), nprot = 1;
+    enum dense_enum { ddense, ldense, ndense } M_type = ddense /* -Wall */;
+
+    if (ctype > 0) { /* a [nld]denseMatrix object */
+	ad = GET_SLOT(A, Matrix_DimSym);
+	an = GET_SLOT(A, Matrix_DimNamesSym);
+	M_type = (ctype <= 14) ? ddense :
+	    ((ctype <= 14+6) ? ldense : ndense);
+    }
+    else if (ctype < 0) {	/* not a (recognized) classed matrix */
+
+	if (isReal(A))
+	    M_type = ddense;
+	else if (isLogical(A))
+	    M_type = ldense;
+	else
+	    error(_("invalid class `%s' to dup_mMatrix_as_geMatrix"), cl);
+
+#define	DUP_MMATRIX_NON_CLASS						\
+	if (isMatrix(A)) {	/* "matrix" */				\
+	    ad = getAttrib(A, R_DimSymbol);				\
+	    an = getAttrib(A, R_DimNamesSymbol);			\
+	} else {/* maybe "numeric" (incl integer,logical) --> (n x 1) */\
+	    int* dd = INTEGER(ad = PROTECT(allocVector(INTSXP, 2)));	\
+	    nprot++;							\
+	    dd[0] = LENGTH(A);						\
+	    dd[1] = 1;							\
+	    an = R_NilValue;						\
+	}								\
+	ctype = 0
+
+	DUP_MMATRIX_NON_CLASS;
+    }
+
+    ans = PROTECT(NEW_OBJECT(MAKE_CLASS(M_type == ddense ? "dgeMatrix" :
+					(M_type == ldense ? "lgeMatrix" :
+					 "ngeMatrix"))));
+#define DUP_MMATRIX_SET_1					\
+    SET_SLOT(ans, Matrix_DimSym, duplicate(ad));		\
+    SET_SLOT(ans, Matrix_DimNamesSym, (LENGTH(an) == 2) ? 	\
+	     duplicate(an): allocVector(VECSXP, 2));		\
+    sz = INTEGER(ad)[0] * INTEGER(ad)[1]
+
+    DUP_MMATRIX_SET_1;
+
+    if(M_type == ddense) { /* ddense -> dge */
+
+	double *ansx;
+
+#define DUP_MMATRIX_ddense_CASES						\
+	ansx = REAL(ALLOC_SLOT(ans, Matrix_xSym, REALSXP, sz));			\
+	switch(ctype) {								\
+	case 0:			/* unclassed real/logical matrix */		\
+	    Memcpy(ansx, REAL(A), sz);						\
+	    break;								\
+	case 1:			/* dgeMatrix */					\
+	    Memcpy(ansx, REAL(GET_SLOT(A, Matrix_xSym)), sz);			\
+	    break;								\
+	case 2:			/* dtrMatrix   and subclasses */		\
+	case 9: case 10: case 11:   /* ---	Cholesky, LDL, BunchKaufman */	\
+	    Memcpy(ansx, REAL(GET_SLOT(A, Matrix_xSym)), sz);			\
+	    make_d_matrix_triangular(ansx, A);					\
+	    break;								\
+	case 3:			/* dsyMatrix */					\
+	case 4:			/* dpoMatrix  + subclass */			\
+	case 14:	 		/* ---	corMatrix */			\
+	    Memcpy(ansx, REAL(GET_SLOT(A, Matrix_xSym)), sz);			\
+	    make_d_matrix_symmetric(ansx, A);					\
+	    break;								\
+	case 5:			/* ddiMatrix */					\
+	    install_diagonal(ansx, A);						\
+	    break;								\
+	case 6:			/* dtpMatrix  + subclasses */			\
+	case 12: case 13: 		/* ---	pCholesky, pBunchKaufman */	\
+	    packed_to_full_double(ansx, REAL(GET_SLOT(A, Matrix_xSym)),		\
+				  INTEGER(ad)[0],				\
+				  *uplo_P(A) == 'U' ? UPP : LOW);		\
+	    make_d_matrix_triangular(ansx, A);					\
+	    break;								\
+	case 7:			/* dspMatrix */					\
+	case 8:			/* dppMatrix */					\
+	    packed_to_full_double(ansx, REAL(GET_SLOT(A, Matrix_xSym)),		\
+				  INTEGER(ad)[0],				\
+				  *uplo_P(A) == 'U' ? UPP : LOW);		\
+	    make_d_matrix_symmetric(ansx, A);					\
+	    break;								\
+	}  /* switch(ctype) */
+
+	DUP_MMATRIX_ddense_CASES
+
+    }
+    else { /* M_type == ldense || M_type = ndense  */
+	/* ldense -> lge */
+	/* ndense -> nge */
+	int *ansx = LOGICAL(ALLOC_SLOT(ans, Matrix_xSym, LGLSXP, sz));
+
+	switch(ctype) {
+	case 0:			/* unclassed real/logical matrix */
+	    Memcpy(ansx, LOGICAL(A), sz);
+	    break;
+
+	case 1+14:			/* lgeMatrix */
+	case 1+14+6:			/* ngeMatrix */
+	    Memcpy(ansx, LOGICAL(GET_SLOT(A, Matrix_xSym)), sz);
+	    break;
+	case 2+14:			/* ltrMatrix */
+	case 2+14+6:			/* ntrMatrix */
+	    Memcpy(ansx, LOGICAL(GET_SLOT(A, Matrix_xSym)), sz);
+	    make_i_matrix_triangular(ansx, A);
+	    break;
+	case 3+14:			/* lsyMatrix */
+	case 3+14+6:			/* nsyMatrix */
+	    Memcpy(ansx, LOGICAL(GET_SLOT(A, Matrix_xSym)), sz);
+	    make_i_matrix_symmetric(ansx, A);
+	    break;
+	case 4+14:			/* ldiMatrix */
+	case 4+14+6:			/* ndiMatrix */
+	    install_diagonal_int(ansx, A);
+	    break;
+	case 5+14:			/* ltpMatrix */
+	case 5+14+6:			/* ntpMatrix */
+	    packed_to_full_int(ansx, LOGICAL(GET_SLOT(A, Matrix_xSym)),
+			       INTEGER(ad)[0],
+			       *uplo_P(A) == 'U' ? UPP : LOW);
+	    make_i_matrix_triangular(ansx, A);
+	    break;
+	case 6+14:			/* lspMatrix */
+	case 6+14+6:			/* nspMatrix */
+	    packed_to_full_int(ansx, LOGICAL(GET_SLOT(A, Matrix_xSym)),
+			       INTEGER(ad)[0],
+			       *uplo_P(A) == 'U' ? UPP : LOW);
+	    make_i_matrix_symmetric(ansx, A);
+	    break;
+
+	default:
+	    error(_("unexpected ctype = %d in dup_mMatrix_as_geMatrix"), ctype);
+	}  /* switch(ctype) */
+
+    }  /* if(M_type == .) */
+
+    UNPROTECT(nprot);
+    return ans;
+}
+
 SEXP dup_mMatrix_as_dgeMatrix(SEXP A)
 {
     SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("dgeMatrix"))),
 	ad = R_NilValue , an = R_NilValue;	/* -Wall */
     char *cl = class_P(A),
-	*valid[] = {"_NOT_A_CLASS_", "dgeMatrix", "dtrMatrix",
-		    "dsyMatrix", "dpoMatrix", "ddiMatrix",
-		    "dtpMatrix", "dspMatrix", "dppMatrix",
-		    /* sub classes of those above:*/
-		    /* dtr */ "Cholesky", "LDL", "BunchKaufman",
-		    /* dtp */ "pCholesky", "pBunchKaufman",
-		    /* dpo */ "corMatrix",
-		    ""};
+	*valid[] = {"_NOT_A_CLASS_", ddense_CLASSES, ""};
     int ctype = Matrix_check_class(cl, valid), nprot = 1, sz;
     double *ansx;
 
@@ -511,70 +733,25 @@ SEXP dup_mMatrix_as_dgeMatrix(SEXP A)
 	an = GET_SLOT(A, Matrix_DimNamesSym);
     }
     else if (ctype < 0) {	/* not a (recognized) classed matrix */
-	if (isMatrix(A)) {	/* "matrix" */
-	    ad = getAttrib(A, R_DimSymbol);
-	    an = getAttrib(A, R_DimNamesSymbol);
-	} else { /* maybe "numeric" (incl "integer","logical") -->  (n x 1) */
-	    int* dd = INTEGER(ad = PROTECT(allocVector(INTSXP, 2)));
-	    nprot++;
-	    dd[0] = LENGTH(A); dd[1] = 1;
-	    an = R_NilValue;
-	}
+
+	DUP_MMATRIX_NON_CLASS;
+
 	if (isInteger(A) || isLogical(A)) {
 	    A = PROTECT(coerceVector(A, REALSXP));
 	    nprot++;
 	}
 	if (!isReal(A))
 	    error(_("invalid class `%s' to dup_mMatrix_as_dgeMatrix"), cl);
-	ctype = 0;
     }
 
-    SET_SLOT(ans, Matrix_DimSym, duplicate(ad));
-    SET_SLOT(ans, Matrix_DimNamesSym, (LENGTH(an) == 2) ? duplicate(an) :
-	     allocVector(VECSXP, 2));
-    sz = INTEGER(ad)[0] * INTEGER(ad)[1];
-    ansx = REAL(ALLOC_SLOT(ans, Matrix_xSym, REALSXP, sz));
-    switch(ctype) {
-    case 0:			/* unclassed real matrix */
-	Memcpy(ansx, REAL(A), sz);
-	break;
-    case 1:			/* dgeMatrix */
-	Memcpy(ansx, REAL(GET_SLOT(A, Matrix_xSym)), sz);
-	break;
-    case 2:			/* dtrMatrix   and subclasses */
-    case 9: case 10: case 11:   /* ---	Cholesky, LDL, BunchKaufman */
-	Memcpy(ansx, REAL(GET_SLOT(A, Matrix_xSym)), sz);
-	make_d_matrix_triangular(ansx, A);
-	break;
-    case 3:			/* dsyMatrix */
-    case 4:			/* dpoMatrix  + subclass */
-    case 14:	 		/* ---	corMatrix */
-	Memcpy(ansx, REAL(GET_SLOT(A, Matrix_xSym)), sz);
-	make_d_matrix_symmetric(ansx, A);
-	break;
-    case 5:			/* ddiMatrix */
-	install_diagonal(ansx, A);
-	break;
-    case 6:			/* dtpMatrix  + subclasses */
-    case 12: case 13: 		/* ---	pCholesky, pBunchKaufman */
-	packed_to_full_double(ansx, REAL(GET_SLOT(A, Matrix_xSym)),
-			      INTEGER(ad)[0],
-			      *uplo_P(A) == 'U' ? UPP : LOW);
-	make_d_matrix_triangular(ansx, A);
-	break;
-    case 7:			/* dspMatrix */
-    case 8:			/* dppMatrix */
-	packed_to_full_double(ansx, REAL(GET_SLOT(A, Matrix_xSym)),
-			      INTEGER(ad)[0],
-			      *uplo_P(A) == 'U' ? UPP : LOW);
-	make_d_matrix_symmetric(ansx, A);
-	break;
-    default:
-	error(_("unexpected ctype = %d in dup_mMatrix_as_dgeMatrix"), ctype);
-    }
+    DUP_MMATRIX_SET_1;
+
+    DUP_MMATRIX_ddense_CASES
+
     UNPROTECT(nprot);
     return ans;
 }
+
 
 SEXP new_dgeMatrix(int nrow, int ncol)
 {

@@ -8,11 +8,18 @@ setAs("matrix", "ltCMatrix",
 setAs("ltCMatrix", "lgCMatrix",
       function(from) copyClass(from, "lgCMatrix"))
 
+setAs("ltCMatrix", "ltTMatrix",
+      function(from) .Call(Csparse_to_Tsparse, from, TRUE))
+
 setAs("ltCMatrix", "dMatrix", # < instead of "dtCMatrix"
       function(from) new("dtCMatrix", i = from@i, p = from@p,
                          x = as.double(from@x), uplo = from@uplo,
                          diag = from@diag,
                          Dim = from@Dim, Dimnames = from@Dimnames))
+
+setAs("lgCMatrix", "ltCMatrix", # to triangular {needed in triu() }
+      function(from) as(as(as(from, "lgTMatrix"), "ltTMatrix"), "ltCMatrix"))
+
 
 ## setAs("ltCMatrix", "generalMatrix",
 ##       function(from) ......)

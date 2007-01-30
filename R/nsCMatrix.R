@@ -26,7 +26,7 @@ setAs("nsCMatrix", "dgTMatrix",
 setMethod("tril", "nsCMatrix",
 	  function(x, k = 0, ...) {
 	      if(x@uplo == "L" && k == 0)
-		  ## same internal structure (speedup potential !?)
+		  ## same internal structure + diag
 		  new("ntCMatrix", uplo = x@uplo, i = x@i, p = x@p,
 		      Dim = x@Dim, Dimnames = x@Dimnames)
 	      else tril(as(x, "ngCMatrix"), k = k, ...)
@@ -34,7 +34,6 @@ setMethod("tril", "nsCMatrix",
 setMethod("triu", "nsCMatrix",
 	  function(x, k = 0, ...) {
 	      if(x@uplo == "U" && k == 0)
-		  ## same internal structure (speedup potential !?)
 		  new("ntCMatrix", uplo = x@uplo, i = x@i, p = x@p,
 		      Dim = x@Dim, Dimnames = x@Dimnames)
 	      else triu(as(x, "ngCMatrix"), k = k, ...)

@@ -7,6 +7,7 @@
 
 setAs("ANY", "sparseMatrix", function(from) as(from, "CsparseMatrix"))
 
+setAs(from = "sparseMatrix", to = "generalMatrix", as_gCsimpl)
 
 ## "graph" coercions -- this needs the graph package which is currently
 ##  -----               *not* required on purpose
@@ -146,38 +147,40 @@ setAs("TsparseMatrix", "graphNEL", Tsp2grNEL)
 setMethod("[", signature(x = "sparseMatrix", i = "index", j = "missing",
 			 drop = "logical"),
 	  function (x, i, j, drop) {
-              cl <- class(x)
-              viaCl <- paste(.M.kind(x,cl), "gTMatrix", sep='')
-              x <- callGeneric(x = as(x, viaCl), i=i, drop=drop)
-              ## try_as(x, c(cl, sub("T","C", viaCl)))
-              if(is(x, "Matrix") && extends(cl, "CsparseMatrix"))
-                  as(x, sub("T","C", viaCl)) else x
-          })
+	      cld <- getClassDef(class(x))
+	      if(!extends(cld, "generalMatrix")) x <- as(x, "generalMatrix")
+	      viaCl <- paste(.M.kind(x, cld), "gTMatrix", sep='')
+	      x <- callGeneric(x = as(x, viaCl), i=i, drop=drop)
+	      ## try_as(x, c(cl, sub("T","C", viaCl)))
+	      if(is(x, "Matrix") && extends(cld, "CsparseMatrix"))
+		  as(x, "CsparseMatrix") else x
+	  })
 
 setMethod("[", signature(x = "sparseMatrix", i = "missing", j = "index",
 			 drop = "logical"),
 	  function (x, i, j, drop) {
-              cl <- class(x)
-              viaCl <- paste(.M.kind(x,cl), "gTMatrix", sep='')
-              x <- callGeneric(x = as(x, viaCl), j=j, drop=drop)
-              ## try_as(x, c(cl, sub("T","C", viaCl)))
-              if(is(x, "Matrix") && extends(cl, "CsparseMatrix"))
-                  as(x, sub("T","C", viaCl)) else x
-          })
+	      cld <- getClassDef(class(x))
+	      if(!extends(cld, "generalMatrix")) x <- as(x, "generalMatrix")
+	      viaCl <- paste(.M.kind(x, cld), "gTMatrix", sep='')
+	      x <- callGeneric(x = as(x, viaCl), j=j, drop=drop)
+	      if(is(x, "Matrix") && extends(cld, "CsparseMatrix"))
+		  as(x, "CsparseMatrix") else x
+	  })
 
 setMethod("[", signature(x = "sparseMatrix",
 			 i = "index", j = "index", drop = "logical"),
 	  function (x, i, j, drop) {
-	      cl <- class(x)
+	      cld <- getClassDef(class(x))
 	      ## be smart to keep symmetric indexing of <symm.Mat.> symmetric:
-	      doSym <- (extends(cl, "symmetricMatrix") &&
+	      doSym <- (extends(cld, "symmetricMatrix") &&
 			length(i) == length(j) && all(i == j))
-	      viaCl <- paste(.M.kind(x,cl),
+	      if(!doSym && !extends(cld, "generalMatrix"))
+		  x <- as(x, "generalMatrix")
+	      viaCl <- paste(.M.kind(x, cld),
 			     if(doSym) "sTMatrix" else "gTMatrix", sep='')
 	      x <- callGeneric(x = as(x, viaCl), i=i, j=j, drop=drop)
-	      ## try_as(x, c(cl, sub("T","C", viaCl)))
-	      if(is(x, "Matrix") && extends(cl, "CsparseMatrix"))
-		  as(x, sub("T","C", viaCl)) else x
+	      if(is(x, "Matrix") && extends(cld, "CsparseMatrix"))
+		  as(x, "CsparseMatrix") else x
 	  })
 
 
@@ -187,40 +190,15 @@ setMethod("[", signature(x = "sparseMatrix",
 ## FIXME: also for RsparseMatrix
 
 
-
-## "Arith" short cuts / exceptions
-setMethod("-", signature(e1 = "sparseMatrix", e2 = "missing"),
-          function(e1) { e1@x <- -e1@x ; e1 })
-## with the following exceptions:
-setMethod("-", signature(e1 = "nsparseMatrix", e2 = "missing"),
-          function(e1) callGeneric(as(e1, "dgCMatrix")))
-setMethod("-", signature(e1 = "pMatrix", e2 = "missing"),
-          function(e1) callGeneric(as(e1, "ngTMatrix")))
-
-## Group method  "Arith"
-
-## have CsparseMatrix methods (-> ./Csparse.R )
-## which may preserve "symmetric", "triangular" -- simply defer to those:
-
-setMethod("Arith", ##  "+", "-", "*", "^", "%%", "%/%", "/"
-	  signature(e1 = "sparseMatrix", e2 = "sparseMatrix"),
-	  function(e1, e2) callGeneric(as(e1, "CsparseMatrix"),
-				       as(e2, "CsparseMatrix")))
-setMethod("Arith",
-	  signature(e1 = "sparseMatrix", e2 = "numeric"),
-	  function(e1, e2) callGeneric(as(e1, "CsparseMatrix"), e2))
-setMethod("Arith",
-	  signature(e1 = "numeric", e2 = "sparseMatrix"),
-	  function(e1, e2) callGeneric(e1, as(e2, "CsparseMatrix")))
+## Group Methods
 
 setMethod("Math",
 	  signature(x = "sparseMatrix"),
 	  function(x) callGeneric(as(x, "CsparseMatrix")))
 
-setMethod("Compare", signature(e1 = "sparseMatrix", e2 = "sparseMatrix"),
-	  function(e1, e2) callGeneric(as(e1, "CsparseMatrix"),
-				       as(e2, "CsparseMatrix")))
-##-> ./Csparse.R
+## further group methods -> see ./Ops.R
+
+
 
 ### --- show() method ---
 
@@ -228,10 +206,12 @@ setMethod("Compare", signature(e1 = "sparseMatrix", e2 = "sparseMatrix"),
 ## - - -   prMatrix() from ./Auxiliaries.R
 prSpMatrix <- function(object, digits = getOption("digits"),
                        maxp = getOption("max.print"), zero.print = ".",
+                       row.trailer = '',
                        align = c("fancy", "right"))
 ## FIXME: prTriang() in ./Auxiliaries.R  should also get  align = "fancy"
 {
-    stopifnot(is(object, "sparseMatrix"))
+    cl <- getClassDef(class(object))
+    stopifnot(extends(cl, "sparseMatrix"))
     d <- dim(object)
     if(prod(d) > maxp) { # "Large" => will be "cut"
         ## only coerce to dense that part which won't be cut :
@@ -240,7 +220,7 @@ prSpMatrix <- function(object, digits = getOption("digits"),
     } else {
         m <- as(object, "matrix")
     }
-    logi <- is(object,"lsparseMatrix") || is(object,"nsparseMatrix")
+    logi <- extends(cl,"lsparseMatrix") || extends(cl,"nsparseMatrix")
     if(logi)
 	x <- array("N", # or as.character(NA),
 		   dim(m), dimnames=dimnames(m))
@@ -261,7 +241,7 @@ prSpMatrix <- function(object, digits = getOption("digits"),
 	## show only "structural" zeros as 'zero.print', not all of them..
 	## -> cannot use 'm'
         d <- dim(x)
-	ne <- length(iN0 <- 1:1 + encodeInd(non0ind(object), nr = d[1]))
+	ne <- length(iN0 <- 1:1 + encodeInd(non0ind(object, cl), nr = d[1]))
 	if(0 < ne && ne < prod(d)) {
 	    align <- match.arg(align)
 	    if(align == "fancy") {
@@ -275,13 +255,25 @@ prSpMatrix <- function(object, digits = getOption("digits"),
 			   fi[2,] + as.logical(fi[2,] > 0),
 			   ## exponential:
 			   fi[2,] + fi[3,] + 4)
-		zero.print <- sprintf("%-*s", pad[cols] + 1, zero.print)
+                ## now be efficient ; sprintf() is relatively slow
+                ## and pad is much smaller than 'cols'; instead of "simply"
+		## zero.print <- sprintf("%-*s", pad[cols] + 1, zero.print)
+		if(any(doP <- pad > 0)) {#
+		    ## only pad those that need padding - *before* expanding
+		    z.p.pad <- rep.int(zero.print, length(pad))
+		    z.p.pad[doP] <- sprintf("%-*s", pad[doP] + 1, zero.print)
+		    zero.print <- z.p.pad[cols]
+		}
+                else
+                    zero.print <- rep.int(zero.print, length(cols))
 	    } ## else "right" : nothing to do
 
 	    x[-iN0] <- zero.print
 	} else if (ne == 0)# all zeroes
 	    x[] <- zero.print
     }
+    if(row.trailer != '')
+        x <- cbind(x, row.trailer, deparse.level = 0)
     ## right = TRUE : cheap attempt to get better "." alignment
     print(x, quote = FALSE, right = TRUE, max = maxp)
     invisible(object)
@@ -296,13 +288,38 @@ setMethod("show", signature(object = "sparseMatrix"),
        if(prod(d) <= maxp)
 	   prSpMatrix(object, maxp = maxp)
        else { ## d[1] > maxp / d[2] >= nr : -- this needs [,] working:
-	   nr <- maxp %/% d[2]
-	   n2 <- ceiling(nr / 2)
+
 	   nR <- d[1] # nrow
-	   prSpMatrix(object[seq_len(min(nR, max(1, n2))), drop = FALSE])
-	   cat("\n ..........\n\n")
-	   prSpMatrix(object[seq(to = nR, length = min(max(1, nr-n2), nR)),
-                             drop = FALSE])
+           useW <- getOption("width") - (format.info(nR)[1] + 3+1)
+           ##                           space for "[<last>,] "
+           suppCols <- (d[2] * 2 > useW)
+           nc <- if(suppCols) (useW - (1 + 6)) %/% 2 else d[2]
+           ##                          sp+ row.trailer
+           row.trailer <- if(suppCols) "......" else ""
+	   nr <- maxp %/% nc
+           suppRows <- (nr < nR)
+           if(suppRows) {
+	       if(suppCols)
+		   object <- object[ , 1:nc, drop = FALSE]
+	       n2 <- ceiling(nr / 2)
+	       prSpMatrix(object[seq_len(min(nR, max(1, n2))), , drop=FALSE],
+			  row.trailer = row.trailer)
+	       cat("\n ..............................",
+		   "\n ..........suppressing rows in show(); maybe adjust 'options(max.print= *)'",
+		   "\n ..............................\n\n", sep='')
+	       ## tail() automagically uses "[..,]" rownames:
+	       prSpMatrix(tail(object, max(1, nr-n2)),
+			  row.trailer = row.trailer)
+	   }
+	   else if(suppCols) {
+	       prSpMatrix(object[ , 1:nc , drop = FALSE],
+			  row.trailer = row.trailer)
+
+	       cat("\n .....suppressing columns in show(); maybe adjust 'options(max.print= *)'",
+		   "\n ..............................\n", sep='')
+	   }
+           else stop("logic programming error in prSpMatrix(), please report")
+
            invisible(object)
        }
    })

@@ -88,6 +88,14 @@ stopifnot(identical3(cu[cu > 1],  tu [tu > 1], mu [mu > 1]),
 	  identical(t(tu), tril(t(tu)))
           )
 
+(t4 <- new("dgTMatrix", i = 3:0, j = 0:3, x = rep(1,4), Dim = as.integer(c(4,4))))
+c4 <- as(t4, "CsparseMatrix")
+## the same but "dsT" (symmetric)
+M <- Matrix(c(0, rep(c(0,0:1),4)), 4,4)#ok warning
+tt <- as(M, "TsparseMatrix")
+stopifnot(all.equal(triu(t4) + tril(t4), c4),
+          all.equal(triu(tt) + tril(tt), c4))
+
 
 ###-- Numeric Dense: Crossprod & Solve
 
@@ -312,11 +320,24 @@ selectMethod("coerce",	c("lgeMatrix", "CsparseMatrix"),
 
 ms0 <- Matrix(c(0,1,1,0), 2,2)
 (ms <- as(ms0, "dsTMatrix"))
+cs <- as(ms, "CsparseMatrix")
 ll <- as(ms, "lMatrix")
 lt <- as(ll, "lgTMatrix")
+nn <- as(cs, "nsparseMatrix")
+l2 <- as(cs, "lsparseMatrix")
+nt <- triu(nn)
+n3 <- as(nt, "lsparseMatrix")
+da <- nt + t(nt)
+dm <- nt * t(nt) + da
 stopifnot(as(ms0,"matrix") == as(ll, "matrix"), # coercing num |-> log
-          as(lt, "matrix") == as(ll, "matrix")
-          )
+	  as(lt, "matrix") == as(ll, "matrix"),
+	  identical(ms, as(ll, "dMatrix")),
+	  identical4(as(ll, "CsparseMatrix"), as(cs, "lMatrix"),# lsC*
+		     as(nn, "lsparseMatrix"), l2),
+	  identical3(da, dm, as(cs, "generalMatrix")),		# dgC*
+	  identical(as(da, "lMatrix"), as(lt, "CsparseMatrix")) # lgC*
+	  )
+
 
 cat('Time elapsed: ', proc.time(),'\n') # "stats"
 

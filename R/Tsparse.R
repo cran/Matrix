@@ -1,11 +1,11 @@
 #### "TsparseMatrix" : Virtual class of sparse matrices in triplet-format
 
-setAs("TsparseMatrix", "CsparseMatrix",
-      ## |-> cholmod_T -> cholmod_C -> chm_sparse_to_SEXP
-      ## adjusted for triangular matrices not represented in cholmod
-      function(from) .Call(Tsparse_to_Csparse, from, ## ../src/Tsparse.c
-                           is(from, "triangularMatrix"))
-      )
+## in ../src/Tsparse.c :  |-> cholmod_T -> cholmod_C -> chm_sparse_to_SEXP
+## adjusted for triangular matrices not represented in cholmod
+.T.2.C <- function(from) .Call(Tsparse_to_Csparse, from, ##
+			       is(from, "triangularMatrix"))
+
+setAs("TsparseMatrix", "CsparseMatrix", .T.2.C)
 
 ## Special cases   ("d", "l", "n")  %o%  ("g", "s", "t") :
 ## used e.g. in triu()
@@ -575,7 +575,7 @@ setReplaceMethod("[", signature(x = "TsparseMatrix", i = "matrix", j = "missing"
 setMethod("crossprod", signature(x = "TsparseMatrix", y = "missing"),
 	  function(x, y = NULL) {
               if (is(x, "symmetricMatrix")) {
-                  x <- as(x, "CsparseMatrix")
+                  x <- .T.2.C(x)
                   warning("crossprod(x) calculated as x %*% x for sparse, symmetric x")
                   return(x %*% x)
               }
@@ -591,13 +591,13 @@ setMethod("tcrossprod", signature(x = "TsparseMatrix", y = "missing"),
 ## (this will change in R-2.4.0).
 
 setMethod("crossprod", signature(x = "TsparseMatrix", y = "ANY"),
-	  function(x, y = NULL) callGeneric(as(x, "CsparseMatrix"), y))
+	  function(x, y = NULL) callGeneric(.T.2.C(x), y))
 
 setMethod("tcrossprod", signature(x = "TsparseMatrix", y = "ANY"),
-	  function(x, y = NULL) callGeneric(as(x, "CsparseMatrix"), y))
+	  function(x, y = NULL) callGeneric(.T.2.C(x), y))
 
 setMethod("%*%", signature(x = "TsparseMatrix", y = "ANY"),
-          function(x, y) callGeneric(as(x, "CsparseMatrix"), y))
+          function(x, y) callGeneric(.T.2.C(x), y))
 
 setMethod("%*%", signature(x = "ANY", y = "TsparseMatrix"),
           function(x, y) callGeneric(x, as(y, "CsparseMatrix")))
@@ -621,12 +621,15 @@ setMethod("rowMeans", signature(x = "TsparseMatrix"), .as.dgT.Fun,
 ## Want tril(), triu(), band() --- just as "indexing" ---
 ## return a "close" class:
 setMethod("tril", "TsparseMatrix",
-	  function(x, k = 0, ...) as_Tsparse(tril(as_Csparse(x), k = k, ...)))
+	  function(x, k = 0, ...)
+	  as(tril(.T.2.C(x), k = k, ...), "TsparseMatrix"))
 setMethod("triu", "TsparseMatrix",
-	  function(x, k = 0, ...) as_Tsparse(triu(as_Csparse(x), k = k, ...)))
+	  function(x, k = 0, ...)
+	  as(triu(.T.2.C(x), k = k, ...), "TsparseMatrix"))
 setMethod("band", "TsparseMatrix",
 	  function(x, k1, k2, ...)
-	  as_Tsparse(band(as_Csparse(x), k1 = k1, k2 = k2, ...)))
+	  as(band(.T.2.C(x), k1 = k1, k2 = k2, ...), "TsparseMatrix"))
+
 
 setMethod("t", signature(x = "TsparseMatrix"),
 	  function(x) {

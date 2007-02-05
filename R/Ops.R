@@ -678,8 +678,8 @@ setMethod("Arith", signature(e1 = "numeric", e2 = "dgCMatrix"),
 ## TODO : Consider going a level up, and do this for all "Ops"
 
 setMethod("Arith", signature(e1 = "CsparseMatrix", e2 = "CsparseMatrix"),
-	  function(e1, e2) callGeneric(as(e1, "dgCMatrix"),
-				       as(e2, "dgCMatrix")))
+	  function(e1, e2) callGeneric(as(as(e1, "dMatrix"), "dgCMatrix"),
+				       as(as(e2, "dMatrix"), "dgCMatrix")))
 
 setMethod("Arith", signature(e1 = "CsparseMatrix", e2 = "numeric"),
 	  function(e1, e2) {
@@ -813,7 +813,7 @@ setMethod("-", signature(e1 = "sparseMatrix", e2 = "missing"),
           function(e1) { e1@x <- -e1@x ; e1 })
 ## with the following exceptions:
 setMethod("-", signature(e1 = "nsparseMatrix", e2 = "missing"),
-          function(e1) callGeneric(as(e1, "dgCMatrix")))
+          function(e1) callGeneric(as(as(e1, "dMatrix"), "dgCMatrix")))
 setMethod("-", signature(e1 = "pMatrix", e2 = "missing"),
           function(e1) callGeneric(as(e1, "ngTMatrix")))
 

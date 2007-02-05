@@ -30,7 +30,8 @@ setAs("lsCMatrix", "dsCMatrix",
                          Dim = from@Dim, Dimnames = from@Dimnames))
 
 setAs("lsCMatrix", "dgTMatrix",
-      function(from) as(as(x, "dsCMatrix"), "dgTMatrix"))
+      function(from) as(as(from, "dsCMatrix"), "dgTMatrix"))
+
 
 ## have rather tril() and triu() methods than
 ## setAs("lsCMatrix", "ltCMatrix", ....)

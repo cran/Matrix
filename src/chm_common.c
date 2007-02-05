@@ -594,7 +594,7 @@ cholmod_factor *as_cholmod_factor(SEXP x)
 	ans->i = (int*)NULL;
 	tmp = GET_SLOT(x, install("super"));
 	ans->nsuper = LENGTH(tmp) - 1; ans->super = INTEGER(tmp);
-	/* Move these checks to the dCHMfactor_validate function */
+	/* Move these checks to the CHMfactor_validate function */
 	if (ans->nsuper < 1)
 	    error(_("Number of supernodes must be positive when is_super is TRUE"));
 	tmp = GET_SLOT(x, install("pi"));
@@ -692,6 +692,8 @@ SEXP chm_factor_to_SEXP(cholmod_factor *f, int dofree)
     UNPROTECT(1);
     return ans;
 }
+
+/* Placeholders; TODO: use checks above (search "CHMfactor_validate"): */
 
 SEXP CHMfactor_validate(SEXP obj) /* placeholder */
 {

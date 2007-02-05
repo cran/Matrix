@@ -18,16 +18,20 @@ SEXP xCMatrix_validate(SEXP x)
     return ScalarLogical(1);
 }
 
+/* This and the following R_to_CMatrix() lead to memory-not-mapped seg.faults
+ * only with {32bit + R-devel + enable-R-shlib} -- no idea why */
 SEXP compressed_to_TMatrix(SEXP x, SEXP colP)
 {
     int col = asLogical(colP); /* 1 if "C"olumn compressed;  0 if "R"ow */
+    /* however, for Csparse, we now effectively use the cholmod-based
+     * Csparse_to_Tsparse() in ./Csparse.c ; maybe should simply write
+     * an  as_cholmod_Rsparse() function and then do "as there" ...*/
     SEXP indSym = col ? Matrix_iSym : Matrix_jSym,
-	ans,
-	indP = GET_SLOT(x, indSym),
+	ans,	indP = GET_SLOT(x, indSym),
 	pP = GET_SLOT(x, Matrix_pSym);
     int npt = length(pP) - 1;
     char *cl = class_P(x);/* maybe unduplicated */
-    char ncl[9] = "...Matrix";
+    char *ncl = strdup(cl);
     char *valid[] = {"dgCMatrix", "dsCMatrix", "dtCMatrix", /* 0: 0:2 */
 		     "lgCMatrix", "lsCMatrix", "ltCMatrix", /* 1: 3:5 */
 		     "ngCMatrix", "nsCMatrix", "ntCMatrix", /* 2: 6:8 */
@@ -43,9 +47,8 @@ SEXP compressed_to_TMatrix(SEXP x, SEXP colP)
     if (ctype < 0)
 	error(_("invalid class(x) '%s' in compressed_to_TMatrix(x)"), cl);
 
-    /* replace 'C' or 'R' with 'T'  ~~ C-level	``sub()'' : */
-    strcpy(ncl, cl); ncl[2] = 'T';
-    /* DEBUG :* / Rprintf("compressed_to_TMatrix(): new class '%s'\n", ncl); /**/
+    /* replace 'C' or 'R' with 'T' :*/
+    ncl[2] = 'T';
     ans = PROTECT(NEW_OBJECT(MAKE_CLASS(ncl)));
 
     SET_SLOT(ans, Matrix_DimSym, duplicate(GET_SLOT(x, Matrix_DimSym)));
@@ -61,6 +64,7 @@ SEXP compressed_to_TMatrix(SEXP x, SEXP colP)
     expand_cmprPt(npt, INTEGER(pP),
 		  INTEGER(ALLOC_SLOT(ans, col ? Matrix_jSym : Matrix_iSym,
 				     INTSXP, length(indP))));
+    free(ncl);
     UNPROTECT(1);
     return ans;
 }
@@ -69,7 +73,7 @@ SEXP R_to_CMatrix(SEXP x)
 {
     SEXP ans, tri = PROTECT(allocVector(LGLSXP, 1));
     char *cl = class_P(x);/* maybe unduplicated */
-    char ncl[9];
+    char *ncl = strdup(cl);
     char *valid[] = {"dgRMatrix", "dsRMatrix", "dtRMatrix",
 		     "lgRMatrix", "lsRMatrix", "ltRMatrix",
 		     "ngRMatrix", "nsRMatrix", "ntRMatrix",
@@ -81,10 +85,10 @@ SEXP R_to_CMatrix(SEXP x)
     if (ctype < 0)
 	error(_("invalid class(x) '%s' in R_to_CMatrix(x)"), cl);
 
-    /* replace 'R' with 'C'  ~~ C-level	``sub()'' : */
-    strcpy(ncl, cl); ncl[2] = 'C';
-    /* DEBUG :* / Rprintf("R_to_CMatrix(): new class '%s'\n", ncl);/**/
+    /* replace 'R' with 'C' : */
+    ncl[2] = 'C';
     ans = PROTECT(NEW_OBJECT(MAKE_CLASS(ncl)));
+
     a_dims = INTEGER(ALLOC_SLOT(ans, Matrix_DimSym, INTSXP, 2));
     /* reversed dim() since we will transpose: */
     a_dims[0] = x_dims[1];

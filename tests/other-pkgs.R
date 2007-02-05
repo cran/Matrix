@@ -2,8 +2,7 @@
 
 library(Matrix)
 
-pkgRversion <- function(pkgname)
-    substring(packageDescription(pkgname)[["Built"]], 3,5)
+source(system.file("test-tools.R", package = "Matrix"))# identical3() etc
 
 MatrixRversion <- pkgRversion("Matrix")
 
@@ -84,24 +83,35 @@ if(isTRUE(try(require(SparseM)))) { # may be there and fail
 
     } else { ## do things
 
-set.seed(1)
-a <- round(rnorm(5*4), 2)
-a[abs(a) < 0.7] <- 0
-A <- matrix(a,5,4)
-print(M <- Matrix(A))
-stopifnot(
-          validObject(A.csr <- as.matrix.csr(A)),
-          validObject(At.csr <- as.matrix.csr(t(A))),
-          identical(At.csr, t(A.csr)),
-          identical(A, as.matrix(A.csr)),
-          identical(M, as(A.csr, "dgCMatrix")),
-          identical(t(M), as(At.csr, "dgCMatrix"))
-          )
+	set.seed(1)
+	a <- round(rnorm(5*4), 2)
+	a[abs(a) < 0.7] <- 0
+	A <- matrix(a,5,4)
+	print(M <- Matrix(A))
+	stopifnot(
+		  validObject(A.csr <- as.matrix.csr(A)),
+		  validObject(At.csr <- as.matrix.csr(t(A))),
+		  identical(At.csr, t(A.csr)),
+		  identical(A, as.matrix(A.csr)),
+		  identical(M, as(A.csr, "CsparseMatrix")),
+		  identical(t(M), as(At.csr, "CsparseMatrix"))
+		  )
 
-## TODO: More tests; in particular for triplets !
+	## More tests, notably for triplets
+	A.coo <- as.matrix.coo(A)
+	str(T  <- as(M, "TsparseMatrix")) # has 'j' sorted
+	str(T. <- as(A.coo, "TsparseMatrix")) # has 'i' sorted
 
-if(FALSE) # detaching the package gives an error (.GenericTable ...)
-detach("package:SparseM")
+	T3 <- as(as(T, "matrix.coo"), "Matrix") # dgT
+	M3 <- as(as(M, "matrix.csr"), "Matrix") # dgC
+	M4 <- as(as(M, "matrix.csc"), "Matrix") # dgC
+	M5 <- as(as(M, "matrix.coo"), "Matrix") # dgT
+	uniqT <- Matrix:::uniqTsparse
+	stopifnot(identical4(uniqT(T), uniqT(T.), uniqT(T3), uniqT(M5)),
+		  identical3(M, M3, M4))
+
+	if(FALSE) # detaching the package gives error ".GenericTable" not found
+	    detach("package:SparseM")
 
     }
 

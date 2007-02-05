@@ -5,9 +5,59 @@ source(system.file("test-tools.R", package = "Matrix"))# identical3() etc
 #### possibly augmented with methods
 
 allCl <- getClasses("package:Matrix")
+cat("actual and virtual classes:\n")
+tt <- table( isVirt <- sapply(allCl, isVirtualClass) )
+names(tt) <- c('"actual"', "virtual")
+tt
+## The "actual" Matrix classes:
+aCl <- allCl[!isVirt]
+(aMcl <- aCl[grep("Matrix$", aCl)]) # length 48
+aMc2 <-  aCl[sapply(aCl, extends, class2 = "Matrix")]
+stopifnot(all( aMcl %in% aMc2 ))
+aMc2[!(aMc2 %in% aMcl)] ## only 4 : p?Cholesky & p?BunchKaufman
 
 ## Really nice would be to construct an inheritance graph and display
-## it.  The following is just a cheap first step.
+## it.  Following things are computational variations on the theme..
+
+## We use a version of  canCoerce()  that works with two *classes* instead of
+## canCoerce <- function (object, Class)
+classCanCoerce <- function (class1, class2)
+{
+    extends(class1, class2) ||
+    !is.null(selectMethod("coerce", optional = TRUE,
+			  signature    = c(from = class1, to = class2),
+			  useInherited = c(from = TRUE,	  to = FALSE)))
+}
+.dq <- function(ch) paste0('"', ch, '"')
+for(n in allCl) {
+    if(isVirtualClass(n))
+        cat("Virtual class", .dq(n),"\n")
+    else {
+        cat("\"Actual\" class", .dq(n),":\n")
+        x <- new(n)
+        for(m in allCl)
+            if(classCanCoerce(n,m)) {
+                ext <- extends(n, m)
+                if(ext) {
+                    cat(sprintf("   extends  %20s %20s \n", "", .dq(m)))
+                } else {
+                    cat(sprintf("   can coerce: %20s -> %20s: ", .dq(n), .dq(m)))
+                    tt <- try(as(x, m), silent = TRUE)
+                    if(inherits(tt, "try-error")) {
+                        cat("\t *ERROR* !!\n")
+                    } else {
+                        cat("as() ok; validObject: ")
+                        vo <- validObject(tt, test = TRUE)
+                        cat(if(isTRUE(vo)) "ok" else paste("OOOOOOPS:", vo), "\n")
+                    }
+                }
+            }
+        cat("---\n")
+    }
+}
+
+cat('Time elapsed: ', proc.time(),'\n') # for the above "part I"
+
 
 if(!interactive()) { # don't want to see on source()
 
@@ -208,8 +258,18 @@ tstMatrixClass <-
                     if(any(clNam == not.coerce1))
                         cat.("not coercable_1\n")
                     else {
-                        cat.("as(dge*, <class>): ")
-                        m2 <- as(mM, clNam)
+                        cat.("as(dge*, <(super)class>): ")
+                        if(canCoerce(mM, clNam))
+                            m2 <- as(mM, clNam)
+                        else { ## find superclass to which to coerce
+                            if(extends(clNam, "sparseMatrix")) {
+                                if(is.na(newcl <- Matrix:::.sp.class(clNam)))
+                                    stop("internal failure from .sp.class()")
+                                m2 <- as(mM, newcl)
+                            } else { ## ddense & (general or symmetric)
+                                stop("don't what to coerce <dge> to - error test-logic")
+                            }
+                        }
                         cat("valid:", validObject(m2), "\n")
                         if(clNam != "corMatrix") # has diagonal divided out
                             ## as.vector()
@@ -259,10 +319,15 @@ tstMatrixClass <-
                     if(any(clNam == not.coerce1))
                         cat.("not coercable_1\n")
                     else {
-                        ## make sure we can coerce to dgT* -- needed, e.g. for "image"
-                        cat.("as dgT* ")
-                        mgT <- as(m, "dgTMatrix")
-                        cat("; valid dgT* coercion: ", validObject(mgT), "\n")
+			## make sure we can coerce to dgT* -- needed, e.g. for "image"
+			## change: use Tsparse instead of dgT, unless it *is* Tsparse:
+			isT <- is(m, "TsparseMatrix")
+			prefix <- if(isT) "dgT" else "Tsparse"
+			Tcl <- paste(prefix, "Matrix", sep='')
+			cat.(sprintf("as %s* ", prefix))
+			mgT <- as(m, Tcl)
+			cat(sprintf("; valid %s* coercion: %s\n",
+				    prefix, validObject(mgT)))
                     }
                 }
             }

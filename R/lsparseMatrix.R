@@ -1,8 +1,23 @@
 #### Superclass Methods for all sparse logical matrices
 
+if(FALSE) ## bug? in 'methods' - see ./nsparseMatrix.R :
 setAs("CsparseMatrix", "lsparseMatrix",
       function(from) as(.Call(Csparse_to_nz_pattern, from,
 			      is(from, "triangularMatrix")), "lsparseMatrix"))
+## substitute:
+setAs("CsparseMatrix", "lsparseMatrix",
+      function(from) {
+	  cld <- getClassDef(class(from))
+	  if(extends(cld, "lsparseMatrix"))
+	      from
+	  else if(extends(cld, "nsparseMatrix"))
+	      as(from, "lsparseMatrix")
+	  else
+	      as(.Call(Csparse_to_nz_pattern, from,
+		       extends(cld, "triangularMatrix")),
+		 "lsparseMatrix")
+      })
+
 
 setAs("lsparseMatrix", "matrix",
       function(from) as(as(from, "ldenseMatrix"), "matrix"))

@@ -592,18 +592,15 @@ as_dense <- function(x, cld = if(isS4(x)) getClassDef(class(x))) {
     as.character(NA)
 }
 
+
+### Goal: Eventually get rid of these --- want to foster coercions
+### ----  *to* virtual classes whenever possible, i.e.
+##  as(*, "CsparseMatrix"),  etc
+
 ## Here, getting the class definition and passing it, should be faster
 as_Csparse <- function(x, cld = if(isS4(x)) getClassDef(class(x))) {
     as(x, paste(.M.kind(x, cld),
                 .sparse.prefixes[.M.shape(x, cld)], "CMatrix", sep=''))
-}
-as_Rsparse <- function(x, cld = if(isS4(x)) getClassDef(class(x))) {
-    as(x, paste(.M.kind(x, cld),
-                .sparse.prefixes[.M.shape(x, cld)], "RMatrix", sep=''))
-}
-as_Tsparse <- function(x, cld = if(isS4(x)) getClassDef(class(x))) {
-    as(x, paste(.M.kind(x, cld),
-                .sparse.prefixes[.M.shape(x, cld)], "TMatrix", sep=''))
 }
 
 as_Csparse2 <- function(x, cld = if(isS4(x)) getClassDef(class(x))) {

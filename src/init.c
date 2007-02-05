@@ -191,6 +191,12 @@ static R_CallMethodDef CallEntries[] = {
 /*     {"tsc_to_dgTMatrix", (DL_FUNC) &tsc_to_dgTMatrix, 1}, */
     {"triangularMatrix_validate", (DL_FUNC) &triangularMatrix_validate, 1},
     {"symmetricMatrix_validate", (DL_FUNC) &symmetricMatrix_validate, 1},
+
+/* still simple placeholders, but already used in ../R/AllClass.R : */
+    {"CHMfactor_validate", (DL_FUNC) &CHMfactor_validate, 1},
+    {"CHMsimpl_validate",  (DL_FUNC) &CHMsimpl_validate, 1},
+    {"CHMsuper_validate",  (DL_FUNC) &CHMsuper_validate, 1},
+
     {NULL, NULL, 0}
 };
 
@@ -226,7 +232,7 @@ R_init_Matrix(DllInfo *dll)
     R_RegisterCCallable("Matrix", "cholmod_factorize", (DL_FUNC)cholmod_factorize);
     R_RegisterCCallable("Matrix", "cholmod_finish", (DL_FUNC)cholmod_finish);
     R_RegisterCCallable("Matrix", "cholmod_free_dense", (DL_FUNC)cholmod_free_dense);
-    R_RegisterCCallable("Matrix", "cholmod_free_factor", (DL_FUNC)cholmod_free_sparse);
+    R_RegisterCCallable("Matrix", "cholmod_free_factor", (DL_FUNC)cholmod_free_factor);
     R_RegisterCCallable("Matrix", "cholmod_free_sparse", (DL_FUNC)cholmod_free_sparse);
     R_RegisterCCallable("Matrix", "cholmod_free_triplet", (DL_FUNC)cholmod_free_triplet);
     R_RegisterCCallable("Matrix", "cholmod_nnz", (DL_FUNC)cholmod_nnz);

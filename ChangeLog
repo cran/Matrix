@@ -1,3 +1,52 @@
+2007-02-05  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Date, Version): 0.9975-10 with new date.
+
+	* R/Ops.R (Arith): make sure Csparse o Csparse also works for e.g. ntCMatrix
+	* tests/simple.R: test the above and some of these coercions:
+
+	* R/nsparseMatrix.R: coercing "Csparse" to "lsparseMatrix";
+		be careful to avoid infinite recursion, using new coercions in
+	* R/ngCMatrix.R and nsC... and ntC...
+	* R/lsparseMatrix.R: ditto
+
+	* R/SparseM-conv.R: more conversion, notably for triplet matrices.
+
+	* src/dgCMatrix.c (R_to_C_Matrix): port Doug's fix and
+	* R/Rsparse.R: reactivate .Call()s
+
+	* tests/Class+Meth.R: a bit more on actual classes
+
+2007-02-04  Douglas Bates  <bates@stat.wisc.edu>
+
+	* src/dgCMatrix.c (compressed_to_TMatrix): fix memory bug using strdup()
+
+2007-02-03  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.9975-10 to upload
+
+	* tests/Class+Meth.R (tstMatrixClass): require coercions to
+	specific classes less unconditionally.
+
+	* R/Auxiliaries.R: get rid of as_Tsparse() and as_Rsparse()
+
+	* R/Tsparse.R (triu): etc, use as(*, "TsparseMatrix") instead of as_Tsparse()
+
+	* R/Rsparse.R (.R.2.T): R-level workaround using compressed_to_TMatrix.
+	* R/Rsparse.R (.R.2.C): R-level workaround since C-level
+	R_to_CMatrix segfaults on one platform.
+	Eliminate most coercion method to *specific* classes, and replace
+	with virtual classes coercions.
+
+
+2007-02-01  Martin Maechler <maechler@stat.math.ethz.ch>
+
+	* src/init.c: export the CHM...._validate() placeholders, since
+	they *are* called.
+
+	* tests/Class+Meth.R (classCanCoerce): and starting to test
+	all as(<from>, <to>)
+
 2007-01-30  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/Tsparse.R ([): more care when subsetting triangular Tsparse

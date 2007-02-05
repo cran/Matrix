@@ -83,3 +83,7 @@ relErr <- function(target, current)
     mean(abs(target - current)) / mean(abs(target))
 
 ## is.R22 <- (paste(R.version$major, R.version$minor, sep=".") >= "2.2")
+
+pkgRversion <- function(pkgname)
+    substring(packageDescription(pkgname)[["Built"]], 3,5)
+

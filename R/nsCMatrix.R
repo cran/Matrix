@@ -13,10 +13,23 @@ setAs("nsCMatrix", "ngCMatrix",
 setAs("nsCMatrix", "nsTMatrix",
       function(from) .Call(Csparse_to_Tsparse, from, FALSE))
 
-setAs("nsCMatrix", "dsCMatrix",
-      function(from) new("dsCMatrix", i = from@i, p = from@p,
-                         x = rep(1, length(from@i)), uplo = from@uplo,
-                         Dim = from@Dim, Dimnames = from@Dimnames))
+.nsC2d <- function(from)
+    new("dsCMatrix", i = from@i, p = from@p,
+	x = rep.int(1, length(from@i)), uplo = from@uplo,
+	Dim = from@Dim, Dimnames = from@Dimnames)
+
+.nsC2l <- function(from)
+    new("lsCMatrix", i = from@i, p = from@p,
+	x = rep.int(TRUE, length(from@i)), uplo = from@uplo,
+	Dim = from@Dim, Dimnames = from@Dimnames)
+
+setAs("nsCMatrix", "dsCMatrix", .nsC2d)
+setAs("nsCMatrix", "dsparseMatrix", .nsC2d)
+
+setAs("nsCMatrix", "lsCMatrix", .nsC2l)
+setAs("nsCMatrix", "lsparseMatrix", .nsC2l)
+
+rm(.nsC2d,.nsC2l) # don't even keep "hidden"
 
 setAs("nsCMatrix", "dgTMatrix",
       function(from) as(as(x, "dsCMatrix"), "dgTMatrix"))

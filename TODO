@@ -107,3 +107,4 @@ Check for DimNames propagation in coercion and other operations.
   "dCHMsimpl" and  "dCHMsuper"  -- currently have no *decent* way to get at
   the matrix factors of the corresponding matrix factorization !!
 
+- rbind(<sparse>, <dense>) does not work  (e.g. <dgC>, <dge>)

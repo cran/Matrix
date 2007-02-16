@@ -32,16 +32,17 @@ SEXP compressed_to_TMatrix(SEXP x, SEXP colP)
     int npt = length(pP) - 1;
     char *cl = class_P(x);/* maybe unduplicated */
     char *ncl = strdup(cl);
-    char *valid[] = {"dgCMatrix", "dsCMatrix", "dtCMatrix", /* 0: 0:2 */
-		     "lgCMatrix", "lsCMatrix", "ltCMatrix", /* 1: 3:5 */
-		     "ngCMatrix", "nsCMatrix", "ntCMatrix", /* 2: 6:8 */
-		     "zgCMatrix", "zsCMatrix", "ztCMatrix", /* 3: 9:11 */
+    char *valid[] = {
+	"dgCMatrix", "dsCMatrix", "dtCMatrix", /* 0: 0:2 */
+	"lgCMatrix", "lsCMatrix", "ltCMatrix", /* 1: 3:5 */
+	"ngCMatrix", "nsCMatrix", "ntCMatrix", /* 2: 6:8 */
+	"zgCMatrix", "zsCMatrix", "ztCMatrix", /* 3: 9:11 */
 
-		     "dgRMatrix", "dsRMatrix", "dtRMatrix", /* 4: 12:14 */
-		     "lgRMatrix", "lsRMatrix", "ltRMatrix", /* 5: 15:17 */
-		     "ngRMatrix", "nsRMatrix", "ntRMatrix", /* 6: 18:20 */
-		     "zgRMatrix", "zsRMatrix", "ztRMatrix", /* 7: 21:23 */
-		     ""};
+	"dgRMatrix", "dsRMatrix", "dtRMatrix", /* 4: 12:14 */
+	"lgRMatrix", "lsRMatrix", "ltRMatrix", /* 5: 15:17 */
+	"ngRMatrix", "nsRMatrix", "ntRMatrix", /* 6: 18:20 */
+	"zgRMatrix", "zsRMatrix", "ztRMatrix", /* 7: 21:23 */
+	""};
     int ctype = Matrix_check_class(cl, valid);
 
     if (ctype < 0)
@@ -74,11 +75,12 @@ SEXP R_to_CMatrix(SEXP x)
     SEXP ans, tri = PROTECT(allocVector(LGLSXP, 1));
     char *cl = class_P(x);/* maybe unduplicated */
     char *ncl = strdup(cl);
-    char *valid[] = {"dgRMatrix", "dsRMatrix", "dtRMatrix",
-		     "lgRMatrix", "lsRMatrix", "ltRMatrix",
-		     "ngRMatrix", "nsRMatrix", "ntRMatrix",
-		     "zgRMatrix", "zsRMatrix", "ztRMatrix",
-		     ""};
+    char *valid[] = {
+	"dgRMatrix", "dsRMatrix", "dtRMatrix",
+	"lgRMatrix", "lsRMatrix", "ltRMatrix",
+	"ngRMatrix", "nsRMatrix", "ntRMatrix",
+	"zgRMatrix", "zsRMatrix", "ztRMatrix",
+	""};
     int ctype = Matrix_check_class(cl, valid);
     int *x_dims = INTEGER(GET_SLOT(x, Matrix_DimSym)), *a_dims;
 
@@ -108,6 +110,7 @@ SEXP R_to_CMatrix(SEXP x)
     SET_SLOT(ans, Matrix_pSym, duplicate(GET_SLOT(x, Matrix_pSym)));
     ans = Csparse_transpose(ans, tri);
     SET_DimNames(ans, x);
+    free(ncl);
     UNPROTECT(2);
     return ans;
 }

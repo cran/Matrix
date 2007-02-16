@@ -4,7 +4,7 @@ band                    Extract bands of a matrix
 bdiag                   Construct a Block Diagonal Matrix
 CAex                    Albers' example Matrix with "Difficult" Eigen
                         Factorization
-CHMfactor-class         CHOLMOD-based Cholesky factorizations
+CHMfactor-class         CHOLMOD-based Cholesky Factorizations
 Cholesky                Cholesky Decomposition of a Sparse Matrix
 Cholesky-class          Cholesky and Bunch-Kaufman Decompositions
 compMatrix-class        Class "compMatrix" of Composite (Factorizable)
@@ -74,6 +74,7 @@ ndenseMatrix-class      Virtual Class "ndenseMatrix" of Dense Logical
 ngeMatrix-class         Class "ngeMatrix" of General Dense
                         Nonzero-pattern Matrices
 nMatrix-class           Class "nMatrix" of Non-zero Pattern Matrices
+nnzero                  The Number of Non-Zero Values of a Matrix
 norm                    Norm of a Matrix
 nsparseMatrix-class     Sparse logical matrices
 nsyMatrix-class         Symmetric Dense Nonzero-Pattern Matrices

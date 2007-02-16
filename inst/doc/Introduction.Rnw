@@ -4,7 +4,7 @@
 \bibliographystyle{plainnat}
 %%\VignetteIndexEntry{Introduction to the Matrix Package}
 %%\VignetteDepends{Matrix}
-\SweaveOpts{engine=R,eps=FALSE,pdf=TRUE,width=5,height=3,strip.white=TRUE}
+\SweaveOpts{engine=R,eps=FALSE,pdf=TRUE,width=5,height=3,strip.white=TRUE,keep.source=TRUE}
 \title{Introduction to the Matrix package}
 \author{Douglas Bates\\R Core Development Group\\\email{bates@r-project.org}}
 \date{\today}
@@ -30,7 +30,7 @@
   stored as part of the original matrix so that further operations on
   the matrix can reuse this factorization.
 \end{abstract}
-<<preliminaries, echo=FALSE, keep.source=TRUE>>=
+<<preliminaries, echo=FALSE>>=
 options(width=75)
 @
 

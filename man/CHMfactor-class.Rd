@@ -10,6 +10,7 @@
 \alias{nCHMsuper-class}
 %
 \alias{coerce,CHMfactor,sparseMatrix-method}
+\alias{image,CHMfactor-method}
 %
 \description{The virtual class \code{"CHMfactor"} is a class of
   CHOLMOD-based Cholesky factorizations of symmetric, sparse,

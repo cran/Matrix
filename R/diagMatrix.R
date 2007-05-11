@@ -68,6 +68,8 @@ diag2T <- function(from) {
 
 setAs("diagonalMatrix", "triangularMatrix", diag2T)
 setAs("diagonalMatrix", "sparseMatrix", diag2T)
+## needed too (otherwise <dense> -> Tsparse is taken):
+setAs("diagonalMatrix", "TsparseMatrix", diag2T)
 ## is better than this:
 ## setAs("diagonalMatrix", "sparseMatrix",
 ##       function(from)
@@ -177,10 +179,30 @@ setAs("Matrix", "diagonalMatrix",
 setMethod("diag", signature(x = "diagonalMatrix"),
 	  function(x = 1, nrow, ncol = n) .diag.x(x))
 
+
+subDiag <- function(x, i, j, drop) {
+    x <- as(x, "sparseMatrix")
+    x <- if(missing(i))
+	x[, j, drop=drop]
+    else if(missing(j))
+	x[i, , drop=drop]
+    else
+	x[i,j, drop=drop]
+    if(isDiagonal(x)) as(x, "diagonalMatrix") else x
+}
+
+setMethod("[", signature(x = "diagonalMatrix", i = "index",
+			 j = "index", drop = "logical"), subDiag)
+setMethod("[", signature(x = "diagonalMatrix", i = "index",
+			j = "missing", drop = "logical"),
+	  function(x, i, drop) subDiag(x, i=i, drop=drop))
+setMethod("[", signature(x = "diagonalMatrix", i = "missing",
+			 j = "index", drop = "logical"),
+	  function(x, j, drop) subDiag(x, j=j, drop=drop))
+
 ## When you assign to a diagonalMatrix, the result should be
 ## diagonal or sparse ---
 ## FIXME: this now fails because the "denseMatrix" methods come first in dispatch
-
 replDiag <- function(x, i, j, value) {
     x <- as(x, "sparseMatrix")
     if(missing(i))
@@ -220,16 +242,6 @@ setMethod("chol", signature(x = "ddiMatrix"),# pivot = "ANY"
 	  })
 ## chol(L) is L for logical diagonal:
 setMethod("chol", signature(x = "ldiMatrix"), function(x, pivot) x)
-
-setMethod("!", "ldiMatrix", function(e1) {
-    if(e1@diag == "N")
-	e1@x <- !e1@x
-    else { ## "U"
-	e1@diag <- "N"
-	e1@x <- rep.int(FALSE, e1@Dim[1])
-    }
-    e1
-})
 
 ## Basic Matrix Multiplication {many more to add}
 ##       ---------------------
@@ -323,6 +335,59 @@ setMethod("%*%", signature(x = "dgeMatrix", y = "diagonalMatrix"),
 ## 	  function(x, y = NULL) {
 ##           })
 
+setMethod("crossprod", signature(x = "diagonalMatrix", y = "sparseMatrix"),
+	  function(x, y = NULL) { x <- as(x, "sparseMatrix"); callGeneric() })
+
+setMethod("crossprod", signature(x = "sparseMatrix", y = "diagonalMatrix"),
+	  function(x, y = NULL) { y <- as(y, "sparseMatrix"); callGeneric() })
+
+setMethod("tcrossprod", signature(x = "diagonalMatrix", y = "sparseMatrix"),
+	  function(x, y = NULL) { x <- as(x, "sparseMatrix"); callGeneric() })
+
+setMethod("tcrossprod", signature(x = "sparseMatrix", y = "diagonalMatrix"),
+	  function(x, y = NULL) { y <- as(y, "sparseMatrix"); callGeneric() })
+
+
+## FIXME?: In theory, this can be done *FASTER*, in some cases, via tapply1()
+setMethod("%*%", signature(x = "diagonalMatrix", y = "sparseMatrix"),
+	  function(x, y) as(x, "sparseMatrix") %*% y)
+## NB: The previous is *not* triggering for  "ddi" o "dgC" (= distance 3)
+##     since there's a "ddense" o "Csparse" at dist. 2 => triggers first.
+## ==> do this:
+setMethod("%*%", signature(x = "diagonalMatrix", y = "CsparseMatrix"),
+	  function(x, y) as(x, "CsparseMatrix") %*% y)
+setMethod("%*%", signature(x = "CsparseMatrix", y = "diagonalMatrix"),
+	  function(x, y) x %*% as(y, "CsparseMatrix"))
+## NB: this is *not* needed for Tsparse & Rsparse
+## TODO: Write tests in ./tests/ which ensure that many "ops" with diagonal*
+##       do indeed work by going through sparse (and *not* ddense)!
+
+setMethod("%*%", signature(x = "sparseMatrix", y = "diagonalMatrix"),
+	  function(x, y) x %*% as(y, "sparseMatrix"))
+
+
+setMethod("solve", signature(a = "diagonalMatrix", b = "missing"),
+	  function(a, b, ...) {
+	      a@x <- 1/ a@x
+	      a@Dimnames <- a@Dimnames[2:1]
+	      a
+	  })
+
+solveDiag <- function(a, b, ...) {
+    if((n <- a@Dim[1]) != nrow(b))
+        stop("incompatible matrix dimensions")
+    ## trivially invert a 'in place' and multiply:
+    a@x <- 1/ a@x
+    a@Dimnames <- a@Dimnames[2:1]
+    a %*% b
+}
+setMethod("solve", signature(a = "diagonalMatrix", b = "matrix"),
+          solveDiag)
+setMethod("solve", signature(a = "diagonalMatrix", b = "Matrix"),
+          solveDiag)
+
+
+
 
 ### ---------------- diagonal  o  sparse  -----------------------------
 
@@ -367,55 +432,6 @@ setMethod("Ops", signature(e1 = "diagonalMatrix", e2 = "ANY"),
 setMethod("Ops", signature(e1 = "ANY", e2 = "diagonalMatrix"),
           function(e1,e2) callGeneric(e1, as(e2,"sparseMatrix")))
 
-
-
-## FIXME?: In theory, this can be done *FASTER*, in some cases, via tapply1()
-setMethod("%*%", signature(x = "diagonalMatrix", y = "sparseMatrix"),
-	  function(x, y) as(x, "sparseMatrix") %*% y)
-## NB: The previous is *not* triggering for  "ddi" o "dgC" (= distance 3)
-##     since there's a "ddense" o "Csparse" at dist. 2 => triggers first.
-## ==> do this:
-setMethod("%*%", signature(x = "diagonalMatrix", y = "CsparseMatrix"),
-	  function(x, y) as(x, "CsparseMatrix") %*% y)
-## NB: this is *not* needed for Tsparse & Rsparse
-## TODO: Write tests in ./tests/ which ensure that many "ops" with diagonal*
-##       do indeed work by going throug sparse (and *not* ddense)!
-
-setMethod("%*%", signature(x = "sparseMatrix", y = "diagonalMatrix"),
-	  function(x, y) x %*% as(y, "sparseMatrix"))
-
-setMethod("solve", signature(a = "diagonalMatrix", b = "missing"),
-	  function(a, b, ...) {
-	      a@x <- 1/ a@x
-	      a@Dimnames <- a@Dimnames[2:1]
-	      a
-	  })
-
-solveDiag <- function(a, b, ...) {
-    if((n <- a@Dim[1]) != nrow(b))
-        stop("incompatible matrix dimensions")
-    ## trivially invert a 'in place' and multiply:
-    a@x <- 1/ a@x
-    a@Dimnames <- a@Dimnames[2:1]
-    a %*% b
-}
-setMethod("solve", signature(a = "diagonalMatrix", b = "matrix"),
-          solveDiag)
-setMethod("solve", signature(a = "diagonalMatrix", b = "Matrix"),
-          solveDiag)
-
-
-setMethod("crossprod", signature(x = "diagonalMatrix", y = "sparseMatrix"),
-	  function(x, y = NULL) { x <- as(x, "sparseMatrix"); callGeneric() })
-
-setMethod("crossprod", signature(x = "sparseMatrix", y = "diagonalMatrix"),
-	  function(x, y = NULL) { y <- as(y, "sparseMatrix"); callGeneric() })
-
-setMethod("tcrossprod", signature(x = "diagonalMatrix", y = "sparseMatrix"),
-	  function(x, y = NULL) { x <- as(x, "sparseMatrix"); callGeneric() })
-
-setMethod("tcrossprod", signature(x = "sparseMatrix", y = "diagonalMatrix"),
-	  function(x, y = NULL) { y <- as(y, "sparseMatrix"); callGeneric() })
 
 
 ## similar to prTriang() in ./Auxiliaries.R :

@@ -494,7 +494,7 @@ Matrix_getElement(SEXP list, char *nm) {
     SEXP names = getAttrib(list, R_NamesSymbol);
     int i;
 
-    for (i = 0; i < LENGTH(list); i++)
+    for (i = 0; i < LENGTH(names); i++)
 	if (!strcmp(CHAR(STRING_ELT(names, i)), nm))
 	    return(VECTOR_ELT(list, i));
     return R_NilValue;

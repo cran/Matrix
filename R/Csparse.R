@@ -81,8 +81,8 @@ replCmat <- function (x, i, j, value)
 {
     di <- dim(x)
     dn <- dimnames(x)
-    i1 <- if(missing(i)) 0:(di[1] - 1:1) else .ind.prep2(i, 1, di, dn)
-    i2 <- if(missing(j)) 0:(di[2] - 1:1) else .ind.prep2(j, 2, di, dn)
+    i1 <- if(missing(i)) 0:(di[1] - 1L) else .ind.prep2(i, 1, di, dn)
+    i2 <- if(missing(j)) 0:(di[2] - 1L) else .ind.prep2(j, 2, di, dn)
     dind <- c(length(i1), length(i2)) # dimension of replacement region
     lenRepl <- prod(dind)
     lenV <- length(value)
@@ -131,8 +131,8 @@ replCmat <- function (x, i, j, value)
     if(has.x && sum(sel) == lenRepl) { ## all entries to be replaced are non-zero:
         ## need indices instead of just 'sel', for, e.g.,  A[2:1, 2:1] <- v
 	non0 <- cbind(match(x@i[sel], i1),
-		      match(xj [sel], i2)) - 1:1
-	iN0 <- 1:1 + encodeInd(non0, nr = dind[1])
+		      match(xj [sel], i2)) - 1L
+	iN0 <- 1L + encodeInd(non0, nr = dind[1])
 
         if(lenV < lenRepl)
             value <- rep(value, length = lenRepl)
@@ -291,7 +291,7 @@ setMethod("diag", "CsparseMatrix",
 	  function(x, nrow, ncol = n) {
 	      dm <- .Call(Csparse_band, x, 0, 0)
 	      dlen <- min(dm@Dim)
-	      ind1 <- dm@i + 1:1	# 1-based index vector
+	      ind1 <- dm@i + 1L	# 1-based index vector
 	      if (is(dm, "nMatrix")) {
 		  val <- rep.int(FALSE, dlen)
 		  val[ind1] <- TRUE

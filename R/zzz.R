@@ -59,8 +59,20 @@
 	assignInNamespace("diag<-", tmp, ns = "base")
     }
 
-    methods:::bind_activation(TRUE)
+##No more ## Activate the [cr]bind()s which are recursively based on [cr]bind2
+##No more     methods:::bind_activation(TRUE)
 }
+
+## Instead, simply re-assign the [cr]bind()s which are recursively
+## based on [cr]bind2 :
+##
+## save to cBind / rBind  ("rename")
+cBind <- methods:::cbind
+rBind <- methods:::rbind
+## TODO? -- and export these {but users may need to use  base::cbind() ..?!}
+## cbind <- cBind
+## rbind <- rBind
+
 
 .onUnload <- function(libpath)
 {
@@ -68,5 +80,6 @@
     assignInNamespace("as.array",  base::..Old..as.array,  ns = "base")
     library.dynam.unload("Matrix", libpath)
 
-    methods:::bind_activation(FALSE)
+##No more  ## deactivate the S4-aware [cr]bind()
+##No more     methods:::bind_activation(FALSE)
 }

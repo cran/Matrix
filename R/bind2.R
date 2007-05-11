@@ -73,7 +73,7 @@ setMethod("cbind2", signature(x = "denseMatrix", y = "numeric"),
 	      ## beware of (packed) triangular, symmetric, ...
 	      x <- as(x, geClass(x))
 	      x@x <- c(x@x, as.double(y))
-	      x@Dim[2] <- nc + 1:1
+	      x@Dim[2] <- nc + 1L
 	      if(is.character(dn <- x@Dimnames[[2]]))
 		  x@Dimnames[[2]] <- c(dn, "")
 	      x
@@ -85,7 +85,7 @@ setMethod("cbind2", signature(x = "numeric", y = "denseMatrix"),
 	      x <- rep(x, length.out = nr)
 	      y <- as(y, geClass(y))
 	      y@x <- c(as.double(x), y@x)
-	      y@Dim[2] <- nc + 1:1
+	      y@Dim[2] <- nc + 1L
 	      if(is.character(dn <- y@Dimnames[[2]]))
 		  y@Dimnames[[2]] <- c("", dn)
 	      y
@@ -272,7 +272,7 @@ setMethod("cbind2", signature(x = "sparseMatrix", y = "numeric"),
               } else { ## nr == 0
 
               }
-              x@Dim[2] <- nc + 1:1
+              x@Dim[2] <- nc + 1L
               if(is.character(dn <- x@Dimnames[[2]]))
                   x@Dimnames[[2]] <- c(dn, "")
               x
@@ -291,7 +291,7 @@ setMethod("cbind2", signature(x = "numeric", y = "sparseMatrix"),
               } else { ## nr == 0
 
               }
-              y@Dim[2] <- nc + 1:1
+              y@Dim[2] <- nc + 1L
               if(is.character(dn <- y@Dimnames[[2]]))
                   y@Dimnames[[2]] <- c(dn, "")
               y

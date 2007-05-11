@@ -9,6 +9,7 @@
 \alias{coerce,diagonalMatrix,matrix-method}
 \alias{coerce,diagonalMatrix,sparseMatrix-method}
 \alias{coerce,diagonalMatrix,CsparseMatrix-method}
+\alias{coerce,diagonalMatrix,TsparseMatrix-method}
 \alias{coerce,Matrix,diagonalMatrix-method}
 \alias{cbind2,sparseMatrix,diagonalMatrix-method}
 \alias{cbind2,diagonalMatrix,sparseMatrix-method}
@@ -43,13 +44,14 @@
 \alias{diag,diagonalMatrix-method}
 \alias{show,diagonalMatrix-method}
 \alias{\%*\%,dgeMatrix,diagonalMatrix-method}
-\alias{\%*\%,sparseMatrix,diagonalMatrix-method}
 \alias{\%*\%,matrix,diagonalMatrix-method}
 \alias{\%*\%,diagonalMatrix,dgeMatrix-method}
 \alias{\%*\%,diagonalMatrix,diagonalMatrix-method}
 \alias{\%*\%,diagonalMatrix,matrix-method}
 \alias{\%*\%,diagonalMatrix,CsparseMatrix-method}
 \alias{\%*\%,diagonalMatrix,sparseMatrix-method}
+\alias{\%*\%,CsparseMatrix,diagonalMatrix-method}
+\alias{\%*\%,sparseMatrix,diagonalMatrix-method}
 \alias{crossprod,diagonalMatrix,dgeMatrix-method}
 \alias{crossprod,diagonalMatrix,diagonalMatrix-method}
 \alias{crossprod,diagonalMatrix,matrix-method}

@@ -19,6 +19,7 @@
 \alias{as.vector,dgeMatrix,missing-method}
 \alias{chol,dgeMatrix,ANY-method}
 \alias{coerce,dgeMatrix,matrix-method}
+\alias{coerce,dgeMatrix,triangularMatrix-method}
 \alias{coerce,dgeMatrix,lgeMatrix-method}
 \alias{coerce,matrix,dgeMatrix-method}
 \alias{colMeans,dgeMatrix-method}

@@ -7,7 +7,8 @@
 
 setAs("ANY", "sparseMatrix", function(from) as(from, "CsparseMatrix"))
 
-setAs(from = "sparseMatrix", to = "generalMatrix", as_gCsimpl)
+setAs(from = "sparseMatrix", to = "generalMatrix",
+      function(from) as_gSparse(from))
 
 ## "graph" coercions -- this needs the graph package which is currently
 ##  -----               *not* required on purpose
@@ -77,7 +78,7 @@ setAs("graphNEL", "TsparseMatrix",
 	      lens <- unlist(lapply(eWts, length))
 	      i <- rep.int(0:(dm[1]-1), lens) # column indices (0-based)
 	      To <- unlist(lapply(eWts, names))
-	      j <- as.integer(match(To,nd) - 1:1) # row indices (0-based)
+	      j <- as.integer(match(To,nd) - 1L) # row indices (0-based)
 	      ## symm <- symm && <weights must also be symmetric>: improbable
 	      ## if(symm) new("dsTMatrix", .....) else
 	      new("dgTMatrix", i = i, j = j, x = unlist(eWts),
@@ -129,7 +130,7 @@ Tsp2grNEL <- function(from) {
         eMode <- "directed"
     }
     ## every edge is there only once, either upper or lower triangle
-    ft1 <- cbind(rn[from@i + 1:1], rn[from@j + 1:1])
+    ft1 <- cbind(rn[from@i + 1L], rn[from@j + 1L])
     ## not yet: graph::ftM2graphNEL(.........)
     ftM2graphNEL(ft1, W = from@x, V= rn, edgemode= eMode)
 
@@ -241,7 +242,7 @@ prSpMatrix <- function(object, digits = getOption("digits"),
 	## show only "structural" zeros as 'zero.print', not all of them..
 	## -> cannot use 'm'
         d <- dim(x)
-	ne <- length(iN0 <- 1:1 + encodeInd(non0ind(object, cl), nr = d[1]))
+	ne <- length(iN0 <- 1L + encodeInd(non0ind(object, cl), nr = d[1]))
 	if(0 < ne && ne < prod(d)) {
 	    align <- match.arg(align)
 	    if(align == "fancy") {
@@ -249,7 +250,7 @@ prSpMatrix <- function(object, digits = getOption("digits"),
 		## now 'format' the zero.print by padding it with ' ' on the right:
 		## case 1: non-exponent:  fi[2,] + as.logical(fi[2,] > 0)
 		## the column numbers of all 'zero' entries -- (*large*)
-		cols <- 1:1 + (0:(prod(d)-1:1))[-iN0] %/% d[1]
+		cols <- 1L + (0:(prod(d)-1L))[-iN0] %/% d[1]
 		pad <-
 		    ifelse(fi[3,] == 0,
 			   fi[2,] + as.logical(fi[2,] > 0),
@@ -354,6 +355,9 @@ setMethod("isTriangular", signature(object = "sparseMatrix"),
 
 setMethod("isDiagonal", signature(object = "sparseMatrix"),
 	  function(object) {
+              d <- dim(object)
+              if(d[1] != d[2]) return(FALSE)
+              ## else
 	      gT <- as(object, "TsparseMatrix")
 	      all(gT@i == gT@j)
 	  })

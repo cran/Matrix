@@ -28,9 +28,9 @@
   \code{\linkS4class{lsCMatrix}} objects.
 }
 \section{Slots}{
-  of all \code{"CHMfactor"} and all classes inheriting from it:
+  of \code{"CHMfactor"} and all classes inheriting from it:
   \describe{
-    \item{\code{perm}:}{Object of class \code{"integer"} giving the
+    \item{\code{perm}:}{An integer vector giving the 0-based
       permutation of the rows and columns chosen to reduce fill-in and
       for post-ordering.}
     \item{\code{colcount}:}{Object of class \code{"integer"} .... }%% FIXME

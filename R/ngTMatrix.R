@@ -17,7 +17,7 @@ setAs("matrix", "ngTMatrix",
 	  stopifnot(is.logical(from))
 	  if(any(is.na(from)))
 	      warning("'NA's coerced to 'FALSE' in coercion to logical sparse")
-	  ij <- which(from, arr.ind = TRUE) - 1:1
+	  ij <- which(from, arr.ind = TRUE) - 1L
 	  if(length(ij) == 0) ij <- matrix(ij, 0, 2)
 	  new("ngTMatrix",
 	      i = ij[,1],
@@ -43,7 +43,7 @@ setAs("ngTMatrix", "lgTMatrix",
 	  Dim = from@Dim, Dimnames= from@Dimnames))
 
 setAs("ngTMatrix", "ntTMatrix",
-      function(from) check.gt2tT(from, getClassDef("ngTMatrix")))
+      function(from) check.gT2tT(from, cl = "ngTMatrix", toClass = "ntTMatrix"))
 
 
 setMethod("t", signature(x = "ngTMatrix"),

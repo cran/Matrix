@@ -3,16 +3,18 @@
 setAs("dtpMatrix", "dtrMatrix",
       function(from) .Call(dtpMatrix_as_dtrMatrix, from))
 
+## Is this needed?  already have coercion to "TsparseMatrix" {FIXME}
 setAs("dtpMatrix", "dtTMatrix",
-      ## FIXME this is NOT efficient:
       function(from) {
 	  x <- as(from, "TsparseMatrix")
           cld <- getClassDef(class(x))
 	  if(extends(cld, "dtTMatrix"))
 	      x
-	  else
-	      gt2tT(as(x, "dgTMatrix"),
-		    uplo = from@uplo, diag = from@diag, cld = cld)
+	  else { ## triangularity lost: should not have happened
+	      warning("inefficient coercion (lost triangularity); please report")
+	      gT2tT(as(x, "dgTMatrix"), uplo = from@uplo, diag = from@diag,
+		    cl = "dgTMatrix", toClass = "dtTMatrix", cld = cld)
+	  }
       })
 
 setAs("dtpMatrix", "matrix",

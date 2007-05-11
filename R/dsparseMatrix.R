@@ -33,10 +33,6 @@ setMethod("crossprod", signature(x = "dgeMatrix", y = "dsparseMatrix"),
 setMethod("image", "dsparseMatrix",
           function(x, ...) image(as(x, "dgTMatrix"), ...))
 
-setMethod("kronecker", signature(X = "dsparseMatrix", Y = "dsparseMatrix"),
-          function (X, Y, FUN = "*", make.dimnames = FALSE, ...)
-          callGeneric(as(X, "dgTMatrix"), as(Y, "dgTMatrix")))
-
 setMethod("chol", signature(x = "dsparseMatrix", pivot = "ANY"),
            function(x, pivot, ...) {
                px <- as(x, "dsCMatrix")

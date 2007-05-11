@@ -168,12 +168,7 @@ setClass("dtpMatrix",
 
 ## numeric, dense, non-packed symmetric matrices
 setClass("dsyMatrix",
-	 ## FIXME?
-	 ##> 'ddense*' before 'dge*' so it can use d* or ddense* methods
-	 ##> WITHOUT a coerce to dge* (losing symmetry)
-	 ##> gives error in crossprod() dispatch
-	 ##> contains = c("ddenseMatrix", "dgeMatrix", "symmetricMatrix"),
-	 contains = c("ddenseMatrix", "symmetricMatrix"),
+         contains = c("ddenseMatrix", "symmetricMatrix"),
 	 validity =
 	 function(object) .Call(dsyMatrix_validate, object)
 	 )

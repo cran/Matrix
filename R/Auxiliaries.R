@@ -1,8 +1,7 @@
 #### "Namespace private" Auxiliaries  such as method functions
 #### (called from more than one place --> need to be defined early)
 
-.isR_24 <- (paste(R.version$major, R.version$minor, sep=".") >= "2.4")
-.isR_25 <- (paste(R.version$major, R.version$minor, sep=".") >= "2.5")
+.isR_26 <- (paste(R.version$major, R.version$minor, sep=".") >= "2.6")
 
 ## Need to consider NAs ;  "== 0" even works for logical & complex:
 is0  <- function(x) !is.na(x) & x == 0
@@ -158,9 +157,7 @@ prTriang <- function(x, digits = getOption("digits"),
 	cf[row(cf) > col(cf)] <- "."
     else
 	cf[row(cf) < col(cf)] <- "."
-    if(.isR_24)
-	 print(cf, quote = FALSE, right = right, max = maxp)
-    else print(cf, quote = FALSE, right = right)
+    print(cf, quote = FALSE, right = right, max = maxp)
     invisible(x)
 }
 
@@ -173,9 +170,7 @@ prMatrix <- function(x, digits = getOption("digits"),
 	if(is(x, "triangularMatrix"))
 	    prTriang(x, digits = digits, maxp = maxp)
 	else {
-	    if(.isR_24)
-		 print(as(x, "matrix"), digits = digits, max = maxp)
-	    else print(as(x, "matrix"), digits = digits)
+            print(as(x, "matrix"), digits = digits, max = maxp)
 	}
     }
     else { ## d[1] > maxp / d[2] >= nr :
@@ -468,7 +463,28 @@ n2l_spMatrix <- function(from) {
         Dim = from@Dim, Dimnames = from@Dimnames)
 }
 
-gt2tT <- function(x, uplo, diag, cld = getClassDef(class(x))) {
+tT2gT <- function(x, cl = class(x),
+                  toClass = paste(substr(cl,1,1), "tTMatrix", sep=''),# "d" | "l"|"i"|"z"
+                  cld = getClassDef(cl)) {
+    ## coerce *tTMatrix to *gTMatrix {triangular -> general}
+    d <- x@Dim
+    if(uDiag <- x@diag == "U")	     # unit diagonal, need to add '1's
+	uDiag <- (n <- d[1]) > 0
+    if(extends(cld, "nMatrix")) # no 'x' slot
+	new("ngTMatrix", Dim = d, Dimnames = x@Dimnames,
+	    i = c(x@i, if(uDiag) 0:(n-1)),
+	    j = c(x@j, if(uDiag) 0:(n-1)))
+    else
+	new(toClass, Dim = d, Dimnames = x@Dimnames,
+	    i = c(x@i, if(uDiag) 0:(n-1)),
+	    j = c(x@j, if(uDiag) 0:(n-1)),
+	    x = c(x@x, if(uDiag) rep.int(1,n)))
+}
+
+gT2tT <- function(x, uplo, diag,
+		  cl = class(x),
+		  toClass = paste(substr(cl,1,1), "tTMatrix", sep=''),# d,l,i,z
+		  cld = getClassDef(cl)) {
     ## coerce *gTMatrix to *tTMatrix {general -> triangular}
     i <- x@i
     j <- x@j
@@ -484,18 +500,19 @@ gt2tT <- function(x, uplo, diag, cld = getClassDef(class(x))) {
 	new("ntTMatrix", i = i, j = j, uplo = uplo, diag = diag,
 	    Dim = x@Dim, Dimnames = x@Dimnames)
     else
-	new(paste(substr(class(x), 1,1), # "d", "l", "i" or "z"
-		  "tTMatrix", sep=''),
-	    i = i, j = j, uplo = uplo, diag = diag,
+	new(toClass, i = i, j = j, uplo = uplo, diag = diag,
 	    x = x@x[sel], Dim = x@Dim, Dimnames = x@Dimnames)
 }
 
-check.gt2tT <- function(from, cld = getClassDef(from)) {
-    if(isTr <- isTriangular(from))
-	gt2tT(from, uplo = .if.NULL(attr(isTr, "kind"), "U"),
+check.gT2tT <- function(from, cl = class(from),
+			toClass = paste(substr(cl,1,1), "tTMatrix", sep=''),# d,l,i,z
+			cld = getClassDef(cl)) {
+    if(isTr <- isTriangular(from)) {
+        force(cl)
+	gT2tT(from, uplo = .if.NULL(attr(isTr, "kind"), "U"),
 	      diag = "N", ## improve: also test for unit diagonal
-	      cld = cld)
-    else stop("not a triangular matrix")
+	      cl = cl, toClass = toClass, cld = cld)
+    } else stop("not a triangular matrix")
 }
 
 if(FALSE)# unused
@@ -513,17 +530,22 @@ l2d_meth <- function(x) {
 	else if(is.complex(x)) "z"
 	else stop("not yet implemented for matrix w/ typeof ", typeof(x))
     }
-    else {
-	if(is.character(clx))		# < speedup: get it once
-	    clx <- getClassDef(clx)
-	if(extends(clx, "dMatrix")) "d"
-	else if(extends(clx, "nMatrix")) "n"
-	else if(extends(clx, "lMatrix")) "l"
-	else if(extends(clx, "zMatrix")) "z"
-	else if(extends(clx, "pMatrix")) "n" # permutation -> pattern
-	else stop(" not yet be implemented for ", clx@className)
-    }
+    else .M.kindC(clx)
 }
+
+.M.kindC <- function(clx) { ## 'clx': class() *or* classdefinition
+    if(is.character(clx))		# < speedup: get it once
+        clx <- getClassDef(clx)
+    if(extends(clx, "sparseVector")) ## shortcut
+        substr(clx@className, 1,1)
+    else if(extends(clx, "dMatrix")) "d"
+    else if(extends(clx, "nMatrix")) "n"
+    else if(extends(clx, "lMatrix")) "l"
+    else if(extends(clx, "zMatrix")) "z"
+    else if(extends(clx, "pMatrix")) "n" # permutation -> pattern
+    else stop(" not yet be implemented for ", clx@className)
+}
+
 
 ## typically used as .type.kind[.M.kind(x)]:
 .type.kind <- c("d" = "double",
@@ -610,21 +632,37 @@ as_Csparse2 <- function(x, cld = if(isS4(x)) getClassDef(class(x))) {
     if(sh == "t") .Call(Csparse_diagU2N, x) else x
 }
 
-as_gCsimpl <- function(from) as(from, paste(.M.kind(from), "gCMatrix", sep=''))
 
+
+## 'cl'   : class() *or* class definition of from
+as_gCsimpl <- function(from, cl = class(from))
+    as(from, paste(.M.kind(from, cl), "gCMatrix", sep=''))
+## slightly smarter:
+as_gSparse2 <- function(from, cl = class(from)) {
+    if(is.character(cl)) cl <- getClassDef(cl)
+    as(from, paste(.M.kind(from, cl),
+		   if(extends(cl, "TsparseMatrix")) "gTMatrix"
+		   else "gCMatrix", sep=''))
+}
+as_geSimpl2 <- function(from, cl = class(from))
+    as(from, paste(.M.kind(from, cl), "geMatrix", sep=''))
+
+## to be used directly in setAs(.) needs one-argument-only  (from) :
 as_geSimpl <- function(from) as(from, paste(.M.kind(from), "geMatrix", sep=''))
+as_gSparse <- function(from) as_gSparse2(from, getClassDef(class(from)))
+
 ## smarter, (but sometimes too smart!) compared to geClass() above:
 as_geClass <- function(x, cl) {
     if(missing(cl)) as_geSimpl(x)
     else if(extends(cl, "diagonalMatrix")  && isDiagonal(x))
 	as(x, cl)
     else if(extends(cl, "symmetricMatrix") &&  isSymmetric(x)) {
-        kind <- .M.kind(x)
+        kind <- .M.kind(x, cl)
 	as(x, class2(cl, kind, do.sub= kind != "d"))
     } else if(extends(cl, "triangularMatrix") && isTriangular(x))
 	as(x, cl)
-    else ## forget about 'cl'
-	as_geSimpl(x)
+    else ## revert to
+	as_geSimpl2(x, cl)
 }
 
 as_CspClass <- function(x, cl) {
@@ -634,7 +672,7 @@ as_CspClass <- function(x, cl) {
 	(extends(cl, "triangularMatrix")&& isTriangular(x)))
 	as(x, cl)
     else if(is(x, "CsparseMatrix")) x
-    else as(x, paste(.M.kind(x), "gCMatrix", sep=''))
+    else as(x, paste(.M.kind(x, cl), "gCMatrix", sep=''))
 }
 
 
@@ -774,9 +812,10 @@ diagU2N <- function(x, cl = getClassDef(class(x)))
 }
 
 
-### Fast much simplified version of tapply()
+### Fast, much simplified version of tapply()
 tapply1 <- function (X, INDEX, FUN = NULL, ..., simplify = TRUE) {
-    sapply(split(X, INDEX), FUN, ..., simplify = simplify, USE.NAMES = FALSE)
+    sapply(unname(split(X, INDEX)), FUN, ...,
+	   simplify = simplify, USE.NAMES = FALSE)
 }
 
 ## tapply.x <- function (X, n, INDEX, FUN = NULL, ..., simplify = TRUE) {

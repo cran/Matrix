@@ -1,3 +1,87 @@
+2007-05-11  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Tsparse.R ([, Tsparse): fix last case: *duplicated*, symmetric
+	indexing
+	* tests/indexing.R: test set for that.
+
+2007-05-08  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Tsparse.R (replTmat): fix the case of *duplicated* index
+	entries.
+	* tests/indexing.R(out): add regression test for it
+
+2007-04-30  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/(l(dense|sparse))?Matrix.R (!): use 'x', not 'e1' as argument
+	name for "!" method definitions.
+
+2007-04-26  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Tsparse.R (intI): new utility, used for "[" :
+		Cleanup up there, and fixes for duplicated indices - more TODO!
+
+	* tests/indexing.R(out): more tests
+
+2007-04-25  Douglas Bates  <bates@stat.wisc.edu>
+
+	* DESCRIPTION,src/Makefile: require R>= 2.5.0 and remove Lapack
+	code that is now part of the R Lapack library.
+
+	* src/init.c,inst/include/{Matrix_stubs.c,cholmod.h}:export
+	cholmod_factorize_p (used in lme4 for GLMMs and NLMMs).
+
+2007-04-21  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Matrix.R (image): method for all Matrices, not just sparse ones.
+
+2007-04-17  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Auxiliaries.R (tapply1): unname(.) -> colSums() etc don't end
+	up with extraneous names '0'...'<n-1>'
+
+2007-04-12  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/dgTMatrix.R (mat2dgT): care about NAs
+
+2007-04-11  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/kronecker.R: triangularity preserving methods
+
+2007-03-27  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/kronecker.R: new file collecting kronecker() methods in one
+		place.  Goal: become much faster!
+
+2007-03-23  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/dtCMatrix.c (dtCMatrix_solve): use the new code from Kasper
+	Kristensen based cs_spsolve() instead of _lsolve & _usolve which
+	can be much faster.
+
+	* tests/matprod.R: add regression tests for these (upper & lower).
+
+2007-03-19  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Matrix.R (diff): method for our Matrices.
+
+	* R/sparseMatrix.R (isDiagonal): check dim()!
+
+2007-03-17  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Matrix.R (dim<-): new method for "reshape()" built on a
+	proposal from Tamas Papp.
+
+2007-03-16  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/AllGeneric.R: remove all  if(!isGeneric(.))  clauses
+
+	* R/zzz.R (.onLoad, .onUnload): do *not* leave bind_activation(TRUE);
+	rather define and export  cBind() and rBind() only.
+	--> useRs *must* change code that used to have cbind()/rbind() !!
+
+	* R/bind.R: change tests from cbind() to cBind() and similarly to rBind()
+	* R/bind.Rout.save: ditto
+
 2007-02-16  Douglas Bates  <bates@r-project.org>
 
 	* DESCRIPTION (Date, Version): 0.9975-11 with new date

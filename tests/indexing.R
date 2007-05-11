@@ -81,6 +81,65 @@ mC[,1]
 mC[1:2,]
 mC[7,  drop = FALSE]
 assert.EQ.mat(mC[1:2,], mm[1:2,])
+
+## *repeated* (aka 'duplicated') indices - did not work at all ...
+i <- rep(8:10,2)
+j <- c(2:4, 4:3)
+assert.EQ.mat(mC[i,], mm[i,])
+assert.EQ.mat(mC[,j], mm[,j])
+assert.EQ.mat(mC[i, 2:1], mm[i, 2:1])
+assert.EQ.mat(mC[c(4,1,2:1), j], mm[c(4,1,2:1), j])
+assert.EQ.mat(mC[i,j], mm[i,j])
+set.seed(7)
+for(n in 1:50) {
+    i <- sample(sample(nrow(mC), 7), 20, replace = TRUE)
+    j <- sample(sample(ncol(mC), 6), 17, replace = TRUE)
+    assert.EQ.mat(mC[i,j], mm[i,j])
+}
+
+##---- Symmetric indexing of symmetric Matrix ----------
+m. <- mC; m.[, c(2, 7:12)] <- 0
+validObject(S <- crossprod(add.simpleDimnames(m.) %% 100))
+ss <- as(S, "matrix")
+T <- as(S, "TsparseMatrix")
+## non-repeated indices:
+i <- c(7:5, 2:4);assert.EQ.mat(T[i,i], ss[i,i])
+N <- nrow(T)
+set.seed(11)
+for(n in 1:50) {
+    i <- sample(N, max(2, sample(N,1)), replace = FALSE)
+    validObject(Tii <- T[i,i])
+    stopifnot(is(Tii, "dsTMatrix"), # remained symmetric Tsparse
+              identical(t(Tii), t(T)[i,i]))
+    assert.EQ.mat(Tii, ss[i,i])
+}
+
+## repeated ones ``the challenge'' (to do smartly):
+j <- c(4, 4, 9, 12, 9, 4, 17, 3, 18, 4, 12, 18, 4, 9)
+assert.EQ.mat(T[j,j], ss[j,j])
+## and another two sets  (a, A) &  (a., A.) :
+a <- matrix(0, 6,6)
+a[upper.tri(a)] <- (utr <- c(2, 0,-1, 0,0,5, 7,0,0,0, 0,0,-2,0,8))
+ta <- t(a); ta[upper.tri(a)] <- utr; a <- t(ta)
+diag(a) <- c(0,3,0,4,6,0)
+A <- as(Matrix(a), "TsparseMatrix")
+A. <- A
+diag(A.) <- 10 * (1:6)
+a. <- as(A., "matrix")
+## More testing {this was not working for a long time..}
+set.seed(1)
+for(n in 1:100) {
+    i <- sample(1:nrow(A), 3+2*rpois(1, lam=3), replace=TRUE)
+    Aii  <- A[i,i]
+    A.ii <- A.[i,i]
+    stopifnot(class(Aii) == class(A),
+              class(A.ii) == class(A.))
+    assert.EQ.mat(Aii , a [i,i])
+    assert.EQ.mat(A.ii, a.[i,i])
+    assert.EQ.mat(T[i,i], ss[i,i])
+}
+
+
 stopifnot(all.equal(mC[,3], mm[,3]),
 	  identical(mC[ij], mm[ij]))
 assert.EQ.mat(mC[7, , drop=FALSE], mm[7, , drop=FALSE])
@@ -125,6 +184,15 @@ stopifnot(class(l10) == "lsCMatrix", # symmetric indexing -> symmetric !
           identical(as.mat(l3 ), m.x[1:3, ] != 0)
           )
 
+##-- Sub*assignment* with repeated / duplicated index:
+A <- Matrix(0,4,3) ; A[c(1,2,1), 2] <- 1 ; A
+B <- A;              B[c(1,2,1), 2] <- 1:3; B
+stopifnot(identical(unname(as.matrix(A)),
+		    local({a <- matrix(0,4,3); a[c(1,2,1), 2] <-  1 ; a})),
+	  identical(unname(as.matrix(B)),
+		    local({a <- matrix(0,4,3); a[c(1,2,1), 2] <- 1:3; a})))
+
+
 ## used to fail
 n <- 5 ## or much larger
 sm <- new("dsTMatrix", i=as.integer(1),j=as.integer(1),
@@ -142,6 +210,14 @@ stopifnot(sm[2,] == c(0:1, rep.int(0,ncol(sm)-2)),
 m0 <- Diagonal(5)
 (m1 <- as(m0, "sparseMatrix"))  # dtTMatrix
 (m2 <- as(m0, "CsparseMatrix")) # dtCMatrix (with an irrelevant warning)
+m1g <- as(m1, "generalMatrix")
+stopifnot(is(m1g, "dgTMatrix"))
+assert.EQ.mat(m2[1:3,],    diag(5)[1:3,])
+assert.EQ.mat(m2[,c(4,1)], diag(5)[,c(4,1)])
+stopifnot(identical(m2[1:3,], as(m1[1:3,], "CsparseMatrix")),
+          identical(Matrix:::uniqTsparse(m1[, c(4,2)]),
+                    Matrix:::uniqTsparse(as(m2[, c(4,2)], "TsparseMatrix")))
+          )## failed in 0.9975-11
 
 M <- m0; M[1,] <- 0
 stopifnot(identical(M, Diagonal(x=c(0, rep(1,4)))))
@@ -270,7 +346,8 @@ Hc.[, 1:6]
 
 ## an example that failed for a long time
 sy3 <- new("dsyMatrix", Dim = as.integer(c(2, 2)), x = c(14, -1, 2, -7))
-validObject(dm <- kronecker(Diagonal(2), sy3))
+validObject(dm <- kronecker(Diagonal(2), sy3))# now sparse with new kronecker
+dm <- Matrix(as.matrix(dm))# -> "dsyMatrix"
 (s2 <- as(dm, "sparseMatrix"))
 validObject(st <- as(s2, "TsparseMatrix"))
 stopifnot(is(s2, "symmetricMatrix"),

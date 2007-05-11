@@ -13,9 +13,14 @@ setAs("dgeMatrix", "dtrMatrix",
 	  else stop("not a triangular matrix")
       })
 
+setAs("dgeMatrix", "triangularMatrix", function(from) as(from, "dtrMatrix"))
 
 setAs("dtrMatrix", "dtpMatrix",
       function(from) .Call(dtrMatrix_as_dtpMatrix, from))
+
+setAs("dtrMatrix", "sparseMatrix", .dense2C)
+setAs("dtrMatrix", "CsparseMatrix", .dense2C)
+
 
 ## needed for t() method
 setAs("dtrMatrix", "matrix",

@@ -9,13 +9,13 @@
 \alias{coerce,dgTMatrix,dsTMatrix-method}
 \alias{coerce,dgTMatrix,dtTMatrix-method}
 \alias{coerce,dgTMatrix,matrix-method}
+\alias{coerce,dgTMatrix,triangularMatrix-method}
 \alias{coerce,dgeMatrix,dgTMatrix-method}
 \alias{coerce,matrix,dgTMatrix-method}
 \alias{crossprod,dgTMatrix,missing-method}
 \alias{crossprod,dgTMatrix,matrix-method}
 \alias{crossprod,dgTMatrix,numeric-method}
 \alias{image,dgTMatrix-method}
-\alias{kronecker,dgTMatrix,dgTMatrix-method}
 \alias{colMeans,dgTMatrix-method}
 \alias{colSums,dgTMatrix-method}
 \alias{rowMeans,dgTMatrix-method}
@@ -71,7 +71,7 @@
 \seealso{
   Class \code{\linkS4class{dgCMatrix}} or the superclasses
   \code{\linkS4class{dsparseMatrix}} and
-  \code{\linkS4class{TsparseMatrix}}.
+  \code{\linkS4class{TsparseMatrix}};
 }
 \examples{
 m <- Matrix(0+1:28, nrow = 4)

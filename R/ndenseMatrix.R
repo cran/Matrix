@@ -24,9 +24,9 @@ setAs("ntpMatrix", "ltpMatrix", function(from) n2l_Matrix(from, "ntpMatrix"))
 ## all need be coercable to "ngeMatrix":
 
 setAs("nsyMatrix", "ngeMatrix",  function(from)
-      .Call(lsyMatrix_as_lgeMatrix, from, 1:1))
+      .Call(lsyMatrix_as_lgeMatrix, from, 1L))
 setAs("ntrMatrix", "ngeMatrix",  function(from)
-      .Call(ltrMatrix_as_lgeMatrix, from, 1:1))
+      .Call(ltrMatrix_as_lgeMatrix, from, 1L))
 setAs("ntpMatrix", "ngeMatrix",
       function(from) as(as(from, "ntrMatrix"), "ngeMatrix"))
 setAs("nspMatrix", "ngeMatrix",
@@ -42,19 +42,19 @@ setAs("ngeMatrix", "nspMatrix",
 
 setAs("nspMatrix", "nsyMatrix",
       function(from)
-      .Call(lspMatrix_as_lsyMatrix, from, 1:1))
+      .Call(lspMatrix_as_lsyMatrix, from, 1L))
 
 setAs("nsyMatrix", "nspMatrix",
       function(from)
-      .Call(lsyMatrix_as_lspMatrix, from, 1:1))
+      .Call(lsyMatrix_as_lspMatrix, from, 1L))
 
 setAs("ntpMatrix", "ntrMatrix",
       function(from)
-      .Call(ltpMatrix_as_ltrMatrix, from, 1:1))
+      .Call(ltpMatrix_as_ltrMatrix, from, 1L))
 
 setAs("ntrMatrix", "ntpMatrix",
       function(from)
-      .Call(ltrMatrix_as_ltpMatrix, from, 1:1))
+      .Call(ltrMatrix_as_ltpMatrix, from, 1L))
 
 
 
@@ -122,14 +122,14 @@ setAs("ndenseMatrix", "matrix", ## uses the above l*M. -> lgeM.
 ## go via "l" because dense_to_Csparse can't be used for "n" [missing CHOLMOD function]
 setAs("ndenseMatrix", "CsparseMatrix",
       function(from) as(as(as(from, "lMatrix"), "CsparseMatrix"), "nMatrix"))
-setAs("ndenseMatrix", "sparseMatrix",
-      function(from) as(as(as(from, "lMatrix"), "sparseMatrix"), "nMatrix"))
+## setAs("ndenseMatrix", "sparseMatrix",
+##       function(from) as(as(as(from, "lMatrix"), "sparseMatrix"), "nMatrix"))
 
 setAs("ndenseMatrix", "TsparseMatrix",
       function(from) {
 	  if(is(from, "generalMatrix")) {
 	      ##  cheap but not so efficient:
-	      ij <- which(as(from,"matrix"), arr.ind = TRUE) - 1:1
+	      ij <- which(as(from,"matrix"), arr.ind = TRUE) - 1L
 	      new("ngTMatrix", i = ij[,1], j = ij[,2],
 		  Dim = from@Dim, Dimnames = from@Dimnames,
 		  factors = from@factors)
@@ -145,7 +145,7 @@ setAs("ndenseMatrix", "TsparseMatrix",
 setAs("ngeMatrix", "ngTMatrix",
       function(from) {
           ##  cheap but not so efficient:
-          ij <- which(as(from,"matrix"), arr.ind = TRUE) - 1:1
+          ij <- which(as(from,"matrix"), arr.ind = TRUE) - 1L
           new("ngTMatrix", i = ij[,1], j = ij[,2],
               Dim = from@Dim, Dimnames = from@Dimnames,
               factors = from@factors)
@@ -168,39 +168,8 @@ setMethod("t", signature(x = "ntpMatrix"),
 setMethod("t", signature(x = "nspMatrix"),
           function(x) as(callGeneric(as(x, "nsyMatrix")), "nspMatrix"))
 
-setMethod("!", "ntrMatrix",
-	  function(e1) {
-	      e1@x <- !e1@x
-	      ## And now we must fill one triangle with '!FALSE' results :
-
-	      ## TODO: the following should be .Call using
-	      ##	a variation of make_array_triangular:
-	      r <- as(e1, "ngeMatrix")
-	      n <- e1@Dim[1]
-	      coli <- rep(1:n, each=n)
-	      rowi <- rep(1:n, n)
-	      Udiag <- e1@diag == "U"
-	      log.i <-
-		  if(e1@uplo == "U") {
-		      if(Udiag) rowi >= coli else rowi > coli
-		  } else {
-		      if(Udiag) rowi <= coli else rowi < coli
-		  }
-	      r@x[log.i] <- TRUE
-	      r
-	  })
-
-setMethod("!", "ntpMatrix", function(e1) !as(e1, "ntrMatrix"))
-
-## for the other ldense* ones
-setMethod("!", "ngeMatrix",
-          function(e1) { e1@x <- !e1@x ; e1 })
-## FIXME : this loses symmetry "nsy" and "nsp":
-setMethod("!", "ndenseMatrix",
-          function(e1) !as(e1, "ngeMatrix"))
-
 ## NOTE:  "&" and "|"  are now in group "Logic" c "Ops" --> ./Ops.R
-
+##        "!" is in ./not.R
 
 setMethod("as.vector", signature(x = "ndenseMatrix", mode = "missing"),
           function(x) as(x, "ngeMatrix")@x)

@@ -26,7 +26,7 @@ setAs("pMatrix", "matrix",
 setAs("pMatrix", "ngTMatrix",
       function(from) {
           d <- from@Dim
-	  new("ngTMatrix", i = seq_len(d[1]) - 1:1, j = from@perm - 1:1,
+	  new("ngTMatrix", i = seq_len(d[1]) - 1L, j = from@perm - 1L,
               Dim = d, Dimnames = from@Dimnames)
       })
 

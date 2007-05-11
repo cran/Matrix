@@ -108,3 +108,34 @@ Check for DimNames propagation in coercion and other operations.
   the matrix factors of the corresponding matrix factorization !!
 
 - rbind(<sparse>, <dense>) does not work  (e.g. <dgC>, <dge>)
+
+- setAs(<Mcl>,  "[dln]Matrix" )  for <Mcl> in {Matrix or denseMatrix + sparseMatrix}
+
+- Tell users about the possibility to disable the "S4-generic but somewhat slow"
+  cbind/rbind, e.g. via
+
+  setHook(packageEvent("Matrix", "onLoad"),
+          function(...) methods:::bind_activation(FALSE))
+
+- ensure that  M[0], M[FALSE], M[1:2]  works as for traditional Matrices
+
+- make sure  M[FALSE, FALSE]  works for all Matrices
+  {e.g. fails for M <- Diagonal(4)}
+
+- <sparse> %*% <dense>  {also in crossprod/tcrossprod}  currently always
+  returns <dense>, since --> Csparse_dense_prod --> cholmod_sdmult
+  and that does only return dense.
+  When the sparse matrix is very sparse, i.e. has many rows with only zero
+  entries, it would make much sense to return sparse.
+
+- sparse-symmetric + diagonal should stay sparse-symmetric
+  (only stays sparse): Matrix(0, 4, 4) + Diagonal(4, 1:4)
+
+- For a square sparse matrix 'b' {typically dgCMatrix or dgTMatrix},
+  we'd want a function  "Mat_plus_t_Mat" <- function(b) {....}
+  which computes the symmetric sparse matrix   b + t(b)
+  in way that never works with size-doubled vectors from  b@i etc..
+
+- ! <symmetricMatrix>  loses symmetry, both for dense and sparse matrices.
+  !M  where M is "sparseMatrix", currently always gives dense. This only
+  makes sense when M is ``really sparse''.

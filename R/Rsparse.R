@@ -27,7 +27,7 @@ if(FALSE)## "slow" R-level workaround
                "lgRMatrix", "lsRMatrix", "ltRMatrix",
                "ngRMatrix", "nsRMatrix", "ntRMatrix",
                "zgRMatrix", "zsRMatrix", "ztRMatrix")
-    icl <- match(cl, valid) - 1:1
+    icl <- match(cl, valid) - 1L
     if(is.na(icl)) stop("invalid class:", cl)
     Ccl <- sub("^(..)R","\\1C", cl)  # corresponding Csparse class name
     r <- new(Ccl)
@@ -138,3 +138,14 @@ setMethod("triu", "RsparseMatrix",
 setMethod("band", "RsparseMatrix",
 	  function(x, k1, k2, ...)
 	  as(band(.R.2.C(x), k1 = k1, k2 = k2, ...), "RsparseMatrix"))
+
+
+## These two are obviously more efficient than going through Tsparse:
+setMethod("colSums", signature(x = "dgRMatrix"),
+	  function(x, na.rm = FALSE, dims = 1)
+	  tapply1(x@x, factor(x@j, 0:(x@Dim[2]-1)), sum, na.rm = na.rm))
+
+setMethod("colMeans", signature(x = "dgRMatrix"),
+	  function(x, na.rm = FALSE, dims = 1)
+	  tapply1(x@x, factor(x@j, 0:(x@Dim[2]-1)), mean, na.rm = na.rm))
+

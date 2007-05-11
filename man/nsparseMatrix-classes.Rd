@@ -65,6 +65,7 @@
 \alias{coerce,ntCMatrix,ngCMatrix-method}
 \alias{coerce,ntCMatrix,ntTMatrix-method}
 \alias{coerce,ntTMatrix,dtTMatrix-method}
+\alias{coerce,ntTMatrix,generalMatrix-method}
 \alias{coerce,ntTMatrix,matrix-method}
 \alias{coerce,ntTMatrix,ngCMatrix-method}
 \alias{coerce,ntTMatrix,ngTMatrix-method}

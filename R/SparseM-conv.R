@@ -5,13 +5,13 @@
 setAs("matrix.csr", "dgRMatrix",
       function(from) {
 	  new("dgRMatrix",
-	      x = from@ra, j = from@ja - 1:1, p = from@ia - 1:1,
+	      x = from@ra, j = from@ja - 1L, p = from@ia - 1L,
 	      Dim = from@dimension)
       })
 setAs("dgRMatrix", "matrix.csr",
       function(from) {
 	  new("matrix.csr",
-	      ra = from@x, ja = from@j + 1:1, ia = from@p + 1:1,
+	      ra = from@x, ja = from@j + 1L, ia = from@p + 1L,
 	      dimension = from@Dim)
       })
 
@@ -19,26 +19,26 @@ setAs("dgRMatrix", "matrix.csr",
 setAs("matrix.csc", "dgCMatrix",
       function(from) {
 	  new("dgCMatrix",
-	      x = from@ra, i = from@ja - 1:1, p = from@ia - 1:1,
+	      x = from@ra, i = from@ja - 1L, p = from@ia - 1L,
 	      Dim = from@dimension)
       })
 setAs( "dgCMatrix", "matrix.csc",
       function(from) {
 	  new("matrix.csc",
-	      ra = from@x, ja = from@i + 1:1, ia = from@p + 1:1,
+	      ra = from@x, ja = from@i + 1L, ia = from@p + 1L,
 	      dimension = from@Dim)
       })
 
 setAs("matrix.coo", "dgTMatrix",
       function(from) {
 	  new("dgTMatrix",
-	      x = from@ra, i = from@ia - 1:1, j = from@ja - 1:1,
+	      x = from@ra, i = from@ia - 1L, j = from@ja - 1L,
 	      Dim = from@dimension)
       })
 setAs("dgTMatrix", "matrix.coo",
       function(from) {
 	  new("matrix.coo",
-	      ra = from@x, ia = from@i + 1:1, ja = from@j + 1:1,
+	      ra = from@x, ia = from@i + 1L, ja = from@j + 1L,
 	      dimension = from@Dim)
       })
 

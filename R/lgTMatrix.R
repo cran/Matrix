@@ -16,7 +16,7 @@ setAs("matrix", "lgTMatrix",
       function(from) {
 	  stopifnot(is.logical(from))
           TorNA <- is.na(from) | from
-	  ij <- which(TorNA, arr.ind = TRUE) - 1:1
+	  ij <- which(TorNA, arr.ind = TRUE) - 1L
 	  if(length(ij) == 0) ij <- matrix(ij, 0, 2)
 	  new("lgTMatrix",
 	      i = ij[,1],
@@ -36,7 +36,7 @@ setAs("lgTMatrix", "dgTMatrix",
           Dim = from@Dim, Dimnames= from@Dimnames))
 
 setAs("lgTMatrix", "ltTMatrix",
-      function(from) check.gt2tT(from, getClassDef("lgTMatrix")))
+      function(from) check.gT2tT(from, cl = "lgTMatrix", toClass = "ltTMatrix"))
 
 
 setMethod("t", signature(x = "lgTMatrix"),

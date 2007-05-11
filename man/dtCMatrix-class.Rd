@@ -1,7 +1,9 @@
 \name{dtCMatrix-class}
+\title{Triangular, (compressed) sparse column matrices}
 \docType{class}
-\alias{dtCMatrix-class}
-\alias{dtTMatrix-class}
+\alias{dtCMatrix-class}% C  and
+\alias{dtTMatrix-class}% T
+%
 \alias{coerce,dtCMatrix,dgCMatrix-method}
 \alias{coerce,dtCMatrix,dgeMatrix-method}
 \alias{coerce,dtCMatrix,dgTMatrix-method}
@@ -14,18 +16,19 @@
 \alias{coerce,dtTMatrix,dgeMatrix-method}
 \alias{coerce,dtTMatrix,dtCMatrix-method}
 \alias{coerce,dtTMatrix,dtrMatrix-method}
-\alias{coerce,dtTMatrix,ltTMatrix-method}
-\alias{coerce,dtTMatrix,ntTMatrix-method}
+%no longer\alias{coerce,dtTMatrix,ltTMatrix-method}
+%no longer\alias{coerce,dtTMatrix,ntTMatrix-method}
+\alias{coerce,dtTMatrix,generalMatrix-method}
 \alias{coerce,dtTMatrix,matrix-method}
 \alias{coerce,matrix,dtCMatrix-method}
 \alias{coerce,matrix,dtTMatrix-method}
+%
 \alias{solve,dtCMatrix,matrix-method}
 \alias{solve,dtCMatrix,dgeMatrix-method}
 \alias{solve,dtCMatrix,missing-method}
 \alias{solve,dtCMatrix,numeric-method}
 \alias{t,dtCMatrix-method}
 \alias{t,dtTMatrix-method}
-\title{Triangular, (compressed) sparse column matrices}
 \description{The \code{"dtCMatrix"} class is a class of triangular, sparse
   matrices in the compressed, column-oriented format.  In this
   implementation the non-zero elements in the columns are sorted into

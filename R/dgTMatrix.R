@@ -35,18 +35,22 @@ setAs("dgTMatrix", "dsTMatrix",
 	  else stop("not a symmetric matrix")})
 
 setAs("dgTMatrix", "dtTMatrix",
-      function(from) check.gt2tT(from, getClassDef("dgTMatrix")))
+      function(from) check.gT2tT(from, cl = "dgTMatrix", toClass = "dtTMatrix",
+				 cld = getClassDef("dgTMatrix")))
+setAs("dgTMatrix", "triangularMatrix",
+      function(from) check.gT2tT(from, cl = "dgTMatrix", toClass = "dtTMatrix",
+				 cld = getClassDef("dgTMatrix")))
 
-setAs("matrix", "dgTMatrix",
-      function(from) {
-	  x <- as.double(from)
-	  nz <- as.logical(x)
-	  new("dgTMatrix", Dim = dim(from),
-	      i = row(from)[nz] - 1:1,
-	      j = col(from)[nz] - 1:1,
-	      x = x[nz])
-      })
+mat2dgT <- function(from) {
+    x <- as.double(from)
+    nz <- isN0(x)
+    new("dgTMatrix", Dim = dim(from),
+        i = row(from)[nz] - 1L,
+        j = col(from)[nz] - 1L,
+        x = x[nz])
+}
 
+setAs("matrix", "dgTMatrix", mat2dgT)
 
 
 ## "[" methods are now in ./Tsparse.R
@@ -82,7 +86,7 @@ setMethod("image", "dgTMatrix",
                    ...)
       {
           matdim <- x@Dim
-          levelplot(abs(x@x) ~ (x@j + 1:1) * (x@i + 1:1),
+          levelplot(abs(x@x) ~ (x@j + 1L) * (x@i + 1L),
                     sub = sub,
                     xlab = xlab, ylab = ylab,
                     xlim = xlim, ylim = ylim,
@@ -121,20 +125,6 @@ setMethod("+", signature(e1 = "dgTMatrix", e2 = "dgTMatrix"),
                   x = c(e1@x, e2@x), Dim = e1@Dim)
           })
 
-setMethod("kronecker", signature(X = "dgTMatrix", Y = "dgTMatrix"),
-          function (X, Y, FUN = "*", make.dimnames = FALSE, ...)
-      {
-          if (FUN != "*") stop("kronecker method must use default 'FUN'")
-          ydim <- Y@Dim
-          xi <- X@i
-          xnnz <- length(xi)
-          yi <- Y@i
-          ynnz <- length(yi)
-          new("dgTMatrix", Dim = X@Dim * ydim,
-              i = rep.int(yi, xnnz) + ydim[1] * rep.int(xi, rep.int(ynnz, xnnz)),
-              j = rep.int(Y@j, xnnz) + ydim[2] * rep.int(X@j, rep.int(ynnz, xnnz)),
-              x = as.vector(outer(Y@x, X@x)))
-      }, valueClass = "dgTMatrix")
 
 setMethod("writeHB", signature(obj = "dgTMatrix"),
           function(obj, file, ...) callGeneric(as(obj, "CsparseMatrix"), file, ...))

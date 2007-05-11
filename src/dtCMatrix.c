@@ -116,33 +116,48 @@ SEXP dtCMatrix_solve(SEXP a)
     int *bp = INTEGER(ALLOC_SLOT(ans, Matrix_pSym, INTSXP, (A->n) + 1)),
 	lo = uplo_P(a)[0] == 'L',
 	bnz = 10 * A->n;	/* initial estimate of nnz in b */
-    int *ti = Calloc(bnz, int), i, j, nz, pos = 0;
+    int *ti = Calloc(bnz, int), p, j, nz, pos = 0;
     double *tx = Calloc(bnz, double), *wrk = Calloc(A->n, double);
+    cs *u = cs_spalloc(A->n, 1,1,1,0);	/* Sparse unit vector */
+    int top;				/* top of stack */
+    int *xi = Calloc(2*A->n, int);	/* cs_reach uses this workspace */
 
     SET_SLOT(ans, Matrix_DimSym, duplicate(GET_SLOT(a, Matrix_DimSym)));
     SET_DimNames(ans, a);
     SET_SLOT(ans, Matrix_uploSym, duplicate(GET_SLOT(a, Matrix_uploSym)));
     SET_SLOT(ans, Matrix_diagSym, duplicate(GET_SLOT(a, Matrix_diagSym)));
+    /* initialize the "constant part" of the sparse unit vector */
+    u->x[0] = 1.;
+    u->p[0] = 0; u->p[1] = 1;
     bp[0] = 0;
     for (j = 0; j < A->n; j++) {
-	AZERO(wrk, A->n);
-	wrk[j] = 1;
-	lo ? cs_lsolve(A, wrk) : cs_usolve(A, wrk);
-	for (i = 0, nz = 0; i < A->n; i++) if (wrk[i]) nz++;
+	u->i[0] = j;			/* u := j'th unit vector */
+	/* (wrk[top:n],xi[top:n]) :=  A^{-1} u  : */
+	top = cs_spsolve (A, u, 0, xi, wrk, 0, lo);
+	nz = A->n - top;
 	bp[j + 1] = nz + bp[j];
 	if (bp[j + 1] > bnz) {
 	    while (bp[j + 1] > bnz) bnz *= 2;
 	    ti = Realloc(ti, bnz, int);
 	    tx = Realloc(tx, bnz, double);
 	}
-	for (i = 0; i < A->n; i++)
-	    if (wrk[i]) {ti[pos] = i; tx[pos] = wrk[i]; pos++;}
+	if (lo)
+	    for(p = top; p < A->n; p++, pos++) {
+		ti[pos] = xi[p];
+		tx[pos] = wrk[xi[p]];
+	    }
+	else /* upper triagonal */
+	    for(p = A->n - 1; p >= top; p--, pos++) {
+		ti[pos] = xi[p];
+		tx[pos] = wrk[xi[p]];
+	    }
     }
     nz = bp[A->n];
-    Memcpy(INTEGER(ALLOC_SLOT(ans, Matrix_iSym, INTSXP, nz)), ti, nz);
-    Memcpy(REAL(ALLOC_SLOT(ans, Matrix_xSym, REALSXP, nz)), tx, nz);
+    Memcpy(INTEGER(ALLOC_SLOT(ans, Matrix_iSym, INTSXP,  nz)), ti, nz);
+    Memcpy(   REAL(ALLOC_SLOT(ans, Matrix_xSym, REALSXP, nz)), tx, nz);
 
     Free(A); Free(ti); Free(tx);
+    Free(wrk); cs_spfree(u); Free(xi);
     UNPROTECT(1);
     return ans;
 }

@@ -9,6 +9,8 @@
 \alias{coerce,dtrMatrix,dtpMatrix-method}
 \alias{coerce,dtrMatrix,ltrMatrix-method}
 \alias{coerce,dtrMatrix,matrix-method}
+\alias{coerce,dtrMatrix,sparseMatrix-method}
+\alias{coerce,dtrMatrix,CsparseMatrix-method}
 \alias{coerce,matrix,dtrMatrix-method}
 \alias{crossprod,dtrMatrix,missing-method}
 \alias{determinant,dtrMatrix,logical-method}

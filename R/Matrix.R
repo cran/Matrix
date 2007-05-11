@@ -3,8 +3,12 @@
 
 ### Virtual coercions -- via smart "helpers" (-> ./Auxiliaries.R)
 
-setAs("Matrix", "sparseMatrix", function(from) as_Csparse(from))
+setAs("Matrix", "sparseMatrix", function(from) as(from, "CsparseMatrix"))
+setAs("Matrix", "CsparseMatrix", function(from) as_Csparse(from))
 setAs("Matrix", "denseMatrix",  function(from) as_dense(from))
+
+## Maybe TODO:
+## setAs("Matrix", "nMatrix", function(from) ....)
 
 ## Most of these work; this is a last resort:
 setAs(from = "Matrix", to = "matrix", # do *not* call base::as.matrix() here:
@@ -88,8 +92,8 @@ setMethod("all", signature(x = "Matrix"),
 setMethod("any", signature(x = "Matrix"),
           function(x, ..., na.rm) { x <- as(x, "lMatrix"); callGeneric()})
 
-setMethod("!", "Matrix", function(e1) !as(e1, "lMatrix"))
-
+## NOTE:  "&" and "|"  are now in group "Logic" c "Ops" --> ./Ops.R
+##        "!" is in ./not.R
 
 
 Matrix <-
@@ -120,6 +124,7 @@ Matrix <-
 	if(length(data) == 1 && is0(data) && !identical(sparse, FALSE)) {
             ## Matrix(0, ...) : always sparse unless "sparse = FALSE":
 	    if(is.null(sparse)) sparse1 <- sparse <- TRUE
+            i.M <- sM <- TRUE
 	    ## will be sparse: do NOT construct full matrix!
 	    data <- new(if(is.numeric(data)) "dgTMatrix" else
 			if(is.logical(data)) "lgTMatrix" else
@@ -179,7 +184,18 @@ Matrix <-
 		  }, sep="")
 	}
 
-    ## Now coerce and return
+    ## Can we coerce and be done?
+    if(!canCoerce(data,cl)) { ## try to coerce ``via'' virtual classes
+	if(sparse && !sM)
+	    data <- as(data, "sparseMatrix")
+	else if(!sparse && !is(data, "denseMatrix"))
+	    data <- as(data, "denseMatrix")
+	if(isTri && !is(data, "triangularMatrix"))
+	    data <- as(data, "triangularMatrix")
+	else if(isSym && !is(data, "symmetricMatrix"))
+	    data <- as(data, "symmetricMatrix")
+    }
+    ## now coerce in any case .. maybe producing sensible error message:
     as(data, cl)
 }
 
@@ -241,13 +257,18 @@ setMethod("tcrossprod", signature(x = "Matrix", y = "Matrix"),
 
 ## There are special sparse methods; this is a "fall back":
 setMethod("kronecker", signature(X = "Matrix", Y = "ANY",
-                                 FUN = "ANY", make.dimnames = "ANY"),
-          function(X, Y, FUN, make.dimnames, ...) {
-              X <- as(X, "matrix") ; Matrix(callGeneric()) })
+				 FUN = "ANY", make.dimnames = "ANY"),
+	  function(X, Y, FUN, make.dimnames, ...) {
+	      if(is(X, "sparseMatrix"))
+		  warning("using slow kronecker() method")
+	      X <- as(X, "matrix") ; Matrix(callGeneric()) })
+
 setMethod("kronecker", signature(X = "ANY", Y = "Matrix",
-                                 FUN = "ANY", make.dimnames = "ANY"),
-          function(X, Y, FUN, make.dimnames, ...) {
-              Y <- as(Y, "matrix") ; Matrix(callGeneric()) })
+				 FUN = "ANY", make.dimnames = "ANY"),
+	  function(X, Y, FUN, make.dimnames, ...) {
+	      if(is(Y, "sparseMatrix"))
+		  warning("using slow kronecker() method")
+	      Y <- as(Y, "matrix") ; Matrix(callGeneric()) })
 
 
 ## FIXME: All of these should never be called
@@ -260,6 +281,52 @@ setMethod("diag", signature(x = "Matrix"),
 	  function(x, nrow, ncol) .bail.out.1(.Generic, class(x)))
 setMethod("t", signature(x = "Matrix"),
 	  function(x) .bail.out.1(.Generic, class(x)))
+
+setMethod("dim<-", signature(x = "Matrix", value = "ANY"),
+	  function(x, value) {
+	      if(!is.numeric(value) || length(value) != 2)
+		  stop("dim(.) value must be numeric of length 2")
+	      if(prod(dim(x)) != prod(value <- as.integer(value)))
+		  stop("dimensions don't match the number of cells")
+	      clx <- class(x)
+	      if(substring(clx,2) == "geMatrix") {
+		  x@Dim <- value
+		  if(length(x@factors) > 0)
+		      x@factors <- list()
+		  x
+	      } else if(extends(clx, "denseMatrix")) {
+		  x <- as_geSimpl2(x, clx)
+		  dim(x) <- value
+	      } else { ## FIXME: this is very inefficient for large sparse x
+		  Matrix(as.vector(x), value[1], value[2])
+	      }
+	  })
+
+## MM: More or less "Cut & paste" from
+## --- diff.default() from  R/src/library/base/R/diff.R :
+setMethod("diff", signature(x = "Matrix"),
+	  function(x, lag = 1, differences = 1, ...) {
+	      if (length(lag) > 1 || length(differences) > 1 ||
+		  lag < 1 || differences < 1)
+		  stop("'lag' and 'differences' must be integers >= 1")
+	      xlen <- nrow(x)
+	      if (lag * differences >= xlen)
+		  return(x[,FALSE][0])	# empty of proper mode
+
+	      i1 <- -1:-lag
+	      for (i in 1:differences)
+		  x <- x[i1, , drop = FALSE] -
+		      x[-nrow(x):-(nrow(x)-lag+1), , drop = FALSE]
+	      x
+	  })
+
+setMethod("image", "Matrix",
+	  function(x, ...) { # coercing to sparse is not inefficient,
+	      ##	       since we need 'i' and 'j' for levelplot()
+	      x <- as(as(x, "sparseMatrix"), "dMatrix")
+	      callGeneric()
+	  })
+
 
 ## Group Methods
 
@@ -283,7 +350,11 @@ setMethod("[", signature(x = "Matrix",
 ## select rows
 setMethod("[", signature(x = "Matrix", i = "index", j = "missing",
 			 drop = "missing"),
-	  function(x,i,j, drop) callGeneric(x, i=i, drop= TRUE))
+	  function(x,i,j, drop) {
+	      if(nargs() == 1) { ## e.g. M[0] , M[TRUE],  M[1:2]
+		  if(any(i)) as.vector(x)[i] else as.vector(x[1,1])[FALSE]
+	      } else callGeneric(x, i=i, drop= TRUE)})
+
 ## select columns
 setMethod("[", signature(x = "Matrix", i = "missing", j = "index",
 			 drop = "missing"),

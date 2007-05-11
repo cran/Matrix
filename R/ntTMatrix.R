@@ -3,11 +3,14 @@
 ### contains = "nsparseMatrix"
 
 setAs("matrix", "ntTMatrix",
-      function(from) as(as(from, "dtTMatrix"), "ntTMatrix"))
+      function(from) as(as(as(from, "TsparseMatrix"),"triangularMatrix"), "nMatrix"))
+
 
 setAs("ntTMatrix", "ngTMatrix",
-      function(from) new("ngTMatrix", i = from@i, j = from@j,
-                         Dim = from@Dim, Dimnames = from@Dimnames))
+      function(from) tT2gT(from, cl = "ntTMatrix", toClass = "ngTMatrix"))
+setAs("ntTMatrix", "generalMatrix",
+      function(from) tT2gT(from, cl = "ntTMatrix", toClass = "ngTMatrix"))
+
 setAs("ntTMatrix", "ntCMatrix",
       function(from) .Call(Tsparse_to_Csparse, from, TRUE))
 setAs("ntTMatrix", "ngCMatrix",

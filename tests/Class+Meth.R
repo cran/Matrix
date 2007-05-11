@@ -176,8 +176,9 @@ tstMatrixClass <-
             if(!(genC || symC || triC || diaC))
                 stop("does not extend one of 'general', 'symmetric', 'triangular', or 'diagonal'")
 	    cat("; new(..): ")
-	    m <- new(clNam)
+	    m <- new(clNam) ; cat("ok; ")
 	    if(canCoerce(mm, clNam)) { ## replace 'm' by `non-empty' version
+		cat("canCoerce() ")
                 m0 <- if(triC) trm else mm
 		if(extends(clNam, "lMatrix") ||
 		   extends(clNam, "nMatrix"))
@@ -296,8 +297,8 @@ tstMatrixClass <-
                             i0 <- if(m@uplo == "L")
                                 upper.tri(mm.) else lower.tri(mm.)
                             mm.[i0] <- 0
-                            cat.("as(matrix, <class>): ")
-                            m3 <- as(mm., clNam)
+			    cat.("as(triang.matrix, <class>): ")
+			    m3 <- as(mm., clNam)
                             cat("valid:", validObject(m3), "\n")
                         }
                         else { ## diagonal (only one)?

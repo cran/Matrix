@@ -13,10 +13,13 @@
 \alias{[,Matrix,matrix,missing,ANY-method}
 \alias{[,Matrix,ANY,ANY,ANY-method}% bail out if no explicit method
 %
+\alias{[,denseMatrix,matrix,missing,ANY-method}
 \alias{[,denseMatrix,index,missing,logical-method}
 \alias{[,denseMatrix,index,index,logical-method}
-\alias{[,denseMatrix,matrix,missing,ANY-method}
 \alias{[,denseMatrix,missing,index,logical-method}
+\alias{[,diagonalMatrix,index,missing,logical-method}
+\alias{[,diagonalMatrix,index,index,logical-method}
+\alias{[,diagonalMatrix,missing,index,logical-method}
 %
 % \alias{[,TsparseTMatrix,missing,missing,ANY-method}
 \alias{[,TsparseMatrix,index,missing,logical-method}

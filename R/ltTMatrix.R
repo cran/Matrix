@@ -2,9 +2,13 @@
 
 ### contains = "lsparseMatrix"
 
+setAs("matrix", "ltTMatrix",
+      function(from) as(as(as(from, "TsparseMatrix"), "triangularMatrix"), "lMatrix"))
+
 setAs("ltTMatrix", "lgTMatrix",
-      function(from) new("lgTMatrix", i = from@i, j = from@j, x = from@x,
-                         Dim = from@Dim, Dimnames = from@Dimnames))
+      function(from) tT2gT(from, cl = "ltTMatrix", toClass = "lgTMatrix"))
+setAs("ltTMatrix", "generalMatrix",
+      function(from) tT2gT(from, cl = "ltTMatrix", toClass = "lgTMatrix"))
 
 setAs("ltTMatrix", "ltCMatrix",
       function(from) .Call(Tsparse_to_Csparse, from, TRUE))

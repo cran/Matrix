@@ -9,23 +9,17 @@
 ##       })
 
 setAs("dtTMatrix", "dgTMatrix",
-      function(from) {
-          d <- from@Dim
-          if(uDiag <- from@diag == "U") # unit diagonal, need to add '1's
-              uDiag <- (n <- d[1]) > 0
-          new("dgTMatrix", Dim = d, Dimnames = from@Dimnames,
-              i = c(from@i, if(uDiag) 0:(n-1)),
-              j = c(from@j, if(uDiag) 0:(n-1)),
-              x = c(from@x, if(uDiag) rep.int(1,n)))
-      })
+      function(from) tT2gT(from, cl = "dtTMatrix", toClass = "dgTMatrix"))
+setAs("dtTMatrix", "generalMatrix",
+      function(from) tT2gT(from, cl = "dtTMatrix", toClass = "dgTMatrix"))
 
-## needed?
+if(FALSE) ## needed in ../tests/Class+Meth.R -- replaced by .T.2.l() in ./Tsparse.R
 setAs("dtTMatrix", "ltTMatrix",
       function(from) new("ltTMatrix", i = from@i, j = from@j,
                          x = as.logical(from@x),
                          uplo = from@uplo, diag = from@diag,
                          Dim = from@Dim, Dimnames = from@Dimnames))
-## needed ?
+if(FALSE) ## needed in ../tests/Class+Meth.R -- replaced by .T.2.n() in ./Tsparse.R
 setAs("dtTMatrix", "ntTMatrix",
       function(from) new("ntTMatrix", i = from@i, j = from@j,
                          uplo = from@uplo, diag = from@diag,

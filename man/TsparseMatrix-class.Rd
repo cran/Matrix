@@ -4,13 +4,21 @@
 \alias{TsparseMatrix-class}
 %% Methods:
 \alias{coerce,TsparseMatrix,CsparseMatrix-method}
+\alias{coerce,TsparseMatrix,lsparseMatrix-method}
+\alias{coerce,TsparseMatrix,lMatrix-method}
+\alias{coerce,TsparseMatrix,nsparseMatrix-method}
+\alias{coerce,TsparseMatrix,nMatrix-method}
+\alias{coerce,Matrix,TsparseMatrix-method}
+\alias{coerce,matrix,TsparseMatrix-method}
 % "[" are in ./Xtrct-methods.Rd
 \alias{\%*\%,TsparseMatrix,ANY-method}
 \alias{\%*\%,ANY,TsparseMatrix-method}
-\alias{crossprod,TsparseMatrix,missing-method}
 \alias{crossprod,TsparseMatrix,ANY-method}
-\alias{tcrossprod,TsparseMatrix,missing-method}
+\alias{crossprod,TsparseMatrix,missing-method}
 \alias{tcrossprod,TsparseMatrix,ANY-method}
+\alias{tcrossprod,TsparseMatrix,missing-method}
+\alias{solve,TsparseMatrix,ANY-method}
+\alias{solve,TsparseMatrix,missing-method}
 % \alias{colMeans,TsparseMatrix-method}
 % \alias{colSums,TsparseMatrix-method}
 \alias{rowMeans,TsparseMatrix-method}

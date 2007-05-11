@@ -35,6 +35,13 @@ assert.EQ.mat <- function(M, m, tol = if(show) 0 else 1e-15, show=FALSE) {
     else stopifnot(all.equal(MM, m, tol = tol))
 }
 
+add.simpleDimnames <- function(m) {
+    stopifnot(length(d <- dim(m)) == 2)
+    dimnames(m) <- list(paste0("r", seq_len(d[1])),
+                        paste0("c", seq_len(d[2])))
+    m
+}
+
 chk.matrix <- function(M) {
     ## check object; including coercion to "matrix" :
     cl <- class(M)

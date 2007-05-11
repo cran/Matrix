@@ -20,9 +20,9 @@ setAs("dtpMatrix", "ltpMatrix", function(from) d2l_Matrix(from, "dtpMatrix"))
 
 setAs("ddenseMatrix", "CsparseMatrix",
       function(from) {
-          if (class(from) != "dgeMatrix")
-              from <- .Call(dup_mMatrix_as_dgeMatrix, from)
-          .Call(dense_to_Csparse, from)
+	  if (class(from) != "dgeMatrix") # don't lose symmetry/triangularity/...
+	      as_Csparse(from)
+	  else .Call(dense_to_Csparse, from)
       })
 
 ## special case

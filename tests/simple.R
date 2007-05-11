@@ -9,6 +9,7 @@ source(system.file("test-tools.R", package = "Matrix"))# identical3() etc
 (d4 <- Matrix(diag(4)))
 (z4 <- Matrix(0*diag(4)))
 (o4 <- Matrix(1+diag(4)))
+(tr <- Matrix(cbind(1,0:1)))
 (m4 <- Matrix(cbind(0,rbind(6*diag(3),0))))
 dm4 <- Matrix(m4, sparse = FALSE)
 class(mN <-  Matrix(NA, 3,4)) # NA *is* logical
@@ -16,11 +17,16 @@ stopifnot(validObject(d4), validObject(z4), validObject(o4),
           validObject(m4), validObject(dm4), validObject(mN))
 assert.EQ.mat(dm4, as(m4, "matrix"))
 assert.EQ.mat(mN, matrix(NA, 3,4))
-sL <- Matrix(, 3,4, sparse=TRUE)# -> "lgC
+sL <- Matrix(, 3,4, sparse=TRUE)# -> "lgC"
+trS <- Matrix(tr, sparse=TRUE)# failed in 0.9975-11
 stopifnot(##length(sN@i) == 0, # all "FALSE"
+          is(tr, "triangularMatrix"), is(trS, "triangularMatrix"),
+          all(is.na(sL@x)), ## not yet:  all(is.na(sL)),
+          !any(sL), all(!sL),
           validObject(Matrix(c(NA,0), 4, 3, byrow = TRUE)),
           validObject(Matrix(c(NA,0), 4, 4)),
           is(Matrix(c(NA,0,0,0), 4, 4), "sparseMatrix"))
+
 
 ## large sparse ones: these now directly "go sparse":
 str(m0 <- Matrix(0,     nrow=100, ncol = 1000))
@@ -210,12 +216,14 @@ stopifnot(as.numeric(nn[nn != ""]) == m[m != 0],
 assert.EQ.mat(tM, tm, tol=0)
 assert.EQ.mat(gC, m,  tol=0)
 assert.EQ.mat(mT, m,  tol=0)
-stopifnot(is(mM, "dsCMatrix"), is(tM, "dtCMatrix"),
-          ## coercions  general <-> symmetric
-          identical(as(as(mM, "dgCMatrix"), "dsCMatrix"), mM),
-          identical(as(as(mM, "dgTMatrix"), "dsTMatrix"), mT),
-          identical(as(as(tM, "dgCMatrix"), "dtCMatrix"), tM)
-)
+stopifnot(is(mM, "dsCMatrix"), is(tM, "dtCMatrix")
+	  , identical(mT, as(mM, "TsparseMatrix"))
+	  , identical(gC, as(mM, "generalMatrix"))
+	  ## coercions	general <-> symmetric
+	  , identical(as(as(mM, "dgCMatrix"), "dsCMatrix"), mM)
+	  , identical(as(as(mM, "dgTMatrix"), "dsTMatrix"), mT)
+	  , identical(as(as(tM, "dgCMatrix"), "dtCMatrix"), tM)
+	  )
 eM <- eigen(mM) # works thanks to base::as.matrix hack in ../R/zzz.R
 stopifnot(all.equal(eM$values,
                 { v <- c(162.462112512353, 30.0665927567458)
@@ -238,12 +246,8 @@ as(n,"CsparseMatrix") # used to give CHOLMOD error: invalid xtype...
 ls2 <- as(m, "CsparseMatrix") # works fine
 ## and really  'm' and 'n' are interally slot identical (!!!)
 
-if(FALSE) ## FIXME: needs lsy |-> lsC
 as(n,"sparseMatrix")
-
-if(FALSE) ## FIXME: needs lsy |-> lsC
 as(m,"sparseMatrix")
-## Error ... no method
 
 ### -- now when starting with nsparse :
 nT <- new("ngTMatrix",
@@ -261,9 +265,10 @@ as(nC,"denseMatrix")
 
 ###-- sparse nonzero pattern : ----------
 
-(nkt <- as(as(kt1, "dgCMatrix"), "ngCMatrix"))# ok
+(nkt <- as(as(as(kt1, "generalMatrix"), "CsparseMatrix"), "ngCMatrix"))# ok
 dkt <- as(nkt, "denseMatrix")
 (clt <- crossprod(nkt))
+stopifnot(is(nkt, "ngCMatrix"), is(clt, "nsCMatrix"))
 crossprod(clt) ## a warning: crossprod() of symmetric
 
 
@@ -297,7 +302,8 @@ l3 <- upper.tri(matrix(,3,3))
 stopifnot(validObject(c3), is(c3, "CsparseMatrix"), is(c3, "triangularMatrix"))
 
 ## diagonal, sparse & interactions
-stopifnot(is(X <- Diagonal(7) + 1.5 * tM[1:7,1:7], "sparseMatrix"))
+stopifnot(is(as(Diagonal(3), "TsparseMatrix"), "TsparseMatrix"),
+          is(X <- Diagonal(7) + 1.5 * tM[1:7,1:7], "sparseMatrix"))
 X
 (XX <- X - chol(crossprod(X)))
 ## hmm, if we use drop0() here, maybe we should export it ...

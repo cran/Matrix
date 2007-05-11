@@ -66,11 +66,11 @@ readHB <- function(file)
     ind <- readmany(file, indln, nz, indfmt, as.integer)
     vals <- readmany(file, valln, nz, valfmt, as.numeric)
     if (t2 == 'S')
-        new("dsCMatrix", uplo = "L", p = ptr - 1:1,
-            i = ind - 1:1, x = vals, Dim = c(nr, nc))
+        new("dsCMatrix", uplo = "L", p = ptr - 1L,
+            i = ind - 1L, x = vals, Dim = c(nr, nc))
     else
-        new("dgCMatrix", p = ptr - 1:1,
-            i = ind - 1:1, x = vals, Dim = c(nr, nc))
+        new("dgCMatrix", p = ptr - 1L,
+            i = ind - 1L, x = vals, Dim = c(nr, nc))
 
 }
 
@@ -111,10 +111,10 @@ readMM <- function(file)
                     what = list(i = integer(0), j = integer(0),
                     x = numeric(0)), quiet = TRUE)
         if (sym == "general")
-            return(new("dgTMatrix", Dim = c(nr, nc), i = els$i - 1:1,
-                       j = els$j - 1:1, x = els$x))
+            return(new("dgTMatrix", Dim = c(nr, nc), i = els$i - 1L,
+                       j = els$j - 1L, x = els$x))
         if (sym == "symmetric")
             return(new("dsTMatrix", uplo = "L", Dim = c(nr, nc),
-                       i = els$i - 1:1, j = els$j - 1:1, x = els$x))
+                       i = els$i - 1L, j = els$j - 1L, x = els$x))
     }
 }

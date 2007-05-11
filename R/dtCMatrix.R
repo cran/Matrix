@@ -61,7 +61,6 @@ setAs("dtCMatrix", "dtTMatrix",
 setAs("dtCMatrix", "dtrMatrix",
       function(from) as(as(from, "dtTMatrix"), "dtrMatrix"))
 
-## using  diagU2N() from ./Auxiliaries.R :
 setMethod("solve", signature(a = "dtCMatrix", b = "missing"),
 	  function(a, b, ...) {
 	      if (a@diag == "U") {
@@ -75,14 +74,12 @@ setMethod("solve", signature(a = "dtCMatrix", b = "missing"),
 
 setMethod("solve", signature(a = "dtCMatrix", b = "dgeMatrix"),
 	  function(a, b, ...) {
-#	      if (a@diag == "U") a <- as(diagU2N(a), "dtCMatrix")
               if (a@diag == "U") a <- .Call(Csparse_diagU2N, a)
 	      .Call(dtCMatrix_matrix_solve, a, b, TRUE)
 	  }, valueClass = "dgeMatrix")
 
 setMethod("solve", signature(a = "dtCMatrix", b = "matrix"),
 	  function(a, b, ...) {
-#	      if (a@diag == "U") a <- as(diagU2N(a), "dtCMatrix")
               if (a@diag == "U") a <- .Call(Csparse_diagU2N, a)
 	      storage.mode(b) <- "double"
 	      .Call(dtCMatrix_matrix_solve, a, b, FALSE)

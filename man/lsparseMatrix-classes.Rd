@@ -59,6 +59,7 @@
 \alias{coerce,ltCMatrix,ltTMatrix-method}
 \alias{coerce,ltCMatrix,matrix-method}
 \alias{coerce,ltTMatrix,dtTMatrix-method}
+\alias{coerce,ltTMatrix,generalMatrix-method}
 \alias{coerce,ltTMatrix,lgCMatrix-method}
 \alias{coerce,ltTMatrix,lgTMatrix-method}
 \alias{coerce,ltTMatrix,ltCMatrix-method}
@@ -69,6 +70,7 @@
 \alias{coerce,matrix,lgTMatrix-method}
 \alias{coerce,matrix,lsCMatrix-method}
 \alias{coerce,matrix,ltCMatrix-method}
+\alias{coerce,matrix,ltTMatrix-method}
 %
 \alias{crossprod,lgCMatrix,missing-method}
 \alias{crossprod,lgTMatrix,missing-method}

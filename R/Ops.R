@@ -82,6 +82,7 @@ setMethod("Arith", signature(e1 = "Matrix", e2 = "Matrix"),
 ##-------- originally from ./dMatrix.R --------------------
 
 ## Note that there extra methods for <sparse> o <sparse> !
+if(FALSE) ## use the (more sophisticated) "Ops" method below
 setMethod("Arith", signature(e1 = "dMatrix", e2 = "dMatrix"),
           ##  "+", "-", "*", "^", "%%", "%/%", "/"
           ## Going -> dense* (= ddense*) -> dgeMatrix
@@ -191,6 +192,7 @@ setMethod("Compare", signature(e1 = "dMatrix", e2 = "numeric"),
 	  })
 
 ## "dMatrix <-> work with 'x' slot {was originally just for "Compare":
+##  ------- this is *not* used for 'Arith" which
 setMethod("Ops", signature(e1 = "dMatrix", e2 = "dMatrix"),
 	  function(e1, e2) {
 	      d <- dimCheck(e1,e2)
@@ -524,6 +526,7 @@ setMethod("Compare", signature(e1="lsparseMatrix", e2="lsparseMatrix"),
 				       as(e2, "CsparseMatrix")))
 
 ## setMethod("Compare", signature(e1="lgTMatrix", e2="lgTMatrix"), ## coerce to Csparse
+
 ## 	  function(e1, e2) callGeneric(as(e1, "dgCMatrix"), as(e2, "dgCMatrix")))
 
 
@@ -686,12 +689,27 @@ setMethod("Arith", signature(e1 = "CsparseMatrix", e2 = "numeric"),
 	      if(length(e2) == 1) { ## e.g.,  Mat ^ a
 		  f0 <- callGeneric(0, e2)
 		  if(is0(f0)) { # remain sparse, symm., tri.,...
+                      e1 <- as(e1, "dMatrix")
 		      e1@x <- callGeneric(e1@x, e2)
 		      return(e1)
 		  }
 	      }
 	      ## all other (potentially non-sparse) cases: give up symm, tri,..
 	      callGeneric(as(e1, paste(.M.kind(e1), "gCMatrix", sep='')), e2)
+	  })
+
+## The same,  e1 <-> e2 :
+setMethod("Arith", signature(e1 = "numeric", e2 = "CsparseMatrix"),
+	  function(e1, e2) {
+	      if(length(e1) == 1) {
+		  f0 <- callGeneric(e1, 0)
+		  if(is0(f0)) {
+                      e2 <- as(e2, "dMatrix")
+		      e2@x <- callGeneric(e1, e2@x)
+		      return(e2)
+		  }
+	      }
+	      callGeneric(e1, as(e2, paste(.M.kind(e2), "gCMatrix", sep='')))
 	  })
 
 setMethod("Compare", signature(e1 = "CsparseMatrix", e2 = "CsparseMatrix"),
@@ -793,18 +811,6 @@ setMethod("Compare", signature(e1 = "CsparseMatrix", e2 = "CsparseMatrix"),
               }
 	  })
 
-## The same,  e1 <-> e2 :
-setMethod("Arith", signature(e1 = "numeric", e2 = "CsparseMatrix"),
-	  function(e1, e2) {
-	      if(length(e1) == 1) {
-		  f0 <- callGeneric(e1, 0)
-		  if(is0(f0)) {
-		      e2@x <- callGeneric(e1, e2@x)
-		      return(e2)
-		  }
-	      }
-	      callGeneric(e1, as(e2, paste(.M.kind(e2), "gCMatrix", sep='')))
-	  })
 
 ##-------- originally from ./sparseMatrix.R --------------------
 
@@ -819,17 +825,18 @@ setMethod("-", signature(e1 = "pMatrix", e2 = "missing"),
 
 ## Group method  "Arith"
 
-## have CsparseMatrix methods (-> ./Csparse.R )
+## have CsparseMatrix methods above
 ## which may preserve "symmetric", "triangular" -- simply defer to those:
 
-setMethod("Arith", signature(e1 = "sparseMatrix", e2 = "sparseMatrix"),
+## these where 'Arith', now generalized:
+setMethod("Ops", signature(e1 = "sparseMatrix", e2 = "sparseMatrix"),
 	  function(e1, e2) callGeneric(as(e1, "CsparseMatrix"),
 				       as(e2, "CsparseMatrix")))
-setMethod("Arith", signature(e1 = "sparseMatrix", e2 = "numeric"),
+setMethod("Ops", signature(e1 = "sparseMatrix", e2 = "numeric"),
 	  function(e1, e2) callGeneric(as(e1, "CsparseMatrix"), e2))
-setMethod("Arith", signature(e1 = "numeric", e2 = "sparseMatrix"),
+setMethod("Ops", signature(e1 = "numeric", e2 = "sparseMatrix"),
 	  function(e1, e2) callGeneric(e1, as(e2, "CsparseMatrix")))
 
-setMethod("Compare", signature(e1 = "sparseMatrix", e2 = "sparseMatrix"),
-	  function(e1, e2) callGeneric(as(e1, "CsparseMatrix"),
-				       as(e2, "CsparseMatrix")))
+## setMethod("Compare", signature(e1 = "sparseMatrix", e2 = "sparseMatrix"),
+## 	  function(e1, e2) callGeneric(as(e1, "CsparseMatrix"),
+## 				       as(e2, "CsparseMatrix")))

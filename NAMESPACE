@@ -35,6 +35,12 @@ export("Cholesky",
        "writeMM"
        )
 
+## Maybe {Doug prefers having only cBind/rBind}?
+## export("cbind", "rbind")
+## substitute for using  cbind() / rbind()
+export("cBind",
+       "rBind")
+
 ## workaround S4-Group(generic|method) quirk: R/AllGeneric.R
 ## needs setGeneric(*, group=) and this for all non-Primitives :
 export(
@@ -204,7 +210,9 @@ exportMethods(
 	      "crossprod",
 	      "determinant",
 	      "diag",
+	      "diff",
 	      "dim",
+	      "dim<-",
 	      "dimnames",
 	      "dimnames<-",
               "drop",

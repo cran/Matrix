@@ -285,6 +285,20 @@ M_cholmod_factorize(cholmod_sparse *A, cholmod_factor *L,
 }
 
 int attribute_hidden
+M_cholmod_factorize_p(cholmod_sparse *A, double *beta, int *fset,
+		      size_t fsize, cholmod_factor *L,
+		      cholmod_common *Common)
+{
+    static int(*fun)(cholmod_sparse*,double*,int*,size_t,
+		     cholmod_factor*,cholmod_common*) = NULL;
+    if (fun == NULL)
+	fun = (int(*)(cholmod_sparse*,double*,int*,size_t,
+		      cholmod_factor*,cholmod_common*))
+	    R_GetCCallable("Matrix", "cholmod_factorize_p");
+    return fun(A, beta, fset, fsize, L, Common);
+}
+
+int attribute_hidden
 M_cholmod_finish(cholmod_common *Common)
 {
 

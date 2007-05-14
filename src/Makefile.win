@@ -18,9 +18,10 @@ pkg = Matrix
 
 include SOURCES_C.mkf
 
-SOURCES_F = zpotf2.f zpotrf.f zlacgv.f
+##N SOURCES_F = zpotf2.f zpotrf.f zlacgv.f
+##N OBJECTS = $(SOURCES_C:.c=.o) $(SOURCES_F:.f=.o)
 
-OBJECTS = $(SOURCES_C:.c=.o) $(SOURCES_F:.f=.o)
+OBJECTS = $(SOURCES_C:.c=.o)
 SHLIB = $(pkg).dll
 SUBDIRS = CHOLMOD COLAMD AMD
 SUBLIBS = $(SUBDIRS:=.a)

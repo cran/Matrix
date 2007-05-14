@@ -1,3 +1,8 @@
+2007-05-14  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.99875-1
+	* src/Makefile.win: also remove Lapack code from here (cf. 04-25).
+
 2007-05-11  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/Tsparse.R ([, Tsparse): fix last case: *duplicated*, symmetric

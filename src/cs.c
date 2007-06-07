@@ -6,6 +6,7 @@ cs *cs_add (const cs *A, const cs *B, double alpha, double beta)
     double *x, *Bx, *Cx ;
     cs *C ;
     if (!CS_CSC (A) || !CS_CSC (B)) return (NULL) ;	    /* check inputs */
+    if (A->m != B->m || A->n != B->n) return (NULL) ;
     m = A->m ; anz = A->p [A->n] ;
     n = B->n ; Bp = B->p ; Bx = B->x ; bnz = Bp [n] ;
     w = cs_calloc (m, sizeof (int)) ;			    /* get workspace */
@@ -916,7 +917,7 @@ int cs_happly (const cs *V, int i, double beta, double *x)
     return (1) ;
 }
 /* create a Householder reflection [v,beta,s]=house(x), overwrite x with v,
- * where (I-beta*v*v')*x = s*x.  See Algo 5.1.1, Golub & Van Loan, 3rd ed. */
+ * where (I-beta*v*v')*x = s*e1.  See Algo 5.1.1, Golub & Van Loan, 3rd ed. */
 double cs_house (double *x, double *beta, int n)
 {
     double s, sigma = 0 ;
@@ -1256,6 +1257,7 @@ cs *cs_multiply (const cs *A, const cs *B)
     double *x, *Bx, *Cx ;
     cs *C ;
     if (!CS_CSC (A) || !CS_CSC (B)) return (NULL) ;	 /* check inputs */
+    if (A->n != B->m) return (NULL) ;
     m = A->m ; anz = A->p [A->n] ;
     n = B->n ; Bp = B->p ; Bi = B->i ; Bx = B->x ; bnz = Bp [n] ;
     w = cs_calloc (m, sizeof (int)) ;			 /* get workspace */
@@ -1399,7 +1401,7 @@ int cs_pvec (const int *p, const double *b, double *x, int n)
 /* sparse QR factorization [V,beta,pinv,R] = qr (A) */
 csn *cs_qr (const cs *A, const css *S)
 {
-    double *Rx, *Vx, *Ax, *Beta, *x ;
+    double *Rx, *Vx, *Ax, *x,  *Beta ;
     int i, k, p, m, n, vnz, p1, top, m2, len, col, rnz, *s, *leftmost, *Ap, *Ai,
 	*parent, *Rp, *Ri, *Vp, *Vi, *w, *pinv, *q ;
     cs *R, *V ;
@@ -1847,8 +1849,8 @@ cs *cs_transpose (const cs *A, int values)
 /* sparse Cholesky update/downdate, L*L' + sigma*w*w' (sigma = +1 or -1) */
 int cs_updown (cs *L, int sigma, const cs *C, const int *parent)
 {
-    int p, f, j, *Lp, *Li, *Cp, *Ci ;
-    double *Lx, *Cx, alpha, beta = 1, delta, gamma, w1, w2, *w, n,  beta2 = 1 ;
+    int n, p, f, j, *Lp, *Li, *Cp, *Ci ;
+    double *Lx, *Cx, alpha, beta = 1, delta, gamma, w1, w2, *w, beta2 = 1 ;
     if (!CS_CSC (L) || !CS_CSC (C) || !parent) return (0) ;  /* check inputs */
     Lp = L->p ; Li = L->i ; Lx = L->x ; n = L->n ;
     Cp = C->p ; Ci = C->i ; Cx = C->x ;

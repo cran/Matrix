@@ -1,0 +1,91 @@
+\name{sparseVector-class}
+\docType{class}
+\title{Sparse Vector Classes}
+\alias{sparseVector-class}
+% sub classes
+\alias{dsparseVector-class}
+\alias{isparseVector-class}
+\alias{lsparseVector-class}
+\alias{nsparseVector-class}
+\alias{zsparseVector-class}
+%% Group methods
+% \alias{Math,sparseVector-method}
+% %\alias{Math2,sparseVector,numeric-method}
+\alias{Arith,sparseVector,sparseVector-method}
+\alias{Arith,dsparseVector,dsparseVector-method}
+\alias{-,dsparseVector,missing-method}
+\alias{Logic,sparseVector,sparseVector-method}
+\alias{Logic,lsparseVector,lsparseVector-method}
+\alias{Ops,ANY,sparseVector-method}
+\alias{Ops,sparseVector,ANY-method}
+\alias{Ops,sparseVector,atomicVector-method}
+\alias{Ops,atomicVector,sparseVector-method}
+%
+\alias{coerce,ANY,sparseVector-method}
+\alias{coerce,TsparseMatrix,sparseVector-method}
+\alias{coerce,diagonalMatrix,sparseVector-method}
+\alias{coerce,sparseMatrix,sparseVector-method}
+\alias{coerce,atomicVector,sparseVector-method}
+\alias{coerce,triangularVector,sparseVector-method}
+\alias{coerce,sparseVector,vector-method}
+\alias{as.numeric,sparseVector-method}
+\alias{as.vector,sparseVector,missing-method}
+\alias{as.vector,sparseVector,character-method}
+\alias{length,sparseVector-method}
+\alias{show,sparseVector-method}
+%
+\alias{[,sparseVector,index,ANY,ANY-method}
+\alias{[<-,sparseVector,index,missing,replValue-method}
+%
+\description{Sparse Vector Classes: The virtual mother class
+  \code{"sparseVector"} has the five actual daughter classes
+   \code{"dsparseVector"}, \code{"isparseVector"},
+   \code{"lsparseVector"}, \code{"nsparseVector"}, and
+   \code{"zsparseVector"}, where we've mainly implemented methods for
+   the \code{d*}, \code{l*} and \code{n*} ones.
+}
+\section{Slots}{
+  \describe{
+    \item{\code{length}:}{class \code{"integer"} - the \code{\link{length}}
+     of the sparse vector.}
+    \item{\code{i}:}{class \code{"integer"} - the (1-based) indices of
+      the non-zero entries.}
+    \item{\code{x}:}{(for all but \code{"nsparseVector"}):
+      the non-zero entries.  This is of class \code{"numeric"} for class
+      \code{"dsparseVector"},  \code{"logical"} for class
+      \code{"lsparseVector"}, etc.
+
+      Note that \code{"nsparseVector"}s have no \code{x} slot.
+      }
+  }
+}
+\section{Methods}{
+  \describe{
+    \item{length}{\code{signature(x = "sparseVector")}: simply extracts
+      the \code{length} slot.}
+    \item{show}{\code{signature(object = "sparseVector")}: The
+      \code{\link{show}} method for sparse vectors prints
+      \emph{\dQuote{structural}} zeroes as \code{"."} using the
+      non-exported \code{prSpVector} function which allows further
+      customization such as replacing \code{"."} by \code{" "} (blank).
+
+      Note that \code{\link{options}(max.print)} will influence how many
+      entries of large sparse vectors are printed at all.}
+    \item{as.vector}{\code{signature(x = "sparseVector", mode = "character")}
+      coerces sparse vectors to \dQuote{regular}, i.e., atomic vectors.
+      This is the same as \code{as(x, "vector")}.
+    }
+  }
+}
+%\author{Martin}
+\examples{
+showClass("sparseVector")
+showClass("dsparseVector")
+
+sx <- c(0,0,3, 3.2, 0,0,0,-3:1,0,0,2,0,0,5,0,0)
+(ss <- as(sx, "sparseVector"))
+
+%% FIXME: Explain and show  spV2M() or its successor
+
+}
+\keyword{classes}

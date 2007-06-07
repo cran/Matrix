@@ -61,14 +61,12 @@ SEXP Csparse_to_nz_pattern(SEXP x, SEXP tri)
     cholmod_sparse *chxs = as_cholmod_sparse(x);
     cholmod_sparse
 	*chxcp = cholmod_copy(chxs, chxs->stype, CHOLMOD_PATTERN, &c);
-    int uploT = 0; char *diag = "";
+    int tr = asLogical(tri);
 
     Free(chxs);
-    if (asLogical(tri)) {	/* triangular sparse matrices */
-	uploT = (*uplo_P(x) == 'U') ? 1 : -1;
-	diag = CHAR(asChar(GET_SLOT(x, Matrix_diagSym)));
-    }
-    return chm_sparse_to_SEXP(chxcp, 1, uploT, 0, diag,
+    return chm_sparse_to_SEXP(chxcp, 1,
+			      tr ? ((*uplo_P(x) == 'U') ? 1 : -1) : 0,
+			      0, tr ? diag_P(x) : "",
 			      GET_SLOT(x, Matrix_DimNamesSym));
 }
 
@@ -86,16 +84,13 @@ SEXP Csparse_to_Tsparse(SEXP x, SEXP tri)
 {
     cholmod_sparse *chxs = as_cholmod_sparse(x);
     cholmod_triplet *chxt = cholmod_sparse_to_triplet(chxs, &c);
-    int uploT = 0;
-    char *diag = "";
+    int tr = asLogical(tri);
     int Rkind = (chxs->xtype != CHOLMOD_PATTERN) ? Real_kind(x) : 0;
 
     Free(chxs);
-    if (asLogical(tri)) {	/* triangular sparse matrices */
-	uploT = (*uplo_P(x) == 'U') ? 1 : -1;
-	diag = diag_P(x);
-    }
-    return chm_triplet_to_SEXP(chxt, 1, uploT, Rkind, diag,
+    return chm_triplet_to_SEXP(chxt, 1,
+			       tr ? ((*uplo_P(x) == 'U') ? 1 : -1) : 0,
+			       Rkind, tr ? diag_P(x) : "",
 			       GET_SLOT(x, Matrix_DimNamesSym));
 }
 
@@ -133,18 +128,16 @@ SEXP Csparse_transpose(SEXP x, SEXP tri)
     int Rkind = (chx->xtype != CHOLMOD_PATTERN) ? Real_kind(x) : 0;
     cholmod_sparse *chxt = cholmod_transpose(chx, (int) chx->xtype, &c);
     SEXP dn = PROTECT(duplicate(GET_SLOT(x, Matrix_DimNamesSym))), tmp;
-    int uploT = 0; char *diag = "";
+    int tr = asLogical(tri);
 
     Free(chx);
     tmp = VECTOR_ELT(dn, 0);	/* swap the dimnames */
     SET_VECTOR_ELT(dn, 0, VECTOR_ELT(dn, 1));
     SET_VECTOR_ELT(dn, 1, tmp);
     UNPROTECT(1);
-    if (asLogical(tri)) { /* triangular sparse matrices : SWAP 'uplo' */
-	uploT = (*uplo_P(x) == 'U') ? -1 : 1;
-	diag = diag_P(x);
-    }
-    return chm_sparse_to_SEXP(chxt, 1, uploT, Rkind, diag, dn);
+    return chm_sparse_to_SEXP(chxt, 1, /* SWAP 'uplo' for triangular */
+			      tr ? ((*uplo_P(x) == 'U') ? -1 : 1) : 0,
+			      Rkind, tr ? diag_P(x) : "", dn);
 }
 
 SEXP Csparse_Csparse_prod(SEXP a, SEXP b)

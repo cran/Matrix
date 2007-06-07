@@ -75,14 +75,11 @@ setMethod("colSums",  signature(x = "dgCMatrix"), .as.dgT.Fun)
 setMethod("colMeans", signature(x = "dgCMatrix"), .as.dgT.Fun)
 
 setMethod("rowSums", signature(x = "dgCMatrix"),
-	  function(x, na.rm = FALSE, dims = 1)
-	  tapply1(x@x, factor(x@i, 0:(x@Dim[1]-1)), sum, na.rm = na.rm),
-	  valueClass = "numeric")
+	  function(x, na.rm = FALSE, dims = 1, sparseResult = FALSE)
+	  sparsapply(x, 1, sum, sparseResult = sparseResult, na.rm = na.rm))
 
-setMethod("rowMeans", signature(x = "dgCMatrix"),
-	  function(x, na.rm = FALSE, dims = 1)
-	  tapply1(x@x, factor(x@i, 0:(x@Dim[1]-1)), mean, na.rm = na.rm),
-	  valueClass = "numeric")
+setMethod("rowMeans", signature(x = "dgCMatrix"), sp.rowMeans)
+
 
 setMethod("qr", signature(x = "dgCMatrix"),
 	  function(x, tol = 1e-07, LAPACK = FALSE)

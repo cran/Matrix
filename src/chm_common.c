@@ -94,7 +94,7 @@ cholmod_sparse *as_cholmod_sparse(SEXP x)
  * @return SEXP containing a copy of a
  */
 SEXP chm_sparse_to_SEXP(cholmod_sparse *a, int dofree, int uploT, int Rkind,
-			char* diag, SEXP dn)
+			const char* diag, SEXP dn)
 {
     SEXP ans;
     char *cl = "";		/* -Wall */
@@ -221,7 +221,7 @@ cholmod_triplet *as_cholmod_triplet(SEXP x)
  * @return SEXP containing a copy of a
  */
 SEXP chm_triplet_to_SEXP(cholmod_triplet *a, int dofree, int uploT, int Rkind,
-			 char* diag, SEXP dn)
+			 const char* diag, SEXP dn)
 {
     SEXP ans;
     char *cl = "";		/* -Wall */

@@ -582,6 +582,38 @@ setClassUnion("atomicVector", ## numeric = {integer, double} but all 3 should *d
 ### for 'value' in  x[..] <- value hence for all "contents" of our Matrices:
 setClassUnion("replValue", members =  c("numeric", "logical", "complex", "raw"))
 
+### Sparse Vectors ---- here use 1-based indexing ! -----------
+setClass("sparseVector",
+         representation(length = "integer", i = "integer", "VIRTUAL"),
+         validity = function(object) {
+             n <- object@length
+             if(any(object@i < 1L) || any(object@i > n))
+                 sprintf("'i' must be in 1:%d", n)
+             else TRUE
+         })
+.validXspVec <- function(object) {
+	     n <- object@length
+	     if(length(object@i) != length(object@x))
+		 "'i' and 'x' differ in length"
+	     else TRUE
+}
+setClass("dsparseVector",
+	 representation(x = "numeric"), contains = "sparseVector",
+	 validity = .validXspVec)
+setClass("isparseVector",
+	 representation(x = "integer"), contains = "sparseVector",
+	 validity = .validXspVec)
+setClass("lsparseVector",
+	 representation(x = "logical"), contains = "sparseVector",
+	 validity = .validXspVec)
+setClass("zsparseVector",
+	 representation(x = "complex"), contains = "sparseVector",
+	 validity = .validXspVec)
+## nsparse has no new slot: 'i' just contains the locations!
+setClass("nsparseVector", contains = "sparseVector")
+
+
+
 
 setClass("determinant",
 	 representation(modulus = "numeric",

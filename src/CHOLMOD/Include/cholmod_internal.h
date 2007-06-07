@@ -3,7 +3,7 @@
 /* ========================================================================== */
 
 /* -----------------------------------------------------------------------------
- * CHOLMOD/Include/cholmod_internal.h.  Version 1.2.
+ * CHOLMOD/Include/cholmod_internal.h.
  * Copyright (C) 2005-2006, Univ. of Florida.  Author: Timothy A. Davis
  * CHOLMOD/Include/cholmod_internal.h is licensed under Version 2.1 of the GNU
  * Lesser General Public License.  See lesser.txt for a text of the license.
@@ -32,6 +32,21 @@
 
 #ifndef CHOLMOD_INTERNAL_H
 #define CHOLMOD_INTERNAL_H
+
+/* ========================================================================== */
+/* === large file I/O ======================================================= */
+/* ========================================================================== */
+
+/* Definitions for large file I/O must come before any other #includes.  If
+ * this causes problems (may not be portable to all platforms), then compile
+ * CHOLMOD with -DNLARGEFILE.  You must do this for MATLAB 6.5 and earlier,
+ * for example. */
+
+#include "cholmod_io64.h"
+
+/* ========================================================================== */
+/* === debugging and basic includes ========================================= */
+/* ========================================================================== */
 
 /* turn off debugging */
 #ifndef NDEBUG
@@ -128,6 +143,13 @@
 #define IS_GT_ZERO(x)	CHOLMOD_IS_GT_ZERO(x)
 #define IS_LE_ZERO(x)	CHOLMOD_IS_LE_ZERO(x)
 
+/* 1e308 is a huge number that doesn't take many characters to print in a
+ * file, in CHOLMOD/Check/cholmod_read and _write.  Numbers larger than this
+ * are interpretted as Inf, since sscanf doesn't read in Inf's properly.
+ * This assumes IEEE double precision arithmetic.  DBL_MAX would be a little
+ * better, except that it takes too many digits to print in a file. */
+#define HUGE_DOUBLE 1e308
+
 /* ========================================================================== */
 /* === int/UF_long and double/float definitions ============================= */
 /* ========================================================================== */
@@ -190,7 +212,7 @@ size_t cholmod_l_add_size_t (size_t a, size_t b, int *ok) ;
 size_t cholmod_l_mult_size_t (size_t a, size_t k, int *ok) ;
 
 /* -------------------------------------------------------------------------- */
-/* double, UF_long */
+/* double (also complex double), UF_long */
 /* -------------------------------------------------------------------------- */
 
 #ifdef DLONG
@@ -233,7 +255,7 @@ size_t cholmod_l_mult_size_t (size_t a, size_t k, int *ok) ;
 #error "single-precision not yet supported"
 
 /* -------------------------------------------------------------------------- */
-/* double, int: this is the default */
+/* double (also complex double), int: this is the default */
 /* -------------------------------------------------------------------------- */
 
 #else

@@ -3,7 +3,7 @@
 /* ========================================================================== */
 
 /* -----------------------------------------------------------------------------
- * CHOLMOD/Include/cholmod.h.  Version 1.2.
+ * CHOLMOD/Include/cholmod.h.
  * Copyright (C) 2005-2006, Univ. of Florida.  Author: Timothy A. Davis
  * CHOLMOD/Include/cholmod.h is licensed under Version 2.1 of the GNU
  * Lesser General Public License.  See lesser.txt for a text of the license.
@@ -80,8 +80,11 @@
 extern "C" {
 #endif
 
+/* assume large file support.  If problems occur, compile with -DNLARGEFILE */
+#include "cholmod_io64.h"
+
 /* define UF_long */
-/* #include "UFconfig.h" */
+#include "UFconfig.h"
 
 #include "cholmod_config.h"
 

@@ -6,6 +6,37 @@ setAs("dMatrix", "matrix",
 
 ##-> "dMatrix" <--> "lMatrix"   ---> ./lMatrix.R
 
+## these two are parallel to "n <-> l" in the above :
+setAs("nMatrix", "dMatrix",
+      function(from) {
+	  cl <- class(from)
+	  nCl <- sub("^n", "d", cl)
+	  r <- new(nCl)# default => no validity check; and copy slots:
+	  ## result is "same", for sparse just with an 'x' slot
+	  if(extends(cl, "sparseMatrix"))
+	      slot(r, "x") <- rep.int(1., nnzero(from))
+	  for(nm in slotNames(cl))
+	      slot(r, nm) <- slot(from, nm)
+	  r
+      })
+
+setAs("dMatrix", "nMatrix",
+      function(from) {
+	  if(any(is.na(from@x)))
+	      stop("\"dMatrix\" object with NAs cannot be coerced to \"nMatrix\"")
+	  ## i.e. from@x are only TRUE (or FALSE in dense case)
+	  cl <- class(from)
+	  if(extends(cl, "diagonalMatrix")) # have no "ndi*" etc class
+	      cl <- class(from <- as(from, "sparseMatrix"))
+	  nCl <- sub("^d", "n", cl)
+	  sNams <- slotNames(if(extends(cl, "sparseMatrix")) .sp.class(cl) else cl)
+	  r <- new(nCl)# default => no validity check; and copy slots:
+	  for(nm in sNams)
+	      slot(r, nm) <- slot(from, nm)
+	  r
+      })
+
+
 ## Methods for operations where one argument is integer
 ## No longer made use of (and confusing hence) since R version 2.1.0
 ## where "integer" goes as part of "numeric"

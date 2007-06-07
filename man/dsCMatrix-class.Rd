@@ -36,6 +36,8 @@
 \alias{coerce,matrix,dsCMatrix-method}
 \alias{coerce,matrix,dsTMatrix-method}
 \alias{coerce,graphNEL,dsCMatrix-method}
+%% Group methods
+\alias{Arith,dsCMatrix,dsCMatrix-method}
 \alias{determinant,dsCMatrix,missing-method}
 \alias{determinant,dsCMatrix,logical-method}
 \alias{image,dsCMatrix-method}

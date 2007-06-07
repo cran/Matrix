@@ -1,21 +1,7 @@
-include ${MkInclude}
+# compile just the C-callable library
+lib:
+	( cd Source ; $(MAKE) lib )
 
-PKG_CFLAGS=-I../UFconfig
-
-OBJS = colamd.o colamd_global.o
-
-LIB = ../COLAMD.a
-
-lib: $(LIB)
-
-$(LIB): $(OBJS)
-	$(AR) -rucs $(LIB) $(OBJS)
-
-mostlyclean: clean
-
+# remove object files, but keep the compiled programs and library archives
 clean:
-	@-rm -rf .libs _libs $(LIB)
-	@-rm -f *.o 
-
-colamd.o: colamd.h
-
+	( cd Source ; $(MAKE) clean )

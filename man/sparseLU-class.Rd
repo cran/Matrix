@@ -8,7 +8,7 @@
   Objects can be created by calls of the form \code{new("sparseLU",
     ...)} but are more commonly created by function \code{\link{lu}}
   applied to a sparse matrix, such as a matrix of class
-  \code{\linkS4class{dgCMatrix}}.}
+  \code{\linkS4class{dgCMatrix}}.
 }
 \section{Slots}{
   \describe{

@@ -64,6 +64,8 @@ Cholesky(mtm)             # uses show(<MatrixFactorization>)
 (Cm <- Cholesky(mtm, super = TRUE))
 str(cmat <- as(Cm, "sparseMatrix"))
 cmat[1:20, 1:20]
+b <- matrix(c(rep(0, 711), 1), nc = 1)
+stopifnot(all.equal(solve(mtm, b), solve(Cm, b)))
 }
 \keyword{array}
 \keyword{algebra}

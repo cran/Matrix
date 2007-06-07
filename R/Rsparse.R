@@ -142,10 +142,8 @@ setMethod("band", "RsparseMatrix",
 
 ## These two are obviously more efficient than going through Tsparse:
 setMethod("colSums", signature(x = "dgRMatrix"),
-	  function(x, na.rm = FALSE, dims = 1)
-	  tapply1(x@x, factor(x@j, 0:(x@Dim[2]-1)), sum, na.rm = na.rm))
+	  function(x, na.rm = FALSE, dims = 1, sparseResult = FALSE)
+	  sparsapply(x, 2, sum, sparseResult = sparseResult, na.rm = na.rm))
 
-setMethod("colMeans", signature(x = "dgRMatrix"),
-	  function(x, na.rm = FALSE, dims = 1)
-	  tapply1(x@x, factor(x@j, 0:(x@Dim[2]-1)), mean, na.rm = na.rm))
+setMethod("colMeans", signature(x = "dgRMatrix"), sp.colMeans)
 

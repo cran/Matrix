@@ -384,6 +384,20 @@ M_cholmod_sdmult(cholmod_sparse *A, int transpose,
     return fun(A, transpose, alpha, beta, X, Y, Common);
 }
 
+cholmod_sparse attribute_hidden
+*M_cholmod_ssmult(cholmod_sparse *A, cholmod_sparse *B,
+		  int stype, int values, int sorted,
+		  cholmod_common *Common)
+{
+    static cholmod_sparse*(*fun)(cholmod_sparse*,cholmod_sparse*,
+				 int,int,int,cholmod_common*) = NULL;
+    if (fun == NULL)
+	fun = (cholmod_sparse*(*)(cholmod_sparse*,cholmod_sparse*,
+		      int,int,int,cholmod_common*))
+	    R_GetCCallable("Matrix", "cholmod_ssmult");
+    return fun(A, B, stype, values, sorted, Common);
+}
+
 cholmod_dense attribute_hidden
 *M_cholmod_solve(int sys, cholmod_factor *L,
 			       cholmod_dense *B, cholmod_common *Common)

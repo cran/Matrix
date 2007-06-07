@@ -18,7 +18,7 @@ SEXP dpoMatrix_chol(SEXP x)
     SEXP val = get_factors(x, "Cholesky"),
 	dimP = GET_SLOT(x, Matrix_DimSym),
 	uploP = GET_SLOT(x, Matrix_uploSym);
-    char *uplo = CHAR(STRING_ELT(uploP, 0));
+    const char *uplo = CHAR(STRING_ELT(uploP, 0));
     int *dims = INTEGER(dimP), info;
     int n = dims[0];
     double *vx;
@@ -49,7 +49,7 @@ SEXP dpoMatrix_chol(SEXP x)
 SEXP dpoMatrix_rcond(SEXP obj, SEXP type)
 {
     SEXP Chol = dpoMatrix_chol(obj);
-    char typnm[] = {'O', '\0'};	/* always use the one norm */
+    const char typnm[] = {'O', '\0'};	/* always use the one norm */
     int *dims = INTEGER(GET_SLOT(Chol, Matrix_DimSym)), info;
     double anorm = get_norm_sy(obj, typnm), rcond;
 

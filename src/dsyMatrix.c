@@ -18,7 +18,7 @@ SEXP dsyMatrix_validate(SEXP obj)
     return dense_nonpacked_validate(obj);
 }
 
-double get_norm_sy(SEXP obj, char *typstr)
+double get_norm_sy(SEXP obj, const char *typstr)
 {
     char typnm[] = {'\0', '\0'};
     int *dims = INTEGER(GET_SLOT(obj, Matrix_DimSym));
@@ -134,7 +134,7 @@ SEXP dsyMatrix_trf(SEXP x)
 	uploP = GET_SLOT(x, Matrix_uploSym);
     int *dims = INTEGER(dimP), *perm, info;
     int lwork = -1, n = dims[0];
-    char *uplo = CHAR(STRING_ELT(uploP, 0));
+    const char *uplo = CHAR(STRING_ELT(uploP, 0));
     double tmp, *vx, *work;
 
     if (val != R_NilValue) return val;

@@ -5,6 +5,7 @@
 %
 \alias{coerce,matrix,diagonalMatrix-method}
 \alias{coerce,diagonalMatrix,generalMatrix-method}
+\alias{coerce,diagonalMatrix,symmetricMatrix-method}
 \alias{coerce,diagonalMatrix,triangularMatrix-method}
 \alias{coerce,diagonalMatrix,matrix-method}
 \alias{coerce,diagonalMatrix,sparseMatrix-method}
@@ -87,6 +88,7 @@
 \section{Methods}{
   \describe{
     \item{coerce}{\code{signature(from = "matrix", to = "diagonalMatrix")}: ... }
+    \item{coerce}{\code{signature(from = "diagonalMatrix", to = "symmetricMatrix")}: ... }
     \item{coerce}{\code{signature(from = "diagonalMatrix", to = "triangularMatrix")}: ... }
     \item{coerce}{\code{signature(from = "diagonalMatrix", to = "matrix")}: ... }
     \item{coerce}{\code{signature(from = "Matrix", to = "diagonalMatrix")}: ... }

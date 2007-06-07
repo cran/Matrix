@@ -1,4 +1,4 @@
-useDynLib(Matrix, .registration=TRUE)# <-> R 2.3.0 or later
+useDynLib(Matrix, .registration=TRUE)
 
 importFrom("lattice", levelplot)
 importFrom("graphics", image)
@@ -13,9 +13,13 @@ export("Cholesky",
        "Diagonal",
        "Hilbert",
        "Matrix",
+       "spMatrix",
        "Schur",
        "band",
        "bdiag",
+       "colMeans", "colSums", ## these needed a "..." added
+       "rowMeans", "rowSums",
+       "drop0",
        "expand",
        "expm",
        "facmul",
@@ -35,8 +39,6 @@ export("Cholesky",
        "writeMM"
        )
 
-## Maybe {Doug prefers having only cBind/rBind}?
-## export("cbind", "rbind")
 ## substitute for using  cbind() / rbind()
 export("cBind",
        "rBind")
@@ -175,8 +177,16 @@ exportClasses(
 	      "nCHMsuper",# unused
 	      "nCHMsimpl",# unused
 
-	      "sparseQR"
+	      "sparseQR",
+
+	      "sparseVector", ## --- and daughters : ---
+	      "dsparseVector",
+	      "isparseVector",
+	      "lsparseVector",
+	      "nsparseVector",
+	      "zsparseVector"
 	      )
+
 
 exportMethods(
 	      ## Group Methods
@@ -237,6 +247,7 @@ exportMethods(
 	      "rowSums",
 	      "show",
 	      "solve",
+	      "summary",
 	      "t",
 	      "tail",
 	      "tcrossprod",
@@ -248,3 +259,4 @@ exportMethods(
 exportMethods("rbind2")
 exportMethods("cbind2")
 
+S3method(print, sparseSummary)

@@ -30,6 +30,8 @@ static R_CallMethodDef CallEntries[] = {
     {"BunchKaufman_validate", (DL_FUNC) &BunchKaufman_validate, 1},
     {"pBunchKaufman_validate", (DL_FUNC) &pBunchKaufman_validate, 1},
     {"CHMfactor_to_sparse", (DL_FUNC) &CHMfactor_to_sparse, 1},
+    {"CHMfactor_solve", (DL_FUNC) &CHMfactor_solve, 3},
+    {"CHMfactor_spsolve", (DL_FUNC) &CHMfactor_spsolve, 3},
     {"Cholesky_validate", (DL_FUNC) &Cholesky_validate, 1},
     {"Csparse_Csparse_prod", (DL_FUNC) &Csparse_Csparse_prod, 2},
     {"Csparse_Csparse_crossprod", (DL_FUNC) &Csparse_Csparse_crossprod, 3},
@@ -245,6 +247,7 @@ R_init_Matrix(DllInfo *dll)
     R_RegisterCCallable("Matrix", "cholmod_sparse_to_triplet", (DL_FUNC)cholmod_sparse_to_triplet);
     R_RegisterCCallable("Matrix", "cholmod_speye", (DL_FUNC)cholmod_speye);
     R_RegisterCCallable("Matrix", "cholmod_spsolve", (DL_FUNC)cholmod_spsolve);
+    R_RegisterCCallable("Matrix", "cholmod_ssmult", (DL_FUNC)cholmod_ssmult);
     R_RegisterCCallable("Matrix", "cholmod_start", (DL_FUNC)cholmod_start);
     R_RegisterCCallable("Matrix", "cholmod_submatrix", (DL_FUNC)cholmod_submatrix);
     R_RegisterCCallable("Matrix", "cholmod_transpose", (DL_FUNC)cholmod_transpose);

@@ -1,5 +1,5 @@
 
-R version 2.5.0 beta (2007-04-11 r41127)
+R version 2.5.0 Patched (2007-06-04 r41817)
 Copyright (C) 2007 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 
@@ -165,7 +165,7 @@ C 3 6 9 12 100 3 6 9 12
 > nr <- 4
 > m. <- matrix(c(0, 2:-1),  nr ,6)
 Warning message:
-data length [5] is not a sub-multiple or multiple of the number of rows [4] in matrix 
+data length [5] is not a sub-multiple or multiple of the number of rows [4] in matrix in: matrix(c(0, 2:-1), nr, 6) 
 > M <- Matrix(m.)
 > (mC <- as(M, "dgCMatrix"))
 4 x 6 sparse Matrix of class "dgCMatrix"
@@ -307,5 +307,5 @@ Ambiguous method selection for "+", target "dgTMatrix#dgCMatrix" (the first of t
 > 
 > 
 > cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
-Time elapsed:  3.182 0.154 4.143 0 0 
+Time elapsed:  2.902 0.161 3.987 0 0 
 > 

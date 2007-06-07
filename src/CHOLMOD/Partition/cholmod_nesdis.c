@@ -3,7 +3,7 @@
 /* ========================================================================== */
 
 /* -----------------------------------------------------------------------------
- * CHOLMOD/Partition Module.  Version 1.2.
+ * CHOLMOD/Partition Module.
  * Copyright (C) 2005-2006, Univ. of Florida.  Author: Timothy A. Davis
  * The CHOLMOD/Partition Module is licensed under Version 2.1 of the GNU
  * Lesser General Public License.  See lesser.txt for a text of the license.
@@ -1434,7 +1434,7 @@ UF_long CHOLMOD(nested_dissection) /* returns # of components, or -1 if error */
 #endif
 
 	PRINT0 (("consider cn %d nd_small %d ", cn, nd_small)) ;
-	if (cn < nd_small)  /* TODO should be 'total_weight < nd_small' */
+	if (cn < nd_small)  /* could be 'total_weight < nd_small' instead */
 	{
 	    /* place all nodes in the separator */
 	    PRINT0 ((" too small\n")) ;

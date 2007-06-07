@@ -3,6 +3,8 @@
 \alias{nMatrix-class}
 \alias{show,nMatrix-method}
 \alias{coerce,nMatrix,matrix-method}
+\alias{coerce,nMatrix,dMatrix-method}
+\alias{coerce,dMatrix,nMatrix-method}
 \alias{coerce,nMatrix,lMatrix-method}
 \alias{coerce,lMatrix,nMatrix-method}
 % %\alias{coerce,dMatrix,dgeMatrix-method}
@@ -68,7 +70,7 @@
   }
 }
 %\references{}
-% Martin + Doug\author{Douglas Bates \email{bates@stat.wisc.edu}}
+%\author{Martin + Doug}
 \seealso{
 %   The classes \code{\linkS4class{dgeMatrix}},
 %   \code{\linkS4class{dgCMatrix}}, and

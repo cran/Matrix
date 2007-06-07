@@ -22,6 +22,8 @@
 \alias{coerce,dtTMatrix,matrix-method}
 \alias{coerce,matrix,dtCMatrix-method}
 \alias{coerce,matrix,dtTMatrix-method}
+%% Group methods
+\alias{Arith,dtCMatrix,dtCMatrix-method}
 %
 \alias{solve,dtCMatrix,matrix-method}
 \alias{solve,dtCMatrix,dgeMatrix-method}
@@ -105,6 +107,13 @@ tu <- t1 ; tu@diag <- "U"
 tu
 (cu <- as(tu, "dtCMatrix"))
 str(cu)# only two entries in @i and @x
+
+t1[1,2:3] <- -1:-2
+diag(t1) <- 10*c(1:2,3:2)
+t1 # still triangular
+(it1 <- solve(t1))
+t1. <- solve(it1)
+all(abs(t1 - t1.) < 10 * .Machine$double.eps)
 }
 \keyword{classes}
 \keyword{algebra}

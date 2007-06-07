@@ -50,11 +50,11 @@ setMethod("crossprod", signature(x = "lsparseMatrix", y = "lsparseMatrix"),
 
 
 setMethod("all", signature(x = "lsparseMatrix"),
-	  function(x, ..., na.rm = TRUE)
+	  function(x, ..., na.rm = FALSE)
 	  !is(x, "triangularMatrix") && all(x@x, ..., na.rm = na.rm))
 
 setMethod("any", signature(x = "lsparseMatrix"),
-	  function(x, ..., na.rm = TRUE)
+	  function(x, ..., na.rm = FALSE)
 	  ## logical unit-triangular has TRUE diagonal:
 	  (is(x, "triangularMatrix") && x@diag == "U") ||
 	  any(x@x, ..., na.rm = na.rm))

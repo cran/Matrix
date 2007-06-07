@@ -3,7 +3,7 @@
 ### R >= 2.6.0 needs (x)
 ### R <= 2.5.x had   (e1)
 
-if(.isR_26) {
+if(getRversion() >= "2.6.0") {
 
 ## Divert everything to  "lMatrix" and its subclasses :
 setMethod("!", "Matrix", function(x) !as(x, "lMatrix"))

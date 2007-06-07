@@ -30,8 +30,7 @@ SEXP compressed_to_TMatrix(SEXP x, SEXP colP)
 	ans,	indP = GET_SLOT(x, indSym),
 	pP = GET_SLOT(x, Matrix_pSym);
     int npt = length(pP) - 1;
-    char *cl = class_P(x);/* maybe unduplicated */
-    char *ncl = strdup(cl);
+    char *ncl = strdup(class_P(x));
     char *valid[] = {
 	"dgCMatrix", "dsCMatrix", "dtCMatrix", /* 0: 0:2 */
 	"lgCMatrix", "lsCMatrix", "ltCMatrix", /* 1: 3:5 */
@@ -43,10 +42,10 @@ SEXP compressed_to_TMatrix(SEXP x, SEXP colP)
 	"ngRMatrix", "nsRMatrix", "ntRMatrix", /* 6: 18:20 */
 	"zgRMatrix", "zsRMatrix", "ztRMatrix", /* 7: 21:23 */
 	""};
-    int ctype = Matrix_check_class(cl, valid);
+    int ctype = Matrix_check_class(ncl, valid);
 
     if (ctype < 0)
-	error(_("invalid class(x) '%s' in compressed_to_TMatrix(x)"), cl);
+	error(_("invalid class(x) '%s' in compressed_to_TMatrix(x)"), ncl);
 
     /* replace 'C' or 'R' with 'T' :*/
     ncl[2] = 'T';
@@ -73,19 +72,18 @@ SEXP compressed_to_TMatrix(SEXP x, SEXP colP)
 SEXP R_to_CMatrix(SEXP x)
 {
     SEXP ans, tri = PROTECT(allocVector(LGLSXP, 1));
-    char *cl = class_P(x);/* maybe unduplicated */
-    char *ncl = strdup(cl);
+    char *ncl = strdup(class_P(x));
     char *valid[] = {
 	"dgRMatrix", "dsRMatrix", "dtRMatrix",
 	"lgRMatrix", "lsRMatrix", "ltRMatrix",
 	"ngRMatrix", "nsRMatrix", "ntRMatrix",
 	"zgRMatrix", "zsRMatrix", "ztRMatrix",
 	""};
-    int ctype = Matrix_check_class(cl, valid);
+    int ctype = Matrix_check_class(ncl, valid);
     int *x_dims = INTEGER(GET_SLOT(x, Matrix_DimSym)), *a_dims;
 
     if (ctype < 0)
-	error(_("invalid class(x) '%s' in R_to_CMatrix(x)"), cl);
+	error(_("invalid class(x) '%s' in R_to_CMatrix(x)"), ncl);
 
     /* replace 'R' with 'C' : */
     ncl[2] = 'C';

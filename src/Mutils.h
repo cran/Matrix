@@ -37,8 +37,8 @@ enum CBLAS_SIDE {CblasLeft=141, CblasRight=142};
 #define LFT CblasLeft
 #define RGT CblasRight
 
-char norm_type(char *typstr);
-char rcond_type(char *typstr);
+char norm_type(const char *typstr);
+char rcond_type(const char *typstr);
 double get_double_by_name(SEXP obj, char *nm);
 SEXP set_double_by_name(SEXP obj, double val, char *nm);
 SEXP as_det_obj(double val, int log, int sign);
@@ -210,7 +210,7 @@ mMatrix_as_geMatrix(SEXP A)
  * @return index of match or -1 for no match
  */
 static R_INLINE int
-Matrix_check_class(char *class, char **valid)
+Matrix_check_class(const char *class, char **valid)
 {
     int ans;
     for (ans = 0; ; ans++) {

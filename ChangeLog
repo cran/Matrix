@@ -1,3 +1,99 @@
+2007-06-07  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Auxiliaries.R (callGeneric): another fix, needed for some cases
+	of colSums(*, sparseResult = TRUE)
+
+2007-06-06  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/lsparseMatrix.R, R/ldenseMatrix.R (all, any): change default to
+	'na.rm = FALSE' as "everywhere" else in R.
+
+2007-06-05 Douglas Bates <bates@stat.wisc.edu>
+
+	* [r4421] src/CSparse_install.sh: Modify for new organization of
+	  CSparse package
+	* [r4425] src/UFsparse_download.sh: Update to version 3.0.0 of
+	  SuiteSparse
+	* [r4426] src/Makefile: add ./UFconfig to the include path for
+	  compilation
+	* [r4427] src/cs.[ch]: update to CSparse version 2.2.0
+	* [r4428] inst/doc/UFsparse/* src/{AMD,CHOLMOD,COLAMD}/*
+	  src/UFconfig/UFconfig.h: Update to version 3.0.0 of SuiteSparse
+
+2007-06-05  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Auxiliaries.R (emptyColnames): + argument msg.if.not.empty, used in
+	* R/sparseMatrix.R (prSpMatrix): now gives a message about
+	suppressed column names.
+
+2007-06-04 17:13  Douglas Bates <bates@stat.wisc.edu>
+
+	* [r4418] src/Csparse.c, src/HBMM.c, src/Mutils.c, src/Mutils.h,
+	  src/Tsparse.c, src/chm_common.c, src/chm_common.h, src/dgCMatrix.c,
+	  src/dgeMatrix.c, src/dpoMatrix.c, src/dpoMatrix.h, src/dppMatrix.c,
+	  src/dppMatrix.h, src/dsCMatrix.c, src/dspMatrix.c, src/dspMatrix.h,
+	  src/dsyMatrix.c, src/dsyMatrix.h, src/dtpMatrix.c, src/dtrMatrix.c:
+	  Remove warnings after change to const char* CHAR
+
+2007-06-04 17:11  Douglas Bates <bates@stat.wisc.edu>
+
+	* [r4417] inst/include/Matrix_stubs.c, inst/include/cholmod.h: Corrected
+	  type of M_cholmod_ssmult
+
+2007-06-03 14:42  Douglas Bates <bates@stat.wisc.edu>
+
+	* [r4412] inst/include/Matrix_stubs.c, inst/include/cholmod.h,
+	  src/init.c: Yet another cholmod export - cholmod_ssmult
+
+2007-05-23  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* NAMESPACE: exported drop0(), since
+	* man/drop0.Rd: I have seen several cases, I really wanted to use
+	it, so our users may want too.
+
+2007-05-22  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* man/colSums.Rd: separately document colSums() etc, since these
+	have the extra argument 'sparseResult'.
+
+2007-05-21  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/sparseMatrix.R (spMatrix): utility (T)sparse Matrix constructor;
+	* man/spMatrix.Rd: docu., including examples
+
+	* R/Auxiliaries.R (sp.colMeans): etc, using a patched callGeneric(),
+	in order to make colMeans() etc fast *and* correct.
+	* R/sparseVector.R (replSPvec): "[<-" functionality for
+	sparseVectors; tested in
+	* tests/simple.R:
+
+2007-05-19  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/sparseMatrix.R (print.sparseSummary): and summary() method for
+	(very) sparse Matrices; output similar to Matlab's print().
+
+2007-05-17  Douglas Bates  <bates@stat.wisc.edu>
+
+	* src/HBMM.c (Matrix_writeMatrixMarket): Write 1-based, not
+	0-based, indices (Jose Quesada <quesada@gmail.com>).
+
+2007-05-16  Douglas Bates  <bates@stat.wisc.edu>
+
+	* R/CHMfactor.R: Added solve methods for a CHMfactor object.
+
+2007-05-16  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Auxiliaries.R (sparsapply): new utility, much faster than
+	tapply1() for large sparse matrices.
+
+2007-05-15  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Matrix.R (dim<-): reshape now via sparseVector.
+
+	* R/sparseVector.R: methods and function for
+	* R/AllClass.R: new "sparseVector" class and daughters.
+	* NAMESPACE: export new classes
+
 2007-05-14  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* DESCRIPTION (Version): 0.99875-1

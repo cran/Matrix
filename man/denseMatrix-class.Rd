@@ -22,6 +22,7 @@
 \alias{colSums,denseMatrix-method}
 \alias{rowMeans,denseMatrix-method}
 \alias{rowSums,denseMatrix-method}
+\alias{dim<-,denseMatrix-method}
 %
 \description{This is the virtual class of all dense (S4) matrices.
   It is the direct superclass of

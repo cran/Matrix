@@ -7,8 +7,25 @@
 
 setAs("ANY", "sparseMatrix", function(from) as(from, "CsparseMatrix"))
 
-setAs(from = "sparseMatrix", to = "generalMatrix",
-      function(from) as_gSparse(from))
+setAs("sparseMatrix", "generalMatrix", as_gSparse)
+
+setAs("sparseMatrix", "symmetricMatrix", as_sSparse)
+
+setAs("sparseMatrix", "triangularMatrix", as_tSparse)
+
+spMatrix <- function(nrow, ncol, i,j,x) {
+    ## Author: Martin Maechler, Date:  8 Jan 2007, 18:46
+    dim <- c(as.integer(nrow), as.integer(ncol))
+    ## The conformability of (i,j,x) with itself and with 'dim'
+    ## is checked automatically by internal "validObject()" inside new(.):
+    kind <- .M.kind(x)
+    new(paste(kind, "gTMatrix", sep=''), Dim = dim,
+        x = if(kind == "d") as.double(x) else x,
+        ## our "Tsparse" Matrices use  0-based indices :
+        i = as.integer(i - 1L),
+        j = as.integer(j - 1L))
+}
+
 
 ## "graph" coercions -- this needs the graph package which is currently
 ##  -----               *not* required on purpose
@@ -207,8 +224,7 @@ setMethod("Math",
 ## - - -   prMatrix() from ./Auxiliaries.R
 prSpMatrix <- function(object, digits = getOption("digits"),
                        maxp = getOption("max.print"), zero.print = ".",
-                       row.trailer = '',
-                       align = c("fancy", "right"))
+                       col.trailer = '', align = c("fancy", "right"))
 ## FIXME: prTriang() in ./Auxiliaries.R  should also get  align = "fancy"
 {
     cl <- getClassDef(class(object))
@@ -232,7 +248,7 @@ prSpMatrix <- function(object, digits = getOption("digits"),
 	    dimnames(x) <- dimnames(m)
 	}
     }
-    x <- emptyColnames(x)
+    x <- emptyColnames(x, msg.if.not.empty = TRUE)
     if(is.logical(zero.print))
 	zero.print <- if(zero.print) "0" else " "
     if(logi) {
@@ -273,8 +289,8 @@ prSpMatrix <- function(object, digits = getOption("digits"),
 	} else if (ne == 0)# all zeroes
 	    x[] <- zero.print
     }
-    if(row.trailer != '')
-        x <- cbind(x, row.trailer, deparse.level = 0)
+    if(col.trailer != '')
+        x <- cbind(x, col.trailer, deparse.level = 0)
     ## right = TRUE : cheap attempt to get better "." alignment
     print(x, quote = FALSE, right = TRUE, max = maxp)
     invisible(object)
@@ -293,10 +309,13 @@ setMethod("show", signature(object = "sparseMatrix"),
 	   nR <- d[1] # nrow
            useW <- getOption("width") - (format.info(nR)[1] + 3+1)
            ##                           space for "[<last>,] "
+
+           ## --> suppress rows and/or columns in printing ...
+
            suppCols <- (d[2] * 2 > useW)
            nc <- if(suppCols) (useW - (1 + 6)) %/% 2 else d[2]
-           ##                          sp+ row.trailer
-           row.trailer <- if(suppCols) "......" else ""
+           ##                          sp+ col.trailer
+           col.trailer <- if(suppCols) "......" else ""
 	   nr <- maxp %/% nc
            suppRows <- (nr < nR)
            if(suppRows) {
@@ -304,17 +323,17 @@ setMethod("show", signature(object = "sparseMatrix"),
 		   object <- object[ , 1:nc, drop = FALSE]
 	       n2 <- ceiling(nr / 2)
 	       prSpMatrix(object[seq_len(min(nR, max(1, n2))), , drop=FALSE],
-			  row.trailer = row.trailer)
+			  col.trailer = col.trailer)
 	       cat("\n ..............................",
 		   "\n ..........suppressing rows in show(); maybe adjust 'options(max.print= *)'",
 		   "\n ..............................\n\n", sep='')
 	       ## tail() automagically uses "[..,]" rownames:
 	       prSpMatrix(tail(object, max(1, nr-n2)),
-			  row.trailer = row.trailer)
+			  col.trailer = col.trailer)
 	   }
 	   else if(suppCols) {
 	       prSpMatrix(object[ , 1:nc , drop = FALSE],
-			  row.trailer = row.trailer)
+			  col.trailer = col.trailer)
 
 	       cat("\n .....suppressing columns in show(); maybe adjust 'options(max.print= *)'",
 		   "\n ..............................\n", sep='')
@@ -325,6 +344,29 @@ setMethod("show", signature(object = "sparseMatrix"),
        }
    })
 
+
+## For very large and very sparse matrices,  the above show()
+## is not really helpful;  Use  summary() as an alternative:
+
+setMethod("summary", signature(object = "sparseMatrix"),
+	  function(object, ...) {
+	      d <- dim(object)
+	      T <- as(object, "TsparseMatrix")
+	      ## return a data frame (int, int,	 {double|logical|...})	:
+	      r <- data.frame(i = T@i + 1L, j = T@j + 1L, x = T@x)
+	      attr(r, "header") <-
+		  sprintf('%d x %d sparse Matrix of class "%s", with %d entries',
+			  d[1], d[2], class(object), nnzero(object))
+	      ## use ole' S3 technology for such a simple case
+	      class(r) <- c("sparseSummary", class(r))
+	      r
+	  })
+
+print.sparseSummary <- function (x, ...) {
+    cat(attr(x, "header"),"\n")
+    print.data.frame(x, ...)
+    invisible(x)
+}
 
 setMethod("isSymmetric", signature(object = "sparseMatrix"),
 	  function(object, tol = 100*.Machine$double.eps) {
@@ -365,6 +407,18 @@ setMethod("isDiagonal", signature(object = "sparseMatrix"),
 
 setMethod("diag", signature(x = "sparseMatrix"),
 	  function(x, nrow, ncol = n) diag(as(x, "CsparseMatrix")))
+
+setMethod("dim<-", signature(x = "sparseMatrix", value = "ANY"),
+	  function(x, value) {
+	      if(!is.numeric(value) || length(value) != 2)
+		  stop("dim(.) value must be numeric of length 2")
+	      if(prod(dim(x)) != prod(value <- as.integer(value)))
+		  stop("dimensions don't match the number of cells")
+              ## be careful to keep things sparse
+	      as(spV2M(as(x, "sparseVector"), nrow=value[1], ncol=value[2]),
+		 class(x))
+	  })
+
 
 ## .as.dgT.Fun
 setMethod("colSums",  signature(x = "sparseMatrix"), .as.dgT.Fun)

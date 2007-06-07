@@ -1,7 +1,58 @@
 #### "Namespace private" Auxiliaries  such as method functions
 #### (called from more than one place --> need to be defined early)
 
-.isR_26 <- (paste(R.version$major, R.version$minor, sep=".") >= "2.6")
+
+if(R.version$`svn rev` < 41863) ## use the fixed one
+    ## will be hidden in namespace and can be removed when DEPENDS: R >= 2.5.1
+    callGeneric <- function(...)
+{
+    frame <- sys.parent()
+    envir <- parent.frame()
+    call <- sys.call(frame)
+
+    ## the  lines below this comment do what the previous version
+    ## did in the expression fdef <- sys.function(frame)
+    if(exists(".Generic", envir = envir, inherits = FALSE))
+	fname <- get(".Generic", envir = envir)
+    else { # in a local method (special arguments), or	an error
+	## FIXME:  this depends on the .local mechanism, which should change
+	if(identical(as.character(call[[1]]), ".local"))
+	    call <- sys.call(sys.parent(2))
+	fname <- as.character(call[[1]])
+    }
+    fdef <- get(fname, envir = envir)
+
+    if(is.primitive(fdef)) {
+        if(nargs() == 0)
+            stop("'callGeneric' with a primitive needs explicit arguments (no formal args defined)")
+        else {
+            fname <- as.name(fname)
+            call <- substitute(fname(...))
+        }
+    }
+    else {
+        env <- environment(fdef)
+        if(!exists(".Generic", env, inherits = FALSE))
+            stop("'callGeneric' must be called from a generic function or method")
+        f <- get(".Generic", env, inherits = FALSE)
+        fname <- as.name(f)
+        if(nargs() == 0) {
+            call[[1]] <- as.name(fname) # in case called from .local
+            call <- match.call(fdef, call)
+            anames <- names(call)
+            matched <- !is.na(match(anames, names(formals(fdef))))
+            for(i in seq_along(anames))
+                if(matched[[i]])
+                    call[[i]] <- as.name(anames[[i]])
+        }
+        else {
+            call <- substitute(fname(...))
+        }
+    }
+    eval(call, sys.frame(sys.parent()))
+}
+
+
 
 ## Need to consider NAs ;  "== 0" even works for logical & complex:
 is0  <- function(x) !is.na(x) & x == 0
@@ -118,11 +169,20 @@ isPacked <- function(x)
     length(x@x) < prod(dim(x))
 }
 
-emptyColnames <- function(x)
+emptyColnames <- function(x, msg.if.not.empty = FALSE)
 {
     ## Useful for compact printing of (parts) of sparse matrices
     ## possibly	 dimnames(x) "==" NULL :
-    dimnames(x) <- list(dimnames(x)[[1]], rep("", dim(x)[2]))
+    dn <- dimnames(x)
+    d <- dim(x)
+    if(msg.if.not.empty && is.list(dn) && length(dn) >= 2 &&
+       is.character(cn <- dn[[2]]) && any(cn != "")) {
+	lc <- length(cn)
+	message(sprintf("   [[ suppressing %d column names %s%s ]]", d[2],
+			paste(sQuote(cn[1:min(3, lc)]), collapse = ", "),
+			if(lc > 3) " ..." else ""))
+    }
+    dimnames(x) <- list(dn[[1]], rep("", d[2]))
     x
 }
 
@@ -537,7 +597,7 @@ l2d_meth <- function(x) {
     if(is.character(clx))		# < speedup: get it once
         clx <- getClassDef(clx)
     if(extends(clx, "sparseVector")) ## shortcut
-        substr(clx@className, 1,1)
+	substr(as.character(clx@className), 1,1)
     else if(extends(clx, "dMatrix")) "d"
     else if(extends(clx, "nMatrix")) "n"
     else if(extends(clx, "lMatrix")) "l"
@@ -633,36 +693,40 @@ as_Csparse2 <- function(x, cld = if(isS4(x)) getClassDef(class(x))) {
 }
 
 
-
 ## 'cl'   : class() *or* class definition of from
 as_gCsimpl <- function(from, cl = class(from))
     as(from, paste(.M.kind(from, cl), "gCMatrix", sep=''))
 ## slightly smarter:
-as_gSparse2 <- function(from, cl = class(from)) {
+as_Sp <- function(from, shape, cl = class(from)) {
     if(is.character(cl)) cl <- getClassDef(cl)
     as(from, paste(.M.kind(from, cl),
-		   if(extends(cl, "TsparseMatrix")) "gTMatrix"
-		   else "gCMatrix", sep=''))
+		   shape,
+		   if(extends(cl, "TsparseMatrix")) "TMatrix" else "CMatrix",
+		   sep=''))
 }
+as_gSparse <- function(from) as_Sp(from, "g", getClassDef(class(from)))
+as_sSparse <- function(from) as_Sp(from, "s", getClassDef(class(from)))
+as_tSparse <- function(from) as_Sp(from, "t", getClassDef(class(from)))
+
 as_geSimpl2 <- function(from, cl = class(from))
     as(from, paste(.M.kind(from, cl), "geMatrix", sep=''))
-
 ## to be used directly in setAs(.) needs one-argument-only  (from) :
 as_geSimpl <- function(from) as(from, paste(.M.kind(from), "geMatrix", sep=''))
-as_gSparse <- function(from) as_gSparse2(from, getClassDef(class(from)))
 
 ## smarter, (but sometimes too smart!) compared to geClass() above:
 as_geClass <- function(x, cl) {
-    if(missing(cl)) as_geSimpl(x)
-    else if(extends(cl, "diagonalMatrix")  && isDiagonal(x))
+    if(missing(cl)) return(as_geSimpl(x))
+    ## else
+    cld <- getClassDef(cl)
+    if(extends(cld, "diagonalMatrix")  && isDiagonal(x))
 	as(x, cl)
-    else if(extends(cl, "symmetricMatrix") &&  isSymmetric(x)) {
-        kind <- .M.kind(x, cl)
+    else if(extends(cld, "symmetricMatrix") &&  isSymmetric(x)) {
+        kind <- .M.kind(x, cld)
 	as(x, class2(cl, kind, do.sub= kind != "d"))
-    } else if(extends(cl, "triangularMatrix") && isTriangular(x))
+    } else if(extends(cld, "triangularMatrix") && isTriangular(x))
 	as(x, cl)
     else ## revert to
-	as_geSimpl2(x, cl)
+	as_geSimpl2(x, cld)
 }
 
 as_CspClass <- function(x, cl) {
@@ -792,11 +856,7 @@ diagU2N <- function(x, cl = getClassDef(class(x)))
     else x
 }
 
-## Needed, e.g., in ./Csparse.R for colSums() etc:
-.as.dgC.Fun <- function(x, na.rm = FALSE, dims = 1) {
-    x <- as(x, "dgCMatrix")
-    callGeneric()
-}
+
 
 .as.dgC.0.factors <- function(x) {
     if(!is(x, "dgCMatrix"))
@@ -805,7 +865,14 @@ diagU2N <- function(x, cl = getClassDef(class(x)))
 	if(!length(x@factors)) x else { x@factors <- list() ; x }
 }
 
-.as.dgT.Fun <- function(x, na.rm = FALSE, dims = 1) {
+
+## Needed, e.g., in ./Csparse.R for colSums() etc:
+.as.dgC.Fun <- function(x, na.rm = FALSE, dims = 1, sparseResult = FALSE) {
+    x <- as(x, "dgCMatrix")
+    callGeneric()
+}
+
+.as.dgT.Fun <- function(x, na.rm = FALSE, dims = 1, sparseResult = FALSE) {
     ## used e.g. inside colSums() etc methods
     x <- as(x, "dgTMatrix")
     callGeneric()
@@ -822,3 +889,38 @@ tapply1 <- function (X, INDEX, FUN = NULL, ..., simplify = TRUE) {
 ##     tapply1(X, factor(INDEX, 0:(n-1)), FUN = FUN, ..., simplify = simplify)
 ## }
 
+sparsapply <- function(x, MARGIN, FUN, sparseResult = TRUE, ...)
+{
+    ## Purpose: "Sparse Apply": better utility than tapply1() for colSums() etc :
+    ##    NOTE: Only correct for things like sum() where the "zeros do not count"
+    ## ----------------------------------------------------------------------
+    ## Arguments: x: sparseMatrix;  others as in *apply()
+    ## ----------------------------------------------------------------------
+    ## Author: Martin Maechler, Date: 16 May 2007
+    stopifnot(MARGIN %in% 1:2)
+    xi <- if(MARGIN == 1) x@i else x@j
+    ui <- unique(xi)
+    n <- x@Dim[MARGIN]
+    ## FIXME: Here we assume 'FUN' to return  'numeric' !
+    r <- if(sparseResult) new("dsparseVector", length = n) else numeric(n)
+    r[ui + 1L] <- sapply(ui, function(i) FUN(x@x[xi == i], ...))
+    r
+}
+
+sp.colMeans <- function(x, na.rm = FALSE, dims = 1, sparseResult = FALSE)
+{
+    nr <- nrow(x)
+    if(na.rm) ## use less than nrow(.) in case of NAs
+	nr <- nr - sparsapply(x, 2, function(u) sum(is.na(u)),
+			      sparseResult=sparseResult)
+    sparsapply(x, 2, sum, sparseResult=sparseResult, na.rm=na.rm) / nr
+}
+
+sp.rowMeans <- function(x, na.rm = FALSE, dims = 1, sparseResult = FALSE)
+{
+    nc <- ncol(x)
+    if(na.rm) ## use less than ncol(.) in case of NAs
+	nc <- nc - sparsapply(x, 1, function(u) sum(is.na(u)),
+			      sparseResult=sparseResult)
+    sparsapply(x, 1, sum, sparseResult=sparseResult, na.rm=na.rm) / nc
+}

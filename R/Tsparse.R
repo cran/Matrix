@@ -436,6 +436,12 @@ replTmat <- function (x, i, j, value)
 {
     di <- dim(x)
     dn <- dimnames(x)
+    iMi <- missing(i)
+    jMi <- missing(j)
+    i1 <- if(iMi) 0:(di[1] - 1L) else .ind.prep2(i, 1, di, dn)
+    i2 <- if(jMi) 0:(di[2] - 1L) else .ind.prep2(j, 2, di, dn)
+    dind <- c(length(i1), length(i2)) # dimension of replacement region
+    lenRepl <- prod(dind)
     lenV <- length(value)
     if(lenV == 0) {
         if(lenRepl != 0)
@@ -443,12 +449,6 @@ replTmat <- function (x, i, j, value)
         else return(x)
     }
     ## else: lenV := length(value) > 0
-    iMi <- missing(i)
-    jMi <- missing(j)
-    i1 <- if(iMi) 0:(di[1] - 1L) else .ind.prep2(i, 1, di, dn)
-    i2 <- if(jMi) 0:(di[2] - 1L) else .ind.prep2(j, 2, di, dn)
-    dind <- c(length(i1), length(i2)) # dimension of replacement region
-    lenRepl <- prod(dind)
     if(lenRepl %% lenV != 0)
         stop("number of items to replace is not a multiple of replacement length")
     if(!iMi && any(duplicated(i1))) {

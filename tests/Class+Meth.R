@@ -268,7 +268,7 @@ tstMatrixClass <-
                                     stop("internal failure from .sp.class()")
                                 m2 <- as(mM, newcl)
                             } else { ## ddense & (general or symmetric)
-                                stop("don't what to coerce <dge> to - error test-logic")
+                                stop("don't know what to coerce <dge> to - error test-logic")
                             }
                         }
                         cat("valid:", validObject(m2), "\n")

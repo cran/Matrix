@@ -829,6 +829,9 @@ int M_cholmod_sdmult(cholmod_sparse *A, int transpose,
 		     double alpha [2], double beta [2],
 		     cholmod_dense *X, cholmod_dense *Y,
 		     cholmod_common *Common);
+cholmod_sparse* M_cholmod_ssmult(cholmod_sparse *A, cholmod_sparse *B,
+				 int stype, int values, int sorted,
+				 cholmod_common *Common);
 int M_cholmod_factorize(cholmod_sparse *A, cholmod_factor *L,
 			cholmod_common *Common);
 int M_cholmod_factorize_p(cholmod_sparse *A, double *beta, int *fset,

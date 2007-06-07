@@ -28,7 +28,6 @@ nnzero(x, na.counted = NA)
 }
 % \details{
 % }
-}
 \value{
   the number of non zero entries in \code{x} (typically
   \code{\link{integer}}).

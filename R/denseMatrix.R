@@ -65,6 +65,27 @@ setMethod("show", signature(object = "denseMatrix"),
 ##- setMethod("show", signature(object = "pMatrix"), prMatrix)
 ##- ## this should now be superfluous [keep for safety for the moment]:
 
+setMethod("dim<-", signature(x = "denseMatrix", value = "ANY"),
+	  function(x, value) {
+	      if(!is.numeric(value) || length(value) != 2)
+		  stop("dim(.) value must be numeric of length 2")
+	      if(prod(dim(x)) != prod(value <- as.integer(value)))
+		  stop("dimensions don't match the number of cells")
+	      clx <- as.character(class(x)) # as.*(): drop attr
+	      if(substring(clx,2) == "geMatrix") {
+		  x@Dim <- value
+		  if(length(x@factors) > 0)
+		      x@factors <- list()
+		  x
+	      } else { ## other "denseMatrix"
+		  x <- as_geSimpl2(x, clx)
+		  dim(x) <- value
+                  x
+	      }
+          })
+
+
+
 ## Using "index" for indices should allow
 ## integer (numeric), logical, or character (names!) indices :
 

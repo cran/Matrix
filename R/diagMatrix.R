@@ -43,7 +43,7 @@ bdiag <- function(...) {
     ## make sure we had all matrices:
     if(!(is.matrix(dims) && nrow(dims) == 2))
 	stop("some arguments are not matrices")
-    csdim <- rbind(rep.int(0:0, 2),
+    csdim <- rbind(rep.int(0L, 2),
                    apply(sapply(mlist, dim), 1, cumsum))
     ret <- new("dgTMatrix", Dim = as.integer(csdim[nrow(csdim),]))
     add1 <- matrix(1:0, 2,2)
@@ -58,24 +58,33 @@ bdiag <- function(...) {
     as(ret, "CsparseMatrix")
 }
 
-diag2T <- function(from) {
-    i <- if(from@diag == "U") integer(0) else seq_len(from@Dim[1]) - 1:1
+diag2tT <- function(from) {
+    i <- if(from@diag == "U") integer(0) else seq_len(from@Dim[1]) - 1L
     new(paste(.M.kind(from), "tTMatrix", sep=''),
 	diag = from@diag, Dim = from@Dim, Dimnames = from@Dimnames,
 	x = from@x, # <- ok for diag = "U" and "N" (!)
 	i = i, j = i)
 }
 
-setAs("diagonalMatrix", "triangularMatrix", diag2T)
-setAs("diagonalMatrix", "sparseMatrix", diag2T)
+diag2sT <- function(from) { # to symmetric Tsparse
+    i <- if(from@diag == "U") integer(0) else seq_len(from@Dim[1]) - 1L
+    new(paste(.M.kind(from), "sTMatrix", sep=''),
+	Dim = from@Dim, Dimnames = from@Dimnames,
+	x = from@x, i = i, j = i)
+}
+
+setAs("diagonalMatrix", "triangularMatrix", diag2tT)
+setAs("diagonalMatrix", "sparseMatrix", diag2tT)
 ## needed too (otherwise <dense> -> Tsparse is taken):
-setAs("diagonalMatrix", "TsparseMatrix", diag2T)
+setAs("diagonalMatrix", "TsparseMatrix", diag2tT)
 ## is better than this:
 ## setAs("diagonalMatrix", "sparseMatrix",
 ##       function(from)
 ## 	  as(from, if(is(from, "dMatrix")) "dgCMatrix" else "lgCMatrix"))
 setAs("diagonalMatrix", "CsparseMatrix",
-      function(from) as(diag2T(from), "CsparseMatrix"))
+      function(from) as(diag2tT(from), "CsparseMatrix"))
+
+setAs("diagonalMatrix", "symmetricMatrix", diag2sT)
 
 setAs("diagonalMatrix", "matrix",
       function(from) {
@@ -106,7 +115,7 @@ setAs("ddiMatrix", "dgTMatrix",
       function(from) {
 	  .Deprecated("as(, \"sparseMatrix\")")
 	  n <- from@Dim[1]
-	  i <- seq_len(n) - 1:1
+	  i <- seq_len(n) - 1L
 	  new("dgTMatrix", i = i, j = i, x = .diag.x(from),
 	      Dim = c(n,n), Dimnames = from@Dimnames) })
 
@@ -119,11 +128,11 @@ setAs("ldiMatrix", "lgTMatrix",
 	  n <- from@Dim[1]
 	  if(from@diag == "U") { # unit-diagonal
 	      x <- rep.int(TRUE, n)
-	      i <- seq_len(n) - 1:1
+	      i <- seq_len(n) - 1L
 	  } else { # "normal"
 	      nz <- nz.NA(from@x, na. = TRUE)
 	      x <- from@x[nz]
-	      i <- which(nz) - 1:1
+	      i <- which(nz) - 1L
 	  }
 	  new("lgTMatrix", i = i, j = i, x = x,
 	      Dim = c(n,n), Dimnames = from@Dimnames) })
@@ -417,6 +426,11 @@ setMethod("Ops", signature(e1 = "ddiMatrix", e2 = "diagonalMatrix"),
           diagOdiag)
 setMethod("Ops", signature(e1 = "diagonalMatrix", e2 = "ddiMatrix"),
           diagOdiag)
+
+## FIXME:    diagonal  o  triangular  |-->  triangular
+## -----     diagonal  o  symmetric   |-->  symmetric
+##    {also when other is sparse: do these "here" --
+##     before conversion to sparse, since that loses "diagonality"}
 
 ## For almost everything else, diag* shall be treated "as sparse" :
 ## These are cheap implementations via coercion

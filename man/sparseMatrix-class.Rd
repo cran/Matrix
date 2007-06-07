@@ -24,13 +24,14 @@
 %
 \alias{coerce,ANY,sparseMatrix-method}
 \alias{coerce,sparseMatrix,generalMatrix-method}
+\alias{coerce,sparseMatrix,symmetricMatrix-method}
+\alias{coerce,sparseMatrix,triangularMatrix-method}
 \alias{-,sparseMatrix,missing-method}
 \alias{diag,sparseMatrix-method}
+\alias{dim<-,sparseMatrix-method}
 \alias{show,sparseMatrix-method}
-\alias{colMeans,sparseMatrix-method}
-\alias{colSums,sparseMatrix-method}
-\alias{rowMeans,sparseMatrix-method}
-\alias{rowSums,sparseMatrix-method}
+\alias{summary,sparseMatrix-method}
+%\alias{colMeans,..} etc are now in ./colSums.Rd
 % graph stuff
 \alias{coerce,graph,sparseMatrix-method}
 \alias{coerce,graph,CsparseMatrix-method}
@@ -59,7 +60,7 @@
 }
 \section{Methods}{
   \describe{
-    \item{show}{\code{signature(object = "sparseMatrix")}: The
+    \item{show}{\code{(object = "sparseMatrix")}: The
       \code{\link{show}} method for sparse matrices prints
       \emph{\dQuote{structural}} zeroes as \code{"."} using the
       non-exported \code{prSpMatrix} function which allows further
@@ -67,7 +68,20 @@
 
       Note that \code{\link{options}(max.print)} will influence how many
       entries of large matrices are printed at all.}
+    \item{summary}{\code{(object = "sparseMatrix")}: Returns
+      an object of S3 class \code{"sparseSummary"} which is basically a
+      \code{\link{data.frame}} with columns \code{(i,j,x)} with the
+      non-zero entries.   The \code{\link{print}} method resemble's
+      Matlab's way of printing sparse matrices.}
+    \item{diag}{\code{(x = "sparseMatrix")}: extracts the diagonal of a
+      sparse matrix.}
+    \item{dim<-}{\code{signature(x = "sparseMatrix", value = "ANY")}:
+      allows to \emph{reshape} a sparse matrix to a sparse matrix with
+      the same entries but different dimensions. \code{value} must be of
+      length two and fulfill \code{prod(value) == prod(dim(x))}.}
   }
+  See also \code{\link{colSums}}, ... %% FIXME
+  for methods with separate help pages.
 }
 \note{
   In method selection for multiplication operations (i.e. \code{\%*\%}

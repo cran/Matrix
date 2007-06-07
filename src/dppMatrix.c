@@ -17,7 +17,7 @@ SEXP dppMatrix_chol(SEXP x)
     SEXP val = get_factors(x, "pCholesky"),
 	dimP = GET_SLOT(x, Matrix_DimSym),
 	uploP = GET_SLOT(x, Matrix_uploSym);
-    char *uplo = CHAR(STRING_ELT(uploP, 0));
+    const char *uplo = CHAR(STRING_ELT(uploP, 0));
     int *dims = INTEGER(dimP), info;
 
     if (val != R_NilValue) return val;

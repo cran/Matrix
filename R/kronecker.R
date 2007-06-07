@@ -31,6 +31,17 @@ setMethod("kronecker", signature(X="ANY", Y="sparseMatrix"),
 	      X <- as(X, "TsparseMatrix")
 	      callGeneric()
 	  })
+## the above could recurse infinitely :
+setMethod("kronecker", signature(X="sparseMatrix", Y="TsparseMatrix"),
+	  function (X, Y, FUN = "*", make.dimnames = FALSE, ...) {
+	      X <- as(X, "TsparseMatrix")
+	      callGeneric()
+	  })
+setMethod("kronecker", signature(X="TsparseMatrix", Y="sparseMatrix"),
+	  function (X, Y, FUN = "*", make.dimnames = FALSE, ...) {
+	      X <- as(X, "TsparseMatrix")
+	      callGeneric()
+	  })
 
 ## from ./dgTMatrix.R :
 setMethod("kronecker", signature(X = "dgTMatrix", Y = "dgTMatrix"),

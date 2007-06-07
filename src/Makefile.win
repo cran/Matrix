@@ -1,49 +1,12 @@
 # -*- Makefile -*- for Windows
-PKG_HOME=$(shell $(RHOME)/src/gnuwin32/Rpwd.exe .)
-MkInclude=$(PKG_HOME)/Win.mk
 
 include Win.mk
 #       |-> gnuwin32/MkRules
 
-BLAS_LIBS=-lRblas
-LAPACK_LIBS=-L$(RHOME)/src/gnuwin32 -L$(RHOME)/bin -lRlapack
 CPPFLAGS=$(PKG_CPPFLAGS) -I$(RHOME)/include
 CFLAGS=$(CPPFLAGS) $(DEBUGFLAG) -O2 $(PKG_CFLAGS)
 CXXFLAGS=$(CPPFLAGS) $(DEBUGFLAG) -O2 $(PKG_CXXFLAGS)
 
-PKG_LIBS = $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)
-DLLLIBS= $(PKG_LIBS) -lR
-
-pkg = Matrix
-
-include SOURCES_C.mkf
-
-##N SOURCES_F = zpotf2.f zpotrf.f zlacgv.f
-##N OBJECTS = $(SOURCES_C:.c=.o) $(SOURCES_F:.f=.o)
-
-OBJECTS = $(SOURCES_C:.c=.o)
-SHLIB = $(pkg).dll
-SUBDIRS = CHOLMOD COLAMD AMD
-SUBLIBS = $(SUBDIRS:=.a)
-SUBSTAMP = $(SUBDIRS:=.stamp)
-
-$(SHLIB): $(OBJECTS) $(SUBLIBS)
-	$(DLL) --shared -s -o $@ $(OBJECTS) $(SUBLIBS) $(DLLLIBS)
-
-all: $(SHLIB)
-
-mostlyclean: clean
-
-$(SUBLIBS):
-	@for d in $(SUBDIRS); do \
-	  (cd $${d} && MkInclude=$(MkInclude) $(MAKE) lib) || exit 1; \
-	done
-
-clean:
-	@-rm -rf .libs _libs
-	@-rm -f *.o *.dll
-	@for d in $(SUBDIRS); do \
-	  (cd $${d} && $(MAKE) clean) || exit 1; \
-	done
-
-include DEPS.mkf
+## Use this to
+build_under_Windows = true
+include Makefile

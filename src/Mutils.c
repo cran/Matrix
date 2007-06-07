@@ -1,7 +1,7 @@
 #include "Mutils.h"
 #include <R_ext/Lapack.h>
 
-char norm_type(char *typstr)
+char norm_type(const char *typstr)
 {
     char typup;
 
@@ -18,7 +18,7 @@ char norm_type(char *typstr)
     return typup;
 }
 
-char rcond_type(char *typstr)
+char rcond_type(const char *typstr)
 {
     char typup;
 
@@ -315,14 +315,14 @@ Matrix_make_named(int TYP, char **names)
 SEXP check_scalar_string(SEXP sP, char *vals, char *nm)
 {
     SEXP val = ScalarLogical(1);
-    char *buf, *str;
+    char *buf;
     /* only allocate when needed: in good case, none is needed */
 #define SPRINTF buf = Calloc(Matrix_Error_Bufsiz, char); sprintf
 
     if (length(sP) != 1) {
 	SPRINTF(buf, _("'%s' slot must have length 1"), nm);
     } else {
-	str = CHAR(STRING_ELT(sP, 0));
+	const char *str = CHAR(STRING_ELT(sP, 0));
 	if (strlen(str) != 1) {
 	    SPRINTF(buf, _("'%s' must have string length 1"), nm);
 	} else {
@@ -569,8 +569,8 @@ install_diagonal_int(int *dest, SEXP A)
 SEXP dup_mMatrix_as_geMatrix(SEXP A)
 {
     SEXP ans, ad = R_NilValue, an = R_NilValue;	/* -Wall */
-    char *cl = class_P(A),
-	*valid[] = {"_NOT_A_CLASS_",/* *_CLASSES defined in ./Mutils.h */
+    const char *cl = class_P(A);
+    char *valid[] = {"_NOT_A_CLASS_",/* *_CLASSES defined in ./Mutils.h */
 		    ddense_CLASSES, /* 14 */
 		    ldense_CLASSES, /* 6  */
 		    ndense_CLASSES, /* 5  */
@@ -723,8 +723,8 @@ SEXP dup_mMatrix_as_dgeMatrix(SEXP A)
 {
     SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("dgeMatrix"))),
 	ad = R_NilValue , an = R_NilValue;	/* -Wall */
-    char *cl = class_P(A),
-	*valid[] = {"_NOT_A_CLASS_", ddense_CLASSES, ""};
+    const char *cl = class_P(A);
+    char *valid[] = {"_NOT_A_CLASS_", ddense_CLASSES, ""};
     int ctype = Matrix_check_class(cl, valid), nprot = 1, sz;
     double *ansx;
 

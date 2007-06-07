@@ -127,27 +127,22 @@ setMethod("+", signature(e1 = "dgTMatrix", e2 = "dgTMatrix"),
 
 
 setMethod("writeHB", signature(obj = "dgTMatrix"),
-          function(obj, file, ...) callGeneric(as(obj, "CsparseMatrix"), file, ...))
+	  function(obj, file, ...) callGeneric(as(obj, "CsparseMatrix"), file, ...))
 
 setMethod("writeMM", signature(obj = "dgTMatrix"),
-          function(obj, file, ...)
-          .Call(Matrix_writeMatrixMarket, obj, as.character(file), "DGT"))
+	  function(obj, file, ...)
+	  .Call(Matrix_writeMatrixMarket, obj, as.character(file), "DGT"))
 
 
 setMethod("colSums", signature(x = "dgTMatrix"),
-	  function(x, na.rm = FALSE, dims = 1)
-          tapply1(x@x, factor(x@j, 0:(x@Dim[2]-1)), sum, na.rm = na.rm),
-	  valueClass = "numeric")
-setMethod("colMeans", signature(x = "dgTMatrix"),
-	  function(x, na.rm = FALSE, dims = 1)
-          tapply1(x@x, factor(x@j, 0:(x@Dim[2]-1)), mean, na.rm = na.rm),
-	  valueClass = "numeric")
+	  function(x, na.rm = FALSE, dims = 1, sparseResult = FALSE)
+	  sparsapply(x, 2, sum, sparseResult = sparseResult, na.rm = na.rm))
 
 setMethod("rowSums", signature(x = "dgTMatrix"),
-	  function(x, na.rm = FALSE, dims = 1)
-          tapply1(x@x, factor(x@i, 0:(x@Dim[1]-1)), sum, na.rm = na.rm),
-	  valueClass = "numeric")
-setMethod("rowMeans", signature(x = "dgTMatrix"),
-	  function(x, na.rm = FALSE, dims = 1)
-          tapply1(x@x, factor(x@i, 0:(x@Dim[1]-1)), mean, na.rm = na.rm),
-	  valueClass = "numeric")
+	  function(x, na.rm = FALSE, dims = 1, sparseResult = FALSE)
+	  sparsapply(x, 1, sum, sparseResult = sparseResult, na.rm = na.rm))
+
+setMethod("colMeans", signature(x = "dgTMatrix"), sp.colMeans)
+
+setMethod("rowMeans", signature(x = "dgTMatrix"), sp.rowMeans)
+

@@ -30,7 +30,7 @@ SEXP dgeMatrix_validate(SEXP obj)
 }
 
 static
-double get_norm(SEXP obj, char *typstr)
+double get_norm(SEXP obj, const char *typstr)
 {
     char typnm[] = {'\0', '\0'};
     int *dims = INTEGER(GET_SLOT(obj, Matrix_DimSym));

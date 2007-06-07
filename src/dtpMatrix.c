@@ -20,7 +20,7 @@ SEXP dtpMatrix_validate(SEXP obj)
 }
 
 static
-double get_norm(SEXP obj, char *typstr)
+double get_norm(SEXP obj, const char *typstr)
 {
     char typnm[] = {'\0', '\0'};
     int *dims = INTEGER(GET_SLOT(obj, Matrix_DimSym));
@@ -92,7 +92,7 @@ SEXP dtpMatrix_matrix_mm(SEXP x, SEXP y)
     int *xDim = INTEGER(GET_SLOT(x, Matrix_DimSym)),
 	*yDim = INTEGER(GET_SLOT(val, Matrix_DimSym));
     int ione = 1, j;
-    char *uplo = uplo_P(x), *diag = diag_P(x);
+    const char *uplo = uplo_P(x), *diag = diag_P(x);
     double *xx = REAL(GET_SLOT(x, Matrix_xSym)),
 	*vx = REAL(GET_SLOT(val, Matrix_xSym));
 
@@ -113,7 +113,7 @@ SEXP dtpMatrix_matrix_solve(SEXP a, SEXP b)
     int *aDim = INTEGER(GET_SLOT(a, Matrix_DimSym)),
 	*bDim = INTEGER(GET_SLOT(val, Matrix_DimSym));
     int ione = 1, j;
-    char *uplo = uplo_P(a), *diag = diag_P(a);
+    const char *uplo = uplo_P(a), *diag = diag_P(a);
     double *ax = REAL(GET_SLOT(a, Matrix_xSym)),
 	*vx = REAL(GET_SLOT(val, Matrix_xSym));
 
@@ -136,7 +136,7 @@ SEXP dgeMatrix_dtpMatrix_mm(SEXP x, SEXP y)
     int *xDim = INTEGER(GET_SLOT(x, Matrix_DimSym)),
 	*yDim = INTEGER(GET_SLOT(y, Matrix_DimSym));
     int i;
-    char *uplo = uplo_P(y), *diag = diag_P(y);
+    const char *uplo = uplo_P(y), *diag = diag_P(y);
     double *yx = REAL(GET_SLOT(y, Matrix_xSym)),
  	*vx = REAL(GET_SLOT(val, Matrix_xSym));
 

@@ -11,6 +11,9 @@
 %
 \alias{coerce,CHMfactor,sparseMatrix-method}
 \alias{image,CHMfactor-method}
+\alias{solve,CHMfactor,ddenseMatrix-method}
+\alias{solve,CHMfactor,matrix-method}
+\alias{solve,CHMfactor,dsparseMatrix-method}
 %
 \description{The virtual class \code{"CHMfactor"} is a class of
   CHOLMOD-based Cholesky factorizations of symmetric, sparse,
@@ -53,6 +56,25 @@
 \section{Methods}{
   \describe{
     \item{coerce}{\code{signature(from = "CHMfactor", to = "sparseMatrix")}}
+  }
+  \describe{
+    \item{image}{\code{signature(x = "CHMfactor")}}
+  }
+  \describe{
+    \item{solve}{\code{signature(a = "CHMfactor", b = "ddenseMatrix")}}
+    The \code{solve} methods for a \code{"CHMfactor"} object take an
+    optional third argument \code{system} whose value can be one of the
+    character strings \code{"A"}, \code{"LDLt"}, \code{"LD"},
+    \code{"DLt"}, \code{"L"}, \code{"Lt"}, \code{"D"}, \code{"P"} or
+    \code{"Pt"}.  This argument describes the system to be solved.  The
+    default is to solve \code{Ax = b} for \code{x} where \code{A} is
+    sparse, positive-definite matrix that was factored to produce \code{"a"}.
+  }
+  \describe{
+    \item{solve}{\code{signature(a = "CHMfactor", b = "dsparseMatrix")}}
+  }
+  \describe{
+    \item{solve}{\code{signature(a = "CHMfactor", b = "matrix")}}
   }
 }
 %\references{}

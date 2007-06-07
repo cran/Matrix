@@ -5,7 +5,7 @@
 #include "R_ext/Lapack.h"
 
 SEXP dspMatrix_validate(SEXP obj);
-double get_norm_sp(SEXP obj, char *typstr);
+double get_norm_sp(SEXP obj, const char *typstr);
 SEXP dspMatrix_norm(SEXP obj, SEXP type);
 SEXP dspMatrix_rcond(SEXP obj, SEXP type);
 SEXP dspMatrix_solve(SEXP a);

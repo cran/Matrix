@@ -170,6 +170,7 @@ diff(M)
 ## can reshape it even :
 dim(M) <- c(2, 12)
 M
+stopifnot(identical(M, Matrix(c(0,1,0,0), 2,12)))
 }
 \keyword{classes}
 \keyword{algebra}

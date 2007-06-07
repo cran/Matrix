@@ -11,8 +11,8 @@ mv UFconfig/README.txt ../inst/doc/UFsparse/UFconfig.txt
   ## touch the file UFconfig/UFconfig.mk.  We use other configuration
   ## environment variables but this name is embedded in some Makefiles
 touch UFconfig/UFconfig.mk
-  ## install source files for COLAMD
-tar zxf COLAMD.tar.gz COLAMD/colamd.c COLAMD/colamd.h COLAMD/colamd_global.c
+  ## install COLAMD/Source and COLAMD/Include directories
+tar zxf COLAMD.tar.gz COLAMD/Source/ COLAMD/Include/
   ## install documentation for COLAMD
 tar zxf COLAMD.tar.gz COLAMD/README.txt COLAMD/ChangeLog
 mv COLAMD/README.txt ../inst/doc/UFsparse/COLAMD.txt

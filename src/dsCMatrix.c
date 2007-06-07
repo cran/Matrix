@@ -97,7 +97,7 @@ SEXP get_factor_pattern(SEXP obj, char *pat, int offset)
 	return R_NilValue;
     nms = getAttrib(facs, R_NamesSymbol);
     for (i = 0; i < LENGTH(nms); i++) {
-	char *nm = CHAR(STRING_ELT(nms, i));
+	const char *nm = CHAR(STRING_ELT(nms, i));
 	if (strlen(nm) > offset && !strcmp(pat + offset, nm + offset))
 	    return VECTOR_ELT(facs, i);
     }

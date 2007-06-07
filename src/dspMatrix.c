@@ -15,7 +15,7 @@ SEXP dspMatrix_validate(SEXP obj)
     }
 }
 
-double get_norm_sp(SEXP obj, char *typstr)
+double get_norm_sp(SEXP obj, const char *typstr)
 {
     char typnm[] = {'\0', '\0'};
     int *dims = INTEGER(GET_SLOT(obj, Matrix_DimSym));
@@ -109,7 +109,7 @@ SEXP dspMatrix_matrix_mm(SEXP a, SEXP b)
     SEXP val = PROTECT(dup_mMatrix_as_dgeMatrix(b));
     int *bdims = INTEGER(GET_SLOT(val, Matrix_DimSym));
     int i, ione = 1, n = bdims[0], nrhs = bdims[1];
-    char *uplo = uplo_P(a);
+    const char *uplo = uplo_P(a);
     double *ax = REAL(GET_SLOT(a, Matrix_xSym)), one = 1., zero = 0.,
 	*vx = REAL(GET_SLOT(val, Matrix_xSym));
     double *bx = Memcpy(Calloc(n * nrhs, double), vx, n * nrhs);
@@ -133,7 +133,7 @@ SEXP dspMatrix_trf(SEXP x)
 	uploP = GET_SLOT(x, Matrix_uploSym);
     int *dims = INTEGER(dimP), *perm, info;
     int n = dims[0];
-    char *uplo = CHAR(STRING_ELT(uploP, 0));
+    const char *uplo = CHAR(STRING_ELT(uploP, 0));
 
     if (val != R_NilValue) return val;
     dims = INTEGER(dimP);

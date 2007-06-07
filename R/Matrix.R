@@ -282,26 +282,6 @@ setMethod("diag", signature(x = "Matrix"),
 setMethod("t", signature(x = "Matrix"),
 	  function(x) .bail.out.1(.Generic, class(x)))
 
-setMethod("dim<-", signature(x = "Matrix", value = "ANY"),
-	  function(x, value) {
-	      if(!is.numeric(value) || length(value) != 2)
-		  stop("dim(.) value must be numeric of length 2")
-	      if(prod(dim(x)) != prod(value <- as.integer(value)))
-		  stop("dimensions don't match the number of cells")
-	      clx <- class(x)
-	      if(substring(clx,2) == "geMatrix") {
-		  x@Dim <- value
-		  if(length(x@factors) > 0)
-		      x@factors <- list()
-		  x
-	      } else if(extends(clx, "denseMatrix")) {
-		  x <- as_geSimpl2(x, clx)
-		  dim(x) <- value
-	      } else { ## FIXME: this is very inefficient for large sparse x
-		  Matrix(as.vector(x), value[1], value[2])
-	      }
-	  })
-
 ## MM: More or less "Cut & paste" from
 ## --- diff.default() from  R/src/library/base/R/diff.R :
 setMethod("diff", signature(x = "Matrix"),

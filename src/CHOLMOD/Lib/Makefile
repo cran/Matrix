@@ -6,8 +6,9 @@ include ${MkInclude}
 default: lib
 
 PKG_CFLAGS = -I../../AMD/Include -I../../AMD/Source \
-        -I../../COLAMD  -I../../CCOLAMD \
+        -I../../COLAMD/Include \
 	-I../Include -I../../UFconfig -DNPARTITION
+#	 -I../../CCOLAMD \
 #        -I../../CAMD/Include -I../../CAMD/Source \
 #	-I../../Metis \
 
@@ -39,7 +40,7 @@ CORE = cholmod_aat.o cholmod_add.o cholmod_band.o \
 	cholmod_memory.o cholmod_sparse.o \
 	cholmod_transpose.o cholmod_triplet.o
 
-CHECK = cholmod_check.o cholmod_read.o
+CHECK = cholmod_check.o cholmod_read.o cholmod_write.o
 
 CHOLESKY = cholmod_amd.o cholmod_analyze.o cholmod_colamd.o \
 	cholmod_etree.o cholmod_factorize.o cholmod_postorder.o \
@@ -48,7 +49,7 @@ CHOLESKY = cholmod_amd.o cholmod_analyze.o cholmod_colamd.o \
 
 MATRIXOPS = cholmod_drop.o cholmod_horzcat.o cholmod_norm.o \
 	cholmod_scale.o cholmod_sdmult.o cholmod_ssmult.o \
-	cholmod_submatrix.o cholmod_vertcat.o
+	cholmod_submatrix.o cholmod_vertcat.o cholmod_symmetry.o
 
 PARTITION = cholmod_ccolamd.o cholmod_csymamd.o \
 	cholmod_metis.o cholmod_nesdis.o cholmod_camd.o
@@ -74,6 +75,17 @@ clean:
 	@-rm -f $(OBJS) 
 
 $(OBJ): $(INC)
+
+#-------------------------------------------------------------------------------
+# Check Module:
+#-------------------------------------------------------------------------------
+
+cholmod_check.o: ../Check/cholmod_check.c
+	$(CC) $(ALL_CPPFLAGS) $(ALL_CFLAGS) -c $< -o $@
+cholmod_read.o: ../Check/cholmod_read.c
+	$(CC) $(ALL_CPPFLAGS) $(ALL_CFLAGS) -c $< -o $@
+cholmod_write.o: ../Check/cholmod_write.c
+	$(CC) $(ALL_CPPFLAGS) $(ALL_CFLAGS) -c $< -o $@
 
 #-------------------------------------------------------------------------------
 # Core Module:
@@ -175,6 +187,8 @@ cholmod_submatrix.o: ../MatrixOps/cholmod_submatrix.c
 	$(CC) $(ALL_CPPFLAGS) $(ALL_CFLAGS) -c $< -o $@
 cholmod_vertcat.o: ../MatrixOps/cholmod_vertcat.c
 	$(CC) $(ALL_CPPFLAGS) $(ALL_CFLAGS) -c $< -o $@
+cholmod_symmetry.o: ../MatrixOps/cholmod_symmetry.c
+	$(CC) $(ALL_CPPFLAGS) $(ALL_CFLAGS) -c $< -o $@
 
 #-------------------------------------------------------------------------------
 # Modify Module:
@@ -203,11 +217,3 @@ cholmod_super_solve.o: ../Supernodal/cholmod_super_solve.c \
 	../Supernodal/t_cholmod_super_solve.c
 	$(CC) $(ALL_CPPFLAGS) $(ALL_CFLAGS) -c $< -o $@
 
-#-------------------------------------------------------------------------------
-# check Module:
-#-------------------------------------------------------------------------------
-
-cholmod_check.o: ../Check/cholmod_check.c
-	$(CC) $(ALL_CPPFLAGS) $(ALL_CFLAGS) -c $< -o $@
-cholmod_read.o: ../Check/cholmod_read.c
-	$(CC) $(ALL_CPPFLAGS) $(ALL_CFLAGS) -c $< -o $@

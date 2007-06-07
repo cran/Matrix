@@ -98,3 +98,21 @@ setGeneric("any", function(x, ..., na.rm = FALSE) standardGeneric("any"),
            useAsDefault = .any_def, group="Summary")
 setGeneric("all", function(x, ..., na.rm = FALSE) standardGeneric("all"),
            useAsDefault = .all_def, group="Summary")
+
+## Add '...' so our methods can add  'sparseResult':
+setGeneric("colSums",
+	   def = function(x, na.rm = FALSE, dims = 1, ...) standardGeneric("colSums"),
+	   useAsDefault = function(x,  na.rm = FALSE, dims = 1, ...)
+	   base::colSums(x, na.rm=na.rm, dims=dims))
+setGeneric("colMeans",
+	   def = function(x, na.rm = FALSE, dims = 1, ...) standardGeneric("colMeans"),
+	   useAsDefault = function(x,  na.rm = FALSE, dims = 1, ...)
+	   base::colMeans(x, na.rm=na.rm, dims=dims))
+setGeneric("rowSums",
+	   def = function(x, na.rm = FALSE, dims = 1, ...) standardGeneric("rowSums"),
+	   useAsDefault = function(x,  na.rm = FALSE, dims = 1, ...)
+	   base::rowSums(x, na.rm=na.rm, dims=dims))
+setGeneric("rowMeans",
+	   def = function(x, na.rm = FALSE, dims = 1, ...) standardGeneric("rowMeans"),
+	   useAsDefault = function(x,  na.rm = FALSE, dims = 1, ...)
+	   base::rowMeans(x, na.rm=na.rm, dims=dims))

@@ -19,10 +19,10 @@ assert.EQ.mat(dm4, as(m4, "matrix"))
 assert.EQ.mat(mN, matrix(NA, 3,4))
 sL <- Matrix(, 3,4, sparse=TRUE)# -> "lgC"
 trS <- Matrix(tr, sparse=TRUE)# failed in 0.9975-11
-stopifnot(##length(sN@i) == 0, # all "FALSE"
+stopifnot(
           is(tr, "triangularMatrix"), is(trS, "triangularMatrix"),
           all(is.na(sL@x)), ## not yet:  all(is.na(sL)),
-          !any(sL), all(!sL),
+          !any(sL, na.rm=TRUE), all(!sL, na.rm=TRUE),
           validObject(Matrix(c(NA,0), 4, 3, byrow = TRUE)),
           validObject(Matrix(c(NA,0), 4, 4)),
           is(Matrix(c(NA,0,0,0), 4, 4), "sparseMatrix"))
@@ -61,7 +61,7 @@ stopifnot(validObject(cu), validObject(tu. <- as(cu, "dtTMatrix")),
           validObject(tt <- as(cu, "TsparseMatrix")),
 	  ## NOT: identical(tu, tu.), # since T* is not unique!
 	  identical(cu, as(tu., "dtCMatrix")),
-	  all(cu >= 0),
+	  all(cu >= 0, na.rm = TRUE), all(cu >= 0),
 	  any(cu >= 7),
 	  validObject(tcu <- t(cu)),
 	  validObject(ttu <- t(tu)))
@@ -76,7 +76,7 @@ mu <- as(tu,"matrix")
 stopifnot(is(cu, "CsparseMatrix"), is(cu, "triangularMatrix"),
           is(tu, "TsparseMatrix"), is(tu, "triangularMatrix"),
           identical(cu * 1:8, tu * 1:8), # but are no longer triangular
-          all(cu >= 0), all(tu >= 0))
+          all(cu >= 0, na.rm=TRUE), !all(cu >= 1), is.na(all(tu >= 0)))
 assert.EQ.mat(cu * 1:8, mu * 1:8)
 
 ## tu. is diag "U", but tu2 not:
@@ -195,6 +195,17 @@ stopifnot(identical(Matrix:::uniq(kt1), Matrix:::uniq(kt2)))
 ktf <- kronecker(as.matrix(t1), as.matrix(tu))
 if(FALSE) # FIXME? our kronecker treats "0 * NA" as "0" for structural-0
 assert.EQ.mat(kt2, ktf, tol= 0)
+(cs1 <- colSums(kt1))
+NA.or.True <- function(x) is.na(x) | x
+eq <- (cs1 == colSums(as(kt1, "matrix")))
+stopifnot(NA.or.True(eq), identical(is.na(eq), is.na(cs1)))
+nt1 <- as(kt1, "nMatrix") # no NA's anymore
+(ng1 <- as(as(nt1, "generalMatrix"),"CsparseMatrix"))
+(cs1. <- colSums(kt1, sparseResult = TRUE))# sparseVector
+(cs2 <-  colSums(ng1, sparseResult = TRUE))
+## check correct sparseness of both:
+stopifnot(sort(cs1.@i) == 9:16,
+          sort(cs2 @i) == 9:16)
 
 ## coercion from "dpo" or "dsy"
 xx <- as(xpx, "dsyMatrix")

@@ -1,5 +1,7 @@
 library(Matrix)
 
+####  Read / Write  (sparse) Matrix objects ----------------------
+
 ### Rebuild the 'mm' example matrix, now in KNex data
 
 ### This is no longer really important, as we now use
@@ -39,3 +41,12 @@ stopifnot(all.equal(as(mmN, "matrix"),
 mm <- as(mmN, "dgCMatrix")
 stopifnot(all.equal(mm, KNex$mm))
 ## save(mm, file = "....../Matrix/data/mm.rda", compress = TRUE)
+
+
+A <- Matrix(c(1,0,3,0,0,5), 10, 10, sparse = TRUE) # warning about [6] vs [10]
+(fname <- file.path(tempdir(), "kk.mm"))
+writeMM(A, fname)
+(B  <- readMM(fname))
+validObject(B)
+Bc <- as(B, "CsparseMatrix")
+stopifnot(identical(A, Bc))

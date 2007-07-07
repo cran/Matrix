@@ -5,6 +5,7 @@ SEXP
     Matrix_factorSym,
     Matrix_iSym,
     Matrix_jSym,
+    Matrix_lengthSym,
     Matrix_pSym,
     Matrix_permSym,
     Matrix_uploSym,

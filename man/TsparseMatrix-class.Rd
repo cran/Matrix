@@ -19,10 +19,6 @@
 \alias{tcrossprod,TsparseMatrix,missing-method}
 \alias{solve,TsparseMatrix,ANY-method}
 \alias{solve,TsparseMatrix,missing-method}
-% \alias{colMeans,TsparseMatrix-method}
-% \alias{colSums,TsparseMatrix-method}
-\alias{rowMeans,TsparseMatrix-method}
-\alias{rowSums,TsparseMatrix-method}
 \alias{t,TsparseMatrix-method}
 %
 \description{The \code{"TsparseMatrix"} class is the virtual class of

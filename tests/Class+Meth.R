@@ -122,8 +122,9 @@ not.coerce1  <- no.t.etc        # not coercable from "dgeMatrix"
 not.coerce2  <- no.t.etc        # not coercable from "matrix"
 
 tstMatrixClass <-
-    function(cl, mM = Matrix(c(2,1,1,2) + 0, 2,2), mm = as(mM, "matrix"),
-             recursive = TRUE, offset = 0)
+    function(cl, mM = Matrix(c(2,1,1,2) + 0, 2,2,
+                 dimnames=rep( list(c("A","B")), 2)), # dimnames: *symmetric*
+             mm = as(mM, "matrix"), recursive = TRUE, offset = 0)
 {
     ## Purpose: Test 'Matrix' class {and do this for all of them}
     ## ----------------------------------------------------------------------

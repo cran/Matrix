@@ -1,5 +1,5 @@
 
-R version 2.5.0 Patched (2007-05-10 r41525)
+R version 2.5.1 beta (2007-06-13 r41947)
 Copyright (C) 2007 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 
@@ -241,7 +241,6 @@ Formal class 'dgTMatrix' [package "Matrix"] with 6 slots
 +           identical(mC[7,  drop = FALSE],
 +                     mC[7,, drop = FALSE]))
 > validObject(print(mT[,c(2,4)]))
-40 x 2 sparse Matrix of class "dgTMatrix"
             
  [1,]  . 121
  [2,] 42   .
@@ -641,25 +640,20 @@ Ambiguous method selection for "-", target "dgTMatrix#dgTMatrix" (the first of t
 +     validObject(mc) ; assert.EQ.mat(mc, m)
 +     validObject(mt) ; assert.EQ.mat(mt, m)
 + }
-2 x 1 sparse Matrix of class "dgCMatrix"
       
 [1,] 2
 [2,] .
-2 x 1 sparse Matrix of class "dgCMatrix"
       
 [1,] 2
 [2,] 1
-3 x 2 sparse Matrix of class "dgCMatrix"
         
 [1,] 1 .
 [2,] . .
 [3,] 1 .
-3 x 1 sparse Matrix of class "dgCMatrix"
       
 [1,] 1
 [2,] 1
 [3,] 1
-3 x 1 sparse Matrix of class "dgCMatrix"
       
 [1,] .
 [2,] 3
@@ -855,5 +849,5 @@ Ambiguous method selection for "!=", target "numeric#dgCMatrix" (the first of th
 + 	  )
 > 
 > cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
-Time elapsed:  9.025 0.15 10.08 0 0 
+Time elapsed:  10.299 0.184 11.314 0 0 
 > 

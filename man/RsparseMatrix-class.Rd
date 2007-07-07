@@ -19,8 +19,6 @@
 % all other ..RMatrix coercions -- here as well for now --
 \alias{coerce,matrix,dgRMatrix-method}
 %
-\alias{colSums,dgRMatrix-method}
-\alias{colMeans,dgRMatrix-method}
 \alias{t,RsparseMatrix-method}
 %
 \title{Class "RsparseMatrix" of Sparse Matrices in Column-compressed Form}
@@ -52,8 +50,6 @@
     \item{t}{\code{signature(x = "RsparseMatrix")}: ... }
     \item{coerce}{\code{signature(from = "RsparseMatrix", to = "CsparseMatrix")}: ... }
     \item{coerce}{\code{signature(from = "RsparseMatrix", to = "TsparseMatrix")}: ... }
-    \item{colSums}{\code{signature(x = "dgRMatrix")}: ... }
-    \item{colMeans}{\code{signature(x = "dgRMatrix")}: ... }
   }
 }
 \seealso{

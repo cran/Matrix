@@ -37,7 +37,7 @@ stopifnot(all(!l0),
 ## with dimnames:
 m. <- matrix(c(0, 0, 2:0), 3, 5)
 dimnames(m.) <- list(LETTERS[1:3], letters[1:5])
-(m <- Matrix(m.))
+(m0 <- m <- Matrix(m.))
 m@Dimnames[[2]] <- m@Dimnames[[1]]
 ## not valid anymore:
 (val <- validObject(m, test=TRUE))
@@ -121,12 +121,17 @@ stopifnot(validObject(xpx),
           validObject(res))
 stopifnot(all.equal(xpx %*% res, xpy, tol= 1e-12))
 lp <- xpx >= 1
-if(FALSE) ## FIXME : needs lsy |-> lsC
 slp <- as(lp, "sparseMatrix")
 
-ltlp <- lp[ lower.tri(lp) ]
+ltlp  <-  lp[ lower.tri(lp) ]
+if(FALSE) # this particular indexing fails (FIXME, not urgent)
+sltlp <- slp[ lower.tri(slp) ]
 ij <- which(lower.tri(lp), arr.ind = TRUE)
-stopifnot(all.equal(lp[ij], as(lp, "matrix")[ij]))
+if(FALSE) {## FIXME!!! This "[.]" is *HORRENDOUSLY* slow (but "works"):
+    ss <- slp[ij]
+    stopifnot(identical(ss, lp[ij]))
+}
+stopifnot(identical3(lp[ij], ltlp, as(lp, "matrix")[ij]))
 
 stopifnot(is(lp, "lsyMatrix"), lp@uplo == "U")
 
@@ -185,8 +190,8 @@ stopifnot(all.equal(colMeans(m1k), colMeans(m.m)),
 stopifnot(is(kr <- kronecker(m1, m6), "Matrix"))
 assert.EQ.mat(kr,
               kronecker(as(m1, "matrix"),
-                        as(m6, "matrix")),
-              tol = 0)
+                        as(m6, "matrix")), tol = 0)
+
 ## sparse:
 (kt1 <- kronecker(t1, tu))
 kt2 <- kronecker(t1c, cu)
@@ -200,12 +205,33 @@ NA.or.True <- function(x) is.na(x) | x
 eq <- (cs1 == colSums(as(kt1, "matrix")))
 stopifnot(NA.or.True(eq), identical(is.na(eq), is.na(cs1)))
 nt1 <- as(kt1, "nMatrix") # no NA's anymore
-(ng1 <- as(as(nt1, "generalMatrix"),"CsparseMatrix"))
-(cs1. <- colSums(kt1, sparseResult = TRUE))# sparseVector
-(cs2 <-  colSums(ng1, sparseResult = TRUE))
+(ng1 <- as(as(nt1, "generalMatrix"),"CsparseMatrix")) # ngC
+dg1 <- as(ng1, "dMatrix")# dgC
+lt1 <- kt1 > 5
+nt1 <- as(lt1, "nMatrix")
+(colSums(nt1, sparseResult = TRUE))
+(colSums(kt1, sparseResult = TRUE)) # dsparse, with NA
+(colSums(lt1, sparseResult = TRUE)) # isparse, with NA
+(colSums(lt1, sparseResult = TRUE, na.rm = TRUE))
+(colSums(nt1, sparseResult = TRUE)) # isparse, no NA
 ## check correct sparseness of both:
-stopifnot(sort(cs1.@i) == 9:16,
-          sort(cs2 @i) == 9:16)
+for(M in list(kt1, nt1, ng1, dg1, lt1, nt1)) {
+    m <- as(M, "matrix")
+    for(na.rm in c(FALSE,TRUE)) {
+	cs  <- colSums(M, na.rm = na.rm)
+	cs. <- colSums(M, na.rm = na.rm, sparseResult = TRUE)
+	rs  <- rowSums(M, na.rm = na.rm)
+	rs. <- rowSums(M, na.rm = na.rm, sparseResult = TRUE)
+	stopifnot(identical(cs, as(cs., "vector")),
+		  identical(rs, as(rs., "vector")),
+		  {eq <- cs == colSums(m, na.rm = na.rm) ; ineq <- is.na(eq)
+		   all(ineq | eq) && identical(ineq, is.na(cs)) },
+		  {eq <- rs == rowSums(m, na.rm = na.rm) ; ineq <- is.na(eq)
+		   all(ineq | eq) && identical(ineq, is.na(rs)) },
+		  is(cs., "sparseVector"),
+		  is(rs., "sparseVector"))
+    }
+}
 
 ## coercion from "dpo" or "dsy"
 xx <- as(xpx, "dsyMatrix")
@@ -282,6 +308,9 @@ dkt <- as(nkt, "denseMatrix")
 stopifnot(is(nkt, "ngCMatrix"), is(clt, "nsCMatrix"))
 crossprod(clt) ## a warning: crossprod() of symmetric
 
+## a Csparse with *repeated* entry is not valid!
+assertError(new("ngCMatrix", p = c(0L,2L), i = c(0L,0L), Dim = 2:1))
+
 
 ### "d" <-> "l"  for (symmetric) sparse :
 data(KNex)
@@ -311,6 +340,16 @@ stopifnot(all(ij(A) %in% ij(B)))
 l3 <- upper.tri(matrix(,3,3))
 (c3 <- as(l3, "CsparseMatrix"))
 stopifnot(validObject(c3), is(c3, "CsparseMatrix"), is(c3, "triangularMatrix"))
+(M <- Matrix(l3))  # -> "ltCMatrix"
+M2 <- M %x% M
+stopifnot(is(M, "ltCMatrix"), validObject(M2), dim(M2) == c(9,9),
+          identical(M2, kronecker(M,M)),
+          is(M2, "triangularMatrix")) # is "dtT" (why not "dtC" ?)
+M3 <- M %x% M2 #ok
+(cM3 <- colSums(M3, sparse=TRUE))
+identical(as.vector(cM3),
+          as(rev(rowSums(M3, sparse=TRUE)), "vector"))
+M. <- M2 %x% M # gave infinite recursion
 
 ## diagonal, sparse & interactions
 stopifnot(is(as(Diagonal(3), "TsparseMatrix"), "TsparseMatrix"),

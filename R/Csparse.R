@@ -308,13 +308,3 @@ setMethod("diag", "CsparseMatrix",
 	      }
 	      val
 	  })
-
-
-setMethod("colSums", signature(x = "CsparseMatrix"), .as.dgC.Fun,
-	  valueClass = "numeric")
-setMethod("colMeans", signature(x = "CsparseMatrix"), .as.dgC.Fun,
-	  valueClass = "numeric")
-setMethod("rowSums", signature(x = "CsparseMatrix"), .as.dgC.Fun,
-	  valueClass = "numeric")
-setMethod("rowMeans", signature(x = "CsparseMatrix"), .as.dgC.Fun,
-	  valueClass = "numeric")

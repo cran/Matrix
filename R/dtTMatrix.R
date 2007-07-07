@@ -40,8 +40,8 @@ setAs("matrix", "dtTMatrix",
 
 
 setMethod("t", signature(x = "dtTMatrix"),
-          function(x)
-          new("dtTMatrix", Dim = rev(x@Dim), diag = x@diag,
-              i = x@j, j = x@i, x = x@x,
-              uplo = if (x@uplo == "U") "L" else "U"),
-          valueClass = "dtTMatrix")
+	  function(x)
+	  new("dtTMatrix", Dim = x@Dim[2:1], Dimnames = x@Dimnames[2:1],
+	      i = x@j, j = x@i, x = x@x, diag = x@diag,
+	      uplo = if (x@uplo == "U") "L" else "U"),
+	  valueClass = "dtTMatrix")

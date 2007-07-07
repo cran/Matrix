@@ -5,7 +5,8 @@
 
 SEXP lcsc_to_matrix(SEXP x)
 {
-    SEXP ans, pslot = GET_SLOT(x, Matrix_pSym);
+    SEXP ans, pslot = GET_SLOT(x, Matrix_pSym),
+	dn = GET_SLOT(x, Matrix_DimNamesSym);
     int j, ncol = length(pslot) - 1,
 	nrow = INTEGER(GET_SLOT(x, Matrix_DimSym))[0],
 	*xp = INTEGER(pslot),
@@ -19,6 +20,8 @@ SEXP lcsc_to_matrix(SEXP x)
 	for (ind = xp[j]; ind < xp[j+1]; ind++)
 	    ax[j * nrow + xi[ind]] = xx[ind];
     }
+    if (!(isNull(VECTOR_ELT(dn,0)) && isNull(VECTOR_ELT(dn,1))))
+	setAttrib(ans, R_DimNamesSymbol, duplicate(dn));
     UNPROTECT(1);
     return ans;
 }
@@ -26,7 +29,8 @@ SEXP lcsc_to_matrix(SEXP x)
 /* as above,  '1' instead of 'x' slot: */
 SEXP ncsc_to_matrix(SEXP x)
 {
-    SEXP ans, pslot = GET_SLOT(x, Matrix_pSym);
+    SEXP ans, pslot = GET_SLOT(x, Matrix_pSym),
+	dn = GET_SLOT(x, Matrix_DimNamesSym);
     int j, ncol = length(pslot) - 1,
 	nrow = INTEGER(GET_SLOT(x, Matrix_DimSym))[0],
 	*xp = INTEGER(pslot),
@@ -40,6 +44,8 @@ SEXP ncsc_to_matrix(SEXP x)
 	for (ind = xp[j]; ind < xp[j+1]; ind++)
 	    ax[j * nrow + xi[ind]] = 1;
     }
+    if (!(isNull(VECTOR_ELT(dn,0)) && isNull(VECTOR_ELT(dn,1))))
+	setAttrib(ans, R_DimNamesSymbol, duplicate(dn));
     UNPROTECT(1);
     return ans;
 }

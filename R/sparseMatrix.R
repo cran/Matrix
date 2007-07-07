@@ -13,8 +13,9 @@ setAs("sparseMatrix", "symmetricMatrix", as_sSparse)
 
 setAs("sparseMatrix", "triangularMatrix", as_tSparse)
 
-spMatrix <- function(nrow, ncol, i,j,x) {
-    ## Author: Martin Maechler, Date:  8 Jan 2007, 18:46
+spMatrix <- function(nrow, ncol,
+                     i = integer(), j = integer(), x = numeric())
+{
     dim <- c(as.integer(nrow), as.integer(ncol))
     ## The conformability of (i,j,x) with itself and with 'dim'
     ## is checked automatically by internal "validObject()" inside new(.):
@@ -222,43 +223,71 @@ setMethod("Math",
 
 ## FIXME(?) -- ``merge this'' (at least ``synchronize'') with
 ## - - -   prMatrix() from ./Auxiliaries.R
-prSpMatrix <- function(object, digits = getOption("digits"),
-                       maxp = getOption("max.print"), zero.print = ".",
-                       col.trailer = '', align = c("fancy", "right"))
 ## FIXME: prTriang() in ./Auxiliaries.R  should also get  align = "fancy"
+## --> help for this is currently (rudimentary) in ../man/sparseMatrix-class.Rd
+printSpMatrix <- function(x, digits = getOption("digits"),
+		       maxp = getOption("max.print"), zero.print = ".",
+		       col.names, note.dropping.colnames = TRUE,
+		       col.trailer = '', align = c("fancy", "right"))
 {
-    cl <- getClassDef(class(object))
+    cl <- getClassDef(class(x))
     stopifnot(extends(cl, "sparseMatrix"))
-    d <- dim(object)
+    d <- dim(x)
     if(prod(d) > maxp) { # "Large" => will be "cut"
         ## only coerce to dense that part which won't be cut :
         nr <- maxp %/% d[2]
-	m <- as(object[1:max(1, nr), ,drop=FALSE], "Matrix")
+	m <- as(x[1:max(1, nr), ,drop=FALSE], "Matrix")
     } else {
-        m <- as(object, "matrix")
+        m <- as(x, "matrix")
     }
+    dn <- dimnames(m) ## will be === dimnames(cx)
     logi <- extends(cl,"lsparseMatrix") || extends(cl,"nsparseMatrix")
     if(logi)
-	x <- array("N", # or as.character(NA),
-		   dim(m), dimnames=dimnames(m))
+	cx <- array("N", dim(m), dimnames=dn)
     else { ## numeric (or --not yet-- complex):
-	x <- apply(m, 2, format)
-	if(is.null(dim(x))) {# e.g. in	1 x 1 case
-	    dim(x) <- dim(m)
-	    dimnames(x) <- dimnames(m)
+	cx <- apply(m, 2, format)
+	if(is.null(dim(cx))) {# e.g. in	1 x 1 case
+	    dim(cx) <- dim(m)
+	    dimnames(cx) <- dn
 	}
     }
-    x <- emptyColnames(x, msg.if.not.empty = TRUE)
+    if (missing(col.names))
+        col.names <- {
+            if(!is.null(cc <- getOption("sparse.colnames")))
+                cc
+            else if(is.null(dn[[2]]))
+                FALSE
+            else { # has column names == dn[[2]]
+                ncol(x) < 10
+            }
+        }
+    if(identical(col.names, FALSE))
+        cx <- emptyColnames(cx, msg.if.not.empty = note.dropping.colnames)
+    else if(is.character(col.names)) {
+        stopifnot(length(col.names) == 1)
+        cn <- col.names
+        switch(substr(cn, 1,3),
+               "abb" = {
+                   iarg <- as.integer(sub("^[^0-9]*", '', cn))
+                   colnames(cx) <- abbreviate(colnames(cx), minlength = iarg)
+               },
+               "sub" = {
+                   iarg <- as.integer(sub("^[^0-9]*", '', cn))
+                   colnames(cx) <- substr(colnames(cx), 1, iarg)
+               },
+               stop("invalid 'col.names' string: ", cn))
+    }
+    ## else: nothing to do for col.names == TRUE
     if(is.logical(zero.print))
 	zero.print <- if(zero.print) "0" else " "
     if(logi) {
-	x[!m] <- zero.print
-	x[m] <- "|"
+	cx[!m] <- zero.print
+	cx[m] <- "|"
     } else { # non logical
 	## show only "structural" zeros as 'zero.print', not all of them..
 	## -> cannot use 'm'
-        d <- dim(x)
-	ne <- length(iN0 <- 1L + encodeInd(non0ind(object, cl), nr = d[1]))
+        d <- dim(cx)
+	ne <- length(iN0 <- 1L + encodeInd(non0ind(x, cl), nr = d[1]))
 	if(0 < ne && ne < prod(d)) {
 	    align <- match.arg(align)
 	    if(align == "fancy") {
@@ -285,16 +314,18 @@ prSpMatrix <- function(object, digits = getOption("digits"),
                     zero.print <- rep.int(zero.print, length(cols))
 	    } ## else "right" : nothing to do
 
-	    x[-iN0] <- zero.print
+	    cx[-iN0] <- zero.print
 	} else if (ne == 0)# all zeroes
-	    x[] <- zero.print
+	    cx[] <- zero.print
     }
     if(col.trailer != '')
-        x <- cbind(x, col.trailer, deparse.level = 0)
+        cx <- cbind(cx, col.trailer, deparse.level = 0)
     ## right = TRUE : cheap attempt to get better "." alignment
-    print(x, quote = FALSE, right = TRUE, max = maxp)
-    invisible(object)
+    print(cx, quote = FALSE, right = TRUE, max = maxp)
+    invisible(x)
 }
+
+setMethod("print", signature(x = "sparseMatrix"), printSpMatrix)
 
 setMethod("show", signature(object = "sparseMatrix"),
    function(object) {
@@ -303,7 +334,7 @@ setMethod("show", signature(object = "sparseMatrix"),
        cat(sprintf('%d x %d sparse Matrix of class "%s"\n', d[1], d[2], cl))
        maxp <- getOption("max.print")
        if(prod(d) <= maxp)
-	   prSpMatrix(object, maxp = maxp)
+	   printSpMatrix(object, maxp = maxp)
        else { ## d[1] > maxp / d[2] >= nr : -- this needs [,] working:
 
 	   nR <- d[1] # nrow
@@ -322,23 +353,23 @@ setMethod("show", signature(object = "sparseMatrix"),
 	       if(suppCols)
 		   object <- object[ , 1:nc, drop = FALSE]
 	       n2 <- ceiling(nr / 2)
-	       prSpMatrix(object[seq_len(min(nR, max(1, n2))), , drop=FALSE],
-			  col.trailer = col.trailer)
+	       printSpMatrix(object[seq_len(min(nR, max(1, n2))), , drop=FALSE],
+                             col.trailer = col.trailer)
 	       cat("\n ..............................",
 		   "\n ..........suppressing rows in show(); maybe adjust 'options(max.print= *)'",
 		   "\n ..............................\n\n", sep='')
 	       ## tail() automagically uses "[..,]" rownames:
-	       prSpMatrix(tail(object, max(1, nr-n2)),
-			  col.trailer = col.trailer)
+	       printSpMatrix(tail(object, max(1, nr-n2)),
+                             col.trailer = col.trailer)
 	   }
 	   else if(suppCols) {
-	       prSpMatrix(object[ , 1:nc , drop = FALSE],
-			  col.trailer = col.trailer)
+	       printSpMatrix(object[ , 1:nc , drop = FALSE],
+                             col.trailer = col.trailer)
 
 	       cat("\n .....suppressing columns in show(); maybe adjust 'options(max.print= *)'",
 		   "\n ..............................\n", sep='')
 	   }
-           else stop("logic programming error in prSpMatrix(), please report")
+           else stop("logic programming error in printSpMatrix(), please report")
 
            invisible(object)
        }
@@ -420,9 +451,43 @@ setMethod("dim<-", signature(x = "sparseMatrix", value = "ANY"),
 	  })
 
 
-## .as.dgT.Fun
-setMethod("colSums",  signature(x = "sparseMatrix"), .as.dgT.Fun)
-setMethod("colMeans", signature(x = "sparseMatrix"), .as.dgT.Fun)
-## .as.dgC.Fun
-setMethod("rowSums", signature(x = "sparseMatrix"), .as.dgC.Fun)
-setMethod("rowMeans", signature(x = "sparseMatrix"),.as.dgC.Fun)
+lm.fit.sparse <-
+function(x, y, offset = NULL, method = c("qr", "cholesky"),
+         tol = 1e-7, singular.ok = TRUE, transpose = FALSE, ...)
+### Fit a linear model using a sparse QR or a sparse Cholesky factorization
+{
+    stopifnot(is(x, "dsparseMatrix"))
+    yy <- as.numeric(y)
+    if (!is.null(offset)) {
+        stopifnot(length(offset) == length(y))
+        yy <- yy - as.numeric(offset)
+    }
+    ans <- switch(as.character(method)[1],
+                  cholesky = .Call(dgCMatrix_cholsol,
+                  as(if (transpose) x else t(x), "dgCMatrix"), yy),
+                  qr = .Call(dgCMatrix_qrsol,
+                  as(if (transpose) t(x) else x, "dgCMatrix"), yy),
+                  stop(paste("unknown method", dQuote(method)))
+                  )
+    ans
+}
+
+fac2sparse <- function(from, to = c("d","i","l","n","z"))
+{
+    ## factor(-like) --> sparseMatrix {also works for integer, character}
+    levs <- levels(fact <- factor(from)) # drop unused levels
+    n <- length(fact)
+    to <- match.arg(to)
+    res <- new(paste(to, "gCMatrix", sep=''))
+    res@i <- as.integer(fact) - 1L # 0-based
+    res@p <- 0:n
+    res@Dim <- c(length(levs), n)
+    res@Dimnames <- list(levs, NULL)
+    if(to != "n")
+	res@x <- rep.int(switch(to,
+				"d" = 1., "i" = 1L, "l" = TRUE, "z" = 1+0i),
+			 n)
+    res
+}
+
+setAs("factor", "sparseMatrix", function(from) fac2sparse(from, to = "d"))

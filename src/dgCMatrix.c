@@ -139,7 +139,8 @@ SEXP compressed_non_0_ij(SEXP x, SEXP colP)
 SEXP dgCMatrix_lusol(SEXP x, SEXP y)
 {
     SEXP ycp = PROTECT(duplicate(y));
-    cs *xc = Matrix_as_cs(x);
+    CSP xc = AS_CSP(x);
+    R_CheckStack();
 
     if (xc->m != xc->n || xc->m <= 0)
 	error(_("dgCMatrix_lusol requires a square, non-empty matrix"));
@@ -147,7 +148,7 @@ SEXP dgCMatrix_lusol(SEXP x, SEXP y)
 	error(_("Dimensions of system to be solved are inconsistent"));
     if (!cs_lusol(/*order*/ 1, xc, REAL(ycp), /*tol*/ 1e-7))
 	error(_("cs_lusol failed"));
-    Free(xc);
+
     UNPROTECT(1);
     return ycp;
 }
@@ -155,7 +156,8 @@ SEXP dgCMatrix_lusol(SEXP x, SEXP y)
 SEXP dgCMatrix_qrsol(SEXP x, SEXP y)
 {
     SEXP ycp = PROTECT(duplicate(y));
-    cs *xc = Matrix_as_cs(x);
+    CSP xc = AS_CSP(x);
+    R_CheckStack();
 
     if (xc->m < xc->n || xc->n <= 0)
 	error(_("dgCMatrix_qrsol requires a 'tall' rectangular matrix"));
@@ -163,7 +165,7 @@ SEXP dgCMatrix_qrsol(SEXP x, SEXP y)
 	error(_("Dimensions of system to be solved are inconsistent"));
     if (!cs_qrsol(/*order*/ 1, xc, REAL(ycp)))
 	error(_("cs_qrsol failed"));
-    Free(xc);
+
     UNPROTECT(1);
     return ycp;
 }
@@ -172,10 +174,11 @@ SEXP dgCMatrix_qrsol(SEXP x, SEXP y)
 SEXP dgCMatrix_QR(SEXP Ap, SEXP order)
 {
     SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("sparseQR")));
-    cs *A = Matrix_as_cs(Ap), *D;
+    CSP A = AS_CSP(Ap), D;
     css *S;
     csn *N;
     int m = A->m, n = A->n, ord = asLogical(order) ? 3 : 0, *p;
+    R_CheckStack();
 
     if (m < n) error("A must have # rows >= # columns") ;
     S = cs_sqr(ord, A, 1);	/* symbolic QR ordering & analysis*/
@@ -218,11 +221,12 @@ SEXP dgCMatrix_QR(SEXP Ap, SEXP order)
 SEXP dgCMatrix_LU(SEXP Ap, SEXP orderp, SEXP tolp)
 {
     SEXP ans = get_factors(Ap, "LU");
-    cs *A, *D;
+    CSP A = AS_CSP(Ap), D;
     css *S;
     csn *N;
     int n, order = asInteger(orderp), *p;
     double tol = asReal(tolp);
+    R_CheckStack();
 
     /* FIXME: dgCMatrix_LU should check ans for consistency in
      * permutation type with the requested value - Should have two
@@ -231,7 +235,6 @@ SEXP dgCMatrix_LU(SEXP Ap, SEXP orderp, SEXP tolp)
 
     if (ans != R_NilValue) return ans;
     ans = PROTECT(NEW_OBJECT(MAKE_CLASS("sparseLU")));
-    A = Matrix_as_cs(Ap);
     n = A->n;
     if (A->m != n)
 	error("LU decomposition applies only to square matrices");
@@ -265,7 +268,6 @@ SEXP dgCMatrix_LU(SEXP Ap, SEXP orderp, SEXP tolp)
     cs_nfree(N);
     cs_sfree(S);
     cs_free(p);
-    Free(A);
     UNPROTECT(1);
     return set_factors(Ap, ans, "LU");
 }
@@ -275,8 +277,8 @@ SEXP dgCMatrix_matrix_solve(SEXP Ap, SEXP b)
     /* b is dense or NULL [ <--> solve(A) */
     SEXP lu = dgCMatrix_LU(Ap, ScalarLogical(1), ScalarReal(1));
     SEXP qslot = GET_SLOT(lu, install("q"));
-    cs  *L = Matrix_as_cs(GET_SLOT(lu, install("L"))),
-	*U = Matrix_as_cs(GET_SLOT(lu, install("U")));
+    CSP L = AS_CSP(GET_SLOT(lu, install("L"))),
+	U = AS_CSP(GET_SLOT(lu, install("U")));
     SEXP ans = PROTECT( !isNull(b) ? dup_mMatrix_as_dgeMatrix(b)
 			: new_dgeMatrix(U->n, U->n));
     int *bdims = INTEGER(GET_SLOT(ans, Matrix_DimSym));
@@ -284,7 +286,8 @@ SEXP dgCMatrix_matrix_solve(SEXP Ap, SEXP b)
     int *p = INTEGER(GET_SLOT(lu, Matrix_pSym)),
 	*q = LENGTH(qslot) ? INTEGER(qslot) : (int *) NULL;
     double *ax = REAL(GET_SLOT(ans, Matrix_xSym)),
-	*x = Calloc(n, double);
+	*x = Alloca(n, double);
+    R_CheckStack();
 
     if (U->n != n || nrhs < 1 || n < 1)
 	error(_("Dimensions of system to be solved are inconsistent"));
@@ -302,8 +305,86 @@ SEXP dgCMatrix_matrix_solve(SEXP Ap, SEXP b)
 	else
 	    Memcpy(ax + j * n, x, n);
     }
-    Free(L); Free(U); Free(x);
     UNPROTECT(1);
     return ans;
 }
 
+SEXP dgCMatrix_cholsol(SEXP x, SEXP y)
+{
+    CHM_SP cx = AS_CHM_SP(x);
+    CHM_FR L;
+    CHM_DN cy = AS_CHM_DN(y), rhs, cAns;
+    double one[] = {1,0}, zero[] = {0,0};
+    SEXP ans = PROTECT(allocVector(VECSXP, 3));
+    R_CheckStack();
+
+    if (cx->ncol < cx->nrow || cx->ncol <= 0)
+	error(_("dgCMatrix_cholsol requires a 'short, wide' rectangular matrix"));
+    if (cy->nrow != cx->ncol)
+	error(_("Dimensions of system to be solved are inconsistent"));
+    rhs = cholmod_allocate_dense(cx->nrow, 1, cx->nrow, CHOLMOD_REAL, &c);
+    if (!(cholmod_sdmult(cx, 0 /* trans */, one, zero, cy, rhs, &c)))
+	error(_("cholmod_sdmult error"));
+    L = cholmod_analyze(cx, &c);
+    if (!cholmod_factorize(cx, L, &c))
+	error(_("cholmod_factorize failed: status %d, minor %d from ncol %d"),
+	      c.status, L->minor, L->n);
+/* FIXME: Do this in stages so an "effects" vector can be calculated */
+    if (!(cAns = cholmod_solve(CHOLMOD_A, L, rhs, &c)))
+	error(_("cholmod_solve (CHOLMOD_A) failed: status %d, minor %d from ncol %d"),
+	      c.status, L->minor, L->n);
+    SET_VECTOR_ELT(ans, 0, chm_factor_to_SEXP(L, 0));
+    SET_VECTOR_ELT(ans, 1, allocVector(REALSXP, cx->nrow));
+    Memcpy(REAL(VECTOR_ELT(ans, 1)), (double*)(cAns->x), cx->nrow);
+/* FIXME: Change this when the "effects" vector is available */
+    SET_VECTOR_ELT(ans, 2, allocVector(REALSXP, cx->nrow));
+    Memcpy(REAL(VECTOR_ELT(ans, 1)), (double*)(rhs->x), cx->nrow);
+
+    cholmod_free_factor(&L, &c);
+    cholmod_free_dense(&rhs, &c);
+    cholmod_free_dense(&cAns, &c);
+    UNPROTECT(1);
+    return ans;
+}
+
+
+/* Define all 4 of
+ *  dgCMatrix_colSums(....)
+ *  igCMatrix_colSums(....)
+ *  lgCMatrix_colSums(....)
+ *  ngCMatrix_colSums(....)
+ */
+#define _dgC_
+#include "t_gCMatrix_colSums.c"
+
+#define _igC_
+#include "t_gCMatrix_colSums.c"
+
+#define _lgC_
+#include "t_gCMatrix_colSums.c"
+
+#define _ngC_
+#include "t_gCMatrix_colSums.c"
+
+#define _lgC_mn
+#include "t_gCMatrix_colSums.c"
+
+#define _ngC_mn
+#include "t_gCMatrix_colSums.c"
+
+
+SEXP lgCMatrix_colSums(SEXP x, SEXP NArm, SEXP spRes, SEXP trans, SEXP means)
+{
+    if(asLogical(means)) /* ==> result will be "double" / "dsparseVector" */
+	return lgCMatrix_colSums_d(x, NArm, spRes, trans, means);
+    else
+	return lgCMatrix_colSums_i(x, NArm, spRes, trans, means);
+}
+
+SEXP ngCMatrix_colSums(SEXP x, SEXP NArm, SEXP spRes, SEXP trans, SEXP means)
+{
+    if(asLogical(means)) /* ==> result will be "double" / "dsparseVector" */
+	return ngCMatrix_colSums_d(x, NArm, spRes, trans, means);
+    else
+	return ngCMatrix_colSums_i(x, NArm, spRes, trans, means);
+}

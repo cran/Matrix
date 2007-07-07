@@ -2,20 +2,18 @@
 
 SEXP dsCMatrix_chol(SEXP x, SEXP pivot)
 {
-    cholmod_factor
-	*N = as_cholmod_factor(dsCMatrix_Cholesky(x, pivot,
-						  ScalarLogical(FALSE),
-						  ScalarLogical(FALSE)));
+    CHM_FR N = AS_CHM_FR(dsCMatrix_Cholesky(x, pivot, ScalarLogical(FALSE),
+					    ScalarLogical(FALSE)));
     /* Must use a copy; cholmod_factor_to_sparse modifies first arg. */
-    cholmod_factor *Ncp = cholmod_copy_factor(N, &c);
-    cholmod_sparse *L, *R;
-    SEXP ans;
+    CHM_FR Ncp = cholmod_copy_factor(N, &c);
+    CHM_SP L = cholmod_factor_to_sparse(Ncp, &c);
+    CHM_SP R = cholmod_transpose(L, /*values*/ 1, &c);
+    SEXP ans = PROTECT(chm_sparse_to_SEXP(R, 1/*do_free*/, 1/*uploT*/, 0/*Rkind*/,
+					  "N"/*diag*/, GET_SLOT(x, Matrix_DimNamesSym)));
+    R_CheckStack();
 
-    L = cholmod_factor_to_sparse(Ncp, &c); cholmod_free_factor(&Ncp, &c);
-    R = cholmod_transpose(L, /*values*/ 1, &c); cholmod_free_sparse(&L, &c);
-    ans = PROTECT(chm_sparse_to_SEXP(R, /*cholmod_free*/ 1,
-				     /*uploT*/ 1, /*Rkind*/ 0, /*diag*/ "N",
-				     GET_SLOT(x, Matrix_DimNamesSym)));
+    cholmod_free_factor(&Ncp, &c);
+    cholmod_free_sparse(&L, &c);
     if (asLogical(pivot)) {
 	SEXP piv = PROTECT(allocVector(INTSXP, N->n));
 	int *dest = INTEGER(piv), *src = (int*)N->Perm, i;
@@ -30,7 +28,6 @@ SEXP dsCMatrix_chol(SEXP x, SEXP pivot)
 	setAttrib(ans, install("rank"), ScalarInteger((size_t) N->minor));
 	UNPROTECT(1);
     }
-    Free(N);
     UNPROTECT(1);
     return ans;
 }
@@ -42,21 +39,20 @@ SEXP dsCMatrix_Cholesky(SEXP Ap, SEXP permP, SEXP LDLp, SEXP superP)
      * P|p : permuted or not
      * D|d :  LDL' or not (= LL')
      */
-    int perm = asLogical(permP),
-	LDL = asLogical(LDLp),
-	super = asLogical(superP);
+    int perm = asLogical(permP), LDL = asLogical(LDLp), super = asLogical(superP);
     SEXP Chol;
-    cholmod_sparse *A;
-    cholmod_factor *L;
+    CHM_SP A;
+    CHM_FR L;
     int sup, ll;
 
     if (super) fname[0] = 'S';
     if (perm) fname[1] = 'P';
     if (LDL) fname[2] = 'D';
     Chol = get_factors(Ap, fname);
-    /* If Ap has already cached the factor, we return it immediately */
-    if (Chol != R_NilValue) return Chol;
-    A = as_cholmod_sparse(Ap);
+    if (Chol != R_NilValue) return Chol; /* return a cached factor */
+
+    A = AS_CHM_SP(Ap);
+    R_CheckStack();
     if (!A->stype)
 	error("Non-symmetric matrix passed to dsCMatrix_chol");
 
@@ -82,7 +78,6 @@ SEXP dsCMatrix_Cholesky(SEXP Ap, SEXP permP, SEXP LDLp, SEXP superP)
 	error(_("Cholesky factorization failed"));
     c.supernodal = sup;	/* restore previous setting */
     c.final_ll = ll;
-    Free(A);
     Chol = set_factors(Ap, chm_factor_to_SEXP(L, 1), fname);
     return Chol;
 }
@@ -107,18 +102,19 @@ SEXP get_factor_pattern(SEXP obj, char *pat, int offset)
 SEXP dsCMatrix_Csparse_solve(SEXP a, SEXP b)
 {
     SEXP Chol = get_factor_pattern(a, "...Cholesky", 3);
-    cholmod_factor *L;
-    cholmod_sparse *cx, *cb = as_cholmod_sparse(b);
+    CHM_FR L;
+    CHM_SP cx, cb = AS_CHM_SP(b);
+    R_CheckStack();
 
     if (Chol == R_NilValue) /* compute (and cache) "sPDCholesky" */
 	Chol = dsCMatrix_Cholesky(a,
 				  ScalarLogical(1),  /* permuted  : "P" */
 				  ScalarLogical(1),  /* LDL'	  : "D" */
 				  ScalarLogical(0)); /* simplicial: "s" */
-    L = as_cholmod_factor(Chol);
+    L = AS_CHM_FR(Chol);
+    R_CheckStack();
     cx = cholmod_spsolve(CHOLMOD_A, L, cb, &c);
-    Free(cb); Free(L);
-    return chm_sparse_to_SEXP(cx, /*cholmod_free*/ 1, /*uploT*/ 0,
+    return chm_sparse_to_SEXP(cx, /*do_free*/ 1, /*uploT*/ 0,
 			      /*Rkind*/ 0, /*diag*/ "N",
 			      /*dimnames = */ R_NilValue);
 }
@@ -126,18 +122,18 @@ SEXP dsCMatrix_Csparse_solve(SEXP a, SEXP b)
 SEXP dsCMatrix_matrix_solve(SEXP a, SEXP b)
 {
     SEXP Chol = get_factor_pattern(a, "...Cholesky", 3);
-    cholmod_factor *L;
-    cholmod_dense  *cx,
-	*cb = as_cholmod_dense(PROTECT(mMatrix_as_dgeMatrix(b)));
+    CHM_FR L;
+    CHM_DN cx, cb = AS_CHM_DN(PROTECT(mMatrix_as_dgeMatrix(b)));
+    R_CheckStack();
 
     if (Chol == R_NilValue) /* compute (and cache) "sPDCholesky" */
 	Chol = dsCMatrix_Cholesky(a,
 				  ScalarLogical(1),  /* permuted  : "P" */
 				  ScalarLogical(1),  /* LDL'      : "D" */
 				  ScalarLogical(0)); /* simplicial: "s" */
-    L = as_cholmod_factor(Chol);
+    L = AS_CHM_FR(Chol);
+    R_CheckStack();
     cx = cholmod_solve(CHOLMOD_A, L, cb, &c);
-    Free(cb); Free(L);
     UNPROTECT(1);
     return chm_dense_to_SEXP(cx, 1, 0, /*dimnames = */ R_NilValue);
 }
@@ -147,13 +143,14 @@ SEXP dsCMatrix_matrix_solve(SEXP a, SEXP b)
 *         e.g. make  compressed_to_dgTMatrix() in ./dgCMatrix.c work for dsC */
 SEXP dsCMatrix_to_dgTMatrix(SEXP x)
 {
-    cholmod_sparse *A = as_cholmod_sparse(x);
-    cholmod_sparse *Afull = cholmod_copy(A, /*stype*/ 0, /*mode*/ 1, &c);
-    cholmod_triplet *At = cholmod_sparse_to_triplet(Afull, &c);
+    CHM_SP A = AS_CHM_SP(x);
+    CHM_SP Afull = cholmod_copy(A, /*stype*/ 0, /*mode*/ 1, &c);
+    CHM_TR At = cholmod_sparse_to_triplet(Afull, &c);
+    R_CheckStack();
 
     if (!A->stype)
 	error("Non-symmetric matrix passed to dsCMatrix_to_dgTMatrix");
-    Free(A); cholmod_free_sparse(&Afull, &c);
+    cholmod_free_sparse(&Afull, &c);
     return chm_triplet_to_SEXP(At, 1, /*uploT*/ 0, /*Rkind*/ 0, "",
 			       GET_SLOT(x, Matrix_DimNamesSym));
 }

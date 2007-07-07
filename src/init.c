@@ -75,6 +75,11 @@ static R_CallMethodDef CallEntries[] = {
 
     {"dgCMatrix_LU", (DL_FUNC) &dgCMatrix_LU, 3},
     {"dgCMatrix_QR", (DL_FUNC) &dgCMatrix_QR, 2},
+    {"dgCMatrix_colSums", (DL_FUNC) &dgCMatrix_colSums, 5},
+    {"igCMatrix_colSums", (DL_FUNC) &igCMatrix_colSums, 5},
+    {"lgCMatrix_colSums", (DL_FUNC) &lgCMatrix_colSums, 5},
+    {"ngCMatrix_colSums", (DL_FUNC) &ngCMatrix_colSums, 5},
+    {"dgCMatrix_cholsol", (DL_FUNC) &dgCMatrix_cholsol, 2},
     {"dgCMatrix_lusol", (DL_FUNC) &dgCMatrix_lusol, 2},
     {"dgCMatrix_matrix_solve", (DL_FUNC) &dgCMatrix_matrix_solve, 2},
     {"dgCMatrix_qrsol", (DL_FUNC) &dgCMatrix_qrsol, 2},
@@ -265,6 +270,7 @@ R_init_Matrix(DllInfo *dll)
     Matrix_factorSym = install("factors");
     Matrix_iSym = install("i");
     Matrix_jSym = install("j");
+    Matrix_lengthSym = install("length");
     Matrix_pSym = install("p");
     Matrix_permSym = install("perm");
     Matrix_uploSym = install("uplo");

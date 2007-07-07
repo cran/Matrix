@@ -6,7 +6,7 @@
   \code{\linkS4class{TsparseMatrix}}) from the triplet representation.
 }
 \usage{
-spMatrix(nrow, ncol, i, j, x)
+spMatrix(nrow, ncol, i = integer(), j = integer(), x = numeric())
 }
 \arguments{
   \item{nrow, ncol}{integers specifying the desired number of rows and

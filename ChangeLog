@@ -1,3 +1,141 @@
+2007-07-06  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.999375 merged into the trunk; ready for
+	release.
+
+2007-07-06 14:11  Douglas Bates <bates@stat.wisc.edu>
+
+	* [r4559] src/iohb.c, src/iohb.h: Remove Harwell-Boeing input/output
+	  functions - no longer used
+	* [r4560] src/HBMM.c, src/Mutils.c, src/dgTMatrix.c, src/dgeMatrix.c,
+	  src/dspMatrix.c, src/dsyMatrix.c, src/dtCMatrix.c,
+	  src/factorizations.c, src/sparseQR.c: Replace most calls to Calloc by
+	  Alloca
+
+2007-07-06 13:14  Martin Maechler <maechler@stat.math.ethz.ch>
+
+	* [r4558] inst/doc/Comparisons.Rnw, src/CHMfactor.c, src/Csparse.c,
+	  src/Tsparse.c, src/chm_common.c, src/chm_common.h, src/dense.c,
+	  src/dgCMatrix.c, src/dsCMatrix.c, src/dtTMatrix.c, src/sparseQR.c,
+	  src/t_gCMatrix_colSums.c: more R_CheckStack()s
+
+2007-07-05 18:12  Douglas Bates <bates@stat.wisc.edu>
+
+	* [r4550] inst/include/Matrix.h: Add the macro N_AS_CHM_DN to "alloca"
+	  the required amount of memory then call M_numeric_as_chm_dense.
+	* [r4556] src/Mutils.h, src/dgCMatrix.c: Define and use the Alloca macro
+	  (like Calloc but calling alloca)
+
+2007-07-05  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/sparseMatrix.R (printSpMatrix): renamed from prSpMatrix()
+	and extended with more sophisticated 'col.names' option.
+	* NAMESPACE: export  printSparseMatrix()
+	* man/printSpMatrix.Rd: document, incl. examples
+
+2007-07-04 16:21  Douglas Bates <bates@stat.wisc.edu>
+
+	* [r4543] src/cs_utils.c, src/cs_utils.h, src/dgCMatrix.c,
+	  src/dtCMatrix.c, src/sparseQR.c: CSP typedef for *cs and macro
+	  AS_CSP. API change - pass the empty structure to Matrix_as_cs.
+
+2007-07-04  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.99875-4
+
+	* tests/Class+Meth.R (tstMatrixClass): add dimnames, and hence test
+	some dimnames perservation.
+
+	* R/dsTMatrix.R (t-method): keep dimnames
+	* R/dtTMatrix.R:  ditto
+
+	* R/sparseMatrix.R (prSpMatrix): print colnames when non-trivial
+	and ncol(.) < 10
+
+	* src/cs_utils.c: drop check_class() and use Matrix_check_class()
+	from Mutils.h
+
+	* src/lgCMatrix.c ([ln]csc_to_matrix): no longer lose dimnames,
+	e.g. in as(<ngCMatrix>, "matrix")
+
+2007-07-01 13:27  Douglas Bates <bates@stat.wisc.edu>
+
+	* [r4529] .: Create a branch for the API changes from the 0.99875
+	  series to the 0.999375 series
+	* [r4530] DESCRIPTION, inst/include/Matrix.h,
+	  inst/include/Matrix_stubs.c, src/CHMfactor.c, src/Csparse.c,
+	  src/Mutils.h, src/Tsparse.c, src/chm_common.c, src/chm_common.h,
+	  src/dense.c, src/dgCMatrix.c, src/dsCMatrix.c, src/dtTMatrix.c,
+	  src/t_gCMatrix_colSums.c: API change - pass the empty structure to the
+	  as_cholmod_x functions
+
+2007-06-30 09:05  Martin Maechler <maechler@stat.math.ethz.ch>
+
+	* [r4527] trunk/Matrix/DESCRIPTION, trunk/Matrix/NAMESPACE,
+	  trunk/Matrix/inst/doc/Comparisons.Rnw: add session- and hardware-info
+	  to Comparisons
+
+>>>>>>> .merge-right.r4561
+2007-06-29  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.99875-3 ready to be released.
+
+	* R/sparseMatrix.R (spMatrix): make spMatrix(3,4) working
+
+	* R/AllGeneric.R: set "Math" (and "Math2") group generics in a way
+	that should also work in a future version of R.
+
+2007-06-21  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* NAMESPACE, R/AllClass.R: "xsparseVector" class union.
+
+	* R/sparseVector.R: more *sparseVector coercions, notably for
+	non - double ones.
+
+2007-06-19  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/colSums.R: new file for all (col|row)(Sums|Means) methods,
+	  notably the new ones building on the new .Call(.)s:
+
+	* src/dgCMatrix.c (DEF_gCMatrix_COLSUMS): use to define
+	all 4 of [dlin]gCMatrix_colSums().
+
+2007-06-18 16:12  Douglas Bates <bates@stat.wisc.edu>
+
+	* [r4472] src/Syms.h, src/init.c: Added Matrix_lengthSym
+	* [r4473] src/dgCMatrix.c: Modified dgCMatrix_colSums for sparseVector
+	  result
+
+2007-06-16  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/kronecker.R: fix typo (could lead to inf.recursion)
+	* test/simple.R: testing that
+
+	* R/sparseMatrix.R (prSpMatrix): change to be used as print()
+	method as well (which can have arguments, show() can't).
+
+2007-06-16 15:52  Douglas Bates <bates@stat.wisc.edu>
+
+	* [r4466] R/dgCMatrix.R, src/dgCMatrix.c, src/dgCMatrix.h, src/init.c:
+	  added dgCMatrix_colSums for [col,row][Sums,Means]
+
+2007-06-15 23:15  Douglas Bates <bates@stat.wisc.edu>
+
+	* [r4460] R/sparseMatrix.R, man/dgCMatrix-class.Rd, src/dgCMatrix.c,
+	  src/dgCMatrix.h, src/init.c: added lm.fit.sparse (unexported),
+	  coercion of "factor" to "dgCMatrix" and dgCMatrix_cholsol
+	* [r4461] R/AllClass.R, man/sparseMatrix-class.Rd: draft "indicators"
+	  class
+	* [r4463] R/sparseMatrix.R, man/dgCMatrix-class.Rd,
+	  man/sparseMatrix-class.Rd: Don't need an "indicators" class - use the
+	  row names to store the levels - duh!	Added an example.
+
+2007-06-14  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/Csparse.c (Csparse_validate): check for *repeated* entries
+	thanks to example from Christian Buchta; with a test here:
+	* tests/simple.R:
+
 2007-06-07  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/Auxiliaries.R (callGeneric): another fix, needed for some cases

@@ -16,9 +16,10 @@
 if(FALSE)
 .R.2.T <- function(from) as(.R.2.C(from), "TsparseMatrix")
 
-## R_to_CMatrix -- fails on 32bit--enable-R-shlib with segfault {Kurt}
+## R_to_CMatrix
 ## ------------ --> ../src/dgCMatrix.c
 .R.2.C <- function(from) .Call(R_to_CMatrix, from)
+
 if(FALSE)## "slow" R-level workaround
 .R.2.C <- function(from)
 {
@@ -31,7 +32,7 @@ if(FALSE)## "slow" R-level workaround
     if(is.na(icl)) stop("invalid class:", cl)
     Ccl <- sub("^(..)R","\\1C", cl)  # corresponding Csparse class name
     r <- new(Ccl)
-    r@Dim <- rev(from@Dim)
+    r@Dim <- from@Dim[2:1]
     if(icl %/% 3 != 2) ## not "n..Matrix" --> has 'x' slot
         r@x <- from@x
     if(icl %% 3 != 0) {                 # symmetric or triangular
@@ -45,6 +46,36 @@ if(FALSE)## "slow" R-level workaround
     r@Dimnames <- from@Dimnames
     r
 }
+
+## However, a quick way to "treat a t(<R..>) as corresponding <C..> " :
+.tR.2.C <- function(from)
+{
+    cl <- class(from)
+    valid <- c("dgRMatrix", "dsRMatrix", "dtRMatrix",
+               "lgRMatrix", "lsRMatrix", "ltRMatrix",
+               "ngRMatrix", "nsRMatrix", "ntRMatrix",
+               "zgRMatrix", "zsRMatrix", "ztRMatrix")
+    icl <- match(cl, valid) - 1L
+    if(is.na(icl)) stop("invalid class:", cl)
+    Ccl <- sub("^(..)R","\\1C", cl)  # corresponding Csparse class name
+    r <- new(Ccl)
+    r@i <- from@j
+    ##-         -
+    r@p <- from@p
+    r@Dim      <- from@Dim[2:1]
+    r@Dimnames <- from@Dimnames[2:1]
+
+    if(icl %/% 3 != 2) ## not "n..Matrix" --> has 'x' slot
+        r@x <- from@x
+    if(icl %% 3 != 0) {                 # symmetric or triangular
+        r@uplo <- from@uplo
+        if(icl %% 3 == 2)               # triangular
+            r@diag <- from@diag
+    }
+    r
+}
+
+
 
 ## coercion to other virtual classes --- the functionality we want to encourage
 
@@ -138,12 +169,3 @@ setMethod("triu", "RsparseMatrix",
 setMethod("band", "RsparseMatrix",
 	  function(x, k1, k2, ...)
 	  as(band(.R.2.C(x), k1 = k1, k2 = k2, ...), "RsparseMatrix"))
-
-
-## These two are obviously more efficient than going through Tsparse:
-setMethod("colSums", signature(x = "dgRMatrix"),
-	  function(x, na.rm = FALSE, dims = 1, sparseResult = FALSE)
-	  sparsapply(x, 2, sum, sparseResult = sparseResult, na.rm = na.rm))
-
-setMethod("colMeans", signature(x = "dgRMatrix"), sp.colMeans)
-

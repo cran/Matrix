@@ -12,7 +12,7 @@ stopifnot(is((Y <- Matrix(y)), "dgeMatrix"))
 md <- as(mm, "matrix")                  # dense
 
 system.time(mmq <- qr(mm))
-system.time(mdq <- qr(md))# much slower
+system.time(mdq <- qr(md))# much (~ 150 x) slower
 
 ## qr.qy and qr.qty should be inverses
 stopifnot(all.equal(qr.qy (mmq, qr.qty(mmq, y))@x, y),

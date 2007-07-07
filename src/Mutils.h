@@ -15,6 +15,8 @@ extern "C" {
 #define _(String) (String)
 #endif
 
+#define Alloca(n, t)   (t *) alloca( (size_t) ( (n) * sizeof(t) ) )
+
 SEXP triangularMatrix_validate(SEXP obj);
 SEXP symmetricMatrix_validate(SEXP obj);
 SEXP dense_nonpacked_validate(SEXP obj);

@@ -117,9 +117,10 @@ SEXP graphNEL_as_dgTMatrix(SEXP x, SEXP symmetric)
 	SET_VECTOR_ELT(dnms, 0, duplicate(nodes));
 	SET_VECTOR_ELT(dnms, 1, duplicate(nodes));
     }
-    ii = Calloc(totl, int);
-    jj = Calloc(totl, int);
-    xx = Calloc(totl, double);
+    ii = Alloca(totl, int);
+    jj = Alloca(totl, int);
+    xx = Alloca(totl, double);
+    R_CheckStack();
     pos = 0;
     for (i = 0; i < nnd; i++) {
 	SEXP edg = VECTOR_ELT(edgeL, i);
@@ -145,7 +146,6 @@ SEXP graphNEL_as_dgTMatrix(SEXP x, SEXP symmetric)
     Memcpy(INTEGER(ALLOC_SLOT(ans, Matrix_jSym, INTSXP, pos)), jj, pos);
     Memcpy(REAL(ALLOC_SLOT(ans, Matrix_xSym, REALSXP, pos)), xx, pos);
 
-    Free(ii); Free(jj); Free(xx);
     UNPROTECT(1);
     return ans;
 }

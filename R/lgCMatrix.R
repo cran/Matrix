@@ -44,6 +44,8 @@ setAs("lgCMatrix", "lgeMatrix",
 
 setAs("lgCMatrix", "matrix",
       function(from) .Call(lcsc_to_matrix, from))
+## not this: .Call(Csparse_to_matrix, from)), since it goes via dense -> double precision
+
 
 ## TODO (maybe): write  matrix_to_lcsc()  in ../src/lgCMatrix.c
 setAs("matrix", "lgCMatrix",

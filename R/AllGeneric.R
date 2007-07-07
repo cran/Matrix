@@ -64,14 +64,21 @@
 ###---- Group Generics ----
 ## The following are **WORKAROUND** s currently needed for all non-Primitives:
 
-##  "Math"
-setGeneric("log", group="Math")
-setGeneric("gamma", group="Math")
-setGeneric("lgamma", group="Math")
+## [The following is more future-proof than direct  setGeneric(.) calls:
+## FIX (in R!) : "trunc" should really be in Math, but we try both for the time
+
+## "Math"
+for(fname in intersect(getGroupMembers("Math"),
+		       c("log", "log2", "log10", "logb", "log1p", "expm1",
+			 "gamma", "lgamma", "digamma", "trigamma",
+			 "cummax", "cummin", "trunc")))
+    if(!is.primitive(get(fname))) setGeneric(fname, group="Math")
 
 ## "Math2"
-setGeneric("round",  group="Math2")
-setGeneric("signif", group="Math2")
+for(fname in intersect(getGroupMembers("Math2"),
+		       c("round", "signif", "trunc")))
+    if (!is.primitive(get(fname))) setGeneric(fname, group="Math2")
+
 
 ## "Summary" --- this needs some hoop jumping that may become unnecessary
 ##               in a future version of R (>= 2.3.x):

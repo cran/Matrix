@@ -70,7 +70,7 @@ is.all.equal4 <- function(x,y,z,u, tol = .Machine$double.eps^0.5)
 
 
 Qidentical <- function(x,y) {
-    ## quasi-identical:
+    ## quasi-identical - for 'Matrix' matrices
     if(class(x) != class(y)) return(FALSE)
     slts <- slotNames(x)
     if("factors" %in% slts) { ## allow one empty and one non-empty 'factors'
@@ -82,6 +82,17 @@ Qidentical <- function(x,y) {
     for(sl in slts)
         if(!identical(slot(x,sl), slot(y,sl)))
             return(FALSE)
+    TRUE
+}
+
+## A version of all.equal() for the slots
+all.slot.equal <- function(x,y, ...) {
+    slts <- slotNames(x)
+    for(sl in slts) {
+        aeq <- all.equal(slot(x,sl), slot(y,sl), ...)
+        if(!identical(TRUE, aeq))
+            return(paste("slot '",sl,"': ", aeq, sep=''))
+    }
     TRUE
 }
 

@@ -39,7 +39,7 @@ setMethod("kronecker", signature(X="sparseMatrix", Y="TsparseMatrix"),
 	  })
 setMethod("kronecker", signature(X="TsparseMatrix", Y="sparseMatrix"),
 	  function (X, Y, FUN = "*", make.dimnames = FALSE, ...) {
-	      X <- as(X, "TsparseMatrix")
+	      Y <- as(Y, "TsparseMatrix")
 	      callGeneric()
 	  })
 

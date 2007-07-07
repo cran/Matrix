@@ -35,7 +35,6 @@
 \alias{diag,dgeMatrix-method}
 \alias{dim,dgeMatrix-method}
 \alias{dimnames,dgeMatrix-method}
-\alias{dimnames<-,dgeMatrix,list-method}
 \alias{eigen,dgeMatrix,missing-method}
 \alias{eigen,dgeMatrix,logical-method}
 \alias{lu,dgeMatrix-method}
@@ -108,7 +107,6 @@
     \item{diag}{\code{signature(x = "dgeMatrix")}: ... }
     \item{dim}{\code{signature(x = "dgeMatrix")}: ... }
     \item{dimnames}{\code{signature(x = "dgeMatrix")}: ... }
-    \item{dimnames<-}{\code{signature(x = "dgeMatrix", value = "list")}: ... }
     \item{eigen}{\code{signature(x = "dgeMatrix", only.values= "logical")}: ...}
     \item{eigen}{\code{signature(x = "dgeMatrix", only.values= "missing")}: ...}
     \item{lu}{\code{signature(x = "dgeMatrix")}: ... }

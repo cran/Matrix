@@ -149,11 +149,11 @@ SEXP dsyMatrix_trf(SEXP x)
     perm = INTEGER(ALLOC_SLOT(val, Matrix_permSym, INTSXP, n));
     F77_CALL(dsytrf)(uplo, &n, vx, &n, perm, &tmp, &lwork, &info);
     lwork = (int) tmp;
-    work = Calloc(lwork, double);
+    work = Alloca(lwork, double);
+    R_CheckStack();
     F77_CALL(dsytrf)(uplo, &n, vx, &n, perm, work, &lwork, &info);
     if (info) error(_("Lapack routine dsytrf returned error code %d"), info);
     UNPROTECT(1);
-    Free(work);
     return set_factors(x, val, "BunchKaufman");
 }
 

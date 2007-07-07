@@ -91,7 +91,7 @@ described in \citet{koen:ng:2003}, the literal translation of
 library(Matrix)
 data(KNex, package = "Matrix")
  y <- KNex$y
-mm <- as(KNex$mm, "matrix")
+mm <- as(KNex$mm, "matrix") # full traditional matrix
 dim(mm)
 system.time(naive.sol <- solve(t(mm) %*% mm) %*% t(mm) %*% y)
 @
@@ -120,14 +120,33 @@ system.time(cpod.sol <- solve(crossprod(mm), crossprod(mm,y)))
 all.equal(naive.sol, cpod.sol)
 @
 
-On this computer (2.0 GHz Pentium-4, 1 GB Memory, Goto's BLAS) the
-%% ---- which one ? {every time the vignette's is rebuilt ..}
+On this computer (2.0 GHz Pentium-4, 1 GB Memory, Goto's BLAS, in Spring
+2004) the
 crossprod form of the calculation is about four times as fast as the
 naive calculation.  In fact, the entire crossprod solution is
 faster than simply calculating $\bX\trans\bX$ the naive way.
 <<xpxKoenNg>>=
 system.time(t(mm) %*% mm)
 @
+
+Note that in newer versions of \RR{} and the BLAS library (as of summer
+2007), \RR's \code{\%*\%} is able to detect the many zeros in \code{mm} and
+shortcut many operations, and is hence much faster for such a sparse matrix
+than \code{crossprod} which currently does not make use of such
+optimizations.  This is not the case when \RR{} is linked against an
+optimized BLAS library such as GOTO or ATLAS.
+%%
+Also, for fully dense matrices, \code{crossprod()} indeed remains faster
+(by a factor of two, typically) independently of the BLAS library:
+<<fullMatrix_crossprod>>=
+fm <- mm
+set.seed(11)
+fm[] <- rnorm(length(fm))
+system.time(c1 <- t(fm) %*% fm)
+system.time(c2 <- crossprod(fm))
+stopifnot(all.equal(c1, c2, tol = 1e-12))
+@ % using stopifnot(.) to save output
+
 
 \subsection{Least squares calculations with Matrix classes}
 \label{sec:MatrixLSQ}
@@ -142,10 +161,10 @@ use a Cholesky decomposition.  The Cholesky decomposition could be used
 but it is rather awkward
 <<naiveChol>>=
 system.time(ch <- chol(crossprod(mm)))
-system.time(chol.sol <- backsolve(ch,
-   forwardsolve(ch, crossprod(mm, y), upper = TRUE, trans = TRUE)))
-
-all.equal(chol.sol, naive.sol)
+system.time(chol.sol <-
+            backsolve(ch, forwardsolve(ch, crossprod(mm, y),
+                                       upper = TRUE, trans = TRUE)))
+stopifnot(all.equal(chol.sol, naive.sol))
 @
 
 The \code{Matrix} package uses the S4 class system
@@ -159,7 +178,7 @@ Cholesky decomposition.
 mm <- as(KNex$mm, "dgeMatrix")
 class(crossprod(mm))
 system.time(Mat.sol <- solve(crossprod(mm), crossprod(mm, y)))
-all.equal(naive.sol, unname(as(Mat.sol, "matrix")))
+stopifnot(all.equal(naive.sol, unname(as(Mat.sol,"matrix"))))
 @
 
 Furthermore, any method that calculates a
@@ -169,7 +188,7 @@ the original object so that it can be reused without recalculation.
 xpx <- crossprod(mm)
 xpy <- crossprod(mm, y)
 system.time(solve(xpx, xpy))
-system.time(solve(xpx, xpy))
+system.time(solve(xpx, xpy)) # reusing factorization
 @
 
 The model matrix \code{mm} is sparse; that is, most of the elements of
@@ -180,7 +199,7 @@ methods for sparse matrices, which produce the fastest results of all.
 mm <- KNex$mm
 class(mm)
 system.time(sparse.sol <- solve(crossprod(mm), crossprod(mm, y)))
-all.equal(naive.sol, as(sparse.sol, "matrix"))
+stopifnot(all.equal(naive.sol, unname(as(sparse.sol, "matrix"))))
 @
 
 As with other classes in the \code{Matrix} package, the
@@ -193,6 +212,45 @@ xpx <- crossprod(mm)
 xpy <- crossprod(mm, y)
 system.time(solve(xpx, xpy))
 system.time(solve(xpx, xpy))
+@
+
+\subsection*{Session Info}
+
+<<sessionInfo, results=tex>>=
+toLatex(sessionInfo())
+@
+
+<<from_pkg_sfsmisc, echo=FALSE>>=
+
+if(identical(1L, grep("linux", R.version[["os"]]))) { ##----- Linux - only ----
+
+Sys.procinfo <- function(procfile)
+{
+  l2 <- strsplit(readLines(procfile),"[ \t]*:[ \t]*")
+  r <- sapply(l2[sapply(l2, length) == 2],
+              function(c2)structure(c2[2], names= c2[1]))
+  attr(r,"Name") <- procfile
+  class(r) <- "simple.list"
+  r
+}
+
+Scpu <- Sys.procinfo("/proc/cpuinfo")
+Smem <- Sys.procinfo("/proc/meminfo")
+} # Linux only
+@
+<<Sys_proc_fake, eval=FALSE>>=
+if(identical(1L, grep("linux", R.version[["os"]]))) { ## Linux - only ---
+ Scpu <- sfsmisc::Sys.procinfo("/proc/cpuinfo")
+ Smem <- sfsmisc::Sys.procinfo("/proc/meminfo")
+ print(Scpu[c("model name", "cpu MHz", "cache size", "bogomips")])
+ print(Smem[c("MemTotal", "SwapTotal")])
+}
+@
+<<Sys_proc_out, echo=FALSE>>=
+if(identical(1L, grep("linux", R.version[["os"]]))) { ## Linux - only ---
+ print(Scpu[c("model name", "cpu MHz", "cache size", "bogomips")])
+ print(Smem[c("MemTotal", "SwapTotal")])
+}
 @
 
 \bibliography{Matrix}

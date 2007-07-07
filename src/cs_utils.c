@@ -19,32 +19,19 @@ static int is_sym (cs *A)
     return (is_upper ? 1 : (is_lower ? -1 : 0)) ;
 }
 
-static R_INLINE int
-check_class(const char *class, char **valid)
-{
-    int ans;
-    for (ans = 0; ; ans++) {
-	if (!strlen(valid[ans])) return -1;
-	if (!strcmp(class, valid[ans])) return ans;
-    }
-}
-
 /**
- * Create a cs object with the contents of x.  Note that
- * the result should *not* be freed with cs_spfree.  Use
- * Free on the result.
+ * Create a cs object with the contents of x.
  *
  * @param x pointer to an object that inherits from CsparseMatrix
  *
  * @return pointer to a cs object that contains pointers
  * to the slots of x.
  */
-cs *Matrix_as_cs(SEXP x)
+cs *Matrix_as_cs(cs *ans, SEXP x)
 {
-    cs *ans = Calloc(1, cs);
     char *valid[] = {"dgCMatrix", "dtCMatrix", ""};/* had also "dsCMatrix", but that
 						    * only stores one triangle */
-    int *dims, ctype = check_class(class_P(x), valid);
+    int *dims, ctype = Matrix_check_class(class_P(x), valid);
     SEXP islot;
 
     if (ctype < 0) error("invalid class of object to Matrix_as_cs");
@@ -61,82 +48,6 @@ cs *Matrix_as_cs(SEXP x)
     return ans;
 }
 
-#if 0 				/* unused */
-/**
- * Create a css object with the contents of x.  Note that
- * the result should *not* be freed with cs_sfree.  Use
- * Free on the result but in the order
- * Free(ans->L); Free(ans->U); Free(ans);
- *
- * @param x pointer to an object of class css_LU or css_QR.
- *
- * @return pointer to a cs object that contains pointers
- * to the slots of x.
- */
-css *Matrix_as_css(SEXP x)
-{
-    css *ans = Calloc(1, css);
-    char *cl = class_P(x);
-	*valid[] = {"css_LU", "css_QR", ""};
-    int *nz = INTEGER(GET_SLOT(x, install("nz"))),
-	ctype = check_class(cl, valid);
-
-    if (ctype < 0) error("invalid class of object to Matrix_as_css");
-    ans->q = INTEGER(GET_SLOT(x, install("Q")));
-    ans->m2 = nz[0]; ans->lnz = nz[1]; ans->unz = nz[2];
-    switch(ctype) {
-    case 0:			/* css_LU */
-	ans->pinv = (int *) NULL;
-	ans->parent = (int *) NULL;
-	ans->cp = (int *) NULL;
-	break;
-    case 1:			/* css_QR */
-	ans->pinv = INTEGER(GET_SLOT(x, install("Pinv")));
-	ans->parent = INTEGER(GET_SLOT(x, install("parent")));
-	ans->cp = INTEGER(GET_SLOT(x, install("cp")));
-	break;
-    default:
-	error("invalid class of object to Matrix_as_css");
-    }
-    return ans;
-}
-
-/**
- * Create a csn object with the contents of x.  Note that
- * the result should *not* be freed with cs_sfree.  Use
- * Free on the result but in the order
- * Free(ans->L); Free(ans->U); Free(ans);
- *
- * @param x pointer to an object of class csn_LU or csn_QR.
- *
- * @return pointer to a cs object that contains pointers
- * to the slots of x.
- */
-csn *Matrix_as_csn(SEXP x)
-{
-    csn *ans = Calloc(1, csn);
-    char *valid[] = {"csn_LU", "csn_QR", ""};
-    int ctype = check_class(class_P(x), valid);
-
-    if (ctype < 0) error("invalid class of object to Matrix_as_csn");
-    ans->U = Matrix_as_cs(GET_SLOT(x, install("U")));
-    ans->L = Matrix_as_cs(GET_SLOT(x, install("L")));
-    switch(ctype) {
-    case 0:
-	ans->B = (double*) NULL;
-	ans->pinv = INTEGER(GET_SLOT(x, install("Pinv")));
-	break;
-    case 1:
-	ans->B = REAL(GET_SLOT(x, install("beta")));
-	ans->pinv = (int*) NULL;
-	break;
-    default:
-	error("invalid class of object to Matrix_as_csn");
-    }
-    return ans;
-}
-#endif	/* unused */
-
 /**
  * Copy the contents of a to an appropriate CsparseMatrix object and,
  * optionally, free a or free both a and the pointers to its contents.
@@ -151,7 +62,7 @@ SEXP Matrix_cs_to_SEXP(cs *a, char *cl, int dofree)
 {
     SEXP ans;
     char *valid[] = {"dgCMatrix", "dsCMatrix", "dtCMatrix", ""};
-    int *dims, ctype = check_class(cl, valid), nz;
+    int *dims, ctype = Matrix_check_class(cl, valid), nz;
 
     if (ctype < 0)
 	error("invalid class of object to Matrix_cs_to_SEXP");
@@ -178,6 +89,74 @@ SEXP Matrix_cs_to_SEXP(cs *a, char *cl, int dofree)
 
 #if 0 				/* unused */
 /**
+ * Populate a css object with the contents of x.
+ *
+ * @param ans pointer to a csn object
+ * @param x pointer to an object of class css_LU or css_QR.
+ *
+ * @return pointer to a cs object that contains pointers
+ * to the slots of x.
+ */
+css *Matrix_as_css(css *ans, SEXP x)
+{
+    char *cl = class_P(x);
+	*valid[] = {"css_LU", "css_QR", ""};
+    int *nz = INTEGER(GET_SLOT(x, install("nz"))),
+	ctype = Matrix_check_class(cl, valid);
+
+    if (ctype < 0) error("invalid class of object to Matrix_as_css");
+    ans->q = INTEGER(GET_SLOT(x, install("Q")));
+    ans->m2 = nz[0]; ans->lnz = nz[1]; ans->unz = nz[2];
+    switch(ctype) {
+    case 0:			/* css_LU */
+	ans->pinv = (int *) NULL;
+	ans->parent = (int *) NULL;
+	ans->cp = (int *) NULL;
+	break;
+    case 1:			/* css_QR */
+	ans->pinv = INTEGER(GET_SLOT(x, install("Pinv")));
+	ans->parent = INTEGER(GET_SLOT(x, install("parent")));
+	ans->cp = INTEGER(GET_SLOT(x, install("cp")));
+	break;
+    default:
+	error("invalid class of object to Matrix_as_css");
+    }
+    return ans;
+}
+
+/**
+ * Populate a csn object with the contents of x.
+ *
+ * @param ans pointer to a csn object
+ * @param x pointer to an object of class csn_LU or csn_QR.
+ *
+ * @return pointer to a cs object that contains pointers
+ * to the slots of x.
+ */
+csn *Matrix_as_csn(csn *ans, SEXP x)
+{
+    char *valid[] = {"csn_LU", "csn_QR", ""};
+    int ctype = Matrix_check_class(class_P(x), valid);
+
+    if (ctype < 0) error("invalid class of object to Matrix_as_csn");
+    ans->U = Matrix_as_cs(GET_SLOT(x, install("U")));
+    ans->L = Matrix_as_cs(GET_SLOT(x, install("L")));
+    switch(ctype) {
+    case 0:
+	ans->B = (double*) NULL;
+	ans->pinv = INTEGER(GET_SLOT(x, install("Pinv")));
+	break;
+    case 1:
+	ans->B = REAL(GET_SLOT(x, install("beta")));
+	ans->pinv = (int*) NULL;
+	break;
+    default:
+	error("invalid class of object to Matrix_as_csn");
+    }
+    return ans;
+}
+
+/**
  * Copy the contents of S to a css_LU or css_QR object and,
  * optionally, free S or free both S and the pointers to its contents.
  *
@@ -193,10 +172,10 @@ SEXP Matrix_css_to_SEXP(css *S, char *cl, int dofree, int m, int n)
 {
     SEXP ans;
     char *valid[] = {"css_LU", "css_QR", ""};
-    int *nz, ctype = check_class(cl, valid);
+    int *nz, ctype = Matrix_check_class(cl, valid);
 
     if (ctype < 0)
-	error("Inappropriate class `%s' for Matrix_css_to_SEXP", cl);
+	error("Inappropriate class '%s' for Matrix_css_to_SEXP", cl);
     ans = PROTECT(NEW_OBJECT(MAKE_CLASS(cl)));
 				/* allocate and copy common slots */
     Memcpy(INTEGER(ALLOC_SLOT(ans, install("Q"), INTSXP, n)), S->q, n);
@@ -214,7 +193,7 @@ SEXP Matrix_css_to_SEXP(css *S, char *cl, int dofree, int m, int n)
 	       S->cp, n);
 	break;
     default:
-	error("Inappropriate class `%s' for Matrix_css_to_SEXP", cl);
+	error("Inappropriate class '%s' for Matrix_css_to_SEXP", cl);
     }
     if (dofree > 0) cs_sfree(S);
     if (dofree < 0) Free(S);
@@ -236,10 +215,10 @@ SEXP Matrix_csn_to_SEXP(csn *N, char *cl, int dofree)
 {
     SEXP ans;
     char *valid[] = {"csn_LU", "csn_QR", ""};
-    int ctype = check_class(cl, valid), n = (N->U)->n;
+    int ctype = Matrix_check_class(cl, valid), n = (N->U)->n;
 
     if (ctype < 0)
-	error("Inappropriate class `%s' for Matrix_csn_to_SEXP", cl);
+	error("Inappropriate class '%s' for Matrix_csn_to_SEXP", cl);
     ans = PROTECT(NEW_OBJECT(MAKE_CLASS(cl)));
 				/* allocate and copy common slots */
     /* FIXME: Use the triangular matrix classes for csn_LU */
@@ -257,7 +236,7 @@ SEXP Matrix_csn_to_SEXP(csn *N, char *cl, int dofree)
 	       N->B, n);
 	break;
     default:
-	error("Inappropriate class `%s' for Matrix_csn_to_SEXP", cl);
+	error("Inappropriate class '%s' for Matrix_csn_to_SEXP", cl);
     }
     if (dofree > 0) cs_nfree(N);
     if (dofree < 0) {

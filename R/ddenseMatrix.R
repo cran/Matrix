@@ -84,12 +84,11 @@ setMethod("crossprod", signature(x = "ddenseMatrix", y = "missing"),
 setMethod("diag", signature(x = "ddenseMatrix"),
           function(x, nrow, ncol = n) callGeneric(as(x, "dgeMatrix")))
 
-## These methods cause an infinite loop in pre-2.4.0
-## setMethod("solve", signature(a = "ddenseMatrix", b = "missing"),
-##           function(a, b, ...) callGeneric(as(a, "dgeMatrix")))
+setMethod("solve", signature(a = "ddenseMatrix", b = "missing"),
+          function(a, b, ...) callGeneric(as(a, "dgeMatrix")))
 
-## setMethod("solve", signature(a = "ddenseMatrix", b = "ANY"),
-##           function(a, b, ...) callGeneric(as(a, "dgeMatrix"), b))
+setMethod("solve", signature(a = "ddenseMatrix", b = "ANY"),
+          function(a, b, ...) callGeneric(as(a, "dgeMatrix"), b))
 
 ## General method for dense matrix multiplication in case specific methods
 ## have not been defined.

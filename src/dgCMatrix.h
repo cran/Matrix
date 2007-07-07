@@ -9,8 +9,14 @@ SEXP xCMatrix_validate(SEXP x);
 SEXP compressed_to_TMatrix(SEXP x, SEXP colP);
 SEXP compressed_non_0_ij(SEXP x, SEXP colP);
 SEXP R_to_CMatrix(SEXP x);
+SEXP dgCMatrix_colSums(SEXP x, SEXP NArm, SEXP spRes, SEXP trans, SEXP means);
+SEXP igCMatrix_colSums(SEXP x, SEXP NArm, SEXP spRes, SEXP trans, SEXP means);
+SEXP lgCMatrix_colSums(SEXP x, SEXP NArm, SEXP spRes, SEXP trans, SEXP means);
+SEXP ngCMatrix_colSums(SEXP x, SEXP NArm, SEXP spRes, SEXP trans, SEXP means);
+
 SEXP dgCMatrix_lusol(SEXP x, SEXP y);
 SEXP dgCMatrix_qrsol(SEXP x, SEXP y);
+SEXP dgCMatrix_cholsol(SEXP x, SEXP y);
 SEXP dgCMatrix_QR(SEXP Ap, SEXP order);
 SEXP dgCMatrix_LU(SEXP Ap, SEXP orderp, SEXP tolp);
 SEXP dgCMatrix_matrix_solve(SEXP Ap, SEXP bp);

@@ -248,7 +248,8 @@ SEXP lapack_qr(SEXP Xin, SEXP tl)
 
 SEXP dense_to_Csparse(SEXP x)
 {
-    cholmod_dense *chxd = as_cholmod_x_dense(PROTECT(mMatrix_as_geMatrix(x)));
+    CHM_DN chxd = AS_CHM_DN(PROTECT(mMatrix_as_geMatrix(x)));
+    R_CheckStack();
 
     /* cholmod_dense_to_sparse() in CHOLMOD/Core/ below does only work for
        "REAL" 'xtypes', i.e. *not* for "nMatrix".
@@ -260,10 +261,10 @@ SEXP dense_to_Csparse(SEXP x)
        enhanced cholmod_dense_to_sparse(), with an extra boolean
        argument for symmetry.
     */
-    cholmod_sparse *chxs = cholmod_dense_to_sparse(chxd, 1, &c);
+    CHM_SP chxs = cholmod_dense_to_sparse(chxd, 1, &c);
     int Rkind = (chxd->xtype == CHOLMOD_REAL) ? Real_KIND(x) : 0;
 
-    Free(chxd); UNPROTECT(1);
+    UNPROTECT(1);
     /* chm_sparse_to_SEXP() *could* deal with symmetric
      * if chxs had such an stype; and we should be able to use uplo below */
     return chm_sparse_to_SEXP(chxs, 1, 0/*TODO: uplo_P(x) if x has an uplo slot*/,

@@ -23,12 +23,14 @@
 \alias{rbind2,numeric,sparseMatrix-method}
 %
 \alias{coerce,ANY,sparseMatrix-method}
+\alias{coerce,factor,sparseMatrix-method}
 \alias{coerce,sparseMatrix,generalMatrix-method}
 \alias{coerce,sparseMatrix,symmetricMatrix-method}
 \alias{coerce,sparseMatrix,triangularMatrix-method}
 \alias{-,sparseMatrix,missing-method}
 \alias{diag,sparseMatrix-method}
 \alias{dim<-,sparseMatrix-method}
+\alias{print,sparseMatrix-method}
 \alias{show,sparseMatrix-method}
 \alias{summary,sparseMatrix-method}
 %\alias{colMeans,..} etc are now in ./colSums.Rd
@@ -62,12 +64,12 @@
   \describe{
     \item{show}{\code{(object = "sparseMatrix")}: The
       \code{\link{show}} method for sparse matrices prints
-      \emph{\dQuote{structural}} zeroes as \code{"."} using the
-      non-exported \code{prSpMatrix} function which allows further
-      customization such as replacing \code{"."} by \code{" "} (blank).
-
-      Note that \code{\link{options}(max.print)} will influence how many
-      entries of large matrices are printed at all.}
+      \emph{\dQuote{structural}} zeroes as \code{"."} using
+      \code{\link{printSpMatrix}()} which allows further customization.}
+    \item{print}{\code{signature(x = "sparseMatrix")}, ....\cr
+      The \code{\link{print}} method for sparse matrices by default is the
+      same as \code{show()} but can be called with extra optional
+      arguments, see \code{\link{printSpMatrix}()}.}
     \item{summary}{\code{(object = "sparseMatrix")}: Returns
       an object of S3 class \code{"sparseSummary"} which is basically a
       \code{\link{data.frame}} with columns \code{(i,j,x)} with the
@@ -79,6 +81,12 @@
       allows to \emph{reshape} a sparse matrix to a sparse matrix with
       the same entries but different dimensions. \code{value} must be of
       length two and fulfill \code{prod(value) == prod(dim(x))}.}
+    \item{coerce}{\code{signature(from = "factor", to = "sparseMatrix")}:
+      Coercion of a factor to \code{"sparseMatrix"} produces the matrix
+      of indicator \bold{rows} stored as an object of class
+      \code{"dgCMatrix"}.  To obtain columns representing the interaction
+      of the factor and a numeric covariate, replace the \code{"x"} slot
+      of the result by the numeric covariate then take the transpose.}
   }
   See also \code{\link{colSums}}, ... %% FIXME
   for methods with separate help pages.
@@ -96,14 +104,11 @@
 showClass("sparseMatrix") ## and look at the help() of its subclasses
 M <- Matrix(0, 10000, 100)
 M[1,1] <- M[2,3] <- 3.14
-M
-\dontshow{% show() was slow in 0.9975-8 because of slow adjust="fancy"
-op <- options(max.print = 25000, width = 80)
-sink(print(tempfile()))
-stopifnot((st <- system.time(show(M)))[1] < 1.0) # only 0.09 on cmath-3
-sink()
-st
-options(op)
-}
+M  ## show(.) method suppresses printing of the majority of rows
+
+## factor -> t( <sparse design matrix> ) :
+(fact <- gl(5, 3, 30, labels = LETTERS[1:5]))
+(Xt <- as(fact, "sparseMatrix"))  # indicator rows
+X <- t(Xt)
 }
 \keyword{classes}

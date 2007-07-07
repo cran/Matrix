@@ -1,3 +1,4 @@
+%%----- Docu for *all* sparse vector classes ----------
 \name{sparseVector-class}
 \docType{class}
 \title{Sparse Vector Classes}
@@ -8,6 +9,7 @@
 \alias{lsparseVector-class}
 \alias{nsparseVector-class}
 \alias{zsparseVector-class}
+\alias{xsparseVector-class}% the class union
 %% Group methods
 % \alias{Math,sparseVector-method}
 % %\alias{Math2,sparseVector,numeric-method}
@@ -28,6 +30,12 @@
 \alias{coerce,atomicVector,sparseVector-method}
 \alias{coerce,triangularVector,sparseVector-method}
 \alias{coerce,sparseVector,vector-method}
+\alias{coerce,xsparseVector,dsparseVector-method}
+\alias{coerce,xsparseVector,isparseVector-method}
+\alias{coerce,xsparseVector,lsparseVector-method}
+\alias{coerce,xsparseVector,zsparseVector-method}
+\alias{coerce,sparseVector,nsparseVector-method}
+%
 \alias{as.numeric,sparseVector-method}
 \alias{as.vector,sparseVector,missing-method}
 \alias{as.vector,sparseVector,character-method}
@@ -56,6 +64,9 @@
       \code{"lsparseVector"}, etc.
 
       Note that \code{"nsparseVector"}s have no \code{x} slot.
+      Further, mainly for ease of method definitions, we've defined the
+      class union (see \code{\link{setClassUnion}}) of all sparse vector
+      classes which \emph{have} an \code{x} slot, as class \code{"xsparseVector"}.
       }
   }
 }
@@ -81,11 +92,19 @@
 \examples{
 showClass("sparseVector")
 showClass("dsparseVector")
+showClass("xsparseVector")# those with an 'x' slot
 
 sx <- c(0,0,3, 3.2, 0,0,0,-3:1,0,0,2,0,0,5,0,0)
 (ss <- as(sx, "sparseVector"))
 
+ix <- as.integer(round(sx))
+(is <- as(ix, "sparseVector"))
+%% FIXME: I'd want  isparseVector
+%%
+as(is, "isparseVector") %% ERROR ## FIXME
+
 %% FIXME: Explain and show  spV2M() or its successor
+
 
 }
 \keyword{classes}

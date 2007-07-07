@@ -593,6 +593,19 @@ l2d_meth <- function(x) {
     else .M.kindC(clx)
 }
 
+## the same as .M.kind, but also knows "i"
+.V.kind <- function(x, clx = class(x)) {
+    ## 'clx': class() *or* class definition of x
+    if(is.matrix(x) || is.atomic(x)) { ## 'old style' matrix or vector
+	if     (is.integer(x)) "i"
+	else if (is.numeric(x)) "d"
+	else if(is.logical(x)) "l" ## FIXME ? "n" if no NA ??
+	else if(is.complex(x)) "z"
+	else stop("not yet implemented for matrix w/ typeof ", typeof(x))
+    }
+    else .M.kindC(clx)
+}
+
 .M.kindC <- function(clx) { ## 'clx': class() *or* classdefinition
     if(is.character(clx))		# < speedup: get it once
         clx <- getClassDef(clx)
@@ -609,9 +622,10 @@ l2d_meth <- function(x) {
 
 ## typically used as .type.kind[.M.kind(x)]:
 .type.kind <- c("d" = "double",
-                "l" = "logical",
-                "n" = "logical",
-                "z" = "complex")
+		"i" = "integer",
+		"l" = "logical",
+		"n" = "logical",
+		"z" = "complex")
 
 .M.shape <- function(x, clx = class(x)) {
     ## 'clx': class() *or* class definition of x
@@ -694,8 +708,11 @@ as_Csparse2 <- function(x, cld = if(isS4(x)) getClassDef(class(x))) {
 
 
 ## 'cl'   : class() *or* class definition of from
-as_gCsimpl <- function(from, cl = class(from))
+as_gCsimpl2 <- function(from, cl = class(from))
     as(from, paste(.M.kind(from, cl), "gCMatrix", sep=''))
+## to be used directly in setAs(.) needs one-argument-only  (from) :
+as_gCsimpl <- function(from) as(from, paste(.M.kind(from), "gCMatrix", sep=''))
+
 ## slightly smarter:
 as_Sp <- function(from, shape, cl = class(from)) {
     if(is.character(cl)) cl <- getClassDef(cl)
@@ -866,19 +883,6 @@ diagU2N <- function(x, cl = getClassDef(class(x)))
 }
 
 
-## Needed, e.g., in ./Csparse.R for colSums() etc:
-.as.dgC.Fun <- function(x, na.rm = FALSE, dims = 1, sparseResult = FALSE) {
-    x <- as(x, "dgCMatrix")
-    callGeneric()
-}
-
-.as.dgT.Fun <- function(x, na.rm = FALSE, dims = 1, sparseResult = FALSE) {
-    ## used e.g. inside colSums() etc methods
-    x <- as(x, "dgTMatrix")
-    callGeneric()
-}
-
-
 ### Fast, much simplified version of tapply()
 tapply1 <- function (X, INDEX, FUN = NULL, ..., simplify = TRUE) {
     sapply(unname(split(X, INDEX)), FUN, ...,
@@ -889,10 +893,12 @@ tapply1 <- function (X, INDEX, FUN = NULL, ..., simplify = TRUE) {
 ##     tapply1(X, factor(INDEX, 0:(n-1)), FUN = FUN, ..., simplify = simplify)
 ## }
 
+### MM: Unfortunately, these are still pretty slow for large sparse ...
+
 sparsapply <- function(x, MARGIN, FUN, sparseResult = TRUE, ...)
 {
     ## Purpose: "Sparse Apply": better utility than tapply1() for colSums() etc :
-    ##    NOTE: Only correct for things like sum() where the "zeros do not count"
+    ##    NOTE: Only applicable sum()-like where the "zeros do not count"
     ## ----------------------------------------------------------------------
     ## Arguments: x: sparseMatrix;  others as in *apply()
     ## ----------------------------------------------------------------------

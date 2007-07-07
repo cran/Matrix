@@ -4,11 +4,18 @@
 #include "cs.h"
 #include "Mutils.h"
 
-cs *Matrix_as_cs(SEXP x);
-css *Matrix_as_css(SEXP x);
-csn *Matrix_as_csn(SEXP x);
-SEXP Matrix_cs_to_SEXP(cs *A, char *cl, int dofree);
+typedef cs  *CSP ;
+
+CSP Matrix_as_cs(CSP ans, SEXP x);
+SEXP Matrix_cs_to_SEXP(CSP A, char *cl, int dofree);
+
+#define AS_CSP(x) Matrix_as_cs((CSP)alloca(sizeof(cs)), x )
+
+#if 0				/* unused */
+css *Matrix_as_css(css *ans, SEXP x);
+csn *Matrix_as_csn(csn *ans, SEXP x);
 SEXP Matrix_css_to_SEXP(css *S, char *cl, int dofree, int m, int n);
 SEXP Matrix_csn_to_SEXP(csn *N, char *cl, int dofree);
+#endif  
 
 #endif

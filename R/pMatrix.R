@@ -43,7 +43,7 @@ setMethod("solve", signature(a = "pMatrix", b = "missing"),
 	      bp <- ap <- a@perm
 	      bp[ap] <- seq_along(ap)
 	      new("pMatrix", perm = bp, Dim = a@Dim,
-		  Dimnames = rev(a@Dimnames))
+		  Dimnames = a@Dimnames[2:1])
 	  }, valueClass = "pMatrix")
 
 setMethod("t", signature(x = "pMatrix"), function(x) solve(x))

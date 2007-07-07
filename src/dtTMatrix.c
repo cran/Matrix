@@ -1,6 +1,6 @@
 			/* Sparse triangular matrices in triplet format */
 #include "dtTMatrix.h"
-#include "dgTMatrix.h"
+#include "dgTMatrix.h" /* xTMatrix_validate */
 
 /* This should be use for *BOTH* triangular and symmetric Tsparse: */
 SEXP tTMatrix_validate(SEXP x)
@@ -39,15 +39,14 @@ SEXP tTMatrix_validate(SEXP x)
  * along the lines in ./TMatrix_as.c  ..... or drop completely : */
 SEXP dtTMatrix_as_dgCMatrix(SEXP x)
 {
-    cholmod_triplet *tx = as_cholmod_triplet(x);
-    cholmod_sparse *cx = cholmod_triplet_to_sparse(tx, tx->nzmax, &c);
+    CHM_TR tx = AS_CHM_TR(x);
+    CHM_SP cx = cholmod_triplet_to_sparse(tx, tx->nzmax, &c);
+    R_CheckStack();
 
  /* FIXME
  * int Rkind = (tx->xtype == CHOLMOD_REAL) ? Real_kind(x) : 0;
  */
-    Free(tx);
-				/* chm_sparse_to_SEXP cholmod_frees cx */
-    return chm_sparse_to_SEXP(cx, 1, 0, /*Rkind*/ 0, "",
+    return chm_sparse_to_SEXP(cx, 1/*do_free*/, 0, /*Rkind*/ 0, "",
 			      GET_SLOT(x, Matrix_DimNamesSym));
 }
 

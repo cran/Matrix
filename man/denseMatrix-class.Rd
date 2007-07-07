@@ -18,10 +18,6 @@
 \alias{rbind2,matrix,denseMatrix-method}
 \alias{rbind2,denseMatrix,numeric-method}
 \alias{rbind2,numeric,denseMatrix-method}
-\alias{colMeans,denseMatrix-method}
-\alias{colSums,denseMatrix-method}
-\alias{rowMeans,denseMatrix-method}
-\alias{rowSums,denseMatrix-method}
 \alias{dim<-,denseMatrix-method}
 %
 \description{This is the virtual class of all dense (S4) matrices.
@@ -55,6 +51,9 @@
   see \code{\link{[-methods}}.%-> ./Xtrct-methods.Rd
 }
 \seealso{
+  \code{\link{colSums}}, \code{\link{kronecker}}, and other such methods
+  with own help pages.
+
   Its superclass \code{\linkS4class{Matrix}}, and main subclasses,
   \code{\linkS4class{ddenseMatrix}} and \code{\linkS4class{sparseMatrix}}.
 }

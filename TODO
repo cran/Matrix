@@ -142,12 +142,6 @@ Check for DimNames propagation in coercion and other operations.
   !M  where M is "sparseMatrix", currently always gives dense. This only
   makes sense when M is ``really sparse''.
 
-- column names of sparse matrices are not printed;
-  we now "mention" them (if they are non-empty).
-  Option:
-	build show( <sparseMatrix>) on a function, possibly
-        print.sparseMatrix(), which gets an argument such as
-        'col.names.show  = FALSE' which is documented and can be set to TRUE
-
-- 'arules' needs fast colSums() and rowSums() - for ngCMatrix;
-  do it for "nMatrix" and "lMatrix" and return *integer*
+- log1p(<sparseMatrix>) "should" give <dsparseMatrix>
+  Pretty surely, this would happen automagically, if "log1p" became part of
+  "Math" group generic.

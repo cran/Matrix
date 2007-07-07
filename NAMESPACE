@@ -28,6 +28,7 @@ export("Cholesky",
        "lu",
        "norm",
        "nnzero",
+       "printSpMatrix",
        "rcond",
        "readHB",
        "readMM",
@@ -45,12 +46,17 @@ export("cBind",
 
 ## workaround S4-Group(generic|method) quirk: R/AllGeneric.R
 ## needs setGeneric(*, group=) and this for all non-Primitives :
-export(
-       ## "Math"
-       "log",
-       "gamma",
-       "lgamma",
 
+## "Math"
+
+if(getRversion() < "2.6.0" || R.version$`svn rev` < 42093) {
+    ## these are not yet primitive
+    export("log",
+           "gamma",
+           "lgamma")
+}
+
+export(
        ## "Math2"
        "round",
        "signif",
@@ -184,7 +190,8 @@ exportClasses(
 	      "isparseVector",
 	      "lsparseVector",
 	      "nsparseVector",
-	      "zsparseVector"
+	      "zsparseVector",
+	      "xsparseVector" # the class union of all 'x' lost sparseVector's
 	      )
 
 
@@ -236,6 +243,7 @@ exportMethods(
 	      "kronecker",
 	      "length",
 	      "norm",
+              "print",# print(x, ...) when show(x) is not sufficient
 	      "qr",
 	      "qr.qy",
 	      "qr.qty",

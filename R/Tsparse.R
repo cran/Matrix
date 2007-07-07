@@ -782,17 +782,6 @@ setMethod("solve", signature(a = "TsparseMatrix", b = "ANY"),
 setMethod("solve", signature(a = "TsparseMatrix", b = "missing"),
 	  function(a, b) solve(as(a, "CsparseMatrix")))
 
-## Not needed, have identical "sparseMatrix"
-## setMethod("colSums", signature(x = "TsparseMatrix"), .as.dgT.Fun,
-## 	  valueClass = "numeric")
-## setMethod("colMeans", signature(x = "TsparseMatrix"), .as.dgT.Fun,
-## 	  valueClass = "numeric")
-##
-## Here, "sparseMatrix" uses .as.dgC.Fun:
-setMethod("rowSums", signature(x = "TsparseMatrix"), .as.dgT.Fun,
-	  valueClass = "numeric")
-setMethod("rowMeans", signature(x = "TsparseMatrix"), .as.dgT.Fun,
-	  valueClass = "numeric")
 
 ## Want tril(), triu(), band() --- just as "indexing" ---
 ## return a "close" class:
@@ -807,6 +796,7 @@ setMethod("band", "TsparseMatrix",
 	  as(band(.T.2.C(x), k1 = k1, k2 = k2, ...), "TsparseMatrix"))
 
 
+## For the "general" T ones (triangular & symmetric have special methods):
 setMethod("t", signature(x = "TsparseMatrix"),
 	  function(x) {
 	      r <- new(class(x))
@@ -814,8 +804,8 @@ setMethod("t", signature(x = "TsparseMatrix"),
 	      r@j <- x@i
 	      if(any("x" == slotNames(x)))
 		  r@x <- x@x
-	      r@Dim <- rev(x@Dim)
-	      r@Dimnames <- rev(x@Dimnames)
+	      r@Dim <- x@Dim[2:1]
+	      r@Dimnames <- x@Dimnames[2:1]
 	      r
       })
 

@@ -18,6 +18,7 @@
 \alias{coerce,dgCMatrix,ngCMatrix-method}
 \alias{coerce,dgCMatrix,matrix-method}
 \alias{coerce,dgCMatrix,dgeMatrix-method}
+\alias{coerce,factor,dgCMatrix-method}
 \alias{crossprod,dgCMatrix,missing-method}
 \alias{crossprod,dgCMatrix,matrix-method}
 \alias{crossprod,dgCMatrix,dgeMatrix-method}
@@ -26,10 +27,6 @@
 \alias{image,dgCMatrix-method}
 \alias{lu,dgCMatrix-method}
 \alias{t,dgCMatrix-method}
-\alias{colMeans,dgCMatrix-method}
-\alias{colSums,dgCMatrix-method}
-\alias{rowMeans,dgCMatrix-method}
-\alias{rowSums,dgCMatrix-method}
 \alias{solve,dgCMatrix,matrix-method}
 \alias{solve,dgCMatrix,missing-method}
 \alias{solve,dgCMatrix,ddenseMatrix-method}

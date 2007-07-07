@@ -345,12 +345,9 @@ SEXP dgeMatrix_svd(SEXP x, SEXP nnu, SEXP nnv)
     if (dims[0] && dims[1]) {
 	int m = dims[0], n = dims[1], mm = (m < n)?m:n,
 	    lwork = -1, info;
-	int *iwork = Calloc(8 * mm, int);
 	double tmp, *work;
-/* 	int bdspac = 3*m*m + 4*m, */
-/* 	    wrkbl, maxwrk, minwrk, itmp, */
-/* 	    ione = 1, iminus1 = -1; */
-/* 	int i1, i2, i3; */
+	int *iwork = Alloca(8 * mm, int);
+	R_CheckStack();
 
 	SET_VECTOR_ELT(val, 0, allocVector(REALSXP, mm));
 	SET_VECTOR_ELT(val, 1, allocMatrix(REALSXP, m, mm));
@@ -361,20 +358,14 @@ SEXP dgeMatrix_svd(SEXP x, SEXP nnu, SEXP nnv)
 			 REAL(VECTOR_ELT(val, 2)), &mm,
 			 &tmp, &lwork, iwork, &info);
 	lwork = (int) tmp;
-/* 	F77_CALL(foo)(&i1, &i2, &i3); */
-/* 	wrkbl = 3*m+(m+n)*i1; */
-/* 	if (wrkbl < (itmp = 3*m + m*i2)) wrkbl = itmp; */
-/* 	if (wrkbl < (itmp = 3*m + m*i3)) wrkbl = itmp; */
-/* 	itmp = bdspac+3*m; */
-/* 	maxwrk = (wrkbl > itmp) ? wrkbl : itmp; */
-/* 	minwrk = 3*m + ((bdspac > n) ?  bdspac : n); */
-	work = Calloc(lwork, double);
+	work = Alloca(lwork, double);
+	R_CheckStack();
 	F77_CALL(dgesdd)("S", &m, &n, xx, &m,
 			 REAL(VECTOR_ELT(val, 0)),
 			 REAL(VECTOR_ELT(val, 1)), &m,
 			 REAL(VECTOR_ELT(val, 2)), &mm,
 			 work, &lwork, iwork, &info);
-	Free(iwork); Free(work);
+
     }
     UNPROTECT(1);
     return val;
@@ -405,15 +396,16 @@ SEXP dgeMatrix_exp(SEXP x)
     int *Dims = INTEGER(GET_SLOT(x, Matrix_DimSym));
     int i, ilo, ilos, ihi, ihis, j, nc = Dims[1], sqpow;
     int ncp1 = Dims[1] + 1, ncsqr = nc * nc;
-    int *pivot = Calloc(nc, int);
-    int *iperm = Calloc(nc, int);
-    double *dpp = Calloc(ncsqr, double), /* denominator power Pade' */
-	*npp = Calloc(ncsqr, double), /* numerator power Pade' */
-	*perm = Calloc(nc, double),
-	*scale = Calloc(nc, double),
+    int *pivot = Alloca(nc, int);
+    int *iperm = Alloca(nc, int);
+    double *dpp = Alloca(ncsqr, double), /* denominator power Pade' */
+	*npp = Alloca(ncsqr, double), /* numerator power Pade' */
+	*perm = Alloca(nc, double),
+	*scale = Alloca(nc, double),
 	*v = REAL(GET_SLOT(val, Matrix_xSym)),
-	*work = Calloc(ncsqr, double), inf_norm, m1_j, /* (-1)^j */
+	*work = Alloca(ncsqr, double), inf_norm, m1_j, /* (-1)^j */
 	one = 1., trshift, zero = 0.;
+    R_CheckStack();
 
     if (nc < 1 || Dims[0] != nc)
 	error(_("Matrix exponential requires square, non-null matrix"));
@@ -518,7 +510,6 @@ SEXP dgeMatrix_exp(SEXP x)
     }
 
     /* Clean up */
-    Free(dpp); Free(npp); Free(perm); Free(iperm); Free(pivot); Free(scale); Free(work);
     UNPROTECT(1);
     return val;
 }
@@ -543,13 +534,13 @@ SEXP dgeMatrix_Schur(SEXP x, SEXP vectors)
 		    &tmp, &lwork, (int *) NULL, &info);
     if (info) error(_("dgeMatrix_Schur: first call to dgees failed"));
     lwork = (int) tmp;
-    work = Calloc(lwork, double);
+    work = Alloca(lwork, double);
+    R_CheckStack();
     F77_CALL(dgees)(vecs ? "V" : "N", "N", NULL, dims, REAL(VECTOR_ELT(val, 2)), dims,
 		    &izero, REAL(VECTOR_ELT(val, 0)), REAL(VECTOR_ELT(val, 1)),
 		    REAL(VECTOR_ELT(val, 3)), dims, work, &lwork,
 		    (int *) NULL, &info);
     if (info) error(_("dgeMatrix_Schur: dgees returned code %d"), info);
-    Free(work);
     UNPROTECT(1);
     return val;
 }
@@ -582,7 +573,8 @@ SEXP dgeMatrix_colsums(SEXP x, SEXP naRmP, SEXP cols, SEXP mean)
     } else {
 	double *rans = REAL(ans), *ra = rans, *rx = xx, *Cnt = NULL, *c;
 	cnt = p;
-	if (!keepNA && doMean) Cnt = Calloc(n, double);
+	if (!keepNA && doMean) Cnt = Alloca(n, double);
+	R_CheckStack();
 	for (ra = rans, i = 0; i < n; i++) *ra++ = 0.0;
 	for (j = 0; j < p; j++) {
 	    ra = rans;
@@ -602,7 +594,6 @@ SEXP dgeMatrix_colsums(SEXP x, SEXP naRmP, SEXP cols, SEXP mean)
 	    else {
 		for (ra = rans, c = Cnt, i = 0; i < n; i++, c++)
 		    if (*c > 0) *ra++ /= *c; else *ra++ = NA_REAL;
-		Free(Cnt);
 	    }
 	}
     }

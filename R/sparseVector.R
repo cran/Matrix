@@ -5,13 +5,29 @@
 setAs("atomicVector", "sparseVector",
       function(from) {
 	  n <- length(from)
-	  if(is.numeric(from) && !is.double(from))
-	      from <- as.double(from)
-	  r <- new(paste(.M.kind(from), "sparseVector", sep=''), length = n)
+	  r <- new(paste(.V.kind(from), "sparseVector", sep=''), length = n)
 	  ii <- from != 0
 	  r@x <- from[ii]
 	  r@i <- seq_len(n)[ii]
 	  r
+      })
+
+
+for(T in c("d","i","l","z")) {
+    setAs("xsparseVector", paste(T, "sparseVector", sep=''),
+          function(from) {
+              from@x <- as(from@x, .type.kind[T])
+              ## and now "the hack":
+              class(from) <- paste(T, "sparseVector", sep='')
+              from
+          })
+}
+
+setAs("sparseVector", "nsparseVector",
+      function(from) {
+          if(any(is.na(from@x)))
+              stop("cannot coerce 'NA's to \"nsparseVector\"")
+          new("nsparseVector", i = from@i, length = from@length)
       })
 
 sp2vec <- function(x, mode = .type.kind[substr(cl, 1,1)]) {
@@ -312,12 +328,11 @@ setReplaceMethod("[", signature(x = "sparseVector", i = "index", j = "missing",
 
 
 
-## a "method" for c(<sparseVector>, <sparseVector>):
+## a "method" for c(<(sparse)Vector>, <(sparse)Vector>):
 c2v <- function(x, y) {
-    cx <- class(x)
-    cy <- class(y)
-    stopifnot(extends(cx, "sparseVector"),
-              extends(cy, "sparseVector"))
+    ## these as(., "sp..V..") check input implicitly:
+    cx <- class(x <- as(x, "sparseVector"))
+    cy <- class(y <- as(y, "sparseVector"))
     if(cx != cy) { ## find "common" class; result does have 'x' slot
         cxy <- c(cx,cy)
         commType <- {

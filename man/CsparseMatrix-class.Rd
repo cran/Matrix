@@ -24,10 +24,6 @@
 \alias{t,CsparseMatrix-method}
 \alias{tcrossprod,CsparseMatrix,CsparseMatrix-method}
 \alias{tcrossprod,CsparseMatrix,missing-method}
-\alias{colMeans,CsparseMatrix-method}
-\alias{colSums,CsparseMatrix-method}
-\alias{rowMeans,CsparseMatrix-method}
-\alias{rowSums,CsparseMatrix-method}
 %% Group methods --------- FIXME: not tested yet (or documented)
 \alias{Arith,CsparseMatrix,CsparseMatrix-method}
 \alias{Arith,CsparseMatrix,numeric-method}
@@ -87,8 +83,6 @@ Class \code{"Matrix"}, by class \code{"sparseMatrix"}.
     \item{coerce}{\code{signature(from = "CsparseMatrix", to = "nsparseMatrix")}: ... }
     \item{coerce}{\code{signature(from = "TsparseMatrix", to = "CsparseMatrix")}: ... }
     \item{coerce}{\code{signature(from = "denseMatrix", to = "CsparseMatrix")}: ... }
-    \item{colMeans}{\code{signature(x = "CsparseMatrix")}: ... }
-    \item{colSums}{\code{signature(x = "CsparseMatrix")}: ... }
     \item{crossprod}{\code{signature(x = "CsparseMatrix", y = "CsparseMatrix")}: ... }
     \item{crossprod}{\code{signature(x = "CsparseMatrix", y = "missing")}: ... }
     \item{crossprod}{\code{signature(x = "CsparseMatrix", y = "dgeMatrix")}: ... }
@@ -97,8 +91,6 @@ Class \code{"Matrix"}, by class \code{"sparseMatrix"}.
     \item{gamma}{\code{signature(x = "CsparseMatrix")}: ... }
     \item{lgamma}{\code{signature(x = "CsparseMatrix")}: ... }
     \item{log}{\code{signature(x = "CsparseMatrix")}: ... }
-    \item{rowMeans}{\code{signature(x = "CsparseMatrix")}: ... }
-    \item{rowSums}{\code{signature(x = "CsparseMatrix")}: ... }
     \item{t}{\code{signature(x = "CsparseMatrix")}: ... }
     \item{tcrossprod}{\code{signature(x = "CsparseMatrix", y = "CsparseMatrix")}: ... }
     \item{tcrossprod}{\code{signature(x = "CsparseMatrix", y = "missing")}: ... }
@@ -107,7 +99,11 @@ Class \code{"Matrix"}, by class \code{"sparseMatrix"}.
   }
 }
 \seealso{
-  its superclass, \code{\linkS4class{sparseMatrix}}, and, e.g.,
+  \code{\link{colSums}}, \code{\link{kronecker}}, and other such methods
+  with own help pages.
+
+  Further, the super class of \code{CsparseMatrix},
+  \code{\linkS4class{sparseMatrix}}, and, e.g.,
   class \code{\linkS4class{dgCMatrix}} for the links to other classes.
 }
 \examples{

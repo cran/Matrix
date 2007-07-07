@@ -9,34 +9,34 @@
 # define attribute_hidden
 #endif
 
-cholmod_dense attribute_hidden
-*M_as_cholmod_dense(SEXP x)
+CHM_DN attribute_hidden
+M_as_cholmod_dense(CHM_DN ans, SEXP x)
 {
-    static cholmod_dense*(*fun)(SEXP) = NULL;
+    static CHM_DN(*fun)(CHM_DN,SEXP) = NULL;
     if(fun == NULL)
-	fun = (cholmod_dense*(*)(SEXP))
+	fun = (CHM_DN(*)(CHM_DN,SEXP))
 	    R_GetCCallable("Matrix", "as_cholmod_dense");
-    return fun(x);
+    return fun(ans, x);
 }
 
-cholmod_factor attribute_hidden
-*M_as_cholmod_factor(SEXP x)
+CHM_FR attribute_hidden
+M_as_cholmod_factor(CHM_FR ans, SEXP x)
 {
-    static cholmod_factor*(*fun)(SEXP) = NULL;
+    static CHM_FR(*fun)(CHM_FR,SEXP) = NULL;
     if(fun == NULL)
-	fun = (cholmod_factor*(*)(SEXP))
+	fun = (CHM_FR(*)(CHM_FR,SEXP))
 	    R_GetCCallable("Matrix", "as_cholmod_factor");
-    return fun(x);
+    return fun(ans, x);
 }
 
-cholmod_sparse attribute_hidden
-*M_as_cholmod_sparse(SEXP x)
+CHM_SP attribute_hidden
+M_as_cholmod_sparse(CHM_SP ans, SEXP x)
 {
-    static cholmod_sparse*(*fun)(SEXP)= NULL;
+    static CHM_SP(*fun)(CHM_SP,SEXP)= NULL;
     if(fun == NULL)
-	fun = (cholmod_sparse*(*)(SEXP))
+	fun = (CHM_SP(*)(CHM_SP,SEXP))
 	    R_GetCCallable("Matrix", "as_cholmod_sparse");
-    return fun(x);
+    return fun(ans, x);
 }
 
 SEXP attribute_hidden
@@ -490,14 +490,14 @@ M_dpoMatrix_chol(SEXP x)
     return fun(x);
 }
 
-cholmod_dense attribute_hidden
-*M_numeric_as_chm_dense(double *v, int n)
+CHM_DN attribute_hidden
+M_numeric_as_chm_dense(CHM_DN ans, double *v, int n)
 {
-    static cholmod_dense*(*fun)(double*,int) = NULL;
+    static CHM_DN(*fun)(CHM_DN,double*,int) = NULL;
     if (fun == NULL)
-	fun = (cholmod_dense*(*)(double*,int))
+	fun = (CHM_DN(*)(CHM_DN,double*,int))
 	    R_GetCCallable("Matrix", "numeric_as_chm_dense");
-    return fun(v, n);
+    return fun(ans, v, n);
 }
 
 int attribute_hidden

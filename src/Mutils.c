@@ -150,89 +150,6 @@ SEXP dgCMatrix_set_Dim(SEXP x, int nrow)
     return x;
 }
 
-
-#if 0
-/**  The following two csc_ functions are identically usable for rcs__
- *
- * Check for unsorted columns in the row indices
- *
- * @param ncol number of columns
- * @param p column pointers
- * @param i row indices
- *
- * @return 0 if all columns are sorted, otherwise 1
- */
-int csc_unsorted_columns(int ncol, const int p[], const int i[])
-{
-    int j;
-    for (j = 0; j < ncol; j++) {
-	int ind, lst = p[j+1] - 1;
-	for (ind = p[j]; ind < lst; ind++) {
-	    if (i[ind] > i[ind+1]) return 1;
-	}
-    }
-    return 0;
-}
-
-/**
- * Sort the columns in a sparse column-oriented matrix so that each
- * column is in increasing order of row index.
- *
- * @param ncol number of columns
- * @param p column pointers
- * @param i row indices
- * @param x values of nonzero elements
- */
-void csc_sort_columns(int ncol, const int p[], int i[], double x[])
-{
-    int j, maxdiff, *ord;
-    double *dd = (double *) NULL;
-
-    maxdiff = -1;
-    for (j = 0; j < ncol; j++) {
-	int diff = p[j+1] - p[j];
-	if (diff > maxdiff) maxdiff = diff;
-    }
-    ord = Calloc(maxdiff, int);
-    if (x) dd = Calloc(maxdiff, double);
-    for (j = 0; j < ncol; j++) {
-	int cLen = p[j+1] - p[j];
-	if (cLen > 1) {
-	    int k, offset = p[j];
-	    for (k = 0; k < cLen; k++) ord[k] = k;
-	    R_qsort_int_I(i + offset, ord, 1, cLen);
-	    if (x) {
-		for (k = 0; k < cLen; k++) dd[k] = x[ord[k] + offset];
-		Memcpy(x + offset, dd, cLen);
-	    }
-	}
-    }
-    Free(ord);
-    if (x) Free(dd);
-}
-#endif
-
-#if 0
-/**
- * Check for sorted columns in an object that inherits from the
- * dgCMatrix class.  Resort the columns if necessary.
- *
- * @param m pointer to an object that inherits from the dgCMatrix class
- *
- * @return m with the columns sorted by increasing row index
- */
-SEXP csc_check_column_sorting(SEXP m)
-{
-    int *mp = INTEGER(GET_SLOT(m, Matrix_pSym)),
-	*mi = INTEGER(GET_SLOT(m, Matrix_iSym)),
-	ncol = INTEGER(GET_SLOT(m, Matrix_DimSym))[1];
-
-    if (csc_unsorted_columns(ncol, mp, mi))
-	csc_sort_columns(ncol, mp, mi, REAL(GET_SLOT(m, Matrix_xSym)));
-    return m;
-}
-#endif
-
 /* Fill in the "trivial remainder" in  n*m  array ;
  *  typically the 'x' slot of a "dtrMatrix" :
  * But should be usable for double/logical/int/complex : */
@@ -317,7 +234,7 @@ SEXP check_scalar_string(SEXP sP, char *vals, char *nm)
     SEXP val = ScalarLogical(1);
     char *buf;
     /* only allocate when needed: in good case, none is needed */
-#define SPRINTF buf = Calloc(Matrix_Error_Bufsiz, char); sprintf
+#define SPRINTF buf = Alloca(Matrix_Error_Bufsiz, char); R_CheckStack(); sprintf
 
     if (length(sP) != 1) {
 	SPRINTF(buf, _("'%s' slot must have length 1"), nm);
@@ -336,7 +253,6 @@ SEXP check_scalar_string(SEXP sP, char *vals, char *nm)
     }
     /* 'error' returns : */
     val = mkString(buf);
-    Free(buf);
     return val;
 #undef SPRINTF
 }

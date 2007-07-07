@@ -4,18 +4,20 @@
 cholmod_common c;
 
 /**
- * Create a cholmod_sparse object with the contents of x.  Note that
- * the result should *not* be freed with cholmod_sparse_free.  Use
- * Free on the result.
+ * Populate ans with the pointers from x and modify its scalar
+ * elements accordingly. Note that later changes to the contents of
+ * ans will change the contents of the SEXP.
  *
+ * In most cases this function is called through the macro AS_CHM_SP.
+ * It is unusual to call it directly.
+ *
+ * @param ans a CHM_SP pointer
  * @param x pointer to an object that inherits from CsparseMatrix
  *
- * @return pointer to a cholmod_triplet object that contains pointers
- * to the slots of x.
+ * @return ans containing pointers to the slots of x.
  */
-cholmod_sparse *as_cholmod_sparse(SEXP x)
+CHM_SP as_cholmod_sparse(CHM_SP ans, SEXP x)
 {
-    cholmod_sparse *ans = Calloc(1, cholmod_sparse);
     char *valid[] = {"dgCMatrix", "dsCMatrix", "dtCMatrix",
 		     "lgCMatrix", "lsCMatrix", "ltCMatrix",
 		     "ngCMatrix", "nsCMatrix", "ntCMatrix",
@@ -26,8 +28,9 @@ cholmod_sparse *as_cholmod_sparse(SEXP x)
     SEXP islot = GET_SLOT(x, Matrix_iSym);
 
     if (ctype < 0) error("invalid class of object to as_cholmod_sparse");
-				/* characteristics of the system */
-    ans->itype = CHOLMOD_INT;
+    memset(ans, 0, sizeof(cholmod_sparse)); /* zero the struct */
+
+    ans->itype = CHOLMOD_INT;	/* characteristics of the system */
     ans->dtype = CHOLMOD_DOUBLE;
     ans->packed = TRUE;
     ans->sorted = TRUE;
@@ -93,7 +96,7 @@ cholmod_sparse *as_cholmod_sparse(SEXP x)
  *
  * @return SEXP containing a copy of a
  */
-SEXP chm_sparse_to_SEXP(cholmod_sparse *a, int dofree, int uploT, int Rkind,
+SEXP chm_sparse_to_SEXP(CHM_SP a, int dofree, int uploT, int Rkind,
 			const char* diag, SEXP dn)
 {
     SEXP ans;
@@ -169,18 +172,20 @@ SEXP chm_sparse_to_SEXP(cholmod_sparse *a, int dofree, int uploT, int Rkind,
 }
 
 /**
- * Create a cholmod_triplet object with the contents of Tsparse x.
- * Note that the result should *not* be freed with
- * cholmod_triplet_free.  Use Free on the result.
+ * Populate ans with the pointers from x and modify its scalar
+ * elements accordingly. Note that later changes to the contents of
+ * ans will change the contents of the SEXP.
  *
+ * In most cases this function is called through the macro AS_CHM_SP.
+ * It is unusual to call it directly.
+ *
+ * @param ans a CHM_TR pointer
  * @param x pointer to an object that inherits from TsparseMatrix
  *
- * @return pointer to a cholmod_triplet object that contains pointers
- * to the slots of x.
+ * @return ans containing pointers to the slots of x.
  */
-cholmod_triplet *as_cholmod_triplet(SEXP x)
+CHM_TR as_cholmod_triplet(CHM_TR ans, SEXP x)
 {
-    cholmod_triplet *ans = Calloc(1, cholmod_triplet);
     char *valid[] = {"dgTMatrix", "dsTMatrix", "dtTMatrix",
 		     "lgTMatrix", "lsTMatrix", "ltTMatrix",
 		     "ngTMatrix", "nsTMatrix", "ntTMatrix",
@@ -190,8 +195,9 @@ cholmod_triplet *as_cholmod_triplet(SEXP x)
     SEXP islot;
 
     if (ctype < 0) error("invalid class of object to as_cholmod_triplet");
-				/* characteristics of the system */
-    ans->itype = CHOLMOD_INT;
+    memset(ans, 0, sizeof(cholmod_triplet)); /* zero the struct */
+
+    ans->itype = CHOLMOD_INT;	/* characteristics of the system */
     ans->dtype = CHOLMOD_DOUBLE;
     ans->x = ans->z = (void *) NULL;
 				/* dimensions and nzmax */
@@ -220,7 +226,7 @@ cholmod_triplet *as_cholmod_triplet(SEXP x)
  *
  * @return SEXP containing a copy of a
  */
-SEXP chm_triplet_to_SEXP(cholmod_triplet *a, int dofree, int uploT, int Rkind,
+SEXP chm_triplet_to_SEXP(CHM_TR a, int dofree, int uploT, int Rkind,
 			 const char* diag, SEXP dn)
 {
     SEXP ans;
@@ -299,19 +305,21 @@ SEXP chm_triplet_to_SEXP(cholmod_triplet *a, int dofree, int uploT, int Rkind,
 }
 
 /**
- * Create a cholmod_dense object with the contents of x.  Note that
- * the result should *not* be freed with cholmod_dense_free.  Use
- * Free on the result.
+ * Populate ans with the pointers from x and modify its scalar
+ * elements accordingly. Note that later changes to the contents of
+ * ans will change the contents of the SEXP.
  *
+ * In most cases this function is called through the macro AS_CHM_DN.
+ * It is unusual to call it directly.
+ *
+ * @param ans a CHM_DN pointer.
  * @param x pointer to an object that inherits from (denseMatrix ^ generalMatrix)
  *
- * @return pointer to a cholmod_dense object that contains a pointer
- * to the contents of x.
+ * @return ans containing pointers to the slots of x.
  */
-cholmod_dense *as_cholmod_dense(SEXP x)
+CHM_DN as_cholmod_dense(CHM_DN ans, SEXP x)
 {
 #define _AS_cholmod_dense_1						\
-    cholmod_dense *ans = Calloc(1, cholmod_dense);			\
     char *valid[] = {"dmatrix", "dgeMatrix",				\
 		     "lmatrix", "lgeMatrix",				\
 		     "nmatrix", "ngeMatrix",				\
@@ -329,9 +337,10 @@ cholmod_dense *as_cholmod_dense(SEXP x)
 		 (isLogical(x) ? 2 : /* logical -> default to "l", not "n" */ \
 		  (isComplex(x) ? 6 : -1)));				\
     } else Memcpy(dims, INTEGER(GET_SLOT(x, Matrix_DimSym)), 2);	\
-    if (ctype < 0) error("invalid class of object to as_cholmod_dense"); \
-				/* characteristics of the system */	\
-    ans->dtype = CHOLMOD_DOUBLE;					\
+    if (ctype < 0) error("invalid class of object to as_cholmod_dense");\
+    memset(ans, 0, sizeof(cholmod_dense)); /* zero the struct */        \
+                                                                        \
+    ans->dtype = CHOLMOD_DOUBLE; /* characteristics of the system */	\
     ans->x = ans->z = (void *) NULL;					\
 				/* dimensions and nzmax */		\
     ans->d = ans->nrow = dims[0];					\
@@ -372,7 +381,7 @@ cholmod_dense *as_cholmod_dense(SEXP x)
 /* version of as_cholmod_dense() that produces a cholmod_dense matrix
  * with REAL 'x' slot -- i.e. treats "nMatrix" as "lMatrix" -- as only difference;
  * Not just via a flag in as_cholmod_dense() since that has fixed API */
-cholmod_dense *as_cholmod_x_dense(SEXP x)
+CHM_DN as_cholmod_x_dense(cholmod_dense *ans, SEXP x)
 {
     _AS_cholmod_dense_1;
 
@@ -392,7 +401,7 @@ cholmod_dense *as_cholmod_x_dense(SEXP x)
 
 void R_cholmod_error(int status, char *file, int line, char *message)
 {
-    error(_("Cholmod error `%s' at file:%s, line %d"), message, file, line);
+    error(_("Cholmod error '%s' at file:%s, line %d"), message, file, line);
 }
 
 /**
@@ -403,7 +412,7 @@ void R_cholmod_error(int status, char *file, int line, char *message)
  *
  * @return CHOLMOD_OK if successful
  */
-int R_cholmod_start(cholmod_common *c)
+int R_cholmod_start(CHM_CM c)
 {
     int res;
     if (!(res = cholmod_start(c)))
@@ -426,7 +435,7 @@ int R_cholmod_start(cholmod_common *c)
 
 /* FIXME: should also have args  (int uploST, char *diag) */
 
-SEXP chm_dense_to_SEXP(cholmod_dense *a, int dofree, int Rkind, SEXP dn)
+SEXP chm_dense_to_SEXP(CHM_DN a, int dofree, int Rkind, SEXP dn)
 {
     SEXP ans;
     char *cl = ""; /* -Wall */
@@ -500,7 +509,7 @@ SEXP chm_dense_to_SEXP(cholmod_dense *a, int dofree, int Rkind, SEXP dn)
  *
  * @return SEXP containing a copy of a as a matrix object
  */
-SEXP chm_dense_to_matrix(cholmod_dense *a, int dofree, SEXP dn)
+SEXP chm_dense_to_matrix(CHM_DN a, int dofree, SEXP dn)
 {
     SEXP ans;
     SEXPTYPE typ;
@@ -532,10 +541,8 @@ SEXP chm_dense_to_matrix(cholmod_dense *a, int dofree, SEXP dn)
     return ans;
 }
 
-cholmod_dense *numeric_as_chm_dense(double *v, int n)
+CHM_DN numeric_as_chm_dense(CHM_DN ans, double *v, int n)
 {
-    cholmod_dense *ans = Calloc(1, cholmod_dense);
-
     ans->d = ans->nzmax = ans->nrow = n;
     ans->ncol = 1;
     ans->x = (void *) v;
@@ -545,32 +552,34 @@ cholmod_dense *numeric_as_chm_dense(double *v, int n)
 }
 
 /**
- * Create a cholmod_factor object from the contents of x.  Note that
- * the result should *not* be freed with cholmod_free_factor.  Use
- * Free on the result.
+ * Populate ans with the pointers from x and modify its scalar
+ * elements accordingly. Note that later changes to the contents of
+ * ans will change the contents of the SEXP.
  *
+ * In most cases this function is called through the macro AS_CHM_FR.
+ * It is unusual to call it directly.
+ *
+ * @param ans an CHM_FR object
  * @param x pointer to an object that inherits from CHMfactor
  *
- * @return pointer to a cholmod_dense object that contains a pointer
- * to the contents of x.
+ * @return ans containing pointers to the slots of x.
  */
-cholmod_factor *as_cholmod_factor(SEXP x)
+CHM_FR as_cholmod_factor(CHM_FR ans, SEXP x)
 {
-    cholmod_factor *ans = Calloc(1, cholmod_factor);
     char *valid[] = {"dCHMsuper", "dCHMsimpl", "nCHMsuper", "nCHMsimpl", ""};
     int *type = INTEGER(GET_SLOT(x, install("type"))),
 	ctype = Matrix_check_class(class_P(x), valid);
     SEXP tmp;
 
     if (ctype < 0) error("invalid class of object to as_cholmod_factor");
-				/* characteristics of the system */
-    ans->itype = CHOLMOD_INT;
+    memset(ans, 0, sizeof(cholmod_factor)); /* zero the struct */
+
+    ans->itype = CHOLMOD_INT;	/* characteristics of the system */
     ans->dtype = CHOLMOD_DOUBLE;
     ans->z = (void *) NULL;
     ans->xtype = (ctype < 2) ? CHOLMOD_REAL : CHOLMOD_PATTERN;
 
-				/* unravel the type */
-    ans->ordering = type[0];
+    ans->ordering = type[0];	/* unravel the type */
     ans->is_ll = (type[1] ? 1 : 0);
     ans->is_super = (type[2] ? 1 : 0);
     ans->is_monotonic = (type[3] ? 1 : 0);
@@ -629,7 +638,7 @@ cholmod_factor *as_cholmod_factor(SEXP x)
  *
  * @return SEXP containing a copy of a
  */
-SEXP chm_factor_to_SEXP(cholmod_factor *f, int dofree)
+SEXP chm_factor_to_SEXP(CHM_FR f, int dofree)
 {
     SEXP ans;
     int *dims, *type;

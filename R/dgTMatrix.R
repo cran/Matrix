@@ -132,17 +132,3 @@ setMethod("writeHB", signature(obj = "dgTMatrix"),
 setMethod("writeMM", signature(obj = "dgTMatrix"),
 	  function(obj, file, ...)
 	  .Call(Matrix_writeMatrixMarket, obj, as.character(file), "DGT"))
-
-
-setMethod("colSums", signature(x = "dgTMatrix"),
-	  function(x, na.rm = FALSE, dims = 1, sparseResult = FALSE)
-	  sparsapply(x, 2, sum, sparseResult = sparseResult, na.rm = na.rm))
-
-setMethod("rowSums", signature(x = "dgTMatrix"),
-	  function(x, na.rm = FALSE, dims = 1, sparseResult = FALSE)
-	  sparsapply(x, 1, sum, sparseResult = sparseResult, na.rm = na.rm))
-
-setMethod("colMeans", signature(x = "dgTMatrix"), sp.colMeans)
-
-setMethod("rowMeans", signature(x = "dgTMatrix"), sp.rowMeans)
-

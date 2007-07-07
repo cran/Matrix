@@ -2,12 +2,13 @@
 
 SEXP sparseQR_validate(SEXP x)
 {
-    cs *V = Matrix_as_cs(GET_SLOT(x, install("V"))),
-	*R = Matrix_as_cs(GET_SLOT(x, install("R")));
+    CSP V = AS_CSP(GET_SLOT(x, install("V"))),
+	R = AS_CSP(GET_SLOT(x, install("R")));
     SEXP beta = GET_SLOT(x, install("beta")),
 	p = GET_SLOT(x, Matrix_pSym),
 	q = GET_SLOT(x, install("q"));
     int	lq = LENGTH(q);
+    R_CheckStack();
 
     if (LENGTH(p) != V->m)
 	return mkString(_("length(p) must match nrow(V)"));
@@ -37,7 +38,8 @@ void sparseQR_Qmult(cs *V, double *beta, int *p, int trans,
 		    double *y, int *ydims)
 {
     int j, k, m = V->m, n = V->n;
-    double *x = Calloc(m, double);	/* workspace */
+    double *x = Alloca(m, double);	/* workspace */
+    R_CheckStack();
 
     if (ydims[0] != m)
 	error(_("Dimensions of system are inconsistent"));
@@ -55,22 +57,20 @@ void sparseQR_Qmult(cs *V, double *beta, int *p, int trans,
 	    Memcpy(yj, x, m);
 	}
     }
-    Free(x);
 }
 
 
 SEXP sparseQR_qty(SEXP qr, SEXP y, SEXP trans)
 {
     SEXP ans = PROTECT(dup_mMatrix_as_dgeMatrix(y));
-    cs *V = Matrix_as_cs(GET_SLOT(qr, install("V")));
+    CSP V = AS_CSP(GET_SLOT(qr, install("V")));
+    R_CheckStack();
 
     sparseQR_Qmult(V, REAL(GET_SLOT(qr, install("beta"))),
 		   INTEGER(GET_SLOT(qr, Matrix_pSym)),
 		   asLogical(trans),
 		   REAL(GET_SLOT(ans, Matrix_xSym)),
 		   INTEGER(GET_SLOT(ans, Matrix_DimSym)));
-
-    Free(V);
     UNPROTECT(1);
     return ans;
 }
@@ -79,13 +79,15 @@ SEXP sparseQR_coef(SEXP qr, SEXP y)
 {
     SEXP ans = PROTECT(dup_mMatrix_as_dgeMatrix(y)),
 	qslot = GET_SLOT(qr, install("q"));
-    cs *V = Matrix_as_cs(GET_SLOT(qr, install("V"))),
-	*R = Matrix_as_cs(GET_SLOT(qr, install("R")));
+    CSP V = AS_CSP(GET_SLOT(qr, install("V"))),
+	R = AS_CSP(GET_SLOT(qr, install("R")));
     int *ydims = INTEGER(GET_SLOT(ans, Matrix_DimSym)),
 	*q = INTEGER(qslot),
 	j, lq = LENGTH(qslot), m = R->m, n = R->n;
     double *ax = REAL(GET_SLOT(ans, Matrix_xSym)),
-	*x = Calloc(m, double);
+	*x = Alloca(m, double);
+    R_CheckStack();
+    R_CheckStack();
 
     /* apply row permutation and multiply by Q' */
     sparseQR_Qmult(V, REAL(GET_SLOT(qr, install("beta"))),
@@ -99,7 +101,6 @@ SEXP sparseQR_coef(SEXP qr, SEXP y)
 	    Memcpy(aj, x, n);
 	}
     }
-    Free(V); Free(R); Free(x);
     UNPROTECT(1);
     return ans;
 }
@@ -107,12 +108,13 @@ SEXP sparseQR_coef(SEXP qr, SEXP y)
 SEXP sparseQR_resid_fitted(SEXP qr, SEXP y, SEXP resid)
 {
     SEXP ans = PROTECT(dup_mMatrix_as_dgeMatrix(y));
-    cs *V = Matrix_as_cs(GET_SLOT(qr, install("V")));
+    CSP V = AS_CSP(GET_SLOT(qr, install("V")));
     int *ydims = INTEGER(GET_SLOT(ans, Matrix_DimSym)),
 	*p = INTEGER(GET_SLOT(qr, Matrix_pSym)),
 	i, j, m = V->m, n = V->n, res = asLogical(resid);
     double *ax = REAL(GET_SLOT(ans, Matrix_xSym)),
 	*beta = REAL(GET_SLOT(qr, install("beta")));
+    R_CheckStack();
 
     /* apply row permutation and multiply by Q' */
     sparseQR_Qmult(V, beta, p, 1, ax, ydims);
@@ -124,6 +126,7 @@ SEXP sparseQR_resid_fitted(SEXP qr, SEXP y, SEXP resid)
     }
     /* multiply by Q and apply inverse row permutation */
     sparseQR_Qmult(V, beta, p, 0, ax, ydims);
+
     UNPROTECT(1);
     return ans;
 }

@@ -16,10 +16,6 @@
 \alias{crossprod,dgTMatrix,matrix-method}
 \alias{crossprod,dgTMatrix,numeric-method}
 \alias{image,dgTMatrix-method}
-\alias{colMeans,dgTMatrix-method}
-\alias{colSums,dgTMatrix-method}
-\alias{rowMeans,dgTMatrix-method}
-\alias{rowSums,dgTMatrix-method}
 \description{The \code{"dgTMatrix"} class is the class of sparse
   matrices stored as (possibly redundant) triplets.  The internal
   representation is not at all unique, contrary to the one for class

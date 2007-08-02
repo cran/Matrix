@@ -1,6 +1,7 @@
 \name{dsyMatrix-class}
 \docType{class}
 \alias{\%*\%,ddenseMatrix,dsyMatrix-method}
+\alias{\%*\%,matrix,dsyMatrix-method}
 \alias{\%*\%,dspMatrix,ddenseMatrix-method}
 \alias{\%*\%,dspMatrix,matrix-method}
 \alias{\%*\%,dsyMatrix,ddenseMatrix-method}

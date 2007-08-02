@@ -6,13 +6,12 @@
 \description{The \code{dsRMatrix} class is a class of symmetric, sparse
   matrices in the compressed, row-oriented format.  In this
   implementation the non-zero elements in the rows are sorted into
-  increasing row order.
+  increasing column order.
 }
 \section{Objects from the Class}{
   These \code{"..RMatrix"} classes are currently still mostly unimplemented!
 
-  Objects can be created by calls of the form \code{new("dsRMatrix", ...)}
-  or \code{new("dtRMatrix", ...)}.
+  Objects can be created by calls of the form \code{new("dsRMatrix", ...)}.
 }
 \section{Slots}{
   \describe{
@@ -64,12 +63,13 @@ Class \code{"Matrix"}, by class \code{"dgRMatrix"}.
   \code{\linkS4class{dgTMatrix}}, and \code{\linkS4class{dgeMatrix}}.
 }
 \examples{
-m0 <- new("dsRMatrix")
-## FIXME: print() fails
-m2 <- new("dsRMatrix", x = 0+1:4, Dim = as.integer(c(2,2)))
-## FIXME: print() fails
+(m0 <- new("dsRMatrix"))
+m2 <- new("dsRMatrix", Dim = c(2L,2L),
+          x = c(3,1), j = c(1L,1L), p = 0:2)
+m2
+stopifnot(colSums(as(m2, "TsparseMatrix")) == 3:4)
 str(m2)
-if(FALSE)## FIXME
+if(FALSE)## FIXME: missing coercion
 str(m3 <- as(Matrix(diag(2)), "dsRMatrix"))
 }
 \keyword{classes}

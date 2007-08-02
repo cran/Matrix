@@ -42,19 +42,25 @@ setMethod("as.vector", signature(x = "dgeMatrix", mode = "missing"),
 
 setMethod("norm", signature(x = "dgeMatrix", type = "missing"),
 	  function(x, type, ...) norm(x, type = "O", ...))
-
 setMethod("norm", signature(x = "dgeMatrix", type = "character"),
-	  function(x, type, ...)
-	  .Call(dgeMatrix_norm, x, type),
+	  function(x, type, ...) .Call(dgeMatrix_norm, x, type),
 	  valueClass = "numeric")
 
 setMethod("rcond", signature(x = "dgeMatrix", type = "missing"),
 	  function(x, type, ...) rcond(x, type = "O", ...))
-
 setMethod("rcond", signature(x = "dgeMatrix", type = "character"),
-	  function(x, type, ...)
-	  .Call(dgeMatrix_rcond, x, type),
+	  function(x, type, ...) .Call(dgeMatrix_rcond, x, type),
 	  valueClass = "numeric")
+
+##--- the same for "traditional"  'matrix':
+setMethod("norm", signature(x = "matrix", type = "character"),
+	  function(x, type, ...) .Call(dgeMatrix_norm, as(x,"dgeMatrix"), type),
+	  valueClass = "numeric")
+
+setMethod("rcond", signature(x = "matrix", type = "character"),
+	  function(x, type, ...) .Call(dgeMatrix_rcond, as(x,"dgeMatrix"), type),
+	  valueClass = "numeric")
+
 
 setMethod("t", signature(x = "dgeMatrix"), t_geMatrix)
 

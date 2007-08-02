@@ -2,7 +2,9 @@
 #include "dtCMatrix.h"
 #include "cs_utils.h"
 
-/* This should be use for *BOTH* triangular and symmetric Csparse: */
+#define RETURN(_CH_)   UNPROTECT(1); return (_CH_);
+
+/* This is used for *BOTH* triangular and symmetric Csparse: */
 SEXP tCMatrix_validate(SEXP x)
 {
     SEXP val = xCMatrix_validate(x);/* checks x slot */
@@ -16,8 +18,6 @@ SEXP tCMatrix_validate(SEXP x)
 	    k, nnz = length(islot),
 	    *xi = INTEGER(islot),
 	    *xj = INTEGER(PROTECT(allocVector(INTSXP, nnz)));
-
-#define RETURN(_CH_)   UNPROTECT(1); return (_CH_);
 
 	expand_cmprPt(length(pslot) - 1, INTEGER(pslot), xj);
 
@@ -38,6 +38,43 @@ SEXP tCMatrix_validate(SEXP x)
 	RETURN(ScalarLogical(1));
     }
 }
+
+/* This is used for *BOTH* triangular and symmetric Rsparse: */
+SEXP tRMatrix_validate(SEXP x)
+{
+    SEXP val = xRMatrix_validate(x);/* checks x slot */
+    if(isString(val))
+	return(val);
+    else {
+	SEXP
+	    jslot = GET_SLOT(x, Matrix_jSym),
+	    pslot = GET_SLOT(x, Matrix_pSym);
+	int uploT = (*uplo_P(x) == 'U'),
+	    k, nnz = length(jslot),
+	    *xj = INTEGER(jslot),
+	    *xi = INTEGER(PROTECT(allocVector(INTSXP, nnz)));
+
+	expand_cmprPt(length(pslot) - 1, INTEGER(pslot), xi);
+
+	/* Maybe FIXME: ">" should be ">="	for diag = 'U' (uplo = 'U') */
+	if(uploT) {
+	    for (k = 0; k < nnz; k++)
+		if(xi[k] > xj[k]) {
+		    RETURN(mkString(_("uplo='U' must not have sparse entries in lower diagonal")));
+		}
+	}
+	else {
+	    for (k = 0; k < nnz; k++)
+		if(xi[k] < xj[k]) {
+		    RETURN(mkString(_("uplo='L' must not have sparse entries in upper diagonal")));
+		}
+	}
+
+	RETURN(ScalarLogical(1));
+    }
+}
+
+
 #undef RETURN
 
 /**
@@ -124,10 +161,10 @@ SEXP dtCMatrix_solve(SEXP a)
     int *xi = Alloca(2*A->n, int);	/* for cs_reach */
     R_CheckStack();
 
-    SET_SLOT(ans, Matrix_DimSym, duplicate(GET_SLOT(a, Matrix_DimSym)));
+    slot_dup(ans, a, Matrix_DimSym);
     SET_DimNames(ans, a);
-    SET_SLOT(ans, Matrix_uploSym, duplicate(GET_SLOT(a, Matrix_uploSym)));
-    SET_SLOT(ans, Matrix_diagSym, duplicate(GET_SLOT(a, Matrix_diagSym)));
+    slot_dup(ans, a, Matrix_uploSym);
+    slot_dup(ans, a, Matrix_diagSym);
     /* initialize the "constant part" of the sparse unit vector */
     u->x[0] = 1.;
     u->p[0] = 0; u->p[1] = 1;
@@ -225,10 +262,10 @@ SEXP dtCMatrix_upper_solve(SEXP a)
     nz = bp[n];
     Memcpy(INTEGER(ALLOC_SLOT(ans, Matrix_iSym, INTSXP, nz)), ti, nz);
     Memcpy(REAL(ALLOC_SLOT(ans, Matrix_xSym, REALSXP, nz)), tx, nz);
-    SET_SLOT(ans, Matrix_DimSym, duplicate(GET_SLOT(a, Matrix_DimSym)));
+    slot_dup(ans, a, Matrix_DimSym);
     SET_DimNames(ans, a);
-    SET_SLOT(ans, Matrix_uploSym, duplicate(GET_SLOT(a, Matrix_uploSym)));
-    SET_SLOT(ans, Matrix_diagSym, duplicate(GET_SLOT(a, Matrix_diagSym)));
+    slot_dup(ans, a, Matrix_uploSym);
+    slot_dup(ans, a, Matrix_diagSym);
     UNPROTECT(1);
     return ans;
 }

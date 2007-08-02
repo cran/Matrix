@@ -23,6 +23,7 @@
 #ifndef NCHECK
 
 #include "cholmod_internal.h"
+#include "cholmod_matrixops.h"
 #include "cholmod_check.h"
 #include <string.h>
 #include <ctype.h>

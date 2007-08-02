@@ -13,21 +13,22 @@ setAs("matrix", "dsyMatrix",
       function(from) as(as(from, "dgeMatrix"), "dsyMatrix"))
 
 setAs("dsyMatrix", "matrix",
-      function(from) .Call(dsyMatrix_as_matrix, from))
+      function(from) .Call(dsyMatrix_as_matrix, from, TRUE))
 
 setAs("dsyMatrix", "dspMatrix",
       function(from) .Call(dsyMatrix_as_dspMatrix, from))
 
 setAs("dsyMatrix", "dsTMatrix",
       function(from) { # 'dsT': only store upper *or* lower
-          ## working via "matrix" : not very efficient  (FIXME)
-          ij <- which((m <- as(from,"matrix")) != 0, arr.ind = TRUE)
-          uplo <- from@uplo
-          ij <- ij[if(uplo == "U") ij[,1] <= ij[,2] else ij[,1] >= ij[,2] ,
-                   , drop = FALSE]
-          new("dsTMatrix", i = ij[,1] - 1L, j = ij[,2] - 1L,
-              x = as.vector(m[ij]), uplo = uplo,
-              Dim = from@Dim, Dimnames = from@Dimnames)
+	  ## working via "matrix" : not very efficient	(FIXME)
+	  m <- .Call(dsyMatrix_as_matrix, from, FALSE) # no dimnames!
+	  ij <- which(m != 0, arr.ind = TRUE)
+	  uplo <- from@uplo
+	  ij <- ij[if(uplo == "U") ij[,1] <= ij[,2] else ij[,1] >= ij[,2] ,
+		   , drop = FALSE]
+	  new("dsTMatrix", i = ij[,1] - 1L, j = ij[,2] - 1L,
+	      x = as.vector(m[ij]), uplo = uplo,
+	      Dim = from@Dim, Dimnames = from@Dimnames)
       })
 
 setAs("dsyMatrix", "dsCMatrix",
@@ -51,11 +52,12 @@ setMethod("rcond", signature(x = "dsyMatrix", type = "missing"),
 
 setMethod("%*%", signature(x = "dsyMatrix", y = "ddenseMatrix"),
           function(x, y) .Call(dsyMatrix_matrix_mm, x, y, FALSE))
-
 setMethod("%*%", signature(x = "dsyMatrix", y = "matrix"),
           function(x, y) .Call(dsyMatrix_matrix_mm, x, y, FALSE))
 
 setMethod("%*%", signature(x = "ddenseMatrix", y = "dsyMatrix"),
+          function(x, y) .Call(dsyMatrix_matrix_mm, y, x, TRUE))
+setMethod("%*%", signature(x = "matrix", y = "dsyMatrix"),
           function(x, y) .Call(dsyMatrix_matrix_mm, y, x, TRUE))
 
 setMethod("solve", signature(a = "dsyMatrix", b = "missing"),

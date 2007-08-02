@@ -19,7 +19,7 @@
 									\
     SET_SLOT(val, Matrix_DimSym, duplicate(dimP));			\
     SET_DimNames(val, x);						\
-    SET_SLOT(val, Matrix_uploSym, duplicate(GET_SLOT(x, Matrix_uploSym)))
+    slot_dup(val, x, Matrix_uploSym)
 
 #define Matrix_T_as_DENSE_FINISH(_X_k_)		\
     AZERO(tx, sz);				\
@@ -52,7 +52,7 @@ SEXP dtTMatrix_as_dtrMatrix(SEXP x)
     SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dtrMatrix")));
 
     Matrix_T_as_DENSE(double, REAL, REALSXP);
-    SET_SLOT(val, Matrix_diagSym, duplicate(GET_SLOT(x, Matrix_diagSym)));
+    slot_dup(val, x, Matrix_diagSym);
     Matrix_T_as_DENSE_FINISH(xx[k]);
 }
 
@@ -61,7 +61,7 @@ SEXP ltTMatrix_as_ltrMatrix(SEXP x)
     SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("ltrMatrix")));
 
     Matrix_T_as_DENSE(int, LOGICAL, LGLSXP);
-    SET_SLOT(val, Matrix_diagSym, duplicate(GET_SLOT(x, Matrix_diagSym)));
+    slot_dup(val, x, Matrix_diagSym);
     Matrix_T_as_DENSE_FINISH(xx[k]);
 }
 
@@ -102,7 +102,7 @@ SEXP ltTMatrix_as_ltrMatrix(SEXP x)
     vj = INTEGER(ALLOC_SLOT(val, Matrix_jSym, INTSXP, nv));		\
     MAYBE_ALLOC_val_x_SLOT(_SEXP_, _SEXPTYPE_);				\
 									\
-    SET_SLOT(val, Matrix_DimSym, duplicate(GET_SLOT(x, Matrix_DimSym))); \
+    slot_dup(val, x, Matrix_DimSym); \
     SET_DimNames(val, x);						\
     /* copy the upper/lower triangle (including the diagonal)*/		\
     /* "at end" ([nv]): */						\
@@ -163,7 +163,7 @@ SEXP ntTMatrix_as_ntrMatrix(SEXP x)
     SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("ntrMatrix")));
 
     Matrix_T_as_DENSE(int, LOGICAL, LGLSXP);
-    SET_SLOT(val, Matrix_diagSym, duplicate(GET_SLOT(x, Matrix_diagSym)));
+    slot_dup(val, x, Matrix_diagSym);
     Matrix_T_as_DENSE_FINISH(1);
 }
 

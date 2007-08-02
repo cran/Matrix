@@ -12,10 +12,15 @@ setAs("nMatrix", "dMatrix",
 	  cl <- class(from)
 	  nCl <- sub("^n", "d", cl)
 	  r <- new(nCl)# default => no validity check; and copy slots:
-	  ## result is "same", for sparse just with an 'x' slot
-	  if(extends(cl, "sparseMatrix"))
-	      slot(r, "x") <- rep.int(1., nnzero(from))
-	  for(nm in slotNames(cl))
+	  ## result is "same" (modulo care with the 'x' slot)
+	  sNams <- slotNames(cl)
+	  if(extends(cl, "sparseMatrix")) {
+	      r@x <- rep.int(1., nnzero(from))
+	  } else {
+	      r@x <-  as.double(from@x)
+	      sNams <- sNams[sNams != "x"]
+	  }
+	  for(nm in sNams)
 	      slot(r, nm) <- slot(from, nm)
 	  r
       })
@@ -71,20 +76,65 @@ setMethod("expm", signature(x = "dMatrix"),
 setMethod("Math2",
           ## Assume that  Generic(u, k) |--> u for u in {0,1}
           ## which is true for round(), signif() ==> all structure maintained
-          signature(x = "dMatrix", digits = "numeric"),
+          signature(x = "dMatrix"),
 	  function(x, digits) {
               x@x <- callGeneric(x@x, digits = digits)
               x
           })
 
-## round(x) == round(x, 0)  etc
+if(getRversion() < "2.6.0" || R.version$`svn rev` < 42294) {
 setMethod("Math2",
 	  signature(x = "dMatrix", digits = "missing"),
-	  function(x, digits) callGeneric(x, digits = 0))
+	  function(x, digits)
+	       switch(.Generic,
+		      "signif" = callGeneric(x, digits = 6),
+		      callGeneric(x, digits = 0)) ## round(x) == round(x, 0)
+	  )
+}
 
-## This needs extra work in ./AllGeneric.R :
-setMethod("Summary", signature(x = "dMatrix", na.rm = "ANY"),
-          function(x, ..., na.rm) callGeneric(x@x, ..., na.rm = na.rm))
+## at installation time:
+summGenerics <- getGroupMembers("Summary")
+## "max" "min" "range"  "prod" "sum"   "any" "all"
+summGener1 <- summGenerics[match(summGenerics, c("prod","sum"), 0) == 0]
+
+## [also needs extra work in ./AllGeneric.R ] :
+setMethod("Summary", signature(x = "ddenseMatrix", na.rm = "ANY"),
+	  function(x, ..., na.rm) {
+	      clx <- getClassDef(class(x))
+	      if(extends(clx, "generalMatrix") || # ?geMatrix
+		 length(x@x) == prod(dim(x))) # not packed
+		  callGeneric(x@x, ..., na.rm = na.rm)
+	      else if(extends(clx, "symmetricMatrix")) { # and packed
+		  if(.Generic %in% summGener1)
+		      callGeneric(x@x, ..., na.rm = na.rm)
+		  else callGeneric(as(x, "dgeMatrix")@x, ..., na.rm = na.rm)
+	      }
+	      else { ## triangular , packed
+		  if(.Generic %in% summGener1)
+		      callGeneric(x@x, 0, ..., na.rm = na.rm)
+		  else callGeneric(as(x, "dgeMatrix")@x, ..., na.rm = na.rm)
+	      }
+	  })
+
+setMethod("Summary", signature(x = "dsparseMatrix", na.rm = "ANY"),
+	  function(x, ..., na.rm) {
+	      ne <- prod(d <- dim(x))
+	      l.x <- length(x@x)
+	      if(l.x == ne) ## fully non-zero
+		  callGeneric(x@x, ..., na.rm = na.rm)
+	      else if(is(x, "symmetricMatrix") && l.x == choose(d[1]+1, 2)) {
+		  if(.Generic %in% summGener1)
+		      callGeneric(x@x, ..., na.rm = na.rm)
+		  else callGeneric(as(x, "generalMatrix")@x, ..., na.rm = na.rm)
+	      }
+	      else { ## has at least one structural 0
+		  callGeneric(
+			      (if(.Generic %in% summGener1) x
+			      else as(x, "generalMatrix"))@x,
+			      0, ..., na.rm = na.rm)
+	      }
+	  })
+
 
 ## "Ops" ("Arith", "Compare", "Logic") --> ./Ops.R
 

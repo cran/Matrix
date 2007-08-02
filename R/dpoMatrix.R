@@ -5,9 +5,11 @@ setAs("dpoMatrix", "dppMatrix",
 
 setAs("dpoMatrix", "corMatrix",
       function(from) {
-          sd <- sqrt(diag(from))
-          if (!is.null(nms <- from@Dimnames[[1]])) names(sd) <- nms
-          new("corMatrix", as(t(from/sd)/sd, "dpoMatrix"), sd = sd)
+	  sd <- sqrt(diag(from))
+	  if(is.null(names(sd)) && !is.null(nms <- from@Dimnames[[1]]))
+	      names(sd) <- nms
+	  sd. <- sd; names(sd.) <- NULL
+	  new("corMatrix", as(t(from/sd)/sd, "dpoMatrix"), sd = sd.)
       })
 
 setAs("corMatrix", "lMatrix",

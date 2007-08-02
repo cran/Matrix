@@ -1,7 +1,7 @@
 \name{dtrMatrix-class}
 \docType{class}
 \alias{\%*\%,dtrMatrix,dtrMatrix-method}
-\alias{\%*\%,dgeMatrix,dtrMatrix-method}
+\alias{\%*\%,ddenseMatrix,dtrMatrix-method}
 \alias{\%*\%,dtrMatrix,ddenseMatrix-method}
 \alias{\%*\%,dtrMatrix,matrix-method}
 \alias{\%*\%,matrix,dtrMatrix-method}

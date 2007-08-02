@@ -205,8 +205,8 @@ SEXP dgeMatrix_LU(SEXP x)
 	error(_("Cannot factor a matrix with zero extents"));
     npiv = (dims[0] <dims[1]) ? dims[0] : dims[1];
     val = PROTECT(NEW_OBJECT(MAKE_CLASS("denseLU")));
-    SET_SLOT(val, Matrix_xSym, duplicate(GET_SLOT(x, Matrix_xSym)));
-    SET_SLOT(val, Matrix_DimSym, duplicate(GET_SLOT(x, Matrix_DimSym)));
+    slot_dup(val, x, Matrix_xSym);
+    slot_dup(val, x, Matrix_DimSym);
     F77_CALL(dgetrf)(dims, dims + 1, REAL(GET_SLOT(val, Matrix_xSym)),
 		     dims,
 		     INTEGER(ALLOC_SLOT(val, Matrix_permSym, INTSXP, npiv)),
@@ -261,9 +261,9 @@ SEXP dgeMatrix_solve(SEXP a)
 
 
     if (dims[0] != dims[1]) error(_("Solve requires a square matrix"));
-    SET_SLOT(val, Matrix_xSym, duplicate(GET_SLOT(lu, Matrix_xSym)));
+    slot_dup(val, lu, Matrix_xSym);
     x = REAL(GET_SLOT(val, Matrix_xSym));
-    SET_SLOT(val, Matrix_DimSym, duplicate(GET_SLOT(lu, Matrix_DimSym)));
+    slot_dup(val, lu, Matrix_DimSym);
     F77_CALL(dgetri)(dims, x, dims, pivot, &tmp, &lwork, &info);
     lwork = (int) tmp;
     F77_CALL(dgetri)(dims, x, dims, pivot,
@@ -551,50 +551,51 @@ SEXP dgeMatrix_colsums(SEXP x, SEXP naRmP, SEXP cols, SEXP mean)
     int doMean = asLogical(mean);
     int useCols = asLogical(cols);
     int *dims = INTEGER(GET_SLOT(x, Matrix_DimSym));
-    int cnt = 0, i, j, n = dims[0], p = dims[1];
-    SEXP ans = PROTECT(allocVector(REALSXP, (useCols) ? p : n));
-    double *xx = REAL(GET_SLOT(x, Matrix_xSym)), *rx, sum;
+    int i, j, m = dims[0], n = dims[1];
+    SEXP ans = PROTECT(allocVector(REALSXP, (useCols) ? n : m));
+    double *aa = REAL(ans), *xx = REAL(GET_SLOT(x, Matrix_xSym));
 
-    if (useCols) {
-	cnt = n;
-	for (j = 0; j < p; j++) {
-	    rx = xx + n*j;
+    if (useCols) {  /* col(Sums|Means) : */
+	int cnt = m;
+	for (j = 0; j < n; j++) {
+	    double *rx = xx + m * j;
+
+	    aa[j] = 0;
 	    if (keepNA)
-		for (sum = 0., i = 0; i < n; i++) sum += *rx++;
+		for (i = 0; i < m; i++) aa[j] += rx[i];
 	    else {
-		for (cnt = 0, sum = 0., i = 0; i < n; i++, rx++)
-		    if (!ISNAN(*rx)) {cnt++; sum += *rx;}
+		cnt = 0;
+		for (i = 0; i < m; i++)
+		    if (!ISNAN(rx[i])) {cnt++; aa[j] += rx[i];}
 	    }
 	    if (doMean) {
-		if (cnt > 0) sum /= cnt; else sum = NA_REAL;
+		if (cnt > 0) aa[j] /= cnt; else aa[j] = NA_REAL;
 	    }
-	    REAL(ans)[j] = sum;
 	}
-    } else {
-	double *rans = REAL(ans), *ra = rans, *rx = xx, *Cnt = NULL, *c;
-	cnt = p;
-	if (!keepNA && doMean) Cnt = Alloca(n, double);
+    } else { /* row(Sums|Means) : */
+	double *Count = ((!keepNA) && doMean) ?
+	    Alloca(m, double) : (double*)NULL ;
 	R_CheckStack();
-	for (ra = rans, i = 0; i < n; i++) *ra++ = 0.0;
-	for (j = 0; j < p; j++) {
-	    ra = rans;
+
+	for (i = 0; i < m; i++) aa[i] = 0.0;
+	for (j = 0; j < n; j++) {
 	    if (keepNA)
-		for (i = 0; i < n; i++) *ra++ += *rx++;
+		for (i = 0; i < m; i++) aa[i] += xx[i + j * m];
 	    else
-		for (c = Cnt, i = 0; i < n; i++, ra++, rx++, c++)
-		    if (!ISNAN(*rx)) {
-			*ra += *rx;
-			if (doMean) (*c)++;
+		for (i = 0; i < m; i++) {
+		    double el = xx[i + j * m];
+		    if (!ISNAN(el)) {
+			aa[i] += el;
+			if (doMean) Count[i]++;
 		    }
+		}
 	}
 	if (doMean) {
 	    if (keepNA)
-		for (ra = rans, i = 0; i < n; i++)
-		    *ra++ /= p;
-	    else {
-		for (ra = rans, c = Cnt, i = 0; i < n; i++, c++)
-		    if (*c > 0) *ra++ /= *c; else *ra++ = NA_REAL;
-	    }
+		for (i = 0; i < m; i++) aa[i] /= n;
+	    else
+		for (i = 0; i < m; i++)
+		    aa[i] = (Count[i]>0)? aa[i]/Count[i]: NA_REAL;
 	}
     }
 

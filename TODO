@@ -144,4 +144,21 @@ Check for DimNames propagation in coercion and other operations.
 
 - log1p(<sparseMatrix>) "should" give <dsparseMatrix>
   Pretty surely, this would happen automagically, if "log1p" became part of
-  "Math" group generic.
+  "Math" group generic ---> which is the case from R 2.6.0 on
+
+- msy <- as(matrix(c(2:1,1:2),2), "dsyMatrix"); str(msy)
+
+  shows that the Cholesky factorization is computed ``too quickly''.
+  Can be a big pain for largish matrices, when it is unneeded.
+
+- example(Cholesky, echo=FALSE) ; cm <- chol(mtm); str(cm); str(mtm)
+
+  shows that chol() does not seems to make use of an already
+  present factorization and rather uses one with more '0' in x slot.
+
+- diag(m) <- val    currently automatically works via  m[cbind(i,i)] <- val
+  However,
+  we need methods for 'diag<-' at least for diagonalMatrix,
+  triangularMatrix, and probably also "dense*general*Matrix" since the
+  above currently goes via "matrix" and back instead of using the 'x' slot
+  directly.

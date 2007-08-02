@@ -57,6 +57,52 @@ SEXP Csparse_validate(SEXP x)
     return ScalarLogical(1);
 }
 
+SEXP Rsparse_validate(SEXP x)
+{
+    /* NB: we do *NOT* check a potential 'x' slot here, at all */
+    SEXP pslot = GET_SLOT(x, Matrix_pSym),
+	jslot = GET_SLOT(x, Matrix_jSym);
+    Rboolean sorted, strictly;
+    int i, k,
+	*dims = INTEGER(GET_SLOT(x, Matrix_DimSym)),
+	nrow = dims[0],
+	ncol = dims[1],
+	*xp = INTEGER(pslot),
+	*xj = INTEGER(jslot);
+
+    if (length(pslot) != dims[0] + 1)
+	return mkString(_("slot p must have length = nrow(.) + 1"));
+    if (xp[0] != 0)
+	return mkString(_("first element of slot p must be zero"));
+    if (length(jslot) < xp[nrow]) /* allow larger slots from over-allocation!*/
+	return
+	    mkString(_("last element of slot p must match length of slots j and x"));
+    for (i = 0; i < length(jslot); i++) {
+	if (xj[i] < 0 || xj[i] >= ncol)
+	    return mkString(_("all column indices must be between 0 and ncol-1"));
+    }
+    sorted = TRUE; strictly = TRUE;
+    for (i = 0; i < nrow; i++) {
+	if (xp[i] > xp[i+1])
+	    return mkString(_("slot p must be non-decreasing"));
+	if(sorted)
+	    for (k = xp[i] + 1; k < xp[i + 1]; k++) {
+		if (xj[k] < xj[k - 1])
+		    sorted = FALSE;
+		else if (xj[k] == xj[k - 1])
+		    strictly = FALSE;
+	    }
+    }
+    if (!sorted)
+	/* cannot easily use cholmod_sort(.) ... -> "error out" :*/
+	return mkString(_("slot j is not increasing inside a column"));
+    else if(!strictly) /* sorted, but not strictly */
+	return mkString(_("slot j is not *strictly* increasing inside a column"));
+
+    return ScalarLogical(1);
+}
+
+
 /* Called from ../R/Csparse.R : */
 /* Can only return [dln]geMatrix (no symm/triang);
  * FIXME: replace by non-CHOLMOD code ! */

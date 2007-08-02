@@ -4,12 +4,13 @@
 \alias{all,Matrix-method}
 \alias{any,Matrix-method}
 % \alias{all,lMatrix-method}
-% \alias{any,lMatrix-method}
 \alias{all,ldenseMatrix-method}
-\alias{any,ldenseMatrix-method}
 \alias{all,lsparseMatrix-method}
-\alias{any,lsparseMatrix-method}
 \alias{all,lsyMatrix-method}
+%
+\alias{any,lMatrix-method}
+% \alias{any,ldenseMatrix-method}
+% \alias{any,lsparseMatrix-method}
 %
 \title{"Matrix" Methods for Functions all() and any()}
 \description{

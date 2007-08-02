@@ -451,24 +451,46 @@ setMethod("dim<-", signature(x = "sparseMatrix", value = "ANY"),
 	  })
 
 
+setMethod("norm", signature(x = "sparseMatrix", type = "character"),
+	  function(x, type, ...) {
+## as(*, "dsparseMatrix") fails e.g. for "lgT*", but why use it anyway?
+## 	      if(!is(x, "dsparseMatrix"))
+## 		  x <- as(x, "dsparseMatrix")
+	      type <- toupper(substr(type[1], 1, 1))
+	      switch(type,  ##  max(<empty>, 0)  |-->  0
+		     "O" = ,
+                     "1" = max(colSums(abs(x)), 0), ## One-norm (L_1)
+		     "I" = max(rowSums(abs(x)), 0), ## L_Infinity
+		     "F" = sqrt(sum(x^2)), ## Frobenius
+		     "M" = max(abs(x), 0), ## Maximum modulus of all
+		     ## otherwise:
+		     stop("invalid 'type'"))
+	  })
+
+
 lm.fit.sparse <-
 function(x, y, offset = NULL, method = c("qr", "cholesky"),
          tol = 1e-7, singular.ok = TRUE, transpose = FALSE, ...)
 ### Fit a linear model using a sparse QR or a sparse Cholesky factorization
 {
     stopifnot(is(x, "dsparseMatrix"))
+##     if(!is(x, "dsparseMatrix"))
+##	   x <- as(x, "dsparseMatrix")
     yy <- as.numeric(y)
     if (!is.null(offset)) {
-        stopifnot(length(offset) == length(y))
-        yy <- yy - as.numeric(offset)
+	stopifnot(length(offset) == length(y))
+	yy <- yy - as.numeric(offset)
     }
     ans <- switch(as.character(method)[1],
-                  cholesky = .Call(dgCMatrix_cholsol,
-                  as(if (transpose) x else t(x), "dgCMatrix"), yy),
-                  qr = .Call(dgCMatrix_qrsol,
-                  as(if (transpose) t(x) else x, "dgCMatrix"), yy),
-                  stop(paste("unknown method", dQuote(method)))
-                  )
+		  cholesky =
+		  .Call(dgCMatrix_cholsol,
+			as(if (transpose) x else t(x), "dgCMatrix"), yy),
+		  qr =
+		  .Call(dgCMatrix_qrsol,
+			as(if (transpose) t(x) else x, "dgCMatrix"), yy),
+		  ## otherwise:
+		  stop("unknown method ", dQuote(method))
+		  )
     ans
 }
 

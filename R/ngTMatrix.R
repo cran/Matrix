@@ -17,14 +17,21 @@ setAs("matrix", "ngTMatrix",
 	  stopifnot(is.logical(from))
 	  if(any(is.na(from)))
 	      warning("'NA's coerced to 'FALSE' in coercion to logical sparse")
+          dn <- dimnames(from)
+          if(is.null(dn))
+              dn <- list(NULL,NULL)
+          else dimnames(from) <- NULL # such that which(.) does not see any:
 	  ij <- which(from, arr.ind = TRUE) - 1L
 	  if(length(ij) == 0) ij <- matrix(ij, 0, 2)
 	  new("ngTMatrix",
 	      i = ij[,1],
 	      j = ij[,2],
 	      Dim = as.integer(dim(from)),
-	      Dimnames = .M.DN(from))
+	      Dimnames = dn)
 	  })
+
+setAs("matrix", "nMatrix", function(from) as(from, "ngTMatrix"))
+
 
 setAs("ngTMatrix", "dgTMatrix",
       function(from)

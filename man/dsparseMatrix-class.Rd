@@ -1,6 +1,8 @@
 \name{dsparseMatrix-class}
 \docType{class}
 \alias{dsparseMatrix-class}
+% Group
+\alias{Summary,dsparseMatrix-method}
 %
 \alias{chol,dsparseMatrix,ANY-method}
 \alias{\%*\%,ddenseMatrix,dsparseMatrix-method}

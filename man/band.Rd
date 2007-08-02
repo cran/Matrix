@@ -40,6 +40,9 @@
 \alias{tril,ntTMatrix-method}
 \alias{tril,ntpMatrix-method}
 \alias{tril,ntrMatrix-method}
+\alias{tril,itTMatrix-method}
+\alias{tril,itCMatrix-method}
+\alias{tril,itRMatrix-method}
 \alias{triu,dtCMatrix-method}
 \alias{triu,dtRMatrix-method}
 \alias{triu,dtTMatrix-method}
@@ -55,6 +58,9 @@
 \alias{triu,ntTMatrix-method}
 \alias{triu,ntpMatrix-method}
 \alias{triu,ntrMatrix-method}
+\alias{triu,itTMatrix-method}
+\alias{triu,itCMatrix-method}
+\alias{triu,itRMatrix-method}
 % End{UGLY-disAMBIGUATION-hack}
 %
 \alias{band}

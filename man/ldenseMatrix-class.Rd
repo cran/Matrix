@@ -9,10 +9,11 @@
 % purely "sparse" are in ./lsparseMatrix-classes.Rd
 %
 \alias{as.logical,ldenseMatrix-method}
+\alias{as.vector,ldenseMatrix,missing-method}
 \alias{coerce,matrix,ldenseMatrix-method}
 \alias{coerce,ldenseMatrix,matrix-method}
 \alias{diag,ldenseMatrix-method}
-\alias{as.vector,ldenseMatrix,missing-method}
+\alias{norm,ldenseMatrix,character-method}
 %%-- These are already in ./lsparseMatrix-classes.Rd :
 %\alias{\%*\%,lsparseMatrix,ldenseMatrix-method}
 %\alias{\%*\%,ldenseMatrix,lsparseMatrix-method}

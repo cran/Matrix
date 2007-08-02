@@ -87,6 +87,11 @@ setClass("ddenseMatrix", representation("VIRTUAL"),
 setClass("ldenseMatrix", representation("VIRTUAL"),
 	 contains = c("lMatrix", "denseMatrix"))
 
+if(FALSE) { ##--not yet--
+setClass("idenseMatrix", representation("VIRTUAL"),
+	 contains = c("iMatrix", "denseMatrix"))
+}
+
 ## Virtual class of dense, nonzero pattern matrices - rarely used, for completeness
 setClass("ndenseMatrix", representation(x = "logical", "VIRTUAL"),
 	 contains = c("nMatrix", "denseMatrix"))
@@ -126,8 +131,7 @@ setClass("CsparseMatrix", representation(i = "integer", p = "integer", "VIRTUAL"
 setClass("RsparseMatrix", representation(p = "integer", j = "integer", "VIRTUAL"),
 	 contains = "sparseMatrix",
 	 prototype = prototype(p = 0:0),# to be valid
-	 ## TODO:
-	 ## , validity = function(object) .Call(Rsparse_validate, object)
+	 validity = function(object) .Call(Rsparse_validate, object)
          )
 
 setClass("dsparseMatrix", representation("VIRTUAL"),
@@ -135,6 +139,11 @@ setClass("dsparseMatrix", representation("VIRTUAL"),
 
 setClass("lsparseMatrix", representation("VIRTUAL"),
 	 contains = c("lMatrix", "sparseMatrix"))
+
+if(FALSE) { ##--not yet--
+setClass("isparseMatrix", representation("VIRTUAL"),
+	 contains = c("lMatrix", "sparseMatrix"))
+}
 
 ## these are the "pattern" matrices for "symbolic analysis" of sparse OPs:
 setClass("nsparseMatrix", representation("VIRTUAL"),
@@ -319,26 +328,25 @@ setClass("dsCMatrix",
 ## numeric, sparse, sorted compressed sparse row-oriented general matrices
 setClass("dgRMatrix",
 	 contains = c("RsparseMatrix", "dsparseMatrix", "generalMatrix"),
-	 ##TODO: validity = function(object) .Call(dgRMatrix_validate, object)
+	 validity = function(object) .Call(xRMatrix_validate, object)
 	 )
 
 ## numeric, sparse, sorted compressed sparse row-oriented triangular matrices
 setClass("dtRMatrix",
 	 contains = c("RsparseMatrix", "dsparseMatrix", "triangularMatrix"),
-	 ##TODO: validity = function(object) .Call(dtRMatrix_validate, object)
-
+	 validity = function(object) .Call(tRMatrix_validate, object)
 	 )
 
 ## numeric, sparse, sorted compressed sparse row-oriented symmetric matrices
 setClass("dsRMatrix",
 	 contains = c("RsparseMatrix", "dsparseMatrix", "symmetricMatrix"),
-	 ##TODO: validity = function(object) .Call(dsRMatrix_validate, object)
+	 validity = function(object) .Call(tRMatrix_validate, object)
 	 )
 
 ##---------- logical sparse matrix classes --------------------------------
 
-## these classes are used in symbolic analysis to determine the
-## locations of non-zero entries
+## these classes are typically result of Matrix comparisons, e.g.,
+##   <..Matrix>  >= v     (and hence can have NA's)
 
 ## logical, sparse, triplet general matrices
 setClass("lgTMatrix",
@@ -378,21 +386,20 @@ setClass("lsCMatrix",
 
 ## logical, sparse, sorted compressed sparse row-oriented general matrices
 setClass("lgRMatrix",
-	 representation(j = "integer", p = "integer"),
 	 contains = c("RsparseMatrix", "lsparseMatrix", "generalMatrix"),
-	 ##TODO: validity = function(object) .Call(lgRMatrix_validate, object)
+	 validity = function(object) .Call(xRMatrix_validate, object)
 	 )
 
 ## logical, sparse, sorted compressed sparse row-oriented triangular matrices
 setClass("ltRMatrix",
 	 contains = c("RsparseMatrix", "lsparseMatrix", "triangularMatrix"),
-	 ##TODO: validity = function(object) .Call(ltRMatrix_validate, object)
+	 validity = function(object) .Call(tRMatrix_validate, object)
 	 )
 
 ## logical, sparse, sorted compressed sparse row-oriented symmetric matrices
 setClass("lsRMatrix",
 	 contains = c("RsparseMatrix", "lsparseMatrix", "symmetricMatrix"),
-	 ##TODO: validity = function(object) .Call(lsRMatrix_validate, object)
+	 validity = function(object) .Call(tRMatrix_validate, object)
 	 )
 
 ##---------- nonzero pattern sparse matrix classes ---------------------------
@@ -450,6 +457,65 @@ setClass("ntRMatrix",
 setClass("nsRMatrix",
 	 contains = c("RsparseMatrix", "nsparseMatrix", "symmetricMatrix"),
 	 )
+
+if(FALSE) { ##--not yet--
+
+##---------- integer sparse matrix classes --------------------------------
+
+## integer, sparse, triplet general matrices
+setClass("igTMatrix",
+	 contains = c("TsparseMatrix", "isparseMatrix", "generalMatrix"),
+	 validity = function(object) .Call(xTMatrix_validate, object)
+	 )
+
+## integer, sparse, triplet triangular matrices
+setClass("itTMatrix",
+	 contains = c("TsparseMatrix", "isparseMatrix", "triangularMatrix"),
+	 validity = function(object) .Call(xTMatrix_validate, object)
+	 )
+
+## integer, sparse, triplet symmetric matrices
+setClass("isTMatrix",
+	 contains = c("TsparseMatrix", "isparseMatrix", "symmetricMatrix"),
+	 validity = function(object) .Call(xTMatrix_validate, object)
+	 )
+
+## integer, sparse, sorted compressed sparse column-oriented general matrices
+setClass("igCMatrix",
+	 contains = c("CsparseMatrix", "isparseMatrix", "generalMatrix"),
+	 validity = function(object) .Call(xCMatrix_validate, object)
+	 )
+
+## integer, sparse, sorted compressed sparse column-oriented triangular matrices
+setClass("itCMatrix",
+	 contains = c("CsparseMatrix", "isparseMatrix", "triangularMatrix"),
+	 validity = function(object) .Call(xCMatrix_validate, object)
+	 )
+
+## integer, sparse, sorted compressed sparse column-oriented symmetric matrices
+setClass("isCMatrix",
+	 contains = c("CsparseMatrix", "isparseMatrix", "symmetricMatrix"),
+	 validity = function(object) .Call(xCMatrix_validate, object)
+	 )
+
+## integer, sparse, sorted compressed sparse row-oriented general matrices
+setClass("igRMatrix",
+	 contains = c("RsparseMatrix", "isparseMatrix", "generalMatrix"),
+	 validity = function(object) .Call(xRMatrix_validate, object)
+	 )
+
+## integer, sparse, sorted compressed sparse row-oriented triangular matrices
+setClass("itRMatrix",
+	 contains = c("RsparseMatrix", "isparseMatrix", "triangularMatrix"),
+	 validity = function(object) .Call(tRMatrix_validate, object)
+	 )
+
+## integer, sparse, sorted compressed sparse row-oriented symmetric matrices
+setClass("isRMatrix",
+	 contains = c("RsparseMatrix", "isparseMatrix", "symmetricMatrix"),
+	 validity = function(object) .Call(tRMatrix_validate, object)
+	 )
+}##--not yet--
 
 ##-------------------- permutation ----------------------------------------
 

@@ -1,5 +1,6 @@
 library(Matrix)
 source(system.file("test-tools.R", package = "Matrix"))# identical3() etc
+if(interactive()) options(error = recover)
 
 #### Automatically display the class inheritance structure
 #### possibly augmented with methods
@@ -116,6 +117,7 @@ Mat.MatFact <- c("Cholesky", "pCholesky",
                  "BunchKaufman", "pBunchKaufman")##, "LDL"
 no.t.etc <- c(no.show.classes, .R.classes, dR.classes, Mat.MatFact)
 no.t.classes <- c(no.t.etc)     # no t() available
+no.norm.classes <- no.t.classes
 not.Ops      <- no.show.classes # "Ops", e.g. "+" fails
 not.coerce0  <- no.show.classes # not coercable to   "matrix" & "dgeMatrix"
 not.coerce1  <- no.t.etc        # not coercable from "dgeMatrix"
@@ -137,12 +139,25 @@ tstMatrixClass <-
     ## This is sfsmisc::bl.string():
     bl.string <- function (no) paste(rep(" ", no), collapse = "")
 
+    ## Compute a few things only once :
     mM <- as(mM, "dgeMatrix")
     mm <- as(mm, "matrix")
     trm <- mm; trm[lower.tri(mm)] <- 0
-
+    summList <- lapply(getGroupMembers("Summary"), get,
+                       envir = asNamespace("Matrix"))
     if(recursive)
         cList <- character(0)
+
+    extraValid <- function(m, cl = class(m)) {
+        sN <- slotNames(cl)
+        sN <- sN[sN != "factors"]
+	for(nm in sN)
+	    if(!is.null(a <- attributes(slot(m, nm))))
+		stop(sprintf("slot '%s' with %d attributes, named: ",
+			     nm, length(a)), paste(names(a), collapse=", "))
+        invisible(TRUE)
+    }
+
 
     ## This is the recursive function
     dotestMat <- function(cl, offset)
@@ -153,11 +168,6 @@ tstMatrixClass <-
         cat("\n")
         cat.(clNam)
         ##---------
-	genC <- extends(clNam, "generalMatrix")
-	symC <- extends(clNam, "symmetricMatrix")
-	triC <- extends(clNam, "triangularMatrix")
-	diaC <- extends(clNam, "diagonalMatrix")
-        ## - - - - -
         if(isVirtualClass(clNam)) {
             cat(" - is virtual\n")
             if(recursive) {
@@ -173,28 +183,43 @@ tstMatrixClass <-
                 }
                 cat.("----- end{class :", clNam, "}---------------------\n")
             }
-        } else {
+        } else { ## --- actual class ---
+            genC <- extends(clNam, "generalMatrix")
+            symC <- extends(clNam, "symmetricMatrix")
+            triC <- extends(clNam, "triangularMatrix")
+            diaC <- extends(clNam, "diagonalMatrix")
             if(!(genC || symC || triC || diaC))
                 stop("does not extend one of 'general', 'symmetric', 'triangular', or 'diagonal'")
+            sparseC <- extends(clNam, "sparseMatrix")
+            denseC  <- extends(clNam, "denseMatrix")
+            if(!(sparseC || denseC))
+                stop("does not extend either 'sparse' or 'dense'")
 	    cat("; new(..): ")
 	    m <- new(clNam) ; cat("ok; ")
 	    if(canCoerce(mm, clNam)) { ## replace 'm' by `non-empty' version
 		cat("canCoerce() ")
-                m0 <- if(triC) trm else mm
+		m0 <- {
+		    if(triC) trm
+		    else if(extends(clNam, "pMatrix"))
+			mm == 1 # logical *and* "true" permutation
+		    else mm
+		}
 		if(extends(clNam, "lMatrix") ||
 		   extends(clNam, "nMatrix"))
 		    storage.mode(m0) <- "logical"
 		else if(extends(clNam, "zMatrix"))
 		    storage.mode(m0) <- "complex"
-                validObject(m) ## validity of trivial 'm' before replacing
+		validObject(m) ## validity of trivial 'm' before replacing
 		m <- as(m0, clNam)
+		if(clNam == "corMatrix")
+                    m0 <- cov2cor(m0)
 	    } else m0 <- matrix(,0,0)
             ## m0 is the 'matrix' version of our 'Matrix' m
 
             if(any(clNam == not.ok.classes)) {
                 cat("in 'stop list' - no validity\n")
             } else {
-                cat("valid: ", validObject(m))
+                cat("valid: ", validObject(m), extraValid(m, clNam))
 
 		## This can only work as long as 'm' has no NAs :
                 ## not yet -- have version in not.Ops below
@@ -212,11 +237,28 @@ tstMatrixClass <-
                     stopifnot(Qidentical(m, t(t(m))))
                     cat(" ok\n")
                 }
-
                 if(all(clNam != no.show.classes))
                     show(m)
                   ## improve: cat.(  captureOutput(show(m) ) )
                 else cat.("	-- no show() yet \n")
+
+                if(clNam %in% no.norm.classes) {
+                    cat.(" in norm()-'stop list'\n")
+                } else {
+                    cat.(sprintf(" norm(m [%d x %d]) :", nrow(m), ncol(m)))
+                    for(typ in c("1","I","F","M")) {
+                        cat('', typ, '')
+                        stopifnot(all.equal(norm(m,typ), norm(m0,typ)))
+                    }
+                    cat(" ok\n")
+                }
+		cat.(" Summary: ")
+		for(f in summList) {
+		    #cat(f@generic, "() ", sep='')
+		    stopifnot(if(clNam == "corMatrix") all.equal(f(m), f(m0))
+			      else f(m) == f(m0))
+		}
+		cat(" ok\n")
 
                 if(all(clNam != not.coerce0)) {## coerce to 'matrix'
                     m.m <- as(m, "matrix")

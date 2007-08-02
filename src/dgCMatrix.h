@@ -6,6 +6,7 @@
 #include "cs_utils.h"
 
 SEXP xCMatrix_validate(SEXP x);
+SEXP xRMatrix_validate(SEXP x);
 SEXP compressed_to_TMatrix(SEXP x, SEXP colP);
 SEXP compressed_non_0_ij(SEXP x, SEXP colP);
 SEXP R_to_CMatrix(SEXP x);

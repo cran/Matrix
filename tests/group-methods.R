@@ -1,4 +1,4 @@
-### Testing the group methods
+### Testing the group methods  --- some also happens in ./Class+Meth.R
 
 library(Matrix)
 set.seed(2001)
@@ -11,6 +11,9 @@ y <- rnorm(nrow(mm))
 xpy <- crossprod(mm, y)
 res <- solve(xpx, xpy)
 signif(res, 4) # 7 x 1 Matrix
+
+stopifnot(all(signif(res) == signif(res, 6)),
+	  all(round (xpx) == round (xpx, 0)))
 
 ## exp(): component wise
 signif(dd <- (expm(xpx) - exp(xpx)) / 1e34, 3)# 7 x 7

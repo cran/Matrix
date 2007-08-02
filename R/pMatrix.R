@@ -32,19 +32,41 @@ setAs("pMatrix", "ngTMatrix",
 
 setAs("pMatrix", "TsparseMatrix", function(from) as(from, "ngTMatrix"))
 setAs("pMatrix", "nMatrix",	  function(from) as(from, "ngTMatrix"))
-setAs("pMatrix", "lMatrix", function(from) as(as(from, "nMatrix"),"lMatrix"))
+setAs("pMatrix", "lMatrix", function(from) as(as(from, "nMatrix"), "lMatrix"))
+setAs("pMatrix", "dMatrix", function(from) as(as(from, "nMatrix"), "dMatrix"))
 
 setAs("pMatrix", "CsparseMatrix",
       function(from) as(as(from, "ngTMatrix"), "CsparseMatrix"))
 
+setAs("nMatrix", "pMatrix",
+      function(from) {
+	  from <- as(as(from, "TsparseMatrix"), "ngTMatrix")
+	  n <- (d <- from@Dim)[1]
+	  if(n != d[2]) stop("not a square matrix")
+	  if(length(i <- from@i) != n)
+	      stop("the number of non-zero entries differs from nrow(.)")
+	  if((need.sort <- is.unsorted(i))) {
+	      ii <- sort.list(i)
+	      i <- i[ii]
+	  }
+	  if(n >= 1 && !identical(i, 0:(n - 1)))
+	      stop("must have exactly one non-zero entry per row")
+	  new("pMatrix", ## validity checking checks the 'perm' slot:
+	      perm = 1L + if(need.sort) from@j[ii] else from@j,
+	      Dim = d, Dimnames = from@Dimnames)
+      })
+
+setAs("matrix", "pMatrix", function(from) as(as(from, "nMatrix"), "pMatrix"))
+
 
 setMethod("solve", signature(a = "pMatrix", b = "missing"),
 	  function(a, b) {
-	      bp <- ap <- a@perm
-	      bp[ap] <- seq_along(ap)
-	      new("pMatrix", perm = bp, Dim = a@Dim,
-		  Dimnames = a@Dimnames[2:1])
-	  }, valueClass = "pMatrix")
+	      ap <- a@perm
+	      ap[ap] <- seq_along(ap)
+              a@perm <- ap
+              a@Dimnames <- a@Dimnames[2:1]
+              a
+          })
 
 setMethod("t", signature(x = "pMatrix"), function(x) solve(x))
 
@@ -68,6 +90,12 @@ setMethod("%*%", signature(x = "Matrix", y = "pMatrix"),
 
 setMethod("%*%", signature(x = "pMatrix", y = "Matrix"),
           function(x, y) y[x@perm , ])
+
+## t(pM) is == the inverse  pM^(-1):
+setMethod("crossprod", signature(x = "pMatrix", y = "missing"),
+          function(x, y=NULL) Diagonal(nrow(x)))
+setMethod("tcrossprod", signature(x = "pMatrix", y = "missing"),
+          function(x, y=NULL) Diagonal(nrow(x)))
 
 
 .pMat.nosense <- function (x, i, j, ..., value)

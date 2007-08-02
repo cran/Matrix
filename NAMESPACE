@@ -56,11 +56,15 @@ if(getRversion() < "2.6.0" || R.version$`svn rev` < 42093) {
            "lgamma")
 }
 
+if(!is.primitive(round)) {
 export(
        ## "Math2"
        "round",
-       "signif",
+       "signif")
+}
 
+if(!is.primitive(max)) {
+export(
        ## "Summary"
        "max",
        "min",
@@ -68,8 +72,8 @@ export(
        "prod",
        "sum",
        "any",
-       "all"
-)
+       "all")
+}
 
 exportClasses(
 	      "index",

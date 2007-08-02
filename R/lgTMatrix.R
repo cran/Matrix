@@ -15,7 +15,11 @@ setAs("lgTMatrix", "matrix",
 setAs("matrix", "lgTMatrix",
       function(from) {
 	  stopifnot(is.logical(from))
-          TorNA <- is.na(from) | from
+	  dn <- dimnames(from)
+	  if(is.null(dn))
+	      dn <- list(NULL,NULL)
+	  else dimnames(from) <- NULL
+	  TorNA <- is.na(from) | from
 	  ij <- which(TorNA, arr.ind = TRUE) - 1L
 	  if(length(ij) == 0) ij <- matrix(ij, 0, 2)
 	  new("lgTMatrix",
@@ -23,7 +27,7 @@ setAs("matrix", "lgTMatrix",
 	      j = ij[,2],
 	      x = from[TorNA],
 	      Dim = as.integer(dim(from)),
-	      Dimnames = .M.DN(from))
+	      Dimnames = dn)
 	  })
 
 setAs("lgTMatrix", "dgTMatrix",

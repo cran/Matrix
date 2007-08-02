@@ -18,6 +18,18 @@ SEXP xCMatrix_validate(SEXP x)
     return ScalarLogical(1);
 }
 
+/* for dgRMatrix  _and_ lgRMatrix and others  (but *not*  ngC...) : */
+SEXP xRMatrix_validate(SEXP x)
+{
+    /* Almost everything now in Rsparse_validate ( ./Csparse.c )
+     * *but* the checking of the 'x' slot : */
+    if (length(GET_SLOT(x, Matrix_jSym)) !=
+	length(GET_SLOT(x, Matrix_xSym)))
+	return mkString(_("lengths of slots 'j' and 'x' must match"));
+
+    return ScalarLogical(1);
+}
+
 /* This and the following R_to_CMatrix() lead to memory-not-mapped seg.faults
  * only with {32bit + R-devel + enable-R-shlib} -- no idea why */
 SEXP compressed_to_TMatrix(SEXP x, SEXP colP)
@@ -51,13 +63,13 @@ SEXP compressed_to_TMatrix(SEXP x, SEXP colP)
     ncl[2] = 'T';
     ans = PROTECT(NEW_OBJECT(MAKE_CLASS(ncl)));
 
-    SET_SLOT(ans, Matrix_DimSym, duplicate(GET_SLOT(x, Matrix_DimSym)));
+    slot_dup(ans, x, Matrix_DimSym);
     if((ctype / 3) % 4 != 2) /* not n..Matrix */
-	SET_SLOT(ans, Matrix_xSym, duplicate(GET_SLOT(x, Matrix_xSym)));
+	slot_dup(ans, x, Matrix_xSym);
     if(ctype % 3) { /* s(ymmetric) or t(riangular) : */
-	SET_SLOT(ans, Matrix_uploSym, duplicate(GET_SLOT(x, Matrix_uploSym)));
+	slot_dup(ans, x, Matrix_uploSym);
 	if(ctype % 3 == 2) /* t(riangular) : */
-	    SET_SLOT(ans, Matrix_diagSym, duplicate(GET_SLOT(x, Matrix_diagSym)));
+	    slot_dup(ans, x, Matrix_diagSym);
     }
     SET_DimNames(ans, x);
     SET_SLOT(ans, indSym, duplicate(indP));
@@ -96,16 +108,17 @@ SEXP R_to_CMatrix(SEXP x)
 
     /* triangular: */ LOGICAL(tri)[0] = 0;
     if((ctype / 3) != 2) /* not n..Matrix */
-	SET_SLOT(ans, Matrix_xSym, duplicate(GET_SLOT(x, Matrix_xSym)));
+	slot_dup(ans, x, Matrix_xSym);
     if(ctype % 3) { /* s(ymmetric) or t(riangular) : */
-	SET_SLOT(ans, Matrix_uploSym, duplicate(GET_SLOT(x, Matrix_uploSym)));
+	SET_SLOT(ans, Matrix_uploSym,
+		 mkString((*uplo_P(x) == 'U') ? "L" : "U"));
 	if(ctype % 3 == 2) { /* t(riangular) : */
 	    LOGICAL(tri)[0] = 1;
-	    SET_SLOT(ans, Matrix_diagSym, duplicate(GET_SLOT(x, Matrix_diagSym)));
+	    slot_dup(ans, x, Matrix_diagSym);
 	}
     }
     SET_SLOT(ans, Matrix_iSym, duplicate(GET_SLOT(x, Matrix_jSym)));
-    SET_SLOT(ans, Matrix_pSym, duplicate(GET_SLOT(x, Matrix_pSym)));
+    slot_dup(ans, x, Matrix_pSym);
     ans = Csparse_transpose(ans, tri);
     SET_DimNames(ans, x);
     free(ncl);
@@ -348,11 +361,13 @@ SEXP dgCMatrix_cholsol(SEXP x, SEXP y)
 }
 
 
-/* Define all 4 of
+/* Define all of
  *  dgCMatrix_colSums(....)
  *  igCMatrix_colSums(....)
- *  lgCMatrix_colSums(....)
- *  ngCMatrix_colSums(....)
+ *  lgCMatrix_colSums_d(....)
+ *  lgCMatrix_colSums_i(....)
+ *  ngCMatrix_colSums_d(....)
+ *  ngCMatrix_colSums_i(....)
  */
 #define _dgC_
 #include "t_gCMatrix_colSums.c"

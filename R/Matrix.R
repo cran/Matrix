@@ -88,9 +88,12 @@ setMethod("unname", signature("Matrix", force="missing"),
 	  function(obj) { obj@Dimnames <- list(NULL,NULL); obj})
 
 setMethod("all", signature(x = "Matrix"),
-          function(x, ..., na.rm) { x <- as(x, "lMatrix"); callGeneric()})
+	  function(x, ..., na.rm)
+	  callGeneric(as(x, "lMatrix"), ..., na.rm=na.rm))
+
 setMethod("any", signature(x = "Matrix"),
-          function(x, ..., na.rm) { x <- as(x, "lMatrix"); callGeneric()})
+	  function(x, ..., na.rm)
+	  callGeneric(as(x, "lMatrix"), ..., na.rm=na.rm))
 
 ## NOTE:  "&" and "|"  are now in group "Logic" c "Ops" --> ./Ops.R
 ##        "!" is in ./not.R
@@ -282,6 +285,22 @@ setMethod("diag", signature(x = "Matrix"),
 setMethod("t", signature(x = "Matrix"),
 	  function(x) .bail.out.1(.Generic, class(x)))
 
+setMethod("norm", signature(x = "Matrix", type = "character"),
+	  function(x, type, ...) .bail.out.1(.Generic, class(x)))
+setMethod("rcond", signature(x = "Matrix", type = "character"),
+	  function(x, type, ...) .bail.out.1(.Generic, class(x)))
+
+
+## for all :
+setMethod("norm", signature(x = "ANY", type = "missing"),
+	  function(x, type, ...) norm(x, type = "O", ...))
+setMethod("rcond", signature(x = "ANY", type = "missing"),
+	  function(x, type, ...) rcond(x, type = "O", ...))
+
+
+
+
+
 ## MM: More or less "Cut & paste" from
 ## --- diff.default() from  R/src/library/base/R/diff.R :
 setMethod("diff", signature(x = "Matrix"),
@@ -311,6 +330,12 @@ setMethod("image", "Matrix",
 ## Group Methods
 
 ##-> see ./Ops.R
+##         ~~~~~
+## For all  non-dMatrix objects, and note that  "all" and "any" have their own
+setMethod("Summary", signature(x = "Matrix", na.rm = "ANY"),
+	  function(x, ..., na.rm)
+	  callGeneric(as(x,"dMatrix"), ..., na.rm = na.rm))
+
 
 ### --------------------------------------------------------------------------
 ###

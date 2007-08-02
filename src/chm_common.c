@@ -220,6 +220,8 @@ CHM_TR as_cholmod_triplet(CHM_TR ans, SEXP x)
  * @param a matrix to be converted
  * @param dofree 0 - don't free a; > 0 cholmod_free a; < 0 Free a
  * @param uploT 0 - not triangular; > 0 upper triangular; < 0 lower
+ * @param Rkind - vector type to store for a->xtype == CHOLMOD_REAL,
+ *                0 - REAL; 1 - LOGICAL
  * @param diag character string suitable for the diag slot of a
  *          triangular matrix (not accessed if uploT == 0).
  * @param dn either R_NilValue or an SEXP suitable for the Dimnames slot.
@@ -404,6 +406,18 @@ void R_cholmod_error(int status, char *file, int line, char *message)
     error(_("Cholmod error '%s' at file:%s, line %d"), message, file, line);
 }
 
+/* just to get 'int' instead of 'void' as required by CHOLMOD's print_function */
+static
+int R_cholmod_printf(const char* fmt, ...)
+{
+    va_list(ap);
+
+    va_start(ap, fmt);
+    Rprintf((char *)fmt, ap);
+    va_end(ap);
+    return 0;
+}
+
 /**
  * Initialize the CHOLMOD library and replace the print and error functions
  * by R-specific versions.
@@ -417,7 +431,7 @@ int R_cholmod_start(CHM_CM c)
     int res;
     if (!(res = cholmod_start(c)))
 	error(_("Unable to initialize cholmod: error code %d"), res);
-    c->print_function = Rprintf;
+    c->print_function = R_cholmod_printf; /* Rprintf gives warning */
     c->error_handler = R_cholmod_error;
     return TRUE;
 }
@@ -541,10 +555,11 @@ SEXP chm_dense_to_matrix(CHM_DN a, int dofree, SEXP dn)
     return ans;
 }
 
-CHM_DN numeric_as_chm_dense(CHM_DN ans, double *v, int n)
+CHM_DN numeric_as_chm_dense(CHM_DN ans, double *v, int nr, int nc)
 {
-    ans->d = ans->nzmax = ans->nrow = n;
-    ans->ncol = 1;
+    ans->d = ans->nrow = nr;
+    ans->ncol = nc;
+    ans->nzmax = nr * nc;
     ans->x = (void *) v;
     ans->xtype = CHOLMOD_REAL;
     ans->dtype = CHOLMOD_DOUBLE;

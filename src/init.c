@@ -53,6 +53,7 @@ static R_CallMethodDef CallEntries[] = {
     {"Csparse_validate", (DL_FUNC) &Csparse_validate, 1},
     {"Csparse_vertcat", (DL_FUNC) &Csparse_vertcat, 2},
     {"pCholesky_validate", (DL_FUNC) &pCholesky_validate, 1},
+    {"Rsparse_validate", (DL_FUNC) &Rsparse_validate, 1},
 #ifdef _valid_only_for_old_graph_package
     {"graphNEL_as_dgTMatrix", (DL_FUNC) &graphNEL_as_dgTMatrix, 2},
 #endif
@@ -127,7 +128,7 @@ static R_CallMethodDef CallEntries[] = {
     {"lsTMatrix_as_lsyMatrix", (DL_FUNC) &lsTMatrix_as_lsyMatrix, 1},
     {"nsTMatrix_as_nsyMatrix", (DL_FUNC) &nsTMatrix_as_nsyMatrix, 1},
     {"dsyMatrix_as_dspMatrix", (DL_FUNC) &dsyMatrix_as_dspMatrix, 1},
-    {"dsyMatrix_as_matrix", (DL_FUNC) &dsyMatrix_as_matrix, 1},
+    {"dsyMatrix_as_matrix", (DL_FUNC) &dsyMatrix_as_matrix, 2},
     {"dsyMatrix_matrix_mm", (DL_FUNC) &dsyMatrix_matrix_mm, 3},
     {"dsyMatrix_matrix_solve", (DL_FUNC) &dsyMatrix_matrix_solve, 2},
     {"dsyMatrix_norm", (DL_FUNC) &dsyMatrix_norm, 2},
@@ -159,7 +160,7 @@ static R_CallMethodDef CallEntries[] = {
     {"dtpMatrix_solve", (DL_FUNC) &dtpMatrix_solve, 1},
     {"dtpMatrix_validate", (DL_FUNC) &dtpMatrix_validate, 1},
     {"dtrMatrix_as_dtpMatrix", (DL_FUNC) &dtrMatrix_as_dtpMatrix, 1},
-    {"dtrMatrix_as_matrix", (DL_FUNC) &dtrMatrix_as_matrix, 1},
+    {"dtrMatrix_as_matrix", (DL_FUNC) &dtrMatrix_as_matrix, 2},
     {"dtrMatrix_matrix_mm", (DL_FUNC) &dtrMatrix_matrix_mm, 3},
     {"dtrMatrix_getDiag", (DL_FUNC) &dtrMatrix_getDiag, 1},
     {"ltrMatrix_getDiag", (DL_FUNC) &ltrMatrix_getDiag, 1},
@@ -173,8 +174,10 @@ static R_CallMethodDef CallEntries[] = {
 
     /* for dgC* _and_ lgC* : */
     {"xCMatrix_validate", (DL_FUNC) &xCMatrix_validate, 1},
+    {"xRMatrix_validate", (DL_FUNC) &xRMatrix_validate, 1},
     {"xTMatrix_validate", (DL_FUNC) &xTMatrix_validate, 1},
     {"tCMatrix_validate", (DL_FUNC) &tCMatrix_validate, 1},
+    {"tRMatrix_validate", (DL_FUNC) &tRMatrix_validate, 1},
     {"tTMatrix_validate", (DL_FUNC) &tTMatrix_validate, 1},
 
     {"lapack_qr", (DL_FUNC) &lapack_qr, 2},
@@ -221,6 +224,7 @@ R_init_Matrix(DllInfo *dll)
     R_RegisterCCallable("Matrix", "as_cholmod_sparse", (DL_FUNC)as_cholmod_sparse);
     R_RegisterCCallable("Matrix", "chm_factor_to_SEXP", (DL_FUNC)chm_factor_to_SEXP);
     R_RegisterCCallable("Matrix", "chm_sparse_to_SEXP", (DL_FUNC)chm_sparse_to_SEXP);
+    R_RegisterCCallable("Matrix", "chm_triplet_to_SEXP", (DL_FUNC)chm_triplet_to_SEXP);
 
     R_RegisterCCallable("Matrix", "cholmod_aat", (DL_FUNC)cholmod_aat);
     R_RegisterCCallable("Matrix", "cholmod_add", (DL_FUNC)cholmod_add);

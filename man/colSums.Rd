@@ -50,13 +50,13 @@ colMeans(x, na.rm = FALSE, dims = 1, \dots)
 rowMeans(x, na.rm = FALSE, dims = 1, \dots)
 
 \S4method{colSums}{CsparseMatrix}(x, na.rm = FALSE,
-        dims = 1, sparseResult = FALSE, \dots)
+        dims = 1, sparseResult = FALSE)
 \S4method{rowSums}{CsparseMatrix}(x, na.rm = FALSE,
-        dims = 1, sparseResult = FALSE, \dots)
+        dims = 1, sparseResult = FALSE)
 \S4method{colMeans}{CsparseMatrix}(x, na.rm = FALSE,
-        dims = 1, sparseResult = FALSE, \dots)
+        dims = 1, sparseResult = FALSE)
 \S4method{rowMeans}{CsparseMatrix}(x, na.rm = FALSE,
-        dims = 1, sparseResult = FALSE, \dots)
+        dims = 1, sparseResult = FALSE)
 }
 \arguments{
   \item{x}{a Matrix, i.e., inheriting from  \code{\linkS4class{Matrix}}.}

@@ -50,11 +50,17 @@ setMethod("crossprod", signature(x = "lsparseMatrix", y = "lsparseMatrix"),
 
 
 setMethod("all", signature(x = "lsparseMatrix"),
-	  function(x, ..., na.rm = FALSE)
-	  !is(x, "triangularMatrix") && all(x@x, ..., na.rm = na.rm))
+	  function(x, ..., na.rm = FALSE) {
+	      d <- x@Dim
+	      l.x <- length(x@x)
+	      if(l.x == prod(d)) ## fully non-zero
+		  all(x@x, ..., na.rm = na.rm)
+	      else if(is(x, "symmetricMatrix") && l.x == choose(d[1]+1, 2)) {
+		  if(.Generic %in% summGener1)
+		      all(x@x, ..., na.rm = na.rm)
+		  else all(as(x, "generalMatrix")@x, ..., na.rm = na.rm)
+	      }
+	      else FALSE ## has at least one structural 0
+	  })
 
-setMethod("any", signature(x = "lsparseMatrix"),
-	  function(x, ..., na.rm = FALSE)
-	  ## logical unit-triangular has TRUE diagonal:
-	  (is(x, "triangularMatrix") && x@diag == "U") ||
-	  any(x@x, ..., na.rm = na.rm))
+## setMethod("any", ) ---> ./lMatrix.R

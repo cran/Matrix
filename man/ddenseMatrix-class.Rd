@@ -12,10 +12,12 @@
 \alias{coerce,ddenseMatrix,dgeMatrix-method}
 \alias{coerce,ddenseMatrix,CsparseMatrix-method}
 %
+% Group
 \alias{Arith,ddenseMatrix,ddenseMatrix-method}
 \alias{Arith,ddenseMatrix,numeric-method}
 \alias{Arith,numeric,ddenseMatrix-method}
 \alias{Math,ddenseMatrix-method}
+\alias{Summary,ddenseMatrix-method}
 %
 \alias{as.numeric,ddenseMatrix-method}
 \alias{crossprod,ddenseMatrix,missing-method}

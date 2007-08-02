@@ -57,9 +57,9 @@ SEXP dspMatrix_solve(SEXP a)
     SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dspMatrix")));
     int *dims = INTEGER(GET_SLOT(trf, Matrix_DimSym)), info;
 
-    SET_SLOT(val, Matrix_uploSym, duplicate(GET_SLOT(trf, Matrix_uploSym)));
-    SET_SLOT(val, Matrix_xSym, duplicate(GET_SLOT(trf, Matrix_xSym)));
-    SET_SLOT(val, Matrix_DimSym, duplicate(GET_SLOT(trf, Matrix_DimSym)));
+    slot_dup(val, trf, Matrix_uploSym);
+    slot_dup(val, trf, Matrix_xSym);
+    slot_dup(val, trf, Matrix_DimSym);
     F77_CALL(dsptri)(uplo_P(val), dims, REAL(GET_SLOT(val, Matrix_xSym)),
 		     INTEGER(GET_SLOT(trf, Matrix_permSym)),
 		     (double *) R_alloc((long) dims[0], sizeof(double)),
@@ -142,7 +142,7 @@ SEXP dspMatrix_trf(SEXP x)
     SET_SLOT(val, Matrix_uploSym, duplicate(uploP));
     SET_SLOT(val, Matrix_diagSym, mkString("N"));
     SET_SLOT(val, Matrix_DimSym, duplicate(dimP));
-    SET_SLOT(val, Matrix_xSym, duplicate(GET_SLOT(x, Matrix_xSym)));
+    slot_dup(val, x, Matrix_xSym);
     perm = INTEGER(ALLOC_SLOT(val, Matrix_permSym, INTSXP, n));
     F77_CALL(dsptrf)(uplo, dims, REAL(GET_SLOT(val, Matrix_xSym)), perm, &info);
     if (info) error(_("Lapack routine %s returned error code %d"), "dsptrf", info);

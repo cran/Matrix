@@ -20,12 +20,15 @@
 \alias{Compare,numeric,dMatrix-method}
 \alias{Logic,logical,lMatrix-method}
 \alias{Logic,lMatrix,logical-method}
-\alias{Summary,dMatrix-method}
-\alias{Math2,dMatrix,numeric-method}% Math2 = round + signif, but
+%\alias{Summary,dMatrix-method}
+%% R <= 2.5.x :
+\alias{Math2,dMatrix,ANY-method}% Math2 = round + signif,.., but
 \alias{Math2,dMatrix,missing-method}
 % for silly reasons, need these 2+3 as well:
 \alias{round,dMatrix,numeric-method}
 \alias{signif,dMatrix,numeric-method}
+%% R-2.6.0 - maybe
+\alias{Math2,dMatrix-method}
 \alias{log,dMatrix-method}
 \alias{gamma,dMatrix-method}
 \alias{lgamma,dMatrix-method}

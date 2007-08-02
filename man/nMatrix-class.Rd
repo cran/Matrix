@@ -2,6 +2,7 @@
 \docType{class}
 \alias{nMatrix-class}
 \alias{show,nMatrix-method}
+\alias{coerce,matrix,nMatrix-method}
 \alias{coerce,nMatrix,matrix-method}
 \alias{coerce,nMatrix,dMatrix-method}
 \alias{coerce,dMatrix,nMatrix-method}

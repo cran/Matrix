@@ -23,4 +23,6 @@ SEXP Csparse_transpose(SEXP x, SEXP tri);
 SEXP Csparse_validate(SEXP x);
 SEXP Csparse_vertcat(SEXP x, SEXP y);
 
+SEXP Rsparse_validate(SEXP x);
+
 #endif

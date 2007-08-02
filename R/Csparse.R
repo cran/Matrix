@@ -67,8 +67,33 @@ setMethod("Math",
 	      f0 <- callGeneric(0.)
 	      if(is0(f0)) {
 		  ## sparseness, symm., triang.,... preserved
-		  x@x <- callGeneric(x@x)
-		  x
+                  cl <- class(x)
+                  has.x <- !extends(cl, "nsparseMatrix")
+                  ## has.x  <==> *not* nonzero-pattern == "nMatrix"
+                  if(has.x) {
+                      type <- storage.mode(x@x)
+                      r <- callGeneric(x@x)
+                  } else { ## nsparseMatrix
+                      type <- ""
+		      r <- rep.int(as.double(callGeneric(TRUE)),
+				   switch(.sp.class(cl),
+					  CsparseMatrix = length(x@i),
+					  TsparseMatrix = length(x@i),
+					  RsparseMatrix = length(x@j)))
+                  }
+		  if(type == storage.mode(r)) {
+		      x@x <- r
+		      x
+		  } else { ## e.g. abs( <lgC> ) --> integer Csparse
+		      ## FIXME: when we have 'i*' classes, use them here:
+		      rx <- new(sub("^.", "d", cl))
+		      rx@x <- as.double(r)
+		      ## result is "same"
+		      sNams <- slotNames(cl)
+		      for(nm in sNams[sNams != "x"])
+			  slot(rx, nm) <- slot(x, nm)
+		      rx
+		  }
 	      } else { ## no sparseness
 		  callGeneric(as_dense(x))
 	      }

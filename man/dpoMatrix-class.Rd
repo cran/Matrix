@@ -42,6 +42,7 @@
   The \code{"dppMatrix"} class is the same except in packed storage.
   Only the upper triangle or the lower triangle is required to be
   available.
+
   The \code{"corMatrix"} class extends \code{"dpoMatrix"} with a slot \code{sd}.
 
 }
@@ -104,7 +105,13 @@ rcond(h6)
 str(h6)
 solve(h6)
 str(hp6 <- as(h6, "dppMatrix"))
-%% FIXME: add interesting  "corMatrix" example !
+
+### Note that  as(*, "corMatrix")  *scales* the matrix
+(ch6 <- as(h6, "corMatrix"))
+stopifnot(all.equal(ch6@sd^(-2), 2*(1:6)-1, tol= 1e-12))
+chch <- chol(ch6)
+stopifnot(identical(chch, ch6@factors$Cholesky),
+          all(abs(crossprod(chch) - ch6) < 1e-10))
 }
 \keyword{classes}
 \keyword{algebra}

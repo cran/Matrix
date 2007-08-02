@@ -173,3 +173,13 @@ setMethod("t", signature(x = "nspMatrix"),
 
 setMethod("as.vector", signature(x = "ndenseMatrix", mode = "missing"),
           function(x) as(x, "ngeMatrix")@x)
+
+setMethod("norm", signature(x = "ndenseMatrix", type = "character"),
+	  function(x, type, ...)
+          .Call(dgeMatrix_norm, as(as(x,"dMatrix"),"dgeMatrix"), type),
+	  valueClass = "numeric")
+
+setMethod("rcond", signature(x = "ndenseMatrix", type = "character"),
+	  function(x, type, ...)
+          .Call(dgeMatrix_rcond, as(as(x,"dMatrix"),"dgeMatrix"), type),
+	  valueClass = "numeric")

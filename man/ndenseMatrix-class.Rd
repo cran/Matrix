@@ -17,6 +17,7 @@
 \alias{coerce,ntrMatrix,ltrMatrix-method}
 \alias{as.vector,ndenseMatrix,missing-method}
 \alias{diag,ndenseMatrix-method}
+\alias{norm,ndenseMatrix,character-method}
 %%-- These are already in ./nsparseMatrix-classes.Rd :
 %\alias{\%*\%,nsparseMatrix,ndenseMatrix-method}
 %\alias{\%*\%,ndenseMatrix,nsparseMatrix-method}

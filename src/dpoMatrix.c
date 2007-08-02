@@ -68,9 +68,9 @@ SEXP dpoMatrix_solve(SEXP x)
     int *dims = INTEGER(GET_SLOT(x, Matrix_DimSym)), info;
 
     SET_SLOT(val, Matrix_factorSym, allocVector(VECSXP, 0));
-    SET_SLOT(val, Matrix_uploSym, duplicate(GET_SLOT(Chol, Matrix_uploSym)));
-    SET_SLOT(val, Matrix_xSym, duplicate(GET_SLOT(Chol, Matrix_xSym)));
-    SET_SLOT(val, Matrix_DimSym, duplicate(GET_SLOT(Chol, Matrix_DimSym)));
+    slot_dup(val, Chol, Matrix_uploSym);
+    slot_dup(val, Chol, Matrix_xSym);
+    slot_dup(val, Chol, Matrix_DimSym);
     SET_SLOT(val, Matrix_DimNamesSym,
 	     duplicate(GET_SLOT(x, Matrix_DimNamesSym)));
     F77_CALL(dpotri)(uplo_P(val), dims,
@@ -87,11 +87,13 @@ SEXP dpoMatrix_dgeMatrix_solve(SEXP a, SEXP b)
 	*bdims = INTEGER(GET_SLOT(b, Matrix_DimSym)),
 	info;
 
-    if (*adims != *bdims || bdims[1] < 1 || *adims < 1)
+    if (adims[1] != bdims[0])
 	error(_("Dimensions of system to be solved are inconsistent"));
+    if (adims[0] < 1 || bdims[1] < 1)
+	error(_("Cannot solve() for matrices with zero extents"));
     SET_SLOT(val, Matrix_factorSym, allocVector(VECSXP, 0));
-    SET_SLOT(val, Matrix_DimSym, duplicate(GET_SLOT(b, Matrix_DimSym)));
-    SET_SLOT(val, Matrix_xSym, duplicate(GET_SLOT(b, Matrix_xSym)));
+    slot_dup(val, b, Matrix_DimSym);
+    slot_dup(val, b, Matrix_xSym);
     F77_CALL(dpotrs)(uplo_P(Chol), adims, bdims + 1,
 		     REAL(GET_SLOT(Chol, Matrix_xSym)), adims,
 		     REAL(GET_SLOT(val, Matrix_xSym)),

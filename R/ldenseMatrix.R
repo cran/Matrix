@@ -163,7 +163,20 @@ setMethod("all", signature(x = "ldenseMatrix"),
 	      else all(x@x, ..., na.rm = na.rm)
 	  })
 
-setMethod("any", signature(x = "ldenseMatrix"),
-	  function(x, ..., na.rm = FALSE)
-	  (prod(dim(x)) >= 1 && is(x, "triangularMatrix") && x@diag == "U") ||
-	  any(x@x, ..., na.rm = na.rm))
+## setMethod("any", ) ---> ./lMatrix.R
+
+## setMethod("any", signature(x = "ldenseMatrix"),
+## 	  function(x, ..., na.rm = FALSE)
+## 	  (prod(dim(x)) >= 1 && is(x, "triangularMatrix") && x@diag == "U") ||
+## 	  any(x@x, ..., na.rm = na.rm))
+
+setMethod("norm", signature(x = "ldenseMatrix", type = "character"),
+	  function(x, type, ...)
+          .Call(dgeMatrix_norm, as(as(x,"dMatrix"),"dgeMatrix"), type),
+	  valueClass = "numeric")
+
+setMethod("rcond", signature(x = "ldenseMatrix", type = "character"),
+	  function(x, type, ...)
+          .Call(dgeMatrix_rcond, as(as(x,"dMatrix"),"dgeMatrix"), type),
+	  valueClass = "numeric")
+

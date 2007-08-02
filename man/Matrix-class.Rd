@@ -15,7 +15,7 @@
 \alias{Logic,Matrix,logical-method}
 \alias{Logic,Matrix,ANY-method}
 \alias{Logic,ANY,Matrix-method}
-%
+\alias{Summary,Matrix-method}
 \alias{\%*\%,Matrix,numeric-method}
 \alias{\%*\%,numeric,Matrix-method}
 \alias{\%*\%,Matrix,Matrix-method}

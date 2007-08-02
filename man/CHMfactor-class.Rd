@@ -9,6 +9,7 @@
 \alias{dCHMsuper-class}
 \alias{nCHMsuper-class}
 %
+\alias{coerce,CHMfactor,Matrix-method}
 \alias{coerce,CHMfactor,sparseMatrix-method}
 \alias{image,CHMfactor-method}
 \alias{solve,CHMfactor,ddenseMatrix-method}

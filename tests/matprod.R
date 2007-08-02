@@ -62,6 +62,10 @@ all.equal((Atr %*% solve(Atr, y))@x, y)
 ## ------
 ## solve() for dtC*
 mc <- round(chol(crossprod(A)), 2)
+B <- A[1:3,] # non-square on purpose
+stopifnot(all.equal(sum(rowSums(B %*% mc)), 5.82424475145),
+	  identical(tcrossprod(B, mc), t(tcrossprod(mc, B))))
+
 m <- kronecker(Diagonal(2), mc)
 stopifnot(is(mc, "Cholesky"),
 	  is(m, "sparseMatrix"))

@@ -63,9 +63,9 @@ SEXP dsyMatrix_solve(SEXP a)
     SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dsyMatrix")));
     int *dims = INTEGER(GET_SLOT(trf, Matrix_DimSym)), info;
 
-    SET_SLOT(val, Matrix_uploSym, duplicate(GET_SLOT(trf, Matrix_uploSym)));
-    SET_SLOT(val, Matrix_xSym, duplicate(GET_SLOT(trf, Matrix_xSym)));
-    SET_SLOT(val, Matrix_DimSym, duplicate(GET_SLOT(trf, Matrix_DimSym)));
+    slot_dup(val, trf, Matrix_uploSym);
+    slot_dup(val, trf, Matrix_xSym);
+    slot_dup(val, trf, Matrix_DimSym);
     F77_CALL(dsytri)(uplo_P(val), dims,
 		     REAL(GET_SLOT(val, Matrix_xSym)), dims,
 		     INTEGER(GET_SLOT(trf, Matrix_permSym)),
@@ -94,7 +94,7 @@ SEXP dsyMatrix_matrix_solve(SEXP a, SEXP b)
     return val;
 }
 
-SEXP dsyMatrix_as_matrix(SEXP from)
+SEXP dsyMatrix_as_matrix(SEXP from, SEXP keep_dimnames)
 {
     int n = INTEGER(GET_SLOT(from, Matrix_DimSym))[0];
     SEXP val = PROTECT(allocMatrix(REALSXP, n, n));
@@ -102,7 +102,8 @@ SEXP dsyMatrix_as_matrix(SEXP from)
     make_d_matrix_symmetric(Memcpy(REAL(val),
 				   REAL(GET_SLOT(from, Matrix_xSym)), n * n),
 			    from);
-    setAttrib(val, R_DimNamesSymbol, GET_SLOT(from, Matrix_DimNamesSym));
+    if(asLogical(keep_dimnames))
+	setAttrib(val, R_DimNamesSymbol, GET_SLOT(from, Matrix_DimNamesSym));
     UNPROTECT(1);
     return val;
 }
@@ -110,9 +111,10 @@ SEXP dsyMatrix_as_matrix(SEXP from)
 SEXP dsyMatrix_matrix_mm(SEXP a, SEXP b, SEXP rtP)
 {
     SEXP val = PROTECT(dup_mMatrix_as_dgeMatrix(b));
+    int rt = asLogical(rtP); /* if(rt), compute b %*% a,  else  a %*% b */
     int *adims = INTEGER(GET_SLOT(a, Matrix_DimSym)),
 	*bdims = INTEGER(GET_SLOT(b, Matrix_DimSym)),
-	m = bdims[0], n = bdims[1], rt = asLogical(rtP);
+	m = bdims[0], n = bdims[1];
     double one = 1., zero = 0.;
 
     if ((rt && n != adims[0]) || (!rt && m != adims[0]))

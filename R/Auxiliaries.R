@@ -1,59 +1,6 @@
 #### "Namespace private" Auxiliaries  such as method functions
 #### (called from more than one place --> need to be defined early)
 
-
-if(R.version$`svn rev` < 41863) ## use the fixed one
-    ## will be hidden in namespace and can be removed when DEPENDS: R >= 2.5.1
-    callGeneric <- function(...)
-{
-    frame <- sys.parent()
-    envir <- parent.frame()
-    call <- sys.call(frame)
-
-    ## the  lines below this comment do what the previous version
-    ## did in the expression fdef <- sys.function(frame)
-    if(exists(".Generic", envir = envir, inherits = FALSE))
-	fname <- get(".Generic", envir = envir)
-    else { # in a local method (special arguments), or	an error
-	## FIXME:  this depends on the .local mechanism, which should change
-	if(identical(as.character(call[[1]]), ".local"))
-	    call <- sys.call(sys.parent(2))
-	fname <- as.character(call[[1]])
-    }
-    fdef <- get(fname, envir = envir)
-
-    if(is.primitive(fdef)) {
-        if(nargs() == 0)
-            stop("'callGeneric' with a primitive needs explicit arguments (no formal args defined)")
-        else {
-            fname <- as.name(fname)
-            call <- substitute(fname(...))
-        }
-    }
-    else {
-        env <- environment(fdef)
-        if(!exists(".Generic", env, inherits = FALSE))
-            stop("'callGeneric' must be called from a generic function or method")
-        f <- get(".Generic", env, inherits = FALSE)
-        fname <- as.name(f)
-        if(nargs() == 0) {
-            call[[1]] <- as.name(fname) # in case called from .local
-            call <- match.call(fdef, call)
-            anames <- names(call)
-            matched <- !is.na(match(anames, names(formals(fdef))))
-            for(i in seq_along(anames))
-                if(matched[[i]])
-                    call[[i]] <- as.name(anames[[i]])
-        }
-        else {
-            call <- substitute(fname(...))
-        }
-    }
-    eval(call, sys.frame(sys.parent()))
-}
-
-
-
 ## Need to consider NAs ;  "== 0" even works for logical & complex:
 is0  <- function(x) !is.na(x) & x == 0
 isN0 <- function(x)  is.na(x) | x != 0

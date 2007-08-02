@@ -36,7 +36,8 @@ setAs("dMatrix", "lMatrix",
       function(from) {
 	  r <- new(class2(class(from), "l"))# default => no validity
 	  r@x <- as.logical(from@x)
-	  for(nm in slotNames(r)) if(nm != "x")
+	  sNams <- slotNames(r)
+	  for(nm in sNams[sNams != "x"])
 	      slot(r, nm) <- slot(from, nm)
 	  r
       })
@@ -45,7 +46,8 @@ setAs("lMatrix", "dMatrix",
       function(from) {
 	  r <- new(sub("^l", "d", class(from)))
 	  r@x <- as.double(from@x)
-	  for(nm in slotNames(r)) if(nm != "x")
+	  sNams <- slotNames(r)
+	  for(nm in sNams[sNams != "x"])
 	      slot(r, nm) <- slot(from, nm)
 	  r
       })
@@ -54,4 +56,10 @@ setAs("lMatrix", "dMatrix",
 setAs("lMatrix", "dgCMatrix",
       function(from) as(as(from, "lgCMatrix"), "dgCMatrix"))
 
-## all() and any() methods ---> ldenseMatrix.R and lsparseMatrix.R
+## all() methods ---> ldenseMatrix.R and lsparseMatrix.R
+
+setMethod("any", signature(x = "lMatrix"),
+	  function(x, ..., na.rm = FALSE)
+	  ## logical unit-triangular has TRUE diagonal:
+	  (prod(dim(x)) >= 1 && is(x, "triangularMatrix") && x@diag == "U") ||
+	  any(x@x, ..., na.rm = na.rm))

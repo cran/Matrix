@@ -189,3 +189,7 @@
 - now check for DimNames propagation in coercions, at least by using a
   "dimnamed" matrix in tstMatrixClass() in tests/Class+Meth.R
 
+- norm() methods for all Matrices, notably sparse "now too".
+
+- check all "Summary" group methods for all matrices in ./tests/Class+Meth.R
+

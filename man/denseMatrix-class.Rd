@@ -2,6 +2,9 @@
 \docType{class}
 \title{Virtual Class "denseMatrix" of All Dense Matrices}
 \alias{denseMatrix-class}
+%% Group methods
+\alias{Math,denseMatrix-method}
+%
 \alias{show,denseMatrix-method}
 \alias{coerce,ANY,denseMatrix-method}
 \alias{coerce,denseMatrix,CsparseMatrix-method}

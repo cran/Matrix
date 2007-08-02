@@ -446,30 +446,35 @@ setMethod("Logic", signature(e1 = "lMatrix", e2 = "logical"),
 ## Here's the common functionality
 .do.Logic.lsparse <- function(e1,e2, d, dn, isOR, ij1, ij2) {
     ii <- WhichintersectInd(ij1, ij2, nrow=d[1])
-    I1 <- ii[[1]]
-    I2 <- ii[[2]]
+    I1 <- ii[[1]] ; has1 <- length(I1) > 0
+    I2 <- ii[[2]] ; has2 <- length(I2) > 0
 
     ## 1) common indices
     i <- ij1[I1, 1]
     j <- ij1[I1, 2]
 
     if(isOR) { ## i.e. .Generic == "|" i.e. not "&"
-        x <- e1@x[I1] | e2@x[I2]
-        ## 2) "e1 o  FALSE":
-        x2 <- e1@x[- I1] # == callGeneric(e1@x[- I1], FALSE)
-        ## 3) "0  o e1":
-        x3 <- e2@x[- I2] # == callGeneric(FALSE, e2@x[- I2])
-        i <- c(i, ij1[-I1, 1], ij2[-I2, 1])
-        j <- c(j, ij1[-I1, 2], ij2[-I2, 2])
-        x <- c(x, x2,		 x3)
+	x <- e1@x[I1] | e2@x[I2]
+
+	## 2) "e1 o  FALSE":
+	x2 <- if(has1) e1@x[- I1] else e1@x # == callGeneric(e1@x[- I1], FALSE)
+	## 3) "0  o e1":
+	x3 <- if(has2) e2@x[- I2] else e2@x # == callGeneric(FALSE, e2@x[- I2])
+	i <- c(i,
+	       if(has1) ij1[-I1, 1] else ij1[, 1],
+	       if(has2) ij2[-I2, 1] else ij2[, 1])
+	j <- c(j,
+	       if(has1) ij1[-I1, 2] else ij1[, 2],
+	       if(has2) ij2[-I2, 2] else ij2[, 2])
+	x <- c(x, x2, x3)
     } else { ## AND
-        x <- e1@x[I1] & e2@x[I2]
+	x <- e1@x[I1] & e2@x[I2]
     }
 
     if(any(!x)) { ## drop 'FALSE's
-        i <- i[x]
-        j <- j[x]
-        x <- x[x]
+	i <- i[x]
+	j <- j[x]
+	x <- x[x]
     }
     new("lgTMatrix", Dim = d, Dimnames = dn, i = i, j = j, x = x)
 }

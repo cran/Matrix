@@ -24,7 +24,6 @@
 \alias{crossprod,dgCMatrix,dgeMatrix-method}
 \alias{diag,dgCMatrix-method}
 \alias{dim,dgCMatrix-method}
-\alias{image,dgCMatrix-method}
 \alias{lu,dgCMatrix-method}
 \alias{t,dgCMatrix-method}
 \alias{solve,dgCMatrix,matrix-method}

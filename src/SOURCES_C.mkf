@@ -1,7 +1,6 @@
 SOURCES_C =  \
 	    CHMfactor.c \
 	    Csparse.c \
-	    HBMM.c \
             TMatrix_as.c \
 	    Tsparse.c \
 	    init.c \
@@ -25,5 +24,4 @@ SOURCES_C =  \
             factorizations.c \
 	    ldense.c \
 	    lgCMatrix.c \
-            mmio.c \
 	    sparseQR.c

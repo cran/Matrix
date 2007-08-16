@@ -113,18 +113,20 @@ SEXP dsyMatrix_matrix_mm(SEXP a, SEXP b, SEXP rtP)
     SEXP val = PROTECT(dup_mMatrix_as_dgeMatrix(b));
     int rt = asLogical(rtP); /* if(rt), compute b %*% a,  else  a %*% b */
     int *adims = INTEGER(GET_SLOT(a, Matrix_DimSym)),
-	*bdims = INTEGER(GET_SLOT(b, Matrix_DimSym)),
+	*bdims = INTEGER(GET_SLOT(val, Matrix_DimSym)),
 	m = bdims[0], n = bdims[1];
     double one = 1., zero = 0.;
+    double *vx = REAL(GET_SLOT(val, Matrix_xSym));
+    double *bcp = Memcpy(Alloca(m * n, double), vx, m * n);
+    R_CheckStack();
 
     if ((rt && n != adims[0]) || (!rt && m != adims[0]))
 	error(_("Matrices are not conformable for multiplication"));
     if (m < 1 || n < 1)
 	error(_("Matrices with zero extents cannot be multiplied"));
     F77_CALL(dsymm)(rt ? "R" :"L", uplo_P(a), &m, &n, &one,
-		    REAL(GET_SLOT(a, Matrix_xSym)), adims,
-		    REAL(GET_SLOT(b, Matrix_xSym)), &m,
-		    &zero, REAL(GET_SLOT(val, Matrix_xSym)), &m);
+		    REAL(GET_SLOT(a, Matrix_xSym)), adims, bcp,
+		    &m, &zero, vx, &m);
     UNPROTECT(1);
     return val;
 }

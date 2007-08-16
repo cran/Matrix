@@ -53,9 +53,16 @@ pm <- as(readMM(system.file("external/pores_1.mtx",
 str(pmLU <- lu(pm))		# p is a 0-based permutation of the rows
                                 # q is a 0-based permutation of the columns
 ## permute rows and columns of original matrix
-ppm <- pm[pmLU@p + 1:1, pmLU@q + 1:1]
+ppm <- pm[pmLU@p + 1L, pmLU@q + 1L]
+pLU <- pmLU@L \%*\% pmLU@U
+## equal up to "rounding"
 ppm[1:14, 1:5]
-(pmLU@L \%*\% pmLU@U)[1:14, 1:5]  # product can have extra zeros
+pLU[1:14, 1:5]  # product can have extra zeros
+## "prove" consistency (up to rounding):
+i0 <- ppm != pLU & ppm == 0
+iN <- ppm != pLU & ppm != 0
+stopifnot(all(abs((ppm - pLU)[i0]) < 1e-7), # absolute error for true 0
+          all(abs((ppm - pLU)[iN]/ppm[iN]) < 1e-9)) # relative error
 }
 \keyword{array}
 \keyword{algebra}

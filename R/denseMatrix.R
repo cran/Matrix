@@ -93,21 +93,21 @@ setMethod("dim<-", signature(x = "denseMatrix", value = "ANY"),
 ## since  symmetric, triangular, .. will not be preserved anyway:
 setMethod("[", signature(x = "denseMatrix", i = "index", j = "missing",
 			 drop = "logical"),
-	  function (x, i, drop) {
+	  function (x, i, j, ..., drop) {
 	      r <- as(x, "matrix")[i, , drop=drop]
 	      if(is.null(dim(r))) r else as(r, geClass(x))
 	  })
 
 setMethod("[", signature(x = "denseMatrix", i = "missing", j = "index",
 			 drop = "logical"),
-	  function (x, j, drop) {
+	  function (x, i, j, ..., drop) {
 	      r <- as(x, "matrix")[, j, drop=drop]
 	      if(is.null(dim(r))) r else as(r, geClass(x))
 	  })
 
 setMethod("[", signature(x = "denseMatrix", i = "index", j = "index",
 			 drop = "logical"),
-	  function (x, i, j, drop) {
+	  function (x, i, j, ..., drop) {
 	      r <- callGeneric(x = as(x, "matrix"), i=i, j=j, drop=drop)
 	      if(is.null(dim(r)))
 		  r
@@ -121,7 +121,7 @@ setMethod("[", signature(x = "denseMatrix", i = "index", j = "index",
 	  })
 
 setMethod("[", signature(x = "denseMatrix", i = "matrix", j = "missing"),#drop="ANY"
-	  function(x, i, j, drop) {
+	  function(x, i, j, ..., drop) {
 	      r <- as(x, "matrix")[ i ]
 	      if(is.null(dim(r))) r else as(r, geClass(x))
 	  })
@@ -134,7 +134,7 @@ setMethod("[", signature(x = "denseMatrix", i = "matrix", j = "missing"),#drop="
 ## -----
 setReplaceMethod("[", signature(x = "denseMatrix", i = "index", j = "missing",
 				value = "replValue"),
-		 function (x, i, value) {
+		 function (x, i, j, ..., value) {
 		     r <- as(x, "matrix")
 		     r[i, ] <- value
 		     as(r, geClass(x))
@@ -142,7 +142,7 @@ setReplaceMethod("[", signature(x = "denseMatrix", i = "index", j = "missing",
 
 setReplaceMethod("[", signature(x = "denseMatrix", i = "missing", j = "index",
 				value = "replValue"),
-		 function (x, j, value) {
+		 function (x, i, j, ..., value) {
 		     r <- as(x, "matrix")
 		     r[, j] <- value
 		     as(r, geClass(x))
@@ -150,7 +150,7 @@ setReplaceMethod("[", signature(x = "denseMatrix", i = "missing", j = "index",
 
 setReplaceMethod("[", signature(x = "denseMatrix", i = "index", j = "index",
 				value = "replValue"),
-		 function (x, i, j, value) {
+		 function (x, i, j, ..., value) {
 		     r <- as(x, "matrix")
 		     r[i, j] <- value
 		     as_geClass(r, class(x)) ## was as(r, class(x))
@@ -158,7 +158,7 @@ setReplaceMethod("[", signature(x = "denseMatrix", i = "index", j = "index",
 
 setReplaceMethod("[", signature(x = "denseMatrix", i = "matrix", j = "missing",
 				value = "replValue"),
-		 function(x, i, value) {
+		 function(x, i, j, ..., value) {
 		     r <- as(x, "matrix")
 		     r[ i ] <- value
 		     as(r, geClass(x))

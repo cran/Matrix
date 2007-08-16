@@ -12,7 +12,6 @@ Csparse.o: Csparse.c Csparse.h Mutils.h Syms.h \
   CHOLMOD/Include/cholmod_cholesky.h CHOLMOD/Include/cholmod_partition.h \
   CHOLMOD/Include/cholmod_supernodal.h \
   CHOLMOD/Include/cholmod_matrixops.h CHOLMOD/Include/cholmod_modify.h
-HBMM.o: HBMM.c HBMM.h Mutils.h Syms.h mmio.h
 Mutils.o: Mutils.c Mutils.h Syms.h
 TMatrix_as.o: TMatrix_as.c TMatrix_as.h Mutils.h Syms.h
 Tsparse.o: Tsparse.c Tsparse.h Mutils.h Syms.h \
@@ -82,7 +81,7 @@ dtrMatrix.o: dtrMatrix.c dtrMatrix.h Mutils.h Syms.h
 
 factorizations.o: factorizations.c factorizations.h Mutils.h Syms.h
 init.o: init.c Mutils.h Syms.h \
-  HBMM.h chm_common.h UFconfig/UFconfig.h CHOLMOD/Include/cholmod.h \
+  chm_common.h UFconfig/UFconfig.h CHOLMOD/Include/cholmod.h \
   CHOLMOD/Include/cholmod_io64.h CHOLMOD/Include/cholmod_config.h \
   CHOLMOD/Include/cholmod_core.h CHOLMOD/Include/cholmod_check.h \
   CHOLMOD/Include/cholmod_cholesky.h CHOLMOD/Include/cholmod_partition.h \
@@ -94,10 +93,7 @@ init.o: init.c Mutils.h Syms.h \
   dtCMatrix.h dtTMatrix.h dtrMatrix.h dtpMatrix.h factorizations.h \
   ldense.h lgCMatrix.h sparseQR.h
 
-iohb.o: iohb.c iohb.h
-
 ldense.o: ldense.c ldense.h Mutils.h Syms.h
 lgCMatrix.o: lgCMatrix.c lgCMatrix.h Mutils.h Syms.h dgCMatrix.h \
   cs_utils.h cs.h
-mmio.o: mmio.c mmio.h
 sparseQR.o: sparseQR.c sparseQR.h Mutils.h Syms.h cs_utils.h cs.h

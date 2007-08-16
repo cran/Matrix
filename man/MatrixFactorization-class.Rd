@@ -3,8 +3,11 @@
 \docType{class}
 \title{Class "MatrixFactorization" of Matrix Factorizations}
 %
+\alias{dim,MatrixFactorization-method}
 \alias{expand,MatrixFactorization-method}
 \alias{show,MatrixFactorization-method}
+\alias{solve,MatrixFactorization,numeric-method}
+\alias{solve,MatrixFactorization,ANY-method}
 \description{
   The class \code{"MatrixFactorization"} is the virtual (super) class of
   (potentially) all matrix factorizations of matrices from package
@@ -21,12 +24,18 @@
 }
 \section{Methods}{
   \describe{
+    \item{dim}{\code{(x)} simply returns \code{x@Dim}, see above.}
     \item{expand}{\code{signature(x = "MatrixFactorization")}: this has
       not been implemented yet for all matrix factorizations. It should
       return a list whose components are matrices which when multiplied
       return the original \code{\linkS4class{Matrix}} object.}
-    \item{show}{\code{signature(object = "MatrixFactorization")}: ... }
-	 }
+    \item{show}{\code{signature(object = "MatrixFactorization")}: simple
+      printing, see \code{\link{show}}.}
+    \item{solve}{\code{signature(a = "MatrixFactorization", b= .)}:
+      solve \eqn{A x = b} for \eqn{x}; has not been implemented for
+      all factorizations, but e.g., for \code{\linkS4class{CHMfactor}},
+      see there.}
+  }
 }
 \seealso{
   classes inheriting from \code{"MatrixFactorization"}, such as

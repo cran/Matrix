@@ -165,7 +165,7 @@ setAs("TsparseMatrix", "graphNEL", Tsp2grNEL)
 
 setMethod("[", signature(x = "sparseMatrix", i = "index", j = "missing",
 			 drop = "logical"),
-	  function (x, i, j, drop) {
+	  function (x, i, drop) {
 	      cld <- getClassDef(class(x))
 	      if(!extends(cld, "generalMatrix")) x <- as(x, "generalMatrix")
 	      viaCl <- paste(.M.kind(x, cld), "gTMatrix", sep='')
@@ -177,7 +177,7 @@ setMethod("[", signature(x = "sparseMatrix", i = "index", j = "missing",
 
 setMethod("[", signature(x = "sparseMatrix", i = "missing", j = "index",
 			 drop = "logical"),
-	  function (x, i, j, drop) {
+	  function (x, j, drop) {
 	      cld <- getClassDef(class(x))
 	      if(!extends(cld, "generalMatrix")) x <- as(x, "generalMatrix")
 	      viaCl <- paste(.M.kind(x, cld), "gTMatrix", sep='')
@@ -188,7 +188,7 @@ setMethod("[", signature(x = "sparseMatrix", i = "missing", j = "index",
 
 setMethod("[", signature(x = "sparseMatrix",
 			 i = "index", j = "index", drop = "logical"),
-	  function (x, i, j, drop) {
+	  function (x, i, j, ..., drop) {
 	      cld <- getClassDef(class(x))
 	      ## be smart to keep symmetric indexing of <symm.Mat.> symmetric:
 	      doSym <- (extends(cld, "symmetricMatrix") &&
@@ -468,10 +468,18 @@ setMethod("norm", signature(x = "sparseMatrix", type = "character"),
 	  })
 
 
+setMethod("rcond", signature(x = "sparseMatrix", type = "character"),
+	  function(x, type, ...) {
+	  stop("There are no specialized rcond() methods for sparse ",
+	       "matrices.\n Either use rcond(as(. , \"denseMatrix\"))\n",
+	       " or 1 / (norm(.) * norm(solve(.))).")
+	      })
+
 lm.fit.sparse <-
 function(x, y, offset = NULL, method = c("qr", "cholesky"),
          tol = 1e-7, singular.ok = TRUE, transpose = FALSE, ...)
-### Fit a linear model using a sparse QR or a sparse Cholesky factorization
+### Fit a linear model, __ given __ a sparse model matrix 'x'
+### using a sparse QR or a sparse Cholesky factorization
 {
     stopifnot(is(x, "dsparseMatrix"))
 ##     if(!is(x, "dsparseMatrix"))

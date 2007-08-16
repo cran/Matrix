@@ -77,23 +77,30 @@ setAs("matrix", "dgTMatrix", mat2dgT)
 
 setMethod("image", "dgTMatrix",
           function(x,
-		   xlim = .5 + c(0, matdim[2]),
-		   ylim = .5 + c(matdim[1], 0),
-                   sub = sprintf("Dimensions: %d x %d", matdim[1], matdim[2]),
+		   xlim = .5 + c(0, di[2]),
+		   ylim = .5 + c(di[1], 0),
+                   aspect = "iso", ## was default "fill"
+                   sub = sprintf("Dimensions: %d x %d", di[1], di[2]),
                    xlab = "Column", ylab = "Row",
-                   cuts = 20,
                    col.regions = grey(seq(from = 0.7, to = 0, length = 100)),
+                   colorkey = FALSE,
                    ...)
       {
-          matdim <- x@Dim
+          di <- x@Dim
           levelplot(abs(x@x) ~ (x@j + 1L) * (x@i + 1L),
                     sub = sub,
                     xlab = xlab, ylab = ylab,
                     xlim = xlim, ylim = ylim,
-                    col.regions = col.regions,
-                    par.settings = list(background = list(col = "transparent")),
+		    aspect = aspect,
+		    colorkey = colorkey,
+		    col.regions = col.regions,
+		    par.settings = list(background = list(col = "transparent")),
                     panel = function(x, y, z, subscripts, at, ..., col.regions)
                 {
+##                     if(getOption("verbose")) {
+##                         cat("image(<dgTMatrix>, ..); inside panel():\n")
+##                         print(ls.str(envir = environment()))
+##                     }
                     x <- as.numeric(x[subscripts])
                     y <- as.numeric(y[subscripts])
 
@@ -126,9 +133,5 @@ setMethod("+", signature(e1 = "dgTMatrix", e2 = "dgTMatrix"),
           })
 
 
-setMethod("writeHB", signature(obj = "dgTMatrix"),
-	  function(obj, file, ...) callGeneric(as(obj, "CsparseMatrix"), file, ...))
-
-setMethod("writeMM", signature(obj = "dgTMatrix"),
-	  function(obj, file, ...)
-	  .Call(Matrix_writeMatrixMarket, obj, as.character(file), "DGT"))
+## setMethod("writeHB", signature(obj = "dgTMatrix"),
+## 	  function(obj, file, ...) callGeneric(as(obj, "CsparseMatrix"), file, ...))

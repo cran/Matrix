@@ -36,6 +36,10 @@
 \alias{colSums,denseMatrix-method}
 \alias{rowMeans,denseMatrix-method}
 \alias{rowSums,denseMatrix-method}
+\alias{colMeans,ddenseMatrix-method}
+\alias{colSums,ddenseMatrix-method}
+\alias{rowMeans,ddenseMatrix-method}
+\alias{rowSums,ddenseMatrix-method}
 % NB: kept those documented in ./dgeMatrix-class.Rd
 %
 \title{Form Row and Column Sums and Means}

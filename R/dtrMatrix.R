@@ -89,7 +89,7 @@ setMethod("determinant", signature(x = "dtrMatrix", logarithm = "logical"),
 	  })
 
 setMethod("diag", signature(x = "dtrMatrix"),
-          function(x, nrow, ncol = n) .Call(dtrMatrix_getDiag, x),
+          function(x, nrow, ncol) .Call(dtrMatrix_getDiag, x),
           valueClass = "numeric")
 
 setMethod("norm", signature(x = "dtrMatrix", type = "character"),

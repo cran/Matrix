@@ -82,7 +82,7 @@ setMethod("crossprod", signature(x = "ddenseMatrix", y = "missing"),
           function(x, y = NULL) callGeneric(as(x, "dgeMatrix")))
 
 setMethod("diag", signature(x = "ddenseMatrix"),
-          function(x, nrow, ncol = n) callGeneric(as(x, "dgeMatrix")))
+          function(x, nrow, ncol) callGeneric(as(x, "dgeMatrix")))
 
 setMethod("solve", signature(a = "ddenseMatrix", b = "missing"),
           function(a, b, ...) callGeneric(as(a, "dgeMatrix")))

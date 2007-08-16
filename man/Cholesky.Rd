@@ -80,7 +80,10 @@ str(mtm@factors) # 'sPDCholesky'  *and*  'SPDCholesky'
 str(cmat <- as(Cm, "sparseMatrix"))
 cmat[1:20, 1:20]
 b <- matrix(c(rep(0, 711), 1), nc = 1)
-stopifnot(all.equal(solve(mtm, b), solve(Cm, b)))
+## solve(Cm, b) by default solves  Ax = b, where A = Cm'Cm !
+stopifnot(identical(solve(Cm, b), solve(Cm, b, system = "A")),
+          all.equal(solve(mtm, b),
+                    solve(Cm, b)))
 }
 \keyword{array}
 \keyword{algebra}

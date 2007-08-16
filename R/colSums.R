@@ -18,6 +18,11 @@
     callGeneric()
 }
 
+.as.dge.Fun <- function(x, na.rm = FALSE, dims = 1) {
+    x <- as(x, "dgeMatrix")
+    callGeneric()
+}
+
 .as.gC.Fun <- function(x, na.rm = FALSE, dims = 1, sparseResult = FALSE) {
     x <- as_gCsimpl(x)
     callGeneric()
@@ -34,6 +39,12 @@ setMethod("colSums",  signature(x = "denseMatrix"), .as.d.Fun)
 setMethod("colMeans", signature(x = "denseMatrix"), .as.d.Fun)
 setMethod("rowSums",  signature(x = "denseMatrix"), .as.d.Fun)
 setMethod("rowMeans", signature(x = "denseMatrix"), .as.d.Fun)
+
+## FIXME: "works" but not optimally for triangular/symmetric(packed)/..
+setMethod("colSums",  signature(x = "ddenseMatrix"), .as.dge.Fun)
+setMethod("colMeans", signature(x = "ddenseMatrix"), .as.dge.Fun)
+setMethod("rowSums",  signature(x = "ddenseMatrix"), .as.dge.Fun)
+setMethod("rowMeans", signature(x = "ddenseMatrix"), .as.dge.Fun)
 
 setMethod("colSums", signature(x = "dgeMatrix"),
 	  function(x, na.rm = FALSE, dims = 1)

@@ -2,7 +2,8 @@
 \docType{methods}
 \alias{qr-methods}
 \alias{qr,dgCMatrix-method}
-\title{Methods for the qr generic} 
+\alias{qr,sparseMatrix-method}
+\title{Methods for the qr generic}
 \description{
   The \code{"Matrix"} package provides methods for the QR decomposition
   of  special classes of matrices.  The generic function is
@@ -15,8 +16,8 @@
     \item{x = "dgCMatrix"}{QR decomposition of a general sparse
       double-precision matrix with \code{nrow(x) >= ncol(x)}.  Returns
       an object of class \code{"sparseQR"}, see
-      \code{\linkS4class{sparseQR}}.
-    }
+      \code{\linkS4class{sparseQR}}.}
+    \item{x = "sparseMatrix"}{works via \code{"dgCMatrix"}.}
   }
 }
 \seealso{\code{\link[base]{qr}}, \code{\linkS4class{sparseQR}},

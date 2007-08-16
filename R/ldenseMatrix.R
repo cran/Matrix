@@ -123,19 +123,19 @@ setMethod("as.logical", signature(x = "ldenseMatrix"),
 ###----------------------------------------------------------------------
 
 setMethod("diag", signature(x = "ltrMatrix"),
-          function(x, nrow, ncol = n) .Call(ltrMatrix_getDiag, x))
+          function(x, nrow, ncol) .Call(ltrMatrix_getDiag, x))
 
 setMethod("diag", signature(x = "ltpMatrix"),
-          function(x, nrow, ncol = n) .Call(ltpMatrix_getDiag, x))
+          function(x, nrow, ncol) .Call(ltpMatrix_getDiag, x))
 
 
 setMethod("diag", signature(x = "ldenseMatrix"),
-	  function(x, nrow, ncol = n) callGeneric(as(x, "lgeMatrix")))
+	  function(x, nrow, ncol) callGeneric(as(x, "lgeMatrix")))
 setMethod("diag", signature(x = "ndenseMatrix"),# << the "same"
-	  function(x, nrow, ncol = n) callGeneric(as(x, "ldenseMatrix")))
+	  function(x, nrow, ncol) callGeneric(as(x, "ldenseMatrix")))
 
 setMethod("diag", signature(x = "lgeMatrix"),
-	  function(x, nrow, ncol = n) .Call(lgeMatrix_getDiag, x))
+	  function(x, nrow, ncol) .Call(lgeMatrix_getDiag, x))
 
 setMethod("t", signature(x = "lgeMatrix"), t_geMatrix)
 setMethod("t", signature(x = "ltrMatrix"), t_trMatrix)
@@ -149,7 +149,7 @@ setMethod("t", signature(x = "lspMatrix"),
 ##        "!" is in ./not.R
 
 setMethod("as.vector", signature(x = "ldenseMatrix", mode = "missing"),
-	  function(x) as(x, "lgeMatrix")@x)
+	  function(x, mode) as(x, "lgeMatrix")@x)
 
 setMethod("all", signature(x = "lsyMatrix"),
           function(x, ..., na.rm = FALSE)

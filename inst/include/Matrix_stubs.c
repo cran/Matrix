@@ -451,6 +451,18 @@ M_R_cholmod_error(int status, char *file, int line, char *message)
     error("Cholmod error `%s' at file:%s, line %d", message, file, line);
 }
     
+/* just to get 'int' instead of 'void' as required by CHOLMOD's print_function */
+static int
+R_cholmod_printf(const char* fmt, ...)
+{
+    va_list(ap);
+
+    va_start(ap, fmt);
+    Rprintf((char *)fmt, ap);
+    va_end(ap);
+    return 0;
+}
+
 int attribute_hidden
 M_R_cholmod_start(CHM_CM Common)
 {
@@ -460,7 +472,7 @@ M_R_cholmod_start(CHM_CM Common)
 	fun = (int(*)(CHM_CM))
 	    R_GetCCallable("Matrix", "cholmod_start");
     val = fun(Common);
-    Common->print_function = Rprintf;
+    Common->print_function = R_cholmod_printf; /* Rprintf gives warning */
     Common->error_handler = M_R_cholmod_error;
     return val;
 }

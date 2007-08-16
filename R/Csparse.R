@@ -203,7 +203,7 @@ setReplaceMethod("[", signature(x = "CsparseMatrix", i = "matrix", j = "missing"
 				value = "replValue"),
 		 function(x, i, value)
 		 ## goto Tsparse modify and convert back:
-		 as(.TM.repl.i.2col(as(x, "TsparseMatrix"), i, value),
+		 as(.TM.repl.i.2col(as(x, "TsparseMatrix"), i=i, value=value),
 		    "CsparseMatrix"))
 
 
@@ -313,7 +313,7 @@ setMethod("band", "CsparseMatrix",
 	  })
 
 setMethod("diag", "CsparseMatrix",
-	  function(x, nrow, ncol = n) {
+	  function(x, nrow, ncol) {
 	      dm <- .Call(Csparse_band, x, 0, 0)
 	      dlen <- min(dm@Dim)
 	      ind1 <- dm@i + 1L	# 1-based index vector
@@ -333,3 +333,8 @@ setMethod("diag", "CsparseMatrix",
 	      }
 	      val
 	  })
+
+setMethod("writeMM", "CsparseMatrix",
+	  function(obj, file, ...)
+          .Call(Csparse_MatrixMarket, obj, as.character(file)))
+

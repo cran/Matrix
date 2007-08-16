@@ -79,11 +79,6 @@
 \alias{crossprod,lsparseMatrix,lsparseMatrix-method}
 \alias{crossprod,lsparseMatrix,ldenseMatrix-method}
 \alias{crossprod,ldenseMatrix,lsparseMatrix-method}
-\alias{image,lgCMatrix-method}
-\alias{image,lsCMatrix-method}
-\alias{image,lsTMatrix-method}
-\alias{image,ltCMatrix-method}
-\alias{image,ltTMatrix-method}
 \alias{t,lgCMatrix-method}
 \alias{t,lgTMatrix-method}
 \alias{t,lsCMatrix-method}

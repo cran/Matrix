@@ -5,14 +5,20 @@
 extern "C" {
 #endif
 
-#include <Rdefines.h> /* Rinternals.h + GET_SLOT etc */
+#include <ctype.h>
 #include <R.h>  /* includes Rconfig.h */
+#include <Rdefines.h> /* Rinternals.h + GET_SLOT etc */
 
 #ifdef ENABLE_NLS
 #include <libintl.h>
 #define _(String) dgettext ("Matrix", String)
 #else
 #define _(String) (String)
+#endif
+
+#ifdef __GNUC__
+# undef alloca
+# define alloca(x) __builtin_alloca((x))
 #endif
 
 #define Alloca(n, t)   (t *) alloca( (size_t) ( (n) * sizeof(t) ) )

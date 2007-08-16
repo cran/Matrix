@@ -1,3 +1,8 @@
+#### eigen() , Schur() etc
+
+
+## eigen() is not even generic, and we haven't any C code,
+##         but rather  base::eigen()  "magically"  works via as.matrix()
 if (FALSE) {
 setMethod("eigen", signature(x = "dgeMatrix", only.values = "missing"),
           function(x, symmetric, only.values, EISPACK) # << must match generic

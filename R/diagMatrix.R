@@ -186,7 +186,7 @@ setAs("Matrix", "diagonalMatrix",
 
 
 setMethod("diag", signature(x = "diagonalMatrix"),
-	  function(x = 1, nrow, ncol = n) .diag.x(x))
+	  function(x = 1, nrow, ncol) .diag.x(x))
 
 
 subDiag <- function(x, i, j, drop) {

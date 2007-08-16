@@ -27,6 +27,7 @@ export("Cholesky",
 #	 "isDiagonal",
        "lu",
        "norm",
+       "nearPD",
        "nnzero",
        "printSpMatrix",
        "rcond",
@@ -36,7 +37,7 @@ export("Cholesky",
        "tril",
        "triu",
        "unpack",
-       "writeHB",
+#        "writeHB",
        "writeMM"
        )
 

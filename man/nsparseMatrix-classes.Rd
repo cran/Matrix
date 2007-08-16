@@ -79,11 +79,6 @@
 \alias{crossprod,nsparseMatrix,nsparseMatrix-method}
 \alias{crossprod,nsparseMatrix,ndenseMatrix-method}
 \alias{crossprod,ndenseMatrix,nsparseMatrix-method}
-\alias{image,ngCMatrix-method}
-\alias{image,nsCMatrix-method}
-\alias{image,nsTMatrix-method}
-\alias{image,ntCMatrix-method}
-\alias{image,ntTMatrix-method}
 \alias{t,ngCMatrix-method}
 \alias{t,ngTMatrix-method}
 \alias{t,nsCMatrix-method}

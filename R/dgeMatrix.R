@@ -1,13 +1,5 @@
 setAs("matrix", "dgeMatrix",
       function(from) .Call(dup_mMatrix_as_dgeMatrix, from))
-if(FALSE)## the above is MUCH faster than
-setAs("matrix", "dgeMatrix",
-      function(from) {
-	  new("dgeMatrix",
-	      x = as.double(from),
-	      Dim = as.integer(dim(from)),
-	      Dimnames = .M.DN(from))
-      })
 
 setAs("dgeMatrix", "matrix",
       function(from) {
@@ -38,7 +30,7 @@ setMethod("Math",
 
 
 setMethod("as.vector", signature(x = "dgeMatrix", mode = "missing"),
-          function(x) x@x)
+          function(x, mode) x@x)
 
 setMethod("norm", signature(x = "dgeMatrix", type = "missing"),
 	  function(x, type, ...) norm(x, type = "O", ...))
@@ -147,7 +139,7 @@ setMethod("%*%", signature(x = "numeric", y = "dgeMatrix"),
 	  valueClass = "dgeMatrix")
 
 setMethod("diag", signature(x = "dgeMatrix"),
-	  function(x, nrow, ncol = n) .Call(dgeMatrix_getDiag, x))
+	  function(x, nrow, ncol) .Call(dgeMatrix_getDiag, x))
 
 setMethod("chol", signature(x = "dgeMatrix", pivot = "ANY"), cholMat)
 

@@ -1,6 +1,73 @@
+2007-08-16  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Date, Version): 0.999375-2
+
+2007-08-15  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/HBMM.R (readMM): make work for pattern matrices as well
+
+2007-08-14 13:07  Douglas Bates <bates@stat.wisc.edu>
+
+	* [r4730] src/Mutils.h: declare alloca
+	* [r4734] NAMESPACE, R/AllGeneric.R, R/Csparse.R, R/HBMM.R, R/Tsparse.R,
+	  R/dgCMatrix.R, R/dgTMatrix.R, R/dsCMatrix.R, R/dsTMatrix.R,
+	  man/externalFormats.Rd, src/Csparse.c, src/Csparse.h, src/DEPS.mkf,
+	  src/HBMM.c, src/HBMM.h, src/Mutils.h, src/SOURCES_C.mkf, src/init.c,
+	  src/mmio.c, src/mmio.h: Remove deprecated function writeHB and its
+	  methods; switch writeMM to use CHOLMOD code; repair readMM
+
+2007-08-14  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/nearPD.R, man/nearPD.Rd (nearPD): new function built on Jens
+	Oehlschlaegel's ... result type still to be discussed!
+
+2007-08-10  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* man/image-methods.Rd: new, combining all image() methods
+
+2007-08-09  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/dgCMatrix.R: define qr() and lu() methods for "sparseMatrix"
+	to work via dgC...
+
+	* R/Matrix.R (Matrix): special treatment for "table" (S3)
+
+2007-08-07  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/dgTMatrix.R (image): change defaults to
+		aspect = "iso", colorkey = FALSE
+
+2007-08-06  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/dsyMatrix.c (dsyMatrix_matrix_mm): 'b' might be matrix;
+	must copy its *expanded* x slot before LAPACK call.
+
+	* tests/matprod.R: test the last days' changes.
+
+2007-08-06 16:43  Douglas Bates <bates@stat.wisc.edu>
+
+	* [r4712] inst/include/Matrix_stubs.c: Change R_cholmod_printf in stubs
+	  as well as in sources
+	* [r4713] src/dsyMatrix.c: Duplicate the contents of the RHS before
+	  Lapack call
+
+2007-08-03  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Matrix.R (%*%, crossprod, tcrossprod): add method for
+		("Matrix", "matrix") which is needed in some cases.
+	Ditto for solve().
+
+	* R/colSums.R (.as.dge.Fun): need ddenseMatrix methods to avoid
+	infinite recursion in dispatch for some cases.
+
+2007-08-02 08:48  Martin Maechler <maechler@stat.math.ethz.ch>
+
+	* [r4693] src/chm_common.c: R_cholmod_printf() instead of Rprintf() just
+	  so pointers match
+
 2007-08-02  Martin Maechler  <maechler@stat.math.ethz.ch>
 
-	* DESCRIPTION (Date): set ready for release
+	* DESCRIPTION (Date): set ready for release -- 0.999375-1
 
 2007-08-01 15:44  Douglas Bates <bates@stat.wisc.edu>
 

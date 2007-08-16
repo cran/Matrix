@@ -77,44 +77,96 @@ readHB <- function(file)
 readMM <- function(file)
 {
     if (is.character(file))
-        if (file == "")
-            file <- stdin()
-        else
-            file <- file(file)
+	file <- if(file == "") stdin() else file(file)
     if (!inherits(file, "connection"))
-        stop("'file' must be a character string or connection")
+	stop("'file' must be a character string or connection")
     if (!isOpen(file)) {
-        open(file)
-        on.exit(close(file))
+	open(file)
+	on.exit(close(file))
     }
-    if ((hdr <- scan(file, nmax = 1, what = character(0), quiet = TRUE))
-        != "%%MatrixMarket")
-        stop("file is not a MatrixMarket file")
-    typ <- tolower(scan(file, nmax = 1, what = character(0), quiet = TRUE))
-    if (!typ %in% "matrix")
-        stop(paste("type '", typ, "' not recognized", sep = ""))
-    repr <- tolower(scan(file, nmax = 1, what = character(0), quiet = TRUE))
-    if (!repr %in% c("coordinate", "array"))
-        stop(paste("representation '", repr, "' not recognized", sep = ""))
-    elt <- tolower(scan(file, nmax = 1, what = character(0), quiet = TRUE))
+    scan1 <- function(what, ...)
+	scan(file, nmax = 1, what = what, quiet = TRUE, ...)
+
+    if ((hdr <- scan1(character())) != "%%MatrixMarket")
+	stop("file is not a MatrixMarket file")
+    if (!(typ <- tolower(scan1(character()))) %in% "matrix")
+	stop("type '", typ, "' not recognized")
+    if (!(repr <- tolower(scan1(character()))) %in% c("coordinate", "array"))
+	stop("representation '", repr, "' not recognized")
+    elt <- tolower(scan1(character()))
     if (!elt %in% c("real", "complex", "integer", "pattern"))
-        stop(paste("element type '", elt, "' not recognized", sep = ""))
-    sym <- tolower(scan(file, nmax = 1, what = character(0), quiet = TRUE))
+	stop("element type '", elt, "' not recognized")
+    sym <- tolower(scan1(character()))
     if (!sym %in% c("general", "symmetric", "skew-symmetric", "hermitian"))
-        stop(paste("symmetry form '", sym, "' not recognized", sep = ""))
-    nr <- scan(file, nmax = 1, what = integer(0),
-               comment.char = "%", quiet = TRUE)
-    nc <- scan(file, nmax = 1, what = integer(0), quiet = TRUE)
-    nz <- scan(file, nmax = 1, what = integer(0), quiet = TRUE)
-    if (repr == "coordinate" && elt == "real") {
-        els <- scan(file, nmax = nz,
-                    what = list(i = integer(0), j = integer(0),
-                    x = numeric(0)), quiet = TRUE)
-        if (sym == "general")
-            return(new("dgTMatrix", Dim = c(nr, nc), i = els$i - 1L,
-                       j = els$j - 1L, x = els$x))
-        if (sym == "symmetric")
-            return(new("dsTMatrix", uplo = "L", Dim = c(nr, nc),
-                       i = els$i - 1L, j = els$j - 1L, x = els$x))
+	stop("symmetry form '", sym, "' not recognized")
+    nr <- scan1(integer(), comment.char = "%")
+    nc <- scan1(integer())
+    nz <- scan1(integer())
+    if (repr == "coordinate") {
+	switch(elt,
+	       "real" = ,
+	       "integer" = {
+		   ## TODO: the "integer" element type should be returned as
+		   ##       an object of an "iMatrix" subclass--once there are
+		   els <- scan(file, nmax = nz, quiet = TRUE,
+			       what= list(i= integer(), j= integer(), x= numeric()))
+		   switch(sym,
+			  "general" = {
+			      new("dgTMatrix", Dim = c(nr, nc), i = els$i - 1L,
+				  j = els$j - 1L, x = els$x)
+			  },
+			  "symmetric" = {
+			      new("dsTMatrix", uplo = "L", Dim = c(nr, nc),
+				  i = els$i - 1L, j = els$j - 1L, x = els$x)
+			  },
+			  "skew-symmetric" = {
+			      stop("symmetry form 'skew-symmetric' not yet implemented for reading")
+			      ## FIXME: use dgT... but must expand the (i,j,x) slots!
+			      new("dgTMatrix", uplo = "L", Dim = c(nr, nc),
+				  i = els$i - 1L, j = els$j - 1L, x = els$x)
+
+			  },
+			  "hermitian" = {
+			      stop("symmetry form 'hermitian' not yet implemented for reading")
+			  },
+			  ## otherwise (not possible; just defensive programming):
+			  stop(gettextf("symmetry form '%s' is not yet implemented", sym))
+			  )
+	       },
+	       "pattern" = {
+		   els <- scan(file, nmax = nz, quiet = TRUE,
+			       what = list(i = integer(0), j = integer(0)))
+		   switch(sym,
+			  "general" = {
+			      new("ngTMatrix", Dim = c(nr, nc),
+				  i = els$i - 1L, j = els$j - 1L)
+			  },
+			  "symmetric" = {
+			      new("nsTMatrix", uplo = "L", Dim = c(nr, nc),
+				  i = els$i - 1L, j = els$j - 1L)
+			  },
+			  "skew-symmetric" = {
+			      stop("symmetry form 'skew-symmetric' not yet implemented for reading")
+			      ## FIXME: use dgT... but must expand the (i,j,x) slots!
+			      new("ngTMatrix", uplo = "L", Dim = c(nr, nc),
+				  i = els$i - 1L, j = els$j - 1L)
+
+			  },
+			  "hermitian" = {
+			      stop("symmetry form 'hermitian' not yet implemented for reading")
+			  },
+			  ## otherwise (not possible; just defensive programming):
+			  stop(gettextf("symmetry form '%s' is not yet implemented", sym))
+			  )
+	       },
+	       "complex" = {
+		   stop("element type 'complex' not yet implemented")
+	       },
+	       ## otherwise (not possible currently):
+	       stop(gettextf("'%s()' is not yet implemented for element type '%s'",
+			     "readMM", elt)))
     }
+    else
+	stop(gettextf("'%s()' is not yet implemented for  representation '%s'",
+		      "readMM", repr))
 }

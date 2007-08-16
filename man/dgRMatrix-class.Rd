@@ -5,7 +5,6 @@
 % all alias{coerce,...} are currently in ./RsparseMatrix-class.Rd
 \alias{diag,dgRMatrix-method}
 \alias{dim,dgRMatrix-method}
-\alias{image,dgRMatrix-method}
 \alias{t,dgRMatrix-method}
 \description{The \code{dgRMatrix} class is a class of sparse numeric
   matrices in the compressed, sparse, row-oriented format.  In this

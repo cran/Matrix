@@ -106,7 +106,8 @@ Matrix <-
     sparseDefault <- function(m) prod(dim(m)) > 2*sum(isN0(as(m, "matrix")))
 
     i.M <- is(data, "Matrix")
-
+    if(!i.M && inherits(data, "table")) # special treatment
+	class(data) <- "matrix" # "matrix" first for S4 dispatch
     if(is.null(sparse1 <- sparse) && (i.M || is(data, "matrix")))
 	sparse <- sparseDefault(data)
 
@@ -209,14 +210,24 @@ Matrix <-
 
 setMethod("%*%", signature(x = "Matrix", y = "numeric"),
 	  function(x, y) callGeneric(x, as.matrix(y)))
-
 setMethod("%*%", signature(x = "numeric", y = "Matrix"),
 	  function(x, y) callGeneric(matrix(x, nrow = 1, byrow=TRUE), y))
+
+setMethod("%*%", signature(x = "Matrix", y = "matrix"),
+	  function(x, y) callGeneric(x, Matrix(y)))
+setMethod("%*%", signature(x = "matrix", y = "Matrix"),
+	  function(x, y) callGeneric(Matrix(x), y))
+
 
 setMethod("crossprod", signature(x = "Matrix", y = "numeric"),
 	  function(x, y = NULL) callGeneric(x, as.matrix(y)))
 setMethod("crossprod", signature(x = "numeric", y = "Matrix"),
 	  function(x, y = NULL)	 callGeneric(as.matrix(x), y))
+
+setMethod("crossprod", signature(x = "Matrix", y = "matrix"),
+	  function(x, y = NULL) callGeneric(x, Matrix(y)))
+setMethod("crossprod", signature(x = "matrix", y = "Matrix"),
+	  function(x, y = NULL) callGeneric(Matrix(x), y))
 
 ## The as.matrix() promotion seems illogical to MM,
 ## but is according to help(tcrossprod, package = "base") :
@@ -224,16 +235,23 @@ setMethod("tcrossprod", signature(x = "Matrix", y = "numeric"),
 	  function(x, y = NULL) callGeneric(x, as.matrix(y)))
 setMethod("tcrossprod", signature(x = "numeric", y = "Matrix"),
 	  function(x, y = NULL)	 callGeneric(as.matrix(x), y))
+setMethod("tcrossprod", signature(x = "Matrix", y = "matrix"),
+	  function(x, y = NULL) callGeneric(x, Matrix(y)))
+setMethod("tcrossprod", signature(x = "matrix", y = "Matrix"),
+	  function(x, y = NULL) callGeneric(Matrix(x), y))
 
-## maybe not optimal
+## maybe not 100% optimal, but elegant:
 setMethod("solve", signature(a = "Matrix", b = "missing"),
 	  function(a, b, ...) solve(a, Diagonal(nrow(a))))
 
 setMethod("solve", signature(a = "Matrix", b = "numeric"),
-	  function(a, b, ...) callGeneric(a, as.matrix(b)))
-## when no sub-class method is found, bail out
+	  function(a, b, ...) callGeneric(a, Matrix(b)))
 setMethod("solve", signature(a = "Matrix", b = "matrix"),
-	  function(a, b, ...) .bail.out.2("solve", class(a), "matrix"))
+	  function(a, b, ...) callGeneric(a, Matrix(b)))
+setMethod("solve", signature(a = "matrix", b = "Matrix"),
+	  function(a, b, ...) callGeneric(Matrix(a), b))
+
+## when no sub-class method is found, bail out
 setMethod("solve", signature(a = "Matrix", b = "Matrix"),
 	  function(a, b, ...) .bail.out.2("solve", class(a), class(b)))
 
@@ -348,14 +366,14 @@ setMethod("Summary", signature(x = "Matrix", na.rm = "ANY"),
 ## "x[]":
 setMethod("[", signature(x = "Matrix",
 			 i = "missing", j = "missing", drop = "ANY"),
-	  function (x, i, j, drop) x)
+	  function (x, i, j, ..., drop) x)
 
 ## missing 'drop' --> 'drop = TRUE'
 ##                     -----------
 ## select rows
 setMethod("[", signature(x = "Matrix", i = "index", j = "missing",
 			 drop = "missing"),
-	  function(x,i,j, drop) {
+	  function(x,i,j, ..., drop) {
 	      if(nargs() == 1) { ## e.g. M[0] , M[TRUE],  M[1:2]
 		  if(any(i)) as.vector(x)[i] else as.vector(x[1,1])[FALSE]
 	      } else callGeneric(x, i=i, drop= TRUE)})
@@ -363,20 +381,20 @@ setMethod("[", signature(x = "Matrix", i = "index", j = "missing",
 ## select columns
 setMethod("[", signature(x = "Matrix", i = "missing", j = "index",
 			 drop = "missing"),
-	  function(x,i,j, drop) callGeneric(x, j=j, drop= TRUE))
+	  function(x,i,j, ..., drop) callGeneric(x, j=j, drop= TRUE))
 setMethod("[", signature(x = "Matrix", i = "index", j = "index",
                          drop = "missing"),
-	  function(x,i,j, drop) callGeneric(x, i=i, j=j, drop= TRUE))
+	  function(x,i,j, ..., drop) callGeneric(x, i=i, j=j, drop= TRUE))
 
 ## bail out if any of (i,j,drop) is "non-sense"
 setMethod("[", signature(x = "Matrix", i = "ANY", j = "ANY", drop = "ANY"),
-	  function(x,i,j, drop)
+	  function(x,i,j, ..., drop)
           stop("invalid or not-yet-implemented 'Matrix' subsetting"))
 
 ## logical indexing, such as M[ M >= 7 ] *BUT* also M[ M[,1] >= 3,],
 ## The following is *both* for    M [ <logical>   ]
 ##                 and also for   M [ <logical> , ]
-.M.sub.i.logical <- function (x, i, j, drop)
+.M.sub.i.logical <- function (x, i, j, ..., drop)
 {
     nA <- nargs()
     if(nA == 2) { ##  M [ M >= 7 ]
@@ -387,7 +405,7 @@ setMethod("[", signature(x = "Matrix", i = "ANY", j = "ANY", drop = "ANY"),
 	stop("not-yet-implemented 'Matrix' subsetting") ## FIXME
 
     } else stop("nargs() = ", nA,
-		".  Extraneous illegal arguments inside '[ .. ]' ?")
+		".  Extraneous illegal arguments inside '[ .. ]' (i.logical)?")
 }
 setMethod("[", signature(x = "Matrix", i = "lMatrix", j = "missing",
 			 drop = "ANY"),
@@ -398,7 +416,7 @@ setMethod("[", signature(x = "Matrix", i = "logical", j = "missing",
 
 
 ## A[ ij ]  where ij is (i,j) 2-column matrix :
-.M.sub.i.2col <- function (x, i, j, drop)
+.M.sub.i.2col <- function (x, i, j, ..., drop)
 {
     nA <- nargs()
     if(nA == 2) { ##  M [ cbind(ii,jj) ]
@@ -418,7 +436,7 @@ setMethod("[", signature(x = "Matrix", i = "logical", j = "missing",
 	unlist(lapply(seq_len(m), function(j) x[i1[j], i2[j]]))
 
     } else stop("nargs() = ", nA,
-		".  Extraneous illegal arguments inside '[ .. ]' ?")
+		".  Extraneous illegal arguments inside '[ .. ]' (i.2col)?")
 }
 setMethod("[", signature(x = "Matrix", i = "matrix", j = "missing"),# drop="ANY"
 	  .M.sub.i.2col)
@@ -437,8 +455,11 @@ setReplaceMethod("[", signature(x = "Matrix", i = "missing", j = "missing",
           })
 
 ## A[ ij ] <- value,  where ij is (i,j) 2-column matrix :
-## ----------------   The cheap general method --- FIXME: provide special ones
-.M.repl.i.2col <- function (x, i, j, value)
+## ----------------
+## The cheap general method --- FIXME: provide special ones; done for Tsparse..
+## NOTE:  need '...' below such that setMethod() does
+##	  not use .local() such that nargs() will work correctly:
+.M.repl.i.2col <- function (x, i, j, ..., value)
 {
     nA <- nargs()
     if(nA == 3) { ##  M [ cbind(ii,jj) ] <- value
@@ -495,6 +516,7 @@ setReplaceMethod("[", signature(x = "Matrix", i = "ANY", j = "ANY",
 
                      callGeneric(x=x, i=i, j=j, value = as.vector(value))
                  })
+
 setReplaceMethod("[", signature(x = "Matrix", i = "ANY", j = "ANY",
 				value = "Matrix"),
 		 function (x, i, j, value)

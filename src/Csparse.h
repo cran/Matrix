@@ -15,6 +15,7 @@ SEXP Csparse_horzcat(SEXP x, SEXP y);
 SEXP Csparse_submatrix(SEXP x, SEXP i, SEXP j);
 SEXP Csparse_symmetric_to_general(SEXP x);
 SEXP Csparse_general_to_symmetric(SEXP x, SEXP uplo);
+SEXP Csparse_MatrixMarket(SEXP x, SEXP fname);
 SEXP Csparse_to_Tsparse(SEXP x, SEXP tri);
 SEXP Csparse_to_dense(SEXP x);
 SEXP Csparse_to_nz_pattern(SEXP x, SEXP tri);

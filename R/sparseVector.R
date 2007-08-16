@@ -220,7 +220,7 @@ intIv <- function(i, n)
 
 
 setMethod("[", signature(x = "sparseVector", i = "index"),
-	  function (x, i, j, drop) {
+	  function (x, i, j, ..., drop) {
 	      cld <- getClassDef(class(x))
 	      has.x <- !extends(cld, "nsparseVector")
 	      n <- x@length
@@ -329,6 +329,7 @@ setReplaceMethod("[", signature(x = "sparseVector", i = "index", j = "missing",
 
 
 ## a "method" for c(<(sparse)Vector>, <(sparse)Vector>):
+## FIXME: This is not exported, nor used (nor documented)
 c2v <- function(x, y) {
     ## these as(., "sp..V..") check input implicitly:
     cx <- class(x <- as(x, "sparseVector"))

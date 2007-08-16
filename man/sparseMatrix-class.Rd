@@ -30,10 +30,12 @@
 \alias{-,sparseMatrix,missing-method}
 \alias{diag,sparseMatrix-method}
 \alias{dim<-,sparseMatrix-method}
+\alias{lu,sparseMatrix-method}
 \alias{print,sparseMatrix-method}
 \alias{show,sparseMatrix-method}
 \alias{summary,sparseMatrix-method}
 \alias{norm,sparseMatrix,character-method}
+\alias{rcond,sparseMatrix,character-method}
 %\alias{colMeans,..} etc are now in ./colSums.Rd
 % graph stuff
 \alias{coerce,graph,sparseMatrix-method}

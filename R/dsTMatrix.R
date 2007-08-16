@@ -32,11 +32,5 @@ setMethod("t", signature(x = "dsTMatrix"),
               uplo = if (x@uplo == "U") "L" else "U"),
           valueClass = "dsTMatrix")
 
-setMethod("writeHB", signature(obj = "dsTMatrix"),
-          function(obj, file, ...) callGeneric(as(obj, "CsparseMatrix"), file, ...))
-
-setMethod("writeMM", signature(obj = "dsTMatrix"),
-          function(obj, file, ...)
-          .Call(Matrix_writeMatrixMarket,
-                if (obj@uplo == "U") t(obj) else obj,
-                as.character(file), "DST"))
+## setMethod("writeHB", signature(obj = "dsTMatrix"),
+##           function(obj, file, ...) callGeneric(as(obj, "CsparseMatrix"), file, ...))

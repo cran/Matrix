@@ -15,7 +15,7 @@
 
 
 ## setMethod("diag", signature(x = "lgCMatrix"),
-## 	  function(x, nrow, ncol = n) .Call(lgCMatrix_diag, x))
+## 	  function(x, nrow, ncol) .Call(lgCMatrix_diag, x))
 
 ## setMethod("crossprod", signature(x = "lgCMatrix", y = "missing"),
 ## 	  function(x, y = NULL)

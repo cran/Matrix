@@ -126,16 +126,10 @@ setMethod("determinant", signature(x = "dsCMatrix", logarithm = "logical"),
           val
       })
 
-setMethod("writeHB", signature(obj = "dsCMatrix"),
-          function(obj, file, ...) {
-              .Deprecated("writeMM")
-              .Call(Matrix_writeHarwellBoeing,
-                    if (obj@uplo == "U") t(obj) else obj,
-                    as.character(file), "DSC")
-          })
-
-setMethod("writeMM", signature(obj = "dsCMatrix"),
-          function(obj, file, ...)
-          .Call(Matrix_writeMatrixMarket,
-                if (obj@uplo == "U") t(obj) else obj,
-                as.character(file), "DSC"))
+## setMethod("writeHB", signature(obj = "dsCMatrix"),
+##           function(obj, file, ...) {
+##               .Deprecated("writeMM")
+##               .Call(Matrix_writeHarwellBoeing,
+##                     if (obj@uplo == "U") t(obj) else obj,
+##                     as.character(file), "DSC")
+##           })

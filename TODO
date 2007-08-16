@@ -1,7 +1,5 @@
 Check for DimNames propagation in coercion and other operations.
 ------
-- rcond methods for sparseMatrix classes
-
 - Report the problem in the Linux ldexp manual page.  The second and
   third calls in the Synopsis should be to ldexpf and ldexpl.
 
@@ -52,6 +50,19 @@ Check for DimNames propagation in coercion and other operations.
   for all  "dsparse*" -> "lsparse*" and vice versa.
   How can one do this {in a documented way} ?
 
+- Think of constructing  setAs(...) calls automatically in order to
+  basically enable all ``sensible'' as(fromMatrix, toMatrix)  calls,
+  possibly using canCoerce(.)
+
+- setAs(<Mcl>,  "[dln]Matrix") for <Mcl> in {Matrix or denseMatrix + sparseMatrix}
+
+- When we have a packed matrix, it's a waste to go through "full" to "sparse":
+  ==> implement
+	setAs("dspMatrix", "sparseMatrix")
+	setAs("dppMatrix", "sparseMatrix")
+	setAs("dtpMatrix", "sparseMatrix")
+  and the same for "lsp" , "ltp"  and  "nsp" , "ntp" !
+
 - tcrossprod(x, y) : do provide methods for y != NULL
   calling Lapack's DGEMM for "dense"
   [2005-12-xx: done for dgeMatrix at least]
@@ -73,13 +84,6 @@ Check for DimNames propagation in coercion and other operations.
 
 - is.na() method for all our matrices [ ==> which(*, arr.ind=TRUE) might work ]
 
-- When we have a packed matrix, it's a waste to go through "full" to "sparse":
-  ==> implement
-	setAs("dspMatrix", "sparseMatrix")
-	setAs("dppMatrix", "sparseMatrix")
-	setAs("dtpMatrix", "sparseMatrix")
-  and the same for "lsp" , "ltp"  and  "nsp" , "ntp" !
-
 - use  .Call(Csparse_drop, M, tol) in more places,
   both with 'tol = 0.' to drop "values that happen to be 0" and for
   zapsmall() methods for Csparse*
@@ -91,10 +95,6 @@ Check for DimNames propagation in coercion and other operations.
 
 - chol() and determinant() should ``work'': proper result or "good" error
   message.
-
-- Think of constructing  setAs(...) calls automatically in order to
-  basically enable all ``sensible'' as(fromMatrix, toMatrix)  calls,
-  possibly using canCoerce(.)
 
 - make sure *all* group methods have (maybe "bail-out") setMethod for "Matrix".
   e.g. zapsmall(<pMatrix>) fails "badly"
@@ -108,14 +108,6 @@ Check for DimNames propagation in coercion and other operations.
   the matrix factors of the corresponding matrix factorization !!
 
 - rbind(<sparse>, <dense>) does not work  (e.g. <dgC>, <dge>)
-
-- setAs(<Mcl>,  "[dln]Matrix" )  for <Mcl> in {Matrix or denseMatrix + sparseMatrix}
-
-- Tell users about the possibility to disable the "S4-generic but somewhat slow"
-  cbind/rbind, e.g. via
-
-  setHook(packageEvent("Matrix", "onLoad"),
-          function(...) methods:::bind_activation(FALSE))
 
 - ensure that  M[0], M[FALSE], M[1:2]  works as for traditional Matrices
 
@@ -133,6 +125,8 @@ Check for DimNames propagation in coercion and other operations.
   --> R/diagMatrix.R ('FIXME')
   but also R/Ops.R  to ensure  sp-sym. + sp-sym. |-> sp-sym.  etc
 
+- Diagonal(n) %*% A ---  too slow!! --> ~/R/MM/Pkg-ex/Matrix/diag-Tamas-ex.R
+
 - For a square sparse matrix 'b' {typically dgCMatrix or dgTMatrix},
   we'd want a function  "Mat_plus_t_Mat" <- function(b) {....}
   which computes the symmetric sparse matrix   b + t(b)
@@ -141,10 +135,6 @@ Check for DimNames propagation in coercion and other operations.
 - ! <symmetricMatrix>  loses symmetry, both for dense and sparse matrices.
   !M  where M is "sparseMatrix", currently always gives dense. This only
   makes sense when M is ``really sparse''.
-
-- log1p(<sparseMatrix>) "should" give <dsparseMatrix>
-  Pretty surely, this would happen automagically, if "log1p" became part of
-  "Math" group generic ---> which is the case from R 2.6.0 on
 
 - msy <- as(matrix(c(2:1,1:2),2), "dsyMatrix"); str(msy)
 
@@ -162,3 +152,10 @@ Check for DimNames propagation in coercion and other operations.
   triangularMatrix, and probably also "dense*general*Matrix" since the
   above currently goes via "matrix" and back instead of using the 'x' slot
   directly.
+
+- image(M, ..): Think about an optional smart option which keeps
+   "0 |-> transparent" and allows colors to differentiate negative and
+   positive entries.
+
+- examples for solve( Cholesky(.), b, system = c("A", "LDLt"....))
+  probably rather in man/CHMfactor-class.Rd than man/Cholesky.Rd

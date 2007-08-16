@@ -19,6 +19,8 @@
 \alias{\%*\%,Matrix,numeric-method}
 \alias{\%*\%,numeric,Matrix-method}
 \alias{\%*\%,Matrix,Matrix-method}
+\alias{\%*\%,Matrix,matrix-method}
+\alias{\%*\%,matrix,Matrix-method}
 % "[" are in ./Xtrct-methods.Rd <<<<<<<<
 \alias{cbind2,ANY,Matrix-method}
 \alias{cbind2,Matrix,ANY-method}
@@ -39,11 +41,15 @@
 \alias{crossprod,Matrix,numeric-method}
 \alias{crossprod,Matrix,ANY-method}
 \alias{crossprod,Matrix,Matrix-method}
+\alias{crossprod,Matrix,matrix-method}
+\alias{crossprod,matrix,Matrix-method}
 \alias{crossprod,numeric,Matrix-method}
 \alias{tcrossprod,ANY,Matrix-method}
 \alias{tcrossprod,Matrix,numeric-method}
 \alias{tcrossprod,Matrix,ANY-method}
 \alias{tcrossprod,Matrix,Matrix-method}
+\alias{tcrossprod,Matrix,matrix-method}
+\alias{tcrossprod,matrix,Matrix-method}
 \alias{tcrossprod,numeric,Matrix-method}
 %
 \alias{chol,Matrix,ANY-method}
@@ -71,9 +77,9 @@
 \alias{coerce,Matrix,denseMatrix-method}
 \alias{coerce,Matrix,CsparseMatrix-method}
 \alias{coerce,Matrix,sparseMatrix-method}
-\alias{image,Matrix-method}
 \alias{solve,Matrix,Matrix-method}
 \alias{solve,Matrix,matrix-method}
+\alias{solve,matrix,Matrix-method}
 \alias{solve,Matrix,missing-method}
 \alias{solve,Matrix,numeric-method}
 \alias{crossprod,ANY,Matrix-method}

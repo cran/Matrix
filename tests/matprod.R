@@ -11,6 +11,9 @@ m. <- as(m5, "matrix")
 stopifnot(dim(m5) == 5:6,
           class(cm5 <- crossprod(m5)) == "dpoMatrix")
 assert.EQ.mat((c.m5 <- t(m5) %*% m5), as(cm5, "matrix"))
+stopifnot(as.vector(rep(1,6) %*% cm5) == colSums(cm5),
+	  as.vector(cm5 %*% rep(1,6)) == rowSums(cm5))
+
 ## crossprod() with numeric vector RHS and LHS
 ## not sensical for tcrossprod() because of 'vec' --> cbind(vec) promotion:
 assert.EQ.mat( crossprod(rep(1,5), m5),  rbind( colSums(m5)))

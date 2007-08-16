@@ -2,16 +2,10 @@
 \docType{genericFunction}
 \alias{readHB}
 \alias{readMM}
-\alias{writeHB}
+% \alias{writeHB}
 \alias{writeMM}
-\alias{writeHB,dgCMatrix-method}
-\alias{writeHB,dgTMatrix-method}
-\alias{writeHB,dsCMatrix-method}
-\alias{writeHB,dsTMatrix-method}
-\alias{writeMM,dgCMatrix-method}
-\alias{writeMM,dgTMatrix-method}
-\alias{writeMM,dsCMatrix-method}
-\alias{writeMM,dsTMatrix-method}
+\alias{writeMM,CsparseMatrix-method}
+\alias{writeMM,TsparseMatrix-method}
 \title{Read and write external matrix formats}
 \description{
     Read matrices stored in the Harwell-Boeing or MatrixMarket formats
@@ -20,7 +14,6 @@
 \usage{
 readHB(file)
 readMM(file)
-writeHB(obj, file, ...)  # deprecated
 writeMM(obj, file, ...)
 }
 \arguments{
@@ -45,8 +38,8 @@ writeMM(obj, file, ...)
 }
 \note{
   The Harwell-Boeing format is older and less flexible than the
- MatrixMarket format.  The function \code{writeHB} is now deprecated.
- We recommend the use of \code{writeMM} instead.
+  MatrixMarket format.  The function \code{writeHB} was deprecated and
+  has now been removed. Please use \code{writeMM} instead.
 }
 \references{
   \url{http://math.nist.gov/MatrixMarket}
@@ -71,9 +64,6 @@ str(jgl009 <-
  readMM(gzcon(url("ftp://math.nist.gov/pub/MatrixMarket2/Harwell-Boeing/counterx/jgl009.mtx.gz"))))
 }
 data(KNex)
-\dontrun{
-writeHB(KNex$mm, "mmHB.rua")
-}
 writeMM(KNex$mm, "mmMM.mtx")
 }
 \keyword{IO}

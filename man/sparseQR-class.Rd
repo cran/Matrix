@@ -27,16 +27,16 @@
 }
 \section{Slots}{
   \describe{
-    \item{\code{V}:}{Object of class \code{"dgCMatrix"} The columns of
+    \item{\code{V}:}{Object of class \code{"dgCMatrix"}.  The columns of
       \code{V} are the vectors that generate the Householder
       transformations of which the matrix Q is composed.}
-    \item{\code{beta}:}{Object of class \code{"numeric"} The normalizing
+    \item{\code{beta}:}{Object of class \code{"numeric"}, the normalizing
       factors for the Householder transformations.}
-    \item{\code{p}:}{Object of class \code{"integer"} Permutation
-      applied to the rows of the original matrix.}
+    \item{\code{p}:}{Object of class \code{"integer"}: Permutation
+      (of \code{0:(n-1)}) applied to the rows of the original matrix.}
     \item{\code{R}:}{Object of class \code{"dgCMatrix"} An upper
       triangular matrix of dimension \ } % << FIXME
-    \item{\code{q}:}{Object of class \code{"integer"} Permutation
+    \item{\code{q}:}{Object of class \code{"integer"}: Permutation
       applied from the right. Can be of length 0 which implies no
       permutation.}
   }
@@ -63,8 +63,8 @@
 
 %\references{}
 %\author{}
-\note{The decomposition is of the form \code{A[p+1:1,] == Q \%*\% R}, if
-  the \code{q} slot if of length 0 or \code{A[p+1:1,q+1:1] == Q \%*\% R}
+\note{The decomposition is of the form \code{A[p+1,] == Q \%*\% R}, if
+  the \code{q} slot if of length 0 or \code{A[p+1,q+1] == Q \%*\% R}
   where A is a sparse \eqn{m\times n}{m by n} matrix (\eqn{m\ge n}{m >= n}),
   \eqn{R} is an \eqn{m\times n}{m by n} matrix that is zero below the
  main diagonal.  The \code{p} slot is a 0-based permutation of
@@ -101,6 +101,7 @@
 \examples{
 data(KNex); mm <- KNex$mm
 str(mmQR <- qr(mm))
+%% FIXME: add more, similarly to ./lu.Rd
 }
 \keyword{classes}
 \keyword{algebra}

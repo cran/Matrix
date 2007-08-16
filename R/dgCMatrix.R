@@ -47,25 +47,27 @@ setMethod("image", "dgCMatrix",
 
 ## "[<-" methods { setReplaceMethod()s }  are now in ./Csparse.R
 
-setMethod("writeHB", signature(obj = "dgCMatrix"),
-	  function(obj, file, ...) {
-	      .Deprecated("writeMM")
-	      .Call(Matrix_writeHarwellBoeing, obj,
-		    as.character(file), "DGC")
-	  })
-
-setMethod("writeMM", signature(obj = "dgCMatrix"),
-	  function(obj, file, ...)
-	  .Call(Matrix_writeMatrixMarket, obj, as.character(file), "DGC"))
+## setMethod("writeHB", signature(obj = "dgCMatrix"),
+## 	  function(obj, file, ...) {
+## 	      .Deprecated("writeMM")
+## 	      .Call(Matrix_writeHarwellBoeing, obj,
+## 		    as.character(file), "DGC")
+## 	  })
 
 ##-> ./colSums.R  for colSums,... rowMeans
 
 setMethod("qr", signature(x = "dgCMatrix"),
 	  function(x, tol = 1e-07, LAPACK = FALSE)
 	  .Call(dgCMatrix_QR, x, TRUE))
+setMethod("qr", signature(x = "sparseMatrix"),
+	  function(x, tol, ...)
+	  qr(as(as(x, "CsparseMatrix"), "dsparseMatrix"), ...))
 
 setMethod("lu", signature(x = "dgCMatrix"),
 	  function(x, ...) .Call(dgCMatrix_LU, x, TRUE, 1))
+setMethod("lu", signature(x = "sparseMatrix"),
+	  function(x, ...) lu(as(as(x, "CsparseMatrix"), "dsparseMatrix"), ...))
+
 
 setMethod("solve", signature(a = "dgCMatrix", b = "matrix"),
 	  function(a, b, ...) .Call(dgCMatrix_matrix_solve, a, b),

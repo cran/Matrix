@@ -38,8 +38,8 @@
 
     setGeneric("expm", function(x) standardGeneric("expm"))
 
-    setGeneric("writeHB", function(obj, file, ...)
-               standardGeneric("writeHB"))
+##     setGeneric("writeHB", function(obj, file, ...)
+##                standardGeneric("writeHB"))
 
     setGeneric("writeMM", function(obj, file, ...)
                standardGeneric("writeMM"))

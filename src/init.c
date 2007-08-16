@@ -1,5 +1,5 @@
 #include "Mutils.h"
-#include "HBMM.h"
+/* #include "HBMM.h" */
 #include "chm_common.h"
 #include "CHMfactor.h"
 #include "Csparse.h"
@@ -35,6 +35,7 @@ static R_CallMethodDef CallEntries[] = {
     {"Cholesky_validate", (DL_FUNC) &Cholesky_validate, 1},
     {"Csparse_Csparse_prod", (DL_FUNC) &Csparse_Csparse_prod, 2},
     {"Csparse_Csparse_crossprod", (DL_FUNC) &Csparse_Csparse_crossprod, 3},
+    {"Csparse_MatrixMarket", (DL_FUNC) &Csparse_MatrixMarket, 2},
     {"Csparse_band", (DL_FUNC) &Csparse_band, 3},
     {"Csparse_crossprod", (DL_FUNC) &Csparse_crossprod, 3},
     {"Csparse_dense_crossprod", (DL_FUNC) &Csparse_dense_crossprod, 2},
@@ -61,7 +62,7 @@ static R_CallMethodDef CallEntries[] = {
     {"LU_validate", (DL_FUNC) &LU_validate, 1},
     {"Matrix_expand_pointers", (DL_FUNC) &Matrix_expand_pointers, 1},
 /*     {"Matrix_writeHarwellBoeing", (DL_FUNC) &Matrix_writeHarwellBoeing, 3}, */
-    {"Matrix_writeMatrixMarket", (DL_FUNC) &Matrix_writeMatrixMarket, 3},
+/*     {"Matrix_writeMatrixMarket", (DL_FUNC) &Matrix_writeMatrixMarket, 3}, */
     {"R_to_CMatrix", (DL_FUNC) &R_to_CMatrix, 1},
     {"SVD_validate", (DL_FUNC) &SVD_validate, 1},
     {"Tsparse_validate", (DL_FUNC) &Tsparse_validate, 1},

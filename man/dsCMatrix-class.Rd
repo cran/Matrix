@@ -40,7 +40,6 @@
 \alias{Arith,dsCMatrix,dsCMatrix-method}
 \alias{determinant,dsCMatrix,missing-method}
 \alias{determinant,dsCMatrix,logical-method}
-\alias{image,dsCMatrix-method}
 \description{The \code{dsCMatrix} class is a class of symmetric, sparse
   numeric matrices in the compressed, column-oriented format.  In this
   implementation the non-zero elements in the columns are sorted into

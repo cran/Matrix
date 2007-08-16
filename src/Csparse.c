@@ -385,3 +385,17 @@ SEXP Csparse_submatrix(SEXP x, SEXP i, SEXP j)
 			      1, 0, Rkind, "",
 			      /* FIXME: drops dimnames */ R_NilValue);
 }
+
+SEXP Csparse_MatrixMarket(SEXP x, SEXP fname)
+{
+    FILE *f = fopen(CHAR(asChar(fname)), "w");
+
+    if (!f)
+	error(_("failure to open file \"%s\" for writing"),
+	      CHAR(asChar(fname)));
+    if (!cholmod_write_sparse(f, AS_CHM_SP(x), (CHM_SP)NULL,
+			      (char*) NULL, &c))
+	error(_("cholmod_write_sparse returned error code"));
+    fclose(f);
+    return R_NilValue;
+}

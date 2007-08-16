@@ -56,4 +56,13 @@ table(Ppm@x == 0)# (194, 123) - has 123 "zero" and 14 ``almost zero" entries
 
 ## FIXME:  expand(pmLU)
 
-
+## Cholesky()
+data(KNex)
+mtm <- with(KNex, crossprod(mm))
+c1 <- Cholesky(mtm)
+c2 <- Cholesky(mtm, super = TRUE)
+b <- matrix(c(rep(0, 711), 1), nc = 1)
+## solve(c2, b) by default solves  Ax = b, where A = c2'c2 !
+stopifnot(identical(solve(c2, b), solve(c2, b, system = "A")),
+          all.equal(solve(mtm, b),
+                    solve(c2 , b)))

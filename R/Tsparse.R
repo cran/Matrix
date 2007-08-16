@@ -385,7 +385,7 @@ if(FALSE)
 ## A[ ij ]  where ij is (i,j) 2-column matrix :
 setMethod("[", signature(x = "TsparseMatrix",
 			 i = "matrix", j = "missing"),# drop="ANY"
-	  function (x, i, j, drop)
+	  function (x, i, j, ..., drop)
       {
 	  di <- dim(x)
 	  dn <- dimnames(x)
@@ -432,7 +432,7 @@ setMethod("[", signature(x = "TsparseMatrix",
 ###                            *and* M[i,j] == 0 previously
 
 ## workhorse for "[<-" :
-replTmat <- function (x, i, j, value)
+replTmat <- function (x, i, j, ..., value)
 {
     di <- dim(x)
     dn <- dimnames(x)
@@ -590,7 +590,9 @@ replTmat <- function (x, i, j, value)
 ## A[ ij ] <- value,  where ij is (i,j) 2-column matrix :
 ## ----------------   ./Matrix.R has a general cheap method
 ## This one should become as fast as possible:
-.TM.repl.i.2col <- function (x, i, value)
+## NOTE:  need '...' below such that setMethod() does
+##	  not use .local() such that nargs() will work correctly:
+.TM.repl.i.2col <- function (x, i, j, ..., value)
 {
     nA <- nargs()
     if(nA != 3) stop("nargs() = ", nA, " should never happen; please report.")
@@ -728,11 +730,11 @@ replTmat <- function (x, i, j, value)
 
 setReplaceMethod("[", signature(x = "TsparseMatrix", i = "index", j = "missing",
                                 value = "replValue"),
-                 function (x, i, value) replTmat(x, i=i, value=value))
+                 function (x, i, j, ..., value) replTmat(x, i=i, value=value))
 
 setReplaceMethod("[", signature(x = "TsparseMatrix", i = "missing", j = "index",
                                 value = "replValue"),
-                 function (x, j, value) replTmat(x, j=j, value=value))
+                 function (x, i, j, ..., value) replTmat(x, j=j, value=value))
 
 setReplaceMethod("[", signature(x = "TsparseMatrix", i = "index", j = "index",
 				value = "replValue"),
@@ -809,3 +811,8 @@ setMethod("t", signature(x = "TsparseMatrix"),
 	      r
       })
 
+
+setMethod("writeMM", "TsparseMatrix",
+	  function(obj, file, ...)
+          .Call(Csparse_MatrixMarket, as(obj, "CsparseMatrix"),
+                as.character(file)))

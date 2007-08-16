@@ -13,7 +13,6 @@
 \alias{crossprod,dgeMatrix,dsparseMatrix-method}
 \alias{crossprod,dsparseMatrix,ddenseMatrix-method}
 \alias{crossprod,dsparseMatrix,dgeMatrix-method}
-\alias{image,dsparseMatrix-method}
 \alias{lu,dsparseMatrix-method}
 %
 \title{Virtual Class "dsparseMatrix" of Numeric Sparse Matrices}

@@ -59,6 +59,9 @@ rcond(x, type, \dots)
 \examples{
 x <- Matrix(rnorm(9), 3, 3)
 rcond(x)
+## typically "the same" (with more computational effort):
+1 / (norm(x) * norm(solve(x)))
+
 rcond(Hilbert(9))  # should be about 9.1e-13
 }
 \keyword{array}

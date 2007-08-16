@@ -9,25 +9,20 @@ setMethod("image", "CHMfactor",
               callGeneric()
           })
 
+.CHM_solve <-
+    function(a, b,
+             system = c("A", "LDLt", "LD", "DLt", "L", "Lt", "D", "P", "Pt"),
+             ...)
+    .Call(CHMfactor_solve, a, b,
+          match(match.arg(system),
+                c("A", "LDLt", "LD", "DLt", "L", "Lt", "D", "P", "Pt"),
+                nomatch = 0))
+
 setMethod("solve", signature(a = "CHMfactor", b = "ddenseMatrix"),
-          function(a, b,
-                   system = c("A", "LDLt", "LD", "DLt", "L", "Lt", "D", "P", "Pt"),
-                   ...)
-          .Call(CHMfactor_solve, a, b,
-                match(match.arg(system),
-                      c("A", "LDLt", "LD", "DLt", "L", "Lt", "D", "P", "Pt"),
-                      nomatch = 0)),
-          valueClass = "dgeMatrix")
+          .CHM_solve, valueClass = "dgeMatrix")
 
 setMethod("solve", signature(a = "CHMfactor", b = "matrix"),
-          function(a, b,
-                   system = c("A", "LDLt", "LD", "DLt", "L", "Lt", "D", "P", "Pt"),
-                   ...)
-          .Call(CHMfactor_solve, a, b,
-                match(match.arg(system),
-                      c("A", "LDLt", "LD", "DLt", "L", "Lt", "D", "P", "Pt"),
-                      nomatch = 0)),
-          valueClass = "dgeMatrix")
+          .CHM_solve, valueClass = "dgeMatrix")
 
 setMethod("solve", signature(a = "CHMfactor", b = "dsparseMatrix"),
           function(a, b,

@@ -193,3 +193,12 @@
 
 - check all "Summary" group methods for all matrices in ./tests/Class+Meth.R
 
+- log1p(<sparseMatrix>) now gives <dsparseMatrix>
+  simply via "Math" group generic -- only from R 2.6.0 on.
+
+- image(M, aspect= "iso", colorkey = FALSE)
+  is now default; {aspect: non-back comptible for users !!}
+  *and* documented, using man/image-methods.Rd
+
+- rcond methods for sparseMatrix : helpful message about alternatives
+

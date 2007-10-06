@@ -467,13 +467,16 @@ setMethod("norm", signature(x = "sparseMatrix", type = "character"),
 		     stop("invalid 'type'"))
 	  })
 
-
 setMethod("rcond", signature(x = "sparseMatrix", type = "character"),
 	  function(x, type, ...) {
-	  stop("There are no specialized rcond() methods for sparse ",
-	       "matrices.\n Either use rcond(as(. , \"denseMatrix\"))\n",
-	       " or 1 / (norm(.) * norm(solve(.))).")
-	      })
+	      d <- dim(x)
+	      rcond(if(d[1] == d[2]) {
+			warning("rcond(.) via  sparse -> dense	coercion")
+			as(x, "denseMatrix")
+		    } else if(d[1] > d[2]) qr.R(qr(x)) else qr.R(qr(t(x))),
+		    type = type)
+	  })
+
 
 lm.fit.sparse <-
 function(x, y, offset = NULL, method = c("qr", "cholesky"),

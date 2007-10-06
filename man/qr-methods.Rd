@@ -1,15 +1,17 @@
 \name{qr-methods}
 \docType{methods}
+\alias{qr}
 \alias{qr-methods}
 \alias{qr,dgCMatrix-method}
 \alias{qr,sparseMatrix-method}
-\title{Methods for the qr generic}
+\title{QR Decomposition -- S4 Methods and Generic}
 \description{
   The \code{"Matrix"} package provides methods for the QR decomposition
-  of  special classes of matrices.  The generic function is
-  \code{\link[base]{qr}} but methods defined in this package can take
-  extra arguments.  In particular there is an option for determining a
-  fill-reducing permutation of the columns of a sparse, rectangular matrix.
+  of special classes of matrices.  There is a generic function which uses
+  \code{\link[base]{qr}} as default, but methods defined in this package
+  can take extra arguments.  In particular there is an option for
+  determining a fill-reducing permutation of the columns of a sparse,
+  rectangular matrix.
 }
 \section{Methods}{
   \describe{

@@ -58,6 +58,16 @@ dimCheck <- function(a, b) {
     da
 }
 
+mmultCheck <- function(a, b) {
+    ca <- dim(a)[2]
+    rb <- dim(b)[1]
+    if(ca != rb)
+	stop(gettextf("non-conformable matrix dimensions in %s",
+		      deparse(sys.call(sys.parent()))),
+	     call. = FALSE)
+    ca
+}
+
 dimNamesCheck <- function(a, b) {
     ## assume dimCheck() has happened before
     nullDN <- list(NULL,NULL)

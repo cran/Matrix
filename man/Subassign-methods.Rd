@@ -7,7 +7,11 @@
 % in ../R/Matrix.R
 \alias{[<-,Matrix,ANY,ANY,ANY-method}
 \alias{[<-,Matrix,ANY,ANY,Matrix-method}
+\alias{[<-,Matrix,ANY,missing,Matrix-method}
+\alias{[<-,Matrix,missing,ANY,Matrix-method}
 \alias{[<-,Matrix,ANY,ANY,matrix-method}
+\alias{[<-,Matrix,ANY,missing,matrix-method}
+\alias{[<-,Matrix,missing,ANY,matrix-method}
 \alias{[<-,Matrix,missing,missing,ANY-method}
 \alias{[<-,Matrix,matrix,missing,replValue-method}
 % \alias{[<-,Matrix,missing,numeric,missing-method}

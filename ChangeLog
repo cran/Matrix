@@ -1,3 +1,59 @@
+2007-10-06  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/pMatrix.R: solve(<Matrix>, <pMatrix>)
+
+2007-10-05  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/LU.R: solve() method for "denseLU"
+
+2007-10-01  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.999375-3 preparing for release
+
+	* R/AllGeneric.R: simplify  if(.) .. else .. for R <= 2.5.1
+
+	* R/Matrix.R (Matrix): .Internal(matrix(..)) different for R >= 2.7.0
+
+2007-09-26  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/pMatrix.R (.m.mult.pMat): fix <matrix> %*% <pMatrix>,
+	  thanks to Kasper Kristensen.
+	* tests/matprod.R: regression test for that.
+
+2007-09-23 17:32  Douglas Bates <bates@stat.wisc.edu>
+
+	* [r4778] R/AllGeneric.R: Check R version before defining generics for
+	  primitives
+
+2007-09-13  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/denseMatrix.R (rcond): method
+	* R/sparseQR.R (rcond): method, use x or t(x)
+
+2007-09-12  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/dgeMatrix.R (rcond): method: work via qr.R() for non-square
+	matrices.
+	* R/sparseMatrix.R: Ditto for all other rcond() method definitions.
+
+	* man/rcond.Rd: mention the more general definition, and add
+	example for non-square matrices.
+
+	* man/chol.Rd: new file, for the S4 chol() generic and all methods.
+
+2007-09-11  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/sparseQR.R: add qr.R() method [to be used for rcond()]
+
+2007-09-01  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Matrix.R ([<-): add (Matrix,missing,ANY,Matrix) etc
+	* tests/indexing.R: add new regression for the above cases.
+
+2007-08-30  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/Mutils.h (__sun): clause for alloca.h on Solaris
+
 2007-08-16  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* DESCRIPTION (Date, Version): 0.999375-2

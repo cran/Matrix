@@ -1,6 +1,7 @@
 \name{sparseQR-class}
 \docType{class}
 \alias{sparseQR-class}
+\alias{qr.R,sparseQR-method}
 \alias{qr.coef,sparseQR,dgeMatrix-method}
 \alias{qr.coef,sparseQR,matrix-method}
 \alias{qr.coef,sparseQR,numeric-method}
@@ -43,6 +44,7 @@
 }
 \section{Methods}{
   \describe{
+    \item{qr.R}{\code{signature(qr = "sparseQR")}: ... }
     \item{qr.coef}{\code{signature(qr = "sparseQR", y = "dgeMatrix")}: ... }
     \item{qr.coef}{\code{signature(qr = "sparseQR", y = "matrix")}: ... }
     \item{qr.coef}{\code{signature(qr = "sparseQR", y = "numeric")}: ... }

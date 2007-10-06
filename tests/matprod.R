@@ -222,9 +222,22 @@ stopifnot(identical(crossprod(mm), cm))
 (tm1 <- Matrix(tcrossprod(m))) #-> had bug in 'Matrix()' !
 (tm2 <- tcrossprod(mm))
 Im2 <- solve(tm2[-4,-4])
+P <- as(as.integer(c(4,1,3,2)),"pMatrix")
+p <- as(P, "matrix")
+P %*% mm
+assertError(mm %*% P) # dimension mismatch
+assertError(m  %*% P) # ditto
+assertError(crossprod(t(mm), P)) # ditto
 stopifnot(class(tm1) == class(tm2),
 	  class(tm1) == "dsCMatrix",# but they differ by "uplo"
-          identical(Im2 %*% tm2[1:3,], Matrix(cbind(diag(3),0),sparse=FALSE))
-          )
-cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
+	  identical(Im2 %*% tm2[1:3,], Matrix(cbind(diag(3),0),sparse=FALSE)),
+          identical(p, as.matrix(P)),
+	  identical(P %*% m, as.matrix(P) %*% m),
+	  all(P %*% mm	==  P %*% m),
+	  all(P %*% mm	-   P %*% m == 0),
+	  all(t(mm) %*% P	==  t(m) %*% P),
+	  identical(crossprod(m, P),
+		    crossprod(mm, P)),
+	  TRUE)
 
+cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''

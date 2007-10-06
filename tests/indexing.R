@@ -186,11 +186,15 @@ stopifnot(class(l10) == "lsCMatrix", # symmetric indexing -> symmetric !
 
 ##-- Sub*assignment* with repeated / duplicated index:
 A <- Matrix(0,4,3) ; A[c(1,2,1), 2] <- 1 ; A
-B <- A;              B[c(1,2,1), 2] <- 1:3; B
+B <- A;              B[c(1,2,1), 2] <- 1:3; B; B. <- B
+B.[3,] <- rbind(4:2)
+diag(B.) <- 10 * diag(B.)
+C <- B.; C[,2] <- C[,2];  C[1,] <- C[1,]; C[2:3,2:1] <- C[2:3,2:1]
 stopifnot(identical(unname(as.matrix(A)),
 		    local({a <- matrix(0,4,3); a[c(1,2,1), 2] <-  1 ; a})),
 	  identical(unname(as.matrix(B)),
-		    local({a <- matrix(0,4,3); a[c(1,2,1), 2] <- 1:3; a})))
+		    local({a <- matrix(0,4,3); a[c(1,2,1), 2] <- 1:3; a})),
+	  identical(C, drop0(B.)))
 
 
 ## used to fail

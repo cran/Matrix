@@ -30,9 +30,18 @@ rcond(x, type, \dots)
   An estimate of the reciprocal condition number of \code{x}.
 }
 \section{BACKGROUND}{
-  The condition number of a matrix is the product of the
-  \code{\link{norm}} of the matrix and the norm of its inverse (or
+  The condition number of a regular (square) matrix is the product of
+  the \code{\link{norm}} of the matrix and the norm of its inverse (or
   pseudo-inverse).
+
+  More generally, the condition number is defined (also for
+  non-square matrices) as
+  \deqn{\kappa = \frac{\max_{\|x\| = 1} \|A x\|}{\min_{\|x\| = 1} \|A x\|}.}{%
+    kappa = (max_(||x|| = 1; || Ax ||)) /(min_(||x|| = 1; || Ax ||)).}
+  Whenever \code{x} is \emph{not} a square matrix, in our method
+  definitions, this is typically computed via \code{rcond(qr.R(qr(X)), ...)}
+  where \code{X} is \code{x} or \code{t(x)}.
+
   The condition number takes on values between 1 and infinity,
   inclusive, and can be viewed as a factor by which errors in solving
   linear systems with this matrix as coefficient matrix could be
@@ -49,12 +58,31 @@ rcond(x, type, \dots)
   number is near 1 and ill-conditioned if it is near zero.
 }
 \seealso{
-  \code{\link{norm}}, \code{\link[base]{solve}}.
+  \code{\link{norm}}, \code{\link[base]{kappa}()} from package
+  \pkg{base} computes an \emph{approximate} condition number of a
+  \dQuote{traditional} matrix, even non-square ones, with respect to the
+  \eqn{p=2} (Euclidean) \code{\link{norm}}.
+  \code{\link[base]{solve}}.
 }
 \references{
   Golub, G., and Van Loan, C. F. (1989).
   \emph{Matrix Computations,}
   2nd edition, Johns Hopkins, Baltimore.
+
+%% For sparse matrices, Matlab's condest() uses normest(), which is
+%%  based on this. See also Tim Davis(2006, p.96)
+%% We should use a version of this {and probably optim(.)}:
+%%
+%   @article{ higham00block,
+%     author = "Nicholas J. Higham and Fran{\c{c}}oise Tisseur",
+%     title = "A Block Algorithm for Matrix $1$-Norm Estimation,
+%              with an Application to $1$-Norm Pseudospectra",
+%     journal = "SIAM Journal on Matrix Analysis and Applications",
+%     volume = "21",
+%     number = "4",
+%     pages = "1185--1201",
+%     year = "2000",
+%     url = "citeseer.ist.psu.edu/article/higham00block.html" }
 }
 \examples{
 x <- Matrix(rnorm(9), 3, 3)
@@ -63,6 +91,19 @@ rcond(x)
 1 / (norm(x) * norm(solve(x)))
 
 rcond(Hilbert(9))  # should be about 9.1e-13
+
+## For non-square matrices:
+rcond(x1 <- cbind(1,1:10))# 0.05278
+rcond(x2 <- cbind(x1, 2:11))# practically 0, since x2 does not have full rank
+
+## sparse
+(S1 <- Matrix(rbind(0:1,0, diag(3:-2))))
+rcond(S1)
+m1 <- as(S1, "denseMatrix")
+all.equal(rcond(S1), rcond(m1))
+
+## wide and sparse
+rcond(Matrix(cbind(0, diag(2:-1))))
 }
 \keyword{array}
 \keyword{algebra}

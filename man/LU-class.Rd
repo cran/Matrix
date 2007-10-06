@@ -3,6 +3,7 @@
 \alias{LU-class}
 \alias{denseLU-class}
 \alias{expand,denseLU-method}
+\alias{solve,denseLU,missing-method}
 \title{LU (dense) Matrix Decompositions}
 \description{
   The \code{"LU"} class is the \emph{virtual} class of LU decompositions of
@@ -39,7 +40,11 @@
 \section{Methods}{
   \describe{
     \item{expand}{\code{signature(x = "denseLU")}: Produce the \code{"L"} and
-      \code{"U"} factors as a named list of matrices.}
+      \code{"U"} (and \code{"P"}) factors as a named list of matrices,
+      see also the example below.}
+    \item{solve}{\code{signature(a = "denseLU", b = "missing")}: ComputeProduce the \code{"L"} and
+      \code{"U"} (and \code{"P"}) factors as a named list of matrices,
+      see also the example below.}
   }
 }
 % \references{}

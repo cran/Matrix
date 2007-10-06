@@ -199,3 +199,6 @@ setMethod("Math", signature(x = "denseMatrix"),
 	  function(x) callGeneric(as(x, "dMatrix")))
                                         # -> ./ddenseMatrix.R has next method
 
+setMethod("rcond", signature(x = "denseMatrix", type = "character"),
+	  function(x, type, ...)
+	  rcond(as(as(x, "dMatrix"), "dgeMatrix"), type=type, ...))

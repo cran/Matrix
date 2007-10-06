@@ -68,13 +68,33 @@ setMethod("solve", signature(a = "pMatrix", b = "missing"),
               a
           })
 
+setMethod("solve", signature(a = "Matrix", b = "pMatrix"),
+	  function(a, b) {
+	      ## Or alternatively  solve(a, as(b, "CsparseMatrix"))
+	      i <- b@perm
+	      i[i] <- seq_along(i)
+	      solve(a)[, i]
+	  })
+
+## t(pM) is == the inverse  pM^(-1):
 setMethod("t", signature(x = "pMatrix"), function(x) solve(x))
 
+.m.mult.pMat <- function(x, y) {
+    mmultCheck(x,y)
+    i <- y@perm
+    i[i] <- seq_along(i)
+    x[, i]
+}
+
 setMethod("%*%", signature(x = "matrix", y = "pMatrix"),
-	  function(x, y) x[ , y@perm], valueClass = "matrix")
+	  .m.mult.pMat, valueClass = "matrix")
+setMethod("%*%", signature(x = "Matrix", y = "pMatrix"),
+	  .m.mult.pMat)
 
 setMethod("%*%", signature(x = "pMatrix", y = "matrix"),
-	  function(x, y) y[x@perm ,], valueClass = "matrix")
+	  function(x, y) { mmultCheck(x,y); y[x@perm ,]}, valueClass = "matrix")
+setMethod("%*%", signature(x = "pMatrix", y = "Matrix"),
+	  function(x, y) { mmultCheck(x,y); y[x@perm ,]})
 
 setMethod("%*%", signature(x = "pMatrix", y = "pMatrix"),
 	  function(x, y) {
@@ -85,13 +105,9 @@ setMethod("%*%", signature(x = "pMatrix", y = "pMatrix"),
               x
           })
 
-setMethod("%*%", signature(x = "Matrix", y = "pMatrix"),
-	  function(x, y) x[, y@perm])
+### FIXME: crossprod / tcrossprod currently work
+### -----  via  t(.) and later  [ i, ] -- separate methods will be faster!
 
-setMethod("%*%", signature(x = "pMatrix", y = "Matrix"),
-          function(x, y) y[x@perm , ])
-
-## t(pM) is == the inverse  pM^(-1):
 setMethod("crossprod", signature(x = "pMatrix", y = "missing"),
           function(x, y=NULL) Diagonal(nrow(x)))
 setMethod("tcrossprod", signature(x = "pMatrix", y = "missing"),

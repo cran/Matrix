@@ -136,11 +136,15 @@ Matrix <-
 			Dim = as.integer(c(nrow,ncol)),
 			Dimnames = if(is.null(dimnames)) list(NULL,NULL)
 			else dimnames)
-	} else { ## normal case
-	    data <- .Internal(matrix(data, nrow, ncol, byrow))
+	} else { ## normal case - using .Internal() to avoid more copying
+	    if(getRversion() >= "2.7.0")
+		data <- .Internal(matrix(data, nrow, ncol, byrow, dimnames))
+	    else {
+		data <- .Internal(matrix(data, nrow, ncol, byrow))
+		dimnames(data) <- dimnames
+	    }
 	    if(is.null(sparse))
 		sparse <- sparseDefault(data)
-	    dimnames(data) <- dimnames
 	}
         doDN <- FALSE
     } else if(!missing(nrow) || !missing(ncol)|| !missing(byrow))
@@ -503,24 +507,30 @@ setReplaceMethod("[", signature(x = "Matrix", i = "matrix", j = "missing",
 	  .M.repl.i.2col)
 
 
-setReplaceMethod("[", signature(x = "Matrix", i = "ANY", j = "ANY",
+setReplaceMethod("[", signature(x = "Matrix", i = "missing", j = "ANY",
 				value = "Matrix"),
-		 function (x, i, j, value) {
-### *TEMPORARY* diagnostic output:
-##                  cat("<Matrix1>[i,j] <- <Matrix1>:\n<Matrix1> = x :")
-##                  str(x)
-##                  cat("<Matrix2> = value :")
-##                  str(value)
-##                  cat("i :"); if(!missing(i)) str(i) else cat("<missing>\n")
-##                  cat("j :"); if(!missing(j)) str(j) else cat("<missing>\n")
+		 function (x, i, j, ..., value)
+		 callGeneric(x=x, j=j, value = as.vector(value)))
 
-                     callGeneric(x=x, i=i, j=j, value = as.vector(value))
-                 })
+setReplaceMethod("[", signature(x = "Matrix", i = "ANY", j = "missing",
+				value = "Matrix"),
+		 function (x, i, j, ..., value)
+		 callGeneric(x=x, i=i, value = as.vector(value)))
 
 setReplaceMethod("[", signature(x = "Matrix", i = "ANY", j = "ANY",
 				value = "Matrix"),
-		 function (x, i, j, value)
+		 function (x, i, j, ..., value)
 		 callGeneric(x=x, i=i, j=j, value = as.vector(value)))
+
+setReplaceMethod("[", signature(x = "Matrix", i = "missing", j = "ANY",
+				value = "matrix"),
+		 function (x, i, j, ..., value)
+		 callGeneric(x=x, j=j, value = c(value)))
+
+setReplaceMethod("[", signature(x = "Matrix", i = "ANY", j = "missing",
+				value = "matrix"),
+		 function (x, i, j, ..., value)
+		 callGeneric(x=x, i=i, value = c(value)))
 
 setReplaceMethod("[", signature(x = "Matrix", i = "ANY", j = "ANY",
 				value = "matrix"),

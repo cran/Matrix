@@ -20,7 +20,5 @@ setMethod("solve", signature(a = "MatrixFactorization", b = "numeric"),
 ## catch others, otherwise base::solve is.
 setMethod("solve", signature(a = "MatrixFactorization", b = "ANY"),
 	  function(a, b, ...) .bail.out.2("solve", class(a), class(b)))
-
-
-
-
+setMethod("solve", signature(a = "MatrixFactorization", b = "missing"),
+	  function(a, b, ...) .bail.out.1("solve", class(a)))

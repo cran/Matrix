@@ -24,8 +24,6 @@
 \alias{\%*\%,lsparseMatrix,lsparseMatrix-method}
 \alias{\%*\%,lsparseMatrix,ldenseMatrix-method}
 \alias{\%*\%,ldenseMatrix,lsparseMatrix-method}
-\alias{chol,lsCMatrix,logical-method}
-\alias{chol,lsCMatrix,missing-method}
 
 \alias{coerce,lsparseMatrix,matrix-method}
 \alias{coerce,lgCMatrix,dgCMatrix-method}

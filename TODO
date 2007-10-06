@@ -159,3 +159,21 @@ Check for DimNames propagation in coercion and other operations.
 
 - examples for solve( Cholesky(.), b, system = c("A", "LDLt"....))
   probably rather in man/CHMfactor-class.Rd than man/Cholesky.Rd
+
+- (A + tr(A))/2  := the symmetric part of A, is needed in several
+  circumstances; unfortunately it's not "smart" (preserving symmetry, ...)
+  --> define a generic and methods for it!
+  Names:  symPart(A) or  symMat(A) or symmetrize(A) or ... ?
+  Googling around I found that Nick Higham as a GPL contributed Matlab
+  toolbox where he uses  symmpart(A) := (A + A') /. 2
+  {and  skewpart(A) := (A - A') /. 2}
+
+- tr(A %*% B) {and even  tr(A %*% B %*% C) ...} are also needed
+  frequently in some computations {conditional normal distr. ...}.
+  Since this can be done faster than by
+    sum(diag(A %*% B))  even for traditional matrices, e.g.
+    	       sum(A * t(B)) or {even faster for "full" mat}
+	       crossprod(as.vector(A), as.vector(B))
+  and even more so for, e.g.  <sparse> %*% <dense>
+  {used in Soeren's 'gR' computations},
+  we should also provide a generic and methods.

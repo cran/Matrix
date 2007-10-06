@@ -19,6 +19,11 @@ extern "C" {
 #ifdef __GNUC__
 # undef alloca
 # define alloca(x) __builtin_alloca((x))
+#else
+/* this is necessary (and sufficient) for Solaris 10: */
+#ifdef __sun
+# include <alloca.h>
+#endif
 #endif
 
 #define Alloca(n, t)   (t *) alloca( (size_t) ( (n) * sizeof(t) ) )

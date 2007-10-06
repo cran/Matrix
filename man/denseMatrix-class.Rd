@@ -22,6 +22,7 @@
 \alias{rbind2,denseMatrix,numeric-method}
 \alias{rbind2,numeric,denseMatrix-method}
 \alias{dim<-,denseMatrix-method}
+\alias{rcond,denseMatrix,character-method}
 %
 \description{This is the virtual class of all dense (S4) matrices.
   It is the direct superclass of

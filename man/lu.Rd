@@ -45,8 +45,13 @@ lu(x, \dots)
   \code{\link{qr}}, \code{\link{chol}}.
 }
 \examples{
+
+##--- Dense  -------------------------
 x <- Matrix(rnorm(9), 3, 3)
 lu(x)
+
+##--- Sparse ------------------------
+
 pm <- as(readMM(system.file("external/pores_1.mtx",
                             package = "Matrix")),
          "CsparseMatrix")

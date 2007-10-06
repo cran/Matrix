@@ -20,10 +20,6 @@
 \alias{rcond,dppMatrix,character-method}
 \alias{rcond,dpoMatrix,missing-method}
 \alias{rcond,dppMatrix,missing-method}
-\alias{chol,dpoMatrix-method}
-\alias{chol,dppMatrix-method}
-\alias{chol,dpoMatrix,ANY-method}
-\alias{chol,dppMatrix,ANY-method}
 \alias{determinant,dpoMatrix,logical-method}
 \alias{determinant,dppMatrix,logical-method}
 \alias{solve,dpoMatrix,dgeMatrix-method}
@@ -76,8 +72,8 @@
 \section{Methods}{
   \describe{
     \item{chol}{\code{signature(x = "dpoMatrix")}:
-      Returns (and stores) the Cholesky decomposition of the matrix
-      \code{x}.}
+      Returns (and stores) the Cholesky decomposition of \code{x}, see
+      \code{\link{chol}}.}
     \item{rcond}{\code{signature(x = "dpoMatrix", type = "character")}:
       Returns (and stores) the reciprocal of the condition number of
       \code{x}.  The \code{type} can be \code{"O"} for the

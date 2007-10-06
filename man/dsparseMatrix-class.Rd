@@ -4,7 +4,6 @@
 % Group
 \alias{Summary,dsparseMatrix-method}
 %
-\alias{chol,dsparseMatrix,ANY-method}
 \alias{\%*\%,ddenseMatrix,dsparseMatrix-method}
 \alias{\%*\%,dgeMatrix,dsparseMatrix-method}
 \alias{\%*\%,dsparseMatrix,ddenseMatrix-method}

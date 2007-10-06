@@ -8,8 +8,6 @@
 \alias{solve,dsCMatrix,matrix-method}
 \alias{solve,dsCMatrix,numeric-method}
 \alias{solve,dsCMatrix,ddenseMatrix-method}
-\alias{chol,dsCMatrix,missing-method}
-\alias{chol,dsCMatrix,logical-method}
 \alias{t,dsCMatrix-method}
 \alias{t,dsTMatrix-method}
 \alias{coerce,dgeMatrix,dsCMatrix-method}
@@ -93,10 +91,8 @@
       a linear system of equations defined by \code{x} using a Cholesky
       decomposition.}
     \item{chol}{\code{signature(x = "dsCMatrix", pivot = "logical")}:
-      Returns (and stores) the Cholesky decomposition of the matrix
-      \code{x}.  If \code{pivot} is \code{TRUE} (the default) Metis is
-      used to create a reordering of the rows and columns of \code{x} so
-      as to minimize fill-in.}
+      Returns (and stores) the Cholesky decomposition of \code{x}, see
+      \code{\link{chol}}.}
     \item{Cholesky}{\code{signature(A = "dsCMatrix",...)}:
       Computes more flexibly Cholesky decompositions,
       see \code{\link{Cholesky}}.}

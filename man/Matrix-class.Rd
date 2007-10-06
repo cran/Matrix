@@ -52,7 +52,6 @@
 \alias{tcrossprod,matrix,Matrix-method}
 \alias{tcrossprod,numeric,Matrix-method}
 %
-\alias{chol,Matrix,ANY-method}
 \alias{determinant,Matrix,ANY-method}
 \alias{diag,Matrix-method}
 \alias{drop,Matrix-method}

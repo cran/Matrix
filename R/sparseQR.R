@@ -1,4 +1,16 @@
-## Methods for the sparse QR decomposition
+#### Methods for the sparse QR decomposition
+
+setMethod("qr.R", signature(qr = "sparseQR"),
+	  function(qr, complete = FALSE) {
+	      r <- qr@R
+	      ## FIXME: add option (e.g. argument 'backPermute = FALSE')
+	      ##	to deal with this:
+	      warning("qr.R(<sparse>) may differ from qr.R(<dense>) because of permutations")
+	      if(!complete && {d <- dim(r); d[1] != d[2]})
+		  as(r[seq.int(min(d)), , drop = FALSE], "triangularMatrix")
+	      else
+		  r
+	  })
 
 ## The signature should change to y = "ddenseMatrix" later
 setMethod("qr.qy", signature(qr = "sparseQR", y = "dgeMatrix"),

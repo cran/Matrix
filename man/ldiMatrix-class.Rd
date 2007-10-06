@@ -2,7 +2,6 @@
 \docType{class}
 \alias{ldiMatrix-class}
 \alias{!,ldiMatrix-method}
-\alias{chol,ldiMatrix,ANY-method}
 % Deprecated:
 \alias{coerce,ldiMatrix,lgCMatrix-method}
 \alias{coerce,ldiMatrix,lgTMatrix-method}

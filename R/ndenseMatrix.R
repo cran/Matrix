@@ -180,6 +180,4 @@ setMethod("norm", signature(x = "ndenseMatrix", type = "character"),
 	  valueClass = "numeric")
 
 setMethod("rcond", signature(x = "ndenseMatrix", type = "character"),
-	  function(x, type, ...)
-          .Call(dgeMatrix_rcond, as(as(x,"dMatrix"),"dgeMatrix"), type),
-	  valueClass = "numeric")
+	  .rcond_via_d, valueClass = "numeric")

@@ -6,7 +6,6 @@
 \alias{coerce,ddiMatrix,dgCMatrix-method}
 \alias{coerce,ddiMatrix,dgTMatrix-method}
 %
-\alias{chol,ddiMatrix,ANY-method}
 \description{The class \code{"ddiMatrix"} of numerical diagonal matrices.
   %% FIXME add more
 

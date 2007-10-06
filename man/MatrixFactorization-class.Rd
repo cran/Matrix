@@ -8,6 +8,7 @@
 \alias{show,MatrixFactorization-method}
 \alias{solve,MatrixFactorization,numeric-method}
 \alias{solve,MatrixFactorization,ANY-method}
+\alias{solve,MatrixFactorization,missing-method}
 \description{
   The class \code{"MatrixFactorization"} is the virtual (super) class of
   (potentially) all matrix factorizations of matrices from package

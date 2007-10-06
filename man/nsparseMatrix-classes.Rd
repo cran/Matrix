@@ -17,8 +17,6 @@
 \alias{\%*\%,nsparseMatrix,nsparseMatrix-method}
 \alias{\%*\%,nsparseMatrix,ndenseMatrix-method}
 \alias{\%*\%,ndenseMatrix,nsparseMatrix-method}
-\alias{chol,nsCMatrix,logical-method}
-\alias{chol,nsCMatrix,missing-method}
 
 \alias{coerce,matrix,ngCMatrix-method}
 \alias{coerce,matrix,ngTMatrix-method}

@@ -250,6 +250,7 @@ exportMethods(
 	      "norm",
               "print",# print(x, ...) when show(x) is not sufficient
 	      "qr",
+	      "qr.R",
 	      "qr.qy",
 	      "qr.qty",
 	      "qr.coef",

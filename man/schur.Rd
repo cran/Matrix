@@ -19,7 +19,7 @@ Schur(x, vectors, \dots)
   \item{vectors}{logical.  When \code{TRUE} (the default), the Schur
     vectors are computed.
   }
-  \item{\dots}{further arguments passed to or from other methods.}      
+  \item{\dots}{further arguments passed to or from other methods.}
 }
 \value{
   An object of class \code{c("schur.Matrix", "decomp")} whose
@@ -27,7 +27,7 @@ Schur(x, vectors, \dots)
   of the matrix, and the Schur vectors (if requested).
 }
 \details{
-  Based on the Lapack functions \code{dgeesx}
+  Based on the Lapack subroutine \code{dgees}.
 }
 \section{BACKGROUND}{
   If \code{A} is a square matrix, then \code{A = Q T t(Q)}, where
@@ -35,7 +35,7 @@ Schur(x, vectors, \dots)
   (nearly triangular with either 1 by 1 or 2 by 2 blocks on the
   diagonal).
   The eigenvalues of \code{A} are the same as those of \code{T},
-  which are easy to compute. The Schur form is used most often for
+  which are easy to compute.  The Schur form is used most often for
   computing non-symmetric eigenvalue decompositions, and for computing
   functions of matrices such as matrix exponentials.
 }
@@ -46,9 +46,14 @@ Schur(x, vectors, \dots)
 }
 \examples{
 Schur(Hilbert(9))              # Schur factorization (real eigenvalues)
-A <- Matrix(rnorm( 9*9, sd = 100), nrow = 9)
-schur.A <- Schur(A)
-#mod.eig <- Mod(schur.A$values) # eigenvalue modulus
-#schur.A
+
+(A <- Matrix(round(rnorm(5*5, sd = 100)), nrow = 5))
+(Sch.A <- Schur(A))
+## The 'WR' and 'WI' components:
+eTA <- eigen(Sch.A$T)
+stopifnot(all.equal(eTA$values, eigen(A)$values, tol = 1e-13),
+          all.equal(eTA$values,
+                    local({z <- with(Sch.A, WR + 1i* WI)
+                           z[order(Mod(z), decreasing=TRUE)]}), tol = 1e-13))
 }
 \keyword{algebra}

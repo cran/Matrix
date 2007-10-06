@@ -62,6 +62,8 @@
 
 
 ###---- Group Generics ----
+
+if (getRversion() < "2.6.0") {
 ## The following are **WORKAROUND** s currently needed for all non-Primitives:
 
 ## [The following is more future-proof than direct  setGeneric(.) calls:
@@ -79,10 +81,9 @@ for(fname in intersect(getGroupMembers("Math2"),
 		       c("round", "signif", "trunc")))
     if (!is.primitive(get(fname))) setGeneric(fname, group="Math2")
 
-
 ## "Summary"
-if(!is.primitive(max)) { ## or another R 2.6.0 solution
-    ## --- some hoop jumping that is needed at least for R versions <= 2.5.x
+
+    ## --- some hoop jumping that is needed for R versions <= 2.5.x
 
 .max_def <- function(x, ..., na.rm = FALSE) base::max(x, ..., na.rm = na.rm)
 .min_def <- function(x, ..., na.rm = FALSE) base::min(x, ..., na.rm = na.rm)
@@ -107,7 +108,7 @@ setGeneric("any", function(x, ..., na.rm = FALSE) standardGeneric("any"),
 setGeneric("all", function(x, ..., na.rm = FALSE) standardGeneric("all"),
            useAsDefault = .all_def, group="Summary")
 
-} # end{hoop jumping}
+} # end{hoop jumping etc for R versions <= 2.5.1 }
 
 
 ## Add '...' so our methods can add  'sparseResult':

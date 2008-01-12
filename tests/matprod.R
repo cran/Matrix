@@ -61,8 +61,9 @@ all.equal((A %*% solve(A, y))@x, y)
 Atr <- new("dtrMatrix", Dim = A@Dim, x = A@x, uplo = "U")
 all.equal((Atr %*% solve(Atr, y))@x, y)
 
-## sparse matrix products
-## ------
+### ------ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### Sparse Matrix products
+### ------
 ## solve() for dtC*
 mc <- round(chol(crossprod(A)), 2)
 B <- A[1:3,] # non-square on purpose

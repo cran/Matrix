@@ -217,7 +217,7 @@ mMatrix_as_geMatrix(SEXP A)
  * Return the 0-based index of a string match in a vector of strings
  * terminated by an empty string.  Returns -1 for no match.
  *
- * @param dest class string to match
+ * @param class string to match
  * @param valid vector of possible matches terminated by an empty string
  *
  * @return index of match or -1 for no match

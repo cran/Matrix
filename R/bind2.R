@@ -103,8 +103,7 @@ setMethod("cbind2", signature(x = "denseMatrix", y = "denseMatrix"),
 	      ncx <- x@Dim[2]
 	      ncy <- y@Dim[2]
 	      ## beware of (packed) triangular, symmetric, ...
-	      hasDN <- !is.null(dnx <- dimnames(x)) |
-	      !is.null(dny <- dimnames(y))
+	      hasDN <- !is.null(dnx <- dimnames(x)) | !is.null(dny <- dimnames(y))
 	      x <- as(x, geClass(x))
 	      y <- as(y, geClass(y))
 	      x@x <- c(x@x, y@x)
@@ -155,7 +154,7 @@ setMethod("rbind2", signature(x = "denseMatrix", y = "denseMatrix"),
 		     !is.null(dny <- dimnames(y))) {
 		      ## R and S+ are different in which names they take
 		      ## if they differ -- but there's no warning in any case
-		      list(if(is.null(rx <- dnx[[1]]) && is.null(ry <- dny[[1]]))
+		      list(if(is.null(rx <- dnx[[1]]) & is.null(ry <- dny[[1]]))
 			   NULL else
 			   c(if(!is.null(rx)) rx else rep.int("", nrx),
 			     if(!is.null(ry)) ry else rep.int("", nry)),
@@ -176,13 +175,13 @@ setMethod("rbind2", signature(x = "denseMatrix", y = "denseMatrix"),
 diag2Sp <- function(x) suppressWarnings(as(x, "CsparseMatrix"))
 
 setMethod("cbind2", signature(x = "diagonalMatrix", y = "sparseMatrix"),
-	  function(x,y) cbind2(diag2Sp(x), as_Csparse2(y)))
+	  function(x,y) cbind2(diag2Sp(x), as(y,"CsparseMatrix")))
 setMethod("cbind2", signature(x = "sparseMatrix", y = "diagonalMatrix"),
-	  function(x,y) cbind2(as_Csparse2(x), diag2Sp(y)))
+	  function(x,y) cbind2(as(x,"CsparseMatrix"), diag2Sp(y)))
 setMethod("rbind2", signature(x = "diagonalMatrix", y = "sparseMatrix"),
-	  function(x,y) rbind2(diag2Sp(x), as_Csparse2(y)))
+	  function(x,y) rbind2(diag2Sp(x), as(y,"CsparseMatrix")))
 setMethod("rbind2", signature(x = "sparseMatrix", y = "diagonalMatrix"),
-	  function(x,y) rbind2(as_Csparse2(x), diag2Sp(y)))
+	  function(x,y) rbind2(as(x,"CsparseMatrix"), diag2Sp(y)))
 
 ## in order to evade method dispatch ambiguity, but still remain "general"
 ## we use this hack instead of signature  x = "diagonalMatrix"
@@ -213,46 +212,46 @@ for(cls in names(getClass("diagonalMatrix")@subclasses)) {
 ## originally from ./dsparseMatrix.R : --------------------------------
 
 setMethod("cbind2", signature(x = "sparseMatrix", y = "sparseMatrix"),
-          function(x, y) {
-              nr <- rowCheck(x,y)
-              ## beware of (packed) triangular, symmetric, ...
-              hasDN <- !all(lapply(c(dnx <- dimnames(x),
-                                     dny <- dimnames(y)), is.null))
-              ans <- .Call(Csparse_horzcat,
-                           as_Csparse2(x), as_Csparse2(y))
-              if(hasDN) {
-                  ## R and S+ are different in which names they take
-                  ## if they differ -- but there's no warning in any case
-                  rn <- if(!is.null(dnx[[1]])) dnx[[1]] else dny[[1]]
-                  cx <- dnx[[2]] ; cy <- dny[[2]]
-                  cn <- if(is.null(cx) && is.null(cy)) NULL
-                  else c(if(!is.null(cx)) cx else rep.int("", ncol(x)),
-                         if(!is.null(cy)) cy else rep.int("", ncol(y)))
-                  ans@Dimnames <- list(rn, cn)
-              }
-              ans
-          })
+	  function(x, y) {
+	      nr <- rowCheck(x,y)
+	      ## beware of (packed) triangular, symmetric, ...
+	      hasDN <- !identical(c(dnx <- dimnames(x),
+				    dny <- dimnames(y)),
+				  list(NULL,NULL,NULL,NULL))
+	      ans <- .Call(Csparse_horzcat, as_Csp2(x), as_Csp2(y))
+	      if(hasDN) {
+		  ## R and S+ are different in which names they take
+		  ## if they differ -- but there's no warning in any case
+		  rn <- if(!is.null(dnx[[1]])) dnx[[1]] else dny[[1]]
+		  cx <- dnx[[2]] ; cy <- dny[[2]]
+		  cn <- if(is.null(cx) && is.null(cy)) NULL
+		  else c(if(!is.null(cx)) cx else rep.int("", ncol(x)),
+			 if(!is.null(cy)) cy else rep.int("", ncol(y)))
+		  ans@Dimnames <- list(rn, cn)
+	      }
+	      ans
+	  })
 
 setMethod("rbind2", signature(x = "sparseMatrix", y = "sparseMatrix"),
-          function(x, y) {
-              nr <- colCheck(x,y)
-              ## beware of (packed) triangular, symmetric, ...
-              hasDN <- !all(lapply(c(dnx <- dimnames(x),
-                                     dny <- dimnames(y)), is.null))
-              ans <- .Call(Csparse_vertcat,
-                           as_Csparse2(x), as_Csparse2(y))
-              if(hasDN) {
-                  ## R and S+ are different in which names they take
-                  ## if they differ -- but there's no warning in any case
-                  cn <- if(!is.null(dnx[[2]])) dnx[[2]] else dny[[2]]
-                  rx <- dnx[[1]] ; ry <- dny[[1]]
-                  rn <- if(is.null(rx) && is.null(ry)) NULL
-                  else c(if(!is.null(rx)) rx else rep.int("", nrow(x)),
-                         if(!is.null(ry)) ry else rep.int("", nrow(y)))
-                  ans@Dimnames <- list(rn, cn)
-              }
-              ans
-          })
+	  function(x, y) {
+	      nr <- colCheck(x,y)
+	      ## beware of (packed) triangular, symmetric, ...
+	      hasDN <- !identical(c(dnx <- dimnames(x),
+				    dny <- dimnames(y)),
+				  list(NULL,NULL,NULL,NULL))
+	      ans <- .Call(Csparse_vertcat, as_Csp2(x), as_Csp2(y))
+	      if(hasDN) {
+		  ## R and S+ are different in which names they take
+		  ## if they differ -- but there's no warning in any case
+		  cn <- if(!is.null(dnx[[2]])) dnx[[2]] else dny[[2]]
+		  rx <- dnx[[1]] ; ry <- dny[[1]]
+		  rn <- if(is.null(rx) && is.null(ry)) NULL
+		  else c(if(!is.null(rx)) rx else rep.int("", nrow(x)),
+			 if(!is.null(ry)) ry else rep.int("", nrow(y)))
+		  ans@Dimnames <- list(rn, cn)
+	      }
+	      ans
+	  })
 
 if(FALSE) {
     ## FIXME
@@ -261,7 +260,7 @@ if(FALSE) {
 setMethod("cbind2", signature(x = "sparseMatrix", y = "numeric"),
           function(x, y) {
               d <- dim(x); nr <- d[1]; nc <- d[2]; cl <- class(x)
-              x <- as_Csparse2(x)
+              x <- as(x, "CsparseMatrix")
               if(nr > 0) {
                   y <- rep(y, length.out = nr) # 'silent procrustes'
                   n0y <- y != 0
@@ -281,7 +280,7 @@ setMethod("cbind2", signature(x = "sparseMatrix", y = "numeric"),
 setMethod("cbind2", signature(x = "numeric", y = "sparseMatrix"),
           function(x, y) {
               d <- dim(y); nr <- d[1]; nc <- d[2]; cl <- class(y)
-              y <- as_Csparse2(y)
+              y <-  as(y, "CsparseMatrix")
               if(nr > 0) {
                   x <- rep(x, length.out = nr) # 'silent procrustes'
                   n0x <- x != 0

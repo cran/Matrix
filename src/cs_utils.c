@@ -22,6 +22,10 @@ static int is_sym (cs *A)
 /**
  * Create a cs object with the contents of x.
  *
+ * @param ans pointer to a cs struct.  This is allocated in the caller
+ * so it is easier to keep track of where it should be freed - in many
+ * applications the memory can be allocated with alloca and
+ * automatically freed on exit from the caller.
  * @param x pointer to an object that inherits from CsparseMatrix
  *
  * @return pointer to a cs object that contains pointers

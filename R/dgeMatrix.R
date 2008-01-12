@@ -44,8 +44,7 @@ setMethod("rcond", signature(x = "dgeMatrix", type = "character"),
 	  function(x, type, ...)  {
 	      if({d <- dim(x); d[1] == d[2]})
 		  .Call(dgeMatrix_rcond, x, type)
-	      else
-		  rcond(qr.R(qr(x)), type=type)
+	      else rcond(qr.R(qr(if(d[1] < d[2]) t(x) else x)), type=type)
 	  },
 	  valueClass = "numeric")
 

@@ -44,6 +44,8 @@ setMethod("as.numeric", signature(x = "Matrix"),
 setMethod("as.logical", signature(x = "Matrix"),
 	  function(x, ...) as.logical(as.vector(x)))
 
+setMethod("cov2cor", signature(V = "Matrix"),
+	  function(V) as(cov2cor(as(V, "matrix")), "dpoMatrix"))
 
 ## "base" has an isSymmetric() S3-generic since R 2.3.0
 setMethod("isSymmetric", signature(object = "symmetricMatrix"),
@@ -378,9 +380,16 @@ setMethod("[", signature(x = "Matrix",
 setMethod("[", signature(x = "Matrix", i = "index", j = "missing",
 			 drop = "missing"),
 	  function(x,i,j, ..., drop) {
-	      if(nargs() == 1) { ## e.g. M[0] , M[TRUE],  M[1:2]
-		  if(any(i)) as.vector(x)[i] else as.vector(x[1,1])[FALSE]
-	      } else callGeneric(x, i=i, drop= TRUE)})
+	      if(nargs() == 2) { ## e.g. M[0] , M[TRUE],  M[1:2]
+		  if(any(i) || prod(dim(x)) == 0)
+		      as.vector(x)[i]
+		  else ## save memory
+		      as.vector(x[1,1])[FALSE]
+	      } else {
+		  callGeneric(x, i=i, , drop=TRUE)
+		  ##		      ^^
+	      }
+	  })
 
 ## select columns
 setMethod("[", signature(x = "Matrix", i = "missing", j = "index",
@@ -510,12 +519,12 @@ setReplaceMethod("[", signature(x = "Matrix", i = "matrix", j = "missing",
 setReplaceMethod("[", signature(x = "Matrix", i = "missing", j = "ANY",
 				value = "Matrix"),
 		 function (x, i, j, ..., value)
-		 callGeneric(x=x, j=j, value = as.vector(value)))
+		 callGeneric(x=x, , j=j, value = as.vector(value)))
 
 setReplaceMethod("[", signature(x = "Matrix", i = "ANY", j = "missing",
 				value = "Matrix"),
 		 function (x, i, j, ..., value)
-		 callGeneric(x=x, i=i, value = as.vector(value)))
+		 callGeneric(x=x, i=i, , value = as.vector(value)))
 
 setReplaceMethod("[", signature(x = "Matrix", i = "ANY", j = "ANY",
 				value = "Matrix"),
@@ -525,12 +534,12 @@ setReplaceMethod("[", signature(x = "Matrix", i = "ANY", j = "ANY",
 setReplaceMethod("[", signature(x = "Matrix", i = "missing", j = "ANY",
 				value = "matrix"),
 		 function (x, i, j, ..., value)
-		 callGeneric(x=x, j=j, value = c(value)))
+		 callGeneric(x=x, , j=j, value = c(value)))
 
 setReplaceMethod("[", signature(x = "Matrix", i = "ANY", j = "missing",
 				value = "matrix"),
 		 function (x, i, j, ..., value)
-		 callGeneric(x=x, i=i, value = c(value)))
+		 callGeneric(x=x, i=i, , value = c(value)))
 
 setReplaceMethod("[", signature(x = "Matrix", i = "ANY", j = "ANY",
 				value = "matrix"),

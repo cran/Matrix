@@ -109,8 +109,6 @@ Check for DimNames propagation in coercion and other operations.
 
 - rbind(<sparse>, <dense>) does not work  (e.g. <dgC>, <dge>)
 
-- ensure that  M[0], M[FALSE], M[1:2]  works as for traditional Matrices
-
 - make sure  M[FALSE, FALSE]  works for all Matrices
   {e.g. fails for M <- Diagonal(4)}
 
@@ -164,7 +162,7 @@ Check for DimNames propagation in coercion and other operations.
   circumstances; unfortunately it's not "smart" (preserving symmetry, ...)
   --> define a generic and methods for it!
   Names:  symPart(A) or  symMat(A) or symmetrize(A) or ... ?
-  Googling around I found that Nick Higham as a GPL contributed Matlab
+  Googling around I found that Nick Higham has a GPL contributed Matlab
   toolbox where he uses  symmpart(A) := (A + A') /. 2
   {and  skewpart(A) := (A - A') /. 2}
 
@@ -177,3 +175,9 @@ Check for DimNames propagation in coercion and other operations.
   and even more so for, e.g.  <sparse> %*% <dense>
   {used in Soeren's 'gR' computations},
   we should also provide a generic and methods.
+
+- qr.R(qr(x)) may differ for the "same" matrix, depending on it being
+  sparse or dense:
+    "qr.R(<sparse>) may differ from qr.R(<dense>) because of permutations"
+
+  This is not really acceptable and currently influences  rcond() as well.

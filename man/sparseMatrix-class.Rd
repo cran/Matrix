@@ -28,6 +28,7 @@
 \alias{coerce,sparseMatrix,symmetricMatrix-method}
 \alias{coerce,sparseMatrix,triangularMatrix-method}
 \alias{-,sparseMatrix,missing-method}
+\alias{cov2cor,sparseMatrix-method}
 \alias{diag,sparseMatrix-method}
 \alias{dim<-,sparseMatrix-method}
 \alias{lu,sparseMatrix-method}

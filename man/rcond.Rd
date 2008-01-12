@@ -35,9 +35,9 @@ rcond(x, type, \dots)
   pseudo-inverse).
 
   More generally, the condition number is defined (also for
-  non-square matrices) as
-  \deqn{\kappa = \frac{\max_{\|x\| = 1} \|A x\|}{\min_{\|x\| = 1} \|A x\|}.}{%
-    kappa = (max_(||x|| = 1; || Ax ||)) /(min_(||x|| = 1; || Ax ||)).}
+  non-square matrices \eqn{A}) as
+  \deqn{\kappa(A) = \frac{\max_{\|v\| = 1} \|A v\|}{\min_{\|v\| = 1} \|A v\|}.}{%
+    kappa(A) = (max_(||v|| = 1; || Av ||)) /(min_(||v|| = 1; || Av ||)).}
   Whenever \code{x} is \emph{not} a square matrix, in our method
   definitions, this is typically computed via \code{rcond(qr.R(qr(X)), ...)}
   where \code{X} is \code{x} or \code{t(x)}.
@@ -47,9 +47,10 @@ rcond(x, type, \dots)
   linear systems with this matrix as coefficient matrix could be
   magnified.
 
-  \code{rcond()} computes the \emph{reciprocal} condition number with
-  values in \eqn{[0,1]} and can be viewed as a scaled measure of how
-  close a matrix is to being rank deficient (aka \dQuote{singular}).
+  \code{rcond()} computes the \emph{reciprocal} condition number
+  \eqn{1/\kappa} with values in \eqn{[0,1]} and can be viewed as a
+  scaled measure of how close a matrix is to being rank deficient (aka
+  \dQuote{singular}).
 
   Condition numbers are usually estimated, since exact computation is
   costly in terms of floating-point operations.  An (over) estimate of
@@ -89,7 +90,6 @@ x <- Matrix(rnorm(9), 3, 3)
 rcond(x)
 ## typically "the same" (with more computational effort):
 1 / (norm(x) * norm(solve(x)))
-
 rcond(Hilbert(9))  # should be about 9.1e-13
 
 ## For non-square matrices:

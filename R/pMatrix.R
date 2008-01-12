@@ -17,7 +17,7 @@ setAs("numeric", "pMatrix",
 setAs("pMatrix", "matrix",
       function(from) {
 	  fp <- from@perm
-	  r <- diag(nrow = length(fp))[fp,]
+	  r <- idiag(n = length(fp))[fp,]
 	  if(.has.DN(from)) dimnames(r) <- from@Dimnames
 	  r
       })

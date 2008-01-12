@@ -21,7 +21,7 @@
 \alias{\%*\%,Matrix,Matrix-method}
 \alias{\%*\%,Matrix,matrix-method}
 \alias{\%*\%,matrix,Matrix-method}
-% "[" are in ./Xtrct-methods.Rd <<<<<<<<
+% "[" are in ./Xtrct-methods.Rd ;  "[<-" in ./Subassign-methods.Rd
 \alias{cbind2,ANY,Matrix-method}
 \alias{cbind2,Matrix,ANY-method}
 \alias{cbind2,Matrix,Matrix-method}
@@ -52,6 +52,7 @@
 \alias{tcrossprod,matrix,Matrix-method}
 \alias{tcrossprod,numeric,Matrix-method}
 %
+\alias{cov2cor,Matrix-method}
 \alias{determinant,Matrix,ANY-method}
 \alias{diag,Matrix-method}
 \alias{drop,Matrix-method}

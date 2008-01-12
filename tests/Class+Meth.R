@@ -141,7 +141,6 @@ tstMatrixClass <-
 
     ## Compute a few things only once :
     mM <- as(mM, "dgeMatrix")
-    mm <- as(mm, "matrix")
     trm <- mm; trm[lower.tri(mm)] <- 0
     summList <- lapply(getGroupMembers("Summary"), get,
                        envir = asNamespace("Matrix"))
@@ -196,11 +195,13 @@ tstMatrixClass <-
                 stop("does not extend either 'sparse' or 'dense'")
 	    cat("; new(..): ")
 	    m <- new(clNam) ; cat("ok; ")
+            is_p <- extends(clNam, "pMatrix")
+            is_cor <- (clNam == "corMatrix") # has diagonal divided out
 	    if(canCoerce(mm, clNam)) { ## replace 'm' by `non-empty' version
 		cat("canCoerce() ")
 		m0 <- {
 		    if(triC) trm
-		    else if(extends(clNam, "pMatrix"))
+		    else if(is_p)
 			mm == 1 # logical *and* "true" permutation
 		    else mm
 		}
@@ -211,15 +212,23 @@ tstMatrixClass <-
 		    storage.mode(m0) <- "complex"
 		validObject(m) ## validity of trivial 'm' before replacing
 		m <- as(m0, clNam)
-		if(clNam == "corMatrix")
+		if(is_cor)
                     m0 <- cov2cor(m0)
-	    } else m0 <- matrix(,0,0)
-            ## m0 is the 'matrix' version of our 'Matrix' m
+	    } else {
+                m0 <- vector(Matrix:::.type.kind[Matrix:::.M.kindC(clNam)])
+                dim(m0) <- c(0L,0L)
+            }
+	    ## m0 is the 'matrix' version of our 'Matrix' m
+	    m. <- if(is_p) as.integer(m0) else m0
+            EQ <- if(is_cor) all.equal else identical
+	    stopifnot(EQ(m0[FALSE], m[FALSE]),
+		      EQ(m.[TRUE],  m[TRUE]),
+		      if(length(m) >= 2) EQ(m.[2:1], m[2:1]) else TRUE)
 
-            if(any(clNam == not.ok.classes)) {
-                cat("in 'stop list' - no validity\n")
-            } else {
-                cat("valid: ", validObject(m), extraValid(m, clNam))
+	    if(any(clNam == not.ok.classes)) {
+		cat("in 'stop list' - no validity\n")
+	    } else {
+		cat("valid: ", validObject(m), extraValid(m, clNam))
 
 		## This can only work as long as 'm' has no NAs :
                 ## not yet -- have version in not.Ops below
@@ -276,6 +285,8 @@ tstMatrixClass <-
 ### 1) produce 'mM'  and 'mm' for the other cases,
 ### 2) use identical code for all cases
 
+                ## use non-square matrix when "allowed":
+
 		## "!" should work (via as(*, "l...")) :
                 m11 <- as(as(!!m,"CsparseMatrix"), "lMatrix")
                 m12 <- as(as(  m, "lMatrix"),"CsparseMatrix")
@@ -301,23 +312,31 @@ tstMatrixClass <-
                 if(is(m, "dMatrix") && is(m, "compMatrix")) {
                     if(any(clNam == not.coerce1))
                         cat.("not coercable_1\n")
-                    else {
-                        cat.("as(dge*, <(super)class>): ")
-                        if(canCoerce(mM, clNam))
-                            m2 <- as(mM, clNam)
-                        else { ## find superclass to which to coerce
-                            if(extends(clNam, "sparseMatrix")) {
-                                if(is.na(newcl <- Matrix:::.sp.class(clNam)))
-                                    stop("internal failure from .sp.class()")
-                                m2 <- as(mM, newcl)
-                            } else { ## ddense & (general or symmetric)
-                                stop("don't know what to coerce <dge> to - error test-logic")
-                            }
-                        }
-                        cat("valid:", validObject(m2), "\n")
-                        if(clNam != "corMatrix") # has diagonal divided out
-                            ## as.vector()
-                            stopifnot(as.vector(m2) == as.vector(mM))
+		    else {
+			cat.("as(dge*, <(super)class>): ")
+			if(canCoerce(mM, clNam))
+			    m2 <- as(mM, clNam)
+			else { ## find superclass to which to coerce
+			    if(extends(clNam, "sparseMatrix")) {
+				if(is.na(newcl <- Matrix:::.sp.class(clNam)))
+				    stop("internal failure from .sp.class()")
+				m2 <- as(mM, newcl)
+			    } else { ## ddense & (general or symmetric)
+				stop("don't know what to coerce <dge> to - error test-logic")
+			    }
+			}
+			cat("valid:", validObject(m2), "\n")
+			if(!is_cor) ## as.vector()
+			    stopifnot(as.vector(m2) == as.vector(mM))
+			cat.("[cr]bind2():"); mm2 <- cbind2(m2,m2)
+			stopifnot(dim(rbind2(m2,m2)) == 2:1 * dim(mM)); cat(" ok")
+			if(genC && class(mm2) == clNam)## non-square matrix when "allowed"
+			    m2 <- mm2
+			dd <- diag(m2)
+			cat("; `diag<-` ")
+			diag(m2) <- 10*dd
+			stopifnot(is_cor || identical(dd, diag(mM)),
+				  identical(10*dd, diag(m2))); cat("ok ")
                     }
                     if(all(clNam != not.coerce2)) {
                         cat.("as(matrix, <class>): ")

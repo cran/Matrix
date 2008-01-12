@@ -202,3 +202,5 @@
 
 - rcond methods for sparseMatrix : helpful message about alternatives
 
+- ensuring that M[0], M[FALSE], M[1:2]  now work as for traditional matrices
+

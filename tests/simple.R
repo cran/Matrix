@@ -27,7 +27,6 @@ stopifnot(
           validObject(Matrix(c(NA,0), 4, 4)),
           is(Matrix(c(NA,0,0,0), 4, 4), "sparseMatrix"))
 
-
 ## large sparse ones: these now directly "go sparse":
 str(m0 <- Matrix(0,     nrow=100, ncol = 1000))
 str(l0 <- Matrix(FALSE, nrow=100, ncol = 200))
@@ -42,6 +41,9 @@ m@Dimnames[[2]] <- m@Dimnames[[1]]
 ## not valid anymore:
 (val <- validObject(m, test=TRUE))
 stopifnot(is.character(val))
+dm <- as(m0, "denseMatrix")
+stopifnot(identical(rcond(dm), rcond(as.matrix(dm))),
+	  all.equal(rcond(dm), 0.4899474520656))
 rm(m)
 
 ###--  Sparse Triangular :

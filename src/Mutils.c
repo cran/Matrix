@@ -324,6 +324,7 @@ FULL_TO_PACKED(int)
  *
  * @param dest vector of length ncol(x)
  * @param x pointer to an object representing a packed array
+ * @param n number of columns in the matrix represented by x
  *
  * @return dest
  */
@@ -420,8 +421,7 @@ Matrix_getElement(SEXP list, char *nm) {
  * Zero a square matrix of size nc then copy a vector to the diagonal
  *
  * @param dest destination array of length nc * nc
- * @param src diagonal elements in an array of length nc
- * @param nc number of columns (and rows) in the matrix
+ * @param A pointer to a square Matrix object
  *
  * @return dest
  */

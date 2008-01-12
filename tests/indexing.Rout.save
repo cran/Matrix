@@ -1,5 +1,5 @@
 
-R version 2.6.0 alpha (2007-09-12 r42830)
+R version 2.6.1 Patched (2007-12-05 r43601)
 Copyright (C) 2007 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 
@@ -19,6 +19,14 @@ Type 'q()' to quit R.
 > 
 > library(Matrix)
 Loading required package: lattice
+
+Attaching package: 'Matrix'
+
+
+	The following object(s) are masked from package:stats :
+
+	 xtabs 
+
 > 
 > source(system.file("test-tools.R", package = "Matrix"))# identical3() etc
 > 
@@ -526,6 +534,63 @@ Ambiguous method selection for "diag", target "ddiMatrix" (the first of the sign
 > stopifnot(is(T, "dtCMatrix"), identical(T[,3], c(10,10,10,0,0)))
 > 
 > 
+> ## "Vector indices" -------------------
+> D <- Diagonal(6)
+> M <- as(D,"dgeMatrix")
+> m <- as(D,"matrix")
+> s <- as(D,"TsparseMatrix")
+> S <- as(s,"CsparseMatrix")
+> i <- c(3,1,6); v <- c(10,15,20)
+> ## (logical,value) which both are recycled:
+> L <- c(TRUE, rep(FALSE,8)) ; z <- c(50,99)
+> 
+> ## vector subassignment, both with integer & logical
+> ## these now work correctly {though not very efficiently; hence warnings}
+> m[i] <- v # the role model: only first column is affected
+> M[i] <- v; assert.EQ.mat(M,m) # dge
+> D[i] <- v; assert.EQ.mat(D,m) # ddi -> dtT -> dgT
+'x[i] <- v' indexing: Coercing class dtTMatrix to dgTMatrix
+> s[i] <- v; assert.EQ.mat(s,m) # dtT -> dgT
+'x[i] <- v' indexing: Coercing class dtTMatrix to dgTMatrix
+> S[i] <- v; assert.EQ.mat(S,m); S # dtC -> dtT -> dgT -> dgC
+'x[i] <- v' indexing: Coercing class dtTMatrix to dgTMatrix
+6 x 6 sparse Matrix of class "dgCMatrix"
+                 
+[1,] 15 . . . . .
+[2,]  . 1 . . . .
+[3,] 10 . 1 . . .
+[4,]  . . . 1 . .
+[5,]  . . . . 1 .
+[6,] 20 . . . . 1
+> ## logical
+> m[L] <- z
+> M[L] <- z; assert.EQ.mat(M,m)
+> D[L] <- z; assert.EQ.mat(D,m)
+> s[L] <- z; assert.EQ.mat(s,m)
+> S[L] <- z; assert.EQ.mat(S,m) ; S
+6 x 6 sparse Matrix of class "dgCMatrix"
+                    
+[1,] 50  . . 50  . .
+[2,]  .  1 .  .  . .
+[3,] 10  . 1  .  . .
+[4,]  . 99 .  1 99 .
+[5,]  .  . .  .  1 .
+[6,] 20  . .  .  . 1
+> 
+> ## indexing [i]  vs  [i,] --- now ok
+> stopifnot(identical4(m[i], M[i], D[i], s[i]), identical(s[i],S[i]))
+> stopifnot(identical4(m[L], M[L], D[L], s[L]), identical(s[L],S[L]))
+> assert.EQ.mat(D[i,], m[i,])
+> assert.EQ.mat(M[i,], m[i,])
+> assert.EQ.mat(s[i,], m[i,])
+> assert.EQ.mat(S[i,], m[i,])
+> 
+> assert.EQ.mat(D[,i], m[,i])
+> assert.EQ.mat(M[,i], m[,i])
+> assert.EQ.mat(s[,i], m[,i])
+> assert.EQ.mat(S[,i], m[,i])
+> 
+> 
 > ## --- negative indices ----------
 > mc <- mC[1:5, 1:7]
 > mt <- mT[1:5, 1:7]
@@ -853,5 +918,5 @@ Ambiguous method selection for "!=", target "numeric#dgCMatrix" (the first of th
 + 	  )
 > 
 > cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
-Time elapsed:  13.984 0.1 14.099 0 0 
+Time elapsed:  14.204 0.12 14.381 0 0 
 > 

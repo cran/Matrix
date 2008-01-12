@@ -94,7 +94,11 @@ setMethod("dim<-", signature(x = "denseMatrix", value = "ANY"),
 setMethod("[", signature(x = "denseMatrix", i = "index", j = "missing",
 			 drop = "logical"),
 	  function (x, i, j, ..., drop) {
-	      r <- as(x, "matrix")[i, , drop=drop]
+	      if((na <- nargs()) == 3)
+		  r <- as(x, "matrix")[i, drop=drop]
+	      else if(na == 4)
+		  r <- as(x, "matrix")[i, , drop=drop]
+	      else stop("invalid nargs()= ",na)
 	      if(is.null(dim(r))) r else as(r, geClass(x))
 	  })
 
@@ -136,7 +140,12 @@ setReplaceMethod("[", signature(x = "denseMatrix", i = "index", j = "missing",
 				value = "replValue"),
 		 function (x, i, j, ..., value) {
 		     r <- as(x, "matrix")
-		     r[i, ] <- value
+## 		     message("`[<-` with nargs()= ",nargs())
+		     if((na <- nargs()) == 3)
+			 r[i] <- value
+		     else if(na == 4)
+			 r[i, ] <- value
+		     else stop("invalid nargs()= ",na)
 		     as(r, geClass(x))
 		 })
 
@@ -156,8 +165,8 @@ setReplaceMethod("[", signature(x = "denseMatrix", i = "index", j = "index",
 		     as_geClass(r, class(x)) ## was as(r, class(x))
 		 })
 
-setReplaceMethod("[", signature(x = "denseMatrix", i = "matrix", j = "missing",
-				value = "replValue"),
+setReplaceMethod("[", signature(x = "denseMatrix", i = "matrix",  # 2-col.matrix
+				j = "missing", value = "replValue"),
 		 function(x, i, j, ..., value) {
 		     r <- as(x, "matrix")
 		     r[ i ] <- value

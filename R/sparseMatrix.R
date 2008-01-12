@@ -165,11 +165,11 @@ setAs("TsparseMatrix", "graphNEL", Tsp2grNEL)
 
 setMethod("[", signature(x = "sparseMatrix", i = "index", j = "missing",
 			 drop = "logical"),
-	  function (x, i, drop) {
+	  function (x, i,j, ..., drop) {
 	      cld <- getClassDef(class(x))
 	      if(!extends(cld, "generalMatrix")) x <- as(x, "generalMatrix")
-	      viaCl <- paste(.M.kind(x, cld), "gTMatrix", sep='')
-	      x <- callGeneric(x = as(x, viaCl), i=i, drop=drop)
+## 	      viaCl <- paste(.M.kind(x, cld), "gTMatrix", sep='')
+	      x <- callGeneric(x = as(x, "TsparseMatrix"), i=i, drop=drop)
 	      ## try_as(x, c(cl, sub("T","C", viaCl)))
 	      if(is(x, "Matrix") && extends(cld, "CsparseMatrix"))
 		  as(x, "CsparseMatrix") else x
@@ -177,11 +177,11 @@ setMethod("[", signature(x = "sparseMatrix", i = "index", j = "missing",
 
 setMethod("[", signature(x = "sparseMatrix", i = "missing", j = "index",
 			 drop = "logical"),
-	  function (x, j, drop) {
+	  function (x,i,j, ..., drop) {
 	      cld <- getClassDef(class(x))
 	      if(!extends(cld, "generalMatrix")) x <- as(x, "generalMatrix")
-	      viaCl <- paste(.M.kind(x, cld), "gTMatrix", sep='')
-	      x <- callGeneric(x = as(x, viaCl), j=j, drop=drop)
+## 	      viaCl <- paste(.M.kind(x, cld), "gTMatrix", sep='')
+	      x <- callGeneric(x = as(x, "TsparseMatrix"), j=j, drop=drop)
 	      if(is(x, "Matrix") && extends(cld, "CsparseMatrix"))
 		  as(x, "CsparseMatrix") else x
 	  })
@@ -195,9 +195,9 @@ setMethod("[", signature(x = "sparseMatrix",
 			length(i) == length(j) && all(i == j))
 	      if(!doSym && !extends(cld, "generalMatrix"))
 		  x <- as(x, "generalMatrix")
-	      viaCl <- paste(.M.kind(x, cld),
-			     if(doSym) "sTMatrix" else "gTMatrix", sep='')
-	      x <- callGeneric(x = as(x, viaCl), i=i, j=j, drop=drop)
+## 	      viaCl <- paste(.M.kind(x, cld),
+## 			     if(doSym) "sTMatrix" else "gTMatrix", sep='')
+	      x <- callGeneric(x = as(x, "TsparseMatrix"), i=i, j=j, drop=drop)
 	      if(is(x, "Matrix") && extends(cld, "CsparseMatrix"))
 		  as(x, "CsparseMatrix") else x
 	  })
@@ -290,7 +290,7 @@ printSpMatrix <- function(x, digits = getOption("digits"),
 	ne <- length(iN0 <- 1L + encodeInd(non0ind(x, cl), nr = d[1]))
 	if(0 < ne && ne < prod(d)) {
 	    align <- match.arg(align)
-	    if(align == "fancy") {
+	    if(align == "fancy" && !is.integer(m)) {
 		fi <- apply(m, 2, format.info) ## fi[3,] == 0  <==> not expo.
 		## now 'format' the zero.print by padding it with ' ' on the right:
 		## case 1: non-exponent:  fi[2,] + as.logical(fi[2,] > 0)
@@ -470,12 +470,34 @@ setMethod("norm", signature(x = "sparseMatrix", type = "character"),
 setMethod("rcond", signature(x = "sparseMatrix", type = "character"),
 	  function(x, type, ...) {
 	      d <- dim(x)
+              ## FIXME: qr.R(qr(.)) warns about differing R (permutation!)
+              ##        really fix qr.R() *or* go via dense in any cases
 	      rcond(if(d[1] == d[2]) {
-			warning("rcond(.) via  sparse -> dense	coercion")
+			warning("rcond(.) via sparse -> dense coercion")
 			as(x, "denseMatrix")
 		    } else if(d[1] > d[2]) qr.R(qr(x)) else qr.R(qr(t(x))),
 		    type = type)
 	  })
+
+setMethod("cov2cor", signature(V = "sparseMatrix"),
+	  function(V) {
+	      ## like stats::cov2cor() but making sure all matrices stay sparse
+	      p <- (d <- dim(V))[1]
+	      if (p != d[2])
+		  stop("'V' is not a *square* matrix")
+	      if(!is(V, "dMatrix"))
+		  V <- as(V, "dMatrix")# actually "dsparseMatrix"
+	      Is <- sqrt(1/diag(V))
+	      if (any(!is.finite(Is))) ## original had 0 or NA
+		  warning("diag(.) had 0 or NA entries; non-finite result is doubtful")
+	      ## TODO: if  <diagonal> %*% <sparse> was implemented more efficiently
+	      ##       we'd rather use that!
+	      Is <- as(Diagonal(x = Is), "sparseMatrix")
+	      r <- Is %*% V %*% Is
+	      r[cbind(1L:p,1L:p)] <- 1 # exact in diagonal
+	      as(r, "symmetricMatrix")
+	  })
+
 
 
 lm.fit.sparse <-
@@ -524,3 +546,74 @@ fac2sparse <- function(from, to = c("d","i","l","n","z"))
 }
 
 setAs("factor", "sparseMatrix", function(from) fac2sparse(from, to = "d"))
+
+## xtabs returning a sparse matrix.  This is cut'n'paste
+## of xtabs() in <Rsrc>/src/library/stats/R/xtabs.R ;
+## with the new argument 'sparse'
+xtabs <- function(formula = ~., data = parent.frame(), subset, sparse = FALSE,
+		  na.action, exclude = c(NA, NaN), drop.unused.levels = FALSE)
+{
+    if (missing(formula) && missing(data))
+	stop("must supply either 'formula' or 'data'")
+    if(!missing(formula)){
+	## We need to coerce the formula argument now, but model.frame
+	## will coerce the original version later.
+	formula <- as.formula(formula)
+	if (!inherits(formula, "formula"))
+	    stop("'formula' missing or incorrect")
+    }
+    if (any(attr(terms(formula, data = data), "order") > 1))
+	stop("interactions are not allowed")
+    m <- match.call(expand.dots = FALSE)
+    if (is.matrix(eval(m$data, parent.frame())))
+	m$data <- as.data.frame(data)
+    m$... <- m$exclude <- m$drop.unused.levels <- m$sparse <- NULL
+    m[[1]] <- as.name("model.frame")
+    mf <- eval(m, parent.frame())
+    if(length(formula) == 2) {
+	by <- mf
+	y <- NULL
+    }
+    else {
+	i <- attr(attr(mf, "terms"), "response")
+	by <- mf[-i]
+	y <- mf[[i]]
+    }
+    by <- lapply(by, function(u) {
+	if(!is.factor(u)) u <- factor(u, exclude = exclude)
+	u[ , drop = drop.unused.levels]
+    })
+    if(!sparse) { ## identical to stats::xtabs
+	x <-
+	    if(is.null(y))
+		do.call("table", by)
+	    else if(NCOL(y) == 1)
+		tapply(y, by, sum)
+	    else {
+		z <- lapply(as.data.frame(y), tapply, by, sum)
+		array(unlist(z),
+		      dim = c(dim(z[[1]]), length(z)),
+		      dimnames = c(dimnames(z[[1]]), list(names(z))))
+	    }
+	x[is.na(x)] <- 0
+	class(x) <- c("xtabs", "table")
+	attr(x, "call") <- match.call()
+	x
+
+    } else { ## sparse
+	if (length(by) != 2)
+	    stop("xtabs(*, sparse=TRUE) applies only to two-way tables")
+	rows <- by[[1]]
+	cols <- by[[2]]
+	rl <- levels(rows)
+	cl <- levels(cols)
+	if (is.null(y))
+	    y <- rep.int(1, length(rows))
+	as(new("dgTMatrix",
+	       i = as.integer(rows) - 1L,
+	       j = as.integer(cols) - 1L,
+	       x = as.double(y),
+	       Dim = c(length(rl), length(cl)),
+	       Dimnames = list(rl, cl)), "CsparseMatrix")
+    }
+}

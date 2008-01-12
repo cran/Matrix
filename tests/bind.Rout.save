@@ -1,5 +1,5 @@
 
-R version 2.6.0 alpha (2007-09-12 r42830)
+R version 2.6.1 Patched (2007-12-06 r43609)
 Copyright (C) 2007 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 
@@ -19,6 +19,14 @@ Type 'q()' to quit R.
 > 
 > library(Matrix)
 Loading required package: lattice
+
+Attaching package: 'Matrix'
+
+
+	The following object(s) are masked from package:stats :
+
+	 xtabs 
+
 > 
 > source(system.file("test-tools.R", package = "Matrix"))# identical3() etc
 > 
@@ -309,5 +317,5 @@ Ambiguous method selection for "+", target "dgTMatrix#dgCMatrix" (the first of t
 > 
 > 
 > cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
-Time elapsed:  4.264 0.104 4.387 0 0 
+Time elapsed:  2.658 0.104 3.128 0 0 
 > 

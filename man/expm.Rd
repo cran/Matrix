@@ -18,6 +18,8 @@ expm(x)
   definitely not the way to compute it).  The method for the
   \code{dgeMatrix} class uses Ward's diagonal Pade' approximation with
   three step preconditioning.
+  %% which used to be the state-of-the-art of the original
+  %% Moler & Van Loan (1978) "Nineteen dubious ..."
 }
 \value{
   The matrix exponential of \code{x}.
@@ -46,8 +48,8 @@ expm(x)
 stopifnot(all.equal(e1@x, c(e,0,e,e), tol = 1e-15))
 (m2 <- Matrix(c(-49, -64, 24, 31), nc = 2))
 (e2 <- expm(m2))
-(m3 <- Matrix(cbind(0,rbind(6*diag(3),0)), nc = 4))# sparse!
-(e3 <- expm(m3))
+(m3 <- Matrix(cbind(0,rbind(6*diag(3),0))))# sparse!
+(e3 <- expm(m3)) # upper triangular
 }
 \keyword{algebra}
 \keyword{math}

@@ -102,12 +102,25 @@ setMethod("Math",
 
 
 ### workhorse for "[<-" -- both for d* and l*  C-sparse matrices :
-replCmat <- function (x, i, j, value)
+## must have exact signature or then not be set as method directly
+replCmat <- function (x, i, j, ..., value)
 {
     di <- dim(x)
     dn <- dimnames(x)
-    i1 <- if(missing(i)) 0:(di[1] - 1L) else .ind.prep2(i, 1, di, dn)
-    i2 <- if(missing(j)) 0:(di[2] - 1L) else .ind.prep2(j, 2, di, dn)
+    iMi <- missing(i)
+    jMi <- missing(j)
+    na <- nargs()
+    if(na == 3) { ## "vector (or 2-col) indexing"  M[i] <- v
+	x <- as(x, "TsparseMatrix")
+	x[i] <- value # may change class e.g. from dtT* to dgT*
+	clx <- sub(".Matrix$", "CMatrix", class(x))
+	return(if(any(is0(x@x))) ## drop all values that "happen to be 0"
+	       drop0(x, clx) else as_CspClass(x, clx))
+    }
+    ## nargs() == 4 :
+
+    i1 <- if(iMi) 0:(di[1] - 1L) else .ind.prep2(i, 1, di, dn)
+    i2 <- if(jMi) 0:(di[2] - 1L) else .ind.prep2(j, 2, di, dn)
     dind <- c(length(i1), length(i2)) # dimension of replacement region
     lenRepl <- prod(dind)
     lenV <- length(value)
@@ -133,7 +146,6 @@ replCmat <- function (x, i, j, value)
 	     (lenRepl == 1 || isSymmetric(array(value, dim=dind))))
 	## x.sym : result is *still* symmetric
 	x <- .Call(Csparse_symmetric_to_general, x) ## but do *not* redefine clx!
-
     }
     else if((x.tri <- extends(clDx, "triangularMatrix"))) {
         xU <- x@uplo == "U"
@@ -188,11 +200,13 @@ replCmat <- function (x, i, j, value)
 
 setReplaceMethod("[", signature(x = "CsparseMatrix", i = "index", j = "missing",
                                 value = "replValue"),
-                 function (x, i, value) replCmat(x, i=i, value=value))
+##                 function(x,i,j, ..., value) replCmat(x, i=i, value=value))
+                 replCmat)
 
 setReplaceMethod("[", signature(x = "CsparseMatrix", i = "missing", j = "index",
                                 value = "replValue"),
-                 function (x, j, value) replCmat(x, j=j, value=value))
+##                 function(x,i,j, ..., value) replCmat(x, j=j, value=value))
+                 replCmat)
 
 setReplaceMethod("[", signature(x = "CsparseMatrix", i = "index", j = "index",
 				value = "replValue"),

@@ -1,3 +1,55 @@
+2008-01-11  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Date): make ready for release
+
+	* R/dgeMatrix.R: fix rcond() method for "dgeMatrix".
+
+2007-12-08  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/pMatrix.R: as(*, "matrix") now returns 0/1 *integer* matrix,
+		and hence does as.vector(.).
+	* man/pMatrix-class.Rd: docs
+	* R/sparseMatrix.R: fix for printing "integer sparse"
+
+	* tests/Class+Meth.R (tstMatrixClass): test M[FALSE], M[2] etc
+
+	* R/Matrix.R and others: use "exact" function argument list for
+		both "["   : (x, i,j, ..., drop)
+		and  "[<-" : (x, i,j, ..., value)
+
+	* R/denseMatrix.R: M[i] and M[i] <- v  (i vector) now work
+	* R/Tsparse.R (replTmat):    ditto
+	* R/diagMatrix.R (replDiag): ditto
+	* R/Csparse.R (replCmat):    ditto {was it worth the pain?}
+	* tests/indexing.R: testing the above
+
+2007-12-07  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/sparseMatrix.R (cov2cor): method for sparse matrices
+
+	* R/diagMatrix.R ([<-): fix   D[ cbind(i,j) ] <- v
+
+	* R/bind2.R: fix for Rsparse* and rbind2(dense,dense)
+
+	* tests/Class+Meth.R: test cbind2, rbind2  and  diag<-
+
+2007-12-06  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Matrix.R: "generic" cov2cor() method
+
+	* R/nearPD.R: new 'only.values', 'keepDiag' arguments;
+		speed up Q %*% D %*% t(Q)
+	* tests/dpoMatrix.R: test nearPD()
+
+2007-12-05  Doug Bates and Martin Maechler
+
+	* R/sparseMatrix.R: xtabs(*, sparse=.) function; an extention of
+	stats::xtabs() allowing to create sparse matrices.
+
+2007-10-08  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): *-4 (released *-3 two days ago)
+
 2007-10-06  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/pMatrix.R: solve(<Matrix>, <pMatrix>)

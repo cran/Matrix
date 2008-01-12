@@ -169,3 +169,26 @@ setMethod("triu", "RsparseMatrix",
 setMethod("band", "RsparseMatrix",
 	  function(x, k1, k2, ...)
 	  as(band(.R.2.C(x), k1 = k1, k2 = k2, ...), "RsparseMatrix"))
+
+setReplaceMethod("[", signature(x = "RsparseMatrix", i = "index", j = "missing",
+				value = "replValue"),
+		 function (x, i, j, ..., value)
+		 replTmat(as(x,"TsparseMatrix"), i=i, value=value))
+
+setReplaceMethod("[", signature(x = "RsparseMatrix", i = "missing", j = "index",
+				value = "replValue"),
+		 function (x, i, j, ..., value)
+		 replTmat(as(x,"TsparseMatrix"), j=j, value=value))
+
+setReplaceMethod("[", signature(x = "RsparseMatrix", i = "index", j = "index",
+				value = "replValue"),
+		 function (x, i, j, ..., value)
+		 replTmat(as(x,"TsparseMatrix"), i=i, j=j, value=value))
+
+setReplaceMethod("[", signature(x = "RsparseMatrix", i = "matrix", j = "missing",
+				value = "replValue"),
+		 function (x, i, j, ..., value)
+		 .TM.repl.i.2col(as(x,"TsparseMatrix"), i=i, value=value))
+
+
+

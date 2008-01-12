@@ -3,6 +3,7 @@
 \docType{class}
 \alias{diagonalMatrix-class}
 %
+\alias{as.vector,diagonalMatrix,missing-method}
 \alias{coerce,matrix,diagonalMatrix-method}
 \alias{coerce,diagonalMatrix,generalMatrix-method}
 \alias{coerce,diagonalMatrix,symmetricMatrix-method}

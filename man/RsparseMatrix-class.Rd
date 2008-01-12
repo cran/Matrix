@@ -46,6 +46,9 @@
 \section{Methods}{
   Only \bold{few} methods are defined currently on purpose, since we
   rather use the \code{\linkS4class{CsparseMatrix}} in \pkg{Matrix}.
+  Recently, more methods were added but \emph{beware} that these
+  typically do \emph{not} return \code{"RsparseMatrix"} results, but
+  rather Csparse* or Tsparse* ones.
   \describe{
     \item{t}{\code{signature(x = "RsparseMatrix")}: ... }
     \item{coerce}{\code{signature(from = "RsparseMatrix", to = "CsparseMatrix")}: ... }

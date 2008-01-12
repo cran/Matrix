@@ -25,13 +25,13 @@ SEXP sparseQR_validate(SEXP x)
 /**
  * Apply Householder transformations and the row permutation P to y
  *
- * @param a sparse matrix containing the vectors defining the
+ * @param V sparse matrix containing the vectors defining the
  *        Householder transformations
  * @param beta scaling factors for the Householder transformations
- * @param y contents of a V->m by nrhs dense matrix
  * @param p 0-based permutation vector of length V->m
- * @param nrhs number of right hand sides (i.e. ncol(y))
  * @param trans logical value - if TRUE create Q'y[p] otherwise Qy[p]
+ * @param y contents of a V->m by nrhs dense matrix
+ * @param ydims dimensions of y
  */
 static
 void sparseQR_Qmult(cs *V, double *beta, int *p, int trans,

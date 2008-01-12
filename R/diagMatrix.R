@@ -94,6 +94,20 @@ setAs("diagonalMatrix", "matrix",
                nrow = n, ncol = n)
       })
 
+setMethod("as.vector", signature(x = "diagonalMatrix", mode="missing"),
+	  function(x, mode) {
+	      n <- x@Dim[1]
+	      mod <- mode(x@x)
+	      r <- vector(mod, length = n^2)
+	      if(n)
+		  r[1 + 0:(n - 1) * (n + 1)] <-
+		      if(x@diag == "U")
+			  switch(mod, "integer"= 1L,
+				 "numeric"= 1, "logical"= TRUE)
+		      else x@x
+	      r
+	  })
+
 setAs("diagonalMatrix", "generalMatrix", # prefer sparse:
       function(from) as(from, paste(.M.kind(from), "gCMatrix", sep='')))
 
@@ -189,7 +203,7 @@ setMethod("diag", signature(x = "diagonalMatrix"),
 	  function(x = 1, nrow, ncol) .diag.x(x))
 
 
-subDiag <- function(x, i, j, drop) {
+subDiag <- function(x, i, j, ..., drop) {
     x <- as(x, "sparseMatrix")
     x <- if(missing(i))
 	x[, j, drop=drop]
@@ -204,33 +218,68 @@ setMethod("[", signature(x = "diagonalMatrix", i = "index",
 			 j = "index", drop = "logical"), subDiag)
 setMethod("[", signature(x = "diagonalMatrix", i = "index",
 			j = "missing", drop = "logical"),
-	  function(x, i, drop) subDiag(x, i=i, drop=drop))
+	  function(x, i, j, ..., drop) subDiag(x, i=i, drop=drop))
 setMethod("[", signature(x = "diagonalMatrix", i = "missing",
 			 j = "index", drop = "logical"),
-	  function(x, j, drop) subDiag(x, j=j, drop=drop))
+	  function(x, i, j, ..., drop) subDiag(x, j=j, drop=drop))
 
 ## When you assign to a diagonalMatrix, the result should be
 ## diagonal or sparse ---
 ## FIXME: this now fails because the "denseMatrix" methods come first in dispatch
-replDiag <- function(x, i, j, value) {
+## Only(?) current bug:  x[i] <- value  is wrong when  i is *vector*
+replDiag <- function(x, i, j, ..., value) {
     x <- as(x, "sparseMatrix")
     if(missing(i))
 	x[, j] <- value
-    else if(missing(j))
-	x[i, ] <- value
-    else
+    else if(missing(j)) { ##  x[i , ] <- v  *OR*   x[i] <- v
+        na <- nargs()
+##         message("diagnosing replDiag() -- nargs()= ", na)
+	if(na == 4)
+            x[i, ] <- value
+	else if(na == 3)
+            x[i] <- value
+        else stop("Internal bug: nargs()=",na,"; please report")
+    } else
 	x[i,j] <- value
     if(isDiagonal(x)) as(x, "diagonalMatrix") else x
 }
 
 setReplaceMethod("[", signature(x = "diagonalMatrix", i = "index",
 				j = "index", value = "replValue"), replDiag)
+
 setReplaceMethod("[", signature(x = "diagonalMatrix", i = "index",
 				j = "missing", value = "replValue"),
-		 function(x, i, value) replDiag(x, i=i, value=value))
+		 function(x,i,j, ..., value) {
+                     ## message("before replDiag() -- nargs()= ", nargs())
+                     if(nargs() == 3)
+                         replDiag(x, i=i, value=value)
+                     else ## nargs() == 4 :
+                         replDiag(x, i=i, , value=value)
+                 })
+
+setReplaceMethod("[", signature(x = "diagonalMatrix", i = "matrix", # 2-col.matrix
+				j = "missing", value = "replValue"),
+		 function(x,i,j, ..., value) {
+		     if(ncol(i) == 2) {
+			 if(all((ii <- i[,1]) == i[,2])) { # replace in diagonal only
+			     x@x[ii] <- value
+			     x
+			 } else { ## no longer diagonal, but remain sparse:
+			     x <- as(x, "sparseMatrix")
+			     x[i] <- value
+			     x
+			 }
+		     }
+		     else { # behave as "base R": use as if vector
+			 x <- as(x, "matrix")
+			 x[i] <- value
+			 Matrix(x)
+		     }
+		 })
+
 setReplaceMethod("[", signature(x = "diagonalMatrix", i = "missing",
 				j = "index", value = "replValue"),
-		 function(x, j, value) replDiag(x, j=j, value=value))
+		 function(x,i,j, ..., value) replDiag(x, j=j, value=value))
 
 
 setMethod("t", signature(x = "diagonalMatrix"),

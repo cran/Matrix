@@ -11,6 +11,7 @@ ifdef build_under_Windows
   PKG_HOME = $(shell $(RHOME)/src/gnuwin32/Rpwd.exe .)
   MkInclude = $(PKG_HOME)/Win.mk
 else
+  SHLIB_EXT = .so
   MkInclude = $(R_HOME)/etc${R_ARCH}/Makeconf
 endif
 

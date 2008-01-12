@@ -61,7 +61,9 @@
     \item{coerce}{\code{signature(from = "numeric", to = "pMatrix")}:
       a user convenience, to allow \code{as(perm, "pMatrix")} for
       numeric \code{perm} with integer values.}
-    \item{coerce}{\code{signature(from = "pMatrix", to = "matrix")}: ... }
+    \item{coerce}{\code{signature(from = "pMatrix", to = "matrix")}:
+      coercion to a traditional 0/1 \code{\link{matrix}} of
+      \code{\link{mode}} \code{integer}.}
     \item{coerce}{\code{signature(from = "pMatrix", to = "ngTMatrix")}:
       coercion to sparse logical matrix of class \code{\linkS4class{ngTMatrix}}.}
     \item{solve}{\code{signature(a = "pMatrix", b = "missing")}: return
@@ -87,7 +89,8 @@
 t(pm1) # is the same as
 solve(pm1)
 pm1 \%*\% t(pm1) # check that the transpose is the inverse
-stopifnot(identical(diag(3), as(pm1 \%*\% t(pm1), "matrix")))
+stopifnot(all.equal(diag(3), as(pm1 \%*\% t(pm1), "matrix")),
+          is.integer(as(pm1, "matrix")))
 
 set.seed(11)
 ## random permutation matrix :

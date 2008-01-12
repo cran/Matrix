@@ -25,6 +25,7 @@
 % in ../R/diagMatrix.R
 \alias{[<-,diagonalMatrix,index,index,replValue-method}
 \alias{[<-,diagonalMatrix,index,missing,replValue-method}
+\alias{[<-,diagonalMatrix,matrix,missing,replValue-method}
 \alias{[<-,diagonalMatrix,missing,index,replValue-method}
 % \alias{[<-,diagonalMatrix,index,index,replValue-method}
 % \alias{[<-,diagonalMatrix,index,missing,replValue-method}
@@ -40,6 +41,11 @@
 \alias{[<-,CsparseMatrix,index,missing,replValue-method}
 \alias{[<-,CsparseMatrix,matrix,missing,replValue-method}
 \alias{[<-,CsparseMatrix,missing,index,replValue-method}
+% %
+\alias{[<-,RsparseMatrix,index,index,replValue-method}
+\alias{[<-,RsparseMatrix,index,missing,replValue-method}
+\alias{[<-,RsparseMatrix,matrix,missing,replValue-method}
+\alias{[<-,RsparseMatrix,missing,index,replValue-method}
 % %
 % \alias{[<-,dsparseMatrix,missing,index,numeric-method}
 % \alias{[<-,dsparseMatrix,index,missing,numeric-method}

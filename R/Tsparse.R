@@ -434,10 +434,64 @@ setMethod("[", signature(x = "TsparseMatrix",
 ## workhorse for "[<-" :
 replTmat <- function (x, i, j, ..., value)
 {
+## NOTE:  need '...', i.e., exact signature such that setMethod()
+##	  does not use .local() such that nargs() will work correctly:
     di <- dim(x)
     dn <- dimnames(x)
     iMi <- missing(i)
     jMi <- missing(j)
+    na <- nargs()
+    if(na == 3) { ## "vector (or 2-col) indexing"  M[i] <- v
+##	   message(sprintf(paste("diagnosing replTmat(x,i,j,v): nargs()= %d;",
+##				 "missing(i,j)= (%d,%d)."), na, iMi,jMi))
+	if(iMi) stop("internal bug: missing 'i' in replTmat(): please report")
+	if(is.character(i))
+	    stop("[ <character> ] indexing not allowed: forgot a \",\" ?")
+	if(is.matrix(i))
+	    stop("internal bug: matrix 'i' in replTmat(): please report")
+	## Now: have  M[i] <- v	 with vector logical or "integer" i :
+	## Tmatrix maybe non-unique, have an entry split into a sum of several ones:
+
+	if(!is(x,"generalMatrix")) {
+	    cl <- class(x)
+	    x <- as(x, paste(.M.kind(x), "gTMatrix", sep=''))
+	    ## give a message, since this is sub-optimal
+	    message("'x[i] <- v' indexing: Coercing class ",cl," to ",class(x))
+	}
+	nr <- di[1]
+	x.i <- encodeInd2(x@i, x@j, nr)
+	if(any(duplicated(x.i))) { ## == if(is_duplicatedT(x, nr = di[1]))
+	    x <- uniqTsparse(x)
+	    x.i <- encodeInd2(x@i, x@j, nr)
+	}
+	if(is.logical(i)) { # full-size logical indexing
+	    n <- prod(di)
+	    if(n) {
+		if(length(i) < n) i <- rep(i, length.out = n)
+		i <- (0:(n-1))[i] # -> 0-based index vector as well {maybe LARGE!}
+	    } else i <- integer(0)
+	} else i <- as.integer(i) - 1L ## 0-based indices
+	m <- length(i)
+	if(length(value) != m) { ## use recycling rules
+	    if(m %% length(value) != 0)
+		warning("number of items to replace is not a multiple of replacement length")
+	    value <- rep(value, length.out = m)
+	}
+
+	## now have 0-based indices   x.i (entries) and	 i (new entries)
+	## 1) Change the matching non-zero entries
+	isE <- !is.na(mi <- match(i, x.i)) ## use  which(isE) , mi[isE]
+	x@x[mi[isE]] <- value[isE]
+	## 2) add the new non-zero entries
+	i <- i[!isE]
+	x@i <- c(x@i, i %%  nr)
+	x@j <- c(x@j, i %/% nr)
+	x@x <- c(x@x, value[!isE])
+
+	return(x)
+    }
+    ## nargs() == 4 :
+
     i1 <- if(iMi) 0:(di[1] - 1L) else .ind.prep2(i, 1, di, dn)
     i2 <- if(jMi) 0:(di[2] - 1L) else .ind.prep2(j, 2, di, dn)
     dind <- c(length(i1), length(i2)) # dimension of replacement region
@@ -584,14 +638,11 @@ replTmat <- function (x, i, j, ..., value)
             x@x <- c(x@x, value[iI0[vN0]])
     }
     x
-}
-
+} ## end{replTmat}
 
 ## A[ ij ] <- value,  where ij is (i,j) 2-column matrix :
 ## ----------------   ./Matrix.R has a general cheap method
 ## This one should become as fast as possible:
-## NOTE:  need '...' below such that setMethod() does
-##	  not use .local() such that nargs() will work correctly:
 .TM.repl.i.2col <- function (x, i, j, ..., value)
 {
     nA <- nargs()
@@ -726,15 +777,17 @@ replTmat <- function (x, i, j, ..., value)
     }
 
     x
-}
+} ## end{.TM.repl.i.2col}
 
 setReplaceMethod("[", signature(x = "TsparseMatrix", i = "index", j = "missing",
                                 value = "replValue"),
-                 function (x, i, j, ..., value) replTmat(x, i=i, value=value))
+                 replTmat)
+##                  function (x, i, j, ..., value) replTmat(x, i=i, , value=value))
 
 setReplaceMethod("[", signature(x = "TsparseMatrix", i = "missing", j = "index",
                                 value = "replValue"),
-                 function (x, i, j, ..., value) replTmat(x, j=j, value=value))
+                 replTmat)
+##                  function (x, i, j, ..., value) replTmat(x, , j=j, value=value))
 
 setReplaceMethod("[", signature(x = "TsparseMatrix", i = "index", j = "index",
 				value = "replValue"),

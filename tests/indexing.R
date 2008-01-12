@@ -249,6 +249,44 @@ T <- m2; T[1:3, 3] <- 10; validObject(T)
 stopifnot(is(T, "dtCMatrix"), identical(T[,3], c(10,10,10,0,0)))
 
 
+## "Vector indices" -------------------
+D <- Diagonal(6)
+M <- as(D,"dgeMatrix")
+m <- as(D,"matrix")
+s <- as(D,"TsparseMatrix")
+S <- as(s,"CsparseMatrix")
+i <- c(3,1,6); v <- c(10,15,20)
+## (logical,value) which both are recycled:
+L <- c(TRUE, rep(FALSE,8)) ; z <- c(50,99)
+
+## vector subassignment, both with integer & logical
+## these now work correctly {though not very efficiently; hence warnings}
+m[i] <- v # the role model: only first column is affected
+M[i] <- v; assert.EQ.mat(M,m) # dge
+D[i] <- v; assert.EQ.mat(D,m) # ddi -> dtT -> dgT
+s[i] <- v; assert.EQ.mat(s,m) # dtT -> dgT
+S[i] <- v; assert.EQ.mat(S,m); S # dtC -> dtT -> dgT -> dgC
+## logical
+m[L] <- z
+M[L] <- z; assert.EQ.mat(M,m)
+D[L] <- z; assert.EQ.mat(D,m)
+s[L] <- z; assert.EQ.mat(s,m)
+S[L] <- z; assert.EQ.mat(S,m) ; S
+
+## indexing [i]  vs  [i,] --- now ok
+stopifnot(identical4(m[i], M[i], D[i], s[i]), identical(s[i],S[i]))
+stopifnot(identical4(m[L], M[L], D[L], s[L]), identical(s[L],S[L]))
+assert.EQ.mat(D[i,], m[i,])
+assert.EQ.mat(M[i,], m[i,])
+assert.EQ.mat(s[i,], m[i,])
+assert.EQ.mat(S[i,], m[i,])
+
+assert.EQ.mat(D[,i], m[,i])
+assert.EQ.mat(M[,i], m[,i])
+assert.EQ.mat(s[,i], m[,i])
+assert.EQ.mat(S[,i], m[,i])
+
+
 ## --- negative indices ----------
 mc <- mC[1:5, 1:7]
 mt <- mT[1:5, 1:7]

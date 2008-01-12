@@ -422,7 +422,7 @@ int R_cholmod_printf(const char* fmt, ...)
  * Initialize the CHOLMOD library and replace the print and error functions
  * by R-specific versions.
  *
- * @param Common pointer to a cholmod_common structure to be initialized
+ * @param c pointer to a cholmod_common structure to be initialized
  *
  * @return CHOLMOD_OK if successful
  */
@@ -442,6 +442,7 @@ int R_cholmod_start(CHM_CM c)
  *
  * @param a matrix to be converted
  * @param dofree 0 - don't free a; > 0 cholmod_free a; < 0 Free a
+ * @param Rkind type of R matrix to be generated (special to this function)
  * @param dn   -- dimnames [list(.,.) or NULL]
  *
  * @return SEXP containing a copy of a
@@ -648,7 +649,7 @@ CHM_FR as_cholmod_factor(CHM_FR ans, SEXP x)
  * Copy the contents of f to an appropriate dCHMfactor object and,
  * optionally, free f or free both f and its pointer to its contents.
  *
- * @param a matrix to be converted
+ * @param f cholmod_factor object to be converted
  * @param dofree 0 - don't free a; > 0 cholmod_free a; < 0 Free a
  *
  * @return SEXP containing a copy of a

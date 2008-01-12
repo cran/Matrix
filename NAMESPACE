@@ -1,8 +1,11 @@
 useDynLib(Matrix, .registration=TRUE)
 
+## Import non-base functions we need explicitly,
+## notably for which we define methods:
 importFrom("lattice", levelplot)
 importFrom("graphics", image)
 importFrom("utils", head, tail)
+importFrom("stats", cov2cor)
 importFrom("grid", grid.rect, gpar, grob)
 
 ## Currently, group generics need to be explicitly imported (Bug?):
@@ -33,6 +36,7 @@ export("Cholesky",
        "rcond",
        "readHB",
        "readMM",
+       "xtabs",
        "tcrossprod",
        "tril",
        "triu",
@@ -228,6 +232,7 @@ exportMethods(
 	      "chol",
 	      "colMeans",
 	      "colSums",
+              "cov2cor",
 	      "coerce",
 	      "crossprod",
 	      "determinant",

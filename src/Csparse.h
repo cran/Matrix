@@ -10,6 +10,7 @@ SEXP Csparse_Csparse_crossprod(SEXP a, SEXP b, SEXP trans);
 SEXP Csparse_dense_crossprod(SEXP a, SEXP b);
 SEXP Csparse_dense_prod(SEXP a, SEXP b);
 SEXP Csparse_diagU2N(SEXP x);
+SEXP Csparse_diagN2U(SEXP x);
 SEXP Csparse_drop(SEXP x, SEXP tol);
 SEXP Csparse_horzcat(SEXP x, SEXP y);
 SEXP Csparse_submatrix(SEXP x, SEXP i, SEXP j);

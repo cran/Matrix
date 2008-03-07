@@ -8,8 +8,8 @@ cholmod_common c;
  * elements accordingly. Note that later changes to the contents of
  * ans will change the contents of the SEXP.
  *
- * In most cases this function is called through the macro AS_CHM_SP.
- * It is unusual to call it directly.
+ * In most cases this function is called through the macro
+ * AS_CHM_SP().  It is unusual to call it directly.
  *
  * @param ans a CHM_SP pointer
  * @param x pointer to an object that inherits from CsparseMatrix
@@ -68,13 +68,14 @@ CHM_SP as_cholmod_sparse(CHM_SP ans, SEXP x)
     case 0: /* g(eneral) */							\
 	ans->stype = 0; break;							\
     case 1: /* s(ymmetric) */							\
-	ans->stype =								\
-	    (!strcmp(CHAR(asChar(getAttrib(x, Matrix_uploSym))), "U")) ?	\
-	    1 : -1;								\
+	ans->stype = (*uplo_P(x) == 'U') ? 1 : -1;				\
 	break;									\
-    case 2: /* t(riangular) */							\
-	ans->stype = 0; break; /* Note that triangularity property is lost */	\
-/*	error("triangular matrices not yet mapped to CHOLMOD"); */		\
+    case 2: /* t(riangular) -- Note that triangularity property is lost! */	\
+	ans->stype = 0;								\
+	/* NOTE: if(*diag_P(x) == 'U'), the diagonal is lost (!); */		\
+        /* ---- that may be ok, e.g. if we are just converting from/to Tsparse, */ \
+        /*      but is *not* at all ok, e.g. when used before matrix products */   \
+	break;									\
     }										\
     return ans
 
@@ -104,9 +105,9 @@ SEXP chm_sparse_to_SEXP(CHM_SP a, int dofree, int uploT, int Rkind,
     int *dims, nnz;
 
     PROTECT(dn);  /* dn is usually UNPROTECTed before the call */
+
 				/* ensure a is sorted and packed */
     if (!a->sorted || !a->packed) cholmod_sort(a, &c);
-    nnz = cholmod_nnz(a, &c);
 				/* determine the class of the result */
     switch(a->xtype){
     case CHOLMOD_PATTERN:
@@ -129,6 +130,7 @@ SEXP chm_sparse_to_SEXP(CHM_SP a, int dofree, int uploT, int Rkind,
     }
     ans = PROTECT(NEW_OBJECT(MAKE_CLASS(cl)));
 				/* allocate and copy common slots */
+    nnz = cholmod_nnz(a, &c);
     dims = INTEGER(ALLOC_SLOT(ans, Matrix_DimSym, INTSXP, 2));
     dims[0] = a->nrow; dims[1] = a->ncol;
     Memcpy(INTEGER(ALLOC_SLOT(ans, Matrix_pSym, INTSXP, a->ncol + 1)),
@@ -716,6 +718,83 @@ SEXP chm_factor_to_SEXP(CHM_FR f, int dofree)
     }
     UNPROTECT(1);
     return ans;
+}
+
+/**
+ * Drop the (unit) diagonal entries from a cholmod_sparse matrix
+ *
+ * @param chx   cholmod_sparse matrix.
+ *              Note that the matrix "slots" are modified _in place_
+ * @param uploT integer code (= +/- 1) indicating if chx is
+ *              upper (+1) or lower (-1) triangular
+ * @param do_realloc  Rboolean indicating, if a cholmod_sprealloc() should
+ *              finalize the procedure; not needed, e.g. when the
+ *              result is converted to a SEXP immediately afterwards.
+ */
+void chm_diagN2U(CHM_SP chx, int uploT, Rboolean do_realloc)
+{
+    int i, n = chx->nrow, nnz = (int)cholmod_nnz(chx, &c),
+	n_nnz = nnz - n, /* the new nnz : we will have removed  n entries */
+	i_to = 0, i_from = 0;
+
+    if(chx->ncol != n)
+	error(_("chm_diagN2U(<non-square matrix>): nrow=%d, ncol=%d"),
+	      n, chx->ncol);
+
+    if (!chx->sorted || !chx->packed) cholmod_sort(chx, &c);
+				/* dimensions and nzmax */
+
+#define _i(I) (   (int*) chx->i)[I]
+#define _x(I) ((double*) chx->x)[I]
+#define _p(I) (   (int*) chx->p)[I]
+
+    /* work by copying from i_from to i_to ==> MUST i_to <= i_from */
+
+    if(uploT == 1) { /* "U" : upper triangular */
+
+	for(i = 0; i < n; i++) { /* looking at i-th column */
+	    int j, n_i = _p(i+1) - _p(i); /* = #{entries} in this column */
+
+	    /* 1) copy all but the last _above-diagonal_ column-entries: */
+	    for(j = 1; j < n_i; j++, i_to++, i_from++) {
+		_i(i_to) = _i(i_from);
+		_x(i_to) = _x(i_from);
+	    }
+
+	    /* 2) drop the last column-entry == diagonal entry */
+	    i_from++;
+	}
+    }
+    else if(uploT == -1) { /* "L" : lower triangular */
+
+	for(i = 0; i < n; i++) { /* looking at i-th column */
+	    int j, n_i = _p(i+1) - _p(i); /* = #{entries} in this column */
+
+	    /* 1) drop the first column-entry == diagonal entry */
+	    i_from++;
+
+	    /* 2) copy the other _below-diagonal_ column-entries: */
+	    for(j = 1; j < n_i; j++, i_to++, i_from++) {
+		_i(i_to) = _i(i_from);
+		_x(i_to) = _x(i_from);
+	    }
+	}
+    }
+    else {
+	error(_("chm_diagN2U(x, uploT = %d): uploT should be +- 1"), uploT);
+    }
+
+    /* the column pointers are modified the same in both cases :*/
+    for(i=1; i <= n; i++)
+	_p(i) -= i;
+
+#undef _i
+#undef _x
+#undef _p
+
+    if(do_realloc) /* shorten (i- and x-slots from nnz to n_nnz */
+	cholmod_reallocate_sparse(n_nnz, chx, &c);
+    return;
 }
 
 /* Placeholders; TODO: use checks above (search "CHMfactor_validate"): */

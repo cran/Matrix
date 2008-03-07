@@ -221,9 +221,17 @@ tstMatrixClass <-
 	    ## m0 is the 'matrix' version of our 'Matrix' m
 	    m. <- if(is_p) as.integer(m0) else m0
             EQ <- if(is_cor) all.equal else identical
-	    stopifnot(EQ(m0[FALSE], m[FALSE]),
-		      EQ(m.[TRUE],  m[TRUE]),
-		      if(length(m) >= 2) EQ(m.[2:1], m[2:1]) else TRUE)
+	    stopifnot(EQ(m0[FALSE], m[FALSE])
+		      , EQ(m.[TRUE],  m[TRUE])
+		      , if(length(m) >= 2) EQ(m.[2:1], m[2:1]) else TRUE)
+
+	    if(all(dim(m) > 0)) { ## matrix(0,0,0)[FALSE,]  is invalid too
+		m00 <- m[FALSE,FALSE]
+		m.. <- m[TRUE , TRUE]
+		stopifnot(dim(m00) == c(0L,0L),
+			  dim(m..) == dim(m))
+		## not yet  , class(m00) == clNam , identical(m.. , m)
+	    }
 
 	    if(any(clNam == not.ok.classes)) {
 		cat("in 'stop list' - no validity\n")

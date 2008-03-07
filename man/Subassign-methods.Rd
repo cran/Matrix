@@ -83,8 +83,12 @@
 %% Note that ./Xtrct-methods.Rd has the indexing ones
 set.seed(101)
 (a <- m <- Matrix(round(rnorm(7*4),2), nrow = 7))
-% not yet available%% FIXME!
-% a[] <- 2.2
+
+a[] <- 2.2 # <<- replaces **every** entry
+a
+## as do these:
+a[,] <- 3 ; a[TRUE,] <- 4
+
 m[2, 3]  <- 3.14 # simple number
 m[3, 3:4]<- 3:4  # simple numeric of length 2
 

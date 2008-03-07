@@ -34,19 +34,3 @@ SEXP tTMatrix_validate(SEXP x)
 }
 
 /* SEXP dtTMatrix_as_dtrMatrix(SEXP x) ---> now in ./TMatrix_as.c */
-
-/* Should generalize this, also for ltT -> lgC --
- * along the lines in ./TMatrix_as.c  ..... or drop completely : */
-SEXP dtTMatrix_as_dgCMatrix(SEXP x)
-{
-    CHM_TR tx = AS_CHM_TR(x);
-    CHM_SP cx = cholmod_triplet_to_sparse(tx, tx->nzmax, &c);
-    R_CheckStack();
-
- /* FIXME
- * int Rkind = (tx->xtype == CHOLMOD_REAL) ? Real_kind(x) : 0;
- */
-    return chm_sparse_to_SEXP(cx, 1/*do_free*/, 0, /*Rkind*/ 0, "",
-			      GET_SLOT(x, Matrix_DimNamesSym));
-}
-

@@ -211,7 +211,7 @@ subDiag <- function(x, i, j, ..., drop) {
 	x[i, , drop=drop]
     else
 	x[i,j, drop=drop]
-    if(isDiagonal(x)) as(x, "diagonalMatrix") else x
+    if(isS4(x) && isDiagonal(x)) as(x, "diagonalMatrix") else x
 }
 
 setMethod("[", signature(x = "diagonalMatrix", i = "index",
@@ -290,7 +290,10 @@ setMethod("isDiagonal", signature(object = "diagonalMatrix"),
 setMethod("isTriangular", signature(object = "diagonalMatrix"),
           function(object) TRUE)
 setMethod("isSymmetric", signature(object = "diagonalMatrix"),
-          function(object) TRUE)
+	  function(object, ...) TRUE)
+
+setMethod("symmpart", signature(x = "diagonalMatrix"), function(x) x)
+setMethod("skewpart", signature(x = "diagonalMatrix"), setZero)
 
 setMethod("chol", signature(x = "ddiMatrix"),# pivot = "ANY"
 	  function(x, pivot) {
@@ -394,16 +397,16 @@ setMethod("%*%", signature(x = "dgeMatrix", y = "diagonalMatrix"),
 ##           })
 
 setMethod("crossprod", signature(x = "diagonalMatrix", y = "sparseMatrix"),
-	  function(x, y = NULL) { x <- as(x, "sparseMatrix"); callGeneric() })
+	  function(x, y = NULL) crossprod(as(x, "sparseMatrix"), y))
 
 setMethod("crossprod", signature(x = "sparseMatrix", y = "diagonalMatrix"),
-	  function(x, y = NULL) { y <- as(y, "sparseMatrix"); callGeneric() })
+	  function(x, y = NULL) crossprod(x, as(y, "sparseMatrix")))
 
 setMethod("tcrossprod", signature(x = "diagonalMatrix", y = "sparseMatrix"),
-	  function(x, y = NULL) { x <- as(x, "sparseMatrix"); callGeneric() })
+	  function(x, y = NULL) tcrossprod(as(x, "sparseMatrix"), y))
 
 setMethod("tcrossprod", signature(x = "sparseMatrix", y = "diagonalMatrix"),
-	  function(x, y = NULL) { y <- as(y, "sparseMatrix"); callGeneric() })
+	  function(x, y = NULL) tcrossprod(x, as(y, "sparseMatrix")))
 
 
 ## FIXME?: In theory, this can be done *FASTER*, in some cases, via tapply1()
@@ -444,6 +447,7 @@ setMethod("solve", signature(a = "diagonalMatrix", b = "matrix"),
 setMethod("solve", signature(a = "diagonalMatrix", b = "Matrix"),
           solveDiag)
 
+## Schur()  ---> ./eigen.R
 
 
 

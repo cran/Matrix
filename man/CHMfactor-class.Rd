@@ -12,8 +12,10 @@
 \alias{coerce,CHMfactor,Matrix-method}
 \alias{coerce,CHMfactor,sparseMatrix-method}
 \alias{solve,CHMfactor,ddenseMatrix-method}
-\alias{solve,CHMfactor,matrix-method}
 \alias{solve,CHMfactor,dsparseMatrix-method}
+\alias{solve,CHMfactor,numeric-method}
+\alias{solve,CHMfactor,matrix-method}
+\alias{solve,CHMfactor,ANY-method}
 %
 \description{The virtual class \code{"CHMfactor"} is a class of
   CHOLMOD-based Cholesky factorizations of symmetric, sparse,
@@ -67,9 +69,13 @@
       default is to solve \code{Ax = b} for \code{x} where \code{A} is
       sparse, positive-definite matrix that was factored to produce
       \code{"a"}.}
+    \item{solve}{\code{signature(a = "CHMfactor", b = "matrix")}, and}
+    \item{solve}{\code{signature(a = "CHMfactor", b = "numeric")} call
+      the above \code{signature(*, b = "ddenseMatrix")} method.}
 
-    \item{solve}{\code{signature(a = "CHMfactor", b = "dsparseMatrix")}}
-    \item{solve}{\code{signature(a = "CHMfactor", b = "matrix")}}
+    \item{solve}{\code{signature(a = "CHMfactor", b = "dsparseMatrix")}
+      takes the same third argument \code{system} and calls the
+      corresponding sparse CHOLMOD algorithm.}
   }
 }
 %\references{}

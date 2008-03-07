@@ -13,6 +13,7 @@ setAs("dgTMatrix", "matrix",
 setAs("dgeMatrix", "dgTMatrix",
       function(from) as(as(from, "dgCMatrix"), "dgTMatrix"))
 
+if(FALSE) ## special case, relatively ugly, needed ??
 setAs("dgTMatrix", "dsCMatrix",
       function(from) {
           if (!isSymmetric(from))
@@ -32,7 +33,19 @@ setAs("dgTMatrix", "dsTMatrix",
 		  i = from@i[upper],
 		  j = from@j[upper], x = from@x[upper], uplo = "U")
 	  }
-	  else stop("not a symmetric matrix")})
+	  else
+	      stop("not a symmetric matrix; consider forceSymmetric() or symmpart()")
+      })
+
+## This is faster:
+setAs("dgTMatrix", "dtCMatrix",
+      function(from) {
+	  if(!(iTri <- isTriangular(from)))
+	      stop("the matrix is not triangular")
+	  ## else
+	  stopifnot(is.character(uplo <- attr(iTri,"kind")))
+	  .Call(Tsparse_to_tCsparse, from, uplo, "N")
+      })
 
 setAs("dgTMatrix", "dtTMatrix",
       function(from) check.gT2tT(from, cl = "dgTMatrix", toClass = "dtTMatrix",

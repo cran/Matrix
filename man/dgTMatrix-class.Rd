@@ -6,6 +6,7 @@
 \alias{coerce,dgTMatrix,dgCMatrix-method}
 \alias{coerce,dgTMatrix,dgeMatrix-method}
 \alias{coerce,dgTMatrix,dsCMatrix-method}
+\alias{coerce,dgTMatrix,dtCMatrix-method}
 \alias{coerce,dgTMatrix,dsTMatrix-method}
 \alias{coerce,dgTMatrix,dtTMatrix-method}
 \alias{coerce,dgTMatrix,matrix-method}
@@ -47,6 +48,7 @@
     \item{coerce}{\code{signature(from = "dgTMatrix", to = "dgeMatrix")}}
     \item{coerce}{\code{signature(from = "dgTMatrix", to = "matrix")}}
     \item{coerce}{\code{signature(from = "dgTMatrix", to = "dsCMatrix")}}
+    \item{coerce}{\code{signature(from = "dgTMatrix", to = "dtCMatrix")}}
     \item{coerce}{\code{signature(from = "matrix", to = "dsTMatrix")}}
     \item{crossprod}{\code{signature(x = "dgTMatrix", y = "missing")}
       returns \code{t(x) \%*\% x} as an \code{dsCMatrix} object.}
@@ -75,6 +77,10 @@ m[-3,c(2,4:5,7)] <- m[ 3, 1:4] <- m[1:3, 6] <- 0
 str(mT)
 mT[1,]
 mT[4, drop = FALSE]
+stopifnot(identical(mT[lower.tri(mT)],
+                    m [lower.tri(m) ]))
+mT[lower.tri(mT,diag=TRUE)] <- 0
+mT
 }
 \keyword{classes}
 \keyword{algebra}

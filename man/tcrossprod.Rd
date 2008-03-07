@@ -52,7 +52,7 @@ tcrossprod(x, y = NULL)
  system.time(cm <- crossprod(t(m))) # 0.16
  system.time(cm. <- tcrossprod(m))  # 0.02
 
- stopifnot(identical(cm, as(tCmm, "matrix")))
+ stopifnot(cm == as(tCmm, "matrix"))
 
  ## show sparse sub matrix
  tCmm[1:16, 1:30]

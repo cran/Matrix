@@ -1,6 +1,188 @@
+2008-03-07  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/dgeMatrix.c (dgeMatrix_exp): fix the octave-origin bug in the
+	back-permutation of the matrix exponential.
+
+	* tests/matr-exp.R: test the fix (for an example where expm() was wrong).
+
+	* DESCRIPTION (Date,Version): ready to release 0.999375-5
+
+	* tests/simple.R: testing diagN2U
+
+2008-03-06  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Auxiliaries.R (diagN2U): interface to
+
+	* src/Csparse.c (Csparse_diagN2U): .Call()able SEXP version of chm_diagN2U()
+
+	* tests/matprod.R: test for triangularity preserving <dtC> %*% <dtC>
+
+2008-03-05  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/chm_common.c (chm_diagN2U): new utility.
+
+	* src/Csparse.c (Csparse_Csparse_crossprod, Csparse_Csparse_prod):
+	make use of chm_diagN2U() and hence now preserve triangularity and
+	unit-triangularity.
+
+	* DESCRIPTION (LicenseDetails): new; such that 'License:' becomes "canonical"
+
+2008-03-04  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/diagMatrix.R (subDiag): fix when x[..] became a vector
+
+	* src/Tsparse.c (Tsparse_diagU2N): new utility, necessary for e.g.
+	* src/Csparse.c (Csparse_crossprod): use [CT]sparse_diagU2N() !!
+
+	* R/Auxiliaries.R (.diagU2N): make use of new Tsparse_diagU2N
+
+	* R/Ops.R ("-" (<sparseMatrix>)): use diagU2N()
+
+	* src/chm_common.c (AS_CHM_FINISH): add note about problem
+	for triangular (diag = "U").
+
+2008-02-21  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Auxiliaries.R (as_Csparse2): drop this, replacing by
+	* R/bind.R:  .Call(dense_to_Csparse, *)
+
+2008-02-20  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Matrix.R (Matrix): no longer use coercions to specific classes
+		(since we are discouraging them in user code).
+
+	* tests/*.R: also replaces coercions to specific classes by
+	coercions to super classes.
+
+	* R/denseMatrix.R (.dense2C): simplified by using forceSymmetric()
+
+
+2008-02-19  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* man/CAex.Rd: example: coerce to symmetric*, not dsC*
+
+	* src/dense.c (dense_band): generalized from ddense_band
+
+	* R/ddenseMatrix.R (.trilDense,.triuDense, .bandDense):
+	  now for "denseMatrix" (instead of just "ddense*"); much
+	  simplified setMethod()s for these.
+
+	* src/dense.c (dense_to_symmetric): generalized from ddense_*
+
+2008-02-18  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/AllGeneric.R: forceSymmetric() generic: fast no-checking
+	version of as(*, "symmetricMatric").
+
+	* src/dense.c (ddense_to_symmetric): add 'symm_test' argument, and
+	* R/symmetricMatrix.R: set it TRUE in coercion to "symmetricMatrix"
+
+2008-02-16  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Matrix.R (subset.ij): utility, as first step to faster
+	   M [ <ij-matrix> ] indexing.
+
+	* R/Matrix.R (.M.sub.i.logical): M[ <logical> ] : try better.
+
+	* src/dense.c (ddense_symmpart, ddense_skewpart): new functions
+	for more efficient symmpart() and skewpart() methods.
+
+	* src/Mutils.c (equal_string_vectors): utility
+
+	* src/dense.c (ddense_to_symmetric): new function used in
+
+	* R/symmetricMatrix.R: setAs(., "symmetricMatrix")
+
+	* R/sparseMatrix.R, et_al (isSymmetric): add '...' to formals, in
+	order to match the generic (and evade .local(..)).
+
+	* R/dsCMatrix.R: dgC -> dsC: use C code!
+
+	* NAMESPACE, R/AllGeneric.R (symmpart, skewpart): new functions
+	as per TODO
+
+	* R/Auxiliaries.R (setZero, all0Matrix): new utilities
+
+	* R/symmetricMatrix.R: obvious symmpart(), skewpart() methods
+
+
+2008-02-15  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Ops.R (.Arith.Csparse): use diagU2N when needed in triangular
+
+	* R/Auxiliaries.R (non0.i): take out of non0ind
+
+	* R/ddenseMatrix.R (.trilDense, .triuDense, .bandDense):
+	make tril(), triu(), band() work for "matrix" and all "dense*"
+
+	* R/triangularMatrix.R (.tri[lu].tr): need .diagU2N(*)
+	* tests/simple.R: test the fix above
+
+	* R/sparseMatrix.R ([): simplification: no coerce to <general>
+		before we use as(., <Tsparse>)[...] anyway
+
+	* R/Rsparse.R (.viaC.to.R): mostly instead of .viaC.to.dgR()
+
+	* R/triangularMatrix.R (isTriangular): methods for all subclasses
+	instead of "triangularMatrix" -- just to disambiguate
+
+2008-02-14  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* tests/Class+Meth.R (dotestMat): add m[FALSE, FALSE] { <-> TODO}
+	* tests/indexing.R: example that fails above
+
+2008-01-26  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Matrix.R (.M.sub.i.2col): fix for logical matrix indexing
+	* R/Tsparse.R (.TM.sub.i.2col, .TM.repl.i.2col): ditto;
+		now, M[lower.tri(M)] and  M[lower.tri(M)] <- v  work better
+
+	* src/Tsparse.c (Tsparse_to_tCsparse): new fast utility.
+	* src/Tsparse.h, init.c: ditto
+	* R/Auxiliaries.R (isTriT): new; faster than going via Csparse
+	     both isTriC() and isTriT() now return TRUE with "kind" or FALSE.
+	* R/sparseMatrix.R (isTriangular): hence simplified
+
+2008-01-24  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Ops.R (.Arith.Csparse): new utility factored out of former
+	  <dgC> o <dgC>, extended for triangular and also used in  <dtC> o <dtC>.
+
+2008-01-23  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* tests/factorizing.R (checkSchur): and more tests for checking Schur()
+
+	* inst/test-tools.R (isOrthogonal): new function; also file restructured
+
+2008-01-22  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/ngTMatrix.R: allow as(<numeric matrix>, "ngTMatrix") and hence
+	coercion to "nMatrix" and "pMatrix"
+
+	* R/AllClass.R: "Schur" class;  "number" class union
+	* man/number-class.Rd:
+	* man/Schur-class.Rd:
+
+	* R/eigen.R (.dgeSchur): utility, and return "Schur" class
+	(.simpleSchur): Schur() method for diagonal matrices
+	(.triSchur):    Schur() method for triangular matrices
+	(Schur.sym):    Schur() for symmetric matrices {building on eigen()}.
+
+
+2008-01-21  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/dgCMatrix.c (dgCMatrix_QR): set @Dim slot (as per doc)
+
+2008-01-15  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/CHMfactor.R (solve): method for b="numeric", but also b="ANY"
+		in order to ensure 'system = *' is not lost;
+		formals()$system instead of cut&paste.
+	* tests/factorizing.R: test solve(<CHM..>, <numeric>)
+
 2008-01-11  Martin Maechler  <maechler@stat.math.ethz.ch>
 
-	* DESCRIPTION (Date): make ready for release
+	* DESCRIPTION (Date): make ready for release --> 0.999375-4
 
 	* R/dgeMatrix.R: fix rcond() method for "dgeMatrix".
 

@@ -39,14 +39,34 @@ all.equal(as(e2,"matrix"), te2, tol = 0) # 1.48e-14 on "lynne"
 ## or                           log det(exp(A)) == tr(A) :
 stopifnot(all.equal(c(determinant(e2)$modulus), sum(diag(m2))))
 
-m3 <- Matrix(cbind(0,rbind(6*diag(3),0)), nc = 4)#  sparse
+## a very simple nilpotent one:
+(m3 <- Matrix(cbind(0,rbind(6*diag(3),0))))# sparse
+stopifnot(all(m3 %*% m3 %*% m3 %*% m3 == 0))# <-- m3 "^" 4 == 0
 e3 <- expm(m3)
 E3 <- expm(Matrix(m3, sparse=FALSE))
-stopifnot(identical(e3, E3))
 e3. <- rbind(c(1,6,18,36),
              c(0,1, 6,18),
              c(0,0, 1, 6),
              c(0,0, 0, 1))
-assert.EQ.mat(e3, e3.)
+stopifnot(identical(e3, E3),
+          identical(as.mat(e3), e3.))
+
+
+## This used to be wrong {bug in octave-origin code}:
+M6 <- Matrix(c(0, -2, 0, 0, 0, 0,
+              10, 0, 0, 0,10,-2,
+              0,  0, 0, 0,-2, 0,
+              0, 10,-2,-2,-2,10,
+              0,  0, 0, 0, 0, 0,
+              10, 0, 0, 0, 0, 0), 6, 6)
+
+exp.M6 <- expm(M6)
+as(exp.M6, "sparseMatrix")# prints a bit more nicely
+stopifnot(all.equal(t(exp.M6),
+		    expm(t(M6)), tol = 1e-12),
+          all.equal(exp.M6[,3], c(0,0,1,0,-2,0), tol = 1e-12),
+          all.equal(exp.M6[,5], c(0,0,0,0, 1,0), tol = 1e-12),
+          all(exp.M6[3:4, c(1:2,5:6)] == 0)
+          )
 
 cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''

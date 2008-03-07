@@ -25,6 +25,8 @@ setAs("dtCMatrix", "dgCMatrix",
               Dim = from@Dim, Dimnames = from@Dimnames)
       })
 
+setAs("dtCMatrix", "dsCMatrix", function(from) as(from, "symmetricMatrix"))
+
 setAs("dtCMatrix", "dgTMatrix",
       function(from) {
           if (from@diag == "U") from <- .Call(Csparse_diagU2N, from)

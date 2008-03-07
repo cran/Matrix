@@ -1,13 +1,17 @@
 ### Coercion and Methods for Dense Numeric Symmetric Matrices
 
-## or rather setIs() {since test can fail ?}
 setAs("dgeMatrix", "dsyMatrix",
-      function(from) {
-	  if(isSymmetric(from))
-	      new("dsyMatrix", x = from@x, Dim = from@Dim,
-		  Dimnames = from@Dimnames, factors = from@factors)
-	  else stop("not a symmetric matrix")
-      })
+     function(from) {
+	if(isSymmetric(from))# < with tolerance!
+	    .Call(dense_to_symmetric, from, "U", FALSE)
+	else
+	    stop("not a symmetric matrix; consider forceSymmetric() or symmpart()")
+     })
+## NB: The alternative, 'zero tolerance' { <=> isSymmetric(*, tol=0) }
+##     breaks too much previous code -- though it would be much faster --
+## setAs("dgeMatrix", "dsyMatrix",
+##       function(from) .Call(dense_to_symmetric, from, "U", TRUE))
+
 
 setAs("matrix", "dsyMatrix",
       function(from) as(as(from, "dgeMatrix"), "dsyMatrix"))

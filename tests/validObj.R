@@ -59,9 +59,8 @@ assertError(as(M., "dpoMatrix"))
 ## Cholesky
 chk.matrix(ch <- chol(cm))
 chk.matrix(ch2 <- chol(as(cm, "dsyMatrix")))
-#not yet{FIXME}: chk.matrix(ch3 <- chol(as(cm, "dgeMatrix")))
-stopifnot(all.equal(as(ch, "matrix"), as(ch2, "matrix")))
-
+chk.matrix(ch3 <- chol(as(cm, "dgeMatrix")))
+stopifnot(is.all.equal3(as(ch, "matrix"), as(ch2, "matrix"), as(ch3, "matrix")))
 ### Very basic	triangular matrix stuff
 
 assertError( new("dtrMatrix", Dim = c(2,2), x= 1:4) )# double 'Dim'
@@ -79,7 +78,7 @@ stopifnot(identical(10 * tPt, tPt * 10),
 
 ## non-square triagonal Matrices --- are forbidden ---
 assertError(new("dtrMatrix", Dim = 2:3,
-                x=as.double(1:6), uplo="L", diag="U"))
+		x=as.double(1:6), uplo="L", diag="U"))
 
 n <- 3:3
 assertError(new("dtCMatrix", Dim = c(n,n), diag = "U"))
@@ -90,10 +89,12 @@ stopifnot(validObject(T <- new("dtTMatrix", Dim = c(n,n), diag = "U")),
 	  )
 
 set.seed(3) ; (p9 <- as(sample(9), "pMatrix"))
+## Check that the correct error message is triggered
 ind.try <- try(p9[1,1] <- 1, silent = TRUE)
 stopifnot(grep("replacing.*sensible", ind.try[1]) == 1,
-          is.logical(p9[1,]),
-          isTRUE(p9[-c(1:6, 8:9), 1]),
+	  is.logical(p9[1,]),
+	  isTRUE(p9[-c(1:6, 8:9), 1]),
 	  identical(t(p9), solve(p9)),
-	  identical(p9[TRUE,], as(p9, "ngTMatrix"))
-          )
+	  identical(p9[TRUE,], as(p9, "ngTMatrix")),
+	  identical(as(diag(9), "pMatrix"), as(1:9, "pMatrix"))
+	  )

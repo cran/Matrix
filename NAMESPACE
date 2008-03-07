@@ -26,6 +26,7 @@ export("Cholesky",
        "expand",
        "expm",
        "facmul",
+       "forceSymmetric",
 #	 "isTriangular",
 #	 "isDiagonal",
        "lu",
@@ -36,13 +37,15 @@ export("Cholesky",
        "rcond",
        "readHB",
        "readMM",
-       "xtabs",
+       "symmpart",
+       "skewpart",
        "tcrossprod",
        "tril",
        "triu",
        "unpack",
 #        "writeHB",
-       "writeMM"
+       "writeMM",
+       "xtabs"
        )
 
 ## substitute for using  cbind() / rbind()
@@ -81,10 +84,12 @@ export(
 }
 
 exportClasses(
+              ## Class unions:
 	      "index",
-## LOGIC      "logic",
 	      "replValue", # if we don't export it, things fail in dispatch
 	      "atomicVector",
+	      "number",
+## LOGIC      "logic",
 
 	      ## --- 'Matrix' mother and all its daughters : ---------------
 	      "Matrix",
@@ -194,6 +199,8 @@ exportClasses(
 
 	      "sparseQR",
 
+	      "Schur",
+
 	      "sparseVector", ## --- and daughters : ---
 	      "dsparseVector",
 	      "isparseVector",
@@ -247,6 +254,7 @@ exportMethods(
 	      "expm",
 	      "head",
 	      "image",
+	      "forceSymmetric",
 	      "isSymmetric",
 ##	       "isDiagonal",
 ##	       "isTriangular",
@@ -267,6 +275,8 @@ exportMethods(
 	      "show",
 	      "solve",
 	      "summary",
+              "symmpart",
+              "skewpart",
 	      "t",
 	      "tail",
 	      "tcrossprod",

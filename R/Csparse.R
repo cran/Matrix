@@ -59,6 +59,19 @@ setAs("CsparseMatrix", "matrix",
           .Call(Csparse_to_matrix, from)
       })
 
+setAs("CsparseMatrix", "symmetricMatrix",
+      function(from) {
+	  if(isSymmetric(from)) { # then it's not triangular
+	      isTri <- is(from, "triangularMatrix")
+	      if (isTri && from@diag == "U")
+		  from <- .Call(Csparse_diagU2N, from)
+	      .Call(Csparse_general_to_symmetric, from,
+		    uplo = if(isTri) from@uplo else "U")
+	  } else
+	  stop("not a symmetric matrix; consider forceSymmetric() or symmpart()")
+      })
+
+
 ### Some group methods:
 
 setMethod("Math",
@@ -101,8 +114,8 @@ setMethod("Math",
 
 
 
-### workhorse for "[<-" -- both for d* and l*  C-sparse matrices :
-## must have exact signature or then not be set as method directly
+## workhorse for "[<-" -- both for d* and l*  C-sparse matrices :
+## ---------     -----  FIXME(2): keep in sync with replTmat() in ./Tsparse.R
 replCmat <- function (x, i, j, ..., value)
 {
     di <- dim(x)
@@ -147,9 +160,10 @@ replCmat <- function (x, i, j, ..., value)
 	## x.sym : result is *still* symmetric
 	x <- .Call(Csparse_symmetric_to_general, x) ## but do *not* redefine clx!
     }
-    else if((x.tri <- extends(clDx, "triangularMatrix"))) {
+    else if((tri.x <- extends(clDx, "triangularMatrix"))) {
         xU <- x@uplo == "U"
-	r.tri <- all(if(xU) i1 <= i2 else i2 <= i1)
+	r.tri <- ((any(dind == 1) || dind[1] == dind[2]) &&
+		  all(if(xU) i1 <= i2 else i2 <= i1))
 	if(r.tri) { ## result is *still* triangular
             if(any(i1 == i2)) # diagonal will be changed
                 x <- diagU2N(x) # keeps class (!)
@@ -171,20 +185,26 @@ replCmat <- function (x, i, j, ..., value)
 		      match(xj [sel], i2)) - 1L
 	iN0 <- 1L + encodeInd(non0, nr = dind[1])
 
+        has0 <- any(value[!is.na(value)] == 0)
         if(lenV < lenRepl)
             value <- rep(value, length = lenRepl)
 	## Ideally we only replace them where value != 0 and drop the value==0
-	## ones; but that would have to (?) go through dgT*
+	## ones; FIXME: see Davis(2006) "2.7 Removing entries", p.16, e.g. use cs_dropzeros()
+        ##       but really could be faster and write something like cs_drop_k(A, k)
 	## v0 <- 0 == value
 	## if (lenRepl == 1) and v0 is TRUE, the following is not doing anything
 	##-  --> ./dgTMatrix.R	and its	 replTmat()
 	## x@x[sel[!v0]] <- value[!v0]
         x@x[sel] <- value[iN0]
+        if(has0) x <- .Call(Csparse_drop, x, 0)
 
 	return(if(x.sym) as_CspClass(x, clx) else x)
     }
     ## else go via Tsparse.. {FIXME: a waste! - we already have 'xj' ..}
     ## and inside  Tsparse... the above i1, i2,..., sel  are *all* redone!
+## Happens too often:
+##     if(getOption("verbose"))
+## 	message("wasteful C -> T -> C in replCmat(x,i,j,v) for <sparse>[i,j] <- v")
     x <- as(x, "TsparseMatrix")
     if(missing(i))
 	x[ ,j] <- value
@@ -200,12 +220,10 @@ replCmat <- function (x, i, j, ..., value)
 
 setReplaceMethod("[", signature(x = "CsparseMatrix", i = "index", j = "missing",
                                 value = "replValue"),
-##                 function(x,i,j, ..., value) replCmat(x, i=i, value=value))
                  replCmat)
 
 setReplaceMethod("[", signature(x = "CsparseMatrix", i = "missing", j = "index",
                                 value = "replValue"),
-##                 function(x,i,j, ..., value) replCmat(x, j=j, value=value))
                  replCmat)
 
 setReplaceMethod("[", signature(x = "CsparseMatrix", i = "index", j = "index",
@@ -288,7 +306,8 @@ setMethod("%*%", signature(x = "matrix", y = "CsparseMatrix"),
 ##          function(x, y) t(.Call(Csparse_dense_crossprod, y, x)),
 ##          valueClass = "dgeMatrix")
 
-## NB: have extra tril(), triu() methods for symmetric ["dsC" and "lsC"]
+## NB: have extra tril(), triu() methods for symmetric ["dsC" and "lsC"] and
+## NB: for all triangular ones, where the latter may 'callNextMethod()' these:
 setMethod("tril", "CsparseMatrix",
 	  function(x, k = 0, ...) {
 	      k <- as.integer(k[1])

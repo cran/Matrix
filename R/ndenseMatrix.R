@@ -73,7 +73,8 @@ setAs("ngeMatrix", "nsyMatrix",
 	  if(isSymmetric(from))
 	      new("nsyMatrix", x = from@x, Dim = from@Dim,
 		  Dimnames = from@Dimnames, factors = from@factors)
-	  else stop("not a symmetric matrix")
+	  else
+	      stop("not a symmetric matrix; consider forceSymmetric() or symmpart()")
       })
 
 setAs("ngeMatrix", "ntrMatrix",
@@ -164,9 +165,9 @@ setMethod("t", signature(x = "ngeMatrix"), t_geMatrix)
 setMethod("t", signature(x = "ntrMatrix"), t_trMatrix)
 setMethod("t", signature(x = "nsyMatrix"), t_trMatrix)
 setMethod("t", signature(x = "ntpMatrix"),
-          function(x) as(callGeneric(as(x, "ntrMatrix")), "ntpMatrix"))
+	  function(x) as(t(as(x, "ntrMatrix")), "ntpMatrix"))
 setMethod("t", signature(x = "nspMatrix"),
-          function(x) as(callGeneric(as(x, "nsyMatrix")), "nspMatrix"))
+	  function(x) as(t(as(x, "nsyMatrix")), "nspMatrix"))
 
 ## NOTE:  "&" and "|"  are now in group "Logic" c "Ops" --> ./Ops.R
 ##        "!" is in ./not.R

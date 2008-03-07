@@ -126,15 +126,26 @@
   \code{\linkS4class{dgeMatrix}} and those mentioned above.
 }
 \examples{
-## First a "dgCMatrix"
 mm <- Matrix(toeplitz(c(10, 0, 1, 0, 3)), sparse = TRUE)
+mm # automatically dsCMatrix
+str(mm)
+
+## how would we go from a manually constructed Tsparse* :
 mT <- as(mm, "dgTMatrix")
-(symM <- as(mT, "dsCMatrix"))
-str(symM)
-sym2 <- as(symM, "TsparseMatrix")
-stopifnot(class(sym2) == "dsTMatrix",
-	  identical(sym2[1,], symM[1,]),
-	  identical(sym2[,2], symM[,2]))
+
+## Either
+(symM <- as(mT, "symmetricMatrix"))# dsT
+(symC <- as(symM, "CsparseMatrix"))# dsC
+## or
+sC <- Matrix(mT, sparse=TRUE, forceCheck=TRUE)
+
+sym2 <- as(symC, "TsparseMatrix")
+\dontshow{
+stopifnot(identical(symC, sC),
+          class(sym2) == "dsTMatrix",
+	  identical(sym2[1,], sC[1,]),
+	  identical(sym2[,2], sC[,2]))
+}
 }
 \keyword{classes}
 \keyword{algebra}

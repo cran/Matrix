@@ -65,7 +65,8 @@ setAs("lgeMatrix", "lsyMatrix",
 	  if(isSymmetric(from))
 	      new("lsyMatrix", x = from@x, Dim = from@Dim,
 		  Dimnames = from@Dimnames, factors = from@factors)
-	  else stop("not a symmetric matrix")
+	  else
+	      stop("not a symmetric matrix; consider forceSymmetric() or symmpart()")
       })
 
 setAs("lgeMatrix", "ltrMatrix",
@@ -130,9 +131,9 @@ setMethod("diag", signature(x = "ltpMatrix"),
 
 
 setMethod("diag", signature(x = "ldenseMatrix"),
-	  function(x, nrow, ncol) callGeneric(as(x, "lgeMatrix")))
+	  function(x, nrow, ncol) diag(as(x, "lgeMatrix")))
 setMethod("diag", signature(x = "ndenseMatrix"),# << the "same"
-	  function(x, nrow, ncol) callGeneric(as(x, "ldenseMatrix")))
+	  function(x, nrow, ncol) diag(as(x, "ldenseMatrix")))
 
 setMethod("diag", signature(x = "lgeMatrix"),
 	  function(x, nrow, ncol) .Call(lgeMatrix_getDiag, x))
@@ -141,9 +142,9 @@ setMethod("t", signature(x = "lgeMatrix"), t_geMatrix)
 setMethod("t", signature(x = "ltrMatrix"), t_trMatrix)
 setMethod("t", signature(x = "lsyMatrix"), t_trMatrix)
 setMethod("t", signature(x = "ltpMatrix"),
-	  function(x) as(callGeneric(as(x, "ltrMatrix")), "ltpMatrix"))
+	  function(x) as(t(as(x, "ltrMatrix")), "ltpMatrix"))
 setMethod("t", signature(x = "lspMatrix"),
-	  function(x) as(callGeneric(as(x, "lsyMatrix")), "lspMatrix"))
+	  function(x) as(t(as(x, "lsyMatrix")), "lspMatrix"))
 
 ## NOTE:  "&" and "|"  are now in group "Logic" c "Ops" --> ./Ops.R
 ##        "!" is in ./not.R

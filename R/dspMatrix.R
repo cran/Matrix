@@ -6,9 +6,10 @@ setAs("dspMatrix", "dsyMatrix",
 ## dge <--> dsp   via  dsy
 setAs("dgeMatrix", "dspMatrix",
       function(from) as(as(from, "dsyMatrix"), "dspMatrix"))
-if(FALSE) # now have faster  "ddense" -> "dge"
-setAs("dspMatrix", "dgeMatrix",
-      function(from) as(as(from, "dsyMatrix"), "dgeMatrix"))
+
+## now have faster  "ddense" -> "dge":
+## setAs("dspMatrix", "dgeMatrix",
+##       function(from) as(as(from, "dsyMatrix"), "dgeMatrix"))
 
 ## S3-matrix <--> dsp   via  dsy
 setAs("dspMatrix", "matrix",

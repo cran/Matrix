@@ -7,6 +7,7 @@ extern "C" {
 
 #include <ctype.h>
 #include <R.h>  /* includes Rconfig.h */
+#include <Rversion.h>
 #include <Rdefines.h> /* Rinternals.h + GET_SLOT etc */
 
 #ifdef ENABLE_NLS
@@ -50,20 +51,28 @@ enum CBLAS_SIDE {CblasLeft=141, CblasRight=142};
 #define LFT CblasLeft
 #define RGT CblasRight
 
-char norm_type(const char *typstr);
-char rcond_type(const char *typstr);
+#if !defined(R_VERSION) || R_VERSION < R_Version(2, 7, 0)
+char La_norm_type(const char *typstr);
+char La_rcond_type(const char *typstr);
+#endif
+
 double get_double_by_name(SEXP obj, char *nm);
 SEXP set_double_by_name(SEXP obj, double val, char *nm);
 SEXP as_det_obj(double val, int log, int sign);
 SEXP get_factors(SEXP obj, char *nm);
 SEXP set_factors(SEXP obj, SEXP val, char *nm);
+
+#if 0
 SEXP dgCMatrix_set_Dim(SEXP x, int nrow);
+#endif	/* unused */
 
 /* int csc_unsorted_columns(int ncol, const int p[], const int i[]); */
 /* void csc_sort_columns(int ncol, const int p[], int i[], double x[]); */
 /* SEXP csc_check_column_sorting(SEXP A); */
 SEXP Matrix_make_named(int TYP, char **names);
 SEXP check_scalar_string(SEXP sP, char *vals, char *nm);
+Rboolean equal_string_vectors(SEXP s1, SEXP s2);
+
 void d_packed_getDiag(double *dest, SEXP x, int n);
 void l_packed_getDiag(   int *dest, SEXP x, int n);
 void tr_d_packed_getDiag(double *dest, SEXP x);
@@ -96,9 +105,10 @@ extern	 /* stored pointers to symbols initialized in R_init_Matrix */
 #define PACKED_LENGTH(n)   ((n) * ((n) + 1))/2
 
 /* duplicate the slot with name given by sym from src to dest */
-/* FIXME: is not yet used */
+
 #define slot_dup(dest, src, sym)  SET_SLOT(dest, sym, duplicate(GET_SLOT(src, sym)))
 
+/* is not yet used: */
 #define slot_nonNull_dup(dest, src, sym)			\
     if(GET_SLOT(src, sym) != R_NilValue)			\
 	SET_SLOT(dest, sym, duplicate(GET_SLOT(src, sym)))
@@ -115,10 +125,16 @@ extern	 /* stored pointers to symbols initialized in R_init_Matrix */
 /* should also work for "matrix" matrices: */
 #define Real_KIND(_x_)	(IS_S4_OBJECT(_x_) ? Real_kind(_x_) : \
 			 (isReal(_x_) ? 0 : (isLogical(_x_) ? 1 : -1)))
+/* This one gives '0' also for integer "matrix" :*/
+#define Real_KIND2(_x_)	(IS_S4_OBJECT(_x_) ? Real_kind(_x_) : \
+			 (isLogical(_x_) ? 1 : 0))
 
 /* requires 'x' slot: */
 #define Real_kind(_x_)	(isReal(GET_SLOT(_x_, Matrix_xSym)) ? 0	:	\
 			 (isLogical(GET_SLOT(_x_, Matrix_xSym)) ? 1 : -1))
+
+#define DECLARE_AND_GET_X_SLOT(__C_TYPE, __SEXP)	\
+    __C_TYPE *xx = __SEXP(GET_SLOT(x, Matrix_xSym))
 
 
 /**

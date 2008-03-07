@@ -1,24 +1,12 @@
-## For multiplication operations, sparseMatrix overrides other method
-## selections.  Coerce a ddensematrix argument to a dgeMatrix.
+### d(ouble)sparseMatrix methods :
 
-## setMethod("%*%", signature(x = "dsparseMatrix", y = "ddenseMatrix"),
-##           function(x, y) callGeneric(x, as(y, "dgeMatrix")))
-
-## setMethod("%*%", signature(x = "ddenseMatrix", y = "dsparseMatrix"),
-##           function(x, y) callGeneric(as(x, "dgeMatrix"), y))
+## Note that '%*%' are now handled via "sparse*" , "Csparse*" etc
 
 setMethod("crossprod", signature(x = "dsparseMatrix", y = "ddenseMatrix"),
-          function(x, y = NULL) callGeneric(x, as(y, "dgeMatrix")))
+	  function(x, y = NULL) crossprod(x, as(y, "dgeMatrix")))
 
 setMethod("crossprod", signature(x = "ddenseMatrix", y = "dsparseMatrix"),
-          function(x, y = NULL) callGeneric(as(x, "dgeMatrix"), y))
-
-## and coerce dsparse* to dgC*
-## setMethod("%*%", signature(x = "dsparseMatrix", y = "dgeMatrix"),
-##           function(x, y) callGeneric(as(x, "dgCMatrix"), y))
-
-## setMethod("%*%", signature(x = "dgeMatrix", y = "dsparseMatrix"),
-##           function(x, y) callGeneric(x, as(y, "dgCMatrix")))
+	  function(x, y = NULL) crossprod(as(x, "dgeMatrix"), y))
 
 setMethod("crossprod", signature(x = "dsparseMatrix", y = "dgeMatrix"),
 ## NB: using   callGeneric(.) here, leads to infinite recursion :
@@ -28,10 +16,10 @@ setMethod("crossprod", signature(x = "dsparseMatrix", y = "dgeMatrix"),
 ##     ("CsparseMatrix", "missing") and ("TsparseMatrix", "missing") methods
 
 setMethod("crossprod", signature(x = "dgeMatrix", y = "dsparseMatrix"),
-          function(x, y = NULL) callGeneric(x, as(y, "dgCMatrix")))
+	  function(x, y = NULL) crossprod(x, as(y, "dgCMatrix")))
 
 setMethod("image", "dsparseMatrix",
-          function(x, ...) image(as(x, "dgTMatrix"), ...))
+	  function(x, ...) image(as(x, "dgTMatrix"), ...))
 
 setMethod("chol", signature(x = "dsparseMatrix", pivot = "ANY"),
            function(x, pivot, ...) {
@@ -41,7 +29,7 @@ setMethod("chol", signature(x = "dsparseMatrix", pivot = "ANY"),
            })
 
 setMethod("lu", signature(x = "dsparseMatrix"),
-	  function(x, ...) callGeneric(as(x, "dgCMatrix")))
+	  function(x, ...) lu(as(x, "dgCMatrix")))
 
 
 ## Group Methods, see ?Arith (e.g.)

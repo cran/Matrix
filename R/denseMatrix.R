@@ -2,7 +2,10 @@
 ### These are "cheap" to program, but potentially far from efficient;
 ### Methods for specific subclasses will overwrite these:
 
-setAs("ANY", "denseMatrix", function(from) Matrix(from, sparse=FALSE))
+setAs("ANY",    "denseMatrix", function(from) Matrix(from, sparse=FALSE))
+## Conceivably, could write
+## setAs("matrix", "denseMatrix", ....) which was slightly more efficient than
+##  Matrix(.)  but would have many things in common
 
 setAs(from = "denseMatrix", to = "generalMatrix", as_geSimpl)
 
@@ -23,17 +26,19 @@ setAs(from = "denseMatrix", to = "generalMatrix", as_geSimpl)
         ## FIXME: this is a waste for these matrices, particularly if packed
 
         if(extends(cld, "diagonalMatrix"))
-            stop("diagonalMatrix in .dense2C() -- should not happen")
+            stop("diagonalMatrix in .dense2C() -- should never happen, please report!")
 
         sym <- extends(cld, "symmetricMatrix")
         ## Note: if(!sym), we have "triangular"
 
-	if     (extends(cld, "dMatrix")) as(r, if(sym) "dsCMatrix" else "dtCMatrix")
-	else if(extends(cld, "nMatrix")) as(r, if(sym) "nsCMatrix" else "ntCMatrix")
-	else if(extends(cld, "lMatrix")) as(r, if(sym) "lsCMatrix" else "ltCMatrix")
-	else if(extends(cld, "zMatrix")) as(r, if(sym) "zsCMatrix" else "ztCMatrix")
-
-	else stop("undefined method for class ", cl)
+	if(sym) forceSymmetric(r)
+	else {
+	    if	   (extends(cld,"dMatrix")) as(r, "dtCMatrix")
+	    else if(extends(cld,"lMatrix")) as(r, "ltCMatrix")
+	    else if(extends(cld,"nMatrix")) as(r, "ntCMatrix")
+	    else if(extends(cld,"zMatrix")) as(r, "ztCMatrix")
+	    else stop("undefined method for class ", cl)
+	}
     }
 }
 
@@ -175,14 +180,15 @@ setReplaceMethod("[", signature(x = "denseMatrix", i = "matrix",  # 2-col.matrix
 
 
 setMethod("isSymmetric", signature(object = "denseMatrix"),
-	  function(object, tol = 100*.Machine$double.eps) {
+	  function(object, tol = 100*.Machine$double.eps, ...) {
 	      ## pretest: is it square?
 	      d <- dim(object)
 	      if(d[1] != d[2]) return(FALSE)
 	      ## else slower test
 	      if (is(object,"dMatrix"))
 		  isTRUE(all.equal(as(object, "dgeMatrix"),
-				   as(t(object), "dgeMatrix"), tol = tol))
+				   as(t(object), "dgeMatrix"),
+				   tol = tol, ...))
 	      else if (is(object, "nMatrix"))
 		  identical(as(object, "ngeMatrix"),
 			    as(t(object), "ngeMatrix"))
@@ -191,9 +197,9 @@ setMethod("isSymmetric", signature(object = "denseMatrix"),
 		  identical(as(object, "lgeMatrix"),
 			    as(t(object), "lgeMatrix"))
 	      else if (is(object, "zMatrix"))
-                  stop("'zMatrix' not yet implemented")
+		  stop("'zMatrix' not yet implemented")
 	      else if (is(object, "iMatrix"))
-                  stop("'iMatrix' not yet implemented")
+		  stop("'iMatrix' not yet implemented")
 	  })
 
 setMethod("isTriangular", signature(object = "triangularMatrix"),
@@ -211,3 +217,8 @@ setMethod("Math", signature(x = "denseMatrix"),
 setMethod("rcond", signature(x = "denseMatrix", type = "character"),
 	  function(x, type, ...)
 	  rcond(as(as(x, "dMatrix"), "dgeMatrix"), type=type, ...))
+
+setMethod("symmpart", signature(x = "denseMatrix"),
+	  function(x) symmpart(as(x, "dMatrix")))
+setMethod("skewpart", signature(x = "denseMatrix"),
+	  function(x) skewpart(as(x, "dMatrix")))

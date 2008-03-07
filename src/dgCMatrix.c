@@ -191,9 +191,11 @@ SEXP dgCMatrix_QR(SEXP Ap, SEXP order)
     css *S;
     csn *N;
     int m = A->m, n = A->n, ord = asLogical(order) ? 3 : 0, *p;
+    int *dims = INTEGER(ALLOC_SLOT(ans, Matrix_DimSym, INTSXP, 2));
     R_CheckStack();
 
     if (m < n) error("A must have # rows >= # columns") ;
+    dims[0] = m; dims[1] = n;
     S = cs_sqr(ord, A, 1);	/* symbolic QR ordering & analysis*/
     if (!S) error("cs_sqr failed");
     N = cs_qr(A, S);		/* numeric QR factorization */

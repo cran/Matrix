@@ -5,13 +5,15 @@
 
 ## tcrossprod() is now in R's base
 
+## these two are *not* exported (yet) :
+
     setGeneric("isDiagonal", function(object, ...)
                standardGeneric("isDiagonal"))
 
-## isSymmetric is "S3 generic" in R's  base/R/eigen.R
-
     setGeneric("isTriangular", function(object, ...) ## 'upper = NA'
                standardGeneric("isTriangular"))
+
+## isSymmetric is "S3 generic" in R's  base/R/eigen.R
 
     setGeneric("facmul",
                function(x, factor, y, transpose, left, ...)
@@ -59,6 +61,16 @@
     setGeneric("Cholesky",
                function(A, perm = TRUE, LDL = TRUE, super = FALSE, ...)
                standardGeneric("Cholesky"))
+
+setGeneric("symmpart", function(x) standardGeneric("symmpart"))
+setGeneric("skewpart", function(x) standardGeneric("skewpart"))
+
+## A version of coercion to  "symmetric" which does *NOT* check,
+## but just takes the ## upper (or lower) values and
+## ``declares'' the symmetric:
+setGeneric("forceSymmetric",
+	   function(x, uplo) standardGeneric("forceSymmetric"))
+
 
 
 ###---- Group Generics ----

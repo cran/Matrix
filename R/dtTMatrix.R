@@ -1,13 +1,5 @@
 ### Coercion and Methods for Triangular Triplet Matrices
 
-## Use general method for TsparseMatrix instead
-## setAs("dtTMatrix", "dtCMatrix",
-##       function(from) {
-##           gC <- .Call(dtTMatrix_as_dgCMatrix, from)
-##           new("dtCMatrix", Dim = gC@Dim, Dimnames = gC@Dimnames, p = gC@p,
-##               i = gC@i, x = gC@x, uplo = from@uplo, diag = from@diag)
-##       })
-
 setAs("dtTMatrix", "dgTMatrix",
       function(from) tT2gT(from, cl = "dtTMatrix", toClass = "dgTMatrix"))
 setAs("dtTMatrix", "generalMatrix",

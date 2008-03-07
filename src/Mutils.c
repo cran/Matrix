@@ -1,7 +1,13 @@
 #include "Mutils.h"
 #include <R_ext/Lapack.h>
 
-char norm_type(const char *typstr)
+#include <Rversion.h>
+
+#if 0 /* defined(R_VERSION) && R_VERSION >= R_Version(2, 7, 0) *
+       * La_norm_type() & La_rcond_type() are now in R_ext/Lapack.h
+       * but because of the 'module-mess' that's not sufficient */
+#else
+char La_norm_type(const char *typstr)
 {
     char typup;
 
@@ -10,15 +16,17 @@ char norm_type(const char *typstr)
 	    _("argument type[1]='%s' must be a character string of string length 1"),
 	    typstr);
     typup = toupper(*typstr);
-    if (typup == '1') typup = 'O'; /* aliases */
-    if (typup == 'E') typup = 'F';
-    if (typup != 'M' && typup != 'O' && typup != 'I' && typup != 'F')
+    if (typup == '1')
+	typup = 'O'; /* aliases */
+    else if (typup == 'E')
+	typup = 'F';
+    else if (typup != 'M' && typup != 'O' && typup != 'I' && typup != 'F')
 	error(_("argument type[1]='%s' must be one of 'M','1','O','I','F' or 'E'"),
 	      typstr);
     return typup;
 }
 
-char rcond_type(const char *typstr)
+char La_rcond_type(const char *typstr)
 {
     char typup;
 
@@ -26,12 +34,14 @@ char rcond_type(const char *typstr)
 	error(_("argument type[1]='%s' must be a character string of string length 1"),
 	      typstr);
     typup = toupper(*typstr);
-    if (typup == '1') typup = 'O'; /* alias */
-    if (typup != 'O' && typup != 'I')
+    if (typup == '1')
+	typup = 'O'; /* alias */
+    else if (typup != 'O' && typup != 'I')
 	error(_("argument type[1]='%s' must be one of '1','O', or 'I'"),
 	      typstr);
     return typup;
 }
+#endif
 
 double get_double_by_name(SEXP obj, char *nm)
 {
@@ -139,8 +149,8 @@ SEXP set_factors(SEXP obj, SEXP val, char *nm)
     return val;
 }
 
-/*MM: this is useful for all the ..CMatrix classes
-  (and ..R by [0] <-> [1]): */
+#if 0 				/* unused */
+/* useful for all the ..CMatrix classes (and ..R by [0] <-> [1]); but unused */
 SEXP dgCMatrix_set_Dim(SEXP x, int nrow)
 {
     int *dims = INTEGER(GET_SLOT(x, Matrix_DimSym));
@@ -149,6 +159,7 @@ SEXP dgCMatrix_set_Dim(SEXP x, int nrow)
     dims[1] = length(GET_SLOT(x, Matrix_pSym)) - 1;
     return x;
 }
+#endif	/* unused */
 
 /* Fill in the "trivial remainder" in  n*m  array ;
  *  typically the 'x' slot of a "dtrMatrix" :
@@ -256,6 +267,35 @@ SEXP check_scalar_string(SEXP sP, char *vals, char *nm)
     return val;
 #undef SPRINTF
 }
+
+/* FIXME? Something like this should be part of the R API ?
+ *        But then, R has the more general  compute_identical()
+ * in src/main/identical.c: Rboolean compute_identical(SEXP x, SEXP y);
+*/
+Rboolean equal_string_vectors(SEXP s1, SEXP s2)
+{
+    Rboolean n1 = isNull(s1), n2 = isNull(s2);
+    if (n1 || n2)
+	return (n1 == n2) ? TRUE : FALSE;
+    else if (TYPEOF(s1) != STRSXP || TYPEOF(s2) != STRSXP) {
+	error(_("'s1' and 's2' must be \"character\" vectors"));
+	return FALSE; /* -Wall */
+    } else {
+	int n = LENGTH(s1), i;
+	if (n != LENGTH(s2))
+	    return FALSE;
+	for(i = 0; i < n; i++) {
+	    /* note that compute_identical() code for STRSXP
+	       is careful about NA's which we don't need */
+	    if(strcmp(CHAR(STRING_ELT(s1, i)),
+		      CHAR(STRING_ELT(s2, i))))
+		return FALSE;
+	}
+	return TRUE; /* they *are* equal */
+    }
+    return FALSE; /* -Wall */
+}
+
 
 SEXP dense_nonpacked_validate(SEXP obj)
 {
@@ -425,7 +465,6 @@ Matrix_getElement(SEXP list, char *nm) {
  *
  * @return dest
  */
-
 static double *
 install_diagonal(double *dest, SEXP A)
 {
@@ -504,10 +543,15 @@ SEXP dup_mMatrix_as_geMatrix(SEXP A)
 
 	if (isReal(A))
 	    M_type = ddense;
+	else if (isInteger(A)) {
+	    A = PROTECT(coerceVector(A, REALSXP));
+	    nprot++;
+	    M_type = ddense;
+	}
 	else if (isLogical(A))
 	    M_type = ldense;
 	else
-	    error(_("invalid class `%s' to dup_mMatrix_as_geMatrix"), cl);
+	    error(_("invalid class '%s' to dup_mMatrix_as_geMatrix"), cl);
 
 #define	DUP_MMATRIX_NON_CLASS						\
 	if (isMatrix(A)) {	/* "matrix" */				\
@@ -543,7 +587,7 @@ SEXP dup_mMatrix_as_geMatrix(SEXP A)
 #define DUP_MMATRIX_ddense_CASES						\
 	ansx = REAL(ALLOC_SLOT(ans, Matrix_xSym, REALSXP, sz));			\
 	switch(ctype) {								\
-	case 0:			/* unclassed real/logical matrix */		\
+	case 0:			/* unclassed real matrix */			\
 	    Memcpy(ansx, REAL(A), sz);						\
 	    break;								\
 	case 1:			/* dgeMatrix */					\
@@ -588,7 +632,7 @@ SEXP dup_mMatrix_as_geMatrix(SEXP A)
 	int *ansx = LOGICAL(ALLOC_SLOT(ans, Matrix_xSym, LGLSXP, sz));
 
 	switch(ctype) {
-	case 0:			/* unclassed real/logical matrix */
+	case 0:			/* unclassed logical matrix */
 	    Memcpy(ansx, LOGICAL(A), sz);
 	    break;
 
@@ -657,7 +701,7 @@ SEXP dup_mMatrix_as_dgeMatrix(SEXP A)
 	    nprot++;
 	}
 	if (!isReal(A))
-	    error(_("invalid class `%s' to dup_mMatrix_as_dgeMatrix"), cl);
+	    error(_("invalid class '%s' to dup_mMatrix_as_dgeMatrix"), cl);
     }
 
     DUP_MMATRIX_SET_1;
@@ -673,14 +717,12 @@ SEXP new_dgeMatrix(int nrow, int ncol)
 {
     SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("dgeMatrix"))),
 	 ad = PROTECT(allocVector(INTSXP, 2));
-    double *ansx;
-    int sz = nrow * ncol;
 
     INTEGER(ad)[0] = nrow;
     INTEGER(ad)[1] = ncol;
     SET_SLOT(ans, Matrix_DimSym, ad);
     SET_SLOT(ans, Matrix_DimNamesSym, allocVector(VECSXP, 2));
-    ansx = REAL(ALLOC_SLOT(ans, Matrix_xSym, REALSXP, sz));
+    ALLOC_SLOT(ans, Matrix_xSym, REALSXP, nrow * ncol);
 
     UNPROTECT(2);
     return ans;

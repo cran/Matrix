@@ -162,7 +162,7 @@ indTri <- function(n, upper = TRUE) {
     if(n <= 2)
 	return(if(n == 2) as.integer(if(upper) n+1 else n) else integer(0))
     ## First, compute the 'diff(.)'  fast.  Use integers
-    one <- 1:1 ; two <- 2:2
+    one <- 1L ; two <- 2:2
     n1 <- n - one
     n2 <- n1 - one
     r <- rep.int(one, n*n1/two - one)
@@ -273,23 +273,23 @@ nnzero <- function(x, na.counted = NA) {
 
 ## For sparseness handling, return a
 ## 2-column (i,j) matrix of 0-based indices of non-zero entries:
+
+non0.i <- function(M, cM = class(M)) {
+    if(extends(cM, "TsparseMatrix"))
+	return(unique(cbind(M@i,M@j)))
+    if(extends(cM, "pMatrix"))
+	return(cbind(seq_len(nrow(M)), M@perm) - 1L)
+    ## else: C* or R*
+    isC <- extends(cM, "CsparseMatrix")
+    .Call(compressed_non_0_ij, M, isC)
+}
+
 non0ind <- function(x, classDef.x = getClassDef(class(x)))
 {
     if(is.numeric(x))
 	return(if((n <- length(x))) (0:(n-1))[isN0(x)] else integer(0))
     ## else
-
     stopifnot(extends(classDef.x, "sparseMatrix"))
-
-    non0.i <- function(M, cM = class(M)) {
-	if(extends(cM, "TsparseMatrix"))
-	    return(unique(cbind(M@i,M@j)))
-	if(extends(cM, "pMatrix"))
-	    return(cbind(seq_len(nrow(M)), M@perm) - 1:1)
-	## else: C* or R*
-	isC <- extends(cM, "CsparseMatrix")
-	.Call(compressed_non_0_ij, M, isC)
-    }
 
     if(extends(classDef.x, "symmetricMatrix")) { # also get "other" triangle
 	ij <- non0.i(x, classDef.x)
@@ -298,7 +298,7 @@ non0ind <- function(x, classDef.x = getClassDef(class(x)))
     }
     else if(extends(classDef.x, "triangularMatrix")) { # check for "U" diag
 	if(x@diag == "U") {
-	    i <- seq_len(dim(x)[1]) - 1:1
+	    i <- seq_len(dim(x)[1]) - 1L
 	    rbind(non0.i(x, classDef.x), cbind(i,i))
 	} else non0.i(x, classDef.x)
     }
@@ -306,7 +306,7 @@ non0ind <- function(x, classDef.x = getClassDef(class(x)))
 	non0.i(x, classDef.x)
 }
 
-## nr= nrow: since  i in {0,1,.., nrow-1}  these are 1:1 "decimal" encodings:
+## nr= nrow: since  i in {0,1,.., nrow-1}  these are 1L "decimal" encodings:
 ## Further, these map to and from the usual "Fortran-indexing" (but 0-based)
 encodeInd  <- function(ij,  nr) ij[,1] + ij[,2] * nr
 encodeInd2 <- function(i,j, nr) i      +  j     * nr
@@ -393,7 +393,7 @@ asTuniq <- function(x) {
     if(is(x, "TsparseMatrix")) uniqTsparse(x) else as(x,"TsparseMatrix")
 }
 
-## is 'x' a uniq Tsparse Matrix ?
+## is 'x' a uniq Tsparse Matrix ?  {not used currently}
 is_not_uniqT <- function(x, nr = nrow(x))
     is.unsorted(x@j) || any(duplicated(encodeInd2(x@i, x@j, nr)))
 
@@ -510,6 +510,9 @@ tT2gT <- function(x, cl = class(x),
 	    x = c(x@x, if(uDiag) rep.int(1,n)))
 }
 
+## Fast very special one
+## .gT2tC <- function(x, uplo, diag) .Call(Tsparse_to_tCsparse, x, uplo, diag)
+
 gT2tT <- function(x, uplo, diag,
 		  cl = class(x),
 		  toClass = paste(substr(cl,1,1), "tTMatrix", sep=''),# d,l,i,z
@@ -614,6 +617,14 @@ l2d_meth <- function(x) {
     }
 }
 
+## a faster simpler version [for sparse matrices, i.e., never diagonal]
+.M.shapeC <- function(x, clx = class(x)) {
+    if(is.character(clx)) # < speedup: get it once
+	clx <- getClassDef(clx)
+    if	   (extends(clx, "triangularMatrix")) "t"
+    else if(extends(clx, "symmetricMatrix"))  "s" else "g"
+}
+
 
 class2 <- function(cl, kind = "l", do.sub = TRUE) {
     ## Find "corresponding" class; since pos.def. matrices have no pendant:
@@ -648,6 +659,8 @@ as_dense <- function(x, cld = if(isS4(x)) getClassDef(class(x))) {
     as(x, paste(.M.kind(x, cld), .dense.prefixes[.M.shape(x, cld)], "Matrix", sep=''))
 }
 
+## This is "general" but slower than the next definition
+if(FALSE)
 .sp.class <- function(x) { ## find and return the "sparseness class"
     if(!is.character(x)) x <- class(x)
     for(cl in paste(c("C","T","R"), "sparseMatrix", sep=''))
@@ -655,6 +668,14 @@ as_dense <- function(x, cld = if(isS4(x)) getClassDef(class(x))) {
 	    return(cl)
     ## else (should rarely happen)
     as.character(NA)
+}
+
+.sp.class <- function(x) { ## find and return the "sparseness class"
+    if(!is.character(x)) x <- c(class(x))
+    if(any((ch <- substr(x,3,3)) == c("C","T","R")))
+        return(paste(ch, "sparseMatrix", sep=''))
+    ## else
+    NA_character_
 }
 
 
@@ -668,6 +689,7 @@ as_Csparse <- function(x, cld = if(isS4(x)) getClassDef(class(x))) {
                 .sparse.prefixes[.M.shape(x, cld)], "CMatrix", sep=''))
 }
 
+if(FALSE) # replaced by .Call(dense_to_Csparse, *) which is perfect for "matrix"
 as_Csparse2 <- function(x, cld = if(isS4(x)) getClassDef(class(x))) {
     ## Csparse + U2N when needed
     sh <- .M.shape(x, cld)
@@ -723,10 +745,11 @@ as_geClass <- function(x, cl) {
 }
 
 as_CspClass <- function(x, cl) {
-    if (## diagonal is *not* sparse:
-	##(extends(cl, "diagonalMatrix") && isDiagonal(x)) ||
-	(extends(cl, "symmetricMatrix") && isSymmetric(x)) ||
-	(extends(cl, "triangularMatrix")&& isTriangular(x)))
+    ## NOTE: diagonal is *not* sparse:
+    ##(extends(cl, "diagonalMatrix") && isDiagonal(x)) ||
+    if (extends(cl, "symmetricMatrix") && isSymmetric(x))
+        forceSymmetric(as(x,"CsparseMatrix"))
+    else if (extends(cl, "triangularMatrix") && (iT <- isTriangular(x)))
 	as(x, cl)
     else if(is(x, "CsparseMatrix")) x
     else as(x, paste(.M.kind(x, cl), "gCMatrix", sep=''))
@@ -752,50 +775,79 @@ isTriMat <- function(object, upper = NA) {
     ## pretest: is it square?
     d <- dim(object)
     if(d[1] != d[2]) return(FALSE)
+    TRUE.U <- structure(TRUE, kind = "U")
+    if(d[1] == 0) return(TRUE.U)
     ## else slower test
+    TRUE.L <- structure(TRUE, kind = "L")
     if(!is.matrix(object))
 	object <- as(object,"matrix")
     if(is.na(upper)) {
 	if(all0(object[lower.tri(object)]))
-	    structure(TRUE, kind = "U")
+	    TRUE.U
 	else if(all0(object[upper.tri(object)]))
-	    structure(TRUE, kind = "L")
+	    TRUE.L
 	else FALSE
     } else if(upper)
-	all0(object[lower.tri(object)])
+	if(all0(object[lower.tri(object)])) TRUE.U else FALSE
     else ## upper is FALSE
-	all0(object[upper.tri(object)])
+	if(all0(object[upper.tri(object)])) TRUE.L else FALSE
+}
+
+## For Tsparse matrices:
+isTriT <- function(object, upper = NA) {
+    ## pretest: is it square?
+    d <- dim(object)
+    if(d[1] != d[2]) return(FALSE)
+    ## else
+    TRUE.U <- structure(TRUE, kind = "U")
+    if(d[1] == 0) return(TRUE.U)
+    TRUE.L <- structure(TRUE, kind = "L")
+    if(is.na(upper)) {
+	if(all(object@i <= object@j))
+	    TRUE.U
+	else if(all(object@i >= object@j))
+	    TRUE.L
+	else FALSE
+    } else if(upper) {
+	if(all(object@i <= object@j)) TRUE.U else FALSE
+    } else { ## 'lower'
+	if(all(object@i >= object@j)) TRUE.L else FALSE
+    }
 }
 
 ## For Csparse matrices
-isTriC <- function(x, upper = NA) {
+isTriC <- function(object, upper = NA) {
     ## pretest: is it square?
-    d <- dim(x)
+    d <- dim(object)
     if(d[1] != d[2]) return(FALSE)
     ## else
-    if(d[1] == 0) return(TRUE)
+    TRUE.U <- structure(TRUE, kind = "U")
+    if(d[1] == 0) return(TRUE.U)
+    TRUE.L <- structure(TRUE, kind = "L")
     ni <- 1:d[2]
     ## the row indices split according to column:
-    ilist <- split(x@i, factor(rep.int(ni, diff(x@p)), levels= ni))
+    ilist <- split(object@i, factor(rep.int(ni, diff(object@p)), levels= ni))
     lil <- unlist(lapply(ilist, length), use.names = FALSE)
     if(any(lil == 0)) {
 	pos <- lil > 0
 	if(!any(pos)) ## matrix of all 0's
-	    return(TRUE)
+	    return(TRUE.U)
 	ilist <- ilist[pos]
 	ni <- ni[pos]
     }
-    ni0 <- ni - 1:1 # '0-based ni'
+    ni0 <- ni - 1L # '0-based ni'
     if(is.na(upper)) {
 	if(all(sapply(ilist, max, USE.NAMES = FALSE) <= ni0))
-	    structure(TRUE, kind = "U")
+	    TRUE.U
 	else if(all(sapply(ilist, min, USE.NAMES = FALSE) >= ni0))
-	    structure(TRUE, kind = "L")
+	    TRUE.L
 	else FALSE
     } else if(upper) {
-	all(sapply(ilist, max, USE.NAMES = FALSE) <= ni0)
+	if(all(sapply(ilist, max, USE.NAMES = FALSE) <= ni0))
+	    TRUE.U else FALSE
     } else { ## 'lower'
-	all(sapply(ilist, min, USE.NAMES = FALSE) >= ni0)
+	if(all(sapply(ilist, min, USE.NAMES = FALSE) >= ni0))
+	    TRUE.L else FALSE
     }
 }
 
@@ -833,6 +885,8 @@ isTriC <- function(x, upper = NA) {
 {
     if(extends(cl, "CsparseMatrix"))
 	.Call(Csparse_diagU2N, x)
+    else if(extends(cl, "TsparseMatrix"))
+	.Call(Tsparse_diagU2N, x)
     else {
 	kind <- .M.kind(x, cl)
 	xT <- as(x, paste(kind, "gTMatrix", sep=''))
@@ -849,6 +903,11 @@ diagU2N <- function(x, cl = getClassDef(class(x)))
     else x
 }
 
+diagN2U <- function(x, cl = getClassDef(class(x)))
+{
+    if(extends(cl, "triangularMatrix") && x@diag == "N")
+	.Call(Csparse_diagN2U, as(x, "CsparseMatrix")) else x
+}
 
 
 .as.dgC.0.factors <- function(x) {
@@ -905,4 +964,20 @@ sp.rowMeans <- function(x, na.rm = FALSE, dims = 1, sparseResult = FALSE)
 	nc <- nc - sparsapply(x, 1, function(u) sum(is.na(u)),
 			      sparseResult=sparseResult)
     sparsapply(x, 1, sum, sparseResult=sparseResult, na.rm=na.rm) / nc
+}
+
+all0Matrix <- function(n,m) {
+    ## an  all-0 matrix	 -- chose what Matrix() also gives -- "most efficiently"
+    n <- as.integer(n)
+    m <- as.integer(m)
+    new(if(n == m) "dsCMatrix" else "dgCMatrix",
+	Dim = c(n,m),
+	p = rep.int(0L, m+1L))
+}
+
+setZero <- function(x) {
+    ## all-0 matrix  from x  which must inherit from 'Matrix'
+    d <- x@Dim
+    new(if(d[1] == d[2]) "dsCMatrix" else "dgCMatrix",
+	Dim = d, Dimnames = x@Dimnames, p = rep.int(0L, d[2]+1L))
 }

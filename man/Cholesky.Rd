@@ -63,6 +63,8 @@ Cholesky(A, perm = TRUE, LDL = TRUE, super = FALSE, \dots)
 \seealso{
   Class definitions \code{\linkS4class{CHMfactor}} and
   \code{\linkS4class{dsCMatrix}} and function \code{\link{expand}}.
+  Note the extra \code{\link{solve}(*, system = . )} options in
+  \code{\linkS4class{CHMfactor}}.
 
   Note that \code{\link{chol}()} returns matrices (inheriting from
   \code{"\linkS4class{Matrix}"}) whereas \code{Cholesky()} returns a
@@ -81,9 +83,9 @@ str(cmat <- as(Cm, "sparseMatrix"))
 cmat[1:20, 1:20]
 b <- matrix(c(rep(0, 711), 1), nc = 1)
 ## solve(Cm, b) by default solves  Ax = b, where A = Cm'Cm !
-stopifnot(identical(solve(Cm, b), solve(Cm, b, system = "A")),
-          all.equal(solve(mtm, b),
-                    solve(Cm, b)))
+x <- solve(Cm, b)
+stopifnot(identical(x, solve(Cm, b, system = "A")),
+          all.equal(x, solve(mtm, b)))
 }
 \keyword{array}
 \keyword{algebra}

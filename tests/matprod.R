@@ -88,6 +88,31 @@ stopifnot(is(m, "triangularMatrix"), is(m, "sparseMatrix"),
           is(im, "dtCMatrix"), is(itm, "dtCMatrix"), is(iitm, "dtCMatrix"),
 	  del < 1e-15)
 
+## *unit* triangular :
+t1 <- new("dtTMatrix", x= c(3,7), i= 0:1, j=3:2, Dim= as.integer(c(4,4)))
+## from  0-diagonal to unit-diagonal {low-level step}:
+tu <- t1 ; tu@diag <- "U"
+cu <- as(tu, "dtCMatrix")
+cl <- t(cu) # unit lower-triangular
+stopifnot(is(cl,"dtCMatrix"), cl@diag == "U")
+(cu2 <- cu %*% cu)
+cl2 <- cl %*% cl
+validObject(cl2)
+cl2
+cu2. <- Diagonal(4) + Matrix(c(rep(0,9),14,0,0,6,0,0,0), 4,4)
+stopifnot(all(cu2 == cu2.),# was wrong for ver. <= 0.999375-4
+          is(cu2, "dtCMatrix"), is(cl2, "dtCMatrix"), # triangularity preserved
+          cu2@diag == "U", cl2@diag == "U",# UNIT-triangularity preserved
+          identical(t(cl2), cu2), # !!
+          identical( crossprod(cu), Matrix( crossprod(as.matrix(cu)),sparse=TRUE)),
+          identical(tcrossprod(cu), Matrix(tcrossprod(as.matrix(cu)),sparse=TRUE)))
+tr8 <- kronecker(rbind(c(2,0),c(1,4)), cl2)
+T8 <- tr8 %*% (tr8/2) # triangularity preserved?
+T8.2 <- (T8 %*% T8) / 4
+stopifnot(is(T8, "triangularMatrix"), T8@uplo == "L", is(T8.2, "dtCMatrix"))
+mr8 <- as(tr8,"matrix")
+m8. <- (mr8 %*% mr8 %*% mr8 %*% mr8)/16
+assert.EQ.mat(T8.2, m8.)
 
 data(KNex); mm <- KNex$mm
 M <- mm[1:500, 1:200]
@@ -196,8 +221,8 @@ assert.EQ.mat(t(sM) %*% sM,
               t(sm) %*% sm, tol=0)
 crossprod(sM)
 tcrossprod(sM)
-stopifnot(identical( crossprod(sM), as(t(sM) %*% sM, "dsCMatrix")),
-          identical(tcrossprod(sM), as(sM %*% t(sM), "dsCMatrix")))
+stopifnot(identical( crossprod(sM), as(t(sM) %*% sM, "symmetricMatrix")),
+          identical(tcrossprod(sM), forceSymmetric(sM %*% t(sM))))
 assert.EQ.mat( crossprod(sM),  crossprod(sm))
 assert.EQ.mat(tcrossprod(sM), as(tcrossprod(sm),"matrix"))
 

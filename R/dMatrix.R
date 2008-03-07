@@ -14,7 +14,7 @@ setAs("nMatrix", "dMatrix",
 	  r <- new(nCl)# default => no validity check; and copy slots:
 	  ## result is "same" (modulo care with the 'x' slot)
 	  sNams <- slotNames(cl)
-	  if(extends(cl, "sparseMatrix")) {
+	  if(extends(cl, "sparseMatrix")) {# faster(not "nicer"): any(substr(cl,3,3) == c("C","T","R"))
 	      r@x <- rep.int(1., nnzero(from))
 	  } else {
 	      r@x <-  as.double(from@x)
@@ -65,7 +65,7 @@ setAs("dMatrix", "nMatrix",
 ##           function(a, b, ...) callGeneric(a, as.numeric(b)))
 
 setMethod("expm", signature(x = "dMatrix"),
-          function(x) callGeneric(as(x, "dgeMatrix")))
+	  function(x) expm(as(x, "dgeMatrix")))
 
 
 ## Group Methods, see ?Arith (e.g.)

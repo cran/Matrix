@@ -64,8 +64,7 @@ Class \code{"Matrix"}, by class \code{"dgRMatrix"}.
 (m2 <- new("dtRMatrix", Dim = c(2L,2L),
                         x = c(5, 1:2), p = c(0L,2:3), j= c(0:1,1L)))
 str(m2)
-if(FALSE)# FIXME: missing coerce
-str(m3 <- as(Matrix(diag(2)), "dtRMatrix"))
+(m3 <- as(Matrix(diag(2)), "RsparseMatrix"))# --> dtRMatrix
 }
 \keyword{classes}
 \keyword{algebra}

@@ -167,9 +167,11 @@ setMethod("[", signature(x = "sparseMatrix", i = "index", j = "missing",
 			 drop = "logical"),
 	  function (x, i,j, ..., drop) {
 	      cld <- getClassDef(class(x))
-	      if(!extends(cld, "generalMatrix")) x <- as(x, "generalMatrix")
-## 	      viaCl <- paste(.M.kind(x, cld), "gTMatrix", sep='')
-	      x <- callGeneric(x = as(x, "TsparseMatrix"), i=i, drop=drop)
+##> why should this be needed; can still happen in <Tsparse>[..]:
+##>	      if(!extends(cld, "generalMatrix")) x <- as(x, "generalMatrix")
+##	      viaCl <- paste(.M.kind(x, cld), "gTMatrix", sep='')
+	      x <- as(x, "TsparseMatrix")[i, , drop=drop]
+##simpler than x <- callGeneric(x = as(x, "TsparseMatrix"), i=i, drop=drop)
 	      ## try_as(x, c(cl, sub("T","C", viaCl)))
 	      if(is(x, "Matrix") && extends(cld, "CsparseMatrix"))
 		  as(x, "CsparseMatrix") else x
@@ -179,9 +181,12 @@ setMethod("[", signature(x = "sparseMatrix", i = "missing", j = "index",
 			 drop = "logical"),
 	  function (x,i,j, ..., drop) {
 	      cld <- getClassDef(class(x))
-	      if(!extends(cld, "generalMatrix")) x <- as(x, "generalMatrix")
-## 	      viaCl <- paste(.M.kind(x, cld), "gTMatrix", sep='')
-	      x <- callGeneric(x = as(x, "TsparseMatrix"), j=j, drop=drop)
+##> why should this be needed; can still happen in <Tsparse>[..]:
+##>	      if(!extends(cld, "generalMatrix")) x <- as(x, "generalMatrix")
+##	      viaCl <- paste(.M.kind(x, cld), "gTMatrix", sep='')
+
+	      x <- as(x, "TsparseMatrix")[, j, drop=drop]
+##simpler than x <- callGeneric(x = as(x, "TsparseMatrix"), j=j, drop=drop)
 	      if(is(x, "Matrix") && extends(cld, "CsparseMatrix"))
 		  as(x, "CsparseMatrix") else x
 	  })
@@ -191,13 +196,14 @@ setMethod("[", signature(x = "sparseMatrix",
 	  function (x, i, j, ..., drop) {
 	      cld <- getClassDef(class(x))
 	      ## be smart to keep symmetric indexing of <symm.Mat.> symmetric:
-	      doSym <- (extends(cld, "symmetricMatrix") &&
-			length(i) == length(j) && all(i == j))
-	      if(!doSym && !extends(cld, "generalMatrix"))
-		  x <- as(x, "generalMatrix")
-## 	      viaCl <- paste(.M.kind(x, cld),
-## 			     if(doSym) "sTMatrix" else "gTMatrix", sep='')
-	      x <- callGeneric(x = as(x, "TsparseMatrix"), i=i, j=j, drop=drop)
+##>	      doSym <- (extends(cld, "symmetricMatrix") &&
+##>			length(i) == length(j) && all(i == j))
+##> why should this be needed; can still happen in <Tsparse>[..]:
+##>	      if(!doSym && !extends(cld, "generalMatrix"))
+##>		  x <- as(x, "generalMatrix")
+##	      viaCl <- paste(.M.kind(x, cld),
+##			     if(doSym) "sTMatrix" else "gTMatrix", sep='')
+	      x <- as(x, "TsparseMatrix")[i, j, drop=drop]
 	      if(is(x, "Matrix") && extends(cld, "CsparseMatrix"))
 		  as(x, "CsparseMatrix") else x
 	  })
@@ -400,31 +406,38 @@ print.sparseSummary <- function (x, ...) {
 }
 
 setMethod("isSymmetric", signature(object = "sparseMatrix"),
-	  function(object, tol = 100*.Machine$double.eps) {
+	  function(object, tol = 100*.Machine$double.eps, ...) {
 	      ## pretest: is it square?
 	      d <- dim(object)
 	      if(d[1] != d[2]) return(FALSE)
-	      ## else slower test
+
+	      ## else slower test using t()  --
+
+	      ## FIXME (for tol = 0): use cholmod_symmetry(A, 1, ...)
+	      ##        for tol > 0   should modify  cholmod_symmetry(..) to work with tol
+
+	      ## or slightly simpler, rename and export	 is_sym() in ../src/cs_utils.c
+
+
 	      if (is(object, "dMatrix"))
 		  ## use gC; "T" (triplet) is *not* unique!
 		  isTRUE(all.equal(.as.dgC.0.factors(  object),
-				   .as.dgC.0.factors(t(object)), tol = tol))
+				   .as.dgC.0.factors(t(object)),
+				   tol = tol, ...))
 	      else if (is(object, "lMatrix"))
 		  ## test for exact equality; FIXME(?): identical() too strict?
-		  identical(as(object, "lgCMatrix"),
+		  identical(as(	 object,  "lgCMatrix"),
 			    as(t(object), "lgCMatrix"))
 	      else if (is(object, "nMatrix"))
 		  ## test for exact equality; FIXME(?): identical() too strict?
-		  identical(as(object, "ngCMatrix"),
+		  identical(as(	 object,  "ngCMatrix"),
 			    as(t(object), "ngCMatrix"))
 	      else stop("not yet implemented")
 	  })
 
 
-## These two are not (yet?) exported:
-setMethod("isTriangular", signature(object = "sparseMatrix"),
-	  function(object, upper = NA)
-              isTriC(as(object, "CsparseMatrix"), upper))
+setMethod("isTriangular", signature(object = "CsparseMatrix"), isTriC)
+setMethod("isTriangular", signature(object = "TsparseMatrix"), isTriT)
 
 setMethod("isDiagonal", signature(object = "sparseMatrix"),
 	  function(object) {

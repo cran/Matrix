@@ -623,6 +623,27 @@ setClass("css_QR", representation(Pinv = "integer", Q = "integer",
 setClass("css_LU", representation(Q = "integer", nz = "integer"))
 }
 
+##-- Schur ---
+
+## non-"Matrix" Class 1  --- For Eigen values:
+setClassUnion("number", members = c("numeric", "complex"))
+
+setClass("Schur", contains = "MatrixFactorization",
+	 representation(T = "Matrix", # <- "block-triangular"; maybe triangular
+			Q = "Matrix", EValues = "number"),
+	 validity = function(object) {
+	     dim <- object@Dim
+	     if((n <- dim[1]) != dim[2])
+		 "'Dim' slot is not (n,n)"
+	     else if(any(dim(object@T) != n))
+		 "'dim(T)' is incorrect"
+	     else if(any(dim(object@Q) != n))
+		 "'dim(Q)' is incorrect"
+	     else if(length(object@EValues) != n)
+		 "'EValues' is not of correct length"
+	     else TRUE
+	 })
+
 
 ### Class Union :  no inheritance, but is(*, <class>) :
 
@@ -650,7 +671,7 @@ setClassUnion("atomicVector", ## numeric = {integer, double} but all 3 should *d
 ## --- Matrix - related (but not "Matrix" nor "Decomposition/Factorization):
 
 ### for 'value' in  x[..] <- value hence for all "contents" of our Matrices:
-setClassUnion("replValue", members =  c("numeric", "logical", "complex", "raw"))
+setClassUnion("replValue", members = c("numeric", "logical", "complex", "raw"))
 
 ### Sparse Vectors ---- here use 1-based indexing ! -----------
 setClass("sparseVector",

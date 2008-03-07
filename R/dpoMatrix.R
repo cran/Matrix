@@ -8,8 +8,10 @@ setAs("dpoMatrix", "corMatrix",
 	  sd <- sqrt(diag(from))
 	  if(is.null(names(sd)) && !is.null(nms <- from@Dimnames[[1]]))
 	      names(sd) <- nms
-	  sd. <- sd; names(sd.) <- NULL
-	  new("corMatrix", as(t(from/sd)/sd, "dpoMatrix"), sd = sd.)
+	  Is <- Diagonal(x = 1/sd)
+	  new("corMatrix", as(forceSymmetric(Is %*% from %*% Is),
+			      "dpoMatrix"),
+	      sd = unname(sd))
       })
 
 setAs("corMatrix", "lMatrix",

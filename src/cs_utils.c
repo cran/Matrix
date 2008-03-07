@@ -20,7 +20,7 @@ static int is_sym (cs *A)
 }
 
 /**
- * Create a cs object with the contents of x.
+ * Create a cs object with the contents of x.  Typically called via  AS_CSP()
  *
  * @param ans pointer to a cs struct.  This is allocated in the caller
  * so it is easier to keep track of where it should be freed - in many
@@ -69,7 +69,7 @@ SEXP Matrix_cs_to_SEXP(cs *a, char *cl, int dofree)
     int *dims, ctype = Matrix_check_class(cl, valid), nz;
 
     if (ctype < 0)
-	error("invalid class of object to Matrix_cs_to_SEXP");
+	error(_("invalid class of object to Matrix_cs_to_SEXP"));
     ans = PROTECT(NEW_OBJECT(MAKE_CLASS(cl)));
 				/* allocate and copy common slots */
     dims = INTEGER(ALLOC_SLOT(ans, Matrix_DimSym, INTSXP, 2));
@@ -79,10 +79,12 @@ SEXP Matrix_cs_to_SEXP(cs *a, char *cl, int dofree)
     nz = a->p[a->n];
     Memcpy(INTEGER(ALLOC_SLOT(ans, Matrix_iSym, INTSXP, nz)), a->i, nz);
     Memcpy(REAL(ALLOC_SLOT(ans, Matrix_xSym, REALSXP, nz)), a->x, nz);
-    if (ctype > 0) {
+    if (ctype > 0) { /* dsC or dtC */
 	int uplo = is_sym(a);
-	if (!uplo) error("cs matrix not compatible with class");
-	SET_SLOT(ans, Matrix_diagSym, mkString("N"));
+	if (!uplo)
+	    error(_("cs matrix not compatible with class '%s'"), valid[ctype]);
+	if (ctype == 2) /* dtC* */
+	    SET_SLOT(ans, Matrix_diagSym, mkString("N"));
 	SET_SLOT(ans, Matrix_uploSym, mkString(uplo < 0 ? "L" : "U"));
     }
     if (dofree > 0) cs_spfree(a);
@@ -91,7 +93,7 @@ SEXP Matrix_cs_to_SEXP(cs *a, char *cl, int dofree)
     return ans;
 }
 
-#if 0 				/* unused */
+#if 0 				/* unused ------------------------------------*/
 /**
  * Populate a css object with the contents of x.
  *

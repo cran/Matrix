@@ -1,14 +1,19 @@
 #### Methods for the virtual class 'triangularMatrix' of triangular matrices
 #### Note that specific methods are in (8 different) ./?t?Matrix.R
 
+setAs("triangularMatrix", "symmetricMatrix",
+      function(from) as(as(from, "generalMatrix"), "symmetricMatrix"))
+
 .tril.tr <- function(x, k = 0, ...) {  # are always square
     k <- as.integer(k[1])
     dd <- dim(x)
     stopifnot(-dd[1] <= k, k <= dd[1])  # had k <= 0
     if(k <= 0 && x@uplo == "L")
         x
-    else ## more to do
+    else { ## more to do
+        x <- .diagU2N(x, class(x))
         callNextMethod()
+    }
 }
 
 .triu.tr <- function(x, k = 0, ...) {  # are always square
@@ -17,18 +22,29 @@
     stopifnot(-dd[1] <= k, k <= dd[1])  # had k >= 0
     if(k >= 0 && x@uplo == "U")
         x
-    else ## more to do
+    else { ## more to do
+        x <- .diagU2N(x, class(x))
         callNextMethod()
+    }
 }
 
 ## In order to evade method dispatch ambiguity (with [CTR]sparse* and ddense*),
 ## but still remain "general"
 ## we use this hack instead of signature  x = "triagonalMatrix" :
 
-for(cls in names(getClass("triangularMatrix")@subclasses))
-    if(length(grep(".t.Matrix", cls)) == 1) { # not for "Cholesky"
-        setMethod("tril", cls, .tril.tr)
-        setMethod("triu", cls, .triu.tr)
-    }
+trCls <- names(getClass("triangularMatrix")@subclasses)
+trCls. <- trCls[grep(".t.Matrix", trCls)]  # not "*Cholesky", "*Kaufman" ..
+for(cls in trCls.) {
+    setMethod("tril", cls, .tril.tr)
+    setMethod("triu", cls, .triu.tr)
+}
 
+## ditto here:
+
+for(cls in trCls)
+    setMethod("isTriangular", signature(object = cls),
+              function(object, ...) TRUE)
+## instead of just for ....   signature(object = "triangularMatrix")
+
+rm(trCls)
 

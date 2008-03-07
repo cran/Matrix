@@ -1,6 +1,10 @@
 \name{symmetricMatrix-class}
 \docType{class}
 \alias{symmetricMatrix-class}
+\alias{coerce,matrix,symmetricMatrix-method}
+\alias{coerce,denseMatrix,symmetricMatrix-method}
+\alias{coerce,CsparseMatrix,symmetricMatrix-method}
+%
 \title{Virtual Class of Symmetric Matrices in package:Matrix}
 \description{
   The virtual class of symmetric matrices, \code{"symmetricMatrix"},

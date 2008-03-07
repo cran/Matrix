@@ -20,7 +20,7 @@ if(FALSE)
 ## ------------ --> ../src/dgCMatrix.c
 .R.2.C <- function(from) .Call(R_to_CMatrix, from)
 
-if(FALSE)## "slow" R-level workaround
+if(FALSE)## "slow" unneeded R-level version
 .R.2.C <- function(from)
 {
     cl <- class(from)
@@ -106,17 +106,42 @@ setAs("RsparseMatrix", "dgeMatrix",
 setAs("RsparseMatrix", "matrix",
       function(from) as(.R.2.C(from), "matrix"))
 
-## **VERY** cheap substitutes:  work via dgC and t(.)
+## **VERY** cheap substitute:  work via dgC and t(.)
 .viaC.to.dgR <- function(from) {
     m <- as(t(from), "dgCMatrix")
     new("dgRMatrix", Dim = dim(from), Dimnames = .M.DN(from),
 	p = m@p, j = m@i, x = m@x)
 }
 
-setAs("matrix",    "dgRMatrix", .viaC.to.dgR)## one of the few coercions "to specific"
-setAs("matrix",    "RsparseMatrix", .viaC.to.dgR)
-setAs("ddenseMatrix", "RsparseMatrix", .viaC.to.dgR)
-setAs("dsparseMatrix", "RsparseMatrix", .viaC.to.dgR)
+## one of the few coercions "to <specific>" {tested in ../tests/Class+Meth.R}
+setAs("matrix", "dgRMatrix", .viaC.to.dgR)
+
+## *very* cheap substitute:  work via t(.) and Csparse
+.viaC.to.R <- function(from) {
+    m <- as(t(from), "CsparseMatrix")# preserve symmetry/triangular
+    clx <- getClassDef(class(m))
+    has.x <- !extends(clx, "nsparseMatrix")## <==> has 'x' slot
+    ## instead of "d": .M.kind (m,cl)
+    ## instead of "g": ..M.shape(m,cl)
+    sh <- .M.shapeC(m,clx)
+    r <- new(paste(.M.kindC(clx), sh, "RMatrix", sep=""))
+    r@Dim <- dim(from)
+    r@Dimnames <-  .M.DN(from)
+    r@p <- m@p
+    r@j <- m@i
+    if(has.x)
+	r@x <- m@x
+    if(sh != "g") {
+	r@uplo <- m@uplo
+	if(sh == "t")
+	    r@diag <- m@diag
+    }
+    r
+}
+
+setAs("matrix",       "RsparseMatrix", .viaC.to.R)
+setAs("ddenseMatrix", "RsparseMatrix", .viaC.to.R)
+setAs("dsparseMatrix","RsparseMatrix", .viaC.to.R)
 
 ## symmetric: can use same 'p' slot
 setAs("dsCMatrix", "dsRMatrix",

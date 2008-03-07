@@ -1,12 +1,11 @@
 \name{chol}
 \title{Choleski Decomposition - 'Matrix' S4 Generic}
 \alias{chol}
+\alias{chol-methods}
 \alias{chol,Matrix,ANY-method}
 % dense methods
 \alias{chol,ddenseMatrix,ANY-method}
 \alias{chol,dgeMatrix,ANY-method}
-\alias{chol,dpoMatrix-method}
-\alias{chol,dppMatrix-method}
 \alias{chol,dpoMatrix,ANY-method}
 \alias{chol,dppMatrix,ANY-method}
 %   diagonal
@@ -71,6 +70,15 @@ chol(x, pivot = FALSE, \dots)
 }
 \examples{
 showMethods(chol, inherited = FALSE) # show different methods
+
+sy2 <- new("dsyMatrix", Dim = as.integer(c(2,2)), x = c(14, NA,32,77))
+(c2 <- chol(sy2))#-> "Cholesky" matrix
+stopifnot(all.equal(c2, chol(as(sy2, "dpoMatrix")), tol= 1e-13))
+str(c2)
+
+## An example where chol() can't work
+(sy3 <- new("dsyMatrix", Dim = as.integer(c(2,2)), x = c(14, -1, 2, -7)))
+try(chol(sy3)) # error, since it is not positive definite
 }
 \keyword{algebra}
 \keyword{array}

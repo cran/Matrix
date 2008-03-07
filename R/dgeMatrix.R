@@ -10,8 +10,7 @@ setAs("dgeMatrix", "matrix",
 
 ##  "Arith" is in ./Ops.R
 
-setMethod("Math",
-	  signature(x = "dgeMatrix"),
+setMethod("Math", signature(x = "dgeMatrix"),
 	  function(x) {
 	      x@x <- callGeneric(x@x)
 	      x
@@ -75,7 +74,7 @@ setMethod("tcrossprod", signature(x = "matrix", y = "missing"),
 	  valueClass = "dpoMatrix")
 
 setMethod("tcrossprod", signature(x = "numeric", y = "missing"),
-	  function(x, y = NULL) callGeneric(as.matrix(as.double(x))))
+	  function(x, y = NULL) tcrossprod(as.matrix(as.double(x))))
 }
 
 ## crossprod (x,y)
@@ -91,10 +90,10 @@ setMethod("crossprod", signature(x = "dgeMatrix", y = "numeric"),
 	  .Call(dgeMatrix_matrix_crossprod, x, as.matrix(as.double(y)), FALSE),
 	  valueClass = "dgeMatrix")
 setMethod("crossprod", signature(x = "matrix", y = "dgeMatrix"),
-	  function(x, y = NULL) callGeneric(as(x, "dgeMatrix"), y),
+	  function(x, y = NULL) crossprod(as(x, "dgeMatrix"), y),
 	  valueClass = "dgeMatrix")
 setMethod("crossprod", signature(x = "numeric", y = "dgeMatrix"),
-	  function(x, y = NULL) callGeneric(as.matrix(as.double(x)), y),
+	  function(x, y = NULL) crossprod(as.matrix(as.double(x)), y),
 	  valueClass = "dgeMatrix")
 
 ## tcrossprod (x,y)
@@ -110,10 +109,10 @@ setMethod("tcrossprod", signature(x = "dgeMatrix", y = "numeric"),
 	  .Call(dgeMatrix_matrix_crossprod, x, rbind(as.double(y)), TRUE),
 	  valueClass = "dgeMatrix")
 setMethod("tcrossprod", signature(x = "matrix", y = "dgeMatrix"),
-	  function(x, y = NULL) callGeneric(as(x, "dgeMatrix"), y),
+	  function(x, y = NULL) tcrossprod(as(x, "dgeMatrix"), y),
 	  valueClass = "dgeMatrix")
 setMethod("tcrossprod", signature(x = "numeric", y = "dgeMatrix"),
-	  function(x, y = NULL) callGeneric(rbind(as.double(x)), y),
+	  function(x, y = NULL) tcrossprod(rbind(as.double(x)), y),
 	  valueClass = "dgeMatrix")
 
 ## %*% methods

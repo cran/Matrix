@@ -66,7 +66,4 @@ setAs("matrix", "ngCMatrix",
 ## 	  valueClass = "nsCMatrix")
 
 setMethod("image", "ngCMatrix",
-          function(x, ...) {
-              x <- as(as(x, "dgCMatrix"), "dgTMatrix")
-              callGeneric()
-          })
+	  function(x, ...) image(as(as(x, "dgCMatrix"), "dgTMatrix"), ...))

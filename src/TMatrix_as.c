@@ -1,10 +1,6 @@
 			/* Sparse symmetric matrices in triplet format */
 #include "TMatrix_as.h"
 
-
-#define DECLARE_AND_GET_X_SLOT(__C_TYPE, __SEXP)	\
-    __C_TYPE *xx = __SEXP(GET_SLOT(x, Matrix_xSym))
-
 #define MAYBE_DECLARE_AND_GET_X_SLOT(__T__, __S__)	\
 	      DECLARE_AND_GET_X_SLOT(__T__, __S__)
 

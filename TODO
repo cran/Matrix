@@ -1,13 +1,8 @@
-Check for DimNames propagation in coercion and other operations.
-------
+- Check for DimNames propagation in coercion and other operations.
+
 - Report the problem in the Linux ldexp manual page.  The second and
   third calls in the Synopsis should be to ldexpf and ldexpl.
 
-- [,] indexing: for sparse "works", but not yet for negative indices!
-
-- consider moving alloc3Darray from ./src/Mutils.c to
-  $(RSRC)/src/base/array.c
-------
 - provide methods for "dspMatrix" and "dppMatrix"!
 
 - implement (more) methods for supporting "packed" (symmetric / triangular)
@@ -16,27 +11,21 @@ Check for DimNames propagation in coercion and other operations.
 
   (have some dtr* <-> dtp*)
 
------
-
 - combine the C functions for multiplication by special forms and
   solution wrt special forms by using a 'right' argument and a
   'classed' argument.
    [done with dgeMatrix_matrix_mm();  not yet for other classes;
     and for _crossprod()]
 
-- add more comprehensive examples / tests for Schur decomposition
-
-- arithmetic for sparse matrices:
-	     <sparseMatrix>  o  <same-dim-sparseMatrix>
-  should return a sparse matrix  for at least "+" and "*" , also %%,
-  and "/" and "%/%" at least when the RHS is non-zero a scalar.
-  Challenge: nice implementation (``common non-0''; but Tsparse* is not uniq).
-
 -----
 
 - "Math2" , "Math", "Arith":
    keep triangular and symmetric Matrices when appropriate:
    particularly desirable for  "Math2": round(), signif()
+
+  For triangular matrices, more specifically make sure the four rules of
+  "triangular matrix algebra" (Golub+Van Loan 1996, 3.1.8, p.93) are
+  fulfilled; now(2008-03-06) ok for Csparse; not yet for <dtr> %*% <dtr>
 
 - "d" <-> "l" coercion for all "[TCR]" sparse matrices is really trivial:
   "d" -> "l" : drops the 'x' slot
@@ -72,15 +61,7 @@ Check for DimNames propagation in coercion and other operations.
   str(H6 <- as(h6, "dspMatrix"))       # has lost factor
   ## and the same in a similar situation involving  "dpo", "dpp"
 
-- Things like  M[upper.tri(M)] are not really most useful for  sparse
-  matrices.  --> provide generic functions
-  upperTriMatrix(), lowerTriMatrix()  both with argument  'diag = TRUE'
-  (which can be set to FALSE of course) which are used to extract a
-  triangle from an arbitrary sparse matrix and  return a  "dtCMatrix".
-
 - Factorizations: LU done; also Schur()  for  *sparse*  Matrices.
-
-- band(), triu(), tril() for *all* including "matrix", not just sparse matrices
 
 - is.na() method for all our matrices [ ==> which(*, arr.ind=TRUE) might work ]
 
@@ -99,18 +80,13 @@ Check for DimNames propagation in coercion and other operations.
 - make sure *all* group methods have (maybe "bail-out") setMethod for "Matrix".
   e.g. zapsmall(<pMatrix>) fails "badly"
 
-- speedup: pass class definition to non0ind() [check all calls ..]
-
 - sum(): implement methods which work for *all* our matrices.
 
 - Implement  expand(.) for the Cholesky() results
   "dCHMsimpl" and  "dCHMsuper"  -- currently have no *decent* way to get at
   the matrix factors of the corresponding matrix factorization !!
 
-- rbind(<sparse>, <dense>) does not work  (e.g. <dgC>, <dge>)
-
-- make sure  M[FALSE, FALSE]  works for all Matrices
-  {e.g. fails for M <- Diagonal(4)}
+- rbind2(<sparse>, <dense>) does not work  (e.g. <dgC>, <dge>)
 
 - <sparse> %*% <dense>  {also in crossprod/tcrossprod}  currently always
   returns <dense>, since --> Csparse_dense_prod --> cholmod_sdmult
@@ -124,11 +100,6 @@ Check for DimNames propagation in coercion and other operations.
   but also R/Ops.R  to ensure  sp-sym. + sp-sym. |-> sp-sym.  etc
 
 - Diagonal(n) %*% A ---  too slow!! --> ~/R/MM/Pkg-ex/Matrix/diag-Tamas-ex.R
-
-- For a square sparse matrix 'b' {typically dgCMatrix or dgTMatrix},
-  we'd want a function  "Mat_plus_t_Mat" <- function(b) {....}
-  which computes the symmetric sparse matrix   b + t(b)
-  in way that never works with size-doubled vectors from  b@i etc..
 
 - ! <symmetricMatrix>  loses symmetry, both for dense and sparse matrices.
   !M  where M is "sparseMatrix", currently always gives dense. This only
@@ -145,11 +116,10 @@ Check for DimNames propagation in coercion and other operations.
   present factorization and rather uses one with more '0' in x slot.
 
 - diag(m) <- val    currently automatically works via  m[cbind(i,i)] <- val
-  However,
-  we need methods for 'diag<-' at least for diagonalMatrix,
-  triangularMatrix, and probably also "dense*general*Matrix" since the
+  This (`[<-` method) is now "smart" for diagonalMatrix, but needs also to
+  be for triangularMatrix, and probably also "dense*general*Matrix" since the
   above currently goes via "matrix" and back instead of using the 'x' slot
-  directly.
+  directly; in particular, the triangular* "class property" is lost!
 
 - image(M, ..): Think about an optional smart option which keeps
    "0 |-> transparent" and allows colors to differentiate negative and
@@ -157,14 +127,6 @@ Check for DimNames propagation in coercion and other operations.
 
 - examples for solve( Cholesky(.), b, system = c("A", "LDLt"....))
   probably rather in man/CHMfactor-class.Rd than man/Cholesky.Rd
-
-- (A + tr(A))/2  := the symmetric part of A, is needed in several
-  circumstances; unfortunately it's not "smart" (preserving symmetry, ...)
-  --> define a generic and methods for it!
-  Names:  symPart(A) or  symMat(A) or symmetrize(A) or ... ?
-  Googling around I found that Nick Higham has a GPL contributed Matlab
-  toolbox where he uses  symmpart(A) := (A + A') /. 2
-  {and  skewpart(A) := (A - A') /. 2}
 
 - tr(A %*% B) {and even  tr(A %*% B %*% C) ...} are also needed
   frequently in some computations {conditional normal distr. ...}.
@@ -181,3 +143,34 @@ Check for DimNames propagation in coercion and other operations.
     "qr.R(<sparse>) may differ from qr.R(<dense>) because of permutations"
 
   This is not really acceptable and currently influences  rcond() as well.
+
+- chol() and qr() generic:  currently have *two* arguments, and give the msg
+
+  >  New generic for "chol" does not agree with implicit generic from package
+  >  "base"; a new generic will be assigned with package "Matrix"
+
+  (and ditto for "qr")
+
+  It was mentioned by an R-core member that he thought it did not make
+  sense to also dispatch on 'tol' or 'pivot' ...  --> maybe change that..
+
+- eigen() should become generic, and get a method at least for diagonal,
+  but also for symmetric -> dsyMatrix  [LAPACK dsyev() uses UPLO !],
+  but also simply for dgeMatrix (without going via tradition matrices).
+  What about Sparse?  There's fill-in, but it may still be sensible, e.g.
+  mlist <- list(1, 2:3, diag(x=5:3), 27, cbind(1,3:6), 100:101)
+  ee <- eigen(tcrossprod(bdiag(lapply(mlist, as.matrix))))
+  Matrix( signif(ee$vectors, 3) )
+
+- facmul() has no single method defined;  it looks like a good idea though
+  (instead of the infamous qr.qy, qr.qty,.... functions)
+
+- symmpart() and skewpart()  for *sparse* matrices still use (x +/- t(x))/2
+  and could be made more efficient.
+  Consider going via  asTuniq() or something very close to
+  .Arith.Csparse() in R/Ops.R
+
+- many setAs(*, "[dl]..Matrix") are still needed, as long as e.g.
+  replCmat() uses as_CspClass() and drop0(.) which itself call
+  as_CspClass() quite a bit.  --> try to replace these by
+  as(*, "CsparseMatrix"); forceSymmetric, etc.

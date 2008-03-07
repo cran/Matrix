@@ -1,6 +1,8 @@
 \name{triangularMatrix-class}
 \docType{class}
 \alias{triangularMatrix-class}
+\alias{coerce,triangularMatrix,symmetricMatrix-method}
+%
 \title{Virtual Class of Triangular Matrices in package:Matrix}
 \description{
   The virtual class of triangular matrices,\code{"triangularMatrix"},
@@ -13,15 +15,16 @@
 % \section{Objects from the Class}{A virtual Class: No objects may be created from it.}
 \section{Slots}{
   \describe{
-    \item{\code{uplo}:}{Object of class \code{"character"}.  Must be
+    \item{\code{uplo}:}{String (of class \code{"character"}).  Must be
       either "U", for upper triangular, and "L", for lower triangular.}
-    \item{\code{diag}:}{Object of class \code{"character"}.  Must be
+    \item{\code{diag}:}{String (of class \code{"character"}).  Must be
       either \code{"U"}, for unit triangular (diagonal is all ones), or
       \code{"N"} for non-unit.  The diagonal elements are not
-      accessed internally when \code{diag} is \code{"U"} (but need to be
-      allocated, i.e., \code{length(x)} does not depend on \code{diag}).}
-    %% below {Dim, Dimnames} work around Slot parsing buglet (< 2.2.0)
-    \item{\code{Dim, Dimnames}:}{The dimension (a length-2
+      accessed internally when \code{diag} is \code{"U"}. For
+      \code{\linkS4class{denseMatrix}} classes, they need to be
+      allocated though, i.e., the length of the \code{x} slot does not
+      depend on \code{diag}.}
+    \item{\code{Dim}, \code{Dimnames}:}{The dimension (a length-2
       \code{"integer"}) and corresponding names (or \code{NULL}),
       inherited from the \code{\linkS4class{Matrix}}, see there.}
   }
@@ -32,8 +35,10 @@
 \section{Methods}{
   There's a C function \code{triangularMatrix_validity()}
   called by the internal validity checking functions.
-  %% Currently:
-  %% No methods defined with class "triangularMatrix" in the signature.
+
+  Currently, \code{\link{Schur}}, \code{\link{isSymmetric}} and
+  \code{as()} (i.e. \code{\link{coerce}}) have methods with
+  \code{triangularMatrix} in their signature.
 }
 \seealso{
   Classes \code{\linkS4class{symmetricMatrix}}, and, e.g.,

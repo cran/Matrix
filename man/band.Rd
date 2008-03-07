@@ -21,6 +21,12 @@
 \alias{band,ddenseMatrix-method}
 \alias{tril,ddenseMatrix-method}
 \alias{triu,ddenseMatrix-method}
+\alias{band,denseMatrix-method}
+\alias{tril,denseMatrix-method}
+\alias{triu,denseMatrix-method}
+\alias{band,matrix-method}
+\alias{tril,matrix-method}
+\alias{triu,matrix-method}
 % Begin{UGLY-disAMBIGUATION-hack} -- in ../R/triangularMatrix.R
 % we would want to define 'triangularMatrix' methods, but they ambiguate with the above!
 % \alias{tril,triangularMatrix-method}
@@ -129,10 +135,10 @@ band(sm5, -1, 1)# symmetric band preserves symmetry property
 (x.x <- crossprod(mm))
 tril(x.x)
 xx <- tril(x.x) + triu(x.x, 1) ## the same as x.x (but stored differently):
-txx <- t(as(xx, "dsCMatrix"))
+txx <- t(as(xx, "symmetricMatrix"))
 stopifnot(identical(triu(x.x), t(tril(x.x))),
 	  identical(class(x.x), class(txx)),
-	  identical(as(x.x, "dgCMatrix"), as(txx, "dgCMatrix")))
+	  identical(as(x.x, "generalMatrix"), as(txx, "generalMatrix")))
 }
 }
 \keyword{methods}

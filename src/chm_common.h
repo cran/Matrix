@@ -13,6 +13,9 @@ typedef struct cholmod_triplet_struct *CHM_TR ;
 
 extern cholmod_common c;
 
+/* NOTE: Versions of these are *EXPORTED* via ../inst/include/Matrix.h
+ * ----  and used e.g., in the lme4 package
+ */
 CHM_SP as_cholmod_sparse (CHM_SP ans, SEXP x);
 CHM_TR as_cholmod_triplet(CHM_TR ans, SEXP x);
 CHM_DN as_cholmod_dense  (CHM_DN ans, SEXP x);
@@ -37,6 +40,8 @@ SEXP chm_triplet_to_SEXP(CHM_TR a, int dofree, int uploT, int Rkind,
 SEXP chm_dense_to_SEXP(CHM_DN a, int dofree, int Rkind, SEXP dn);
 /* 		       int uploST, char *diag, SEXP dn); */
 SEXP chm_dense_to_matrix(CHM_DN a, int dofree, SEXP dn);
+
+void chm_diagN2U(CHM_SP chx, int uploT, Rboolean do_realloc);
 
 SEXP CHMfactor_validate(SEXP obj);
 SEXP CHMsimpl_validate(SEXP obj);

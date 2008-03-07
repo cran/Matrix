@@ -63,6 +63,6 @@ Class \code{"Matrix"}, by class \code{"denseMatrix"}.
 \examples{
 showClass("ndenseMatrix")
 
-%%FIXME?##as(diag(3) > 0, "ndenseMatrix")
+as(diag(3) > 0, "ndenseMatrix")# -> "nge"
 }
 \keyword{classes}

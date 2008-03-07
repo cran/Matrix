@@ -48,39 +48,30 @@
   }
 }
 \section{Methods}{
-%   There are (relatively simple) group methods (see, e.g., \code{\link{Arith}})
-%   \describe{
-%     \item{Arith}{\code{signature(e1 = "dMatrix", e2 = "dMatrix")}: ... }
-%     \item{Arith}{\code{signature(e1 = "dMatrix", e2 = "numeric")}: ... }
-%     \item{Arith}{\code{signature(e1 = "numeric", e2 = "dMatrix")}: ... }
-%     \item{Math}{\code{signature(x = "dMatrix")}: ... }
-%     \item{Math2}{\code{signature(x = "dMatrix", digits = "numeric")}:
-%       this group contains \code{\link{round}()} and \code{\link{signif}()}.}
-%     \item{Compare}{\code{signature(e1 = "numeric", e2 = "dMatrix")}: ... }
-%     \item{Compare}{\code{signature(e1 = "dMatrix", e2 = "numeric")}: ... }
-%     \item{Compare}{\code{signature(e1 = "dMatrix", e2 = "dMatrix")}: ... }
-%     \item{Summary}{\code{signature(x = "dMatrix")}: The \code{"Summary"}
-%       group contains the seven functions
-%       \code{\link{max}()}, \code{\link{min}()}, \code{\link{range}()},
-%       \code{\link{prod}()}, \code{\link{sum}()},
-%       \code{\link{any}()}, and \code{\link{all}()}.}
-%   }
-% The following methods are defined for all n* matrices:
+  There is a bunch of coercion methods (for \code{\link{as}(..)}), e.g.,
   \describe{
     \item{coerce}{\code{signature(from = "nMatrix", to = "matrix")}: ... }
+    \item{coerce}{\code{signature(from = "nMatrix", to = "dMatrix")}: ... }
+    \item{coerce}{\code{signature(from = "nMatrix", to = "lMatrix")}: ... }
+
+    \item{coerce}{\code{signature(from = "matrix", to = "nMatrix")}: ... }
+    \item{coerce}{\code{signature(from = "dMatrix", to = "nMatrix")}: ... }
+    \item{coerce}{\code{signature(from = "lMatrix", to = "nMatrix")}: ... }
   }
 }
-%\references{}
-%\author{Martin + Doug}
 \seealso{
-%   The classes \code{\linkS4class{dgeMatrix}},
-%   \code{\linkS4class{dgCMatrix}}, and
-%% FIXME
+The classes \code{\linkS4class{lMatrix}}, and the mother class',
 \code{\linkS4class{Matrix}}.
 }
 \examples{
  showClass("nMatrix")
 
+L3 <- Matrix(upper.tri(diag(3)))
+L3 # an "ltCMatrix"
+as(L3, "nMatrix") # -> ntC*
+
+## similar, not using Matrix()
+as(upper.tri(diag(3)), "nMatrix")# currently "ngTMatrix"
 }
 \keyword{classes}
 \keyword{algebra}

@@ -3,19 +3,16 @@
 ### contains = "lsparseMatrix"
 
 setAs("lsCMatrix", "matrix",
-      function(from) as(as(from, "lgCMatrix"), "matrix"))
+      function(from) as(as(from, "generalMatrix"), "matrix"))
 
 setAs("lsCMatrix", "lgCMatrix",
       function(from) .Call(Csparse_symmetric_to_general, from))
 
-## for indexing
+## needed for indexing (still ?)
 setAs("lsCMatrix", "lgTMatrix",
-      function(from) as(as(from, "lgCMatrix"), "lgTMatrix"))
+      function(from) as(as(from, "generalMatrix"), "lgTMatrix"))
 
-setAs("lgCMatrix", "lsCMatrix",
-      function(from) .Call(Csparse_general_to_symmetric, from, uplo = "U"))
-## now use it:
-aslsC.by.lgC <- function(from) as(as(from, "lgCMatrix"), "lsCMatrix")
+aslsC.by.lgC <- function(from) as(as(from, "lgCMatrix"), "symmetricMatrix")
 setAs("lgTMatrix", "lsCMatrix", aslsC.by.lgC) # <-> needed for Matrix()
 setAs("matrix",    "lsCMatrix", aslsC.by.lgC)
 
@@ -29,6 +26,7 @@ setAs("lsCMatrix", "dsCMatrix",
                          x = as.double(from@x), uplo = from@uplo,
                          Dim = from@Dim, Dimnames = from@Dimnames))
 
+if(FALSE) # needed ?
 setAs("lsCMatrix", "dgTMatrix",
       function(from) as(as(from, "dsCMatrix"), "dgTMatrix"))
 

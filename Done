@@ -1,3 +1,5 @@
+[[ This file 'Done' lists items that were in file ./TODO at some time ]]
+
 - Sparse matrix methods can now be based on the CHOLMOD package.  We
    will need to migrate from the current code to CHOLMOD-based code
    using #ifdef USE_CHOLMOD.  Some of the things to be done
@@ -157,6 +159,15 @@
 
 - tril(), triu()  now return matrices of *triangular* classes.
 
+  Note that these also solve the following former "TODO":
+
+  Things like  M[upper.tri(M)] are not really most useful for  sparse
+  matrices.  --> provide generic functions
+  upperTriMatrix(), lowerTriMatrix()  both with argument  'diag = TRUE'
+  (which can be set to FALSE of course) which are used to extract a
+  triangle from an arbitrary sparse matrix and  return a  "dtCMatrix".
+
+
 - Factorizations: LU and solve() for  *sparse*  Matrices is now done,
   -----------------  using CSparse (and not UMFPACK as originally thought)
 
@@ -189,6 +200,8 @@
 - now check for DimNames propagation in coercions, at least by using a
   "dimnamed" matrix in tstMatrixClass() in tests/Class+Meth.R
 
+- moved alloc3DArray() from ./src/Mutils.c to $(RSRC)/src/main/array.c
+
 - norm() methods for all Matrices, notably sparse "now too".
 
 - check all "Summary" group methods for all matrices in ./tests/Class+Meth.R
@@ -204,3 +217,44 @@
 
 - ensuring that M[0], M[FALSE], M[1:2]  now work as for traditional matrices
 
+- [,] indexing: works for sparse, in all cases ((we have seen ..))
+
+- arithmetic for sparse matrices:
+	     <sparseMatrix>  o  <same-dim-sparseMatrix>
+  returns a sparse matrix  for at least "+" and "*" , also %%,
+  and "/" and "%/%" at least when the RHS is a non-zero scalar.
+
+- Schur() now returns a proper class extending "MatrixFactorization".
+
+- added more comprehensive examples and tests for Schur decomposition
+
+- speedup: pass class definition to non0ind() [check all calls ..]
+
+- M[FALSE, FALSE] now works for Matrices M with all(dim(M) > 0)
+  {no longer fails for M <- Diagonal(4), or dgR* }
+
+- band(), triu(), tril()  now work for "matrix" and all "dense*"
+
+- For a square sparse matrix 'b' {typically dgCMatrix or dgTMatrix},
+  we'd want a function  "Mat_plus_t_Mat" <- function(b) {....}
+  which computes the symmetric sparse matrix   b + t(b)
+  in way that never works with size-doubled vectors from  b@i etc..
+
+  2nd version:
+  (A + tr(A))/2  := the symmetric part of A, is needed in several
+  circumstances; unfortunately it's not "smart" (preserving symmetry, ...)
+  --> define a generic and methods for it!
+  Googling around I found that Nick Higham has a GPL contributed Matlab
+  toolbox where he uses  symmpart(A) := (A + A') /. 2 and
+  skewpart(A) := (A - A') /. 2.
+  Hence defined symmpart() and skewpart().
+
+- fixed '*HORRENDOUSLY* slow' in tests/simple.R
+  and do better than
+	unlist(lapply(seq_len(m), function(j) x[i1[j], i2[j]]))
+  in R/Matrix.R
+  --> now fixed for sparseMatrices : 'ss <- slp[ij]' in tests/simple.R
+  denseMatrices have their own method,
+  and m[ <ij-matrix> ] <- value seems more or less ok.
+
+- dtC Matrices now preserve (unit-) triangularity in %*% and crossprod

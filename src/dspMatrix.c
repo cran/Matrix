@@ -21,7 +21,7 @@ double get_norm_sp(SEXP obj, const char *typstr)
     int *dims = INTEGER(GET_SLOT(obj, Matrix_DimSym));
     double *work = (double *) NULL;
 
-    typnm[0] = norm_type(typstr);
+    typnm[0] = La_norm_type(typstr);
     if (*typnm == 'I' || *typnm == 'O') {
 	work = (double *) R_alloc(dims[0], sizeof(double));
     }
@@ -41,7 +41,7 @@ SEXP dspMatrix_rcond(SEXP obj, SEXP type)
     int *dims = INTEGER(GET_SLOT(obj, Matrix_DimSym)), info;
     double anorm = get_norm_sp(obj, "O"), rcond;
 
-    typnm[0] = rcond_type(CHAR(asChar(type)));
+    typnm[0] = La_rcond_type(CHAR(asChar(type)));
     F77_CALL(dspcon)(uplo_P(trf), dims,
 		     REAL   (GET_SLOT(trf, Matrix_xSym)),
 		     INTEGER(GET_SLOT(trf, Matrix_permSym)),
@@ -118,11 +118,12 @@ SEXP dspMatrix_matrix_mm(SEXP a, SEXP b)
     Memcpy(bx, vx, n * nrhs);
     if (bdims[0] != n)
 	error(_("Matrices are not conformable for multiplication"));
-    if (nrhs < 1 || n < 1)
-	error(_("Matrices with zero extents cannot be multiplied"));
-    for (i = 0; i < nrhs; i++)
-	F77_CALL(dspmv)(uplo, &n, &one, ax, bx + i * n, &ione,
-			&zero, vx + i * n, &ione);
+    if (nrhs < 1 || n < 1) {
+/* 	error(_("Matrices with zero extents cannot be multiplied")); */
+    } else
+	for (i = 0; i < nrhs; i++)
+	    F77_CALL(dspmv)(uplo, &n, &one, ax, bx + i * n, &ione,
+			    &zero, vx + i * n, &ione);
     UNPROTECT(1);
     return val;
 }

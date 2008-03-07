@@ -1,11 +1,6 @@
 #### Symmetric Sparse Matrices in compressed column-oriented format
 
-setAs("dgCMatrix", "dsCMatrix",
-      function(from) {
-	  if(isSymmetric(from))
-	      ## FIXME: should be able to *not* need Tsparse route
-	      as(as(as(from, "dgTMatrix"), "dsTMatrix"), "dsCMatrix")
-	  else stop("not a symmetric matrix")})
+##setAs("dgCMatrix", "dsCMatrix", ...
 
 ## Specific conversions, should they be necessary.  Better to convert as
 ## as(x, "TsparseMatrix") or as(x, "denseMatrix")
@@ -21,13 +16,11 @@ setAs("dsCMatrix", "dgTMatrix", # needed for show(), image()
 
 setAs("dsCMatrix", "dgeMatrix",
       function(from) as(as(from, "dgTMatrix"), "dgeMatrix"))
-setAs("dgeMatrix", "dsCMatrix",
-      function(from) as(as(from, "dsyMatrix"), "dsTMatrix"))
 
 setAs("dsCMatrix", "matrix",
-      function(from) as(as(from, "dgTMatrix"), "matrix"))
+      function(from) as(as(from, "generalMatrix"), "matrix"))
 setAs("matrix", "dsCMatrix",
-      function(from) as(as(from, "dgTMatrix"), "dsCMatrix"))
+      function(from) as(as(from, "CsparseMatrix"), "symmetricMatrix"))
 
 setAs("dsCMatrix", "lsCMatrix",
       function(from) new("lsCMatrix", i = from@i, p = from@p, uplo = from@uplo,
@@ -41,7 +34,7 @@ setAs("dsCMatrix", "dgCMatrix",
       function(from) .Call(Csparse_symmetric_to_general, from))
 
 setAs("dsCMatrix", "dsyMatrix",
-      function(from) as(as(from, "dsTMatrix"), "dsyMatrix"))
+      function(from) as(from, "denseMatrix"))
 
 ## have rather tril() and triu() methods than
 ## setAs("dsCMatrix", "dtCMatrix", ....)

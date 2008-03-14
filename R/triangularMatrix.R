@@ -11,7 +11,7 @@ setAs("triangularMatrix", "symmetricMatrix",
     if(k <= 0 && x@uplo == "L")
         x
     else { ## more to do
-        x <- .diagU2N(x, class(x))
+        if(x@diag == "U") x <- .diagU2N(x, class(x), checkDense = TRUE)
         callNextMethod()
     }
 }
@@ -23,14 +23,14 @@ setAs("triangularMatrix", "symmetricMatrix",
     if(k >= 0 && x@uplo == "U")
         x
     else { ## more to do
-        x <- .diagU2N(x, class(x))
+        if(x@diag == "U") x <- .diagU2N(x, class(x), checkDense = TRUE)
         callNextMethod()
     }
 }
 
 ## In order to evade method dispatch ambiguity (with [CTR]sparse* and ddense*),
 ## but still remain "general"
-## we use this hack instead of signature  x = "triagonalMatrix" :
+## we use this hack instead of signature  x = "triangularMatrix" :
 
 trCls <- names(getClass("triangularMatrix")@subclasses)
 trCls. <- trCls[grep(".t.Matrix", trCls)]  # not "*Cholesky", "*Kaufman" ..

@@ -17,7 +17,9 @@ setAs("dpoMatrix", "corMatrix",
 setAs("corMatrix", "lMatrix",
       function(from) as(as(from, "dpoMatrix"), "lMatrix"))
 
-to_dpo <- function(from) as(as(from, "dsyMatrix"), "dpoMatrix")
+to_dpo <- function(from) # not't coercing to "dsy*" explicitly:
+    as(as(as(as(from, "symmetricMatrix"), "dMatrix"),
+          "denseMatrix"), "dpoMatrix")
 setAs("Matrix", "dpoMatrix", to_dpo)
 setAs("matrix", "dpoMatrix", to_dpo)
 

@@ -1,3 +1,22 @@
+2008-03-14  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/dsCMatrix.R: setAs(., "dsCMatrix") but with a deprecation
+	warning.
+
+2008-03-13  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version, Date): bug-fix release 0.999375-6
+
+	* R/diagMatrix.R (diag2tT.u): utility to be smarter in
+	  <diagonal> o <sparse_triangular>
+	  setAs(., "nMatrix") added.
+
+	* R/diagMatrix.R (Diagonal): Diagonal(4, x=3) now works too
+
+	* R/Auxiliaries.R (.diagU2N): more careful coercion in 2 steps
+		new argument 'checkDense = FALSE'.
+
+
 2008-03-07  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* src/dgeMatrix.c (dgeMatrix_exp): fix the octave-origin bug in the

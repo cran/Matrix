@@ -880,19 +880,37 @@ isTriC <- function(object, upper = NA) {
 ## Purpose: Transform a *unit diagonal* sparse triangular matrix
 ##	into one with explicit diagonal entries '1'
 
-## fast no-test version:
-.diagU2N <- function(x, cl)
+.diagU2N <- function(x, cl, checkDense = FALSE)
 {
+    ## fast "no-test" version --- we *KNOW* 'x' is 'triangularMatrix'
     if(extends(cl, "CsparseMatrix"))
 	.Call(Csparse_diagU2N, x)
     else if(extends(cl, "TsparseMatrix"))
 	.Call(Tsparse_diagU2N, x)
     else {
 	kind <- .M.kind(x, cl)
-	xT <- as(x, paste(kind, "gTMatrix", sep=''))
-	## leave it as	T* - the caller can always coerce to C* if needed:
-	new(paste(kind, "tTMatrix", sep=''), x = xT@x, i = xT@i, j = xT@j,
-	    Dim = x@Dim, Dimnames = x@Dimnames, uplo = x@uplo, diag = "N")
+        if(checkDense && extends(cl,"denseMatrix")) {
+	    ## For denseMatrix, 'diag = "U"'
+	    ## means the 'x' slot can have wrong values which are
+	    ## documented to never be accessed
+	    if(isPacked(x)) { ## unpack
+		stop("not yet implemented for packed class ", class(x))
+		## FIXME
+	    }
+	    ## okay: now have  'x' slot of length n x n
+	    n <- dim(x)[1]
+	    if(n > 0)
+		x@x[1L+ (0:(n-1L))*(n+1L)] <-
+		    if(kind == "d") 1. else TRUE # even for "n..Matrix"
+	    x@diag <- "N"
+	    x
+        }
+        else {
+            xT <- as(as(x, paste(kind, "Matrix", sep='')), "TsparseMatrix")
+            ## leave it as T* - the caller can always coerce to C* if needed:
+            new(paste(kind, "tTMatrix", sep=''), x = xT@x, i = xT@i, j = xT@j,
+                Dim = x@Dim, Dimnames = x@Dimnames, uplo = x@uplo, diag = "N")
+        }
     }
 }
 
@@ -908,7 +926,6 @@ diagN2U <- function(x, cl = getClassDef(class(x)))
     if(extends(cl, "triangularMatrix") && x@diag == "N")
 	.Call(Csparse_diagN2U, as(x, "CsparseMatrix")) else x
 }
-
 
 .as.dgC.0.factors <- function(x) {
     if(!is(x, "dgCMatrix"))

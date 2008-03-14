@@ -5,11 +5,12 @@
 \bibliographystyle{plainnat}
 \newcommand{\noFootnote}[1]{{\small (\textit{#1})}}
 \newcommand{\myOp}[1]{{$\left\langle\ensuremath{#1}\right\rangle$}}
-%%\VignetteIndexEntry{2nd Introduction to the Matrix Package}
+%%                    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+%%\VignetteIndexEntry{Design Issues in Matrix package Development}
 %%\VignetteDepends{Matrix}
 \SweaveOpts{engine=R,eps=FALSE,pdf=TRUE,width=5,height=3,strip.white=TRUE,keep.source=TRUE}
 %								          ^^^^^^^^^^^^^^^^
-\title{Design Issues in the Matrix package}
+\title{Design Issues in Matrix package Development}
 \author{Martin Maechler and Douglas Bates\\R Core Development Team
   \\\email{maechler@stat.math.ethz.ch}, \email{bates@r-project.org}}
 \date{Spring 2008 ({\tiny typeset on \tiny\today})}
@@ -17,13 +18,13 @@
 \begin{document}
 \maketitle
 \begin{abstract}
-This is a (currently very incomplete) write up of the many smaller and
+This is a (\textbf{currently very incomplete}) write-up of the many smaller and
 larger design decisions we have made in organizing functionalities in the
 Matrix package.
 
 Classes: There's a rich hierarchy of matrix classes, which you can
-visualize as a set of trees whose upper nodes are virtual classes and only
-the leaves are non-virtual ``actual'' classes.
+visualize as a set of trees whose inner (and ``upper'') nodes are
+\emph{virtual} classes and only the leaves are non-virtual ``actual'' classes.
 
 Functions and Methods:
 
@@ -49,20 +50,28 @@ Take Martin's DSC 2007 talk to depict class hierarchy.
 The class of diagonal matrices is worth mentioning for several reasons.
 First, we have wanted such a class, because \emph{multiplication}
 methods are particularly simple with diagonal matrices.
-The typical constructor is \code{Diagonal()} and the accessor
-(as for traditional matrices) \code{diag()}:
+The typical constructor is \Rfun{Diagonal()} whereas the accessor
+(as for traditional matrices), \Rfun{diag()} simply returns the
+\emph{vector} of diagonal entries:
 <<diag-class>>=
 (D4 <- Diagonal(4, 10*(1:4)))
 str(D4)
 diag(D4)
-## We can modify the diagonal in the traditional way:
+@
+We can \emph{modify} the diagonal in the traditional way
+(via method definition for \Rfun{diag<-}):
+<<diag-2>>=
 diag(D4) <- diag(D4) + 1:4
 D4
+@
 
-## Unit-diagonal <--> identity matrix:
-str(I3 <- Diagonal(3)) ## the 'x' slot can remain empty
+Note that \textbf{unit-diagonal} matrices (the identity matrices of linear algebra)
+with slot \code{diag = "U"} can have an empty \code{x} slot, very
+analogously to the unit-diagonal triangular matrices:
+<<unit-diag>>=
+str(I3 <- Diagonal(3)) ## empty 'x' slot
 
-getClass("diagonalMatrix")
+getClass("diagonalMatrix") ## extending "denseMatrix"
 @
 We have implemented diagonal matrices as \emph{dense} rather than sparse
 matrices, for the following reasons:

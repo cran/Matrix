@@ -9,6 +9,7 @@
 \alias{coerce,diagonalMatrix,symmetricMatrix-method}
 \alias{coerce,diagonalMatrix,triangularMatrix-method}
 \alias{coerce,diagonalMatrix,matrix-method}
+\alias{coerce,diagonalMatrix,nMatrix-method}
 \alias{coerce,diagonalMatrix,sparseMatrix-method}
 \alias{coerce,diagonalMatrix,CsparseMatrix-method}
 \alias{coerce,diagonalMatrix,TsparseMatrix-method}

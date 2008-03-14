@@ -1,6 +1,13 @@
 #### Symmetric Sparse Matrices in compressed column-oriented format
 
-##setAs("dgCMatrix", "dsCMatrix", ...
+setAs("dgCMatrix", "dsCMatrix",
+      function(from) {
+	  if(!exists(".warn.dsC")) { ## now only warn *once* ..
+	      warning("as(.,\"dsCMatrix\") is deprecated; do use as(., \"symmetricMatrix\")")
+	      assign(".warn.dsC", "DONE", envir = .GlobalEnv)
+	  }
+	  as(from, "symmetricMatrix")
+      })
 
 ## Specific conversions, should they be necessary.  Better to convert as
 ## as(x, "TsparseMatrix") or as(x, "denseMatrix")

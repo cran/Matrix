@@ -11,8 +11,7 @@
 \alias{coerce,matrix,dgCMatrix-method}
 \alias{coerce,dgeMatrix,dgCMatrix-method}
 \alias{coerce,dgCMatrix,dgTMatrix-method}
-\alias{coerce,dgCMatrix,dgBCMatrix-method}
-\alias{coerce,dgCMatrix,dsCMatrix-method}
+\alias{coerce,dgCMatrix,dsCMatrix-method}% deprecated
 \alias{coerce,dgCMatrix,dtCMatrix-method}
 \alias{coerce,dgCMatrix,lgCMatrix-method}
 \alias{coerce,dgCMatrix,ngCMatrix-method}
@@ -67,7 +66,6 @@
   \describe{
     \item{coerce}{\code{signature(from = "matrix", to = "dgCMatrix")}}
     \item{coerce}{\code{signature(from = "dgCMatrix", to = "matrix")}}
-    \item{coerce}{\code{signature(from = "dgCMatrix", to = "dgBCMatrix")}}
     \item{coerce}{\code{signature(from = "dgCMatrix", to = "dgTMatrix")}}
     \item{crossprod}{\code{signature(x = "dgCMatrix", y = "missing")}
       returns \code{t(x) \%*\% x} as an \code{dsCMatrix} object.}

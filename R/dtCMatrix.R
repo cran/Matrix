@@ -34,6 +34,8 @@ setAs("dtCMatrix", "dgTMatrix",
           .Call(Csparse_to_Tsparse, from, FALSE)
       })
 
+## FIXME: make more efficient
+## -----  and  as(., "triangularMatrix") is even worse via as_Sp()
 setAs("dgCMatrix", "dtCMatrix", # to triangular, needed for triu,..
       function(from) as(as(as(from, "dgTMatrix"), "dtTMatrix"), "dtCMatrix"))
 

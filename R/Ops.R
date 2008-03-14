@@ -565,7 +565,8 @@ setMethod("Logic", signature(e1="ldenseMatrix", e2="lsparseMatrix"),
 ## -----
 setMethod("Arith", signature(e1 = "dsCMatrix", e2 = "dsCMatrix"),
 	  function(e1, e2) {
-	      message("suboptimal implementation of sparse 'symm. o symm.'")
+	      if(getOption("verbose"))
+		  message("suboptimal implementation of sparse 'symm. o symm.'")
 	      forceSymmetric(callGeneric(as(e1, "dgCMatrix"), as(e2, "dgCMatrix")))
 	  })
 

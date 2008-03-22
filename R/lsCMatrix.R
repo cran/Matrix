@@ -56,13 +56,9 @@ setMethod("image", "lsCMatrix",
               callGeneric()
           })
 
-setMethod("chol", signature(x = "lsCMatrix", pivot = "missing"),
-	  function(x, pivot, ...) chol(as(x, "dgCMatrix"), pivot = FALSE))
-##          .Call(lsCMatrix_chol, x, FALSE))
-
-setMethod("chol", signature(x = "lsCMatrix", pivot = "logical"),
-	  function(x, pivot, ...) chol(as(x, "dgCMatrix"), pivot = pivot))
-##	    .Call(lsCMatrix_chol, x, pivot))
+setMethod("chol", signature(x = "lsCMatrix"),
+	  function(x, pivot=FALSE, ...)
+	  chol(as(x, "dgCMatrix"), pivot=pivot, ...))
 
 ## Use more general method from CsparseMatrix class
 ## setMethod("t", signature(x = "lsCMatrix"),

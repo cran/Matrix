@@ -15,6 +15,8 @@ CHM_TR M_as_cholmod_triplet(CHM_TR ans, SEXP x);
 CHM_DN M_as_cholmod_dense(CHM_DN ans, SEXP x);
 CHM_DN M_numeric_as_chm_dense(CHM_DN ans, double *v, int nr, int nc);
 CHM_FR M_as_cholmod_factor(CHM_FR ans, SEXP x);
+double M_chm_factor_ldetL2(CHM_FR f);
+CHM_FR M_chm_factor_update(CHM_FR f, CHM_SP A, double mult);
 
 #define AS_CHM_DN(x) M_as_cholmod_dense((CHM_DN)alloca(sizeof(cholmod_dense)), x )
 #define AS_CHM_FR(x) M_as_cholmod_factor((CHM_FR)alloca(sizeof(cholmod_factor)), x )

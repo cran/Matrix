@@ -2,30 +2,31 @@
 \title{Choleski Decomposition - 'Matrix' S4 Generic}
 \alias{chol}
 \alias{chol-methods}
-\alias{chol,Matrix,ANY-method}
+\alias{chol,Matrix-method}
 % dense methods
-\alias{chol,ddenseMatrix,ANY-method}
-\alias{chol,dgeMatrix,ANY-method}
-\alias{chol,dpoMatrix,ANY-method}
-\alias{chol,dppMatrix,ANY-method}
+\alias{chol,ddenseMatrix-method}
+\alias{chol,dgeMatrix-method}
+\alias{chol,dpoMatrix-method}
+\alias{chol,dppMatrix-method}
 %   diagonal
-\alias{chol,ddiMatrix,ANY-method}
-\alias{chol,ldiMatrix,ANY-method}
+\alias{chol,ddiMatrix-method}
+\alias{chol,ldiMatrix-method}
 % sparse methods
-\alias{chol,dsparseMatrix,ANY-method}
-\alias{chol,dsCMatrix,missing-method}
-\alias{chol,dsCMatrix,logical-method}
-\alias{chol,lsCMatrix,logical-method}
-\alias{chol,lsCMatrix,missing-method}
-\alias{chol,nsCMatrix,logical-method}
-\alias{chol,nsCMatrix,missing-method}
+\alias{chol,dsparseMatrix-method}
+\alias{chol,dsCMatrix-method}
+\alias{chol,dsCMatrix-method}
+\alias{chol,lsCMatrix-method}
+\alias{chol,lsCMatrix-method}
+\alias{chol,nsCMatrix-method}
+\alias{chol,nsCMatrix-method}
 %
 \description{
   Compute the Choleski factorization of a real symmetric
   positive-definite square matrix.
 }
 \usage{
-chol(x, pivot = FALSE, \dots)
+chol(x, \dots)
+\S4method{chol}{dsCMatrix}(x, pivot = FALSE, \dots)
 }
 \arguments{
   \item{x}{a (sparse or dense) square matrix, here inheriting from class
@@ -60,11 +61,8 @@ chol(x, pivot = FALSE, \dots)
   }
 }
 \value{
-  ~Describe the value returned
-  If it is a LIST, use
-  \item{comp1 }{Description of 'comp1'}
-  \item{comp2 }{Description of 'comp2'}
-  ...
+  a matrix of class \code{\linkS4class{Cholesky}},
+  i.e., upper triangular: \eqn{R} such that \eqn{R R' = x}.
 }
 \seealso{The default from \pkg{base}, \code{\link[base]{chol}}.
 }

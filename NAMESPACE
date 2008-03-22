@@ -5,7 +5,7 @@ useDynLib(Matrix, .registration=TRUE)
 importFrom("lattice", levelplot)
 importFrom("graphics", image)
 importFrom("utils", head, tail)
-importFrom("stats", cov2cor)
+importFrom("stats", cov2cor, update)
 importFrom("grid", grid.rect, gpar, grob)
 
 ## Currently, group generics need to be explicitly imported (Bug?):
@@ -13,7 +13,7 @@ importFrom("methods", Arith, Compare, Logic, Math, Math2, Summary, Complex)
 
 ## Generics and functions defined in this package
 export("Cholesky",
-       "Diagonal",
+       "Diagonal", ".symDiagonal",
        "Hilbert",
        "Matrix",
        "spMatrix",
@@ -211,7 +211,9 @@ exportClasses(
 	      )
 
 
-exportMethods(
+
+exportMethods(## for both own and "other" generics:
+
 	      ## Group Methods
 	      "Arith",
 	      "Compare",
@@ -258,6 +260,7 @@ exportMethods(
 	      "isSymmetric",
 ##	       "isDiagonal",
 ##	       "isTriangular",
+              "is.na",
 	      "kronecker",
 	      "length",
 	      "norm",
@@ -282,6 +285,7 @@ exportMethods(
 	      "tcrossprod",
 	      "tril",
 	      "triu",
+              "update",
 	      "zapsmall"
 	      )
 

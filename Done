@@ -258,3 +258,17 @@
   and m[ <ij-matrix> ] <- value seems more or less ok.
 
 - dtC Matrices now preserve (unit-) triangularity in %*% and crossprod
+
+- Cholesky() generalized: provide R interface cholmod_factorize_p()
+  which factorizes |A + m*I| ==> R interface to fast det|A + m*I|
+
+- chol() and qr() are now longer made into explicit generics
+  (they both had *two* argument signatures: (x,pivot) & (x,tol)
+  respectively, and gave the msg
+  >  New generic for "chol" does not agree with implicit generic from package
+  >  "base"; a new generic will be assigned with package "Matrix"
+  (and ditto for "qr")
+  Now they are *implicit generics* and methods all have just (x= *Matrix)
+  signature and default argument (pivot=FALSE) or (tol=1e-7) respectively.
+
+

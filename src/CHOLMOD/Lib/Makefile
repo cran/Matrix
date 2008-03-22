@@ -159,11 +159,11 @@ cholmod_ccolamd.o: ../Partition/cholmod_ccolamd.c
 	$(CC) $(ALL_CPPFLAGS) $(ALL_CFLAGS) -c $< -o $@
 cholmod_csymamd.o: ../Partition/cholmod_csymamd.c
 	$(CC) $(ALL_CPPFLAGS) $(ALL_CFLAGS) -c $< -o $@
+cholmod_camd.o: ../Partition/cholmod_camd.c
+	$(CC) $(ALL_CPPFLAGS) $(ALL_CFLAGS) -c $< -o $@
 cholmod_metis.o: ../Partition/cholmod_metis.c
 	$(CC) $(ALL_CPPFLAGS) $(ALL_CFLAGS) -c $< -o $@
 cholmod_nesdis.o: ../Partition/cholmod_nesdis.c
-	$(CC) $(ALL_CPPFLAGS) $(ALL_CFLAGS) -c $< -o $@
-cholmod_camd.o: ../Partition/cholmod_camd.c
 	$(CC) $(ALL_CPPFLAGS) $(ALL_CFLAGS) -c $< -o $@
 
 #-------------------------------------------------------------------------------
@@ -204,8 +204,6 @@ cholmod_updown.o: ../Modify/cholmod_updown.c \
 
 #-------------------------------------------------------------------------------
 # Supernodal Module:
-#-------------------------------------------------------------------------------
-
 #-------------------------------------------------------------------------------
 
 cholmod_super_numeric.o: ../Supernodal/cholmod_super_numeric.c \

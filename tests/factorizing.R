@@ -56,11 +56,68 @@ table(Ppm@x == 0)# (194, 123) - has 123 "zero" and 14 ``almost zero" entries
 
 ## FIXME:  expand(pmLU)
 
-## Cholesky()
+###________ Cholesky() ________
+
+##--------  LDL' ---- small exact examples
+
+set.seed(1)
+for(n in c(5:12)) {
+    cat("\nn = ",n,"\n-------\n")
+    rr <- mkLDL(n)
+    ##    -------- from 'test-tools.R'
+    stopifnot(all(with(rr, A == as(L %*% D %*% t(L),
+                           "symmetricMatrix"))))
+    d <- rr$d.half
+    A <- rr$A
+    R <- chol(A)
+    print(d. <- diag(R))
+    D. <- Diagonal(x= d.^2)
+    L. <- t(R) %*% Diagonal(x = 1/d.)
+    stopifnot(all.equal(as.matrix(D.), as.matrix(rr$ D)),
+              all.equal(as.matrix(L.), as.matrix(rr$ L)))
+    ##
+    CAp <- Cholesky(A)# perm=TRUE --> Permutation:
+    p <- CAp@perm + 1L
+    P <- as(p, "pMatrix")
+    ## the inverse permutation:
+    invP <- solve(P)@perm
+    lDet <- sum(2* log(d))# the "true" value
+    ldet <- Matrix:::.diag.dsC(Chx = CAp, res.kind = "sumLog")
+    ##
+    CA	<- Cholesky(A,perm=FALSE)
+    CA
+    ldet2 <- Matrix:::.diag.dsC(Chx = CA, res.kind = "sumLog")
+    ## not printing CAp : ends up non-integer for n >= 11
+    mCAp <- as(CAp,"sparseMatrix")
+    print(mCA  <- drop0(as(CA, "sparseMatrix")))
+    stopifnot(identical(A[p,p], as(P %*% A %*% t(P),
+				   "symmetricMatrix")),
+	      all.equal(lDet, sum(log(Matrix:::.diag.dsC(Chx= CAp,res.kind="diag")))),
+	      relErr(d.^2, Matrix:::.diag.dsC(Chx= CA, res.kind="diag")) < 1e-14,
+	      all.equal(lDet, ldet),
+	      all.equal(lDet, ldet2),
+	      relErr(A[p,p], tcrossprod(mCAp)) < 1e-14)
+}## for()
+
+set.seed(17)
+(rr <- mkLDL(4))
+(CA <- Cholesky(rr$A))
+stopifnot(all.equal(determinant(rr$A),
+		    determinant(as(rr$A, "matrix"))))
+
+## --- now a "large" (712 x 712) real data example
+
 data(KNex)
 mtm <- with(KNex, crossprod(mm))
+ld.3 <- .Call("dsCMatrix_LDL_D", mtm, perm=TRUE,  "sumLog")
+stopifnot(names(mtm@factors) == "sPDCholesky")
+ld.4 <- .Call("dsCMatrix_LDL_D", mtm, perm=FALSE, "sumLog")# clearly slower
+stopifnot(names(mtm@factors) == paste(c("sPD", "spD"),"Cholesky", sep=''))
+
+## these are now taken from cache
 c1 <- Cholesky(mtm)
 c2 <- Cholesky(mtm, super = TRUE)
+
 bv <- 1:nrow(mtm) # even integer
 b <- matrix(bv)
 ## solve(c2, b) by default solves  Ax = b, where A = c2'c2 !
@@ -73,6 +130,33 @@ for(sys in c("A", "LDLt", "LD", "DLt", "L", "Lt", "D", "P", "Pt")) {
     stopifnot(dim(x) == c(712, 1),
               identical(x, solve(c2, bv, system = sys)))
 }
+
+## log(|LL'|) - check if super = TRUE and simplicial give same determinant
+ld1 <- .Call("CHMfactor_ldetL2", c1)
+ld2 <- .Call("CHMfactor_ldetL2", c2)
+(ld1. <- determinant(mtm))
+## experimental
+ld3 <- .Call("dsCMatrix_LDL_D", mtm, TRUE, "sumLog")
+ld4 <- .Call("dsCMatrix_LDL_D", mtm, FALSE, "sumLog")
+stopifnot(all.equal(ld1, ld2),
+	  is.all.equal3(ld2, ld3, ld4),
+	  all.equal(ld.3, ld3, tol = 1e-14),
+	  all.equal(ld.4, ld4, tol = 1e-14),
+	  ## must be identical, based on same CHMsimpl object:
+	  identical(ld1, as.vector(ld1.$modulus)))
+
+## Some timing measurements
+mtm <- with(KNex, crossprod(mm))
+I <- .symDiagonal(n=nrow(mtm))
+set.seed(101); r <- runif(100)
+
+system.time(D1 <- sapply(r, function(rho) Matrix:::ldet1.dsC(mtm + (1/rho) * I)))
+## 0.842 on fast cmath-5
+system.time(D2 <- sapply(r, function(rho) Matrix:::ldet2.dsC(mtm + (1/rho) * I)))
+## 0.819
+system.time(D3 <- sapply(r, function(rho) Matrix:::ldet3.dsC(mtm + (1/rho) * I)))
+## 0.810
+stopifnot(is.all.equal3(D1,D2,D3, tol = 1e-13))
 
 ## Schur() ----------------------
 checkSchur <- function(A, SchurA = Schur(A), tol = 1e-14) {

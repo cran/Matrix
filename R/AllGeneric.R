@@ -21,12 +21,13 @@
 
     setGeneric("lu", function(x, ...) standardGeneric("lu"))
 
-    setGeneric("chol", def = function(x, pivot= FALSE,...) standardGeneric("chol"),
-               useAsDefault= function(x, pivot= FALSE,...) base::chol(x, pivot, ...))
+##NB ## do not redefine the "base signature"
 
+##NB setGeneric("chol", def = function(x, pivot= FALSE,...) standardGeneric("chol"),
+##NB            useAsDefault= function(x, pivot= FALSE,...) base::chol(x, pivot, ...))
 
-    setGeneric("qr", def =   function(x, tol=1e-7,...) standardGeneric("qr"),
-               useAsDefault= function(x, tol=1e-7,...) base::qr(x, tol, ...))
+##NB     setGeneric("qr", def =   function(x, tol=1e-7,...) standardGeneric("qr"),
+##NB                useAsDefault= function(x, tol=1e-7,...) base::qr(x, tol, ...))
 
     setGeneric("norm", function(x, type, ...) standardGeneric("norm"))
 
@@ -59,7 +60,8 @@
                standardGeneric("band"))
 
     setGeneric("Cholesky",
-               function(A, perm = TRUE, LDL = TRUE, super = FALSE, ...)
+	       function(A, perm = TRUE, LDL = !super, super = FALSE,
+			Imult = 0, ...)
                standardGeneric("Cholesky"))
 
 setGeneric("symmpart", function(x) standardGeneric("symmpart"))

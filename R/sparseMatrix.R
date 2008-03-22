@@ -511,6 +511,18 @@ setMethod("cov2cor", signature(V = "sparseMatrix"),
 	      as(r, "symmetricMatrix")
 	  })
 
+setMethod("is.na", signature(x = "sparseMatrix"),
+	  function(x) {
+	      if(any((inax <- is.na(x@x)))) {
+		  r <- as(x, "lMatrix")# will be "lsparseMatrix" - *has* x slot
+		  r@x <- inax
+		  as(r, "nMatrix") # a 'pattern matrix
+	      } else {
+		  d <- x@Dim
+		  new("ngCMatrix", Dim = d, Dimnames = dimnames(x),
+		      i = integer(0), p = rep.int(0L, d[2]+1L))
+	      }
+	  })
 
 
 lm.fit.sparse <-

@@ -34,8 +34,13 @@ all.slot.equal <- function(x,y, ...) {
 }
 
 ## The relative error typically returned by all.equal:
-relErr <- function(target, current)
-    mean(abs(target - current)) / mean(abs(target))
+relErr <- function(target, current) { ## make this work for 'Matrix'
+    ## ==> no mean() ..
+    n <- length(current)
+    if(length(target) < n)
+        target <- rep(target, length.out = n)
+    sum(abs(target - current)) / sum(abs(target))
+}
 
 ## is.R22 <- (paste(R.version$major, R.version$minor, sep=".") >= "2.2")
 
@@ -137,6 +142,8 @@ rspMat <- function(n, m = n, density = 1/4, nnz = round(density * n*m))
     Matrix(x, n,m, sparse=TRUE)
 }
 
+
+
 rUnitTri <- function(n, upper = TRUE, ...)
 {
     ## Purpose: random unit-triangular sparse Matrix .. built from rspMat()
@@ -153,4 +160,24 @@ rUnitTri <- function(n, upper = TRUE, ...)
     r <- drop0(r)
     r@diag <- "U"
     r
+}
+
+## This is related to rUnitTri(), ver
+mkLDL <- function(n, density = 1/3) {
+    ## Purpose: make nice artifical   A = L D L'  (with exact numbers) decomp
+    ## ----------------------------------------------------------------------
+    ## Author: Martin Maechler, Date: 15 Mar 2008
+    stopifnot(n == round(n))
+    n <- as.integer(n)
+    L <- Matrix(0, n,n)
+
+    nnz <- round(n*n * density)
+    L[sample(n*n, nnz)] <- seq_len(nnz)
+    L <- tril(L,-1)
+    diag(L) <- 1
+    d.half <- sample(10*(n:1))# random permutation ; use '10*' to be "different" from L entries
+    D <- Diagonal(x = d.half * d.half)
+    A <- tcrossprod(L * rep(d.half, each=n))
+    ## = as(L %*% D %*% t(L), "symmetricMatrix")
+    list(A = A, L = L, d.half = d.half, D = D)
 }

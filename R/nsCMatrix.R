@@ -56,14 +56,8 @@ setMethod("triu", "nsCMatrix",
 setMethod("image", "nsCMatrix",
 	  function(x, ...) image(as(as(x, "dsCMatrix"), "dgTMatrix"), ...))
 
-
-setMethod("chol", signature(x = "nsCMatrix", pivot = "missing"),
-	  function(x, pivot, ...) chol(x, pivot = FALSE))
-##          .Call(nsCMatrix_chol, x, FALSE))
-
-setMethod("chol", signature(x = "nsCMatrix", pivot = "logical"),
-	  function(x, pivot, ...) stop("temporarily disabled"))## FIXME
-##          .Call(nsCMatrix_chol, x, pivot))
+setMethod("chol", signature(x = "nsCMatrix"),
+	  function(x, pivot=FALSE, ...) stop("temporarily disabled"))## FIXME
 
 ## Use more general method from CsparseMatrix class
 ## setMethod("t", signature(x = "nsCMatrix"),

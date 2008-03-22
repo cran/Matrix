@@ -62,15 +62,18 @@ stopifnot(class(t5) == "dtCMatrix",
            Dim= as.integer(c(4,4))))
 ## Diagonal  o  Sparse
 I4 <- Diagonal(4)
+D4 <- Diagonal(4, x=1:4)
 validObject(t2  <-   t1  + I4)
 validObject(tt2 <- t(t1) + I4)
 validObject(t1c <- as(t1, "CsparseMatrix"))
 validObject(t2c <- as(t2, "CsparseMatrix"))
 stopifnot(validObject(t1),
+          is(2 * I4, "diagonalMatrix"),
+          is(D4 * 3, "diagonalMatrix"),
+          is(I4 / 5, "diagonalMatrix"),
+          is(D4 / 2, "diagonalMatrix"),
           identical(t1, t(t(t1))),
           identical(t1c, t(t(t1c))),
-##           is(t2,"triangularMatrix"), is(t2c,"triangularMatrix"),
-##           is(t1c,"triangularMatrix"),
           is(t1c + I4,"triangularMatrix"), is(t2c + I4,"triangularMatrix"),
           c(class(t2), class(t1c), class(t2c), class(tt2)) == "dtCMatrix",
           identical(t(tt2), t2))
@@ -78,8 +81,6 @@ assert.EQ.mat(t1, as(t1c, "matrix"))
 
 ## as(<diag>, <anything>) :
 str(cls <- names(getClass("Matrix")@subclasses))# all Matrix classes
-D4 <- Diagonal(4, x=1:4)
-
 for(cl in cls)
     if(canCoerce(I4, cl)) {
 	cat(cl,":")
@@ -90,7 +91,7 @@ for(cl in cls)
 	cat(" [Ok]\n")
     }
 
-## from  0-diagonal to unit-diagonal {low-level step}:
+## from  0-diagonal to unit-diagonal triangular {low-level step}:
 tu <- t1 ; tu@diag <- "U"
 tu
 cu <- as(tu, "dtCMatrix")

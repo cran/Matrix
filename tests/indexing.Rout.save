@@ -1,5 +1,5 @@
 
-R version 2.6.2 Patched (2008-03-02 r44664)
+R version 2.6.2 Patched (2008-03-10 r44737)
 Copyright (C) 2008 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 
@@ -447,11 +447,6 @@ Warning messages:
 [3,] . . 1 . .
 [4,] . . . 1 .
 [5,] . . . . 1
-Warning message:
-Ambiguous method selection for "coerce", target "ddiMatrix#CsparseMatrix" (the first of the signatures shown will be used)
-    diagonalMatrix#CsparseMatrix
-    ddenseMatrix#CsparseMatrix
- 
 > m1g <- as(m1, "generalMatrix")
 > stopifnot(is(m1g, "dgTMatrix"))
 > assert.EQ.mat(m2[1:3,],    diag(5)[1:3,])
@@ -490,11 +485,6 @@ Ambiguous method selection for "coerce", target "ddiMatrix#CsparseMatrix" (the f
 [3,]    .    .    0    .    .
 [4,]    .    .    .    1    .
 [5,]    .    .    .    .    1
-Warning message:
-Ambiguous method selection for "diag", target "ddiMatrix" (the first of the signatures shown will be used)
-    diagonalMatrix
-    ddenseMatrix
- 
 > T <- m0; T[1:3, 3] <- 10
 > stopifnot(identical(M, Diagonal(x=c(1,1, 0, 1,1))),
 +           is(T, "triangularMatrix"), identical(T[,3], c(10,10,10,0,0)))
@@ -1000,5 +990,5 @@ Ambiguous method selection for "!=", target "numeric#dgCMatrix" (the first of th
 +           dim(R[FALSE, FALSE]) == c(0,0))
 > 
 > cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
-Time elapsed:  9.741 0.121 9.941 0 0 
+Time elapsed:  16.321 0.164 18.032 0 0 
 > 

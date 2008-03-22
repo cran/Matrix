@@ -21,12 +21,12 @@ setMethod("crossprod", signature(x = "dgeMatrix", y = "dsparseMatrix"),
 setMethod("image", "dsparseMatrix",
 	  function(x, ...) image(as(x, "dgTMatrix"), ...))
 
-setMethod("chol", signature(x = "dsparseMatrix", pivot = "ANY"),
-           function(x, pivot, ...) {
-               px <- as(x, "dsCMatrix")
-               if (isTRUE(validObject(px, test=TRUE))) chol(px, pivot)
-               else stop("'x' is not positive definite -- chol() undefined.")
-           })
+setMethod("chol", signature(x = "dsparseMatrix"),
+	   function(x, pivot=FALSE, ...) {
+	       px <- as(x, "dsCMatrix")
+	       if (isTRUE(validObject(px, test=TRUE))) chol(px, pivot, ...)
+	       else stop("'x' is not positive definite -- chol() undefined.")
+	   })
 
 setMethod("lu", signature(x = "dsparseMatrix"),
 	  function(x, ...) lu(as(x, "dgCMatrix")))

@@ -648,7 +648,7 @@ CHM_FR as_cholmod_factor(CHM_FR ans, SEXP x)
 }
 
 /**
- * Copy the contents of f to an appropriate dCHMfactor object and,
+ * Copy the contents of f to an appropriate CHMfactor object and,
  * optionally, free f or free both f and its pointer to its contents.
  *
  * @param f cholmod_factor object to be converted
@@ -699,9 +699,9 @@ SEXP chm_factor_to_SEXP(CHM_FR f, int dofree)
 	       (double*)f->x, f->xsize);
     } else {
 	Memcpy(INTEGER(ALLOC_SLOT(ans, Matrix_iSym, INTSXP, f->nzmax)),
-	   (int*)f->i, f->nzmax);
+	       (int*)f->i, f->nzmax);
 	Memcpy(INTEGER(ALLOC_SLOT(ans, Matrix_pSym, INTSXP, f->n + 1)),
-	   (int*)f->p, f->n + 1);
+	       (int*)f->p, f->n + 1);
 	Memcpy(REAL(ALLOC_SLOT(ans, Matrix_xSym, REALSXP, f->nzmax)),
 	       (double*)f->x, f->nzmax);
 	Memcpy(INTEGER(ALLOC_SLOT(ans, install("nz"), INTSXP, f->n)),

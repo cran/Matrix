@@ -308,9 +308,9 @@ setMethod("kronecker", signature(X = "ANY", Y = "Matrix",
 
 ## FIXME: All of these should never be called
 setMethod("chol", signature(x = "Matrix"),
-	  function(x, pivot = FALSE) .bail.out.1(.Generic, class(x)))
+	  function(x, pivot = FALSE, ...) .bail.out.1(.Generic, class(x)))
 setMethod("determinant", signature(x = "Matrix"),
-	  function(x, logarithm = TRUE) .bail.out.1(.Generic, class(x)))
+	  function(x, logarithm = TRUE, ...) .bail.out.1(.Generic, class(x)))
 
 setMethod("diag", signature(x = "Matrix"),
 	  function(x, nrow, ncol) .bail.out.1(.Generic, class(x)))

@@ -2,7 +2,7 @@
 /* === colamd/symamd prototypes and definitions ============================= */
 /* ========================================================================== */
 
-/* COLAMD Version 2.5
+/* COLAMD / SYMAMD include file
 
     You must include this file (colamd.h) in any routine that uses colamd,
     symamd, or the related macros and definitions.
@@ -21,7 +21,7 @@
 
     Notice:
 
-	Copyright (c) 1998-2006, Timothy A. Davis, All Rights Reserved.
+	Copyright (c) 1998-2007, Timothy A. Davis, All Rights Reserved.
 
 	THIS MATERIAL IS PROVIDED AS IS, WITH ABSOLUTELY NO WARRANTY
 	EXPRESSED OR IMPLIED.  ANY USE IS AT YOUR OWN RISK.
@@ -81,10 +81,11 @@ extern "C" {
  * Versions 2.3 and earlier of COLAMD do not include a #define'd version number.
  */
 
-#define COLAMD_DATE "May 5, 2006"
+#define COLAMD_DATE "Nov 1, 2007"
 #define COLAMD_VERSION_CODE(main,sub) ((main) * 1000 + (sub))
 #define COLAMD_MAIN_VERSION 2
-#define COLAMD_SUB_VERSION 5
+#define COLAMD_SUB_VERSION 7
+#define COLAMD_SUBSUB_VERSION 1
 #define COLAMD_VERSION \
 	COLAMD_VERSION_CODE(COLAMD_MAIN_VERSION,COLAMD_SUB_VERSION)
 

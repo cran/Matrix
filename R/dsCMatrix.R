@@ -94,17 +94,13 @@ setMethod("solve", signature(a = "dsCMatrix", b = "dsparseMatrix"),
 	  })
 
 
-setMethod("chol", signature(x = "dsCMatrix", pivot = "missing"),
-	  function(x, pivot, ...) .Call(dsCMatrix_chol, x, FALSE),
-	  valueClass = "dtCMatrix")
-
-setMethod("chol", signature(x = "dsCMatrix", pivot = "logical"),
-	  function(x, pivot, ...) .Call(dsCMatrix_chol, x, pivot),
+setMethod("chol", signature(x = "dsCMatrix"),
+	  function(x, pivot = FALSE, ...) .Call(dsCMatrix_chol, x, pivot),
 	  valueClass = "dtCMatrix")
 
 setMethod("Cholesky", signature(A = "dsCMatrix"),
-          function(A, perm = TRUE, LDL = TRUE, super = FALSE, ...)
-          .Call(dsCMatrix_Cholesky, A, perm, LDL, super))
+          function(A, perm = TRUE, LDL = !super, super = FALSE, Imult = 0, ...)
+          .Call(dsCMatrix_Cholesky, A, perm, LDL, super, Imult))
 
 
 setMethod("t", signature(x = "dsCMatrix"),
@@ -114,16 +110,42 @@ setMethod("t", signature(x = "dsCMatrix"),
 setMethod("determinant", signature(x = "dsCMatrix", logarithm = "missing"),
           function(x, logarithm, ...) determinant(x, TRUE))
 
+.diag.dsC <- function(x, Chx = Cholesky(x, LDL=TRUE), res.kind = "diag") {
+    force(Chx)
+    stopifnot(is.integer(Chx@p), is.double(Chx@x))
+    .Call(diag_tC, Chx@p, Chx@x, Chx@perm, res.kind)
+}
+
+## FIXME:  kind = "diagBack" is not yet implemented
+##	would be much more efficient, but there's no CHOLMOD UI (?)
+##
+## Note: for det(), permutation is unimportant;
+##       for diag(), apply *inverse* permutation
+##    	q <- p ; q[q] <- seq_along(q); q
+
+ldet1.dsC <- function(x, ...) .Call(CHMfactor_ldetL2, Cholesky(x, ...))
+ldet2.dsC <- function(x, ...) {
+    Ch <- Cholesky(x, super = FALSE, ...)
+    .Call(diag_tC, Ch@p, Ch@x, Ch@perm, "sumLog")
+}
+ldet3.dsC <- function(x, perm = TRUE)
+    .Call(dsCMatrix_LDL_D, x, perm=perm, "sumLog")
+
 setMethod("determinant", signature(x = "dsCMatrix", logarithm = "logical"),
-          function(x, logarithm, ...)
+	  function(x, logarithm, ...)
       {
-          stop("Temporarily disabled until we work out the LDL factorization diagonal")
-          ldet <- sum(log(chol(x)@D))
-          modulus <- if (logarithm) ldet else exp(ldet)
-          attr(modulus, "logarithm") <- logarithm
-          val <- list(modulus = modulus, sign = as.integer(1))
-          class(val) <- "det"
-          val
+          ## Chx <- Cholesky(x, LDL=TRUE)
+          ## ldet <- .Call(diag_tC, Chx@p, Chx@x, Chx@perm, res.kind = "sumLog")
+          ## or
+          ## ldet <- .Call("CHMfactor_ldetL2", Chx) # which would also work
+          ##                                 when Chx <- Cholesky(x, super=TRUE)
+
+### FIXME: not okay when the matrix is *NOT* pos.def.
+          ldet <- .Call(dsCMatrix_LDL_D, x, perm=TRUE, "sumLog")
+	  modulus <- if (logarithm) ldet else exp(ldet)
+	  attr(modulus, "logarithm") <- logarithm
+	  structure(list(modulus = modulus, sign = as.integer(1)),
+		    class = "det")
       })
 
 ## setMethod("writeHB", signature(obj = "dsCMatrix"),

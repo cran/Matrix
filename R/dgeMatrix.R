@@ -143,7 +143,7 @@ setMethod("%*%", signature(x = "numeric", y = "dgeMatrix"),
 setMethod("diag", signature(x = "dgeMatrix"),
 	  function(x, nrow, ncol) .Call(dgeMatrix_getDiag, x))
 
-setMethod("chol", signature(x = "dgeMatrix", pivot = "ANY"), cholMat)
+setMethod("chol", signature(x = "dgeMatrix"), cholMat)
 
 setMethod("solve", signature(a = "dgeMatrix", b = "missing"),
 	  function(a, b, ...) .Call(dgeMatrix_solve, a),

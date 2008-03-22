@@ -102,7 +102,7 @@ setMethod("%*%", signature(x = "ddenseMatrix", y = "ddenseMatrix"),
 setMethod("lu", signature(x = "ddenseMatrix"),
           function(x, ...) lu(as(x, "dgeMatrix")))
 
-setMethod("chol", signature(x = "ddenseMatrix", pivot = "ANY"), cholMat)
+setMethod("chol", signature(x = "ddenseMatrix"), cholMat)
 
 setMethod("determinant", signature(x = "ddenseMatrix", logarithm = "missing"),
 	  function(x, logarithm, ...) determinant(as(x, "dgeMatrix")))

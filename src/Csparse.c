@@ -475,3 +475,110 @@ SEXP Csparse_MatrixMarket(SEXP x, SEXP fname)
     fclose(f);
     return R_NilValue;
 }
+
+
+/**
+ * Extract the diagonal entries from *triangular* Csparse matrix  __or__ a
+ * cholmod_sparse factor (LDL = TRUE).
+ *
+ * @param n  dimension of the matrix.
+ * @param x_p  'p' (column pointer) slot contents
+ * @param x_x  'x' (non-zero entries) slot contents
+ * @param perm 'perm' (= permutation vector) slot contents
+ * @param resultKind a (SEXP) string indicating which kind of result is desired.
+ *
+ * @return  a SEXP, either a (double) number or a length n-vector of diagonal entries
+ */
+SEXP diag_tC_ptr(int n, int *x_p, double *x_x, int *perm, SEXP resultKind)
+/*                                ^^^^^^ FIXME[Generalize] to int / ... */
+{
+    const char* res_ch = CHAR(STRING_ELT(resultKind,0));
+    enum diag_kind { diag, diag_backpermuted, trace, prod, sum_log
+    } res_kind = ((!strcmp(res_ch, "trace")) ? trace :
+		  ((!strcmp(res_ch, "sumLog")) ? sum_log :
+		   ((!strcmp(res_ch, "prod")) ? prod :
+		    ((!strcmp(res_ch, "diag")) ? diag :
+		     ((!strcmp(res_ch, "diagBack")) ? diag_backpermuted :
+		      -1)))));
+    int i, n_x, i_from = 0;
+    SEXP ans = PROTECT(allocVector(REALSXP,
+/*                                 ^^^^  FIXME[Generalize] */
+				   (res_kind == diag ||
+				    res_kind == diag_backpermuted) ? n : 1));
+    double *v = REAL(ans);
+/*  ^^^^^^      ^^^^  FIXME[Generalize] */
+
+#define for_DIAG(v_ASSIGN)						\
+    for(i = 0; i < n; i++, i_from += n_x) {				\
+	/* looking at i-th column */					\
+	n_x = x_p[i+1] - x_p[i];/* #{entries} in this column */	\
+	v_ASSIGN;							\
+    }
+
+    /* NOTA BENE: we assume  -- uplo = "L" i.e. lower triangular matrix
+     *            for uplo = "U" (makes sense with a "dtCMatrix" !),
+     *            should use  x_x[i_from + (nx - 1)] instead of x_x[i_from],
+     *            where nx = (x_p[i+1] - x_p[i])
+     */
+
+    switch(res_kind) {
+    case trace:
+	v[0] = 0.;
+	for_DIAG(v[0] += x_x[i_from]);
+	break;
+
+    case sum_log:
+	v[0] = 0.;
+	for_DIAG(v[0] += log(x_x[i_from]));
+	break;
+
+    case prod:
+	v[0] = 1.;
+	for_DIAG(v[0] *= x_x[i_from]);
+	break;
+
+    case diag:
+	for_DIAG(v[i] = x_x[i_from]);
+	break;
+
+    case diag_backpermuted:
+	for_DIAG(v[i] = x_x[i_from]);
+
+	error(_("resultKind = 'diagBack' (back-permuted) is not yet implemented"));
+	/* now back_permute : */
+	for(i = 0; i < n; i++) {
+	    double tmp = v[i]; v[i] = v[perm[i]]; v[perm[i]] = tmp;
+	    /*^^^^ FIXME[Generalize] */
+	}
+	break;
+
+    default: /* -1 from above */
+	error("diag_tC(): invalid 'resultKind'");
+	/* Wall: */ ans = R_NilValue; v = REAL(ans);
+    }
+
+    UNPROTECT(1);
+    return ans;
+}
+
+/**
+ * Extract the diagonal entries from *triangular* Csparse matrix  __or__ a
+ * cholmod_sparse factor (LDL = TRUE).
+ *
+ * @param pslot  'p' (column pointer)   slot of Csparse matrix/factor
+ * @param xslot  'x' (non-zero entries) slot of Csparse matrix/factor
+ * @param perm_slot  'perm' (= permutation vector) slot of corresponding CHMfactor
+ * @param resultKind a (SEXP) string indicating which kind of result is desired.
+ *
+ * @return  a SEXP, either a (double) number or a length n-vector of diagonal entries
+ */
+SEXP diag_tC(SEXP pslot, SEXP xslot, SEXP perm_slot, SEXP resultKind)
+{
+    int n = length(pslot) - 1, /* n = ncol(.) = nrow(.) */
+	*x_p  = INTEGER(pslot),
+	*perm = INTEGER(perm_slot);
+    double *x_x = REAL(xslot);
+/*  ^^^^^^        ^^^^ FIXME[Generalize] to INTEGER(.) / LOGICAL(.) / ... xslot !*/
+
+    return diag_tC_ptr(n, x_p, x_x, perm, resultKind);
+}

@@ -34,6 +34,9 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(CHMfactor_to_sparse, 1),
     CALLDEF(CHMfactor_solve, 3),
     CALLDEF(CHMfactor_spsolve, 3),
+    CALLDEF(CHMfactor_ldetL2, 1),
+    CALLDEF(CHMfactor_ldetL2up, 3),
+    CALLDEF(CHMfactor_update, 3),
     CALLDEF(Cholesky_validate, 1),
     CALLDEF(Csparse_Csparse_prod, 2),
     CALLDEF(Csparse_Csparse_crossprod, 3),
@@ -58,6 +61,7 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(Csparse_vertcat, 2),
     CALLDEF(pCholesky_validate, 1),
     CALLDEF(Rsparse_validate, 1),
+    CALLDEF(diag_tC, 4),
 #ifdef _valid_only_for_old_graph_package
     CALLDEF(graphNEL_as_dgTMatrix, 2),
 #endif
@@ -125,7 +129,8 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(dppMatrix_rcond, 2),
     CALLDEF(dppMatrix_solve, 1),
     CALLDEF(dppMatrix_validate, 1),
-    CALLDEF(dsCMatrix_Cholesky, 4),
+    CALLDEF(dsCMatrix_Cholesky, 5),
+    CALLDEF(dsCMatrix_LDL_D, 3),
     CALLDEF(dsCMatrix_chol, 2),
     CALLDEF(dsCMatrix_Csparse_solve, 2),
     CALLDEF(dsCMatrix_matrix_solve, 2),
@@ -233,6 +238,8 @@ R_init_Matrix(DllInfo *dll)
     RREGDEF(as_cholmod_factor);
     RREGDEF(as_cholmod_sparse);
     RREGDEF(chm_factor_to_SEXP);
+    RREGDEF(chm_factor_ldetL2);
+    RREGDEF(chm_factor_update);
     RREGDEF(chm_sparse_to_SEXP);
     RREGDEF(chm_triplet_to_SEXP);
 

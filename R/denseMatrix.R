@@ -222,3 +222,16 @@ setMethod("symmpart", signature(x = "denseMatrix"),
 	  function(x) symmpart(as(x, "dMatrix")))
 setMethod("skewpart", signature(x = "denseMatrix"),
 	  function(x) skewpart(as(x, "dMatrix")))
+
+setMethod("is.na", signature(x = "denseMatrix"),
+	  function(x) {
+	      if(any((inax <- is.na(x@x)))) {
+		  r <- as(x, "lMatrix")#-> logical x-slot
+		  r@x <- inax
+		  as(r, "nMatrix")
+	      } else {
+		  d <- x@Dim
+		  new("ngCMatrix", Dim = d, Dimnames = dimnames(x),
+		      i = integer(0), p = rep.int(0L, d[2]+1L))
+	      }
+	  })

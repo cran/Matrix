@@ -1,3 +1,53 @@
+2008-03-22  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/dsCMatrix.c (dsCMatrix_LDL_D): cleanup, also using
+	internal_chm_factor().
+
+	* R/AllGeneric.R: do *not* define a "chol" generic
+		(but rather use the implicit one *without* making pivot
+		part of the signature)
+	* R/*.R: drop the 'pivot' from chol's signature and make
+		'pivot=FALSE' a default argument of method definitions.
+
+	* .Rbuildignore: add 'wrld_1deg': I.e. do not put it into released
+	version of Matrix
+
+2008-03-18  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Tsparse.R (.T.2.n): drop 0's before coercion to "nMatrix"
+
+	* R/sparseMatrix.R (is.na): new simple method
+	* R/denseMatrix.R (is.na): ditto.
+
+	* R/diagMatrix.R (.symDiagonal): newly exported utility.
+
+	* R/diagMatrix.R (Ops): <diag> * <numeric> should not become dgeMatrix!
+
+	* src/UFsparse_download.sh: -->
+	* src/CHOLMOD/: update to CHOLMOD version 1.6 (Nov.2007)
+
+2008-03-17  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/dsCMatrix.c (dsCMatrix_LDL_D): even faster utility with same
+	functionality; barely tested in
+	* tests/factorizing.R
+
+	* src/Csparse.c (diag_tC): new functionality to enable faster
+	determinant(<dsCMatrix>, .) in
+	* R/dsCMatrix.R
+
+2008-03-17 18:53  Douglas Bates <bates@stat.wisc.edu>
+
+	* R/CHMfactor.R, inst/include/Matrix.h, inst/include/Matrix_stubs.c,
+	  src/CHMfactor.c, src/CHMfactor.h,
+	  man/CHMfactor-class.Rd, src/init.c, tests/factorizing.R:
+	  Log-determinant of the parent matrix from a CHMfactor object as
+	  chm_factor_ldetL2; documentation and support
+
+2008-03-15  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/dsCMatrix.R: enable determinant(<dsCMatrix>, .) via chol(.)
+
 2008-03-14  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/dsCMatrix.R: setAs(., "dsCMatrix") but with a deprecation

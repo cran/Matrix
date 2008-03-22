@@ -1,9 +1,10 @@
 #!/bin/sh
 
-wget http://www.cise.ufl.edu/research/sparse/amd/current/AMD.tar.gz
-wget http://www.cise.ufl.edu/research/sparse/cholmod/current/CHOLMOD.tar.gz
-wget http://www.cise.ufl.edu/research/sparse/colamd/current/COLAMD.tar.gz
-wget http://www.cise.ufl.edu/research/sparse/UFconfig/current/UFconfig.tar.gz
+ufl_URL=http://www.cise.ufl.edu/research/sparse
+wget $ufl_URL/amd/current/AMD.tar.gz
+wget $ufl_URL/cholmod/current/CHOLMOD.tar.gz
+wget $ufl_URL/colamd/current/COLAMD.tar.gz
+wget $ufl_URL/UFconfig/current/UFconfig.tar.gz
   ## install UFconfig.h file (now needed by some UFsparse libraries)
 tar zxf UFconfig.tar.gz UFconfig/UFconfig.h UFconfig/README.txt
   ## Move the UFconfig/README.txt file to ../inst/doc/UFsparse/UFconfig.txt
@@ -33,8 +34,14 @@ done
 tar zxf ./CHOLMOD.tar.gz CHOLMOD/README.txt
 mv CHOLMOD/README.txt ../inst/doc/UFsparse/CHOLMOD.txt
 
-  ## now svn diff the CHOLMOD/Lib/Makefile and the downloaded file and
-  ## make changes as necessary
+mv CHOLMOD/Lib/Makefile CHOLMOD/Lib/Makefile_CHOLMOD
+svn revert CHOLMOD/Lib/Makefile
+  ##
+
+ls -l CHOLMOD/Lib/Makefile_CHOLMOD
+echo 'now diff CHOLMOD/Lib/Makefile with .... Makefile_CHOLMD'
+echo ' make changes as necessary, and then'
+echo ' rm CHOLMOD/Lib/Makefile_CHOLMOD'
 
   ## remove the downloaded tar files
 rm CHOLMOD.tar.gz AMD.tar.gz COLAMD.tar.gz CCOLAMD.tar.gz UFconfig.tar.gz

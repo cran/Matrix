@@ -1,3 +1,4 @@
+
 #ifndef MATRIX_CSPARSE_H
 #define MATRIX_CSPARSE_H
 
@@ -26,5 +27,8 @@ SEXP Csparse_validate(SEXP x);
 SEXP Csparse_vertcat(SEXP x, SEXP y);
 
 SEXP Rsparse_validate(SEXP x);
+
+SEXP diag_tC_ptr(int n, int *x_p, double *x_x, int *perm, SEXP resultKind);
+SEXP diag_tC(SEXP pslot, SEXP xslot, SEXP perm_slot, SEXP resultKind);
 
 #endif

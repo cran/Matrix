@@ -42,9 +42,9 @@ copyClass <- function(x, newCl, sNames =
 }
 
 ## chol() via "dpoMatrix"
-cholMat <- function(x, pivot, ...) {
+cholMat <- function(x, pivot = FALSE, ...) {
     px <- as(x, "dpoMatrix")
-    if (isTRUE(validObject(px, test=TRUE))) chol(px)
+    if (isTRUE(validObject(px, test=TRUE))) chol(px, pivot, ...)
     else stop("'x' is not positive definite -- chol() undefined.")
 }
 

@@ -77,5 +77,15 @@ stopifnot(inherits(tt, "try-error"),
 (e.lu <- expand(fLU))
 M2 <- with(e.lu, P %*% L %*% U)
 assert.EQ.mat(M2, as(M, "matrix"))
+## now the sparse LU :
+M. <- as(M,"sparseMatrix")
+tt <- try(solve(M.)) # less nice: factor is *not* cached
+## use a non-singular one:
+M1 <- M. + 0.5*Diagonal(nrow(M.))
+luM1 <- lu(M1)
+d1 <- determinant(as(M1,"denseMatrix"))
+stopifnot(identical(luM1, M1@factors$LU),
+	  diag(luM1@L) == 1,# L is *unit*-triangular
+	  all.equal(log(-prod(diag(luM1@U))), c(d1$modulus)))
 
 cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''

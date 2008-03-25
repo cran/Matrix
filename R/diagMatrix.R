@@ -575,11 +575,14 @@ setMethod("Ops", signature(e1 = "ddiMatrix", e2 = "numeric"),
 	      n <- e1@Dim[1]; nsq <- n*n
 	      f0 <- callGeneric(0, e2)
 	      if(all(is0(f0))) { # remain diagonal
-		  if(e1@diag == "U" && (r <- callGeneric(1, e2)) != 1)
+		  L1 <- (le <- length(e2)) == 1L
+		  if(!L1 && le != nsq) e2 <- rep(e2, length.out = nsq)
+		  if(e1@diag == "U" && any((r <- callGeneric(1, e2)) != 1)) {
 		      e1@diag <- "N"
-		  else
+		      if(L1) r <- rep.int(r, n)
+		  } else
 		      r <- callGeneric(e1@x, e2)
-		  e1@x <- if(length(e2) == nsq) r else rep(r, length.out = nsq)
+		  e1@x <- if(L1) r else r[1L + n*(0:(n-1L))]
 		  return(e1)
 	      }
 	      callGeneric(diag2tT.u(e1,e2, "d"), e2)
@@ -590,11 +593,14 @@ setMethod("Ops", signature(e1 = "numeric", e2 = "ddiMatrix"),
 	      n <- e2@Dim[1]; nsq <- n*n
 	      f0 <- callGeneric(e1, 0)
 	      if(all(is0(f0))) { # remain diagonal
-		  if(e2@diag == "U" && (r <- callGeneric(e1, 1)) != 1)
+		  L1 <- (le <- length(e1)) == 1L
+		  if(!L1 && le != nsq) e1 <- rep(e1, length.out = nsq)
+		  if(e2@diag == "U" && any((r <- callGeneric(e1, 1)) != 1)) {
 		      e2@diag <- "N"
-		  else
+		      if(L1) r <- rep.int(r, n)
+		  } else
 		      r <- callGeneric(e1, e2@x)
-		  e2@x <- if(length(e1) == nsq) r else rep(r, length.out = nsq)
+		  e2@x <- if(L1) r else r[1L + n*(0:(n-1L))]
 		  return(e2)
 	      }
 	      callGeneric(e1, diag2tT.u(e2,e1, "d"))
@@ -605,11 +611,14 @@ setMethod("Ops", signature(e1 = "ldiMatrix", e2 = "numeric"),
 	      n <- e1@Dim[1]; nsq <- n*n
 	      f0 <- callGeneric(FALSE, e2)
 	      if(all(is0(f0))) { # remain diagonal
-		  if(e1@diag == "U" && (r <- callGeneric(TRUE, e2)) != 1)
+		  L1 <- (le <- length(e2)) == 1L
+		  if(!L1 && le != nsq) e2 <- rep(e2, length.out = nsq)
+		  if(e1@diag == "U" && any((r <- callGeneric(TRUE, e2)) != 1)) {
 		      e1@diag <- "N"
-		  else
+		      if(L1) r <- rep.int(r, n)
+		  } else
 		      r <- callGeneric(e1@x, e2)
-		  e1@x <- if(length(e2) == nsq) r else rep(r, length.out = nsq)
+		  e1@x <- if(L1) r else r[1L + n*(0:(n-1L))]
 		  return(e1)
 	      }
 	      callGeneric(diag2tT.u(e1,e2, "l"), e2)
@@ -620,11 +629,14 @@ setMethod("Ops", signature(e1 = "numeric", e2 = "ldiMatrix"),
 	      n <- e2@Dim[1]; nsq <- n*n
 	      f0 <- callGeneric(e1, FALSE)
 	      if(all(is0(f0))) { # remain diagonal
-		  if(e2@diag == "U" && (r <- callGeneric(e1, TRUE)) != 1)
+		  L1 <- (le <- length(e1)) == 1L
+		  if(!L1 && le != nsq) e1 <- rep(e1, length.out = nsq)
+		  if(e2@diag == "U" && any((r <- callGeneric(e1, TRUE)) != 1)) {
 		      e2@diag <- "N"
-		  else
+		      if(L1) r <- rep.int(r, n)
+		  } else
 		      r <- callGeneric(e1, e2@x)
-		  e2@x <- if(length(e1) == nsq) r else rep(r, length.out = nsq)
+		  e2@x <- if(L1) r else r[1L + n*(0:(n-1L))]
 		  return(e2)
 	      }
 	      callGeneric(e1, diag2tT.u(e2,e1, "l"))

@@ -52,5 +52,7 @@ M <- Matrix(cbind(1,2:4))
 M \%*\% d2 #> `fast' multiplication
 
 chol(d2) # trivial
+stopifnot(is(cd2 <- chol(d2), "ddiMatrix"),
+          all.equal(cd2@x, c(sqrt(10),1)))
 }
 \keyword{classes}

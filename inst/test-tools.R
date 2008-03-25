@@ -16,6 +16,8 @@ assertError <- function(expr) {
     invisible(t.res)
 }
 
+isValid <- function(x, class) validObject(x, test=TRUE) && is(x, class)
+
 is.all.equal3 <- function(x,y,z, tol = .Machine$double.eps^0.5)
     isTRUE(all.equal(x,y, tol=tol)) && isTRUE(all.equal(y,z, tol=tol))
 

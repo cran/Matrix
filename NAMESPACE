@@ -230,6 +230,7 @@ exportMethods(## for both own and "other" generics:
 	      "all",
 	      "any",
 
+	      "BunchKaufman",
 	      "Cholesky",
 	      "Schur",
 	      "as.array",

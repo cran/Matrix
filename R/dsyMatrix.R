@@ -91,6 +91,9 @@ setMethod("norm", signature(x = "dsyMatrix", type = "missing"),
 setMethod("t", signature(x = "dsyMatrix"), t_trMatrix,
           valueClass = "dsyMatrix")
 
+setMethod("BunchKaufman", signature(x = "dsyMatrix"),
+	  function(x) .Call(dsyMatrix_trf, x))
+
 ## The following has the severe effect of making
 ## "dsyMatrix" a subclass of "dpoMatrix" and since the reverse is
 ## by definition of "dpoMatrix", the class-hierarchy gets a *cycle* !

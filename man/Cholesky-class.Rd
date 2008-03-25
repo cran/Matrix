@@ -9,6 +9,8 @@
 \alias{coerce,pBunchKaufman,lMatrix-method}
 \alias{coerce,Cholesky,lMatrix-method}
 \alias{coerce,BunchKaufman,lMatrix-method}
+\alias{show,BunchKaufman-method}
+\alias{show,pBunchKaufman-method}
 %
 \title{Cholesky and Bunch-Kaufman Decompositions}
 \description{The \code{"Cholesky"} class is the class of Cholesky
@@ -20,9 +22,11 @@
 }
 \section{Objects from the Class}{
   Objects can be created by calls of the form \code{new("Cholesky",
-    ...)} or \code{new("BunchKaufman", ...)}
-  or by calls of the form \code{chol(pm)} where \code{pm} inherits from
-  the \code{"dpoMatrix"} class or as a side-effect of other functions
+    ...)} or \code{new("BunchKaufman", ...)}, etc,
+  or rather by calls of the form \code{chol(pm)} or
+  \code{BunchKaufman(pm)} where \code{pm} inherits from
+  the \code{"\linkS4class{dpoMatrix}"} or \code{"\linkS4class{dsyMatrix}"}
+  class or as a side-effect of other functions
   applied to \code{"dpoMatrix"} objects (see \code{\linkS4class{dpoMatrix}}).
 }
 \section{Slots}{

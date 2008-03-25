@@ -10,7 +10,17 @@ setMethod("show", "MatrixFactorization",
 	      ## cat(sprintf("'MatrixFactorization' of class \"%s\"\n", cl))
 	      cat("'MatrixFactorization' of ")
 	      str(object)
-	      })
+	  })
+setMethod("show", "BunchKaufman",
+	  function(object) {
+	      cat("'Bunch-Kaufman' factorization of ")
+	      str(object)
+	  })
+setMethod("show", "pBunchKaufman",
+	  function(object) {
+	      cat("packed 'Bunch-Kaufman' factorization of ")
+	      str(object)
+	  })
 
 setMethod("dim", "MatrixFactorization", function(x) x@Dim)
 

@@ -37,6 +37,9 @@ setMethod("%*%", signature(x = "dspMatrix", y = "matrix"),
           function(x, y) .Call(dspMatrix_matrix_mm, x, y),
           valueClass = "dgeMatrix")
 
+setMethod("BunchKaufman", signature(x = "dspMatrix"),
+	  function(x) .Call(dspMatrix_trf, x))
+
 ## Should define multiplication from the right
 
 setMethod("solve", signature(a = "dspMatrix", b = "missing"),

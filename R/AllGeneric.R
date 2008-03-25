@@ -19,7 +19,8 @@
                function(x, factor, y, transpose, left, ...)
                standardGeneric("facmul"))
 
-    setGeneric("lu", function(x, ...) standardGeneric("lu"))
+setGeneric("BunchKaufman", function(x, ...) standardGeneric("BunchKaufman"))
+setGeneric("lu", function(x, ...) standardGeneric("lu"))
 
 ##NB ## do not redefine the "base signature"
 

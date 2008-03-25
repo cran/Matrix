@@ -235,6 +235,7 @@ SEXP dgCMatrix_QR(SEXP Ap, SEXP order)
 /* Modified version of Tim Davis's cs_lu_mex.c file for MATLAB */
 SEXP dgCMatrix_LU(SEXP Ap, SEXP orderp, SEXP tolp)
 {
+    /* Is currently only called as  .Call(dgCMatrix_LU, x, TRUE, 1)) */
     SEXP ans = get_factors(Ap, "LU");
     CSP A = AS_CSP(Ap), D;
     css *S;

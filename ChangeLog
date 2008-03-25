@@ -1,3 +1,26 @@
+2008-03-25  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version,Date): 0.999375-8
+
+	* R/diagMatrix.R (Ops): fix newly introduce bug in <.di> o <numeric>
+
+	* inst/test-tools.R (isValid): new utility, used much in
+	* tests/simple.R:
+
+	* man/BunchKaufman-methods.Rd: added too
+
+2008-03-24  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/dsyMatrix.R: add BunchKaufman() methods.
+	* R/dspMatrix.R:
+
+	* src/init.c: add dsyMatrix_trf
+
+2008-03-23  Douglas Bates <bates@stat.wisc.edu>
+
+	* DESCRIPTION (Version): release 0.999375-7
+	* src/CHMfactor.c (CHMfactor_update): fix
+
 2008-03-22  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* src/dsCMatrix.c (dsCMatrix_LDL_D): cleanup, also using

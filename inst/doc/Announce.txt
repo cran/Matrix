@@ -2,7 +2,7 @@ This weekend, a new version of "the Matrix" (well, actually the R
 package named "Matrix") will become available on the CRAN mirrors.
 
 As some of you have noticed, the version numbers (current is version
-0.999375-7) are converging to one, and we feel that we have solved
+0.999375-8) are converging to one, and we feel that we have solved
 enough of the many (mostly small) problems to announce that release
 1.0-0 is imminent.
 
@@ -38,7 +38,7 @@ Furthermore, 'indexing' : "A[...]" and "A[..] <- value" of
 all(!) kinds of S/R indexing and some new generic functions such as
 
  lu()     {LU decomposition}
- Schur()
+ Schur(), BunchKaufman(),
  norm(), rcond()        {Matrix norms and condition numbers}
  expm()   {Matrix exponential},
  band(), triu(), tril()  {extract band-diagonal or triangular sub-matrices}

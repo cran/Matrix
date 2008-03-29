@@ -664,8 +664,8 @@ setClassUnion("index", members =  c("numeric", "logical", "character"))
 
 ## "atomic vectors" (-> ?is.atomic ) --
 ## ---------------  those that we want to convert from old-style "matrix"
-setClassUnion("atomicVector", ## numeric = {integer, double} but all 3 should *directly* be atomic
-	      members = c("logical", "integer", "double", "numeric",
+setClassUnion("atomicVector", ## "double" is not needed, and not liked by some
+	      members = c("logical", "integer", "numeric",
 			  "complex", "raw", "character"))
 
 ## --- Matrix - related (but not "Matrix" nor "Decomposition/Factorization):

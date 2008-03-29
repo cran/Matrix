@@ -102,13 +102,13 @@ setMethod("norm", signature(x = "dtrMatrix", type = "missing"),
 	  .Call(dtrMatrix_norm, x, "O"),
 	  valueClass = "numeric")
 
-setMethod("rcond", signature(x = "dtrMatrix", type = "character"),
-	  function(x, type, ...)
-	  .Call(dtrMatrix_rcond, x, type),
+setMethod("rcond", signature(x = "dtrMatrix", norm = "character"),
+	  function(x, norm, ...)
+	  .Call(dtrMatrix_rcond, x, norm),
 	  valueClass = "numeric")
 
-setMethod("rcond", signature(x = "dtrMatrix", type = "missing"),
-	  function(x, type, ...)
+setMethod("rcond", signature(x = "dtrMatrix", norm = "missing"),
+	  function(x, norm, ...)
 	  .Call(dtrMatrix_rcond, x, "O"),
 	  valueClass = "numeric")
 

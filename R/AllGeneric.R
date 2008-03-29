@@ -32,7 +32,15 @@ setGeneric("lu", function(x, ...) standardGeneric("lu"))
 
     setGeneric("norm", function(x, type, ...) standardGeneric("norm"))
 
-    setGeneric("rcond", function(x, type, ...) standardGeneric("rcond"))
+## base::rcond() has additional argument 'triangular'
+## which should *not* be part of the signature
+setGeneric("rcond", function(x, norm, ...) standardGeneric("rcond"),
+	   useAsDefault =
+           ## for now:
+           if(existsFunction("rcond", where=baseenv()))
+           ## later: if(exists(getRversion() >= "2.7.0")
+	   function(x, norm, ...) base::rcond(x, norm=norm, ...))
+
 
     setGeneric("Schur", function(x, vectors, ...) standardGeneric("Schur"))
 

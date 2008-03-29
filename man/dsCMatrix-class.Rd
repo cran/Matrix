@@ -141,7 +141,7 @@ sC <- Matrix(mT, sparse=TRUE, forceCheck=TRUE)
 
 sym2 <- as(symC, "TsparseMatrix")
 \dontshow{
-stopifnot(identical(symC, sC),
+stopifnot(identical(symC, sC), identical(sym2, symM),
           class(sym2) == "dsTMatrix",
 	  identical(sym2[1,], sC[1,]),
 	  identical(sym2[,2], sC[,2]))

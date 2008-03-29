@@ -65,8 +65,8 @@
     \item{diag}{\code{signature(x = "dtpMatrix")}: ... }
     \item{norm}{\code{signature(x = "dtpMatrix", type = "character")}: ... }
     \item{norm}{\code{signature(x = "dtpMatrix", type = "missing")}: ... }
-    \item{rcond}{\code{signature(x = "dtpMatrix", type = "character")}: ... }
-    \item{rcond}{\code{signature(x = "dtpMatrix", type = "missing")}: ... }
+    \item{rcond}{\code{signature(x = "dtpMatrix", norm = "character")}: ... }
+    \item{rcond}{\code{signature(x = "dtpMatrix", norm = "missing")}: ... }
     \item{solve}{\code{signature(a = "dtpMatrix", b = "missing")}: ... }
     \item{solve}{\code{signature(a = "dtpMatrix", b = "matrix")}: ... }
     \item{t}{\code{signature(x = "dtpMatrix")}: ... }

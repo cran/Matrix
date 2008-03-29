@@ -319,15 +319,15 @@ setMethod("t", signature(x = "Matrix"),
 
 setMethod("norm", signature(x = "Matrix", type = "character"),
 	  function(x, type, ...) .bail.out.1(.Generic, class(x)))
-setMethod("rcond", signature(x = "Matrix", type = "character"),
-	  function(x, type, ...) .bail.out.1(.Generic, class(x)))
+setMethod("rcond", signature(x = "Matrix", norm = "character"),
+	  function(x, norm, ...) .bail.out.1(.Generic, class(x)))
 
 
 ## for all :
 setMethod("norm", signature(x = "ANY", type = "missing"),
 	  function(x, type, ...) norm(x, type = "O", ...))
-setMethod("rcond", signature(x = "ANY", type = "missing"),
-	  function(x, type, ...) rcond(x, type = "O", ...))
+setMethod("rcond", signature(x = "ANY", norm = "missing"),
+	  function(x, norm, ...) rcond(x, norm = "O", ...))
 
 
 

@@ -44,4 +44,4 @@ echo ' make changes as necessary, and then'
 echo ' rm CHOLMOD/Lib/Makefile_CHOLMOD'
 
   ## remove the downloaded tar files
-rm CHOLMOD.tar.gz AMD.tar.gz COLAMD.tar.gz CCOLAMD.tar.gz UFconfig.tar.gz
+rm CHOLMOD.tar.gz AMD.tar.gz COLAMD.tar.gz UFconfig.tar.gz

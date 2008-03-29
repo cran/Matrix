@@ -44,13 +44,13 @@ setAs("dsyMatrix", "dsCMatrix",
 setMethod("show", "dsyMatrix", function(object) prMatrix(object))
 
 
-setMethod("rcond", signature(x = "dsyMatrix", type = "character"),
-          function(x, type, ...)
-          .Call(dsyMatrix_rcond, x, type),
+setMethod("rcond", signature(x = "dsyMatrix", norm = "character"),
+          function(x, norm, ...)
+          .Call(dsyMatrix_rcond, x, norm),
           valueClass = "numeric")
 
-setMethod("rcond", signature(x = "dsyMatrix", type = "missing"),
-          function(x, type, ...)
+setMethod("rcond", signature(x = "dsyMatrix", norm = "missing"),
+          function(x, norm, ...)
           .Call(dsyMatrix_rcond, x, "O"),
           valueClass = "numeric")
 

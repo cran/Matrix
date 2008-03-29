@@ -66,7 +66,7 @@
     \item{coerce}{\code{signature(from = "matrix",    to = "dtrMatrix")}}
 
     \item{norm}{\code{signature(x = "dtrMatrix", type = "character")}}
-    \item{rcond}{\code{signature(x = "dtrMatrix", type = "character")}}
+    \item{rcond}{\code{signature(x = "dtrMatrix", norm = "character")}}
     \item{solve}{\code{signature(a = "dtrMatrix", b = "missing")}}
     \item{solve}{\code{signature(a = "dtrMatrix", b = "matrix")}}
   }

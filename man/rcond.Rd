@@ -3,13 +3,13 @@
 \alias{rcond}
 % most methods are documented in <foo>Matrix-class.Rd
 \alias{rcond,ANY,missing-method}
-\alias{rcond,matrix,character-method}
+\alias{rcond,matrix,character-method}%<- no longer for R >= 2.7.0
 \alias{rcond,Matrix,character-method}
 \alias{rcond,ldenseMatrix,character-method}
 \alias{rcond,ndenseMatrix,character-method}
 %
 \usage{
-rcond(x, type, \dots)
+rcond(x, norm, \dots)
 }
 \description{
   Estimate the reciprocal of the condition number of a matrix.
@@ -19,10 +19,11 @@ rcond(x, type, \dots)
 }
 \arguments{
   \item{x}{an \R object that inherits from the \code{Matrix} class.}
-  \item{type}{
+  \item{norm}{
     Character indicating the type of norm to be used in the estimate.
-    The default is \code{"O"} for the 1-norm.  The other possible value is
-    \code{"I"} for the infinity norm, see also \code{\link{norm}}.
+    The default is \code{"O"} for the 1-norm (\code{"O"} is equivalent
+    to \code{"1"}).  The other possible value is \code{"I"} for the
+    infinity norm, see also \code{\link{norm}}.
   }
   \item{\dots}{further arguments passed to or from other methods.}
 }

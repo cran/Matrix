@@ -50,8 +50,8 @@ Take Martin's DSC 2007 talk to depict class hierarchy.
 The class of diagonal matrices is worth mentioning for several reasons.
 First, we have wanted such a class, because \emph{multiplication}
 methods are particularly simple with diagonal matrices.
-The typical constructor is \Rfun{Diagonal()} whereas the accessor
-(as for traditional matrices), \Rfun{diag()} simply returns the
+The typical constructor is \Rfun{Diagonal} whereas the accessor
+(as for traditional matrices), \Rfun{diag} simply returns the
 \emph{vector} of diagonal entries:
 <<diag-class>>=
 (D4 <- Diagonal(4, 10*(1:4)))

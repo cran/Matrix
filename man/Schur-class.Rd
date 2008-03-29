@@ -24,11 +24,11 @@
   }
 }
 \section{Extends}{
-Class \code{"\linkS4class{MatrixFactorization}"}, directly.
+  Class \code{"\linkS4class{MatrixFactorization}"}, directly.
 }
-\section{Methods}{
-
-}
+% \section{Methods}{
+%   are all inherited from the MatrixFactorization class
+% }
 % \note{There's not yet a class for \emph{sparse} Schur decompositions;
 %   mainly because there's no \code{\link{Schur}()} method for those neither.
 % }

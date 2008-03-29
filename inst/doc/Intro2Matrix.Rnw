@@ -17,38 +17,33 @@
 \begin{document}
 \maketitle
 \begin{abstract}
-
 % \emph{\Large Why should you want to work with this package and what
 %   does it do for you?}
 
-  Linear algebra is at the core of many areas of statistical computing
-  and from its inception the \Slang{} has supported numerical linear
-  algebra
+  Linear algebra is at the core of many areas of statistical computing and
+  from its inception the \Slang{} has supported numerical linear algebra
+  via a matrix data type and several functions and operators, such as
+  \code{\%*\%}, \code{qr}, \code{chol}, and \code{solve}.  However, these
+  data types and functions do not provide direct access to all of the
+  facilities for efficient manipulation of dense matrices, as provided by
+  the Lapack subroutines, and they do not provide for manipulation of
+  sparse matrices.
 
-  \FIXME{}
-
-%%   via a matrix data type and several functions and operators,
-%%   such as \code{\%*\%}, \code{qr}, \code{chol}, and \code{solve}.
-%%   However, these data types and functions do not provide direct access
-%%   to all of the facilities for efficient manipulation of dense
-%%   matrices, as provided by the Lapack subroutines, and they do not
-%%   provide for manipulation of sparse matrices.
-
-%%   The \code{Matrix} package provides a set of S4 classes for dense and
-%%   sparse matrices that extend the basic matrix data type.  Methods for
-%%   a wide variety of functions and operators applied to objects from
-%%   these classes provide efficient access to BLAS (Basic Linear Algebra
-%%   Subroutines), Lapack (dense matrix), TAUCS (sparse matrix) and
-%%   UMFPACK (sparse matrix) routines.  One notable characteristic of the
-%%   package is that whenever a matrix is factored, the factorization is
-%%   stored as part of the original matrix so that further operations on
-%%   the matrix can reuse this factorization.
+  The \pkg{Matrix} package provides a set of S4 classes for dense and
+  sparse matrices that extend the basic matrix data type.  Methods for
+  a wide variety of functions and operators applied to objects from
+  these classes provide efficient access to BLAS (Basic Linear Algebra
+  Subroutines), Lapack (dense matrix), CHOLMOD including AMD and COLAMD and
+  \code{Csparse} (sparse matrix) routines.  One notable characteristic of
+  the package is that whenever a matrix is factored, the factorization is
+  stored as part of the original matrix so that further operations on
+  the matrix can reuse this factorization.
 \end{abstract}
+
 %% Note: These are explained in '?RweaveLatex' :
 <<preliminaries, echo=FALSE>>=
 options(width=75)
 @
-
 
 \section{Introduction}
 \label{sec:Intro}
@@ -129,8 +124,9 @@ as they should.  Note that all these are implemented via so called
 \emph{group methods}, see e.g., \code{?Arith} in \RR.
 The intention is that sparse matrices remain sparse whenever sensible,
 given the matrix \emph{classes} and operators involved,
-but not content specifically. E.g.,  <sparse> + <dense> gives <dense> even for the
-%% rare cases where it would be advantageous to get a <sparse> result.
+but not content specifically. E.g.,  <sparse> + <dense> gives <dense> even
+for the rare cases where it would be advantageous to get a <sparse>
+result.
 
 These classed matrices can be ``indexed'' (more technically ``subset'') as
 normal ones, as partly seen above. This also includes the idiom
@@ -142,18 +138,11 @@ sM[sM > 2]
 sml <- sM[sM <= 2]
 sml
 @ %def
-% had  table(sml) # 39 entries of 0 and -10
+and \emph{``subassign''}ment similarly works in the same generality as for
+traditional \Slang{} matrices.
+%% We have seen that already above!
 
-% Similarly, we can \emph{``subassign''} normally,
-% @
-% <<sub_ass>>=
-% sM[2,1] <- 0
-% sM[5, ] <- 7 # a whole row
-% sM
-% @ %def
-
-
-\FIXME{2nd introduction -- maybe keep some?}
+%% This was the 2005 - Introduction vignette's first section:
 \subsection{\code{Matrix} package for numerical linear algebra}
 \label{ssec:intro-linalg}
 
@@ -161,13 +150,11 @@ Linear algebra is at the core of many statistical computing techniques
 and, from its inception, the \Slang{} has supported numerical linear
 algebra via a matrix data type and several functions and operators,
 such as \code{\%*\%}, \code{qr}, \code{chol}, and \code{solve}.
-%
-%%O Initially the numerical linear algebra functions in \RR{} called
-%%O underlying Fortran routines from the Linpack~\citep{Linpack} and
-%%O Eispack~\cite{Eispack} libraries but over the years most of these
-%%O functions have been switched to use routines from the
-%%O Lapack~\cite{Lapack} library.
-most of these functions have been switched to use routines from the
+%%
+Initially the numerical linear algebra functions in \RR{} called
+underlying Fortran routines from the Linpack~\citep{Linpack} and
+Eispack~\cite{Eispack} libraries but over the years most of these
+functions have been switched to use routines from the
 Lapack~\cite{Lapack} library which is the state-of-the-art implementation
 of numerical dense linear algebra.
 %%
@@ -195,10 +182,10 @@ The \code{Matrix} package provides S4 classes and methods for dense
 and sparse matrices.  The methods for dense matrices use Lapack and
 BLAS.  The sparse matrix methods use
 CHOLMOD~\citep{Cholmod}, CSparse~\citep{Csparse}
-%%  and TAUCS~\citep{Taucs},
-%% AMD, COLAMD, UMFPACK~\citep{Umfpack}.%, and Metis~\citep{Metis}.
-and other parts of Tim Davis' ``SuiteSparse'' collection of sparse matrix
-libraries, many of which also use BLAS.
+and other parts (AMD, COLAMD) of Tim Davis' ``SuiteSparse'' collection of
+sparse matrix libraries, many of which also use BLAS.
+
+
 
 \TODO{\Rfun{triu}, \Rfun{tril}, \Rfun{diag}, ...
   and  \command{as(.,.)} , but of course only when they've seen a few
@@ -222,14 +209,15 @@ libraries, many of which also use BLAS.
 
 
 
+% \bigskip
+
+% ... ... ...  The following is the old \file{Introduction.Rnw} ... FIXME ... ...
+
 \bigskip
 
-... ... ...  The following is the old \file{Introduction.Rnw} ... FIXME ... ...
-
-\bigskip
-
-\section{Classes for dense matrices}
-\label{sec:DenseClasses}
+\section{Matrix Classes}
+\subsection{Classes for dense matrices}
+\label{ssec:DenseClasses}
 
 The \code{Matrix} package provides classes for real (stored as
 double precision) and logical dense (and sparse) matrices.
@@ -266,8 +254,7 @@ system based on the matrix, do not require multiple factorizations of
 the same matrix nor do they require the user to store the intermediate
 results.
 
-
-\section{Classes for sparse matrices}
+\subsection{Classes for sparse matrices}
 \label{sec:SparseClasses}
 
 Used for large matrices in which most of the elements are known to
@@ -301,26 +288,34 @@ Conceptually, the simplest representation of a sparse matrix is as a
 triplet of an integer vector \code{i} giving the row numbers, an
 integer vector \code{j} giving the column numbers, and a numeric
 vector \code{x} giving the non-zero values in the matrix. \footnote{For efficiency
-reasons, we use ``zero-based'' indexing in teh \code{Matrix} package, i.e.,
+reasons, we use ``zero-based'' indexing in the \code{Matrix} package, i.e.,
 the row indices \code{i} are in \code{0:(nrow(.)-1)} and the column indices
 \code{j} accordingly}.  In \code{Matrix} the \class{TsparseMatrix} class is the
 virtual class of all sparse matrices in triplet representation.
 Its main use is for easy input or transfer to other classes.
-%% An S4 class definition might be
-%% \begin{Schunk}
-%% \begin{Sinput}
-%% setClass("dgTMatrix",
-%%          representation(i = "integer", j = "integer", x = "numeric",
-%%                         Dim = "integer"))
-%% \end{Sinput}
-%% \end{Schunk}
 
-%% \FIXME{never care for ``orientation'' of the T-representation}
+As for the dense matrices, the class of the \code{x} slot may vary, and the
+subclasses may be triangular, symmetric or unspecified (``general''), such that
+the \class{TsparseMatrix} class has several ``actual'' subclasses,
+the most typical (numeric, general) is \class{dgTMatrix}:
+<<Tsparse-class>>=
+getClass("TsparseMatrix")  # (i,j, Dim) slot are common
+                          ## see the sub classes
+getClass("dgTMatrix")
+@
+Note that the \emph{order} of the entries in the \code{(i,j,x)} vectors
+does not matter; consequently, such matrices are not unique in their
+representation.  \footnote{
+  Furthermore, there can be \emph{repeated} \code{(i,j)} entries with the
+  customary convention that the corresponding \code{x} entries are
+  \emph{added} to form the matrix element $m_{ij}$.
+}
 %% The triplet representation is row-oriented if elements in the same row
 %% were adjacent and column-oriented if elements in the same column were
 %% adjacent.
 
-\subsubsection{Compressed representations: \class{CsparseMatrix} (and \class{RsparseMatrix})}
+\subsubsection{Compressed representations: \class{CsparseMatrix} }
+% (and \class{RsparseMatrix})} -- but don't advertize them
 
 For most sparse operations we use the compressed column-oriented
 representation (virtual class \class{CsparseMatrix}) (also known as
@@ -333,16 +328,19 @@ which e.g. is used in in the \pkg{SparseM} package, and we provide the
 addition to basic coercion (\code({as(., \textit{<cl>})} between the classes.
 %% (column-oriented triplet) except that \code{i} (\code{j}) just stores
 %% the index of the first element in the row (column).  (There are a
-%% couple of other details but that is the gist of it.)  These compressed
-%% representations remove the redundant row (column) indices and provide
-%% faster access to a given location in the matrix because you only need
-%% to check one row (column).
+%% couple of other details but that is the gist of it.)
+These compressed representations remove the redundant row (column)
+indices and provide faster access to a given location in the matrix
+because you only need to check one row (column).
 
-There are certain advantages to csc in systems like \RR{}
-and Matlab where dense matrices are stored in column-major order,
-%% can make use of level-3 BLAS in certain sparse matrix computations. !!
-therefore it is used in sparse matrix libraries such as CHOLMOD or CSparse
-of which we make use.
+There are certain advantages \footnote{routines can make use of
+  high-level (``level-3'') BLAS in certain sparse matrix computations}
+to csc in systems like \RR{}, Octave and Matlab where dense matrices are
+stored in column-major order, therefore it is used in sparse matrix
+libraries such as CHOLMOD or CSparse of which we make use.  For this
+reason, the \class{CsparseMatrix} class and subclasses are the
+principal classes for sparse matrices in the \pkg{Matrix} package.
+
 
 The Matrix package provides the following classes for sparse matrices
 \FIXME{many more --- maybe explain naming scheme?}

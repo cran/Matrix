@@ -180,5 +180,5 @@ setMethod("norm", signature(x = "ndenseMatrix", type = "character"),
           .Call(dgeMatrix_norm, as(as(x,"dMatrix"),"dgeMatrix"), type),
 	  valueClass = "numeric")
 
-setMethod("rcond", signature(x = "ndenseMatrix", type = "character"),
+setMethod("rcond", signature(x = "ndenseMatrix", norm = "character"),
 	  .rcond_via_d, valueClass = "numeric")

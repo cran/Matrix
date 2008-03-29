@@ -37,13 +37,13 @@ setMethod("norm", signature(x = "dgeMatrix", type = "character"),
 	  function(x, type, ...) .Call(dgeMatrix_norm, x, type),
 	  valueClass = "numeric")
 
-setMethod("rcond", signature(x = "dgeMatrix", type = "missing"),
-	  function(x, type, ...) rcond(x, type = "O", ...))
-setMethod("rcond", signature(x = "dgeMatrix", type = "character"),
-	  function(x, type, ...)  {
+setMethod("rcond", signature(x = "dgeMatrix", norm = "missing"),
+	  function(x, norm, ...) rcond(x, norm = "O", ...))
+setMethod("rcond", signature(x = "dgeMatrix", norm = "character"),
+	  function(x, norm, ...)  {
 	      if({d <- dim(x); d[1] == d[2]})
-		  .Call(dgeMatrix_rcond, x, type)
-	      else rcond(qr.R(qr(if(d[1] < d[2]) t(x) else x)), type=type)
+		  .Call(dgeMatrix_rcond, x, norm)
+	      else rcond(qr.R(qr(if(d[1] < d[2]) t(x) else x)), norm=norm, ...)
 	  },
 	  valueClass = "numeric")
 
@@ -52,8 +52,11 @@ setMethod("norm", signature(x = "matrix", type = "character"),
 	  function(x, type, ...) .Call(dgeMatrix_norm, as(x,"dgeMatrix"), type),
 	  valueClass = "numeric")
 
-setMethod("rcond", signature(x = "matrix", type = "character"),
-	  function(x, type, ...) rcond(as(x,"dgeMatrix"), type))
+## for now:
+if(!existsFunction("rcond", where=baseenv()))## later: (exists(getRversion() < "2.7.0")
+## afterwards, this should continue using base::rcond
+setMethod("rcond", signature(x = "matrix", norm = "character"),
+	  function(x, norm, ...) rcond(as(x,"dgeMatrix"), norm=norm, ...))
 
 
 setMethod("t", signature(x = "dgeMatrix"), t_geMatrix)

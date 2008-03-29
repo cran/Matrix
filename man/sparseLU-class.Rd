@@ -44,6 +44,6 @@
   \code{\link{lu}}, \code{\link[base]{solve}}, \code{\linkS4class{dgCMatrix}}
 }
 \examples{
-
+  ## see  examples(lu)
 }
 \keyword{classes}

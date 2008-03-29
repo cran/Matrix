@@ -10,13 +10,13 @@ setAs("matrix", "dppMatrix", to_dpp)
 setMethod("chol", signature(x = "dppMatrix"),
 	  function(x, pivot, LINPACK) .Call(dppMatrix_chol, x))
 
-setMethod("rcond", signature(x = "dppMatrix", type = "character"),
-          function(x, type, ...)
-          .Call(dppMatrix_rcond, x, type),
+setMethod("rcond", signature(x = "dppMatrix", norm = "character"),
+          function(x, norm, ...)
+          .Call(dppMatrix_rcond, x, norm),
           valueClass = "numeric")
 
-setMethod("rcond", signature(x = "dppMatrix", type = "missing"),
-          function(x, type, ...)
+setMethod("rcond", signature(x = "dppMatrix", norm = "missing"),
+          function(x, norm, ...)
           .Call(dppMatrix_rcond, x, "O"),
           valueClass = "numeric")
 

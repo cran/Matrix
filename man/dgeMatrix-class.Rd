@@ -110,8 +110,8 @@
     \item{lu}{\code{signature(x = "dgeMatrix")}: ... }
     \item{norm}{\code{signature(x = "dgeMatrix", type = "character")}: ... }
     \item{norm}{\code{signature(x = "dgeMatrix", type = "missing")}: ... }
-    \item{rcond}{\code{signature(x = "dgeMatrix", type = "character")}: ... }
-    \item{rcond}{\code{signature(x = "dgeMatrix", type = "missing")}: ... }
+    \item{rcond}{\code{signature(x = "dgeMatrix", norm = "character")}: ... }
+    \item{rcond}{\code{signature(x = "dgeMatrix", norm = "missing")}: ... }
     \item{rowMeans}{\code{signature(x = "dgeMatrix")}: rowwise means (averages)}
     \item{rowSums}{\code{signature(x = "dgeMatrix")}: rowwise sums}
     \item{solve}{\code{signature(a = "dgeMatrix", b = "dgeMatrix")}: ... }

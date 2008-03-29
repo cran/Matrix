@@ -27,13 +27,13 @@ setAs("matrix", "dpoMatrix", to_dpo)
 setMethod("chol", signature(x = "dpoMatrix"),
 	  function(x, pivot, ...) .Call(dpoMatrix_chol, x))
 
-setMethod("rcond", signature(x = "dpoMatrix", type = "character"),
-          function(x, type, ...)
-          .Call(dpoMatrix_rcond, x, type),
+setMethod("rcond", signature(x = "dpoMatrix", norm = "character"),
+          function(x, norm, ...)
+          .Call(dpoMatrix_rcond, x, norm),
           valueClass = "numeric")
 
-setMethod("rcond", signature(x = "dpoMatrix", type = "missing"),
-          function(x, type, ...)
+setMethod("rcond", signature(x = "dpoMatrix", norm = "missing"),
+          function(x, norm, ...)
           .Call(dpoMatrix_rcond, x, "O"),
           valueClass = "numeric")
 

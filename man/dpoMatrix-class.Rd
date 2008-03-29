@@ -74,11 +74,11 @@
     \item{chol}{\code{signature(x = "dpoMatrix")}:
       Returns (and stores) the Cholesky decomposition of \code{x}, see
       \code{\link{chol}}.}
-    \item{rcond}{\code{signature(x = "dpoMatrix", type = "character")}:
+    \item{rcond}{\code{signature(x = "dpoMatrix", norm = "character")}:
       Returns (and stores) the reciprocal of the condition number of
-      \code{x}.  The \code{type} can be \code{"O"} for the
+      \code{x}.  The \code{norm} can be \code{"O"} for the
       one-norm (the default) or \code{"I"} for the infinity-norm.  For
-      symmetric matrices the result does not depend on the type.}
+      symmetric matrices the result does not depend on the norm.}
     \item{solve}{\code{signature(a = "dpoMatrix", b = "missing")}:
       Return the inverse of \code{a}.}
     \item{solve}{\code{signature(a = "dpoMatrix", b = "numeric")}:

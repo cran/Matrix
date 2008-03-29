@@ -37,7 +37,10 @@
       \code{0:(nrow(.)-1)}.}
     \item{\code{j}:}{Object of class \code{"integer"} - the column
       indices of non-zero entries.  Must be the same length as slot
-      \code{i} and \emph{0-based} as well, i.e., in \code{0:(ncol(.)-1)}.}
+      \code{i} and \emph{0-based} as well, i.e., in
+      \code{0:(ncol(.)-1)}.   For numeric Tsparse matrices, \code{(i,j)}
+      pairs can occur more than once, see \code{\linkS4class{dgTMatrix}}.
+    }
   }
 }
 \section{Extends}{

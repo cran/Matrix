@@ -393,7 +393,8 @@ setMethod("summary", signature(object = "sparseMatrix"),
 	      r <- data.frame(i = T@i + 1L, j = T@j + 1L, x = T@x)
 	      attr(r, "header") <-
 		  sprintf('%d x %d sparse Matrix of class "%s", with %d entries',
-			  d[1], d[2], class(object), nnzero(object))
+			  d[1], d[2], class(object),
+                          nnzero(object, na.counted=TRUE))
 	      ## use ole' S3 technology for such a simple case
 	      class(r) <- c("sparseSummary", class(r))
 	      r
@@ -480,8 +481,8 @@ setMethod("norm", signature(x = "sparseMatrix", type = "character"),
 		     stop("invalid 'type'"))
 	  })
 
-setMethod("rcond", signature(x = "sparseMatrix", type = "character"),
-	  function(x, type, ...) {
+setMethod("rcond", signature(x = "sparseMatrix", norm = "character"),
+	  function(x, norm, ...) {
 	      d <- dim(x)
               ## FIXME: qr.R(qr(.)) warns about differing R (permutation!)
               ##        really fix qr.R() *or* go via dense in any cases
@@ -489,7 +490,7 @@ setMethod("rcond", signature(x = "sparseMatrix", type = "character"),
 			warning("rcond(.) via sparse -> dense coercion")
 			as(x, "denseMatrix")
 		    } else if(d[1] > d[2]) qr.R(qr(x)) else qr.R(qr(t(x))),
-		    type = type)
+		    norm = norm, ...)
 	  })
 
 setMethod("cov2cor", signature(V = "sparseMatrix"),

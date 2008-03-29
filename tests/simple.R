@@ -41,10 +41,9 @@ dimnames(m.) <- list(LETTERS[1:3], letters[1:5])
 (m0 <- m <- Matrix(m.))
 m@Dimnames[[2]] <- m@Dimnames[[1]]
 ## not valid anymore:
-(val <- validObject(m, test=TRUE))
-stopifnot(is.character(val))
+(val <- validObject(m, test=TRUE)); stopifnot(is.character(val))
 dm <- as(m0, "denseMatrix")
-stopifnot(identical(rcond(dm), rcond(as.matrix(dm))),
+stopifnot(identical(rcond(dm), rcond(m.)),
 	  all.equal(rcond(dm), 0.4899474520656))
 rm(m)
 

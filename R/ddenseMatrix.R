@@ -67,11 +67,11 @@ setMethod("norm", signature(x = "ddenseMatrix", type = "missing"),
 setMethod("norm", signature(x = "ddenseMatrix", type = "character"),
 	  function(x, type, ...) norm(as(x, "dgeMatrix"), type))
 
-setMethod("rcond", signature(x = "ddenseMatrix", type = "missing"),
-	  function(x, type, ...) rcond(as(x, "dgeMatrix")))
+setMethod("rcond", signature(x = "ddenseMatrix", norm = "missing"),
+	  function(x, norm, ...) rcond(as(x, "dgeMatrix"), ...))
 
-setMethod("rcond", signature(x = "ddenseMatrix", type = "character"),
-	  function(x, type, ...) rcond(as(x, "dgeMatrix"), type))
+setMethod("rcond", signature(x = "ddenseMatrix", norm = "character"),
+	  function(x, norm, ...) rcond(as(x, "dgeMatrix"), norm, ...))
 
 ## Not really useful; now require *identical* class for result:
 ## setMethod("t", signature(x = "ddenseMatrix"),

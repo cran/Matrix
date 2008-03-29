@@ -19,13 +19,13 @@ setAs("matrix", "dspMatrix",
 
 
 
-setMethod("rcond", signature(x = "dspMatrix", type = "character"),
-          function(x, type, ...)
-          .Call(dspMatrix_rcond, x, type),
+setMethod("rcond", signature(x = "dspMatrix", norm = "character"),
+          function(x, norm, ...)
+          .Call(dspMatrix_rcond, x, norm),
           valueClass = "numeric")
 
-setMethod("rcond", signature(x = "dspMatrix", type = "missing"),
-          function(x, type, ...)
+setMethod("rcond", signature(x = "dspMatrix", norm = "missing"),
+          function(x, norm, ...)
           .Call(dspMatrix_rcond, x, "O"),
           valueClass = "numeric")
 

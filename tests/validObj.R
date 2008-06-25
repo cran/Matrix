@@ -5,7 +5,8 @@ library(Matrix)
 source(system.file("test-tools.R", package = "Matrix"))
 
 ## the empty ones:
-chk.matrix(new("dgeMatrix"))
+checkMatrix(new("dgeMatrix"))
+checkMatrix(Matrix(,0,0))
 
 ## "dge"
 assertError( new("dgeMatrix", Dim = c(2,2), x= 1:4) )# double 'Dim'
@@ -13,8 +14,8 @@ assertError( new("dgeMatrix", Dim = as.integer(c(2,2)), x= 1:4) )# int 'x'
 assertError( new("dgeMatrix", Dim = 2:2, x=as.double(1:4)) )# length(Dim) !=2
 assertError( new("dgeMatrix", Dim = as.integer(c(2,2)), x= as.double(1:5)))
 
-chk.matrix(m1 <- Matrix(1:6, ncol=2))
-chk.matrix(m2 <- Matrix(1:7 +0, ncol=3)) # a (desired) warning
+checkMatrix(m1 <- Matrix(1:6, ncol=2))
+checkMatrix(m2 <- Matrix(1:7 +0, ncol=3)) # a (desired) warning
 stopifnot(unique(is(m1)) == c("dgeMatrix", "ddenseMatrix", "generalMatrix",
 	    "dMatrix", "denseMatrix", "Matrix", "compMatrix"),
 	  dim(t(m1)) == 2:3,
@@ -32,16 +33,16 @@ stopifnot(identical(dimnames(t34N),
           identical(t34N, t(t(t34N))))
 
 ## "dpo"
-chk.matrix(cm <- crossprod(m1))
-chk.matrix(cp <- as(cm, "dppMatrix"))# 'dpp' + factors
-chk.matrix(cs <- as(cm, "dsyMatrix"))# 'dsy' + factors
-chk.matrix(dcm <- as(cm, "dgeMatrix"))#'dge'
-chk.matrix(mcm <- as(cm, "dMatrix")) # 'dsy' + factors -- buglet? rather == cm?
-chk.matrix(mc. <- as(cm, "Matrix"))
+checkMatrix(cm <- crossprod(m1))
+checkMatrix(cp <- as(cm, "dppMatrix"))# 'dpp' + factors
+checkMatrix(cs <- as(cm, "dsyMatrix"))# 'dsy' + factors
+checkMatrix(dcm <- as(cm, "dgeMatrix"))#'dge'
+checkMatrix(mcm <- as(cm, "dMatrix")) # 'dsy' + factors -- buglet? rather == cm?
+checkMatrix(mc. <- as(cm, "Matrix"))
 stopifnot(identical(mc., mcm),
           identical4(2*cm, cm + cp, cp + cs, mcm * 2))
 
-chk.matrix(eq <- cm == cs)
+checkMatrix(eq <- cm == cs)
 stopifnot(all(eq@x),
 	  identical3(eq, cs == cp, cm == cp),
 	  as.logical(!(cs < cp)),
@@ -57,9 +58,9 @@ assertError(as(M., "dpoMatrix"))
 
 
 ## Cholesky
-chk.matrix(ch <- chol(cm))
-chk.matrix(ch2 <- chol(as(cm, "dsyMatrix")))
-chk.matrix(ch3 <- chol(as(cm, "dgeMatrix")))
+checkMatrix(ch <- chol(cm))
+checkMatrix(ch2 <- chol(as(cm, "dsyMatrix")))
+checkMatrix(ch3 <- chol(as(cm, "dgeMatrix")))
 stopifnot(is.all.equal3(as(ch, "matrix"), as(ch2, "matrix"), as(ch3, "matrix")))
 ### Very basic	triangular matrix stuff
 

@@ -4,12 +4,15 @@
 setAs("triangularMatrix", "symmetricMatrix",
       function(from) as(as(from, "generalMatrix"), "symmetricMatrix"))
 
+setAs("dgeMatrix", "triangularMatrix", function(from) asTri(from, "dtrMatrix"))
+setAs("lgeMatrix", "triangularMatrix", function(from) asTri(from, "ltrMatrix"))
+setAs("ngeMatrix", "triangularMatrix", function(from) asTri(from, "ntrMatrix"))
+
 .tril.tr <- function(x, k = 0, ...) {  # are always square
     k <- as.integer(k[1])
     dd <- dim(x)
     stopifnot(-dd[1] <= k, k <= dd[1])  # had k <= 0
-    if(k <= 0 && x@uplo == "L")
-        x
+    if(k == 0 && x@uplo == "L") x
     else { ## more to do
         if(x@diag == "U") x <- .diagU2N(x, class(x), checkDense = TRUE)
         callNextMethod()
@@ -20,8 +23,7 @@ setAs("triangularMatrix", "symmetricMatrix",
     k <- as.integer(k[1])
     dd <- dim(x)
     stopifnot(-dd[1] <= k, k <= dd[1])  # had k >= 0
-    if(k >= 0 && x@uplo == "U")
-        x
+    if(k == 0 && x@uplo == "U") x
     else { ## more to do
         if(x@diag == "U") x <- .diagU2N(x, class(x), checkDense = TRUE)
         callNextMethod()

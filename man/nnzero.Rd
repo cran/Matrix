@@ -19,11 +19,12 @@ nnzero(x, na.counted = NA)
     \describe{
       \item{TRUE}{\code{NA}s \emph{are} counted as non-zero (since
 	\dQuote{they are not zero}).}
-      \item{NA}{the result will be \code{NA} if there are \code{NA}'s in
-	\code{x} (since \dQuote{NA's are not known, i.e. Not Available}).}
+      \item{NA}{(default)the result will be \code{NA} if there are \code{NA}'s in
+	\code{x} (since \dQuote{NA's are not known, i.e., \emph{may be} zero}).}
       \item{FALSE}{\code{NA}s are \emph{omitted} from \code{x} before
 	the non-zero entries are counted.}
     }
+    For sparse matrices, you may often want to use \code{na.counted = TRUE}.
   }
 }
 % \details{

@@ -20,11 +20,13 @@ setAs("ngCMatrix", "lgCMatrix", .ngC2l)
 
 rm(.ngC2d,.ngC2l) # don't even keep "hidden"
 
+if(FALSE) ## rather use ("Csparse*, to= "Tsparse*"):
 setAs("ngCMatrix", "ngTMatrix",
       function(from) new("ngTMatrix", i = from@i,
                          j = .Call(Matrix_expand_pointers, from@p),
                          Dim = from@Dim, Dimnames = from@Dimnames))
 
+if(FALSE) ## rather use ("Csparse*, to= "dense*"):
 setAs("ngCMatrix", "ngeMatrix",
       function(from)
 	  new("ngeMatrix", x = c(as(from, "matrix")), # is fast,
@@ -64,6 +66,3 @@ setAs("matrix", "ngCMatrix",
 ## 	  function(x, y = NULL)
 ##           .Call(ngCMatrix_crossprod, x, FALSE, NULL),
 ## 	  valueClass = "nsCMatrix")
-
-setMethod("image", "ngCMatrix",
-	  function(x, ...) image(as(as(x, "dgCMatrix"), "dgTMatrix"), ...))

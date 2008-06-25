@@ -221,7 +221,7 @@ setMethod("Math",
 	  signature(x = "sparseMatrix"),
 	  function(x) callGeneric(as(x, "CsparseMatrix")))
 
-## further group methods -> see ./Ops.R
+## further group methods -> see ./Ops.R {"Summary": ./dMatrix.R }
 
 
 
@@ -230,7 +230,7 @@ setMethod("Math",
 ## FIXME(?) -- ``merge this'' (at least ``synchronize'') with
 ## - - -   prMatrix() from ./Auxiliaries.R
 ## FIXME: prTriang() in ./Auxiliaries.R  should also get  align = "fancy"
-## --> help for this is currently (rudimentary) in ../man/sparseMatrix-class.Rd
+##
 printSpMatrix <- function(x, digits = getOption("digits"),
 		       maxp = getOption("max.print"), zero.print = ".",
 		       col.names, note.dropping.colnames = TRUE,
@@ -238,6 +238,7 @@ printSpMatrix <- function(x, digits = getOption("digits"),
 {
     cl <- getClassDef(class(x))
     stopifnot(extends(cl, "sparseMatrix"))
+    validObject(x) # have seen seg.faults for invalid objects
     d <- dim(x)
     if(prod(d) > maxp) { # "Large" => will be "cut"
         ## only coerce to dense that part which won't be cut :
@@ -250,7 +251,7 @@ printSpMatrix <- function(x, digits = getOption("digits"),
     logi <- extends(cl,"lsparseMatrix") || extends(cl,"nsparseMatrix")
     if(logi)
 	cx <- array("N", dim(m), dimnames=dn)
-    else { ## numeric (or --not yet-- complex):
+    else { ## numeric (or --not yet implemented-- complex):
 	cx <- apply(m, 2, format)
 	if(is.null(dim(cx))) {# e.g. in	1 x 1 case
 	    dim(cx) <- dim(m)
@@ -293,7 +294,7 @@ printSpMatrix <- function(x, digits = getOption("digits"),
 	## show only "structural" zeros as 'zero.print', not all of them..
 	## -> cannot use 'm'
         d <- dim(cx)
-	ne <- length(iN0 <- 1L + encodeInd(non0ind(x, cl), nr = d[1]))
+	ne <- length(iN0 <- 1L + .Call(m_encodeInd, non0ind(x, cl), di = d))
 	if(0 < ne && ne < prod(d)) {
 	    align <- match.arg(align)
 	    if(align == "fancy" && !is.integer(m)) {
@@ -329,57 +330,81 @@ printSpMatrix <- function(x, digits = getOption("digits"),
     ## right = TRUE : cheap attempt to get better "." alignment
     print(cx, quote = FALSE, right = TRUE, max = maxp)
     invisible(x)
-}
+} ## printSpMatrix()
+
+printSpMatrix2 <- function(x, digits = getOption("digits"),
+                           maxp = getOption("max.print"), zero.print = ".",
+                           col.names, note.dropping.colnames = TRUE,
+                           suppRows = NULL, suppCols = NULL,
+                           col.trailer = if(suppCols) "......" else "",
+                           align = c("fancy", "right"))
+{
+    d <- dim(x)
+    if((identical(suppRows,FALSE) && identical(suppCols, FALSE)) ||
+       (!isTRUE(suppRows) && !isTRUE(suppCols) && prod(d) <= maxp))
+    {
+        if(missing(col.trailer) && is.null(suppCols))
+            suppCols <- FALSE # for 'col.trailer'
+        printSpMatrix(x, digits=digits, maxp=maxp,
+                      zero.print=zero.print, col.names=col.names,
+                      note.dropping.colnames=note.dropping.colnames,
+                      col.trailer=col.trailer, align=align)
+    } else { ## d[1] > maxp / d[2] >= nr : -- this needs [,] working:
+        nR <- d[1] ## nrow
+        useW <- getOption("width") - (format.info(nR)[1] + 3+1)
+        ##                           space for "[<last>,] "
+
+        ## --> suppress rows and/or columns in printing ...
+
+        if(is.null(suppCols)) suppCols <- (d[2] * 2 > useW)
+        nc <- if(suppCols) (useW - (1 + nchar(col.trailer))) %/% 2 else d[2]
+        nr <- maxp %/% nc
+        if(is.null(suppRows)) suppRows <- (nr < nR)
+
+        sTxt <- c("in show(); maybe adjust 'options(max.print= *)'",
+                  "\n ..............................\n")
+        if(suppRows) {
+            if(suppCols)
+                x <- x[ , 1:nc, drop = FALSE]
+            n2 <- ceiling(nr / 2)
+            printSpMatrix(x[seq_len(min(nR, max(1, n2))), , drop=FALSE],
+                          digits=digits, maxp=maxp,
+                          zero.print=zero.print, col.names=col.names,
+                          note.dropping.colnames=note.dropping.colnames,
+                          col.trailer = col.trailer, align=align)
+            cat("\n ..............................",
+                "\n ........suppressing rows ", sTxt, "\n", sep='')
+            ## tail() automagically uses "[..,]" rownames:
+            printSpMatrix(tail(x, max(1, nr-n2)),
+                          digits=digits, maxp=maxp,
+                          zero.print=zero.print, col.names=col.names,
+                          note.dropping.colnames=note.dropping.colnames,
+                          col.trailer = col.trailer, align=align)
+        }
+        else if(suppCols) {
+            printSpMatrix(x[ , 1:nc , drop = FALSE],
+                          digits=digits, maxp=maxp,
+                          zero.print=zero.print, col.names=col.names,
+                          note.dropping.colnames=note.dropping.colnames,
+                          col.trailer = col.trailer, align=align)
+            cat("\n .....suppressing columns ", sTxt, sep='')
+        }
+        else stop("logic programming error in printSpMatrix2(), please report")
+
+        invisible(x)
+    }
+} ## printSpMatrix2 ()
 
 setMethod("print", signature(x = "sparseMatrix"), printSpMatrix)
 
 setMethod("show", signature(object = "sparseMatrix"),
-   function(object) {
-       d <- dim(object)
-       cl <- class(object)
-       cat(sprintf('%d x %d sparse Matrix of class "%s"\n', d[1], d[2], cl))
-       maxp <- getOption("max.print")
-       if(prod(d) <= maxp)
-	   printSpMatrix(object, maxp = maxp)
-       else { ## d[1] > maxp / d[2] >= nr : -- this needs [,] working:
-
-	   nR <- d[1] # nrow
-           useW <- getOption("width") - (format.info(nR)[1] + 3+1)
-           ##                           space for "[<last>,] "
-
-           ## --> suppress rows and/or columns in printing ...
-
-           suppCols <- (d[2] * 2 > useW)
-           nc <- if(suppCols) (useW - (1 + 6)) %/% 2 else d[2]
-           ##                          sp+ col.trailer
-           col.trailer <- if(suppCols) "......" else ""
-	   nr <- maxp %/% nc
-           suppRows <- (nr < nR)
-           if(suppRows) {
-	       if(suppCols)
-		   object <- object[ , 1:nc, drop = FALSE]
-	       n2 <- ceiling(nr / 2)
-	       printSpMatrix(object[seq_len(min(nR, max(1, n2))), , drop=FALSE],
-                             col.trailer = col.trailer)
-	       cat("\n ..............................",
-		   "\n ..........suppressing rows in show(); maybe adjust 'options(max.print= *)'",
-		   "\n ..............................\n\n", sep='')
-	       ## tail() automagically uses "[..,]" rownames:
-	       printSpMatrix(tail(object, max(1, nr-n2)),
-                             col.trailer = col.trailer)
-	   }
-	   else if(suppCols) {
-	       printSpMatrix(object[ , 1:nc , drop = FALSE],
-                             col.trailer = col.trailer)
-
-	       cat("\n .....suppressing columns in show(); maybe adjust 'options(max.print= *)'",
-		   "\n ..............................\n", sep='')
-	   }
-           else stop("logic programming error in printSpMatrix(), please report")
-
-           invisible(object)
-       }
-   })
+          function(object) {
+              d <- dim(object)
+              cl <- class(object)
+              cat(sprintf('%d x %d sparse Matrix of class "%s"\n',
+                          d[1], d[2], cl))
+              printSpMatrix2(object)
+          })
 
 
 ## For very large and very sparse matrices,  the above show()
@@ -390,11 +415,12 @@ setMethod("summary", signature(object = "sparseMatrix"),
 	      d <- dim(object)
 	      T <- as(object, "TsparseMatrix")
 	      ## return a data frame (int, int,	 {double|logical|...})	:
-	      r <- data.frame(i = T@i + 1L, j = T@j + 1L, x = T@x)
+	      r <- if(is(object,"nsparseMatrix"))
+		  data.frame(i = T@i + 1L, j = T@j + 1L)
+	      else data.frame(i = T@i + 1L, j = T@j + 1L, x = T@x)
 	      attr(r, "header") <-
 		  sprintf('%d x %d sparse Matrix of class "%s", with %d entries',
-			  d[1], d[2], class(object),
-                          nnzero(object, na.counted=TRUE))
+			  d[1], d[2], class(object), length(T@i))
 	      ## use ole' S3 technology for such a simple case
 	      class(r) <- c("sparseSummary", class(r))
 	      r
@@ -450,6 +476,14 @@ setMethod("isDiagonal", signature(object = "sparseMatrix"),
 	  })
 
 
+setMethod("determinant", signature(x = "sparseMatrix", logarithm = "missing"),
+	  function(x, logarithm, ...)
+	  determinant(x, logarithm = TRUE, ...))
+setMethod("determinant", signature(x = "sparseMatrix", logarithm = "logical"),
+	  function(x, logarithm = TRUE, ...)
+	  determinant(as(x,"dsparseMatrix"), logarithm, ...))
+
+
 setMethod("diag", signature(x = "sparseMatrix"),
 	  function(x, nrow, ncol = n) diag(as(x, "CsparseMatrix")))
 
@@ -467,9 +501,6 @@ setMethod("dim<-", signature(x = "sparseMatrix", value = "ANY"),
 
 setMethod("norm", signature(x = "sparseMatrix", type = "character"),
 	  function(x, type, ...) {
-## as(*, "dsparseMatrix") fails e.g. for "lgT*", but why use it anyway?
-## 	      if(!is(x, "dsparseMatrix"))
-## 		  x <- as(x, "dsparseMatrix")
 	      type <- toupper(substr(type[1], 1, 1))
 	      switch(type,  ##  max(<empty>, 0)  |-->  0
 		     "O" = ,
@@ -512,20 +543,23 @@ setMethod("cov2cor", signature(V = "sparseMatrix"),
 	      as(r, "symmetricMatrix")
 	  })
 
-setMethod("is.na", signature(x = "sparseMatrix"),
+setMethod("is.na", signature(x = "sparseMatrix"),## NB: nsparse* have own method!
 	  function(x) {
 	      if(any((inax <- is.na(x@x)))) {
-		  r <- as(x, "lMatrix")# will be "lsparseMatrix" - *has* x slot
+		  cld <- getClassDef(class(x))
+		  if(extends(cld, "triangularMatrix") && x@diag == "U")
+		      inax <- is.na((x <- .diagU2N(x, cld))@x)
+		  r <- as(x, "lMatrix") # will be "lsparseMatrix" - *has* x slot
 		  r@x <- inax
-		  as(r, "nMatrix") # a 'pattern matrix
-	      } else {
-		  d <- x@Dim
-		  new("ngCMatrix", Dim = d, Dimnames = dimnames(x),
-		      i = integer(0), p = rep.int(0L, d[2]+1L))
+                  if(!extends(cld, "CsparseMatrix"))
+                      r <- as(r, "CsparseMatrix")
+		  as(.Call(Csparse_drop, r, 0), "nMatrix") # a 'pattern matrix
 	      }
+	      else is.na_nsp(x)
 	  })
 
 
+### Keep this namespace-hidden: Would need to return a classed object
 lm.fit.sparse <-
 function(x, y, offset = NULL, method = c("qr", "cholesky"),
          tol = 1e-7, singular.ok = TRUE, transpose = FALSE, ...)

@@ -12,18 +12,19 @@ setAs("lsTMatrix", "lgTMatrix",
       function(from) .Call(lsTMatrix_as_lgTMatrix, from))
 
 
+if(FALSE) # should use  as(., "dMatrix")
 setAs("lsTMatrix", "dsTMatrix",
-      function(from) new("dsTMatrix", i = from@i, j = from@j,
-                         x = rep.int(1, length(from@i)), uplo = from@uplo,
-                         diag = from@diag,
-                         Dim = from@Dim, Dimnames = from@Dimnames))
+      function(from)
+      new("dsTMatrix", i = from@i, j = from@j, uplo = from@uplo,
+	  x = as.double(from@x), # *not* just 1; from@x *can* have FALSE
+	  Dim = from@Dim, Dimnames = from@Dimnames))
 
 setAs("lsTMatrix", "lsyMatrix",
       function(from) .Call(lsTMatrix_as_lsyMatrix, from))
 
-## untested:
-setMethod("image", "lsTMatrix",
-          function(x, ...) {
-              x <- as(as(x, "dsTMatrix"), "dgTMatrix")
-              callGeneric()
-          })
+
+setMethod("t", "lsTMatrix",
+	  function(x)
+	  new("lsTMatrix", Dim = x@Dim, Dimnames = x@Dimnames,
+	      i = x@j, j = x@i, x = x@x,
+	      uplo = if (x@uplo == "U") "L" else "U"))

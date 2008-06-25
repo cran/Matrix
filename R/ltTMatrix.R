@@ -3,7 +3,7 @@
 ### contains = "lsparseMatrix"
 
 setAs("matrix", "ltTMatrix",
-      function(from) as(as(as(from, "TsparseMatrix"), "triangularMatrix"), "lMatrix"))
+      function(from) as(as(from, "ltrMatrix"), "TsparseMatrix"))
 
 setAs("ltTMatrix", "lgTMatrix",
       function(from) tT2gT(from, cl = "ltTMatrix", toClass = "lgTMatrix"))
@@ -29,14 +29,8 @@ setAs("ltTMatrix", "matrix",
 
 
 
-## untested:
-setMethod("image", "ltTMatrix",
-          function(x, ...) {
-              x <- as(as(x, "dtTMatrix"), "dgTMatrix")
-              callGeneric()
-          })
-
-## FIXME
-## setMethod("t", signature(x = "ltTMatrix"),
-##           function(x) .Call(ltTMatrix_trans, x),
-##           valueClass = "ltTMatrix")
+setMethod("t", "ltTMatrix",
+	  function(x)
+	  new("ltTMatrix", Dim = x@Dim[2:1], Dimnames = x@Dimnames[2:1],
+	      i = x@j, j = x@i, x = x@x, diag = x@diag,
+	      uplo = if (x@uplo == "U") "L" else "U"))

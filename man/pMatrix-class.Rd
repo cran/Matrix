@@ -19,7 +19,11 @@
 \alias{coerce,pMatrix,nMatrix-method}
 \alias{coerce,pMatrix,CsparseMatrix-method}
 \alias{coerce,pMatrix,TsparseMatrix-method}
+\alias{coerce,pMatrix,dsparseMatrix-method}
 \alias{coerce,nMatrix,pMatrix-method}
+\alias{determinant,pMatrix,logical-method}
+\alias{is.na,pMatrix-method}
+\alias{Summary,pMatrix-method}
 %
 \alias{solve,pMatrix,missing-method}
 \alias{solve,Matrix,pMatrix-method}
@@ -66,6 +70,10 @@
       \code{\link{mode}} \code{integer}.}
     \item{coerce}{\code{signature(from = "pMatrix", to = "ngTMatrix")}:
       coercion to sparse logical matrix of class \code{\linkS4class{ngTMatrix}}.}
+    \item{determinant}{\code{signature(x = "pMatrix", logarithm="logical")}:
+      Since permutation matrices are orthogonal, the determinant must be
+      +1 or -1.  In fact, it is exactly the \emph{sign of the
+	permutation}.}
     \item{solve}{\code{signature(a = "pMatrix", b = "missing")}: return
       the inverse permutation matrix.}
     \item{t}{\code{signature(x = "pMatrix")}: return the transpose of
@@ -77,11 +85,12 @@
   The inverse of the typical \code{"pMatrix"} constructor,
   \code{P <- as(ip, "pMatrix")} is simply \code{ip <- P@perm}.
 
-  Subsetting (\dQuote{indexing}) \code{"pMatrix"} objects treats them as
-  nonzero-pattern matrices, i.e., as \code{"linkS4class{ngTMatrix}"}
-  such that non-matrix subsetting result in \code{\link{logical}}
-  vectors.  Sub-assignment (\code{M[i,j] <- v}) is not sensible and
-  hence an error for these permutation matrices.
+  Subsetting (\dQuote{indexing}, including, \code{\link{diag}})
+  \code{"pMatrix"} objects treats themas nonzero-pattern matrices, i.e.,
+  as \code{"\linkS4class{ngTMatrix}"} such that non-matrix subsetting
+  result in \code{\link{logical}} vectors.
+  Sub-assignment (\code{M[i,j] <- v}) is not sensible and hence an error
+  for these permutation matrices.
 }
 %\seealso{}
 \examples{

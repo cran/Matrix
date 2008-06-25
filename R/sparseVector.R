@@ -72,7 +72,7 @@ setAs("TsparseMatrix", "sparseVector",
 	  d <- dim(from)
 	  n <- d[1] * d[2] # length of vector
 	  kind <- .M.kind(from)
-	  if(is_duplicatedT(from, nr = d[1]))
+	  if(is_duplicatedT(from, di = d))
 	      from <- uniqTsparse(from)
 	  r <- new(paste(kind, "sparseVector", sep=''), length = n)
 	  r@i <- 1L + from@i + d[1] * from@j

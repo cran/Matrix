@@ -1,54 +1,57 @@
 setAs("matrix", "lMatrix",
       function(from) { storage.mode(from) <- "logical" ; Matrix(from) })
 
+## NOTE: This is *VERY* parallel to  ("dMatrix" -> "nMatrix") in ./dMatrix.R :
 setAs("lMatrix", "nMatrix",
       function(from) {
 	  if(any(is.na(from@x)))
 	      stop("\"lMatrix\" object with NAs cannot be coerced to \"nMatrix\"")
-	  ## i.e. from@x are only TRUE (or FALSE in dense case)
-	  cl <- class(from)
-	  if(extends(cl, "diagonalMatrix")) # have no "ndi*" etc class
+	  ## i.e. from@x are only TRUE or FALSE
+	  cld <- getClassDef(cl <- class(from))
+	  if(extends(cld, "diagonalMatrix")) { # have no "ndi*" etc class
 	      cl <- class(from <- as(from, "sparseMatrix"))
-	  nCl <- sub("^l", "n", cl)
-	  sNams <- slotNames(if(extends(cl, "sparseMatrix")) .sp.class(cl) else cl)
-	  r <- new(nCl)# default => no validity check; and copy slots:
-	  for(nm in sNams)
-	      slot(r, nm) <- slot(from, nm)
-	  r
+	      isSp <- TRUE
+	  } else {
+	      isSp <- extends(cld, "sparseMatrix")
+	      if(isSp && !all(from@x)) {
+		  from <- drop0(from, cld)
+		  if(cl != (c. <- class(from)))
+		      cld <- getClassDef(cl <- c.)
+	      }
+	  }
+	  sNams <- slotNames(cld)
+	  copyClass(from, sub("^l", "n", cl),
+		    if(isSp) sNams[sNams != "x"] else sNams)
       })
 
 ## and the reverse as well :
 
 setAs("nMatrix", "lMatrix",
       function(from) {
-	  cl <- class(from)
-	  nCl <- sub("^n", "l", cl)
-	  r <- new(nCl)# default => no validity check; and copy slots:
-	  ## result is "same", for sparse just with an 'x' slot
-	  if(extends(cl, "sparseMatrix"))
-	      slot(r, "x") <- rep.int(TRUE, nnzero(from))
-	  for(nm in slotNames(cl))
-	      slot(r, nm) <- slot(from, nm)
+	  cld <- getClassDef(cl <- class(from))
+	  r <- copyClass(from, sub("^n", "l", cl), slotNames(cld))
+	  if(extends(cld, "sparseMatrix"))
+	      r@x <- rep.int(TRUE, length(if(!extends(cld, "RsparseMatrix"))
+					  from@i else from@j))
 	  r
       })
 
 setAs("dMatrix", "lMatrix",
       function(from) {
-	  r <- new(class2(class(from), "l"))# default => no validity
+	  cld <- getClassDef(newCl <- class2(cl <- class(from), "l"))
+	  sNams <- slotNames(cld)
+	  r <- copyClass(from, newCl, sNames = sNams[sNams != "x"])
 	  r@x <- as.logical(from@x)
-	  sNams <- slotNames(r)
-	  for(nm in sNams[sNams != "x"])
-	      slot(r, nm) <- slot(from, nm)
 	  r
       })
 
 setAs("lMatrix", "dMatrix",
       function(from) {
-	  r <- new(sub("^l", "d", class(from)))
+	  cld <- getClassDef(cl <- class(from))
+	  sNams <- slotNames(cld)
+	  r <- copyClass(from, newCl = sub("^l", "d", cl),
+			 sNames = sNams[sNams != "x"])
 	  r@x <- as.double(from@x)
-	  sNams <- slotNames(r)
-	  for(nm in sNams[sNams != "x"])
-	      slot(r, nm) <- slot(from, nm)
 	  r
       })
 

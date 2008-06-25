@@ -19,7 +19,8 @@ bdiag(\dots)
 }
 \author{Martin Maechler, built on a version posted by Berton Gunter to
   R-help; earlier versions have been posted by other authors, notably
-  Scott Chasalow to S-news.
+  Scott Chasalow to S-news.  Doug Bates's faster implementation builds
+  on \code{\linkS4class{TsparseMatrix}} objects.
 }
 \seealso{\code{\link{Diagonal}} for constructing matrices of
   class \code{\linkS4class{diagonalMatrix}}, or \code{\link{kronecker}}
@@ -34,6 +35,9 @@ bdiag(matrix(1:4, 2), diag(3))
 bdiag(Diagonal(2), matrix(1:3, 3,4), diag(3:2))
 
 mlist <- list(1, 2:3, diag(x=5:3), 27, cbind(1,3:6), 100:101)
-bdiag(lapply(mlist, as.matrix))
+bdiag(mlist)
+
+stopifnot(identical(bdiag(mlist), % <- used to fail in earlier versions
+                    bdiag(lapply(mlist, as.matrix))))
 }
 \keyword{array}

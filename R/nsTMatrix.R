@@ -12,18 +12,16 @@ setAs("nsTMatrix", "ngTMatrix",
       function(from) .Call(nsTMatrix_as_ngTMatrix, from))
 
 setAs("nsTMatrix", "dsTMatrix",
-      function(from) new("dsTMatrix", i = from@i, j = from@j,
-                         x = rep.int(1, length(from@i)), uplo = from@uplo,
-                         diag = from@diag,
-                         Dim = from@Dim, Dimnames = from@Dimnames))
+      function(from)
+      new("dsTMatrix", i = from@i, j = from@j, uplo = from@uplo,
+	  x = rep.int(1., length(from@i)),
+	  Dim = from@Dim, Dimnames = from@Dimnames))
 
 setAs("nsTMatrix", "nsyMatrix",
       function(from) .Call(nsTMatrix_as_nsyMatrix, from))
 
 
-## untested:
-setMethod("image", "nsTMatrix",
-          function(x, ...) {
-              x <- as(as(x, "dsTMatrix"), "dgTMatrix")
-              callGeneric()
-          })
+setMethod("t", "nsTMatrix",
+	  function(x)
+	  new("nsTMatrix", Dim = x@Dim, Dimnames = x@Dimnames,
+	      i = x@j, j = x@i, uplo = if (x@uplo == "U") "L" else "U"))

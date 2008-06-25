@@ -34,6 +34,7 @@ setAs("pMatrix", "TsparseMatrix", function(from) as(from, "ngTMatrix"))
 setAs("pMatrix", "nMatrix",	  function(from) as(from, "ngTMatrix"))
 setAs("pMatrix", "lMatrix", function(from) as(as(from, "nMatrix"), "lMatrix"))
 setAs("pMatrix", "dMatrix", function(from) as(as(from, "nMatrix"), "dMatrix"))
+setAs("pMatrix", "dsparseMatrix", function(from) as(from, "dMatrix"))
 
 setAs("pMatrix", "CsparseMatrix",
       function(from) as(as(from, "ngTMatrix"), "CsparseMatrix"))
@@ -58,6 +59,7 @@ setAs("nMatrix", "pMatrix",
 
 setAs("matrix", "pMatrix", function(from) as(as(from, "nMatrix"), "pMatrix"))
 
+setMethod("is.na", signature(x = "pMatrix"), is.na_nsp)
 
 setMethod("solve", signature(a = "pMatrix", b = "missing"),
 	  function(a, b) {
@@ -75,6 +77,10 @@ setMethod("solve", signature(a = "Matrix", b = "pMatrix"),
 	      i[i] <- seq_along(i)
 	      solve(a)[, i]
 	  })
+
+setMethod("determinant", signature(x = "pMatrix", logarithm = "logical"),
+	  function(x, logarithm, ...)
+	  mkDet(logarithm=logarithm, ldet = 0, sig = signPerm(x@perm)))
 
 ## t(pM) is == the inverse  pM^(-1):
 setMethod("t", signature(x = "pMatrix"), function(x) solve(x))

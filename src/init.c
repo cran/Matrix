@@ -221,6 +221,9 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(CHMsimpl_validate, 1),
     CALLDEF(CHMsuper_validate, 1),
 
+    CALLDEF(m_encodeInd, 2),
+    CALLDEF(m_encodeInd2, 3),
+
     {NULL, NULL, 0}
 };
 

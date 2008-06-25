@@ -1,16 +1,26 @@
 \name{printSpMatrix}
 \alias{printSpMatrix}
+\alias{printSpMatrix2}
 \title{Print Sparse Matrices Flexibly}
 \description{
-  Print sparse matrices flexibly. This is the \dQuote{workhorse} used by
+  Print sparse matrices flexibly. These are the \dQuote{workhorses} used by
   the \code{\link{show}} and \code{\link{print}} methods for sparse
-  matrices.
+  matrices.  If \code{x} is large, \code{printSpMatrix2(x)} calls
+  \code{printSpMatrix()} twice, namely, for the first and the last few
+  rows, suppressing those in between, and also suppresses columns when
+  \code{x} is too wide.
 }
 \usage{
 printSpMatrix(x, digits = getOption("digits"), maxp = getOption("max.print"),
-              zero.print = ".",
-              col.names, note.dropping.colnames = TRUE,
-              col.trailer = "", align = c("fancy", "right"))
+              zero.print = ".", col.names, note.dropping.colnames = TRUE,
+              col.trailer = "",
+              align = c("fancy", "right"))
+
+printSpMatrix2(x, digits = getOption("digits"), maxp = getOption("max.print"),
+              zero.print = ".", col.names, note.dropping.colnames = TRUE,
+              suppRows = NULL, suppCols = NULL,
+              col.trailer = if(suppCols) "......" else "",
+              align = c("fancy", "right"))
 }
 \arguments{
   \item{x}{an \R object inheriting from class \code{\linkS4class{sparseMatrix}}.}
@@ -33,11 +43,19 @@ printSpMatrix(x, digits = getOption("digits"), maxp = getOption("max.print"),
     the column names are \code{\link{abbreviate}()}d or
     \code{\link{substring}()}ed to (target) length \code{n}, see the examples.
   }
-  \item{note.dropping.colnames}{logical specifying, when \code{col.names} is \code{FALSE}
-    if the dropping of the column names should be noted, \code{TRUE} by default.}
+  \item{note.dropping.colnames}{logical specifying, when
+    \code{col.names} is \code{FALSE} if the dropping of the column names
+    should be noted, \code{TRUE} by default.}
   \item{col.trailer}{a string to be appended to the right of each
     column; this is typically made use of by \code{\link{show}(<sparseMatrix>)}
     only, when suppressing columns.}
+  \item{suppRows, suppCols}{logicals or \code{NULL}, for
+    \code{printSpMatrix2()} specifying if rows or columns should be
+    suppressed in printing.  If \code{NULL}, sensible defaults are
+    determined from \code{\link{dim}(x)} and
+    \code{\link{options}(c("width", "max.print"))}.
+    Setting both to \code{FALSE} may be a very bad idea.}
+
   \item{align}{a string specifying how the \code{zero.print} codes
     should be aligned, i.e., padded as strings.  The default,
     \code{"fancy"}, takes some effort to align the typical

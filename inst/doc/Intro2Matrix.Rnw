@@ -1,16 +1,18 @@
 \documentclass{article}
 %
 \usepackage{myVignette}
+\usepackage{fullpage}% save trees ;-)
 \usepackage[authoryear,round]{natbib}
 \bibliographystyle{plainnat}
 \newcommand{\noFootnote}[1]{{\small (\textit{#1})}}
 \newcommand{\myOp}[1]{{$\left\langle\ensuremath{#1}\right\rangle$}}
+%
 %%\VignetteIndexEntry{2nd Introduction to the Matrix Package}
 %%\VignetteDepends{Matrix}
-\SweaveOpts{engine=R,eps=FALSE,pdf=TRUE,width=5,height=3,strip.white=TRUE,keep.source=TRUE}
+\SweaveOpts{engine=R,eps=FALSE,pdf=TRUE,width=7,height=4,strip.white=TRUE,keep.source=TRUE}
 %								          ^^^^^^^^^^^^^^^^
 \title{2nd Introduction to the Matrix package}
-\author{Martin Maechler and Douglas Bates\\R Core Development Team
+\author{Martin Maechler and Douglas Bates\\ R Core Development Team
   \\\email{maechler@stat.math.ethz.ch}, \email{bates@r-project.org}}
 \date{September 2006 ({\tiny typeset on \tiny\today})}
 %
@@ -47,7 +49,7 @@ options(width=75)
 
 \section{Introduction}
 \label{sec:Intro}
-The most automatic way to use the \code{Matrix} package is via the
+The most automatic way to use the \pkg{Matrix} package is via the
 \Rfun{Matrix} function which is very similar to the standard \RR\ function
 \Rfun{matrix},
 @
@@ -113,11 +115,30 @@ to Matlab's printing of sparse matrices.
 <<str_mat>>=
 str(Mg2)
 summary(Mg2)
-@ %def
+@
+As you see from both of these, \code{Mg2} contains ``extra zero'' (here
+\code{FALSE}) entries; such sparse matrices may be created for different reasons,
+and you can use \Rfun{drop0} to remove (``drop'') these extra zeros.  This
+should \emph{never} matter for functionality, and does not even show
+differently for logical sparse matrices, but the internal structure is more
+compact:
+<<drop0>>=
+Mg2 <- drop0(Mg2)
+str(Mg2@x) # length 13, was 16
+@
+For large sparse matrices, visualization (of the sparsity pattern) is important,
+and we provide \Rfun{image} methods for that, e.g.,
+<<image,fig=TRUE>>=
+data(CAex)
+print(image(CAex, main = "image(CAex)")) # print(.) needed for Sweave
+@
 
-%
-Further, i.e., in addition to the above \code{"Ops"} operators, the
-\code{"Math"}-operations (such as \Rfun{exp}, \Rfun{sin} or \Rfun{gamma})
+\smallskip
+
+Further, i.e., in addition to the above implicitly mentioned \code{"Ops"} operators
+(\code{+}, \code{*},\dots, \code{<=},\code{>},\dots, \code{\&} which all
+work with our matrices, notably in conjunction with scalars and traditional
+matrices), the \code{"Math"}-operations (such as \Rfun{exp}, \Rfun{sin} or \Rfun{gamma})
 and \code{"Math2"} (\Rfun{round} etc) and the \code{"Summary"} group of
 functions, \Rfun{min}, \Rfun{range}, \Rfun{sum}, all work on our matrices
 as they should.  Note that all these are implemented via so called
@@ -129,8 +150,8 @@ for the rare cases where it would be advantageous to get a <sparse>
 result.
 
 These classed matrices can be ``indexed'' (more technically ``subset'') as
-normal ones, as partly seen above. This also includes the idiom
-\code{M [ M \myOp{\mathit{cop}} \myOp{\mathrm{num}} ]}
+traditional \Slang{} (and hence \RR) matrices, as partly seen above. This also includes the idiom
+\code{M [ M \myOp{\mathit{op}} \myOp{\mathrm{num}}~]}
 which returns simple vectors,
 @
 <<sub_logi>>=
@@ -143,7 +164,7 @@ traditional \Slang{} matrices.
 %% We have seen that already above!
 
 %% This was the 2005 - Introduction vignette's first section:
-\subsection{\code{Matrix} package for numerical linear algebra}
+\subsection{\pkg{Matrix} package for numerical linear algebra}
 \label{ssec:intro-linalg}
 
 Linear algebra is at the core of many statistical computing techniques
@@ -178,7 +199,7 @@ Also there is no direct support for sparse matrices in \RR{} although
 \citet{koen:ng:2003} have developed the \pkg{SparseM} package for sparse
 matrices based on SparseKit.
 
-The \code{Matrix} package provides S4 classes and methods for dense
+The \pkg{Matrix} package provides S4 classes and methods for dense
 and sparse matrices.  The methods for dense matrices use Lapack and
 BLAS.  The sparse matrix methods use
 CHOLMOD~\citep{Cholmod}, CSparse~\citep{Csparse}
@@ -208,7 +229,6 @@ sparse matrix libraries, many of which also use BLAS.
   and \code{crossprod(mm)}.}
 
 
-
 % \bigskip
 
 % ... ... ...  The following is the old \file{Introduction.Rnw} ... FIXME ... ...
@@ -216,14 +236,24 @@ sparse matrix libraries, many of which also use BLAS.
 \bigskip
 
 \section{Matrix Classes}
+The \pkg{Matrix} package provides classes for real (stored as
+double precision) logical and so-called ``pattern'' (binary) dense and
+sparse matrices. There are provisions to also provide integer and complex (stored as double
+precision complex) matrices.
+
+Note that in \RR, \code{logical} means entries \code{TRUE}, \code{FALSE}, or \code{NA}.
+To store just the non-zero pattern for typical sparse matrix algorithms,
+the pattern matrices are \emph{binary}, i.e., conceptually just \code{TRUE}
+or \code{FALSE}.  In \pkg{Matrix}, the pattern matrices all have class
+names starting with \code{"n"} (patter\textbf{n}).
+
 \subsection{Classes for dense matrices}
 \label{ssec:DenseClasses}
 
-The \code{Matrix} package provides classes for real (stored as
-double precision) and logical dense (and sparse) matrices.
-There are provisions to also provide integer and complex (stored as double
-precision complex) matrices.
-The basic real classes are
+For the sake of brevity, we restrict ourselves to the
+\emph{real} (\textbf{d}ouble) classes, but they are paralleled by
+\textbf{l}ogical and patter\textbf{n} matrices for all but the positive
+definite ones.
 \begin{description}
 \item[dgeMatrix] Real matrices in general storage mode
 \item[dsyMatrix] Symmetric real matrices in non-packed storage
@@ -242,9 +272,10 @@ number (\code{rcond}); LU factorization (\code{lu}) or, for the
 \code{poMatrix} class, the Cholesky decomposition (\code{chol}); and
 solutions of linear systems of equations (\code{solve}).
 
-Further, group methods have been defined for the \code{Arith} (basic
-arithmetic, including with scalar numbers) and the \code{Math} (basic
-mathematical functions) group..
+%-- mentioned above already:
+% Further, group methods have been defined for the \code{Arith} (basic
+% arithmetic, including with scalar numbers) and the \code{Math} (basic
+% mathematical functions) group..
 
 Whenever a factorization or a decomposition is calculated it is
 preserved as a (list) element in the \code{factors} slot of the
@@ -288,9 +319,9 @@ Conceptually, the simplest representation of a sparse matrix is as a
 triplet of an integer vector \code{i} giving the row numbers, an
 integer vector \code{j} giving the column numbers, and a numeric
 vector \code{x} giving the non-zero values in the matrix. \footnote{For efficiency
-reasons, we use ``zero-based'' indexing in the \code{Matrix} package, i.e.,
+reasons, we use ``zero-based'' indexing in the \pkg{Matrix} package, i.e.,
 the row indices \code{i} are in \code{0:(nrow(.)-1)} and the column indices
-\code{j} accordingly}.  In \code{Matrix} the \class{TsparseMatrix} class is the
+\code{j} accordingly}.  In \pkg{Matrix}, the \class{TsparseMatrix} class is the
 virtual class of all sparse matrices in triplet representation.
 Its main use is for easy input or transfer to other classes.
 
@@ -358,7 +389,7 @@ The Matrix package provides the following classes for sparse matrices
   compressed sparse column format.
 \end{description}
 
-\TODO{Can also read and write the Matrix Market and Harwell-Boeing
+\TODO{Can also read and write the Matrix Market and read the Harwell-Boeing
   representations.}
 
 \TODO{Can convert from a dense matrix to a sparse matrix (or use the
@@ -371,6 +402,10 @@ The Matrix package provides the following classes for sparse matrices
 \section{More detailed examples of ``Matrix'' operations}
 
 Mention \texttt{drop0()} showing a nice example
+
+Show the use of \code{dim<-} for \emph{resizing} a (sparse) matrix.
+
+Maybe mention  \Rfun{nearPD}.
 
 \TODO{Solve a sparse least squares problem and demonstrate memory / speed gain}
 

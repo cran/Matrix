@@ -6,3 +6,18 @@
 
 setAs("Matrix", "corMatrix", .M.2cor)
 setAs("matrix", "corMatrix", .M.2cor)
+
+## This is necessary :
+setAs("dsyMatrix", "corMatrix", .M.2cor)
+## BUT only because __ MM thinks __
+## the *automatical* (by inheritance) coercion
+### dsyMatrix -> corMatrix coercion is wrong:
+## selectMethod(coerce, c("dsyMatrix","corMatrix")) # gives
+## function (from, to)
+## {
+##     obj <- new("corMatrix")
+##     as(obj, "dsyMatrix") <- from
+##     obj
+## }
+
+rm(.M.2cor)

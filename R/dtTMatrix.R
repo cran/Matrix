@@ -31,9 +31,9 @@ setAs("matrix", "dtTMatrix",
       function(from) as(as(from, "dtpMatrix"), "dtTMatrix"))
 
 
-setMethod("t", signature(x = "dtTMatrix"),
+setMethod("t", "dtTMatrix",
 	  function(x)
 	  new("dtTMatrix", Dim = x@Dim[2:1], Dimnames = x@Dimnames[2:1],
 	      i = x@j, j = x@i, x = x@x, diag = x@diag,
-	      uplo = if (x@uplo == "U") "L" else "U"),
-	  valueClass = "dtTMatrix")
+	      uplo = if (x@uplo == "U") "L" else "U"))
+

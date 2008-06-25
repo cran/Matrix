@@ -1,8 +1,13 @@
 \name{expm}
+\title{Matrix Exponential}
 \alias{expm}
+\alias{expm,Matrix-method}
 \alias{expm,dMatrix-method}
 \alias{expm,dgeMatrix-method}
-\title{Matrix exponential}
+\alias{expm,triangularMatrix-method}
+\alias{expm,symmetricMatrix-method}
+\alias{expm,ddiMatrix-method}
+\alias{expm,matrix-method}% < for now
 \description{
   Compute the exponential of a matrix.
 }
@@ -10,7 +15,8 @@
 expm(x)
 }
 \arguments{
-  \item{x}{an \R object that inherits from the \code{dMatrix} class.}
+  \item{x}{a matrix, typically inheriting from the
+    \code{\linkS4class{dMatrix}} class.}
 }
 \details{
   The exponential of a matrix is defined as the infinite Taylor
@@ -35,10 +41,10 @@ expm(x)
   Eric W. Weisstein et al. (1999) \emph{Matrix Exponential}.
   From MathWorld, \url{http://mathworld.wolfram.com/MatrixExponential.html}
 }
-\author{This is a simple translation of the
-  implementation of the corresponding Octave function contributed to the
-  Octave project by A. Scottedward Hodel
-  \email{A.S.Hodel@Eng.Auburn.EDU}.
+\author{This is a translation of the implementation of the corresponding
+  Octave function contributed to the Octave project by
+  A. Scottedward Hodel \email{A.S.Hodel@Eng.Auburn.EDU}.  A bug in there
+  has been fixed by Martin Maechler.
 }
 %\note{}
 \seealso{\code{\link{Schur}}}

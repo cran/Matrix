@@ -6,6 +6,7 @@
 
 setAs("ngTMatrix", "ngeMatrix",
       function(from) .Call(lgTMatrix_to_lgeMatrix, as(from,"lgTMatrix")))
+setAs("ngTMatrix", "generalMatrix", function(from) as(from, "ngeMatrix"))
 
 setAs("ngTMatrix", "matrix",
       function(from) .Call(lgTMatrix_to_matrix, as(from, "lgTMatrix")))
@@ -33,7 +34,6 @@ setAs("matrix", "ngTMatrix",
 
 setAs("matrix", "nMatrix", function(from) as(from, "ngTMatrix"))
 
-
 setAs("ngTMatrix", "dgTMatrix",
       function(from)
       ## more efficient than
@@ -42,6 +42,9 @@ setAs("ngTMatrix", "dgTMatrix",
 	  x = rep.int(1, length(from@i)),
 	  ## cannot copy factors, but can we use them?
 	  Dim = from@Dim, Dimnames= from@Dimnames))
+setAs("ngTMatrix", "dMatrix", function(from) as(from, "dgTMatrix"))
+setAs("ngTMatrix", "dsparseMatrix", function(from) as(from, "dgTMatrix"))
+
 
 setAs("ngTMatrix", "lgTMatrix",
       function(from)
@@ -49,11 +52,14 @@ setAs("ngTMatrix", "lgTMatrix",
 	  x = rep.int(TRUE, length(from@i)),
 	  ## cannot copy factors, but can we use them?
 	  Dim = from@Dim, Dimnames= from@Dimnames))
+setAs("ngTMatrix", "lMatrix", function(from) as(from, "lgTMatrix"))
 
 setAs("ngTMatrix", "ntTMatrix",
       function(from) check.gT2tT(from, cl = "ngTMatrix", toClass = "ntTMatrix"))
+setAs("ngTMatrix", "triangularMatrix", function(from) as(from, "ntTMatrix"))
 
 
+if(FALSE) ## unneeded: use t.<TsparseMatrix>
 setMethod("t", signature(x = "ngTMatrix"),
 	  function(x) new("ngTMatrix", i = x@j, j = x@i,
 			  Dim = x@Dim[2:1],

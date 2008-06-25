@@ -6,7 +6,8 @@ setAs("matrix", "ltCMatrix",
       function(from) as(as(from, "dtCMatrix"), "ltCMatrix"))
 
 setAs("ltCMatrix", "lgCMatrix",
-      function(from) copyClass(from, "lgCMatrix"))
+      function(from) copyClass(diagU2N(from), "lgCMatrix",
+			       c("i", "p", "x", "Dim", "Dimnames")))
 
 setAs("ltCMatrix", "ltTMatrix",
       function(from) .Call(Csparse_to_Tsparse, from, TRUE))
@@ -23,12 +24,6 @@ setAs("lgCMatrix", "ltCMatrix", # to triangular {needed in triu() }
 
 ## setAs("ltCMatrix", "generalMatrix",
 ##       function(from) ......)
-
-setMethod("image", "ltCMatrix",
-          function(x, ...) {
-              x <- as(as(x, "dtCMatrix"), "dgTMatrix")
-              callGeneric()
-          })
 
 ## setMethod("t", signature(x = "ltCMatrix"),
 ##           function(x) .Call(ltCMatrix_trans, x),

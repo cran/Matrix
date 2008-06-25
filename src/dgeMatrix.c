@@ -32,17 +32,21 @@ SEXP dgeMatrix_validate(SEXP obj)
 static
 double get_norm(SEXP obj, const char *typstr)
 {
-    char typnm[] = {'\0', '\0'};
-    int *dims = INTEGER(GET_SLOT(obj, Matrix_DimSym));
-    double *work = (double *) NULL;
+    if(any_NA(obj))
+	return NA_REAL;
+    else {
+	char typnm[] = {'\0', '\0'};
+	int *dims = INTEGER(GET_SLOT(obj, Matrix_DimSym));
+	double *work = (double *) NULL;
 
-    typnm[0] = La_norm_type(typstr);
-    if (*typnm == 'I') {
-        work = (double *) R_alloc(dims[0], sizeof(double));
+	typnm[0] = La_norm_type(typstr);
+	if (*typnm == 'I') {
+	    work = (double *) R_alloc(dims[0], sizeof(double));
+	}
+	return F77_CALL(dlange)(typstr, dims, dims+1,
+				REAL(GET_SLOT(obj, Matrix_xSym)),
+				dims, work);
     }
-    return F77_CALL(dlange)(typstr, dims, dims+1,
-			    REAL(GET_SLOT(obj, Matrix_xSym)),
-			    dims, work);
 }
 
 SEXP dgeMatrix_norm(SEXP obj, SEXP type)
@@ -133,13 +137,17 @@ SEXP dgeMatrix_matrix_crossprod(SEXP x, SEXP y, SEXP trans)
     SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dgeMatrix")));
     int *xDims = INTEGER(GET_SLOT(x, Matrix_DimSym)),
 	*yDims = INTEGER(getAttrib(y, R_DimSymbol)),
-	*vDims;
+	*vDims, nprot = 1;
     int m  = xDims[!tr],  n = yDims[!tr];/* -> result dim */
     int xd = xDims[ tr], yd = yDims[ tr];/* the conformable dims */
     double one = 1.0, zero = 0.0;
 
+    if (isInteger(y)) {
+	y = PROTECT(coerceVector(y, REALSXP));
+	nprot++;
+    }
     if (!(isMatrix(y) && isReal(y)))
-	error(_("Argument y must be a numeric (real) matrix"));
+	error(_("Argument y must be a numeric matrix"));
     SET_SLOT(val, Matrix_factorSym, allocVector(VECSXP, 0));
     SET_SLOT(val, Matrix_DimSym, allocVector(INTSXP, 2));
     vDims = INTEGER(GET_SLOT(val, Matrix_DimSym));
@@ -154,7 +162,7 @@ SEXP dgeMatrix_matrix_crossprod(SEXP x, SEXP y, SEXP trans)
 			REAL(y), yDims,
 			&zero, REAL(GET_SLOT(val, Matrix_xSym)), &m);
     }
-    UNPROTECT(1);
+    UNPROTECT(nprot);
     return val;
 }
 
@@ -225,29 +233,31 @@ SEXP dgeMatrix_LU(SEXP x)
 SEXP dgeMatrix_determinant(SEXP x, SEXP logarithm)
 {
     int lg = asLogical(logarithm);
-    SEXP lu = dgeMatrix_LU(x);
-    int *dims = INTEGER(GET_SLOT(lu, Matrix_DimSym)),
-	*jpvt = INTEGER(GET_SLOT(lu, Matrix_permSym)),
-	i, n = dims[0], sign = 1;
-    double *luvals = REAL(GET_SLOT(lu, Matrix_xSym)), modulus;
+    int *dims = INTEGER(GET_SLOT(x, Matrix_DimSym)),
+	n = dims[0], sign = 1;
+    double modulus = lg ? 0. : 1; /* initialize; = result for n == 0 */
 
     if (n != dims[1])
 	error(_("Determinant requires a square matrix"));
-    for (i = 0; i < n; i++) if (jpvt[i] != (i + 1)) sign = -sign;
-    if (lg) {
-	modulus = 0.0;
-	for (i = 0; i < n; i++) {
-	    double dii = luvals[i*(n + 1)]; /* ith diagonal element */
-	    modulus += log(dii < 0 ? -dii : dii);
-	    if (dii < 0) sign = -sign;
-	}
-    } else {
-	modulus = 1.0;
-	for (i = 0; i < n; i++)
-	    modulus *= luvals[i*(n + 1)];
-	if (modulus < 0) {
-	    modulus = -modulus;
-	    sign = -sign;
+    if (n > 0) {
+	SEXP lu = dgeMatrix_LU(x);
+	int i, *jpvt = INTEGER(GET_SLOT(lu, Matrix_permSym));
+	double *luvals = REAL(GET_SLOT(lu, Matrix_xSym));
+
+	for (i = 0; i < n; i++) if (jpvt[i] != (i + 1)) sign = -sign;
+	if (lg) {
+	    for (i = 0; i < n; i++) {
+		double dii = luvals[i*(n + 1)]; /* ith diagonal element */
+		modulus += log(dii < 0 ? -dii : dii);
+		if (dii < 0) sign = -sign;
+	    }
+	} else {
+	    for (i = 0; i < n; i++)
+		modulus *= luvals[i*(n + 1)];
+	    if (modulus < 0) {
+		modulus = -modulus;
+		sign = -sign;
+	    }
 	}
     }
     return as_det_obj(modulus, lg, sign);
@@ -391,7 +401,7 @@ const static double padec [] = /* for matrix exponential calculation. */
 };
 
 /**
- * Matrix exponential - based on the _FIXED_ code for Octave's expm function.
+ * Matrix exponential - based on the _corrected_ code for Octave's expm function.
  *
  * @param x real square matrix to exponentiate
  *
@@ -406,19 +416,22 @@ SEXP dgeMatrix_exp(SEXP x)
 
     SEXP val = PROTECT(duplicate(x));
     int i, ilo, ilos, ihi, ihis, j, sqpow;
-    int *pivot = Alloca(n, int);
-    double *dpp = Alloca(nsqr, double), /* denominator power Pade' */
-	*npp = Alloca(nsqr, double), /* numerator power Pade' */
-	*perm = Alloca(n, double),
-	*scale = Alloca(n, double),
+    int *pivot = Calloc(n, int);
+    double *dpp = Calloc(nsqr, double), /* denominator power Pade' */
+	*npp = Calloc(nsqr, double), /* numerator power Pade' */
+	*perm = Calloc(n, double),
+	*scale = Calloc(n, double),
 	*v = REAL(GET_SLOT(val, Matrix_xSym)),
-	*work = Alloca(nsqr, double), inf_norm, m1_j/*= (-1)^j */, trshift;
+	*work = Calloc(nsqr, double), inf_norm, m1_j/*= (-1)^j */, trshift;
     R_CheckStack();
 
     if (n < 1 || Dims[0] != n)
 	error(_("Matrix exponential requires square, non-null matrix"));
-
-    /* FIXME: Add special treatment for n == 1 */
+    if(n == 1) {
+	v[0] = exp(v[0]);
+	UNPROTECT(1);
+	return val;
+    }
 
     /* Preconditioning 1.  Shift diagonal by average diagonal if positive. */
     trshift = 0;		/* determine average diagonal element */
@@ -519,6 +532,7 @@ SEXP dgeMatrix_exp(SEXP x)
     }
 
     /* Clean up */
+    Free(work); Free(scale); Free(perm); Free(npp); Free(dpp); Free(pivot);
     UNPROTECT(1);
     return val;
 }

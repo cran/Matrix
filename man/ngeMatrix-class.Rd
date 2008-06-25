@@ -4,7 +4,9 @@
 \alias{ngeMatrix-class}
 %
 \alias{!,ngeMatrix-method}
-\alias{Ops,ngeMatrix,ngeMatrix-method}
+\alias{Arith,ngeMatrix,ngeMatrix-method}
+\alias{Compare,ngeMatrix,ngeMatrix-method}
+\alias{Logic,ngeMatrix,ngeMatrix-method}
 \alias{as.vector,ngeMatrix,missing-method}
 \alias{coerce,matrix,ngeMatrix-method}
 \alias{coerce,ngeMatrix,dgeMatrix-method}

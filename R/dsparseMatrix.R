@@ -28,14 +28,18 @@ setMethod("chol", signature(x = "dsparseMatrix"),
 	       else stop("'x' is not positive definite -- chol() undefined.")
 	   })
 
+setMethod("determinant", signature(x = "dsparseMatrix", logarithm = "logical"),
+          function(x, logarithm = TRUE, ...)
+          determinant(as(x,"CsparseMatrix"), logarithm, ...))
+##-> now dgC or dsC or dtC .. which *have* their methods
+
 setMethod("lu", signature(x = "dsparseMatrix"),
 	  function(x, ...) lu(as(x, "dgCMatrix")))
 
 
-## Group Methods, see ?Arith (e.g.)
+## Group Methods, see ?Arith (e.g.): "Ops" --> ./Ops.R
 ## -----
-
-##-> now moved to ./Csparse.R (and 'up' to ./sparseMatrix.R):
+## others moved to ./Csparse.R (and 'up' to ./sparseMatrix.R):
 ##  "Math2" is in ./dMatrix.R
 
 

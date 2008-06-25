@@ -27,7 +27,8 @@ setAs("dsCMatrix", "dgeMatrix",
 setAs("dsCMatrix", "matrix",
       function(from) as(as(from, "generalMatrix"), "matrix"))
 setAs("matrix", "dsCMatrix",
-      function(from) as(as(from, "CsparseMatrix"), "symmetricMatrix"))
+      function(from)
+      as(as(as(from, "CsparseMatrix"), "symmetricMatrix"), "dMatrix"))
 
 setAs("dsCMatrix", "lsCMatrix",
       function(from) new("lsCMatrix", i = from@i, p = from@p, uplo = from@uplo,
@@ -70,6 +71,11 @@ setMethod("solve", signature(a = "dsCMatrix", b = "ddenseMatrix"),
               .Call(dsCMatrix_matrix_solve, a, b)
           },
           valueClass = "dgeMatrix")
+setMethod("solve", signature(a = "dsCMatrix", b = "denseMatrix"),
+	  ## only triggers for diagonal*, ldense*.. (but *not* ddense: above)
+	  function(a, b, ...)
+	      .Call(dsCMatrix_matrix_solve, a,
+		    as(.Call(dup_mMatrix_as_geMatrix, b), "dgeMatrix")))
 
 setMethod("solve", signature(a = "dsCMatrix", b = "matrix"),
           function(a, b, ...)
@@ -107,9 +113,6 @@ setMethod("t", signature(x = "dsCMatrix"),
           function(x) .Call(Csparse_transpose, x, FALSE),
           valueClass = "dsCMatrix")
 
-setMethod("determinant", signature(x = "dsCMatrix", logarithm = "missing"),
-          function(x, logarithm, ...) determinant(x, TRUE))
-
 .diag.dsC <- function(x, Chx = Cholesky(x, LDL=TRUE), res.kind = "diag") {
     force(Chx)
     stopifnot(is.integer(Chx@p), is.double(Chx@x))
@@ -124,28 +127,37 @@ setMethod("determinant", signature(x = "dsCMatrix", logarithm = "missing"),
 ##    	q <- p ; q[q] <- seq_along(q); q
 
 ldet1.dsC <- function(x, ...) .Call(CHMfactor_ldetL2, Cholesky(x, ...))
+## these are slightly faster (ca. 3 to 4 %):
 ldet2.dsC <- function(x, ...) {
     Ch <- Cholesky(x, super = FALSE, ...)
     .Call(diag_tC, Ch@p, Ch@x, Ch@perm, "sumLog")
 }
+## only very slightly ( ~ < 1% ) faster (than "ldet2"):
 ldet3.dsC <- function(x, perm = TRUE)
     .Call(dsCMatrix_LDL_D, x, perm=perm, "sumLog")
+
+setMethod("determinant", signature(x = "dsCMatrix", logarithm = "missing"),
+          function(x, logarithm, ...) determinant(x, TRUE))
 
 setMethod("determinant", signature(x = "dsCMatrix", logarithm = "logical"),
 	  function(x, logarithm, ...)
       {
-          ## Chx <- Cholesky(x, LDL=TRUE)
-          ## ldet <- .Call(diag_tC, Chx@p, Chx@x, Chx@perm, res.kind = "sumLog")
-          ## or
-          ## ldet <- .Call("CHMfactor_ldetL2", Chx) # which would also work
-          ##                                 when Chx <- Cholesky(x, super=TRUE)
+	  if((n <- x@Dim[1]) <= 1)
+	      return(mkDet(x@x, logarithm))
+	  Chx <- tryCatch(Cholesky(x, LDL=TRUE),
+                          error = function(e) NULL)
+	  ## or
+	  ## ldet <- .Call("CHMfactor_ldetL2", Chx) # which would also work
+	  ##				     when Chx <- Cholesky(x, super=TRUE)
+          ## ldet <- tryCatch(.Call(dsCMatrix_LDL_D, x, perm=TRUE, "sumLog"),
+	  ## if(is.null(ldet))
 
-### FIXME: not okay when the matrix is *NOT* pos.def.
-          ldet <- .Call(dsCMatrix_LDL_D, x, perm=TRUE, "sumLog")
-	  modulus <- if (logarithm) ldet else exp(ldet)
-	  attr(modulus, "logarithm") <- logarithm
-	  structure(list(modulus = modulus, sign = as.integer(1)),
-		    class = "det")
+          if(is.null(Chx))  ## we do *not* have a positive definite matrix
+	      detSparseLU(x, logarithm)
+	  else {
+              d <- .Call(diag_tC, Chx@p, Chx@x, Chx@perm, res.kind = "diag")
+	      mkDet(d, logarithm=logarithm)
+          }
       })
 
 ## setMethod("writeHB", signature(obj = "dsCMatrix"),

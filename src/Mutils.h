@@ -204,6 +204,25 @@ int* expand_cmprPt(int ncol, const int mp[], int mj[])
     return mj;
 }
 
+/**
+ * Check if  obj@x  contains any NA (or NaN).
+ *
+ * @param obj   a 'Matrix' object with an 'x' slot.
+ *
+ * @return Rboolean :== any(is.na( obj @ x) )
+ */
+static R_INLINE
+Rboolean any_NA(SEXP obj)
+{
+    double *x = REAL(GET_SLOT(obj, Matrix_xSym));
+    int i, n = LENGTH(GET_SLOT(obj, Matrix_xSym));
+    for(i=0; i < n; i++)
+	if(ISNAN(x[i])) return TRUE;
+    /* else */
+    return FALSE;
+}
+
+
 void make_d_matrix_triangular(double *x, SEXP from);
 void make_i_matrix_triangular(   int *x, SEXP from);
 
@@ -216,6 +235,9 @@ SEXP dup_mMatrix_as_dgeMatrix(SEXP A);
 SEXP dup_mMatrix_as_geMatrix (SEXP A);
 
 SEXP new_dgeMatrix(int nrow, int ncol);
+SEXP m_encodeInd (SEXP ij, SEXP di);
+SEXP m_encodeInd2(SEXP i, SEXP j, SEXP di);
+
 
 static R_INLINE SEXP
 mMatrix_as_dgeMatrix(SEXP A)
@@ -247,6 +269,7 @@ Matrix_check_class(const char *class, char **valid)
 	if (!strcmp(class, valid[ans])) return ans;
     }
 }
+
 
 #ifdef __cplusplus
 }

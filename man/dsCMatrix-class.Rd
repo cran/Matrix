@@ -8,6 +8,7 @@
 \alias{solve,dsCMatrix,matrix-method}
 \alias{solve,dsCMatrix,numeric-method}
 \alias{solve,dsCMatrix,ddenseMatrix-method}
+\alias{solve,dsCMatrix,denseMatrix-method}
 \alias{t,dsCMatrix-method}
 \alias{t,dsTMatrix-method}
 \alias{coerce,dgeMatrix,dsCMatrix-method}
@@ -53,8 +54,7 @@
 \section{Slots}{
   \describe{
     \item{\code{uplo}:}{A character object indicating if the upper
-      triangle (\code{"U"} or \code{"u"}) or the lower triangle
-      (\code{"L"} or \code{"l"}) is stored.}
+      triangle (\code{"U"}) or the lower triangle (\code{"L"}) is stored.}
     \item{\code{i}:}{Object of class \code{"integer"} of length nnZ
       (\emph{half} number of non-zero elements).  These are the row
       numbers for each non-zero element in the lower triangle of the matrix.}

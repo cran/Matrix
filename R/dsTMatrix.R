@@ -25,12 +25,12 @@ to_dsT <- function(from) as(as(from, "dsyMatrix"), "dsTMatrix")
 setAs("dgeMatrix", "dsTMatrix", to_dsT)
 setAs("matrix",    "dsTMatrix", to_dsT)
 
-setMethod("t", signature(x = "dsTMatrix"),
-          function(x)
-          new("dsTMatrix", Dim = x@Dim, Dimnames = x@Dimnames,
-              i = x@j, j = x@i, x = x@x,
-              uplo = if (x@uplo == "U") "L" else "U"),
-          valueClass = "dsTMatrix")
+setMethod("t", "dsTMatrix",
+	  function(x)
+	  new("dsTMatrix", Dim = x@Dim, Dimnames = x@Dimnames,
+	      i = x@j, j = x@i, x = x@x,
+	      uplo = if (x@uplo == "U") "L" else "U"))
+
 
 ## setMethod("writeHB", signature(obj = "dsTMatrix"),
 ##           function(obj, file, ...) callGeneric(as(obj, "CsparseMatrix"), file, ...))

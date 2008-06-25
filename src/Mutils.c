@@ -1,3 +1,5 @@
+#include <limits.h>
+
 #include "Mutils.h"
 #include <R_ext/Lapack.h>
 
@@ -499,7 +501,10 @@ install_diagonal_int(int *dest, SEXP A)
  *
  * @param A	  either a denseMatrix object or a matrix object
  */
-/* NOTA BENE: If you enlarge this list, do change '14' and '6' below !*/
+/* NOTA BENE: If you enlarge this list, do change '14' and '6' below !
+ * ---------  ddiMatrix & ldiMatrix  are no longer ddense or ldense on the R level,
+ *            ---         ---        but are still dealt with here.
+ */
 
 #define ddense_CLASSES							\
 		    "dgeMatrix", "dtrMatrix",				\
@@ -728,3 +733,69 @@ SEXP new_dgeMatrix(int nrow, int ncol)
     return ans;
 }
 
+/**
+ * Return the 0-based index of a string match in a vector of strings
+ * terminated by an empty string.  Returns -1 for no match.
+ *
+ * @param ij: 2-column integer matrix
+ * @param di: dim(.), i.e. length 2 integer vector
+ *
+ * @return encoded index; integer if prod(dim) is small; double otherwise
+ */
+SEXP m_encodeInd(SEXP ij, SEXP di)
+{
+    SEXP ans;
+    int *ij_di = INTEGER(getAttrib(ij, R_DimSymbol)), n = ij_di[0];
+    int *Di = INTEGER(di), *IJ = INTEGER(ij);
+
+    if(!(isMatrix(ij) && isInteger(ij) && ij_di[1] == 2))
+	error(_("Argument ij must be 2-column integer matrix"));
+
+    if((Di[0] * (double) Di[1]) >= 1 + (double)INT_MAX) { /* need double */
+	ans = PROTECT(allocVector(REALSXP, n));
+	double *ii = REAL(ans), nr = (double) Di[0];
+	int i, *j_ = IJ+n;
+	for(i=0; i < n; i++) ii[i] = IJ[i] + j_[i] * nr;
+    } else {
+	ans = PROTECT(allocVector(INTSXP, n));
+	int *ii = INTEGER(ans), nr = Di[0];
+	int i, *j_ = IJ+n;
+	for(i=0; i < n; i++) ii[i] = IJ[i] + j_[i] * nr;
+    }
+    UNPROTECT(1);
+    return ans;
+}
+
+/**
+ * Return the 0-based index of a string match in a vector of strings
+ * terminated by an empty string.  Returns -1 for no match.
+ *
+ * @param i: integer vector
+ * @param j: integer vector of same length as 'i'
+ * @param di: dim(.), i.e. length 2 integer vector
+ *
+ * @return encoded index; integer if prod(dim) is small; double otherwise
+ */
+SEXP m_encodeInd2(SEXP i, SEXP j, SEXP di)
+{
+    SEXP ans;
+    int n = LENGTH(i);
+    int *Di = INTEGER(di), *i_ = INTEGER(i), *j_ = INTEGER(j);
+
+    if(LENGTH(j) != n || !isInteger(i) || !isInteger(j))
+	error(_("i and j must be integer vectors of the same length"));
+
+    if((Di[0] * (double) Di[1]) >= 1 + (double)INT_MAX) { /* need double */
+	ans = PROTECT(allocVector(REALSXP, n));
+	double *ii = REAL(ans), nr = (double) Di[0];
+	int i;
+	for(i=0; i < n; i++) ii[i] = i_[i] + j_[i] * nr;
+    } else {
+	ans = PROTECT(allocVector(INTSXP, n));
+	int *ii = INTEGER(ans), nr = Di[0];
+	int i;
+	for(i=0; i < n; i++) ii[i] = i_[i] + j_[i] * nr;
+    }
+    UNPROTECT(1);
+    return ans;
+}

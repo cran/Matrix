@@ -163,7 +163,7 @@ replCmat <- function (x, i, j, ..., value)
     else if((tri.x <- extends(clDx, "triangularMatrix"))) {
         xU <- x@uplo == "U"
 	r.tri <- ((any(dind == 1) || dind[1] == dind[2]) &&
-		  all(if(xU) i1 <= i2 else i2 <= i1))
+		  if(xU) max(i1) <= min(i2) else max(i2) <= min(i1))
 	if(r.tri) { ## result is *still* triangular
             if(any(i1 == i2)) # diagonal will be changed
                 x <- diagU2N(x) # keeps class (!)
@@ -183,7 +183,7 @@ replCmat <- function (x, i, j, ..., value)
         ## need indices instead of just 'sel', for, e.g.,  A[2:1, 2:1] <- v
 	non0 <- cbind(match(x@i[sel], i1),
 		      match(xj [sel], i2)) - 1L
-	iN0 <- 1L + encodeInd(non0, nr = dind[1])
+	iN0 <- 1L + .Call(m_encodeInd, non0, di = dind)
 
         has0 <- any(value[!is.na(value)] == 0)
         if(lenV < lenRepl)
@@ -214,7 +214,7 @@ replCmat <- function (x, i, j, ..., value)
 	x[i,j] <- value
 
     if(any(is0(x@x))) ## drop all values that "happen to be 0"
-	drop0(x, clx)
+	drop0(x)
     else as_CspClass(x, clx)
 }
 
@@ -336,7 +336,7 @@ setMethod("band", "CsparseMatrix",
 	      k2 <- as.integer(k2[1])
 	      dd <- dim(x); sqr <- dd[1] == dd[2]
 	      stopifnot(-dd[1] <= k1, k1 <= k2, k2 <= dd[1])
-	      r <- .Call(Csparse_band, x, k1, k2)
+	      r <- .Call(Csparse_band, diagU2N(x), k1, k2)
 	      if(sqr && k1 * k2 >= 0) ## triangular
 		  as(r, paste(.M.kind(x), "tCMatrix", sep=''))
 	      else if (k1 < 0  &&  k1 == -k2  && isSymmetric(x)) ## symmetric
@@ -348,7 +348,7 @@ setMethod("band", "CsparseMatrix",
 setMethod("diag", "CsparseMatrix",
 	  function(x, nrow, ncol) {
               ## "FIXME": could be more efficient; creates new ..CMatrix:
-	      dm <- .Call(Csparse_band, x, 0, 0)
+	      dm <- .Call(Csparse_band, diagU2N(x), 0, 0)
 	      dlen <- min(dm@Dim)
 	      ind1 <- dm@i + 1L	# 1-based index vector
 	      if (is(dm, "nMatrix")) {

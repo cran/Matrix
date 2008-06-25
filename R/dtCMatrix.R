@@ -37,7 +37,7 @@ setAs("dtCMatrix", "dgTMatrix",
 ## FIXME: make more efficient
 ## -----  and  as(., "triangularMatrix") is even worse via as_Sp()
 setAs("dgCMatrix", "dtCMatrix", # to triangular, needed for triu,..
-      function(from) as(as(as(from, "dgTMatrix"), "dtTMatrix"), "dtCMatrix"))
+      function(from) as(.Call(Csparse_to_Tsparse, from, FALSE), "dtCMatrix"))
 
 setAs("dtCMatrix", "dgeMatrix",
       function(from) as(as(from, "dgTMatrix"), "dgeMatrix"))
@@ -64,6 +64,18 @@ setAs("dtCMatrix", "dtTMatrix",
 
 setAs("dtCMatrix", "dtrMatrix",
       function(from) as(as(from, "dtTMatrix"), "dtrMatrix"))
+
+setMethod("determinant", signature(x = "dtCMatrix", logarithm = "logical"),
+	  function(x, logarithm = TRUE, ...) {
+	      if(x@diag == "N")
+		  mkDet(diag(x), logarithm)
+	      else
+		  structure(list(modulus = structure(if (logarithm) 0 else 1,
+				 "logarithm" = logarithm),
+				 sign = 1L),
+			    class = "det")
+	  })
+
 
 setMethod("solve", signature(a = "dtCMatrix", b = "missing"),
 	  function(a, b, ...) {

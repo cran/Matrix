@@ -7,10 +7,6 @@ setAs("dspMatrix", "dsyMatrix",
 setAs("dgeMatrix", "dspMatrix",
       function(from) as(as(from, "dsyMatrix"), "dspMatrix"))
 
-## now have faster  "ddense" -> "dge":
-## setAs("dspMatrix", "dgeMatrix",
-##       function(from) as(as(from, "dsyMatrix"), "dgeMatrix"))
-
 ## S3-matrix <--> dsp   via  dsy
 setAs("dspMatrix", "matrix",
       function(from) as(as(from, "dsyMatrix"), "matrix"))
@@ -85,7 +81,7 @@ setMethod("unpack", signature(x = "dspMatrix"),
 ## The following allows  as(*, "dppMatrix").
 ## However it *requires* that dppMatrix_chol() gives an error
 ## for non-positive-semi-definite matrices -- which it does since 2005-10-03
-## FIXME: This gives an error for singular pos.SEMI-def. matrices:
+if(FALSE)## FIXME: This gives an error for singular pos.SEMI-def. matrices:
 setIs("dspMatrix", "dppMatrix",
       test = function(obj)
           "try-error" != class(try(.Call(dppMatrix_chol, obj), TRUE)),

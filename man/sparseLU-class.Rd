@@ -6,19 +6,19 @@
   decomposition of a sparse square matrix.}
 \section{Objects from the Class}{
   Objects can be created by calls of the form \code{new("sparseLU",
-    ...)} but are more commonly created by function \code{\link{lu}}
+    ...)} but are more commonly created by function \code{\link{lu}()}
   applied to a sparse matrix, such as a matrix of class
   \code{\linkS4class{dgCMatrix}}.
 }
 \section{Slots}{
   \describe{
-    \item{\code{L}:}{Object of class \code{"\linkS4class{dgCMatrix}"} The lower
+    \item{\code{L}:}{Object of class \code{"\linkS4class{dtCMatrix}"}, the lower
       triangular factor from the left.}
-    \item{\code{U}:}{Object of class \code{"\linkS4class{dgCMatrix}"} The upper
+    \item{\code{U}:}{Object of class \code{"\linkS4class{dtCMatrix}"}, the upper
       triangular factor from the right.}
-    \item{\code{p}:}{Object of class \code{"integer"} Permutation
+    \item{\code{p}:}{Object of class \code{"integer"}, permutation
       applied from the left. }
-    \item{\code{q}:}{Object of class \code{"integer"} Permutation
+    \item{\code{q}:}{Object of class \code{"integer"}, permutation
       applied from the right.}
     \item{\code{Dim}:}{the dimension of the original matrix; inherited
       from class \code{\linkS4class{MatrixFactorization}}.}

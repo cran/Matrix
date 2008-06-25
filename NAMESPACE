@@ -6,10 +6,10 @@ importFrom("lattice", levelplot)
 importFrom("graphics", image)
 importFrom("utils", head, tail)
 importFrom("stats", cov2cor, update)
-importFrom("grid", grid.rect, gpar, grob)
+importFrom("grid", grid.rect, gpar, grob)# others via 'grid::'
 
 ## Currently, group generics need to be explicitly imported (Bug?):
-importFrom("methods", Arith, Compare, Logic, Math, Math2, Summary, Complex)
+importFrom("methods", Ops, Arith, Compare, Logic, Math, Math2, Summary, Complex)
 
 ## Generics and functions defined in this package
 export("Cholesky",
@@ -22,6 +22,7 @@ export("Cholesky",
        "bdiag",
        "colMeans", "colSums", ## these needed a "..." added
        "rowMeans", "rowSums",
+##NOT_YET "det", # = a copy of base::det() but with Matrix namespace
        "drop0",
        "expand",
        "expm",
@@ -34,7 +35,7 @@ export("Cholesky",
        "nearPD",
        "nnzero",
        "printSpMatrix",
-       "rcond",
+       "printSpMatrix2",
        "readHB",
        "readMM",
        "symmpart",
@@ -47,6 +48,9 @@ export("Cholesky",
        "writeMM",
        "xtabs"
        )
+
+if(getRversion() < "2.7.0")
+    export("rcond")
 
 ## substitute for using  cbind() / rbind()
 export("cBind",
@@ -264,6 +268,7 @@ exportMethods(## for both own and "other" generics:
               "is.na",
 	      "kronecker",
 	      "length",
+              "mean",
 	      "norm",
               "print",# print(x, ...) when show(x) is not sufficient
 	      "qr",
@@ -286,6 +291,7 @@ exportMethods(## for both own and "other" generics:
 	      "tcrossprod",
 	      "tril",
 	      "triu",
+              "unname",
               "update",
 	      "zapsmall"
 	      )

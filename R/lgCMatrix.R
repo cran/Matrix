@@ -50,11 +50,3 @@ setAs("lgCMatrix", "matrix",
 ## TODO (maybe): write  matrix_to_lcsc()  in ../src/lgCMatrix.c
 setAs("matrix", "lgCMatrix",
       function(from) as(as(from, "lgTMatrix"), "lgCMatrix"))
-
-
-setMethod("image", "lgCMatrix",
-          function(x, ...) {
-              x <- as(as(x, "dgCMatrix"), "dgTMatrix")
-              callGeneric()
-          })
-

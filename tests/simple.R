@@ -5,7 +5,9 @@ library(Matrix)
 
 source(system.file("test-tools.R", package = "Matrix"))# identical3() etc
 
-options(verbose = TRUE)# to show message()s
+if(interactive()) {
+    options(error = recover)
+} else options(verbose = TRUE)# to show message()s
 
 ### Matrix() ''smartness''
 (d4 <- Matrix(diag(4)))
@@ -15,10 +17,16 @@ options(verbose = TRUE)# to show message()s
 (m4 <- Matrix(cbind(0,rbind(6*diag(3),0))))
 dm4 <- Matrix(m4, sparse = FALSE)
 class(mN <-  Matrix(NA, 3,4)) # NA *is* logical
+bd4 <- bdiag(m4,dm4,m4)
 stopifnot(validObject(d4), validObject(z4), validObject(o4),
-          validObject(m4), validObject(dm4), validObject(mN))
+          validObject(m4), validObject(dm4), validObject(mN),
+          identical(bdiag(m4), bdiag(dm4)),
+          identical(bd4@p, c(0L,0:3,3:6,6:9)),
+          identical(bd4@i, c(0:2, 4:6, 8:10)), bd4@x == 6
+          )
 assert.EQ.mat(dm4, as(m4, "matrix"))
 assert.EQ.mat(mN, matrix(NA, 3,4))
+assert.EQ.mat(bdiag(diag(4)), diag(4))
 sL <- Matrix(, 3,4, sparse=TRUE)# -> "lgC"
 trS <- Matrix(tr, sparse=TRUE)# failed in 0.9975-11
 stopifnot(isValid(d4, "diagonalMatrix"),   isValid(z4,  "diagonalMatrix"),
@@ -34,6 +42,20 @@ str(m0 <- Matrix(0,     nrow=100, ncol = 1000))
 str(l0 <- Matrix(FALSE, nrow=100, ncol = 200))
 stopifnot(all(!l0),
           identical(FALSE, any(l0)))
+
+## really large {length(<dense equivalent>) is beyond R's limits}:
+op <- options(warn = 2) # warnings here are errors
+n <- 50000L
+Lrg <- new("dgTMatrix", Dim = c(n,n))
+diag(Lrg[2:9,1:8]) <- 1:8
+e1 <- try(Lrg == Lrg) # error message almost ok
+e2 <- try(!Lrg) # error message was "bad", now perfect
+ina <- is.na(Lrg)# "all FALSE"
+stopifnot(grep("too large", e1) == 1,
+          grep("too large", e2) == 1,
+                    !any(ina))# <- gave warning previously
+## FIXME  any(Lrg), !any(ina))# <- gave warning previously
+options(op)
 
 ## with dimnames:
 m. <- matrix(c(0, 0, 2:0), 3, 5)
@@ -53,9 +75,15 @@ g5 <- new("dgCMatrix", Dim = c(5L, 5L),
           x = c(10, 1, 3, 10, 1, 10, 1, 10, 10),
           i = c(0L,2L,4L, 1L, 3L,2L,4L, 3L, 4L),
           p = c(0L, 3L, 5L, 7:9))
-t5 <- as(g5, "triangularMatrix") # works fine (but slowly) FIXME
+t5 <- as(g5, "triangularMatrix") # fine
 stopifnot(class(t5) == "dtCMatrix",
           identical(t5, tril(g5)))
+## This is really a regression test for 'methods::selectMethod()'
+## Maybe move to R once 'Matrix' is recommended
+if(getRversion() >= "2.7.1" || R.version$`svn rev` >= 45885)  {
+    sm <- selectMethod(coerce, c("dgCMatrix", "triangularMatrix"), verbose=TRUE)
+    stopifnot(identical(sm(g5), t5))
+}
 
 (t1 <- new("dtTMatrix", x= c(3,7), i= 0:1, j=3:2,
            Dim= as.integer(c(4,4))))
@@ -77,6 +105,23 @@ stopifnot(validObject(t1),
           c(class(t2), class(t1c), class(t2c), class(tt2)) == "dtCMatrix",
           identical(t(tt2), t2))
 assert.EQ.mat(t1, as(t1c, "matrix"))
+D4. <- D4 * (M4 <- Matrix(1:4, 4,4))
+D4p <- M4 + D4
+Lg1 <- D4 > 0 & D4 > 1
+nLg <- !Lg1
+nnLg <- !nLg
+D4m <- D4 * 4:1
+assert.EQ.mat(D4., diag(x= (1:4)^2))
+assert.EQ.mat(D4p, diag(x= (1:4)) + (1:4))
+assert.EQ.mat(D4m, diag(x=c(4,6,6,4)))
+assert.EQ.mat(Lg1, diag(x= c(FALSE, rep(TRUE,3))))
+if(FALSE)## FIXME
+stopifnot(is(D4., "diagonalMatrix"))
+stopifnot(is(Lg1, "diagonalMatrix"), is(D4m, "diagonalMatrix"),
+          is(nLg, "symmetricMatrix"), is(nnLg, "symmetricMatrix"),
+          identical3(Lg1, Matrix(nnLg), as(nnLg, "diagonalMatrix")),
+          all(Lg1 != (!Lg1)))
+
 
 ## as(<diag>, <anything>) :
 str(cls <- names(getClass("Matrix")@subclasses))# all Matrix classes
@@ -89,22 +134,52 @@ for(cl in cls)
                   if(is(cl,"dMatrix")) diag(x=1:4) == as(M.,"matrix") else TRUE)
 	cat(" [Ok]\n")
     }
+s4 <- as(D4,"sparseMatrix")
+v <- c(11,2,2,12); s4[2:3,2:3] <- v; validObject(s4)
+s4. <- D4; s4.[2:3,2:3] <- v; validObject(s4.)
+stopifnot(all(s4 == s4.))
+## now assign symmetrically to symmetricMatrix
+s4 <- as(as(D4,"sparseMatrix"),"symmetricMatrix")
+s4[2:3,2:3] <- v
+validObject(s4)
+stopifnot(is(s4,"symmetricMatrix"))
+assert.EQ.mat(s4, as(s4.,"matrix"),tol=0)
+
+## lower-triangular unit-diagonal
+L <- new("dtCMatrix", i = 1L, p = c(0:1, 1L), Dim = c(2L, 2L),
+         x = 0.5, uplo = "L", diag = "U")
+stopifnot(range(L) == 0:1, all.equal(mean(L), 5/8))
 
 ## from  0-diagonal to unit-diagonal triangular {low-level step}:
 tu <- t1 ; tu@diag <- "U"
 tu
-cu <- as(tu, "dtCMatrix")
+validObject(cu <- as(tu, "dtCMatrix"))
 validObject(cnu <- Matrix:::diagU2N(cu))# <- testing diagU2N
-stopifnot(validObject(cu), validObject(tu. <- as(cu, "dtTMatrix")),
-          validObject(tt <- as(cu, "TsparseMatrix")),
-	  ## NOT: identical(tu, tu.), # since T* is not unique!
+validObject(tu. <- as(cu, "dtTMatrix"))
+validObject(tt <- as(cu, "TsparseMatrix"))
+stopifnot(## NOT: identical(tu, tu.), # since T* is not unique!
 	  identical(cu, as(tu., "dtCMatrix")),
           length(cnu@i) == length(cu@i) + nrow(cu),
           identical(cu, Matrix:::diagN2U(cnu)),# <- testing diagN2U
 	  all(cu >= 0, na.rm = TRUE), all(cu >= 0),
-	  any(cu >= 7),
-	  validObject(tcu <- t(cu)),
-	  validObject(ttu <- t(tu)))
+	  any(cu >= 7))
+validObject(tcu <- t(cu))
+validObject(ttu <- t(tu))
+validObject(ltu <- as(ttu, "lMatrix"))
+validObject(ldtu <- as(ltu, "denseMatrix"))
+validObject(Cltu <- as(ltu, "CsparseMatrix"))
+stopifnot(identical(asCsp(ttu > 0), asCsp(ltu)),
+          all(ltu == as(ttu > 0,"denseMatrix")))
+ltu - (ttu > 0) # failed
+
+
+lcu <- new("ltCMatrix", Dim = c(4L, 4L), i = c(0:1, 0L), p = c(0L, 0:3),
+           x = c(TRUE, FALSE, FALSE), uplo = "U", diag = "U")
+stopifnot(identical(rowSums(lcu), rowSums(drop0(lcu))))
+(ncu <- as(lcu, "nMatrix"))# -- gives the "pattern" of lcu, i.e. FALSE are *there*
+stopifnot(identical(ncu, as(lcu,"nsparseMatrix")),
+          identical(rowSums(ncu), c(3:1, 1L)))
+
 
 assert.EQ.mat(cu, as(tu,"matrix"), tol=0)
 assert.EQ.mat(cnu, as(tu,"matrix"), tol=0)
@@ -118,8 +193,18 @@ mu <- as(tu,"matrix")
 stopifnot(isValid(cu, "CsparseMatrix"), isValid(cu, "triangularMatrix"),
           isValid(tu, "TsparseMatrix"), isValid(tu, "triangularMatrix"),
           identical(cu * 1:8, tu * 1:8), # but are no longer triangular
-          all(cu >= 0, na.rm=TRUE), !all(cu >= 1), is.na(all(tu >= 0)))
+          all(cu >= 0, na.rm=TRUE), !all(cu >= 1), is.na(all(tu >= 0)),
+          ## Csparse_drop: preserves triangularity incl diag="U"
+          identical(cu, .Call(Matrix:::Csparse_drop, cu, 0.))
+          )
 assert.EQ.mat(cu * 1:8, mu * 1:8)
+
+ina <- is.na(as(cu,"matrix"))
+## These 3 were each different (2008-03) !!
+stopifnot(all(ina == is.na(cu)),
+	  all(ina == is.na(as(cu,"generalMatrix"))),
+	  all(ina == as(is.na(as(cu,"matrix")),"nMatrix")))
+
 
 ## tu. is diag "U", but tu2 not:
 tu2 <- as(as(tu., "generalMatrix"), "triangularMatrix")
@@ -274,9 +359,13 @@ for(M in list(kt1, nt1, ng1, dg1, lt1, nt1)) {
 		   all(ineq | eq) && identical(ineq, is.na(cs)) },
 		  {eq <- rs == rowSums(m, na.rm = na.rm) ; ineq <- is.na(eq)
 		   all(ineq | eq) && identical(ineq, is.na(rs)) } )
-
     }
 }
+
+(N <- as(crossprod(kronecker(diag(2), Matrix(c(2:0,1),2))) > 0,
+         "nMatrix"))
+(L. <- as(N,"lMatrix"))
+stopifnot(identical(N, as(L.,"nMatrix")))
 
 ## coercion from "dpo" or "dsy"
 xx <- as(xpx, "dsyMatrix")
@@ -315,10 +404,12 @@ stopifnot(all.equal(eM$values,
 
 ##--- symmetric -> pos.def. needs valid test:
 m5 <- Matrix(diag(5) - 1)
-if(FALSE) { # FIXME: this as(.,.) happily "works"
- assertError(mpo <- as(m5, "dpoMatrix"))
- validObject(mpo) #-> TRUE  FIXME?  it is *not* really pos.definite!
-}
+assertError(as(m5, "dpoMatrix"))# not pos.definite!
+pm5 <- as(m5, "dspMatrix") # packed
+assertError(as(pm5, "dppMatrix"))# not pos.definite!
+sm <- as(Matrix(diag(5) + 1),"dspMatrix")
+pm <- as(sm,"dpoMatrix")## gave infinite recursion (for a day or so)
+pp <- as(pm,"dppMatrix")
 
 ###-- dense nonzero pattern:
 class(m <- Matrix(TRUE,2,2)) # lsy
@@ -368,12 +459,10 @@ xpx <- crossprod(mm)
 nxpx <- as(xpx, "nsCMatrix")
 show(nxpx) ## now ok, since subsetting works
 r <- nxpx[1:2,]
-
 lmm <- as(mm, "lgCMatrix")
 nmm <- as(lmm, "nMatrix")
 xlx <- crossprod(lmm)
 x.x <- crossprod(nmm)
-
 ## now A = lxpx and B = xlx should be close, but not quite the same
 ## since <x,y> = 0 is well possible when x!=0 and y!=0 .
 ## However,  A[i,j] != 0 ==> B[i,j] != 0:
@@ -439,9 +528,32 @@ stopifnot(isValid(ms, "dsTMatrix"),
 	  identical3(da, dm, as(cs, "generalMatrix")),		# dgC*
 	  identical(as(da, "lMatrix"), as(lt, "CsparseMatrix")) # lgC*
 	  )
+## Dense *packed* ones:
+s4 <- as(D4, "symmetricMatrix")
+sp <- as(as(as(D4, "symmetricMatrix"),"denseMatrix"),"dspMatrix")
+tp <- as(triu(sp),"dtpMatrix")
+tpL <- as(tril(sp),"dtpMatrix")
+(spL <- t(sp))
+stopifnot(sp @uplo=="U", tp @uplo=="U",
+	  spL@uplo=="L", tpL@uplo=="L")
+
+D. <- Diagonal(x= c(-2,3:4)); D.[lower.tri(D.)] <- 1:3 ; D.
+D0 <- Diagonal(x= 0:3);       D0[upper.tri(D0)] <- 1:6 ; D0
+stopifnot(all.equal(list(modulus = structure(24, logarithm = FALSE), sign = -1L),
+                    unclass(determinant(D.,FALSE)), tol=1e-15),
+          all.equal(list(modulus = structure(0, logarithm = FALSE), sign = 1L),
+                    unclass(determinant(D0,FALSE)), tol=0)
+          )
 
 
-cat('Time elapsed: ', proc.time(),'\n') # "stats"
+cat('Time elapsed: ', (.pt <- proc.time()),'\n') # "stats"
+##
+cat("checkMatrix() of all: \n---------\n")
+Sys.setlocale("LC_COLLATE", "C")# to keep ls() reproducible
+for(nm in ls()) if(is(.m <- get(nm), "Matrix")) {
+    cat("\n", rep("-",nchar(nm)),"\n",nm, ":\n", sep='')
+    checkMatrix(.m)
+}
+cat('Time elapsed: ', proc.time() - .pt,'\n') # "stats"
 
 if(!interactive()) warnings()
-

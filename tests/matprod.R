@@ -254,8 +254,8 @@ P %*% mm
 assertError(mm %*% P) # dimension mismatch
 assertError(m  %*% P) # ditto
 assertError(crossprod(t(mm), P)) # ditto
-stopifnot(class(tm1) == class(tm2),
-	  class(tm1) == "dsCMatrix",# but they differ by "uplo"
+stopifnot(isValid(tm1, "dsCMatrix"),
+          all.equal(tm1, tm2, tol=1e-15),
 	  identical(Im2 %*% tm2[1:3,], Matrix(cbind(diag(3),0),sparse=FALSE)),
           identical(p, as.matrix(P)),
 	  identical(P %*% m, as.matrix(P) %*% m),

@@ -1,19 +1,9 @@
 #### Triangular Matrices -- Coercion and Methods
 
-## or rather setIs() {since test can fail }?
-setAs("dgeMatrix", "dtrMatrix",
-      function(from) {
-          ## FIXME: also check for unit-diagonal: 'diag = "U"'
-	  if(isTriangular(from, upper = TRUE))
-	      new("dtrMatrix", x = from@x, Dim = from@Dim, uplo = "U",
-		  Dimnames = from@Dimnames)
-	  else if(isTriangular(from, upper = FALSE))
-	      new("dtrMatrix", x = from@x, Dim = from@Dim, uplo = "L",
-		  Dimnames = from@Dimnames)
-	  else stop("not a triangular matrix")
-      })
 
-setAs("dgeMatrix", "triangularMatrix", function(from) as(from, "dtrMatrix"))
+## or rather setIs() {since test can fail }?
+## FIXME: get rid of this (coerce to "triangular..") ?!?
+setAs("dgeMatrix", "dtrMatrix", function(from) asTri(from, "dtrMatrix"))
 
 setAs("dtrMatrix", "dtpMatrix",
       function(from) .Call(dtrMatrix_as_dtpMatrix, from))
@@ -72,21 +62,7 @@ setMethod("determinant", signature(x = "dtrMatrix", logarithm = "missing"),
 	  function(x, logarithm, ...) callGeneric(x, TRUE))
 
 setMethod("determinant", signature(x = "dtrMatrix", logarithm = "logical"),
-	  function(x, logarithm, ...) {
-	      dg <- diag(x)
-	      if (logarithm) {
-		  modulus <- sum(log(abs(dg)))
-		  sgn <- prod(sign(dg))
-	      } else {
-		  modulus <- prod(dg)
-		  sgn <- sign(modulus)
-		  modulus <- abs(modulus)
-	      }
-	      attr(modulus, "logarithm") <- logarithm
-	      val <- list(modulus = modulus, sign = sgn)
-	      class(val) <- "det"
-	      val
-	  })
+	  function(x, logarithm, ...) mkDet(diag(x), logarithm))
 
 setMethod("diag", signature(x = "dtrMatrix"),
           function(x, nrow, ncol) .Call(dtrMatrix_getDiag, x),

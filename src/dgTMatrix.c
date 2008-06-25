@@ -1,3 +1,6 @@
+#include <Rinternals.h>
+/* for R_LEN... */
+
 #include "dgTMatrix.h"
 
 #include "chm_common.h"
@@ -47,11 +50,16 @@ SEXP _t1_ ## gTMatrix_to_ ## _t1_ ## geMatrix(SEXP x)			\
     int *dims = INTEGER(dd),						\
 	m = dims[0],							\
 	n = dims[1];							\
+    double len = m * (double)n;						\
+									\
+    if (len > R_LEN_T_MAX)						\
+	error(_("Cannot coerce to too large *geMatrix with %.0f entries"), \
+              len);							\
 									\
     SET_SLOT(ans, Matrix_factorSym, allocVector(VECSXP, 0));		\
     SET_SLOT(ans, Matrix_DimSym, duplicate(dd));			\
     SET_DimNames(ans, x);						\
-    SET_SLOT(ans, Matrix_xSym, allocVector(_SEXPTYPE_, m * n));		\
+    SET_SLOT(ans, Matrix_xSym, allocVector(_SEXPTYPE_, (R_len_t)len));	\
     _t1_ ## _insert_triplets_in_array(m, n, length(islot),		\
 				      INTEGER(islot),			\
 				      INTEGER(GET_SLOT(x, Matrix_jSym)),\

@@ -44,13 +44,19 @@ stopifnot(all.equal(c(determinant(e2)$modulus), sum(diag(m2))))
 stopifnot(all(m3 %*% m3 %*% m3 %*% m3 == 0))# <-- m3 "^" 4 == 0
 e3 <- expm(m3)
 E3 <- expm(Matrix(m3, sparse=FALSE))
-## "FIXME":  expm(<triangular>) == <triangular>  (since all powers are)
+s3 <- symmpart(m3) # dsCMatrix
+es3 <- expm(s3)
 e3. <- rbind(c(1,6,18,36),
-             c(0,1, 6,18),
-             c(0,0, 1, 6),
-             c(0,0, 0, 1))
-stopifnot(identical(e3, E3),
-          identical(as.mat(e3), e3.))
+	     c(0,1, 6,18),
+	     c(0,0, 1, 6),
+	     c(0,0, 0, 1))
+stopifnot(is(e3, "triangularMatrix"),
+	  is(es3, "symmetricMatrix"),
+	  identical(e3, E3),
+	  identical(as.mat(e3), e3.),
+	  all.equal(as(es3,"generalMatrix"),
+		    expm(as(s3,"generalMatrix")))
+	  )
 
 
 ## This used to be wrong {bug in octave-origin code}:

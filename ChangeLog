@@ -1,3 +1,246 @@
+2008-06-25  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/diagMatrix.R (.bdiag): use more efficient Bates-algorithm for
+	.bdiag().
+	* man/bdiag.Rd: update, including test.
+
+2008-06-24  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* tests/Simple.R: add minimal bdiag() checks
+
+	* R/diagMatrix.R (bdiag): fix bdiag(diag(4:5)) case;
+	  factor out the Tsparse - internal computation into new .bdiag()
+
+2008-06-14  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/nsparseMatrix.R: specific fast all() and any() methods.
+
+	* src/dgTMatrix.c (MAKE_gTMatrix_to_geMatrix): better error message
+	when trying to produce too large result.
+
+	* inst/test-tools.R (checkMatrix): add 'do.matrix' with a check for
+	very large matrices.
+
+	* R/sparseMatrix.R (printSpMatrix2): new function, used by
+	show(<sparseMatrix>).
+
+	* R/diagMatrix.R (show): print only diagonal entries when nrow(.) >= 50.
+
+2008-06-13  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/Mutils.c (m_encodeInd, m_encodeInd2):
+	* R/*.R: .Call(m_encodeInd2?, ..) instead of encodeInd2?(..).
+
+	* R/Auxiliaries.R (encodeInd2?): care against integer overflow (for
+	big matrices): -> 2nd argument 'di' instead of 'nr' !
+
+2008-06-09  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/dtCMatrix.R: faster dgC* -> dtC* method
+	* tests/Simple.R: (hence removed "FIXME")
+
+	* R/Auxiliaries.R (copyClass): add 'check = .copyClass.check'
+	which can be be turned off for possible speed gains.
+
+2008-06-02  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/dMatrix.R, R/Tsparse.R: get rid of some disambiguation warnings
+
+	* R/not.R: fix !<ldiMatrix>
+	implement two old "FIXME"s:  !<ldenseMatrix> & !<ndenseMatrix>
+
+	* R/diagMatrix.R (Ops): fix one-off thinko in
+	<diagonal> o <numeric> methods
+
+	* inst/test-tools.R: checkMatrix(): drop0(m12) unconditionally
+
+2008-05-30  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/diagMatrix.R (Ops): more <diagonal> o <Matrix> methods
+	* tests/Simple.R: testing the above
+
+2008-05-07  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* NAMESPACE: also import "Ops" {found via new tools:::get_S4_generics_with_methods()}
+
+2008-05-03  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Matrix.R (dimnames<-): dimnames(.) <- NULL works with a message;
+	* NAMESPACE (unname): finally exported
+
+2008-04-28  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Auxiliaries.R (cholMat): possibly keep packed
+
+	* inst/test-tools.R (checkMatrix): add fixed determinant.matrix()
+	for R < 2.7.0.
+
+	* R/Tsparse.R ([): for triangularMatrix, check if result may be
+	triangular.
+	* tests/indexing.R: regression test
+
+2008-04-26  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* inst/test-tools.R (checkMatrix): test <Ops> not only for dMatrix
+	* R/Ops.R: more methods, for lMatrix/nMatrix
+
+2008-04-24  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/expm.R: new file for all expm() methods; notably new ones for
+	diagonal*, triangular*, symmetric* and also simple "matrix".
+
+2008-04-23  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/dsyMatrix.R: setAs(.) rather than setIs(.)  "to dpoMatrix"
+
+	* inst/test-tools.R (assert.EQ.mat): better message when not equal
+
+	* src/dgeMatrix.c (dgeMatrix_matrix_crossprod): allow integer RHS.
+
+	* R/AllClass.R (ddiMatrix,ldiMatrix): extend [dl]Matrix instead of
+	[dl]denseMatrix {identical slots; but more logical method dispatch}
+
+2008-04-23  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/sparseMatrix.R (summary): use length(<i-slot>) instead of nnzero()
+
+	* R/diagMatrix.R (determinant): method
+
+2008-04-22  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/dsCMatrix.c (dsCMatrix_Cholesky): suppress CHOLMOD printing too
+
+	* R/Rsparse.R (.viaC.to.R): uplo fix for symmetric & triangular
+
+	* R/dsCMatrix.R (determinant): switch to use Cholesky( 'LDL' ) and
+	its diagonal
+
+2008-04-21  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/dMatrix.R (Summary): short-cut for prod(<sparse>)
+
+	* R/not.R: fix !<"U"-diag-ltrMatrix> ; drop {R < 2.6.0}-branch
+
+	* R/Auxiliaries.R (tT2gT): fix for "U"-diag-ltTMatrix
+
+	* R/AllClass.R: ltTMatrix validity: call (more stringent) tTMatrix_validate
+
+2008-04-19  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Ops.R (Ops.x.x): aux.function, not just for (dMatrix,dMatrix)
+
+	* R/Ops.R (.do.Logic.lsparse): fix NA case
+
+	* R/Tsparse.R (replTmat): fix r.sym case, using indTri()
+
+	* R/Auxiliaries.R (nnzero): fix special cases, using
+	* R/Auxiliaries.R (indDiag): new utility
+	* R/Auxiliaries.R (indTri): new argument 'diag'
+
+	* R/dMatrix.R: Summmary(<ddenseMatrix>): different branch for dsy*
+
+2008-04-18  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/diagMatrix.R: "Summary" methods, and more "Arith" / "Ops"
+
+	* src/Csparse.c (Csparse_drop): preserve (uplo,diag) for
+	".tCMatrix" triangular matrix.
+
+	* R/Auxiliaries.R (drop0): use diagU2N(); according to helpfile,
+	'clx' can be class *or* class representation.
+	(nnzSparse): new.
+	(non0ind): new 'xtendSymm' argument; used in
+	* R/Ops.R:
+
+	* R/pMatrix.R: more efficient determinant() method
+
+2008-04-17  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* [disactivated] R/Matrix.R (det): det() as base::det(), but with Matrix environment
+	* [disactivated] NAMESPACE: export(det)
+
+	* R/diagMatrix.R (mkDiag): new substitute for diag()
+
+	* R/Auxiliaries.R (nnzero): fix for "diagU2N"-case
+	(as0, as1): new utility.
+
+	* R/Csparse.R (diag, band): need diagU2N()
+
+	* src/dgeMatrix.c (get_norm): return NA when 'x' slot has NA/NaN.
+
+	* R/lMatrix.R: coerce(nMatrix |-> lMatrix) fix
+
+	* R/Ops.R (Compare): fix <nsp> o <nsp> case
+
+	* R/nsparseMatrix.R, R/pMatrix.R: is.na() method
+
+2008-04-16  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Auxiliaries.R (signPerm): new utility for
+	* R/Auxiliaries.R (detSparseLU): determinant() via sparseLU
+
+	* src/dsCMatrix.c (dsCMatrix_LDL_D): suppress 'CHOLMOD warning';
+	since we have our own error handler (and can use tryCatch() from R).
+
+2008-04-15  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/dgTMatrix.R (image): ha! set col=NA if lwd is small -- very nice!
+
+	* R/dsCMatrix.R (determinant): use tryCatch() and switch to lu()
+	when not positive definite.
+
+	* R/Auxiliaries.R (asTri): new auxiliary
+	(non0.i): make *much* faster for Tsparse with many non-zero
+	entries; add 'uniqT = TRUE' argument to be used when sorting is undesired.
+
+	* tests/Class+Meth.R (dotestMat): now build on checkMatrix() from
+	test-tools.R , see below
+
+	* R/dMatrix.R: fix "Summary" method: + diagU2N()
+
+	* NAMESPACE, R/Matrix.R: add mean() method
+
+2008-04-12  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/dgTMatrix.R (image): allow to *not* take abs(), and use
+	cold-hot colors; try *changed* default useAbs = FALSE
+	* man/image-methods.Rd:  nice examples
+
+2008-04-11  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* inst/test-tools.R (checkMatrix): new function for modularizing part
+	of tstMatrixClass() in tests/Class+Meth.R
+
+	* R/dsCMatrix.R: coercion from "matrix"
+	* R/ltTMatrix.R, R/ntTMatrix.R: ditto (change it).
+
+	* tests/Class+Meth.R (tstMatrixClass): some cleanup;
+	add test for as(matrix(,0,0), <class>)
+
+2008-04-09  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/dgeMatrix.c (dgeMatrix_determinant): for n == 0,
+	work as determinant(matrix(,0,0)).
+
+	* src/dgCMatrix.c (dgCMatrix_LU): return {L,U} as dtCMatrix
+	* man/sparseLU-class.Rd: ditto
+
+	* R/dgCMatrix.R (determinant): method building on lu()
+	* R/sparseMatrix.R, Matrix.R, ...: ditto
+
+	* R/Auxiliaries.R (mkDet): auxiliary for determinant()
+
+2008-04-07  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/sparseMatrix.R (summary<sparseMatrix>): no 'x' column for
+	pattern matrices.
+
+2008-04-02  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/dense.c (dense_to_Csparse): all declarations *before*
+	R_CheckStack(); needed e.g. for ancient gcc 2.96.
+
+
 2008-03-29  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* DESCRIPTION (Version): 0.999375-9 --- need to release

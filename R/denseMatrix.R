@@ -121,11 +121,13 @@ setMethod("[", signature(x = "denseMatrix", i = "index", j = "index",
 	      if(is.null(dim(r)))
 		  r
 	      else {
-		  cl <- class(x)
-		  if(extends(cl, "symmetricMatrix") &&
+		  cld <- getClassDef(cl <- class(x))
+		  if(extends(cld, "symmetricMatrix") &&
 		     length(i) == length(j) && all(i == j))
-		      as(r, cl) ## keep original symmetric class
-		  else as_geClass(r, cl)
+                      ## keep original symmetric class (but not "dpo")
+                      as(r, class2(cl, .M.kindC(cld)))
+
+		  else as_smartClass(r, cl)
 	      }
 	  })
 
@@ -167,7 +169,7 @@ setReplaceMethod("[", signature(x = "denseMatrix", i = "index", j = "index",
 		 function (x, i, j, ..., value) {
 		     r <- as(x, "matrix")
 		     r[i, j] <- value
-		     as_geClass(r, class(x)) ## was as(r, class(x))
+		     as_smartClass(r, class(x)) ## was as(r, class(x))
 		 })
 
 setReplaceMethod("[", signature(x = "denseMatrix", i = "matrix",  # 2-col.matrix

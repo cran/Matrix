@@ -11,11 +11,14 @@
 \alias{Ops,ANY,Matrix-method}
 \alias{Ops,Matrix,matrix-method}
 \alias{Ops,matrix,Matrix-method}
+\alias{Ops,logical,Matrix-method}
+\alias{Ops,Matrix,logical-method}
 \alias{Logic,logical,Matrix-method}
 \alias{Logic,Matrix,logical-method}
 \alias{Logic,Matrix,ANY-method}
 \alias{Logic,ANY,Matrix-method}
 \alias{Summary,Matrix-method}
+\alias{mean,Matrix-method}
 \alias{\%*\%,Matrix,numeric-method}
 \alias{\%*\%,numeric,Matrix-method}
 \alias{\%*\%,Matrix,Matrix-method}
@@ -38,6 +41,7 @@
 \alias{rbind2,Matrix,missing-method}
 \alias{rbind2,NULL,Matrix-method}
 \alias{rbind2,atomicVector,Matrix-method}
+\alias{crossprod,ANY,Matrix-method}
 \alias{crossprod,Matrix,numeric-method}
 \alias{crossprod,Matrix,ANY-method}
 \alias{crossprod,Matrix,Matrix-method}
@@ -53,7 +57,8 @@
 \alias{tcrossprod,numeric,Matrix-method}
 %
 \alias{cov2cor,Matrix-method}
-\alias{determinant,Matrix,ANY-method}
+\alias{determinant,Matrix,missing-method}
+\alias{determinant,Matrix,logical-method}
 \alias{diag,Matrix-method}
 \alias{drop,Matrix-method}
 \alias{head,Matrix-method}
@@ -63,6 +68,7 @@
 \alias{dim<-,Matrix-method}
 \alias{dimnames,Matrix-method}
 \alias{dimnames<-,Matrix,list-method}
+\alias{dimnames<-,Matrix,NULL-method}
 \alias{length,Matrix-method}
 \alias{show,Matrix-method}
 \alias{as.array,Matrix-method}
@@ -82,7 +88,8 @@
 \alias{solve,matrix,Matrix-method}
 \alias{solve,Matrix,missing-method}
 \alias{solve,Matrix,numeric-method}
-\alias{crossprod,ANY,Matrix-method}
+%\alias{unname,Matrix-method}
+\alias{unname,Matrix,missing-method}
 %
 \title{Virtual Class "Matrix" Class of Matrices}
 \description{

@@ -2,6 +2,8 @@
 \docType{class}
 \alias{triangularMatrix-class}
 \alias{coerce,triangularMatrix,symmetricMatrix-method}
+\alias{coerce,lgeMatrix,triangularMatrix-method}
+\alias{coerce,ngeMatrix,triangularMatrix-method}
 %
 \title{Virtual Class of Triangular Matrices in package:Matrix}
 \description{

@@ -99,6 +99,9 @@ setAs("RsparseMatrix", "lMatrix",
 setAs("RsparseMatrix", "nMatrix",
       function(from) as(.R.2.C(from), "nMatrix"))
 
+setAs("RsparseMatrix", "generalMatrix",
+      function(from) as(.R.2.C(from), "generalMatrix"))
+
 
 ## for printing etc:
 setAs("RsparseMatrix", "dgeMatrix",
@@ -132,16 +135,16 @@ setAs("matrix", "dgRMatrix", .viaC.to.dgR)
     if(has.x)
 	r@x <- m@x
     if(sh != "g") {
-	r@uplo <- m@uplo
+	r@uplo <- if(m@uplo != "U") "U" else "L"
 	if(sh == "t")
 	    r@diag <- m@diag
     }
     r
 }
 
-setAs("matrix",       "RsparseMatrix", .viaC.to.R)
-setAs("ddenseMatrix", "RsparseMatrix", .viaC.to.R)
-setAs("dsparseMatrix","RsparseMatrix", .viaC.to.R)
+setAs("matrix",      "RsparseMatrix", .viaC.to.R)
+setAs("denseMatrix", "RsparseMatrix", .viaC.to.R)
+setAs("sparseMatrix","RsparseMatrix", .viaC.to.R)
 
 ## symmetric: can use same 'p' slot
 setAs("dsCMatrix", "dsRMatrix",

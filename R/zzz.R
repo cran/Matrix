@@ -6,8 +6,6 @@
     require(methods)
     require(utils) # -> assignInNamespace {but "anyway"}
 
-    Rv <- paste(R.version$major, R.version$minor, sep=".")
-
     ## GOAL: all the functions in 'base' that start with something like
     ##	"x <- as.matrix(x)" or	"X <- as.array(X)"
     ## will work for 'Matrix'-matrices :

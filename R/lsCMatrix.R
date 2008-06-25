@@ -49,13 +49,6 @@ setMethod("triu", "lsCMatrix",
 	      else triu(as(x, "lgCMatrix"), k = k, ...)
 	  })
 
-## FIXME: generalize to "lsparseMatrix" or (class union)  "symmetric sparse"
-setMethod("image", "lsCMatrix",
-          function(x, ...) {
-              x <- as(as(x, "dsCMatrix"), "dgTMatrix")
-              callGeneric()
-          })
-
 setMethod("chol", signature(x = "lsCMatrix"),
 	  function(x, pivot=FALSE, ...)
 	  chol(as(x, "dgCMatrix"), pivot=pivot, ...))

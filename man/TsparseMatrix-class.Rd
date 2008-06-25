@@ -8,8 +8,13 @@
 \alias{coerce,TsparseMatrix,lMatrix-method}
 \alias{coerce,TsparseMatrix,nsparseMatrix-method}
 \alias{coerce,TsparseMatrix,nMatrix-method}
+\alias{coerce,TsparseMatrix,matrix-method}
 \alias{coerce,Matrix,TsparseMatrix-method}
 \alias{coerce,matrix,TsparseMatrix-method}
+% \alias{Ops,TsparseMatrix,TsparseMatrix-method}
+% \alias{Ops,TsparseMatrix,CsparseMatrix-method}
+% \alias{Ops,CsparseMatrix,TsparseMatrix-method}
+%
 % "[" are in ./Xtrct-methods.Rd
 \alias{\%*\%,TsparseMatrix,ANY-method}
 \alias{\%*\%,ANY,TsparseMatrix-method}

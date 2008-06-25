@@ -9,7 +9,9 @@
 \alias{\%*\%,matrix,CsparseMatrix-method}
 \alias{\%*\%,numeric,CsparseMatrix-method}
 \alias{coerce,CsparseMatrix,lsparseMatrix-method}
+\alias{coerce,CsparseMatrix,lMatrix-method}
 \alias{coerce,CsparseMatrix,nsparseMatrix-method}
+\alias{coerce,CsparseMatrix,nMatrix-method}
 \alias{coerce,CsparseMatrix,TsparseMatrix-method}
 \alias{coerce,CsparseMatrix,denseMatrix-method}
 \alias{coerce,CsparseMatrix,matrix-method}
@@ -25,10 +27,11 @@
 \alias{tcrossprod,CsparseMatrix,CsparseMatrix-method}
 \alias{tcrossprod,CsparseMatrix,missing-method}
 %% Group methods --------- FIXME: not tested yet (or documented)
+\alias{Compare,CsparseMatrix,CsparseMatrix-method}
 \alias{Arith,CsparseMatrix,CsparseMatrix-method}
 \alias{Arith,CsparseMatrix,numeric-method}
 \alias{Arith,numeric,CsparseMatrix-method}
-\alias{Compare,CsparseMatrix,CsparseMatrix-method}
+\alias{Logic,CsparseMatrix,CsparseMatrix-method}
 \alias{Math,CsparseMatrix-method}
 %
 \title{Class "CsparseMatrix" of Sparse Matrices in Column-compressed Form}

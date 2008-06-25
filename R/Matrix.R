@@ -36,13 +36,18 @@ setMethod("drop", signature(x = "Matrix"),
 
 ## slow "fall back" method {subclasses should have faster ones}:
 setMethod("as.vector", signature(x = "Matrix", mode = "missing"),
-	  function(x) as.vector(as(x, "matrix")))
+	  function(x, mode) as.vector(as(x, "matrix"), mode))
 
 ## mainly need these for "dMatrix" or "lMatrix" respectively, but why not general:
 setMethod("as.numeric", signature(x = "Matrix"),
 	  function(x, ...) as.numeric(as.vector(x)))
 setMethod("as.logical", signature(x = "Matrix"),
 	  function(x, ...) as.logical(as.vector(x)))
+
+setMethod("mean", signature(x = "Matrix"),
+	  function(x, trim = 0, ...) ## TODO: provide 'sparseMatrix method
+	  if(is0(trim)) sum(x, ...) / length(x)
+	  else mean(as.numeric(x), ...))
 
 setMethod("cov2cor", signature(V = "Matrix"),
 	  function(V) { ## was as(cov2cor(as(V, "matrix")), "dpoMatrix"))
@@ -104,6 +109,14 @@ dimnamesGets <- function (x, value) {
 }
 setMethod("dimnames<-", signature(x = "Matrix", value = "list"),
 	  dimnamesGets)
+
+setMethod("dimnames<-", signature(x = "Matrix", value = "NULL"),
+	  function(x, value) {
+	      message("dimnames(.) <- NULL:  translated to \n",
+		      "dimnames(.) <- list(NULL,NULL)  <==>  unname(.)")
+	      x@Dimnames <- list(NULL,NULL)
+	      x
+	  })
 
 setMethod("unname", signature("Matrix", force="missing"),
 	  function(obj) { obj@Dimnames <- list(NULL,NULL); obj})
@@ -306,11 +319,24 @@ setMethod("kronecker", signature(X = "ANY", Y = "Matrix",
 	      Y <- as(Y, "matrix") ; Matrix(callGeneric()) })
 
 
+setMethod("determinant", signature(x = "Matrix", logarithm = "missing"),
+          function(x, logarithm, ...)
+          determinant(x, logarithm = TRUE, ...))
+
+if(FALSE) { ## This is desired "in theory" - but gives
+    ## "The following object(s) are masked from package:base :   det
+## base::det() calls [base::]determinant();
+## our det() should call our determinant() :
+det <- base::det
+environment(det) <- environment()## == as.environment("Matrix")
+}
+
 ## FIXME: All of these should never be called
 setMethod("chol", signature(x = "Matrix"),
-	  function(x, pivot = FALSE, ...) .bail.out.1(.Generic, class(x)))
-setMethod("determinant", signature(x = "Matrix"),
-	  function(x, logarithm = TRUE, ...) .bail.out.1(.Generic, class(x)))
+	  function(x, pivot, ...) .bail.out.1(.Generic, class(x)))
+setMethod("determinant", signature(x = "Matrix", logarithm = "logical"),
+	  function(x, logarithm, ...)
+	  determinant(as(x,"dMatrix"), logarithm=logarithm, ...))
 
 setMethod("diag", signature(x = "Matrix"),
 	  function(x, nrow, ncol) .bail.out.1(.Generic, class(x)))
@@ -361,12 +387,22 @@ setMethod("image", "Matrix",
 
 ## Group Methods
 
-##-> see ./Ops.R
-##         ~~~~~
 ## For all  non-dMatrix objects, and note that  "all" and "any" have their own
 setMethod("Summary", signature(x = "Matrix", na.rm = "ANY"),
 	  function(x, ..., na.rm)
 	  callGeneric(as(x,"dMatrix"), ..., na.rm = na.rm))
+
+Summary.l <- function(x, ..., na.rm) { ## must be method directly
+    r <- callGeneric(as(x,"dMatrix"), ..., na.rm = na.rm)
+    if(!is.infinite(r) && .Generic %in% c("max", "min", "range", "sum"))
+        as.integer(r) else r
+}
+setMethod("Summary", signature(x = "lMatrix", na.rm = "ANY"), Summary.l)
+setMethod("Summary", signature(x = "nMatrix", na.rm = "ANY"), Summary.l)
+setMethod("Summary", signature(x = "pMatrix", na.rm = "ANY"), Summary.l)
+
+## Further, see ./Ops.R
+##                ~~~~~
 
 
 ### --------------------------------------------------------------------------
@@ -454,7 +490,7 @@ subset.ij <- function(x, ij) {
         }
         if(extends(cld, "sparseMatrix")) {
 	    ## do something smarter:
-	    nr <- nrow(x)
+	    di <- dim(x)
 	    if(!extends(cld, "CsparseMatrix")) {
 		x <- as(x, "CsparseMatrix") # simpler; our standard
 		cld <- getClassDef(class(x))
@@ -469,8 +505,8 @@ subset.ij <- function(x, ij) {
 		ij.x <- non0.i(x, cld)
 	    }
 
-	    mi <- match(encodeInd(ij.x,	  nr),
-			encodeInd(ij -1L, nr), nomatch=0)
+	    mi <- match(.Call(m_encodeInd, ij.x,	  di),
+			.Call(m_encodeInd, ij -1L, di), nomatch=0)
 	    mmi <- mi != 0
 	    ## Result:
 	    ans <- vector(mode = .type.kind[.M.kindC(cld)], length = m)

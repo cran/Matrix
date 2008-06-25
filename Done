@@ -205,6 +205,7 @@
 - norm() methods for all Matrices, notably sparse "now too".
 
 - check all "Summary" group methods for all matrices in ./tests/Class+Meth.R
+  {this includes  sum() for *all* our matrices}
 
 - log1p(<sparseMatrix>) now gives <dsparseMatrix>
   simply via "Math" group generic -- only from R 2.6.0 on.
@@ -271,4 +272,28 @@
   Now they are *implicit generics* and methods all have just (x= *Matrix)
   signature and default argument (pivot=FALSE) or (tol=1e-7) respectively.
 
+- summary(<nMatrix>) now only reports the (i,j) locations; no "TRUE".
 
+- data(CAex); determinant(CAex) now works - via lu() decomposition;
+  and effectively, determinant() should now work for all our numeric
+  ("dMatrix") Matrices, of course with an error for non-square ones.
+
+- image(M, ..): now have smart option which keeps "0 |-> transparent"
+  and allows colors to differentiate negative and positive entries.
+
+- Diagonal(n) %*% A   is fast now
+
+- msy <- as(matrix(c(2:1,1:2),2), "dsyMatrix"); str(msy)
+  no longer contains a Cholesky factorization {as we've replaced setIs() by
+  setAs(), for now}.
+
+- determinant() now works {it is checkMatrix()ed}
+
+- dimnames(Mat) <- NULL   now works with a message;
+  unname() is defined equivalently explicitly.
+
+- auxiliary  encodeInd(), encodeInd2() are now done in C and .Call()ed.
+
+- coercing sparse to dense when the denseMatrix is too large
+  (length(@ x) > .Machine$integer.max), gives better error
+  messages; e.g. Lrg == Lrg or  !Lrg in tests/indexing.R

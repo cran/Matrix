@@ -56,6 +56,9 @@ setMethod("image", "dgCMatrix",
 
 ##-> ./colSums.R  for colSums,... rowMeans
 
+setMethod("determinant", signature(x = "dgCMatrix", logarithm = "logical"),
+          detSparseLU)
+
 setMethod("qr", signature(x = "dgCMatrix"),
 	  function(x, tol = 1e-07, LAPACK = FALSE)
 	  .Call(dgCMatrix_QR, x, TRUE))

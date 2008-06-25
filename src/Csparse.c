@@ -349,6 +349,9 @@ SEXP Csparse_crossprod(SEXP x, SEXP trans, SEXP triplet)
 
 SEXP Csparse_drop(SEXP x, SEXP tol)
 {
+    const char *cl = class_P(x);
+    /* dtCMatrix, etc; [1] = the second character =?= 't' for triangular */
+    int tr = (cl[1] == 't');
     CHM_SP chx = AS_CHM_SP(x);
     CHM_SP ans = cholmod_copy(chx, chx->stype, chx->xtype, &c);
     double dtol = asReal(tol);
@@ -357,7 +360,9 @@ SEXP Csparse_drop(SEXP x, SEXP tol)
 
     if(!cholmod_drop(dtol, ans, &c))
 	error(_("cholmod_drop() failed"));
-    return chm_sparse_to_SEXP(ans, 1, 0, Rkind, "",
+    return chm_sparse_to_SEXP(ans, 1,
+			      tr ? ((*uplo_P(x) == 'U') ? 1 : -1) : 0,
+			      Rkind, tr ? diag_P(x) : "",
 			      GET_SLOT(x, Matrix_DimNamesSym));
 }
 
@@ -484,7 +489,7 @@ SEXP Csparse_MatrixMarket(SEXP x, SEXP fname)
  * @param n  dimension of the matrix.
  * @param x_p  'p' (column pointer) slot contents
  * @param x_x  'x' (non-zero entries) slot contents
- * @param perm 'perm' (= permutation vector) slot contents
+ * @param perm 'perm' (= permutation vector) slot contents; only used for "diagBack"
  * @param resultKind a (SEXP) string indicating which kind of result is desired.
  *
  * @return  a SEXP, either a (double) number or a length n-vector of diagonal entries
@@ -544,7 +549,7 @@ SEXP diag_tC_ptr(int n, int *x_p, double *x_x, int *perm, SEXP resultKind)
     case diag_backpermuted:
 	for_DIAG(v[i] = x_x[i_from]);
 
-	error(_("resultKind = 'diagBack' (back-permuted) is not yet implemented"));
+	warning(_("resultKind = 'diagBack' (back-permuted) is experimental"));
 	/* now back_permute : */
 	for(i = 0; i < n; i++) {
 	    double tmp = v[i]; v[i] = v[perm[i]]; v[perm[i]] = tmp;
@@ -567,7 +572,8 @@ SEXP diag_tC_ptr(int n, int *x_p, double *x_x, int *perm, SEXP resultKind)
  *
  * @param pslot  'p' (column pointer)   slot of Csparse matrix/factor
  * @param xslot  'x' (non-zero entries) slot of Csparse matrix/factor
- * @param perm_slot  'perm' (= permutation vector) slot of corresponding CHMfactor
+ * @param perm_slot  'perm' (= permutation vector) slot of corresponding CHMfactor;
+ *		     only used for "diagBack"
  * @param resultKind a (SEXP) string indicating which kind of result is desired.
  *
  * @return  a SEXP, either a (double) number or a length n-vector of diagonal entries

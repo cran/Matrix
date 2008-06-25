@@ -2,6 +2,7 @@
 \docType{class}
 \alias{ldiMatrix-class}
 \alias{!,ldiMatrix-method}
+%%----> put almost all methods into ./diagonalMatrix-class.Rd
 % Deprecated:
 \alias{coerce,ldiMatrix,lgCMatrix-method}
 \alias{coerce,ldiMatrix,lgTMatrix-method}
@@ -25,10 +26,11 @@
   }
 }
 \section{Extends}{
-Class \code{"diagonalMatrix"}, directly.
-Class \code{"lMatrix"}, directly.
-Class \code{"denseMatrix"}, by class \code{"diagonalMatrix"}.
-Class \code{"Matrix"}, by class \code{"denseMatrix"} and class \code{"lMatrix"}.
+  Class \code{"\linkS4class{diagonalMatrix}"} and
+  class \code{"\linkS4class{lMatrix}"}, directly.
+
+  Class \code{"denseMatrix"}, by class \code{"diagonalMatrix"}.
+  Class \code{"Matrix"}, by class \code{"denseMatrix"} and class \code{"lMatrix"}.
 }
 % \section{Methods}{
 % No methods defined with class "ldiMatrix" in the signature.

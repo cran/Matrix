@@ -43,6 +43,7 @@ setAs("lgTMatrix", "ltTMatrix",
       function(from) check.gT2tT(from, cl = "lgTMatrix", toClass = "ltTMatrix"))
 
 
+if(FALSE) ## unneeded: use t.<TsparseMatrix>
 setMethod("t", signature(x = "lgTMatrix"),
 	  function(x) new("lgTMatrix", i = x@j, j = x@i, x = x@x,
 			  Dim = x@Dim[2:1],

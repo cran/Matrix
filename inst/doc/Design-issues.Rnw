@@ -113,8 +113,17 @@ should typically adhere:
 \item[Rule~2]:  \code{Matrix(x)} should also work for matrix like
 objects \code{x} and always return a ``classed'' Matrix.
 
-Applied to a \code{"matrix"} object \code{m}, \code{M <- Matrix(m)} can be
-considered a kind of inverse of \code{m <- as(M, "matrix")}.
+Applied to a \code{"matrix"} object \code{m}, \code{M. <- Matrix(m)} can be
+considered a kind of inverse of \code{m <- as(M, "matrix")},
+but note that for sparse matrices, \code{M.} well be a
+\code{CsparseMatrix}, and it is often ``more structured'' than \code{M},
+e.g.,
+<<Matrix-ex>>=
+(M <- spMatrix(4,4, i=1:4, j=c(3:1,4), x=c(4,1,4,8))) # dgTMatrix
+m <- as(M, "matrix")
+(M. <- Matrix(m)) # dsCMatrix (i.e. *symmetric*)
+@
+
 
 \item[Rule~3]: All the following coercions to \emph{virtual} matrix
   classes should work:\\

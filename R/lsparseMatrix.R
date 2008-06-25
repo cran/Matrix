@@ -1,26 +1,18 @@
 #### Superclass Methods for all sparse logical matrices
 
-if(FALSE) ## bug? in 'methods' - see ./nsparseMatrix.R :
-setAs("CsparseMatrix", "lsparseMatrix",
-      function(from) as(.Call(Csparse_to_nz_pattern, from,
-			      is(from, "triangularMatrix")), "lsparseMatrix"))
-## substitute:
-setAs("CsparseMatrix", "lsparseMatrix",
-      function(from) {
-	  cld <- getClassDef(class(from))
-	  if(extends(cld, "lsparseMatrix"))
-	      from
-	  else if(extends(cld, "nsparseMatrix"))
-	      as(from, "lsparseMatrix")
-	  else
-	      as(.Call(Csparse_to_nz_pattern, from,
-		       extends(cld, "triangularMatrix")),
-		 "lsparseMatrix")
-      })
 
+C2l <- function(from) as(.Call(Csparse_to_nz_pattern,
+			       ## drop extraneous '0' since they would become TRUE:
+			       .Call(Csparse_drop, from, 0),
+			       is(from, "triangularMatrix")),
+			 "lsparseMatrix")
+setAs("CsparseMatrix", "lMatrix", C2l)
+setAs("CsparseMatrix", "lsparseMatrix", C2l)
 
 setAs("lsparseMatrix", "matrix",
       function(from) as(as(from, "ldenseMatrix"), "matrix"))
+
+setAs("lsparseMatrix", "dsparseMatrix", function(from) as(from, "dMatrix"))
 
 
 ###------- Work via  as(*, lgC) : ------------
@@ -64,3 +56,5 @@ setMethod("all", signature(x = "lsparseMatrix"),
 	  })
 
 ## setMethod("any", ) ---> ./lMatrix.R
+
+setMethod("image", "lsparseMatrix", function(x, ...) image(as(x,"dMatrix")))

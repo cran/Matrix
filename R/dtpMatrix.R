@@ -56,21 +56,7 @@ setMethod("determinant", signature(x = "dtpMatrix", logarithm = "missing"),
 	  function(x, logarithm, ...) determinant(x, TRUE))
 
 setMethod("determinant", signature(x = "dtpMatrix", logarithm = "logical"),
-	  function(x, logarithm, ...) {
-	      dg <- diag(x)
-	      if (logarithm) {
-		  modulus <- sum(log(abs(dg)))
-		  sgn <- prod(sign(dg))
-	      } else {
-		  modulus <- prod(dg)
-		  sgn <- sign(modulus)
-		  modulus <- abs(modulus)
-	      }
-	      attr(modulus, "logarithm") <- logarithm
-	      val <- list(modulus = modulus, sign = sgn)
-	      class(val) <- "det"
-	      val
-	  })
+	  function(x, logarithm, ...) mkDet(diag(x), logarithm))
 
 setMethod("diag", signature(x = "dtpMatrix"),
 	  function(x, nrow, ncol) .Call(dtpMatrix_getDiag, x),

@@ -4,7 +4,7 @@
 \alias{lMatrix-class}
 %
 \alias{show,dMatrix-method}
-\alias{coerce,dMatrix,matrix-method}
+%\alias{coerce,dMatrix,matrix-method}
 \alias{coerce,dMatrix,lMatrix-method}
 \alias{coerce,lMatrix,dMatrix-method}
 \alias{coerce,lMatrix,dgCMatrix-method}
@@ -14,19 +14,27 @@
 \alias{[,dMatrix,logical,missing,ANY-method}
 % Group methods
 \alias{Arith,dMatrix,dMatrix-method}
+\alias{Arith,lMatrix,numeric-method}
+\alias{Ops,lMatrix,numeric-method}
+\alias{Arith,numeric,lMatrix-method}
+\alias{Ops,numeric,lMatrix-method}
 \alias{Ops,dMatrix,dMatrix-method}
-\alias{Compare,dMatrix,dMatrix-method}
+\alias{Ops,dMatrix,lMatrix-method}
+\alias{Ops,lMatrix,dMatrix-method}
+\alias{Ops,lMatrix,lMatrix-method}
+\alias{Ops,dMatrix,nMatrix-method}
+\alias{Ops,nMatrix,dMatrix-method}
 \alias{Compare,dMatrix,numeric-method}
 \alias{Compare,numeric,dMatrix-method}
 \alias{Logic,logical,lMatrix-method}
 \alias{Logic,lMatrix,logical-method}
-%\alias{Summary,dMatrix-method}
+\alias{Summary,lMatrix-method}
 %% R <= 2.5.x :
-\alias{Math2,dMatrix,ANY-method}% Math2 = round + signif,.., but
-\alias{Math2,dMatrix,missing-method}
-% for silly reasons, need these 2+3 as well:
-\alias{round,dMatrix,numeric-method}
-\alias{signif,dMatrix,numeric-method}
+% \alias{Math2,dMatrix,ANY-method}% Math2 = round + signif,.., but
+% \alias{Math2,dMatrix,missing-method}
+% % for silly reasons, need these 2+3 as well:
+% \alias{round,dMatrix,numeric-method}
+% \alias{signif,dMatrix,numeric-method}
 %% R-2.6.0 - maybe
 \alias{Math2,dMatrix-method}
 \alias{log,dMatrix-method}

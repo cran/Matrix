@@ -173,7 +173,7 @@ setMethod("t", signature(x = "nspMatrix"),
 ##        "!" is in ./not.R
 
 setMethod("as.vector", signature(x = "ndenseMatrix", mode = "missing"),
-          function(x) as(x, "ngeMatrix")@x)
+	  function(x, mode) as(x, "ngeMatrix")@x)
 
 setMethod("norm", signature(x = "ndenseMatrix", type = "character"),
 	  function(x, type, ...)

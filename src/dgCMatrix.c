@@ -250,7 +250,6 @@ SEXP dgCMatrix_LU(SEXP Ap, SEXP orderp, SEXP tolp)
      * permuted columns or not. */
 
     if (ans != R_NilValue) return ans;
-    ans = PROTECT(NEW_OBJECT(MAKE_CLASS("sparseLU")));
     n = A->n;
     if (A->m != n)
 	error("LU decomposition applies only to square matrices");
@@ -260,7 +259,11 @@ SEXP dgCMatrix_LU(SEXP Ap, SEXP orderp, SEXP tolp)
     }
     S = cs_sqr (order, A, 0) ;	/* symbolic ordering, no QR bound */
     N = cs_lu (A, S, tol) ;	/* numeric factorization */
-    if (!N) error ("cs_lu failed (singular, or out of memory)") ;
+    if (!N) {
+	/*WAS: error ("cs_lu failed (singular, or out of memory)") ; */
+	return R_NilValue;
+	/* and the caller can warn() or stop() ... */
+    }
     cs_dropzeros (N->L) ;	/* drop zeros from L and sort it */
     D = cs_transpose (N->L, 1) ;
     cs_spfree (N->L) ;
@@ -272,10 +275,11 @@ SEXP dgCMatrix_LU(SEXP Ap, SEXP orderp, SEXP tolp)
     N->U = cs_transpose (D, 1) ;
     cs_spfree (D) ;
     p = cs_pinv (N->pinv, n) ;	/* p=pinv' */
+    ans = PROTECT(NEW_OBJECT(MAKE_CLASS("sparseLU")));
     SET_SLOT(ans, install("L"),
-	     Matrix_cs_to_SEXP(N->L, "dgCMatrix", 0));
+	     Matrix_cs_to_SEXP(N->L, "dtCMatrix", 0));
     SET_SLOT(ans, install("U"),
-	     Matrix_cs_to_SEXP(N->U, "dgCMatrix", 0));
+	     Matrix_cs_to_SEXP(N->U, "dtCMatrix", 0));
     Memcpy(INTEGER(ALLOC_SLOT(ans, Matrix_pSym,
 			      INTSXP, n)), p, n);
     if (order)

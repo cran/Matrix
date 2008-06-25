@@ -101,7 +101,7 @@ SEXP chm_sparse_to_SEXP(CHM_SP a, int dofree, int uploT, int Rkind,
 			const char* diag, SEXP dn)
 {
     SEXP ans;
-    char *cl = "";		/* -Wall */
+    char *cl = "";/* -Wall */
     int *dims, nnz;
 
     PROTECT(dn);  /* dn is usually UNPROTECTed before the call */
@@ -434,6 +434,9 @@ int R_cholmod_start(CHM_CM c)
     if (!(res = cholmod_start(c)))
 	error(_("Unable to initialize cholmod: error code %d"), res);
     c->print_function = R_cholmod_printf; /* Rprintf gives warning */
+    /* Since we provide an error handler, it may not be a good idea to allow CHOLMOD printing,
+     * because that's not easily suppressed on the R level :
+     * Hence consider, at least temporarily *  c->print_function = NULL; */
     c->error_handler = R_cholmod_error;
     return TRUE;
 }

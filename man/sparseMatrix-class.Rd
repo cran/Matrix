@@ -37,6 +37,12 @@
 \alias{summary,sparseMatrix-method}
 \alias{norm,sparseMatrix,character-method}
 \alias{rcond,sparseMatrix,character-method}
+\alias{determinant,dgCMatrix,logical-method}
+\alias{determinant,dsparseMatrix,logical-method}
+\alias{determinant,dtCMatrix,logical-method}
+\alias{determinant,sparseMatrix,missing-method}
+\alias{determinant,sparseMatrix,logical-method}
+
 %\alias{colMeans,..} etc are now in ./colSums.Rd
 % graph stuff
 \alias{coerce,graph,sparseMatrix-method}
@@ -76,9 +82,15 @@
       arguments, see \code{\link{printSpMatrix}()}.}
     \item{summary}{\code{(object = "sparseMatrix")}: Returns
       an object of S3 class \code{"sparseSummary"} which is basically a
-      \code{\link{data.frame}} with columns \code{(i,j,x)} with the
-      non-zero entries.   The \code{\link{print}} method resemble's
-      Matlab's way of printing sparse matrices.}
+      \code{\link{data.frame}} with columns \code{(i,j,x)} (or just
+      \code{(i,j)} for \code{\linkS4class{nsparseMatrix}} class objects)
+      with the stored (typically non-zero) entries.  The
+      \code{\link{print}} method resembles Matlab's way of printing
+      sparse matrices, and also the MatrixMarket format, see
+      \code{\link{writeMM}}.}
+    \item{determinant}{\code{(x = "sparseMatrix", logarithm=TRUE)}:
+      \code{\link{determinant}()} methods for sparse matrices typically
+      work via \code{\link{Cholesky}} or \code{\link{lu}} decompositions.}
     \item{diag}{\code{(x = "sparseMatrix")}: extracts the diagonal of a
       sparse matrix.}
     \item{dim<-}{\code{signature(x = "sparseMatrix", value = "ANY")}:
@@ -109,6 +121,9 @@ showClass("sparseMatrix") ## and look at the help() of its subclasses
 M <- Matrix(0, 10000, 100)
 M[1,1] <- M[2,3] <- 3.14
 M  ## show(.) method suppresses printing of the majority of rows
+
+data(CAex); dim(CAex) # 72 x 72 matrix
+determinant(CAex) # works via sparse lu(.)
 
 ## factor -> t( <sparse design matrix> ) :
 (fact <- gl(5, 3, 30, labels = LETTERS[1:5]))

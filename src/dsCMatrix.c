@@ -62,14 +62,13 @@ internal_chm_factor(SEXP Ap, int perm, int LDL, int super, double Imult)
     if (perm) {			/* obtain fill-reducing permutation */
 	L = cholmod_analyze(A, &c);
     } else {			/* require identity permutation */
+	/* save current settings */
 	int nmethods = c.nmethods, ord0 = c.method[0].ordering,
 	    postorder = c.postorder;
-	c.nmethods = 1;
-	c.method[0].ordering = CHOLMOD_NATURAL;
-	c.postorder = FALSE;
+	c.nmethods = 1; c.method[0].ordering = CHOLMOD_NATURAL; c.postorder = FALSE;
 	L = cholmod_analyze(A, &c);
-	c.nmethods = nmethods; c.method[0].ordering = ord0;
-	c.postorder = postorder;
+	/* and now restore */
+	c.nmethods = nmethods; c.method[0].ordering = ord0; c.postorder = postorder;
     }
     if (!cholmod_factorize_p(A, &Imult, (int*)NULL, 0 /*fsize*/, L, &c))
 	error(_("Cholesky factorization failed"));
@@ -115,11 +114,16 @@ SEXP dsCMatrix_chol(SEXP x, SEXP pivot)
 
 SEXP dsCMatrix_Cholesky(SEXP Ap, SEXP perm, SEXP LDL, SEXP super, SEXP Imult)
 {
-    return chm_factor_to_SEXP(internal_chm_factor(Ap, asLogical(perm),
-						  asLogical(LDL),
-						  asLogical(super),
-						  asReal(Imult)),
-			      1 /* dofree */);
+    int c_pr = c.print;
+    c.print = 0;/* stop CHOLMOD printing; we cannot suppress it (in R), and
+		   have error handler already */
+    SEXP r = chm_factor_to_SEXP(internal_chm_factor(Ap, asLogical(perm),
+						    asLogical(LDL),
+						    asLogical(super),
+						    asReal(Imult)),
+				1 /* dofree */);
+    c.print = c_pr;
+    return r;
 }
 
 /**
@@ -135,13 +139,22 @@ SEXP dsCMatrix_Cholesky(SEXP Ap, SEXP perm, SEXP LDL, SEXP super, SEXP Imult)
  */
 SEXP dsCMatrix_LDL_D(SEXP Ap, SEXP permP, SEXP resultKind)
 {
-    CHM_FR L = internal_chm_factor(Ap, asLogical(permP),
-			   /*LDL*/ 1, /*super*/0, /*Imult*/0.);
-    return diag_tC_ptr(L->n,
-		       L->p,
-		       L->x,
-		       L->Perm,
-		       resultKind);
+    CHM_FR L;
+    SEXP ans;
+    int c_pr = c.print;
+    c.print = 0;/* stop CHOLMOD printing; we cannot suppress it (in R), and
+		   have error handler already */
+    L = internal_chm_factor(Ap, asLogical(permP),
+			    /*LDL*/ 1, /*super*/0, /*Imult*/0.);
+    c.print = c_pr;
+    ans = PROTECT(diag_tC_ptr(L->n,
+			      L->p,
+			      L->x,
+			      L->Perm,
+			      resultKind));
+    cholmod_free_factor(&L, &c);
+    UNPROTECT(1);
+    return(ans);
 }
 
 SEXP dsCMatrix_Csparse_solve(SEXP a, SEXP b)

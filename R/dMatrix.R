@@ -1,44 +1,41 @@
 ### Define Methods that can be inherited for all subclasses
 
-
-setAs("dMatrix", "matrix",
-      function(from) as(as(from, "dgeMatrix"), "matrix"))
-
 ##-> "dMatrix" <--> "lMatrix"   ---> ./lMatrix.R
 
 ## these two are parallel to "n <-> l" in the above :
 setAs("nMatrix", "dMatrix",
       function(from) {
-	  cl <- class(from)
-	  nCl <- sub("^n", "d", cl)
-	  r <- new(nCl)# default => no validity check; and copy slots:
-	  ## result is "same" (modulo care with the 'x' slot)
-	  sNams <- slotNames(cl)
-	  if(extends(cl, "sparseMatrix")) {# faster(not "nicer"): any(substr(cl,3,3) == c("C","T","R"))
-	      r@x <- rep.int(1., nnzero(from))
-	  } else {
-	      r@x <-  as.double(from@x)
-	      sNams <- sNams[sNams != "x"]
-	  }
-	  for(nm in sNams)
-	      slot(r, nm) <- slot(from, nm)
+	  cld <- getClassDef(cl <- class(from))
+	  isSp <- extends(cld, "sparseMatrix")
+	  ## faster(not "nicer"): any(substr(cl,3,3) == c("C","T","R"))
+	  sNams <- slotNames(cld)
+	  r <- copyClass(from, sub("^n", "d", cl),
+			 if(isSp) sNams else sNams[sNams != "x"])
+	  r@x <- if(isSp) rep.int(1., nnzSparse(from)) else as.double(from@x)
 	  r
       })
 
+## NOTE: This is *VERY* parallel to  ("lMatrix" -> "nMatrix") in ./lMatrix.R :
 setAs("dMatrix", "nMatrix",
       function(from) {
 	  if(any(is.na(from@x)))
 	      stop("\"dMatrix\" object with NAs cannot be coerced to \"nMatrix\"")
 	  ## i.e. from@x are only TRUE (or FALSE in dense case)
-	  cl <- class(from)
-	  if(extends(cl, "diagonalMatrix")) # have no "ndi*" etc class
+	  cld <- getClassDef(cl <- class(from))
+	  if(extends(cld, "diagonalMatrix")) { # have no "ndi*" etc class
 	      cl <- class(from <- as(from, "sparseMatrix"))
-	  nCl <- sub("^d", "n", cl)
-	  sNams <- slotNames(if(extends(cl, "sparseMatrix")) .sp.class(cl) else cl)
-	  r <- new(nCl)# default => no validity check; and copy slots:
-	  for(nm in sNams)
-	      slot(r, nm) <- slot(from, nm)
-	  r
+	      isSp <- TRUE
+	  } else {
+	      isSp <- extends(cld, "sparseMatrix")
+	      if(isSp && any(from@x == 0)) {
+		  from <- drop0(from, cld)
+		  if(cl != (c. <- class(from)))
+		      cld <- getClassDef(cl <- c.)
+	      }
+	  }
+	  sNams <- slotNames(cld)
+	  copyClass(from, sub("^d", "n", cl),
+		    if(isSp) sNams[sNams != "x"] else sNams)
       })
 
 
@@ -64,9 +61,6 @@ setAs("dMatrix", "nMatrix",
 ## setMethod("solve", signature(a = "dMatrix", b = "integer"),
 ##           function(a, b, ...) callGeneric(a, as.numeric(b)))
 
-setMethod("expm", signature(x = "dMatrix"),
-	  function(x) expm(as(x, "dgeMatrix")))
-
 
 ## Group Methods, see ?Arith (e.g.)
 ## -----
@@ -82,58 +76,60 @@ setMethod("Math2",
               x
           })
 
-if(getRversion() < "2.6.0" || R.version$`svn rev` < 42294) {
-setMethod("Math2",
-	  signature(x = "dMatrix", digits = "missing"),
-	  function(x, digits)
-	       switch(.Generic,
-		      "signif" = callGeneric(x, digits = 6),
-		      callGeneric(x, digits = 0)) ## round(x) == round(x, 0)
-	  )
-}
-
 ## at installation time:
+## "max" "min" "range"  "prod" "sum"   "any" "all" :
 summGenerics <- getGroupMembers("Summary")
-## "max" "min" "range"  "prod" "sum"   "any" "all"
+## w/o "prod" & "sum":
 summGener1 <- summGenerics[match(summGenerics, c("prod","sum"), 0) == 0]
 
 ## [also needs extra work in ./AllGeneric.R ] :
 setMethod("Summary", signature(x = "ddenseMatrix", na.rm = "ANY"),
 	  function(x, ..., na.rm) {
+	      d <- x@Dim
+	      if(any(d == 0)) return(callGeneric(numeric(0), ..., na.rm=na.rm))
 	      clx <- getClassDef(class(x))
-	      if(extends(clx, "generalMatrix") || # ?geMatrix
-		 length(x@x) == prod(dim(x))) # not packed
+	      if(extends(clx, "generalMatrix"))
 		  callGeneric(x@x, ..., na.rm = na.rm)
-	      else if(extends(clx, "symmetricMatrix")) { # and packed
-		  if(.Generic %in% summGener1)
-		      callGeneric(x@x, ..., na.rm = na.rm)
-		  else callGeneric(as(x, "dgeMatrix")@x, ..., na.rm = na.rm)
+	      else if(extends(clx, "symmetricMatrix")) { # incl packed, pos.def.
+		  if(.Generic %in% summGener1) {
+		      callGeneric(if (length(x@x) < prod(d)) x@x
+				  else x@x[indTri(d[1], upper= x@uplo == "U",
+						  diag= TRUE)],
+				  ..., na.rm = na.rm)
+		  } else callGeneric(as(x, "dgeMatrix")@x, ..., na.rm = na.rm)
 	      }
 	      else { ## triangular , packed
 		  if(.Generic %in% summGener1)
-		      callGeneric(x@x, 0, ..., na.rm = na.rm)
+		      callGeneric(x@x, 0, if(x@diag == "U") 1, ..., na.rm = na.rm)
 		  else callGeneric(as(x, "dgeMatrix")@x, ..., na.rm = na.rm)
 	      }
 	  })
 
 setMethod("Summary", signature(x = "dsparseMatrix", na.rm = "ANY"),
-	  function(x, ..., na.rm) {
-	      ne <- prod(d <- dim(x))
-	      l.x <- length(x@x)
-	      if(l.x == ne) ## fully non-zero
-		  callGeneric(x@x, ..., na.rm = na.rm)
-	      else if(is(x, "symmetricMatrix") && l.x == choose(d[1]+1, 2)) {
-		  if(.Generic %in% summGener1)
-		      callGeneric(x@x, ..., na.rm = na.rm)
-		  else callGeneric(as(x, "generalMatrix")@x, ..., na.rm = na.rm)
+	  function(x, ..., na.rm)
+      {
+	  ne <- prod(d <- dim(x))
+	  if(ne == 0) return(callGeneric(numeric(0), ..., na.rm=na.rm))
+	  l.x <- length(x@x)
+	  if(l.x < ne) {
+	      clx <- getClassDef(class(x))
+	      if(extends(clx, "symmetricMatrix") && l.x == choose(d[1]+1,2)) {
+		  ## fully non-zero - very rare!
+		  callGeneric((if(.Generic %in% summGener1) x else
+			       as(x, "generalMatrix"))@x,
+			      ..., na.rm = na.rm)
 	      }
-	      else { ## has at least one structural 0
-		  callGeneric(
-			      (if(.Generic %in% summGener1) x
-			      else as(x, "generalMatrix"))@x,
+	      else { ## has at least one structural 0 (e.g. triangular)	 --normal case--
+		  if(.Generic == "prod") 0 else
+		  callGeneric((if(.Generic %in% summGener1) diagU2N(x) else
+			       as(x, "generalMatrix"))@x,
 			      0, ..., na.rm = na.rm)
 	      }
-	  })
+	  }
+	  else { ## fully non-zero - very rare
+	      callGeneric(x@x, ..., na.rm = na.rm)
+	  }
+      })
 
 
 ## "Ops" ("Arith", "Compare", "Logic") --> ./Ops.R

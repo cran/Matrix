@@ -1,16 +1,16 @@
 #### Logical Sparse Triangular Matrices in Compressed column-oriented format
 
 setAs("ntCMatrix", "matrix",
-      function(from) as(as(from, "ngCMatrix"), "matrix"))
+      function(from) as(as(from, "denseMatrix"), "matrix"))
 setAs("matrix", "ntCMatrix",
       function(from) as(as(from, "dtCMatrix"), "ntCMatrix"))
 
-setAs("ntCMatrix", "ntTMatrix",
+setAs("ntCMatrix", "TsparseMatrix",
       function(from) .Call(Csparse_to_Tsparse, from, TRUE))
 
 setAs("ntCMatrix", "ngCMatrix",
-      function(from) new("ngCMatrix", i = from@i, p = from@p,
-                         Dim = from@Dim, Dimnames = from@Dimnames))
+      function(from) copyClass(diagU2N(from), "ngCMatrix"))
+
 
 .ntC2d <- function(from)
     new("dtCMatrix", i = from@i, p = from@p,
@@ -33,16 +33,11 @@ setAs("ntCMatrix", "ltCMatrix", .ntC2l)
 rm(.ntC2d,.ntC2l) # don't even keep "hidden"
 
 setAs("ngCMatrix", "ntCMatrix", # to triangular, needed for triu,..
-      function(from) as(as(as(from, "ngTMatrix"), "ntTMatrix"), "ntCMatrix"))
+      function(from) as(as(as(from, "TsparseMatrix"),
+                           "ntTMatrix"), "ntCMatrix"))
 
 ## setAs("ntCMatrix", "generalMatrix",
 ##       function(from) ......)
-
-setMethod("image", "ntCMatrix",
-          function(x, ...) {
-              x <- as(as(x, "dtCMatrix"), "dgTMatrix")
-              callGeneric()
-          })
 
 ## setMethod("t", signature(x = "ntCMatrix"),
 ##           function(x) .Call(ntCMatrix_trans, x),

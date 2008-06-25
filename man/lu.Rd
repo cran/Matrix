@@ -12,8 +12,10 @@ lu(x, \dots)
   \item{\dots}{further arguments passed to or from other methods.}
 }
 \value{
-  an object of class \code{"LU"}, i.e., \code{"\linkS4class{denseLU}"} or
-  \code{"sparseLU"}, see \code{\linkS4class{sparseLU}}; this is
+  Either \code{NULL} (when the LU decomposition failed (when \code{x} is
+  singular)) or an object of class \code{"LU"}, i.e.,
+  \code{"\linkS4class{denseLU}"} or \code{"sparseLU"},
+  see \code{\linkS4class{sparseLU}}; this is
   a representation of a triangular decomposition of \code{x}.
 }
 \details{
@@ -22,10 +24,13 @@ lu(x, \dots)
   for the \code{\link{lu}} generic.
 
   The method for class \code{\linkS4class{dgeMatrix}} is based on
-  LAPACK's \code{"dgetrf"} subroutine.
+  LAPACK's \code{"dgetrf"} subroutine.  It returns a decomposition also
+  for singular matrices.
 
   The method for class \code{\linkS4class{dgCMatrix}} of sparse matrices
-  is based on functions from the CSparse library.
+  is based on functions from the CSparse library.  It returns
+  \code{\link{NULL}} when the decomposition algorithm fails, as when
+  \code{x} is (too close to) singular.
 }
 \references{
   Golub, G., and Van Loan, C. F. (1989).

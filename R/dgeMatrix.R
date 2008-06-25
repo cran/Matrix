@@ -177,9 +177,6 @@ setMethod("determinant", signature(x = "dgeMatrix", logarithm = "logical"),
 	  function(x, logarithm, ...)
 	  .Call(dgeMatrix_determinant, x, logarithm))
 
-
-setMethod("expm", signature(x = "dgeMatrix"),
-	  function(x) .Call(dgeMatrix_exp, x),
-	  valueClass = "dgeMatrix")
+##-> ./expm.R  for expm()
 
 ##-> ./colSums.R  for colSums,... rowMeans

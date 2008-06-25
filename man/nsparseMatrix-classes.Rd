@@ -1,4 +1,5 @@
 \name{nsparseMatrix-classes}
+\title{Sparse "pattern" Matrices}
 \docType{class}
 \alias{nsparseMatrix-class}
 \alias{ngCMatrix-class}
@@ -11,6 +12,8 @@
 \alias{ntTMatrix-class}
 \alias{nsTMatrix-class}
 %
+\alias{all,nsparseMatrix-method}
+\alias{any,nsparseMatrix-method}
 \alias{-,nsparseMatrix,missing-method}
 \alias{!,nsparseMatrix-method}
 \alias{\%*\%,ngCMatrix,ngCMatrix-method}
@@ -18,33 +21,41 @@
 \alias{\%*\%,nsparseMatrix,ndenseMatrix-method}
 \alias{\%*\%,ndenseMatrix,nsparseMatrix-method}
 
+\alias{coerce,nsparseMatrix,dsparseMatrix-method}
 \alias{coerce,matrix,ngCMatrix-method}
 \alias{coerce,matrix,ngTMatrix-method}
 \alias{coerce,matrix,ntCMatrix-method}
 \alias{coerce,matrix,ntTMatrix-method}
 \alias{coerce,ngCMatrix,dMatrix-method}
-\alias{coerce,ngCMatrix,lMatrix-method}
+\alias{coerce,ngCMatrix,dgCMatrix-method}
 \alias{coerce,ngCMatrix,dsparseMatrix-method}
+\alias{coerce,ngCMatrix,lMatrix-method}
+\alias{coerce,ngCMatrix,lgCMatrix-method}
 \alias{coerce,ngCMatrix,lsparseMatrix-method}
 \alias{coerce,ngCMatrix,matrix-method}
-\alias{coerce,ngCMatrix,dgCMatrix-method}
-\alias{coerce,ngCMatrix,lgCMatrix-method}
 \alias{coerce,ngCMatrix,ngTMatrix-method}
 \alias{coerce,ngCMatrix,ngeMatrix-method}
 \alias{coerce,ngCMatrix,ntCMatrix-method}
+\alias{coerce,ngTMatrix,dMatrix-method}
 \alias{coerce,ngTMatrix,dgTMatrix-method}
+\alias{coerce,ngTMatrix,dsparseMatrix-method}
+\alias{coerce,ngTMatrix,generalMatrix-method}
+\alias{coerce,ngTMatrix,lMatrix-method}
 \alias{coerce,ngTMatrix,lgTMatrix-method}
 \alias{coerce,ngTMatrix,matrix-method}
 \alias{coerce,ngTMatrix,ngCMatrix-method}
 \alias{coerce,ngTMatrix,ngeMatrix-method}
 \alias{coerce,ngTMatrix,ntTMatrix-method}
+\alias{coerce,ngTMatrix,triangularMatrix-method}
+\alias{coerce,nsCMatrix,dMatrix-method}
 \alias{coerce,nsCMatrix,dgTMatrix-method}
 \alias{coerce,nsCMatrix,dsCMatrix-method}
 \alias{coerce,nsCMatrix,dsparseMatrix-method}
 \alias{coerce,nsCMatrix,generalMatrix-method}
+\alias{coerce,nsCMatrix,lMatrix-method}
+\alias{coerce,nsCMatrix,lsCMatrix-method}
 \alias{coerce,nsCMatrix,lsparseMatrix-method}
 \alias{coerce,nsCMatrix,matrix-method}
-\alias{coerce,nsCMatrix,lsCMatrix-method}
 \alias{coerce,nsCMatrix,ngCMatrix-method}
 \alias{coerce,nsCMatrix,nsTMatrix-method}
 \alias{coerce,nsTMatrix,dsTMatrix-method}
@@ -55,13 +66,13 @@
 \alias{coerce,nsTMatrix,nsyMatrix-method}
 \alias{coerce,ntCMatrix,dMatrix-method}
 \alias{coerce,ntCMatrix,dsparseMatrix-method}
+\alias{coerce,ntCMatrix,dtCMatrix-method}
 \alias{coerce,ntCMatrix,lMatrix-method}
 \alias{coerce,ntCMatrix,lsparseMatrix-method}
-\alias{coerce,ntCMatrix,matrix-method}
-\alias{coerce,ntCMatrix,dtCMatrix-method}
 \alias{coerce,ntCMatrix,ltCMatrix-method}
+\alias{coerce,ntCMatrix,matrix-method}
 \alias{coerce,ntCMatrix,ngCMatrix-method}
-\alias{coerce,ntCMatrix,ntTMatrix-method}
+\alias{coerce,ntCMatrix,TsparseMatrix-method}
 \alias{coerce,ntTMatrix,dtTMatrix-method}
 \alias{coerce,ntTMatrix,generalMatrix-method}
 \alias{coerce,ntTMatrix,matrix-method}
@@ -81,12 +92,25 @@
 \alias{t,ngTMatrix-method}
 \alias{t,nsCMatrix-method}
 \alias{t,ntCMatrix-method}
+\alias{t,nsTMatrix-method}
+\alias{t,ntTMatrix-method}
 \alias{tcrossprod,ngCMatrix,missing-method}
 \alias{tcrossprod,ngTMatrix,missing-method}
 \alias{tcrossprod,nsparseMatrix,missing-method}
-\title{Sparse logical matrices}
+\alias{is.na,nsparseMatrix-method}
+% Group
+\alias{Ops,dsparseMatrix,nsparseMatrix-method}
+\alias{Ops,nsparseMatrix,dsparseMatrix-method}
+\alias{Ops,lsparseMatrix,nsparseMatrix-method}
+\alias{Ops,nsparseMatrix,lsparseMatrix-method}
+\alias{Ops,sparseMatrix,nsparseMatrix-method}
+\alias{Ops,nsparseMatrix,sparseMatrix-method}
+\alias{Arith,nsparseMatrix,Matrix-method}
+\alias{Arith,Matrix,nsparseMatrix-method}
+%
 \description{The \code{nsparseMatrix} class is a virtual class of sparse
-  matrices with \code{TRUE}/\code{FALSE} entries.  Only the positions of the
+  \emph{\dQuote{pattern}} matrices, i.e., binary matrices conceptually
+  with \code{TRUE}/\code{FALSE} entries.  Only the positions of the
   elements that are \code{TRUE} are stored.  These can be stored in the
   ``triplet'' form (classes \code{ngTMatrix}, \code{nsTMatrix}, and
   \code{ntTMatrix} which really contain pairs, not triplets) or in
@@ -99,14 +123,14 @@
 \section{Objects from the Class}{
   Objects can be created by calls of the form \code{new("ngCMatrix",
     ...)} and so on.  More frequently objects are created by coercion of
-  a numeric sparse matrix to the logical form for use in
+  a numeric sparse matrix to the pattern form for use in
   the symbolic analysis phase
   of an algorithm involving sparse matrices.  Such algorithms often
   involve two phases: a symbolic phase wherein the positions of the
   non-zeros in the result are determined and a numeric phase wherein the
   actual results are calculated.  During the symbolic phase only the
   positions of the non-zero elements in any operands are of interest,
-  hence any numeric sparse matrices can be treated as logical sparse
+  hence numeric sparse matrices can be treated as sparse pattern
   matrices.
 }
 \section{Slots}{
@@ -138,7 +162,13 @@
 }
 \section{Methods}{
   \describe{
-    \item{coerce}{\code{signature(from = "dgCMatrix", to = "ngCMatrix")}}
+    \item{coerce}{\code{signature(from = "dgCMatrix", to =
+	"ngCMatrix")}, and many similar ones; typically you should
+      coerce to \code{"nsparseMatrix"} (or \code{"nMatrix"}).  Note that
+      coercion to a sparse pattern matrix records all the potential
+      non-zero entries, i.e., explicit (\dQuote{non-structural}) zeroes
+      are coerced to \code{TRUE}, not \code{FALSE}, see the example.
+    }
     \item{t}{\code{signature(x = "ngCMatrix")}: returns the transpose
       of \code{x}}
   }
@@ -158,6 +188,8 @@ str(nm) # no 'x' slot
 ## consistency check:
 stopifnot(xor(as( nm, "matrix"),
               as(!nm, "matrix")))
+
+
 
 data(KNex)
 nmm <- as(KNex $ mm, "ngCMatrix")

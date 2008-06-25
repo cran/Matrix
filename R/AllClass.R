@@ -99,6 +99,7 @@ setClass("ndenseMatrix", representation(x = "logical", "VIRTUAL"),
 ## diagonal: has 'diag' slot;  diag = "U"  <--> have identity matrix
 setClass("diagonalMatrix", representation(diag = "character", "VIRTUAL"),
 	 contains = "denseMatrix",
+	 ## TODO??   ^^^^^ extend just "Matrix" !?!?!? -- against DSC'07 talk (3D classes)
 	 validity = function(object) {
 	     d <- object@Dim
 	     if(d[1] != (n <- d[2])) return("matrix is not square")
@@ -258,9 +259,9 @@ setClass("nspMatrix",
 
 ## 'diagonalMatrix' already has validity checking
 ## diagonal, numeric matrices;	    "d*" has 'x' slot :
-setClass("ddiMatrix", contains = c("diagonalMatrix", "ddenseMatrix"))# or "dMatrix"
+setClass("ddiMatrix", contains = c("diagonalMatrix", "dMatrix"))# or "dMatrix"
 ## diagonal, logical matrices; "ldense*" has 'x' slot :
-setClass("ldiMatrix", contains = c("diagonalMatrix", "ldenseMatrix"))
+setClass("ldiMatrix", contains = c("diagonalMatrix", "lMatrix"))
 
 setClass("corMatrix", representation(sd = "numeric"), contains = "dpoMatrix",
 	 validity = function(object) {
@@ -325,6 +326,10 @@ setClass("dsCMatrix",
 	 validity = function(object) .Call(tCMatrix_validate, object)
 	 )
 
+if(FALSE) ## FIXME ??? Class of positive definite (Csparse symmetric) Matrices:
+setClass("dpCMatrix", contains = "dsCMatrix",
+	 validity = function(object) FIXME("test for pos.definite ??"))
+
 ## numeric, sparse, sorted compressed sparse row-oriented general matrices
 setClass("dgRMatrix",
 	 contains = c("RsparseMatrix", "dsparseMatrix", "generalMatrix"),
@@ -357,13 +362,13 @@ setClass("lgTMatrix",
 ## logical, sparse, triplet triangular matrices
 setClass("ltTMatrix",
 	 contains = c("TsparseMatrix", "lsparseMatrix", "triangularMatrix"),
-	 validity = function(object) .Call(xTMatrix_validate, object)
+	 validity = function(object) .Call(tTMatrix_validate, object)
 	 )
 
 ## logical, sparse, triplet symmetric matrices
 setClass("lsTMatrix",
 	 contains = c("TsparseMatrix", "lsparseMatrix", "symmetricMatrix"),
-	 validity = function(object) .Call(xTMatrix_validate, object)
+	 validity = function(object) .Call(tTMatrix_validate, object)
 	 )
 
 ## logical, sparse, sorted compressed sparse column-oriented general matrices
@@ -471,13 +476,13 @@ setClass("igTMatrix",
 ## integer, sparse, triplet triangular matrices
 setClass("itTMatrix",
 	 contains = c("TsparseMatrix", "isparseMatrix", "triangularMatrix"),
-	 validity = function(object) .Call(xTMatrix_validate, object)
+	 validity = function(object) .Call(tTMatrix_validate, object)
 	 )
 
 ## integer, sparse, triplet symmetric matrices
 setClass("isTMatrix",
 	 contains = c("TsparseMatrix", "isparseMatrix", "symmetricMatrix"),
-	 validity = function(object) .Call(xTMatrix_validate, object)
+	 validity = function(object) .Call(tTMatrix_validate, object)
 	 )
 
 ## integer, sparse, sorted compressed sparse column-oriented general matrices

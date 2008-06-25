@@ -113,10 +113,12 @@ ld.3 <- .Call("dsCMatrix_LDL_D", mtm, perm=TRUE,  "sumLog")
 stopifnot(names(mtm@factors) == "sPDCholesky")
 ld.4 <- .Call("dsCMatrix_LDL_D", mtm, perm=FALSE, "sumLog")# clearly slower
 stopifnot(names(mtm@factors) == paste(c("sPD", "spD"),"Cholesky", sep=''))
-
-## these are now taken from cache
-c1 <- Cholesky(mtm)
 c2 <- Cholesky(mtm, super = TRUE)
+stopifnot(names(mtm@factors) == paste(c("sPD", "spD", "SPd"),
+               "Cholesky", sep=''))
+
+## is now taken from cache
+c1 <- Cholesky(mtm)
 
 bv <- 1:nrow(mtm) # even integer
 b <- matrix(bv)
@@ -142,8 +144,7 @@ stopifnot(all.equal(ld1, ld2),
 	  is.all.equal3(ld2, ld3, ld4),
 	  all.equal(ld.3, ld3, tol = 1e-14),
 	  all.equal(ld.4, ld4, tol = 1e-14),
-	  ## must be identical, based on same CHMsimpl object:
-	  identical(ld1, as.vector(ld1.$modulus)))
+	  all.equal(ld1, as.vector(ld1.$modulus), tol = 1e-14))
 
 ## Some timing measurements
 mtm <- with(KNex, crossprod(mm))

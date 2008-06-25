@@ -1,5 +1,6 @@
 library(Matrix)
-source(system.file("test-tools.R", package = "Matrix"))# identical3() etc
+source(system.file("test-tools.R", package = "Matrix"))# identical3(),
+                                        # further  checkMatrix(), etc
 if(interactive()) options(error = recover)
 
 #### Automatically display the class inheritance structure
@@ -108,18 +109,12 @@ Rcl.struc <- c("gR", "sR", "tR")
 (.R.classes <- paste0(sort(outer(c("l", "n"), Rcl.struc, paste0)), "Matrix"))
                                         # have only stub implementation
 
-## not.ok..: are left out almost completely
-not.ok.classes <- NULL  ## was  .R.classes
-## From the rest, those that don't show {have no coerce to "dge":}
-no.show.classes <- NULL ## was  dR.classes
-##
 Mat.MatFact <- c("Cholesky", "pCholesky",
                  "BunchKaufman", "pBunchKaufman")##, "LDL"
-no.t.etc <- c(no.show.classes, .R.classes, dR.classes, Mat.MatFact)
+no.t.etc <- c(.R.classes, dR.classes, Mat.MatFact)
 no.t.classes <- c(no.t.etc)     # no t() available
 no.norm.classes <- no.t.classes
-not.Ops      <- no.show.classes # "Ops", e.g. "+" fails
-not.coerce0  <- no.show.classes # not coercable to   "matrix" & "dgeMatrix"
+not.Ops      <- NULL            # "Ops", e.g. "+" fails
 not.coerce1  <- no.t.etc        # not coercable from "dgeMatrix"
 not.coerce2  <- no.t.etc        # not coercable from "matrix"
 
@@ -195,6 +190,11 @@ tstMatrixClass <-
                 stop("does not extend either 'sparse' or 'dense'")
 	    cat("; new(..): ")
 	    m <- new(clNam) ; cat("ok; ")
+	    m0 <- matrix(,0,0)
+	    if(canCoerce(m0, clNam)) {
+		cat("; as(matrix(,0,0), <.>): ")
+		stopifnot(Qidentical(m, as(m0, clNam))); cat("ok; ")
+	    }
             is_p <- extends(clNam, "pMatrix")
             is_cor <- (clNam == "corMatrix") # has diagonal divided out
 	    if(canCoerce(mm, clNam)) { ## replace 'm' by `non-empty' version
@@ -202,7 +202,7 @@ tstMatrixClass <-
 		m0 <- {
 		    if(triC) trm
 		    else if(is_p)
-			mm == 1 # logical *and* "true" permutation
+			mm == 1     # logical *and* "true" permutation
 		    else mm
 		}
 		if(extends(clNam, "lMatrix") ||
@@ -233,173 +233,90 @@ tstMatrixClass <-
 		## not yet  , class(m00) == clNam , identical(m.. , m)
 	    }
 
-	    if(any(clNam == not.ok.classes)) {
-		cat("in 'stop list' - no validity\n")
-	    } else {
-		cat("valid: ", validObject(m), extraValid(m, clNam))
+            cat("valid: ", validObject(m), extraValid(m, clNam),"\n")
 
-		## This can only work as long as 'm' has no NAs :
-                ## not yet -- have version in not.Ops below
-## once we have is.na():
-## 		stopifnot(all(m == m | is.na(m))) ## check all() and "==" [Compare]
-## 		if(any(m != m && !is.na(m)))
-		stopifnot(all(m == m)) ## check all() and "==" [Compare]
-		if(any(m != m))
-		    stop(" any (m != m) should not be true")
+            ## This can only work as long as 'm' has no NAs :
+            ## not yet -- have version in not.Ops below
+            ## once we have is.na():
+            ## 		stopifnot(all(m == m | is.na(m))) ## check all() and "==" [Compare]
+            ## 		if(any(m != m && !is.na(m)))
 
-                if(clNam %in% no.t.classes) {
-                    cat(" in t()-'stop list'\n")
-                } else {
-                    cat("; t(t(m)) ==?== m :")
-                    stopifnot(Qidentical(m, t(t(m))))
-                    cat(" ok\n")
-                }
-                if(all(clNam != no.show.classes))
-                    show(m)
-                  ## improve: cat.(  captureOutput(show(m) ) )
-                else cat.("	-- no show() yet \n")
-
-                if(clNam %in% no.norm.classes) {
-                    cat.(" in norm()-'stop list'\n")
-                } else {
-                    cat.(sprintf(" norm(m [%d x %d]) :", nrow(m), ncol(m)))
-                    for(typ in c("1","I","F","M")) {
-                        cat('', typ, '')
-                        stopifnot(all.equal(norm(m,typ), norm(m0,typ)))
-                    }
-                    cat(" ok\n")
-                }
-		cat.(" Summary: ")
-		for(f in summList) {
-		    #cat(f@generic, "() ", sep='')
-		    stopifnot(if(clNam == "corMatrix") all.equal(f(m), f(m0))
-			      else f(m) == f(m0))
-		}
-		cat(" ok\n")
-
-                if(all(clNam != not.coerce0)) {## coerce to 'matrix'
-                    m.m <- as(m, "matrix")
-                    ## and test 'dim()' as well:
-		    stopifnot(identical(dim(m.m), dim(m)),
-			      if(clNam %in% no.t.classes)
-			      TRUE else identical(diag(m), diag(t(m))),
-			      ## TODO: also === diag(band(m,0,0))
-			      diag(m) == diag(m.m),
-			      nnzero(m) == sum(m.m != 0))
-                }
-                else stopifnot(length(dim(m)) == 2)
+	    show(m)
+	    ## coerce to 'matrix'
+	    m.m <- as(m, "matrix")
+	    ##=========##
+	    checkMatrix(m, m.m,
+	    ##=========##
+			do.t= !(clNam %in% no.t.classes),
+			doNorm= !(clNam %in% no.norm.classes),
+			doOps = all(clNam != not.Ops),
+			doCoerce = all(clNam != not.coerce1),
+			catFUN = cat.)
 
 ### FIXME: organize differently :
 ### 1) produce 'mM'  and 'mm' for the other cases,
 ### 2) use identical code for all cases
 
-                ## use non-square matrix when "allowed":
-
-		## "!" should work (via as(*, "l...")) :
-                m11 <- as(as(!!m,"CsparseMatrix"), "lMatrix")
-                m12 <- as(as(  m, "lMatrix"),"CsparseMatrix")
-                if(!identical(m11, m12))
-                    stopifnot(identical(as(m11, "generalMatrix"),
-                                        as(m12, "generalMatrix")))
-
-		if(is(m, "dMatrix") && all(clNam != not.Ops)) {
-                    ## makes sense with non-trivial m (!)
-		    cat("2*m =?= m+m: ")
-		    if(identical(2*m, m+m)) cat("identical\n")
-		    else {
-			stopifnot(as(2*m,"matrix") == as(m+m, "matrix"))
-			cat("ok\n")
-		    }
-                    ## m == m etc, now for all, see above
-		    cat("m >= m for all: ")
-		    stopifnot(all(m >= m)); cat("ok\n")
-		    cat("m < m for none: ")
-		    stopifnot(all(! m < m)); cat("ok\n")
-		}
-
-                if(is(m, "dMatrix") && is(m, "compMatrix")) {
-                    if(any(clNam == not.coerce1))
-                        cat.("not coercable_1\n")
-		    else {
-			cat.("as(dge*, <(super)class>): ")
-			if(canCoerce(mM, clNam))
-			    m2 <- as(mM, clNam)
-			else { ## find superclass to which to coerce
-			    if(extends(clNam, "sparseMatrix")) {
-				if(is.na(newcl <- Matrix:::.sp.class(clNam)))
-				    stop("internal failure from .sp.class()")
-				m2 <- as(mM, newcl)
-			    } else { ## ddense & (general or symmetric)
-				stop("don't know what to coerce <dge> to - error test-logic")
-			    }
-			}
-			cat("valid:", validObject(m2), "\n")
-			if(!is_cor) ## as.vector()
-			    stopifnot(as.vector(m2) == as.vector(mM))
-			cat.("[cr]bind2():"); mm2 <- cbind2(m2,m2)
-			stopifnot(dim(rbind2(m2,m2)) == 2:1 * dim(mM)); cat(" ok")
-			if(genC && class(mm2) == clNam)## non-square matrix when "allowed"
-			    m2 <- mm2
-			dd <- diag(m2)
-			cat("; `diag<-` ")
-			diag(m2) <- 10*dd
-			stopifnot(is_cor || identical(dd, diag(mM)),
-				  identical(10*dd, diag(m2))); cat("ok ")
+            if(is(m, "dMatrix") && is(m, "compMatrix")) {
+                if(any(clNam == not.coerce1))
+                    cat.("not coercable_1\n")
+                else {
+                    cat.("as(dge*, <(super)class>): ")
+                    if(canCoerce(mM, clNam))
+                        m2 <- as(mM, clNam)
+                    else { ## find superclass to which to coerce
+                        if(extends(clNam, "sparseMatrix")) {
+                            if(is.na(newcl <- Matrix:::.sp.class(clNam)))
+                                stop("internal failure from .sp.class()")
+                            m2 <- as(mM, newcl)
+                        } else { ## ddense & (general or symmetric)
+                            stop("don't know what to coerce <dge> to - error test-logic")
+                        }
                     }
-                    if(all(clNam != not.coerce2)) {
-                        cat.("as(matrix, <class>): ")
-                        m3 <- as(mm, clNam)
-                        cat("valid:", validObject(m3), "\n")
-                    }
+                    cat("valid:", validObject(m2), "\n")
+                    if(!is_cor) ## as.vector()
+                        stopifnot(as.vector(m2) == as.vector(mM))
+                    cat.("[cr]bind2():"); mm2 <- cbind2(m2,m2)
+                    stopifnot(dim(rbind2(m2,m2)) == 2:1 * dim(mM)); cat(" ok")
+                    if(genC && class(mm2) == clNam) ## non-square matrix when "allowed"
+                        m2 <- mm2
+                    dd <- diag(m2)
+                    cat("; `diag<-` ")
+                    diag(m2) <- 10*dd
+                    stopifnot(is_cor || identical(dd, diag(mM)),
+                              identical(10*dd, diag(m2))); cat("ok ")
                 }
-                else { ## not numeric composite: logical / triangular/diagonal ..
-                    if(any(clNam == not.coerce1))
-                        cat.("not coercable_1\n")
-                    else {
-                        ## FIXME: also add tests for these
-                        if(is(m, "lMatrix")) { ## should fulfill even with NA:
-			    stopifnot(identical(m, m & TRUE),
-				      identical(m, FALSE | m),
-				      all(m | !m), !any(!m & m))
-                        }
-                        else if(is(m, "triangularMatrix")) {
-                            mm. <- mm
-                            i0 <- if(m@uplo == "L")
-                                upper.tri(mm.) else lower.tri(mm.)
-                            mm.[i0] <- 0
-			    cat.("as(triang.matrix, <class>): ")
-			    m3 <- as(mm., clNam)
-                            cat("valid:", validObject(m3), "\n")
-                        }
-                        else { ## diagonal (only one)?
-                            ## TODO
-                        }
-                    }
+                if(all(clNam != not.coerce2)) {
+                    cat.("as(matrix, <class>): ")
+                    m3 <- as(mm, clNam)
+                    cat("valid:", validObject(m3), "\n")
                 }
+            }
 
-                ## if(is(m, "denseMatrix")) {
-                ##     ## .........
-                ##     cat.("as dsparse* ")
-                ##     msp <- as(m, "dsparseMatrix")
-                ##     cat.("; valid coercion: ", validObject(msp), "\n")
-                ## } else if(is(m, "sparseMatrix")) {
+            ## else { ... no happens in tstMatrix() above .. }
 
-                ## } else cat.("-- not dense nor sparse -- should not happen(!?)\n")
+            ## if(is(m, "denseMatrix")) {
+            ##     ## .........
+            ##     cat.("as dsparse* ")
+            ##     msp <- as(m, "dsparseMatrix")
+            ##     cat.("; valid coercion: ", validObject(msp), "\n")
+            ## } else if(is(m, "sparseMatrix")) {
 
-                if(is(m, "dsparseMatrix")) {
-                    if(any(clNam == not.coerce1))
-                        cat.("not coercable_1\n")
-                    else {
-			## make sure we can coerce to dgT* -- needed, e.g. for "image"
-			## change: use Tsparse instead of dgT, unless it *is* Tsparse:
-			isT <- is(m, "TsparseMatrix")
-			prefix <- if(isT) "dgT" else "Tsparse"
-			Tcl <- paste(prefix, "Matrix", sep='')
-			cat.(sprintf("as %s* ", prefix))
-			mgT <- as(m, Tcl)
-			cat(sprintf("; valid %s* coercion: %s\n",
-				    prefix, validObject(mgT)))
-                    }
+            ## } else cat.("-- not dense nor sparse -- should not happen(!?)\n")
+
+            if(is(m, "dsparseMatrix")) {
+                if(any(clNam == not.coerce1))
+                    cat.("not coercable_1\n")
+                else {
+                    ## make sure we can coerce to dgT* -- needed, e.g. for "image"
+                    ## change: use Tsparse instead of dgT, unless it *is* Tsparse:
+                    isT <- is(m, "TsparseMatrix")
+                    prefix <- if(isT) "dgT" else "Tsparse"
+                    Tcl <- paste(prefix, "Matrix", sep='')
+                    cat.(sprintf("as %s* ", prefix))
+                    mgT <- as(m, Tcl)
+                    cat(sprintf("; valid %s* coercion: %s\n",
+                                prefix, validObject(mgT)))
                 }
             }
         }

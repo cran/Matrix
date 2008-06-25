@@ -25,11 +25,15 @@ setAs("dsyMatrix", "dspMatrix",
 setAs("dsyMatrix", "dsTMatrix",
       function(from) { # 'dsT': only store upper *or* lower
 	  ## working via "matrix" : not very efficient	(FIXME)
-	  m <- .Call(dsyMatrix_as_matrix, from, FALSE) # no dimnames!
-	  ij <- which(m != 0, arr.ind = TRUE)
 	  uplo <- from@uplo
-	  ij <- ij[if(uplo == "U") ij[,1] <= ij[,2] else ij[,1] >= ij[,2] ,
-		   , drop = FALSE]
+	  if(any((d <- dim(from)) == 0)) {
+	      ij <- matrix(0L, 0,2) ; m <- from@x
+	  } else {
+	      m <- .Call(dsyMatrix_as_matrix, from, FALSE) # no dimnames!
+	      ij <- which(m != 0, arr.ind = TRUE)
+	      ij <- ij[if(uplo == "U") ij[,1] <= ij[,2] else ij[,1] >= ij[,2] ,
+		       , drop = FALSE]
+	  }
 	  new("dsTMatrix", i = ij[,1] - 1L, j = ij[,2] - 1L,
 	      x = as.vector(m[ij]), uplo = uplo,
 	      Dim = from@Dim, Dimnames = from@Dimnames)
@@ -73,8 +77,9 @@ setMethod("solve", signature(a = "dsyMatrix", b = "matrix"),
           valueClass = "dgeMatrix")
 
 setMethod("solve", signature(a = "dsyMatrix", b = "ddenseMatrix"),
-          function(a, b, ...) .Call(dsyMatrix_matrix_solve, a, b),
-          valueClass = "dgeMatrix")
+	  function(a, b, ...) .Call(dsyMatrix_matrix_solve, a, b))
+setMethod("solve", signature(a = "dsyMatrix", b = "denseMatrix"), ## eg. for ddi* or ldi*
+	  function(a, b, ...) .Call(dsyMatrix_matrix_solve, a, as(b,"dMatrix")))
 
 setMethod("norm", signature(x = "dsyMatrix", type = "character"),
           function(x, type, ...) .Call(dsyMatrix_norm, x, type),
@@ -97,7 +102,8 @@ setMethod("BunchKaufman", signature(x = "dsyMatrix"),
 ## The following has the severe effect of making
 ## "dsyMatrix" a subclass of "dpoMatrix" and since the reverse is
 ## by definition of "dpoMatrix", the class-hierarchy gets a *cycle* !
-##
+## Hence disable(2008-04-23) and replace with setAs():
+if(FALSE) {
 setIs("dsyMatrix", "dpoMatrix",
       test = function(obj)
           "try-error" != class(try(.Call(dpoMatrix_chol, obj), silent=TRUE)),
@@ -105,6 +111,17 @@ setIs("dsyMatrix", "dpoMatrix",
           for(n in slotNames(obj)) slot(obj, n) <- slot(value, n)
           obj
       })
+} else { ## rather
+setAs("dsyMatrix", "dpoMatrix",
+      function(from){
+	  if(is.null(tryCatch(.Call(dpoMatrix_chol, from),
+			      error = function(e) NULL)))
+	      stop("not a positive definite matrix")
+	  ## else
+	  copyClass(from, "dpoMatrix",
+		    sNames = c("x", "Dim", "Dimnames", "uplo", "factors"))
+      })
+}
 
 ## Now that we have "chol", we can define  "determinant" methods,
 ## exactly like in ./dsCMatrix.R

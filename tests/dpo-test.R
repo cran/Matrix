@@ -1,6 +1,7 @@
 ### Testing positive definite matrices
 
 library(Matrix)
+source(system.file("test-tools.R", package = "Matrix"))# identical3() etc
 
 h9 <- Hilbert(9)
 stopifnot(c(0,0) == dim(Hilbert(0)),
@@ -14,36 +15,38 @@ str(f9 <- as(chol(h9), "dtrMatrix"))
 stopifnot(names(h9@factors) == "Cholesky",
           all.equal(rcond(h9), 9.0938e-13),
           all.equal(rcond(f9), 9.1272e-7, tol = 1e-6))# more precision fails
-str(h9)# has 'factors'
+str(h9)# has 'factors $ Cholesky'
 options(digits=4)
 (cf9 <- crossprod(f9))# looks the same as  h9 :
 stopifnot(all.equal(as.matrix(h9),
                     as.matrix(cf9), tol= 1e-15))
 
 h9. <- round(h9, 2)# actually loses pos.def. "slightly"
+                   # ==> the above may be invalid in the future
+h9p  <- as(h9,  "dppMatrix") # {FIXME? lost @factors$pCholesky}
 h9.p <- as(h9., "dppMatrix")
+ch9p <- chol(h9p)
+stopifnot(identical(ch9p, h9p@factors$pCholesky))
 h4  <- h9.[1:4, 1:4] # this and the next
 h9.[1,1] <- 10       # had failed in 0.995-14
-h9.p. <- as(h9., "dppMatrix")
-h9.p[1,1] <- 10 # failed in 0.995-14
+h9p[1,1] <- 10 # failed in 0.995-14
+stopifnot(isValid(h9., "symmetricMatrix"),
+          isValid(h9p, "symmetricMatrix"),
+          isValid(h4,  "symmetricMatrix"))
 
-stopifnot(is(h9., "symmetricMatrix"),
-          is(h9.p, "symmetricMatrix"),
-          is(h4,   "symmetricMatrix"))
+h9p[1,2] <- 99 #-> becomes "dgeMatrix"
 
-h9.p[1,2] <- 99 #-> becomes "dgeMatrix"
+str(h9p <- as(h9, "dppMatrix"))# {again}
+stopifnot(is(th9p <- t(h9p), "dppMatrix"))
 
-str(hp9 <- as(h9, "dppMatrix"))# packed
-stopifnot(is(thp9 <- t(hp9), "dppMatrix"))
-
-hs <- as(hp9, "dspMatrix")
-hs@x <- 1/hp9@x # is not pos.def. anymore
+hs <- as(h9p, "dspMatrix")
+hs@x <- 1/h9p@x # is not pos.def. anymore
 validObject(hs)
 stopifnot(diag(hs) == seq(1, by = 2, length = 9))
 
-s9 <- solve(hp9, seq(nrow(hp9)))
+s9 <- solve(h9p, seq(nrow(h9p)))
 signif(t(s9)/10000, 4)# only rounded numbers are platform-independent
-(I9 <- hp9 %*% s9)
+(I9 <- h9p %*% s9)
 m9 <- matrix(1:9, dimnames = list(NULL,NULL))
 stopifnot(all.equal(m9, as.matrix(I9), tol = 2e-9))
 
@@ -121,6 +124,27 @@ stopifnot(is(spr, "dsCMatrix"),
           all.equal(ev, c(1.5901626099,  1.1902658504, 1, 1,
                           0.80973414959, 0.40983739006), tol=1e-10))
 
+x <- c(2,1,1,2)
+mM <- Matrix(x, 2,2, dimnames=rep( list(c("A","B")), 2))# dsy
+mM
+stopifnot(length(mM@factors)== 0)
+(po <- as(mM, "dpoMatrix")) # still has dimnames
+mm <- as(mM, "matrix")
+msy <- as(mm, "dsyMatrix")
+stopifnot(Qidentical(mM, msy),
+	  length(mM @factors)== 1,
+	  length(msy@factors)== 0)
+
+c1 <- as(mm, "corMatrix")
+c2 <- as(mM, "corMatrix")
+c3 <- as(po, "corMatrix")
+(co.x <- matrix(x/2, 2,2))
+checkMatrix(c1)
+assert.EQ.mat(c1, co.x)
+assert.EQ.mat(c2, co.x) # failed in Matrix 0.999375-9, because of
+## the wrong automatic "dsyMatrix" -> "corMatrix" coerce method
+stopifnot(identical(dimnames(c1), dimnames(mM)),
+	  all.equal(c1, c3, tol=1e-15))
+
 
 cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
-

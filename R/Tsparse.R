@@ -7,6 +7,9 @@ setAs("matrix", "TsparseMatrix",
       else if(is.logical(from)) as(Matrix(from, sparse=TRUE), "TsparseMatrix")
       else stop("not-yet-implemented coercion to \"TsparseMatrix\""))
 
+setAs("TsparseMatrix", "matrix",
+      function(from) .Call(dgTMatrix_to_matrix, as(from, "dgTMatrix")))
+
 ## in ../src/Tsparse.c :  |-> cholmod_T -> cholmod_C -> chm_sparse_to_SEXP
 ## adjusted for triangular matrices not represented in cholmod
 .T.2.C <- function(from) .Call(Tsparse_to_Csparse, from, ##
@@ -15,8 +18,9 @@ setAs("matrix", "TsparseMatrix",
 setAs("TsparseMatrix", "CsparseMatrix", .T.2.C)
 
 .T.2.n <- function(from) {
-    if(any(is0(from@x))) ## 0 or FALSE -- the following should have drop0Tsp(.)
-	from <- as(drop0(from), "TsparseMatrix")
+    ## No: coercing to n(sparse)Matrix gives the "full" pattern including 0's
+    ## if(any(is0(from@x))) ## 0 or FALSE -- the following should have drop0Tsp(.)
+    ##	from <- as(drop0(from), "TsparseMatrix")
     if(is(from, "triangularMatrix")) # i.e. ?tTMatrix
 	new("ntTMatrix", i = from@i, j = from@j,
 	    uplo = from@uplo, diag = from@diag,
@@ -254,16 +258,26 @@ setMethod("[", signature(x = "TsparseMatrix",
 	  clx <- getClassDef(class(x))
 	  has.x <- !extends(clx, "nsparseMatrix")
 	  isSym <- extends(clx, "symmetricMatrix")
+          x.tri <- extends(clx, "triangularMatrix")
 
 	  if(isSym) {
 	      isSym <- length(i) == length(j) && mode(i) == mode(j) && all(i == j)
 	      ## result will *still* be symmetric --> keep symmetry!
-	      if(!isSym)
-		  ## result no longer symmetric -> to "generalMatrix"
-		  x <- as(x, paste(.M.kind(x, clx), "gTMatrix", sep=''))
-	  } else if(extends(clx, "triangularMatrix") && x@diag == "U") {
-	      x <- as(x, paste(.M.kind(x, clx), "gTMatrix", sep=''))
+	      gDo <- !isSym ## result no longer symmetric -> to "generalMatrix"
+	  } else if(x.tri) {
+	      ii <- intI(i, n = di[1], dn= dn[[1]])
+	      ij <- intI(j, n = di[2], dn= dn[[2]])
+	      gDo <- { (x@diag == "U") ||
+		       ## maybe result is no longer triangular
+		       !(isTri <- identical(ii$i0, ij$i0) && !is.unsorted(ii$i0))
+		   }
 	  }
+          else gDo <- FALSE
+
+          if(gDo) # go via "generalMatrix":
+              x <- as(x, paste(.M.kind(x, clx), "gTMatrix", sep=''))
+
+
 	  if(isSym) { ## has only stored "half" of the indices,
 	      ## OTOH,	i === j, so only need one intI() call
 	      ip1 <- intI(i, n=di[1], dn[[1]]) # -> (i0, dn_1)
@@ -278,8 +292,11 @@ setMethod("[", signature(x = "TsparseMatrix",
 		  ip2$dn <- dn[[2]][ip1$i0 + 1L]
 
 	  } else {
-	      ip1 <- .ind.prep(x@i, intI(i, n = di[1], dn= dn[[1]]))
-	      ij <- intI(j, n = di[2], dn= dn[[2]])
+	      if(!x.tri) {
+		  ii <- intI(i, n = di[1], dn= dn[[1]])
+		  ij <- intI(j, n = di[2], dn= dn[[2]])
+	      }
+	      ip1 <- .ind.prep(x@i, ii)
 	      ip2 <- .ind.prep(x@j, ij)
 	  }
 	  nd <- c(ip1$li, ip2$li)
@@ -464,10 +481,10 @@ replTmat <- function (x, i, j, ..., value)
 		    cl," to ",class(x))
 	}
 	nr <- di[1]
-	x.i <- encodeInd2(x@i, x@j, nr)
-	if(any(duplicated(x.i))) { ## == if(is_duplicatedT(x, nr = di[1]))
+	x.i <- .Call(m_encodeInd2, x@i, x@j, di=di)
+	if(any(duplicated(x.i))) { ## == if(is_duplicatedT(x, di = di))
 	    x <- uniqTsparse(x)
-	    x.i <- encodeInd2(x@i, x@j, nr)
+	    x.i <- .Call(m_encodeInd2, x@i, x@j, di=di)
 	}
 
 	if(is.logical(i)) { # full-size logical indexing
@@ -552,29 +569,23 @@ replTmat <- function (x, i, j, ..., value)
     clDx <- getClassDef(clx) # extends() , is() etc all use the class definition
     stopifnot(extends(clDx, "TsparseMatrix"))
     ## Tmatrix maybe non-unique, have an entry split into a sum of several ones:
-    if(is_duplicatedT(x, nr = di[1]))
+    if(is_duplicatedT(x, di = di))
 	x <- uniqTsparse(x)
 
-    toGeneral <- FALSE
+    toGeneral <- r.sym <- FALSE
     if((sym.x <- extends(clDx, "symmetricMatrix"))) {
 	r.sym <- (dind[1] == dind[2]) && all(i1 == i2) &&
 	(lenRepl == 1 || isSymmetric(value <- array(value, dim=dind)))
 	if(r.sym) { ## result is *still* symmetric --> keep symmetry!
-	    ## now consider only those indices above / below diagonal:
 	    xU <- x@uplo == "U"
-	    useI <- if(xU) i1 <= i2 else i2 <= i1
-	    i1 <- i1[useI]
-	    i2 <- i2[useI]
-	    ## select also the corresponding triangle
-	    if(lenRepl > 1)
-		value <- value[(if(xU)upper.tri else lower.tri)(value, diag=TRUE)]
+            # later, we will consider only those indices above / below diagonal:
 	}
 	else toGeneral <- TRUE
     }
     else if((tri.x <- extends(clDx, "triangularMatrix"))) {
         xU <- x@uplo == "U"
 	r.tri <- ((any(dind == 1) || dind[1] == dind[2]) &&
-		  all(if(xU) i1 <= i2 else i2 <= i1))
+		  if(xU) max(i1) <= min(i2) else max(i2) <= min(i1))
 	if(r.tri) { ## result is *still* triangular
             if(any(i1 == i2)) # diagonal will be changed
                 x <- diagU2N(x) # keeps class (!)
@@ -623,10 +634,10 @@ replTmat <- function (x, i, j, ..., value)
         return(x)
     }
 
-    if(sym.x && r.sym) # value already adjusted, see above
-       lenRepl <- length(value) # shorter (since only "triangle")
-    else if(lenV < lenRepl)
-       value <- rep(value, length = lenRepl)
+##     if(r.sym) # value already adjusted, see above
+##        lenRepl <- length(value) # shorter (since only "triangle")
+    if(!r.sym && lenV < lenRepl)
+        value <- rep(value, length = lenRepl)
 
     ## now:  length(value) == lenRepl
 
@@ -637,7 +648,7 @@ replTmat <- function (x, i, j, ..., value)
 	## the 0-based indices of non-zero entries -- WRT to submatrix
 	non0 <- cbind(match(x@i[sel], i1),
 		      match(x@j[sel], i2)) - 1L
-	iN0 <- 1L + encodeInd(non0, nr = dind[1])
+	iN0 <- 1L + .Call(m_encodeInd, non0, di = dind)
 
 	## 1a) replace those that are already non-zero with non-0 values
 	vN0 <- !v0[iN0]
@@ -656,13 +667,21 @@ replTmat <- function (x, i, j, ..., value)
 	    seq_len(lenRepl)[-iN0] # == complementInd(non0, dind)
     } else iI0 <- seq_len(lenRepl)
 
-    if(length(iI0) && any(vN0 <- !v0[iI0])) {
-	## 2) add those that were structural 0 (where value != 0)
-	ij0 <- decodeInd(iI0[vN0] - 1L, nr = dind[1])
-	x@i <- c(x@i, i1[ij0[,1] + 1L])
-	x@j <- c(x@j, i2[ij0[,2] + 1L])
-        if(has.x)
-            x@x <- c(x@x, value[iI0[vN0]])
+    if(length(iI0)) {
+        if(r.sym) {
+	    ## should only set new entries above / below diagonal
+	    iSel <- indTri(dind[1], upper=xU, diag=TRUE)
+	    ## select also the corresponding triangle of values
+	    iI0 <- intersect(iI0, iSel)
+        }
+        if(any(vN0 <- !v0[iI0])) {
+            ## 2) add those that were structural 0 (where value != 0)
+            ij0 <- decodeInd(iI0[vN0] - 1L, nr = dind[1])
+            x@i <- c(x@i, i1[ij0[,1] + 1L])
+            x@j <- c(x@j, i2[ij0[,2] + 1L])
+            if(has.x)
+                x@x <- c(x@x, value[iI0[vN0]])
+        }
     }
     x
 } ## end{replTmat}
@@ -718,7 +737,7 @@ replTmat <- function (x, i, j, ..., value)
     if(any(i2 > nc)) stop("column indices must be <= ncol(.) which is ", nc)
 
     ## Tmatrix maybe non-unique, have an entry split into a sum of several ones:
-    if(is_duplicatedT(x, nr = nr))
+    if(is_duplicatedT(x, di = di))
 	x <- uniqTsparse(x)
 
     toGeneral <- FALSE
@@ -767,7 +786,7 @@ replTmat <- function (x, i, j, ..., value)
     }
 
     i <- i - 1L # 0-indexing
-    ii.v <- encodeInd (i, nr)
+    ii.v <- .Call(m_encodeInd, i, di)
     if(any(d <- duplicated(rev(ii.v)))) { # reverse: "last" duplicated FALSE
 	warning("duplicate ij-entries in 'Matrix[ ij ] <- value'; using last")
 	nd <- !rev(d)
@@ -775,7 +794,7 @@ replTmat <- function (x, i, j, ..., value)
 	ii.v  <- ii.v [nd]
 	value <- value[nd]
     }
-    ii.x <- encodeInd2(x@i, x@j, nr)
+    ii.x <- .Call(m_encodeInd2, x@i, x@j, di)
     m1 <- match(ii.v, ii.x)
     i.repl <- !is.na(m1) # those that need to be *replaced*
 
@@ -882,10 +901,11 @@ setMethod("band", "TsparseMatrix",
 ## For the "general" T ones (triangular & symmetric have special methods):
 setMethod("t", signature(x = "TsparseMatrix"),
 	  function(x) {
-	      r <- new(class(x))
+              cld <- getClassDef(class(x))
+	      r <- new(cld)
 	      r@i <- x@j
 	      r@j <- x@i
-	      if(any("x" == slotNames(x)))
+	      if(any("x" == slotNames(cld)))
 		  r@x <- x@x
 	      r@Dim <- x@Dim[2:1]
 	      r@Dimnames <- x@Dimnames[2:1]

@@ -19,6 +19,31 @@ static int is_sym (cs *A)
     return (is_upper ? 1 : (is_lower ? -1 : 0)) ;
 }
 
+
+/**
+ * Create an identity matrix of size n as a cs struct.  The structure
+ * must be freed with cs_free by the caller.
+ *
+ * @param n size of identity matrix to construct.
+ *
+ * @return pointer to a cs object that contains the identity matrix.
+ */
+static CSP csp_eye(int n)
+{
+    CSP eye = cs_spalloc(n, n, n, 1, 0);
+    int *ep = eye->p, *ei = eye->i;
+    double *ex = eye->x;
+
+    if (n <= 0) error("csp_eye argument n must be positive");
+    eye->nz = -1;		/* compressed column storage */
+    for (int j = 0; j < n; j++) {
+	ep[j] = ei[j] = j;
+	ex[j] = 1;
+    }
+    eye->nzmax = ep[n] = n;
+    return eye;
+}
+
 /**
  * Create a cs object with the contents of x.  Typically called via  AS_CSP()
  *
@@ -31,14 +56,14 @@ static int is_sym (cs *A)
  * @return pointer to a cs object that contains pointers
  * to the slots of x.
  */
-cs *Matrix_as_cs(cs *ans, SEXP x)
+cs *Matrix_as_cs(cs *ans, SEXP x, Rboolean check_Udiag)
 {
-    char *valid[] = {"dgCMatrix", "dtCMatrix", ""};/* had also "dsCMatrix", but that
-						    * only stores one triangle */
+    char *valid[] = {"dgCMatrix", "dtCMatrix", ""};
+    /* had also "dsCMatrix", but that only stores one triangle */
     int *dims, ctype = Matrix_check_class(class_P(x), valid);
     SEXP islot;
 
-    if (ctype < 0) error("invalid class of object to Matrix_as_cs");
+    if (ctype < 0) error("invalid class of 'x' in Matrix_as_cs(a, x)");
 				/* dimensions and nzmax */
     dims = INTEGER(GET_SLOT(x, Matrix_DimSym));
     ans->m = dims[0]; ans->n = dims[1];
@@ -49,6 +74,26 @@ cs *Matrix_as_cs(cs *ans, SEXP x)
     ans->p = INTEGER(GET_SLOT(x, Matrix_pSym));
     ans->x = REAL(GET_SLOT(x, Matrix_xSym));
 
+    if(check_Udiag && ctype == 1 && (*diag_P(x) == 'U')) { /* diagU2N(.) : */
+	int n = dims[0];
+	CSP I_n = csp_eye(n);
+	/* tmp := 1*ans + 1*eye -- result is newly allocated in cs_add(): */
+	CSP tmp = cs_add(ans, I_n, 1., 1.);
+	int nz = (tmp->p)[n];
+
+	/* content(ans) := content(tmp) : */
+	ans->nzmax = nz;
+	/* The ans "slots" were pointers to x@ <slots>; all need new content now: */
+	ans->p = Memcpy((   int*) R_alloc(sizeof(   int), n+1),
+			(   int*) tmp->p, n+1);
+	ans->i = Memcpy((   int*) R_alloc(sizeof(   int), nz),
+			(   int*) tmp->i, nz);
+	ans->x = Memcpy((double*) R_alloc(sizeof(double), nz),
+			(double*) tmp->x, nz);
+
+	cs_spfree(I_n);
+	cs_spfree(tmp);
+    }
     return ans;
 }
 
@@ -94,6 +139,8 @@ SEXP Matrix_cs_to_SEXP(cs *a, char *cl, int dofree)
 }
 
 #if 0 				/* unused ------------------------------------*/
+/*  -------------------------------------*/
+
 /**
  * Populate a css object with the contents of x.
  *

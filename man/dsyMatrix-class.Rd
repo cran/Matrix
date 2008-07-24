@@ -88,6 +88,10 @@
     \item{solve}{\code{signature(a = "dsyMatrix", b = "missing")}}
     \item{solve}{\code{signature(a = "dspMatrix", b = "matrix")}}
     \item{solve}{\code{signature(a = "dsyMatrix", b = "matrix")}}
+    \item{t}{\code{signature(x = "dsyMatrix")}: Transpose; swaps from
+      upper triangular to lower triangular storage, i.e., the uplo slot
+      from \code{"U"} to \code{"L"} or vice versa, the same as for all
+      symmetric matrices.}
   }
 }
 %\references{}
@@ -100,6 +104,8 @@
 \examples{
 ## Only upper triangular part matters (when uplo == "U" as per default)
 (sy2 <- new("dsyMatrix", Dim = as.integer(c(2,2)), x = c(14, NA,32,77)))
+str(t(sy2)) # uplo = "L", and the lower tri. (i.e. NA is replaced).
+
 chol(sy2) #-> "Cholesky" matrix
 
 ## Coercing to dpoMatrix gives invalid object:

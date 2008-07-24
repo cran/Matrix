@@ -1,5 +1,4 @@
 library(Matrix)
-
 ### Do all kinds of object creation and coercion
 
 source(system.file("test-tools.R", package = "Matrix"))
@@ -22,9 +21,11 @@ stopifnot(unique(is(m1)) == c("dgeMatrix", "ddenseMatrix", "generalMatrix",
 	  identical(m1, t(t(m1))))
 c.nam <- paste("C",1:2, sep='')
 dimnames(m1) <- list(NULL, c.nam)
+checkMatrix(m1) # failed in 0.999375-10
+checkMatrix(tm1 <- t(m1))
 stopifnot(colnames(m1) == c.nam,
-	  identical(dimnames(t(m1)), list(c.nam, NULL)),
-	  identical(m1, t(t(m1))))
+	  identical(dimnames(tm1), list(c.nam, NULL)),
+	  identical(m1, t(tm1)))
 
 ## an example of *named* dimnames
 (t34N <- as(unclass(table(x = gl(3,4), y=gl(4,3))), "dgeMatrix"))
@@ -38,7 +39,7 @@ checkMatrix(cp <- as(cm, "dppMatrix"))# 'dpp' + factors
 checkMatrix(cs <- as(cm, "dsyMatrix"))# 'dsy' + factors
 checkMatrix(dcm <- as(cm, "dgeMatrix"))#'dge'
 checkMatrix(mcm <- as(cm, "dMatrix")) # 'dsy' + factors -- buglet? rather == cm?
-checkMatrix(mc. <- as(cm, "Matrix"))
+checkMatrix(mc. <- as(cm, "Matrix")) # dpo --> dsy -- FIXME!
 stopifnot(identical(mc., mcm),
           identical4(2*cm, cm + cp, cp + cs, mcm * 2))
 
@@ -99,3 +100,51 @@ stopifnot(grep("replacing.*sensible", ind.try[1]) == 1,
 	  identical(p9[TRUE,], as(p9, "ngTMatrix")),
 	  identical(as(diag(9), "pMatrix"), as(1:9, "pMatrix"))
 	  )
+
+## validObject --> Cparse_validate(.)  *sorts* if needed:
+mm <- new("dgCMatrix", Dim = c(3L, 5L),
+          i = c(2L, 0L, 1L, 2L, 0L, 1L),
+          x = c( 2,  1,  2,  1,  2,  1),
+          p = c(0:2, 4L, 4L, 6L))
+m. <- mm
+ip <- c(1:2, 4:3, 6:5) # permute the 'i' and 'x' slot just "inside column":
+m.@i <- m.i <- mm@i[ip]
+m.@x <- m.x <- mm@x[ip]
+stopifnot(validObject(mm),
+	  validObject(m.))   ## <<-- this auto-sorts  m.
+stopifnot(identical(mm, m.)) ## since it was auto-sorted
+## and m.@i, m.@x now differ from m.i & m.x respectively:
+stopifnot(identical(m.i, m.@i[ip]),
+	  identical(m.x, m.@x[ip]))
+##
+## Make sure that validObject() objects...
+## 1) to wrong 'p'
+m. <- mm; m.@p[1] <- 1L
+stopifnot(grep("first element of slot p", validObject(m., test=TRUE)) == 1)
+m.@p <- mm@p[c(1,3:2,4:6)]
+stopifnot(grep("^slot p.* non-decreasing", validObject(m., test=TRUE)) == 1)
+## 2) to non-strictly increasing i's:
+m. <- mm ; ix <- c(1:3,3,5:6)
+m.@i <- mm@i[ix]
+m.@x <- mm@x[ix]
+stopifnot(identical(grep("slot i is not.* increasing .*column$",
+                         validObject(m., test=TRUE)), 1L))
+ix <- c(1:3, 3:6) # now the the (i,x) slots are too large (and decreasing at end)
+m.@i <- mm@i[ix]
+m.@x <- mm@x[ix]
+stopifnot(identical(grep("^slot i is not.* increasing .*sort",
+                         (msg <- validObject(m., test=TRUE))),# seg.fault in the past
+                    1L))
+
+## over-allocation of the i- and x- slot should be allowed:
+## (though it does not really help in M[.,.] <- *  yet)
+m. <- mm
+m.@i <- c(mm@i, NA, NA, NA)
+m.@x <- c(mm@x, 10:12)
+stopifnot(validObject(m.))
+m. # show() now works
+stopifnot(all(m. == mm), # in spite of
+	  length(m.@i) > length(mm@i),
+          identical(t(t(m.)), mm),
+	  identical3(m. * m., m. * mm, mm * mm))
+m.[1,4] <- 99 ## FIXME: warning and cuts (!) the over-allocated slots

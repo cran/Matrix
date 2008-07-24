@@ -2,8 +2,8 @@
 
 SEXP sparseQR_validate(SEXP x)
 {
-    CSP V = AS_CSP(GET_SLOT(x, install("V"))),
-	R = AS_CSP(GET_SLOT(x, install("R")));
+    CSP V = AS_CSP__(GET_SLOT(x, install("V"))),
+	R = AS_CSP__(GET_SLOT(x, install("R")));
     SEXP beta = GET_SLOT(x, install("beta")),
 	p = GET_SLOT(x, Matrix_pSym),
 	q = GET_SLOT(x, install("q"));
@@ -63,7 +63,7 @@ void sparseQR_Qmult(cs *V, double *beta, int *p, int trans,
 SEXP sparseQR_qty(SEXP qr, SEXP y, SEXP trans)
 {
     SEXP ans = PROTECT(dup_mMatrix_as_dgeMatrix(y));
-    CSP V = AS_CSP(GET_SLOT(qr, install("V")));
+    CSP V = AS_CSP__(GET_SLOT(qr, install("V")));
     R_CheckStack();
 
     sparseQR_Qmult(V, REAL(GET_SLOT(qr, install("beta"))),
@@ -79,8 +79,8 @@ SEXP sparseQR_coef(SEXP qr, SEXP y)
 {
     SEXP ans = PROTECT(dup_mMatrix_as_dgeMatrix(y)),
 	qslot = GET_SLOT(qr, install("q"));
-    CSP V = AS_CSP(GET_SLOT(qr, install("V"))),
-	R = AS_CSP(GET_SLOT(qr, install("R")));
+    CSP V = AS_CSP__(GET_SLOT(qr, install("V"))),
+	R = AS_CSP__(GET_SLOT(qr, install("R")));
     int *ydims = INTEGER(GET_SLOT(ans, Matrix_DimSym)),
 	*q = INTEGER(qslot),
 	j, lq = LENGTH(qslot), m = R->m, n = R->n;
@@ -108,7 +108,7 @@ SEXP sparseQR_coef(SEXP qr, SEXP y)
 SEXP sparseQR_resid_fitted(SEXP qr, SEXP y, SEXP resid)
 {
     SEXP ans = PROTECT(dup_mMatrix_as_dgeMatrix(y));
-    CSP V = AS_CSP(GET_SLOT(qr, install("V")));
+    CSP V = AS_CSP__(GET_SLOT(qr, install("V")));
     int *ydims = INTEGER(GET_SLOT(ans, Matrix_DimSym)),
 	*p = INTEGER(GET_SLOT(qr, Matrix_pSym)),
 	i, j, m = V->m, n = V->n, res = asLogical(resid);

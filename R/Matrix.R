@@ -278,6 +278,9 @@ setMethod("solve", signature(a = "Matrix", b = "matrix"),
 setMethod("solve", signature(a = "matrix", b = "Matrix"),
 	  function(a, b, ...) callGeneric(Matrix(a), b))
 
+setMethod("solve", signature(a = "Matrix", b = "diagonalMatrix"),
+	  function(a, b, ...) callGeneric(a, as(b,"CsparseMatrix")))
+
 ## when no sub-class method is found, bail out
 setMethod("solve", signature(a = "Matrix", b = "Matrix"),
 	  function(a, b, ...) .bail.out.2("solve", class(a), class(b)))
@@ -616,7 +619,8 @@ setReplaceMethod("[", signature(x = "Matrix", i = "matrix", j = "missing",
 				value = "replValue"),
 	  .M.repl.i.2col)
 
-
+## Three catch-all methods ... would be very inefficient for sparse*
+## --> extra methods in ./sparseMatrix.R
 setReplaceMethod("[", signature(x = "Matrix", i = "missing", j = "ANY",
 				value = "Matrix"),
 		 function (x, i, j, ..., value)
@@ -631,6 +635,7 @@ setReplaceMethod("[", signature(x = "Matrix", i = "ANY", j = "ANY",
 				value = "Matrix"),
 		 function (x, i, j, ..., value)
 		 callGeneric(x=x, i=i, j=j, value = as.vector(value)))
+
 
 setReplaceMethod("[", signature(x = "Matrix", i = "missing", j = "ANY",
 				value = "matrix"),

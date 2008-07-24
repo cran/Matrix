@@ -45,6 +45,7 @@
 \alias{rowSums,dgeMatrix-method}
 \alias{solve,dgeMatrix,matrix-method}
 \alias{solve,dgeMatrix,ddenseMatrix-method}
+\alias{solve,dgeMatrix,sparseMatrix-method}
 \alias{solve,dgeMatrix,missing-method}
 \alias{t,dgeMatrix-method}
 \alias{tcrossprod,dgeMatrix,missing-method}

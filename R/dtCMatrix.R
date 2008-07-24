@@ -79,34 +79,29 @@ setMethod("determinant", signature(x = "dtCMatrix", logarithm = "logical"),
 
 setMethod("solve", signature(a = "dtCMatrix", b = "missing"),
 	  function(a, b, ...) {
-	      if (a@diag == "U") {
-		  if (a@uplo == "U")
-		      return(.Call(dtCMatrix_upper_solve, a))
-		  else
-		      return(t(.Call(dtCMatrix_upper_solve, t(a))))
-	      }
-	      .Call(dtCMatrix_solve, a)
-	  }, valueClass = "dtCMatrix")
+	      stopifnot((n <- nrow(a)) == ncol(a))
+	      as(.Call(dtCMatrix_sparse_solve, a, .trDiagonal(n)),
+                 "dtCMatrix")
+          }, valueClass = "dtCMatrix")
 
 setMethod("solve", signature(a = "dtCMatrix", b = "dgeMatrix"),
-	  function(a, b, ...) {
-              if (a@diag == "U") a <- .Call(Csparse_diagU2N, a)
-	      .Call(dtCMatrix_matrix_solve, a, b, TRUE)
-	  }, valueClass = "dgeMatrix")
+	  function(a, b, ...) .Call(dtCMatrix_matrix_solve, a, b, TRUE),
+	  valueClass = "dgeMatrix")
+
+setMethod("solve", signature(a = "dtCMatrix", b = "CsparseMatrix"),
+	  function(a, b, ...) .Call(dtCMatrix_sparse_solve, a, b),
+	  valueClass = "dgCMatrix")
 
 setMethod("solve", signature(a = "dtCMatrix", b = "matrix"),
 	  function(a, b, ...) {
-              if (a@diag == "U") a <- .Call(Csparse_diagU2N, a)
-	      storage.mode(b) <- "double"
-	      .Call(dtCMatrix_matrix_solve, a, b, FALSE)
+            storage.mode(b) <- "double"
+            .Call(dtCMatrix_matrix_solve, a, b, FALSE)
 	  }, valueClass = "dgeMatrix")
 
 ## Isn't this case handled by the method for (a = "Matrix', b =
 ## "numeric") in ./Matrix.R? Or is this method defined here for
 ## the as.double coercion?
 setMethod("solve", signature(a = "dtCMatrix", b = "numeric"),
-	  function(a, b, ...) {
-	      if (a@diag == "U") a <- as(diagU2N(a), "dtCMatrix")
-	      .Call(dtCMatrix_matrix_solve, a, as.matrix(as.double(b)),
-		    FALSE)
-	  }, valueClass = "dgeMatrix")
+	  function(a, b, ...) .Call(dtCMatrix_matrix_solve, a,
+                                    as.matrix(as.double(b)), FALSE),
+          valueClass = "dgeMatrix")

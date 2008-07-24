@@ -3,6 +3,73 @@
 
 cholmod_common c;
 
+static int stype(int ctype, SEXP x)
+{
+    if ((ctype % 3) == 1) return (*uplo_P(x) == 'U') ? 1 : -1;
+    return 0;
+}
+
+static int xtype(int ctype)
+{
+    switch(ctype / 3) {
+    case 0: /* "d" */
+    case 1: /* "l" */
+	return CHOLMOD_REAL;
+    case 2: /* "n" */
+	return CHOLMOD_PATTERN;
+    case 3: /* "z" */
+	return CHOLMOD_COMPLEX;
+    }
+    return -1;
+}
+
+static void *xpt(int ctype, SEXP x)
+{
+    switch(ctype / 3) {
+    case 0: /* "d" */
+	return (void *) REAL(GET_SLOT(x, Matrix_xSym));
+    case 1: /* "l" */
+	return (void *) REAL(coerceVector(GET_SLOT(x, Matrix_xSym), REALSXP));
+    case 2: /* "n" */
+	return (void *) NULL;
+    case 3: /* "z" */
+	return (void *) COMPLEX(GET_SLOT(x, Matrix_xSym));
+    }
+    return (void *) NULL; 	/* -Wall */
+}
+
+Rboolean check_sorted_chm(CHM_SP A)
+{
+    int *Ai = (int*)(A->i), *Ap = (int*)(A->p);
+    int j, p;
+
+    for (j = 0; j < A->ncol; j++) {
+	int p1 = Ap[j], p2 = Ap[j + 1] - 1;
+	for (p = p1; p < p2; p++)
+	    if (Ai[p] >= Ai[p + 1])
+		return FALSE;
+    }
+    return TRUE;
+}
+
+static void chm2Ralloc(CHM_SP dest, CHM_SP src)
+{
+    int np1, nnz;
+
+    /* copy all the characteristics of src to dest */
+    memcpy(dest, src, sizeof(cholmod_sparse));
+
+    /* R_alloc the vector storage for dest and copy the contents from src */
+    np1 = src->ncol + 1;
+    nnz = (int) cholmod_nnz(src, &c);
+    dest->p = (void*) Memcpy((   int*)R_alloc(sizeof(   int), np1),
+			     (   int*)(src->p), np1);
+    dest->i = (void*) Memcpy((   int*)R_alloc(sizeof(   int), nnz),
+			     (   int*)(src->i), nnz);
+    dest->x = (void*) Memcpy((double*)R_alloc(sizeof(double), nnz),
+			     (double*)(src->x), nnz);
+}
+
 /**
  * Populate ans with the pointers from x and modify its scalar
  * elements accordingly. Note that later changes to the contents of
@@ -16,7 +83,7 @@ cholmod_common c;
  *
  * @return ans containing pointers to the slots of x.
  */
-CHM_SP as_cholmod_sparse(CHM_SP ans, SEXP x)
+CHM_SP as_cholmod_sparse(CHM_SP ans, SEXP x, Rboolean check_Udiag, Rboolean sort_in_place)
 {
     char *valid[] = {"dgCMatrix", "dsCMatrix", "dtCMatrix",
 		     "lgCMatrix", "lsCMatrix", "ltCMatrix",
@@ -33,53 +100,57 @@ CHM_SP as_cholmod_sparse(CHM_SP ans, SEXP x)
     ans->itype = CHOLMOD_INT;	/* characteristics of the system */
     ans->dtype = CHOLMOD_DOUBLE;
     ans->packed = TRUE;
-    ans->sorted = TRUE;
-    ans->x = ans->z = ans->nz = (void *) NULL;
+				/* slots always present */
+    ans->i = INTEGER(islot);
+    ans->p = INTEGER(GET_SLOT(x, Matrix_pSym));
 				/* dimensions and nzmax */
     ans->nrow = dims[0];
     ans->ncol = dims[1];
+    ans->nzmax = (size_t) ((int *)ans->p)[dims[1]];
+    /* == LENGTH(islot) only if the i-slot is not over-allocated */
 
-    ans->nzmax = LENGTH(islot);
-				/* slots always present */
-    ans->i = (void *) INTEGER(islot);
-    ans->p = (void *) INTEGER(GET_SLOT(x, Matrix_pSym));
+				/* values depending on ctype */
+    ans->x = xpt(ctype, x);
+    ans->stype = stype(ctype, x);
+    ans->xtype = xtype(ctype);
 
-#define AS_CHM_FINISH								\
-    				/* set the xtype and any elements */		\
-    switch(ctype / 3) {								\
-    case 0: /* "d" */								\
-	ans->xtype = CHOLMOD_REAL;						\
-	ans->x = (void *) REAL(GET_SLOT(x, Matrix_xSym));			\
-	break;									\
-    case 1: /* "l" */								\
-	ans->xtype = CHOLMOD_REAL;						\
-	ans->x = (void *) REAL(coerceVector(GET_SLOT(x, Matrix_xSym), REALSXP)); \
-	break;									\
-    case 2: /* "n" */								\
-	ans->xtype = CHOLMOD_PATTERN;						\
-	break;									\
-    case 3: /* "z" */								\
-	ans->xtype = CHOLMOD_COMPLEX;						\
-	ans->x = (void *) COMPLEX(GET_SLOT(x, Matrix_xSym));			\
-	break;									\
-    }										\
-				/* set the stype */				\
-    switch(ctype % 3) {								\
-    case 0: /* g(eneral) */							\
-	ans->stype = 0; break;							\
-    case 1: /* s(ymmetric) */							\
-	ans->stype = (*uplo_P(x) == 'U') ? 1 : -1;				\
-	break;									\
-    case 2: /* t(riangular) -- Note that triangularity property is lost! */	\
-	ans->stype = 0;								\
-	/* NOTE: if(*diag_P(x) == 'U'), the diagonal is lost (!); */		\
-        /* ---- that may be ok, e.g. if we are just converting from/to Tsparse, */ \
-        /*      but is *not* at all ok, e.g. when used before matrix products */   \
-	break;									\
-    }										\
-    return ans
+    /* are the columns sorted (increasing row numbers) ?*/
+    ans->sorted = check_sorted_chm(ans);
+    if (!(ans->sorted)) { /* sort columns */
+	if(sort_in_place) {
+	    if (!cholmod_sort(ans, &c))
+		error(_("in_place cholmod_sort returned an error code"));
+	    ans->sorted = 1;
+	}
+	else {
+	    CHM_SP tmp = cholmod_copy_sparse(ans, &c);
+	    if (!cholmod_sort(tmp, &c))
+		error(_("cholmod_sort returned an error code"));
 
-    AS_CHM_FINISH;
+#ifdef DEBUG_Matrix
+	    /* This "triggers" exactly for return values of dtCMatrix_sparse_solve():*/
+	    /* Don't want to translate this: want it report */
+	    Rprintf("Note: as_cholmod_sparse() needed cholmod_sort()ing\n");
+#endif
+	    chm2Ralloc(ans, tmp);
+	    cholmod_free_sparse(&tmp, &c);
+	}
+    }
+
+    if (check_Udiag && ctype % 3 == 2 && (*diag_P(x) == 'U')) { /* diagU2N(.)  "in place" : */
+	double one[] = {1, 0};
+	CHM_SP eye = cholmod_speye(ans->nrow, ans->ncol, ans->xtype, &c);
+	CHM_SP tmp = cholmod_add(ans, eye, one, one, TRUE, TRUE, &c);
+
+	chm2Ralloc(ans, tmp);
+	cholmod_free_sparse(&tmp, &c);
+	cholmod_free_sparse(&eye, &c);
+    } /* else :
+       * NOTE: if(*diag_P(x) == 'U'), the diagonal is lost (!);
+       * ---- that may be ok, e.g. if we are just converting from/to Tsparse,
+       *      but is *not* at all ok, e.g. when used before matrix products */
+
+    return ans;
 }
 
 /**
@@ -186,15 +257,16 @@ SEXP chm_sparse_to_SEXP(CHM_SP a, int dofree, int uploT, int Rkind,
  *
  * @return ans containing pointers to the slots of x.
  */
-CHM_TR as_cholmod_triplet(CHM_TR ans, SEXP x)
+CHM_TR as_cholmod_triplet(CHM_TR ans, SEXP x, Rboolean check_Udiag)
 {
     char *valid[] = {"dgTMatrix", "dsTMatrix", "dtTMatrix",
 		     "lgTMatrix", "lsTMatrix", "ltTMatrix",
 		     "ngTMatrix", "nsTMatrix", "ntTMatrix",
 		     "zgTMatrix", "zsTMatrix", "ztTMatrix",
 		     ""};
-    int *dims, ctype = Matrix_check_class(class_P(x), valid);
+    int *dims, ctype = Matrix_check_class(class_P(x), valid), m;
     SEXP islot;
+    Rboolean do_Udiag;
 
     if (ctype < 0) error("invalid class of object to as_cholmod_triplet");
     memset(ans, 0, sizeof(cholmod_triplet)); /* zero the struct */
@@ -206,13 +278,65 @@ CHM_TR as_cholmod_triplet(CHM_TR ans, SEXP x)
     dims = INTEGER(GET_SLOT(x, Matrix_DimSym));
     ans->nrow = dims[0];
     ans->ncol = dims[1];
+
+    do_Udiag = (check_Udiag && ctype % 3 == 2 && (*diag_P(x) == 'U'));
+
     islot = GET_SLOT(x, Matrix_iSym);
-    ans->nnz = ans->nzmax = LENGTH(islot);
+    m = LENGTH(islot);
+    ans->nnz = ans->nzmax = do_Udiag ? m + dims[0] : m;
 				/* slots always present */
     ans->i = (void *) INTEGER(islot);
     ans->j = (void *) INTEGER(GET_SLOT(x, Matrix_jSym));
 
-    AS_CHM_FINISH;
+    ans->stype = stype(ctype, x);
+    ans->xtype = xtype(ctype);
+    ans->x = xpt(ctype, x);
+
+    if(do_Udiag) {  /* Tsparse_diagU2N(.)  [ ./Tsparse.c ]  "in place" : */
+	int k = m + dims[0];
+	int *a_i, *a_j;
+
+	/* TODO? instead of reallocating, don't do the 2nd part of AS_CHM_COMMON()
+	 * ---- above, and allocate to correct length + Memcpy() here, as in
+	 * Tsparse_diagU2N() */
+	if(cholmod_reallocate_triplet((size_t) k, ans, &c))
+	    error(_("as_cholmod_triplet(): could not reallocate for internal diagU2N()"
+		      ));
+	a_i = ans->i;
+	a_j = ans->j;
+	/* add (@i, @j)[k+m] = k, @x[k+m] = 1.   for k = 0,..,(n-1) */
+	for(k=0; k < dims[0]; k++) {
+	    a_i[k+m] = k;
+	    a_j[k+m] = k;
+
+	    switch(ctype / 3) {
+	    case 0: { /* "d" */
+		double *a_x = ans->x;
+		a_x[k+m] = 1.;
+		break;
+	    }
+	    case 1: { /* "l" */
+		int *a_x = ans->x;
+		a_x[k+m] = 1;
+		break;
+	    }
+	    case 2: /* "n" */
+		break;
+	    case 3: { /* "z" */
+		double *a_x = ans->x;
+		a_x[2*(k+m)  ] = 1.;
+		a_x[2*(k+m)+1] = 0.;
+		break;
+	    }
+	    }
+	}
+
+    } /* else :
+       * NOTE: if(*diag_P(x) == 'U'), the diagonal is lost (!);
+       * ---- that may be ok, e.g. if we are just converting from/to Tsparse,
+       *      but is *not* at all ok, e.g. when used before matrix products */
+
+    return ans;
 }
 
 /**

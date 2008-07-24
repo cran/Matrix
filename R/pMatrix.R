@@ -62,7 +62,7 @@ setAs("matrix", "pMatrix", function(from) as(as(from, "nMatrix"), "pMatrix"))
 setMethod("is.na", signature(x = "pMatrix"), is.na_nsp)
 
 setMethod("solve", signature(a = "pMatrix", b = "missing"),
-	  function(a, b) {
+	  function(a, b, ...) {
 	      ap <- a@perm
 	      ap[ap] <- seq_along(ap)
               a@perm <- ap
@@ -71,7 +71,7 @@ setMethod("solve", signature(a = "pMatrix", b = "missing"),
           })
 
 setMethod("solve", signature(a = "Matrix", b = "pMatrix"),
-	  function(a, b) {
+	  function(a, b, ...) {
 	      ## Or alternatively  solve(a, as(b, "CsparseMatrix"))
 	      i <- b@perm
 	      i[i] <- seq_along(i)

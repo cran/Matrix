@@ -96,10 +96,15 @@ setClass("idenseMatrix", representation("VIRTUAL"),
 setClass("ndenseMatrix", representation(x = "logical", "VIRTUAL"),
 	 contains = c("nMatrix", "denseMatrix"))
 
+## virtual SPARSE ------------
+
+setClass("sparseMatrix", representation("VIRTUAL"), contains = "Matrix")
+
 ## diagonal: has 'diag' slot;  diag = "U"  <--> have identity matrix
 setClass("diagonalMatrix", representation(diag = "character", "VIRTUAL"),
 	 contains = "denseMatrix",
-	 ## TODO??   ^^^^^ extend just "Matrix" !?!?!? -- against DSC'07 talk (3D classes)
+	 ## TODO??   ^^^^^ -- against DSC'07 talk(3D classes), reconsider
+##>>	 contains = "sparseMatrix", ## which makes "scarceMatrix"  superfluous
 	 validity = function(object) {
 	     d <- object@Dim
 	     if(d[1] != (n <- d[2])) return("matrix is not square")
@@ -112,10 +117,6 @@ setClass("diagonalMatrix", representation(diag = "character", "VIRTUAL"),
 	 },
 	 prototype = prototype(diag = "N")
 	 )
-
-## virtual SPARSE ------------
-
-setClass("sparseMatrix", representation("VIRTUAL"), contains = "Matrix")
 
 ## sparse matrices in Triplet representation (dgT, lgT, ..):
 setClass("TsparseMatrix", representation(i = "integer", j = "integer", "VIRTUAL"),
@@ -538,6 +539,10 @@ setClass("pMatrix", representation(perm = "integer"),
 	     TRUE
 	 })
 
+## "scarce", those "sparse" in a more common sense,
+##  -----   e.g., do not coerce these to dense needlessly :
+setClassUnion("scarceMatrix", members = c("sparseMatrix", "diagonalMatrix"))
+
 
 ### Factorization classes ---------------------------------------------
 
@@ -681,6 +686,7 @@ setClassUnion("replValue", members = c("numeric", "logical", "complex", "raw"))
 ### Sparse Vectors ---- here use 1-based indexing ! -----------
 setClass("sparseVector",
          representation(length = "integer", i = "integer", "VIRTUAL"),
+	 prototype = prototype(length = 0L),
          validity = function(object) {
              n <- object@length
              if(any(object@i < 1L) || any(object@i > n))

@@ -297,3 +297,21 @@
 - coercing sparse to dense when the denseMatrix is too large
   (length(@ x) > .Machine$integer.max), gives better error
   messages; e.g. Lrg == Lrg or  !Lrg in tests/indexing.R
+
+- src/Csparce.c etc:  grep 'AS_.*sparse_diagU2N' src/*.?
+  had several
+     o AS_CHM_SP(Csparse_diagU2N(.)) : as_cholmod_sparse(..)  \ src/chm_common.h
+     o AS_CHM_TR(Tsparse_diagU2N(.)) : as_cholmod_triplet(..) /
+     o AS_CSP   (Csparse_diagU2N(.)) : Matrix_as_cs(..)       > src/cs_utils.h
+
+  all of which are "inefficient", because several "S4 <-> Cholmod" or
+  "S4 <-> CS" coercions happen inside.
+
+  Made these "inner" Csparse_diagU2N()  part of the
+    as_cholmod_sparse() or Matrix_as_cs() functions.
+  In order to not check when not needed, add a new boolean argument
+  'check_Udiag' to the C functions.
+   --> This is an API change however, notably since we export as_cholmod_sparse
+      ( in inst/include/Matrix.h )
+
+

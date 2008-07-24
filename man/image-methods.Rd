@@ -47,7 +47,7 @@
     true.}
   \item{col.regions}{vector of gradually varying colors; see
     \code{\link[lattice]{levelplot}}.}
-  \item{lwd}{non-number of \code{NULL} (default), specifying the
+  \item{lwd}{non-negative number or \code{NULL} (default), specifying the
     line-width of the rectangles of each non-zero matrix entry (drawn by
     \code{\link[grid]{grid.rect}}).  The default depends on the matrix
     dimension and the device size.}

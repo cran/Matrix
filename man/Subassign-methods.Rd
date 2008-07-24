@@ -27,25 +27,43 @@
 \alias{[<-,diagonalMatrix,index,missing,replValue-method}
 \alias{[<-,diagonalMatrix,matrix,missing,replValue-method}
 \alias{[<-,diagonalMatrix,missing,index,replValue-method}
-% \alias{[<-,diagonalMatrix,index,index,replValue-method}
-% \alias{[<-,diagonalMatrix,index,missing,replValue-method}
-% \alias{[<-,diagonalMatrix,missing,index,replValue-method}
-% \alias{[<-,diagonalMatrix,missing,missing,replValue-method}
+%
+\alias{[<-,diagonalMatrix,index,index,scarceMatrix-method}
+\alias{[<-,diagonalMatrix,index,missing,scarceMatrix-method}
+\alias{[<-,diagonalMatrix,missing,index,scarceMatrix-method}
+%
+\alias{[<-,diagonalMatrix,index,index,sparseVector-method}
+\alias{[<-,diagonalMatrix,index,missing,sparseVector-method}
+\alias{[<-,diagonalMatrix,missing,index,sparseVector-method}
+%
+% -> ../R/sparseMatrix.R :
+\alias{[<-,sparseMatrix,ANY,ANY,scarceMatrix-method}
+\alias{[<-,sparseMatrix,ANY,missing,scarceMatrix-method}
+\alias{[<-,sparseMatrix,missing,ANY,scarceMatrix-method}
 % -> ../R/Tsparse.R : replValue = { numeric, logical }
 \alias{[<-,TsparseMatrix,index,index,replValue-method}
 \alias{[<-,TsparseMatrix,index,missing,replValue-method}
 \alias{[<-,TsparseMatrix,matrix,missing,replValue-method}
 \alias{[<-,TsparseMatrix,missing,index,replValue-method}
+\alias{[<-,TsparseMatrix,missing,index,sparseVector-method}
+\alias{[<-,TsparseMatrix,index,missing,sparseVector-method}
+\alias{[<-,TsparseMatrix,index,index,sparseVector-method}
 % \alias{[<-,dgTMatrix,missing,missing,numeric-method}
 \alias{[<-,CsparseMatrix,index,index,replValue-method}
 \alias{[<-,CsparseMatrix,index,missing,replValue-method}
 \alias{[<-,CsparseMatrix,matrix,missing,replValue-method}
 \alias{[<-,CsparseMatrix,missing,index,replValue-method}
+\alias{[<-,CsparseMatrix,missing,index,sparseVector-method}
+\alias{[<-,CsparseMatrix,index,missing,sparseVector-method}
+\alias{[<-,CsparseMatrix,index,index,sparseVector-method}
 % %
 \alias{[<-,RsparseMatrix,index,index,replValue-method}
 \alias{[<-,RsparseMatrix,index,missing,replValue-method}
 \alias{[<-,RsparseMatrix,matrix,missing,replValue-method}
 \alias{[<-,RsparseMatrix,missing,index,replValue-method}
+\alias{[<-,RsparseMatrix,missing,index,sparseVector-method}
+\alias{[<-,RsparseMatrix,index,missing,sparseVector-method}
+\alias{[<-,RsparseMatrix,index,index,sparseVector-method}
 % %
 % \alias{[<-,dsparseMatrix,missing,index,numeric-method}
 % \alias{[<-,dsparseMatrix,index,missing,numeric-method}

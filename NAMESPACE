@@ -278,6 +278,7 @@ exportMethods(## for both own and "other" generics:
 	      "qr.coef",
 	      "qr.resid",
 	      "qr.fitted",
+	      "rep",
 	      "rcond",
 	      "rowMeans",
 	      "rowSums",

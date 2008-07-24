@@ -460,6 +460,12 @@ replTmat <- function (x, i, j, ..., value)
     dn <- dimnames(x)
     iMi <- missing(i)
     jMi <- missing(j)
+    ## "FIXME": could pass this (and much ? more) when this function would not *be* a
+    ## method but be *called* from methods
+    spV <- is(value, "sparseVector")
+    ## own version of all0() that works both for sparseVector and atomic vectors:
+    .all0 <- function(v) if(spV) length(v@i) == 0 else all0(v)
+
     na <- nargs()
     if(na == 3) { ## "vector (or 2-col) indexing"  M[i] <- v
 	if(getOption("verbose"))
@@ -502,7 +508,7 @@ replTmat <- function (x, i, j, ..., value)
 	## now have 0-based indices   x.i (entries) and	 i (new entries)
 
 	## the simplest case:
-	if(all0(value)) { ## just drop the non-zero entries
+	if(.all0(value)) { ## just drop the non-zero entries
 	    sel <- is.na(match(x.i, i))
 	    if(any(!sel)) { ## non-zero there
 		x@i <- x@i[sel]
@@ -552,7 +558,7 @@ replTmat <- function (x, i, j, ..., value)
         ## a bit faster than  keep <- !rev(duplicated(rev(i1))) :
         ir <- dind[1]:1 ; keep <- match(i1, i1[ir]) == ir
         i1 <- i1[keep]
-        lenV <- length(value <- rep(value, length = lenRepl)[keep])
+        lenV <- length(value <- rep(value, length.out = lenRepl)[keep])
         dind[1] <- length(i1)
         lenRepl <- dind[1] * dind[2]
     }
@@ -561,7 +567,7 @@ replTmat <- function (x, i, j, ..., value)
         ## a bit faster than  keep <- !rev(duplicated(rev(i2))) :
         ir <- dind[2]:1 ; keep <- match(i2, i2[ir]) == ir
         i2 <- i2[keep]
-        lenV <- length(value <- rep(value, length = lenRepl)[keep])
+        lenV <- length(value <- rep(value, length.out = lenRepl)[keep])
         dind[2] <- length(i2)
         lenRepl <- dind[1] * dind[2]
     }
@@ -574,8 +580,10 @@ replTmat <- function (x, i, j, ..., value)
 
     toGeneral <- r.sym <- FALSE
     if((sym.x <- extends(clDx, "symmetricMatrix"))) {
+        mkArray <- if(spV) # TODO: room for improvement
+            function(v, dim) spV2M(v, dim[1],dim[2]) else array
 	r.sym <- (dind[1] == dind[2]) && all(i1 == i2) &&
-	(lenRepl == 1 || isSymmetric(value <- array(value, dim=dind)))
+	(lenRepl == 1 || isSymmetric(value <- mkArray(value, dim=dind)))
 	if(r.sym) { ## result is *still* symmetric --> keep symmetry!
 	    xU <- x@uplo == "U"
             # later, we will consider only those indices above / below diagonal:
@@ -605,7 +613,7 @@ replTmat <- function (x, i, j, ..., value)
     has.x <- "x" %in% slotNames(clDx) # === slotNames(x)
 
     ## the simplest case: for all Tsparse, even for i or j missing
-    if(all0(value)) { ## just drop the non-zero entries
+    if(.all0(value)) { ## just drop the non-zero entries
 	if(any(sel)) { ## non-zero there
 	    x@i <- x@i[!sel]
 	    x@j <- x@j[!sel]
@@ -622,6 +630,7 @@ replTmat <- function (x, i, j, ..., value)
 
     ## another simple, typical case:
     if(lenRepl == 1) {
+        if(spV && has.x) value <- as(value, "vector")
         if(any(sel)) { ## non-zero there
             if(has.x)
                 x@x[sel] <- value
@@ -637,13 +646,15 @@ replTmat <- function (x, i, j, ..., value)
 ##     if(r.sym) # value already adjusted, see above
 ##        lenRepl <- length(value) # shorter (since only "triangle")
     if(!r.sym && lenV < lenRepl)
-        value <- rep(value, length = lenRepl)
+        value <- rep(value, length.out = lenRepl)
 
     ## now:  length(value) == lenRepl
 
-    v0 <- is0(value)
     ## value[1:lenRepl]:  which are structural 0 now, which not?
-
+    ## v0 <- is0(value)
+    ## - replaced by using isN0(as.vector(.)) on a typical small subset value[.]
+    ## --> more efficient for sparse 'value' & large 'lenRepl' :
+    ## FIXME: The use of  seq_len(lenRepl) below is *still* inefficient
     if(any(sel)) {
 	## the 0-based indices of non-zero entries -- WRT to submatrix
 	non0 <- cbind(match(x@i[sel], i1),
@@ -651,9 +662,9 @@ replTmat <- function (x, i, j, ..., value)
 	iN0 <- 1L + .Call(m_encodeInd, non0, di = dind)
 
 	## 1a) replace those that are already non-zero with non-0 values
-	vN0 <- !v0[iN0]
+	vN0 <- isN0(as.vector(value[iN0]))
 	if(any(vN0) && has.x)
-	    x@x[sel][vN0] <- value[iN0[vN0]]
+	    x@x[sel][vN0] <- as.vector(value[iN0[vN0]])
 
 	## 1b) replace non-zeros with 0 --> drop entries
 	if(any(!vN0)) {
@@ -674,13 +685,13 @@ replTmat <- function (x, i, j, ..., value)
 	    ## select also the corresponding triangle of values
 	    iI0 <- intersect(iI0, iSel)
         }
-        if(any(vN0 <- !v0[iI0])) {
+        if(any(vN0 <- isN0(as.vector(value[iI0])))) {
             ## 2) add those that were structural 0 (where value != 0)
             ij0 <- decodeInd(iI0[vN0] - 1L, nr = dind[1])
             x@i <- c(x@i, i1[ij0[,1] + 1L])
             x@j <- c(x@j, i2[ij0[,2] + 1L])
             if(has.x)
-                x@x <- c(x@x, value[iI0[vN0]])
+		x@x <- c(x@x, as.vector(value[iI0[vN0]]))
         }
     }
     x
@@ -845,6 +856,21 @@ setReplaceMethod("[", signature(x = "TsparseMatrix", i = "matrix", j = "missing"
 		 .TM.repl.i.2col)
 
 
+### When the RHS 'value' is  a sparseVector, now can use  replTmat  as well
+setReplaceMethod("[", signature(x = "TsparseMatrix", i = "missing", j = "index",
+				value = "sparseVector"),
+		 replTmat)
+
+setReplaceMethod("[", signature(x = "TsparseMatrix", i = "index", j = "missing",
+				value = "sparseVector"),
+		 replTmat)
+
+setReplaceMethod("[", signature(x = "TsparseMatrix", i = "index", j = "index",
+				value = "sparseVector"),
+		 replTmat)
+
+
+
 setMethod("crossprod", signature(x = "TsparseMatrix", y = "missing"),
 	  function(x, y = NULL) {
               if (is(x, "symmetricMatrix")) {
@@ -880,9 +906,9 @@ setMethod("%*%", signature(x = "ANY", y = "TsparseMatrix"),
 #          function(x, y) callGeneric(x, as(y, "CsparseMatrix")))
 
 setMethod("solve", signature(a = "TsparseMatrix", b = "ANY"),
-	  function(a, b) solve(as(a, "CsparseMatrix"), b))
+	  function(a, b, ...) solve(as(a, "CsparseMatrix"), b))
 setMethod("solve", signature(a = "TsparseMatrix", b = "missing"),
-	  function(a, b) solve(as(a, "CsparseMatrix")))
+	  function(a, b, ...) solve(as(a, "CsparseMatrix")))
 
 
 ## Want tril(), triu(), band() --- just as "indexing" ---

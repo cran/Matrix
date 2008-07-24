@@ -155,6 +155,7 @@ mmultCheck <- function(a, b) {
 }
 
 dimNamesCheck <- function(a, b) {
+    ## Constructs "sensical" dimnames for something like  a + b ;
     ## assume dimCheck() has happened before
     nullDN <- list(NULL,NULL)
     h.a <- !identical(nullDN, dna <- dimnames(a))
@@ -164,11 +165,10 @@ dimNamesCheck <- function(a, b) {
 	else if(!h.a) dnb
 	else { ## both have non-trivial dimnames
 	    r <- dna # "default" result
-	    for(j in 1:2) {
-		dn <- dnb[[j]]
+	    for(j in 1:2) if(!is.null(dn <- dnb[[j]])) {
 		if(is.null(r[[j]]))
 		    r[[j]] <- dn
-		else if (!is.null(dn) && any(r[[j]] != dn))
+		else if(!identical(r[[j]], dn))
 		    warning(gettextf("dimnames [%d] mismatch in %s", j,
 				     deparse(sys.call(sys.parent()))),
 			    call. = FALSE)
@@ -340,6 +340,7 @@ nz.NA <- function(x, na.value) {
     else		x != 0 & !is.na(x)
 }
 
+### This assumes that e.g. the i-slot in Csparse is *not* over-allocated:
 nnzSparse <- function(x, cl = class(x), cld = getClassDef(cl))
 {
     ## Purpose: number of *stored* / structural non-zeros {NA's counted too}
@@ -378,22 +379,22 @@ nnzero <- function(x, na.counted = NA) {
 	iSym <- extends(cld, "symmetricMatrix")
 	if(extends(cld, "pMatrix"))	# is "sparse" too
 	    n
+	else if(extends(cld, "diagonalMatrix"))
+	    sum(nz.NA(diag(x), na.counted))
 	else if(extends(cld, "sparseMatrix")) {
-	    nn <-
-		if(extends(cld, "nMatrix")) # <==> no 'x' slot
-		    switch(.sp.class(cl),
-			   "CsparseMatrix" = length(x@i),
-			   "TsparseMatrix" = length(x@i),
-			   "RsparseMatrix" = length(x@j))
-		else ## consider NAs in 'x' slot:
-		    sum(nz.NA(x@x, na.counted))
+	    nn <- switch(.sp.class(cl),
+                         "CsparseMatrix" = x@p[d[2]+1L],# == length(x@i) only if not over-alloc.
+                         "TsparseMatrix" = length(x@i),
+                         "RsparseMatrix" = x@p[n+1L])
+	    if(!extends(cld, "nMatrix")) # <==> has 'x' slot : consider NAs in it:
+		nn <- sum(nz.NA(if(nn < length(x@x)) x@x[seq_len(nn)] else x@x,
+				na.counted))
+
 	    if(iSym)
 		nn+nn - sum(nz.NA(diag(x), na.counted))
 	    else if(extends(cld, "triangularMatrix") && x@diag == "U")
 		nn + n else nn
 	}
-	else if(extends(cld, "diagonalMatrix"))
-	    sum(nz.NA(diag(x), na.counted))
 	else {
 	    ## dense, not diagonal: Can use 'x' slot;
 	    if(iSym || extends(cld, "triangularMatrix")) {
@@ -1094,7 +1095,7 @@ isTriC <- function(object, upper = NA) {
 	    x@diag <- "N"
 	    x
         }
-        else {
+        else { ## not dense, not [CT]sparseMatrix  ==>  Rsparse*
             xT <- as(as(x, paste(kind, "Matrix", sep='')), "TsparseMatrix")
             ## leave it as T* - the caller can always coerce to C* if needed:
             new(paste(kind, "tTMatrix", sep=''), x = xT@x, i = xT@i, j = xT@j,

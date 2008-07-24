@@ -160,6 +160,10 @@ setMethod("solve", signature(a = "dgeMatrix", b = "matrix"),
 	  function(a, b, ...) .Call(dgeMatrix_matrix_solve, a, b),
           valueClass = "dgeMatrix")
 
+setMethod("solve", signature(a = "dgeMatrix", b = "sparseMatrix"),
+	  function(a, b, ...) .Call(dgeMatrix_matrix_solve, a,
+				    as(b, "denseMatrix")),
+	  valueClass = "dgeMatrix")
 ## not needed - method for numeric defined for Matrix class
 ## setMethod("solve", signature(a = "dgeMatrix", b = "numeric"),
 ## 	  function(a, b, ...)

@@ -1,5 +1,5 @@
 
-R version 2.6.2 Patched (2008-02-19 r44542)
+R version 2.7.1 Patched (2008-07-23 r46112)
 Copyright (C) 2008 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 
@@ -157,7 +157,8 @@ C 3 6 9 12 100 3 6 9 12
 > r.4 <- rBind(r1, Diagonal(4))
 > assert.EQ.mat(d4, rBind(diag(4),    0:3))
 > assert.EQ.mat(m4, cBind(diag(-1:2), 0:3))
-> stopifnot(is(d4, "sparseMatrix"), is(m4, "sparseMatrix"),
+> stopifnot(identical(Matrix(cbind(diag(3),0)), cbind2(Diagonal(3),0)),
++ 	  is(d4, "sparseMatrix"), is(m4, "sparseMatrix"),
 + 	  identical(t(d4), cBind(Diagonal(4),     0:3)),
 + 	  identical(t(m4), rBind(Diagonal(x=-1:2), 0:3)))
 > 
@@ -314,5 +315,5 @@ Ambiguous method selection for "+", target "dgTMatrix#dgCMatrix" (the first of t
 > 
 > 
 > cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
-Time elapsed:  2.518 0.102 2.697 0 0 
+Time elapsed:  2.448 0.106 2.632 0 0 
 > 

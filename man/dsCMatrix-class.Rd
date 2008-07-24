@@ -103,12 +103,14 @@
 	"logical")}: Evaluate the determinant of \code{x} on the
       logarithm scale or not, according to the \code{logarithm}
       argument.  This creates and stores the Cholesky factorization.}
-    \item{t}{\code{signature(x = "dsCMatrix")}: Transpose.  Because
-      \code{x} is symmetric this has no effect.}
-    \item{t}{\code{signature(x = "dsTMatrix")}: Transpose.  For the
-      \code{dsTMatrix} class the row and column indices are interchanged
-      so that a matrix for which the upper triangle is stored produces a
-      matrix for which the lower triangle is stored and vice versa.}
+    \item{t}{\code{signature(x = "dsCMatrix")}: Transpose.  As for all
+      symmetric matrices, a matrix for which the upper triangle is
+      stored produces a matrix for which the lower triangle is stored
+      and vice versa, i.e., the \code{uplo} slot is swapped, and the row
+      and column indices are interchanged.}
+    \item{t}{\code{signature(x = "dsTMatrix")}: Transpose.  The
+      \code{uplo} slot is swapped from \code{"U"} to \code{"L"} or vice
+      versa, as for a \code{"dsCMatrix"}, see above.}
     \item{coerce}{\code{signature(from = "dsCMatrix", to = "dgTMatrix")}}
     \item{coerce}{\code{signature(from = "dsCMatrix", to = "dgeMatrix")}}
     \item{coerce}{\code{signature(from = "dsCMatrix", to = "matrix")}}

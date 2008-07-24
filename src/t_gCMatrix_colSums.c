@@ -153,7 +153,7 @@ SEXP gCMatrix_colSums(SEXP x, SEXP NArm, SEXP spRes, SEXP trans, SEXP means)
 {
     int mn = asLogical(means), sp = asLogical(spRes), tr = asLogical(trans);
     /* cholmod_sparse: drawback of coercing lgC to double: */
-    CHM_SP cx = AS_CHM_SP(x);
+    CHM_SP cx = AS_CHM_SP__(x);
     R_CheckStack();
 
     if (tr) {

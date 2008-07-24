@@ -1,5 +1,4 @@
 #include "Mutils.h"
-/* #include "HBMM.h" */
 #include "chm_common.h"
 #include "CHMfactor.h"
 #include "Csparse.h"
@@ -68,15 +67,12 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(LU_expand, 1),
     CALLDEF(LU_validate, 1),
     CALLDEF(Matrix_expand_pointers, 1),
-/*     CALLDEF(Matrix_writeHarwellBoeing, 3), */
-/*     CALLDEF(Matrix_writeMatrixMarket, 3), */
     CALLDEF(R_to_CMatrix, 1),
     CALLDEF(SVD_validate, 1),
     CALLDEF(Tsparse_validate, 1),
     CALLDEF(Tsparse_diagU2N, 1),
     CALLDEF(Tsparse_to_Csparse, 2),
     CALLDEF(Tsparse_to_tCsparse, 3),
-/*     CALLDEF(csc_check_column_sorting, 1), */
     CALLDEF(compressed_to_TMatrix, 2),
     CALLDEF(compressed_non_0_ij, 2),
     CALLDEF(dense_to_Csparse, 1),
@@ -158,9 +154,9 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(dspMatrix_solve, 1),
     CALLDEF(dspMatrix_trf, 1),
     CALLDEF(dspMatrix_validate, 1),
-    CALLDEF(dtCMatrix_solve, 1),
+/*     CALLDEF(dtCMatrix_solve, 1), */
     CALLDEF(dtCMatrix_matrix_solve, 3),
-    CALLDEF(dtCMatrix_upper_solve, 1),
+    CALLDEF(dtCMatrix_sparse_solve, 2),
     CALLDEF(dtTMatrix_as_dtrMatrix, 1),
     CALLDEF(ltTMatrix_as_ltrMatrix, 1),
     CALLDEF(ntTMatrix_as_ntrMatrix, 1),
@@ -212,7 +208,6 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(sparseQR_qty, 3),
     CALLDEF(sparseQR_coef, 2),
     CALLDEF(sparseQR_resid_fitted, 3),
-/*     CALLDEF(tsc_to_dgTMatrix, 1), */
     CALLDEF(triangularMatrix_validate, 1),
     CALLDEF(symmetricMatrix_validate, 1),
 
@@ -237,6 +232,8 @@ R_init_Matrix(DllInfo *dll)
     R_useDynamicSymbols(dll, FALSE);
 
 #define RREGDEF(name)  R_RegisterCCallable("Matrix", #name, (DL_FUNC) name)
+
+    RREGDEF(Csparse_diagU2N);
 
     RREGDEF(as_cholmod_dense);
     RREGDEF(as_cholmod_factor);

@@ -37,7 +37,7 @@ SEXP CHMfactor_solve(SEXP a, SEXP b, SEXP system)
 SEXP CHMfactor_spsolve(SEXP a, SEXP b, SEXP system)
 {
     CHM_FR L = AS_CHM_FR(a);
-    CHM_SP B = AS_CHM_SP(b);
+    CHM_SP B = AS_CHM_SP__(b);
     int sys = asInteger(system);
     R_CheckStack();
 
@@ -75,7 +75,7 @@ double chm_factor_ldetL2(CHM_FR f)
     } else {
 	int *li = (int*)(f->i), *lp = (int*)(f->p);
 	double *lx = (double *)(f->x);
-	
+
 	for (j = 0; j < f->n; j++) {
 	    for (p = lp[j]; li[p] != j && p < lp[j + 1]; p++) {};
 	    if (li[p] != j) {
@@ -107,7 +107,7 @@ SEXP CHMfactor_ldetL2(SEXP x)
  * \note: A and f must be compatible.  There is no check on this
  * here.  Incompatibility of A and f will cause the CHOLMOD functions
  * to take an error exit.
- * 
+ *
  */
 CHM_FR chm_factor_update(CHM_FR f, CHM_SP A, double mult)
 {
@@ -122,7 +122,7 @@ CHM_FR chm_factor_update(CHM_FR f, CHM_SP A, double mult)
 SEXP CHMfactor_update(SEXP object, SEXP parent, SEXP mult)
 {
     CHM_FR L = AS_CHM_FR(object), Lcp;
-    CHM_SP A = AS_CHM_SP(parent);
+    CHM_SP A = AS_CHM_SP__(parent);
     R_CheckStack();
 
     Lcp = cholmod_copy_factor(L, &c);
@@ -135,7 +135,7 @@ SEXP CHMfactor_ldetL2up(SEXP x, SEXP parent, SEXP mult)
     int i, nmult = LENGTH(mult);
     double *aa = REAL(ans), *mm = REAL(mult);
     CHM_FR L = AS_CHM_FR(x), Lcp;
-    CHM_SP A = AS_CHM_SP(parent);
+    CHM_SP A = AS_CHM_SP__(parent);
     R_CheckStack();
 
     Lcp = cholmod_copy_factor(L, &c);

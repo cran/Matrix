@@ -8,6 +8,7 @@
 \alias{coerce,diagonalMatrix,generalMatrix-method}
 \alias{coerce,diagonalMatrix,matrix-method}
 \alias{coerce,diagonalMatrix,nMatrix-method}
+\alias{coerce,diagonalMatrix,nsparseMatrix-method}
 \alias{coerce,Matrix,diagonalMatrix-method}
 \alias{cbind2,sparseMatrix,diagonalMatrix-method}
 \alias{cbind2,diagonalMatrix,sparseMatrix-method}
@@ -117,6 +118,7 @@
 \alias{Summary,ldiMatrix-method}
 %
 \alias{t,diagonalMatrix-method}
+\alias{print,diagonalMatrix-method}
 \alias{show,diagonalMatrix-method}
 \alias{\%*\%,dgeMatrix,diagonalMatrix-method}
 \alias{\%*\%,matrix,diagonalMatrix-method}

@@ -33,7 +33,7 @@ SEXP Tsparse_validate(SEXP x)
 
 SEXP Tsparse_to_Csparse(SEXP x, SEXP tri)
 {
-    CHM_TR chxt = AS_CHM_TR(x);
+    CHM_TR chxt = AS_CHM_TR__(x); /* << should *preserve*  diag = "U" ! */
     CHM_SP chxs = cholmod_triplet_to_sparse(chxt, chxt->nnz, &c);
     int tr = asLogical(tri);
     int Rkind = (chxt->xtype != CHOLMOD_PATTERN) ? Real_kind(x) : 0;
@@ -48,7 +48,7 @@ SEXP Tsparse_to_Csparse(SEXP x, SEXP tri)
 /* speedup utility, needed e.g. after subsetting: */
 SEXP Tsparse_to_tCsparse(SEXP x, SEXP uplo, SEXP diag)
 {
-    CHM_TR chxt = AS_CHM_TR(x);
+    CHM_TR chxt = AS_CHM_TR__(x);
     CHM_SP chxs = cholmod_triplet_to_sparse(chxt, chxt->nnz, &c);
     int Rkind = (chxt->xtype != CHOLMOD_PATTERN) ? Real_kind(x) : 0;
     R_CheckStack();

@@ -122,6 +122,7 @@ replCmat <- function (x, i, j, ..., value)
     dn <- dimnames(x)
     iMi <- missing(i)
     jMi <- missing(j)
+    spV <- is(value, "sparseVector")
     na <- nargs()
     if(na == 3) { ## "vector (or 2-col) indexing"  M[i] <- v
 	x <- as(x, "TsparseMatrix")
@@ -154,9 +155,11 @@ replCmat <- function (x, i, j, ..., value)
     ## keep "symmetry" if changed here:
     x.sym <- extends(clDx, "symmetricMatrix")
     if(x.sym) { ## only half the indices are there..
+        mkArray <- if(spV) # TODO: room for improvement
+            function(v, dim) spV2M(v, dim[1],dim[2]) else array
 	x.sym <-
 	    (dind[1] == dind[2] && all(i1 == i2) &&
-	     (lenRepl == 1 || isSymmetric(array(value, dim=dind))))
+	     (lenRepl == 1 || isSymmetric(mkArray(value, dim=dind))))
 	## x.sym : result is *still* symmetric
 	x <- .Call(Csparse_symmetric_to_general, x) ## but do *not* redefine clx!
     }
@@ -185,7 +188,8 @@ replCmat <- function (x, i, j, ..., value)
 		      match(xj [sel], i2)) - 1L
 	iN0 <- 1L + .Call(m_encodeInd, non0, di = dind)
 
-        has0 <- any(value[!is.na(value)] == 0)
+        has0 <-
+            if(spV) length(value@i) < lenV else any(value[!is.na(value)] == 0)
         if(lenV < lenRepl)
             value <- rep(value, length = lenRepl)
 	## Ideally we only replace them where value != 0 and drop the value==0
@@ -195,7 +199,7 @@ replCmat <- function (x, i, j, ..., value)
 	## if (lenRepl == 1) and v0 is TRUE, the following is not doing anything
 	##-  --> ./dgTMatrix.R	and its	 replTmat()
 	## x@x[sel[!v0]] <- value[!v0]
-        x@x[sel] <- value[iN0]
+        x@x[sel] <- as.vector(value[iN0])
         if(has0) x <- .Call(Csparse_drop, x, 0)
 
 	return(if(x.sym) as_CspClass(x, clx) else x)
@@ -229,6 +233,19 @@ setReplaceMethod("[", signature(x = "CsparseMatrix", i = "missing", j = "index",
 setReplaceMethod("[", signature(x = "CsparseMatrix", i = "index", j = "index",
 				value = "replValue"),
                  replCmat)
+
+### When the RHS 'value' is  a sparseVector, now can use  replCmat  as well
+setReplaceMethod("[", signature(x = "CsparseMatrix", i = "missing", j = "index",
+				value = "sparseVector"),
+		 replCmat)
+
+setReplaceMethod("[", signature(x = "CsparseMatrix", i = "index", j = "missing",
+				value = "sparseVector"),
+		 replCmat)
+
+setReplaceMethod("[", signature(x = "CsparseMatrix", i = "index", j = "index",
+				value = "sparseVector"),
+		 replCmat)
 
 ## A[ ij ] <- value,  where ij is (i,j) 2-column matrix
 setReplaceMethod("[", signature(x = "CsparseMatrix", i = "matrix", j = "missing",

@@ -26,6 +26,11 @@ drop0(x, clx = c(class(x)))
   \code{\linkS4class{CsparseMatrix}}.
 }
 % \author{Martin}
+\note{When a sparse matrix is the result of matrix multiplications, you
+  may want to consider combining \code{drop0()} with
+  \code{\link{zapsmall}()},
+  see the example.
+}
 \seealso{\code{\link{spMatrix}}, class \code{\linkS4class{sparseMatrix}}
 }
 \examples{
@@ -33,6 +38,17 @@ m <- spMatrix(10,20, i= 1:8, j=2:9,
               x = c(0:2,3:-1))
 m
 drop0(m)
+
+## A larger example:
+t5 <- new("dtCMatrix", Dim = c(5L, 5L), uplo = "L",
+          x = c(10, 1, 3, 10, 1, 10, 1, 10, 10),
+	  i = c(0L,2L,4L, 1L, 3L,2L,4L, 3L, 4L),
+	  p = c(0L, 3L, 5L, 7:9))
+TT <- kronecker(t5, kronecker(kronecker(t5,t5), t5))
+IT <- solve(TT)
+I. <- TT \%*\% IT ;  nnzero(I.) # 697 ( = 625 + 72 )
+I.0 <- drop0(zapsmall(I.))
+stopifnot(all(I.0 == Diagonal(625)))
 }
 \keyword{utilities}
 \keyword{array}

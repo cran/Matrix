@@ -1,0 +1,164 @@
+\documentclass{article}
+%
+\usepackage{fullpage}
+\usepackage{myVignette}
+\usepackage[authoryear,round]{natbib}
+\bibliographystyle{plainnat}
+\newcommand{\noFootnote}[1]{{\small (\textit{#1})}}
+\newcommand{\myOp}[1]{{$\left\langle\ensuremath{#1}\right\rangle$}}
+%%\VignetteIndexEntry{2nd Introduction to the Matrix Package}
+%%\VignetteDepends{Matrix}
+\SweaveOpts{engine=R, keep.source=TRUE}
+%	 	      ^^^^^^^^^^^^^^^^
+\SweaveOpts{eps=FALSE, pdf=TRUE, width=5, height=3, strip.white=TRUE}
+\title{Factors and Sparse Model Matrices}
+\author{Martin Maechler\\R Core Development Team
+  \\\email{maechler@R-project.org}}
+\date{July 2007, 2008 ({\tiny typeset on \tiny\today})}
+%
+\begin{document}
+\maketitle
+
+% \begin{abstract}
+%  ............................ FIXME
+% \end{abstract}
+
+%% Note: These are explained in '?RweaveLatex' :
+<<preliminaries, echo=FALSE>>=
+options(width=75)
+@
+
+Model matrices in our (generalized) linear models (\code{lm}) are often
+practically sparse ---  whenever categorical predictors are used.
+
+Let's start with an artifical small example:
+<<ex1>>=
+ (ff <- factor(substring("statistics", 1:10, 1:10), levels=letters))
+ factor(ff)      # drops the levels that do not occur
+ (f. <- ff[, drop=TRUE]) # the same, more transparently
+
+ library(Matrix)
+
+ Matrix(contrasts(f.)) # "treatment" contrasts by default -- level "a" = baseline
+
+ Matrix(contrasts(C(f., sum)))
+ Matrix(contrasts(C(f., helmert)), sparse=TRUE) # S-plus default; much less sparse
+@
+where contrasts is (conceptually) just one major ingredient in the
+well-known \Rfun{model.matrix} function.  Since 2007, the \pkg{Matrix}
+package has been providing coercion from a \code{factor} object to a
+\code{sparseMatrix} one to produce the transpose of the model matrix
+corresponding to a model with that factor as predictor (and no intercept):
+<<as_factor_sparse>>=
+as(f., "sparseMatrix")
+@
+which is really almost the transpose of using the above sparsification of
+\Rfun{contrasts},
+<<contrasts_sub>>=
+t( Matrix(contrasts(f.))[as.character(f.),] )
+@
+and that is the same as the ``sparsification'' of  \Rfun{model.matrix},
+apart from the column names (here transposed),
+<<ex1-model.matrix>>=
+t( Matrix(model.matrix(~ 0 + f.)) )
+@
+
+In situations with more than one factor, particularly with interactions,
+the model matrix is currently not directly available via \pkg{Matrix}
+functions and currently needs to go via the dense \Rfun{model.matrix} result:
+<<npk_ex>>=
+data(npk, package="MASS")
+
+npk.mf <- model.frame(yield ~ block + N*P*K, data = npk)
+## str(npk.mf) # the data frame + "terms" attribute
+
+m.npk <- model.matrix(attr(npk.mf, "terms"), data = npk)
+class(M.npk <- Matrix(m.npk))
+dim(M.npk)# 24 x 13  sparse Matrix
+t(M.npk) # easier to display, column names readably displayed as row.names(t(.))
+@
+%% printSpMatrix(M.npk, col.names = "abb1")
+
+An other example is the it seems realistic situation of a user who
+enquired on R-help (July 15, 2008,
+{\small \url{https://stat.ethz.ch/pipermail/r-help/2008-July/167772.html}})
+about an ``aov error with large data set'':
+
+\begin{citation}
+   I'm looking to analyze a large data set: a within-Ss 2*2*1500 design
+   with 20 Ss. However, aov() gives me an error, reproducible as follows:
+\end{citation}
+
+and gave the following code example (slightly edited):
+<<aov-large-ex>>=
+id <- factor(1:20)
+a <- factor(1:2)
+b <- factor(1:2)
+d <- factor(1:1500)
+aDat <- expand.grid(id=id, a=a, b=b, d=d)
+aDat$y <- rnorm(length(aDat[, 1])) # generate some random DV data
+dim(aDat) # 120'000 x 5  (120'000 = 2*2*1500 * 20 = 6000 * 20)
+@
+%% ^^^^^^^ MM: "fix" and generate much more interesting data
+and then continued with
+\begin{Sinput}
+m.aov <- aov(y ~ a*b*d + Error(id/(a*b*d)), data=aDat)
+\end{Sinput}
+which
+\begin{citation}\sffamily
+   yields the following error:\\
+   "\\ \ttfamily
+     Error in model.matrix.default(mt, mf, contrasts) :\\
+     allocMatrix: too many elements specified\\
+   "
+   Any suggestions?
+\end{citation}
+to which he got the explanation by Peter Dalgaard that the formal model matrix involved
+was much too large in this case, and that PD assumed, \pkg{lme4} would be
+able to solve the problem.
+However, currently there would still be a big problem with using \pkg{lme4},
+because of the many levels of \emph{fixed} effects:
+
+Specifically\footnote{the following is not run in \RR\ on purpose, rather just
+  displayed here},
+\begin{Sinput}
+dim(model.matrix( ~ a*b*d, data = aDat)) # 120'000 x 6000
+\end{Sinput}
+where we note that $120'000 \times 6000 = 720 \textrm{mio}$, which is
+$720'000'000 * 8 / 2^{20} \approx 5500$ Megabytes.
+
+\emph{Unfortunately} \pkg{lme4} does \emph{not} use a sparse $X$-matrix for
+the fixed effects (yet), it just uses sparse matrices for the $Z$-matrix of
+random effects and sparse matrix operations for computations related to $Z$.
+
+Let us use a smaller factor \code{d} in order to investigate how sparse the
+$X$ matrix would be:
+<<aov-ex-X-sparse>>=
+d2 <- factor(1:150) # 10 times smaller
+tmp2 <- expand.grid(id=id, a=a, b=b, d=d2)
+dim(tmp2)
+dim(mm <- model.matrix( ~ a*b*d, data=tmp2))
+## is 100 times smaller than original example
+
+class(smm <- Matrix(mm)) # automatically coerced to sparse
+object.size(mm) / object.size(smm)
+@
+shows that even for the small \code{d} here, the memory reduction would be
+more than an order of magnitude.
+
+<<-sparse-image-fake, fig=TRUE, include=FALSE, echo=FALSE, results=hide>>=
+print( image(smm, aspect=3, lwd=0, col.regions = "red") ) # print() for lattice !
+@
+<<X-sparse-image, eval=FALSE>>=
+image(smm, aspect=3, lwd=0, col.r = "red")
+@
+and working with the sparse instead of the dense model matrix is
+considerably faster as well,
+<<X-sparse-mult>>=
+x <- 1:600
+system.time(y <- smm %*% x) ## sparse is much faster
+system.time(y. <- mm %*% x) ## than dense
+identical(as.matrix(y), y.) ## TRUE
+@
+
+\end{document}

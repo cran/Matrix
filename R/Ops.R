@@ -667,6 +667,10 @@ setMethod("Arith", signature(e1 = "dsCMatrix", e2 = "dsCMatrix"),
 
     switch(Generic,
 	   "+" = , "-" = {
+	       ## care for over-allocated 'x' slot:
+	       nc1 <- d[2] + 1L
+	       if((nz <- e1@p[nc1]) < length(e1@x)) e1@x <- e1@x[seq_len(nz)]
+	       if((nz <- e2@p[nc1]) < length(e2@x)) e2@x <- e2@x[seq_len(nz)]
 	       ## special "T" convention: repeated entries are *summed*
 	       .Call(Tsparse_to_Csparse,
 		     newTMat(i = c(ij1[,1], ij2[,1]),

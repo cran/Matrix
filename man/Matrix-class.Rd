@@ -86,6 +86,7 @@
 \alias{solve,Matrix,Matrix-method}
 \alias{solve,Matrix,matrix-method}
 \alias{solve,matrix,Matrix-method}
+\alias{solve,Matrix,diagonalMatrix-method}
 \alias{solve,Matrix,missing-method}
 \alias{solve,Matrix,numeric-method}
 %\alias{unname,Matrix-method}

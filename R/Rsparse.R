@@ -213,6 +213,22 @@ setReplaceMethod("[", signature(x = "RsparseMatrix", i = "index", j = "index",
 		 function (x, i, j, ..., value)
 		 replTmat(as(x,"TsparseMatrix"), i=i, j=j, value=value))
 
+setReplaceMethod("[", signature(x = "RsparseMatrix", i = "index", j = "missing",
+				value = "sparseVector"),
+		 function (x, i, j, ..., value)
+		 replTmat(as(x,"TsparseMatrix"), i=i, value=value))
+
+setReplaceMethod("[", signature(x = "RsparseMatrix", i = "missing", j = "index",
+				value = "sparseVector"),
+		 function (x, i, j, ..., value)
+		 replTmat(as(x,"TsparseMatrix"), j=j, value=value))
+
+setReplaceMethod("[", signature(x = "RsparseMatrix", i = "index", j = "index",
+				value = "sparseVector"),
+		 function (x, i, j, ..., value)
+		 replTmat(as(x,"TsparseMatrix"), i=i, j=j, value=value))
+
+
 setReplaceMethod("[", signature(x = "RsparseMatrix", i = "matrix", j = "missing",
 				value = "replValue"),
 		 function (x, i, j, ..., value)

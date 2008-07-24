@@ -21,12 +21,12 @@ SEXP tTMatrix_validate(SEXP x)
 	if(uploT) {
 	    for (k = 0; k < nnz; k++)
 		if(xi[k] > xj[k])
-		    return mkString(_("uplo='U' must not have sparse entries in lower diagonal"));
+		    return mkString(_("uplo='U' must not have sparse entries below the diagonal"));
 	}
 	else {
 	    for (k = 0; k < nnz; k++)
 		if(xi[k] < xj[k])
-		    return mkString(_("uplo='L' must not have sparse entries in upper diagonal"));
+		    return mkString(_("uplo='L' must not have sparse entries above the diagonal"));
 	}
 
 	return ScalarLogical(1);

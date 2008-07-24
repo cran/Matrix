@@ -239,6 +239,16 @@ MM. <- tcrossprod(M)
 stopifnot(class(MM.) == "dsCMatrix",
           class(M.M) == "dsCMatrix")
 
+M3 <- Matrix(c(rep(c(2,0),4),3), 3,3, sparse=TRUE)
+I3 <- as(Diagonal(3), "CsparseMatrix")
+m3 <- as.matrix(M3)
+iM3 <- solve(m3)
+stopifnot(all.equal(iM3, matrix(c(3/2,0,-1,0,1/2,0,-1,0,1), 3)))
+assert.EQ.mat(solve(as(M3, "sparseMatrix")), iM3)
+assert.EQ.mat(solve(I3,I3), diag(3))
+assert.EQ.mat(solve(M3, I3), iM3)# was wrong because I3 is unit-diagonal
+assert.EQ.mat(solve(m3, I3), iM3)# gave infinite recursion in (<=) 0.999375-10
+
 
 ## even simpler
 m <- matrix(0, 4,7); m[c(1, 3, 6, 9, 11, 22, 27)] <- 1
@@ -256,7 +266,7 @@ assertError(m  %*% P) # ditto
 assertError(crossprod(t(mm), P)) # ditto
 stopifnot(isValid(tm1, "dsCMatrix"),
           all.equal(tm1, tm2, tol=1e-15),
-	  identical(Im2 %*% tm2[1:3,], Matrix(cbind(diag(3),0),sparse=FALSE)),
+	  identical(drop0(Im2 %*% tm2[1:3,]), Matrix(cbind(diag(3),0))),
           identical(p, as.matrix(P)),
 	  identical(P %*% m, as.matrix(P) %*% m),
 	  all(P %*% mm	==  P %*% m),

@@ -36,10 +36,7 @@ setGeneric("lu", function(x, ...) standardGeneric("lu"))
 ## which should *not* be part of the signature
 setGeneric("rcond", function(x, norm, ...) standardGeneric("rcond"),
 	   signature = c("x", "norm"),
-	   useAsDefault =
-           ## for now:
-           if(existsFunction("rcond", where=baseenv()))
-           ## later: if(exists(getRversion() >= "2.7.0")
+	   useAsDefault = if(getRversion() >= "2.7.0")
 	   function(x, norm, ...) base::rcond(x, norm=norm, ...))
 
 
@@ -84,7 +81,9 @@ setGeneric("forceSymmetric",
 	   function(x, uplo) standardGeneric("forceSymmetric"))
 
 
-## Add '...' so our methods can add  'sparseResult':
+if(all(names(formals(colSums)) != "...")) { ## maybe unneeded in future
+
+    ## Add '...' so our methods can add  'sparseResult':
 setGeneric("colSums",
 	   def = function(x, na.rm = FALSE, dims = 1, ...) standardGeneric("colSums"),
 	   useAsDefault = function(x,  na.rm = FALSE, dims = 1, ...)
@@ -101,3 +100,4 @@ setGeneric("rowMeans",
 	   def = function(x, na.rm = FALSE, dims = 1, ...) standardGeneric("rowMeans"),
 	   useAsDefault = function(x,  na.rm = FALSE, dims = 1, ...)
 	   base::rowMeans(x, na.rm=na.rm, dims=dims))
+}

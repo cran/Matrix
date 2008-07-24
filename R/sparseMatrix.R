@@ -124,9 +124,11 @@ setAs("graphNEL", "TsparseMatrix",
 
 setAs("sparseMatrix", "graph", function(from) as(from, "graphNEL"))
 setAs("sparseMatrix", "graphNEL",
-      function(from) as(as(from, "TsparseMatrix"), "graphNEL"))
+      ## since have specific method for Tsparse below, are Csparse or Rsparse,
+      ## i.e. do not need to "uniquify" the T* matrix:
+      function(from) Tsp2grNEL(as(from, "TsparseMatrix"), need.uniq=FALSE))
 
-Tsp2grNEL <- function(from) {
+Tsp2grNEL <- function(from, need.uniq = is_not_uniqT(from)) {
     d <- dim(from)
     if(d[1] != d[2])
 	stop("only square matrices can be used as incidence matrices for graphs")
@@ -134,7 +136,8 @@ Tsp2grNEL <- function(from) {
     if(n == 0) return(new("graphNEL"))
     if(is.null(rn <- dimnames(from)[[1]]))
 	rn <- as.character(1:n)
-    from <- uniq(from) ## Need to 'uniquify' the triplets!
+    if(need.uniq) ## Need to 'uniquify' the triplets!
+        from <- uniq(from)
 
     if(isSymmetric(from)) { # either "symmetricMatrix" or otherwise
 	##-> undirected graph: every edge only once!
@@ -153,7 +156,7 @@ Tsp2grNEL <- function(from) {
     ftM2graphNEL(ft1, W = from@x, V= rn, edgemode= eMode)
 
 }
-setAs("TsparseMatrix", "graphNEL", Tsp2grNEL)
+setAs("TsparseMatrix", "graphNEL", function(from) Tsp2grNEL(from))
 
 
 ### Subsetting -- basic things (drop = "missing") are done in ./Matrix.R
@@ -211,8 +214,24 @@ setMethod("[", signature(x = "sparseMatrix",
 
 ## setReplaceMethod("[", .........)
 ## -> ./Tsparse.R
-## &  ./Csparse.R
-## FIXME: also for RsparseMatrix
+## &  ./Csparse.R  & ./Rsparse.R {those go via Tsparse}
+##
+## Do not use as.vector() (see ./Matrix.R ) for "scarce" matrices :
+setReplaceMethod("[", signature(x = "sparseMatrix", i = "missing", j = "ANY",
+				value = "scarceMatrix"),
+		 function (x, i, j, ..., value)
+		 callGeneric(x=x, , j=j, value = as(value, "sparseVector")))
+
+setReplaceMethod("[", signature(x = "sparseMatrix", i = "ANY", j = "missing",
+				value = "scarceMatrix"),
+		 function (x, i, j, ..., value)
+		 callGeneric(x=x, i=i, , value = as(value, "sparseVector")))
+
+setReplaceMethod("[", signature(x = "sparseMatrix", i = "ANY", j = "ANY",
+				value = "scarceMatrix"),
+		 function (x, i, j, ..., value)
+		 callGeneric(x=x, i=i, j=j, value = as(value, "sparseVector")))
+
 
 
 ## Group Methods
@@ -560,13 +579,17 @@ setMethod("is.na", signature(x = "sparseMatrix"),## NB: nsparse* have own method
 
 
 ### Keep this namespace-hidden: Would need to return a classed object
-lm.fit.sparse <-
-function(x, y, offset = NULL, method = c("qr", "cholesky"),
-         tol = 1e-7, singular.ok = TRUE, transpose = FALSE, ...)
+
+## FIXME: still test this function for both methods, since currently
+## ----- both  dgCMatrix_cholsol and  dgCMatrix_qrsol are only called from here!
+lm.fit.sparse <- function(x, y, offset = NULL, method = c("qr", "cholesky"),
+                          tol = 1e-7, singular.ok = TRUE,
+                          transpose = FALSE, ...)
 ### Fit a linear model, __ given __ a sparse model matrix 'x'
 ### using a sparse QR or a sparse Cholesky factorization
 {
-    stopifnot(is(x, "dsparseMatrix"))
+    cld <- getClass(class(x))
+    stopifnot(extends(cld, "dsparseMatrix"))
 ##     if(!is(x, "dsparseMatrix"))
 ##	   x <- as(x, "dsparseMatrix")
     yy <- as.numeric(y)
@@ -574,23 +597,26 @@ function(x, y, offset = NULL, method = c("qr", "cholesky"),
 	stopifnot(length(offset) == length(y))
 	yy <- yy - as.numeric(offset)
     }
+    if(!transpose) x <- t(x) # yes! this seems "reverted"
     ans <- switch(as.character(method)[1],
 		  cholesky =
-		  .Call(dgCMatrix_cholsol,
-			as(if (transpose) x else t(x), "dgCMatrix"), yy),
+		  .Call(dgCMatrix_cholsol,# has AS_CHM_SP(x)
+			as(x, "CsparseMatrix"), yy),
 		  qr =
-		  .Call(dgCMatrix_qrsol,
-			as(if (transpose) t(x) else x, "dgCMatrix"), yy),
+		  .Call(dgCMatrix_qrsol, # has AS_CSP(): must be dgC or dtC:
+			if(cld@className %in% c("dtCMatrix", "dgCMatrix")) x
+			else as(x, "dgCMatrix"), yy),
 		  ## otherwise:
 		  stop("unknown method ", dQuote(method))
 		  )
     ans
 }
 
-fac2sparse <- function(from, to = c("d","i","l","n","z"))
+fac2sparse <- function(from, to = c("d","i","l","n","z"), drop.unused.levels = TRUE)
 {
     ## factor(-like) --> sparseMatrix {also works for integer, character}
-    levs <- levels(fact <- factor(from)) # drop unused levels
+    fact <- if (drop.unused.levels) factor(from) else as.factor(from)
+    levs <- levels(fact)
     n <- length(fact)
     to <- match.arg(to)
     res <- new(paste(to, "gCMatrix", sep=''))

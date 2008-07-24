@@ -132,11 +132,14 @@ SEXP compressed_non_0_ij(SEXP x, SEXP colP)
     SEXP ans, indSym = col ? Matrix_iSym : Matrix_jSym;
     SEXP indP = GET_SLOT(x, indSym),
 	pP = GET_SLOT(x, Matrix_pSym);
-    int n_el = length(indP), i, *ij;
+    int i, *ij;
+    int ncol = INTEGER(GET_SLOT(x, Matrix_DimSym))[1],
+	n_el = INTEGER(pP)[ncol]; /* is only == length(indP), if the
+				     i-slot is not over-allocated */
 
     ij = INTEGER(ans = PROTECT(allocMatrix(INTSXP, n_el, 2)));
     /* expand the compressed margin to 'i' or 'j' : */
-    expand_cmprPt(length(pP) - 1, INTEGER(pP), &ij[col ? n_el : 0]);
+    expand_cmprPt(ncol, INTEGER(pP), &ij[col ? n_el : 0]);
     /* and copy the other one: */
     if (col)
 	for(i = 0; i < n_el; i++)
@@ -151,13 +154,14 @@ SEXP compressed_non_0_ij(SEXP x, SEXP colP)
 
 SEXP dgCMatrix_lusol(SEXP x, SEXP y)
 {
-    SEXP ycp = PROTECT(duplicate(y));
-    CSP xc = AS_CSP(x);
+    SEXP ycp = PROTECT((TYPEOF(y) == REALSXP) ?
+		       duplicate(y) : coerceVector(y, REALSXP));
+    CSP xc = AS_CSP__(x);
     R_CheckStack();
 
     if (xc->m != xc->n || xc->m <= 0)
 	error(_("dgCMatrix_lusol requires a square, non-empty matrix"));
-    if (!isReal(ycp) || LENGTH(ycp) != xc->m)
+    if (LENGTH(ycp) != xc->m)
 	error(_("Dimensions of system to be solved are inconsistent"));
     if (!cs_lusol(/*order*/ 1, xc, REAL(ycp), /*tol*/ 1e-7))
 	error(_("cs_lusol failed"));
@@ -168,13 +172,15 @@ SEXP dgCMatrix_lusol(SEXP x, SEXP y)
 
 SEXP dgCMatrix_qrsol(SEXP x, SEXP y)
 {
-    SEXP ycp = PROTECT(duplicate(y));
-    CSP xc = AS_CSP(x);
+    SEXP ycp = PROTECT((TYPEOF(y) == REALSXP) ?
+		       duplicate(y) : coerceVector(y, REALSXP));
+    CSP xc = AS_CSP(x); /* <--> x  may be  dgC* or dtC* */
     R_CheckStack();
 
     if (xc->m < xc->n || xc->n <= 0)
-	error(_("dgCMatrix_qrsol requires a 'tall' rectangular matrix"));
-    if (!isReal(ycp) || LENGTH(ycp) != xc->m)
+	error(_("dgCMatrix_qrsol(<%d x %d>-matrix) requires a 'tall' rectangular matrix"),
+		xc->m, xc->n);
+    if (LENGTH(ycp) != xc->m)
 	error(_("Dimensions of system to be solved are inconsistent"));
     if (!cs_qrsol(/*order*/ 1, xc, REAL(ycp)))
 	error(_("cs_qrsol failed"));
@@ -187,7 +193,7 @@ SEXP dgCMatrix_qrsol(SEXP x, SEXP y)
 SEXP dgCMatrix_QR(SEXP Ap, SEXP order)
 {
     SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("sparseQR")));
-    CSP A = AS_CSP(Ap), D;
+    CSP A = AS_CSP__(Ap), D;
     css *S;
     csn *N;
     int m = A->m, n = A->n, ord = asLogical(order) ? 3 : 0, *p;
@@ -237,7 +243,7 @@ SEXP dgCMatrix_LU(SEXP Ap, SEXP orderp, SEXP tolp)
 {
     /* Is currently only called as  .Call(dgCMatrix_LU, x, TRUE, 1)) */
     SEXP ans = get_factors(Ap, "LU");
-    CSP A = AS_CSP(Ap), D;
+    CSP A = AS_CSP__(Ap), D;
     css *S;
     csn *N;
     int n, order = asInteger(orderp), *p;
@@ -297,8 +303,8 @@ SEXP dgCMatrix_matrix_solve(SEXP Ap, SEXP b)
     /* b is dense or NULL [ <--> solve(A) */
     SEXP lu = dgCMatrix_LU(Ap, ScalarLogical(1), ScalarReal(1));
     SEXP qslot = GET_SLOT(lu, install("q"));
-    CSP L = AS_CSP(GET_SLOT(lu, install("L"))),
-	U = AS_CSP(GET_SLOT(lu, install("U")));
+    CSP L = AS_CSP__(GET_SLOT(lu, install("L"))),
+	U = AS_CSP__(GET_SLOT(lu, install("U")));
     SEXP ans = PROTECT( !isNull(b) ? dup_mMatrix_as_dgeMatrix(b)
 			: new_dgeMatrix(U->n, U->n));
     int *bdims = INTEGER(GET_SLOT(ans, Matrix_DimSym));
@@ -333,7 +339,7 @@ SEXP dgCMatrix_cholsol(SEXP x, SEXP y)
 {
     CHM_SP cx = AS_CHM_SP(x);
     CHM_FR L;
-    CHM_DN cy = AS_CHM_DN(y), rhs, cAns;
+    CHM_DN cy = AS_CHM_DN(coerceVector(y, REALSXP)), rhs, cAns;
     double one[] = {1,0}, zero[] = {0,0};
     SEXP ans = PROTECT(allocVector(VECSXP, 3));
     R_CheckStack();

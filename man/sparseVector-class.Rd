@@ -39,7 +39,9 @@
 \alias{as.numeric,sparseVector-method}
 \alias{as.vector,sparseVector,missing-method}
 \alias{as.vector,sparseVector,character-method}
+\alias{dim<-,sparseVector-method}
 \alias{length,sparseVector-method}
+\alias{rep,sparseVector-method}
 \alias{show,sparseVector-method}
 %
 \alias{[,sparseVector,index,ANY,ANY-method}
@@ -84,27 +86,36 @@
       entries of large sparse vectors are printed at all.}
     \item{as.vector}{\code{signature(x = "sparseVector", mode = "character")}
       coerces sparse vectors to \dQuote{regular}, i.e., atomic vectors.
-      This is the same as \code{as(x, "vector")}.
-    }
+      This is the same as \code{as(x, "vector")}.}
+    \item{dim<-}{\code{signature(x = "sparseVector", value = "integer")}
+      coerces a sparse vector to a sparse Matrix, i.e., an object
+      inheriting from \code{\linkS4class{sparseMatrix}}, of the
+      appropriate dimension.}
+    \item{rep}{\code{signature(x = "sparseVector")} repeat \code{x},
+      with the same argument list \code{(x, times, length.out, each,
+      ...)} as the default method for rep().}
   }
 }
 %\author{Martin}
 \examples{
-showClass("sparseVector")
-showClass("dsparseVector")
-showClass("xsparseVector")# those with an 'x' slot
+getClass("sparseVector")
+getClass("dsparseVector")
+getClass("xsparseVector")# those with an 'x' slot
 
 sx <- c(0,0,3, 3.2, 0,0,0,-3:1,0,0,2,0,0,5,0,0)
 (ss <- as(sx, "sparseVector"))
 
 ix <- as.integer(round(sx))
 (is <- as(ix, "sparseVector"))
-%% FIXME: I'd want  isparseVector
-%%
-as(is, "isparseVector") %% ERROR ## FIXME
+## an "isparseVector" (!)
 
-%% FIXME: Explain and show  spV2M() or its successor
+## rep() works too:
+rep(is, length.out= 25)
 
+## Using `dim<-`  as in base R :
+r <- ss
+dim(r) <- c(4,5) # becomes a sparse Matrix:
+r
 
 }
 \keyword{classes}

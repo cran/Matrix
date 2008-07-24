@@ -37,6 +37,18 @@ stopifnot(isValid(d4, "diagonalMatrix"),   isValid(z4,  "diagonalMatrix"),
           validObject(Matrix(c(NA,0), 4, 4)),
           isValid(Matrix(c(NA,0,0,0), 4, 4), "sparseMatrix"))
 
+L <- spMatrix(9, 30, i = rep(1:9, 3), 1:27, (1:27) %% 4 != 1)
+M <- drop0(crossprod(L))
+diag(M) <- diag(M) + 5 # to make it pos.def.
+M. <- M[1:12,1:12] # small ex
+N3 <- as(Matrix(upper.tri(diag(3))), "nMatrix")
+isValid(bdN <- bdiag(N3, N3),"nsparseMatrix")
+stopifnot(isSymmetric(M), isSymmetric(M.),
+	  is(bdiag(M., M.),"symmetricMatrix"),
+	  is(bdN, "triangularMatrix"))
+
+
+
 ## large sparse ones: these now directly "go sparse":
 str(m0 <- Matrix(0,     nrow=100, ncol = 1000))
 str(l0 <- Matrix(FALSE, nrow=100, ncol = 200))
@@ -48,6 +60,7 @@ op <- options(warn = 2) # warnings here are errors
 n <- 50000L
 Lrg <- new("dgTMatrix", Dim = c(n,n))
 diag(Lrg[2:9,1:8]) <- 1:8
+## ==:  Lrg[2:9,1:8] <- `diag<-`(Lrg[2:9,1:8], 1:8)
 e1 <- try(Lrg == Lrg) # error message almost ok
 e2 <- try(!Lrg) # error message was "bad", now perfect
 ina <- is.na(Lrg)# "all FALSE"
@@ -179,10 +192,20 @@ stopifnot(identical(rowSums(lcu), rowSums(drop0(lcu))))
 (ncu <- as(lcu, "nMatrix"))# -- gives the "pattern" of lcu, i.e. FALSE are *there*
 stopifnot(identical(ncu, as(lcu,"nsparseMatrix")),
           identical(rowSums(ncu), c(3:1, 1L)))
-
-
 assert.EQ.mat(cu, as(tu,"matrix"), tol=0)
 assert.EQ.mat(cnu, as(tu,"matrix"), tol=0)
+
+U <- new("dtCMatrix", Dim = c(6L, 6L),
+	 i = c(0:1, 0L, 2:3, 1L, 4L),
+	 p = c(0L,0L,0L, 2:3, 5L, 7L),
+	 x = rep.int(-0.5, 7), diag = "U")
+validObject(U)
+U. <- solve(iU <- solve(U))#-> gave segmentation fault
+stopifnot(validObject(U), ## had a case where solve(U) modified U !
+	  validObject(iU),
+	  validObject(U.),
+	  ## no rounding error, since have iU@x * 8 is integer :
+	  identical(U, Matrix:::diagN2U(drop0(U.))))
 
 ## <sparse> o <numeric> (of length > 1):
 stopifnot(isValid(tm <- tu * 1:8, "sparseMatrix"),
@@ -305,6 +328,14 @@ stopifnot(isValid(im, "Matrix"), isValid(I2, "Matrix"), class(I4c) == "dgCMatrix
           all.equal(s.ms2, s.msm, tol = 4e-15),
           all.equal(s.ms2, I4c  , tol = 4e-15),
           abs(o4 - 1) < 1e-14)
+
+image(T125 <- kronecker(kronecker(t5,t5),t5),
+      main = paste("T125:",class(T125)))
+dim(T3k <- kronecker(t5,kronecker(T125, t5)))
+system.time(IT3 <- solve(T3k))# incredibly fast
+I. <- drop0(zapsmall(IT3 %*% T3k))
+stopifnot(isValid(IT3, "dtCMatrix"),
+          all(I. == Diagonal(3125)))
 
 ###-- row- and column operations  {was ./rowcolOps.R }
 
@@ -544,6 +575,15 @@ stopifnot(all.equal(list(modulus = structure(24, logarithm = FALSE), sign = -1L)
           all.equal(list(modulus = structure(0, logarithm = FALSE), sign = 1L),
                     unclass(determinant(D0,FALSE)), tol=0)
           )
+
+### More sparseVector checks: -------------------------------
+validObject(new("isparseVector"))
+R <- sv <- as(D4, "sparseVector")
+## dim(<sparseVector>) <- (n1,n2)  --> sparse Matrix :
+dim(R) <- dim(D4)
+stopifnot(isValid(sv,"sparseVector"),
+	  isValid(R, "sparseMatrix"),
+	  identical(D4, as(R, "diagonalMatrix")))
 
 
 cat('Time elapsed: ', (.pt <- proc.time()),'\n') # "stats"

@@ -49,7 +49,8 @@ r4. <- rBind(Diagonal(4), r1)
 r.4 <- rBind(r1, Diagonal(4))
 assert.EQ.mat(d4, rBind(diag(4),    0:3))
 assert.EQ.mat(m4, cBind(diag(-1:2), 0:3))
-stopifnot(is(d4, "sparseMatrix"), is(m4, "sparseMatrix"),
+stopifnot(identical(Matrix(cbind(diag(3),0)), cbind2(Diagonal(3),0)),
+	  is(d4, "sparseMatrix"), is(m4, "sparseMatrix"),
 	  identical(t(d4), cBind(Diagonal(4),     0:3)),
 	  identical(t(m4), rBind(Diagonal(x=-1:2), 0:3)))
 

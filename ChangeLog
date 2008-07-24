@@ -1,4 +1,144 @@
+2008-07-24  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/dgeMatrix.R: need solve(<dge>, <sparse>) against infinite
+	recursion in new test in
+	* tests/matprod.R: testing the above and another solve() case, below
+
+	* R/sparseMatrix.R (lm.fit.sparse): slightly more efficient for
+	e.g. triangular 'x'.
+
+	* src/dgCMatrix.c (dgCMatrix_qrsol): use AS_CSP() hence allowing dtC*
+	* src/dgCMatrix.c (dgCMatrix_cholsol): use AS_CHM_SP() to work
+	correctly with unit-triangular x
+
+	* src/dsCMatrix.c (dsCMatrix_Csparse_solve): use AS_CHM_SP()
+	instead of not checking diagU.
+
+	* R/diagMatrix.R, R/Auxiliaries.R: tweaks to allow later
+	experiments where diagonalMatrix would extend sparse*.
+
+
+2008-07-23  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/dgCMatrix.c (compressed_non_0_ij): for nnzero(), use
+	"x@p[ncol(x)]" instead of length(x@i).
+	* R/Auxiliaries.R (nnzero): ditto
+
+	* src/chm_common.c (as_cholmod_sparse): Do not use LENGTH(islot)
+	since that fails for over-allocated i.
+
+	* tests/validObj.R: more testing of over-allocated (i,x) slots
+
+2008-07-23  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/chm_common.c (as_cholmod_sparse): Add 4th argument
+	'sort_in_place' and set it to TRUE in call from
+	* src/Csparse.c (Csparse_validate): sort in place, making sure that
+	validObject() continues sort the columns if needed.
+
+	* tests/validObj.R: now tests that more thoroughly, and
+	* man/CsparseMatrix-class.Rd: documents it.
+
+2008-07-21  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/cs_utils.c (Matrix_as_cs): add check_Udiag switch
+	* src/cs_utils.h (AS_CSP & AS_CSP__): two versions
+	* src/dtCMatrix.c (dtCMatrix_sparse_solve): no longer needs
+	diagU2N().
+
+	* R/diagMatrix.R (.sparseDiagonal): new utility, used in "old"
+	.spDiagonal() and new .trDiagonal().
+
+	* R/dtCMatrix.R (solve): make use of .trDiagonal()
+
+2008-07-19  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Auxiliaries.R (dimNamesCheck): fix very long standing buglet,
+	stumbled upon by Michael H.
+
+	* tests/validObj.R: testing the bug-fix
+
+	* src/chm_common.h (AS_CHM_SP__, AS_CHM_TR__): the non-diagU2N
+	versions.
+
+	* src/chm_common.c (as_cholmod_sparse, as_cholmod_triplet): new
+	boolean argument 'check_Udiag' (formerly implicitly was FALSE).
+
+	* src/Csparse.c (Csparse_Csparse_prod, ...): etc: use the new
+	  AS_CHM_SP() which includes diagU2N.
+
+	* inst/include/Matrix_stubs.c (M_as_cholmod_sparse): similarly
+	adapt to 3 arguments.
+
+2008-07-17  Douglas Bates <bates@stat.wisc.edu>
+
+	* [r2217] R/dtCMatrix.R, src/dtCMatrix.c, src/dtCMatrix.h, src/init.c:
+	  Replace dtCMatrix_solve by more general dtCMatrix_sparse_solve and add
+	  new solve method
+	* [r2216] src/cs_utils.c: Utility csp_eye in case we want to fold
+	  Csparse_diagU2N functionality into Matrix_as_cs
+
+2008-07-17  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* inst/doc/factor2sparse.Rnw: revive a year-old unfinished vignette
+
+2008-07-16  Douglas Bates <bates@stat.wisc.edu>
+
+	* [r2212] R/sparseMatrix.R: fac2sparse gets a drop.unused.levels
+	  argument with default TRUE
+	* [r2211] inst/include/Matrix.h, inst/include/Matrix_stubs.c: Export
+	  Csparse_diagU2N
+	* [r2210] R/dtCMatrix.R, man/dtCMatrix-class.Rd, src/dtCMatrix.c,
+	  src/dtCMatrix.h, src/init.c: Remove vestigial methods based on the
+	  parent array; new solve method for signature(a = "dtCMatrix", b =
+	  "sparseMatrix")
+
+2008-07-14  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/diagMatrix.R (.bdiag): also keep result triangular
+
+2008-07-13  Douglas Bates <bates@stat.wisc.edu>
+
+	* [r2208] src/dtCMatrix.c, src/dtTMatrix.c: Revise wording in error
+	  messages
+
+2008-07-12  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/diagMatrix.R (.bdiag): make more sophisticated, keeping
+	symmetric- or nsparse-Matrix, also fixing the bug introduced with
+	the new version (.999375-10).
+
+	* tests/Simple.R: regression test for the bugs.
+
+2008-07-07  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/sparseVector.R (spV2M): fix for "isparseVector".
+	Further, fix <diag> -> <sparseVector> coercion
+	(repSpV): add rep(<sparseVector>, .) method
+
+	* R/sparseMatrix.R ([<-): when the RHS is a "scarce"Matrix, do *not*
+	use as.vector(.).
+
+	* R/Tsparse.R ([<-): & [CR]sparse.R: methods for value = "sparseVector"
+
+	* R/AllClass.R: new (hidden) class union "scarceMatrix"
+	* R/AllClass.R: sparseVector: add prototype
+
+	* src/dsCMatrix.c (chk_nm): fix "Cholesky" check, thanks to
+	Kasper Kristensen
+
+2008-06-28  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* tests/other-pkgs.R: add more interesting Matrix -> graph
+
+2008-06-27  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/sparseMatrix.R (Tsp2grNEL): add 'need.uniq' argument for speed
+	improvement in "[CR]sparseMatrix" -> "graphNEL" coercion.
+
 2008-06-25  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION: release 0.999375-10 to CRAN
 
 	* R/diagMatrix.R (.bdiag): use more efficient Bates-algorithm for
 	.bdiag().

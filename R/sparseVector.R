@@ -31,6 +31,7 @@ setAs("sparseVector", "nsparseVector",
       })
 
 sp2vec <- function(x, mode = .type.kind[substr(cl, 1,1)]) {
+    ## sparseVector  ->  vector
     cl <- class(x)
     r <- vector(mode, x@length)
     r[x@i] <-
@@ -58,10 +59,11 @@ setAs("diagonalMatrix", "sparseVector",
 	  kind <- .M.kind(from) ## currently only "l" and "d" --> have 'x'
 	  n <- nrow(from)
 	  new(paste(kind, "sparseVector", sep=''),
-	      length = n, # 1-based indexing
+	      length = n*n, # (FIXME: integer overflow!)
+	      ## 1-based indexing:
 	      i = as.integer(seq(1L, by = n+1, length.out = n)),
 	      x = if(from@diag != "U") from@x else
-		  switch(kind, "d" = 1, "l" = TRUE, "i" = 1L, "z" = 1+0i))
+		  rep.int(switch(kind, "d" = 1, "l" = TRUE, "i" = 1L, "z" = 1+0i), n))
 	 })
 
 setAs("sparseMatrix", "sparseVector",
@@ -70,7 +72,7 @@ setAs("sparseMatrix", "sparseVector",
 setAs("TsparseMatrix", "sparseVector",
       function(from) {
 	  d <- dim(from)
-	  n <- d[1] * d[2] # length of vector
+	  n <- d[1] * d[2] # length of vector (FIXME: integer overflow!)
 	  kind <- .M.kind(from)
 	  if(is_duplicatedT(from, di = d))
 	      from <- uniqTsparse(from)
@@ -124,9 +126,18 @@ spV2M <- function (x, nrow, ncol, byrow = FALSE)
     ## now nrow * ncol >= n
     ##	   ~~~~~~~~~~~~~~~~
     cld <- getClassDef(cx)
-    kind <- .M.kindC(cld)		# "d", "n", "l", "z", ...
+    kind <- .M.kindC(cld)		# "d", "n", "l", "i", "z", ...
     has.x <- kind != "n"
-    r <- new(paste(kind,"gTMatrix", sep=''), Dim = c(nrow, ncol))
+    ## "careful_new()" :
+    cNam <- paste(kind, "gTMatrix", sep='')
+    chngCl <- is.null(newCl <- getClass(cNam, .Force=TRUE))
+    if(chngCl) { ## e.g. "igTMatrix" is not yet implemented
+	if(substr(cNam,1,1) == "z")
+	    stopifnot(sprintf("Class '%s' is not yet implemented", cNam))
+	## coerce to "double":
+	newCl <- getClass("dgTMatrix")
+    }
+    r <- new(newCl, Dim = c(nrow, ncol))
     ## now "compute"  the (i,j,x) slots given x@(i,x)
     i0 <- x@i - 1L
     if(byrow) {
@@ -136,9 +147,21 @@ spV2M <- function (x, nrow, ncol, byrow = FALSE)
 	r@i <- i0 %% nrow
 	r@j <- i0 %/% nrow
     }
-    if(has.x) r@x <- x@x
+    if(has.x)
+	r@x <- if(chngCl) as.numeric(x@x) else x@x
     r
 }
+
+## This is very similar to the 'x = "sparseMatrix"' method in ./sparseMatrix.R:
+setMethod("dim<-", signature(x = "sparseVector", value = "ANY"),
+	  function(x, value) {
+	      if(!is.numeric(value) || length(value) != 2)
+		  stop("dim(.) value must be numeric of length 2")
+	      if(length(x) != prod(value <- as.integer(value)))
+		  stop("dimensions don't match the number of cells")
+	      spV2M(x, nrow=value[1], ncol=value[2])
+	  })
+
 
 setMethod("length", "sparseVector", function(x) x@length)
 
@@ -172,21 +195,24 @@ prSpVector <- function(x, digits = getOption("digits"),
 ##     kind <- .M.kindC(cld)
 ##     has.x <- kind != "n"
     n <- x@length
-    if(n > maxp) {# n > maxp =: nn : will cut length of what we'll display :
-	x <- x[seq_len(maxp)] # need "[" to work ...
-	n <- as.integer(maxp)
+    if(n > 0) {
+        if(n > maxp) { # n > maxp =: nn : will cut length of what we'll display :
+            ## FIXME: very inefficient for very large maxp < n
+            x <- x[seq_len(maxp)]       # need "[" to work ...
+            n <- maxp
+        }
+        xi <- x@i
+        logi <- extends(cld, "lsparseVector") || extends(cld, "nsparseVector")
+        cx <- if(logi) rep.int("N", n) else character(n)
+        cx[ -xi ] <- zero.print
+        cx[  xi ] <- {
+            if(logi) "|" else
+            ## numeric (or --not yet-- complex): 'has.x' in any cases
+            format(x@x, digits = digits)
+        }
+        ## right = TRUE : cheap attempt to get better "." alignment
+        print(cx, quote = FALSE, right = TRUE, max = maxp)
     }
-    xi <- x@i
-    logi <- extends(cld, "lsparseVector") || extends(cld, "nsparseVector")
-    cx <- if(logi) rep.int("N", n) else character(n)
-    cx[ -xi ] <- zero.print
-    cx[	 xi ] <- {
-	if(logi) "|" else
-	## numeric (or --not yet-- complex): 'has.x' in any cases
-	format(x@x, digits = digits)
-    }
-    ## right = TRUE : cheap attempt to get better "." alignment
-    print(cx, quote = FALSE, right = TRUE, max = maxp)
     invisible(x) # TODO? in case of n > maxp, "should" return original x
 }
 
@@ -361,6 +387,50 @@ c2v <- function(x, y) {
         x@x <- c(x@x, y@x)
     x
 }
+
+### rep(x, ...) -- rep() is primitive with internal default method with these args:
+### -----------
+### till R 2.3.1, it had  rep.default()  which we use as 'model' here.
+
+repSpV <- function(x, times) {
+    ## == rep.int(<sparseVector>, times)"
+    times <- as.integer(times)# truncating as rep.default()
+    n <- x@length
+    has.x <- substr(class(x), 1,1) != "n" ## fast, but hackish
+    ## just assign new correct slots:
+    if(times <= 1) { ## be quick for {0, 1} times
+        if(times < 0) stop("'times >= 0' is required")
+        if(times == 0) {
+            x@length <- 0L
+            x@i <- integer(0)
+            if(has.x) x@x <- rep.int(x@x, 0)
+        }
+        return(x)
+    }
+    x@length <- n*times
+    x@i <- rep.int(x@i, times) + n * rep(0:(times-1L), each=length(x@i))
+    ## := outer(x@i, 0:(times-1) * n, "+")   but a bit faster
+    if(has.x) x@x <- rep.int(x@x, times)
+    x
+}
+
+setMethod("rep", "sparseVector",
+	  function(x, times, length.out, each, ...) {
+	      if (length(x) == 0)
+		  return(if(missing(length.out)) x else x[seq_len(length.out)])
+	      if (!missing(each)) {
+		  tm <- rep.int(each, length(x))
+		  x <- rep(x, tm) # "recursively"
+		  if(missing(length.out) && missing(times))
+		      return(x)
+	      } ## else :
+	      if (!missing(length.out)) # takes precedence over times
+		  times <- ceiling(length.out/length(x))
+	      r <- repSpV(x, times)
+	      if (!missing(length.out))
+		  return(r[if(length.out > 0) 1:length.out else integer(0)])
+	      return(r)
+	  })
 
 
 ### Group Methods (!)

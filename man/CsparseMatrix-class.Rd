@@ -101,6 +101,15 @@ Class \code{"Matrix"}, by class \code{"sparseMatrix"}.
     \item{triu}{\code{signature(x = "CsparseMatrix")}: ... }
   }
 }
+\note{
+  All classes extending \code{CsparseMatrix} have a common validity
+  (see \code{\link{validObject}}) check function.  The function
+  additionally checks and if necessary \emph{sorts} the entries in
+  each row into increasing row numbers.  This allows to use
+  \code{new()} calls with somewhat permuted \code{i} and \code{x}
+  slots, as \code{\link{new}(...)} (\emph{with} slot arguments)
+  automatically checks the validity, see the example.
+}
 \seealso{
   \code{\link{colSums}}, \code{\link{kronecker}}, and other such methods
   with own help pages.
@@ -110,6 +119,14 @@ Class \code{"Matrix"}, by class \code{"sparseMatrix"}.
   class \code{\linkS4class{dgCMatrix}} for the links to other classes.
 }
 \examples{
-showClass("CsparseMatrix")
+getClass("CsparseMatrix")
+
+## The common validity check function (based on C code):
+getValidity(getClass("CsparseMatrix"))
+
+# un-sorted i-slot on input is automatically "sorted" :
+M <- new("dgCMatrix", Dim = 2:3, p = as.integer(c(0,1,1,3)),
+         i = c(1L, 1:0), x= c(2,2,1))
+stopifnot(M@i == c(1L, 0:1), M@x == c(2,1,2))
 }
 \keyword{classes}

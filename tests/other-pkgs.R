@@ -21,6 +21,8 @@ if(isTRUE(try(require(graph)))) { # may be there and fail (with R-devel)
 
     } else { ## do things
 
+    pdf("other-pkg-graph.pdf")
+
     ## 1) undirected
 
     V <- LETTERS[1:4]
@@ -34,7 +36,7 @@ if(isTRUE(try(require(graph)))) { # may be there and fail (with R-devel)
     sm.g <- as(gR, "sparseMatrix")
     str(sm.g) ## dgC: TODO: want 'ds.' (symmetric)
     validObject(sm.g)
-    sm.g ## TODO: should also show the colnames
+    sm.g ## (incl colnames !)
 
     ## 1b) weighted
     set.seed(123)
@@ -66,8 +68,22 @@ if(isTRUE(try(require(graph)))) { # may be there and fail (with R-devel)
               identical(gmgw, gmgw2),
               identical(gmgU, gmgU2))
 
+    data(CAex)
+    cc <- crossprod(CAex)
+    ## work around bug in 'graph': diagonal must be empty:
+    diag(cc) <- 0; cc <- drop0(cc)
+    image(cc)
+    gg <- as(cc, "graph")
+
+    if(require("Rgraphviz"))
+        plot(gg, "circo")
+    stopifnot(all.equal(edgeMatrix(gg),
+                        rbind(from = c(rep(1:24, each=2), 25:48),
+                              to   = c(rbind(25:48,49:72), 49:72))))
+
     detach("package:graph")
-}
+    dev.off()
+    }
 
 } ## end{graph}
 

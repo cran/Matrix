@@ -10,8 +10,8 @@
 # define attribute_hidden
 #endif
 
-CHM_SP M_as_cholmod_sparse(CHM_SP ans, SEXP x);
-CHM_TR M_as_cholmod_triplet(CHM_TR ans, SEXP x);
+CHM_SP M_as_cholmod_sparse (CHM_SP ans, SEXP x, Rboolean check_Udiag, Rboolean sort_in_place);
+CHM_TR M_as_cholmod_triplet(CHM_TR ans, SEXP x, Rboolean check_Udiag);
 CHM_DN M_as_cholmod_dense(CHM_DN ans, SEXP x);
 CHM_DN M_numeric_as_chm_dense(CHM_DN ans, double *v, int nr, int nc);
 CHM_FR M_as_cholmod_factor(CHM_FR ans, SEXP x);
@@ -20,10 +20,16 @@ CHM_FR M_chm_factor_update(CHM_FR f, CHM_SP A, double mult);
 
 #define AS_CHM_DN(x) M_as_cholmod_dense((CHM_DN)alloca(sizeof(cholmod_dense)), x )
 #define AS_CHM_FR(x) M_as_cholmod_factor((CHM_FR)alloca(sizeof(cholmod_factor)), x )
-#define AS_CHM_SP(x) M_as_cholmod_sparse((CHM_SP)alloca(sizeof(cholmod_sparse)), x )
-#define AS_CHM_TR(x) M_as_cholmod_triplet((CHM_TR)alloca(sizeof(cholmod_triplet)), x )
+
+#define AS_CHM_SP(x) M_as_cholmod_sparse ((CHM_SP)alloca(sizeof(cholmod_sparse)), x, TRUE, FALSE)
+#define AS_CHM_TR(x) M_as_cholmod_triplet((CHM_TR)alloca(sizeof(cholmod_triplet)),x, TRUE)
+/* the non-diagU2N-checking versions : */
+#define AS_CHM_SP__(x) M_as_cholmod_sparse ((CHM_SP)alloca(sizeof(cholmod_sparse)), x, FALSE, FALSE)
+#define AS_CHM_TR__(x) M_as_cholmod_triplet((CHM_TR)alloca(sizeof(cholmod_triplet)), x, FALSE)
+
 #define N_AS_CHM_DN(x,nr,nc) M_numeric_as_chm_dense((CHM_DN)alloca(sizeof(cholmod_dense)), x , nr, nc )
 
+SEXP M_Csparse_diagU2N(SEXP x);
 SEXP M_chm_factor_to_SEXP(CHM_FR f, int dofree);
 SEXP M_chm_sparse_to_SEXP(CHM_SP a, int dofree, int uploT, int Rkind,
 			  char *diag, SEXP dn);

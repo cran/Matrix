@@ -111,6 +111,10 @@
   above currently goes via "matrix" and back instead of using the 'x' slot
   directly; in particular, the triangular* "class property" is lost!
 
+  Note that 'diag(M[,-1]) <- val' is deadly slow for large sparse M,
+  but that's because of the "outer" assignment in the equivalent
+  M[,-1] <- `diag<-`(M[,-1], val).
+
 - examples for solve( Cholesky(.), b, system = c("A", "LDLt"....))
   probably rather in man/CHMfactor-class.Rd than man/Cholesky.Rd
 
@@ -176,3 +180,20 @@
 - <diagMatrix> o <ddenseMatrix> currently works via sparse, but
   should return <diagMatrix> in the same cases where
   <diagMatrix> o <numeric> does.
+
+- look at solve.QP.compact() in \pkg{quadprog} and how to do that using
+  our sparse matrices.  Maybe this needs to be re-implemented using CHOLMOD
+  routines.
+
+- "sparseVector" : indices, i.e. @i and @length  should be changed
+   		 from class "integer" to "numeric" (i.e. double prec),
+  since we want to be able to coerce large sparse matrices to sparse
+  vectors, where length maybe considerably larger than 2^32.
+
+- We allow "over-allocated" (i,x)-slots for CsparseMatrix objects,
+  as per Csparse_validate() and the tests in tests/validObj.R. This is as
+  in CHOLMOD/CSparse, where nzmax (>= .@p[n]) corresponds to length(.@i),
+  and makes sense e.g. for M[.,.] <- v  assignments which could allocate in
+  chunks and would not need to re-allocate anything in many cases.
+  HOWEVER, replCmat() in R/Csparse.R is still far from making use of that.
+

@@ -91,9 +91,9 @@ sM <- as(M2, "sparseMatrix")
 identical(sM * 2, sM + sM)
 is(sM / 10  +  M2 %/% 2, "sparseMatrix")
 @ %def
-where we see above that multiplication by a scalar keeps sparcity,
-as does other arithmetic, but addition to a ``dense'' object does not,
-as you might have expected after thought about ``sensible'' behavior:
+where the last three calls show that multiplication by a scalar keeps
+sparcity, as does other arithmetic, but addition to a ``dense'' object does not,
+as you might have expected after some thought about ``sensible'' behavior:
 @
 <<add1>>=
 sM + 10
@@ -174,14 +174,14 @@ such as \code{\%*\%}, \code{qr}, \code{chol}, and \code{solve}.
 %%
 Initially the numerical linear algebra functions in \RR{} called
 underlying Fortran routines from the Linpack~\citep{Linpack} and
-Eispack~\cite{Eispack} libraries but over the years most of these
+Eispack~\citep{Eispack} libraries but over the years most of these
 functions have been switched to use routines from the
-Lapack~\cite{Lapack} library which is the state-of-the-art implementation
+Lapack~\citep{Lapack} library which is the state-of-the-art implementation
 of numerical dense linear algebra.
 %%
 Furthermore, \RR{} can be configured to
 use accelerated BLAS (Basic Linear Algebra Subroutines), such as those
-from the Atlas~\cite{Atlas} project or other ones, see the \RR~manual
+from the Atlas~\citep{Atlas} project or other ones, see the \RR~manual
 ``Installation and Administration''.
 
 Lapack provides routines for operating on several special forms of
@@ -237,11 +237,12 @@ sparse matrix libraries, many of which also use BLAS.
 
 \section{Matrix Classes}
 The \pkg{Matrix} package provides classes for real (stored as
-double precision) logical and so-called ``pattern'' (binary) dense and
-sparse matrices. There are provisions to also provide integer and complex (stored as double
-precision complex) matrices.
+double precision), logical and so-called ``pattern'' (binary) dense and
+sparse matrices. There are provisions to also provide integer and complex
+(stored as double precision complex) matrices.
 
-Note that in \RR, \code{logical} means entries \code{TRUE}, \code{FALSE}, or \code{NA}.
+Note that in \RR, \code{logical} means entries
+\code{TRUE}, \code{FALSE}, or \code{NA}.
 To store just the non-zero pattern for typical sparse matrix algorithms,
 the pattern matrices are \emph{binary}, i.e., conceptually just \code{TRUE}
 or \code{FALSE}.  In \pkg{Matrix}, the pattern matrices all have class
@@ -318,20 +319,24 @@ be zero.
 Conceptually, the simplest representation of a sparse matrix is as a
 triplet of an integer vector \code{i} giving the row numbers, an
 integer vector \code{j} giving the column numbers, and a numeric
-vector \code{x} giving the non-zero values in the matrix. \footnote{For efficiency
+vector \code{x} giving the non-zero values in the matrix.\footnote{For efficiency
 reasons, we use ``zero-based'' indexing in the \pkg{Matrix} package, i.e.,
 the row indices \code{i} are in \code{0:(nrow(.)-1)} and the column indices
-\code{j} accordingly}.  In \pkg{Matrix}, the \class{TsparseMatrix} class is the
+\code{j} accordingly.}  In \pkg{Matrix}, the \class{TsparseMatrix} class is the
 virtual class of all sparse matrices in triplet representation.
 Its main use is for easy input or transfer to other classes.
 
 As for the dense matrices, the class of the \code{x} slot may vary, and the
 subclasses may be triangular, symmetric or unspecified (``general''), such that
-the \class{TsparseMatrix} class has several ``actual'' subclasses,
+the \class{TsparseMatrix} class has several\footnote{the $3 \times 3$
+  actual subclasses of \class{TsparseMatrix} are the three structural
+  kinds, namely \textbf{t}riangular, \textbf{s}ymmetric and \textbf{g}eneral,
+  times three entry classes, \textbf{d}ouble, \textbf{l}ogical, and
+  patter\textbf{n}.}
+`actual'' subclasses,
 the most typical (numeric, general) is \class{dgTMatrix}:
 <<Tsparse-class>>=
-getClass("TsparseMatrix")  # (i,j, Dim) slot are common
-                          ## see the sub classes
+getClass("TsparseMatrix") # (i,j, Dim, Dimnames) slots are common to all
 getClass("dgTMatrix")
 @
 Note that the \emph{order} of the entries in the \code{(i,j,x)} vectors
@@ -401,7 +406,8 @@ The Matrix package provides the following classes for sparse matrices
 
 \section{More detailed examples of ``Matrix'' operations}
 
-Mention \texttt{drop0()} showing a nice example
+Have seen \texttt{drop0()} above, %(p.3); only with logical
+showe a nice double example (where you see ``.'' and ``0'').
 
 Show the use of \code{dim<-} for \emph{resizing} a (sparse) matrix.
 

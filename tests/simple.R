@@ -45,9 +45,16 @@ N3 <- as(Matrix(upper.tri(diag(3))), "nMatrix")
 isValid(bdN <- bdiag(N3, N3),"nsparseMatrix")
 stopifnot(isSymmetric(M), isSymmetric(M.),
 	  is(bdiag(M., M.),"symmetricMatrix"),
-	  is(bdN, "triangularMatrix"))
-
-
+	  is(bdN, "triangularMatrix"),
+	  all.equal(N3,N3),
+	  all.equal(N3, t(N3)) == "Mean relative difference: 2",
+	  !any(bdN != t(bdN)), # <nsparse> != <nsparse>	 failed to work...
+	  !any((0+bdN) > bdN), # <dsparse> o <nsparse>
+	  !any(bdN != (0+bdN)), # <nsparse> o <dsparse>
+	  length(grep("Length", all.equal(M., (vM <- as.vector(M.))))) > 0,
+	  identical(M., (M2 <- Matrix(vM, 12,12))),
+	  all.equal(M., M2, tol=0)
+	  )
 
 ## large sparse ones: these now directly "go sparse":
 str(m0 <- Matrix(0,     nrow=100, ncol = 1000))
@@ -584,7 +591,18 @@ dim(R) <- dim(D4)
 stopifnot(isValid(sv,"sparseVector"),
 	  isValid(R, "sparseMatrix"),
 	  identical(D4, as(R, "diagonalMatrix")))
-
+## "Large" sparse:
+n <- 100000
+m <-  50000 ; nnz <- 47
+M <- spMatrix(n, m,
+              i = sample(n, nnz, replace = TRUE),
+              j = sample(m, nnz, replace = TRUE),
+              x = round(rnorm(nnz),1))
+validObject(Mv <- as(M, "sparseVector"))
+validObject(Dv <- as(Diagonal(60000), "sparseVector"))
+Dm <- Dv; dim(Dm) <- c(180000L, 20000L)
+stopifnot(isValid(Dm, "sparseMatrix"),
+	  identical(Dv, as(Dm, "sparseVector")))
 
 cat('Time elapsed: ', (.pt <- proc.time()),'\n') # "stats"
 ##

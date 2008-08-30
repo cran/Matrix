@@ -8,3 +8,9 @@ setMethod("solve", signature(a = "denseLU", b = "missing"),
 	      solve(ll$U, solve(ll$L, ll$P))
 	  })
 
+setMethod("expand", signature(x = "sparseLU"),
+	  function(x, ...)
+	  list(P = as(x@p + 1L, "pMatrix"),
+	       L = x@L,
+	       U = x@U,
+	       Q = as(x@q + 1L, "pMatrix")))

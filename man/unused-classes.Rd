@@ -3,7 +3,7 @@
 \docType{class}
 \alias{iMatrix-class}
 \alias{zMatrix-class}
-\title{Virtual Classes Not Yet Used}
+\title{Virtual Classes Not Yet Really Implemented and Used}
 
 \description{
   \code{iMatrix} is the virtual class of all \bold{i}nteger

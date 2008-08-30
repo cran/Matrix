@@ -28,18 +28,18 @@
 \alias{[<-,diagonalMatrix,matrix,missing,replValue-method}
 \alias{[<-,diagonalMatrix,missing,index,replValue-method}
 %
-\alias{[<-,diagonalMatrix,index,index,scarceMatrix-method}
-\alias{[<-,diagonalMatrix,index,missing,scarceMatrix-method}
-\alias{[<-,diagonalMatrix,missing,index,scarceMatrix-method}
+\alias{[<-,diagonalMatrix,index,index,sparseMatrix-method}
+\alias{[<-,diagonalMatrix,index,missing,sparseMatrix-method}
+\alias{[<-,diagonalMatrix,missing,index,sparseMatrix-method}
 %
 \alias{[<-,diagonalMatrix,index,index,sparseVector-method}
 \alias{[<-,diagonalMatrix,index,missing,sparseVector-method}
 \alias{[<-,diagonalMatrix,missing,index,sparseVector-method}
 %
 % -> ../R/sparseMatrix.R :
-\alias{[<-,sparseMatrix,ANY,ANY,scarceMatrix-method}
-\alias{[<-,sparseMatrix,ANY,missing,scarceMatrix-method}
-\alias{[<-,sparseMatrix,missing,ANY,scarceMatrix-method}
+\alias{[<-,sparseMatrix,ANY,ANY,sparseMatrix-method}
+\alias{[<-,sparseMatrix,ANY,missing,sparseMatrix-method}
+\alias{[<-,sparseMatrix,missing,ANY,sparseMatrix-method}
 % -> ../R/Tsparse.R : replValue = { numeric, logical }
 \alias{[<-,TsparseMatrix,index,index,replValue-method}
 \alias{[<-,TsparseMatrix,index,missing,replValue-method}

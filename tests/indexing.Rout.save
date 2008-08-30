@@ -1,5 +1,5 @@
 
-R version 2.7.1 beta (2008-06-13 r45922)
+R version 2.7.1 Patched (2008-07-15 r46067)
 Copyright (C) 2008 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 
@@ -442,7 +442,7 @@ Warning: Ambiguous method selection for "==", target "dgTMatrix#numeric" (the fi
 > stopifnot(identical(m0[2,], m0[,2]),
 + 	  identical(m0[,1], c(1,0,0,0,0)))
 > ### Diagonal -- Sparse:
-> (m1 <- as(m0, "sparseMatrix"))  # dtTMatrix
+> (m1 <- as(m0, "TsparseMatrix"))  # dtTMatrix
 5 x 5 sparse Matrix of class "dtTMatrix"
               
 [1,] 1 . . . .
@@ -852,7 +852,7 @@ m < m for none: ok
 [4,] . .  .   . .   .   .
 [5,] . 2  3.2 . 3.2 .   .
 > 
-> S <- as(Diagonal(5),"sparseMatrix")
+> S <- as(Diagonal(5),"TsparseMatrix")
 > H <- Hilbert(9)
 > Hc <- as(round(H, 3), "dsCMatrix")# a sparse matrix with no 0 ...
 > (trH <- tril(Hc[1:5, 1:5]))
@@ -1176,7 +1176,7 @@ Warning: Ambiguous method selection for "!=", target "numeric#dgCMatrix" (the fi
 > cc <- capture.output(show(dLrg))# show(<diag>) used to error for large n
 > 
 > cat('Time elapsed: ', (.pt <- proc.time()),'\n') # "stats"
-Time elapsed:  16.057 0.184 16.63 0 0 
+Time elapsed:  15.748 0.132 15.923 0 0 
 > ##
 > cat("checkMatrix() of all: \n---------\n")
 checkMatrix() of all: 
@@ -1323,7 +1323,7 @@ cm
 suboptimal implementation of sparse 'symm. o symm.'
 d6 
 exploding	<diag>	o  <diag>  into dense matrix
-Warning: Ambiguous method selection for "|", target "nsyMatrix#ngCMatrix" (the first of the signatures shown will be used)
+Warning: Ambiguous method selection for "|", target "nsyMatrix#nsCMatrix" (the first of the signatures shown will be used)
     nMatrix#Matrix
     Matrix#nMatrix
 
@@ -1425,7 +1425,7 @@ suboptimal implementation of sparse 'symm. o symm.'
 x.x. 
 suboptimal implementation of sparse 'symm. o symm.'
 > cat('Time elapsed: ', proc.time() - .pt,'\n') # "stats"
-Time elapsed:  12.472 0.056 13.038 0 0 
+Time elapsed:  12.537 0.044 12.715 0 0 
 > 
 > if(!interactive()) warnings()
 NULL

@@ -269,7 +269,7 @@ setMethod("[", signature(x = "TsparseMatrix",
 	      ij <- intI(j, n = di[2], dn= dn[[2]])
 	      gDo <- { (x@diag == "U") ||
 		       ## maybe result is no longer triangular
-		       !(isTri <- identical(ii$i0, ij$i0) && !is.unsorted(ii$i0))
+		       !(identical(ii$i0, ij$i0) && !is.unsorted(ii$i0))
 		   }
 	  }
           else gDo <- FALSE
@@ -579,7 +579,7 @@ replTmat <- function (x, i, j, ..., value)
 	x <- uniqTsparse(x)
 
     toGeneral <- r.sym <- FALSE
-    if((sym.x <- extends(clDx, "symmetricMatrix"))) {
+    if(extends(clDx, "symmetricMatrix")) {
         mkArray <- if(spV) # TODO: room for improvement
             function(v, dim) spV2M(v, dim[1],dim[2]) else array
 	r.sym <- (dind[1] == dind[2]) && all(i1 == i2) &&
@@ -590,7 +590,7 @@ replTmat <- function (x, i, j, ..., value)
 	}
 	else toGeneral <- TRUE
     }
-    else if((tri.x <- extends(clDx, "triangularMatrix"))) {
+    else if(extends(clDx, "triangularMatrix")) {
         xU <- x@uplo == "U"
 	r.tri <- ((any(dind == 1) || dind[1] == dind[2]) &&
 		  if(xU) max(i1) <= min(i2) else max(i2) <= min(i1))
@@ -752,7 +752,7 @@ replTmat <- function (x, i, j, ..., value)
 	x <- uniqTsparse(x)
 
     toGeneral <- FALSE
-    if((sym.x <- extends(clDx, "symmetricMatrix"))) {
+    if(extends(clDx, "symmetricMatrix")) {
 	## Tests to see if the assignments are symmetric as well
 	r.sym <- all(i1 == i2)
 	if(!r.sym) { # do have *some* Lower or Upper entries
@@ -782,7 +782,7 @@ replTmat <- function (x, i, j, ..., value)
 	}
 	else toGeneral <- TRUE
     }
-    else if((tri.x <- extends(clDx, "triangularMatrix"))) {
+    else if(extends(clDx, "triangularMatrix")) {
 	xU <- x@uplo == "U"
 	r.tri <- all(if(xU) i1 <= i2 else i2 <= i1)
 	if(r.tri) { ## result is *still* triangular

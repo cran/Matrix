@@ -114,8 +114,8 @@ should typically adhere:
 objects \code{x} and always return a ``classed'' Matrix.
 
 Applied to a \code{"matrix"} object \code{m}, \code{M. <- Matrix(m)} can be
-considered a kind of inverse of \code{m <- as(M, "matrix")},
-but note that for sparse matrices, \code{M.} well be a
+considered a kind of inverse of \code{m <- as(M, "matrix")}.
+For sparse matrices however, \code{M.} well be a
 \code{CsparseMatrix}, and it is often ``more structured'' than \code{M},
 e.g.,
 <<Matrix-ex>>=

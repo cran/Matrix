@@ -314,4 +314,12 @@
    --> This is an API change however, notably since we export as_cholmod_sparse
       ( in inst/include/Matrix.h )
 
+- "sparseVector" : indices, i.e. @i and @length  now changed
+  from class "integer" to "numeric", since we want to be
+  able to coerce large sparse matrices to sparse vectors,
+  where length maybe considerably larger than 2^32.
+
+- Implement expand(.) for the Cholesky() results "dCHMsimpl", "dCHMsuper", etc.
+
+- expand() for lu(<sparse>) is simple too
 

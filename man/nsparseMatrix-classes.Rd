@@ -48,7 +48,6 @@
 \alias{coerce,ngTMatrix,ntTMatrix-method}
 \alias{coerce,ngTMatrix,triangularMatrix-method}
 \alias{coerce,nsCMatrix,dMatrix-method}
-\alias{coerce,nsCMatrix,dgTMatrix-method}
 \alias{coerce,nsCMatrix,dsCMatrix-method}
 \alias{coerce,nsCMatrix,dsparseMatrix-method}
 \alias{coerce,nsCMatrix,generalMatrix-method}
@@ -182,14 +181,18 @@
 \examples{
 (m <- Matrix(c(0,0,2:0), 3,5, dimnames=list(LETTERS[1:3],NULL)))
 ## ``extract the nonzero-pattern of (m) into an nMatrix'':
-nm <- as(m, "ngCMatrix")
+nm <- as(m, "nsparseMatrix") ## -> will be a "ngCMatrix"
 str(nm) # no 'x' slot
-!nm     # no longer sparse
+nnm <- !nm     # no longer sparse
+(nnm <- as(nnm, "sparseMatrix"))# "lgCMatrix"
 ## consistency check:
 stopifnot(xor(as( nm, "matrix"),
-              as(!nm, "matrix")))
+              as(nnm, "matrix")))
 
-
+## low-level way of adding "non-structural zeros" :
+nnm@x[2:4] <- c(FALSE,NA,NA)
+nnm
+as(nnm, "nMatrix") # NAs *and* non-structural 0  |--->  'TRUE'
 
 data(KNex)
 nmm <- as(KNex $ mm, "ngCMatrix")

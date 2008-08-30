@@ -37,7 +37,7 @@ str(mi)
 ### --- Diagonal / Sparse - had bugs
 
 D4 <- Diagonal(4)
-(D4T <- as(D4, "sparseMatrix"))
+(D4T <- as(D4, "TsparseMatrix"))
 D4C <- as(D4T, "CsparseMatrix")
 c1 <- Matrix(0+0:3, 4, sparse=TRUE) ; r1 <- t(c1); r1
 

@@ -27,8 +27,8 @@
 \alias{coerce,ldiMatrix,symmetricMatrix-method}
 \alias{coerce,ddiMatrix,triangularMatrix-method}
 \alias{coerce,ldiMatrix,triangularMatrix-method}
-\alias{coerce,ddiMatrix,sparseMatrix-method}
-\alias{coerce,ldiMatrix,sparseMatrix-method}
+%_no_longer_ \alias{coerce,ddiMatrix,sparseMatrix-method}
+%_no_longer_ \alias{coerce,ldiMatrix,sparseMatrix-method}
 \alias{coerce,ddiMatrix,CsparseMatrix-method}
 \alias{coerce,ldiMatrix,CsparseMatrix-method}
 \alias{coerce,ddiMatrix,TsparseMatrix-method}

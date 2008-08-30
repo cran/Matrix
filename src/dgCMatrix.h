@@ -16,7 +16,7 @@ SEXP lgCMatrix_colSums(SEXP x, SEXP NArm, SEXP spRes, SEXP trans, SEXP means);
 SEXP ngCMatrix_colSums(SEXP x, SEXP NArm, SEXP spRes, SEXP trans, SEXP means);
 
 SEXP dgCMatrix_lusol(SEXP x, SEXP y);
-SEXP dgCMatrix_qrsol(SEXP x, SEXP y);
+SEXP dgCMatrix_qrsol(SEXP x, SEXP y, SEXP ord);
 SEXP dgCMatrix_cholsol(SEXP x, SEXP y);
 SEXP dgCMatrix_QR(SEXP Ap, SEXP order);
 SEXP dgCMatrix_LU(SEXP Ap, SEXP orderp, SEXP tolp);

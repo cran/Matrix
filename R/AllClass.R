@@ -102,9 +102,8 @@ setClass("sparseMatrix", representation("VIRTUAL"), contains = "Matrix")
 
 ## diagonal: has 'diag' slot;  diag = "U"  <--> have identity matrix
 setClass("diagonalMatrix", representation(diag = "character", "VIRTUAL"),
-	 contains = "denseMatrix",
-	 ## TODO??   ^^^^^ -- against DSC'07 talk(3D classes), reconsider
-##>>	 contains = "sparseMatrix", ## which makes "scarceMatrix"  superfluous
+	 contains = "sparseMatrix",
+         ## NOTE:    ^^^^^^ was dense Matrix, until 0.999375-11 (2008-07)
 	 validity = function(object) {
 	     d <- object@Dim
 	     if(d[1] != (n <- d[2])) return("matrix is not square")
@@ -539,10 +538,6 @@ setClass("pMatrix", representation(perm = "integer"),
 	     TRUE
 	 })
 
-## "scarce", those "sparse" in a more common sense,
-##  -----   e.g., do not coerce these to dense needlessly :
-setClassUnion("scarceMatrix", members = c("sparseMatrix", "diagonalMatrix"))
-
 
 ### Factorization classes ---------------------------------------------
 
@@ -684,12 +679,21 @@ setClassUnion("atomicVector", ## "double" is not needed, and not liked by some
 setClassUnion("replValue", members = c("numeric", "logical", "complex", "raw"))
 
 ### Sparse Vectors ---- here use 1-based indexing ! -----------
+
+## 'longindex' should allow sparseVectors of "length" > 2^32,
+## which is necessary e.g. when converted from large sparse matrices
+## setClass("longindex", contains = "numeric")
+## but we use "numeric" instead, for simplicity (efficiency?)
 setClass("sparseVector",
-         representation(length = "integer", i = "integer", "VIRTUAL"),
-	 prototype = prototype(length = 0L),
+         representation(length = "numeric", i = "numeric", "VIRTUAL"),
+         ##                     "longindex"    "longindex"
+         ## note that "numeric" contains "integer" (if I like it or not..)
+	 prototype = prototype(length = 0),
          validity = function(object) {
              n <- object@length
-             if(any(object@i < 1L) || any(object@i > n))
+	     if(any(!is.finite(i <- object@i)))
+		 sprintf("'i' slot is not all finite")
+	     else if(any(i < 1) || any(i > n))
                  sprintf("'i' must be in 1:%d", n)
              else TRUE
          })

@@ -85,7 +85,6 @@ for(n in c(5:12)) {
     ldet <- Matrix:::.diag.dsC(Chx = CAp, res.kind = "sumLog")
     ##
     CA	<- Cholesky(A,perm=FALSE)
-    CA
     ldet2 <- Matrix:::.diag.dsC(Chx = CA, res.kind = "sumLog")
     ## not printing CAp : ends up non-integer for n >= 11
     mCAp <- as(CAp,"sparseMatrix")

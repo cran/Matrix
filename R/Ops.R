@@ -45,7 +45,7 @@ setMethod("Ops", signature(e1 = "matrix", e2 = "Matrix"),
 ## bail-outs -- on highest possible level, hence "Ops", not "Compare"/"Arith" :
 setMethod("Ops", signature(e1 = "Matrix", e2 = "Matrix"),
           function(e1, e2) {
-              d <- dimCheck(e1,e2)
+              dimCheck(e1,e2)
               .bail.out.2(.Generic, class(e1), class(e2))
           })
 setMethod("Ops", signature(e1 = "Matrix", e2 = "ANY"),
@@ -332,7 +332,7 @@ setMethod("Arith", signature(e1 = "numeric", e2 = "ddenseMatrix"),
 ## These all had "Logic", now also for "Compare",
 ## but "Arith" differs: result will be "dgeMatrix' :
 .Ops2dge.via.x <- function(e1,e2) {
-    d <- dimCheck(e1, e2)
+    dimCheck(e1, e2)
     r <- copyClass(e1, "dgeMatrix", sNames = c("Dim","Dimnames"))
     r@x <- as.numeric(callGeneric(e1@x, e2@x))
     r
@@ -350,13 +350,13 @@ setMethod("Arith",   signature(e1="ngeMatrix", e2="ngeMatrix"), .Ops2dge.via.x)
 ## FIXME: These lose symmmetry & triangularity
 setMethod("Ops", signature(e1="ldenseMatrix", e2="ldenseMatrix"),
 	  function(e1,e2) {
-	      d <- dimCheck(e1, e2)
+	      dimCheck(e1, e2)
 	      callGeneric(as(e1, "lgeMatrix"), as(e2, "lgeMatrix"))
 	  })
 
 setMethod("Ops", signature(e1="ndenseMatrix", e2="ndenseMatrix"),
 	  function(e1,e2) {
-	      d <- dimCheck(e1, e2)
+	      dimCheck(e1, e2)
 	      callGeneric(as(e1, "ngeMatrix"), as(e2, "ngeMatrix"))
 	  })
 
@@ -805,8 +805,8 @@ setMethod("Arith", signature(e1 = "numeric", e2 = "dgCMatrix"),
 setMethod("Arith", signature(e1 = "CsparseMatrix", e2 = "CsparseMatrix"),
 	  function(e1, e2) {
 	      ## go via "symmetric" if both are symmetric, etc...
-	      s1 <- .M.shape(e1, c1 <- getClassDef(class(e1)))
-	      s2 <- .M.shape(e2, c2 <- getClassDef(class(e2)))
+	      s1 <- .M.shape(e1, getClassDef(class(e1)))
+	      s2 <- .M.shape(e2, getClassDef(class(e2)))
 	      viaCl <- paste("d", if(s1 == s2) s1 else "g", "CMatrix", sep='')
 	      callGeneric(as(as(e1, "dMatrix"), viaCl),
 			  as(as(e2, "dMatrix"), viaCl))
@@ -815,8 +815,8 @@ setMethod("Arith", signature(e1 = "CsparseMatrix", e2 = "CsparseMatrix"),
 setMethod("Logic", signature(e1 = "CsparseMatrix", e2 = "CsparseMatrix"),
 	  function(e1, e2) {
 	      ## go via "symmetric" if both are symmetric, etc...
-	      s1 <- .M.shape(e1, c1 <- getClassDef(class(e1)))
-	      s2 <- .M.shape(e2, c2 <- getClassDef(class(e2)))
+	      s1 <- .M.shape(e1, getClassDef(class(e1)))
+	      s2 <- .M.shape(e2, getClassDef(class(e2)))
 	      viaCl <- paste("l", if(s1 == s2) s1 else "g", "CMatrix", sep='')
 	      callGeneric(as(as(e1, "lMatrix"), viaCl),
 			  as(as(e2, "lMatrix"), viaCl))
@@ -904,12 +904,34 @@ setMethod("Compare", signature(e1 = "CsparseMatrix", e2 = "CsparseMatrix"),
 	      newC <- sub("^.", "l", class(e1))
               ## FIXME: "n" result when e1 & e2 are "n", or even whenever possible
 	      r <- new(newC)
-              ## Very easy case:
-              if(identical(e1@i, e2@i) && identical(e1@p, e2@p)) {
-		  if(extends(cD2, "nMatrix")) {
-		      ## non-equality of identical pattern matrices: all FALSE
-		      r@p <- rep.int(0L, d[2]+1L)
-		  } else { # have 'x' slot
+              e1is.n <- extends(cD1, "nMatrix")
+              e2is.n <- extends(cD2, "nMatrix")
+              ## Easy case: identical sparsity pattern
+	      if(identical(e1@i, e2@i) && identical(e1@p, e2@p)) {
+		  if(e1is.n) {
+		      if(e2is.n)
+			  ## non-equality of identical pattern matrices: all FALSE
+			  r@p <- rep.int(0L, d[2]+1L) # and r@i, r@x remain empty
+		      else { ## e1 pattern, e2@x
+			  rx <- callGeneric(TRUE, e2@x)
+			  if(allFalse(rx))
+			      r@p <- rep.int(0L, d[2]+1L) # and r@i, r@x remain empty
+			  else {
+			      r@x <- rx
+			      r@i <- e2@i
+			      r@p <- e2@p
+			  }
+		      }
+		  } else if(e2is.n) { ## e1@x, e2 pattern
+		      rx <- callGeneric(e1@x, TRUE)
+		      if(allFalse(rx))
+			  r@p <- rep.int(0L, d[2]+1L) # and r@i, r@x remain empty
+		      else {
+			  r@x <- rx
+			  r@i <- e1@i
+			  r@p <- e1@p
+		      }
+		  } else {		# both have 'x' slot
 		      r@x <- callGeneric(e1@x, e2@x)
 		      ## and all others are  '0 op 0' which give FALSE
 		      r@i <- e1@i
@@ -931,13 +953,17 @@ setMethod("Compare", signature(e1 = "CsparseMatrix", e2 = "CsparseMatrix"),
                   I1 <- ii[[1]]
                   I2 <- ii[[2]]
 
-                  ## 1) common
-                  x <- callGeneric(e1@x[I1],
-                                   e2@x[I2])
-                  ## 2) "e1 o  0":
-                  x2 <- callGeneric(e1@x[- I1], 0)
-                  ## 3) "0  o e1":
-                  x3 <- callGeneric(0, e2@x[- I2])
+		  ## potentially could be faster for 'nsparse' but this is simple:
+		  e1x <- if(e1is.n) rep.int(1L, length(e1@i)) else e1@x
+		  e2x <- if(e2is.n) rep.int(1L, length(e2@i)) else e2@x
+
+		  ## 1) common
+		  x <- callGeneric(e1x[I1],
+				   e2x[I2])
+		  ## 2) "e1 o  0":
+		  x2 <- callGeneric(e1x[- I1], 0)
+		  ## 3) "0  o e1":
+		  x3 <- callGeneric(0, e2x[- I2])
 
 		  i <- c(ij1[I1, 1], ij1[-I1, 1], ij2[-I2, 1])
 		  j <- c(ij1[I1, 2], ij1[-I1, 2], ij2[-I2, 2])
@@ -948,8 +974,11 @@ setMethod("Compare", signature(e1 = "CsparseMatrix", e2 = "CsparseMatrix"),
 		      x <- x[x]
 		  }
 		  .Call(Tsparse_to_Csparse,
-			new("lgTMatrix", Dim = d, Dimnames = dn,
-			    i = i, j = j, x = x), FALSE)
+			if(e1is.n && e2is.n)
+			new("ngTMatrix", Dim = d, Dimnames = dn, i = i, j = j)
+			else new("lgTMatrix", Dim = d, Dimnames = dn,
+				 i = i, j = j, x = x),
+			FALSE)
               }
 	  })
 
@@ -1043,7 +1072,7 @@ setMethod("Arith", signature(e1 = "dsparseVector", e2 = "dsparseVector"),
                   } else {
                       n <- n2 ; N <- n1
                   }
-                  if(N %% n != 0) ## require this here, for conveniense
+                  if(N %% n != 0) ## require this here, for convenience
                       ## for regular vectors, this is only a warning:
                       stop("longer object length\n\t",
                            "is not a multiple of shorter object length")
@@ -1095,6 +1124,8 @@ setMethod("Arith", signature(e1 = "dsparseVector", e2 = "dsparseVector"),
 		     )
 
               .bail.out.2(.Generic, class(e1), class(e2))
+              r  ##
+              ii ## << codetools {but all this is FIXME !}
           })
 
 ## "Arith"  exception (shortcut)
@@ -1102,6 +1133,7 @@ setMethod("-", signature(e1 = "dsparseVector", e2 = "missing"),
           function(e1) { e1@x <- -e1@x ; e1 })
 
 
+## FIXME: These *are* desirable!
 setMethod("Logic", signature(e1 = "lsparseVector", e2 = "lsparseVector"),
           function(e1, e2) {
               .bail.out.2(.Generic, class(e1), class(e2))

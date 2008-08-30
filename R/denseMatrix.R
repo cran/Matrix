@@ -198,10 +198,12 @@ setMethod("isSymmetric", signature(object = "denseMatrix"),
 		  ## test for exact equality; FIXME(?): identical() too strict?
 		  identical(as(object, "lgeMatrix"),
 			    as(t(object), "lgeMatrix"))
-	      else if (is(object, "zMatrix"))
-		  stop("'zMatrix' not yet implemented")
-	      else if (is(object, "iMatrix"))
-		  stop("'iMatrix' not yet implemented")
+	      else if (is(object, "zMatrix")) ## will error out here
+		  identical(as(object, "zgeMatrix"),
+			    as(t(object), "zgeMatrix"))
+	      else if (is(object, "iMatrix")) ## will error out here
+		  identical(as(object, "igeMatrix"),
+			    as(t(object), "igeMatrix"))
 	  })
 
 setMethod("isTriangular", signature(object = "triangularMatrix"),

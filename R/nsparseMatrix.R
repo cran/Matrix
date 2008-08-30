@@ -12,7 +12,7 @@ setAs("nsparseMatrix", "dsparseMatrix", function(from) as(from, "dMatrix"))
 ###------- Work via  as(*, lgC) : ------------
 
 ## For multiplication operations, sparseMatrix overrides other method
-## selections.  Coerce a ddensematrix argument to a lsparseMatrix.
+## selections.  Coerce a ddensematrix argument to a nsparseMatrix.
 
 setMethod("%*%", signature(x = "nsparseMatrix", y = "ndenseMatrix"),
 	  function(x, y) x %*% as(y, "nsparseMatrix"))
@@ -26,7 +26,7 @@ setMethod("crossprod", signature(x = "nsparseMatrix", y = "ndenseMatrix"),
 setMethod("crossprod", signature(x = "ndenseMatrix", y = "nsparseMatrix"),
 	  function(x, y = NULL) crossprod(as(x, "nsparseMatrix"), y))
 
-## and coerce lsparse* to lgC*
+## and coerce nsparse* to lgC*
 setMethod("%*%", signature(x = "nsparseMatrix", y = "nsparseMatrix"),
 	  function(x, y) as(x, "ngCMatrix") %*% as(y, "ngCMatrix"))
 
@@ -68,4 +68,4 @@ setMethod("any", signature(x = "nsparseMatrix"),
 	  })
 
 
-setMethod("image", "lsparseMatrix", function(x, ...) image(as(x,"dMatrix")))
+setMethod("image", "nsparseMatrix", function(x, ...) image(as(x,"dMatrix")))

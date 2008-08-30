@@ -67,7 +67,11 @@ setMethod("qr", signature(x = "sparseMatrix"),
 	  qr(as(as(x, "CsparseMatrix"), "dsparseMatrix"), ...))
 
 setMethod("lu", signature(x = "dgCMatrix"),
-	  function(x, ...) .Call(dgCMatrix_LU, x, TRUE, 1))
+	  function(x, ...) {
+	      .Call(dgCMatrix_LU, x,
+			 TRUE, ## <- orderp
+			 1) ## <- tol
+	      })
 setMethod("lu", signature(x = "sparseMatrix"),
 	  function(x, ...) lu(as(as(x, "CsparseMatrix"), "dsparseMatrix"), ...))
 

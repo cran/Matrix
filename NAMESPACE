@@ -233,6 +233,7 @@ exportMethods(## for both own and "other" generics:
 
 	      "all",
 	      "any",
+	      "all.equal",
 
 	      "BunchKaufman",
 	      "Cholesky",

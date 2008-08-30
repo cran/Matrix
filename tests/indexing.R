@@ -219,7 +219,7 @@ m0 <- Diagonal(5)
 stopifnot(identical(m0[2,], m0[,2]),
 	  identical(m0[,1], c(1,0,0,0,0)))
 ### Diagonal -- Sparse:
-(m1 <- as(m0, "sparseMatrix"))  # dtTMatrix
+(m1 <- as(m0, "TsparseMatrix"))  # dtTMatrix
 (m2 <- as(m0, "CsparseMatrix")) # dtCMatrix
 m1g <- as(m1, "generalMatrix")
 stopifnot(is(m1g, "dgTMatrix"))
@@ -384,7 +384,7 @@ m. <- mc
 mc[4,] <- 0
 mc
 
-S <- as(Diagonal(5),"sparseMatrix")
+S <- as(Diagonal(5),"TsparseMatrix")
 H <- Hilbert(9)
 Hc <- as(round(H, 3), "dsCMatrix")# a sparse matrix with no 0 ...
 (trH <- tril(Hc[1:5, 1:5]))

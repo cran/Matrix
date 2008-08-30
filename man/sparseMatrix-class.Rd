@@ -102,7 +102,9 @@
       of indicator \bold{rows} stored as an object of class
       \code{"dgCMatrix"}.  To obtain columns representing the interaction
       of the factor and a numeric covariate, replace the \code{"x"} slot
-      of the result by the numeric covariate then take the transpose.}
+      of the result by the numeric covariate then take the transpose.
+      Missing values (\code{\link{NA}}) from the factor are translated
+      to columns of all \code{0}s.}
   }
   See also \code{\link{colSums}}, ... %% FIXME
   for methods with separate help pages.
@@ -128,6 +130,12 @@ determinant(CAex) # works via sparse lu(.)
 ## factor -> t( <sparse design matrix> ) :
 (fact <- gl(5, 3, 30, labels = LETTERS[1:5]))
 (Xt <- as(fact, "sparseMatrix"))  # indicator rows
-X <- t(Xt)
+
+## missing values --> all-0 columns:
+f.mis <- fact
+i.mis <- c(3:5, 17)
+is.na(f.mis) <- i.mis
+Xt != (X. <- as(f.mis, "sparseMatrix")) # differ only in columns 3:5,17
+stopifnot(all(X.[,i.mis] == 0), all(Xt[,-i.mis] == X.[,-i.mis]))
 }
 \keyword{classes}

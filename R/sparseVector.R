@@ -58,10 +58,15 @@ setAs("diagonalMatrix", "sparseVector",
       function(from) {
 	  kind <- .M.kind(from) ## currently only "l" and "d" --> have 'x'
 	  n <- nrow(from)
+          n2 <- as.double(n) * n
+	  if(n2 > .Machine$integer.max) { ## double (i, length)
+	      ii <- seq(1, by = n+1, length.out = n) ## 1-based indexing
+	  } else { # integer ok
+	      n2 <- as.integer(n2)
+	      ii <- as.integer(seq(1L, by = n+1L, length.out = n))
+	  }
 	  new(paste(kind, "sparseVector", sep=''),
-	      length = n*n, # (FIXME: integer overflow!)
-	      ## 1-based indexing:
-	      i = as.integer(seq(1L, by = n+1, length.out = n)),
+	      length = n2, i = ii,
 	      x = if(from@diag != "U") from@x else
 		  rep.int(switch(kind, "d" = 1, "l" = TRUE, "i" = 1L, "z" = 1+0i), n))
 	 })
@@ -72,12 +77,16 @@ setAs("sparseMatrix", "sparseVector",
 setAs("TsparseMatrix", "sparseVector",
       function(from) {
 	  d <- dim(from)
-	  n <- d[1] * d[2] # length of vector (FIXME: integer overflow!)
+	  n <- prod(d) # -> numeric, no integer overflow
 	  kind <- .M.kind(from)
 	  if(is_duplicatedT(from, di = d))
 	      from <- uniqTsparse(from)
 	  r <- new(paste(kind, "sparseVector", sep=''), length = n)
-	  r@i <- 1L + from@i + d[1] * from@j
+	  r@i <- if(n < .Machine$integer.max) {
+	      1L + from@i + d[1] * from@j
+	  } else {
+	      1 + from@i + as.double(d[1]) * from@j
+	  }
 	  if(kind != "n") ## have 'x' slot
 	      r@x <- from@x
 	  r
@@ -119,8 +128,9 @@ spV2M <- function (x, nrow, ncol, byrow = FALSE)
 	    if(n %% nrow != 0) warning("'nrow' is not a factor of length(x)")
 	    ncol <- as.integer(ceiling(n / nrow))
 	} else { ## both nrow and ncol specified
-	    if(ncol * nrow <  n) stop("nrow * ncol < length(x)")
-	    if(ncol * nrow != n) warning("nrow * ncol != length(x)")
+	    n.n <- as.double(ncol) * nrow # no integer overflow
+	    if(n.n <  n) stop("nrow * ncol < length(x)")
+	    if(n.n != n) warning("nrow * ncol != length(x)")
 	}
     }
     ## now nrow * ncol >= n
@@ -140,12 +150,12 @@ spV2M <- function (x, nrow, ncol, byrow = FALSE)
     r <- new(newCl, Dim = c(nrow, ncol))
     ## now "compute"  the (i,j,x) slots given x@(i,x)
     i0 <- x@i - 1L
-    if(byrow) {
-	r@j <- i0 %% ncol
-	r@i <- i0 %/% ncol
+    if(byrow) { ## need as.integer(.) since <sparseVector> @ i can be double
+	r@j <- as.integer(i0 %% ncol)
+	r@i <- as.integer(i0 %/% ncol)
     } else {				# default{byrow = FALSE}
-	r@i <- i0 %% nrow
-	r@j <- i0 %/% nrow
+	r@i <- as.integer(i0 %% nrow)
+	r@j <- as.integer(i0 %/% nrow)
     }
     if(has.x)
 	r@x <- if(chngCl) as.numeric(x@x) else x@x
@@ -169,8 +179,8 @@ setMethod("show", signature(object = "sparseVector"),
    function(object) {
        n <- object@length
        cl <- class(object)
-       cat(sprintf('sparse vector (nnz/length = %d/%d) of class "%s"\n',
-		   length(object@i), n, cl))
+       cat(sprintf('sparse vector (nnz/length = %d/%.0f) of class "%s"\n',
+		   length(object@i), as.double(n), cl))
        maxp <- max(1, getOption("max.print"))
        if(n <= maxp) {
 	   prSpVector(object, maxp = maxp)
@@ -388,6 +398,74 @@ c2v <- function(x, y) {
     x
 }
 
+all.equal.sparseV <- function(target, current, ...)
+{
+    if(!is(target, "sparseVector") || !is(current, "sparseVector")) {
+	return(paste("target is ", data.class(target), ", current is ",
+		     data.class(current), sep = ""))
+    }
+    lt <- length(target)
+    lc <- length(current)
+    if(lt != lc) {
+	return(paste("sparseVector", ": lengths (", lt, ", ", lc, ") differ",
+		     sep = ""))
+    }
+
+    t.has.x <- class(target)  != "nsparseVector"
+    c.has.x <- class(current) != "nsparseVector"
+    nz.t <- length(i.t <- target @i)
+    nz.c <- length(i.c <- current@i)
+    t.x <- if(t.has.x)	target@x else rep.int(TRUE, nz.t)
+    c.x <- if(c.has.x) current@x else rep.int(TRUE, nz.c)
+    if(nz.t != nz.c || any(i.t != i.c)) { ## "work" if indices are not the same
+	i1.c <- setdiff(i.t, i.c)# those in i.t, not yet in i.c
+	i1.t <- setdiff(i.c, i.t)
+	if((n1t <- length(i1.t))) {
+	    target@i <- i.t <- c(i.t, i1.t)
+	    t.x <- c(t.x, rep.int(if(t.has.x) 0 else 0L, n1t))
+	}
+	if((n1c <- length(i1.c))) {
+	    current@i <- i.c <- c(i.c, i1.c)
+	    c.x <- c(c.x, rep.int(if(c.has.x) 0 else 0L, n1c))
+	}
+    }
+    if(is.unsorted(i.t)) {  ## method="quick" {"radix" not ok for large range}
+	ii <- sort.list(i.t, method = "quick", na.last=NA)
+	target@i <- i.t <- i.t[ii]
+	t.x <- t.x[ii]
+    }
+    if(is.unsorted(i.c)) {
+	ii <- sort.list(i.c, method = "quick", na.last=NA)
+	current@i <- i.c <- i.c[ii]
+	c.x <- c.x[ii]
+    }
+
+    ## Now, we have extended both target and current
+    ## *and* have sorted the respective i-slot, the i-slots should match!
+    stopifnot(all(i.c == i.t))
+
+    all.equal.numeric(c.x, t.x, ...)
+} ## all.equal.sparseV
+
+
+## For these, we remain sparse:
+setMethod("all.equal", c(target = "sparseVector", current = "sparseVector"),
+	  all.equal.sparseV)
+setMethod("all.equal", c(target = "sparseVector", current = "sparseMatrix"),
+	  function(target, current, ...)
+	  all.equal.sparseV(target, as(current, "sparseVector"), ...))
+setMethod("all.equal", c(target = "sparseMatrix", current = "sparseVector"),
+	  function(target, current, ...)
+	  all.equal.sparseV(as(target, "sparseVector"), current, ...))
+## For the others, where one is "dense", "go to" dense rather now than later:
+setMethod("all.equal", c(target = "ANY", current = "sparseVector"),
+	  function(target, current, ...)
+	  all.equal(target, as.vector(current), ...))
+setMethod("all.equal", c(target = "sparseVector", current = "ANY"),
+	  function(target, current, ...)
+	  all.equal(as.vector(target), current, ...))
+
+
 ### rep(x, ...) -- rep() is primitive with internal default method with these args:
 ### -----------
 ### till R 2.3.1, it had  rep.default()  which we use as 'model' here.
@@ -407,7 +485,10 @@ repSpV <- function(x, times) {
         }
         return(x)
     }
-    x@length <- n*times
+    n. <- as.double(n)
+    if(n. * times >= .Machine$integer.max)
+        n <- n. # so won't have overflow in subsequent multiplys
+    x@length <- n * times
     x@i <- rep.int(x@i, times) + n * rep(0:(times-1L), each=length(x@i))
     ## := outer(x@i, 0:(times-1) * n, "+")   but a bit faster
     if(has.x) x@x <- rep.int(x@x, times)

@@ -55,6 +55,30 @@ copyClass <- function(x, newCl, sNames =
     r
 }
 
+
+attrSlotNames <- function(m) {
+    ## slotnames of Matrix objects which *not* directly content related
+    sn <- slotNames(m); sn[!(sn %in% c("x","i","j","p"))]
+}
+
+##' @param m
+##' @return the slots of 'm' which are "attributes" of them kind.
+attrSlots <- function(m) sapply(attrSlotNames(m), function(sn) slot(m, sn),
+				simplify = FALSE)
+
+attr.all_Mat <- function(target, current, check.attributes = TRUE, ...) {
+    msg <- if(check.attributes)
+	attr.all.equal(attrSlots(target), attrSlots(current), ...)
+    if((c1 <- class(target)) != (c2 <- class(current)))
+
+	## list(): so we can easily check for this
+	list(c(msg, paste("class(target) is ", class(target), ", current is ",
+				 class(current), sep = "")))
+    else msg
+}
+
+
+
 ## chol() via "dpoMatrix"
 cholMat <- function(x, pivot = FALSE, ...) {
     ## This will only be called for *dense* matrices
@@ -103,15 +127,14 @@ detSparseLU <- function(x, logarithm = TRUE, ...) {
     ## Author: Martin Maechler, Date: 15 Apr 2008
 
     if(any(x@Dim == 0)) return(mkDet(numeric(0)))
-    ll <- lu(x)
-    if(is.null(ll)) {
-        ## LU-decomposition failed:
-        ## <== Matrix singular and we behave as if "==>" was sure :
-        return(mkDet(ldet=-Inf, logarithm=logarithm, sig = 1L))
+    ll <- tryCatch(lu(x), error = function(e)e)
 
-##     ll <- tryCatch(lu(x), error = function(e)e)
-##     if(inherits(ll, "error")) ## now check for the message ..
-##         ## but really, I think we should get an option to work without try*()
+    if(inherits(ll, "error")) {
+	## LU-decomposition failed:
+        if(length(grep("singular", ll$message, fixed=TRUE)))
+            ## <== Matrix singular and we behave as if "==>" was sure :
+            return(mkDet(ldet=-Inf, logarithm=logarithm, sig = 1L))
+        else stop(ll$message, call. = FALSE)
     }
     ## else
     stopifnot(all(c("L","U") %in% slotNames(ll))) # ensure we have *sparse* LU

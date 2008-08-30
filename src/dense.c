@@ -333,7 +333,6 @@ SEXP dense_band(SEXP x, SEXP k1P, SEXP k2P)
 	    return aa;
 	}
     }
-    return R_NilValue;		/* -Wall */
 }
 
 SEXP dense_to_symmetric(SEXP x, SEXP uplo, SEXP symm_test)
@@ -442,7 +441,6 @@ SEXP ddense_symmpart(SEXP x)
 	UNPROTECT(2);
 	return ans;
     }
-    return R_NilValue;			/* -Wall */
 }
 
 SEXP ddense_skewpart(SEXP x)
@@ -488,5 +486,4 @@ SEXP ddense_skewpart(SEXP x)
 	UNPROTECT(2);
 	return ans;
     }
-    return R_NilValue;			/* -Wall */
 }

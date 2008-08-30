@@ -1,3 +1,91 @@
+2008-08-30  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.999375-13 released to CRAN
+
+2008-08-29  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Auxiliaries.R (attrSlotNames, attrSlots, attr.all_Mat): new
+	utilities, for now to be used in all.equal() methods.
+
+	* R/Matrix.R (all.equal_Mat): be more careful (less tolerant) in
+	all.equal() methods.
+	* R/sparseMatrix.R: ditto
+
+2008-08-28  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.999375-12 released to CRAN
+
+	* R/Ops.R (Compare(<Csparse>,<Csparse>): fix for nsparseMatrix
+
+2008-08-27  Douglas Bates <bates@stat.wisc.edu>
+
+	* R/sparseMatrix.R: fac2sparse() for NA's
+
+2008-08-26  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/sparseVector.R (all.equal.sparseV): make work for nsparseVector's
+
+2008-08-25  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/dgCMatrix.c (dgCMatrix_LU): partially revert change
+	r2175 (2008-04-23) and do give an error for a singular matrix.
+	* man/lu.Rd, R/Auxiliaries.R (detSparseLU): adapt to that.
+
+	* R/LU.R: expand( <sparseLU> )
+
+	* NAMESPACE, man/all.equal-methods.Rd:
+	* R/Matrix.R (all.equal): methods for Matrices,
+	* R/sparseMatrix.R, R/sparseVector.R: sparseMatrices and -Vectors
+
+
+2008-08-23  Douglas Bates <bates@stat.wisc.edu>
+
+	* [r2243] R/CHMfactor.R, man/CHMfactor-class.Rd: Added expand method and
+	  documentation for CHMfactor class
+	* [r2241] R/CHMfactor.R: Added trivial coercion method for CHMfactor ->
+	  pMatrix
+
+2008-08-19  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/nsCMatrix.R (setAs(., dgTMatrix))): remove unused method
+
+2008-08-18  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Ops.R (.Ops2dge.via.x, and many others): eliminate never-used
+	variable assignments {from "next version" codetools}.
+	* R/Csparse.R, R/Tsparse.R: ditto
+
+2008-08-17  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/sparseVector.R (sp2vec, coerce to sparseVector):
+	make sure no integer overflows happen, and use double precision
+	(n, index) where appropriate.
+
+	* tests/Simple.R: test "large" sparse vectors.
+
+2008-08-14  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/AllClass.R (sparseVector): 'length' and 'i' are "numeric", not
+	just integer (allowing much longer length).
+
+2008-07-28  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/AllClass.R (diagonalMatrix): extend  "sparseMatrix" instead of
+	"denseMatrix".  This renders "scarceMatrix" dispensable and
+	invalidates part of MM's presentations on "space of Matrix
+	classes", but seems cleaner overall.
+
+	* R/diagMatrix.R, etc: eliminate "scarceMatrix", replacing it by
+	"sparseMatrix" in method signatures;
+	further, instead of coercing to "sparseMatrix", coerce to
+	"TsparseMatrix" now.
+
+2008-07-26  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/dgCMatrix.c (dgCMatrix_qrsol): allow third argument 'order' in
+	.Call(.)
+	* R/sparseMatrix.R (lm.fit.sparse), src/dgCMatrix.h, src/init.c: ditto
+
 2008-07-24  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/dgeMatrix.R: need solve(<dge>, <sparse>) against infinite
@@ -39,6 +127,16 @@
 	* tests/validObj.R: now tests that more thoroughly, and
 	* man/CsparseMatrix-class.Rd: documents it.
 
+2008-07-22  Douglas Bates <bates@stat.wisc.edu>
+
+	* [r2233] src/chm_common.c: sort columns more carefully in
+	  as_cholmod_sparse
+	* [r2231] src/chm_common.c: check for sorted columns in
+	  as_cholmod_sparse instead of assuming it
+	* [r2228] src/cs_utils.c: Use R_alloc for semi-permanent storage when
+	  expanding diagonal
+
+
 2008-07-21  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* src/cs_utils.c (Matrix_as_cs): add check_Udiag switch
@@ -72,6 +170,10 @@
 
 2008-07-17  Douglas Bates <bates@stat.wisc.edu>
 
+	* [r2220] src/dtCMatrix.c: Correct number of columns for rhs in
+	  dtCMatrix_sparse_solve
+	* [r2219] src/cs_utils.c: eye->nz should be -1 for compressed column
+	  storage
 	* [r2217] R/dtCMatrix.R, src/dtCMatrix.c, src/dtCMatrix.h, src/init.c:
 	  Replace dtCMatrix_solve by more general dtCMatrix_sparse_solve and add
 	  new solve method

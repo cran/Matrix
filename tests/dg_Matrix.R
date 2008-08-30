@@ -61,7 +61,7 @@ m1 <- new("dgTMatrix", Dim = c(max(i)+1:1, max(j)+1:1), i = i, j = j, x = x)
 mc <- as(m1, "dgCMatrix")
 m2 <- as(mc, "dgTMatrix")## the same as 'm1' but without duplicates
 
-stopifnot(!isTRUE(all.equal(m1, m2)),
+stopifnot(!isTRUE(all.equal.default(m1, m2)),
           all.equal(as(m1,"matrix"), as(m2,"matrix"), tol=1e-15),
           all.equal(crossprod(m1), crossprod(m2), tol=1e-15),
           identical(mc, as(m2, "dgCMatrix")))

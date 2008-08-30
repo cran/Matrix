@@ -163,7 +163,7 @@ replCmat <- function (x, i, j, ..., value)
 	## x.sym : result is *still* symmetric
 	x <- .Call(Csparse_symmetric_to_general, x) ## but do *not* redefine clx!
     }
-    else if((tri.x <- extends(clDx, "triangularMatrix"))) {
+    else if(extends(clDx, "triangularMatrix")) {
         xU <- x@uplo == "U"
 	r.tri <- ((any(dind == 1) || dind[1] == dind[2]) &&
 		  if(xU) max(i1) <= min(i2) else max(i2) <= min(i1))

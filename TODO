@@ -79,10 +79,6 @@
 - make sure *all* group methods have (maybe "bail-out") setMethod for "Matrix".
   e.g. zapsmall(<pMatrix>) fails "badly"
 
-- Implement  expand(.) for the Cholesky() results
-  "dCHMsimpl" and  "dCHMsuper"  -- currently have no *decent* way to get at
-  the matrix factors of the corresponding matrix factorization !!
-
 - rbind2(<sparse>, <dense>) does not work  (e.g. <dgC>, <dge>)
 
 - <sparse> %*% <dense>  {also in crossprod/tcrossprod}  currently always
@@ -185,11 +181,6 @@
   our sparse matrices.  Maybe this needs to be re-implemented using CHOLMOD
   routines.
 
-- "sparseVector" : indices, i.e. @i and @length  should be changed
-   		 from class "integer" to "numeric" (i.e. double prec),
-  since we want to be able to coerce large sparse matrices to sparse
-  vectors, where length maybe considerably larger than 2^32.
-
 - We allow "over-allocated" (i,x)-slots for CsparseMatrix objects,
   as per Csparse_validate() and the tests in tests/validObj.R. This is as
   in CHOLMOD/CSparse, where nzmax (>= .@p[n]) corresponds to length(.@i),
@@ -197,3 +188,8 @@
   chunks and would not need to re-allocate anything in many cases.
   HOWEVER, replCmat() in R/Csparse.R is still far from making use of that.
 
+- advertize  rbind2() / cbind2() and (rather?) rBind() / cBind()
+  	     ------                            -----
+  in all vignettes / talks / ... !!
+  People erronously try rbind/cbind see that they don't work and then
+  reinvent the wheel!

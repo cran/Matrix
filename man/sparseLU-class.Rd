@@ -1,6 +1,7 @@
 \name{sparseLU-class}
 \docType{class}
 \alias{sparseLU-class}
+\alias{expand,sparseLU-method}
 \title{Sparse LU decomposition of a square sparse matrix}
 \description{Objects of this class contain the components of the LU
   decomposition of a sparse square matrix.}
@@ -29,7 +30,14 @@
   Class \code{"\linkS4class{MatrixFactorization}"}, by class \code{"LU"}.
 }
 \section{Methods}{
-  No methods defined with class "sparseLU" in the signature.
+  \describe{
+    \item{expand}{\code{signature(x = "sparseLU")} Returns a list with
+      components \code{P}, \code{L}, \code{U}, and \code{Q},
+      where \eqn{P} and \eqn{Q} represent fill-reducing
+      permutations, and \eqn{L}, and \eqn{U} the lower and upper
+      triangular matrices of the decomposition.  The original matrix
+      corresponds to the product \eqn{PLUQ}.}
+    }
 }
 %\references{}
 %\author{}

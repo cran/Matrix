@@ -33,9 +33,6 @@ setAs("nsCMatrix", "lsparseMatrix", .nsC2l)
 
 rm(.nsC2d,.nsC2l) # don't even keep "hidden"
 
-setAs("nsCMatrix", "dgTMatrix",
-      function(from) as(as(x, "dsCMatrix"), "dgTMatrix"))
-
 ## have rather tril() and triu() methods than
 ## setAs("nsCMatrix", "ntCMatrix", ....)
 setMethod("tril", "nsCMatrix",

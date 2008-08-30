@@ -214,7 +214,7 @@ diag2Tsmart <- function(d, x, kind = .M.kind(d)) {
 ## ddi*:
 diag2tT <- function(from) .diag2tT(from, "U", "d")
 setAs("ddiMatrix", "triangularMatrix", diag2tT)
-setAs("ddiMatrix", "sparseMatrix", diag2tT)
+##_no_longer_ setAs("ddiMatrix", "sparseMatrix", diag2tT)
 ## needed too (otherwise <dense> -> Tsparse is taken):
 setAs("ddiMatrix", "TsparseMatrix", diag2tT)
 setAs("ddiMatrix", "CsparseMatrix",
@@ -225,7 +225,7 @@ setAs("ddiMatrix", "symmetricMatrix",
 ## ldi*:
 diag2tT <- function(from) .diag2tT(from, "U", "l")
 setAs("ldiMatrix", "triangularMatrix", diag2tT)
-setAs("ldiMatrix", "sparseMatrix", diag2tT)
+##_no_longer_ setAs("ldiMatrix", "sparseMatrix", diag2tT)
 ## needed too (otherwise <dense> -> Tsparse is taken):
 setAs("ldiMatrix", "TsparseMatrix", diag2tT)
 setAs("ldiMatrix", "CsparseMatrix",
@@ -331,7 +331,7 @@ setMethod("diag", signature(x = "diagonalMatrix"),
           function(x = 1, nrow, ncol) .diag.x(x))
 
 subDiag <- function(x, i, j, ..., drop) {
-    x <- as(x, "sparseMatrix")
+    x <- as(x, "TsparseMatrix")
     x <- if(missing(i))
 	x[, j, drop=drop]
     else if(missing(j))
@@ -355,7 +355,7 @@ setMethod("[", signature(x = "diagonalMatrix", i = "missing",
 ## FIXME: this now fails because the "denseMatrix" methods come first in dispatch
 ## Only(?) current bug:  x[i] <- value  is wrong when  i is *vector*
 replDiag <- function(x, i, j, ..., value) {
-    x <- as(x, "sparseMatrix")
+    x <- as(x, "TsparseMatrix")
     if(missing(i))
 	x[, j] <- value
     else if(missing(j)) { ##  x[i , ] <- v  *OR*   x[i] <- v
@@ -400,7 +400,7 @@ setReplaceMethod("[", signature(x = "diagonalMatrix",
 			     x@x[ii] <- value
 			     x
 			 } else { ## no longer diagonal, but remain sparse:
-			     x <- as(x, "sparseMatrix")
+			     x <- as(x, "TsparseMatrix")
 			     x[i] <- value
 			     x
 			 }
@@ -417,15 +417,15 @@ setReplaceMethod("[", signature(x = "diagonalMatrix", i = "missing",
 		 function(x,i,j, ..., value) replDiag(x, j=j, value=value))
 
 setReplaceMethod("[", signature(x = "diagonalMatrix", i = "missing", j = "index",
-				value = "scarceMatrix"),
+				value = "sparseMatrix"),
 		 function (x, i, j, ..., value)
 		 callGeneric(x=x, , j=j, value = as(value, "sparseVector")))
 setReplaceMethod("[", signature(x = "diagonalMatrix", i = "index", j = "missing",
-				value = "scarceMatrix"),
+				value = "sparseMatrix"),
 		 function (x, i, j, ..., value)
 		 callGeneric(x=x, i=i, , value = as(value, "sparseVector")))
 setReplaceMethod("[", signature(x = "diagonalMatrix", i = "index", j = "index",
-				value = "scarceMatrix"),
+				value = "sparseMatrix"),
 		 function (x, i, j, ..., value)
 		 callGeneric(x=x, i=i, j=j, value = as(value, "sparseVector")))
 
@@ -591,23 +591,23 @@ setMethod("%*%", signature(x = "denseMatrix", y = "diagonalMatrix"),
 ##           })
 
 setMethod("crossprod", signature(x = "diagonalMatrix", y = "sparseMatrix"),
-	  function(x, y = NULL) crossprod(as(x, "sparseMatrix"), y))
+	  function(x, y = NULL) crossprod(as(x, "TsparseMatrix"), y))
 
 setMethod("crossprod", signature(x = "sparseMatrix", y = "diagonalMatrix"),
-	  function(x, y = NULL) crossprod(x, as(y, "sparseMatrix")))
+	  function(x, y = NULL) crossprod(x, as(y, "TsparseMatrix")))
 
 setMethod("tcrossprod", signature(x = "diagonalMatrix", y = "sparseMatrix"),
-	  function(x, y = NULL) tcrossprod(as(x, "sparseMatrix"), y))
+	  function(x, y = NULL) tcrossprod(as(x, "TsparseMatrix"), y))
 
 setMethod("tcrossprod", signature(x = "sparseMatrix", y = "diagonalMatrix"),
-	  function(x, y = NULL) tcrossprod(x, as(y, "sparseMatrix")))
+	  function(x, y = NULL) tcrossprod(x, as(y, "TsparseMatrix")))
 
 
 ## FIXME?: In theory, this can be done *FASTER*, in some cases, via tapply1()
 setMethod("%*%", signature(x = "diagonalMatrix", y = "sparseMatrix"),
-	  function(x, y) as(x, "sparseMatrix") %*% y)
+	  function(x, y) as(x, "TsparseMatrix") %*% y)
 setMethod("%*%", signature(x = "sparseMatrix", y = "diagonalMatrix"),
-	  function(x, y) x %*% as(y, "sparseMatrix"))
+	  function(x, y) x %*% as(y, "TsparseMatrix"))
 ## NB: The previous is *not* triggering for  "ddi" o "dgC" (= distance 3)
 ##     since there's a "ddense" o "Csparse" at dist. 2 => triggers first.
 ## ==> do this:

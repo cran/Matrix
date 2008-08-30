@@ -92,7 +92,7 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(dgCMatrix_cholsol, 2),
     CALLDEF(dgCMatrix_lusol, 2),
     CALLDEF(dgCMatrix_matrix_solve, 2),
-    CALLDEF(dgCMatrix_qrsol, 2),
+    CALLDEF(dgCMatrix_qrsol, 3),
     CALLDEF(dgTMatrix_to_dgeMatrix, 1),
     CALLDEF(lgTMatrix_to_lgeMatrix, 1),
     CALLDEF(dgTMatrix_to_matrix, 1),

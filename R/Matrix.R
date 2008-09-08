@@ -282,14 +282,19 @@ setMethod("solve", signature(a = "Matrix", b = "diagonalMatrix"),
 	  function(a, b, ...) callGeneric(a, as(b,"CsparseMatrix")))
 
 ## when no sub-class method is found, bail out
-setMethod("solve", signature(a = "Matrix", b = "Matrix"),
+setMethod("solve", signature(a = "Matrix", b = "ANY"),
+	  function(a, b, ...) .bail.out.2("solve", class(a), class(b)))
+setMethod("solve", signature(a = "ANY", b = "Matrix"),
 	  function(a, b, ...) .bail.out.2("solve", class(a), class(b)))
 
 ## bail-out methods in order to get better error messages
-setMethod("%*%", signature(x = "Matrix", y = "Matrix"),
-	  function (x, y)
+	  .local.bail.out = function (x, y)
           stop(gettextf('not-yet-implemented method for <%s> %%*%% <%s>',
-                        class(x), class(y))))
+                        class(x), class(y)))
+
+setMethod("%*%", signature(x = "ANY", y = "Matrix"), .local.bail.out)
+setMethod("%*%", signature(x = "Matrix", y = "ANY"), .local.bail.out)
+
 
 setMethod("crossprod", signature(x = "Matrix", y = "ANY"),
 	  function (x, y = NULL) .bail.out.2(.Generic, class(x), class(y)))
@@ -301,9 +306,13 @@ setMethod("tcrossprod", signature(x = "ANY", y = "Matrix"),
 	  function (x, y = NULL) .bail.out.2(.Generic, class(x), class(y)))
 
 ## cheap fallbacks
-setMethod("crossprod", signature(x = "Matrix", y = "Matrix"),
+setMethod("crossprod", signature(x = "Matrix", y = "ANY"),
 	  function(x, y = NULL) t(x) %*% y)
-setMethod("tcrossprod", signature(x = "Matrix", y = "Matrix"),
+setMethod("crossprod", signature(x = "ANY", y = "Matrix"),
+	  function(x, y = NULL) t(x) %*% y)
+setMethod("tcrossprod", signature(x = "Matrix", y = "ANY"),
+	  function(x, y = NULL) x %*% t(y))
+setMethod("tcrossprod", signature(x = "ANY", y = "Matrix"),
 	  function(x, y = NULL) x %*% t(y))
 
 ## There are special sparse methods; this is a "fall back":
@@ -377,11 +386,11 @@ all.equal_Mat <- function(target, current, check.attributes = TRUE, ...)
 }
 ## The all.equal() methods for dense matrices (and fallback):
 setMethod("all.equal", c(target = "Matrix", current = "Matrix"),
-          all.equal_Mat)
+	  all.equal_Mat)
 setMethod("all.equal", c(target = "Matrix", current = "ANY"),
-          all.equal_Mat)
+	  all.equal_Mat)
 setMethod("all.equal", c(target = "ANY", current = "Matrix"),
-          all.equal_Mat)
+	  all.equal_Mat)
 ## -> ./sparseMatrix.R, ./sparseVector.R  have specific methods
 
 

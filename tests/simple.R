@@ -192,6 +192,11 @@ stopifnot(identical(asCsp(ttu > 0), asCsp(ltu)),
           all(ltu == as(ttu > 0,"denseMatrix")))
 ltu - (ttu > 0) # failed
 
+C <- suppressWarnings(Matrix(c(0,1,0,0), 5,5)) + Diagonal(5)
+(T <- Matrix:::diagN2U(tril(C)))
+R <- as(T, "RsparseMatrix")
+R. <- Matrix:::diagU2N(R) # used to accidentally drop the diag.
+stopifnot(R@x == c(1,1,1), diag(R.) == 1)
 
 lcu <- new("ltCMatrix", Dim = c(4L, 4L), i = c(0:1, 0L), p = c(0L, 0:3),
            x = c(TRUE, FALSE, FALSE), uplo = "U", diag = "U")

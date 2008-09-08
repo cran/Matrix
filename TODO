@@ -188,7 +188,7 @@
   chunks and would not need to re-allocate anything in many cases.
   HOWEVER, replCmat() in R/Csparse.R is still far from making use of that.
 
-- advertize  rbind2() / cbind2() and (rather?) rBind() / cBind()
+- advertize  rbid2() / cbind2() and (rather?) rBind() / cBind()
   	     ------                            -----
   in all vignettes / talks / ... !!
   People erronously try rbind/cbind see that they don't work and then

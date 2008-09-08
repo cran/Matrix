@@ -1,3 +1,24 @@
+2008-09-08  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.999375-14  to be released to CRAN,
+	in order to comply to to pending changes in R-devel (2.8.0).
+
+2008-09-05  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Matrix.R (solve,..): use (Matrix,ANY)... instead of (Matrix,Matrix)
+	* R/Ops.R: ditto; most of these from John Chambers.
+	* man/Matrix-class.Rd
+
+	* R/Auxiliaries.R (.diagU2N): fix for Rsparse*
+	* tests/Simple.R: test it
+
+2008-09-02  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* man/drop0.Rd:
+	* R/Auxiliaries.R (drop0): new argument 'tol = 0' (and
+	'is.Csparse'); entails updates in
+	* R/Csparse.R, R/lMatrix.R, R/dMatrix.R
+
 2008-08-30  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* DESCRIPTION (Version): 0.999375-13 released to CRAN

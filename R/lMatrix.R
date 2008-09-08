@@ -14,7 +14,7 @@ setAs("lMatrix", "nMatrix",
 	  } else {
 	      isSp <- extends(cld, "sparseMatrix")
 	      if(isSp && !all(from@x)) {
-		  from <- drop0(from, cld)
+		  from <- drop0(from) # was drop0(from, cld)
 		  if(cl != (c. <- class(from)))
 		      cld <- getClassDef(cl <- c.)
 	      }

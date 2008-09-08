@@ -1,5 +1,5 @@
 
-R version 2.7.1 Patched (2008-07-15 r46067)
+R version 2.7.2 Patched (2008-09-02 r46496)
 Copyright (C) 2008 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 
@@ -501,6 +501,7 @@ Warning: Ambiguous method selection for "&", target "lgCMatrix#lsCMatrix" (the f
 
  norm(m [5 x 5]) : 1  I  F  M  ok
  Summary:  ok
+as(., "nMatrix") giving full nonzero-pattern: ok
 2*m =?= m+m: ok
 m >= m for all: Warning: Ambiguous method selection for ">=", target "dgTMatrix#dgTMatrix" (the first of the signatures shown will be used)
     sparseMatrix#sparseMatrix
@@ -537,6 +538,7 @@ det...(): ok
 > checkMatrix(M)
  norm(m [5 x 5]) : 1  I  F  M  ok
  Summary:  ok
+as(., "nMatrix") giving full nonzero-pattern: ok
 2*m =?= m+m: ok
 m >= m for all: ok
 m < m for none: ok
@@ -561,6 +563,7 @@ Warning: Ambiguous method selection for "!=", target "dtTMatrix#dtTMatrix" (the 
 
  norm(m [5 x 5]) : 1  I  F  M  ok
  Summary:  ok
+as(., "nMatrix") giving full nonzero-pattern: ok
 2*m =?= m+m: Warning: Ambiguous method selection for "+", target "dtTMatrix#dtTMatrix" (the first of the signatures shown will be used)
     sparseMatrix#sparseMatrix
     dMatrix#dMatrix
@@ -595,6 +598,7 @@ as(<triangular (ge)matrix>, dtTMatrix): valid: TRUE
 > checkMatrix(M)
  norm(m [5 x 5]) : 1  I  F  M  ok
  Summary:  ok
+as(., "nMatrix") giving full nonzero-pattern: ok
 2*m =?= m+m: identical
 m >= m for all: ok
 m < m for none: ok
@@ -611,6 +615,7 @@ det...(): ok
 > T <- m2; T[1:3, 3] <- 10; checkMatrix(T)
  norm(m [5 x 5]) : 1  I  F  M  ok
  Summary:  ok
+as(., "nMatrix") giving full nonzero-pattern: ok
 2*m =?= m+m: identical
 m >= m for all: ok
 m < m for none: ok
@@ -766,6 +771,7 @@ Warning: Ambiguous method selection for "-", target "dgTMatrix#dgTMatrix" (the f
 > checkMatrix(mt)
  norm(m [5 x 7]) : 1  I  F  M  ok
  Summary:  ok
+as(., "nMatrix") giving full nonzero-pattern: ok
 2*m =?= m+m: ok
 m >= m for all: ok
 m < m for none: ok
@@ -838,6 +844,7 @@ m < m for none: ok
 > checkMatrix(mc)
  norm(m [5 x 7]) : 1  I  F  M  ok
  Summary:  ok
+as(., "nMatrix") giving full nonzero-pattern: ok
 2*m =?= m+m: identical
 m >= m for all: ok
 m < m for none: ok
@@ -944,6 +951,7 @@ Warning: Ambiguous method selection for "kronecker", target "dtTMatrix#dsTMatrix
 
  norm(m [4 x 4]) : 1  I  F  M  ok
  Summary:  ok
+as(., "nMatrix") giving full nonzero-pattern: ok
 2*m =?= m+m: ok
 m >= m for all: ok
 m < m for none: ok
@@ -967,6 +975,7 @@ Warning: Ambiguous method selection for "!=", target "dsTMatrix#dsTMatrix" (the 
 
  norm(m [4 x 4]) : 1  I  F  M  ok
  Summary:  ok
+as(., "nMatrix") giving full nonzero-pattern: ok
 2*m =?= m+m: Warning: Ambiguous method selection for "+", target "dsTMatrix#dsTMatrix" (the first of the signatures shown will be used)
     sparseMatrix#sparseMatrix
     dMatrix#dMatrix
@@ -989,12 +998,14 @@ det...(): ok
 > checkMatrix(s.32  <- st[1:3,1:2]) ## 3 x 2 - and *not* dsTMatrix
  norm(m [3 x 2]) : 1  I  F  M  ok
  Summary:  ok
+as(., "nMatrix") giving full nonzero-pattern: ok
 2*m =?= m+m: ok
 m >= m for all: ok
 m < m for none: ok
 > checkMatrix(s2.32 <- s2[1:3,1:2])
  norm(m [3 x 2]) : 1  I  F  M  ok
  Summary:  ok
+as(., "nMatrix") giving full nonzero-pattern: ok
 2*m =?= m+m: identical
 m >= m for all: ok
 m < m for none: ok
@@ -1015,6 +1026,7 @@ m < m for none: ok
 > st[I,I] <- 0; checkMatrix(st); stopifnot(is(st,"symmetricMatrix"))
  norm(m [4 x 4]) : 1  I  F  M  ok
  Summary:  ok
+as(., "nMatrix") giving full nonzero-pattern: ok
 2*m =?= m+m: suboptimal implementation of sparse 'symm. o symm.'
 identical
 m >= m for all: ok
@@ -1023,6 +1035,7 @@ det...(): ok
 > s2[I,I] <- 0; checkMatrix(s2); stopifnot(is(s2,"symmetricMatrix"))
  norm(m [4 x 4]) : 1  I  F  M  ok
  Summary:  ok
+as(., "nMatrix") giving full nonzero-pattern: ok
 2*m =?= m+m: suboptimal implementation of sparse 'symm. o symm.'
 identical
 m >= m for all: ok
@@ -1176,7 +1189,7 @@ Warning: Ambiguous method selection for "!=", target "numeric#dgCMatrix" (the fi
 > cc <- capture.output(show(dLrg))# show(<diag>) used to error for large n
 > 
 > cat('Time elapsed: ', (.pt <- proc.time()),'\n') # "stats"
-Time elapsed:  15.748 0.132 15.923 0 0 
+Time elapsed:  17.213 0.248 23.227 0 0 
 > ##
 > cat("checkMatrix() of all: \n---------\n")
 checkMatrix() of all: 
@@ -1331,6 +1344,10 @@ Warning: Ambiguous method selection for "|", target "lsCMatrix#lgCMatrix" (the f
     CsparseMatrix#CsparseMatrix
     lsparseMatrix#lsparseMatrix
 
+Warning: Ambiguous method selection for "coerce", target "ddiMatrix#nMatrix" (the first of the signatures shown will be used)
+    diagonalMatrix#nMatrix
+    dMatrix#nMatrix
+
 exploding	<diag>	o  <diag>  into dense matrix
 dLrg 
 dm 
@@ -1425,7 +1442,7 @@ suboptimal implementation of sparse 'symm. o symm.'
 x.x. 
 suboptimal implementation of sparse 'symm. o symm.'
 > cat('Time elapsed: ', proc.time() - .pt,'\n') # "stats"
-Time elapsed:  12.537 0.044 12.715 0 0 
+Time elapsed:  14.312 0.084 17.814 0 0 
 > 
 > if(!interactive()) warnings()
 NULL

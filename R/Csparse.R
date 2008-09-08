@@ -129,7 +129,7 @@ replCmat <- function (x, i, j, ..., value)
 	x[i] <- value # may change class e.g. from dtT* to dgT*
 	clx <- sub(".Matrix$", "CMatrix", class(x))
 	return(if(any(is0(x@x))) ## drop all values that "happen to be 0"
-	       drop0(x, clx) else as_CspClass(x, clx))
+	       drop0(x, is.Csparse=FALSE) else as_CspClass(x, clx))
     }
     ## nargs() == 4 :
 

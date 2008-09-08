@@ -43,15 +43,14 @@ setMethod("Ops", signature(e1 = "matrix", e2 = "Matrix"),
 	  function(e1, e2) callGeneric(Matrix(e1), e2))
 
 ## bail-outs -- on highest possible level, hence "Ops", not "Compare"/"Arith" :
-setMethod("Ops", signature(e1 = "Matrix", e2 = "Matrix"),
-          function(e1, e2) {
-              dimCheck(e1,e2)
-              .bail.out.2(.Generic, class(e1), class(e2))
-          })
-setMethod("Ops", signature(e1 = "Matrix", e2 = "ANY"),
-          function(e1, e2) .bail.out.2(.Generic, class(e1), class(e2)))
-setMethod("Ops", signature(e1 = "ANY", e2 = "Matrix"),
-          function(e1, e2) .bail.out.2(.Generic, class(e1), class(e2)))
+.bail.out.Ops <- function(e1, e2) {
+    if(is(e1, "Matrix") && is(e2, "Matrix"))
+        dimCheck(e1,e2)
+    .bail.out.2(.Generic, class(e1), class(e2))
+          }
+setMethod("Ops", signature(e1 = "Matrix", e2 = "ANY"), .bail.out.Ops)
+setMethod("Ops", signature(e1 = "ANY", e2 = "Matrix"), .bail.out.Ops)
+rm(.bail.out.Ops)
 
 ## "General principle"
 ##  - - - - - - - - -

@@ -571,17 +571,13 @@ uniqTsparse <- function(x, class.x = c(class(x))) {
 ## would be slightly more efficient than as( <dgC> , "dgTMatrix")
 ## but really efficient would be to use only one .Call(.) for uniq(.) !
 
-drop0 <- function(x, clx = c(class(x))) {
-    ## clx is *either* class or "classRepresentation"
-    if(is.character(clx))
-        cld <- getClassDef(clx)
-    else if(is(clx, "classRepresentation")) {
-        cld <- clx; clx <- cld@className
-    } else stop("'clx' must be class name or representation")
-
+## Eearlier was:
+## drop0 <- function(x, clx = c(class(x)), tol = 0) {
+drop0 <- function(x, tol = 0, is.Csparse = NA) {
     .Call(Csparse_drop,
-	  if(extends(cld, "CsparseMatrix")) x else as(x, "CsparseMatrix"),
-	  0.)
+	  if(isTRUE(is.Csparse) || is.na(is.Csparse) && is(x, "CsparseMatrix")) x else
+          as(x, "CsparseMatrix"),
+	  tol)
 }
 
 uniq <- function(x) {
@@ -1119,10 +1115,9 @@ isTriC <- function(object, upper = NA) {
 	    x
         }
         else { ## not dense, not [CT]sparseMatrix  ==>  Rsparse*
-            xT <- as(as(x, paste(kind, "Matrix", sep='')), "TsparseMatrix")
-            ## leave it as T* - the caller can always coerce to C* if needed:
-            new(paste(kind, "tTMatrix", sep=''), x = xT@x, i = xT@i, j = xT@j,
-                Dim = x@Dim, Dimnames = x@Dimnames, uplo = x@uplo, diag = "N")
+	    .Call(Tsparse_diagU2N,
+		  as(as(x, paste(kind, "Matrix", sep='')), "TsparseMatrix"))
+	    ## leave it as T* - the caller can always coerce to C* if needed
         }
     }
 }

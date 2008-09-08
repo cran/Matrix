@@ -21,7 +21,8 @@
 \alias{mean,Matrix-method}
 \alias{\%*\%,Matrix,numeric-method}
 \alias{\%*\%,numeric,Matrix-method}
-\alias{\%*\%,Matrix,Matrix-method}
+\alias{\%*\%,Matrix,ANY-method}
+\alias{\%*\%,ANY,Matrix-method}
 \alias{\%*\%,Matrix,matrix-method}
 \alias{\%*\%,matrix,Matrix-method}
 % "[" are in ./Xtrct-methods.Rd ;  "[<-" in ./Subassign-methods.Rd
@@ -83,7 +84,8 @@
 \alias{coerce,Matrix,denseMatrix-method}
 \alias{coerce,Matrix,CsparseMatrix-method}
 \alias{coerce,Matrix,sparseMatrix-method}
-\alias{solve,Matrix,Matrix-method}
+\alias{solve,Matrix,ANY-method}
+\alias{solve,ANY,Matrix-method}
 \alias{solve,Matrix,matrix-method}
 \alias{solve,matrix,Matrix-method}
 \alias{solve,Matrix,diagonalMatrix-method}

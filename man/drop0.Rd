@@ -7,15 +7,20 @@
   matrix entries.
 }
 \usage{
-drop0(x, clx = c(class(x)))
+drop0(x, tol = 0, is.Csparse = NA)
 }
 \arguments{
   \item{x}{a Matrix, typically sparse, i.e., inheriting from
     \code{\linkS4class{sparseMatrix}}.}
-  \item{clx}{[optional:] the \code{\link{class}} or \dQuote{class
-      definition} (see \code{\link{getClassDef}}; it is of class
-    \code{\linkS4class{classRepresentation}}) of \code{x}.\cr
-    This argument just exists for the possibility of speedup.}
+%   \item{clx}{[optional:] the \code{\link{class}} or \dQuote{class
+%       definition} (see \code{\link{getClassDef}}; it is of class
+%     \code{\linkS4class{classRepresentation}}) of \code{x}.\cr
+%     This argument just exists for the possibility of speedup.}
+  \item{tol}{non-negative number to be used as tolerance for checking if
+    an entry \eqn{x_{i,j}}{x[i,j]} should be considered to be zero.}
+  \item{is.Csparse}{logical indicating prior knowledge about the
+    \dQuote{Csparseness} of \code{x}.  This exists for possible speedup
+    reasons only.}
 }
 % \details{
 %   ~~ If necessary, more details than the description above ~~

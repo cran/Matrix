@@ -1,7 +1,7 @@
 Package: Matrix
-Version: 0.999375-14
-Date: 2008-09-08
-Title: A Matrix package for R
+Version: 0.999375-15
+Date: 2008-09-23
+Title: Sparse and Dense Matrix Classes and Methods
 Author: Douglas Bates <bates@stat.wisc.edu> and Martin Maechler <maechler@stat.math.ethz.ch>
 Maintainer: Doug and Martin <Matrix-authors@R-project.org>
 Description: Classes and methods for dense and sparse matrices and
@@ -18,4 +18,4 @@ LicenseDetails: The Matrix package includes libraries CHOLMOD, AMD, COLAMD and C
  from the University of Florida sparse matrix library maintained by Tim
  Davis.  All sections of that code are covered by the GPL or LGPL
  licenses.  See the directory doc/UFsparse for details.
-Packaged: Tue Sep  9 04:38:59 2008; theussl
+Packaged: Thu Sep 25 08:23:33 2008; maechler

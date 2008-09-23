@@ -205,11 +205,11 @@ int* expand_cmprPt(int ncol, const int mp[], int mj[])
 }
 
 /**
- * Check if  obj@x  contains any NA (or NaN).
+ * Check if slot(obj, "x") contains any NA (or NaN).
  *
  * @param obj   a 'Matrix' object with an 'x' slot.
  *
- * @return Rboolean :== any(is.na( obj @ x) )
+ * @return Rboolean :== any(is.na(slot(obj, "x") )
  */
 static R_INLINE
 Rboolean any_NA(SEXP obj)

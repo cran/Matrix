@@ -272,6 +272,9 @@ setMethod("as.vector", signature(x = "diagonalMatrix", mode="missing"),
 setAs("diagonalMatrix", "generalMatrix", # prefer sparse:
       function(from) as(as(from, "CsparseMatrix"), "generalMatrix"))
 
+setAs("diagonalMatrix", "denseMatrix",
+      function(from) as(as(from, "CsparseMatrix"), "denseMatrix"))
+
 .diag.x <- function(m) if(m@diag == "U") rep.int(as1(m@x), m@Dim[1]) else m@x
 
 .diag.2N <- function(m) {
@@ -897,18 +900,19 @@ for(other in c("ANY", "Matrix", "dMatrix")) {
     setMethod("Ops", signature(e1 = other, e2 = "ldiMatrix"),
 	      function(e1,e2) callGeneric(e1, diag2tT.u(e2,e1, "l")))
 }
-## This should *not* dispatch to <dense> methods (in ./Ops.R ), as
-##  FALSE & <anything> |-> FALSE : hence result should be diagonal:
-for(cl in diCls) {
-    setMethod("&", signature(e1 = cl, e2 = "ANY"),
-	      function(e1,e2) e1 & as(e2,"Matrix"))
-    setMethod("&", signature(e1 = "ANY", e2 = cl),
-	      function(e1,e2) as(e1,"Matrix") & e2)
+for(DI in diCls) {
     for(c2 in c("denseMatrix", "Matrix")) {
-	setMethod("&", signature(e1 = cl, e2 = c2),
-		  function(e1,e2) e1 & Diagonal(x = diag(e2)))
-	setMethod("&", signature(e1 = c2, e2 = cl),
-		  function(e1,e2) Diagonal(x = diag(e1)) & e2)
+	for(Fun in c("*", "^", "&")) {
+	    setMethod(Fun, signature(e1 = DI, e2 = c2),
+		      function(e1,e2) callGeneric(e1, Diagonal(x = diag(e2))))
+	    setMethod(Fun, signature(e1 = c2, e2 = DI),
+		      function(e1,e2) callGeneric(Diagonal(x = diag(e1)), e2))
+	}
+	## NB: This arguably implicitly uses  0/0 :== 0	 to keep diagonality
+	for(Fun in c("%%", "%/%", "/")) {
+	    setMethod(Fun, signature(e1 = DI, e2 = c2),
+		      function(e1,e2) callGeneric(e1, Diagonal(x = diag(e2))))
+	}
     }
 }
 

@@ -20,6 +20,7 @@
 \alias{coerce,pMatrix,CsparseMatrix-method}
 \alias{coerce,pMatrix,TsparseMatrix-method}
 \alias{coerce,pMatrix,dsparseMatrix-method}
+\alias{coerce,pMatrix,nsparseMatrix-method}
 \alias{coerce,nMatrix,pMatrix-method}
 \alias{determinant,pMatrix,logical-method}
 \alias{is.na,pMatrix-method}

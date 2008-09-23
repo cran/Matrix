@@ -842,7 +842,7 @@ geClass <- function(x) {
 	      class(x))
 }
 
-.dense.prefixes <- c("d" = "di",
+.dense.prefixes <- c("d" = "tr", ## map diagonal to triangular
                      "t" = "tr",
                      "s" = "sy",
                      "g" = "ge")

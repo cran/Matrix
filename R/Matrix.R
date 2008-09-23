@@ -650,7 +650,7 @@ setReplaceMethod("[", signature(x = "Matrix", i = "missing", j = "missing",
 
 setReplaceMethod("[", signature(x = "Matrix", i = "matrix", j = "missing",
 				value = "replValue"),
-	  .M.repl.i.2col)
+		 .M.repl.i.2col)
 
 ## Three catch-all methods ... would be very inefficient for sparse*
 ## --> extra methods in ./sparseMatrix.R

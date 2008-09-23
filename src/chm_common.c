@@ -80,6 +80,11 @@ static void chm2Ralloc(CHM_SP dest, CHM_SP src)
  *
  * @param ans a CHM_SP pointer
  * @param x pointer to an object that inherits from CsparseMatrix
+ * @param check_Udiag boolean - should a check for (and consequent
+ *  expansion of) a unit diagonal be performed.
+ * @param sort_in_place boolean - if the i and x slots are to be sorted
+ *  should they be sorted in place?  If the i and x slots are pointers
+ *  to an input SEXP they should not be modified.
  *
  * @return ans containing pointers to the slots of x.
  */
@@ -254,6 +259,8 @@ SEXP chm_sparse_to_SEXP(CHM_SP a, int dofree, int uploT, int Rkind,
  *
  * @param ans a CHM_TR pointer
  * @param x pointer to an object that inherits from TsparseMatrix
+ * @param check_Udiag boolean - should a check for (and consequent
+ *  expansion of) a unit diagonal be performed.
  *
  * @return ans containing pointers to the slots of x.
  */
@@ -266,7 +273,7 @@ CHM_TR as_cholmod_triplet(CHM_TR ans, SEXP x, Rboolean check_Udiag)
 		     ""};
     int *dims, ctype = Matrix_check_class(class_P(x), valid), m;
     SEXP islot;
-    Rboolean do_Udiag;
+    Rboolean do_Udiag = (check_Udiag && ctype % 3 == 2 && (*diag_P(x) == 'U'));
 
     if (ctype < 0) error("invalid class of object to as_cholmod_triplet");
     memset(ans, 0, sizeof(cholmod_triplet)); /* zero the struct */
@@ -278,8 +285,6 @@ CHM_TR as_cholmod_triplet(CHM_TR ans, SEXP x, Rboolean check_Udiag)
     dims = INTEGER(GET_SLOT(x, Matrix_DimSym));
     ans->nrow = dims[0];
     ans->ncol = dims[1];
-
-    do_Udiag = (check_Udiag && ctype % 3 == 2 && (*diag_P(x) == 'U'));
 
     islot = GET_SLOT(x, Matrix_iSym);
     m = LENGTH(islot);

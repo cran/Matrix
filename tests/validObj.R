@@ -39,9 +39,12 @@ checkMatrix(cp <- as(cm, "dppMatrix"))# 'dpp' + factors
 checkMatrix(cs <- as(cm, "dsyMatrix"))# 'dsy' + factors
 checkMatrix(dcm <- as(cm, "dgeMatrix"))#'dge'
 checkMatrix(mcm <- as(cm, "dMatrix")) # 'dsy' + factors -- buglet? rather == cm?
-checkMatrix(mc. <- as(cm, "Matrix")) # dpo --> dsy -- FIXME!
+checkMatrix(mc. <- as(cm, "Matrix"))  # dpo --> dsy -- (as above)  FIXME? ??
 stopifnot(identical(mc., mcm),
-          identical4(2*cm, cm + cp, cp + cs, mcm * 2))
+	  identical(cm, (2*cm)/2),# remains dpo
+	  identical(cm + cp, cp + cs),# dge
+	  identical(mc., mcm),
+	  all(2*cm == mcm * 2))
 
 checkMatrix(eq <- cm == cs)
 stopifnot(all(eq@x),
@@ -51,7 +54,6 @@ stopifnot(all(eq@x),
 
 ## Coercion to 'dpo' should give an error if result would be invalid
 M <- Matrix(diag(4) - 1)
-if(FALSE)## FIXME?: dsy -> dpo works here{chol() check too expensive ?}
 assertError(as(M, "dpoMatrix"))
 M. <- as(M, "dgeMatrix")
 M.[1,2] <- 10 # -> not even symmetric anymore
@@ -75,7 +77,7 @@ tr22 <- new("dtrMatrix", Dim = as.integer(c(2,2)), x=as.double(1:4))
 tt22 <- t(tr22)
 (tPt <- tr22 + tt22)
 stopifnot(identical(10 * tPt, tPt * 10),
-	  (t.22 <- (tr22 / .5)* .5)@x == c(1,0,3,4),
+	  as.vector(t.22 <- (tr22 / .5)* .5) == c(1,0,3,4),
 	  TRUE) ## not yet: class(t.22) == "dtrMatrix")
 
 ## non-square triagonal Matrices --- are forbidden ---

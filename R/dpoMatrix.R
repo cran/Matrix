@@ -17,6 +17,11 @@ setAs("dpoMatrix", "corMatrix",
 	      sd = unname(sd))
       })
 
+setAs("dpoMatrix", "lMatrix",
+      function(from) as(as(from, "dsyMatrix"), "lMatrix"))
+setAs("dpoMatrix", "nMatrix",
+      function(from) as(as(from, "dsyMatrix"), "nMatrix"))
+
 if(FALSE) # should no longer be needed
 setAs("corMatrix", "lMatrix",
       function(from) as(as(from, "dpoMatrix"), "lMatrix"))

@@ -32,14 +32,14 @@ PROJECT_NAME           = Matrix
 # This could be handy for archiving the generated documentation or
 # if some version control system is used.
 
-PROJECT_NUMBER         = 0.999375-4
+PROJECT_NUMBER         = 0.999375
 
 # The OUTPUT_DIRECTORY tag is used to specify the (relative or absolute)
 # base path where the generated documentation will be put.
 # If a relative path is entered, it will be relative to the location
 # where doxygen was started. If left blank the current directory will be used.
 
-OUTPUT_DIRECTORY       = ../../../R-forge/Matrix/www/doxygen
+OUTPUT_DIRECTORY       = ../../www/doxygen
 
 # If the CREATE_SUBDIRS tag is set to YES, then doxygen will create
 # 4096 sub-directories (in 2 levels) under the output directory of each output
@@ -1283,7 +1283,7 @@ GENERATE_LEGEND        = YES
 # remove the intermediate dot files that are used to generate
 # the various graphs.
 
-DOT_CLEANUP            = NO
+DOT_CLEANUP            = YES
 
 #---------------------------------------------------------------------------
 # Configuration::additions related to the search engine

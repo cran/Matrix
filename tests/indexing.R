@@ -496,6 +496,32 @@ ii <- c(1:2, 4:5)
 d6[cbind(ii,ii)] <- 7*ii
 stopifnot(is(d6, "ddiMatrix"), identical(d6, Diagonal(x=c(7*1:2,1,7*4:5,1))))
 
+for(j in 3:6) { ## even and odd j used to behave differently
+    M <- Matrix(0, j,j); m <- matrix(0, j,j)
+    T  <- as(M, "TsparseMatrix")
+    TG <- as(T, "generalMatrix")
+    G <-  as(M, "generalMatrix")
+    id <- cbind(1:j,1:j)
+    i2 <- cbind(1:j,j:1)
+    m[id] <- 1:j
+    M[id] <- 1:j ; stopifnot(is(M,"symmetricMatrix"))
+    T[id] <- 1:j ; stopifnot(is(T,"symmetricMatrix"))
+    G[id] <- 1:j
+    TG[id]<- 1:j
+    m[i2] <- 10
+    M[i2] <- 10 ; stopifnot(is(M,"symmetricMatrix"))
+    T[i2] <- 10 ; stopifnot(is(T,"symmetricMatrix"))
+    G[i2] <- 10
+    TG[i2]<- 10
+    ##
+    assert.EQ.mat(M, m)
+    assert.EQ.mat(T, m)
+    assert.EQ.mat(G, m)
+    assert.EQ.mat(TG,m)
+}
+
+
+## drop, triangular, ...
 (M3 <- Matrix(upper.tri(matrix(, 3, 3)))) # ltC; indexing used to fail
 T3 <- as(M3, "TsparseMatrix")
 stopifnot(identical(drop(M3), M3),

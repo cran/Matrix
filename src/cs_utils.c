@@ -48,10 +48,12 @@ static CSP csp_eye(int n)
  * Create a cs object with the contents of x.  Typically called via  AS_CSP()
  *
  * @param ans pointer to a cs struct.  This is allocated in the caller
- * so it is easier to keep track of where it should be freed - in many
- * applications the memory can be allocated with alloca and
- * automatically freed on exit from the caller.
+ *  so it is easier to keep track of where it should be freed - in many
+ *  applications the memory can be allocated with alloca and
+ *  automatically freed on exit from the caller.
  * @param x pointer to an object that inherits from CsparseMatrix
+ * @param check_Udiag boolean - should a check for (and consequent
+ *  expansion of) a unit diagonal be performed.
  *
  * @return pointer to a cs object that contains pointers
  * to the slots of x.

@@ -314,6 +314,8 @@
    --> This is an API change however, notably since we export as_cholmod_sparse
       ( in inst/include/Matrix.h )
 
+- is.na() method for all our matrices [ ==> which(*, arr.ind=TRUE) might work ]
+
 - "sparseVector" : indices, i.e. @i and @length  now changed
   from class "integer" to "numeric", since we want to be
   able to coerce large sparse matrices to sparse vectors,
@@ -322,4 +324,14 @@
 - Implement expand(.) for the Cholesky() results "dCHMsimpl", "dCHMsuper", etc.
 
 - expand() for lu(<sparse>) is simple too
+
+- setAs(<Mcl>, "[dln]Matrix") now works (and is checked by checkMatrix(.)).
+
+- <diagonalMatrix> o <ddenseMatrix> now returns diagonalMatrix in many more
+  cases: notably commutatively for o in {*, ^, &} and also for {/, %%, %/%}.
+
+- h6 <- Hilbert(6); chol(h6) ; str(h6) # has 'factors'
+  str(H6 <- as(h6, "dspMatrix"))       # no longer lost 'factors'
+  ## and the same in a similar situation involving  "dpo", "dpp"
+
 

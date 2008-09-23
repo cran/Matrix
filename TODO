@@ -43,8 +43,6 @@
   basically enable all ``sensible'' as(fromMatrix, toMatrix)  calls,
   possibly using canCoerce(.)
 
-- setAs(<Mcl>,  "[dln]Matrix") for <Mcl> in {Matrix or denseMatrix + sparseMatrix}
-
 - When we have a packed matrix, it's a waste to go through "full" to "sparse":
   ==> implement
 	setAs("dspMatrix", "sparseMatrix")
@@ -56,14 +54,7 @@
   calling Lapack's DGEMM for "dense"
   [2005-12-xx: done for dgeMatrix at least]
 
-- BUGlet:  Shouldn't lose factorization here:
-  h6 <- Hilbert(6); chol(h6) ; str(h6) # has factor
-  str(H6 <- as(h6, "dspMatrix"))       # has lost factor
-  ## and the same in a similar situation involving  "dpo", "dpp"
-
 - Factorizations: LU done; also Schur()  for  *sparse*  Matrices.
-
-- is.na() method for all our matrices [ ==> which(*, arr.ind=TRUE) might work ]
 
 - use  .Call(Csparse_drop, M, tol) in more places,
   both with 'tol = 0.' to drop "values that happen to be 0" and for
@@ -173,9 +164,8 @@
   connections automatically ["lsparse" become either "real" or
   "pattern", "depending if they have NAs or not].
 
-- <diagMatrix> o <ddenseMatrix> currently works via sparse, but
-  should return <diagMatrix> in the same cases where
-  <diagMatrix> o <numeric> does.
+- <diagMatrix> o <ddenseMatrix> still works via sparse in some cases, but
+  could return <diagMatrix> in the same cases where <diagMatrix> o <numeric> does.
 
 - look at solve.QP.compact() in \pkg{quadprog} and how to do that using
   our sparse matrices.  Maybe this needs to be re-implemented using CHOLMOD
@@ -188,7 +178,7 @@
   chunks and would not need to re-allocate anything in many cases.
   HOWEVER, replCmat() in R/Csparse.R is still far from making use of that.
 
-- advertize  rbid2() / cbind2() and (rather?) rBind() / cBind()
+- advertize  rbind2() / cbind2() and (rather?) rBind() / cBind()
   	     ------                            -----
   in all vignettes / talks / ... !!
   People erronously try rbind/cbind see that they don't work and then

@@ -10,7 +10,7 @@ str(h9)
 all.equal(c(determinant(h9)$modulus), -96.7369456, tol= 2e-8)
 stopifnot(0 == length(h9@factors))# nothing yet
 round(ch9 <- chol(h9), 3) ## round() preserves 'triangular' !
-str(f9 <- as(chol(h9), "dtrMatrix"))
+str(f9 <- as(ch9, "dtrMatrix"))
 ## h9 now has factorization
 stopifnot(names(h9@factors) == "Cholesky",
           all.equal(rcond(h9), 9.0938e-13),
@@ -18,30 +18,43 @@ stopifnot(names(h9@factors) == "Cholesky",
 str(h9)# has 'factors $ Cholesky'
 options(digits=4)
 (cf9 <- crossprod(f9))# looks the same as  h9 :
-stopifnot(all.equal(as.matrix(h9),
-                    as.matrix(cf9), tol= 1e-15))
+assert.EQ.mat(h9, as.matrix(cf9), tol=1e-15)
 
 h9. <- round(h9, 2)# actually loses pos.def. "slightly"
                    # ==> the above may be invalid in the future
-h9p  <- as(h9,  "dppMatrix") # {FIXME? lost @factors$pCholesky}
+h9p  <- as(h9,  "dppMatrix")
 h9.p <- as(h9., "dppMatrix")
 ch9p <- chol(h9p)
 stopifnot(identical(ch9p, h9p@factors$pCholesky))
 h4  <- h9.[1:4, 1:4] # this and the next
 h9.[1,1] <- 10       # had failed in 0.995-14
-h9p[1,1] <- 10 # failed in 0.995-14
+h9p[1,1] <- 10
 stopifnot(isValid(h9., "symmetricMatrix"),
           isValid(h9p, "symmetricMatrix"),
           isValid(h4,  "symmetricMatrix"))
 
-h9p[1,2] <- 99 #-> becomes "dgeMatrix"
+h9p[1,2] <- 99
+stopifnot(class(h9p) == "dgeMatrix", h9p[1,1:2] == c(10,99))
 
 str(h9p <- as(h9, "dppMatrix"))# {again}
-stopifnot(is(th9p <- t(h9p), "dppMatrix"))
-
+h6 <- h9[1:6,1:6]
+stopifnot(all(h6 == Hilbert(6)), length(h6@factors) == 0,
+          is(th9p <- t(h9p), "dppMatrix"),
+	  is(h9p@factors$Cholesky,"Cholesky"))
+H6  <- as(h6, "dspMatrix")
+pp6 <- as(H6, "dppMatrix")
+po6 <- as(pp6,"dpoMatrix")
 hs <- as(h9p, "dspMatrix")
+stopifnot(names(H6@factors)  == "pCholesky",
+	  names(pp6@factors) == "pCholesky",
+	  names(hs@factors)  == "Cholesky") # for now
+chol(hs) # and that is cached in 'hs' too :
+stopifnot(names(hs@factors) %in% c("Cholesky","pCholesky"),
+	  all.equal(h9, crossprod(hs@factors$pCholesky), tol=1e-13),
+	  all.equal(h9, crossprod(hs@factors$ Cholesky), tol=1e-13))
+
 hs@x <- 1/h9p@x # is not pos.def. anymore
-validObject(hs)
+validObject(hs) # "but" this does not check
 stopifnot(diag(hs) == seq(1, by = 2, length = 9))
 
 s9 <- solve(h9p, seq(nrow(h9p)))

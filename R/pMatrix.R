@@ -35,6 +35,7 @@ setAs("pMatrix", "nMatrix",	  function(from) as(from, "ngTMatrix"))
 setAs("pMatrix", "lMatrix", function(from) as(as(from, "nMatrix"), "lMatrix"))
 setAs("pMatrix", "dMatrix", function(from) as(as(from, "nMatrix"), "dMatrix"))
 setAs("pMatrix", "dsparseMatrix", function(from) as(from, "dMatrix"))
+setAs("pMatrix", "nsparseMatrix", function(from) as(from, "nMatrix"))
 
 setAs("pMatrix", "CsparseMatrix",
       function(from) as(as(from, "ngTMatrix"), "CsparseMatrix"))

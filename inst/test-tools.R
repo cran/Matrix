@@ -73,6 +73,7 @@ assert.EQ.mat <- function(M, m, tol = if(show) 0 else 1e-15, show=FALSE) {
     ## Arguments: M: is(., "Matrix") typically {but just needs working as(., "matrix")}
     ##            m: is(., "matrix")
     ##            show: if TRUE, return (and hence typically print) all.equal(...)
+    validObject(M)
     MM <- as.mat(M)                     # as(M, "matrix")
     if(is.logical(MM) && is.numeric(m))
 	storage.mode(MM) <- "integer"
@@ -132,6 +133,11 @@ Qidentical <- function(x,y) {
         if(!identical(slot(x,sl), slot(y,sl)))
             return(FALSE)
     TRUE
+}
+
+Q.C.identical <- function(x,y, sparse = is(x,"sparseMatrix")) {
+    if(sparse) Qidentical(as(x,"CsparseMatrix"), as(y,"CsparseMatrix"))
+    else Qidentical(x,y)
 }
 
 ## Useful Matrix constructors for testing:
@@ -337,12 +343,13 @@ checkMatrix <- function(m, m.m = if(do.matrix) as(m, "matrix"),
     ## and test 'dim()' as well:
     d <- dim(m)
     isSqr <- d[1] == d[2]
+    isPerm <- extends(cld, "pMatrix")
     if(do.t) stopifnot(identical(diag(m), diag(t(m))))
     ## TODO: also === diag(band(m,0,0))
     if(do.matrix)
     stopifnot(identical(dim(m.m), dim(m)),
 	      ## base::diag() keeps names [Matrix FIXME]
-	      if(extends(cld, "pMatrix")) {
+	      if(isPerm) {
 		  identical(as.integer(unname(diag(m))), unname(diag(m.m)))
 	      } else
 	      identical(unname(diag(m)),
@@ -353,7 +360,7 @@ checkMatrix <- function(m, m.m = if(do.matrix) as(m, "matrix"),
 	      )
 
     if(isSparse) {
-	n0m <- drop0(m, cld) #==> n0m is Csparse
+	n0m <- drop0(m) #==> n0m is Csparse
 	has0 <- !Qidentical(n0m, as(m,"CsparseMatrix"))
     }
     ## use non-square matrix when "allowed":
@@ -368,14 +375,14 @@ checkMatrix <- function(m, m.m = if(do.matrix) as(m, "matrix"),
 	    stopifnot(Qidentical(as(m11, "generalMatrix"),
 				 as(m12, "generalMatrix")))
     }
-    if(isSparse && has0) { ## ensure that as(., "nMatrix") gives nz-pattern
+    if(isSparse && !extends(cld,"nMatrix")) {
+	## ensure that as(., "nMatrix") gives nz-pattern
 	CatF("as(., \"nMatrix\") giving full nonzero-pattern: ")
 	n1 <- as(m, "nMatrix")
 	ns <- as(m, "nsparseMatrix")
 	stopifnot(identical(n1,ns),
 		  isDiag || ((if(isSym) Matrix:::nnzSparse else sum)(n1) ==
-			     length(Matrix:::diagU2N(m)@x)))
-
+			     length(if(isPerm) m@perm else Matrix:::diagU2N(m)@x)))
         Cat("ok\n")
     }
 
@@ -430,12 +437,37 @@ checkMatrix <- function(m, m.m = if(do.matrix) as(m, "matrix"),
 
     if(doCoerce2 && do.matrix) { ## not for large m:  !m will be dense
 
-	if(extends(cld, "lMatrix")) { ## should fulfill even with NA:
+	if(extends(cld, "nMatrix")) {
+	    stopifnot(identical(m, as(as(m, "dMatrix"),"nMatrix")),
+		      identical(m, as(as(m, "lMatrix"),"nMatrix")))
+	}
+	else if(extends(cld, "lMatrix")) { ## should fulfill even with NA:
 	    stopifnot(all(m | !m | ina), !any(!m & m & !ina))
 	    if(extends(cld, "TsparseMatrix")) # allow modify, since at end here
 		m <- Matrix:::uniqTsparse(m, clNam)
 	    stopifnot(identical(m, m & TRUE),
 		      identical(m, FALSE | m))
+	    ## also check the  coercions to [dln]Matrix
+	    m. <- if(isSparse && has0) n0m else m
+	    m1. <- m. # replace NA by 1 in m1. , carefully not changing class:
+	    if(any(ina)) m1.@x[is.na(m1.@x)] <- TRUE
+	    stopifnot(identical(m. , as(as(m. , "dMatrix"),"lMatrix")),
+		      clNam == "ldiMatrix" || # <- there's no "ndiMatrix"
+		      ## coercion to n* and back: only identical when no extra 0s:
+		      identical(m1., as(as(m1., "nMatrix"),"lMatrix")))
+	}
+	else if(extends(cld, "dMatrix")) {
+	    m. <- if(isSparse && has0) n0m else m
+	    m1 <- (m. != 0)*1
+	    if(!isSparse && substr(clNam,1,3) == "dpp")
+		## no "nppMatrix" possible
+		m1 <- unpack(m1)
+
+	    m1. <- m1 # replace NA by 1 in m1. , carefully not changing class:
+	    if(any(ina)) m1.@x[is.na(m1.@x)] <- 1
+	    ## coercion to n* (nz-pattern!) and back: only identical when no extra 0s and no NAs:
+	    stopifnot(Q.C.identical(m1., as(as(m., "nMatrix"),"dMatrix"), isSparse),
+		      Q.C.identical(m1 , as(as(m., "lMatrix"),"dMatrix"), isSparse))
 	}
 
 	if(extends(cld, "triangularMatrix")) {

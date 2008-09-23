@@ -29,8 +29,7 @@
   Class \code{"\linkS4class{diagonalMatrix}"} and
   class \code{"\linkS4class{lMatrix}"}, directly.
 
-  Class \code{"denseMatrix"}, by class \code{"diagonalMatrix"}.
-  Class \code{"Matrix"}, by class \code{"denseMatrix"} and class \code{"lMatrix"}.
+  Class \code{"\linkS4class{sparseMatrix}"}, by class \code{"diagonalMatrix"}.
 }
 % \section{Methods}{
 % No methods defined with class "ldiMatrix" in the signature.

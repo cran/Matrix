@@ -177,6 +177,8 @@ SEXP dsyMatrix_as_dspMatrix(SEXP from)
 	*CHAR(STRING_ELT(uplo, 0)) == 'U' ? UPP : LOW, NUN);
     SET_SLOT(val, Matrix_DimNamesSym,
 	     duplicate(GET_SLOT(from, Matrix_DimNamesSym)));
+    SET_SLOT(val, Matrix_factorSym,
+	     duplicate(GET_SLOT(from, Matrix_factorSym)));
     UNPROTECT(1);
     return val;
 }

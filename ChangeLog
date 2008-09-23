@@ -1,3 +1,73 @@
+2008-09-23  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/dsyMatrix.c (dsyMatrix_as_dspMatrix): copy 'factors' slot
+	* tests/dpo-test.R: test for it
+
+	* R/Tsparse.R (intI): improve one error message.
+
+2008-09-22  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.999375-15 to be released
+
+	* R/diagMatrix.R (diag o <Matrix>): explicit setMethods,
+	in order to keep result diagonal in many more cases.
+	(coerce) to denseMatrix now *does* coerce.
+
+	* man/diagonalMatrix-class.Rd: \alias{} for these.
+
+	* R/Auxiliaries.R (.dense.prefixes): ".diMatrix" has not been dense
+	anymore!
+
+	* R/dMatrix.R: as(<dMatrix>, <nMatrix>): enable Cholesky/BunchKaufman
+
+2008-09-20  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/lsparseMatrix.R (C2l): as(<d.Csparse>, "lMatrix") should
+	preserve NAs.
+
+	* R/Ops.R (Arith, Compare): keep diag="U" in more cases when sensible
+
+2008-09-19  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Ops.R (Arith): better <ddenseMatrix> o <numeric> which
+	preserves symmetry / triangularity in "obvious" cases.
+
+	* R/dpoMatrix.R: setAs(., "lMatrix") and setAs(., "nMatrix")
+	* R/dppMatrix.R: ditto
+	* man/dpoMatrix-class.Rd:
+
+	* inst/test-tools.R (checkMatrix): add [dln]Matrix <-> [dln]Matrix
+	coercion checks.
+	* tests/indexing.Rout.save: more ambiguity warnings from the new checks.
+
+	* R/dMatrix.R: dMatrix -> nMatrix: fix dense case.
+
+2008-09-18  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* tests/factorizing.R: test expand(<sparseLU>)
+
+	* src/dgCMatrix.c (dgCMatrix_LU): fill @Dim slot correctly.
+
+	* R/Tsparse.R (replTmat): also optionally warn when sub-assignment
+	loses symmetry of Matrix.
+
+2008-09-17  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Tsparse.R (.TM.repl.i.2col): fix sub-assignment of "dsCMatrix";
+	bug reported by Jacob van Etten.
+
+	* tests/indexing.R, tests/indexing.Rout.save: testing it
+
+2008-09-10  Douglas Bates <bates@stat.wisc.edu>
+
+	* [r2260] src/Mutils.h, src/chm_common.c, src/cs_utils.c,
+	  src/dsCMatrix.c: Update doxygen comments
+
+2008-09-10  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* man/ddiMatrix-class.Rd: docu update : sparse, not dense (see 2008-07-28).
+	* man/ldiMatrix-class.Rd , man/diagonalMatrix-class.Rd: ditto.
+
 2008-09-08  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* DESCRIPTION (Version): 0.999375-14  to be released to CRAN,
@@ -419,8 +489,8 @@
 
 2008-04-17  Martin Maechler  <maechler@stat.math.ethz.ch>
 
-	* [disactivated] R/Matrix.R (det): det() as base::det(), but with Matrix environment
-	* [disactivated] NAMESPACE: export(det)
+	* [deactivated] R/Matrix.R (det): det() as base::det(), but with Matrix environment
+	* [deactivated] NAMESPACE: export(det)
 
 	* R/diagMatrix.R (mkDiag): new substitute for diag()
 

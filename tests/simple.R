@@ -73,9 +73,9 @@ e2 <- try(!Lrg) # error message was "bad", now perfect
 ina <- is.na(Lrg)# "all FALSE"
 stopifnot(grep("too large", e1) == 1,
           grep("too large", e2) == 1,
-                    !any(ina))# <- gave warning previously
-## FIXME  any(Lrg), !any(ina))# <- gave warning previously
+          !any(ina))# <- gave warning previously
 options(op)
+stopifnot(any(Lrg))# warns (double -> logical) correctly
 
 ## with dimnames:
 m. <- matrix(c(0, 0, 2:0), 3, 5)
@@ -135,9 +135,7 @@ assert.EQ.mat(D4., diag(x= (1:4)^2))
 assert.EQ.mat(D4p, diag(x= (1:4)) + (1:4))
 assert.EQ.mat(D4m, diag(x=c(4,6,6,4)))
 assert.EQ.mat(Lg1, diag(x= c(FALSE, rep(TRUE,3))))
-if(FALSE)## FIXME
-stopifnot(is(D4., "diagonalMatrix"))
-stopifnot(is(Lg1, "diagonalMatrix"), is(D4m, "diagonalMatrix"),
+stopifnot(is(Lg1, "diagonalMatrix"), is(D4m, "diagonalMatrix"), is(D4., "diagonalMatrix"),
           is(nLg, "symmetricMatrix"), is(nnLg, "symmetricMatrix"),
           identical3(Lg1, Matrix(nnLg), as(nnLg, "diagonalMatrix")),
           all(Lg1 != (!Lg1)))

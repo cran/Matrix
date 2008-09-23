@@ -5,6 +5,7 @@
 %
 \alias{as.vector,diagonalMatrix,missing-method}
 \alias{coerce,matrix,diagonalMatrix-method}
+\alias{coerce,diagonalMatrix,denseMatrix-method}
 \alias{coerce,diagonalMatrix,generalMatrix-method}
 \alias{coerce,diagonalMatrix,matrix-method}
 \alias{coerce,diagonalMatrix,nMatrix-method}
@@ -95,11 +96,28 @@
 \alias{sum,ddiMatrix-method}
 \alias{sum,ldiMatrix-method}
 
-\alias{&,ANY,ddiMatrix-method}
-\alias{&,ANY,ldiMatrix-method}
-\alias{&,ddiMatrix,ANY-method}
-\alias{&,ldiMatrix,ANY-method}
+% for all these functions explicitly (in loop in ../R/diagMatrix.R ):
+%%
+\alias{*,Matrix,ddiMatrix-method}
+\alias{*,Matrix,ldiMatrix-method}
+\alias{*,ddiMatrix,Matrix-method}
+\alias{*,ldiMatrix,Matrix-method}
 
+\alias{*,ddiMatrix,denseMatrix-method}
+\alias{*,ldiMatrix,denseMatrix-method}
+\alias{*,denseMatrix,ddiMatrix-method}
+\alias{*,denseMatrix,ldiMatrix-method}
+%%
+\alias{^,Matrix,ddiMatrix-method}
+\alias{^,Matrix,ldiMatrix-method}
+\alias{^,ddiMatrix,Matrix-method}
+\alias{^,ldiMatrix,Matrix-method}
+
+\alias{^,ddiMatrix,denseMatrix-method}
+\alias{^,ldiMatrix,denseMatrix-method}
+\alias{^,denseMatrix,ddiMatrix-method}
+\alias{^,denseMatrix,ldiMatrix-method}
+%%
 \alias{&,Matrix,ddiMatrix-method}
 \alias{&,Matrix,ldiMatrix-method}
 \alias{&,ddiMatrix,Matrix-method}
@@ -109,6 +127,22 @@
 \alias{&,ldiMatrix,denseMatrix-method}
 \alias{&,denseMatrix,ddiMatrix-method}
 \alias{&,denseMatrix,ldiMatrix-method}
+%%---
+\alias{\%\%,ddiMatrix,Matrix-method}
+\alias{\%\%,ldiMatrix,Matrix-method}
+\alias{\%\%,ddiMatrix,denseMatrix-method}
+\alias{\%\%,ldiMatrix,denseMatrix-method}
+%>
+\alias{\%/\%,ddiMatrix,Matrix-method}
+\alias{\%/\%,ldiMatrix,Matrix-method}
+\alias{\%/\%,ddiMatrix,denseMatrix-method}
+\alias{\%/\%,ldiMatrix,denseMatrix-method}
+%>
+\alias{/,ddiMatrix,Matrix-method}
+\alias{/,ldiMatrix,Matrix-method}
+\alias{/,ddiMatrix,denseMatrix-method}
+\alias{/,ldiMatrix,denseMatrix-method}
+%>
 %-end{H.Hack}
 \alias{Ops,diagonalMatrix,diagonalMatrix-method}
 \alias{Ops,diagonalMatrix,ddiMatrix-method}
@@ -168,23 +202,39 @@
   }
 }
 \section{Extends}{
-  Class \code{"\linkS4class{denseMatrix}"}, directly.
+  Class \code{"\linkS4class{sparseMatrix}"}, directly.
 }
 \section{Methods}{
   \describe{
     \item{coerce}{\code{signature(from = "matrix", to = "diagonalMatrix")}: ... }
-    \item{coerce}{\code{signature(from = "diagonalMatrix", to = "symmetricMatrix")}: ... }
-    \item{coerce}{\code{signature(from = "diagonalMatrix", to = "triangularMatrix")}: ... }
-    \item{coerce}{\code{signature(from = "diagonalMatrix", to = "matrix")}: ... }
     \item{coerce}{\code{signature(from = "Matrix", to = "diagonalMatrix")}: ... }
+    \item{coerce}{\code{signature(from = "diagonalMatrix", to = "generalMatrix")}: ... }
+    \item{coerce}{\code{signature(from = "diagonalMatrix", to = "triangularMatrix")}: ... }
+    \item{coerce}{\code{signature(from = "diagonalMatrix", to = "nMatrix")}: ... }
+    \item{coerce}{\code{signature(from = "diagonalMatrix", to = "matrix")}: ... }
+    \item{coerce}{\code{signature(from = "diagonalMatrix", to = "sparseVector")}: ... }
     \item{t}{\code{signature(x = "diagonalMatrix")}: ... }
     \item{\%*\%}{\code{signature(x = "dgeMatrix", y = "diagonalMatrix")}: ... }
     \item{\%*\%}{\code{signature(x = "matrix", y = "diagonalMatrix")}: ... }
     \item{\%*\%}{\code{signature(x = "diagonalMatrix", y = "matrix")}: ... }
     \item{\%*\%}{\code{signature(x = "diagonalMatrix", y = "dgeMatrix")}: ... }
 
+    \item{crossprod}{\code{signature(x = "diagonalMatrix", y = "dgeMatrix")}: ... }
+    \cr and many more methods
+
     \item{solve}{\code{signature(a = "diagonalMatrix", b, ...)}: is
       trivially implemented, of course.}
+
+    \item{*}{\code{signature(e1 = "ddiMatrix", e2="denseMatrix")}:
+      arithmetic and other operators from the \code{\link[methods]{Ops}}
+      group have a few dozen explicit method definitions, in order to
+      keep the results \emph{diagonal} in many cases, including the following:}
+    \item{/}{\code{signature(e1 = "ddiMatrix", e2="denseMatrix")}:
+      the result is from class \code{\linkS4class{ddiMatrix}} which is
+      typically very desirable.  Note that when \code{e2} contains
+      off-diagonal zeros or \code{\link{NA}}s, we implicitly use \eqn{0 / x = 0}, hence
+      differing from traditional \R arithmetic (where \eqn{0 / 0
+      \mapsto \mbox{NaN}}{0/0 |-> NaN}), in order to preserve sparsity.}
   }
 }
 \seealso{

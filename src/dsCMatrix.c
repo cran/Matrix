@@ -132,7 +132,9 @@ SEXP dsCMatrix_Cholesky(SEXP Ap, SEXP perm, SEXP LDL, SEXP super, SEXP Imult)
  * (sparse symmetric) dsCMatrix.
  *
  * @param Ap  symmetric CsparseMatrix
- * @param permpP  logical indicating if permutation is allowed
+ * @param permP  logical indicating if permutation is allowed
+ * @param resultKind an (SEXP) string indicating which kind of result
+ *        is desired.
  *
  * @return SEXP containing either the vector diagonal entries of D,
  *         or just  sum_i D[i], prod_i D[i] or  sum_i log(D[i]).

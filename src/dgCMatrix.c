@@ -266,7 +266,7 @@ SEXP dgCMatrix_LU(SEXP Ap, SEXP orderp, SEXP tolp)
     CSP A = AS_CSP__(Ap), D;
     css *S;
     csn *N;
-    int n, order = asInteger(orderp), *p;
+    int n, order = asInteger(orderp), *p, *dims;
     double tol = asReal(tolp);
     R_CheckStack();
 
@@ -303,6 +303,8 @@ SEXP dgCMatrix_LU(SEXP Ap, SEXP orderp, SEXP tolp)
     cs_spfree (D) ;
     p = cs_pinv (N->pinv, n) ;	/* p=pinv' */
     ans = PROTECT(NEW_OBJECT(MAKE_CLASS("sparseLU")));
+    dims = INTEGER(ALLOC_SLOT(ans, Matrix_DimSym, INTSXP, 2));
+    dims[0] = n; dims[1] = n;
     SET_SLOT(ans, install("L"),
 	     Matrix_cs_to_SEXP(N->L, "dtCMatrix", 0));
     SET_SLOT(ans, install("U"),

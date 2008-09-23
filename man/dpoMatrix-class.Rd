@@ -7,6 +7,10 @@
 %      ---
 \alias{coerce,dpoMatrix,corMatrix-method}
 \alias{coerce,dpoMatrix,dppMatrix-method}
+\alias{coerce,dpoMatrix,lMatrix-method}
+\alias{coerce,dpoMatrix,nMatrix-method}
+\alias{coerce,dppMatrix,lMatrix-method}
+\alias{coerce,dppMatrix,nMatrix-method}
 \alias{coerce,dppMatrix,dpoMatrix-method}
 \alias{coerce,dspMatrix,dpoMatrix-method}
 \alias{coerce,dspMatrix,dppMatrix-method}

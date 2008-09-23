@@ -22,14 +22,14 @@ nearPD(x, corr = FALSE, keepDiag = FALSE, do2eigen = TRUE,
     (\code{\link{diag}(x)}) as the input matrix.}
   \item{do2eigen}{logical indicating if a
     \code{\link[sfsmisc]{posdefify}()} eigen step should be applied to
-    the result of the Hingham algorithm.}
+    the result of the Higham algorithm.}
   \item{only.values}{logical; if \code{TRUE}, the result is just the
     vector of eigen values of the approximating matrix.}
 
   \item{eig.tol}{defines relative positiveness of eigenvalues compared
     to largest one, \eqn{\lambda_1}. Eigen values \eqn{\lambda_k} are
     treated as if zero when \eqn{\lambda_k / \lambda_1 <= eig.tol}.}
-  \item{conv.tol}{convergence tolerance for Hingham algorithm.}
+  \item{conv.tol}{convergence tolerance for Higham algorithm.}
   \item{posd.tol}{tolerance for enforcing positive definiteness (in the
     final \code{posdefify} step when \code{do2eigen} is \code{TRUE}).}
   \item{maxit}{maximum number of iterations allowed.}
@@ -41,7 +41,7 @@ nearPD(x, corr = FALSE, keepDiag = FALSE, do2eigen = TRUE,
   positive definiteness using code from
   \code{\link[sfsmisc]{posdefify}}.  The algorithm of Knol DL and ten
   Berge (1989) (not implemented here) is more general in (1) that it
-  allows contraints to fix some rows (and columns) of the matrix and (2)
+  allows constraints to fix some rows (and columns) of the matrix and (2)
   to force the smallest eigenvalue to have a certain value.
 
   Note that setting \code{corr = TRUE} just sets \code{diag(.) <- 1}
@@ -71,7 +71,7 @@ nearPD(x, corr = FALSE, keepDiag = FALSE, do2eigen = TRUE,
   proper one.
   \emph{Psychometrika} \bold{54}, 53--61.
 
-  Highham (2002)
+  Higham, Nick (2002)
   Computing the nearest correlation matrix - a problem from finance;
   \emph{IMA Journal of Numerical Analysis} \bold{22}, 329--343.
 }

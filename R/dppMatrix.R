@@ -6,6 +6,11 @@ setAs("dppMatrix", "dpoMatrix",
 		"dpoMatrix",
 		sNames = c("x", "Dim", "Dimnames", "uplo", "factors")))
 
+setAs("dppMatrix", "lMatrix",
+      function(from) as(as(from, "dsyMatrix"), "lMatrix"))
+setAs("dppMatrix", "nMatrix",
+      function(from) as(as(from, "dsyMatrix"), "nMatrix"))
+
 to_dpp <- function(from) as(as(as(as(from, "symmetricMatrix"), "dMatrix"),
 			       "dpoMatrix"), "dppMatrix")
 setAs("Matrix", "dppMatrix", to_dpp)# some may fail, but this tries

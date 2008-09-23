@@ -116,9 +116,23 @@ setMethod("Compare", signature(e1 = "dMatrix", e2 = "numeric"),
 	      }
 	      else if(extends(cl1 <- getClassDef(cl <- class(e1)),"denseMatrix")) {
 		  full <- !isPacked(e1) # << both "dtr" and "dsy" are 'full'
-		  if(full || identical(r0, FALSE) || extends(cl1, "symmetricMatrix"))
-		      r <- new(class2(cl, "l"), x = r, Dim = d, Dimnames = dimnames(e1))
-		  else { ## packed matrix with structural 0 and r0 is not FALSE:
+		  if(full || identical(r0, FALSE) || extends(cl1, "symmetricMatrix")) {
+                      isTri <- extends(cl1, "triangularMatrix")
+                      if(isTri) {
+                          if(cl == "Cholesky" || cl == "BunchKaufman")
+                              cl1 <- getClassDef(cl <- class(e1 <- as(e1, "dtrMatrix")))
+                      }
+                      ## FIXME? using copyClass() to copy "relevant" slots
+		      r <- new(class2(cl, "l"), x = r, Dim = d,
+			       Dimnames = dimnames(e1))
+		      if(extends(cl1, "symmetricMatrix")) {
+			  r@uplo <- e1@uplo
+		      } else if(isTri) {
+			  r@uplo <- e1@uplo
+			  r@diag <- e1@diag
+		      }
+		  }
+                  else { ## packed matrix with structural 0 and r0 is not FALSE:
 		      ##--> result cannot be packed anymore
                       ## [dense & packed & not symmetric ] ==> must be "dtp*" :
                       if(!extends(cl1, "dtpMatrix"))
@@ -132,14 +146,17 @@ setMethod("Compare", signature(e1 = "dMatrix", e2 = "numeric"),
 	      }
 	      else { ## dsparseMatrix =>
                   lClass <- class2(cl, "l") # is "lsparse*"
-		  if(extends(cl1, "triangularMatrix") && e1@diag == "U") {
-		      e1 <- .diagU2N(e1, cl = cl1)
+		  if(Udg <- (extends(cl1, "triangularMatrix") && e1@diag == "U")) {
+                      r1 <- callGeneric(1, e2)
+                      Udg <- all(r1) # maybe U-diag result
+		      if(!Udg)
+			  e1 <- .diagU2N(e1, cl = cl1) #otherwise, result is U-diag
 		      if(extends(cl1, "CsparseMatrix")) {
 			  r <- callGeneric(e1@x, e2)
 		      }
 		      else {
 			  ## CARE: assume that diagU2N appends the diagonal entries at end !
-			  r <- c(r, rep.int(callGeneric(1, e2), d[1]))
+			  r <- c(r, rep.int(r1, d[1]))
 		      }
 		  }
 
@@ -150,7 +167,7 @@ setMethod("Compare", signature(e1 = "dMatrix", e2 = "numeric"),
 			  r@Dimnames <- dimnames(e1)
 			  if(Ar) { # 'TRUE' instead of 'x': same sparsity:
 			      r@x <- rep.int(TRUE, length(e1@x))
-			      for(n in intersect(c("i","j","p","uplo"), slotNames(cl1)))
+			      for(n in intersect(c("i","j","p","uplo","diag"), slotNames(cl1)))
 				  slot(r, n) <- slot(e1, n)
 			  }
 			  else { ## !any(r): all FALSE: keep empty 'r' matrix
@@ -178,8 +195,8 @@ setMethod("Compare", signature(e1 = "dMatrix", e2 = "numeric"),
 			  message(sprintf("sparse to dense (%s) coercion in '%s'",
 					  lClass, .Generic))
 		      rx <- rep.int(r0, d[1]*d[2])
-		      if(extends(cl1, "triangularMatrix") && e1@diag == "U")
-			  r <- c(r, rep.int(callGeneric(1, e2),d[1]))
+		      if(Udg)
+			  r <- c(r, rep.int(r1, d[1]))
 
 		      ## Here, we assume that 'r' and the indices align (!)
 		      encI <- .Call(m_encodeInd, non0ind(e1, cl1, uniqT=FALSE,
@@ -318,10 +335,68 @@ setMethod("Arith", signature(e1 = "numeric", e2 = "dgeMatrix"),
 setMethod("Arith", signature(e1 = "ddenseMatrix", e2 = "ddenseMatrix"),
           function(e1, e2) callGeneric(as(e1, "dgeMatrix"),
                                        as(e2, "dgeMatrix")))
+
 setMethod("Arith", signature(e1 = "ddenseMatrix", e2 = "numeric"),
-          function(e1, e2) callGeneric(as(e1, "dgeMatrix"), e2))
+	  ## since e1 = "dgeMatrix" has its own method, we have
+	  ## either symmetric or triangular !
+	  function(e1, e2) {
+	      d <- e1@Dim
+	      le <- length(e2 <- as.vector(e2))
+	      if(le == 1 || le == d[1] || prod(d) == le) { # matching dim
+		  if(is(e1, "triangularMatrix")) {
+		      r0 <- callGeneric(0, e2)
+		      if(all(r0 == 0)) {# result remains triangular
+			  if(e1@diag == "U" && !all(1 == callGeneric(1,e2)))
+			      e1 <- diagU2N(e1)
+			  e1@x <- callGeneric(e1@x, e2)
+			  e1
+		      } else { ## result *general*
+			  callGeneric(as(e1,"dgeMatrix"), e2)
+		      }
+		  } else { ## symmetric
+		      if(le == 1) { ## result remains symmetric
+			  e1@x <- callGeneric(e1@x, e2)
+			  e1
+		      } else { ## (le == d[1] || prod(d) == le)
+			  ## *might* remain symmetric, but 'x' may contain garbage
+			  ## *testing* for symmetry is also a bit expensive ==> simple:
+			  callGeneric(as(e1,"dgeMatrix"), e2)
+		      }
+		  }
+	      } else stop ("length of 2nd arg does not match dimension of first")
+	  })
+
+## setMethod("Arith", signature(e1 = "numeric", e2 = "ddenseMatrix"),
+##	     function(e1, e2) callGeneric(e1, as(e2, "dgeMatrix")))
 setMethod("Arith", signature(e1 = "numeric", e2 = "ddenseMatrix"),
-          function(e1, e2) callGeneric(e1, as(e2, "dgeMatrix")))
+	  function(e1, e2) {
+	      d <- e2@Dim
+	      ## note that e2 is either symmetric or triangular here
+	      le <- length(e1 <- as.vector(e1))
+	      if(le == 1 || le == d[1] || prod(d) == le) { # matching dim
+		  if(is(e2, "triangularMatrix")) {
+		      r0 <- callGeneric(e1, 0)
+		      if(all(r0 == 0)) {# result remains triangular
+			  if(e2@diag == "U" && !all(1 == callGeneric(e1,1)))
+			      e2 <- diagU2N(e2)
+			  e2@x <- callGeneric(e1, e2@x)
+			  e2
+		      } else { ## result *general*
+			  callGeneric(e1, as(e2,"dgeMatrix"))
+		      }
+		  } else { ## symmetric
+		      if(le == 1) { ## result remains symmetric
+			  e2@x <- callGeneric(e1, e2@x)
+			  e2
+		      } else { ## (le == d[1] || prod(d) == le)
+			  ## *might* remain symmetric, but 'x' may contain garbage
+			  ## *testing* for symmetry is also a bit expensive ==> simple:
+			  callGeneric(e1, as(e2,"dgeMatrix"))
+		      }
+		  }
+	      } else stop ("length of 1st arg does not match dimension of 2nd")
+	  })
+
 
 ## "Logic"
 ## -------
@@ -415,8 +490,21 @@ setMethod("Logic", signature(e1 = "lMatrix", e2 = "logical"),
 	      }
 	      else if(extends(cl1 <- getClassDef(cl <- class(e1)), "denseMatrix")) {
 		  full <- !isPacked(e1) # << both "dtr" and "dsy" are 'full'
-		  if(full || identical(r0, FALSE) || extends(cl1,"symmetricMatrix"))
+		  if(full || identical(r0, FALSE) || extends(cl1,"symmetricMatrix")) {
+		      isTri <- extends(cl1, "triangularMatrix")
+		      if(isTri) {
+			  if(extends(cl1,"Cholesky") || extends(cl1,"BunchKaufman"))
+			      cl1 <- getClassDef(cl <- class(e1 <- as(e1, "dtrMatrix")))
+		      }
+		      ## FIXME? using copyClass() to copy "relevant" slots
 		      r <- new(cl, x = r, Dim = d, Dimnames = dimnames(e1))
+		      if(extends(cl1, "symmetricMatrix")) {
+			  r@uplo <- e1@uplo
+		      } else if(isTri) {
+			  r@uplo <- e1@uplo
+			  r@diag <- e1@diag
+		      }
+                  }
 		  else { ## packed matrix with structural 0 and r0 is not FALSE:
 		      ##--> result cannot be packed anymore
 		      ## [dense & packed & not symmetric ] ==> must be "ltp*" :
@@ -828,7 +916,10 @@ setMethod("Arith", signature(e1 = "CsparseMatrix", e2 = "numeric"),
 	      if(length(e2) == 1) { ## e.g.,  Mat ^ a
 		  f0 <- callGeneric(0, e2)
 		  if(is0(f0)) { # remain sparse, symm., tri.,...
-                      e1 <- diagU2N(as(e1, "dMatrix"))
+		      e1 <- as(e1, "dMatrix")
+		      if(extends(cld <- getClassDef(class(e1)), "triangularMatrix") &&
+			 e1@diag == "U" && !all(1 == callGeneric(1, e2)))
+			  e1 <- .diagU2N(e1, cld)
 		      e1@x <- callGeneric(e1@x, e2)
 		      return(e1)
 		  }
@@ -843,7 +934,10 @@ setMethod("Arith", signature(e1 = "numeric", e2 = "CsparseMatrix"),
 	      if(length(e1) == 1) {
 		  f0 <- callGeneric(e1, 0)
 		  if(is0(f0)) {
-                      e2 <- diagU2N(as(e2, "dMatrix"))
+		      e2 <- as(e2, "dMatrix")
+		      if(extends(cld <- getClassDef(class(e2)), "triangularMatrix") &&
+			 e2@diag == "U" && !all(1 == callGeneric(e1, 1)))
+			  e2 <- .diagU2N(e2, cld)
 		      e2@x <- callGeneric(e1, e2@x)
 		      return(e2)
 		  }

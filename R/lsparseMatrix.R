@@ -1,11 +1,20 @@
 #### Superclass Methods for all sparse logical matrices
 
 
-C2l <- function(from) as(.Call(Csparse_to_nz_pattern,
-			       ## drop extraneous '0' since they would become TRUE:
-			       .Call(Csparse_drop, from, 0),
-			       is(from, "triangularMatrix")),
-			 "lsparseMatrix")
+C2l <- function(from) {
+    if(extends(cld <- getClassDef(cl <- class(from)), "lsparseMatrix"))
+	return(from)
+    ## else
+    is.n <- extends(cld, "nsparseMatrix")
+    r <- as(.Call(Csparse_to_nz_pattern, if(is.n) from else .Call(Csparse_drop, from, 0),
+		  extends(cld, "triangularMatrix")),
+	    "lsparseMatrix")
+    if(!is.n && any(ina <- is.na(from@x)))
+	## NAs must remain NA
+	is.na(r@x) <- ina    # strong assumption: r@x "matches" from@x
+    r
+}
+
 setAs("CsparseMatrix", "lMatrix", C2l)
 setAs("CsparseMatrix", "lsparseMatrix", C2l)
 

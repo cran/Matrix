@@ -25,6 +25,9 @@ setAs("dMatrix", "nMatrix",
 	  if(extends(cld, "diagonalMatrix")) { # have no "ndi*" etc class
 	      cl <- class(from <- as(from, "sparseMatrix"))
 	      isSp <- TRUE
+	  } else if(cl == "Cholesky" || cl == "BunchKaufman") {
+              cld <- getClassDef(cl <- class(from <- as(from, "dtrMatrix")))
+	      isSp <- FALSE
 	  } else {
 	      isSp <- extends(cld, "sparseMatrix")
 	      if(isSp && any(from@x == 0)) {
@@ -34,8 +37,10 @@ setAs("dMatrix", "nMatrix",
 	      }
 	  }
 	  sNams <- slotNames(cld)
-	  copyClass(from, sub("^d", "n", cl),
-		    if(isSp) sNams[sNams != "x"] else sNams)
+	  r <- copyClass(from, sub("^d", "n", cl), sNams[sNams != "x"])
+	  if(!isSp) #  'x' slot |--> logical
+	      r@x <- as.logical(from@x)
+	  r
       })
 
 
@@ -99,9 +104,14 @@ setMethod("Summary", signature(x = "ddenseMatrix", na.rm = "ANY"),
 		  } else callGeneric(as(x, "dgeMatrix")@x, ..., na.rm = na.rm)
 	      }
 	      else { ## triangular , packed
-		  if(.Generic %in% summGener1)
-		      callGeneric(x@x, 0, if(x@diag == "U") 1, ..., na.rm = na.rm)
-		  else callGeneric(as(x, "dgeMatrix")@x, ..., na.rm = na.rm)
+		  if(.Generic %in% summGener1) {
+                      if(.Generic %in% c("any","all")) {
+                          Zero <- FALSE; One <- TRUE
+                      } else {
+                          Zero <- 0; One <- 1
+                      }
+		      callGeneric(x@x, Zero, if(x@diag == "U") One, ..., na.rm = na.rm)
+		  } else callGeneric(as(x, "dgeMatrix")@x, ..., na.rm = na.rm)
 	      }
 	  })
 
@@ -123,7 +133,8 @@ setMethod("Summary", signature(x = "dsparseMatrix", na.rm = "ANY"),
 		  if(.Generic == "prod") 0 else
 		  callGeneric((if(.Generic %in% summGener1) diagU2N(x) else
 			       as(x, "generalMatrix"))@x,
-			      0, ..., na.rm = na.rm)
+			      if(.Generic %in% c("any","all")) FALSE else 0,
+			      ..., na.rm = na.rm)
 	      }
 	  }
 	  else { ## fully non-zero - very rare

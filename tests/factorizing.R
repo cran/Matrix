@@ -41,12 +41,16 @@ por1 <- readMM(system.file("external/pores_1.mtx", package = "Matrix"))
 lu1 <- lu(por1)
 pm <- as(por1, "CsparseMatrix")
 (pmLU <- lu(pm)) # -> show(<MatrixFactorization>)
-## identical only as long as we don't keep the original class info:
-stopifnot(identical(lu1, pmLU))
-
+xp <- expand(pmLU)
 ## permute rows and columns of original matrix
 ppm <- pm[pmLU@p + 1:1, pmLU@q + 1:1]
 Ppm <- pmLU@L %*% pmLU@U
+## identical only as long as we don't keep the original class info:
+stopifnot(identical(lu1, pmLU),
+	  identical(ppm, with(xp, P %*% pm %*% t(Q))),
+	  sapply(xp, is, class="Matrix"))
+
+
 ## these two should be the same, and `are' in some ways:
 assert.EQ.mat(ppm, as(Ppm, "matrix"), tol = 1e-14)
 ## *however*
@@ -54,7 +58,6 @@ length(ppm@x)# 180
 length(Ppm@x)# 317 !
 table(Ppm@x == 0)# (194, 123) - has 123 "zero" and 14 ``almost zero" entries
 
-## FIXME:  expand(pmLU)
 
 ###________ Cholesky() ________
 

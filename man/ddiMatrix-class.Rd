@@ -9,8 +9,8 @@
 %
 \description{The class \code{"ddiMatrix"} of numerical diagonal matrices.
   %% FIXME add more
-
-  Note that diagonal matrices extend \emph{dense}, not sparse matrices.
+  Note that diagonal matrices now extend \emph{\code{sparseMatrix}}, whereas
+  they did extend dense matrices earlier.% up to early summer 2008.
 }
 \section{Objects from the Class}{
   Objects can be created by calls of the form \code{new("ddiMatrix", ...)}
@@ -32,7 +32,8 @@
 \section{Extends}{
   Class \code{"\linkS4class{diagonalMatrix}"}, directly.
   Class \code{"\linkS4class{dMatrix}"}, directly.
-  Class \code{"denseMatrix"} indirectly, see \code{\link{showClass}("ddiMatrix")}.
+  Class \code{"\linkS4class{sparseMatrix}"}, indirectly, see
+  \code{\link{showClass}("ddiMatrix")}.
 }
 \section{Methods}{
   \describe{

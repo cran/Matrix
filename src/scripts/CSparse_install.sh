@@ -6,7 +6,7 @@ tarFile=CSparse.tar.gz
 sDir=CSparse/Source
 iDir=CSparse/Include
 # ----------------- a "full path" for the current directory:
-MatrixDir=`dirname $0`; cd $MatrixDir; MatrixDir=`pwd`
+MatrixDir=`dirname $0`/..; cd $MatrixDir; MatrixDir=`pwd`
 if [ -d $MatrixDir ]
 then echo "Downloading into directory '$MatrixDir' .."
 else echo "no directory '$MatrixDir' .. exiting"; exit 3

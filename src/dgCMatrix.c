@@ -258,6 +258,64 @@ SEXP dgCMatrix_QR(SEXP Ap, SEXP order)
     return ans;
 }
 
+
+/**
+ * Return a SuiteSparse QR factorization of the sparse matrix A
+ *
+ * @param obj pointer to an S4 object
+ * @param nm pointer to a symbol naming the slot to extract
+ * 
+ * @return pointer to the REAL contents, if nonzero length, otherwise
+ * a NULL pointer 
+ *
+ */
+SEXP dgCMatrix_SPQR(SEXP Ap, SEXP order)
+{
+    SEXP ans = PROTECT(allocVector(VECSXP, 4));
+    CHM_SP A = AS_CHM_SP(Ap), Al, Q, R;
+    UF_long *Ali, *Alp, *E, rank;
+    int annz, *Ai = (int*)(A->i), *App = (int*)(A->p);
+    double *Ax = (double*)(A->x), *Alx;
+    
+    annz = cholmod_nnz(A, &c);
+
+    /* incorporate this into a utility */
+    if (!(Al = cholmod_l_allocate_sparse(A->nrow, A->ncol,
+					 (size_t) annz, A->sorted,
+					 A->packed, A->stype,
+					 A->xtype, &cl)))
+	error(_("cholmod_l_allocate_sparse error, status = "));
+    Ali = (UF_long*)(Al->i); Alp = (UF_long*)(Al->p); Alx = (double*)(Al->x);
+    for (int j = 0; j <= A->ncol; j++) Alp[j] = (UF_long)(App[j]);
+    for (int p = 0; p < annz; p++) {
+	Ali[p] = (UF_long)(Ai[p]);
+	Alx[p] = Ax[p];
+    }
+    /* end of utility */
+
+    if ((rank = SuiteSparseQR_C_QR(asInteger(order),
+				   SPQR_DEFAULT_TOL, 0,
+				   A, &Q, &R, &E, &cl)) == -1)
+	error(_("SuiteSparseQR_C_QR returned an error code"));
+    SET_VECTOR_ELT(ans, 0,
+		   chm_sparse_to_SEXP(Q, 0, 0, 0, "", R_NilValue));
+    SET_VECTOR_ELT(ans, 1,
+		   chm_sparse_to_SEXP(R, 0, 0, 0, "", R_NilValue));
+    cholmod_l_free_sparse(&Al, &cl);
+    cholmod_l_free_sparse(&R, &cl);
+    cholmod_l_free_sparse(&Q, &cl);
+    if (E) {
+	int *Er;
+	SET_VECTOR_ELT(ans, 2, allocVector(INTSXP, A->ncol));
+	Er = INTEGER(VECTOR_ELT(ans, 2));
+	for (int i = 0; i < A->ncol; i++) Er[i] = (int) E[i];
+	Free(E);
+    } else SET_VECTOR_ELT(ans, 2, allocVector(INTSXP, 0));
+    SET_VECTOR_ELT(ans, 3, ScalarInteger((int)rank));
+    UNPROTECT(1);
+    return ans;
+}
+
 /* Modified version of Tim Davis's cs_lu_mex.c file for MATLAB */
 SEXP dgCMatrix_LU(SEXP Ap, SEXP orderp, SEXP tolp)
 {

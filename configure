@@ -1,9 +1,0 @@
-#!/bin/sh
-#
-MAKE=${MAKE:-make}
-#
-if $MAKE -v | sed -n 1p | grep '^GNU' > /dev/null
-then echo 'Using  GNU make  for building the package'
-else echo '*** You need "GNU make" for building this package from the sources'
-    exit 1
-fi

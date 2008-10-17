@@ -1,0 +1,35 @@
+# -*- Makefile -*-
+
+PKG_CPPFLAGS = -I./UFconfig
+PKG_CFLAGS = -I./UFconfig
+## we use the BLAS and the LAPACK library:
+PKG_LIBS = $(SUBLIBS) $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)
+
+ifneq ($(strip $(BUILD)),CROSS)
+PKG_HOME = $(shell $(RHOME)/src/gnuwin32/Rpwd.exe .)
+else
+PKG_HOME = $(shell pwd)
+endif
+
+MkInclude = $(PKG_HOME)/scripts/Win.mk
+
+include scripts/SOURCES_C.mkf
+
+OBJECTS = $(SOURCES_C:.c=.o)
+DEPS = $(SOURCES_C:.c=.d)
+
+SUBDIRS = SPQR CHOLMOD COLAMD AMD
+SUBLIBS = $(SUBDIRS:=.a)
+
+before:
+	@for d in $(SUBDIRS); do \
+	  (cd $${d} && CFLAGS="$(CFLAGS)" CXXFLAGS="$(CXXFLAGS)" MkInclude="$(MkInclude)" $(MAKE) library) || exit 1; \
+	done
+
+clean:
+	@-rm -f *.o $(SHLIB) *.a
+	@for d in $(SUBDIRS); do \
+	  (cd $${d} && MkInclude="$(MkInclude)" $(MAKE) clean) || exit 1; \
+	done
+
+## don't include DEPS.mkf because Windows creates dependencies by default.

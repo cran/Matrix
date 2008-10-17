@@ -3,6 +3,7 @@
 
 #include "UFconfig/UFconfig.h"
 #include "CHOLMOD/Include/cholmod.h"
+#include "SPQR/Include/SuiteSparseQR_C.h"
 #include "Mutils.h"
 
 typedef struct cholmod_common_struct  *CHM_CM ;
@@ -11,7 +12,8 @@ typedef struct cholmod_factor_struct  *CHM_FR ;
 typedef struct cholmod_sparse_struct  *CHM_SP ;
 typedef struct cholmod_triplet_struct *CHM_TR ;
 
-extern cholmod_common c;
+extern cholmod_common c;	/* structure for int CHM routines */
+extern cholmod_common cl;	/* structure for UF_long routines */
 
 /* NOTE: Versions of these are *EXPORTED* via ../inst/include/Matrix.h
  * ----  and used e.g., in the lme4 package
@@ -37,7 +39,8 @@ CHM_FR as_cholmod_factor (CHM_FR ans, SEXP x);
 Rboolean check_sorted_chm(CHM_SP A);
 
 int R_cholmod_start(CHM_CM Common);
-void R_cholmod_error(int status, char *file, int line, char *message);
+int R_cholmod_l_start(CHM_CM Common);
+void R_cholmod_error(int status, const char *file, int line, const char *message);
 
 SEXP chm_factor_to_SEXP(CHM_FR f, int dofree);
 SEXP chm_sparse_to_SEXP(CHM_SP a, int dofree, int uploT, int Rkind,

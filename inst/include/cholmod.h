@@ -791,7 +791,7 @@ typedef struct cholmod_sparse_struct  *CHM_SP ;
 typedef struct cholmod_triplet_struct *CHM_TR ;
 
 int M_R_cholmod_start(CHM_CM Common);
-void M_R_cholmod_error(int status, char *file, int line, char *message);
+void M_R_cholmod_error(int status, const char *file, int line, const char *message);
 int M_cholmod_finish(CHM_CM Common);
 
 CHM_SP M_cholmod_allocate_sparse(size_t nrow, size_t ncol,

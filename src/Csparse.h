@@ -4,6 +4,8 @@
 
 #include "Mutils.h"
 
+Rboolean isValid_Csparse(SEXP x);
+
 SEXP Csparse_Csparse_prod(SEXP a, SEXP b);
 SEXP Csparse_band(SEXP x, SEXP k1, SEXP k2);
 SEXP Csparse_crossprod(SEXP x, SEXP trans, SEXP triplet);

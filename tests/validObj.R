@@ -150,3 +150,30 @@ stopifnot(all(m. == mm), # in spite of
           identical(t(t(m.)), mm),
 	  identical3(m. * m., m. * mm, mm * mm))
 m.[1,4] <- 99 ## FIXME: warning and cuts (!) the over-allocated slots
+
+## Low-level construction of invalid object:
+##  Ensure that it does *NOT* segfault
+foo <- new("ngCMatrix",
+           i = as.integer(c(12204, 16799, 16799, 33517, 1128, 11930, 1128, 11930, 32183)),
+           p = rep(0:9, c(2,4,1,11,10,0,1,0,9,12)),
+           Dim = c(36952L, 49L))
+validObject(foo)# TRUE
+foo@i[5] <- foo@i[5] + 50000L
+msg <- validObject(foo, test=TRUE)# is -- correctly -- *not* valid anymore
+stopifnot(is.character(msg))
+## Error in validObject(foo) :
+##   invalid class "ngCMatrix" object: all row indices must be between 0 and nrow-1
+getLastMsg <- function(tryRes) {
+    ## Extract "final" message from erronous try result
+    sub("\n$", "",
+        sub(".*: ", "", as.character(tryRes)))
+}
+t <- try(show(foo)) ## error
+t2 <- try(head(foo))
+stopifnot(identical(msg, getLastMsg(t)),
+	  identical(1L, grep("as_cholmod_sparse", getLastMsg(t2))))
+
+
+cat('Time elapsed: ', proc.time(),'\n') # "stats"
+
+if(!interactive()) warnings()

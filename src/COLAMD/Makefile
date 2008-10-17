@@ -1,5 +1,5 @@
 # compile just the C-callable library
-lib:
+library:
 	( cd Source ; $(MAKE) lib )
 
 # remove object files, but keep the compiled programs and library archives

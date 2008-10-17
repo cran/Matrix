@@ -183,3 +183,13 @@
   in all vignettes / talks / ... !!
   People erronously try rbind/cbind see that they don't work and then
   reinvent the wheel!
+
+--------
+
+- Reconsider the linkages in the include files for the SuiteSparse
+  packages.  It may be better simply to add all the src/<nm>/Include
+  directories to the include path for all compilations.  I don't think
+  there is a big overhead.  Right now we need to modify the include
+  file src/SPQR/Include/SuiteSparseQR_C.h so that it does not expect
+  to have src/UFsparse and src/CHOLMOD/Include on the include path.
+  Maybe just those two should be added to the include path.

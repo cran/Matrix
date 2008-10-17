@@ -85,6 +85,7 @@ static R_CallMethodDef CallEntries[] = {
 
     CALLDEF(dgCMatrix_LU, 3),
     CALLDEF(dgCMatrix_QR, 2),
+    CALLDEF(dgCMatrix_SPQR, 2),
     CALLDEF(dgCMatrix_colSums, 5),
     CALLDEF(igCMatrix_colSums, 5),
     CALLDEF(lgCMatrix_colSums, 5),
@@ -285,6 +286,7 @@ R_init_Matrix(DllInfo *dll)
     RREGDEF(numeric_as_chm_dense);
 
     R_cholmod_start(&c);
+    R_cholmod_l_start(&cl);
 
     Matrix_DimNamesSym = install("Dimnames");
     Matrix_DimSym = install("Dim");

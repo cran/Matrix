@@ -2,6 +2,8 @@
 # CHOLMOD Makefile
 #-------------------------------------------------------------------------------
 
+.PHONY : default all library purge clean distclean ccode
+
 default: all
 
 # Compile the C-callable libraries and the Demo programs.
@@ -11,8 +13,6 @@ all:
 # Compile the C-callable libraries only.
 library:
 	( cd Lib ; $(MAKE) )
-
-lib: library
 
 # Remove all files not in the original distribution
 purge:

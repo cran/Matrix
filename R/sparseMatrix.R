@@ -369,48 +369,49 @@ printSpMatrix2 <- function(x, digits = getOption("digits"),
                       note.dropping.colnames=note.dropping.colnames,
                       col.trailer=col.trailer, align=align)
     } else { ## d[1] > maxp / d[2] >= nr : -- this needs [,] working:
-        nR <- d[1] ## nrow
-        useW <- getOption("width") - (format.info(nR)[1] + 3+1)
-        ##                           space for "[<last>,] "
+	validObject(x)
+	nR <- d[1] ## nrow
+	useW <- getOption("width") - (format.info(nR)[1] + 3+1)
+	##			     space for "[<last>,] "
 
-        ## --> suppress rows and/or columns in printing ...
+	## --> suppress rows and/or columns in printing ...
 
-        if(is.null(suppCols)) suppCols <- (d[2] * 2 > useW)
-        nc <- if(suppCols) (useW - (1 + nchar(col.trailer))) %/% 2 else d[2]
-        nr <- maxp %/% nc
-        if(is.null(suppRows)) suppRows <- (nr < nR)
+	if(is.null(suppCols)) suppCols <- (d[2] * 2 > useW)
+	nc <- if(suppCols) (useW - (1 + nchar(col.trailer))) %/% 2 else d[2]
+	nr <- maxp %/% nc
+	if(is.null(suppRows)) suppRows <- (nr < nR)
 
-        sTxt <- c("in show(); maybe adjust 'options(max.print= *)'",
-                  "\n ..............................\n")
-        if(suppRows) {
-            if(suppCols)
-                x <- x[ , 1:nc, drop = FALSE]
-            n2 <- ceiling(nr / 2)
-            printSpMatrix(x[seq_len(min(nR, max(1, n2))), , drop=FALSE],
-                          digits=digits, maxp=maxp,
-                          zero.print=zero.print, col.names=col.names,
-                          note.dropping.colnames=note.dropping.colnames,
-                          col.trailer = col.trailer, align=align)
-            cat("\n ..............................",
-                "\n ........suppressing rows ", sTxt, "\n", sep='')
-            ## tail() automagically uses "[..,]" rownames:
-            printSpMatrix(tail(x, max(1, nr-n2)),
-                          digits=digits, maxp=maxp,
-                          zero.print=zero.print, col.names=col.names,
-                          note.dropping.colnames=note.dropping.colnames,
-                          col.trailer = col.trailer, align=align)
-        }
-        else if(suppCols) {
-            printSpMatrix(x[ , 1:nc , drop = FALSE],
-                          digits=digits, maxp=maxp,
-                          zero.print=zero.print, col.names=col.names,
-                          note.dropping.colnames=note.dropping.colnames,
-                          col.trailer = col.trailer, align=align)
-            cat("\n .....suppressing columns ", sTxt, sep='')
-        }
-        else stop("logic programming error in printSpMatrix2(), please report")
+	sTxt <- c("in show(); maybe adjust 'options(max.print= *)'",
+		  "\n ..............................\n")
+	if(suppRows) {
+	    if(suppCols)
+		x <- x[ , 1:nc, drop = FALSE]
+	    n2 <- ceiling(nr / 2)
+	    printSpMatrix(x[seq_len(min(nR, max(1, n2))), , drop=FALSE],
+			  digits=digits, maxp=maxp,
+			  zero.print=zero.print, col.names=col.names,
+			  note.dropping.colnames=note.dropping.colnames,
+			  col.trailer = col.trailer, align=align)
+	    cat("\n ..............................",
+		"\n ........suppressing rows ", sTxt, "\n", sep='')
+	    ## tail() automagically uses "[..,]" rownames:
+	    printSpMatrix(tail(x, max(1, nr-n2)),
+			  digits=digits, maxp=maxp,
+			  zero.print=zero.print, col.names=col.names,
+			  note.dropping.colnames=note.dropping.colnames,
+			  col.trailer = col.trailer, align=align)
+	}
+	else if(suppCols) {
+	    printSpMatrix(x[ , 1:nc , drop = FALSE],
+			  digits=digits, maxp=maxp,
+			  zero.print=zero.print, col.names=col.names,
+			  note.dropping.colnames=note.dropping.colnames,
+			  col.trailer = col.trailer, align=align)
+	    cat("\n .....suppressing columns ", sTxt, sep='')
+	}
+	else stop("logic programming error in printSpMatrix2(), please report")
 
-        invisible(x)
+	invisible(x)
     }
 } ## printSpMatrix2 ()
 

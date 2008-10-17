@@ -1,7 +1,10 @@
 #include "chm_common.h"
 #include "Mutils.h"
 
+Rboolean isValid_Csparse(SEXP x); /* -> Csparse.c */
+
 cholmod_common c;
+cholmod_common cl;
 
 static int stype(int ctype, SEXP x)
 {
@@ -100,6 +103,8 @@ CHM_SP as_cholmod_sparse(CHM_SP ans, SEXP x, Rboolean check_Udiag, Rboolean sort
     SEXP islot = GET_SLOT(x, Matrix_iSym);
 
     if (ctype < 0) error("invalid class of object to as_cholmod_sparse");
+    if (!isValid_Csparse(x))
+	error("invalid object passed to as_cholmod_sparse");
     memset(ans, 0, sizeof(cholmod_sparse)); /* zero the struct */
 
     ans->itype = CHOLMOD_INT;	/* characteristics of the system */
@@ -177,42 +182,45 @@ SEXP chm_sparse_to_SEXP(CHM_SP a, int dofree, int uploT, int Rkind,
 			const char* diag, SEXP dn)
 {
     SEXP ans;
-    char *cl = "";/* -Wall */
-    int *dims, nnz;
+    char *cls = "";/* -Wall */
+    int *dims, nnz, *ansp, *ansi, *aii = (int*)(a->i), *api = (int*)(a->p),
+	longi = (a->itype) == CHOLMOD_LONG;
+    UF_long *ail = (UF_long*)(a->i), *apl = (UF_long*)(a->p);
 
     PROTECT(dn);  /* dn is usually UNPROTECTed before the call */
 
 				/* ensure a is sorted and packed */
-    if (!a->sorted || !a->packed) cholmod_sort(a, &c);
+    if (!a->sorted || !a->packed)
+	longi ? cholmod_l_sort(a, &cl) : cholmod_sort(a, &c);
 				/* determine the class of the result */
     switch(a->xtype){
     case CHOLMOD_PATTERN:
-	cl = uploT ? "ntCMatrix": ((a->stype) ? "nsCMatrix" : "ngCMatrix");
+	cls = uploT ? "ntCMatrix": ((a->stype) ? "nsCMatrix" : "ngCMatrix");
 	break;
     case CHOLMOD_REAL:
 	switch(Rkind) {
 	case 0:
-	    cl = uploT ? "dtCMatrix": ((a->stype) ? "dsCMatrix" : "dgCMatrix");
+	    cls = uploT ? "dtCMatrix": ((a->stype) ? "dsCMatrix" : "dgCMatrix");
 	    break;
 	case 1:
-	    cl = uploT ? "ltCMatrix": ((a->stype) ? "lsCMatrix" : "lgCMatrix");
+	    cls = uploT ? "ltCMatrix": ((a->stype) ? "lsCMatrix" : "lgCMatrix");
 	    break;
 	}
 	break;
     case CHOLMOD_COMPLEX:
-	cl = uploT ? "ztCMatrix": ((a->stype) ? "zsCMatrix" : "zgCMatrix");
+	cls = uploT ? "ztCMatrix": ((a->stype) ? "zsCMatrix" : "zgCMatrix");
 	break;
     default: error("unknown xtype in cholmod_sparse object");
     }
-    ans = PROTECT(NEW_OBJECT(MAKE_CLASS(cl)));
+    ans = PROTECT(NEW_OBJECT(MAKE_CLASS(cls)));
 				/* allocate and copy common slots */
-    nnz = cholmod_nnz(a, &c);
+    nnz = longi ? cholmod_l_nnz(a, &cl) : cholmod_nnz(a, &c);
     dims = INTEGER(ALLOC_SLOT(ans, Matrix_DimSym, INTSXP, 2));
     dims[0] = a->nrow; dims[1] = a->ncol;
-    Memcpy(INTEGER(ALLOC_SLOT(ans, Matrix_pSym, INTSXP, a->ncol + 1)),
-	   (int *) a->p, a->ncol + 1);
-    Memcpy(INTEGER(ALLOC_SLOT(ans, Matrix_iSym, INTSXP, nnz)),
-	   (int *) a->i, nnz);
+    ansp = INTEGER(ALLOC_SLOT(ans, Matrix_pSym, INTSXP, a->ncol + 1));
+    ansi = INTEGER(ALLOC_SLOT(ans, Matrix_iSym, INTSXP, nnz));
+    for (int j = 0; j <= a->ncol; j++) ansp[j] = longi ? (int)(apl[j]) : api[j];
+    for (int p = 0; p < nnz; p++) ansi[p] = longi ? (int)(ail[p]) : aii[p];
 				/* copy data slot if present */
     if (a->xtype == CHOLMOD_REAL) {
 	int i, *m_x;
@@ -240,7 +248,8 @@ SEXP chm_sparse_to_SEXP(CHM_SP a, int dofree, int uploT, int Rkind,
     if (a->stype)		/* slot for symmetricMatrix */
 	SET_SLOT(ans, Matrix_uploSym,
 		 mkString((a->stype > 0) ? "U" : "L"));
-    if (dofree > 0) cholmod_free_sparse(&a, &c);
+    if (dofree > 0)
+	longi ? cholmod_l_free_sparse(&a, &cl) : cholmod_free_sparse(&a, &c);
     if (dofree < 0) Free(a);
     if (dn != R_NilValue)
 	SET_SLOT(ans, Matrix_DimNamesSym, duplicate(dn));
@@ -532,7 +541,7 @@ CHM_DN as_cholmod_x_dense(cholmod_dense *ans, SEXP x)
 #undef _AS_cholmod_dense_1
 #undef _AS_cholmod_dense_2
 
-void R_cholmod_error(int status, char *file, int line, char *message)
+void R_cholmod_error(int status, const char *file, int line, const char *message)
 {
     error(_("Cholmod error '%s' at file:%s, line %d"), message, file, line);
 }
@@ -567,6 +576,27 @@ int R_cholmod_start(CHM_CM c)
      * because that's not easily suppressed on the R level :
      * Hence consider, at least temporarily *  c->print_function = NULL; */
     c->error_handler = R_cholmod_error;
+    return TRUE;
+}
+
+/**
+ * Initialize the CHOLMOD library and replace the print and error functions
+ * by R-specific versions.
+ *
+ * @param c pointer to a cholmod_common structure to be initialized
+ *
+ * @return CHOLMOD_OK if successful
+ */
+int R_cholmod_l_start(CHM_CM cl)
+{
+    int res;
+    if (!(res = cholmod_l_start(cl)))
+	error(_("Unable to initialize cholmod_l: error code %d"), res);
+    cl->print_function = R_cholmod_printf; /* Rprintf gives warning */
+    /* Since we provide an error handler, it may not be a good idea to allow CHOLMOD printing,
+     * because that's not easily suppressed on the R level :
+     * Hence consider, at least temporarily *  c->print_function = NULL; */
+    cl->error_handler = R_cholmod_error;
     return TRUE;
 }
 

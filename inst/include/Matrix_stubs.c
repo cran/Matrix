@@ -486,7 +486,7 @@ M_cholmod_spsolve(int sys, cholmod_factor *L,
 }
 
 void attribute_hidden
-M_R_cholmod_error(int status, char *file, int line, char *message)
+M_R_cholmod_error(int status, const char *file, int line, const char *message)
 {
     error("Cholmod error `%s' at file:%s, line %d", message, file, line);
 }

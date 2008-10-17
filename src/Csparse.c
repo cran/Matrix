@@ -3,6 +3,35 @@
 #include "Tsparse.h"
 #include "chm_common.h"
 
+/** "Cheap" C version of  Csparse_validate() - *not* sorting : */
+Rboolean isValid_Csparse(SEXP x)
+{
+    /* NB: we do *NOT* check a potential 'x' slot here, at all */
+    SEXP pslot = GET_SLOT(x, Matrix_pSym),
+	islot = GET_SLOT(x, Matrix_iSym);
+    int *dims = INTEGER(GET_SLOT(x, Matrix_DimSym)), j,
+	nrow = dims[0],
+	ncol = dims[1],
+	*xp = INTEGER(pslot),
+	*xi = INTEGER(islot);
+
+    if (length(pslot) != dims[1] + 1)
+	return FALSE;
+    if (xp[0] != 0)
+	return FALSE;
+    if (length(islot) < xp[ncol]) /* allow larger slots from over-allocation!*/
+	return FALSE;
+    for (j = 0; j < xp[ncol]; j++) {
+	if (xi[j] < 0 || xi[j] >= nrow)
+	    return FALSE;
+    }
+    for (j = 0; j < ncol; j++) {
+	if (xp[j] > xp[j + 1])
+	    return FALSE;
+    }
+    return TRUE;
+}
+
 SEXP Csparse_validate(SEXP x)
 {
     /* NB: we do *NOT* check a potential 'x' slot here, at all */

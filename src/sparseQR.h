@@ -3,6 +3,7 @@
 
 #include "Mutils.h"
 #include "cs_utils.h"
+#include "chm_common.h"
 
 SEXP sparseQR_validate(SEXP x);
 SEXP sparseQR_qty(SEXP qr, SEXP y, SEXP trans);

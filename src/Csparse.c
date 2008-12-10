@@ -69,19 +69,7 @@ SEXP Csparse_validate(SEXP x)
 	    }
     }
     if (!sorted) {
-	CHM_SP chx = (CHM_SP) alloca(sizeof(cholmod_sparse));
-	R_CheckStack();
-	as_cholmod_sparse(chx, x, FALSE, TRUE); /* includes cholmod_sort() ! */
-	/* as chx = AS_CHM_SP__(x)  but  ^^^^  sorting x in_place (no copying)*/
-
-	/* Now re-check that row indices are *strictly* increasing
-	 * (and not just increasing) within each column : */
-	for (j = 0; j < ncol; j++) {
-	    for (k = xp[j] + 1; k < xp[j + 1]; k++)
-		if (xi[k] == xi[k - 1])
-		    return mkString(_("slot i is not *strictly* increasing inside a column (even after cholmod_sort)"));
-	}
-
+	return mkString(_("row indices are not sorted within columns"));
     } else if(!strictly) {  /* sorted, but not strictly */
 	return mkString(_("slot i is not *strictly* increasing inside a column"));
     }
@@ -125,7 +113,7 @@ SEXP Rsparse_validate(SEXP x)
 	    }
     }
     if (!sorted)
-	/* cannot easily use cholmod_sort(.) ... -> "error out" :*/
+	/* cannot easily use cholmod_l_sort(.) ... -> "error out" :*/
 	return mkString(_("slot j is not increasing inside a column"));
     else if(!strictly) /* sorted, but not strictly */
 	return mkString(_("slot j is not *strictly* increasing inside a column"));
@@ -143,7 +131,7 @@ SEXP Csparse_to_dense(SEXP x)
     /* This loses the symmetry property, since cholmod_dense has none,
      * BUT, much worse (FIXME!), it also transforms CHOLMOD_PATTERN ("n") matrices
      * to numeric (CHOLMOD_REAL) ones : */
-    CHM_DN chxd = cholmod_sparse_to_dense(chxs, &c);
+    CHM_DN chxd = cholmod_l_sparse_to_dense(chxs, &c);
     int Rkind = (chxs->xtype == CHOLMOD_PATTERN)? -1 : Real_kind(x);
     R_CheckStack();
 
@@ -153,7 +141,7 @@ SEXP Csparse_to_dense(SEXP x)
 SEXP Csparse_to_nz_pattern(SEXP x, SEXP tri)
 {
     CHM_SP chxs = AS_CHM_SP__(x);
-    CHM_SP chxcp = cholmod_copy(chxs, chxs->stype, CHOLMOD_PATTERN, &c);
+    CHM_SP chxcp = cholmod_l_copy(chxs, chxs->stype, CHOLMOD_PATTERN, &c);
     int tr = asLogical(tri);
     R_CheckStack();
 
@@ -165,14 +153,14 @@ SEXP Csparse_to_nz_pattern(SEXP x, SEXP tri)
 
 SEXP Csparse_to_matrix(SEXP x)
 {
-    return chm_dense_to_matrix(cholmod_sparse_to_dense(AS_CHM_SP__(x), &c),
+    return chm_dense_to_matrix(cholmod_l_sparse_to_dense(AS_CHM_SP__(x), &c),
 			       1 /*do_free*/, GET_SLOT(x, Matrix_DimNamesSym));
 }
 
 SEXP Csparse_to_Tsparse(SEXP x, SEXP tri)
 {
     CHM_SP chxs = AS_CHM_SP__(x);
-    CHM_TR chxt = cholmod_sparse_to_triplet(chxs, &c);
+    CHM_TR chxt = cholmod_l_sparse_to_triplet(chxs, &c);
     int tr = asLogical(tri);
     int Rkind = (chxs->xtype != CHOLMOD_PATTERN) ? Real_kind(x) : 0;
     R_CheckStack();
@@ -192,7 +180,7 @@ SEXP Csparse_symmetric_to_general(SEXP x)
 
     if (!(chx->stype))
 	error(_("Nonsymmetric matrix in Csparse_symmetric_to_general"));
-    chgx = cholmod_copy(chx, /* stype: */ 0, chx->xtype, &c);
+    chgx = cholmod_l_copy(chx, /* stype: */ 0, chx->xtype, &c);
     /* xtype: pattern, "real", complex or .. */
     return chm_sparse_to_SEXP(chgx, 1, 0, Rkind, "",
 			      GET_SLOT(x, Matrix_DimNamesSym));
@@ -205,7 +193,7 @@ SEXP Csparse_general_to_symmetric(SEXP x, SEXP uplo)
     int Rkind = (chx->xtype != CHOLMOD_PATTERN) ? Real_kind(x) : 0;
     R_CheckStack();
 
-    chgx = cholmod_copy(chx, /* stype: */ uploT, chx->xtype, &c);
+    chgx = cholmod_l_copy(chx, /* stype: */ uploT, chx->xtype, &c);
     /* xtype: pattern, "real", complex or .. */
     return chm_sparse_to_SEXP(chgx, 1, 0, Rkind, "",
 			      GET_SLOT(x, Matrix_DimNamesSym));
@@ -217,7 +205,7 @@ SEXP Csparse_transpose(SEXP x, SEXP tri)
      *       since cholmod (& cs) lacks sparse 'int' matrices */
     CHM_SP chx = AS_CHM_SP__(x);
     int Rkind = (chx->xtype != CHOLMOD_PATTERN) ? Real_kind(x) : 0;
-    CHM_SP chxt = cholmod_transpose(chx, chx->xtype, &c);
+    CHM_SP chxt = cholmod_l_transpose(chx, chx->xtype, &c);
     SEXP dn = PROTECT(duplicate(GET_SLOT(x, Matrix_DimNamesSym))), tmp;
     int tr = asLogical(tri);
     R_CheckStack();
@@ -236,7 +224,7 @@ SEXP Csparse_Csparse_prod(SEXP a, SEXP b)
     CHM_SP
 	cha = AS_CHM_SP(a),
 	chb = AS_CHM_SP(b),
-	chc = cholmod_ssmult(cha, chb, /*out_stype:*/ 0,
+	chc = cholmod_l_ssmult(cha, chb, /*out_stype:*/ 0,
 			     cha->xtype, /*out sorted:*/ 1, &c);
     const char *cl_a = class_P(a), *cl_b = class_P(b);
     char diag[] = {'\0', '\0'};
@@ -281,10 +269,10 @@ SEXP Csparse_Csparse_crossprod(SEXP a, SEXP b, SEXP trans)
     SEXP dn = allocVector(VECSXP, 2);
     R_CheckStack();
 
-    chTr = cholmod_transpose((tr) ? chb : cha, chb->xtype, &c);
-    chc = cholmod_ssmult((tr) ? cha : chTr, (tr) ? chTr : chb,
+    chTr = cholmod_l_transpose((tr) ? chb : cha, chb->xtype, &c);
+    chc = cholmod_l_ssmult((tr) ? cha : chTr, (tr) ? chTr : chb,
 			 /*out_stype:*/ 0, cha->xtype, /*out sorted:*/ 1, &c);
-    cholmod_free_sparse(&chTr, &c);
+    cholmod_l_free_sparse(&chTr, &c);
 
     /* Preserve triangularity and unit-triangularity if appropriate;
      * see Csparse_Csparse_prod() for comments */
@@ -310,13 +298,13 @@ SEXP Csparse_dense_prod(SEXP a, SEXP b)
     CHM_SP cha = AS_CHM_SP(a);
     SEXP b_M = PROTECT(mMatrix_as_dgeMatrix(b));
     CHM_DN chb = AS_CHM_DN(b_M);
-    CHM_DN chc = cholmod_allocate_dense(cha->nrow, chb->ncol, cha->nrow,
+    CHM_DN chc = cholmod_l_allocate_dense(cha->nrow, chb->ncol, cha->nrow,
 					chb->xtype, &c);
     SEXP dn = PROTECT(allocVector(VECSXP, 2));
     double one[] = {1,0}, zero[] = {0,0};
     R_CheckStack();
 
-    cholmod_sdmult(cha, 0, one, zero, chb, chc, &c);
+    cholmod_l_sdmult(cha, 0, one, zero, chb, chc, &c);
     SET_VECTOR_ELT(dn, 0,	/* establish dimnames */
 		   duplicate(VECTOR_ELT(GET_SLOT(a, Matrix_DimNamesSym), 0)));
     SET_VECTOR_ELT(dn, 1,
@@ -330,13 +318,13 @@ SEXP Csparse_dense_crossprod(SEXP a, SEXP b)
     CHM_SP cha = AS_CHM_SP(a);
     SEXP b_M = PROTECT(mMatrix_as_dgeMatrix(b));
     CHM_DN chb = AS_CHM_DN(b_M);
-    CHM_DN chc = cholmod_allocate_dense(cha->ncol, chb->ncol, cha->ncol,
+    CHM_DN chc = cholmod_l_allocate_dense(cha->ncol, chb->ncol, cha->ncol,
 					chb->xtype, &c);
     SEXP dn = PROTECT(allocVector(VECSXP, 2));
     double one[] = {1,0}, zero[] = {0,0};
     R_CheckStack();
 
-    cholmod_sdmult(cha, 1, one, zero, chb, chc, &c);
+    cholmod_l_sdmult(cha, 1, one, zero, chb, chc, &c);
     SET_VECTOR_ELT(dn, 0,	/* establish dimnames */
 		   duplicate(VECTOR_ELT(GET_SLOT(a, Matrix_DimNamesSym), 1)));
     SET_VECTOR_ELT(dn, 1,
@@ -354,21 +342,21 @@ SEXP Csparse_crossprod(SEXP x, SEXP trans, SEXP triplet)
     CHM_TR cht = trip ? AS_CHM_TR(x) : (CHM_TR) NULL;
     CHM_SP chcp, chxt,
 	chx = (trip ?
-	       cholmod_triplet_to_sparse(cht, cht->nnz, &c) :
+	       cholmod_l_triplet_to_sparse(cht, cht->nnz, &c) :
 	       AS_CHM_SP(x));
     SEXP dn = PROTECT(allocVector(VECSXP, 2));
     R_CheckStack();
 
-    if (!tr) chxt = cholmod_transpose(chx, chx->xtype, &c);
-    chcp = cholmod_aat((!tr) ? chxt : chx, (int *) NULL, 0, chx->xtype, &c);
+    if (!tr) chxt = cholmod_l_transpose(chx, chx->xtype, &c);
+    chcp = cholmod_l_aat((!tr) ? chxt : chx, (int *) NULL, 0, chx->xtype, &c);
     if(!chcp) {
 	UNPROTECT(1);
-	error(_("Csparse_crossprod(): error return from cholmod_aat()"));
+	error(_("Csparse_crossprod(): error return from cholmod_l_aat()"));
     }
-    cholmod_band_inplace(0, chcp->ncol, chcp->xtype, chcp, &c);
+    cholmod_l_band_inplace(0, chcp->ncol, chcp->xtype, chcp, &c);
     chcp->stype = 1;
-    if (trip) cholmod_free_sparse(&chx, &c);
-    if (!tr) cholmod_free_sparse(&chxt, &c);
+    if (trip) cholmod_l_free_sparse(&chx, &c);
+    if (!tr) cholmod_l_free_sparse(&chxt, &c);
     SET_VECTOR_ELT(dn, 0,	/* establish dimnames */
 		   duplicate(VECTOR_ELT(GET_SLOT(x, Matrix_DimNamesSym),
 					(tr) ? 0 : 1)));
@@ -383,13 +371,13 @@ SEXP Csparse_drop(SEXP x, SEXP tol)
     /* dtCMatrix, etc; [1] = the second character =?= 't' for triangular */
     int tr = (cl[1] == 't');
     CHM_SP chx = AS_CHM_SP__(x);
-    CHM_SP ans = cholmod_copy(chx, chx->stype, chx->xtype, &c);
+    CHM_SP ans = cholmod_l_copy(chx, chx->stype, chx->xtype, &c);
     double dtol = asReal(tol);
     int Rkind = (chx->xtype != CHOLMOD_PATTERN) ? Real_kind(x) : 0;
     R_CheckStack();
 
-    if(!cholmod_drop(dtol, ans, &c))
-	error(_("cholmod_drop() failed"));
+    if(!cholmod_l_drop(dtol, ans, &c))
+	error(_("cholmod_l_drop() failed"));
     return chm_sparse_to_SEXP(ans, 1,
 			      tr ? ((*uplo_P(x) == 'U') ? 1 : -1) : 0,
 			      Rkind, tr ? diag_P(x) : "",
@@ -403,7 +391,7 @@ SEXP Csparse_horzcat(SEXP x, SEXP y)
     R_CheckStack();
 
     /* FIXME: currently drops dimnames */
-    return chm_sparse_to_SEXP(cholmod_horzcat(chx, chy, 1, &c),
+    return chm_sparse_to_SEXP(cholmod_l_horzcat(chx, chy, 1, &c),
 			      1, 0, Rkind, "", R_NilValue);
 }
 
@@ -414,7 +402,7 @@ SEXP Csparse_vertcat(SEXP x, SEXP y)
     R_CheckStack();
 
     /* FIXME: currently drops dimnames */
-    return chm_sparse_to_SEXP(cholmod_vertcat(chx, chy, 1, &c),
+    return chm_sparse_to_SEXP(cholmod_l_vertcat(chx, chy, 1, &c),
 			      1, 0, Rkind, "", R_NilValue);
 }
 
@@ -422,7 +410,7 @@ SEXP Csparse_band(SEXP x, SEXP k1, SEXP k2)
 {
     CHM_SP chx = AS_CHM_SP__(x);
     int Rkind = (chx->xtype != CHOLMOD_PATTERN) ? Real_kind(x) : 0;
-    CHM_SP ans = cholmod_band(chx, asInteger(k1), asInteger(k2), chx->xtype, &c);
+    CHM_SP ans = cholmod_l_band(chx, asInteger(k1), asInteger(k2), chx->xtype, &c);
     R_CheckStack();
 
     return chm_sparse_to_SEXP(ans, 1, 0, Rkind, "",
@@ -440,14 +428,14 @@ SEXP Csparse_diagU2N(SEXP x)
     }
     else { /* unit triangular (diag='U'): "fill the diagonal" & diag:= "N" */
 	CHM_SP chx = AS_CHM_SP__(x);
-	CHM_SP eye = cholmod_speye(chx->nrow, chx->ncol, chx->xtype, &c);
+	CHM_SP eye = cholmod_l_speye(chx->nrow, chx->ncol, chx->xtype, &c);
 	double one[] = {1, 0};
-	CHM_SP ans = cholmod_add(chx, eye, one, one, TRUE, TRUE, &c);
+	CHM_SP ans = cholmod_l_add(chx, eye, one, one, TRUE, TRUE, &c);
 	int uploT = (*uplo_P(x) == 'U') ? 1 : -1;
 	int Rkind = (chx->xtype != CHOLMOD_PATTERN) ? Real_kind(x) : 0;
 
 	R_CheckStack();
-	cholmod_free_sparse(&eye, &c);
+	cholmod_l_free_sparse(&eye, &c);
 	return chm_sparse_to_SEXP(ans, 1, uploT, Rkind, "N",
 				  GET_SLOT(x, Matrix_DimNamesSym));
     }
@@ -490,7 +478,7 @@ SEXP Csparse_submatrix(SEXP x, SEXP i, SEXP j)
     if (csize >= 0 && !isInteger(j))
 	error(_("Index j must be NULL or integer"));
 
-    return chm_sparse_to_SEXP(cholmod_submatrix(chx, INTEGER(i), rsize,
+    return chm_sparse_to_SEXP(cholmod_l_submatrix(chx, INTEGER(i), rsize,
 						INTEGER(j), csize,
 						TRUE, TRUE, &c),
 			      1, 0, Rkind, "",
@@ -504,9 +492,9 @@ SEXP Csparse_MatrixMarket(SEXP x, SEXP fname)
     if (!f)
 	error(_("failure to open file \"%s\" for writing"),
 	      CHAR(asChar(fname)));
-    if (!cholmod_write_sparse(f, AS_CHM_SP(x),
+    if (!cholmod_l_write_sparse(f, AS_CHM_SP(x),
 			      (CHM_SP)NULL, (char*) NULL, &c))
-	error(_("cholmod_write_sparse returned error code"));
+	error(_("cholmod_l_write_sparse returned error code"));
     fclose(f);
     return R_NilValue;
 }

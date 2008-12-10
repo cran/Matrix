@@ -4,6 +4,10 @@
 #include <stddef.h>
 #include <limits.h>
 
+#ifdef	__cplusplus
+extern "C" {
+#endif
+
 #define UF_long long
 #define UF_long_max LONG_MAX
 #define UF_long_id "%ld"
@@ -191,7 +195,7 @@ typedef struct cholmod_common_struct
 			 * of a try/catch block.  No error message is printed
 	 * and the Common->error_handler function is not called. */
 
-    void (*error_handler) (int status, char *file, int line, char *message) ;
+    void (*error_handler) (int status, const char *file, int line, const char *message) ;
 
 	/* Common->error_handler is the user's error handling routine.  If not
 	 * NULL, this routine is called if an error occurs in CHOLMOD.  status
@@ -839,13 +843,13 @@ CHM_SP M_cholmod_add(CHM_SP A, CHM_SP B, double alpha[2], double beta[2],
 		     int values, int sorted, CHM_CM Common); 
 CHM_DN M_cholmod_allocate_dense(size_t nrow, size_t ncol, size_t d,
 				int xtype, CHM_CM Common);
-cholmod_factor* M_cholmod_analyze(CHM_SP A, CHM_CM Common);
-cholmod_factor* M_cholmod_analyze_p(CHM_SP A, int *Perm, int *fset,
+CHM_FR M_cholmod_analyze(CHM_SP A, CHM_CM Common);
+CHM_FR M_cholmod_analyze_p(CHM_SP A, int *Perm, int *fset,
 				    size_t fsize, CHM_CM Common);
 int M_cholmod_change_factor(int to_xtype, int to_ll, int to_super,
 			    int to_packed, int to_monotonic,
 			    CHM_FR L, CHM_CM Common);
-cholmod_factor* M_cholmod_copy_factor(CHM_FR L, CHM_CM Common);
+CHM_FR M_cholmod_copy_factor(CHM_FR L, CHM_CM Common);
 CHM_SP M_cholmod_factor_to_sparse(CHM_FR L, CHM_CM Common);
 CHM_SP M_cholmod_dense_to_sparse(CHM_DN X, int values, CHM_CM Common);
 CHM_SP M_cholmod_triplet_to_sparse(CHM_TR T, int nzmax, CHM_CM Common);
@@ -864,5 +868,9 @@ CHM_TR M_cholmod_allocate_triplet (size_t nrow, size_t ncol, size_t nzmax,
 #define CHOLMOD_SYM 3		/* A = diag(s)*A*diag(s) */
 
 int M_cholmod_scale(CHM_DN S, int scale, CHM_SP A, CHM_CM Common);
+
+#ifdef	__cplusplus
+}
+#endif
 
 #endif  /* MATRIX_CHOLMOD_H */

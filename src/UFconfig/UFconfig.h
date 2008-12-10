@@ -1,3 +1,19 @@
+/* This file has been modified for the Matrix package for R.  The SPQR
+ * package requires the UF_long versions of other SuiteSparse
+ * packages. On 32-bit systems these would be 32-bit ints but on
+ * 64-bit systems these would be 64-bit ints.  R does not have a
+ * native 64-bit int type.  To provide compatibility with the R
+ * storage types and to allow use of SPQR without requiring both the
+ * INT and the LONG versions to be compiled, we redefine UF_long to be
+ * an int.  This is against the spirit of the documentation included
+ * below but allows for only one version of the SparseSuite libraries
+ * to be compiled and linked. Having a version of sparse matrices with
+ * 64-bit integers in the compiled code does not make sense because
+ * these cannot at present be represented as R objects (well, without
+ * trickery like representing the i, j and p slots as doubles).
+ */
+
+
 /* ========================================================================== */
 /* === UFconfig.h =========================================================== */
 /* ========================================================================== */
@@ -47,7 +63,17 @@ extern "C" {
 /* === UF_long ============================================================== */
 /* ========================================================================== */
 
+
 #ifndef UF_long
+/* Changes for the Matrix package in R.  Unconditionally define
+ * UF_long as int. 
+ */
+
+#define UF_long int
+#define UF_long_max INT_MAX
+#define UF_long_id "%d"
+
+/*
 
 #ifdef _WIN64
 
@@ -62,6 +88,8 @@ extern "C" {
 #define UF_long_id "%ld"
 
 #endif
+*/
+
 #endif
 
 /* ========================================================================== */

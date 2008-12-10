@@ -25,6 +25,12 @@ CHM_DN as_cholmod_x_dense(CHM_DN ans, SEXP x);
 CHM_DN numeric_as_chm_dense(CHM_DN ans, double *v, int nr, int nc);
 CHM_FR as_cholmod_factor (CHM_FR ans, SEXP x);
 
+/* Deep copy to a cholmod_l struct, not just copying pointers.
+ * Must be freed with cholmod_l_free_sparse.
+ * Maybe not.  Need more discussion.
+CHM_SP SEXP_to_cholmod_l_sparse(SEXP x);
+ */
+
 #define AS_CHM_DN(x) as_cholmod_dense  ((CHM_DN)alloca(sizeof(cholmod_dense)), x )
 #define AS_CHM_FR(x) as_cholmod_factor ((CHM_FR)alloca(sizeof(cholmod_factor)), x )
 #define AS_CHM_SP(x) as_cholmod_sparse ((CHM_SP)alloca(sizeof(cholmod_sparse)), x, TRUE, FALSE)

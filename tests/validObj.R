@@ -103,21 +103,23 @@ stopifnot(grep("replacing.*sensible", ind.try[1]) == 1,
 	  identical(as(diag(9), "pMatrix"), as(1:9, "pMatrix"))
 	  )
 
-## validObject --> Cparse_validate(.)  *sorts* if needed:
+## validObject --> Cparse_validate(.)
 mm <- new("dgCMatrix", Dim = c(3L, 5L),
           i = c(2L, 0L, 1L, 2L, 0L, 1L),
-          x = c( 2,  1,  2,  1,  2,  1),
+          x = c( 2,  1,  1,  2,  1,  2),
           p = c(0:2, 4L, 4L, 6L))
+
+## Previously unsorted columns were sorted - now are flagged as invalid
 m. <- mm
 ip <- c(1:2, 4:3, 6:5) # permute the 'i' and 'x' slot just "inside column":
 m.@i <- m.i <- mm@i[ip]
 m.@x <- m.x <- mm@x[ip]
-stopifnot(validObject(mm),
-	  validObject(m.))   ## <<-- this auto-sorts  m.
-stopifnot(identical(mm, m.)) ## since it was auto-sorted
+stopifnot(grep("row indices are not", validObject(m., test=TRUE)) == 1)
+## 	  validObject(m.))   ## <<-- this auto-sorts  m.
+## stopifnot(identical(mm, m.)) ## since it was auto-sorted
 ## and m.@i, m.@x now differ from m.i & m.x respectively:
-stopifnot(identical(m.i, m.@i[ip]),
-	  identical(m.x, m.@x[ip]))
+## stopifnot(identical(m.i, m.@i[ip]),
+## 	  identical(m.x, m.@x[ip]))
 ##
 ## Make sure that validObject() objects...
 ## 1) to wrong 'p'
@@ -131,12 +133,12 @@ m.@i <- mm@i[ix]
 m.@x <- mm@x[ix]
 stopifnot(identical(grep("slot i is not.* increasing .*column$",
                          validObject(m., test=TRUE)), 1L))
-ix <- c(1:3, 3:6) # now the the (i,x) slots are too large (and decreasing at end)
-m.@i <- mm@i[ix]
-m.@x <- mm@x[ix]
-stopifnot(identical(grep("^slot i is not.* increasing .*sort",
-                         (msg <- validObject(m., test=TRUE))),# seg.fault in the past
-                    1L))
+## ix <- c(1:3, 3:6) # now the the (i,x) slots are too large (and decreasing at end)
+## m.@i <- mm@i[ix]
+## m.@x <- mm@x[ix]
+## stopifnot(identical(grep("^slot i is not.* increasing .*sort",
+##                          (msg <- validObject(m., test=TRUE))),# seg.fault in the past
+##                     1L))
 
 ## over-allocation of the i- and x- slot should be allowed:
 ## (though it does not really help in M[.,.] <- *  yet)

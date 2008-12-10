@@ -272,46 +272,25 @@ SEXP dgCMatrix_QR(SEXP Ap, SEXP order)
 SEXP dgCMatrix_SPQR(SEXP Ap, SEXP order)
 {
     SEXP ans = PROTECT(allocVector(VECSXP, 4));
-    CHM_SP A = AS_CHM_SP(Ap), Al, Q, R;
-    UF_long *Ali, *Alp, *E, rank;
-    int annz, *Ai = (int*)(A->i), *App = (int*)(A->p);
-    double *Ax = (double*)(A->x), *Alx;
+    CHM_SP A = AS_CHM_SP(Ap), Q, R;
+    int *E, rank;
     
-    annz = cholmod_nnz(A, &c);
-
-    /* incorporate this into a utility */
-    if (!(Al = cholmod_l_allocate_sparse(A->nrow, A->ncol,
-					 (size_t) annz, A->sorted,
-					 A->packed, A->stype,
-					 A->xtype, &cl)))
-	error(_("cholmod_l_allocate_sparse error, status = "));
-    Ali = (UF_long*)(Al->i); Alp = (UF_long*)(Al->p); Alx = (double*)(Al->x);
-    for (int j = 0; j <= A->ncol; j++) Alp[j] = (UF_long)(App[j]);
-    for (int p = 0; p < annz; p++) {
-	Ali[p] = (UF_long)(Ai[p]);
-	Alx[p] = Ax[p];
-    }
-    /* end of utility */
-
     if ((rank = SuiteSparseQR_C_QR(asInteger(order),
 				   SPQR_DEFAULT_TOL, 0,
-				   A, &Q, &R, &E, &cl)) == -1)
+				   A, &Q, &R, &E, &c)) == -1)
 	error(_("SuiteSparseQR_C_QR returned an error code"));
     SET_VECTOR_ELT(ans, 0,
 		   chm_sparse_to_SEXP(Q, 0, 0, 0, "", R_NilValue));
     SET_VECTOR_ELT(ans, 1,
 		   chm_sparse_to_SEXP(R, 0, 0, 0, "", R_NilValue));
-    cholmod_l_free_sparse(&Al, &cl);
-    cholmod_l_free_sparse(&R, &cl);
-    cholmod_l_free_sparse(&Q, &cl);
+    cholmod_l_free_sparse(&R, &c);
+    cholmod_l_free_sparse(&Q, &c);
     if (E) {
-	int *Er;
 	SET_VECTOR_ELT(ans, 2, allocVector(INTSXP, A->ncol));
-	Er = INTEGER(VECTOR_ELT(ans, 2));
-	for (int i = 0; i < A->ncol; i++) Er[i] = (int) E[i];
+	Memcpy(INTEGER(VECTOR_ELT(ans, 2)), E, A->ncol);
 	Free(E);
     } else SET_VECTOR_ELT(ans, 2, allocVector(INTSXP, 0));
-    SET_VECTOR_ELT(ans, 3, ScalarInteger((int)rank));
+    SET_VECTOR_ELT(ans, 3, ScalarInteger(rank));
     UNPROTECT(1);
     return ans;
 }
@@ -433,16 +412,16 @@ SEXP dgCMatrix_cholsol(SEXP x, SEXP y)
 	error(_("dgCMatrix_cholsol requires a 'short, wide' rectangular matrix"));
     if (cy->nrow != cx->ncol)
 	error(_("Dimensions of system to be solved are inconsistent"));
-    rhs = cholmod_allocate_dense(cx->nrow, 1, cx->nrow, CHOLMOD_REAL, &c);
-    if (!(cholmod_sdmult(cx, 0 /* trans */, one, zero, cy, rhs, &c)))
-	error(_("cholmod_sdmult error"));
-    L = cholmod_analyze(cx, &c);
-    if (!cholmod_factorize(cx, L, &c))
-	error(_("cholmod_factorize failed: status %d, minor %d from ncol %d"),
+    rhs = cholmod_l_allocate_dense(cx->nrow, 1, cx->nrow, CHOLMOD_REAL, &c);
+    if (!(cholmod_l_sdmult(cx, 0 /* trans */, one, zero, cy, rhs, &c)))
+	error(_("cholmod_l_sdmult error"));
+    L = cholmod_l_analyze(cx, &c);
+    if (!cholmod_l_factorize(cx, L, &c))
+	error(_("cholmod_l_factorize failed: status %d, minor %d from ncol %d"),
 	      c.status, L->minor, L->n);
 /* FIXME: Do this in stages so an "effects" vector can be calculated */
-    if (!(cAns = cholmod_solve(CHOLMOD_A, L, rhs, &c)))
-	error(_("cholmod_solve (CHOLMOD_A) failed: status %d, minor %d from ncol %d"),
+    if (!(cAns = cholmod_l_solve(CHOLMOD_A, L, rhs, &c)))
+	error(_("cholmod_l_solve (CHOLMOD_A) failed: status %d, minor %d from ncol %d"),
 	      c.status, L->minor, L->n);
     SET_VECTOR_ELT(ans, 0, chm_factor_to_SEXP(L, 0));
     SET_VECTOR_ELT(ans, 1, allocVector(REALSXP, cx->nrow));
@@ -451,9 +430,9 @@ SEXP dgCMatrix_cholsol(SEXP x, SEXP y)
     SET_VECTOR_ELT(ans, 2, allocVector(REALSXP, cx->nrow));
     Memcpy(REAL(VECTOR_ELT(ans, 1)), (double*)(rhs->x), cx->nrow);
 
-    cholmod_free_factor(&L, &c);
-    cholmod_free_dense(&rhs, &c);
-    cholmod_free_dense(&cAns, &c);
+    cholmod_l_free_factor(&L, &c);
+    cholmod_l_free_dense(&rhs, &c);
+    cholmod_l_free_dense(&cAns, &c);
     UNPROTECT(1);
     return ans;
 }

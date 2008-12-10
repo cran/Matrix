@@ -3,6 +3,10 @@
 #include <R_ext/Rdynload.h>
 #include "cholmod.h"
 
+#ifdef	__cplusplus
+extern "C" {
+#endif
+
 #ifdef HAVE_VISIBILITY_ATTRIBUTE
 # define attribute_hidden __attribute__ ((visibility ("hidden")))
 #else
@@ -120,7 +124,7 @@ M_cholmod_aat(CHM_SP A, int *fset, size_t fsize,
     if(fun == NULL)
 	fun = (CHM_SP(*)(CHM_SP,int*,size_t,
 			 int,CHM_CM))
-	    R_GetCCallable("Matrix", "cholmod_aat");
+	    R_GetCCallable("Matrix", "cholmod_l_aat");
     return fun(A, fset, fsize, mode, Common);
 }
 
@@ -136,7 +140,7 @@ M_cholmod_add(CHM_SP A, CHM_SP B,
 	fun = (CHM_SP(*)(CHM_SP,CHM_SP,
 			 double*,double*,int,int,
 			 CHM_CM))
-	    R_GetCCallable("Matrix", "cholmod_add");
+	    R_GetCCallable("Matrix", "cholmod_l_add");
     return fun(A, B, alpha, beta, values, sorted, Common);
 }
 
@@ -149,7 +153,7 @@ M_cholmod_allocate_dense(size_t nrow, size_t ncol, size_t d,
     if (fun == NULL)
 	fun = (CHM_DN(*)(size_t,size_t,size_t,
 			 int,CHM_CM))
-	    R_GetCCallable("Matrix", "cholmod_allocate_dense");
+	    R_GetCCallable("Matrix", "cholmod_l_allocate_dense");
     return fun(nrow, ncol, d, xtype, Common);
 }
 
@@ -163,7 +167,7 @@ M_cholmod_allocate_sparse(size_t nrow, size_t ncol, size_t nzmax,
     if (fun == NULL)
 	fun = (CHM_SP(*)
 	       (size_t,size_t,size_t,int,int,int,int,CHM_CM))
-	    R_GetCCallable("Matrix", "cholmod_allocate_sparse");
+	    R_GetCCallable("Matrix", "cholmod_l_allocate_sparse");
     return fun(nrow,ncol,nzmax,sorted,packed,stype,xtype,Common);
 }
 
@@ -176,7 +180,7 @@ M_cholmod_allocate_triplet(size_t nrow, size_t ncol, size_t nzmax,
     if (fun == NULL)
 	fun = (cholmod_triplet*(*)
 	       (size_t,size_t,size_t,int,int,CHM_CM))
-	    R_GetCCallable("Matrix", "cholmod_allocate_triplet");
+	    R_GetCCallable("Matrix", "cholmod_l_allocate_triplet");
     return fun(nrow,ncol,nzmax,stype,xtype,Common);
 }
 
@@ -188,7 +192,7 @@ M_cholmod_triplet_to_sparse(cholmod_triplet *T, int nzmax,
 	(cholmod_triplet*,int,CHM_CM) = NULL;
     if (fun == NULL)
 	fun = (CHM_SP(*)(cholmod_triplet*,int,CHM_CM))
-	    R_GetCCallable("Matrix", "cholmod_triplet_to_sparse");
+	    R_GetCCallable("Matrix", "cholmod_l_triplet_to_sparse");
     return fun(T, nzmax, Common);
 }
 
@@ -199,7 +203,7 @@ M_cholmod_sparse_to_triplet(CHM_SP A, CHM_CM Common)
 	(CHM_SP,CHM_CM) = NULL;
     if (fun == NULL)
 	fun = (cholmod_triplet*(*)(CHM_SP,CHM_CM))
-	    R_GetCCallable("Matrix", "cholmod_sparse_to_triplet");
+	    R_GetCCallable("Matrix", "cholmod_l_sparse_to_triplet");
     return fun(A, Common);
 }
 
@@ -210,7 +214,7 @@ M_cholmod_sparse_to_dense(CHM_SP A, CHM_CM Common)
 	(CHM_SP,CHM_CM) = NULL;
     if (fun == NULL)
 	fun = (CHM_DN(*)(CHM_SP,CHM_CM))
-	    R_GetCCallable("Matrix", "cholmod_sparse_to_dense");
+	    R_GetCCallable("Matrix", "cholmod_l_sparse_to_dense");
     return fun(A, Common);
 }
 
@@ -220,7 +224,7 @@ M_cholmod_analyze(CHM_SP A, CHM_CM Common)
     static CHM_FR(*fun)(CHM_SP,CHM_CM) = NULL;
     if (fun == NULL)
 	fun = (CHM_FR(*)(CHM_SP,CHM_CM))
-	    R_GetCCallable("Matrix", "cholmod_analyze");
+	    R_GetCCallable("Matrix", "cholmod_l_analyze");
     return fun(A, Common);
 }
 
@@ -233,7 +237,7 @@ M_cholmod_analyze_p(CHM_SP A, int *Perm, int *fset,
     if (fun == NULL)
 	fun = (CHM_FR(*)(CHM_SP,int*,int*,
 			 size_t,CHM_CM))
-	    R_GetCCallable("Matrix", "cholmod_analyze_p");
+	    R_GetCCallable("Matrix", "cholmod_l_analyze_p");
     return fun(A, Perm, fset, fsize, Common);
 }
 
@@ -245,7 +249,7 @@ M_cholmod_copy(CHM_SP A, int stype,
 	(CHM_SP,int,int,CHM_CM) = NULL;
     if (fun == NULL)
 	fun = (CHM_SP(*)(CHM_SP,int,int,CHM_CM))
-	    R_GetCCallable("Matrix", "cholmod_copy");
+	    R_GetCCallable("Matrix", "cholmod_l_copy");
     return fun(A, stype, mode, Common);
 }
 
@@ -255,28 +259,28 @@ M_cholmod_copy_dense(CHM_DN  A, CHM_CM Common)
     static CHM_DN(*fun)(CHM_DN,CHM_CM) = NULL;
     if (fun == NULL)
 	fun = (CHM_DN(*)(CHM_DN,CHM_CM))
-	    R_GetCCallable("Matrix", "cholmod_copy_dense");
+	    R_GetCCallable("Matrix", "cholmod_l_copy_dense");
     return fun(A, Common);
 }
 
 CHM_FR attribute_hidden
-M_cholmod_copy_factor(cholmod_factor *L, CHM_CM Common)
+M_cholmod_copy_factor(CHM_FR L, CHM_CM Common)
 {
     static CHM_FR(*fun)(CHM_FR,CHM_CM) = NULL;
     if (fun == NULL)
 	fun = (CHM_FR(*)(CHM_FR,CHM_CM))
-	    R_GetCCallable("Matrix", "cholmod_copy_factor");
+	    R_GetCCallable("Matrix", "cholmod_l_copy_factor");
     return fun(L, Common);
 }
 
 int attribute_hidden
 M_cholmod_change_factor(int to_xtype, int to_ll, int to_super, int to_packed,
-			int to_monotonic, cholmod_factor *L, CHM_CM Common)
+			int to_monotonic, CHM_FR L, CHM_CM Common)
 {
     static int(*fun)(int,int,int,int,int,CHM_FR,CHM_CM) = NULL;
     if (fun == NULL)
 	fun = (int(*)(int,int,int,int,int,CHM_FR,CHM_CM))
-	    R_GetCCallable("Matrix", "cholmod_change_factor");
+	    R_GetCCallable("Matrix", "cholmod_l_change_factor");
     return fun(to_xtype, to_ll, to_super, to_packed, to_monotonic, L, Common);
 }
 
@@ -286,17 +290,17 @@ M_cholmod_copy_sparse(CHM_SP A, CHM_CM Common)
     static CHM_SP(*fun)(CHM_SP,CHM_CM) = NULL;
     if (fun == NULL)
 	fun = (CHM_SP(*)(CHM_SP,CHM_CM))
-	    R_GetCCallable("Matrix", "cholmod_copy_sparse");
+	    R_GetCCallable("Matrix", "cholmod_l_copy_sparse");
     return fun(A, Common);
 }
 
 CHM_SP attribute_hidden
-M_cholmod_factor_to_sparse(cholmod_factor *L, CHM_CM Common)
+M_cholmod_factor_to_sparse(CHM_FR L, CHM_CM Common)
 {
     static CHM_SP(*fun)(CHM_FR,CHM_CM) = NULL;
     if (fun == NULL)
 	fun = (CHM_SP(*)(CHM_FR,CHM_CM))
-	    R_GetCCallable("Matrix", "cholmod_factor_to_sparse");
+	    R_GetCCallable("Matrix", "cholmod_l_factor_to_sparse");
     return fun(L, Common);
 }
 
@@ -309,7 +313,7 @@ M_cholmod_submatrix(CHM_SP A, int *rset, int rsize, int *cset,
     if (fun == NULL)
 	fun = (CHM_SP(*)(CHM_SP,int*,int,int*,
 			 int,int,int,CHM_CM))
-	    R_GetCCallable("Matrix", "cholmod_submatrix");
+	    R_GetCCallable("Matrix", "cholmod_l_submatrix");
     return fun(A, rset, rsize, cset, csize, values, sorted, Common);
 }
 
@@ -319,24 +323,24 @@ M_cholmod_dense_to_sparse(CHM_DN  X, int values, CHM_CM Common)
     static CHM_SP(*fun)(CHM_DN,int,CHM_CM) = NULL;
     if (fun == NULL)
 	fun = (CHM_SP(*)(CHM_DN,int,CHM_CM))
-	    R_GetCCallable("Matrix", "cholmod_dense_to_sparse");
+	    R_GetCCallable("Matrix", "cholmod_l_dense_to_sparse");
     return fun(X, values, Common);
 }
 
 int attribute_hidden
-M_cholmod_factorize(CHM_SP A, cholmod_factor *L,
+M_cholmod_factorize(CHM_SP A, CHM_FR L,
 		    CHM_CM Common)
 {
     static int(*fun)(CHM_SP,CHM_FR,CHM_CM) = NULL;
     if (fun == NULL)
 	fun = (int(*)(CHM_SP,CHM_FR,CHM_CM))
-	    R_GetCCallable("Matrix", "cholmod_factorize");
+	    R_GetCCallable("Matrix", "cholmod_l_factorize");
     return fun(A, L, Common);
 }
 
 int attribute_hidden
 M_cholmod_factorize_p(CHM_SP A, double *beta, int *fset,
-		      size_t fsize, cholmod_factor *L,
+		      size_t fsize, CHM_FR L,
 		      CHM_CM Common)
 {
     static int(*fun)(CHM_SP,double*,int*,size_t,
@@ -344,7 +348,7 @@ M_cholmod_factorize_p(CHM_SP A, double *beta, int *fset,
     if (fun == NULL)
 	fun = (int(*)(CHM_SP,double*,int*,size_t,
 		      CHM_FR,CHM_CM))
-	    R_GetCCallable("Matrix", "cholmod_factorize_p");
+	    R_GetCCallable("Matrix", "cholmod_l_factorize_p");
     return fun(A, beta, fset, fsize, L, Common);
 }
 
@@ -355,7 +359,7 @@ M_cholmod_finish(CHM_CM Common)
     static int(*fun)(CHM_CM) = NULL;
     if (fun == NULL)
 	fun = (int(*)(CHM_CM))
-	    R_GetCCallable("Matrix", "cholmod_finish");
+	    R_GetCCallable("Matrix", "cholmod_l_finish");
     return fun(Common);
 }
 
@@ -365,7 +369,7 @@ M_cholmod_sort(CHM_SP A, CHM_CM Common)
     static int(*fun)(CHM_SP,CHM_CM) = NULL;
     if (fun == NULL)
 	fun = (int(*)(CHM_SP,CHM_CM))
-	    R_GetCCallable("Matrix", "cholmod_sort");
+	    R_GetCCallable("Matrix", "cholmod_l_sort");
     return fun(A, Common);
 }
 
@@ -375,17 +379,17 @@ M_cholmod_free_dense(CHM_DN  *A, CHM_CM Common)
     static int(*fun)(CHM_DN*,CHM_CM) = NULL;
     if (fun == NULL)
 	fun = (int(*)(CHM_DN*,CHM_CM))
-	    R_GetCCallable("Matrix", "cholmod_free_dense");
+	    R_GetCCallable("Matrix", "cholmod_l_free_dense");
     return fun(A, Common);
 }
 
 int attribute_hidden
-M_cholmod_free_factor(cholmod_factor **L, CHM_CM Common)
+M_cholmod_free_factor(CHM_FR *L, CHM_CM Common)
 {
     static int(*fun)(CHM_FR*,CHM_CM) = NULL;
     if (fun == NULL)
 	fun = (int(*)(CHM_FR*,CHM_CM))
-	    R_GetCCallable("Matrix", "cholmod_free_factor");
+	    R_GetCCallable("Matrix", "cholmod_l_free_factor");
     return fun(L, Common);
 }
 
@@ -395,7 +399,7 @@ M_cholmod_free_sparse(CHM_SP *A, CHM_CM Common)
     static int(*fun)(CHM_SP*,CHM_CM) = NULL;
     if (fun == NULL)
 	fun = (int(*)(CHM_SP*,CHM_CM))
-	    R_GetCCallable("Matrix", "cholmod_free_sparse");
+	    R_GetCCallable("Matrix", "cholmod_l_free_sparse");
     return fun(A, Common);
 }
 
@@ -405,7 +409,7 @@ M_cholmod_free_triplet(cholmod_triplet **T, CHM_CM Common)
     static int(*fun)(cholmod_triplet**,CHM_CM) = NULL;
     if (fun == NULL)
 	fun = (int(*)(cholmod_triplet**,CHM_CM))
-	    R_GetCCallable("Matrix", "cholmod_free_triplet");
+	    R_GetCCallable("Matrix", "cholmod_l_free_triplet");
     return fun(T, Common);
 }
 
@@ -415,7 +419,7 @@ M_cholmod_nnz(CHM_SP A, CHM_CM Common)
     static long(*fun)(CHM_SP,CHM_CM) = NULL;
     if (fun == NULL)
 	fun = (long(*)(CHM_SP,CHM_CM))
-	    R_GetCCallable("Matrix", "cholmod_nnz");
+	    R_GetCCallable("Matrix", "cholmod_l_nnz");
     return fun(A, Common);
 }
 
@@ -430,7 +434,7 @@ M_cholmod_sdmult(CHM_SP A, int transpose,
     if (fun == NULL)
 	fun = (int(*)(CHM_SP,int,double*,double*,
 		      CHM_DN,CHM_DN,CHM_CM))
-	    R_GetCCallable("Matrix", "cholmod_sdmult");
+	    R_GetCCallable("Matrix", "cholmod_l_sdmult");
     return fun(A, transpose, alpha, beta, X, Y, Common);
 }
 
@@ -444,12 +448,12 @@ M_cholmod_ssmult(CHM_SP A, CHM_SP B,
     if (fun == NULL)
 	fun = (CHM_SP(*)(CHM_SP,CHM_SP,
 			 int,int,int,CHM_CM))
-	    R_GetCCallable("Matrix", "cholmod_ssmult");
+	    R_GetCCallable("Matrix", "cholmod_l_ssmult");
     return fun(A, B, stype, values, sorted, Common);
 }
 
 CHM_DN attribute_hidden
-M_cholmod_solve(int sys, cholmod_factor *L,
+M_cholmod_solve(int sys, CHM_FR L,
 		CHM_DN  B, CHM_CM Common)
 {
     static CHM_DN(*fun)(int,CHM_FR,CHM_DN,
@@ -457,7 +461,7 @@ M_cholmod_solve(int sys, cholmod_factor *L,
     if (fun == NULL)
 	fun = (CHM_DN(*)(int,CHM_FR,CHM_DN,
 			 CHM_CM))
-	    R_GetCCallable("Matrix", "cholmod_solve");
+	    R_GetCCallable("Matrix", "cholmod_l_solve");
     return fun(sys, L, B, Common);
 }
 
@@ -468,12 +472,12 @@ M_cholmod_speye(size_t nrow, size_t ncol,
     static CHM_SP(*fun)(size_t,size_t,int,CHM_CM) = NULL;
     if (fun == NULL)
 	fun = (CHM_SP(*)(size_t,size_t,int,CHM_CM))
-	    R_GetCCallable("Matrix", "cholmod_speye");
+	    R_GetCCallable("Matrix", "cholmod_l_speye");
     return fun(nrow, ncol, xtype, Common);
 }
 
 CHM_SP attribute_hidden
-M_cholmod_spsolve(int sys, cholmod_factor *L,
+M_cholmod_spsolve(int sys, CHM_FR L,
 		  CHM_SP B, CHM_CM Common)
 {
     static CHM_SP(*fun)(int,CHM_FR,
@@ -481,7 +485,7 @@ M_cholmod_spsolve(int sys, cholmod_factor *L,
     if (fun == NULL)
 	fun = (CHM_SP(*)(int,CHM_FR,
 			 CHM_SP, CHM_CM))
-	    R_GetCCallable("Matrix", "cholmod_spsolve");
+	    R_GetCCallable("Matrix", "cholmod_l_spsolve");
     return fun(sys, L, B, Common);
 }
 
@@ -510,7 +514,7 @@ M_R_cholmod_start(CHM_CM Common)
     static int(*fun)(CHM_CM) = NULL;
     if (fun == NULL)
 	fun = (int(*)(CHM_CM))
-	    R_GetCCallable("Matrix", "cholmod_start");
+	    R_GetCCallable("Matrix", "cholmod_l_start");
     val = fun(Common);
     Common->print_function = R_cholmod_printf; /* Rprintf gives warning */
     Common->error_handler = M_R_cholmod_error;
@@ -525,7 +529,7 @@ M_cholmod_transpose(CHM_SP A, int values, CHM_CM Common)
     if (fun == NULL)
 	fun = (CHM_SP(*)(CHM_SP,int,
 			 CHM_CM))
-	    R_GetCCallable("Matrix", "cholmod_transpose");
+	    R_GetCCallable("Matrix", "cholmod_l_transpose");
     return fun(A, values, Common);
 }
 
@@ -537,7 +541,7 @@ M_cholmod_vertcat(CHM_SP A, CHM_SP B,
 			int, CHM_CM) = NULL;
     if (fun == NULL)
 	fun = (CHM_SP(*)(CHM_SP,CHM_SP, int, CHM_CM))
-	    R_GetCCallable("Matrix", "cholmod_vertcat");
+	    R_GetCCallable("Matrix", "cholmod_l_vertcat");
     return fun(A, B, values, Common);
 }
 
@@ -568,6 +572,10 @@ M_cholmod_scale(CHM_DN S, int scale, CHM_SP A,
     static int(*fun)(CHM_DN,int,CHM_SP, CHM_CM) = NULL;
     if (fun == NULL)
 	fun = (int(*)(CHM_DN,int,CHM_SP, CHM_CM))
-	    R_GetCCallable("Matrix", "cholmod_scale");
+	    R_GetCCallable("Matrix", "cholmod_l_scale");
     return fun(S, scale, A, Common);
 }
+
+#ifdef	__cplusplus
+}
+#endif

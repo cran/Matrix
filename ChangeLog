@@ -1,3 +1,38 @@
+2008-12-10  Douglas Bates <bates@stat.wisc.edu>
+
+	* [r2309] DESCRIPTION: Release 0.99375-17
+
+2008-12-05  Douglas Bates <bates@stat.wisc.edu>
+
+	* [r2308] inst/include/Matrix_stubs.c, inst/include/cholmod.h: Adding
+	  const for picky compilers; Using CHM_FR typedef
+
+2008-11-17  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* [r2307] ChangeLog, tests/validObj.R: update (as of Oct.26)
+
+2008-10-31  Douglas Bates <bates@stat.wisc.edu>
+
+	* [r2306] inst/include/Matrix_stubs.c: Consistency with cholmod.h re
+	  const qualifier
+
+2008-10-26  Douglas Bates <bates@stat.wisc.edu>
+
+	* src/Csparse.c (Csparse_validate): do not sort, but report error
+	on unsorted row-indices within column.
+
+	* tests/validObj.R: adapt the regression test.
+
+2008-10-17  Douglas Bates <bates@stat.wisc.edu>
+
+	* [r2300] inst/include/Matrix_stubs.c: Consistency with SparseSuite names
+	* [r2299] src/AMD/Source/Makefile, src/CHMfactor.c,
+	  src/CHOLMOD/Lib/Makefile, src/COLAMD/Source/Makefile, src/Csparse.c,
+	  src/Tsparse.c, src/UFconfig/UFconfig.h, src/chm_common.c,
+	  src/chm_common.h, src/dense.c, src/dgCMatrix.c, src/dsCMatrix.c,
+	  src/init.c, src/t_gCMatrix_colSums.c: Compile only the UF_long version
+	  of SparseSuite but setting UF_long to be int
+
 2008-10-17  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* src/Mutils.h: include <alloca.h> also for AIX
@@ -19,11 +54,36 @@
 	* src/Makefile, src/*/Makefile: changes from Brian Ripley enabling
 	parallel make.
 
+2008-10-13  Douglas Bates <bates@stat.wisc.edu>
+
+	* [r2285] src/SPQR/Include/spqr.hpp: Include the C string declarations.
+
+2008-10-06  Douglas Bates <bates@stat.wisc.edu>
+
+	* [r2284] src/Makefile, src/SPQR/Lib/Makefile_SPQR, src/SPQR/Makefile,
+	  src/Win.mk: Modifications for compilation under Windows
+	* [r2283] tests/validObj.R: remove reference to undefined object
+	* [r2282] inst/doc/UFsparse/SPQR.txt: SPQR license information
+
+2008-10-04  Douglas Bates <bates@stat.wisc.edu>
+
+	* [r2281] src/Makefile, src/chm_common.c, src/chm_common.h,
+	  src/dgCMatrix.c, src/init.c: SparseSuiteQR interface
+
 2008-10-03  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* src/Csparse.c (isValid_Csparse): new utility
 	* src/chm_common.c (as_cholmod_sparse): add validity check early
 	* tests/validObj.R: test the above
+
+2008-10-02  Douglas Bates <bates@stat.wisc.edu>
+
+	* [r2277] TODO: Think of a better way of structuring include files
+	* [r2276] src/AMD/Source/Makefile, src/CHOLMOD/Lib/Makefile,
+	  src/COLAMD/Source/Makefile, src/Makefile,
+	  src/SPQR/Include/SuiteSparseQR_C.h, src/chm_common.h, src/dgCMatrix.c,
+	  src/dgCMatrix.h, src/init.c, src/sparseQR.h: Add dgCMatrix_SPQR and
+	  modify other code to allow its compilation and linkage
 
 2008-10-02  Martin Maechler  <maechler@stat.math.ethz.ch>
 
@@ -32,7 +92,10 @@
 
 2008-10-01  Douglas Bates <bates@stat.wisc.edu>
 
-	* src/Makefile:
+	* src/Makefile, inst/doc/UFsparse/, inst/include/: Adjustments for
+	SuiteSparse configuration.
+	* src/CHOLMOD, src/UFconfig: update versions of SuiteSparse
+	libraries.
 	* src/SPQR/*  add "SPQR", from Tim Davis' "SuiteSparse" collection,
 	not yet with an R interface.
 

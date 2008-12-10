@@ -124,9 +124,10 @@ getClass("CsparseMatrix")
 ## The common validity check function (based on C code):
 getValidity(getClass("CsparseMatrix"))
 
+## This behavior has been changed
 # un-sorted i-slot on input is automatically "sorted" :
-M <- new("dgCMatrix", Dim = 2:3, p = as.integer(c(0,1,1,3)),
-         i = c(1L, 1:0), x= c(2,2,1))
-stopifnot(M@i == c(1L, 0:1), M@x == c(2,1,2))
+#M <- new("dgCMatrix", Dim = 2:3, p = as.integer(c(0,1,1,3)),
+#         i = c(1L, 1:0), x= c(2,2,1))
+#stopifnot(M@i == c(1L, 0:1), M@x == c(2,1,2))
 }
 \keyword{classes}

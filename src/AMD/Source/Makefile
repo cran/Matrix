@@ -24,10 +24,15 @@ $(LIB): amd_global.o $(AMDL) # $(AMDI)
 	$(AR) -rucs $(LIB) amd_global.o $(AMDL) # $(AMDI)
 
 amd_global.o: amd_global.c $(INC)
-amd_i_%.o: amd_%.c $(INC)
-	$(CC) $(ALL_CPPFLAGS) $(ALL_CFLAGS) -I../Include -DDINT -c $< -o $@
-amd_l_%.o: amd_%.c $(INC)
-	$(CC) $(ALL_CPPFLAGS) $(ALL_CFLAGS) -I../Include -DDLONG -c $< -o $@
+
+##-- This is GNU-make-only :
+#amd_i_%.o: amd_%.c $(INC)
+#	$(CC) $(ALL_CPPFLAGS) $(ALL_CFLAGS) -I../Include -DDINT -c $< -o $@
+#amd_l_%.o: amd_%.c $(INC)
+#	$(CC) $(ALL_CPPFLAGS) $(ALL_CFLAGS) -I../Include -DDLONG -c $< -o $@
+
+##-- Whereas this is "standard make", produced from ./make-Make.R :
+include make_o.mk
 
 mostlyclean: clean
 

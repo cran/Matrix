@@ -27,6 +27,102 @@ spMatrix <- function(nrow, ncol,
         j = as.integer(j - 1L))
 }
 
+sparseMatrix <- function(i, j, p, x, dims, dimnames, index0 = FALSE)
+{
+  ## Purpose: user-level substitute for most  new(<sparseMatrix>, ..) calls
+  ## Author: Martin Maechler, Date: 6 Jan 2009, based on Doug Bates' idea
+    if((m.i <- missing(i)) + (m.j <- missing(j)) + (m.p <- missing(p)) != 1)
+        stop("exactly one of 'i', 'j', or 'p' must be missing from call")
+    if(!m.p) {
+        ## we *could* let  validObject() / .validateCsparse() check later ...
+        p <- as.integer(p)
+        if((lp <- length(p)) < 1 || p[1] != 0 || any((dp <- p[-1] - p[-lp]) < 0))
+            stop("'p' must be a non-decreasing vector (0, ...)")
+    }
+    isPat <- missing(x) ## <-> patter"n" Matrix
+    ## "minimal dimensions" from (i,j,p) :
+    dims.min <- c(if(m.i) lp - 1L else max(i <- as.integer(i)),
+                  if(m.j) lp - 1L else max(j <- as.integer(j)))
+    if(any(is.na(dims.min))) stop("NA's in (i,j) are not allowed")
+    if(missing(dims)) {
+        dims <- dims.min
+    } else { ## check dims
+        stopifnot(all(dims >= dims.min))
+        dims <- as.integer(dims)
+    }
+    kx <- if(isPat) "n" else .M.kind(x)
+    if(m.j) { ## -> Csparse
+        r <- new(paste(kx, "gCMatrix", sep=''))
+        r@Dim <- dims
+        r@p <- as.integer(p)
+        if(!isPat) r@x <- if(kx == "d" && !is.double(x)) as.double(x) else x
+        r@i <- as.integer(if(index0) i else i - 1L)
+        vv <- .validateCsparse(r, sort.if.needed=TRUE)## modify 'r' in-place !!!
+        if(is.character(vv)) stop(vv)
+    }
+    else if(m.i) { ## -> Rsparse
+        stop("(j,p) --> RsparseMatrix :  not yet implemented")
+    }
+    else if(m.p) { ## -> Tsparse
+        r <- new(paste(kx, "gTMatrix", sep=''))
+        r@Dim <- dims
+        if(!isPat) r@x <- if(kx == "d" && !is.double(x)) as.double(x) else x
+        r@i <- as.integer(if(index0) i else i - 1L)
+        r@j <- as.integer(if(index0) j else j - 1L)
+        validObject(r)
+        r
+    }
+    if(!missing(dimnames)) {
+        ## FIXME: should we check here, or validObject(r) or ??
+        r@Dimnames <- dimnames
+    }
+    r
+}
+
+sparseMatrix <- function(i = ep, j = ep, p, x, dims, dimnames, index1 = TRUE)
+{
+  ## Purpose: user-level substitute for most  new(<sparseMatrix>, ..) calls
+  ## Author: Douglas Bates, Date: 12 Jan 2009, based on Martin's version
+    if((m.i <- missing(i)) + (m.j <- missing(j)) + (m.p <- missing(p)) != 1)
+        stop("exactly one of 'i', 'j', or 'p' must be missing from call")
+    if(!m.p) {
+        p <- as.integer(p)
+        if((lp <- length(p)) < 1 || p[1] != 0 || any((dp <- p[-1] - p[-lp]) < 0))
+            stop("'p' must be a non-decreasing vector (0, ...)")
+        ep <- rep.int(seq_along(dp), dp)
+    }
+    ## i and j are now both defined.  Make them 1-based indices.
+    i1 <- as.logical(index1)[1]
+    i <- as.integer(i + !(m.i || i1))
+    j <- as.integer(j + !(m.j || i1))
+
+    ## "minimal dimensions" from (i,j,p) :
+    dims.min <- c(max(i), max(j))
+    if(any(is.na(dims.min))) stop("NA's in (i,j) are not allowed")
+    if(missing(dims)) {
+        dims <- dims.min
+    } else { ## check dims
+        stopifnot(all(dims >= dims.min))
+        dims <- as.integer(dims)
+    }
+    isPat <- missing(x) ## <-> patter"n" Matrix
+    kx <- if(isPat) "n" else .M.kind(x)
+    r <- new(paste(kx, "gTMatrix", sep=''))
+    r@Dim <- dims
+    if(!isPat) {
+	if(kx == "d" && !is.double(x)) x <- as.double(x)
+	if(length(x) != (n <- length(i))) { ## recycle
+	    if(length(x) != 1 && n %% length(x) != 0)
+		warning("length(i) is not a multiple of length(x)")
+	    x <- rep(x, length.out = n)
+	}
+	r@x <- x
+    }
+    r@i <- i - 1L
+    r@j <- j - 1L
+    validObject(r)
+    as(r, "CsparseMatrix")
+}
 
 ## "graph" coercions -- this needs the graph package which is currently
 ##  -----               *not* required on purpose

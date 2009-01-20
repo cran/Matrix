@@ -115,11 +115,6 @@ ip <- c(1:2, 4:3, 6:5) # permute the 'i' and 'x' slot just "inside column":
 m.@i <- m.i <- mm@i[ip]
 m.@x <- m.x <- mm@x[ip]
 stopifnot(grep("row indices are not", validObject(m., test=TRUE)) == 1)
-## 	  validObject(m.))   ## <<-- this auto-sorts  m.
-## stopifnot(identical(mm, m.)) ## since it was auto-sorted
-## and m.@i, m.@x now differ from m.i & m.x respectively:
-## stopifnot(identical(m.i, m.@i[ip]),
-## 	  identical(m.x, m.@x[ip]))
 ##
 ## Make sure that validObject() objects...
 ## 1) to wrong 'p'

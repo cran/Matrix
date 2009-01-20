@@ -131,18 +131,6 @@ setMethod("%*%", signature(x = "matrix", y = "dgeMatrix"),
 	  function(x, y) .Call(dgeMatrix_matrix_mm, y, x, TRUE),
           valueClass = "dgeMatrix")
 
-## DB: Should we retain these methods?  Does the shortcut save enough
-## to justify additional signatures?
-## dgeMatrix <-> numeric: conceptually dispatch to "matrix" one, but shortcut
-setMethod("%*%", signature(x = "dgeMatrix", y = "numeric"),
-	  function(x, y) .Call(dgeMatrix_matrix_mm, x, y, FALSE),
-	  valueClass = "dgeMatrix")
-
-setMethod("%*%", signature(x = "numeric", y = "dgeMatrix"),
-	  function(x, y)
-	  .Call(dgeMatrix_matrix_mm, y, rbind(x), TRUE),
-	  valueClass = "dgeMatrix")
-
 setMethod("diag", signature(x = "dgeMatrix"),
 	  function(x, nrow, ncol) .Call(dgeMatrix_getDiag, x))
 

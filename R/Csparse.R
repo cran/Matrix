@@ -72,6 +72,11 @@ setAs("CsparseMatrix", "symmetricMatrix",
       })
 
 
+.validateCsparse <- function(x, sort.if.needed = FALSE)
+    .Call(Csparse_validate2, x, sort.if.needed)
+##-> to be used in sparseMatrix(.), e.g.
+
+
 ### Some group methods:
 
 setMethod("Math",

@@ -290,7 +290,13 @@ results.
 \label{sec:SparseClasses}
 
 Used for large matrices in which most of the elements are known to
-be zero.
+be zero (or \code{FALSE} for logical and binary (``pattern'') matrices).
+
+Sparse matrices are automatically built from \Rfun{Matrix} whenever the
+majority of entries is zero (or \code{FALSE} respectively).  Alternatively,
+\Rfun{sparseMatrix} builds sparse matrices from their non-zero entries and
+is typically recommended to construct large sparse matrices, rather than
+direct calls of \Rfun{new}.
 
 \TODO{E.g. model matrices created from factors with a large number of levels}
 
@@ -313,7 +319,6 @@ be zero.
 
 \subsection{Representations of sparse matrices}
 \label{ssec:SparseReps}
-
 
 \subsubsection{Triplet representation (\class{TsparseMatrix})}
 Conceptually, the simplest representation of a sparse matrix is as a
@@ -350,8 +355,7 @@ representation.  \footnote{
 %% were adjacent and column-oriented if elements in the same column were
 %% adjacent.
 
-\subsubsection{Compressed representations: \class{CsparseMatrix} }
-% (and \class{RsparseMatrix})} -- but don't advertize them
+\subsubsection{Compressed representations: \class{CsparseMatrix} and \class{RsparseMatrix}}
 
 For most sparse operations we use the compressed column-oriented
 representation (virtual class \class{CsparseMatrix}) (also known as

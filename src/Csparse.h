@@ -25,12 +25,22 @@ SEXP Csparse_to_dense(SEXP x);
 SEXP Csparse_to_nz_pattern(SEXP x, SEXP tri);
 SEXP Csparse_to_matrix(SEXP x);
 SEXP Csparse_transpose(SEXP x, SEXP tri);
-SEXP Csparse_validate(SEXP x);
+SEXP Csparse_validate (SEXP x);
+SEXP Csparse_validate2(SEXP x, SEXP maybe_modify);
+SEXP Csparse_validate_(SEXP x, Rboolean maybe_modify);
 SEXP Csparse_vertcat(SEXP x, SEXP y);
 
 SEXP Rsparse_validate(SEXP x);
 
 SEXP diag_tC_ptr(int n, int *x_p, double *x_x, int *perm, SEXP resultKind);
 SEXP diag_tC(SEXP pslot, SEXP xslot, SEXP perm_slot, SEXP resultKind);
+
+SEXP create_Csparse(char* cls, int* i, int* j, int* p, int np,
+		    void* x, int nnz, int* dims, SEXP dimnames,
+		    int index1);
+#define DG_I_J(i, j, x, nnz) create_Csparse("dgCMatrix", i, j, (int*)NULL, 0, (void*)x, nnz, (int*)NULL, R_NilValue, 1)
+#define NG_I_J(i, j, nnz) create_Csparse("ngCMatrix", i, j, (int*)NULL, 0, (void*)NULL, nnz, (int*)NULL, R_NilValue, 1)
+#define DG_I_P(i, p, np, x, nnz) create_Csparse("dgCMatrix", i, (int*)NULL, p, np, (void*)x, nnz, (int*)NULL, R_NilValue, 1)
+#define NG_I_P(i, p, np, nnz) create_Csparse("ngCMatrix", i, (int*)NULL, p, np, (void*)NULL, nnz, (int*)NULL, R_NilValue, 1)
 
 #endif

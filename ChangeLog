@@ -1,3 +1,40 @@
+2009-01-20  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* inst/doc/Intro2Matrix.Rnw: mention sparseMatrix
+	* man/sparseMatrix.Rd: fix typos found by parse_Rd
+
+2009-01-19  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version,Date): release 0.999375-18 (as of yesterday)
+
+2009-01-17  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/sparseMatrix.R (sparseMatrix): recycle 'x' if necessary;
+	use 'index1' rather than 'index0' {as proposed by Doug}.
+
+	* R/dgeMatrix.R: drop two unnecessary (maybe very very slightly
+	faster) methods for %*%.
+
+2009-01-12  Douglas Bates <bates@stat.wisc.edu>
+
+	* [r2313] R/sparseMatrix.R, man/sparseMatrix.rd: Use intermediate
+	triplet rep in sparseMatrix.
+
+2009-01-07  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/sparseMatrix.R (sparseMatrix): new function to be used in
+	place of new(), notably for CsparseMatrix objects.
+	* man/sparseMatrix.Rd: its doc; plus examples
+
+	* man/CsparseMatrix-class.Rd: fix long-standing thinko; update the
+	\note{} to reflect the fact that the validity method no longer
+	modifies its argument.
+
+	* R/Csparse.R (.validateCsparse): new utility accessing
+	* src/Csparse.c (Csparse_validate_, Csparse_validate2): new
+	utilities allowing the "sort-in-place" that used to be part of
+	former Csparse_validate().
+
 2008-12-10  Douglas Bates <bates@stat.wisc.edu>
 
 	* [r2309] DESCRIPTION: Release 0.99375-17

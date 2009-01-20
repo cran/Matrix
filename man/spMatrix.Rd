@@ -71,5 +71,3 @@ L # an "lgTMatrix"
  summary(M1)
 }
 \keyword{array}
-
-

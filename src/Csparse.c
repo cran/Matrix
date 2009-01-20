@@ -32,7 +32,15 @@ Rboolean isValid_Csparse(SEXP x)
     return TRUE;
 }
 
-SEXP Csparse_validate(SEXP x)
+SEXP Csparse_validate(SEXP x) {
+    return Csparse_validate_(x, FALSE);
+}
+
+SEXP Csparse_validate2(SEXP x, SEXP maybe_modify) {
+    return Csparse_validate_(x, asLogical(maybe_modify));
+}
+
+SEXP Csparse_validate_(SEXP x, Rboolean maybe_modify)
 {
     /* NB: we do *NOT* check a potential 'x' slot here, at all */
     SEXP pslot = GET_SLOT(x, Matrix_pSym),
@@ -69,7 +77,22 @@ SEXP Csparse_validate(SEXP x)
 	    }
     }
     if (!sorted) {
-	return mkString(_("row indices are not sorted within columns"));
+	if(maybe_modify) {
+	    CHM_SP chx = (CHM_SP) alloca(sizeof(cholmod_sparse));
+	    R_CheckStack();
+	    as_cholmod_sparse(chx, x, FALSE, TRUE);/*-> cholmod_l_sort() ! */
+	    /* as chx = AS_CHM_SP__(x)  but  ^^^^ sorting x in_place !!! */
+
+	    /* Now re-check that row indices are *strictly* increasing
+	     * (and not just increasing) within each column : */
+	    for (j = 0; j < ncol; j++) {
+		for (k = xp[j] + 1; k < xp[j + 1]; k++)
+		    if (xi[k] == xi[k - 1])
+			return mkString(_("slot i is not *strictly* increasing inside a column (even after cholmod_l_sort)"));
+	    }
+	} else { /* no modifying sorting : */
+	    return mkString(_("row indices are not sorted within columns"));
+	}
     } else if(!strictly) {  /* sorted, but not strictly */
 	return mkString(_("slot i is not *strictly* increasing inside a column"));
     }
@@ -605,4 +628,138 @@ SEXP diag_tC(SEXP pslot, SEXP xslot, SEXP perm_slot, SEXP resultKind)
 /*  ^^^^^^        ^^^^ FIXME[Generalize] to INTEGER(.) / LOGICAL(.) / ... xslot !*/
 
     return diag_tC_ptr(n, x_p, x_x, perm, resultKind);
+}
+
+/**
+ * Create a Csparse matrix object from indices and/or pointers.
+ *
+ * @param cls name of actual class of object to create
+ * @param i optional integer vector of length nnz of row indices
+ * @param j optional integer vector of length nnz of column indices
+ * @param p optional integer vector of length np of row or column pointers
+ * @param np length of integer vector p.  Must be zero if p == (int*)NULL
+ * @param x optional vector of values
+ * @param nnz length of vectors i, j and/or x, whichever is to be used
+ * @param dims optional integer vector of length 2 to be used as
+ *     dimensions.  If dims == (int*)NULL then the maximum row and column
+ *     index are used as the dimensions.
+ * @param dimnames optional list of length 2 to be used as dimnames
+ * @param index1 indicator of 1-based indices
+ *
+ * @return an SEXP of class cls inheriting from CsparseMatrix.
+ */
+SEXP create_Csparse(char* cls, int* i, int* j, int* p, int np,
+		    void* x, int nnz, int* dims, SEXP dimnames,
+		    int index1)
+{
+    SEXP ans;
+    int *ij = (int*)NULL, *tri, *trj,
+	mi, mj, mp, nrow = -1, ncol = -1;
+    int xtype = -1;		/* -Wall */
+    CHM_TR T;
+    CHM_SP A;
+
+    if (np < 0 || nnz < 0)
+	error(_("negative vector lengths not allowed: np = %d, nnz = %d"),
+	      np, nnz);
+    if (1 != ((mi = (i == (int*)NULL)) +
+	      (mj = (j == (int*)NULL)) +
+	      (mp = (p == (int*)NULL))))
+	error(_("exactly 1 of 'i', 'j' or 'p' must be NULL"));
+    if (mp) {
+	if (np) error(_("np = %d, must be zero when p is NULL"), np);
+    } else {
+	if (np) {		/* Expand p to form i or j */
+	    if (!(p[0])) error(_("p[0] = %d, should be zero"), p[0]);
+	    for (int ii = 0; ii < np; ii++)
+		if (p[ii] > p[ii + 1])
+		    error(_("p must be non-decreasing"));
+	    if (p[np] != nnz)
+		error(_("p[np] = %d != nnz = %d"), p[np], nnz);
+	    ij = Calloc(nnz, int);
+	    if (mi) {
+		i = ij;
+		nrow = np;
+	    } else {
+		j = ij;
+		ncol = np;
+	    }
+				/* Expand p to 0-based indices */
+	    for (int ii = 0; ii < np; ii++)
+		for (int jj = p[ii]; jj < p[ii + 1]; jj++) ij[jj] = ii;
+	} else {
+	    if (nnz)
+		error(_("Inconsistent dimensions: np = 0 and nnz = %d"),
+		      nnz);
+	}
+    }
+				/* calculate nrow and ncol */
+    if (nrow < 0) {
+	for (int ii = 0; ii < nnz; ii++) {
+	    int i1 = i[ii] + (index1 ? 0 : 1); /* 1-based index */
+	    if (i1 < 1) error(_("invalid row index at position %d"), ii);
+	    if (i1 > nrow) nrow = i1;
+	}
+    }
+    if (ncol < 0) {
+	for (int jj = 0; jj < nnz; jj++) {
+	    int j1 = j[jj] + (index1 ? 0 : 1);
+	    if (j1 < 1) error(_("invalid column index at position %d"), jj);	    
+	    if (j1 > ncol) ncol = j1;
+	}
+    }
+    if (dims != (int*)NULL) {
+	if (dims[0] > nrow) nrow = dims[0];
+	if (dims[1] > ncol) ncol = dims[1];
+    }
+				/* check the class name */
+    if (strlen(cls) != 8)
+	error(_("strlen of cls argument = %d, should be 8"), strlen(cls));
+    if (!strcmp(cls + 2, "CMatrix"))
+	error(_("cls = \"%s\" does not end in \"CMatrix\""), cls);
+    switch(cls[0]) {
+    case 'd':
+    case 'l':
+	   xtype = CHOLMOD_REAL;
+	   break;
+    case 'n':
+	   xtype = CHOLMOD_PATTERN;
+	   break;
+    default:
+	   error(_("cls = \"%s\" must begin with 'd', 'l' or 'n'"), cls);
+    }
+    if (cls[1] != 'g')
+	error(_("Only 'g'eneral sparse matrix types allowed"));
+				/* allocate and populate the triplet */
+    T = cholmod_l_allocate_triplet((size_t)nrow, (size_t)ncol, (size_t)nnz, 0,
+				    xtype, &c);
+    T->x = x;
+    tri = (int*)T->i;
+    trj = (int*)T->j;
+    for (int ii = 0; ii < nnz; ii++) {
+	tri[ii] = i[ii] - ((!mi && index1) ? 1 : 0);
+	trj[ii] = j[ii] - ((!mj && index1) ? 1 : 0);
+    }
+				/* create the cholmod_sparse structure */
+    A = cholmod_l_triplet_to_sparse(T, nnz, &c);
+    cholmod_l_free_triplet(&T, &c);
+				/* copy the information to the SEXP */
+    ans = PROTECT(NEW_OBJECT(MAKE_CLASS(cls)));
+/* FIXME: This has been copied from chm_sparse_to_SEXP in chm_common.c */
+				/* allocate and copy common slots */
+    nnz = cholmod_l_nnz(A, &c);
+    dims = INTEGER(ALLOC_SLOT(ans, Matrix_DimSym, INTSXP, 2));
+    dims[0] = A->nrow; dims[1] = A->ncol;
+    Memcpy(INTEGER(ALLOC_SLOT(ans, Matrix_pSym, INTSXP, A->ncol + 1)), (int*)A->p, A->ncol + 1);
+    Memcpy(INTEGER(ALLOC_SLOT(ans, Matrix_iSym, INTSXP, nnz)), (int*)A->i, nnz);
+    switch(cls[1]) {
+    case 'd':
+	Memcpy(REAL(ALLOC_SLOT(ans, Matrix_xSym, REALSXP, nnz)), (double*)A->x, nnz);
+	break;
+    case 'l':
+	error(_("code not yet written for cls = \"lgCMatrix\""));
+    }
+    cholmod_l_free_sparse(&A, &c);
+    UNPROTECT(1);
+    return ans;
 }

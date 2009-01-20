@@ -8,10 +8,11 @@
   Methods for function \code{\link{is.na}()} for all Matrices (objects
   extending the \code{\linkS4class{Matrix}} class):
 
-  \item{x = "denseMatrix"}{will an \code{"nMatrix"} object of same
-  dimension as \code{x}, with TRUE's whenever \code{x} was NA.}
-
-  \item{x = "sparseMatrix"}{ditto.}
+  \describe{
+    \item{x = "denseMatrix"}{returns a \code{"nMatrix"} object of same
+      dimension as \code{x}, with TRUE's whenever \code{x} was NA.}
+    \item{x = "sparseMatrix"}{ditto.}
+  }
 }
 \usage{
 \S4method{is.na}{sparseMatrix}(x)

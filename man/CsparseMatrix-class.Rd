@@ -34,6 +34,8 @@
 \alias{Logic,CsparseMatrix,CsparseMatrix-method}
 \alias{Math,CsparseMatrix-method}
 %
+\alias{.validateCsparse}
+%
 \title{Class "CsparseMatrix" of Sparse Matrices in Column-compressed Form}
 \description{The \code{"CsparseMatrix"} class is the virtual class of
   all sparse matrices coded in sorted compressed column-oriented form.
@@ -51,7 +53,7 @@
       for each column, to the initial (zero-based) index of elements in
       the column.  \code{.@p} is of length \code{ncol(.) + 1}, with
       \code{p[1] == 0} and \code{p[length(p)] == nnzero}, such that in
-      fact, \code{diff(.@p + 1)} are the number of non-zero elements for
+      fact, \code{diff(.@p)} are the number of non-zero elements for
       each column.}
     \item{\code{factors}, \code{Dim}, \code{Dimnames}:}{inherited from
       the superclass, see the \code{\linkS4class{sparseMatrix}} class.}
@@ -103,12 +105,17 @@ Class \code{"Matrix"}, by class \code{"sparseMatrix"}.
 }
 \note{
   All classes extending \code{CsparseMatrix} have a common validity
-  (see \code{\link{validObject}}) check function.  The function
-  additionally checks and if necessary \emph{sorts} the entries in
-  each row into increasing row numbers.  This allows to use
-  \code{new()} calls with somewhat permuted \code{i} and \code{x}
-  slots, as \code{\link{new}(...)} (\emph{with} slot arguments)
-  automatically checks the validity, see the example.
+  (see \code{\link{validObject}}) check function.  That function
+  additionally checks the \code{i} slot for each column to contain
+  increasing row numbers. \cr
+  In earlier versions of \pkg{Matrix} (\code{<= 0.999375-16}),
+  \code{\link{validObject}} automatically re-sorted the entries when
+  necessary, and hence \code{new()} calls with somewhat permuted
+  \code{i} and \code{x} slots worked, as \code{\link{new}(...)}
+  (\emph{with} slot arguments) automatically checks the validity.
+
+  Now, you have to use \code{\link{sparseMatrix}} to achieve the same
+  functionality or know how to use \code{.validateCsparse()} to do so.
 }
 \seealso{
   \code{\link{colSums}}, \code{\link{kronecker}}, and other such methods

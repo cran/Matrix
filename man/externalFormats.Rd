@@ -23,7 +23,7 @@ writeMM(obj, file, ...)
    a character scalar.  The names of files storing matrices in the
    Harwell-Boeing format usually end in \code{".rua"} or \code{".rsa"}.
    Those storing matrices in the MatrixMarket format usually end in
-   {".mtx"}.
+   \code{".mtx"}.
 
    Alternatively, \code{readHB} and \code{readMM} accept connection objects.}
  \item{\dots}{optional additional arguments. Currently none are used in
@@ -31,15 +31,15 @@ writeMM(obj, file, ...)
 }
 \value{
   The \code{readHB} and \code{readMM} functions return an object that
-  inherits from the \code{"Matrix"} class.  Methods for the
+  inherits from the \code{"\linkS4class{Matrix}"} class.  Methods for the
   \code{writeMM} generic functions usually return
-  \code{NULL} and, as a side effect, the matrix \code{obj} is written to
-  \code{file} in the MatrixMarket format (writeMM).
+  \code{\link{NULL}} and, as a side effect, the matrix \code{obj} is
+  written to \code{file} in the MatrixMarket format (writeMM).
 }
 \note{
   The Harwell-Boeing format is older and less flexible than the
   MatrixMarket format.  The function \code{writeHB} was deprecated and
-  has now been removed. Please use \code{writeMM} instead.
+  has now been removed.  Please use \code{writeMM} instead.
 }
 \references{
   \url{http://math.nist.gov/MatrixMarket}

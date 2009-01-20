@@ -57,6 +57,7 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(Csparse_symmetric_to_general, 1),
     CALLDEF(Csparse_transpose, 2),
     CALLDEF(Csparse_validate, 1),
+    CALLDEF(Csparse_validate2, 2),
     CALLDEF(Csparse_vertcat, 2),
     CALLDEF(pCholesky_validate, 1),
     CALLDEF(Rsparse_validate, 1),

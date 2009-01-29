@@ -46,40 +46,56 @@ steps. %% only the latter is really novel, since "SparseM" (and others)
 \section{One factor: \texttt{y $\sim$ f1}}
 Let's start with an artifical small example:
 <<ex1>>=
- (ff <- factor(substring("statistics", 1:10, 1:10), levels=letters))
+ (ff <- factor(strsplit("statistics_is_a_task", "")[[1]], levels=c("_",letters)))
  factor(ff)      # drops the levels that do not occur
- (f. <- ff[, drop=TRUE]) # the same, more transparently
-
+ f1 <- ff[, drop=TRUE] # the same, more transparently
+@
+and now assume a model $$y_i = \mu + \alpha_{j(i)} + E_i,$$ for $i=1,\dots,n
+=$~\code{length(f1)}$= 20$, and
+$\alpha_{j(i)}$ with a constraint such as $\sum_j \alpha_j = 0$ (``sum'')
+or $\alpha_1 = 0$ (``treatment'') and $j(i) =$\code{as.numeric(f1[i])}
+being the level number of the $i$-th observation. For such a ``design'',
+the model is only estimable if the levels \code{c} and \code{k} are merged,
+and
+<<ex1.2>>=
+ levels(f1)[match(c("c","k"), levels(f1))] <- "ck"
  library(Matrix)
 
- Matrix(contrasts(f.)) # "treatment" contrasts by default -- level "a" = baseline
+ Matrix(contrasts(f1)) # "treatment" contrasts by default -- level "_" = baseline
 
- Matrix(contrasts(C(f., sum)))
- Matrix(contrasts(C(f., helmert)), sparse=TRUE) # S-plus default; much less sparse
+ Matrix(contrasts(C(f1, sum)))
+ Matrix(contrasts(C(f1, helmert)), sparse=TRUE) # S-plus default; much less sparse
 @
-where contrasts is (conceptually) just one major ingredient in the
-well-known \Rfun{model.matrix} function.  Since 2007, the \pkg{Matrix}
+where \Rfun{contrasts} is (conceptually) just one major ingredient in the
+well-known \Rfun{model.matrix} function
+to build the linear model matrix $\mathbf{X}$ of so-called ``dummy variables''.
+%%
+Since 2007, the \pkg{Matrix}
 package has been providing coercion from a \code{factor} object to a
 \code{sparseMatrix} one to produce the transpose of the model matrix
 corresponding to a model with that factor as predictor (and no intercept):
 <<as_factor_sparse>>=
-as(f., "sparseMatrix")
+as(f1, "sparseMatrix")
 @
 which is really almost the transpose of using the above sparsification of
-\Rfun{contrasts},
+\Rfun{contrasts} (and arranging for nice printing),
 <<contrasts_sub>>=
-t( Matrix(contrasts(f.))[as.character(f.),] )
+printSpMatrix( t( Matrix(contrasts(f1))[as.character(f1) ,] ),
+              col.names=TRUE)
 @
 and that is the same as the ``sparsification'' of  \Rfun{model.matrix},
 apart from the column names (here transposed),
 <<ex1-model.matrix>>=
-t( Matrix(model.matrix(~ 0 + f.)) )
+t( Matrix(model.matrix(~ 0+ f1))) # model with*OUT* intercept
 @
-A more realistic small example is the chickwts data set,
+A more realistic small example is the \code{chickwts} data set,
 <<chickwts-ex>>=
-str(chickwts)# a standard R data set
+str(chickwts)# a standard R data set,  71 x 2
 x.feed <- as(chickwts$feed, "sparseMatrix")
 x.feed[ , (1:72)[c(TRUE,FALSE,FALSE)]] ## every  3rd  column:
+
+## Provisional (hence unexported) sparse lm.fit():
+Matrix:::lm.fit.sparse(x = t(x.feed), y = chickwts[,1])
 @
 %- for emacs: $
 

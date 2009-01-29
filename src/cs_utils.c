@@ -79,9 +79,17 @@ cs *Matrix_as_cs(cs *ans, SEXP x, Rboolean check_Udiag)
     if(check_Udiag && ctype == 1 && (*diag_P(x) == 'U')) { /* diagU2N(.) : */
 	int n = dims[0];
 	CSP I_n = csp_eye(n);
+
 	/* tmp := 1*ans + 1*eye -- result is newly allocated in cs_add(): */
-	CSP tmp = cs_add(ans, I_n, 1., 1.);
+	CSP tmp = cs_add(ans, I_n, 1., 1.), t2;
 	int nz = (tmp->p)[n];
+
+	/* double transpose trick to sort the columns */
+	cs_spfree(I_n);
+	t2 = cs_transpose(tmp, 1); /* transpose including values */
+	cs_spfree(tmp);
+	tmp = cs_transpose(t2, 1);
+	cs_spfree(t2);
 
 	/* content(ans) := content(tmp) : */
 	ans->nzmax = nz;
@@ -93,7 +101,6 @@ cs *Matrix_as_cs(cs *ans, SEXP x, Rboolean check_Udiag)
 	ans->x = Memcpy((double*) R_alloc(sizeof(double), nz),
 			(double*) tmp->x, nz);
 
-	cs_spfree(I_n);
 	cs_spfree(tmp);
     }
     return ans;

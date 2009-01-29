@@ -1,3 +1,43 @@
+2009-01-29  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* man/dgTMatrix-class.Rd: remove no-more-existing coercion method;
+	mention a bit less, and note.
+
+	* R/diagMatrix.R: ensure that <diagonal> * <dgeMatrix> is diagonal
+	even with new method dispatch
+
+	* R/Matrix.R (.M.sub.i.logical): change comments only, and extend
+	error message which is never called currently.
+
+	* R/Ops.R (Ops.x.x): fix for new "inherited method" dispatch
+
+2009-01-28  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/spqr.R: put spqr() / class "SPQR" related code in one file for now.
+	* NAMESPACE: export "SPQR" class
+	* man/SPQR-class.Rd: document it
+
+2009-01-27  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Auxiliaries.R (is.na_nsp): should produce "nsCMatrix" only when
+	dimnames are symmetric too.
+
+	* R/sparseQR.R (solve): method for (<sparseQR>, <ANY>)
+
+2009-01-26  Douglas Bates <bates@stat.wisc.edu>
+
+	* src/cs_utils.c (Matrix_as_cs): fix needed in diagU2N case
+
+2009-01-21  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Tsparse.R (intI): for now give intelligible error on NA indices.
+
+	* R/Matrix.R (subset.ij): should deal correctly with NA indices in
+	the 2-column-matrix index case.
+
+	* src/Mutils.c (m_encodeInd, m_encodeInd2): prepare to deal better
+	with NA in indices.
+
 2009-01-20  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* inst/doc/Intro2Matrix.Rnw: mention sparseMatrix

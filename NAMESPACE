@@ -204,6 +204,7 @@ exportClasses(
 	      "nCHMsimpl",# unused
 
 	      "sparseQR",
+	      "SPQR",
 
 	      "Schur",
 
@@ -215,7 +216,6 @@ exportClasses(
 	      "zsparseVector",
 	      "xsparseVector" # the class union of all 'x' lost sparseVector's
 	      )
-
 
 
 exportMethods(## for both own and "other" generics:
@@ -287,6 +287,7 @@ exportMethods(## for both own and "other" generics:
 	      "rowSums",
 	      "show",
 	      "solve",
+              "spqr",
 	      "summary",
               "symmpart",
               "skewpart",

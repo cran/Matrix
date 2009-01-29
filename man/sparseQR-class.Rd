@@ -1,5 +1,6 @@
 \name{sparseQR-class}
 \docType{class}
+\title{Sparse QR decomposition of a sparse matrix}
 \alias{sparseQR-class}
 \alias{qr.R,sparseQR-method}
 \alias{qr.coef,sparseQR,dgeMatrix-method}
@@ -17,7 +18,8 @@
 \alias{qr.resid,sparseQR,dgeMatrix-method}
 \alias{qr.resid,sparseQR,matrix-method}
 \alias{qr.resid,sparseQR,numeric-method}
-\title{Sparse QR decomposition of a sparse matrix}
+\alias{solve,sparseQR,ANY-method}
+%
 \description{Objects of this class represent a QR decomposition of a
   sparse rectangular matrix.}
 \section{Objects from the Class}{
@@ -60,6 +62,9 @@
     \item{qr.resid}{\code{signature(qr = "sparseQR", y = "dgeMatrix")}: ... }
     \item{qr.resid}{\code{signature(qr = "sparseQR", y = "matrix")}: ... }
     \item{qr.resid}{\code{signature(qr = "sparseQR", y = "numeric")}: ... }
+
+    \item{solve}{\code{signature(a = "sparseQR", b = "ANY")}: simply
+      uses \code{qr.coef(a,b)}.}
 	 }
 }
 
@@ -99,6 +104,9 @@
   \code{\link[base]{qr.resid}}, \code{\link[base]{qr.coef}},
   \code{\link[base]{qr.qty}}, \code{\link[base]{qr.qy}},
   \code{\linkS4class{dgCMatrix}}, \code{\linkS4class{dgeMatrix}}.
+
+  \code{\linkS4class{SPQR}} an alternative QR decomposition resulting
+  from \code{\link{spqr}()}.
 }
 \examples{
 data(KNex); mm <- KNex$mm

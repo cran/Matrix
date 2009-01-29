@@ -96,8 +96,8 @@ sparseMatrix <- function(i = ep, j = ep, p, x, dims, dimnames, index1 = TRUE)
     i <- as.integer(i + !(m.i || i1))
     j <- as.integer(j + !(m.j || i1))
 
-    ## "minimal dimensions" from (i,j,p) :
-    dims.min <- c(max(i), max(j))
+    ## "minimal dimensions" from (i,j,p); no warnings from empty i or j :
+    dims.min <- suppressWarnings(c(max(i), max(j)))
     if(any(is.na(dims.min))) stop("NA's in (i,j) are not allowed")
     if(missing(dims)) {
         dims <- dims.min

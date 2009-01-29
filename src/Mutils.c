@@ -753,17 +753,24 @@ SEXP m_encodeInd(SEXP ij, SEXP di)
     if((Di[0] * (double) Di[1]) >= 1 + (double)INT_MAX) { /* need double */
 	ans = PROTECT(allocVector(REALSXP, n));
 	double *ii = REAL(ans), nr = (double) Di[0];
-	int i, *j_ = IJ+n;
-	for(i=0; i < n; i++) ii[i] = IJ[i] + j_[i] * nr;
+
+#define do_ii_FILL							\
+	int i, *j_ = IJ+n;/* pointer offset! */				\
+	for(i=0; i < n; i++)						\
+	    ii[i] = (IJ[i] == NA_INTEGER || j_[i] == NA_INTEGER)	\
+		? NA_INTEGER : IJ[i] + j_[i] * nr
+
+	do_ii_FILL;
     } else {
 	ans = PROTECT(allocVector(INTSXP, n));
 	int *ii = INTEGER(ans), nr = Di[0];
-	int i, *j_ = IJ+n;
-	for(i=0; i < n; i++) ii[i] = IJ[i] + j_[i] * nr;
+
+	do_ii_FILL;
     }
     UNPROTECT(1);
     return ans;
 }
+#undef do_ii_FILL
 
 /**
  * Return the 0-based index of a string match in a vector of strings
@@ -787,14 +794,17 @@ SEXP m_encodeInd2(SEXP i, SEXP j, SEXP di)
     if((Di[0] * (double) Di[1]) >= 1 + (double)INT_MAX) { /* need double */
 	ans = PROTECT(allocVector(REALSXP, n));
 	double *ii = REAL(ans), nr = (double) Di[0];
-	int i;
-	for(i=0; i < n; i++) ii[i] = i_[i] + j_[i] * nr;
+#define do_ii_FILL							\
+	int i;								\
+	for(i=0; i < n; i++) ii[i] = (i_[i] == NA_INTEGER || j_[i] == NA_INTEGER) \
+				 ? NA_INTEGER : i_[i] + j_[i] * nr
+	do_ii_FILL;
     } else {
 	ans = PROTECT(allocVector(INTSXP, n));
 	int *ii = INTEGER(ans), nr = Di[0];
-	int i;
-	for(i=0; i < n; i++) ii[i] = i_[i] + j_[i] * nr;
+	do_ii_FILL;
     }
     UNPROTECT(1);
     return ans;
 }
+#undef do_ii_FILL

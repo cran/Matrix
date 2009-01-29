@@ -13,8 +13,9 @@ if(interactive()) {
 m <- Matrix(1:28 +0, nrow = 7)
 validObject(m)
 stopifnot(identical(m, m[]),
-          identical(m[2, 3],  16), # simple number
-          identical(m[2, 3:4], c(16,23))) # simple numeric of length 2
+	  identical(m[2, 3],  16), # simple number
+	  identical(m[2, 3:4], c(16,23)), # simple numeric of length 2
+	  identical(m[NA,NA], as(Matrix(NA, 7,4), "dMatrix")))
 
 m[2, 3:4, drop=FALSE] # sub matrix of class 'dgeMatrix'
 m[-(4:7), 3:4]        # ditto; the upper right corner of 'm'
@@ -52,8 +53,10 @@ m[1:3,]
 m. <- as.matrix(m)
 
 ## m[ cbind(i,j) ] indexing:
-ij <- cbind(1:6, 2:3)
-stopifnot(identical(m[ij], m.[ij]))
+iN <- ij <- cbind(1:6, 2:3)
+iN[2:3,] <- iN[5,2] <- NA
+stopifnot(identical(m[ij], m.[ij]),
+	  identical(m[iN], m.[iN]))
 
 ## testing operations on logical Matrices rather more than indexing:
 g10 <- m [ m > 10 ]
@@ -92,6 +95,8 @@ i <- rep(8:10,2)
 j <- c(2:4, 4:3)
 assert.EQ.mat(mC[i,], mm[i,])
 assert.EQ.mat(mC[,j], mm[,j])
+## FIXME? assert.EQ.mat(mC[,NA], mm[,NA]) -- mC[,NA] is all 0 "instead" of all NA
+## MM currently thinks we should  NOT  allow  <sparse>[ <NA> ]
 assert.EQ.mat(mC[i, 2:1], mm[i, 2:1])
 assert.EQ.mat(mC[c(4,1,2:1), j], mm[c(4,1,2:1), j])
 assert.EQ.mat(mC[i,j], mm[i,j])
@@ -106,9 +111,21 @@ for(n in 1:50) {
 m. <- mC; m.[, c(2, 7:12)] <- 0
 validObject(S <- crossprod(add.simpleDimnames(m.) %% 100))
 ss <- as(S, "matrix")
+ds <- as(S, "denseMatrix")
+## NA-indexing of *dense* Matrices: should work as traditionally
+assert.EQ.mat(ds[NA,NA], ss[NA,NA])
+assert.EQ.mat(ds[NA,  ], ss[NA,])
+assert.EQ.mat(ds[  ,NA], ss[,NA])
+stopifnot(identical(ds[2 ,NA], ss[2,NA]),
+          identical(ds[NA, 1], ss[NA, 1]))
 T <- as(S, "TsparseMatrix")
 ## non-repeated indices:
 i <- c(7:5, 2:4);assert.EQ.mat(T[i,i], ss[i,i])
+## NA in indices  -- check that we get a helpful error message:
+i[2] <- NA
+er <- tryCatch(T[i,i], error = function(e)e)
+stopifnot(as.logical(grep("indices.*sparse Matrices", er$message)))
+
 N <- nrow(T)
 set.seed(11)
 for(n in 1:50) {
@@ -146,7 +163,9 @@ for(n in 1:100) {
 
 
 stopifnot(all.equal(mC[,3], mm[,3]),
-	  identical(mC[ij], mm[ij]))
+	  identical(mC[ij], mm[ij]),
+	  identical(mC[iN], mm[iN]))
+
 assert.EQ.mat(mC[7, , drop=FALSE], mm[7, , drop=FALSE])
 
 stopifnot(dim(mC[numeric(0), ]) == c(0,20), # used to give warnings

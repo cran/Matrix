@@ -116,12 +116,14 @@ intI <- function(i, n, dn, give.dn = TRUE)
     DN <- has.dn && give.dn
     if(is(i, "numeric")) {
 	storage.mode(i) <- "integer"
+	if(any(is.na(i)))
+	    stop("'NA' indices are not (yet?) supported for sparse Matrices")
 	if(any(i < 0L)) {
 	    if(any(i > 0L))
 		stop("you cannot mix negative and positive indices")
 	    i0 <- (0:(n - 1L))[i]
 	} else {
-	    if(length(i) && max(i) > n)
+	    if(length(i) && max(i, na.rm=TRUE) > n)
 		stop("index larger than maximal ",n)
 	    if(any(z <- i == 0)) i <- i[!z]
 	    i0 <- i - 1L		# transform to 0-indexing
@@ -261,7 +263,8 @@ setMethod("[", signature(x = "TsparseMatrix",
           x.tri <- extends(clx, "triangularMatrix")
 
 	  if(isSym) {
-	      isSym <- length(i) == length(j) && mode(i) == mode(j) && all(i == j)
+	      isSym <- (length(i) == length(j) && mode(i) == mode(j) &&
+                        isTRUE(all(i == j)))# work for i,j NA
 	      ## result will *still* be symmetric --> keep symmetry!
 	      gDo <- !isSym ## result no longer symmetric -> to "generalMatrix"
 	  } else if(x.tri) {
@@ -399,7 +402,8 @@ setMethod("[", signature(x = "TsparseMatrix",
       })
 
 ## FIXME: Learn from .TM... below or rather  .M.sub.i.2col(.) in ./Matrix.R
-## ------ the following should be much more efficient than the   ./Matrix.R code :
+## ------ the following should be much more efficient than the
+##  subset.ij() based ./Matrix.R code :
 if(FALSE)
 ## A[ ij ]  where ij is (i,j) 2-column matrix :
 setMethod("[", signature(x = "TsparseMatrix",
@@ -413,7 +417,7 @@ setMethod("[", signature(x = "TsparseMatrix",
           j <- i[,2]
           i <- i[,1]
 	  if(is(x, "symmetricMatrix")) {
-	      isSym <- all(i == j)
+	      isSym <- isTRUE(all(i == j))# work for i,j NA
 	      if(!isSym)
 		  x <- as(x, paste(.M.kind(x), "gTMatrix", sep=''))
 	  } else isSym <- FALSE

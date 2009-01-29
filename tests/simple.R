@@ -135,7 +135,8 @@ assert.EQ.mat(D4., diag(x= (1:4)^2))
 assert.EQ.mat(D4p, diag(x= (1:4)) + (1:4))
 assert.EQ.mat(D4m, diag(x=c(4,6,6,4)))
 assert.EQ.mat(Lg1, diag(x= c(FALSE, rep(TRUE,3))))
-stopifnot(is(Lg1, "diagonalMatrix"), is(D4m, "diagonalMatrix"), is(D4., "diagonalMatrix"),
+stopifnot(is(Lg1, "diagonalMatrix"), is(D4m, "diagonalMatrix"),
+	  is(D4., "diagonalMatrix"),
           is(nLg, "symmetricMatrix"), is(nnLg, "symmetricMatrix"),
           identical3(Lg1, Matrix(nnLg), as(nnLg, "diagonalMatrix")),
           all(Lg1 != (!Lg1)))
@@ -606,6 +607,13 @@ validObject(Dv <- as(Diagonal(60000), "sparseVector"))
 Dm <- Dv; dim(Dm) <- c(180000L, 20000L)
 stopifnot(isValid(Dm, "sparseMatrix"),
 	  identical(Dv, as(Dm, "sparseVector")))
+
+p. <- new("dtCMatrix", i = c(2:3, 2L), p = c(0L, 2:3, 3L, 3L),
+          Dim = c(4L, 4L), x = rep(-0.5, 3), uplo = "L", diag = "U")
+assert.EQ.mat(solve(solve(p.)), as(p., "matrix"))
+dimnames(p.)[[1]] <- paste(1:4)
+ii <- is.na(p.)
+stopifnot(all(!ii), !any(as(ii, "denseMatrix")))# used to fail
 
 cat('Time elapsed: ', (.pt <- proc.time()),'\n') # "stats"
 ##

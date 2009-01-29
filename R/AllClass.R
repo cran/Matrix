@@ -612,6 +612,8 @@ setClass("sparseQR", contains = "MatrixFactorization",
 	 representation(V = "dgCMatrix", beta = "numeric",
 			p = "integer", R = "dgCMatrix", q = "integer"))
 
+##-- "SPQR" ---> ./spqr.R  for noew
+
 ## "denseQR" -- ?  (``a version of''  S3 class "qr")
 
 if (FALSE) { ## unused classes

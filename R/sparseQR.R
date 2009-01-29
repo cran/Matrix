@@ -87,3 +87,7 @@ setMethod("qr.fitted", signature(qr = "sparseQR", y = "numeric"),
           function(qr, y, k)
           .Call(sparseQR_resid_fitted, qr, y, FALSE),
           valueClass = "dgeMatrix")
+
+##
+setMethod("solve", signature(a = "sparseQR", b = "ANY"),
+	  function(a, b, ...) qr.coef(a, b))

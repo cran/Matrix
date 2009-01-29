@@ -62,6 +62,7 @@ setMethod("determinant", signature(x = "dgCMatrix", logarithm = "logical"),
 setMethod("qr", signature(x = "dgCMatrix"),
 	  function(x, tol = 1e-07, LAPACK = FALSE)
 	  .Call(dgCMatrix_QR, x, TRUE))
+
 setMethod("qr", signature(x = "sparseMatrix"),
 	  function(x, ...)
 	  qr(as(as(x, "CsparseMatrix"), "dsparseMatrix"), ...))

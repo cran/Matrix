@@ -96,52 +96,82 @@
 \alias{sum,ddiMatrix-method}
 \alias{sum,ldiMatrix-method}
 
-% for all these functions explicitly (in loop in ../R/diagMatrix.R ):
-%%
-\alias{*,Matrix,ddiMatrix-method}
-\alias{*,Matrix,ldiMatrix-method}
-\alias{*,ddiMatrix,Matrix-method}
-\alias{*,ldiMatrix,Matrix-method}
+%%--"hack"-- for all these signatures explicitly (in loop in ../R/diagMatrix.R ):
 
-\alias{*,ddiMatrix,denseMatrix-method}
-\alias{*,ldiMatrix,denseMatrix-method}
-\alias{*,denseMatrix,ddiMatrix-method}
-\alias{*,denseMatrix,ldiMatrix-method}
-%%
+%% <[dln]denseMatrix o [dl]diMatrix :
+\alias{^,ddenseMatrix,ddiMatrix-method}
+\alias{^,ddenseMatrix,ldiMatrix-method}
+\alias{^,ddiMatrix,ddenseMatrix-method}
+\alias{^,ddiMatrix,ldenseMatrix-method}
+\alias{^,ddiMatrix,ndenseMatrix-method}
+\alias{^,ldenseMatrix,ddiMatrix-method}
+\alias{^,ldenseMatrix,ldiMatrix-method}
+\alias{^,ldiMatrix,ddenseMatrix-method}
+\alias{^,ldiMatrix,ldenseMatrix-method}
+\alias{^,ldiMatrix,ndenseMatrix-method}
+\alias{^,ndenseMatrix,ddiMatrix-method}
+\alias{^,ndenseMatrix,ldiMatrix-method}
+\alias{/,ddiMatrix,ddenseMatrix-method}
+\alias{/,ddiMatrix,ldenseMatrix-method}
+\alias{/,ddiMatrix,ndenseMatrix-method}
+\alias{/,ldiMatrix,ddenseMatrix-method}
+\alias{/,ldiMatrix,ldenseMatrix-method}
+\alias{/,ldiMatrix,ndenseMatrix-method}
+\alias{*,ddenseMatrix,ddiMatrix-method}
+\alias{*,ddenseMatrix,ldiMatrix-method}
+\alias{*,ddiMatrix,ddenseMatrix-method}
+\alias{*,ddiMatrix,ldenseMatrix-method}
+\alias{*,ddiMatrix,ndenseMatrix-method}
+\alias{*,ldenseMatrix,ddiMatrix-method}
+\alias{*,ldenseMatrix,ldiMatrix-method}
+\alias{*,ldiMatrix,ddenseMatrix-method}
+\alias{*,ldiMatrix,ldenseMatrix-method}
+\alias{*,ldiMatrix,ndenseMatrix-method}
+\alias{*,ndenseMatrix,ddiMatrix-method}
+\alias{*,ndenseMatrix,ldiMatrix-method}
+\alias{&,ddenseMatrix,ddiMatrix-method}
+\alias{&,ddenseMatrix,ldiMatrix-method}
+\alias{&,ddiMatrix,ddenseMatrix-method}
+\alias{&,ddiMatrix,ldenseMatrix-method}
+\alias{&,ddiMatrix,ndenseMatrix-method}
+\alias{&,ldenseMatrix,ddiMatrix-method}
+\alias{&,ldenseMatrix,ldiMatrix-method}
+\alias{&,ldiMatrix,ddenseMatrix-method}
+\alias{&,ldiMatrix,ldenseMatrix-method}
+\alias{&,ldiMatrix,ndenseMatrix-method}
+\alias{&,ndenseMatrix,ddiMatrix-method}
+\alias{&,ndenseMatrix,ldiMatrix-method}
+\alias{\%/\%,ddiMatrix,ddenseMatrix-method}
+\alias{\%/\%,ddiMatrix,ldenseMatrix-method}
+\alias{\%/\%,ddiMatrix,ndenseMatrix-method}
+\alias{\%/\%,ldiMatrix,ddenseMatrix-method}
+\alias{\%/\%,ldiMatrix,ldenseMatrix-method}
+\alias{\%/\%,ldiMatrix,ndenseMatrix-method}
+\alias{\%\%,ddiMatrix,ddenseMatrix-method}
+\alias{\%\%,ddiMatrix,ldenseMatrix-method}
+\alias{\%\%,ddiMatrix,ndenseMatrix-method}
+\alias{\%\%,ldiMatrix,ddenseMatrix-method}
+\alias{\%\%,ldiMatrix,ldenseMatrix-method}
+\alias{\%\%,ldiMatrix,ndenseMatrix-method}
+%% Matrix o [dl]diMatrix :
 \alias{^,Matrix,ddiMatrix-method}
 \alias{^,Matrix,ldiMatrix-method}
 \alias{^,ddiMatrix,Matrix-method}
 \alias{^,ldiMatrix,Matrix-method}
-
-\alias{^,ddiMatrix,denseMatrix-method}
-\alias{^,ldiMatrix,denseMatrix-method}
-\alias{^,denseMatrix,ddiMatrix-method}
-\alias{^,denseMatrix,ldiMatrix-method}
-%%
+\alias{/,ddiMatrix,Matrix-method}
+\alias{/,ldiMatrix,Matrix-method}
+\alias{*,Matrix,ddiMatrix-method}
+\alias{*,Matrix,ldiMatrix-method}
+\alias{*,ddiMatrix,Matrix-method}
+\alias{*,ldiMatrix,Matrix-method}
 \alias{&,Matrix,ddiMatrix-method}
 \alias{&,Matrix,ldiMatrix-method}
 \alias{&,ddiMatrix,Matrix-method}
 \alias{&,ldiMatrix,Matrix-method}
-
-\alias{&,ddiMatrix,denseMatrix-method}
-\alias{&,ldiMatrix,denseMatrix-method}
-\alias{&,denseMatrix,ddiMatrix-method}
-\alias{&,denseMatrix,ldiMatrix-method}
-%%---
-\alias{\%\%,ddiMatrix,Matrix-method}
-\alias{\%\%,ldiMatrix,Matrix-method}
-\alias{\%\%,ddiMatrix,denseMatrix-method}
-\alias{\%\%,ldiMatrix,denseMatrix-method}
-%>
 \alias{\%/\%,ddiMatrix,Matrix-method}
 \alias{\%/\%,ldiMatrix,Matrix-method}
-\alias{\%/\%,ddiMatrix,denseMatrix-method}
-\alias{\%/\%,ldiMatrix,denseMatrix-method}
-%>
-\alias{/,ddiMatrix,Matrix-method}
-\alias{/,ldiMatrix,Matrix-method}
-\alias{/,ddiMatrix,denseMatrix-method}
-\alias{/,ldiMatrix,denseMatrix-method}
+\alias{\%\%,ddiMatrix,Matrix-method}
+\alias{\%\%,ldiMatrix,Matrix-method}
 %>
 %-end{H.Hack}
 \alias{Ops,diagonalMatrix,diagonalMatrix-method}
@@ -205,6 +235,10 @@
   Class \code{"\linkS4class{sparseMatrix}"}, directly.
 }
 \section{Methods}{
+  These are just a subset of the signature for which defined methods.
+  Currently, there are (too) many explicit methods defined in order to
+  ensure efficient methods for diagonal matrices.
+
   \describe{
     \item{coerce}{\code{signature(from = "matrix", to = "diagonalMatrix")}: ... }
     \item{coerce}{\code{signature(from = "Matrix", to = "diagonalMatrix")}: ... }

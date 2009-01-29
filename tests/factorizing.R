@@ -189,3 +189,10 @@ stopifnot(identical3(Sg@T, uT, Su@T),
           identical(Stg@Q, as(diag(p)[,p:1], "dgeMatrix")),
           identical(Stu@T, Stg@T))
 assert.EQ.mat(Stu@Q, as(Stg@Q,"matrix"), tol=0)
+
+## the pedigreemm example where solve(.) failed:
+p <- new("dtCMatrix", i = c(2L, 3L, 2L, 5L, 4L, 4:5), p = c(0L, 2L, 4:7, 7L),
+	 Dim = c(6L, 6L), Dimnames = list(as.character(1:6), NULL),
+	 x = rep.int(-0.5, 7), uplo = "L", diag = "U")
+ip <- solve(p)
+assert.EQ.mat(solve(ip), as(p,"matrix"))

@@ -123,7 +123,7 @@ setMethod("[", signature(x = "denseMatrix", i = "index", j = "index",
 	      else {
 		  cld <- getClassDef(cl <- class(x))
 		  if(extends(cld, "symmetricMatrix") &&
-		     length(i) == length(j) && all(i == j))
+		     length(i) == length(j) && isTRUE(all(i == j)))
                       ## keep original symmetric class (but not "dpo")
                       as(r, class2(cl, .M.kindC(cld)))
 

@@ -228,8 +228,10 @@ colCheck <- function(a, b) {
 ## used for is.na(<nsparse>)  but not only:
 is.na_nsp <- function(x) {
     d <- x@Dim
-    new(if(d[1] == d[2]) "nsCMatrix" else "ngCMatrix",
-        Dim = d, Dimnames = x@Dimnames, p = rep.int(0L, d[2]+1L))
+    dn <- x@Dimnames
+    new(if(d[1] == d[2] && identical(dn[[1]], dn[[2]]))
+	"nsCMatrix" else "ngCMatrix",
+        Dim = d, Dimnames = dn, p = rep.int(0L, d[2]+1L))
 }
 
 ## Note: !isPacked(.)  i.e. `full' still contains

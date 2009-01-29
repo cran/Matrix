@@ -111,7 +111,10 @@ sparseMatrix(x = 2.72, i=1:3, j=2:4) # recycling x
 sparseMatrix(x = TRUE, i=1:3, j=2:4) # recycling x, |--> "lgCMatrix"
 
 ## no 'x' --> patter*n* matrix:
-(n <- sparseMatrix(i=1:6, j=rev(2:7)))# -> ngTMatrix
+(n <- sparseMatrix(i=1:6, j=rev(2:7)))# -> ngCMatrix
+
+## an empty sparse matrix:
+(e <- sparseMatrix(dims = c(4,6), i={}, j={}))
 
 ## pointers example in converting from other sparse matrix representations.
 if(require(SparseM)) {

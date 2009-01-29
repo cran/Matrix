@@ -225,27 +225,25 @@ Ops.x.x <- function(e1, e2)
         ## now, both are xge {dense* & general*}
 
         r <- callGeneric(e1@x, e2@x)
-        r <- new(paste(.M.kind(r), "geMatrix", sep=''),
-                 x = r, Dim = d, Dimnames = dimnames(e1))
+        new(paste(.M.kind(r), "geMatrix", sep=''),
+            x = r, Dim = d, Dimnames = dimnames(e1))
     }
     else {
-        if(!dens1 && !dens2) {
-            ## both e1 _and_ e2 are sparse
-            ## should not happen since we have <sparse> o <sparse> methods
-	    stop("Mistaken intended method dispatch -- please report to ",
-		 packageDescription("Matrix")$Maintainer)
-        }
-        ## else
-        if(dens1 && !dens2) ## go to dense
-            r <- callGeneric(e1, as(e2, "denseMatrix"))
-        else ## if(!dens1 && dens2)
-            r <- callGeneric(as(e1, "denseMatrix"), e2)
+	if(!dens1 && !dens2) {
+	    ## both e1 _and_ e2 are sparse.
+	    ## Now (new method dispatch, 2009-01) *does* happen
+	    ## even though we have <sparse> o <sparse> methods
+	    r <- callGeneric(as(e1, "CsparseMatrix"), as(e2, "CsparseMatrix"))
+	}
+	else if(dens1 && !dens2) ## go to dense
+	    r <- callGeneric(e1, as(e2, "denseMatrix"))
+	else ## if(!dens1 && dens2)
+	    r <- callGeneric(as(e1, "denseMatrix"), e2)
 
-        ## criterion "2 * nnz(.) < ." as in sparseDefault() in Matrix()  [./Matrix.R] :
-        if(2 * nnzero(r, na.counted = TRUE) < prod(d))
-            r <- as(r, "sparseMatrix")
+	## criterion "2 * nnz(.) < ." as in sparseDefault() in Matrix()	 [./Matrix.R] :
+	if(2 * nnzero(r, na.counted = TRUE) < prod(d))
+	    as(r, "sparseMatrix") else r
     }
-    r
 }
 
 setMethod("Ops", signature(e1 = "dMatrix", e2 = "dMatrix"), Ops.x.x)

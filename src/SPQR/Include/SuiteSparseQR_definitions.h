@@ -26,7 +26,7 @@
 
 /* tol options */
 #define SPQR_DEFAULT_TOL (-2)       /* if tol <= -2, the default tol is used */
-#define SPQR_NO_TOL (-1)            /* if 2 < tol < 0, then no tol is used */
+#define SPQR_NO_TOL (-1)            /* if -2 < tol < 0, then no tol is used */
 
 /* for qmult, method can be 0,1,2,3: */
 #define SPQR_QTX 0

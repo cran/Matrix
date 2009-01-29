@@ -3,9 +3,6 @@
 \docType{class}
 \alias{ddiMatrix-class}
 %%----> put all methods into ./diagonalMatrix-class.Rd
-% Deprecated:
-\alias{coerce,ddiMatrix,dgCMatrix-method}
-\alias{coerce,ddiMatrix,dgTMatrix-method}
 %
 \description{The class \code{"ddiMatrix"} of numerical diagonal matrices.
   %% FIXME add more

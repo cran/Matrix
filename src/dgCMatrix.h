@@ -19,7 +19,7 @@ SEXP dgCMatrix_lusol(SEXP x, SEXP y);
 SEXP dgCMatrix_qrsol(SEXP x, SEXP y, SEXP ord);
 SEXP dgCMatrix_cholsol(SEXP x, SEXP y);
 SEXP dgCMatrix_QR(SEXP Ap, SEXP order);
-SEXP dgCMatrix_SPQR(SEXP Ap, SEXP order);
+SEXP dgCMatrix_SPQR(SEXP Ap, SEXP ordering, SEXP econ, SEXP tol);
 SEXP dgCMatrix_LU(SEXP Ap, SEXP orderp, SEXP tolp);
 SEXP dgCMatrix_matrix_solve(SEXP Ap, SEXP bp);
 

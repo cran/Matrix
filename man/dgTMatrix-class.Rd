@@ -5,11 +5,10 @@
 \alias{+,dgTMatrix,dgTMatrix-method}
 \alias{coerce,dgTMatrix,dgCMatrix-method}
 \alias{coerce,dgTMatrix,dgeMatrix-method}
-\alias{coerce,dgTMatrix,dsCMatrix-method}
+\alias{coerce,dgTMatrix,matrix-method}
 \alias{coerce,dgTMatrix,dtCMatrix-method}
 \alias{coerce,dgTMatrix,dsTMatrix-method}
 \alias{coerce,dgTMatrix,dtTMatrix-method}
-\alias{coerce,dgTMatrix,matrix-method}
 \alias{coerce,dgTMatrix,triangularMatrix-method}
 \alias{coerce,dgeMatrix,dgTMatrix-method}
 \alias{coerce,matrix,dgTMatrix-method}
@@ -46,10 +45,17 @@
     \item{+}{\code{signature(e1 = "dgTMatrix", e2 = "dgTMatrix")}}
     \item{coerce}{\code{signature(from = "dgTMatrix", to = "dgCMatrix")}}
     \item{coerce}{\code{signature(from = "dgTMatrix", to = "dgeMatrix")}}
-    \item{coerce}{\code{signature(from = "dgTMatrix", to = "matrix")}}
-    \item{coerce}{\code{signature(from = "dgTMatrix", to = "dsCMatrix")}}
-    \item{coerce}{\code{signature(from = "dgTMatrix", to = "dtCMatrix")}}
-    \item{coerce}{\code{signature(from = "matrix", to = "dsTMatrix")}}
+    \item{coerce}{\code{signature(from = "dgTMatrix", to = "matrix")},
+      and typically coercion methods for more specific signatures, we
+      are not mentioning here.
+
+      Note that these are not guaranteed to continue to exist,
+      but rather you should use calls like \code{as(x,
+	"CsparseMatrix")}, \code{as(x, "generalMatrix")},
+      \code{as(x, "dMatrix")}, i.e. coercion to higher level virtual classes.}
+    \item{coerce}{\code{signature(from = "matrix", to = "dgTMatrix")},
+      (direct coercion from tradition matrix).}
+
     \item{crossprod}{\code{signature(x = "dgTMatrix", y = "missing")}
       returns \code{t(x) \%*\% x} as an \code{dsCMatrix} object.}
     \item{crossprod}{\code{signature(x = "dgTMatrix", y = "matrix")}: ... }

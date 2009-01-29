@@ -900,8 +900,12 @@ for(other in c("ANY", "Matrix", "dMatrix")) {
     setMethod("Ops", signature(e1 = other, e2 = "ldiMatrix"),
 	      function(e1,e2) callGeneric(e1, diag2tT.u(e2,e1, "l")))
 }
+
+## Direct subclasses of "denseMatrix": currently ddenseMatrix, ldense... :
+dense.subCl <- local({ dM.scl <- getClass("denseMatrix")@subclasses
+                       names(dM.scl)[sapply(dM.scl, slot, "distance") == 1] })
 for(DI in diCls) {
-    for(c2 in c("denseMatrix", "Matrix")) {
+    for(c2 in c(dense.subCl, "Matrix")) {
 	for(Fun in c("*", "^", "&")) {
 	    setMethod(Fun, signature(e1 = DI, e2 = c2),
 		      function(e1,e2) callGeneric(e1, Diagonal(x = diag(e2))))

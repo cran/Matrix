@@ -3,6 +3,7 @@
 /* for Csparse_transpose() : */
 #include "Csparse.h"
 #include "chm_common.h"
+/* -> Mutils.h / SPQR ... */
 
 /* FIXME -- we "forget" about dimnames almost everywhere : */
 
@@ -262,35 +263,61 @@ SEXP dgCMatrix_QR(SEXP Ap, SEXP order)
 /**
  * Return a SuiteSparse QR factorization of the sparse matrix A
  *
- * @param obj pointer to an S4 object
- * @param nm pointer to a symbol naming the slot to extract
- * 
- * @return pointer to the REAL contents, if nonzero length, otherwise
- * a NULL pointer 
+ * @param Ap (pointer to) a [m x n] dgCMatrix
+ * @param ordering integer SEXP specifying the ordering strategy to be used
+ *	see SPQR/Include/SuiteSparseQR_definitions.h
+ * @param econ integer SEXP ("economy"): number of rows of R and columns of Q
+ *      to return. The default is m. Using n gives the standard economy form.
+ *      A value less than the estimated rank r is set to r, so econ=0 gives the
+ *      "rank-sized" factorization, where nrow(R)==nnz(diag(R))==r.
+ * @param tol double SEXP: if tol <= -2 use SPQR's default,
+ *                         if -2 < tol < 0, then no tol is used; otherwise,
+ *      tol > 0, use as tolerance: columns with 2-norm <= tol treated as 0
  *
+ *
+ * @return SEXP  "SPQR" object with slots (Q, R, p, rank, Dim):
+ *	Q: dgCMatrix; R: dgCMatrix  [subject to change to dtCMatrix FIXME ?]
+ *	p: integer: 0-based permutation (or length 0 <=> identity);
+ *	rank: integer, the "revealed" rank   Dim: integer, original matrix dim.
  */
-SEXP dgCMatrix_SPQR(SEXP Ap, SEXP order)
+SEXP dgCMatrix_SPQR(SEXP Ap, SEXP ordering, SEXP econ, SEXP tol)
 {
-    SEXP ans = PROTECT(allocVector(VECSXP, 4));
+/* SEXP ans = PROTECT(allocVector(VECSXP, 4)); */
+    SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("SPQR")));
+
     CHM_SP A = AS_CHM_SP(Ap), Q, R;
-    int *E, rank;
-    
-    if ((rank = SuiteSparseQR_C_QR(asInteger(order),
-				   SPQR_DEFAULT_TOL, 0,
+    UF_long *E, rank;/* not always = int   FIXME  (Windows_64 ?) */
+
+    if ((rank = SuiteSparseQR_C_QR(asInteger(ordering),
+				   asReal(tol),/* originally had SPQR_DEFAULT_TOL */
+				   (UF_long)asInteger(econ),/* originally had 0 */
 				   A, &Q, &R, &E, &c)) == -1)
 	error(_("SuiteSparseQR_C_QR returned an error code"));
-    SET_VECTOR_ELT(ans, 0,
-		   chm_sparse_to_SEXP(Q, 0, 0, 0, "", R_NilValue));
-    SET_VECTOR_ELT(ans, 1,
-		   chm_sparse_to_SEXP(R, 0, 0, 0, "", R_NilValue));
+
+    SET_SLOT(ans, Matrix_DimSym, duplicate(GET_SLOT(Ap, Matrix_DimSym)));
+/*     SET_VECTOR_ELT(ans, 0, */
+/* 		   chm_sparse_to_SEXP(Q, 0, 0, 0, "", R_NilValue)); */
+    SET_SLOT(ans, install("Q"),
+	     chm_sparse_to_SEXP(Q, 0, 0, 0, "", R_NilValue));
+
+    /* Also gives a dgCMatrix (not a dtC* *triangular*) :
+     * may make sense if to be used in the "spqr_solve" routines .. ?? */
+/*     SET_VECTOR_ELT(ans, 1, */
+/* 		   chm_sparse_to_SEXP(R, 0, 0, 0, "", R_NilValue)); */
+    SET_SLOT(ans, install("R"),
+	     chm_sparse_to_SEXP(R, 0, 0, 0, "", R_NilValue));
     cholmod_l_free_sparse(&R, &c);
     cholmod_l_free_sparse(&Q, &c);
     if (E) {
-	SET_VECTOR_ELT(ans, 2, allocVector(INTSXP, A->ncol));
-	Memcpy(INTEGER(VECTOR_ELT(ans, 2)), E, A->ncol);
+	/* FIXME when UF_long != int  ?! */
+	Memcpy(INTEGER(ALLOC_SLOT(ans, Matrix_pSym, /* "p" */
+				  INTSXP, A->ncol)), E, A->ncol);
+/* 	SET_VECTOR_ELT(ans, 2, allocVector(INTSXP, A->ncol)); */
+/* 	Memcpy(INTEGER(VECTOR_ELT(ans, 2)), E, A->ncol); */
 	Free(E);
-    } else SET_VECTOR_ELT(ans, 2, allocVector(INTSXP, 0));
-    SET_VECTOR_ELT(ans, 3, ScalarInteger(rank));
+    } /* else SET_VECTOR_ELT(ans, 2, allocVector(INTSXP, 0)); */
+
+    SET_SLOT(ans, install("rank"), ScalarInteger((int)rank));
     UNPROTECT(1);
     return ans;
 }

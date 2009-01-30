@@ -3,8 +3,10 @@
 
 #include "UFconfig/UFconfig.h"
 #include "CHOLMOD/Include/cholmod.h"
-#include "SPQR/Include/SuiteSparseQR_C.h"
 #include "Mutils.h"
+#ifdef Matrix_with_SPQR
+#  include "SPQR/Include/SuiteSparseQR_C.h"
+#endif
 
 typedef struct cholmod_common_struct  *CHM_CM ;
 typedef struct cholmod_dense_struct   *CHM_DN ;

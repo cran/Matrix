@@ -1,5 +1,5 @@
 
-R version 2.8.1 Patched (2009-01-26 r47739)
+R version 2.8.1 Patched (2009-02-09 r47901)
 Copyright (C) 2009 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 
@@ -1276,8 +1276,45 @@ Warning: Ambiguous method selection for "!=", target "numeric#dgCMatrix" (the fi
 > 
 > cc <- capture.output(show(dLrg))# show(<diag>) used to error for large n
 > 
+> ## Large Matrix indexing / subassignment
+> ## ------------------------------------- (from ex. by Imran Rashid)
+> n <- 700000
+> m <-  10000
+> nnz <- 20000
+> 
+> set.seed(12)
+> f <- sparseMatrix(i = sample(n, size=nnz, replace=TRUE),
++                   j = sample(m, size=nnz, replace=TRUE))
+> str(f)
+Formal class 'ngCMatrix' [package "Matrix"] with 5 slots
+  ..@ i       : int [1:20000] 669222 465723 449080 34437 279716 358481 368893 638024 655330 176506 ...
+  ..@ p       : int [1:10001] 0 1 2 2 3 3 9 13 17 17 ...
+  ..@ Dim     : int [1:2] 699987 10000
+  ..@ Dimnames:List of 2
+  .. ..$ : NULL
+  .. ..$ : NULL
+  ..@ factors : list()
+> str(thisCol <-  f[,5000])# logi [....]
+ logi [1:699987] FALSE FALSE FALSE FALSE FALSE FALSE ...
+> f[,5762] <- thisCol # no fine
+> 
+> fx <- sparseMatrix(i = sample(n, size=nnz, replace=TRUE),
++                    j = sample(m, size=nnz, replace=TRUE),
++                    x = round(10*rnorm(nnz)))
+> class(fx)## dgCMatrix
+[1] "dgCMatrix"
+attr(,"package")
+[1] "Matrix"
+> fx[,6000] <- (tC <- rep(thisCol, length=nrow(fx)))
+> thCol <- fx[,2000]
+> fx[,5762] <- thCol
+> stopifnot(is(f, "ngCMatrix"), is(fx, "dgCMatrix"),
++ 	  identical(thisCol, f[,5762]),# perfect
++ 	  identical(as.logical(fx[,6000]), tC),
++ 	  identical(thCol,  fx[,5762]))
+> 
 > cat('Time elapsed: ', (.pt <- proc.time()),'\n') # "stats"
-Time elapsed:  14.31 0.166 14.558 0 0 
+Time elapsed:  18.037 0.543 19.239 0 0 
 > ##
 > cat("checkMatrix() of all: \n---------\n")
 checkMatrix() of all: 
@@ -1442,6 +1479,8 @@ dm
 ds 
 Warning in determinant(as(x, "dgeMatrix")) :
   Exact singularity detected during LU decomposition.
+f 
+fx 
 ge 
 l10 
 Warning: Ambiguous method selection for "!=", target "lsCMatrix#lsCMatrix" (the first of the signatures shown will be used)
@@ -1533,7 +1572,7 @@ suboptimal implementation of sparse 'symm. o symm.'
 x.x. 
 suboptimal implementation of sparse 'symm. o symm.'
 > cat('Time elapsed: ', proc.time() - .pt,'\n') # "stats"
-Time elapsed:  10.742 0.015 10.757 0 0 
+Time elapsed:  11.399 0.011 11.429 0 0 
 > 
 > if(!interactive()) warnings()
 NULL

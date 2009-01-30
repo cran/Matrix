@@ -222,7 +222,7 @@ replCmat <- function (x, i, j, ..., value)
     else
 	x[i,j] <- value
 
-    if(any(is0(x@x))) ## drop all values that "happen to be 0"
+    if(has.x && any(is0(x@x))) ## drop all values that "happen to be 0"
 	drop0(x)
     else as_CspClass(x, clx)
 }

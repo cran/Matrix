@@ -587,6 +587,31 @@ stopifnot(identical(Diagonal(x = 1+ 1:n), dLrg),
 
 cc <- capture.output(show(dLrg))# show(<diag>) used to error for large n
 
+## Large Matrix indexing / subassignment
+## ------------------------------------- (from ex. by Imran Rashid)
+n <- 700000
+m <-  10000
+nnz <- 20000
+
+set.seed(12)
+f <- sparseMatrix(i = sample(n, size=nnz, replace=TRUE),
+                  j = sample(m, size=nnz, replace=TRUE))
+str(f)
+str(thisCol <-  f[,5000])# logi [....]
+f[,5762] <- thisCol # no fine
+
+fx <- sparseMatrix(i = sample(n, size=nnz, replace=TRUE),
+                   j = sample(m, size=nnz, replace=TRUE),
+                   x = round(10*rnorm(nnz)))
+class(fx)## dgCMatrix
+fx[,6000] <- (tC <- rep(thisCol, length=nrow(fx)))
+thCol <- fx[,2000]
+fx[,5762] <- thCol
+stopifnot(is(f, "ngCMatrix"), is(fx, "dgCMatrix"),
+	  identical(thisCol, f[,5762]),# perfect
+	  identical(as.logical(fx[,6000]), tC),
+	  identical(thCol,  fx[,5762]))
+
 cat('Time elapsed: ', (.pt <- proc.time()),'\n') # "stats"
 ##
 cat("checkMatrix() of all: \n---------\n")

@@ -9,7 +9,7 @@ MkInclude = $(R_HOME)/etc${R_ARCH}/Makeconf
 include scripts/SOURCES_C.mkf
 
 OBJECTS = $(SOURCES_C:.c=.o)
-SUBDIRS = SPQR CHOLMOD COLAMD AMD
+SUBDIRS = CHOLMOD COLAMD AMD
 SUBLIBS = $(SUBDIRS:=.a)
 
 all: $(SHLIB)

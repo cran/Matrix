@@ -1,6 +1,8 @@
 #ifndef MATRIX_MUTILS_H
 #define MATRIX_MUTILS_H
 
+#undef Matrix_with_SPQR
+
 #ifdef __cplusplus
 extern "C" {
 #endif

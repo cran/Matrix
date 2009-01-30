@@ -86,7 +86,9 @@ static R_CallMethodDef CallEntries[] = {
 
     CALLDEF(dgCMatrix_LU, 3),
     CALLDEF(dgCMatrix_QR, 2),
+#ifdef Matrix_with_SPQR
     CALLDEF(dgCMatrix_SPQR, 4),
+#endif
     CALLDEF(dgCMatrix_colSums, 5),
     CALLDEF(igCMatrix_colSums, 5),
     CALLDEF(lgCMatrix_colSums, 5),

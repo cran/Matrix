@@ -4,8 +4,11 @@
 ###             ============= ---> superclass methods in ./nsparseMatrix.R
 
 
-setAs("ngTMatrix", "ngeMatrix",
+setAs("ngTMatrix", "lgeMatrix",
       function(from) .Call(lgTMatrix_to_lgeMatrix, as(from,"lgTMatrix")))
+setAs("ngTMatrix", "ngeMatrix",
+      function(from) as(as(from, "lgeMatrix"), "nMatrix"))
+
 setAs("ngTMatrix", "generalMatrix", function(from) as(from, "ngeMatrix"))
 
 setAs("ngTMatrix", "matrix",

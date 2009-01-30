@@ -363,7 +363,8 @@ printSpMatrix <- function(x, digits = getOption("digits"),
         m <- as(x, "matrix")
     }
     dn <- dimnames(m) ## will be === dimnames(cx)
-    logi <- extends(cl,"lsparseMatrix") || extends(cl,"nsparseMatrix")
+    logi <- (extends(cl,"lsparseMatrix") || extends(cl,"nsparseMatrix") ||
+	     extends(cl, "pMatrix"))
     if(logi)
 	cx <- array("N", dim(m), dimnames=dn)
     else { ## numeric (or --not yet implemented-- complex):

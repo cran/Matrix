@@ -272,6 +272,15 @@ idiag <- function(n, p=n)
     r
 }
 
+ldiag <- function(n, p=n)
+{
+    ## Purpose: diag() returning  *logical*
+    r <- matrix(FALSE, n,p)
+    if ((m <- min(n, p)) > 0)
+	r[1 + 0:(m - 1) * (n + 1)] <- TRUE
+    r
+}
+
 ## The indices of the diagonal entries of an  n x n matrix,  n >= 1
 ## i.e. indDiag(n) === which(diag(n) == 1)
 indDiag <- function(n) cumsum(c(1L, rep.int(n+1L, n-1)))
@@ -838,7 +847,7 @@ class2 <- function(cl, kind = "l", do.sub = TRUE) {
 geClass <- function(x) {
     if     (is(x, "dMatrix")) "dgeMatrix"
     else if(is(x, "lMatrix")) "lgeMatrix"
-    else if(is(x, "nMatrix")) "ngeMatrix"
+    else if(is(x, "nMatrix") || is(x, "pMatrix")) "ngeMatrix"
     else if(is(x, "zMatrix")) "zgeMatrix"
     else stop("general Matrix class not yet implemented for ",
 	      class(x))

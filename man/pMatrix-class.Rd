@@ -13,6 +13,7 @@
 \alias{coerce,numeric,pMatrix-method}
 \alias{coerce,matrix,pMatrix-method}
 \alias{coerce,pMatrix,matrix-method}
+\alias{coerce,pMatrix,ngeMatrix-method}
 \alias{coerce,pMatrix,ngTMatrix-method}
 \alias{coerce,pMatrix,lMatrix-method}
 \alias{coerce,pMatrix,dMatrix-method}
@@ -67,8 +68,13 @@
       a user convenience, to allow \code{as(perm, "pMatrix")} for
       numeric \code{perm} with integer values.}
     \item{coerce}{\code{signature(from = "pMatrix", to = "matrix")}:
-      coercion to a traditional 0/1 \code{\link{matrix}} of
-      \code{\link{mode}} \code{integer}.}
+      coercion to a traditional FALSE/TRUE \code{\link{matrix}} of
+      \code{\link{mode}} \code{logical}.
+      (in earlier version of \pkg{Matrix}, it resulted in a 0/1-integer
+      matrix; \code{logical} makes slightly more sense, corresponding
+      better to the \dQuote{natural} sparseMatrix counterpart,
+      \code{"ngTMatrix"}.)}
+
     \item{coerce}{\code{signature(from = "pMatrix", to = "ngTMatrix")}:
       coercion to sparse logical matrix of class \code{\linkS4class{ngTMatrix}}.}
     \item{determinant}{\code{signature(x = "pMatrix", logarithm="logical")}:
@@ -99,8 +105,8 @@
 t(pm1) # is the same as
 solve(pm1)
 pm1 \%*\% t(pm1) # check that the transpose is the inverse
-stopifnot(all.equal(diag(3), as(pm1 \%*\% t(pm1), "matrix")),
-          is.integer(as(pm1, "matrix")))
+stopifnot(all(diag(3) == as(pm1 \%*\% t(pm1), "matrix")),
+          is.logical(as(pm1, "matrix")))
 
 set.seed(11)
 ## random permutation matrix :

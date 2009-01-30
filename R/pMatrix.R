@@ -17,7 +17,7 @@ setAs("numeric", "pMatrix",
 setAs("pMatrix", "matrix",
       function(from) {
 	  fp <- from@perm
-	  r <- idiag(n = length(fp))[fp,]
+	  r <- ldiag(n = length(fp))[fp,]
 	  if(.has.DN(from)) dimnames(r) <- from@Dimnames
 	  r
       })
@@ -36,9 +36,9 @@ setAs("pMatrix", "lMatrix", function(from) as(as(from, "nMatrix"), "lMatrix"))
 setAs("pMatrix", "dMatrix", function(from) as(as(from, "nMatrix"), "dMatrix"))
 setAs("pMatrix", "dsparseMatrix", function(from) as(from, "dMatrix"))
 setAs("pMatrix", "nsparseMatrix", function(from) as(from, "nMatrix"))
-
 setAs("pMatrix", "CsparseMatrix",
       function(from) as(as(from, "ngTMatrix"), "CsparseMatrix"))
+setAs("pMatrix", "ngeMatrix", function(from) as(as(from, "ngTMatrix"),"ngeMatrix"))
 
 setAs("nMatrix", "pMatrix",
       function(from) {

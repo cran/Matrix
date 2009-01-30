@@ -54,6 +54,7 @@ The typical constructor is \Rfun{Diagonal} whereas the accessor
 (as for traditional matrices), \Rfun{diag} simply returns the
 \emph{vector} of diagonal entries:
 <<diag-class>>=
+library(Matrix)
 (D4 <- Diagonal(4, 10*(1:4)))
 str(D4)
 diag(D4)

@@ -219,7 +219,7 @@ tstMatrixClass <-
                 dim(m0) <- c(0L,0L)
             }
 	    ## m0 is the 'matrix' version of our 'Matrix' m
-	    m. <- if(is_p) as.integer(m0) else m0
+	    m. <- m0 ##m. <- if(is_p) as.integer(m0) else m0
             EQ <- if(is_cor) all.equal else identical
 	    stopifnot(EQ(m0[FALSE], m[FALSE])
 		      , EQ(m.[TRUE],  m[TRUE])

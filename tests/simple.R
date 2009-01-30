@@ -474,8 +474,10 @@ nT <- new("ngTMatrix",
 (nC <- as(nT, "ngCMatrix"))
 str(nC)# of course, no 'x' slot
 
-stopifnot(identical(tt <- as(nT,"denseMatrix"), # lge
-		    as(as(nT, "lMatrix"),"denseMatrix")))
+tt <- as(nT,"denseMatrix") # nge (was lge "wrongly")
+stopifnot(is(tt,"ngeMatrix"),
+	  identical(as(tt, "lMatrix"),
+		    as(as(nT, "lMatrix"), "denseMatrix")))
 tt
 as(nC,"denseMatrix")
 

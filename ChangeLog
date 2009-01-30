@@ -1,4 +1,27 @@
+2009-01-30  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.999375-20
+	* man/spqr.Rd: disable example on Windows for now
+
+	* inst/test-tools.R (checkMatrix): simpler for "logical" pMatrix.
+
+	* R/ngTMatrix.R: fix ngT -> nge / lge coercion, and
+	* tests/Simple.R: adapt test.
+
+	* R/pMatrix.R: coercion to "matrix": more sensical to coerce to logical
+	instead of 0/1 integer.   This a mild back-compatibility breach.
+	* man/pMatrix-class.Rd: adapt, including example
+	* R/sparseMatrix.R (printSpMatrix): print as logical, too.
+
 2009-01-29  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Auxiliaries.R (geClass): define for "pMatrix"
+	* R/pMatrix.R: pMatrix  ->  ngeMatrix coercion
+	* man/pMatrix-class.Rd:
+
+	* DESCRIPTION (Version): 0.999375-19  considering release.
+
+	* R/ngTMatrix.R: coercing correctly to ngeMatrix via lge*.
 
 	* man/dgTMatrix-class.Rd: remove no-more-existing coercion method;
 	mention a bit less, and note.

@@ -349,9 +349,10 @@ checkMatrix <- function(m, m.m = if(do.matrix) as(m, "matrix"),
     if(do.matrix)
     stopifnot(identical(dim(m.m), dim(m)),
 	      ## base::diag() keeps names [Matrix FIXME]
-	      if(isPerm) {
-		  identical(as.integer(unname(diag(m))), unname(diag(m.m)))
-	      } else
+## now that "pMatrix" subsetting gives *LOGICAL*
+## 	      if(isPerm) {
+## 		  identical(as.integer(unname(diag(m))), unname(diag(m.m)))
+## 	      } else
 	      identical(unname(diag(m)),
 			unname(diag(m.m))),## not for NA: diag(m) == diag(m.m),
 	      identical(nnzero(m), sum(m.m != 0)),

@@ -53,6 +53,7 @@ spqr(x, ...)
 }
 \examples{
 data(KNex); mm <- KNex$mm
+if(.Platform$OS.type != "windows") # C code seg.faults on some Windows versions
 str(mm.QR <- spqr(mm))
 }
 \keyword{algebra}

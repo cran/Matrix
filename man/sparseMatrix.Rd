@@ -1,5 +1,5 @@
 \name{sparseMatrix}
-\Rdversion{1.1}
+%\Rdversion{1.1}
 \alias{sparseMatrix}
 \title{General Sparse Matrix Construction from Nonzero Entries}
 \description{

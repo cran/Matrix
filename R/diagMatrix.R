@@ -295,14 +295,14 @@ setAs("matrix", "diagonalMatrix",
 	  d <- dim(from)
 	  if(d[1] != (n <- d[2])) stop("non-square matrix")
 	  if(any(from[row(from) != col(from)] != 0))
-	      stop("has non-zero off-diagonal entries")
+	      stop("matrix with non-zero off-diagonals cannot be coerced to diagonalMatrix")
 	  x <- diag(from)
 	  if(is.logical(x)) {
 	      cl <- "ldiMatrix"
-	      uni <- all(x)
+	      uni <- allTrue(x) ## uni := {is it unit-diagonal ?}
 	  } else {
 	      cl <- "ddiMatrix"
-	      uni <- all(x == 1)
+	      uni <- allTrue(x == 1)
 	      storage.mode(x) <- "double"
 	  } ## TODO: complex
 	  new(cl, Dim = c(n,n), diag = if(uni) "U" else "N",
@@ -312,21 +312,21 @@ setAs("matrix", "diagonalMatrix",
 ## ``generic'' coercion to  diagonalMatrix : build on  isDiagonal() and diag()
 setAs("Matrix", "diagonalMatrix",
       function(from) {
-          d <- dim(from)
+	  d <- dim(from)
 	  if(d[1] != (n <- d[2])) stop("non-square matrix")
-          if(!isDiagonal(from)) stop("matrix is not diagonal")
-          ## else:
-          x <- diag(from)
-          if(is.logical(x)) {
-              cl <- "ldiMatrix"
-              uni <- all(x)
-          } else {
-              cl <- "ddiMatrix"
-              uni <- all(x == 1)
-              storage.mode(x) <- "double"
-          }
-          new(cl, Dim = c(n,n), diag = if(uni) "U" else "N",
-              x = if(uni) x[FALSE] else x)
+	  if(!isDiagonal(from)) stop("matrix is not diagonal")
+	  ## else:
+	  x <- diag(from)
+	  if(is.logical(x)) {
+	      cl <- "ldiMatrix"
+	      uni <- allTrue(x)
+	  } else {
+	      cl <- "ddiMatrix"
+	      uni <- allTrue(x == 1)
+	      storage.mode(x) <- "double"
+	  } ## TODO: complex
+	  new(cl, Dim = c(n,n), diag = if(uni) "U" else "N",
+	      x = if(uni) x[FALSE] else x)
       })
 
 
@@ -922,15 +922,26 @@ for(DI in diCls) {
 
 
 ### "Summary" : "max"   "min"   "range" "prod"  "sum"   "any"   "all"
-### ----------  any, all: separately here
+### ----------   the last 4: separately here
 for(cl in diCls) {
 setMethod("any", cl,
 	  function (x, ..., na.rm) {
 	      if(any(x@Dim == 0)) FALSE
 	      else if(x@diag == "U") TRUE else any(x@x, ..., na.rm = na.rm)
 	  })
-setMethod("all",  cl, function (x, ..., na.rm) any(x@Dim == 0))
-setMethod("prod", cl, function (x, ..., na.rm) as.numeric(any(x@Dim == 0)))
+setMethod("all",  cl, function (x, ..., na.rm) {
+    n <- x@Dim[1]
+    if(n >= 2) FALSE
+    else if(n == 0 || x@diag == "U") TRUE
+    else all(x@x, ..., na.rm = na.rm)
+})
+setMethod("prod", cl, function (x, ..., na.rm) {
+    n <- x@Dim[1]
+    if(n >= 2) 0
+    else if(n == 0 || x@diag == "U") 1
+    else ## n == 1, diag = "N" :
+	prod(x@x, ..., na.rm = na.rm)
+})
 
 setMethod("sum", cl,
 	  function(x, ..., na.rm) {

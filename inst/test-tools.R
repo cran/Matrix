@@ -201,9 +201,20 @@ mkLDL <- function(n, density = 1/3) {
 }
 
 eqDeterminant <- function(m1, m2, ...) {
-    d1 <- determinant(m1)
+    d1 <- determinant(m1) ## logarithm = TRUE
     d2 <- determinant(m2)
-    (d1$modulus == -Inf && d2$modulus == -Inf) || all.equal(d1, d2, ...)
+    d1m <- as.vector(d1$modulus)# dropping attribute
+    d2m <- as.vector(d2$modulus)
+    if((identical(d1m, -Inf) && identical(d2m, -Inf)) ||
+       ## <==> det(m1) == det(m2) == 0, then 'sign' may even differ !
+       (is.na(d1m) && is.na(d2m)))
+	## if both are NaN or NA, we "declare" that's fine here
+	return(TRUE)
+    ## else
+    if(is.infinite(d1m)) d1$modulus <- sign(d1m)* .Machine$double.xmax
+    if(is.infinite(d2m)) d2$modulus <- sign(d2m)* .Machine$double.xmax
+    ## now they are finite or *one* of them is NA/NaN, and all.equal() will tell so:
+    all.equal(d1, d2, ...)
 }
 
 ##--- Compatibility tests "Matrix" =!= "traditional Matrix" ---
@@ -231,7 +242,7 @@ checkMatrix <- function(m, m.m = if(do.matrix) as(m, "matrix"),
 
     Cat	 <- function(...) if(verbose) cat(...)
     CatF <- function(...) if(verbose) catFUN(...)
-    warnNow <- function(...) warning(..., call. = FALSE, immediate. = TRUE)
+    ## warnNow <- function(...) warning(..., call. = FALSE, immediate. = TRUE)
     if(getRversion() < "2.7.0") {
 	## Equivalent of fixing base::determinant.matrix() :
 	determinant.matrix <- function(x, logarithm = TRUE, ...)
@@ -333,8 +344,10 @@ checkMatrix <- function(m, m.m = if(do.matrix) as(m, "matrix"),
 				  identical(f(m), f(m.m)))
 	    if(!isTRUE(r)) {
 		f.nam <- sub("..$", '', sub("^\\.Primitive..", '', format(f)))
-		(if(f.nam == "prod") warnNow else stop)(
-		    sprintf("%s(m) differs from %s(m.m)", f.nam, f.nam))
+		## prod() is delicate: NA or NaN can both happen
+		(if(f.nam == "prod") message else stop)(
+		    sprintf("%s(m) [= %g] differs from %s(m.m) [= %g]",
+			    f.nam, f(m), f.nam, f(m.m)))
 	    }
 	}
 	if(verbose) cat(" ok\n")
@@ -392,9 +405,11 @@ checkMatrix <- function(m, m.m = if(do.matrix) as(m, "matrix"),
 	CatF("2*m =?= m+m: ")
 	if(identical(2*m, m+m)) Cat("identical\n")
 	else if(do.matrix) {
-	    stopifnot(as(2*m,"matrix") == as(m+m, "matrix"))
+	    eq <- as(2*m,"matrix") == as(m+m, "matrix") # but work for NA's:
+	    stopifnot(all(eq | (is.na(m) & is.na(eq))))
 	    Cat("ok\n")
 	} else {# !do.matrix
+## FIXME! forgot  stopifnot()
 	    identical(as(2*m, "CsparseMatrix"),
 		      as(m+m, "CsparseMatrix"))
 	    Cat("ok\n")
@@ -494,3 +509,4 @@ checkMatrix <- function(m, m.m = if(do.matrix) as(m, "matrix"),
     }
     invisible(TRUE)
 }
+

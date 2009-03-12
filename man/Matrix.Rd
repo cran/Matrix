@@ -57,6 +57,11 @@ Matrix(data=NA, nrow=1, ncol=1, byrow=FALSE, dimnames=NULL,
   \code{\linkS4class{triangularMatrix}}, and
   \code{\linkS4class{diagonalMatrix}}; further,
   \code{\link{matrix}}.
+
+  Special matrices can be constructed, e.g., via
+  \code{\link{sparseMatrix}} (sparse), \code{\link{bdiag}}
+  (block-diagonal), \code{\link{bandSparse}} (banded sparse), or
+  \code{\link{Diagonal}}.
 }
 \examples{
 Matrix(0, 3, 2)             # 3 by 2 matrix of zeros -> sparse

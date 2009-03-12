@@ -121,24 +121,36 @@ setMethod("Summary", signature(x = "dsparseMatrix", na.rm = "ANY"),
 	  ne <- prod(d <- dim(x))
 	  if(ne == 0) return(callGeneric(numeric(0), ..., na.rm=na.rm))
 	  l.x <- length(x@x)
-	  if(l.x < ne) {
-	      clx <- getClassDef(class(x))
-	      if(extends(clx, "symmetricMatrix") && l.x == choose(d[1]+1,2)) {
-		  ## fully non-zero - very rare!
-		  callGeneric((if(.Generic %in% summGener1) x else
-			       as(x, "generalMatrix"))@x,
-			      ..., na.rm = na.rm)
-	      }
-	      else { ## has at least one structural 0 (e.g. triangular)	 --normal case--
-		  if(.Generic == "prod") 0 else
-		  callGeneric((if(.Generic %in% summGener1) diagU2N(x) else
-			       as(x, "generalMatrix"))@x,
-			      if(.Generic %in% c("any","all")) FALSE else 0,
-			      ..., na.rm = na.rm)
-	      }
+	  if(l.x == ne) ## fully non-zero (and "general") - very rare but quick
+	      return( callGeneric(x@x, ..., na.rm = na.rm) )
+	  ## else  l.x < ne
+
+	  n <- d[1]
+	  clx <- getClassDef(class(x))
+	  isTri <- extends(clx, "triangularMatrix")
+	  isSym <- !isTri && extends(clx, "symmetricMatrix")
+	  isU.tri <- isTri && x@diag == "U"
+	  ## "full": has *no* structural zero : very rare, but need to catch :
+	  full.x <- ((isSym && l.x == choose(n+1, 2)) ||
+		     (n == 1 && (isU.tri || l.x == 1)))
+	  isGener1 <- .Generic %in% summGener1
+	  if(isGener1) { ## not prod() or sum() -> no need check to for symmetric
+	      logicF <- .Generic %in% c("any","all")
+	      ## we rely on  <generic>(x, NULL, y, ..)	:==  <generic>(x, y, ..):
+	      callGeneric(x@x,
+			  if(!full.x) { if(logicF) FALSE else 0 },
+			  if(isU.tri) { if(logicF) TRUE	 else 1 },
+			  ..., na.rm = na.rm)
 	  }
-	  else { ## fully non-zero - very rare
-	      callGeneric(x@x, ..., na.rm = na.rm)
+	  else { ## prod() or sum() : care for "symmetric" and U2N
+	      if(!full.x && .Generic == "prod") {
+		  if(any(is.na(x@x))) NaN else 0
+	      }
+	      else
+		  callGeneric((if(isSym) as(x, "generalMatrix") else x)@x,
+			      if(!full.x) 0, # one 0 <==> many 0's
+			      if(isU.tri) rep.int(1, n),
+			      ..., na.rm = na.rm)
 	  }
       })
 

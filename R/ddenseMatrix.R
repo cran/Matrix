@@ -144,8 +144,9 @@ setMethod("triu",      "matrix", .triuDense)
 .bandDense <- function(x, k1, k2, ...) {
     k1 <- as.integer(k1[1])
     k2 <- as.integer(k2[1])
-    dd <- dim(x); sqr <- dd[1] == dd[2]
-    stopifnot(-dd[1] <= k1, k1 <= k2, k2 <= dd[1])
+    dd <- dim(x)
+    sqr <- dd[1] == dd[2]
+    stopifnot(-dd[1] <= k1, k1 <= k2, k2 <= dd[2])
     r <- .Call(dense_band, x, k1, k2)
     if (sqr &&  k1 < 0 &&  k1 == -k2  && isSymmetric(x)) ## symmetric
 	forceSymmetric(r)

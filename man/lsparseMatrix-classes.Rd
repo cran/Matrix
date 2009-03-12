@@ -18,8 +18,12 @@
 \alias{Arith,lgCMatrix,lgCMatrix-method}
 \alias{Arith,lgTMatrix,lgTMatrix-method}
 \alias{Compare,lsparseMatrix,lsparseMatrix-method}
+\alias{Logic,lsparseMatrix,lsparseMatrix-method}
 \alias{Logic,lgCMatrix,lgCMatrix-method}
 \alias{Logic,lgTMatrix,lgTMatrix-method}
+\alias{Logic,lsCMatrix,lsCMatrix-method}
+\alias{Logic,ltCMatrix,ltCMatrix-method}
+
 \alias{-,lsparseMatrix,missing-method}
 \alias{!,lsparseMatrix-method}
 %

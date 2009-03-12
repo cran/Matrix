@@ -334,4 +334,10 @@
   str(H6 <- as(h6, "dspMatrix"))       # no longer lost 'factors'
   ## and the same in a similar situation involving  "dpo", "dpp"
 
+- Sparse Band(ed) matrices: Define "user-friendly" *constructors*;
+  Considering  bandMatrix()  with an option to construct *symmetric*
+  band-diagonal matrices directly.
+    --> bandSparse()  with a 'symmetric = FALSE' argument
+
+
 

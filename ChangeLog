@@ -1,4 +1,77 @@
+2009-03-12  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* man/band.Rd: note and example about band(<dense>) |-> dense
+
+	* R/ddenseMatrix.R (.bandDense): fix typo in argument check.
+	* R/Csparse.R: ditto
+	* src/dense.c (dense_band): limit index range; thanks to Bill Dunlap.
+	* tests/Simple.R (band): check it
+
+2009-03-11  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/dMatrix.R (Summary): (dsparseMatrix): new logic, fixing
+	prod(<sparse with NA>).
+
+	* inst/test-tools.R (eqDeterminant): improve after suggestions from Doug
+	* inst/test-tools.R (checkMatrix): message(), not warning(),
+	for differing prod().
+
+	* src/dgeMatrix.h, src/init.c: dgeMatrix_LU(x, warn_singularity)
+	* src/dgeMatrix.c (dgeMatrix_LU): allow to suppress singularity warning.
+	(dgeMatrix_determinant, dgeMatrix_rcond): do *not* warn on exact singularity
+
+2009-03-10  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Matrix.R (Summary.l, Summary.np): no conversion to "dMatrix" for all()/any()
+
+	* tests/Simple.R: do not use memory-expensive all(I.. == Diagonal(n))
+		for R >= 2.9.0, keep option 'warn = 2', i.e. warnings
+		producing errors  ==>
+
+	* R/Ops.R: small fixes, getting rid of warnings in tests/Simple.R
+
+	* TODO: think about providing something like  allCompare(.,., "==")
+
+2009-03-02  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.999375-22, ready but not submitted
+
+2009-03-01  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* inst/test-tools.R (eqDeterminant): fix for NAs
+
+2009-02-28  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/diagMatrix.R (prod, all): fix methods (cut & paste remnant);
+	for NA.
+
+	* R/Auxiliaries.R (detSparseLU): determinant(<..NA..>) now gives NaN
+
+	* R/sparseMatrix.R (printSpMatrix): workaround format.info() R bug
+	* tests/Simple.R: test that
+
+2009-02-27  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Matrix.R (Matrix): Matrix(x,*) returns x unaltered when
+	is(x, "diagonalMatrix"); OTOH, Matrix(x,1,1) should typically
+	*not* return a diagonalMatrix.
+
+	* R/diagMatrix.R (setAs(matrix, *)): fix for NAs.
+	* tests/Simple.R: test things like Matrix(NA, 1,1)
+
+2009-02-25  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* NAMESPACE: add bandSparse() "properly"
+	* man/bandSparse.Rd: doc including examples
+
+2009-02-20  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/bandSparse.R (bandSparse): constructor for band(diagonal)
+	sparse matrices.
+
 2009-02-13  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.999375-21, released to CRAN
 
 	* src/Mutils.h (Matrix_with_SPQR): #define (or #undef), in order to
 	allow easy building "SPQR-free version" of Matrix.

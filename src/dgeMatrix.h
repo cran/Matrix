@@ -1,6 +1,7 @@
 #ifndef MATRIX_GEMATRIX_H
 #define MATRIX_GEMATRIX_H
 
+#include <R_ext/Boolean.h>
 #include <R_ext/Lapack.h>
 #include "Mutils.h"
 
@@ -16,7 +17,8 @@ SEXP dgeMatrix_matrix_crossprod(SEXP x, SEXP y, SEXP trans);
 
 SEXP dgeMatrix_getDiag(SEXP x);
 SEXP lgeMatrix_getDiag(SEXP x);
-SEXP dgeMatrix_LU(SEXP x);
+SEXP dgeMatrix_LU (SEXP x, SEXP warn_singularity);
+SEXP dgeMatrix_LU_(SEXP x, Rboolean warn_sing);
 SEXP dgeMatrix_determinant(SEXP x, SEXP logarithm);
 SEXP dgeMatrix_Schur(SEXP x, SEXP vectors);
 SEXP dgeMatrix_solve(SEXP a);

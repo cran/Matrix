@@ -357,7 +357,7 @@ setMethod("band", "CsparseMatrix",
 	      k1 <- as.integer(k1[1])
 	      k2 <- as.integer(k2[1])
 	      dd <- dim(x); sqr <- dd[1] == dd[2]
-	      stopifnot(-dd[1] <= k1, k1 <= k2, k2 <= dd[1])
+	      stopifnot(-dd[1] <= k1, k1 <= k2, k2 <= dd[2])
 	      r <- .Call(Csparse_band, diagU2N(x), k1, k2)
 	      if(sqr && k1 * k2 >= 0) ## triangular
 		  as(r, paste(.M.kind(x), "tCMatrix", sep=''))

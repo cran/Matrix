@@ -453,8 +453,11 @@ setMethod("[", signature(x = "TsparseMatrix",
 ### FIXME: make this `very fast'  for the very very common case of
 ### -----   M[i,j] <- v  with   i,j = length-1-numeric;  v= length-1 number
 ###                            *and* M[i,j] == 0 previously
-
+##
 ## ---------     ----- FIXME(2): keep in sync with replCmat() in ./Csparse.R
+## FIXME(3): It's terribly slow when used e.g. from diag(M[,-1]) <- value
+## -----     which has "workhorse"   M[,-1] <- <dsparseVector>
+##
 ## workhorse for "[<-" :
 replTmat <- function (x, i, j, ..., value)
 {
@@ -662,7 +665,9 @@ replTmat <- function (x, i, j, ..., value)
     ## v0 <- is0(value)
     ## - replaced by using isN0(as.vector(.)) on a typical small subset value[.]
     ## --> more efficient for sparse 'value' & large 'lenRepl' :
-    ## FIXME: The use of  seq_len(lenRepl) below is *still* inefficient
+    ## FIXME [= FIXME(3) above]:
+    ## ----- The use of  seq_len(lenRepl) below is *still* inefficient
+    ##       and the  vN0 <- isN0(as.vector(value[iI0]))  is even more ...
     if(any(sel)) {
 	## the 0-based indices of non-zero entries -- WRT to submatrix
 	non0 <- cbind(match(x@i[sel], i1),

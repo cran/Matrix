@@ -26,7 +26,10 @@ bdiag(\dots)
   class \code{\linkS4class{diagonalMatrix}}, or \code{\link{kronecker}}
   which also works for \code{"Matrix"} inheriting matrices.
 
-  Note that other CRAN packages have own versions of \code{bdiag()}
+  \code{\link{bandSparse}} constructs a \emph{banded} sparse matrix from
+  its non-zero sub-/super - diagonals.
+
+  Note that other CRAN \R packages have own versions of \code{bdiag()}
   which return traditional matrices.
 }
 \examples{

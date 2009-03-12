@@ -20,6 +20,7 @@ export("Cholesky",
        "sparseMatrix",
        "Schur",
        "band",
+       "bandSparse",
        "bdiag",
        "colMeans", "colSums", ## these needed a "..." added
        "rowMeans", "rowSums",

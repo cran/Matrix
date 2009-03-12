@@ -589,8 +589,8 @@ cc <- capture.output(show(dLrg))# show(<diag>) used to error for large n
 
 ## Large Matrix indexing / subassignment
 ## ------------------------------------- (from ex. by Imran Rashid)
-n <- 700000
-m <-  10000
+n <- 7000000
+m <-  100000
 nnz <- 20000
 
 set.seed(12)
@@ -598,7 +598,7 @@ f <- sparseMatrix(i = sample(n, size=nnz, replace=TRUE),
                   j = sample(m, size=nnz, replace=TRUE))
 str(f)
 str(thisCol <-  f[,5000])# logi [....]
-f[,5762] <- thisCol # no fine
+f[,5762] <- thisCol # now fine
 
 fx <- sparseMatrix(i = sample(n, size=nnz, replace=TRUE),
                    j = sample(m, size=nnz, replace=TRUE),

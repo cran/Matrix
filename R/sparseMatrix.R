@@ -415,6 +415,11 @@ printSpMatrix <- function(x, digits = getOption("digits"),
 	    align <- match.arg(align)
 	    if(align == "fancy" && !is.integer(m)) {
 		fi <- apply(m, 2, format.info) ## fi[3,] == 0  <==> not expo.
+		if(R.version$`svn rev` < 48021) {
+		    ## work around format.info() bug R <= 2.8.1 :
+		    if(any(L <- fi[2,] > .Machine$integer.max - 5))
+			fi[2:3,L] <- 0
+                }
 		## now 'format' the zero.print by padding it with ' ' on the right:
 		## case 1: non-exponent:  fi[2,] + as.logical(fi[2,] > 0)
 		## the column numbers of all 'zero' entries -- (*large*)

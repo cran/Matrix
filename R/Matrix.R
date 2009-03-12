@@ -139,7 +139,9 @@ Matrix <- function (data = NA, nrow = 1, ncol = 1, byrow = FALSE,
     sparseDefault <- function(m) prod(dim(m)) > 2*sum(isN0(as(m, "matrix")))
 
     i.M <- is(data, "Matrix")
-    if(!i.M && inherits(data, "table")) # special treatment
+    if(i.M) {
+	if(is(data, "diagonalMatrix")) return(data) # in all cases
+    } else if(inherits(data, "table")) # special treatment
 	class(data) <- "matrix" # "matrix" first for S4 dispatch
     if(is.null(sparse1 <- sparse) && (i.M || is(data, "matrix")))
 	sparse <- sparseDefault(data)
@@ -195,8 +197,8 @@ Matrix <- function (data = NA, nrow = 1, ncol = 1, byrow = FALSE,
     if((isTri <- !isSym))
 	isTri <- isTriangular(data)
     isDiag <- isSym # cannot be diagonal if it isn't symmetric
-    if(isDiag)
-	isDiag <- !isTRUE(sparse1) && isDiagonal(data)
+    if(isDiag) # do not *build*  1 x 1 diagonalMatrix
+	isDiag <- !isTRUE(sparse1) && nrow(data) > 1 && isDiagonal(data)
 
     ## try to coerce ``via'' virtual classes
     if(isDiag) { ## diagonal is preferred to sparse !
@@ -429,13 +431,27 @@ setMethod("Summary", signature(x = "Matrix", na.rm = "ANY"),
 	  callGeneric(as(x,"dMatrix"), ..., na.rm = na.rm))
 
 Summary.l <- function(x, ..., na.rm) { ## must be method directly
-    r <- callGeneric(as(x,"dMatrix"), ..., na.rm = na.rm)
-    if(!is.infinite(r) && .Generic %in% c("max", "min", "range", "sum"))
-        as.integer(r) else r
+    if(.Generic %in% c("all", "any"))
+	callGeneric(x@x, ..., na.rm = na.rm)
+    else {
+	r <- callGeneric(as(x,"dMatrix"), ..., na.rm = na.rm)
+	if(!is.infinite(r) && .Generic != "prod") as.integer(r) else r
+    }
 }
+## identical (apart from last line):
+Summary.np <- function(x, ..., na.rm) {
+    if(.Generic %in% c("all", "any"))
+	callGeneric(as(x, "lMatrix"), ..., na.rm = na.rm)
+    else {
+	r <- callGeneric(as(x,"dMatrix"), ..., na.rm = na.rm)
+	if(!is.infinite(r) && .Generic != "prod") as.integer(r) else r
+    }
+}
+##
 setMethod("Summary", signature(x = "lMatrix", na.rm = "ANY"), Summary.l)
-setMethod("Summary", signature(x = "nMatrix", na.rm = "ANY"), Summary.l)
-setMethod("Summary", signature(x = "pMatrix", na.rm = "ANY"), Summary.l)
+setMethod("Summary", signature(x = "nMatrix", na.rm = "ANY"), Summary.np)
+setMethod("Summary", signature(x = "pMatrix", na.rm = "ANY"), Summary.np)
+
 
 ## Further, see ./Ops.R
 ##                ~~~~~

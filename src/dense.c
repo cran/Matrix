@@ -300,6 +300,8 @@ SEXP dense_band(SEXP x, SEXP k1P, SEXP k2P)
 #define SET_ZERO_OUTSIDE				\
 	for (j = 0; j < n; j++) {			\
 	    int i, i1 = j - k2, i2 = j + 1 - k1;	\
+	    if(i1 > m) i1 = m;				\
+	    if(i2 < 0) i2 = 0;				\
 	    for (i = 0; i < i1; i++) xx[i + j * m] = 0;	\
 	    for (i = i2; i < m; i++) xx[i + j * m] = 0;	\
 	}

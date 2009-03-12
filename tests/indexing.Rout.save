@@ -1,6 +1,6 @@
 
-R version 2.8.1 Patched (2009-02-09 r47901)
-Copyright (C) 2009 The R Foundation for Statistical Computing
+R version 2.8.1 (2008-12-22)
+Copyright (C) 2008 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -530,7 +530,11 @@ Warning: Ambiguous method selection for "&", target "lgCMatrix#lsCMatrix" (the f
  norm(m [5 x 5]) : 1  I  F  M  ok
  Summary:  ok
 as(., "nMatrix") giving full nonzero-pattern: ok
-2*m =?= m+m: ok
+2*m =?= m+m: Warning: Ambiguous method selection for "|", target "lsCMatrix#lgCMatrix" (the first of the signatures shown will be used)
+    CsparseMatrix#CsparseMatrix
+    lsparseMatrix#lsparseMatrix
+
+ok
 m >= m for all: Warning: Ambiguous method selection for ">=", target "dgTMatrix#dgTMatrix" (the first of the signatures shown will be used)
     sparseMatrix#sparseMatrix
     dMatrix#dMatrix
@@ -825,7 +829,11 @@ Warning: Ambiguous method selection for "-", target "dgTMatrix#dgTMatrix" (the f
  norm(m [5 x 7]) : 1  I  F  M  ok
  Summary:  ok
 as(., "nMatrix") giving full nonzero-pattern: ok
-2*m =?= m+m: ok
+2*m =?= m+m: Warning: Ambiguous method selection for "&", target "ngCMatrix#lgCMatrix" (the first of the signatures shown will be used)
+    CsparseMatrix#CsparseMatrix
+    nsparseMatrix#lsparseMatrix
+
+ok
 m >= m for all: ok
 m < m for none: ok
 > mt
@@ -1278,8 +1286,8 @@ Warning: Ambiguous method selection for "!=", target "numeric#dgCMatrix" (the fi
 > 
 > ## Large Matrix indexing / subassignment
 > ## ------------------------------------- (from ex. by Imran Rashid)
-> n <- 700000
-> m <-  10000
+> n <- 7000000
+> m <-  100000
 > nnz <- 20000
 > 
 > set.seed(12)
@@ -1287,16 +1295,16 @@ Warning: Ambiguous method selection for "!=", target "numeric#dgCMatrix" (the fi
 +                   j = sample(m, size=nnz, replace=TRUE))
 > str(f)
 Formal class 'ngCMatrix' [package "Matrix"] with 5 slots
-  ..@ i       : int [1:20000] 669222 465723 449080 34437 279716 358481 368893 638024 655330 176506 ...
-  ..@ p       : int [1:10001] 0 1 2 2 3 3 9 13 17 17 ...
-  ..@ Dim     : int [1:2] 699987 10000
+  ..@ i       : int [1:20000] 6692226 4657233 4490801 3688935 344371 6380246 2797160 3584813 6553304 2327896 ...
+  ..@ p       : int [1:99993] 0 1 1 1 1 1 1 1 1 1 ...
+  ..@ Dim     : int [1:2] 6999863 99992
   ..@ Dimnames:List of 2
   .. ..$ : NULL
   .. ..$ : NULL
   ..@ factors : list()
 > str(thisCol <-  f[,5000])# logi [....]
- logi [1:699987] FALSE FALSE FALSE FALSE FALSE FALSE ...
-> f[,5762] <- thisCol # no fine
+ logi [1:6999863] FALSE FALSE FALSE FALSE FALSE FALSE ...
+> f[,5762] <- thisCol # now fine
 > 
 > fx <- sparseMatrix(i = sample(n, size=nnz, replace=TRUE),
 +                    j = sample(m, size=nnz, replace=TRUE),
@@ -1314,7 +1322,7 @@ attr(,"package")
 + 	  identical(thCol,  fx[,5762]))
 > 
 > cat('Time elapsed: ', (.pt <- proc.time()),'\n') # "stats"
-Time elapsed:  18.037 0.543 19.239 0 0 
+Time elapsed:  23.985 1.383 25.44 0 0 
 > ##
 > cat("checkMatrix() of all: \n---------\n")
 checkMatrix() of all: 
@@ -1465,10 +1473,6 @@ Warning: Ambiguous method selection for "|", target "nsyMatrix#nsCMatrix" (the f
     nMatrix#Matrix
     Matrix#nMatrix
 
-Warning: Ambiguous method selection for "|", target "lsCMatrix#lgCMatrix" (the first of the signatures shown will be used)
-    CsparseMatrix#CsparseMatrix
-    lsparseMatrix#lsparseMatrix
-
 Warning: Ambiguous method selection for "coerce", target "ddiMatrix#nMatrix" (the first of the signatures shown will be used)
     diagonalMatrix#nMatrix
     dMatrix#nMatrix
@@ -1477,8 +1481,6 @@ exploding	<diag>	o  <diag>  into dense matrix
 dLrg 
 dm 
 ds 
-Warning in determinant(as(x, "dgeMatrix")) :
-  Exact singularity detected during LU decomposition.
 f 
 fx 
 ge 
@@ -1572,7 +1574,7 @@ suboptimal implementation of sparse 'symm. o symm.'
 x.x. 
 suboptimal implementation of sparse 'symm. o symm.'
 > cat('Time elapsed: ', proc.time() - .pt,'\n') # "stats"
-Time elapsed:  11.399 0.011 11.429 0 0 
+Time elapsed:  12.376 0.115 12.504 0 0 
 > 
 > if(!interactive()) warnings()
 NULL

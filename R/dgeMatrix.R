@@ -158,7 +158,7 @@ setMethod("solve", signature(a = "dgeMatrix", b = "sparseMatrix"),
 ## 	  .Call(dgeMatrix_matrix_solve, a, as.matrix(as.double(b))))
 
 setMethod("lu", signature(x = "dgeMatrix"),
-	  function(x, ...) .Call(dgeMatrix_LU, x),
+	  function(x, warnSing = TRUE, ...) .Call(dgeMatrix_LU, x, warnSing),
 	  valueClass = "denseLU")
 
 setMethod("determinant", signature(x = "dgeMatrix", logarithm = "missing"),

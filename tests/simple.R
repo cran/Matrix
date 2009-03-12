@@ -17,9 +17,11 @@ if(interactive()) {
 (m4 <- Matrix(cbind(0,rbind(6*diag(3),0))))
 dm4 <- Matrix(m4, sparse = FALSE)
 class(mN <-  Matrix(NA, 3,4)) # NA *is* logical
+validObject(Matrix(NA))
 bd4 <- bdiag(m4,dm4,m4)
-stopifnot(validObject(d4), validObject(z4), validObject(o4),
-          validObject(m4), validObject(dm4), validObject(mN),
+stopifnot(isValid(o4, "dsyMatrix"),
+          isValid(m4, "dtCMatrix"),
+          validObject(dm4), validObject(mN),
           identical(bdiag(m4), bdiag(dm4)),
           identical(bd4@p, c(0L,0:3,3:6,6:9)),
           identical(bd4@i, c(0:2, 4:6, 8:10)), bd4@x == 6
@@ -36,6 +38,13 @@ stopifnot(isValid(d4, "diagonalMatrix"),   isValid(z4,  "diagonalMatrix"),
           validObject(Matrix(c(NA,0), 4, 3, byrow = TRUE)),
           validObject(Matrix(c(NA,0), 4, 4)),
           isValid(Matrix(c(NA,0,0,0), 4, 4), "sparseMatrix"))
+I <- i1 <- I1 <- Diagonal(1)
+I1[1,1] <- i1[1, ] <- I [ ,1] <- NA
+stopifnot(identical3(I,i1,I1))
+
+I <- Diagonal(3); I[,1] <- NA; I[2,2] <- NA ; I[3,] <- NaN
+stopifnot(isValid(I, "sparseMatrix"))
+I # gave error in printSpMatrix() - because of R bug in format.info()
 
 L <- spMatrix(9, 30, i = rep(1:9, 3), 1:27, (1:27) %% 4 != 1)
 M <- drop0(crossprod(L))
@@ -47,7 +56,7 @@ stopifnot(isSymmetric(M), isSymmetric(M.),
 	  is(bdiag(M., M.),"symmetricMatrix"),
 	  is(bdN, "triangularMatrix"),
 	  all.equal(N3,N3),
-	  all.equal(N3, t(N3)) == "Mean relative difference: 2",
+	  all.equal(N3, t(N3)) == all.equal(1,-1),# ~= "Mean relative difference: 2"
 	  !any(bdN != t(bdN)), # <nsparse> != <nsparse>	 failed to work...
 	  !any((0+bdN) > bdN), # <dsparse> o <nsparse>
 	  !any(bdN != (0+bdN)), # <nsparse> o <dsparse>
@@ -74,8 +83,7 @@ ina <- is.na(Lrg)# "all FALSE"
 stopifnot(grep("too large", e1) == 1,
           grep("too large", e2) == 1,
           !any(ina))# <- gave warning previously
-options(op)
-stopifnot(any(Lrg))# warns (double -> logical) correctly
+stopifnot(suppressWarnings(any(Lrg)))# (double -> logical  warning)
 
 ## with dimnames:
 m. <- matrix(c(0, 0, 2:0), 3, 5)
@@ -104,6 +112,10 @@ if(getRversion() >= "2.7.1" || R.version$`svn rev` >= 45885)  {
     sm <- selectMethod(coerce, c("dgCMatrix", "triangularMatrix"), verbose=TRUE)
     stopifnot(identical(sm(g5), t5))
 }
+
+if(getRversion() < "2.9.0") ## 2.9.0++ has "Note"s instead of ambiguity "Warning"s:
+    options(op)
+
 
 (t1 <- new("dtTMatrix", x= c(3,7), i= 0:1, j=3:2,
            Dim= as.integer(c(4,4))))
@@ -266,7 +278,7 @@ assert.EQ.mat(tril(dtr), diag(2))
 (t4 <- new("dgTMatrix", i = 3:0, j = 0:3, x = rep(1,4), Dim = as.integer(c(4,4))))
 c4 <- as(t4, "CsparseMatrix")
 ## the same but "dsT" (symmetric)
-M <- Matrix(c(0, rep(c(0,0:1),4)), 4,4)#ok warning
+suppressWarnings(M <- Matrix(c(0, rep(c(0,0:1),4)), 4,4))# warning:.. length [13] is not ..multiple
 tt <- as(M, "TsparseMatrix")
 stopifnot(all.equal(triu(t4) + tril(t4), c4),
           all.equal(triu(tt) + tril(tt), c4))
@@ -345,8 +357,13 @@ image(T125 <- kronecker(kronecker(t5,t5),t5),
 dim(T3k <- kronecker(t5,kronecker(T125, t5)))
 system.time(IT3 <- solve(T3k))# incredibly fast
 I. <- drop0(zapsmall(IT3 %*% T3k))
+I.. <- Matrix:::diagN2U(I.)
+I <- Diagonal(5^5)
 stopifnot(isValid(IT3, "dtCMatrix"),
-          all(I. == Diagonal(3125)))
+          ## something like the equivalent of  all(I. == Diagonal(3125)) :
+          identical(as(I., "diagonalMatrix"), I),
+          identical(as(I..,"diagonalMatrix"), I)
+          )
 
 ###-- row- and column operations  {was ./rowcolOps.R }
 
@@ -489,14 +506,15 @@ dkt <- as(nkt, "denseMatrix")
 (clt <- crossprod(nkt))
 stopifnot(isValid(nkt, "ngCMatrix"),
           isValid(clt, "nsCMatrix"))
-crossprod(clt) ## a warning: crossprod() of symmetric
+suppressWarnings(crossprod(clt)) ## warning "crossprod() of symmetric ..."
 
 ## a Csparse with *repeated* entry is not valid!
 assertError(new("ngCMatrix", p = c(0L,2L), i = c(0L,0L), Dim = 2:1))
 
 
-### "d" <-> "l"  for (symmetric) sparse :
-data(KNex)
+### "d" <-> "l"  for (symmetric) sparse : ---------------------------------------
+suppressWarnings( data(KNex) ) ## may warn, as 'Matrix' is recommended
+                               ## and exist more than once at check-time
 mm <- KNex$mm
 xpx <- crossprod(mm)
 ## extract nonzero pattern
@@ -580,6 +598,23 @@ tpL <- as(tril(sp),"dtpMatrix")
 (spL <- t(sp))
 stopifnot(sp @uplo=="U", tp @uplo=="U",
 	  spL@uplo=="L", tpL@uplo=="L")
+
+## band():
+n <- 4 ; m <- 6
+r1 <- Matrix(1:24, n,m)
+validObject(M1 <- band(r1, 0,0))
+(M1 <- as(M1, "sparseMatrix"))
+r2 <- Matrix(1:18, 3, 6)
+stopifnot(identical(M1, bandSparse(n,m, k=0, diag = list(diag(r1)))),
+	  identical(band(r2, 0,4),
+		    band(r2, 0,3) + band(r2, 4,4)))
+s1 <- as(r1, "sparseMatrix") # such that band(s1) is sparse, too
+for(k1 in (-n):m)
+    for(k2 in k1:m) {
+        isValid(br1 <- band(r1, k1,k2), "ddenseMatrix")
+        isValid(bs1 <- band(s1, k1,k2), "CsparseMatrix")
+        stopifnot(all(r1 == s1))
+    }
 
 D. <- Diagonal(x= c(-2,3:4)); D.[lower.tri(D.)] <- 1:3 ; D.
 D0 <- Diagonal(x= 0:3);       D0[upper.tri(D0)] <- 1:6 ; D0

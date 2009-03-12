@@ -38,7 +38,12 @@ Diagonal(n, x = NULL)
 %\author{Martin Maechler}
 \seealso{the generic function \code{\link{diag}} for \emph{extraction}
   of the diagonal from a matrix works for all \dQuote{Matrices}.
-  \code{\link{Matrix}}, class \code{\linkS4class{diagonalMatrix}}.
+
+  \code{\link{bandSparse}} constructs a \emph{banded} sparse matrix from
+  its non-zero sub-/super - diagonals.
+
+  \code{\link{Matrix}} for general matrix construction;
+  further, class \code{\linkS4class{diagonalMatrix}}.
 }
 \examples{
 Diagonal(3)

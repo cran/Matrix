@@ -35,8 +35,10 @@
 #elif defined (_AIX) || defined (MIBM_RS) || defined (ARCH_IBM_RS)
 #define CHOLMOD_AIX
 #define CHOLMOD_ARCHITECTURE "IBM AIX"
-/* recent reports from IBM AIX seem to indicate that this is not needed: */
-/* #define BLAS_NO_UNDERSCORE */
+/* needed (2009-02-27) inspite "recent" reports from IBM AIX .. */
+# if defined(__xlc__)
+# define BLAS_NO_UNDERSCORE
+# endif
 
 #elif defined (__alpha) || defined (MALPHA) || defined (ARCH_ALPHA)
 #define CHOLMOD_ALPHA

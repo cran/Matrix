@@ -6,6 +6,8 @@ is0  <- function(x) !is.na(x) & x == 0
 isN0 <- function(x)  is.na(x) | x != 0
 all0 <- function(x) !any(is.na(x)) && all(x == 0)
 
+## These work "identically" for  1 ('==' TRUE)  and 0 ('==' FALSE):
+## TODO: C versions of these would be faster
 allTrue  <- function(x) all(x)  && !any(is.na(x))
 allFalse <- function(x) !any(x) && !any(is.na(x))
 
@@ -133,7 +135,8 @@ detSparseLU <- function(x, logarithm = TRUE, ...) {
 	## LU-decomposition failed:
         if(length(grep("singular", ll$message, fixed=TRUE)))
             ## <== Matrix singular and we behave as if "==>" was sure :
-            return(mkDet(ldet=-Inf, logarithm=logarithm, sig = 1L))
+	    return(mkDet(ldet=if(any(is.na(x))) NaN else -Inf,
+			 logarithm=logarithm, sig = 1L))
         else stop(ll$message, call. = FALSE)
     }
     ## else

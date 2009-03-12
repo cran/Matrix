@@ -56,7 +56,7 @@ SEXP dgeMatrix_norm(SEXP obj, SEXP type)
 
 SEXP dgeMatrix_rcond(SEXP obj, SEXP type)
 {
-    SEXP LU = PROTECT(dgeMatrix_LU(obj));
+    SEXP LU = PROTECT(dgeMatrix_LU_(obj, FALSE));/* <- not warning about singularity */
     char typnm[] = {'\0', '\0'};
     int *dims = INTEGER(GET_SLOT(LU, Matrix_DimSym)), info;
     double anorm, rcond;
@@ -204,7 +204,7 @@ SEXP lgeMatrix_getDiag(SEXP x)
 #undef geMatrix_getDiag_2
 
 
-SEXP dgeMatrix_LU(SEXP x)
+SEXP dgeMatrix_LU_(SEXP x, Rboolean warn_sing)
 {
     SEXP val = get_factors(x, "LU");
     int *dims, npiv, info;
@@ -224,10 +224,15 @@ SEXP dgeMatrix_LU(SEXP x)
 		     &info);
     if (info < 0)
 	error(_("Lapack routine %s returned error code %d"), "dgetrf", info);
-    else if (info > 0)
+    else if (info > 0 && warn_sing)
 	warning(_("Exact singularity detected during LU decomposition."));
     UNPROTECT(1);
     return set_factors(x, val, "LU");
+}
+
+SEXP dgeMatrix_LU(SEXP x, SEXP warn_singularity)
+{
+    dgeMatrix_LU_(x, asLogical(warn_singularity));
 }
 
 SEXP dgeMatrix_determinant(SEXP x, SEXP logarithm)
@@ -240,7 +245,7 @@ SEXP dgeMatrix_determinant(SEXP x, SEXP logarithm)
     if (n != dims[1])
 	error(_("Determinant requires a square matrix"));
     if (n > 0) {
-	SEXP lu = dgeMatrix_LU(x);
+	SEXP lu = dgeMatrix_LU_(x, /* do not warn about singular LU: */ FALSE);
 	int i, *jpvt = INTEGER(GET_SLOT(lu, Matrix_permSym));
 	double *luvals = REAL(GET_SLOT(lu, Matrix_xSym));
 
@@ -266,7 +271,7 @@ SEXP dgeMatrix_determinant(SEXP x, SEXP logarithm)
 SEXP dgeMatrix_solve(SEXP a)
 {
     SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dgeMatrix"))),
-	lu = dgeMatrix_LU(a);
+	lu = dgeMatrix_LU_(a, TRUE);
     int *dims = INTEGER(GET_SLOT(lu, Matrix_DimSym)),
 	*pivot = INTEGER(GET_SLOT(lu, Matrix_permSym));
     double *x, tmp;
@@ -291,7 +296,7 @@ SEXP dgeMatrix_solve(SEXP a)
 SEXP dgeMatrix_matrix_solve(SEXP a, SEXP b)
 {
     SEXP val = PROTECT(dup_mMatrix_as_dgeMatrix(b)),
-	lu = PROTECT(dgeMatrix_LU(a));
+	lu = PROTECT(dgeMatrix_LU_(a, TRUE));
     int *adims = INTEGER(GET_SLOT(lu, Matrix_DimSym)),
 	*bdims = INTEGER(GET_SLOT(val, Matrix_DimSym));
     int info, n = bdims[0], nrhs = bdims[1];

@@ -549,6 +549,7 @@ replTmat <- function (x, i, j, ..., value)
     }
     ## nargs() == 4 :
 
+    ## FIXME: use  'abIndex' or a better algorithm, e.g.  if(iMi)
     i1 <- if(iMi) 0:(di[1] - 1L) else .ind.prep2(i, 1, di, dn)
     i2 <- if(jMi) 0:(di[2] - 1L) else .ind.prep2(j, 2, di, dn)
     dind <- c(length(i1), length(i2)) # dimension of replacement region
@@ -562,18 +563,16 @@ replTmat <- function (x, i, j, ..., value)
     ## else: lenV := length(value)	 is > 0
     if(lenRepl %% lenV != 0)
         stop("number of items to replace is not a multiple of replacement length")
-    if(!iMi && any(duplicated(i1))) {
-        ## a bit faster than  keep <- !rev(duplicated(rev(i1))) :
-        ir <- dind[1]:1 ; keep <- match(i1, i1[ir]) == ir
-        i1 <- i1[keep]
-        lenV <- length(value <- rep(value, length.out = lenRepl)[keep])
+    if(!iMi && any(dup <- duplicated(i1, fromLast = TRUE))) {
+        notDup <- - which(dup)
+        i1 <- i1[notDup]
+        lenV <- length(value <- rep(value, length.out = lenRepl)[notDup])
         dind[1] <- length(i1)
         lenRepl <- dind[1] * dind[2]
     }
 
-    if(!jMi && any(duplicated(i2))) {
-        ## a bit faster than  keep <- !rev(duplicated(rev(i2))) :
-        ir <- dind[2]:1 ; keep <- match(i2, i2[ir]) == ir
+    if(!jMi && any(dup <- duplicated(i2, fromLast = TRUE))) {
+        keep <- !dup
         i2 <- i2[keep]
         lenV <- length(value <- rep(value, length.out = lenRepl)[keep])
         dind[2] <- length(i2)
@@ -616,6 +615,7 @@ replTmat <- function (x, i, j, ..., value)
         clDx <- getClassDef(clx <- class(x))
     }
 
+    ## TODO (efficiency): replace  'sel' by 'which(sel)'
     get.ind.sel <- function(ii,ij)
 	(match(x@i, ii, nomatch = 0) & match(x@j, ij, nomatch = 0))
 

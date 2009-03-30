@@ -119,9 +119,13 @@ asD <- function(m) { ## as "Dense"
 ## "normal" sparse Matrix: Csparse, no diag="U"
 asCsp <- function(x) Matrix:::diagU2N(as(x, "CsparseMatrix"))
 
-Qidentical <- function(x,y) {
+Qidentical <- function(x,y, strictClass = TRUE) {
     ## quasi-identical - for 'Matrix' matrices
-    if(class(x) != class(y)) return(FALSE)
+    if(class(x) != class(y)) {
+        if(strictClass || !is(x, class(y)))
+           return(FALSE)
+        ## else try further
+    }
     slts <- slotNames(x)
     if("factors" %in% slts) { ## allow one empty and one non-empty 'factors'
         slts <- slts[slts != "factors"]
@@ -233,12 +237,14 @@ checkMatrix <- function(m, m.m = if(do.matrix) as(m, "matrix"),
     ##	       in dotestMat()  ../tests/Class+Meth.R
     stopifnot(is(m, "Matrix"))
     validObject(m)
+
     clNam <- class(m)
     cld <- getClassDef(clNam) ## extends(cld, FOO) is faster than is(m, FOO)
     isCor    <- extends(cld, "corMatrix")
     isSparse <- extends(cld, "sparseMatrix")
     isSym    <- extends(cld, "symmetricMatrix")
     isDiag   <- extends(cld, "diagonalMatrix")
+    nonMatr  <- clNam != Matrix:::MatrixClass(clNam, cld)
 
     Cat	 <- function(...) if(verbose) cat(...)
     CatF <- function(...) if(verbose) catFUN(...)
@@ -319,9 +325,10 @@ checkMatrix <- function(m, m.m = if(do.matrix) as(m, "matrix"),
 	ttm <- t(tm)
 	if(extends(cld, "CsparseMatrix") ||
 	   extends(cld, "generalMatrix") || isDiag)
-            stopifnot(Qidentical(m, ttm))
+            stopifnot(Qidentical(m, ttm, strictClass = !nonMatr))
 	else if(do.matrix)
-	    stopifnot(class(ttm) == clNam, all(m == ttm | ina))
+	    stopifnot(nonMatr || class(ttm) == clNam,
+                      all(m == ttm | ina))
         ## else : not testing
     }
     if(!do.matrix) {

@@ -226,7 +226,7 @@ void make_i_matrix_symmetric(int *to, SEXP from)
  * @return pointer to a named vector of type TYP
  */
 SEXP
-Matrix_make_named(int TYP, char **names)
+Matrix_make_named(int TYP, const char **names)
 {
     SEXP ans, nms;
     int i, n;
@@ -528,13 +528,13 @@ install_diagonal_int(int *dest, SEXP A)
 SEXP dup_mMatrix_as_geMatrix(SEXP A)
 {
     SEXP ans, ad = R_NilValue, an = R_NilValue;	/* -Wall */
-    const char *cl = class_P(A);
     char *valid[] = {"_NOT_A_CLASS_",/* *_CLASSES defined in ./Mutils.h */
 		    ddense_CLASSES, /* 14 */
 		    ldense_CLASSES, /* 6  */
 		    ndense_CLASSES, /* 5  */
 		    ""};
-    int sz, ctype = Matrix_check_class(cl, valid), nprot = 1;
+    int sz, ctype = Matrix_check_class_etc(A, valid),
+	nprot = 1;
     enum dense_enum { ddense, ldense, ndense } M_type = ddense /* -Wall */;
 
     if (ctype > 0) { /* a [nld]denseMatrix object */
@@ -555,7 +555,8 @@ SEXP dup_mMatrix_as_geMatrix(SEXP A)
 	else if (isLogical(A))
 	    M_type = ldense;
 	else
-	    error(_("invalid class '%s' to dup_mMatrix_as_geMatrix"), cl);
+	    error(_("invalid class '%s' to dup_mMatrix_as_geMatrix"),
+		  class_P(A));
 
 #define	DUP_MMATRIX_NON_CLASS						\
 	if (isMatrix(A)) {	/* "matrix" */				\
@@ -687,9 +688,9 @@ SEXP dup_mMatrix_as_dgeMatrix(SEXP A)
 {
     SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("dgeMatrix"))),
 	ad = R_NilValue , an = R_NilValue;	/* -Wall */
-    const char *cl = class_P(A);
     char *valid[] = {"_NOT_A_CLASS_", ddense_CLASSES, ""};
-    int ctype = Matrix_check_class(cl, valid), nprot = 1, sz;
+    int ctype = Matrix_check_class_etc(A, valid),
+	nprot = 1, sz;
     double *ansx;
 
     if (ctype > 0) {		/* a ddenseMatrix object */
@@ -705,7 +706,8 @@ SEXP dup_mMatrix_as_dgeMatrix(SEXP A)
 	    nprot++;
 	}
 	if (!isReal(A))
-	    error(_("invalid class '%s' to dup_mMatrix_as_dgeMatrix"), cl);
+	    error(_("invalid class '%s' to dup_mMatrix_as_dgeMatrix"),
+		  class_P(A));
     }
 
     DUP_MMATRIX_SET_1;

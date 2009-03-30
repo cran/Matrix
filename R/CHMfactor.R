@@ -1,3 +1,6 @@
+
+### FIXME:  We really want the separate parts (P,L,D)  of  A = P' L D L' P'
+### -----   --> ~/R/MM/Pkg-ex/Matrix/chol-ex.R             ----------------
 setAs("CHMfactor", "sparseMatrix",
       function(from) .Call(CHMfactor_to_sparse, from))
 
@@ -9,7 +12,7 @@ setMethod("expand", signature(x = "CHMfactor"),
           function(x, ...)
           list(P = as(x, "pMatrix"), L = as(x, "sparseMatrix")))
 
-## nowhere used {FIXME?}
+## nowhere used:
 isLDL <- function(x) {
     stopifnot(is(x, "CHMfactor"))
     x@type[2]

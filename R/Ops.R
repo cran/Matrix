@@ -1034,7 +1034,7 @@ setMethod("Compare", signature(e1 = "CsparseMatrix", e2 = "CsparseMatrix"),
 
 	      dn <- dimNamesCheck(e1, e2)
               ## the result object:
-	      newC <- sub("^.", "l", class(e1))
+	      newC <- sub("^.", "l", MatrixClass(class(e1)))
               ## FIXME: "n" result when e1 & e2 are "n", or even whenever possible
 	      r <- new(newC)
               e1is.n <- extends(cD1, "nMatrix")

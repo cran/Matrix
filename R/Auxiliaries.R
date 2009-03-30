@@ -57,14 +57,43 @@ copyClass <- function(x, newCl, sNames =
     r
 }
 
+MatrixClass <- function(cl, cld = getClassDef(cl),
+			...Matrix = TRUE, dropVirtual = TRUE, ...)
+{
+    ## Purpose: return the (maybe super-)class of class 'cl'   from "Matrix",
+    ##		returning  character(0) if there is none.
+    ## ----------------------------------------------------------------------
+    ## Arguments: cl: string, class name
+    ##		 cld: its class definition
+    ##	   ...Matrix: if TRUE, the result must be of pattern "...Matrix"
+    ##	      ..... : other arguments are passed to .selectSuperClasses()
+    ## ----------------------------------------------------------------------
+    ## Author: Martin Maechler, Date: 24 Mar 2009
+
+    ## Hmm, packageSlot(cl)  *can* be misleading --> use  cld@package  first:
+    if(is.null(pkg <- cld@package)) {
+	if(is.null(pkg <- packageSlot(cl))) return(character())
+	## else we use 'pkg'
+    }
+    if(identical(pkg, "Matrix") &&
+       (!...Matrix || identical(1L, grep("^...Matrix$", cl))))
+	cl
+    else { ## possibly recursively
+	r <- .selectSuperClasses(cld@contains, dropVirtual = dropVirtual,
+				 namesOnly = TRUE, ...)
+	if(length(r))
+	    Recall(r[1], ...Matrix = ...Matrix, dropVirtual = dropVirtual)
+	else r
+    }
+}
 
 attrSlotNames <- function(m) {
-    ## slotnames of Matrix objects which *not* directly content related
+    ## slotnames of Matrix objects which are *not* directly content related
     sn <- slotNames(m); sn[!(sn %in% c("x","i","j","p"))]
 }
 
 ##' @param m
-##' @return the slots of 'm' which are "attributes" of them kind.
+##' @return the slots of 'm' which are "attributes" of some kind.
 attrSlots <- function(m) sapply(attrSlotNames(m), function(sn) slot(m, sn),
 				simplify = FALSE)
 
@@ -664,7 +693,7 @@ fixupDense <- function(m, from, cldm = getClassDef(class(m))) {
 }
 
 ## -> ./ldenseMatrix.R :
-l2d_Matrix <- function(from, cl = class(from), cld = getClassDef(cl)) {
+l2d_Matrix <- function(from, cl = MatrixClass(class(from)), cld = getClassDef(cl)) {
     ## stopifnot(is(from, "lMatrix"))
     fixupDense(new(sub("^l", "d", cl),
 		   x = as.double(from@x),
@@ -674,21 +703,21 @@ l2d_Matrix <- function(from, cl = class(from), cld = getClassDef(cl)) {
 }
 
 ## -> ./ndenseMatrix.R :
-n2d_Matrix <- function(from, cl = class(from), cld = getClassDef(cl)) {
+n2d_Matrix <- function(from, cl = MatrixClass(class(from)), cld = getClassDef(cl)) {
     ## stopifnot(is(from, "nMatrix"))
     fixupDense(new(sub("^n", "d", cl), x = as.double(from@x),
 		   Dim = from@Dim, Dimnames = from@Dimnames),
 	       from, cld)
     ## FIXME: treat 'factors' smartly {not for triangular!}
 }
-n2l_Matrix <- function(from, cl = class(from), cld = getClassDef(cl)) {
+n2l_Matrix <- function(from, cl = MatrixClass(class(from)), cld = getClassDef(cl)) {
     fixupDense(new(sub("^n", "l", cl),
 		   x = from@x, Dim = from@Dim, Dimnames = from@Dimnames),
 	       from, cld)
     ## FIXME: treat 'factors' smartly {not for triangular!}
 }
 ## -> ./ddenseMatrix.R :
-d2l_Matrix <- function(from, cl = class(from), cld = getClassDef(cl)) {
+d2l_Matrix <- function(from, cl = MatrixClass(class(from)), cld = getClassDef(cl)) {
     fixupDense(new(sub("^d", "l", cl), x = as.logical(from@x),
                    Dim = from@Dim, Dimnames = from@Dimnames),
 	       from, cld)
@@ -697,7 +726,7 @@ d2l_Matrix <- function(from, cl = class(from), cld = getClassDef(cl)) {
 
 n2l_spMatrix <- function(from) {
     ## stopifnot(is(from, "nMatrix"))
-    new(sub("^n", "l", class(from)),
+    new(sub("^n", "l", MatrixClass(class(from))),
         ##x = as.double(from@x),
         Dim = from@Dim, Dimnames = from@Dimnames)
 }
@@ -746,7 +775,7 @@ gT2tT <- function(x, uplo, diag,
 	    x = x@x[sel], Dim = x@Dim, Dimnames = x@Dimnames)
 }
 
-check.gT2tT <- function(from, cl = class(from),
+check.gT2tT <- function(from, cl = MatrixClass(class(from)),
 			toClass = paste(substr(cl,1,1), "tTMatrix", sep=''),# d,l,i,z
 			cld = getClassDef(cl)) {
     if(isTr <- isTriangular(from)) {
@@ -759,7 +788,7 @@ check.gT2tT <- function(from, cl = class(from),
 
 if(FALSE)# unused
 l2d_meth <- function(x) {
-    cl <- class(x)
+    cl <- MatrixClass(class(x))
     as(callGeneric(as(x, sub("^l", "d", cl))), cl)
 }
 
@@ -838,6 +867,7 @@ l2d_meth <- function(x) {
 
 class2 <- function(cl, kind = "l", do.sub = TRUE) {
     ## Find "corresponding" class; since pos.def. matrices have no pendant:
+    cl <- MatrixClass(cl)
     if(cl %in% c("dpoMatrix","corMatrix"))
 	paste(kind, "syMatrix", sep='')
     else if(cl == "dppMatrix")
@@ -879,11 +909,11 @@ if(FALSE)
 	if(extends(x, cl))
 	    return(cl)
     ## else (should rarely happen)
-    as.character(NA)
+    NA_character_
 }
 
 .sp.class <- function(x) { ## find and return the "sparseness class"
-    if(!is.character(x)) x <- c(class(x))
+    x <- if(!is.character(x)) MatrixClass(class(x)) else MatrixClass(x)
     if(any((ch <- substr(x,3,3)) == c("C","T","R")))
         return(paste(ch, "sparseMatrix", sep=''))
     ## else

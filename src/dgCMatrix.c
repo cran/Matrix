@@ -55,7 +55,7 @@ SEXP compressed_to_TMatrix(SEXP x, SEXP colP)
 	"ngRMatrix", "nsRMatrix", "ntRMatrix", /* 6: 18:20 */
 	"zgRMatrix", "zsRMatrix", "ztRMatrix", /* 7: 21:23 */
 	""};
-    int ctype = Matrix_check_class(ncl, valid);
+    int ctype = Matrix_check_class_etc(x, valid);
 
     if (ctype < 0)
 	error(_("invalid class(x) '%s' in compressed_to_TMatrix(x)"), ncl);
@@ -92,7 +92,7 @@ SEXP R_to_CMatrix(SEXP x)
 	"ngRMatrix", "nsRMatrix", "ntRMatrix",
 	"zgRMatrix", "zsRMatrix", "ztRMatrix",
 	""};
-    int ctype = Matrix_check_class(ncl, valid);
+    int ctype = Matrix_check_class_etc(x, valid);
     int *x_dims = INTEGER(GET_SLOT(x, Matrix_DimSym)), *a_dims;
 
     if (ctype < 0)

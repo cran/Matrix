@@ -5,7 +5,7 @@
 ## these two are parallel to "n <-> l" in the above :
 setAs("nMatrix", "dMatrix",
       function(from) {
-	  cld <- getClassDef(cl <- class(from))
+	  cld <- getClassDef(cl <- MatrixClass(class(from)))
 	  isSp <- extends(cld, "sparseMatrix")
 	  ## faster(not "nicer"): any(substr(cl,3,3) == c("C","T","R"))
 	  sNams <- slotNames(cld)
@@ -21,13 +21,10 @@ setAs("dMatrix", "nMatrix",
 	  if(any(is.na(from@x)))
 	      stop("\"dMatrix\" object with NAs cannot be coerced to \"nMatrix\"")
 	  ## i.e. from@x are only TRUE (or FALSE in dense case)
-	  cld <- getClassDef(cl <- class(from))
+	  cld <- getClassDef(cl <- MatrixClass(class(from)))
 	  if(extends(cld, "diagonalMatrix")) { # have no "ndi*" etc class
 	      cl <- class(from <- as(from, "sparseMatrix"))
 	      isSp <- TRUE
-	  } else if(cl == "Cholesky" || cl == "BunchKaufman") {
-              cld <- getClassDef(cl <- class(from <- as(from, "dtrMatrix")))
-	      isSp <- FALSE
 	  } else {
 	      isSp <- extends(cld, "sparseMatrix")
 	      if(isSp && any(from@x == 0)) {

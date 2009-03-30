@@ -25,12 +25,13 @@ bandSparse <- function(n, m = n, k, diagonals, symmetric = FALSE)
                 stop(sprintf("'diagonals' matrix must have %d columns (= length(k) )",
                              len.k))
 
-            stop("FIXME: 'diagonals' as matrix is not yet implemented")
+            getD <- function(j) diagonals[,j]
 
         } else { ## is.list(diagonals):
             if(length(diagonals) != len.k)
                 stop(sprintf("'diagonals' must have the same length (%d) as 'k'",
                              len.k))
+            getD <- function(j) diagonals[[j]]
         }
     }
     if(symmetric && any(k < 0) && any(k > 0))
@@ -46,7 +47,7 @@ bandSparse <- function(n, m = n, k, diagonals, symmetric = FALSE)
     i <- j <- integer(sum(k.lengths))
     if(use.x)
 	x <- if(len.k > 0) # carefully getting correct type/mode
-	    rep.int(diagonals[[1]][1], length(i))
+	    rep.int(getD(1)[1], length(i))
     off.i <- 0L
     for(s in seq_len(len.k)) {
 	kk <- k[s] ## *is* integer
@@ -61,7 +62,7 @@ bandSparse <- function(n, m = n, k, diagonals, symmetric = FALSE)
 	    j[ind] <- ii1
 	}
 	if(use.x) {
-	    xx <- diagonals[[s]]
+	    xx <- getD(s)
 	    if(length(xx) < l.kk)
 		warning(sprintf("the %d-th (sub)-diagonal (k = %d) is %s",
 				s, kk, "too short; filling with NA's"))

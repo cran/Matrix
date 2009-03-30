@@ -1,3 +1,32 @@
+2009-03-30  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/Mutils.h (Matrix_check_class_etc): new version that *computes*
+	the environment to be used.
+	* src/Tsparse.c, src/cs_utils.c, src/chm_common.c, src/dgCMatrix.c:
+	use the above in place of Matrix_check_class_and_super().
+
+2009-03-26  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Auxiliaries.R (MatrixClass): use cld@package, not packageSlot(.) !
+
+2009-03-25  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version, Date): 0.999375-23
+
+	* tests/Class+Meth.R (dotestMat): use getClassDef() for speed;
+	adaptions to also work with "Matrix-extensions".
+	* inst/test-tools.R (checkMatrix): similar adaptions.
+
+2009-03-24  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Auxiliaries.R (MatrixClass, l2d_meth, ...): make use of
+	MatrixClass(): functionality for setClass("foo", contains="dgCMatrix")
+
+	* src/Mutils.h (Matrix_check_class_and_super): new utility, to be
+	used in lieu of  Matrix_check_class() in most cases.
+	* src/Tsparse.c, src/cs_utils.c, src/chm_common.c, src/dgCMatrix.c: use it,
+	currently only with R_GlobalEnv {otherwise: API change}
+
 2009-03-12  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* man/band.Rd: note and example about band(<dense>) |-> dense

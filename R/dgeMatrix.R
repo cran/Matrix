@@ -52,12 +52,9 @@ setMethod("norm", signature(x = "matrix", type = "character"),
 	  function(x, type, ...) .Call(dgeMatrix_norm, as(x,"dgeMatrix"), type),
 	  valueClass = "numeric")
 
-## for now:
-if(!existsFunction("rcond", where=baseenv()))## later: (exists(getRversion() < "2.7.0")
-## afterwards, this should continue using base::rcond
+if(getRversion() < "2.7.0")## afterwards, just using base::rcond
 setMethod("rcond", signature(x = "matrix", norm = "character"),
 	  function(x, norm, ...) rcond(as(x,"dgeMatrix"), norm=norm, ...))
-
 
 setMethod("t", signature(x = "dgeMatrix"), t_geMatrix)
 

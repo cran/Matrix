@@ -27,9 +27,9 @@ bandSparse(n, m = n, k, diagonals, symmetric = FALSE)
     only the upper or lower triangle must be specified (via \code{k} and
     \code{diagonals}).}
 }
-\details{
-  FIXME
-}
+% \details{  __needed ?__
+%
+% }
 \value{
   a sparse matrix (of \code{\link{class}}
   \code{\linkS4class{CsparseMatrix}}) of dimension \eqn{n \times m}{n x m}
@@ -62,11 +62,15 @@ lLis <- lapply(list(rpois(20, 2), rpois(20,1), rpois(20,3))[c(1:3,2:3,3:2)],
 
 n <- 1e4
 bk <- c(0:5, 7,11)
-bLis <- as.data.frame(matrix(1:8, n, 8, byrow=TRUE))
+bMat <- matrix(1:8, n, 8, byrow=TRUE)
+bLis <- as.data.frame(bMat)
 B  <- bandSparse(n, k = bk, diag = bLis)
 Bs <- bandSparse(n, k = bk, diag = bLis, symmetric=TRUE)
 B [1:15, 1:30]
 Bs[1:15, 1:30]
+## can use a list *or* a matrix for specifying the diagonals:
+stopifnot(identical(B,  bandSparse(n, k = bk, diag = bMat)),
+	  identical(Bs, bandSparse(n, k = bk, diag = bMat, symmetric=TRUE)))
 }
 \keyword{array}
 \keyword{algebra}

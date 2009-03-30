@@ -32,7 +32,7 @@ SEXP SVD_validate(SEXP obj)
 
 SEXP LU_expand(SEXP x)
 {
-    char *nms[] = {"L", "U", "P", ""};
+    const char *nms[] = {"L", "U", "P", ""};
     SEXP L, U, P, val = PROTECT(Matrix_make_named(VECSXP, nms)),
 	lux = GET_SLOT(x, Matrix_xSym),
 	dd = GET_SLOT(x, Matrix_DimSym);

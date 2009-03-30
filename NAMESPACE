@@ -50,6 +50,7 @@ export("Cholesky",
 #        "writeHB",
        "writeMM",
        "xtabs"
+       , ".M.classEnv"
        )
 
 if(getRversion() < "2.7.0")
@@ -89,6 +90,8 @@ export(
        "any",
        "all")
 }
+if(R.version$`svn rev` < 48201) ## later: if(getRversion() < "2.9.0")
+    export(".selectSuperClasses")## sync with ---> R/zzz.R
 
 exportClasses(
               ## Class unions:

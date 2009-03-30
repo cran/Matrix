@@ -3,6 +3,19 @@ source(system.file("test-tools.R", package = "Matrix"))# identical3(),
                                         # further  checkMatrix(), etc
 if(interactive()) options(error = recover)
 
+setClass("myDGC", contains = "dgCMatrix")
+M <- new("myDGC", as(Matrix(c(-2:4, rep(0,9)), 4), "CsparseMatrix"))
+M
+stopifnot(M[-4,2] == 2:4,
+	  Matrix:::MatrixClass("myDGC") == "dgCMatrix",
+	  Matrix:::MatrixClass("Cholesky") == "dtrMatrix",
+	  Matrix:::MatrixClass("pCholesky") == "dtpMatrix")
+
+setClass("posDef", contains = "dspMatrix")
+N <- as(as(crossprod(M) + Diagonal(4), "denseMatrix"),"dspMatrix")
+(N <- new("posDef", N))
+stopifnot(is(N[1:2, 1:2], "symmetricMatrix"))
+
 #### Automatically display the class inheritance structure
 #### possibly augmented with methods
 
@@ -162,11 +175,12 @@ tstMatrixClass <-
         cat("\n")
         cat.(clNam)
         ##---------
-        if(isVirtualClass(clNam)) {
+        clD <- getClassDef(clNam)
+        if(isVirtualClass(clD)) {
             cat(" - is virtual\n")
             if(recursive) {
                 cat.("----- begin{class :", clNam, "}----new subclasses----\n")
-                for(ccl in getClass(clNam)@subclasses) {
+                for(ccl in clD@subclasses) {
                     cclN <- ccl@subClass
                     if(cclN %in% cList)
                         cat.(cclN,": see above\n")
@@ -178,14 +192,14 @@ tstMatrixClass <-
                 cat.("----- end{class :", clNam, "}---------------------\n")
             }
         } else { ## --- actual class ---
-            genC <- extends(clNam, "generalMatrix")
-            symC <- extends(clNam, "symmetricMatrix")
-            triC <- extends(clNam, "triangularMatrix")
-            diaC <- extends(clNam, "diagonalMatrix")
+            genC <- extends(clD, "generalMatrix")
+            symC <- extends(clD, "symmetricMatrix")
+            triC <- extends(clD, "triangularMatrix")
+            diaC <- extends(clD, "diagonalMatrix")
             if(!(genC || symC || triC || diaC))
                 stop("does not extend one of 'general', 'symmetric', 'triangular', or 'diagonal'")
-            sparseC <- extends(clNam, "sparseMatrix")
-            denseC  <- extends(clNam, "denseMatrix")
+            sparseC <- extends(clD, "sparseMatrix")
+            denseC  <- extends(clD, "denseMatrix")
             if(!(sparseC || denseC))
                 stop("does not extend either 'sparse' or 'dense'")
 	    cat("; new(..): ")
@@ -195,8 +209,8 @@ tstMatrixClass <-
 		cat("; as(matrix(,0,0), <.>): ")
 		stopifnot(Qidentical(m, as(m0, clNam))); cat("ok; ")
 	    }
-            is_p <- extends(clNam, "pMatrix")
-            is_cor <- (clNam == "corMatrix") # has diagonal divided out
+            is_p <- extends(clD, "pMatrix")
+            is_cor <- extends(clD, "corMatrix") # has diagonal divided out
 	    if(canCoerce(mm, clNam)) { ## replace 'm' by `non-empty' version
 		cat("canCoerce() ")
 		m0 <- {
@@ -205,10 +219,10 @@ tstMatrixClass <-
 			mm == 1     # logical *and* "true" permutation
 		    else mm
 		}
-		if(extends(clNam, "lMatrix") ||
-		   extends(clNam, "nMatrix"))
+		if(extends(clD, "lMatrix") ||
+		   extends(clD, "nMatrix"))
 		    storage.mode(m0) <- "logical"
-		else if(extends(clNam, "zMatrix"))
+		else if(extends(clD, "zMatrix"))
 		    storage.mode(m0) <- "complex"
 		validObject(m) ## validity of trivial 'm' before replacing
 		m <- as(m0, clNam)
@@ -260,19 +274,8 @@ tstMatrixClass <-
             if(is(m, "dMatrix") && is(m, "compMatrix")) {
                 if(any(clNam == not.coerce1))
                     cat.("not coercable_1\n")
-                else {
-                    cat.("as(dge*, <(super)class>): ")
-                    if(canCoerce(mM, clNam))
-                        m2 <- as(mM, clNam)
-                    else { ## find superclass to which to coerce
-                        if(extends(clNam, "sparseMatrix")) {
-                            if(is.na(newcl <- Matrix:::.sp.class(clNam)))
-                                stop("internal failure from .sp.class()")
-                            m2 <- as(mM, newcl)
-                        } else { ## ddense & (general or symmetric)
-                            stop("don't know what to coerce <dge> to - error test-logic")
-                        }
-                    }
+                else if(canCoerce(mM, clNam)) {
+                    m2 <- as(mM, clNam)
                     cat("valid:", validObject(m2), "\n")
                     if(!is_cor) ## as.vector()
                         stopifnot(as.vector(m2) == as.vector(mM))
@@ -286,11 +289,13 @@ tstMatrixClass <-
                     stopifnot(is_cor || identical(dd, diag(mM)),
                               identical(10*dd, diag(m2))); cat("ok ")
                 }
-                if(all(clNam != not.coerce2)) {
-                    cat.("as(matrix, <class>): ")
-                    m3 <- as(mm, clNam)
-                    cat("valid:", validObject(m3), "\n")
-                }
+##                 if(all(clNam != not.coerce2)) {
+                    if(canCoerce("matrix", clNam)) {
+                        cat.("as(matrix, <class>): ")
+                        m3 <- as(mm, clNam)
+                        cat("valid:", validObject(m3), "\n")
+                    } else cat.(" not coerceable from \"matrix\"\n")
+##                 }
             }
 
             ## else { ... no happens in tstMatrix() above .. }

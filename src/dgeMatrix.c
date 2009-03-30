@@ -547,7 +547,7 @@ SEXP dgeMatrix_Schur(SEXP x, SEXP vectors)
     int *dims = INTEGER(GET_SLOT(x, Matrix_DimSym));
     int vecs = asLogical(vectors), info, izero = 0, lwork = -1, n = dims[0];
     double *work, tmp;
-    char *nms[] = {"WR", "WI", "T", "Z", ""};
+    const char *nms[] = {"WR", "WI", "T", "Z", ""};
     SEXP val = PROTECT(Matrix_make_named(VECSXP, nms));
 
     if (n != dims[1] || n < 1)

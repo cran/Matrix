@@ -7,7 +7,7 @@ setAs("lMatrix", "nMatrix",
 	  if(any(is.na(from@x)))
 	      stop("\"lMatrix\" object with NAs cannot be coerced to \"nMatrix\"")
 	  ## i.e. from@x are only TRUE or FALSE
-	  cld <- getClassDef(cl <- class(from))
+	  cld <- getClassDef(cl <- MatrixClass(class(from)))
 	  if(extends(cld, "diagonalMatrix")) { # have no "ndi*" etc class
 	      cl <- class(from <- as(from, "sparseMatrix"))
 	      isSp <- TRUE
@@ -28,7 +28,7 @@ setAs("lMatrix", "nMatrix",
 
 setAs("nMatrix", "lMatrix",
       function(from) {
-	  cld <- getClassDef(cl <- class(from))
+	  cld <- getClassDef(cl <- MatrixClass(class(from)))
 	  r <- copyClass(from, sub("^n", "l", cl), slotNames(cld))
 	  if(extends(cld, "sparseMatrix"))
 	      r@x <- rep.int(TRUE, length(if(!extends(cld, "RsparseMatrix"))
@@ -47,7 +47,7 @@ setAs("dMatrix", "lMatrix",
 
 setAs("lMatrix", "dMatrix",
       function(from) {
-	  cld <- getClassDef(cl <- class(from))
+	  cld <- getClassDef(cl <- MatrixClass(class(from)))
 	  sNams <- slotNames(cld)
 	  r <- copyClass(from, newCl = sub("^l", "d", cl),
 			 sNames = sNams[sNams != "x"])

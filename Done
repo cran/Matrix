@@ -339,5 +339,6 @@
   band-diagonal matrices directly.
     --> bandSparse()  with a 'symmetric = FALSE' argument
 
+- as(<any Matrix>, "vector")  now works, ditto as(., "numeric")  etc
 
 

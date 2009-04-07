@@ -58,7 +58,8 @@ setAs("ngTMatrix", "lgTMatrix",
 setAs("ngTMatrix", "lMatrix", function(from) as(from, "lgTMatrix"))
 
 setAs("ngTMatrix", "ntTMatrix",
-      function(from) check.gT2tT(from, cl = "ngTMatrix", toClass = "ntTMatrix"))
+      function(from) check.gT2tT(from, cl = "ngTMatrix", toClass = "ntTMatrix",
+				 do.n = TRUE))
 setAs("ngTMatrix", "triangularMatrix", function(from) as(from, "ntTMatrix"))
 
 

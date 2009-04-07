@@ -6,7 +6,7 @@ source(system.file("test-tools.R", package = "Matrix"))# identical3() etc
 
 if(interactive()) {
     options(error = recover, warn = 1)
-} else options(verbose = TRUE, warn = 1)
+} else options(Matrix.verbose = TRUE, warn = 1)
 
 ### Dense Matrices
 
@@ -167,12 +167,11 @@ stopifnot(all.equal(mC[,3], mm[,3]),
 	  identical(mC[iN], mm[iN]))
 
 assert.EQ.mat(mC[7, , drop=FALSE], mm[7, , drop=FALSE])
+identical    (mC[7,   drop=FALSE], mm[7,   drop=FALSE]) # *vector* indexing
 
 stopifnot(dim(mC[numeric(0), ]) == c(0,20), # used to give warnings
           dim(mC[, integer(0)]) == c(40,0),
-          identical(mC[, integer(0)], mC[, FALSE]),
-          identical(mC[7,  drop = FALSE],
-                    mC[7,, drop = FALSE]))
+          identical(mC[, integer(0)], mC[, FALSE]))
 validObject(print(mT[,c(2,4)]))
 stopifnot(all.equal(mT[2,], mm[2,]),
           ## row or column indexing in combination with t() :
@@ -280,11 +279,14 @@ stopifnot(is(T, "dtCMatrix"), identical(T[,3], c(10,10,10,0,0)))
 
 
 ## "Vector indices" -------------------
-D <- Diagonal(6)
-M <- as(D,"dgeMatrix")
-m <- as(D,"matrix")
-s <- as(D,"TsparseMatrix")
-S <- as(s,"CsparseMatrix")
+.iniDiag.example <- expression({
+    D <- Diagonal(6)
+    M <- as(D,"dgeMatrix")
+    m <- as(D,"matrix")
+    s <- as(D,"TsparseMatrix")
+    S <- as(s,"CsparseMatrix")
+})
+eval(.iniDiag.example)
 i <- c(3,1,6); v <- c(10,15,20)
 ## (logical,value) which both are recycled:
 L <- c(TRUE, rep(FALSE,8)) ; z <- c(50,99)
@@ -296,7 +298,9 @@ M[i] <- v; assert.EQ.mat(M,m) # dge
 D[i] <- v; assert.EQ.mat(D,m) # ddi -> dtT -> dgT
 s[i] <- v; assert.EQ.mat(s,m) # dtT -> dgT
 S[i] <- v; assert.EQ.mat(S,m); S # dtC -> dtT -> dgT -> dgC
+stopifnot(identical(s,D))
 ## logical
+eval(.iniDiag.example)
 m[L] <- z
 M[L] <- z; assert.EQ.mat(M,m)
 D[L] <- z; assert.EQ.mat(D,m)
@@ -304,8 +308,15 @@ s[L] <- z; assert.EQ.mat(s,m)
 S[L] <- z; assert.EQ.mat(S,m) ; S
 
 ## indexing [i]  vs  [i,] --- now ok
-stopifnot(identical4(m[i], M[i], D[i], s[i]), identical(s[i],S[i]))
-stopifnot(identical4(m[L], M[L], D[L], s[L]), identical(s[L],S[L]))
+eval(.iniDiag.example)
+stopifnot(identical5(m[i], M[i], D[i], s[i], S[i]))
+stopifnot(identical5(m[L], M[L], D[L], s[L], S[L]))
+## bordercase ' drop = .' *vector* indexing {failed till 2009-04-..)
+stopifnot(identical5(m[i,drop=FALSE], M[i,drop=FALSE], D[i,drop=FALSE],
+		     s[i,drop=FALSE], S[i,drop=FALSE]))
+stopifnot(identical5(m[L,drop=FALSE], M[L,drop=FALSE], D[L,drop=FALSE],
+		     s[L,drop=FALSE], S[L,drop=FALSE]))
+##
 assert.EQ.mat(D[i,], m[i,])
 assert.EQ.mat(M[i,], m[i,])
 assert.EQ.mat(s[i,], m[i,])

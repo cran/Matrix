@@ -1,4 +1,33 @@
+
+	* DESCRIPTION (Version, Date): 0.999375-25
+
+
+
+2009-04-09  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Auxiliaries.R (Matrix.msg): new utility
+	(.M.vectorSub): ditto, for vector-indexing; in
+	* R/Matrix.R ([): M[i, drop=<LOGI>] should do *vector*-indexing.
+	* R/Tsparse.R ([): ditto;
+	* R/diagMatrix.R ([, subDiag): ditto.
+
+	* R/Tsparse.R ([): more careful indexing of (triangular)
+	TsparseMatrix.
+
+	* tests/indexing.R: testing the above
+
+	* R/Auxiliaries.R (gT2tT, check.gT2tT): consistency and efficiency
+	improvement, using 'do.n' argument.
+
+2009-04-08  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Matrix.R: add  as(., "vector")  etc
+	* man/Matrix-class.Rd: ditto
+	* inst/test-tools.R (checkMatrix): and check them
+
 2009-04-07  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version, Date): 0.999375-24 ... released to CRAN
 
 	* R/sparseVector.R: fix coercion from xsparse*
 	* tests/Simple.R: and check it.

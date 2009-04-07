@@ -5,7 +5,7 @@
 \description{
   User friendly construction of a compressed, column-oriented, sparse
   matrix, inheriting from \code{\link{class}}
-  \code{\linkS4class{CsparseMatrix}}, locations (and values) of its
+  \code{\linkS4class{CsparseMatrix}}, from locations (and values) of its
   nonzero entries.
 
   This is the recommended user interface rather than direct
@@ -77,7 +77,8 @@ sparseMatrix(i = ep, j = ep, p, x, dims, dimnames, index1 = TRUE)
 }
 \seealso{\code{\link{Matrix}(*, sparse=TRUE)} for the more usual
   constructor of such matrices; further \code{\link{bdiag}} and
-  \code{\link{Diagonal}} for (block-)diagonal matrix constructors.
+  \code{\link{Diagonal}} for (block-)diagonal and
+  \code{\link{bandSparse}} for banded sparse matrix constructors.
 
   Consider \code{\linkS4class{CsparseMatrix}} and similar class
   definition help files.

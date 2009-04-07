@@ -265,12 +265,14 @@ setAs("TsparseMatrix", "graphNEL", function(from) Tsp2grNEL(from))
 setMethod("[", signature(x = "sparseMatrix", i = "index", j = "missing",
 			 drop = "logical"),
 	  function (x, i,j, ..., drop) {
+	      Matrix.msg("sp[i,m,l] : nargs()=",nargs(), .M.level = 2)
 	      cld <- getClassDef(class(x))
-##> why should this be needed; can still happen in <Tsparse>[..]:
-##>	      if(!extends(cld, "generalMatrix")) x <- as(x, "generalMatrix")
-##	      viaCl <- paste(.M.kind(x, cld), "gTMatrix", sep='')
-	      x <- as(x, "TsparseMatrix")[i, , drop=drop]
-##simpler than x <- callGeneric(x = as(x, "TsparseMatrix"), i=i, drop=drop)
+	      na <- nargs()
+	      x <- if(na == 4) as(x, "TsparseMatrix")[i, , drop=drop]
+	      else if(na == 3) as(x, "TsparseMatrix")[i, drop=drop]
+	      else ## should not happen
+		  stop("Matrix-internal error in <sparseM>[i,,d]; please report")
+              ##
 	      ## try_as(x, c(cl, sub("T","C", viaCl)))
 	      if(is(x, "Matrix") && extends(cld, "CsparseMatrix"))
 		  as(x, "CsparseMatrix") else x
@@ -279,6 +281,7 @@ setMethod("[", signature(x = "sparseMatrix", i = "index", j = "missing",
 setMethod("[", signature(x = "sparseMatrix", i = "missing", j = "index",
 			 drop = "logical"),
 	  function (x,i,j, ..., drop) {
+	      Matrix.msg("sp[m,i,l] : nargs()=",nargs(), .M.level = 2)
 	      cld <- getClassDef(class(x))
 ##> why should this be needed; can still happen in <Tsparse>[..]:
 ##>	      if(!extends(cld, "generalMatrix")) x <- as(x, "generalMatrix")
@@ -293,6 +296,7 @@ setMethod("[", signature(x = "sparseMatrix", i = "missing", j = "index",
 setMethod("[", signature(x = "sparseMatrix",
 			 i = "index", j = "index", drop = "logical"),
 	  function (x, i, j, ..., drop) {
+	      Matrix.msg("sp[i,i,l] : nargs()=",nargs(), .M.level = 2)
 	      cld <- getClassDef(class(x))
 	      ## be smart to keep symmetric indexing of <symm.Mat.> symmetric:
 ##>	      doSym <- (extends(cld, "symmetricMatrix") &&
@@ -415,11 +419,7 @@ printSpMatrix <- function(x, digits = getOption("digits"),
 	    align <- match.arg(align)
 	    if(align == "fancy" && !is.integer(m)) {
 		fi <- apply(m, 2, format.info) ## fi[3,] == 0  <==> not expo.
-		if(R.version$`svn rev` < 48021) {
-		    ## work around format.info() bug R <= 2.8.1 :
-		    if(any(L <- fi[2,] > .Machine$integer.max - 5))
-			fi[2:3,L] <- 0
-                }
+
 		## now 'format' the zero.print by padding it with ' ' on the right:
 		## case 1: non-exponent:  fi[2,] + as.logical(fi[2,] > 0)
 		## the column numbers of all 'zero' entries -- (*large*)

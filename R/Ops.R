@@ -202,9 +202,8 @@ setMethod("Compare", signature(e1 = "dMatrix", e2 = "numeric"),
 		  }
                   else { ## non sparse result
                       lClass <- if(extends(cl1, "symmetricMatrix")) "lsyMatrix" else "lgeMatrix"
-		      if(getOption("verbose"))
-			  message(sprintf("sparse to dense (%s) coercion in '%s'",
-					  lClass, .Generic))
+		      Matrix.msg(sprintf("sparse to dense (%s) coercion in '%s'",
+					 lClass, .Generic))
 		      rx <- rep.int(r0, d[1]*d[2])
 
 		      ## Here, we assume that 'r' and the indices align (!)
@@ -578,9 +577,8 @@ setMethod("Logic", signature(e1 = "lMatrix", e2 = "logical"),
                   else { ## non sparse result
                       lClass <- if(extends(cl1, "symmetricMatrix"))
 		      	"lsyMatrix" else "lgeMatrix"
-		      if(getOption("verbose"))
-			  message(sprintf("sparse to dense (%s) coercion in '%s'",
-					  cl, .Generic))
+		      Matrix.msg(sprintf("sparse to dense (%s) coercion in '%s'",
+					 cl, .Generic))
 		      rx <- rep.int(r0, d[1]*d[2])
 
 		      ## Here, we assume that 'r' and the indices align (!)
@@ -735,16 +733,14 @@ setMethod("Logic", signature(e1="lsparseMatrix", e2="lsparseMatrix"),
 
 setMethod("Logic", signature(e1 = "lsCMatrix", e2 = "lsCMatrix"),
 	  function(e1, e2) {
-	      if(getOption("verbose"))
-		  message("suboptimal implementation of sparse 'symm. o symm.'")
+	      Matrix.msg("suboptimal implementation of sparse 'symm. o symm.'")
 	      forceSymmetric(callGeneric(as(e1, "lgCMatrix"),
 					 as(e2, "lgCMatrix")))
 	  })
 
 setMethod("Logic", signature(e1 = "ltCMatrix", e2 = "ltCMatrix"),
 	  function(e1, e2) {
-	      if(getOption("verbose"))
-		  message("suboptimal implementation of sparse 'symm. o symm.'")
+	      Matrix.msg("suboptimal implementation of sparse 'symm. o symm.'")
 	      forceTriangular(callGeneric(as(e1, "lgCMatrix"),
 					  as(e2, "lgCMatrix")))
 	  })
@@ -755,8 +751,7 @@ setMethod("Logic", signature(e1 = "ltCMatrix", e2 = "ltCMatrix"),
 ## -----
 setMethod("Arith", signature(e1 = "dsCMatrix", e2 = "dsCMatrix"),
 	  function(e1, e2) {
-	      if(getOption("verbose"))
-		  message("suboptimal implementation of sparse 'symm. o symm.'")
+	      Matrix.msg("suboptimal implementation of sparse 'symm. o symm.'")
 	      forceSymmetric(callGeneric(as(e1, "dgCMatrix"), as(e2, "dgCMatrix")))
 	  })
 

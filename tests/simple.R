@@ -7,7 +7,7 @@ source(system.file("test-tools.R", package = "Matrix"))# identical3() etc
 
 if(interactive()) {
     options(error = recover)
-} else options(verbose = TRUE)# to show message()s
+} else options(Matrix.verbose = TRUE)# to show Matrix.msg()s
 
 ### Matrix() ''smartness''
 (d4 <- Matrix(diag(4)))

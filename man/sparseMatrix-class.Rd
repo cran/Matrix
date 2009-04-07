@@ -106,7 +106,8 @@
       Missing values (\code{\link{NA}}) from the factor are translated
       to columns of all \code{0}s.}
   }
-  See also \code{\link{colSums}}, ... %% FIXME
+  See also \code{\link{colSums}}, \code{\link{norm}},
+  ... %% FIXME
   for methods with separate help pages.
 }
 \note{

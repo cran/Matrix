@@ -40,6 +40,11 @@ paste0 <- function(...) paste(..., sep = '')
 		  fun, cl1, cl2), call. = FALSE)
 }
 
+Matrix.msg <- function(..., .M.level = 1) {
+    if(!is.null(v <- getOption("Matrix.verbose")) && v >= .M.level)
+        message(...)
+}
+
 ## we can set this to FALSE and possibly measure speedup:
 .copyClass.check <- TRUE
 
@@ -731,31 +736,42 @@ n2l_spMatrix <- function(from) {
         Dim = from@Dim, Dimnames = from@Dimnames)
 }
 
-tT2gT <- function(x, cl = class(x),
-                  toClass = paste(substr(cl,1,1), "tTMatrix", sep=''),# "d" | "l"|"i"|"z"
-                  cld = getClassDef(cl)) {
+tT2gT <- function(x, cl = class(x), toClass, cld = getClassDef(cl)) {
     ## coerce *tTMatrix to *gTMatrix {triangular -> general}
     d <- x@Dim
     if(uDiag <- x@diag == "U")	     # unit diagonal, need to add '1's
-	uDiag <- (n <- d[1]) > 0
-    if(extends(cld, "nMatrix")) # no 'x' slot
-	new("ngTMatrix", Dim = d, Dimnames = x@Dimnames,
+        uDiag <- (n <- d[1]) > 0
+    if(missing(toClass)) {
+        do.n <- extends(cld, "nMatrix")
+        toKind <- if(do.n) "n" else substr(MatrixClass(cl), 1,1) # "d" | "l"|"i"|"z"
+        toClass <- paste(toKind, "gTMatrix", sep='')
+    } else {
+        do.n <- extends(toClass, "nMatrix")
+        toKind <- if(do.n) "n" else substr(toClass, 1,1)
+    }
+
+    if(do.n) ## no 'x' slot
+	new(toClass, # == "ngTMatrix"
+            Dim = d, Dimnames = x@Dimnames,
 	    i = c(x@i, if(uDiag) 0:(n-1)),
 	    j = c(x@j, if(uDiag) 0:(n-1)))
     else
 	new(toClass, Dim = d, Dimnames = x@Dimnames,
 	    i = c(x@i, if(uDiag) 0:(n-1)),
 	    j = c(x@j, if(uDiag) 0:(n-1)),
-	    x = c(x@x, if(uDiag) rep.int(if(extends(cld, "dMatrix")) 1 else TRUE, n)))
+	    x = c(x@x, if(uDiag) rep.int(if(toKind == "l") TRUE else 1, n)))
 }
+## __TODO__
+## Hack for the above, possibly considerably faster:
+## Just *modify* the 'x' object , using attr(x, "class') <- toClass
+
 
 ## Fast very special one
 ## .gT2tC <- function(x, uplo, diag) .Call(Tsparse_to_tCsparse, x, uplo, diag)
 
-gT2tT <- function(x, uplo, diag,
-		  cl = class(x),
-		  toClass = paste(substr(cl,1,1), "tTMatrix", sep=''),# d,l,i,z
-		  cld = getClassDef(cl)) {
+gT2tT <- function(x, uplo, diag, cl = class(x), toClass,
+		  do.n = extends(toClass, "nMatrix"))
+{
     ## coerce *gTMatrix to *tTMatrix {general -> triangular}
     i <- x@i
     j <- x@j
@@ -767,7 +783,7 @@ gT2tT <- function(x, uplo, diag,
 	}
     i <- i[sel]
     j <- j[sel]
-    if(extends(cld, "nMatrix")) # no 'x' slot
+    if(do.n) ## no 'x' slot
 	new("ntTMatrix", i = i, j = j, uplo = uplo, diag = diag,
 	    Dim = x@Dim, Dimnames = x@Dimnames)
     else
@@ -776,13 +792,12 @@ gT2tT <- function(x, uplo, diag,
 }
 
 check.gT2tT <- function(from, cl = MatrixClass(class(from)),
-			toClass = paste(substr(cl,1,1), "tTMatrix", sep=''),# d,l,i,z
-			cld = getClassDef(cl)) {
+			toClass, do.n = extends(toClass, "nMatrix")) {
     if(isTr <- isTriangular(from)) {
         force(cl)
 	gT2tT(from, uplo = .if.NULL(attr(isTr, "kind"), "U"),
 	      diag = "N", ## improve: also test for unit diagonal
-	      cl = cl, toClass = toClass, cld = cld)
+	      cl = cl, toClass = toClass, do.n = do.n)
     } else stop("not a triangular matrix")
 }
 
@@ -809,7 +824,7 @@ l2d_meth <- function(x) {
     ## 'clx': class() *or* class definition of x
     if(is.matrix(x) || is.atomic(x)) { ## 'old style' matrix or vector
 	if     (is.integer(x)) "i"
-	else if (is.numeric(x)) "d"
+	else if(is.numeric(x)) "d"
 	else if(is.logical(x)) "l" ## FIXME ? "n" if no NA ??
 	else if(is.complex(x)) "z"
 	else stop("not yet implemented for matrix w/ typeof ", typeof(x))
@@ -825,8 +840,9 @@ l2d_meth <- function(x) {
     else if(extends(clx, "dMatrix")) "d"
     else if(extends(clx, "nMatrix")) "n"
     else if(extends(clx, "lMatrix")) "l"
-    else if(extends(clx, "zMatrix")) "z"
     else if(extends(clx, "pMatrix")) "n" # permutation -> pattern
+    else if(extends(clx, "zMatrix")) "z"
+    else if(extends(clx, "iMatrix")) "i"
     else stop(" not yet be implemented for ", clx@className)
 }
 
@@ -1249,4 +1265,12 @@ setZero <- function(x) {
     d <- x@Dim
     new(if(d[1] == d[2]) "dsCMatrix" else "dgCMatrix",
 	Dim = d, Dimnames = x@Dimnames, p = rep.int(0L, d[2]+1L))
+}
+
+.M.vectorSub <- function(x,i) {
+    if(any(as.logical(i)) || prod(dim(x)) == 0)
+	## FIXME: for *large sparse*, use sparseVector !
+	as.vector(x)[i]
+    else ## save memory (for large sparse M):
+	as.vector(x[1,1])[FALSE]
 }

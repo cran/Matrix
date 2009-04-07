@@ -79,6 +79,12 @@
 \alias{as.logical,Matrix-method}
 \alias{t,Matrix-method}
 \alias{unname,Matrix-method}
+\alias{coerce,Matrix,vector-method}
+\alias{coerce,Matrix,numeric-method}
+\alias{coerce,Matrix,logical-method}
+\alias{coerce,Matrix,integer-method}
+\alias{coerce,Matrix,complex-method}
+%
 \alias{coerce,Matrix,matrix-method}%
 \alias{coerce,matrix,Matrix-method}
 \alias{coerce,Matrix,denseMatrix-method}
@@ -142,6 +148,7 @@
     \item{as.vector}{\code{signature(x = "Matrix", mode = "missing")}:
       \code{as.vector(m)} should be identical to \code{as.vector(as(m,
 	"matrix"))}, implemented more efficiently for some subclasses.}
+    \item{as(x, "vector"), as(x, "numeric")}{etc, similarly.}
   }
   There are many more methods that (conceptually should) work for all
   \code{"Matrix"} objects, e.g., \code{\link{colSums}},

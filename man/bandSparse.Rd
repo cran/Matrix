@@ -2,7 +2,7 @@
 \alias{bandSparse}
 \title{Construct Sparse Banded Matrix from (Sup-/Super-) Diagonals}
 \description{
-  Construct a sparse banded matrix by specifying it non-zero sup- and
+  Construct a sparse banded matrix by specifying its non-zero sup- and
   super-diagonals.
 }
 \usage{
@@ -37,8 +37,8 @@ bandSparse(n, m = n, k, diagonals, symmetric = FALSE)
 }
 %\author{Martin Maechler}
 \seealso{
-  \code{\link{bdiag}},
-  \code{\link{diag}},
+  \code{\link{band}}, for \emph{extraction} of matrix bands;
+  \code{\link{bdiag}}, \code{\link{diag}},
   \code{\link{sparseMatrix}},
   \code{\link{Matrix}}.
 }

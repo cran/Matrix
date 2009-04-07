@@ -38,6 +38,12 @@ setMethod("drop", signature(x = "Matrix"),
 setMethod("as.vector", signature(x = "Matrix", mode = "missing"),
 	  function(x, mode) as.vector(as(x, "matrix"), mode))
 
+setAs("Matrix", "vector",  function(from) as.vector (as(from, "matrix")))
+setAs("Matrix", "numeric", function(from) as.numeric(as(from, "matrix")))
+setAs("Matrix", "logical", function(from) as.logical(as(from, "matrix")))
+setAs("Matrix", "integer", function(from) as.integer(as(from, "matrix")))
+setAs("Matrix", "complex", function(from) as.complex(as(from, "matrix")))
+
 ## mainly need these for "dMatrix" or "lMatrix" respectively, but why not general:
 setMethod("as.numeric", signature(x = "Matrix"),
 	  function(x, ...) as.numeric(as.vector(x)))
@@ -292,21 +298,15 @@ setMethod("solve", signature(a = "ANY", b = "Matrix"),
 setMethod("%*%", signature(x = "ANY", y = "Matrix"), .local.bail.out)
 setMethod("%*%", signature(x = "Matrix", y = "ANY"), .local.bail.out)
 
-
-setMethod("crossprod", signature(x = "Matrix", y = "ANY"),
-	  function (x, y = NULL) .bail.out.2(.Generic, class(x), class(y)))
-setMethod("crossprod", signature(x = "ANY", y = "Matrix"),
-	  function (x, y = NULL) .bail.out.2(.Generic, class(x), class(y)))
-setMethod("tcrossprod", signature(x = "Matrix", y = "ANY"),
-	  function (x, y = NULL) .bail.out.2(.Generic, class(x), class(y)))
-setMethod("tcrossprod", signature(x = "ANY", y = "Matrix"),
-	  function (x, y = NULL) .bail.out.2(.Generic, class(x), class(y)))
-
 ## cheap fallbacks
+setMethod("crossprod", signature(x = "Matrix", y = "Matrix"),
+	  function(x, y = NULL) t(x) %*% y)
 setMethod("crossprod", signature(x = "Matrix", y = "ANY"),
 	  function(x, y = NULL) t(x) %*% y)
 setMethod("crossprod", signature(x = "ANY", y = "Matrix"),
 	  function(x, y = NULL) t(x) %*% y)
+setMethod("tcrossprod", signature(x = "Matrix", y = "Matrix"),
+	  function(x, y = NULL) x %*% t(y))
 setMethod("tcrossprod", signature(x = "Matrix", y = "ANY"),
 	  function(x, y = NULL) x %*% t(y))
 setMethod("tcrossprod", signature(x = "ANY", y = "Matrix"),
@@ -471,12 +471,9 @@ setMethod("[", signature(x = "Matrix",
 setMethod("[", signature(x = "Matrix", i = "index", j = "missing",
 			 drop = "missing"),
 	  function(x,i,j, ..., drop) {
+	      Matrix.msg("M[i,m,m] : nargs()=",nargs(), .M.level = 2)
 	      if(nargs() == 2) { ## e.g. M[0] , M[TRUE],  M[1:2]
-		  if(any(as.logical(i)) || prod(dim(x)) == 0)
-                      ## FIXME: for *large sparse*, use sparseVector !
-		      as.vector(x)[i]
-		  else ## save memory (for large sparse M):
-		      as.vector(x[1,1])[FALSE]
+                  .M.vectorSub(x,i)
 	      } else {
 		  callGeneric(x, i=i, , drop=TRUE)
 		  ##		      ^^
@@ -486,15 +483,21 @@ setMethod("[", signature(x = "Matrix", i = "index", j = "missing",
 ## select columns
 setMethod("[", signature(x = "Matrix", i = "missing", j = "index",
 			 drop = "missing"),
-	  function(x,i,j, ..., drop) callGeneric(x, j=j, drop= TRUE))
+	  function(x,i,j, ..., drop) {
+	      Matrix.msg("M[m,i,m] : nargs()=",nargs(), .M.level = 2)
+	      callGeneric(x, j=j, drop= TRUE)
+	  })
 setMethod("[", signature(x = "Matrix", i = "index", j = "index",
-                         drop = "missing"),
-	  function(x,i,j, ..., drop) callGeneric(x, i=i, j=j, drop= TRUE))
+			 drop = "missing"),
+	  function(x,i,j, ..., drop) {
+	      Matrix.msg("M[i,i,m] : nargs()=",nargs(), .M.level = 2)
+	      callGeneric(x, i=i, j=j, drop= TRUE)
+	  })
 
 ## bail out if any of (i,j,drop) is "non-sense"
 setMethod("[", signature(x = "Matrix", i = "ANY", j = "ANY", drop = "ANY"),
 	  function(x,i,j, ..., drop)
-          stop("invalid or not-yet-implemented 'Matrix' subsetting"))
+	  stop("invalid or not-yet-implemented 'Matrix' subsetting"))
 
 ## logical indexing, such as M[ M >= 7 ] *BUT* also M[ M[,1] >= 3,],
 ## The following is *both* for    M [ <logical>   ]

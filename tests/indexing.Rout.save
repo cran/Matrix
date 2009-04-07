@@ -1,5 +1,5 @@
 
-R version 2.9.0 beta (2009-04-04 r48290)
+R version 2.9.0 beta (2009-04-08 r48312)
 Copyright (C) 2009 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 
@@ -37,7 +37,7 @@ Attaching package: 'Matrix'
 > 
 > if(interactive()) {
 +     options(error = recover, warn = 1)
-+ } else options(verbose = TRUE, warn = 1)
++ } else options(Matrix.verbose = TRUE, warn = 1)
 > 
 > ### Dense Matrices
 > 
@@ -199,9 +199,7 @@ Formal class 'dgTMatrix' [package "Matrix"] with 6 slots
 [1,] .  . . 121 .   . 241 . . . . 441   .   . 561 . 641 .   . .
 [2,] . 42 .   . . 202   . . . . .   . 482 522   . .   . . 722 .
 > mC[7,  drop = FALSE]
-1 x 20 sparse Matrix of class "dgCMatrix"
-                                                      
-[1,] 7 . . . . . . 287 . . 407 . 487 527 . . . . 727 .
+[1] 7
 > assert.EQ.mat(mC[1:2,], mm[1:2,])
 > 
 > ## *repeated* (aka 'duplicated') indices - did not work at all ...
@@ -288,12 +286,12 @@ Note: Method with signature "denseMatrix#index#missing#logical" chosen for funct
 + 	  identical(mC[iN], mm[iN]))
 > 
 > assert.EQ.mat(mC[7, , drop=FALSE], mm[7, , drop=FALSE])
+> identical    (mC[7,   drop=FALSE], mm[7,   drop=FALSE]) # *vector* indexing
+[1] TRUE
 > 
 > stopifnot(dim(mC[numeric(0), ]) == c(0,20), # used to give warnings
 +           dim(mC[, integer(0)]) == c(40,0),
-+           identical(mC[, integer(0)], mC[, FALSE]),
-+           identical(mC[7,  drop = FALSE],
-+                     mC[7,, drop = FALSE]))
++           identical(mC[, integer(0)], mC[, FALSE]))
 > validObject(print(mT[,c(2,4)]))
             
  [1,]  . 121
@@ -619,11 +617,14 @@ as(<triangular (ge)matrix>, dtCMatrix): valid: TRUE
 > 
 > 
 > ## "Vector indices" -------------------
-> D <- Diagonal(6)
-> M <- as(D,"dgeMatrix")
-> m <- as(D,"matrix")
-> s <- as(D,"TsparseMatrix")
-> S <- as(s,"CsparseMatrix")
+> .iniDiag.example <- expression({
++     D <- Diagonal(6)
++     M <- as(D,"dgeMatrix")
++     m <- as(D,"matrix")
++     s <- as(D,"TsparseMatrix")
++     S <- as(s,"CsparseMatrix")
++ })
+> eval(.iniDiag.example)
 > i <- c(3,1,6); v <- c(10,15,20)
 > ## (logical,value) which both are recycled:
 > L <- c(TRUE, rep(FALSE,8)) ; z <- c(50,99)
@@ -649,33 +650,57 @@ diagnosing replTmat(x,i,j,v): nargs()= 3; missing(i,j)= (0,1)
 [4,]  . . . 1 . .
 [5,]  . . . . 1 .
 [6,] 20 . . . . 1
+> stopifnot(identical(s,D))
 > ## logical
+> eval(.iniDiag.example)
 > m[L] <- z
 > M[L] <- z; assert.EQ.mat(M,m)
 > D[L] <- z; assert.EQ.mat(D,m)
 diagnosing replTmat(x,i,j,v): nargs()= 3; missing(i,j)= (0,1)
+'sub-optimal sparse 'x[i] <- v' assignment: Coercing class dtTMatrix to dgTMatrix
 > s[L] <- z; assert.EQ.mat(s,m)
 diagnosing replTmat(x,i,j,v): nargs()= 3; missing(i,j)= (0,1)
+'sub-optimal sparse 'x[i] <- v' assignment: Coercing class dtTMatrix to dgTMatrix
 > S[L] <- z; assert.EQ.mat(S,m) ; S
 diagnosing replTmat(x,i,j,v): nargs()= 3; missing(i,j)= (0,1)
+'sub-optimal sparse 'x[i] <- v' assignment: Coercing class dtTMatrix to dgTMatrix
 6 x 6 sparse Matrix of class "dgCMatrix"
                     
 [1,] 50  . . 50  . .
 [2,]  .  1 .  .  . .
-[3,] 10  . 1  .  . .
+[3,]  .  . 1  .  . .
 [4,]  . 99 .  1 99 .
 [5,]  .  . .  .  1 .
-[6,] 20  . .  .  . 1
+[6,]  .  . .  .  . 1
 > 
 > ## indexing [i]  vs  [i,] --- now ok
-> stopifnot(identical4(m[i], M[i], D[i], s[i]), identical(s[i],S[i]))
-> stopifnot(identical4(m[L], M[L], D[L], s[L]), identical(s[L],S[L]))
+> eval(.iniDiag.example)
+> stopifnot(identical5(m[i], M[i], D[i], s[i], S[i]))
+> stopifnot(identical5(m[L], M[L], D[L], s[L], S[L]))
 Note: Method with signature "Matrix#index#missing#missing" chosen for function "[",
- target signature "dgTMatrix#logical#missing#missing".
+ target signature "ddiMatrix#logical#missing#missing".
  "Matrix#logical#missing#ANY" would also be valid
 Note: Method with signature "Matrix#index#missing#missing" chosen for function "[",
- target signature "dgCMatrix#logical#missing#missing".
+ target signature "dtTMatrix#logical#missing#missing".
  "Matrix#logical#missing#ANY" would also be valid
+Note: Method with signature "Matrix#index#missing#missing" chosen for function "[",
+ target signature "dtCMatrix#logical#missing#missing".
+ "Matrix#logical#missing#ANY" would also be valid
+> ## bordercase ' drop = .' *vector* indexing {failed till 2009-04-..)
+> stopifnot(identical5(m[i,drop=FALSE], M[i,drop=FALSE], D[i,drop=FALSE],
++ 		     s[i,drop=FALSE], S[i,drop=FALSE]))
+> stopifnot(identical5(m[L,drop=FALSE], M[L,drop=FALSE], D[L,drop=FALSE],
++ 		     s[L,drop=FALSE], S[L,drop=FALSE]))
+Note: Method with signature "diagonalMatrix#index#missing#logical" chosen for function "[",
+ target signature "ddiMatrix#logical#missing#logical".
+ "Matrix#logical#missing#ANY" would also be valid
+Note: Method with signature "TsparseMatrix#index#missing#logical" chosen for function "[",
+ target signature "dtTMatrix#logical#missing#logical".
+ "Matrix#logical#missing#ANY" would also be valid
+Note: Method with signature "sparseMatrix#index#missing#logical" chosen for function "[",
+ target signature "dtCMatrix#logical#missing#logical".
+ "Matrix#logical#missing#ANY" would also be valid
+> ##
 > assert.EQ.mat(D[i,], m[i,])
 > assert.EQ.mat(M[i,], m[i,])
 > assert.EQ.mat(s[i,], m[i,])
@@ -1237,7 +1262,7 @@ attr(,"package")
 + 	  identical(thCol,  fx[,5762]))
 > 
 > cat('Time elapsed: ', (.pt <- proc.time()),'\n') # "stats"
-Time elapsed:  23.988 6.377 30.5 0 0 
+Time elapsed:  21.499 1.337 22.915 0 0 
 > ##
 > cat("checkMatrix() of all: \n---------\n")
 checkMatrix() of all: 
@@ -1261,6 +1286,11 @@ C
 Clrg 
 Ctrg 
 D 
+exploding	<diag>	o  <diag>  into dense matrix
+Note: Method with signature "nMatrix#Matrix" chosen for function "|",
+ target signature "nsyMatrix#nsCMatrix".
+ "Matrix#nMatrix" would also be valid
+exploding	<diag>	o  <diag>  into dense matrix
 G 
 H 
 Note: Method with signature "sparseMatrix#ldiMatrix" chosen for function "==",
@@ -1311,9 +1341,6 @@ cm
 suboptimal implementation of sparse 'symm. o symm.'
 d6 
 exploding	<diag>	o  <diag>  into dense matrix
-Note: Method with signature "nMatrix#Matrix" chosen for function "|",
- target signature "nsyMatrix#nsCMatrix".
- "Matrix#nMatrix" would also be valid
 exploding	<diag>	o  <diag>  into dense matrix
 dLrg 
 dm 
@@ -1348,6 +1375,9 @@ ne.
 ne1 
 nsel 
 s 
+.TM.repl.i.2col(): drop 'matrix' case ...
+diagnosing replTmat(x,i,j,v): nargs()= 3; missing(i,j)= (0,1)
+'sub-optimal sparse 'x[i] <- v' assignment: Coercing class dtTMatrix to dgTMatrix
 s.32 
 s2 
 s2.32 
@@ -1371,7 +1401,7 @@ suboptimal implementation of sparse 'symm. o symm.'
 x.x. 
 suboptimal implementation of sparse 'symm. o symm.'
 > cat('Time elapsed: ', proc.time() - .pt,'\n') # "stats"
-Time elapsed:  11.901 0.949 12.88 0 0 
+Time elapsed:  12.925 0.609 13.534 0 0 
 > 
 > if(!interactive()) warnings()
 NULL

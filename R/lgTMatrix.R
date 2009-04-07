@@ -40,7 +40,8 @@ setAs("lgTMatrix", "dgTMatrix",
           Dim = from@Dim, Dimnames= from@Dimnames))
 
 setAs("lgTMatrix", "ltTMatrix",
-      function(from) check.gT2tT(from, cl = "lgTMatrix", toClass = "ltTMatrix"))
+      function(from) check.gT2tT(from, cl = "lgTMatrix", toClass = "ltTMatrix",
+				 do.n = FALSE))
 
 
 if(FALSE) ## unneeded: use t.<TsparseMatrix>

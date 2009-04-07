@@ -4,8 +4,9 @@
 
 paste0 <- function(...) paste(..., sep = '')
 
-identical3 <- function(x,y,z)	identical(x,y) && identical (y,z)
-identical4 <- function(a,b,c,d) identical(a,b) && identical3(b,c,d)
+identical3 <- function(x,y,z)	  identical(x,y) && identical (y,z)
+identical4 <- function(a,b,c,d)   identical(a,b) && identical3(b,c,d)
+identical5 <- function(a,b,c,d,e) identical(a,b) && identical4(b,c,d,e)
 
 ## Make sure errors are signaled
 assertError <- function(expr) {
@@ -254,10 +255,16 @@ checkMatrix <- function(m, m.m = if(do.matrix) as(m, "matrix"),
     ina <- is.na(m)
     if(do.matrix) {
 	stopifnot(all(ina == is.na(m.m)),
-		  all(m == m | ina)) ## check all() , "==" [Compare], "|" [Logic]
+		  all(m == m | ina), ## check all() , "==" [Compare], "|" [Logic]
+		  if(ncol(m) > 0) identical3(unname(m[,1]), unname(m.m[,1]),
+					     as(m[,1,drop=FALSE], "vector"))
+		  else identical(as(m, "vector"), as.vector(m.m)))
 	if(any(m != m & !ina)) stop(" any (m != m) should not be true")
     } else {
 	if(any(m != m)) stop(" any (m != m) should not be true")
+        if(ncol(m) > 0)
+             stopifnot(identical(unname(m[,1]), as(m[,1,drop=FALSE], "vector")))
+        else stopifnot(identical(as(m, "vector"), as.vector(as(m, "matrix"))))
     }
     if(do.t) {
 	tm <- t(m)
@@ -357,9 +364,8 @@ checkMatrix <- function(m, m.m = if(do.matrix) as(m, "matrix"),
 	    stopifnot(all(eq | (is.na(m) & is.na(eq))))
 	    Cat("ok\n")
 	} else {# !do.matrix
-## FIXME! forgot  stopifnot()
-	    identical(as(2*m, "CsparseMatrix"),
-		      as(m+m, "CsparseMatrix"))
+	    stopifnot(identical(as(2*m, "CsparseMatrix"),
+                                as(m+m, "CsparseMatrix")))
 	    Cat("ok\n")
 	}
 	if(do.matrix) {
@@ -390,7 +396,7 @@ checkMatrix <- function(m, m.m = if(do.matrix) as(m, "matrix"),
 		Cat("ok\n")
 	    }
 	} else assertError(determinant(m))
-    }
+    }# end{doOps}
 
     if(doCoerce && do.matrix && canCoerce("matrix", clNam)) {
 	CatF("as(<matrix>, ",clNam,"): ", sep='')

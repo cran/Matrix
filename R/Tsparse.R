@@ -107,7 +107,7 @@ intI <- function(i, n, dn, give.dn = TRUE)
     ##		into 0-based integer
     ## ----------------------------------------------------------------------
     ## Arguments: i: index vector (numeric | logical | character)
-    ##		  n: array extent                   { ==  dim(.) [margin] }
+    ##		  n: array extent		    { ==  dim(.) [margin] }
     ##		 dn: character col/rownames or NULL { == dimnames(.)[[margin]] }
     ## ----------------------------------------------------------------------
     ## Author: Martin Maechler, Date: 23 Apr 2007
@@ -147,7 +147,7 @@ intI <- function(i, n, dn, give.dn = TRUE)
 .ind.prep <- function(xi, intIlist, iDup = duplicated(i0), anyDup = any(iDup))
 {
     ## Purpose: do the ``common things'' for "*gTMatrix" indexing for 1 dim.
-    ##          and return match(.,.) + li = length of corresponding dimension
+    ##		and return match(.,.) + li = length of corresponding dimension
     ##
     ## xi = "x@i" ; intIlist = intI(i, dim(x)[margin], ....)
 
@@ -156,9 +156,9 @@ intI <- function(i, n, dn, give.dn = TRUE)
 
     m <- match(xi, i0, nomatch=0)
     if(anyDup) { # assuming   anyDup <- any(iDup <- duplicated(i0))
-        ## i0i: where in (non-duplicated) i0 are the duplicated ones
+	## i0i: where in (non-duplicated) i0 are the duplicated ones
 	i0i <- match(i0[iDup], i0)
-        i.x <- which(iDup) - 1L
+	i.x <- which(iDup) - 1L
 	jm <- lapply(i0i, function(.) which(. == m))
     }
 
@@ -166,17 +166,17 @@ intI <- function(i, n, dn, give.dn = TRUE)
 	   i0 = i0, anyDup = anyDup, dn = intIlist$dn),
       ## actually,  iDup  is rarely needed in calling code
       if(anyDup) list(iDup = iDup, i0i = i0i, i.x = i.x,
-                      jm = unlist(jm), i.xtra = rep.int(i.x, sapply(jm, length))))
+		      jm = unlist(jm), i.xtra = rep.int(i.x, sapply(jm, length))))
 }
 
 
 .ind.prep2 <- function(i, margin, di, dn)
 {    ## Purpose: do the ``common things'' for "*gTMatrix" sub-assignment
     ##		for 1 dimension, 'margin' ,
-    ##          and return match(.,.) + li = length of corresponding dimension
+    ##		and return match(.,.) + li = length of corresponding dimension
     ##
     ## i is "index"; margin in {1,2};
-    ## di = dim(x)      { used when i is not character }
+    ## di = dim(x)	{ used when i is not character }
 
     ## difference to .ind.prep(): use 1-indices; no match(xi,..), no dn at end
 
@@ -188,28 +188,40 @@ intI <- function(i, n, dn, give.dn = TRUE)
 setMethod("[", signature(x = "TsparseMatrix", i = "index", j = "missing",
 			 drop = "logical"),
 	  function (x, i, j, ..., drop) { ## select rows
+	      na <- nargs()
+	      Matrix.msg("Tsp[i,m,l] : nargs()=", na, .M.level = 2)
+	      if(na == 3)
+		  ## x[i, drop=TRUE/FALSE]  *vector* indexing !
+		  return(.M.vectorSub(x,i))
+
 	      clx <- getClassDef(class(x))
 	      has.x <- !extends(clx, "nsparseMatrix")
 	      x.sym <- extends(clx, "symmetricMatrix")
-              x.tri <- extends(clx, "triangularMatrix")
+	      x.tri <- !x.sym && extends(clx, "triangularMatrix")
 	      gDo <- (x.sym || (x.tri && x@diag == "U"))
 	      if(gDo)
 		  x <- as(x, paste(.M.kind(x, clx), "gTMatrix", sep=''))
 
-	      ip <- .ind.prep(x@i, intI(i, n = dim(x)[1], dimnames(x)[[1]]))
+	      d <- x@Dim
+	      n <- d[1]
+	      ip <- .ind.prep(x@i, intI(i, n = n, dimnames(x)[[1]]))
 	      Di1 <- ip$li
-	      drop.it <- drop && (Di1 == 1L || x@Dim[2] == 1L)
-	      if(x.tri && !drop.it && !gDo) # triangular, result not
-		  x <- as(x, paste(.M.kind(x, clx), "gTMatrix", sep=''))
-
+	      drop.it <- drop && (Di1 == 1L || d[2] == 1L)
+	      if(x.tri) { # triangular
+		  if(Di1 == n && identical(ip$i0, 0:(n-1))) # *full* result
+		      return(if (drop.it) x[1,1] else x)
+		  ## else: result will *not* be triangular
+		  if(!gDo)
+		      x <- as(x, paste(.M.kind(x, clx), "gTMatrix", sep=''))
+	      }
 	      x@Dim[1] <- Di1
 	      if(!is.null(ip$dn)) x@Dimnames[[1]] <- ip$dn
 	      sel <- ip$m > 0L
 	      x@i <- ip$m[sel] - 1L
-              if(ip$anyDup) { ## duplicated rows selected: extend sel
-                  sel <- c(which(sel), ip$jm)
-                  x@i <- c(x@i, ip$i.xtra)
-              }
+	      if(ip$anyDup) { ## duplicated rows selected: extend sel
+		  sel <- c(which(sel), ip$jm)
+		  x@i <- c(x@i, ip$i.xtra)
+	      }
 	      x@j <- x@j[sel]
 	      if (has.x) x@x <- x@x[sel]
 	      if (drop.it) drop(as(x,"matrix")) else x
@@ -219,20 +231,27 @@ setMethod("[", signature(x = "TsparseMatrix", i = "index", j = "missing",
 setMethod("[", signature(x = "TsparseMatrix", i = "missing", j = "index",
 			 drop = "logical"),
 	  function (x, i, j, ..., drop) { ## select columns
+	      Matrix.msg("Tsp[m,i,l] : nargs()=", nargs(), .M.level = 2)
 	      clx <- getClassDef(class(x))
 	      has.x <- !extends(clx, "nsparseMatrix")
 	      x.sym <- extends(clx, "symmetricMatrix")
-              x.tri <- extends(clx, "triangularMatrix")
+	      x.tri <- !x.sym && extends(clx, "triangularMatrix")
 	      gDo <- (x.sym || (x.tri && x@diag == "U"))
 	      if(gDo)
 		  x <- as(x, paste(.M.kind(x, clx), "gTMatrix", sep=''))
 
-	      ip <- .ind.prep(x@j, intI(j, n = dim(x)[2], dimnames(x)[[2]]))
+	      d <- x@Dim
+	      n <- d[2]
+	      ip <- .ind.prep(x@j, intI(j, n = n, dimnames(x)[[2]]))
 	      Di2 <- ip$li
-	      drop.it <- drop && (x@Dim[1] == 1L || Di2 == 1L)
-	      if(x.tri && !drop.it && !gDo) # triangular, result not
-		  x <- as(x, paste(.M.kind(x, clx), "gTMatrix", sep=''))
-
+	      drop.it <- drop && (d[1] == 1L || Di2 == 1L)
+	      if(x.tri) { # triangular
+		  if(Di2 == n && identical(ip$i0, 0:(n-1))) # *full* result
+		      return(if (drop.it) x[1,1] else x)
+		  ## else: result will *not* be triangular
+		  if(!gDo)
+		      x <- as(x, paste(.M.kind(x, clx), "gTMatrix", sep=''))
+	      }
 	      x@Dim[2] <- Di2
 	      if(!is.null(ip$dn)) x@Dimnames[[2]] <- ip$dn
 	      sel <- ip$m > 0L
@@ -254,17 +273,17 @@ setMethod("[", signature(x = "TsparseMatrix",
 			 i = "index", j = "index", drop = "logical"),
 	  function (x, i, j, ..., drop)
       {
+	  Matrix.msg("Tsp[i,i,l] : nargs()=", nargs(), .M.level = 2)
 	  ## (i,j, drop) all specified
 	  di <- dim(x)
 	  dn <- dimnames(x)
 	  clx <- getClassDef(class(x))
 	  has.x <- !extends(clx, "nsparseMatrix")
 	  isSym <- extends(clx, "symmetricMatrix")
-          x.tri <- extends(clx, "triangularMatrix")
-
+	  x.tri <- !isSym && extends(clx, "triangularMatrix")
 	  if(isSym) {
 	      isSym <- (length(i) == length(j) && mode(i) == mode(j) &&
-                        isTRUE(all(i == j)))# work for i,j NA
+			isTRUE(all(i == j)))# work for i,j NA
 	      ## result will *still* be symmetric --> keep symmetry!
 	      gDo <- !isSym ## result no longer symmetric -> to "generalMatrix"
 	  } else if(x.tri) {
@@ -275,10 +294,10 @@ setMethod("[", signature(x = "TsparseMatrix",
 		       !(identical(ii$i0, ij$i0) && !is.unsorted(ii$i0))
 		   }
 	  }
-          else gDo <- FALSE
+	  else gDo <- FALSE
 
-          if(gDo) # go via "generalMatrix":
-              x <- as(x, paste(.M.kind(x, clx), "gTMatrix", sep=''))
+	  if(gDo) # go via "generalMatrix":
+	      x <- as(x, paste(.M.kind(x, clx), "gTMatrix", sep=''))
 
 
 	  if(isSym) { ## has only stored "half" of the indices,
@@ -412,10 +431,10 @@ setMethod("[", signature(x = "TsparseMatrix",
       {
 	  di <- dim(x)
 	  dn <- dimnames(x)
-          ## TODO check  i (= 2-column matrix of indices) ---
-          ##      as in  .M.sub.i.2col() in ./Matrix.R
-          j <- i[,2]
-          i <- i[,1]
+	  ## TODO check	 i (= 2-column matrix of indices) ---
+	  ##	  as in	 .M.sub.i.2col() in ./Matrix.R
+	  j <- i[,2]
+	  i <- i[,1]
 	  if(is(x, "symmetricMatrix")) {
 	      isSym <- isTRUE(all(i == j))# work for i,j NA
 	      if(!isSym)
@@ -431,10 +450,10 @@ setMethod("[", signature(x = "TsparseMatrix",
 	      ip2 <- .ind.prep(x@j, intI(j, n = di[2], dn = dn[[2]]))
 	  }
 
-          stop("FIXME: NOT YET FINISHED IMPLEMENTATION")
+	  stop("FIXME: NOT YET FINISHED IMPLEMENTATION")
 
-          ## The M[i_vec, j_vec] had -- we need "its diagonal" :
-          sel <- ip1$m  &  ip2$m
+	  ## The M[i_vec, j_vec] had -- we need "its diagonal" :
+	  sel <- ip1$m	&  ip2$m
 	  if(isSym) { # only those corresponding to upper/lower triangle
 	      sel <- sel &
 	      (if(x@uplo == "U") ip1$m <= ip2$m else ip2$m <= ip1$m)
@@ -475,8 +494,7 @@ replTmat <- function (x, i, j, ..., value)
 
     na <- nargs()
     if(na == 3) { ## i = vector (but *not* 2-col) indexing"  M[i] <- v
-	if(getOption("verbose"))
-	   message(sprintf(
+	Matrix.msg(sprintf(
 		"diagnosing replTmat(x,i,j,v): nargs()= 3; missing(i,j)= (%d,%d)",
 			   iMi,jMi))
 	if(iMi) stop("internal bug: missing 'i' in replTmat(): please report")
@@ -490,9 +508,8 @@ replTmat <- function (x, i, j, ..., value)
 	if(!is(x,"generalMatrix")) {
 	    cl <- class(x)
 	    x <- as(x, paste(.M.kind(x), "gTMatrix", sep=''))
-            if(getOption("verbose")) ## hmm, only sub-optimal in *some* cases
-	    message("'sub-optimal sparse 'x[i] <- v' assignment: Coercing class ",
-		    cl," to ",class(x))
+	    Matrix.msg("'sub-optimal sparse 'x[i] <- v' assignment: Coercing class ",
+		       cl," to ",class(x))
 	}
 	nr <- di[1]
 	x.i <- .Call(m_encodeInd2, x@i, x@j, di=di)
@@ -608,7 +625,7 @@ replTmat <- function (x, i, j, ..., value)
 	else toGeneral <- TRUE
     }
     if(toGeneral) { # go to "generalMatrix" and continue
-	if((.w <- isTRUE(getOption("Matrix.warn"))) || getOption("verbose"))
+	if((.w <- isTRUE(getOption("Matrix.warn"))) || isTRUE(getOption("Matrix.verbose")))
 	    (if(.w) warning else message)(
 	     "M[i,j] <- v :  coercing symmetric M[] into non-symmetric")
         x <- as(x, paste(.M.kind(x), "gTMatrix", sep=''))
@@ -720,8 +737,7 @@ replTmat <- function (x, i, j, ..., value)
 
     ## else: nA == 3  i.e.,  M [ cbind(ii,jj) ] <- value or M [ Lmat ] <- value
     if(is.logical(i)) {
-	if(getOption("verbose"))
-	    message(".TM.repl.i.2col(): drop 'matrix' case ...")
+	Matrix.msg(".TM.repl.i.2col(): drop 'matrix' case ...")
 	## c(i) : drop "matrix" to logical vector
 	x[c(i)] <- value
 	return(x)
@@ -800,7 +816,7 @@ replTmat <- function (x, i, j, ..., value)
 	else toGeneral <- TRUE
     }
     if(toGeneral) { # go to "generalMatrix" and continue
-	if((.w <- isTRUE(getOption("Matrix.warn"))) || getOption("verbose"))
+	if((.w <- isTRUE(getOption("Matrix.warn"))) || isTRUE(getOption("Matrix.verbose")))
 	    (if(.w) warning else message)(
 	     "M[ij] <- v :  coercing symmetric M[] into non-symmetric")
 	x <- as(x, paste(.M.kind(x), "gTMatrix", sep=''))

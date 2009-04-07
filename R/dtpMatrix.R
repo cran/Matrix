@@ -13,7 +13,7 @@ setAs("dtpMatrix", "dtTMatrix",
 	  else { ## triangularity lost: should not have happened
 	      warning("inefficient coercion (lost triangularity); please report")
 	      gT2tT(as(x, "dgTMatrix"), uplo = from@uplo, diag = from@diag,
-		    cl = "dgTMatrix", toClass = "dtTMatrix", cld = cld)
+		    cl = "dgTMatrix", toClass = "dtTMatrix", do.n = FALSE)
 	  }
       })
 

@@ -338,7 +338,7 @@ subDiag <- function(x, i, j, ..., drop) {
     x <- if(missing(i))
 	x[, j, drop=drop]
     else if(missing(j))
-	x[i, , drop=drop]
+	if(nargs() == 4) x[i, , drop=drop] else x[i, drop=drop]
     else
 	x[i,j, drop=drop]
     if(isS4(x) && isDiagonal(x)) as(x, "diagonalMatrix") else x
@@ -347,8 +347,14 @@ subDiag <- function(x, i, j, ..., drop) {
 setMethod("[", signature(x = "diagonalMatrix", i = "index",
 			 j = "index", drop = "logical"), subDiag)
 setMethod("[", signature(x = "diagonalMatrix", i = "index",
-			j = "missing", drop = "logical"),
-	  function(x, i, j, ..., drop) subDiag(x, i=i, drop=drop))
+			 j = "missing", drop = "logical"),
+	  function(x, i, j, ..., drop) {
+	      na <- nargs()
+	      Matrix.msg("diag[i,m,l] : nargs()=", na, .M.level = 2)
+	      if(na == 4)
+		   subDiag(x, i=i, , drop=drop)
+	      else subDiag(x, i=i,   drop=drop)
+	  })
 setMethod("[", signature(x = "diagonalMatrix", i = "missing",
 			 j = "index", drop = "logical"),
 	  function(x, i, j, ..., drop) subDiag(x, j=j, drop=drop))
@@ -676,8 +682,7 @@ diagOdiag <- function(e1,e2) {
 	isNum <- (is.numeric(r) || is.numeric(r00))
 	isLog <- (is.logical(r) || is.logical(r00))
 
-	if(getOption("verbose"))
-	    message("exploding	<diag>	o  <diag>  into dense matrix")
+	Matrix.msg("exploding	<diag>	o  <diag>  into dense matrix")
 	d <- e1@Dim
 	n <- d[1]
 	stopifnot(length(r) == n)

@@ -212,8 +212,7 @@ replCmat <- function (x, i, j, ..., value)
     ## else go via Tsparse.. {FIXME: a waste! - we already have 'xj' ..}
     ## and inside  Tsparse... the above i1, i2,..., sel  are *all* redone!
 ## Happens too often:
-##     if(getOption("verbose"))
-## 	message("wasteful C -> T -> C in replCmat(x,i,j,v) for <sparse>[i,j] <- v")
+##     Matrix.msg("wasteful C -> T -> C in replCmat(x,i,j,v) for <sparse>[i,j] <- v")
     x <- as(x, "TsparseMatrix")
     if(missing(i))
 	x[ ,j] <- value

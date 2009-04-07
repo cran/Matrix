@@ -49,10 +49,10 @@ setAs("dgTMatrix", "dtCMatrix",
 
 setAs("dgTMatrix", "dtTMatrix",
       function(from) check.gT2tT(from, cl = "dgTMatrix", toClass = "dtTMatrix",
-				 cld = getClassDef("dgTMatrix")))
+				 do.n = FALSE))
 setAs("dgTMatrix", "triangularMatrix",
       function(from) check.gT2tT(from, cl = "dgTMatrix", toClass = "dtTMatrix",
-				 cld = getClassDef("dgTMatrix")))
+				 do.n = FALSE))
 
 mat2dgT <- function(from) {
     x <- as.double(from)
@@ -165,10 +165,9 @@ setMethod("image", "dgTMatrix",
                                 else if(p1 >= 4) 1
                                 else if(p1 > 3) 0.5 else 0.2
                             ## browser()
-                            if(getOption("verbose"))
-                                message("rectangle size ",
-                                        paste(round(pSize,1), collapse=" x "),
-                                        " [pixels];  --> lwd :", formatC(lwd))
+			    Matrix.msg("rectangle size ",
+				       paste(round(pSize,1), collapse=" x "),
+				       " [pixels];  --> lwd :", formatC(lwd))
                         } else stopifnot(is.numeric(lwd), all(lwd >= 0)) # allow 0
 
                         grid.rect(x = x, y = y, width = 1, height = 1,

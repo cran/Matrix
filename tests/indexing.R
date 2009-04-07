@@ -597,8 +597,18 @@ set.seed(12)
 f <- sparseMatrix(i = sample(n, size=nnz, replace=TRUE),
                   j = sample(m, size=nnz, replace=TRUE))
 str(f)
-str(thisCol <-  f[,5000])# logi [....]
-f[,5762] <- thisCol # now fine
+dim(f) # 6999863 x 99992
+prod(dim(f)) # 699930301096 == 699'930'301'096  (~ 700'000 millions)
+str(thisCol <-  f[,5000])# logi [~ 7 mio....]
+sv <- as(thisCol, "sparseVector")
+str(sv) ## "empty" !
+validObject(spCol <- f[,5000, drop=FALSE])
+## *not* identical(): as(spCol, "sparseVector")@length is "double"prec:
+stopifnot(all.equal(as(spCol, "sparseVector"),
+                    as(sv,   "nsparseVector"), tol=0))
+f[,5762] <- thisCol # now "fine" <<<<<<<<<< FIXME uses LARGE objects
+## is using  replCmat() in ../R/Csparse.R, then
+##           replTmat() in ../R/Tsparse.R
 
 fx <- sparseMatrix(i = sample(n, size=nnz, replace=TRUE),
                    j = sample(m, size=nnz, replace=TRUE),

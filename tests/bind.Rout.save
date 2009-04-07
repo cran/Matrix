@@ -1,6 +1,6 @@
 
-R version 2.7.1 Patched (2008-07-23 r46112)
-Copyright (C) 2008 The R Foundation for Statistical Computing
+R version 2.9.0 beta (2009-04-04 r48290)
+Copyright (C) 2009 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -26,6 +26,11 @@ Attaching package: 'Matrix'
 	The following object(s) are masked from package:stats :
 
 	 xtabs 
+
+
+	The following object(s) are masked from package:base :
+
+	 rcond 
 
 > 
 > source(system.file("test-tools.R", package = "Matrix"))# identical3() etc
@@ -269,11 +274,6 @@ rBind (m, v= c(1L, 0L) ), class(m) : dgeMatrix ,. dgCMatrix ,. dgTMatrix ,.
 [2,] 2  . -1  .  1 2 1 . 22   . -11   .  11 22 . 1
 [3,] 1  2  . -1  . 1 1 . 11  22   . -11   . 11 . 2
 [4,] .  1  2  . -1 . 1 .  .  11  22   . -11  . . .
-Warning message:
-Ambiguous method selection for "+", target "dgTMatrix#dgCMatrix" (the first of the signatures shown will be used)
-    sparseMatrix#sparseMatrix
-    dMatrix#dMatrix
- 
 > 
 > ## print() / show() of  non-structural zeros:
 > (m <- Matrix(c(0, 0, 2:0), 3, 5))
@@ -315,5 +315,5 @@ Ambiguous method selection for "+", target "dgTMatrix#dgCMatrix" (the first of t
 > 
 > 
 > cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
-Time elapsed:  2.448 0.106 2.632 0 0 
+Time elapsed:  2.805 0.224 3.134 0 0 
 > 

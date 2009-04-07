@@ -45,27 +45,5 @@ rBind <- methods:::rbind
     library.dynam.unload("Matrix", libpath)
 }
 
-if(R.version$`svn rev` < 48201) { ## later: if(getRversion() < "2.9.0")
-    ## also   export() it in  ../NAMESPACE
-    .selectSuperClasses <- function(ext, dropVirtual = FALSE, namesOnly = TRUE,
-                                    directOnly = TRUE, simpleOnly = directOnly)
-    {
-        ## No argument checking here
-        addCond <- function(xpr, prev)
-            if(length(prev)) substitute(P && N, list(P = prev, N = xpr)) else xpr
-        C <- if(dropVirtual) {
-            isVirtualExt <- function(x) getClass(x@superClass)@virtual
-            quote(!isVirtualExt(exti))
-        } else expression()
-        if(directOnly) C <- addCond(quote(length(exti@by) == 0), C)
-        if(simpleOnly) C <- addCond(quote(exti@simple), C)
-        if(length(C)) {
-            F <- function(exti){}; body(F) <- C
-            ext <- ext[unlist(lapply(ext, F), use.names=FALSE)]
-        }
-        if(namesOnly) names(ext) else ext
-    }
-}
-
 ## A wrapper for now [as long as  'methods' has no *exported* version]:
 .M.classEnv <- function (Class) methods:::.classEnv(Class)

@@ -108,10 +108,8 @@ stopifnot(class(t5) == "dtCMatrix",
           identical(t5, tril(g5)))
 ## This is really a regression test for 'methods::selectMethod()'
 ## Maybe move to R once 'Matrix' is recommended
-if(getRversion() >= "2.7.1" || R.version$`svn rev` >= 45885)  {
-    sm <- selectMethod(coerce, c("dgCMatrix", "triangularMatrix"), verbose=TRUE)
-    stopifnot(identical(sm(g5), t5))
-}
+sm <- selectMethod(coerce, c("dgCMatrix", "triangularMatrix"), verbose=TRUE)
+stopifnot(identical(sm(g5), t5))
 
 if(getRversion() < "2.9.0") ## 2.9.0++ has "Note"s instead of ambiguity "Warning"s:
     options(op)
@@ -632,6 +630,14 @@ dim(R) <- dim(D4)
 stopifnot(isValid(sv,"sparseVector"),
 	  isValid(R, "sparseMatrix"),
 	  identical(D4, as(R, "diagonalMatrix")))
+iv <- c(rep(0, 5), 3, 0,0,7,0,0,0)
+sv <- as(iv, "sparseVector")
+sv. <- as(as.integer(iv), "sparseVector")
+## Note: Method with signature "numeric#sparseVector" chosen ...
+(sv2 <- as(sv, "isparseVector")) ## gave error
+stopifnot(identical(sv., sv2))
+as(sv, "zsparseVector")
+
 ## "Large" sparse:
 n <- 100000
 m <-  50000 ; nnz <- 47

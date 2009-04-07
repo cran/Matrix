@@ -34,7 +34,7 @@
 \alias{coerce,xsparseVector,isparseVector-method}
 \alias{coerce,xsparseVector,lsparseVector-method}
 \alias{coerce,xsparseVector,zsparseVector-method}
-\alias{coerce,sparseVector,nsparseVector-method}
+\alias{coerce,xsparseVector,nsparseVector-method}
 %
 \alias{as.numeric,sparseVector-method}
 \alias{as.vector,sparseVector,missing-method}

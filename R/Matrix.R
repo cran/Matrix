@@ -175,12 +175,7 @@ Matrix <- function (data = NA, nrow = 1, ncol = 1, byrow = FALSE,
 			Dimnames = if(is.null(dimnames)) list(NULL,NULL)
 			else dimnames)
 	} else { ## normal case - using .Internal() to avoid more copying
-	    if(getRversion() >= "2.7.0")
-		data <- .Internal(matrix(data, nrow, ncol, byrow, dimnames))
-	    else {
-		data <- .Internal(matrix(data, nrow, ncol, byrow))
-		dimnames(data) <- dimnames
-	    }
+            data <- .Internal(matrix(data, nrow, ncol, byrow, dimnames))
 	    if(is.null(sparse))
 		sparse <- sparseDefault(data)
 	}

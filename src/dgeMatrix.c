@@ -232,7 +232,7 @@ SEXP dgeMatrix_LU_(SEXP x, Rboolean warn_sing)
 
 SEXP dgeMatrix_LU(SEXP x, SEXP warn_singularity)
 {
-    dgeMatrix_LU_(x, asLogical(warn_singularity));
+    return dgeMatrix_LU_(x, asLogical(warn_singularity));
 }
 
 SEXP dgeMatrix_determinant(SEXP x, SEXP logarithm)

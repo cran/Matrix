@@ -53,45 +53,10 @@ export("Cholesky",
        , ".M.classEnv"
        )
 
-if(getRversion() < "2.7.0")
-    export("rcond")
-
 ## substitute for using  cbind() / rbind()
 export("cBind",
        "rBind")
 
-## workaround S4-Group(generic|method) quirk: R/AllGeneric.R
-## needs setGeneric(*, group=) and this for all non-Primitives :
-
-## "Math"
-
-if(getRversion() < "2.6.0" || R.version$`svn rev` < 42093) {
-    ## these are not yet primitive
-    export("log",
-           "gamma",
-           "lgamma")
-}
-
-if(!is.primitive(round)) {
-export(
-       ## "Math2"
-       "round",
-       "signif")
-}
-
-if(!is.primitive(max)) {
-export(
-       ## "Summary"
-       "max",
-       "min",
-       "range",
-       "prod",
-       "sum",
-       "any",
-       "all")
-}
-if(R.version$`svn rev` < 48201) ## later: if(getRversion() < "2.9.0")
-    export(".selectSuperClasses")## sync with ---> R/zzz.R
 
 exportClasses(
               ## Class unions:

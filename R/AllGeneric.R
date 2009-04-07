@@ -36,8 +36,7 @@ setGeneric("lu", function(x, ...) standardGeneric("lu"))
 ## which should *not* be part of the signature
 setGeneric("rcond", function(x, norm, ...) standardGeneric("rcond"),
 	   signature = c("x", "norm"),
-	   useAsDefault = if(getRversion() >= "2.7.0")
-	   function(x, norm, ...) base::rcond(x, norm=norm, ...))
+	   useAsDefault = function(x, norm, ...) base::rcond(x, norm=norm, ...))
 
 
     setGeneric("Schur", function(x, vectors, ...) standardGeneric("Schur"))

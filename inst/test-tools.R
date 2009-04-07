@@ -249,65 +249,6 @@ checkMatrix <- function(m, m.m = if(do.matrix) as(m, "matrix"),
     Cat	 <- function(...) if(verbose) cat(...)
     CatF <- function(...) if(verbose) catFUN(...)
     ## warnNow <- function(...) warning(..., call. = FALSE, immediate. = TRUE)
-    if(getRversion() < "2.7.0") {
-	## Equivalent of fixing base::determinant.matrix() :
-	determinant.matrix <- function(x, logarithm = TRUE, ...)
-	{
-	    if ((n <- ncol(x)) != nrow(x))
-		stop("'x' must be a square matrix")
-	    if (n < 1)
-		return(structure(list(modulus =
-				      structure(if(logarithm) 0 else 1,
-						logarithm = logarithm),
-				      sign = 1L),
-				 class = "det"))
-	    if (is.complex(x))
-		stop("determinant not currently defined for complex matrices")
-	    storage.mode(x) <- "double"
-	    .Call("det_ge_real", x, logarithm, PACKAGE = "base")
-	}
-	setMethod(determinant, c("matrix","ANY"), determinant.matrix)
-	setMethod(determinant, c("matrix","logical"), determinant.matrix)
-    }
-
-    if(getRversion() < "2.7.1") {
-	## "Fixup base::diag()", i.e. the default diag() method, locally:
-	b.diag <- function(x = 1, nrow, ncol)
-	{
-	    if (is.matrix(x) && nargs() == 1) {
-		if((m <- min(dim(x))) == 0)
-		    return(vector(typeof(x), 0)) # logical, integer, also list ..
-
-		y <- c(x)[1 + 0:(m - 1) * (dim(x)[1] + 1)]
-		nms <- dimnames(x)
-		if (is.list(nms) && !any(sapply(nms, is.null)) &&
-		    identical((nm <- nms[[1]][1:m]), nms[[2]][1:m]))
-		    names(y) <- nm
-		return(y)
-	    }
-	    if(is.array(x) && length(dim(x)) != 1)
-		stop("first argument is array, but not matrix.")
-
-	    if(missing(x))
-		n <- nrow
-	    else if(length(x) == 1 && missing(nrow) && missing(ncol)) {
-		n <- as.integer(x)
-		x <- 1
-	    }
-	    else n <- length(x)
-	    if(!missing(nrow))
-		n <- nrow
-	    if(missing(ncol))
-		ncol <- n
-	    p <- ncol
-	    y <- array(0, c(n, p))
-	    if((m <- min(n, p)) > 0) y[1 + 0:(m - 1) * (n + 1)] <- x
-	    y
-	}
-	## .old.base.diag <- base::diag
-	on.exit(setMethod(diag, "ANY", base::diag))
-	setMethod(diag, "ANY", b.diag)
-    }## end{Fix base::diag() for R <= 2.7.0}
 
     DO.m <- function(expr) if(do.matrix) eval(expr) else TRUE
     ina <- is.na(m)

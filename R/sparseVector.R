@@ -13,17 +13,21 @@ setAs("atomicVector", "sparseVector",
       })
 
 
-for(T in c("d","i","l","z")) {
-    setAs("xsparseVector", paste(T, "sparseVector", sep=''),
-          function(from) {
-              from@x <- as(from@x, .type.kind[T])
-              ## and now "the hack":
-              class(from) <- paste(T, "sparseVector", sep='')
-              from
-          })
-}
+## "xsparseVector" : those with an 'x' slot (i.e., currently := not nsparse*)
+setAs("xsparseVector", "dsparseVector",
+      function(from)
+      new("dsparseVector", x= as.double(from@x) , i= from@i, length= from@length))
+setAs("xsparseVector", "isparseVector",
+      function(from)
+      new("isparseVector", x= as.integer(from@x), i= from@i, length= from@length))
+setAs("xsparseVector", "lsparseVector",
+      function(from)
+      new("lsparseVector", x= as.logical(from@x), i= from@i, length= from@length))
+setAs("xsparseVector", "zsparseVector",
+      function(from)
+      new("zsparseVector", x= as.complex(from@x), i= from@i, length= from@length))
 
-setAs("sparseVector", "nsparseVector",
+setAs("xsparseVector", "nsparseVector",
       function(from) {
           if(any(is.na(from@x)))
               stop("cannot coerce 'NA's to \"nsparseVector\"")

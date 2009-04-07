@@ -36,7 +36,6 @@
 \alias{dimnames,dgeMatrix-method}
 \alias{eigen,dgeMatrix,missing-method}
 \alias{eigen,dgeMatrix,logical-method}
-\alias{lu,dgeMatrix-method}
 \alias{norm,dgeMatrix,missing-method}
 \alias{norm,dgeMatrix,character-method}
 \alias{rcond,dgeMatrix,missing-method}
@@ -108,7 +107,6 @@
     \item{dimnames}{\code{signature(x = "dgeMatrix")}: ... }
     \item{eigen}{\code{signature(x = "dgeMatrix", only.values= "logical")}: ...}
     \item{eigen}{\code{signature(x = "dgeMatrix", only.values= "missing")}: ...}
-    \item{lu}{\code{signature(x = "dgeMatrix")}: ... }
     \item{norm}{\code{signature(x = "dgeMatrix", type = "character")}: ... }
     \item{norm}{\code{signature(x = "dgeMatrix", type = "missing")}: ... }
     \item{rcond}{\code{signature(x = "dgeMatrix", norm = "character")}: ... }

@@ -1,3 +1,17 @@
+2009-04-07  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/sparseVector.R: fix coercion from xsparse*
+	* tests/Simple.R: and check it.
+
+	* man/lu.Rd: document 'warnSing' argument
+	* tests/dg_Matrix.R: and test it
+
+	* src/dgeMatrix.c (dgeMatrix_LU): missing 'return'
+
+2009-04-06  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version, Date): 0.999375-24 only for 2.9.0 (and newer)
+
 2009-03-30  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* src/Mutils.h (Matrix_check_class_etc): new version that *computes*

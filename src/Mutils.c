@@ -810,3 +810,105 @@ SEXP m_encodeInd2(SEXP i, SEXP j, SEXP di)
     return ans;
 }
 #undef do_ii_FILL
+
+
+/**
+ * Return the 0-based index of an is() match in a vector of class-name
+ * strings terminated by an empty string.  Returns -1 for no match.
+ *
+ * @param x  an R object, about which we want is(x, .) information.
+ * @param valid vector of possible matches terminated by an empty string.
+ * @param rho  the environment in which the class definitions exist.
+ *
+ * @return index of match or -1 for no match
+ */
+int Matrix_check_class_and_super(SEXP x, char **valid, SEXP rho)
+{
+    int ans;
+    SEXP cl = getAttrib(x, R_ClassSymbol);
+    char *class = strdup(CHAR(asChar(cl)));
+    for (ans = 0; ; ans++) {
+	if (!strlen(valid[ans]))
+	    break;
+	if (!strcmp(class, valid[ans])) return ans;
+    }
+    /* if not found directly, now search the non-virtual super classes :*/
+    if(IS_S4_OBJECT(x)) {
+	/* now try the superclasses, i.e.,  try   is(x, "....") : */
+	SEXP classExts = GET_SLOT(eval(lang2(install("getClassDef"), cl), rho),
+				  install("contains")),
+	    superCl = eval(lang3(install(".selectSuperClasses"),
+				 classExts,
+				 /* dropVirtual = */ ScalarLogical(1)),
+			   rho);
+	int i;
+	const char *s_class;
+	for(i=0; i < length(superCl); i++) {
+	    s_class = CHAR(STRING_ELT(superCl, i));
+	    for (ans = 0; ; ans++) {
+		if (!strlen(valid[ans]))
+		    break;
+		if (!strcmp(s_class, valid[ans])) return ans;
+	    }
+	}
+    }
+    return -1;
+}
+
+/**
+ * Return the 0-based index of an is() match in a vector of class-name
+ * strings terminated by an empty string.  Returns -1 for no match.
+ *
+ * @param x  an R object, about which we want is(x, .) information.
+ * @param valid vector of possible matches terminated by an empty string.
+ *
+ * @return index of match or -1 for no match
+ */
+int Matrix_check_class_etc(SEXP x, char **valid)
+{
+    SEXP cl = getAttrib(x, R_ClassSymbol), rho = R_GlobalEnv,
+	M_classEnv_sym = install(".M.classEnv"),
+#if defined(R_VERSION) && R_VERSION >= R_Version(2, 10, 0)
+ 	pkg = getAttrib(cl, R_PackageSymbol); /* ==R== packageSlot(class(x)) */
+#else
+ 	pkg = getAttrib(cl, install("package"));
+#endif
+	if(!isNull(pkg)) { /* find  rho := correct class Environment */
+	    /* need to make sure we find ".M.classEnv" even if Matrix is not
+	       attached, but just namespace-loaded: */
+
+/* Matrix::: does not work here either ... :
+ *	    rho = eval(lang2(install("Matrix:::.M.classEnv"), cl), */
+
+/* Now make this work via .onLoad() hack in ../R/zzz.R  : */
+	    rho = eval(lang2(M_classEnv_sym, cl), R_GlobalEnv);
+
+/* the following would look fine in theory,
+ * but it consistently segfaults in practice inside the
+ * findFun(...) call : */
+
+/* 	    SEXP s; */
+
+/* 	    Rprintf("Matrix_check_class_etc(.) finding env...\n"); */
+
+/* 	    rho = findFun(M_classEnv_sym, Matrix_NS); */
+/* 	    Rprintf("  Mcce: found .M.classEnv .."); */
+/* 	    Rprintf(" '%s'", CHAR(asChar(eval(lang2(install("utils::str"), */
+/* 						    rho), R_GlobalEnv)))); */
+/* 	    if(rho == R_UnboundValue) */
+/* 		error(".M.classEnv unbound in Matrix namespace: should not happen"); */
+
+/* 	    Rprintf("  Mcce: before eval(.) ...\n"); */
+
+/* /\* 	    rho = eval(lang2(rho, cl), R_GlobalEnv); *\/ */
+/* 	    PROTECT(s = lang2(rho, cl)); */
+/* 	    rho = eval(s, R_GlobalEnv); */
+/* 	    UNPROTECT(1); */
+
+/* 	    Rprintf("  Mcce: *after* eval(.) ...\n"); */
+
+	    if(!isEnvironment(rho))
+		error("could not find correct environment; please report!");
+	}
+    return Matrix_check_class_and_super(x, valid, rho);
+}

@@ -270,69 +270,8 @@ Matrix_check_class(const char *class, char **valid)
     }
 }
 
-/**
- * Return the 0-based index of an is() match in a vector of class-name
- * strings terminated by an empty string.  Returns -1 for no match.
- *
- * @param x  an R object, about which we want is(x, .) information.
- * @param valid vector of possible matches terminated by an empty string.
- * @param rho  the environment in which the class definitions exist.
- *
- * @return index of match or -1 for no match
- */
-static R_INLINE int
-Matrix_check_class_and_super(SEXP x, char **valid, SEXP rho)
-{
-    int ans;
-    SEXP cl = getAttrib(x, R_ClassSymbol);
-    char *class = strdup(CHAR(asChar(cl)));
-    for (ans = 0; ; ans++) {
-	if (!strlen(valid[ans]))
-	    break;
-	if (!strcmp(class, valid[ans])) return ans;
-    }
-    /* if not found directly, now search the non-virtual super classes :*/
-    if(IS_S4_OBJECT(x)) {
-	/* now try the superclasses, i.e.,  try   is(x, "....") : */
-	SEXP classExts = GET_SLOT(eval(lang2(install("getClassDef"), cl), rho),
-				  install("contains")),
-	    superCl = eval(lang3(install(".selectSuperClasses"),
-				 classExts,
-				 /* dropVirtual = */ ScalarLogical(1)),
-			   rho);
-	int i;
-	const char *s_class;
-	for(i=0; i < length(superCl); i++) {
-	    s_class = CHAR(STRING_ELT(superCl, i));
-	    for (ans = 0; ; ans++) {
-		if (!strlen(valid[ans]))
-		    break;
-		if (!strcmp(s_class, valid[ans])) return ans;
-	    }
-	}
-    }
-    return -1;
-}
-
-/**
- * Return the 0-based index of an is() match in a vector of class-name
- * strings terminated by an empty string.  Returns -1 for no match.
- *
- * @param x  an R object, about which we want is(x, .) information.
- * @param valid vector of possible matches terminated by an empty string.
- *
- * @return index of match or -1 for no match
- */
-static R_INLINE int
-Matrix_check_class_etc(SEXP x, char **valid)
-{
-    SEXP cl = getAttrib(x, R_ClassSymbol),
- 	pkg = getAttrib(cl, install("package")), /* ==R== packageSlot(class(x)) */
-	rho = (isNull(pkg) ? R_GlobalEnv
-	       : eval(lang2(install(".M.classEnv"), cl), R_GlobalEnv));
-    return Matrix_check_class_and_super(x, valid, rho);
-}
-
+int Matrix_check_class_etc(SEXP x, char **valid);
+int Matrix_check_class_and_super(SEXP x, char **valid, SEXP rho);
 
 #ifdef __cplusplus
 }

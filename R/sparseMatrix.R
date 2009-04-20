@@ -344,7 +344,7 @@ setMethod("Math",
 
 
 
-### --- show() method ---
+### --- print() and show() methods --- 
 
 ## FIXME(?) -- ``merge this'' (at least ``synchronize'') with
 ## - - -   prMatrix() from ./Auxiliaries.R

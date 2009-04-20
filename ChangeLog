@@ -1,7 +1,18 @@
+2009-04-18  Martin Maechler  <maechler@stat.math.ethz.ch>
 
-	* DESCRIPTION (Version, Date): 0.999375-25
+	* DESCRIPTION (Version, Date): 0.999375-26
+
+	* src/Mutils.h (Matrix_check_class_etc): try to ensure it works
+	also when Matrix is loaded but not attached.
+
+	* src/init.c (R_init_Matrix): get Matrix namespace in C.
+
+	* R/zzz.R (.onLoad): a *working* fix aka "hack"
 
 
+2009-04-15  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.999375-25 packaged --> CRAN
 
 2009-04-09  Martin Maechler  <maechler@stat.math.ethz.ch>
 

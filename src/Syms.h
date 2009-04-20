@@ -9,5 +9,9 @@ SEXP
     Matrix_pSym,
     Matrix_permSym,
     Matrix_uploSym,
-    Matrix_xSym;
+    Matrix_xSym,
+
+    Matrix_NS;/* the Matrix Namespace ('environment') */
+
+
 

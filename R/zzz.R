@@ -1,6 +1,9 @@
 ### Note that "in theory" even base::as.vector() should be overloaded.
 ### In practice that could be too much of a performance penalty in some cases.
 
+## A wrapper for now [as long as  'methods' has no *exported* version]:
+.M.classEnv <- function(Class) methods:::.classEnv(Class)
+
 .onLoad <- function(libname, pkgname)
 {
     require(methods)
@@ -28,6 +31,9 @@
     ## generic kronecker
     assignInNamespace("%x%", function (X, Y) kronecker(X, Y), ns = "base")
 
+    ## Hack needed, as C-level  eval / findFun seems not to work with
+    ## loaded & non-attached Matrix:
+    assignInNamespace(".M.classEnv", .M.classEnv, ns = "base")
 }
 
 ## Instead, simply re-assign the [cr]bind()s which are recursively
@@ -44,6 +50,3 @@ rBind <- methods:::rbind
     assignInNamespace("as.array",  base::..Old..as.array,  ns = "base")
     library.dynam.unload("Matrix", libpath)
 }
-
-## A wrapper for now [as long as  'methods' has no *exported* version]:
-.M.classEnv <- function (Class) methods:::.classEnv(Class)

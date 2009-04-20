@@ -1,6 +1,22 @@
 #### Currently a collection of simple tests
 ##	(since 'Matrix' takes long to load, rather have fewer source files!)
 
+##-------- *BEFORE* attaching Matrix: --------------------------------
+str(Matrix::Matrix)# -> load the namespace
+T <- new("ngTMatrix", i=0L, j=2L, Dim = c(2L,6L))
+T
+as(T, "CsparseMatrix")
+## gave Error in asMethod(object) : could not find function ".M.classEnv"
+## from  0.999375-23 to *-25
+
+## another even shorter version of this:
+n <- new("dgCMatrix")
+n
+## this:
+m <- Matrix::Matrix(cbind(1,0,diag(x=2:4)))
+m
+##--------------------------------------------------------------------
+
 library(Matrix)
 
 source(system.file("test-tools.R", package = "Matrix"))# identical3() etc

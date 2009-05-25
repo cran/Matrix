@@ -344,7 +344,7 @@ setMethod("Math",
 
 
 
-### --- print() and show() methods --- 
+### --- print() and show() methods ---
 
 ## FIXME(?) -- ``merge this'' (at least ``synchronize'') with
 ## - - -   prMatrix() from ./Auxiliaries.R
@@ -613,11 +613,12 @@ setMethod("dim<-", signature(x = "sparseMatrix", value = "ANY"),
 	  function(x, value) {
 	      if(!is.numeric(value) || length(value) != 2)
 		  stop("dim(.) value must be numeric of length 2")
-	      if(prod(dim(x)) != prod(value <- as.integer(value)))
+	      if(prod(dim(x)) != prod(value <- round(value))) # *not* as.integer !
 		  stop("dimensions don't match the number of cells")
-              ## be careful to keep things sparse
-	      as(spV2M(as(x, "sparseVector"), nrow=value[1], ncol=value[2]),
-		 class(x))
+	      ## be careful to keep things sparse
+	      r <- spV2M(as(x, "sparseVector"), nrow=value[1], ncol=value[2])
+	      ## r now is "dgTMatrix"
+	      if(is(x, "CsparseMatrix")) as(r, "CsparseMatrix") else r
 	  })
 
 

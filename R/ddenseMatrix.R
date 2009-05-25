@@ -75,12 +75,6 @@ setMethod("rcond", signature(x = "ddenseMatrix", norm = "character"),
 ## setMethod("t", signature(x = "ddenseMatrix"),
 ## 	  function(x) callGeneric(as(x, "dgeMatrix")))
 
-setMethod("tcrossprod", signature(x = "ddenseMatrix", y = "missing"),
-	  function(x, y = NULL) tcrossprod(as(x, "dgeMatrix")))
-
-setMethod("crossprod", signature(x = "ddenseMatrix", y = "missing"),
-          function(x, y = NULL) crossprod(as(x, "dgeMatrix")))
-
 setMethod("diag", signature(x = "ddenseMatrix"),
           function(x, nrow, ncol) diag(as(x, "dgeMatrix")))
 
@@ -89,13 +83,6 @@ setMethod("solve", signature(a = "ddenseMatrix", b = "missing"),
 
 setMethod("solve", signature(a = "ddenseMatrix", b = "ANY"),
           function(a, b, ...) solve(as(a, "dgeMatrix"), b))
-
-## General method for dense matrix multiplication in case specific methods
-## have not been defined.
-setMethod("%*%", signature(x = "ddenseMatrix", y = "ddenseMatrix"),
-          function(x, y) .Call(dgeMatrix_matrix_mm,
-                               .Call(dup_mMatrix_as_dgeMatrix, x), y, FALSE),
-          valueClass = "dgeMatrix")
 
 setMethod("lu", signature(x = "ddenseMatrix"),
           function(x, ...) lu(as(x, "dgeMatrix")))

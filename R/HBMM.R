@@ -102,6 +102,12 @@ readMM <- function(file)
     nr <- scan1(integer(), comment.char = "%")
     nc <- scan1(integer())
     nz <- scan1(integer())
+    checkIJ <- function(els) {
+	if(els$i < 1 || els$i > nr)
+	    stop("readMM(): row	 values 'i' are not in 1:nr", call.=FALSE)
+	if(els$j < 1 || els$j > nc)
+	    stop("readMM(): column values 'j' are not in 1:nc", call.=FALSE)
+    }
     if (repr == "coordinate") {
 	switch(elt,
 	       "real" = ,
@@ -110,6 +116,7 @@ readMM <- function(file)
 		   ##       an object of an "iMatrix" subclass--once there are
 		   els <- scan(file, nmax = nz, quiet = TRUE,
 			       what= list(i= integer(), j= integer(), x= numeric()))
+                   checkIJ(els)
 		   switch(sym,
 			  "general" = {
 			      new("dgTMatrix", Dim = c(nr, nc), i = els$i - 1L,
@@ -135,7 +142,8 @@ readMM <- function(file)
 	       },
 	       "pattern" = {
 		   els <- scan(file, nmax = nz, quiet = TRUE,
-			       what = list(i = integer(0), j = integer(0)))
+			       what = list(i = integer(), j = integer()))
+		   checkIJ(els)
 		   switch(sym,
 			  "general" = {
 			      new("ngTMatrix", Dim = c(nr, nc),

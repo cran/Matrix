@@ -50,3 +50,8 @@ writeMM(A, fname)
 validObject(B)
 Bc <- as(B, "CsparseMatrix")
 stopifnot(identical(A, Bc))
+
+fname <- system.file("external", "wrong.mtx", package = "Matrix")
+r <- try(readMM(fname))
+stopifnot(inherits(r, "try-error"), length(grep("readMM.*row.*1:nr", r)) == 1)
+## gave a much less intelligible error message

@@ -18,9 +18,17 @@
 % "[" are in ./Xtrct-methods.Rd
 \alias{\%*\%,TsparseMatrix,ANY-method}
 \alias{\%*\%,ANY,TsparseMatrix-method}
+\alias{\%*\%,TsparseMatrix,Matrix-method}
+\alias{\%*\%,Matrix,TsparseMatrix-method}
 \alias{crossprod,TsparseMatrix,ANY-method}
+\alias{crossprod,ANY,TsparseMatrix-method}
+\alias{crossprod,TsparseMatrix,Matrix-method}
+\alias{crossprod,Matrix,TsparseMatrix-method}
 \alias{crossprod,TsparseMatrix,missing-method}
 \alias{tcrossprod,TsparseMatrix,ANY-method}
+\alias{tcrossprod,ANY,TsparseMatrix-method}
+\alias{tcrossprod,TsparseMatrix,Matrix-method}
+\alias{tcrossprod,Matrix,TsparseMatrix-method}
 \alias{tcrossprod,TsparseMatrix,missing-method}
 \alias{solve,TsparseMatrix,ANY-method}
 \alias{solve,TsparseMatrix,missing-method}

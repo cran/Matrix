@@ -252,6 +252,13 @@ checkMatrix <- function(m, m.m = if(do.matrix) as(m, "matrix"),
     ## warnNow <- function(...) warning(..., call. = FALSE, immediate. = TRUE)
 
     DO.m <- function(expr) if(do.matrix) eval(expr) else TRUE
+
+    vec <- function(x) {
+	dim(x) <- c(length(x), 1L)
+	dimnames(x) <- list(NULL,NULL)
+	x
+    }
+
     ina <- is.na(m)
     if(do.matrix) {
 	stopifnot(all(ina == is.na(m.m)),
@@ -314,6 +321,12 @@ checkMatrix <- function(m, m.m = if(do.matrix) as(m, "matrix"),
     isPerm <- extends(cld, "pMatrix")
     if(do.t) stopifnot(identical(diag(m), diag(t(m))))
     ## TODO: also === diag(band(m,0,0))
+
+    if(prod(d) < .Machine$integer.max) {
+	vm <- vec(m)
+	stopifnot(is(vm, "Matrix"), validObject(vm), dim(vm) == c(d[1]*d[2], 1))
+    }
+
     if(do.matrix)
     stopifnot(identical(dim(m.m), dim(m)),
 	      ## base::diag() keeps names [Matrix FIXME]

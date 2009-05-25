@@ -897,39 +897,6 @@ setReplaceMethod("[", signature(x = "TsparseMatrix", i = "index", j = "index",
 
 
 
-setMethod("crossprod", signature(x = "TsparseMatrix", y = "missing"),
-	  function(x, y = NULL) {
-              if (is(x, "symmetricMatrix")) {
-                  x <- .T.2.C(x)
-                  warning("crossprod(x) calculated as x %*% x for sparse, symmetric x")
-                  return(x %*% x)
-              }
-	      .Call(Csparse_crossprod, x, trans = FALSE, triplet = TRUE)
-	  })
-
-setMethod("tcrossprod", signature(x = "TsparseMatrix", y = "missing"),
-	  function(x, y = NULL) {
-	      .Call(Csparse_crossprod, x, trans = TRUE, triplet = TRUE)
-	  })
-
-## Must define methods for y = "missing" first so they have precedence
-## (this will change in R-2.4.0).
-
-setMethod("crossprod", signature(x = "TsparseMatrix", y = "ANY"),
-	  function(x, y = NULL) crossprod(.T.2.C(x), y))
-
-setMethod("tcrossprod", signature(x = "TsparseMatrix", y = "ANY"),
-	  function(x, y = NULL) tcrossprod(.T.2.C(x), y))
-
-setMethod("%*%", signature(x = "TsparseMatrix", y = "ANY"),
-	  function(x, y) .T.2.C(x) %*% y)
-
-setMethod("%*%", signature(x = "ANY", y = "TsparseMatrix"),
-	  function(x, y) x %*% .T.2.C(y))
-
-## Not yet.  Don't have methods for y = "CsparseMatrix" and general x
-#setMethod("%*%", signature(x = "ANY", y = "TsparseMatrix"),
-#          function(x, y) callGeneric(x, as(y, "CsparseMatrix")))
 
 setMethod("solve", signature(a = "TsparseMatrix", b = "ANY"),
 	  function(a, b, ...) solve(as(a, "CsparseMatrix"), b))

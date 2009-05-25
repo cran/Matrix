@@ -40,29 +40,3 @@ setAs("ngCMatrix", "matrix",
 setAs("matrix", "ngCMatrix",
       function(from) as(as(from, "ngTMatrix"), "ngCMatrix"))
 
-
-
-## Can use CsparseMatrix methods for all of these
-
-## setMethod("%*%", signature(x = "ngCMatrix", y = "ngCMatrix"),
-##           function(x, y)
-##           .Call(ngCMatrix_ngCMatrix_mm, x, y),
-##           valueClass = "ngCMatrix")
-
-## setMethod("t", signature(x = "ngCMatrix"),
-##           function(x) .Call(ngCMatrix_trans, x),
-##           valueClass = "ngCMatrix")
-
-
-## setMethod("diag", signature(x = "ngCMatrix"),
-## 	  function(x, nrow, ncol = n) .Call(ngCMatrix_diag, x))
-
-## setMethod("crossprod", signature(x = "ngCMatrix", y = "missing"),
-## 	  function(x, y = NULL)
-##           .Call(ngCMatrix_crossprod, x, TRUE, NULL),
-## 	  valueClass = "nsCMatrix")
-
-## setMethod("tcrossprod", signature(x = "ngCMatrix", y = "missing"),
-## 	  function(x, y = NULL)
-##           .Call(ngCMatrix_crossprod, x, FALSE, NULL),
-## 	  valueClass = "nsCMatrix")

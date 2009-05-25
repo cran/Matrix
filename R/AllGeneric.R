@@ -3,8 +3,6 @@
 
     setGeneric("expand", function(x, ...) standardGeneric("expand"))
 
-## tcrossprod() is now in R's base
-
 ## these two are *not* exported (yet) :
 
     setGeneric("isDiagonal", function(object, ...)

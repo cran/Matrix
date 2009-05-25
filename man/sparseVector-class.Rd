@@ -28,6 +28,7 @@
 \alias{coerce,diagonalMatrix,sparseVector-method}
 \alias{coerce,sparseMatrix,sparseVector-method}
 \alias{coerce,atomicVector,sparseVector-method}
+\alias{coerce,atomicVector,dsparseVector-method}
 \alias{coerce,triangularVector,sparseVector-method}
 \alias{coerce,sparseVector,vector-method}
 \alias{coerce,xsparseVector,dsparseVector-method}
@@ -43,6 +44,14 @@
 \alias{length,sparseVector-method}
 \alias{rep,sparseVector-method}
 \alias{show,sparseVector-method}
+% ../R/products.R :
+\alias{\%*\%,Matrix,sparseVector-method}
+\alias{\%*\%,sparseVector,Matrix-method}
+\alias{crossprod,Matrix,sparseVector-method}
+\alias{crossprod,sparseVector,Matrix-method}
+\alias{solve,Matrix,sparseVector-method}
+\alias{tcrossprod,Matrix,sparseVector-method}
+\alias{tcrossprod,sparseVector,Matrix-method}
 %
 \alias{[,sparseVector,index,ANY,ANY-method}
 \alias{[<-,sparseVector,index,missing,replValue-method}

@@ -22,6 +22,8 @@
 \alias{crossprod,CsparseMatrix,ddenseMatrix-method}
 \alias{crossprod,CsparseMatrix,matrix-method}
 \alias{crossprod,CsparseMatrix,numeric-method}
+\alias{crossprod,ddenseMatrix,CsparseMatrix-method}
+\alias{crossprod,matrix,CsparseMatrix-method}
 \alias{diag,CsparseMatrix-method}
 \alias{t,CsparseMatrix-method}
 \alias{tcrossprod,CsparseMatrix,CsparseMatrix-method}

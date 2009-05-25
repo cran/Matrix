@@ -1,6 +1,57 @@
+2009-05-25  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* po/update-me.sh, Matrix.pot, etc: updated *.pot / *.po files
+
+	* DESCRIPTION (Version, Date): 0.999375-27, CRAN-released on ...
+
+	* R/sparseVector.R: add as(<atomic>, "dsparseVector")
+	(spV2M): now works (again!?) for "isparseVector" (-> "dgTMatrix").
+
+	* tests/matprod.R: tcrossprod(), sparseVector multiplications, i.e.,
+	features of next paragraph.
+
+2009-05-23  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/products.R: move almost all %*%, crossprod(), tcrossprod()
+	methods to a new file.  tcrossprod() compatibility with *fixed*
+	base-R; enable operations with "sparseVector"s; some extra methods
+	to avoid ambiguity messages.
+
+2009-05-20  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Auxiliaries.R (.M.v, .v.M): slight speedup, and *use* them in
+	* R/Matrix.R (crossprod)
+
+
+2009-05-18  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/sparseVector.R (dim<-): prod(as.integer(.)) may overflow!
+
+	* R/Matrix.R (Matrix): Matrix(sv, ..) now works for a sparseVector
+
+	* R/sparseVector.R (spV2M): allow zero nrow or ncol.
+
+2009-05-16  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/sparseMatrix.R (dim<-): should also work for diagonalMatrix.
+
+	* inst/test-tools.R (vec): add test for dim(x) <- c(n, 1)
+
+
+2009-05-13  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/rankMatrix.R (rankMatrix): new function for matrix rank;
+	"to be discussed".
+
+2009-05-06  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/HBMM.R (readMM): add checkIJ() to produce nicer error messages,
+	on malformed input.
+	* tests/write-read.R: and test that..
+
 2009-04-18  Martin Maechler  <maechler@stat.math.ethz.ch>
 
-	* DESCRIPTION (Version, Date): 0.999375-26
+	* DESCRIPTION (Version, Date): 0.999375-26, CRAN-released on 2009-04-29
 
 	* src/Mutils.h (Matrix_check_class_etc): try to ensure it works
 	also when Matrix is loaded but not attached.

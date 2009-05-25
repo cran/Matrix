@@ -1,23 +1,5 @@
 ### d(ouble)sparseMatrix methods :
 
-## Note that '%*%' are now handled via "sparse*" , "Csparse*" etc
-
-setMethod("crossprod", signature(x = "dsparseMatrix", y = "ddenseMatrix"),
-	  function(x, y = NULL) crossprod(x, as(y, "dgeMatrix")))
-
-setMethod("crossprod", signature(x = "ddenseMatrix", y = "dsparseMatrix"),
-	  function(x, y = NULL) crossprod(as(x, "dgeMatrix"), y))
-
-setMethod("crossprod", signature(x = "dsparseMatrix", y = "dgeMatrix"),
-## NB: using   callGeneric(.) here, leads to infinite recursion :
-          function(x, y = NULL) .Call(Csparse_dense_crossprod, as(x, "dgCMatrix"), y))
-
-## NB: there's already
-##     ("CsparseMatrix", "missing") and ("TsparseMatrix", "missing") methods
-
-setMethod("crossprod", signature(x = "dgeMatrix", y = "dsparseMatrix"),
-	  function(x, y = NULL) crossprod(x, as(y, "dgCMatrix")))
-
 setMethod("image", "dsparseMatrix",
 	  function(x, ...) image(as(x, "dgTMatrix"), ...))
 

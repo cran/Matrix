@@ -76,7 +76,7 @@ setMethod("dim<-", signature(x = "denseMatrix", value = "ANY"),
 		  stop("dim(.) value must be numeric of length 2")
 	      if(prod(dim(x)) != prod(value <- as.integer(value)))
 		  stop("dimensions don't match the number of cells")
-	      clx <- as.character(class(x)) # as.*(): drop attr
+	      clx <- as.character(MatrixClass(class(x))) # as.*(): drop attr
 	      if(substring(clx,2) == "geMatrix") {
 		  x@Dim <- value
 		  if(length(x@factors) > 0)

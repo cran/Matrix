@@ -868,7 +868,7 @@ setMethod("Arith", signature(e1 = "dgCMatrix", e2 = "numeric"),
 		      if(n < l2)
 			  stop("<Matrix>",.Generic,"numeric(<too-long>)")
 		      if(n %% l2 != 0) ## identical warning as in main/arithmetic.c
-			  warning(gettextf("longer object length\n\tis not a multiple of shorter object length"))
+			  warning("longer object length\n\tis not a multiple of shorter object length")
 		      ## TODO: construction of [1L + in0 %%l2] via one .Call()
 		      ## 0-based indices:
 		      in0 <- .Call(m_encodeInd, .Call(compressed_non_0_ij, e1, TRUE), d)
@@ -901,7 +901,7 @@ setMethod("Arith", signature(e1 = "numeric", e2 = "dgCMatrix"),
 		      if(n < l1)
 			  stop("numeric(<too-long>)",.Generic,"<Matrix>")
 		      if(n %% l1 != 0) ## identical warning as in main/arithmetic.c
-			  warning(gettextf("longer object length\n\tis not a multiple of shorter object length"))
+			  warning("longer object length\n\tis not a multiple of shorter object length")
 		      ## TODO: construction of [1L + in0 %% l1] via one .Call()
 		      ## 0-based indices:
 		      in0 <- .Call(m_encodeInd, .Call(compressed_non_0_ij, e2, TRUE), d)

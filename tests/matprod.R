@@ -88,6 +88,39 @@ stopifnot(is(m, "triangularMatrix"), is(m, "sparseMatrix"),
           is(im, "dtCMatrix"), is(itm, "dtCMatrix"), is(iitm, "dtCMatrix"),
 	  del < 1e-15)
 
+t.crossprod <- function(x, y=NULL)
+    if(getRversion() < "2.9.1" && R.version$`svn rev` < 48575)
+    ## tcrossprod() bug in "base R"
+    x %*% t(y) else tcrossprod(x, y)
+## crossprod(.,.) & tcrossprod(),  mixing dense & sparse
+v <- c(0,0,2:0)
+(V <- Matrix(v, 5,1, sparse=TRUE))
+sv <- as(v, "sparseVector")
+a <- as.matrix(A)
+cav <-  crossprod(a,v)
+tva <- t.crossprod(v,a)
+assert.EQ.mat(crossprod(A, V), cav) # gave infinite recursion
+assert.EQ.mat(crossprod(A,sv), cav)
+assert.EQ.mat(tcrossprod( sv, A), tva)
+assert.EQ.mat(tcrossprod(t(V),A), tva)
+
+M <- Matrix(0:5, 2,3) ; sM <- as(M, "sparseMatrix"); m <- as(M, "matrix")
+v <- 1:3; v2 <- 2:1
+sv  <- as( v, "sparseVector")
+sv2 <- as(v2, "sparseVector")
+tvm <- t.crossprod(v, m)
+assert.EQ.mat(tcrossprod( v, M), tvm)
+assert.EQ.mat(tcrossprod( v,sM), tvm)
+assert.EQ.mat(tcrossprod(sv,sM), tvm)
+assert.EQ.mat(tcrossprod(sv, M), tvm)
+assert.EQ.mat(crossprod(M, sv2), crossprod(m, v2))
+stopifnot(identical(tcrossprod(v, M), v %*% t(M)),
+	  identical(tcrossprod(v,sM), v %*% t(sM)),
+	  identical(tcrossprod(v, M), crossprod(v, t(M))),
+	  identical(tcrossprod(sv,sM), sv %*% t(sM)),
+	  identical(crossprod(sM, sv2), t(sM) %*% sv2),
+	  identical(crossprod(M, v2), t(M) %*% v2))
+
 ## *unit* triangular :
 t1 <- new("dtTMatrix", x= c(3,7), i= 0:1, j=3:2, Dim= as.integer(c(4,4)))
 ## from  0-diagonal to unit-diagonal {low-level step}:

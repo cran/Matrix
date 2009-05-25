@@ -71,23 +71,6 @@ setAs("matrix", "dgTMatrix", mat2dgT)
 ## "[<-" methods { setReplaceMethod()s }  too ...
 
 
-## "crossprod" methods too ...
-## setMethod("crossprod", signature(x = "dgTMatrix", y = "missing"),
-##           function(x, y = NULL)
-##           .Call(csc_crossprod, as(x, "dgCMatrix")))
-
-## setMethod("crossprod", signature(x = "dgTMatrix", y = "matrix"),
-##           function(x, y = NULL)
-##           .Call(csc_matrix_crossprod, as(x, "dgCMatrix"), y))
-
-##setMethod("crossprod", signature(x = "dgTMatrix", y = "numeric"),
-##          function(x, y = NULL)
-##          .Call(csc_matrix_crossprod, as(x, "dgCMatrix"), as.matrix(y)))
-
-## setMethod("tcrossprod", signature(x = "dgTMatrix", y = "missing"),
-##           function(x, y = NULL)
-##           .Call(csc_tcrossprod, as(x, "dgCMatrix")))
-
 setMethod("image", "dgTMatrix",
           function(x,
 		   xlim = .5 + c(0, di[2]),

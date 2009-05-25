@@ -41,29 +41,6 @@ setAs("dMatrix", "nMatrix",
       })
 
 
-## Methods for operations where one argument is integer
-## No longer made use of (and confusing hence) since R version 2.1.0
-## where "integer" goes as part of "numeric"
-
-## Note: Use as.matrix() {not directly array()} :
-##  1) to ensure consistency with "numeric" (non-matrix)
-##  2) names -> dimnames {potentially}
-## setMethod("%*%", signature(x = "dMatrix", y = "integer"),
-##           function(x, y) callGeneric(x, as.numeric(y)))
-
-## setMethod("%*%", signature(x = "integer", y = "dMatrix"),
-##           function(x, y) callGeneric(as.numeric(x), y))
-
-## setMethod("crossprod", signature(x = "dMatrix", y = "integer"),
-##           function(x, y = NULL) callGeneric(x, as.numeric(y)))
-
-## setMethod("crossprod", signature(x = "integer", y = "dMatrix"),
-##           function(x, y = NULL) callGeneric(as.numeric(x), y))
-
-## setMethod("solve", signature(a = "dMatrix", b = "integer"),
-##           function(a, b, ...) callGeneric(a, as.numeric(b)))
-
-
 ## Group Methods, see ?Arith (e.g.)
 ## -----
 ## >>> More specific methods for sub-classes (sparse), use these as "catch-all":

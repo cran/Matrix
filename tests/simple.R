@@ -651,8 +651,11 @@ sv <- as(iv, "sparseVector")
 sv. <- as(as.integer(iv), "sparseVector")
 ## Note: Method with signature "numeric#sparseVector" chosen ...
 (sv2 <- as(sv, "isparseVector")) ## gave error
-stopifnot(identical(sv., sv2))
 as(sv, "zsparseVector")
+stopifnot(identical(sv., sv2),
+	  identical(  Matrix(sv, 3,4, byrow=TRUE),
+		    t(Matrix(sv, 4,3))))
+
 
 ## "Large" sparse:
 n <- 100000

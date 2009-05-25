@@ -4,10 +4,20 @@
 # atomicVector : classUnion (logical,integer,double,....)
 setAs("atomicVector", "sparseVector",
       function(from) {
-	  n <- length(from)
+	  n <- length(from)# *is* integer for atomic vectors
 	  r <- new(paste(.V.kind(from), "sparseVector", sep=''), length = n)
 	  ii <- from != 0
 	  r@x <- from[ii]
+	  r@i <- seq_len(n)[ii]
+	  r
+      })
+## dsparseVector: currently important, as later potentially made into d..Matrix :
+setAs("atomicVector", "dsparseVector",
+      function(from) {
+	  n <- length(from)# *is* integer for atomic vectors
+	  r <- new("dsparseVector", length = n)
+	  ii <- from != 0
+	  r@x <- as.numeric(from)[ii]
 	  r@i <- seq_len(n)[ii]
 	  r
       })
@@ -97,12 +107,7 @@ setAs("TsparseMatrix", "sparseVector",
       })
 
 
-
-## TODO -- also want  (sparseVector, dim) |---> sparseMatrix
-##  because of (nrow,ncol) specification can not (?)  use as(.).
-##  Hence use  Matrix(.) ?  or my  spMatrix(.) ?
-
-## For now, define this utility function:
+## Utility -- used in `dim<-` below, but also in  Matrix(.) :
 spV2M <- function (x, nrow, ncol, byrow = FALSE)
 {
     ## Purpose:	 sparseVector --> sparseMatrix	constructor
@@ -115,9 +120,9 @@ spV2M <- function (x, nrow, ncol, byrow = FALSE)
     cx <- class(x)
     stopifnot(extends(cx, "sparseVector"))
     if(!missing(ncol)) { ncol <- as.integer(ncol)
-			 if(ncol <= 0) stop("'ncol' must be >= 1") }
+			 if(ncol < 0) stop("'ncol' must be >= 0") }
     if(!missing(nrow)) { nrow <- as.integer(nrow)
-			 if(nrow <= 0) stop("'nrow' must be >= 1") }
+			 if(nrow < 0) stop("'nrow' must be >= 0") }
     n <- length(x)
     if(missing(nrow)) {
 	if(missing(ncol)) { ## both missing: --> (n x 1)
@@ -144,7 +149,7 @@ spV2M <- function (x, nrow, ncol, byrow = FALSE)
     has.x <- kind != "n"
     ## "careful_new()" :
     cNam <- paste(kind, "gTMatrix", sep='')
-    chngCl <- is.null(newCl <- getClass(cNam, .Force=TRUE))
+    chngCl <- is.null(slotNames(newCl <- getClass(cNam, .Force=TRUE)))
     if(chngCl) { ## e.g. "igTMatrix" is not yet implemented
 	if(substr(cNam,1,1) == "z")
 	    stopifnot(sprintf("Class '%s' is not yet implemented", cNam))
@@ -157,7 +162,7 @@ spV2M <- function (x, nrow, ncol, byrow = FALSE)
     if(byrow) { ## need as.integer(.) since <sparseVector> @ i can be double
 	r@j <- as.integer(i0 %% ncol)
 	r@i <- as.integer(i0 %/% ncol)
-    } else {				# default{byrow = FALSE}
+    } else { ## default{byrow = FALSE}
 	r@i <- as.integer(i0 %% nrow)
 	r@j <- as.integer(i0 %/% nrow)
     }
@@ -171,7 +176,7 @@ setMethod("dim<-", signature(x = "sparseVector", value = "ANY"),
 	  function(x, value) {
 	      if(!is.numeric(value) || length(value) != 2)
 		  stop("dim(.) value must be numeric of length 2")
-	      if(length(x) != prod(value <- as.integer(value)))
+	      if(length(x) != prod(value <- round(value)))
 		  stop("dimensions don't match the number of cells")
 	      spV2M(x, nrow=value[1], ncol=value[2])
 	  })
@@ -519,6 +524,7 @@ setMethod("rep", "sparseVector",
 
 
 ### Group Methods (!)
-
 ## o "Ops" , "Arith", "Compare"  :  ---> in ./Ops.R
 
+setMethod("solve", signature(a = "Matrix", b = "sparseVector"),
+	  function(a, b, ...) callGeneric(a, as(b, "sparseMatrix")))

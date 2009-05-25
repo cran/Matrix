@@ -14,6 +14,9 @@ SUBLIBS = $(SUBDIRS:=.a)
 
 all: $(SHLIB)
 ## making src/*.o and in sublibs can be done simultaneously
+# for development:
+#$(SHLIB): $(OBJECTS)
+# for real:
 $(SHLIB): $(OBJECTS) sublibs
 
 ## We have to clean here, to clean up between architectures:

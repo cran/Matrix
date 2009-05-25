@@ -260,72 +260,9 @@ setReplaceMethod("[", signature(x = "CsparseMatrix", i = "matrix", j = "missing"
 		    "CsparseMatrix"))
 
 
-setMethod("crossprod", signature(x = "CsparseMatrix", y = "missing"),
-	  function(x, y = NULL) {
-	      if (is(x, "symmetricMatrix")) {
-		  warning("crossprod(x) calculated as x %*% x for sparse, symmetric x")
-		  return(x %*% x)
-	      }
-	      .Call(Csparse_crossprod, x, trans = FALSE, triplet = FALSE)
-	  })
-
-setMethod("crossprod", signature(x = "CsparseMatrix", y = "CsparseMatrix"),
-	  function(x, y = NULL)
-	  .Call(Csparse_Csparse_crossprod, x, y, trans = FALSE))
-
-setMethod("tcrossprod", signature(x = "CsparseMatrix", y = "CsparseMatrix"),
-	  function(x, y = NULL)
-	  .Call(Csparse_Csparse_crossprod, x, y, trans = TRUE))
-
-## FIXME: Generalize the class of y.  This specific method is to replace one
-##        in dgCMatrix.R
-setMethod("crossprod", signature(x = "CsparseMatrix", y = "ddenseMatrix"),
-	  function(x, y = NULL) .Call(Csparse_dense_crossprod, x, y))
-
-setMethod("crossprod", signature(x = "CsparseMatrix", y = "matrix"),
-	  function(x, y = NULL) .Call(Csparse_dense_crossprod, x, y))
-
-setMethod("crossprod", signature(x = "CsparseMatrix", y = "numeric"),
-	  function(x, y = NULL) .Call(Csparse_dense_crossprod, x, y))
-
-setMethod("tcrossprod", signature(x = "CsparseMatrix", y = "missing"),
-	  function(x, y = NULL) {
-              if (is(x, "symmetricMatrix")) {
-                  warning("tcrossprod(x) calculated as x %*% x for sparse, symmetric x")
-                  return(x %*% x)
-              }
-              .Call(Csparse_crossprod, x, trans = TRUE, triplet = FALSE)
-	  })
-
 setMethod("t", signature(x = "CsparseMatrix"),
 	  function(x) .Call(Csparse_transpose, x, is(x, "triangularMatrix")))
 
-setMethod("%*%", signature(x = "CsparseMatrix", y = "CsparseMatrix"),
-          function(x, y) .Call(Csparse_Csparse_prod, x, y))
-
-setMethod("%*%", signature(x = "CsparseMatrix", y = "ddenseMatrix"),
-          function(x, y) .Call(Csparse_dense_prod, x, y))
-
-setMethod("%*%", signature(x = "CsparseMatrix", y = "matrix"),
-          function(x, y) .Call(Csparse_dense_prod, x, y))
-
-## Not needed because of c("Matrix", "numeric") method
-##setMethod("%*%", signature(x = "CsparseMatrix", y = "numeric"),
-##          function(x, y) .Call(Csparse_dense_prod, x, y))
-
-## FIXME(2): These two are sub-optimal : has  2 x  t(<dense>)  :
-setMethod("%*%", signature(x = "ddenseMatrix", y = "CsparseMatrix"),
-          function(x, y) t(.Call(Csparse_dense_crossprod, y, t(x))),
-          valueClass = "dgeMatrix")
-
-setMethod("%*%", signature(x = "matrix", y = "CsparseMatrix"),
-          function(x, y) t(.Call(Csparse_dense_crossprod, y, t(x))),
-          valueClass = "dgeMatrix")
-
-## Not needed because of c("numeric", "Matrix") method
-##setMethod("%*%", signature(x = "numeric", y = "CsparseMatrix"),
-##          function(x, y) t(.Call(Csparse_dense_crossprod, y, x)),
-##          valueClass = "dgeMatrix")
 
 ## NB: have extra tril(), triu() methods for symmetric ["dsC" and "lsC"] and
 ## NB: for all triangular ones, where the latter may 'callNextMethod()' these:
@@ -392,4 +329,3 @@ setMethod("diag", "CsparseMatrix",
 setMethod("writeMM", "CsparseMatrix",
 	  function(obj, file, ...)
           .Call(Csparse_MatrixMarket, obj, as.character(file)))
-

@@ -21,8 +21,8 @@ as0 <- function(x, mod=mode(x))
 paste0 <- function(...) paste(..., sep = '')
 
 ## For %*% (M = Matrix; v = vector (double or integer {complex maybe?}):
-.M.v <- function(x, y) callGeneric(x, as.matrix(y))
-.v.M <- function(x, y) callGeneric(rbind(x), y)
+.M.v <- function(x, y) { dim(y) <- c(length(y), 1L); callGeneric(x, y) }
+.v.M <- function(x, y) { dim(x) <- c(1L, length(x)); callGeneric(x, y) }
 
 .M.DN <- function(x) if(!is.null(dn <- dimnames(x))) dn else list(NULL,NULL)
 
@@ -75,6 +75,7 @@ MatrixClass <- function(cl, cld = getClassDef(cl),
     ## ----------------------------------------------------------------------
     ## Author: Martin Maechler, Date: 24 Mar 2009
 
+    ## stopifnot(is.character(cl))
     ## Hmm, packageSlot(cl)  *can* be misleading --> use  cld@package  first:
     if(is.null(pkg <- cld@package)) {
 	if(is.null(pkg <- packageSlot(cl))) return(character())

@@ -599,7 +599,7 @@ SEXP diag_tC_ptr(int n, int *x_p, double *x_x, int *perm, SEXP resultKind)
 	break;
 
     default: /* -1 from above */
-	error("diag_tC(): invalid 'resultKind'");
+	error(_("diag_tC(): invalid 'resultKind'"));
 	/* Wall: */ ans = R_NilValue; v = REAL(ans);
     }
 
@@ -675,7 +675,7 @@ SEXP create_Csparse(char* cls, int* i, int* j, int* p, int np,
 		if (p[ii] > p[ii + 1])
 		    error(_("p must be non-decreasing"));
 	    if (p[np] != nnz)
-		error(_("p[np] = %d != nnz = %d"), p[np], nnz);
+		error("p[np] = %d != nnz = %d", p[np], nnz);
 	    ij = Calloc(nnz, int);
 	    if (mi) {
 		i = ij;
@@ -704,7 +704,7 @@ SEXP create_Csparse(char* cls, int* i, int* j, int* p, int np,
     if (ncol < 0) {
 	for (int jj = 0; jj < nnz; jj++) {
 	    int j1 = j[jj] + (index1 ? 0 : 1);
-	    if (j1 < 1) error(_("invalid column index at position %d"), jj);	    
+	    if (j1 < 1) error(_("invalid column index at position %d"), jj);
 	    if (j1 > ncol) ncol = j1;
 	}
     }

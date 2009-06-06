@@ -20,12 +20,10 @@
 }
 \section{Slots}{
   \describe{
-    \item{\code{Dim}:}{the matrix dimension, see class \linkS4class{Matrix}.}
-    \item{\code{Dimnames}:}{see the "Matrix" class.}
+    \item{\code{Dim}:}{the matrix dimension, see class \code{"\linkS4class{Matrix}"}.}
+    \item{\code{Dimnames}:}{see the \code{"Matrix"} class.}
     \item{\code{x}:}{a \code{\link{numeric}} vector containing the
       (non-zero) matrix entries.}
-    \item{\code{factors}:}{Object of class \code{"list"} - a list
-      of factorizations of the matrix. }
   }
 }
 \section{Extends}{

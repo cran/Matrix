@@ -33,18 +33,7 @@
   class \code{"Matrix"} directly.
 }
 \section{Slots}{
-  %% MM :adding the slots here because "R CMD check" gave warning
-  %%  _WHY_ was this not necessary in ./ddenseMatrix-class.Rd ?
-  %%   or ./sparseMatrix-class.Rd  ???
-  exactly those of its superclass \code{"Matrix"}, i.e.,
-  \describe{
-    \item{\code{factors}:}{Object of class \code{"list"} - a list
-      of factorizations of the matrix.}
-    \item{\code{Dim}:}{length 2 \code{"integer"}}
-    \item{\code{Dimnames}:}{\code{"list"} of length 2,}
-  }
-  %% not sufficient: \code{Dim}, and \code{Dimnames},
-  see \code{\linkS4class{Matrix}}.
+  exactly those of its superclass \code{"\linkS4class{Matrix}"}.
 }
 %
 \section{Methods}{

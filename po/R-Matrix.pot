@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: R 2.10.0\n"
 "Report-Msgid-Bugs-To: bugs@r-project.org\n"
-"POT-Creation-Date: 2009-05-25 12:15\n"
+"POT-Creation-Date: 2009-05-29 12:38\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -182,10 +182,7 @@ msgstr ""
 msgid "<sparse>[ <logic> ] : .M.sub.i.logical() maybe inefficient"
 msgstr ""
 
-msgid "nargs() ="
-msgstr ""
-
-msgid ".  Extraneous illegal arguments inside '[ .. ]' (i.logical)?"
+msgid "nargs() = %d.  Extraneous illegal arguments inside '[ .. ]' (i.logical)?"
 msgstr ""
 
 msgid "m[ <ij-matrix> ]: inefficiently indexing single elements"
@@ -200,7 +197,7 @@ msgstr ""
 msgid "such indexing must be by logical or 2-column numeric matrix"
 msgstr ""
 
-msgid ".  Extraneous illegal arguments inside '[ .. ]' (i.2col)?"
+msgid "nargs() = %d.  Extraneous illegal arguments inside '[ .. ]' (i.2col)?"
 msgstr ""
 
 msgid ".M.repl.i.2col(): 'i' has no integer column number;"
@@ -218,7 +215,7 @@ msgstr ""
 msgid "m[ <ij-matrix> ] <- v: inefficiently treating single elements"
 msgstr ""
 
-msgid ".  Extraneous illegal arguments inside '[ .. ]' ?"
+msgid "nargs() = %d.  Extraneous illegal arguments inside '[ .. ]' ?"
 msgstr ""
 
 msgid "RHS 'value' (class %s) matches 'ANY', but must match matrix class %s"
@@ -305,7 +302,7 @@ msgstr ""
 msgid "internal bug: matrix 'i' in replTmat(): please report"
 msgstr ""
 
-msgid "should never happen; please report."
+msgid "nargs() = %d should never happen; please report."
 msgstr ""
 
 msgid "row indices must be <= nrow(.) which is"
@@ -534,12 +531,6 @@ msgid "'ncol' is not a factor of length(x)"
 msgstr ""
 
 msgid "'nrow' is not a factor of length(x)"
-msgstr ""
-
-msgid "nrow * ncol < length(x)"
-msgstr ""
-
-msgid "nrow * ncol != length(x)"
 msgstr ""
 
 msgid "indexing out of range 0:"

@@ -17,6 +17,8 @@ extern "C" {
 #define _(String) dgettext ("Matrix", String)
 #else
 #define _(String) (String)
+/* Note that this is not yet supported (for Windows, e.g.) in R 2.9.0 : */
+#define dngettext(pkg, String, StringP, N) (N > 1 ? StringP : String)
 #endif
 
 #ifdef __GNUC__

@@ -15,11 +15,11 @@ char La_norm_type(const char *typstr)
 
     if (strlen(typstr) != 1)
 	error(
-	    _("argument type[1]='%s' must be a character string of string length 1"),
+	    _("argument type[1]='%s' must be a one-letter character string"),
 	    typstr);
     typup = toupper(*typstr);
     if (typup == '1')
-	typup = 'O'; /* aliases */
+	typup = 'O'; /* alias */
     else if (typup == 'E')
 	typup = 'F';
     else if (typup != 'M' && typup != 'O' && typup != 'I' && typup != 'F')
@@ -33,8 +33,9 @@ char La_rcond_type(const char *typstr)
     char typup;
 
     if (strlen(typstr) != 1)
-	error(_("argument type[1]='%s' must be a character string of string length 1"),
-	      typstr);
+	error(
+	    _("argument type[1]='%s' must be a one-letter character string"),
+	    typstr);
     typup = toupper(*typstr);
     if (typup == '1')
 	typup = 'O'; /* alias */
@@ -67,7 +68,7 @@ set_double_by_name(SEXP obj, double val, char *nm)
     int i, len = length(obj);
 
     if ((!isReal(obj)) || (length(obj) > 0 && nms == R_NilValue))
-	error("object must be a named, numeric vector");
+	error(_("object must be a named, numeric vector"));
     for (i = 0; i < len; i++) {
 	if (!strcmp(nm, CHAR(STRING_ELT(nms, i)))) {
 	    REAL(obj)[i] = val;
@@ -114,7 +115,7 @@ SEXP get_factors(SEXP obj, char *nm)
     int i, len = length(fac);
 
     if ((!isNewList(fac)) || (length(fac) > 0 && nms == R_NilValue))
-	error("factors slot must be a named list");
+	error(_("'factors' slot must be a named list"));
     for (i = 0; i < len; i++) {
 	if (!strcmp(nm, CHAR(STRING_ELT(nms, i)))) {
 	    return VECTOR_ELT(fac, i);
@@ -130,7 +131,7 @@ SEXP set_factors(SEXP obj, SEXP val, char *nm)
     int i, len = length(fac);
 
     if ((!isNewList(fac)) || (length(fac) > 0 && nms == R_NilValue))
-	error("factors slot must be a named list");
+	error(_("'factors' slot must be a named list"));
     for (i = 0; i < len; i++) {
 	if (!strcmp(nm, CHAR(STRING_ELT(nms, i)))) {
 	    SET_VECTOR_ELT(fac, i, duplicate(val));
@@ -899,7 +900,7 @@ int Matrix_check_class_etc(SEXP x, char **valid)
 	UNPROTECT(1);
 
 	if(!isEnvironment(rho))
-	    error("could not find correct environment; please report!");
+	    error(_("could not find correct environment; please report!"));
     }
 /*     UNPROTECT(1); */
     return Matrix_check_class_and_super(x, valid, rho);

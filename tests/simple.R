@@ -435,10 +435,15 @@ for(M in list(kt1, nt1, ng1, dg1, lt1, nt1)) {
     }
 }
 
-(N <- as(crossprod(kronecker(diag(2), Matrix(c(2:0,1),2))) > 0,
+M <- Matrix(c(2:0,1),2); M. <- as(M, "sparseMatrix")
+(N <- as(crossprod(kronecker(diag(2), M)) > 0,
          "nMatrix"))
 (L. <- as(N,"lMatrix"))
-stopifnot(identical(N, as(L.,"nMatrix")))
+stopifnot(identical(N, as(L.,"nMatrix")),
+	  identical(kronecker(	  c(1,0), M),
+		    kronecker(cbind(1:0), M)))
+assert.EQ.mat(kronecker(M,	      c(1,0,0)),
+	      kronecker(as.matrix(M), c(1,0,0)))
 
 ## coercion from "dpo" or "dsy"
 xx <- as(xpx, "dsyMatrix")

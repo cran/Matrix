@@ -57,7 +57,7 @@
       \code{p[1] == 0} and \code{p[length(p)] == nnzero}, such that in
       fact, \code{diff(.@p)} are the number of non-zero elements for
       each column.}
-    \item{\code{factors}, \code{Dim}, \code{Dimnames}:}{inherited from
+    \item{\code{Dim}, \code{Dimnames}:}{inherited from
       the superclass, see the \code{\linkS4class{sparseMatrix}} class.}
   }
 }

@@ -195,7 +195,7 @@ SEXP dsCMatrix_to_dgTMatrix(SEXP x)
     R_CheckStack();
 
     if (!A->stype)
-	error("Non-symmetric matrix passed to dsCMatrix_to_dgTMatrix");
+	error(_("Non-symmetric matrix passed to dsCMatrix_to_dgTMatrix"));
     cholmod_l_free_sparse(&Afull, &c);
     return chm_triplet_to_SEXP(At, 1, /*uploT*/ 0, /*Rkind*/ 0, "",
 			       GET_SLOT(x, Matrix_DimNamesSym));

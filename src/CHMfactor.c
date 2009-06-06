@@ -79,7 +79,7 @@ double chm_factor_ldetL2(CHM_FR f)
 	for (j = 0; j < f->n; j++) {
 	    for (p = lp[j]; li[p] != j && p < lp[j + 1]; p++) {};
 	    if (li[p] != j) {
-		error(_("%d diagonal element of Cholesky factor is missing"), j);
+		error(_("diagonal element %d of Cholesky factor is missing"), j);
 		break;		/* -Wall */
 	    }
 	    ans += log(lx[p] * ((f->is_ll) ? lx[p] : 1.));

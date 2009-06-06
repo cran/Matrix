@@ -108,7 +108,7 @@ dimnamesGets <- function (x, value) {
     if (!is.list(value) || length(value) != 2 ||
 	!(is.null(v1 <- value[[1]]) || length(v1) == d[1]) ||
 	!(is.null(v2 <- value[[2]]) || length(v2) == d[2]))
-	stop(sprintf("invalid dimnames given for '%s' object", class(x)))
+	stop(gettextf("invalid dimnames given for '%s' object", class(x)))
     x@Dimnames <- list(if(!is.null(v1)) as.character(v1),
 		       if(!is.null(v2)) as.character(v2))
     x
@@ -474,8 +474,9 @@ setMethod("[", signature(x = "Matrix", i = "ANY", j = "ANY", drop = "ANY"),
 	    ## keep j missing, but  drop = "logical"
 	    callGeneric(as(x,"generalMatrix"), i = i, , drop = TRUE)
 
-    } else stop("nargs() = ", nA,
-		".  Extraneous illegal arguments inside '[ .. ]' (i.logical)?")
+    } else stop(gettextf(
+		"nargs() = %d.  Extraneous illegal arguments inside '[ .. ]' (i.logical)?",
+			 nA))
 }
 setMethod("[", signature(x = "Matrix", i = "lMatrix", j = "missing",
 			 drop = "ANY"),
@@ -559,8 +560,9 @@ subset.ij <- function(x, ij) {
         ## else
         subset.ij(x, i)
 
-    } else stop("nargs() = ", nA,
-		".  Extraneous illegal arguments inside '[ .. ]' (i.2col)?")
+    } else stop(gettextf(
+		"nargs() = %d.  Extraneous illegal arguments inside '[ .. ]' (i.2col)?",
+			 nA))
 }
 setMethod("[", signature(x = "Matrix", i = "matrix", j = "missing"),# drop="ANY"
 	  .M.sub.i.2col)
@@ -620,8 +622,9 @@ setReplaceMethod("[", signature(x = "Matrix", i = "missing", j = "missing",
 	    x[i1[k], i2[k]] <- value[k]
 
 	x
-    } else stop("nargs() = ", nA,
-		".  Extraneous illegal arguments inside '[ .. ]' ?")
+    } else stop(gettextf(
+		"nargs() = %d.  Extraneous illegal arguments inside '[ .. ]' ?",
+			 nA))
 }
 
 setReplaceMethod("[", signature(x = "Matrix", i = "matrix", j = "missing",
@@ -666,7 +669,8 @@ setReplaceMethod("[", signature(x = "Matrix", i = "ANY", j = "ANY",
                                 value = "ANY"),
 	  function (x, i, j, value) {
               if(!is.atomic(value))
-		  stop(sprintf("RHS 'value' (class %s) matches 'ANY', but must match matrix class %s",
-			       class(value),class(x)))
+		  stop(gettextf(
+		"RHS 'value' (class %s) matches 'ANY', but must match matrix class %s",
+			       class(value), class(x)))
               else stop("not-yet-implemented 'Matrix[<-' method")
           })

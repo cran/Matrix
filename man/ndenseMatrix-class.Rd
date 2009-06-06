@@ -33,8 +33,6 @@
 \section{Slots}{
   \describe{
     \item{\code{x}:}{logical vector containing the entries of the matrix.}
-    \item{\code{factors}:}{Object of class \code{"list"}, possibly
-      containing matrix factorizations.}
     \item{\code{Dim}, \code{Dimnames}:}{see \code{\linkS4class{Matrix}}.}
   }
 }

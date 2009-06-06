@@ -138,8 +138,8 @@ spV2M <- function (x, nrow, ncol, byrow = FALSE)
 	    ncol <- as.integer(ceiling(n / nrow))
 	} else { ## both nrow and ncol specified
 	    n.n <- as.double(ncol) * nrow # no integer overflow
-	    if(n.n <  n) stop("nrow * ncol < length(x)")
-	    if(n.n != n) warning("nrow * ncol != length(x)")
+	    if(n.n <  n) stop("nrow * ncol < length(x)", domain = NA)
+	    if(n.n != n) warning("nrow * ncol != length(x)", domain = NA)
 	}
     }
     ## now nrow * ncol >= n

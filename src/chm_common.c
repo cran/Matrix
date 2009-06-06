@@ -103,9 +103,9 @@ CHM_SP as_cholmod_sparse(CHM_SP ans, SEXP x, Rboolean check_Udiag, Rboolean sort
 
     SEXP islot = GET_SLOT(x, Matrix_iSym);
 
-    if (ctype < 0) error("invalid class of object to as_cholmod_sparse");
+    if (ctype < 0) error(_("invalid class of object to as_cholmod_sparse"));
     if (!isValid_Csparse(x))
-	error("invalid object passed to as_cholmod_sparse");
+	error(_("invalid object passed to as_cholmod_sparse"));
     memset(ans, 0, sizeof(cholmod_sparse)); /* zero the struct */
 
     ans->itype = CHOLMOD_LONG;	/* characteristics of the system */
@@ -208,7 +208,7 @@ SEXP chm_sparse_to_SEXP(CHM_SP a, int dofree, int uploT, int Rkind,
     case CHOLMOD_COMPLEX:
 	cls = uploT ? "ztCMatrix": ((a->stype) ? "zsCMatrix" : "zgCMatrix");
 	break;
-    default: error("unknown xtype in cholmod_sparse object");
+    default: error(_("unknown xtype in cholmod_sparse object"));
     }
     ans = PROTECT(NEW_OBJECT(MAKE_CLASS(cls)));
 				/* allocate and copy common slots */
@@ -233,11 +233,11 @@ SEXP chm_sparse_to_SEXP(CHM_SP a, int dofree, int uploT, int Rkind,
 	}
     }
     else if (a->xtype == CHOLMOD_COMPLEX)
-	error("complex sparse matrix code not yet written");
+	error(_("complex sparse matrix code not yet written"));
 /* 	Memcpy(COMPLEX(ALLOC_SLOT(ans, Matrix_xSym, CPLXSXP, nnz)), */
 /* 	       (complex *) a->x, nnz); */
     if (uploT) {		/* slots for triangularMatrix */
-	if (a->stype) error("Symmetric and triangular both set");
+	if (a->stype) error(_("Symmetric and triangular both set"));
 	SET_SLOT(ans, Matrix_uploSym, mkString((uploT > 0) ? "U" : "L"));
 	SET_SLOT(ans, Matrix_diagSym, mkString(diag));
     }
@@ -279,7 +279,7 @@ CHM_TR as_cholmod_triplet(CHM_TR ans, SEXP x, Rboolean check_Udiag)
     SEXP islot;
     Rboolean do_Udiag = (check_Udiag && ctype % 3 == 2 && (*diag_P(x) == 'U'));
 
-    if (ctype < 0) error("invalid class of object to as_cholmod_triplet");
+    if (ctype < 0) error(_("invalid class of object to as_cholmod_triplet"));
     memset(ans, 0, sizeof(cholmod_triplet)); /* zero the struct */
 
     ans->itype = CHOLMOD_LONG;	/* characteristics of the system */
@@ -393,7 +393,7 @@ SEXP chm_triplet_to_SEXP(CHM_TR a, int dofree, int uploT, int Rkind,
 	cl = uploT ? "ztTMatrix" :
 	    ((a->stype) ? "zsTMatrix" : "zgTMatrix");
 	break;
-    default: error("unknown xtype in cholmod_triplet object");
+    default: error(_("unknown xtype in cholmod_triplet object"));
     }
     ans = PROTECT(NEW_OBJECT(MAKE_CLASS(cl)));
 				/* allocate and copy common slots */
@@ -421,11 +421,11 @@ SEXP chm_triplet_to_SEXP(CHM_TR a, int dofree, int uploT, int Rkind,
 	}
     }
     else if (a->xtype == CHOLMOD_COMPLEX)
-	error("complex sparse matrix code not yet written");
+	error(_("complex sparse matrix code not yet written"));
 /* 	Memcpy(COMPLEX(ALLOC_SLOT(ans, Matrix_xSym, CPLXSXP, a->nnz)), */
 /* 	       (complex *) a->x, a->nz); */
     if (uploT) {		/* slots for triangularMatrix */
-	if (a->stype) error("Symmetric and triangular both set");
+	if (a->stype) error(_("Symmetric and triangular both set"));
 	SET_SLOT(ans, Matrix_uploSym, mkString((uploT > 0) ? "U" : "L"));
 	SET_SLOT(ans, Matrix_diagSym, mkString(diag));
     }
@@ -474,7 +474,7 @@ CHM_DN as_cholmod_dense(CHM_DN ans, SEXP x)
 		 (isLogical(x) ? 2 : /* logical -> default to "l", not "n" */ \
 		  (isComplex(x) ? 6 : -1)));				\
     } else Memcpy(dims, INTEGER(GET_SLOT(x, Matrix_DimSym)), 2);	\
-    if (ctype < 0) error("invalid class of object to as_cholmod_dense");\
+    if (ctype < 0) error(_("invalid class of object to as_cholmod_dense")); \
     memset(ans, 0, sizeof(cholmod_dense)); /* zero the struct */        \
                                                                         \
     ans->dtype = CHOLMOD_DOUBLE; /* characteristics of the system */	\
@@ -606,13 +606,13 @@ SEXP chm_dense_to_SEXP(CHM_DN a, int dofree, int Rkind, SEXP dn)
 	case -1: cl = "ngeMatrix"; break;
 	case 0:	 cl = "dgeMatrix"; break;
 	case 1:	 cl = "lgeMatrix"; break;
-	default: error("unknown 'Rkind'");
+	default: error(_("unknown 'Rkind'"));
 	}
 	break;
     case CHOLMOD_COMPLEX:
 	cl = "zgeMatrix"; break;
     default:
-	error("unknown xtype");
+	error(_("unknown xtype"));
     }
 
     ans = PROTECT(NEW_OBJECT(MAKE_CLASS(cl)));
@@ -639,10 +639,10 @@ SEXP chm_dense_to_SEXP(CHM_DN a, int dofree, int Rkind, SEXP dn)
 	    }
 	}
 	else if (a->xtype == CHOLMOD_COMPLEX)
-	    error("complex sparse matrix code not yet written");
+	    error(_("complex sparse matrix code not yet written"));
 /*	Memcpy(COMPLEX(ALLOC_SLOT(ans, Matrix_xSym, CPLXSXP, ntot)), */
 /*	       (complex *) a->x, ntot); */
-    } else error("code for cholmod_dense with holes not yet written");
+    } else error(_("code for cholmod_dense with holes not yet written"));
 
     if (dofree > 0) cholmod_l_free_dense(&a, &c);
     if (dofree < 0) Free(a);
@@ -672,19 +672,19 @@ SEXP chm_dense_to_matrix(CHM_DN a, int dofree, SEXP dn)
     typ = (a->xtype == CHOLMOD_PATTERN) ? LGLSXP :
 	((a->xtype == CHOLMOD_REAL) ? REALSXP :
 	 ((a->xtype == CHOLMOD_COMPLEX) ? CPLXSXP : NILSXP));
-    if (typ == NILSXP) error("unknown xtype");
+    if (typ == NILSXP) error(_("unknown xtype"));
 
     ans = PROTECT(allocMatrix(typ, a->nrow, a->ncol));
     if (a->d == a->nrow) {	/* copy data slot if present */
 	if (a->xtype == CHOLMOD_REAL)
 	    Memcpy(REAL(ans), (double *) a->x, a->nrow * a->ncol);
 	else if (a->xtype == CHOLMOD_COMPLEX)
-	    error("complex sparse matrix code not yet written");
+	    error(_("complex sparse matrix code not yet written"));
 	else if (a->xtype == CHOLMOD_PATTERN)
-	    error("don't know if a dense pattern matrix makes sense");
+	    error(_("don't know if a dense pattern matrix makes sense"));
 /* 	Memcpy(COMPLEX(ALLOC_SLOT(ans, Matrix_xSym, CPLXSXP, a->nnz)), */
 /* 	       (complex *) a->x, a->nz); */
-    } else error("code for cholmod_dense with holes not yet written");
+    } else error(_("code for cholmod_dense with holes not yet written"));
 
     if (dofree > 0) cholmod_l_free_dense(&a, &c);
     if (dofree < 0) Free(a);
@@ -725,7 +725,7 @@ CHM_FR as_cholmod_factor(CHM_FR ans, SEXP x)
 	ctype = Matrix_check_class_etc(x, valid);
     SEXP tmp;
 
-    if (ctype < 0) error("invalid class of object to as_cholmod_factor");
+    if (ctype < 0) error(_("invalid class of object to as_cholmod_factor"));
     memset(ans, 0, sizeof(cholmod_factor)); /* zero the struct */
 
     ans->itype = CHOLMOD_LONG;	/* characteristics of the system */

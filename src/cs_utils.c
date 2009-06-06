@@ -34,7 +34,7 @@ static CSP csp_eye(int n)
     int *ep = eye->p, *ei = eye->i;
     double *ex = eye->x;
 
-    if (n <= 0) error("csp_eye argument n must be positive");
+    if (n <= 0) error(_("csp_eye argument n must be positive"));
     eye->nz = -1;		/* compressed column storage */
     for (int j = 0; j < n; j++) {
 	ep[j] = ei[j] = j;
@@ -65,7 +65,7 @@ cs *Matrix_as_cs(cs *ans, SEXP x, Rboolean check_Udiag)
     int *dims, ctype = Matrix_check_class_etc(x, valid);
     SEXP islot;
 
-    if (ctype < 0) error("invalid class of 'x' in Matrix_as_cs(a, x)");
+    if (ctype < 0) error(_("invalid class of 'x' in Matrix_as_cs(a, x)"));
 				/* dimensions and nzmax */
     dims = INTEGER(GET_SLOT(x, Matrix_DimSym));
     ans->m = dims[0]; ans->n = dims[1];
@@ -124,7 +124,7 @@ SEXP Matrix_cs_to_SEXP(cs *a, char *cl, int dofree)
     int *dims, ctype = Matrix_check_class(cl, valid), nz;
 
     if (ctype < 0)
-	error(_("invalid class of object to Matrix_cs_to_SEXP"));
+	error(_("invalid class of object to %s"), "Matrix_cs_to_SEXP");
     ans = PROTECT(NEW_OBJECT(MAKE_CLASS(cl)));
 				/* allocate and copy common slots */
     dims = INTEGER(ALLOC_SLOT(ans, Matrix_DimSym, INTSXP, 2));
@@ -167,7 +167,8 @@ css *Matrix_as_css(css *ans, SEXP x)
     int *nz = INTEGER(GET_SLOT(x, install("nz"))),
 	ctype = Matrix_check_class(cl, valid);
 
-    if (ctype < 0) error("invalid class of object to Matrix_as_css");
+    if (ctype < 0)
+	error(_("invalid class of object to %s"), "Matrix_as_css");
     ans->q = INTEGER(GET_SLOT(x, install("Q")));
     ans->m2 = nz[0]; ans->lnz = nz[1]; ans->unz = nz[2];
     switch(ctype) {
@@ -182,7 +183,7 @@ css *Matrix_as_css(css *ans, SEXP x)
 	ans->cp = INTEGER(GET_SLOT(x, install("cp")));
 	break;
     default:
-	error("invalid class of object to Matrix_as_css");
+	error(_("invalid class of object to %s"), "Matrix_as_css");
     }
     return ans;
 }
@@ -201,7 +202,8 @@ csn *Matrix_as_csn(csn *ans, SEXP x)
     char *valid[] = {"csn_LU", "csn_QR", ""};
     int ctype = Matrix_check_class(class_P(x), valid);
 
-    if (ctype < 0) error("invalid class of object to Matrix_as_csn");
+    if (ctype < 0)
+	error(_("invalid class of object to %s"), "Matrix_as_csn");
     ans->U = Matrix_as_cs(GET_SLOT(x, install("U")));
     ans->L = Matrix_as_cs(GET_SLOT(x, install("L")));
     switch(ctype) {
@@ -214,7 +216,7 @@ csn *Matrix_as_csn(csn *ans, SEXP x)
 	ans->pinv = (int*) NULL;
 	break;
     default:
-	error("invalid class of object to Matrix_as_csn");
+	error(_("invalid class of object to %s"), "Matrix_as_csn");
     }
     return ans;
 }
@@ -238,7 +240,8 @@ SEXP Matrix_css_to_SEXP(css *S, char *cl, int dofree, int m, int n)
     int *nz, ctype = Matrix_check_class(cl, valid);
 
     if (ctype < 0)
-	error("Inappropriate class '%s' for Matrix_css_to_SEXP", cl);
+	error(_("Inappropriate class cl='%s' in Matrix_css_to_SEXP(S, cl, ..)"),
+	      cl);
     ans = PROTECT(NEW_OBJECT(MAKE_CLASS(cl)));
 				/* allocate and copy common slots */
     Memcpy(INTEGER(ALLOC_SLOT(ans, install("Q"), INTSXP, n)), S->q, n);
@@ -256,7 +259,8 @@ SEXP Matrix_css_to_SEXP(css *S, char *cl, int dofree, int m, int n)
 	       S->cp, n);
 	break;
     default:
-	error("Inappropriate class '%s' for Matrix_css_to_SEXP", cl);
+	error(_("Inappropriate class cl='%s' in Matrix_css_to_SEXP(S, cl, ..)"),
+	      cl);
     }
     if (dofree > 0) cs_sfree(S);
     if (dofree < 0) Free(S);
@@ -281,7 +285,8 @@ SEXP Matrix_csn_to_SEXP(csn *N, char *cl, int dofree)
     int ctype = Matrix_check_class(cl, valid), n = (N->U)->n;
 
     if (ctype < 0)
-	error("Inappropriate class '%s' for Matrix_csn_to_SEXP", cl);
+	error(_("Inappropriate class cl='%s' in Matrix_csn_to_SEXP(S, cl, ..)"),
+	      cl);
     ans = PROTECT(NEW_OBJECT(MAKE_CLASS(cl)));
 				/* allocate and copy common slots */
     /* FIXME: Use the triangular matrix classes for csn_LU */
@@ -299,7 +304,8 @@ SEXP Matrix_csn_to_SEXP(csn *N, char *cl, int dofree)
 	       N->B, n);
 	break;
     default:
-	error("Inappropriate class '%s' for Matrix_csn_to_SEXP", cl);
+	error(_("Inappropriate class cl='%s' in Matrix_csn_to_SEXP(S, cl, ..)"),
+	      cl);
     }
     if (dofree > 0) cs_nfree(N);
     if (dofree < 0) {

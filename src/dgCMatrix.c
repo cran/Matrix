@@ -221,12 +221,12 @@ SEXP dgCMatrix_QR(SEXP Ap, SEXP order)
     int *dims = INTEGER(ALLOC_SLOT(ans, Matrix_DimSym, INTSXP, 2));
     R_CheckStack();
 
-    if (m < n) error("A must have # rows >= # columns") ;
+    if (m < n) error(_("A must have #{rows} >= #{columns}")) ;
     dims[0] = m; dims[1] = n;
     S = cs_sqr(ord, A, 1);	/* symbolic QR ordering & analysis*/
-    if (!S) error("cs_sqr failed");
+    if (!S) error(_("cs_sqr failed"));
     N = cs_qr(A, S);		/* numeric QR factorization */
-    if (!N) error("cs_qr failed") ;
+    if (!N) error(_("cs_qr failed")) ;
     cs_dropzeros(N->L);		/* drop zeros from V and sort */
     D = cs_transpose(N->L, 1);
     cs_spfree(N->L);
@@ -346,7 +346,7 @@ SEXP dgCMatrix_LU(SEXP Ap, SEXP orderp, SEXP tolp)
     if (ans != R_NilValue) return ans;
     n = A->n;
     if (A->m != n)
-	error("LU decomposition applies only to square matrices");
+	error(_("LU decomposition applies only to square matrices"));
     if (order) {		/* not using natural order */
 	order = (tol == 1) ? 2	/* amd(S'*S) w/dense rows or I */
 	    : 1;		/* amd (A+A'), or natural */
@@ -354,7 +354,7 @@ SEXP dgCMatrix_LU(SEXP Ap, SEXP orderp, SEXP tolp)
     S = cs_sqr (order, A, 0) ;	/* symbolic ordering, no QR bound */
     N = cs_lu (A, S, tol) ;	/* numeric factorization */
     if (!N) {
-	error ("cs_lu(A) failed: near-singular A (or out of memory)");
+	error (_("cs_lu(A) failed: near-singular A (or out of memory)"));
 	return R_NilValue; /*-Wall*/
     }
     cs_dropzeros (N->L) ;	/* drop zeros from L and sort it */

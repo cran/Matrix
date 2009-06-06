@@ -17,7 +17,7 @@ SEXP sparseQR_validate(SEXP x)
     if (lq && lq != R->n)
 	return mkString(_("length(q) must be zero or ncol(R)"));
     if (V->n != R->n)
-	return mkString(_("ncol(V) != ncol(R)"));
+	return mkString("ncol(V) != ncol(R)");
     /* FIXME: Check that the permutations are permutations */
     return ScalarLogical(1);
 }

@@ -1,8 +1,34 @@
+2009-06-06  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Tsparse.R: add numeric -> Tsparse* coercion
+
+2009-06-05  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/Mutils.h, src/dgeMatrix.c: using dngettext(.) only
+	on future versions of R.
+
+2009-06-04  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.999375-28, CRAN-released: 2009-06-08
+
+	* po/de.po, po/R-de.po: German translations from Chris Leick.
+	* inst/po/de/: ditto, via po/update-me.sh
+
+2009-05-28  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/chm_common.c, src/cs_utils.c, etc: internationalize more
+	messages; fix some; thanks to feedback from Chris Leick.
+
+2009-05-27  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* man/denseMatrix-class.Rd, etc: 'factors' is *not* a slot in this
+	class; found by the upcoming R 2.10.0 codocClasses().
+
 2009-05-25  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* po/update-me.sh, Matrix.pot, etc: updated *.pot / *.po files
 
-	* DESCRIPTION (Version, Date): 0.999375-27, CRAN-released on ...
+	* DESCRIPTION (Version, Date): 0.999375-27, CRAN-released today.
 
 	* R/sparseVector.R: add as(<atomic>, "dsparseVector")
 	(spV2M): now works (again!?) for "isparseVector" (-> "dgTMatrix").
@@ -21,7 +47,6 @@
 
 	* R/Auxiliaries.R (.M.v, .v.M): slight speedup, and *use* them in
 	* R/Matrix.R (crossprod)
-
 
 2009-05-18  Martin Maechler  <maechler@stat.math.ethz.ch>
 
@@ -42,6 +67,12 @@
 
 	* R/rankMatrix.R (rankMatrix): new function for matrix rank;
 	"to be discussed".
+
+2009-05-07  Doug Bates and Martin Maechler <Matrix-authors@r-project.org>
+
+	* src/Mutils.c (Matrix_check_class_etc): diverse smallish
+	improvements, stuffing a small leak, adding PROTECT()ion,
+	but, alas, not enough.
 
 2009-05-06  Martin Maechler  <maechler@stat.math.ethz.ch>
 

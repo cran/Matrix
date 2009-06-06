@@ -22,15 +22,14 @@ bandSparse <- function(n, m = n, k, diagonals, symmetric = FALSE)
     if(use.x) {
         if(diag.isMat) {
             if(ncol(diagonals) != len.k)
-                stop(sprintf("'diagonals' matrix must have %d columns (= length(k) )",
-                             len.k))
-
+		stop(gettextf("'diagonals' matrix must have %d columns (= length(k) )",
+			      len.k))
             getD <- function(j) diagonals[,j]
 
         } else { ## is.list(diagonals):
             if(length(diagonals) != len.k)
-                stop(sprintf("'diagonals' must have the same length (%d) as 'k'",
-                             len.k))
+		stop(gettextf("'diagonals' must have the same length (%d) as 'k'",
+			      len.k))
             getD <- function(j) diagonals[[j]]
         }
     }

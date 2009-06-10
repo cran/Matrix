@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: bugs@R-project.org\n"
-"POT-Creation-Date: 2009-05-29 12:38+0200\n"
+"POT-Creation-Date: 2009-06-05 15:51+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -616,15 +616,15 @@ msgstr ""
 msgid "Dim slot must have length 2"
 msgstr ""
 
-#: dgeMatrix.c:14
-msgid "Negative value(s) in Dim"
-msgstr ""
-
-#: dgeMatrix.c:17
+#: dgeMatrix.c:15
 msgid "Negative value in Dim"
 msgid_plural "Negative values in Dim"
 msgstr[0] ""
 msgstr[1] ""
+
+#: dgeMatrix.c:19
+msgid "Negative value(s) in Dim"
+msgstr ""
 
 #: dgeMatrix.c:22
 msgid "x slot must be numeric \"double\""

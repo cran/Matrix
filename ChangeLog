@@ -1,3 +1,22 @@
+2009-06-10  Douglas Bates <bates@stat.wisc.edu>
+
+	* [r2404] src/Mutils.c: Change value of set_factor to be the cached factor
+	* [r2403] src/dgCMatrix.c, src/dgCMatrix.h, src/init.c: Comment out
+	  unused dgCMatrix_lusol function
+	* [r2402] R/dgCMatrix.R: R-level implementation of solve("dgCMatrix",
+	  "missing")
+	* [r2401] src/dgCMatrix.c: Re-arrange LU factorization to always use the
+	  cached value.
+
+2009-06-10  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.999375-29, CRAN-released: 2009-06-11
+
+2009-06-09  Douglas Bates <bates@stat.wisc.edu>
+
+	* [r2399] src/dgCMatrix.c: PROTECT the result from dgCMatrix_LU in
+	  dgCMatrix_matrix_solve
+
 2009-06-06  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/Tsparse.R: add numeric -> Tsparse* coercion

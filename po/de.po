@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: R 2.9.0 / matrix 0.999375-26\n"
 "Report-Msgid-Bugs-To: bugs@R-project.org\n"
-"POT-Creation-Date: 2009-05-29 12:38+0200\n"
+"POT-Creation-Date: 2009-06-05 15:51+0200\n"
 "PO-Revision-Date: 2009-05-26 10:21+0100\n"
 "Last-Translator: Chris Leick <c.leick@vollbio.de>\n"
 "Language-Team: German <debian-l10n-german@lists.debian.org>\n"
@@ -52,7 +52,7 @@ msgstr ""
 
 #: Csparse.c:65 Tsparse.c:27
 msgid "all row indices must be between 0 and nrow-1"
-msgstr "alle Zeilenindexe müssen zwischen 0 und nrow-1 liegen"
+msgstr "alle Zeilenindizes müssen zwischen 0 und nrow-1 liegen"
 
 #: Csparse.c:70 Csparse.c:129
 msgid "slot p must be non-decreasing"
@@ -68,7 +68,7 @@ msgstr ""
 
 #: Csparse.c:94
 msgid "row indices are not sorted within columns"
-msgstr "Zeilenindexe sind nicht innerhalb von Spalten sortiert"
+msgstr "Zeilenindizes sind nicht innerhalb von Spalten sortiert"
 
 #: Csparse.c:97
 msgid "slot i is not *strictly* increasing inside a column"
@@ -86,7 +86,7 @@ msgstr ""
 
 #: Csparse.c:124 Tsparse.c:29
 msgid "all column indices must be between 0 and ncol-1"
-msgstr "Alle Spaltenindexe müssen zwischen 0 und ncol-1 liegen"
+msgstr "Alle Spaltenindizes müssen zwischen 0 und ncol-1 liegen"
 
 #: Csparse.c:140
 msgid "slot j is not increasing inside a column"
@@ -411,12 +411,12 @@ msgstr ""
 #: cs_utils.c:68
 #, fuzzy
 msgid "invalid class of 'x' in Matrix_as_cs(a, x)"
-msgstr "ungültige Klasse(x) »%s« in R_to_CMatrix(x)"
+msgstr "ungültige class(x) »%s« in R_to_CMatrix(x)"
 
 #: cs_utils.c:127 cs_utils.c:171 cs_utils.c:186 cs_utils.c:206 cs_utils.c:219
 #, fuzzy, c-format
 msgid "invalid class of object to %s"
-msgstr "ungültige Klasse des Objektes zu Matrix_cs_to_SEXP"
+msgstr "ungültige Klasse des Objektes zu %s"
 
 #: cs_utils.c:140
 #, c-format
@@ -544,12 +544,12 @@ msgstr "Längen der Slots »j« und »x« müssen passen"
 #: dgCMatrix.c:61
 #, c-format
 msgid "invalid class(x) '%s' in compressed_to_TMatrix(x)"
-msgstr "ungültige Klasse(x) »%s« in compressed_to_TMatrix(x)"
+msgstr "ungültige class(x) »%s« in compressed_to_TMatrix(x)"
 
 #: dgCMatrix.c:99
 #, c-format
 msgid "invalid class(x) '%s' in R_to_CMatrix(x)"
-msgstr "ungültige Klasse(x) »%s« in R_to_CMatrix(x)"
+msgstr "ungültige class(x) »%s« in R_to_CMatrix(x)"
 
 #: dgCMatrix.c:164
 msgid "dgCMatrix_lusol requires a square, non-empty matrix"
@@ -573,7 +573,7 @@ msgstr "dgCMatrix_qrsol(., Anordnung) benötigt Anordnung in {0,..,3}"
 #, c-format
 msgid "dgCMatrix_qrsol(<%d x %d>-matrix) requires a 'tall' rectangular matrix"
 msgstr ""
-"dgCMatrix_qrsol(<%d x %d>-Matrix) benötigt eine »tall«-rechteckige Matrix"
+"dgCMatrix_qrsol(<%d x %d>-Matrix) benötigt eine »lange« rechteckige Matrix"
 
 #: dgCMatrix.c:198
 msgid "cs_qrsol failed"
@@ -584,14 +584,12 @@ msgid "A must have #{rows} >= #{columns}"
 msgstr ""
 
 #: dgCMatrix.c:227
-#, fuzzy
 msgid "cs_sqr failed"
-msgstr "cs_qrsol fehlgeschlagen"
+msgstr "cs_sqr fehlgeschlagen"
 
 #: dgCMatrix.c:229
-#, fuzzy
 msgid "cs_qr failed"
-msgstr "cs_qrsol fehlgeschlagen"
+msgstr "cs_qr fehlgeschlagen"
 
 #: dgCMatrix.c:295
 msgid "SuiteSparseQR_C_QR returned an error code"
@@ -626,7 +624,7 @@ msgstr ""
 
 #: dgTMatrix.c:15
 msgid "lengths of slots i and x must match"
-msgstr "Länge der Slots i und x muss passen"
+msgstr "Längen der Slots i und x müssen zusammen passen"
 
 #: dgTMatrix.c:56
 #, c-format
@@ -637,16 +635,15 @@ msgstr "Zu große *geMatrix mit %.0f Einträgen kann nicht erzwungen werden"
 msgid "Dim slot must have length 2"
 msgstr "Dim-Slot muss die Länge 2 haben"
 
-#: dgeMatrix.c:14
-msgid "Negative value(s) in Dim"
-msgstr "Negative(r) Wert(e) in Dim"
-
-#: dgeMatrix.c:17
-#, fuzzy
+#: dgeMatrix.c:15
 msgid "Negative value in Dim"
 msgid_plural "Negative values in Dim"
-msgstr[0] "Negative(r) Wert(e) in Dim"
-msgstr[1] "Negative(r) Wert(e) in Dim"
+msgstr[0] "Negativer Wert in Dim"
+msgstr[1] "Negative Werte in Dim"
+
+#: dgeMatrix.c:19
+msgid "Negative value(s) in Dim"
+msgstr "Negative(r) Wert(e) in Dim"
 
 #: dgeMatrix.c:22
 msgid "x slot must be numeric \"double\""
@@ -743,7 +740,7 @@ msgstr "dpoMatrix ist nicht positiv definit"
 #: dpoMatrix.c:39 dppMatrix.c:33
 #, c-format
 msgid "the leading minor of order %d is not positive definite"
-msgstr "der führende Minor der Anordnung %d ist nicht positiv definit"
+msgstr "der führende Minor der Ordnung %d ist nicht positiv definit"
 
 #: dpoMatrix.c:93
 msgid "Cannot solve() for matrices with zero extents"

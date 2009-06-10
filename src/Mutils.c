@@ -124,6 +124,10 @@ SEXP get_factors(SEXP obj, char *nm)
     return R_NilValue;
 }
 
+/* In the past this function installed a duplicate of val in the
+ * factors slot for obj then returned the (typically unprotected)
+ * val.  This is now changed to return the duplicate, which will be
+ * protected if obj is protected. */
 SEXP set_factors(SEXP obj, SEXP val, char *nm)
 {
     SEXP fac = GET_SLOT(obj, Matrix_factorSym),
@@ -149,7 +153,7 @@ SEXP set_factors(SEXP obj, SEXP val, char *nm)
     SET_STRING_ELT(nnms, len, mkChar(nm));
     SET_SLOT(obj, Matrix_factorSym, nfac);
     UNPROTECT(2);
-    return val;
+    return VECTOR_ELT(nfac, len);
 }
 
 #if 0 				/* unused */

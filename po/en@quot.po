@@ -29,8 +29,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: R 2.10.0\n"
 "Report-Msgid-Bugs-To: bugs@R-project.org\n"
-"POT-Creation-Date: 2009-05-29 12:38+0200\n"
-"PO-Revision-Date: 2009-05-29 12:38+0200\n"
+"POT-Creation-Date: 2009-06-05 15:51+0200\n"
+"PO-Revision-Date: 2009-06-05 15:51+0200\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
 "MIME-Version: 1.0\n"
@@ -639,15 +639,15 @@ msgstr "Cannot coerce to too large *geMatrix with %.0f entries"
 msgid "Dim slot must have length 2"
 msgstr "Dim slot must have length 2"
 
-#: dgeMatrix.c:14
-msgid "Negative value(s) in Dim"
-msgstr "Negative value(s) in Dim"
-
-#: dgeMatrix.c:17
+#: dgeMatrix.c:15
 msgid "Negative value in Dim"
 msgid_plural "Negative values in Dim"
 msgstr[0] "Negative value in Dim"
 msgstr[1] "Negative values in Dim"
+
+#: dgeMatrix.c:19
+msgid "Negative value(s) in Dim"
+msgstr "Negative value(s) in Dim"
 
 #: dgeMatrix.c:22
 msgid "x slot must be numeric \"double\""

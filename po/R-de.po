@@ -21,7 +21,7 @@ msgid ""
 " ->>  Ask the package authors to implement the missing feature."
 msgstr ""
 "noch nicht implementierte Methode für %s(<%s>).\n"
-" ->> Bitten Sie die Autoren des Pakets, um diese fehlende Funktion zu "
+" ->> Bitten Sie die Autoren des Pakets, diese fehlende Funktion zu "
 "implementieren."
 
 msgid ""
@@ -29,14 +29,14 @@ msgid ""
 " ->>  Ask the package authors to implement the missing feature."
 msgstr ""
 "noch nicht implementierte Methode für %s(<%s>, <%s>).\n"
-" ->> Bitten Sie die Autoren des Pakets, um diese fehlende Funktion zu "
+" ->> Bitten Sie die Autoren des Pakets, diese fehlende Funktion zu "
 "implementieren."
 
 msgid "'x' is not positive definite -- chol() undefined."
 msgstr "»x« ist nicht positiv definit -- chol() undefiniert."
 
 msgid "Matrices must have same dimensions in %s"
-msgstr "Matrizen müssen die in %s gleichen Dimensionen haben"
+msgstr "Matrizen müssen in %s die gleichen Dimensionen haben"
 
 msgid "non-conformable matrix dimensions in %s"
 msgstr "nicht konforme Matrixdimensionen in %s"
@@ -48,7 +48,7 @@ msgid "Matrices must have same number of rows in %s"
 msgstr "Matrizen müssen die gleiche Anzahl Zeilen in %s haben"
 
 msgid "Matrices must have same number of columns in %s"
-msgstr "Matrien müssen die gleiche Anzahl Spalten in %s haben"
+msgstr "Matrizen müssen die gleiche Anzahl Spalten in %s haben"
 
 # erstes %s Spaltennamen zweites %s "..." oder ""
 msgid "[[ suppressing %d column names %s%s ]]"
@@ -67,10 +67,10 @@ msgid "not yet implemented for class"
 msgstr "noch nicht für Klasse implementiert"
 
 msgid "not a triangular matrix"
-msgstr "keine Dreiecksmatix"
+msgstr "keine Dreiecksmatrix"
 
 msgid "not yet implemented for matrix w/ typeof"
-msgstr "noch nicht für Matrix w/ typeof implementiert"
+msgstr "noch nicht implementiert für Matrix mit typeof"
 
 msgid "not yet be implemented for"
 msgstr "noch nicht implementiert für"
@@ -85,7 +85,7 @@ msgid "arguments in"
 msgstr "Argumente in"
 
 msgid "are disregarded"
-msgstr "sind unberücksichtigt"
+msgstr "werden nicht berücksichtigt"
 
 msgid "not a symmetric matrix; consider forceSymmetric() or symmpart()"
 msgstr ""
@@ -203,10 +203,8 @@ msgstr "ungültige oder noch nicht implementierte »Matrix«-Untermenge"
 msgid "<sparse>[ <logic> ] : .M.sub.i.logical() maybe inefficient"
 msgstr "<sparse>[ <logic> ] : .M.sub.i.logical() könnte ineffizient sein"
 
-#, fuzzy
-msgid ""
-"nargs() = %d.  Extraneous illegal arguments inside '[ .. ]' (i.logical)?"
-msgstr ". Irrelevante ungültige Argumente innerhalb »[ .. ]« (i.logisch)?"
+msgid "nargs() = %d.  Extraneous illegal arguments inside '[ .. ]' (i.logical)?"
+msgstr "nargs() = %d. Irrelevante ungültige Argumente innerhalb »[ .. ]« (i.logical)?"
 
 msgid "m[ <ij-matrix> ]: inefficiently indexing single elements"
 msgstr "m[ <ij-matrix> ]: ineffiziente Indexierung einzelner Elemente"
@@ -221,15 +219,14 @@ msgid "such indexing must be by logical or 2-column numeric matrix"
 msgstr ""
 "solche Indexierung muss von logischer oder 2-spaltig numerischer Matrix sein"
 
-#, fuzzy
 msgid "nargs() = %d.  Extraneous illegal arguments inside '[ .. ]' (i.2col)?"
-msgstr ". Irrelevante ungültige Argumente innerhalb »[ .. ]« (i.2col)?"
+msgstr "nargs() = %d. Irrelevante ungültige Argumente innerhalb »[ .. ]« (i.2col)?"
 
 msgid ".M.repl.i.2col(): 'i' has no integer column number;"
 msgstr ".M.repl.i.2col(): »i« hat keine ganzzahlige Spaltennummer."
 
 msgid ".M.repl.i.2col(): drop 'matrix' case ..."
-msgstr ".M.repl.i.2col(): »Matrix«-Fall weglassen ..."
+msgstr ".M.repl.i.2col(): »matrix«-Fall weglassen ..."
 
 msgid "negative values are not allowed in a matrix subscript"
 msgstr "negative Werte sind in einer Matrix-Subskript nicht erlaubt"
@@ -240,9 +237,8 @@ msgstr "NAs sind in indexierten Anweisungen nicht erlaubt"
 msgid "m[ <ij-matrix> ] <- v: inefficiently treating single elements"
 msgstr "m[ <ij-matrix> ] <- v: Einzelne Elemente ineffizient behandelt"
 
-#, fuzzy
 msgid "nargs() = %d.  Extraneous illegal arguments inside '[ .. ]' ?"
-msgstr ". Irrelevante ungültige Argumente innerhalb »[ .. ]«?"
+msgstr "nargs() = %d. Irrelevante ungültige Argumente innerhalb »[ .. ]«?"
 
 msgid "RHS 'value' (class %s) matches 'ANY', but must match matrix class %s"
 msgstr ""
@@ -259,7 +255,7 @@ msgstr ""
 "interner Fehler in der »Compare«-Methode für »dMatrix«. Bitte berichten"
 
 msgid "Matrices must have same number of rows for arithmetic"
-msgstr "Matrien müssen für Arithmetik die gleiche Anzahl Zeilen haben"
+msgstr "Matrizen müssen für Arithmetik die gleiche Anzahl Zeilen haben"
 
 msgid "number of rows are not compatible for"
 msgstr "Anzahl der Zeilen ist nicht kompatibel für"
@@ -280,7 +276,7 @@ msgid "numeric(0) is undefined"
 msgstr "numeric(0) ist undefiniert"
 
 msgid "numeric(<too-long>)"
-msgstr "numerisch(<zu lang>)"
+msgstr "numeric(<zu lang>)"
 
 msgid ""
 "longer object length\n"
@@ -290,7 +286,7 @@ msgstr ""
 "\tist kein Vielfaches der kürzeren Objektlänge"
 
 msgid "numeric(0)"
-msgstr "numerisch(0)"
+msgstr "numeric(0)"
 
 msgid "<Matrix> is undefined"
 msgstr "<Matrix> ist undefiniert"
@@ -309,10 +305,10 @@ msgstr "noch nicht implementierte Typumwandlung zu »TsparseMatrix«"
 
 msgid "'NA' indices are not (yet?) supported for sparse Matrices"
 msgstr ""
-"»NA«-Indexe werden (noch?) nicht für dünn besetzte Matrizen unterstützt"
+"»NA«-Indizes werden (noch?) nicht für dünn besetzte Matrizen unterstützt"
 
 msgid "you cannot mix negative and positive indices"
-msgstr "Sie können positive und negative Indexe nicht mischen"
+msgstr "Sie können positive und negative Indizes nicht mischen"
 
 msgid "index larger than maximal"
 msgstr "Index größer als maximal"
@@ -340,10 +336,10 @@ msgid "nargs() = %d should never happen; please report."
 msgstr "sollte niemals vorkommen. Bitte berichten."
 
 msgid "row indices must be <= nrow(.) which is"
-msgstr "Zeilenindexe müssen <= nrow(.) sein. Dies ist"
+msgstr "Zeilenindizes müssen <= nrow(.) sein. Dies ist"
 
 msgid "column indices must be <= ncol(.) which is"
-msgstr "Spaltenindexe müssen <= ncol(.) sein. Dies ist"
+msgstr "Spaltenindizes müssen <= ncol(.) sein. Dies ist"
 
 msgid "duplicate ij-entries in 'Matrix[ ij ] <- value'; using last"
 msgstr "doppelte ij-Einträge in »Matrix[ IJ ] <- value«. Letzter wird benutzt"

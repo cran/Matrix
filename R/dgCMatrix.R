@@ -89,6 +89,8 @@ setMethod("solve", signature(a = "dgCMatrix", b = "dsparseMatrix"),
 	  .Call(dgCMatrix_matrix_solve, a, as(b, "denseMatrix")),
 	  valueClass = "dgeMatrix")
 
+## This is a really dumb method but some people apparently want it
 setMethod("solve", signature(a = "dgCMatrix", b = "missing"),
-	  function(a, b, ...) .Call(dgCMatrix_matrix_solve, a, b=NULL),
+	  function(a, b, ...)
+          .Call(dgCMatrix_matrix_solve, a, b = diag(nrow(a))),
 	  valueClass = "dgeMatrix")

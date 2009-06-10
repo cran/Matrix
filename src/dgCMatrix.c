@@ -153,6 +153,7 @@ SEXP compressed_non_0_ij(SEXP x, SEXP colP)
     return ans;
 }
 
+#if 0				/* unused */
 SEXP dgCMatrix_lusol(SEXP x, SEXP y)
 {
     SEXP ycp = PROTECT((TYPEOF(y) == REALSXP) ?
@@ -170,6 +171,7 @@ SEXP dgCMatrix_lusol(SEXP x, SEXP y)
     UNPROTECT(1);
     return ycp;
 }
+#endif
 
 SEXP dgCMatrix_qrsol(SEXP x, SEXP y, SEXP ord)
 {
@@ -325,25 +327,15 @@ SEXP dgCMatrix_SPQR(SEXP Ap, SEXP ordering, SEXP econ, SEXP tol)
 /* Matrix_with_SPQR */
 
 /* Modified version of Tim Davis's cs_lu_mex.c file for MATLAB */
-SEXP dgCMatrix_LU(SEXP Ap, SEXP orderp, SEXP tolp)
+void install_lu(SEXP Ap, int order, double tol)
 {
-    /* Is currently only called as  .Call(dgCMatrix_LU, x, TRUE, 1)) */
-    SEXP ans = get_factors(Ap, "LU");
-    CSP A = AS_CSP__(Ap), D;
+    SEXP ans;
     css *S;
     csn *N;
-    int n, order = asInteger(orderp), *p, *dims;
-    double tol = asReal(tolp);
+    int n, *p, *dims;
+    CSP A = AS_CSP__(Ap), D;
     R_CheckStack();
 
-    /* FIXME: dgCMatrix_LU should check ans for consistency in
-     * permutation type with the requested value - Should have two
-     * classes or two different names in the factors list for LU with
-     * permuted columns or not.
-     * OTOH, currently  (order, tol) === (1, 1) always.
-     */
-
-    if (ans != R_NilValue) return ans;
     n = A->n;
     if (A->m != n)
 	error(_("LU decomposition applies only to square matrices"));
@@ -351,23 +343,21 @@ SEXP dgCMatrix_LU(SEXP Ap, SEXP orderp, SEXP tolp)
 	order = (tol == 1) ? 2	/* amd(S'*S) w/dense rows or I */
 	    : 1;		/* amd (A+A'), or natural */
     }
-    S = cs_sqr (order, A, 0) ;	/* symbolic ordering, no QR bound */
-    N = cs_lu (A, S, tol) ;	/* numeric factorization */
-    if (!N) {
-	error (_("cs_lu(A) failed: near-singular A (or out of memory)"));
-	return R_NilValue; /*-Wall*/
-    }
-    cs_dropzeros (N->L) ;	/* drop zeros from L and sort it */
-    D = cs_transpose (N->L, 1) ;
-    cs_spfree (N->L) ;
-    N->L = cs_transpose (D, 1) ;
-    cs_spfree (D) ;
-    cs_dropzeros (N->U) ;	/* drop zeros from U and sort it */
-    D = cs_transpose (N->U, 1) ;
-    cs_spfree (N->U) ;
-    N->U = cs_transpose (D, 1) ;
-    cs_spfree (D) ;
-    p = cs_pinv (N->pinv, n) ;	/* p=pinv' */
+    S = cs_sqr(order, A, 0);	/* symbolic ordering, no QR bound */
+    N = cs_lu(A, S, tol);	/* numeric factorization */
+    if (!N) 
+	error(_("cs_lu(A) failed: near-singular A (or out of memory)"));
+    cs_dropzeros(N->L);		/* drop zeros from L and sort it */
+    D = cs_transpose(N->L, 1);
+    cs_spfree(N->L);
+    N->L = cs_transpose(D, 1);
+    cs_spfree(D);
+    cs_dropzeros(N->U);		/* drop zeros from U and sort it */
+    D = cs_transpose(N->U, 1);
+    cs_spfree(N->U);
+    N->U = cs_transpose(D, 1);
+    cs_spfree(D);
+    p = cs_pinv(N->pinv, n);	/* p=pinv' */
     ans = PROTECT(NEW_OBJECT(MAKE_CLASS("sparseLU")));
     dims = INTEGER(ALLOC_SLOT(ans, Matrix_DimSym, INTSXP, 2));
     dims[0] = n; dims[1] = n;
@@ -384,35 +374,52 @@ SEXP dgCMatrix_LU(SEXP Ap, SEXP orderp, SEXP tolp)
     cs_sfree(S);
     cs_free(p);
     UNPROTECT(1);
-    return set_factors(Ap, ans, "LU");
+    set_factors(Ap, ans, "LU");
+}
+
+SEXP dgCMatrix_LU(SEXP Ap, SEXP orderp, SEXP tolp)
+{
+    SEXP ans;
+    /* FIXME: dgCMatrix_LU should check ans for consistency in
+     * permutation type with the requested value - Should have two
+     * classes or two different names in the factors list for LU with
+     * permuted columns or not.
+     * OTOH, currently  (order, tol) === (1, 1) always.
+     * It is true that length(LU@q) does flag the order argument.
+     */
+    if (!isNull(ans = get_factors(Ap, "LU")))
+	return ans;
+    install_lu(Ap, asInteger(orderp), asReal(tolp));
+    return get_factors(Ap, "LU");
 }
 
 SEXP dgCMatrix_matrix_solve(SEXP Ap, SEXP b)
 {
-    /* b is dense or NULL [ <--> solve(A) */
-    SEXP lu = dgCMatrix_LU(Ap, ScalarLogical(1), ScalarReal(1));
-    SEXP qslot = GET_SLOT(lu, install("q"));
-    CSP L = AS_CSP__(GET_SLOT(lu, install("L"))),
-	U = AS_CSP__(GET_SLOT(lu, install("U")));
-    SEXP ans = PROTECT( !isNull(b) ? dup_mMatrix_as_dgeMatrix(b)
-			: new_dgeMatrix(U->n, U->n));
-    int *bdims = INTEGER(GET_SLOT(ans, Matrix_DimSym));
+    SEXP ans = PROTECT(dup_mMatrix_as_dgeMatrix(b)),
+	lu, qslot;
+    CSP L, U;
+    int *bdims = INTEGER(GET_SLOT(ans, Matrix_DimSym)), *p, *q;
     int j, n = bdims[0], nrhs = bdims[1];
-    int *p = INTEGER(GET_SLOT(lu, Matrix_pSym)),
-	*q = LENGTH(qslot) ? INTEGER(qslot) : (int *) NULL;
     double *ax = REAL(GET_SLOT(ans, Matrix_xSym)),
 	*x = Alloca(n, double);
     R_CheckStack();
 
+    if (isNull(lu = get_factors(Ap, "LU"))) {
+	install_lu(Ap, 1, 1.0);
+	lu = get_factors(Ap, "LU");
+    }
+    qslot = GET_SLOT(lu, install("q"));
+    L = AS_CSP__(GET_SLOT(lu, install("L")));
+    U = AS_CSP__(GET_SLOT(lu, install("U")));
+    R_CheckStack();
+
+    p = INTEGER(GET_SLOT(lu, Matrix_pSym));
+    q = LENGTH(qslot) ? INTEGER(qslot) : (int *) NULL;
+
     if (U->n != n || nrhs < 1 || n < 1)
 	error(_("Dimensions of system to be solved are inconsistent"));
     for (j = 0; j < nrhs; j++) {
-	if(!isNull(b))
-	    cs_pvec(p, ax + j * n, x, n);  /* x = b(p) */
-	else { /* solve(A): (RHS) B = I_n,  hence  b = e_j (j-th unit vector) */
-	    int i;
-	    for(i=0; i < n; i++) x[i] = (p[i] == j) ? 1. : 0.;
-	}
+	cs_pvec(p, ax + j * n, x, n);  /* x = b(p) */
 	cs_lsolve(L, x);	       /* x = L\x */
 	cs_usolve(U, x);	       /* x = U\x */
 	if (q)			       /* b(q) = x */

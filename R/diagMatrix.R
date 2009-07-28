@@ -595,40 +595,65 @@ setMethod("%*%", signature(x = "denseMatrix", y = "diagonalMatrix"),
 ## 	  function(x, y = NULL) {
 ##           })
 
-## setMethod("tcrossprod", signature(x = "denseMatrix", y = "diagonalMatrix"),
-## 	  function(x, y = NULL) {
-##           })
+Cspdiagprod <- function(x, y) {
+    dx <- dim(x)
+    dy <- dim(y)
+    if(dx[2] != dy[1]) stop("non-matching dimensions")
+    ind <- rep.int(seq_len(dx[2]), x@p[-1] - x@p[-dx[2]-1L])
+    if(y@diag == "N")
+        x@x <- x@x * y@x[ind]
+    x
+}
+
+diagCspprod <- function(x, y) {
+    dx <- dim(x)
+    dy <- dim(y)
+    if(dx[2] != dy[1]) stop("non-matching dimensions")
+    if(x@diag == "N")
+        y@x <- y@x * x@x[y@i + 1L]
+    y
+}
+
+setMethod("crossprod", signature(x = "diagonalMatrix", y = "CsparseMatrix"),
+	  function(x, y = NULL) diagCspprod(x, y))
 
 setMethod("crossprod", signature(x = "diagonalMatrix", y = "sparseMatrix"),
-	  function(x, y = NULL) crossprod(as(x, "TsparseMatrix"), y))
+	  function(x, y = NULL) diagCspprod(x, as(y, "CsparseMatrix")))
+
+## Prefer calling diagCspprod to Cspdiagprod if going to transpose anyway
+##  x'y == (y'x)'
+setMethod("crossprod", signature(x = "CsparseMatrix", y = "diagonalMatrix"),
+	  function(x, y = NULL) t(diagCspprod(y, x)))
 
 setMethod("crossprod", signature(x = "sparseMatrix", y = "diagonalMatrix"),
-	  function(x, y = NULL) crossprod(x, as(y, "TsparseMatrix")))
+	  function(x, y = NULL) t(diagCspprod(y, as(x, "Csparsematrix"))))
+
+setMethod("tcrossprod", signature(x = "diagonalMatrix", y = "CsparseMatrix"),
+	  function(x, y = NULL) diagCspprod(x, t(y)))
 
 setMethod("tcrossprod", signature(x = "diagonalMatrix", y = "sparseMatrix"),
-	  function(x, y = NULL) tcrossprod(as(x, "TsparseMatrix"), y))
+	  function(x, y = NULL) diagCspprod(x, t(as(y, "CsparseMatrix"))))
+
+setMethod("tcrossprod", signature(x = "CsparseMatrix", y = "diagonalMatrix"),
+	  function(x, y = NULL) Cspdiagprod(x, y))
 
 setMethod("tcrossprod", signature(x = "sparseMatrix", y = "diagonalMatrix"),
-	  function(x, y = NULL) tcrossprod(x, as(y, "TsparseMatrix")))
-
-
-## FIXME?: In theory, this can be done *FASTER*, in some cases, via tapply1()
-setMethod("%*%", signature(x = "diagonalMatrix", y = "sparseMatrix"),
-	  function(x, y) as(x, "TsparseMatrix") %*% y)
-setMethod("%*%", signature(x = "sparseMatrix", y = "diagonalMatrix"),
-	  function(x, y) x %*% as(y, "TsparseMatrix"))
-## NB: The previous is *not* triggering for  "ddi" o "dgC" (= distance 3)
-##     since there's a "ddense" o "Csparse" at dist. 2 => triggers first.
-## ==> do this:
+	  function(x, y = NULL) Cspdiagprod(as(x, "CsparseMatrix"), y))
+          
 setMethod("%*%", signature(x = "diagonalMatrix", y = "CsparseMatrix"),
-	  function(x, y) as(x, "CsparseMatrix") %*% y)
+	  function(x, y) diagCspprod(x, y))
+
+setMethod("%*%", signature(x = "diagonalMatrix", y = "sparseMatrix"),
+	  function(x, y) diagCspprod(as(x, "CsparseMatrix"), y))
+          
+setMethod("%*%", signature(x = "sparseMatrix", y = "diagonalMatrix"),
+	  function(x, y) Cspdiagprod(as(x, "CsparseMatrix"), y))
+
 setMethod("%*%", signature(x = "CsparseMatrix", y = "diagonalMatrix"),
-	  function(x, y) x %*% as(y, "CsparseMatrix"))
-## NB: this is *not* needed for Tsparse & Rsparse
+	  function(x, y) Cspdiagprod(x, y))
+
 ## TODO: Write tests in ./tests/ which ensure that many "ops" with diagonal*
 ##       do indeed work by going through sparse (and *not* ddense)!
-
-
 
 setMethod("solve", signature(a = "diagonalMatrix", b = "missing"),
 	  function(a, b, ...) {

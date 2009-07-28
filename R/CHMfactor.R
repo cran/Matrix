@@ -12,10 +12,13 @@ setMethod("expand", signature(x = "CHMfactor"),
           function(x, ...)
           list(P = as(x, "pMatrix"), L = as(x, "sparseMatrix")))
 
-## nowhere used:
-isLDL <- function(x) {
+##' Determine if a CHMfactor object is LDL or LL
+##' @param x - a CHMfactor object
+##' @return TRUE if x is LDL, otherwise FALSE
+isLDL <- function(x)
+{
     stopifnot(is(x, "CHMfactor"))
-    x@type[2]
+    as.logical(! x@type[2])# "!" = not as type[2] := (cholmod_factor)->is_ll
 }
 
 setMethod("image", "CHMfactor",
@@ -71,6 +74,18 @@ setMethod("determinant", signature(x = "CHMfactor", logarithm = "missing"),
 setMethod("determinant", signature(x = "CHMfactor", logarithm = "logical"),
           function(x, logarithm, ...)
       {
+          ## Produce a once per session warning :
+          if((.e <- exists("det_CHMfactor.warn", envir = .MatrixEnv))
+             && get("det_CHMfactor.warn", envir = .MatrixEnv)) {
+              ## ok
+          } else if (! .e) {
+              assign("det_CHMfactor.warn", TRUE, envir = .MatrixEnv)
+              warning("The next version of the Matrix package will return a\n",
+	"determinant(L) instead of determinant(A), i.e., a\n",
+        "*DIFFERENT* value.\n",
+        " Do change your code, following http://matrix.r-forge.r-project.org\n")
+## packageDescription("Matrix")$Version >= package_version("0.999375-31")
+          } ## else  the variable exists but is FALSE --> no warning either
           ldet <- .Call(CHMfactor_ldetL2, x)
           modulus <- if (logarithm) ldet else exp(ldet)
           attr(modulus, "logarithm") <- logarithm
@@ -103,3 +118,26 @@ ldetL2up <- function(x, parent, Imult)
     .Call(CHMfactor_ldetL2up, x, parent, as.double(Imult))
 }
 
+##' Update a sparse Cholesky factorization in place
+##' @param L A sparse Cholesky factor that inherits from CHMfactor
+##' @param parent a sparse matrix for updating the factor.  Either a
+##'   dsCMatrix, in which case L is updated to the Cholesky
+##'   factorization of parent, or a dgCMatrix, in which case L is
+##'   updated to the Cholesky factorization of tcrossprod(parent)
+##' @param Imult an optional positive scalar to be added to the
+##'   diagonal before factorization,
+
+##' @return NULL.  This function always returns NULL.  It is called
+##'   for its side-effect of updating L in place.
+
+##' @note This function violates the functional language semantics of
+##'   R in that it updates its argument L in place (i.e. without copying).
+##'   This is intentional but it means the function should be used
+##'   with caution.  If the preceding sentences do not make sense to
+##'   you, you should not use this function,.
+destructive_Chol_update <- function(L, parent, Imult = 1)
+{
+    stopifnot(is(L, "CHMfactor"),
+              is(parent, "sparseMatrix"))
+    .Call(destructive_CHM_update, L, parent, Imult)
+}

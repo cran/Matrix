@@ -32,6 +32,7 @@ export("Cholesky",
        "forceSymmetric",
 #	 "isTriangular",
 #	 "isDiagonal",
+       "isLDL",
        "lu",
        "norm",
        "nearPD",
@@ -41,16 +42,16 @@ export("Cholesky",
        "rankMatrix",
        "readHB",
        "readMM",
+       "sparse.model.matrix",
        "symmpart",
        "skewpart",
        "tcrossprod",
        "tril",
        "triu",
-       "unpack",
-       ".validateCsparse",
+       "unpack"
+       , ".validateCsparse"
 #        "writeHB",
-       "writeMM",
-       "xtabs"
+       , "writeMM"
        , ".M.classEnv"
        )
 
@@ -270,6 +271,13 @@ exportMethods(## for both own and "other" generics:
               "update",
 	      "zapsmall"
 	      )
+
+if(getRversion() < "2.10.0")# The version of R -- at *install* time (!)
+    exportPattern("^contr\\..*")
+
+if(getRversion() < "2.10.0")
+    export("xtabs")
+
 
 exportMethods("rbind2")
 exportMethods("cbind2")

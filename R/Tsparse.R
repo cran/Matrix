@@ -115,7 +115,7 @@ intI <- function(i, n, dn, give.dn = TRUE)
     ## ----------------------------------------------------------------------
     ## Author: Martin Maechler, Date: 23 Apr 2007
 
-    has.dn <- is.character(dn)
+    has.dn <- !is.null(dn)
     DN <- has.dn && give.dn
     if(is(i, "numeric")) {
 	storage.mode(i) <- "integer"

@@ -65,7 +65,7 @@ setMethod("cov2cor", signature(V = "Matrix"),
 		  warning("diag(.) had 0 or NA entries; non-finite result is doubtful")
               Is <- Diagonal(x = Is)
               r <- Is %*% V %*% Is
-	      r[cbind(1L:p,1L:p)] <- 1 # exact in diagonal
+	      r[cbind(1:p,1:p)] <- 1 # exact in diagonal
 	      as(forceSymmetric(r), "dpoMatrix")
           })
 
@@ -290,22 +290,27 @@ det <- base::det
 environment(det) <- environment()## == as.environment("Matrix")
 }
 
+setMethod("Cholesky", signature(A = "Matrix"),
+	  function(A, perm = TRUE, LDL = !super, super = FALSE, Imult = 0, ...)
+	  stop(gettextf("Cholesky(A) called for 'A' of class \"%s\";\n\t it is currently defined for sparseMatrix only; consider using chol() instead",
+			class(A)), call. = FALSE))
+
 ## FIXME: All of these should never be called
 setMethod("chol", signature(x = "Matrix"),
-	  function(x, pivot, ...) .bail.out.1(.Generic, class(x)))
+	  function(x, pivot, ...) .bail.out.1("chol", class(x)))
 setMethod("determinant", signature(x = "Matrix", logarithm = "logical"),
 	  function(x, logarithm, ...)
 	  determinant(as(x,"dMatrix"), logarithm=logarithm, ...))
 
 setMethod("diag", signature(x = "Matrix"),
-	  function(x, nrow, ncol) .bail.out.1(.Generic, class(x)))
+	  function(x, nrow, ncol) .bail.out.1("diag", class(x)))
 setMethod("t", signature(x = "Matrix"),
 	  function(x) .bail.out.1(.Generic, class(x)))
 
 setMethod("norm", signature(x = "Matrix", type = "character"),
-	  function(x, type, ...) .bail.out.1(.Generic, class(x)))
+	  function(x, type, ...) .bail.out.1("norm", class(x)))
 setMethod("rcond", signature(x = "Matrix", norm = "character"),
-	  function(x, norm, ...) .bail.out.1(.Generic, class(x)))
+	  function(x, norm, ...) .bail.out.1("rcond", class(x)))
 
 
 ## for all :
@@ -322,14 +327,16 @@ setMethod("rcond", signature(x = "ANY", norm = "missing"),
 all.equal_num <- base::all.equal.numeric ## from <R>/src/library/base/R/all.equal.R
 environment(all.equal_num) <- environment()## == as.environment("Matrix")
 
-all.equal_Mat <- function(target, current, check.attributes = TRUE, ...)
+all.equal_Mat <- function(target, current, check.attributes = TRUE,
+                          factorsCheck = FALSE, ...)
 {
-    msg <- attr.all_Mat(target, current, check.attributes=check.attributes, ...)
+    msg <- attr.all_Mat(target, current, check.attributes=check.attributes,
+                        factorsCheck=factorsCheck, ...)
     if(is.list(msg)) return(msg[[1]])
     ## else
     r <- all.equal_num(as.vector(target), as.vector(current),
                        check.attributes=check.attributes, ...)
-    if(is.null(msg) && (r.ok <- isTRUE(r))) TRUE else c(msg, if(!r.ok) r)
+    if(is.null(msg) & (r.ok <- isTRUE(r))) TRUE else c(msg, if(!r.ok) r)
 }
 ## The all.equal() methods for dense matrices (and fallback):
 setMethod("all.equal", c(target = "Matrix", current = "Matrix"),

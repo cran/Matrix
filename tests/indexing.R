@@ -39,10 +39,19 @@ dimnames(mn) <- list(paste("r",letters[1:nrow(mn)],sep=""),
                      LETTERS[1:ncol(mn)])
 checkMatrix(mn)
 mn["rd", "D"]
+## Printing sparse colnames:
+ms <- as(mn,"sparseMatrix")
+ms[sample(28, 20)] <- 0
+ms <- t(rbind2(ms, 3*ms))
+cnam1 <- capture.output(show(ms))[2] ; op <- options("sparse.colnames" = "abb3")
+cnam2 <- capture.output(show(ms))[2] ; options(op) # revert
 stopifnot(identical(mn["rc", "D"], mn[3,4]), mn[3,4] == 24,
           identical(mn[, "A"], mn[,1]), mn[,1] == 1:7,
-          identical(mn[c("re", "rb"), "B"], mn[c(5,2), 2])
-          )
+          identical(mn[c("re", "rb"), "B"], mn[c(5,2), 2]),
+	  ## sparse printing
+	  grep("^ +$", cnam1) == 1, # cnam1 is empty
+	  identical(cnam2,
+		    paste(" ", paste(rep(rownames(mn), 2), collapse=" "))))
 
 mo <- m
 m[2,3] <- 100

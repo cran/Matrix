@@ -106,8 +106,95 @@ set.seed(17)
 (CA <- Cholesky(rr$A))
 stopifnot(all.equal(determinant(rr$A),
 		    determinant(as(rr$A, "matrix"))))
+A12 <- mkLDL(12, 1/10)
 
-## --- now a "large" (712 x 712) real data example
+(r12 <- allCholesky(A12$A))
+aCh.hash <- r12$r.all %*% (2^(2:0))
+if(FALSE)## if(require("sfsmisc"))
+split(rownames(r12$r.all), Duplicated(aCh.hash))
+
+## TODO: find cases for both choices when we leave it to CHOLMOD to chose
+for(n in 1:50) { ## # before seg.fault at n = 10 !
+    mkA <- mkLDL(1+rpois(1, 30), 1/10)
+    cat(sprintf("n = %3d, LDL-dim = %d x %d ", n, nrow(mkA$A), ncol(mkA$A)))
+    r <- allCholesky(mkA$A, silentTry=TRUE)
+    ## Compare .. apart from the NAs that happen from (perm=FALSE, super=TRUE)
+    iNA <- apply(is.na(r$r.all), 1, any)
+    cat(sprintf(" -> %3s NAs\n", if(any(iNA)) format(sum(iNA)) else "no"))
+    stopifnot(aCh.hash[!iNA] == r$r.all[!iNA,] %*% (2^(2:0)))
+##     cat("--------\n")
+}
+
+
+## This is a relatively small "critical example" :
+A. <-
+    new("dsCMatrix", Dim = c(25L, 25L), uplo = "U"
+	, i = as.integer(
+          c(0, 1, 2, 3, 4, 2, 5, 6, 0, 8, 8, 9, 3, 4, 10, 11, 6, 12, 13, 4,
+            10, 14, 15, 1, 2, 5, 16, 17, 0, 7, 8, 18, 9, 19, 10, 11, 16, 20,
+            0, 6, 7, 16, 17, 18, 20, 21, 6, 9, 12, 14, 19, 21, 22, 9, 11, 19,
+            20, 22, 23, 1, 16, 24))
+	##
+	, p = c(0:6, 8:10, 12L, 15:16, 18:19, 22:23, 27:28, 32L, 34L, 38L, 46L, 53L, 59L, 62L)
+	##
+	, x = c(1, 1, 1, 1, 2, 100, 2, 40, 1, 2, 100, 6700, 100, 100, 13200,
+	  1, 50, 4100, 1, 5, 400, 20, 1, 40, 100, 5600, 9100, 5000, 5,
+	  100, 100, 5900, 100, 6200, 30, 20, 9, 2800, 1, 100, 8, 10, 8000,
+	  100, 600, 23900, 30, 100, 2800, 50, 5000, 3100, 15100, 100, 10,
+	  5600, 800, 4500, 5500, 7, 600, 18200))
+validObject(A.)
+## A1: the same pattern as  A.   just simply filled with '1's :
+A1 <- A.; A1@x[] <- 1; A1@factors <- list()
+A1.8 <- A1; diag(A1.8) <- 8
+##
+nT. <- as(AT <- as(A., "TsparseMatrix"),"nMatrix")
+stopifnot(all(nT.@i <= nT.@j))
+
+## FINALLY fix this "TODO":
+try(    tc <- Cholesky(nT.)  )
+
+for(p in c(FALSE,TRUE))
+    for(L in c(FALSE,TRUE))
+        for(s in c(FALSE,TRUE, NA)) {
+            cat(sprintf("p,L,S = (%2d,%2d,%2d): ", p,L,s))
+            r <- tryCatch(Cholesky(A., perm=p, LDL=L, super=s),
+                          error = function(e)e)
+            cat(if(inherits(r, "error")) " *** E ***" else
+                sprintf("%3d", r@type),"\n", sep="")
+        }
+str(A., max=3) ## look at the 'factors'
+
+facs <- A.@factors
+names(facs) <- sub("Cholesky$", "", names(facs))
+facs <- facs[order(names(facs))]
+
+sapply(facs, class)
+str(lapply(facs, slot, "type"))
+## super = TRUE  currently always entails  LDL=FALSE :
+## hence isLDL is TRUE for ("D" and not "S"):
+sapply(facs, isLDL)
+
+chkCholesky <- function(chmf, A) {
+    stopifnot(is(chmf, "CHMfactor"),
+              is(A, "Matrix"), isSymmetric(A))
+    if(!is(A, "dsCMatrix"))
+        A <- as(A, "dsCMatrix")
+    L <- drop0(zapsmall(L. <- as(chmf, "Matrix")))
+    cat("no. nonzeros in L {before / after drop0(zapsmall(.))}: ",
+        c(nnzero(L.), nnzero(L)), "\n") ## 112, 95
+    ecc <- expand(chmf)
+    A... <- with(ecc, crossprod(crossprod(L,P)))
+    stopifnot(all.equal(L., ecc$L, tol = 1e-14),
+              all.equal(A,  A...,  tol = 1e-14, factorsCheck = FALSE))
+    invisible(ecc)
+}
+
+c1.8 <- try(Cholesky(A1.8, super = TRUE))# works "always", interestingly ...
+chkCholesky(c1.8, A1.8)
+
+
+
+## --- now a "large" (712 x 712) real data example ---------------------------
 
 data(KNex)
 mtm <- with(KNex, crossprod(mm))
@@ -118,6 +205,9 @@ stopifnot(names(mtm@factors) == paste(c("sPD", "spD"),"Cholesky", sep=''))
 c2 <- Cholesky(mtm, super = TRUE)
 stopifnot(names(mtm@factors) == paste(c("sPD", "spD", "SPd"),
                "Cholesky", sep=''))
+
+r <- allCholesky(mtm)
+r
 
 ## is now taken from cache
 c1 <- Cholesky(mtm)
@@ -160,6 +250,21 @@ system.time(D2 <- sapply(r, function(rho) Matrix:::ldet2.dsC(mtm + (1/rho) * I))
 system.time(D3 <- sapply(r, function(rho) Matrix:::ldet3.dsC(mtm + (1/rho) * I)))
 ## 0.810
 stopifnot(is.all.equal3(D1,D2,D3, tol = 1e-13))
+
+## Updating LL'  should remain LL' and not become  LDL' :
+if(FALSE) {
+    data(Dyestuff, package = "lme4")
+    Zt <- as(Dyestuff$Batch, "sparseMatrix")
+} else {
+    Zt <- new("dgCMatrix", Dim = c(6L, 30L), x = rep(1, 30),
+              i = rep(0:5, each=5),
+              p = 0:30, Dimnames = list(LETTERS[1:6], NULL))
+}
+Ut <- 0.78 * Zt
+L <- Cholesky(tcrossprod(Ut), LDL = FALSE, Imult = 1)
+L1 <- update(L, tcrossprod(Ut), mult = 1)
+stopifnot(all.equal(L, L1))
+
 
 ## Schur() ----------------------
 checkSchur <- function(A, SchurA = Schur(A), tol = 1e-14) {

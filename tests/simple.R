@@ -72,7 +72,7 @@ stopifnot(isSymmetric(M), isSymmetric(M.),
 	  is(bdiag(M., M.),"symmetricMatrix"),
 	  is(bdN, "triangularMatrix"),
 	  all.equal(N3,N3),
-	  all.equal(N3, t(N3)) == all.equal(1,-1),# ~= "Mean relative difference: 2"
+	  tail(all.equal(N3, t(N3)), 1) == all.equal(1,-1),# ~= "Mean relative difference: 2"
 	  !any(bdN != t(bdN)), # <nsparse> != <nsparse>	 failed to work...
 	  !any((0+bdN) > bdN), # <dsparse> o <nsparse>
 	  !any(bdN != (0+bdN)), # <nsparse> o <dsparse>

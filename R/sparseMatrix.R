@@ -362,7 +362,7 @@ printSpMatrix <- function(x, digits = getOption("digits"),
     if(prod(d) > maxp) { # "Large" => will be "cut"
         ## only coerce to dense that part which won't be cut :
         nr <- maxp %/% d[2]
-	m <- as(x[1:max(1, nr), ,drop=FALSE], "Matrix")
+	m <- as(x[1:max(1, nr), ,drop=FALSE], "matrix")
     } else {
         m <- as(x, "matrix")
     }
@@ -461,6 +461,9 @@ printSpMatrix2 <- function(x, digits = getOption("digits"),
                            align = c("fancy", "right"))
 {
     d <- dim(x)
+    cl <- class(x)
+    cat(sprintf('%d x %d sparse Matrix of class "%s"\n',
+                d[1], d[2], cl))
     if((identical(suppRows,FALSE) && identical(suppCols, FALSE)) ||
        (!isTRUE(suppRows) && !isTRUE(suppCols) && prod(d) <= maxp))
     {
@@ -517,16 +520,11 @@ printSpMatrix2 <- function(x, digits = getOption("digits"),
     }
 } ## printSpMatrix2 ()
 
-setMethod("print", signature(x = "sparseMatrix"), printSpMatrix)
+setMethod("print", signature(x = "sparseMatrix"), printSpMatrix2)
 
 setMethod("show", signature(object = "sparseMatrix"),
-          function(object) {
-              d <- dim(object)
-              cl <- class(object)
-              cat(sprintf('%d x %d sparse Matrix of class "%s"\n',
-                          d[1], d[2], cl))
-              printSpMatrix2(object)
-          })
+	  function(object) printSpMatrix2(object))
+
 
 
 ## For very large and very sparse matrices,  the above show()
@@ -605,6 +603,10 @@ setMethod("determinant", signature(x = "sparseMatrix", logarithm = "logical"),
 	  function(x, logarithm = TRUE, ...)
 	  determinant(as(x,"dsparseMatrix"), logarithm, ...))
 
+setMethod("Cholesky", signature(A = "sparseMatrix"),
+	  function(A, perm = TRUE, LDL = !super, super = FALSE, Imult = 0, ...)
+	  Cholesky(as(A, "CsparseMatrix"),
+		   perm=perm, LDL=LDL, super=super, Imult=Imult, ...))
 
 setMethod("diag", signature(x = "sparseMatrix"),
 	  function(x, nrow, ncol) diag(as(x, "CsparseMatrix")))
@@ -662,7 +664,7 @@ setMethod("cov2cor", signature(V = "sparseMatrix"),
 	      ##       we'd rather use that!
 	      Is <- as(Diagonal(x = Is), "sparseMatrix")
 	      r <- Is %*% V %*% Is
-	      r[cbind(1L:p,1L:p)] <- 1 # exact in diagonal
+	      r[cbind(1:p,1:p)] <- 1 # exact in diagonal
 	      as(r, "symmetricMatrix")
 	  })
 
@@ -691,7 +693,7 @@ setMethod("all.equal", c(target = "sparseMatrix", current = "sparseMatrix"),
 	  ## else
 	  r <- all.equal(as(target, "sparseVector"), as(current, "sparseVector"),
 			 check.attributes=check.attributes, ...)
-	  if(is.null(msg) && (r.ok <- isTRUE(r))) TRUE else c(msg, if(!r.ok) r)
+	  if(is.null(msg) & (r.ok <- isTRUE(r))) TRUE else c(msg, if(!r.ok) r)
       })
 setMethod("all.equal", c(target = "sparseMatrix", current = "ANY"),
 	  function(target, current, check.attributes = TRUE, ...)
@@ -701,7 +703,7 @@ setMethod("all.equal", c(target = "sparseMatrix", current = "ANY"),
 	  ## else
 	  r <- all.equal(as(target, "sparseVector"), current,
 			 check.attributes=check.attributes, ...)
-	  if(is.null(msg) && (r.ok <- isTRUE(r))) TRUE else c(msg, if(!r.ok) r)
+	  if(is.null(msg) & (r.ok <- isTRUE(r))) TRUE else c(msg, if(!r.ok) r)
       })
 setMethod("all.equal", c(target = "ANY", current = "sparseMatrix"),
 	  function(target, current, check.attributes = TRUE, ...)
@@ -711,97 +713,12 @@ setMethod("all.equal", c(target = "ANY", current = "sparseMatrix"),
 	  ## else
 	  r <- all.equal(target, as(current, "sparseVector"),
 			 check.attributes=check.attributes, ...)
-	  if(is.null(msg) && (r.ok <- isTRUE(r))) TRUE else c(msg, if(!r.ok) r)
+	  if(is.null(msg) & (r.ok <- isTRUE(r))) TRUE else c(msg, if(!r.ok) r)
       })
 
 
+### --- sparse model matrix,  fac2sparse, etc ----> ./spModels.R
 
-### Keep this namespace-hidden: Would need to return a classed object
-
-## FIXME: still test this function for both methods, since currently
-## ----- both  dgCMatrix_cholsol and  dgCMatrix_qrsol are only called from here!
-lm.fit.sparse <- function(x, y, offset = NULL, method = c("qr", "cholesky"),
-                          tol = 1e-7, singular.ok = TRUE, order = NULL,
-                          transpose = FALSE) ## NB: meaning of 'transpose'
-                                        # is changed from original
-
-### Fit a linear model, __ given __ a sparse model matrix 'x'
-### using a sparse QR or a sparse Cholesky factorization
-{
-    cld <- getClass(class(x))
-    stopifnot(extends(cld, "dsparseMatrix"))
-## or     if(!is(x, "dsparseMatrix")) x <- as(x, "dsparseMatrix")
-    yy <- as.numeric(y)
-    if (!is.null(offset)) {
-	stopifnot(length(offset) == length(y))
-	yy <- yy - as.numeric(offset)
-    }
-    method <- match.arg(method)
-    order <- {
-        if(is.null(order)) ## recommended default depends on method :
-            if(method == "qr") 3L else 1L
-        else as.integer(order) }
-
-    if(transpose) x <- t(x)
-    ans <- switch(method,
-		  cholesky =
-		  .Call(dgCMatrix_cholsol,# has AS_CHM_SP(x)
-			as(x, "CsparseMatrix"), yy),
-		  qr =
-		  .Call(dgCMatrix_qrsol, # has AS_CSP(): must be dgC or dtC:
-			if(cld@className %in% c("dtCMatrix", "dgCMatrix")) x
-			else as(x, "dgCMatrix"),
-			yy, order),
-		  ## otherwise:
-		  stop("unknown method ", dQuote(method))
-		  )
-    ans
-}
-
-fac2sparse <- function(from, to = c("d","i","l","n","z"), drop.unused.levels = TRUE)
-{
-    ## factor(-like) --> sparseMatrix {also works for integer, character}
-    fact <- if (drop.unused.levels) factor(from) else as.factor(from)
-    levs <- levels(fact)
-    n <- length(fact)
-    to <- match.arg(to)
-    ## MM: using new() and then assigning slots has efficiency "advantage"
-    ##     of *not* validity checking
-    res <- new(paste(to, "gCMatrix", sep=''))
-    res@i <- as.integer(fact) - 1L # 0-based
-    res@p <- 0:n
-    res@Dim <- c(length(levs), n)
-    res@Dimnames <- list(levs, NULL)
-    if(to != "n")
-	res@x <- rep.int(switch(to,
-				"d" = 1., "i" = 1L, "l" = TRUE, "z" = 1+0i),
-			 n)
-    res
-}
-
-## This version can deal with NA's -- but is less efficient (how much?) :
-fac2sparse <- function(from, to = c("d","i","l","n","z"),
-                       drop.unused.levels = TRUE)
-{
-    ## factor(-like) --> sparseMatrix {also works for integer, character}
-    fact <- if (drop.unused.levels) factor(from) else as.factor(from)
-    levs <- levels(fact)
-    n <- length(fact)
-    to <- match.arg(to)
-    i <- as.integer(fact) - 1L                  # 0-based indices
-    df <- data.frame(i = i, j = seq_len(n) - 1L)[!is.na(i),]
-    if(to != "n")
-	df$x <- rep.int(switch(to,
-			       "d" = 1., "i" = 1L, "l" = TRUE, "z" = 1+0i),
-			nrow(df))
-    as(do.call("new", c(list(Class = paste(to, "gTMatrix", sep=''),
-			     Dim = c(length(levs), n),
-			     Dimnames = list(levs, names(fact))),
-			df)),
-       "CsparseMatrix")
-}
-
-setAs("factor", "sparseMatrix", function(from) fac2sparse(from, to = "d"))
 
 ## xtabs returning a sparse matrix.  This is cut'n'paste
 ## of xtabs() in <Rsrc>/src/library/stats/R/xtabs.R ;

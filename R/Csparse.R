@@ -329,3 +329,13 @@ setMethod("diag", "CsparseMatrix",
 setMethod("writeMM", "CsparseMatrix",
 	  function(obj, file, ...)
           .Call(Csparse_MatrixMarket, obj, as.character(file)))
+
+setMethod("Cholesky", signature(A = "CsparseMatrix"),
+	  function(A, perm = TRUE, LDL = !super, super = FALSE, Imult = 0, ...)
+	  Cholesky(as(A, "symmetricMatrix"),
+		   perm=perm, LDL=LDL, super=super, Imult=Imult, ...))
+
+## TODO (in ../TODO for quite a while .....):
+setMethod("Cholesky", signature(A = "nsparseMatrix"),
+	  function(A, perm = TRUE, LDL = !super, super = FALSE, Imult = 0, ...)
+	  stop("Cholesky(<nsparse...>) -> *symbolic* factorization -- not yet implemented"))

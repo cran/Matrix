@@ -70,14 +70,15 @@
 
 %\references{}
 %\author{}
-\note{The decomposition is of the form \code{A[p+1,] == Q \%*\% R}, if
+\details{
+  The decomposition is of the form \code{A[p+1,] == Q \%*\% R}, if
   the \code{q} slot if of length 0 or \code{A[p+1,q+1] == Q \%*\% R}
   where A is a sparse \eqn{m\times n}{m by n} matrix (\eqn{m\ge n}{m >= n}),
   \eqn{R} is an \eqn{m\times n}{m by n} matrix that is zero below the
- main diagonal.  The \code{p} slot is a 0-based permutation of
- \code{1:m} applied to the rows of the original matrix.  If the \code{q}
- slot has length \code{n} it is a 0-based permutation of \code{1:n}
- applied to the columns of the original matrix to reduce the amount
+  main diagonal.  The \code{p} slot is a 0-based permutation of
+  \code{1:m} applied to the rows of the original matrix.  If the \code{q}
+  slot has length \code{n} it is a 0-based permutation of \code{1:n}
+  applied to the columns of the original matrix to reduce the amount
   of "fill-in" in the matrix \eqn{R}.
 
   The matrix \eqn{Q} is a "virtual matrix".  It is the product of
@@ -85,18 +86,18 @@
   these Householder transformations is stored in the \code{V} and
   \code{beta} slots.
 
- The \code{"sparseQR"} methods for the \code{qr.*} functions return
- objects of class \code{"dgeMatrix"} (see
- \code{\linkS4class{dgeMatrix}}).  Results from \code{qr.coef},
- \code{qr.resid} and \code{qr.fitted} (when \code{k == ncol(R)}) are
- well-defined and should match those from the corresponding dense matrix
- calculations.  However, because the matrix \code{Q} is not uniquely
- defined, the results of \code{qr.qy} and \code{qr.qty} do not
- necessarily match those from the corresponding dense matrix
- calculations.
+  The \code{"sparseQR"} methods for the \code{qr.*} functions return
+  objects of class \code{"dgeMatrix"} (see
+  \code{\linkS4class{dgeMatrix}}).  Results from \code{qr.coef},
+  \code{qr.resid} and \code{qr.fitted} (when \code{k == ncol(R)}) are
+  well-defined and should match those from the corresponding dense matrix
+  calculations.  However, because the matrix \code{Q} is not uniquely
+  defined, the results of \code{qr.qy} and \code{qr.qty} do not
+  necessarily match those from the corresponding dense matrix
+  calculations.
 
- Also, the results of \code{qr.qy} and \code{qr.qty} apply to the
- permuted column order when the \code{q}  slot has length \code{n}.
+  Also, the results of \code{qr.qy} and \code{qr.qty} apply to the
+  permuted column order when the \code{q}  slot has length \code{n}.
 }
 \seealso{
   \code{\link[base]{qr}}, \code{\link[base]{qr.Q}},

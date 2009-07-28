@@ -14,7 +14,7 @@
 %
 \title{Cholesky and Bunch-Kaufman Decompositions}
 \description{The \code{"Cholesky"} class is the class of Cholesky
-  decompositions of positive-semidefinite, real matrices.  The
+  decompositions of positive-semidefinite, real dense matrices.  The
   \code{"BunchKaufman"} class is the class of Bunch-Kaufman
   decompositions of symmetric, real matrices.  The \code{"pCholesky"}
   and \code{"pBunchKaufman"} classes are their \emph{\bold{p}acked}
@@ -23,11 +23,36 @@
 \section{Objects from the Class}{
   Objects can be created by calls of the form \code{new("Cholesky",
     ...)} or \code{new("BunchKaufman", ...)}, etc,
-  or rather by calls of the form \code{chol(pm)} or
-  \code{BunchKaufman(pm)} where \code{pm} inherits from
+  or rather by calls of the form \code{\link{chol}(pm)} or
+  \code{\link{BunchKaufman}(pm)} where \code{pm} inherits from
   the \code{"\linkS4class{dpoMatrix}"} or \code{"\linkS4class{dsyMatrix}"}
   class or as a side-effect of other functions
   applied to \code{"dpoMatrix"} objects (see \code{\linkS4class{dpoMatrix}}).
+}
+\note{
+  \enumerate{
+    \item Objects of class \code{"Cholesky"} typically stem from
+      \code{\link{chol}(D)}, applied to a \emph{dense} matrix \code{D}.
+
+      On the other hand, the \emph{function} \code{\link{Cholesky}(S)}
+      applies to a \emph{sparse} matrix \code{S}, and results in objects
+      inheriting from class \code{\linkS4class{CHMfactor}}.
+
+    \item For traditional matrices \code{m}, \code{chol(m)} is a
+      traditional matrix as well, triangular, but simply an \eqn{n\times
+	n}{n * n} numeric \code{\link{matrix}}.  Hence, for compatibility,
+      the \code{"Cholesky"} and \code{"BunchKaufman"} classes (and their
+      \code{"p*"} packed versions) also extend triangular Matrix classes
+      (such as "dtrMatrix").
+
+      Consequently, \code{\link{determinant}(R)} for \code{R <- chol(A)}
+      returns the determinant of \code{R}, not of \code{A}.  This is in
+      contrast to class \code{\linkS4class{CHMfactor}} objects \code{C}, where
+      \code{determinant(C)} gives the determinant of the \emph{original}
+      matrix \code{A}, for \code{C <- Cholesky(A)}, see also the
+      \code{determinant} method documentation on the class
+      \code{\linkS4class{CHMfactor}} page.
+  }
 }
 \section{Slots}{
   A Cholesky decomposition extends class
@@ -50,11 +75,17 @@
   Class \code{"Matrix"}, by class \code{"dtrMatrix"}.
 }
 \section{Methods}{
-  No methods defined with class "Cholesky" in the signature.
+  There are currently no methods defined with class "Cholesky" in the
+  signature.  Of course methods for \code{"dtrMatrix"} or
+  \code{"MatrixFactorization"} do apply.
 }
 \seealso{
   Classes \code{\linkS4class{dtrMatrix}}, \code{\linkS4class{dpoMatrix}};
   function \code{\link{chol}}.
+
+  Function \code{\link{Cholesky}} resulting in class
+  \code{\linkS4class{CHMfactor}} objects, \emph{not} class "Cholesky"
+  ones, see the section \sQuote{Note}.
 }
 \examples{
 (sm <- as(as(Matrix(diag(5) + 1), "dsyMatrix"), "dspMatrix"))

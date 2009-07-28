@@ -31,15 +31,17 @@ BunchKaufman(x, \dots)
 \seealso{
   The resulting class, \code{\linkS4class{BunchKaufman}}.
   Related decompositions are the LU,  \code{\link{lu}}, and the Cholesky,
-  \code{\link{chol}} and \code{\link{Cholesky}}.
+  \code{\link{chol}} (and for \emph{sparse} matrices,
+  \code{\link{Cholesky}}).
 }
 \examples{
 data(CAex)
 dim(CAex)
 isSymmetric(CAex)# TRUE
 CAs <- as(CAex, "symmetricMatrix")
-if(FALSE) # no method defined yet
-bk. <- BunchKaufman(CAs)
+if(FALSE) # no method defined yet for *sparse* :
+   bk. <- BunchKaufman(CAs)
+## does apply to *dense* symmetric matrices:
 bkCA <- BunchKaufman(as(CAs, "denseMatrix"))
 bkCA
 }

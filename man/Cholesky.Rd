@@ -1,7 +1,11 @@
 \name{Cholesky}
 \docType{genericFunction}
 \alias{Cholesky}
-\alias{Cholesky,dsCMatrix-method}
+\alias{Cholesky,dsCMatrix-method}% -> ../R/dsCMatrix.R
+\alias{Cholesky,CsparseMatrix-method}% coerce
+\alias{Cholesky,sparseMatrix-method}%  coerce
+\alias{Cholesky,nsparseMatrix-method}%  error for now; todo in the future
+\alias{Cholesky,Matrix-method}% <- "good" error message
 \title{Cholesky Decomposition of a Sparse Matrix}
 \usage{
 Cholesky(A, perm = TRUE, LDL = !super, super = FALSE, Imult = 0, \dots)
@@ -17,14 +21,16 @@ Cholesky(A, perm = TRUE, LDL = !super, super = FALSE, Imult = 0, \dots)
     values are allowed.}
   \item{perm}{logical scalar indicating if a fill-reducing permutation
     should be computed and applied to the rows and columns of \code{A}.
-  Default is \code{TRUE}.}
+    Default is \code{TRUE}.}% NA not available here
   \item{LDL}{logical scalar indicating if the decomposition should be
     computed as LDL' where \code{L} is a unit lower triangular matrix.
     The alternative is LL' where \code{L} is lower triangular with
-    arbitrary diagonal elements.  Default is \code{TRUE}.}
+    arbitrary diagonal elements.  Default is \code{TRUE}.  Setting it to
+    \code{\link{NA}} leaves the choice to a CHOLMOD-internal heuristic.}
   \item{super}{logical scalar indicating is a supernodal decomposition
     should be created.  The alternative is a simplicial decomposition.
-    Default is \code{FALSE}.}
+    Default is \code{FALSE}.  Setting it to \code{\link{NA}} leaves the
+    choice to a CHOLMOD-internal heuristic.}
   \item{Imult}{numeric scalar which defaults to zero. The matrix that is
     decomposed is \eqn{A+m*I} where \eqn{m} is the value of \code{Imult}
     and \code{I} is the identity matrix of order \code{ncol(A)}.}
@@ -81,6 +87,7 @@ str(mtm@factors) # empty list()
 (C1 <- Cholesky(mtm))             # uses show(<MatrixFactorization>)
 str(mtm@factors) # 'sPDCholesky' (simpl)
 (Cm <- Cholesky(mtm, super = TRUE))
+c(C1 = isLDL(C1), Cm = isLDL(Cm))
 str(mtm@factors) # 'sPDCholesky'  *and* 'SPdCholesky'
 str(cm1  <- as(C1, "sparseMatrix"))
 str(cmat <- as(Cm, "sparseMatrix"))# hmm: super is *less* sparse here
@@ -103,6 +110,9 @@ dq <- function(ch) paste('"',ch,'"', sep="") ## dQuote(<UTF-8>) gives bad plots
 image(mtm, main=paste("crossprod(mm) : Sparse", dq(class(mtm))))
 image(cm1, main= paste("as(Cholesky(crossprod(mm)),\"sparseMatrix\"):",
                         dq(class(cm1))))
+\dontshow{
+expand(C1) ## to check printing
+}
 }
 \keyword{array}
 \keyword{algebra}

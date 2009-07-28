@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: bugs@R-project.org\n"
-"POT-Creation-Date: 2009-06-05 15:51+0200\n"
+"POT-Creation-Date: 2009-06-12 12:20+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -207,61 +207,61 @@ msgstr ""
 msgid "object must be a named, numeric vector"
 msgstr ""
 
-#: Mutils.c:118 Mutils.c:134
+#: Mutils.c:118 Mutils.c:138
 msgid "'factors' slot must be a named list"
-msgstr ""
-
-#: Mutils.c:254
-#, c-format
-msgid "'%s' slot must have length 1"
 msgstr ""
 
 #: Mutils.c:258
 #, c-format
+msgid "'%s' slot must have length 1"
+msgstr ""
+
+#: Mutils.c:262
+#, c-format
 msgid "'%s' must have string length 1"
 msgstr ""
 
-#: Mutils.c:265
+#: Mutils.c:269
 #, c-format
 msgid "'%s' must be in '%s'"
 msgstr ""
 
-#: Mutils.c:284
+#: Mutils.c:288
 msgid "'s1' and 's2' must be \"character\" vectors"
 msgstr ""
 
-#: Mutils.c:306
+#: Mutils.c:310
 msgid "length of x slot != prod(Dim)"
 msgstr ""
 
-#: Mutils.c:327 Mutils.c:353
+#: Mutils.c:331 Mutils.c:357
 msgid "'uplo' must be UPP or LOW"
 msgstr ""
 
-#: Mutils.c:559
+#: Mutils.c:563
 #, c-format
 msgid "invalid class '%s' to dup_mMatrix_as_geMatrix"
 msgstr ""
 
-#: Mutils.c:679
+#: Mutils.c:683
 #, c-format
 msgid "unexpected ctype = %d in dup_mMatrix_as_geMatrix"
 msgstr ""
 
-#: Mutils.c:710
+#: Mutils.c:714
 #, c-format
 msgid "invalid class '%s' to dup_mMatrix_as_dgeMatrix"
 msgstr ""
 
-#: Mutils.c:754
+#: Mutils.c:758
 msgid "Argument ij must be 2-column integer matrix"
 msgstr ""
 
-#: Mutils.c:795
+#: Mutils.c:799
 msgid "i and j must be integer vectors of the same length"
 msgstr ""
 
-#: Mutils.c:903
+#: Mutils.c:907
 msgid "could not find correct environment; please report!"
 msgstr ""
 
@@ -534,71 +534,71 @@ msgstr ""
 msgid "invalid class(x) '%s' in R_to_CMatrix(x)"
 msgstr ""
 
-#: dgCMatrix.c:164
+#: dgCMatrix.c:165
 msgid "dgCMatrix_lusol requires a square, non-empty matrix"
 msgstr ""
 
-#: dgCMatrix.c:166 dgCMatrix.c:186 dgCMatrix.c:408 dgCMatrix.c:443
+#: dgCMatrix.c:167 dgCMatrix.c:188 dgCMatrix.c:420 dgCMatrix.c:450
 #: dgeMatrix.c:312 dpoMatrix.c:91 dpoMatrix.c:116 dppMatrix.c:80
 #: dspMatrix.c:80 dsyMatrix.c:87 dtCMatrix.c:92 dtCMatrix.c:116 dtrMatrix.c:81
 msgid "Dimensions of system to be solved are inconsistent"
 msgstr ""
 
-#: dgCMatrix.c:168
+#: dgCMatrix.c:169
 msgid "cs_lusol failed"
 msgstr ""
 
-#: dgCMatrix.c:183
+#: dgCMatrix.c:185
 msgid "dgCMatrix_qrsol(., order) needs order in {0,..,3}"
 msgstr ""
 
-#: dgCMatrix.c:191
+#: dgCMatrix.c:193
 #, c-format
 msgid "dgCMatrix_qrsol(<%d x %d>-matrix) requires a 'tall' rectangular matrix"
 msgstr ""
 
-#: dgCMatrix.c:198
+#: dgCMatrix.c:200
 msgid "cs_qrsol failed"
 msgstr ""
 
-#: dgCMatrix.c:224
+#: dgCMatrix.c:226
 msgid "A must have #{rows} >= #{columns}"
 msgstr ""
 
-#: dgCMatrix.c:227
+#: dgCMatrix.c:229
 msgid "cs_sqr failed"
 msgstr ""
 
-#: dgCMatrix.c:229
+#: dgCMatrix.c:231
 msgid "cs_qr failed"
 msgstr ""
 
-#: dgCMatrix.c:295
+#: dgCMatrix.c:297
 msgid "SuiteSparseQR_C_QR returned an error code"
 msgstr ""
 
-#: dgCMatrix.c:349
+#: dgCMatrix.c:341
 msgid "LU decomposition applies only to square matrices"
 msgstr ""
 
-#: dgCMatrix.c:357
+#: dgCMatrix.c:349
 msgid "cs_lu(A) failed: near-singular A (or out of memory)"
 msgstr ""
 
-#: dgCMatrix.c:441
+#: dgCMatrix.c:448
 msgid "dgCMatrix_cholsol requires a 'short, wide' rectangular matrix"
 msgstr ""
 
-#: dgCMatrix.c:446
+#: dgCMatrix.c:453
 msgid "cholmod_l_sdmult error"
 msgstr ""
 
-#: dgCMatrix.c:449
+#: dgCMatrix.c:456
 #, c-format
 msgid "cholmod_l_factorize failed: status %d, minor %d from ncol %d"
 msgstr ""
 
-#: dgCMatrix.c:453
+#: dgCMatrix.c:460
 #, c-format
 msgid "cholmod_l_solve (CHOLMOD_A) failed: status %d, minor %d from ncol %d"
 msgstr ""
@@ -769,7 +769,6 @@ msgid "Dimensions of a (%d,%d) and b (%d,%d) do not conform"
 msgstr ""
 
 #: dtrMatrix.c:101
-#, c-format
 msgid "dtrMatrix in %*% must be square"
 msgstr ""
 

@@ -36,6 +36,7 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(CHMfactor_ldetL2, 1),
     CALLDEF(CHMfactor_ldetL2up, 3),
     CALLDEF(CHMfactor_update, 3),
+    CALLDEF(destructive_CHM_update, 3),
     CALLDEF(Cholesky_validate, 1),
     CALLDEF(Csparse_Csparse_prod, 2),
     CALLDEF(Csparse_Csparse_crossprod, 3),

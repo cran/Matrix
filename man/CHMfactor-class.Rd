@@ -8,6 +8,7 @@
 \alias{nCHMsimpl-class}
 \alias{dCHMsuper-class}
 \alias{nCHMsuper-class}
+\alias{isLDL}
 %
 \alias{coerce,CHMfactor,Matrix-method}
 \alias{coerce,CHMfactor,sparseMatrix-method}
@@ -33,9 +34,10 @@
 }
 \usage{% want usage for the update method which has "surprising arguments"
 \S4method{update}{CHMfactor}(object, parent, mult = 0, \dots)
+isLDL(x)
 }
 \arguments{
-  \item{object}{a \code{"CHMfactor"} object.}
+  \item{object,x}{a \code{"CHMfactor"} object.}
   \item{parent}{a \code{"\linkS4class{dsCMatrix}"} matrix or
     \code{"\linkS4class{dgCMatrix}"} object with the same nonzero
     pattern as the matrix that generated \code{object}.  If
@@ -82,10 +84,13 @@
 }
 \section{Methods}{
   \describe{
-    \item{coerce}{\code{signature(from = "CHMfactor", to =
-	"sparseMatrix")} Returns the lower triangular factor \eqn{L}
-      from the \eqn{LL'} form of the Cholesky factorization.  Note that
-      the factor from the \eqn{LL'} form is always returned, even if the
+    \item{isLDL}{\code{(x)} returns a \code{\link{logical}} indicating if
+      \code{x} is an \eqn{LDL'} decomposition or (when \code{FALSE}) an
+      \eqn{LL'} one.}
+    \item{coerce}{\code{signature(from = "CHMfactor", to = "sparseMatrix")}
+      Returns the lower triangular factor \eqn{L} from the \eqn{LL'}
+      form of the Cholesky factorization.  Note that (currently) the
+      factor from the \eqn{LL'} form is always returned, even if the
       \code{"CHMfactor"} object represents an \eqn{LDL'} decomposition.
       Furthermore, this is the factor after any fill-reducing
       permutation has been applied.  See the \code{expand} method for
@@ -114,9 +119,12 @@
       character strings \code{"A"}, \code{"LDLt"}, \code{"LD"},
       \code{"DLt"}, \code{"L"}, \code{"Lt"}, \code{"D"}, \code{"P"} or
       \code{"Pt"}.  This argument describes the system to be solved.  The
-      default is to solve \code{Ax = b} for \code{x} where \code{A} is
-      sparse, positive-definite matrix that was factored to produce
-      \code{"a"}.}
+      default,  \code{"A"}, is to solve \eqn{Ax = b} for \eqn{x} where
+      \code{A} is sparse, positive-definite matrix that was factored to produce
+      \code{a}.  Analogously, \code{system = "L"} returns the solution
+      \eqn{x}, of \eqn{Lx = b}; similarly, for all system codes
+      \bold{but} \code{"P"} and \code{"Pt"} where, e.g., \code{x <-
+	solve(a, b,system="P")} is equivalent to \code{x <- P \%*\% b}.}
     \item{solve}{\code{signature(a = "CHMfactor", b = "matrix")}, and}
     \item{solve}{\code{signature(a = "CHMfactor", b = "numeric")} call
       the above \code{signature(*, b = "ddenseMatrix")} method.}
@@ -168,11 +176,17 @@ M1 <- spMatrix(n, m,
                x = round(rnorm(nnz),1))
 XX <- crossprod(M1)
 CX <- Cholesky(XX)
+isLDL(CX)
 str(CX) ## a "dCHMsimpl" object
-r <- expand(CX <- Cholesky(XX))
+r <- expand(CX)
 L.P <- with(r, crossprod(L,P))  ## == L'P
 PLLP <- crossprod(L.P)          ## == (L'P)' L'P == P'LL'P
-stopifnot( all.equal(PLLP, XX) )
+b <- sample(m)
+stopifnot(all.equal(PLLP, XX), % not needed: factorsCheck is off: check.attr=FALSE),
+          all(as.vector(solve(CX, b, system="P" )) == r$P \%*\% b),
+          all(as.vector(solve(CX, b, system="Pt")) == t(r$P) \%*\% b) )
+
+   ## [ See  help(Cholesky)  for more examples ]
 }
 \keyword{classes}
 \keyword{algebra}

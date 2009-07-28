@@ -34,7 +34,7 @@ rankMatrix <- function(x, tol = NULL,
     d <- dim(x)
     p <- min(d)
     stopifnot(length(d) == 2, length(sval) == p,
-              diff(sval) < 0) # must be sorted non-increasingly: max = s..[1]
+              diff(sval) <= 0) # must be sorted non-increasingly: max = s..[1]
     absval <- abs(sval)
     method <- match.arg(method)
 

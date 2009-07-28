@@ -17,13 +17,13 @@
   \describe{
     \item{x = "dgCMatrix"}{QR decomposition of a general sparse
       double-precision matrix with \code{nrow(x) >= ncol(x)}.  Returns
-      an object of class \code{"sparseQR"}, see
-      \code{\linkS4class{sparseQR}}.}
+      an object of class \code{"\linkS4class{sparseQR}"}.}
     \item{x = "sparseMatrix"}{works via \code{"dgCMatrix"}.}
   }
 }
-\seealso{\code{\link[base]{qr}}, \code{\linkS4class{sparseQR}},
-    \code{\linkS4class{dgCMatrix}}}
+\seealso{\code{\link[base]{qr}}; documentation for classes
+  \code{\linkS4class{sparseQR}} and \code{\linkS4class{dgCMatrix}}.
+}
 \keyword{methods}
 \keyword{algebra}
 \keyword{array}

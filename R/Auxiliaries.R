@@ -28,6 +28,10 @@ paste0 <- function(...) paste(..., sep = '')
 
 .if.NULL <- function(x, orElse) if(!is.null(x)) x else orElse
 
+##  not %in%  :
+`%nin%` <- function (x, table) is.na(match(x, table))
+
+
 .has.DN <- ## has non-trivial Dimnames slot?
     function(x) !identical(list(NULL,NULL), x@Dimnames)
 
@@ -93,21 +97,23 @@ MatrixClass <- function(cl, cld = getClassDef(cl),
     }
 }
 
-attrSlotNames <- function(m) {
+attrSlotNames <- function(m, factors = TRUE) {
     ## slotnames of Matrix objects which are *not* directly content related
-    sn <- slotNames(m); sn[!(sn %in% c("x","i","j","p"))]
+    sn <- slotNames(m); sn[sn %nin% c("x","i","j","p", if(!factors) "factors")]
 }
 
 ##' @param m
 ##' @return the slots of 'm' which are "attributes" of some kind.
-attrSlots <- function(m) sapply(attrSlotNames(m), function(sn) slot(m, sn),
-				simplify = FALSE)
+attrSlots <- function(m, factors = TRUE) sapply(attrSlotNames(m, factors=factors),
+			 function(sn) slot(m, sn), simplify = FALSE)
 
-attr.all_Mat <- function(target, current, check.attributes = TRUE, ...) {
+attr.all_Mat <- function(target, current,
+			 check.attributes = TRUE, factorsCheck = FALSE, ...) {
     msg <- if(check.attributes)
-	attr.all.equal(attrSlots(target), attrSlots(current), ...)
+	all.equal(attrSlots(target,  factors=factorsCheck),
+		  attrSlots(current, factors=factorsCheck),
+		  check.attributes = TRUE, ...)
     if((c1 <- class(target)) != (c2 <- class(current)))
-
 	## list(): so we can easily check for this
 	list(c(msg, paste("class(target) is ", class(target), ", current is ",
 				 class(current), sep = "")))

@@ -105,6 +105,8 @@ setMethod("chol", signature(x = "dsCMatrix"),
 	  valueClass = "dtCMatrix")
 
 setMethod("Cholesky", signature(A = "dsCMatrix"),
+          ## signature(): leaving away (perm, LDL,..), but specify below:
+          ##              <==> all "ANY"
           function(A, perm = TRUE, LDL = !super, super = FALSE, Imult = 0, ...)
           .Call(dsCMatrix_Cholesky, A, perm, LDL, super, Imult))
 
@@ -144,7 +146,7 @@ setMethod("determinant", signature(x = "dsCMatrix", logarithm = "logical"),
       {
 	  if((n <- x@Dim[1]) <= 1)
 	      return(mkDet(x@x, logarithm))
-	  Chx <- tryCatch(Cholesky(x, LDL=TRUE),
+	  Chx <- tryCatch(suppressWarnings(Cholesky(x, LDL=TRUE)),
                           error = function(e) NULL)
 	  ## or
 	  ## ldet <- .Call("CHMfactor_ldetL2", Chx) # which would also work

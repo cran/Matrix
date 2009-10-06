@@ -489,12 +489,38 @@ M_cholmod_spsolve(int sys, CHM_FR L,
     return fun(sys, L, B, Common);
 }
 
+int attribute_hidden
+M_cholmod_defaults (CHM_CM Common)
+{
+    static int(*fun)(CHM_CM) = NULL;
+    if (fun == NULL)
+	fun = (int(*)(CHM_CM))
+	    R_GetCCallable("Matrix", "cholmod_l_defaults");
+    return fun(Common);
+}
+
+/* extern cholmod_common c; */
+
 void attribute_hidden
 M_R_cholmod_error(int status, const char *file, int line, const char *message)
 {
-    error("Cholmod error `%s' at file:%s, line %d", message, file, line);
+/* NB: keep in sync with R_cholmod_error(), ../../src/chm_common.c */
+
+    if(status < 0) {
+/* Note: Matrix itself here calls
+ *	cholmod_defaults(&c);/* <--- restore defaults, as we will not be able to ..
+ *
+ *  Consider defining your own error handler, *and* possibly restoring *your* version
+ *  of the cholmod_common that *you* use.
+ */
+	error("Cholmod error '%s' at file:%s, line %d", message, file, line);
+    }
+    else
+	warning("Cholmod warning '%s' at file:%s, line %d",
+		message, file, line);
 }
 
+#if 0  /* no longer used */
 /* just to get 'int' instead of 'void' as required by CHOLMOD's print_function */
 static int
 R_cholmod_printf(const char* fmt, ...)
@@ -506,6 +532,7 @@ R_cholmod_printf(const char* fmt, ...)
     va_end(ap);
     return 0;
 }
+#endif
 
 int attribute_hidden
 M_R_cholmod_start(CHM_CM Common)
@@ -516,7 +543,10 @@ M_R_cholmod_start(CHM_CM Common)
 	fun = (int(*)(CHM_CM))
 	    R_GetCCallable("Matrix", "cholmod_l_start");
     val = fun(Common);
-    Common->print_function = R_cholmod_printf; /* Rprintf gives warning */
+/*-- NB: keep in sync with  R_cholmod_l_start() --> ../../src/chm_common.c */
+    /* do not allow CHOLMOD printing - currently */
+    Common->print_function = NULL;/* was  R_cholmod_printf; /.* Rprintf gives warning */
+/* Consider using your own error handler: */
     Common->error_handler = M_R_cholmod_error;
     return val;
 }

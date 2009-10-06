@@ -6,6 +6,10 @@
 % METHODS:
 % undocu (FIXME)
 \alias{\%*\%,ddenseMatrix,ddenseMatrix-method}
+\alias{crossprod,ddenseMatrix,missing-method}
+\alias{crossprod,ddenseMatrix,dgCMatrix-method}
+\alias{tcrossprod,ddenseMatrix,missing-method}
+%
 \alias{show,ddenseMatrix-method}
 \alias{coerce,ddenseMatrix,matrix-method}
 \alias{coerce,ddenseMatrix,dgeMatrix-method}
@@ -13,13 +17,14 @@
 %
 % Group
 \alias{Arith,ddenseMatrix,ddenseMatrix-method}
+\alias{Arith,ddenseMatrix,logical-method}
 \alias{Arith,ddenseMatrix,numeric-method}
+\alias{Arith,logical,ddenseMatrix-method}
 \alias{Arith,numeric,ddenseMatrix-method}
 \alias{Math,ddenseMatrix-method}
 \alias{Summary,ddenseMatrix-method}
 %
 \alias{as.numeric,ddenseMatrix-method}
-\alias{crossprod,ddenseMatrix,missing-method}
 \alias{diag,ddenseMatrix-method}
 \alias{determinant,ddenseMatrix,missing-method}
 \alias{determinant,ddenseMatrix,logical-method}
@@ -29,9 +34,11 @@
 \alias{rcond,ddenseMatrix,missing-method}
 \alias{rcond,ddenseMatrix,character-method}
 \alias{solve,ddenseMatrix,missing-method}
+\alias{solve,ddenseMatrix,numeric-method}
+\alias{solve,ddenseMatrix,matrix-method}
+\alias{solve,ddenseMatrix,Matrix-method}
 \alias{solve,ddenseMatrix,ANY-method}
 \alias{t,ddenseMatrix-method}
-\alias{tcrossprod,ddenseMatrix,missing-method}
 %
 \description{This is the virtual class of all dense numeric (i.e.,
   \bold{d}ouble, hence \emph{\dQuote{ddense}}) S4 matrices.

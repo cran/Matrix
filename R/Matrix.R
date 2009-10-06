@@ -127,17 +127,6 @@ setMethod("dimnames<-", signature(x = "Matrix", value = "NULL"),
 setMethod("unname", signature("Matrix", force="missing"),
 	  function(obj) { obj@Dimnames <- list(NULL,NULL); obj})
 
-setMethod("all", signature(x = "Matrix"),
-	  function(x, ..., na.rm)
-	  callGeneric(as(x, "lMatrix"), ..., na.rm=na.rm))
-
-setMethod("any", signature(x = "Matrix"),
-	  function(x, ..., na.rm)
-	  callGeneric(as(x, "lMatrix"), ..., na.rm=na.rm))
-
-## NOTE:  "&" and "|"  are now in group "Logic" c "Ops" --> ./Ops.R
-##        "!" is in ./not.R
-
 
 Matrix <- function (data = NA, nrow = 1, ncol = 1, byrow = FALSE,
                     dimnames = NULL, sparse = NULL, forceCheck = FALSE)
@@ -262,6 +251,32 @@ setMethod("solve", signature(a = "Matrix", b = "ANY"),
 setMethod("solve", signature(a = "ANY", b = "Matrix"),
 	  function(a, b, ...) .bail.out.2("solve", class(a), class(b)))
 
+if(getRversion() < "2.10.0" || R.version$`svn rev` < 49944) {
+    ## for now: still carry  'size' and 'LINPACK'
+setMethod("chol2inv", signature(x = "denseMatrix"),
+	  function (x, size, LINPACK)
+	  chol2inv(as(as(x, "dMatrix"), "dtrMatrix"), size, LINPACK))
+setMethod("chol2inv", signature(x = "sparseMatrix"),
+	  function (x, size, LINPACK) {
+	      if (!missing(size) || !missing(LINPACK))
+		  warning("Arguments size and LINPACK are ignored for chol2inv\n\tmethods in the Matrix package")
+	      ## for now:
+	      tcrossprod(solve(as(x,"triangularMatrix")))
+	  })
+
+} else {## chol2inv() has implicit generic in newer versions of R
+
+setMethod("chol2inv", signature(x = "denseMatrix"),
+	  function (x, ...) chol2inv(as(as(x, "dMatrix"), "dtrMatrix"), ...))
+setMethod("chol2inv", signature(x = "sparseMatrix"),
+	  function (x, ...) {
+	      if(length(list(...)))
+		  warning("arguments in", deparse(list(...)), "are disregarded")
+	      ## for now:
+	      tcrossprod(solve(as(x,"triangularMatrix")))
+	  })
+}# end {if}
+
 ## There are special sparse methods; this is a "fall back":
 setMethod("kronecker", signature(X = "Matrix", Y = "ANY",
 				 FUN = "ANY", make.dimnames = "ANY"),
@@ -370,14 +385,26 @@ setMethod("diff", signature(x = "Matrix"),
 setMethod("image", "Matrix",
 	  function(x, ...) { # coercing to sparse is not inefficient,
 	      ##	       since we need 'i' and 'j' for levelplot()
-	      x <- as(as(x, "sparseMatrix"), "dMatrix")
+	      x <- as(as(x, "sparseMatrix"), "dsparseMatrix")
+              ## note that "ddiMatrix" is "sparse*" and "d*", but *not* dsparse
 	      callGeneric()
 	  })
 
 
 ## Group Methods
 
-## For all  non-dMatrix objects, and note that  "all" and "any" have their own
+## --- "Summary" ------- have "ddense*" and "dsparse*" ones in ---> ./dMatrix.R <---
+##      -------          "diagMatrix" --> ./diagMatrix.R            ~~~~~~~~~~~
+## For all other Matrix objects {and note that  "all" and "any" have their own}:
+
+setMethod("all", signature(x = "Matrix"),
+	  function(x, ..., na.rm)
+	  callGeneric(as(x, "lMatrix"), ..., na.rm=na.rm))
+
+setMethod("any", signature(x = "Matrix"),
+	  function(x, ..., na.rm)
+	  callGeneric(as(x, "lMatrix"), ..., na.rm=na.rm))
+
 setMethod("Summary", signature(x = "Matrix", na.rm = "ANY"),
 	  function(x, ..., na.rm)
 	  callGeneric(as(x,"dMatrix"), ..., na.rm = na.rm))
@@ -390,7 +417,7 @@ Summary.l <- function(x, ..., na.rm) { ## must be method directly
 	if(!is.infinite(r) && .Generic != "prod") as.integer(r) else r
     }
 }
-## identical (apart from last line):
+## almost identical:
 Summary.np <- function(x, ..., na.rm) {
     if(.Generic %in% c("all", "any"))
 	callGeneric(as(x, "lMatrix"), ..., na.rm = na.rm)
@@ -404,6 +431,8 @@ setMethod("Summary", signature(x = "lMatrix", na.rm = "ANY"), Summary.l)
 setMethod("Summary", signature(x = "nMatrix", na.rm = "ANY"), Summary.np)
 setMethod("Summary", signature(x = "pMatrix", na.rm = "ANY"), Summary.np)
 
+## NOTE:  "&" and "|"  are now in group "Logic" c "Ops" --> ./Ops.R
+##        "!" is in ./not.R
 
 ## Further, see ./Ops.R
 ##                ~~~~~
@@ -485,12 +514,11 @@ setMethod("[", signature(x = "Matrix", i = "ANY", j = "ANY", drop = "ANY"),
 		"nargs() = %d.  Extraneous illegal arguments inside '[ .. ]' (i.logical)?",
 			 nA))
 }
-setMethod("[", signature(x = "Matrix", i = "lMatrix", j = "missing",
-			 drop = "ANY"),
-	  .M.sub.i.logical)
-setMethod("[", signature(x = "Matrix", i = "logical", j = "missing",
-			 drop = "ANY"),
-	  .M.sub.i.logical)
+
+## instead of using 'drop = "ANY"' {against ambiguity notices}:
+for(ii in c("lMatrix", "logical"))
+    setMethod("[", signature(x = "Matrix", i = ii, j = "missing", drop = "missing"),
+	      .M.sub.i.logical)
 
 
 subset.ij <- function(x, ij) {
@@ -572,6 +600,9 @@ subset.ij <- function(x, ij) {
 			 nA))
 }
 setMethod("[", signature(x = "Matrix", i = "matrix", j = "missing"),# drop="ANY"
+	  .M.sub.i.2col)
+## just against ambiguity notices :
+setMethod("[", signature(x = "Matrix", i = "matrix", j = "missing", drop="missing"),
 	  .M.sub.i.2col)
 
 

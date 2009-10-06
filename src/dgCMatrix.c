@@ -94,13 +94,14 @@ SEXP R_to_CMatrix(SEXP x)
 	""};
     int ctype = Matrix_check_class_etc(x, valid);
     int *x_dims = INTEGER(GET_SLOT(x, Matrix_DimSym)), *a_dims;
+    PROTECT_INDEX ipx;
 
     if (ctype < 0)
 	error(_("invalid class(x) '%s' in R_to_CMatrix(x)"), ncl);
 
     /* replace 'R' with 'C' : */
     ncl[2] = 'C';
-    ans = PROTECT(NEW_OBJECT(MAKE_CLASS(ncl)));
+    PROTECT_WITH_INDEX(ans = NEW_OBJECT(MAKE_CLASS(ncl)), &ipx);
 
     a_dims = INTEGER(ALLOC_SLOT(ans, Matrix_DimSym, INTSXP, 2));
     /* reversed dim() since we will transpose: */
@@ -120,7 +121,7 @@ SEXP R_to_CMatrix(SEXP x)
     }
     SET_SLOT(ans, Matrix_iSym, duplicate(GET_SLOT(x, Matrix_jSym)));
     slot_dup(ans, x, Matrix_pSym);
-    ans = Csparse_transpose(ans, tri);
+    REPROTECT(ans = Csparse_transpose(ans, tri), ipx);
     SET_DimNames(ans, x);
     free(ncl);
     UNPROTECT(2);
@@ -345,7 +346,7 @@ void install_lu(SEXP Ap, int order, double tol)
     }
     S = cs_sqr(order, A, 0);	/* symbolic ordering, no QR bound */
     N = cs_lu(A, S, tol);	/* numeric factorization */
-    if (!N) 
+    if (!N)
 	error(_("cs_lu(A) failed: near-singular A (or out of memory)"));
     cs_dropzeros(N->L);		/* drop zeros from L and sort it */
     D = cs_transpose(N->L, 1);

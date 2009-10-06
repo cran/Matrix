@@ -8,6 +8,7 @@ SEXP dtrMatrix_validate(SEXP obj);
 SEXP dtrMatrix_norm(SEXP obj, SEXP type);
 SEXP dtrMatrix_rcond(SEXP obj, SEXP type);
 SEXP dtrMatrix_solve(SEXP a);
+SEXP dtrMatrix_chol2inv(SEXP a);
 SEXP dtrMatrix_matrix_solve(SEXP a, SEXP b);
 SEXP dtrMatrix_matrix_mm(SEXP a, SEXP b, SEXP right);
 SEXP dtrMatrix_as_dgeMatrix(SEXP from);

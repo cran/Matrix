@@ -35,8 +35,8 @@ rBind(..., deparse.level = 1)
 }
 \details{
   The implementation of these is \emph{recursive}, calling
-  \code{\link[methods]{cbind2}} or
-  \code{\link[methods]{rbind2}} respectively, where these have methods
+  \code{\link{cbind2}} or
+  \code{\link{rbind2}} respectively, where these have methods
   defined and so should dispatch appropriately.
 }
 \value{

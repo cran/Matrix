@@ -236,10 +236,14 @@ setMethod("crossprod", signature(x = "dsparseMatrix", y = "ddenseMatrix"),
 	  function(x, y = NULL)
 	  .Call(Csparse_dense_crossprod, as(x, "dgCMatrix"), y))
 
+setMethod("crossprod", signature(x = "ddenseMatrix", y = "dgCMatrix"),
+	  function(x, y = NULL) t(.Call(Csparse_dense_crossprod, y, x)))
 setMethod("crossprod", signature(x = "ddenseMatrix", y = "dsparseMatrix"),
 	  function(x, y = NULL)
 	  t(.Call(Csparse_dense_crossprod, as(y, "dgCMatrix"), x)))
 
+setMethod("crossprod", signature(x = "dgCMatrix", y = "dgeMatrix"),
+	  function(x, y = NULL) .Call(Csparse_dense_crossprod, x, y))
 setMethod("crossprod", signature(x = "dsparseMatrix", y = "dgeMatrix"),
 ## NB: using   callGeneric(.) here, leads to infinite recursion :
 	  function(x, y = NULL) .Call(Csparse_dense_crossprod, as(x, "dgCMatrix"), y))

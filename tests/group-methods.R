@@ -73,7 +73,9 @@ stopifnot(validObject(lm1), validObject(lm2),
           identical(dsc, as(dsc * as(lm1, "dMatrix"), "dsCMatrix")))
 
 crossprod(lm1) # lm1: "lsC*"
-crossprod(nm1)
+stopifnot(identical(nm1 %*% nm1, crossprod(nm1))) # + warning
+dn1 <- as(nm1, "denseMatrix")
+stopifnot(all(dn1 == nm1))
 
 dsc[2,3] <- NA ## now has an NA
 ##          ----- end "everything" is different
@@ -82,8 +84,9 @@ dsc/ 5
 dsc + dsc
 dsc - dsc
 dsc + 1 # -> no longer sparse
-stopifnot(identical(dsc, Matrix((dsc + 1) -1))) # ok (exact arithmetic)
-
+Tsc <- as(dsc, "TsparseMatrix")
+stopifnot(identical(dsc, Matrix((dsc + 1) -1)),
+          identical(dsc, Matrix((Tsc + 1) -1))) # ok (exact arithmetic)
 str(lm1 <- dsc >= 1) # now ok (NA in proper place, however:
 lm1 ## NA used to print as ' ' , now 'N'
 (lm2 <- dsc == 1)# ditto
@@ -99,6 +102,33 @@ abs(D) >= 0.5       # logical sparse
 stopifnot(identical(crossprod(lm1),# "lgC": here works!
                     crossprod(as(lm1, "dMatrix"))
                     ))
+
+## Systematically look at all "Ops" group generics for "all" Matrix classes
+## -------------- Main issue: Detect infinite recursion problems
+Mcl <- grep("Matrix$", sapply(ls(), function(.) class(get(.))), value=TRUE)
+table(Mcl)
+M.objs <- names(Mcl[!duplicated(Mcl)])
+
+cat("Checking all group generics for a set of arguments:\n",
+    "---------------------------------------------------\n", sep='')
+for(gr in getGroupMembers("Ops")) {
+    cat(gr,"\n",paste(rep.int("=",nchar(gr)),collapse=""),"\n", sep='')
+    for(f in getGroupMembers(gr)) {
+	cat(sprintf("%9s : ", dQuote(f)))
+	## TODO: check also for "sparseVector" - both with "Matrix" and with "atomic"
+	for(nm in M.objs) {
+	    M <- get(nm, inherits=FALSE)
+	    cat("o")
+	    for(x in list(TRUE, -3.2, 0L, seq_len(nrow(M)))) {
+                cat(".")
+		validObject(r1 <- do.call(f, list(M,x)))
+		validObject(r2 <- do.call(f, list(x,M)))
+		stopifnot(dim(r1) == dim(M), dim(r2) == dim(M))
+	    }
+	}
+	cat("\n")
+    }
+}
 
 if(FALSE) {## These are not yet there
 lm1 & lm2

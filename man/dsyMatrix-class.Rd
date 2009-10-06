@@ -5,6 +5,7 @@
 %
 \alias{\%*\%,ddenseMatrix,dsyMatrix-method}
 \alias{\%*\%,matrix,dsyMatrix-method}
+\alias{\%*\%,dsyMatrix,dsyMatrix-method}
 \alias{\%*\%,dspMatrix,ddenseMatrix-method}
 \alias{\%*\%,dspMatrix,matrix-method}
 \alias{\%*\%,dsyMatrix,ddenseMatrix-method}

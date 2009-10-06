@@ -33,7 +33,9 @@
 \alias{coerce,ddiMatrix,CsparseMatrix-method}
 \alias{coerce,ldiMatrix,CsparseMatrix-method}
 \alias{coerce,ddiMatrix,TsparseMatrix-method}
+\alias{coerce,ddiMatrix,dsparseMatrix-method}
 \alias{coerce,ldiMatrix,TsparseMatrix-method}
+\alias{coerce,ldiMatrix,lsparseMatrix-method}
 %
 \alias{cbind2,ddiMatrix,matrix-method}
 \alias{cbind2,ldiMatrix,matrix-method}
@@ -264,7 +266,7 @@
       trivially implemented, of course.}
 
     \item{*}{\code{signature(e1 = "ddiMatrix", e2="denseMatrix")}:
-      arithmetic and other operators from the \code{\link[methods]{Ops}}
+      arithmetic and other operators from the \code{\link[=S4groupGeneric]{Ops}}
       group have a few dozen explicit method definitions, in order to
       keep the results \emph{diagonal} in many cases, including the following:}
     \item{/}{\code{signature(e1 = "ddiMatrix", e2="denseMatrix")}:

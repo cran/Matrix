@@ -81,8 +81,12 @@ setMethod("diag", signature(x = "ddenseMatrix"),
 setMethod("solve", signature(a = "ddenseMatrix", b = "missing"),
           function(a, b, ...) solve(as(a, "dgeMatrix")))
 
-setMethod("solve", signature(a = "ddenseMatrix", b = "ANY"),
-          function(a, b, ...) solve(as(a, "dgeMatrix"), b))
+for(.b in c("Matrix","ANY")) ## << against ambiguity notes
+setMethod("solve", signature(a = "ddenseMatrix", b = .b),
+	  function(a, b, ...) solve(as(a, "dgeMatrix"), b))
+for(.b in c("matrix","numeric")) ## << against ambiguity notes
+setMethod("solve", signature(a = "ddenseMatrix", b = .b),
+	  function(a, b, ...) solve(as(a, "dgeMatrix"), Matrix(b)))
 
 setMethod("lu", signature(x = "ddenseMatrix"),
           function(x, ...) lu(as(x, "dgeMatrix")))

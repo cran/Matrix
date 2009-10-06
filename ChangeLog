@@ -1,3 +1,113 @@
+2009-10-06  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* inst/include/Matrix_stubs.c (M_R_cholmod_error): revert (2009-09-18),
+	i.e., no longer restore cholmod_common.
+
+2009-10-05  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/dtrMatrix.c (dtrMatrix_chol2inv): use "dpoMatrix" instead of "dsy"
+
+	* R/dtrMatrix.R: make use of implicit generic for chol2inv() in
+	newer R versions.
+
+2009-09-30  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/CHMfactor.R (solve): fix methods for "ddiMatrix" and "missing" RHS.
+	* tests/factorizing.R: test these
+
+	* R/Matrix.R (image): fix Matrix method to work for "ddiMatrix"
+	* R/diagMatrix.R: coercion to "dsparse*"
+	* tests/Simple.R: test image(<ddiMatrix>)
+
+2009-09-29  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/AllGeneric.R: rcond is implicit generic in latest versions of R
+
+2009-09-23  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.999375-31, CRAN-released:
+
+2009-09-22  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Ops.R (A.M.n,A.n.M): replace "Ops" methods by explicit "Arith",
+	"Logic", etc, getting rid of ambiguity (notes), and of infinite recursions.
+
+	* tests/group-methods.R: test these systematically.
+
+2009-09-18  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* inst/include/Matrix_stubs.c (M_R_cholmod_start): print_function = NULL
+	as in src/chm_common.c (2009-07-20)
+	(M_R_cholmod_error): ditto, using new M_cholmod_default(), declared in
+	* inst/include/cholmod.h
+
+	* R/Tsparse.R (intI): do *not* allow logical subscript (row or
+	column) to be too long, compatibly with traditional matrix
+	indexing.
+	* tests/indexing.R: and assert the error.
+
+2009-09-17  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/pMatrix.R: as(sparseMatrix, pMatrix)
+
+	* R/CHMfactor.R (solve): method for (CHMfactor, missing)
+
+	* inst/test-tools.R (assertError): use tryCatch()
+
+	* R/diagMatrix.R (.sparseDiagonal): fix shape "g" case.
+
+	* R/Auxiliaries.R (isTriC): do not wrongly return TRUE for a *sCMatrix.
+
+	* man/chol2inv-methods.Rd: document & example
+
+2009-09-16   Douglas Bates <bates@stat.wisc.edu>
+
+	* NAMESPACE, R/dtrMatrix.R, src/dtrMatrix.[ch]: add chol2inv()
+	method for dtrMatrix.
+
+2009-09-12  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/sparseVector.R ([): allow *indexing* with "lsparseVector"
+
+2009-09-11  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/sparseVector.R (prSpVector): using ":" as in printSpMatrix()
+	(Summary): add "Summary" group methods
+	* man/sparseVector-class.Rd: and test a bit
+
+2009-09-10  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/sparseMatrix.R (printSpMatrix): visually differentiate
+	non-structural zeros in *logical* sparse matrices, using ":"
+
+	* R/Auxiliaries.R (setparts): new utility, for
+	* R/Ops.R (Ops.spV.spV): start implementing sparseVector arithmetic etc
+
+2009-09-08  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/dgCMatrix.R (qr): for sparseMatrix must coerce to "dgCMatrix".
+	* tests/factorizing.R: test qr(<dsCMatrix>)
+
+2009-09-01  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/CHMfactor.R (determinant): divide previous log(det(.)) by 2;
+	now returning det(L); and modifiy the "CHMfactor.warn" message.
+
+	* man/CHMfactor-class.Rd: modify documentation accordingly.
+
+2009-08-21  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/spModels.R (`contrasts<-`): a version that can also work with a
+	"sparseMatrix" value.  This is put into R 2.10.0 (devel) as well.
+
+	* src/Mutils.h: rename any_NA to any_NA_in_x
+	* src/Mutils.c (check_scalar_string): add doxygen doc
+
+2009-08-15  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/spModels.R (fac2Sparse): make also work for 'contrasts.arg' =
+	matrix;
+
 2009-07-28  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/spModels.R (contr.sum): need also to define contr.*() as long
@@ -5,7 +115,7 @@
 
 2009-07-27  Martin Maechler  <maechler@stat.math.ethz.ch>
 
-	* DESCRIPTION (Version): 0.999375-30, CRAN-released: 2009-0...
+	* DESCRIPTION (Version): 0.999375-30, CRAN-released: 2009-07-28
 
 	* R/Matrix.R (all.equal_Mat): add factorsCheck=FALSE argument
 	* R/Auxiliaries.R (attr.all_Mat, attrSlots): ditto
@@ -90,6 +200,10 @@
 
 	* src/CHMfactor.c: Ensure updated LL stays LL
 
+2009-06-10  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.999375-29, CRAN-released: 2009-06-11
+
 2009-06-10  Douglas Bates <bates@stat.wisc.edu>
 
 	* [r2404] src/Mutils.c: Change value of set_factor to be the cached factor
@@ -99,10 +213,6 @@
 	  "missing")
 	* [r2401] src/dgCMatrix.c: Re-arrange LU factorization to always use the
 	  cached value.
-
-2009-06-10  Martin Maechler  <maechler@stat.math.ethz.ch>
-
-	* DESCRIPTION (Version): 0.999375-29, CRAN-released: 2009-06-11
 
 2009-06-09  Douglas Bates <bates@stat.wisc.edu>
 

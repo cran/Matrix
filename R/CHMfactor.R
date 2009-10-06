@@ -58,15 +58,54 @@ setMethod("solve", signature(a = "CHMfactor", b = "dsparseMatrix"),
 	      if(length(list(...)))
 		  warning("arguments in", deparse(list(...)), "are disregarded")
 	      sysDef <- eval(formals()$system)
-	      .Call(CHMfactor_spsolve, a, as(b, "dgCMatrix"),
+	      .Call(CHMfactor_spsolve, a, as(as(b, "CsparseMatrix"), "dgCMatrix"),
 		    match(match.arg(system, sysDef), sysDef, nomatch = 0))
-	  }, valueClass = "dgCMatrix")
+	  }, valueClass = "CsparseMatrix")# < virtual value ?
+
+setMethod("solve", signature(a = "CHMfactor", b = "diagonalMatrix"),
+	  function(a, b, ...) solve(a, as(b, "dsparseMatrix"), ...))
+
+setMethod("solve", signature(a = "CHMfactor", b = "missing"),
+	  ## <--> b = Diagonal(.)
+	  function(a, b,
+		   system = c("A", "LDLt", "LD","DLt", "L","Lt", "D", "P","Pt"),
+		   ...) {
+	      if(length(list(...)))
+		  warning("arguments in", deparse(list(...)), "are disregarded")
+	      sysDef <- eval(formals()$system)
+	      system <- match.arg(system, sysDef)
+	      i.sys <- match(system, sysDef, nomatch = 0L)
+	      as(.Call(CHMfactor_spsolve, a,
+		       .sparseDiagonal(a@Dim[1], shape="g"), i.sys),
+		 switch(system,
+			A=, LDLt = "symmetricMatrix",# was "dsCMatrix"
+			LD=, DLt=, L=, Lt =,
+			D = "dtCMatrix", # < diagonal: still as "Csparse.."
+			P=, Pt = "pMatrix"))
+	  })
 
 ## Catch-all the rest : make sure 'system' is not lost
 setMethod("solve", signature(a = "CHMfactor", b = "ANY"),
-	  function(a, b, system = c("A", "LDLt", "LD", "DLt", "L", "Lt", "D", "P", "Pt"),
+	  function(a, b, system = c("A", "LDLt", "LD","DLt", "L","Lt", "D", "P","Pt"),
 		   ...)
 	      solve(a, as(b, "dMatrix"), system, ...))
+
+if(getRversion() < "2.10.0" || R.version$`svn rev` < 49944) {
+    ## for now: still carry  'size' and 'LINPACK'
+setMethod("chol2inv", signature(x = "CHMfactor"),
+	  function (x, size, LINPACK) {
+	      if (!missing(size) || !missing(LINPACK))
+		  warning("Arguments size and LINPACK are ignored for chol2inv\n\tmethods in the Matrix package")
+	      solve(x, system = "A")
+	  })
+} else {## chol2inv() has implicit generic in newer versions of R
+setMethod("chol2inv", signature(x = "CHMfactor"),
+	  function (x, ...) {
+	      if(length(list(...)))
+		  warning("arguments in", deparse(list(...)), "are disregarded")
+	      solve(x, system = "A")
+	  })
+}# end {if}
 
 setMethod("determinant", signature(x = "CHMfactor", logarithm = "missing"),
           function(x, logarithm, ...) determinant(x, TRUE))
@@ -80,13 +119,13 @@ setMethod("determinant", signature(x = "CHMfactor", logarithm = "logical"),
               ## ok
           } else if (! .e) {
               assign("det_CHMfactor.warn", TRUE, envir = .MatrixEnv)
-              warning("The next version of the Matrix package will return a\n",
-	"determinant(L) instead of determinant(A), i.e., a\n",
+              warning("This version of the Matrix package returns\n",
+	"|determinant(L)| instead of determinant(A), i.e., a\n",
         "*DIFFERENT* value.\n",
-        " Do change your code, following http://matrix.r-forge.r-project.org\n")
+        " If still necessary, do change your code, following http://matrix.r-forge.r-project.org\n")
 ## packageDescription("Matrix")$Version >= package_version("0.999375-31")
           } ## else  the variable exists but is FALSE --> no warning either
-          ldet <- .Call(CHMfactor_ldetL2, x)
+          ldet <- .Call(CHMfactor_ldetL2, x) / 2
           modulus <- if (logarithm) ldet else exp(ldet)
           attr(modulus, "logarithm") <- logarithm
           val <- list(modulus = modulus, sign = as.integer(1))

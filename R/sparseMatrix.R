@@ -367,8 +367,8 @@ printSpMatrix <- function(x, digits = getOption("digits"),
         m <- as(x, "matrix")
     }
     dn <- dimnames(m) ## will be === dimnames(cx)
-    logi <- (extends(cl,"lsparseMatrix") || extends(cl,"nsparseMatrix") ||
-	     extends(cl, "pMatrix"))
+    binary <- extends(cl,"nsparseMatrix") || extends(cl, "pMatrix") # -> simple T / F
+    logi <- binary || extends(cl,"lsparseMatrix") # has NA and (non-)structural FALSE
     if(logi)
 	cx <- array("N", dim(m), dimnames=dn)
     else { ## numeric (or --not yet implemented-- complex):
@@ -407,17 +407,21 @@ printSpMatrix <- function(x, digits = getOption("digits"),
     ## else: nothing to do for col.names == TRUE
     if(is.logical(zero.print))
 	zero.print <- if(zero.print) "0" else " "
-    if(logi) {
+    if(binary) {
 	cx[!m] <- zero.print
 	cx[m] <- "|"
-    } else { # non logical
+    } else { # non-binary ==> has 'x' slot
 	## show only "structural" zeros as 'zero.print', not all of them..
 	## -> cannot use 'm'
         d <- dim(cx)
 	ne <- length(iN0 <- 1L + .Call(m_encodeInd, non0ind(x, cl), di = d))
 	if(0 < ne && ne < prod(d)) {
-	    align <- match.arg(align)
-	    if(align == "fancy" && !is.integer(m)) {
+	    if(logi) {
+		cx[m] <- "|"
+		if(any(F. <- !x@x & !is.na(x@x))) ## any (x@x == FALSE)
+		cx[iN0[seq_len(ne)[F.]]] <- ":" # non-structural FALSE (or "o", "," , "-" or "f")?
+	    }
+	    else if(match.arg(align) == "fancy" && !is.integer(m)) {
 		fi <- apply(m, 2, format.info) ## fi[3,] == 0  <==> not expo.
 
 		## now 'format' the zero.print by padding it with ' ' on the right:
@@ -719,6 +723,8 @@ setMethod("all.equal", c(target = "ANY", current = "sparseMatrix"),
 
 ### --- sparse model matrix,  fac2sparse, etc ----> ./spModels.R
 
+
+###--- TODO: Remove, once we require  R >= 2.10.0 ---- :
 
 ## xtabs returning a sparse matrix.  This is cut'n'paste
 ## of xtabs() in <Rsrc>/src/library/stats/R/xtabs.R ;

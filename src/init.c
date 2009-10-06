@@ -177,6 +177,7 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(dtrMatrix_as_dtpMatrix, 1),
     CALLDEF(dtrMatrix_as_matrix, 2),
     CALLDEF(dtrMatrix_matrix_mm, 3),
+    CALLDEF(dtrMatrix_chol2inv, 1),
     CALLDEF(dtrMatrix_getDiag, 1),
     CALLDEF(ltrMatrix_getDiag, 1),
     CALLDEF(dtrMatrix_matrix_solve, 2),
@@ -220,6 +221,8 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(CHMfactor_validate, 1),
     CALLDEF(CHMsimpl_validate, 1),
     CALLDEF(CHMsuper_validate, 1),
+
+    CALLDEF(CHM_set_common_env, 1),
 
     CALLDEF(m_encodeInd, 2),
     CALLDEF(m_encodeInd2, 3),
@@ -317,7 +320,6 @@ R_init_Matrix(DllInfo *dll)
     if(!isEnvironment(Matrix_NS))
 #endif
 	error(_("Matrix namespace not determined correctly"));
-
 }
 
 void R_unload_Matrix(DllInfo *dll)

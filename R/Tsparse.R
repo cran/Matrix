@@ -134,6 +134,9 @@ intI <- function(i, n, dn, give.dn = TRUE)
 	if(DN) dn <- dn[i]
     }
     else if (is(i, "logical")) {
+	if(length(i) > n)
+	    stop(gettextf("logical subscript too long (%d, should be %d)",
+			  length(i), n))
 	i0 <- (0:(n - 1L))[i]
 	if(DN) dn <- dn[i]
     } else { ## character

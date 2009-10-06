@@ -108,7 +108,7 @@ setMethod("Summary", signature(x = "dsparseMatrix", na.rm = "ANY"),
 	  full.x <- ((isSym && l.x == choose(n+1, 2)) ||
 		     (n == 1 && (isU.tri || l.x == 1)))
 	  isGener1 <- .Generic %in% summGener1
-	  if(isGener1) { ## not prod() or sum() -> no need check to for symmetric
+	  if(isGener1) { ## not prod() or sum() -> no need check for symmetric
 	      logicF <- .Generic %in% c("any","all")
 	      ## we rely on  <generic>(x, NULL, y, ..)	:==  <generic>(x, y, ..):
 	      callGeneric(x@x,

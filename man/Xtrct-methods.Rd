@@ -11,9 +11,13 @@
 \alias{[,Matrix,lMatrix,missing,ANY-method}
 \alias{[,Matrix,logical,missing,ANY-method}
 \alias{[,Matrix,matrix,missing,ANY-method}
+\alias{[,Matrix,lMatrix,missing,missing-method}
+\alias{[,Matrix,logical,missing,missing-method}
+\alias{[,Matrix,matrix,missing,missing-method}
 \alias{[,Matrix,ANY,ANY,ANY-method}% bail out if no explicit method
 %
 \alias{[,denseMatrix,matrix,missing,ANY-method}
+\alias{[,denseMatrix,matrix,missing,missing-method}
 \alias{[,denseMatrix,index,missing,logical-method}
 \alias{[,denseMatrix,index,index,logical-method}
 \alias{[,denseMatrix,missing,index,logical-method}

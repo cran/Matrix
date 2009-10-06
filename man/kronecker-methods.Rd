@@ -7,7 +7,9 @@
 \alias{kronecker,ANY,diagonalMatrix-method}
 \alias{kronecker,ANY,sparseMatrix-method}
 \alias{kronecker,Matrix,ANY-method}
+\alias{kronecker,Matrix,diagonalMatrix-method}
 \alias{kronecker,diagonalMatrix,ANY-method}
+\alias{kronecker,diagonalMatrix,Matrix-method}
 \alias{kronecker,sparseMatrix,ANY-method}
 \alias{kronecker,sparseMatrix,TsparseMatrix-method}
 %

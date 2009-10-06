@@ -100,10 +100,10 @@
   permuted column order when the \code{q}  slot has length \code{n}.
 }
 \seealso{
-  \code{\link[base]{qr}}, \code{\link[base]{qr.Q}},
-  \code{\link[base]{qr.R}}, \code{\link[base]{qr.fitted}},
-  \code{\link[base]{qr.resid}}, \code{\link[base]{qr.coef}},
-  \code{\link[base]{qr.qty}}, \code{\link[base]{qr.qy}},
+  \code{\link[base]{qr}}, \code{\link{qr.Q}},
+  \code{\link{qr.R}},     \code{\link{qr.fitted}},
+  \code{\link{qr.resid}}, \code{\link{qr.coef}},
+  \code{\link{qr.qty}},   \code{\link{qr.qy}},
   \code{\linkS4class{dgCMatrix}}, \code{\linkS4class{dgeMatrix}}.
 
 %%% not (yet) in CRAN-released version of Matrix:

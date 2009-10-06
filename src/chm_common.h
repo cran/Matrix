@@ -65,4 +65,7 @@ SEXP CHMfactor_validate(SEXP obj);
 SEXP CHMsimpl_validate(SEXP obj);
 SEXP CHMsuper_validate(SEXP obj);
 
+SEXP CHM_set_common_env(SEXP rho);
+void CHM_store_common();
+void CHM_restore_common();
 #endif

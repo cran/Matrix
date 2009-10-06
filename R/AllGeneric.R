@@ -30,12 +30,11 @@ setGeneric("lu", function(x, ...) standardGeneric("lu"))
 
     setGeneric("norm", function(x, type, ...) standardGeneric("norm"))
 
-## base::rcond() has additional argument 'triangular'
-## which should *not* be part of the signature
-setGeneric("rcond", function(x, norm, ...) standardGeneric("rcond"),
+if(getRversion() < "2.10.0" || R.version$`svn rev` < 49870) {
+  setGeneric("rcond", function(x, norm, ...) standardGeneric("rcond"),
 	   signature = c("x", "norm"),
 	   useAsDefault = function(x, norm, ...) base::rcond(x, norm=norm, ...))
-
+}## else:  rcond() has implicit generic in newer versions of R
 
     setGeneric("Schur", function(x, vectors, ...) standardGeneric("Schur"))
 
@@ -76,25 +75,3 @@ setGeneric("skewpart", function(x) standardGeneric("skewpart"))
 ## ``declares'' the symmetric:
 setGeneric("forceSymmetric",
 	   function(x, uplo) standardGeneric("forceSymmetric"))
-
-
-if(all(names(formals(colSums)) != "...")) { ## maybe unneeded in future
-
-    ## Add '...' so our methods can add  'sparseResult':
-setGeneric("colSums",
-	   def = function(x, na.rm = FALSE, dims = 1, ...) standardGeneric("colSums"),
-	   useAsDefault = function(x,  na.rm = FALSE, dims = 1, ...)
-	   base::colSums(x, na.rm=na.rm, dims=dims))
-setGeneric("colMeans",
-	   def = function(x, na.rm = FALSE, dims = 1, ...) standardGeneric("colMeans"),
-	   useAsDefault = function(x,  na.rm = FALSE, dims = 1, ...)
-	   base::colMeans(x, na.rm=na.rm, dims=dims))
-setGeneric("rowSums",
-	   def = function(x, na.rm = FALSE, dims = 1, ...) standardGeneric("rowSums"),
-	   useAsDefault = function(x,  na.rm = FALSE, dims = 1, ...)
-	   base::rowSums(x, na.rm=na.rm, dims=dims))
-setGeneric("rowMeans",
-	   def = function(x, na.rm = FALSE, dims = 1, ...) standardGeneric("rowMeans"),
-	   useAsDefault = function(x,  na.rm = FALSE, dims = 1, ...)
-	   base::rowMeans(x, na.rm=na.rm, dims=dims))
-}

@@ -12,6 +12,7 @@
 \alias{coerce,integer,pMatrix-method}
 \alias{coerce,numeric,pMatrix-method}
 \alias{coerce,matrix,pMatrix-method}
+\alias{coerce,sparseMatrix,pMatrix-method}
 \alias{coerce,pMatrix,matrix-method}
 \alias{coerce,pMatrix,ngeMatrix-method}
 \alias{coerce,pMatrix,ngTMatrix-method}

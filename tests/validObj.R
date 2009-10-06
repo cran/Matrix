@@ -99,9 +99,10 @@ stopifnot(grep("replacing.*sensible", ind.try[1]) == 1,
 	  is.logical(p9[1,]),
 	  isTRUE(p9[-c(1:6, 8:9), 1]),
 	  identical(t(p9), solve(p9)),
-	  identical(p9[TRUE,], as(p9, "ngTMatrix")),
+##	  identical(p9[TRUE,], as(p9, "ngTMatrix")),
 	  identical(as(diag(9), "pMatrix"), as(1:9, "pMatrix"))
 	  )
+assert.EQ.mat(p9[TRUE,], as.matrix(as(p9, "ngTMatrix")))
 
 ## validObject --> Cparse_validate(.)
 mm <- new("dgCMatrix", Dim = c(3L, 5L),

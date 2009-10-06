@@ -840,7 +840,7 @@ CHM_DN M_cholmod_copy_dense(CHM_DN A, CHM_CM Common);
 CHM_SP M_cholmod_aat(CHM_SP A, int *fset, size_t fsize, int mode,
 		     CHM_CM Common);
 CHM_SP M_cholmod_add(CHM_SP A, CHM_SP B, double alpha[2], double beta[2],
-		     int values, int sorted, CHM_CM Common); 
+		     int values, int sorted, CHM_CM Common);
 CHM_DN M_cholmod_allocate_dense(size_t nrow, size_t ncol, size_t d,
 				int xtype, CHM_CM Common);
 CHM_FR M_cholmod_analyze(CHM_SP A, CHM_CM Common);
@@ -852,6 +852,7 @@ int M_cholmod_change_factor(int to_xtype, int to_ll, int to_super,
 CHM_FR M_cholmod_copy_factor(CHM_FR L, CHM_CM Common);
 CHM_SP M_cholmod_factor_to_sparse(CHM_FR L, CHM_CM Common);
 CHM_SP M_cholmod_dense_to_sparse(CHM_DN X, int values, CHM_CM Common);
+int M_cholmod_defaults (CHM_CM Common);
 CHM_SP M_cholmod_triplet_to_sparse(CHM_TR T, int nzmax, CHM_CM Common);
 CHM_SP M_cholmod_submatrix(CHM_SP A, int *rset, int rsize, int *cset,
 			   int csize, int values, int sorted,

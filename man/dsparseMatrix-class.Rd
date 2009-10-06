@@ -3,6 +3,10 @@
 \alias{dsparseMatrix-class}
 % Group
 \alias{Summary,dsparseMatrix-method}
+\alias{Arith,dsparseMatrix,logical-method}
+\alias{Arith,dsparseMatrix,numeric-method}
+\alias{Arith,logical,dsparseMatrix-method}
+\alias{Arith,numeric,dsparseMatrix-method}
 %
 \alias{\%*\%,ddenseMatrix,dsparseMatrix-method}
 \alias{\%*\%,dgeMatrix,dsparseMatrix-method}

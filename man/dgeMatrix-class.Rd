@@ -5,7 +5,9 @@
 % METHODS:
 % Group ones
 \alias{Arith,dgeMatrix,dgeMatrix-method}
+\alias{Arith,dgeMatrix,logical-method}
 \alias{Arith,dgeMatrix,numeric-method}
+\alias{Arith,logical,dgeMatrix-method}
 \alias{Arith,numeric,dgeMatrix-method}
 \alias{Math,dgeMatrix-method}
 %\alias{Math2,dgeMatrix,numeric-method}

@@ -30,7 +30,9 @@
 \alias{solve,dgCMatrix,ddenseMatrix-method}
 \alias{solve,dgCMatrix,dsparseMatrix-method}
 %% Group methods --------- FIXME: These are not tested yet (or documented)
+\alias{Arith,logical,dgCMatrix-method}
 \alias{Arith,numeric,dgCMatrix-method}
+\alias{Arith,dgCMatrix,logical-method}
 \alias{Arith,dgCMatrix,numeric-method}
 \alias{Arith,dgCMatrix,dgCMatrix-method}
 %\alias{Math2,dgCMatrix,numeric-method}

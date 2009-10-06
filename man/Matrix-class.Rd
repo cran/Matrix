@@ -176,7 +176,7 @@
   \code{\linkS4class{dgCMatrix}}, and function
   \code{\link{Matrix}} for construction (and examples).
 
-  Methods, e.g., for \code{\link[kronecker-methods]{kronecker}}.
+  Methods, e.g., for \code{\link[=kronecker-methods]{kronecker}}.
 }
 \examples{
 slotNames("Matrix")

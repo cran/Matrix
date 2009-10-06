@@ -58,10 +58,14 @@ setMethod("rcond", signature(x = "dsyMatrix", norm = "missing"),
           .Call(dsyMatrix_rcond, x, "O"),
           valueClass = "numeric")
 
-setMethod("%*%", signature(x = "dsyMatrix", y = "ddenseMatrix"),
-          function(x, y) .Call(dsyMatrix_matrix_mm, x, y, FALSE))
-setMethod("%*%", signature(x = "dsyMatrix", y = "matrix"),
-          function(x, y) .Call(dsyMatrix_matrix_mm, x, y, FALSE))
+.dsy_m_mm <- function(x, y) .Call(dsyMatrix_matrix_mm, x, y, FALSE)
+setMethod("%*%", signature(x = "dsyMatrix", y = "matrix"),  .dsy_m_mm)
+setMethod("%*%", signature(x = "dsyMatrix", y = "ddenseMatrix"),  .dsy_m_mm)
+## for disambiguity :
+setMethod("%*%", signature(x = "dsyMatrix", y = "dsyMatrix"),  .dsy_m_mm)
+## or even
+## for(yCl in .directSubClasses(getClass("ddenseMatrix")))
+##     setMethod("%*%", signature(x = "dsyMatrix", y = yCl), .dsy_m_mm)
 
 setMethod("%*%", signature(x = "ddenseMatrix", y = "dsyMatrix"),
           function(x, y) .Call(dsyMatrix_matrix_mm, y, x, TRUE))

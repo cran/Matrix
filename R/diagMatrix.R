@@ -45,9 +45,12 @@ Diagonal <- function(n, x = NULL)
 	    storage.mode(x) <- "double"
 	    "d"
 	}
-    new(paste(kind, shape, "CMatrix", sep=''),
-	Dim = c(n,n), x = x, uplo = uplo,
-	i = if(n) 0:(n - 1L) else integer(0), p = 0:n)
+    ii <- if(n) 0:(n - 1L) else integer(0)
+    if(shape == "g")
+	new(paste0(kind, "gCMatrix"), Dim = c(n,n),
+	    x = x, i = ii, p = 0:n)
+    else new(paste0(kind, shape, "CMatrix"), Dim = c(n,n), uplo = uplo,
+	     x = x, i = ii, p = 0:n)
 }
 
 ## Pkg 'spdep' had (relatively slow) versions of this as_dsCMatrix_I()
@@ -217,6 +220,7 @@ setAs("ddiMatrix", "triangularMatrix", diag2tT)
 ##_no_longer_ setAs("ddiMatrix", "sparseMatrix", diag2tT)
 ## needed too (otherwise <dense> -> Tsparse is taken):
 setAs("ddiMatrix", "TsparseMatrix", diag2tT)
+setAs("ddiMatrix", "dsparseMatrix", diag2tT)
 setAs("ddiMatrix", "CsparseMatrix",
       function(from) as(.diag2tT(from, "U", "d"), "CsparseMatrix"))
 setAs("ddiMatrix", "symmetricMatrix",
@@ -228,6 +232,7 @@ setAs("ldiMatrix", "triangularMatrix", diag2tT)
 ##_no_longer_ setAs("ldiMatrix", "sparseMatrix", diag2tT)
 ## needed too (otherwise <dense> -> Tsparse is taken):
 setAs("ldiMatrix", "TsparseMatrix", diag2tT)
+setAs("ldiMatrix", "lsparseMatrix", diag2tT)
 setAs("ldiMatrix", "CsparseMatrix",
       function(from) as(.diag2tT(from, "U", "l"), "CsparseMatrix"))
 setAs("ldiMatrix", "symmetricMatrix",
@@ -596,7 +601,7 @@ setMethod("%*%", signature(x = "denseMatrix", y = "diagonalMatrix"),
 ##           })
 
 Cspdiagprod <- function(x, y) {
-    dx <- dim(x)
+    dx <- dim(x <- .Call(Csparse_diagU2N, x))
     dy <- dim(y)
     if(dx[2] != dy[1]) stop("non-matching dimensions")
     ind <- rep.int(seq_len(dx[2]), x@p[-1] - x@p[-dx[2]-1L])
@@ -607,7 +612,7 @@ Cspdiagprod <- function(x, y) {
 
 diagCspprod <- function(x, y) {
     dx <- dim(x)
-    dy <- dim(y)
+    dy <- dim(y <- .Call(Csparse_diagU2N, y))
     if(dx[2] != dy[1]) stop("non-matching dimensions")
     if(x@diag == "N")
         y@x <- y@x * x@x[y@i + 1L]
@@ -639,13 +644,13 @@ setMethod("tcrossprod", signature(x = "CsparseMatrix", y = "diagonalMatrix"),
 
 setMethod("tcrossprod", signature(x = "sparseMatrix", y = "diagonalMatrix"),
 	  function(x, y = NULL) Cspdiagprod(as(x, "CsparseMatrix"), y))
-          
+
 setMethod("%*%", signature(x = "diagonalMatrix", y = "CsparseMatrix"),
 	  function(x, y) diagCspprod(x, y))
 
 setMethod("%*%", signature(x = "diagonalMatrix", y = "sparseMatrix"),
 	  function(x, y) diagCspprod(as(x, "CsparseMatrix"), y))
-          
+
 setMethod("%*%", signature(x = "sparseMatrix", y = "diagonalMatrix"),
 	  function(x, y) Cspdiagprod(as(x, "CsparseMatrix"), y))
 

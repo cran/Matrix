@@ -325,12 +325,18 @@ stopifnot(identical5(m[i,drop=FALSE], M[i,drop=FALSE], D[i,drop=FALSE],
 		     s[i,drop=FALSE], S[i,drop=FALSE]))
 stopifnot(identical5(m[L,drop=FALSE], M[L,drop=FALSE], D[L,drop=FALSE],
 		     s[L,drop=FALSE], S[L,drop=FALSE]))
-##
+## using L for row-indexing should give an error
+assertError(m[L,]); assertError(m[L,, drop=FALSE])
+## these did not signal an error, upto (including) 0.999375-30:
+assertError(s[L,]); assertError(s[L,, drop=FALSE])
+assertError(S[L,]); assertError(S[L,, drop=FALSE])
+
+## row indexing:
 assert.EQ.mat(D[i,], m[i,])
 assert.EQ.mat(M[i,], m[i,])
 assert.EQ.mat(s[i,], m[i,])
 assert.EQ.mat(S[i,], m[i,])
-
+## column indexing:
 assert.EQ.mat(D[,i], m[,i])
 assert.EQ.mat(M[,i], m[,i])
 assert.EQ.mat(s[,i], m[,i])

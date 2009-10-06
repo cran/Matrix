@@ -96,3 +96,38 @@ setMethod("!", "ndenseMatrix", function(x) {
     else ## triangular are dealt with above already : "general" here:
 	!as(x, "ngeMatrix")
 })
+
+### ---- sparseVector -----
+
+setMethod("!", "sparseVector",
+	  function(x) {
+	      n <- x@length
+	      if(2 * length(x@i) <= n)
+		  !sp2vec(x)
+	      else { ## sparse result
+		  ii <- seq_len(n)[-x@i]
+		  if((has.x <- !is(x, "nsparseVector"))) {
+		      xx <- rep.int(TRUE, (l.i <- length(ii)))
+		      if((.na <- any(x.na <- is.na(x@x)) |
+			 (.fa <- any(x.f <- !x@x)))) {
+			  ## deal with 'FALSE' and 'NA' in  x slot
+			  if(.na) {
+			      ii <- c(ii, x@i[x.na])
+			      xx <- c(xx, x@x[x.na])
+			  }
+			  if(.fa) { ## any(x.f)
+			      x.f <- x.f & !x.na
+			      ii <- c(ii, x@i[x.f])
+			      xx <- c(xx, rep.int(TRUE, sum(x.f)))
+			  }
+			  ## sort increasing in index:
+			  i.s <- sort.list(ii)
+			  ii <- ii[i.s]
+			  xx <- xx[i.s]
+		      }
+		  }
+		  cl <- paste0(if(is.n) "n" else "l", "sparseVector")
+		  r <- new(cl, length = n, i = ii)
+		  if(has.x) r@x <- xx
+	      }
+	  })

@@ -141,6 +141,7 @@
   and could be made more efficient.
   Consider going via  asTuniq() or something very close to
   .Arith.Csparse() in R/Ops.R
+  For a traditional "matrix" object, we should speedup, using C code ..
 
 - many setAs(*, "[dl]..Matrix") are still needed, as long as e.g.
   replCmat() uses as_CspClass() and drop0(.) which itself call

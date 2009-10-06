@@ -55,7 +55,8 @@ setAs("factor", "sparseMatrix", function(from) fac2sparse(from, to = "d"))
 ##'   levels should be dropped, via  factor(from)
 ##' @param factorPatt12  logical vector fp[] of length 2
 ##'   fp[1] : give contrasted t(X);  fp[2] : give "dummy" t(X)
-##' @param contrasts.arg character string or NULL, specifying the contrast
+##' @param contrasts.arg character string or NULL or (coercable to)
+##'		sparseMatrix, specifying the contrast
 ##'
 ##' @return a list of length two, each with the corresponding t(model matrix),
 ##'	when the corresponding factorPatt12 is true.
@@ -76,9 +77,12 @@ fac2Sparse <- function(from, to = c("d","i","l","n","z"),
 	if(is.null(contrasts.arg))
 	    contrasts.arg <- getOption("contrasts")[if(is.ordered(from))
 						    "ordered" else "unordered"]
-	stopifnot(is.function(FUN <- get(contrasts.arg)))
-	## calling  contr.*() with correct level names directly :
-	ans[[1]] <- t(FUN(rownames(m), sparse = TRUE)) %*% m
+	ans[[1]] <-
+	    crossprod(if(is.character(contrasts.arg)) {
+		stopifnot(is.function(FUN <- get(contrasts.arg)))
+		## calling  contr.*() with correct level names directly :
+		FUN(rownames(m), sparse = TRUE)
+	    } else as(contrasts.arg, "sparseMatrix"), m)
     }
     ans
 }
@@ -178,6 +182,40 @@ contr.poly <- function (n, scores = 1L:n, contrasts = TRUE, sparse = FALSE) {
     if(sparse) as(m, "sparseMatrix") else m
 }
 
+`contrasts<-` <- function(x, how.many, value)
+{
+    if (is.logical(x)) x <- factor(x, levels=c(FALSE, TRUE))
+    if(!is.factor(x))
+	stop("contrasts apply only to factors")
+    if(nlevels(x) < 2L)
+        stop("contrasts can be applied only to factors with 2 or more levels")
+    if(is.function(value)) value <- value(nlevels(x))
+    if((is.n <- is.numeric(value)) || is(value, "Matrix")) {
+	## also work for "sparseMatrix"
+	if(is.n) value <- as.matrix(value)
+	nlevs <- nlevels(x)
+	if(nrow(value) != nlevs)
+	    stop("wrong number of contrast matrix rows")
+	n1 <- if(missing(how.many)) nlevs - 1L else how.many
+	nc <- ncol(value)
+	rownames(value) <- levels(x)
+	if(nc < n1) {
+	    if(!is.n) value <- as.matrix(value) ## for now ..
+	    cm <- qr(cbind(1,value))
+	    if(cm$rank != nc+1) stop("singular contrast matrix")
+	    cm <- qr.qy(cm, diag(nlevs))[, 2L:nlevs]
+	    cm[,1L:nc] <- value
+	    dimnames(cm) <- list(levels(x),NULL)
+	    if(!is.null(nmcol <- dimnames(value)[[2L]]))
+		dimnames(cm)[[2L]] <- c(nmcol, rep.int("", n1-nc))
+	} else cm <- value[, 1L:n1, drop=FALSE]
+    }
+    else if(is.character(value)) cm <- value
+    else if(is.null(value)) cm <- NULL
+    else stop("numeric contrasts or contrast name expected")
+    attr(x, "contrasts") <- cm
+    x
+}
 
 } else { ## make codoc() happy [needed as long as we *document* these (support R <= 2.9.x) ]
 contr.helmert <- function (n, contrasts=TRUE, sparse=FALSE)
@@ -194,6 +232,9 @@ contr.SAS <- function(n, contrasts = TRUE, sparse=FALSE)
 
 contr.poly <- function (n, scores = 1L:n, contrasts = TRUE, sparse = FALSE)
  stats::contr.poly(n, scores=scores, contrasts=contrasts, sparse=sparse)
+
+`contrasts<-` <- function(x, how.many, value)
+ stats::`contrasts<-`(x, how.many=how.many, value=value)
 
 } ## end if {define  contr.*()  for pre-2.10.0 R)
 
@@ -248,6 +289,7 @@ sparse.model.matrix <- function(object, data = environment(object),
                             domain = NA)
                 else {
                     ca <- contrasts.arg[[nn]]
+## FIXME: work for *sparse* ca
                     if(is.matrix(ca)) contrasts(data[[ni]], ncol(ca)) <- ca
                     else contrasts(data[[ni]]) <- contrasts.arg[[nn]]
                 }
@@ -382,9 +424,7 @@ is.model.frame <- function(x)
 
 ##' @return sparse matrix (class "dgCMatrix")
 model.spmatrix <- function(trms, mf, transpose=FALSE,
-                           drop.unused.levels = TRUE, row.names=TRUE,
-                           verbose = getOption('verbose'))
-
+                           drop.unused.levels = TRUE, row.names=TRUE)
 {
     ## Author: Martin Maechler, Date:  7 Jul 2009
 

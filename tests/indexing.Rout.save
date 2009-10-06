@@ -1,5 +1,5 @@
 
-R version 2.9.1 Patched (2009-07-18 r48959)
+R version 2.10.0 Under development (unstable) (2009-09-18 r49746)
 Copyright (C) 2009 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 
@@ -21,16 +21,6 @@ Type 'q()' to quit R.
 Loading required package: lattice
 
 Attaching package: 'Matrix'
-
-
-	The following object(s) are masked from package:stats :
-
-	 contr.helmert,
-	 contr.poly,
-	 contr.SAS,
-	 contr.sum,
-	 contr.treatment,
-	 xtabs 
 
 
 	The following object(s) are masked from package:base :
@@ -98,12 +88,6 @@ Attaching package: 'Matrix'
 > stopifnot(identical(m[2,3], m[(1:nrow(m)) == 2, (1:ncol(m)) == 3]),
 +           identical(m[2,], m[(1:nrow(m)) == 2, ]),
 +           identical(m[,3:4], m[, (1:4) >= 3]))
-Note: Method with signature "Matrix#index#missing#missing" chosen for function "[",
- target signature "dgeMatrix#logical#missing#missing".
- "Matrix#logical#missing#ANY" would also be valid
-Note: Method with signature "denseMatrix#index#missing#logical" chosen for function "[",
- target signature "dgeMatrix#logical#missing#logical".
- "Matrix#logical#missing#ANY" would also be valid
 > 
 > ## dimnames indexing:
 > mn <- m
@@ -244,12 +228,6 @@ Formal class 'dgTMatrix' [package "Matrix"] with 6 slots
 > ## NA-indexing of *dense* Matrices: should work as traditionally
 > assert.EQ.mat(ds[NA,NA], ss[NA,NA])
 > assert.EQ.mat(ds[NA,  ], ss[NA,])
-Note: Method with signature "Matrix#index#missing#missing" chosen for function "[",
- target signature "dsyMatrix#logical#missing#missing".
- "Matrix#logical#missing#ANY" would also be valid
-Note: Method with signature "denseMatrix#index#missing#logical" chosen for function "[",
- target signature "dsyMatrix#logical#missing#logical".
- "Matrix#logical#missing#ANY" would also be valid
 > assert.EQ.mat(ds[  ,NA], ss[,NA])
 > stopifnot(identical(ds[2 ,NA], ss[2,NA]),
 +           identical(ds[NA, 1], ss[NA, 1]))
@@ -694,35 +672,26 @@ diagnosing replTmat(x,i,j,v): nargs()= 3; missing(i,j)= (0,1)
 > eval(.iniDiag.example)
 > stopifnot(identical5(m[i], M[i], D[i], s[i], S[i]))
 > stopifnot(identical5(m[L], M[L], D[L], s[L], S[L]))
-Note: Method with signature "Matrix#index#missing#missing" chosen for function "[",
- target signature "ddiMatrix#logical#missing#missing".
- "Matrix#logical#missing#ANY" would also be valid
-Note: Method with signature "Matrix#index#missing#missing" chosen for function "[",
- target signature "dtTMatrix#logical#missing#missing".
- "Matrix#logical#missing#ANY" would also be valid
-Note: Method with signature "Matrix#index#missing#missing" chosen for function "[",
- target signature "dtCMatrix#logical#missing#missing".
- "Matrix#logical#missing#ANY" would also be valid
+<sparse>[ <logic> ] : .M.sub.i.logical() maybe inefficient
+<sparse>[ <logic> ] : .M.sub.i.logical() maybe inefficient
+<sparse>[ <logic> ] : .M.sub.i.logical() maybe inefficient
 > ## bordercase ' drop = .' *vector* indexing {failed till 2009-04-..)
 > stopifnot(identical5(m[i,drop=FALSE], M[i,drop=FALSE], D[i,drop=FALSE],
 + 		     s[i,drop=FALSE], S[i,drop=FALSE]))
 > stopifnot(identical5(m[L,drop=FALSE], M[L,drop=FALSE], D[L,drop=FALSE],
 + 		     s[L,drop=FALSE], S[L,drop=FALSE]))
-Note: Method with signature "diagonalMatrix#index#missing#logical" chosen for function "[",
- target signature "ddiMatrix#logical#missing#logical".
- "Matrix#logical#missing#ANY" would also be valid
-Note: Method with signature "TsparseMatrix#index#missing#logical" chosen for function "[",
- target signature "dtTMatrix#logical#missing#logical".
- "Matrix#logical#missing#ANY" would also be valid
-Note: Method with signature "sparseMatrix#index#missing#logical" chosen for function "[",
- target signature "dtCMatrix#logical#missing#logical".
- "Matrix#logical#missing#ANY" would also be valid
-> ##
+> ## using L for row-indexing should give an error
+> assertError(m[L,]); assertError(m[L,, drop=FALSE])
+> ## these did not signal an error, upto (including) 0.999375-30:
+> assertError(s[L,]); assertError(s[L,, drop=FALSE])
+> assertError(S[L,]); assertError(S[L,, drop=FALSE])
+> 
+> ## row indexing:
 > assert.EQ.mat(D[i,], m[i,])
 > assert.EQ.mat(M[i,], m[i,])
 > assert.EQ.mat(s[i,], m[i,])
 > assert.EQ.mat(S[i,], m[i,])
-> 
+> ## column indexing:
 > assert.EQ.mat(D[,i], m[,i])
 > assert.EQ.mat(M[,i], m[,i])
 > assert.EQ.mat(s[,i], m[,i])
@@ -986,9 +955,6 @@ diagnosing replTmat(x,i,j,v): nargs()= 3; missing(i,j)= (0,1)
 > ## an example that failed for a long time
 > sy3 <- new("dsyMatrix", Dim = as.integer(c(2, 2)), x = c(14, -1, 2, -7))
 > checkMatrix(dm <- kronecker(Diagonal(2), sy3))# now sparse with new kronecker
-Note: Method with signature "diagonalMatrix#ANY" chosen for function "kronecker",
- target signature "ddiMatrix#dsyMatrix".
- "ANY#Matrix" would also be valid
 Note: Method with signature "sparseMatrix#ANY" chosen for function "kronecker",
  target signature "dtTMatrix#dsyMatrix".
  "ANY#Matrix" would also be valid
@@ -1102,11 +1068,11 @@ M[i,j] <- v :  coercing symmetric M[] into non-symmetric
 > (ne1 <- (mc - m.) != 0)
 5 x 7 sparse Matrix of class "lgCMatrix"
                   
-[1,] . . . . . . .
-[2,] . . . . . . .
-[3,] | . . . . . .
+[1,] . . : : . . :
+[2,] : : : : : : .
+[3,] | . : . . . :
 [4,] | | . . . | .
-[5,] . . | . . . .
+[5,] . : | . : . .
 > stopifnot(identical(ne1, 0 != abs(mc - m.)))
 > (ge <- m. >= mc) # contains "=" -> result is dense
 5 x 7 Matrix of class "lgeMatrix"
@@ -1284,7 +1250,7 @@ attr(,"package")
 + 	  identical(thCol,  fx[,5762]))
 > 
 > cat('Time elapsed: ', (.pt <- proc.time()),'\n') # "stats"
-Time elapsed:  21.691 1.553 25.207 0 0 
+Time elapsed:  18.06 0.855 19.089 0 0 
 > ##
 > cat("checkMatrix() of all: \n---------\n")
 checkMatrix() of all: 
@@ -1424,9 +1390,8 @@ suboptimal implementation of sparse 'symm. o symm.'
 x.x. 
 suboptimal implementation of sparse 'symm. o symm.'
 > cat('Time elapsed: ', proc.time() - .pt,'\n') # "stats"
-Time elapsed:  13.831 0.68 14.511 0 0 
+Time elapsed:  10.705 0.389 11.105 0 0 
 > 
 > if(!interactive()) warnings()
-NULL
 > 
 > 

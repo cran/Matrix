@@ -21,6 +21,22 @@
 \alias{coerce,matrix,dppMatrix-method}
 \alias{coerce,Matrix,dppMatrix-method}
 %\alias{coerce,corMatrix,lMatrix-method}
+\alias{Ops,dpoMatrix,logical-method}
+\alias{Ops,dpoMatrix,numeric-method}
+\alias{Ops,dppMatrix,logical-method}
+\alias{Ops,dppMatrix,numeric-method}
+\alias{Ops,logical,dpoMatrix-method}
+\alias{Ops,logical,dppMatrix-method}
+\alias{Ops,numeric,dpoMatrix-method}
+\alias{Ops,numeric,dppMatrix-method}
+\alias{Arith,dpoMatrix,logical-method}
+\alias{Arith,dpoMatrix,numeric-method}
+\alias{Arith,dppMatrix,logical-method}
+\alias{Arith,dppMatrix,numeric-method}
+\alias{Arith,logical,dpoMatrix-method}
+\alias{Arith,logical,dppMatrix-method}
+\alias{Arith,numeric,dpoMatrix-method}
+\alias{Arith,numeric,dppMatrix-method}
 %
 \alias{rcond,dpoMatrix,character-method}
 \alias{rcond,dppMatrix,character-method}
@@ -92,6 +108,12 @@
       \code{b} can be a numeric vector, or a matrix, or a dgeMatrix
       object.  The Cholesky decomposition of \code{a} is calculated (if
       needed) while solving the system.}
+    \item{Arith}{\code{signature(e1 = "dpoMatrix", e2 = "numeric")} (and
+      quite a few other signatures): The result of (\dQuote{elementwise}
+      defined) arithmetic operations is typically \emph{not}
+      positive-definite anymore.  The only exceptions, currently, are
+      multiplications, divisions or additions with \emph{positive}
+      \code{length(.) == 1} numbers (or \code{\link{logical}}s).}
   }
 }
 %\references{}
@@ -105,12 +127,14 @@
 h6 <- Hilbert(6)
 rcond(h6)
 str(h6)
+h6 * 27720 # is ``integer''
 solve(h6)
 str(hp6 <- as(h6, "dppMatrix"))
 
 ### Note that  as(*, "corMatrix")  *scales* the matrix
 (ch6 <- as(h6, "corMatrix"))
-stopifnot(all.equal(ch6@sd^(-2), 2*(1:6)-1, tol= 1e-12))
+stopifnot(all.equal(h6 * 27720, round(27720 * h6), tol = 1e-14),
+          all.equal(ch6@sd^(-2), 2*(1:6)-1, tol= 1e-12))
 chch <- chol(ch6)
 stopifnot(identical(chch, ch6@factors$Cholesky),
           all(abs(crossprod(chch) - ch6) < 1e-10))

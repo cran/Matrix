@@ -13,21 +13,35 @@
 \alias{[,dMatrix,lMatrix,missing,ANY-method}
 \alias{[,dMatrix,logical,missing,ANY-method}
 % Group methods
-\alias{Arith,dMatrix,dMatrix-method}
-\alias{Arith,lMatrix,numeric-method}
-\alias{Ops,lMatrix,numeric-method}
-\alias{Arith,numeric,lMatrix-method}
-\alias{Ops,numeric,lMatrix-method}
 \alias{Ops,dMatrix,dMatrix-method}
 \alias{Ops,dMatrix,lMatrix-method}
+\alias{Ops,dMatrix,nMatrix-method}
 \alias{Ops,lMatrix,dMatrix-method}
 \alias{Ops,lMatrix,lMatrix-method}
-\alias{Ops,dMatrix,nMatrix-method}
+\alias{Ops,lMatrix,numeric-method}
 \alias{Ops,nMatrix,dMatrix-method}
+\alias{Ops,numeric,lMatrix-method}
+\alias{Arith,dMatrix,dMatrix-method}
+\alias{Arith,lMatrix,logical-method}
+\alias{Arith,lMatrix,numeric-method}
+\alias{Arith,logical,lMatrix-method}
+\alias{Arith,numeric,lMatrix-method}
+\alias{Compare,dMatrix,logical-method}
 \alias{Compare,dMatrix,numeric-method}
+\alias{Compare,lMatrix,logical-method}
+\alias{Compare,lMatrix,numeric-method}
+\alias{Compare,logical,dMatrix-method}
+\alias{Compare,logical,lMatrix-method}
 \alias{Compare,numeric,dMatrix-method}
-\alias{Logic,logical,lMatrix-method}
+\alias{Compare,numeric,lMatrix-method}
+\alias{Logic,dMatrix,logical-method}
+\alias{Logic,dMatrix,numeric-method}
 \alias{Logic,lMatrix,logical-method}
+\alias{Logic,lMatrix,numeric-method}
+\alias{Logic,logical,dMatrix-method}
+\alias{Logic,logical,lMatrix-method}
+\alias{Logic,numeric,dMatrix-method}
+\alias{Logic,numeric,lMatrix-method}
 \alias{Summary,lMatrix-method}
 %% R <= 2.5.x :
 % \alias{Math2,dMatrix,ANY-method}% Math2 = round + signif,.., but

@@ -11,8 +11,8 @@ identical5 <- function(a,b,c,d,e) identical(a,b) && identical4(b,c,d,e)
 ## Make sure errors are signaled
 assertError <- function(expr) {
     d.expr <- deparse(substitute(expr))
-    t.res <- try(expr, silent = TRUE)
-    if(!inherits(t.res, "try-error"))
+    t.res <- tryCatch(expr, error = function(e) e)
+    if(!inherits(t.res, "error"))
 	stop(d.expr, "\n\t did not give an error", call. = FALSE)
     invisible(t.res)
 }

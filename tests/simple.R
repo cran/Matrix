@@ -57,6 +57,7 @@ stopifnot(isValid(d4, "diagonalMatrix"),   isValid(z4,  "diagonalMatrix"),
 I <- i1 <- I1 <- Diagonal(1)
 I1[1,1] <- i1[1, ] <- I [ ,1] <- NA
 stopifnot(identical3(I,i1,I1))
+image(d4) # gave infinite recursion
 
 I <- Diagonal(3); I[,1] <- NA; I[2,2] <- NA ; I[3,] <- NaN
 stopifnot(isValid(I, "sparseMatrix"))
@@ -68,6 +69,10 @@ diag(M) <- diag(M) + 5 # to make it pos.def.
 M. <- M[1:12,1:12] # small ex
 N3 <- as(Matrix(upper.tri(diag(3))), "nMatrix")
 isValid(bdN <- bdiag(N3, N3),"nsparseMatrix")
+
+L == TRUE ## used to give infinite recursion
+stopifnot(all(drop0((0 - L) != 0) == drop0(L)))
+
 stopifnot(isSymmetric(M), isSymmetric(M.),
 	  is(bdiag(M., M.),"symmetricMatrix"),
 	  is(bdN, "triangularMatrix"),

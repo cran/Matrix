@@ -27,7 +27,10 @@ spMatrix(nrow, ncol, i = integer(), j = integer(), x = numeric())
   \code{M[ i', j' ] == 0} for all other pairs \eqn{(i',j')}.
 }
 \seealso{\code{\link{Matrix}(*, sparse=TRUE)} for the more usual
-  constructor of such matrices; further \code{\link{bdiag}} and
+  constructor of such matrices; similarly, \code{\link{sparseMatrix}}
+  which is a bit more general than \code{spMatrix()} and returns a
+  \code{\linkS4class{CsparseMatrix}} which is often slightly more
+  desirable.   Further, \code{\link{bdiag}} and
   \code{\link{Diagonal}} for (block-)diagonal matrix constructors.
 
   Consider \code{\linkS4class{TsparseMatrix}} and similar class

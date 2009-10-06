@@ -65,7 +65,7 @@ setMethod("qr", signature(x = "dgCMatrix"),
 
 setMethod("qr", signature(x = "sparseMatrix"),
 	  function(x, ...)
-	  qr(as(as(x, "CsparseMatrix"), "dsparseMatrix"), ...))
+	  qr(as(as(as(x, "CsparseMatrix"), "dsparseMatrix"), "dgCMatrix"), ...))
 
 setMethod("lu", signature(x = "dgCMatrix"),
 	  function(x, ...) {
@@ -74,7 +74,8 @@ setMethod("lu", signature(x = "dgCMatrix"),
 			 1) ## <- tol
 	      })
 setMethod("lu", signature(x = "sparseMatrix"),
-	  function(x, ...) lu(as(as(x, "CsparseMatrix"), "dsparseMatrix"), ...))
+	  function(x, ...)
+	  lu(as(as(as(x, "CsparseMatrix"), "dsparseMatrix"), "dgCMatrix"), ...))
 
 
 setMethod("solve", signature(a = "dgCMatrix", b = "matrix"),

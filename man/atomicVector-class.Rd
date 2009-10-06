@@ -3,13 +3,13 @@
 \alias{atomicVector-class}
 \title{Virtual Class "atomicVector" of Atomic Vectors}
 \description{
-  The \code{\link[methods]{class}} \code{"atomicVector"} is a
+  The \code{\link{class}} \code{"atomicVector"} is a
   \emph{virtual} class containing all atomic vector classes of base \R,
   as also implicitly defined via \code{\link{is.atomic}}.
 }
 \section{Objects from the Class}{A virtual Class: No objects may be created from it.}
 \section{Methods}{
-  In the \pkg{Matrix} package, the "atomicVector" is used in signature
+  In the \pkg{Matrix} package, the "atomicVector" is used in signatures
   where typically \dQuote{old-style} "matrix" objects can be used and
   can be substituted by simple vectors.
 }

@@ -42,6 +42,8 @@ SEXP M_chm_triplet_to_SEXP(CHM_TR a, int dofree, int uploT, int Rkind,
 
 SEXP M_dpoMatrix_chol(SEXP x);
 
+/* TODO:  Utilities for C level of model_matrix(*, sparse) */
+
 #ifdef	__cplusplus
 }
 #endif

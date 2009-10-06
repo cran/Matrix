@@ -16,8 +16,10 @@
 \alias{expand,CHMfactor-method}
 \alias{solve,CHMfactor,ddenseMatrix-method}
 \alias{solve,CHMfactor,dsparseMatrix-method}
+\alias{solve,CHMfactor,diagonalMatrix-method}
 \alias{solve,CHMfactor,numeric-method}
 \alias{solve,CHMfactor,matrix-method}
+\alias{solve,CHMfactor,missing-method}
 \alias{solve,CHMfactor,ANY-method}
 \alias{determinant,CHMfactor,missing-method}
 \alias{determinant,CHMfactor,logical-method}
@@ -135,12 +137,12 @@ isLDL(x)
 
     \item{determinant}{\code{signature(x = "CHMfactor", logarithm =
       "logical")} returns the determinant (or the logarithm of the
-      determinant, if \code{logarithm = TRUE}, the default) of \emph{the
-      matrix whose decomposition is represented by} \code{x}.  The
-      determinant of the decomposition is not well defined because the
-      decomposition may be \dQuote{LDL'} or \dQuote{LL'}.  The
-      determinant of the original matrix that was decomposed is well
-      defined.}
+      determinant, if \code{logarithm = TRUE}, the default) of the
+      factor \eqn{L} from the \eqn{LL'} decomposition (even if the
+      decomposition represented by \code{x} is of the \eqn{LDL'}
+      form (!)).  This is the square root of the determinant (half the
+      logarithm of the determinant when \code{logarithm = TRUE}) of the
+      positive-definite matrix that was decomposed.}
 
     %% since 0.999375-8 (2008-03-25):
     \item{update}{\code{signature(object = "CHMfactor")}.  The

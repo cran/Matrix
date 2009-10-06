@@ -69,6 +69,23 @@ SEXP dtrMatrix_solve(SEXP a)
     return val;
 }
 
+SEXP dtrMatrix_chol2inv(SEXP a)
+{
+    SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dpoMatrix")));
+    int info, n;
+
+    slot_dup(val, a, Matrix_DimSym);
+    slot_dup(val, a, Matrix_uploSym);
+    slot_dup(val, a, Matrix_diagSym);
+    slot_dup(val, a, Matrix_DimNamesSym);
+    slot_dup(val, a, Matrix_xSym);
+    n = *INTEGER(GET_SLOT(val, Matrix_DimSym));
+    F77_CALL(dpotri)(uplo_P(val), &n,
+		     REAL(GET_SLOT(val, Matrix_xSym)), &n, &info);
+    UNPROTECT(1);
+    return val;
+}
+
 SEXP dtrMatrix_matrix_solve(SEXP a, SEXP b)
 {
     SEXP ans = PROTECT(dup_mMatrix_as_dgeMatrix(b));

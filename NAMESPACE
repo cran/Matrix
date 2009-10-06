@@ -218,6 +218,7 @@ exportMethods(## for both own and "other" generics:
 	      "as.logical",
 	      "band",
 	      "chol",
+              "chol2inv",
 	      "colMeans",
 	      "colSums",
               "cov2cor",

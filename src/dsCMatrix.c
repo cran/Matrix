@@ -36,11 +36,11 @@ internal_chm_factor(SEXP Ap, int perm, int LDL, int super, double Imult)
 {
     SEXP facs = GET_SLOT(Ap, Matrix_factorSym);
     SEXP nms = getAttrib(facs, R_NamesSymbol);
-    int sup, ll;
     CHM_FR L;
     CHM_SP A = AS_CHM_SP__(Ap);
     R_CheckStack();
 
+    CHM_store_common();		/* save settings from c */
     if (LENGTH(facs)) {
 	for (int i = 0; i < LENGTH(nms); i++) { /* look for a match in cache */
 	    if (chk_nm(CHAR(STRING_ELT(nms, i)), perm, LDL, super)) {
@@ -55,8 +55,8 @@ internal_chm_factor(SEXP Ap, int perm, int LDL, int super, double Imult)
     }
     /* Else:  No cached factor - create one */
 
-    sup = c.supernodal;		/* save current settings */
-    ll = c.final_ll;
+    /* sup = c.supernodal;		/\* save current settings *\/ */
+    /* ll = c.final_ll; */
 
     c.final_ll = (LDL == 0) ? 1 : 0;
     c.supernodal = (super > 0) ? CHOLMOD_SUPERNODAL :
@@ -67,20 +67,20 @@ internal_chm_factor(SEXP Ap, int perm, int LDL, int super, double Imult)
 	L = cholmod_l_analyze(A, &c);
     } else {			/* require identity permutation */
 	/* save current settings */
-	int nmethods = c.nmethods, ord0 = c.method[0].ordering,
-	    postorder = c.postorder;
+	/* int nmethods = c.nmethods, ord0 = c.method[0].ordering, */
+	/*     postorder = c.postorder; */
 	c.nmethods = 1; c.method[0].ordering = CHOLMOD_NATURAL; c.postorder = FALSE;
 	L = cholmod_l_analyze(A, &c);
 	/* and now restore */
-	c.nmethods = nmethods; c.method[0].ordering = ord0; c.postorder = postorder;
+	/* c.nmethods = nmethods; c.method[0].ordering = ord0; c.postorder = postorder; */
     }
     /* Note that the "restore" (above and below) now only "works",
      * because our error handler call cholmod_l_defaults() ! */
 
     if (!cholmod_l_factorize_p(A, &Imult, (int*)NULL, 0 /*fsize*/, L, &c))
 	error(_("Cholesky factorization failed"));
-    c.supernodal = sup;		/* restore previous settings */
-    c.final_ll = ll;
+    /* c.supernodal = sup;		/\* restore previous settings *\/ */
+    /* c.final_ll = ll; */
 
     if (!Imult) {		/* cache the factor */
 	char fnm[12] = "sPDCholesky";
@@ -94,6 +94,7 @@ internal_chm_factor(SEXP Ap, int perm, int LDL, int super, double Imult)
 	if (LDL  == 0) fnm[2] = 'd';
 	set_factors(Ap, chm_factor_to_SEXP(L, 0), fnm);
     }
+    CHM_restore_common();
     return L;
 }
 

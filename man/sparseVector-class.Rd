@@ -16,12 +16,16 @@
 \alias{Arith,sparseVector,sparseVector-method}
 \alias{Arith,dsparseVector,dsparseVector-method}
 \alias{-,dsparseVector,missing-method}
+\alias{!,sparseVector-method}
 \alias{Logic,sparseVector,sparseVector-method}
 \alias{Logic,lsparseVector,lsparseVector-method}
+\alias{Logic,nsparseVector,nsparseVector-method}
 \alias{Ops,ANY,sparseVector-method}
 \alias{Ops,sparseVector,ANY-method}
 \alias{Ops,sparseVector,atomicVector-method}
 \alias{Ops,atomicVector,sparseVector-method}
+\alias{Summary,sparseVector-method}
+\alias{Summary,nsparseVector-method}
 %
 \alias{coerce,ANY,sparseVector-method}
 \alias{coerce,TsparseMatrix,sparseVector-method}
@@ -54,6 +58,8 @@
 \alias{tcrossprod,sparseVector,Matrix-method}
 %
 \alias{[,sparseVector,index,ANY,ANY-method}
+\alias{[,sparseVector,lsparseVector,ANY,ANY-method}
+\alias{[,sparseVector,nsparseVector,ANY,ANY-method}
 \alias{[<-,sparseVector,index,missing,replValue-method}
 %
 \description{Sparse Vector Classes: The virtual mother class
@@ -102,7 +108,13 @@
       appropriate dimension.}
     \item{rep}{\code{signature(x = "sparseVector")} repeat \code{x},
       with the same argument list \code{(x, times, length.out, each,
-      ...)} as the default method for rep().}
+	...)} as the default method for rep().}
+
+    \item{Ops}{\code{signature(e1 = "sparseVector", e2 = "*")}: define
+      arithmetic, compare and logic operations, (see
+      \code{\link[=S4groupGeneric]{Ops}}).}
+    \item{Summary}{\code{signature(x = "sparseVector")}: define
+      all the \code{\link[=S4groupGeneric]{Summary}} methods.}
   }
 }
 %\author{Martin}
@@ -126,5 +138,14 @@ r <- ss
 dim(r) <- c(4,5) # becomes a sparse Matrix:
 r
 
+## currently has "non-structural" FALSE -- printing as ":"
+(lis <- is & FALSE)
+(nn <- is[is == 0]) # all "structural" FALSE
+
+%% maybe move to ../tests/ ?
+stopifnot(identical(is | FALSE, is != 0),
+	  identical(is^2 > 0,	is & TRUE),
+	  all(!lis), !any(lis), length(nn@i) == 0, !any(nn), all(!nn),
+	  sum(lis) == 0, !prod(lis), range(lis) == c(0,0))
 }
 \keyword{classes}

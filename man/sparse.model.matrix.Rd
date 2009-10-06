@@ -40,7 +40,7 @@ sparse.model.matrix(object, data = environment(object),
 dd <- data.frame(a = gl(3,4), b = gl(4,1,12))# balanced 2-way
 options("contrasts") # the default:  "contr.treatment"
 sparse.model.matrix(~ a + b, dd)
-sparse.model.matrix(~ -1+ a + b, dd)# no intercept --> even sparse
+sparse.model.matrix(~ -1+ a + b, dd)# no intercept --> even sparser
 sparse.model.matrix(~ a + b, dd, contrasts = list(a="contr.sum"))
 sparse.model.matrix(~ a + b, dd, contrasts = list(b="contr.SAS"))
 

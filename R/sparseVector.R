@@ -1,11 +1,11 @@
 #### All Methods in relation with the sparseVector (sub)classes
 
 
-# atomicVector : classUnion (logical,integer,double,....)
+## atomicVector : classUnion (logical,integer,double,....)
 setAs("atomicVector", "sparseVector",
       function(from) {
 	  n <- length(from)# *is* integer for atomic vectors
-	  r <- new(paste(.V.kind(from), "sparseVector", sep=''), length = n)
+	  r <- new(paste0(.V.kind(from), "sparseVector"), length = n)
 	  ii <- from != 0
 	  r@x <- from[ii]
 	  r@i <- seq_len(n)[ii]
@@ -79,7 +79,7 @@ setAs("diagonalMatrix", "sparseVector",
 	      n2 <- as.integer(n2)
 	      ii <- as.integer(seq(1L, by = n+1L, length.out = n))
 	  }
-	  new(paste(kind, "sparseVector", sep=''),
+	  new(paste0(kind, "sparseVector"),
 	      length = n2, i = ii,
 	      x = if(from@diag != "U") from@x else
 		  rep.int(switch(kind, "d" = 1, "l" = TRUE, "i" = 1L, "z" = 1+0i), n))
@@ -95,7 +95,7 @@ setAs("TsparseMatrix", "sparseVector",
 	  kind <- .M.kind(from)
 	  if(is_duplicatedT(from, di = d))
 	      from <- uniqTsparse(from)
-	  r <- new(paste(kind, "sparseVector", sep=''), length = n)
+	  r <- new(paste0(kind, "sparseVector"), length = n)
 	  r@i <- if(n < .Machine$integer.max) {
 	      1L + from@i + d[1] * from@j
 	  } else {
@@ -148,7 +148,7 @@ spV2M <- function (x, nrow, ncol, byrow = FALSE)
     kind <- .M.kindC(cld)		# "d", "n", "l", "i", "z", ...
     has.x <- kind != "n"
     ## "careful_new()" :
-    cNam <- paste(kind, "gTMatrix", sep='')
+    cNam <- paste0(kind, "gTMatrix")
     chngCl <- is.null(slotNames(newCl <- getClass(cNam, .Force=TRUE)))
     if(chngCl) { ## e.g. "igTMatrix" is not yet implemented
 	if(substr(cNam,1,1) == "z")
@@ -221,13 +221,14 @@ prSpVector <- function(x, digits = getOption("digits"),
             n <- maxp
         }
         xi <- x@i
-        logi <- extends(cld, "lsparseVector") || extends(cld, "nsparseVector")
+        is.n <- extends(cld, "nsparseVector")
+        logi <- is.n || extends(cld, "lsparseVector")
         cx <- if(logi) rep.int("N", n) else character(n)
-        cx[ -xi ] <- zero.print
-        cx[  xi ] <- {
-            if(logi) "|" else
-            ## numeric (or --not yet-- complex): 'has.x' in any cases
-            format(x@x, digits = digits)
+        cx[if(length(xi)) -xi else TRUE] <- zero.print
+        cx[ xi] <- {
+	    if(is.n) "|" else if(logi) c(":","|")[x@x + 1L] else
+	    ## numeric (or --not yet-- complex): 'has.x' in any cases
+	    format(x@x, digits = digits)
         }
         ## right = TRUE : cheap attempt to get better "." alignment
         print(cx, quote = FALSE, right = TRUE, max = maxp)
@@ -285,6 +286,12 @@ setMethod("[", signature(x = "sparseVector", i = "index"),
 		  x@x <- x@x[sel]
 	      x
 	  })
+
+setMethod("[", signature(x = "sparseVector", i = "lsparseVector"),
+	  function (x, i, j, ..., drop) x[sort.int(i@i[i@x])])
+setMethod("[", signature(x = "sparseVector", i = "nsparseVector"),
+	  function (x, i, j, ..., drop) x[sort.int(i@i)])
+
 
 ## This is much analogous to replTmat in ./Tsparse.R:
 replSPvec <- function (x, i, value)
@@ -524,7 +531,45 @@ setMethod("rep", "sparseVector",
 
 
 ### Group Methods (!)
-## o "Ops" , "Arith", "Compare"  :  ---> in ./Ops.R
+## "Ops" : ["Arith", "Compare", "Logic"]:  ---> in ./Ops.R
+##                                                 -------
+
+## "Summary" group : "max"   "min"   "range" "prod"  "sum"   "any"   "all"
+
+setMethod("Summary", signature(x = "nsparseVector", na.rm = "ANY"),
+	  function(x, ..., na.rm) { ## no 'x' slot, no NA's ..
+	      n <- x@length
+	      l.x <- length(x@i)
+	      if(l.x == n)
+		  callGeneric(rep.int(TRUE, n), ..., na.rm = na.rm)
+	      else ## l.x < n :	 has some FALSE entries
+		  switch(.Generic,
+			 "prod" = 0,
+			 "min"	= 0L,
+			 "all" = FALSE,
+			 "any" = l.x > 0,
+			 "sum" = l.x,
+			 "max" = as.integer(l.x > 0),
+			 "range" = c(0L, as.integer(l.x > 0)))
+	  })
+
+## The "other" "sparseVector"s ("d", "l", "i" ..): all have an	'x' slot :
+setMethod("Summary", signature(x = "sparseVector", na.rm = "ANY"),
+	  function(x, ..., na.rm) {
+	      n <- x@length
+	      l.x <- length(x@x)
+	      if(l.x == n) ## fully non-zero (and "general") - very rare but quick
+		  callGeneric(x@x, ..., na.rm = na.rm)
+	      else if(.Generic != "prod") {
+		  logicF <- .Generic %in% c("any","all")
+		  ## we rely on	 <generic>(x, NULL, y, ..) :==	<generic>(x, y, ..):
+		  callGeneric(x@x, if(logicF) FALSE else 0, ..., na.rm = na.rm)
+	      }
+	      else { ## prod()
+		  if(any(is.na(x@x))) NaN else 0
+	      }
+	  })
+
 
 setMethod("solve", signature(a = "Matrix", b = "sparseVector"),
 	  function(a, b, ...) callGeneric(a, as(b, "sparseMatrix")))

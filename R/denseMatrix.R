@@ -131,11 +131,15 @@ setMethod("[", signature(x = "denseMatrix", i = "index", j = "index",
 	      }
 	  })
 
+.dense.sub.i.2col <- function(x, i, j, ..., drop) {
+    r <- as(x, "matrix")[ i ]
+    if(is.null(dim(r))) r else as(r, geClass(x))
+}
 setMethod("[", signature(x = "denseMatrix", i = "matrix", j = "missing"),#drop="ANY"
-	  function(x, i, j, ..., drop) {
-	      r <- as(x, "matrix")[ i ]
-	      if(is.null(dim(r))) r else as(r, geClass(x))
-	  })
+	  .dense.sub.i.2col)
+setMethod("[", signature(x = "denseMatrix", i = "matrix", j = "missing", drop="missing"),
+	  .dense.sub.i.2col)
+
 
 ## Now the "[<-" ones --- see also those in ./Matrix.R
 ## It's recommended to use setReplaceMethod() rather than setMethod("[<-",.)

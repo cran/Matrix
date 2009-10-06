@@ -41,7 +41,7 @@ dd4 <- cbind(dd, c = gl(2,6), d = gl(8,3))
 dd4 <- cbind(dd4, x = round(rnorm(nrow(dd4)), 1))
 dd4 <- dd4[- c(1, 13:15, 17), ]
 ##-> 'd' has unused levels
-dM <- dd4;
+dM <- dd4
 dM$X <- outer(10*rpois(nrow(dM), 2), 1:3)
 dM$Y <- cbind(pmax(0, dM$x - .3), floor(4*rnorm(nrow(dM))))
 str(dM)# contains *matrices*
@@ -55,7 +55,20 @@ sparse.model.matrix(~ a + b, dd, contrasts = list(b="contr.SAS"))
 ## Sparse method is equivalent to the traditional one :
 stopifnot(isEQsparseDense(~ a + b, dd),
           isEQsparseDense(~ a + b, dd, contrasts = list(a="contr.sum")),
-          isEQsparseDense(~ a + b, dd, contrasts = list(a="contr.SAS")))
+          isEQsparseDense(~ a + b, dd, contrasts = list(a="contr.SAS")),
+	  ## contrasts as *functions* or contrast *matrices* :
+	  isEQsparseDense(~ a + b, dd,
+			  contrasts = list(a=contr.sum, b=contr.treatment(4))),
+	  isEQsparseDense(~ a + b, dd, contrasts =
+			  list(a=contr.SAS(3),# << ok after 'contrasts<-' update
+                               b = function(n, contr=TRUE, sparse=FALSE)
+                               contr.sum(n=n, contr=contr, sparse=sparse))))
+
+sm <- sparse.model.matrix(~a * b, dd,
+                          contrasts = list(a= contr.SAS(3, sparse = TRUE)))
+sm
+stopifnot(all(sm == model.matrix( ~a * b, dd,
+                                 contrasts= list(a= contr.SAS(3)))))
 
 
 ##

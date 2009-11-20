@@ -1,5 +1,5 @@
 
-R version 2.10.0 Under development (unstable) (2009-09-18 r49746)
+R version 2.10.0 Patched (2009-11-13 r50424)
 Copyright (C) 2009 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 
@@ -19,20 +19,16 @@ Type 'q()' to quit R.
 > 
 > library(Matrix)
 Loading required package: lattice
-
-Attaching package: 'Matrix'
-
-
-	The following object(s) are masked from package:base :
-
-	 rcond 
-
 > 
-> source(system.file("test-tools.R", package = "Matrix"))# identical3() etc
+> source(system.file("test-tools.R", package = "Matrix"), keep.source = FALSE)
+> ##-> identical3() etc
 > 
 > if(interactive()) {
 +     options(error = recover, warn = 1)
++ } else if(FALSE) { ## MM @ testing
++     options(error = recover, Matrix.verbose = TRUE, warn = 1)
 + } else options(Matrix.verbose = TRUE, warn = 1)
+> 
 > 
 > ### Dense Matrices
 > 
@@ -459,7 +455,7 @@ Formal class 'dgTMatrix' [package "Matrix"] with 6 slots
 + 	  identical(m0[,1], c(1,0,0,0,0)))
 > ### Diagonal -- Sparse:
 > (m1 <- as(m0, "TsparseMatrix"))  # dtTMatrix
-5 x 5 sparse Matrix of class "dtTMatrix"
+5 x 5 sparse Matrix of class "dtTMatrix" (unitriangular)
               
 [1,] 1 . . . .
 [2,] . 1 . . .
@@ -467,7 +463,7 @@ Formal class 'dgTMatrix' [package "Matrix"] with 6 slots
 [4,] . . . 1 .
 [5,] . . . . 1
 > (m2 <- as(m0, "CsparseMatrix")) # dtCMatrix
-5 x 5 sparse Matrix of class "dtCMatrix"
+5 x 5 sparse Matrix of class "dtCMatrix" (unitriangular)
               
 [1,] 1 . . . .
 [2,] . 1 . . .
@@ -484,7 +480,7 @@ Formal class 'dgTMatrix' [package "Matrix"] with 6 slots
 +           )## failed in 0.9975-11
 > 
 > (uTr <- new("dtTMatrix", Dim = c(3L,3L), diag="U"))
-3 x 3 sparse Matrix of class "dtTMatrix"
+3 x 3 sparse Matrix of class "dtTMatrix" (unitriangular)
           
 [1,] 1 . .
 [2,] . 1 .
@@ -977,7 +973,7 @@ det...(): ok
  norm(m [4 x 4]) : 1  I  F  M  ok
  Summary:  ok
 as(., "nMatrix") giving full nonzero-pattern: ok
-2*m =?= m+m: suboptimal implementation of sparse 'symm. o symm.'
+2*m =?= m+m: suboptimal 'Arith' implementation of  'dsC*  o  dsC*'
 identical
 m >= m for all: ok
 m < m for none: ok
@@ -1016,7 +1012,7 @@ m < m for none: ok
  norm(m [4 x 4]) : 1  I  F  M  ok
  Summary:  ok
 as(., "nMatrix") giving full nonzero-pattern: ok
-2*m =?= m+m: suboptimal implementation of sparse 'symm. o symm.'
+2*m =?= m+m: suboptimal 'Arith' implementation of  'dsC*  o  dsC*'
 identical
 m >= m for all: ok
 m < m for none: ok
@@ -1025,7 +1021,7 @@ det...(): ok
  norm(m [4 x 4]) : 1  I  F  M  ok
  Summary:  ok
 as(., "nMatrix") giving full nonzero-pattern: ok
-2*m =?= m+m: suboptimal implementation of sparse 'symm. o symm.'
+2*m =?= m+m: suboptimal 'Arith' implementation of  'dsC*  o  dsC*'
 identical
 m >= m for all: ok
 m < m for none: ok
@@ -1155,7 +1151,7 @@ M[i,j] <- v :  coercing symmetric M[] into non-symmetric
 > M <- Diagonal(4); M[1,2] <- 2
 > M. <- as(M, "CsparseMatrix")
 > (R <- as(M., "RsparseMatrix"))
-4 x 4 sparse Matrix of class "dtRMatrix"
+4 x 4 sparse Matrix of class "dtRMatrix" (unitriangular)
             
 [1,] 1 2 . .
 [2,] . 1 . .
@@ -1227,6 +1223,12 @@ Formal class 'lsparseVector' [package "Matrix"] with 3 slots
   ..@ i     : int(0) 
 > validObject(spCol <- f[,5000, drop=FALSE])
 [1] TRUE
+> ## ^^ FIXME slow Tsparse_to_Csparse from memory-hog
+> ## cholmod_sparse *CHOLMOD(triplet_to_sparse)
+> ## which has  "workspace: Iwork (max (nrow,ncol))"
+> ## in ../src/CHOLMOD/Core/cholmod_triplet.c  *and*
+> ## in ../src/CHOLMOD/Core/t_cholmod_triplet.c
+> ##
 > ## *not* identical(): as(spCol, "sparseVector")@length is "double"prec:
 > stopifnot(all.equal(as(spCol, "sparseVector"),
 +                     as(sv,   "nsparseVector"), tol=0))
@@ -1250,7 +1252,7 @@ attr(,"package")
 + 	  identical(thCol,  fx[,5762]))
 > 
 > cat('Time elapsed: ', (.pt <- proc.time()),'\n') # "stats"
-Time elapsed:  18.06 0.855 19.089 0 0 
+Time elapsed:  40.19 3.348 46.377 0 0 
 > ##
 > cat("checkMatrix() of all: \n---------\n")
 checkMatrix() of all: 
@@ -1263,22 +1265,17 @@ checkMatrix() of all:
 + }
 A 
 A. 
-suboptimal implementation of sparse 'symm. o symm.'
+suboptimal 'Arith' implementation of  'dsC*  o  dsC*'
 A.ii 
-suboptimal implementation of sparse 'symm. o symm.'
+suboptimal 'Arith' implementation of  'dsC*  o  dsC*'
 Aii 
-suboptimal implementation of sparse 'symm. o symm.'
+suboptimal 'Arith' implementation of  'dsC*  o  dsC*'
 B 
 B. 
 C 
 Clrg 
 Ctrg 
 D 
-exploding	<diag>	o  <diag>  into dense matrix
-Note: Method with signature "nMatrix#Matrix" chosen for function "|",
- target signature "nsyMatrix#nsCMatrix".
- "Matrix#nMatrix" would also be valid
-exploding	<diag>	o  <diag>  into dense matrix
 G 
 H 
 Note: Method with signature "sparseMatrix#ldiMatrix" chosen for function "==",
@@ -1286,7 +1283,7 @@ Note: Method with signature "sparseMatrix#ldiMatrix" chosen for function "==",
  "nsparseMatrix#sparseMatrix", "nMatrix#lMatrix" would also be valid
 H. 
 Hc 
-suboptimal implementation of sparse 'symm. o symm.'
+suboptimal 'Arith' implementation of  'dsC*  o  dsC*'
 Hc. 
 Lrg 
 M 
@@ -1302,16 +1299,16 @@ M3
 diagnosing replTmat(x,i,j,v): nargs()= 3; missing(i,j)= (0,1)
 'sub-optimal sparse 'x[i] <- v' assignment: Coercing class ltTMatrix to lgTMatrix
 Ms 
-suboptimal implementation of sparse 'symm. o symm.'
+suboptimal 'Arith' implementation of  'dsC*  o  dsC*'
 R 
 Rs 
-suboptimal implementation of sparse 'symm. o symm.'
+suboptimal 'Arith' implementation of  'dsC*  o  dsC*'
 S 
 .TM.repl.i.2col(): drop 'matrix' case ...
 diagnosing replTmat(x,i,j,v): nargs()= 3; missing(i,j)= (0,1)
 'sub-optimal sparse 'x[i] <- v' assignment: Coercing class dtTMatrix to dgTMatrix
 T 
-suboptimal implementation of sparse 'symm. o symm.'
+suboptimal 'Arith' implementation of  'dsC*  o  dsC*'
 T3 
 .TM.repl.i.2col(): drop 'matrix' case ...
 diagnosing replTmat(x,i,j,v): nargs()= 3; missing(i,j)= (0,1)
@@ -1322,14 +1319,12 @@ diagnosing replTmat(x,i,j,v): nargs()= 3; missing(i,j)= (0,1)
 'sub-optimal sparse 'x[i] <- v' assignment: Coercing class ltTMatrix to lgTMatrix
 TG 
 Tii 
-suboptimal implementation of sparse 'symm. o symm.'
+suboptimal 'Arith' implementation of  'dsC*  o  dsC*'
 cI 
-suboptimal implementation of sparse 'symm. o symm.'
+suboptimal 'Arith' implementation of  'dsC*  o  dsC*'
 cm 
-suboptimal implementation of sparse 'symm. o symm.'
+suboptimal 'Arith' implementation of  'dsC*  o  dsC*'
 d6 
-exploding	<diag>	o  <diag>  into dense matrix
-exploding	<diag>	o  <diag>  into dense matrix
 dLrg 
 dm 
 Note: Method with signature "sparseMatrix#ldiMatrix" chosen for function "&",
@@ -1340,10 +1335,10 @@ f
 fx 
 ge 
 l10 
-suboptimal implementation of sparse 'symm. o symm.'
+suboptimal 'Arith' implementation of  'dsC*  o  dsC*'
 l3 
 lx.x 
-suboptimal implementation of sparse 'symm. o symm.'
+suboptimal 'Arith' implementation of  'dsC*  o  dsC*'
 m. 
 m1 
 .TM.repl.i.2col(): drop 'matrix' case ...
@@ -1372,26 +1367,27 @@ s2
 s2.32 
 sel 
 sm 
-suboptimal implementation of sparse 'symm. o symm.'
+suboptimal 'Arith' implementation of  'dsC*  o  dsC*'
 spCol 
 ssel 
 st 
 sy3 
 t2 
 tI 
-suboptimal implementation of sparse 'symm. o symm.'
+suboptimal 'Arith' implementation of  'dsC*  o  dsC*'
 trH 
 uTr 
 .TM.repl.i.2col(): drop 'matrix' case ...
 diagnosing replTmat(x,i,j,v): nargs()= 3; missing(i,j)= (0,1)
 'sub-optimal sparse 'x[i] <- v' assignment: Coercing class dtTMatrix to dgTMatrix
 x.x 
-suboptimal implementation of sparse 'symm. o symm.'
+suboptimal 'Arith' implementation of  'dsC*  o  dsC*'
 x.x. 
-suboptimal implementation of sparse 'symm. o symm.'
+suboptimal 'Arith' implementation of  'dsC*  o  dsC*'
 > cat('Time elapsed: ', proc.time() - .pt,'\n') # "stats"
-Time elapsed:  10.705 0.389 11.105 0 0 
+Time elapsed:  30.446 2.432 37.045 0 0 
 > 
 > if(!interactive()) warnings()
+NULL
 > 
 > 

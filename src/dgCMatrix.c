@@ -328,7 +328,7 @@ SEXP dgCMatrix_SPQR(SEXP Ap, SEXP ordering, SEXP econ, SEXP tol)
 /* Matrix_with_SPQR */
 
 /* Modified version of Tim Davis's cs_lu_mex.c file for MATLAB */
-void install_lu(SEXP Ap, int order, double tol)
+void install_lu(SEXP Ap, int order, double tol, Rboolean err_sing)
 {
     SEXP ans;
     css *S;
@@ -346,8 +346,16 @@ void install_lu(SEXP Ap, int order, double tol)
     }
     S = cs_sqr(order, A, 0);	/* symbolic ordering, no QR bound */
     N = cs_lu(A, S, tol);	/* numeric factorization */
-    if (!N)
-	error(_("cs_lu(A) failed: near-singular A (or out of memory)"));
+    if (!N) {
+	if(err_sing)
+	    error(_("cs_lu(A) failed: near-singular A (or out of memory)"));
+	else {
+	    /* No warning: The useR should be careful :
+	     * Put  FALSE  into  "LU" factor */
+	    set_factors(Ap, ScalarLogical(NA_LOGICAL), "LU");
+	    return;
+	}
+    }
     cs_dropzeros(N->L);		/* drop zeros from L and sort it */
     D = cs_transpose(N->L, 1);
     cs_spfree(N->L);
@@ -378,9 +386,10 @@ void install_lu(SEXP Ap, int order, double tol)
     set_factors(Ap, ans, "LU");
 }
 
-SEXP dgCMatrix_LU(SEXP Ap, SEXP orderp, SEXP tolp)
+SEXP dgCMatrix_LU(SEXP Ap, SEXP orderp, SEXP tolp, SEXP error_on_sing)
 {
     SEXP ans;
+    Rboolean err_sing = asLogical(error_on_sing);
     /* FIXME: dgCMatrix_LU should check ans for consistency in
      * permutation type with the requested value - Should have two
      * classes or two different names in the factors list for LU with
@@ -390,7 +399,7 @@ SEXP dgCMatrix_LU(SEXP Ap, SEXP orderp, SEXP tolp)
      */
     if (!isNull(ans = get_factors(Ap, "LU")))
 	return ans;
-    install_lu(Ap, asInteger(orderp), asReal(tolp));
+    install_lu(Ap, asInteger(orderp), asReal(tolp), err_sing);
     return get_factors(Ap, "LU");
 }
 
@@ -406,7 +415,7 @@ SEXP dgCMatrix_matrix_solve(SEXP Ap, SEXP b)
     R_CheckStack();
 
     if (isNull(lu = get_factors(Ap, "LU"))) {
-	install_lu(Ap, 1, 1.0);
+	install_lu(Ap, 1, 1.0, /* err_sing = */ TRUE);
 	lu = get_factors(Ap, "LU");
     }
     qslot = GET_SLOT(lu, install("q"));

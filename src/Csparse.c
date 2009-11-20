@@ -248,12 +248,17 @@ SEXP Csparse_Csparse_prod(SEXP a, SEXP b)
 	cha = AS_CHM_SP(a),
 	chb = AS_CHM_SP(b),
 	chc = cholmod_l_ssmult(cha, chb, /*out_stype:*/ 0,
-			     cha->xtype, /*out sorted:*/ 1, &c);
+			       /* values:= is_numeric (T/F) */ cha->xtype > 0,
+			       /*out sorted:*/ 1, &c);
     const char *cl_a = class_P(a), *cl_b = class_P(b);
     char diag[] = {'\0', '\0'};
     int uploT = 0;
-    SEXP dn = allocVector(VECSXP, 2);
+    SEXP dn = PROTECT(allocVector(VECSXP, 2));
     R_CheckStack();
+
+#ifdef DEBUG_Matrix_verbose
+    Rprintf("DBG Csparse_C*_prod(%s, %s)\n", cl_a, cl_b);
+#endif
 
     /* Preserve triangularity and even unit-triangularity if appropriate.
      * Note that in that case, the multiplication itself should happen
@@ -276,6 +281,7 @@ SEXP Csparse_Csparse_prod(SEXP a, SEXP b)
 		   duplicate(VECTOR_ELT(GET_SLOT(a, Matrix_DimNamesSym), 0)));
     SET_VECTOR_ELT(dn, 1,
 		   duplicate(VECTOR_ELT(GET_SLOT(b, Matrix_DimNamesSym), 1)));
+    UNPROTECT(1);
     return chm_sparse_to_SEXP(chc, 1, uploT, /*Rkind*/0, diag, dn);
 }
 
@@ -289,7 +295,7 @@ SEXP Csparse_Csparse_crossprod(SEXP a, SEXP b, SEXP trans)
     const char *cl_a = class_P(a), *cl_b = class_P(b);
     char diag[] = {'\0', '\0'};
     int uploT = 0;
-    SEXP dn = allocVector(VECSXP, 2);
+    SEXP dn = PROTECT(allocVector(VECSXP, 2));
     R_CheckStack();
 
     chTr = cholmod_l_transpose((tr) ? chb : cha, chb->xtype, &c);
@@ -308,11 +314,11 @@ SEXP Csparse_Csparse_crossprod(SEXP a, SEXP b, SEXP trans)
 	    }
 	    else diag[0]= 'N';
 	}
-
     SET_VECTOR_ELT(dn, 0,	/* establish dimnames */
 		   duplicate(VECTOR_ELT(GET_SLOT(a, Matrix_DimNamesSym), (tr) ? 0 : 1)));
     SET_VECTOR_ELT(dn, 1,
 		   duplicate(VECTOR_ELT(GET_SLOT(b, Matrix_DimNamesSym), (tr) ? 0 : 1)));
+    UNPROTECT(1);
     return chm_sparse_to_SEXP(chc, 1, uploT, /*Rkind*/0, diag, dn);
 }
 
@@ -362,7 +368,11 @@ SEXP Csparse_crossprod(SEXP x, SEXP trans, SEXP triplet)
 {
     int trip = asLogical(triplet),
 	tr   = asLogical(trans); /* gets reversed because _aat is tcrossprod */
+#ifdef AS_CHM_DIAGU2N_FIXED_FINALLY
     CHM_TR cht = trip ? AS_CHM_TR(x) : (CHM_TR) NULL;
+#else /* workaround needed:*/
+    CHM_TR cht = trip ? AS_CHM_TR__(Tsparse_diagU2N(x)) : (CHM_TR) NULL;
+#endif
     CHM_SP chcp, chxt,
 	chx = (trip ?
 	       cholmod_l_triplet_to_sparse(cht, cht->nnz, &c) :

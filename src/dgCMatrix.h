@@ -22,7 +22,7 @@ SEXP dgCMatrix_QR(SEXP Ap, SEXP order);
 #ifdef Matrix_with_SPQR
 SEXP dgCMatrix_SPQR(SEXP Ap, SEXP ordering, SEXP econ, SEXP tol);
 #endif
-SEXP dgCMatrix_LU(SEXP Ap, SEXP orderp, SEXP tolp);
+SEXP dgCMatrix_LU(SEXP Ap, SEXP orderp, SEXP tolp, SEXP error_on_sing);
 SEXP dgCMatrix_matrix_solve(SEXP Ap, SEXP bp);
 
 #endif

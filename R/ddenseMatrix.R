@@ -89,7 +89,7 @@ setMethod("solve", signature(a = "ddenseMatrix", b = .b),
 	  function(a, b, ...) solve(as(a, "dgeMatrix"), Matrix(b)))
 
 setMethod("lu", signature(x = "ddenseMatrix"),
-          function(x, ...) lu(as(x, "dgeMatrix")))
+	  function(x, ...) lu(as(x, "dgeMatrix"), ...))
 
 setMethod("chol", signature(x = "ddenseMatrix"), cholMat)
 

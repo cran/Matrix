@@ -67,6 +67,7 @@ exportClasses(
 	      "atomicVector",
 	      "number",
 ## LOGIC      "logic",
+              "abIndex", "rleDiff",
 
 	      ## --- 'Matrix' mother and all its daughters : ---------------
 	      "Matrix",

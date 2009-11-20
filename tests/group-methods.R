@@ -1,6 +1,8 @@
 ### Testing the group methods  --- some also happens in ./Class+Meth.R
 
 library(Matrix)
+source(system.file("test-tools.R", package = "Matrix"))# identical3() etc
+
 set.seed(2001)
 
 mm <- Matrix(rnorm(50 * 7), nc = 7)
@@ -57,10 +59,14 @@ stopifnot(px@i == c(3,4,1,4),
 ###----- Compare methods ---> logical Matrices ------------
 l3 <- upper.tri(matrix(, 3, 3))
 (ll3 <- Matrix(l3))
+dt3 <- (99* Diagonal(3) + (10 * ll3 + Diagonal(3)))/10
 (dsc <- crossprod(ll3))
 stopifnot(validObject(ll3), validObject(dsc),
           identical(ll3, t(t(ll3))),
-          identical(dsc, t(t(dsc)))
+          identical(dsc, t(t(dsc))),
+          isValid(dsc + 3 * Diagonal(nrow(dsc)), "dsCMatrix"),
+          isValid(dt3, "triangularMatrix"),   # remained triangular
+          isValid(dt3 > 0, "triangularMatrix")# ditto
           )
 
 (lm1 <- dsc >= 1) # now ok
@@ -73,7 +79,9 @@ stopifnot(validObject(lm1), validObject(lm2),
           identical(dsc, as(dsc * as(lm1, "dMatrix"), "dsCMatrix")))
 
 crossprod(lm1) # lm1: "lsC*"
-stopifnot(identical(nm1 %*% nm1, crossprod(nm1))) # + warning
+cnm1 <- crossprod(nm1)
+stopifnot(is(cnm1, "symmetricMatrix"), ## whereas the %*% is not:
+	  Q.eq(cnm1, nm1 %*% nm1))
 dn1 <- as(nm1, "denseMatrix")
 stopifnot(all(dn1 == nm1))
 

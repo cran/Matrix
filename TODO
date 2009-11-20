@@ -78,18 +78,13 @@
   When the sparse matrix is very sparse, i.e. has many rows with only zero
   entries, it would make much sense to return sparse.
 
-- sparse-symmetric + diagonal should stay sparse-symmetric
-  (only stays sparse): Matrix(0, 4, 4) + Diagonal(4, 1:4)
-  --> R/diagMatrix.R ('FIXME')
-  but also R/Ops.R  to ensure  sp-sym. + sp-sym. |-> sp-sym.  etc
-
 - ! <symmetricMatrix>  loses symmetry, both for dense and sparse matrices.
   !M  where M is "sparseMatrix", currently always gives dense. This only
   makes sense when M is ``really sparse''.
 
 - example(Cholesky, echo=FALSE) ; cm <- chol(mtm); str(cm); str(mtm)
 
-  shows that chol() does not seems to make use of an already
+  shows that chol() does not seem to make use of an already
   present factorization and rather uses one with more '0' in x slot.
 
 - diag(m) <- val    currently automatically works via  m[cbind(i,i)] <- val
@@ -187,6 +182,7 @@
 
   --> Consider using the new  'dotMethods' functionality to define
       cbind() and rbind() versions that work with Matrix.
+      The "Rmpfr" package does that now.
 
 - In  all(M1 == M2)  for sparse large matrices M1, M2 (e.g. M2 <- M1 !),
   the intermediate 'M1 == M2' typically is dense, hence potentially using
@@ -204,5 +200,13 @@
   to have src/UFsparse and src/CHOLMOD/Include on the include path.
   Maybe just those two should be added to the include path.
 
-
 - sparse.model.matrix( ~ -1 + ..)   *must* be made to work
+
+- (systematically check that LAPACK-calling functions check for
+   0-dimensional input themselves; LAPACK gives an integer error code)
+
+- the  f[,5762] <- thisCol # now ...
+  line in tests/indexing.R uses very large objects unnecessarily;
+  Improve  replTmat()  in R/Tsparse.R, making use of new "abIndex"
+  vectors.
+

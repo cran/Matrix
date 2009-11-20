@@ -73,9 +73,15 @@ isValid(bdN <- bdiag(N3, N3),"nsparseMatrix")
 L == TRUE ## used to give infinite recursion
 stopifnot(all(drop0((0 - L) != 0) == drop0(L)))
 
+## Examples where  is.na(.) was wrong:
+validObject(sc <- new("dsCMatrix", i=as.integer(c(0,0:1,1:2,0:1,3)), Dim=c(4L,4L),
+                      p = c(0L,1L,3L,5L,8L), x = c(0,NA,NA,0:1,0,NA,1)))
+validObject(gc <- as(sc, "generalMatrix"))
+
 stopifnot(isSymmetric(M), isSymmetric(M.),
 	  is(bdiag(M., M.),"symmetricMatrix"),
 	  is(bdN, "triangularMatrix"),
+          all(sc == gc | (is.na(sc) & is.na(gc))),
 	  all.equal(N3,N3),
 	  tail(all.equal(N3, t(N3)), 1) == all.equal(1,-1),# ~= "Mean relative difference: 2"
 	  !any(bdN != t(bdN)), # <nsparse> != <nsparse>	 failed to work...
@@ -221,21 +227,30 @@ validObject(Cltu <- as(ltu, "CsparseMatrix"))
 stopifnot(identical(asCsp(ttu > 0), asCsp(ltu)),
           all(ltu == as(ttu > 0,"denseMatrix")))
 ltu - (ttu > 0) # failed
+assert.EQ.mat(cu,  as(tu,"matrix"), tol=0)
+assert.EQ.mat(cnu, as(tu,"matrix"), tol=0)
 
 C <- suppressWarnings(Matrix(c(0,1,0,0), 5,5)) + Diagonal(5)
-(T <- Matrix:::diagN2U(tril(C)))
-R <- as(T, "RsparseMatrix")
-R. <- Matrix:::diagU2N(R) # used to accidentally drop the diag.
-stopifnot(R@x == c(1,1,1), diag(R.) == 1)
+(tU <- Matrix:::diagN2U(tril(C))) # dtC Unitriangular
+ntU <- as(tU, "nMatrix")
+nT <- as(ntU, "TsparseMatrix")
+R <- as(tU, "RsparseMatrix")
+Tt <- Matrix:::diagU2N(R) # used to accidentally drop the diag.
+stopifnot(R@x == c(1,1,1), diag(Tt) == 1)
 
 lcu <- new("ltCMatrix", Dim = c(4L, 4L), i = c(0:1, 0L), p = c(0L, 0:3),
            x = c(TRUE, FALSE, FALSE), uplo = "U", diag = "U")
-stopifnot(identical(rowSums(lcu), rowSums(drop0(lcu))))
+(lTu <- as(lcu,"TsparseMatrix"))# prints wrongly (in Matrix 0.999375-31)
+stopifnot(identical3(rowSums(lcu), rowSums(lTu), rowSums(drop0(lcu))))
 (ncu <- as(lcu, "nMatrix"))# -- gives the "pattern" of lcu, i.e. FALSE are *there*
+ncn <- Matrix:::diagU2N(ncu)
+(cncn <- crossprod(ncn))# works -> "nsCMatrix"
 stopifnot(identical(ncu, as(lcu,"nsparseMatrix")),
-          identical(rowSums(ncu), c(3:1, 1L)))
-assert.EQ.mat(cu, as(tu,"matrix"), tol=0)
-assert.EQ.mat(cnu, as(tu,"matrix"), tol=0)
+	  identical(rowSums(ncu), c(3:1, 1L)),
+	  Q.eq(ncn, ncu),
+	  Q.eq(crossprod(drop0(lcu)), crossprod(lcu)),# crossprod works -> "dsCMatrix"
+	  identical(crossprod(ncu), cncn),
+	  Q.eq(cncn, t(ncu) %*% ncu)) #used to seg.fault
 
 U <- new("dtCMatrix", Dim = c(6L, 6L),
 	 i = c(0:1, 0L, 2:3, 1L, 4L),
@@ -440,6 +455,26 @@ for(M in list(kt1, nt1, ng1, dg1, lt1, nt1)) {
     }
 }
 
+i1 <- cs. == 1
+cs2 <- cs.
+cs2[i1] <- 0 # failed in *-31 !!
+## now *index* with a NA-sparseVector :
+i2 <- i1 ; i2[3] <- NA ; li2 <- as.logical(i2)
+cs3 <- cs. ;	       cs3 [i2] <- 0
+v3 <- as(cs.,"vector"); v3[li2] <- 0
+cs4 <- cs.	     ; cs4[li2] <- 0
+stopifnot(length(i1@x) == 2, identical(li2, as(i2,"vector")),
+	  identical(cs3, cs4),
+	  cs3 == v3, all(as(v3, "sparseVector") == cs3)
+	  ## indexing simple "numeric" with sparseVector:
+	  ## see 'R_FIXME' in ../R/sparseVector.R
+	  ## , identical(v3[i2], v3[li2])
+	  ## TODO:
+	  ## sub-assigning into simple "numeric" with sparseVector index:
+	  )
+
+
+
 M <- Matrix(c(2:0,1),2); M. <- as(M, "sparseMatrix")
 (N <- as(crossprod(kronecker(diag(2), M)) > 0,
          "nMatrix"))
@@ -462,10 +497,14 @@ tm[cbind(c(1,1,2,7,8),
 (mM <- Matrix(m <- (tm + t(tm)))) ## dsC
 mT <- as(mM, "dsTMatrix")
 gC <- as(as(mT, "dgTMatrix"), "dgCMatrix")
-## Check that 'mT' and gC print properly :
+lT <- as(Matrix(TRUE, 2,2),"TsparseMatrix")
+## Check that mT, lT, and gC print properly :
 pr.mT <- capture.output(mT)
+pr.lT <- capture.output(lT)[-(1:2)]
 nn <- unlist(strsplit(gsub(" +\\.", "", sub("^....", "", pr.mT[-(1:2)])), " "))
 stopifnot(as.numeric(nn[nn != ""]) == m[m != 0],
+	  identical(1:2, grep("|", pr.lT, fixed=TRUE)),
+	  identical(pr.lT, capture.output(as(lT, "nMatrix"))[-(1:2)]),
           capture.output(gC)[-1] == pr.mT[-1])
 assert.EQ.mat(tM, tm, tol=0)
 assert.EQ.mat(gC, m,  tol=0)
@@ -686,6 +725,8 @@ assert.EQ.mat(solve(solve(p.)), as(p., "matrix"))
 dimnames(p.)[[1]] <- paste(1:4)
 ii <- is.na(p.)
 stopifnot(all(!ii), !any(as(ii, "denseMatrix")))# used to fail
+if(getRversion() >= "2.9.0") # (otherwise have done it above)
+    options(op)
 
 cat('Time elapsed: ', (.pt <- proc.time()),'\n') # "stats"
 ##

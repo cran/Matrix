@@ -25,14 +25,6 @@ setMethod("rcond", signature(x = "dspMatrix", norm = "missing"),
           .Call(dspMatrix_rcond, x, "O"),
           valueClass = "numeric")
 
-setMethod("%*%", signature(x = "dspMatrix", y = "ddenseMatrix"),
-          function(x, y) .Call(dspMatrix_matrix_mm, x, y),
-          valueClass = "dgeMatrix")
-
-setMethod("%*%", signature(x = "dspMatrix", y = "matrix"),
-          function(x, y) .Call(dspMatrix_matrix_mm, x, y),
-          valueClass = "dgeMatrix")
-
 setMethod("BunchKaufman", signature(x = "dspMatrix"),
 	  function(x) .Call(dspMatrix_trf, x))
 

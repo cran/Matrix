@@ -2,11 +2,15 @@
 
 library(Matrix)
 
-source(system.file("test-tools.R", package = "Matrix"))# identical3() etc
+source(system.file("test-tools.R", package = "Matrix"), keep.source = FALSE)
+##-> identical3() etc
 
 if(interactive()) {
     options(error = recover, warn = 1)
+} else if(FALSE) { ## MM @ testing
+    options(error = recover, Matrix.verbose = TRUE, warn = 1)
 } else options(Matrix.verbose = TRUE, warn = 1)
+
 
 ### Dense Matrices
 
@@ -629,6 +633,12 @@ str(thisCol <-  f[,5000])# logi [~ 7 mio....]
 sv <- as(thisCol, "sparseVector")
 str(sv) ## "empty" !
 validObject(spCol <- f[,5000, drop=FALSE])
+## ^^ FIXME slow Tsparse_to_Csparse from memory-hog
+## cholmod_sparse *CHOLMOD(triplet_to_sparse)
+## which has  "workspace: Iwork (max (nrow,ncol))"
+## in ../src/CHOLMOD/Core/cholmod_triplet.c  *and*
+## in ../src/CHOLMOD/Core/t_cholmod_triplet.c
+##
 ## *not* identical(): as(spCol, "sparseVector")@length is "double"prec:
 stopifnot(all.equal(as(spCol, "sparseVector"),
                     as(sv,   "nsparseVector"), tol=0))

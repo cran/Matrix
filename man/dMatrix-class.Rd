@@ -56,6 +56,14 @@
 \alias{lgamma,dMatrix-method}
 %
 \alias{zapsmall,dMatrix-method}
+\alias{\%*\%,nMatrix,lMatrix-method}
+\alias{\%*\%,lMatrix,nMatrix-method}
+\alias{\%*\%,lMatrix,lMatrix-method}
+\alias{\%*\%,nMatrix,nMatrix-method}
+\alias{\%*\%,dMatrix,lMatrix-method}
+\alias{\%*\%,dMatrix,nMatrix-method}
+\alias{\%*\%,lMatrix,dMatrix-method}
+\alias{\%*\%,nMatrix,dMatrix-method}
 %
 % operations with one argument from the "integer" class
 \alias{crossprod,dMatrix,integer-method}

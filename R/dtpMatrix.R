@@ -28,30 +28,6 @@ setAs("pBunchKaufman", "lMatrix",
       function(from) as(as(from, "dtpMatrix"), "lMatrix"))
 
 
-setMethod("%*%", signature(x = "dtpMatrix", y = "ddenseMatrix"),
-	  function(x, y) .Call(dtpMatrix_matrix_mm, x, y))
-setMethod("%*%", signature(x = "dgeMatrix", y = "dtpMatrix"),
-	  function(x, y) .Call(dgeMatrix_dtpMatrix_mm, x, y))
-## DB: I don't think this is needed any more
-## %*% should always work for  <fooMatrix> %*% <fooMatrix>
-## setMethod("%*%", signature(x = "dtpMatrix", y = "dtpMatrix"),
-##           function(x, y)
-##           ## FIXME: this is cheap; could we optimize chosing the better of
-##           ## callGeneric(x, as(y, "dgeMatrix"))  and
-##           ## callGeneric(as(x "dgeMatrix"), y))  depending on their 'uplo' ?
-##           callGeneric(x, as(y, "dgeMatrix")))
-
-## dtpMatrix <-> matrix : will be used by the "numeric" one
-setMethod("%*%", signature(x = "dtpMatrix", y = "matrix"),
-          function(x, y) .Call(dtpMatrix_matrix_mm, x, y))
-setMethod("%*%", signature(x = "matrix", y = "dtpMatrix"),
-          function(x, y) callGeneric(as(x, "dgeMatrix"), y))
-
-## dtpMatrix <-> numeric : the auxiliary functions are R version specific!
-##setMethod("%*%", signature(x = "dtpMatrix", y = "numeric"), .M.v)
-##setMethod("%*%", signature(x = "numeric", y = "dtpMatrix"), .v.M)
-
-
 setMethod("determinant", signature(x = "dtpMatrix", logarithm = "missing"),
 	  function(x, logarithm, ...) determinant(x, TRUE))
 

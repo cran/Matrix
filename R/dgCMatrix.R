@@ -68,10 +68,12 @@ setMethod("qr", signature(x = "sparseMatrix"),
 	  qr(as(as(as(x, "CsparseMatrix"), "dsparseMatrix"), "dgCMatrix"), ...))
 
 setMethod("lu", signature(x = "dgCMatrix"),
-	  function(x, ...) {
+          ## by default do give an error on singularity
+	  function(x, errSing = TRUE, ...) {
 	      .Call(dgCMatrix_LU, x,
-			 TRUE, ## <- orderp
-			 1) ## <- tol
+		    TRUE, ## <- orderp
+		    1,	  ## <- tol
+		    errSing)
 	      })
 setMethod("lu", signature(x = "sparseMatrix"),
 	  function(x, ...)

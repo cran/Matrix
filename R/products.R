@@ -24,6 +24,28 @@ setMethod("%*%", signature(x = "matrix", y = "dgeMatrix"),
 	  function(x, y) .Call(dgeMatrix_matrix_mm, y, x, TRUE),
 	  valueClass = "dgeMatrix")
 
+.dsy_m_mm <- function(x, y) .Call(dsyMatrix_matrix_mm, x, y, FALSE)
+setMethod("%*%", signature(x = "dsyMatrix", y = "matrix"),  .dsy_m_mm)
+setMethod("%*%", signature(x = "dsyMatrix", y = "ddenseMatrix"),  .dsy_m_mm)
+## for disambiguity :
+setMethod("%*%", signature(x = "dsyMatrix", y = "dsyMatrix"),  .dsy_m_mm)
+## or even
+## for(yCl in .directSubClasses(getClass("ddenseMatrix")))
+##     setMethod("%*%", signature(x = "dsyMatrix", y = yCl), .dsy_m_mm)
+
+setMethod("%*%", signature(x = "ddenseMatrix", y = "dsyMatrix"),
+          function(x, y) .Call(dsyMatrix_matrix_mm, y, x, TRUE))
+setMethod("%*%", signature(x = "matrix", y = "dsyMatrix"),
+          function(x, y) .Call(dsyMatrix_matrix_mm, y, x, TRUE))
+
+setMethod("%*%", signature(x = "dspMatrix", y = "ddenseMatrix"),
+          function(x, y) .Call(dspMatrix_matrix_mm, x, y),
+          valueClass = "dgeMatrix")
+setMethod("%*%", signature(x = "dspMatrix", y = "matrix"),
+          function(x, y) .Call(dspMatrix_matrix_mm, x, y),
+          valueClass = "dgeMatrix")
+
+
 ## Not needed because of c("numeric", "Matrix") method
 ##setMethod("%*%", signature(x = "numeric", y = "CsparseMatrix"),
 ##	    function(x, y) t(.Call(Csparse_dense_crossprod, y, x)),
@@ -51,6 +73,31 @@ setMethod("%*%", signature(x = "matrix", y = "dtrMatrix"),
 ##	     valueClass = "dgeMatrix")
 
 
+
+setMethod("%*%", signature(x = "dtpMatrix", y = "ddenseMatrix"),
+	  function(x, y) .Call(dtpMatrix_matrix_mm, x, y))
+setMethod("%*%", signature(x = "dgeMatrix", y = "dtpMatrix"),
+	  function(x, y) .Call(dgeMatrix_dtpMatrix_mm, x, y))
+## DB: I don't think this is needed any more
+## %*% should always work for  <fooMatrix> %*% <fooMatrix>
+## setMethod("%*%", signature(x = "dtpMatrix", y = "dtpMatrix"),
+##           function(x, y)
+##           ## FIXME: this is cheap; could we optimize chosing the better of
+##           ## callGeneric(x, as(y, "dgeMatrix"))  and
+##           ## callGeneric(as(x "dgeMatrix"), y))  depending on their 'uplo' ?
+##           callGeneric(x, as(y, "dgeMatrix")))
+
+## dtpMatrix <-> matrix : will be used by the "numeric" one
+setMethod("%*%", signature(x = "dtpMatrix", y = "matrix"),
+          function(x, y) .Call(dtpMatrix_matrix_mm, x, y))
+setMethod("%*%", signature(x = "matrix", y = "dtpMatrix"),
+          function(x, y) callGeneric(as(x, "dgeMatrix"), y))
+
+## dtpMatrix <-> numeric : the auxiliary functions are R version specific!
+##setMethod("%*%", signature(x = "dtpMatrix", y = "numeric"), .M.v)
+##setMethod("%*%", signature(x = "numeric", y = "dtpMatrix"), .v.M)
+
+
 ## For multiplication operations, sparseMatrix overrides other method
 ## selections.	Coerce a ddensematrix argument to a lsparseMatrix.
 setMethod("%*%", signature(x = "lsparseMatrix", y = "ldenseMatrix"),
@@ -63,6 +110,16 @@ setMethod("%*%", signature(x = "ldenseMatrix", y = "lsparseMatrix"),
 setMethod("%*%", signature(x = "lsparseMatrix", y = "lsparseMatrix"),
 	  function(x, y) as(x, "lgCMatrix") %*% as(y, "lgCMatrix"))
 
+
+for(c.x in c("lMatrix", "nMatrix")) {
+    setMethod("%*%", signature(x = c.x, y = "dMatrix"),
+	      function(x, y) as(x, "dMatrix") %*% y)
+    setMethod("%*%", signature(x = "dMatrix", y = c.x),
+	      function(x, y) x %*% as(y, "dMatrix"))
+    for(c.y in c("lMatrix", "nMatrix"))
+    setMethod("%*%", signature(x = c.x, y = c.y),
+	      function(x, y) as(x, "dMatrix") %*% as(y, "dMatrix"))
+}
 
 setMethod("%*%", signature(x = "CsparseMatrix", y = "CsparseMatrix"),
 	  function(x, y) .Call(Csparse_Csparse_prod, x, y))
@@ -89,6 +146,8 @@ setMethod("%*%", signature(x = "TsparseMatrix", y = "Matrix"),
 	  function(x, y) .T.2.C(x) %*% y)
 setMethod("%*%", signature(x = "Matrix", y = "TsparseMatrix"),
 	  function(x, y) x %*% .T.2.C(y))
+setMethod("%*%", signature(x = "TsparseMatrix", y = "TsparseMatrix"),
+	  function(x, y) .T.2.C(x) %*% .T.2.C(y))
 
 
 
@@ -190,11 +249,11 @@ setMethod("crossprod", signature(x = "dtrMatrix", y = "missing"),
 
 setMethod("crossprod", signature(x = "CsparseMatrix", y = "missing"),
 	  function(x, y = NULL) {
-	      if (is(x, "symmetricMatrix")) {
-		  warning("crossprod(x) calculated as x %*% x for sparse, symmetric x")
-		  return(x %*% x)
-	      }
-	      .Call(Csparse_crossprod, x, trans = FALSE, triplet = FALSE)
+	      if (is(x, "symmetricMatrix"))
+		  ## crossprod() should give "symmetric*":
+		  forceSymmetric(x %*% x, uplo = x@uplo)
+	      else
+		  .Call(Csparse_crossprod, x, trans = FALSE, triplet = FALSE)
 	  })
 
 setMethod("crossprod", signature(x = "CsparseMatrix", y = "CsparseMatrix"),
@@ -214,12 +273,11 @@ setMethod("crossprod", signature(x = "CsparseMatrix", y = "numeric"),
 
 setMethod("crossprod", signature(x = "TsparseMatrix", y = "missing"),
 	  function(x, y = NULL) {
-	      if (is(x, "symmetricMatrix")) {
-		  x <- .T.2.C(x)
-		  warning("crossprod(x) calculated as x %*% x for sparse, symmetric x")
-		  return(x %*% x)
-	      }
-	      .Call(Csparse_crossprod, x, trans = FALSE, triplet = TRUE)
+	      if (is(x, "symmetricMatrix"))
+		  ## crossprod() should give "symmetric*":
+		  forceSymmetric(x %*% x, uplo = x@uplo)
+	      else
+		  .Call(Csparse_crossprod, x, trans = FALSE, triplet = TRUE)
 	  })
 
 setMethod("crossprod", signature(x = "TsparseMatrix", y = "ANY"),
@@ -230,6 +288,8 @@ setMethod("crossprod", signature(x = "TsparseMatrix", y = "Matrix"),
 	  function(x, y = NULL) crossprod(.T.2.C(x), y))
 setMethod("crossprod", signature(x = "Matrix", y = "TsparseMatrix"),
 	  function(x, y = NULL) crossprod(x, .T.2.C(y)))
+setMethod("crossprod", signature(x = "TsparseMatrix", y = "TsparseMatrix"),
+	  function(x, y = NULL) crossprod(.T.2.C(x), .T.2.C(y)))
 
 
 setMethod("crossprod", signature(x = "dsparseMatrix", y = "ddenseMatrix"),
@@ -303,6 +363,8 @@ setMethod("crossprod", signature(x = "sparseVector", y = "Matrix"), .v.M)
 ## cheap fallbacks
 setMethod("crossprod", signature(x = "Matrix", y = "Matrix"),
 	  function(x, y = NULL) t(x) %*% y)
+setMethod("crossprod", signature(x = "Matrix", y = "missing"),
+	  function(x, y = NULL) t(x) %*% x)
 setMethod("crossprod", signature(x = "Matrix", y = "ANY"),
 	  function(x, y = NULL) t(x) %*% y)
 setMethod("crossprod", signature(x = "ANY", y = "Matrix"),
@@ -352,16 +414,20 @@ setMethod("tcrossprod", signature(x = "CsparseMatrix", y = "CsparseMatrix"),
 
 setMethod("tcrossprod", signature(x = "CsparseMatrix", y = "missing"),
 	  function(x, y = NULL) {
-	      if (is(x, "symmetricMatrix")) {
-		  warning("tcrossprod(x) calculated as x %*% x for sparse, symmetric x")
-		  return(x %*% x)
-	      }
-	      .Call(Csparse_crossprod, x, trans = TRUE, triplet = FALSE)
+	      if (is(x, "symmetricMatrix"))
+		  ## tcrossprod() should give "symmetric*":
+		  forceSymmetric(x %*% x, uplo = x@uplo)
+	      else
+		  .Call(Csparse_crossprod, x, trans = TRUE, triplet = FALSE)
 	  })
 
 setMethod("tcrossprod", signature(x = "TsparseMatrix", y = "missing"),
 	  function(x, y = NULL) {
-	      .Call(Csparse_crossprod, x, trans = TRUE, triplet = TRUE)
+	      if (is(x, "symmetricMatrix"))
+		  ## tcrossprod() should give "symmetric*":
+		  forceSymmetric(x %*% x, uplo = x@uplo)
+	      else
+		  .Call(Csparse_crossprod, x, trans = TRUE, triplet = TRUE)
 	  })
 
 setMethod("tcrossprod", signature(x = "ANY", y = "TsparseMatrix"),
@@ -372,6 +438,8 @@ setMethod("tcrossprod", signature(x = "Matrix", y = "TsparseMatrix"),
 	  function(x, y = NULL) tcrossprod(x, .T.2.C(y)))
 setMethod("tcrossprod", signature(x = "TsparseMatrix", y = "Matrix"),
 	  function(x, y = NULL) tcrossprod(.T.2.C(x), y))
+setMethod("tcrossprod", signature(x = "TsparseMatrix", y = "TsparseMatrix"),
+	  function(x, y = NULL) tcrossprod(.T.2.C(x), .T.2.C(y)))
 
 
 ## "Matrix"
@@ -389,6 +457,8 @@ setMethod("tcrossprod", signature(x = "sparseVector", y = "Matrix"), .v.M)
 ## cheap fallbacks
 setMethod("tcrossprod", signature(x = "Matrix", y = "Matrix"),
 	  function(x, y = NULL) x %*% t(y))
+setMethod("tcrossprod", signature(x = "Matrix", y = "missing"),
+	  function(x, y = NULL) x %*% t(x))
 setMethod("tcrossprod", signature(x = "Matrix", y = "ANY"),
 	  function(x, y = NULL) x %*% t(y))
 setMethod("tcrossprod", signature(x = "ANY", y = "Matrix"),

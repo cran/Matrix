@@ -6,7 +6,7 @@ setAs("atomicVector", "sparseVector",
       function(from) {
 	  n <- length(from)# *is* integer for atomic vectors
 	  r <- new(paste0(.V.kind(from), "sparseVector"), length = n)
-	  ii <- from != 0
+	  ii <- isN0(from)
 	  r@x <- from[ii]
 	  r@i <- seq_len(n)[ii]
 	  r
@@ -16,7 +16,7 @@ setAs("atomicVector", "dsparseVector",
       function(from) {
 	  n <- length(from)# *is* integer for atomic vectors
 	  r <- new("dsparseVector", length = n)
-	  ii <- from != 0
+	  ii <- isN0(from)
 	  r@x <- as.numeric(from)[ii]
 	  r@i <- seq_len(n)[ii]
 	  r
@@ -44,6 +44,15 @@ setAs("xsparseVector", "nsparseVector",
           new("nsparseVector", i = from@i, length = from@length)
       })
 
+setMethod("is.na", signature(x = "nsparseVector"),
+	  function(x) new("nsparseVector", length = x@length))## all FALSE
+setMethod("is.na", signature(x = "sparseVector"),
+	  ## *not* "nsparse*" as that has own method
+	  function(x) new("nsparseVector",
+			  i = which(is.na(x@x)), length= x@length))
+
+
+
 sp2vec <- function(x, mode = .type.kind[substr(cl, 1,1)]) {
     ## sparseVector  ->  vector
     cl <- class(x)
@@ -55,6 +64,25 @@ sp2vec <- function(x, mode = .type.kind[substr(cl, 1,1)]) {
     r
 }
 
+##' Construct new sparse vector , *dropping* zeros
+
+##' @param class  character, the sparseVector class
+##' @param x      numeric/logical/...:  the 'x' slot
+##' @param i      integer: index of non-zero entries
+##' @param length integer: the 'length' slot
+
+##' @return a sparseVector, with 0-dropped 'x' (and 'i')
+newSpV <- function(class, x, i, length) {
+    if(isTRUE(any(x0 <- x == 0))) {
+	keep <- is.na(x) | !x0
+	x <- x[keep]
+	i <- i[keep]
+    }
+    new(class, x = x, i = i, length = length)
+}
+newSpVec <- function(class, x, prev)
+    newSpV(class, x=x, i=prev@i, length=prev@length)
+
 setAs("sparseVector", "vector", function(from) sp2vec(from))
 
 setMethod("as.vector", signature(x = "sparseVector", mode = "missing"),
@@ -63,6 +91,11 @@ setMethod("as.vector", signature(x = "sparseVector", mode = "character"),
 	  sp2vec)
 
 setMethod("as.numeric", "sparseVector", function(x) sp2vec(x, mode = "double"))
+setMethod("as.logical", "sparseVector", function(x) sp2vec(x, mode = "logical"))
+
+setAs("sparseVector", "numeric", function(from) sp2vec(from, mode = "double"))
+setAs("sparseVector", "integer", function(from) sp2vec(from, mode = "integer"))
+setAs("sparseVector", "logical", function(from) sp2vec(from, mode = "logical"))
 
 ## the "catch all remaining" method:
 setAs("ANY", "sparseVector",
@@ -241,11 +274,13 @@ intIv <- function(i, n)
 {
     ## Purpose: translate numeric | logical index     into  1-based integer
     ## --------------------------------------------------------------------
-    ## Arguments: i: index vector (numeric | logical)
+    ## Arguments: i: index vector (numeric | logical) *OR* sparseVector
     ##		  n: array extent { ==	length(.) }
     if(missing(i))
-	seq_len(n)
-    else if(is(i, "numeric")) {
+	return(seq_len(n))
+    ## else :
+    cl.i <- getClass(class(i))
+    if(extends(cl.i, "numeric")) {
 	storage.mode(i) <- "integer"
 	if(any(i < 0L)) {
 	    if(any(i > 0L))
@@ -259,10 +294,18 @@ intIv <- function(i, n)
 	    i
 	}
     }
-    else if (is(i, "logical")) {
+    else if (extends(cl.i, "logical")) {
 	seq_len(n)[i]
-    } else stop("index must be numeric or logical for 'sparseVector' indexing")
-}
+    } else if(extends(cl.i, "nsparseVector")) {
+	i@i # the indices are already there !
+    } else if(extends(cl.i, "lsparseVector")) {
+	i@i[i@x] # "drop0", i.e. FALSE; NAs ok
+    } else if (extends(cl.i, "sparseVector")) { ## 'i'sparse, 'd'sparse	 (etc)
+	as.integer(i@x[i@i])
+    }
+    else
+        stop("index must be numeric, logical or sparseVector for indexing sparseVectors")
+} ## intIv()
 
 
 setMethod("[", signature(x = "sparseVector", i = "index"),
@@ -292,7 +335,21 @@ setMethod("[", signature(x = "sparseVector", i = "lsparseVector"),
 setMethod("[", signature(x = "sparseVector", i = "nsparseVector"),
 	  function (x, i, j, ..., drop) x[sort.int(i@i)])
 
+##--- Something else:  Allow    v[ <sparseVector> ] -- exactly similarly:
+if(FALSE) { ## R_FIXME: Not working, as internal "[" only dispatches on 1st argument
+setMethod("[", signature(x = "atomicVector", i = "lsparseVector"),
+	  function (x, i, j, ..., drop) x[sort.int(i@i[i@x])])
+setMethod("[", signature(x = "atomicVector", i = "nsparseVector"),
+	  function (x, i, j, ..., drop) x[sort.int(i@i)])
+}
 
+##' Implement   x[i] <- value
+
+##' @param x  a "sparseVector"
+##' @param i  an "index" (integer, logical, ..)
+##' @param value
+
+##' @return  a "sparseVector" of the same length as 'x'
 ## This is much analogous to replTmat in ./Tsparse.R:
 replSPvec <- function (x, i, value)
 {
@@ -308,8 +365,7 @@ replSPvec <- function (x, i, value)
     ## else: lenV := length(value) > 0
     if(lenRepl %% lenV != 0)
 	stop("number of items to replace is not a multiple of replacement length")
-    anyDup <- any(duplicated(ii))
-    if(anyDup) { ## multiple *replacement* indices: last one wins
+    if(anyDuplicated(ii)) { ## multiple *replacement* indices: last one wins
 	## TODO: in R 2.6.0 use	 duplicate(*, fromLast=TRUE)
 	ir <- lenRepl:1
 	keep <- match(ii, ii[ir]) == ir
@@ -371,14 +427,28 @@ replSPvec <- function (x, i, value)
 	    x@x <- c(x@x, value[ij0])
     }
     x
-
 }
 
 setReplaceMethod("[", signature(x = "sparseVector", i = "index", j = "missing",
 				value = "replValue"),
 		 replSPvec)
 
+setReplaceMethod("[", signature(x = "sparseVector",
+                                i = "sparseVector", j = "missing",
+				value = "replValue"),
+                 ## BTW, the important case: 'i' a *logical* sparseVector
+		 replSPvec)
 
+## Something else:  Also allow	  x[ <sparseVector> ] <- v
+
+if(FALSE) { ## R_FIXME: Not working, as internal "[<-" only dispatches on 1st argument
+## Now "the work is done" inside  intIv() :
+setReplaceMethod("[", signature(x = "atomicVector",
+				i = "sparseVector", j = "missing",
+				value = "replValue"),
+		 function (x, i, value)
+		 callGeneric(x, i = intIv(i, x@length), value=value))
+}
 
 ## a "method" for c(<(sparse)Vector>, <(sparse)Vector>):
 ## FIXME: This is not exported, nor used (nor documented)

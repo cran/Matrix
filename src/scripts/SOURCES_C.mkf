@@ -24,4 +24,5 @@ SOURCES_C =  \
             factorizations.c \
 	    ldense.c \
 	    lgCMatrix.c \
-	    sparseQR.c
+	    sparseQR.c \
+	    abIndex.c

@@ -16,7 +16,7 @@ setMethod("determinant", signature(x = "dsparseMatrix", logarithm = "logical"),
 ##-> now dgC or dsC or dtC .. which *have* their methods
 
 setMethod("lu", signature(x = "dsparseMatrix"),
-	  function(x, ...) lu(as(x, "dgCMatrix")))
+	  function(x, ...) lu(as(x, "dgCMatrix"), ...))
 
 
 ## Group Methods, see ?Arith (e.g.): "Ops" --> ./Ops.R

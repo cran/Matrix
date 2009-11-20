@@ -22,6 +22,7 @@
 \alias{Logic,nsparseVector,nsparseVector-method}
 \alias{Ops,ANY,sparseVector-method}
 \alias{Ops,sparseVector,ANY-method}
+\alias{Ops,sparseVector,sparseVector-method}
 \alias{Ops,sparseVector,atomicVector-method}
 \alias{Ops,atomicVector,sparseVector-method}
 \alias{Summary,sparseVector-method}
@@ -34,6 +35,9 @@
 \alias{coerce,atomicVector,sparseVector-method}
 \alias{coerce,atomicVector,dsparseVector-method}
 \alias{coerce,triangularVector,sparseVector-method}
+\alias{coerce,sparseVector,integer-method}
+\alias{coerce,sparseVector,logical-method}
+\alias{coerce,sparseVector,numeric-method}
 \alias{coerce,sparseVector,vector-method}
 \alias{coerce,xsparseVector,dsparseVector-method}
 \alias{coerce,xsparseVector,isparseVector-method}
@@ -41,10 +45,13 @@
 \alias{coerce,xsparseVector,zsparseVector-method}
 \alias{coerce,xsparseVector,nsparseVector-method}
 %
+\alias{as.logical,sparseVector-method}
 \alias{as.numeric,sparseVector-method}
 \alias{as.vector,sparseVector,missing-method}
 \alias{as.vector,sparseVector,character-method}
 \alias{dim<-,sparseVector-method}
+\alias{is.na,nsparseVector-method}
+\alias{is.na,sparseVector-method}
 \alias{length,sparseVector-method}
 \alias{rep,sparseVector-method}
 \alias{show,sparseVector-method}
@@ -61,6 +68,11 @@
 \alias{[,sparseVector,lsparseVector,ANY,ANY-method}
 \alias{[,sparseVector,nsparseVector,ANY,ANY-method}
 \alias{[<-,sparseVector,index,missing,replValue-method}
+\alias{[<-,sparseVector,sparseVector,missing,replValue-method}
+% also indexing in "traditional" vectors:
+%R_FIXME \alias{[<-,atomicVector,sparseVector,missing,replValue-method}
+%R_FIXME  \alias{[,atomicVector,lsparseVector,ANY,ANY-method}
+%R_FIXME  \alias{[,atomicVector,nsparseVector,ANY,ANY-method}
 %
 \description{Sparse Vector Classes: The virtual mother class
   \code{"sparseVector"} has the five actual daughter classes
@@ -71,16 +83,19 @@
 }
 \section{Slots}{
   \describe{
-    \item{\code{length}:}{class \code{"integer"} - the \code{\link{length}}
-     of the sparse vector.}
+    \item{\code{length}:}{class \code{"numeric"} - the \code{\link{length}}
+     of the sparse vector.  Note that \code{"numeric"} can be
+     considerably larger than the maximal \code{"integer"},
+     \code{\link{.Machine}$integer.max}, on purpose.}
     \item{\code{i}:}{class \code{"integer"} - the (1-based) indices of
-      the non-zero entries.}
+      the non-zero entries.  Must \emph{not} be \code{NA}.}
     \item{\code{x}:}{(for all but \code{"nsparseVector"}):
       the non-zero entries.  This is of class \code{"numeric"} for class
       \code{"dsparseVector"},  \code{"logical"} for class
       \code{"lsparseVector"}, etc.
 
       Note that \code{"nsparseVector"}s have no \code{x} slot.
+      Further, mainly for ease of method definitions, we've defined the
       Further, mainly for ease of method definitions, we've defined the
       class union (see \code{\link{setClassUnion}}) of all sparse vector
       classes which \emph{have} an \code{x} slot, as class \code{"xsparseVector"}.
@@ -115,7 +130,13 @@
       \code{\link[=S4groupGeneric]{Ops}}).}
     \item{Summary}{\code{signature(x = "sparseVector")}: define
       all the \code{\link[=S4groupGeneric]{Summary}} methods.}
-  }
+% R_FIXME     \item{[}{\code{signature(x = "atomicVector", i = ...)}: not only can you
+% R_FIXME       subset (aka \emph{\dQuote{index into}}) sparseVectors \code{x[i]}
+% R_FIXME       using sparseVectors \code{i}, but we also support efficient
+% R_FIXME       subsetting of traditional vectors \code{x} by logical sparse
+% R_FIXME       vectors (i.e., \code{i} of class \code{"nsparseVector"} or
+% R_FIXME       \code{"lsparseVector"}).}
+   }
 }
 %\author{Martin}
 \examples{
@@ -131,7 +152,7 @@ ix <- as.integer(round(sx))
 ## an "isparseVector" (!)
 
 ## rep() works too:
-rep(is, length.out= 25)
+(ri <- rep(is, length.out= 25))
 
 ## Using `dim<-`  as in base R :
 r <- ss
@@ -142,8 +163,13 @@ r
 (lis <- is & FALSE)
 (nn <- is[is == 0]) # all "structural" FALSE
 
+## NA-case
+sN <- sx; sN[4] <- NA
+(svN <- as(sN, "sparseVector"))
+
 %% maybe move to ../tests/ ?
 stopifnot(identical(is | FALSE, is != 0),
+	  validObject(svN), validObject(lis), as.logical(is.na(svN[4])),
 	  identical(is^2 > 0,	is & TRUE),
 	  all(!lis), !any(lis), length(nn@i) == 0, !any(nn), all(!nn),
 	  sum(lis) == 0, !prod(lis), range(lis) == c(0,0))

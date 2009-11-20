@@ -30,6 +30,21 @@ assert.EQ.mat(tcrossprod(m5, m5), mm5)
 assert.EQ.mat(tcrossprod(m5, m.), mm5)
 assert.EQ.mat(tcrossprod(m., m5), mm5)
 
+M50 <- m5[,FALSE, drop=FALSE]
+M05 <- t(M50)
+s05 <- as(M05, "sparseMatrix")
+s50 <- t(s05)
+assert.EQ.mat(M05, matrix(1, 0,5))
+assert.EQ.mat(M50, matrix(1, 5,0))
+assert.EQ.mat(tcrossprod(M50), tcrossprod(as(M50, "matrix")))
+assert.EQ.mat(tcrossprod(s50), tcrossprod(as(s50, "matrix")))
+assert.EQ.mat( crossprod(s50),  crossprod(as(s50, "matrix")))
+stopifnot(identical( crossprod(s50), tcrossprod(s05)),
+	  identical( crossprod(s05), tcrossprod(s50)))
+(M00 <- crossprod(M50))## used to fail -> .Call(dgeMatrix_crossprod, x, FALSE)
+stopifnot(identical(M00, tcrossprod(M05)),
+	  all(M00 == t(M50) %*% M50), dim(M00) == 0)
+
 ## simple cases with 'scalars' treated as 1x1 matrices:
 d <- Matrix(1:5)
 d %*% 2

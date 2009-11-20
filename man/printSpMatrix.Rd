@@ -12,6 +12,7 @@
 }
 \usage{
 printSpMatrix(x, digits = getOption("digits"), maxp = getOption("max.print"),
+              cld = getClassDef(class(x)),
               zero.print = ".", col.names, note.dropping.colnames = TRUE,
               col.trailer = "",
               align = c("fancy", "right"))
@@ -28,6 +29,9 @@ printSpMatrix2(x, digits = getOption("digits"), maxp = getOption("max.print"),
     \code{\link{print.default}}.}
   \item{maxp}{integer, default from \code{\link{options}(max.print)},
     influences how many entries of large matrices are printed at all.}
+  \item{cld}{the class definition of \code{x}; must be equivalent to
+    \code{\link{getClassDef}(class(x))} and exists mainly for possible
+    speedup.}
   \item{zero.print}{character which should be printed for
     \emph{structural} zeroes.  The default \code{"."} may occasionally
     be replaced by \code{" "} (blank); using \code{"0"} would look

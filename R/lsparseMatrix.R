@@ -5,13 +5,18 @@ C2l <- function(from) {
     if(extends(cld <- getClassDef(cl <- class(from)), "lsparseMatrix"))
 	return(from)
     ## else
-    is.n <- extends(cld, "nsparseMatrix")
-    r <- as(.Call(Csparse_to_nz_pattern, if(is.n) from else .Call(Csparse_drop, from, 0),
-		  extends(cld, "triangularMatrix")),
+    if(!(is.n <- extends(cld, "nsparseMatrix"))) {
+        ## len.x <- length(from@x)
+        from <- .Call(Csparse_drop, from, 0)
+        ## did.drop <- length(from@x) != len.x
+    }
+    r <- as(.Call(Csparse_to_nz_pattern, from, extends(cld, "triangularMatrix")),
 	    "lsparseMatrix")
-    if(!is.n && any(ina <- is.na(from@x)))
-	## NAs must remain NA
-	is.na(r@x) <- ina    # strong assumption: r@x "matches" from@x
+    if(!is.n && any(ina <- is.na(from@x))) { ## NAs must remain NA
+        ## since we dropped, we "know"  that the 'x' slots match:
+        stopifnot(length(from@x) == length(r@x))
+        is.na(r@x) <- ina
+    }
     r
 }
 

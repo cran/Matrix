@@ -22,6 +22,7 @@
 \alias{Compare,numeric,nMatrix-method}
 \alias{Logic,Matrix,nMatrix-method}
 \alias{Logic,nMatrix,Matrix-method}
+\alias{Logic,nMatrix,nMatrix-method}
 \alias{Logic,nMatrix,logical-method}
 \alias{Logic,nMatrix,numeric-method}
 \alias{Logic,logical,nMatrix-method}

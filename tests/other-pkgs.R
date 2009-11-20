@@ -75,15 +75,17 @@ if(isTRUE(try(require(graph)))) { # may be there and fail (with R-devel)
     image(cc)
     gg <- as(cc, "graph")
 
-    if(require("Rgraphviz"))
-        plot(gg, "circo")
+    if(require("Rgraphviz")) {
+	plot(gg, "circo")
+	detach("package:Rgraphviz", unload = TRUE)
+    }
     stopifnot(all.equal(edgeMatrix(gg),
                         rbind(from = c(rep(1:24, each=2), 25:48),
                               to   = c(rbind(25:48,49:72), 49:72))))
 
-    detach("package:graph")
+    detach("package:graph", unload = TRUE)
     dev.off()
-    }
+    } # {else}
 
 } ## end{graph}
 

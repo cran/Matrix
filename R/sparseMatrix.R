@@ -351,14 +351,28 @@ setMethod("Math",
 ## FIXME: prTriang() in ./Auxiliaries.R  should also get  align = "fancy"
 ##
 printSpMatrix <- function(x, digits = getOption("digits"),
-		       maxp = getOption("max.print"), zero.print = ".",
-		       col.names, note.dropping.colnames = TRUE,
-		       col.trailer = '', align = c("fancy", "right"))
+			  maxp = getOption("max.print"),
+			  cld = getClassDef(class(x)), zero.print = ".",
+			  col.names, note.dropping.colnames = TRUE,
+			  col.trailer = '', align = c("fancy", "right"))
 {
-    cl <- getClassDef(class(x))
-    stopifnot(extends(cl, "sparseMatrix"))
+    stopifnot(extends(cld, "sparseMatrix"))
     validObject(x) # have seen seg.faults for invalid objects
     d <- dim(x)
+    if(is.Udiag <- (extends(cld, "triangularMatrix") && x@diag == "U")) {
+	if(extends(cld, "CsparseMatrix"))
+	    x <- .Call(Csparse_diagU2N, x)
+	else if(extends(cld, "TsparseMatrix"))
+	    x <- .Call(Tsparse_diagU2N, x)
+	else {
+	    kind <- .M.kind(x, cld)
+	    x <- .Call(Tsparse_diagU2N,
+		       as(as(x, paste(kind, "Matrix", sep='')), "TsparseMatrix"))
+	    cld <- getClassDef(class(x))
+	}
+    }
+    ## TODO?  Could note it is *unit*-diagonal, e.g., by using "I" instead of "1" ?
+
     if(prod(d) > maxp) { # "Large" => will be "cut"
         ## only coerce to dense that part which won't be cut :
         nr <- maxp %/% d[2]
@@ -367,8 +381,8 @@ printSpMatrix <- function(x, digits = getOption("digits"),
         m <- as(x, "matrix")
     }
     dn <- dimnames(m) ## will be === dimnames(cx)
-    binary <- extends(cl,"nsparseMatrix") || extends(cl, "pMatrix") # -> simple T / F
-    logi <- binary || extends(cl,"lsparseMatrix") # has NA and (non-)structural FALSE
+    binary <- extends(cld,"nsparseMatrix") || extends(cld, "pMatrix") # -> simple T / F
+    logi <- binary || extends(cld,"lsparseMatrix") # has NA and (non-)structural FALSE
     if(logi)
 	cx <- array("N", dim(m), dimnames=dn)
     else { ## numeric (or --not yet implemented-- complex):
@@ -414,12 +428,28 @@ printSpMatrix <- function(x, digits = getOption("digits"),
 	## show only "structural" zeros as 'zero.print', not all of them..
 	## -> cannot use 'm'
         d <- dim(cx)
-	ne <- length(iN0 <- 1L + .Call(m_encodeInd, non0ind(x, cl), di = d))
-	if(0 < ne && ne < prod(d)) {
+	ne <- length(iN0 <- 1L + .Call(m_encodeInd, non0ind(x, cld), di = d))
+	if(0 < ne && (logi || ne < prod(d))) {
 	    if(logi) {
 		cx[m] <- "|"
-		if(any(F. <- !x@x & !is.na(x@x))) ## any (x@x == FALSE)
-		cx[iN0[seq_len(ne)[F.]]] <- ":" # non-structural FALSE (or "o", "," , "-" or "f")?
+		if(anyFalse(x@x)) { ## any (x@x == FALSE)
+		    ## Careful for *non-sorted* Tsparse, e.g. from U-diag
+		    if(extends(cld, "TsparseMatrix")) {
+			## have no "fast  uniqTsparse():
+			x <- as(x, "CsparseMatrix")
+			cld <- getClassDef(class(x))
+		    }
+		    F. <- is0(x@x) # the 'FALSE' ones
+		    ij <- non0.i(x, cld, uniqT=FALSE)
+		    if(extends(cld, "symmetricMatrix")) {
+			## also get "other" triangle
+			notdiag <- ij[,1] != ij[,2]# but not the diagonals again
+			ij <- rbind(ij, ij[notdiag, 2:1], deparse.level=0)
+			F. <-	  c(F., F.[notdiag])
+		    }
+		    iN0 <- 1L + .Call(m_encodeInd, ij, di = d)
+		    cx[iN0[F.]] <- ":" # non-structural FALSE (or "o", "," , "-" or "f")?
+		}
 	    }
 	    else if(match.arg(align) == "fancy" && !is.integer(m)) {
 		fi <- apply(m, 2, format.info) ## fi[3,] == 0  <==> not expo.
@@ -466,14 +496,17 @@ printSpMatrix2 <- function(x, digits = getOption("digits"),
 {
     d <- dim(x)
     cl <- class(x)
-    cat(sprintf('%d x %d sparse Matrix of class "%s"\n',
-                d[1], d[2], cl))
+    cld <- getClassDef(cl)
+    xtra <- if(extends(cld, "triangularMatrix") && x@diag == "U")
+	" (unitriangular)" else ""
+    cat(sprintf('%d x %d sparse Matrix of class "%s"%s\n',
+                d[1], d[2], cl, xtra))
     if((identical(suppRows,FALSE) && identical(suppCols, FALSE)) ||
        (!isTRUE(suppRows) && !isTRUE(suppCols) && prod(d) <= maxp))
     {
         if(missing(col.trailer) && is.null(suppCols))
             suppCols <- FALSE # for 'col.trailer'
-        printSpMatrix(x, digits=digits, maxp=maxp,
+        printSpMatrix(x, cld=cld, digits=digits, maxp=maxp,
                       zero.print=zero.print, col.names=col.names,
                       note.dropping.colnames=note.dropping.colnames,
                       col.trailer=col.trailer, align=align)
@@ -494,7 +527,7 @@ printSpMatrix2 <- function(x, digits = getOption("digits"),
 		  "\n ..............................\n")
 	if(suppRows) {
 	    if(suppCols)
-		x <- x[ , 1:nc, drop = FALSE]
+                x <- x[ , 1:nc, drop = FALSE]
 	    n2 <- ceiling(nr / 2)
 	    printSpMatrix(x[seq_len(min(nR, max(1, n2))), , drop=FALSE],
 			  digits=digits, maxp=maxp,
@@ -679,7 +712,7 @@ setMethod("is.na", signature(x = "sparseMatrix"),## NB: nsparse* have own method
 		  if(extends(cld, "triangularMatrix") && x@diag == "U")
 		      inax <- is.na((x <- .diagU2N(x, cld))@x)
 		  r <- as(x, "lMatrix") # will be "lsparseMatrix" - *has* x slot
-		  r@x <- inax
+		  r@x <- if(length(inax) == length(r@x)) inax else is.na(r@x)
                   if(!extends(cld, "CsparseMatrix"))
                       r <- as(r, "CsparseMatrix")
 		  as(.Call(Csparse_drop, r, 0), "nMatrix") # a 'pattern matrix

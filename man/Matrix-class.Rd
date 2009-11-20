@@ -45,6 +45,7 @@
 \alias{crossprod,ANY,Matrix-method}
 \alias{crossprod,Matrix,numeric-method}
 \alias{crossprod,Matrix,ANY-method}
+\alias{crossprod,Matrix,missing-method}
 \alias{crossprod,Matrix,Matrix-method}
 \alias{crossprod,Matrix,matrix-method}
 \alias{crossprod,matrix,Matrix-method}
@@ -52,6 +53,7 @@
 \alias{tcrossprod,ANY,Matrix-method}
 \alias{tcrossprod,Matrix,numeric-method}
 \alias{tcrossprod,Matrix,ANY-method}
+\alias{tcrossprod,Matrix,missing-method}
 \alias{tcrossprod,Matrix,Matrix-method}
 \alias{tcrossprod,Matrix,matrix-method}
 \alias{tcrossprod,matrix,Matrix-method}

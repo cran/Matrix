@@ -145,6 +145,44 @@ Q.C.identical <- function(x,y, sparse = is(x,"sparseMatrix")) {
     else Qidentical(x,y)
 }
 
+Q.eq <- function(x, y,
+		 superclasses =
+		 c("sparseMatrix", "denseMatrix",
+		   "dMatrix", "lMatrix", "nMatrix"),
+		 dimnames.check = TRUE, tol = NA) {
+    ## quasi-equal - for 'Matrix' matrices
+    if(any(dim(x) != dim(y)))
+	return(FALSE)
+    if(dimnames.check &&
+       !identical(dimnames(x),
+		  dimnames(y))) return(FALSE)
+    xcl <- getClassDef(class(x))
+    ycl <- getClassDef(class(y))
+    for(SC in superclasses) {
+	if( extends(xcl, SC) &&
+	   !extends(ycl, SC)) return(FALSE)
+    }
+    if(is.na(tol))
+        all(x == y | (is.na(x) & is.na(y)))
+    else if(is.numeric(tol) && tol >= 0) {
+        asC <- ## asCommon
+            if((isDense <- extends(xcl,"denseMatrix")))
+                function(m) as(m, "matrix")
+            else function(m)
+                as(as(as(m,"CsparseMatrix"), "dMatrix"), "dgCMatrix")
+        isTRUE(all.equal(asC(x), asC(y), tol = tol,
+                         check.attributes = dimnames.check))
+    }
+    else stop("'tol' must be NA or non-negative number")
+}
+
+Q.eq2 <- function(x, y,
+		  superclasses = c("sparseMatrix", "denseMatrix"),
+		  dimnames.check = FALSE, tol = NA)
+    Q.eq(x,y, superclasses=superclasses,
+         dimnames.check=dimnames.check, tol=tol)
+
+
 ## Useful Matrix constructors for testing:
 
 rspMat <- function(n, m = n, density = 1/4, nnz = round(density * n*m))
@@ -205,7 +243,7 @@ mkLDL <- function(n, density = 1/3) {
     list(A = A, L = L, d.half = d.half, D = D)
 }
 
-eqDeterminant <- function(m1, m2, ...) {
+eqDeterminant <- function(m1, m2, NA.Inf.ok=FALSE, ...) {
     d1 <- determinant(m1) ## logarithm = TRUE
     d2 <- determinant(m2)
     d1m <- as.vector(d1$modulus)# dropping attribute
@@ -215,6 +253,10 @@ eqDeterminant <- function(m1, m2, ...) {
        (is.na(d1m) && is.na(d2m)))
 	## if both are NaN or NA, we "declare" that's fine here
 	return(TRUE)
+    else if(NA.Inf.ok && ## first can be NA, second infinite:
+            ## wanted: base::determinant.matrix() sometimes gives -Inf instead
+            ## of NA,e.g. for matrix(c(0,NA,0,0,NA,NA,0,NA,0,0,1,0,0,NA,0,1), 4,4))
+            is.na(d1m) && is.infinite(d2m)) return(TRUE)
     ## else
     if(is.infinite(d1m)) d1$modulus <- sign(d1m)* .Machine$double.xmax
     if(is.infinite(d2m)) d2$modulus <- sign(d2m)* .Machine$double.xmax
@@ -284,6 +326,7 @@ checkMatrix <- function(m, m.m = if(do.matrix) as(m, "matrix"),
 			do.t = TRUE, doNorm = TRUE, doOps = TRUE,
                         doSummary = TRUE, doCoerce = TRUE,
 			doCoerce2 = doCoerce && !extends(cld, "RsparseMatrix"),
+			do.prod = do.t && do.matrix && !extends(cld, "RsparseMatrix"),
 			verbose = TRUE, catFUN = cat)
 {
     ## Purpose: Compatibility tests "Matrix" <-> "traditional matrix"
@@ -341,6 +384,18 @@ checkMatrix <- function(m, m.m = if(do.matrix) as(m, "matrix"),
 	    stopifnot(nonMatr || class(ttm) == clNam,
                       all(m == ttm | ina))
         ## else : not testing
+
+	## crossprod()	%*%  etc
+	if(do.prod) {
+	    c.m <-  crossprod(m)
+	    tcm <- tcrossprod(m)
+            tolQ <- if(isSparse) NA else 16 * .Machine$double.eps
+	    stopifnot(dim(c.m) == rep.int(ncol(m), 2),
+		      dim(tcm) == rep.int(nrow(m), 2),
+		      ## FIXME: %*% drops dimnames
+		      Q.eq2(c.m, tm %*% m, tol = tolQ),
+		      Q.eq2(tcm, m %*% tm, tol = tolQ))
+	}
     }
     if(!do.matrix) {
 	CatF(" will *not* coerce to 'matrix' since do.matrix is FALSE\n")
@@ -461,7 +516,7 @@ checkMatrix <- function(m, m.m = if(do.matrix) as(m, "matrix"),
 		if(any(is.na(m.m)) && extends(cld, "triangularMatrix"))
 		    Cat(" skipped: is triang. and has NA")
 		else
-		    stopifnot(eqDeterminant(m, m.m))
+		    stopifnot(eqDeterminant(m, m.m, NA.Inf.ok=TRUE))
 		Cat("ok\n")
 	    }
 	} else assertError(determinant(m))

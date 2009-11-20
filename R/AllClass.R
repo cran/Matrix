@@ -326,9 +326,9 @@ setClass("dsCMatrix",
 	 validity = function(object) .Call(tCMatrix_validate, object)
 	 )
 
-if(FALSE) ## FIXME ??? Class of positive definite (Csparse symmetric) Matrices:
+if(FALSE) ## TODO ??? Class of positive definite (Csparse symmetric) Matrices:
 setClass("dpCMatrix", contains = "dsCMatrix",
-	 validity = function(object) FIXME("test for pos.definite ??"))
+	 validity = function(object) TODO("test for pos.definite ??"))
 
 ## numeric, sparse, sorted compressed sparse row-oriented general matrices
 setClass("dgRMatrix",
@@ -666,10 +666,53 @@ setClass("Schur", contains = "MatrixFactorization",
 
 ## --- "General" (not Matrix at all) ----
 
+setClassUnion("numIndex", members = "numeric")
+
+## Note "rle" is a sealed oldClass (and "virtual" as w/o prototype)
+setClass("rleDiff", representation(first = "numIndex", rle = "rle"),
+	 validity = function(object) {
+	     if(length(object@first) != 1)
+		 return("'first' must be of length one")
+	     rl <- object@rle
+	     if(!is.list(rl) || length(rl) != 2 ||
+		!identical(sort(names(rl)), c("lengths", "values")))
+		 return("'rle' must be a list (lengths = *, values = *)")
+	     if(length(lens <- rl$lengths) != length(vals <- rl$values))
+		 return("'lengths' and 'values' differ in length")
+	     if(any(lens <= 0))
+		 return("'lengths' must be positive")
+	     TRUE
+	 })
+
+setClass("abIndex", # 'ABSTRact Index'
+         representation(kind = "character", # one of ("int32", "double", "rleDiff")
+                                        # i.e., numeric or "rleDiff"
+                        x = "numIndex", # for  numeric [length 0 otherwise]
+                        rleD = "rleDiff"),  # "rleDiff" result
+         prototype = prototype(kind = "int32", x = integer(0)),# rleD = ... etc
+         validity = function(object) {
+            switch(object@kind,
+                   "int32" = if(!is.integer(object@x))
+                   return("'x' slot must be integer when kind is 'int32'")
+                   ,
+                   "double" = if(!is.double(object@x))
+                   return("'x' slot must be double when kind is 'double'")
+                   ,
+                   "rleDiff" = {
+                       if(length(object@x))
+                   return("'x' slot must be empty when kind is 'rleDiff'")
+                   },
+                   ## otherwise
+                   return("'kind' must be one of (\"int32\", \"double\", \"rleDiff\")")
+                   )
+            TRUE
+         })
+
 ## for 'i' in x[i] or A[i,] : (numeric = {double, integer})
+## TODO: allow "abIndex" as well !
 setClassUnion("index", members =  c("numeric", "logical", "character"))
 
-## "atomic vectors" (-> ?is.atomic ) --
+## "atomic vectors" (-> ?is.atomic ) -- but note that is.atomic(<matrix>) !
 ## ---------------  those that we want to convert from old-style "matrix"
 setClassUnion("atomicVector", ## "double" is not needed, and not liked by some
 	      members = c("logical", "integer", "numeric",
@@ -693,7 +736,7 @@ setClass("sparseVector",
 	 prototype = prototype(length = 0),
          validity = function(object) {
              n <- object@length
-	     if(any(!is.finite(i <- object@i)))
+	     if(any(!is.finite(i <- object@i)))# no NA's !
 		 sprintf("'i' slot is not all finite")
 	     else if(any(i < 1) || any(i > n))
                  sprintf("'i' must be in 1:%d", n)

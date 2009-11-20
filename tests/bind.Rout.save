@@ -1,5 +1,5 @@
 
-R version 2.9.0 beta (2009-04-04 r48290)
+R version 2.10.0 RC (2009-10-23 r50185)
 Copyright (C) 2009 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 
@@ -19,19 +19,6 @@ Type 'q()' to quit R.
 > 
 > library(Matrix)
 Loading required package: lattice
-
-Attaching package: 'Matrix'
-
-
-	The following object(s) are masked from package:stats :
-
-	 xtabs 
-
-
-	The following object(s) are masked from package:base :
-
-	 rcond 
-
 > 
 > source(system.file("test-tools.R", package = "Matrix"))# identical3() etc
 > 
@@ -142,7 +129,7 @@ C 3 6 9 12 100 3 6 9 12
 > 
 > D4 <- Diagonal(4)
 > (D4T <- as(D4, "TsparseMatrix"))
-4 x 4 sparse Matrix of class "dtTMatrix"
+4 x 4 sparse Matrix of class "dtTMatrix" (unitriangular)
             
 [1,] 1 . . .
 [2,] . 1 . .
@@ -315,5 +302,5 @@ rBind (m, v= c(1L, 0L) ), class(m) : dgeMatrix ,. dgCMatrix ,. dgTMatrix ,.
 > 
 > 
 > cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
-Time elapsed:  2.805 0.224 3.134 0 0 
+Time elapsed:  4.52 0.06 6.024 0 0 
 > 

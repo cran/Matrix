@@ -882,6 +882,7 @@ int Matrix_check_class_and_super(SEXP x, char **valid, SEXP rho)
 /**
  * Return the 0-based index of an is() match in a vector of class-name
  * strings terminated by an empty string.  Returns -1 for no match.
+ * Strives to find the correct environment() for is().
  *
  * @param x  an R object, about which we want is(x, .) information.
  * @param valid vector of possible matches terminated by an empty string.

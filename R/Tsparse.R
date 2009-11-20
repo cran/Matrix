@@ -210,6 +210,9 @@ setMethod("[", signature(x = "TsparseMatrix", i = "index", j = "missing",
 
 	      d <- x@Dim
 	      n <- d[1]
+              ## FIXME: 'm' is of length 'nnz' which can be large;
+              ##       we do only need  which(.$m > 0L) = which(sel) below...
+              ##-> would like C-based  which.match()
 	      ip <- .ind.prep(x@i, intI(i, n = n, dimnames(x)[[1]]))
 	      Di1 <- ip$li
 	      drop.it <- drop && (Di1 == 1L || d[2] == 1L)
@@ -222,10 +225,10 @@ setMethod("[", signature(x = "TsparseMatrix", i = "index", j = "missing",
 	      }
 	      x@Dim[1] <- Di1
 	      if(!is.null(ip$dn)) x@Dimnames[[1]] <- ip$dn
-	      sel <- ip$m > 0L
+	      sel <- seq_along(ip$m)[ip$m > 0L] # == which(match(....))
 	      x@i <- ip$m[sel] - 1L
 	      if(ip$anyDup) { ## duplicated rows selected: extend sel
-		  sel <- c(which(sel), ip$jm)
+		  sel <- c(sel, ip$jm)
 		  x@i <- c(x@i, ip$i.xtra)
 	      }
 	      x@j <- x@j[sel]
@@ -248,6 +251,9 @@ setMethod("[", signature(x = "TsparseMatrix", i = "missing", j = "index",
 
 	      d <- x@Dim
 	      n <- d[2]
+              ## FIXME: 'm' is of length 'nnz' which can be large;
+              ##       we do only need  which(.$m > 0L) = which(sel) below...
+              ##-> would like C-based  which.match()
 	      ip <- .ind.prep(x@j, intI(j, n = n, dimnames(x)[[2]]))
 	      Di2 <- ip$li
 	      drop.it <- drop && (d[1] == 1L || Di2 == 1L)
@@ -260,10 +266,10 @@ setMethod("[", signature(x = "TsparseMatrix", i = "missing", j = "index",
 	      }
 	      x@Dim[2] <- Di2
 	      if(!is.null(ip$dn)) x@Dimnames[[2]] <- ip$dn
-	      sel <- ip$m > 0L
+	      sel <- seq_along(ip$m)[ip$m > 0L] # == which(match(....))
 	      x@j <- ip$m[sel] - 1L
 	      if(ip$anyDup) { ## duplicated columns selected: extend sel
-		  sel <- c(which(sel), ip$jm)
+		  sel <- c(sel, ip$jm)
 		  x@j <- c(x@j, ip$i.xtra)
 	      }
 	      x@i <- x@i[sel]
@@ -324,6 +330,8 @@ setMethod("[", signature(x = "TsparseMatrix",
 		  ii <- intI(i, n = di[1], dn= dn[[1]])
 		  ij <- intI(j, n = di[2], dn= dn[[2]])
 	      }
+              ## FIXME ip1$m , ip2$m  of length 'nnz' can be large;
+              ## rather use which.match(), or which.match("first" & "second")
 	      ip1 <- .ind.prep(x@i, ii)
 	      ip2 <- .ind.prep(x@j, ij)
 	  }
@@ -332,11 +340,10 @@ setMethod("[", signature(x = "TsparseMatrix",
 	  x@Dimnames <- list(ip1$dn, ip2$dn)
 
 	  if(isSym) {
-	      sel <- ip1$m  &  ip2$m
+	      sel <- which(ip1$m  &  ip2$m)## FIXME
 	      ii <- ip1$m[sel] - 1L
 	      jj <- ip2$m[sel] - 1L
 	      if(anyDup) { ## careful algorithm --- TODO: in C
-		  sel <- which(sel)
 		  ## keep non-duplicated and "increment" for duplicated ones
 		  ij <- pmin(ii, jj)
 		  jj <- pmax(ii, jj) ; ii <- ij
@@ -388,7 +395,7 @@ setMethod("[", signature(x = "TsparseMatrix",
 	  else if(!ip1$anyDup && !ip2$anyDup) {
 	      ## "normal case":	 no duplicated indices (and not symmetric)
 
-	      sel <- ip1$m  &  ip2$m
+	      sel <- which(ip1$m  &  ip2$m)## = intersect(which(), which())
 	      x@i <- ip1$m[sel] - 1L
 	      x@j <- ip2$m[sel] - 1L
 	  }
@@ -398,10 +405,10 @@ setMethod("[", signature(x = "TsparseMatrix",
 	      ## FIXME: we are recomputing ip2 here
 
 	      ## - i - ------------------------------
-	      sel <- ip1$m > 0L
+	      sel <- which(ip1$m > 0L)
 	      x@i <- ip1$m[sel] - 1L
 	      if(ip1$anyDup) { ## duplicated rows selected: extend sel
-		  sel <- c(which(sel), ip1$jm)
+		  sel <- c(sel, ip1$jm)
 		  x@i <- c(x@i, ip1$i.xtra)
 	      }
 	      x@j <- x@j[sel]
@@ -411,10 +418,10 @@ setMethod("[", signature(x = "TsparseMatrix",
 	      ## ip2 <- .ind.prep(x@j, intI(j, n = di[2], dn = dn[[2]]))
 	      ## FIXME can we do better: current x@j is original x@j[sel]
 	      ip2 <- .ind.prep(x@j, ij)
-	      sel <- ip2$m > 0L
+	      sel <- which(ip2$m > 0L)
 	      x@j <- ip2$m[sel] - 1L
 	      if(ip2$anyDup) { ## duplicated columns selected: extend sel
-		  sel <- c(which(sel), ip2$jm)
+		  sel <- c(sel, ip2$jm)
 		  x@j <- c(x@j, ip2$i.xtra)
 	      }
 	      x@i <- x@i[sel]
@@ -519,7 +526,7 @@ replTmat <- function (x, i, j, ..., value)
 	}
 	nr <- di[1]
 	x.i <- .Call(m_encodeInd2, x@i, x@j, di=di)
-	if(any(duplicated(x.i))) { ## == if(is_duplicatedT(x, di = di))
+	if(anyDuplicated(x.i)) { ## == if(is_duplicatedT(x, di = di))
 	    x <- uniqTsparse(x)
 	    x.i <- .Call(m_encodeInd2, x@i, x@j, di=di)
 	}
@@ -546,6 +553,8 @@ replTmat <- function (x, i, j, ..., value)
 		x@j <- x@j[sel]
 		if(has.x)
 		    x@x <- x@x[sel]
+		if(extends(clDx, "compMatrix") && length(x@factors)) # drop cashed ones
+		    x@factors <- list()
 	    }
 	    return(x)
 	}
@@ -568,6 +577,8 @@ replTmat <- function (x, i, j, ..., value)
 	x@j <- c(x@j, i %/% nr)
 	if(has.x)
 	    x@x <- c(x@x, value[!isE])
+	if(extends(clDx, "compMatrix") && length(x@factors)) # drop cashed ones
+	    x@factors <- list()
 	return(x)
     }
     ## nargs() == 4 :
@@ -653,6 +664,8 @@ replTmat <- function (x, i, j, ..., value)
 	    x@j <- x@j[!sel]
             if(has.x)
 		x@x <- x@x[!sel]
+	    if(extends(clDx, "compMatrix") && length(x@factors)) # drop cashed ones
+		x@factors <- list()
 	}
 	return(x)
     }
@@ -674,6 +687,8 @@ replTmat <- function (x, i, j, ..., value)
             if(has.x)
                 x@x <- c(x@x, value)
         }
+	if(extends(clDx, "compMatrix") && length(x@factors)) # drop cashed ones
+	    x@factors <- list()
         return(x)
     }
 
@@ -730,6 +745,8 @@ replTmat <- function (x, i, j, ..., value)
 		x@x <- c(x@x, as.vector(value[iI0[vN0]]))
         }
     }
+    if(extends(clDx, "compMatrix") && length(x@factors)) # drop cashed ones
+	x@factors <- list()
     x
 } ## end{replTmat}
 
@@ -869,6 +886,8 @@ replTmat <- function (x, i, j, ..., value)
 	    x@x <- c(x@x, value[!i.repl])
     }
 
+    if(extends(clDx, "compMatrix") && length(x@factors)) # drop cashed ones
+	x@factors <- list()
     x
 } ## end{.TM.repl.i.2col}
 

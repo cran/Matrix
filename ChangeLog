@@ -1,11 +1,100 @@
+2009-11-20  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Ops.R (Ops.spV.spV): enable sparseVector operations in more cases.
+
+	* R/sparseVector.R (is.na): methods defined.
+	* R/sparseVector.R (intIv): also accept "sparseVector"s
+
+	* tests/Simple.R: check the above
+
+2009-11-19  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/sparseVector.R (newSpV, newSpVec): new utility, dropping 0 "on the fly".
+	* R/sparseVector.R (atomic -> sparse*): fix for NA case.
+
+	* R/Ops.R (<spV>): using newSpVec()
+
+	* R/not.R: fix thinko in !<sparseVector>
+
+2009-11-17  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* tests/other-pkgs.R: detach(*, unload) Rgraphviz too
+
+2009-11-14  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/AllClass.R: "abIndex" (and "rleDiff") class
+	* R/abIndex.R: with some methods; commit these finally, even if
+	it's mostly unfinished.
+	* src/abIndex.[ch]: new: currently only for .Call(Matrix_int_rle,*)
+	* tests/abIndex-tsts.R: basic consistency checks for "abIndex".
+
+	* R/diagMatrix.R (diagOdiag): "exploding" Matrix.msg() only level 2;
+	* tests/indexing.Rout.save: update
+
+2009-11-11  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.999375-32, CRAN-released:
+
+	* src/Csparse.c (Csparse_Csparse_prod, Csparse_Csparse_crossprod):
+	PROTECT(.) the dimnames; thanks to Kaspar Kristensen
+
+2009-10-24  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Ops.R (Logic.lCMat): to be used for lsC* and ltC* as well,
+	effectively replacing previous suboptimal methods.
+
+	* src/chm_common.c (chm2Ralloc): Fix unidiagonal ntC segfault:
+	assign 'x' only when non-pattern.
+	* src/chm_common.c (as_cholmod_triplet): reallocate now in a way
+	that works; fix documentation about return value in diagU2N case;
+	ditto for
+	* src/chm_common.c (as_cholmod_sparse):
+
+
+	* R/sparseMatrix.R (printSpMatrix): add 'cld' argument, typically
+	passed from printSpMatrix2; and indicate "unit-diagonal"
+
+2009-10-22  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/lsparseMatrix.R (C2l): fix for case with NA.
+
+	* R/Csparse.R (replCmat): drop "stale" cached @factors
+	factorizations after sub-assignments.
+	* R/Tsparse.R (replTmat, .TM.repl.i.2col): ditto
+
+2009-10-19  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/dgCMatrix.c (dgCMatrix_LU): new boolean argument
+	'error_on_sing' to allow no error in case of singularity;
+	needed for determinant(), e.g.
+
+	* R/Auxiliaries.R (detSparseLU): using lu(*, errSing=FALSE)
+
+	* R/dgCMatrix.R, R/dsparseMatrix.R: lu() methods, using 'errSing'
+
+	* R/sparseMatrix.R (printSpMatrix): fix bug introduced on *-09-10
+	* tests/Simple.R: test for that.
+
+2009-10-18  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/dgeMatrix.c (dgeMatrix_crossprod): do not fail in 0-column case.
+
+	* inst/test-tools.R (Q.eq): new utility
+	(checkMatrix): minimally check %*%, crossprod() and tcrossprod()
+
+	* R/products.R: more '%*%' methods for "[ln]?Matrix", "missing"
+
 2009-10-06  Martin Maechler  <maechler@stat.math.ethz.ch>
 
+	* DESCRIPTION (Version): 0.999375-31, CRAN-released: 2009-10-06
+
 	* inst/include/Matrix_stubs.c (M_R_cholmod_error): revert (2009-09-18),
-	i.e., no longer restore cholmod_common.
+	i.e., no longer restore cholmod_common. {{M_cholmod_defaults()
+	still seems not usable from lme4's init.c}}
 
 2009-10-05  Martin Maechler  <maechler@stat.math.ethz.ch>
 
-	* src/dtrMatrix.c (dtrMatrix_chol2inv): use "dpoMatrix" instead of "dsy"
+ 	* src/dtrMatrix.c (dtrMatrix_chol2inv): use "dpoMatrix" instead of "dsy"
 
 	* R/dtrMatrix.R: make use of implicit generic for chol2inv() in
 	newer R versions.
@@ -22,10 +111,6 @@
 2009-09-29  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/AllGeneric.R: rcond is implicit generic in latest versions of R
-
-2009-09-23  Martin Maechler  <maechler@stat.math.ethz.ch>
-
-	* DESCRIPTION (Version): 0.999375-31, CRAN-released:
 
 2009-09-22  Martin Maechler  <maechler@stat.math.ethz.ch>
 

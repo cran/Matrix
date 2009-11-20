@@ -126,8 +126,8 @@ setMethod("!", "sparseVector",
 			  xx <- xx[i.s]
 		      }
 		  }
-		  cl <- paste0(if(is.n) "n" else "l", "sparseVector")
-		  r <- new(cl, length = n, i = ii)
-		  if(has.x) r@x <- xx
+		  if(has.x)
+		      newSpV("lsparseVector", x = xx, i = ii, length = n)
+		  else new("nsparseVector", i = ii, length = n)
 	      }
 	  })

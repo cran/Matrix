@@ -1,4 +1,5 @@
 #include "Mutils.h"
+#include "abIndex.h"
 #include "chm_common.h"
 #include "CHMfactor.h"
 #include "Csparse.h"
@@ -85,7 +86,7 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(ddense_skewpart, 1),
     CALLDEF(dMatrix_validate, 1),
 
-    CALLDEF(dgCMatrix_LU, 3),
+    CALLDEF(dgCMatrix_LU, 4),
     CALLDEF(dgCMatrix_QR, 2),
 #ifdef Matrix_with_SPQR
     CALLDEF(dgCMatrix_SPQR, 4),
@@ -227,6 +228,8 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(m_encodeInd, 2),
     CALLDEF(m_encodeInd2, 3),
 
+    CALLDEF(Matrix_int_rle, 1),
+
     {NULL, NULL, 0}
 };
 
@@ -238,6 +241,8 @@ R_init_Matrix(DllInfo *dll)
 {
     R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
     R_useDynamicSymbols(dll, FALSE);
+
+/* These are callable from other packages' C code: */
 
 #define RREGDEF(name)  R_RegisterCCallable("Matrix", #name, (DL_FUNC) name)
 
@@ -264,6 +269,7 @@ R_init_Matrix(DllInfo *dll)
     RREGDEF(cholmod_l_copy_dense);
     RREGDEF(cholmod_l_copy_factor);
     RREGDEF(cholmod_l_copy_sparse);
+    RREGDEF(cholmod_l_defaults);
     RREGDEF(cholmod_l_dense_to_sparse);
     RREGDEF(cholmod_l_factor_to_sparse);
     RREGDEF(cholmod_l_factorize);

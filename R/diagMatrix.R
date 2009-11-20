@@ -709,10 +709,10 @@ diagOdiag <- function(e1,e2) {
 	.diag.2N(e1)
     }
     else { ## result not diagonal, but at least symmetric:
+        ## e.g., m == m
 	isNum <- (is.numeric(r) || is.numeric(r00))
 	isLog <- (is.logical(r) || is.logical(r00))
-
-	Matrix.msg("exploding	<diag>	o  <diag>  into dense matrix")
+        Matrix.msg("exploding <diag> o <diag> into dense matrix", .M.level = 2)
 	d <- e1@Dim
 	n <- d[1]
 	stopifnot(length(r) == n)
@@ -740,8 +740,8 @@ setMethod("Ops", signature(e1 = "diagonalMatrix", e2 = "diagonalMatrix"),
 	    setMethod("Ops", signature(e1 = c1, e2 = c2), diagOdiag)
 }
 
-## FIXME:    diagonal  o  triangular  |-->  triangular
-## -----     diagonal  o  symmetric   |-->  symmetric
+## diagonal  o  triangular  |-->  triangular
+## diagonal  o  symmetric   |-->  symmetric
 ##    {also when other is sparse: do these "here" --
 ##     before conversion to sparse, since that loses "diagonality"}
 
@@ -926,14 +926,14 @@ setMethod("Ops", signature(e1 = "numeric", e2 = "ldiMatrix"),
 for(other in c("ANY", "Matrix", "dMatrix")) {
     ## ddi*:
     setMethod("Ops", signature(e1 = "ddiMatrix", e2 = other),
-	      function(e1,e2) callGeneric(diag2tT.u(e1,e2, "d"), e2))
+	      function(e1,e2) callGeneric(diag2Tsmart(e1,e2, "d"), e2))
     setMethod("Ops", signature(e1 = other, e2 = "ddiMatrix"),
-	      function(e1,e2) callGeneric(e1, diag2tT.u(e2,e1, "d")))
+	      function(e1,e2) callGeneric(e1, diag2Tsmart(e2,e1, "d")))
     ## ldi*:
     setMethod("Ops", signature(e1 = "ldiMatrix", e2 = other),
-	      function(e1,e2) callGeneric(diag2tT.u(e1,e2, "l"), e2))
+	      function(e1,e2) callGeneric(diag2Tsmart(e1,e2, "l"), e2))
     setMethod("Ops", signature(e1 = other, e2 = "ldiMatrix"),
-	      function(e1,e2) callGeneric(e1, diag2tT.u(e2,e1, "l")))
+	      function(e1,e2) callGeneric(e1, diag2Tsmart(e2,e1, "l")))
 }
 
 ## Direct subclasses of "denseMatrix": currently ddenseMatrix, ldense... :

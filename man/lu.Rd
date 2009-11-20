@@ -2,9 +2,11 @@
 \title{Triangular Decomposition of a Square Matrix}
 \alias{lu}
 \alias{lu,dgeMatrix-method}
+\alias{lu,dgCMatrix-method}
 \usage{
 lu(x, \dots)
 \S4method{lu}{dgeMatrix}(x, warnSing = TRUE, \dots)
+\S4method{lu}{dgCMatrix}(x, errSing = TRUE, \dots)
 }
 \description{
   Computes triangular decompositions of square matrices.
@@ -15,6 +17,13 @@ lu(x, \dots)
   \item{warnSing}{(when \code{x} is a
     \code{"\linkS4class{denseMatrix}"}) logical specifying if a \code{\link{warning}}
     should be signalled when \code{x} is singular.}
+  \item{errSing}{(when \code{x} is a
+    \code{"\linkS4class{sparseMatrix}"}) logical specifying if an error
+    (see \code{\link{stop}}) should be signalled when \code{x} is
+    singular.  When \code{x} is singular, \code{lu(x, errSing=FALSE)}
+    returns \code{\link{NA}} instead of an LU decomposition.  No
+    warning is signalled and the useR should be careful in that case.
+  }
   \item{\dots}{further arguments passed to or from other methods.}
 }
 \value{
@@ -33,10 +42,11 @@ lu(x, \dots)
 
   The method for class \code{\linkS4class{dgCMatrix}} (and all sparse
   matrices) is based on functions from the CSparse library.  It signals
-  an error when the decomposition algorithm fails, as when \code{x} is
+  an error (or returns \code{NA}, when \code{errSing = FALSE}, see
+  above) when the decomposition algorithm fails, as when \code{x} is
   (too close to) singular.% yes, it would be nice if we could have it
-  % behave similarly as the dense method: still give an LU, and
-  % only an optional warning, instead of error.
+  % behave more similar to the dense method: still give an LU,
+  % and an optional warning.
 }
 \references{
   Golub, G., and Van Loan, C. F. (1989).

@@ -5,12 +5,15 @@
 ## Note that "!x" is faster than "x == 0", but does not (yet!) work for complex
 is0  <- function(x) !is.na(x) & x == 0
 isN0 <- function(x)  is.na(x) | x != 0
+##
 all0 <- function(x) !any(is.na(x)) && all(!x) ## ~= allFalse
+any0 <- function(x) isTRUE(any(x == 0))	      ## ~= anyFalse
 ## These work "identically" for  1 ('==' TRUE)  and 0 ('==' FALSE)
 ##	(but give a warning for "double"  1 or 0)
 ## TODO: C versions of these would be faster
 allTrue  <- function(x) all(x)  && !any(is.na(x))
 allFalse <- function(x) !any(x) && !any(is.na(x))## ~= all0
+anyFalse <- function(x) isTRUE(any(!x))		 ## ~= any0
 
 as1 <- function(x, mod=mode(x))
     switch(mod, "integer" = 1L, "numeric" = 1, "logical" = TRUE, "complex" = 1+0i)
@@ -171,15 +174,11 @@ detSparseLU <- function(x, logarithm = TRUE, ...) {
     ## Author: Martin Maechler, Date: 15 Apr 2008
 
     if(any(x@Dim == 0)) return(mkDet(numeric(0)))
-    ll <- tryCatch(lu(x), error = function(e)e)
-
-    if(inherits(ll, "error")) {
-	## LU-decomposition failed:
-        if(length(grep("singular", ll$message, fixed=TRUE)))
-            ## <== Matrix singular and we behave as if "==>" was sure :
-	    return(mkDet(ldet=if(any(is.na(x))) NaN else -Inf,
-			 logarithm=logarithm, sig = 1L))
-        else stop(ll$message, call. = FALSE)
+    ll <- lu(x, errSing = FALSE)
+    ##          ^^^^^^^^^^^^^^^ no error in case of singularity
+    if(identical(NA, ll)) { ## LU-decomposition failed with singularity
+	return(mkDet(ldet=if(any(is.na(x))) NaN else -Inf,
+		     logarithm=logarithm, sig = 1L))
     }
     ## else
     stopifnot(all(c("L","U") %in% slotNames(ll))) # ensure we have *sparse* LU
@@ -270,13 +269,18 @@ colCheck <- function(a, b) {
     da[2]
 }
 
-## used for is.na(<nsparse>)  but not only:
+## used for is.na(<nsparse>)  but not only;
+## just gives a "all-FALSE" n(C)sparseMatrix of same form as x
 is.na_nsp <- function(x) {
     d <- x@Dim
     dn <- x@Dimnames
-    new(if(d[1] == d[2] && identical(dn[[1]], dn[[2]]))
-	"nsCMatrix" else "ngCMatrix",
-        Dim = d, Dimnames = dn, p = rep.int(0L, d[2]+1L))
+    ## step-wise construction ==> no validity for speedup
+    r <- new(if(d[1] == d[2] && identical(dn[[1]], dn[[2]]))
+	     "nsCMatrix" else "ngCMatrix")
+    r@Dim <- d
+    r@Dimnames <- dn
+    r@p <- rep.int(0L, d[2]+1L)
+    r
 }
 
 ## Note: !isPacked(.)  i.e. `full' still contains
@@ -403,7 +407,7 @@ prMatrix <- function(x, digits = getOption("digits"),
 }
 
 nonFALSE <- function(x) {
-    ## typically used for lMatrices:  (TRUE,NA,FALSE) |-> (TRUE,FALSE)
+    ## typically used for lMatrices:  (TRUE,NA,FALSE) |-> (TRUE,TRUE,FALSE)
     if(any(ix <- is.na(x))) x[ix] <- TRUE
     x
 }
@@ -517,28 +521,27 @@ non0.i <- function(M, cM = class(M), uniqT=TRUE) {
     } else if(extends(cM, "pMatrix")) {
 	cbind(seq_len(nrow(M)), M@perm) - 1L
     } else { ## C* or R*
-	isC <- extends(cM, "CsparseMatrix")
-	.Call(compressed_non_0_ij, M, isC)
+	.Call(compressed_non_0_ij, M, extends(cM, "CsparseMatrix"))
     }
 }
 
-non0ind <- function(x, classDef.x = getClassDef(class(x)),
-		    uniqT = TRUE, xtendSymm = TRUE)
+non0ind <- function(x, cld = getClassDef(class(x)),
+		    uniqT = TRUE, xtendSymm = TRUE, check.Udiag = TRUE)
 {
     if(is.numeric(x))
 	return(if((n <- length(x))) (0:(n-1))[isN0(x)] else integer(0))
     ## else
-    stopifnot(extends(classDef.x, "sparseMatrix"))
+    stopifnot(extends(cld, "sparseMatrix"))
 
-    ij <- non0.i(x, classDef.x, uniqT=uniqT)
-    if(xtendSymm && extends(classDef.x, "symmetricMatrix")) { # also get "other" triangle
+    ij <- non0.i(x, cld, uniqT=uniqT)
+    if(xtendSymm && extends(cld, "symmetricMatrix")) { # also get "other" triangle
 	notdiag <- ij[,1] != ij[,2]# but not the diagonals again
-	rbind(ij, ij[notdiag, 2:1])
+	rbind(ij, ij[notdiag, 2:1], deparse.level=0)
     }
-    else if(extends(classDef.x, "triangularMatrix")) { # check for "U" diag
+    else if(check.Udiag && extends(cld, "triangularMatrix")) { # check for "U" diag
 	if(x@diag == "U") {
 	    i <- seq_len(dim(x)[1]) - 1L
-	    rbind(ij, cbind(i,i))
+	    rbind(ij, cbind(i,i, deparse.level=0), deparse.level=0)
 	} else ij
     }
     else
@@ -627,7 +630,7 @@ uniqTsparse <- function(x, class.x = c(class(x))) {
 ## would be slightly more efficient than as( <dgC> , "dgTMatrix")
 ## but really efficient would be to use only one .Call(.) for uniq(.) !
 
-## Eearlier was:
+## Earlier was:
 ## drop0 <- function(x, clx = c(class(x)), tol = 0) {
 drop0 <- function(x, tol = 0, is.Csparse = NA) {
     .Call(Csparse_drop,
@@ -647,35 +650,12 @@ asTuniq <- function(x) {
 
 ## is 'x' a uniq Tsparse Matrix ?
 is_not_uniqT <- function(x, di = dim(x))
-    is.unsorted(x@j) || any(duplicated(.Call(m_encodeInd2, x@i, x@j, di)))
+    is.unsorted(x@j) || anyDuplicated(.Call(m_encodeInd2, x@i, x@j, di))
 
 ## is 'x' a TsparseMatrix with no duplicated entries (to be *added* for uniq):
 is_duplicatedT <- function(x, di = dim(x))
-    any(duplicated(.Call(m_encodeInd2, x@i, x@j, di)))
+    anyDuplicated(.Call(m_encodeInd2, x@i, x@j, di))
 
-
-if(FALSE) ## try an "efficient" version
-uniq_gT <- function(x)
-{
-    ## Purpose: produce a *unique* triplet representation:
-    ##		by having (i,j) sorted and unique
-    ## ------------------------------------------------------------------
-    ## Arguments: a "gT" Matrix
-    stopifnot(is(x, "gTMatrix"))
-    if((n <- length(x@i)) == 0) return(x)
-    ii <- order(x@i, x@j)
-    if(any(ii != 1:n)) {
-	x@i <- x@i[ii]
-	x@j <- x@j[ii]
-	x@x <- x@x[ii]
-    }
-    ij <- x@i + nrow(x) * x@j
-    if(any(dup <- duplicated(ij))) {
-
-    }
-    ### We should use a .Call() based utility for this!
-
-}
 
 t_geMatrix <- function(x) {
     x@x <- as.vector(t(array(x@x, dim = x@Dim))) # no dimnames here
@@ -861,6 +841,8 @@ l2d_meth <- function(x) {
 		"l" = "logical",
 		"n" = "logical",
 		"z" = "complex")
+## the reverse, a "version of" .M.kind(.):
+.kind.type <- names(.type.kind); names(.kind.type) <- as.vector(.type.kind)
 
 .M.shape <- function(x, clx = class(x)) {
     ## 'clx': class() *or* class definition of x
@@ -1163,6 +1145,9 @@ isTriC <- function(object, upper = NA) {
 ## Purpose: Transform a *unit diagonal* sparse triangular matrix
 ##	into one with explicit diagonal entries '1'
 
+## for "dtC*", "ltC* ..: directly
+xtC.diagU2N <- function(x) if(x@diag == "U") .Call(Csparse_diagU2N, x) else x
+
 .diagU2N <- function(x, cl, checkDense = FALSE)
 {
     ## fast "no-test" version --- we *KNOW* 'x' is 'triangularMatrix'
@@ -1194,7 +1179,7 @@ isTriC <- function(object, upper = NA) {
 	    ## leave it as T* - the caller can always coerce to C* if needed
         }
     }
-}
+} ## .diagU2N()
 
 diagU2N <- function(x, cl = getClassDef(class(x)))
 {

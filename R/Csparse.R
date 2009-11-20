@@ -61,8 +61,8 @@ setAs("CsparseMatrix", "matrix",
 
 setAs("CsparseMatrix", "symmetricMatrix",
       function(from) {
-	  if(isSymmetric(from)) { # then it's not triangular
-	      isTri <- is(from, "triangularMatrix")
+	  if(isSymmetric(from)) {
+	      isTri <- is(from, "triangularMatrix")# i.e. effectively *diagonal*
 	      if (isTri && from@diag == "U")
 		  from <- .Call(Csparse_diagU2N, from)
 	      .Call(Csparse_general_to_symmetric, from,
@@ -205,6 +205,8 @@ replCmat <- function (x, i, j, ..., value)
 	##-  --> ./dgTMatrix.R	and its	 replTmat()
 	## x@x[sel[!v0]] <- value[!v0]
         x@x[sel] <- as.vector(value[iN0])
+	if(extends(clDx, "compMatrix") && length(x@factors)) # drop cashed ones
+	    x@factors <- list()
         if(has0) x <- .Call(Csparse_drop, x, 0)
 
 	return(if(x.sym) as_CspClass(x, clx) else x)
@@ -221,10 +223,12 @@ replCmat <- function (x, i, j, ..., value)
     else
 	x[i,j] <- value
 
+    if(extends(clDx, "compMatrix") && length(x@factors)) # drop cashed ones
+	x@factors <- list()
     if(has.x && any(is0(x@x))) ## drop all values that "happen to be 0"
 	drop0(x)
     else as_CspClass(x, clx)
-}
+} ## replCmat
 
 setReplaceMethod("[", signature(x = "CsparseMatrix", i = "index", j = "missing",
                                 value = "replValue"),

@@ -507,11 +507,10 @@ M_R_cholmod_error(int status, const char *file, int line, const char *message)
 /* NB: keep in sync with R_cholmod_error(), ../../src/chm_common.c */
 
     if(status < 0) {
-/* Note: Matrix itself here calls
- *	cholmod_defaults(&c);/* <--- restore defaults, as we will not be able to ..
- *
- *  Consider defining your own error handler, *and* possibly restoring *your* version
- *  of the cholmod_common that *you* use.
+/* Note: Matrix itself uses CHM_set_common_env, CHM_store_common 
+ *   and CHM_restore_common to preserve settings through error calls.
+ *  Consider defining your own error handler, *and* possibly restoring
+ *  *your* version of the cholmod_common that *you* use.
  */
 	error("Cholmod error '%s' at file:%s, line %d", message, file, line);
     }

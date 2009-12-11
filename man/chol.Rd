@@ -54,15 +54,24 @@ chol(x, \dots)
 
     \item{chol}{\code{signature(x = "dsCMatrix", pivot = "logical")}:
       Returns (and stores) the Cholesky decomposition of \code{x}.  If
-      \code{pivot} is \code{TRUE} (the default) Metis is used to create
-      a reordering of the rows and columns of \code{x} so as to minimize
-      fill-in.}
-
+      \code{pivot} is \code{TRUE} (the default) the Approximate Minimal
+      Degree (AMD) algorithm is used to create a reordering of the rows
+      and columns of \code{x} so as to reduce fill-in.}
   }
 }
 \value{
   a matrix of class \code{\linkS4class{Cholesky}},
   i.e., upper triangular: \eqn{R} such that \eqn{R R' = x}.
+}
+\references{
+  Timothy A. Davis (2006)
+  \emph{Direct Methods for Sparse Linear Systems}, SIAM Series
+  \dQuote{Fundamentals of Algorithms}.
+
+  Tim Davis (1996),
+  An approximate minimal degree ordering algorithm,
+  \emph{SIAM J. Matrix Analysis and Applications},
+  \bold{17}, 4, 886--905.
 }
 \seealso{The default from \pkg{base}, \code{\link[base]{chol}}.
 }

@@ -22,6 +22,16 @@ setAs("atomicVector", "dsparseVector",
 	  r
       })
 
+setAs("nsparseVector", "lsparseVector",
+      function(from) new("lsparseVector", i = from@i, length = from@length,
+			 x = rep.int(TRUE, length(from@i))))
+setAs("nsparseVector", "dsparseVector", function(from)
+      as(as(from, "lsparseVector"), "dsparseVector"))
+setAs("nsparseVector", "isparseVector", function(from)
+      as(as(from, "lsparseVector"), "isparseVector"))
+setAs("nsparseVector", "zsparseVector", function(from)
+      as(as(from, "lsparseVector"), "zsparseVector"))
+
 
 ## "xsparseVector" : those with an 'x' slot (i.e., currently := not nsparse*)
 setAs("xsparseVector", "dsparseVector",
@@ -47,9 +57,8 @@ setAs("xsparseVector", "nsparseVector",
 setMethod("is.na", signature(x = "nsparseVector"),
 	  function(x) new("nsparseVector", length = x@length))## all FALSE
 setMethod("is.na", signature(x = "sparseVector"),
-	  ## *not* "nsparse*" as that has own method
-	  function(x) new("nsparseVector",
-			  i = which(is.na(x@x)), length= x@length))
+	  ## x is *not* "nsparse*" as that has own method
+	  function(x) new("nsparseVector", i = x@i[is.na(x@x)], length= x@length))
 
 
 
@@ -73,6 +82,8 @@ sp2vec <- function(x, mode = .type.kind[substr(cl, 1,1)]) {
 
 ##' @return a sparseVector, with 0-dropped 'x' (and 'i')
 newSpV <- function(class, x, i, length) {
+    if(length(x) == 1 && (li <- length(i)) != 1) ## recycle x :
+	x <- rep.int(x, li)
     if(isTRUE(any(x0 <- x == 0))) {
 	keep <- is.na(x) | !x0
 	x <- x[keep]
@@ -125,7 +136,10 @@ setAs("TsparseMatrix", "sparseVector",
       function(from) {
 	  d <- dim(from)
 	  n <- prod(d) # -> numeric, no integer overflow
-	  kind <- .M.kind(from)
+          cld <- getClassDef(class(from))
+	  kind <- .M.kind(from, cl = cld)
+	  if(extends(cld, "symmetricMatrix"))
+	      from <- as(from, "generalMatrix")
 	  if(is_duplicatedT(from, di = d))
 	      from <- uniqTsparse(from)
 	  r <- new(paste0(kind, "sparseVector"), length = n)

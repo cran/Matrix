@@ -1279,7 +1279,8 @@ setZero <- function(x) {
 ##' @param y  (ditto)
 ##'
 ##' @return list(x.only = setdiff(x,y),
-##'              y.only = setdiff(y,x), int = intersect(x,y))
+##'              y.only = setdiff(y,x),
+##'	         int = intersect(x,y))
 setparts <- function(x,y, uniqueCheck = TRUE, check = TRUE) {
     if(check) {
         x <- as.vector(x)

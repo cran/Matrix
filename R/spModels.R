@@ -339,7 +339,7 @@ sparse2int <- function(X, Y, do.names = TRUE)
                 else { ## numeric X (1 "column"),  sparseMatrix Y
 		    r <- Y
                     dp <- Y@p[-1] - Y@p[-(Y@Dim[2]+1L)]
-                    stopifnot(all(dp %in% 0:1)) # just for now - drop! - FIXME
+		    ## stopifnot(all(dp %in% 0:1)) # just for now
                     ## if(nx == 1)
                     ## FIXME: similar trick would be applicable for nx > 2
                     r@x <- X[dp == 1L] * Y@x

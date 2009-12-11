@@ -1,5 +1,5 @@
 
-R version 2.10.0 Patched (2009-11-13 r50424)
+R version 2.10.1 RC (2009-12-06 r50681)
 Copyright (C) 2009 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 
@@ -19,6 +19,7 @@ Type 'q()' to quit R.
 > 
 > library(Matrix)
 Loading required package: lattice
+Matrix_NS: <environment: namespace:Matrix>
 > 
 > source(system.file("test-tools.R", package = "Matrix"), keep.source = FALSE)
 > ##-> identical3() etc
@@ -225,9 +226,11 @@ Formal class 'dgTMatrix' [package "Matrix"] with 6 slots
 > assert.EQ.mat(ds[NA,NA], ss[NA,NA])
 > assert.EQ.mat(ds[NA,  ], ss[NA,])
 > assert.EQ.mat(ds[  ,NA], ss[,NA])
-> stopifnot(identical(ds[2 ,NA], ss[2,NA]),
-+           identical(ds[NA, 1], ss[NA, 1]))
 > T <- as(S, "TsparseMatrix")
+> stopifnot(identical(ds[2 ,NA], ss[2,NA]),
++ 	  identical(ds[NA, 1], ss[NA, 1]),
++ 	  identical(S, as(T, "CsparseMatrix")) )
+> 
 > ## non-repeated indices:
 > i <- c(7:5, 2:4);assert.EQ.mat(T[i,i], ss[i,i])
 > ## NA in indices  -- check that we get a helpful error message:
@@ -523,7 +526,7 @@ det...(): ok
 [5,]    .    .    .    .    1
 > T <- m0; T[1:3, 3] <- 10
 > stopifnot(identical(M, Diagonal(x=c(1,1, 0, 1,1))),
-+           is(T, "triangularMatrix"), identical(T[,3], c(10,10,10,0,0)))
++           isValid(T, "triangularMatrix"), identical(T[,3], c(10,10,10,0,0)))
 > 
 > M <- m1; M[1,] <- 0 ; M ; assert.EQ.mat(M, diag(c(0,rep(1,4))), tol=0)
 5 x 5 sparse Matrix of class "dtTMatrix"
@@ -564,7 +567,7 @@ det...(): ok
 diagnosing replTmat(x,i,j,v): nargs()= 3; missing(i,j)= (0,1)
 'sub-optimal sparse 'x[i] <- v' assignment: Coercing class dtTMatrix to dgTMatrix
 as(<triangular (ge)matrix>, dtTMatrix): valid: TRUE 
-> stopifnot(is(T, "dtTMatrix"), identical(T[,3], c(10,10,10,0,0)))
+> stopifnot(isValid(T, "dtTMatrix"), identical(T[,3], c(10,10,10,0,0)))
 > 
 > M <- m2; M[1,] <- 0 ; M ; assert.EQ.mat(M, diag(c(0,rep(1,4))), tol=0)
 5 x 5 sparse Matrix of class "dtCMatrix"
@@ -1252,7 +1255,7 @@ attr(,"package")
 + 	  identical(thCol,  fx[,5762]))
 > 
 > cat('Time elapsed: ', (.pt <- proc.time()),'\n') # "stats"
-Time elapsed:  40.19 3.348 46.377 0 0 
+Time elapsed:  18.403 0.797 19.309 0 0 
 > ##
 > cat("checkMatrix() of all: \n---------\n")
 checkMatrix() of all: 
@@ -1385,7 +1388,7 @@ suboptimal 'Arith' implementation of  'dsC*  o  dsC*'
 x.x. 
 suboptimal 'Arith' implementation of  'dsC*  o  dsC*'
 > cat('Time elapsed: ', proc.time() - .pt,'\n') # "stats"
-Time elapsed:  30.446 2.432 37.045 0 0 
+Time elapsed:  12.239 0.29 12.535 0 0 
 > 
 > if(!interactive()) warnings()
 NULL

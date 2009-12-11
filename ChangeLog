@@ -1,3 +1,34 @@
+2009-12-11  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/sparseVector.R (TsparseM* -> sparseV): symmetricMatrix needs to
+	be expanded.  This fixes a bug reported by Yu-Sung Su.
+	* tests/indexing.R: testing the fix.
+
+	* inst/test-tools.R (all.equalX): new util
+
+2009-12-09  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Ops.R (A.n.M, A.n.M): <sparseMatrix> o <numeric> : remain
+	sparse also when *majority* (instead of all) of   0 o v  is 0.
+
+	* tests/group-methods.R: test one such case.
+
+2009-12-06  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.999375-33, CRAN-released:
+
+	* R/Ops.R (Compare<Csp><Csp>): fix case with NA x.
+
+	* R/not.R: fix "typo" in !<sparseVector>
+
+	* R/Ops.R (Ops.spV.spV): fix thinko
+
+2009-12-05  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/sparseVector.R: setAs(nsparseV*, lsparseV*) etc
+
+	* R/Ops.R (Ops.spM.spV, Ops.spV.spM): sparseVec. o sparseMat.
+
 2009-11-20  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/Ops.R (Ops.spV.spV): enable sparseVector operations in more cases.
@@ -33,7 +64,7 @@
 
 2009-11-11  Martin Maechler  <maechler@stat.math.ethz.ch>
 
-	* DESCRIPTION (Version): 0.999375-32, CRAN-released:
+	* DESCRIPTION (Version): 0.999375-32, CRAN-released: 2009-11-20
 
 	* src/Csparse.c (Csparse_Csparse_prod, Csparse_Csparse_crossprod):
 	PROTECT(.) the dimnames; thanks to Kaspar Kristensen

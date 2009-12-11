@@ -85,8 +85,8 @@ stopifnot(is(cnm1, "symmetricMatrix"), ## whereas the %*% is not:
 dn1 <- as(nm1, "denseMatrix")
 stopifnot(all(dn1 == nm1))
 
-dsc[2,3] <- NA ## now has an NA
-##          ----- end "everything" is different
+dsc[2,3] <- NA ## now has an NA (and no longer is symmetric)
+##          ----- and "everything" is different
 dsc
 dsc/ 5
 dsc + dsc
@@ -98,6 +98,16 @@ stopifnot(identical(dsc, Matrix((dsc + 1) -1)),
 str(lm1 <- dsc >= 1) # now ok (NA in proper place, however:
 lm1 ## NA used to print as ' ' , now 'N'
 (lm2 <- dsc == 1)# ditto
+
+ddsc <- kronecker(Diagonal(7), dsc)
+isValid(ddv <- rowSums(ddsc, sparse=TRUE), "sparseVector")
+sv <- colSums(kC <- kronecker(mC,kronecker(mC,mC)), sparse=TRUE)
+EQ <- ddv == rowSums(ddsc)
+na.ddv <- is.na(ddv)
+sM <- Matrix(pmax(0, round(rnorm(50*15, -1.5), 2)), 50,15)
+stopifnot(sv == colSums(kC), is.na(as.vector(ddv)) == na.ddv,
+          isValid(sM/(-7:7), "CsparseMatrix"),
+	  all(EQ | na.ddv))
 
 ## Just for print "show":
 z <- round(rnorm(77), 2)
@@ -113,7 +123,9 @@ stopifnot(identical(crossprod(lm1),# "lgC": here works!
 
 ## Systematically look at all "Ops" group generics for "all" Matrix classes
 ## -------------- Main issue: Detect infinite recursion problems
-Mcl <- grep("Matrix$", sapply(ls(), function(.) class(get(.))), value=TRUE)
+cl <- sapply(ls(), function(.) class(get(.)))
+Mcl <- c(grep("Matrix$", cl, value=TRUE),
+         grep("sparseVector", cl, value=TRUE))
 table(Mcl)
 M.objs <- names(Mcl[!duplicated(Mcl)])
 
@@ -123,16 +135,23 @@ for(gr in getGroupMembers("Ops")) {
     cat(gr,"\n",paste(rep.int("=",nchar(gr)),collapse=""),"\n", sep='')
     for(f in getGroupMembers(gr)) {
 	cat(sprintf("%9s : ", dQuote(f)))
-	## TODO: check also for "sparseVector" - both with "Matrix" and with "atomic"
 	for(nm in M.objs) {
 	    M <- get(nm, inherits=FALSE)
+            nm <- NROW(M)
 	    cat("o")
-	    for(x in list(TRUE, -3.2, 0L, seq_len(nrow(M)))) {
+	    for(x in list(TRUE, -3.2, 0L, seq_len(nm))) {
                 cat(".")
 		validObject(r1 <- do.call(f, list(M,x)))
 		validObject(r2 <- do.call(f, list(x,M)))
 		stopifnot(dim(r1) == dim(M), dim(r2) == dim(M))
 	    }
+            ## M  o  <sparseVector>
+            x <- numeric(nm)
+            x[c(1,length(x))] <- 1:2
+            sv <- as(x, "sparseVector")
+            cat("s.")
+            validObject(r3 <- do.call(f, list(M, sv)))
+            stopifnot(dim(r3) == dim(M))
 	}
 	cat("\n")
     }

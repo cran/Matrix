@@ -129,9 +129,11 @@ ds <- as(S, "denseMatrix")
 assert.EQ.mat(ds[NA,NA], ss[NA,NA])
 assert.EQ.mat(ds[NA,  ], ss[NA,])
 assert.EQ.mat(ds[  ,NA], ss[,NA])
-stopifnot(identical(ds[2 ,NA], ss[2,NA]),
-          identical(ds[NA, 1], ss[NA, 1]))
 T <- as(S, "TsparseMatrix")
+stopifnot(identical(ds[2 ,NA], ss[2,NA]),
+	  identical(ds[NA, 1], ss[NA, 1]),
+	  identical(S, as(T, "CsparseMatrix")) )
+
 ## non-repeated indices:
 i <- c(7:5, 2:4);assert.EQ.mat(T[i,i], ss[i,i])
 ## NA in indices  -- check that we get a helpful error message:
@@ -148,6 +150,17 @@ for(n in 1:50) {
               identical(t(Tii), t(T)[i,i]))
     assert.EQ.mat(Tii, ss[i,i])
 }
+
+b <- diag(1:2)[,c(1,1,2,2)]
+cb <- crossprod(b)
+cB <- crossprod(Matrix(b, sparse=TRUE))
+a <- matrix(0, 6, 6)
+a[1:4, 1:4] <- cb
+A1 <- A2 <- Matrix(0, 6, 6)#-> sparse
+A1[1:4, 1:4] <- cb
+A2[1:4, 1:4] <- cB
+assert.EQ.mat(A1, a)# indeed
+stopifnot(identical(A1, A2), is(A1, "dsCMatrix"))
 
 ## repeated ones ``the challenge'' (to do smartly):
 j <- c(4, 4, 9, 12, 9, 4, 17, 3, 18, 4, 12, 18, 4, 9)
@@ -272,7 +285,7 @@ checkMatrix(M)
 M <- m0; M[1:3, 3] <- 0 ;M
 T <- m0; T[1:3, 3] <- 10
 stopifnot(identical(M, Diagonal(x=c(1,1, 0, 1,1))),
-          is(T, "triangularMatrix"), identical(T[,3], c(10,10,10,0,0)))
+          isValid(T, "triangularMatrix"), identical(T[,3], c(10,10,10,0,0)))
 
 M <- m1; M[1,] <- 0 ; M ; assert.EQ.mat(M, diag(c(0,rep(1,4))), tol=0)
 M <- m1; M[,3] <- 3 ; stopifnot(is(M,"sparseMatrix"), M[,3] == 3)
@@ -280,7 +293,7 @@ checkMatrix(M)
 M <- m1; M[1:3, 3] <- 0 ;M
 assert.EQ.mat(M, diag(c(1,1, 0, 1,1)), tol=0)
 T <- m1; T[1:3, 3] <- 10; checkMatrix(T)
-stopifnot(is(T, "dtTMatrix"), identical(T[,3], c(10,10,10,0,0)))
+stopifnot(isValid(T, "dtTMatrix"), identical(T[,3], c(10,10,10,0,0)))
 
 M <- m2; M[1,] <- 0 ; M ; assert.EQ.mat(M, diag(c(0,rep(1,4))), tol=0)
 M <- m2; M[,3] <- 3 ; stopifnot(is(M,"sparseMatrix"), M[,3] == 3)

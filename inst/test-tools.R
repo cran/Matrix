@@ -36,6 +36,18 @@ all.slot.equal <- function(x,y, ...) {
     TRUE
 }
 
+## all.equal() for list-coercable objects -- apart from *some* components
+all.equal.X <- function(x,y, except, ...)
+{
+    .trunc <- function(x) {
+	ll <- as.list(x)
+	ll[ - match(except, names(ll), nomatch = 0L)]
+    }
+    all.equal(.trunc(x), .trunc(y), ...)
+}
+## e.g. in lme4:
+##  all.equal.X(env(m1), env(m2), except = c("call", "frame"))
+
 ## The relative error typically returned by all.equal:
 relErr <- function(target, current) { ## make this work for 'Matrix'
     ## ==> no mean() ..

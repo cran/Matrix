@@ -353,4 +353,5 @@
 - <symmetric sparse>   o  <diagonal>  now remains *symmetric*, too
 - <triangular sparse>  o  <diagonal>  now remains *triangular* (mostly)
 
+- <sparseMatrix>  o  <sparseVector>  are implemented now.
 

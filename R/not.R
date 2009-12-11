@@ -108,8 +108,8 @@ setMethod("!", "sparseVector",
 		  ii <- seq_len(n)[-x@i]
 		  if((has.x <- !is(x, "nsparseVector"))) {
 		      xx <- rep.int(TRUE, (l.i <- length(ii)))
-		      if((.na <- any(x.na <- is.na(x@x)) |
-			 (.fa <- any(x.f <- !x@x)))) {
+		      if((.na <- any(x.na <- is.na(x@x))) |
+			 (.fa <- any(x.f <- !x.na & !x@x))) {
 			  ## deal with 'FALSE' and 'NA' in  x slot
 			  if(.na) {
 			      ii <- c(ii, x@i[x.na])

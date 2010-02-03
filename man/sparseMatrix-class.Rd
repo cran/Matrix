@@ -43,6 +43,7 @@
 \alias{determinant,sparseMatrix,missing-method}
 \alias{determinant,sparseMatrix,logical-method}
 
+% "[" are in ./Xtrct-methods.Rd
 %\alias{colMeans,..} etc are now in ./colSums.Rd
 % graph stuff
 \alias{coerce,graph,sparseMatrix-method}

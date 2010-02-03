@@ -241,9 +241,11 @@ CHM_SP as_cholmod_sparse(CHM_SP ans, SEXP x,
 				/* dimensions and nzmax */
     ans->nrow = dims[0];
     ans->ncol = dims[1];
-    ans->nzmax = (size_t) ((int *)ans->p)[dims[1]];
-    /* == LENGTH(islot) only if the i-slot is not over-allocated */
-
+    /* Allow for over-allocation of the i and x slots.  Needed for
+     * sparse X form in lme4.  Right now it looks too difficult to
+     * check for the length of the x slot, because of the xpt
+     * utility, but the lengths of x and i should agree. */
+    ans->nzmax = LENGTH(islot);
 				/* values depending on ctype */
     ans->x = xpt(ctype, x);
     ans->stype = stype(ctype, x);

@@ -230,8 +230,8 @@ contr.sum <- function (n, contrasts=TRUE, sparse=FALSE)
 contr.SAS <- function(n, contrasts = TRUE, sparse=FALSE)
  stats::contr.SAS(n, contrasts=contrasts, sparse=sparse)
 
-contr.poly <- function (n, scores = 1L:n, contrasts = TRUE, sparse = FALSE)
- stats::contr.poly(n, scores=scores, contrasts=contrasts, sparse=sparse)
+## the 'scores' argument default is delicate ...
+contr.poly <- stats::contr.poly
 
 `contrasts<-` <- function(x, how.many, value)
  stats::`contrasts<-`(x, how.many=how.many, value=value)

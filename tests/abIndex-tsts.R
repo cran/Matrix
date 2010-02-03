@@ -30,6 +30,31 @@ stopifnot(sapply(ab., validObject),
           sapply(ab., any) == sapply(ex., any),
           TRUE)
 
+## testing c() method, i.e.  currently c.abIndex():
+tst.c.abI <- function(lii) {
+    stopifnot(is.list(lii),
+              all(unlist(lapply(lii, mode)) == "numeric"))
+    aii <- lapply(lii, as, "abIndex")
+    v.i <- do.call(c, lii)
+    a.i <- do.call(c, aii)
+    avi <- as(v.i, "abIndex")
+    ## identical() is too hard, as values & lengths can be double/integer
+    stopifnot(all.equal(a.i, avi, tol = 0))
+}
+tst.c.abI(list(2:6, 70:50, 5:-2))
+## now an example where *all* are uncompressed:
+tst.c.abI(list(c(5, 3, 2, 4, 7, 1, 6), 3:4, 1:-1))
+## and one with parts that are already non-trivial:
+exc <- ex.[isCmpr]
+tst.c.abI(exc)
+set.seed(101)
+N <- length(exc) # 5
+for(i in 1:10) {
+    tst.c.abI(exc[sample(N, replace=TRUE)])
+    tst.c.abI(exc[sample(N, N-1)])
+    tst.c.abI(exc[sample(N, N-2)])
+}
+
 for(n in 1:120) {
     cat(".")
     k <- 1 + 4*rpois(1, 5) # >= 1
@@ -43,9 +68,42 @@ for(n in 1:120) {
               rleD = new("rleDiff", first = rpois(1, 20), rle = rl))
     validObject(ai)
     ii <- as(ai, "numeric")
+    iN <- ii; iN[180] <- NA; aiN <- as(iN,"abIndex")
+    iN <- as(aiN, "numeric") ## NA from 180 on
     stopifnot(is.numeric(ii), ii == round(ii),
-              identical(ai, as(ii, "abIndex")))
+	      identical(ai, as(ii, "abIndex")),
+	      identical(is.na(ai), is.na(ii)),
+	      identical(is.na(aiN), is.na(iN)),
+	      identical(is.finite  (aiN),   is.finite(iN)),
+	      identical(is.infinite(aiN), is.infinite(iN))
+              )
     if(n %% 40 == 0) cat(n,"\n")
 }
+
+## we have :  identical(lapply(ex., as, "abIndex"), ab.)
+
+mkStr <- function(ch, n) paste(rep.int(ch, n), collapse="")
+
+##O for(grMeth in getGroupMembers("Ops")) {
+##O     cat(sprintf("\n%s :\n%s\n", grMeth, mkStr("=", nchar(grMeth))))
+grMeth <- "Arith"
+    for(ng in getGroupMembers(grMeth)) {
+        cat(ng, ": ")
+        G <- get(ng)
+        t.tol <- if(ng == "/") 8e-16 else 0
+        ## now using special all.equal() method!
+        AEq <- function(a,b, ...) all.equal(a, b, tol=t.tol)
+        for(v in ex.) {
+            va <- as(v, "abIndex")
+            for(s in list(-1, 17L, TRUE, FALSE)) {# numeric *and* logical
+                if(!(identical(s, FALSE) && ng == "/")) ## division by 0 often "fails"
+                stopifnot(AEq(as(G(v, s), "abIndex"), G(va, s)),
+                          AEq(as(G(s, v), "abIndex"), G(s, va)))
+            }
+            cat(".")
+        }
+        cat(" [Ok]\n")
+    }
+##O }
 
 cat('Time elapsed: ', (.pt <- proc.time()),'\n') # "stats"

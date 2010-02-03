@@ -9,7 +9,8 @@ if(interactive()) {
     options(error = recover, warn = 1)
 } else if(FALSE) { ## MM @ testing
     options(error = recover, Matrix.verbose = TRUE, warn = 1)
-} else options(Matrix.verbose = TRUE, warn = 1)
+} else
+options(Matrix.verbose = TRUE, warn = 1)
 
 
 ### Dense Matrices
@@ -145,9 +146,10 @@ N <- nrow(T)
 set.seed(11)
 for(n in 1:50) {
     i <- sample(N, max(2, sample(N,1)), replace = FALSE)
-    validObject(Tii <- T[i,i])
+    validObject(Tii <- T[i,i]) ; tTi <- t(T)[i,i]
     stopifnot(is(Tii, "dsTMatrix"), # remained symmetric Tsparse
-              identical(t(Tii), t(T)[i,i]))
+	      is(tTi, "dsTMatrix"), # may not be identical when *sorted* differently
+	      identical(as(t(Tii),"CsparseMatrix"), as(tTi,"CsparseMatrix")))
     assert.EQ.mat(Tii, ss[i,i])
 }
 
@@ -200,11 +202,10 @@ stopifnot(dim(mC[numeric(0), ]) == c(0,20), # used to give warnings
           identical(mC[, integer(0)], mC[, FALSE]))
 validObject(print(mT[,c(2,4)]))
 stopifnot(all.equal(mT[2,], mm[2,]),
-          ## row or column indexing in combination with t() :
-          identical(mT[2,], t(mT)[,2]),
-          identical(mT[-2,], t(t(mT)[,-2])),
-          identical(mT[c(2,5),], t(t(mT)[,c(2,5)]))
-          )
+	  ## row or column indexing in combination with t() :
+	  Q.C.identical(mT[2,], t(mT)[,2]),
+	  Q.C.identical(mT[-2,], t(t(mT)[,-2])),
+	  Q.C.identical(mT[c(2,5),], t(t(mT)[,c(2,5)])) )
 assert.EQ.mat(mT[4,, drop = FALSE], mm[4,, drop = FALSE])
 stopifnot(identical3(mm[,1], mC[,1], mT[,1]),
 	  identical3(mm[3,], mC[3,], mT[3,]),
@@ -380,6 +381,7 @@ assertError(mT[-1:1,])
 
 ## Sub *Assignment* ---- now works (partially):
 mt0 <- mt
+nt <- as(mt, "nMatrix")
 mt[1, 4] <- -99
 mt[2:3, 1:6] <- 0
 mt
@@ -539,9 +541,13 @@ assert.EQ.mat(t2, m)# ok
 assert.EQ.mat(s2, m)# failed in 0.9975-8
 
 
-## m[cbind(i,j)] <- value:
+## m[cbind(i,j)] <- value: (2-column matrix subassignment):
 m.[ cbind(3:5, 1:3) ] <- 1:3
 stopifnot(m.[3,1] == 1, m.[4,2] == 2)
+nt. <- nt ; nt[rbind(2:3, 3:4, c(3,3))] <- FALSE
+s. <- m. ; m.[cbind(3:4,2:3)] <- 0 ## assigning 0 where there *is* 0 ..
+stopifnot(identical(nt.,nt),       ## should not have changed
+	  identical(s., m.))
 x.x[ cbind(2:6, 2:6)] <- 12:16
 stopifnot(isValid(x.x, "dsCMatrix"),
 	  12:16 == as.mat(x.x)[cbind(2:6, 2:6)])

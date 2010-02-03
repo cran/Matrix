@@ -54,6 +54,9 @@ sparse.model.matrix(~ a + b, dd, contrasts = list(b="contr.SAS"))
 
 ## Sparse method is equivalent to the traditional one :
 stopifnot(isEQsparseDense(~ a + b, dd),
+          isEQsparseDense(~ 0 + a + b, dd),
+	  identical(sparse.model.matrix(~  0 + a + b, dd),
+		    sparse.model.matrix(~ -1 + a + b, dd)),
           isEQsparseDense(~ a + b, dd, contrasts = list(a="contr.sum")),
           isEQsparseDense(~ a + b, dd, contrasts = list(a="contr.SAS")),
 	  ## contrasts as *functions* or contrast *matrices* :
@@ -145,6 +148,11 @@ dim(sm2 <- sparse.model.matrix(f2, dd4))
 stopifnot(identical(mm1,mm2),
           identical(sm1,sm2),
           mEQ(sm1, mm1))
+
+str(dd <- data.frame(d = gl(10,6), a = ordered(gl(3,20))))
+X. <- sparse.model.matrix(~ a + d, data = dd)
+## failed because of contr.poly default in Matrix 0.999375-33
+stopifnot(dim(X.) == c(60, 12), nnzero(X.) == 234)
 
 cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
 

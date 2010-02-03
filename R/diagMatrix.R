@@ -32,25 +32,41 @@ Diagonal <- function(n, x = NULL)
     }
 }
 
-.sparseDiagonal <- function(n, x = rep.int(1,n), uplo = "U", shape = "t") {
+.sparseDiagonal <- function(n, x = rep.int(1,m), uplo = "U",
+			    shape = if(missing(cols)) "t" else "g",
+			    kind, cols = if(n) 0:(n - 1L) else integer(0))
+{
     stopifnot(n == (n. <- as.integer(n)), (n <- n.) >= 0)
-    if((lx <- length(x)) == 1) x <- rep.int(x, n)
-    else if(lx != n) stop("length(x) must be 1 or n")
+    if(!missing(cols))
+	stopifnot(0 <= (cols <- as.integer(cols)), cols < n)
+    m <- length(cols)
+    if(missing(kind))
+	kind <-
+	    if(is.double(x)) "d"
+	    else if(is.logical(x)) "l"
+	    else { ## for now
+		storage.mode(x) <- "double"
+		"d"
+	    }
+    else stopifnot(any(kind == c("d","l","n")))
+    if(kind != "n") {
+	if((lx <- length(x)) == 1) x <- rep.int(x, m)
+	else if(lx != m) stop("length(x) must be either 1 or #{cols}")
+    }
     stopifnot(is.character(shape), nchar(shape) == 1,
 	      any(shape == c("t","s","g"))) # triangular / symmetric / general
-    kind <-
-	if(is.double(x)) "d"
-	else if(is.logical(x)) "l"
-	else { ## for now
-	    storage.mode(x) <- "double"
-	    "d"
-	}
-    ii <- if(n) 0:(n - 1L) else integer(0)
-    if(shape == "g")
-	new(paste0(kind, "gCMatrix"), Dim = c(n,n),
-	    x = x, i = ii, p = 0:n)
-    else new(paste0(kind, shape, "CMatrix"), Dim = c(n,n), uplo = uplo,
-	     x = x, i = ii, p = 0:n)
+    if(kind == "n") {
+	if(shape == "g")
+	    new("ngCMatrix", Dim = c(n,m), i = cols, p = 0:m)
+	else new(paste0("n", shape, "CMatrix"), Dim = c(n,m), uplo = uplo,
+		 i = cols, p = 0:m)
+    }
+    ## kind != "n" -- have x slot :
+    else if(shape == "g")
+	new(paste0(kind, "gCMatrix"), Dim = c(n,m),
+	    x = x, i = cols, p = 0:m)
+    else new(paste0(kind, shape, "CMatrix"), Dim = c(n,m), uplo = uplo,
+	     x = x, i = cols, p = 0:m)
 }
 
 ## Pkg 'spdep' had (relatively slow) versions of this as_dsCMatrix_I()
@@ -339,7 +355,7 @@ setMethod("diag", signature(x = "diagonalMatrix"),
           function(x = 1, nrow, ncol) .diag.x(x))
 
 subDiag <- function(x, i, j, ..., drop) {
-    x <- as(x, "TsparseMatrix")
+    x <- as(x, "CsparseMatrix") ## << was "TsparseMatrix" (Csparse is faster now)
     x <- if(missing(i))
 	x[, j, drop=drop]
     else if(missing(j))

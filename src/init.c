@@ -228,7 +228,8 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(m_encodeInd, 2),
     CALLDEF(m_encodeInd2, 3),
 
-    CALLDEF(Matrix_int_rle, 1),
+    CALLDEF(Matrix_rle_i, 2),
+    CALLDEF(Matrix_rle_d, 2),
 
     {NULL, NULL, 0}
 };
@@ -264,6 +265,7 @@ R_init_Matrix(DllInfo *dll)
     RREGDEF(cholmod_l_allocate_triplet);
     RREGDEF(cholmod_l_analyze);
     RREGDEF(cholmod_l_analyze_p);
+    RREGDEF(cholmod_l_band_inplace); 
     RREGDEF(cholmod_l_change_factor);
     RREGDEF(cholmod_l_copy);
     RREGDEF(cholmod_l_copy_dense);

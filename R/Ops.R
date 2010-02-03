@@ -156,7 +156,7 @@ Cmp.Mat.atomic <- function(e1, e2) { ## result will inherit from "lMatrix"
             ## [dense & packed & not symmetric ] ==> must be "dtp*" :
             if(!extends(cl1, "dtpMatrix"))
                 stop("internal bug in \"Compare\" method (Cmp.Mat.atomic); please report")
-            rx <- rep(r0, length.out = d[1]*d[2])
+            rx <- rep(r0, length.out = prod(d))
             rx[indTri(d[1], upper = (e1@uplo == "U"))] <- r
             r <- new("lgeMatrix", x = rx, Dim = d, Dimnames = dimnames(e1))
         }
@@ -220,7 +220,7 @@ Cmp.Mat.atomic <- function(e1, e2) { ## result will inherit from "lMatrix"
             lClass <- if(extends(cl1, "symmetricMatrix")) "lsyMatrix" else "lgeMatrix"
             Matrix.msg(sprintf("sparse to dense (%s) coercion in '%s'",
                                lClass, .Generic), .M.level = 2)
-            rx <- rep(r0, length.out = d[1]*d[2])
+            rx <- rep(r0, length.out = prod(d))
 
             ## Here, we assume that 'r' and the indices align (!)
             encI <- .Call(m_encodeInd, non0ind(e1, cl1, uniqT=FALSE,
@@ -603,7 +603,7 @@ for(Mcl in c("lMatrix","nMatrix","dMatrix"))
             ## [dense & packed & not symmetric ] ==> must be "ltp*" :
             if(!extends(cl1, "ltpMatrix"))
                 stop("internal bug in \"Logic\" method (.Logic.Mat.atomic); please report")
-            rx <- rep(r0, length.out = d[1]*d[2])
+            rx <- rep(r0, length.out = prod(d))
             rx[indTri(d[1], upper = (e1@uplo == "U"))] <- r
             r <- new("lgeMatrix", x = rx,
                      Dim = d, Dimnames = dimnames(e1))
@@ -670,7 +670,7 @@ for(Mcl in c("lMatrix","nMatrix","dMatrix"))
                 "lsyMatrix" else "lgeMatrix"
             Matrix.msg(sprintf("sparse to dense (%s) coercion in '%s'",
                                lClass, .Generic))
-            rx <- rep(r0, length.out = d[1]*d[2])
+            rx <- rep(r0, length.out = prod(d))
 
             ## Here, we assume that 'r' and the indices align (!)
             encI <- .Call(m_encodeInd, non0ind(e1, cl1, uniqT=FALSE,
@@ -1456,7 +1456,7 @@ setMethod("Logic", signature(e1 = "nsparseVector", e2 = "nsparseVector"),
 
 Ops.M.spV <- function(e1, e2) {
     d <- e1@Dim
-    n1 <- d[1] * d[2]
+    n1 <- prod(d)
     n2 <- e2@length
     if(n1 != n2) {
 	if(n1 < n2) {
@@ -1484,7 +1484,7 @@ Ops.M.spV <- function(e1, e2) {
 Ops.spV.M <- function(e1, e2) {
     n1 <- e1@length
     d <- e2@Dim
-    n2 <- d[1] * d[2]
+    n2 <- prod(d)
     if(n2 != n1) {
 	if(n2 < n1) {
 	    stop(sprintf(

@@ -115,7 +115,93 @@ setMethod("Math",
 	      } else { ## no sparseness
 		  callGeneric(as_dense(x))
 	      }
+	  }) ## {Math}
+
+
+### Subsetting -- basic things (drop = "missing") are done in ./Matrix.R
+### ---------- "["  and (currently) also ./sparseMatrix.R
+
+subCsp_cols <- function(x, j, drop)
+{
+    ## x[ , j, drop=drop]   where we know that	x is Csparse*
+    n <- x@Dim[2]
+    jj <- intI(j, n = n, dimnames(x)[[2]], give.dn = FALSE)
+    D <- .sparseDiagonal(n, cols = jj)
+    r <- as_M.kind(x %*% D, class(x))
+    if(!is.null(dn <- x@Dimnames[[2]])) r@Dimnames[[2]] <- dn[j]
+    if(drop && ncol(D) == 1) drop(as(r, "matrix")) else r
+}
+
+subCsp_rows <- function(x, i, drop)# , cl = getClassDef(class(x))
+{
+    ## x[ i,  drop=drop]   where we know that  x is Csparse*
+    n <- x@Dim[1]
+    ii <- intI(i, n = n, dimnames(x)[[1]], give.dn = FALSE)
+    D <- .sparseDiagonal(n, cols = ii)
+    r <- as_M.kind(crossprod(D, x), class(x))
+    if(!is.null(dn <- x@Dimnames[[1]])) r@Dimnames[[1]] <- dn[i]
+    if(drop && ncol(D) == 1) drop(as(r, "matrix")) else r
+}
+
+subCsp_ij <- function(x, i, j, drop)
+{
+    ## x[i, j, drop=drop]   where we know that	x is Csparse*
+    d <- x@Dim
+    dn <- x@Dimnames
+    ## Take care that	x[i,i]	for symmetricM* stays symmetric
+    i.eq.j <- identical(i,j) # < want fast check
+    ii <- intI(i, n = d[1], dimnames(x)[[1]], give.dn = FALSE)
+    D1 <- .sparseDiagonal(n = d[1], cols = ii)
+    cx <- getClassDef(class(x))
+    if(!i.eq.j) {
+	jj <- intI(j, n = d[2], dimnames(x)[[2]], give.dn = FALSE)
+	D2 <- .sparseDiagonal(n = d[2], cols = jj)
+	r <- as_M.kind(crossprod(D1, x) %*% D2, cx)
+        if(!is.null(n <- dn[[1]])) r@Dimnames[[1]] <- n[i]
+        if(!is.null(n <- dn[[2]])) r@Dimnames[[2]] <- n[j]
+	if(drop && any(r@Dim == 1L)) drop(as(r, "matrix")) else r
+    } else { ## i == j
+	r <- as_M.kind(crossprod(D1, x) %*% D1, cx)
+        if(!is.null(n <- dn[[1]])) r@Dimnames[[1]] <- n[i]
+        if(!is.null(n <- dn[[2]])) r@Dimnames[[2]] <- n[j]
+	if(drop) drop <- D1@Dim[2] == 1L
+	if(drop)
+	    drop(as(r, "matrix"))
+	else if(extends(cx, "symmetricMatrix")) ## TODO? make more efficient:
+	    .gC2sym(r, uplo = x@uplo)## preserve uplo !
+	else if(extends(cx, "triangularMatrix") && !is.unsorted(ii))
+	    as(r, "triangularMatrix")
+	else r
+    }
+}
+
+setMethod("[", signature(x = "CsparseMatrix", i = "index", j = "missing",
+			 drop = "logical"),
+	  function (x, i,j, ..., drop) {
+	      na <- nargs()
+	      Matrix.msg("Csp[i,m,l] : nargs()=",na, .M.level = 2)
+	      if(na == 4)
+		  subCsp_rows(x, i, drop=drop)
+	      else if(na == 3)
+		  .M.vectorSub(x, i) # as(x, "TsparseMatrix")[i, drop=drop]
+	      else ## should not happen
+		  stop("Matrix-internal error in <CsparseM>[i,,d]; please report")
 	  })
+
+setMethod("[", signature(x = "CsparseMatrix", i = "missing", j = "index",
+			 drop = "logical"),
+	  function (x,i,j, ..., drop) {
+	      Matrix.msg("Csp[m,i,l] : nargs()=",nargs(), .M.level = 2)
+	      subCsp_cols(x, j, drop=drop)
+	  })
+
+setMethod("[", signature(x = "CsparseMatrix",
+			 i = "index", j = "index", drop = "logical"),
+	  function (x, i, j, ..., drop) {
+	      Matrix.msg("Csp[i,i,l] : nargs()=",nargs(), .M.level = 2)
+	      subCsp_ij(x, i, j, drop=drop)
+	  })
+
 
 
 

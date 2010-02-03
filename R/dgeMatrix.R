@@ -47,6 +47,10 @@ setMethod("rcond", signature(x = "dgeMatrix", norm = "character"),
 	  },
 	  valueClass = "numeric")
 
+##> FIXME: R-devel (2.11.0) norm() is *wrong* for NAs, whereas this dgeMatrix
+##> -----  one works,  even though both should call the identical LAPACK 'dlange' ?????
+##> Hence, keep the Matrix version active for now:
+##> if(getRversion() < "2.11.0" || R.version$`svn rev` < 51018)
 ##--- the same for "traditional"  'matrix':
 setMethod("norm", signature(x = "matrix", type = "character"),
 	  function(x, type, ...) .Call(dgeMatrix_norm, as(x,"dgeMatrix"), type),

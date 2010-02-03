@@ -371,7 +371,8 @@ SEXP Csparse_crossprod(SEXP x, SEXP trans, SEXP triplet)
 #ifdef AS_CHM_DIAGU2N_FIXED_FINALLY
     CHM_TR cht = trip ? AS_CHM_TR(x) : (CHM_TR) NULL;
 #else /* workaround needed:*/
-    CHM_TR cht = trip ? AS_CHM_TR__(Tsparse_diagU2N(x)) : (CHM_TR) NULL;
+    SEXP xx = PROTECT(Tsparse_diagU2N(x));
+    CHM_TR cht = trip ? AS_CHM_TR__(xx) : (CHM_TR) NULL;
 #endif
     CHM_SP chcp, chxt,
 	chx = (trip ?
@@ -394,7 +395,11 @@ SEXP Csparse_crossprod(SEXP x, SEXP trans, SEXP triplet)
 		   duplicate(VECTOR_ELT(GET_SLOT(x, Matrix_DimNamesSym),
 					(tr) ? 0 : 1)));
     SET_VECTOR_ELT(dn, 1, duplicate(VECTOR_ELT(dn, 0)));
+#ifdef AS_CHM_DIAGU2N_FIXED_FINALLY
     UNPROTECT(1);
+#else
+    UNPROTECT(2);
+#endif
     return chm_sparse_to_SEXP(chcp, 1, 0, 0, "", dn);
 }
 

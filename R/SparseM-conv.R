@@ -74,7 +74,7 @@ setAs("CsparseMatrix", "matrix.csr",
 setAs("CsparseMatrix", "matrix.coo",
       function(from) as(as(from, "TsparseMatrix"), "matrix.coo"))
 setAs("CsparseMatrix", "matrix.csc",
-      function(from) as(as(from, "dgCMatrix"), "TsparseMatrix"))
+      function(from) as(as(from, "dgCMatrix"), "matrix.csc"))
 
 ## Easy coercion: just always use as( <SparseM.mat>, "Matrix") :
 

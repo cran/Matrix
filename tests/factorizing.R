@@ -58,6 +58,20 @@ length(ppm@x)# 180
 length(Ppm@x)# 317 !
 table(Ppm@x == 0)# (194, 123) - has 123 "zero" and 14 ``almost zero" entries
 
+##-- determinant() and det() --- working via LU ---
+m <- matrix(c(0, NA, 0, NA, NA, 0, 0, 0, 1), 3,3)
+m0 <- rbind(0,cbind(0,m))
+M <- as(m,"Matrix"); M ## "dsCMatrix" ...
+M0 <- rBind(0, cBind(0, M))
+dM  <- as(M, "denseMatrix")
+dM0 <- as(M0,"denseMatrix")
+if(FALSE) # FIXME "near-singular A"
+lum <- lu(M)
+if(FALSE) # FIXME "near-singular A"
+lum0 <- lu(M0)
+stopifnot(is.na(det(M)), is.na(det(dM)),
+	  TRUE ## FIXME !! det(M0) == 0, det(dM0) == 0
+	  )
 
 ###________ Cholesky() ________
 

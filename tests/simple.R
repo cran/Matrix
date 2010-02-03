@@ -716,7 +716,8 @@ M <- spMatrix(n, m,
 validObject(Mv <- as(M, "sparseVector"))
 validObject(Dv <- as(Diagonal(60000), "sparseVector"))
 Dm <- Dv; dim(Dm) <- c(180000L, 20000L)
-stopifnot(isValid(Dm, "sparseMatrix"),
+stopifnot(isValid(Md <- M * rowSums(M, sparseResult=TRUE), "sparseMatrix"),
+          isValid(Dm, "sparseMatrix"),
 	  identical(Dv, as(Dm, "sparseVector")))
 
 p. <- new("dtCMatrix", i = c(2:3, 2L), p = c(0L, 2:3, 3L, 3L),

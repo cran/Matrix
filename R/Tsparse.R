@@ -148,7 +148,7 @@ intI <- function(i, n, dn, give.dn = TRUE)
 	i0 <- i0 - 1L
     }
     if(!give.dn) i0 else list(i0 = i0, dn = dn)
-}
+} ## {intI}
 
 .ind.prep <- function(xi, intIlist, iDup = duplicated(i0), anyDup = any(iDup))
 {
@@ -195,243 +195,31 @@ setMethod("[", signature(x = "TsparseMatrix", i = "index", j = "missing",
 			 drop = "logical"),
 	  function (x, i, j, ..., drop) { ## select rows
 	      na <- nargs()
-	      Matrix.msg("Tsp[i,m,l] : nargs()=", na, .M.level = 2)
-	      if(na == 3)
-		  ## x[i, drop=TRUE/FALSE]  *vector* indexing !
-		  return(.M.vectorSub(x,i))
-
-	      clx <- getClassDef(class(x))
-	      has.x <- !extends(clx, "nsparseMatrix")
-	      x.sym <- extends(clx, "symmetricMatrix")
-	      x.tri <- !x.sym && extends(clx, "triangularMatrix")
-	      gDo <- (x.sym || (x.tri && x@diag == "U"))
-	      if(gDo)
-		  x <- as(x, paste(.M.kind(x, clx), "gTMatrix", sep=''))
-
-	      d <- x@Dim
-	      n <- d[1]
-              ## FIXME: 'm' is of length 'nnz' which can be large;
-              ##       we do only need  which(.$m > 0L) = which(sel) below...
-              ##-> would like C-based  which.match()
-	      ip <- .ind.prep(x@i, intI(i, n = n, dimnames(x)[[1]]))
-	      Di1 <- ip$li
-	      drop.it <- drop && (Di1 == 1L || d[2] == 1L)
-	      if(x.tri) { # triangular
-		  if(Di1 == n && identical(ip$i0, 0:(n-1))) # *full* result
-		      return(if (drop.it) x[1,1] else x)
-		  ## else: result will *not* be triangular
-		  if(!gDo)
-		      x <- as(x, paste(.M.kind(x, clx), "gTMatrix", sep=''))
-	      }
-	      x@Dim[1] <- Di1
-	      if(!is.null(ip$dn)) x@Dimnames[[1]] <- ip$dn
-	      sel <- seq_along(ip$m)[ip$m > 0L] # == which(match(....))
-	      x@i <- ip$m[sel] - 1L
-	      if(ip$anyDup) { ## duplicated rows selected: extend sel
-		  sel <- c(sel, ip$jm)
-		  x@i <- c(x@i, ip$i.xtra)
-	      }
-	      x@j <- x@j[sel]
-	      if (has.x) x@x <- x@x[sel]
-	      if (drop.it) drop(as(x,"matrix")) else x
+	      Matrix.msg("Tsp[i,m,l]: nargs()=", na, .M.level=2)
+	      if(na == 4)
+		  .as.Tsp(as(x,"CsparseMatrix")[i, , drop=drop], noCheck = !drop)
+	      else if(na == 3) ## e.g. M[0] , M[TRUE],	M[1:2]
+		  .M.vectorSub(x,i)
+	      else ## should not happen
+		  stop("Matrix-internal error in <TsparseM>[i,,d]; please report")
 	  })
 
 ## Select columns
 setMethod("[", signature(x = "TsparseMatrix", i = "missing", j = "index",
 			 drop = "logical"),
 	  function (x, i, j, ..., drop) { ## select columns
-	      Matrix.msg("Tsp[m,i,l] : nargs()=", nargs(), .M.level = 2)
-	      clx <- getClassDef(class(x))
-	      has.x <- !extends(clx, "nsparseMatrix")
-	      x.sym <- extends(clx, "symmetricMatrix")
-	      x.tri <- !x.sym && extends(clx, "triangularMatrix")
-	      gDo <- (x.sym || (x.tri && x@diag == "U"))
-	      if(gDo)
-		  x <- as(x, paste(.M.kind(x, clx), "gTMatrix", sep=''))
-
-	      d <- x@Dim
-	      n <- d[2]
-              ## FIXME: 'm' is of length 'nnz' which can be large;
-              ##       we do only need  which(.$m > 0L) = which(sel) below...
-              ##-> would like C-based  which.match()
-	      ip <- .ind.prep(x@j, intI(j, n = n, dimnames(x)[[2]]))
-	      Di2 <- ip$li
-	      drop.it <- drop && (d[1] == 1L || Di2 == 1L)
-	      if(x.tri) { # triangular
-		  if(Di2 == n && identical(ip$i0, 0:(n-1))) # *full* result
-		      return(if (drop.it) x[1,1] else x)
-		  ## else: result will *not* be triangular
-		  if(!gDo)
-		      x <- as(x, paste(.M.kind(x, clx), "gTMatrix", sep=''))
-	      }
-	      x@Dim[2] <- Di2
-	      if(!is.null(ip$dn)) x@Dimnames[[2]] <- ip$dn
-	      sel <- seq_along(ip$m)[ip$m > 0L] # == which(match(....))
-	      x@j <- ip$m[sel] - 1L
-	      if(ip$anyDup) { ## duplicated columns selected: extend sel
-		  sel <- c(sel, ip$jm)
-		  x@j <- c(x@j, ip$i.xtra)
-	      }
-	      x@i <- x@i[sel]
-	      if (has.x) x@x <- x@x[sel]
-	      if (drop.it) drop(as(x,"matrix")) else x
+	      .as.Tsp(as(x,"CsparseMatrix")[, j, drop=drop], noCheck = !drop)
 	  })
-
-
-## [.data.frame has : drop = if (missing(i)) TRUE else length(cols) == 1)
-
 
 setMethod("[", signature(x = "TsparseMatrix",
 			 i = "index", j = "index", drop = "logical"),
 	  function (x, i, j, ..., drop)
-      {
-	  Matrix.msg("Tsp[i,i,l] : nargs()=", nargs(), .M.level = 2)
-	  ## (i,j, drop) all specified
-	  di <- dim(x)
-	  dn <- dimnames(x)
-	  clx <- getClassDef(class(x))
-	  has.x <- !extends(clx, "nsparseMatrix")
-	  isSym <- extends(clx, "symmetricMatrix")
-	  x.tri <- !isSym && extends(clx, "triangularMatrix")
-	  if(isSym) {
-	      isSym <- (length(i) == length(j) && mode(i) == mode(j) &&
-			isTRUE(all(i == j)))# work for i,j NA
-	      ## result will *still* be symmetric --> keep symmetry!
-	      gDo <- !isSym ## result no longer symmetric -> to "generalMatrix"
-	  } else if(x.tri) {
-	      ii <- intI(i, n = di[1], dn= dn[[1]])
-	      ij <- intI(j, n = di[2], dn= dn[[2]])
-	      gDo <- { (x@diag == "U") ||
-		       ## maybe result is no longer triangular
-		       !(identical(ii$i0, ij$i0) && !is.unsorted(ii$i0))
-		   }
-	  }
-	  else gDo <- FALSE
+	  .as.Tsp(as(x,"CsparseMatrix")[i, j, drop=drop], noCheck = !drop))
 
-	  if(gDo) # go via "generalMatrix":
-	      x <- as(x, paste(.M.kind(x, clx), "gTMatrix", sep=''))
+## This is "just for now" -- Thinking of *not* doing this in the future
+.as.Tsp <- function(x, noCheck)
+    if(noCheck || is(x,"sparseMatrix")) as(x, "TsparseMatrix") else x
 
-
-	  if(isSym) { ## has only stored "half" of the indices,
-	      ## OTOH,	i === j, so only need one intI() call
-	      ip1 <- intI(i, n=di[1], dn[[1]]) # -> (i0, dn_1)
-	      anyDup <- any(iDup <- duplicated(ip1$i0))
-	      ip1 <- .ind.prep(x@i, ip1, iDup=iDup, anyDup=anyDup)
-	      ip2 <- {
-		  if(anyDup) list(m = match(x@j, ip1$i0, nomatch=0),
-				  li = ip1$li)
-		  else	     .ind.prep(x@j, ip1, iDup=iDup, anyDup=anyDup)
-	      }
-	      if(!is.null(dn[[2]]))	# fix result colnames
-		  ip2$dn <- dn[[2]][ip1$i0 + 1L]
-
-	  } else {
-	      if(!x.tri) {
-		  ii <- intI(i, n = di[1], dn= dn[[1]])
-		  ij <- intI(j, n = di[2], dn= dn[[2]])
-	      }
-              ## FIXME ip1$m , ip2$m  of length 'nnz' can be large;
-              ## rather use which.match(), or which.match("first" & "second")
-	      ip1 <- .ind.prep(x@i, ii)
-	      ip2 <- .ind.prep(x@j, ij)
-	  }
-	  nd <- c(ip1$li, ip2$li)
-	  x@Dim <- nd
-	  x@Dimnames <- list(ip1$dn, ip2$dn)
-
-	  if(isSym) {
-	      sel <- which(ip1$m  &  ip2$m)## FIXME
-	      ii <- ip1$m[sel] - 1L
-	      jj <- ip2$m[sel] - 1L
-	      if(anyDup) { ## careful algorithm --- TODO: in C
-		  ## keep non-duplicated and "increment" for duplicated ones
-		  ij <- pmin(ii, jj)
-		  jj <- pmax(ii, jj) ; ii <- ij
-		  ## length(ii) == length(jj) == length(sel)  _and_  ii <= jj
-		  ix <- ip1$i.x
-		  for(k in seq_along(ix)) {
-		      ## "recursively" add 1 row+column corresp. iDup[k]
-		      i0 <- ip1$i0i[k] -1L # the (0-ind)column we want to repl
-		      i.x <- ix[k]	# < i0
-		      e1 <- ii == i0
-		      e2 <- jj == i0
-		      j1 <- jj[e1]	# >= ii[e1] == i0
-		      j2 <- ii[e2]	# <= jj[e2] == i0 < i.x
-		      ## now the "diagonal special":
-		      if(any(e1 & e2)) {
-			  ## (e1 & e2)[m] = TRUE  <==>	ii[m] == jj[m] == i0
-			  isD <- e1[e2] # logical of same length as j2
-			  stopifnot(sum(isD) == 1)
-			  j2[isD] <- i.x # instead of i0
-		      }
-		      l1x <- j1 < i.x	# & j12 <- j1[l1x]
-		      j11 <- j1[!l1x]	# those >= i.x
-		      s1 <- sel[e1]
-		      ii  <- c(ii,  j2, j1[l1x],  rep.int(i.x, length(j11)))
-		      jj  <- c(jj,  rep.int(ix[k], length(j2)+sum(l1x)), j11)
-		      sel <- c(sel, sel[e2], s1[l1x], s1[!l1x])
-		      stopifnot(ii <= jj, length(sel) == length(ii))
-		  }
-		  if(x@uplo == "U") { ## i <= j : upper triangle
-		      x@i <- ii
-		      x@j <- jj
-		  } else { ## i >= j : lower left triangle
-		      x@i <- jj
-		      x@j <- ii
-		  }
-	      }
-	      else { ## not any Dup
-
-		  if(x@uplo == "U") { ## i <= j : upper triangle
-		      x@i <- pmin(ii, jj)
-		      x@j <- pmax(ii, jj)
-		  } else { ## i >= j : lower left triangle
-		      x@i <- pmax(ii, jj)
-		      x@j <- pmin(ii, jj)
-		  }
-	      }
-
-	  }
-	  else if(!ip1$anyDup && !ip2$anyDup) {
-	      ## "normal case":	 no duplicated indices (and not symmetric)
-
-	      sel <- which(ip1$m  &  ip2$m)## = intersect(which(), which())
-	      x@i <- ip1$m[sel] - 1L
-	      x@j <- ip2$m[sel] - 1L
-	  }
-	  else { ## not Sym   &&  (ip1$anyDup || ip2$anyDup) :
-	      ## duplicated rows or columns -- currently the cheap solution,
-	      ## Basically  implement  X[i,j] as  X[i,] [,j] :
-	      ## FIXME: we are recomputing ip2 here
-
-	      ## - i - ------------------------------
-	      sel <- which(ip1$m > 0L)
-	      x@i <- ip1$m[sel] - 1L
-	      if(ip1$anyDup) { ## duplicated rows selected: extend sel
-		  sel <- c(sel, ip1$jm)
-		  x@i <- c(x@i, ip1$i.xtra)
-	      }
-	      x@j <- x@j[sel]
-	      if (has.x) x@x <- x@x[sel]
-
-	      ## - j - ------------------------------
-	      ## ip2 <- .ind.prep(x@j, intI(j, n = di[2], dn = dn[[2]]))
-	      ## FIXME can we do better: current x@j is original x@j[sel]
-	      ip2 <- .ind.prep(x@j, ij)
-	      sel <- which(ip2$m > 0L)
-	      x@j <- ip2$m[sel] - 1L
-	      if(ip2$anyDup) { ## duplicated columns selected: extend sel
-		  sel <- c(sel, ip2$jm)
-		  x@j <- c(x@j, ip2$i.xtra)
-	      }
-	      x@i <- x@i[sel]
-	  }
-
-	  if (has.x)
-	      x@x <- x@x[sel]
-
-	  if (drop && any(nd == 1)) drop(as(x, "matrix")) else x
-      })
 
 ## FIXME: Learn from .TM... below or rather  .M.sub.i.2col(.) in ./Matrix.R
 ## ------ the following should be much more efficient than the
@@ -878,12 +666,12 @@ replTmat <- function (x, i, j, ..., value)
 	    }
 	}
     }
-    if(!all(i.repl)) { ## some new entries
-	i.j <- decodeInd(ii.v[!i.repl], nr)
+    if(any(i.new <- !i.repl & isN0(value))) { ## some new entries
+	i.j <- decodeInd(ii.v[i.new], nr)
 	x@i <- c(x@i, i.j[,1])
 	x@j <- c(x@j, i.j[,2])
 	if(has.x)
-	    x@x <- c(x@x, value[!i.repl])
+	    x@x <- c(x@x, value[i.new])
     }
 
     if(extends(clDx, "compMatrix") && length(x@factors)) # drop cashed ones

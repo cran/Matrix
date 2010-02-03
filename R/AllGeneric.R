@@ -28,7 +28,9 @@ setGeneric("lu", function(x, ...) standardGeneric("lu"))
 ##NB     setGeneric("qr", def =   function(x, tol=1e-7,...) standardGeneric("qr"),
 ##NB                useAsDefault= function(x, tol=1e-7,...) base::qr(x, tol, ...))
 
+if(getRversion() < "2.11.0" || R.version$`svn rev` < 51018)
     setGeneric("norm", function(x, type, ...) standardGeneric("norm"))
+## it is *implicit* generic in standard R from 2.11.0 (~= rev 51018)
 
 if(getRversion() < "2.10.0" || R.version$`svn rev` < 49870) {
   setGeneric("rcond", function(x, norm, ...) standardGeneric("rcond"),
@@ -75,3 +77,6 @@ setGeneric("skewpart", function(x) standardGeneric("skewpart"))
 ## ``declares'' the symmetric:
 setGeneric("forceSymmetric",
 	   function(x, uplo) standardGeneric("forceSymmetric"))
+
+setGeneric("nnzero", function(x, na.counted = NA) standardGeneric("nnzero"),
+	   signature = "x")

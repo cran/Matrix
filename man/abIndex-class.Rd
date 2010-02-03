@@ -5,15 +5,30 @@
 %
 \alias{abIndex-class}
 %
+\alias{as.integer,abIndex-method}
 \alias{as.numeric,abIndex-method}
 \alias{[,abIndex,index,ANY,ANY-method}
+\alias{coerce,logical,abIndex-method}
 \alias{coerce,numeric,abIndex-method}
-\alias{coerce,abIndex,numeric-method}
 \alias{coerce,abIndex,integer-method}
+\alias{coerce,abIndex,numeric-method}
+\alias{coerce,abIndex,vector-method}
+\alias{drop,abIndex-method}% not mentioned below {experimental}
 \alias{length,abIndex-method}
+\alias{show,abIndex-method}
+\alias{is.na,abIndex-method}
+\alias{is.finite,abIndex-method}% not yet mentioned
+\alias{is.infinite,abIndex-method}
+%
 \alias{Ops,numeric,abIndex-method}
 \alias{Ops,abIndex,abIndex-method}
 \alias{Ops,abIndex,numeric-method}
+\alias{Ops,abIndex,ANY-method}
+\alias{Ops,ANY,abIndex-method}
+\alias{Arith,abIndex,abIndex-method}
+\alias{Arith,abIndex,numLike-method}% \alias{Arith,abIndex,numeric-method}
+\alias{Arith,numLike,abIndex-method}% \alias{Arith,numeric,abIndex-method}
+%
 \alias{Summary,abIndex-method}
 %
 \description{
@@ -24,14 +39,20 @@
 }
 \section{Objects from the Class}{
   Objects can be created by calls of the form \code{new("abIndex", ...)},
-  or more easily by \code{as(x, "abIndex")} where \code{x} is an integer
-  (valued) vector.
+  but more easily and typically either by \code{as(x, "abIndex")} where
+  \code{x} is an integer (valued) vector, or directly by
+  \code{\link{abIseq}()} and combination \code{\link{c}(...)} of such.
 }
 \section{Slots}{
   \describe{
-    \item{\code{kind}:}{Object of class \code{"character"} ~~ }
-    \item{\code{x}:}{Object of class \code{"numIndex"} ~~ }
-    \item{\code{rleD}:}{Object of class \code{"rleDiff"} ~~ }
+    \item{\code{kind}:}{a \code{\link{character}} string,
+      one of \code{("int32", "double", "rleDiff")}, denoting the
+      internal structure of the abIndex object.}
+    \item{\code{x}:}{Object of class \code{"numLike"}; is
+      used (i.e., not of length \code{0}) only iff the object is \emph{not}
+      compressed, i.e., currently exactly when \code{kind != "rleDiff"}.}
+    \item{\code{rleD}:}{object of class \code{"\linkS4class{rleDiff}"},
+      used for compression via \code{\link{rle}}.}
   }
 }
 \section{Methods}{
@@ -49,7 +70,10 @@
     \item{Ops}{\code{signature(e1 = "abIndex", e2 = "abIndex")}: ... }
     \item{Ops}{\code{signature(e1 = "abIndex", e2 = "numeric")}: ... }
     \item{Summary}{\code{signature(x = "abIndex")}: ... }
-	 }
+    \item{show}{\code{("abIndex")}: simple \code{\link{show}} method,
+      building on \code{show(<rleDiff>)}.}
+    \item{is.na}{\code{("abIndex")}: works analogously to regular vectors.}
+  }
 }
 \note{
   This is currently experimental and not yet used for our own code.
@@ -70,7 +94,10 @@
 showClass("abIndex")
 ii <- c(-3:40, 20:70)
 str(ai <- as(ii, "abIndex"))# note
-
+ai # -> show() method
 %% FIXME: add / exchange with ../tests/abIndex-tsts.R
+
+stopifnot(identical(-3:20,
+                    as(abIseq1(-3,20), "vector")))
 }
 \keyword{classes}

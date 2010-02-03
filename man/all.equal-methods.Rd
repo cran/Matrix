@@ -1,5 +1,5 @@
 \name{all.equal-methods}
-\title{Matrix Methods for Function all.equal()}
+\title{Matrix Package Methods for Function all.equal()}
 \docType{methods}
 \alias{all.equal-methods}
 %
@@ -14,6 +14,9 @@
 \alias{all.equal,sparseVector,sparseMatrix-method}
 \alias{all.equal,sparseVector,ANY-method}
 \alias{all.equal,ANY,sparseVector-method}
+\alias{all.equal,abIndex,abIndex-method}
+\alias{all.equal,abIndex,numLike-method}
+\alias{all.equal,numLike,abIndex-method}
 %
 \description{
  Methods for function \code{\link{all.equal}()} (from \R package

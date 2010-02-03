@@ -128,6 +128,17 @@ M_cholmod_aat(CHM_SP A, int *fset, size_t fsize,
     return fun(A, fset, fsize, mode, Common);
 }
 
+int attribute_hidden
+M_cholmod_band_inplace(CHM_SP A, int k1, int k2, int mode,
+		       CHM_CM Common)
+{
+    static int(*fun)(CHM_SP,int,int,int,CHM_CM) = NULL;
+    if (fun == NULL)
+	fun = (int(*)(CHM_SP,int,int,int,CHM_CM))
+	    R_GetCCallable("Matrix", "cholmod_l_band_inplace");
+    return fun(A, k1, k2, mode, Common);
+}
+
 CHM_SP attribute_hidden
 M_cholmod_add(CHM_SP A, CHM_SP B,
 	      double alpha[2], double beta[2], int values,

@@ -36,6 +36,11 @@
     ## This is formally identical to the base definition, but should use the
     ## generic kronecker
     assignInNamespace("%x%", function (X, Y) kronecker(X, Y), ns = "base")
+    ## similar for det() calling determinant() which we make S4-generic:
+    assignInNamespace("det", function (x, ...) {
+	z <- determinant(x, logarithm = TRUE, ...)
+	c(z$sign * exp(z$modulus))
+    }, ns = "base")
 
     ## Hack needed, as C-level  eval / findFun seems not to work with
     ## loaded & non-attached Matrix:

@@ -3,7 +3,8 @@
 
 #include "Mutils.h"
 
-SEXP Matrix_int_rle(SEXP x_);
+SEXP Matrix_rle_i(SEXP x_, SEXP force_);
+SEXP Matrix_rle_d(SEXP x_, SEXP force_);
 
 #endif
 

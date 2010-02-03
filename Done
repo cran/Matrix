@@ -355,3 +355,13 @@
 
 - <sparseMatrix>  o  <sparseVector>  are implemented now.
 
+- sparse.model.matrix( ... ) now works (again!) for lme4a's InstEval data.
+
+- sparse.model.matrix( ~ -1 + ..)  or
+  sparse.model.matrix( ~  0 + ..)  seem to work ok [ tests/spModel.matrix.R ]
+
+- nnzero() is now generic, with methods, including one for
+  "CHMfactor" using as(*, "sparseMatrix").
+
+
+

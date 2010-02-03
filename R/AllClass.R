@@ -666,10 +666,13 @@ setClass("Schur", contains = "MatrixFactorization",
 
 ## --- "General" (not Matrix at all) ----
 
+## e.g. for "Arith" methods:
+setClassUnion("numLike", members = c("numeric", "logical"))
+
 setClassUnion("numIndex", members = "numeric")
 
 ## Note "rle" is a sealed oldClass (and "virtual" as w/o prototype)
-setClass("rleDiff", representation(first = "numIndex", rle = "rle"),
+setClass("rleDiff", representation(first = "numLike", rle = "rle"),
 	 validity = function(object) {
 	     if(length(object@first) != 1)
 		 return("'first' must be of length one")
@@ -687,7 +690,7 @@ setClass("rleDiff", representation(first = "numIndex", rle = "rle"),
 setClass("abIndex", # 'ABSTRact Index'
          representation(kind = "character", # one of ("int32", "double", "rleDiff")
                                         # i.e., numeric or "rleDiff"
-                        x = "numIndex", # for  numeric [length 0 otherwise]
+                        x = "numLike", # for  numeric [length 0 otherwise]
                         rleD = "rleDiff"),  # "rleDiff" result
          prototype = prototype(kind = "int32", x = integer(0)),# rleD = ... etc
          validity = function(object) {
@@ -743,10 +746,10 @@ setClass("sparseVector",
              else TRUE
          })
 .validXspVec <- function(object) {
-	     n <- object@length
-	     if(length(object@i) != length(object@x))
-		 "'i' and 'x' differ in length"
-	     else TRUE
+    n <- object@length
+    if(length(object@i) != length(object@x))
+        "'i' and 'x' differ in length"
+    else TRUE
 }
 setClass("dsparseVector",
 	 representation(x = "numeric"), contains = "sparseVector",

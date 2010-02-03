@@ -1,7 +1,12 @@
 \name{nnzero}
-\alias{nnzero}
-
 \title{The Number of Non-Zero Values of a Matrix}
+\alias{nnzero}
+\alias{nnzero,ANY-method}
+\alias{nnzero,denseMatrix-method}
+\alias{nnzero,diagonalMatrix-method}
+\alias{nnzero,pMatrix-method}
+\alias{nnzero,sparseMatrix-method}
+\alias{nnzero,CHMfactor-method}
 \description{
   Returns the number of non-zero values of a numeric-like \R object, and
   in particular an object \code{x} inheriting from class
@@ -29,6 +34,23 @@ nnzero(x, na.counted = NA)
 }
 % \details{
 % }
+\section{Methods}{
+  \describe{
+    \item{\code{signature(x = "ANY")}}{the default method for
+      non-\code{\linkS4class{Matrix}} class objects, simply counts the
+      number \code{0}s in \code{x}, counting \code{NA}'s depending on
+      the \code{na.counted} argument, see above.}
+    \item{\code{signature(x = "denseMatrix")}}{conceptually the same as
+      for traditional \code{\link{matrix}} objects, care has to be taken
+      for \code{"\linkS4class{symmetricMatrix}"} objects.}
+    \item{\code{signature(x = "diagonalMatrix")}, and
+      \code{signature(x = "pMatrix")}}{fast simple methods for these
+      special \code{"sparseMatrix"} classes.}
+    \item{\code{signature(x = "sparseMatrix")}}{typically, the most
+      interesting method, also carefully taking
+      \code{"\linkS4class{symmetricMatrix}"} objects into account.}
+  }
+}
 \value{
   the number of non zero entries in \code{x} (typically
   \code{\link{integer}}).

@@ -25,6 +25,9 @@
 \alias{[,diagonalMatrix,index,index,logical-method}
 \alias{[,diagonalMatrix,missing,index,logical-method}
 %
+\alias{[,CsparseMatrix,missing,index,logical-method}
+\alias{[,CsparseMatrix,index,missing,logical-method}
+\alias{[,CsparseMatrix,index,index,logical-method}
 % \alias{[,TsparseTMatrix,missing,missing,ANY-method}
 \alias{[,TsparseMatrix,index,missing,logical-method}
 \alias{[,TsparseMatrix,missing,index,logical-method}

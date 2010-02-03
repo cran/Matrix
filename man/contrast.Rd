@@ -1,6 +1,4 @@
 % originally  src/library/stats/man/contrast.Rd
-%
-% Part of the R package, http://www.R-project.org
 % Copyright 1995-2007 R Core Development Team
 % Distributed under GPL 2 or later
 
@@ -33,7 +31,7 @@ contr.SAS(n, contrasts = TRUE, sparse = FALSE)
   \item{scores}{the set of values over which orthogonal polynomials are
     to be computed.}
   \item{base}{an integer specifying which group is considered the
-    baseline group. Ignored if \code{contrasts} is \code{FALSE}.}
+    baseline group.  Ignored if \code{contrasts} is \code{FALSE}.}
 }
 \details{
   These functions are used for creating contrast matrices for use in

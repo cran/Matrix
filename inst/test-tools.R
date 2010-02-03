@@ -152,9 +152,16 @@ Qidentical <- function(x,y, strictClass = TRUE) {
     TRUE
 }
 
-Q.C.identical <- function(x,y, sparse = is(x,"sparseMatrix")) {
-    if(sparse) Qidentical(as(x,"CsparseMatrix"), as(y,"CsparseMatrix"))
-    else Qidentical(x,y)
+Q.C.identical <- function(x,y, sparse = is(x,"sparseMatrix"),
+                          checkClass = TRUE, strictClass = TRUE) {
+    if(checkClass && class(x) != class(y)) {
+        if(strictClass || !is(x, class(y)))
+	   return(FALSE) ## else try further
+    }
+    if(sparse)
+	Qidentical(as(x,"CsparseMatrix"), as(y,"CsparseMatrix"),
+		   strictClass=strictClass)
+    else Qidentical(x,y, strictClass=strictClass)
 }
 
 Q.eq <- function(x, y,
@@ -524,7 +531,7 @@ checkMatrix <- function(m, m.m = if(do.matrix) as(m, "matrix"),
 	    if(do.matrix) {
 		## determinant(<dense>) "fails" for triangular with NA such as
 		## (m <- matrix(c(1:0,NA,1), 2))
-		CatF("det...(): ")
+		CatF("determinant(): ")
 		if(any(is.na(m.m)) && extends(cld, "triangularMatrix"))
 		    Cat(" skipped: is triang. and has NA")
 		else
@@ -572,8 +579,10 @@ checkMatrix <- function(m, m.m = if(do.matrix) as(m, "matrix"),
 	    m1. <- m1 # replace NA by 1 in m1. , carefully not changing class:
 	    if(any(ina)) m1.@x[is.na(m1.@x)] <- 1
 	    ## coercion to n* (nz-pattern!) and back: only identical when no extra 0s and no NAs:
-	    stopifnot(Q.C.identical(m1., as(as(m., "nMatrix"),"dMatrix"), isSparse),
-		      Q.C.identical(m1 , as(as(m., "lMatrix"),"dMatrix"), isSparse))
+	    stopifnot(Q.C.identical(m1., as(as(m., "nMatrix"),"dMatrix"),
+				    isSparse, checkClass = FALSE),
+		      Q.C.identical(m1 , as(as(m., "lMatrix"),"dMatrix"),
+				    isSparse, checkClass = FALSE))
 	}
 
 	if(extends(cld, "triangularMatrix")) {

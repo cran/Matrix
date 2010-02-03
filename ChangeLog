@@ -1,3 +1,87 @@
+2010-02-03  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Tsparse.R (.TM.repl.i.2col): <nsparse>[ <ij> ] <- FALSE fix
+	* tests/indexing.R, *.Rout.save: test that
+
+2010-01-28  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/Csparse.c (Csparse_crossprod): PROTECT() Tsparse_diagU2N()
+	result, from a suggestion by Andrew Runnalls.
+
+2010-01-22  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/SparseM-conv.R (setAs(., "matrix.csc")): fix typo in method.
+
+2010-01-20  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/AllGeneric.R: nnzero() is now generic,
+	* R/nnzero.R: newly containing all nnzero() methods.
+
+	* R/zzz.R (det): assign base::det such that it uses S4 generic kronecker.
+
+2010-01-18  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/spModels.R (contr.poly): [the back-compatible-only version]:
+	do not use a default for 'scores'; rather rely on stats::contr.poly.
+
+	* tests/spModel.matrix.R: test that case
+
+2009-12-23  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* tests/indexing.R: slightly adapt to the very slight [] changes.
+	* inst/test-tools.R (Q.C.identical): + checkClass
+
+	* R/Tsparse.R ([-methods): for now go via "Csparse" and drop
+	all the sophisticated code dealing with the many cases.
+
+	* R/Csparse.R (subCsp_cols, etc): faster [i,j] via matrix
+	multiplication, thanks to suggestions by Greg Jorstad.
+
+	* R/Auxiliaries.R (paste0): more use of paste0()
+
+2009-12-22  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/diagMatrix.R (.sparseDiagonal): made more general, allowing
+	to directly build the equivalent of   Diagonal(n)[, j]
+
+	* man/Diagonal.Rd: document .sparseDiagonal() as well.
+
+2009-12-21  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/AllClass.R: abIndex@x and rleDiff@first are now "numLike",
+	such that also logical can be converted to "abIndex".
+
+	* R/abIndex.R (.diff): new utility, used in num2abI()
+
+2009-12-19  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/abIndex.c: include new
+	* src/t_Matrix_rle.c (Matrix_RLE_): is template for
+	Matrix_rle_i() and Matrix_rle_d(); now obeys a 'force' argument.
+
+	* R/abIndex.R: implement <Arith> methods, at least with scalars.
+	(all.equal.abI): add also all.equal() methods.
+
+	* tests/abIndex-tsts.R: testing <Arith>, using all.equal().
+
+	* R/AllClass.R: classUnion  "numLike" := {"numeric", "logical"}
+
+2009-12-18  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/abIndex.c (Matrix_int_rle): UNPROTECT() needed in trivial case.
+
+	* R/abIndex.R (abIseq1, abIseq): new functions for building
+	"abIndex" vectors.
+
+	* tests/abIndex-tsts.R (tst.c.abI): test new c("<abIndex>") method.
+
+	* DESCRIPTION (Version): 0.999375-34, CRAN-released:
+
+	* R/Ops.R: use prod(d) instead of d[1]*d[2], as the latter may
+	integer overflow; fixes  <large sparseMatrix>  o  <sparseVector>
+
+	* tests/Simple.R: test that.
+
 2009-12-11  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/sparseVector.R (TsparseM* -> sparseV): symmetricMatrix needs to
@@ -15,7 +99,7 @@
 
 2009-12-06  Martin Maechler  <maechler@stat.math.ethz.ch>
 
-	* DESCRIPTION (Version): 0.999375-33, CRAN-released:
+	* DESCRIPTION (Version): 0.999375-33, CRAN-released: 2009-12-11
 
 	* R/Ops.R (Compare<Csp><Csp>): fix case with NA x.
 

@@ -1,14 +1,19 @@
 \name{Diagonal}
-\alias{Diagonal}
-\alias{.symDiagonal}
 \title{Create Diagonal Matrix Object}
+\alias{Diagonal}
+\alias{.sparseDiagonal}
+\alias{.symDiagonal}
 \description{
   Create a diagonal matrix object, i.e., an object inheriting from
   \code{\linkS4class{diagonalMatrix}}.
 }
 \usage{
 Diagonal(n, x = NULL)
+
 .symDiagonal(n, x = rep.int(1,n), uplo = "U")
+.sparseDiagonal(n, x = rep.int(1,m), uplo = "U",
+                shape = if(missing(cols)) "t" else "g",
+	        kind, cols = if(n) 0:(n - 1L) else integer(0))
 }
 \arguments{
   \item{n}{integer specifying the dimension of the (square) matrix.  If
@@ -19,6 +24,16 @@ Diagonal(n, x = NULL)
     \code{\linkS4class{symmetricMatrix}} will have slot \code{uplo} set
     from this argument, either \code{"U"} or \code{"L"}.  Only rarely
     will it make sense to change this from the default.}
+  \item{shape}{string of 1 character, one of \code{c("t","s","g")}, to
+    chose a triangular, symmetric or general result matrix.}
+  \item{kind}{string of 1 character, one of \code{c("d","l","n")}, to
+    chose the storage mode of the result, from classes
+    \code{\linkS4class{dsparseMatrix}},
+    \code{\linkS4class{lsparseMatrix}}, or
+    \code{\linkS4class{nsparseMatrix}}, respectively.}
+  \item{cols}{integer vector with values from \code{0:(n-1)}, denoting
+    the \emph{columns} to subselect conceptually, i.e., get the
+    equivalent of  \code{Diagonal(n,*)[, cols + 1]}.}
 }
 % \details{
 %   ~~ If necessary, more details than the description above ~~
@@ -34,8 +49,13 @@ Diagonal(n, x = NULL)
   more efficient than \code{Diagonal(n)} when the result is combined
   with further symmetric (sparse) matrices, however \emph{not} for
   matrix multiplications where \code{Diagonal()} is clearly preferred.
+
+  \code{.sparseDiagonal()}, the workhorse of \code{.symDiagonal} returns
+  a \code{\linkS4class{CsparseMatrix}} (the resulting class depending
+  on \code{shape} and \code{kind}) representation of \code{Diagonal(n)},
+  or, when \code{cols} are specified, of \code{Diagonal(n)[, cols+1]}.
 }
-%\author{Martin Maechler}
+\author{Martin Maechler}
 \seealso{the generic function \code{\link{diag}} for \emph{extraction}
   of the diagonal from a matrix works for all \dQuote{Matrices}.
 

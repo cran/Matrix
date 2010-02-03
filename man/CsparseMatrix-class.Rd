@@ -28,6 +28,7 @@
 \alias{t,CsparseMatrix-method}
 \alias{tcrossprod,CsparseMatrix,CsparseMatrix-method}
 \alias{tcrossprod,CsparseMatrix,missing-method}
+% "[" are in ./Xtrct-methods.Rd
 %% Group methods --------- FIXME: not tested yet (or documented)
 \alias{Compare,CsparseMatrix,CsparseMatrix-method}
 \alias{Arith,CsparseMatrix,CsparseMatrix-method}

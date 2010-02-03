@@ -608,7 +608,10 @@ setMethod("rep", "sparseVector",
 	      if (!missing(length.out)) # takes precedence over times
 		  times <- ceiling(length.out/length(x))
 	      r <- repSpV(x, times)
-	      if (!missing(length.out))
+	      if (!missing(length.out) && length(r) != length.out)
+                  ## FIXME: for large length.out > maxInt (and very sparse r),
+                  ##       the following fails, *unnecessarily*
+                  ## --> need a  subset(x, i) function which works with abIndex 'i'
 		  return(r[if(length.out > 0) 1:length.out else integer(0)])
 	      return(r)
 	  })

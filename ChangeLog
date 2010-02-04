@@ -1,3 +1,9 @@
+2010-02-04  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.999375-36, CRAN-released: 2010-02-04
+
+	* R/Csparse.R (subCsp_ij): Fix <sparse>[0,0] bug
+
 2010-02-03  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/Tsparse.R (.TM.repl.i.2col): <nsparse>[ <ij> ] <- FALSE fix
@@ -25,6 +31,13 @@
 	do not use a default for 'scores'; rather rely on stats::contr.poly.
 
 	* tests/spModel.matrix.R: test that case
+
+2009-12-28  Douglas Bates <bates@stat.wisc.edu>
+
+	* DESCRIPTION (Version): 0.999375-35, CRAN-released: 2010-02-03
+
+	* src/init.c, inst/include/Matrix_stubs.c: cholmod_band_inplace()
+	exported.
 
 2009-12-23  Martin Maechler  <maechler@stat.math.ethz.ch>
 
@@ -75,7 +88,7 @@
 
 	* tests/abIndex-tsts.R (tst.c.abI): test new c("<abIndex>") method.
 
-	* DESCRIPTION (Version): 0.999375-34, CRAN-released:
+	* DESCRIPTION (Version): 0.999375-34, CRAN-released: -never-
 
 	* R/Ops.R: use prod(d) instead of d[1]*d[2], as the latter may
 	integer overflow; fixes  <large sparseMatrix>  o  <sparseVector>

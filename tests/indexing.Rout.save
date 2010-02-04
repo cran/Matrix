@@ -1,5 +1,5 @@
 
-R version 2.10.1 Patched (2010-02-02 r51093)
+R version 2.10.1 Patched (2010-02-03 r51097)
 Copyright (C) 2010 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 
@@ -19,7 +19,6 @@ Type 'q()' to quit R.
 > 
 > library(Matrix)
 Loading required package: lattice
-Matrix_NS: <environment: namespace:Matrix>
 > 
 > source(system.file("test-tools.R", package = "Matrix"), keep.source = FALSE)
 > ##-> identical3() etc
@@ -186,7 +185,14 @@ Formal class 'dgTMatrix' [package "Matrix"] with 6 slots
   ..@ x       : num [1:200] 3 7 12 22 25 30 38 39 42 45 ...
   ..@ factors : list()
 > stopifnot(identical(mT, as(mC, "dgTMatrix")),
-+ 	  identical(mC, as(mT, "dgCMatrix")))
++ 	  identical(mC, as(mT, "dgCMatrix")),
++ 	  identical(mC[0,0], new("dgCMatrix")),
++ 	  identical(mT[0,0], new("dgTMatrix")),
++ 	  identical(mT[0,], new("dgTMatrix", Dim = c(0L,20L))),
++ 	  identical(mT[,0], new("dgTMatrix", Dim = c(40L,0L))),
++ 	  identical(mC[0,], as(mT[FALSE,], "dgCMatrix")),
++ 	  identical(mC[,0], as(mT[,FALSE], "dgCMatrix")),
++ 	  TRUE)
 > 
 > mC[,1]
  [1]  0  0  3  0  0  0  7  0  0  0  0 12  0  0  0  0  0  0  0  0  0 22  0  0 25
@@ -1272,7 +1278,7 @@ attr(,"package")
 + 	  identical(thCol,  fx[,5762]))
 > 
 > cat('Time elapsed: ', (.pt <- proc.time()),'\n') # "stats"
-Time elapsed:  21.061 0.989 22.186 0 0 
+Time elapsed:  21.342 1.017 22.453 0 0 
 > ##
 > cat("checkMatrix() of all: \n---------\n")
 checkMatrix() of all: 
@@ -1432,7 +1438,7 @@ suboptimal 'Arith' implementation of  'dsC*  o  dsC*'
 x.x. 
 suboptimal 'Arith' implementation of  'dsC*  o  dsC*'
 > cat('Time elapsed: ', proc.time() - .pt,'\n') # "stats"
-Time elapsed:  13.99 0.336 14.352 0 0 
+Time elapsed:  14.111 0.414 14.535 0 0 
 > 
 > if(!interactive()) warnings()
 NULL

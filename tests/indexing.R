@@ -97,7 +97,14 @@ dimnames(mm) <- NULL ## << workaround: as(<sparse>, "matrix") has NULL dimnames
 str(mC <- as(m, "dgCMatrix"))
 str(mT <- as(m, "dgTMatrix"))
 stopifnot(identical(mT, as(mC, "dgTMatrix")),
-	  identical(mC, as(mT, "dgCMatrix")))
+	  identical(mC, as(mT, "dgCMatrix")),
+	  identical(mC[0,0], new("dgCMatrix")),
+	  identical(mT[0,0], new("dgTMatrix")),
+	  identical(mT[0,], new("dgTMatrix", Dim = c(0L,20L))),
+	  identical(mT[,0], new("dgTMatrix", Dim = c(40L,0L))),
+	  identical(mC[0,], as(mT[FALSE,], "dgCMatrix")),
+	  identical(mC[,0], as(mT[,FALSE], "dgCMatrix")),
+	  TRUE)
 
 mC[,1]
 mC[1:2,]

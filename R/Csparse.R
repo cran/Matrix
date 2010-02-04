@@ -151,17 +151,19 @@ subCsp_ij <- function(x, i, j, drop)
     ## Take care that	x[i,i]	for symmetricM* stays symmetric
     i.eq.j <- identical(i,j) # < want fast check
     ii <- intI(i, n = d[1], dimnames(x)[[1]], give.dn = FALSE)
-    D1 <- .sparseDiagonal(n = d[1], cols = ii)
+    n1 <- ncol(D1 <- .sparseDiagonal(n = d[1], cols = ii))
     cx <- getClassDef(class(x))
     if(!i.eq.j) {
 	jj <- intI(j, n = d[2], dimnames(x)[[2]], give.dn = FALSE)
-	D2 <- .sparseDiagonal(n = d[2], cols = jj)
-	r <- as_M.kind(crossprod(D1, x) %*% D2, cx)
+	n2 <- ncol(D2 <- .sparseDiagonal(n = d[2], cols = jj))
+	r <- if(n1*n2 > 0) as_M.kind(crossprod(D1, x) %*% D2, cx)
+	else new(paste0(.M.kindC(cx), "gCMatrix"), Dim = c(n1,n2))
         if(!is.null(n <- dn[[1]])) r@Dimnames[[1]] <- n[i]
         if(!is.null(n <- dn[[2]])) r@Dimnames[[2]] <- n[j]
 	if(drop && any(r@Dim == 1L)) drop(as(r, "matrix")) else r
     } else { ## i == j
-	r <- as_M.kind(crossprod(D1, x) %*% D1, cx)
+	r <- if(n1 > 0) as_M.kind(crossprod(D1, x) %*% D1, cx)
+	else new(paste0(.M.kindC(cx), "gCMatrix"), Dim = c(n1,n1))
         if(!is.null(n <- dn[[1]])) r@Dimnames[[1]] <- n[i]
         if(!is.null(n <- dn[[2]])) r@Dimnames[[2]] <- n[j]
 	if(drop) drop <- D1@Dim[2] == 1L

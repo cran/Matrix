@@ -91,26 +91,30 @@ stopifnot(is(sel, "lMatrix"), is(ssel, "lsparseMatrix"),
 
 m <- 1:800
 set.seed(101) ; m[sample(800, 600)] <- 0
-m <- Matrix(m, nrow = 40)
+m0 <- Matrix(m, nrow = 40)
+m1 <- add.simpleDimnames(m0)
+for(m in list(m0,m1)) { ## -- with and without dimnames
 mm <- as(m, "matrix")
-dimnames(mm) <- NULL ## << workaround: as(<sparse>, "matrix") has NULL dimnames
 str(mC <- as(m, "dgCMatrix"))
 str(mT <- as(m, "dgTMatrix"))
 stopifnot(identical(mT, as(mC, "dgTMatrix")),
 	  identical(mC, as(mT, "dgCMatrix")),
-	  identical(mC[0,0], new("dgCMatrix")),
-	  identical(mT[0,0], new("dgTMatrix")),
-	  identical(mT[0,], new("dgTMatrix", Dim = c(0L,20L))),
-	  identical(mT[,0], new("dgTMatrix", Dim = c(40L,0L))),
+	  Qidentical(mC[0,0], new("dgCMatrix")),
+	  Qidentical(mT[0,0], new("dgTMatrix")),
+	  identical(unname(mT[0,]), new("dgTMatrix", Dim = c(0L,20L))),
+	  identical(unname(mT[,0]), new("dgTMatrix", Dim = c(40L,0L))),
 	  identical(mC[0,], as(mT[FALSE,], "dgCMatrix")),
 	  identical(mC[,0], as(mT[,FALSE], "dgCMatrix")),
+	  sapply(c(0:2, 5:10), function(k) {i <- seq_len(k); all(mC[i,i] == mT[i,i])}),
 	  TRUE)
-
-mC[,1]
-mC[1:2,]
-mC[7,  drop = FALSE]
+cat("ok\n")
+show(mC[,1])
+show(mC[1:2,])
+show(mC[7,  drop = FALSE])
 assert.EQ.mat(mC[1:2,], mm[1:2,])
-
+assert.EQ.mat(mC[0,], mm[0,])
+assert.EQ.mat(mC[,FALSE], mm[,FALSE])
+##
 ## *repeated* (aka 'duplicated') indices - did not work at all ...
 i <- rep(8:10,2)
 j <- c(2:4, 4:3)
@@ -122,11 +126,14 @@ assert.EQ.mat(mC[i, 2:1], mm[i, 2:1])
 assert.EQ.mat(mC[c(4,1,2:1), j], mm[c(4,1,2:1), j])
 assert.EQ.mat(mC[i,j], mm[i,j])
 set.seed(7)
+cat(" for(): ")
 for(n in 1:50) {
     i <- sample(sample(nrow(mC), 7), 20, replace = TRUE)
     j <- sample(sample(ncol(mC), 6), 17, replace = TRUE)
     assert.EQ.mat(mC[i,j], mm[i,j])
 }
+cat("ok\n----\n")
+}## end{for}
 
 ##---- Symmetric indexing of symmetric Matrix ----------
 m. <- mC; m.[, c(2, 7:12)] <- 0

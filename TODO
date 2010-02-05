@@ -200,8 +200,6 @@
   to have src/UFsparse and src/CHOLMOD/Include on the include path.
   Maybe just those two should be added to the include path.
 
-- sparse.model.matrix( ~ -1 + ..)   *must* be made to work
-
 - (systematically check that LAPACK-calling functions check for
    0-dimensional input themselves; LAPACK gives an integer error code)
 

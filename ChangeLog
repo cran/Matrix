@@ -1,3 +1,15 @@
+2010-02-05  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.999375-37, CRAN-released: 2010-02-..
+
+	* inst/test-tools.R (Qidentical.DN): new
+	(Qidentical): all Qidentical.DN(<dimnames>)
+
+	* R/Csparse.R (subCsp_ij, subCsp_cols, subCsp_rows): use
+	CHOLMOD's submatrix C code, instead of matrix multiplication;
+	now *do* keep dimnames of result, wherever classical matrix
+	subsetting does.
+
 2010-02-04  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* DESCRIPTION (Version): 0.999375-36, CRAN-released: 2010-02-04

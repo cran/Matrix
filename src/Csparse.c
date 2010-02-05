@@ -503,9 +503,18 @@ SEXP Csparse_diagN2U(SEXP x)
     }
 }
 
+/**
+ * "Indexing" aka subsetting : Compute  x[i,j], also for vectors i and j
+ * Working via CHOLMOD_submatrix, see ./CHOLMOD/MatrixOps/cholmod_submatrix.c
+ * @param x CsparseMatrix
+ * @param i row     indices (0-origin), or NULL (R's)
+ * @param j columns indices (0-origin), or NULL
+ *
+ * @return x[i,j]  still CsparseMatrix --- currently, this loses dimnames
+ */
 SEXP Csparse_submatrix(SEXP x, SEXP i, SEXP j)
 {
-    CHM_SP chx = AS_CHM_SP__(x);
+    CHM_SP chx = AS_CHM_SP(x); /* << does diagU2N() when needed */
     int rsize = (isNull(i)) ? -1 : LENGTH(i),
 	csize = (isNull(j)) ? -1 : LENGTH(j);
     int Rkind = (chx->xtype != CHOLMOD_PATTERN) ? Real_kind(x) : 0;
@@ -516,9 +525,14 @@ SEXP Csparse_submatrix(SEXP x, SEXP i, SEXP j)
     if (csize >= 0 && !isInteger(j))
 	error(_("Index j must be NULL or integer"));
 
-    return chm_sparse_to_SEXP(cholmod_l_submatrix(chx, INTEGER(i), rsize,
-						INTEGER(j), csize,
-						TRUE, TRUE, &c),
+    if (chx->stype) /* symmetricMatrix */
+	/* for now, cholmod_submatrix() only accepts "generalMatrix" */
+	chx = cholmod_l_copy(chx, /* stype: */ 0, chx->xtype, &c);
+
+    return chm_sparse_to_SEXP(cholmod_l_submatrix(chx,
+				(rsize < 0) ? NULL : INTEGER(i), rsize,
+			        (csize < 0) ? NULL : INTEGER(j), csize,
+						  TRUE, TRUE, &c),
 			      1, 0, Rkind, "",
 			      /* FIXME: drops dimnames */ R_NilValue);
 }

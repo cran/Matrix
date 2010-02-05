@@ -67,8 +67,8 @@ pkgRversion <- function(pkgname)
 
 add.simpleDimnames <- function(m) {
     stopifnot(length(d <- dim(m)) == 2)
-    dimnames(m) <- list(paste0("r", seq_len(d[1])),
-                        paste0("c", seq_len(d[2])))
+    dimnames(m) <- list(if(d[1]) paste0("r", seq_len(d[1])),
+                        if(d[2]) paste0("c", seq_len(d[2])))
     m
 }
 
@@ -132,6 +132,25 @@ asD <- function(m) { ## as "Dense"
 ## "normal" sparse Matrix: Csparse, no diag="U"
 asCsp <- function(x) Matrix:::diagU2N(as(x, "CsparseMatrix"))
 
+isNull.dimnames <- function(dn) {
+    is.null(dn) || {
+	dn <- unname(dn)
+	ch0 <- character(0)
+	identical(dn, list(NULL,NULL)) ||
+	identical(dn, list(ch0, NULL)) ||
+	identical(dn, list(NULL, ch0)) ||
+	identical(dn, list(ch0, ch0))
+    }
+}
+
+Qidentical.DN <- function(dx, dy) {
+    ## quasi-identical dimnames
+    stopifnot(is.list(dx) || is.null(dx),
+	      is.list(dy) || is.null(dy))
+    ## "empty"
+    (isNull.dimnames(dx) && isNull.dimnames(dy)) || identical(dx, dy)
+}
+
 Qidentical <- function(x,y, strictClass = TRUE) {
     ## quasi-identical - for 'Matrix' matrices
     if(class(x) != class(y)) {
@@ -140,6 +159,11 @@ Qidentical <- function(x,y, strictClass = TRUE) {
         ## else try further
     }
     slts <- slotNames(x)
+    if("Dimnames" %in% slts) { ## always (or we have no 'Matrix')
+	slts <- slts[slts != "Dimnames"]
+	if(!(Qidentical.DN(x@Dimnames, y@Dimnames)))
+	    return(FALSE)
+    }
     if("factors" %in% slts) { ## allow one empty and one non-empty 'factors'
         slts <- slts[slts != "factors"]
         ## if both are not empty, they must be the same:

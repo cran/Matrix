@@ -124,23 +124,23 @@ setMethod("Math",
 subCsp_cols <- function(x, j, drop)
 {
     ## x[ , j, drop=drop]   where we know that	x is Csparse*
-    n <- x@Dim[2]
-    jj <- intI(j, n = n, dimnames(x)[[2]], give.dn = FALSE)
-    D <- .sparseDiagonal(n, cols = jj)
-    r <- as_M.kind(x %*% D, class(x))
-    if(!is.null(dn <- x@Dimnames[[2]])) r@Dimnames[[2]] <- dn[j]
-    if(drop && ncol(D) == 1) drop(as(r, "matrix")) else r
+    dn <- x@Dimnames
+    jj <- intI(j, n = x@Dim[2], dn[[2]], give.dn = FALSE)
+    r <- .Call(Csparse_submatrix, x, NULL, jj)
+    if(!is.null(n <- dn[[1]])) r@Dimnames[[1]] <- n
+    if(!is.null(n <- dn[[2]])) r@Dimnames[[2]] <- n[j]
+    if(drop && any(r@Dim == 1L)) drop(as(r, "matrix")) else r
 }
 
 subCsp_rows <- function(x, i, drop)# , cl = getClassDef(class(x))
 {
     ## x[ i,  drop=drop]   where we know that  x is Csparse*
-    n <- x@Dim[1]
-    ii <- intI(i, n = n, dimnames(x)[[1]], give.dn = FALSE)
-    D <- .sparseDiagonal(n, cols = ii)
-    r <- as_M.kind(crossprod(D, x), class(x))
-    if(!is.null(dn <- x@Dimnames[[1]])) r@Dimnames[[1]] <- dn[i]
-    if(drop && ncol(D) == 1) drop(as(r, "matrix")) else r
+    dn <- x@Dimnames
+    ii <- intI(i, n = x@Dim[1], dn[[1]], give.dn = FALSE)
+    r <- .Call(Csparse_submatrix, x, ii, NULL)
+    if(!is.null(n <- dn[[1]])) r@Dimnames[[1]] <- n[i]
+    if(!is.null(n <- dn[[2]])) r@Dimnames[[2]] <- n
+    if(drop && any(r@Dim == 1L)) drop(as(r, "matrix")) else r
 }
 
 subCsp_ij <- function(x, i, j, drop)
@@ -150,23 +150,17 @@ subCsp_ij <- function(x, i, j, drop)
     dn <- x@Dimnames
     ## Take care that	x[i,i]	for symmetricM* stays symmetric
     i.eq.j <- identical(i,j) # < want fast check
-    ii <- intI(i, n = d[1], dimnames(x)[[1]], give.dn = FALSE)
-    n1 <- ncol(D1 <- .sparseDiagonal(n = d[1], cols = ii))
+    ii <- intI(i, n = d[1], dn[[1]], give.dn = FALSE)
     cx <- getClassDef(class(x))
+    r <- .Call(Csparse_submatrix, x, ii,
+	       if(i.eq.j && d[1] == d[2]) ii else
+	       intI(j, n = d[2], dn[[2]], give.dn = FALSE))
+    if(!is.null(n <- dn[[1]])) r@Dimnames[[1]] <- n[i]
+    if(!is.null(n <- dn[[2]])) r@Dimnames[[2]] <- n[j]
     if(!i.eq.j) {
-	jj <- intI(j, n = d[2], dimnames(x)[[2]], give.dn = FALSE)
-	n2 <- ncol(D2 <- .sparseDiagonal(n = d[2], cols = jj))
-	r <- if(n1*n2 > 0) as_M.kind(crossprod(D1, x) %*% D2, cx)
-	else new(paste0(.M.kindC(cx), "gCMatrix"), Dim = c(n1,n2))
-        if(!is.null(n <- dn[[1]])) r@Dimnames[[1]] <- n[i]
-        if(!is.null(n <- dn[[2]])) r@Dimnames[[2]] <- n[j]
 	if(drop && any(r@Dim == 1L)) drop(as(r, "matrix")) else r
     } else { ## i == j
-	r <- if(n1 > 0) as_M.kind(crossprod(D1, x) %*% D1, cx)
-	else new(paste0(.M.kindC(cx), "gCMatrix"), Dim = c(n1,n1))
-        if(!is.null(n <- dn[[1]])) r@Dimnames[[1]] <- n[i]
-        if(!is.null(n <- dn[[2]])) r@Dimnames[[2]] <- n[j]
-	if(drop) drop <- D1@Dim[2] == 1L
+	if(drop) drop <- any(r@Dim == 1L)
 	if(drop)
 	    drop(as(r, "matrix"))
 	else if(extends(cx, "symmetricMatrix")) ## TODO? make more efficient:

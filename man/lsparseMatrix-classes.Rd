@@ -94,6 +94,12 @@
 \alias{tcrossprod,lgCMatrix,missing-method}
 \alias{tcrossprod,lgTMatrix,missing-method}
 \alias{tcrossprod,lsparseMatrix,missing-method}
+\alias{which,lgTMatrix-method}
+\alias{which,lsparseMatrix-method}
+\alias{which,lsparseVector-method}
+\alias{which,lsTMatrix-method}
+\alias{which,ltTMatrix-method}
+%
 \description{The \code{lsparseMatrix} class is a virtual class of sparse
   matrices with \code{TRUE}/\code{FALSE} entries.  Only the positions of the
   elements that are \code{TRUE} are stored.  These can be stored in the

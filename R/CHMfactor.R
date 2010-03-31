@@ -126,11 +126,7 @@ setMethod("determinant", signature(x = "CHMfactor", logarithm = "logical"),
 ## packageDescription("Matrix")$Version >= package_version("0.999375-31")
           } ## else  the variable exists but is FALSE --> no warning either
           ldet <- .Call(CHMfactor_ldetL2, x) / 2
-          modulus <- if (logarithm) ldet else exp(ldet)
-          attr(modulus, "logarithm") <- logarithm
-          val <- list(modulus = modulus, sign = as.integer(1))
-          class(val) <- "det"
-          val
+	  mkDet(logarithm=logarithm, ldet=ldet, sig = 1L)
       })
 
 setMethod("update", signature(object = "CHMfactor"),

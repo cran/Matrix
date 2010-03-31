@@ -22,6 +22,8 @@
 \alias{rcond,dtrMatrix,missing-method}
 \alias{show,dtrMatrix-method}
 \alias{solve,dtrMatrix,ddenseMatrix-method}
+\alias{solve,dtrMatrix,dMatrix-method}
+\alias{solve,dtrMatrix,Matrix-method}
 \alias{solve,dtrMatrix,matrix-method}
 \alias{solve,dtrMatrix,missing-method}
 \alias{t,dtrMatrix-method}

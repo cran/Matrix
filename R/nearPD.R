@@ -18,7 +18,10 @@ nearPD <-
              , trace = FALSE # set to TRUE (or 1 ..) to trace iterations
              )
 {
-    stopifnot(isSymmetric(x))
+    if(!isSymmetric(x)) { ## ideally the user should do this herself
+	message("applying nearPD() to symmpart(x)")
+	x <- symmpart(x)
+    }
     n <- ncol(x)
     if(keepDiag) diagX0 <- diag(x)
     ## U should be like x, but filled with '0' -- following also works for 'Matrix':

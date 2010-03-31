@@ -89,19 +89,6 @@ setMethod("t", signature(x = "dsyMatrix"), t_trMatrix,
 setMethod("BunchKaufman", signature(x = "dsyMatrix"),
 	  function(x) .Call(dsyMatrix_trf, x))
 
-## The following has the severe effect of making
-## "dsyMatrix" a subclass of "dpoMatrix" and since the reverse is
-## by definition of "dpoMatrix", the class-hierarchy gets a *cycle* !
-## Hence disable(2008-04-23) and replace with setAs():
-if(FALSE) {
-setIs("dsyMatrix", "dpoMatrix",
-      test = function(obj)
-          "try-error" != class(try(.Call(dpoMatrix_chol, obj), silent=TRUE)),
-      replace = function(obj, value) { ## copy all slots (is needed)
-          for(n in slotNames(obj)) slot(obj, n) <- slot(value, n)
-          obj
-      })
-} else { ## rather
 setAs("dsyMatrix", "dpoMatrix",
       function(from){
 	  if(is.null(tryCatch(.Call(dpoMatrix_chol, from),
@@ -111,7 +98,6 @@ setAs("dsyMatrix", "dpoMatrix",
 	  copyClass(from, "dpoMatrix",
 		    sNames = c("x", "Dim", "Dimnames", "uplo", "factors"))
       })
-}
 
 ## Now that we have "chol", we can define  "determinant" methods,
 ## exactly like in ./dsCMatrix.R

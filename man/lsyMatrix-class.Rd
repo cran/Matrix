@@ -18,8 +18,8 @@
 \description{
   The \code{"lsyMatrix"} class is the class of symmetric, dense logical
   matrices in non-packed storage and \code{"lspMatrix"} is the class of
-  of these in packed storage.  Only the upper triangle or the
-  lower triangle is stored.
+  of these in packed storage. In the packed form, only the upper
+  triangle or the lower triangle is stored.
 }
 \section{Objects from the Class}{
   Objects can be created by calls of the form \code{new("lsyMatrix", ...)}.
@@ -38,11 +38,9 @@
   }
 }
 \section{Extends}{
-  \code{"lsyMatrix"} extends class \code{"lgeMatrix"}, directly, whereas\cr
-  \code{"lspMatrix"} extends class \code{"ldenseMatrix"}, directly.
-
-  Both extend class \code{"symmetricMatrix"}, directly,
-  and class \code{"Matrix"} and others, \emph{in}directly, use
+  Both extend classes \code{"\linkS4class{ldenseMatrix}"} and
+  \code{"\linkS4class{symmetricMatrix}"}, directly; further, class
+  \code{"Matrix"} and others, \emph{in}directly.  Use
   \code{\link{showClass}("lsyMatrix")}, e.g., for details.
 }
 \section{Methods}{

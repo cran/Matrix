@@ -1,6 +1,6 @@
 
-R version 2.10.0 RC (2009-10-23 r50185)
-Copyright (C) 2009 The R Foundation for Statistical Computing
+R version 2.10.1 Patched (2010-02-08 r51110)
+Copyright (C) 2010 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -19,6 +19,14 @@ Type 'q()' to quit R.
 > 
 > library(Matrix)
 Loading required package: lattice
+
+Attaching package: 'Matrix'
+
+
+	The following object(s) are masked from package:base :
+
+	 det 
+
 > 
 > source(system.file("test-tools.R", package = "Matrix"))# identical3() etc
 > 
@@ -302,5 +310,5 @@ rBind (m, v= c(1L, 0L) ), class(m) : dgeMatrix ,. dgCMatrix ,. dgTMatrix ,.
 > 
 > 
 > cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
-Time elapsed:  4.52 0.06 6.024 0 0 
+Time elapsed:  2.343 0.065 2.509 0 0 
 > 

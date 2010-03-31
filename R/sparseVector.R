@@ -140,6 +140,8 @@ setAs("TsparseMatrix", "sparseVector",
 	  kind <- .M.kind(from, cl = cld)
 	  if(extends(cld, "symmetricMatrix"))
 	      from <- as(from, "generalMatrix")
+	  else if(extends(cld, "triangularMatrix") && from@diag == "U")
+	      from <- .Call(Tsparse_diagU2N, from)
 	  if(is_duplicatedT(from, di = d))
 	      from <- uniqTsparse(from)
 	  r <- new(paste0(kind, "sparseVector"), length = n)
@@ -660,3 +662,10 @@ setMethod("Summary", signature(x = "sparseVector", na.rm = "ANY"),
 
 setMethod("solve", signature(a = "Matrix", b = "sparseVector"),
 	  function(a, b, ...) callGeneric(a, as(b, "sparseMatrix")))
+
+## the 'i' slot is 1-based *and* has no NA's:
+
+setMethod("which", "nsparseVector", function(x, arr.ind) sort.int(x@i, method="quick"))
+setMethod("which", "lsparseVector",
+	  function(x, arr.ind) sort.int(x@i[is1(x@x)], method="quick"))
+## and *error* for "dsparseVector", "i*", ...

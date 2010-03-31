@@ -65,6 +65,8 @@
 \alias{\%*\%,lMatrix,dMatrix-method}
 \alias{\%*\%,nMatrix,dMatrix-method}
 %
+\alias{which,lMatrix-method}
+%
 % operations with one argument from the "integer" class
 \alias{crossprod,dMatrix,integer-method}
 \alias{crossprod,integer,dMatrix-method}
@@ -118,12 +120,22 @@
       \emph{\dQuote{Matrix Exponential}}, see \code{\link{expm}}.}
     \item{zapsmall}{\code{signature(x = "dMatrix")}: ... }
   }
+  The following methods are defined for all logical matrices:
+  \describe{
+    \item{which}{\code{signature(x = "lMatrix")}: as the \pkg{base} function
+      \code{\link{which}(x, arr.ind)} returns the indices of the
+      \code{\link{TRUE}} entries in \code{x}; if \code{arr.ind} is true,
+      as a 2-column matrix of row and column indices.}
+  }
 }
 %\references{}
 % Martin + Doug\author{Douglas Bates \email{bates@stat.wisc.edu}}
 \seealso{
-  The nonzero-pattern matrix class \code{\linkS4class{nMatrix}},
-  and the numeric matrix classes \code{\linkS4class{dgeMatrix}},
+  The nonzero-pattern matrix class \code{\linkS4class{nMatrix}}, which
+  can be used to store non-\code{\link{NA}} \code{\link{logical}}
+  matrices even more compactly.
+
+  The numeric matrix classes \code{\linkS4class{dgeMatrix}},
   \code{\linkS4class{dgCMatrix}}, and \code{\linkS4class{Matrix}}.
 }
 \examples{

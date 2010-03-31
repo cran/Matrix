@@ -50,6 +50,7 @@ abIseq (from = 1, to = 1, by = ((to - from)/(length.out - 1)),
 % }
 \seealso{
   the class \code{\linkS4class{abIndex}} documentation;
+  \code{\link{rep2abI}()} for another constructor;
   \code{\link{rle}} (\pkg{base}).
 }
 \examples{

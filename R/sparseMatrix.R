@@ -358,6 +358,7 @@ printSpMatrix <- function(x, digits = getOption("digits"),
 {
     stopifnot(extends(cld, "sparseMatrix"))
     validObject(x) # have seen seg.faults for invalid objects
+    x.orig <- x # to be returned
     d <- dim(x)
     if(is.Udiag <- (extends(cld, "triangularMatrix") && x@diag == "U")) {
 	if(extends(cld, "CsparseMatrix"))
@@ -428,7 +429,8 @@ printSpMatrix <- function(x, digits = getOption("digits"),
 	## show only "structural" zeros as 'zero.print', not all of them..
 	## -> cannot use 'm'
         d <- dim(cx)
-	ne <- length(iN0 <- 1L + .Call(m_encodeInd, non0ind(x, cld), di = d))
+	ne <- length(iN0 <- 1L + .Call(m_encodeInd, non0ind(x, cld),
+				       di = d, FALSE))
 	if(0 < ne && (logi || ne < prod(d))) {
 	    if(logi) {
 		cx[m] <- "|"
@@ -447,7 +449,7 @@ printSpMatrix <- function(x, digits = getOption("digits"),
 			ij <- rbind(ij, ij[notdiag, 2:1], deparse.level=0)
 			F. <-	  c(F., F.[notdiag])
 		    }
-		    iN0 <- 1L + .Call(m_encodeInd, ij, di = d)
+		    iN0 <- 1L + .Call(m_encodeInd, ij, di = d, FALSE)
 		    cx[iN0[F.]] <- ":" # non-structural FALSE (or "o", "," , "-" or "f")?
 		}
 	    }
@@ -484,7 +486,7 @@ printSpMatrix <- function(x, digits = getOption("digits"),
         cx <- cbind(cx, col.trailer, deparse.level = 0)
     ## right = TRUE : cheap attempt to get better "." alignment
     print(cx, quote = FALSE, right = TRUE, max = maxp)
-    invisible(x)
+    invisible(x.orig)
 } ## printSpMatrix()
 
 printSpMatrix2 <- function(x, digits = getOption("digits"),

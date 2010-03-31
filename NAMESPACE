@@ -19,14 +19,14 @@ export("Cholesky",
        "spMatrix",
        "sparseMatrix",
        "Schur",
-       "abIseq", "abIseq1",
+       "abIseq", "abIseq1", "rep2abI",
        "band",
        "bandSparse",
        "bdiag",
 ## no longer; implicit generics now
        ## "colMeans", "colSums", ## these needed a "..." added
        ## "rowMeans", "rowSums",
-##NOT_YET "det", # = a copy of base::det() but with Matrix namespace
+       "det",# << "identical" as base - but with correct determinant()
        "drop0",
        "expand",
        "expm",
@@ -35,6 +35,7 @@ export("Cholesky",
 #	 "isTriangular",
 #	 "isDiagonal",
        "isLDL",
+#TODO       "lm.fit.sparse",# <- "somewhat experimental"
        "lu",
        "nearPD",
        "nnzero",
@@ -274,6 +275,7 @@ exportMethods(## for both own and "other" generics:
 	      "triu",
               "unname",
               "update",
+              "which",
 	      "zapsmall"
 	      )
 
@@ -283,8 +285,7 @@ if(getRversion() < "2.10.0")# The version of R -- at *install* time (!)
 if(getRversion() < "2.10.0")
     export("xtabs")
 
-if(getRversion() < "2.11.0" || R.version$`svn rev` < 51000)
-    ##                                               ----- FIXME exact number
+if(getRversion() < "2.11.0" || R.version$`svn rev` < 51018)
     export("norm")
 
 exportMethods("rbind2")

@@ -84,18 +84,39 @@ setMethod("chol2inv", signature(x = "dtrMatrix"),
 }
 
 setMethod("solve", signature(a = "dtrMatrix", b="missing"),
-	  function(a, b, ...)
-	  .Call(dtrMatrix_solve, a),
-	  valueClass = "dtrMatrix")
+	  function(a, b, ...) {
+	      ## warn, as e.g. CHMfactor have 'system' as third argument
+	      if(length(list(...)))
+		  warning("arguments in", deparse(list(...)), "are disregarded")
+	      .Call(dtrMatrix_solve, a)
+	  }, valueClass = "dtrMatrix")
 
 setMethod("solve", signature(a = "dtrMatrix", b="ddenseMatrix"),
-	  function(a, b, ...)
-          .Call(dtrMatrix_matrix_solve, a, b),
-	  valueClass = "dgeMatrix")
+	  function(a, b, ...) {
+	      if(length(list(...)))
+		  warning("arguments in", deparse(list(...)), "are disregarded")
+	      .Call(dtrMatrix_matrix_solve, a, b)
+	  }, valueClass = "dgeMatrix")
+
+setMethod("solve", signature(a = "dtrMatrix", b="dMatrix"),
+	  function(a, b, ...) {
+	      if(length(list(...)))
+		  warning("arguments in", deparse(list(...)), "are disregarded")
+	      .Call(dtrMatrix_matrix_solve, a, as(b,"denseMatrix"))
+	  }, valueClass = "dgeMatrix")
+setMethod("solve", signature(a = "dtrMatrix", b="Matrix"),
+	  function(a, b, ...) {
+	      if(length(list(...)))
+		  warning("arguments in", deparse(list(...)), "are disregarded")
+	      .Call(dtrMatrix_matrix_solve, a, as(as(b, "dMatrix"),
+						  "denseMatrix"))
+	  }, valueClass = "dgeMatrix")
 
 setMethod("solve", signature(a = "dtrMatrix", b="matrix"),
-	  function(a, b, ...)
-          .Call(dtrMatrix_matrix_solve, a, b),
-	  valueClass = "dgeMatrix")
+	  function(a, b, ...) {
+	      if(length(list(...)))
+		  warning("arguments in", deparse(list(...)), "are disregarded")
+	      .Call(dtrMatrix_matrix_solve, a, b)
+	  }, valueClass = "dgeMatrix")
 
 setMethod("t", signature(x = "dtrMatrix"), t_trMatrix)

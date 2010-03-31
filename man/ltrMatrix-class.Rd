@@ -41,18 +41,16 @@
   }
 }
 \section{Extends}{
-  \code{"ltrMatrix"} extends class \code{"lgeMatrix"}, directly, whereas\cr
-  \code{"ltpMatrix"} extends class \code{"ldenseMatrix"}, directly.
-
-  Both extend Class \code{"triangularMatrix"}, directly,
-  and class \code{"denseMatrix"}, \code{"lMatrix"} and others,
-  \emph{in}directly, use \code{\link{showClass}("lsyMatrix")}, e.g., for
-  details.
+  Both extend classes \code{"\linkS4class{ldenseMatrix}"} and
+  \code{"\linkS4class{triangularMatrix}"}, directly; further, class
+  \code{"Matrix"}, \code{"\linkS4class{lMatrix}"} and others,
+  \emph{in}directly.  Use \code{\link{showClass}("ltrMatrix")}, e.g.,
+  for details.
 }
 \section{Methods}{
   Currently, mainly \code{\link{t}()} and coercion methods (for
   \code{\link{as}(.)}; use, e.g.,
-  \code{\link{showMethods}(class="lsyMatrix")} for details.
+  \code{\link{showMethods}(class="ltpMatrix")} for details.
 }
 \seealso{
   Classes \code{\linkS4class{lgeMatrix}}, \code{\linkS4class{Matrix}};

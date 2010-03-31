@@ -120,7 +120,9 @@ m@Dimnames[[2]] <- m@Dimnames[[1]]
 ## not valid anymore:
 (val <- validObject(m, test=TRUE)); stopifnot(is.character(val))
 dm <- as(m0, "denseMatrix")
-stopifnot(identical(rcond(dm), rcond(m.)),
+stopifnot(all.equal(rcond(dm), rcond(m.), tol = 1e-14),
+	  ##^^^^^^^ dm and m. are both dense, interestingly small differences
+	  ## show in at least one case of optimized BLAS
 	  all.equal(rcond(dm), 0.4899474520656))
 rm(m)
 

@@ -188,6 +188,16 @@ Q.C.identical <- function(x,y, sparse = is(x,"sparseMatrix"),
     else Qidentical(x,y, strictClass=strictClass)
 }
 
+##' <description>
+##'
+##' <details>
+##' @title  Quasi-equal for  'Matrix' matrices
+##' @param x  Matrix
+##' @param y  Matrix
+##' @param superclasses   x and y must coincide in (not) extending these
+##' @param dimnames.check  logical indicating if dimnames(.) much match
+##' @param tol  NA (--> use "==") or numerical tolerance for all.equal()
+##' @return   logical:  Are x and y (quasi) equal ?
 Q.eq <- function(x, y,
 		 superclasses =
 		 c("sparseMatrix", "denseMatrix",
@@ -205,14 +215,19 @@ Q.eq <- function(x, y,
 	if( extends(xcl, SC) &&
 	   !extends(ycl, SC)) return(FALSE)
     }
-    if(is.na(tol))
-        all(x == y | (is.na(x) & is.na(y)))
+    asC <- ## asCommon
+        if((isDense <- extends(xcl,"denseMatrix")))
+            function(m) as(m, "matrix")
+        else function(m)
+            as(as(as(m,"CsparseMatrix"), "dMatrix"), "dgCMatrix")
+    if(is.na(tol)) {
+	if(isDense)
+	    all(x == y | (is.na(x) & is.na(y)))
+	else ## 'x == y' blows up for large sparse matrices:
+	    isTRUE(all.equal(asC(x), asC(y), tol = 0.,
+			     check.attributes = dimnames.check))
+    }
     else if(is.numeric(tol) && tol >= 0) {
-        asC <- ## asCommon
-            if((isDense <- extends(xcl,"denseMatrix")))
-                function(m) as(m, "matrix")
-            else function(m)
-                as(as(as(m,"CsparseMatrix"), "dMatrix"), "dgCMatrix")
         isTRUE(all.equal(asC(x), asC(y), tol = tol,
                          check.attributes = dimnames.check))
     }
@@ -224,6 +239,26 @@ Q.eq2 <- function(x, y,
 		  dimnames.check = FALSE, tol = NA)
     Q.eq(x,y, superclasses=superclasses,
          dimnames.check=dimnames.check, tol=tol)
+
+##' <description>
+##'
+##' <details>
+##' @title  Quasi-equality of  symmpart(m) + skewpart(m) with m
+##' @param m  Matrix
+##' @param tol  numerical tolerance for all.equal()
+##' @return logical
+##' @author Martin Maechler
+Q.eq.symmpart <- function(m, tol = 8 * .Machine$double.eps)
+{
+    ss <- symmpart(m) + skewpart(m)
+    if(hasNA <- any(iNA <- is.na(ss))) {
+	## ss has the NA's symmetrically, but typically m has *not*
+	iiNA <- which(iNA) # <- useful! -- this tests  which() methods!
+	## assign NA's too -- using correct kind of NA:
+	m[iiNA] <- as(NA, Matrix:::.type.kind[Matrix:::.M.kind(m)])
+    }
+    Q.eq2(m, ss, tol = tol)
+}
 
 
 ## Useful Matrix constructors for testing:
@@ -363,28 +398,46 @@ allCholesky <- function(A, verbose = FALSE, silentTry = FALSE)
 }
 
 
-##--- Compatibility tests "Matrix" =!= "traditional Matrix" ---
+###----- Checking a "Matrix" -----------------------------------------
+
+##' <description>
+##'
+##' <details>
+##' @title Compatibility tests "Matrix" <-> "traditional matrix"
+##'        and many more consistency checks
+##'
+##' @param m   a "Matrix"
+##' @param m.m as(m, "matrix")  {if 'do.matrix' }
+##' @param do.matrix logical indicating if as(m, "matrix") should be applied;
+##'    typically false for large sparse matrices
+##' @param do.t  logical: is t(m) "feasible" ?
+##' @param doNorm
+##' @param doOps
+##' @param doSummary
+##' @param doCoerce
+##' @param doCoerce2
+##' @param do.prod
+##' @param verbose logical indicating if "progress output" is produced.
+##' @param catFUN (when 'verbose' is TRUE): function to be used as generalized cat()
+##' @return TRUE (invisibly), unless an error is signalled
+##' @author Martin Maechler, since 11 Apr 2008
 checkMatrix <- function(m, m.m = if(do.matrix) as(m, "matrix"),
-			do.matrix = !(isSparse || isDiag) || prod(dim(m)) < 1e6,
+			do.matrix = !isSparse || prod(dim(m)) < 1e6,
 			do.t = TRUE, doNorm = TRUE, doOps = TRUE,
                         doSummary = TRUE, doCoerce = TRUE,
 			doCoerce2 = doCoerce && !extends(cld, "RsparseMatrix"),
 			do.prod = do.t && do.matrix && !extends(cld, "RsparseMatrix"),
 			verbose = TRUE, catFUN = cat)
 {
-    ## Purpose: Compatibility tests "Matrix" <-> "traditional matrix"
-    ## ----------------------------------------------------------------------
-    ## Arguments: m: is(., "Matrix")
-    ## ----------------------------------------------------------------------
-    ## Author: Martin Maechler, Date: 11 Apr 2008; building on tests originally
-    ##	       in dotestMat()  ../tests/Class+Meth.R
+    ## is also called from  dotestMat()  in ../tests/Class+Meth.R
+
     stopifnot(is(m, "Matrix"))
-    validObject(m)
+    validObject(m) # or error(....)
 
     clNam <- class(m)
     cld <- getClassDef(clNam) ## extends(cld, FOO) is faster than is(m, FOO)
     isCor    <- extends(cld, "corMatrix")
-    isSparse <- extends(cld, "sparseMatrix")
+    isSparse <- extends(cld, "sparseMatrix") # also true for diagonalMatrix !
     isSym    <- extends(cld, "symmetricMatrix")
     isDiag   <- extends(cld, "diagonalMatrix")
     nonMatr  <- clNam != Matrix:::MatrixClass(clNam, cld)
@@ -400,6 +453,7 @@ checkMatrix <- function(m, m.m = if(do.matrix) as(m, "matrix"),
 	dimnames(x) <- list(NULL,NULL)
 	x
     }
+    eps16 <- 16 * .Machine$double.eps
 
     ina <- is.na(m)
     if(do.matrix) {
@@ -432,7 +486,7 @@ checkMatrix <- function(m, m.m = if(do.matrix) as(m, "matrix"),
 	if(do.prod) {
 	    c.m <-  crossprod(m)
 	    tcm <- tcrossprod(m)
-            tolQ <- if(isSparse) NA else 16 * .Machine$double.eps
+            tolQ <- if(isSparse) NA else eps16
 	    stopifnot(dim(c.m) == rep.int(ncol(m), 2),
 		      dim(tcm) == rep.int(nrow(m), 2),
 		      ## FIXME: %*% drops dimnames
@@ -555,7 +609,9 @@ checkMatrix <- function(m, m.m = if(do.matrix) as(m, "matrix"),
 	    if(do.matrix) {
 		## determinant(<dense>) "fails" for triangular with NA such as
 		## (m <- matrix(c(1:0,NA,1), 2))
-		CatF("determinant(): ")
+		CatF("symmpart(m) + skewpart(m) == m: ")
+		Q.eq.symmpart(m)
+		CatF("ok;  determinant(): ")
 		if(any(is.na(m.m)) && extends(cld, "triangularMatrix"))
 		    Cat(" skipped: is triang. and has NA")
 		else
@@ -576,7 +632,8 @@ checkMatrix <- function(m, m.m = if(do.matrix) as(m, "matrix"),
 
 	if(extends(cld, "nMatrix")) {
 	    stopifnot(identical(m, as(as(m, "dMatrix"),"nMatrix")),
-		      identical(m, as(as(m, "lMatrix"),"nMatrix")))
+		      identical(m, as(as(m, "lMatrix"),"nMatrix")),
+		      identical(which(m), which(m.m)))
 	}
 	else if(extends(cld, "lMatrix")) { ## should fulfill even with NA:
 	    stopifnot(all(m | !m | ina), !any(!m & m & !ina))
@@ -591,7 +648,8 @@ checkMatrix <- function(m, m.m = if(do.matrix) as(m, "matrix"),
 	    stopifnot(identical(m. , as(as(m. , "dMatrix"),"lMatrix")),
 		      clNam == "ldiMatrix" || # <- there's no "ndiMatrix"
 		      ## coercion to n* and back: only identical when no extra 0s:
-		      identical(m1., as(as(m1., "nMatrix"),"lMatrix")))
+		      identical(m1., as(as(m1., "nMatrix"),"lMatrix")),
+		      identical(which(m), which(m.m)))
 	}
 	else if(extends(cld, "dMatrix")) {
 	    m. <- if(isSparse && has0) n0m else m
@@ -629,7 +687,15 @@ checkMatrix <- function(m, m.m = if(do.matrix) as(m, "matrix"),
 
 	    ## TODO
 	}
+    }# end {doCoerce2 && ..}
+
+    if(doCoerce && isSparse) { ## coerce to sparseVector and back :
+	v <- as(m, "sparseVector")
+	stopifnot(length(v) == prod(d))
+	dim(v) <- d
+	stopifnot(Q.eq2(m, v))
     }
+
     invisible(TRUE)
 }
 

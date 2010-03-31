@@ -71,11 +71,11 @@ stopifnot(!isTRUE(all.equal.default(m1, m2)),
 
 ### -> error/warning condition for solve() of a singular matrix (Barry Rowlingson)
 (M <- Matrix(0+ 1:16, nc = 4))
-tt <- try(solve(M))## -> an error + a warning about singularity -- and caches the LU decomp
+assertError(solve(M))## -> an error + a warning about singularity -- and caches the LU decomp
+assertError(solve(t(M)))
 options(warn=2) # no more warnings allowed from here
 lum <- lu(M, warnSing=FALSE)
-stopifnot(inherits(tt, "try-error"),
-          is(fLU <- M@factors $ LU, "MatrixFactorization"),
+stopifnot(is(fLU <- M@factors $ LU, "MatrixFactorization"),
           identical(lum, fLU))
 (e.lu <- expand(fLU))
 M2 <- with(e.lu, P %*% L %*% U)

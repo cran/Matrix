@@ -95,6 +95,7 @@ cm1[1:20, 1:20]
 
 b <- matrix(c(rep(0, 711), 1), nc = 1)
 ## solve(Cm, b) by default solves  Ax = b, where A = Cm'Cm !
+## hence, the identical() check *should* work, but fails on some GOTOblas:
 x <- solve(Cm, b)
 stopifnot(identical(x, solve(Cm, b, system = "A")),
           all.equal(x, solve(mtm, b)))

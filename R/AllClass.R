@@ -673,6 +673,10 @@ setClassUnion("numIndex", members = "numeric")
 
 ## Note "rle" is a sealed oldClass (and "virtual" as w/o prototype)
 setClass("rleDiff", representation(first = "numLike", rle = "rle"),
+	 prototype = prototype(first = integer(),
+		     ## workaround buglet in R <= 2.10.x: rle = rle(integer())
+	 rle = structure(list(lengths = integer(0L), values = 0[0L]), class = "rle")
+	 ),
 	 validity = function(object) {
 	     if(length(object@first) != 1)
 		 return("'first' must be of length one")
@@ -687,8 +691,25 @@ setClass("rleDiff", representation(first = "numLike", rle = "rle"),
 	     TRUE
 	 })
 
+### 2010-03-04 -- thinking about *implenting* some 'abIndex' methodology,
+### I conclude that the following structure would probably be even more
+### efficient than the "rleDiff" one :
+### for now, at least use it, and define  "seqMat" <--> "abIndex" coercions:
+setClass("seqMat", contains = "matrix",
+	 prototype = prototype(matrix(0, nrow = 2, ncol=0)),
+	 validity = function(object) {
+	     if(!is.numeric(object)) return("is not numeric")
+	     d <- dim(object)
+	     if(length(d) != 2 || d[1] != 2)
+		 return("not a	 2 x n	matrix")
+	     if(any(object != floor(object)))
+		 return("some entries are not integer valued")
+	     TRUE
+	 })
+
 setClass("abIndex", # 'ABSTRact Index'
-         representation(kind = "character", # one of ("int32", "double", "rleDiff")
+         representation(kind = "character",
+                        ## one of ("int32", "double", "rleDiff")
                                         # i.e., numeric or "rleDiff"
                         x = "numLike", # for  numeric [length 0 otherwise]
                         rleD = "rleDiff"),  # "rleDiff" result

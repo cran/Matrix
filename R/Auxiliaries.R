@@ -3,8 +3,11 @@
 
 ## Need to consider NAs ;  "== 0" even works for logical & complex:
 ## Note that "!x" is faster than "x == 0", but does not (yet!) work for complex
+## if we did these in C, would gain a factor 2 (or so):
 is0  <- function(x) !is.na(x) & x == 0
 isN0 <- function(x)  is.na(x) | x != 0
+is1  <- function(x) !is.na(x) & x   # also == "isTRUE componentwise"
+
 ##
 all0 <- function(x) !any(is.na(x)) && all(!x) ## ~= allFalse
 any0 <- function(x) isTRUE(any(x == 0))	      ## ~= anyFalse
@@ -502,28 +505,29 @@ encodeInd2 <- function(i,j, di) {
 decodeInd <- function(code, nr) cbind(as.integer(code %% nr),
 				      as.integer(code %/% nr))
 
-complementInd <- function(ij, dim)
+complementInd <- function(ij, dim, checkBnds=FALSE)
 {
     ## Purpose: Compute the complement of the 2-column 0-based ij-matrix
     ##		but as 1-based indices
     n <- prod(dim)
     if(n == 0) return(integer(0))
-    seq_len(n)[-(1L + .Call(m_encodeInd, ij, dim))]
+    seq_len(n)[-(1L + .Call(m_encodeInd, ij, dim, checkBnds))]
 }
 
 unionInd <- function(ij1, ij2) unique(rbind(ij1, ij2))
 
-intersectInd <- function(ij1, ij2, di) {
+intersectInd <- function(ij1, ij2, di, checkBnds=FALSE) {
     ## from 2-column (i,j) matrices where i in {0,.., nrow-1},
     ## return only the *common* entries
-    decodeInd(intersect(.Call(m_encodeInd, ij1, di),
-			.Call(m_encodeInd, ij2, di)), nr=di[1])
+    decodeInd(intersect(.Call(m_encodeInd, ij1, di, checkBnds),
+			.Call(m_encodeInd, ij2, di, checkBnds)), nr=di[1])
 }
 
-WhichintersectInd <- function(ij1, ij2, di) {
+WhichintersectInd <- function(ij1, ij2, di, checkBnds=FALSE) {
     ## from 2-column (i,j) matrices where i \in {0,.., nrow-1},
     ## find *where*  common entries are in ij1 & ij2
-    m1 <- match(.Call(m_encodeInd, ij1, di), .Call(m_encodeInd, ij2, di))
+    m1 <- match(.Call(m_encodeInd, ij1, di, checkBnds),
+                .Call(m_encodeInd, ij2, di, checkBnds))
     ni <- !is.na(m1)
     list(which(ni), m1[ni])
 }
@@ -581,11 +585,11 @@ asTuniq <- function(x) {
 
 ## is 'x' a uniq Tsparse Matrix ?
 is_not_uniqT <- function(x, di = dim(x))
-    is.unsorted(x@j) || anyDuplicated(.Call(m_encodeInd2, x@i, x@j, di))
+    is.unsorted(x@j) || anyDuplicated(.Call(m_encodeInd2, x@i, x@j, di, FALSE))
 
 ## is 'x' a TsparseMatrix with no duplicated entries (to be *added* for uniq):
 is_duplicatedT <- function(x, di = dim(x))
-    anyDuplicated(.Call(m_encodeInd2, x@i, x@j, di))
+    anyDuplicated(.Call(m_encodeInd2, x@i, x@j, di, FALSE))
 
 
 t_geMatrix <- function(x) {
@@ -1211,8 +1215,10 @@ setZero <- function(x) {
 }
 
 ##' Compute the three "parts" of two sets:
-##' @param x  arbitrary vector; possibly with duplicated values,
-##' @param y  (ditto)
+##' @param x arbitrary vector; possibly with duplicated values,
+##' @param y (ditto)
+##' @param uniqueCheck
+##' @param check
 ##'
 ##' @return list(x.only = setdiff(x,y),
 ##'              y.only = setdiff(y,x),

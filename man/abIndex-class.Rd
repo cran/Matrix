@@ -5,6 +5,13 @@
 %
 \alias{abIndex-class}
 %
+\alias{seqMat-class}% unexported for now
+% hence, we do not yet mention these further below:
+\alias{coerce,abIndex,seqMat-method}
+\alias{coerce,numeric,seqMat-method}
+\alias{coerce,seqMat,abIndex-method}
+\alias{coerce,seqMat,numeric-method}
+%
 \alias{as.integer,abIndex-method}
 \alias{as.numeric,abIndex-method}
 \alias{[,abIndex,index,ANY,ANY-method}
@@ -36,6 +43,10 @@
     Index Vector}, is used for dealing with large index vectors more
   efficiently, than using integer (or \code{\link{numeric}}) vectors of
   the kind \code{2:1000000} or \code{c(0:1e5, 1000:1e6)}.
+
+  Note that the current implementation details are subject to change,
+  and if you consider working with these classes, please contact the
+  package maintainers (\code{packageDescription("Matrix")$Maintainer}).
 }
 \section{Objects from the Class}{
   Objects can be created by calls of the form \code{new("abIndex", ...)},

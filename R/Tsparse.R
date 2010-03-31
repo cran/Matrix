@@ -173,19 +173,22 @@ intI <- function(i, n, dn, give.dn = TRUE)
       ## actually,  iDup  is rarely needed in calling code
       if(anyDup) list(iDup = iDup, i0i = i0i, i.x = i.x,
 		      jm = unlist(jm), i.xtra = rep.int(i.x, sapply(jm, length))))
-}
+} ## {.ind.prep}
 
-
+##' <description>
+##' Do the ``common things'' for "*gTMatrix" sub-assignment
+##' for 1 dimension, 'margin' ,
+##' <details>
+##' @title Indexing Preparation
+##' @param i "index"
+##' @param margin in {1,2};
+##' @param di = dim(x)	{ used when i is not character }
+##' @param dn = dimnames(x)
+##' @return match(.,.) + li = length of corresponding dimension
+##' difference to .ind.prep(): use 1-indices; no match(xi,..), no dn at end
+##' @author Martin Maechler
 .ind.prep2 <- function(i, margin, di, dn)
-{    ## Purpose: do the ``common things'' for "*gTMatrix" sub-assignment
-    ##		for 1 dimension, 'margin' ,
-    ##		and return match(.,.) + li = length of corresponding dimension
-    ##
-    ## i is "index"; margin in {1,2};
-    ## di = dim(x)	{ used when i is not character }
-
-    ## difference to .ind.prep(): use 1-indices; no match(xi,..), no dn at end
-
+{
     intI(i, n = di[margin], dn = dn[[margin]], give.dn = FALSE)
 }
 
@@ -274,7 +277,7 @@ setMethod("[", signature(x = "TsparseMatrix",
 ### -----   M[i,j] <- v  with   i,j = length-1-numeric;  v= length-1 number
 ###                            *and* M[i,j] == 0 previously
 ##
-## ---------     ----- FIXME(2): keep in sync with replCmat() in ./Csparse.R
+## FIXME(2): keep in sync with replCmat() in ./Csparse.R
 ## FIXME(3): It's terribly slow when used e.g. from diag(M[,-1]) <- value
 ## -----     which has "workhorse"   M[,-1] <- <dsparseVector>
 ##
@@ -313,10 +316,10 @@ replTmat <- function (x, i, j, ..., value)
 		       cl," to ",class(x))
 	}
 	nr <- di[1]
-	x.i <- .Call(m_encodeInd2, x@i, x@j, di=di)
+	x.i <- .Call(m_encodeInd2, x@i, x@j, di=di, FALSE)
 	if(anyDuplicated(x.i)) { ## == if(is_duplicatedT(x, di = di))
 	    x <- uniqTsparse(x)
-	    x.i <- .Call(m_encodeInd2, x@i, x@j, di=di)
+	    x.i <- .Call(m_encodeInd2, x@i, x@j, di=di, FALSE)
 	}
 
 	if(is.logical(i)) { # full-size logical indexing
@@ -370,6 +373,9 @@ replTmat <- function (x, i, j, ..., value)
 	return(x)
     }
     ## nargs() == 4 :
+    Matrix.msg(".. replTmat(x,i,j,v): nargs()= 4;",
+	       if(iMi | jMi) sprintf("missing (i,j) = (%d,%d)", iMi,jMi),
+	       .M.level = 2)# level 1  gives too many messages
 
     ## FIXME: use  'abIndex' or a better algorithm, e.g.  if(iMi)
     i1 <- if(iMi) 0:(di[1] - 1L) else .ind.prep2(i, 1, di, dn)
@@ -390,7 +396,7 @@ replTmat <- function (x, i, j, ..., value)
         i1 <- i1[notDup]
         lenV <- length(value <- rep(value, length.out = lenRepl)[notDup])
         dind[1] <- length(i1)
-        lenRepl <- dind[1] * dind[2]
+        lenRepl <- prod(dind)
     }
 
     if(!jMi && any(dup <- duplicated(i2, fromLast = TRUE))) {
@@ -398,7 +404,7 @@ replTmat <- function (x, i, j, ..., value)
         i2 <- i2[keep]
         lenV <- length(value <- rep(value, length.out = lenRepl)[keep])
         dind[2] <- length(i2)
-        lenRepl <- dind[1] * dind[2]
+        lenRepl <- prod(dind)
     }
     clx <- class(x)
     clDx <- getClassDef(clx) # extends() , is() etc all use the class definition
@@ -494,11 +500,16 @@ replTmat <- function (x, i, j, ..., value)
     ## FIXME [= FIXME(3) above]:
     ## ----- The use of  seq_len(lenRepl) below is *still* inefficient
     ##       and the  vN0 <- isN0(as.vector(value[iI0]))  is even more ...
+    ## try to replace   'seq_len(lenRepl)'  by  'abIseq1(1L, lenRepl)' :
+    ##_ new experimental: -- need   <value>[ <abIndex> ] , intersect() ...
+    ##_ iI0 <- abIseq1(1L, lenRepl)
+    ##_ old -- FIXME_replace -- (but need more abIndex functionality)
+    iI0 <- seq_len(lenRepl)
     if(any(sel)) {
 	## the 0-based indices of non-zero entries -- WRT to submatrix
 	non0 <- cbind(match(x@i[sel], i1),
 		      match(x@j[sel], i2)) - 1L
-	iN0 <- 1L + .Call(m_encodeInd, non0, di = dind)
+	iN0 <- 1L + .Call(m_encodeInd, non0, di = dind, FALSE)
 
 	## 1a) replace those that are already non-zero with non-0 values
 	vN0 <- isN0(as.vector(value[iN0]))
@@ -513,25 +524,32 @@ replTmat <- function (x, i, j, ..., value)
 	    x@i <- x@i[-ii]
 	    x@j <- x@j[-ii]
 	}
-	iI0 <- if(length(iN0) < lenRepl)
-	    seq_len(lenRepl)[-iN0] # == complementInd(non0, dind)
-    } else iI0 <- seq_len(lenRepl)
-
+	iI0 <- if(length(iN0) < lenRepl) iI0[-iN0] ## else NULL
+                                        # == complementInd(non0, dind)
+    }
     if(length(iI0)) {
         if(r.sym) {
-	    ## should only set new entries above / below diagonal
+	    ## should only set new entries above / below diagonal, i.e.,
+            ## subset iI0 such as to contain only  above/below ..
+            ## FIXME: this should be changed for abIndex case ...
 	    iSel <- indTri(dind[1], upper=xU, diag=TRUE)
 	    ## select also the corresponding triangle of values
 	    iI0 <- intersect(iI0, iSel)
         }
-        if(any(vN0 <- isN0(as.vector(value[iI0])))) {
-            ## 2) add those that were structural 0 (where value != 0)
-            ij0 <- decodeInd(iI0[vN0] - 1L, nr = dind[1])
-            x@i <- c(x@i, i1[ij0[,1] + 1L])
-            x@j <- c(x@j, i2[ij0[,2] + 1L])
-            if(has.x)
-		x@x <- c(x@x, as.vector(value[iI0[vN0]]))
-        }
+        full <- length(iI0) == lenRepl
+	vN0 <-
+	    if(!is.atomic(value)) ## <==> "sparseVector"
+		(if(full) value else value[iI0])@i
+	    else which(isN0(if(full) value else value[iI0]))
+	if(length(vN0)) {
+	    ## 2) add those that were structural 0 (where value != 0)
+	    iIN0 <- if(full) vN0 else iI0[vN0]
+	    ij0 <- decodeInd(iIN0 - 1L, nr = dind[1])
+	    x@i <- c(x@i, i1[ij0[,1] + 1L])
+	    x@j <- c(x@j, i2[ij0[,2] + 1L])
+	    if(has.x)
+		x@x <- c(x@x, as.vector(value[iIN0]))
+	}
     }
     if(extends(clDx, "compMatrix") && length(x@factors)) # drop cashed ones
 	x@factors <- list()
@@ -635,7 +653,7 @@ replTmat <- function (x, i, j, ..., value)
 	clDx <- getClassDef(clx <- class(x))
     }
 
-    ii.v <- .Call(m_encodeInd, i - 1L, di)# 0-indexing
+    ii.v <- .Call(m_encodeInd, i - 1L, di, checkBounds = TRUE)# 0-indexing
     if(any(d <- duplicated(rev(ii.v)))) { # reverse: "last" duplicated FALSE
 	warning("duplicate ij-entries in 'Matrix[ ij ] <- value'; using last")
 	nd <- !rev(d)
@@ -643,7 +661,7 @@ replTmat <- function (x, i, j, ..., value)
 	ii.v  <- ii.v [nd]
 	value <- value[nd]
     }
-    ii.x <- .Call(m_encodeInd2, x@i, x@j, di)
+    ii.x <- .Call(m_encodeInd2, x@i, x@j, di, FALSE)
     m1 <- match(ii.v, ii.x)
     i.repl <- !is.na(m1) # those that need to be *replaced*
 

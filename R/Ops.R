@@ -223,8 +223,9 @@ Cmp.Mat.atomic <- function(e1, e2) { ## result will inherit from "lMatrix"
             rx <- rep(r0, length.out = prod(d))
 
             ## Here, we assume that 'r' and the indices align (!)
-            encI <- .Call(m_encodeInd, non0ind(e1, cl1, uniqT=FALSE,
-                                               xtendSymm=FALSE), di = d)
+            encI <- .Call(m_encodeInd,
+                          non0ind(e1, cl1, uniqT=FALSE, xtendSymm=FALSE),
+                          di = d, checkBounds = FALSE)
             rx[1L + encI] <- r
             r <- new(lClass, x = rx, Dim = d, Dimnames = dimnames(e1))
         }
@@ -673,8 +674,9 @@ for(Mcl in c("lMatrix","nMatrix","dMatrix"))
             rx <- rep(r0, length.out = prod(d))
 
             ## Here, we assume that 'r' and the indices align (!)
-            encI <- .Call(m_encodeInd, non0ind(e1, cl1, uniqT=FALSE,
-                                               xtendSymm=FALSE), di = d)
+            encI <- .Call(m_encodeInd,
+                          non0ind(e1, cl1, uniqT=FALSE, xtendSymm=FALSE),
+                          di = d, checkBounds = FALSE)
             rx[1L + encI] <- r
             r <- new(lClass, x = rx, Dim = d, Dimnames = dimnames(e1))
         }
@@ -1018,7 +1020,7 @@ A.M.n <- function(e1, e2) {
 		warning("longer object length\n\tis not a multiple of shorter object length")
 	    ## TODO: construction of [1L + in0 %%l2] via one .Call()
 	    ## 0-based indices:
-	    in0 <- .Call(m_encodeInd, .Call(compressed_non_0_ij, e1, TRUE), d)
+	    in0 <- .Call(m_encodeInd, .Call(compressed_non_0_ij, e1, TRUE), d, FALSE)
 	    e2 <- e2[1L + in0 %% l2]
 	}
 	e1@x <- callGeneric(e1@x, e2)
@@ -1054,7 +1056,7 @@ A.n.M <- function(e1, e2) {
 		warning("longer object length\n\tis not a multiple of shorter object length")
 	    ## TODO: construction of [1L + in0 %% l1] via one .Call()
 	    ## 0-based indices:
-	    in0 <- .Call(m_encodeInd, .Call(compressed_non_0_ij, e2, TRUE), d)
+	    in0 <- .Call(m_encodeInd, .Call(compressed_non_0_ij, e2, TRUE), d, FALSE)
 	    e1 <- e1[1L + in0 %% l1]
 	}
 	e2@x <- callGeneric(e1, e2@x)

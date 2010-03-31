@@ -59,6 +59,55 @@ setAs("lMatrix", "dMatrix",
 setAs("lMatrix", "dgCMatrix",
       function(from) as(as(from, "lgCMatrix"), "dgCMatrix"))
 
+
+## "ldi: is both "sparseMatrix" and "lMatrix" but not "lsparseMatrix"
+setMethod("which", "ldiMatrix",
+	  function(x, arr.ind) {
+	      n <- x@Dim[1L]
+	      i <- if(x@diag == "U") seq_len(n) else which(x@x)
+	      if(arr.ind) cbind(i,i, deparse.level = 0) else i + n*(i - 1L) })
+
+## "FIXME": use .Internal(which(x@x)) and arrayInd() for *dense*
+setMethod("which", "nMatrix",
+	  function(x, arr.ind) which(as(x, "sparseMatrix"), arr.ind=arr.ind))
+setMethod("which", "lMatrix",
+	  function(x, arr.ind) which(as(x, "sparseMatrix"), arr.ind=arr.ind))
+
+.which.via.vec <- function(m) sort.int(as(m, "sparseVector")@i, method="quick")
+
+setMethod("which", "nsparseMatrix",
+	  function(x, arr.ind) {
+	      if(arr.ind) which(as(x, "TsparseMatrix"), arr.ind=TRUE)
+	      else .which.via.vec(x)
+	  })
+setMethod("which", "lsparseMatrix",
+	  function(x, arr.ind) {
+	      if(arr.ind) which(as(x, "TsparseMatrix"), arr.ind=TRUE)
+	      else which(as(x, "sparseVector"))
+	  })
+
+which.ngT <- function(x, arr.ind)
+    if(arr.ind) cbind(x@i, x@j) + 1L else .which.via.vec(x)
+setMethod("which", "ngTMatrix", which.ngT)
+setMethod("which", "ntTMatrix", function(x, arr.ind)
+	  which.ngT(.Call(Tsparse_diagU2N, x), arr.ind))
+setMethod("which", "nsTMatrix", function(x, arr.ind)
+	  which.ngT(as(x, "generalMatrix"), arr.ind))
+
+which.lgT <- function(x, arr.ind) {
+    iT <- is1(x@x)
+    if(arr.ind) cbind(x@i[iT], x@j[iT]) + 1L
+    else sort.int(as(x, "sparseVector")@i[iT], method="quick")
+}
+setMethod("which", "lgTMatrix", which.lgT)
+setMethod("which", "ltTMatrix", function(x, arr.ind)
+	  which.lgT(.Call(Tsparse_diagU2N, x), arr.ind))
+setMethod("which", "lsTMatrix", function(x, arr.ind)
+	  which.lgT(as(x, "generalMatrix"), arr.ind))
+
+
+
+
 ## all() methods ---> ldenseMatrix.R and lsparseMatrix.R
 
 setMethod("any", signature(x = "lMatrix"),

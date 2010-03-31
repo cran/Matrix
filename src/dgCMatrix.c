@@ -176,19 +176,25 @@ SEXP dgCMatrix_lusol(SEXP x, SEXP y)
 
 SEXP dgCMatrix_qrsol(SEXP x, SEXP y, SEXP ord)
 {
+    /* FIXME: extend this to work in multivariate case, i.e. y a matrix with > 1 column ! */
     SEXP ycp = PROTECT((TYPEOF(y) == REALSXP) ?
 		       duplicate(y) : coerceVector(y, REALSXP));
     CSP xc = AS_CSP(x); /* <--> x  may be  dgC* or dtC* */
     int order = INTEGER(ord)[0];
+#ifdef _not_yet_do_FIXME__
+    const char *nms[] = {"L", "coef", "Xty", "resid", ""};
+    SEXP ans = PROTECT(Matrix_make_named(VECSXP, nms));
+#endif
     R_CheckStack();
 
     if (order < 0 || order > 3)
-	warning(_("dgCMatrix_qrsol(., order) needs order in {0,..,3}"));
+	error(_("dgCMatrix_qrsol(., order) needs order in {0,..,3}"));
     /* --> cs_amd()  ---  order 0: natural, 1: Chol, 2: LU, 3: QR */
     if (LENGTH(ycp) != xc->m)
 	error(_("Dimensions of system to be solved are inconsistent"));
     /* FIXME?  Note that qr_sol() would allow *under-determined systems;
-               In general, we'd need  LENGTH(ycp) = max(n,m)
+     *		In general, we'd need  LENGTH(ycp) = max(n,m)
+     * FIXME also: multivariate y (see above)
      */
     if (xc->m < xc->n || xc->n <= 0)
 	error(_("dgCMatrix_qrsol(<%d x %d>-matrix) requires a 'tall' rectangular matrix"),
@@ -196,9 +202,13 @@ SEXP dgCMatrix_qrsol(SEXP x, SEXP y, SEXP ord)
 
     /* cs_qrsol(): Tim Davis (2006) .. "8.2 Using a QR factorization", p.136f , calling
      * -------      cs_sqr(order, ..), see  p.76 */
+    /* MM: FIXME: write our *OWN* version of - the first case (m >= n) - of cs_qrsol()
+     * ---------  which will  (1) work with a *multivariate* y
+     *                        (2) compute coefficients properly, not overwriting RHS
+     */
     if (!cs_qrsol(order, xc, REAL(ycp)))
 	/* return value really is 0 or 1 - no more info there */
-	error(_("cs_qrsol failed"));
+	error(_("cs_qrsol() failed inside dgCMatrix_qrsol()"));
 
     /* Solution is only in the first part of ycp -- cut its length back to n : */
     {
@@ -448,19 +458,25 @@ SEXP dgCMatrix_cholsol(SEXP x, SEXP y)
      * via  "Cholesky(X'X)" .. well not really:
      * cholmod_factorize("x", ..) finds L in  X'X = L'L directly */
     CHM_SP cx = AS_CHM_SP(x);
-    CHM_DN cy = AS_CHM_DN(coerceVector(y, REALSXP)), rhs, cAns;
+    /* FIXME: extend this to work in multivariate case, i.e. y a matrix with > 1 column ! */
+    CHM_DN cy = AS_CHM_DN(coerceVector(y, REALSXP)), rhs, cAns, resid;
     CHM_FR L;
-    double one[] = {1,0}, zero[] = {0,0};
-    SEXP ans = PROTECT(allocVector(VECSXP, 3));
+    int n = cx->ncol;/* #{obs.} {x = t(X) !} */
+    double one[] = {1,0}, zero[] = {0,0}, neg1[] = {-1,0};
+    const char *nms[] = {"L", "coef", "Xty", "resid", ""};
+    SEXP ans = PROTECT(Matrix_make_named(VECSXP, nms));
     R_CheckStack();
 
-    if (cx->ncol < cx->nrow || cx->ncol <= 0)
+    if (n < cx->nrow || n <= 0)
 	error(_("dgCMatrix_cholsol requires a 'short, wide' rectangular matrix"));
-    if (cy->nrow != cx->ncol)
+    if (cy->nrow != n)
 	error(_("Dimensions of system to be solved are inconsistent"));
     rhs = cholmod_l_allocate_dense(cx->nrow, 1, cx->nrow, CHOLMOD_REAL, &c);
+    /* cholmod_sdmult(A, transp, alpha, beta, X, Y, &c):
+     *		Y := alpha*(A*X) + beta*Y or alpha*(A'*X) + beta*Y ;
+     * here: rhs := 1 * x %*% y + 0 =  x %*% y =  X'y  */
     if (!(cholmod_l_sdmult(cx, 0 /* trans */, one, zero, cy, rhs, &c)))
-	error(_("cholmod_l_sdmult error"));
+	error(_("cholmod_l_sdmult error (rhs)"));
     L = cholmod_l_analyze(cx, &c);
     if (!cholmod_l_factorize(cx, L, &c))
 	error(_("cholmod_l_factorize failed: status %d, minor %d from ncol %d"),
@@ -469,15 +485,29 @@ SEXP dgCMatrix_cholsol(SEXP x, SEXP y)
     if (!(cAns = cholmod_l_solve(CHOLMOD_A, L, rhs, &c)))
 	error(_("cholmod_l_solve (CHOLMOD_A) failed: status %d, minor %d from ncol %d"),
 	      c.status, L->minor, L->n);
+    /* L : */
     SET_VECTOR_ELT(ans, 0, chm_factor_to_SEXP(L, 0));
+    /* coef : */
     SET_VECTOR_ELT(ans, 1, allocVector(REALSXP, cx->nrow));
     Memcpy(REAL(VECTOR_ELT(ans, 1)), (double*)(cAns->x), cx->nrow);
+    /* X'y : */
 /* FIXME: Change this when the "effects" vector is available */
     SET_VECTOR_ELT(ans, 2, allocVector(REALSXP, cx->nrow));
-    Memcpy(REAL(VECTOR_ELT(ans, 1)), (double*)(rhs->x), cx->nrow);
+    Memcpy(REAL(VECTOR_ELT(ans, 2)), (double*)(rhs->x), cx->nrow);
+    /* resid := y */
+    resid = cholmod_l_copy_dense(cy, &c);
+    /* cholmod_sdmult(A, transp, alp, bet, X, Y, &c):
+     *		Y := alp*(A*X) + bet*Y or alp*(A'*X) + beta*Y ;
+     * here: resid := -1 * x' %*% coef + 1 * y = y - X %*% coef  */
+    if (!(cholmod_l_sdmult(cx, 1/* trans */, neg1, one, cAns, resid, &c)))
+	error(_("cholmod_l_sdmult error (resid)"));
+    /* FIXME: for multivariate case, i.e. resid  *matrix* with > 1 column ! */
+    SET_VECTOR_ELT(ans, 3, allocVector(REALSXP, n));
+    Memcpy(REAL(VECTOR_ELT(ans, 3)), (double*)(resid->x), n);
 
     cholmod_l_free_factor(&L, &c);
     cholmod_l_free_dense(&rhs, &c);
+    cholmod_l_free_dense(&resid, &c);
     cholmod_l_free_dense(&cAns, &c);
     UNPROTECT(1);
     return ans;

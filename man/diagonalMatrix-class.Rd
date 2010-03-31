@@ -57,6 +57,7 @@
 \alias{diag,diagonalMatrix-method}
 % \alias{diag,ddiMatrix-method}
 % \alias{diag,ldiMatrix-method}
+\alias{which,ldiMatrix-method}
 %
 \alias{Ops,ddiMatrix,sparseMatrix-method}
 \alias{Ops,sparseMatrix,ddiMatrix-method}
@@ -264,6 +265,9 @@
 
     \item{solve}{\code{signature(a = "diagonalMatrix", b, ...)}: is
       trivially implemented, of course.}
+
+    \item{which}{\code{signature(x = "nMatrix")}, semantically
+      equivalent to \pkg{base} function \code{\link{which}(x, arr.ind)}.}
 
     \item{*}{\code{signature(e1 = "ddiMatrix", e2="denseMatrix")}:
       arithmetic and other operators from the \code{\link[=S4groupGeneric]{Ops}}

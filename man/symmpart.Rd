@@ -24,7 +24,7 @@
   symmpart(x) computes the symmetric part \code{(x + t(x))/2} and the
   skew symmetric part \code{(x - t(x))/2} of a square matrix \code{x}.
   Note that \code{x == symmpart(x) + skewpart(x)} for all square
-  matrices.
+  matrices -- apart from extraneous \code{\link{NA}} values in the RHS.
 }
 \usage{
 symmpart(x)

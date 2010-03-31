@@ -207,6 +207,3 @@
   line in tests/indexing.R uses very large objects unnecessarily;
   Improve  replTmat()  in R/Tsparse.R, making use of new "abIndex"
   vectors.
-
-- det() still does not work correctly: it calls the S3
-   base::determinant.  Maybe need to re-assign base::determinant() ?

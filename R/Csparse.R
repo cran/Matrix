@@ -128,7 +128,7 @@ subCsp_cols <- function(x, j, drop)
     jj <- intI(j, n = x@Dim[2], dn[[2]], give.dn = FALSE)
     r <- .Call(Csparse_submatrix, x, NULL, jj)
     if(!is.null(n <- dn[[1]])) r@Dimnames[[1]] <- n
-    if(!is.null(n <- dn[[2]])) r@Dimnames[[2]] <- n[j]
+    if(!is.null(n <- dn[[2]])) r@Dimnames[[2]] <- n[jj+1L]
     if(drop && any(r@Dim == 1L)) drop(as(r, "matrix")) else r
 }
 
@@ -138,7 +138,7 @@ subCsp_rows <- function(x, i, drop)# , cl = getClassDef(class(x))
     dn <- x@Dimnames
     ii <- intI(i, n = x@Dim[1], dn[[1]], give.dn = FALSE)
     r <- .Call(Csparse_submatrix, x, ii, NULL)
-    if(!is.null(n <- dn[[1]])) r@Dimnames[[1]] <- n[i]
+    if(!is.null(n <- dn[[1]])) r@Dimnames[[1]] <- n[ii+1L]
     if(!is.null(n <- dn[[2]])) r@Dimnames[[2]] <- n
     if(drop && any(r@Dim == 1L)) drop(as(r, "matrix")) else r
 }
@@ -151,19 +151,19 @@ subCsp_ij <- function(x, i, j, drop)
     ## Take care that	x[i,i]	for symmetricM* stays symmetric
     i.eq.j <- identical(i,j) # < want fast check
     ii <- intI(i, n = d[1], dn[[1]], give.dn = FALSE)
-    cx <- getClassDef(class(x))
-    r <- .Call(Csparse_submatrix, x, ii,
-	       if(i.eq.j && d[1] == d[2]) ii else
-	       intI(j, n = d[2], dn[[2]], give.dn = FALSE))
-    if(!is.null(n <- dn[[1]])) r@Dimnames[[1]] <- n[i]
-    if(!is.null(n <- dn[[2]])) r@Dimnames[[2]] <- n[j]
+    jj <- if(i.eq.j && d[1] == d[2]) ii
+    else intI(j, n = d[2], dn[[2]], give.dn = FALSE)
+    r <- .Call(Csparse_submatrix, x, ii, jj)
+    if(!is.null(n <- dn[[1]])) r@Dimnames[[1]] <- n[ii + 1L]
+    if(!is.null(n <- dn[[2]])) r@Dimnames[[2]] <- n[jj + 1L]
     if(!i.eq.j) {
 	if(drop && any(r@Dim == 1L)) drop(as(r, "matrix")) else r
     } else { ## i == j
 	if(drop) drop <- any(r@Dim == 1L)
 	if(drop)
 	    drop(as(r, "matrix"))
-	else if(extends(cx, "symmetricMatrix")) ## TODO? make more efficient:
+	else if(extends((cx <- getClassDef(class(x))),
+                        "symmetricMatrix")) ## TODO? make more efficient:
 	    .gC2sym(r, uplo = x@uplo)## preserve uplo !
 	else if(extends(cx, "triangularMatrix") && !is.unsorted(ii))
 	    as(r, "triangularMatrix")
@@ -273,7 +273,7 @@ replCmat <- function (x, i, j, ..., value)
         ## need indices instead of just 'sel', for, e.g.,  A[2:1, 2:1] <- v
 	non0 <- cbind(match(x@i[sel], i1),
 		      match(xj [sel], i2)) - 1L
-	iN0 <- 1L + .Call(m_encodeInd, non0, di = dind)
+	iN0 <- 1L + .Call(m_encodeInd, non0, di = dind, checkBounds = FALSE)
 
         has0 <-
             if(spV) length(value@i) < lenV else any(value[!is.na(value)] == 0)

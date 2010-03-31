@@ -278,10 +278,17 @@ SEXP dgeMatrix_determinant(SEXP x, SEXP logarithm)
 
 SEXP dgeMatrix_solve(SEXP a)
 {
+    /*  compute the 1-norm of the matrix, which is needed
+	later for the computation of the reciprocal condition number. */
+    double aNorm = get_norm(a, "1");
+
+    /* the LU decomposition : */
     SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dgeMatrix"))),
 	lu = dgeMatrix_LU_(a, TRUE);
     int *dims = INTEGER(GET_SLOT(lu, Matrix_DimSym)),
 	*pivot = INTEGER(GET_SLOT(lu, Matrix_permSym));
+
+    /* prepare variables for the dgetri calls */
     double *x, tmp;
     int	info, lwork = -1;
 
@@ -290,7 +297,21 @@ SEXP dgeMatrix_solve(SEXP a)
     slot_dup(val, lu, Matrix_xSym);
     x = REAL(GET_SLOT(val, Matrix_xSym));
     slot_dup(val, lu, Matrix_DimSym);
-    if(dims[0]) {
+
+    if(dims[0]) /* the dimension is not zero */
+    {
+        /* is the matrix is *computationally* singular ? */
+        double rcond;
+        F77_CALL(dgecon)("1", dims, x, dims, &aNorm, &rcond,
+                         (double *) R_alloc(4*dims[0], sizeof(double)),
+                         (int *) R_alloc(dims[0], sizeof(int)), &info);
+        if (info)
+            error(_("error [%d] from Lapack 'dgecon()'"), info);
+        if(rcond < DOUBLE_EPS)
+            error(_("Lapack dgecon(): system computationally singular, reciprocal condition number = %g"),
+		  rcond);
+
+        /* only now try the inversion and check if the matrix is *exactly* singular: */
 	F77_CALL(dgetri)(dims, x, dims, pivot, &tmp, &lwork, &info);
 	lwork = (int) tmp;
 	F77_CALL(dgetri)(dims, x, dims, pivot,

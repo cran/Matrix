@@ -1,8 +1,8 @@
 \name{nearPD}
 \alias{nearPD}
-\title{Nearest Matrix to a Positive Definite Matrix}
+\title{Nearest Positive Definite Matrix}
 \description{
- Computes the nearest positive definite matrix to an approximate
+ Compute the nearest positive definite matrix to an approximate
  one, typically a correlation or variance-covariance matrix.
 }
 \usage{
@@ -14,7 +14,8 @@ nearPD(x, corr = FALSE, keepDiag = FALSE, do2eigen = TRUE,
 \arguments{
   \item{x}{numeric \eqn{n \times n}{n * n} approximately positive
     definite matrix, typically an approximation to a correlation or
-    covariance matrix.}
+    covariance matrix.  If \code{x} is not symmetric,
+    \code{\link{symmpart}(x)} is used.}
   \item{corr}{logical indicating if the matrix should be a
     \emph{correlation} matrix.}
   \item{keepDiag}{logical, generalizing \code{corr}: if \code{TRUE}, the

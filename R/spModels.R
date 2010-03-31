@@ -234,7 +234,7 @@ contr.SAS <- function(n, contrasts = TRUE, sparse=FALSE)
 contr.poly <- stats::contr.poly
 
 `contrasts<-` <- function(x, how.many, value)
- stats::`contrasts<-`(x, how.many=how.many, value=value)
+    stats::`contrasts<-`(x, how.many=how.many, value=value)
 
 } ## end if {define  contr.*()  for pre-2.10.0 R)
 
@@ -247,7 +247,8 @@ contr.poly <- stats::contr.poly
 ##
 ##  Cut'n'paste from model.matrix() ... just replacing small part at end:
 sparse.model.matrix <- function(object, data = environment(object),
-                                contrasts.arg = NULL, xlev = NULL, ...)
+				contrasts.arg = NULL, xlev = NULL,
+				transpose = FALSE, ...)
 {
     t <- if(missing(data)) terms(object) else terms(object, data=data)
     if (is.null(attr(data, "terms")))
@@ -297,11 +298,11 @@ sparse.model.matrix <- function(object, data = environment(object),
         }
     } else {               # internal model.matrix needs some variable
         isF <-  FALSE
-        data <- list(x=rep(0, nrow(data)))
+        data <- cbind(data, x = 0)
     }
     ## <Sparse> src/library/stats/R/models.R has
     ##    ans <- .Internal(model.matrix(t, data))
-    ans <- model.spmatrix(t, data)
+    ans <- model.spmatrix(t, data, transpose=transpose)
     ##     ==============
     ## </Sparse>
 
@@ -417,11 +418,11 @@ is.model.frame <- function(x)
 ##' -- This version uses  'rBind' and returns  X' i.e. t(X) :
 ##' @param trms a "terms" object
 ##' @param mf a data frame, typically resulting from  model.frame()
-##' @param transpose logical indicating if  X' = t(X) {is faster!} or X
-##' 	should be returned
-##' @param drop.unused.levels logical indicating if unused factor levels
-##'	should be dropped
-
+##' @param transpose logical indicating if  X' = t(X) {is faster!}
+##' 	or X should be returned
+##' @param drop.unused.levels logical indicating if unused factor
+##' 	levels should be dropped
+##' @param row.names
 ##' @return sparse matrix (class "dgCMatrix")
 model.spmatrix <- function(trms, mf, transpose=FALSE,
                            drop.unused.levels = TRUE, row.names=TRUE)
@@ -437,23 +438,29 @@ model.spmatrix <- function(trms, mf, transpose=FALSE,
     fnames <- names(mf <- unclass(mf))
     attributes(mf) <- list(names = fnames)
 
-    factorPattern <- attr(trms, "factors")
-    d <- dim(factorPattern)
-    nVar <- d[1]
-    nTrm <- d[2]
-    n.fP <- dimnames(factorPattern)
-    fnames <- n.fP[[1]] # == names of variables {incl. "F(var)"} in the model
-    Names  <- n.fP[[2]] # == colnames == names of terms:  "a", "b:c", ...
-
+    if(length(factorPattern <- attr(trms, "factors"))) {
+        d <- dim(factorPattern)
+        nVar <- d[1]
+        nTrm <- d[2]
+        n.fP <- dimnames(factorPattern)
+        fnames <- n.fP[[1]] # == names of variables {incl. "F(var)"} in the model
+        Names  <- n.fP[[2]] # == colnames == names of terms:  "a", "b:c", ...
+    } else { ## degenerate, e.g.  'Y ~ 1'
+        nVar <- nTrm <- 0L
+        fnames <- Names <- character(0)
+    }
     ## all the "variables in the model" are also in "mf", including "sin(x)";
     ## actually, ..../src/main/model.c even assumes
     stopifnot((m <- length(mf)) >= nVar)
     if(m > nVar) mf <- mf[seq_len(nVar)]
     stopifnot(fnames == names(mf))
-    if(nVar == 0) nVar <- 1L # (as in ~/R/D/r-devel/R/src/main/model.c)
+    noVar <- nVar == 0
+    ##>> this seems wrong; we use  1:nVar for indexing mf[] below ..
+    ##>> if(noVar) nVar <- 1L # (as in ~/R/D/r-devel/R/src/main/model.c)
     ## Note: "character" variables have been changed to factor in the caller;
     ##     hence: both factor and *logical*  should be dealt as factor :
-    indF <- which(is.f <- sapply(mf, function(.) is.factor(.) | is.logical(.)))
+    is.f <- if(noVar) logical(0) else sapply(mf, function(.) is.factor(.) | is.logical(.))
+    indF <- which(is.f)
 
     hasInt <- attr(trms, "intercept") == 1
     ## the degree of interaction:
@@ -465,7 +472,7 @@ model.spmatrix <- function(trms, mf, transpose=FALSE,
             ## replace at the first '1' location:
             factorPattern[indF,][which.max(i1)] <- 2L
         else {}
-            ## nothing to do
+        ## nothing to do
     }
     ## Convert "factors" to "Rowwise- sparseMatrix ("dummy"-matrix) -----------
     ## Result: a list of sparse model matrices for the "factor"s :
@@ -473,57 +480,62 @@ model.spmatrix <- function(trms, mf, transpose=FALSE,
                         names = fnames[indF])
     i.f <- 0
     ## ---- For each variable in the model -------------------
-    for(i in 1:nVar) {
-	nam <- fnames[i]
-	f <- mf[[i]]
-	if(is.f[i]) {
-	    fp <- factorPattern[i,]   ## == factorPattern[nam,]
-	    f.matr[[(i.f <- i.f + 1)]] <- # a list of 2
-		lapply(fac2Sparse(f, to = "d",
-				  drop.unused.levels=drop.unused.levels,
-				  factorPatt12 = 1:2 %in% fp,
-				  contrasts.arg = attr(f, "contrasts")),
-		       function(s) {
-			   if(is.null(s)) return(s)
-			   ## else
-			   rownames(s) <-
-			       paste0(nam, if(is.null(rownames(s)))
-				     ## for some contr.*(), have lost rownames; hmm..
-				     seq_len(nrow(s)) else rownames(s))
+    for(i in seq_len(nVar)) {
+        nam <- fnames[i]
+        f <- mf[[i]]
+        if(is.f[i]) {
+            fp <- factorPattern[i,] ## == factorPattern[nam,]
+            f.matr[[(i.f <- i.f + 1)]] <- # a list of 2
+                lapply(fac2Sparse(f, to = "d",
+                                  drop.unused.levels=drop.unused.levels,
+                                  factorPatt12 = 1:2 %in% fp,
+                                  contrasts.arg = attr(f, "contrasts")),
+                       function(s) {
+                           if(is.null(s)) return(s)
+                           ## else
+                           rownames(s) <-
+                               paste0(nam, if(is.null(rownames(s)))
+                                      ## for some contr.*(), have lost rownames; hmm..
+                                      seq_len(nrow(s)) else rownames(s))
 
-			   s
-		       })
-	} else { ## continuous variable --> "matrix" - for all of them
-	    nr <- if(is.matrix(f)) nrow(f <- t(f)) else (dim(f) <- c(1L, length(f)))[1]
-	    if(is.null(rownames(f)))
-		rownames(f) <- if(nr == 1) nam else paste0(nam, seq_len(nr))
-	    mf[[i]] <- f
-	}
+                           s
+                       })
+        } else { ## continuous variable --> "matrix" - for all of them
+            nr <- if(is.matrix(f)) nrow(f <- t(f)) else (dim(f) <- c(1L, length(f)))[1]
+            if(is.null(rownames(f)))
+                rownames(f) <- if(nr == 1) nam else paste0(nam, seq_len(nr))
+            mf[[i]] <- f
+        }
     }
 
     result <- structure(vector("list", length = nTrm), names = Names)
-    getR <- function(N) # using 'nm'
+    getR <- function(N)                 # using 'nm'
         if(!is.null(r <- f.matr[[N]])) r[[factorPattern[N, nm]]] else mf[[N]]
     for(j in seq_len(nTrm)) { ## j-th term
-	nm <- Names[j]
+        nm <- Names[j]
         nmSplits <- strsplit(nm, ":", fixed=TRUE)[[1]]
         result[[j]] <- sparseInt.r(lapply(nmSplits, getR), do.names=TRUE)
     }
 
-    attributes(trms) <- NULL       # only need formula
+    attributes(trms) <- NULL            # only need formula
     ## r :=  t(X)
     r <- structure(do.call("rBind",
-			   c(if(hasInt) list("(Intercept)" = 1), result)),
-		   ## extra attributes added to the sparse Matrix:
+                           c(if(hasInt) list("(Intercept)" = rep.int(1,n)), result)),
+                   ## extra attributes added to the sparse Matrix:
                    ##  [do *NOT* cobble slots!]
-		   termNames = Names, ## = names(result)
-		   df = sapply(result, ncol),
-		   call = match.call(),
-		   formula = trms)
+                   termNames = Names, ## = names(result)
+                   df = sapply(result, ncol),
+                   call = match.call(),
+                   formula = trms)
+    if(!length(indF) && !is(r, "sparseMatrix")) {
+        mmsg <- gettext('explicitly coercing to "sparseMatrix"')
+        warning(if(!any(is.f)) "no factors in formula; ", mmsg)
+        r <- as(r, "CsparseMatrix")
+    }
     if(row.names)
         colnames(r) <- rnames
     if(!transpose) t(r) else r
-}## model.spmatrix()
+} ## model.spmatrix()
 
 
 
@@ -531,41 +543,105 @@ model.spmatrix <- function(trms, mf, transpose=FALSE,
 
 ## FIXME: still test this function for both methods, since currently
 ## ----- both  dgCMatrix_cholsol and  dgCMatrix_qrsol are only called from here!
-lm.fit.sparse <- function(x, y, offset = NULL, method = c("qr", "cholesky"),
-                          tol = 1e-7, singular.ok = TRUE, order = NULL,
-                          transpose = FALSE) ## NB: meaning of 'transpose'
-                                        # is changed from original
-
+lm.fit.sparse <- function(x, y, w = NULL, offset = NULL,
+			  method = c("qr", "cholesky"),
+			  tol = 1e-7, singular.ok = TRUE, order = NULL,
+			  transpose = FALSE)
 ### Fit a linear model, __ given __ a sparse model matrix 'x'
 ### using a sparse QR or a sparse Cholesky factorization
 {
     cld <- getClass(class(x))
-    stopifnot(extends(cld, "dsparseMatrix"))
-## or     if(!is(x, "dsparseMatrix")) x <- as(x, "dsparseMatrix")
-    yy <- as.numeric(y)
+    stopifnot(extends(cld, "dsparseMatrix"), is.numeric(y))
+## or	  if(!is(x, "dsparseMatrix")) x <- as(x, "dsparseMatrix")
+    if(transpose) { tx <- x ; x <- t(x) }
+    n <- nrow(x)
+    if(NROW(y) != n) stop("incompatible dimensions of (x,y)")
+    ny <- NCOL(y)
     if (!is.null(offset)) {
-	stopifnot(length(offset) == length(y))
-	yy <- yy - as.numeric(offset)
+	stopifnot(length(offset) == n)
+	y <- y - as.numeric(offset)
     }
+    if(ny != 1L) ## FIXME: should not be too much work!
+	stop("multivariate, i.e., matrix 'y' is not yet implemented")
+    if ((has.w <- !is.null(w))) {
+	if(any(w < 0 | is.na(w)))
+	    stop("missing or negative weights not allowed")
+	if(length(w) != n)
+	    stop("weights vector 'w' is of wrong length")
+
+	zero.weights <- any(wis0 <- w == 0)
+	if (zero.weights) {
+	    save.r <- y
+	    save.f <- y
+	    save.w <- w
+	    ok <- !wis0 # == w != 0
+	    i0 <- which(wis0)
+	    ok <- which(ok) # (faster when indexing repeatedly)
+	    w <- w[ok]
+	    x0 <- x[i0, , drop = FALSE]
+	    x  <- x[ok, , drop = FALSE]
+	    n <- nrow(x)
+	    y0 <- if (ny > 1L) y[i0, , drop = FALSE] else y[i0]
+	    y  <- if (ny > 1L) y[ok, , drop = FALSE] else y[ok]
+	}
+	wts <- sqrt(w)
+	## keep the unweighted (x,y):
+	y. <- y ## x. <- x
+	x <- x * wts
+	y <- y * wts
+    }
+
     method <- match.arg(method)
     order <- {
-        if(is.null(order)) ## recommended default depends on method :
-            if(method == "qr") 3L else 1L
-        else as.integer(order) }
+	if(is.null(order)) ## recommended default depends on method :
+	    if(method == "qr") 3L else 1L
+	else as.integer(order) }
 
-    if(transpose) x <- t(x)
-    ans <- switch(method,
-		  cholesky =
-		  .Call(dgCMatrix_cholsol,# has AS_CHM_SP(x)
-			as(x, "CsparseMatrix"), yy),
-		  qr =
-		  .Call(dgCMatrix_qrsol, # has AS_CSP(): must be dgC or dtC:
-			if(cld@className %in% c("dtCMatrix", "dgCMatrix")) x
-			else as(x, "dgCMatrix"),
-			yy, order),
-		  ## otherwise:
-		  stop("unknown method ", dQuote(method))
-		  )
-    ans
+    switch(method,
+	   "cholesky" = {
+	       r <- .Call(dgCMatrix_cholsol, # has AS_CHM_SP(x)
+			  as(if(transpose) tx else t(x), "CsparseMatrix"), y)
+	       coef <- r[["coef"]]
+	   },
+	   "qr" = {
+	       ## FIXME: should improve C code here, to return more
+	       coef <- .Call(dgCMatrix_qrsol, # has AS_CSP(): must be dgC or dtC:
+			     if(cld@className %in% c("dtCMatrix", "dgCMatrix")) x
+			     else as(x, "dgCMatrix"),
+			     y, order)
+	       ## for now -- FIXME --
+	       return(coef)
+	   },
+	   ## otherwise:
+	   stop("unknown method ", dQuote(method))
+	   )
+
+    ## FIXME: add names to coef as in lm.wfit(),
+    ##		~/R/D/r-devel/R/src/library/stats/R/lm.R
+    resid <- if(has.w) r[["resid"]] / wts else r[["resid"]]
+    z <- list(coef = coef, weights = w,
+	      residuals = resid, fitted.values = y - resid)
+    if(has.w && zero.weights) {
+	coef[is.na(coef)] <- 0
+	f0 <- x0 %*% coef
+	if (ny > 1) {
+	    save.r[ok, ] <- resid
+	    save.r[i0, ] <- y0 - f0
+	    save.f[ok, ] <- z$fitted.values
+	    save.f[i0, ] <- f0
+	}
+	else {
+	    save.r[ok] <- resid
+	    save.r[i0] <- y0 - f0
+	    save.f[ok] <- z$fitted.values
+	    save.f[i0] <- f0
+	}
+	z$residuals <- save.r
+	z$fitted.values <- save.f
+	z$weights <- save.w
+    }
+    if(!is.null(offset))
+	z$fitted.values <- z$fitted.values + offset
+
+    z
 }
-

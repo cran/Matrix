@@ -363,5 +363,5 @@
 - nnzero() is now generic, with methods, including one for
   "CHMfactor" using as(*, "sparseMatrix").
 
-
-
+- det() is "identical" to base::det, but in Matrix namespace and hence
+  calling S4-aware determinant().

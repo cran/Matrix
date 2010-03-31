@@ -1,6 +1,93 @@
+2010-03-31  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/spModels.R (lm.fit.sparse): update, allowing weights; also
+	return residuals, notably for "cholesky" case.
+
+	* man/lm.fit.sparse.Rd: examples; comparing with dense case.
+
+	* src/dgCMatrix.c (dgCMatrix_cholsol): comments; also compute
+	residuals.
+
+2010-03-30  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/spModels.R (sparse.model.matrix, model.spmatrix): border case
+	'~ 1' should also work.  Add  'transpose = FALSE' argument.
+
+	* tests/spModel.matrix.R: test that.
+
+2010-03-27  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/sparseMatrix.R (printSpMatrix): ensure returning original argument
+
+2010-03-26  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/sparseVector.R (coercion from TsparseMatrix): diagU2N() when
+	needed.
+
+	* inst/test-tools.R (checkMatrix): explicit which() test for
+	"l" and "nMatrix".  New sparseVector (coercion "and back") check.
+
+2010-03-25  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/lMatrix.R (which): define methods for which(<[ln]Matrix>).
+
+	* inst/test-tools.R (Q.eq.symmpart): new utility, now called in
+	 checkMatrix().
+
+	* R/nearPD.R: use symmpart() for non-symmetric x
+	* man/nearPD.Rd: improve title
+
+2010-03-24  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/colSums.R (.diag.Mean): define methods for "diagonalMatrix"
+
+	* src/Mutils.c (m_encodeInd, do_ii_FILL):
+	coerce ij to integer if necessary; check that ij are within "dim[]"
+	values.  Parametrize do_ii_FILL() to be used in m_encodeInd2() as well:
+	* src/Mutils.c (m_encodeInd2): also check bounds (if desired).
+
+	* tests/indexing.R: test the above.
+
+2010-03-19  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/dgeMatrix.c (dgeMatrix_solve): compute the recip.cond.number
+	and also bail out for *computational* singularity {as "base R"
+	does}, from (code) suggestion by Daniel Sabanés Bové.
+
+	* tests/dg_Matrix.R: "test" the above.
+
+2010-03-01  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* man/rep2abI.Rd: rep2abI() utility is exported now.
+
+	* R/Csparse.R (subCsp_cols, subCsp_rows, subCsp_ij): dimnames() <-
+	fix for character subsetting.
+
+	* tests/indexing.R: testing it.
+
+2010-02-26  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/spModels.R (model.spmatrix): warn and coerce to sparseMatrix if
+	result would end up dense (e.g., in case of *no* factors in formula).
+
+	* tests/spModel.matrix.R: test the above.
+
+2010-02-12  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/dtrMatrix.R: add solve(<dtrMatrix>, <dMatrix>): e.g., for
+	 solve(<Cholesky>, <dgCMatrix>) in lme4.
+
+2010-02-09  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.999375-38, CRAN-released: ...
+
+	* NAMESPACE, R/AllGeneric.R, R/zzz.R: change det() into a regularly exported
+	function (masking base::det) instead of load-time hack.
+	* man/Matrix-class.Rd: \alias, docu
+
 2010-02-05  Martin Maechler  <maechler@stat.math.ethz.ch>
 
-	* DESCRIPTION (Version): 0.999375-37, CRAN-released: 2010-02-..
+	* DESCRIPTION (Version): 0.999375-37, CRAN-released: 2010-02-05
 
 	* inst/test-tools.R (Qidentical.DN): new
 	(Qidentical): all Qidentical.DN(<dimnames>)

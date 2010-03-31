@@ -3,6 +3,10 @@
 \alias{colMeans}
 \alias{rowSums}
 \alias{rowMeans}
+\alias{colMeans,diagonalMatrix-method}
+\alias{colSums,diagonalMatrix-method}
+\alias{rowMeans,diagonalMatrix-method}
+\alias{rowSums,diagonalMatrix-method}
 \alias{colMeans,CsparseMatrix-method}
 \alias{colSums,CsparseMatrix-method}
 \alias{rowMeans,CsparseMatrix-method}
@@ -100,7 +104,9 @@ rowSums(MM, sparseResult = TRUE) # 16 of 70 are not zero
 colMeans(MM, sparseResult = TRUE)
 ## Since we have no 'NA's, these two are equivalent :
 stopifnot(identical(rowMeans(MM, sparseResult = TRUE),
-                    rowMeans(MM, sparseResult = TRUE, na.rm = TRUE)))
+                    rowMeans(MM, sparseResult = TRUE, na.rm = TRUE)),
+	  rowMeans(Diagonal(16)) == 1/16,
+	  colSums(Diagonal(7)) == 1)
 }
 \keyword{array}
 \keyword{algebra}

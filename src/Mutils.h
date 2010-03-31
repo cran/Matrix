@@ -242,8 +242,8 @@ SEXP dup_mMatrix_as_dgeMatrix(SEXP A);
 SEXP dup_mMatrix_as_geMatrix (SEXP A);
 
 SEXP new_dgeMatrix(int nrow, int ncol);
-SEXP m_encodeInd (SEXP ij, SEXP di);
-SEXP m_encodeInd2(SEXP i, SEXP j, SEXP di);
+SEXP m_encodeInd (SEXP ij, SEXP di, SEXP chk_bnds);
+SEXP m_encodeInd2(SEXP i, SEXP j, SEXP di, SEXP chk_bnds);
 
 
 static R_INLINE SEXP

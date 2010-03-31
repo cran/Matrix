@@ -67,9 +67,10 @@ setMethod("show", "abIndex",
 	  function(object) {
 	      knd <- object@kind
 	      cat(sprintf(
-	"Abstract Index vector (class 'abIndex') of length %d, kind \"%s\"\n",
+	"Abstract Index vector (class 'abIndex') of length %.0f, kind \"%s\"\n",
 			  length(object), knd))
 	      if(knd == "rleDiff") {
+### FIXME: show something like this is equivalent to  c(2:10, 13:34, ...)
 		  cat(" and slot \"rleD\":\n")
 		  show(object@rleD)
 	      } else {
@@ -158,7 +159,7 @@ abIseq <- function(from = 1, to = 1, by = ((to - from)/(length.out - 1)),
     else stop("too many arguments")
 }
 
-##'  rep.int(x, n)    " as abIndex "
+##'  rep.int(x, times)    " as abIndex "
 ##' @param x   numeric vector
 ##' @param times  integer (valued) scalar: the number of repetitions
 ##'
@@ -167,15 +168,28 @@ rep2abI <- function(x, times) {
     r <- new("abIndex")
     if((n <- length(x)) == 0)
         return(r)
-    if(n == 1) { # more or less only sensible case for compression
+    if(n == 1) { # clear case for compression
         r@kind <- "rleDiff"
         rD <- new("rleDiff")
-        rD@first <- x[1]
+        rD@first <- x[1L]
         rD@rle <- .rle(lengths = times - 1L, values = 0L)
         r@rleD <- rD
-    } else { ## n >= 2 .. most of the time, compression is not worth it
-        r@kind <- if(is.integer(x)) "int32" else "double"
-        r@x <- rep.int(x, times)
+    } else { ## n >= 2 .. check if compression is worth it:
+        ## .. say if compression of  x itself is worth {FIXME? optimal cutoff}
+        rr <- rleMaybe(.diff(x))
+	if(is.null(rr)) {
+	    r@kind <- if(is.integer(x)) "int32" else "double"
+	    r@x <- rep.int(x, times)
+	} else {
+	    r@kind <- "rleDiff"
+	    rD <- new("rleDiff")
+	    rD@first <- x[1L]
+	    Dx <- x[1L] - x[length(x)]
+	    N <- (length(rr$lengths) + 1L)*times
+	    rD@rle <- .rle(lengths = rep.int(c(rr$lengths, 1L), times)[-N],
+			   values =  rep.int(c(rr$values,  Dx), times)[-N])
+	    r@rleD <- rD
+	}
     }
     r
 }
@@ -609,3 +623,36 @@ setMethod("all.equal", c(target = "numLike", current = "abIndex"),
 
 ## Then I want something like  get.ind.sel(.)  [ ./Tsparse.R ] working,
 ## i.e. possibly   match(i, <abI>, nomatch = 0)
+
+setAs("seqMat", "numeric", function(from)
+  {
+      do.call(c, lapply(seq_len(ncol(from)), function(j)
+                        seq(from=from[1L,j], to = from[2L,j])))
+  })
+
+setAs("numeric", "seqMat",
+      function(from) as(as(from, "abIndex"), "seqMat"))
+
+setAs("abIndex", "seqMat", function(from)
+  {
+      n <- length(from)
+      d <- from@rleD
+      va <- d@rle$values
+      le <- d@rle$lengths
+      m <- length(le)
+      ## Now work the 'ends' are  cumsum(c(d@first, le * va))
+      ## we need to care for the "length 1" stretches:
+      if(any(nonPair <- le[2* seq_len(m2 <- m %/% 2)] != 1)) {
+
+          ## an "easy" (but not so efficient when 'm' is "large")
+          ## way would be to "make these" into pairs, then work for that case...
+      }
+      ## use ~/R/MM/Pkg-ex/Matrix/abIndex-experi.R for trying things ...
+
+      stop("<abIndex>  -->  <seqMat>  is not yet implemented")
+  })
+
+setAs("seqMat", "abIndex", function(from)
+  {
+      stop("<seqMat>  -->  <abIndex>  is not yet implemented")
+  })

@@ -22,6 +22,7 @@
     ## works around namespace-protection on purpose:
     assignInNamespace("..Old..as.matrix", base::as.matrix, ns = "base")
     assignInNamespace("..Old..as.array",  base::as.array, ns = "base")
+    assignInNamespace("..Old.._x_",       base::`%x%`,    ns = "base")
 
     ##  hack because base::as.matrix() is an S3 generic :
     tmp <- function(x, ...) if(isS4(x)) Matrix::as.matrix(x) else UseMethod("as.matrix")
@@ -36,11 +37,6 @@
     ## This is formally identical to the base definition, but should use the
     ## generic kronecker
     assignInNamespace("%x%", function (X, Y) kronecker(X, Y), ns = "base")
-    ## similar for det() calling determinant() which we make S4-generic:
-    assignInNamespace("det", function (x, ...) {
-	z <- determinant(x, logarithm = TRUE, ...)
-	c(z$sign * exp(z$modulus))
-    }, ns = "base")
 
     ## Hack needed, as C-level  eval / findFun seems not to work with
     ## loaded & non-attached Matrix:
@@ -61,5 +57,7 @@ rBind <- methods:::rbind
 {
     assignInNamespace("as.matrix", base::..Old..as.matrix, ns = "base")
     assignInNamespace("as.array",  base::..Old..as.array,  ns = "base")
+    assignInNamespace("%x%",       base::..Old.._x_,       ns = "base")
+
     library.dynam.unload("Matrix", libpath)
 }

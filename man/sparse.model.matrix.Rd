@@ -7,7 +7,7 @@
 }
 \usage{
 sparse.model.matrix(object, data = environment(object),
-                    contrasts.arg = NULL, xlev = NULL, ...)
+                    contrasts.arg = NULL, xlev = NULL, transpose = FALSE, ...)
 }
 \arguments{
   \item{object}{an object of an appropriate class.  For the default
@@ -20,21 +20,29 @@ sparse.model.matrix(object, data = environment(object),
     \code{\link{factor}}s.}
   \item{xlev}{to be used as argument of \code{\link{model.frame}} if
     \code{data} has no \code{"terms"} attribute.}
+  \item{transpose}{logical indicating if the \emph{transpose} should be
+    returned; if the transposed is used anyway, setting \code{transpose = TRUE}
+    is more efficient.}
   \item{\dots}{further arguments passed to or from other methods.}
 }
 \value{
   a sparse matrix, inheriting from \code{\linkS4class{CsparseMatrix}},
   typically of class  \code{\linkS4class{dgCMatrix}}.
 
-%% It has a few attributes in addition, but I don't yet know if we need
-%% this, and/or if we want to advertize it.
-
+%% It has attributes in addition, e.g., attr(*, "contrasts").
+%% Don't yet know if we need them, and/or if we want to advertize it.
+%% They are not printed!
 }
 \author{Doug Bates and Martin Maechler, with initial suggestions from Tim
   Hesterberg.
 }
 \seealso{
-  \code{\link{model.matrix}}, ...
+  \code{\link{model.matrix}} in standard \R's package \pkg{stats}.
+
+  \code{as(f, "sparseMatrix")} (see \code{coerce(from = "factor", ..)}
+  in the class doc \linkS4class{sparseMatrix}) produces the
+  \emph{transposed} sparse model matrix for a single factor \code{f}
+  (and \emph{no} contrasts).
 }
 \examples{
 dd <- data.frame(a = gl(3,4), b = gl(4,1,12))# balanced 2-way

@@ -57,7 +57,7 @@ setMethod("image", "dgCMatrix",
 ##-> ./colSums.R  for colSums,... rowMeans
 
 setMethod("determinant", signature(x = "dgCMatrix", logarithm = "logical"),
-          detSparseLU)
+          detSparseLU) # using mkDet() --> ./Auxiliaries.R
 
 setMethod("qr", signature(x = "dgCMatrix"),
 	  function(x, tol = 1e-07, LAPACK = FALSE)

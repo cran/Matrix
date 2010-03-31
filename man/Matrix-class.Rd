@@ -60,6 +60,7 @@
 \alias{tcrossprod,numeric,Matrix-method}
 %
 \alias{cov2cor,Matrix-method}
+\alias{det}% "the function" (our copy of base::det)
 \alias{determinant,Matrix,missing-method}
 \alias{determinant,Matrix,logical-method}
 \alias{diag,Matrix-method}
@@ -120,6 +121,15 @@
 }
 \section{Methods}{
   \describe{
+    \item{determinant}{\code{signature(x = "Matrix", logarithm = "missing")}: and}
+    \item{determinant}{\code{signature(x = "Matrix", logarithm = "logical")}:
+      compute the (\eqn{\log}) determinant of \code{x}.  The method
+      chosen depends on the actual Matrix class of \code{x}.  Note that
+      \code{\link[base]{det}} also works for all our matrices, calling the
+      appropriate \code{determinant()} method.  The \code{Matrix::det}
+      is an exact copy of \code{base::det}, but in the correct
+      namespace, and hence calling the S4-aware version of
+      \code{determinant()}.).}
     \item{diff}{\code{signature(x = "Matrix")}: As \code{\link{diff}()}
       for traditional matrices, i.e., applying \code{diff()} to each
       column.}
@@ -191,11 +201,15 @@ showClass("Matrix")#> output with slots and all subclasses
 (M <- Matrix(c(0,1,0,0), 6, 4))
 dim(M)
 diag(M)
+cm <- M[1:4,] + 10*Diagonal(4)
 diff(M)
 ## can reshape it even :
 dim(M) <- c(2, 12)
 M
-stopifnot(identical(M, Matrix(c(0,1,0,0), 2,12)))
+stopifnot(identical(M, Matrix(c(0,1,0,0), 2,12)),
+          all.equal(det(cm),
+                    determinant(as(cm,"matrix"), log=FALSE)$modulus,
+                    check.attr=FALSE))
 }
 \keyword{classes}
 \keyword{algebra}

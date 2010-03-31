@@ -98,6 +98,11 @@
 \alias{tcrossprod,ngTMatrix,missing-method}
 \alias{tcrossprod,nsparseMatrix,missing-method}
 \alias{is.na,nsparseMatrix-method}
+\alias{which,ngTMatrix-method}
+\alias{which,nsparseMatrix-method}
+\alias{which,nsparseVector-method}
+\alias{which,nsTMatrix-method}
+\alias{which,ntTMatrix-method}
 % Group
 \alias{Ops,dsparseMatrix,nsparseMatrix-method}
 \alias{Ops,nsparseMatrix,dsparseMatrix-method}

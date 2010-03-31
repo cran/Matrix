@@ -46,14 +46,22 @@ checkMatrix(mn)
 mn["rd", "D"]
 ## Printing sparse colnames:
 ms <- as(mn,"sparseMatrix")
+stopifnot(identical(mn["rc", "D"], mn[3,4]), mn[3,4] == 24,
+	  identical(mn[, "A"], mn[,1]), mn[,1] == 1:7,
+	  identical(mn[c("re", "rb"), "B"], mn[c(5,2), 2]),
+	  identical(ms["rc", "D"], ms[3,4]), ms[3,4] == 24,
+	  identical(ms[, "A"], ms[,1]), ms[,1] == 1:7,
+	  identical(ms[ci <- c("re", "rb"), "B"], ms[c(5,2), 2]),
+	  identical(rownames(mn[ci, ]), ci),
+	  identical(rownames(ms[ci, ]), ci),
+	  identical(colnames(mn[,cj <- c("B","D")]), cj),
+	  identical(colnames(ms[,cj]), cj))
+
 ms[sample(28, 20)] <- 0
 ms <- t(rbind2(ms, 3*ms))
 cnam1 <- capture.output(show(ms))[2] ; op <- options("sparse.colnames" = "abb3")
 cnam2 <- capture.output(show(ms))[2] ; options(op) # revert
-stopifnot(identical(mn["rc", "D"], mn[3,4]), mn[3,4] == 24,
-          identical(mn[, "A"], mn[,1]), mn[,1] == 1:7,
-          identical(mn[c("re", "rb"), "B"], mn[c(5,2), 2]),
-	  ## sparse printing
+stopifnot(## sparse printing
 	  grep("^ +$", cnam1) == 1, # cnam1 is empty
 	  identical(cnam2,
 		    paste(" ", paste(rep(rownames(mn), 2), collapse=" "))))
@@ -205,8 +213,12 @@ for(n in 1:100) {
 
 
 stopifnot(all.equal(mC[,3], mm[,3]),
+	  identical(mC[ij], mC[ij + 0.4]),
 	  identical(mC[ij], mm[ij]),
 	  identical(mC[iN], mm[iN]))
+## out of bound indexing must be detected:
+assertError(mC[cbind(ij[,1] - 5, ij[,2])])
+assertError(mC[cbind(ij[,1],     ij[,2] + ncol(mC))])
 
 assert.EQ.mat(mC[7, , drop=FALSE], mm[7, , drop=FALSE])
 identical    (mC[7,   drop=FALSE], mm[7,   drop=FALSE]) # *vector* indexing
@@ -438,7 +450,7 @@ stopifnot(mc@x != 0, mt@x != 0,
 mc0 <- mc
 mt0 <- as(mc0, "TsparseMatrix")
 m0  <- as(mc0, "matrix")
-set.seed(1)
+set.seed(1); options(Matrix.verbose = FALSE)
 for(i in 1:50) {
     mc <- mc0; mt <- mt0 ; m <- m0
     ev <- 1:5 %% 2 == round(runif(1))# 0 or 1
@@ -453,6 +465,7 @@ for(i in 1:50) {
     validObject(mc) ; assert.EQ.mat(mc, m)
     validObject(mt) ; assert.EQ.mat(mt, m)
 }
+options(Matrix.verbose = TRUE)
 
 mc # no longer has non-structural zeros
 mc[ii, jj] <- 1:6

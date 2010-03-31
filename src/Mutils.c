@@ -756,39 +756,57 @@ SEXP new_dgeMatrix(int nrow, int ncol)
  *
  * @param ij: 2-column integer matrix
  * @param di: dim(.), i.e. length 2 integer vector
+ * @param chk_bounds: logical indicating  0 <= ij[,k] < di[k]  need to be checked.
  *
  * @return encoded index; integer if prod(dim) is small; double otherwise
  */
-SEXP m_encodeInd(SEXP ij, SEXP di)
+SEXP m_encodeInd(SEXP ij, SEXP di, SEXP chk_bnds)
 {
     SEXP ans;
     int *ij_di = INTEGER(getAttrib(ij, R_DimSymbol)), n = ij_di[0];
-    int *Di = INTEGER(di), *IJ = INTEGER(ij);
+    int *Di = INTEGER(di), *IJ, *j_;
+    Rboolean check_bounds = asLogical(chk_bnds);
 
-    if(!(isMatrix(ij) && isInteger(ij) && ij_di[1] == 2))
+    ij = PROTECT(coerceVector(ij, INTSXP));
+    if(!(isMatrix(ij) && ij_di[1] == 2))
 	error(_("Argument ij must be 2-column integer matrix"));
+
+    IJ = INTEGER(ij);
+    j_ = IJ+n;/* pointer offset! */
 
     if((Di[0] * (double) Di[1]) >= 1 + (double)INT_MAX) { /* need double */
 	ans = PROTECT(allocVector(REALSXP, n));
 	double *ii = REAL(ans), nr = (double) Di[0];
+#define do_ii_FILL(_i_, _j_)					\
+	int i;								\
+	if(check_bounds) {						\
+	    for(i=0; i < n; i++) {					\
+		if(_i_[i] == NA_INTEGER || _j_[i] == NA_INTEGER)	\
+		    ii[i] = NA_INTEGER;					\
+		else {							\
+		    if(_i_[i] < 0 || _i_[i] >= Di[0])			\
+			error(_("subscript 'i' out of bounds in M[ij]")); \
+		    if(_j_[i] < 0 || _j_[i] >= Di[1])			\
+			error(_("subscript 'j' out of bounds in M[ij]")); \
+		    ii[i] = _i_[i] + _j_[i] * nr;			\
+		}							\
+	    }								\
+	} else {							\
+	    for(i=0; i < n; i++)					\
+		ii[i] = (_i_[i] == NA_INTEGER || _j_[i] == NA_INTEGER)	\
+		    ? NA_INTEGER : _i_[i] + _j_[i] * nr;		\
+	}
 
-#define do_ii_FILL							\
-	int i, *j_ = IJ+n;/* pointer offset! */				\
-	for(i=0; i < n; i++)						\
-	    ii[i] = (IJ[i] == NA_INTEGER || j_[i] == NA_INTEGER)	\
-		? NA_INTEGER : IJ[i] + j_[i] * nr
-
-	do_ii_FILL;
+	do_ii_FILL(IJ, j_);
     } else {
 	ans = PROTECT(allocVector(INTSXP, n));
 	int *ii = INTEGER(ans), nr = Di[0];
 
-	do_ii_FILL;
+	do_ii_FILL(IJ, j_);
     }
-    UNPROTECT(1);
+    UNPROTECT(2);
     return ans;
 }
-#undef do_ii_FILL
 
 /**
  * Encode Matrix index (i,j)  |-->  i + j * nrow   {i,j : 0-origin}
@@ -796,30 +814,32 @@ SEXP m_encodeInd(SEXP ij, SEXP di)
  * @param i: integer vector
  * @param j: integer vector of same length as 'i'
  * @param di: dim(.), i.e. length 2 integer vector
+ * @param chk_bnds: logical indicating  0 <= ij[,k] < di[k]  need to be checked.
  *
  * @return encoded index; integer if prod(dim) is small; double otherwise
  */
-SEXP m_encodeInd2(SEXP i, SEXP j, SEXP di)
+SEXP m_encodeInd2(SEXP i, SEXP j, SEXP di, SEXP chk_bnds)
 {
     SEXP ans;
     int n = LENGTH(i);
-    int *Di = INTEGER(di), *i_ = INTEGER(i), *j_ = INTEGER(j);
+    int *Di = INTEGER(di), *i_, *j_;
+    Rboolean check_bounds = asLogical(chk_bnds);
 
     if(LENGTH(j) != n || !isInteger(i) || !isInteger(j))
 	error(_("i and j must be integer vectors of the same length"));
+    i_ = INTEGER(i);
+    j_ = INTEGER(j);
 
     if((Di[0] * (double) Di[1]) >= 1 + (double)INT_MAX) { /* need double */
 	ans = PROTECT(allocVector(REALSXP, n));
 	double *ii = REAL(ans), nr = (double) Di[0];
-#define do_ii_FILL							\
-	int i;								\
-	for(i=0; i < n; i++) ii[i] = (i_[i] == NA_INTEGER || j_[i] == NA_INTEGER) \
-				 ? NA_INTEGER : i_[i] + j_[i] * nr
-	do_ii_FILL;
+
+	do_ii_FILL(i_, j_);
     } else {
 	ans = PROTECT(allocVector(INTSXP, n));
 	int *ii = INTEGER(ans), nr = Di[0];
-	do_ii_FILL;
+
+	do_ii_FILL(i_, j_);
     }
     UNPROTECT(1);
     return ans;

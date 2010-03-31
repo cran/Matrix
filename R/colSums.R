@@ -68,6 +68,21 @@ setMethod("rowMeans", signature(x = "dgeMatrix"),
 
 ### Sparse Matrices: -------------------------------------------------
 
+## Diagonal ones:
+.diag.Sum <- function(x, na.rm = FALSE, dims = 1)
+    if(x@diag == "U") rep(1, x@Dim[1]) else as.numeric(x@x)
+.diag.Mean <- function(x, na.rm = FALSE, dims = 1) {
+    n <- x@Dim[1L]
+    if(x@diag == "U") rep(1/n, n) else as.numeric(x@x)/n
+}
+
+setMethod("colSums",  signature(x = "diagonalMatrix"), .diag.Sum)
+setMethod("rowSums",  signature(x = "diagonalMatrix"), .diag.Sum)
+setMethod("colMeans", signature(x = "diagonalMatrix"), .diag.Mean)
+setMethod("rowMeans", signature(x = "diagonalMatrix"), .diag.Mean)
+
+rm(.diag.Sum, .diag.Mean)
+
 ### Csparse --- the fast workhorse ones
 
 ### 1) those with .Call(.), {d, i, l, n} gCMatrix  x  {col|row}{Sums|Means} :

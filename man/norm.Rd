@@ -8,10 +8,10 @@
 norm(x, type, \dots)
 }
 \description{
-    Computes a matrix norm of \code{x} using Lapack.  The norm can be
-    the one norm, the infinity norm, the Frobenius norm, or the maximum
-    modulus among elements of a matrix, as determined by the value of
-    \code{type}.
+  Computes a matrix norm of \code{x}, using Lapack for dense matrices.
+  The norm can be the one norm, the infinity norm, the Frobenius norm,
+  or the maximum modulus among elements of a matrix, as determined by
+  the value of \code{type}.
 }
 \arguments{
   \item{x}{

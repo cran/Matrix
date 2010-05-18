@@ -37,11 +37,16 @@ fac2sparse <- function(from, to = c("d","i","l","n","z"),
 	df$x <- rep.int(switch(to,
 			       "d" = 1., "i" = 1L, "l" = TRUE, "z" = 1+0i),
 			nrow(df))
-    as(do.call("new", c(list(Class = paste0(to, "gTMatrix"),
+    ## a version of the following which adapts to a future change of the 1st arg.name of new():
+    ## do.call("new", c(list(Class = paste0(to, "gTMatrix"),
+    ##			     Dim = c(length(levs), n),
+    ##			     Dimnames = list(levs, names(fact)))))
+    argNew <- c(list(Class = paste0(to, "gTMatrix"),
 			     Dim = c(length(levs), n),
 			     Dimnames = list(levs, names(fact))),
-			df)),
-       "CsparseMatrix")
+			df)
+    names(argNew)[1] <- names(formals(new))[[1]]
+    as(do.call("new", argNew), "CsparseMatrix")
 }
 
 setAs("factor", "sparseMatrix", function(from) fac2sparse(from, to = "d"))
@@ -313,12 +318,19 @@ sparse.model.matrix <- function(object, data = environment(object),
     ans
 }
 
-
+##' <description>
+##' Produce the t(Z); Z = "design matrix" of (X : Y), where
+##'             --- t(Z) : aka rowwise -version : "r"
+##' <details>
+##'
+##' @title sparse model matrix for 2-way interaction
+##' @param X and Y either are numeric matrices {maybe 1-column}
+##' @param Y       or "as(<factor>, sparseM)"
+##' @param do.names
+##' @return
+##' @author Martin Maechler
 sparse2int <- function(X, Y, do.names = TRUE)
 {
-    ## Produce the t(Z); Z = "design matrix" of (X : Y), where
-    ##             --- t(Z) : aka rowwise -version : "r"
-
     if(do.names) {
         dnx <- dimnames(X)
         dny <- dimnames(Y)
@@ -326,10 +338,6 @@ sparse2int <- function(X, Y, do.names = TRUE)
     dimnames(Y) <- dimnames(X) <- list(NULL,NULL)
     nx <- nrow(X)
     ny <- nrow(Y)
-
-    ## X, Y either are numeric matrices {maybe 1-column}
-    ##      or "as(<factor>, sparseM)"
-
     r <-
 	if((nX <- is.numeric(X)) | (nY <- is.numeric(Y))) {
 	    if(nX) {
@@ -413,9 +421,13 @@ is.model.frame <- function(x)
 }
 
 
+##' <description>
 ##' Create a sparse model matrix from a model frame.
-##'          Assumption:  at least one component is a factor or sparse  << ? FIXME ?
+##'      Assumption:  at least one component is a factor or sparse  << FIXME ?
 ##' -- This version uses  'rBind' and returns  X' i.e. t(X) :
+##' <details>
+##'
+##' @title Sparse Model Matrix from Model Frame
 ##' @param trms a "terms" object
 ##' @param mf a data frame, typically resulting from  model.frame()
 ##' @param transpose logical indicating if  X' = t(X) {is faster!}
@@ -424,6 +436,7 @@ is.model.frame <- function(x)
 ##' 	levels should be dropped
 ##' @param row.names
 ##' @return sparse matrix (class "dgCMatrix")
+##' @author Martin Maechler
 model.spmatrix <- function(trms, mf, transpose=FALSE,
                            drop.unused.levels = TRUE, row.names=TRUE)
 {
@@ -501,6 +514,8 @@ model.spmatrix <- function(trms, mf, transpose=FALSE,
                            s
                        })
         } else { ## continuous variable --> "matrix" - for all of them
+	    if(any(iA <- (cl <- class(f)) == "AsIs")) # drop "AsIs" class
+		class(f) <- if(length(cl) > 1L) cl[!iA]
             nr <- if(is.matrix(f)) nrow(f <- t(f)) else (dim(f) <- c(1L, length(f)))[1]
             if(is.null(rownames(f)))
                 rownames(f) <- if(nr == 1) nam else paste0(nam, seq_len(nr))

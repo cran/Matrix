@@ -332,6 +332,8 @@ SEXP chm_sparse_to_SEXP(CHM_SP a, int dofree, int uploT, int Rkind,
 	case 1:
 	    cls = uploT ? "ltCMatrix": ((a->stype) ? "lsCMatrix" : "lgCMatrix");
 	    break;
+	default:
+	    error(_("chm_sparse_to_SEXP(<real>, *): invalid 'Rkind' (real kind code)"));
 	}
 	break;
     case CHOLMOD_COMPLEX:

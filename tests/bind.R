@@ -92,6 +92,13 @@ stopifnot(identical3(cc, cBind(mT, 0,7,0, diag(nr), 0),
 cBind(mC, 1, 100*mC, 0, 0:2)
 cBind(mT, 1, 0, mT+10*mT, 0, 0:2)
 
+## logical (sparse) - should remain logical :
+L5 <- Diagonal(n = 5, x = TRUE); v5 <- rep(x = c(FALSE,TRUE), length = ncol(L5))
+stopifnot(is(show(rBind(L5,v5)), "lsparseMatrix"),
+	  is(show(cBind(v5,L5)), "lsparseMatrix"),
+	  is(rBind(L5, 2* v5), "dsparseMatrix"),
+	  is(cBind(2* v5, L5), "dsparseMatrix"))
+
 ## print() / show() of  non-structural zeros:
 (m <- Matrix(c(0, 0, 2:0), 3, 5))
 (m2 <- cBind(m,m))

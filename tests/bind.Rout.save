@@ -1,5 +1,5 @@
 
-R version 2.10.1 Patched (2010-02-08 r51110)
+R version 2.11.0 Patched (2010-05-17 r52025)
 Copyright (C) 2010 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 
@@ -8,7 +8,7 @@ You are welcome to redistribute it under certain conditions.
 Type 'license()' or 'licence()' for distribution details.
 
 R is a collaborative project with many contributors.
-Type 'contributors()' for more information and
+Type 'contributors()' for more information anda
 'citation()' on how to cite R or R packages in publications.
 
 Type 'demo()' for some demos, 'help()' for on-line help, or
@@ -22,10 +22,9 @@ Loading required package: lattice
 
 Attaching package: 'Matrix'
 
+The following object(s) are masked from 'package:base':
 
-	The following object(s) are masked from package:base :
-
-	 det 
+    det
 
 > 
 > source(system.file("test-tools.R", package = "Matrix"))# identical3() etc
@@ -270,6 +269,28 @@ rBind (m, v= c(1L, 0L) ), class(m) : dgeMatrix ,. dgCMatrix ,. dgTMatrix ,.
 [3,] 1  2  . -1  . 1 1 . 11  22   . -11   . 11 . 2
 [4,] .  1  2  . -1 . 1 .  .  11  22   . -11  . . .
 > 
+> ## logical (sparse) - should remain logical :
+> L5 <- Diagonal(n = 5, x = TRUE); v5 <- rep(x = c(FALSE,TRUE), length = ncol(L5))
+> stopifnot(is(show(rBind(L5,v5)), "lsparseMatrix"),
++ 	  is(show(cBind(v5,L5)), "lsparseMatrix"),
++ 	  is(rBind(L5, 2* v5), "dsparseMatrix"),
++	  is(cBind(2* v5, L5), "dsparseMatrix"))
+6 x 5 sparse Matrix of class "lgCMatrix"
+            
+   | . . . .
+   . | . . .
+   . . | . .
+   . . . | .
+   . . . . |
+v5 . | . | .
+5 x 6 sparse Matrix of class "lgCMatrix"
+     v5          
+[1,]  . | . . . .
+[2,]  | . | . . .
+[3,]  . . . | . .
+[4,]  | . . . | .
+[5,]  . . . . . |
+> 
 > ## print() / show() of  non-structural zeros:
 > (m <- Matrix(c(0, 0, 2:0), 3, 5))
 3 x 5 sparse Matrix of class "dgCMatrix"
@@ -310,5 +331,5 @@ rBind (m, v= c(1L, 0L) ), class(m) : dgeMatrix ,. dgCMatrix ,. dgTMatrix ,.
 > 
 > 
 > cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
-Time elapsed:  2.343 0.065 2.509 0 0 
+Time elapsed:  2.454 0.072 2.626 0 0 
 > 

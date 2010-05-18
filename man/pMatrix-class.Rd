@@ -7,7 +7,13 @@
 \alias{\%*\%,pMatrix,pMatrix-method}
 \alias{\%*\%,Matrix,pMatrix-method}
 \alias{\%*\%,pMatrix,Matrix-method}
+\alias{crossprod,pMatrix,matrix-method}
+\alias{crossprod,pMatrix,Matrix-method}
+\alias{crossprod,pMatrix,pMatrix-method}
 \alias{crossprod,pMatrix,missing-method}
+\alias{tcrossprod,matrix,pMatrix-method}
+\alias{tcrossprod,Matrix,pMatrix-method}
+\alias{tcrossprod,pMatrix,pMatrix-method}
 \alias{tcrossprod,pMatrix,missing-method}
 \alias{coerce,integer,pMatrix-method}
 \alias{coerce,numeric,pMatrix-method}
@@ -31,8 +37,6 @@
 \alias{solve,pMatrix,missing-method}
 \alias{solve,Matrix,pMatrix-method}
 \alias{t,pMatrix-method}
-\alias{[<-,pMatrix,index,ANY,ANY-method}
-\alias{[<-,pMatrix,missing,index,ANY-method}
 %
 \title{Permutation matrices}
 \description{The \code{"pMatrix"} class is the class of permutation

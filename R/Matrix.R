@@ -333,6 +333,8 @@ setMethod("norm", signature(x = "ANY", type = "missing"),
 setMethod("rcond", signature(x = "ANY", norm = "missing"),
 	  function(x, norm, ...) rcond(x, norm = "O", ...))
 
+setMethod("lu", "matrix", function(x, warnSing = TRUE, ...)
+	  lu(as(x, "dgeMatrix"), warnSing=warnSing, ...))
 
 
 
@@ -606,16 +608,6 @@ setMethod("[", signature(x = "Matrix", i = "matrix", j = "missing", drop="missin
 
 
 ### "[<-" : -----------------
-
-## x[] <- value :
-setReplaceMethod("[", signature(x = "Matrix", i = "missing", j = "missing",
-                                value = "ANY"),## double/logical/...
-	  function (x, value) {
-	      ## Fails for 'nMatrix' ... FIXME : make sure have method there
-	      x@x <- rep(value, length = length(x@x))
-	      validObject(x)# check if type and lengths above match
-	      x
-          })
 
 ## A[ ij ] <- value,  where ij is (i,j) 2-column matrix :
 ## ----------------

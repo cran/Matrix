@@ -1,6 +1,6 @@
 
 ## nearcor.R :
-## Copyright (2007) Jens Oehlschl‰gel
+## Copyright (2007) Jens Oehlschl√§gel
 ## GPL licence, no warranty, use at your own risk
 
 nearPD <-

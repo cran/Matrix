@@ -207,3 +207,15 @@
   line in tests/indexing.R uses very large objects unnecessarily;
   Improve  replTmat()  in R/Tsparse.R, making use of new "abIndex"
   vectors.
+
+- {IS THIS CURRENT?}
+  Sept. 2009:
+  Subject: chol2inv() |-> solve(<CHMfactor>)
+
+  when testing and documenting  chol2inv(),
+  I found that it's pretty simple to also define a method for
+  "CHMfactor" objects, namely simply the solve(*, Diagonal(.) "A")
+  method.
+  This is not particularly exciting, and also does *not*, I think
+  help for defining a chol2inv() method for  *sparse* (upper)
+  triangular matrices.

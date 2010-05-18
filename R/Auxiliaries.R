@@ -214,9 +214,26 @@ dimCheck <- function(a, b) {
     da
 }
 
-mmultCheck <- function(a, b) {
-    ca <- dim(a)[2]
-    rb <- dim(b)[1]
+mmultCheck <- function(a, b, kind = 1L) {
+    ## Check matching matrix dimensions and return that matching dim
+    ## 1)    %*%    : [n x m] , [m x k]
+    ## 2)  crossprod: [m x n] , [m x k]
+    ## 3) tcrossprod: [n x m] , [k x m]
+    ## switch(kind,
+    ##    { ## %*%  (kind = 1)
+    ##        ca <- dim(a)[2L]
+    ##        rb <- dim(b)[1L]
+    ##    },
+    ##    { ## crossprod   (kind = 2)
+    ##        ca <- dim(a)[1L]
+    ##        rb <- dim(b)[1L]
+    ##    },
+    ##    { ## tcrossprod  (kind = 3)
+    ##        ca <- dim(a)[2L]
+    ##        rb <- dim(b)[2L]
+    ##    })
+    ca <- dim(a)[1L + (kind %% 2L)]
+    rb <- dim(b)[1L + (kind  > 2)]
     if(ca != rb)
 	stop(gettextf("non-conformable matrix dimensions in %s",
 		      deparse(sys.call(sys.parent()))),

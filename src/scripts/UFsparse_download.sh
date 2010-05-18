@@ -5,11 +5,11 @@ if [ ! -d ../src ]
 then echo 'Must run in Matrix/src/ !' ; exit 1
 fi
 ufl_URL=http://www.cise.ufl.edu/research/sparse
-wget $ufl_URL/amd/current/AMD.tar.gz
-wget $ufl_URL/cholmod/current/CHOLMOD.tar.gz
-wget $ufl_URL/colamd/current/COLAMD.tar.gz
-wget $ufl_URL/UFconfig/current/UFconfig.tar.gz
-wget $ufl_URL/SPQR/current/SPQR.tar.gz
+wget -nc  $ufl_URL/amd/current/AMD.tar.gz
+wget -nc  $ufl_URL/cholmod/current/CHOLMOD.tar.gz
+wget -nc  $ufl_URL/colamd/current/COLAMD.tar.gz
+wget -nc  $ufl_URL/UFconfig/current/UFconfig.tar.gz
+wget -nc  $ufl_URL/SPQR/current/SPQR.tar.gz
 
 ## 1) UFconfig ---------------------------------------------
   ## install UFconfig.h file (now needed by some UFsparse libraries)
@@ -19,17 +19,19 @@ mv UFconfig/README.txt ../inst/doc/UFsparse/UFconfig.txt
   ## touch the file UFconfig/UFconfig.mk.  We use other configuration
   ## environment variables but this name is embedded in some Makefiles
 touch UFconfig/UFconfig.mk
-  ## install COLAMD/Source and COLAMD/Include directories
+  ## Need to add the Matrix-specific changes to UFconfig/UFconfig.h :
+patch -p0 < scripts/UFconfig.patch
 
 ## 2) COLAMD -----------------------------------------------
+   ## install COLAMD/Source and COLAMD/Include directories
 tar zxf COLAMD.tar.gz COLAMD/Source/ COLAMD/Include/
 Rscript --vanilla -e 'source("scripts/fixup-fn.R")' -e 'fixup("COLAMD/Source/Makefile")'
   ## install documentation for COLAMD
-tar zxf COLAMD.tar.gz COLAMD/README.txt COLAMD/ChangeLog
+tar zxf COLAMD.tar.gz COLAMD/README.txt COLAMD/Doc
 mv COLAMD/README.txt ../inst/doc/UFsparse/COLAMD.txt
-  ## install AMD/Source and AMD/Include directories
 
 ## 3) AMD --------------------------------------------------
+  ## install AMD/Source and AMD/Include directories
 tar zxf AMD.tar.gz AMD/Source AMD/Include AMD/README.txt
   ## restore the AMD/Source/Makefile
 svn revert AMD/Source/Makefile
@@ -67,6 +69,8 @@ done
   ## install CHOLMOD documentation in ../inst/doc/UFsparse
 tar zxf ./SPQR.tar.gz SPQR/README.txt
 mv SPQR/README.txt ../inst/doc/UFsparse/SPQR.txt
+  ## patch for Matrix:
+patch -p0 < scripts/SPQR.patch
 
 cp -p SPQR/Lib/Makefile SPQR/Lib/Makefile_SPQR
 Rscript --vanilla -e 'source("scripts/fixup-fn.R")' -e 'fixup("SPQR/Lib/Makefile")'
@@ -79,4 +83,7 @@ echo ' make changes as necessary, and then (later)'
 echo ' rm SPQR/Lib/Makefile_*' ; echo
 
 ## ----- remove the downloaded tar files -------------------
+echo 'Execute this eventually:
+
 rm CHOLMOD.tar.gz AMD.tar.gz COLAMD.tar.gz UFconfig.tar.gz SPQR.tar.gz
+'

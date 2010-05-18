@@ -311,11 +311,27 @@ setMethod("[", signature(x = "sparseMatrix",
 		  as(x, "CsparseMatrix") else x
 	  })
 
+### "[<-" : -----------------
 
 ## setReplaceMethod("[", .........)
 ## -> ./Tsparse.R
 ## &  ./Csparse.R  & ./Rsparse.R {those go via Tsparse}
-##
+
+## x[] <- value :
+setReplaceMethod("[", signature(x = "sparseMatrix", i = "missing", j = "missing",
+				value = "ANY"),## double/logical/...
+	  function (x, value) {
+	      if(all0(value)) { # be faster
+		  cld <- getClassDef(class(x))
+		  for(nm in intersect(names(cld@slots),
+				      c("x", "i","j","p", "factors")))
+		      length(slot(x, nm)) <- 0L
+	      } else { ## typically non-sense: assigning to full sparseMatrix
+		  x[TRUE] <- value
+	      }
+	      x
+	  })
+
 ## Do not use as.vector() (see ./Matrix.R ) for sparse matrices :
 setReplaceMethod("[", signature(x = "sparseMatrix", i = "missing", j = "ANY",
 				value = "sparseMatrix"),

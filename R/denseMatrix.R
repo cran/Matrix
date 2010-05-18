@@ -145,6 +145,16 @@ setMethod("[", signature(x = "denseMatrix", i = "matrix", j = "missing", drop="m
 ## It's recommended to use setReplaceMethod() rather than setMethod("[<-",.)
 ## even though the former is currently just a wrapper for the latter
 
+## x[] <- value :
+setReplaceMethod("[", signature(x = "denseMatrix", i = "missing", j = "missing",
+				value = "ANY"),## double/logical/...
+	  function (x, value) {
+	      x <- as(x, "generalMatrix")
+	      x@x[] <- value
+	      validObject(x)# check if type and lengths above match
+	      x
+	  })
+
 ## FIXME: 1) These are far from efficient
 ## -----
 setReplaceMethod("[", signature(x = "denseMatrix", i = "index", j = "missing",

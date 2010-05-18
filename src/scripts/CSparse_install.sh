@@ -13,7 +13,7 @@ else echo "no directory '$MatrixDir' .. exiting"; exit 3
 fi
 cd $MatrixDir
 #
-wget $URL/$tarFile
+wget -nc $URL/$tarFile
 #
 if [ ! -r $tarFile ]; then echo "no file $tarFile .. exiting"; exit 1 ; fi
 ## extract only the part we want
@@ -30,6 +30,11 @@ echo '[Ok]'
 echo -n "cleaning up $iDir $sDir ..			 "
 ## keep the [TAB]s here               ^^
 cd $MatrixDir
-rm -rf $tarFile $sDir $iDir
+rm -rf $sDir $iDir
 rmdir `dirname $sDir`
 echo '[Ok]'
+echo "Eventually remove the tarfile yourself :
+
+    rm -f $tarFile
+"
+

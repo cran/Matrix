@@ -425,10 +425,12 @@ SEXP Csparse_drop(SEXP x, SEXP tol)
 SEXP Csparse_horzcat(SEXP x, SEXP y)
 {
     CHM_SP chx = AS_CHM_SP__(x), chy = AS_CHM_SP__(y);
-    int Rkind = 0; /* only for "d" - FIXME */
+    int Rk_x = (chx->xtype != CHOLMOD_PATTERN) ? Real_kind(x) : 0,
+	Rk_y = (chy->xtype != CHOLMOD_PATTERN) ? Real_kind(y) : 0,
+	Rkind = /* logical if both x and y are */ (Rk_x == 1 && Rk_y == 1) ? 1 : 0;
     R_CheckStack();
 
-    /* FIXME: currently drops dimnames */
+    /* TODO: currently drops dimnames - and we fix at R level */
     return chm_sparse_to_SEXP(cholmod_l_horzcat(chx, chy, 1, &c),
 			      1, 0, Rkind, "", R_NilValue);
 }
@@ -436,10 +438,12 @@ SEXP Csparse_horzcat(SEXP x, SEXP y)
 SEXP Csparse_vertcat(SEXP x, SEXP y)
 {
     CHM_SP chx = AS_CHM_SP__(x), chy = AS_CHM_SP__(y);
-    int Rkind = 0; /* only for "d" - FIXME */
+    int Rk_x = (chx->xtype != CHOLMOD_PATTERN) ? Real_kind(x) : 0,
+	Rk_y = (chy->xtype != CHOLMOD_PATTERN) ? Real_kind(y) : 0,
+	Rkind = /* logical if both x and y are */ (Rk_x == 1 && Rk_y == 1) ? 1 : 0;
     R_CheckStack();
 
-    /* FIXME: currently drops dimnames */
+    /* TODO: currently drops dimnames - and we fix at R level */
     return chm_sparse_to_SEXP(cholmod_l_vertcat(chx, chy, 1, &c),
 			      1, 0, Rkind, "", R_NilValue);
 }

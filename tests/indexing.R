@@ -9,8 +9,9 @@ if(interactive()) {
     options(error = recover, warn = 1)
 } else if(FALSE) { ## MM @ testing
     options(error = recover, Matrix.verbose = TRUE, warn = 1)
-} else
-options(Matrix.verbose = TRUE, warn = 1)
+} else {
+    options(Matrix.verbose = TRUE, warn = 1)
+}
 
 
 ### Dense Matrices
@@ -44,8 +45,12 @@ dimnames(mn) <- list(paste("r",letters[1:nrow(mn)],sep=""),
                      LETTERS[1:ncol(mn)])
 checkMatrix(mn)
 mn["rd", "D"]
-## Printing sparse colnames:
-ms <- as(mn,"sparseMatrix")
+msr <- ms <- as(mn,"sparseMatrix")
+mnr <- mn
+v <- rev(as(ms, "vector"))
+mnr[] <- v
+msr[] <- v # [<- "sparse" -- not very sensical; did fail w/o a message
+a.m <- as(mnr,"matrix")
 stopifnot(identical(mn["rc", "D"], mn[3,4]), mn[3,4] == 24,
 	  identical(mn[, "A"], mn[,1]), mn[,1] == 1:7,
 	  identical(mn[c("re", "rb"), "B"], mn[c(5,2), 2]),
@@ -55,8 +60,12 @@ stopifnot(identical(mn["rc", "D"], mn[3,4]), mn[3,4] == 24,
 	  identical(rownames(mn[ci, ]), ci),
 	  identical(rownames(ms[ci, ]), ci),
 	  identical(colnames(mn[,cj <- c("B","D")]), cj),
-	  identical(colnames(ms[,cj]), cj))
+	  identical(colnames(ms[,cj]), cj),
+	  identical(a.m, as(msr,"matrix")),
+	  identical(a.m, array(v, dim=dim(mn), dimnames=dimnames(mn)))
+	  )
 
+## Printing sparse colnames:
 ms[sample(28, 20)] <- 0
 ms <- t(rbind2(ms, 3*ms))
 cnam1 <- capture.output(show(ms))[2] ; op <- options("sparse.colnames" = "abb3")

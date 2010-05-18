@@ -160,7 +160,9 @@ stopifnot(identical(mm1,mm2),
 str(dd <- data.frame(d = gl(10,6), a = ordered(gl(3,20))))
 X. <- sparse.model.matrix(~ a + d, data = dd)
 ## failed because of contr.poly default in Matrix 0.999375-33
-stopifnot(dim(X.) == c(60, 12), nnzero(X.) == 234)
+stopifnot(dim(X.) == c(60, 12), nnzero(X.) == 234,
+	  isEQsparseDense(~ 0 + d + I(as.numeric(d)^2), dd))
+## I(.) failed (upto 2010-05-07)
 
 cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
 

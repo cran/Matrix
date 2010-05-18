@@ -1,10 +1,12 @@
 \name{lu}
 \title{Triangular Decomposition of a Square Matrix}
 \alias{lu}
+\alias{lu,matrix-method}
 \alias{lu,dgeMatrix-method}
 \alias{lu,dgCMatrix-method}
 \usage{
 lu(x, \dots)
+\S4method{lu}{matrix}(x, warnSing = TRUE, \dots)
 \S4method{lu}{dgeMatrix}(x, warnSing = TRUE, \dots)
 \S4method{lu}{dgCMatrix}(x, errSing = TRUE, \dots)
 }
@@ -27,7 +29,7 @@ lu(x, \dots)
   \item{\dots}{further arguments passed to or from other methods.}
 }
 \value{
-  An object of class \code{"LU"}, i.e., \code{"\linkS4class{denseLU}"}
+  An object of class \code{"LU"}, i.e., \code{"\linkS4class{denseLU}"}%% ./LU-class.Rd
   or \code{"sparseLU"}, see \code{\linkS4class{sparseLU}}; this is
   a representation of a triangular decomposition of \code{x}.
 }
@@ -71,7 +73,7 @@ lu(x, \dots)
 x <- Matrix(rnorm(9), 3, 3)
 lu(x)
 
-##--- Sparse ------------------------
+##--- Sparse (see more in ?"sparseLU-class")----- % ./sparseLU-class.Rd
 
 pm <- as(readMM(system.file("external/pores_1.mtx",
                             package = "Matrix")),
@@ -80,15 +82,10 @@ str(pmLU <- lu(pm))		# p is a 0-based permutation of the rows
                                 # q is a 0-based permutation of the columns
 ## permute rows and columns of original matrix
 ppm <- pm[pmLU@p + 1L, pmLU@q + 1L]
-pLU <- pmLU@L \%*\% pmLU@U
+pLU <- drop0(pmLU@L \%*\% pmLU@U) # L \%*\% U -- dropping extra zeros
 ## equal up to "rounding"
 ppm[1:14, 1:5]
-pLU[1:14, 1:5]  # product can have extra zeros
-## "prove" consistency (up to rounding):
-i0 <- ppm != pLU & ppm == 0
-iN <- ppm != pLU & ppm != 0
-stopifnot(all(abs((ppm - pLU)[i0]) < 1e-7), # absolute error for true 0
-          all(abs((ppm - pLU)[iN]/ppm[iN]) < 1e-9)) # relative error
+pLU[1:14, 1:5]
 }
 \keyword{array}
 \keyword{algebra}

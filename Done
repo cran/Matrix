@@ -365,3 +365,12 @@
 
 - det() is "identical" to base::det, but in Matrix namespace and hence
   calling S4-aware determinant().
+
+- rcond() for *sparse* (currently goes via dense, but that easily blows up)
+ -------- Matlab has condest(),
+  http://www.mathworks.com/access/helpdesk/help/techdoc/ref/condest.html
+  but even better, octave has a version of that, too,
+  written in octave itself, in the octave source, it's in
+  ~/src/octave-3.2.4/scripts/linear-algebra/condest.m
+
+  ==> own condest(), and onenormest() functions

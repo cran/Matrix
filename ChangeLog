@@ -1,3 +1,42 @@
+2010-05-18  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/Csparse.c (Csparse_horzcat, Csparse_vertcat): ensure that
+	rBind()/cBind() i.e., rbind2()/cbind2() return logical sparse
+	matrices when the components are.
+	* tests/bind.R: test
+
+2010-05-15  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/sparseMatrix.R: A[] <- v ; differentiate dense & sparse
+	* R/pMatrix.R: disallow <pMatrix>[] <- v  more consequently
+
+	* tests/indexing.R: test above
+
+
+2010-05-08  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/spModels.R (model.spmatrix): deal with "AsIs" components
+	* tests/spModel.matrix.R: test that
+
+2010-05-01  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/condest.R (onenormest, condest): allow to estimate condition
+	number for large sparse matrices.
+	* condest.Rd: docu
+
+	* R/pMatrix.R (.inv.perm): utility; add [t]crossprod() methods
+
+	* man/sparseLU-class.Rd: A = P'LUQ; add examples, with "identities"
+
+	* R/Auxiliaries.R (mmultCheck): new arg. 'kind'
+
+2010-04-28  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.999375-39, CRAN-released: 2010-.....
+
+	* R/spModels.R (fac2sparse): using names(formals(new))[[1]] to
+	adapt to a future change in new()'s first argument *name*.
+
 2010-03-31  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/spModels.R (lm.fit.sparse): update, allowing weights; also
@@ -79,7 +118,7 @@
 
 2010-02-09  Martin Maechler  <maechler@stat.math.ethz.ch>
 
-	* DESCRIPTION (Version): 0.999375-38, CRAN-released: ...
+	* DESCRIPTION (Version): 0.999375-38, CRAN-released: 2010-03-31
 
 	* NAMESPACE, R/AllGeneric.R, R/zzz.R: change det() into a regularly exported
 	function (masking base::det) instead of load-time hack.

@@ -12,7 +12,6 @@
 \alias{[<-,Matrix,ANY,ANY,matrix-method}
 \alias{[<-,Matrix,ANY,missing,matrix-method}
 \alias{[<-,Matrix,missing,ANY,matrix-method}
-\alias{[<-,Matrix,missing,missing,ANY-method}
 \alias{[<-,Matrix,matrix,missing,replValue-method}
 % \alias{[<-,Matrix,missing,numeric,missing-method}
 % \alias{[<-,Matrix,numeric,missing,missing-method}
@@ -22,6 +21,7 @@
 \alias{[<-,denseMatrix,index,index,replValue-method}
 \alias{[<-,denseMatrix,matrix,missing,replValue-method}
 \alias{[<-,denseMatrix,missing,index,replValue-method}
+\alias{[<-,denseMatrix,missing,missing,ANY-method}
 % in ../R/diagMatrix.R
 \alias{[<-,diagonalMatrix,index,index,replValue-method}
 \alias{[<-,diagonalMatrix,index,missing,replValue-method}
@@ -40,6 +40,11 @@
 \alias{[<-,sparseMatrix,ANY,ANY,sparseMatrix-method}
 \alias{[<-,sparseMatrix,ANY,missing,sparseMatrix-method}
 \alias{[<-,sparseMatrix,missing,ANY,sparseMatrix-method}
+\alias{[<-,sparseMatrix,missing,missing,ANY-method}
+% -> ../R/pMatrix.R : -- these give errors
+\alias{[<-,pMatrix,index,ANY,ANY-method}
+\alias{[<-,pMatrix,missing,index,ANY-method}
+\alias{[<-,pMatrix,missing,missing,ANY-method}
 % -> ../R/Tsparse.R : replValue = { numeric, logical }
 \alias{[<-,TsparseMatrix,index,index,replValue-method}
 \alias{[<-,TsparseMatrix,index,missing,replValue-method}

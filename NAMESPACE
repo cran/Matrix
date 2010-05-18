@@ -26,6 +26,7 @@ export("Cholesky",
 ## no longer; implicit generics now
        ## "colMeans", "colSums", ## these needed a "..." added
        ## "rowMeans", "rowSums",
+       "condest", "onenormest",
        "det",# << "identical" as base - but with correct determinant()
        "drop0",
        "expand",

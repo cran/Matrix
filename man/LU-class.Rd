@@ -42,14 +42,20 @@
     \item{expand}{\code{signature(x = "denseLU")}: Produce the \code{"L"} and
       \code{"U"} (and \code{"P"}) factors as a named list of matrices,
       see also the example below.}
-    \item{solve}{\code{signature(a = "denseLU", b = "missing")}: ComputeProduce the \code{"L"} and
-      \code{"U"} (and \code{"P"}) factors as a named list of matrices,
-      see also the example below.}
+    \item{solve}{\code{signature(a = "denseLU", b = "missing")}: Compute
+      the inverse of A, \eqn{A^{-1}}{A^(-1)}, \code{solve(A)} using the LU
+      decomposition.}
   }
 }
 % \references{}
-% \author{}
-% \note{}
+\note{
+  The decomposition is of the form
+  \deqn{A = PLU}{A = PLU}
+  where all matrices are of size \eqn{n\times n}{n by n}, and
+  the matrix \eqn{P} is a permutation matrix, \eqn{L} is lower
+  triangular and \eqn{U} is upper triangular (both of class
+  \code{\linkS4class{dsyMatrix}}).
+}
 \seealso{
   class \code{\linkS4class{sparseLU}} for LU decompositions of
   \emph{sparse} matrices;

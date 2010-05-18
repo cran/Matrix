@@ -65,22 +65,21 @@ setAs("sparseMatrix", "pMatrix", function(from)
 
 setMethod("is.na", signature(x = "pMatrix"), is.na_nsp)
 
+## how much faster would this be in C? -- less than a factor of two?
+.inv.perm <- function(p) { p[p] <- seq_along(p) ; p }
+
 setMethod("solve", signature(a = "pMatrix", b = "missing"),
 	  function(a, b, ...) {
-	      ap <- a@perm
-	      ap[ap] <- seq_along(ap)
-              a@perm <- ap
+              a@perm <- .inv.perm(a@perm)
               a@Dimnames <- a@Dimnames[2:1]
               a
           })
 
 setMethod("solve", signature(a = "Matrix", b = "pMatrix"),
-	  function(a, b, ...) {
-	      ## Or alternatively  solve(a, as(b, "CsparseMatrix"))
-	      i <- b@perm
-	      i[i] <- seq_along(i)
-	      solve(a)[, i]
-	  })
+	  function(a, b, ...)
+	  ## Or alternatively  solve(a, as(b, "CsparseMatrix"))
+	  solve(a)[, .inv.perm(b@perm)])
+
 
 setMethod("determinant", signature(x = "pMatrix", logarithm = "logical"),
 	  function(x, logarithm, ...)
@@ -89,34 +88,48 @@ setMethod("determinant", signature(x = "pMatrix", logarithm = "logical"),
 ## t(pM) is == the inverse  pM^(-1):
 setMethod("t", signature(x = "pMatrix"), function(x) solve(x))
 
-.m.mult.pMat <- function(x, y) {
-    mmultCheck(x,y)
-    i <- y@perm
-    i[i] <- seq_along(i)
-    x[, i]
-}
 
 setMethod("%*%", signature(x = "matrix", y = "pMatrix"),
-	  .m.mult.pMat, valueClass = "matrix")
+	  function(x, y) { mmultCheck(x,y); x[, .inv.perm(y@perm)] })
 setMethod("%*%", signature(x = "Matrix", y = "pMatrix"),
-	  .m.mult.pMat)
+	  function(x, y) { mmultCheck(x,y); x[, .inv.perm(y@perm)] })
 
 setMethod("%*%", signature(x = "pMatrix", y = "matrix"),
-	  function(x, y) { mmultCheck(x,y); y[x@perm ,]}, valueClass = "matrix")
+	  function(x, y) { mmultCheck(x,y); y[x@perm ,] })
 setMethod("%*%", signature(x = "pMatrix", y = "Matrix"),
-	  function(x, y) { mmultCheck(x,y); y[x@perm ,]})
+	  function(x, y) { mmultCheck(x,y); y[x@perm ,] })
 
 setMethod("%*%", signature(x = "pMatrix", y = "pMatrix"),
 	  function(x, y) {
-              stopifnot(identical(d <- x@Dim, y@Dim))
-              n <- d[1]
-              ## FIXME: dimnames dealing: as with S3 matrix's  %*%
-              x@perm <- x@perm[y@perm]
-              x
-          })
+	      stopifnot(identical(d <- x@Dim, y@Dim))
+	      ## n <- d[1]
+	      ## FIXME: dimnames dealing: as with S3 matrix's  %*%
+	      x@perm <- x@perm[y@perm]
+	      x
+	  })
 
-### FIXME: crossprod / tcrossprod currently work
-### -----  via  t(.) and later  [ i, ] -- separate methods will be faster!
+setMethod("crossprod", signature(x = "pMatrix", y = "matrix"),
+	  function(x, y) { mmultCheck(x,y, 2L); y[.inv.perm(x@perm) ,]})
+setMethod("crossprod", signature(x = "pMatrix", y = "Matrix"),
+	  function(x, y) { mmultCheck(x,y, 2L); y[.inv.perm(x@perm) ,]})
+setMethod("crossprod", signature(x = "pMatrix", y = "pMatrix"),
+	  function(x, y) {
+	      stopifnot(identical(x@Dim, y@Dim))
+	      x@perm <- .inv.perm(x@perm)[y@perm]
+	      x
+	  })
+
+setMethod("tcrossprod", signature(x = "matrix", y = "pMatrix"),
+	  function(x, y) { mmultCheck(x,y, 3L); x[, y@perm] })
+setMethod("tcrossprod", signature(x = "Matrix", y = "pMatrix"),
+	  function(x, y) { mmultCheck(x,y, 3L); x[, y@perm] })
+setMethod("tcrossprod", signature(x = "pMatrix", y = "pMatrix"),
+	  function(x, y) {
+	      stopifnot(identical(x@Dim, y@Dim))
+	      x@perm <- x@perm[.inv.perm(y@perm)]
+	      x
+	  })
+
 
 setMethod("crossprod", signature(x = "pMatrix", y = "missing"),
           function(x, y=NULL) Diagonal(nrow(x)))
@@ -125,7 +138,9 @@ setMethod("tcrossprod", signature(x = "pMatrix", y = "missing"),
 
 
 .pMat.nosense <- function (x, i, j, ..., value)
-    stop('partially replacing "pMatrix" entries is not sensible')
+    stop('replacing "pMatrix" entries is not allowed, as rarely sensible')
 setReplaceMethod("[", signature(x = "pMatrix", i = "index"), .pMat.nosense)
 setReplaceMethod("[", signature(x = "pMatrix", i = "missing", j = "index"),
 		 .pMat.nosense) ##   explicit  ^^^^^^^^^^^^ for disambiguation
+setReplaceMethod("[", signature(x = "pMatrix", i = "missing", j = "missing"),
+		 .pMat.nosense)

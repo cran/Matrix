@@ -40,18 +40,39 @@
     }
 }
 %\references{}
-%\author{}
 \note{
   The decomposition is of the form
-  \deqn{A = PLUQ}{A = PLUQ}
+  \deqn{A = P'LUQ}{A = P'LUQ}
   where all matrices are sparse and of size \eqn{n\times n}{n by n}.
-  The matrices \eqn{P} and \eqn{Q} are permutation matrices, \eqn{L} is
-  lower triangular and \eqn{U} is upper triangular.
+  The matrices \eqn{P}, its transpose \eqn{P'}, and \eqn{Q} are
+  permutation matrices, \eqn{L} is lower triangular and \eqn{U} is upper
+  triangular.
 }
 \seealso{
   \code{\link{lu}}, \code{\link[base]{solve}}, \code{\linkS4class{dgCMatrix}}
 }
 \examples{
-  ## see  examples(lu)
+## Extending the one in   examples(lu), calling the matrix  A,
+## and confirming the factorization identities :
+A <- as(readMM(system.file("external/pores_1.mtx",
+                            package = "Matrix")),
+         "CsparseMatrix")
+str(luA <- lu(A))		# p is a 0-based permutation of the rows
+                                # q is a 0-based permutation of the columns
+xA <- expand(luA)
+## which is simply doing
+stopifnot(identical(xA$ L, luA@L),
+          identical(xA$ U, luA@U),
+          identical(xA$ P, as(luA@p +1L, "pMatrix")),
+          identical(xA$ Q, as(luA@q +1L, "pMatrix")))
+
+P.LUQ <- with(xA, t(P) \%*\% L \%*\% U \%*\% Q)
+stopifnot(all.equal(A, P.LUQ, tol = 1e-12))
+## permute rows and columns of original matrix
+pA <- A[luA@p + 1L, luA@q + 1L]
+stopifnot(identical(pA, with(xA, P \%*\% A \%*\% t(Q))))
+
+pLU <- drop0(luA@L \%*\% luA@U) # L \%*\% U -- dropping extra zeros
+stopifnot(all.equal(pA, pLU))
 }
 \keyword{classes}

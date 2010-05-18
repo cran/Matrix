@@ -1,5 +1,5 @@
 
-R version 2.11.0 Under development (unstable) (2010-03-24 r51389)
+R version 2.11.0 Patched (2010-05-11 r51981)
 Copyright (C) 2010 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 
@@ -19,7 +19,6 @@ Type 'q()' to quit R.
 > 
 > library(Matrix)
 Loading required package: lattice
-Matrix_NS: <environment: namespace:Matrix>
 
 Attaching package: 'Matrix'
 
@@ -35,8 +34,9 @@ The following object(s) are masked from 'package:base':
 +     options(error = recover, warn = 1)
 + } else if(FALSE) { ## MM @ testing
 +     options(error = recover, Matrix.verbose = TRUE, warn = 1)
-+ } else
-+ options(Matrix.verbose = TRUE, warn = 1)
++ } else {
++     options(Matrix.verbose = TRUE, warn = 1)
++ }
 > 
 > 
 > ### Dense Matrices
@@ -106,8 +106,13 @@ m >= m for all: ok
 m < m for none: ok
 > mn["rd", "D"]
 [1] 25
-> ## Printing sparse colnames:
-> ms <- as(mn,"sparseMatrix")
+> msr <- ms <- as(mn,"sparseMatrix")
+> mnr <- mn
+> v <- rev(as(ms, "vector"))
+> mnr[] <- v
+> msr[] <- v # [<- "sparse" -- not very sensical; did fail w/o a message
+diagnosing replTmat(x,i,j,v): nargs()= 3; missing(i,j)= (0,1)
+> a.m <- as(mnr,"matrix")
 > stopifnot(identical(mn["rc", "D"], mn[3,4]), mn[3,4] == 24,
 + 	  identical(mn[, "A"], mn[,1]), mn[,1] == 1:7,
 + 	  identical(mn[c("re", "rb"), "B"], mn[c(5,2), 2]),
@@ -117,8 +122,12 @@ m < m for none: ok
 + 	  identical(rownames(mn[ci, ]), ci),
 + 	  identical(rownames(ms[ci, ]), ci),
 + 	  identical(colnames(mn[,cj <- c("B","D")]), cj),
-+ 	  identical(colnames(ms[,cj]), cj))
++ 	  identical(colnames(ms[,cj]), cj),
++ 	  identical(a.m, as(msr,"matrix")),
++ 	  identical(a.m, array(v, dim=dim(mn), dimnames=dimnames(mn)))
++ 	  )
 > 
+> ## Printing sparse colnames:
 > ms[sample(28, 20)] <- 0
 diagnosing replTmat(x,i,j,v): nargs()= 3; missing(i,j)= (0,1)
 > ms <- t(rbind2(ms, 3*ms))
@@ -1347,7 +1356,7 @@ attr(,"package")
 + 	  identical(thCol,  fx[,5762]))
 > 
 > cat('Time elapsed: ', (.pt <- proc.time()),'\n') # "stats"
-Time elapsed:  19.297 0.968 20.499 0 0 
+Time elapsed:  17.56 0.75 18.311 0 0 
 > ##
 > cat("checkMatrix() of all: \n---------\n")
 checkMatrix() of all: 
@@ -1469,8 +1478,10 @@ mT
 mc 
 mc0 
 mn 
+mnr 
 mo 
 ms 
+msr 
 mt 
 mt0 
 ne. 
@@ -1529,7 +1540,7 @@ x.x.
 suboptimal 'Arith' implementation of  'dsC*  o  dsC*'
 suboptimal 'Arith' implementation of  'dsC*  o  dsC*'
 > cat('Time elapsed: ', proc.time() - .pt,'\n') # "stats"
-Time elapsed:  14.047 0.365 14.425 0 0 
+Time elapsed:  14.67 0.33 15.011 0 0 
 > 
 > if(!interactive()) warnings()
 NULL

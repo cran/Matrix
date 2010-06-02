@@ -1,3 +1,24 @@
+2010-06-02  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* tests/spModel.matrix.R (Sparse.model.matrix): adapt to the fact, that
+	sparse.model.matrix() returns not just a dgCMatrix.
+
+2010-05-29  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.999375-40, CRAN-released: 2010-06-..
+
+	* R/AllClass.R: new classes "ModelMatrix", "sparseModelMatrix", etc.
+
+	* R/spModels.R (sparse.model.matrix): now return
+	"dsparseModelMatrix" object, notably with 'assign' slot.
+	* R/spModels.R (model.spmatrix): faster, using lower level
+	cbind2/rbind2 directly.
+
+	* R/spModels.R (model.Matrix): new function,
+	returning "ddenseModelMatrix".
+
+	* NAMESPACE: export new classes.
+
 2010-05-18  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* src/Csparse.c (Csparse_horzcat, Csparse_vertcat): ensure that
@@ -32,7 +53,7 @@
 
 2010-04-28  Martin Maechler  <maechler@stat.math.ethz.ch>
 
-	* DESCRIPTION (Version): 0.999375-39, CRAN-released: 2010-.....
+	* DESCRIPTION (Version): 0.999375-39, CRAN-released: 2010-05-19
 
 	* R/spModels.R (fac2sparse): using names(formals(new))[[1]] to
 	adapt to a future change in new()'s first argument *name*.

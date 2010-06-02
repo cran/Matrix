@@ -530,7 +530,7 @@ checkMatrix <- function(m, m.m = if(do.matrix) as(m, "matrix"),
     if(do.t) stopifnot(identical(diag(m), diag(t(m))))
     ## TODO: also === diag(band(m,0,0))
 
-    if(prod(d) < .Machine$integer.max) {
+    if(prod(d) < .Machine$integer.max && !extends(cld, "modelMatrix")) {
 	vm <- vec(m)
 	stopifnot(is(vm, "Matrix"), validObject(vm), dim(vm) == c(d[1]*d[2], 1))
     }

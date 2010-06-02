@@ -953,8 +953,10 @@ for(other in c("ANY", "Matrix", "dMatrix")) {
 }
 
 ## Direct subclasses of "denseMatrix": currently ddenseMatrix, ldense... :
+if(FALSE)## too general, would contain  denseModelMatrix:
 dense.subCl <- local({ dM.scl <- getClass("denseMatrix")@subclasses
                        names(dM.scl)[sapply(dM.scl, slot, "distance") == 1] })
+dense.subCl <- paste(c("d","l","n"), "denseMatrix", sep="")
 for(DI in diCls) {
     for(c2 in c(dense.subCl, "Matrix")) {
 	for(Fun in c("*", "^", "&")) {

@@ -213,6 +213,10 @@ for(cls in names(getClass("diagonalMatrix")@subclasses)) {
 
 ## originally from ./dsparseMatrix.R : --------------------------------
 
+## Fast - almost non-checking methods
+.cbind2Csp <- function(x,y) .Call(Csparse_horzcat, as_Csp2(x), as_Csp2(y))
+.rbind2Csp <- function(x,y) .Call(Csparse_vertcat, as_Csp2(x), as_Csp2(y))
+
 setMethod("cbind2", signature(x = "sparseMatrix", y = "sparseMatrix"),
 	  function(x, y) {
 	      nr <- rowCheck(x,y)

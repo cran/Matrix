@@ -150,6 +150,35 @@ setClass("isparseMatrix", representation("VIRTUAL"),
 setClass("nsparseMatrix", representation("VIRTUAL"),
 	 contains = c("nMatrix", "sparseMatrix"))
 
+## Model Matrix
+setClass("modelMatrix",
+	 representation(assign = "integer",
+			contrasts = "list", "VIRTUAL"),
+	 contains = "Matrix",
+	 validity = function(object) {
+	     if(length(object@assign) != (p <- ncol(object)))
+		 return(gettextf("'%s' slot must be integer of length %d",
+				 "assign", p))
+	     contr <- object@contrasts
+	     c.cl <- sapply(contr, class, USE.NAMES=FALSE)
+	     if(length(nc <- names(contr)) != length(c.cl) || !all(nchar(nc) > 0))
+		 return(gettextf("'%s' slot must be a correctly named list"))
+	     ## TODO?  length(contrasts) < maximal value in 'assign' <= p
+             contrCls <- c("character", "function", "matrix", "Matrix")
+	     if(any(unlist(lapply(c.cl, function(cl) all(is.na(match(extends(cl), contrCls)))))))
+		 return(gettextf("'%s' slot must be named list of contrast functions or their names, or matrices",
+				 "contrasts"))
+	     TRUE
+	 })
+
+setClass("sparseModelMatrix", representation("VIRTUAL"),
+	 contains = c("CsparseMatrix", "modelMatrix"))
+setClass("denseModelMatrix",  representation("VIRTUAL"),
+	 contains = c("denseMatrix", "modelMatrix"))
+## Below, the *actual* classes
+## setClass("dsparseModelMatrix", contains = c("dgCMatrix", .....))
+## setClass( "ddenseModelMatrix", contains = c("dgeMatrix", .....))
+
 ## ------------------ Proper (non-virtual) Classes ----------------------------
 
 ##----------------------  DENSE	 -----------------------------------------
@@ -161,6 +190,10 @@ setClass("dgeMatrix", contains = c("ddenseMatrix", "generalMatrix"),
 	 function(object) .Call(dgeMatrix_validate, object)
 	 )
 ## i.e. "dgeMatrix" cannot be packed, but "ddenseMatrix" can ..
+
+## The currently only *actual* denseModelMatrix class:
+setClass( "ddenseModelMatrix", contains = c("dgeMatrix", "ddenseMatrix", "denseModelMatrix"))
+## here, add "ddense*": does not influence slots, but yields consistent superclass ordering
 
 ## numeric, dense, non-packed, triangular matrices
 setClass("dtrMatrix",
@@ -311,6 +344,10 @@ setClass("dgCMatrix",
 ## special case: indicator rows for a factor - needs more careful definition
 #setClass("indicators", representation(levels = "character"),
 #	 contains = "dgCMatrix")
+
+## The currently only *actual* sparseModelMatrix class:
+setClass("dsparseModelMatrix", contains = c("dgCMatrix", "sparseModelMatrix"))
+
 
 ## see comments for dtTMatrix above
 ## numeric, sparse, sorted compressed sparse column-oriented triangular matrices

@@ -44,6 +44,10 @@ classCanCoerce <- function (class1, class2)
 			  useInherited = c(from = TRUE,	  to = FALSE)))
 }
 .dq <- function(ch) paste0('"', ch, '"')
+.subclasses <- function(cnam) {
+    cd <- getClass(cnam)
+    unique(c(cd@className, unlist(lapply(names(cd@subclasses), .subclasses))))
+}
 for(n in allCl) {
     if(isVirtualClass(n))
         cat("Virtual class", .dq(n),"\n")
@@ -124,7 +128,8 @@ Rcl.struc <- c("gR", "sR", "tR")
 
 Mat.MatFact <- c("Cholesky", "pCholesky",
                  "BunchKaufman", "pBunchKaufman")##, "LDL"
-no.t.etc <- c(.R.classes, dR.classes, Mat.MatFact)
+(modmat.classes <- .subclasses("modelMatrix"))
+no.t.etc <- c(.R.classes, dR.classes, Mat.MatFact, modmat.classes)
 no.t.classes <- c(no.t.etc)     # no t() available
 no.norm.classes <- no.t.classes
 not.Ops      <- NULL            # "Ops", e.g. "+" fails

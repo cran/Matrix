@@ -26,18 +26,21 @@ sparse.model.matrix(object, data = environment(object),
   \item{\dots}{further arguments passed to or from other methods.}
 }
 \value{
-  a sparse matrix, inheriting from \code{\linkS4class{CsparseMatrix}},
-  typically of class  \code{\linkS4class{dgCMatrix}}.
+  a (special) sparse matrix, namely inheriting from class
+  \code{\linkS4class{sparseModelMatrix}} which extends
+  \code{\linkS4class{CsparseMatrix}}.
 
-%% It has attributes in addition, e.g., attr(*, "contrasts").
-%% Don't yet know if we need them, and/or if we want to advertize it.
-%% They are not printed!
+  Note that such \code{\linkS4class{modelMatrix}} objects have
+  additional slots \code{assign} and \code{contrasts} which relate back
+  to the variables used.
 }
 \author{Doug Bates and Martin Maechler, with initial suggestions from Tim
   Hesterberg.
 }
 \seealso{
-  \code{\link{model.matrix}} in standard \R's package \pkg{stats}.
+  \code{\link{model.matrix}} in standard \R's package \pkg{stats}.\cr
+  \code{\link{model.Matrix}} which calls \code{sparse.model.matrix} or
+  \code{model.matrix} depending on its \code{sparse} argument.
 
   \code{as(f, "sparseMatrix")} (see \code{coerce(from = "factor", ..)}
   in the class doc \linkS4class{sparseMatrix}) produces the

@@ -8,11 +8,22 @@
 #  include "SPQR/Include/SuiteSparseQR_C.h"
 #endif
 
+/*
 typedef struct cholmod_common_struct  *CHM_CM ;
 typedef struct cholmod_dense_struct   *CHM_DN ;
 typedef struct cholmod_factor_struct  *CHM_FR ;
 typedef struct cholmod_sparse_struct  *CHM_SP ;
 typedef struct cholmod_triplet_struct *CHM_TR ;
+*/
+typedef       cholmod_common*        CHM_CM;
+typedef       cholmod_dense*         CHM_DN;
+typedef const cholmod_dense*   const_CHM_DN;
+typedef       cholmod_factor*        CHM_FR;
+typedef const cholmod_factor*  const_CHM_FR;
+typedef       cholmod_sparse*        CHM_SP;
+typedef const cholmod_sparse*  const_CHM_SP;
+typedef       cholmod_triplet*       CHM_TR;
+typedef const cholmod_triplet* const_CHM_TR;
 
 extern cholmod_common c;	/* structure for int CHM routines */
 extern cholmod_common cl;	/* structure for UF_long routines */

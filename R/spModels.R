@@ -24,14 +24,14 @@ fac2sparse <- function(from, to = c("d","i","l","n","z"), drop.unused.levels = T
 
 ## This version can deal with NA's [maybe slightly less efficient (how much?)] :
 fac2sparse <- function(from, to = c("d","i","l","n","z"),
-                       drop.unused.levels = TRUE)
+		       drop.unused.levels = TRUE)
 {
     ## factor(-like) --> sparseMatrix {also works for integer, character}
     fact <- if (drop.unused.levels) factor(from) else as.factor(from)
     levs <- levels(fact)
     n <- length(fact)
     to <- match.arg(to)
-    i <- as.integer(fact) - 1L                  # 0-based indices
+    i <- as.integer(fact) - 1L ## 0-based indices
     df <- data.frame(i = i, j = seq_len(n) - 1L)[!is.na(i),]
     if(to != "n")
 	df$x <- rep.int(switch(to,
@@ -58,7 +58,7 @@ setAs("factor", "sparseMatrix", function(from) fac2sparse(from, to = "d"))
 ##' @param to character string specifying the response type
 ##' @param drop.unused.level logical indicating if non-present factor
 ##'   levels should be dropped, via  factor(from)
-##' @param factorPatt12  logical vector fp[] of length 2
+##' @param factorPatt12 logical vector fp[] of length 2
 ##'   fp[1] : give contrasted t(X);  fp[2] : give "dummy" t(X)
 ##' @param contrasts.arg character string or NULL or (coercable to)
 ##'		sparseMatrix, specifying the contrast
@@ -127,7 +127,7 @@ contr.treatment <-
 	if(n > 1) levels <- as.character(seq_len(n))
 	else stop("not enough degrees of freedom to define contrasts")
     } else {
-        levels <- as.character(n)
+	levels <- as.character(n)
 	n <- length(n)
     }
 
@@ -137,7 +137,7 @@ contr.treatment <-
     if(contrasts) {
 	if(n < 2)
 	    stop(gettextf("contrasts not defined for %d degrees of freedom",
-                          n - 1), domain = NA)
+			  n - 1), domain = NA)
 	if (base < 1 | base > n)
 	    stop("baseline group number out of range")
 	contr <- contr[, -base, drop = FALSE]
@@ -169,8 +169,8 @@ contr.sum <-
 contr.SAS <- function(n, contrasts = TRUE, sparse=FALSE)
 {
     contr.treatment(n,
-                    base = if (is.numeric(n) && length(n) == 1) n else length(n),
-                    contrasts, sparse=sparse)
+		    base = if (is.numeric(n) && length(n) == 1) n else length(n),
+		    contrasts, sparse=sparse)
 }
 
 contr.poly <- function (n, scores = 1L:n, contrasts = TRUE, sparse = FALSE) {
@@ -259,7 +259,7 @@ sparse.model.matrix <- function(object, data = environment(object),
     if (is.null(attr(data, "terms")))
 	data <- model.frame(object, data, xlev=xlev)
     else {
-	reorder <- match(sapply(attr(t,"variables"),deparse,
+        reorder <- match(sapply(attr(t,"variables"),deparse,
                                 width.cutoff=500)[-1L],
                          names(data))
 	if (any(is.na(reorder)))
@@ -311,12 +311,26 @@ sparse.model.matrix <- function(object, data = environment(object),
     ##     ==============
     ## </Sparse>
 
-    cons <- if(any(isF))
-	lapply(data[isF], function(x) attr(x,  "contrasts"))
-    else NULL
-    attr(ans, "contrasts") <- cons
-    ans
+    cons <- lapply(data[isF], function(x) attr(x, "contrasts"))
+    new("dsparseModelMatrix", ans$X, assign = ans$assign, contrasts = cons)
+} ## {sparse.model.matrix}
+
+model.Matrix <- function(object, data = environment(object),
+			 contrasts.arg = NULL, xlev = NULL,
+			 sparse = FALSE, ...)
+{
+    if(sparse)
+	sparse.model.matrix(object, data=data, contrasts.arg=contrasts.arg,
+			    xlev=xlev, ...)
+    else {
+	## as standard	model.matrix() but producing a	"ddenseModelMatrix":
+	m <- model.matrix(object, data=data,
+			  contrasts.arg=contrasts.arg, xlev=xlev, ...)
+	new("ddenseModelMatrix", as(m, "dgeMatrix"),
+	    assign = attr(m, "assign"), contrasts = attr(m, "contrasts"))
+    }
 }
+
 
 ##' <description>
 ##' Produce the t(Z); Z = "design matrix" of (X : Y), where
@@ -326,10 +340,11 @@ sparse.model.matrix <- function(object, data = environment(object),
 ##' @title sparse model matrix for 2-way interaction
 ##' @param X and Y either are numeric matrices {maybe 1-column}
 ##' @param Y       or "as(<factor>, sparseM)"
-##' @param do.names
+##' @param do.names logical
+##' @param forceSparse logical
 ##' @return
 ##' @author Martin Maechler
-sparse2int <- function(X, Y, do.names = TRUE)
+sparse2int <- function(X, Y, do.names = TRUE, forceSparse = FALSE)
 {
     if(do.names) {
         dnx <- dimnames(X)
@@ -342,8 +357,9 @@ sparse2int <- function(X, Y, do.names = TRUE)
 	if((nX <- is.numeric(X)) | (nY <- is.numeric(Y))) {
 	    if(nX) {
 		if (nY || nx > 1) { # both numeric, or X >=2 "columns"
-                    (if(ny == 1) X else X[rep.int(seq_len(nx),  ny)   , ]) *
-                    (if(nx == 1) Y else Y[rep    (seq_len(ny),each=nx), ])
+		    F <- if(forceSparse) function(m) .Call(dense_to_Csparse, m) else identity
+		    F((if(ny == 1) X else X[rep.int(seq_len(nx),  ny)	, ]) *
+		      (if(nx == 1) Y else Y[rep	   (seq_len(ny),each=nx), ]))
 		}
                 else { ## numeric X (1 "column"),  sparseMatrix Y
 		    r <- Y
@@ -391,14 +407,17 @@ sparse2int <- function(X, Y, do.names = TRUE)
 ##' @param do.names
 
 ##' @return the model matrix corresponding to a:b:...
-sparseInt.r <- function(rList, do.names = TRUE) {
+sparseInt.r <- function(rList, do.names = TRUE, forceSparse = FALSE) {
     m <- length(rList)
+    F <- if(forceSparse) {
+	function(m) if(is.matrix(m)) .Call(dense_to_Csparse, m) else m
+    } else identity
     if(m == 1) {
-	rList[[1]]
+	F(rList[[1]])
     } else {
 	## recurse
-	sparse2int(sparseInt.r(rList[-m], do.names=do.names),
-		   rList[[m]], do.names=do.names)
+	F(sparse2int(sparseInt.r(rList[-m], do.names=do.names),
+		     rList[[m]], do.names=do.names))
     }
 }
 
@@ -423,7 +442,6 @@ is.model.frame <- function(x)
 
 ##' <description>
 ##' Create a sparse model matrix from a model frame.
-##'      Assumption:  at least one component is a factor or sparse  << FIXME ?
 ##' -- This version uses  'rBind' and returns  X' i.e. t(X) :
 ##' <details>
 ##'
@@ -431,9 +449,9 @@ is.model.frame <- function(x)
 ##' @param trms a "terms" object
 ##' @param mf a data frame, typically resulting from  model.frame()
 ##' @param transpose logical indicating if  X' = t(X) {is faster!}
-##' 	or X should be returned
+##'	or X should be returned
 ##' @param drop.unused.levels logical indicating if unused factor
-##' 	levels should be dropped
+##'	levels should be dropped
 ##' @param row.names
 ##' @return sparse matrix (class "dgCMatrix")
 ##' @author Martin Maechler
@@ -498,11 +516,12 @@ model.spmatrix <- function(trms, mf, transpose=FALSE,
         f <- mf[[i]]
         if(is.f[i]) {
             fp <- factorPattern[i,] ## == factorPattern[nam,]
+            contr <- attr(f, "contrasts")
             f.matr[[(i.f <- i.f + 1)]] <- # a list of 2
                 lapply(fac2Sparse(f, to = "d",
                                   drop.unused.levels=drop.unused.levels,
                                   factorPatt12 = 1:2 %in% fp,
-                                  contrasts.arg = attr(f, "contrasts")),
+                                  contrasts.arg = contr),
                        function(s) {
                            if(is.null(s)) return(s)
                            ## else
@@ -510,7 +529,6 @@ model.spmatrix <- function(trms, mf, transpose=FALSE,
                                paste0(nam, if(is.null(rownames(s)))
                                       ## for some contr.*(), have lost rownames; hmm..
                                       seq_len(nrow(s)) else rownames(s))
-
                            s
                        })
         } else { ## continuous variable --> "matrix" - for all of them
@@ -523,33 +541,32 @@ model.spmatrix <- function(trms, mf, transpose=FALSE,
         }
     }
 
-    result <- structure(vector("list", length = nTrm), names = Names)
-    getR <- function(N)                 # using 'nm'
-        if(!is.null(r <- f.matr[[N]])) r[[factorPattern[N, nm]]] else mf[[N]]
-    for(j in seq_len(nTrm)) { ## j-th term
-        nm <- Names[j]
-        nmSplits <- strsplit(nm, ":", fixed=TRUE)[[1]]
-        result[[j]] <- sparseInt.r(lapply(nmSplits, getR), do.names=TRUE)
-    }
+    ## FIXME: do all this in C --
 
-    attributes(trms) <- NULL            # only need formula
-    ## r :=  t(X)
-    r <- structure(do.call("rBind",
-                           c(if(hasInt) list("(Intercept)" = rep.int(1,n)), result)),
-                   ## extra attributes added to the sparse Matrix:
-                   ##  [do *NOT* cobble slots!]
-                   termNames = Names, ## = names(result)
-                   df = sapply(result, ncol),
-                   call = match.call(),
-                   formula = trms)
-    if(!length(indF) && !is(r, "sparseMatrix")) {
-        mmsg <- gettext('explicitly coercing to "sparseMatrix"')
-        warning(if(!any(is.f)) "no factors in formula; ", mmsg)
-        r <- as(r, "CsparseMatrix")
+    getR <- function(N)			# using 'nm'
+	if(!is.null(r <- f.matr[[N]])) r[[factorPattern[N, nm]]] else mf[[N]]
+    vNms <- "(Intercept)"[hasInt]
+    counts <- integer(nTrm)
+    r <-
+	if(hasInt) ## column of 1's - as sparse
+	    new("dgCMatrix", i = 0:(n-1L), p = c(0L, n),
+		Dim = c(n, 1L), x = rep.int(1, n))
+	else new("dgCMatrix", Dim = c(n, 0L))
+    if(transpose) r <- t(r)
+    iTrm <- seq_len(nTrm)
+    for(j in iTrm) { ## j-th term
+	nm <- Names[j]
+	nmSplits <- strsplit(nm, ":", fixed=TRUE)[[1]]
+	rj <- sparseInt.r(lapply(nmSplits, getR), do.names=TRUE, forceSparse = TRUE)
+	## fast version of cbind2() / rbind2(), w/o checks, dimnames, etc
+	r <- if(transpose) .Call(Csparse_vertcat, r, rj)
+		else	   .Call(Csparse_horzcat, r, t(rj))
+	vNms <- c(vNms, dimnames(rj)[[1]])
+	counts[j] <- nrow(rj)
     }
-    if(row.names)
-        colnames(r) <- rnames
-    if(!transpose) t(r) else r
+    rns <- if(row.names) rnames
+    dimnames(r) <- if(transpose) list(vNms, rns) else list(rns, vNms)
+    list(X = r, assign = c(if(hasInt) 0L, rep(iTrm, counts)))
 } ## model.spmatrix()
 
 
@@ -660,3 +677,23 @@ lm.fit.sparse <- function(x, y, w = NULL, offset = NULL,
 
     z
 }
+
+
+setMethod("show", "modelMatrix",
+	  function(object)
+      {
+	  ## workaround because	 callNextMethod() fails here:
+	  cat(sprintf("\"%s\": ", class(object)[1]))
+	  show(as(object, "generalMatrix")) # (an "intermediate" class) - why exactly? -- callNextMethod()
+	  ## end{workaround}
+	  p <- length(ass <- object@assign)
+	  c.ass <- encodeString(ass)
+	  if(sum(nchar(c.ass))+ p-1 < getOption("width") - 10) ## short enough
+	      cat("@ assign: ", c.ass,"\n")
+	  else {
+	      cat("@ assign:\n"); print(ass)
+	  }
+	  cat("@ contrasts:\n"); print(object@contrasts)
+	  invisible(object)
+      })
+

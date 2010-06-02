@@ -788,33 +788,37 @@ typedef struct cholmod_triplet_struct
 
 } cholmod_triplet ;
 
-typedef cholmod_common  *CHM_CM;
-typedef cholmod_dense   *CHM_DN;
-typedef cholmod_factor  *CHM_FR;
-typedef cholmod_sparse  *CHM_SP;
-typedef cholmod_triplet *CHM_TR;
+typedef       cholmod_common*        CHM_CM;
+typedef       cholmod_dense*         CHM_DN;
+typedef const cholmod_dense*   const_CHM_DN;
+typedef       cholmod_factor*        CHM_FR;
+typedef const cholmod_factor*  const_CHM_FR;
+typedef       cholmod_sparse*        CHM_SP;
+typedef const cholmod_sparse*  const_CHM_SP;
+typedef       cholmod_triplet*       CHM_TR;
+typedef const cholmod_triplet* const_CHM_TR;
 
-int M_R_cholmod_start(CHM_CM Common);
+int M_R_cholmod_start(CHM_CM);
 void M_R_cholmod_error(int status, const char *file, int line, const char *message);
-int M_cholmod_finish(CHM_CM Common);
+int M_cholmod_finish(CHM_CM);
 
 CHM_SP M_cholmod_allocate_sparse(size_t nrow, size_t ncol,
 				 size_t nzmax, int sorted,
 				 int packed, int stype, int xtype,
-				 CHM_CM Common);
-int M_cholmod_free_factor(CHM_FR *L, CHM_CM Common);
-int M_cholmod_free_dense(CHM_DN *A, CHM_CM Common);
-int M_cholmod_free_sparse(CHM_SP *A, CHM_CM Common);
-int M_cholmod_free_triplet(CHM_TR *T, CHM_CM Common);
+				 CHM_CM);
+int M_cholmod_free_factor(CHM_FR *L, CHM_CM);
+int M_cholmod_free_dense(CHM_DN *A, CHM_CM);
+int M_cholmod_free_sparse(CHM_SP *A, CHM_CM);
+int M_cholmod_free_triplet(CHM_TR *T, CHM_CM);
 
-long M_cholmod_nnz(const CHM_SP A, CHM_CM Common);
-CHM_SP M_cholmod_speye(size_t nrow, size_t ncol, int xtype, CHM_CM Common);
-CHM_SP M_cholmod_transpose(const CHM_SP A, int values, CHM_CM Common);
-int M_cholmod_sort(CHM_SP A, CHM_CM Common);
-CHM_SP M_cholmod_vertcat(const CHM_SP A, const CHM_SP B, int values, CHM_CM Common);
-CHM_SP M_cholmod_copy(const CHM_SP A, int stype, int mode, CHM_CM Common);
-CHM_SP M_cholmod_add(const CHM_SP A, const CHM_SP B, double alpha [2], double beta [2],
-		     int values, int sorted, CHM_CM Common);
+long M_cholmod_nnz(const_CHM_SP, CHM_CM);
+CHM_SP M_cholmod_speye(size_t nrow, size_t ncol, int xtype, CHM_CM);
+CHM_SP M_cholmod_transpose(const_CHM_SP, int values, CHM_CM);
+int M_cholmod_sort(CHM_SP A, CHM_CM);
+CHM_SP M_cholmod_vertcat(const_CHM_SP, const_CHM_SP, int values, CHM_CM);
+CHM_SP M_cholmod_copy(const_CHM_SP, int stype, int mode, CHM_CM);
+CHM_SP M_cholmod_add(const_CHM_SP, const_CHM_SP, double alpha [2], double beta [2],
+		     int values, int sorted, CHM_CM);
 
 #define CHOLMOD_A    0		/* solve Ax=b */
 #define CHOLMOD_LDLt 1		/* solve LDL'x=b */
@@ -826,41 +830,41 @@ CHM_SP M_cholmod_add(const CHM_SP A, const CHM_SP B, double alpha [2], double be
 #define CHOLMOD_P    7		/* permute x=Px */
 #define CHOLMOD_Pt   8		/* permute x=P'x */
 
-CHM_DN M_cholmod_solve(int sys, const CHM_FR L, const CHM_DN B, CHM_CM Common);
-CHM_SP M_cholmod_spsolve(int sys, const CHM_FR L, const CHM_SP B, CHM_CM Common);
-int M_cholmod_sdmult(const CHM_SP A, int transpose, double alpha [2],
-		     double beta [2], const CHM_DN X, CHM_DN Y, CHM_CM Common);
-CHM_SP M_cholmod_ssmult(const CHM_SP A, const CHM_SP B, int stype, int values,
-			int sorted, CHM_CM Common);
-int M_cholmod_factorize(const CHM_SP A, CHM_FR L, CHM_CM Common);
-int M_cholmod_factorize_p(const CHM_SP A, double *beta, int *fset,
-			  size_t fsize, CHM_FR L, CHM_CM Common);
-CHM_SP M_cholmod_copy_sparse(const CHM_SP A, CHM_CM Common);
-CHM_DN M_cholmod_copy_dense(const CHM_DN A, CHM_CM Common);
-CHM_SP M_cholmod_aat(const CHM_SP A, int *fset, size_t fsize, int mode,
-		     CHM_CM Common);
-CHM_SP M_cholmod_add(const CHM_SP A, const CHM_SP B, double alpha[2], double beta[2],
-		     int values, int sorted, CHM_CM Common);
+CHM_DN M_cholmod_solve(int, const_CHM_FR, const_CHM_DN, CHM_CM);
+CHM_SP M_cholmod_spsolve(int, const_CHM_FR, const_CHM_SP, CHM_CM);
+int M_cholmod_sdmult(const_CHM_SP, int, const double*, const double*,
+		     const_CHM_DN, CHM_DN Y, CHM_CM);
+CHM_SP M_cholmod_ssmult(const_CHM_SP, const_CHM_SP, int, int, int,
+			CHM_CM);
+int M_cholmod_factorize(const_CHM_SP, CHM_FR L, CHM_CM);
+int M_cholmod_factorize_p(const_CHM_SP, double *beta, int *fset,
+			  size_t fsize, CHM_FR L, CHM_CM);
+CHM_SP M_cholmod_copy_sparse(const_CHM_SP, CHM_CM);
+CHM_DN M_cholmod_copy_dense(const_CHM_DN, CHM_CM);
+CHM_SP M_cholmod_aat(const_CHM_SP, int *fset, size_t fsize, int mode,
+		     CHM_CM);
+CHM_SP M_cholmod_add(const_CHM_SP, const_CHM_SP, double alpha[2], double beta[2],
+		     int values, int sorted, CHM_CM);
 CHM_DN M_cholmod_allocate_dense(size_t nrow, size_t ncol, size_t d,
-				int xtype, CHM_CM Common);
-CHM_FR M_cholmod_analyze(const CHM_SP A, CHM_CM Common);
-CHM_FR M_cholmod_analyze_p(const CHM_SP A, int *Perm, int *fset,
-				    size_t fsize, CHM_CM Common);
+				int xtype, CHM_CM);
+CHM_FR M_cholmod_analyze(const_CHM_SP, CHM_CM);
+CHM_FR M_cholmod_analyze_p(const_CHM_SP, int *Perm, int *fset,
+				    size_t fsize, CHM_CM);
 int M_cholmod_change_factor(int to_xtype, int to_ll, int to_super,
 			    int to_packed, int to_monotonic,
-			    CHM_FR L, CHM_CM Common);
-CHM_FR M_cholmod_copy_factor(CHM_FR L, CHM_CM Common);
-CHM_SP M_cholmod_factor_to_sparse(CHM_FR L, CHM_CM Common);
-CHM_SP M_cholmod_dense_to_sparse(const CHM_DN X, int values, CHM_CM Common);
-int M_cholmod_defaults (CHM_CM Common);
-CHM_SP M_cholmod_triplet_to_sparse(CHM_TR T, int nzmax, CHM_CM Common);
-CHM_SP M_cholmod_submatrix(const CHM_SP A, int *rset, int rsize, int *cset,
+			    CHM_FR L, CHM_CM);
+CHM_FR M_cholmod_copy_factor(const_CHM_FR, CHM_CM);
+CHM_SP M_cholmod_factor_to_sparse(const_CHM_FR, CHM_CM);
+CHM_SP M_cholmod_dense_to_sparse(const_CHM_DN, int values, CHM_CM);
+int M_cholmod_defaults (CHM_CM);
+CHM_SP M_cholmod_triplet_to_sparse(const cholmod_triplet*, int nzmax, CHM_CM);
+CHM_SP M_cholmod_submatrix(const_CHM_SP, int *rset, int rsize, int *cset,
 			   int csize, int values, int sorted,
-			   CHM_CM Common);
-CHM_TR M_cholmod_sparse_to_triplet(const CHM_SP A, CHM_CM Common);
-CHM_DN M_cholmod_sparse_to_dense(const CHM_SP A, CHM_CM Common);
+			   CHM_CM);
+CHM_TR M_cholmod_sparse_to_triplet(const_CHM_SP, CHM_CM);
+CHM_DN M_cholmod_sparse_to_dense(const_CHM_SP, CHM_CM);
 CHM_TR M_cholmod_allocate_triplet (size_t nrow, size_t ncol, size_t nzmax,
-				   int stype, int xtype, CHM_CM Common);
+				   int stype, int xtype, CHM_CM);
 
 /* scaling modes, selected by the scale input parameter: */
 #define CHOLMOD_SCALAR 0	/* A = s*A */
@@ -868,7 +872,7 @@ CHM_TR M_cholmod_allocate_triplet (size_t nrow, size_t ncol, size_t nzmax,
 #define CHOLMOD_COL 2		/* A = A*diag(s) */
 #define CHOLMOD_SYM 3		/* A = diag(s)*A*diag(s) */
 
-int M_cholmod_scale(const CHM_DN S, int scale, CHM_SP A, CHM_CM Common);
+int M_cholmod_scale(const_CHM_DN, int scale, CHM_SP, CHM_CM);
 
 #ifdef	__cplusplus
 }

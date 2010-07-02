@@ -232,7 +232,7 @@ setReplaceMethod("[", signature(x = "RsparseMatrix", i = "index", j = "index",
 setReplaceMethod("[", signature(x = "RsparseMatrix", i = "matrix", j = "missing",
 				value = "replValue"),
 		 function (x, i, j, ..., value)
-		 .TM.repl.i.2col(as(x,"TsparseMatrix"), i=i, value=value))
+		 .TM.repl.i.mat(as(x,"TsparseMatrix"), i=i, value=value))
 
 
 

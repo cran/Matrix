@@ -70,8 +70,15 @@ M. <- M[1:12,1:12] # small ex
 N3 <- as(Matrix(upper.tri(diag(3))), "nMatrix")
 isValid(bdN <- bdiag(N3, N3),"nsparseMatrix")
 
-L == TRUE ## used to give infinite recursion
-stopifnot(all(drop0((0 - L) != 0) == drop0(L)))
+stopifnot(identical(L, L == TRUE), ## used to give infinite recursion
+          all(drop0((0 - L) != 0) == drop0(L)))
+L[sample(length(L), 10)] <- NA
+ll <- as(L,"logical")
+stopifnot(all.equal(mean(L,  na.rm=TRUE),
+		    mean(ll, na.rm=TRUE), tol= 1e-14),
+	  all.equal(mean(L,  na.rm=TRUE, trim=1/4),
+		    mean(ll, na.rm=TRUE, trim=1/4), tol= 1e-14))
+
 
 ## Examples where  is.na(.) was wrong:
 validObject(sc <- new("dsCMatrix", i=as.integer(c(0,0:1,1:2,0:1,3)), Dim=c(4L,4L),

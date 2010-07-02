@@ -77,7 +77,7 @@ setMethod("image", "dgTMatrix",
 		   ylim = .5 + c(di[1], 0),
                    aspect = "iso", ## was default "fill"
                    sub = sprintf("Dimensions: %d x %d", di[1], di[2]),
-                   xlab = "Column", ylab = "Row",
+		   xlab = "Column", ylab = "Row", cuts = 15,
                    useAbs = NULL, colorkey = !useAbs, col.regions = NULL,
                    lwd = NULL, ...)
       {
@@ -89,6 +89,9 @@ setMethod("image", "dgTMatrix",
           else if(useAbs)
               xx <- abs(xx)
           rx <- range(xx, finite=TRUE)
+	  ## FIXME: make use of 'cuts' now
+	  ##	    and call levelplot() with 'at = ', making sure  0 is included and matching
+	  ##	    *exactly* - rather than approximately
           if(is.null(col.regions))
               col.regions <-
                   if(useAbs) {
@@ -106,13 +109,15 @@ setMethod("image", "dgTMatrix",
           levelplot(x@x ~ (x@j + 1L) * (x@i + 1L),
                     sub = sub, xlab = xlab, ylab = ylab,
                     xlim = xlim, ylim = ylim, aspect = aspect,
-		    colorkey = colorkey, col.regions = col.regions,
+		    colorkey = colorkey, col.regions = col.regions, cuts = cuts,
 		    par.settings = list(background = list(col = "transparent")),
                     panel = function(x, y, z, subscripts, at, ..., col.regions)
                 {
                     x <- as.numeric(x[subscripts])
                     y <- as.numeric(y[subscripts])
 
+                    ## FIXME: use  level.colors() here and 'at' from above --
+                    ## -----  look at 'zcol' in  panel.levelplot()
                     numcol <- length(at) - 1
                     num.r <- length(col.regions)
 		    col.regions <-

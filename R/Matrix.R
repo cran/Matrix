@@ -50,10 +50,34 @@ setMethod("as.numeric", signature(x = "Matrix"),
 setMethod("as.logical", signature(x = "Matrix"),
 	  function(x, ...) as.logical(as.vector(x)))
 
+setMethod("mean", signature(x = "sparseMatrix"),
+	  function(x, ...) mean(as(x,"sparseVector"), ...))
+setMethod("mean", signature(x = "sparseVector"),
+	  function(x, trim = 0, na.rm = FALSE, ...)
+      {
+	  if (na.rm) # remove NAs such that new length() is ok
+	      x <- x[!is.na(x)] # remains sparse!
+	  if(is0(trim)) sum(x) / length(x)
+	  else {
+	      ## fast trimmed mean for sparseVector:
+	      ## ---> we'd need fast & sparse  sort(<sparseV>).
+	      ##      Normally this means to define a xtfrm() method;
+	      ##      however, that plus  x[order(x, ..)]  will NOT be sparse
+	      ## TODO: sortSparseVector(.)
+	      warning("trimmed mean of 'sparseVector' -- suboptimally using as.numeric(.)")
+	      mean(as.numeric(x), trim=trim)
+	  }
+      })
+## for the non-"sparseMatrix" ones:
 setMethod("mean", signature(x = "Matrix"),
-	  function(x, trim = 0, ...) ## TODO: provide 'sparseMatrix method
-	  if(is0(trim)) sum(x, ...) / length(x)
-	  else mean(as.numeric(x), ...))
+	  function(x, trim = 0, na.rm = FALSE, ...)
+      {
+	  if (na.rm)
+	      x <- x[!is.na(x)]
+	  if(is0(trim)) sum(x) / length(x)
+	  else mean(as.numeric(x), trim=trim)
+      })
+
 
 setMethod("cov2cor", signature(V = "Matrix"),
 	  function(V) { ## was as(cov2cor(as(V, "matrix")), "dpoMatrix"))
@@ -692,6 +716,32 @@ setReplaceMethod("[", signature(x = "Matrix", i = "ANY", j = "ANY",
 				value = "matrix"),
 		 function (x, i, j, value)
 		 callGeneric(x=x, i=i, j=j, value = c(value)))
+
+##  M [ <lMatrix> ] <- value; used notably for x = "CsparseMatrix"  -------------------
+.repl.i.lDMat <- function (x, i, j, ..., value)
+{
+    ## nA <- nargs()
+    ## if(nA != 3) stop(gettextf("nargs() = %d should never happen; please report.", nA))
+    ## else: nA == 3  i.e.,  M [ Lmat ] <- value
+    ## x[i] <- value ; return(x)
+    `[<-`(x, i=which(as.vector(i)), value=value)
+}
+setReplaceMethod("[", signature(x = "Matrix", i = "ldenseMatrix", j = "missing",
+				value = "replValue"), .repl.i.lDMat)
+setReplaceMethod("[", signature(x = "Matrix", i = "ndenseMatrix", j = "missing",
+				value = "replValue"), .repl.i.lDMat)
+.repl.i.lSMat <- function (x, i, j, ..., value)
+{
+    ## nA <- nargs()
+    ## if(nA != 3) stop(gettextf("nargs() = %d should never happen; please report.", nA))
+    ## else: nA == 3  i.e.,  M [ Lmat ] <- value
+    ## x[i] <- value ; return(x)
+    `[<-`(x, i=which(as(i, "sparseVector")), value=value)
+}
+setReplaceMethod("[", signature(x = "Matrix", i = "lsparseMatrix", j = "missing",
+				value = "replValue"), .repl.i.lSMat)
+setReplaceMethod("[", signature(x = "Matrix", i = "nsparseMatrix", j = "missing",
+				value = "replValue"), .repl.i.lSMat)
 
 ## (ANY,ANY,ANY) is used when no `real method' is implemented :
 setReplaceMethod("[", signature(x = "Matrix", i = "ANY", j = "ANY",

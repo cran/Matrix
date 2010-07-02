@@ -5,6 +5,10 @@ setAs("dppMatrix", "dpoMatrix",
       copyClass(.Call(dspMatrix_as_dsyMatrix, from),
 		"dpoMatrix",
 		sNames = c("x", "Dim", "Dimnames", "uplo", "factors")))
+dpp2sC <- function(from) as(.Call(dspMatrix_as_dsyMatrix, from), "dsCMatrix")
+## setAs("dppMatrix", "dsCMatrix", dpp2sC)
+setAs("dppMatrix", "CsparseMatrix", dpp2sC)
+setAs("dppMatrix", "sparseMatrix", dpp2sC)
 
 setAs("dppMatrix", "lMatrix",
       function(from) as(as(from, "dsyMatrix"), "lMatrix"))

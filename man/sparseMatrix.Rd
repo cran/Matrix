@@ -103,10 +103,12 @@ stopifnot(identical(A, A1))
 (args <- data.frame(i = c(i, 1), j = c(j, 2), x = c(x, 2)))
 (Aa <- do.call(sparseMatrix, args))
 
+dn <- list(LETTERS[1:3], letters[1:5])
 ## pointer vectors can be used, and the (i,x) slots are sorted if necessary:
-m <- sparseMatrix(i = c(3, 1, 3:2, 2:1), p= c(0:2, 4,4,6), x = 1:6)
+m <- sparseMatrix(i = c(3,1, 3:2, 2:1), p= c(0:2, 4,4,6), x = 1:6, dimnames = dn)
 m
 str(m)
+stopifnot(identical(dimnames(m), dn))
 
 sparseMatrix(x = 2.72, i=1:3, j=2:4) # recycling x
 sparseMatrix(x = TRUE, i=1:3, j=2:4) # recycling x, |--> "lgCMatrix"

@@ -13,6 +13,10 @@
 \alias{[<-,Matrix,ANY,missing,matrix-method}
 \alias{[<-,Matrix,missing,ANY,matrix-method}
 \alias{[<-,Matrix,matrix,missing,replValue-method}
+\alias{[<-,Matrix,lsparseMatrix,missing,replValue-method}
+\alias{[<-,Matrix,nsparseMatrix,missing,replValue-method}
+\alias{[<-,Matrix,ldenseMatrix,missing,replValue-method}
+\alias{[<-,Matrix,ndenseMatrix,missing,replValue-method}
 % \alias{[<-,Matrix,missing,numeric,missing-method}
 % \alias{[<-,Matrix,numeric,missing,missing-method}
 % \alias{[<-,Matrix,numeric,numeric,missing-method}
@@ -49,14 +53,21 @@
 \alias{[<-,TsparseMatrix,index,index,replValue-method}
 \alias{[<-,TsparseMatrix,index,missing,replValue-method}
 \alias{[<-,TsparseMatrix,matrix,missing,replValue-method}
+\alias{[<-,TsparseMatrix,lMatrix,missing,replValue-method}
+\alias{[<-,TsparseMatrix,nMatrix,missing,replValue-method}
 \alias{[<-,TsparseMatrix,missing,index,replValue-method}
 \alias{[<-,TsparseMatrix,missing,index,sparseVector-method}
 \alias{[<-,TsparseMatrix,index,missing,sparseVector-method}
 \alias{[<-,TsparseMatrix,index,index,sparseVector-method}
 % \alias{[<-,dgTMatrix,missing,missing,numeric-method}
+% -> ../R/Csparse.R :
 \alias{[<-,CsparseMatrix,index,index,replValue-method}
 \alias{[<-,CsparseMatrix,index,missing,replValue-method}
 \alias{[<-,CsparseMatrix,matrix,missing,replValue-method}
+\alias{[<-,CsparseMatrix,lsparseMatrix,missing,replValue-method}
+\alias{[<-,CsparseMatrix,nsparseMatrix,missing,replValue-method}
+\alias{[<-,CsparseMatrix,ldenseMatrix,missing,replValue-method}
+\alias{[<-,CsparseMatrix,ndenseMatrix,missing,replValue-method}
 \alias{[<-,CsparseMatrix,missing,index,replValue-method}
 \alias{[<-,CsparseMatrix,missing,index,sparseVector-method}
 \alias{[<-,CsparseMatrix,index,missing,sparseVector-method}

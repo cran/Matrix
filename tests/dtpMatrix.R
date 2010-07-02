@@ -11,7 +11,9 @@ str(tp6)
 tp <- tp6; dimnames(tp) <- list(LETTERS[1:6], letters[11:16])
 ## as.matrix() --> "logical" matrix
 stopifnot(as.matrix(tp - tp6 == tp6 - tp),
-          as.matrix(0 == tp - tp6))
+	  as.matrix(0 == tp - tp6),
+	  identical(as(tp6,"CsparseMatrix"),
+		    as(cp6,"CsparseMatrix")))
 
 stopifnot(validObject(tp6),
           all.equal(tp6 %*% diag(6), as(tp6, "dgeMatrix")),

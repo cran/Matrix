@@ -11,6 +11,8 @@
 \alias{coerce,dpoMatrix,nMatrix-method}
 \alias{coerce,dppMatrix,lMatrix-method}
 \alias{coerce,dppMatrix,nMatrix-method}
+\alias{coerce,dppMatrix,sparseMatrix-method}
+\alias{coerce,dppMatrix,CsparseMatrix-method}
 \alias{coerce,dppMatrix,dpoMatrix-method}
 \alias{coerce,dspMatrix,dpoMatrix-method}
 \alias{coerce,dspMatrix,dppMatrix-method}

@@ -556,10 +556,10 @@ replTmat <- function (x, i, j, ..., value)
     x
 } ## end{replTmat}
 
-## A[ ij ] <- value,  where ij is (i,j) 2-column matrix :
+## A[ ij ] <- value,  where ij is a matrix; typically (i,j) 2-column matrix :
 ## ----------------   ./Matrix.R has a general cheap method
 ## This one should become as fast as possible -- is also used from Csparse.R --
-.TM.repl.i.2col <- function (x, i, j, ..., value)
+.TM.repl.i.mat <- function (x, i, j, ..., value)
 {
     nA <- nargs()
     if(nA != 3)
@@ -567,10 +567,15 @@ replTmat <- function (x, i, j, ..., value)
 
     ## else: nA == 3  i.e.,  M [ cbind(ii,jj) ] <- value or M [ Lmat ] <- value
     if(is.logical(i)) {
-	Matrix.msg(".TM.repl.i.2col(): drop 'matrix' case ...")
+	Matrix.msg(".TM.repl.i.mat(): drop 'matrix' case ...", .M.level=2)
 	## c(i) : drop "matrix" to logical vector
-	x[c(i)] <- value
+	x[as.vector(i)] <- value
 	return(x)
+    } else if(extends(cli <- getClassDef(class(i)),"lMatrix") || extends(cli, "nMatrix")) {
+	Matrix.msg(".TM.repl.i.mat(): \"lMatrix\" case ...", .M.level=2)
+	i <- which(as(i, if(extends(cli, "sparseMatrix")) "sparseVector" else "vector"))
+	## x[i] <- value ; return(x)
+	return(`[<-`(x,i, value=value))
     } else if(!is.numeric(i) || ncol(i) != 2)
 	stop("such indexing must be by logical or 2-column numeric matrix")
     if(!is.integer(i)) storage.mode(i) <- "integer"
@@ -695,7 +700,7 @@ replTmat <- function (x, i, j, ..., value)
     if(extends(clDx, "compMatrix") && length(x@factors)) # drop cashed ones
 	x@factors <- list()
     x
-} ## end{.TM.repl.i.2col}
+} ## end{.TM.repl.i.mat}
 
 setReplaceMethod("[", signature(x = "TsparseMatrix", i = "index", j = "missing",
 				value = "replValue"),
@@ -711,7 +716,7 @@ setReplaceMethod("[", signature(x = "TsparseMatrix", i = "index", j = "index",
 
 setReplaceMethod("[", signature(x = "TsparseMatrix", i = "matrix", j = "missing",
 				value = "replValue"),
-		 .TM.repl.i.2col)
+		 .TM.repl.i.mat)
 
 
 ### When the RHS 'value' is  a sparseVector, now can use  replTmat  as well

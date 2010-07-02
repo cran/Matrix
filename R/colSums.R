@@ -167,7 +167,7 @@ setMethod("rowMeans", signature(x = "CsparseMatrix"), .as.gC.Fun)
 
 ## --- Tsparse ----
 
-## .as.dgC.Fun -- since there's now  C code for dgCMatrix_colSums
+## .as.C.Fun -- since there's now  C code for dgCMatrix_colSums
 setMethod("colSums",  signature(x = "TsparseMatrix"), .as.C.Fun)
 setMethod("colMeans", signature(x = "TsparseMatrix"), .as.C.Fun)
 setMethod("rowSums",  signature(x = "TsparseMatrix"), .as.C.Fun)

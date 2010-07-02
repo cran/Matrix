@@ -156,40 +156,44 @@ setAs("TsparseMatrix", "sparseVector",
       })
 
 
+##' <description>
+##'
+##' <details>
 ## Utility -- used in `dim<-` below, but also in  Matrix(.) :
-spV2M <- function (x, nrow, ncol, byrow = FALSE)
+##' @title sparseVector --> sparseMatrix constructor
+##' @param x "sparseVector" object
+##' @param nrow integer or missing, as in matrix(), see ?matrix
+##' @param ncol (ditto)
+##' @param byrow logical (see ?matrix)
+##' @param check logical indicating if it needs to be checked that 'x' is a sparseVector
+##' @return an object inheriting from "sparseMatrix"
+##' @author Martin Maechler, 11 May 2007
+spV2M <- function (x, nrow, ncol, byrow = FALSE, check = TRUE)
 {
-    ## Purpose:	 sparseVector --> sparseMatrix	constructor
-    ## ----------------------------------------------------------------------
-    ## Arguments: x: "sparseVector" object
-    ##		nrow, ncol, byrow: as for matrix() or Matrix()
-    ## ----------------------------------------------------------------------
-    ## Author: Martin Maechler, Date: 11 May 2007
-
     cx <- class(x)
-    stopifnot(extends(cx, "sparseVector"))
+    if(check && !extends(cx, "sparseVector"))
+	stop("'x' must inherit from \"sparseVector\"")
     if(!missing(ncol)) { ncol <- as.integer(ncol)
 			 if(ncol < 0) stop("'ncol' must be >= 0") }
     if(!missing(nrow)) { nrow <- as.integer(nrow)
 			 if(nrow < 0) stop("'nrow' must be >= 0") }
     n <- length(x)
     if(missing(nrow)) {
-	if(missing(ncol)) { ## both missing: --> (n x 1)
-	    ncol <- 1L
-	    nrow <- n
-	} else {
-	    if(n %% ncol != 0) warning("'ncol' is not a factor of length(x)")
-	    nrow <- as.integer(ceiling(n / ncol))
-	}
-    } else {
-	if(missing(ncol)) {
-	    if(n %% nrow != 0) warning("'nrow' is not a factor of length(x)")
-	    ncol <- as.integer(ceiling(n / nrow))
-	} else { ## both nrow and ncol specified
-	    n.n <- as.double(ncol) * nrow # no integer overflow
-	    if(n.n <  n) stop("nrow * ncol < length(x)", domain = NA)
-	    if(n.n != n) warning("nrow * ncol != length(x)", domain = NA)
-	}
+	nrow <- as.integer(
+			   if(missing(ncol)) { ## both missing: --> (n x 1)
+			       ncol <- 1L
+			       n
+			   } else {
+			       if(n %% ncol != 0) warning("'ncol' is not a factor of length(x)")
+			       as.integer(ceiling(n / ncol))
+			   })
+    } else if(missing(ncol)) {
+        if(n %% nrow != 0) warning("'nrow' is not a factor of length(x)")
+        ncol <- as.integer(ceiling(n / nrow))
+    } else { ## both nrow and ncol specified
+        n.n <- as.double(ncol) * nrow # no integer overflow
+        if(n.n <  n) stop("nrow * ncol < length(x)", domain = NA)
+        if(n.n != n) warning("nrow * ncol != length(x)", domain = NA)
     }
     ## now nrow * ncol >= n
     ##	   ~~~~~~~~~~~~~~~~
@@ -218,7 +222,14 @@ spV2M <- function (x, nrow, ncol, byrow = FALSE)
     if(has.x)
 	r@x <- if(chngCl) as.numeric(x@x) else x@x
     r
-}
+}## {spV2M}
+
+.sparseV2Mat <- function(from) spV2M(from, nrow=length(from), ncol=1L, check=FALSE)
+setAs("sparseVector","Matrix", .sparseV2Mat)
+setAs("sparseVector","sparseMatrix", .sparseV2Mat)
+setAs("sparseVector","TsparseMatrix", .sparseV2Mat)
+setAs("sparseVector","CsparseMatrix",
+      function(from) .Call(Tsparse_to_Csparse, .sparseV2Mat(from), FALSE))
 
 ## This is very similar to the 'x = "sparseMatrix"' method in ./sparseMatrix.R:
 setMethod("dim<-", signature(x = "sparseVector", value = "ANY"),

@@ -23,7 +23,7 @@
       xlim = .5 + c(0, di[2]),
       ylim = .5 + c(di[1], 0), aspect = "iso",
       sub = sprintf("Dimensions: \%d x \%d", di[1], di[2]),
-      xlab = "Column", ylab = "Row",
+      xlab = "Column", ylab = "Row", cuts = 15,
       useAbs = NULL, colorkey = !useAbs,
       col.regions = NULL,
       lwd = NULL, \dots)
@@ -37,6 +37,8 @@
     see \code{\link[lattice]{levelplot}}.}
   \item{sub, xlab, ylab}{axis annotation with sensible defaults;
     see \code{\link{plot.default}}.}
+  \item{cuts}{number of levels the range of matrix values would be
+    divided into.}
   \item{useAbs}{logical indicating if \code{\link{abs}(x)} should be
     shown; if \code{TRUE}, the former (implicit) default, the default
     \code{col.regions} will be \code{\link{grey}} colors (and no

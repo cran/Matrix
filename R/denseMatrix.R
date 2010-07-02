@@ -18,27 +18,22 @@ setAs(from = "denseMatrix", to = "generalMatrix", as_geSimpl)
 
 .dense2C <- function(from) {
     cl <- class(from)
-    cld <- getClassDef(cl)## get it once (speedup)
-    r <- .Call(dense_to_Csparse, from)
+    cld <- getClassDef(cl) ## get it once (speedup)
+    r <- .Call(dense_to_Csparse, from)# goes via "generalMatrix"
+    ## FIXME: for symmetric / triangular matrices, this is a waste, notably if packed
+
     if (extends(cld, "generalMatrix"))
-        r
-    else { ## i.e. triangular | symmetric
-        ## FIXME: this is a waste for these matrices, particularly if packed
-
-        if(extends(cld, "diagonalMatrix"))
-            stop("diagonalMatrix in .dense2C() -- should never happen, please report!")
-
-        sym <- extends(cld, "symmetricMatrix")
-        ## Note: if(!sym), we have "triangular"
-
-	if(sym) forceSymmetric(r)
-	else {
-	    if	   (extends(cld,"dMatrix")) as(r, "dtCMatrix")
-	    else if(extends(cld,"lMatrix")) as(r, "ltCMatrix")
-	    else if(extends(cld,"nMatrix")) as(r, "ntCMatrix")
-	    else if(extends(cld,"zMatrix")) as(r, "ztCMatrix")
-	    else stop("undefined method for class ", cl)
-	}
+	r
+    else if(extends(cld, "symmetricMatrix"))
+	forceSymmetric(r)
+    else if(extends(cld, "diagonalMatrix"))
+	stop("diagonalMatrix in .dense2C() -- should never happen, please report!")
+    else { ## we have "triangular" :
+	if	(extends(cld,"dMatrix")) as(r, "dtCMatrix")
+        else if (extends(cld,"lMatrix")) as(r, "ltCMatrix")
+        else if (extends(cld,"nMatrix")) as(r, "ntCMatrix")
+        else if (extends(cld,"zMatrix")) as(r, "ztCMatrix")
+        else stop("undefined method for class ", cl)
     }
 }
 

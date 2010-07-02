@@ -46,11 +46,14 @@
 \alias{coerce,sparseMatrix,sparseVector-method}
 \alias{coerce,atomicVector,sparseVector-method}
 \alias{coerce,atomicVector,dsparseVector-method}
-\alias{coerce,triangularVector,sparseVector-method}
 \alias{coerce,sparseVector,integer-method}
 \alias{coerce,sparseVector,logical-method}
 \alias{coerce,sparseVector,numeric-method}
 \alias{coerce,sparseVector,vector-method}
+\alias{coerce,sparseVector,Matrix-method}
+\alias{coerce,sparseVector,sparseMatrix-method}
+\alias{coerce,sparseVector,CsparseMatrix-method}
+\alias{coerce,sparseVector,TsparseMatrix-method}
 \alias{coerce,nsparseVector,lsparseVector-method}
 \alias{coerce,nsparseVector,dsparseVector-method}
 \alias{coerce,nsparseVector,isparseVector-method}
@@ -69,6 +72,7 @@
 \alias{is.na,nsparseVector-method}
 \alias{is.na,sparseVector-method}
 \alias{length,sparseVector-method}
+\alias{mean,sparseVector-method}
 \alias{rep,sparseVector-method}
 \alias{show,sparseVector-method}
 % ../R/products.R :
@@ -133,6 +137,12 @@
     \item{as.vector}{\code{signature(x = "sparseVector", mode = "character")}
       coerces sparse vectors to \dQuote{regular}, i.e., atomic vectors.
       This is the same as \code{as(x, "vector")}.}
+    \item{as}{..: see \code{coerce} below}
+    \item{coerce}{\code{signature(from = "sparseVector", to = "sparseMatrix")}, and}
+    \item{coerce}{\code{signature(from = "sparseMatrix", to = "sparseVector")},
+      etc: coercions to and from sparse matrices (\code{\linkS4class{sparseMatrix}}) are
+      provided and work analogously as in standard \R, i.e., a vector is
+      coerced to a 1-column matrix.}
     \item{dim<-}{\code{signature(x = "sparseVector", value = "integer")}
       coerces a sparse vector to a sparse Matrix, i.e., an object
       inheriting from \code{\linkS4class{sparseMatrix}}, of the
@@ -146,12 +156,12 @@
       \code{\link[=S4groupGeneric]{Ops}}).}
     \item{Summary}{\code{signature(x = "sparseVector")}: define
       all the \code{\link[=S4groupGeneric]{Summary}} methods.}
-% R_FIXME     \item{[}{\code{signature(x = "atomicVector", i = ...)}: not only can you
-% R_FIXME       subset (aka \emph{\dQuote{index into}}) sparseVectors \code{x[i]}
-% R_FIXME       using sparseVectors \code{i}, but we also support efficient
-% R_FIXME       subsetting of traditional vectors \code{x} by logical sparse
-% R_FIXME       vectors (i.e., \code{i} of class \code{"nsparseVector"} or
-% R_FIXME       \code{"lsparseVector"}).}
+    \item{[}{\code{signature(x = "atomicVector", i = ...)}: not only can you
+      subset (aka \emph{\dQuote{index into}}) sparseVectors \code{x[i]}
+      using sparseVectors \code{i}, but we also support efficient
+      subsetting of traditional vectors \code{x} by logical sparse
+      vectors (i.e., \code{i} of class \code{"nsparseVector"} or
+      \code{"lsparseVector"}).}
    }
 }
 %\author{Martin}
@@ -174,6 +184,9 @@ ix <- as.integer(round(sx))
 r <- ss
 dim(r) <- c(4,5) # becomes a sparse Matrix:
 r
+## or coercion (as as.matrix() in base R):
+as(ss, "Matrix")
+stopifnot(all(ss == print(as(ss, "CsparseMatrix"))))
 
 ## currently has "non-structural" FALSE -- printing as ":"
 (lis <- is & FALSE)

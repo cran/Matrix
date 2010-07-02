@@ -1,7 +1,11 @@
- ### Coercion and Methods for Symmetric Matrices
+### Coercion and Methods for Symmetric Packed Matrices
 
 setAs("dspMatrix", "dsyMatrix",
       function(from) .Call(dspMatrix_as_dsyMatrix, from))
+dsp2sC <- function(from) as(.Call(dspMatrix_as_dsyMatrix, from), "dsCMatrix")
+## setAs("dspMatrix", "dsCMatrix", dsp2sC)
+setAs("dspMatrix", "CsparseMatrix", dsp2sC)
+setAs("dspMatrix", "sparseMatrix", dsp2sC)
 
 ## dge <--> dsp   via  dsy
 setAs("dgeMatrix", "dspMatrix",

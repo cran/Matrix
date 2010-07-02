@@ -7,7 +7,7 @@
 }
 \usage{
 nearPD(x, corr = FALSE, keepDiag = FALSE, do2eigen = TRUE,
-       only.values = FALSE,
+       doSym = FALSE, doDykstra = TRUE, only.values = FALSE,
        eig.tol = 1e-06, conv.tol = 1e-07, posd.tol = 1e-08,
        maxit = 100, trace = FALSE)
 }
@@ -24,12 +24,17 @@ nearPD(x, corr = FALSE, keepDiag = FALSE, do2eigen = TRUE,
   \item{do2eigen}{logical indicating if a
     \code{\link[sfsmisc]{posdefify}()} eigen step should be applied to
     the result of the Higham algorithm.}
+  \item{doSym}{logical indicating if \code{X <- (X + t(X))/2} should be
+    done, after \code{X <- tcrossprod(Qd, Q)}; some doubt if this is necessary.}
+  \item{doDykstra}{logical indicating if Dykstra's correction should be
+    used; true by default.  If false, the algorithm is basically the
+    direct fixpoint iteration
+    \eqn{Y_k = P_U(P_S(Y_{k-1}))}{Y(k) = P_U(P_S(Y(k-1)))}.}
   \item{only.values}{logical; if \code{TRUE}, the result is just the
     vector of eigen values of the approximating matrix.}
-
   \item{eig.tol}{defines relative positiveness of eigenvalues compared
     to largest one, \eqn{\lambda_1}. Eigen values \eqn{\lambda_k} are
-    treated as if zero when \eqn{\lambda_k / \lambda_1 <= eig.tol}.}
+    treated as if zero when \eqn{\lambda_k / \lambda_1 \le eig.tol}.}
   \item{conv.tol}{convergence tolerance for Higham algorithm.}
   \item{posd.tol}{tolerance for enforcing positive definiteness (in the
     final \code{posdefify} step when \code{do2eigen} is \code{TRUE}).}
@@ -38,8 +43,8 @@ nearPD(x, corr = FALSE, keepDiag = FALSE, do2eigen = TRUE,
     should be traced.}
 }
 \details{
-  This implements the algorithm of Higham (2002), and then forces
-  positive definiteness using code from
+  This implements the algorithm of Higham (2002), and then (if
+  \code{do2eigen} is true) forces positive definiteness using code from
   \code{\link[sfsmisc]{posdefify}}.  The algorithm of Knol DL and ten
   Berge (1989) (not implemented here) is more general in (1) that it
   allows constraints to fix some rows (and columns) of the matrix and (2)
@@ -47,6 +52,11 @@ nearPD(x, corr = FALSE, keepDiag = FALSE, do2eigen = TRUE,
 
   Note that setting \code{corr = TRUE} just sets \code{diag(.) <- 1}
   within the algorithm.
+
+  Higham (2002) uses Dykstra's correction, but the version by Jens
+  Oehlschlaegel did not use it (accidentally), and has still lead to
+  good results; this simplification, now only via \code{doDykstra = FALSE},
+  was active in \code{nearPD()} upto Matrix version 0.999375-40.
 }
 \value{
   If \code{only.values = TRUE}, a numeric vector of eigen values of the
@@ -85,6 +95,13 @@ nearPD(x, corr = FALSE, keepDiag = FALSE, do2eigen = TRUE,
   \code{\link[sfsmisc]{posdefify}()}, both from package \pkg{sfsmisc}.
 }
 \examples{
+ ## Higham(2002), p.334f - simple example
+ A <- matrix(1, 3,3); A[1,3] <- A[3,1] <- 0
+ n.A <- nearPD(A, corr=TRUE, do2eigen=FALSE)
+ n.A[c("mat", "normF")]
+ stopifnot(all.equal(n.A$mat[1,2], 0.760689917),
+	   all.equal(n.A$normF, 0.52779033, tol=1e-9) )
+
  set.seed(27)
  m <- matrix(round(rnorm(25),2), 5, 5)
  m <- m + t(m)
@@ -93,7 +110,7 @@ nearPD(x, corr = FALSE, keepDiag = FALSE, do2eigen = TRUE,
 
  str(near.m <- nearPD(m, trace = TRUE))
  round(near.m$mat, 2)
- norm(m - near.m$mat) # 1.102
+ norm(m - near.m$mat) # 1.102 / 1.08
 
  if(require("sfsmisc")) {
     m2 <- posdefify(m) # a simpler approach
@@ -116,16 +133,16 @@ pr <- Matrix(c(1,     0.477, 0.644, 0.478, 0.651, 0.826,
 nc.  <- nearPD(pr, conv.tol = 1e-7) # default
 nc.$iterations  # 2
 nc.1 <- nearPD(pr, conv.tol = 1e-7, corr = TRUE)
-nc.1$iterations # 11 (!)
+nc.1$iterations # 11 / 12 (!)
 ncr   <- nearPD(pr, conv.tol = 1e-15)
-str(ncr)# 3 iterations
+str(ncr)# still 2 iterations
 ncr.1 <- nearPD(pr, conv.tol = 1e-15, corr = TRUE)
-ncr.1 $ iterations #  27 !
+ncr.1 $ iterations # 27 / 30 !
 
 ## But indeed, the 'corr = TRUE' constraint did ensure a better solution;
 ## cov2cor() does not just fix it up equivalently :
 norm(pr - cov2cor(ncr$mat)) # = 0.09994
-norm(pr -       ncr.1$mat)  # = 0.08746
+norm(pr -       ncr.1$mat)  # = 0.08746 / 0.08805
 }
 \keyword{algebra}
 \keyword{array}

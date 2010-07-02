@@ -13,7 +13,7 @@
 \alias{show,ddenseMatrix-method}
 \alias{coerce,ddenseMatrix,matrix-method}
 \alias{coerce,ddenseMatrix,dgeMatrix-method}
-\alias{coerce,ddenseMatrix,CsparseMatrix-method}
+%\alias{coerce,ddenseMatrix,CsparseMatrix-method}
 %
 % Group
 \alias{Arith,ddenseMatrix,ddenseMatrix-method}

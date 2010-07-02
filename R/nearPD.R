@@ -10,6 +10,8 @@ nearPD <-
     function(x               # n-by-n approx covariance/correlation matrix
              , corr = FALSE, keepDiag = FALSE
              , do2eigen = TRUE  # if TRUE do a sfsmisc::posdefify() eigen step
+             , doSym = FALSE  # symmetrize after tcrossprod()
+             , doDykstra = TRUE # do use Dykstra's correction
              , only.values = FALSE# if TRUE simply return lambda[j].
              , eig.tol   = 1e-6 # defines relative positiveness of eigenvalues compared to largest
              , conv.tol  = 1e-7 # convergence tolerance for algorithm
@@ -24,20 +26,24 @@ nearPD <-
     }
     n <- ncol(x)
     if(keepDiag) diagX0 <- diag(x)
-    ## U should be like x, but filled with '0' -- following also works for 'Matrix':
-    U <- x; U[] <- 0
+
+    if(doDykstra) {
+        ## D_S should be like x, but filled with '0' -- following also works for 'Matrix':
+        D_S <- x; D_S[] <- 0
+    }
     X <- x
     iter <- 0 ; converged <- FALSE; conv <- Inf
 
     while (iter < maxit && !converged) {
         Y <- X
-        T <- Y - U
+        if(doDykstra)
+            R <- Y - D_S
 
-        ## project onto PSD matrices
-        e <- eigen(Y, symmetric = TRUE)
+        ## project onto PSD matrices  X_k  =  P_S (R_k)
+        e <- eigen(if(doDykstra) R else Y, symmetric = TRUE)
+        ##
         Q <- e$vectors
-        d <- e$values
-        ## D <- diag(d)
+        d <- e$values ## D <- diag(d)
 
         ## create mask from relative positive eigenvalues
         p <- d > eig.tol*d[1]
@@ -47,11 +53,13 @@ nearPD <-
         ## X <- Q %*% D[p,p,drop = FALSE] %*% t(Q)  --- more efficiently :
         X <- tcrossprod(Q * rep(d[p], each=nrow(Q)), Q)
 
-        ## update Dykstra's correction
-        U <- X - T
+        if(doDykstra)
+            ## update Dykstra's correction D_S = \Delta S_k
+            D_S <- X - R
 
         ## project onto symmetric and possibly 'given diag' matrices:
-        X <- (X + t(X))/2
+        if(doSym)
+            X <- (X + t(X))/2
         if(corr) diag(X) <- 1
         else if(keepDiag) diag(X) <- diagX0
 

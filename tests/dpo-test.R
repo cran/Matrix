@@ -1,5 +1,4 @@
 ### Testing positive definite matrices
-
 library(Matrix)
 source(system.file("test-tools.R", package = "Matrix"))# identical3() etc
 
@@ -74,8 +73,10 @@ pr <- Matrix(c(1,     0.477, 0.644, 0.478, 0.651, 0.826,
 
 nL <-
     list(r   = nearPD(pr, conv.tol = 1e-7), # default
-         r.1 = nearPD(pr, conv.tol = 1e-7, corr = TRUE),
-         rH  = nearPD(pr, conv.tol = 1e-15),
+	 r.1 = nearPD(pr, conv.tol = 1e-7,		corr = TRUE),
+	 rs  = nearPD(pr, conv.tol = 1e-7, doDyk=FALSE),
+	 rs1 = nearPD(pr, conv.tol = 1e-7, doDyk=FALSE, corr = TRUE),
+	 rH  = nearPD(pr, conv.tol = 1e-15),
          rH.1= nearPD(pr, conv.tol = 1e-15, corr = TRUE))
 
 sapply(nL, `[`, c("iterations", "normF"))
@@ -91,16 +92,20 @@ allnorms <- function(d) sapply(c("1","I","F","M"), function(typ) norm(d, typ))
 
 stopifnot(
 all.equal(nn["1",],
-          c(r = 0.099944428698, r.1 =0.087461417994,
-            rH= 0.099944428698, rH.1=0.087461430806), tol=1e-9))
+          c(r =0.0999444286984696, r.1= 0.0880468666522317,
+            rs=0.0999444286984702, rs1= 0.0874614179943388,
+            rH=0.0999444286984696, rH.1=0.0880468927726625),
+          tol=1e-9))
 
 nr <- nL $rH.1 $mat
 stopifnot(
     all.equal(nr[lower.tri(nr)],
-	      c(0.48796803265083, 0.64265188295401, 0.49063868812228, 0.64409905497094,
-		0.80871120142824, 0.51411473401472, 0.25066882763262, 0.67235131534931,
-		0.72583206922437, 0.59682778611131, 0.58219178154582, 0.7449631866236,
-		0.72988206459063, 0.77215024062758, 0.81319175546212), tol = 1e-10))
+	      c(0.4877861230299, 0.6429309061748, 0.4904554299278, 0.6447150779852,
+		0.8082100656035, 0.514511537243, 0.2503412693503, 0.673249718642,
+		0.7252316891977, 0.5972811755863, 0.5818673040157, 0.7444549621769,
+		0.7308954865819, 0.7713984381710, 0.8124321235679),
+	      tol = 1e-9))
+
 
 set.seed(27)
 m9 <- h9 + rnorm(9^2)/1000 ; m9 <- (m9 + t(m9))/2

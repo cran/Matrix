@@ -1,6 +1,7 @@
-## For both 'Extract' ("[") and 'Replace' ("[<-") Method testing
+#### For both 'Extract' ("[") and 'Replace' ("[<-") Method testing
 
-library(Matrix)
+#### suppressPackageStartupMessages(...)  as we have an *.Rout.save to Rdiff against
+stopifnot(suppressPackageStartupMessages(require(Matrix)))
 
 source(system.file("test-tools.R", package = "Matrix"), keep.source = FALSE)
 ##-> identical3() etc
@@ -50,6 +51,8 @@ mnr <- mn
 v <- rev(as(ms, "vector"))
 mnr[] <- v
 msr[] <- v # [<- "sparse" -- not very sensical; did fail w/o a message
+z <- msr; z[] <- 0
+zz <- as(array(0, dim(z)), "sparseMatrix")
 a.m <- as(mnr,"matrix")
 stopifnot(identical(mn["rc", "D"], mn[3,4]), mn[3,4] == 24,
 	  identical(mn[, "A"], mn[,1]), mn[,1] == 1:7,
@@ -62,8 +65,10 @@ stopifnot(identical(mn["rc", "D"], mn[3,4]), mn[3,4] == 24,
 	  identical(colnames(mn[,cj <- c("B","D")]), cj),
 	  identical(colnames(ms[,cj]), cj),
 	  identical(a.m, as(msr,"matrix")),
+	  identical(unname(z), zz),
 	  identical(a.m, array(v, dim=dim(mn), dimnames=dimnames(mn)))
 	  )
+
 
 ## Printing sparse colnames:
 ms[sample(28, 20)] <- 0
@@ -280,7 +285,13 @@ stopifnot(identical(unname(as.matrix(A)),
 	  identical(unname(as.matrix(B)),
 		    local({a <- matrix(0,4,3); a[c(1,2,1), 2] <- 1:3; a})),
 	  identical(C, drop0(B.)))
-
+## <sparse>[<logicalSparse>] <- v  failed in the past
+T <- as(C,"TsparseMatrix"); C. <- C
+T[T>0] <- 21
+C[C>0] <- 21
+a. <- local({a <- as.matrix(C.); a[a>0] <- 21; a})
+assert.EQ.mat(C, a.)
+stopifnot(identical(C, as(T, "CsparseMatrix")))
 
 ## used to fail
 n <- 5 ## or much larger
@@ -688,16 +699,11 @@ str(thisCol <-  f[,5000])# logi [~ 7 mio....]
 sv <- as(thisCol, "sparseVector")
 str(sv) ## "empty" !
 validObject(spCol <- f[,5000, drop=FALSE])
-## ^^ FIXME slow Tsparse_to_Csparse from memory-hog
-## cholmod_sparse *CHOLMOD(triplet_to_sparse)
-## which has  "workspace: Iwork (max (nrow,ncol))"
-## in ../src/CHOLMOD/Core/cholmod_triplet.c  *and*
-## in ../src/CHOLMOD/Core/t_cholmod_triplet.c
 ##
 ## *not* identical(): as(spCol, "sparseVector")@length is "double"prec:
 stopifnot(all.equal(as(spCol, "sparseVector"),
                     as(sv,   "nsparseVector"), tol=0))
-f[,5762] <- thisCol # now "fine" <<<<<<<<<< FIXME uses LARGE objects
+f[,5762] <- thisCol # now "fine" <<<<<<<<<< FIXME uses LARGE objects -- slow --
 ## is using  replCmat() in ../R/Csparse.R, then
 ##           replTmat() in ../R/Tsparse.R
 
@@ -705,9 +711,9 @@ fx <- sparseMatrix(i = sample(n, size=nnz, replace=TRUE),
                    j = sample(m, size=nnz, replace=TRUE),
                    x = round(10*rnorm(nnz)))
 class(fx)## dgCMatrix
-fx[,6000] <- (tC <- rep(thisCol, length=nrow(fx)))
+fx[,6000] <- (tC <- rep(thisCol, length=nrow(fx)))# slow (as above)
 thCol <- fx[,2000]
-fx[,5762] <- thCol
+fx[,5762] <- thCol# slow
 stopifnot(is(f, "ngCMatrix"), is(fx, "dgCMatrix"),
 	  identical(thisCol, f[,5762]),# perfect
 	  identical(as.logical(fx[,6000]), tC),
@@ -724,4 +730,3 @@ for(nm in ls()) if(is(.m <- get(nm), "Matrix")) {
 cat('Time elapsed: ', proc.time() - .pt,'\n') # "stats"
 
 if(!interactive()) warnings()
-

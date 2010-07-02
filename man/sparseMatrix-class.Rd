@@ -32,6 +32,7 @@
 \alias{diag,sparseMatrix-method}
 \alias{dim<-,sparseMatrix-method}
 \alias{lu,sparseMatrix-method}
+\alias{mean,sparseMatrix-method}
 \alias{print,sparseMatrix-method}
 \alias{show,sparseMatrix-method}
 \alias{summary,sparseMatrix-method}

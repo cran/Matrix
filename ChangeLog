@@ -1,3 +1,41 @@
+2010-07-02  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/sparseMatrix.R (x[] <- 0): fix shortcut code.
+	* tests/indexing.R: and test
+
+	* R/nearPD.R (nearPD): 'doDykstra = TRUE' and *do* use Dykstra's
+	correction which was *not* used in Jens' code; thanks to Bernhard
+	Spangl for a report
+
+2010-06-26  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Matrix.R: fix mean() method; add sparse one, remaining sparse
+	at least for trim = 0.
+
+2010-06-08  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.999375-41, CRAN-released: ...
+
+	* R/sparseVector.R (spV2M): enable sparseVector -> (sparse)Matrix
+	as(*,.) coercion.
+
+2010-06-07  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Tsparse.R (.TM.repl.i.mat): renamed from .TM.repl.i.2col().
+	* R/Matrix.R (.repl.i.lSMat): implement logical sparse
+	sub-assignment: M[<lsparseMatrix>] <- v; ditto for dense & nsparse.
+
+	* R/Csparse.R (.CM.repl.i.lSMat, ..): direct logical sparse
+	sub-assignment for "Csparse".
+
+2010-06-04  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/sparseMatrix.R (sparseMatrix): re-enable 'dimnames' argument.
+
+2010-06-03  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/spModels.R (model.Matrix): tweak for NULL contrasts in dense case.
+
 2010-06-02  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* tests/spModel.matrix.R (Sparse.model.matrix): adapt to the fact, that
@@ -5,7 +43,7 @@
 
 2010-05-29  Martin Maechler  <maechler@stat.math.ethz.ch>
 
-	* DESCRIPTION (Version): 0.999375-40, CRAN-released: 2010-06-..
+	* DESCRIPTION (Version): 0.999375-40, CRAN-released: 2010-06-04, r 2546
 
 	* R/AllClass.R: new classes "ModelMatrix", "sparseModelMatrix", etc.
 
@@ -53,7 +91,7 @@
 
 2010-04-28  Martin Maechler  <maechler@stat.math.ethz.ch>
 
-	* DESCRIPTION (Version): 0.999375-39, CRAN-released: 2010-05-19
+	* DESCRIPTION (Version): 0.999375-39, CRAN-released: 2010-05-19, r 2540
 
 	* R/spModels.R (fac2sparse): using names(formals(new))[[1]] to
 	adapt to a future change in new()'s first argument *name*.
@@ -139,7 +177,7 @@
 
 2010-02-09  Martin Maechler  <maechler@stat.math.ethz.ch>
 
-	* DESCRIPTION (Version): 0.999375-38, CRAN-released: 2010-03-31
+	* DESCRIPTION (Version): 0.999375-38, CRAN-released: 2010-03-31, r 2529
 
 	* NAMESPACE, R/AllGeneric.R, R/zzz.R: change det() into a regularly exported
 	function (masking base::det) instead of load-time hack.

@@ -244,11 +244,9 @@ contr.poly <- stats::contr.poly
 } ## end if {define  contr.*()  for pre-2.10.0 R)
 
 
-## Goal: an  model.sparseMatrix()
+## Goal: a  "sparse model.matrix()"
 ##      model.matrix(object, data = environment(object),
 ##                   contrasts.arg = NULL, xlev = NULL, ...)
-## "FIXME": Rather should have
-##    model.matrix(.......,  sparse = TRUE) ...
 ##
 ##  Cut'n'paste from model.matrix() ... just replacing small part at end:
 sparse.model.matrix <- function(object, data = environment(object),
@@ -327,7 +325,8 @@ model.Matrix <- function(object, data = environment(object),
 	m <- model.matrix(object, data=data,
 			  contrasts.arg=contrasts.arg, xlev=xlev, ...)
 	new("ddenseModelMatrix", as(m, "dgeMatrix"),
-	    assign = attr(m, "assign"), contrasts = attr(m, "contrasts"))
+	    assign = attr(m, "assign"),
+	    contrasts = if(is.null(ctr <- attr(m,"contrasts")))list() else ctr)
     }
 }
 

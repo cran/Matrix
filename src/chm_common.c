@@ -351,15 +351,16 @@ SEXP chm_sparse_to_SEXP(CHM_SP a, int dofree, int uploT, int Rkind,
 				/* copy data slot if present */
     if (a->xtype == CHOLMOD_REAL) {
 	int i, *m_x;
+	double *a_x = (double *) a->x;
 	switch(Rkind) {
 	case 0:
 	    Memcpy(REAL(ALLOC_SLOT(ans, Matrix_xSym, REALSXP, nnz)),
-		   (double *) a->x, nnz);
+		   a_x, nnz);
 	    break;
 	case 1:
 	    m_x = LOGICAL(ALLOC_SLOT(ans, Matrix_xSym, LGLSXP, nnz));
 	    for (i=0; i < nnz; i++)
-		m_x[i] = (int) ((double *) a->x)[i];
+		m_x[i] = ISNAN(a_x[i]) ? NA_LOGICAL : (int) a_x[i]; /* or f != 0 */
 	    break;
 	}
     }
@@ -540,17 +541,16 @@ SEXP chm_triplet_to_SEXP(CHM_TR a, int dofree, int uploT, int Rkind,
 				/* copy data slot if present */
     if (a->xtype == CHOLMOD_REAL) {
 	int i, *m_x;
+	double *a_x = (double *) a->x;
 	switch(Rkind) {
 	case 0:
 	    Memcpy(REAL(ALLOC_SLOT(ans, Matrix_xSym, REALSXP, a->nnz)),
-		   (double *) a->x, a->nnz);
+		   a_x, a->nnz);
 	    break;
 	case 1:
 	    m_x= LOGICAL(ALLOC_SLOT(ans, Matrix_xSym, LGLSXP, a->nnz));
 	    for (i=0; i < a->nnz; i++)
-		m_x[i] = (int) ((double *) a->x)[i];
-/* 	    Memcpy(LOGICAL(ALLOC_SLOT(ans, Matrix_xSym, LGLSXP, a->nnz)), */
-/* 		   (int *) a->x, a->nnz); */
+		m_x[i] = ISNAN(a_x[i]) ? NA_LOGICAL : (int) a_x[i]; /* or f != 0 */
 	    break;
 	}
     }

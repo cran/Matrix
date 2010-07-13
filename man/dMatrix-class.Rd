@@ -64,8 +64,7 @@
 \alias{\%*\%,dMatrix,nMatrix-method}
 \alias{\%*\%,lMatrix,dMatrix-method}
 \alias{\%*\%,nMatrix,dMatrix-method}
-%
-\alias{which,lMatrix-method}
+%\alias{which,lMatrix-method}
 %
 % operations with one argument from the "integer" class
 \alias{crossprod,dMatrix,integer-method}
@@ -122,7 +121,8 @@
   }
   The following methods are defined for all logical matrices:
   \describe{
-    \item{which}{\code{signature(x = "lMatrix")}: as the \pkg{base} function
+    \item{which}{\code{signature(x = "lsparseMatrix")} and many other
+      subclasses of \code{"lMatrix"}: as the \pkg{base} function
       \code{\link{which}(x, arr.ind)} returns the indices of the
       \code{\link{TRUE}} entries in \code{x}; if \code{arr.ind} is true,
       as a 2-column matrix of row and column indices.}

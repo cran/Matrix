@@ -14,6 +14,7 @@
 \alias{coerce,ldenseMatrix,matrix-method}
 \alias{diag,ldenseMatrix-method}
 \alias{norm,ldenseMatrix,character-method}
+\alias{which,ldenseMatrix-method}
 %%-- These are already in ./lsparseMatrix-classes.Rd :
 %\alias{\%*\%,lsparseMatrix,ldenseMatrix-method}
 %\alias{\%*\%,ldenseMatrix,lsparseMatrix-method}
@@ -47,6 +48,10 @@ Class \code{"Matrix"}, by class \code{"denseMatrix"}.
     \item{crossprod}{\code{signature(x = "lsparseMatrix", y = "ldenseMatrix")}: ... }
     \item{crossprod}{\code{signature(x = "ldenseMatrix", y = "lsparseMatrix")}: ... }
     \item{as.vector}{\code{signature(x = "ldenseMatrix", mode = "missing")}: ...}
+
+    \item{which}{\code{signature(x = "ndenseMatrix")}, semantically
+      equivalent to \pkg{base} function \code{\link{which}(x, arr.ind)};
+      for details, see the \code{\linkS4class{lMatrix}} class documentation.}
   }
 }
 \seealso{

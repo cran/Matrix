@@ -326,7 +326,7 @@ emptyColnames <- function(x, msg.if.not.empty = FALSE)
 			paste(sQuote(cn[1:min(3, lc)]), collapse = ", "),
 			if(lc > 3) " ..." else ""))
     }
-    dimnames(x) <- list(dn[[1]], rep("", d[2]))
+    dimnames(x) <- list(dn[[1]], character(d[2]))
     x
 }
 

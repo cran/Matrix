@@ -1,3 +1,22 @@
+2010-07-12  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* NAMESPACE: rename, export and
+	* man/glpModel-class.Rd: document Doug's new "glpModel" class.
+	* R/spModels.R
+
+2010-07-06  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/lMatrix.R (whichDense): use arrayInd()
+	* R/zzz.R (arrayInd): provide for older R versions
+
+2010-07-05  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/chm_common.c (chm_triplet_to_SEXP): deal more carefully with
+	NAs, needed e.g., on Solaris; thanks to Ruth and Brian Ripley.
+
+	* R/Ops.R (Compare <Csparse>): fix bug uncovered by "alongside" the
+	above.
+
 2010-07-02  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/sparseMatrix.R (x[] <- 0): fix shortcut code.
@@ -14,7 +33,7 @@
 
 2010-06-08  Martin Maechler  <maechler@stat.math.ethz.ch>
 
-	* DESCRIPTION (Version): 0.999375-41, CRAN-released: ...
+	* DESCRIPTION (Version): 0.999375-41, CRAN-released: 2010-07-03, r 2555
 
 	* R/sparseVector.R (spV2M): enable sparseVector -> (sparse)Matrix
 	as(*,.) coercion.

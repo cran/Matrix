@@ -116,8 +116,8 @@ setMethod("cbind2", signature(x = "denseMatrix", y = "denseMatrix"),
 		  rn <- if(!is.null(dnx[[1]])) dnx[[1]] else dny[[1]]
 		  cx <- dnx[[2]] ; cy <- dny[[2]]
 		  cn <- if(is.null(cx) && is.null(cy)) NULL
-		  else c(if(!is.null(cx)) cx else rep.int("", ncx),
-			 if(!is.null(cy)) cy else rep.int("", ncy))
+		  else c(if(!is.null(cx)) cx else character(ncx),
+			 if(!is.null(cy)) cy else character(ncy))
 		  x@Dimnames <- list(rn, cn)
 	      }
 	      x
@@ -158,8 +158,8 @@ setMethod("rbind2", signature(x = "denseMatrix", y = "denseMatrix"),
 		      ## if they differ -- but there's no warning in any case
 		      list(if(is.null(rx <- dnx[[1]]) & is.null(ry <- dny[[1]]))
 			   NULL else
-			   c(if(!is.null(rx)) rx else rep.int("", nrx),
-			     if(!is.null(ry)) ry else rep.int("", nry)),
+			   c(if(!is.null(rx)) rx else character(nrx),
+			     if(!is.null(ry)) ry else character(nry)),
 			   if(!is.null(dnx[[2]])) dnx[[2]] else dny[[2]])
 
 		  } else list(NULL, NULL)
@@ -231,8 +231,8 @@ setMethod("cbind2", signature(x = "sparseMatrix", y = "sparseMatrix"),
 		  rn <- if(!is.null(dnx[[1]])) dnx[[1]] else dny[[1]]
 		  cx <- dnx[[2]] ; cy <- dny[[2]]
 		  cn <- if(is.null(cx) && is.null(cy)) NULL
-		  else c(if(!is.null(cx)) cx else rep.int("", ncol(x)),
-			 if(!is.null(cy)) cy else rep.int("", ncol(y)))
+		  else c(if(!is.null(cx)) cx else character(ncol(x)),
+			 if(!is.null(cy)) cy else character(ncol(y)))
 		  ans@Dimnames <- list(rn, cn)
 	      }
 	      ans
@@ -252,8 +252,8 @@ setMethod("rbind2", signature(x = "sparseMatrix", y = "sparseMatrix"),
 		  cn <- if(!is.null(dnx[[2]])) dnx[[2]] else dny[[2]]
 		  rx <- dnx[[1]] ; ry <- dny[[1]]
 		  rn <- if(is.null(rx) && is.null(ry)) NULL
-		  else c(if(!is.null(rx)) rx else rep.int("", nrow(x)),
-			 if(!is.null(ry)) ry else rep.int("", nrow(y)))
+		  else c(if(!is.null(rx)) rx else character(nrow(x)),
+			 if(!is.null(ry)) ry else character(nrow(y)))
 		  ans@Dimnames <- list(rn, cn)
 	      }
 	      ans

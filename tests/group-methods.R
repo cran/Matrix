@@ -87,14 +87,20 @@ stopifnot(all(dn1 == nm1))
 
 dsc[2,3] <- NA ## now has an NA (and no longer is symmetric)
 ##          ----- and "everything" is different
+## also add "non-structural 0":
+dsc@x[1] <- 0
 dsc
 dsc/ 5
 dsc + dsc
 dsc - dsc
 dsc + 1 # -> no longer sparse
 Tsc <- as(dsc, "TsparseMatrix")
-stopifnot(identical(dsc, Matrix((dsc + 1) -1)),
-          identical(dsc, Matrix((Tsc + 1) -1))) # ok (exact arithmetic)
+dsc. <- drop0(dsc)
+stopifnot(identical(dsc., Matrix((dsc + 1) -1)),
+          identical(dsc., Matrix((Tsc + 1) -1)), # ok (exact arithmetic)
+	  Q.eq(0 != dsc, dsc != Matrix(0, 3, 3)),
+	  Q.eq(0 != dsc, dsc != c(0,0)) # with a warning ("not multiple ..")
+          )
 str(lm1 <- dsc >= 1) # now ok (NA in proper place, however:
 lm1 ## NA used to print as ' ' , now 'N'
 (lm2 <- dsc == 1)# ditto

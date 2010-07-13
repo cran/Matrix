@@ -91,7 +91,7 @@ stopifnot(isSymmetric(M), isSymmetric(M.),
           all(sc == gc | (is.na(sc) & is.na(gc))),
 	  all.equal(N3,N3),
 	  tail(all.equal(N3, t(N3)), 1) == all.equal(1,-1),# ~= "Mean relative difference: 2"
-	  !any(bdN != t(bdN)), # <nsparse> != <nsparse>	 failed to work...
+          all((bdN != t(bdN)) == (bdN + t(bdN))), # <nsparse> != <nsparse>  failed to work...
 	  !any((0+bdN) > bdN), # <dsparse> o <nsparse>
 	  !any(bdN != (0+bdN)), # <nsparse> o <dsparse>
 	  length(grep("Length", all.equal(M., (vM <- as.vector(M.))))) > 0,

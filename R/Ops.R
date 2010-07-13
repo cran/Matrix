@@ -1125,6 +1125,9 @@ setMethod("Compare", signature(e1 = "CsparseMatrix", e2 = "CsparseMatrix"),
 
               cD1 <- getClassDef(class(e1))
               cD2 <- getClassDef(class(e2))
+	      Matrix.msg(sprintf("Compare <Csparse> -- \"%s\" %s \"%s\" :\n",
+				 cD1@className, .Generic,
+				 cD2@className), .M.level = 2)
 
 	      ## NB non-diagonalMatrix := Union{ general, symmetric, triangular}
 	      gen1 <- extends(cD1, "generalMatrix")
@@ -1202,8 +1205,8 @@ setMethod("Compare", signature(e1 = "CsparseMatrix", e2 = "CsparseMatrix"),
                   ij1 <- .Call(compressed_non_0_ij, e1, TRUE)
                   ij2 <- .Call(compressed_non_0_ij, e2, TRUE)
                   ii <- WhichintersectInd(ij1, ij2, di=d)
-                  I1 <- ii[[1]]
-                  I2 <- ii[[2]]
+                  I1 <- ii[[1]]; has1 <- length(I1) > 0
+                  I2 <- ii[[2]]; has2 <- length(I2) > 0
 
 		  ## potentially could be faster for 'nsparse' but this is simple:
 		  e1x <- if(e1is.n) rep.int(1L, length(e1@i)) else e1@x
@@ -1213,13 +1216,17 @@ setMethod("Compare", signature(e1 = "CsparseMatrix", e2 = "CsparseMatrix"),
 		  x <- callGeneric(e1x[I1],
 				   e2x[I2])
 		  ## 2) "e1 o  0":
-		  x2 <- callGeneric(e1x[- I1], 0)
+		  x2 <- callGeneric(if(has1) e1x[- I1] else e1x, 0)
 		  ## 3) "0  o e1":
-		  x3 <- callGeneric(0, e2x[- I2])
+		  x3 <- callGeneric(0, if(has2) e2x[- I2] else e2x)
 
-		  i <- c(ij1[I1, 1], ij1[-I1, 1], ij2[-I2, 1])
-		  j <- c(ij1[I1, 2], ij1[-I1, 2], ij2[-I2, 2])
-		  x <- c( x,	    x2,		 x3)
+		  i <- c(ij1[I1, 1],
+			 if(has1) ij1[-I1, 1] else ij1[, 1],
+			 if(has2) ij2[-I2, 1] else ij2[, 1])
+		  j <- c(ij1[I1, 2],
+			 if(has1) ij1[-I1, 2] else ij1[, 2],
+			 if(has2) ij2[-I2, 2] else ij2[, 2])
+		  x <- c(x, x2, x3)
 		  if(any(i0x <- is0(x))) { # drop 'FALSE's
 		      n0 <- !i0x
 		      i <- i[n0]

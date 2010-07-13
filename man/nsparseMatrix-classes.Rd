@@ -176,6 +176,10 @@
     }
     \item{t}{\code{signature(x = "ngCMatrix")}: returns the transpose
       of \code{x}}
+
+    \item{which}{\code{signature(x = "lsparseMatrix")}, semantically
+      equivalent to \pkg{base} function \code{\link{which}(x, arr.ind)};
+      for details, see the \code{\linkS4class{lMatrix}} class documentation.}
   }
 }
 %\references{}

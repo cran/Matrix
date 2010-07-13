@@ -2,11 +2,11 @@
 \alias{model.Matrix}
 %% Cut and paste a lot from the "standard"  model.matrix() help page,
 %% <--> ~/R/D/r-devel/R/src/library/stats/man/model.matrix.Rd
-\title{Construct Design or Model Matrices}
+\title{Construct Possibly Sparse Design or Model Matrices}
 \description{
   \code{model.Matrix} creates design matrix, very much like the
-  standard \R function \code{\link{model.matrix}}, however returning an
-  object of class \code{\linkS4class{ModelMatrix}}.
+  standard \R function \code{\link{model.matrix}}, however returning a
+  dense or sparse object of class \code{\linkS4class{modelMatrix}}.
 }
 \usage{
 model.Matrix(object, data = environment(object),
@@ -30,6 +30,12 @@ model.Matrix(object, data = environment(object),
   \item{\dots}{further arguments passed to or from other methods.}
 }
 \details{
+  \code{model.Matrix()} is a simple wrapper either (\code{sparse = FALSE})
+  around the traditional \code{\link{model.matrix}()} returning a
+  \code{"\linkS4class{ddenseModelMatrix}"}, or (\code{sparse = TRUE})
+  around \code{\link{sparse.model.matrix}()}, returning a
+  \code{"\linkS4class{dsparseModelMatrix}"} object.
+
   \code{model.Matrix} creates a design matrix from the description given
   in \code{terms(object)}, using the data in \code{data} which must
   supply variables with the same names as would be created by a call to
@@ -39,7 +45,7 @@ model.Matrix(object, data = environment(object),
   For more details, see \code{\link{model.matrix}}.
 }
 \value{
- an object inheriting from class \code{\linkS4class{ModelMatrix}}, by
+ an object inheriting from class \code{\linkS4class{modelMatrix}}, by
  default, \code{\linkS4class{ddenseModelMatrix}}.
 }
 % \author{Martin Maechler}

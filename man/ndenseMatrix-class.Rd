@@ -18,6 +18,7 @@
 \alias{as.vector,ndenseMatrix,missing-method}
 \alias{diag,ndenseMatrix-method}
 \alias{norm,ndenseMatrix,character-method}
+\alias{which,ndenseMatrix-method}
 %%-- These are already in ./nsparseMatrix-classes.Rd :
 %\alias{\%*\%,nsparseMatrix,ndenseMatrix-method}
 %\alias{\%*\%,ndenseMatrix,nsparseMatrix-method}
@@ -53,6 +54,9 @@ Class \code{"Matrix"}, by class \code{"denseMatrix"}.
     \item{as.vector}{\code{signature(x = "ndenseMatrix", mode = "missing")}: ...}
     \item{diag}{\code{signature(x = "ndenseMatrix")}: extracts the
       diagonal as for all matrices, see the generic \code{\link{diag}()}.}
+    \item{which}{\code{signature(x = "ndenseMatrix")}, semantically
+      equivalent to \pkg{base} function \code{\link{which}(x, arr.ind)};
+      for details, see the \code{\linkS4class{lMatrix}} class documentation.}
   }
 }
 \seealso{

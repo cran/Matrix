@@ -96,10 +96,8 @@
 }
 %\author{Martin Maechler}
 \seealso{
-  \code{\link{rle}} (\pkg{base}) which is used here.
-  \code{\link{numeric}}
-	% ~~objects to See Also as \code{\link{~~fun~~}}, ~~~
-	% or \code{\linkS4class{CLASSNAME}} for links to other classes
+  \code{\link{rle}} (\pkg{base}) which is used here;
+  \code{\link{numeric}}% ... FIXME
 }
 \examples{
 showClass("abIndex")

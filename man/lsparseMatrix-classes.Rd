@@ -158,6 +158,10 @@
     \item{coerce}{\code{signature(from = "dgCMatrix", to = "lgCMatrix")}}
     \item{t}{\code{signature(x = "lgCMatrix")}: returns the transpose
       of \code{x}}
+
+    \item{which}{\code{signature(x = "lsparseMatrix")}, semantically
+      equivalent to \pkg{base} function \code{\link{which}(x, arr.ind)};
+      for details, see the \code{\linkS4class{lMatrix}} class documentation.}
   }
 }
 %\references{}

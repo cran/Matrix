@@ -581,13 +581,16 @@ setClass("pMatrix", representation(perm = "integer"),
 ## Mother class:
 setClass("MatrixFactorization", representation(Dim = "integer", "VIRTUAL"))
 
+setClass("CholeskyFactorization", representation = "VIRTUAL",
+         contains = "MatrixFactorization")
+
 ## -- Those (exceptions) inheriting from "Matrix" : ---
 
-setClass("Cholesky",  contains = c("dtrMatrix", "MatrixFactorization"))
+setClass("Cholesky",  contains = c("dtrMatrix", "CholeskyFactorization"))
 
-#unUsed: setClass("LDL", contains = c("dtrMatrix", "MatrixFactorization"))
+#unUsed: setClass("LDL", contains = c("dtrMatrix", "CholeskyFactorization"))
 
-setClass("pCholesky", contains = c("dtpMatrix", "MatrixFactorization"))
+setClass("pCholesky", contains = c("dtpMatrix", "CholeskyFactorization"))
 
 ## These are currently only produced implicitly from *solve()
 setClass("BunchKaufman",
@@ -606,7 +609,7 @@ setClass("pBunchKaufman",
 ## -- the usual ``non-Matrix'' factorizations : ---------
 
 setClass("CHMfactor",		 # cholmod_factor struct as S4 object
-	 contains = "MatrixFactorization",
+	 contains = "CholeskyFactorization",
 	 representation(colcount = "integer", perm = "integer",
 			type = "integer", "VIRTUAL"),
 	 validity = function(object) .Call(CHMfactor_validate, object))
@@ -781,7 +784,7 @@ setClassUnion("atomicVector", ## "double" is not needed, and not liked by some
 
 ## --- Matrix - related (but not "Matrix" nor "Decomposition/Factorization):
 
-### for 'value' in  x[..] <- value hence for all "contents" of our Matrices:
+## for 'value' in  x[..] <- value hence for all "contents" of our Matrices:
 setClassUnion("replValue", members = c("numeric", "logical", "complex", "raw"))
 
 ### Sparse Vectors ---- here use 1-based indexing ! -----------
@@ -837,3 +840,91 @@ setClass("determinant",
 			sign = "integer",
 			call = "call"))
 
+###------ Modules related to modelling --- basically in two parts --------------
+###------ 1) "prediction-Module" -- currently in a sparse and dense flavor
+###------ 2) "response-Module"
+
+## Linear predictor modules, which consist of the model matrix, the
+## coefficient vector and a triangular factor of the weighted model matrix.
+
+## the super class contains the slots already;
+setClass("predModule",
+         representation(X = "modelMatrix", coef = "numeric", Vtr = "numeric",
+                        fac = "CholeskyFactorization",
+                        "VIRTUAL"))
+## the sub classes specify more specific classes for the two non-trivial slots:
+setClass("dPredModule", contains = "predModule",
+	 representation(X = "ddenseModelMatrix", fac = "Cholesky"))
+setClass("sPredModule", contains = "predModule",
+	 representation(X = "dsparseModelMatrix", fac = "CHMfactor"))
+
+## Response modules for models with a linear predictor, which can
+## include linear models, generalized linear models, nonlinear models
+## and generalized nonlinear models.
+
+## y, offset and mu are as expected.  Note that length(offset) can be a multiple of length(y)
+## weights are the prior weights
+## sqrtrwt and sqrtXwt are the square roots of residual and X weights
+
+setClass("respModule",
+         representation(mu = "numeric",      # of length n
+                        offset = "numeric",  # of length n * k
+                        sqrtXwt = "matrix",  # of dim(.) == dim(X) == (n, k)
+                        sqrtrwt = "numeric", # sqrt(residual weights)
+                        weights = "numeric", # prior weights
+                        wtres = "numeric",
+                        y = "numeric"),
+         validity = function(object) {
+             n <- length(object@y)
+             if (any(n != sapply(lapply(c("weights","sqrtrwt","mu","wtres"
+                     ), slot, object = object), length)))
+                 return("lengths of weights, sqrtwt and mu must match length(y)")
+             lo <- length(object@offset)
+             if (!lo || lo %% n)
+                 return("length(offset) must be a positive multiple of length(y)")
+             if (length(object@sqrtXwt) != lo)
+                 return("length(sqrtXwt) must equal length(offset)")
+             if (nrow(object@sqrtXwt) != n)
+                 return("nrow(sqrtXwt) != length(y)")
+             TRUE
+         })
+
+setOldClass("family")
+
+##' glm response module
+setClass("glmRespMod",
+         representation(family =  "family",
+                        eta =    "numeric",
+                        n =      "numeric"), # for evaluation of the aic
+         contains = "respModule",
+         validity = function(object) {
+             if (length(object@eta) != length(object@y))
+                 return("lengths of eta and y must match")
+         })
+
+##' nls response module
+setClass("nlsRespMod",
+         representation(nlenv = "environment",
+                        nlmod = "call",
+                        pnames = "character"),
+         contains = "respModule",
+         validity = function(object) {
+             n <- length(object@y)
+             N <- length(object@offset)
+             s <- N %/% n
+             lpn <- length(object@pnames)
+             if (lpn != s) return(sprintf("length(pnames) = %d != s = %d", lpn, s))
+             dd <- dim(object@sqrtXwt)
+             if (!all(dd == c(n, s))) {
+                 return(sprintf("dim(gradient) = (%d, %d), n = %d, s = %d",
+                                dd[1], dd[2], n, s))
+             }
+             TRUE
+         })
+
+##' nglm response module
+setClass("nglmRespMod", contains = c("glmRespMod", "nlsRespMod"))
+
+##' Statistical models based on linear predictors
+##' "glpModel" := General Linear Prediction Models
+setClass("glpModel", representation(resp = "respModule", pred = "predModule"))

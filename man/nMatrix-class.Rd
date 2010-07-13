@@ -32,8 +32,7 @@
 \alias{Ops,nMatrix,numeric-method}
 \alias{Ops,numeric,nMatrix-method}
 \alias{Summary,nMatrix-method}
-%
-\alias{which,nMatrix-method}
+%\alias{which,nMatrix-method}
 %
 \title{Class "nMatrix" of Non-zero Pattern Matrices}
 \description{
@@ -72,12 +71,14 @@
     \item{coerce}{\code{signature(from = "dMatrix", to = "nMatrix")}: ... }
     \item{coerce}{\code{signature(from = "lMatrix", to = "nMatrix")}: ... }
   }.
-  Additional methods contain,
+  Additional methods contain group mehods, such as
   \describe{
-    \item{which}{\code{signature(x = "nMatrix")}, semantically
-      equivalent to \pkg{base} function \code{\link{which}(x, arr.ind)};
-      for details, see the \code{\linkS4class{lMatrix}} class documentation.
-    }
+    \item{Ops}{\code{signature(e1 = "nMatrix", e2 = "....")}, \dots}
+    \item{Arith}{\code{signature(e1 = "nMatrix", e2 = "....")}, \dots}
+    \item{Compare}{\code{signature(e1 = "nMatrix", e2 = "....")}, \dots}
+    \item{Logic}{\code{signature(e1 = "nMatrix", e2 = "....")}, \dots}
+
+    \item{Summary}{\code{signature(x = "nMatrix", "....")}, \dots}
   }
 }
 \seealso{

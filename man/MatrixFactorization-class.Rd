@@ -1,5 +1,6 @@
 \name{MatrixFactorization-class}
 \alias{MatrixFactorization-class}
+\alias{CholeskyFactorization-class}
 \docType{class}
 \title{Class "MatrixFactorization" of Matrix Factorizations}
 %
@@ -13,6 +14,10 @@
   The class \code{"MatrixFactorization"} is the virtual (super) class of
   (potentially) all matrix factorizations of matrices from package
   \pkg{Matrix}.
+
+  The class \code{"CholeskyFactorization"} is the virtual class of all
+  Cholesky decompositions from \pkg{Matrix} (and trivial sub class of
+  \code{"MatrixFactorization"}).
 }
 \section{Objects from the Class}{A virtual Class: No objects may be
   created from it.}
@@ -40,11 +45,13 @@
 }
 \seealso{
   classes inheriting from \code{"MatrixFactorization"}, such as
-  \code{\linkS4class{CHMfactor}},
-  \code{\linkS4class{LU}}, and
+  \code{\linkS4class{LU}},
+  \code{\linkS4class{Cholesky}},
+  \code{\linkS4class{CHMfactor}}, and
   \code{\linkS4class{sparseQR}}.
 }
 \examples{
 showClass("MatrixFactorization")
+getClass("CholeskyFactorization")
 }
 \keyword{classes}

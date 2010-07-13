@@ -212,7 +212,7 @@ contr.poly <- function (n, scores = 1L:n, contrasts = TRUE, sparse = FALSE) {
 	    cm[,1L:nc] <- value
 	    dimnames(cm) <- list(levels(x),NULL)
 	    if(!is.null(nmcol <- dimnames(value)[[2L]]))
-		dimnames(cm)[[2L]] <- c(nmcol, rep.int("", n1-nc))
+		dimnames(cm)[[2L]] <- c(nmcol, character(n1-nc))
 	} else cm <- value[, 1L:n1, drop=FALSE]
     }
     else if(is.character(value)) cm <- value
@@ -677,7 +677,6 @@ lm.fit.sparse <- function(x, y, w = NULL, offset = NULL,
     z
 }
 
-
 setMethod("show", "modelMatrix",
 	  function(object)
       {
@@ -696,3 +695,329 @@ setMethod("show", "modelMatrix",
 	  invisible(object)
       })
 
+setAs("ddenseModelMatrix", "predModule",
+      function(from)
+  {
+      p <- ncol(from)
+      new("dPredModule", coef = numeric(p), Vtr = numeric(p),
+          X = from, fac = chol(crossprod(from)))
+  })
+
+setAs("dsparseModelMatrix", "predModule",
+      function(from)
+  {
+      p <- ncol(from)
+      new("sPredModule", coef = numeric(p), Vtr = numeric(p),
+          X = from, fac = Cholesky(crossprod(from), LDL = FALSE))
+  })
+
+##' <description>
+##' Create an respModule, which could be from a derived class such as
+##' glmRespMod or nlsRespMod.
+##' <details>
+##' @title Create a respModule object
+##' @param a model frame
+##' @param family the optional glm family (glmRespMod only)
+##' @param nlenv the nonlinear model evaluation environment (nlsRespMod only)
+##' @param nlmod the nonlinear model function (nlsRespMod only)
+##' @param pnames character vector of parameter names for the
+##'        nonlinear model
+##' @return an respModule object
+mkRespMod <- function(fr, family = NULL, nlenv = NULL, nlmod = NULL)
+{
+    N <- n <- nrow(fr)
+    if (!is.null(nlmod)) {
+        nleta <- eval(nlmod, nlenv)
+        grad <- attr(nleta, "gradient")
+        if (is.null(grad))
+            stop("At present a nonlinear model must return a gradient attribute")
+        N <- n * ncol(grad)
+    }
+                                        # components of the model frame
+    y <- model.response(fr)
+    if(length(dim(y)) == 1) { # avoid problems with 1D arrays, but keep names
+        nm <- rownames(y)
+        dim(y) <- NULL
+        if(!is.null(nm)) names(y) <- nm
+    }
+    weights <- model.weights(fr)
+    if (is.null(weights)) weights <- rep.int(1, n)
+    else if (any(weights < 0))
+        stop(gettext("negative weights not allowed", domain = "R-Matrix"))
+    offset <- model.offset(fr)
+    if (is.null(offset)) offset <- numeric(N)
+    if (length(offset) == 1) offset <- rep.int(offset, N)
+    else if (length(offset) != N)
+        stop(gettextf("number of offsets (%d) should be %d (s * n)",
+                      length(offset), N), domain = "R-Matrix")
+    ll <- list(weights = unname(weights), offset = unname(offset),
+               wtres = numeric(n))
+    if (!is.null(family)) {
+        ll$y <- y                       # may get overwritten later
+        rho <- new.env()
+        rho$etastart <- model.extract(fr, "etastart")
+        rho$mustart <- model.extract(fr, "mustart")
+        rho$nobs <- n
+        if (is.character(family))
+            family <- get(family, mode = "function", envir = parent.frame(3))
+        if (is.function(family)) family <- family()
+        eval(family$initialize, rho)
+        family$initialize <- NULL       # remove clutter from str output
+        ll$mu <- unname(rho$mustart)
+        lr <- as.list(rho)
+        ll[names(lr)] <- lr             # may overwrite y, weights, etc.
+        ll$weights <- unname(ll$weights)
+        ll$y <- unname(ll$y)
+        ll$eta <- family$linkfun(ll$mu)
+        ll$sqrtrwt <- sqrt(ll$weights/family$variance(ll$mu))
+        ll$sqrtXwt <- matrix(ll$sqrtrwt * family$mu.eta(ll$eta))
+        ll$family <- family
+        ll <- ll[intersect(names(ll), slotNames("glmRespMod"))]
+        ll$n <- unname(rho$n)           # for the family$aic function
+        ll$Class <- "glmRespMod"
+    } else {
+        ll$sqrtrwt <- sqrt(ll$weights)
+        ll$y <- unname(as.numeric(y))
+        ll$mu <- numeric(n)
+        if (is.null(nlenv)) {
+            ll$Class <- "respModule"
+            ll$sqrtXwt <- matrix(ll$sqrtrwt)
+        } else {
+            ll$Class <- "nlsRespMod"
+            ll$nlenv <- nlenv
+            ll$nlmod <- Quote(nlmod)
+            ll$sqrtXwt <- grad
+            ll$pnames <- colnames(ll$sqrtXwt)
+        }
+    }
+    do.call("new", ll)
+}
+
+glm4 <- function(formula, family, data, weights, subset,
+                 na.action, start = NULL, etastart, mustart, offset,
+                 sparse = FALSE, doFit = TRUE, control = list(...),
+                 ## all the following are currently ignored:
+                 model = TRUE, x = FALSE, y = TRUE, contrasts = NULL, ...) {
+    call <- match.call()
+    if (missing(family)) {
+        family <- NULL
+    } else {
+        if(is.character(family))
+            family <- get(family, mode = "function", envir = parent.frame())
+        if(is.function(family)) family <- family()
+        if(is.null(family$family)) {
+            print(family)
+            stop("'family' not recognized")
+        }
+    }
+    ## extract x, y, etc from the model formula and frame
+    if(missing(data)) data <- environment(formula)
+    mf <- match.call(expand.dots = FALSE)
+    m <- match(c("formula", "data", "subset", "weights", "na.action",
+                 "etastart", "mustart", "offset"), names(mf), 0L)
+    mf <- mf[c(1L, m)]
+    mf$drop.unused.levels <- TRUE
+    mf[[1L]] <- as.name("model.frame")
+    mf <- eval(mf, parent.frame())
+
+    ans <- new("glpModel",
+	       resp = mkRespMod(mf, family),
+	       pred = as(model.Matrix(formula, mf, sparse = sparse),
+			 "predModule"))
+    if (doFit)
+	## TODO ? - make 'doFP' a function argument / control component:
+	fitGlm4(ans, doFP = TRUE, control = control)
+    else
+	ans
+}
+
+fitGlm4 <- function(lp, doFP = TRUE, control = list()) {
+### note that more than one iteration would need to update more than just 'coef'
+    if(doFP)
+        lp@pred@coef <- glm.fp(lp)
+    IRLS(lp, control)
+}
+
+##' <description>
+##' A single step in the fixed-point algorithm for GLMs.
+##' <details>
+##' In general we use an algorithm similar to the Gauss-Newton
+##' algorithm for nonlinear least squares (except, of course, that it
+##' allows for reweighting).  For some models, such as those using the
+##' Gamma family with the inverse link the initial values of eta must
+##' be non-zero.  This function calculates a single iteration of the
+##' fixed-point algorithm used in stats::glm.fit to obtain suitable
+##' starting estimates for the parameters.
+##' @title Fixed-point iteration for a GLM
+##' @param lp a linear predictor model.  The resp slot should inherit
+##' from the glmRespMod class.
+##' @return parameter vector
+glm.fp <- function(lp) {
+    stopifnot(is(lp, "glpModel"), is(rM <- lp@resp, "glmRespMod"))
+    ff <- rM@family
+    mu <- rM@mu
+    vv <- ff$variance(mu)
+    eta <- rM@eta
+    muEta <- ff$mu.eta(eta)
+    wts <- rM@weights
+    z <- (eta - rM@offset) + (rM@y - rM@mu)/muEta
+    good <- is.finite(vv) & vv > 0 & is.finite(z)
+    stopifnot(any(good))
+    w <- sqrt(wts * muEta * muEta /vv)[good]
+    wM <- lp@pred@X[good,] * w
+    as.vector(solve(crossprod(wM), crossprod(wM, z[good] * w)))
+}
+
+IRLS <- function(mod, control = list()) {
+    stopifnot(is(mod, "glpModel"))
+    respMod <- mod@resp
+    predMod <- mod@pred
+    rho <- environment()
+    do.call(function(MXITER = 200L, TOL = 0.0001, SMIN = 0.0001,
+                     verbose = FALSE, ...)
+        {
+            assign("MXITER", as.integer(MXITER)[1], rho)
+            assign("TOL", as.double(TOL)[1], rho)
+            assign("SMIN", as.double(SMIN)[1], rho)
+            assign("verbose", as.integer(verbose)[1], rho)
+            NULL
+        }, control)
+
+    cc <- predMod@coef
+    respMod <- updateMu(respMod, as.vector(predMod@X %*% cc))
+    iter <- 0
+    repeat {
+	if((iter <- iter + 1) > MXITER)
+	    stop("Number of iterations exceeded maximum MXITER = ", MXITER)
+        cbase <- cc
+        respMod <- updateWts(respMod)
+        wrss0 <- sum(respMod@wtres^2)
+        predMod <- reweight(predMod, respMod@sqrtXwt, respMod@wtres)
+        incr <- solveCoef(predMod)
+        convcrit <- sqrt(attr(incr, "sqrLen")/wrss0)
+	if(verbose)
+	    cat(sprintf("_%d_ convergence criterion: %5g\n",
+			iter, convcrit))
+        step <- 1
+        repeat {
+            cc <- as.vector(cbase + step * incr)
+            respMod <- updateMu(respMod, as.vector(predMod@X %*% cc))
+            wrss1 <- sum(respMod@wtres^2)
+            ## if(verbose >= 2) {
+            if (verbose) {
+                cat(sprintf("step = %.5f, new wrss = %.8g, Delta(wrss)= %g, \n",
+                            step, wrss1, wrss0 - wrss1))
+                print(cc)
+            }
+	    ## re-compute convergence criterion
+            convcOld <- convcrit
+	    convcrit <- sqrt(step * attr(incr, "sqrLen")/wrss1)
+	    if (wrss1 < wrss0) break
+            ## else
+            convcrit <- convcOld
+	    if ((step <- step/2) < SMIN) {
+		warning("Minimum step factor 'SMIN' failed to reduce wrss")
+		cc <- cbase
+		break
+	    }
+            ## no further step halving, if we are good enough anyway
+	    if (convcrit < TOL) break
+	}
+	if (convcrit < TOL) break
+    }
+    predMod@coef <- cc
+    if(FALSE) {## FIXME?  For consistency, shouldn't we add
+	respMod <- updateWts(respMod)
+	predMod <- reweight(predMod, respMod@sqrtXwt, respMod@wtres)
+    }
+    ## TODO: store 'convcrit = convcrit' in a new slot "fitProps" = "list"
+    new("glpModel", resp = respMod, pred = predMod)
+}
+
+setMethod("updateMu", signature(respM = "respModule", gamma = "numeric"),
+	  function(respM, gamma, ...)
+      {
+	  respM@ wtres <- respM@sqrtrwt *
+	      (respM@y - (respM@ mu <- respM@offset + gamma))
+	  respM
+      })
+
+setMethod("updateMu", signature(respM = "glmRespMod", gamma = "numeric"),
+          function(respM, gamma, ...)
+      {
+          respM@ mu <- respM@family$linkinv(respM@ eta <- respM@offset + gamma)
+          respM@ wtres <- respM@sqrtrwt * (respM@y - respM@mu)
+          respM
+      })
+
+setMethod("updateMu", signature(respM = "nlsRespMod", gamma = "numeric"),
+          function(respM, gamma, ...)
+      {
+          ll <- as.data.frame(matrix(respM@offset + gamma,
+                                     nrow = length(respM@y),
+                                     dimnames = list(NULL, respM@pnames)))
+          lapply(names(ll),
+                 function(nm) assign(nm, ll[[nm]], envir = respM@nlenv))
+          mm <- eval(respM@nlmod, respM@nlenv)
+          respM@ wtres <- respM@sqrtrwt * (respM@y - (respM@ mu <- as.vector(mm)))
+          respM@ sqrtXwt <- respM@sqrtrwt * attr(mm, "grad")
+          respM
+      })
+setMethod("updateMu", signature(respM = "nglmRespMod", gamma = "numeric"),
+	  function(respM, gamma, ...)
+      {
+	  .NotYetImplemented() ## FIXME
+      })
+
+
+## For models based on a Gaussian distribution (incl. "nlsRespMod")
+## updateWts() has no effect:
+setMethod("updateWts", signature(respM = "respModule"),
+          function(respM, ...) respM)
+
+setMethod("updateWts", signature(respM = "glmRespMod"),
+          function(respM, ...)
+      {
+	  respM@ sqrtrwt   <- rtrwt <- sqrt(respM@weights/respM@family$variance(respM@mu))
+	  respM@ sqrtXwt[] <- rtrwt * respM@family$mu.eta(respM@eta)
+	  respM@ wtres	   <- rtrwt * (respM@y - respM@mu)
+	  respM
+      })
+
+
+setMethod("reweight",
+          signature(predM = "dPredModule", sqrtXwt = "matrix", wtres = "numeric"),
+          function(predM, sqrtXwt, wtres, ...)
+      {
+          stopifnot(ncol(sqrtXwt) == 1L) # FIXME: add nls version
+          V <- as.vector(sqrtXwt) * predM@X
+          predM@Vtr <- as.vector(crossprod(V, wtres))
+          predM@fac <- chol(crossprod(V))
+          predM
+      })
+setMethod("reweight",
+          signature(predM = "sPredModule", sqrtXwt = "matrix", wtres = "numeric"),
+          function(predM, sqrtXwt, wtres, ...)
+      {
+          stopifnot(ncol(sqrtXwt) == 1L) # FIXME: add nls version
+          Vt <- crossprod(predM@X, Diagonal(x = as.vector(sqrtXwt)))
+          predM@Vtr <- as.vector(Vt %*% wtres)
+          predM@fac <- update(predM@fac, Vt)
+          predM
+      })
+
+setMethod("solveCoef", "dPredModule", function(predM, ...)
+      {
+          cc <- solve(t(predM@fac), predM@Vtr)
+	  structure(as.vector(solve(predM@fac, cc)),
+		    sqrLen = sum(as.vector(cc)^2))
+      })
+
+setMethod("solveCoef", "sPredModule", function(predM, ...)
+      {
+          ff <- predM@fac
+          if (isLDL(ff)) stop("sparse factor must be LL, not LDL")
+          cc <- solve(ff, solve(ff, predM@Vtr, system = "P"), system = "L")
+	  structure(as.vector(solve(ff, solve(ff, cc, system = "Lt"), system = "Pt")),
+		    sqrLen = sum(as.vector(cc)^2))
+      })

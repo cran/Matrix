@@ -59,6 +59,7 @@ setAs("lMatrix", "dMatrix",
 setAs("lMatrix", "dgCMatrix",
       function(from) as(as(from, "lgCMatrix"), "dgCMatrix"))
 
+###-------------- which( <logical Matrix> ) -----------------------------------------------------
 
 ## "ldi: is both "sparseMatrix" and "lMatrix" but not "lsparseMatrix"
 setMethod("which", "ldiMatrix",
@@ -67,11 +68,15 @@ setMethod("which", "ldiMatrix",
 	      i <- if(x@diag == "U") seq_len(n) else which(x@x)
 	      if(arr.ind) cbind(i,i, deparse.level = 0) else i + n*(i - 1L) })
 
-## "FIXME": use .Internal(which(x@x)) and arrayInd() for *dense*
-setMethod("which", "nMatrix",
-	  function(x, arr.ind) which(as(x, "sparseMatrix"), arr.ind=arr.ind))
-setMethod("which", "lMatrix",
-	  function(x, arr.ind) which(as(x, "sparseMatrix"), arr.ind=arr.ind))
+whichDense <- function(x, arr.ind = FALSE) {
+    wh <- which(x@x) ## faster but "forbidden": .Internal(which(x@x))
+    if (arr.ind && !is.null(d <- dim(x)))
+	arrayInd(wh, d, useNames=FALSE) else wh
+}
+setMethod("which", "ndenseMatrix",
+	  function(x, arr.ind) whichDense(as(x, "ngeMatrix"), arr.ind=arr.ind))
+setMethod("which", "ldenseMatrix",
+	  function(x, arr.ind) whichDense(as(x, "lgeMatrix"), arr.ind=arr.ind))
 
 .which.via.vec <- function(m) sort.int(as(m, "sparseVector")@i, method="quick")
 

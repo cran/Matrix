@@ -50,6 +50,7 @@ lm.fit.sparse(x, y, w = NULL, offset = NULL,
 % %%  ~~ If necessary, more details than the description above ~~
 % }
 \value{
+  Either a single numeric vector or a list of four numeric vectors.
 }
 % \references{
 % %% ~put references to the literature/web site here ~

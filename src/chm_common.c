@@ -180,7 +180,7 @@ static void chm2Ralloc(CHM_SP dest, CHM_SP src)
  */
 static void chTr2Ralloc(CHM_TR dest, CHM_TR src)
 {
-    int np1, nnz;
+    int nnz;
 
     /* copy all the (non-pointer) characteristics of src to dest */
     memcpy(dest, src, sizeof(cholmod_triplet));

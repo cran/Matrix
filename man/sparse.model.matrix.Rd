@@ -1,6 +1,7 @@
 \name{sparse.model.matrix}
 \Rdversion{1.1}
 \alias{sparse.model.matrix}
+\alias{model.Matrix}% for now
 \title{Construct Sparse Design / Model Matrices}
 \description{
   Construct a Model or \dQuote{Design} Matrix
@@ -26,21 +27,28 @@ sparse.model.matrix(object, data = environment(object),
   \item{\dots}{further arguments passed to or from other methods.}
 }
 \value{
-  a (special) sparse matrix, namely inheriting from class
-  \code{\linkS4class{sparseModelMatrix}} which extends
-  \code{\linkS4class{CsparseMatrix}}.
+  a sparse matrix extending \code{\linkS4class{CsparseMatrix}}.
 
-  Note that such \code{\linkS4class{modelMatrix}} objects have
-  additional slots \code{assign} and \code{contrasts} which relate back
-  to the variables used.
+  Note that \code{\link[MatrixModels]{model.Matrix}(*, sparse=TRUE)}
+  from package \pkg{MatrixModels} may be often be preferable to
+  \code{sparse.model.matrix()} nowadays, as \code{model.Matrix()}
+  returns \code{\link[MatrixModels:modelMatrix-class]{modelMatrix}}
+  objects with additional slots \code{assign} and \code{contrasts} which
+  relate back to the variables used.
+
+  %% FIXME: Drop this eventually (say in early Fall, 2011):
+  As \code{model.Matrix()} used to be part of the \pkg{Matrix} package
+  for a few months in summer 2010, it is currently provided as a stub
+  which loads the \pkg{MatrixModels} package and uses its \code{model.Matrix}.
 }
 \author{Doug Bates and Martin Maechler, with initial suggestions from Tim
   Hesterberg.
 }
 \seealso{
   \code{\link{model.matrix}} in standard \R's package \pkg{stats}.\cr
-  \code{\link{model.Matrix}} which calls \code{sparse.model.matrix} or
-  \code{model.matrix} depending on its \code{sparse} argument.
+  \code{\link[MatrixModels]{model.Matrix}} which calls
+  \code{sparse.model.matrix} or \code{model.matrix} depending on its
+  \code{sparse} argument may be preferred to \code{sparse.model.matrix}.
 
   \code{as(f, "sparseMatrix")} (see \code{coerce(from = "factor", ..)}
   in the class doc \linkS4class{sparseMatrix}) produces the

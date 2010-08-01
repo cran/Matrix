@@ -23,9 +23,11 @@
    keep triangular and symmetric Matrices when appropriate:
    particularly desirable for  "Math2": round(), signif()
 
-  For triangular matrices, more specifically make sure the four rules of
-  "triangular matrix algebra" (Golub+Van Loan 1996, 3.1.8, p.93) are
-  fulfilled; now(2008-03-06) ok for Csparse; not yet for <dtr> %*% <dtr>
+- For triangular matrices, make sure the four rules of
+  "triangular matrix algebra" (Golub+Van Loan 1996, 3.1.8, p.93) are fulfilled.
+  - since 2008-03-06 ok for Csparse
+  - since 2010-07-23 ok for <dtr> %*% <dtr>
+  TODO: e.g. for  <ltr> %*% <dtC>
 
 - "d" <-> "l" coercion for all "[TCR]" sparse matrices is really trivial:
   "d" -> "l" : drops the 'x' slot
@@ -220,6 +222,12 @@
   help for defining a chol2inv() method for  *sparse* (upper)
   triangular matrices.
 
-- sort(<sparseVector>, partial=..), needed, e.g. for mean(*, trim = .).
+- sort(<sparseVector>, partial=..), needed, for mean(*, trim = .) or median().
   Note that defining xtfrm() does not "help" (as sort() then goes via dense
   index).  See "mean" in R/Matrix.R
+
+- rcond(<sparseMatrix>) - for square currently goes via *dense* -- BAD --
+  can we go via qr() in any case?
+  In some cases, e.g. lmer()'s  "Lambda" (block triangular, small blocks)
+       rcond(L) :=  1 / (norm(L) * norm(solve(L)))
+  is simple {and remains sparse, as solve(L) is still block triangular}

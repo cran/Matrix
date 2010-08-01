@@ -51,26 +51,26 @@ setMethod("%*%", signature(x = "dspMatrix", y = "matrix"),
 ##	    function(x, y) t(.Call(Csparse_dense_crossprod, y, x)),
 ##	    valueClass = "dgeMatrix")
 
+## FIXME -- do the "same" for "dtpMatrix" {also, with [t]crossprod()}
+## all just like these "%*%" :
+setMethod("%*%", signature(x = "dtrMatrix", y = "dtrMatrix"),
+	  function(x, y) .Call(dtrMatrix_dtrMatrix_mm, x, y, FALSE, FALSE))
+
 setMethod("%*%", signature(x = "dtrMatrix", y = "ddenseMatrix"),
-	  function(x, y) .Call(dtrMatrix_matrix_mm, x, y, FALSE),
+	  function(x, y) .Call(dtrMatrix_matrix_mm, x, y, FALSE, FALSE),
 	  valueClass = "dgeMatrix")
 
 setMethod("%*%", signature(x = "dtrMatrix", y = "matrix"),
-	  function(x, y) .Call(dtrMatrix_matrix_mm, x, y, FALSE),
+	  function(x, y) .Call(dtrMatrix_matrix_mm, x, y, FALSE, FALSE),
 	  valueClass = "dgeMatrix")
 
 setMethod("%*%", signature(x = "ddenseMatrix", y = "dtrMatrix"),
-	  function(x, y) .Call(dtrMatrix_matrix_mm, y, x, TRUE),
+	  function(x, y) .Call(dtrMatrix_matrix_mm, y, x, TRUE, FALSE),
 	  valueClass = "dgeMatrix")
 
 setMethod("%*%", signature(x = "matrix", y = "dtrMatrix"),
-	  function(x, y) .Call(dtrMatrix_matrix_mm, y, x, TRUE),
+	  function(x, y) .Call(dtrMatrix_matrix_mm, y, x, TRUE, FALSE),
 	  valueClass = "dgeMatrix")
-
-## no longer needed
-## setMethod("%*%", signature(x = "dtrMatrix", y = "dtrMatrix"),
-##	  function(x, y) callGeneric(x = x, y = as(y, "dgeMatrix")),
-##	     valueClass = "dgeMatrix")
 
 
 
@@ -229,6 +229,20 @@ setMethod("crossprod", signature(x = "dtrMatrix", y = "missing"),
 	  function(x, y = NULL) callGeneric(x = as(x, "dgeMatrix")),
 	  valueClass = "dpoMatrix")
 
+## "dtrMatrix" - remaining (uni)triangular if possible
+setMethod("crossprod", signature(x = "dtrMatrix", y = "dtrMatrix"),
+	  function(x, y) .Call(dtrMatrix_dtrMatrix_mm, x, y, FALSE, TRUE))
+
+setMethod("crossprod", signature(x = "dtrMatrix", y = "ddenseMatrix"),
+	  function(x, y) .Call(dtrMatrix_matrix_mm, x, y, FALSE, TRUE),
+	  valueClass = "dgeMatrix")
+
+setMethod("crossprod", signature(x = "dtrMatrix", y = "matrix"),
+	  function(x, y) .Call(dtrMatrix_matrix_mm, x, y, FALSE, TRUE),
+	  valueClass = "dgeMatrix")
+
+
+
 
 ## "crossprod" methods too ...
 ## setMethod("crossprod", signature(x = "dgTMatrix", y = "missing"),
@@ -294,19 +308,20 @@ setMethod("crossprod", signature(x = "TsparseMatrix", y = "TsparseMatrix"),
 
 setMethod("crossprod", signature(x = "dsparseMatrix", y = "ddenseMatrix"),
 	  function(x, y = NULL)
-	  .Call(Csparse_dense_crossprod, as(x, "dgCMatrix"), y))
+	  .Call(Csparse_dense_crossprod, as(x, "CsparseMatrix"), y))
 
 setMethod("crossprod", signature(x = "ddenseMatrix", y = "dgCMatrix"),
 	  function(x, y = NULL) t(.Call(Csparse_dense_crossprod, y, x)))
 setMethod("crossprod", signature(x = "ddenseMatrix", y = "dsparseMatrix"),
 	  function(x, y = NULL)
-	  t(.Call(Csparse_dense_crossprod, as(y, "dgCMatrix"), x)))
+	  t(.Call(Csparse_dense_crossprod, as(y, "CsparseMatrix"), x)))
 
 setMethod("crossprod", signature(x = "dgCMatrix", y = "dgeMatrix"),
 	  function(x, y = NULL) .Call(Csparse_dense_crossprod, x, y))
 setMethod("crossprod", signature(x = "dsparseMatrix", y = "dgeMatrix"),
 ## NB: using   callGeneric(.) here, leads to infinite recursion :
-	  function(x, y = NULL) .Call(Csparse_dense_crossprod, as(x, "dgCMatrix"), y))
+	  function(x, y = NULL)
+	  .Call(Csparse_dense_crossprod, as(x, "CsparseMatrix"), y))
 
 ## NB: there's already
 ##     ("CsparseMatrix", "missing") and ("TsparseMatrix", "missing") methods
@@ -407,6 +422,28 @@ setMethod("tcrossprod", signature(x = "numeric", y = "missing"),
 
 setMethod("tcrossprod", signature(x = "ddenseMatrix", y = "missing"),
 	  function(x, y = NULL) tcrossprod(as(x, "dgeMatrix")))
+
+
+setMethod("tcrossprod", signature(x = "dtrMatrix", y = "dtrMatrix"),
+	  function(x, y) .Call(dtrMatrix_dtrMatrix_mm, y, x, TRUE, TRUE))
+
+
+## Must  have 1st arg. = "dtrMatrix" in  dtrMatrix_matrix_mm ():
+## would need another way, to define  tcrossprod()  --- TODO? ---
+##
+## setMethod("tcrossprod", signature(x = "dtrMatrix", y = "ddenseMatrix"),
+## 	  function(x, y) .Call(dtrMatrix_matrix_mm, y, x, TRUE, TRUE))
+
+## setMethod("tcrossprod", signature(x = "dtrMatrix", y = "matrix"),
+## 	  function(x, y) .Call(dtrMatrix_matrix_mm, y, x, TRUE, TRUE))
+
+setMethod("tcrossprod", signature(x = "ddenseMatrix", y = "dtrMatrix"),
+ 	  function(x, y) .Call(dtrMatrix_matrix_mm, y, x, TRUE, TRUE))
+
+setMethod("tcrossprod", signature(x = "matrix", y = "dtrMatrix"),
+ 	  function(x, y) .Call(dtrMatrix_matrix_mm, y, x, TRUE, TRUE))
+
+
 
 setMethod("tcrossprod", signature(x = "CsparseMatrix", y = "CsparseMatrix"),
 	  function(x, y = NULL)

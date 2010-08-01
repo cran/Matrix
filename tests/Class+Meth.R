@@ -128,8 +128,9 @@ Rcl.struc <- c("gR", "sR", "tR")
 
 Mat.MatFact <- c("Cholesky", "pCholesky",
                  "BunchKaufman", "pBunchKaufman")##, "LDL"
-(modmat.classes <- .subclasses("modelMatrix"))
-no.t.etc <- c(.R.classes, dR.classes, Mat.MatFact, modmat.classes)
+##FIXME maybe move to ../../MatrixModels/tests/ :
+## (modmat.classes <- .subclasses("modelMatrix"))
+no.t.etc <- c(.R.classes, dR.classes, Mat.MatFact)#, modmat.classes)
 no.t.classes <- c(no.t.etc)     # no t() available
 no.norm.classes <- no.t.classes
 not.Ops      <- NULL            # "Ops", e.g. "+" fails

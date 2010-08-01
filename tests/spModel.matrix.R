@@ -82,7 +82,8 @@ stopifnot(isEQsparseDense(~ a + b, dd),
 sm <- sparse.model.matrix(~a * b, dd,
                           contrasts = list(a= contr.SAS(3, sparse = TRUE)))
 sm
-stopifnot(all(sm == model.Matrix( ~a * b, dd, contrasts= list(a= contr.SAS(3)))))
+## FIXME: Move part of this to ../../MatrixModels/tests/
+##stopifnot(all(sm == model.Matrix( ~a * b, dd, contrasts= list(a= contr.SAS(3)))))
 
 ##
 stopifnot(isEQsparseDense(~ a + b   + c + d, dd.))

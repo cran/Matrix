@@ -37,7 +37,6 @@
 \alias{show,sparseMatrix-method}
 \alias{summary,sparseMatrix-method}
 \alias{norm,sparseMatrix,character-method}
-\alias{rcond,sparseMatrix,character-method}
 \alias{determinant,dgCMatrix,logical-method}
 \alias{determinant,dsparseMatrix,logical-method}
 \alias{determinant,dtCMatrix,logical-method}

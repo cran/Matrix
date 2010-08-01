@@ -1,8 +1,65 @@
+2010-08-04  Douglas Bates  <bates@stat.wisc.edu>
+
+	* R/spModels.R (fac2sparse): Fix name resolution problem
+	(R-SIG-Mixed-Models post by Florent Duyme).
+
+2010-07-25  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Depends): require R >= 2.10.0  --> can clean up
+	* R/spModels.R: prepare to move most parts to new package
+	MatrixModels
+
+2010-07-23  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Auxiliaries.R (prMatrix): add " (unitriangular)" as we already
+	have for sparse matrices.
+
+2010-07-22  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Auxiliaries.R (.diagU2N): implement for "dtpMatrix" = old 'FIXME';
+	(.dense.diagU2N): new utility, called from .diagU2N()
+
+2010-07-19  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/dtrMatrix.c (dtrMatrix_dtrMatrix_mm): new for tri %*% tri
+	* R/products.R (%*%): ditto
+	* tests/matprod.R: test it
+
+2010-07-16  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/spModels.R (do.defaults): add 'nonMatched.action' with default
+	ensuring that typos are caught.
+
+2010-07-16  Douglas Bates <bates@stat.wisc.edu>
+
+	* R/spModels.R (do.defaults): utility function; TODO: move to R
+
+2010-07-16  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.999375-43
+
+	* R/AllClass.R (Model): as mother class (of "glpModel")
+
+	* R/spModels.R (IRLS): more options()
+	(updateModel): update(<glm4>)
+
+2010-07-13  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.999375-42, CRAN-released: 2010-07-15, r 2566
+
+	* R/spModels.R (glm4, IRLS): glm4 [was 'glm1']; tweaks.
+
 2010-07-12  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* NAMESPACE: rename, export and
 	* man/glpModel-class.Rd: document Doug's new "glpModel" class.
-	* R/spModels.R
+
+2010-07-08  Douglas Bates <bates@stat.wisc.edu>
+
+	* R/AllClass.R: new "lpMod" class (-> later =: "glpModel"), and
+	working function:
+	* R/spModels.R (glm1): using linear pred.Model class, and
+	Bates-Watts convergence criterion.
 
 2010-07-06  Martin Maechler  <maechler@stat.math.ethz.ch>
 

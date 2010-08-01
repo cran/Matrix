@@ -7,9 +7,12 @@
 \alias{rcond,Matrix,character-method}
 \alias{rcond,ldenseMatrix,character-method}
 \alias{rcond,ndenseMatrix,character-method}
+\alias{rcond,sparseMatrix,character-method}
 %
 \usage{
 rcond(x, norm, \dots)
+
+\S4method{rcond}{sparseMatrix,character}(x, norm, useInv=FALSE, \dots)
 }
 \description{
   Estimate the reciprocal of the condition number of a matrix.
@@ -24,6 +27,19 @@ rcond(x, norm, \dots)
     The default is \code{"O"} for the 1-norm (\code{"O"} is equivalent
     to \code{"1"}).  The other possible value is \code{"I"} for the
     infinity norm, see also \code{\link{norm}}.
+  }
+  \item{useInv}{logical (or \code{"Matrix"} containing
+    \code{\link{solve}(x)}).  If not false, compute the reciprocal
+    condition number as \eqn{1/(\|x\| \cdot \|x^{-1}\|)}{1/(||x|| * ||x^(-1)||)},
+    where \eqn{x^{-1}}{x^(-1)} is the inverse of \eqn{x}, \code{solve(x)}.
+
+    This may be an efficient alternative (only) in situations where
+    \code{solve(x)} is fast (or known), e.g., for (very) sparse or
+    triangular matrices.
+
+    Note that the \emph{result} may differ depending on \code{useInv},
+    as per default, when it is false, an \emph{approximation} is
+    computed.
   }
   \item{\dots}{further arguments passed to or from other methods.}
 }
@@ -105,6 +121,20 @@ all.equal(rcond(S1), rcond(m1))
 
 ## wide and sparse
 rcond(Matrix(cbind(0, diag(2:-1))))
+
+## Large sparse example ----------
+m <- Matrix(c(3,0:2), 2,2)
+M <- bdiag(kronecker(Diagonal(2), m), kronecker(m,m))
+36*(iM <- solve(M)) # still sparse
+MM <- kronecker(Diagonal(10), kronecker(Diagonal(5),kronecker(m,M)))
+dim(M3 <- kronecker(bdiag(M,M),MM)) # 12'800 ^ 2
+if(interactive()) ## takes about 2 seconds
+  system.time(r <- rcond(M3))
+## whereas this is *fast* even though it computes  solve(M3)
+system.time(r. <- rcond(M3, useInv=TRUE))
+if(interactive()) ## the values are not the same
+  c(r, r.)  # 0.05555 0.013888
+\dontshow{stopifnot(all.equal(r., 1/72, tol=1e-12))}
 }
 \keyword{array}
 \keyword{algebra}

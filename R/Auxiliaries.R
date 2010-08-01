@@ -405,14 +405,16 @@ prTriang <- function(x, digits = getOption("digits"),
 prMatrix <- function(x, digits = getOption("digits"),
                      maxp = getOption("max.print")) {
     d <- dim(x)
-    cl <- class(x)
-    cat(sprintf('%d x %d Matrix of class "%s"\n', d[1], d[2], cl))
+    cl <- class(x) ## cld <- getClassDef(cl)
+    tri <- extends(cl, "triangularMatrix")
+    xtra <- if(tri && x@diag == "U") " (unitriangular)" else ""
+    cat(sprintf('%d x %d Matrix of class "%s"%s\n',
+		d[1], d[2], cl, xtra))
     if(prod(d) <= maxp) {
-	if(is(x, "triangularMatrix"))
+	if(tri)
 	    prTriang(x, digits = digits, maxp = maxp)
-	else {
-            print(as(x, "matrix"), digits = digits, max = maxp)
-	}
+	else
+	    print(as(x, "matrix"), digits = digits, max = maxp)
     }
     else { ## d[1] > maxp / d[2] >= nr :
 	m <- as(x, "matrix")
@@ -1105,6 +1107,39 @@ isTriC <- function(object, upper = NA) {
 ## for "dtC*", "ltC* ..: directly
 xtC.diagU2N <- function(x) if(x@diag == "U") .Call(Csparse_diagU2N, x) else x
 
+##' @title uni-diagonal to "regular" triangular Matrix
+##' <description>
+##' NOTE:   class is *not* checked here! {speed}
+##' @param x a dense unidiagonal (x@diag == "U") triangular Matrix
+##'     ("ltrMatrix", "dtpMatrix", ...).
+##' @param kind character indicating content kind: "d","l",..
+##' @return Matrix "like" x, but with x@diag == "N" (and 1 or TRUE values "filled" in .@x)
+##' @author Martin Maechler
+.dense.diagU2N <- function(x, kind = .M.kind(x))
+{
+    ## For denseMatrix, 'diag = "U"'
+    ## means the 'x' slot can have wrong values which are
+    ## documented to never be accessed
+    n <- x@Dim[1]
+    if(n > 0) {
+	one <- if(kind == "d") 1. else TRUE
+	if(length(x@x) < n*n) { ## { == isPacked(x)) } : dtp-, ltp-, or "ntpMatrix":
+	    ## x@x is of length	 n*(n+1)/2
+	    if(n == 1)
+		x@x <- one
+	    else {
+		di <- if(x@uplo == "U") seq_len(n) else c(1L,n:2L)
+		x@x[cumsum(di)] <- one
+	    }
+	} else {
+	    ## okay: now have  'x' slot of length n x n
+	    x@x[1L+ (0:(n-1L))*(n+1L)] <- one # even for "n..Matrix"
+	}
+    }
+    x@diag <- "N"
+    x
+}
+
 .diagU2N <- function(x, cl, checkDense = FALSE)
 {
     ## fast "no-test" version --- we *KNOW* 'x' is 'triangularMatrix'
@@ -1115,20 +1150,7 @@ xtC.diagU2N <- function(x) if(x@diag == "U") .Call(Csparse_diagU2N, x) else x
     else {
 	kind <- .M.kind(x, cl)
         if(checkDense && extends(cl,"denseMatrix")) {
-	    ## For denseMatrix, 'diag = "U"'
-	    ## means the 'x' slot can have wrong values which are
-	    ## documented to never be accessed
-	    if(isPacked(x)) { ## unpack
-		stop("not yet implemented for packed class ", class(x))
-		## FIXME
-	    }
-	    ## okay: now have  'x' slot of length n x n
-	    n <- dim(x)[1]
-	    if(n > 0)
-		x@x[1L+ (0:(n-1L))*(n+1L)] <-
-		    if(kind == "d") 1. else TRUE # even for "n..Matrix"
-	    x@diag <- "N"
-	    x
+	    .dense.diagU2N(x, kind)
         }
         else { ## not dense, not [CT]sparseMatrix  ==>  Rsparse*
 	    .Call(Tsparse_diagU2N,
@@ -1138,10 +1160,10 @@ xtC.diagU2N <- function(x) if(x@diag == "U") .Call(Csparse_diagU2N, x) else x
     }
 } ## .diagU2N()
 
-diagU2N <- function(x, cl = getClassDef(class(x)))
+diagU2N <- function(x, cl = getClassDef(class(x)), checkDense = FALSE)
 {
     if(extends(cl, "triangularMatrix") && x@diag == "U")
-	.diagU2N(x, cl)
+	.diagU2N(x, cl, checkDense=checkDense)
     else x
 }
 

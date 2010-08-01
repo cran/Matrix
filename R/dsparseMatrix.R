@@ -5,7 +5,7 @@ setMethod("image", "dsparseMatrix",
 
 setMethod("chol", signature(x = "dsparseMatrix"),
 	   function(x, pivot=FALSE, ...) {
-	       px <- as(x, "dsCMatrix")
+	       px <- as(x, "symmetricMatrix")
 	       if (isTRUE(validObject(px, test=TRUE))) chol(px, pivot, ...)
 	       else stop("'x' is not positive definite -- chol() undefined.")
 	   })

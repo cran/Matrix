@@ -24,11 +24,12 @@ setAs("dsyMatrix", "dspMatrix",
 
 setAs("dsyMatrix", "dsTMatrix",
       function(from) { # 'dsT': only store upper *or* lower
-	  ## working via "matrix" : not very efficient	(FIXME)
 	  uplo <- from@uplo
 	  if(any((d <- dim(from)) == 0)) {
 	      ij <- matrix(0L, 0,2) ; m <- from@x
 	  } else {
+	      ## FIXME!	 working via "matrix" is *not* efficient:
+	      ## the "other triangle" is filled, compared with 0, and then trashed:
 	      m <- .Call(dsyMatrix_as_matrix, from, FALSE) # no dimnames!
 	      ij <- which(m != 0, arr.ind = TRUE)
 	      ij <- ij[if(uplo == "U") ij[,1] <= ij[,2] else ij[,1] >= ij[,2] ,

@@ -61,7 +61,7 @@ chol(x, \dots)
 }
 \value{
   a matrix of class \code{\linkS4class{Cholesky}},
-  i.e., upper triangular: \eqn{R} such that \eqn{R R' = x}.
+  i.e., upper triangular: \eqn{R} such that \eqn{R'R = x}.
 }
 \references{
   Timothy A. Davis (2006)

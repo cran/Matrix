@@ -297,8 +297,12 @@ prSpVector <- function(x, digits = getOption("digits"),
 }
 
 ## This is a simplified intI() {-> ./Tsparse.R } -- for sparseVector indexing:
-intIv <- function(i, n)
+intIv <- function(i, n, cl.i = getClass(class(i)))
 {
+### Note: undesirable to use this for negative indices;
+### ----  using seq_len(n) below means we are  NON-sparse ...
+### Fixed, for "x[i] with negative i" at least.
+
     ## Purpose: translate numeric | logical index     into  1-based integer
     ## --------------------------------------------------------------------
     ## Arguments: i: index vector (numeric | logical) *OR* sparseVector
@@ -306,7 +310,6 @@ intIv <- function(i, n)
     if(missing(i))
 	return(seq_len(n))
     ## else :
-    cl.i <- getClass(class(i))
     if(extends(cl.i, "numeric")) {
 	storage.mode(i) <- "integer"
 	if(any(i < 0L)) {
@@ -315,7 +318,7 @@ intIv <- function(i, n)
 	    seq_len(n)[i]
 	} else {
 	    if(length(i) && max(i) > n)
-		stop("indexing out of range 0:",n)
+		stop("too large index i > n =",n)
 	    if(any(z <- i == 0))
 		i <- i[!z]
 	    i
@@ -340,20 +343,41 @@ setMethod("[", signature(x = "sparseVector", i = "index"),
 	      cld <- getClassDef(class(x))
 	      has.x <- !extends(cld, "nsparseVector")
 	      n <- x@length
-	      ii <- intIv(i, n)
-	      anyDup <- any(iDup <- duplicated(ii))
-	      m <- match(x@i, ii, nomatch = 0)
-	      sel <- m > 0L
-	      x@length <- length(ii)
-	      x@i <- m[sel]
-	      if(anyDup) {
-		  i.i <- match(ii[iDup], ii)
-		  jm <- lapply(i.i, function(.) which(. == m))
-		  sel <- c(which(sel), unlist(jm))
-		  x@i <- c(x@i, rep.int(which(iDup), sapply(jm, length)))
-	      }
-	      if (has.x)
-		  x@x <- x@x[sel]
+	      if(extends(cl.i <- getClass(class(i)), "numeric") && any(i < 0)) {
+		  ## negative indices - remain sparse --> *not* using intIv()
+		  if(any(i > 0))
+		      stop("you cannot mix negative and positive indices")
+		  if(any(z <- i == 0)) i <- i[!z]
+
+		  ## all (i < 0) :
+
+		  ## FIXME: an efficient solution would use C here
+		  i <- unique(sort(-i)) # so we need to drop the 'i's
+		  if(any(nom <- is.na(m <- match(x@i, i)))) {
+		      ## eliminate those with non-0 match
+		      x@i <- x@i[nom]
+		      if(has.x) x@x <- x@x[nom]
+		  }
+		  ii <- findInterval(x@i, i)	## subtract that :
+		  x@i <- x@i - ii
+		  x@length <- x@length - length(i)
+
+              } else {
+                  ii <- intIv(i, n, cl.i=cl.i)
+                  anyDup <- any(iDup <- duplicated(ii))
+                  m <- match(x@i, ii, nomatch = 0)
+                  sel <- m > 0L
+                  x@length <- length(ii)
+                  x@i <- m[sel]
+                  if(anyDup) {
+                      i.i <- match(ii[iDup], ii)
+                      jm <- lapply(i.i, function(.) which(. == m))
+                      sel <- c(which(sel), unlist(jm))
+                      x@i <- c(x@i, rep.int(which(iDup), sapply(jm, length)))
+                  }
+                  if (has.x)
+                      x@x <- x@x[sel]
+              }
 	      x
 	  })
 
@@ -466,7 +490,7 @@ setReplaceMethod("[", signature(x = "sparseVector",
                  ## BTW, the important case: 'i' a *logical* sparseVector
 		 replSPvec)
 
-## Something else:  Also allow	  x[ <sparseVector> ] <- v
+## Something else:  Also allow	  x[ <sparseVector> ] <- v  e.g. for atomic x :
 
 if(FALSE) { ## R_FIXME: Not working, as internal "[<-" only dispatches on 1st argument
 ## Now "the work is done" inside  intIv() :
@@ -509,6 +533,18 @@ c2v <- function(x, y) {
     if(cx != "nsparseVector")
         x@x <- c(x@x, y@x)
     x
+}
+
+## sort.default() does
+##		x[order(x, na.last = na.last, decreasing = decreasing)]
+## but that uses a *dense* integer order vector
+## ==> need direct sort() method for "sparseVector" for mean(*,trim), median(),..
+sortSparseV <- function(x, decreasing = FALSE, na.last = NA) {
+    if(length(ina <- which(is.na(x)))) {
+        if(is.na(na.last)) x <- x[-ina]
+    }
+    ## TODO
+    .NotYetImplemented()
 }
 
 all.equal.sparseV <- function(target, current, ...)

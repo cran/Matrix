@@ -103,30 +103,98 @@ SEXP dtrMatrix_matrix_solve(SEXP a, SEXP b)
     return ans;
 }
 
-SEXP dtrMatrix_matrix_mm(SEXP a, SEXP b, SEXP right)
+/* to bu used for all three: '%*%', crossprod() and tcrossprod() */
+SEXP dtrMatrix_matrix_mm(SEXP a, SEXP b, SEXP right, SEXP trans)
 {
     /* Because a must be square, the size of the answer, val,
      * is the same as the size of b */
     SEXP val = PROTECT(dup_mMatrix_as_dgeMatrix(b));
-    int rt = asLogical(right); /* if(rt), compute b %*% a,  else  a %*% b */
+    int rt = asLogical(right); /* if(rt), compute b %*% op(a),  else  op(a) %*% b */
+    int tr = asLogical(trans);/* if true, use t(a) */
     int *adims = INTEGER(GET_SLOT(a, Matrix_DimSym)),
 	*bdims = INTEGER(GET_SLOT(val, Matrix_DimSym));
     int m = bdims[0], n = bdims[1];
     double one = 1.;
 
     if (adims[0] != adims[1])
-	error(_("dtrMatrix in %*% must be square"));
+	error(_("dtrMatrix must be square"));
     if ((rt && adims[0] != n) || (!rt && adims[1] != m))
 	error(_("Matrices are not conformable for multiplication"));
     if (m < 1 || n < 1) {
 /* 	error(_("Matrices with zero extents cannot be multiplied")); */
-    } else
-	F77_CALL(dtrmm)(rt ? "R" : "L", uplo_P(a), "N", diag_P(a), &m, &n, &one,
+	} else /* BLAS */
+	F77_CALL(dtrmm)(rt ? "R" : "L", uplo_P(a),
+			/*trans_A = */ tr ? "T" : "N",
+			diag_P(a), &m, &n, &one,
 			REAL(GET_SLOT(a, Matrix_xSym)), adims,
 			REAL(GET_SLOT(val, Matrix_xSym)), &m);
     UNPROTECT(1);
     return val;
 }
+
+SEXP dtrMatrix_dtrMatrix_mm(SEXP a, SEXP b, SEXP right, SEXP trans)
+{
+    /* to be called from "%*%" and crossprod(), tcrossprod(),
+     * from  ../R/products.R
+     *
+     * TWO cases : (1) result is triangular  <=> uplo are equal
+     * ===         (2) result is "general"
+     */
+    SEXP val,/* = in case (2):  PROTECT(dup_mMatrix_as_dgeMatrix(b)); */
+	d_a = GET_SLOT(a, Matrix_DimSym),
+	uplo_a = GET_SLOT(a, Matrix_uploSym),
+	diag_a = GET_SLOT(a, Matrix_diagSym);
+    /* if(rt), compute b %*% a,  else  a %*% b */
+    int rt = asLogical(right);
+    int tr = asLogical(trans);/* if true, use t(a) */
+    int *adims = INTEGER(d_a), n = adims[0];
+    double *valx = (double *) NULL /*Wall*/;
+    const char
+	*uplo_a_ch = CHAR(STRING_ELT(uplo_a, 0)), /* = uplo_P(a) */
+	*diag_a_ch = CHAR(STRING_ELT(diag_a, 0)); /* = diag_P(a) */
+    Rboolean same_uplo = (*uplo_a_ch == *uplo_P(b)), uDiag_b;
+
+    if (INTEGER(GET_SLOT(b, Matrix_DimSym))[0] != n)
+	/* validity checking already "assures" square matrices ... */
+	error(_("dtrMatrices in %*% must have matching (square) dim."));
+    if(same_uplo) {
+	/* ==> result is triangular -- "dtrMatrix" !
+	 * val := dup_mMatrix_as_dtrMatrix(b) : */
+	int sz = n * n;
+	val = PROTECT(NEW_OBJECT(MAKE_CLASS("dtrMatrix")));
+	SET_SLOT(val, Matrix_uploSym, duplicate(uplo_a));
+	SET_SLOT(val, Matrix_DimSym,  duplicate(d_a));
+	SET_DimNames(val, b);
+	valx = REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, sz));
+	Memcpy(valx, REAL(GET_SLOT(b, Matrix_xSym)), sz);
+	if((uDiag_b = *diag_P(b) == 'U')) {
+	    /* unit-diagonal b - may contain garbage in diagonal */
+	    for (int i = 0; i < n; i++)
+		valx[i * (n+1)] = 1.;
+	}
+    } else { /* different "uplo" ==> result is "dgeMatrix" ! */
+	val = PROTECT(dup_mMatrix_as_dgeMatrix(b));
+    }
+    if (n >= 1) {
+	double alpha = 1.;
+	/* Level 3 BLAS - DTRMM(): Compute one of the matrix multiplication operations
+	 * B := alpha*op( A )*B ["L"], or B := alpha*B*op( A ) ["R"],
+	 *	where trans_A determines  op(A):=  A   "N"one  or
+	 *				  op(A):= t(A) "T"ransposed */
+	F77_CALL(dtrmm)(rt ? "R" : "L", uplo_a_ch,
+			/*trans_A = */ tr ? "T" : "N", diag_a_ch, &n, &n, &alpha,
+			REAL(GET_SLOT(a, Matrix_xSym)), adims,
+			REAL(GET_SLOT(val, Matrix_xSym)), &n);
+    }
+    if(same_uplo) {
+	make_d_matrix_triangular(valx, a); /* set "other triangle" to 0 */
+	if(*diag_a_ch == 'U' && uDiag_b) /* result remains uni-diagonal */
+	    SET_SLOT(val, Matrix_diagSym, duplicate(diag_a));
+    }
+    UNPROTECT(1);
+    return val;
+}
+
 
 SEXP dtrMatrix_as_matrix(SEXP from, SEXP keep_dimnames)
 {
@@ -165,27 +233,6 @@ SEXP dtrMatrix_getDiag(SEXP x) {
 
 SEXP ltrMatrix_getDiag(SEXP x) {
     GET_trMatrix_Diag(  int, LGLSXP, LOGICAL, 1);
-}
-
-
-SEXP dtrMatrix_dgeMatrix_mm_R(SEXP a, SEXP b)
-{
-    int *adims = INTEGER(GET_SLOT(a, Matrix_DimSym)),
-	*bdims = INTEGER(GET_SLOT(b, Matrix_DimSym)),
-	m = adims[0], n = bdims[1], k = adims[1];
-    SEXP val = PROTECT(duplicate(b));
-    double one = 1.;
-
-    if (bdims[0] != k)
-	error(_("Matrices are not conformable for multiplication"));
-    if (m < 1 || n < 1 || k < 1) {
-/* 	error(_("Matrices with zero extents cannot be multiplied")); */
-    } else
-	F77_CALL(dtrmm)("R", uplo_P(a), "N", diag_P(a), adims, bdims+1, &one,
-			REAL(GET_SLOT(a, Matrix_xSym)), adims,
-			REAL(GET_SLOT(val, Matrix_xSym)), bdims);
-    UNPROTECT(1);
-    return val;
 }
 
 SEXP dtrMatrix_as_dtpMatrix(SEXP from)

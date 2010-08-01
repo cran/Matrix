@@ -94,9 +94,11 @@ str(chickwts)# a standard R data set,  71 x 2
 x.feed <- as(chickwts$feed, "sparseMatrix")
 x.feed[ , (1:72)[c(TRUE,FALSE,FALSE)]] ## every  3rd  column:
 
-## Provisional (hence unexported) sparse lm.fit():
-Matrix:::lm.fit.sparse(x = t(x.feed), y = chickwts[,1])
 @
+% FIXME: Move this to ../../../MatrixModels/inst/doc/  ???
+% ## Provisional (hence unexported) sparse lm.fit():
+% Matrix:::lm.fit.sparse(x = t(x.feed), y = chickwts[,1])
+
 %- for emacs: $
 
 

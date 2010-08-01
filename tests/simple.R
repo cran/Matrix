@@ -147,9 +147,6 @@ stopifnot(class(t5) == "dtCMatrix",
 sm <- selectMethod(coerce, c("dgCMatrix", "triangularMatrix"), verbose=TRUE)
 stopifnot(identical(sm(g5), t5))
 
-if(getRversion() < "2.9.0") ## 2.9.0++ has "Note"s instead of ambiguity "Warning"s:
-    options(op)
-
 
 (t1 <- new("dtTMatrix", x= c(3,7), i= 0:1, j=3:2,
            Dim= as.integer(c(4,4))))
@@ -735,8 +732,14 @@ assert.EQ.mat(solve(solve(p.)), as(p., "matrix"))
 dimnames(p.)[[1]] <- paste(1:4)
 ii <- is.na(p.)
 stopifnot(all(!ii), !any(as(ii, "denseMatrix")))# used to fail
-if(getRversion() >= "2.9.0") # (otherwise have done it above)
-    options(op)
+
+lst <- ls()
+table(istri <- sapply(lst, function(.) is(get(.),"triangularMatrix")))
+table(triC <- sapply(lst[istri], function(.) class(get(.))))
+table(uniC <- sapply(lst[istri], function(.) get(.)@diag == "U"))
+lsUtr <- lst[istri][uniC]
+(di <- sapply(lsUtr, function(.) dim(get(.))))
+## TODO: use %*%, crossprod(), .. on all those  4 x 4 -- and check "triangular rules"
 
 cat('Time elapsed: ', (.pt <- proc.time()),'\n') # "stats"
 ##

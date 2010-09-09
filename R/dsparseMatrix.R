@@ -15,7 +15,7 @@ setMethod("determinant", signature(x = "dsparseMatrix", logarithm = "logical"),
           determinant(as(x,"CsparseMatrix"), logarithm, ...))
 ##-> now dgC or dsC or dtC .. which *have* their methods
 
-setMethod("lu", signature(x = "dsparseMatrix"),
+setMethod("lu", signature(x = "dsparseMatrix"), # "FIXME": do in C, so can cache 'x@factors$LU'
 	  function(x, ...) lu(as(x, "dgCMatrix"), ...))
 
 

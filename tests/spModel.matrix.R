@@ -99,12 +99,14 @@ Sparse.model.matrix <- function(...) {
 }
 ##
 dim(mm <- Matrix(model.matrix(~ a + b + c + d, dd4), sparse=TRUE))
-dim(sm <- Sparse.model.matrix(~ a + b + c + d, dd4))
-## dimension differ !!
-stopifnot(mEQ(sm, mm)) ## but that's ok, since  mm has  all-0 column !
+dim(sm  <- Sparse.model.matrix(~ a + b + c + d, dd4))
+## was (19 13), when 'drop.unused.levels' was implicitly TRUE
+dim(sm. <- Sparse.model.matrix(~ a + b + c + d, dd4, drop.unused.levels=TRUE))
+stopifnot(mEQ(sm , mm), ## (both have a zero column)
+	  mEQ(sm., mm)) ## << that's ok, since mm has all-0 column !
 ## look at this :
 all(mm[,"d5"] == 0)  ## !!!! --- correct: a column of all 0  <--> dropped level!
-stopifnot(all.equal(sm, mm[, - which("d5" == colnames(mm))])) ## indeed !
+stopifnot(all.equal(sm., mm[, - which("d5" == colnames(mm))])) ## indeed !
 ## i.e., sm has just dropped an all zero column --- which it should!
 
 stopifnot(isEQsparseDense(~ 1 + sin(x) + b*c + a:x, dd4, show=TRUE))
@@ -128,9 +130,10 @@ stopifnot(mEQ(sm, mm))
 
 f <- ~ 1 + a + b*c + a*x + b*d*x + b:c:d
 attr(terms(f, data=dd4), "factors")
-dim(mm <- Matrix(model.matrix(f, data=dd4), sparse=TRUE)) ## 19 100
-dim(sm <- Sparse.model.matrix(f, data=dd4)) # 19 88
-stopifnot(mEQ(sm, mm))# {20 and 32  zero-columns ..}
+dim(mm <- Matrix(model.matrix(f, data=dd4), sparse=TRUE))            ## 19 100
+dim(sm  <- Sparse.model.matrix(f, data=dd4))                         ## (ditto)
+dim(sm. <- Sparse.model.matrix(f, data=dd4, drop.unused.levels=TRUE)) # 19  88
+stopifnot(mEQ(sm, mm), mEQ(sm., mm))# {32, 32;  20 and 32  zero-columns ..}
 
 ## now get a bit courageous:
 ##
@@ -138,19 +141,23 @@ stopifnot(mEQ(sm, mm))# {20 and 32  zero-columns ..}
 ## stopifnot(isEQsparseDense(~ 1 + c + a:b:d,         dat=dd4))
 dim(mm <- Matrix(model.matrix(~ 1 + a + b*c + a:b:c:d, data=dd4),
                  sparse=TRUE)) ## 19 202
-dim(sm <- Sparse.model.matrix(~ 1 + a + b*c + a:b:c:d, data=dd4)) # fails
-stopifnot(mEQ(sm, mm))## {149 and 173 zero-columns !}
+dim(sm  <- Sparse.model.matrix(~ 1 + a + b*c + a:b:c:d, data=dd4))
+dim(sm. <- Sparse.model.matrix(~ 1 + a + b*c + a:b:c:d, data=dd4,
+			       drop.unused.levels=TRUE))
+stopifnot(mEQ(sm, mm), mEQ(sm., mm))# {173, 173, 149 and 173 zero-columns !}
 
 ## stopifnot(isEQsparseDense(~ 1 + a + b*c + a:b:c:d, dat=dd4))
 dim(mm <- Matrix(model.matrix(~ 1 + a + b:c + a:b:d, data=dd4),
                  sparse=TRUE)) ## 19 107
-dim(sm <- Sparse.model.matrix(~ 1 + a + b:c + a:b:d, data=dd4)) # fails
-stopifnot(mEQ(sm, mm))
-
+dim(sm  <- Sparse.model.matrix(~ 1 + a + b:c + a:b:d, data=dd4))
+dim(sm. <- Sparse.model.matrix(~ 1 + a + b:c + a:b:d, data=dd4,
+			       drop.unused.levels=TRUE))
+stopifnot(mEQ(sm, mm), mEQ(sm., mm))
 
 dim(mm <- Matrix(model.matrix(~ a*b*c +c*d, dd4), sparse=TRUE)) ## 19 38
-dim(sm <- Sparse.model.matrix(~ a*b*c +c*d, dd4))# 19 36
-stopifnot(mEQ(sm, mm))
+dim(sm  <- Sparse.model.matrix(~ a*b*c +c*d, dd4))# (ditto)
+dim(sm. <- Sparse.model.matrix(~ a*b*c +c*d, dd4, drop.unused.levels=TRUE))
+stopifnot(mEQ(sm, mm), mEQ(sm., mm))
 
 
 f1 <- ~ (a+b+c+d)^2 + (a+b):c:d + a:b:c:d
@@ -159,9 +166,11 @@ f2 <- ~ (a+b+c+d)^4 - a:b:c - a:b:d
 dim(mm2 <- Matrix(model.matrix(f2, dd4), sparse=TRUE))
     sm1 <- sparse.model.matrix(f1, dd4)
 dim(sm2 <- sparse.model.matrix(f2, dd4))
+    s.1 <- sparse.model.matrix(f1, dd4, drop.unused.levels=TRUE)
+dim(s.2 <- sparse.model.matrix(f2, dd4, drop.unused.levels=TRUE))
 stopifnot(identical(mm1,mm2),
-          identical(sm1,sm2),
-          mEQ(sm1, mm1))
+	  identical(sm1,sm2), identical(s.1,s.2),
+		mEQ(sm1,mm1),	    mEQ(s.1,mm1))
 
 str(dd <- data.frame(d = gl(10,6), a = ordered(gl(3,20))))
 X. <- sparse.model.matrix(~ a + d, data = dd)

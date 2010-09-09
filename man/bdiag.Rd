@@ -1,21 +1,29 @@
 \name{bdiag}
 \alias{bdiag}
+\alias{.bdiag}
 \title{Construct a Block Diagonal Matrix}
 \description{
   Build a block diagonal matrix given several building block matrices.
 }
 \usage{
 bdiag(\dots)
+.bdiag(lst)
 }
 \arguments{
   \item{\dots}{individual matrices or a \code{\link{list}} of matrices.}
+  \item{lst}{non-empty \code{\link{list}} of matrices.}
 }
-% \details{
-% }
+\details{
+  For non-trivial argument list, \code{bdiag()} calls \code{.bdiag()}.
+  The latter maybe useful to programmers
+}
 \value{
-  A \emph{sparse} matrix inheriting from class
-  \code{\linkS4class{CsparseMatrix}}
-  obtained by combining the arguments into a block diagonal matrix.
+  A \emph{sparse} matrix obtained by combining the arguments into a
+  block diagonal matrix.
+
+  The value of \code{bdiag()} inheris from class
+  \code{\linkS4class{CsparseMatrix}}, whereas
+  \code{.bdiag()} returns a \code{\linkS4class{TsparseMatrix}}.
 }
 \author{Martin Maechler, built on a version posted by Berton Gunter to
   R-help; earlier versions have been posted by other authors, notably

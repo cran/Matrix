@@ -1,3 +1,35 @@
+2010-09-09  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/sparseMatrix.R (setAs): graph |-> Matrix: via CsparseMatrix
+
+2010-08-21  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/spModels.R (sparse.model.matrix): argument 'drop.unused.levels = FALSE'
+	NB: was *true* implicitly, before.  Compatibility with model.matrix().
+
+	* R/sparseMatrix.R (formatSpMatrix, formatSparseM): factored out of
+	printSpMatrix(); export as potentially useful for standard
+	matrices, even.
+
+2010-08-11  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/eigen.R (Schur): correct setMethod() such that
+	Schur(<dgCMatrix>) works.
+
+2010-08-10  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/diagMatrix.R, man/bdiag.Rd, NAMESPACE: export .bdiag() as well.
+
+2010-08-09  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.999375-44, CRAN-released: ...
+
+	* R/diagMatrix.R (diagCspprod, Cspdiagprod): drop (possibly wrong) @factors
+	* R/Ops.R (.Arith.CM.atom, .Arith.atom.CM, A.M.n, A.n.M): ditto
+
+	* tests/factorizing.R: check some of the above.
+
+
 2010-08-04  Douglas Bates  <bates@stat.wisc.edu>
 
 	* R/spModels.R (fac2sparse): Fix name resolution problem
@@ -36,7 +68,7 @@
 
 2010-07-16  Martin Maechler  <maechler@stat.math.ethz.ch>
 
-	* DESCRIPTION (Version): 0.999375-43
+	* DESCRIPTION (Version): 0.999375-43, CRAN-released: 2010-08-05, r 2599
 
 	* R/AllClass.R (Model): as mother class (of "glpModel")
 

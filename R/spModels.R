@@ -92,14 +92,15 @@ fac2Sparse <- function(from, to = c("d","i","l","n","z"),
     ans
 }
 
-## Goal: a  "sparse model.matrix()"
+## "Sparse  model.matrix()"
 ##      model.matrix(object, data = environment(object),
 ##                   contrasts.arg = NULL, xlev = NULL, ...)
 ##
-##  Cut'n'paste from model.matrix() ... just replacing small part at end:
-sparse.model.matrix <- function(object, data = environment(object),
-				contrasts.arg = NULL, xlev = NULL,
-				transpose = FALSE, ...)
+## Originally: Cut'n'paste from model.matrix() ... just replacing small part at end:
+sparse.model.matrix <-
+    function(object, data = environment(object), contrasts.arg = NULL,
+	     xlev = NULL, transpose = FALSE,
+             drop.unused.levels = FALSE, row.names=TRUE, ...)
 {
     t <- if(missing(data)) terms(object) else terms(object, data=data)
     if (is.null(attr(data, "terms")))
@@ -153,8 +154,10 @@ sparse.model.matrix <- function(object, data = environment(object),
     }
     ## <Sparse> src/library/stats/R/models.R has
     ##    ans <- .Internal(model.matrix(t, data))
-    ans <- model.spmatrix(t, data, transpose=transpose)
+    ans <- model.spmatrix(t, data, transpose=transpose,
     ##     ==============
+                          drop.unused.levels=drop.unused.levels,
+                          row.names=row.names)
     ## </Sparse>
     attr(ans, "contrasts") <-
 	lapply(data[isF], function(x) attr(x, "contrasts"))

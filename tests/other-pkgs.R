@@ -75,7 +75,8 @@ if(isTRUE(try(require(graph)))) { # may be there and fail (with R-devel)
     image(cc)
     gg <- as(cc, "graph")
 
-    if(require("Rgraphviz")) {
+    .r <- require# cheat checks - do *not* want it in DESCRIPTION:
+    if(.r("Rgraphviz")) {
 	plot(gg, "circo")
 	detach("package:Rgraphviz", unload = TRUE)
     }

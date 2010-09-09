@@ -8,7 +8,8 @@
 }
 \usage{
 sparse.model.matrix(object, data = environment(object),
-                    contrasts.arg = NULL, xlev = NULL, transpose = FALSE, ...)
+                    contrasts.arg = NULL, xlev = NULL, transpose = FALSE,
+                    drop.unused.levels = FALSE, row.names=TRUE, ...)
 }
 \arguments{
   \item{object}{an object of an appropriate class.  For the default
@@ -24,6 +25,12 @@ sparse.model.matrix(object, data = environment(object),
   \item{transpose}{logical indicating if the \emph{transpose} should be
     returned; if the transposed is used anyway, setting \code{transpose = TRUE}
     is more efficient.}
+  \item{drop.unused.levels}{should factors have unused levels dropped?
+    (This used to be true, \emph{implicitly} in versions of \pkg{Matrix}
+    up to July 2010; the default has been changed for compatibility with
+    \R's standard (dense) \code{\link{model.matrix}()}.
+  }
+  \item{row.names}{logical indicating if row names should be used.}
   \item{\dots}{further arguments passed to or from other methods.}
 }
 \value{

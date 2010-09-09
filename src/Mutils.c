@@ -763,14 +763,14 @@ SEXP new_dgeMatrix(int nrow, int ncol)
 SEXP m_encodeInd(SEXP ij, SEXP di, SEXP chk_bnds)
 {
     SEXP ans;
-    int *ij_di = INTEGER(getAttrib(ij, R_DimSymbol)), n = ij_di[0];
-    int *Di = INTEGER(di), *IJ, *j_;
+    int *ij_di = NULL, n, *Di = INTEGER(di), *IJ, *j_;
     Rboolean check_bounds = asLogical(chk_bnds);
 
     ij = PROTECT(coerceVector(ij, INTSXP));
-    if(!(isMatrix(ij) && ij_di[1] == 2))
+    if(!isMatrix(ij) ||
+       (ij_di = INTEGER(getAttrib(ij, R_DimSymbol)))[1] != 2)
 	error(_("Argument ij must be 2-column integer matrix"));
-
+    n = ij_di[0];
     IJ = INTEGER(ij);
     j_ = IJ+n;/* pointer offset! */
 

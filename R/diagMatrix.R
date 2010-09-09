@@ -73,7 +73,7 @@ Diagonal <- function(n, x = NULL)
 .symDiagonal <- function(n, x = rep.int(1,n), uplo = "U")
     .sparseDiagonal(n, x, uplo, shape = "s")
 
-## instead of   diagU2N(as(Diagonal(n), "CsparseMatrix")), diag = "N" in any case:
+# instead of   diagU2N(as(Diagonal(n), "CsparseMatrix")), diag = "N" in any case:
 .trDiagonal <- function(n, x = rep.int(1,n), uplo = "U")
     .sparseDiagonal(n, x, uplo, shape = "t")
 
@@ -623,6 +623,11 @@ Cspdiagprod <- function(x, y) {
     ind <- rep.int(seq_len(dx[2]), x@p[-1] - x@p[-dx[2]-1L])
     if(y@diag == "N")
         x@x <- x@x * y@x[ind]
+    if(is(x, "compMatrix") && length(xf <- x@factors)) {
+        ## instead of dropping all factors, be smart about some
+	## TODO ......
+	x@factors <- list()
+    }
     x
 }
 
@@ -632,6 +637,15 @@ diagCspprod <- function(x, y) {
     if(dx[2] != dy[1]) stop("non-matching dimensions")
     if(x@diag == "N")
         y@x <- y@x * x@x[y@i + 1L]
+    if(is(y, "compMatrix") && length(yf <- y@factors)) {
+	## instead of dropping all factors, be smart about some
+	## TODO
+	keep <- character()
+	if(iLU <- names(yf) == "LU") {
+	    ## TODO keep <- "LU"
+	}
+	y@factors <- yf[keep]
+    }
     y
 }
 

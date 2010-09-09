@@ -318,15 +318,15 @@ emptyColnames <- function(x, msg.if.not.empty = FALSE)
     ## Useful for compact printing of (parts) of sparse matrices
     ## possibly	 dimnames(x) "==" NULL :
     dn <- dimnames(x)
-    d <- dim(x)
+    nc <- ncol(x)
     if(msg.if.not.empty && is.list(dn) && length(dn) >= 2 &&
        is.character(cn <- dn[[2]]) && any(cn != "")) {
 	lc <- length(cn)
-	message(sprintf("   [[ suppressing %d column names %s%s ]]", d[2],
+	message(sprintf("   [[ suppressing %d column names %s%s ]]", nc,
 			paste(sQuote(cn[1:min(3, lc)]), collapse = ", "),
 			if(lc > 3) " ..." else ""))
     }
-    dimnames(x) <- list(dn[[1]], character(d[2]))
+    dimnames(x) <- list(dn[[1]], character(nc))
     x
 }
 
@@ -482,7 +482,10 @@ non0ind <- function(x, cld = getClassDef(class(x)),
 		    uniqT = TRUE, xtendSymm = TRUE, check.Udiag = TRUE)
 {
     if(is.numeric(x))
-	return(if((n <- length(x))) (0:(n-1))[isN0(x)] else integer(0))
+	return(if((n <- length(x))) {
+	    if(is.matrix(x)) arrayInd(seq_len(n)[isN0(x)], dim(x)) - 1L
+	    else (0:(n-1))[isN0(x)]
+	} else integer(0))
     ## else
     stopifnot(extends(cld, "sparseMatrix"))
 

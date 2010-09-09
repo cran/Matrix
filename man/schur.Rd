@@ -11,8 +11,10 @@ Schur(x, vectors, \dots)
 \alias{Schur,triangularMatrix,logical-method}
 \alias{Schur,triangularMatrix,missing-method}
 \alias{Schur,dsyMatrix,ANY-method}
-\alias{Schur,generalMatrix,ANY-method}
-\alias{Schur,symmetricMatrix,ANY-method}
+\alias{Schur,generalMatrix,logical-method}
+\alias{Schur,generalMatrix,missing-method}
+\alias{Schur,symmetricMatrix,logical-method}
+\alias{Schur,symmetricMatrix,missing-method}
 
 \description{
   Computes the Schur decomposition and eigenvalues of a square matrix;

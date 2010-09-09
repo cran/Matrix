@@ -1,5 +1,4 @@
 \name{Cholesky}
-\docType{genericFunction}
 \alias{Cholesky}
 \alias{Cholesky,dsCMatrix-method}% -> ../R/dsCMatrix.R
 \alias{Cholesky,CsparseMatrix-method}% coerce

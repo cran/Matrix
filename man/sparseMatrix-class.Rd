@@ -31,6 +31,7 @@
 \alias{cov2cor,sparseMatrix-method}
 \alias{diag,sparseMatrix-method}
 \alias{dim<-,sparseMatrix-method}
+\alias{format,sparseMatrix-method}
 \alias{lu,sparseMatrix-method}
 \alias{mean,sparseMatrix-method}
 \alias{print,sparseMatrix-method}
@@ -46,6 +47,7 @@
 % "[" are in ./Xtrct-methods.Rd
 %\alias{colMeans,..} etc are now in ./colSums.Rd
 % graph stuff
+\alias{coerce,graph,Matrix-method}
 \alias{coerce,graph,sparseMatrix-method}
 \alias{coerce,graph,CsparseMatrix-method}
 \alias{coerce,graphAM,sparseMatrix-method}
@@ -79,6 +81,10 @@
       The \code{\link{print}} method for sparse matrices by default is the
       same as \code{show()} but can be called with extra optional
       arguments, see \code{\link{printSpMatrix}()}.}
+    \item{format}{\code{signature(x = "sparseMatrix")}, ....\cr
+      The \code{\link{format}} method for sparse matrices, see
+      \code{\link{formatSpMatrix}()} for details such as the extra
+      optional arguments.}
     \item{summary}{\code{(object = "sparseMatrix")}: Returns
       an object of S3 class \code{"sparseSummary"} which is basically a
       \code{\link{data.frame}} with columns \code{(i,j,x)} (or just

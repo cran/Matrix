@@ -1,5 +1,4 @@
 \name{externalFormats}
-\docType{genericFunction}
 \alias{readHB}
 \alias{readMM}
 % \alias{writeHB}
@@ -8,8 +7,9 @@
 \alias{writeMM,TsparseMatrix-method}
 \title{Read and write external matrix formats}
 \description{
-    Read matrices stored in the Harwell-Boeing or MatrixMarket formats
-    or write sparseMatrix objects to one of these formats.
+  Read matrices stored in the Harwell-Boeing or MatrixMarket formats
+  or write \code{\linkS4class{sparseMatrix}} objects to one of these
+  formats.
 }
 \usage{
 readHB(file)

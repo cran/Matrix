@@ -62,6 +62,14 @@ relErr <- function(target, current) { ## make this work for 'Matrix'
 pkgRversion <- function(pkgname)
     substring(packageDescription(pkgname)[["Built"]], 3,5)
 
+showProc.time <- local({
+    pct <- proc.time()
+    function() { ## CPU elapsed __since last called__
+	ot <- pct ; pct <<- proc.time()
+	cat('Time elapsed: ', (pct - ot)[1:3],'\n')
+    }
+})
+
 
 ### ------- Part II  -- related to matrices, but *not* "Matrix" -----------
 

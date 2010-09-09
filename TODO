@@ -116,6 +116,9 @@
   and even more so for, e.g.  <sparse> %*% <dense>
   {used in Soeren's 'gR' computations},
   we should also provide a generic and methods.
+- diag(A %*% B) might look like a "generalization" of tr(A %*% B),
+  but as the above tricks show, is not really.
+  Still, it's well worth to provide  diag.prod(A, B) 
 
 - qr.R(qr(x)) may differ for the "same" matrix, depending on it being
   sparse or dense:

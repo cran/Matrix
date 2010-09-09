@@ -46,9 +46,13 @@ xp <- expand(pmLU)
 ppm <- pm[pmLU@p + 1:1, pmLU@q + 1:1]
 Ppm <- pmLU@L %*% pmLU@U
 ## identical only as long as we don't keep the original class info:
-stopifnot(identical(lu1, pmLU),
+stopifnot(identical3(lu1, pmLU, pm@factors$LU),# TODO === por1@factors$LU
 	  identical(ppm, with(xp, P %*% pm %*% t(Q))),
 	  sapply(xp, is, class="Matrix"))
+## make sure 'factors' are *NOT* kept, when they should not:
+spm <- solve(pm)
+stopifnot(abs(as.vector(solve(Diagonal(30, x=10) %*% pm) / spm) - 1/10) < 1e-7,
+	  abs(as.vector(solve(rep.int(4, 30)	  *  pm) / spm) - 1/ 4) < 1e-7)
 
 
 ## these two should be the same, and `are' in some ways:
@@ -323,8 +327,13 @@ assert.EQ.mat(Stu@Q, as(Stg@Q,"matrix"), tol=0)
 p <- new("dtCMatrix", i = c(2L, 3L, 2L, 5L, 4L, 4:5), p = c(0L, 2L, 4:7, 7L),
 	 Dim = c(6L, 6L), Dimnames = list(as.character(1:6), NULL),
 	 x = rep.int(-0.5, 7), uplo = "L", diag = "U")
+Sp <- Schur(p)
+Sp. <- Schur(as(p,"generalMatrix"))
+Sp.p <- Schur(crossprod(p))
+## the last two failed
 ip <- solve(p)
 assert.EQ.mat(solve(ip), as(p,"matrix"))
+
 
 ## chol2inv() for a traditional matrix
 assert.EQ.mat(     crossprod(chol2inv(chol(Diagonal(x = 5:1)))),

@@ -127,6 +127,7 @@ setAs("graphAM", "sparseMatrix",
 
 setAs("graph", "CsparseMatrix",
       function(from) as(as(from, "graphNEL"), "CsparseMatrix"))
+setAs("graph", "Matrix", function(from) as(from, "CsparseMatrix"))
 
 setAs("graphNEL", "CsparseMatrix",
       function(from) as(as(from, "TsparseMatrix"), "CsparseMatrix"))
@@ -314,19 +315,137 @@ setMethod("Math",
 
 ### --- print() and show() methods ---
 
-## FIXME(?) -- ``merge this'' (at least ``synchronize'') with
-## - - -   prMatrix() from ./Auxiliaries.R
-## FIXME: prTriang() in ./Auxiliaries.R  should also get  align = "fancy"
-##
-printSpMatrix <- function(x, digits = getOption("digits"),
-			  maxp = getOption("max.print"),
-			  cld = getClassDef(class(x)), zero.print = ".",
-			  col.names, note.dropping.colnames = TRUE,
-			  col.trailer = '', align = c("fancy", "right"))
+.formatSparseSimple <- function(m, asLogical=FALSE, digits=NULL,
+				col.names, note.dropping.colnames = TRUE,
+				dn=dimnames(m))
+{
+    stopifnot(is.logical(asLogical))
+    if(asLogical)
+	cx <- array("N", dim(m), dimnames=dn)
+    else { ## numeric (or --not yet implemented-- complex):
+	cx <- apply(m, 2, format, digits=digits)
+	if(is.null(dim(cx))) {# e.g. in	1 x 1 case
+	    dim(cx) <- dim(m)
+	    dimnames(cx) <- dn
+	}
+    }
+    if (missing(col.names))
+	col.names <- {
+	    if(!is.null(cc <- getOption("sparse.colnames")))
+		cc
+	    else if(is.null(dn[[2]]))
+		FALSE
+	    else { # has column names == dn[[2]]
+		ncol(m) < 10
+	    }
+	}
+    if(identical(col.names, FALSE))
+	cx <- emptyColnames(cx, msg.if.not.empty = note.dropping.colnames)
+    else if(is.character(col.names)) {
+	stopifnot(length(col.names) == 1)
+	cn <- col.names
+	switch(substr(cn, 1,3),
+	       "abb" = {
+		   iarg <- as.integer(sub("^[^0-9]*", '', cn))
+		   colnames(cx) <- abbreviate(colnames(cx), minlength = iarg)
+	       },
+	       "sub" = {
+		   iarg <- as.integer(sub("^[^0-9]*", '', cn))
+		   colnames(cx) <- substr(colnames(cx), 1, iarg)
+	       },
+	       stop("invalid 'col.names' string: ", cn))
+    }
+    ## else: nothing to do for col.names == TRUE
+    cx
+}## .formatSparseSimple
+
+
+### NB: Want this to work also for logical or numeric traditional matrix 'x':
+formatSparseM <- function(x, zero.print = ".", align = c("fancy", "right"),
+                          m = as(x,"matrix"), asLogical=NULL, digits=NULL,
+                          cx, iN0, dn = dimnames(m))
+{
+    cld <- getClassDef(class(x))
+    if(is.null(asLogical)) {
+        binary <- extends(cld,"nsparseMatrix") || extends(cld, "pMatrix")# -> simple T / F
+        asLogical <- { binary || extends(cld,"lsparseMatrix") ||
+                       extends(cld,"matrix") && is.logical(x) }
+					# has NA and (non-)structural FALSE
+    }
+    if(missing(cx))
+        cx <- .formatSparseSimple(m, asLogical=asLogical, digits=digits, dn=dn)
+    if(is.null(d <- dim(cx))) {# e.g. in 1 x 1 case
+	d <- dim(cx) <- dim(m)
+	dimnames(cx) <- dn
+    }
+    if(missing(iN0))
+	iN0 <- 1L + .Call(m_encodeInd, non0ind(x, cld), di = d, FALSE)
+    ne <- length(iN0)
+
+    if(asLogical) {
+        cx[m] <- "|"
+        if(!extends(cld, "sparseMatrix"))
+            x <- as(x,"sparseMatrix")
+        if(anyFalse(x@x)) { ## any (x@x == FALSE)
+            ## Careful for *non-sorted* Tsparse, e.g. from U-diag
+            if(extends(cld, "TsparseMatrix")) {
+                ## have no "fast  uniqTsparse():
+                x <- as(x, "CsparseMatrix")
+                cld <- getClassDef(class(x))
+            }
+            F. <- is0(x@x)              # the 'FALSE' ones
+### FIXME: have  iN0 already above -- *really* need the following ??? --FIXME--
+            ij <- non0.i(x, cld, uniqT=FALSE)
+            if(extends(cld, "symmetricMatrix")) {
+                ## also get "other" triangle
+                notdiag <- ij[,1] != ij[,2] # but not the diagonals again
+                ij <- rbind(ij, ij[notdiag, 2:1], deparse.level=0)
+                F. <-	  c(F., F.[notdiag])
+            }
+            iN0 <- 1L + .Call(m_encodeInd, ij, di = d, FALSE)
+            cx[iN0[F.]] <- ":" # non-structural FALSE (or "o", "," , "-" or "f")?
+        }
+        cx[-iN0] <- zero.print
+    }
+    else if(match.arg(align) == "fancy" && !is.integer(m)) {
+        fi <- apply(m, 2, format.info) ## fi[3,] == 0  <==> not expo.
+
+        ## now 'format' the zero.print by padding it with ' ' on the right:
+        ## case 1: non-exponent:  fi[2,] + as.logical(fi[2,] > 0)
+        ## the column numbers of all 'zero' entries -- (*large*)
+        cols <- 1L + (0:(prod(d)-1L))[-iN0] %/% d[1]
+        pad <-
+            ifelse(fi[3,] == 0,
+                   fi[2,] + as.logical(fi[2,] > 0),
+                   ## exponential:
+                   fi[2,] + fi[3,] + 4)
+        ## now be efficient ; sprintf() is relatively slow
+        ## and pad is much smaller than 'cols'; instead of "simply"
+        ## zero.print <- sprintf("%-*s", pad[cols] + 1, zero.print)
+        if(any(doP <- pad > 0)) {       #
+            ## only pad those that need padding - *before* expanding
+            z.p.pad <- rep.int(zero.print, length(pad))
+            z.p.pad[doP] <- sprintf("%-*s", pad[doP] + 1, zero.print)
+            zero.print <- z.p.pad[cols]
+        }
+        else
+            zero.print <- rep.int(zero.print, length(cols))
+
+        cx[-iN0] <- zero.print
+    } ## else "right" : nothing to do
+    cx
+}## formatSparseM()
+
+## utility used inside sparseMatrix print()ing which might be useful
+## outside the Matrix package:
+formatSpMatrix <- function(x, digits = NULL, # getOption("digits"),
+                           maxp = 1e9, # ~ 1/2 * .Machine$integer.max, ## getOption("max.print"),
+                           cld = getClassDef(class(x)), zero.print = ".",
+                           col.names, note.dropping.colnames = TRUE,
+                           align = c("fancy", "right"))
 {
     stopifnot(extends(cld, "sparseMatrix"))
     validObject(x) # have seen seg.faults for invalid objects
-    x.orig <- x # to be returned
     d <- dim(x)
     if(is.Udiag <- (extends(cld, "triangularMatrix") && x@diag == "U")) {
 	if(extends(cld, "CsparseMatrix"))
@@ -352,42 +471,9 @@ printSpMatrix <- function(x, digits = getOption("digits"),
     dn <- dimnames(m) ## will be === dimnames(cx)
     binary <- extends(cld,"nsparseMatrix") || extends(cld, "pMatrix") # -> simple T / F
     logi <- binary || extends(cld,"lsparseMatrix") # has NA and (non-)structural FALSE
-    if(logi)
-	cx <- array("N", dim(m), dimnames=dn)
-    else { ## numeric (or --not yet implemented-- complex):
-	cx <- apply(m, 2, format)
-	if(is.null(dim(cx))) {# e.g. in	1 x 1 case
-	    dim(cx) <- dim(m)
-	    dimnames(cx) <- dn
-	}
-    }
-    if (missing(col.names))
-        col.names <- {
-            if(!is.null(cc <- getOption("sparse.colnames")))
-                cc
-            else if(is.null(dn[[2]]))
-                FALSE
-            else { # has column names == dn[[2]]
-                ncol(x) < 10
-            }
-        }
-    if(identical(col.names, FALSE))
-        cx <- emptyColnames(cx, msg.if.not.empty = note.dropping.colnames)
-    else if(is.character(col.names)) {
-        stopifnot(length(col.names) == 1)
-        cn <- col.names
-        switch(substr(cn, 1,3),
-               "abb" = {
-                   iarg <- as.integer(sub("^[^0-9]*", '', cn))
-                   colnames(cx) <- abbreviate(colnames(cx), minlength = iarg)
-               },
-               "sub" = {
-                   iarg <- as.integer(sub("^[^0-9]*", '', cn))
-                   colnames(cx) <- substr(colnames(cx), 1, iarg)
-               },
-               stop("invalid 'col.names' string: ", cn))
-    }
-    ## else: nothing to do for col.names == TRUE
+    cx <- .formatSparseSimple(m, asLogical = logi, digits=digits,
+                              col.names=col.names,
+                              note.dropping.colnames=note.dropping.colnames, dn=dn)
     if(is.logical(zero.print))
 	zero.print <- if(zero.print) "0" else " "
     if(binary) {
@@ -395,61 +481,36 @@ printSpMatrix <- function(x, digits = getOption("digits"),
 	cx[m] <- "|"
     } else { # non-binary ==> has 'x' slot
 	## show only "structural" zeros as 'zero.print', not all of them..
-	## -> cannot use 'm'
+	## -> cannot use 'm' alone
         d <- dim(cx)
 	ne <- length(iN0 <- 1L + .Call(m_encodeInd, non0ind(x, cld),
 				       di = d, FALSE))
 	if(0 < ne && (logi || ne < prod(d))) {
-	    if(logi) {
-		cx[m] <- "|"
-		if(anyFalse(x@x)) { ## any (x@x == FALSE)
-		    ## Careful for *non-sorted* Tsparse, e.g. from U-diag
-		    if(extends(cld, "TsparseMatrix")) {
-			## have no "fast  uniqTsparse():
-			x <- as(x, "CsparseMatrix")
-			cld <- getClassDef(class(x))
-		    }
-		    F. <- is0(x@x) # the 'FALSE' ones
-		    ij <- non0.i(x, cld, uniqT=FALSE)
-		    if(extends(cld, "symmetricMatrix")) {
-			## also get "other" triangle
-			notdiag <- ij[,1] != ij[,2]# but not the diagonals again
-			ij <- rbind(ij, ij[notdiag, 2:1], deparse.level=0)
-			F. <-	  c(F., F.[notdiag])
-		    }
-		    iN0 <- 1L + .Call(m_encodeInd, ij, di = d, FALSE)
-		    cx[iN0[F.]] <- ":" # non-structural FALSE (or "o", "," , "-" or "f")?
-		}
-	    }
-	    else if(match.arg(align) == "fancy" && !is.integer(m)) {
-		fi <- apply(m, 2, format.info) ## fi[3,] == 0  <==> not expo.
-
-		## now 'format' the zero.print by padding it with ' ' on the right:
-		## case 1: non-exponent:  fi[2,] + as.logical(fi[2,] > 0)
-		## the column numbers of all 'zero' entries -- (*large*)
-		cols <- 1L + (0:(prod(d)-1L))[-iN0] %/% d[1]
-		pad <-
-		    ifelse(fi[3,] == 0,
-			   fi[2,] + as.logical(fi[2,] > 0),
-			   ## exponential:
-			   fi[2,] + fi[3,] + 4)
-                ## now be efficient ; sprintf() is relatively slow
-                ## and pad is much smaller than 'cols'; instead of "simply"
-		## zero.print <- sprintf("%-*s", pad[cols] + 1, zero.print)
-		if(any(doP <- pad > 0)) {#
-		    ## only pad those that need padding - *before* expanding
-		    z.p.pad <- rep.int(zero.print, length(pad))
-		    z.p.pad[doP] <- sprintf("%-*s", pad[doP] + 1, zero.print)
-		    zero.print <- z.p.pad[cols]
-		}
-                else
-                    zero.print <- rep.int(zero.print, length(cols))
-	    } ## else "right" : nothing to do
-
-	    cx[-iN0] <- zero.print
+	    cx <- formatSparseM(x, zero.print, align, m=m, asLogical=logi,
+				digits=digits, cx=cx, iN0=iN0, dn=dn)
 	} else if (ne == 0)# all zeroes
 	    cx[] <- zero.print
     }
+    cx
+}## formatSpMatrix()
+
+
+## FIXME(?) -- ``merge this'' (at least ``synchronize'') with
+## - - -   prMatrix() from ./Auxiliaries.R
+## FIXME: prTriang() in ./Auxiliaries.R  should also get  align = "fancy"
+##
+printSpMatrix <- function(x, digits = NULL, # getOption("digits"),
+			  maxp = getOption("max.print"),
+			  cld = getClassDef(class(x)), zero.print = ".",
+			  col.names, note.dropping.colnames = TRUE,
+			  col.trailer = '', align = c("fancy", "right"))
+{
+    stopifnot(extends(cld, "sparseMatrix"))
+    x.orig <- x # to be returned
+    cx <- formatSpMatrix(x, digits=digits, maxp=maxp, cld=cld,
+			 zero.print=zero.print, col.names=col.names,
+			 note.dropping.colnames=note.dropping.colnames,
+			 align=align)
     if(col.trailer != '')
         cx <- cbind(cx, col.trailer, deparse.level = 0)
     ## right = TRUE : cheap attempt to get better "." alignment
@@ -457,7 +518,7 @@ printSpMatrix <- function(x, digits = getOption("digits"),
     invisible(x.orig)
 } ## printSpMatrix()
 
-printSpMatrix2 <- function(x, digits = getOption("digits"),
+printSpMatrix2 <- function(x, digits = NULL, # getOption("digits"),
                            maxp = getOption("max.print"), zero.print = ".",
                            col.names, note.dropping.colnames = TRUE,
                            suppRows = NULL, suppCols = NULL,
@@ -483,7 +544,7 @@ printSpMatrix2 <- function(x, digits = getOption("digits"),
     } else { ## d[1] > maxp / d[2] >= nr : -- this needs [,] working:
 	validObject(x)
 	nR <- d[1] ## nrow
-	useW <- getOption("width") - (format.info(nR)[1] + 3+1)
+	useW <- getOption("width") - (format.info(nR, digits=digits)[1] + 3+1)
 	##			     space for "[<last>,] "
 
 	## --> suppress rows and/or columns in printing ...
@@ -526,6 +587,8 @@ printSpMatrix2 <- function(x, digits = getOption("digits"),
 	invisible(x)
     }
 } ## printSpMatrix2 ()
+
+setMethod("format", signature(x = "sparseMatrix"), formatSpMatrix)
 
 setMethod("print", signature(x = "sparseMatrix"), printSpMatrix2)
 

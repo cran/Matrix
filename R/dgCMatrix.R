@@ -76,7 +76,7 @@ setMethod("lu", signature(x = "dgCMatrix"),
 		    errSing)
 	      })
 setMethod("lu", signature(x = "sparseMatrix"),
-	  function(x, ...)
+	  function(x, ...) # "FIXME": do in C, so can cache 'x@factors$LU'
 	  lu(as(as(as(x, "CsparseMatrix"), "dsparseMatrix"), "dgCMatrix"), ...))
 
 

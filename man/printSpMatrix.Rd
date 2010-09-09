@@ -1,23 +1,29 @@
 \name{printSpMatrix}
+\alias{formatSpMatrix}
 \alias{printSpMatrix}
 \alias{printSpMatrix2}
-\title{Print Sparse Matrices Flexibly}
+\title{Format and Print Sparse Matrices Flexibly}
 \description{
-  Print sparse matrices flexibly. These are the \dQuote{workhorses} used by
-  the \code{\link{show}} and \code{\link{print}} methods for sparse
-  matrices.  If \code{x} is large, \code{printSpMatrix2(x)} calls
-  \code{printSpMatrix()} twice, namely, for the first and the last few
-  rows, suppressing those in between, and also suppresses columns when
-  \code{x} is too wide.
+  Format and print sparse matrices flexibly. These are the \dQuote{workhorses} used by
+  the \code{\link{format}}, \code{\link{show}} and \code{\link{print}}
+  methods for sparse matrices.  If \code{x} is large,
+  \code{printSpMatrix2(x)} calls \code{printSpMatrix()} twice, namely,
+  for the first and the last few rows, suppressing those in between, and
+  also suppresses columns when \code{x} is too wide.
 }
 \usage{
-printSpMatrix(x, digits = getOption("digits"), maxp = getOption("max.print"),
+formatSpMatrix(x, digits = NULL, maxp = 1e9,
+               cld = getClassDef(class(x)), zero.print = ".",
+               col.names, note.dropping.colnames = TRUE,
+               align = c("fancy", "right"))
+
+printSpMatrix(x, digits = NULL, maxp = getOption("max.print"),
               cld = getClassDef(class(x)),
               zero.print = ".", col.names, note.dropping.colnames = TRUE,
               col.trailer = "",
               align = c("fancy", "right"))
 
-printSpMatrix2(x, digits = getOption("digits"), maxp = getOption("max.print"),
+printSpMatrix2(x, digits = NULL, maxp = getOption("max.print"),
               zero.print = ".", col.names, note.dropping.colnames = TRUE,
               suppRows = NULL, suppCols = NULL,
               col.trailer = if(suppCols) "......" else "",
@@ -26,7 +32,8 @@ printSpMatrix2(x, digits = getOption("digits"), maxp = getOption("max.print"),
 \arguments{
   \item{x}{an \R object inheriting from class \code{\linkS4class{sparseMatrix}}.}
   \item{digits}{significant digits to use for printing, see
-    \code{\link{print.default}}.}
+    \code{\link{print.default}}, the default, \code{\link{NULL}},
+    corresponds to using \code{\link{getOption}("digits")}.}
   \item{maxp}{integer, default from \code{\link{options}(max.print)},
     influences how many entries of large matrices are printed at all.}
   \item{cld}{the class definition of \code{x}; must be equivalent to

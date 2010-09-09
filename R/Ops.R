@@ -981,6 +981,9 @@ setMethod("Arith", signature(e1 = "dtCMatrix", e2 = "dtCMatrix"),
 	       e1@diag == "U" && !all(1 == callGeneric(1, e2)))
 		e1 <- .diagU2N(e1, cld)
 	    e1@x <- callGeneric(e1@x, e2)
+	    if(extends(cld, "compMatrix") && length(e1@factors))
+                ## TODO: be much smarter and try *updating* (some) 'factors':
+		e1@factors <- list()
 	    return(e1)
 	}
     }
@@ -999,6 +1002,9 @@ setMethod("Arith", signature(e1 = "dtCMatrix", e2 = "dtCMatrix"),
 	       e2@diag == "U" && !all(1 == callGeneric(e1, 1)))
 		e2 <- .diagU2N(e2, cld)
 	    e2@x <- callGeneric(e1, e2@x)
+	    if(extends(cld, "compMatrix") && length(e2@factors))
+                ## TODO: be much smarter and try *updating* (some) 'factors':
+		e2@factors <- list()
 	    return(e2)
 	}
     }
@@ -1024,6 +1030,8 @@ A.M.n <- function(e1, e2) {
 	    e2 <- e2[1L + in0 %% l2]
 	}
 	e1@x <- callGeneric(e1@x, e2)
+	if(length(e1@factors))# TODO: be much smarter and try *updating* (some) 'factors':
+	    e1@factors <- list()
 	e1
     }
     else { ## non-sparse, since '0 o e2' is not (all) 0
@@ -1060,6 +1068,8 @@ A.n.M <- function(e1, e2) {
 	    e1 <- e1[1L + in0 %% l1]
 	}
 	e2@x <- callGeneric(e1, e2@x)
+	if(length(e2@factors))# TODO: be much smarter and try *updating* (some) 'factors':
+	    e2@factors <- list()
 	e2
     }
     else { ## non-sparse, since '0 o e2' is not (all) 0

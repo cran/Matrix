@@ -55,11 +55,15 @@ Schur.dsy <- function(x, vectors, ...)
 setMethod("Schur", signature(x = "dsyMatrix", vectors = "ANY"), Schur.dsy)
 
 ## FIXME(?) these  coerce from sparse to *dense*
-setMethod("Schur", signature(x = "generalMatrix", vectors = "ANY"),
+setMethod("Schur", signature(x = "generalMatrix", vectors = "missing"),
+	  function(x, vectors, ...) callGeneric(as(x, "dgeMatrix")))
+setMethod("Schur", signature(x = "generalMatrix", vectors = "logical"),
 	  function(x, vectors, ...) callGeneric(as(x, "dgeMatrix"), vectors))
 
-setMethod("Schur", signature(x = "symmetricMatrix", vectors = "ANY"),
-	  function(x, vectors, ...) callGeneric(as(x, "dsyMatrix"), vectors))
+setMethod("Schur", signature(x = "symmetricMatrix", vectors = "missing"),
+	  function(x, vectors, ...) Schur.dsy(as(x, "dsyMatrix")))
+setMethod("Schur", signature(x = "symmetricMatrix", vectors = "logical"),
+	  function(x, vectors, ...) Schur.dsy(as(x, "dsyMatrix"), vectors))
 
 
 ## Schur(<diagonal>) : {Note that the Schur decomposition is not unique here}

@@ -1,4 +1,4 @@
-stopifnot(require(Matrix, save=FALSE)) # at least its classes
+stopifnot(require(Matrix)) # at least its classes
 
 USCounties <-
     local({

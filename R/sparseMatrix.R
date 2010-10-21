@@ -78,8 +78,10 @@ sparseMatrix <- function(i = ep, j = ep, p, x, dims, dimnames, index1 = TRUE)
 ##  -----               *not* required on purpose
 ## Note: 'undirected' graph <==> 'symmetric' matrix
 
+## Use 'graph::'  as it is not impoted into Matrix, and may only be loaded, not attached:
+
 ## Add some utils that may no longer be needed in future versions of the 'graph' package
-graph.has.weights <- function(g) "weight" %in% names(edgeDataDefaults(g))
+graph.has.weights <- function(g) "weight" %in% names(graph::edgeDataDefaults(g))
 
 graph.wgtMatrix <- function(g)
 {
@@ -90,14 +92,14 @@ graph.wgtMatrix <- function(g)
     ## Author: Martin Maechler, based on Seth Falcon's code;  Date: 12 May 2006
 
     ## MM: another buglet for the case of  "no edges":
-    if(numEdges(g) == 0) {
-      p <- length(nd <- nodes(g))
+    if(graph::numEdges(g) == 0) {
+      p <- length(nd <- graph::nodes(g))
       return( matrix(0, p,p, dimnames = list(nd, nd)) )
     }
+
     ## Usual case, when there are edges:
-    has.w <- "weight" %in% names(edgeDataDefaults(g))
-    if(has.w) {
-        w <- unlist(edgeData(g, attr = "weight"))
+    if(has.w <- graph.has.weights(g)) {
+        w <- unlist(graph::edgeData(g, attr = "weight"))
         has.w <- any(w != 1)
     } ## now 'has.w' is TRUE  iff  there are weights != 1
     m <- as(g, "matrix")
@@ -113,7 +115,7 @@ graph.wgtMatrix <- function(g)
 
 setAs("graphAM", "sparseMatrix",
       function(from) {
-	  symm <- edgemode(from) == "undirected" && isSymmetric(from@adjMat)
+	  symm <- graph::edgemode(from) == "undirected" && isSymmetric(from@adjMat)
 	  ## This is only ok if there are no weights...
 	  if(graph.has.weights(from)) {
 	      as(graph.wgtMatrix(from),
@@ -134,12 +136,12 @@ setAs("graphNEL", "CsparseMatrix",
 
 setAs("graphNEL", "TsparseMatrix",
       function(from) {
-          nd <- nodes(from)
+          nd <- graph::nodes(from)
           dm <- rep.int(length(nd), 2)
-	  symm <- edgemode(from) == "undirected"
+	  symm <- graph::edgemode(from) == "undirected"
 
  	  if(graph.has.weights(from)) {
-	      eWts <- edgeWeights(from)
+	      eWts <- graph::edgeWeights(from)
 	      lens <- unlist(lapply(eWts, length))
 	      i <- rep.int(0:(dm[1]-1), lens) # column indices (0-based)
 	      To <- unlist(lapply(eWts, names))
@@ -199,9 +201,7 @@ Tsp2grNEL <- function(from, need.uniq = is_not_uniqT(from)) {
     }
     ## every edge is there only once, either upper or lower triangle
     ft1 <- cbind(rn[from@i + 1L], rn[from@j + 1L])
-    ## not yet: graph::ftM2graphNEL(.........)
-    ftM2graphNEL(ft1, W = from@x, V= rn, edgemode= eMode)
-
+    graph::ftM2graphNEL(ft1, W = from@x, V= rn, edgemode= eMode)
 }
 setAs("TsparseMatrix", "graphNEL", function(from) Tsp2grNEL(from))
 

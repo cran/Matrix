@@ -1,3 +1,11 @@
+2010-10-08  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.999375-45, CRAN-released: 2010-11-10
+
+	* R/sparseMatrix.R (graph.wgtMatrix): add 'graph::' in a few
+	places; as 'graph' package is not imported and may well be loaded
+	only.
+
 2010-09-09  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/sparseMatrix.R (setAs): graph |-> Matrix: via CsparseMatrix
@@ -22,7 +30,7 @@
 
 2010-08-09  Martin Maechler  <maechler@stat.math.ethz.ch>
 
-	* DESCRIPTION (Version): 0.999375-44, CRAN-released: ...
+	* DESCRIPTION (Version): 0.999375-44, CRAN-released: 2010-09-11
 
 	* R/diagMatrix.R (diagCspprod, Cspdiagprod): drop (possibly wrong) @factors
 	* R/Ops.R (.Arith.CM.atom, .Arith.atom.CM, A.M.n, A.n.M): ditto

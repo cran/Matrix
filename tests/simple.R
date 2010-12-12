@@ -59,6 +59,16 @@ I1[1,1] <- i1[1, ] <- I [ ,1] <- NA
 stopifnot(identical3(I,i1,I1))
 image(d4) # gave infinite recursion
 
+assertError( Matrix(factor(letters)) )
+mlp <- matrix(.leap.seconds)## 24 x 1 numeric matrix
+Mlp <- Matrix(.leap.seconds)
+assert.EQ.mat(Mlp, mlp)
+if(FALSE) { ## TODO -- once R itself does better ...
+    .Leap.seconds <- as.POSIXlt(.leap.seconds)
+    mLp <- matrix(.Leap.seconds)##  24 x 1  list each of length 24 -- yuck!!!
+    MLp <- Matrix(.Leap.seconds)## --> error (for now)
+}
+
 I <- Diagonal(3); I[,1] <- NA; I[2,2] <- NA ; I[3,] <- NaN
 stopifnot(isValid(I, "sparseMatrix"))
 I # gave error in printSpMatrix() - because of R bug in format.info()
@@ -650,6 +660,16 @@ nt <- triu(nn)
 n3 <- as(nt, "lsparseMatrix")
 da <- nt + t(nt)
 dm <- nt * t(nt) + da
+##
+mnt <- as(nt, "matrix")
+m <- rbind(v <- 2:3)
+assert.EQ.mat(nt %*% v, mnt %*% v)
+assert.EQ.mat(v %*% nt, v %*% mnt)
+assert.EQ.mat( crossprod(nt, v),  crossprod(mnt,v))
+assert.EQ.mat( crossprod(v, nt),  crossprod(v,mnt))
+assert.EQ.mat(tcrossprod(v, nt), tcrossprod(v,mnt))
+assert.EQ.mat(tcrossprod(nt, m), tcrossprod(mnt, m))
+##
 stopifnot(isValid(ms, "dsTMatrix"),
           as(ms0,"matrix") == as(ll, "matrix"), # coercing num |-> log
 	  as(lt, "matrix") == as(ll, "matrix"),

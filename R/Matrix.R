@@ -182,14 +182,14 @@ Matrix <- function (data = NA, nrow = 1, ncol = 1, byrow = FALSE,
 	}
     }
     else if (!is.matrix(data)) { ## cut & paste from "base::matrix" :
-	if (missing(nrow))
-	    nrow <- ceiling(length(data)/ncol)
-	else if (missing(ncol))
-	    ncol <- ceiling(length(data)/nrow)
+	## avoid copying to strip attributes in simple cases
+	if (is.object(data) || !is.atomic(data)) data <- as.vector(data)
 	if(length(data) == 1 && is0(data) && !identical(sparse, FALSE)) {
 	    ## Matrix(0, ...) : always sparse unless "sparse = FALSE":
 	    if(is.null(sparse)) sparse1 <- sparse <- TRUE
 	    i.M <- sM <- TRUE
+	    if (missing(nrow)) nrow <- ceiling(1/ncol) else
+	    if (missing(ncol)) ncol <- ceiling(1/nrow)
             isSym <- nrow == ncol
 	    ## will be sparse: do NOT construct full matrix!
 	    data <- new(paste(if(is.numeric(data)) "d" else
@@ -201,7 +201,14 @@ Matrix <- function (data = NA, nrow = 1, ncol = 1, byrow = FALSE,
 			Dimnames = if(is.null(dimnames)) list(NULL,NULL)
 			else dimnames)
 	} else { ## normal case - using .Internal() to avoid more copying
-            data <- .Internal(matrix(data, nrow, ncol, byrow, dimnames))
+	    if(getRversion() >= "2.13")
+		data <- .Internal(matrix(data, nrow, ncol, byrow, dimnames,
+					 missing(nrow), missing(ncol)))
+	    else {
+		if (missing(nrow)) nrow <- ceiling(length(data)/ncol) else
+		if (missing(ncol)) ncol <- ceiling(length(data)/nrow)
+		data <- .Internal(matrix(data, nrow, ncol, byrow, dimnames))
+	    }
 	    if(is.null(sparse))
 		sparse <- sparseDefault(data)
 	}

@@ -1439,7 +1439,7 @@ cholmod_sparse *cholmod_l_copy_sparse (cholmod_sparse *, cholmod_common *) ;
 /* cholmod_copy:  C = A, with possible change of stype */
 /* -------------------------------------------------------------------------- */
 
-cholmod_sparse *cholmod_copy 
+cholmod_sparse *cholmod_copy
 (
     /* ---- input ---- */
     cholmod_sparse *A,	/* matrix to copy */
@@ -1686,7 +1686,7 @@ int cholmod_l_change_factor ( int, int, int, int, int, cholmod_factor *,
 /* cholmod_pack_factor:  pack the columns of a factor */
 /* -------------------------------------------------------------------------- */
 
-/* Pack the columns of a simplicial factor.  Unlike cholmod_change_factor,
+/* Pack the columns of a simplicial factor.  Unlike change_factor,
  * it can pack the columns of a factor even if they are not stored in their
  * natural order (non-monotonic). */
 

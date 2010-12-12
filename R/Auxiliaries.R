@@ -27,10 +27,6 @@ as0 <- function(x, mod=mode(x))
 ## maybe we should have this in base, maybe via an .Internal(paste0(.)) -> do_paste(.. op=2)
 paste0 <- function(...) paste(..., sep = '')
 
-## For %*% (M = Matrix; v = vector (double or integer {complex maybe?}):
-.M.v <- function(x, y) { dim(y) <- c(length(y), 1L); callGeneric(x, y) }
-.v.M <- function(x, y) { dim(x) <- c(1L, length(x)); callGeneric(x, y) }
-
 .M.DN <- function(x) if(!is.null(dn <- dimnames(x))) dn else list(NULL,NULL)
 
 .if.NULL <- function(x, orElse) if(!is.null(x)) x else orElse
@@ -122,8 +118,7 @@ attr.all_Mat <- function(target, current,
 		  check.attributes = TRUE, ...)
     if((c1 <- class(target)) != (c2 <- class(current)))
 	## list(): so we can easily check for this
-	list(c(msg, paste0("class(target) is ", class(target), ", current is ",
-			   class(current))))
+	list(c(msg, paste0("class(target) is ", c1, ", current is ", c2)))
     else msg
 }
 

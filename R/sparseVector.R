@@ -137,7 +137,7 @@ setAs("TsparseMatrix", "sparseVector",
 	  d <- dim(from)
 	  n <- prod(d) # -> numeric, no integer overflow
           cld <- getClassDef(class(from))
-	  kind <- .M.kind(from, cl = cld)
+	  kind <- .M.kind(from, cld)
 	  if(extends(cld, "symmetricMatrix"))
 	      from <- as(from, "generalMatrix")
 	  else if(extends(cld, "triangularMatrix") && from@diag == "U")
@@ -267,7 +267,7 @@ setMethod("show", signature(object = "sparseVector"),
 prSpVector <- function(x, digits = getOption("digits"),
 		    maxp = getOption("max.print"), zero.print = ".")
 {
-    cld <- getClassDef(cl <- class(x))
+    cld <- getClassDef(class(x))
     stopifnot(extends(cld, "sparseVector"), maxp >= 1)
     if(is.logical(zero.print))
 	zero.print <- if(zero.print) "0" else " "

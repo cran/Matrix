@@ -313,7 +313,7 @@ setMethod("[", signature(x = "abIndex", i = "index"),
 ends.rleD <- function(x)
 {
     rl <- x@rle
-    stopifnot(length(lens <- rl$lengths) == (m <- length(vals <- rl$values)))
+    stopifnot(length(lens <- rl$lengths) == length(vals <- rl$values))
     cumsum(c(x@first, lens*vals))
 }
 
@@ -335,7 +335,7 @@ rleCollapse <- function(x)
         L <- L[!i0] ; V <- V[!i0]
     }
     ## FIXME: This is not elegant nor efficient:
-    while(any(i0 <- (dv <- diff(V)) == 0)) { ## merge adjacent parts with same values
+    while(any(i0 <- diff(V) == 0)) { ## merge adjacent parts with same values
         if(!chng) chng <- TRUE
         ## fix one stretch (and repeat), starting at  ii0  and total length  1+ li0
         ii0 <- which.max(i0)# index of first TRUE
@@ -606,7 +606,7 @@ all.equal.abI <- function(target, current, ...)
     lc <- length(current)
     if(lt != lc)
 	paste("abIndex", ": lengths (", lt, ", ", lc, ") differ", sep = "")
-    else if(target@kind == (knd <- current@kind)) {
+    else if(target@kind == current@kind) {
 	all.equal.default(target, current, ...)
     } else ## different 'kinds' -- take "easy" exit:
 	all.equal(abI2num(target), abI2num(current), ...)

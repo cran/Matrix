@@ -328,7 +328,7 @@ model.spmatrix <- function(trms, mf, transpose=FALSE,
 
     hasInt <- attr(trms, "intercept") == 1
     ## the degree of interaction:
-    intOrder <- attr(trms, "order")
+    ## intOrder <- attr(trms, "order")
     ##
     if(!hasInt && length(indF)) {
         ## change the '1' of the first factor into a '2' :

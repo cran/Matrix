@@ -1,3 +1,20 @@
+2010-12-12  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/eigen.R,...: use full argument names;
+	* R/*.R: get rid of more from
+		checkUsagePackage("Matrix", suppressPartialMatchArgs = FALSE)
+
+2010-12-11  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/products.R: dimension fixing in some Matrix o vector  [t]crossprod()s.
+
+	* src/Csparse.c (nz2Csparse, nz_pattern_to_Csparse): new utilities,
+	callable from C and R.
+	(Csparse_dense_prod): check pattern matrix and coerce to "d..".
+	* tests/Simple.R: testing  <n.Matrix> %*% <dense>
+
+	* R/ngCMatrix.R, R/nsCMatrix.R, .. : use the new fast coercions.
+
 2010-10-08  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* DESCRIPTION (Version): 0.999375-45, CRAN-released: 2010-11-10

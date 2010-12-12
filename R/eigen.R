@@ -20,7 +20,7 @@ setMethod("eigen", signature(x = "dgeMatrix", only.values = "logical"),
     new("Schur", Dim = x@Dim,
 	Q = as(cl$Z, "dgeMatrix"),
 	T = as(cl$T, if(realEV)"dtrMatrix" else "dgeMatrix"),
-	EValues = if(realEV) cl$WR else complex(re = cl$WR, im = cl$WI))
+	EValues = if(realEV) cl$WR else complex(real = cl$WR, imaginary = cl$WI))
 }
 setMethod("Schur", signature(x = "dgeMatrix", vectors = "missing"),
 	  .dgeSchur)
@@ -33,7 +33,7 @@ setMethod("Schur", signature(x = "dgeMatrix", vectors = "logical"),
 		  realEV <- all(cl$WI == 0)
 		  list(T = as(cl$T, if(realEV) "dtrMatrix" else "dgeMatrix"),
 		       EValues =
-		       if(realEV) cl$WR else complex(re = cl$WR, im = cl$WI))
+                       if(realEV) cl$WR else complex(real = cl$WR, imaginary = cl$WI))
 	      }})
 
 Schur.dsy <- function(x, vectors, ...)

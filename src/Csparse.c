@@ -161,6 +161,7 @@ SEXP Csparse_to_dense(SEXP x)
     return chm_dense_to_SEXP(chxd, 1, Rkind, GET_SLOT(x, Matrix_DimNamesSym));
 }
 
+// FIXME: do not go via CHM (should not be too hard, to just *drop* the x-slot, right?
 SEXP Csparse_to_nz_pattern(SEXP x, SEXP tri)
 {
     CHM_SP chxs = AS_CHM_SP__(x);
@@ -172,6 +173,59 @@ SEXP Csparse_to_nz_pattern(SEXP x, SEXP tri)
 			      tr ? ((*uplo_P(x) == 'U') ? 1 : -1) : 0,
 			      0, tr ? diag_P(x) : "",
 			      GET_SLOT(x, Matrix_DimNamesSym));
+}
+
+// n.CMatrix --> [dli].CMatrix  (not going through CHM!)
+SEXP nz_pattern_to_Csparse(SEXP x, SEXP res_kind)
+{
+    return nz2Csparse(x, asInteger(res_kind));
+}
+// n.CMatrix --> [dli].CMatrix  (not going through CHM!)
+SEXP nz2Csparse(SEXP x, enum x_slot_kind r_kind)
+{
+    const char *cl_x = class_P(x);
+    if(cl_x[0] != 'n') error(_("not a 'n.CMatrix'"));
+    if(cl_x[2] != 'C') error(_("not a CsparseMatrix"));
+    int nnz = LENGTH(GET_SLOT(x, Matrix_iSym));
+    SEXP ans;
+    char *ncl = strdup(cl_x);
+    double *dx_x; int *ix_x;
+    ncl[0] = (r_kind == x_double ? 'd' :
+	      (r_kind == x_logical ? 'l' :
+	       /* else (for now):  r_kind == x_integer : */ 'i'));
+    PROTECT(ans = NEW_OBJECT(MAKE_CLASS(ncl)));
+    // create a correct 'x' slot:
+    switch(r_kind) {
+	int i;
+    case x_double: // 'd'
+	dx_x = REAL(ALLOC_SLOT(ans, Matrix_xSym, REALSXP, nnz));
+	for (i=0; i < nnz; i++) dx_x[i] = 1.;
+	break;
+    case x_logical: // 'l'
+	ix_x = LOGICAL(ALLOC_SLOT(ans, Matrix_xSym, LGLSXP, nnz));
+	for (i=0; i < nnz; i++) ix_x[i] = TRUE;
+	break;
+    case x_integer: // 'i'
+	ix_x = INTEGER(ALLOC_SLOT(ans, Matrix_xSym, INTSXP, nnz));
+	for (i=0; i < nnz; i++) ix_x[i] = 1;
+	break;
+
+    default:
+	error(_("nz2Csparse(): invalid/non-implemented r_kind = %d"),
+	      r_kind);
+    }
+
+    // now copy all other slots :
+    slot_dup(ans, x, Matrix_iSym);
+    slot_dup(ans, x, Matrix_pSym);
+    slot_dup(ans, x, Matrix_DimSym);
+    slot_dup(ans, x, Matrix_DimNamesSym);
+    if(ncl[1] != 'g') { // symmetric or triangular ...
+	slot_dup_if_has(ans, x, Matrix_uploSym);
+	slot_dup_if_has(ans, x, Matrix_diagSym);
+    }
+    UNPROTECT(1);
+    return ans;
 }
 
 SEXP Csparse_to_matrix(SEXP x)
@@ -331,14 +385,25 @@ SEXP Csparse_dense_prod(SEXP a, SEXP b)
 					chb->xtype, &c);
     SEXP dn = PROTECT(allocVector(VECSXP, 2));
     double one[] = {1,0}, zero[] = {0,0};
+    int nprot = 2;
     R_CheckStack();
+    /* Tim Davis, please FIXME:  currently (2010-11) *fails* when  a  is a pattern matrix:*/
+    if(cha->xtype == CHOLMOD_PATTERN) {
+	/* warning(_("Csparse_dense_prod(): cholmod_sdmult() not yet implemented for pattern./ ngCMatrix" */
+	/* 	  " --> slightly inefficient coercion")); */
 
+	// This *fails* to produce a CHOLMOD_REAL ..
+	// CHM_SP chd = cholmod_l_copy(cha, cha->stype, CHOLMOD_REAL, &c);
+	// --> use our Matrix-classes
+	SEXP da = PROTECT(nz2Csparse(a, x_double)); nprot++;
+	cha = AS_CHM_SP(da);
+    }
     cholmod_l_sdmult(cha, 0, one, zero, chb, chc, &c);
     SET_VECTOR_ELT(dn, 0,	/* establish dimnames */
 		   duplicate(VECTOR_ELT(GET_SLOT(a, Matrix_DimNamesSym), 0)));
     SET_VECTOR_ELT(dn, 1,
 		   duplicate(VECTOR_ELT(GET_SLOT(b_M, Matrix_DimNamesSym), 1)));
-    UNPROTECT(2);
+    UNPROTECT(nprot);
     return chm_dense_to_SEXP(chc, 1, 0, dn);
 }
 
@@ -349,16 +414,20 @@ SEXP Csparse_dense_crossprod(SEXP a, SEXP b)
     CHM_DN chb = AS_CHM_DN(b_M);
     CHM_DN chc = cholmod_l_allocate_dense(cha->ncol, chb->ncol, cha->ncol,
 					chb->xtype, &c);
-    SEXP dn = PROTECT(allocVector(VECSXP, 2));
+    SEXP dn = PROTECT(allocVector(VECSXP, 2)); int nprot = 2;
     double one[] = {1,0}, zero[] = {0,0};
     R_CheckStack();
-
+    // -- see Csparse_dense_prod() above :
+    if(cha->xtype == CHOLMOD_PATTERN) {
+	SEXP da = PROTECT(nz2Csparse(a, x_double)); nprot++;
+	cha = AS_CHM_SP(da);
+    }
     cholmod_l_sdmult(cha, 1, one, zero, chb, chc, &c);
     SET_VECTOR_ELT(dn, 0,	/* establish dimnames */
 		   duplicate(VECTOR_ELT(GET_SLOT(a, Matrix_DimNamesSym), 1)));
     SET_VECTOR_ELT(dn, 1,
 		   duplicate(VECTOR_ELT(GET_SLOT(b_M, Matrix_DimNamesSym), 1)));
-    UNPROTECT(2);
+    UNPROTECT(nprot);
     return chm_dense_to_SEXP(chc, 1, 0, dn);
 }
 

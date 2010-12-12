@@ -79,6 +79,7 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(compressed_to_TMatrix, 2),
     CALLDEF(compressed_non_0_ij, 2),
     CALLDEF(dense_to_Csparse, 1),
+    CALLDEF(nz_pattern_to_Csparse, 2),
     CALLDEF(dense_nonpacked_validate, 1),
     CALLDEF(dense_band, 3),
     CALLDEF(dense_to_symmetric, 3),

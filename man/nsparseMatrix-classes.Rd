@@ -2,6 +2,7 @@
 \title{Sparse "pattern" Matrices}
 \docType{class}
 \alias{nsparseMatrix-class}
+%not yet \alias{nCsparseMatrix-class}
 \alias{ngCMatrix-class}
 \alias{ntCMatrix-class}
 \alias{nsCMatrix-class}

@@ -3,6 +3,10 @@
 ###  Exceptions: ./diagMatrix.R
 ###		 ./pMatrix.R
 
+## For %*% (M = Matrix; v = vector (double or integer {complex maybe?}):
+.M.v <- function(x, y) { dim(y) <- c(length(y), 1L); callGeneric(x, y) }
+.v.M <- function(x, y) { dim(x) <- c(1L, length(x)); callGeneric(x, y) }
+
 ###-- I --- %*% ------------------------------------------------------
 
 ## General method for dense matrix multiplication in case specific methods
@@ -48,7 +52,7 @@ setMethod("%*%", signature(x = "dspMatrix", y = "matrix"),
 
 ## Not needed because of c("numeric", "Matrix") method
 ##setMethod("%*%", signature(x = "numeric", y = "CsparseMatrix"),
-##	    function(x, y) t(.Call(Csparse_dense_crossprod, y, x)),
+##	    function(x, y) t(.Call(Csparse_dense_crossprod, y, t(x))),
 ##	    valueClass = "dgeMatrix")
 
 ## FIXME -- do the "same" for "dtpMatrix" {also, with [t]crossprod()}
@@ -91,7 +95,7 @@ setMethod("%*%", signature(x = "dgeMatrix", y = "dtpMatrix"),
 setMethod("%*%", signature(x = "dtpMatrix", y = "matrix"),
           function(x, y) .Call(dtpMatrix_matrix_mm, x, y))
 setMethod("%*%", signature(x = "matrix", y = "dtpMatrix"),
-          function(x, y) callGeneric(as(x, "dgeMatrix"), y))
+          function(x, y) as(x, "dgeMatrix") %*% y)
 
 ## dtpMatrix <-> numeric : the auxiliary functions are R version specific!
 ##setMethod("%*%", signature(x = "dtpMatrix", y = "numeric"), .M.v)
@@ -181,9 +185,9 @@ setMethod("%*%", signature(x = "Matrix", y = "numeric"), .M.v)
 setMethod("%*%", signature(x = "numeric", y = "Matrix"), .v.M)
 
 setMethod("%*%", signature(x = "Matrix", y = "matrix"),
-	  function(x, y) callGeneric(x, Matrix(y)))
+	  function(x, y) x %*% Matrix(y))
 setMethod("%*%", signature(x = "matrix", y = "Matrix"),
-	  function(x, y) callGeneric(Matrix(x), y))
+	  function(x, y) Matrix(x) %*% y)
 
 ## bail-out methods in order to get better error messages
 .local.bail.out <- function (x, y)
@@ -226,7 +230,7 @@ setMethod("crossprod", signature(x = "ddenseMatrix", y = "missing"),
 	  function(x, y = NULL) crossprod(as(x, "dgeMatrix")))
 
 setMethod("crossprod", signature(x = "dtrMatrix", y = "missing"),
-	  function(x, y = NULL) callGeneric(x = as(x, "dgeMatrix")),
+	  function(x, y = NULL) crossprod(as(x, "dgeMatrix")),
 	  valueClass = "dpoMatrix")
 
 ## "dtrMatrix" - remaining (uni)triangular if possible
@@ -319,7 +323,6 @@ setMethod("crossprod", signature(x = "ddenseMatrix", y = "dsparseMatrix"),
 setMethod("crossprod", signature(x = "dgCMatrix", y = "dgeMatrix"),
 	  function(x, y = NULL) .Call(Csparse_dense_crossprod, x, y))
 setMethod("crossprod", signature(x = "dsparseMatrix", y = "dgeMatrix"),
-## NB: using   callGeneric(.) here, leads to infinite recursion :
 	  function(x, y = NULL)
 	  .Call(Csparse_dense_crossprod, as(x, "CsparseMatrix"), y))
 
@@ -362,18 +365,19 @@ setMethod("crossprod", signature(x = "matrix", y = "CsparseMatrix"),
 	  valueClass = "dgeMatrix")
 
 ## "Matrix"
+cross.v.M <- function(x, y) { dim(x) <- c(length(x), 1L); crossprod(x, y) }
 setMethod("crossprod", signature(x = "Matrix", y = "numeric"), .M.v)
 
-setMethod("crossprod", signature(x = "numeric", y = "Matrix"), .v.M)
+setMethod("crossprod", signature(x = "numeric", y = "Matrix"), cross.v.M)
 
 setMethod("crossprod", signature(x = "Matrix", y = "matrix"),
-	  function(x, y = NULL) callGeneric(x, Matrix(y)))
+	  function(x, y = NULL) crossprod(x, Matrix(y)))
 setMethod("crossprod", signature(x = "matrix", y = "Matrix"),
-	  function(x, y = NULL) callGeneric(Matrix(x), y))
+	  function(x, y = NULL) crossprod(Matrix(x), y))
 
 ## sparseVector
 setMethod("crossprod", signature(x = "Matrix", y = "sparseVector"), .M.v)
-setMethod("crossprod", signature(x = "sparseVector", y = "Matrix"), .v.M)
+setMethod("crossprod", signature(x = "sparseVector", y = "Matrix"), cross.v.M)
 
 ## cheap fallbacks
 setMethod("crossprod", signature(x = "Matrix", y = "Matrix"),
@@ -480,15 +484,17 @@ setMethod("tcrossprod", signature(x = "TsparseMatrix", y = "TsparseMatrix"),
 
 
 ## "Matrix"
-setMethod("tcrossprod", signature(x = "Matrix", y = "numeric"), .M.v)
+tcr.M.v <- function(x, y) { dim(y) <- c(1L, length(y)); tcrossprod(x, y) }
+
+setMethod("tcrossprod", signature(x = "Matrix", y = "numeric"), tcr.M.v)
 setMethod("tcrossprod", signature(x = "numeric", y = "Matrix"), .v.M)
 setMethod("tcrossprod", signature(x = "Matrix", y = "matrix"),
-	  function(x, y = NULL) callGeneric(x, Matrix(y)))
+	  function(x, y = NULL) tcrossprod(x, Matrix(y)))
 setMethod("tcrossprod", signature(x = "matrix", y = "Matrix"),
-	  function(x, y = NULL) callGeneric(Matrix(x), y))
+	  function(x, y = NULL) tcrossprod(Matrix(x), y))
 
 ## sparseVector
-setMethod("tcrossprod", signature(x = "Matrix", y = "sparseVector"), .M.v)
+setMethod("tcrossprod", signature(x = "Matrix", y = "sparseVector"), tcr.M.v)
 setMethod("tcrossprod", signature(x = "sparseVector", y = "Matrix"), .v.M)
 
 ## cheap fallbacks

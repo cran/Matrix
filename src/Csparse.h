@@ -23,6 +23,8 @@ SEXP Csparse_MatrixMarket(SEXP x, SEXP fname);
 SEXP Csparse_to_Tsparse(SEXP x, SEXP tri);
 SEXP Csparse_to_dense(SEXP x);
 SEXP Csparse_to_nz_pattern(SEXP x, SEXP tri);
+SEXP nz_pattern_to_Csparse(SEXP x, SEXP res_kind);
+SEXP nz2Csparse           (SEXP x, enum x_slot_kind r_kind);
 SEXP Csparse_to_matrix(SEXP x);
 SEXP Csparse_transpose(SEXP x, SEXP tri);
 SEXP Csparse_validate (SEXP x);

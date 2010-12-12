@@ -380,7 +380,7 @@ formatSparseM <- function(x, zero.print = ".", align = c("fancy", "right"),
     }
     if(missing(iN0))
 	iN0 <- 1L + .Call(m_encodeInd, non0ind(x, cld), di = d, FALSE)
-    ne <- length(iN0)
+    ## ne <- length(iN0)
 
     if(asLogical) {
         cx[m] <- "|"
@@ -447,7 +447,7 @@ formatSpMatrix <- function(x, digits = NULL, # getOption("digits"),
     stopifnot(extends(cld, "sparseMatrix"))
     validObject(x) # have seen seg.faults for invalid objects
     d <- dim(x)
-    if(is.Udiag <- (extends(cld, "triangularMatrix") && x@diag == "U")) {
+    if(extends(cld, "triangularMatrix") && x@diag == "U") {
 	if(extends(cld, "CsparseMatrix"))
 	    x <- .Call(Csparse_diagU2N, x)
 	else if(extends(cld, "TsparseMatrix"))

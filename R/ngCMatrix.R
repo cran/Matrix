@@ -2,23 +2,26 @@
 
 ### contains = "nsparseMatrix"
 
-.ngC2d <- function(from)
-    new("dgCMatrix", i = from@i, p = from@p, x = rep.int(1, length(from@i)),
-	Dim = from@Dim, Dimnames = from@Dimnames)
+nC2d <- function(from) .Call(nz_pattern_to_Csparse, from, 0L)## 0 --> "double"
+nC2l <- function(from) .Call(nz_pattern_to_Csparse, from, 1L)## 1 --> "logical"
 
-.ngC2l <- function(from)
-    new("lgCMatrix", i = from@i, p = from@p, x = rep.int(TRUE, length(from@i)),
-	Dim = from@Dim, Dimnames = from@Dimnames)
+if(FALSE) { ## nice idea, but needs more method re-definitions ---
+setAs("nCsparseMatrix", "dMatrix", nC2d)
+setAs("nCsparseMatrix", "dsparseMatrix", nC2d)
+setAs("nCsparseMatrix", "dgCMatrix", nC2d)
 
-setAs("ngCMatrix", "dMatrix", .ngC2d)# < instead of "dgCMatrix"
-setAs("ngCMatrix", "dsparseMatrix", .ngC2d)
-setAs("ngCMatrix", "dgCMatrix", .ngC2d)
+setAs("nCsparseMatrix", "lMatrix", nC2l)
+setAs("nCsparseMatrix", "lsparseMatrix", nC2l)
+setAs("nCsparseMatrix", "lgCMatrix", nC2l)
+} else {
+setAs("ngCMatrix", "dMatrix", nC2d)
+setAs("ngCMatrix", "dsparseMatrix", nC2d)
+setAs("ngCMatrix", "dgCMatrix", nC2d)
 
-setAs("ngCMatrix", "lMatrix", .ngC2l)
-setAs("ngCMatrix", "lsparseMatrix", .ngC2l)
-setAs("ngCMatrix", "lgCMatrix", .ngC2l)
-
-rm(.ngC2d,.ngC2l) # don't even keep "hidden"
+setAs("ngCMatrix", "lMatrix", nC2l)
+setAs("ngCMatrix", "lsparseMatrix", nC2l)
+setAs("ngCMatrix", "lgCMatrix", nC2l)
+}
 
 if(FALSE) ## rather use ("Csparse*, to= "Tsparse*"):
 setAs("ngCMatrix", "ngTMatrix",

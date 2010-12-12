@@ -10,12 +10,11 @@
 ## setAs("dgCMatrix", "dgeMatrix", ....
 ## setAs("dgeMatrix", "dgCMatrix", ....
 
-## rather use Csparse* to lsparse* in ./lsparseMatrix.R ,
-## but this is for "back-compatibility" (have had tests for it..):
-
 setAs("dgCMatrix", "ngCMatrix",
       function(from) .Call(Csparse_to_nz_pattern, from, FALSE))
 
+## rather use Csparse* to lsparse* in ./lsparseMatrix.R ,
+## but this is for "back-compatibility" (have had tests for it..):
 setAs("dgCMatrix", "lgCMatrix",
       function(from) { ## FIXME use .Call() too!
 	  r <- new("lgCMatrix")

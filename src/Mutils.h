@@ -120,6 +120,10 @@ extern	 /* stored pointers to symbols initialized in R_init_Matrix */
     if(GET_SLOT(src, sym) != R_NilValue)			\
 	SET_SLOT(dest, sym, duplicate(GET_SLOT(src, sym)))
 
+#define slot_dup_if_has(dest, src, sym)				\
+    if(R_has_slot(src, sym))					\
+	SET_SLOT(dest, sym, duplicate(GET_SLOT(src, sym)))
+
 /* TODO: Make this faster for the case where dimnames = list(NULL,NULL)
  *       and hence don't have to be set ! */
 #define SET_DimNames(dest, src) slot_dup(dest, src, Matrix_DimNamesSym)
@@ -129,12 +133,15 @@ extern	 /* stored pointers to symbols initialized in R_init_Matrix */
 #define diag_P(_x_) CHAR(STRING_ELT(GET_SLOT(_x_, Matrix_diagSym), 0))
 #define class_P(_x_) CHAR(asChar(getAttrib(_x_, R_ClassSymbol)))
 
+// Define this "Cholmod compatible" to some degree
+enum x_slot_kind {x_pattern=-1, x_double=0, x_logical=1, x_integer=2, x_complex=3};
+
 /* should also work for "matrix" matrices: */
 #define Real_KIND(_x_)	(IS_S4_OBJECT(_x_) ? Real_kind(_x_) : \
-			 (isReal(_x_) ? 0 : (isLogical(_x_) ? 1 : -1)))
+			 (isReal(_x_) ? x_double : (isLogical(_x_) ? x_logical : -1)))
 /* This one gives '0' also for integer "matrix" :*/
 #define Real_KIND2(_x_)	(IS_S4_OBJECT(_x_) ? Real_kind(_x_) : \
-			 (isLogical(_x_) ? 1 : 0))
+			 (isLogical(_x_) ? x_logical : 0))
 
 /* requires 'x' slot: */
 #define Real_kind(_x_)	(isReal(GET_SLOT(_x_, Matrix_xSym)) ? 0	:	\

@@ -150,6 +150,16 @@ setClass("isparseMatrix", representation("VIRTUAL"),
 setClass("nsparseMatrix", representation("VIRTUAL"),
 	 contains = c("nMatrix", "sparseMatrix"))
 
+if(FALSE) { ##-- a nice idea --- but needs more careful method re-definitions
+            ##-- such that the *correct* methods are dispatched:
+## Trying to use more economical method defs:
+setClass("dCsparseMatrix", representation("VIRTUAL"),
+	 contains = c("CsparseMatrix", "dsparseMatrix"))
+setClass("lCsparseMatrix", representation("VIRTUAL"),
+	 contains = c("CsparseMatrix", "lsparseMatrix"))
+setClass("nCsparseMatrix", representation("VIRTUAL"),
+	 contains = c("CsparseMatrix", "nsparseMatrix"))
+}
 
 ## ------------------ Proper (non-virtual) Classes ----------------------------
 
@@ -431,7 +441,12 @@ setClass("nsTMatrix",
          ## validity: Tsparse_ and symmetric*_validate should be enough
 	 )
 
-## nonzero pattern, sparse, sorted compressed column-oriented general matrices
+## nonzero pattern, sparse, sorted compressed column-oriented matrices
+setClass("ngCMatrix",
+	 contains = c("CsparseMatrix", "nsparseMatrix", "generalMatrix"),
+         ## validity: Csparse_validate should be enough
+	 )
+
 setClass("ngCMatrix",
 	 contains = c("CsparseMatrix", "nsparseMatrix", "generalMatrix"),
          ## validity: Csparse_validate should be enough
@@ -771,7 +786,7 @@ setClass("sparseVector",
              else TRUE
          })
 .validXspVec <- function(object) {
-    n <- object@length
+    ## n <- object@length
     if(length(object@i) != length(object@x))
         "'i' and 'x' differ in length"
     else TRUE

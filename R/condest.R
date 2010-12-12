@@ -204,7 +204,7 @@ onenormest <- function(A, t = min(n, 5),
 
     ## Track if a vertex has been visited.
     been_there <- logical(n)            # zeros (n, 1);
-    I.t <- diag(nr = t)
+    I.t <- diag(nrow = t)
 
     ## To check if the estimate has increased.
     est_old <- 0
@@ -275,7 +275,7 @@ onenormest <- function(A, t = min(n, 5),
         h <- pmax.int(2, as(abs(Z),"matrix")); dim(h) <- dim(Z) ## --  n x t
         ## [mh, mhi] = max (h) : for each column h[,j]:
         ##             mh[j] = max(h[,j]); mhi = argmax(..)
-        mhi <- apply(h, 2, which.max) ; mh <- h[cbind(mhi,1:t)]
+        mhi <- apply(h, 2, which.max) ## mh <- h[cbind(mhi,1:t)]
 
         if (iter >= 2 && all(mhi == imax)) {
             ## (mhi == imax) : in octave this is only true when it's for all()

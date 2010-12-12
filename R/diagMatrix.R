@@ -515,7 +515,7 @@ setMethod("norm", signature(x = "diagonalMatrix", type = "character"),
 ##       ---------------------
 ## Note that "ldi" logical are treated as numeric
 diagdiagprod <- function(x, y) {
-    n <- dimCheck(x,y)[1]
+    dimCheck(x,y)
     if(x@diag != "U") {
 	if(y@diag != "U") {
 	    nx <- x@x * y@x
@@ -547,7 +547,6 @@ diagmatprod <- function(x, y) {
     dx <- dim(x)
     dy <- dim(y)
     if(dx[2] != dy[1]) stop("non-matching dimensions")
-    n <- dx[1]
     as(if(x@diag == "U") y else x@x * y, "Matrix")
 }
 setMethod("%*%", signature(x = "diagonalMatrix", y = "matrix"),
@@ -698,7 +697,7 @@ setMethod("solve", signature(a = "diagonalMatrix", b = "missing"),
 	  })
 
 solveDiag <- function(a, b, ...) {
-    if((n <- a@Dim[1]) != nrow(b))
+    if(a@Dim[1] != nrow(b))
         stop("incompatible matrix dimensions")
     ## trivially invert a 'in place' and multiply:
     a@x <- 1/ a@x

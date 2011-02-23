@@ -1,14 +1,15 @@
 
-R version 2.11.0 Patched (2010-05-17 r52025)
-Copyright (C) 2010 The R Foundation for Statistical Computing
+R version 2.12.1 Patched (2011-02-12 r54356)
+Copyright (C) 2011 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
+Platform: x86_64-unknown-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
 Type 'license()' or 'licence()' for distribution details.
 
 R is a collaborative project with many contributors.
-Type 'contributors()' for more information anda
+Type 'contributors()' for more information and
 'citation()' on how to cite R or R packages in publications.
 
 Type 'demo()' for some demos, 'help()' for on-line help, or
@@ -131,6 +132,8 @@ Formal class 'dgeMatrix' [package "Matrix"] with 4 slots
 A 1 4 7 10 100 1 4 7 10
 B 2 5 8 11 100 2 5 8 11
 C 3 6 9 12 100 3 6 9 12
+> showProc.time()
+Time elapsed:  0.18 0 0.185 
 > 
 > ### --- Diagonal / Sparse - had bugs
 > 
@@ -160,6 +163,8 @@ C 3 6 9 12 100 3 6 9 12
 + 	  is(d4, "sparseMatrix"), is(m4, "sparseMatrix"),
 + 	  identical(t(d4), cBind(Diagonal(4),     0:3)),
 + 	  identical(t(m4), rBind(Diagonal(x=-1:2), 0:3)))
+> showProc.time()
+Time elapsed:  0.2 0.01 0.202 
 > 
 > ### --- Sparse Matrices ---
 > 
@@ -208,6 +213,8 @@ cBind (m, v= 2 ), class(m) : dgeMatrix ,. dgCMatrix ,. dgTMatrix ,.
 rBind (m, v= 2 ), class(m) : dgeMatrix ,. dgCMatrix ,. dgTMatrix ,.
 cBind (m, v= c(1L, 0L) ), class(m) : dgeMatrix ,. dgCMatrix ,. dgTMatrix ,.
 rBind (m, v= c(1L, 0L) ), class(m) : dgeMatrix ,. dgCMatrix ,. dgTMatrix ,.
+> showProc.time()
+Time elapsed:  0.19 0.01 0.205 
 > 
 > cBind(0, mC); cBind(mC, 0)
 4 x 7 sparse Matrix of class "dgCMatrix"
@@ -274,7 +281,7 @@ rBind (m, v= c(1L, 0L) ), class(m) : dgeMatrix ,. dgCMatrix ,. dgTMatrix ,.
 > stopifnot(is(show(rBind(L5,v5)), "lsparseMatrix"),
 + 	  is(show(cBind(v5,L5)), "lsparseMatrix"),
 + 	  is(rBind(L5, 2* v5), "dsparseMatrix"),
-+	  is(cBind(2* v5, L5), "dsparseMatrix"))
++ 	  is(cBind(2* v5, L5), "dsparseMatrix"))
 6 x 5 sparse Matrix of class "lgCMatrix"
             
    | . . . .
@@ -330,6 +337,6 @@ v5 . | . | .
 [6,] 2 . 1 . . 6 . 1 . .
 > 
 > 
-> cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
-Time elapsed:  2.454 0.072 2.626 0 0 
+> showProc.time()
+Time elapsed:  0.23 0 0.228 
 > 

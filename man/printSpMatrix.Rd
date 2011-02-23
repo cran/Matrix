@@ -10,6 +10,9 @@
   \code{printSpMatrix2(x)} calls \code{printSpMatrix()} twice, namely,
   for the first and the last few rows, suppressing those in between, and
   also suppresses columns when \code{x} is too wide.
+
+ \code{printSpMatrix()} basically prints the result of
+ \code{formatSpMatrix()}.
 }
 \usage{
 formatSpMatrix(x, digits = NULL, maxp = 1e9,
@@ -66,25 +69,38 @@ printSpMatrix2(x, digits = NULL, maxp = getOption("max.print"),
     determined from \code{\link{dim}(x)} and
     \code{\link{options}(c("width", "max.print"))}.
     Setting both to \code{FALSE} may be a very bad idea.}
-
   \item{align}{a string specifying how the \code{zero.print} codes
     should be aligned, i.e., padded as strings.  The default,
     \code{"fancy"}, takes some effort to align the typical
-    \code{zero.print = "."} with the decimal points of the numbers
-    printed,  whereas \code{align = "right"} just makes use of
+    \code{zero.print = "."} with the position of \code{0}, i.e., the
+    first decimal (one left of decimal point) of the numbers printed,
+    whereas \code{align = "right"} just makes use of
     \code{\link{print}(*, right = TRUE)}.
   }
 }
-% \details{
-%
-% }
+\details{
+  \describe{
+    \item{formatSpMatrix:}{
+      If \code{x} is large, only the first rows making up the
+      approximately first \code{maxp} entries is used, otherwise all of \code{x}.
+      \code{\link{.formatSparseSimple}()} is applied to (a dense version
+      of) the matrix.  Then, \code{\link{formatSparseM}} is used, unless
+      in trivial cases or for sparse matrices without \code{x} slot.}
+  }
+}
 \value{
-  returns \code{x} \emph{invisibly}, see \code{\link{invisible}}.
+  \item{formatSpMatrix()}{returns a character matrix with possibly empty
+  column names, depending on \code{col.names} etc, see above.}
+
+  \item{printSpMatrix*()}{return \code{x} \emph{invisibly}, see \code{\link{invisible}}.}
 }
 \author{Martin Maechler}
 \seealso{the virtual class \code{\linkS4class{sparseMatrix}} and the
-  classes extending it;  maybe \code{\link{spMatrix}} as a simple
-  constructor of such matrices.
+  classes extending it;  maybe \code{\link{sparseMatrix}} or
+  \code{\link{spMatrix}} as simple constructors of such matrices.
+
+  The underlying utilities \code{\link{formatSparseM}} and
+  \code{.formatSparseSimple()} (on the same page).
 }
 \examples{
 f1 <- gl(5, 3, labels = LETTERS[1:5])

@@ -28,13 +28,19 @@ stopifnot(is.all.equal3(qr.coef  (mdq, y), qr.coef  (mmq,y)@x, qr.coef  (mmq,Y)@
 ### "denseLU"
 
 ## Testing expansions of factorizations {was ./expand.R, then in simple.R }
-
+## new: [m x n]  where m and n  may differ
+x. <- c(2^(0:5),9:1,-3:8, round(sqrt(0:16)))
 set.seed(1)
-(m1 <- round(Matrix(rnorm(25), 5), 2))
-str(lu1 <- lu(m1))
-(luX <- expand(lu1))
-stopifnot(all.equal(as(m1, "matrix"),
-                    as(luX$P %*% (luX$L %*% luX$U), "matrix")))
+for(nnn in 1:100) {
+    y <- sample(x., replace=TRUE)
+    m <- sample(2:6, 1)
+    n <- sample(2:7, 1)
+    x <- suppressWarnings(matrix(y, m,n))
+    lux <- lu(x)# occasionally a warning about exact singularity
+    xx <- with(expand(lux), (P %*% L %*% U))
+    print(dim(xx))
+    assert.EQ.mat(xx, x, tol = 16*.Machine$double.eps)
+}
 
 ### "sparseLU"
 por1 <- readMM(system.file("external/pores_1.mtx", package = "Matrix"))

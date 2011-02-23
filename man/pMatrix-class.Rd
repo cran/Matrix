@@ -35,6 +35,8 @@
 \alias{Summary,pMatrix-method}
 %
 \alias{solve,pMatrix,missing-method}
+\alias{solve,pMatrix,Matrix-method}
+\alias{solve,pMatrix,matrix-method}
 \alias{solve,Matrix,pMatrix-method}
 \alias{t,pMatrix-method}
 %

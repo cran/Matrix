@@ -21,8 +21,11 @@
 \alias{skewpart,matrix-method}
 %
 \description{
-  symmpart(x) computes the symmetric part \code{(x + t(x))/2} and the
-  skew symmetric part \code{(x - t(x))/2} of a square matrix \code{x}.
+  \code{symmpart(x)} computes the symmetric part \code{(x + t(x))/2} and
+  \code{skewpart(x)} the
+  skew symmetric part \code{(x - t(x))/2} of a square matrix \code{x},
+  more efficiently for specific Matrix classes.
+
   Note that \code{x == symmpart(x) + skewpart(x)} for all square
   matrices -- apart from extraneous \code{\link{NA}} values in the RHS.
 }
@@ -40,9 +43,10 @@ skewpart(x)
 
 % \item{x = "Matrix"}{ ~~describe this method here }
 % }}
-% \details{
-%   ~~ If necessary, more details than the description above ~~
-% }
+\details{
+  These are generic functions with several methods for different matrix
+  classes, use e.g., \code{\link{showMethods}(symmpart)} to see them.
+}
 \value{
   \code{symmpart()} returns a symmetric matrix, inheriting from
   \code{\linkS4class{symmetricMatrix}} iff \code{x} inherited from
@@ -60,6 +64,9 @@ symmpart(m)
 skewpart(m)
 
 stopifnot(all(m == symmpart(m) + skewpart(m)))
+
+## investigate the current methods:
+showMethods(skewpart, include = TRUE)
 }
 \keyword{array}
 \keyword{arith}

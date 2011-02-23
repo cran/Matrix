@@ -222,7 +222,7 @@ SEXP dgeMatrix_LU_(SEXP x, Rboolean warn_sing)
     dims = INTEGER(GET_SLOT(x, Matrix_DimSym));
     if (dims[0] < 1 || dims[1] < 1)
 	error(_("Cannot factor a matrix with zero extents"));
-    npiv = (dims[0] <dims[1]) ? dims[0] : dims[1];
+    npiv = (dims[0] < dims[1]) ? dims[0] : dims[1];
     val = PROTECT(NEW_OBJECT(MAKE_CLASS("denseLU")));
     slot_dup(val, x, Matrix_xSym);
     slot_dup(val, x, Matrix_DimSym);
@@ -233,7 +233,8 @@ SEXP dgeMatrix_LU_(SEXP x, Rboolean warn_sing)
     if (info < 0)
 	error(_("Lapack routine %s returned error code %d"), "dgetrf", info);
     else if (info > 0 && warn_sing)
-	warning(_("Exact singularity detected during LU decomposition."));
+	warning(_("Exact singularity detected during LU decomposition: %s, i=%d."),
+		"U[i,i]=0", info);
     UNPROTECT(1);
     return set_factors(x, val, "LU");
 }
@@ -579,7 +580,7 @@ SEXP dgeMatrix_Schur(SEXP x, SEXP vectors)
     int vecs = asLogical(vectors), info, izero = 0, lwork = -1, n = dims[0];
     double *work, tmp;
     const char *nms[] = {"WR", "WI", "T", "Z", ""};
-    SEXP val = PROTECT(Matrix_make_named(VECSXP, nms));
+    SEXP val = PROTECT(Rf_mkNamed(VECSXP, nms));
 
     if (n != dims[1] || n < 1)
 	error(_("dgeMatrix_Schur: argument x must be a non-null square matrix"));

@@ -47,6 +47,7 @@ nearPD <-
 
         ## create mask from relative positive eigenvalues
         p <- d > eig.tol*d[1]
+	if(!any(p)) stop("Matrix seems negative semi-definite")
 
         ## use p mask to only compute 'positive' part
         Q <- Q[,p,drop = FALSE]

@@ -472,6 +472,8 @@ SEXP Csparse_crossprod(SEXP x, SEXP trans, SEXP triplet)
     return chm_sparse_to_SEXP(chcp, 1, 0, 0, "", dn);
 }
 
+/* Csparse_drop(x, tol):  drop entries with absolute value < tol, i.e,
+*  at least all "explicit" zeros */
 SEXP Csparse_drop(SEXP x, SEXP tol)
 {
     const char *cl = class_P(x);
@@ -861,6 +863,7 @@ SEXP create_Csparse(char* cls, int* i, int* j, int* p, int np,
     case 'l':
 	error(_("code not yet written for cls = \"lgCMatrix\""));
     }
+/* FIXME: dimnames are *NOT* put there yet (if non-NULL) */
     cholmod_l_free_sparse(&A, &c);
     UNPROTECT(1);
     return ans;

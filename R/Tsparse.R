@@ -298,9 +298,8 @@ replTmat <- function (x, i, j, ..., value)
 
     na <- nargs()
     if(na == 3) { ## i = vector (but *not* 2-col) indexing"  M[i] <- v
-	Matrix.msg(sprintf(
-		"diagnosing replTmat(x,i,j,v): nargs()= 3; missing(i,j)= (%d,%d)",
-			   iMi,jMi))
+	Matrix.msg("diagnosing replTmat(x,i,j,v): nargs()= 3; ",
+		   if(iMi | jMi) sprintf("missing (i,j) = (%d,%d)", iMi,jMi))
 	if(iMi) stop("internal bug: missing 'i' in replTmat(): please report")
 	if(is.character(i))
 	    stop("[ <character> ] indexing not allowed: forgot a \",\" ?")
@@ -372,8 +371,10 @@ replTmat <- function (x, i, j, ..., value)
 	    x@factors <- list()
 	return(x)
     }
-    ## nargs() == 4 :
-    Matrix.msg(".. replTmat(x,i,j,v): nargs()= 4;",
+    ## nargs() == 4 :  x[i,j] <- value
+    lenV <- length(value)
+    Matrix.msg(".. replTmat(x,i,j,v): nargs()= 4; cl.(x)=",
+	       class(x),"; len.(value)=", lenV,"; ",
 	       if(iMi | jMi) sprintf("missing (i,j) = (%d,%d)", iMi,jMi),
 	       .M.level = 2)# level 1  gives too many messages
 
@@ -382,7 +383,6 @@ replTmat <- function (x, i, j, ..., value)
     i2 <- if(jMi) 0:(di[2] - 1L) else .ind.prep2(j, 2, di, dn)
     dind <- c(length(i1), length(i2)) # dimension of replacement region
     lenRepl <- prod(dind)
-    lenV <- length(value)
     if(lenV == 0) {
         if(lenRepl != 0)
             stop("nothing to replace with")
@@ -391,18 +391,26 @@ replTmat <- function (x, i, j, ..., value)
     ## else: lenV := length(value)	 is > 0
     if(lenRepl %% lenV != 0)
         stop("number of items to replace is not a multiple of replacement length")
-    if(!iMi && any(dup <- duplicated(i1, fromLast = TRUE))) {
-        notDup <- - which(dup)
-        i1 <- i1[notDup]
-        lenV <- length(value <- rep(value, length.out = lenRepl)[notDup])
+    ## Now deal with duplicated / repeated indices: "last one wins"
+    if(!iMi && any(dup <- duplicated(i1, fromLast = TRUE))) { ## duplicated rows
+        keep <- !dup
+        i1 <- i1[keep]
+        ## keep is "internally" recycled below {and that's important: it is dense!}
+        lenV <- length(value <- rep(value, length.out = lenRepl)[keep])
         dind[1] <- length(i1)
         lenRepl <- prod(dind)
     }
-
-    if(!jMi && any(dup <- duplicated(i2, fromLast = TRUE))) {
-        keep <- !dup
-        i2 <- i2[keep]
-        lenV <- length(value <- rep(value, length.out = lenRepl)[keep])
+    if(!jMi && any(dup <- duplicated(i2, fromLast = TRUE))) { ## duplicated columns
+        iDup <- which(dup)
+        ## FIXME: this is correct, but  rep(keep,..) can be *HUGE*
+        ## keep <- !dup
+        ## i2 <- i2[keep]
+        ## lenV <- length(value <- rep(value, length.out = lenRepl)[rep(keep, each=dind[1])])
+        ## solution: sv[-i] is efficient for sparseVector:
+        i2 <- i2[- iDup]
+        nr <- dind[1]
+        iDup <- rep((iDup - 1)*nr, each=nr) + seq_len(nr)
+        lenV <- length(value <- rep(value, length.out = lenRepl)[-iDup])
         dind[2] <- length(i2)
         lenRepl <- prod(dind)
     }
@@ -499,6 +507,7 @@ replTmat <- function (x, i, j, ..., value)
     ## --> more efficient for sparse 'value' & large 'lenRepl' :
     ## FIXME [= FIXME(3) above]:
     ## ----- The use of  seq_len(lenRepl) below is *still* inefficient
+    ##   (or impossible e.g. when lenRepl == 50000^2)
     ##       and the  vN0 <- isN0(as.vector(value[iI0]))  is even more ...
     ## try to replace   'seq_len(lenRepl)'  by  'abIseq1(1L, lenRepl)' :
     ##_ new experimental: -- need   <value>[ <abIndex> ] , intersect() ...

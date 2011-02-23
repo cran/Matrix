@@ -8,9 +8,6 @@
 \newcommand{\myOp}[1]{{$\left\langle\ensuremath{#1}\right\rangle$}}
 %%\VignetteIndexEntry{Sparse Model Matrices}
 %%\VignetteDepends{Matrix}
-\SweaveOpts{engine=R, keep.source=TRUE}
-%	 	      ^^^^^^^^^^^^^^^^
-\SweaveOpts{eps=FALSE, pdf=TRUE, width=5, height=3, strip.white=TRUE}
 \title{Sparse Model Matrices}
 \author{Martin Maechler\\ R Core Development Team
   \\\email{maechler@R-project.org}}
@@ -18,6 +15,9 @@
 %
 \begin{document}
 \maketitle
+\SweaveOpts{engine=R, keep.source=TRUE}
+\SweaveOpts{eps=FALSE, pdf=TRUE, width=8, height=5.5, strip.white=TRUE}
+\setkeys{Gin}{width=\textwidth}
 
 % \begin{abstract}
 %  ............................ FIXME
@@ -263,19 +263,23 @@ round(object.size(mm) / object.size(smm), 1)
 shows that even for the small \code{d} here, the memory reduction would be
 more than an order of magnitude.
 \\
-<<X-sparse-image, fig=TRUE>>=
-print( image(t(smm), aspect=1/3, col.regions= "red") ) # print(<lattice>)
+%% Reasons to fake here:
+%% 1) print() is needed for lattice -- but looks ugly,
+%% 2) the resulting  pdf file is too large -- use png instead:
+<<X-sparse-image, eval=FALSE>>=
+image(t(smm), aspect = 1/3, lwd=0, col.regions = "red")
+<<X-sparse-image-fake, fig=TRUE, include=FALSE, echo=FALSE, results=hide>>=
+png("sparseModels-X-sparse-image.png", width=6, height=3,
+    units='in', res=150)
+print(
+<<X-sparse-image>>
+      )
+dev.off()
 @
-% % print() is needed for lattice -- but looks ugly, hence
-% <<X-sparse-image-fake, fig=TRUE, include=FALSE, echo=FALSE, results=hide>>=
-% print( image(t(smm), aspect=1/3, lwd=0, col.regions = "red") )
-% @
-% <<X-sparse-image, eval=FALSE>>=
-% image(t(smm), aspect=3, lwd=0, col.r = "red")
-% @
-% \includegraphics{sparseModels-X-sparse-image-fake}
-%
-\\
+\par\vspace*{-1ex}
+\centerline{%
+  \includegraphics[width=1.1\textwidth]{sparseModels-X-sparse-image.png}}
+
 and working with the sparse instead of the dense model matrix is
 considerably faster as well,
 <<X-sparse-mult>>=

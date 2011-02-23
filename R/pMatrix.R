@@ -75,6 +75,11 @@ setMethod("solve", signature(a = "pMatrix", b = "missing"),
               a
           })
 
+setMethod("solve", signature(a = "pMatrix", b = "Matrix"),
+	  function(a, b, ...) crossprod(a, b))
+setMethod("solve", signature(a = "pMatrix", b = "matrix"),
+	  function(a, b, ...) crossprod(a, b))
+
 setMethod("solve", signature(a = "Matrix", b = "pMatrix"),
 	  function(a, b, ...)
 	  ## Or alternatively  solve(a, as(b, "CsparseMatrix"))

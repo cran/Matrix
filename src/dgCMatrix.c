@@ -44,7 +44,7 @@ SEXP compressed_to_TMatrix(SEXP x, SEXP colP)
 	pP = GET_SLOT(x, Matrix_pSym);
     int npt = length(pP) - 1;
     char *ncl = strdup(class_P(x));
-    char *valid[] = {
+    static const char *valid[] = {
 	"dgCMatrix", "dsCMatrix", "dtCMatrix", /* 0: 0:2 */
 	"lgCMatrix", "lsCMatrix", "ltCMatrix", /* 1: 3:5 */
 	"ngCMatrix", "nsCMatrix", "ntCMatrix", /* 2: 6:8 */
@@ -86,7 +86,7 @@ SEXP R_to_CMatrix(SEXP x)
 {
     SEXP ans, tri = PROTECT(allocVector(LGLSXP, 1));
     char *ncl = strdup(class_P(x));
-    char *valid[] = {
+    static const char *valid[] = {
 	"dgRMatrix", "dsRMatrix", "dtRMatrix",
 	"lgRMatrix", "lsRMatrix", "ltRMatrix",
 	"ngRMatrix", "nsRMatrix", "ntRMatrix",
@@ -183,7 +183,7 @@ SEXP dgCMatrix_qrsol(SEXP x, SEXP y, SEXP ord)
     int order = INTEGER(ord)[0];
 #ifdef _not_yet_do_FIXME__
     const char *nms[] = {"L", "coef", "Xty", "resid", ""};
-    SEXP ans = PROTECT(Matrix_make_named(VECSXP, nms));
+    SEXP ans = PROTECT(Rf_mkNamed(VECSXP, nms));
 #endif
     R_CheckStack();
 
@@ -464,7 +464,7 @@ SEXP dgCMatrix_cholsol(SEXP x, SEXP y)
     int n = cx->ncol;/* #{obs.} {x = t(X) !} */
     double one[] = {1,0}, zero[] = {0,0}, neg1[] = {-1,0};
     const char *nms[] = {"L", "coef", "Xty", "resid", ""};
-    SEXP ans = PROTECT(Matrix_make_named(VECSXP, nms));
+    SEXP ans = PROTECT(Rf_mkNamed(VECSXP, nms));
     R_CheckStack();
 
     if (n < cx->nrow || n <= 0)

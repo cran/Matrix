@@ -10,6 +10,22 @@
   real matrices.  \code{"denseLU"} the class of LU decompositions of
   dense real matrices.
 }
+\details{
+  The decomposition is of the form
+  \deqn{A = P L U}{A = P L U}
+  where typically all matrices are of size \eqn{n\times n}{n by n}, and
+  the matrix \eqn{P} is a permutation matrix, \eqn{L} is lower
+  triangular and \eqn{U} is upper triangular (both of class
+  \code{\linkS4class{dtrMatrix}}).
+
+  Note that the \emph{dense} decomposition is also implemented for
+  a \eqn{m\times n}{m by n} matrix \eqn{A}, when \eqn{m \ne n}{m != n}.
+
+  If \eqn{m < n} (\dQuote{wide case}), \eqn{U} is \eqn{m\times n}{m by n},
+  and hence not triangular.\cr
+  If \eqn{m > n} (\dQuote{long case}), \eqn{L} is \eqn{m\times n}{m by n},
+  and hence not triangular.
+}
 \section{Objects from the Class}{
   Objects can be created by calls of the form \code{new("denseLU", ...)}.
   More commonly the objects are created explicitly from calls of the form
@@ -28,7 +44,8 @@
     \item{\code{x}:}{object of class \code{"numeric"}.  The \code{"L"}
       (unit lower triangular) and \code{"U"} (upper triangular) factors
       of the original matrix.  These are stored in a packed format
-      described in the Lapack manual.}
+      described in the Lapack manual, and can retrieved by the
+      \code{expand()} method, see below.}
     \item{\code{perm}:}{Object of class \code{"integer"} - a vector of
       length \code{min(Dim)} that describes the permutation applied to
       the rows of the original matrix.  The contents of this vector are
@@ -48,14 +65,6 @@
   }
 }
 % \references{}
-\note{
-  The decomposition is of the form
-  \deqn{A = PLU}{A = PLU}
-  where all matrices are of size \eqn{n\times n}{n by n}, and
-  the matrix \eqn{P} is a permutation matrix, \eqn{L} is lower
-  triangular and \eqn{U} is upper triangular (both of class
-  \code{\linkS4class{dsyMatrix}}).
-}
 \seealso{
   class \code{\linkS4class{sparseLU}} for LU decompositions of
   \emph{sparse} matrices;

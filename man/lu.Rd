@@ -1,5 +1,5 @@
 \name{lu}
-\title{Triangular Decomposition of a Square Matrix}
+\title{(Generalized) Triangular Decomposition of a Matrix}
 \alias{lu}
 \alias{lu,matrix-method}
 \alias{lu,dgeMatrix-method}
@@ -11,11 +11,12 @@ lu(x, \dots)
 \S4method{lu}{dgCMatrix}(x, errSing = TRUE, \dots)
 }
 \description{
-  Computes triangular decompositions of square matrices.
+  Computes (generalized) triangular decompositions of square and other
+  dense matrices.
 }
 \arguments{
-  \item{x}{a matrix of square dimension.  No missing values or IEEE
-    special values are allowed.}
+  \item{x}{a dense or sparse matrix, in the latter case of square
+    dimension.  No missing values or IEEE special values are allowed.}
   \item{warnSing}{(when \code{x} is a
     \code{"\linkS4class{denseMatrix}"}) logical specifying if a \code{\link{warning}}
     should be signalled when \code{x} is singular.}
@@ -30,6 +31,7 @@ lu(x, \dots)
 }
 \value{
   An object of class \code{"LU"}, i.e., \code{"\linkS4class{denseLU}"}%% ./LU-class.Rd
+  (see its separate help page),
   or \code{"sparseLU"}, see \code{\linkS4class{sparseLU}}; this is
   a representation of a triangular decomposition of \code{x}.
 }
@@ -40,7 +42,7 @@ lu(x, \dots)
 
   The method for class \code{\linkS4class{dgeMatrix}} (and all dense
   matrices) is based on LAPACK's \code{"dgetrf"} subroutine.  It returns
-  a decomposition also for singular matrices.
+  a decomposition also for singular and non-square matrices.
 
   The method for class \code{\linkS4class{dgCMatrix}} (and all sparse
   matrices) is based on functions from the CSparse library.  It signals
@@ -72,6 +74,8 @@ lu(x, \dots)
 ##--- Dense  -------------------------
 x <- Matrix(rnorm(9), 3, 3)
 lu(x)
+dim(x2 <- round(10 * x[,-3]))# non-square
+expand(lu2 <- lu(x2))
 
 ##--- Sparse (see more in ?"sparseLU-class")----- % ./sparseLU-class.Rd
 

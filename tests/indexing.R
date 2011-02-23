@@ -1,4 +1,5 @@
 #### For both 'Extract' ("[") and 'Replace' ("[<-") Method testing
+####    aka    subsetting     and  subassignment
 
 #### suppressPackageStartupMessages(...)  as we have an *.Rout.save to Rdiff against
 stopifnot(suppressPackageStartupMessages(require(Matrix)))
@@ -69,6 +70,7 @@ stopifnot(identical(mn["rc", "D"], mn[3,4]), mn[3,4] == 24,
 	  identical(a.m, array(v, dim=dim(mn), dimnames=dimnames(mn)))
 	  )
 
+showProc.time()
 
 ## Printing sparse colnames:
 ms[sample(28, 20)] <- 0
@@ -108,6 +110,7 @@ stopifnot(is(sel, "lMatrix"), is(ssel, "lsparseMatrix"),
 	  identical3(m[ sel],  m[ ssel], as.matrix(m)[as.matrix( ssel)]),
 	  identical3(m[!sel],  m[!ssel], as.matrix(m)[as.matrix(!ssel)])
 	  )
+showProc.time()
 
 ## more sparse Matrices --------------------------------------
 
@@ -147,19 +150,45 @@ assert.EQ.mat(mC[,j], mm[,j])
 assert.EQ.mat(mC[i, 2:1], mm[i, 2:1])
 assert.EQ.mat(mC[c(4,1,2:1), j], mm[c(4,1,2:1), j])
 assert.EQ.mat(mC[i,j], mm[i,j])
+
+##' @title Check sparseMatrix sub-assignment   m[i,j] <- v
+##' @param ms sparse Matrix
+##' @param mm its [traditional matrix]-equivalent
+##' @param k  (approximate) length of index vectors (i,j)
+##' @param n.uniq (approximate) number of unique values in  i,j
+##' @param show logical; if TRUE, it will not stop on error
+##' @return
+##' @author Martin Maechler
+chkAssign <- function(ms, mm = as(ms, "matrix"),
+                      k = min(20,dim(mm)), n.uniq = k %/% 3, show=FALSE)
+{
+    stopifnot(is(ms,"sparseMatrix"))
+    s1 <- function(n) sample(n, pmin(n, pmax(1, rpois(1, n.uniq))))
+    i <- sample(s1(nrow(ms)), k/2+ rpois(1, k/2), replace = TRUE)
+    j <- sample(s1(ncol(ms)), k/2+ rpois(1, k/2), replace = TRUE)
+    assert.EQ.mat(ms[i,j], mm[i,j])
+    ## now sub*assign* to these repeated indices, and then compare -----
+    x <- rpois(length(i) * length(j), lambda= 0.75)#- about 47% zeros
+    ms[i,j] <- x
+    mm[i,j] <- x
+    if(!show) { op <- options(error = recover); on.exit(options(op)) }
+    assert.EQ.mat(ms, mm, show=show)
+}
 set.seed(7)
 cat(" for(): ")
 for(n in 1:50) {
-    i <- sample(sample(nrow(mC), 7), 20, replace = TRUE)
-    j <- sample(sample(ncol(mC), 6), 17, replace = TRUE)
-    assert.EQ.mat(mC[i,j], mm[i,j])
+    chkAssign(mC, mm)
+    chkAssign(mC[-3,-2], mm[-3,-2])
+    cat(".")
 }
 cat("ok\n----\n")
 }## end{for}
+showProc.time()
 
 ##---- Symmetric indexing of symmetric Matrix ----------
-m. <- mC; m.[, c(2, 7:12)] <- 0
-validObject(S <- crossprod(add.simpleDimnames(m.) %% 100))
+m. <- mC
+m.[, c(2, 7:12)] <- 0
+isValid(S <- crossprod(add.simpleDimnames(m.) %% 100), "dsCMatrix")
 ss <- as(S, "matrix")
 ds <- as(S, "denseMatrix")
 ## NA-indexing of *dense* Matrices: should work as traditionally
@@ -224,7 +253,7 @@ for(n in 1:100) {
     assert.EQ.mat(A.ii, a.[i,i])
     assert.EQ.mat(T[i,i], ss[i,i])
 }
-
+showProc.time()
 
 stopifnot(all.equal(mC[,3], mm[,3]),
 	  identical(mC[ij], mC[ij + 0.4]),
@@ -278,7 +307,10 @@ stopifnot(class(l10) == "lsCMatrix", # symmetric indexing -> symmetric !
 A <- Matrix(0,4,3) ; A[c(1,2,1), 2] <- 1 ; A
 B <- A;              B[c(1,2,1), 2] <- 1:3; B; B. <- B
 B.[3,] <- rbind(4:2)
+## change the diagonal and the upper and lower subdiagonal :
 diag(B.) <- 10 * diag(B.)
+diag(B.[,-1]) <- 5* diag(B.[,-1])
+diag(B.[-1,]) <- 4* diag(B.[-1,]) ; B.
 C <- B.; C[,2] <- C[,2];  C[1,] <- C[1,]; C[2:3,2:1] <- C[2:3,2:1]
 stopifnot(identical(unname(as.matrix(A)),
 		    local({a <- matrix(0,4,3); a[c(1,2,1), 2] <-  1 ; a})),
@@ -295,8 +327,7 @@ stopifnot(identical(C, as(T, "CsparseMatrix")))
 
 ## used to fail
 n <- 5 ## or much larger
-sm <- new("dsTMatrix", i=as.integer(1),j=as.integer(1),
-          Dim=as.integer(c(n,n)), x = 1)
+sm <- new("dsTMatrix", i=1L, j=1L, Dim=as.integer(c(n,n)), x = 1)
 (cm <- as(sm, "CsparseMatrix"))
 sm[2,]
 stopifnot(sm[2,] == c(0:1, rep.int(0,ncol(sm)-2)),
@@ -305,12 +336,13 @@ stopifnot(sm[2,] == c(0:1, rep.int(0,ncol(sm)-2)),
 	  all(sm[,-(1:3)] == t(sm[-(1:3),])), # all(<lge.>)
 	  all(sm[,-(1:3)] == 0)
 	  )
+showProc.time()
 
 m0 <- Diagonal(5)
 stopifnot(identical(m0[2,], m0[,2]),
 	  identical(m0[,1], c(1,0,0,0,0)))
 ### Diagonal -- Sparse:
-(m1 <- as(m0, "TsparseMatrix"))  # dtTMatrix
+(m1 <- as(m0, "TsparseMatrix")) # dtTMatrix
 (m2 <- as(m0, "CsparseMatrix")) # dtCMatrix
 m1g <- as(m1, "generalMatrix")
 stopifnot(is(m1g, "dgTMatrix"))
@@ -349,6 +381,7 @@ M <- m2; M[1:3, 3] <- 0 ;M
 assert.EQ.mat(M, diag(c(1,1, 0, 1,1)), tol=0)
 T <- m2; T[1:3, 3] <- 10; checkMatrix(T)
 stopifnot(is(T, "dtCMatrix"), identical(T[,3], c(10,10,10,0,0)))
+showProc.time()
 
 
 ## "Vector indices" -------------------
@@ -424,6 +457,7 @@ stopifnot(identical4(mc[-(1:4), -(2:4)], mC[5, c(1,5:7)],
 
 ## mixing of negative and positive must give error
 assertError(mT[-1:1,])
+showProc.time()
 
 ## Sub *Assignment* ---- now works (partially):
 mt0 <- mt
@@ -485,6 +519,7 @@ for(i in 1:50) {
     validObject(mc) ; assert.EQ.mat(mc, m)
     validObject(mt) ; assert.EQ.mat(mt, m)
 }
+showProc.time()
 options(Matrix.verbose = TRUE)
 
 mc # no longer has non-structural zeros
@@ -586,6 +621,7 @@ s2[2:1,2:1] <- 4:1
 t2[2:1,2:1] <- 4:1
 assert.EQ.mat(t2, m)# ok
 assert.EQ.mat(s2, m)# failed in 0.9975-8
+showProc.time()
 
 
 ## m[cbind(i,j)] <- value: (2-column matrix subassignment):
@@ -682,6 +718,7 @@ stopifnot(identical(Diagonal(x = 1+ 1:n), dLrg),
           identical(Ctrg, as(dLrg,"CsparseMatrix")))
 
 cc <- capture.output(show(dLrg))# show(<diag>) used to error for large n
+showProc.time()
 
 ## Large Matrix indexing / subassignment
 ## ------------------------------------- (from ex. by Imran Rashid)
@@ -719,7 +756,7 @@ stopifnot(is(f, "ngCMatrix"), is(fx, "dgCMatrix"),
 	  identical(as.logical(fx[,6000]), tC),
 	  identical(thCol,  fx[,5762]))
 
-cat('Time elapsed: ', (.pt <- proc.time()),'\n') # "stats"
+showProc.time()
 ##
 cat("checkMatrix() of all: \n---------\n")
 Sys.setlocale("LC_COLLATE", "C")# to keep ls() reproducible
@@ -727,6 +764,6 @@ for(nm in ls()) if(is(.m <- get(nm), "Matrix")) {
     cat(nm, "\n")
     checkMatrix(.m, verbose = FALSE)
 }
-cat('Time elapsed: ', proc.time() - .pt,'\n') # "stats"
+showProc.time()
 
 if(!interactive()) warnings()

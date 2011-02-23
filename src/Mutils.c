@@ -221,32 +221,6 @@ void make_i_matrix_symmetric(int *to, SEXP from)
     MAKE_SYMMETRIC_BODY(to, from)
 
 
-#if R_VERSION < R_Version(2, 10, 0)
-/**
- * Create a named vector of type TYP
- *
- * @param TYP a vector SEXP type (e.g. REALSXP)
- * @param names names of list elements with null string appended
- *
- * @return pointer to a named vector of type TYP
- */
-SEXP
-Matrix_make_named(int TYP, const char **names)
-{
-    SEXP ans, nms;
-    int i, n;
-
-    for (n = 0; strlen(names[n]) > 0; n++) {}
-    ans = PROTECT(allocVector(TYP, n));
-    nms = PROTECT(allocVector(STRSXP, n));
-    for (i = 0; i < n; i++) SET_STRING_ELT(nms, i, mkChar(names[i]));
-    setAttrib(ans, R_NamesSymbol, nms);
-    UNPROTECT(2);
-    return ans;
-}
-#endif
-
-
 #define Matrix_Error_Bufsiz    4096
 
 /**
@@ -545,11 +519,12 @@ install_diagonal_int(int *dest, SEXP A)
 SEXP dup_mMatrix_as_geMatrix(SEXP A)
 {
     SEXP ans, ad = R_NilValue, an = R_NilValue;	/* -Wall */
-    char *valid[] = {"_NOT_A_CLASS_",/* *_CLASSES defined in ./Mutils.h */
-		    ddense_CLASSES, /* 14 */
-		    ldense_CLASSES, /* 6  */
-		    ndense_CLASSES, /* 5  */
-		    ""};
+    static const char *valid[] = {
+	"_NOT_A_CLASS_",/* *_CLASSES defined in ./Mutils.h */
+	ddense_CLASSES, /* 14 */
+	ldense_CLASSES, /* 6  */
+	ndense_CLASSES, /* 5  */
+	""};
     int sz, ctype = Matrix_check_class_etc(A, valid),
 	nprot = 1;
     enum dense_enum { ddense, ldense, ndense } M_type = ddense /* -Wall */;
@@ -705,7 +680,7 @@ SEXP dup_mMatrix_as_dgeMatrix(SEXP A)
 {
     SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("dgeMatrix"))),
 	ad = R_NilValue , an = R_NilValue;	/* -Wall */
-    char *valid[] = {"_NOT_A_CLASS_", ddense_CLASSES, ""};
+    static const char *valid[] = {"_NOT_A_CLASS_", ddense_CLASSES, ""};
     int ctype = Matrix_check_class_etc(A, valid),
 	nprot = 1, sz;
     double *ansx;
@@ -847,6 +822,7 @@ SEXP m_encodeInd2(SEXP i, SEXP j, SEXP di, SEXP chk_bnds)
 #undef do_ii_FILL
 
 
+#if R_VERSION < R_Version(2, 13, 0)
 /**
  * Return the 0-based index of an is() match in a vector of class-name
  * strings terminated by an empty string.  Returns -1 for no match.
@@ -857,13 +833,13 @@ SEXP m_encodeInd2(SEXP i, SEXP j, SEXP di, SEXP chk_bnds)
  *
  * @return index of match or -1 for no match
  */
-int Matrix_check_class_and_super(SEXP x, char **valid, SEXP rho)
+int Matrix_check_class_and_super(SEXP x, const char **valid, SEXP rho)
 {
     int ans;
     SEXP cl = getAttrib(x, R_ClassSymbol);
     const char *class = CHAR(asChar(cl));
     for (ans = 0; ; ans++) {
-	if (!strlen(valid[ans]))
+	if (!strlen(valid[ans])) // empty string
 	    break;
 	if (!strcmp(class, valid[ans])) return ans;
     }
@@ -875,7 +851,7 @@ int Matrix_check_class_and_super(SEXP x, char **valid, SEXP rho)
 /* 	PROTECT(cl); */
 	PROTECT(_call = lang2(install("getClassDef"), cl));
 	classExts = GET_SLOT(eval(_call, rho),
-				     install("contains"));
+			     install("contains"));
 	UNPROTECT(1);
 	PROTECT(classExts);
 	PROTECT(_call = lang3(install(".selectSuperClasses"), classExts,
@@ -898,6 +874,7 @@ int Matrix_check_class_and_super(SEXP x, char **valid, SEXP rho)
     }
     return -1;
 }
+#endif
 
 /**
  * Return the 0-based index of an is() match in a vector of class-name
@@ -909,18 +886,15 @@ int Matrix_check_class_and_super(SEXP x, char **valid, SEXP rho)
  *
  * @return index of match or -1 for no match
  */
-int Matrix_check_class_etc(SEXP x, char **valid)
+int Matrix_check_class_etc(SEXP x, const char **valid)
 {
-    SEXP cl = getAttrib(x, R_ClassSymbol), rho = R_GlobalEnv,
-	M_classEnv_sym = install(".M.classEnv"), pkg;
-
+    static SEXP s_M_classEnv = NULL;
+    SEXP cl = getAttrib(x, R_ClassSymbol), rho = R_GlobalEnv, pkg;
 /*     PROTECT(cl); */
+    if(!s_M_classEnv)
+	s_M_classEnv = install(".M.classEnv");
 
-#if defined(R_VERSION) && R_VERSION >= R_Version(2, 10, 0)
     pkg = getAttrib(cl, R_PackageSymbol); /* ==R== packageSlot(class(x)) */
-#else
-    pkg = getAttrib(cl, install("package"));
-#endif
     if(!isNull(pkg)) { /* find  rho := correct class Environment */
 	SEXP clEnvCall;
 	/* need to make sure we find ".M.classEnv" even if Matrix is not
@@ -930,7 +904,7 @@ int Matrix_check_class_etc(SEXP x, char **valid)
 	 *	    rho = eval(lang2(install("Matrix:::.M.classEnv"), cl), */
 
 	/* Now make this work via .onLoad() hack in ../R/zzz.R  : */
-	PROTECT(clEnvCall = lang2(M_classEnv_sym, cl));
+	PROTECT(clEnvCall = lang2(s_M_classEnv, cl));
 	rho = eval(clEnvCall, R_GlobalEnv);
 	UNPROTECT(1);
 

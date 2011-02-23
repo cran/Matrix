@@ -1,7 +1,6 @@
 \name{sparse.model.matrix}
 \Rdversion{1.1}
 \alias{sparse.model.matrix}
-\alias{model.Matrix}% for now
 \title{Construct Sparse Design / Model Matrices}
 \description{
   Construct a Model or \dQuote{Design} Matrix

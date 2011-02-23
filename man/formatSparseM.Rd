@@ -9,7 +9,8 @@
   matrices.  Note that \emph{all} arguments but the first are optional.
 
   \code{formatSparseM()} is the main \dQuote{workhorse} of
-  \code{\link{formatSparseM}}, the \code{format} method.
+  \code{\link{formatSpMatrix}}, the \code{format} method for sparse
+  matrices.
 
   \code{.formatSparseSimple()} is a simple helper function, also dealing
   with (short/empty) column names construction.
@@ -52,8 +53,10 @@ formatSparseM(x, zero.print = ".", align = c("fancy", "right"),
   for sparse matrices.
 }
 \value{
-  a character matrix like \code{cx}.  As this is a \emph{dense} matrix,
-  do not use this function for really large (really) sparse matrices!
+  a character matrix like \code{cx}, where the zeros have been replaced
+  with (padded versions of) \code{zero.print}.
+  As this is a \emph{dense} matrix, do not use these functions for
+  really large (really) sparse matrices!
 }
 \author{Martin Maechler}
 \examples{
@@ -64,6 +67,11 @@ noquote(fm)
 print(fm, quote=FALSE, right=TRUE)
 ## and "the same" as :
 Matrix(m)
+
+## align = "right" is cheaper -->  the "." are not aligned:
+noquote(f2 <- formatSparseM(m,align="r"))
+stopifnot(f2 == fm   |   m == 0, dim(f2) == dim(m),
+         (f2 == ".") == (m == 0))
 }
 \keyword{utilities}
 \keyword{print}

@@ -33,6 +33,7 @@ str(im)
 (mi <- cBind(m2, I = 1000))
 str(mi)
 (m1m <- cBind(m,I=100,m2))
+showProc.time()
 
 ### --- Diagonal / Sparse - had bugs
 
@@ -53,6 +54,7 @@ stopifnot(identical(Matrix(cbind(diag(3),0)), cbind2(Diagonal(3),0)),
 	  is(d4, "sparseMatrix"), is(m4, "sparseMatrix"),
 	  identical(t(d4), cBind(Diagonal(4),     0:3)),
 	  identical(t(m4), rBind(Diagonal(x=-1:2), 0:3)))
+showProc.time()
 
 ### --- Sparse Matrices ---
 
@@ -79,6 +81,7 @@ for(v in list(0, 2, 1:0))
         }
         cat("\n")
     }
+showProc.time()
 
 cBind(0, mC); cBind(mC, 0)
 cBind(0, mT); cBind(mT, 2)
@@ -111,4 +114,4 @@ for(i in 1:6) {
 m4 ## now show some non-structural zeros:
 
 
-cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
+showProc.time()

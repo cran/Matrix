@@ -76,7 +76,7 @@ SEXP Matrix_RLE_(SEXP x_, SEXP force_)
 	    len[c] = ln;
 	    c++;
         }
-	ans = PROTECT(Matrix_make_named(VECSXP, res_nms));
+	ans = PROTECT(Rf_mkNamed(VECSXP, res_nms));
 	SET_VECTOR_ELT(ans, 0, allocVector(INTSXP, c)); /* lengths */
 	SET_VECTOR_ELT(ans, 1, allocVector(SXP_ans, c)); /* values */
 	if(n > 0) {

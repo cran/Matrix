@@ -53,11 +53,6 @@ enum CBLAS_SIDE {CblasLeft=141, CblasRight=142};
 #define LFT CblasLeft
 #define RGT CblasRight
 
-#if !defined(R_VERSION) || R_VERSION < R_Version(2, 7, 0)
-char La_norm_type(const char *typstr);
-char La_rcond_type(const char *typstr);
-#endif
-
 double get_double_by_name(SEXP obj, char *nm);
 SEXP set_double_by_name(SEXP obj, double val, char *nm);
 SEXP as_det_obj(double val, int log, int sign);
@@ -71,11 +66,6 @@ SEXP dgCMatrix_set_Dim(SEXP x, int nrow);
 /* int csc_unsorted_columns(int ncol, const int p[], const int i[]); */
 /* void csc_sort_columns(int ncol, const int p[], int i[], double x[]); */
 /* SEXP csc_check_column_sorting(SEXP A); */
-#if R_VERSION < R_Version(2, 10, 0)
-SEXP Matrix_make_named(int TYP, const char **names);
-#else
-# define Matrix_make_named Rf_mkNamed
-#endif
 
 SEXP check_scalar_string(SEXP sP, char *vals, char *nm);
 Rboolean equal_string_vectors(SEXP s1, SEXP s2);
@@ -275,7 +265,7 @@ mMatrix_as_geMatrix(SEXP A)
  * @return index of match or -1 for no match
  */
 static R_INLINE int
-Matrix_check_class(const char *class, char **valid)
+Matrix_check_class(char *class, const char **valid)
 {
     int ans;
     for (ans = 0; ; ans++) {
@@ -284,8 +274,16 @@ Matrix_check_class(const char *class, char **valid)
     }
 }
 
-int Matrix_check_class_etc(SEXP x, char **valid);
-int Matrix_check_class_and_super(SEXP x, char **valid, SEXP rho);
+/**
+ * These are the ones users should use -- is() versions, also looking
+ * at super classes:
+ */
+int Matrix_check_class_etc(SEXP x, const char **valid);
+#if R_VERSION < R_Version(2, 13, 0)
+int Matrix_check_class_and_super(SEXP x, const char **valid, SEXP rho);
+#else
+# define Matrix_check_class_and_super R_check_class_and_super
+#endif
 
 #ifdef __cplusplus
 }

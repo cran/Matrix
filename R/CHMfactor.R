@@ -103,19 +103,7 @@ setMethod("determinant", signature(x = "CHMfactor", logarithm = "missing"),
 setMethod("determinant", signature(x = "CHMfactor", logarithm = "logical"),
           function(x, logarithm, ...)
       {
-          ## Produce a once per session warning :
-          if((.e <- exists("det_CHMfactor.warn", envir = .MatrixEnv))
-             && get("det_CHMfactor.warn", envir = .MatrixEnv)) {
-              ## ok
-          } else if (! .e) {
-              assign("det_CHMfactor.warn", TRUE, envir = .MatrixEnv)
-              warning("This version of the Matrix package returns\n",
-	"|determinant(L)| instead of determinant(A), i.e., a\n",
-        "*DIFFERENT* value.\n",
-        " If still necessary, do change your code, following http://matrix.r-forge.r-project.org\n")
-## packageDescription("Matrix")$Version >= package_version("0.999375-31")
-          } ## else  the variable exists but is FALSE --> no warning either
-          ldet <- .Call(CHMfactor_ldetL2, x) / 2
+	  ldet <- .Call(CHMfactor_ldetL2, x) / 2
 	  mkDet(logarithm=logarithm, ldet=ldet, sig = 1L)
       })
 

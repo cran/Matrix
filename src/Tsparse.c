@@ -62,11 +62,12 @@ SEXP Tsparse_to_tCsparse(SEXP x, SEXP uplo, SEXP diag)
 
 SEXP Tsparse_diagU2N(SEXP x)
 {
-    char *valid[] = {"dtTMatrix", /* 0 */
-		     "ltTMatrix", /* 1 */
-		     "ntTMatrix", /* 2 : no x slot */
-		     "ztTMatrix", /* 3 */
-		     ""};
+    static const char *valid[] = {
+	"dtTMatrix", /* 0 */
+	"ltTMatrix", /* 1 */
+	"ntTMatrix", /* 2 : no x slot */
+	"ztTMatrix", /* 3 */
+	""};
 /* #define xSXP(iTyp) ((iTyp == 0) ? REALSXP : ((iTyp == 1) ? LGLSXP : /\* else *\/ CPLXSXP)); */
 /* #define xTYPE(iTyp) ((iTyp == 0) ? double : ((iTyp == 1) ? int : /\* else *\/ Rcomplex)); */
     int ctype = Matrix_check_class_etc(x, valid);

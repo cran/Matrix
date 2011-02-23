@@ -218,11 +218,12 @@ static void chTr2Ralloc(CHM_TR dest, CHM_TR src)
 CHM_SP as_cholmod_sparse(CHM_SP ans, SEXP x,
 			 Rboolean check_Udiag, Rboolean sort_in_place)
 {
-    char *valid[] = {"dgCMatrix", "dsCMatrix", "dtCMatrix",
-		     "lgCMatrix", "lsCMatrix", "ltCMatrix",
-		     "ngCMatrix", "nsCMatrix", "ntCMatrix",
-		     "zgCMatrix", "zsCMatrix", "ztCMatrix",
-		     ""};
+    static const char *valid[] = {
+	"dgCMatrix", "dsCMatrix", "dtCMatrix",
+	"lgCMatrix", "lsCMatrix", "ltCMatrix",
+	"ngCMatrix", "nsCMatrix", "ntCMatrix",
+	"zgCMatrix", "zsCMatrix", "ztCMatrix",
+	""};
     int *dims = INTEGER(GET_SLOT(x, Matrix_DimSym)),
 	ctype = Matrix_check_class_etc(x, valid);
     SEXP islot = GET_SLOT(x, Matrix_iSym);
@@ -403,11 +404,12 @@ SEXP chm_sparse_to_SEXP(CHM_SP a, int dofree, int uploT, int Rkind,
  */
 CHM_TR as_cholmod_triplet(CHM_TR ans, SEXP x, Rboolean check_Udiag)
 {
-    char *valid[] = {"dgTMatrix", "dsTMatrix", "dtTMatrix",
-		     "lgTMatrix", "lsTMatrix", "ltTMatrix",
-		     "ngTMatrix", "nsTMatrix", "ntTMatrix",
-		     "zgTMatrix", "zsTMatrix", "ztTMatrix",
-		     ""};
+    static const char *valid[] = {
+	"dgTMatrix", "dsTMatrix", "dtTMatrix",
+	"lgTMatrix", "lsTMatrix", "ltTMatrix",
+	"ngTMatrix", "nsTMatrix", "ntTMatrix",
+	"zgTMatrix", "zsTMatrix", "ztTMatrix",
+	""};
     int *dims = INTEGER(GET_SLOT(x, Matrix_DimSym)),
 	ctype = Matrix_check_class_etc(x, valid);
     SEXP islot = GET_SLOT(x, Matrix_iSym);
@@ -591,11 +593,12 @@ SEXP chm_triplet_to_SEXP(CHM_TR a, int dofree, int uploT, int Rkind,
 CHM_DN as_cholmod_dense(CHM_DN ans, SEXP x)
 {
 #define _AS_cholmod_dense_1						\
-    char *valid[] = {"dmatrix", "dgeMatrix",				\
-		     "lmatrix", "lgeMatrix",				\
-		     "nmatrix", "ngeMatrix",				\
-		     "zmatrix", "zgeMatrix", ""};			\
-    int dims[2], ctype = Matrix_check_class_etc(x, valid), nprot = 0; \
+    static const char *valid[] = {					\
+        "dmatrix", "dgeMatrix",						\
+	"lmatrix", "lgeMatrix",						\
+	"nmatrix", "ngeMatrix",						\
+	"zmatrix", "zgeMatrix", ""};					\
+    int dims[2], ctype = Matrix_check_class_etc(x, valid), nprot = 0;	\
 									\
     if (ctype < 0) {		/* not a classed matrix */		\
 	if (isMatrix(x)) Memcpy(dims, INTEGER(getAttrib(x, R_DimSymbol)), 2); \
@@ -869,7 +872,8 @@ CHM_DN numeric_as_chm_dense(CHM_DN ans, double *v, int nr, int nc)
  */
 CHM_FR as_cholmod_factor(CHM_FR ans, SEXP x)
 {
-    char *valid[] = {"dCHMsuper", "dCHMsimpl", "nCHMsuper", "nCHMsimpl", ""};
+    static const char *valid[] = {"dCHMsuper", "dCHMsimpl",
+				  "nCHMsuper", "nCHMsimpl", ""};
     int *type = INTEGER(GET_SLOT(x, install("type"))),
 	ctype = Matrix_check_class_etc(x, valid);
     SEXP tmp;

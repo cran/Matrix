@@ -36,7 +36,7 @@ all.slot.equal <- function(x,y, ...) {
     TRUE
 }
 
-## all.equal() for list-coercable objects -- apart from *some* components
+## all.equal() for list-coercible objects -- apart from *some* components
 all.equal.X <- function(x,y, except, ...)
 {
     .trunc <- function(x) {
@@ -69,6 +69,15 @@ showProc.time <- local({
 	cat('Time elapsed: ', (pct - ot)[1:3],'\n')
     }
 })
+
+##' @title turn an S4 object (with slots) into a list with corresponding components
+##' @param obj an R object with a formal class (aka "S4")
+##' @return a list with named components where \code{obj} had slots
+##' @author Martin Maechler
+S4_2list <- function(obj) {
+   sn <- slotNames(obj)
+   structure(lapply(sn, slot, object = obj), .Names = sn)
+}
 
 
 ### ------- Part II  -- related to matrices, but *not* "Matrix" -----------
@@ -311,7 +320,7 @@ rUnitTri <- function(n, upper = TRUE, ...)
 
 ## This is related to rUnitTri(), ver
 mkLDL <- function(n, density = 1/3) {
-    ## Purpose: make nice artifical   A = L D L'  (with exact numbers) decomp
+    ## Purpose: make nice artificial   A = L D L'  (with exact numbers) decomp
     ## ----------------------------------------------------------------------
     ## Author: Martin Maechler, Date: 15 Mar 2008
     stopifnot(n == round(n))

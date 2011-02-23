@@ -405,7 +405,6 @@ formatSparseM <- function(x, zero.print = ".", align = c("fancy", "right"),
             iN0 <- 1L + .Call(m_encodeInd, ij, di = d, FALSE)
             cx[iN0[F.]] <- ":" # non-structural FALSE (or "o", "," , "-" or "f")?
         }
-        cx[-iN0] <- zero.print
     }
     else if(match.arg(align) == "fancy" && !is.integer(m)) {
         fi <- apply(m, 2, format.info) ## fi[3,] == 0  <==> not expo.
@@ -430,9 +429,8 @@ formatSparseM <- function(x, zero.print = ".", align = c("fancy", "right"),
         }
         else
             zero.print <- rep.int(zero.print, length(cols))
-
-        cx[-iN0] <- zero.print
     } ## else "right" : nothing to do
+    cx[-iN0] <- zero.print
     cx
 }## formatSparseM()
 

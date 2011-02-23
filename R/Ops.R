@@ -1426,8 +1426,9 @@ Ops.spV.spV <- function(e1, e2) {
 	i. <- c(sp[["x.only"]], sp[["y.only"]], sp[["int"]])
 	cl2x <- typeof(e2x) ## atomic "class"es - can use in is(), as(), too:
 	if(!is2n && is(new.x, cl2x)) {
-	    e2@x <- as(new.x, cl2x)
-	    e2@i <- i.
+	    i. <- sort.int(i., method = "quick", index.return=TRUE)
+	    e2@x <- as(new.x, cl2x)[i.$ix]
+	    e2@i <- i.$x
 	    e2
 	} else {
 	    newSpV(paste0(.kind.type[typeof(new.x)],"sparseVector"),

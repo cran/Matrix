@@ -613,7 +613,7 @@ t_geMatrix <- function(x) {
     x@x <- as.vector(t(array(x@x, dim = x@Dim))) # no dimnames here
     x@Dim <- x@Dim[2:1]
     x@Dimnames <- x@Dimnames[2:1]
-    ## FIXME: how to set factors?
+    x@factors <- list() ## FIXME -- do better, e.g., for "LU"?
     x
 }
 

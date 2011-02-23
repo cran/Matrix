@@ -48,8 +48,6 @@ export("Cholesky",
        "readHB",
        "readMM",
        "sparse.model.matrix",
-## only temporary (2010-07) for back compatibility:
-       "model.Matrix",
        "symmpart",
        "skewpart",
        "tcrossprod",

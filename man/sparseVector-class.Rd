@@ -41,9 +41,10 @@
 \alias{Summary,nsparseVector-method}
 %
 \alias{coerce,ANY,sparseVector-method}
+\alias{coerce,CsparseMatrix,sparseVector-method}
 \alias{coerce,TsparseMatrix,sparseVector-method}
-\alias{coerce,diagonalMatrix,sparseVector-method}
 \alias{coerce,sparseMatrix,sparseVector-method}
+\alias{coerce,diagonalMatrix,sparseVector-method}
 \alias{coerce,atomicVector,sparseVector-method}
 \alias{coerce,atomicVector,dsparseVector-method}
 \alias{coerce,sparseVector,integer-method}
@@ -107,15 +108,20 @@
      of the sparse vector.  Note that \code{"numeric"} can be
      considerably larger than the maximal \code{"integer"},
      \code{\link{.Machine}$integer.max}, on purpose.}
-    \item{\code{i}:}{class \code{"integer"} - the (1-based) indices of
-      the non-zero entries.  Must \emph{not} be \code{NA}.}
+
+    \item{\code{i}:}{class \code{"numeric"} - the (1-based) indices of
+      the non-zero entries.  Must \emph{not} be \code{NA} and strictly
+      sorted increasingly.
+
+      Note that \code{"integer"} is \dQuote{part of} \code{"numeric"},
+      and can (and often will) be used for non-huge sparseVectors.}
+
     \item{\code{x}:}{(for all but \code{"nsparseVector"}):
       the non-zero entries.  This is of class \code{"numeric"} for class
       \code{"dsparseVector"},  \code{"logical"} for class
       \code{"lsparseVector"}, etc.
 
       Note that \code{"nsparseVector"}s have no \code{x} slot.
-      Further, mainly for ease of method definitions, we've defined the
       Further, mainly for ease of method definitions, we've defined the
       class union (see \code{\link{setClassUnion}}) of all sparse vector
       classes which \emph{have} an \code{x} slot, as class \code{"xsparseVector"}.

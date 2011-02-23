@@ -780,11 +780,35 @@ setClass("sparseVector",
          validity = function(object) {
              n <- object@length
 	     if(any(!is.finite(i <- object@i)))# no NA's !
-		 sprintf("'i' slot is not all finite")
+		 "'i' slot is not all finite"
 	     else if(any(i < 1) || any(i > n))
-                 sprintf("'i' must be in 1:%d", n)
+		 sprintf("'i' must be in 1:%d", n)
+	     else if(is.unsorted(i, strictly=TRUE))
+		 "'i' must be sorted strictly increasingly"
              else TRUE
          })
+
+##' initialization -- ensuring that  'i' is sorted (and 'x' alongside)
+setMethod("initialize", "sparseVector", function(.Object, i, x, ...)
+      {
+	  has.x <- !missing(x)
+	  if(!missing(i)) {
+	      .Object@i <- ## (be careful to assign in all cases)
+		  if(is.unsorted(i, strictly=TRUE)) {
+		      if(is(.Object, "xsparseVector") && has.x) {
+			  si <- sort.int(i, index.return=TRUE)
+			  x <- x[si$ix]
+			  si$x
+		      }
+		      else
+			  sort.int(i, method = "quick")
+		  }
+		  else i
+	  }
+	  if(has.x) .Object@x <- x
+	  callNextMethod()
+      })
+
 .validXspVec <- function(object) {
     ## n <- object@length
     if(length(object@i) != length(object@x))

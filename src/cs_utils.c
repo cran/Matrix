@@ -60,7 +60,7 @@ static CSP csp_eye(int n)
  */
 cs *Matrix_as_cs(cs *ans, SEXP x, Rboolean check_Udiag)
 {
-    char *valid[] = {"dgCMatrix", "dtCMatrix", ""};
+    static const char *valid[] = {"dgCMatrix", "dtCMatrix", ""};
     /* had also "dsCMatrix", but that only stores one triangle */
     int *dims, ctype = Matrix_check_class_etc(x, valid);
     SEXP islot;
@@ -120,7 +120,7 @@ cs *Matrix_as_cs(cs *ans, SEXP x, Rboolean check_Udiag)
 SEXP Matrix_cs_to_SEXP(cs *a, char *cl, int dofree)
 {
     SEXP ans;
-    char *valid[] = {"dgCMatrix", "dsCMatrix", "dtCMatrix", ""};
+    static const char *valid[] = {"dgCMatrix", "dsCMatrix", "dtCMatrix", ""};
     int *dims, ctype = Matrix_check_class(cl, valid), nz;
 
     if (ctype < 0)
@@ -163,7 +163,7 @@ SEXP Matrix_cs_to_SEXP(cs *a, char *cl, int dofree)
 css *Matrix_as_css(css *ans, SEXP x)
 {
     char *cl = class_P(x);
-	*valid[] = {"css_LU", "css_QR", ""};
+    static const char *valid[] = {"css_LU", "css_QR", ""};
     int *nz = INTEGER(GET_SLOT(x, install("nz"))),
 	ctype = Matrix_check_class(cl, valid);
 
@@ -199,7 +199,7 @@ css *Matrix_as_css(css *ans, SEXP x)
  */
 csn *Matrix_as_csn(csn *ans, SEXP x)
 {
-    char *valid[] = {"csn_LU", "csn_QR", ""};
+    static const char *valid[] = {"csn_LU", "csn_QR", ""};
     int ctype = Matrix_check_class(class_P(x), valid);
 
     if (ctype < 0)
@@ -236,7 +236,7 @@ csn *Matrix_as_csn(csn *ans, SEXP x)
 SEXP Matrix_css_to_SEXP(css *S, char *cl, int dofree, int m, int n)
 {
     SEXP ans;
-    char *valid[] = {"css_LU", "css_QR", ""};
+    static const char *valid[] = {"css_LU", "css_QR", ""};
     int *nz, ctype = Matrix_check_class(cl, valid);
 
     if (ctype < 0)
@@ -281,7 +281,7 @@ SEXP Matrix_css_to_SEXP(css *S, char *cl, int dofree, int m, int n)
 SEXP Matrix_csn_to_SEXP(csn *N, char *cl, int dofree)
 {
     SEXP ans;
-    char *valid[] = {"csn_LU", "csn_QR", ""};
+    static const char *valid[] = {"csn_LU", "csn_QR", ""};
     int ctype = Matrix_check_class(cl, valid), n = (N->U)->n;
 
     if (ctype < 0)

@@ -91,6 +91,7 @@ newSpV <- function(class, x, i, length) {
     }
     new(class, x = x, i = i, length = length)
 }
+## a "version" of 'prev' with changed contents:
 newSpVec <- function(class, x, prev)
     newSpV(class, x=x, i=prev@i, length=prev@length)
 
@@ -132,6 +133,28 @@ setAs("diagonalMatrix", "sparseVector",
 setAs("sparseMatrix", "sparseVector",
       function(from) as(as(from, "TsparseMatrix"), "sparseVector"))
 
+setAs("CsparseMatrix", "sparseVector", ## could go via TsparseMatrix, but this is faster:
+      function(from) {
+	  d <- dim(from)
+	  n <- prod(d) # -> numeric, no integer overflow
+          cld <- getClassDef(class(from))
+	  kind <- .M.kind(from, cld)
+	  if(extends(cld, "symmetricMatrix"))
+	      from <- as(from, "generalMatrix")
+	  else if(extends(cld, "triangularMatrix") && from@diag == "U")
+	      from <- .Call(Csparse_diagU2N, from)
+          xj <- .Call(Matrix_expand_pointers, from@p)
+	  ii <- if(n < .Machine$integer.max)
+	      1L + from@i + d[1] * xj
+	  else
+	      1 + from@i + as.double(d[1]) * xj
+	  cl <- paste0(kind, "sparseVector")
+	  if(kind != "n") ## have 'x' slot
+	      new(cl, i = ii, length = n, x = from@x)
+	  else
+	      new(cl, i = ii, length = n)
+      })
+
 setAs("TsparseMatrix", "sparseVector",
       function(from) {
 	  d <- dim(from)
@@ -144,15 +167,15 @@ setAs("TsparseMatrix", "sparseVector",
 	      from <- .Call(Tsparse_diagU2N, from)
 	  if(is_duplicatedT(from, di = d))
 	      from <- uniqTsparse(from)
-	  r <- new(paste0(kind, "sparseVector"), length = n)
-	  r@i <- if(n < .Machine$integer.max) {
+	  ii <- if(n < .Machine$integer.max)
 	      1L + from@i + d[1] * from@j
-	  } else {
+	  else
 	      1 + from@i + as.double(d[1]) * from@j
-	  }
+	  cl <- paste0(kind, "sparseVector")
 	  if(kind != "n") ## have 'x' slot
-	      r@x <- from@x
-	  r
+	      new(cl, i = ii, length = n, x = from@x)
+	  else
+	      new(cl, i = ii, length = n)
       })
 
 
@@ -712,7 +735,6 @@ setMethod("solve", signature(a = "Matrix", b = "sparseVector"),
 
 ## the 'i' slot is 1-based *and* has no NA's:
 
-setMethod("which", "nsparseVector", function(x, arr.ind) sort.int(x@i, method="quick"))
-setMethod("which", "lsparseVector",
-	  function(x, arr.ind) sort.int(x@i[is1(x@x)], method="quick"))
+setMethod("which", "nsparseVector", function(x, arr.ind) x@i)
+setMethod("which", "lsparseVector", function(x, arr.ind) x@i[is1(x@x)])
 ## and *error* for "dsparseVector", "i*", ...

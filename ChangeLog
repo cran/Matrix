@@ -1,3 +1,60 @@
+2011-02-23  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/factorizations.c (LU_expand): now also works for non-square (m x n)
+	* tests/factorizing.R: testing that
+
+2011-02-22  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Auxiliaries.R (t_geMatrix): drop 'factors', as they can be
+	wrong.
+
+2011-02-18  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Tsparse.R (replTmat): fix bug for  M[i,j] <- v,
+	when j had duplicated entries.
+	* tests/indexing.R (chkAssign): new function; testing the above.
+
+2011-02-17  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/AllClass.R, R/sparseVector.R, man/sparseVector-class.Rd: now
+	require explicitly that i-slot must be sorted for sparseVectors.
+
+2011-02-16  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/sparseMatrix.R (formatSparseM): align="right" accidentally did
+	not use zero.print at all.
+	print/format sparse Matrix: fix align="right" and improve docu
+
+2011-02-17  Douglas Bates <bates@stat.wisc.edu>
+
+	* DESCRIPTION: Remove Encoding: directive.
+
+2011-02-10  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* inst/doc/sparseModels.Rnw: use png for large graphics (suggestion from
+	  Brian)
+
+2011-02-05  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* man/symmpart.Rd: update, thanks to Spencer Graves' prompting.
+
+2011-01-07  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/CHMfactor.R (determinant(<CHMfactor>)): no longer warn about
+	incompatible change of 2009-09-01.
+
+2011-01-04  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/nearPD.R (nearPD): better error message when all eigenvalues
+	are (at least close to) negative.
+
+2010-12-18  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.999375-47, CRAN-released: .., r..
+
+	* R/spModels.R, NAMESPACE: remove model.Matrix();
+	we had deprecated it for about four months now.
+
 2010-12-12  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/eigen.R,...: use full argument names;
@@ -5,6 +62,8 @@
 		checkUsagePackage("Matrix", suppressPartialMatchArgs = FALSE)
 
 2010-12-11  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.999375-46, CRAN-released: 2010-12-14, r2633
 
 	* R/products.R: dimension fixing in some Matrix o vector  [t]crossprod()s.
 
@@ -17,7 +76,7 @@
 
 2010-10-08  Martin Maechler  <maechler@stat.math.ethz.ch>
 
-	* DESCRIPTION (Version): 0.999375-45, CRAN-released: 2010-11-10
+	* DESCRIPTION (Version): 0.999375-45, CRAN-released: 2010-11-10, r2624
 
 	* R/sparseMatrix.R (graph.wgtMatrix): add 'graph::' in a few
 	places; as 'graph' package is not imported and may well be loaded
@@ -47,7 +106,7 @@
 
 2010-08-09  Martin Maechler  <maechler@stat.math.ethz.ch>
 
-	* DESCRIPTION (Version): 0.999375-44, CRAN-released: 2010-09-11
+	* DESCRIPTION (Version): 0.999375-44, CRAN-released: 2010-09-11, r2618
 
 	* R/diagMatrix.R (diagCspprod, Cspdiagprod): drop (possibly wrong) @factors
 	* R/Ops.R (.Arith.CM.atom, .Arith.atom.CM, A.M.n, A.n.M): ditto
@@ -634,7 +693,7 @@
 2009-09-01  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/CHMfactor.R (determinant): divide previous log(det(.)) by 2;
-	now returning det(L); and modifiy the "CHMfactor.warn" message.
+	now returning det(L); and modify the "CHMfactor.warn" message.
 
 	* man/CHMfactor-class.Rd: modify documentation accordingly.
 

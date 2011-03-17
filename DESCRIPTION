@@ -1,6 +1,6 @@
 Package: Matrix
-Version: 0.999375-47
-Date: 2011-02-23
+Version: 0.999375-48
+Date: 2011-03-17
 Priority: recommended
 Title: Sparse and Dense Matrix Classes and Methods
 Author: Douglas Bates <bates@stat.wisc.edu> and Martin Maechler
@@ -22,6 +22,6 @@ LicenseDetails: The Matrix package includes libraries AMD, CHOLMOD,
         Davis.  All sections of that code are covered by the GPL or
         LGPL licenses.  See the directory doc/UFsparse for details.
 URL: http://Matrix.R-forge.R-project.org/
-Packaged: 2011-02-23 14:47:06 UTC; maechler
+Packaged: 2011-03-17 11:54:32 UTC; maechler
 Repository: CRAN
-Date/Publication: 2011-02-24 08:59:39
+Date/Publication: 2011-03-17 16:00:48

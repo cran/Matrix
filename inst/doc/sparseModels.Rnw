@@ -268,7 +268,7 @@ more than an order of magnitude.
 %% 2) the resulting  pdf file is too large -- use png instead:
 <<X-sparse-image, eval=FALSE>>=
 image(t(smm), aspect = 1/3, lwd=0, col.regions = "red")
-<<X-sparse-image-fake, fig=TRUE, include=FALSE, echo=FALSE, results=hide>>=
+<<X-sparse-image-fake, fig=TRUE, include=FALSE, echo=FALSE, results=hide, keep.source=FALSE>>=
 png("sparseModels-X-sparse-image.png", width=6, height=3,
     units='in', res=150)
 print(
@@ -276,6 +276,7 @@ print(
       )
 dev.off()
 @
+%%--NB: 'keep.source=FALSE' above is workaround-a-bug-in-R-devel-(2.13.x)---
 \par\vspace*{-1ex}
 \centerline{%
   \includegraphics[width=1.1\textwidth]{sparseModels-X-sparse-image.png}}

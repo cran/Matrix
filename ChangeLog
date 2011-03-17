@@ -1,3 +1,8 @@
+2011-03-17  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.999375-48 -- *only* difference to CRAN
+	released *-47, is the work around Sweave bug in inst/doc/sparseModels.Rnw.
+
 2011-02-23  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* src/factorizations.c (LU_expand): now also works for non-square (m x n)

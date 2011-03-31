@@ -7,89 +7,88 @@ cholmod_common c;
 /* cholmod_common cl; */
 
 SEXP chm_common_env;
+static SEXP dboundSym, grow0Sym, grow1Sym, grow2Sym, maxrankSym,
+    supernodal_switchSym, supernodalSym, final_asisSym, final_superSym,
+    final_llSym, final_packSym, final_monotonicSym, final_resymbolSym,
+    prefer_zomplexSym, prefer_upperSym, quick_return_if_not_posdefSym,
+    nmethodsSym, m0_ordSym, postorderSym;
 
 void CHM_store_common() {
     SEXP rho = chm_common_env;
-    defineVar(install("dbound"), ScalarReal(c.dbound), rho);
-    defineVar(install("grow0"), ScalarReal(c.grow0), rho);
-    defineVar(install("grow1"), ScalarReal(c.grow1), rho);
-    defineVar(install("grow2"), ScalarInteger(c.grow2), rho);
-    defineVar(install("maxrank"), ScalarInteger(c.maxrank), rho);
-    defineVar(install("supernodal_switch"),
+    defineVar(dboundSym, ScalarReal(c.dbound), rho);
+    defineVar(grow0Sym, ScalarReal(c.grow0), rho);
+    defineVar(grow1Sym, ScalarReal(c.grow1), rho);
+    defineVar(grow2Sym, ScalarInteger(c.grow2), rho);
+    defineVar(maxrankSym, ScalarInteger(c.maxrank), rho);
+    defineVar(supernodal_switchSym,
 	      ScalarReal(c.supernodal_switch), rho);
-    defineVar(install("supernodal"),
-	      ScalarInteger(c.supernodal), rho);
-    defineVar(install("final_asis"),
-	      ScalarLogical(c.final_asis), rho);
-    defineVar(install("final_super"),
-	      ScalarLogical(c.final_super), rho);
-    defineVar(install("final_ll"),
-	      ScalarLogical(c.final_ll), rho);
-    defineVar(install("final_pack"),
-	      ScalarLogical(c.final_pack), rho);
-    defineVar(install("final_monotonic"),
-	      ScalarLogical(c.final_monotonic), rho);
-    defineVar(install("final_resymbol"),
-	      ScalarLogical(c.final_resymbol), rho);
-    defineVar(install("prefer_zomplex"),
-	      ScalarLogical(c.prefer_zomplex), rho);
-    defineVar(install("prefer_upper"),
-	      ScalarLogical(c.prefer_upper), rho);
-    defineVar(install("quick_return_if_not_posdef"),
+    defineVar(supernodalSym, ScalarInteger(c.supernodal), rho);
+    defineVar(final_asisSym, ScalarLogical(c.final_asis), rho);
+    defineVar(final_superSym, ScalarLogical(c.final_super), rho);
+    defineVar(final_llSym, ScalarLogical(c.final_ll), rho);
+    defineVar(final_packSym, ScalarLogical(c.final_pack), rho);
+    defineVar(final_monotonicSym, ScalarLogical(c.final_monotonic), rho);
+    defineVar(final_resymbolSym, ScalarLogical(c.final_resymbol), rho);
+    defineVar(prefer_zomplexSym, ScalarLogical(c.prefer_zomplex), rho);
+    defineVar(prefer_upperSym, ScalarLogical(c.prefer_upper), rho);
+    defineVar(quick_return_if_not_posdefSym,
 	      ScalarLogical(c.quick_return_if_not_posdef), rho);
-    defineVar(install("nmethods"), ScalarInteger(c.nmethods), rho);
-    defineVar(install("m0.ord"),
-	      ScalarInteger(c.method[0].ordering), rho);
-    defineVar(install("postorder"), ScalarLogical(c.postorder), rho);
+    defineVar(nmethodsSym, ScalarInteger(c.nmethods), rho);
+    defineVar(m0_ordSym, ScalarInteger(c.method[0].ordering), rho);
+    defineVar(postorderSym, ScalarLogical(c.postorder), rho);
 }
 
 void CHM_restore_common() {
     SEXP rho = chm_common_env;
-    c.dbound = asReal(findVarInFrame(rho, install("dbound")));
-    c.grow0 = asReal(findVarInFrame(rho, install("grow0")));
-    c.grow1 = asReal(findVarInFrame(rho, install("grow1")));
-    c.grow2 = asInteger(findVarInFrame(rho, install("grow2")));
-    c.maxrank =
-	asInteger(findVarInFrame(rho, install("maxrank")));
-    c.supernodal_switch =
-	asReal(findVarInFrame(rho, install("supernodal_switch")));
-    c.supernodal =
-	asLogical(findVarInFrame(rho, install("supernodal")));
-    c.final_asis =
-	asLogical(findVarInFrame(rho, install("final_asis")));
-    c.final_super =
-	asLogical(findVarInFrame(rho, install("final_super")));
-    c.final_ll =
-	asLogical(findVarInFrame(rho, install("final_ll")));
-    c.final_pack =
-	asLogical(findVarInFrame(rho, install("final_pack")));
-    c.final_monotonic =
-	asLogical(findVarInFrame(rho, install("final_monotonic")));
-    c.final_resymbol =
-	asLogical(findVarInFrame(rho, install("final_resymbol")));
-    c.prefer_zomplex =
-	asLogical(findVarInFrame(rho, install("prefer_zomplex")));
-    c.prefer_upper =
-	asLogical(findVarInFrame(rho, install("prefer_upper")));
+    c.dbound = asReal(findVarInFrame(rho, dboundSym));
+    c.grow0 = asReal(findVarInFrame(rho, grow0Sym));
+    c.grow1 = asReal(findVarInFrame(rho, grow1Sym));
+    c.grow2 = asInteger(findVarInFrame(rho, grow2Sym));
+    c.maxrank = asInteger(findVarInFrame(rho, maxrankSym));
+    c.supernodal_switch = asReal(findVarInFrame(rho, supernodal_switchSym));
+    c.supernodal = asLogical(findVarInFrame(rho, supernodalSym));
+    c.final_asis = asLogical(findVarInFrame(rho, final_asisSym));
+    c.final_super = asLogical(findVarInFrame(rho, final_superSym));
+    c.final_ll = asLogical(findVarInFrame(rho, final_llSym));
+    c.final_pack = asLogical(findVarInFrame(rho, final_packSym));
+    c.final_monotonic = asLogical(findVarInFrame(rho, final_monotonicSym));
+    c.final_resymbol = asLogical(findVarInFrame(rho, final_resymbolSym));
+    c.prefer_zomplex = asLogical(findVarInFrame(rho, prefer_zomplexSym));
+    c.prefer_upper = asLogical(findVarInFrame(rho, prefer_upperSym));
     c.quick_return_if_not_posdef =
-	asLogical(findVarInFrame(rho,
-				 install("quick_return_if_not_posdef")));
-    c.nmethods =
-	asInteger(findVarInFrame(rho, install("nmethods")));
-    c.method[0].ordering =
-	asInteger(findVarInFrame(rho, install("m0.ord")));
-    c.postorder =
-	asLogical(findVarInFrame(rho, install("postorder")));
+	asLogical(findVarInFrame(rho, quick_return_if_not_posdefSym));
+    c.nmethods = asInteger(findVarInFrame(rho, nmethodsSym));
+    c.method[0].ordering = asInteger(findVarInFrame(rho, m0_ordSym));
+    c.postorder = asLogical(findVarInFrame(rho, postorderSym));
 }
 
 SEXP CHM_set_common_env(SEXP rho) {
     if (!isEnvironment(rho))
 	error(_("Argument rho must be an environment"));
     chm_common_env = rho;
+    dboundSym = install("dbound");
+    grow0Sym = install("grow0");
+    grow1Sym = install("grow1");
+    grow2Sym = install("grow2");
+    maxrankSym = install("maxrank");
+    supernodal_switchSym = install("supernodal_switch");
+    supernodalSym = install("supernodal");
+    final_asisSym = install("final_asis");
+    final_superSym = install("final_super");
+    final_llSym = install("final_ll");
+    final_packSym = install("final_pack");
+    final_monotonicSym = install("final_monotonic");
+    final_resymbolSym = install("final_resymbol");
+    prefer_zomplexSym = install("final_zomplex");
+    prefer_upperSym = install("final_upper");
+    quick_return_if_not_posdefSym = install("quick_return_if_not_posdef");
+    nmethodsSym = install("nmethods");
+    m0_ordSym = install("m0.ord");
+    postorderSym = install("postorder");
     CHM_store_common();
     return R_NilValue;
 }
-
+    
 static int stype(int ctype, SEXP x)
 {
     if ((ctype % 3) == 1) return (*uplo_P(x) == 'U') ? 1 : -1;

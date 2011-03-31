@@ -55,7 +55,7 @@
 
 2010-12-18  Martin Maechler  <maechler@stat.math.ethz.ch>
 
-	* DESCRIPTION (Version): 0.999375-47, CRAN-released: .., r..
+	* DESCRIPTION (Version): 0.999375-47, CRAN-released: 2011-02-23, r2653
 
 	* R/spModels.R, NAMESPACE: remove model.Matrix();
 	we had deprecated it for about four months now.

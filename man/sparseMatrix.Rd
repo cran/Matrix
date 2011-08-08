@@ -12,7 +12,8 @@
   \code{\link{new}("***Matrix", ....)} calls.
 }
 \usage{
-sparseMatrix(i = ep, j = ep, p, x, dims, dimnames, index1 = TRUE)
+sparseMatrix(i = ep, j = ep, p, x, dims, dimnames,
+             symmetric = FALSE, index1 = TRUE)
 }
 \arguments{
   \item{i,j}{integer vectors of the same length specifying the locations
@@ -34,6 +35,9 @@ sparseMatrix(i = ep, j = ep, p, x, dims, dimnames, index1 = TRUE)
     length 2.  Defaults to \code{c(max(i), max(j))}.}
   \item{dimnames}{optional list of \code{\link{dimnames}}; if not
     specified, none, i.e., \code{\link{NULL}} ones, are used.}
+  \item{symmetric}{logical indicating if the resulting matrix should be
+    symmetric.  In that case, only the lower or upper triangle needs to
+    be specified via \eqn{(i/j/p)}.}
   \item{index1}{logical scalar.  If \code{TRUE}, the default, the index
     vectors \code{i} and/or \code{j} are 1-based, as is the convention
     in \R.  That is, counting of rows and columns starts at 1.  If
@@ -118,6 +122,11 @@ sparseMatrix(x = TRUE, i=1:3, j=2:4) # recycling x, |--> "lgCMatrix"
 
 ## an empty sparse matrix:
 (e <- sparseMatrix(dims = c(4,6), i={}, j={}))
+
+## a symmetric one:
+(sy <- sparseMatrix(i= c(2,4,3:5), j= c(4,7:5,5), x = 1:5,
+                    dims = c(7,7), symmetric=TRUE))
+stopifnot(isSymmetric(sy))
 
 \donttest{% as SparseM is "outside"
 ## pointers example in converting from other sparse matrix representations.

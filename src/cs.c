@@ -1072,6 +1072,8 @@ csn *cs_lu (const cs *A, const css *S, double tol)
             }
         }
         if (ipiv == -1 || a <= 0) return (cs_ndone (N, NULL, xi, x, 0)) ;
+	// As we want to allow  LU for singular matrices, we could try to allow  "a == 0", 
+	// by replacing " a <= 0 " with  " a < 0 "   but that seems not to help...
         if (pinv [col] < 0 && fabs (x [col]) >= a*tol) ipiv = col ;
         /* --- Divide by pivot ---------------------------------------------- */
         pivot = x [ipiv] ;          /* the chosen pivot */

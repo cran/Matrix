@@ -1,7 +1,62 @@
+2011-08-05  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/sparseVector.R (head): method; used in a few cases, eliminating
+	two FIXMEs.
+
+	* DESCRIPTION (Version): 0.9996875-1
+
+	* R/ngTMatrix.R: stop() instead of warning() when NA's are coerced.
+	* R/Csparse.R, R/Tsparse.R
+	* src/t_Csparse_subassign.c, src/Csparse.c: <Csparse>[..] <- val
+	now works via .Call(*Csparse_subassign, ...) and no longer suffers
+	from unnecessary memory-blowup.
+
+2011-07-29  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/dgTMatrix.R (image): add 'useRaster = FALSE' argument,
+	providing the possibility of using raster (instead of rectangle
+	drawing vector) images.
+
+2011-07-27  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/nearPD.R: allow 'ensureSymmetry' argument for speedup.
+
+2011-06-10  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/diagMatrix.R (Cspdiagprod, diagCspprod): fixup for symmetric
+	sparse, and non constant-diagonal.
+
+2011-05-20  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/dsCMatrix.R (determinant(<dsCMatrix>): fix for Matrix(0, 1) case.
+
+2011-05-18  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/sparseMatrix.R (sparseMatrix): add 'symmetric' argument.
+
+2011-04-04  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/Csparse.c (Csparse_subassign): unfinished prototype
+
+	* src/....: Finally no longer hack "UFlong := int", but rather
+	* src/UFconfig/UFconfig.h: use standard CHOLMOD headers
+
+	* DESCRIPTION (Version): 0.9996875-0
+
+2011-03-31  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.999375-49
+
+2011-03-30  Douglas Bates <bates@stat.wisc.edu>
+
+	* Matrix/src/chm_common.c: [r2658] Install symbols first -
+	{preventing seg.fault under -gct}
+
 2011-03-17  Martin Maechler  <maechler@stat.math.ethz.ch>
 
-	* DESCRIPTION (Version): 0.999375-48 -- *only* difference to CRAN
-	released *-47, is the work around Sweave bug in inst/doc/sparseModels.Rnw.
+	* DESCRIPTION (Version): 0.999375-48
+	*only* difference to CRAN released *-47, is the work around Sweave bug
+	in inst/doc/sparseModels.Rnw.
 
 2011-02-23  Martin Maechler  <maechler@stat.math.ethz.ch>
 

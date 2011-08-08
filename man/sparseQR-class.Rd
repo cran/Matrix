@@ -72,7 +72,7 @@
 %\author{}
 \details{
   The decomposition is of the form \code{A[p+1,] == Q \%*\% R}, if
-  the \code{q} slot if of length 0 or \code{A[p+1,q+1] == Q \%*\% R}
+  the \code{q} slot is of length 0 or \code{A[p+1,q+1] == Q \%*\% R}
   where A is a sparse \eqn{m\times n}{m by n} matrix (\eqn{m\ge n}{m >= n}),
   \eqn{R} is an \eqn{m\times n}{m by n} matrix that is zero below the
   main diagonal.  The \code{p} slot is a 0-based permutation of

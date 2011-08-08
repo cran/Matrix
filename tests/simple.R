@@ -709,6 +709,7 @@ D. <- Diagonal(x= c(-2,3:4)); D.[lower.tri(D.)] <- 1:3 ; D.
 D0 <- Diagonal(x= 0:3);       D0[upper.tri(D0)] <- 1:6 ; D0
 stopifnot(all.equal(list(modulus = structure(24, logarithm = FALSE), sign = -1L),
                     unclass(determinant(D.,FALSE)), tol=1e-15),
+	  det(Matrix(0,1)) == 0,
           all.equal(list(modulus = structure(0, logarithm = FALSE), sign = 1L),
                     unclass(determinant(D0,FALSE)), tol=0)
           )
@@ -772,3 +773,14 @@ for(nm in ls()) if(is(.m <- get(nm), "Matrix")) {
 cat('Time elapsed: ', proc.time() - .pt,'\n') # "stats"
 
 if(!interactive()) warnings()
+
+## Platform - and other such info -- so we find it in old saved outputs
+SysI <- Sys.info()
+structure(Sys.info()[c(4,5,1:3)], class="simple.list")
+sessionInfo()
+c(Matrix = packageDescription("Matrix")$Built)
+if(SysI[["sysname"]] == "Linux" && require("sfsmisc")) local({
+    nn <- names(.Sc <- sfsmisc::Sys.cpuinfo())
+    nn <- names(.Sc <- .Sc[nn != "flags"])
+    print(.Sc[grep("\\.[0-9]$", nn, invert=TRUE)])
+})

@@ -295,3 +295,8 @@ exportMethods("cbind2")
 
 S3method(print, sparseSummary)
 S3method(c, abIndex)# < for now -- S4 method on c() seems "difficult"
+
+## So that such dispatch also works inside base functions:
+S3method(as.array, Matrix)
+S3method(as.matrix, Matrix)
+S3method(as.vector, Matrix)

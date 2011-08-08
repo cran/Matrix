@@ -20,22 +20,22 @@
     ## will work for 'Matrix'-matrices :
 
     ## works around namespace-protection on purpose:
-    assignInNamespace("..Old..as.matrix", base::as.matrix, ns = "base")
-    assignInNamespace("..Old..as.array",  base::as.array, ns = "base")
+    ## assignInNamespace("..Old..as.matrix", base::as.matrix, ns = "base")
+    ## assignInNamespace("..Old..as.array",  base::as.array, ns = "base")
     assignInNamespace("..Old.._x_",       base::`%x%`,    ns = "base")
 
-    ##  hack because base::as.matrix() is an S3 generic :
-    tmp <- function(x, ...) if(isS4(x)) Matrix::as.matrix(x) else UseMethod("as.matrix")
-    environment(tmp) <- baseenv()
-    assignInNamespace("as.matrix", tmp,      ns = "base")
-    assignInNamespace("as.array",  as.array, ns = "base")
+    ## ##  hack because base::as.matrix() is an S3 generic :
+    ## tmp <- function(x, ...) if(isS4(x)) Matrix::as.matrix(x) else UseMethod("as.matrix")
+    ## environment(tmp) <- baseenv()
+    ## assignInNamespace("as.matrix", tmp,      ns = "base")
+    ## assignInNamespace("as.array",  as.array, ns = "base")
 
 
     ## kronecker() / %x% -- in principle should re-assign base::kronecker
     ## -----------> ?? performance hit ?? in mantelhaen.test() ??
     ##
     ## This is formally identical to the base definition, but should use the
-    ## generic kronecker
+    ## generic kronecker (and hence our kronecker() methods for our matrices):
     assignInNamespace("%x%", function (X, Y) kronecker(X, Y), ns = "base")
 
     ## Hack needed, as C-level  eval / findFun seems not to work with
@@ -55,8 +55,8 @@ rBind <- methods:::rbind
 
 .onUnload <- function(libpath)
 {
-    assignInNamespace("as.matrix", base::..Old..as.matrix, ns = "base")
-    assignInNamespace("as.array",  base::..Old..as.array,  ns = "base")
+    ## assignInNamespace("as.matrix", base::..Old..as.matrix, ns = "base")
+    ## assignInNamespace("as.array",  base::..Old..as.array,  ns = "base")
     assignInNamespace("%x%",       base::..Old.._x_,       ns = "base")
 
     library.dynam.unload("Matrix", libpath)

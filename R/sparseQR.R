@@ -5,7 +5,8 @@ setMethod("qr.R", signature(qr = "sparseQR"),
 	      r <- qr@R
 	      ## FIXME: add option (e.g. argument 'backPermute = FALSE')
 	      ##	to deal with this:
-	      warning("qr.R(<sparse>) may differ from qr.R(<dense>) because of permutations")
+	      if(is.null(v <- getOption("Matrix.quiet")) || !v)
+		  warning("qr.R(<sparse>) may differ from qr.R(<dense>) because of permutations")
 	      if(!complete && {d <- dim(r); d[1] != d[2]})
 		  as(r[seq.int(min(d)), , drop = FALSE], "triangularMatrix")
 	      else

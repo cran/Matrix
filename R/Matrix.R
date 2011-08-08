@@ -26,6 +26,8 @@ setAs(from = "matrix", to = "Matrix", function(from) Matrix(from))
 setMethod("as.matrix", signature(x = "Matrix"), function(x) as(x, "matrix"))
 ## for 'Matrix' objects, as.array() should be equivalent:
 setMethod("as.array",  signature(x = "Matrix"), function(x) as(x, "matrix"))
+## Such that also base functions dispatch properly on our classes:
+as.array.Matrix <- as.matrix.Matrix <- function(x, ...) as(x, "matrix")
 
 ## head and tail apply to all Matrix objects for which subscripting is allowed:
 setMethod("head", signature(x = "Matrix"), utils::head.matrix)
@@ -37,6 +39,8 @@ setMethod("drop", signature(x = "Matrix"),
 ## slow "fall back" method {subclasses should have faster ones}:
 setMethod("as.vector", signature(x = "Matrix", mode = "missing"),
 	  function(x, mode) as.vector(as(x, "matrix"), mode))
+## so base functions calling as.vector() work too:
+as.vector.Matrix <- function(x, mode) as.vector(as(x, "matrix"), mode)
 
 setAs("Matrix", "vector",  function(from) as.vector (as(from, "matrix")))
 setAs("Matrix", "numeric", function(from) as.numeric(as(from, "matrix")))

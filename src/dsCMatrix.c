@@ -46,9 +46,9 @@ internal_chm_factor(SEXP Ap, int perm, int LDL, int super, double Imult)
 	    if (chk_nm(CHAR(STRING_ELT(nms, i)), perm, LDL, super)) {
 		L = AS_CHM_FR(VECTOR_ELT(facs, i));
 		R_CheckStack();
-		/* copy the factor so later it can safely be cholmod_l_free'd */
-		L = cholmod_l_copy_factor(L, &c);
-		if (Imult) cholmod_l_factorize_p(A, &Imult, (int*)NULL, 0, L, &c);
+		/* copy the factor so later it can safely be cholmod_free'd */
+		L = cholmod_copy_factor(L, &c);
+		if (Imult) cholmod_factorize_p(A, &Imult, (int*)NULL, 0, L, &c);
 		return L;
 	    }
 	}
@@ -64,20 +64,19 @@ internal_chm_factor(SEXP Ap, int perm, int LDL, int super, double Imult)
 	 /* super == 0 */ CHOLMOD_SIMPLICIAL);
 
     if (perm) {			/* obtain fill-reducing permutation */
-	L = cholmod_l_analyze(A, &c);
+	L = cholmod_analyze(A, &c);
     } else {			/* require identity permutation */
 	/* save current settings */
 	/* int nmethods = c.nmethods, ord0 = c.method[0].ordering, */
 	/*     postorder = c.postorder; */
 	c.nmethods = 1; c.method[0].ordering = CHOLMOD_NATURAL; c.postorder = FALSE;
-	L = cholmod_l_analyze(A, &c);
+	L = cholmod_analyze(A, &c);
 	/* and now restore */
 	/* c.nmethods = nmethods; c.method[0].ordering = ord0; c.postorder = postorder; */
     }
     /* Note that the "restore" (above and below) now only "works",
      * because our error handler call cholmod_l_defaults() ! */
-
-    if (!cholmod_l_factorize_p(A, &Imult, (int*)NULL, 0 /*fsize*/, L, &c))
+    if (!cholmod_factorize_p(A, &Imult, (int*)NULL, 0 /*fsize*/, L, &c))
 	error(_("Cholesky factorization failed"));
     /* c.supernodal = sup;		/\* restore previous settings *\/ */
     /* c.final_ll = ll; */
@@ -106,9 +105,9 @@ SEXP dsCMatrix_chol(SEXP x, SEXP pivot)
     CHM_SP R, Rt;
     SEXP ans;
 
-    Rt = cholmod_l_factor_to_sparse(L, &c);
-    R = cholmod_l_transpose(Rt, /*values*/ 1, &c);
-    cholmod_l_free_sparse(&Rt, &c);
+    Rt = cholmod_factor_to_sparse(L, &c);
+    R = cholmod_transpose(Rt, /*values*/ 1, &c);
+    cholmod_free_sparse(&Rt, &c);
     ans = PROTECT(chm_sparse_to_SEXP(R, 1/*do_free*/, 1/*uploT*/, 0/*Rkind*/,
 				     "N"/*diag*/, GET_SLOT(x, Matrix_DimNamesSym)));
 
@@ -121,7 +120,7 @@ SEXP dsCMatrix_chol(SEXP x, SEXP pivot)
 	setAttrib(ans, install("rank"), ScalarInteger((size_t) L->minor));
 	UNPROTECT(1);
     }
-    cholmod_l_free_factor(&L, &c);
+    cholmod_free_factor(&L, &c);
     UNPROTECT(1);
     return ans;
 }
@@ -174,7 +173,7 @@ SEXP dsCMatrix_LDL_D(SEXP Ap, SEXP permP, SEXP resultKind)
 			      L->x,
 			      L->Perm,
 			      resultKind));
-    cholmod_l_free_factor(&L, &c);
+    cholmod_free_factor(&L, &c);
     UNPROTECT(1);
     return(ans);
 }
@@ -185,8 +184,8 @@ SEXP dsCMatrix_Csparse_solve(SEXP a, SEXP b)
     CHM_SP cx, cb = AS_CHM_SP(b);
     R_CheckStack();
 
-    cx = cholmod_l_spsolve(CHOLMOD_A, L, cb, &c);
-    cholmod_l_free_factor(&L, &c);
+    cx = cholmod_spsolve(CHOLMOD_A, L, cb, &c);
+    cholmod_free_factor(&L, &c);
     return chm_sparse_to_SEXP(cx, /*do_free*/ 1, /*uploT*/ 0,
 			      /*Rkind*/ 0, /*diag*/ "N",
 			      /*dimnames = */ R_NilValue);
@@ -198,8 +197,8 @@ SEXP dsCMatrix_matrix_solve(SEXP a, SEXP b)
     CHM_DN cx, cb = AS_CHM_DN(PROTECT(mMatrix_as_dgeMatrix(b)));
     R_CheckStack();
 
-    cx = cholmod_l_solve(CHOLMOD_A, L, cb, &c);
-    cholmod_l_free_factor(&L, &c);
+    cx = cholmod_solve(CHOLMOD_A, L, cb, &c);
+    cholmod_free_factor(&L, &c);
     UNPROTECT(1);
     return chm_dense_to_SEXP(cx, 1, 0, /*dimnames = */ R_NilValue);
 }
@@ -210,13 +209,13 @@ SEXP dsCMatrix_matrix_solve(SEXP a, SEXP b)
 SEXP dsCMatrix_to_dgTMatrix(SEXP x)
 {
     CHM_SP A = AS_CHM_SP__(x);
-    CHM_SP Afull = cholmod_l_copy(A, /*stype*/ 0, /*mode*/ CHOLMOD_REAL, &c);
-    CHM_TR At = cholmod_l_sparse_to_triplet(Afull, &c);
+    CHM_SP Afull = cholmod_copy(A, /*stype*/ 0, /*mode*/ 1, &c);
+    CHM_TR At = cholmod_sparse_to_triplet(Afull, &c);
     R_CheckStack();
 
     if (!A->stype)
 	error(_("Non-symmetric matrix passed to dsCMatrix_to_dgTMatrix"));
-    cholmod_l_free_sparse(&Afull, &c);
+    cholmod_free_sparse(&Afull, &c);
     return chm_triplet_to_SEXP(At, 1, /*uploT*/ 0, /*Rkind*/ 0, "",
 			       GET_SLOT(x, Matrix_DimNamesSym));
 }

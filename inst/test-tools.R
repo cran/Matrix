@@ -16,6 +16,20 @@ assertError <- function(expr) {
 	stop(d.expr, "\n\t did not give an error", call. = FALSE)
     invisible(t.res)
 }
+assertWarningAtLeast <- function(expr) {
+    d.expr <- deparse(substitute(expr))
+    t.res <- tryCatch(expr, error = function(e)e, warning = function(w)w)
+    if(!inherits(t.res, "error") && !inherits(t.res, "warning"))
+	stop(d.expr, "\n\t did not give an error or warning", call. = FALSE)
+    invisible(t.res)
+}
+assertWarning <- function(expr) {
+    d.expr <- deparse(substitute(expr))
+    t.res <- tryCatch(expr, warning = function(w)w)
+    if(!inherits(t.res, "warning"))
+	stop(d.expr, "\n\t did not give a warning", call. = FALSE)
+    invisible(t.res)
+}
 
 isValid <- function(x, class) validObject(x, test=TRUE) && is(x, class)
 
@@ -60,13 +74,14 @@ relErr <- function(target, current) { ## make this work for 'Matrix'
 ## is.R22 <- (paste(R.version$major, R.version$minor, sep=".") >= "2.2")
 
 pkgRversion <- function(pkgname)
-    substring(packageDescription(pkgname)[["Built"]], 3,5)
+    sub("^R ([0-9.]+).*", "\\1", packageDescription(pkgname)[["Built"]])
 
-showProc.time <- local({
+showProc.time <- local({ ## function + 'pct' variable
     pct <- proc.time()
-    function() { ## CPU elapsed __since last called__
+    function(final="\n") { ## CPU elapsed __since last called__
 	ot <- pct ; pct <<- proc.time()
-	cat('Time elapsed: ', (pct - ot)[1:3],'\n')
+	## 'Time ..' *not* to be translated:  tools::Rdiff() skips its lines!
+	cat('Time elapsed: ', (pct - ot)[1:3], final)
     }
 })
 
@@ -112,6 +127,10 @@ assert.EQ.mat <- function(M, m, tol = if(show) 0 else 1e-15, show=FALSE) {
     else if(!isTRUE(r <- all.equal(MM, m, tol = tol)))
 	stop("all.equal() |->  ", r)
 }
+## a short cut
+assert.EQ.Mat <- function(M, M2, tol = if(show) 0 else 1e-15, show=FALSE)
+    assert.EQ.mat(M, as.mat(M2), tol=tol, show=show)
+
 
 chk.matrix <- function(M) {
     ## check object; including coercion to "matrix" :
@@ -457,6 +476,8 @@ checkMatrix <- function(m, m.m = if(do.matrix) as(m, "matrix"),
     isSparse <- extends(cld, "sparseMatrix") # also true for diagonalMatrix !
     isSym    <- extends(cld, "symmetricMatrix")
     isDiag   <- extends(cld, "diagonalMatrix")
+    isPerm   <- extends(cld, "pMatrix")
+    is.n     <- extends(cld, "nMatrix")
     nonMatr  <- clNam != Matrix:::MatrixClass(clNam, cld)
 
     Cat	 <- function(...) if(verbose) cat(...)
@@ -543,7 +564,6 @@ checkMatrix <- function(m, m.m = if(do.matrix) as(m, "matrix"),
     ## and test 'dim()' as well:
     d <- dim(m)
     isSqr <- d[1] == d[2]
-    isPerm <- extends(cld, "pMatrix")
     if(do.t) stopifnot(identical(diag(m), diag(t(m))))
     ## TODO: also === diag(band(m,0,0))
 
@@ -582,7 +602,7 @@ checkMatrix <- function(m, m.m = if(do.matrix) as(m, "matrix"),
 	    stopifnot(Qidentical(as(m11, "generalMatrix"),
 				 as(m12, "generalMatrix")))
     }
-    if(isSparse && !extends(cld,"nMatrix")) {
+    if(isSparse && !is.n) {
 	## ensure that as(., "nMatrix") gives nz-pattern
 	CatF("as(., \"nMatrix\") giving full nonzero-pattern: ")
 	n1 <- as(m, "nMatrix")
@@ -647,7 +667,7 @@ checkMatrix <- function(m, m.m = if(do.matrix) as(m, "matrix"),
 
     if(doCoerce2 && do.matrix) { ## not for large m:  !m will be dense
 
-	if(extends(cld, "nMatrix")) {
+	if(is.n) {
 	    stopifnot(identical(m, as(as(m, "dMatrix"),"nMatrix")),
 		      identical(m, as(as(m, "lMatrix"),"nMatrix")),
 		      identical(which(m), which(m.m)))
@@ -688,7 +708,8 @@ checkMatrix <- function(m, m.m = if(do.matrix) as(m, "matrix"),
 	    mm. <- m
 	    i0 <- if(m@uplo == "L")
 		upper.tri(mm.) else lower.tri(mm.)
-	    mm.[i0] <- 0 # ideally, mm. remained triangular, but can be dge*
+	    n.catchWarn <- if(is.n) suppressWarnings else identity
+	    n.catchWarn( mm.[i0] <- 0 ) # ideally, mm. remained triangular, but can be dge*
 	    CatF("as(<triangular (ge)matrix>, ",clNam,"): ", sep='')
 	    tm <- as(as(mm., "triangularMatrix"), clNam)
 	    Cat("valid:", validObject(tm), "\n")
@@ -696,7 +717,7 @@ checkMatrix <- function(m, m.m = if(do.matrix) as(m, "matrix"),
 		## note that diagU2N(<dtr>) |-> dtC :
 		stopifnot(Qidentical(tm, as(Matrix:::diagU2N(m), clNam)))
 	}
-	else if(extends(cld, "diagonalMatrix")) {
+	else if(isDiag) {
 
 	    ## TODO
 

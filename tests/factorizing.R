@@ -75,13 +75,17 @@ M <- as(m,"Matrix"); M ## "dsCMatrix" ...
 M0 <- rBind(0, cBind(0, M))
 dM  <- as(M, "denseMatrix")
 dM0 <- as(M0,"denseMatrix")
-if(FALSE) # FIXME "near-singular A"
-lum <- lu(M)
-if(FALSE) # FIXME "near-singular A"
-lum0 <- lu(M0)
-stopifnot(is.na(det(M)), is.na(det(dM)),
-	  TRUE ## FIXME !! det(M0) == 0, det(dM0) == 0
-	  )
+try( lum  <- lu(M) )# Err: "near-singular A"
+(lum  <- lu(M,  errSing=FALSE))# NA --- *BUT* it is not stored in @factors
+(lum0 <- lu(M0, errSing=FALSE))# NA --- and it is stored in M0@factors[["LU"]]
+## "FIXME" - TODO: Consider
+replNA <- function(x, value) { x[is.na(x)] <- value ; x }
+(EL.1 <- expand(lu.1 <- lu(M.1 <- replNA(M, -10))))
+## so it's quite clear how  lu() of the *singular* matrix  M	should work
+## but it's not supported by the C code in ../src/cs.c which errors out
+stopifnot(all.equal(M.1,  with(EL.1, P %*% L %*% U %*% Q)),
+	  is.na(det(M)), is.na(det(dM)),
+	  is.na(det(M0)), is.na(det(dM0)) )
 
 ###________ Cholesky() ________
 

@@ -174,47 +174,47 @@ cholmod_add.o: ../Core/cholmod_add.c
 #-------------------------------------------------------------------------------
 
 cholmod_l_common.o: ../Core/cholmod_common.c
-	$(C) -DDLONG -c $(I) $< -o $@
+	$(C) -DDLONG -c $(I) ../Core/cholmod_common.c -o $@
 
 cholmod_l_dense.o: ../Core/cholmod_dense.c ../Core/t_cholmod_dense.c
-	$(C) -DDLONG -c $(I) $< -o $@
+	$(C) -DDLONG -c $(I) ../Core/cholmod_dense.c -o $@
 
 cholmod_l_factor.o: ../Core/cholmod_factor.c
-	$(C) -DDLONG -c $(I) $< -o $@
+	$(C) -DDLONG -c $(I) ../Core/cholmod_factor.c -o $@
 
 cholmod_l_change_factor.o: ../Core/cholmod_change_factor.c \
 	../Core/t_cholmod_change_factor.c
-	$(C) -DDLONG -c $(I) $< -o $@
+	$(C) -DDLONG -c $(I) ../Core/cholmod_change_factor.c -o $@
 
 cholmod_l_memory.o: ../Core/cholmod_memory.c
-	$(C) -DDLONG -c $(I) $< -o $@
+	$(C) -DDLONG -c $(I) ../Core/cholmod_memory.c -o $@
 
 cholmod_l_sparse.o: ../Core/cholmod_sparse.c
-	$(C) -DDLONG -c $(I) $< -o $@
+	$(C) -DDLONG -c $(I) ../Core/cholmod_sparse.c -o $@
 
 cholmod_l_complex.o: ../Core/cholmod_complex.c
-	$(C) -DDLONG -c $(I) $< -o $@
+	$(C) -DDLONG -c $(I) ../Core/cholmod_complex.c -o $@
 
 cholmod_l_transpose.o: ../Core/cholmod_transpose.c ../Core/t_cholmod_transpose.c
-	$(C) -DDLONG -c $(I) $< -o $@
+	$(C) -DDLONG -c $(I) ../Core/cholmod_transpose.c -o $@
 
 cholmod_l_band.o: ../Core/cholmod_band.c
-	$(C) -DDLONG -c $(I) $< -o $@
+	$(C) -DDLONG -c $(I) ../Core/cholmod_band.c -o $@
 
 cholmod_l_copy.o: ../Core/cholmod_copy.c
-	$(C) -DDLONG -c $(I) $< -o $@
+	$(C) -DDLONG -c $(I) ../Core/cholmod_copy.c -o $@
 
 cholmod_l_triplet.o: ../Core/cholmod_triplet.c ../Core/t_cholmod_triplet.c
-	$(C) -DDLONG -c $(I) $< -o $@
+	$(C) -DDLONG -c $(I) ../Core/cholmod_triplet.c -o $@
 
 cholmod_l_error.o: ../Core/cholmod_error.c
-	$(C) -DDLONG -c $(I) $< -o $@
+	$(C) -DDLONG -c $(I) ../Core/cholmod_error.c -o $@
 
 cholmod_l_aat.o: ../Core/cholmod_aat.c
-	$(C) -DDLONG -c $(I) $< -o $@
+	$(C) -DDLONG -c $(I) ../Core/cholmod_aat.c -o $@
 
 cholmod_l_add.o: ../Core/cholmod_add.c
-	$(C) -DDLONG -c $(I) $< -o $@
+	$(C) -DDLONG -c $(I) ../Core/cholmod_add.c -o $@
 
 
 #-------------------------------------------------------------------------------
@@ -250,13 +250,13 @@ cholmod_rowfac.o: ../Cholesky/cholmod_rowfac.c ../Cholesky/t_cholmod_rowfac.c
 #-------------------------------------------------------------------------------
 
 cholmod_l_amd.o: ../Cholesky/cholmod_amd.c
-	$(C) -DDLONG -c $(I) $< -o $@
+	$(C) -DDLONG -c $(I) ../Cholesky/cholmod_amd.c -o $@
 
 cholmod_l_analyze.o: ../Cholesky/cholmod_analyze.c
-	$(C) -DDLONG -c $(I) $< -o $@
+	$(C) -DDLONG -c $(I) ../Cholesky/cholmod_analyze.c -o $@
 
 cholmod_l_colamd.o: ../Cholesky/cholmod_colamd.c
-	$(C) -DDLONG -c $(I) $< -o $@
+	$(C) -DDLONG -c $(I) ../Cholesky/cholmod_colamd.c -o $@
 
 cholmod_l_etree.o: ../Cholesky/cholmod_etree.c
 	$(C) -DDLONG -c $(I) ../Cholesky/cholmod_etree.c -o $@
@@ -265,26 +265,26 @@ cholmod_l_factorize.o: ../Cholesky/cholmod_factorize.c
 	$(C) -DDLONG -c $(I) ../Cholesky/cholmod_factorize.c -o $@
 
 cholmod_l_postorder.o: ../Cholesky/cholmod_postorder.c
-	$(C) -DDLONG -c $(I) $< -o $@
+	$(C) -DDLONG -c $(I) ../Cholesky/cholmod_postorder.c -o $@
 
 cholmod_l_rcond.o: ../Cholesky/cholmod_rcond.c
-	$(C) -DDLONG -c $(I) $< -o $@
+	$(C) -DDLONG -c $(I) ../Cholesky/cholmod_rcond.c -o $@
 
 cholmod_l_resymbol.o: ../Cholesky/cholmod_resymbol.c
-	$(C) -DDLONG -c $(I) $< -o $@
+	$(C) -DDLONG -c $(I) ../Cholesky/cholmod_resymbol.c -o $@
 
 cholmod_l_rowcolcounts.o: ../Cholesky/cholmod_rowcolcounts.c
-	$(C) -DDLONG -c $(I) $< -o $@
+	$(C) -DDLONG -c $(I) ../Cholesky/cholmod_rowcolcounts.c -o $@
 
 cholmod_l_solve.o: ../Cholesky/cholmod_solve.c ../Cholesky/t_cholmod_lsolve.c \
 	../Cholesky/t_cholmod_ltsolve.c ../Cholesky/t_cholmod_solve.c
-	$(C) -DDLONG -c $(I) $< -o $@
+	$(C) -DDLONG -c $(I) ../Cholesky/cholmod_solve.c -o $@
 
 cholmod_l_spsolve.o: ../Cholesky/cholmod_spsolve.c
-	$(C) -DDLONG -c $(I) $< -o $@
+	$(C) -DDLONG -c $(I) ../Cholesky/cholmod_spsolve.c -o $@
 
 cholmod_l_rowfac.o: ../Cholesky/cholmod_rowfac.c ../Cholesky/t_cholmod_rowfac.c
-	$(C) -DDLONG -c $(I) $< -o $@
+	$(C) -DDLONG -c $(I) ../Cholesky/cholmod_rowfac.c -o $@
 
 #-------------------------------------------------------------------------------
 # Partition Module:
@@ -304,19 +304,19 @@ cholmod_nesdis.o: ../Partition/cholmod_nesdis.c
 #-------------------------------------------------------------------------------
 
 cholmod_l_ccolamd.o: ../Partition/cholmod_ccolamd.c
-	$(C) -DDLONG -c $(I) $< -o $@
+	$(C) -DDLONG -c $(I) ../Partition/cholmod_ccolamd.c -o $@
 
 cholmod_l_csymamd.o: ../Partition/cholmod_csymamd.c
-	$(C) -DDLONG -c $(I) $< -o $@
+	$(C) -DDLONG -c $(I) ../Partition/cholmod_csymamd.c -o $@
 
 cholmod_l_camd.o: ../Partition/cholmod_camd.c
-	$(C) -DDLONG -c $(I) $< -o $@
+	$(C) -DDLONG -c $(I) ../Partition/cholmod_camd.c -o $@
 
 cholmod_l_metis.o: ../Partition/cholmod_metis.c
-	$(C) -DDLONG -c $(I) $< -o $@
+	$(C) -DDLONG -c $(I) ../Partition/cholmod_metis.c -o $@
 
 cholmod_l_nesdis.o: ../Partition/cholmod_nesdis.c
-	$(C) -DDLONG -c $(I) $< -o $@
+	$(C) -DDLONG -c $(I) ../Partition/cholmod_nesdis.c -o $@
 
 
 #-------------------------------------------------------------------------------
@@ -346,32 +346,32 @@ cholmod_symmetry.o: ../MatrixOps/cholmod_symmetry.c
 #-------------------------------------------------------------------------------
 
 cholmod_l_horzcat.o: ../MatrixOps/cholmod_horzcat.c
-	$(C) -DDLONG -c $(I) $< -o $@
+	$(C) -DDLONG -c $(I) ../MatrixOps/cholmod_horzcat.c -o $@
 
 cholmod_l_norm.o: ../MatrixOps/cholmod_norm.c
-	$(C) -DDLONG -c $(I) $< -o $@
+	$(C) -DDLONG -c $(I) ../MatrixOps/cholmod_norm.c -o $@
 
 cholmod_l_scale.o: ../MatrixOps/cholmod_scale.c
 	$(C) -DDLONG -c $(I) ../MatrixOps/cholmod_scale.c -o $@
 
 cholmod_l_drop.o: ../MatrixOps/cholmod_drop.c
-	$(C) -DDLONG -c $(I) $< -o $@
+	$(C) -DDLONG -c $(I) ../MatrixOps/cholmod_drop.c -o $@
 
 cholmod_l_sdmult.o: ../MatrixOps/cholmod_sdmult.c \
 	../MatrixOps/t_cholmod_sdmult.c
-	$(C) -DDLONG -c $(I) $< -o $@
+	$(C) -DDLONG -c $(I) ../MatrixOps/cholmod_sdmult.c -o $@
 
 cholmod_l_ssmult.o: ../MatrixOps/cholmod_ssmult.c
-	$(C) -DDLONG -c $(I) $< -o $@
+	$(C) -DDLONG -c $(I) ../MatrixOps/cholmod_ssmult.c -o $@
 
 cholmod_l_submatrix.o: ../MatrixOps/cholmod_submatrix.c
-	$(C) -DDLONG -c $(I) $< -o $@
+	$(C) -DDLONG -c $(I) ../MatrixOps/cholmod_submatrix.c -o $@
 
 cholmod_l_vertcat.o: ../MatrixOps/cholmod_vertcat.c
-	$(C) -DDLONG -c $(I) $< -o $@
+	$(C) -DDLONG -c $(I) ../MatrixOps/cholmod_vertcat.c -o $@
 
 cholmod_l_symmetry.o: ../MatrixOps/cholmod_symmetry.c
-	$(C) -DDLONG -c $(I) $< -o $@
+	$(C) -DDLONG -c $(I) ../MatrixOps/cholmod_symmetry.c -o $@
 
 #-------------------------------------------------------------------------------
 # Modify Module:
@@ -388,14 +388,14 @@ cholmod_updown.o: ../Modify/cholmod_updown.c \
 #-------------------------------------------------------------------------------
 
 cholmod_l_rowadd.o: ../Modify/cholmod_rowadd.c
-	$(C) -DDLONG -c $(I) $< -o $@
+	$(C) -DDLONG -c $(I) ../Modify/cholmod_rowadd.c -o $@
 
 cholmod_l_rowdel.o: ../Modify/cholmod_rowdel.c
-	$(C) -DDLONG -c $(I) $< -o $@
+	$(C) -DDLONG -c $(I) ../Modify/cholmod_rowdel.c -o $@
 
 cholmod_l_updown.o: ../Modify/cholmod_updown.c \
 	../Modify/t_cholmod_updown.c ../Modify/t_cholmod_updown_numkr.c
-	$(C) -DDLONG -c $(I) $< -o $@
+	$(C) -DDLONG -c $(I) ../Modify/cholmod_updown.c -o $@
 
 
 #-------------------------------------------------------------------------------
@@ -415,12 +415,11 @@ cholmod_super_solve.o: ../Supernodal/cholmod_super_solve.c \
 
 cholmod_l_super_numeric.o: ../Supernodal/cholmod_super_numeric.c \
 	../Supernodal/t_cholmod_super_numeric.c
-	$(C) -DDLONG -c $(I) $< -o $@
+	$(C) -DDLONG -c $(I) ../Supernodal/cholmod_super_numeric.c -o $@
 
 cholmod_l_super_symbolic.o: ../Supernodal/cholmod_super_symbolic.c
-	$(C) -DDLONG -c $(I) $< -o $@
+	$(C) -DDLONG -c $(I) ../Supernodal/cholmod_super_symbolic.c -o $@
 
 cholmod_l_super_solve.o: ../Supernodal/cholmod_super_solve.c \
 	../Supernodal/t_cholmod_super_solve.c
-	$(C) -DDLONG -c $(I) $< -o $@
-
+	$(C) -DDLONG -c $(I) ../Supernodal/cholmod_super_solve.c -o $@

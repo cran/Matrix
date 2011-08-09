@@ -1,8 +1,3 @@
-.onLoad <- function(lib, pkg) {
-    if(is.null(getOption("max.print")))
-	options(max.print = 10000)#-> show() of large matrices
-}
-
 ## --- New "logic" class -- currently using "raw" instead of "logical"
 ## LOGIC setClass("logic", contains = "raw")
 

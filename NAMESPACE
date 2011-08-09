@@ -4,7 +4,7 @@ useDynLib(Matrix, .registration=TRUE)
 ## notably for which we define methods:
 importFrom("lattice", levelplot)
 importFrom("graphics", image)
-importFrom("utils", head, tail)
+importFrom("utils", head, tail, assignInNamespace)
 importFrom("stats", cov2cor, update#, vcov
            )
 

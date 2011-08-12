@@ -1,3 +1,7 @@
+2011-08-12  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.9996875-3, for CRAN
+
 2011-08-05  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/sparseVector.R (head): method; used in a few cases, eliminating

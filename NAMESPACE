@@ -10,8 +10,11 @@ importFrom("stats", cov2cor, update#, vcov
 
 importFrom("grid", grid.rect, gpar, grob)# others via 'grid::'
 
-## Currently, group generics need to be explicitly imported (Bug?):
-importFrom("methods", Ops, Arith, Compare, Logic, Math, Math2, Summary, Complex)
+importFrom("methods",
+	   ## still needed {group generics needed to be explicitly imported} ?
+	   Ops, Arith, Compare, Logic, Math, Math2, Summary, Complex,
+           ## generics for which we export new methods:
+	   coerce, show)
 
 ## Generics and functions defined in this package
 export("Cholesky",

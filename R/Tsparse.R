@@ -462,7 +462,8 @@ replTmat <- function (x, i, j, ..., value)
 	else toGeneral <- TRUE
     }
     if(toGeneral) { # go to "generalMatrix" and continue
-	if((.w <- isTRUE(getOption("Matrix.warn"))) || isTRUE(getOption("Matrix.verbose")))
+	if((.w <- isTRUE(getOption("Matrix.warn"))) ||
+	   (!is.null(v <- getOption("Matrix.verbose")) && v >= 1))
 	    (if(.w) warning else message)(
 	     "M[i,j] <- v :  coercing symmetric M[] into non-symmetric")
         x <- as(x, paste(.M.kind(x), "gTMatrix", sep=''))

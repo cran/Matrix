@@ -24,9 +24,9 @@ SEXP Tsparse_validate(SEXP x)
 
     for (j = 0; j < nnz; j++) {
 	if (xi[j] < 0 || xi[j] >= nrow)
-	    return mkString(_("all row indices must be between 0 and nrow-1"));
+	    return mkString(_("all row indices (slot 'i') must be between 0 and nrow-1 in a TsparseMatrix"));
 	if (xj[j] < 0 || xj[j] >= ncol)
-	    return mkString(_("all column indices must be between 0 and ncol-1"));
+	    return mkString(_("all column indices (slot 'j') must be between 0 and ncol-1 in a TsparseMatrix"));
     }
     return ScalarLogical(1);
 }

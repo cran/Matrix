@@ -28,7 +28,8 @@ spMatrix <- function(nrow, ncol,
 }
 
 sparseMatrix <- function(i = ep, j = ep, p, x, dims, dimnames,
-                         symmetric = FALSE, index1 = TRUE)
+                         symmetric = FALSE, index1 = TRUE,
+                         giveCsparse = TRUE, check = TRUE)
 {
   ## Purpose: user-level substitute for most  new(<sparseMatrix>, ..) calls
   ## Author: Douglas Bates, Date: 12 Jan 2009, based on Martin's version
@@ -73,8 +74,8 @@ sparseMatrix <- function(i = ep, j = ep, p, x, dims, dimnames,
     r@j <- j - 1L
     if(!missing(dimnames))
 	r@Dimnames <- dimnames
-    validObject(r)
-    as(r, "CsparseMatrix")
+    if(check) validObject(r)
+    if(giveCsparse) as(r, "CsparseMatrix") else r
 }
 
 ## "graph" coercions -- this needs the graph package which is currently

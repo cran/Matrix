@@ -49,6 +49,11 @@ CHM_FR as_cholmod_factor (CHM_FR ans, SEXP x);
 
 #define N_AS_CHM_DN(x,nr,nc) M_numeric_as_chm_dense((CHM_DN)alloca(sizeof(cholmod_dense)), x , nr, nc )
 
+static R_INLINE Rboolean chm_factor_ok(CHM_FR f)
+{
+    return (Rboolean) (f->minor >= f->n);
+}
+
 Rboolean check_sorted_chm(CHM_SP A);
 
 int R_cholmod_start(CHM_CM Common);

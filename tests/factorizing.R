@@ -96,11 +96,13 @@ for(n in c(5:12)) {
     cat("\nn = ",n,"\n-------\n")
     rr <- mkLDL(n)
     ##    -------- from 'test-tools.R'
-    stopifnot(all(with(rr, A == as(L %*% D %*% t(L),
-                           "symmetricMatrix"))))
+    stopifnot(all(with(rr, A ==
+		       as(L %*% D %*% t(L), "symmetricMatrix"))),
+	      all(with(rr, A == tcrossprod(L %*% sqrt(D)))))
     d <- rr$d.half
     A <- rr$A
     R <- chol(A)
+    assert.EQ.Mat(R, chol(as(A, "TsparseMatrix"))) # gave infinite recursion
     print(d. <- diag(R))
     D. <- Diagonal(x= d.^2)
     L. <- t(R) %*% Diagonal(x = 1/d.)

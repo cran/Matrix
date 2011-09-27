@@ -1,3 +1,27 @@
+2011-09-27  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 1.0-0 -- to be released for R 2.14.0
+
+2011-09-16  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/dsCMatrix.R (solve.dsC.mat): new utility which calls lu() if
+	CHOLMOD'S Cholesky() errors (when matrix is not pos.def.).
+
+2011-09-15  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/bandSparse.R (bandSparse): and
+	* R/sparseMatrix.R (sparseMatrix): add 'giveCsparse = TRUE'
+	argument and allow returning Tsparse*, useful e.g. when used in
+	bdiag().
+
+2011-08-17  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* NAMESPACE: export diagN2U() & diagU2N(). They were "missing" for
+	at least one user (GG).
+	* man/diagU2N.Rd: docu + example.
+
+	* DESCRIPTION (Version): 0.9996875-4 (*not* yet released)
+
 2011-08-12  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* DESCRIPTION (Version): 0.9996875-3, for CRAN

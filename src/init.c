@@ -305,6 +305,7 @@ R_init_Matrix(DllInfo *dll)
 
     RREGDEF(dpoMatrix_chol);
     RREGDEF(numeric_as_chm_dense);
+    RREGDEF(Matrix_check_class_etc);
 
     R_cholmod_start(&c);
 //    R_cholmod_l_start(&cl);

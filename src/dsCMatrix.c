@@ -30,7 +30,6 @@ static int chk_nm(const char *nm, int perm, int LDL, int super)
  *               forbidden (0) or optional (<0)
  * @param Imult  numeric multiplier of I in  |A + Imult * I|
  */
-/* FIXME:    LDL < 0 is still equivalent to LDL > 0 ! */
 static CHM_FR
 internal_chm_factor(SEXP Ap, int perm, int LDL, int super, double Imult)
 {
@@ -55,9 +54,6 @@ internal_chm_factor(SEXP Ap, int perm, int LDL, int super, double Imult)
     }
     /* Else:  No cached factor - create one */
 
-    /* sup = c.supernodal;		/\* save current settings *\/ */
-    /* ll = c.final_ll; */
-
     c.final_ll = (LDL == 0) ? 1 : 0;
     c.supernodal = (super > 0) ? CHOLMOD_SUPERNODAL :
 	((super < 0) ? CHOLMOD_AUTO :
@@ -66,20 +62,13 @@ internal_chm_factor(SEXP Ap, int perm, int LDL, int super, double Imult)
     if (perm) {			/* obtain fill-reducing permutation */
 	L = cholmod_analyze(A, &c);
     } else {			/* require identity permutation */
-	/* save current settings */
-	/* int nmethods = c.nmethods, ord0 = c.method[0].ordering, */
-	/*     postorder = c.postorder; */
 	c.nmethods = 1; c.method[0].ordering = CHOLMOD_NATURAL; c.postorder = FALSE;
+	// *_restore_*() below or in R_cholmod_error() will restore c.<foo>
 	L = cholmod_analyze(A, &c);
-	/* and now restore */
-	/* c.nmethods = nmethods; c.method[0].ordering = ord0; c.postorder = postorder; */
     }
-    /* Note that the "restore" (above and below) now only "works",
-     * because our error handler call cholmod_l_defaults() ! */
     if (!cholmod_factorize_p(A, &Imult, (int*)NULL, 0 /*fsize*/, L, &c))
-	error(_("Cholesky factorization failed"));
-    /* c.supernodal = sup;		/\* restore previous settings *\/ */
-    /* c.final_ll = ll; */
+	// have never seen this, rather R_cholmod_error(status, ..) is called :
+	error(_("Cholesky factorization failed; unusually, hence consider reporting"));
 
     if (!Imult) {		/* cache the factor */
 	char fnm[12] = "sPDCholesky";
@@ -130,9 +119,6 @@ SEXP dsCMatrix_Cholesky(SEXP Ap, SEXP perm, SEXP LDL, SEXP super, SEXP Imult)
     int iSuper = asLogical(super),
 	iPerm  = asLogical(perm),
 	iLDL   = asLogical(LDL);
-    int c_pr = c.print;
-    c.print = 0;/* stop CHOLMOD printing; we cannot suppress it (in R), and
-		   have error handler already */
 
     /* When parameter is set to  NA  in R, let CHOLMOD choose */
     if(iSuper == NA_LOGICAL)	iSuper = -1;
@@ -141,7 +127,6 @@ SEXP dsCMatrix_Cholesky(SEXP Ap, SEXP perm, SEXP LDL, SEXP super, SEXP Imult)
     SEXP r = chm_factor_to_SEXP(internal_chm_factor(Ap, iPerm, iLDL, iSuper,
 						    asReal(Imult)),
 				1 /* dofree */);
-    c.print = c_pr;
     return r;
 }
 
@@ -162,12 +147,8 @@ SEXP dsCMatrix_LDL_D(SEXP Ap, SEXP permP, SEXP resultKind)
 {
     CHM_FR L;
     SEXP ans;
-    int c_pr = c.print;
-    c.print = 0;/* stop CHOLMOD printing; we cannot suppress it (in R), and
-		   have error handler already */
     L = internal_chm_factor(Ap, asLogical(permP),
 			    /*LDL*/ 1, /*super*/0, /*Imult*/0.);
-    c.print = c_pr;
     ans = PROTECT(diag_tC_ptr(L->n,
 			      L->p,
 			      L->x,
@@ -180,8 +161,12 @@ SEXP dsCMatrix_LDL_D(SEXP Ap, SEXP permP, SEXP resultKind)
 
 SEXP dsCMatrix_Csparse_solve(SEXP a, SEXP b)
 {
-    CHM_FR L = internal_chm_factor(a, -1, -1, -1, 0.);
-    CHM_SP cx, cb = AS_CHM_SP(b);
+    CHM_FR L = internal_chm_factor(a, /*perm*/-1, /*LDL*/-1, /*super*/-1, /*Imult*/0.);
+    CHM_SP cx, cb;
+    if(!chm_factor_ok(L))
+	return R_NilValue;// == "CHOLMOD factorization failed"
+
+    cb = AS_CHM_SP(b);
     R_CheckStack();
 
     cx = cholmod_spsolve(CHOLMOD_A, L, cb, &c);
@@ -194,7 +179,11 @@ SEXP dsCMatrix_Csparse_solve(SEXP a, SEXP b)
 SEXP dsCMatrix_matrix_solve(SEXP a, SEXP b)
 {
     CHM_FR L = internal_chm_factor(a, -1, -1, -1, 0.);
-    CHM_DN cx, cb = AS_CHM_DN(PROTECT(mMatrix_as_dgeMatrix(b)));
+    CHM_DN cx, cb;
+    if(!chm_factor_ok(L))
+	return R_NilValue;// == "CHOLMOD factorization failed"
+
+    cb = AS_CHM_DN(PROTECT(mMatrix_as_dgeMatrix(b)));
     R_CheckStack();
 
     cx = cholmod_solve(CHOLMOD_A, L, cb, &c);

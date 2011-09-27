@@ -40,21 +40,11 @@ SEXP compressed_to_TMatrix(SEXP x, SEXP colP)
      * Csparse_to_Tsparse() in ./Csparse.c ; maybe should simply write
      * an  as_cholmod_Rsparse() function and then do "as there" ...*/
     SEXP indSym = col ? Matrix_iSym : Matrix_jSym,
-	ans,	indP = GET_SLOT(x, indSym),
+	ans, indP = GET_SLOT(x, indSym),
 	pP = GET_SLOT(x, Matrix_pSym);
     int npt = length(pP) - 1;
     char *ncl = strdup(class_P(x));
-    static const char *valid[] = {
-	"dgCMatrix", "dsCMatrix", "dtCMatrix", /* 0: 0:2 */
-	"lgCMatrix", "lsCMatrix", "ltCMatrix", /* 1: 3:5 */
-	"ngCMatrix", "nsCMatrix", "ntCMatrix", /* 2: 6:8 */
-	"zgCMatrix", "zsCMatrix", "ztCMatrix", /* 3: 9:11 */
-
-	"dgRMatrix", "dsRMatrix", "dtRMatrix", /* 4: 12:14 */
-	"lgRMatrix", "lsRMatrix", "ltRMatrix", /* 5: 15:17 */
-	"ngRMatrix", "nsRMatrix", "ntRMatrix", /* 6: 18:20 */
-	"zgRMatrix", "zsRMatrix", "ztRMatrix", /* 7: 21:23 */
-	""};
+    static const char *valid[] = { MATRIX_VALID_Csparse, MATRIX_VALID_Rsparse, ""};
     int ctype = Matrix_check_class_etc(x, valid);
 
     if (ctype < 0)
@@ -86,12 +76,7 @@ SEXP R_to_CMatrix(SEXP x)
 {
     SEXP ans, tri = PROTECT(allocVector(LGLSXP, 1));
     char *ncl = strdup(class_P(x));
-    static const char *valid[] = {
-	"dgRMatrix", "dsRMatrix", "dtRMatrix",
-	"lgRMatrix", "lsRMatrix", "ltRMatrix",
-	"ngRMatrix", "nsRMatrix", "ntRMatrix",
-	"zgRMatrix", "zsRMatrix", "ztRMatrix",
-	""};
+    static const char *valid[] = { MATRIX_VALID_Rsparse, ""};
     int ctype = Matrix_check_class_etc(x, valid);
     int *x_dims = INTEGER(GET_SLOT(x, Matrix_DimSym)), *a_dims;
     PROTECT_INDEX ipx;
@@ -339,6 +324,7 @@ SEXP dgCMatrix_SPQR(SEXP Ap, SEXP ordering, SEXP econ, SEXP tol)
 /* Modified version of Tim Davis's cs_lu_mex.c file for MATLAB */
 void install_lu(SEXP Ap, int order, double tol, Rboolean err_sing)
 {
+    // (order, tol) == (1, 1) by default, when called from R.
     SEXP ans;
     css *S;
     csn *N;
@@ -353,7 +339,7 @@ void install_lu(SEXP Ap, int order, double tol, Rboolean err_sing)
 	order = (tol == 1) ? 2	/* amd(S'*S) w/dense rows or I */
 	    : 1;		/* amd (A+A'), or natural */
     }
-    S = cs_sqr(order, A, 0);	/* symbolic ordering, no QR bound */
+    S = cs_sqr(order, A, /*qr = */ 0);	/* symbolic ordering */
     N = cs_lu(A, S, tol);	/* numeric factorization */
     if (!N) {
 	if(err_sing)

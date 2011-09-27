@@ -257,6 +257,33 @@ mMatrix_as_geMatrix(SEXP A)
     return strcmp(class_P(A) + 1, "geMatrix") ? dup_mMatrix_as_geMatrix(A) : A;
 }
 
+// Keep centralized --- *and* in sync with ../inst/include/Matrix.h :
+#define MATRIX_VALID_dense			\
+        "dmatrix", "dgeMatrix",			\
+	"lmatrix", "lgeMatrix",			\
+	"nmatrix", "ngeMatrix",			\
+	"zmatrix", "zgeMatrix"
+
+#define MATRIX_VALID_Csparse			\
+ "dgCMatrix", "dsCMatrix", "dtCMatrix",		\
+ "lgCMatrix", "lsCMatrix", "ltCMatrix",		\
+ "ngCMatrix", "nsCMatrix", "ntCMatrix",		\
+ "zgCMatrix", "zsCMatrix", "ztCMatrix"
+
+#define MATRIX_VALID_Tsparse			\
+ "dgTMatrix", "dsTMatrix", "dtTMatrix",		\
+ "lgTMatrix", "lsTMatrix", "ltTMatrix",		\
+ "ngTMatrix", "nsTMatrix", "ntTMatrix",		\
+ "zgTMatrix", "zsTMatrix", "ztTMatrix"
+
+#define MATRIX_VALID_Rsparse			\
+ "dgRMatrix", "dsRMatrix", "dtRMatrix",		\
+ "lgRMatrix", "lsRMatrix", "ltRMatrix",		\
+ "ngRMatrix", "nsRMatrix", "ntRMatrix",		\
+ "zgRMatrix", "zsRMatrix", "ztRMatrix"
+
+#define MATRIX_VALID_CHMfactor "dCHMsuper", "dCHMsimpl", "nCHMsuper", "nCHMsimpl"
+
 /**
  * Return the 0-based index of a string match in a vector of strings
  * terminated by an empty string.  Returns -1 for no match.

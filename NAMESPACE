@@ -33,6 +33,7 @@ export("Cholesky",
        ## "rowMeans", "rowSums",
        "condest", "onenormest",
        "det",# << "identical" as base - but with correct determinant()
+       "diagN2U", "diagU2N",
        "drop0",
        "expand",
        "expm",

@@ -409,12 +409,7 @@ SEXP chm_sparse_to_SEXP(CHM_SP a, int dofree, int uploT, int Rkind,
  */
 CHM_TR as_cholmod_triplet(CHM_TR ans, SEXP x, Rboolean check_Udiag)
 {
-    static const char *valid[] = {
-	"dgTMatrix", "dsTMatrix", "dtTMatrix",
-	"lgTMatrix", "lsTMatrix", "ltTMatrix",
-	"ngTMatrix", "nsTMatrix", "ntTMatrix",
-	"zgTMatrix", "zsTMatrix", "ztTMatrix",
-	""};
+    static const char *valid[] = { MATRIX_VALID_Tsparse, ""};
     int *dims = INTEGER(GET_SLOT(x, Matrix_DimSym)),
 	ctype = Matrix_check_class_etc(x, valid);
     SEXP islot = GET_SLOT(x, Matrix_iSym);
@@ -598,11 +593,7 @@ SEXP chm_triplet_to_SEXP(CHM_TR a, int dofree, int uploT, int Rkind,
 CHM_DN as_cholmod_dense(CHM_DN ans, SEXP x)
 {
 #define _AS_cholmod_dense_1						\
-    static const char *valid[] = {					\
-        "dmatrix", "dgeMatrix",						\
-	"lmatrix", "lgeMatrix",						\
-	"nmatrix", "ngeMatrix",						\
-	"zmatrix", "zgeMatrix", ""};					\
+    static const char *valid[] = { MATRIX_VALID_dense, ""};		\
     int dims[2], ctype = Matrix_check_class_etc(x, valid), nprot = 0;	\
 									\
     if (ctype < 0) {		/* not a classed matrix */		\
@@ -686,11 +677,11 @@ void R_cholmod_error(int status, const char *file, int line, const char *message
 #ifndef R_CHOLMOD_ALWAYS_ERROR
     if(status < 0) {
 #endif
-	error(_("Cholmod error '%s' at file:%s, line %d"), message, file, line);
+	error(_("Cholmod error '%s' at file %s, line %d"), message, file, line);
 #ifndef R_CHOLMOD_ALWAYS_ERROR
     }
     else
-	warning(_("Cholmod warning '%s' at file:%s, line %d"),
+	warning(_("Cholmod warning '%s' at file %s, line %d"),
 		message, file, line);
 #endif
 }
@@ -873,8 +864,7 @@ CHM_DN numeric_as_chm_dense(CHM_DN ans, double *v, int nr, int nc)
  */
 CHM_FR as_cholmod_factor(CHM_FR ans, SEXP x)
 {
-    static const char *valid[] = {"dCHMsuper", "dCHMsimpl",
-				  "nCHMsuper", "nCHMsimpl", ""};
+    static const char *valid[] = { MATRIX_VALID_CHMfactor, ""};
     int *type = INTEGER(GET_SLOT(x, install("type"))),
 	ctype = Matrix_check_class_etc(x, valid);
     SEXP tmp;
@@ -937,6 +927,7 @@ CHM_FR as_cholmod_factor(CHM_FR ans, SEXP x)
     return ans;
 }
 
+
 /**
  * Copy the contents of f to an appropriate CHMfactor object and,
  * optionally, free f or free both f and its pointer to its contents.
@@ -952,6 +943,9 @@ SEXP chm_factor_to_SEXP(CHM_FR f, int dofree)
     int *dims, *type;
     char *class = (char*) NULL;	/* -Wall */
 
+    if(!chm_factor_ok(f))
+	error(_("previous CHOLMOD factorization was unsuccessful"));
+
     switch(f->xtype) {
     case CHOLMOD_REAL:
 	class = f->is_super ? "dCHMsuper" : "dCHMsimpl";
@@ -962,9 +956,10 @@ SEXP chm_factor_to_SEXP(CHM_FR f, int dofree)
     default:
 	error(_("f->xtype of %d not recognized"), f->xtype);
     }
-    ans = PROTECT(NEW_OBJECT(MAKE_CLASS(class)));
-    if (f->minor < f->n)
+    if(!chm_factor_ok(f))
 	error(_("CHOLMOD factorization was unsuccessful"));
+
+    ans = PROTECT(NEW_OBJECT(MAKE_CLASS(class)));
     dims = INTEGER(ALLOC_SLOT(ans, Matrix_DimSym, INTSXP, 2));
     dims[0] = dims[1] = f->n;
 				/* copy component of known length */

@@ -1,3 +1,5 @@
+##-*- mode: org -*-
+
 [[ This file 'Done' lists items that were in file ./TODO at some time ]]
 
 - Sparse matrix methods can now be based on the CHOLMOD package.  We
@@ -394,3 +396,8 @@
   This is "the same" as Ashley Ford's report (25 Feb 2010),
   MM @ ~/R/MM/Pkg-ex/Matrix/nsp-2col-index-bug.R
   --> This no longer happens; Tsparse* now also does .Call(Csparse_subassign, *)
+
+- Fix the bug that our solve("dsCMatrix") uses CHOLMOD's  LDL'  but that
+  typically (but not at all always!) fails when the matrix is *not* pos.def !!
+  ~/R/MM/Pkg-ex/Matrix/solve-Gorjanc-bug.R
+  ==> must fall back to LU (e.g.) in that case.

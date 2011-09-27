@@ -13,7 +13,8 @@
 }
 \usage{
 sparseMatrix(i = ep, j = ep, p, x, dims, dimnames,
-             symmetric = FALSE, index1 = TRUE)
+             symmetric = FALSE, index1 = TRUE,
+             giveCsparse = TRUE, check = TRUE)
 }
 \arguments{
   \item{i,j}{integer vectors of the same length specifying the locations
@@ -43,11 +44,17 @@ sparseMatrix(i = ep, j = ep, p, x, dims, dimnames,
     in \R.  That is, counting of rows and columns starts at 1.  If
     \code{FALSE} the index vectors are 0-based so counting of rows and
     columns starts at 0; this corresponds to the internal representation.}
+  \item{giveCsparse}{logical indicating if the result should be a
+    \code{\linkS4class{CsparseMatrix}} or a
+    \code{\linkS4class{TsparseMatrix}}.  The default, \code{TRUE} is
+    very often more efficient subsequently, but not always.}
+  \item{check}{logical indicating if a validity check is performed; do
+    not set to \code{FALSE} unless you know what you're doing!}
 }
 \value{
-  A sparse matrix in compressed, column-oriented form, as an \R object
-  inheriting from both \code{\linkS4class{CsparseMatrix}} and
-  \code{\linkS4class{generalMatrix}}.
+  A sparse matrix, by default (see \code{giveCsparse}) in compressed,
+  column-oriented form, as an \R object inheriting from both
+  \code{\linkS4class{CsparseMatrix}} and \code{\linkS4class{generalMatrix}}.
 }
 \details{
   Exactly one of the arguments \code{i}, \code{j} and \code{p} must be
@@ -73,9 +80,9 @@ sparseMatrix(i = ep, j = ep, p, x, dims, dimnames,
   returned.
 
   The reason for returning a \code{\linkS4class{CsparseMatrix}} object
-  instead of the triplet format is that the compressed column form is
-  easier to work with when performing matrix operations.  In particular,
-  if there are no zeros in \code{x} then a
+  instead of the triplet format by default is that the compressed column
+  form is easier to work with when performing matrix operations.  In
+  particular, if there are no zeros in \code{x} then a
   \code{\linkS4class{CsparseMatrix}} is a unique representation of the
   sparse matrix.
 }

@@ -702,7 +702,7 @@ int R_cholmod_printf(const char* fmt, ...)
  * Initialize the CHOLMOD library and replace the print and error functions
  * by R-specific versions.
  *
- * @param cl pointer to a cholmod_common structure to be initialized
+ * @param c pointer to a cholmod_common structure to be initialized
  *
  * @return TRUE if successful
  */

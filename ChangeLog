@@ -1,3 +1,17 @@
+2011-10-17  Douglas Bates <bates@stat.wisc.edu>
+
+	* src/Csparse.c (Csparse_submatrix): plugging memory leak
+
+2011-10-08  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/bind2.R (cbind2Sparse, rbind2Sparse): auxiliaries,
+	used, also in new methods for <sparse, dense>.
+	* tests/bind.R: testing some of these.
+
+	* R/Matrix.R, man/Matrix.Rd: optional argument 'doDiag'.
+
+	* DESCRIPTION (Version): 1.0-1, CRAN-released: 2011-10-18, r2732
+
 2011-09-27  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* DESCRIPTION (Version): 1.0-0 -- to be released for R 2.14.0

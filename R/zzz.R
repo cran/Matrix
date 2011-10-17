@@ -59,29 +59,3 @@ rBind <- methods:::rbind
 
     library.dynam.unload("Matrix", libpath)
 }
-
-if(getRversion() < "2.12.0") { ## ...../R/src/library/base/R/which.R :
-arrayInd <- function(ind, .dim, .dimnames = NULL, useNames = FALSE) {
-    ##-- return a matrix  length(ind) x rank == length(ind) x length(.dim)
-    m <- length(ind)
-    rank <- length(.dim)
-    wh1 <- ind - 1L
-    ind <- 1L + wh1 %% .dim[1L]
-    ind <- matrix(ind, nrow = m, ncol = rank,
-		  dimnames = if(useNames)
-		  list(.dimnames[[1L]][ind],
-		       if(rank == 2L) c("row", "col") # for matrices
-		       else paste("dim", seq_len(rank), sep="")))
-    if(rank >= 2L) {
-	denom <- 1L
-	for (i in 2L:rank) {
-	    denom <- denom * .dim[i-1L]
-	    nextd1 <- wh1 %/% denom	# (next dim of elements) - 1
-	    ind[,i] <- 1L + nextd1 %% .dim[i]
-	}
-    }
-    storage.mode(ind) <- "integer"
-    ind
-}
-
-}

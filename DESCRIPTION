@@ -1,6 +1,6 @@
 Package: Matrix
-Version: 1.0-0
-Date: 2011-09-27
+Version: 1.0-1
+Date: 2011-10-17
 Priority: recommended
 Title: Sparse and Dense Matrix Classes and Methods
 Author: Douglas Bates <bates@stat.wisc.edu> and Martin Maechler
@@ -13,7 +13,6 @@ Imports: graphics, grid
 Suggests: expm
 Enhances: MatrixModels, graph, SparseM (>= 0.87), sfsmisc
 Encoding: UTF-8
-LazyLoad: yes
 LazyData: no
 LazyDataNote: no longer available, since we use data/*.R *and* our
         classes
@@ -24,6 +23,6 @@ LicenseDetails: The Matrix package includes libraries AMD, CHOLMOD,
         Davis.  All sections of that code are covered by the GPL or
         LGPL licenses.  See the directory doc/UFsparse for details.
 URL: http://Matrix.R-forge.R-project.org/
-Packaged: 2011-10-04 08:04:49 UTC; maechler
+Packaged: 2011-10-18 06:08:24 UTC; maechler
 Repository: CRAN
-Date/Publication: 2011-10-04 15:57:32
+Date/Publication: 2011-10-18 10:48:58

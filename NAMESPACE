@@ -291,9 +291,6 @@ exportMethods(## for both own and "other" generics:
 	      "zapsmall"
 	      )
 
-if(getRversion() < "2.11.0" || R.version$`svn rev` < 51018)
-    export("norm")
-
 exportMethods("rbind2")
 exportMethods("cbind2")
 

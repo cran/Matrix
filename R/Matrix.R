@@ -157,7 +157,8 @@ setMethod("unname", signature("Matrix", force="missing"),
 
 
 Matrix <- function (data = NA, nrow = 1, ncol = 1, byrow = FALSE,
-                    dimnames = NULL, sparse = NULL, forceCheck = FALSE)
+                    dimnames = NULL, sparse = NULL,
+                    doDiag = TRUE, forceCheck = FALSE)
 {
     sparseDefault <- function(m) prod(dim(m)) > 2*sum(isN0(as(m, "matrix")))
 
@@ -230,7 +231,7 @@ Matrix <- function (data = NA, nrow = 1, ncol = 1, byrow = FALSE,
 	isTri <- isTriangular(data)
     isDiag <- isSym # cannot be diagonal if it isn't symmetric
     if(isDiag) # do not *build*  1 x 1 diagonalMatrix
-	isDiag <- !isTRUE(sparse1) && nrow(data) > 1 && isDiagonal(data)
+	isDiag <- doDiag && !isTRUE(sparse1) && nrow(data) > 1 && isDiagonal(data)
 
     ## try to coerce ``via'' virtual classes
     if(isDiag) { ## diagonal is preferred to sparse !

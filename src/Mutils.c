@@ -731,7 +731,7 @@ SEXP new_dgeMatrix(int nrow, int ncol)
  *
  * @param ij: 2-column integer matrix
  * @param di: dim(.), i.e. length 2 integer vector
- * @param chk_bounds: logical indicating  0 <= ij[,k] < di[k]  need to be checked.
+ * @param chk_bnds: logical indicating  0 <= ij[,k] < di[k]  need to be checked.
  *
  * @return encoded index; integer if prod(dim) is small; double otherwise
  */

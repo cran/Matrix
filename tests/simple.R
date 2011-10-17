@@ -86,7 +86,7 @@ L[sample(length(L), 10)] <- NA
 ll <- as(L,"logical")
 stopifnot(all.equal(mean(L,  na.rm=TRUE),
 		    mean(ll, na.rm=TRUE), tol= 1e-14),
-	  all.equal(mean(L,  na.rm=TRUE, trim=1/4),
+	  all.equal(mean(L,  na.rm=TRUE, trim=1/4),# <- with a warning
 		    mean(ll, na.rm=TRUE, trim=1/4), tol= 1e-14))
 
 

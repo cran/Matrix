@@ -121,7 +121,7 @@ static Rcomplex cmplx_NA() {
  * return  vec[i]
  *
  * @param i index (0-based, contrary to the i-slot)
- * @param nnz_v the number of non-zero entries of 'vec' == length(vec@i)
+ * @param nnz_v the number of non-zero entries of 'vec' == length(vec@ i)
  * @param v_i (a int * pointer to) the 'i' slot of 'vec'
  * @param v_x (a ... * pointer to) the 'x' slot of 'vec'
  * @param len_v integer = the 'length' slot of 'vec

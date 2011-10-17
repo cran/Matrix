@@ -15,6 +15,9 @@
 - Investigate the "band changing (and getting) ideas  'band<-' etc,
   as per posts on R-devel ......(which ones ????)_____________________ <<<
 
+- cbind2() / rbind2() for sparseMatrices: dimnames propagation should
+  happen in C, see  R/bind2.R and src/Csparse.c (Csparse_horzcat etc).
+
 - Check for DimNames propagation in coercion and other operations.
 
 - Report the problem in the Linux ldexp manual page.  The second and

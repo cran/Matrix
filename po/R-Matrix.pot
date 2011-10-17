@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: R 2.14.0\n"
+"Project-Id-Version: R 2.15.0\n"
 "Report-Msgid-Bugs-To: bugs@r-project.org\n"
-"POT-Creation-Date: 2011-08-06 17:35\n"
+"POT-Creation-Date: 2011-10-14 21:52\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -411,9 +411,6 @@ msgid "the %d-th (sub)-diagonal (k = %d) is %s"
 msgstr ""
 
 msgid "too short; filling with NA's"
-msgstr ""
-
-msgid "cbind2() method for (%s,%s) not-yet defined"
 msgstr ""
 
 msgid "'A' must be a square matrix"

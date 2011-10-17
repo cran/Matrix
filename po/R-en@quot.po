@@ -22,10 +22,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: R 2.14.0\n"
+"Project-Id-Version: R 2.15.0\n"
 "Report-Msgid-Bugs-To: bugs@r-project.org\n"
-"POT-Creation-Date: 2011-08-06 17:35\n"
-"PO-Revision-Date: 2011-08-06 17:35\n"
+"POT-Creation-Date: 2011-10-14 21:52\n"
+"PO-Revision-Date: 2011-10-14 21:52\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
 "MIME-Version: 1.0\n"
@@ -457,9 +457,6 @@ msgstr "the %d-th (sub)-diagonal (k = %d) is %s"
 
 msgid "too short; filling with NA's"
 msgstr "too short; filling with NA's"
-
-msgid "cbind2() method for (%s,%s) not-yet defined"
-msgstr "cbind2() method for (%s,%s) not-yet defined"
 
 msgid "'A' must be a square matrix"
 msgstr "‘A’ must be a square matrix"

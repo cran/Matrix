@@ -13,7 +13,8 @@
 ----------------------------------------
 
 - Investigate the "band changing (and getting) ideas  'band<-' etc,
-  as per posts on R-devel ......(which ones ????)_____________________ <<<
+  from Jeremy D Silver, per posts to R-devel on Aug.26,2011
+  {MM: ~/R/MM/Pkg-ex/Matrix/bands-Jeremy_Silver-ex.R }
 
 - cbind2() / rbind2() for sparseMatrices: dimnames propagation should
   happen in C, see  R/bind2.R and src/Csparse.c (Csparse_horzcat etc).

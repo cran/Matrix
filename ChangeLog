@@ -1,3 +1,24 @@
+2011-11-02  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/zzz.R (.onLoad): when R version >= 2.15.0, no longer
+	need to assignInNamespace( ns = "base"), methods provides S4 generic.
+
+2011-10-30  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 1.0-2, CRAN-released: ..., r...
+
+	* tests/other-pkgs.R: print more, don't run SparseM on Solaris for now.
+	* tests/Simple.R: encoding warning should not be promoted to error.
+
+2011-10-22  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/rankMatrix.R (rankMatrix): 'method = "qrLINPACK"' now also
+	works for sparse matrices, but using \code{sparseQR()}.
+
+	* man/sparseQR-class.Rd: document options "Matrix.quiet" (old) and
+	new "Matrix.quiet.qr.R" for suppressiong the permutation warning.
+	* R/sparseQR.R:
+
 2011-10-17  Douglas Bates <bates@stat.wisc.edu>
 
 	* src/Csparse.c (Csparse_submatrix): plugging memory leak

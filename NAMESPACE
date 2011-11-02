@@ -16,6 +16,11 @@ importFrom("methods",
            ## generics for which we export new methods:
 	   coerce, show)
 
+if(getRversion() >= "2.15.0") {
+    importFrom("methods", kronecker)
+}
+
+
 ## Generics and functions defined in this package
 export("Cholesky",
        "Diagonal", ".symDiagonal", ".sparseDiagonal",

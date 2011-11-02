@@ -115,6 +115,7 @@ str(l0 <- Matrix(FALSE, nrow=100, ncol = 200))
 stopifnot(all(!l0),
           identical(FALSE, any(l0)))
 
+if(!interactive()) warnings()
 ## really large {length(<dense equivalent>) is beyond R's limits}:
 op <- options(warn = 2) # warnings here are errors
 n <- 50000L
@@ -731,6 +732,7 @@ as(sv, "zsparseVector")
 stopifnot(identical(sv., sv2),
 	  identical(  Matrix(sv, 3,4, byrow=TRUE),
 		    t(Matrix(sv, 4,3))))
+options(warn = 0)# no longer error
 
 
 ## "Large" sparse:

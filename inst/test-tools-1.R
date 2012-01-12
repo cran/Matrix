@@ -5,7 +5,8 @@
 
 ### ------- Part I --  unrelated to "Matrix" classes ---------------
 
-paste0 <- function(...) paste(..., sep = '')
+if(!exists("paste0", .BaseNamespaceEnv)) # have in R >= 2.15.0
+    paste0 <- function(...) paste(..., sep = '')
 
 identical3 <- function(x,y,z)	  identical(x,y) && identical (y,z)
 identical4 <- function(a,b,c,d)   identical(a,b) && identical3(b,c,d)
@@ -72,6 +73,25 @@ relErr <- function(target, current) { ## make this work for 'Matrix'
     if(length(target) < n)
         target <- rep(target, length.out = n)
     sum(abs(target - current)) / sum(abs(target))
+}
+
+##' Compute the signed relative error between target and current vector -- vectorized
+##' @title Relative Error (:= 0 when absolute error == 0)
+##' @param target
+##' @param current {maybe scalar; need  length(current) a multiple of length(target)}
+##' @return *vector* of the same length as target and current
+##' @author Martin Maechler
+relErrV <- function(target, current) {
+    n <- length(target <- as.vector(target))
+    ## assert( <length current> is multiple of <length target>) :
+    if(length(current) %% n)
+	stop("length(current) must be a multiple of length(target)")
+    RE <- current
+    RE[] <- 0
+    fr <- current/target
+    neq <- is.na(current) | (current != target)
+    RE[neq] <- 1 - fr[neq]
+    RE
 }
 
 ## is.R22 <- (paste(R.version$major, R.version$minor, sep=".") >= "2.2")

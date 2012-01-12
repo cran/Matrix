@@ -1,3 +1,12 @@
+2012-01-12  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Suggests): MASS, as we use a data set in a vignette
+
+2011-12-09  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 1.0-3, CRAN-released: 2012-01-12, r2749
+	* R/diagMatrix.R (.bdiag): now works correctly when all blocks are "lMatrix"
+
 2011-11-02  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/zzz.R (.onLoad): when R version >= 2.15.0, no longer
@@ -5,7 +14,7 @@
 
 2011-10-30  Martin Maechler  <maechler@stat.math.ethz.ch>
 
-	* DESCRIPTION (Version): 1.0-2, CRAN-released: ..., r...
+	* DESCRIPTION (Version): 1.0-2, CRAN-released: 2011-11-19, r2739
 
 	* tests/other-pkgs.R: print more, don't run SparseM on Solaris for now.
 	* tests/Simple.R: encoding warning should not be promoted to error.

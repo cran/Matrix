@@ -7,8 +7,10 @@
 .chm_common <- new.env(parent = emptyenv())
 ## environment in which to store some settings from cholmod_common
 
-## A wrapper for now [as long as  'methods' has no *exported* version]:
-.M.classEnv <- function(Class) methods:::.classEnv(Class)
+if(getRversion() < "2.15.0" || R.version$`svn rev` < 57849) {
+    ## A wrapper for now [as long as  'methods' has no *exported* version]:
+    .M.classEnv <- function(Class) methods:::.classEnv(Class)
+}
 
 .onLoad <- function(libname, pkgname)
 {
@@ -19,7 +21,6 @@
 
     if(getRversion() < "2.15.0") {
         assignInNamespace("..Old.._x_",       base::`%x%`,    ns = "base")
-
         ## kronecker() / %x% -- in principle should re-assign base::kronecker
         ## -----------> ?? performance hit ?? in mantelhaen.test() ??
         ##
@@ -28,10 +29,11 @@
         assignInNamespace("%x%", function (X, Y) kronecker(X, Y), ns = "base")
     }
 
-    ## Hack needed, as C-level  eval / findFun seems not to work with
-    ## loaded & non-attached Matrix:
-    assignInNamespace(".M.classEnv", .M.classEnv, ns = "base")
-
+    if(getRversion() < "2.15.0" || R.version$`svn rev` < 57849) {
+        ## Hack needed, as C-level  eval / findFun seems not to work with
+        ## loaded & non-attached Matrix:
+        assignInNamespace(".M.classEnv", .M.classEnv, ns = "base")
+    }
     .Call(CHM_set_common_env, .chm_common)
 }
 

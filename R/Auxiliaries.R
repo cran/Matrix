@@ -24,8 +24,8 @@ as0 <- function(x, mod=mode(x))
     switch(mod, "integer" = 0L, "numeric" = 0, "logical" = FALSE, "complex" = 0+0i)
 
 
-## maybe we should have this in base, maybe via an .Internal(paste0(.)) -> do_paste(.. op=2)
-paste0 <- function(...) paste(..., sep = '')
+if(!exists("paste0", .BaseNamespaceEnv)) # have in R >= 2.15.0
+    paste0 <- function(...) paste(..., sep = '')
 
 .M.DN <- function(x) if(!is.null(dn <- dimnames(x))) dn else list(NULL,NULL)
 

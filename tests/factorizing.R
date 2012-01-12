@@ -292,14 +292,12 @@ system.time(D3 <- sapply(r, function(rho) Matrix:::ldet3.dsC(mtm + (1/rho) * I))
 stopifnot(is.all.equal3(D1,D2,D3, tol = 1e-13))
 
 ## Updating LL'  should remain LL' and not become  LDL' :
-if(FALSE) {
-    data(Dyestuff, package = "lme4")
-    Zt <- as(Dyestuff$Batch, "sparseMatrix")
-} else {
-    Zt <- new("dgCMatrix", Dim = c(6L, 30L), x = rep(1, 30),
-              i = rep(0:5, each=5),
-              p = 0:30, Dimnames = list(LETTERS[1:6], NULL))
-}
+##_ R CMD check is giving a false positive warning, if use if(FALSE) {..}
+## data(Dyestuff, package = "lme4")
+## Zt <- as(Dyestuff$Batch, "sparseMatrix")
+Zt <- new("dgCMatrix", Dim = c(6L, 30L), x = rep(1, 30),
+          i = rep(0:5, each=5),
+          p = 0:30, Dimnames = list(LETTERS[1:6], NULL))
 Ut <- 0.78 * Zt
 L <- Cholesky(tcrossprod(Ut), LDL = FALSE, Imult = 1)
 L1 <- update(L, tcrossprod(Ut), mult = 1)

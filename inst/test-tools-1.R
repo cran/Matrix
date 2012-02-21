@@ -99,6 +99,12 @@ relErrV <- function(target, current) {
 pkgRversion <- function(pkgname)
     sub("^R ([0-9.]+).*", "\\1", packageDescription(pkgname)[["Built"]])
 
+showSys.time <- function(expr) {
+    ## prepend 'Time' for R CMD Rdiff
+    st <- system.time(expr)
+    writeLines(paste("Time", capture.output(print(st))))
+    invisible(st)
+}
 showProc.time <- local({ ## function + 'pct' variable
     pct <- proc.time()
     function(final="\n") { ## CPU elapsed __since last called__

@@ -27,13 +27,36 @@
 ##-------- originally from ./Matrix.R --------------------
 
 ## Some ``Univariate'' "Arith":
-setMethod("+", signature(e1 = "Matrix", e2 = "missing"), function(e1) e1)
+setMethod("+", signature(e1 = "Matrix", e2 = "missing"), function(e1,e2) e1)
+
 ## "fallback":
 setMethod("-", signature(e1 = "Matrix", e2 = "missing"),
-	  function(e1) {
+	  function(e1, e2) {
 	      warning("inefficient method used for \"- e1\"")
 	      0-e1
 	  })
+setMethod("-", signature(e1 = "denseMatrix", e2 = "missing"),
+	  function(e1, e2) { e1@x <- -e1@x; e1 })
+
+## "diagonalMatrix" -- only two cases -- easiest to do both
+setMethod("-", signature(e1 = "ddiMatrix", e2 = "missing"),
+	  function(e1, e2) {
+		  if(e1@diag == "U") {
+                      e1@x <- rep.int(-1., e1@Dim[1])
+                      e1@diag <- "N"
+                  }
+		  else ## diag == "N" -> using 'x' slot
+                      e1@x <- -e1@x
+	      e1
+	  })
+setMethod("-", signature(e1 = "ldiMatrix", e2 = "missing"),
+	  function(e1, e2) {
+	      d <- e1@Dim
+	      new("ddiMatrix", Dim = d, Dimnames = e1@Dimnames, diag = "N",
+		  x = if(e1@diag == "U") rep.int(-1, d[1]) else -e1@x)
+	  })
+
+
 
 ## old-style matrices are made into new ones
 setMethod("Ops", signature(e1 = "Matrix", e2 = "matrix"),

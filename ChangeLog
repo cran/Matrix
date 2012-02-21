@@ -1,3 +1,8 @@
+2012-02-17  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 1.0-4, CRAN-released: 2012-...., r...
+	* R/Ops.R: Fix "-" method for diagonalMatrix types.
+
 2012-01-12  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* DESCRIPTION (Suggests): MASS, as we use a data set in a vignette

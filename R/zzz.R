@@ -29,7 +29,7 @@ if(getRversion() < "2.15.0" || R.version$`svn rev` < 57849) {
         assignInNamespace("%x%", function (X, Y) kronecker(X, Y), ns = "base")
     }
 
-    if(getRversion() < "2.15.0" || R.version$`svn rev` < 57849) {
+    if(getRversion() < "2.15.0") {
         ## Hack needed, as C-level  eval / findFun seems not to work with
         ## loaded & non-attached Matrix:
         assignInNamespace(".M.classEnv", .M.classEnv, ns = "base")

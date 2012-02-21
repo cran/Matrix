@@ -97,10 +97,13 @@ dsc + 1 # -> no longer sparse
 Tsc <- as(dsc, "TsparseMatrix")
 dsc. <- drop0(dsc)
 stopifnot(identical(dsc., Matrix((dsc + 1) -1)),
-          identical(dsc., Matrix((Tsc + 1) -1)), # ok (exact arithmetic)
+	  identical(as(-Tsc,"CsparseMatrix"), (-1) * Tsc),
+	  identical(-dsc., (-1) * dsc.),
+	  identical3(-Diagonal(3), Diagonal(3, -1), (-1) * Diagonal(3)),
+	  identical(dsc., Matrix((Tsc + 1) -1)), # ok (exact arithmetic)
 	  Q.eq(0 != dsc, dsc != Matrix(0, 3, 3)),
 	  Q.eq(0 != dsc, dsc != c(0,0)) # with a warning ("not multiple ..")
-          )
+	  )
 str(lm1 <- dsc >= 1) # now ok (NA in proper place, however:
 lm1 ## NA used to print as ' ' , now 'N'
 (lm2 <- dsc == 1)# ditto

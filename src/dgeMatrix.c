@@ -373,10 +373,11 @@ SEXP dgeMatrix_matrix_mm(SEXP a, SEXP bP, SEXP right)
 /* 	    error(_("Matrices with zero extents cannot be multiplied")); */
 	    ALLOC_SLOT(val, Matrix_xSym, REALSXP, m * n);
 	} else
-	    F77_CALL(dgemm)
-		("N", "N", &m, &n, &k, &one, REAL(GET_SLOT(a, Matrix_xSym)),
-		 &m, REAL(GET_SLOT(b, Matrix_xSym)), &k, &zero,
-		 REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, m * n)), &m);
+	    F77_CALL(dgemm) ("N", "N", &m, &n, &k, &one,
+			     REAL(GET_SLOT(a, Matrix_xSym)), &m,
+			     REAL(GET_SLOT(b, Matrix_xSym)), &k, &zero,
+			     REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, m * n)),
+			     &m);
     }
     ALLOC_SLOT(val, Matrix_DimNamesSym, VECSXP, 2);
     UNPROTECT(2);

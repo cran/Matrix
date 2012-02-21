@@ -78,13 +78,13 @@ Diagonal <- function(n, x = NULL)
     .sparseDiagonal(n, x, uplo, shape = "t")
 
 
-### This is modified from a post of Bert Gunter to R-help on  1 Sep 2005.
-### Bert's code built on a post by Andy Liaw who most probably was influenced
-### by earlier posts, notably one by Scott Chasalow on S-news, 16 Jan 2002
-### who posted his bdiag() function written in December 1995.
+## This is modified from a post of Bert Gunter to R-help on  1 Sep 2005.
+## Bert's code built on a post by Andy Liaw who most probably was influenced
+## by earlier posts, notably one by Scott Chasalow on S-news, 16 Jan 2002
+## who posted his bdiag() function written in December 1995.
 if(FALSE)##--- no longer used:
 .bdiag <- function(lst) {
-    ### block-diagonal matrix [a dgTMatrix] from list of matrices
+    ## block-diagonal matrix [a dgTMatrix] from list of matrices
     stopifnot(is.list(lst), length(lst) >= 1)
     dims <- sapply(lst, dim, USE.NAMES=FALSE)
     ## make sure we had all matrices:

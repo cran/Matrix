@@ -89,6 +89,8 @@
 \alias{Arith,numeric,ldiMatrix-method}
 \alias{Arith,ddiMatrix,numeric-method}
 \alias{Arith,ldiMatrix,numeric-method}
+\alias{-,ddiMatrix,missing-method}
+\alias{-,ldiMatrix,missing-method}
 
 \alias{all,ddiMatrix-method}
 \alias{all,ldiMatrix-method}

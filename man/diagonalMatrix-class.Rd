@@ -186,6 +186,7 @@
 \alias{Summary,ddiMatrix-method}
 \alias{Summary,ldiMatrix-method}
 %
+\alias{chol2inv,diagonalMatrix-method}
 \alias{t,diagonalMatrix-method}
 \alias{print,diagonalMatrix-method}
 \alias{show,diagonalMatrix-method}

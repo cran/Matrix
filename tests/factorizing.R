@@ -350,3 +350,26 @@ assert.EQ.mat(     crossprod(chol2inv(chol(Diagonal(x = 5:1)))),
               C <- crossprod(chol2inv(chol(    diag(x = 5:1)))))
 stopifnot(all.equal(C, diag((5:1)^-2)))
 ## failed in some versions because of a "wrong" implicit generic
+
+## From [Bug 14834] New: chol2inv *** caught segfault ***
+n <- 1e6 # was 595362
+A <- chol( D <- Diagonal(n) )
+stopifnot(identical(A,D)) # A remains (unit)diagonal
+is(tA <- as(A,"triangularMatrix"))
+isValid(tA, "dsparseMatrix")# currently is dtTMatrix
+CA <- as(tA, "CsparseMatrix")
+
+selectMethod(solve, c("dtCMatrix","missing"))
+##--> .Call(dtCMatrix_sparse_solve, a, .trDiagonal(n))  in ../src/dtCMatrix.c
+sA  <- solve(CA)## -- R_CheckStack() segfault in Matrix <= 1.0-4
+nca <- diagU2N(CA)
+stopifnot(identical(sA, nca))
+## same check with non-unit-diagonal D :
+A <- chol(D <- Diagonal(n, x = 0.5))
+ia <- chol2inv(A)
+stopifnot(is(ia, "diagonalMatrix"),
+	  all.equal(ia@x, rep(2,n), tol = 1e-15))
+
+
+cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
+if(!interactive()) warnings()

@@ -389,10 +389,8 @@ prTriang <- function(x, digits = getOption("digits"),
 
     m <- as(x, "matrix")
     cf <- format(m, digits = digits, justify = justify)
-    if(upper)
-	cf[row(cf) > col(cf)] <- "."
-    else
-	cf[row(cf) < col(cf)] <- "."
+    cf[if(upper) row(cf) > col(cf)
+	else	 row(cf) < col(cf)] <- "."
     print(cf, quote = FALSE, right = right, max = maxp)
     invisible(x)
 }
@@ -418,6 +416,8 @@ prMatrix <- function(x, digits = getOption("digits"),
 	print(head(m, max(1, n2)))
 	cat("\n ..........\n\n")
 	print(tail(m, max(1, nr - n2)))
+	cat("\n ..........\n\n")
+
     }
     ## DEBUG: cat("str(.):\n") ; str(x)
     invisible(x)# as print() S3 methods do

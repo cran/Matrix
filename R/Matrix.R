@@ -289,6 +289,12 @@ setMethod("solve", signature(a = "ANY", b = "Matrix"),
 
 setMethod("chol2inv", signature(x = "denseMatrix"),
 	  function (x, ...) chol2inv(as(as(x, "dMatrix"), "dtrMatrix"), ...))
+setMethod("chol2inv", signature(x = "diagonalMatrix"),
+	  function (x, ...) {
+	      if(length(list(...)))
+		  warning("arguments in ",deparse(list(...))," are disregarded")
+	      tcrossprod(solve(x))
+	  })
 setMethod("chol2inv", signature(x = "sparseMatrix"),
 	  function (x, ...) {
 	      if(length(list(...)))

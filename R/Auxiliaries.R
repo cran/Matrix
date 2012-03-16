@@ -24,9 +24,6 @@ as0 <- function(x, mod=mode(x))
     switch(mod, "integer" = 0L, "numeric" = 0, "logical" = FALSE, "complex" = 0+0i)
 
 
-if(getRversion() < "2.15")
-    paste0 <- function(...) paste(..., sep = '')
-
 .M.DN <- function(x) if(!is.null(dn <- dimnames(x))) dn else list(NULL,NULL)
 
 .if.NULL <- function(x, orElse) if(!is.null(x)) x else orElse

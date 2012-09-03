@@ -137,11 +137,21 @@ setMethod("t", signature(x = "dsCMatrix"),
           function(x) .Call(Csparse_transpose, x, FALSE),
           valueClass = "dsCMatrix")
 
+### These two are very similar, the first one has the advantage to be applicable to 'Chx' directly:
+
 .diag.dsC <- function(x, Chx = Cholesky(x, LDL=TRUE), res.kind = "diag") {
     force(Chx)
-    stopifnot(is.integer(Chx@p), is.double(Chx@x))
+    if(!missing(Chx)) stopifnot(.isLDL(Chx), is.integer(Chx@p), is.double(Chx@x))
     .Call(diag_tC, Chx@p, Chx@x, Chx@perm, res.kind)
+    ##    ^^^^^^^ from ../src/Csparse.c
 }
+
+## here, we  *could* allow a 'mult = 0' factor :
+.CHM.LDL.D <- function(x, perm = TRUE, res.kind = "diag") {
+    .Call(dsCMatrix_LDL_D, x, perm, res.kind)
+    ##    ^^^^^^^^^^^^^^^^ from ../src/dsCMatrix.c
+}
+
 
 ## FIXME:  kind = "diagBack" is not yet implemented
 ##	would be much more efficient, but there's no CHOLMOD UI (?)
@@ -149,6 +159,8 @@ setMethod("t", signature(x = "dsCMatrix"),
 ## Note: for det(), permutation is unimportant;
 ##       for diag(), apply *inverse* permutation
 ##    	q <- p ; q[q] <- seq_along(q); q
+
+
 
 ldet1.dsC <- function(x, ...) .Call(CHMfactor_ldetL2, Cholesky(x, ...))
 ## these are slightly faster (ca. 3 to 4 %):

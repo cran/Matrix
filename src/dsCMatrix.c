@@ -155,6 +155,7 @@ SEXP dsCMatrix_LDL_D(SEXP Ap, SEXP permP, SEXP resultKind)
     SEXP ans;
     L = internal_chm_factor(Ap, asLogical(permP),
 			    /*LDL*/ 1, /*super*/0, /*Imult*/0.);
+    // ./Csparse.c :
     ans = PROTECT(diag_tC_ptr(L->n,
 			      L->p,
 			      L->x,

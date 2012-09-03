@@ -1,7 +1,7 @@
 #ifndef CHM_COMMON_H
 #define CHM_COMMON_H
 
-#include "UFconfig/UFconfig.h"
+#include "SuiteSparse_config/SuiteSparse_config.h"
 #include "CHOLMOD/Include/cholmod.h"
 #include "Mutils.h"
 #ifdef Matrix_with_SPQR

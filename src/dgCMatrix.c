@@ -113,6 +113,10 @@ SEXP R_to_CMatrix(SEXP x)
     return ans;
 }
 
+/** Return a 2 column matrix  '' cbind(i, j) ''  of 0-origin index vectors (i,j)
+ *  which entirely correspond to the (i,j) slots of
+ *  as(x, "TsparseMatrix") :
+ */
 SEXP compressed_non_0_ij(SEXP x, SEXP colP)
 {
     int col = asLogical(colP); /* 1 if "C"olumn compressed;  0 if "R"ow */

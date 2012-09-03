@@ -105,15 +105,17 @@ stopifnot(
 		0.7252316891977, 0.5972811755863, 0.5818673040157, 0.7444549621769,
 		0.7308954865819, 0.7713984381710, 0.8124321235679),
 	      tol = 1e-9))
+showProc.time()
 
 
 set.seed(27)
 m9 <- h9 + rnorm(9^2)/1000 ; m9 <- (m9 + t(m9))/2
 nm9 <- nearPD(m9)
 
+nRep <- if(doExtras) 50 else 4
 CPU <- 0
 for(M in c(5, 12))
-    for(i in 1:50) {
+    for(i in 1:nRep) {
 	m <- matrix(round(rnorm(M^2),2), M, M)
 	m <- m + t(m)
 	diag(m) <- pmax(0, diag(m)) + 1
@@ -124,7 +126,8 @@ for(M in c(5, 12))
 		  all.equal(eigen(n.m$mat, only.values=TRUE)$values,
 			    n.m$eigenvalues, tol = 4e-8))
     }
-cat('Time elapsed for nearPD(): ', CPU,'\n')
+cat('Time elapsed for ',nRep, 'nearPD(): ', CPU,'\n')
+showProc.time()
 
 ## cov2cor()
 m <- diag(6:1) %*% as(pr,"matrix") %*% diag(6:1) # so we can "vector-index"
@@ -164,5 +167,5 @@ assert.EQ.mat(c2, co.x) # failed in Matrix 0.999375-9, because of
 stopifnot(identical(dimnames(c1), dimnames(mM)),
 	  all.equal(c1, c3, tol=1e-15))
 
+showProc.time()
 
-cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''

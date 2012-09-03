@@ -27,7 +27,7 @@ spMatrix <- function(nrow, ncol,
     ## The conformability of (i,j,x) with itself and with 'dim'
     ## is checked automatically by internal "validObject()" inside new(.):
     kind <- .M.kind(x)
-    new(paste(kind, "gTMatrix", sep=''), Dim = dim,
+    new(paste0(kind, "gTMatrix"), Dim = dim,
         x = if(kind == "d") as.double(x) else x,
         ## our "Tsparse" Matrices use  0-based indices :
         i = as.integer(i - 1L),
@@ -62,12 +62,16 @@ sparseMatrix <- function(i = ep, j = ep, p, x, dims, dimnames,
         stopifnot(all(dims >= dims.min))
         dims <- as.integer(dims)
     }
-    if(symmetric && dims[1] != dims[2])
-        stop("symmetric matrix must be square")
+    sx <- if(symmetric) {
+        if(dims[1] != dims[2])
+            stop("symmetric matrix must be square")
+        "s"
+    } else "g"
     isPat <- missing(x) ## <-> patter"n" Matrix
     kx <- if(isPat) "n" else .M.kind(x)
-    r <- new(paste(kx, if(symmetric)"s" else "g", "TMatrix", sep=''))
+    r <- new(paste0(kx, sx, "TMatrix"))
     r@Dim <- dims
+    if(symmetric && all(i >= j)) r@uplo <- "L" # else "U", the default
     if(!isPat) {
 	if(kx == "d" && !is.double(x)) x <- as.double(x)
 	if(length(x) != (n <- length(i))) { ## recycle
@@ -247,7 +251,7 @@ setMethod("[", signature(x = "sparseMatrix", i = "missing", j = "index",
 	      cld <- getClassDef(class(x))
 ##> why should this be needed; can still happen in <Tsparse>[..]:
 ##>	      if(!extends(cld, "generalMatrix")) x <- as(x, "generalMatrix")
-##	      viaCl <- paste(.M.kind(x, cld), "gTMatrix", sep='')
+##	      viaCl <- paste0(.M.kind(x, cld), "gTMatrix")
 
 	      x <- as(x, "TsparseMatrix")[, j, drop=drop]
 ##simpler than x <- callGeneric(x = as(x, "TsparseMatrix"), j=j, drop=drop)
@@ -464,7 +468,7 @@ formatSpMatrix <- function(x, digits = NULL, # getOption("digits"),
 	else {
 	    kind <- .M.kind(x, cld)
 	    x <- .Call(Tsparse_diagU2N,
-		       as(as(x, paste(kind, "Matrix", sep='')), "TsparseMatrix"))
+		       as(as(x, paste0(kind, "Matrix")), "TsparseMatrix"))
 	    cld <- getClassDef(class(x))
 	}
     }
@@ -803,6 +807,10 @@ setMethod("all.equal", c(target = "ANY", current = "sparseMatrix"),
 	  if(is.null(msg) & (r.ok <- isTRUE(r))) TRUE else c(msg, if(!r.ok) r)
       })
 
+
+setMethod("writeMM", "sparseMatrix",
+	  function(obj, file, ...)
+	  writeMM(as(obj, "CsparseMatrix"), as.character(file), ...))
 
 ### --- sparse model matrix,  fac2sparse, etc ----> ./spModels.R
 

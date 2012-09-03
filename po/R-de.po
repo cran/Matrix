@@ -6,8 +6,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: R 2.14.0 / matrix 1.0-0\n"
-"Report-Msgid-Bugs-To: bugs@r-project.org\n"
-"POT-Creation-Date: 2012-03-06 17:05\n"
+"Report-Msgid-Bugs-To: bugs.r-project.org\n"
+"POT-Creation-Date: 2012-08-21 22:31\n"
 "PO-Revision-Date: 2011-10-14 15:23+0200\n"
 "Last-Translator: Chris Leick <c.leick@vollbio.de>\n"
 "Language-Team: German <debian-l10n-german@lists.debian.org>\n"
@@ -16,6 +16,10 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#, fuzzy
+msgid "invalid 'mod':"
+msgstr "ungültiges »data«"
 
 msgid ""
 "not-yet-implemented method for %s(<%s>).\n"
@@ -73,17 +77,38 @@ msgstr "keine Dreiecksmatrix"
 msgid "not yet implemented for matrix w/ typeof"
 msgstr "noch nicht implementiert für Matrix mit typeof"
 
-msgid "not yet be implemented for"
+#, fuzzy
+msgid "not yet implemented for"
 msgstr "noch nicht implementiert für"
 
 msgid "general Matrix class not yet implemented for"
 msgstr "generelle Matrixklasse noch nicht implementiert für"
 
-msgid "arguments in"
+#, fuzzy
+msgid "arguments"
 msgstr "Argumente in"
 
-msgid "are disregarded"
+msgid ")$"
+msgstr ""
+
+msgid "^list\\("
+msgstr ""
+
+#, fuzzy
+msgid "are disregarded in"
 msgstr "werden nicht berücksichtigt"
+
+msgid ""
+"Quadratic matrix '%s' (=: A) is not formally\n"
+"\tsymmetric.  Will be treated as\tA A'"
+msgstr ""
+
+msgid ""
+"'update' must be logical or '+' or '-'; 'C' a matrix, and 'L' a \"CHMfactor\""
+msgstr ""
+
+msgid "update must be TRUE/FALSE or '+' or '-'"
+msgstr ""
 
 msgid "not a symmetric matrix; consider forceSymmetric() or symmpart()"
 msgstr ""
@@ -135,20 +160,21 @@ msgstr "Ungültig zusammengesetzter Indikator:"
 msgid "file is not a MatrixMarket file"
 msgstr "Datei ist keine MatrixMarket-Datei"
 
-msgid "type '"
-msgstr "Typ »"
-
-msgid "' not recognized"
+#, fuzzy
+msgid "type '%s' not recognized"
 msgstr "« nicht erkannt"
 
-msgid "representation '"
-msgstr "Entsprechung »"
+#, fuzzy
+msgid "representation '%s' not recognized"
+msgstr "« nicht erkannt"
 
-msgid "element type '"
-msgstr "Elementtyp »"
+#, fuzzy
+msgid "element type '%s' not recognized"
+msgstr "« nicht erkannt"
 
-msgid "symmetry form '"
-msgstr "symmetrische Form »"
+#, fuzzy
+msgid "symmetry form '%s' not recognized"
+msgstr "Symmetrieform »%s« noch nicht implementiert"
 
 msgid "readMM(): row\t values 'i' are not in 1:nr"
 msgstr "readMM(): Zeile\t Werte »i« sind nicht in 1:nr"
@@ -224,6 +250,15 @@ msgstr ""
 msgid "'lag' and 'differences' must be integers >= 1"
 msgstr "»lag« und »differences« müssen Ganzzahlen >=1 sein"
 
+msgid "programming error: min() should have dispatched w/ 1st arg much earlier"
+msgstr ""
+
+msgid "in Summary(<ANY>, .): %s(<%s>, <%s>%s)"
+msgstr ""
+
+msgid ", ..."
+msgstr ""
+
 msgid "invalid or not-yet-implemented 'Matrix' subsetting"
 msgstr "ungültige oder noch nicht implementierte »Matrix«-Untermenge"
 
@@ -290,6 +325,9 @@ msgid "internal bug in \"Compare\" method (Cmp.Mat.atomic); please report"
 msgstr ""
 "interner Fehler in der \"Compare\"-Methode (Cmp.Mat.atomic). Bitte berichten"
 
+msgid "Cmp.Mat.atomic() should not be called for diagonalMatrix"
+msgstr ""
+
 msgid "Matrices must have same number of rows for arithmetic"
 msgstr "Matrizen müssen für Arithmetik die gleiche Anzahl Zeilen haben"
 
@@ -302,9 +340,13 @@ msgstr "Länge des zweiten arg passt nicht zur Dimension des ersten"
 msgid "length of 1st arg does not match dimension of 2nd"
 msgstr "Länge des ersten arg passt nicht zur Dimension des zweiten"
 
-msgid "internal bug in \"Logic\" method (.Logic.Mat.atomic); please report"
+#, fuzzy
+msgid "internal bug in \"Logic\" method (Logic.Mat.atomic); please report"
 msgstr ""
 "interner Fehler in der \"Logic\"-Methode (.Logic.Mat.atomic). Bitte berichten"
+
+msgid "Logic.Mat.atomic() should not be called for diagonalMatrix"
+msgstr ""
 
 msgid "(0)"
 msgstr "(0)"
@@ -697,6 +739,25 @@ msgstr ""
 
 msgid "'times >= 0' is required"
 msgstr "'times >= 0' wird benötigt"
+
+msgid "(un)packing only applies to dense matrices, class(x)='%s'"
+msgstr ""
+
+#, fuzzy
+msgid "'x' is not symmetric nor triangular"
+msgstr "die Matrix ist nicht dreieckig"
+
+#~ msgid "type '"
+#~ msgstr "Typ »"
+
+#~ msgid "representation '"
+#~ msgstr "Entsprechung »"
+
+#~ msgid "element type '"
+#~ msgstr "Elementtyp »"
+
+#~ msgid "symmetry form '"
+#~ msgstr "symmetrische Form »"
 
 #~ msgid "numeric(<too-long>)"
 #~ msgstr "numeric(<zu lang>)"

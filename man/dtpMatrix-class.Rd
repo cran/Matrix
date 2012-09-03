@@ -13,6 +13,7 @@
 \alias{determinant,dtpMatrix,missing-method}
 \alias{determinant,dtpMatrix,logical-method}
 \alias{diag,dtpMatrix-method}
+\alias{diag<-,dtpMatrix-method}
 \alias{norm,dtpMatrix,character-method}
 \alias{norm,dtpMatrix,missing-method}
 \alias{rcond,dtpMatrix,character-method}
@@ -21,7 +22,6 @@
 \alias{solve,dtpMatrix,matrix-method}
 \alias{solve,dtpMatrix,ddenseMatrix-method}
 \alias{t,dtpMatrix-method}
-\alias{unpack,dtpMatrix-method}
 \title{Packed triangular dense matrices}
 \description{The \code{"dtpMatrix"} class is the class of triangular,
   dense, numeric matrices in packed storage.  The \code{"dtrMatrix"}
@@ -70,7 +70,6 @@
     \item{solve}{\code{signature(a = "dtpMatrix", b = "missing")}: ... }
     \item{solve}{\code{signature(a = "dtpMatrix", b = "matrix")}: ... }
     \item{t}{\code{signature(x = "dtpMatrix")}: ... }
-    \item{unpack}{\code{signature(x = "dtpMatrix")}: ... }
   }
 }
 \seealso{
@@ -84,6 +83,8 @@ example("dtrMatrix-class")
 str(p1)
 (pp <- as(T, "dtpMatrix"))
 stopifnot(length(p1@x) == 3, length(pp@x) == 3,
-          p1 @ uplo == T2 @ uplo, pp @ uplo == T @ uplo)
+          p1 @ uplo == T2 @ uplo, pp @ uplo == T @ uplo,
+          all((u.d <- pp - T ) == 0), is(u.d, "dtpMatrix"), u.d@uplo == T @uplo,
+          all((l.d <- p1 - T2) == 0), is(l.d, "dtpMatrix"), l.d@uplo == T2@uplo)
 }
 \keyword{classes}

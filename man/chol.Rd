@@ -86,6 +86,18 @@ str(c2)
 ## An example where chol() can't work
 (sy3 <- new("dsyMatrix", Dim = as.integer(c(2,2)), x = c(14, -1, 2, -7)))
 try(chol(sy3)) # error, since it is not positive definite
+
+## A sparse example --- exemplifying 'pivot'
+(mm <- Matrix(toeplitz(c(10, 0, 1, 0, 3)), sparse = TRUE)) # 5 x 5
+(R <- chol(mm)) ## default:  pivot = FALSE
+R2 <- chol(mm, pivot=FALSE)
+stopifnot( identical(R, R2), all.equal(crossprod(R), mm) )
+(R. <- chol(mm, pivot=TRUE))# nice band structure,
+## but of course crossprod(R.) is *NOT* equal to mm
+## --> see Cholesky() and its examples, for the pivot structure & factorization
+stopifnot(all.equal(sqrt(det(mm)), det(R)),
+          all.equal(prod(diag(R)), det(R)),
+          all.equal(prod(diag(R.)), det(R)))
 }
 \keyword{algebra}
 \keyword{array}

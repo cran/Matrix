@@ -24,6 +24,10 @@
 \alias{coerce,dsyMatrix,lsyMatrix-method}
 \alias{coerce,dsyMatrix,matrix-method}
 \alias{coerce,matrix,dsyMatrix-method}
+\alias{diag,dspMatrix-method}
+\alias{diag,dsyMatrix-method}
+\alias{diag<-,dspMatrix-method}
+\alias{diag<-,dsyMatrix-method}
 %
 \alias{show,dsyMatrix-method}
 \alias{norm,dspMatrix,character-method}
@@ -43,7 +47,6 @@
 \alias{solve,dsyMatrix,missing-method}
 \alias{t,dspMatrix-method}
 \alias{t,dsyMatrix-method}
-\alias{unpack,dspMatrix-method}
 \title{Symmetric Dense Numeric Matrices}
 \description{
   The \code{"dsyMatrix"} class is the class of symmetric, dense matrices
@@ -110,6 +113,7 @@
 str(t(sy2)) # uplo = "L", and the lower tri. (i.e. NA is replaced).
 
 chol(sy2) #-> "Cholesky" matrix
+(sp2 <- pack(sy2)) # a "dspMatrix"
 
 ## Coercing to dpoMatrix gives invalid object:
 sy3 <- new("dsyMatrix", Dim = as.integer(c(2,2)), x = c(14, -1, 2, -7))
@@ -117,7 +121,8 @@ try(as(sy3, "dpoMatrix")) # -> error: not positive definite
 \dontshow{
 tr <- try(as(sy3, "dpoMatrix"), silent=TRUE)
 stopifnot(1 == grep("not a positive definite matrix",
-                    as.character(tr)))
+                    as.character(tr)),
+	  is(sp2, "dspMatrix"))
 }
 }
 \keyword{classes}

@@ -19,9 +19,11 @@ allFalse <- function(x) !any(x) && !any(is.na(x))## ~= all0
 anyFalse <- function(x) isTRUE(any(!x))		 ## ~= any0
 
 as1 <- function(x, mod=mode(x))
-    switch(mod, "integer" = 1L, "numeric" = 1, "logical" = TRUE, "complex" = 1+0i)
+    switch(mod, "integer"= 1L, "double"=, "numeric"= 1, "logical"= TRUE,
+	   "complex"= 1+0i, stop("invalid 'mod': ", mod))
 as0 <- function(x, mod=mode(x))
-    switch(mod, "integer" = 0L, "numeric" = 0, "logical" = FALSE, "complex" = 0+0i)
+    switch(mod, "integer"= 0L, "double"=, "numeric"= 0, "logical"= FALSE,
+	   "complex"= 0+0i, stop("invalid 'mod': ", mod))
 
 
 .M.DN <- function(x) if(!is.null(dn <- dimnames(x))) dn else list(NULL,NULL)
@@ -62,7 +64,9 @@ copyClass <- function(x, newCl, sNames =
     ##   for(n in sNames) slot(r, n, check=check) <- slot(x, n)  :
     if(check) for(n in sNames) slot(r, n) <- slot(x, n)
     else for(n in sNames) # don't check, be fast
-	.Call("R_set_slot", r, n, slot(x,n), PACKAGE = "methods")
+	## .Call("R_set_slot", r, n, slot(x,n), PACKAGE = "methods")
+	## "ugly", but not using .Call(*, "methods")
+	attr(r, n) <- attr(x, n)
     r
 }
 
@@ -281,8 +285,13 @@ colCheck <- function(a, b) {
     da[2]
 }
 
-## used for is.na(<nsparse>)  but not only;
-## just gives a "all-FALSE" n(C)sparseMatrix of same form as x
+## is.na(<nsparse>) is FALSE everywhere.  Consequently, this function
+## just gives an "all-FALSE" nCsparseMatrix of same form as x
+##'
+##' @title all FALSE nCsparseMatrix "as x"
+##' @param x Matrix
+##' @return n.CsparseMatrix "as \code{x}"
+##' @author Martin Maechler
 is.na_nsp <- function(x) {
     d <- x@Dim
     dn <- x@Dimnames
@@ -295,6 +304,20 @@ is.na_nsp <- function(x) {
     r
 }
 
+allTrueMat <- function(x, sym = (d[1] == d[2] &&
+				 identical(dn[[1]], dn[[2]])),
+		       packed=TRUE)
+{
+    d <- x@Dim
+    dn <- x@Dimnames
+    r <- new("ngeMatrix", Dim=d, Dimnames=dn, x = rep.int(TRUE, prod(d)))
+    if(sym) as(r, if(packed) "nspMatrix" else "nsyMatrix")
+    else r
+}
+allTrueMatrix <- function(x) allTrueMat(x)
+
+
+
 ## Note: !isPacked(.)  i.e. `full' still contains
 ## ----  "*sy" and "*tr" which have "undefined" lower or upper part
 isPacked <- function(x)
@@ -304,6 +327,8 @@ isPacked <- function(x)
     ## unneeded(!): any("x" == slotNames(x)) &&
     length(x@x) < prod(dim(x))
 }
+##" Is 'x' a packed (dense) matrix -- "no-check" version
+.isPacked <- function(x) length(x@x) < prod(dim(x))
 
 emptyColnames <- function(x, msg.if.not.empty = FALSE)
 {
@@ -601,7 +626,7 @@ asTuniq <- function(x) {
 is_not_uniqT <- function(x, di = dim(x))
     is.unsorted(x@j) || anyDuplicated(.Call(m_encodeInd2, x@i, x@j, di, FALSE))
 
-## is 'x' a TsparseMatrix with no duplicated entries (to be *added* for uniq):
+## is 'x' a TsparseMatrix with duplicated entries (to be *added* for uniq):
 is_duplicatedT <- function(x, di = dim(x))
     anyDuplicated(.Call(m_encodeInd2, x@i, x@j, di, FALSE))
 
@@ -748,7 +773,7 @@ l2d_meth <- function(x) {
 .M.kind <- function(x, clx = class(x)) {
     ## 'clx': class() *or* class definition of x
     if(is.matrix(x) || is.atomic(x)) { ## 'old style' matrix or vector
-	if     (is.numeric(x)) "d"
+	if     (is.numeric(x)) "d" ## also for 'integer' --> see .V.kind()
 	else if(is.logical(x)) "l" ## FIXME ? "n" if no NA ??
 	else if(is.complex(x)) "z"
 	else stop("not yet implemented for matrix w/ typeof ", typeof(x))
@@ -780,7 +805,7 @@ l2d_meth <- function(x) {
     else if(extends(clx, "pMatrix")) "n" # permutation -> pattern
     else if(extends(clx, "zMatrix")) "z"
     else if(extends(clx, "iMatrix")) "i"
-    else stop(" not yet be implemented for ", clx@className)
+    else stop(" not yet implemented for ", clx@className)
 }
 
 ## typically used as .type.kind[.M.kind(x)]:
@@ -964,7 +989,7 @@ asTri <- function(from, newclass) {
     ## TODO: also check for unit-diagonal: 'diag = "U"'
     isTri <- isTriangular(from)
     if(isTri)
-	new(newclass, x = from@x, Dim = from@Dim,
+ 	new(newclass, x = from@x, Dim = from@Dim,
 	    Dimnames = from@Dimnames, uplo = attr(isTri, "kind"))
     else stop("not a triangular matrix")
 }
@@ -1103,22 +1128,23 @@ isTriC <- function(object, upper = NA) {
 xtC.diagU2N <- function(x) if(x@diag == "U") .Call(Csparse_diagU2N, x) else x
 
 ##' @title uni-diagonal to "regular" triangular Matrix
-##' <description>
+##'
 ##' NOTE:   class is *not* checked here! {speed}
 ##' @param x a dense unidiagonal (x@diag == "U") triangular Matrix
 ##'     ("ltrMatrix", "dtpMatrix", ...).
 ##' @param kind character indicating content kind: "d","l",..
+##' @param isPacked logical indicating if 'x' is packed
 ##' @return Matrix "like" x, but with x@diag == "N" (and 1 or TRUE values "filled" in .@x)
 ##' @author Martin Maechler
-.dense.diagU2N <- function(x, kind = .M.kind(x))
+.dense.diagU2N <- function(x, kind = .M.kind(x), isPacked = length(x@x) < n^2)
 {
-    ## For denseMatrix, 'diag = "U"'
-    ## means the 'x' slot can have wrong values which are
-    ## documented to never be accessed
+### FIXME: Move this to C ----- (possibly with an option of *not* copying)
+    ## For denseMatrix, .@diag = "U"  means the 'x' slot can have wrong values
+    ## which are documented to never be accessed
     n <- x@Dim[1]
     if(n > 0) {
 	one <- if(kind == "d") 1. else TRUE
-	if(length(x@x) < n*n) { ## { == isPacked(x)) } : dtp-, ltp-, or "ntpMatrix":
+	if(isPacked) { ## { == isPacked(x)) } : dtp-, ltp-, or "ntpMatrix":
 	    ## x@x is of length	 n*(n+1)/2
 	    if(n == 1)
 		x@x <- one
@@ -1147,7 +1173,7 @@ xtC.diagU2N <- function(x) if(x@diag == "U") .Call(Csparse_diagU2N, x) else x
         if(checkDense && extends(cl,"denseMatrix")) {
 	    .dense.diagU2N(x, kind)
         }
-        else { ## not dense, not [CT]sparseMatrix  ==>  Rsparse*
+        else { ## possibly dense, not [CT]sparseMatrix  ==>  Rsparse*
 	    .Call(Tsparse_diagU2N,
 		  as(as(x, paste0(kind, "Matrix")), "TsparseMatrix"))
 	    ## leave it as T* - the caller can always coerce to C* if needed
@@ -1162,10 +1188,28 @@ diagU2N <- function(x, cl = getClassDef(class(x)), checkDense = FALSE)
     else x
 }
 
-diagN2U <- function(x, cl = getClassDef(class(x)))
+##' @title coerce triangular Matrix to uni-diagonal
+##'
+##' NOTE: class is *not* checked here! {speed}
+##' @param x a dense triangular Matrix ("ltrMatrix", "dtpMatrix", ...).
+##' @return Matrix "like" x, but with x@diag == "U"
+.dense.diagN2U <- function(x)
 {
-    if(extends(cl, "triangularMatrix") && x@diag == "N")
-	.Call(Csparse_diagN2U, as(x, "CsparseMatrix")) else x
+    ## as we promise that the diagonal entries are not accessed when
+    ##	diag = "U",   we don't even need to set them to one !!
+    x@diag <- "U"
+    x
+}
+
+diagN2U <- function(x, cl = getClassDef(class(x)), checkDense = FALSE)
+{
+    if(!(extends(cl, "triangularMatrix") && x@diag == "N"))
+	return(x)
+    if(checkDense && extends(cl,"denseMatrix")) {
+	.dense.diagN2U(x)
+    }
+    else ## still possibly dense
+	.Call(Csparse_diagN2U, as(x, "CsparseMatrix"))
 }
 
 .as.dgC.0.factors <- function(x) {
@@ -1278,3 +1322,26 @@ setparts <- function(x,y, uniqueCheck = TRUE, check = TRUE) {
          int = if(n1 < n2) y[m1] else x[m2])
 }
 
+##' @title Warn about extraneous arguments in the "..."  (of its caller)
+##' @return
+##' @author Martin Maechler, June 2012
+chk.s <- function(...) {
+    if(length(list(...)))
+	warning("arguments  ",
+		sub(")$", '', sub("^list\\(", '', deparse(list(...), control=c()))),
+		"  are disregarded in\n ", deparse(sys.call(-1), control=c()),
+		call. = FALSE)
+}
+
+
+##' *Only* to be used as function in
+##'    setMethod("Compare", ...., .Cmp.swap)  -->  ./Ops.R  & ./diagMatrix.R
+.Cmp.swap <- function(e1,e2) {
+    ## "swap RHS and LHS" and use the method below:
+    switch(.Generic,
+	   "==" =, "!=" = callGeneric(e2, e1),
+	   "<"	= e2 >	e1,
+	   "<=" = e2 >= e1,
+	   ">"	= e2 <	e1,
+	   ">=" = e2 <= e1)
+}

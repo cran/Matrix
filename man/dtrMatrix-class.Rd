@@ -23,6 +23,7 @@
 \alias{determinant,dtrMatrix,logical-method}
 \alias{determinant,dtrMatrix,missing-method}
 \alias{diag,dtrMatrix-method}
+\alias{diag<-,dtrMatrix-method}
 \alias{norm,dtrMatrix,character-method}
 \alias{norm,dtrMatrix,missing-method}
 \alias{rcond,dtrMatrix,character-method}
@@ -81,6 +82,10 @@
     \item{rcond}{\code{signature(x = "dtrMatrix", norm = "character")}}
     \item{solve}{\code{signature(a = "dtrMatrix", b = "missing")}}
     \item{solve}{\code{signature(a = "dtrMatrix", b = "matrix")}}
+
+    \item{+, -, *, \dots, ==, >=, \dots}{all the \code{\link{Ops}} group
+      methods are available.  When applied to two triangular matrices,
+      these return a triangular matrix when easily possible.}
   }
 }
 %\references{}

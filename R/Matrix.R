@@ -243,7 +243,7 @@ Matrix <- function (data = NA, nrow = 1, ncol = 1, byrow = FALSE,
 		stop("complex matrices not yet implemented in Matrix package")
 	    if (ctype == "integer") ## integer Matrices not yet implemented
 		storage.mode(data) <- "double"
-	    data <- new(paste(.M.kind(data), "geMatrix", sep=''),
+	    data <- new(paste0(.M.kind(data), "geMatrix"),
 			Dim = dim(data),
 			Dimnames = .M.DN(data),
 			x = c(data))
@@ -285,14 +285,12 @@ setMethod("chol2inv", signature(x = "denseMatrix"),
 	  function (x, ...) chol2inv(as(as(x, "dMatrix"), "dtrMatrix"), ...))
 setMethod("chol2inv", signature(x = "diagonalMatrix"),
 	  function (x, ...) {
-	      if(length(list(...)))
-		  warning("arguments in ",deparse(list(...))," are disregarded")
+	      chk.s(...)
 	      tcrossprod(solve(x))
 	  })
 setMethod("chol2inv", signature(x = "sparseMatrix"),
 	  function (x, ...) {
-	      if(length(list(...)))
-		  warning("arguments in ",deparse(list(...))," are disregarded")
+	      chk.s(...)
 	      ## for now:
 	      tcrossprod(solve(as(x,"triangularMatrix")))
 	  })
@@ -338,6 +336,9 @@ setMethod("determinant", signature(x = "Matrix", logarithm = "logical"),
 
 setMethod("diag", signature(x = "Matrix"),
 	  function(x, nrow, ncol) .bail.out.1("diag", class(x)))
+if(FALSE)## TODO: activate later
+setMethod("diag<-", signature(x = "Matrix"),
+	  function(x, value) .bail.out.1("diag", class(x)))
 setMethod("t", signature(x = "Matrix"),
 	  function(x) .bail.out.1(.Generic, class(x)))
 
@@ -429,6 +430,53 @@ setMethod("any", signature(x = "Matrix"),
 setMethod("Summary", signature(x = "Matrix", na.rm = "ANY"),
 	  function(x, ..., na.rm)
 	  callGeneric(as(x,"dMatrix"), ..., na.rm = na.rm))
+
+## Try to make   min(1, <Matrix>)  work, i.e., not dispatch on first arg to .Primitive
+## This for(..) gives {during installation}
+## Error in setGeneric(F, signature = "...") :
+##   ‘max’ is a primitive function;  methods can be defined, but the generic function is implicit, and cannot be changed.
+if(FALSE)
+for(F in c("max", "min", "range", "prod", "sum", "any", "all")) {
+    setGeneric(F, signature = "...")
+}
+### try on "min" for now --- ~/R/Pkgs/Rmpfr/R/mpfr.R is the example (for "pmin")
+if(FALSE)### This gives error message that the "ANY" is method is sealed ...
+setMethod("min", "ANY",
+	  function(..., na.rm = FALSE) {
+	      args <- list(...)
+	      if(all(isAtm <- vapply(args, is.atomic, NA)))
+		  return( base::min(..., na.rm = na.rm) )
+              ## else try to dispatch on an argument which is a Matrix.. or in a
+              if(any(isM <- vapply(args, is, NA, class2="Matrix"))) {
+                  ## swap the Matrix with the first argument
+                  i <- which.max(isM)# the first "Matrix"
+                  if(i == 1)
+                      stop("programming error: min() should have dispatched w/ 1st arg much earlier")
+              } else { ## if no "Matrix", take the first non-atomic argument
+                  ## (FIXME: should take the first for which there is a method !)
+                  i <- which.max(!isAtm)
+              }
+              ii <- seq_along(args)
+              ii[c(1,i)] <- c(i,1)
+              do.call(min, c(args[ii], list(na.rm=na.rm)))
+          })
+
+if(FALSE) { ## FIXME: it does *not* solve the problem anyway ..
+##
+##  (m <- Matrix(c(0,0,2:0), 3,5))
+##   min(1,m)
+##-> error, as it calls the .Primitive min() and that does *not* dispatch on 2nd arg
+##
+setMethod("Summary", signature(x = "ANY", na.rm = "ANY"),
+	  function(x, ..., na.rm) {
+          if(!length(a <- list(...))) (get(.Generic, envir=baseenv()))(x, na.rm=na.rm)
+          else {
+                 if(!is.null(v <- getOption("Matrix.verbose")) && v >= 1)
+                     message(sprintf("in Summary(<ANY>, .): %s(<%s>, <%s>%s)\n",
+                                     .Generic, class(x), class(a[[1]]), if(length(a) > 1)", ..." else ""))
+                 do.call(.Generic, c(x, a, list(na.rm=na.rm)))
+             }})
+}
 
 Summary.l <- function(x, ..., na.rm) { ## must be method directly
     if(.Generic %in% c("all", "any"))

@@ -73,6 +73,10 @@
 \alias{dim<-,sparseVector-method}
 \alias{is.na,nsparseVector-method}
 \alias{is.na,sparseVector-method}
+\alias{is.finite,nsparseVector-method}
+\alias{is.finite,sparseVector-method}
+\alias{is.infinite,nsparseVector-method}
+\alias{is.infinite,sparseVector-method}
 \alias{length,sparseVector-method}
 \alias{mean,sparseVector-method}
 \alias{rep,sparseVector-method}
@@ -177,7 +181,17 @@
       subsetting of traditional vectors \code{x} by logical sparse
       vectors (i.e., \code{i} of class \code{"nsparseVector"} or
       \code{"lsparseVector"}).}
-   }
+    \item{is.na, is.finite, is.infinite}{\code{(x = "sparseVector")}, and}
+    \item{is.na, is.finite, is.infinite}{\code{(x = "nsparseVector")}:
+      return \code{\link{logical}} or \code{"nsparseVector"} of the same
+      length as \code{x}, indicating if/where \code{x} is
+      \code{\link{NA}} (or \code{NaN}), finite or infinite, entirely
+      analogously to the corresponding base \R functions.}
+  }
+}
+\seealso{
+  \code{\link{sparseVector}()} for friendly construction of sparse
+  vectors (apart from \code{as(*, "sparseVector")}).
 }
 %\author{Martin}
 \examples{

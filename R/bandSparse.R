@@ -74,7 +74,7 @@ bandSparse <- function(n, m = n, k, diagonals,
 	UpLo <- if(min(k) >= 0) "U" else "L"
 	T <- if(use.x) {
 	    if(is.integer(x)) x <- as.double(x)
-	    cc <- paste(Matrix:::.M.kind(x), "sTMatrix", sep = "")
+	    cc <- paste0(Matrix:::.M.kind(x), "sTMatrix")
 	    new(cc, i= i-1L, j= j-1L, x = x, Dim= dims, uplo=UpLo)
 	}
 	else

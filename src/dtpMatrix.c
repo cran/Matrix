@@ -64,24 +64,44 @@ SEXP dtpMatrix_solve(SEXP a)
 }
 
 
+// also applicable to dspMatrix , dppMatrix :
 SEXP dtpMatrix_getDiag(SEXP x)
 {
     int n = *INTEGER(GET_SLOT(x, Matrix_DimSym));
     SEXP val = PROTECT(allocVector(REALSXP, n));
 
-    d_packed_getDiag(REAL(val), x, n);
+    tr_d_packed_getDiag(REAL(val), x, n);
     UNPROTECT(1);
     return val;
 }
 
+// also applicable to lspMatrix :
 SEXP ltpMatrix_getDiag(SEXP x)
 {
     int n = *INTEGER(GET_SLOT(x, Matrix_DimSym));
     SEXP val = PROTECT(allocVector(LGLSXP, n));
 
-    l_packed_getDiag(LOGICAL(val), x, n);
+    tr_l_packed_getDiag(LOGICAL(val), x, n);
     UNPROTECT(1);
     return val;
+}
+
+SEXP dtpMatrix_setDiag(SEXP x, SEXP d)
+{
+    int n = INTEGER(GET_SLOT(x, Matrix_DimSym))[0];
+    return tr_d_packed_setDiag(REAL(d), LENGTH(d), x, n);
+}
+
+SEXP ltpMatrix_setDiag(SEXP x, SEXP d)
+{
+    int n = INTEGER(GET_SLOT(x, Matrix_DimSym))[0];
+    return tr_l_packed_setDiag(INTEGER(d), LENGTH(d), x, n);
+}
+
+SEXP dtpMatrix_addDiag(SEXP x, SEXP d)
+{
+    int n = INTEGER(GET_SLOT(x, Matrix_DimSym))[0];
+    return tr_d_packed_addDiag(REAL(d), LENGTH(d), x, n);
 }
 
 
@@ -166,6 +186,8 @@ SEXP dtpMatrix_as_dtrMatrix(SEXP from)
     packed_to_full_double(REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, n*n)),
 			  REAL(GET_SLOT(from, Matrix_xSym)), n,
 			  *CHAR(STRING_ELT(uplo, 0)) == 'U' ? UPP : LOW);
+    SET_SLOT(val, Matrix_DimNamesSym,
+	     duplicate(GET_SLOT(from, Matrix_DimNamesSym)));
     UNPROTECT(1);
     return val;
 }

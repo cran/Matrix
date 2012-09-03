@@ -78,6 +78,10 @@ M1 <- Matrix(0+0:5, 2,3)
 (S <- crossprod(Matrix(rbinom(60, size=1, prob=0.1), 10,6)))
 (SI <- S + 10*.symDiagonal(6)) # sparse symmetric still
 stopifnot(is(SI, "dsCMatrix"))
+\dontshow{% checking some "unit-diagonality":
+  L <- Diagonal(5, TRUE)
+  stopifnot(L@diag == "U", identical(L, Diagonal(5) > 0))
+}
 }
 \keyword{array}
 \keyword{algebra}

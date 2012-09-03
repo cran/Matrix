@@ -148,27 +148,55 @@ Q.eq.symmpart <- function(m, tol = 8 * .Machine$double.eps)
     Q.eq2(m, ss, tol = tol)
 }
 
+##' sample.int(n, size, replace=FALSE) for large n:
+sampleL <- function(n, size) {
+    if(n < .Machine$integer.max)
+	sample(n, size, replace=FALSE)
+    else {
+	i <- unique(round(n * runif(1.8 * size)))
+	while(length(i) < size) {
+	    i <- unique(c(i, round(n * runif(size))))
+	}
+	i[seq_len(size)]
+    }
+}
+
 
 ## Useful Matrix constructors for testing:
 
-rspMat <- function(n, m = n, density = 1/4, nnz = round(density * n*m))
+##' @title Random Sparse Matrix
+##' @param n
+##' @param m number of columns; default (=n)  ==> square matrix
+##' @param density the desired sparseness density:
+##' @param nnz number of non-zero entries; default from \code{density}
+##' @param giveCsparse logical specifying if result should be CsparseMatrix
+##' @return a [TC]sparseMatrix,  n x m
+##' @author Martin Maechler, Mar 2008
+rspMat <- function(n, m = n, density = 1/4, nnz = round(density * n*m),
+                   giveCsparse = TRUE)
 {
-    ## Purpose: random sparse Matrix
-    ## ----------------------------------------------------------------------
-    ## Arguments: (n,m) : dimension [default m=n ==> *square* matrix}
-    ##           density: the desired sparseness density:
-    ## ----------------------------------------------------------------------
-    ## Author: Martin Maechler, Date: 5 Mar 2008, 11:07
     stopifnot(length(n) == 1, n == as.integer(n),
               length(m) == 1, m == as.integer(m),
               0 <= density, density <= 1,
-              0 <= nnz, nnz <= n*m)
-    x <- numeric(n*m)
-    ## entries 2 : (nnz+1) {so we can have '1' as 'special'}
-    x[sample(n*m, nnz, replace=FALSE)] <- as.numeric(1L + seq_len(nnz))
-    Matrix(x, n,m, sparse=TRUE)
+              0 <= nnz,
+	      nnz <= (N <- n*m))
+    in0 <- sampleL(N, nnz)
+    x <- sparseVector(i = in0, x = as.numeric(1L + seq_along(in0)), length = N)
+    dim(x) <- c(n,m)#-> sparseMatrix
+    if (giveCsparse) as(x, "CsparseMatrix") else x
 }
 
+
+## From \examples{..}  in ../man/sparseMatrix.Rd :
+rSparseMatrix <- function(nrow, ncol, nnz,
+			  rand.x = function(n) round(rnorm(nnz), 2), ...)
+{
+    stopifnot((nnz <- as.integer(nnz)) >= 0,
+	      nrow >= 0, ncol >= 0, nnz <= nrow * ncol)
+    sparseMatrix(i = sample(nrow, nnz, replace = TRUE),
+		 j = sample(ncol, nnz, replace = TRUE),
+		 x = rand.x(nnz), dims = c(nrow, ncol), ...)
+}
 
 
 rUnitTri <- function(n, upper = TRUE, ...)
@@ -189,7 +217,6 @@ rUnitTri <- function(n, upper = TRUE, ...)
     r
 }
 
-## This is related to rUnitTri(), ver
 mkLDL <- function(n, density = 1/3) {
     ## Purpose: make nice artificial   A = L D L'  (with exact numbers) decomp
     ## ----------------------------------------------------------------------
@@ -280,7 +307,8 @@ allCholesky <- function(A, verbose = FALSE, silentTry = FALSE)
     if(!identical(dup.r1, duplicated(r.all)))
         warning("duplicated( <pLs-matrix> ) differs from duplicated( <CHM-list> )",
                 immediate. = TRUE)
-    list(dup.r.all = dup.r1,
+    list(Chol.A = r1,
+         dup.r.all = dup.r1,
 	 r.all	= r.all,
 	 r.uniq = CHM_to_pLs(r1[ ! dup.r1]))
 }
@@ -329,6 +357,7 @@ checkMatrix <- function(m, m.m = if(do.matrix) as(m, "matrix"),
     isSym    <- extends(cld, "symmetricMatrix")
     isDiag   <- extends(cld, "diagonalMatrix")
     isPerm   <- extends(cld, "pMatrix")
+    isTri <- !isSym && !isDiag && !isPerm && extends(cld, "triangularMatrix")
     is.n     <- extends(cld, "nMatrix")
     nonMatr  <- clNam != Matrix:::MatrixClass(clNam, cld)
 
@@ -348,6 +377,8 @@ checkMatrix <- function(m, m.m = if(do.matrix) as(m, "matrix"),
     ina <- is.na(m)
     if(do.matrix) {
 	stopifnot(all(ina == is.na(m.m)),
+		  all(is.finite(m) == is.finite(m.m)),
+		  all(is.infinite(m) == is.infinite(m.m)),
 		  all(m == m | ina), ## check all() , "==" [Compare], "|" [Logic]
 		  if(ncol(m) > 0) identical3(unname(m[,1]), unname(m.m[,1]),
 					     as(m[,1,drop=FALSE], "vector"))
@@ -424,6 +455,8 @@ checkMatrix <- function(m, m.m = if(do.matrix) as(m, "matrix"),
 	stopifnot(is(vm, "Matrix"), validObject(vm), dim(vm) == c(d[1]*d[2], 1))
     }
 
+    if(!isPerm)
+        m.d <- local({ m. <- m; diag(m.) <- diag(m); m. })
     if(do.matrix)
     stopifnot(identical(dim(m.m), dim(m)),
 	      ## base::diag() keeps names [Matrix FIXME]
@@ -441,6 +474,16 @@ checkMatrix <- function(m, m.m = if(do.matrix) as(m, "matrix"),
     if(isSparse) {
 	n0m <- drop0(m) #==> n0m is Csparse
 	has0 <- !Qidentical(n0m, as(m,"CsparseMatrix"))
+	if(!isPerm && !extends(cld, "RsparseMatrix") &&
+           !(extends(cld, "TsparseMatrix") && Matrix:::is_duplicatedT(m, di = d)))
+                                        # 'diag<-' is does not change attrib:
+	    stopifnot(identical(m, m.d))
+    }
+    else if(!identical(m, m.d)) { # dense : 'diag<-' is does not change attrib
+	if(isTri && m@diag == "U" && m.d@diag == "N" &&
+	   all(m == m.d))
+	    message("unitriangular m: diag(m) <- diag(m) lost \"U\" .. is ok")
+	else stop("diag(m) <- diag(m) has changed 'm' too much")
     }
     ## use non-square matrix when "allowed":
 

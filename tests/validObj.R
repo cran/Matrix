@@ -16,7 +16,7 @@ assertError( new("dgeMatrix", Dim = as.integer(c(2,2)), x= as.double(1:5)))
 checkMatrix(m1 <- Matrix(1:6, ncol=2))
 checkMatrix(m2 <- Matrix(1:7 +0, ncol=3)) # a (desired) warning
 stopifnot(all(match(is(m1), c("dgeMatrix", "ddenseMatrix", "generalMatrix",
-	    "dMatrix", "denseMatrix", "Matrix", "compMatrix"),0) > 0),
+	    "dMatrix", "denseMatrix", "compMatrix", "Matrix", "mMatrix"),0) > 0),
 	  dim(t(m1)) == 2:3,
 	  identical(m1, t(t(m1))))
 c.nam <- paste("C",1:2, sep='')
@@ -48,7 +48,7 @@ stopifnot(identical(mc., mcm),
 
 checkMatrix(eq <- cm == cs)
 stopifnot(all(eq@x),
-	  identical3(eq, cs == cp, cm == cp),
+	  identical3(pack(eq), cs == cp, cm == cp),
 	  as.logical(!(cs < cp)),
 	  identical4(!(cs < cp), !(cp > cs), cp <= cs, cs >= cp))
 

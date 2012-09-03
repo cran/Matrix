@@ -35,6 +35,28 @@ assertWarning <- function(expr) {
     invisible(t.res)
 }
 
+##' [ from R's  demo(error.catching) ]
+##' We want to catch *and* save both errors and warnings, and in the case of
+##' a warning, also keep the computed result.
+##'
+##' @title tryCatch both warnings and errors
+##' @param expr
+##' @return a list with 'value' and 'warning', where
+##'   'value' may be an error caught.
+##' @author Martin Maechler
+tryCatch.W.E <- function(expr)
+{
+    W <- NULL
+    w.handler <- function(w){ # warning handler
+	W <<- w
+	invokeRestart("muffleWarning")
+    }
+    list(value = withCallingHandlers(tryCatch(expr, error = function(e) e),
+				     warning = w.handler),
+	 warning = W)
+}
+
+
 isValid <- function(x, class) validObject(x, test=TRUE) && is(x, class)
 
 is.all.equal3 <- function(x,y,z, tol = .Machine$double.eps^0.5)

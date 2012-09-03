@@ -39,7 +39,8 @@ export("Cholesky",
        ## "rowMeans", "rowSums",
        "condest", "onenormest",
        "det",# << "identical" as base - but with correct determinant()
-       "diagN2U", "diagU2N",
+       ".diag.dsC",# -> R/dsCMatrix.R --has FIXME
+       "diagN2U", "diagU2N", ".diagU2N",
        "drop0",
        "expand",
        "expm",
@@ -58,12 +59,15 @@ export("Cholesky",
        "readHB",
        "readMM",
        "sparse.model.matrix",
+       "sparseVector",
        "symmpart",
        "skewpart",
        "tcrossprod",
        "tril",
        "triu",
-       "unpack"
+       "updown",
+       "pack", "unpack"
+       , ".updateCHMfactor"
        , ".validateCsparse"
 #        "writeHB",
        , "writeMM"
@@ -248,7 +252,7 @@ exportMethods(## for both own and "other" generics:
 	      "coerce",
 	      "crossprod",
 	      "determinant",
-	      "diag",
+	      "diag", "diag<-",
 	      "diff",
 	      "dim",
 	      "dim<-",
@@ -264,7 +268,8 @@ exportMethods(## for both own and "other" generics:
 	      "isSymmetric",
 ##	       "isDiagonal",
 ##	       "isTriangular",
-              "is.na",
+	      "is.na",
+	      "is.finite", "is.infinite",
 	      "kronecker",
 	      "length",
               "mean",
@@ -293,6 +298,7 @@ exportMethods(## for both own and "other" generics:
 	      "tcrossprod",
 	      "tril",
 	      "triu",
+	      "updown",
               "unname",
               "which",
 	      "zapsmall"
@@ -302,6 +308,7 @@ exportMethods("rbind2")
 exportMethods("cbind2")
 
 S3method(print, sparseSummary)
+S3method(print, diagSummary)
 S3method(c, abIndex)# < for now -- S4 method on c() seems "difficult"
 
 ## So that such dispatch also works inside base functions:

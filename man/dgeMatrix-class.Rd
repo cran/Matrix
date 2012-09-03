@@ -34,6 +34,7 @@
 \alias{determinant,dgeMatrix,logical-method}
 \alias{determinant,dgeMatrix,missing-method}
 \alias{diag,dgeMatrix-method}
+\alias{diag<-,dgeMatrix-method}
 \alias{dim,dgeMatrix-method}
 \alias{dimnames,dgeMatrix-method}
 \alias{eigen,dgeMatrix,missing-method}

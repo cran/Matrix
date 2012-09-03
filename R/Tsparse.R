@@ -242,7 +242,7 @@ setMethod("[", signature(x = "TsparseMatrix",
 	  if(is(x, "symmetricMatrix")) {
 	      isSym <- isTRUE(all(i == j))# work for i,j NA
 	      if(!isSym)
-		  x <- as(x, paste(.M.kind(x), "gTMatrix", sep=''))
+		  x <- as(x, paste0(.M.kind(x), "gTMatrix"))
 	  } else isSym <- FALSE
 
 	  if(isSym) {
@@ -317,7 +317,7 @@ replTmat <- function (x, i, j, ..., value)
 
 	if(!is(x,"generalMatrix")) {
 	    cl <- class(x)
-	    x <- as(x, paste(.M.kind(x), "gTMatrix", sep=''))
+	    x <- as(x, paste0(.M.kind(x), "gTMatrix"))
 	    Matrix.msg("'sub-optimal sparse 'x[i] <- v' assignment: Coercing class ",
 		       cl," to ",class(x))
 	}
@@ -466,7 +466,7 @@ replTmat <- function (x, i, j, ..., value)
 	   (!is.null(v <- getOption("Matrix.verbose")) && v >= 1))
 	    (if(.w) warning else message)(
 	     "M[i,j] <- v :  coercing symmetric M[] into non-symmetric")
-        x <- as(x, paste(.M.kind(x), "gTMatrix", sep=''))
+        x <- as(x, paste0(.M.kind(x), "gTMatrix"))
         clDx <- getClassDef(clx <- class(x))
     }
 
@@ -672,6 +672,7 @@ replTmat <- function (x, i, j, ..., value)
 	x <- uniqTsparse(x)
 
     toGeneral <- FALSE
+    isN <- extends(clDx, "nMatrix")
     if(r.sym <- extends(clDx, "symmetricMatrix")) {
 	## Tests to see if the assignments are symmetric as well
 	r.sym <- all(i1 == i2)
@@ -701,8 +702,13 @@ replTmat <- function (x, i, j, ..., value)
     else if(extends(clDx, "triangularMatrix")) {
 	r.tri <- all(if(x@uplo == "U") i1 <= i2 else i2 <= i1)
 	if(r.tri) { ## result is *still* triangular
-	    if(any(i1 == i2)) # diagonal will be changed
+	    if(any(ieq <- i1 == i2)) { # diagonal will be changed
+		if(x@diag == "U" && all(ieq) &&
+		   all(value == if(isN) TRUE else as1(x@x)))
+		    ## only diagonal values are set to 1 -- i.e. unchanged
+		    return(x)
 		x <- diagU2N(x) # keeps class (!)
+	    }
 	}
 	else toGeneral <- TRUE
     }
@@ -710,7 +716,7 @@ replTmat <- function (x, i, j, ..., value)
 	if((.w <- isTRUE(getOption("Matrix.warn"))) || isTRUE(getOption("Matrix.verbose")))
 	    (if(.w) warning else message)(
 	     "M[ij] <- v :  coercing symmetric M[] into non-symmetric")
-	x <- as(x, paste(.M.kind(x), "gTMatrix", sep=''))
+	x <- as(x, paste0(.M.kind(x), "gTMatrix"))
 	clDx <- getClassDef(clx <- class(x))
     }
 
@@ -726,7 +732,7 @@ replTmat <- function (x, i, j, ..., value)
     m1 <- match(ii.v, ii.x)
     i.repl <- !is.na(m1) # those that need to be *replaced*
 
-    if(isN <- extends(clDx, "nMatrix")) { ## no 'x' slot
+    if(isN) { ## no 'x' slot
 	isN <- all(value %in% c(FALSE, TRUE)) # will result remain  "nMatrix" ?
 	if(!isN)
 	    x <- as(x, paste(if(extends(clDx, "lMatrix")) "l" else "d",
@@ -823,9 +829,3 @@ setMethod("t", signature(x = "TsparseMatrix"),
 	      r@Dimnames <- x@Dimnames[2:1]
 	      r
       })
-
-
-setMethod("writeMM", "TsparseMatrix",
-	  function(obj, file, ...)
-          .Call(Csparse_MatrixMarket, as(obj, "CsparseMatrix"),
-                as.character(file)))

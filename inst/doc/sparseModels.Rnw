@@ -106,22 +106,22 @@ x.feed[ , (1:72)[c(TRUE,FALSE,FALSE)]] ## every  3rd  column:
 
 To create the model matrix for the case of one factor and one continuous
 predictor---called ``analysis of covariance'' in the historical literature---
-we can adopt the following simple scheme:
+we can adopt the following simple scheme.
 
 %% Possible examples:
 %% - Puromycin
 %% - ToothGrowth
 
---- FIXME ---
+%--- FIXME ---
 
-The final model matrix is the catenation of
+The final model matrix is the concatenation of:
 
-1) create the sparse 0-1 matrix \code{m1} from the factor -- == f1 main-effect
+1) create the sparse 0-1 matrix \code{m1} from the f1 main-effect
 
 2) the single row/column 'x'  ==  'x' main-effect
 
 3) replacing the values 1 in \code{m1@x} (the x-slot of the factor model matrix),
-   by the values of \code{x} (our continuous predictor)
+   by the values of \code{x} (our continuous predictor).
 
 \section{Two (or more) factors, main effects only: \texttt{y $\sim$ f1 + f2}}
 
@@ -134,9 +134,10 @@ str(warpbreaks) # 2 x 3 (x 9) balanced two-way with 9 replicates:
 xtabs(~ wool + tension, data = warpbreaks)
 @
 
-It is \emph{not} statistically sensible to assume that \code{Run} is a
-fixed effect, however the example is handy to depict how a model matrix
-would be built for the model \code{Speed ~ Expt + Run}.
+%It is \emph{not} statistically sensible to assume that \code{Run} is a
+%fixed effect, however the example is handy to depict how a model matrix
+This example depicts how a model matrix
+would be built for the model \code{breaks ~ wool + tension}.
 Since this is a main effects model (no interactions), the desired model
 matrix is simply the concatenation of the model matrices of the main
 effects. There are two here, but the principle applies to general main
@@ -196,17 +197,16 @@ t(M.npk) # easier to display, column names readably displayed as row.names(t(.))
 @
 %% printSpMatrix(M.npk, col.names = "abb1")
 
-An other example is the it seems realistic situation of a user who
-enquired on R-help (July 15, 2008,
+Another example was reported by a user on R-help (July 15, 2008,
 {\small \url{https://stat.ethz.ch/pipermail/r-help/2008-July/167772.html}})
-about an ``aov error with large data set'':
+about an ``aov error with large data set''.
 
-\begin{citation}
-   I'm looking to analyze a large data set: a within-Ss 2*2*1500 design
-   with 20 Ss. However, aov() gives me an error, reproducible as follows:
+\begin{citation} % RAS:  in my PDF, I don't see the first character I
+I'm looking to analyze a large data set: a within-Ss 2*2*1500 design
+with 20 Ss.  However, aov() gives me an error. %, reproducible as follows:
 \end{citation}
 
-and gave the following code example (slightly edited):
+And gave the following code example (slightly edited):
 <<aov-large-ex>>=
 id <- factor(1:20)
 a <- factor(1:2)
@@ -221,14 +221,12 @@ and then continued with
 \begin{Sinput}
 m.aov <- aov(y ~ a*b*d + Error(id/(a*b*d)), data=aDat)
 \end{Sinput}
-which
+
 \begin{citation}\sffamily
-   yields the following error:\\
-   "\\ \ttfamily
+   which yields the following error:\\
+   \ttfamily
      Error in model.matrix.default(mt, mf, contrasts) :\\
      allocMatrix: too many elements specified\\
-   "
-   Any suggestions?
 \end{citation}
 to which he got the explanation by Peter Dalgaard that the formal model matrix involved
 was much too large in this case, and that PD assumed, \pkg{lme4} would be

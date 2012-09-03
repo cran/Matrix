@@ -90,15 +90,16 @@ readMM <- function(file)
     if ((hdr <- scan1(character())) != "%%MatrixMarket")
 	stop("file is not a MatrixMarket file")
     if (!(typ <- tolower(scan1(character()))) %in% "matrix")
-	stop("type '", typ, "' not recognized")
+	stop(gettextf("type '%s' not recognized", typ), domain = NA)
     if (!(repr <- tolower(scan1(character()))) %in% c("coordinate", "array"))
-	stop("representation '", repr, "' not recognized")
+	stop(gettextf("representation '%s' not recognized", repr), domain = NA)
     elt <- tolower(scan1(character()))
     if (!elt %in% c("real", "complex", "integer", "pattern"))
-	stop("element type '", elt, "' not recognized")
+	stop(gettextf("element type '%s' not recognized", elt), domain = NA)
+
     sym <- tolower(scan1(character()))
     if (!sym %in% c("general", "symmetric", "skew-symmetric", "hermitian"))
-	stop("symmetry form '", sym, "' not recognized")
+	stop(gettextf("symmetry form '%s' not recognized", sym), domain = NA)
     nr <- scan1(integer(), comment.char = "%")
     nc <- scan1(integer())
     nz <- scan1(integer())
@@ -137,7 +138,8 @@ readMM <- function(file)
 			      stop("symmetry form 'hermitian' not yet implemented for reading")
 			  },
 			  ## otherwise (not possible; just defensive programming):
-			  stop(gettextf("symmetry form '%s' is not yet implemented", sym))
+			  stop(gettextf("symmetry form '%s' is not yet implemented",
+					sym), domain = NA)
 			  )
 	       },
 	       "pattern" = {
@@ -164,7 +166,8 @@ readMM <- function(file)
 			      stop("symmetry form 'hermitian' not yet implemented for reading")
 			  },
 			  ## otherwise (not possible; just defensive programming):
-			  stop(gettextf("symmetry form '%s' is not yet implemented", sym))
+			  stop(gettextf("symmetry form '%s' is not yet implemented",
+					sym), domain = NA)
 			  )
 	       },
 	       "complex" = {
@@ -172,9 +175,9 @@ readMM <- function(file)
 	       },
 	       ## otherwise (not possible currently):
 	       stop(gettextf("'%s()' is not yet implemented for element type '%s'",
-			     "readMM", elt)))
+			     "readMM", elt), domain = NA))
     }
     else
 	stop(gettextf("'%s()' is not yet implemented for  representation '%s'",
-		      "readMM", repr))
+		      "readMM", repr), domain = NA)
 }

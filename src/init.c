@@ -37,6 +37,7 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(CHMfactor_ldetL2, 1),
     CALLDEF(CHMfactor_ldetL2up, 3),
     CALLDEF(CHMfactor_update, 3),
+    CALLDEF(CHMfactor_updown,3),
     CALLDEF(destructive_CHM_update, 3),
     CALLDEF(Cholesky_validate, 1),
     CALLDEF(Csparse_Csparse_prod, 2),
@@ -119,8 +120,11 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(dgeMatrix_matrix_solve, 2),
     CALLDEF(dgeMatrix_dtpMatrix_mm, 2),
     CALLDEF(dgeMatrix_exp, 1),
+    CALLDEF(dgeMatrix_addDiag, 2),
     CALLDEF(dgeMatrix_getDiag, 1),
     CALLDEF(lgeMatrix_getDiag, 1),
+    CALLDEF(dgeMatrix_setDiag, 2),
+    CALLDEF(lgeMatrix_setDiag, 2),
     CALLDEF(dgeMatrix_matrix_crossprod, 3),
     CALLDEF(dgeMatrix_norm, 2),
     CALLDEF(dgeMatrix_rcond, 2),
@@ -166,6 +170,10 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(dspMatrix_solve, 1),
     CALLDEF(dspMatrix_trf, 1),
     CALLDEF(dspMatrix_validate, 1),
+    CALLDEF(dspMatrix_getDiag, 1),
+    CALLDEF(lspMatrix_getDiag, 1),
+    CALLDEF(dspMatrix_setDiag, 2),
+    CALLDEF(lspMatrix_setDiag, 2),
 /*     CALLDEF(dtCMatrix_solve, 1), */
     CALLDEF(dtCMatrix_matrix_solve, 3),
     CALLDEF(dtCMatrix_sparse_solve, 2),
@@ -173,8 +181,11 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(ltTMatrix_as_ltrMatrix, 1),
     CALLDEF(ntTMatrix_as_ntrMatrix, 1),
     CALLDEF(dtpMatrix_as_dtrMatrix, 1),
+    CALLDEF(dtpMatrix_addDiag, 2),
     CALLDEF(dtpMatrix_getDiag, 1),
     CALLDEF(ltpMatrix_getDiag, 1),
+    CALLDEF(dtpMatrix_setDiag, 2),
+    CALLDEF(ltpMatrix_setDiag, 2),
     CALLDEF(dtpMatrix_matrix_mm, 2),
     CALLDEF(dtpMatrix_matrix_solve, 2),
     CALLDEF(dtpMatrix_norm, 2),
@@ -186,8 +197,11 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(dtrMatrix_matrix_mm,    4),
     CALLDEF(dtrMatrix_dtrMatrix_mm, 4),
     CALLDEF(dtrMatrix_chol2inv, 1),
+    CALLDEF(dtrMatrix_addDiag, 2),
     CALLDEF(dtrMatrix_getDiag, 1),
     CALLDEF(ltrMatrix_getDiag, 1),
+    CALLDEF(dtrMatrix_setDiag, 2),
+    CALLDEF(ltrMatrix_setDiag, 2),
     CALLDEF(dtrMatrix_matrix_solve, 2),
     CALLDEF(dtrMatrix_norm, 2),
     CALLDEF(dtrMatrix_rcond, 2),
@@ -303,12 +317,10 @@ R_init_Matrix(DllInfo *dll)
     RREGDEF(cholmod_transpose);
     RREGDEF(cholmod_triplet_to_sparse);
     RREGDEF(cholmod_vertcat);
+    RREGDEF(cholmod_updown);
 
     RREGDEF(dpoMatrix_chol);
     RREGDEF(numeric_as_chm_dense);
-#if R_VERSION < R_Version(2, 15, 0)
-    RREGDEF(Matrix_check_class_etc);
-#endif
 
     R_cholmod_start(&c);
 //    R_cholmod_l_start(&cl);

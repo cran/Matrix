@@ -31,7 +31,6 @@
 \alias{coerce,pMatrix,nsparseMatrix-method}
 \alias{coerce,nMatrix,pMatrix-method}
 \alias{determinant,pMatrix,logical-method}
-\alias{is.na,pMatrix-method}
 \alias{Summary,pMatrix-method}
 %
 \alias{solve,pMatrix,missing-method}

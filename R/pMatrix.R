@@ -62,8 +62,9 @@ setAs("matrix", "pMatrix", function(from) as(as(from, "nMatrix"), "pMatrix"))
 
 setAs("sparseMatrix", "pMatrix", function(from)
       as(as(from, "nsparseMatrix"), "pMatrix"))
-
 setMethod("is.na", signature(x = "pMatrix"), is.na_nsp)
+setMethod("is.infinite", signature(x = "pMatrix"), is.na_nsp)
+setMethod("is.finite", signature(x = "pMatrix"), allTrueMatrix)
 
 ## how much faster would this be in C? -- less than a factor of two?
 .inv.perm <- function(p) { p[p] <- seq_along(p) ; p }

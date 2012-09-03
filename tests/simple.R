@@ -30,19 +30,20 @@ if(interactive()) {
 (z4 <- Matrix(0*diag(4)))
 (o4 <- Matrix(1+diag(4)))
 (tr <- Matrix(cbind(1,0:1)))
-(m4 <- Matrix(cbind(0,rbind(6*diag(3),0))))
-dm4 <- Matrix(m4, sparse = FALSE)
+(M4 <- Matrix(m4 <- cbind(0,rbind(6*diag(3),0))))
+dM4 <- Matrix(M4, sparse = FALSE)
 class(mN <-  Matrix(NA, 3,4)) # NA *is* logical
 validObject(Matrix(NA))
-bd4 <- bdiag(m4,dm4,m4)
+bd4 <- bdiag(M4,dM4,M4)
 stopifnot(isValid(o4, "dsyMatrix"),
-          isValid(m4, "dtCMatrix"),
-          validObject(dm4), validObject(mN),
-          identical(bdiag(m4), bdiag(dm4)),
+          isValid(M4, "dtCMatrix"),
+          validObject(dM4), validObject(mN),
+          identical(bdiag(M4), bdiag(dM4)),
           identical(bd4@p, c(0L,0:3,3:6,6:9)),
           identical(bd4@i, c(0:2, 4:6, 8:10)), bd4@x == 6
           )
-assert.EQ.mat(dm4, as(m4, "matrix"))
+assert.EQ.mat(dM4, m4)
+assert.EQ.mat(M4^M4, m4^m4)
 assert.EQ.mat(mN, matrix(NA, 3,4))
 assert.EQ.mat(bdiag(diag(4)), diag(4))
 sL <- Matrix(, 3,4, sparse=TRUE)# -> "lgC"
@@ -69,7 +70,9 @@ if(FALSE) { ## TODO -- once R itself does better ...
     MLp <- Matrix(.Leap.seconds)## --> error (for now)
 }
 
-I <- Diagonal(3); I[,1] <- NA; I[2,2] <- NA ; I[3,] <- NaN
+I <- Diagonal(3)
+stopifnot(identical(I != 0, Diagonal(3, TRUE)), I@diag == "U")
+I[,1] <- NA; I[2,2] <- NA ; I[3,] <- NaN
 stopifnot(isValid(I, "sparseMatrix"))
 I # gave error in printSpMatrix() - because of R bug in format.info()
 
@@ -117,8 +120,18 @@ stopifnot(all(!l0),
 
 if(!interactive()) warnings()
 ## really large {length(<dense equivalent>) is beyond R's limits}:
-op <- options(warn = 2) # warnings here are errors
+op <- options(warn = 2) # warnings (e.g. integer overflow!) become errors:
 n <- 50000L
+stopifnot(n^2 > .Machine$integer.max)
+## had integer overflow in index constructions:
+x <- 1:n
+D <- Diagonal(n, x=x[n:1])
+summary(D)# special method
+summary(D != 0)
+stopifnot(identical(x*D, (Dx <- D*x)),
+	  identical(D != 0, as(D, "lMatrix")),
+	  identical(Dx, local({d <- D; d@x <- d@x * x; d})))
+
 Lrg <- new("dgTMatrix", Dim = c(n,n))
 diag(Lrg[2:9,1:8]) <- 1:8
 ## ==:  Lrg[2:9,1:8] <- `diag<-`(Lrg[2:9,1:8], 1:8)
@@ -182,8 +195,8 @@ stopifnot(validObject(t1),
           c(class(t2), class(t1c), class(t2c), class(tt2)) == "dtCMatrix",
           identical(t(tt2), t2))
 assert.EQ.mat(t1, as(t1c, "matrix"))
-D4. <- D4 * (M4 <- Matrix(1:4, 4,4))
-D4p <- M4 + D4
+D4. <- D4 * (A4 <- Matrix(1:4, 4,4))
+D4p <- A4 + D4
 Lg1 <- D4 > 0 & D4 > 1
 nLg <- !Lg1
 nnLg <- !nLg
@@ -306,6 +319,16 @@ stopifnot(all(ina == is.na(cu)),
 	  all(ina == as(is.na(as(cu,"matrix")),"nMatrix")))
 
 
+set.seed(7)
+xx <- rpois(10, 50)
+Samp <- function(n,size) sample(n, size, replace=TRUE)
+Tn <- sparseMatrix(i=Samp(8, 50), j=Samp(9,50), x=xx, giveCsparse=FALSE)
+Tn
+stopifnot(xx == Tn@x,
+	  max(xx) < max(Tn), 0 == min(Tn),
+	  (sT <- sum(Tn)) == sum(colSums(Tn)), sT == sum(Tn@x),
+	  range(Tn) == range(as(Tn, "CsparseMatrix")))
+
 ## tu. is diag "U", but tu2 not:
 tu2 <- as(as(tu., "generalMatrix"), "triangularMatrix")
 assert.EQ.mat(cu, mu, tol=0)
@@ -345,7 +368,7 @@ mm. <- mm <- Matrix(rnorm(500 * 150), nc = 150)
 stopifnot(validObject(mm))
 xpx <- crossprod(mm)
 stopifnot(identical(mm, mm.),# once upon a time, mm was altered by crossprod()
-          validObject(xpx))
+          isValid(xpx, "dpoMatrix"))
 str(mm) # 'dge*"
 str(xpx)# 'dpo*"
 xpy <- crossprod(mm, rnorm(500))
@@ -553,10 +576,28 @@ sm <- as(Matrix(diag(5) + 1),"dspMatrix")
 pm <- as(sm,"dpoMatrix")## gave infinite recursion (for a day or so)
 pp <- as(pm,"dppMatrix")
 
+x <- round(100 * crossprod(Matrix(runif(25),5)))
+D <- Diagonal(5, round(1000*runif(5)))
+px <- pack(x)
+stopifnot(is(x, "dpoMatrix"), is(px,"dppMatrix"), is(D, "ddiMatrix"))
+
+class(x+D)#--> now "dsyMatrix"
+stopifnot(is(x+D, "symmetricMatrix"),
+	  is(D+px, "dspMatrix"),
+	  identical(x+D, D+x), identical(px+D, D+px), identical(pack(x-D), px-D))
+
+
+tx <- tril(x)
+ptx <- pack(tx)
+stopifnot(is(tx, "dtrMatrix"), is(ptx, "dtpMatrix"),
+          is(t(tx), "dtrMatrix"), is(t(ptx), "dtpMatrix"),
+          is(D + tx, "dtrMatrix"), is(tx + D, "dtrMatrix"),
+          is(ptx + D, "dtpMatrix"), is(D + ptx, "dtpMatrix"))
+
+
 ###-- dense nonzero pattern:
 class(m <- Matrix(TRUE,2,2)) # lsy
-(n <- as(m, "nMatrix")) # nsy
-validObject(n)
+isValid(n <- as(m, "nMatrix"), "nsyMatrix")
 
 ## 1)
 as(n,"CsparseMatrix") # used to give CHOLMOD error: invalid xtype...
@@ -569,8 +610,7 @@ as(m,"sparseMatrix")
 ### -- now when starting with nsparse :
 nT <- new("ngTMatrix",
           i = as.integer(c(0, 1, 0)),
-          j = as.integer(c(0, 0, 1)), Dim = as.integer(c(2,2)),
-          Dimnames = list(NULL, NULL))
+          j = as.integer(c(0, 0, 1)), Dim = as.integer(c(2,2)))
 (nC <- as(nT, "ngCMatrix"))
 str(nC)# of course, no 'x' slot
 
@@ -747,8 +787,11 @@ M <- spMatrix(n, m,
               x = round(rnorm(nnz),1))
 validObject(Mv <- as(M, "sparseVector"))
 validObject(Dv <- as(Diagonal(60000), "sparseVector"))
+validObject(LD <- Diagonal(60000, TRUE))
+validObject(Lv <- as(LD, "sparseVector"))
 Dm <- Dv; dim(Dm) <- c(180000L, 20000L)
-stopifnot(isValid(Md <- M * rowSums(M, sparseResult=TRUE), "sparseMatrix"),
+stopifnot(!doExtras || isValid(Md <- M * rowSums(M, sparseResult=TRUE), "sparseMatrix"),
+	  LD@diag == "U",
           isValid(Dm, "sparseMatrix"),
 	  identical(Dv, as(Dm, "sparseVector")))
 
@@ -766,16 +809,19 @@ table(uniC <- sapply(lst[istri], function(.) get(.)@diag == "U"))
 lsUtr <- lst[istri][uniC]
 (di <- sapply(lsUtr, function(.) dim(get(.))))
 ## TODO: use %*%, crossprod(), .. on all those  4 x 4 -- and check "triangular rules"
-
 cat('Time elapsed: ', (.pt <- proc.time()),'\n') # "stats"
 ##
-cat("checkMatrix() of all: \n---------\n")
-Sys.setlocale("LC_COLLATE", "C")# to keep ls() reproducible
-for(nm in ls()) if(is(.m <- get(nm), "Matrix")) {
-    cat("\n", rep("-",nchar(nm)),"\n",nm, ":\n", sep='')
-    checkMatrix(.m)
+
+cat("doExtras:",doExtras,"\n")
+if(doExtras) {
+    cat("checkMatrix() of all: \n---------\n")
+    Sys.setlocale("LC_COLLATE", "C")    # to keep ls() reproducible
+    for(nm in ls()) if(is(.m <- get(nm), "Matrix")) {
+	cat("\n", rep("-",nchar(nm)),"\n",nm, ":\n", sep='')
+	checkMatrix(.m)
+    }
+    cat('Time elapsed: ', proc.time() - .pt,'\n') # "stats"
 }
-cat('Time elapsed: ', proc.time() - .pt,'\n') # "stats"
 
 if(!interactive()) warnings()
 

@@ -189,7 +189,8 @@ SEXP nz2Csparse(SEXP x, enum x_slot_kind r_kind)
     if(cl_x[2] != 'C') error(_("not a CsparseMatrix"));
     int nnz = LENGTH(GET_SLOT(x, Matrix_iSym));
     SEXP ans;
-    char *ncl = strdup(cl_x);
+    char *ncl = alloca(strlen(cl_x) + 1); /* not much memory required */
+    strcpy(ncl, cl_x);
     double *dx_x; int *ix_x;
     ncl[0] = (r_kind == x_double ? 'd' :
 	      (r_kind == x_logical ? 'l' :
@@ -266,11 +267,15 @@ SEXP Csparse_symmetric_to_general(SEXP x)
 
 SEXP Csparse_general_to_symmetric(SEXP x, SEXP uplo)
 {
+    int *adims = INTEGER(GET_SLOT(x, Matrix_DimSym)), n = adims[0];
+    if(n != adims[1]) {
+	error(_("Csparse_general_to_symmetric(): matrix is not square!"));
+	return R_NilValue; /* -Wall */
+    }
     CHM_SP chx = AS_CHM_SP__(x), chgx;
     int uploT = (*CHAR(STRING_ELT(uplo,0)) == 'U') ? 1 : -1;
     int Rkind = (chx->xtype != CHOLMOD_PATTERN) ? Real_kind(x) : 0;
     R_CheckStack();
-
     chgx = cholmod_copy(chx, /* stype: */ uploT, chx->xtype, &c);
     /* xtype: pattern, "real", complex or .. */
     return chm_sparse_to_SEXP(chgx, 1, 0, Rkind, "",
@@ -574,10 +579,11 @@ SEXP Csparse_diagN2U(SEXP x)
 
 	chm_diagN2U(chx, uploT, /* do_realloc */ FALSE);
 
-	UNPROTECT(1);
-	return chm_sparse_to_SEXP(chx, /*dofree*/ 0/* or 1 ?? */,
-				  uploT, Rkind, "U",
-				  GET_SLOT(x, Matrix_DimNamesSym));
+	SEXP ans = chm_sparse_to_SEXP(chx, /*dofree*/ 0/* or 1 ?? */,
+				      uploT, Rkind, "U",
+				      GET_SLOT(x, Matrix_DimNamesSym));
+	UNPROTECT(1);// only now !
+	return ans;
     }
 }
 
@@ -684,11 +690,11 @@ SEXP diag_tC_ptr(int n, int *x_p, double *x_x, int *perm, SEXP resultKind)
     double *v = REAL(ans);
 /*  ^^^^^^      ^^^^  FIXME[Generalize] */
 
-#define for_DIAG(v_ASSIGN)						\
-    for(i = 0; i < n; i++, i_from += n_x) {				\
-	/* looking at i-th column */					\
+#define for_DIAG(v_ASSIGN)					\
+    for(i = 0; i < n; i++, i_from += n_x) {			\
+	/* looking at i-th column */				\
 	n_x = x_p[i+1] - x_p[i];/* #{entries} in this column */	\
-	v_ASSIGN;							\
+	v_ASSIGN;						\
     }
 
     /* NOTA BENE: we assume  -- uplo = "L" i.e. lower triangular matrix
@@ -720,7 +726,8 @@ SEXP diag_tC_ptr(int n, int *x_p, double *x_x, int *perm, SEXP resultKind)
     case diag_backpermuted:
 	for_DIAG(v[i] = x_x[i_from]);
 
-	warning(_("resultKind = 'diagBack' (back-permuted) is experimental"));
+	warning(_("%s = '%s' (back-permuted) is experimental"),
+		"resultKind", "diagBack");
 	/* now back_permute : */
 	for(i = 0; i < n; i++) {
 	    double tmp = v[i]; v[i] = v[perm[i]]; v[perm[i]] = tmp;

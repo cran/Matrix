@@ -645,12 +645,12 @@ setMethod("is.infinite", signature(x = "abIndex"),
 all.equal.abI <- function(target, current, ...)
 {
     if(!is(target, "abIndex") || !is(current, "abIndex"))
-	return(paste("target is ", data.class(target), ", current is ",
-		     data.class(current), sep = ""))
+	return(paste0("target is ", data.class(target), ", current is ",
+		      data.class(current)))
     lt <- length(target)
     lc <- length(current)
     if(lt != lc)
-	paste("abIndex", ": lengths (", lt, ", ", lc, ") differ", sep = "")
+	paste0("abIndex", ": lengths (", lt, ", ", lc, ") differ")
     else if(target@kind == current@kind) {
 	all.equal.default(target, current, ...)
     } else ## different 'kinds' -- take "easy" exit:

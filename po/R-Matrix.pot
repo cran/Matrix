@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: R 2.16.0\n"
-"Report-Msgid-Bugs-To: bugs@r-project.org\n"
-"POT-Creation-Date: 2012-03-06 17:05\n"
+"Project-Id-Version: R 2.15.1\n"
+"Report-Msgid-Bugs-To: bugs.r-project.org\n"
+"POT-Creation-Date: 2012-08-21 22:31\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -10,6 +10,9 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+
+msgid "invalid 'mod':"
+msgstr ""
 
 msgid "not-yet-implemented method for %s(<%s>).\n ->>  Ask the package authors to implement the missing feature."
 msgstr ""
@@ -56,16 +59,31 @@ msgstr ""
 msgid "not yet implemented for matrix w/ typeof"
 msgstr ""
 
-msgid "not yet be implemented for"
+msgid "not yet implemented for"
 msgstr ""
 
 msgid "general Matrix class not yet implemented for"
 msgstr ""
 
-msgid "arguments in"
+msgid "arguments"
 msgstr ""
 
-msgid "are disregarded"
+msgid ")$"
+msgstr ""
+
+msgid "^list\\("
+msgstr ""
+
+msgid "are disregarded in"
+msgstr ""
+
+msgid "Quadratic matrix '%s' (=: A) is not formally\n\tsymmetric.  Will be treated as\tA A'"
+msgstr ""
+
+msgid "'update' must be logical or '+' or '-'; 'C' a matrix, and 'L' a \"CHMfactor\""
+msgstr ""
+
+msgid "update must be TRUE/FALSE or '+' or '-'"
 msgstr ""
 
 msgid "not a symmetric matrix; consider forceSymmetric() or symmpart()"
@@ -113,19 +131,16 @@ msgstr ""
 msgid "file is not a MatrixMarket file"
 msgstr ""
 
-msgid "type '"
+msgid "type '%s' not recognized"
 msgstr ""
 
-msgid "' not recognized"
+msgid "representation '%s' not recognized"
 msgstr ""
 
-msgid "representation '"
+msgid "element type '%s' not recognized"
 msgstr ""
 
-msgid "element type '"
-msgstr ""
-
-msgid "symmetry form '"
+msgid "symmetry form '%s' not recognized"
 msgstr ""
 
 msgid "readMM(): row\t values 'i' are not in 1:nr"
@@ -191,6 +206,15 @@ msgstr ""
 msgid "'lag' and 'differences' must be integers >= 1"
 msgstr ""
 
+msgid "programming error: min() should have dispatched w/ 1st arg much earlier"
+msgstr ""
+
+msgid "in Summary(<ANY>, .): %s(<%s>, <%s>%s)"
+msgstr ""
+
+msgid ", ..."
+msgstr ""
+
 msgid "invalid or not-yet-implemented 'Matrix' subsetting"
 msgstr ""
 
@@ -251,6 +275,9 @@ msgstr ""
 msgid "internal bug in \"Compare\" method (Cmp.Mat.atomic); please report"
 msgstr ""
 
+msgid "Cmp.Mat.atomic() should not be called for diagonalMatrix"
+msgstr ""
+
 msgid "Matrices must have same number of rows for arithmetic"
 msgstr ""
 
@@ -263,7 +290,10 @@ msgstr ""
 msgid "length of 1st arg does not match dimension of 2nd"
 msgstr ""
 
-msgid "internal bug in \"Logic\" method (.Logic.Mat.atomic); please report"
+msgid "internal bug in \"Logic\" method (Logic.Mat.atomic); please report"
+msgstr ""
+
+msgid "Logic.Mat.atomic() should not be called for diagonalMatrix"
 msgstr ""
 
 msgid "(0)"
@@ -633,4 +663,10 @@ msgid "index must be numeric, logical or sparseVector for indexing sparseVectors
 msgstr ""
 
 msgid "'times >= 0' is required"
+msgstr ""
+
+msgid "(un)packing only applies to dense matrices, class(x)='%s'"
+msgstr ""
+
+msgid "'x' is not symmetric nor triangular"
 msgstr ""

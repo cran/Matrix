@@ -15,8 +15,11 @@ SEXP dgeMatrix_crossprod(SEXP x, SEXP trans);
 SEXP dgeMatrix_dgeMatrix_crossprod(SEXP x, SEXP y, SEXP trans);
 SEXP dgeMatrix_matrix_crossprod(SEXP x, SEXP y, SEXP trans);
 
+SEXP dgeMatrix_addDiag(SEXP x, SEXP d);
 SEXP dgeMatrix_getDiag(SEXP x);
 SEXP lgeMatrix_getDiag(SEXP x);
+SEXP dgeMatrix_setDiag(SEXP x, SEXP d);
+SEXP lgeMatrix_setDiag(SEXP x, SEXP d);
 SEXP dgeMatrix_LU (SEXP x, SEXP warn_singularity);
 SEXP dgeMatrix_LU_(SEXP x, Rboolean warn_sing);
 SEXP dgeMatrix_determinant(SEXP x, SEXP logarithm);

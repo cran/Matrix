@@ -134,11 +134,11 @@ for(n in c(5:12)) {
 set.seed(17)
 (rr <- mkLDL(4))
 (CA <- Cholesky(rr$A))
-stopifnot(all.equal(determinant(rr$A),
-		    determinant(as(rr$A, "matrix"))))
+stopifnot(all.equal(determinant(rr$A) -> detA,
+                    determinant(as(rr$A, "matrix"))),
+          is.all.equal3(c(detA$modulus), log(det(rr$D)), sum(log(rr$D@x))))
 A12 <- mkLDL(12, 1/10)
-
-(r12 <- allCholesky(A12$A))
+(r12 <- allCholesky(A12$A))[-1]
 aCh.hash <- r12$r.all %*% (2^(2:0))
 if(FALSE)## if(require("sfsmisc"))
 split(rownames(r12$r.all), Duplicated(aCh.hash))
@@ -247,7 +247,7 @@ stopifnot(names(mtm@factors) == paste(c("sPD", "spD", "SPd"),
                "Cholesky", sep=''))
 
 r <- allCholesky(mtm)
-r
+r[-1]
 
 ## is now taken from cache
 c1 <- Cholesky(mtm)
@@ -292,16 +292,40 @@ system.time(D3 <- sapply(r, function(rho) Matrix:::ldet3.dsC(mtm + (1/rho) * I))
 stopifnot(is.all.equal3(D1,D2,D3, tol = 1e-13))
 
 ## Updating LL'  should remain LL' and not become  LDL' :
-##_ R CMD check is giving a false positive warning, if use if(FALSE) {..}
+cholCheck <- function(Ut, tol = 1e-12, super = FALSE, LDL = !super) {
+    L <- Cholesky(UtU <- tcrossprod(Ut), super=super, LDL=LDL, Imult = 1)
+    L1 <- update(L, UtU, mult = 1)
+    L2 <- update(L, Ut,  mult = 1)
+    stopifnot(is.all.equal3(L, L1, L2, tol = tol),
+              all.equal(update(L, UtU, mult = pi),
+                        update(L, Ut,  mult = pi), tol = tol)
+              )
+}
+
+## Inspired by
 ## data(Dyestuff, package = "lme4")
 ## Zt <- as(Dyestuff$Batch, "sparseMatrix")
-Zt <- new("dgCMatrix", Dim = c(6L, 30L), x = rep(1, 30),
+Zt <- new("dgCMatrix", Dim = c(6L, 30L), x = 2*1:30,
           i = rep(0:5, each=5),
           p = 0:30, Dimnames = list(LETTERS[1:6], NULL))
-Ut <- 0.78 * Zt
-L <- Cholesky(tcrossprod(Ut), LDL = FALSE, Imult = 1)
-L1 <- update(L, tcrossprod(Ut), mult = 1)
-stopifnot(all.equal(L, L1))
+cholCheck(0.78 * Zt, tol=1e-14)
+
+for(i in 1:120) {
+    set.seed(i); cat(sprintf("%3d: ", i))
+    M <- rspMat(n=rpois(1,50), m=rpois(1,20), density = 1/(4*rpois(1, 4)))
+    for(super in c(FALSE,TRUE)) {
+        cat("super=",super," M: ")
+        cholCheck( M  , super=super); cat(" M': ")
+        cholCheck(t(M), super=super)
+    }
+    cat(" [Ok]\n")
+}
+
+.updateCHMfactor
+## TODO: (--> ../TODO "Cholesky"):
+## ----
+## allow Cholesky(A,..) when A is not symmetric *AND*
+## we really want to factorize  AA' ( + beta * I)
 
 
 ## Schur() ----------------------

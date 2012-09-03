@@ -269,7 +269,7 @@ replCmat4 <- function(x, i1, i2, iMi, jMi, value, spV = is(value,"sparseVector")
 		x <- diagU2N(x) # keeps class (!)
 	}
 	else { # go to "generalMatrix" and continue
-	    x <- as(x, paste(.M.kind(x), "gCMatrix", sep='')) ## & do not redefine clx!
+	    x <- as(x, paste0(.M.kind(x), "gCMatrix")) ## & do not redefine clx!
 	}
     }
     ## Temporary hack for debugging --- remove eventually -- FIXME :
@@ -410,7 +410,7 @@ setReplaceMethod("[", signature(x = "CsparseMatrix", i = "index", j = "index",
 ## A[ ij ] <- value,  where ij is (i,j) 2-column matrix
 setReplaceMethod("[", signature(x = "CsparseMatrix", i = "matrix", j = "missing",
 				value = "replValue"),
-		 function(x, i, value)
+		 function(x, i, j, ..., value)
 		 ## goto Tsparse modify and convert back:
 		 as(.TM.repl.i.mat(as(x, "TsparseMatrix"), i=i, value=value),
 		    "CsparseMatrix"))
@@ -431,7 +431,7 @@ setMethod("tril", "CsparseMatrix",
 	      r <- .Call(Csparse_band, x, -dd[1], k)
 	      ## return "lower triangular" if k <= 0
 	      if(sqr && k <= 0)
-		  as(r, paste(.M.kind(x), "tCMatrix", sep='')) else r
+		  as(r, paste0(.M.kind(x), "tCMatrix")) else r
 	  })
 
 setMethod("triu", "CsparseMatrix",
@@ -442,7 +442,7 @@ setMethod("triu", "CsparseMatrix",
 	      r <- .Call(Csparse_band, x, k, dd[2])
 	      ## return "upper triangular" if k >= 0
 	      if(sqr && k >= 0)
-		  as(r, paste(.M.kind(x), "tCMatrix", sep='')) else r
+		  as(r, paste0(.M.kind(x), "tCMatrix")) else r
 	  })
 
 setMethod("band", "CsparseMatrix",
@@ -453,9 +453,9 @@ setMethod("band", "CsparseMatrix",
 	      stopifnot(-dd[1] <= k1, k1 <= k2, k2 <= dd[2])
 	      r <- .Call(Csparse_band, diagU2N(x), k1, k2)
 	      if(sqr && k1 * k2 >= 0) ## triangular
-		  as(r, paste(.M.kind(x), "tCMatrix", sep=''))
+		  as(r, paste0(.M.kind(x), "tCMatrix"))
 	      else if (k1 < 0  &&  k1 == -k2  && isSymmetric(x)) ## symmetric
-		  as(r, paste(.M.kind(x), "sCMatrix", sep=''))
+		  as(r, paste0(.M.kind(x), "sCMatrix"))
 	      else
 		  r
 	  })
@@ -485,7 +485,7 @@ setMethod("diag", "CsparseMatrix",
 
 setMethod("writeMM", "CsparseMatrix",
 	  function(obj, file, ...)
-          .Call(Csparse_MatrixMarket, obj, as.character(file)))
+	  .Call(Csparse_MatrixMarket, obj, path.expand(as.character(file))))
 
 setMethod("Cholesky", signature(A = "CsparseMatrix"),
 	  function(A, perm = TRUE, LDL = !super, super = FALSE, Imult = 0, ...)

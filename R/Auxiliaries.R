@@ -375,7 +375,7 @@ indDiag <- function(n) cumsum(c(1L, rep.int(n+1L, n-1)))
 ### -----
 ### "Theory" behind this: /u/maechler/R/MM/MISC/lower-tri-w.o-matrix.R
 indTri <- function(n, upper = TRUE, diag = FALSE) {
-    ## Indices of strict upper/lower triangular part
+    ## Indices of (strict) upper/lower triangular part
     ## == which(upper.tri(diag(n), diag=diag) or
     ##	  which(lower.tri(diag(n), diag=diag) -- but
     ## more efficiently for largish 'n'

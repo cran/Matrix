@@ -5,7 +5,7 @@ useDynLib(Matrix, .registration=TRUE)
 importFrom("lattice", levelplot)
 importFrom("graphics", image)
 importFrom("utils", head, tail, assignInNamespace)
-importFrom("stats", cov2cor, update#, vcov
+importFrom("stats", cov2cor, toeplitz, update#, vcov
            )
 
 importFrom("grid", grid.rect, gpar, grob)# others via 'grid::'
@@ -225,6 +225,7 @@ exportMethods(## for both own and "other" generics:
 
               ## re-export S4 methods, for "stats"-S3-generics:
               "cov2cor",
+              "toeplitz",
               "update",
 
 	      "!",

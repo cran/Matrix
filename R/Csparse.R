@@ -20,7 +20,7 @@ setAs("dsCMatrix", "dgCMatrix",
       function(from) .Call(Csparse_symmetric_to_general, from))
 
 for(prefix in c("d", "l", "n"))
-    setAs(paste(prefix,"sCMatrix",sep=''), "generalMatrix",
+    setAs(paste0(prefix,"sCMatrix"), "generalMatrix",
 	  function(from) .Call(Csparse_symmetric_to_general, from))
 
 setAs("dtCMatrix", "dtTMatrix",
@@ -39,8 +39,8 @@ setAs("CsparseMatrix", "denseMatrix",
 	      if (extends(cld, "triangularMatrix") && from@diag == "U")
 		  from <- .Call(Csparse_diagU2N, from)
 	      as(.Call(Csparse_to_dense, from), # -> "[dln]geMatrix"
-		 paste(.M.kind(from, cld),
-		       .dense.prefixes[.M.shape(from, cld)], "Matrix", sep=''))
+		 paste0(.M.kind(from, cld),
+			.dense.prefixes[.M.shape(from, cld)], "Matrix"))
 	  }
       })
 
@@ -54,9 +54,7 @@ setAs("dgCMatrix", "dgeMatrix",
 setAs("CsparseMatrix", "matrix",
       function(from) {
           ## |-> cholmod_C -> cholmod_dense -> chm_dense_to_matrix
-          if (is(from, "triangularMatrix") && from@diag == "U")
-              from <- .Call(Csparse_diagU2N, from)
-          .Call(Csparse_to_matrix, from)
+	  .Call(Csparse_to_matrix, .Call(Csparse_diagU2N, from))
       })
 
 setAs("CsparseMatrix", "symmetricMatrix",

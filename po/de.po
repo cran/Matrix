@@ -5,10 +5,10 @@
 # Detlef Steuer <steure@hsu-hh.de>, 2012.
 msgid ""
 msgstr ""
-"Project-Id-Version: R 2.15.0 / matrix 1.0-4\n"
+"Project-Id-Version: R 2.15.2 / matrix 1.0-10\n"
 "Report-Msgid-Bugs-To: bugs.r-project.org\n"
-"POT-Creation-Date: 2012-08-21 22:08+0200\n"
-"PO-Revision-Date: 2012-03-06 15:58+0100\n"
+"POT-Creation-Date: 2012-09-10 23:41+0200\n"
+"PO-Revision-Date: 2012-10-01 15:33+0200\n"
 "Last-Translator: Chris Leick <c.leick@vollbio.de>\n"
 "Language-Team: German <debian-l10n-german@lists.debian.org>\n"
 "Language: de\n"
@@ -135,90 +135,90 @@ msgstr "Csparse_crossprod(): Fehler von cholmod_aat() zurückgegeben"
 msgid "cholmod_drop() failed"
 msgstr "cholmod_drop() fehlgeschlagen"
 
-#: Csparse.c:607
+#: Csparse.c:608
 msgid "Index i must be NULL or integer"
 msgstr "Index i muss NULL oder eine Ganzzahl sein"
 
-#: Csparse.c:609
+#: Csparse.c:610
 msgid "Index j must be NULL or integer"
 msgstr "Index j muss NULL oder eine Ganzzahl sein"
 
-#: Csparse.c:651
+#: Csparse.c:652
 #, c-format
 msgid "failure to open file \"%s\" for writing"
 msgstr "Öffnen von Datei »%s« zum Schreiben fehlgeschlagen"
 
-#: Csparse.c:655
+#: Csparse.c:656
 msgid "cholmod_write_sparse returned error code"
 msgstr "cholmod_write_sparse gab Fehlerkode zurück"
 
-#: Csparse.c:728
+#: Csparse.c:729
 #, c-format
 msgid "%s = '%s' (back-permuted) is experimental"
 msgstr "%s = »%s« (zurückgetauscht) ist experimentell"
 
-#: Csparse.c:738
+#: Csparse.c:739
 msgid "diag_tC(): invalid 'resultKind'"
 msgstr "diag_tC(): »resultKind« ungültig"
 
-#: Csparse.c:799
+#: Csparse.c:800
 #, c-format
 msgid "negative vector lengths not allowed: np = %d, nnz = %d"
 msgstr "negative Vektorlänge ist nicht erlaubt: np = %d, nnz = %d"
 
-#: Csparse.c:804
+#: Csparse.c:805
 msgid "exactly 1 of 'i', 'j' or 'p' must be NULL"
 msgstr "exakt 1 von »i«, »j« oder »p« muss NULL sein"
 
-#: Csparse.c:806
+#: Csparse.c:807
 #, c-format
 msgid "np = %d, must be zero when p is NULL"
 msgstr "np = %d, muss Null sein, wenn p NULL ist"
 
-#: Csparse.c:809
+#: Csparse.c:810
 #, c-format
 msgid "p[0] = %d, should be zero"
 msgstr "p[0] = %d, sollte Null sein"
 
-#: Csparse.c:812
+#: Csparse.c:813
 msgid "p must be non-decreasing"
 msgstr "p darf nicht abnehmend sein"
 
-#: Csparse.c:828
+#: Csparse.c:829
 #, c-format
 msgid "Inconsistent dimensions: np = 0 and nnz = %d"
 msgstr "Inkonsistente Dimensionen: np = 0 und nnz = %d"
 
-#: Csparse.c:836
+#: Csparse.c:837
 #, c-format
 msgid "invalid row index at position %d"
 msgstr "ungültiger Zeilenindex an Position %d"
 
-#: Csparse.c:843
+#: Csparse.c:844
 #, c-format
 msgid "invalid column index at position %d"
 msgstr "ungültiger Spaltenindex an Position %d"
 
-#: Csparse.c:853
+#: Csparse.c:854
 #, c-format
 msgid "strlen of cls argument = %d, should be 8"
 msgstr "strlen des cls-Arguments = %d, sollte 8 sein"
 
-#: Csparse.c:855
+#: Csparse.c:856
 #, c-format
 msgid "cls = \"%s\" does not end in \"CMatrix\""
 msgstr "cls = »%s« endet nicht in »CMatrix«"
 
-#: Csparse.c:865
+#: Csparse.c:866
 #, c-format
 msgid "cls = \"%s\" must begin with 'd', 'l' or 'n'"
 msgstr "cls = »%s« muss mit »d«, »l« oder »n« beginnen"
 
-#: Csparse.c:868
+#: Csparse.c:869
 msgid "Only 'g'eneral sparse matrix types allowed"
 msgstr "Nur »g«enerelle dünn besetzte Matrixtypen erlaubt"
 
-#: Csparse.c:896
+#: Csparse.c:897
 msgid "code not yet written for cls = \"lgCMatrix\""
 msgstr "Kode noch nicht für cls = »lgCMatrix« geschrieben"
 
@@ -715,9 +715,8 @@ msgid "Dimensions of x and y are not compatible for %s"
 msgstr "Dimensionen von x und y sind nicht kompatibel für %s"
 
 #: dgeMatrix.c:165
-#, fuzzy
 msgid "Argument y must be numeric or integer"
-msgstr "Argument y muss eine numerische Matrix sein"
+msgstr "Argument y muss  numerisch oder ganzzahlig sein"
 
 #: dgeMatrix.c:306
 msgid "Cannot factor a matrix with zero extents"
@@ -874,11 +873,11 @@ msgstr "dtrMatrix in %*% muss quadratisch mit passender Dimension sein"
 
 #: dtrMatrix.c:247
 msgid "cannot set diag() as long as 'diag = \"U\"'"
-msgstr ""
+msgstr "kann diag() nicht setzen solange 'diag = \"U\"'"
 
 #: dtrMatrix.c:268
 msgid "cannot add diag() as long as 'diag = \"U\"'"
-msgstr ""
+msgstr "kann diag() nicht hinzufügen solange 'diag = \"U\"'"
 
 #: init.c:342
 msgid "missing 'Matrix' namespace: should never happen"

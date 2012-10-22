@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: bugs.r-project.org\n"
-"POT-Creation-Date: 2012-08-21 22:08+0200\n"
+"POT-Creation-Date: 2012-09-10 23:41+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -129,90 +129,90 @@ msgstr ""
 msgid "cholmod_drop() failed"
 msgstr ""
 
-#: Csparse.c:607
+#: Csparse.c:608
 msgid "Index i must be NULL or integer"
 msgstr ""
 
-#: Csparse.c:609
+#: Csparse.c:610
 msgid "Index j must be NULL or integer"
 msgstr ""
 
-#: Csparse.c:651
+#: Csparse.c:652
 #, c-format
 msgid "failure to open file \"%s\" for writing"
 msgstr ""
 
-#: Csparse.c:655
+#: Csparse.c:656
 msgid "cholmod_write_sparse returned error code"
 msgstr ""
 
-#: Csparse.c:728
+#: Csparse.c:729
 #, c-format
 msgid "%s = '%s' (back-permuted) is experimental"
 msgstr ""
 
-#: Csparse.c:738
+#: Csparse.c:739
 msgid "diag_tC(): invalid 'resultKind'"
 msgstr ""
 
-#: Csparse.c:799
+#: Csparse.c:800
 #, c-format
 msgid "negative vector lengths not allowed: np = %d, nnz = %d"
 msgstr ""
 
-#: Csparse.c:804
+#: Csparse.c:805
 msgid "exactly 1 of 'i', 'j' or 'p' must be NULL"
 msgstr ""
 
-#: Csparse.c:806
+#: Csparse.c:807
 #, c-format
 msgid "np = %d, must be zero when p is NULL"
 msgstr ""
 
-#: Csparse.c:809
+#: Csparse.c:810
 #, c-format
 msgid "p[0] = %d, should be zero"
 msgstr ""
 
-#: Csparse.c:812
+#: Csparse.c:813
 msgid "p must be non-decreasing"
 msgstr ""
 
-#: Csparse.c:828
+#: Csparse.c:829
 #, c-format
 msgid "Inconsistent dimensions: np = 0 and nnz = %d"
 msgstr ""
 
-#: Csparse.c:836
+#: Csparse.c:837
 #, c-format
 msgid "invalid row index at position %d"
 msgstr ""
 
-#: Csparse.c:843
+#: Csparse.c:844
 #, c-format
 msgid "invalid column index at position %d"
 msgstr ""
 
-#: Csparse.c:853
+#: Csparse.c:854
 #, c-format
 msgid "strlen of cls argument = %d, should be 8"
 msgstr ""
 
-#: Csparse.c:855
+#: Csparse.c:856
 #, c-format
 msgid "cls = \"%s\" does not end in \"CMatrix\""
 msgstr ""
 
-#: Csparse.c:865
+#: Csparse.c:866
 #, c-format
 msgid "cls = \"%s\" must begin with 'd', 'l' or 'n'"
 msgstr ""
 
-#: Csparse.c:868
+#: Csparse.c:869
 msgid "Only 'g'eneral sparse matrix types allowed"
 msgstr ""
 
-#: Csparse.c:896
+#: Csparse.c:897
 msgid "code not yet written for cls = \"lgCMatrix\""
 msgstr ""
 

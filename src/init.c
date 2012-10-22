@@ -27,6 +27,8 @@
 #include "Syms.h"
 
 #define CALLDEF(name, n)  {#name, (DL_FUNC) &name, n}
+#define EXTDEF(name, n)   {#name, (DL_FUNC) &name, n}
+
 
 static R_CallMethodDef CallEntries[] = {
     CALLDEF(BunchKaufman_validate, 1),
@@ -255,13 +257,18 @@ static R_CallMethodDef CallEntries[] = {
     {NULL, NULL, 0}
 };
 
+static const R_ExternalMethodDef ExtEntries[] = {
+    EXTDEF(Mmatrix, 1),
+    {NULL, NULL, 0}
+};
+
 void
 #ifdef HAVE_VISIBILITY_ATTRIBUTE
 __attribute__ ((visibility ("default")))
 #endif
 R_init_Matrix(DllInfo *dll)
 {
-    R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
+    R_registerRoutines(dll, NULL, CallEntries, NULL, ExtEntries);
     R_useDynamicSymbols(dll, FALSE);
 
 /* These are callable from other packages' C code: */

@@ -1,10 +1,23 @@
+2012-10-15  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/Mutils.c (Mmatrix): new, to be used by .External()
+	in order to replace .Internal(matrix(....))
+
+2012-10-05  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/diagMatrix.R (.sparseDiagonal): new 'unitri' argument;
+	more flexibility; new: solve(<dsCMatrix>, <missing>)
+
+2012-09-10  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 1.0-10, CRAN-released: 2012-10-16, r2845
+
 2012-09-01  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/sparseVector.R (sparseVector): new constructor
 
 	* inst/test-tools-Matrix.R (rspMat): smarter; also useful for large
 	dimensions.
-
 
 2012-07-23  Martin Maechler  <maechler@stat.math.ethz.ch>
 

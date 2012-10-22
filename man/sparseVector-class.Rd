@@ -87,6 +87,8 @@
 \alias{crossprod,Matrix,sparseVector-method}
 \alias{crossprod,sparseVector,Matrix-method}
 \alias{solve,Matrix,sparseVector-method}
+\alias{toeplitz}% only needed if(as.numeric(R.version$`svn rev`) < 60620)
+\alias{toeplitz,sparseVector-method}
 \alias{tcrossprod,Matrix,sparseVector-method}
 \alias{tcrossprod,sparseVector,Matrix-method}
 %
@@ -166,6 +168,9 @@
       more efficient, see the example.}
     \item{tail}{\code{signature(x = "sparseVector")}: analogous to
       \code{\link{head}}, see above.}
+    \item{toeplitz}{\code{signature(x = "sparseVector")}: as
+      \code{\link[stats]{toeplitz}(x)}, produce the \eqn{n \times n}
+      Toeplitz matrix from \code{x}, where \code{n = length(x)}.}
     \item{rep}{\code{signature(x = "sparseVector")} repeat \code{x},
       with the same argument list \code{(x, times, length.out, each,
 	...)} as the default method for rep().}
@@ -247,5 +252,11 @@ stopifnot(identical(hv, h2),
 	  identical(is^2 > 0,	is & TRUE),
 	  all(!lis), !any(lis), length(nn@i) == 0, !any(nn), all(!nn),
 	  sum(lis) == 0, !prod(lis), range(lis) == c(0,0))
+
+x20 <- sparseVector(c(9,3:1), i=c(1:2,4,7), length=20)
+(T20 <- toeplitz(x20))
+stopifnot(is(T20, "symmetricMatrix"), is(T20, "sparseMatrix"),
+	  identical(unname(as.matrix(T20)),
+                    toeplitz(as.vector(x20))))
 }
 \keyword{classes}

@@ -37,14 +37,8 @@ setGeneric("pack", function(x, ...) standardGeneric("pack"))
 
     setGeneric("expm", function(x) standardGeneric("expm"))
 
-##     setGeneric("writeHB", function(obj, file, ...)
-##                standardGeneric("writeHB"))
-
     setGeneric("writeMM", function(obj, file, ...)
                standardGeneric("writeMM"))
-
-##     setGeneric("qqmath", function(x, data, ...)
-##                standardGeneric("qqmath"))
 
     setGeneric("tril", function(x, k = 0, ...)
                standardGeneric("tril"))
@@ -73,3 +67,8 @@ setGeneric("nnzero", function(x, na.counted = NA) standardGeneric("nnzero"),
 	   signature = "x")
 
 setGeneric("updown", function(update, C, L) standardGeneric("updown"))
+
+if(as.numeric(R.version$`svn rev`) < 60620)
+setGeneric("toeplitz", function(x, ...) standardGeneric("toeplitz"),
+           useAsDefault= function(x, ...) stats::toeplitz(x))
+## and an entry in ../man/sparseVector-class.Rd

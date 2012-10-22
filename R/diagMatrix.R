@@ -36,12 +36,13 @@ Diagonal <- function(n, x = NULL)
     }
 }
 
-.sparseDiagonal <- function(n, x = rep.int(1,m), uplo = "U",
+.sparseDiagonal <- function(n, x = 1, uplo = "U",
 			    shape = if(missing(cols)) "t" else "g",
-			    kind, cols = if(n) 0:(n - 1L) else integer(0))
+			    unitri, kind,
+			    cols = if(n) 0:(n - 1L) else integer(0))
 {
     stopifnot(n == (n. <- as.integer(n)), (n <- n.) >= 0)
-    if(!missing(cols))
+    if(!(mcols <- missing(cols)))
 	stopifnot(0 <= (cols <- as.integer(cols)), cols < n)
     m <- length(cols)
     if(missing(kind))
@@ -53,24 +54,30 @@ Diagonal <- function(n, x = NULL)
 		"d"
 	    }
     else stopifnot(any(kind == c("d","l","n")))
-    if(kind != "n") {
-	if((lx <- length(x)) == 1) x <- rep.int(x, m)
-	else if(lx != m) stop("length(x) must be either 1 or #{cols}")
-    }
     stopifnot(is.character(shape), nchar(shape) == 1,
 	      any(shape == c("t","s","g"))) # triangular / symmetric / general
-    if(kind == "n") {
+    if((missing(unitri) || unitri) && shape == "t" &&
+       (mcols || cols == 0:(n-1L)) &&
+       ((any(kind == c("l", "n")) && allTrue(x)) ||
+	(    kind == "d"	  && allTrue(x == 1)))) { ## uni-triangular
+	new(paste0(kind,"tCMatrix"), Dim = c(n,n),
+		   uplo = uplo, diag = "U", p = rep.int(0L, n+1L))
+    }
+    else if(kind == "n") {
 	if(shape == "g")
 	    new("ngCMatrix", Dim = c(n,m), i = cols, p = 0:m)
 	else new(paste0("n", shape, "CMatrix"), Dim = c(n,m), uplo = uplo,
 		 i = cols, p = 0:m)
     }
-    ## kind != "n" -- have x slot :
-    else if(shape == "g")
-	new(paste0(kind, "gCMatrix"), Dim = c(n,m),
-	    x = x, i = cols, p = 0:m)
-    else new(paste0(kind, shape, "CMatrix"), Dim = c(n,m), uplo = uplo,
-	     x = x, i = cols, p = 0:m)
+    else { ## kind != "n" -- have x slot :
+	if((lx <- length(x)) == 1) x <- rep.int(x, m)
+	else if(lx != m) stop("length(x) must be either 1 or #{cols}")
+	if(shape == "g")
+	    new(paste0(kind, "gCMatrix"), Dim = c(n,m),
+		x = x, i = cols, p = 0:m)
+	else new(paste0(kind, shape, "CMatrix"), Dim = c(n,m), uplo = uplo,
+		 x = x, i = cols, p = 0:m)
+    }
 }
 
 ## Pkg 'spdep' had (relatively slow) versions of this as_dsCMatrix_I()
@@ -78,8 +85,8 @@ Diagonal <- function(n, x = NULL)
     .sparseDiagonal(n, x, uplo, shape = "s")
 
 # instead of   diagU2N(as(Diagonal(n), "CsparseMatrix")), diag = "N" in any case:
-.trDiagonal <- function(n, x = rep.int(1,n), uplo = "U")
-    .sparseDiagonal(n, x, uplo, shape = "t")
+.trDiagonal <- function(n, x = 1, uplo = "U", unitri=TRUE)
+    .sparseDiagonal(n, x, uplo, shape = "t", unitri=unitri)
 
 
 ## This is modified from a post of Bert Gunter to R-help on  1 Sep 2005.

@@ -24,8 +24,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: R 2.15.1\n"
 "Report-Msgid-Bugs-To: bugs.r-project.org\n"
-"POT-Creation-Date: 2012-08-21 22:31\n"
-"PO-Revision-Date: 2012-08-21 22:31\n"
+"POT-Creation-Date: 2012-09-10 23:41\n"
+"PO-Revision-Date: 2012-09-10 23:41\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
 "MIME-Version: 1.0\n"
@@ -344,6 +344,16 @@ msgstr "internal bug in \"Logic\" method (Logic.Mat.atomic); please report"
 msgid "Logic.Mat.atomic() should not be called for diagonalMatrix"
 msgstr "Logic.Mat.atomic() should not be called for diagonalMatrix"
 
+msgid "vector too long in Matrix - vector operation"
+msgstr "vector too long in Matrix - vector operation"
+
+msgid ""
+"longer object length\n"
+"\tis not a multiple of shorter object length"
+msgstr ""
+"longer object length\n"
+"\tis not a multiple of shorter object length"
+
 msgid "(0)"
 msgstr "(0)"
 
@@ -454,13 +464,6 @@ msgstr "prod(<abIndex>) is not yet implemented"
 
 msgid "not yet implemented"
 msgstr "not yet implemented"
-
-msgid ""
-"longer object length\n"
-"\tis not a multiple of shorter object length"
-msgstr ""
-"longer object length\n"
-"\tis not a multiple of shorter object length"
 
 msgid "x / 0 for an <abIndex> x with sign-change"
 msgstr "x / 0 for an <abIndex> x with sign-change"
@@ -702,11 +705,23 @@ msgstr "‘ncol’ must be >= 0"
 msgid "'nrow' must be >= 0"
 msgstr "‘nrow’ must be >= 0"
 
+msgid "Must specify 'nrow' when 'symmetric' is true"
+msgstr "Must specify ‘nrow’ when ‘symmetric’ is true"
+
+msgid "'nrow' and 'ncol' must be the same when 'symmetric' is true"
+msgstr "‘nrow’ and ‘ncol’ must be the same when ‘symmetric’ is true"
+
+msgid "'x' must have length nrow^2 when 'symmetric' is true"
+msgstr "‘x’ must have length nrow^2 when ‘symmetric’ is true"
+
 msgid "'ncol' is not a factor of length(x)"
 msgstr "‘ncol’ is not a factor of length(x)"
 
 msgid "'nrow' is not a factor of length(x)"
 msgstr "‘nrow’ is not a factor of length(x)"
+
+msgid "Class '%s' is not yet implemented"
+msgstr "Class ‘%s’ is not yet implemented"
 
 msgid "too large index i > n ="
 msgstr "too large index i > n ="

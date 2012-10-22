@@ -3,10 +3,8 @@
 #include "Mutils.h"
 #include <R_ext/Lapack.h>
 
-#if 0 /* defined(R_VERSION) && R_VERSION >= R_Version(2, 7, 0) *
-       * La_norm_type() & La_rcond_type() are now in R_ext/Lapack.h
-       * but because of the 'module-mess' that's not sufficient */
-#else
+// La_norm_type() & La_rcond_type()  have been in R_ext/Lapack.h
+//  but have still not been available to package writers ...
 char La_norm_type(const char *typstr)
 {
     char typup;
@@ -42,7 +40,6 @@ char La_rcond_type(const char *typstr)
 	      typstr);
     return typup;
 }
-#endif
 
 double get_double_by_name(SEXP obj, char *nm)
 {
@@ -900,3 +897,176 @@ SEXP m_encodeInd2(SEXP i, SEXP j, SEXP di, SEXP chk_bnds)
     return ans;
 }
 #undef do_ii_FILL
+
+// fails, as R_SVN_REVISION is a string #if R_SVN_REVISION < 60943
+#if R_VERSION < R_Version(2, 15, 2)
+// it is *hidden* in earlier versions of R
+void copyListMatrix(SEXP s, SEXP t, Rboolean byrow)
+{
+    SEXP pt, tmp;
+    int i, j, nr, nc;
+    R_xlen_t ns;
+
+    nr = nrows(s);
+    nc = ncols(s);
+    ns = ((R_xlen_t) nr) * nc;
+    pt = t;
+    if(byrow) {
+	R_xlen_t NR = nr;
+	PROTECT(tmp = allocVector(STRSXP, ns));
+	for (i = 0; i < nr; i++)
+	    for (j = 0; j < nc; j++) {
+		SET_STRING_ELT(tmp, i + j * NR, duplicate(CAR(pt)));
+		pt = CDR(pt);
+		if(pt == R_NilValue) pt = t;
+	    }
+	for (i = 0; i < ns; i++) {
+	    SETCAR(s, STRING_ELT(tmp, i++));
+	    s = CDR(s);
+	}
+	UNPROTECT(1);
+    }
+    else {
+	for (i = 0; i < ns; i++) {
+	    SETCAR(s, duplicate(CAR(pt)));
+	    s = CDR(s);
+	    pt = CDR(pt);
+	    if(pt == R_NilValue) pt = t;
+	}
+    }
+}
+#endif
+
+// Almost "Cut n Paste" from ...R../src/main/array.c  do_matrix() :
+// used in ../R/Matrix.R as
+//
+// .External(Mmatrix,
+//	     data, nrow, ncol, byrow, dimnames,
+//	     missing(nrow), missing(ncol))
+SEXP Mmatrix(SEXP args)
+{
+    SEXP vals, ans, snr, snc, dimnames;
+    int nr = 1, nc = 1, byrow, miss_nr, miss_nc;
+    R_xlen_t lendat;
+
+    args = CDR(args); /* skip 'name' */
+    vals = CAR(args); args = CDR(args);
+    /* Supposedly as.vector() gave a vector type, but we check */
+    switch(TYPEOF(vals)) {
+	case LGLSXP:
+	case INTSXP:
+	case REALSXP:
+	case CPLXSXP:
+	case STRSXP:
+	case RAWSXP:
+	case EXPRSXP:
+	case VECSXP:
+	    break;
+	default:
+	    error(_("'data' must be of a vector type"));
+    }
+    lendat = XLENGTH(vals);
+    snr = CAR(args); args = CDR(args);
+    snc = CAR(args); args = CDR(args);
+    byrow = asLogical(CAR(args)); args = CDR(args);
+    if (byrow == NA_INTEGER)
+	error(_("invalid '%s' argument"), "byrow");
+    dimnames = CAR(args);
+    args = CDR(args);
+    miss_nr = asLogical(CAR(args)); args = CDR(args);
+    miss_nc = asLogical(CAR(args));
+
+    if (!miss_nr) {
+	if (!isNumeric(snr)) error(_("non-numeric matrix extent"));
+	nr = asInteger(snr);
+	if (nr == NA_INTEGER)
+	    error(_("invalid 'nrow' value (too large or NA)"));
+	if (nr < 0)
+	    error(_("invalid 'nrow' value (< 0)"));
+    }
+    if (!miss_nc) {
+	if (!isNumeric(snc)) error(_("non-numeric matrix extent"));
+	nc = asInteger(snc);
+	if (nc == NA_INTEGER)
+	    error(_("invalid 'ncol' value (too large or NA)"));
+	if (nc < 0)
+	    error(_("invalid 'ncol' value (< 0)"));
+    }
+    if (miss_nr && miss_nc) {
+	if (lendat > INT_MAX) error("data is too long");
+	nr = (int) lendat;
+    } else if (miss_nr) {
+	if (lendat > (double) nc * INT_MAX) error("data is too long");
+	nr = (int) ceil((double) lendat / (double) nc);
+    } else if (miss_nc) {
+	if (lendat > (double) nr * INT_MAX) error("data is too long");
+	nc = (int) ceil((double) lendat / (double) nr);
+    }
+
+    if(lendat > 0) {
+	R_xlen_t nrc = (R_xlen_t) nr * nc;
+	if (lendat > 1 && nrc % lendat != 0) {
+	    if (((lendat > nr) && (lendat / nr) * nr != lendat) ||
+		((lendat < nr) && (nr / lendat) * lendat != nr))
+		warning(_("data length [%d] is not a sub-multiple or multiple of the number of rows [%d]"), lendat, nr);
+	    else if (((lendat > nc) && (lendat / nc) * nc != lendat) ||
+		     ((lendat < nc) && (nc / lendat) * lendat != nc))
+		warning(_("data length [%d] is not a sub-multiple or multiple of the number of columns [%d]"), lendat, nc);
+	}
+	else if ((lendat > 1) && (nrc == 0)){
+	    warning(_("data length exceeds size of matrix"));
+	}
+    }
+
+ #ifndef LONG_VECTOR_SUPPORT
+   if ((double)nr * (double)nc > INT_MAX)
+	error(_("too many elements specified"));
+#endif
+
+    PROTECT(ans = allocMatrix(TYPEOF(vals), nr, nc));
+    if(lendat) {
+	if (isVector(vals))
+	    copyMatrix(ans, vals, byrow);
+	else
+	    copyListMatrix(ans, vals, byrow);
+    } else if (isVector(vals)) { /* fill with NAs */
+	R_xlen_t N = (R_xlen_t) nr * nc, i;
+	switch(TYPEOF(vals)) {
+	case STRSXP:
+	    for (i = 0; i < N; i++)
+		SET_STRING_ELT(ans, i, NA_STRING);
+	    break;
+	case LGLSXP:
+	    for (i = 0; i < N; i++)
+		LOGICAL(ans)[i] = NA_LOGICAL;
+	    break;
+	case INTSXP:
+	    for (i = 0; i < N; i++)
+		INTEGER(ans)[i] = NA_INTEGER;
+	    break;
+	case REALSXP:
+	    for (i = 0; i < N; i++)
+		REAL(ans)[i] = NA_REAL;
+	    break;
+	case CPLXSXP:
+	    {
+		Rcomplex na_cmplx;
+		na_cmplx.r = NA_REAL;
+		na_cmplx.i = 0;
+		for (i = 0; i < N; i++)
+		    COMPLEX(ans)[i] = na_cmplx;
+	    }
+	    break;
+	case RAWSXP:
+	    memset(RAW(ans), 0, N);
+	    break;
+	default:
+	    /* don't fill with anything */
+	    ;
+	}
+    }
+    if(!isNull(dimnames)&& length(dimnames) > 0)
+	ans = dimnamesgets(ans, dimnames);
+    UNPROTECT(1);
+    return ans;
+}

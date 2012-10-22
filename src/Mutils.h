@@ -30,11 +30,24 @@ extern "C" {
 # include <alloca.h>
 #endif
 
+#ifndef LONG_VECTOR_SUPPORT
+// notably for  R <= 2.15.x :
+# define XLENGTH(x) LENGTH(x)
+# if R_VERSION < R_Version(2,16,0)
+  typedef int R_xlen_t;
+# endif
+#endif
+
 #define Alloca(n, t)   (t *) alloca( (size_t) ( (n) * sizeof(t) ) )
 
 SEXP triangularMatrix_validate(SEXP obj);
 SEXP symmetricMatrix_validate(SEXP obj);
 SEXP dense_nonpacked_validate(SEXP obj);
+
+// La_norm_type() & La_rcond_type()  have been in R_ext/Lapack.h
+//  but have still not been available to package writers ...
+char La_norm_type (const char *typstr);
+char La_rcond_type(const char *typstr);
 
 /* enum constants from cblas.h and some short forms */
 enum CBLAS_ORDER {CblasRowMajor=101, CblasColMajor=102};
@@ -239,6 +252,7 @@ Rboolean any_NA_in_x(SEXP obj)
     return FALSE;
 }
 
+SEXP Mmatrix(SEXP args);
 
 void make_d_matrix_triangular(double *x, SEXP from);
 void make_i_matrix_triangular(   int *x, SEXP from);

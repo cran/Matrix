@@ -735,8 +735,8 @@ replTmat <- function (x, i, j, ..., value)
     if(isN) { ## no 'x' slot
 	isN <- all(value %in% c(FALSE, TRUE)) # will result remain  "nMatrix" ?
 	if(!isN)
-	    x <- as(x, paste(if(extends(clDx, "lMatrix")) "l" else "d",
-			     .sparse.prefixes[.M.shape(x)], "TMatrix", sep=''))
+	    x <- as(x, paste0(if(extends(clDx, "lMatrix")) "l" else "d",
+			      .sparse.prefixes[.M.shape(x)], "TMatrix"))
     }
     has.x <- !isN ## isN  <===> "remains pattern matrix" <===> has no 'x' slot
 

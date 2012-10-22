@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Matrix 1.0-9\n"
 "Report-Msgid-Bugs-To: bugs.r-project.org\n"
-"POT-Creation-Date: 2012-08-21 22:31\n"
+"POT-Creation-Date: 2012-09-10 23:41\n"
 "PO-Revision-Date: 2012-08-22 08:17+0100\n"
 "Last-Translator: Łukasz Daniel <lukasz.daniel@gmail.com>\n"
 "Language-Team: Łukasz Daniel <lukasz.daniel@gmail.com>\n"
@@ -635,6 +635,19 @@ msgstr ""
 msgid "Logic.Mat.atomic() should not be called for diagonalMatrix"
 msgstr "'Logic.Mat.atomic()' nie powinien być wywołany dla 'diagonalMatrix'"
 
+msgid "vector too long in Matrix - vector operation"
+msgstr ""
+
+# Recommended/Matrix/R/abIndex.R: 467
+# warning("longer object length\n
+# is not a multiple of shorter object length")
+msgid ""
+"longer object length\n"
+"\tis not a multiple of shorter object length"
+msgstr ""
+"długość dłuższego obiektu\n"
+"\tnie jest wielokrotnością długości krótszego obiektu"
+
 # Recommended/Matrix/R/Ops.R: 1153
 # stop(class(e2),"(0) ",.Generic," <Matrix> is undefined")
 msgid "(0)"
@@ -874,16 +887,6 @@ msgstr "'prod(<abIndex>)' nie jest jeszcze zaimplementowane"
 # stop("not yet implemented")
 msgid "not yet implemented"
 msgstr "jeszcze niezaimplementowane"
-
-# Recommended/Matrix/R/abIndex.R: 467
-# warning("longer object length\n
-# is not a multiple of shorter object length")
-msgid ""
-"longer object length\n"
-"\tis not a multiple of shorter object length"
-msgstr ""
-"długość dłuższego obiektu\n"
-"\tnie jest wielokrotnością długości krótszego obiektu"
 
 # Recommended/Matrix/R/abIndex.R: 520
 # warning("x / 0 for an <abIndex> x with sign-change\n
@@ -1350,6 +1353,15 @@ msgstr "'ncol' musi być >= 0"
 msgid "'nrow' must be >= 0"
 msgstr "'nrow' musi być >= 0"
 
+msgid "Must specify 'nrow' when 'symmetric' is true"
+msgstr ""
+
+msgid "'nrow' and 'ncol' must be the same when 'symmetric' is true"
+msgstr ""
+
+msgid "'x' must have length nrow^2 when 'symmetric' is true"
+msgstr ""
+
 # Recommended/Matrix/R/sparseVector.R: 228
 # warning("'ncol' is not a factor of length(x)")
 msgid "'ncol' is not a factor of length(x)"
@@ -1359,6 +1371,14 @@ msgstr "'ncol' nie jest czynnikiem długości 'length(x)'"
 # warning("'nrow' is not a factor of length(x)")
 msgid "'nrow' is not a factor of length(x)"
 msgstr "'nrow' nie jest czynnikiem długości 'length(x)'"
+
+# Recommended/Matrix/R/HBMM.R: 140
+# stop(gettextf("symmetry form '%s' is not yet implemented", sym))
+# Recommended/Matrix/R/HBMM.R: 167
+# stop(gettextf("symmetry form '%s' is not yet implemented", sym))
+#, fuzzy
+msgid "Class '%s' is not yet implemented"
+msgstr "forma symetryczna '%s' nie jest jeszcze zaimplementowana"
 
 # Recommended/Matrix/R/sparseVector.R: 361
 # stop("too large index i > n =",n)

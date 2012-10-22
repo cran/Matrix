@@ -4,6 +4,7 @@
 \alias{dsCMatrix-class}
 \alias{dsTMatrix-class}
 %
+\alias{solve,dsCMatrix,missing-method}
 \alias{solve,dsCMatrix,dsparseMatrix-method}
 \alias{solve,dsCMatrix,matrix-method}
 \alias{solve,dsCMatrix,numeric-method}

@@ -219,9 +219,10 @@ setAs("TsparseMatrix", "sparseVector",
 ##' @param ncol (ditto)
 ##' @param byrow logical (see ?matrix)
 ##' @param check logical indicating if it needs to be checked that 'x' is a sparseVector
+##' @param symmetric logical indicating if result must be "symmetricMatrix"
 ##' @return an object inheriting from "sparseMatrix"
-##' @author Martin Maechler, 11 May 2007
-spV2M <- function (x, nrow, ncol, byrow = FALSE, check = TRUE)
+##' @author Martin Maechler, May 2007 ff.
+spV2M <- function (x, nrow, ncol, byrow = FALSE, check = TRUE, symmetric = FALSE)
 {
     cx <- class(x)
     if(check && !extends(cx, "sparseVector"))
@@ -231,49 +232,68 @@ spV2M <- function (x, nrow, ncol, byrow = FALSE, check = TRUE)
     if(!missing(nrow)) { nrow <- as.integer(nrow)
 			 if(nrow < 0) stop("'nrow' must be >= 0") }
     n <- length(x)
-    if(missing(nrow)) {
+    if(symmetric) {
+	if(missing(nrow)) stop("Must specify 'nrow' when 'symmetric' is true")
+	if(!missing(ncol) && nrow != ncol)
+	    stop("'nrow' and 'ncol' must be the same when 'symmetric' is true")
+	## otherwise  ncol will not used at all when (symmetric)
+	if(check && as.double(nrow)^2 != n)
+	    stop("'x' must have length nrow^2 when 'symmetric' is true")
+	## x <- x[indTri(nrow, upper=TRUE, diag=TRUE)]
+    } else if(missing(nrow)) {
 	nrow <- as.integer(
-			   if(missing(ncol)) { ## both missing: --> (n x 1)
-			       ncol <- 1L
-			       n
-			   } else {
-			       if(n %% ncol != 0) warning("'ncol' is not a factor of length(x)")
-			       as.integer(ceiling(n / ncol))
-			   })
+	    if(missing(ncol)) { ## both missing: --> (n x 1)
+		ncol <- 1L
+		n
+	    } else {
+		if(n %% ncol != 0) warning("'ncol' is not a factor of length(x)")
+		as.integer(ceiling(n / ncol))
+	    })
     } else if(missing(ncol)) {
-        if(n %% nrow != 0) warning("'nrow' is not a factor of length(x)")
-        ncol <- as.integer(ceiling(n / nrow))
-    } else { ## both nrow and ncol specified
+        ncol <- if(symmetric) nrow else {
+            if(n %% nrow != 0) warning("'nrow' is not a factor of length(x)")
+            as.integer(ceiling(n / nrow)) }
+    } else {                          ## both nrow and ncol specified
         n.n <- as.double(ncol) * nrow # no integer overflow
         if(n.n <  n) stop("nrow * ncol < length(x)", domain = NA)
         if(n.n != n) warning("nrow * ncol != length(x)", domain = NA)
     }
-    ## now nrow * ncol >= n
+    ## now nrow * ncol >= n  (or 'symmetric')
     ##	   ~~~~~~~~~~~~~~~~
     cld <- getClassDef(cx)
     kind <- .M.kindC(cld)		# "d", "n", "l", "i", "z", ...
     has.x <- kind != "n"
+    clStem <- if(symmetric) "sTMatrix" else "gTMatrix"
     ## "careful_new()" :
-    cNam <- paste0(kind, "gTMatrix")
+    cNam <- paste0(kind, clStem)
     chngCl <- is.null(slotNames(newCl <- getClass(cNam, .Force=TRUE)))
     if(chngCl) { ## e.g. "igTMatrix" is not yet implemented
 	if(substr(cNam,1,1) == "z")
-	    stopifnot(sprintf("Class '%s' is not yet implemented", cNam))
+	    stop(gettextf("Class '%s' is not yet implemented", cNam))
 	## coerce to "double":
-	newCl <- getClass("dgTMatrix")
+	newCl <- getClass(paste0("d", clStem))
     }
     r <- new(newCl, Dim = c(nrow, ncol))
     ## now "compute"  the (i,j,x) slots given x@(i,x)
     i0 <- x@i - 1L
     if(byrow) { ## need as.integer(.) since <sparseVector> @ i can be double
-	r@j <- as.integer(i0 %% ncol)
-	r@i <- as.integer(i0 %/% ncol)
+	j <- as.integer(i0 %% ncol)
+	i <- as.integer(i0 %/% ncol)
     } else { ## default{byrow = FALSE}
-	r@i <- as.integer(i0 %% nrow)
-	r@j <- as.integer(i0 %/% nrow)
+	i <- as.integer(i0 %% nrow)
+	j <- as.integer(i0 %/% nrow)
     }
     if(has.x)
-	r@x <- if(chngCl) as.numeric(x@x) else x@x
+	x <- if(chngCl) as.numeric(x@x) else x@x
+    if(symmetric) {  ## using  uplo = "U"
+	i0 <- i <= j ## i.e., indTri(nrow, upper=TRUE, diag=TRUE)
+	i <- i[i0]
+	j <- j[i0]
+	if(has.x) x <- x[i0]
+    }
+    r@j <- j
+    r@i <- i
+    if(has.x) r@x <- x
     r
 }## {spV2M}
 
@@ -451,12 +471,11 @@ setMethod("[", signature(x = "sparseVector", i = "index"),
 
               } else {
                   ii <- intIv(i, n, cl.i=cl.i)
-                  anyDup <- any(iDup <- duplicated(ii))
                   m <- match(x@i, ii, nomatch = 0)
                   sel <- m > 0L
                   x@length <- length(ii)
                   x@i <- m[sel]
-                  if(anyDup) {
+		  if(any(iDup <- duplicated(ii))) {
                       i.i <- match(ii[iDup], ii)
                       jm <- lapply(i.i, function(.) which(. == m))
                       sel <- c(which(sel), unlist(jm))
@@ -799,3 +818,18 @@ setMethod("solve", signature(a = "Matrix", b = "sparseVector"),
 setMethod("which", "nsparseVector", function(x, arr.ind) x@i)
 setMethod("which", "lsparseVector", function(x, arr.ind) x@i[is1(x@x)])
 ## and *error* for "dsparseVector", "i*", ...
+
+##' indices of vector x[] to construct  Toeplitz matrix
+##' FIXME: write in C, port to  R('stats' package), and use in stats::toeplitz()
+ind4toeplitz <- function(n) {
+    A <- matrix(raw(), n, n)
+    abs(as.vector(col(A) - row(A))) + 1L
+}
+
+.toeplitz.spV <-  function(x, symmetric=TRUE, giveCsparse=TRUE) {
+    ## semantically "identical" to stats::toeplitz
+    n <- length(x)
+    r <- spV2M(x[ind4toeplitz(n)], n,n, symmetric=symmetric, check=FALSE)
+    if (giveCsparse) as(r, "CsparseMatrix") else r
+}
+setMethod("toeplitz", "sparseVector", .toeplitz.spV)

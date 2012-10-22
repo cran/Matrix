@@ -270,8 +270,8 @@ setMethod("[", signature(x = "sparseMatrix",
 ##> why should this be needed; can still happen in <Tsparse>[..]:
 ##>	      if(!doSym && !extends(cld, "generalMatrix"))
 ##>		  x <- as(x, "generalMatrix")
-##	      viaCl <- paste(.M.kind(x, cld),
-##			     if(doSym) "sTMatrix" else "gTMatrix", sep='')
+##	      viaCl <- paste0(.M.kind(x, cld),
+##			      if(doSym) "sTMatrix" else "gTMatrix")
 	      x <- as(x, "TsparseMatrix")[i, j, drop=drop]
 	      if(is(x, "Matrix") && extends(cld, "CsparseMatrix"))
 		  as(x, "CsparseMatrix") else x

@@ -127,7 +127,7 @@ setAs("matrix", "dgRMatrix", .viaC.to.dgR)
     ## instead of "d": .M.kind (m,cl)
     ## instead of "g": ..M.shape(m,cl)
     sh <- .M.shapeC(m,clx)
-    r <- new(paste(.M.kindC(clx), sh, "RMatrix", sep=""))
+    r <- new(paste0(.M.kindC(clx), sh, "RMatrix"))
     r@Dim <- dim(from)
     r@Dimnames <-  .M.DN(from)
     r@p <- m@p

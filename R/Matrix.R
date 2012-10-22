@@ -197,17 +197,21 @@ Matrix <- function (data = NA, nrow = 1, ncol = 1, byrow = FALSE,
 	    if (missing(ncol)) ncol <- ceiling(1/nrow)
             isSym <- nrow == ncol
 	    ## will be sparse: do NOT construct full matrix!
-	    data <- new(paste(if(is.numeric(data)) "d" else
-			      if(is.logical(data)) "l" else
-			      stop("invalid 'data'"),
-			      if(isSym) "s" else "g", "CMatrix", sep=''),
+	    data <- new(paste0(if(is.numeric(data)) "d" else
+                               if(is.logical(data)) "l" else
+                               stop("invalid 'data'"),
+                               if(isSym) "s" else "g", "CMatrix"),
 			p = rep.int(0L, ncol+1L),
 			Dim = as.integer(c(nrow,ncol)),
 			Dimnames = if(is.null(dimnames)) list(NULL,NULL)
 			else dimnames)
-	} else { ## normal case - using .Internal() to avoid more copying
-	    data <- .Internal(matrix(data, nrow, ncol, byrow, dimnames,
-				     missing(nrow), missing(ncol)))
+	} else { ## normal case
+	    ## Now 'forbidden' :
+	    ## data <- .Internal(matrix(data, nrow, ncol, byrow, dimnames,
+	    ##				missing(nrow), missing(ncol)))
+	    data <- .External(Mmatrix,
+			      data, nrow, ncol, byrow, dimnames,
+			      missing(nrow), missing(ncol))
 	    if(is.null(sparse))
 		sparse <- sparseDefault(data)
 	}

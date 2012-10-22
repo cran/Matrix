@@ -114,12 +114,17 @@ solve.dsC.dsC <- function(a,b, tol) {
 }
 setMethod("solve", signature(a = "dsCMatrix", b = "dsparseMatrix"),
 	  function(a, b, ...) {
-	      if (!is(b, "CsparseMatrix"))
-		  b <- as(b, "CsparseMatrix")
-	      if (is(b, "symmetricMatrix")) ## not supported (yet) by cholmod_spsolve
+	      cb <- getClassDef(class(b))
+	      if (!extends(cb, "CsparseMatrix"))
+		  cb <- getClassDef(class(b <- as(b, "CsparseMatrix")))
+	      if (extends(cb, "symmetricMatrix")) ## not supported (yet) by cholmod_spsolve
 		  b <- as(b, "dgCMatrix")
 	      solve.dsC.dsC(a,b)
 	  })
+
+setMethod("solve", signature(a = "dsCMatrix", b = "missing"),
+	  function(a, b, ...) solve(a, .trDiagonal(nrow(a), unitri=FALSE)))
+
 
 
 setMethod("chol", signature(x = "dsCMatrix"),

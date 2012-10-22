@@ -139,7 +139,8 @@
 
 - add examples (and tests!) for update(<CHMfactor>, ..) and
   Cholesky(......, Imult), also tests for hidden {hence no examples}
-  ldetL2up() { R/CHMfactor.R }. MM: See e.g. ~/R/MM/Pkg-ex/Matrix/CholUpdate.R
+  ldetL2up() { R/CHMfactor.R }; see ex in man/wrld_1deg.Rd
+  MM: See e.g. ~/R/MM/Pkg-ex/Matrix/CholUpdate.R -- for solve(<CHM>, <type>)
 
 - implement fast diag(<triangularCsparse>) via calling new
   src/Csparse.c's diag_tC_ptr() .

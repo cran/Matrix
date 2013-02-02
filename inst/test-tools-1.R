@@ -59,6 +59,12 @@ tryCatch.W.E <- function(expr)
 
 isValid <- function(x, class) validObject(x, test=TRUE) && is(x, class)
 
+## Some (sparse) Lin.Alg. algorithms return 0 instead of NA, e.g.
+## qr.coef(<sparseQR>, y).
+## For those cases, need to compare with a version where NA's are replaced by 0
+mkNA.0 <- function(x) { x[is.na(x)] <- 0 ; x }
+
+
 is.all.equal3 <- function(x,y,z, tol = .Machine$double.eps^0.5)
     isTRUE(all.equal(x,y, tol=tol)) && isTRUE(all.equal(y,z, tol=tol))
 

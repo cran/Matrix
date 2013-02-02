@@ -53,7 +53,10 @@ TT <- kronecker(t5, kronecker(kronecker(t5,t5), t5))
 IT <- solve(TT)
 I. <- TT \%*\% IT ;  nnzero(I.) # 697 ( = 625 + 72 )
 I.0 <- drop0(zapsmall(I.))
-stopifnot(all(I.0 == Diagonal(625)))
+## which actually can be more efficiently achieved by
+I.. <- drop0(I., tol = 1e-15)
+stopifnot(all(I.0 == Diagonal(625)),
+          nnzero(I..) == 625)
 }
 \keyword{utilities}
 \keyword{array}

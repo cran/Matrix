@@ -12,7 +12,7 @@ setAs("integer", "pMatrix",
 setAs("numeric", "pMatrix",
       function(from)
 	  if(all(from == (i <- as.integer(from)))) as(i, "pMatrix")
-	  else stop("coercion to 'pMatrix' only works from integer numeric"))
+	  else stop("coercion to \"pMatrix\" only works from integer numeric"))
 
 setAs("pMatrix", "matrix",
       function(from) {
@@ -66,12 +66,9 @@ setMethod("is.na", signature(x = "pMatrix"), is.na_nsp)
 setMethod("is.infinite", signature(x = "pMatrix"), is.na_nsp)
 setMethod("is.finite", signature(x = "pMatrix"), allTrueMatrix)
 
-## how much faster would this be in C? -- less than a factor of two?
-.inv.perm <- function(p) { p[p] <- seq_along(p) ; p }
-
 setMethod("solve", signature(a = "pMatrix", b = "missing"),
 	  function(a, b, ...) {
-              a@perm <- .inv.perm(a@perm)
+              a@perm <- invPerm(a@perm)
               a@Dimnames <- a@Dimnames[2:1]
               a
           })
@@ -84,7 +81,7 @@ setMethod("solve", signature(a = "pMatrix", b = "matrix"),
 setMethod("solve", signature(a = "Matrix", b = "pMatrix"),
 	  function(a, b, ...)
 	  ## Or alternatively  solve(a, as(b, "CsparseMatrix"))
-	  solve(a)[, .inv.perm(b@perm)])
+	  solve(a)[, invPerm(b@perm)])
 
 
 setMethod("determinant", signature(x = "pMatrix", logarithm = "logical"),
@@ -96,9 +93,9 @@ setMethod("t", signature(x = "pMatrix"), function(x) solve(x))
 
 
 setMethod("%*%", signature(x = "matrix", y = "pMatrix"),
-	  function(x, y) { mmultCheck(x,y); x[, .inv.perm(y@perm)] })
+	  function(x, y) { mmultCheck(x,y); x[, invPerm(y@perm)] })
 setMethod("%*%", signature(x = "Matrix", y = "pMatrix"),
-	  function(x, y) { mmultCheck(x,y); x[, .inv.perm(y@perm)] })
+	  function(x, y) { mmultCheck(x,y); x[, invPerm(y@perm)] })
 
 setMethod("%*%", signature(x = "pMatrix", y = "matrix"),
 	  function(x, y) { mmultCheck(x,y); y[x@perm ,] })
@@ -115,13 +112,13 @@ setMethod("%*%", signature(x = "pMatrix", y = "pMatrix"),
 	  })
 
 setMethod("crossprod", signature(x = "pMatrix", y = "matrix"),
-	  function(x, y) { mmultCheck(x,y, 2L); y[.inv.perm(x@perm) ,]})
+	  function(x, y) { mmultCheck(x,y, 2L); y[invPerm(x@perm) ,]})
 setMethod("crossprod", signature(x = "pMatrix", y = "Matrix"),
-	  function(x, y) { mmultCheck(x,y, 2L); y[.inv.perm(x@perm) ,]})
+	  function(x, y) { mmultCheck(x,y, 2L); y[invPerm(x@perm) ,]})
 setMethod("crossprod", signature(x = "pMatrix", y = "pMatrix"),
 	  function(x, y) {
 	      stopifnot(identical(x@Dim, y@Dim))
-	      x@perm <- .inv.perm(x@perm)[y@perm]
+	      x@perm <- invPerm(x@perm)[y@perm]
 	      x
 	  })
 
@@ -132,7 +129,7 @@ setMethod("tcrossprod", signature(x = "Matrix", y = "pMatrix"),
 setMethod("tcrossprod", signature(x = "pMatrix", y = "pMatrix"),
 	  function(x, y) {
 	      stopifnot(identical(x@Dim, y@Dim))
-	      x@perm <- x@perm[.inv.perm(y@perm)]
+	      x@perm <- x@perm[invPerm(y@perm)]
 	      x
 	  })
 

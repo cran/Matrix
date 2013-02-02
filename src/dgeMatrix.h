@@ -23,7 +23,7 @@ SEXP lgeMatrix_setDiag(SEXP x, SEXP d);
 SEXP dgeMatrix_LU (SEXP x, SEXP warn_singularity);
 SEXP dgeMatrix_LU_(SEXP x, Rboolean warn_sing);
 SEXP dgeMatrix_determinant(SEXP x, SEXP logarithm);
-SEXP dgeMatrix_Schur(SEXP x, SEXP vectors);
+SEXP dgeMatrix_Schur(SEXP x, SEXP vectors, SEXP isDGE);
 SEXP dgeMatrix_solve(SEXP a);
 SEXP dgeMatrix_matrix_solve(SEXP a, SEXP b);
 SEXP dgeMatrix_matrix_mm(SEXP a, SEXP b, SEXP right);

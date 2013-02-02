@@ -131,7 +131,8 @@ Cmp.Mat.atomic <- function(e1, e2) { ## result will inherit from "lMatrix"
 	if(prod(d) == 0)
 	    return(new(class2(cl, "l"), Dim= d))
 	else
-	    stop("<Matrix> ",.Generic," ", class(e2),"(0) is undefined")
+	    stop(gettextf("<Matrix> %s %s is undefined",
+			  .Generic, paste0(class(e2),"(0)")), domain=NA)
     }
     cl1 <- getClassDef(cl)
     slots1 <- names(cl1@slots)
@@ -439,7 +440,8 @@ setMethod("Arith", signature(e1 = "dgeMatrix", e2 = "dgeMatrix"),
 		      d <- d1
 		      dn <- e1@Dimnames
 		  } else
-		      stop("number of rows are not compatible for ", .Generic)
+		      stop(gettextf("number of rows are not compatible for %s",
+				    .Generic), domain=NA)
 	      }
 	      new("dgeMatrix", Dim = d, Dimnames = dn, x = callGeneric(e1@x, e2@x))
 	  })
@@ -635,7 +637,8 @@ Logic.Mat.atomic <- function(e1, e2) { ## result will typically be "like" e1:
 	if(prod(d) == 0)
 	    return(new(class2(cl, "l"), Dim= d))
 	else
-	    stop("<Matrix> ",.Generic," ", class(e2),"(0) is undefined")
+	    stop(gettextf("<Matrix> %s %s is undefined",
+			  .Generic, paste0(class(e2),"(0)")), domain=NA)
     }
     cl1 <- getClassDef(cl)
     slots1 <- names(cl1@slots)
@@ -1130,7 +1133,8 @@ setMethod("Arith", signature(e1 = "numeric", e2 = "CsparseMatrix"), .Arith.atom.
 
 A.M.n <- function(e1, e2) {
     if((l2 <- length(e2)) == 0)
-	stop("<Matrix> ",.Generic," ", class(e2),"(0) is undefined")
+	stop(gettextf("<Matrix> %s %s is undefined",
+		      .Generic, paste0(class(e2),"(0)")), domain=NA)
     is0f <- is0(f0 <- callGeneric(0, e2))
     if(all(is0f)) { ## result keeps sparseness structure of e1
 	if(l2 > 1) {  #	 "recycle" e2 "carefully"
@@ -1169,7 +1173,8 @@ setMethod("Arith", signature(e1 = "dsparseMatrix", e2 = "logical"), .Arith.CM.at
 
 A.n.M <- function(e1, e2) {
     if((l1 <- length(e1)) == 0)
-	stop(class(e2),"(0) ",.Generic," <Matrix> is undefined")
+	stop(gettextf("%s %s <Matrix> is undefined",
+		      paste0(class(e2),"(0)"), .Generic), domain=NA)
     is0f <- is0(f0 <- callGeneric(e1, 0))
     if(all(is0f)) { ## result keeps sparseness structure of e2
 	if(l1 > 1) {  #	 "recycle" e1 "carefully"

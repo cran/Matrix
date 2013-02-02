@@ -184,7 +184,7 @@ setMethod("%*%", signature(x = "matrix", y = "Matrix"),
 ## bail-out methods in order to get better error messages
 .local.bail.out <- function (x, y)
     stop(gettextf('not-yet-implemented method for <%s> %%*%% <%s>',
-		  class(x), class(y)))
+		  class(x), class(y)), domain=NA)
 setMethod("%*%", signature(x = "ANY", y = "Matrix"), .local.bail.out)
 setMethod("%*%", signature(x = "Matrix", y = "ANY"), .local.bail.out)
 

@@ -212,34 +212,35 @@ SEXP dgCMatrix_qrsol(SEXP x, SEXP y, SEXP ord)
     return ycp;
 }
 
-/* Modified version of Tim Davis's cs_qr_mex.c file for MATLAB */
+// Modified version of Tim Davis's cs_qr_mex.c file for MATLAB (in CSparse)
+//  Usage: [V,beta,p,R,q] = cs_qr(A) ;
 SEXP dgCMatrix_QR(SEXP Ap, SEXP order)
 {
-    SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("sparseQR")));
     CSP A = AS_CSP__(Ap), D;
-    css *S;
-    csn *N;
+    int io = INTEGER(order)[0];
+    Rboolean verbose = (io < 0);
     int m = A->m, n = A->n, ord = asLogical(order) ? 3 : 0, *p;
-    int *dims = INTEGER(ALLOC_SLOT(ans, Matrix_DimSym, INTSXP, 2));
     R_CheckStack();
 
     if (m < n) error(_("A must have #{rows} >= #{columns}")) ;
+    SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("sparseQR")));
+    int *dims = INTEGER(ALLOC_SLOT(ans, Matrix_DimSym, INTSXP, 2));
     dims[0] = m; dims[1] = n;
-    S = cs_sqr(ord, A, 1);	/* symbolic QR ordering & analysis*/
+    css *S = cs_sqr(ord, A, 1);	/* symbolic QR ordering & analysis*/
     if (!S) error(_("cs_sqr failed"));
-    N = cs_qr(A, S);		/* numeric QR factorization */
+    if(verbose && S->m2 > m) // in ./cs.h , m2 := # of rows for QR, after adding fictitious rows
+	Rprintf("Symbolic QR(): Matrix structurally rank deficient (m2-m = %d)\n",
+		S->m2 - m);
+    csn *N = cs_qr(A, S);		/* numeric QR factorization */
     if (!N) error(_("cs_qr failed")) ;
     cs_dropzeros(N->L);		/* drop zeros from V and sort */
-    D = cs_transpose(N->L, 1);
-    cs_spfree(N->L);
-    N->L = cs_transpose(D, 1);
-    cs_spfree(D);
+    D = cs_transpose(N->L, 1); cs_spfree(N->L);
+    N->L = cs_transpose(D, 1); cs_spfree(D);
     cs_dropzeros(N->U);		/* drop zeros from R and sort */
-    D = cs_transpose(N->U, 1);
-    cs_spfree(N->U) ;
-    N->U = cs_transpose(D, 1);
-    cs_spfree(D);
+    D = cs_transpose(N->U, 1); cs_spfree(N->U) ;
+    N->U = cs_transpose(D, 1); cs_spfree(D);
     m = N->L->m;		/* m may be larger now */
+    // MM: m := S->m2  also counting the ficticious rows (Tim Davis, p.72, 74f)
     p = cs_pinv(S->pinv, m);	/* p = pinv' */
     SET_SLOT(ans, install("V"),
 	     Matrix_cs_to_SEXP(N->L, "dgCMatrix", 0));

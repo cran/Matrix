@@ -629,7 +629,8 @@ setClass("sparseLU", contains = "LU",
 
 setClass("sparseQR", contains = "MatrixFactorization",
 	 representation(V = "dgCMatrix", beta = "numeric",
-			p = "integer", R = "dgCMatrix", q = "integer"))
+			p = "integer", R = "dgCMatrix", q = "integer"),
+	 validity = function(object) .Call(sparseQR_validate, object))
 
 ##-- "SPQR" ---> ./spqr.R  for noew
 

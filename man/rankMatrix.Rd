@@ -3,7 +3,7 @@
 \alias{rankMatrix}
 \title{Rank of a Matrix}
 \description{
-  Compute the rank of matrix, a well-defined functional in theory,
+  Compute \sQuote{the} matrix rank, a well-defined functional in theory,
   somewhat ambigous in practice.  We provide several methods, the
   default corresponding to Matlab's definition.
 }

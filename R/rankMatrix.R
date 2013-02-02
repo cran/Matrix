@@ -61,8 +61,9 @@ rankMatrix <- function(x, tol = NULL,
 		  if(is(q.r, "qr")) q.r$rank
 		  else if(is(q.r,"sparseQR")) sum(diag(q.r@R) != 0)
 		  else stop(gettextf(
-			"method '%s' not applicable for qr() result class '%s'",
-				     method, class(q.r)[1]))
+			"method %s not applicable for qr() result class %s",
+				     sQuote(method), dQuote(class(q.r)[1])),
+			    domain=NA)
 	      } else sum(sval >= tol),
 	      "method" = method,
 	      "useGrad" = useGrad,

@@ -60,7 +60,10 @@ setMethod("determinant", signature(x = "dgCMatrix", logarithm = "logical"),
 
 setMethod("qr", signature(x = "dgCMatrix"),
 	  function(x, tol = 1e-07, LAPACK = FALSE)
-	  .Call(dgCMatrix_QR, x, TRUE))
+	  .Call(dgCMatrix_QR, # -> cs_sqr() and cs_qr() >> ../src/dgCMatrix.c
+		x, ## order =
+                if(!is.null(v <- getOption("Matrix.verbose")) && v >= 1) -1L
+                else TRUE))
 
 setMethod("qr", signature(x = "sparseMatrix"),
 	  function(x, ...)

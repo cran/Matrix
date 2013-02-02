@@ -368,7 +368,7 @@ setMethod("Math",
 		   iarg <- as.integer(sub("^[^0-9]*", '', cn))
 		   colnames(cx) <- substr(colnames(cx), 1, iarg)
 	       },
-	       stop("invalid 'col.names' string: ", cn))
+	       stop(gettextf("invalid 'col.names' string: %s", cn), domain=NA))
     }
     ## else: nothing to do for col.names == TRUE
     cx

@@ -51,7 +51,7 @@
     \item{\code{i}:}{Object of class \code{"integer"} of length nnzero
       (number of non-zero elements).  These are the \emph{0-based} row numbers for
       each non-zero element in the matrix, i.e., \code{i} must be in
-      \code{0:(nrow(.)-1)}}.
+      \code{0:(nrow(.)-1)}.}
     \item{\code{p}:}{\code{\link{integer}} vector for providing pointers, one
       for each column, to the initial (zero-based) index of elements in
       the column.  \code{.@p} is of length \code{ncol(.) + 1}, with

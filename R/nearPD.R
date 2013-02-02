@@ -73,9 +73,9 @@ nearPD <-
         converged <- (conv <= conv.tol)
     }
 
-    if(!converged) {
-        warning("nearPD() did not converge in ", iter, " iterations")
-    }
+    if(!converged)
+	warning(gettextf("'nearPD()' did not converge in %d iterations",
+			 iter), domain = NA)
 
     ## force symmetry is *NEVER* needed, we have symmetric X here!
     ## X <- (X + t(X))/2

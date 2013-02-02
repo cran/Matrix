@@ -517,8 +517,7 @@ setMethod("Arith", signature(e1 = "abIndex", e2 = "numLike"),
                          if(is0(e2) ## division by 0
                             && length(unique(sign(ee <- ends.rleD(e1@rleD)))) > 1) {
                              ## at least one subsequence contains 0, i.e., changes sign:
-                             warning("x / 0 for an <abIndex> x with sign-change\n",
-                                     "no longer representable as 'rleDiff'")
+			     warning("x / 0 for an <abIndex> x with sign-change\n no longer representable as 'rleDiff'")
                              return(vec2abI(abI2num(e1) / 0))
                          }
                          e1@rleD@first <- e1@rleD@first / e2

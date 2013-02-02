@@ -115,7 +115,7 @@ intI <- function(i, n, dn, give.dn = TRUE)
     ## ----------------------------------------------------------------------
     ## Author: Martin Maechler, Date: 23 Apr 2007
 
-    has.dn <- !is.null(dn)
+    has.dn <- !is.null.DN(dn)
     DN <- has.dn && give.dn
     if(is(i, "numeric")) {
 	storage.mode(i) <- "integer"
@@ -127,7 +127,7 @@ intI <- function(i, n, dn, give.dn = TRUE)
 	    i0 <- (0:(n - 1L))[i]
 	} else {
 	    if(length(i) && max(i, na.rm=TRUE) > n)
-		stop("index larger than maximal ",n)
+		stop(gettextf("index larger than maximal %d", n), domain=NA)
 	    if(any(z <- i == 0)) i <- i[!z]
 	    i0 <- i - 1L		# transform to 0-indexing
 	}
@@ -136,7 +136,7 @@ intI <- function(i, n, dn, give.dn = TRUE)
     else if (is(i, "logical")) {
 	if(length(i) > n)
 	    stop(gettextf("logical subscript too long (%d, should be %d)",
-			  length(i), n))
+			  length(i), n), domain=NA)
 	i0 <- (0:(n - 1L))[i]
 	if(DN) dn <- dn[i]
     } else { ## character
@@ -341,8 +341,12 @@ replTmat <- function (x, i, j, ..., value)
         has.x <- "x" %in% slotNames(clDx) # === slotNames(x)
 	if(!has.x && # <==> "n.TMatrix"
 	   ((iNA <- any(is.na(value))) || !value.is.logical))
-	    warning(gettextf("x[.] <- val: x is \"%s\", val not in {TRUE, FALSE} is coerced%s.",
-			     clx, if(iNA) " NA |--> TRUE" else ""))
+	    warning(if(iNA)
+		    gettextf("x[.] <- val: x is %s, val not in {TRUE, FALSE} is coerced NA |--> TRUE.",
+			     dQuote(clx))
+		    else
+		    gettextf("x[.] <- val: x is %s, val not in {TRUE, FALSE} is coerced.",
+			     dQuote(clx)), domain=NA)
 
 	## now have 0-based indices   x.i (entries) and	 i (new entries)
 
@@ -497,8 +501,12 @@ replTmat <- function (x, i, j, ..., value)
 
     if(!has.x && # <==> "n.TMatrix"
        ((iNA <- any(is.na(value))) || !value.is.logical))
-	warning(gettextf("x[.,.] <- val: x is \"%s\", val not in {TRUE, FALSE} is coerced%s.",
-			 clx, if(iNA) " NA |--> TRUE" else ""))
+	warning(if(iNA)
+		gettextf("x[.,.] <- val: x is %s, val not in {TRUE, FALSE} is coerced NA |--> TRUE.",
+			 dQuote(clx))
+		else
+		gettextf("x[.,.] <- val: x is %s, val not in {TRUE, FALSE} is coerced.",
+			 dQuote(clx)), domain=NA)
 
     ## another simple, typical case:
     if(lenRepl == 1) {
@@ -524,7 +532,8 @@ replTmat <- function (x, i, j, ..., value)
 ## if(identical(Sys.getenv("USER"),"maechler")
 ##    if(lenRepl > 2) { # __________ ___ JUST for testing! _______________
 	if(is.null(v <- getOption("Matrix.quiet")) || !v)
-	    message(gettextf("x[.,.] <- val : x being coerced from Tsparse* to CsparseMatrix"))
+	    message(gettextf("x[.,.] <- val : x being coerced from Tsparse* to CsparseMatrix"),
+		    domain = NA)
 	return(replCmat4(as(x,"CsparseMatrix"), i1, i2, iMi=iMi, jMi=jMi,
 			 value = if(spV) value else as(value, "sparseVector"),
 			 spV = TRUE))
@@ -619,7 +628,7 @@ replTmat <- function (x, i, j, ..., value)
 {
     nA <- nargs()
     if(nA != 3)
-	stop(gettextf("nargs() = %d should never happen; please report.", nA))
+	stop(gettextf("nargs() = %d should never happen; please report.", nA), domain=NA)
 
     ## else: nA == 3  i.e.,  M [ cbind(ii,jj) ] <- value or M [ Lmat ] <- value
     if(is.logical(i)) {
@@ -664,8 +673,8 @@ replTmat <- function (x, i, j, ..., value)
     nc <- di[2]
     i1 <- i[,1]
     i2 <- i[,2]
-    if(any(i1 > nr)) stop("row indices must be <= nrow(.) which is ", nr)
-    if(any(i2 > nc)) stop("column indices must be <= ncol(.) which is ", nc)
+    if(any(i1 > nr)) stop(gettextf("row indices must be <= nrow(.) which is %d", nr), domain=NA)
+    if(any(i2 > nc)) stop(gettextf("column indices must be <= ncol(.) which is %d", nc), domain=NA)
 
     ## Tmatrix maybe non-unique, have an entry split into a sum of several ones:
     if(is_duplicatedT(x, di = di))

@@ -29,7 +29,7 @@ if(FALSE)## "slow" unneeded R-level version
                "ngRMatrix", "nsRMatrix", "ntRMatrix",
                "zgRMatrix", "zsRMatrix", "ztRMatrix")
     icl <- match(cl, valid) - 1L
-    if(is.na(icl)) stop("invalid class:", cl)
+    if(is.na(icl)) stop(gettextf("invalid class: %s", dQuote(cl)), domain=NA)
     Ccl <- sub("^(..)R","\\1C", cl)  # corresponding Csparse class name
     r <- new(Ccl)
     r@Dim <- from@Dim[2:1]
@@ -56,7 +56,7 @@ if(FALSE)## "slow" unneeded R-level version
                "ngRMatrix", "nsRMatrix", "ntRMatrix",
                "zgRMatrix", "zsRMatrix", "ztRMatrix")
     icl <- match(cl, valid) - 1L
-    if(is.na(icl)) stop("invalid class:", cl)
+    if(is.na(icl)) stop(gettextf("invalid class: %s", dQuote(cl)), domain=NA)
     Ccl <- sub("^(..)R","\\1C", cl)  # corresponding Csparse class name
     r <- new(Ccl)
     r@i <- from@j

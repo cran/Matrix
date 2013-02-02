@@ -252,6 +252,26 @@ Rboolean any_NA_in_x(SEXP obj)
     return FALSE;
 }
 
+
+
+/** Inverse Permutation
+ * C version of   .inv.perm.R <- function(p) { p[p] <- seq_along(p) ; p }
+ */
+static R_INLINE
+SEXP inv_permutation(SEXP p_, SEXP zero_p, SEXP zero_res)
+{
+    int *p = INTEGER(p_), n = LENGTH(p_);
+    SEXP val = allocVector(INTSXP, n);
+    int *v = INTEGER(val), p_0 = asLogical(zero_p), r_0 = asLogical(zero_res);
+    if(!p_0) v--; // ==> use 1-based indices
+    // shorter (but not 100% sure if ok: is LHS always eval'ed *before* RHS ?) :
+    // for(int i=0; i < n; ) v[p[i]] = ++i;
+    for(int i=0; i < n; ) {
+	int j = p[i]; v[j] = (r_0) ? i++ : ++i;
+    }
+    return val;
+}
+
 SEXP Mmatrix(SEXP args);
 
 void make_d_matrix_triangular(double *x, SEXP from);

@@ -20,30 +20,54 @@ anyFalse <- function(x) isTRUE(any(!x))		 ## ~= any0
 
 as1 <- function(x, mod=mode(x))
     switch(mod, "integer"= 1L, "double"=, "numeric"= 1, "logical"= TRUE,
-	   "complex"= 1+0i, stop("invalid 'mod': ", mod))
+	   "complex"= 1+0i, stop(gettextf("invalid 'mod': %s", mod), domain = NA))
 as0 <- function(x, mod=mode(x))
     switch(mod, "integer"= 0L, "double"=, "numeric"= 0, "logical"= FALSE,
-	   "complex"= 0+0i, stop("invalid 'mod': ", mod))
+	   "complex"= 0+0i, stop(gettextf("invalid 'mod': %s", mod), domain = NA))
 
 
 .M.DN <- function(x) if(!is.null(dn <- dimnames(x))) dn else list(NULL,NULL)
+
+.has.DN <- ## has non-trivial Dimnames slot?
+    function(x) !identical(list(NULL,NULL), x@Dimnames)
+
+## This is exported now ( -> ../man/is.null.DN.Rd ):
+is.null.DN <- function(dn) {
+    is.null(dn) || {
+	if(!is.null(names(dn))) names(dn) <- NULL
+	ch0 <- character(0)
+	identical(dn, list(NULL,NULL)) ||
+	identical(dn, list(ch0, NULL)) ||
+	identical(dn, list(NULL, ch0)) ||
+	identical(dn, list(ch0, ch0))
+    }
+}
 
 .if.NULL <- function(x, orElse) if(!is.null(x)) x else orElse
 
 ##  not %in%  :
 `%nin%` <- function (x, table) is.na(match(x, table))
 
+##' @title Check identical(i, 0:n) {or identical(i, 1:n) when Ostart is false}
+##' @param i an integer vector, to be compared with 0:n or 1:n
+##' @param n an integer number
+##' @param Ostart logical indicating if comparison with 0:n or 1:n should be made
+##' @return TRUE or FALSE
+##' @author Martin Maechler
+isSeq <- function(i, n, Ostart = TRUE) {
+    ## FIXME: Port to C, use simple .Call() which is must faster notably in FALSE cases
+    ##        and then *export* (and hence document)
+    identical(i, if(Ostart) 0L:n else seq_len(n))
+}
 
-.has.DN <- ## has non-trivial Dimnames slot?
-    function(x) !identical(list(NULL,NULL), x@Dimnames)
 
 .bail.out.1 <- function(fun, cl) {
     stop(gettextf('not-yet-implemented method for %s(<%s>).\n ->>  Ask the package authors to implement the missing feature.', fun, cl),
-	 call. = FALSE)
+	 call. = FALSE, domain=NA)
 }
 .bail.out.2 <- function(fun, cl1, cl2) {
     stop(gettextf('not-yet-implemented method for %s(<%s>, <%s>).\n ->>  Ask the package authors to implement the missing feature.',
-		  fun, cl1, cl2), call. = FALSE)
+		  fun, cl1, cl2), call. = FALSE, domain=NA)
 }
 
 Matrix.msg <- function(..., .M.level = 1) {
@@ -134,6 +158,14 @@ cholMat <- function(x, pivot = FALSE, ...) {
     else stop("'x' is not positive definite -- chol() undefined.")
 }
 
+
+invPerm.R <- function(p) { p[p] <- seq_along(p) ; p }
+## how much faster would this be in C? -- less than a factor of two?
+invPerm <- function(p, zero.p = FALSE, zero.res = FALSE)
+    .Call(inv_permutation, p, zero.p, zero.res)
+
+
+
 ##  sign( <permutation> ) == determinant( <pMatrix>)
 
 signPerm <- function(p)
@@ -206,7 +238,7 @@ dimCheck <- function(a, b) {
     if(any(da != db))
 	stop(gettextf("Matrices must have same dimensions in %s",
 		      deparse(sys.call(sys.parent()))),
-	     call. = FALSE)
+	     call. = FALSE, domain=NA)
     da
 }
 
@@ -233,7 +265,7 @@ mmultCheck <- function(a, b, kind = 1L) {
     if(ca != rb)
 	stop(gettextf("non-conformable matrix dimensions in %s",
 		      deparse(sys.call(sys.parent()))),
-	     call. = FALSE)
+	     call. = FALSE, domain=NA)
     ca
 }
 
@@ -254,7 +286,7 @@ dimNamesCheck <- function(a, b) {
 		else if(!identical(r[[j]], dn))
 		    warning(gettextf("dimnames [%d] mismatch in %s", j,
 				     deparse(sys.call(sys.parent()))),
-			    call. = FALSE)
+			    call. = FALSE, domain=NA)
 	    }
 	    r
 	}
@@ -269,7 +301,7 @@ rowCheck <- function(a, b) {
     if(da[1] != db[1])
 	stop(gettextf("Matrices must have same number of rows in %s",
 		      deparse(sys.call(sys.parent()))),
-	     call. = FALSE)
+	     call. = FALSE, domain=NA)
     ## return the common nrow()
     da[1]
 }
@@ -280,7 +312,7 @@ colCheck <- function(a, b) {
     if(da[2] != db[2])
 	stop(gettextf("Matrices must have same number of columns in %s",
 		      deparse(sys.call(sys.parent()))),
-	     call. = FALSE)
+	     call. = FALSE, domain=NA)
     ## return the common ncol()
     da[2]
 }
@@ -304,8 +336,7 @@ is.na_nsp <- function(x) {
     r
 }
 
-allTrueMat <- function(x, sym = (d[1] == d[2] &&
-				 identical(dn[[1]], dn[[2]])),
+allTrueMat <- function(x, sym = (d[1] == d[2] && identical(dn[[1]], dn[[2]])),
 		       packed=TRUE)
 {
     d <- x@Dim
@@ -339,9 +370,13 @@ emptyColnames <- function(x, msg.if.not.empty = FALSE)
     if(msg.if.not.empty && is.list(dn) && length(dn) >= 2 &&
        is.character(cn <- dn[[2]]) && any(cn != "")) {
 	lc <- length(cn)
-	message(sprintf("   [[ suppressing %d column names %s%s ]]", nc,
-			paste(sQuote(cn[1:min(3, lc)]), collapse = ", "),
-			if(lc > 3) " ..." else ""))
+	message(if(lc > 3)
+		gettextf("   [[ suppressing %d column names %s... ]]", nc,
+			 paste(sQuote(cn[1:3]), collapse = ", "))
+		else
+		gettextf("   [[ suppressing %d column names %s ]]", nc,
+			 paste(sQuote(cn[1:lc]), collapse = ", ")),
+		domain=NA)
     }
     dimnames(x) <- list(dn[[1]], character(nc))
     x
@@ -374,6 +409,7 @@ indDiag <- function(n) cumsum(c(1L, rep.int(n+1L, n-1)))
 ### TODO:  write in C and port to base (or 'utils') R
 ### -----
 ### "Theory" behind this: /u/maechler/R/MM/MISC/lower-tri-w.o-matrix.R
+## NB: also have "abIndex" version:  abIindTri() --> ./abIndex.R
 indTri <- function(n, upper = TRUE, diag = FALSE) {
     ## Indices of (strict) upper/lower triangular part
     ## == which(upper.tri(diag(n), diag=diag) or
@@ -476,7 +512,7 @@ nnzSparse <- function(x, cl = class(x), cld = getClassDef(cl))
 	length(x@j)
     else if(extends(cld, "pMatrix"))	# is "sparse" too
 	x@Dim[1]
-    else stop("'x' must be sparseMatrix")
+    else stop(gettext("'x' must be \"sparseMatrix\""), domain=NA)
 }
 
 
@@ -596,7 +632,8 @@ uniqTsparse <- function(x, class.x = c(class(x))) {
 	   "nsTMatrix" = as(as(x, "nsCMatrix"), "nsTMatrix"),
 	   "ntTMatrix" = as(as(x, "ntCMatrix"), "ntTMatrix"),
 	   ## otherwise:
-	   stop("not yet implemented for class ", class.x))
+	   stop(gettextf("not yet implemented for class %s", dQuote(class.x)),
+		domain = NA))
 }
 
 ## Note: maybe, using
@@ -776,7 +813,8 @@ l2d_meth <- function(x) {
 	if     (is.numeric(x)) "d" ## also for 'integer' --> see .V.kind()
 	else if(is.logical(x)) "l" ## FIXME ? "n" if no NA ??
 	else if(is.complex(x)) "z"
-	else stop("not yet implemented for matrix w/ typeof ", typeof(x))
+	else stop(gettextf("not yet implemented for matrix with typeof %s",
+			   typeof(x)), domain = NA)
     }
     else .M.kindC(clx)
 }
@@ -789,7 +827,8 @@ l2d_meth <- function(x) {
 	else if(is.numeric(x)) "d"
 	else if(is.logical(x)) "l" ## FIXME ? "n" if no NA ??
 	else if(is.complex(x)) "z"
-	else stop("not yet implemented for matrix w/ typeof ", typeof(x))
+	else stop(gettextf("not yet implemented for matrix with typeof %s",
+			   typeof(x)), domain = NA)
     }
     else .M.kindC(clx)
 }
@@ -805,7 +844,8 @@ l2d_meth <- function(x) {
     else if(extends(clx, "pMatrix")) "n" # permutation -> pattern
     else if(extends(clx, "zMatrix")) "z"
     else if(extends(clx, "iMatrix")) "i"
-    else stop(" not yet implemented for ", clx@className)
+    else stop(gettextf(" not yet implemented for %s", clx@className),
+	      domain = NA)
 }
 
 ## typically used as .type.kind[.M.kind(x)]:
@@ -861,8 +901,8 @@ geClass <- function(x) {
     else if(is(x, "lMatrix")) "lgeMatrix"
     else if(is(x, "nMatrix") || is(x, "pMatrix")) "ngeMatrix"
     else if(is(x, "zMatrix")) "zgeMatrix"
-    else stop("general Matrix class not yet implemented for ",
-	      class(x))
+    else stop(gettextf("general Matrix class not yet implemented for %s",
+		       dQuote(class(x))), domain = NA)
 }
 
 .dense.prefixes <- c("d" = "tr", ## map diagonal to triangular
@@ -1064,8 +1104,8 @@ isTriC <- function(object, upper = NA) {
     TRUE.L <- structure(TRUE, kind = "L")
     ## Need this, since 'i' slot of symmetric looks like triangular :
     if(is(object, "symmetricMatrix")) # triangular only iff diagonal :
-        return(if(length(oi <- object@i) == n && identical(oi, 0:(n-1L))
-                  && identical(object@p, 0:n))
+        return(if(length(oi <- object@i) == n && isSeq(oi, n-1L)
+                  && isSeq(object@p, n))
                structure(TRUE, kind = object@uplo) else FALSE)
     ## else
     ni <- 1:n
@@ -1323,16 +1363,16 @@ setparts <- function(x,y, uniqueCheck = TRUE, check = TRUE) {
 }
 
 ##' @title Warn about extraneous arguments in the "..."  (of its caller)
+## TODO NOTE:   R/src/library/base/R/seq.R  uses a simpler approach,
+##    *and* ngettext(.)  {->  singular/plural *and* translatable}
 ##' @return
 ##' @author Martin Maechler, June 2012
 chk.s <- function(...) {
     if(length(list(...)))
-	warning("arguments  ",
-		sub(")$", '', sub("^list\\(", '', deparse(list(...), control=c()))),
-		"  are disregarded in\n ", deparse(sys.call(-1), control=c()),
-		call. = FALSE)
+	warning(gettextf("arguments %s are disregarded in\n %s",
+			 sub(")$", '', sub("^list\\(", '', deparse(list(...), control=c()))),
+			 deparse(sys.call(-1), control=c())), call. = FALSE, domain=NA)
 }
-
 
 ##' *Only* to be used as function in
 ##'    setMethod("Compare", ...., .Cmp.swap)  -->  ./Ops.R  & ./diagMatrix.R

@@ -120,7 +120,7 @@ setMethod("update", signature(object = "CHMfactor"),
 	  if(d[1] == d[2] && !extends(clp, "dsCMatrix") &&
 	     !is.null(v <- getOption("Matrix.verbose")) && v >= 1)
 	      message(gettextf("Quadratic matrix '%s' (=: A) is not formally\n	symmetric.  Will be treated as	A A' ",
-			       "parent"))
+			       "parent"), domain=NA)
 	  chk.s(...)
 	  .Call(CHMfactor_update, object, parent, mult)
       })

@@ -1,11 +1,8 @@
 #### Symmetric Sparse Matrices in compressed column-oriented format
 
 setAs("dgCMatrix", "dsCMatrix",
-      function(from) {
-	  if(!exists(".warn.dsC")) { ## now only warn *once* ..
-	      warning("as(.,\"dsCMatrix\") is deprecated; do use as(., \"symmetricMatrix\")")
-	      assign(".warn.dsC", "DONE", envir = .GlobalEnv)
-	  }
+      function(from) { ## r2130 ... | 2008-03-14 | added deprecation warning
+	  warning("as(.,\"dsCMatrix\") is deprecated (since 2008); do use as(., \"symmetricMatrix\")")
 	  as(from, "symmetricMatrix")
       })
 

@@ -20,23 +20,12 @@ asD <- function(m) { ## as "Dense"
 ## "normal" sparse Matrix: Csparse, no diag="U"
 asCsp <- function(x) Matrix:::diagU2N(as(x, "CsparseMatrix"))
 
-isNull.dimnames <- function(dn) {
-    is.null(dn) || {
-	dn <- unname(dn)
-	ch0 <- character(0)
-	identical(dn, list(NULL,NULL)) ||
-	identical(dn, list(ch0, NULL)) ||
-	identical(dn, list(NULL, ch0)) ||
-	identical(dn, list(ch0, ch0))
-    }
-}
-
 Qidentical.DN <- function(dx, dy) {
     ## quasi-identical dimnames
     stopifnot(is.list(dx) || is.null(dx),
 	      is.list(dy) || is.null(dy))
     ## "empty"
-    (isNull.dimnames(dx) && isNull.dimnames(dy)) || identical(dx, dy)
+    (is.null.DN(dx) && is.null.DN(dy)) || identical(dx, dy)
 }
 
 Qidentical <- function(x,y, strictClass = TRUE) {
@@ -148,10 +137,10 @@ Q.eq.symmpart <- function(m, tol = 8 * .Machine$double.eps)
     Q.eq2(m, ss, tol = tol)
 }
 
-##' sample.int(n, size, replace=FALSE) for large n:
+##' sample.int(n, size, replace=FALSE) for really large n:
 sampleL <- function(n, size) {
     if(n < .Machine$integer.max)
-	sample(n, size, replace=FALSE)
+	sample.int(n, size)
     else {
 	i <- unique(round(n * runif(1.8 * size)))
 	while(length(i) < size) {

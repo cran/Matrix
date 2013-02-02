@@ -1,3 +1,13 @@
+2012-11-10  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 1.0-11
+
+	* R/SparseM-conv.R: as(<csr>, "dgCMatrix") now works again
+	* tests/other-pkgs.R: test that.
+
+	* src/Mutils.c: do *not* use '#if R_VERSION < ..' so this also
+	*runs* in older R when installed in R >= 2.15.2.
+
 2012-10-15  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* src/Mutils.c (Mmatrix): new, to be used by .External()

@@ -137,14 +137,18 @@
 
   The numeric matrix classes \code{\linkS4class{dgeMatrix}},
   \code{\linkS4class{dgCMatrix}}, and \code{\linkS4class{Matrix}}.
+
+  \code{\link{drop0}(x, tol=1e-10)} is sometimes preferable to (and
+  more efficient than) \code{zapsmall(x, digits=10)}.
 }
 \examples{
  showClass("dMatrix")
 
  set.seed(101)
  round(Matrix(rnorm(28), 4,7), 2)
- (M <- zapsmall(Matrix(rlnorm(56, sd=10), 4,14)))
- table(as.logical(M == 0))
+ M <- Matrix(rlnorm(56, sd=10), 4,14)
+ (M. <- zapsmall(M))
+ table(as.logical(M. == 0))
 }
 \keyword{classes}
 \keyword{algebra}

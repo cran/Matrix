@@ -899,7 +899,8 @@ SEXP m_encodeInd2(SEXP i, SEXP j, SEXP di, SEXP chk_bnds)
 #undef do_ii_FILL
 
 // fails, as R_SVN_REVISION is a string #if R_SVN_REVISION < 60943
-#if R_VERSION < R_Version(2, 15, 2)
+//__ no "if" so it *runs* in older R even if installed in R >= 2.15.2:
+//__ #if R_VERSION < R_Version(2, 15, 2)
 // it is *hidden* in earlier versions of R
 void copyListMatrix(SEXP s, SEXP t, Rboolean byrow)
 {
@@ -935,7 +936,7 @@ void copyListMatrix(SEXP s, SEXP t, Rboolean byrow)
 	}
     }
 }
-#endif
+//__ #endif
 
 // Almost "Cut n Paste" from ...R../src/main/array.c  do_matrix() :
 // used in ../R/Matrix.R as

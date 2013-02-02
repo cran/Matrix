@@ -104,7 +104,7 @@ setMethod("cbind2", signature(x = "denseMatrix", y = "denseMatrix"),
 	      ncx <- x@Dim[2]
 	      ncy <- y@Dim[2]
 	      ## beware of (packed) triangular, symmetric, ...
-	      hasDN <- !is.null(dnx <- dimnames(x)) | !is.null(dny <- dimnames(y))
+	      hasDN <- !is.null.DN(dnx <- dimnames(x)) | !is.null.DN(dny <- dimnames(y))
 	      x <- as(x, geClass(x))
 	      y <- as(y, geClass(y))
 	      x@x <- c(x@x, y@x)
@@ -151,8 +151,8 @@ setMethod("rbind2", signature(x = "denseMatrix", y = "denseMatrix"),
 	      nrx <- x@Dim[1]
 	      nry <- y@Dim[1]
 	      dn <-
-		  if(!is.null(dnx <- dimnames(x)) |
-		     !is.null(dny <- dimnames(y))) {
+		  if(!is.null.DN(dnx <- dimnames(x)) |
+		     !is.null.DN(dny <- dimnames(y))) {
 		      ## R and S+ are different in which names they take
 		      ## if they differ -- but there's no warning in any case
 		      list(if(is.null(rx <- dnx[[1]]) & is.null(ry <- dny[[1]]))

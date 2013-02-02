@@ -113,7 +113,7 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(dgTMatrix_to_matrix, 1),
     CALLDEF(lgTMatrix_to_matrix, 1),
     CALLDEF(dgeMatrix_LU, 2),
-    CALLDEF(dgeMatrix_Schur, 2),
+    CALLDEF(dgeMatrix_Schur, 3),
     CALLDEF(dgeMatrix_colsums, 4),
     CALLDEF(dgeMatrix_crossprod, 2),
     CALLDEF(dgeMatrix_determinant, 2),
@@ -248,6 +248,7 @@ static R_CallMethodDef CallEntries[] = {
 
     CALLDEF(CHM_set_common_env, 1),
 
+    CALLDEF(inv_permutation, 3),
     CALLDEF(m_encodeInd, 3),
     CALLDEF(m_encodeInd2, 4),
 
@@ -258,7 +259,7 @@ static R_CallMethodDef CallEntries[] = {
 };
 
 static const R_ExternalMethodDef ExtEntries[] = {
-    EXTDEF(Mmatrix, 1),
+    EXTDEF(Mmatrix, 7),
     {NULL, NULL, 0}
 };
 

@@ -6,11 +6,9 @@
 Diagonal <- function(n, x = NULL)
 {
     ## Allow  Diagonal(4), Diagonal(x=1:5), and  Diagonal(4, TRUE)
-    if(missing(n))
-	n <- length(x)
-    else {
+    n <- if(missing(n)) length(x) else {
 	stopifnot(length(n) == 1, n == as.integer(n), n >= 0)
-	n <- as.integer(n)
+	as.integer(n)
     }
 
     if(missing(x)) ## unit diagonal matrix
@@ -224,7 +222,9 @@ bdiag <- function(...) {
 		       "l" =,
 		       "n" = TRUE,
 		       ## otherwise
-		       stop("'", kind,"' kind not yet implemented")), n))
+		       stop(gettextf("%s kind not yet implemented",
+				     sQuote(kind)), domain=NA)),
+		n))
 }
 
 ## diagonal -> triangular,  upper / lower depending on "partner":
@@ -336,7 +336,7 @@ setAs("matrix", "diagonalMatrix",
 	  d <- dim(from)
 	  if(d[1] != (n <- d[2])) stop("non-square matrix")
 	  if(any(from[row(from) != col(from)] != 0))
-	      stop("matrix with non-zero off-diagonals cannot be coerced to diagonalMatrix")
+	      stop("matrix with non-zero off-diagonals cannot be coerced to \"diagonalMatrix\"")
 	  x <- diag(from)
 	  if(is.logical(x)) {
 	      cl <- "ldiMatrix"
@@ -415,7 +415,8 @@ replDiag <- function(x, i, j, ..., value) {
             x[i, ] <- value
 	else if(na == 3)
             x[i] <- value
-        else stop("Internal bug: nargs()=",na,"; please report")
+	else stop(gettextf("Internal bug: nargs()=%d; please report",
+			   na), domain=NA)
     } else
 	x[i,j] <- value
     if(isDiagonal(x)) as(x, "diagonalMatrix") else x
@@ -759,7 +760,8 @@ diagOdiag <- function(e1,e2) {
 	}
 	else if(is.logical(r))
 	    e1 <- as(e1, "lMatrix")
-	else stop("intermediate 'r' is of type", typeof(r))
+	else stop(gettextf("intermediate 'r' is of type %s",
+			   typeof(r)), domain=NA)
 	e1@x <- r
 	.diag.2N(e1)
     }

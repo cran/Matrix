@@ -23,7 +23,7 @@ $(SHLIB): $(OBJECTS) sublibs
 ## INSTALL only cleans src/*.o src/*$(SHLIB_EXT) for each arch
 sublibs: subclean sublibraries
 
-sublibraries:
+sublibraries: subclean
 	@for d in $(SUBDIRS); do \
 	  (cd $${d} && CFLAGS="$(CFLAGS)" CXXFLAGS="$(CXXFLAGS)" MkInclude="$(MkInclude)" $(MAKE) library) || exit 1; \
 	done

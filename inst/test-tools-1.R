@@ -12,7 +12,10 @@ identical3 <- function(x,y,z)	  identical(x,y) && identical (y,z)
 identical4 <- function(a,b,c,d)   identical(a,b) && identical3(b,c,d)
 identical5 <- function(a,b,c,d,e) identical(a,b) && identical4(b,c,d,e)
 
-## Make sure errors are signaled
+##' @title Ensure evaluating 'expr' signals an error
+##' @param expr
+##' @return the caught error, invisibly
+##' @author Martin Maechler
 assertError <- function(expr) {
     d.expr <- deparse(substitute(expr))
     t.res <- tryCatch(expr, error = function(e) e)
@@ -20,6 +23,11 @@ assertError <- function(expr) {
 	stop(d.expr, "\n\t did not give an error", call. = FALSE)
     invisible(t.res)
 }
+
+##' @title Ensure evaluating 'expr' signals a warning or an error
+##' @param expr
+##' @return the caught error/warning, invisibly
+##' @author Martin Maechler
 assertWarningAtLeast <- function(expr) {
     d.expr <- deparse(substitute(expr))
     t.res <- tryCatch(expr, error = function(e)e, warning = function(w)w)
@@ -27,6 +35,11 @@ assertWarningAtLeast <- function(expr) {
 	stop(d.expr, "\n\t did not give an error or warning", call. = FALSE)
     invisible(t.res)
 }
+
+##' @title Ensure evaluating 'expr' signals a warning
+##' @param expr
+##' @return the caught warning, invisibly
+##' @author Martin Maechler
 assertWarning <- function(expr) {
     d.expr <- deparse(substitute(expr))
     t.res <- tryCatch(expr, warning = function(w)w)

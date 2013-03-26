@@ -299,7 +299,7 @@ setMethod("chol2inv", signature(x = "sparseMatrix"),
 	      tcrossprod(solve(as(x,"triangularMatrix")))
 	  })
 
-## There are special sparse methods; this is a "fall back":
+## There are special sparse methods in  ./kronecker.R  ; this is a "fall back":
 setMethod("kronecker", signature(X = "Matrix", Y = "ANY",
 				 FUN = "ANY", make.dimnames = "ANY"),
 	  function(X, Y, FUN, make.dimnames, ...) {
@@ -319,8 +319,7 @@ setMethod("determinant", signature(x = "Matrix", logarithm = "missing"),
           function(x, logarithm, ...)
           determinant(x, logarithm = TRUE, ...))
 
-## Gives  "The following object(s) are masked from package:base :   det"
-## but is still ``the Right Thing'' to do :
+## The ``Right Thing'' to do :
 ## base::det() calls [base::]determinant();
 ## our det() should call our determinant() :
 det <- base::det

@@ -1,6 +1,6 @@
 
-R version 2.15.1 Patched (2012-10-14 r60942) -- "Roasted Marshmallows"
-Copyright (C) 2012 The R Foundation for Statistical Computing
+R version 3.0.0 beta (2013-03-25 r62402) -- "Masked Marvel"
+Copyright (C) 2013 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 Platform: x86_64-unknown-linux-gnu (64-bit)
 
@@ -127,7 +127,7 @@ diagnosing replTmat(x,i,j,v): nargs()= 3; missing (i,j) = (0,1)
 + 	  identical(a.m, array(v, dim=dim(mn), dimnames=dimnames(mn)))
 + 	  )
 > showProc.time()
-Time elapsed:  0.391 0.01 0.416 
+Time elapsed:  0.497 0.014 0.52 
 > 
 > ## Printing sparse colnames:
 > ms[sample(28, 20)] <- 0
@@ -184,7 +184,7 @@ diagnosing replTmat(x,i,j,v): nargs()= 3; missing (i,j) = (0,1)
 + 	  identical3(m[!sel],  m[!ssel], as.matrix(m)[as.matrix(!ssel)])
 + 	  )
 > showProc.time()
-Time elapsed:  0.081 0.002 0.086 
+Time elapsed:  0.268 0.001 0.273 
 > 
 > ## more sparse Matrices --------------------------------------
 > 
@@ -299,7 +299,7 @@ Formal class 'ngTMatrix' [package "Matrix"] with 5 slots
   .. ..$ : NULL
   .. ..$ : NULL
   ..@ factors : list()
-Note: Method with signature 'nsparseMatrix#sparseMatrix' chosen for function '==',
+Note: method with signature 'nsparseMatrix#sparseMatrix' chosen for function '==',
  target signature 'ngCMatrix#ngTMatrix'.
  "nMatrix#nMatrix", "sparseMatrix#nsparseMatrix" would also be valid
 ok
@@ -490,7 +490,7 @@ ok( d )
 == ###======================================================================
 
 > showProc.time()
-Time elapsed:  1.205 0.03 1.274 
+Time elapsed:  1.387 0.004 1.403 
 > 
 > ##---- Symmetric indexing of symmetric Matrix ----------
 > m. <- mC
@@ -562,7 +562,7 @@ Time elapsed:  1.205 0.03 1.274
 +     assert.EQ.mat(T[i,i], ss[i,i])
 + }
 > showProc.time()
-Time elapsed:  0.259 0.003 0.27 
+Time elapsed:  0.417 0.003 0.424 
 > 
 > stopifnot(all.equal(mC[,3], mm[,3]),
 + 	  identical(mC[ij], mC[ij + 0.4]),
@@ -766,7 +766,7 @@ diagnosing replTmat(x,i,j,v): nargs()= 3; missing (i,j) = (0,1)
 + 	  all(sm[,-(1:3)] == 0)
 + 	  )
 > showProc.time()
-Time elapsed:  0.266 0.007 0.28 
+Time elapsed:  0.569 0.007 0.58 
 > 
 > ##---  "nsparse*" sub-assignment :----------
 > M <- Matrix(c(1, rep(0,7), 1:4), 3,4)
@@ -822,7 +822,7 @@ Time elapsed:  0.266 0.007 0.28
 ,k.,k.,k.,k.,k.,k.,k.,k.,k.,k.
 ,k.,k.,k.,k.,k.,k.,k.,k.,k.,k.
 ,k.,k.,k.,k.,k.> showProc.time()
-Time elapsed:  0.302 0.003 0.312 
+Time elapsed:  0.377 0.003 0.384 
 > 
 > m0 <- Diagonal(5)
 > stopifnot(identical(m0[2,], m0[,2]),
@@ -873,7 +873,7 @@ Time elapsed:  0.302 0.003 0.312
 [4,] . . 3 1 .
 [5,] . . 3 . 1
 > checkMatrix(M)
-Note: Method with signature 'sparseMatrix#ldiMatrix' chosen for function '==',
+Note: method with signature 'sparseMatrix#ldiMatrix' chosen for function '==',
  target signature 'nsCMatrix#ldiMatrix'.
  "nsparseMatrix#sparseMatrix", "nMatrix#lMatrix" would also be valid
  norm(m [5 x 5]) : 1  I  F  M  ok
@@ -909,7 +909,7 @@ M[i,j] <- v :  coercing symmetric M[] into non-symmetric
  norm(m [5 x 5]) : 1  I  F  M  ok
  Summary:  ok
 as(., "nMatrix") giving full nonzero-pattern: ok
-2*m =?= m+m: Note: Method with signature 'sparseMatrix#ldiMatrix' chosen for function '&',
+2*m =?= m+m: Note: method with signature 'sparseMatrix#ldiMatrix' chosen for function '&',
  target signature 'nsCMatrix#ldiMatrix'.
  "nsparseMatrix#sparseMatrix", "nMatrix#lMatrix" would also be valid
 ok
@@ -977,7 +977,7 @@ diagnosing replTmat(x,i,j,v): nargs()= 3; missing (i,j) = (0,1)
 as(<triangular (ge)matrix>, dtCMatrix): valid: TRUE 
 > stopifnot(is(T, "dtCMatrix"), identical(T[,3], c(10,10,10,0,0)))
 > showProc.time()
-Time elapsed:  1.243 0.009 1.275 
+Time elapsed:  1.42 0.013 1.45 
 > 
 > 
 > ## "Vector indices" -------------------
@@ -1085,7 +1085,7 @@ diagnosing replTmat(x,i,j,v): nargs()= 3; missing (i,j) = (0,1)
 > ## mixing of negative and positive must give error
 > assertError(mT[-1:1,])
 > showProc.time()
-Time elapsed:  0.136 0.001 0.139 
+Time elapsed:  0.292 0.011 0.305 
 > 
 > ## Sub *Assignment* ---- now works (partially):
 > mt0 <- mt
@@ -1193,7 +1193,7 @@ r5   .   2  4   .  6  .  .
 r2  2
 r4  .
 > showProc.time()
-Time elapsed:  0.28 0.001 0.285 
+Time elapsed:  0.579 0.005 0.589 
 > options(Matrix.verbose = TRUE)
 > 
 > mc # no longer has non-structural zeros
@@ -1308,7 +1308,7 @@ diagnosing replTmat(x,i,j,v): nargs()= 3; missing (i,j) = (0,1)
 > ## an example that failed for a long time
 > sy3 <- new("dsyMatrix", Dim = as.integer(c(2, 2)), x = c(14, -1, 2, -7))
 > checkMatrix(dm <- kronecker(Diagonal(2), sy3))# now sparse with new kronecker
-Note: Method with signature 'sparseMatrix#ANY' chosen for function 'kronecker',
+Note: method with signature 'sparseMatrix#ANY' chosen for function 'kronecker',
  target signature 'dtTMatrix#dsyMatrix'.
  "ANY#Matrix" would also be valid
  norm(m [4 x 4]) : 1  I  F  M  ok
@@ -1414,7 +1414,7 @@ M[i,j] <- v :  coercing symmetric M[] into non-symmetric
 > assert.EQ.mat(t2, m)# ok
 > assert.EQ.mat(s2, m)# failed in 0.9975-8
 > showProc.time()
-Time elapsed:  1.181 0.004 1.197 
+Time elapsed:  1.453 0.008 1.495 
 > 
 > 
 > ## m[cbind(i,j)] <- value: (2-column matrix subassignment):
@@ -1557,7 +1557,7 @@ r5  TRUE TRUE FALSE TRUE TRUE TRUE TRUE
 > 
 > cc <- capture.output(show(dLrg))# show(<diag>) used to error for large n
 > showProc.time()
-Time elapsed:  1.322 0.008 1.34 
+Time elapsed:  1.638 0.003 1.653 
 > 
 > ## Large Matrix indexing / subassignment
 > ## ------------------------------------- (from ex. by Imran Rashid)
@@ -1628,4 +1628,4 @@ NULL
 > 
 > proc.time()
    user  system elapsed 
- 11.311   0.515  12.151 
+ 14.125   0.224  14.608 

@@ -75,7 +75,7 @@ export("Cholesky",
 #        "writeHB",
        , "writeMM"
        )
-if(getRversion() < "2.15.0" || R.version$`svn rev` < 57849)
+if(getRversion() < "2.15.0")
     export(".M.classEnv")
 
 ## substitute for using  cbind() / rbind()

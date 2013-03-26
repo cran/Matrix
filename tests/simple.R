@@ -826,6 +826,7 @@ if(doExtras) {
 if(!interactive()) warnings()
 
 ## Platform - and other such info -- so we find it in old saved outputs
+.libPaths()
 SysI <- Sys.info()
 structure(Sys.info()[c(4,5,1:3)], class="simple.list")
 sessionInfo()

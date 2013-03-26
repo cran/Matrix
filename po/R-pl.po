@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Matrix 1.0-9\n"
 "Report-Msgid-Bugs-To: bugs.r-project.org\n"
-"POT-Creation-Date: 2012-09-10 23:41\n"
+"POT-Creation-Date: 2013-03-26 16:27\n"
 "PO-Revision-Date: 2012-08-22 08:17+0100\n"
 "Last-Translator: Łukasz Daniel <lukasz.daniel@gmail.com>\n"
 "Language-Team: Łukasz Daniel <lukasz.daniel@gmail.com>\n"
@@ -16,7 +16,8 @@ msgstr ""
 
 # Recommended/Matrix/R/Matrix.R: 202
 # stop("invalid 'data'")
-msgid "invalid 'mod':"
+#, fuzzy
+msgid "invalid 'mod': %s"
 msgstr "niepoprawne 'mod':"
 
 # Recommended/Matrix/R/Auxiliaries.R: 39
@@ -87,31 +88,28 @@ msgstr "Macierze muszą mieć tę samą liczbę kolumn w %s"
 # message(sprintf("   [[ suppressing %d column names %s%s ]]", nc,
 # 			paste(sQuote(cn[1:min(3, lc)]), collapse = ", "),
 # 			if(lc > 3) " ..." else ""))
-msgid "[[ suppressing %d column names %s%s ]]"
+#, fuzzy
+msgid "[[ suppressing %d column names %s ... ]]"
 msgstr "[[ zmniejszanie %d nazw kolumn %s%s ]]"
 
 # Recommended/Matrix/R/Auxiliaries.R: 338
 # message(sprintf("   [[ suppressing %d column names %s%s ]]", nc,
 # 			paste(sQuote(cn[1:min(3, lc)]), collapse = ", "),
 # 			if(lc > 3) " ..." else ""))
-msgid ","
-msgstr ","
-
-# Recommended/Matrix/R/Auxiliaries.R: 338
-# message(sprintf("   [[ suppressing %d column names %s%s ]]", nc,
-# 			paste(sQuote(cn[1:min(3, lc)]), collapse = ", "),
-# 			if(lc > 3) " ..." else ""))
-msgid "..."
-msgstr "..."
+#, fuzzy
+msgid "[[ suppressing %d column names %s ]]"
+msgstr "[[ zmniejszanie %d nazw kolumn %s%s ]]"
 
 # Recommended/Matrix/R/Auxiliaries.R: 475
 # stop("'x' must be sparseMatrix")
-msgid "'x' must be sparseMatrix"
+#, fuzzy
+msgid "'x' must be \"sparseMatrix\""
 msgstr "'x' musi być klasy 'sparseMatrix'"
 
 # Recommended/Matrix/R/Auxiliaries.R: 595
 # stop("not yet implemented for class ", class.x)
-msgid "not yet implemented for class"
+#, fuzzy
+msgid "not yet implemented for class %s"
 msgstr "jeszcze niezaimplementowane dla klasy"
 
 # Recommended/Matrix/R/ldenseMatrix.R: 74
@@ -129,28 +127,25 @@ msgstr "to nie jest macierz trójkątną"
 # stop("not yet implemented for matrix w/ typeof ", typeof(x))
 # Recommended/Matrix/R/Auxiliaries.R: 788
 # stop("not yet implemented for matrix w/ typeof ", typeof(x))
-msgid "not yet implemented for matrix w/ typeof"
+#, fuzzy
+msgid "not yet implemented for matrix with typeof %s"
 msgstr "jeszcze niezaimplementowana dla macierzy z typem"
 
-msgid "not yet implemented for"
+#, fuzzy
+msgid "not yet implemented for %s"
 msgstr "jeszcze nie jest zaimplementowana dla"
 
 # Recommended/Matrix/R/Auxiliaries.R: 860
 # stop("general Matrix class not yet implemented for ",
 # 	      class(x))
-msgid "general Matrix class not yet implemented for"
+#, fuzzy
+msgid "general Matrix class not yet implemented for %s"
 msgstr "ogólna klasa 'Matrix' jeszcze nie jest zaimplementowana dla"
 
-msgid "arguments"
-msgstr "argumenty"
-
-msgid ")$"
-msgstr ")$"
-
-msgid "^list\\("
-msgstr "^list\\("
-
-msgid "are disregarded in"
+#, fuzzy
+msgid ""
+"arguments %s are disregarded in\n"
+" %s"
 msgstr "zostały odrzucone w"
 
 msgid ""
@@ -257,7 +252,8 @@ msgstr "'file' musi być łańcuchem tekstowym lub połączeniem"
 
 # Recommended/Matrix/R/HBMM.R: 47
 # stop(paste("Invalid storage type:", t1))
-msgid "Invalid storage type:"
+#, fuzzy
+msgid "Invalid storage type: %s"
 msgstr "Niepoprawny typ przechowywania:"
 
 # Recommended/Matrix/R/HBMM.R: 48
@@ -267,12 +263,14 @@ msgstr "Dozwolone są jedynie liczbowe rzadkie macierze"
 
 # Recommended/Matrix/R/HBMM.R: 51
 # stop(paste("Invalid storage format:", t2))
-msgid "Invalid storage format:"
+#, fuzzy
+msgid "Invalid storage format: %s"
 msgstr "Niepoprawny format przechowywania:"
 
 # Recommended/Matrix/R/HBMM.R: 53
 # stop(paste("Invalid assembled indicator:", t3))
-msgid "Invalid assembled indicator:"
+#, fuzzy
+msgid "Invalid assembled indicator: %s"
 msgstr "Niepoprawnie złożony wskaźnik:"
 
 # Recommended/Matrix/R/HBMM.R: 91
@@ -390,19 +388,17 @@ msgstr "'diag(.)' posiadało wpisy 0 lub NA; nieskończony wynik jest wątpliwy"
 
 # Recommended/Matrix/R/Matrix.R: 139
 # stop(gettextf("invalid dimnames given for '%s' object", class(x)))
-msgid "invalid dimnames given for '%s' object"
+#, fuzzy
+msgid "invalid dimnames given for %s object"
 msgstr "podano niepoprawne nazwy wymiarów dla obiektu '%s'"
 
 # Recommended/Matrix/R/Matrix.R: 149
 # message("dimnames(.) <- NULL:  translated to \n
 # 		      "dimnames(.) <- list(NULL,NULL)  <==>  unname(.)")
-msgid "dimnames(.) <- NULL:  translated to"
-msgstr "dimnames(.) <- NULL:  przetłumaczono na"
-
-# Recommended/Matrix/R/Matrix.R: 149
-# message("dimnames(.) <- NULL:  translated to \n
-# 		      "dimnames(.) <- list(NULL,NULL)  <==>  unname(.)")
-msgid "dimnames(.) <- list(NULL,NULL)  <==>  unname(.)"
+#, fuzzy
+msgid ""
+"dimnames(.) <- NULL:  translated to \n"
+"dimnames(.) <- list(NULL,NULL)  <==>  unname(.)"
 msgstr "dimnames(.) <- list(NULL,NULL)  <==>  unname(.)"
 
 # Recommended/Matrix/R/Matrix.R: 182
@@ -456,12 +452,6 @@ msgstr ""
 "błąd programistyczny: 'min()' powinno zostać wysłane z pierwszym argumentem "
 "znacznie wcześniej"
 
-msgid "in Summary(<ANY>, .): %s(<%s>, <%s>%s)"
-msgstr "w 'Summary(<ANY>, .)': %s(<%s>, <%s>%s)"
-
-msgid ", ..."
-msgstr ", ..."
-
 # Recommended/Matrix/R/Matrix.R: 555
 # stop("invalid or not-yet-implemented 'Matrix' subsetting")
 msgid "invalid or not-yet-implemented 'Matrix' subsetting"
@@ -489,17 +479,11 @@ msgstr "m[ <ij-matrix> ]: nieefektywne indeksowanie pojedynczych elementów"
 # Recommended/Matrix/R/Matrix.R: 656
 # stop(".M.sub.i.2col(): 'i' has no integer column number;\n
 # 		 "should never happen; please report")
-msgid ".M.sub.i.2col(): 'i' has no integer column number;"
+#, fuzzy
+msgid ""
+".M.sub.i.2col(): 'i' has no integer column number;\n"
+" should never happen; please report"
 msgstr ".M.sub.i.2col(): 'i' posiada niecałkowitą liczbę kolumn;"
-
-# Recommended/Matrix/R/Matrix.R: 656
-# stop(".M.sub.i.2col(): 'i' has no integer column number;\n
-# 		 "should never happen; please report")
-# Recommended/Matrix/R/Matrix.R: 690
-# stop(".M.repl.i.2col(): 'i' has no integer column number;\n
-# 		 "should never happen; please report")
-msgid "should never happen; please report"
-msgstr "nie powinno się wydarzyć; proszę zgłosić raport"
 
 # Recommended/Matrix/R/Matrix.R: 661
 # stop("such indexing must be by logical or 2-column numeric matrix")
@@ -522,7 +506,10 @@ msgstr "nargs() = %d.  Obce nielegalne argumenty wewnątrz '[ .. ]' (i.2col)?"
 # Recommended/Matrix/R/Matrix.R: 690
 # stop(".M.repl.i.2col(): 'i' has no integer column number;\n
 # 		 "should never happen; please report")
-msgid ".M.repl.i.2col(): 'i' has no integer column number;"
+#, fuzzy
+msgid ""
+".M.repl.i.2col(): 'i' has no integer column number;\n"
+" should never happen; please report"
 msgstr ".M.repl.i.2col(): 'i' posiada niecałkowitą liczbę kolumn;"
 
 # Recommended/Matrix/R/Matrix.R: 695
@@ -575,23 +562,11 @@ msgstr "jeszcze niezaimplementowana metoda 'Matrix[<-'"
 msgid "inefficient method used for \"- e1\""
 msgstr "nieefektywna metoda użyta dla '- e1'"
 
-# Recommended/Matrix/R/Ops.R: 134
-# stop("<Matrix> ",.Generic," ", class(e2),"(0) is undefined")
-# Recommended/Matrix/R/Ops.R: 638
-# stop("<Matrix> ",.Generic," ", class(e2),"(0) is undefined")
-# Recommended/Matrix/R/Ops.R: 1122
-# stop("<Matrix> ",.Generic," ", class(e2),"(0) is undefined")
-msgid "<Matrix>"
-msgstr "<Matrix>"
-
-# Recommended/Matrix/R/Ops.R: 134
-# stop("<Matrix> ",.Generic," ", class(e2),"(0) is undefined")
-# Recommended/Matrix/R/Ops.R: 638
-# stop("<Matrix> ",.Generic," ", class(e2),"(0) is undefined")
-# Recommended/Matrix/R/Ops.R: 1122
-# stop("<Matrix> ",.Generic," ", class(e2),"(0) is undefined")
-msgid "(0) is undefined"
-msgstr "(0) jest nieokreślone"
+# Recommended/Matrix/R/Ops.R: 1153
+# stop(class(e2),"(0) ",.Generic," <Matrix> is undefined")
+#, fuzzy
+msgid "<Matrix> %s %s is undefined"
+msgstr "<Matrix> nie jest określone"
 
 # Recommended/Matrix/R/Ops.R: 172
 # stop("internal bug in \"Compare\" method (Cmp.Mat.atomic); please report")
@@ -611,7 +586,8 @@ msgstr ""
 
 # Recommended/Matrix/R/Ops.R: 442
 # stop("number of rows are not compatible for ", .Generic)
-msgid "number of rows are not compatible for"
+#, fuzzy
+msgid "number of rows are not compatible for %s"
 msgstr "liczba wierszy nie jest zgodna dla"
 
 # Recommended/Matrix/R/Ops.R: 453
@@ -650,12 +626,8 @@ msgstr ""
 
 # Recommended/Matrix/R/Ops.R: 1153
 # stop(class(e2),"(0) ",.Generic," <Matrix> is undefined")
-msgid "(0)"
-msgstr "(0)"
-
-# Recommended/Matrix/R/Ops.R: 1153
-# stop(class(e2),"(0) ",.Generic," <Matrix> is undefined")
-msgid "<Matrix> is undefined"
+#, fuzzy
+msgid "%s %s <Matrix> is undefined"
 msgstr "<Matrix> nie jest określone"
 
 # Matrix/R/abIndex.R: 467
@@ -709,7 +681,8 @@ msgstr "wymiar [produkt %d] nie zgadza się z długością obiektu [%d]"
 # stop("invalid class:", cl)
 # Recommended/Matrix/R/Rsparse.R: 59
 # stop("invalid class:", cl)
-msgid "invalid class:"
+#, fuzzy
+msgid "invalid class: %s"
 msgstr "niepoprawna klasa:"
 
 # Recommended/Matrix/R/Tsparse.R: 8
@@ -733,7 +706,8 @@ msgstr "nie można mieszać ujemnych oraz dodatnich indeksów"
 
 # Recommended/Matrix/R/Tsparse.R: 130
 # stop("index larger than maximal ",n)
-msgid "index larger than maximal"
+#, fuzzy
+msgid "index larger than maximal %d"
 msgstr "indeks dłuższy niż maksymalny możliwy"
 
 # Recommended/Matrix/R/Tsparse.R: 138
@@ -781,7 +755,17 @@ msgstr "wewnętrzny błąd: macierz 'i' w 'replTmat()': proszę zgłosić raport
 # Recommended/Matrix/R/Tsparse.R: 344
 # warning(gettextf("x[.] <- val: x is \"%s\", val not in {TRUE, FALSE} is coerced%s.",
 # 			     clx, if(iNA) " NA |--> TRUE" else ""))
-msgid "x[.] <- val: x is \"%s\", val not in {TRUE, FALSE} is coerced%s."
+#, fuzzy
+msgid "x[.] <- val: x is %s, val not in {TRUE, FALSE} is coerced NA |--> TRUE."
+msgstr ""
+"x[.] <- wartość: 'x' to '%s', wartość nie w zakresie {TRUE, FALSE} zostaje "
+"przekształcona %s."
+
+# Recommended/Matrix/R/Tsparse.R: 344
+# warning(gettextf("x[.] <- val: x is \"%s\", val not in {TRUE, FALSE} is coerced%s.",
+# 			     clx, if(iNA) " NA |--> TRUE" else ""))
+#, fuzzy
+msgid "x[.] <- val: x is %s, val not in {TRUE, FALSE} is coerced."
 msgstr ""
 "x[.] <- wartość: 'x' to '%s', wartość nie w zakresie {TRUE, FALSE} zostaje "
 "przekształcona %s."
@@ -789,7 +773,18 @@ msgstr ""
 # Recommended/Matrix/R/Tsparse.R: 500
 # warning(gettextf("x[.,.] <- val: x is \"%s\", val not in {TRUE, FALSE} is coerced%s.",
 # 			 clx, if(iNA) " NA |--> TRUE" else ""))
-msgid "x[.,.] <- val: x is \"%s\", val not in {TRUE, FALSE} is coerced%s."
+#, fuzzy
+msgid ""
+"x[.,.] <- val: x is %s, val not in {TRUE, FALSE} is coerced NA |--> TRUE."
+msgstr ""
+"x[.,.] <- wartość: 'x' to '%s', wartość nie w zakresie {TRUE, FALSE} zostaje "
+"przekształcona %s."
+
+# Recommended/Matrix/R/Tsparse.R: 500
+# warning(gettextf("x[.,.] <- val: x is \"%s\", val not in {TRUE, FALSE} is coerced%s.",
+# 			 clx, if(iNA) " NA |--> TRUE" else ""))
+#, fuzzy
+msgid "x[.,.] <- val: x is %s, val not in {TRUE, FALSE} is coerced."
 msgstr ""
 "x[.,.] <- wartość: 'x' to '%s', wartość nie w zakresie {TRUE, FALSE} zostaje "
 "przekształcona %s."
@@ -812,12 +807,14 @@ msgstr "'nargs() = %d' nie powinno się wydarzyć; proszę zgłosić raport."
 
 # Recommended/Matrix/R/Tsparse.R: 667
 # stop("row indices must be <= nrow(.) which is ", nr)
-msgid "row indices must be <= nrow(.) which is"
+#, fuzzy
+msgid "row indices must be <= nrow(.) which is %d"
 msgstr "indeksy wiersza muszą być <= 'nrow(.)' który wynosi"
 
 # Recommended/Matrix/R/Tsparse.R: 668
 # stop("column indices must be <= ncol(.) which is ", nc)
-msgid "column indices must be <= ncol(.) which is"
+#, fuzzy
+msgid "column indices must be <= ncol(.) which is %d"
 msgstr "indeksy kolumn muszą być <= 'ncol(.)' który wynosi"
 
 # Recommended/Matrix/R/Tsparse.R: 725
@@ -891,14 +888,11 @@ msgstr "jeszcze niezaimplementowane"
 # Recommended/Matrix/R/abIndex.R: 520
 # warning("x / 0 for an <abIndex> x with sign-change\n
 #                                      "no longer representable as 'rleDiff'")
-msgid "x / 0 for an <abIndex> x with sign-change"
+#, fuzzy
+msgid ""
+"x / 0 for an <abIndex> x with sign-change\n"
+" no longer representable as 'rleDiff'"
 msgstr "x / 0 dla '<abIndex> x' ze zmianą znaku"
-
-# Recommended/Matrix/R/abIndex.R: 520
-# warning("x / 0 for an <abIndex> x with sign-change\n
-#                                      "no longer representable as 'rleDiff'")
-msgid "no longer representable as 'rleDiff'"
-msgstr "nie jest już dłużej reprezentowalna jako 'rleDiff'"
 
 # Recommended/Matrix/R/abIndex.R: 697
 # stop("<abIndex>  -->  <seqMat>  is not yet implemented")
@@ -926,28 +920,19 @@ msgstr "'diagonals' musi mieć tę samą długość (%d) co 'k'"
 # stop("for symmetric band matrix, only specify upper or lower triangle",
 # 	     "\n
 # hence, all k must have the same sign")
-msgid "for symmetric band matrix, only specify upper or lower triangle"
+#, fuzzy
+msgid ""
+"for symmetric band matrix, only specify upper or lower triangle\n"
+" hence, all k must have the same sign"
 msgstr ""
 "dla symetrycznej macierzy wstęgowej, określ jedynie górny oraz dolny trójkąt"
 
-# Recommended/Matrix/R/bandSparse.R: 38
-# stop("for symmetric band matrix, only specify upper or lower triangle",
-# 	     "\n
-# hence, all k must have the same sign")
-msgid "hence, all k must have the same sign"
-msgstr "tak, więc wszystkie 'k' muszą mieć ten sam znak"
-
 # Recommended/Matrix/R/bandSparse.R: 67
 # warning(sprintf("the %d-th (sub)-diagonal (k = %d) is %s",
 # 				s, kk, "too short; filling with NA's"))
-msgid "the %d-th (sub)-diagonal (k = %d) is %s"
+#, fuzzy
+msgid "the %d-th (sub)-diagonal (k = %d) is too short; filling with NA's"
 msgstr "(pod)-diagonala %d (k = %d) jest %s"
-
-# Recommended/Matrix/R/bandSparse.R: 67
-# warning(sprintf("the %d-th (sub)-diagonal (k = %d) is %s",
-# 				s, kk, "too short; filling with NA's"))
-msgid "too short; filling with NA's"
-msgstr "zbyt krótka; wypełnianie wartościami NA"
 
 # Recommended/Matrix/R/condest.R: 74
 # stop("'A' must be a square matrix")
@@ -968,15 +953,9 @@ msgstr "gdy 'A' jest określone, 'A.x' oraz 'At.x' są odrzucane"
 
 # Recommended/Matrix/R/condest.R: 234
 # warning("not converged in ",iter.max," iterations")
-msgid "not converged in"
+#, fuzzy
+msgid "not converged in %d iterations"
 msgstr "nie uzbieżnił się w"
-
-# Recommended/Matrix/R/condest.R: 234
-# warning("not converged in ",iter.max," iterations")
-# Recommended/Matrix/R/nearPD.R: 77
-# warning("nearPD() did not converge in ", iter, " iterations")
-msgid "iterations"
-msgstr "iteracjach"
 
 # Recommended/Matrix/R/condest.R: 249
 # message("hit a cycle (1) -- stop iterations")
@@ -1008,7 +987,8 @@ msgstr ""
 
 # Recommended/Matrix/R/denseMatrix.R: 36
 # stop("undefined method for class ", cl)
-msgid "undefined method for class"
+#, fuzzy
+msgid "undefined method for class %s"
 msgstr "niezdefiniowana metoda dla klasy"
 
 # Recommended/Matrix/R/sparseVector.R: 279
@@ -1033,12 +1013,14 @@ msgstr "wymiary nie zgadzają się z liczbą komórek"
 # stop("invalid nargs()= ",na)
 # Recommended/Matrix/R/denseMatrix.R: 164
 # stop("invalid nargs()= ",na)
-msgid "invalid nargs()="
+#, fuzzy
+msgid "invalid nargs()= %d"
 msgstr "niepoprawne nargs()="
 
 # Recommended/Matrix/R/dgTMatrix.R: 20
 # stop("cannot coerce non-symmetric dgTMatrix to dsCMatrix class")
-msgid "cannot coerce non-symmetric dgTMatrix to dsCMatrix class"
+#, fuzzy
+msgid "cannot coerce non-symmetric \"dgTMatrix\" to \"dsCMatrix\" class"
 msgstr ""
 "nie można przekształcić niesymetrycznej macierzy klasy 'dgTMatrix' na klasę "
 "'dsCMatrix'"
@@ -1070,12 +1052,8 @@ msgstr "niektóre argumenty nie są macierzami"
 
 # Recommended/Matrix/R/diagMatrix.R: 216
 # stop("'", kind,"' kind not yet implemented")
-msgid "'"
-msgstr "rodzaj '"
-
-# Recommended/Matrix/R/diagMatrix.R: 216
-# stop("'", kind,"' kind not yet implemented")
-msgid "' kind not yet implemented"
+#, fuzzy
+msgid "%s kind not yet implemented"
 msgstr "' nie jest jeszcze zaimplementowany"
 
 # Recommended/Matrix/R/diagMatrix.R: 326
@@ -1087,7 +1065,9 @@ msgstr "niekwadratowa macierz"
 
 # Recommended/Matrix/R/diagMatrix.R: 328
 # stop("matrix with non-zero off-diagonals cannot be coerced to diagonalMatrix")
-msgid "matrix with non-zero off-diagonals cannot be coerced to diagonalMatrix"
+#, fuzzy
+msgid ""
+"matrix with non-zero off-diagonals cannot be coerced to \"diagonalMatrix\""
 msgstr ""
 "macierz z niezerowaymi wartościami pozadiagonalnymi nie może zostać "
 "przekształcona w na obiekt klasy 'diagonalMatrix'"
@@ -1099,13 +1079,9 @@ msgstr "macierz nie jest diagonalna"
 
 # Recommended/Matrix/R/diagMatrix.R: 407
 # stop("Internal bug: nargs()=",na,"; please report")
-msgid "Internal bug: nargs()="
+#, fuzzy
+msgid "Internal bug: nargs()=%d; please report"
 msgstr "Błąd wewnętrzny: nargs()="
-
-# Recommended/Matrix/R/diagMatrix.R: 407
-# stop("Internal bug: nargs()=",na,"; please report")
-msgid "; please report"
-msgstr "; proszę zgłosić raport"
 
 # Recommended/Matrix/R/diagMatrix.R: 500
 # stop("chol() is undefined for diagonal matrix with negative entries")
@@ -1135,7 +1111,8 @@ msgstr "niezgodne wymiary macierzy"
 
 # Recommended/Matrix/R/diagMatrix.R: 751
 # stop("intermediate 'r' is of type", typeof(r))
-msgid "intermediate 'r' is of type"
+#, fuzzy
+msgid "intermediate 'r' is of type %s"
 msgstr "pośrednie 'r' jest typu"
 
 # Recommended/Matrix/R/diagMatrix.R: 768
@@ -1152,7 +1129,10 @@ msgstr "to nie jest dodatnio określona macierz"
 
 # Recommended/Matrix/R/dsCMatrix.R: 6
 # warning("as(.,\"dsCMatrix\") is deprecated; do use as(., \"symmetricMatrix\")")
-msgid "as(.,\"dsCMatrix\") is deprecated; do use as(., \"symmetricMatrix\")"
+#, fuzzy
+msgid ""
+"as(.,\"dsCMatrix\") is deprecated (since 2008); do use as(., "
+"\"symmetricMatrix\")"
 msgstr ""
 "'as(.,\"dsCMatrix\")' jest przestarzałe; używaj 'as(., \"symmetricMatrix\")'"
 
@@ -1182,7 +1162,8 @@ msgstr "Macierz wydaje się być ujemnie określona"
 
 # Recommended/Matrix/R/nearPD.R: 77
 # warning("nearPD() did not converge in ", iter, " iterations")
-msgid "nearPD() did not converge in"
+#, fuzzy
+msgid "'nearPD()' did not converge in %d iterations"
 msgstr "'nearPD()' nie uzbieżnił się w"
 
 # Recommended/Matrix/R/ngTMatrix.R: 24
@@ -1197,7 +1178,8 @@ msgstr "tymczasowo niedostępne"
 
 # Recommended/Matrix/R/pMatrix.R: 15
 # stop("coercion to 'pMatrix' only works from integer numeric")
-msgid "coercion to 'pMatrix' only works from integer numeric"
+#, fuzzy
+msgid "coercion to \"pMatrix\" only works from integer numeric"
 msgstr "przekształcenie na 'pMatrix' działa jedynie dla liczb całkowitych"
 
 # Recommended/Matrix/R/pMatrix.R: 47
@@ -1232,7 +1214,8 @@ msgstr "jeszcze niezaimplementowana metoda dla <%s> %%*%% <%s>"
 # stop(gettextf(
 # 			"method '%s' not applicable for qr() result class '%s'",
 # 				     method, class(q.r)[1]))
-msgid "method '%s' not applicable for qr() result class '%s'"
+#, fuzzy
+msgid "method %s not applicable for qr() result class %s"
 msgstr "metoda '%s' nie ma zastosowania dla wyniku 'qr()' o klasie '%s'"
 
 # Recommended/Matrix/R/spModels.R: 113
@@ -1304,7 +1287,8 @@ msgstr ""
 
 # Recommended/Matrix/R/sparseMatrix.R: 371
 # stop("invalid 'col.names' string: ", cn)
-msgid "invalid 'col.names' string:"
+#, fuzzy
+msgid "invalid 'col.names' string: %s"
 msgstr "niepoprawny łańcuch 'col.names':"
 
 # Recommended/Matrix/R/sparseMatrix.R: 598
@@ -1329,7 +1313,10 @@ msgstr "'V' nie jest macierzą *kwadratową*"
 
 # Recommended/Matrix/R/sparseQR.R: 10
 # warning("qr.R(<sparse>) may differ from qr.R(<dense>) because of permutations")
-msgid "qr.R(<sparse>) may differ from qr.R(<dense>) because of permutations"
+#, fuzzy
+msgid ""
+"qr.R(<sparse>) may differ from qr.R(<dense>) because of permutations.  "
+"Possibly use our qrR() instead"
 msgstr ""
 "'qr.R(<rzadkie>)' może różnić się od 'qr.R(<gęste>)' z powodu permutacji"
 
@@ -1377,12 +1364,13 @@ msgstr "'nrow' nie jest czynnikiem długości 'length(x)'"
 # Recommended/Matrix/R/HBMM.R: 167
 # stop(gettextf("symmetry form '%s' is not yet implemented", sym))
 #, fuzzy
-msgid "Class '%s' is not yet implemented"
+msgid "Class %s is not yet implemented"
 msgstr "forma symetryczna '%s' nie jest jeszcze zaimplementowana"
 
 # Recommended/Matrix/R/sparseVector.R: 361
 # stop("too large index i > n =",n)
-msgid "too large index i > n ="
+#, fuzzy
+msgid "too large index i > n = %d"
 msgstr "zbyt duży indeks i > n ="
 
 # Recommended/Matrix/R/sparseVector.R: 377
@@ -1405,3 +1393,106 @@ msgstr "(roz)pakowanie stosuje się jedynie do gęstych macierzy, class(x)='%s'"
 # stop("the matrix is not triangular")
 msgid "'x' is not symmetric nor triangular"
 msgstr "'x' nie jest macierzą symetryczną ani trójkątną"
+
+# Recommended/Matrix/R/Auxiliaries.R: 338
+# message(sprintf("   [[ suppressing %d column names %s%s ]]", nc,
+# 			paste(sQuote(cn[1:min(3, lc)]), collapse = ", "),
+# 			if(lc > 3) " ..." else ""))
+#~ msgid ","
+#~ msgstr ","
+
+# Recommended/Matrix/R/Auxiliaries.R: 338
+# message(sprintf("   [[ suppressing %d column names %s%s ]]", nc,
+# 			paste(sQuote(cn[1:min(3, lc)]), collapse = ", "),
+# 			if(lc > 3) " ..." else ""))
+#~ msgid "..."
+#~ msgstr "..."
+
+#~ msgid "arguments"
+#~ msgstr "argumenty"
+
+#~ msgid ")$"
+#~ msgstr ")$"
+
+#~ msgid "^list\\("
+#~ msgstr "^list\\("
+
+# Recommended/Matrix/R/Matrix.R: 149
+# message("dimnames(.) <- NULL:  translated to \n
+# 		      "dimnames(.) <- list(NULL,NULL)  <==>  unname(.)")
+#~ msgid "dimnames(.) <- NULL:  translated to"
+#~ msgstr "dimnames(.) <- NULL:  przetłumaczono na"
+
+#~ msgid "in Summary(<ANY>, .): %s(<%s>, <%s>%s)"
+#~ msgstr "w 'Summary(<ANY>, .)': %s(<%s>, <%s>%s)"
+
+#~ msgid ", ..."
+#~ msgstr ", ..."
+
+# Recommended/Matrix/R/Matrix.R: 656
+# stop(".M.sub.i.2col(): 'i' has no integer column number;\n
+# 		 "should never happen; please report")
+# Recommended/Matrix/R/Matrix.R: 690
+# stop(".M.repl.i.2col(): 'i' has no integer column number;\n
+# 		 "should never happen; please report")
+#~ msgid "should never happen; please report"
+#~ msgstr "nie powinno się wydarzyć; proszę zgłosić raport"
+
+# Recommended/Matrix/R/Ops.R: 134
+# stop("<Matrix> ",.Generic," ", class(e2),"(0) is undefined")
+# Recommended/Matrix/R/Ops.R: 638
+# stop("<Matrix> ",.Generic," ", class(e2),"(0) is undefined")
+# Recommended/Matrix/R/Ops.R: 1122
+# stop("<Matrix> ",.Generic," ", class(e2),"(0) is undefined")
+#~ msgid "<Matrix>"
+#~ msgstr "<Matrix>"
+
+# Recommended/Matrix/R/Ops.R: 134
+# stop("<Matrix> ",.Generic," ", class(e2),"(0) is undefined")
+# Recommended/Matrix/R/Ops.R: 638
+# stop("<Matrix> ",.Generic," ", class(e2),"(0) is undefined")
+# Recommended/Matrix/R/Ops.R: 1122
+# stop("<Matrix> ",.Generic," ", class(e2),"(0) is undefined")
+#~ msgid "(0) is undefined"
+#~ msgstr "(0) jest nieokreślone"
+
+# Recommended/Matrix/R/Ops.R: 1153
+# stop(class(e2),"(0) ",.Generic," <Matrix> is undefined")
+#~ msgid "(0)"
+#~ msgstr "(0)"
+
+# Recommended/Matrix/R/abIndex.R: 520
+# warning("x / 0 for an <abIndex> x with sign-change\n
+#                                      "no longer representable as 'rleDiff'")
+#~ msgid "no longer representable as 'rleDiff'"
+#~ msgstr "nie jest już dłużej reprezentowalna jako 'rleDiff'"
+
+# Recommended/Matrix/R/bandSparse.R: 38
+# stop("for symmetric band matrix, only specify upper or lower triangle",
+# 	     "\n
+# hence, all k must have the same sign")
+#~ msgid "hence, all k must have the same sign"
+#~ msgstr "tak, więc wszystkie 'k' muszą mieć ten sam znak"
+
+# Recommended/Matrix/R/bandSparse.R: 67
+# warning(sprintf("the %d-th (sub)-diagonal (k = %d) is %s",
+# 				s, kk, "too short; filling with NA's"))
+#~ msgid "too short; filling with NA's"
+#~ msgstr "zbyt krótka; wypełnianie wartościami NA"
+
+# Recommended/Matrix/R/condest.R: 234
+# warning("not converged in ",iter.max," iterations")
+# Recommended/Matrix/R/nearPD.R: 77
+# warning("nearPD() did not converge in ", iter, " iterations")
+#~ msgid "iterations"
+#~ msgstr "iteracjach"
+
+# Recommended/Matrix/R/diagMatrix.R: 216
+# stop("'", kind,"' kind not yet implemented")
+#~ msgid "'"
+#~ msgstr "rodzaj '"
+
+# Recommended/Matrix/R/diagMatrix.R: 407
+# stop("Internal bug: nargs()=",na,"; please report")
+#~ msgid "; please report"
+#~ msgstr "; proszę zgłosić raport"

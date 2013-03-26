@@ -371,7 +371,7 @@ emptyColnames <- function(x, msg.if.not.empty = FALSE)
        is.character(cn <- dn[[2]]) && any(cn != "")) {
 	lc <- length(cn)
 	message(if(lc > 3)
-		gettextf("   [[ suppressing %d column names %s... ]]", nc,
+		gettextf("   [[ suppressing %d column names %s ... ]]", nc,
 			 paste(sQuote(cn[1:3]), collapse = ", "))
 		else
 		gettextf("   [[ suppressing %d column names %s ]]", nc,

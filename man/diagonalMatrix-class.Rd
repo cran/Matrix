@@ -234,10 +234,7 @@
 \alias{tcrossprod,lgeMatrix,diagonalMatrix-method}
 \alias{tcrossprod,matrix,diagonalMatrix-method}
 \alias{tcrossprod,sparseMatrix,diagonalMatrix-method}
-
-\alias{solve,diagonalMatrix,Matrix-method}
-\alias{solve,diagonalMatrix,matrix-method}
-\alias{solve,diagonalMatrix,missing-method}
+%\alias{solve,diagonalMatrix,Matrix-method}--> solve-methods.Rd
 \alias{summary,diagonalMatrix-method}
 \description{
   Class "diagonalMatrix" is the virtual class of all diagonal matrices.
@@ -280,7 +277,7 @@
     \cr and many more methods
 
     \item{solve}{\code{signature(a = "diagonalMatrix", b, ...)}: is
-      trivially implemented, of course.}
+      trivially implemented, of course; see also \code{\link{solve-methods}}.}
 
     \item{which}{\code{signature(x = "nMatrix")}, semantically
       equivalent to \pkg{base} function \code{\link{which}(x, arr.ind)}.}
@@ -303,6 +300,8 @@
   }
 }
 \seealso{
+  \code{\link{Diagonal}()} as constructor of these matrices, and
+  \code{\link{isDiagonal}}.
   \code{\linkS4class{ddiMatrix}} and \code{\linkS4class{ldiMatrix}} are
   \dQuote{actual} classes extending \code{"diagonalMatrix"}.
 }

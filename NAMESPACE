@@ -25,7 +25,7 @@ importFrom("methods",
 ## Generics and functions defined in this package
 export("Cholesky",
        "Diagonal", ".symDiagonal", ".sparseDiagonal",
-       "Hilbert",
+       "Hilbert", "KhatriRao",
        "Matrix",
        "spMatrix",
        "sparseMatrix",
@@ -46,8 +46,8 @@ export("Cholesky",
        "expm",
        "facmul",
        "forceSymmetric",
-#	 "isTriangular",
-#	 "isDiagonal",
+       "isTriangular",
+       "isDiagonal",
        "isLDL",
        "is.null.DN",
        "invPerm",
@@ -171,7 +171,8 @@ exportClasses(
 	      "ntRMatrix",
 	      "ntTMatrix",
 
-	      "pMatrix",
+	      "indMatrix",
+          "pMatrix",
 
 	      "corMatrix", # unused
 
@@ -307,6 +308,9 @@ exportMethods(## for both own and "other" generics:
               "which",
 	      "zapsmall"
 	      )
+if(getRversion() > "3.1.0")
+exportMethods("anyNA")
+
 
 exportMethods("rbind2")
 exportMethods("cbind2")

@@ -35,7 +35,8 @@ setMethod("image", "CHMfactor",
 {
     chk.s(...)
     sysDef <- eval(formals()$system)
-    .Call(CHMfactor_solve, #-> cholmod_solve() in  ../src/CHOLMOD/Cholesky/cholmod_solve.c
+    .Call(CHMfactor_solve,
+	  ##-> cholmod_solve() in  ../src/CHOLMOD/Cholesky/cholmod_solve.c
           a, b,
 	  ## integer in	 1 ("A"), 2 ("LDLt"), ..., 9 ("Pt") :
 	  match(match.arg(system, sysDef), sysDef, nomatch = 0L))
@@ -60,7 +61,6 @@ setMethod("solve", signature(a = "CHMfactor", b = "dsparseMatrix"),
 	      chk.s(...)
 	      sysDef <- eval(formals()$system)
 	      .Call(CHMfactor_spsolve,	#--> cholmod_spsolve() in  ../src/CHOLMOD/Cholesky/cholmod_spsolve.c
-					#\-->  cholmod_solve() in  ../src/CHOLMOD/Cholesky/cholmod_solve.c
 		    a, as(as(b, "CsparseMatrix"), "dgCMatrix"),
 		    match(match.arg(system, sysDef), sysDef, nomatch = 0L))
 	  }, valueClass = "CsparseMatrix")# < virtual value ?

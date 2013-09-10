@@ -102,7 +102,8 @@ MatrixClass <- function(cl, cld = getClassDef(cl),
     ## ----------------------------------------------------------------------
     ## Arguments: cl: string, class name
     ##		 cld: its class definition
-    ##	   ...Matrix: if TRUE, the result must be of pattern "...Matrix"
+    ##	   ...Matrix: if TRUE, the result must be of pattern "[dlniz]..Matrix"
+    ##                where the first letter "[dlniz]" denotes the content kind.
     ##	      ..... : other arguments are passed to .selectSuperClasses()
     ## ----------------------------------------------------------------------
     ## Author: Martin Maechler, Date: 24 Mar 2009
@@ -114,7 +115,7 @@ MatrixClass <- function(cl, cld = getClassDef(cl),
 	## else we use 'pkg'
     }
     if(identical(pkg, "Matrix") &&
-       (!...Matrix || identical(1L, grep("^...Matrix$", cl))))
+       (!...Matrix || (cl != "indMatrix" && identical(1L, grep("^[dlniz]..Matrix$", cl)))))
 	cl
     else { ## possibly recursively
 	r <- .selectSuperClasses(cld@contains, dropVirtual = dropVirtual,
@@ -150,11 +151,15 @@ attr.all_Mat <- function(target, current,
 
 
 ## chol() via "dpoMatrix"
+## This will only be called for *dense* matrices
 cholMat <- function(x, pivot = FALSE, ...) {
-    ## This will only be called for *dense* matrices
-    px <- as(x, if(length(x@x) < prod(dim(x))) ## packed
-	     "dppMatrix" else "dpoMatrix")
-    if (isTRUE(validObject(px, test=TRUE))) chol(px, pivot, ...)
+    packed <- length(x@x) < prod(dim(x)) ## is it packed?
+    nmCh <- if(packed) "pCholesky" else "Cholesky"
+    if(!is.null(ch <- x@factors[[nmCh]]))
+	return(ch) ## use the cache
+    px <- as(x, if(packed) "dppMatrix" else "dpoMatrix")
+    if (isTRUE(validObject(px, test=TRUE))) ## 'pivot' is not used for dpoMatrix
+	.set.factors(x, nmCh, chol(px, pivot, ...))
     else stop("'x' is not positive definite -- chol() undefined.")
 }
 
@@ -382,6 +387,15 @@ emptyColnames <- function(x, msg.if.not.empty = FALSE)
     x
 }
 
+
+## The i-th unit vector  e[1:n] with e[j] = \delta_{i,j}
+## .E.i.log <- function(i,n)  i == (1:n)
+## .E.i <- function(i,n)
+##     r <- numeric(n)
+##     r[i] <- 1.
+##     r
+## }
+
 idiag <- function(n, p=n)
 {
     ## Purpose: diag() returning  *integer*
@@ -510,7 +524,7 @@ nnzSparse <- function(x, cl = class(x), cld = getClassDef(cl))
 	length(x@i)
     else if(extends(cld, "RsparseMatrix"))
 	length(x@j)
-    else if(extends(cld, "pMatrix"))	# is "sparse" too
+    else if(extends(cld, "indMatrix"))	# is "sparse" too
 	x@Dim[1]
     else stop(gettext("'x' must be \"sparseMatrix\""), domain=NA)
 }
@@ -524,7 +538,7 @@ non0.i <- function(M, cM = class(M), uniqT=TRUE) {
 	if(uniqT && is_not_uniqT(M))
 	    .Call(compressed_non_0_ij, as(M,"CsparseMatrix"), TRUE)
 	else cbind(M@i, M@j)
-    } else if(extends(cM, "pMatrix")) {
+    } else if(extends(cM, "indMatrix")) {
 	cbind(seq_len(nrow(M)), M@perm) - 1L
     } else { ## C* or R*
 	.Call(compressed_non_0_ij, M, extends(cM, "CsparseMatrix"))
@@ -810,7 +824,7 @@ l2d_meth <- function(x) {
 .M.kind <- function(x, clx = class(x)) {
     ## 'clx': class() *or* class definition of x
     if(is.matrix(x) || is.atomic(x)) { ## 'old style' matrix or vector
-	if     (is.numeric(x)) "d" ## also for 'integer' --> see .V.kind()
+	if     (is.numeric(x)) "d" ## also for integer: see .V.kind(), .M.kindC()
 	else if(is.logical(x)) "l" ## FIXME ? "n" if no NA ??
 	else if(is.complex(x)) "z"
 	else stop(gettextf("not yet implemented for matrix with typeof %s",
@@ -841,7 +855,7 @@ l2d_meth <- function(x) {
     else if(extends(clx, "dMatrix")) "d"
     else if(extends(clx, "nMatrix")) "n"
     else if(extends(clx, "lMatrix")) "l"
-    else if(extends(clx, "pMatrix")) "n" # permutation -> pattern
+    else if(extends(clx, "indMatrix")) "n" # permutation -> pattern
     else if(extends(clx, "zMatrix")) "z"
     else if(extends(clx, "iMatrix")) "i"
     else stop(gettextf(" not yet implemented for %s", clx@className),
@@ -899,7 +913,7 @@ class2 <- function(cl, kind = "l", do.sub = TRUE) {
 geClass <- function(x) {
     if     (is(x, "dMatrix")) "dgeMatrix"
     else if(is(x, "lMatrix")) "lgeMatrix"
-    else if(is(x, "nMatrix") || is(x, "pMatrix")) "ngeMatrix"
+    else if(is(x, "nMatrix") || is(x, "indMatrix")) "ngeMatrix"
     else if(is(x, "zMatrix")) "zgeMatrix"
     else stop(gettextf("general Matrix class not yet implemented for %s",
 		       dQuote(class(x))), domain = NA)
@@ -1252,13 +1266,16 @@ diagN2U <- function(x, cl = getClassDef(class(x)), checkDense = FALSE)
 	.Call(Csparse_diagN2U, as(x, "CsparseMatrix"))
 }
 
+.dgC.0.factors <- function(x)
+    if(!length(x@factors)) x else { x@factors <- list() ; x }
 .as.dgC.0.factors <- function(x) {
     if(!is(x, "dgCMatrix"))
 	as(x, "dgCMatrix") # will not have 'factors'
     else ## dgCMatrix
-	if(!length(x@factors)) x else { x@factors <- list() ; x }
+	.dgC.0.factors(x)
 }
 
+.set.factors <- function(x, name, value) .Call(R_set_factors, x, value, name)
 
 ### Fast, much simplified version of tapply()
 tapply1 <- function (X, INDEX, FUN = NULL, ..., simplify = TRUE) {

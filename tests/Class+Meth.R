@@ -4,13 +4,21 @@ source(system.file("test-tools.R", package = "Matrix"))# identical3(),
 if(interactive()) options(error = recover)
 cat("doExtras:",doExtras,"\n")
 
+no.Mcl <- function(cl) ## TRUE if MatrixClass() returns empty, i
+    identical(Matrix:::MatrixClass(cl), character(0))
+
 setClass("myDGC", contains = "dgCMatrix")
 M <- new("myDGC", as(Matrix(c(-2:4, rep(0,9)), 4), "CsparseMatrix"))
 M
 stopifnot(M[-4,2] == 2:4,
-	  Matrix:::MatrixClass("myDGC") == "dgCMatrix",
-	  Matrix:::MatrixClass("Cholesky") == "dtrMatrix",
-	  Matrix:::MatrixClass("pCholesky") == "dtpMatrix")
+	  Matrix:::MatrixClass("myDGC"    ) == "dgCMatrix",
+	  Matrix:::MatrixClass("Cholesky" ) == "dtrMatrix",
+	  Matrix:::MatrixClass("pCholesky") == "dtpMatrix",
+	  Matrix:::MatrixClass("corMatrix") == "dpoMatrix",
+	  no.Mcl("pMatrix"),
+	  no.Mcl("indMatrix"))
+
+
 
 setClass("posDef", contains = "dspMatrix")
 N <- as(as(crossprod(M) + Diagonal(4), "denseMatrix"),"dspMatrix")
@@ -157,8 +165,9 @@ tstMatrixClass <-
     ## Compute a few things only once :
     mM <- as(mM, "dgeMatrix")
     trm <- mm; trm[lower.tri(mm)] <- 0
-    summList <- lapply(getGroupMembers("Summary"), get,
-                       envir = asNamespace("Matrix"))
+    ## not yet used:
+    ## summList <- lapply(getGroupMembers("Summary"), get,
+    ##                    envir = asNamespace("Matrix"))
     if(recursive)
         cList <- character(0)
 
@@ -216,7 +225,7 @@ tstMatrixClass <-
 		cat("; as(matrix(,0,0), <.>): ")
 		stopifnot(Qidentical(m, as(m0, clNam))); cat("ok; ")
 	    }
-            is_p <- extends(clD, "pMatrix")
+            is_p <- extends(clD, "indMatrix")
             is_cor <- extends(clD, "corMatrix") # has diagonal divided out
 	    if(canCoerce(mm, clNam)) { ## replace 'm' by `non-empty' version
 		cat("canCoerce() ")
@@ -337,6 +346,8 @@ tstMatrixClass <-
     for(scl in getClass(cl)@subclasses)
         dotestMat(scl, offset + 1)
 }
+## in case we want to make progress:
+## codetools::checkUsage(tstMatrixClass, all=TRUE)
 
 tstMatrixClass("Matrix")
 if(FALSE)## or just a sub class

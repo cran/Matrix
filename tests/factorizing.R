@@ -256,14 +256,15 @@ Ppm <- pmLU@L %*% pmLU@U
 stopifnot(identical3(lu1, pmLU, pm@factors$LU),# TODO === por1@factors$LU
 	  identical(ppm, with(xp, P %*% pm %*% t(Q))),
 	  sapply(xp, is, class="Matrix"))
-## make sure 'factors' are *NOT* kept, when they should not:
-spm <- solve(pm)
-stopifnot(abs(as.vector(solve(Diagonal(30, x=10) %*% pm) / spm) - 1/10) < 1e-7,
-	  abs(as.vector(solve(rep.int(4, 30)	  *  pm) / spm) - 1/ 4) < 1e-7)
 
+Ipm <- solve(pm, sparse=FALSE)
+Spm <- solve(pm, sparse=TRUE)  # is not sparse at all, here
+assert.EQ.Mat(Ipm, Spm, giveRE=TRUE)
+stopifnot(abs(as.vector(solve(Diagonal(30, x=10) %*% pm) / Ipm) - 1/10) < 1e-7,
+	  abs(as.vector(solve(rep.int(4, 30)	  *  pm) / Ipm) - 1/ 4) < 1e-7)
 
 ## these two should be the same, and `are' in some ways:
-assert.EQ.mat(ppm, as(Ppm, "matrix"), tol = 1e-14)
+assert.EQ.mat(ppm, as(Ppm, "matrix"), tol = 1e-14, giveRE=TRUE)
 ## *however*
 length(ppm@x)# 180
 length(Ppm@x)# 317 !

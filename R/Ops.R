@@ -140,8 +140,10 @@ Cmp.Mat.atomic <- function(e1, e2) { ## result will inherit from "lMatrix"
     if(l2 > 1 && has.x) ## e2 cannot simply be compared with e1@x --> use another method
         return(callGeneric(e1, Matrix(e2, nrow=d[1], ncol=d[2])))
     ## else
+    Udg <- extends(cl1, "triangularMatrix") && e1@diag == "U"
     r0 <- callGeneric(0, e2)
-    r  <- callGeneric(if(has.x) e1@x else TRUE, e2)
+    ## Udg: append the diagonal at *end*, as diagU2N():
+    r  <- callGeneric(if(Udg) c(e1@x,..diag.x(e1)) else if(has.x) e1@x else TRUE, e2)
     ## trivial case first (beware of NA)
     if(isTRUE(all(r0) && all(r))) {
         r <- new(if(d[1] == d[2]) "lsyMatrix" else "lgeMatrix")
@@ -181,7 +183,6 @@ Cmp.Mat.atomic <- function(e1, e2) { ## result will inherit from "lMatrix"
         ## FIXME: remove this test eventually
         if(extends(cl1, "diagonalMatrix")) stop("Cmp.Mat.atomic() should not be called for diagonalMatrix")
         remainSparse <- allFalse(r0) ## <==> things remain sparse
-        Udg <- extends(cl1, "triangularMatrix") && e1@diag == "U"
         if(Udg) {          # e1 *is* unit-diagonal (triangular sparse)
             r1 <- callGeneric(1, e2)
             Udg <- all(r1)       # maybe Unit-diagonal (sparse) result
@@ -193,10 +194,6 @@ Cmp.Mat.atomic <- function(e1, e2) { ## result will inherit from "lMatrix"
                 if(extends(cl1, "CsparseMatrix")) {
                     ## repeat computation if e1 has changed
                     r <- callGeneric(if(has.x) e1@x else TRUE, e2)
-                }
-                else {
-                    ## correctly assuming that diagU2N() appends diagonal entries at end
-                    r <- c(r, rep.int(r1, d[1]))
                 }
             }
         }
@@ -236,8 +233,8 @@ Cmp.Mat.atomic <- function(e1, e2) { ## result will inherit from "lMatrix"
         }
         else { ## non sparse result; triangularity also gone, typically
             lClass <- if(extends(cl1, "symmetricMatrix")) "lsyMatrix" else "lgeMatrix"
-            Matrix.msg(sprintf("sparse to dense (%s) coercion in '%s'",
-                               lClass, .Generic), .M.level = 2)
+            Matrix.msg(sprintf("sparse to dense (%s) coercion in '%s' -> %s",
+                               lClass, .Generic, "Cmp.Mat.atomic"), .M.level = 2)
             rx <- rep(r0, length.out = prod(d))
 
             ## Here, we assume that 'r' and the indices align (!)
@@ -629,8 +626,8 @@ for(Mcl in c("lMatrix","nMatrix","dMatrix"))
 ## This is parallel to Cmp.Mat.atomic() above --->  __keep parallel__ !
 Logic.Mat.atomic <- function(e1, e2) { ## result will typically be "like" e1:
     e2 <- as.logical(e2)
-    if(.Generic == "&" && allTrue (e2)) return(e1)
-    if(.Generic == "|" && allFalse(e2)) return(e1)
+    if(.Generic == "&" && allTrue (e2)) return(as(e1, "lMatrix"))
+    if(.Generic == "|" && allFalse(e2)) return(as(e1, "lMatrix"))
     d <- e1@Dim
     cl <- class(e1)
     if((l2 <- length(e2)) == 0) {
@@ -646,8 +643,10 @@ Logic.Mat.atomic <- function(e1, e2) { ## result will typically be "like" e1:
     if(l2 > 1 && has.x) ## e2 cannot simply be compared with e1@x --> use another method
         return(callGeneric(e1, Matrix(e2, nrow=d[1], ncol=d[2])))
     ## else
+    Udg <- extends(cl1, "triangularMatrix") && e1@diag == "U"
     r0 <- callGeneric(0, e2)
-    r  <- callGeneric(if(has.x) e1@x else TRUE, e2)
+    ## Udg: append the diagonal at *end*, as diagU2N():
+    r  <- callGeneric(if(Udg) c(e1@x,..diag.x(e1)) else if(has.x) e1@x else TRUE, e2)
     ## trivial case first (beware of NA)
     if(isTRUE(all(r0) && all(r))) {
         r <- new(if(d[1] == d[2]) "lsyMatrix" else "lgeMatrix")
@@ -687,7 +686,6 @@ Logic.Mat.atomic <- function(e1, e2) { ## result will typically be "like" e1:
         ## FIXME: remove this test eventually
         if(extends(cl1, "diagonalMatrix")) stop("Logic.Mat.atomic() should not be called for diagonalMatrix")
         remainSparse <- allFalse(r0) ## <==> things remain sparse
-        Udg <- extends(cl1, "triangularMatrix") && e1@diag == "U"
         if(Udg) {          # e1 *is* unit-diagonal (triangular sparse)
             r1 <- callGeneric(1, e2)
             Udg <- all(r1)       # maybe Unit-diagonal (sparse) result
@@ -698,11 +696,7 @@ Logic.Mat.atomic <- function(e1, e2) { ## result will typically be "like" e1:
                 e1 <- .diagU2N(e1, cl = cl1) # otherwise, result is U-diag
                 if(extends(cl1, "CsparseMatrix")) {
                     ## repeat computation if e1 has changed
-                    r  <- callGeneric(if(has.x) e1@x else TRUE, e2)
-                }
-                else {
-                    ## correctly assuming that diagU2N() appends diagonal entries at end
-                    r <- c(r, rep.int(r1, d[1]))
+                    r <- callGeneric(if(has.x) e1@x else TRUE, e2)
                 }
             }
         }
@@ -743,8 +737,8 @@ Logic.Mat.atomic <- function(e1, e2) { ## result will typically be "like" e1:
         else { ## non sparse result
             lClass <- if(extends(cl1, "symmetricMatrix"))
                 "lsyMatrix" else "lgeMatrix"
-            Matrix.msg(sprintf("sparse to dense (%s) coercion in '%s'",
-                               lClass, .Generic))
+            Matrix.msg(sprintf("sparse to dense (%s) coercion in '%s' -> %s",
+                               lClass, .Generic, "Logic.Mat.atomic"), .M.level = 2)
             rx <- rep(r0, length.out = prod(d))
 
             ## Here, we assume that 'r' and the indices align (!)
@@ -926,6 +920,7 @@ for(cl in c("numeric", "logical")) # "complex", "raw" : basically "replValue"
       setMethod("Arith", signature(e1=cl, e2=Mcl),
 		function(e1, e2) callGeneric(e1, as(e2,"dMatrix")))
   }
+rm(cl, Mcl)
 
 ## FIXME: These are really too cheap: currently almost all go via dgC*() :
 ## setMethod("Compare", signature(e1="lgCMatrix", e2="lgCMatrix"),

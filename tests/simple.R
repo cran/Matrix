@@ -70,8 +70,23 @@ if(FALSE) { ## TODO -- once R itself does better ...
     MLp <- Matrix(.Leap.seconds)## --> error (for now)
 }
 
+### Unit-diagonal and unitriangular  {methods need diagU2N() or similar}
 I <- Diagonal(3)
-stopifnot(identical(I != 0, Diagonal(3, TRUE)), I@diag == "U")
+(T <- as(I,"TsparseMatrix")) # unitriangular
+(C <- as(I,"CsparseMatrix")) #   (ditto)
+lT <- as(T,"lMatrix")
+lC <- as(C,"lMatrix")
+stopifnot(
+    identical((n0 <- I != 0), Diagonal(3, TRUE)), I@diag == "U",
+    identical(n0, I & TRUE), identical(n0, I | FALSE),
+    identical(n0, TRUE & I), identical(n0, FALSE | I),
+    all(n0 == !(I == 0)), all(I == n0), identical(n0 == I, I == n0)
+    ,
+    identical4(lT, as(Diagonal(3, x=TRUE),"TsparseMatrix"), T & TRUE, TRUE & T),
+    identical4(lC, as(Diagonal(3, x=TRUE),"CsparseMatrix"), C & TRUE, TRUE & C),
+    identical3(lT, T | FALSE, FALSE | T),
+    identical3(lC, C | FALSE, FALSE | C),
+    TRUE)
 I[,1] <- NA; I[2,2] <- NA ; I[3,] <- NaN
 stopifnot(isValid(I, "sparseMatrix"))
 I # gave error in printSpMatrix() - because of R bug in format.info()
@@ -243,13 +258,13 @@ stopifnot(range(L) == 0:1, all.equal(mean(L), 5/8))
 tu <- t1 ; tu@diag <- "U"
 tu
 validObject(cu <- as(tu, "dtCMatrix"))
-validObject(cnu <- Matrix:::diagU2N(cu))# <- testing diagU2N
+validObject(cnu <- diagU2N(cu))# <- testing diagU2N
 validObject(tu. <- as(cu, "dtTMatrix"))
 validObject(tt <- as(cu, "TsparseMatrix"))
 stopifnot(## NOT: identical(tu, tu.), # since T* is not unique!
 	  identical(cu, as(tu., "dtCMatrix")),
           length(cnu@i) == length(cu@i) + nrow(cu),
-          identical(cu, Matrix:::diagN2U(cnu)),# <- testing diagN2U
+          identical(cu, diagN2U(cnu)),# <- testing diagN2U
 	  all(cu >= 0, na.rm = TRUE), all(cu >= 0),
 	  any(cu >= 7))
 validObject(tcu <- t(cu))
@@ -264,11 +279,11 @@ assert.EQ.mat(cu,  as(tu,"matrix"), tol=0)
 assert.EQ.mat(cnu, as(tu,"matrix"), tol=0)
 
 C <- suppressWarnings(Matrix(c(0,1,0,0), 5,5)) + Diagonal(5)
-(tU <- Matrix:::diagN2U(tril(C))) # dtC Unitriangular
+(tU <- diagN2U(tril(C))) # dtC Unitriangular
 ntU <- as(tU, "nMatrix")
 nT <- as(ntU, "TsparseMatrix")
 R <- as(tU, "RsparseMatrix")
-Tt <- Matrix:::diagU2N(R) # used to accidentally drop the diag.
+Tt <- diagU2N(R) # used to accidentally drop the diag.
 stopifnot(R@x == c(1,1,1), diag(Tt) == 1)
 
 lcu <- new("ltCMatrix", Dim = c(4L, 4L), i = c(0:1, 0L), p = c(0L, 0:3),
@@ -276,7 +291,7 @@ lcu <- new("ltCMatrix", Dim = c(4L, 4L), i = c(0:1, 0L), p = c(0L, 0:3),
 (lTu <- as(lcu,"TsparseMatrix"))# prints wrongly (in Matrix 0.999375-31)
 stopifnot(identical3(rowSums(lcu), rowSums(lTu), rowSums(drop0(lcu))))
 (ncu <- as(lcu, "nMatrix"))# -- gives the "pattern" of lcu, i.e. FALSE are *there*
-ncn <- Matrix:::diagU2N(ncu)
+ncn <- diagU2N(ncu)
 (cncn <- crossprod(ncn))# works -> "nsCMatrix"
 stopifnot(identical(ncu, as(lcu,"nsparseMatrix")),
 	  identical(rowSums(ncu), c(3:1, 1L)),
@@ -295,7 +310,7 @@ stopifnot(validObject(U), ## had a case where solve(U) modified U !
 	  validObject(iU),
 	  validObject(U.),
 	  ## no rounding error, since have iU@x * 8 is integer :
-	  identical(U, Matrix:::diagN2U(drop0(U.))))
+	  identical(U, diagN2U(drop0(U.))))
 
 ## <sparse> o <numeric> (of length > 1):
 stopifnot(isValid(tm <- tu * 1:8, "sparseMatrix"),
@@ -306,6 +321,7 @@ mu <- as(tu,"matrix")
 stopifnot(isValid(cu, "CsparseMatrix"), isValid(cu, "triangularMatrix"),
           isValid(tu, "TsparseMatrix"), isValid(tu, "triangularMatrix"),
           identical(cu * 1:8, tu * 1:8), # but are no longer triangular
+          identical(cu > .1, as(tu > .1, "CsparseMatrix")),
           all(cu >= 0, na.rm=TRUE), !all(cu >= 1), is.na(all(tu >= 0)),
           ## Csparse_drop: preserves triangularity incl diag="U"
           identical(cu, .Call(Matrix:::Csparse_drop, cu, 0.))
@@ -410,7 +426,7 @@ stopifnot(identical(i6, as(cbind(c(-4, rep(1,5))), "dgeMatrix")),
 i.m <- solve(as.mat(m))
 I1 <- m %*% i.m
 o4 <- diag(I1)
-im <- solve(m)
+im <- solve(m)# is now sparse
 (I2 <- m %*% im)
 (ms <- as(m, "symmetricMatrix"))
 ## solve(<sparse>, <sparse>):
@@ -421,7 +437,7 @@ s.ms2 <- solve(ms, ms)
 s.msm <- solve(ms, m)
 I4c <- as(Matrix(diag(4),sparse=TRUE), "generalMatrix")
 stopifnot(isValid(im, "Matrix"), isValid(I2, "Matrix"), class(I4c) == "dgCMatrix",
-          all.equal(I1, I2, tol = 1e-14),
+          all.equal(I1, as(I2,"dgeMatrix"), tol = 1e-14),
           all.equal(diag(4), as.mat(I2), tol = 1e-12),
           all.equal(s.mm,  I2, tol = 1e-14),
           all.equal(s.mms, I2, tol = 1e-14),
@@ -434,7 +450,7 @@ image(T125 <- kronecker(kronecker(t5,t5),t5),
 dim(T3k <- kronecker(t5,kronecker(T125, t5)))
 system.time(IT3 <- solve(T3k))# incredibly fast
 I. <- drop0(zapsmall(IT3 %*% T3k))
-I.. <- Matrix:::diagN2U(I.)
+I.. <- diagN2U(I.)
 I <- Diagonal(5^5)
 stopifnot(isValid(IT3, "dtCMatrix"),
           ## something like the equivalent of  all(I. == Diagonal(3125)) :

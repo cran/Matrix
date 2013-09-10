@@ -4,10 +4,17 @@ setMethod("image", "dsparseMatrix",
 	  function(x, ...) image(as(x, "dgTMatrix"), ...))
 
 setMethod("chol", signature(x = "dsparseMatrix"),
-	   function(x, pivot=FALSE, ...) {
+	   function(x, pivot=FALSE, cache=TRUE, ...) {
+	       nm <- if(pivot) "sPdCholesky" else "spdCholesky"
+	       if(!is.null(ch <- x@factors[[nm]]))
+		   return(ch) ## use the cache
 	       px <- as(x, "symmetricMatrix")
-	       if (isTRUE(validObject(px, test=TRUE)))
-		   chol(as(px, "CsparseMatrix"), pivot=pivot, ...)
+	       if (isTRUE(validObject(px, test=TRUE))) {
+		   if(cache)
+                       .set.factors(x, nm,
+                                    chol(as(px, "CsparseMatrix"), pivot=pivot, ...))
+                   else chol(as(px, "CsparseMatrix"), pivot=pivot, ...)
+               }
 	       else stop("'x' is not positive definite -- chol() undefined.")
 	   })
 
@@ -16,8 +23,10 @@ setMethod("determinant", signature(x = "dsparseMatrix", logarithm = "logical"),
           determinant(as(x,"CsparseMatrix"), logarithm, ...))
 ##-> now dgC or dsC or dtC .. which *have* their methods
 
-setMethod("lu", signature(x = "dsparseMatrix"), # "FIXME": do in C, so can cache 'x@factors$LU'
-	  function(x, ...) lu(as(x, "dgCMatrix"), ...))
+setMethod("lu", signature(x = "dsparseMatrix"),
+	  function(x, cache=TRUE, ...)
+	  if(cache) .set.factors(x, "lu", lu(as(x, "dgCMatrix"), ...))
+	  else lu(as(x, "dgCMatrix"), ...))
 
 
 setMethod("is.finite", signature(x = "dsparseMatrix"),

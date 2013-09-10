@@ -38,13 +38,8 @@
 \alias{rcond,dspMatrix,missing-method}
 \alias{rcond,dsyMatrix,character-method}
 \alias{rcond,dsyMatrix,missing-method}
-\alias{solve,dspMatrix,ddenseMatrix-method}
-\alias{solve,dspMatrix,matrix-method}
-\alias{solve,dspMatrix,missing-method}
-\alias{solve,dsyMatrix,ddenseMatrix-method}
-\alias{solve,dsyMatrix,denseMatrix-method}
-\alias{solve,dsyMatrix,matrix-method}
-\alias{solve,dsyMatrix,missing-method}
+%% \alias{solve,dspMatrix,..-method}
+%% \alias{solve,dsyMatrix,missing-method}--> solve-methods.Rd
 \alias{t,dspMatrix-method}
 \alias{t,dsyMatrix-method}
 \title{Symmetric Dense Numeric Matrices}
@@ -90,10 +85,10 @@
     \item{norm}{\code{signature(x = "dsyMatrix", type = "character")}}
     \item{norm}{\code{signature(x = "dspMatrix", type = "missing")}}
     \item{norm}{\code{signature(x = "dsyMatrix", type = "missing")}}
-    \item{solve}{\code{signature(a = "dspMatrix", b = "missing")}}
-    \item{solve}{\code{signature(a = "dsyMatrix", b = "missing")}}
-    \item{solve}{\code{signature(a = "dspMatrix", b = "matrix")}}
-    \item{solve}{\code{signature(a = "dsyMatrix", b = "matrix")}}
+    \item{solve}{\code{signature(a = "dspMatrix", b = "....")}, and}
+    \item{solve}{\code{signature(a = "dsyMatrix", b = "....")}: \code{x
+	<- solve(a,b)} solves \eqn{A x = b} for \eqn{x}; see
+      \code{\link{solve-methods}}.}
     \item{t}{\code{signature(x = "dsyMatrix")}: Transpose; swaps from
       upper triangular to lower triangular storage, i.e., the uplo slot
       from \code{"U"} to \code{"L"} or vice versa, the same as for all

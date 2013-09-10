@@ -49,15 +49,17 @@ setMethod("forceSymmetric", signature(x="sparseMatrix"),
 	      callGeneric()
 	  })
 
+forceCspSymmetric <- function(x, uplo, isTri = is(x, "triangularMatrix"))
+{
+    ## isTri ==> effectively *diagonal*
+    if(isTri && x@diag == "U")
+	x <- .Call(Csparse_diagU2N, x)
+    if(missing(uplo))
+	uplo <- if(isTri) x@uplo else "U"
+    .Call(Csparse_general_to_symmetric, x, uplo)
+}
 setMethod("forceSymmetric", signature(x="CsparseMatrix"),
-	  function(x, uplo) {
-	      isTri <- is(x, "triangularMatrix")
-	      if (isTri && x@diag == "U")
-		  x <- .Call(Csparse_diagU2N, x)
-	      if(missing(uplo))
-		  uplo <- if(isTri) x@uplo else "U"
-	      .Call(Csparse_general_to_symmetric, x, uplo)
-          })
+	  function(x, uplo) forceCspSymmetric(x, uplo))
 
 
 setMethod("symmpart", signature(x = "symmetricMatrix"), function(x) x)

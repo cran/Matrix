@@ -60,6 +60,12 @@ setMethod("is.na", signature(x = "sparseVector"),
 	  ## x is *not* "nsparse*" as that has own method
 	  function(x) new("nsparseVector", i = x@i[is.na(x@x)], length= x@length))
 
+
+if(getRversion() > "3.1.0") {
+setMethod("anyNA", signature(x = "nsparseVector"), function(x) FALSE)
+setMethod("anyNA", signature(x = "sparseVector"), function(x) anyNA(x@x))
+}
+
 setMethod("is.infinite", signature(x = "nsparseVector"),
 	  function(x) new("nsparseVector", length = x@length))## all FALSE
 setMethod("is.infinite", signature(x = "sparseVector"),

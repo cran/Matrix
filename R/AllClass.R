@@ -538,10 +538,23 @@ setClass("isRMatrix",
 	 )
 }##--not yet--
 
-##-------------------- permutation ----------------------------------------
+##-------------------- index and permutation matrices--------------------------
+
+setClass("indMatrix", representation(perm = "integer"),
+	 contains = c("sparseMatrix", "generalMatrix"),
+	 validity = function(object) {
+	     n <-  object@Dim[1]
+	     d <-  object@Dim[2]
+	     perm <- object@perm
+	     if (length(perm) != n)
+		 return(paste("length of 'perm' slot must be", n))
+	     if(n > 0 && (any(perm > d) | any(perm < 1)))
+		 return("'perm' slot is not a valid index")
+	     TRUE
+	 })
 
 setClass("pMatrix", representation(perm = "integer"),
-	 contains = c("sparseMatrix", "generalMatrix"),
+	 contains = c("indMatrix"),
 	 validity = function(object) {
 	     d <- object@Dim
 	     if (d[2] != (n <- d[1])) return("pMatrix must be square")
@@ -675,6 +688,16 @@ setClass("Schur", contains = "MatrixFactorization",
 ### Class Union :  no inheritance, but is(*, <class>) :
 
 setClassUnion("mMatrix", members = c("matrix", "Matrix"))
+
+## CARE: Sometimes we'd want all those for which 'x' contains all the data.
+##       e.g. Diagonal() is "ddiMatrix" with 'x' slot of length 0, does *not* contain 1
+setClassUnion("xMatrix", ## those Matrix classes with an 'x' slot
+              c("dMatrix",
+                "iMatrix",
+                "lMatrix",
+                "ndenseMatrix",
+                "zMatrix"))
+
 
 ## Definition  Packed := dense with length( . @x) < prod( . @Dim)
 ##	       ~~~~~~

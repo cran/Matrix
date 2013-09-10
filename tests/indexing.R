@@ -161,9 +161,9 @@ m0 <- Matrix(m, nrow = 40)
 m1 <- add.simpleDimnames(m0)
 for(kind in c("n", "l", "d")) {
  for(m in list(m0,m1)) { ## -- with and without dimnames -------------------------
-    kClass <- paste(kind, "Matrix", sep="")
-    Ckind <- paste(kind, "gCMatrix", sep="")
-    Tkind <- paste(kind, "gTMatrix", sep="")
+    kClass <-paste0(kind, "Matrix"  )
+    Ckind <- paste0(kind, "gCMatrix")
+    Tkind <- paste0(kind, "gTMatrix")
     str(mC <- as(m, Ckind))
     str(mT <- as(as(as(m, kClass), "TsparseMatrix"), Tkind))
     mm <- as(mC, "matrix") # also logical or double
@@ -410,8 +410,8 @@ m0 <- Diagonal(5)
 stopifnot(identical(m0[2,], m0[,2]),
 	  identical(m0[,1], c(1,0,0,0,0)))
 ### Diagonal -- Sparse:
-(m1 <- as(m0, "TsparseMatrix")) # dtTMatrix
-(m2 <- as(m0, "CsparseMatrix")) # dtCMatrix
+(m1 <- as(m0, "TsparseMatrix")) # dtTMatrix unitriangular
+(m2 <- as(m0, "CsparseMatrix")) # dtCMatrix unitriangular
 m1g <- as(m1, "generalMatrix")
 stopifnot(is(m1g, "dgTMatrix"))
 assert.EQ.mat(m2[1:3,],    diag(5)[1:3,])
@@ -426,7 +426,9 @@ uTr[1,] <- 0
 assert.EQ.mat(uTr, cbind(0, rbind(0,diag(2))))
 
 M <- m0; M[1,] <- 0
-stopifnot(identical(M, Diagonal(x=c(0, rep(1,4)))))
+Z <- m0; Z[] <- 0; z <- array(0, dim(M))
+stopifnot(identical(M, Diagonal(x=c(0, rep(1,4)))),
+          all(Z == 0), Qidentical(as(Z, "matrix"), z))
 M <- m0; M[,3] <- 3 ; M ; stopifnot(is(M, "sparseMatrix"), M[,3] == 3)
 checkMatrix(M)
 M <- m0; M[1:3, 3] <- 0 ;M
@@ -436,19 +438,23 @@ stopifnot(identical(M, Diagonal(x=c(1,1, 0, 1,1))),
 
 M <- m1; M[1,] <- 0 ; M ; assert.EQ.mat(M, diag(c(0,rep(1,4))), tol=0)
 M <- m1; M[,3] <- 3 ; stopifnot(is(M,"sparseMatrix"), M[,3] == 3)
+Z <- m1; Z[] <- 0
 checkMatrix(M)
 M <- m1; M[1:3, 3] <- 0 ;M
 assert.EQ.mat(M, diag(c(1,1, 0, 1,1)), tol=0)
 T <- m1; T[1:3, 3] <- 10; checkMatrix(T)
-stopifnot(is(T, "triangularMatrix"), identical(T[,3], c(10,10,10,0,0)))
+stopifnot(is(T, "triangularMatrix"), identical(T[,3], c(10,10,10,0,0)),
+	  Qidentical(as(Z, "matrix"), z))
 
 M <- m2; M[1,] <- 0 ; M ; assert.EQ.mat(M, diag(c(0,rep(1,4))), tol=0)
 M <- m2; M[,3] <- 3 ; stopifnot(is(M,"sparseMatrix"), M[,3] == 3)
 checkMatrix(M)
+Z <- m2; Z[] <- 0
 M <- m2; M[1:3, 3] <- 0 ;M
 assert.EQ.mat(M, diag(c(1,1, 0, 1,1)), tol=0)
 T <- m2; T[1:3, 3] <- 10; checkMatrix(T)
-stopifnot(is(T, "dtCMatrix"), identical(T[,3], c(10,10,10,0,0)))
+stopifnot(is(T, "dtCMatrix"), identical(T[,3], c(10,10,10,0,0)),
+	  Qidentical(as(Z, "matrix"), z))
 showProc.time()
 
 

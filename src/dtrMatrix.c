@@ -122,7 +122,7 @@ SEXP dtrMatrix_matrix_mm(SEXP a, SEXP b, SEXP right, SEXP trans)
 	error(_("Matrices are not conformable for multiplication"));
     if (m < 1 || n < 1) {
 /* 	error(_("Matrices with zero extents cannot be multiplied")); */
-	} else /* BLAS */
+    } else /* BLAS */
 	F77_CALL(dtrmm)(rt ? "R" : "L", uplo_P(a),
 			/*trans_A = */ tr ? "T" : "N",
 			diag_P(a), &m, &n, &one,

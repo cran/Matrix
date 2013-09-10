@@ -1,3 +1,4 @@
+
 #ifndef MATRIX_TPMATRIX_H
 #define MATRIX_TPMATRIX_H
 
@@ -16,6 +17,6 @@ SEXP dtpMatrix_solve(SEXP a);
 SEXP dtpMatrix_matrix_solve(SEXP a, SEXP b);
 SEXP dtpMatrix_as_dtrMatrix(SEXP from);
 SEXP dgeMatrix_dtpMatrix_mm(SEXP x, SEXP y);
-SEXP dtpMatrix_matrix_mm(SEXP x, SEXP y);
+SEXP dtpMatrix_matrix_mm(SEXP x, SEXP y, SEXP right, SEXP trans);
 
 #endif /* MATRIX_TPMATRIX_H */

@@ -286,9 +286,10 @@ setMethod("[", signature(x = "sparseMatrix",
 ## x[] <- value :
 setReplaceMethod("[", signature(x = "sparseMatrix", i = "missing", j = "missing",
 				value = "ANY"),## double/logical/...
-	  function (x, value) {
+	  function (x, i,j,..., value) {
 	      if(all0(value)) { # be faster
 		  cld <- getClassDef(class(x))
+		  x <- diagU2N(x, cl = cld)
 		  for(nm in intersect(nsl <- names(cld@slots),
 				      c("x", "i","j", "factors")))
 		      length(slot(x, nm)) <- 0L
@@ -382,7 +383,7 @@ formatSparseM <- function(x, zero.print = ".", align = c("fancy", "right"),
 {
     cld <- getClassDef(class(x))
     if(is.null(asLogical)) {
-        binary <- extends(cld,"nsparseMatrix") || extends(cld, "pMatrix")# -> simple T / F
+        binary <- extends(cld,"nsparseMatrix") || extends(cld, "indMatrix")# -> simple T / F
         asLogical <- { binary || extends(cld,"lsparseMatrix") ||
                        extends(cld,"matrix") && is.logical(x) }
 					# has NA and (non-)structural FALSE
@@ -482,7 +483,7 @@ formatSpMatrix <- function(x, digits = NULL, # getOption("digits"),
         m <- as(x, "matrix")
     }
     dn <- dimnames(m) ## will be === dimnames(cx)
-    binary <- extends(cld,"nsparseMatrix") || extends(cld, "pMatrix") # -> simple T / F
+    binary <- extends(cld,"nsparseMatrix") || extends(cld, "indMatrix") # -> simple T / F
     logi <- binary || extends(cld,"lsparseMatrix") # has NA and (non-)structural FALSE
     cx <- .formatSparseSimple(m, asLogical = logi, digits=digits,
                               col.names=col.names,
@@ -634,6 +635,16 @@ print.sparseSummary <- function (x, ...) {
     print.data.frame(x, ...)
     invisible(x)
 }
+
+
+
+### FIXME [from ../TODO ]: Use cholmod_symmetry() --
+## Possibly even use 'option' as argument here for fast check to use sparse solve !!
+
+##' This case should be particularly fast
+setMethod("isSymmetric", signature(object = "dgCMatrix"),
+	  function(object, tol = 100*.Machine$double.eps, ...)
+	      isTRUE(all.equal(.dgC.0.factors(object), t(object), tol = tol, ...)))
 
 setMethod("isSymmetric", signature(object = "sparseMatrix"),
 	  function(object, tol = 100*.Machine$double.eps, ...) {

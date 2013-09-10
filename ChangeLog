@@ -1,3 +1,15 @@
+2013-08-27 Fabian Scheipl  <fabian.scheipl@stat.uni-muenchen.de>
+
+	* man/indMatrix-class.Rd: new "indMatrix" class, a natural
+	superclass of "pMatrix".  Many methods moved from "pMatrix" to
+	"indMatrix".
+
+2013-05-09  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 1.0-13
+
+	* R/KhatriRao.R: Efficient KhatriRao() by Michael Cysouw
+
 2012-11-10  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* DESCRIPTION (Version): 1.0-11

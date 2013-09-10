@@ -22,6 +22,7 @@ setAs("dsCMatrix", "dgCMatrix",
 for(prefix in c("d", "l", "n"))
     setAs(paste0(prefix,"sCMatrix"), "generalMatrix",
 	  function(from) .Call(Csparse_symmetric_to_general, from))
+rm(prefix)
 
 setAs("dtCMatrix", "dtTMatrix",
       function(from) .Call(Csparse_to_Tsparse, from, TRUE))
@@ -48,25 +49,31 @@ setAs("CsparseMatrix", "denseMatrix",
 setAs("dgCMatrix", "dgeMatrix",
       function(from) .Call(Csparse_to_dense, from))
 
+setAs("dgCMatrix", "vector", function(from) .Call(Csparse_to_vector, from))
+setAs("dsCMatrix", "vector", function(from) .Call(Csparse_to_vector, from))
+setMethod("as.vector", signature(x = "dgCMatrix", mode = "missing"),
+	  function(x, mode) .Call(Csparse_to_vector, x))
+setMethod("as.vector", signature(x = "dsCMatrix", mode = "missing"),
+	  function(x, mode) .Call(Csparse_to_vector, x))
+## could do these and more for as(., "numeric") ... but we *do* recommend  as(*,"vector"):
+## setAs("dgCMatrix", "numeric", Csp2vec)
+## setAs("dsCMatrix", "numeric", Csp2vec)
+
+## |-> cholmod_C -> cholmod_dense -> chm_dense_to_matrix
 ## cholmod_sparse_to_dense converts symmetric storage to general
 ## storage so symmetric classes are ok for conversion to matrix.
 ## unit triangular needs special handling
-setAs("CsparseMatrix", "matrix",
-      function(from) {
-          ## |-> cholmod_C -> cholmod_dense -> chm_dense_to_matrix
-	  .Call(Csparse_to_matrix, .Call(Csparse_diagU2N, from))
-      })
+setAs("dgCMatrix", "matrix", function(from) .Call(Csparse_to_matrix, from))
+setAs("dsCMatrix", "matrix", function(from) .Call(Csparse_to_matrix, from))
+setAs("dtCMatrix", "matrix", function(from)
+      .Call(Csparse_to_matrix, .Call(Csparse_diagU2N, from)))
+## NB: Would *not* be ok for l*Matrix or n*Matrix,
+## --------- as cholmod coerces to "REAL" aka "double"
 
 setAs("CsparseMatrix", "symmetricMatrix",
       function(from) {
-	  if(isSymmetric(from)) {
-	      isTri <- is(from, "triangularMatrix")# i.e. effectively *diagonal*
-	      if (isTri && from@diag == "U")
-		  from <- .Call(Csparse_diagU2N, from)
-	      .Call(Csparse_general_to_symmetric, from,
-		    uplo = if(isTri) from@uplo else "U")
-	  } else
-	  stop("not a symmetric matrix; consider forceSymmetric() or symmpart()")
+	  if(isSymmetric(from)) forceCspSymmetric(from)
+	  else stop("not a symmetric matrix; consider forceSymmetric() or symmpart()")
       })
 
 
@@ -74,6 +81,8 @@ setAs("CsparseMatrix", "symmetricMatrix",
     .Call(Csparse_validate2, x, sort.if.needed)
 ##-> to be used in sparseMatrix(.), e.g. --- but is unused currently
 ## NB: 'sort.if.needed' is called 'maybe_modify' in C -- so be careful
+## more useful:
+.sortCsparse <- function(x) .Call(Csparse_sort, x) ## modifies 'x' !!
 
 ### Some group methods:
 

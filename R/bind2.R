@@ -98,6 +98,17 @@ setMethod("cbind2", signature(x = "denseMatrix", y = "matrix"),
 setMethod("cbind2", signature(x = "matrix", y = "denseMatrix"),
 	  function(x, y) cbind2(as_geSimpl(x), y))
 
+cbind2DN <- function(dnx,dny, ncx,ncy) {
+    ## R and S+ are different in which names they take
+    ## if they differ -- but there's no warning in any case
+    rn <- if(!is.null(dnx[[1]])) dnx[[1]] else dny[[1]]
+    cx <- dnx[[2]] ; cy <- dny[[2]]
+    cn <- if(is.null(cx) && is.null(cy)) NULL
+    else c(if(!is.null(cx)) cx else character(ncx),
+           if(!is.null(cy)) cy else character(ncy))
+    list(rn, cn)
+}
+
 setMethod("cbind2", signature(x = "denseMatrix", y = "denseMatrix"),
 	  function(x, y) {
 	      nr <- rowCheck(x,y)
@@ -109,16 +120,7 @@ setMethod("cbind2", signature(x = "denseMatrix", y = "denseMatrix"),
 	      y <- as(y, geClass(y))
 	      x@x <- c(x@x, y@x)
 	      x@Dim[2] <- ncx + ncy
-	      if(hasDN) {
-		  ## R and S+ are different in which names they take
-		  ## if they differ -- but there's no warning in any case
-		  rn <- if(!is.null(dnx[[1]])) dnx[[1]] else dny[[1]]
-		  cx <- dnx[[2]] ; cy <- dny[[2]]
-		  cn <- if(is.null(cx) && is.null(cy)) NULL
-		  else c(if(!is.null(cx)) cx else character(ncx),
-			 if(!is.null(cy)) cy else character(ncy))
-		  x@Dimnames <- list(rn, cn)
-	      }
+	      if(hasDN) x@Dimnames <- cbind2DN(dnx,dny, ncx,ncy)
 	      x
 	  })
 
@@ -145,27 +147,29 @@ setMethod("rbind2", signature(x = "denseMatrix", y = "matrix"),
 setMethod("rbind2", signature(x = "matrix", y = "denseMatrix"),
 	  function(x, y) rbind2(as_geSimpl(x), y))
 
+rbind2DN <- function(dnx, dny, nrx,nry) {
+    if(!is.null.DN(dnx) || !is.null.DN(dny)) {
+	## R and S+ are different in which names they take
+	## if they differ -- but there's no warning in any case
+	list(if(is.null(rx <- dnx[[1]]) & is.null(ry <- dny[[1]]))
+	     NULL else
+	     c(if(!is.null(rx)) rx else character(nrx),
+	       if(!is.null(ry)) ry else character(nry)),
+	     if(!is.null(dnx[[2]])) dnx[[2]] else dny[[2]])
+    } else list(NULL, NULL)
+}
+
 setMethod("rbind2", signature(x = "denseMatrix", y = "denseMatrix"),
 	  function(x, y) {
 	      nc <- colCheck(x,y)
 	      nrx <- x@Dim[1]
 	      nry <- y@Dim[1]
-	      dn <-
-		  if(!is.null.DN(dnx <- dimnames(x)) |
-		     !is.null.DN(dny <- dimnames(y))) {
-		      ## R and S+ are different in which names they take
-		      ## if they differ -- but there's no warning in any case
-		      list(if(is.null(rx <- dnx[[1]]) & is.null(ry <- dny[[1]]))
-			   NULL else
-			   c(if(!is.null(rx)) rx else character(nrx),
-			     if(!is.null(ry)) ry else character(nry)),
-			   if(!is.null(dnx[[2]])) dnx[[2]] else dny[[2]])
-
-		  } else list(NULL, NULL)
+	      dnx <- dimnames(x)
 	      ## beware of (packed) triangular, symmetric, -> "cheap" (FIXME):
               x <- rbind2(as(x,"matrix"), as(y,"matrix"))
 	      new(paste0(.M.kind(x), "geMatrix"), x = c(x),
-                  Dim = c(nrx + nry, nc), Dimnames = dn)
+		  Dim = c(nrx + nry, nc),
+		  Dimnames = rbind2DN(dnx, dimnames(y), nrx,nry))
 	  })
 
 ## originally from ./diagMatrix.R : --------------------------------------
@@ -381,3 +385,17 @@ setMethod("cbind2", signature(x = "numeric", y = "sparseMatrix"),
           })
 
 }## -- no longer
+
+## Can be made very efficient
+setMethod("rbind2", signature(x = "indMatrix", y = "indMatrix"),
+	  function(x, y) {
+	      dx <- x@Dim
+	      dy <- y@Dim
+	      if(dx[2] != dy[2])
+		  stop(gettextf("Matrices must have same number of columns in %s",
+				deparse(sys.call(sys.parent()))),
+		       call. = FALSE, domain=NA)
+	      new("indMatrix", Dim = c(dx[1]+dy[1], dx[2]),
+		  perm = c(x@perm,y@perm),
+		  Dimnames = rbind2DN(dimnames(x), dimnames(y), dx[1],dy[1]))
+	  })

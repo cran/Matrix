@@ -12,8 +12,8 @@ setMethod("nnzero", "ANY",
 	  function(x, na.counted = NA)	sum(nz.NA(x, na.counted)))
 setMethod("nnzero", "diagonalMatrix",
 	  function(x, na.counted = NA) sum(nz.NA(diag(x), na.counted)))
-setMethod("nnzero", "pMatrix", function(x, na.counted = NA) x@Dim[1])
-## other (not "pMatrix", not "diagonalMatrix") "sparseMatrix":
+setMethod("nnzero", "indMatrix", function(x, na.counted = NA) x@Dim[1])
+## other (not "indMatrix", not "diagonalMatrix") "sparseMatrix":
 setMethod("nnzero", "sparseMatrix",
 	  function(x, na.counted = NA)
       {

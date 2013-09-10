@@ -53,10 +53,12 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(Csparse_diagU2N, 1),
     CALLDEF(Csparse_drop, 2),
     CALLDEF(Csparse_horzcat, 2),
+    CALLDEF(Csparse_sort, 1),
     CALLDEF(Csparse_to_Tsparse, 2),
     CALLDEF(Csparse_to_dense, 1),
     CALLDEF(Csparse_to_nz_pattern, 2),
     CALLDEF(Csparse_to_matrix, 1),
+    CALLDEF(Csparse_to_vector, 1),
     CALLDEF(Csparse_submatrix, 3),
     CALLDEF(dCsparse_subassign, 4),
     CALLDEF(lCsparse_subassign, 4),
@@ -106,7 +108,7 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(ngCMatrix_colSums, 5),
     CALLDEF(dgCMatrix_cholsol, 2),
     /* CALLDEF(dgCMatrix_lusol, 2), */
-    CALLDEF(dgCMatrix_matrix_solve, 2),
+    CALLDEF(dgCMatrix_matrix_solve, 3),
     CALLDEF(dgCMatrix_qrsol, 3),
     CALLDEF(dgTMatrix_to_dgeMatrix, 1),
     CALLDEF(lgTMatrix_to_lgeMatrix, 1),
@@ -143,6 +145,8 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(dppMatrix_rcond, 2),
     CALLDEF(dppMatrix_solve, 1),
     CALLDEF(dppMatrix_validate, 1),
+    CALLDEF(R_chkName_Cholesky, 4),
+    CALLDEF(R_chm_factor_name, 3),
     CALLDEF(dsCMatrix_Cholesky, 5),
     CALLDEF(dsCMatrix_LDL_D, 3),
     CALLDEF(dsCMatrix_chol, 2),
@@ -188,7 +192,7 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(ltpMatrix_getDiag, 1),
     CALLDEF(dtpMatrix_setDiag, 2),
     CALLDEF(ltpMatrix_setDiag, 2),
-    CALLDEF(dtpMatrix_matrix_mm, 2),
+    CALLDEF(dtpMatrix_matrix_mm, 4),
     CALLDEF(dtpMatrix_matrix_solve, 2),
     CALLDEF(dtpMatrix_norm, 2),
     CALLDEF(dtpMatrix_rcond, 2),
@@ -222,8 +226,8 @@ static R_CallMethodDef CallEntries[] = {
 
     CALLDEF(lapack_qr, 2),
 
-    CALLDEF(lcsc_to_matrix, 1),
-    CALLDEF(ncsc_to_matrix, 1),
+    CALLDEF(lgC_to_matrix, 1),
+    CALLDEF(ngC_to_matrix, 1),
 
     CALLDEF(lspMatrix_as_lsyMatrix, 2),
     CALLDEF(lsyMatrix_as_lspMatrix, 2),
@@ -254,6 +258,8 @@ static R_CallMethodDef CallEntries[] = {
 
     CALLDEF(Matrix_rle_i, 2),
     CALLDEF(Matrix_rle_d, 2),
+
+    CALLDEF(R_set_factors, 3),
 
     {NULL, NULL, 0}
 };

@@ -16,7 +16,8 @@ rleMaybe <- function(i, force = FALSE) {
         if(r <- isTRUE(all(is.na(i) | i. == i))) i <- i.
         r }
     ## if(int),  'i' will be coerced to integer on C level
-   .Call(if(int) Matrix_rle_i else Matrix_rle_d, i, force)
+    Matrix.rle <- if(int) Matrix_rle_i else Matrix_rle_d
+    .Call(Matrix.rle, i, force)
 }
 
 .rle <- function(lengths, values)

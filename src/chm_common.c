@@ -830,7 +830,7 @@ SEXP chm_dense_to_SEXP(CHM_DN a, int dofree, int Rkind, SEXP dn)
  * Copy the contents of a to a matrix object and, optionally, free a
  * or free both a and its pointer to its contents.
  *
- * @param a cholmod_dense structure to be converted
+ * @param a cholmod_dense structure to be converted {already REAL for original l..CMatrix}
  * @param dofree 0 - don't free a; > 0 cholmod_free a; < 0 Free a
  * @param dn either R_NilValue or an SEXP suitable for the Dimnames slot.
  *
@@ -838,41 +838,66 @@ SEXP chm_dense_to_SEXP(CHM_DN a, int dofree, int Rkind, SEXP dn)
  */
 SEXP chm_dense_to_matrix(CHM_DN a, int dofree, SEXP dn)
 {
-    SEXP ans;
-    SEXPTYPE typ;
+#define CHM_DENSE_TYPE						\
+    SEXPTYPE typ;						\
+    /* determine the class of the result */			\
+    typ = (a->xtype == CHOLMOD_PATTERN) ? LGLSXP :		\
+	((a->xtype == CHOLMOD_REAL) ? REALSXP :			\
+	 ((a->xtype == CHOLMOD_COMPLEX) ? CPLXSXP : NILSXP));	\
+    if (typ == NILSXP) {					\
+	DOFREE_de_MAYBE;					\
+	error(_("unknown xtype"));				\
+    }
 
     PROTECT(dn);
-				/* determine the class of the result */
-    typ = (a->xtype == CHOLMOD_PATTERN) ? LGLSXP :
-	((a->xtype == CHOLMOD_REAL) ? REALSXP :
-	 ((a->xtype == CHOLMOD_COMPLEX) ? CPLXSXP : NILSXP));
-    if (typ == NILSXP) {
-	DOFREE_de_MAYBE;
-	error(_("unknown xtype"));
+    CHM_DENSE_TYPE;
+
+    SEXP ans = PROTECT(allocMatrix(typ, a->nrow, a->ncol));
+
+#define CHM_DENSE_COPY_DATA						\
+    if (a->d == a->nrow) {	/* copy data slot if present */		\
+	if (a->xtype == CHOLMOD_REAL)					\
+	    Memcpy(REAL(ans), (double *) a->x, a->nrow * a->ncol);	\
+	else if (a->xtype == CHOLMOD_COMPLEX) {				\
+	    DOFREE_de_MAYBE;						\
+	    error(_("complex sparse matrix code not yet written"));	\
+/* 	Memcpy(COMPLEX(ALLOC_SLOT(ans, Matrix_xSym, CPLXSXP, a->nnz)), */ \
+/* 	       (complex *) a->x, a->nz); */				\
+	} else if (a->xtype == CHOLMOD_PATTERN) {			\
+	    DOFREE_de_MAYBE;						\
+	    error(_("don't know if a dense pattern matrix makes sense")); \
+	}								\
+    } else {								\
+	DOFREE_de_MAYBE;						\
+	error(_("code for cholmod_dense with holes not yet written"));	\
     }
 
-    ans = PROTECT(allocMatrix(typ, a->nrow, a->ncol));
-    if (a->d == a->nrow) {	/* copy data slot if present */
-	if (a->xtype == CHOLMOD_REAL)
-	    Memcpy(REAL(ans), (double *) a->x, a->nrow * a->ncol);
-	else if (a->xtype == CHOLMOD_COMPLEX) {
-	    DOFREE_de_MAYBE;
-	    error(_("complex sparse matrix code not yet written"));
-/* 	Memcpy(COMPLEX(ALLOC_SLOT(ans, Matrix_xSym, CPLXSXP, a->nnz)), */
-/* 	       (complex *) a->x, a->nz); */
-	} else if (a->xtype == CHOLMOD_PATTERN) {
-	    DOFREE_de_MAYBE;
-	    error(_("don't know if a dense pattern matrix makes sense"));
-	}
-    } else {
-	DOFREE_de_MAYBE;
-	error(_("code for cholmod_dense with holes not yet written"));
-    }
+    CHM_DENSE_COPY_DATA;
 
     DOFREE_de_MAYBE;
     if (dn != R_NilValue)
         setAttrib(ans, R_DimNamesSymbol, duplicate(dn));
     UNPROTECT(2);
+    return ans;
+}
+
+/**
+ * Copy the contents of a to a numeric R object and, optionally, free a
+ * or free both a and its pointer to its contents.
+ *
+ * @param a cholmod_dense structure to be converted
+ * @param dofree 0 - don't free a; > 0 cholmod_free a; < 0 Free a
+ *
+ * @return SEXP containing a copy of a  in the sense of  as.vector(a)
+ */
+SEXP chm_dense_to_vector(CHM_DN a, int dofree)
+{
+    CHM_DENSE_TYPE;
+
+    SEXP ans = PROTECT(allocVector(typ, a->nrow * a->ncol));
+    CHM_DENSE_COPY_DATA;
+    DOFREE_de_MAYBE;
+    UNPROTECT(1);
     return ans;
 }
 

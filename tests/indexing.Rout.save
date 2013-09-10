@@ -235,9 +235,9 @@ Time elapsed:  0.268 0.001 0.273
 > m1 <- add.simpleDimnames(m0)
 > for(kind in c("n", "l", "d")) {
 +  for(m in list(m0,m1)) { ## -- with and without dimnames -------------------------
-+     kClass <- paste(kind, "Matrix", sep="")
-+     Ckind <- paste(kind, "gCMatrix", sep="")
-+     Tkind <- paste(kind, "gTMatrix", sep="")
++     kClass <-paste0(kind, "Matrix"  )
++     Ckind <- paste0(kind, "gCMatrix")
++     Tkind <- paste0(kind, "gTMatrix")
 +     str(mC <- as(m, Ckind))
 +     str(mT <- as(as(as(m, kClass), "TsparseMatrix"), Tkind))
 +     mm <- as(mC, "matrix") # also logical or double
@@ -828,7 +828,7 @@ Time elapsed:  0.377 0.003 0.384
 > stopifnot(identical(m0[2,], m0[,2]),
 + 	  identical(m0[,1], c(1,0,0,0,0)))
 > ### Diagonal -- Sparse:
-> (m1 <- as(m0, "TsparseMatrix")) # dtTMatrix
+> (m1 <- as(m0, "TsparseMatrix")) # dtTMatrix unitriangular
 5 x 5 sparse Matrix of class "dtTMatrix" (unitriangular)
               
 [1,] 1 . . . .
@@ -836,7 +836,7 @@ Time elapsed:  0.377 0.003 0.384
 [3,] . . 1 . .
 [4,] . . . 1 .
 [5,] . . . . 1
-> (m2 <- as(m0, "CsparseMatrix")) # dtCMatrix
+> (m2 <- as(m0, "CsparseMatrix")) # dtCMatrix unitriangular
 5 x 5 sparse Matrix of class "dtCMatrix" (unitriangular)
               
 [1,] 1 . . . .
@@ -863,7 +863,9 @@ Time elapsed:  0.377 0.003 0.384
 > assert.EQ.mat(uTr, cbind(0, rbind(0,diag(2))))
 > 
 > M <- m0; M[1,] <- 0
-> stopifnot(identical(M, Diagonal(x=c(0, rep(1,4)))))
+> Z <- m0; Z[] <- 0; z <- array(0, dim(M))
+> stopifnot(identical(M, Diagonal(x=c(0, rep(1,4)))),
++           all(Z == 0), Qidentical(as(Z, "matrix"), z))
 > M <- m0; M[,3] <- 3 ; M ; stopifnot(is(M, "sparseMatrix"), M[,3] == 3)
 5 x 5 sparse Matrix of class "dgCMatrix"
               
@@ -905,6 +907,7 @@ symmpart(m) + skewpart(m) == m: ok;  determinant(): ok
 [5,] . . . . 1
 > M <- m1; M[,3] <- 3 ; stopifnot(is(M,"sparseMatrix"), M[,3] == 3)
 M[i,j] <- v :  coercing symmetric M[] into non-symmetric
+> Z <- m1; Z[] <- 0
 > checkMatrix(M)
  norm(m [5 x 5]) : 1  I  F  M  ok
  Summary:  ok
@@ -936,7 +939,8 @@ symmpart(m) + skewpart(m) == m: ok;  determinant(): ok
 diagnosing replTmat(x,i,j,v): nargs()= 3; missing (i,j) = (0,1)
 'sub-optimal sparse 'x[i] <- v' assignment: Coercing class dtTMatrix to dgTMatrix
 as(<triangular (ge)matrix>, dtTMatrix): valid: TRUE 
-> stopifnot(is(T, "triangularMatrix"), identical(T[,3], c(10,10,10,0,0)))
+> stopifnot(is(T, "triangularMatrix"), identical(T[,3], c(10,10,10,0,0)),
++ 	  Qidentical(as(Z, "matrix"), z))
 > 
 > M <- m2; M[1,] <- 0 ; M ; assert.EQ.mat(M, diag(c(0,rep(1,4))), tol=0)
 5 x 5 sparse Matrix of class "dtCMatrix"
@@ -955,6 +959,7 @@ as(., "nMatrix") giving full nonzero-pattern: ok
 m >= m for all: ok
 m < m for none: ok
 symmpart(m) + skewpart(m) == m: ok;  determinant(): ok
+> Z <- m2; Z[] <- 0
 > M <- m2; M[1:3, 3] <- 0 ;M
 5 x 5 sparse Matrix of class "dtCMatrix"
               
@@ -975,7 +980,8 @@ symmpart(m) + skewpart(m) == m: ok;  determinant(): ok
 diagnosing replTmat(x,i,j,v): nargs()= 3; missing (i,j) = (0,1)
 'sub-optimal sparse 'x[i] <- v' assignment: Coercing class dtTMatrix to dgTMatrix
 as(<triangular (ge)matrix>, dtCMatrix): valid: TRUE 
-> stopifnot(is(T, "dtCMatrix"), identical(T[,3], c(10,10,10,0,0)))
+> stopifnot(is(T, "dtCMatrix"), identical(T[,3], c(10,10,10,0,0)),
++ 	  Qidentical(as(Z, "matrix"), z))
 > showProc.time()
 Time elapsed:  1.42 0.013 1.45 
 > 

@@ -1,11 +1,13 @@
 #### Permutation Matrices -- Coercion and Methods
 
+### NB "pMatrix" extends "indMatrix" and inherits methods -->  indMatrix.R
+
+
 ## The typical   'constructor' : coerce from  'index'
 setAs("integer", "pMatrix",
       function(from) {
-          n <- length(from)
           nn <- names(from)
-          new("pMatrix", Dim = rep.int(n, 2), Dimnames = list(nn,nn),
+          new("pMatrix", Dim = rep.int(length(from), 2L), Dimnames = list(nn,nn),
               perm = from)
       })
 
@@ -14,31 +16,7 @@ setAs("numeric", "pMatrix",
 	  if(all(from == (i <- as.integer(from)))) as(i, "pMatrix")
 	  else stop("coercion to \"pMatrix\" only works from integer numeric"))
 
-setAs("pMatrix", "matrix",
-      function(from) {
-	  fp <- from@perm
-	  r <- ldiag(n = length(fp))[fp,]
-	  if(.has.DN(from)) dimnames(r) <- from@Dimnames
-	  r
-      })
 
-## coerce to 0/1 sparse matrix, i.e. sparse pattern
-setAs("pMatrix", "ngTMatrix",
-      function(from) {
-          d <- from@Dim
-	  new("ngTMatrix", i = seq_len(d[1]) - 1L, j = from@perm - 1L,
-              Dim = d, Dimnames = from@Dimnames)
-      })
-
-setAs("pMatrix", "TsparseMatrix", function(from) as(from, "ngTMatrix"))
-setAs("pMatrix", "nMatrix",	  function(from) as(from, "ngTMatrix"))
-setAs("pMatrix", "lMatrix", function(from) as(as(from, "nMatrix"), "lMatrix"))
-setAs("pMatrix", "dMatrix", function(from) as(as(from, "nMatrix"), "dMatrix"))
-setAs("pMatrix", "dsparseMatrix", function(from) as(from, "dMatrix"))
-setAs("pMatrix", "nsparseMatrix", function(from) as(from, "nMatrix"))
-setAs("pMatrix", "CsparseMatrix",
-      function(from) as(as(from, "ngTMatrix"), "CsparseMatrix"))
-setAs("pMatrix", "ngeMatrix", function(from) as(as(from, "ngTMatrix"),"ngeMatrix"))
 
 setAs("nMatrix", "pMatrix",
       function(from) {
@@ -60,12 +38,6 @@ setAs("nMatrix", "pMatrix",
 
 setAs("matrix", "pMatrix", function(from) as(as(from, "nMatrix"), "pMatrix"))
 
-setAs("sparseMatrix", "pMatrix", function(from)
-      as(as(from, "nsparseMatrix"), "pMatrix"))
-setMethod("is.na", signature(x = "pMatrix"), is.na_nsp)
-setMethod("is.infinite", signature(x = "pMatrix"), is.na_nsp)
-setMethod("is.finite", signature(x = "pMatrix"), allTrueMatrix)
-
 setMethod("solve", signature(a = "pMatrix", b = "missing"),
 	  function(a, b, ...) {
               a@perm <- invPerm(a@perm)
@@ -85,8 +57,11 @@ setMethod("solve", signature(a = "Matrix", b = "pMatrix"),
 
 
 setMethod("determinant", signature(x = "pMatrix", logarithm = "logical"),
-	  function(x, logarithm, ...)
-	  mkDet(logarithm=logarithm, ldet = 0, sig = signPerm(x@perm)))
+	  function(x, logarithm, ...) {
+	      if(any(x@Dim == 0)) mkDet(numeric(0))
+	      else mkDet(logarithm=logarithm, ldet = 0, sig = signPerm(x@perm))
+	  })
+
 
 ## t(pM) is == the inverse  pM^(-1):
 setMethod("t", signature(x = "pMatrix"), function(x) solve(x))
@@ -96,11 +71,6 @@ setMethod("%*%", signature(x = "matrix", y = "pMatrix"),
 	  function(x, y) { mmultCheck(x,y); x[, invPerm(y@perm)] })
 setMethod("%*%", signature(x = "Matrix", y = "pMatrix"),
 	  function(x, y) { mmultCheck(x,y); x[, invPerm(y@perm)] })
-
-setMethod("%*%", signature(x = "pMatrix", y = "matrix"),
-	  function(x, y) { mmultCheck(x,y); y[x@perm ,] })
-setMethod("%*%", signature(x = "pMatrix", y = "Matrix"),
-	  function(x, y) { mmultCheck(x,y); y[x@perm ,] })
 
 setMethod("%*%", signature(x = "pMatrix", y = "pMatrix"),
 	  function(x, y) {
@@ -122,10 +92,6 @@ setMethod("crossprod", signature(x = "pMatrix", y = "pMatrix"),
 	      x
 	  })
 
-setMethod("tcrossprod", signature(x = "matrix", y = "pMatrix"),
-	  function(x, y) { mmultCheck(x,y, 3L); x[, y@perm] })
-setMethod("tcrossprod", signature(x = "Matrix", y = "pMatrix"),
-	  function(x, y) { mmultCheck(x,y, 3L); x[, y@perm] })
 setMethod("tcrossprod", signature(x = "pMatrix", y = "pMatrix"),
 	  function(x, y) {
 	      stopifnot(identical(x@Dim, y@Dim))
@@ -139,11 +105,3 @@ setMethod("crossprod", signature(x = "pMatrix", y = "missing"),
 setMethod("tcrossprod", signature(x = "pMatrix", y = "missing"),
           function(x, y=NULL) Diagonal(nrow(x)))
 
-
-.pMat.nosense <- function (x, i, j, ..., value)
-    stop('replacing "pMatrix" entries is not allowed, as rarely sensible')
-setReplaceMethod("[", signature(x = "pMatrix", i = "index"), .pMat.nosense)
-setReplaceMethod("[", signature(x = "pMatrix", i = "missing", j = "index"),
-		 .pMat.nosense) ##   explicit  ^^^^^^^^^^^^ for disambiguation
-setReplaceMethod("[", signature(x = "pMatrix", i = "missing", j = "missing"),
-		 .pMat.nosense)

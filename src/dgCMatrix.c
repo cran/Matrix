@@ -200,14 +200,8 @@ SEXP dgCMatrix_qrsol(SEXP x, SEXP y, SEXP ord)
 	error(_("cs_qrsol() failed inside dgCMatrix_qrsol()"));
 
     /* Solution is only in the first part of ycp -- cut its length back to n : */
-    {
-	SEXP nms = getAttrib(ycp, R_NamesSymbol);
-	SETLENGTH(ycp, xc->n);
-	if(nms != R_NilValue) {
-	    SETLENGTH(nms, xc->n);
-	    setAttrib(ycp, R_NamesSymbol, nms);
-	}
-    }
+    ycp = lengthgets(ycp, (R_len_t) xc->n);
+
     UNPROTECT(1);
     return ycp;
 }
@@ -403,8 +397,21 @@ SEXP dgCMatrix_LU(SEXP Ap, SEXP orderp, SEXP tolp, SEXP error_on_sing)
     return get_factors(Ap, "LU");
 }
 
-SEXP dgCMatrix_matrix_solve(SEXP Ap, SEXP b)
+SEXP dgCMatrix_matrix_solve(SEXP Ap, SEXP b, SEXP give_sparse)
 {
+    Rboolean sparse = asLogical(give_sparse);
+    if(sparse) {
+	// FIXME: implement this
+	error(_("dgCMatrix_matrix_solve(.., sparse=TRUE) not yet implemented"));
+
+	/* Idea: in the  for(j = 0; j < nrhs ..) loop below, build the *sparse* result matrix
+	 * ----- *column* wise -- which is perfect for dgCMatrix
+	 * --> build (i,p,x) slots "increasingly" [well, allocate in batches ..]
+	 *
+	 * --> maybe first a protoype in R
+	 */
+
+    }
     SEXP ans = PROTECT(dup_mMatrix_as_dgeMatrix(b)),
 	lu, qslot;
     CSP L, U;
@@ -432,7 +439,7 @@ SEXP dgCMatrix_matrix_solve(SEXP Ap, SEXP b)
 	cs_pvec(p, ax + j * n, x, n);  /* x = b(p) */
 	cs_lsolve(L, x);	       /* x = L\x */
 	cs_usolve(U, x);	       /* x = U\x */
-	if (q)			       /* b(q) = x */
+	if (q)			       /* r(q) = x , hence r = Q' U{^-1} L{^-1} P b = A^{-1} b */
 	    cs_ipvec(q, x, ax + j * n, n);
 	else
 	    Memcpy(ax + j * n, x, n);

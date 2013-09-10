@@ -72,6 +72,7 @@ SEXP set_double_by_name(SEXP obj, double val, char *nm);
 SEXP as_det_obj(double val, int log, int sign);
 SEXP get_factors(SEXP obj, char *nm);
 SEXP set_factors(SEXP obj, SEXP val, char *nm);
+SEXP R_set_factors(SEXP obj, SEXP val, SEXP name);
 
 #if 0
 SEXP dgCMatrix_set_Dim(SEXP x, int nrow);

@@ -14,13 +14,7 @@
 \alias{coerce,CHMfactor,sparseMatrix-method}
 \alias{coerce,CHMfactor,pMatrix-method}
 \alias{expand,CHMfactor-method}
-\alias{solve,CHMfactor,ddenseMatrix-method}
-\alias{solve,CHMfactor,dsparseMatrix-method}
-\alias{solve,CHMfactor,diagonalMatrix-method}
-\alias{solve,CHMfactor,numeric-method}
-\alias{solve,CHMfactor,matrix-method}
-\alias{solve,CHMfactor,missing-method}
-\alias{solve,CHMfactor,ANY-method}
+%\alias{solve,CHMfactor,...}%--> solve-methods.Rd
 \alias{determinant,CHMfactor,missing-method}
 \alias{determinant,CHMfactor,logical-method}
 \alias{update,CHMfactor-method}
@@ -41,10 +35,9 @@ isLDL(x)
 \S4method{update}{CHMfactor}(object, parent, mult = 0, \dots)
 .updateCHMfactor(object, parent, mult)% otherwise don't mention; for experts
 
-\S4method{solve}{CHMfactor,ddenseMatrix}(a, b,
-      system = c("A", "LDLt", "LD", "DLt", "L", "Lt", "D", "P", "Pt"), \dots)
-
-## and more methods, see below
+## and many more methods, notably,
+##   solve(a, b, system = c("A","LDLt","LD","DLt","L","Lt","D","P","Pt"), ...)
+##   -----    see below
 }
 \arguments{
   \item{x,object,a}{a \code{"CHMfactor"} object (almost always the result
@@ -65,12 +58,6 @@ isLDL(x)
     identity matrix is (implicitly) added to \code{parent} or
     \code{tcrossprod(parent)} before updating the decomposition
     \code{object}.}
-  \item{b}{(for \code{solve()}:) numeric vector or (dense) matrix as RHS
-    of the linear system \eqn{Ax = b}.}
-  \item{system}{(for \code{solve()}:) character string indicating the
-    kind of linear system to be solved.  Note that the default,
-    \code{"A"}, does \emph{not} solve the triangular system (but
-    \code{"L"} does).}
   \item{\dots}{potentially further arguments to the methods.}
 }
 \section{Objects from the Class}{
@@ -136,26 +123,23 @@ isLDL(x)
       is equivalent to \code{image(as(x, "sparseMatrix"))} so the
       comments in the above description of the \code{coerce} method
       apply here too.}
-    \item{solve}{\code{signature(a = "CHMfactor", b = "ddenseMatrix"), system= *}
+    \item{solve}{\code{signature(a = "CHMfactor", b = "ddenseMatrix"), system= *}:
+      %% This is copy-paste  from solve-methods.Rd  {FIXME ?}
       The \code{solve} methods for a \code{"CHMfactor"} object take an
       optional third argument \code{system} whose value can be one of the
       character strings \code{"A"}, \code{"LDLt"}, \code{"LD"},
       \code{"DLt"}, \code{"L"}, \code{"Lt"}, \code{"D"}, \code{"P"} or
       \code{"Pt"}.  This argument describes the system to be solved.  The
       default,  \code{"A"}, is to solve \eqn{Ax = b} for \eqn{x} where
-      \code{A} is sparse, positive-definite matrix that was factored to produce
-      \code{a}.  Analogously, \code{system = "L"} returns the solution
-      \eqn{x}, of \eqn{Lx = b}; similarly, for all system codes
-      \bold{but} \code{"P"} and \code{"Pt"} where, e.g., \code{x <-
-	solve(a, b,system="P")} is equivalent to \code{x <- P \%*\% b}.}
-    \item{solve}{\code{signature(a = "CHMfactor", b = "matrix")}, and}
-    \item{solve}{\code{signature(a = "CHMfactor", b = "numeric")} call
-      the above \code{signature(*, b = "ddenseMatrix")} method.}
+      \code{A} is the sparse, positive-definite matrix that was factored
+      to produce \code{a}.  Analogously, \code{system = "L"} returns the
+      solution \eqn{x}, of \eqn{Lx = b}.
+      Similarly, for all system codes \bold{but} \code{"P"} and \code{"Pt"}
+      where, e.g., \code{x <- solve(a, b,system="P")} is equivalent to
+      \code{x <- P \%*\% b}.
 
-    \item{solve}{\code{signature(a = "CHMfactor", b = "dsparseMatrix")}
-      takes the same third argument \code{system} and calls the
-      corresponding sparse CHOLMOD algorithm.}
-
+      See also \code{\link{solve-methods}}.
+    }
     \item{determinant}{\code{signature(x = "CHMfactor", logarithm =
       "logical")} returns the determinant (or the logarithm of the
       determinant, if \code{logarithm = TRUE}, the default) of the

@@ -324,9 +324,9 @@ stopifnot(is(B2, "dsCMatrix"), # symmetric indexing keeps symmetry
 	  is(z.s <- solve(B2, bb), "sparseMatrix"))
 assert.EQ.mat(B2 %*% z.s, as(bb, "matrix"))
 ## -> dense RHS and dense result
-z. <- solve(as(B2, "dgCMatrix"), bb)
+z. <- solve(as(B2, "dgCMatrix"), bb)# now *sparse*
 z  <- solve( B2, as(bb,"dgeMatrix"))
-stopifnot(identical(z, z.))
+stopifnot(is(z., "sparseMatrix"), all.equal(z, as(z.,"denseMatrix")))
 ## finish calculating conditional variance matrix
 v <- b[3:5,3:5] - crossprod(bb,z)
 stopifnot(all.equal(as.mat(v),
@@ -377,7 +377,15 @@ stopifnot(identical( crossprod(sM), as(t(sM) %*% sM, "symmetricMatrix")),
 	  identical(tcrossprod(sM), forceSymmetric(sM %*% t(sM))))
 assert.EQ.mat( crossprod(sM),  crossprod(sm))
 assert.EQ.mat(tcrossprod(sM), as(tcrossprod(sm),"matrix"))
-
+dm <- as(sm, "denseMatrix")
+## the following 6 products (dm o sM) all failed up to 2013-09-03
+isValid(dm %*% sM,            "CsparseMatrix")## failed {missing coercion}
+isValid(crossprod (dm ,   sM),"CsparseMatrix")
+isValid(tcrossprod(dm ,   sM),"CsparseMatrix")
+dm[2,1] <- TRUE # no longer triangular
+isValid(           dm %*% sM, "CsparseMatrix")
+isValid(crossprod (dm ,   sM),"CsparseMatrix")
+isValid(tcrossprod(dm ,   sM),"CsparseMatrix")
 
 ## A sparse example - with *integer* matrix:
 M <- Matrix(cbind(c(1,0,-2,0,0,0,0,0,2.2,0),
@@ -427,9 +435,35 @@ stopifnot(isValid(tm1, "dsCMatrix"),
 	  identical(P %*% m, as.matrix(P) %*% m),
 	  all(P %*% mm	==  P %*% m),
 	  all(P %*% mm	-   P %*% m == 0),
-	  all(t(mm) %*% P	==  t(m) %*% P),
+	  all(t(mm) %*% P ==  t(m) %*% P),
 	  identical(crossprod(m, P),
 		    crossprod(mm, P)),
 	  TRUE)
+
+d <- function(m) as(m,"dsparseMatrix")
+IM1 <- as(c(3,1,2), "indMatrix")
+IM2 <- as(c(1,2,1), "indMatrix")
+assert.EQ.Mat(crossprod(  IM1,   IM2),
+              crossprod(d(IM1),d(IM2)), tol=0)# failed at first
+
+set.seed(123)
+for(n in 1:250) {
+    n1 <- 2 + rpois(1, 10)
+    n2 <- 2 + rpois(1, 10)
+    N <- rpois(1, 25)
+    ii <- seq_len(N + min(n1,n2))
+    IM1 <- as(c(sample(n1), sample(n1, N, replace=TRUE))[ii], "indMatrix")
+    IM2 <- as(c(sample(n2), sample(n2, N, replace=TRUE))[ii], "indMatrix")
+    ## stopifnot(identical(crossprod(  IM1,    IM2),
+    ##                     crossprod(d(IM1), d(IM2))))
+    if(!identical(C1 <- crossprod(  IM1,    IM2 ),
+                  CC <- crossprod(d(IM1), d(IM2))) &&
+       !all(C1 == CC)) {
+        cat("The two crossprod()s differ: C1 - CC =\n")
+        print(C1 - CC)
+        stop("The two crossprod()s differ!")
+    } else if(n %% 25 == 0) cat(n, " ")
+}; cat("\n")
+
 
 cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''

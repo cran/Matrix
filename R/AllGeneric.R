@@ -3,13 +3,11 @@
 
     setGeneric("expand", function(x, ...) standardGeneric("expand"))
 
-## these two are *not* exported (yet) :
 
-    setGeneric("isDiagonal", function(object, ...)
-               standardGeneric("isDiagonal"))
+setGeneric("isDiagonal", function(object) standardGeneric("isDiagonal"))
 
-    setGeneric("isTriangular", function(object, ...) ## 'upper = NA'
-               standardGeneric("isTriangular"))
+setGeneric("isTriangular", function(object, ...) ## 'upper = NA'
+	   standardGeneric("isTriangular"))
 
 ## isSymmetric is "S3 generic" in R's  base/R/eigen.R
 

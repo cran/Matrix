@@ -86,7 +86,7 @@
 \alias{\%*\%,sparseVector,Matrix-method}
 \alias{crossprod,Matrix,sparseVector-method}
 \alias{crossprod,sparseVector,Matrix-method}
-\alias{solve,Matrix,sparseVector-method}
+%\alias{solve,Matrix,sparseVector-method}--> solve-methods.Rd
 \alias{toeplitz}% only needed if(as.numeric(R.version$`svn rev`) < 60620)
 \alias{toeplitz,sparseVector-method}
 \alias{tcrossprod,Matrix,sparseVector-method}

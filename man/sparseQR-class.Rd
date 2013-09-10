@@ -22,7 +22,7 @@
 \alias{qr.resid,sparseQR,ddenseMatrix-method}
 \alias{qr.resid,sparseQR,matrix-method}
 \alias{qr.resid,sparseQR,numeric-method}
-\alias{solve,sparseQR,ANY-method}
+%\alias{solve,sparseQR,ANY-method}--> solve-methods.Rd
 %
 \description{Objects class \code{"sparseQR"} represent a QR decomposition of a
   sparse \eqn{n \times p}{n x p} rectangular matrix \eqn{X},
@@ -78,9 +78,9 @@
     \item{qr.resid}{\code{signature(qr = "sparseQR", y = "matrix")}: ... }
     \item{qr.resid}{\code{signature(qr = "sparseQR", y = "numeric")}: ... }
 
-    \item{solve}{\code{signature(a = "sparseQR", b = "ANY")}: simply
-      uses \code{qr.coef(a,b)}.}
-	 }
+    \item{solve}{\code{signature(a = "sparseQR", b = "ANY")}: For
+      \code{solve(a,b)}, simply uses \code{qr.coef(a,b)}.}
+  }
 }
 
 %\references{}

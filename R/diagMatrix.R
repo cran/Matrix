@@ -120,7 +120,7 @@ if(FALSE)##--- no longer used:
     ## block-diagonal matrix [a dgTMatrix] from list of matrices
     stopifnot(is.list(lst), (nl <- length(lst)) >= 1)
 
-    Tlst <- lapply(lapply(lst, Matrix:::as_Csp2), # includes "diagU2N"
+    Tlst <- lapply(lapply(lst, as_Csp2), # includes "diagU2N"
 		   as, "TsparseMatrix")
     if(nl == 1) return(Tlst[[1]])
     ## else
@@ -316,7 +316,8 @@ setAs("diagonalMatrix", "generalMatrix", # prefer sparse:
 setAs("diagonalMatrix", "denseMatrix",
       function(from) as(as(from, "CsparseMatrix"), "denseMatrix"))
 
-.diag.x <- function(m) if(m@diag == "U") rep.int(as1(m@x), m@Dim[1]) else m@x
+..diag.x <- function(m)                   rep.int(as1(m@x), m@Dim[1])
+.diag.x  <- function(m) if(m@diag == "U") rep.int(as1(m@x), m@Dim[1]) else m@x
 
 .diag.2N <- function(m) {
     if(m@diag == "U") m@diag <- "N"
@@ -435,6 +436,27 @@ setReplaceMethod("[", signature(x = "diagonalMatrix", i = "index",
                          replDiag(x, i=i, , value=value)
                  })
 
+setReplaceMethod("[", signature(x = "diagonalMatrix", i = "missing",
+				j = "index", value = "replValue"),
+		 function(x,i,j, ..., value) replDiag(x, j=j, value=value))
+
+## x[] <- value :
+setReplaceMethod("[", signature(x = "diagonalMatrix", i = "missing",
+				j = "missing", value = "ANY"),
+		 function(x,i,j, ..., value)
+	     {
+	      if(all0(value)) { # be faster
+		  r <- new(paste0(.M.kindC(getClassDef(class(x))),"tTMatrix"))# of all "0"
+		  r@Dim <- x@Dim
+		  r@Dimnames <- x@Dimnames
+		  r
+	      } else { ## typically non-sense: assigning to full sparseMatrix
+		  x[TRUE] <- value
+		  x
+	      }
+	  })
+
+
 setReplaceMethod("[", signature(x = "diagonalMatrix",
                                 i = "matrix", # 2-col.matrix
 				j = "missing", value = "replValue"),
@@ -463,10 +485,8 @@ setReplaceMethod("[", signature(x = "diagonalMatrix",
 		     }
 		 })
 
-setReplaceMethod("[", signature(x = "diagonalMatrix", i = "missing",
-				j = "index", value = "replValue"),
-		 function(x,i,j, ..., value) replDiag(x, j=j, value=value))
 
+## value = "sparseMatrix":
 setReplaceMethod("[", signature(x = "diagonalMatrix", i = "missing", j = "index",
 				value = "sparseMatrix"),
 		 function (x, i, j, ..., value)
@@ -480,6 +500,7 @@ setReplaceMethod("[", signature(x = "diagonalMatrix", i = "index", j = "index",
 		 function (x, i, j, ..., value)
 		 callGeneric(x=x, i=i, j=j, value = as(value, "sparseVector")))
 
+## value = "sparseVector":
 setReplaceMethod("[", signature(x = "diagonalMatrix", i = "missing", j = "index",
 				value = "sparseVector"),
 		 replDiag)
@@ -494,12 +515,9 @@ setReplaceMethod("[", signature(x = "diagonalMatrix", i = "index", j = "index",
 setMethod("t", signature(x = "diagonalMatrix"),
           function(x) { x@Dimnames <- x@Dimnames[2:1] ; x })
 
-setMethod("isDiagonal", signature(object = "diagonalMatrix"),
-          function(object) TRUE)
-setMethod("isTriangular", signature(object = "diagonalMatrix"),
-          function(object) TRUE)
-setMethod("isSymmetric", signature(object = "diagonalMatrix"),
-	  function(object, ...) TRUE)
+setMethod("isDiagonal",   "diagonalMatrix", function(object) TRUE)
+setMethod("isTriangular", "diagonalMatrix", function(object, ...) TRUE)
+setMethod("isSymmetric",  "diagonalMatrix", function(object, ...) TRUE)
 
 setMethod("symmpart", signature(x = "diagonalMatrix"), function(x) x)
 setMethod("skewpart", signature(x = "diagonalMatrix"), setZero)
@@ -1152,7 +1170,8 @@ setMethod("show", signature(object = "diagonalMatrix"),
 	      }
 	  })
 
-rm(dense.subCl, diCls)# not used elsewhere
+rm(arg1, arg2, other, DI, cl, c1, c2,
+   dense.subCl, diCls)# not used elsewhere
 
 setMethod("summary", signature(object = "diagonalMatrix"),
 	  function(object, ...) {

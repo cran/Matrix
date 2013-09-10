@@ -72,7 +72,7 @@ stopifnot(identical(m2,um2))
 
 ### -> error/warning condition for solve() of a singular matrix (Barry Rowlingson)
 (M <- Matrix(0+ 1:16, nc = 4))
-assertError(solve(M))## -> an error + a warning about singularity -- and caches the LU decomp
+assertError(solve(M), verbose=TRUE)## ".. computationally singular" + warning + caches LU
 assertError(solve(t(M)))
 options(warn=2) # no more warnings allowed from here
 lum <- lu(M, warnSing=FALSE)

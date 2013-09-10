@@ -119,6 +119,10 @@ setMethod("symmpart", signature(x = "matrix"), function(x) (x + t(x))/2)
 setMethod("skewpart", signature(x = "matrix"), function(x) (x - t(x))/2)
 
 
+if(getRversion() > "3.1.0")
+## NB: "nsparseMatrix" has extra method
+setMethod("anyNA", signature(x = "xMatrix"),
+	  function(x) anyNA(x@x))
 
 
 setMethod("dim", signature(x = "Matrix"),
@@ -502,7 +506,7 @@ Summary.np <- function(x, ..., na.rm) {
 ##
 setMethod("Summary", signature(x = "lMatrix", na.rm = "ANY"), Summary.l)
 setMethod("Summary", signature(x = "nMatrix", na.rm = "ANY"), Summary.np)
-setMethod("Summary", signature(x = "pMatrix", na.rm = "ANY"), Summary.np)
+setMethod("Summary", signature(x = "indMatrix", na.rm = "ANY"), Summary.np)
 
 ## NOTE:  "&" and "|"  are now in group "Logic" c "Ops" --> ./Ops.R
 ##        "!" is in ./not.R
@@ -592,6 +596,7 @@ setMethod("[", signature(x = "Matrix", i = "ANY", j = "ANY", drop = "ANY"),
 for(ii in c("lMatrix", "logical"))
     setMethod("[", signature(x = "Matrix", i = ii, j = "missing", drop = "missing"),
 	      .M.sub.i.logical)
+rm(ii)
 
 
 subset.ij <- function(x, ij) {

@@ -119,37 +119,53 @@ SEXP get_factors(SEXP obj, char *nm)
     return R_NilValue;
 }
 
-/* In the past this function installed a duplicate of val in the
+/**
+ * Caches 'val' in the 'factors' slot of obj, i.e. modifies obj, and
+ * returns val.
+ * In the past this function installed a duplicate of
  * factors slot for obj then returned the (typically unprotected)
  * val.  This is now changed to return the duplicate, which will be
- * protected if obj is protected. */
+ * protected if obj is protected.
+*/
 SEXP set_factors(SEXP obj, SEXP val, char *nm)
 {
     SEXP fac = GET_SLOT(obj, Matrix_factorSym),
-	nms = getAttrib(fac, R_NamesSymbol), nfac, nnms;
+	nms = getAttrib(fac, R_NamesSymbol);
     int i, len = length(fac);
 
     if ((!isNewList(fac)) || (length(fac) > 0 && nms == R_NilValue))
 	error(_("'factors' slot must be a named list"));
     PROTECT(val); /* set_factors(..) may be called as "finalizer" after UNPROTECT()*/
+    // if there's already a 'nm' factor, we replace it and return:
     for (i = 0; i < len; i++) {
 	if (!strcmp(nm, CHAR(STRING_ELT(nms, i)))) {
 	    SET_VECTOR_ELT(fac, i, duplicate(val));
+	    UNPROTECT(1);
 	    return val;
 	}
     }
-    nfac = PROTECT(allocVector(VECSXP, len + 1));
-    nnms = PROTECT(allocVector(STRSXP, len + 1));
+    // Otherwise: create a new 'nm' entry in the 'factors' list:
+    // create a list of length (len + 1),
+    SEXP nfac = PROTECT(allocVector(VECSXP, len + 1)),
+	 nnms = PROTECT(allocVector(STRSXP, len + 1));
     setAttrib(nfac, R_NamesSymbol, nnms);
+    // copy all the previous entries,
     for (i = 0; i < len; i++) {
 	SET_VECTOR_ELT(nfac, i, VECTOR_ELT(fac, i));
 	SET_STRING_ELT(nnms, i, duplicate(STRING_ELT(nms, i)));
     }
+    // and add the new entry at the end.
     SET_VECTOR_ELT(nfac, len, duplicate(val));
     SET_STRING_ELT(nnms, len, mkChar(nm));
     SET_SLOT(obj, Matrix_factorSym, nfac);
     UNPROTECT(3);
     return VECTOR_ELT(nfac, len);
+}
+
+// R interface [for updating the '@ factors' slot of a function *argument* [CARE!]
+SEXP R_set_factors(SEXP obj, SEXP val, SEXP name)
+{
+    return set_factors(obj, val, (char *)CHAR(asChar(name)));
 }
 
 #if 0 				/* unused */

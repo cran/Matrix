@@ -345,7 +345,7 @@ aCh.hash <- r12$r.all %*% (2^(2:0))
 if(FALSE)## if(require("sfsmisc"))
 split(rownames(r12$r.all), Duplicated(aCh.hash))
 
-## TODO: find cases for both choices when we leave it to CHOLMOD to chose
+## TODO: find cases for both choices when we leave it to CHOLMOD to choose
 for(n in 1:50) { ## used to seg.fault at n = 10 !
     mkA <- mkLDL(1+rpois(1, 30), 1/10)
     cat(sprintf("n = %3d, LDL-dim = %d x %d ", n, nrow(mkA$A), ncol(mkA$A)))

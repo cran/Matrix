@@ -124,9 +124,9 @@ setMethod("solve", signature(a = "dgCMatrix", b = "dsparseMatrix"),
 	  function(a, b, sparse=FALSE, tol = .Machine$double.eps, ...) {
 	      ## TODO:	 ^^^^^^^^^^^^ rather TRUE [not back compatible] ??
 	      chk.s(...)
-	      if(isSymmetric(a)) # TODO: fast cholmod_symmetric() for Cholesky
-		  solve(forceCspSymmetric(a, isTri=FALSE), b) #-> sparse result
-	      else ## FIXME: be better when sparse=TRUE (?)
+	  ##     if(isSymmetric(a)) # TODO: fast cholmod_symmetric() for Cholesky
+	  ##         solve(forceCspSymmetric(a, isTri=FALSE), b) #-> sparse result
+	  ##     else ## FIXME: be better when sparse=TRUE (?)
 		  .solve.dgC(a, as(b, "denseMatrix"), tol=tol, sparse=sparse)
 	  })
 
@@ -136,10 +136,10 @@ setMethod("solve", signature(a = "dgCMatrix", b = "missing"),
 	  function(a, b, sparse=FALSE, tol = .Machine$double.eps, ...) {
 	      ## TODO:	 ^^^^^^^^^^^^ rather TRUE [not back compatible] ??
 	      chk.s(...)
-	      if(isSymmetric(a)) # TODO: fast cholmod_symmetric() for Cholesky
-		  solve(forceCspSymmetric(a, isTri=FALSE),
-			b = Diagonal(nrow(a))) #-> sparse result
-	      else ## FIXME: be better when sparse=TRUE (?)
+	   ##    if(isSymmetric(a)) # TODO: fast cholmod_symmetric() for Cholesky
+	   ##        solve(forceCspSymmetric(a, isTri=FALSE),
+	   ##      	b = Diagonal(nrow(a))) #-> sparse result
+	   ##    else ## FIXME: be better when sparse=TRUE (?)
 		  ## .solve.dgC(a, b=diag(nrow(a)), sparse)
 		  if(sparse) .solve.sparse.dgC(a, tol=tol) # -> "smart" diagonal b
 	      else .Call(dgCMatrix_matrix_solve, a, b=diag(nrow(a)), FALSE)

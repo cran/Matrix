@@ -54,6 +54,8 @@ leave the for loops, as soon as is_lower == is_upper == 0.
 *** DONE .chkName.CHM(name, perm, LDL, super) and .CHM.factor.name()
 *** TODO use the above
 ** TODO new arg 'cache=FALSE': allow  cache=FALSE to disable the caching
+** TODO cor(<sparseMatrix>) and cov(<sparseMatrix>)  at least for y=NULL ("no y").
+-> ~/R/MM/Pkg-ex/Matrix/cor_sparse-propos.R <- http://stackoverflow.com/questions/5888287/
 * Generalization of Existing Classes and Methods ---------------------------
 ** TODO "Math2" , "Math", "Arith": keep triangular and symmetric
  Matrices when appropriate:

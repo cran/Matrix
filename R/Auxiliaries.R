@@ -136,18 +136,24 @@ attrSlotNames <- function(m, factors = TRUE) {
 attrSlots <- function(m, factors = TRUE) sapply(attrSlotNames(m, factors=factors),
 			 function(sn) slot(m, sn), simplify = FALSE)
 
+##' @return { NULL | TRUE | character | list(.) }
 attr.all_Mat <- function(target, current,
 			 check.attributes = TRUE, factorsCheck = FALSE, ...) {
     msg <- if(check.attributes)
 	all.equal(attrSlots(target,  factors=factorsCheck),
 		  attrSlots(current, factors=factorsCheck),
-		  check.attributes = TRUE, ...)
+		  check.attributes = TRUE, ...) ## else NULL
     if((c1 <- class(target)) != (c2 <- class(current)))
 	## list(): so we can easily check for this
-	list(c(msg, paste0("class(target) is ", c1, ", current is ", c2)))
+	list(c(if(!isTRUE(msg)) msg, paste0("class(target) is ", c1, ", current is ", c2)))
     else msg
 }
 
+##' @return combination for  all.equal() functions in ./Matrix.R & ./sparseMatrix.R
+.a.e.comb <- function(msg, r) {
+    if((is.null(msg) || isTRUE(msg)) & (r.ok <- isTRUE(r))) TRUE
+    else c(if(!isTRUE(msg)) msg, if(!r.ok) r)
+}
 
 
 ## chol() via "dpoMatrix"

@@ -426,7 +426,7 @@ stopifnot(identical(i6, as(cbind(c(-4, rep(1,5))), "dgeMatrix")),
 i.m <- solve(as.mat(m))
 I1 <- m %*% i.m
 o4 <- diag(I1)
-im <- solve(m)# is now sparse
+im <- solve(m)# is now sparse {not yet}
 (I2 <- m %*% im)
 (ms <- as(m, "symmetricMatrix"))
 ## solve(<sparse>, <sparse>):

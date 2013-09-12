@@ -83,6 +83,7 @@ setMethod("mean", signature(x = "Matrix"),
       })
 
 
+## for non-"sparseMatrix" :
 setMethod("cov2cor", signature(V = "Matrix"),
 	  function(V) { ## was as(cov2cor(as(V, "matrix")), "dpoMatrix"))
 	      r <- V
@@ -376,11 +377,10 @@ all.equal_Mat <- function(target, current, check.attributes = TRUE,
 {
     msg <- attr.all_Mat(target, current, check.attributes=check.attributes,
                         factorsCheck=factorsCheck, ...)
-    if(is.list(msg)) return(msg[[1]])
-    ## else
-    r <- all.equal_num(as.vector(target), as.vector(current),
-                       check.attributes=check.attributes, ...)
-    if(is.null(msg) & (r.ok <- isTRUE(r))) TRUE else c(msg, if(!r.ok) r)
+    if(is.list(msg)) msg[[1]]
+    else .a.e.comb(msg,
+		   all.equal_num(as.vector(target), as.vector(current),
+				 check.attributes=check.attributes, ...))
 }
 ## The all.equal() methods for dense matrices (and fallback):
 setMethod("all.equal", c(target = "Matrix", current = "Matrix"),

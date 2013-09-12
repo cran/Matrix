@@ -762,9 +762,7 @@ setMethod("cov2cor", signature(V = "sparseMatrix"),
 	      Is <- sqrt(1/diag(V))
 	      if (any(!is.finite(Is))) ## original had 0 or NA
 		  warning("diag(.) had 0 or NA entries; non-finite result is doubtful")
-	      ## TODO: if  <diagonal> %*% <sparse> was implemented more efficiently
-	      ##       we'd rather use that!
-	      Is <- as(Diagonal(x = Is), "sparseMatrix")
+	      Is <- Diagonal(x = Is)
 	      r <- Is %*% V %*% Is
 	      r[cbind(1:p,1:p)] <- 1 # exact in diagonal
 	      as(r, "symmetricMatrix")
@@ -791,31 +789,28 @@ setMethod("all.equal", c(target = "sparseMatrix", current = "sparseMatrix"),
 	  function(target, current, check.attributes = TRUE, ...)
       {
 	  msg <- attr.all_Mat(target, current, check.attributes=check.attributes, ...)
-	  if(is.list(msg)) return(msg[[1]])
-	  ## else
-	  r <- all.equal(as(target, "sparseVector"), as(current, "sparseVector"),
-			 check.attributes=check.attributes, ...)
-	  if(is.null(msg) & (r.ok <- isTRUE(r))) TRUE else c(msg, if(!r.ok) r)
+	  if(is.list(msg)) msg[[1]]
+	  else .a.e.comb(msg,
+			 all.equal(as(target, "sparseVector"), as(current, "sparseVector"),
+				   check.attributes=check.attributes, ...))
       })
 setMethod("all.equal", c(target = "sparseMatrix", current = "ANY"),
 	  function(target, current, check.attributes = TRUE, ...)
       {
 	  msg <- attr.all_Mat(target, current, check.attributes=check.attributes, ...)
-	  if(is.list(msg)) return(msg[[1]])
-	  ## else
-	  r <- all.equal(as(target, "sparseVector"), current,
-			 check.attributes=check.attributes, ...)
-	  if(is.null(msg) & (r.ok <- isTRUE(r))) TRUE else c(msg, if(!r.ok) r)
+	  if(is.list(msg)) msg[[1]]
+	  else .a.e.comb(msg,
+			 all.equal(as(target, "sparseVector"), current,
+				   check.attributes=check.attributes, ...))
       })
 setMethod("all.equal", c(target = "ANY", current = "sparseMatrix"),
 	  function(target, current, check.attributes = TRUE, ...)
       {
 	  msg <- attr.all_Mat(target, current, check.attributes=check.attributes, ...)
-	  if(is.list(msg)) return(msg[[1]])
-	  ## else
-	  r <- all.equal(target, as(current, "sparseVector"),
-			 check.attributes=check.attributes, ...)
-	  if(is.null(msg) & (r.ok <- isTRUE(r))) TRUE else c(msg, if(!r.ok) r)
+	  if(is.list(msg)) msg[[1]]
+	  else .a.e.comb(msg,
+			 all.equal(target, as(current, "sparseVector"),
+				   check.attributes=check.attributes, ...))
       })
 
 

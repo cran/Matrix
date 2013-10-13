@@ -24,6 +24,8 @@ leave the for loops, as soon as is_lower == is_upper == 0.
 ** DONE generalize new "indMatrix" class, to allow 0 repetitions
  of some samples, i.e., columns of all 0 s. It's mathematically more
  natural --> typically will be useful.
+** TODO cor(<sparseMatrix>) and cov(<sparseMatrix>)  at least for y=NULL ("no y").
+-> ~/R/MM/Pkg-ex/Matrix/cor_sparse-propos.R <- http://stackoverflow.com/questions/5888287/
 ** TODO Investigate the "band changing (and getting) ideas  'band<-' etc,
   from Jeremy D Silver, per posts to R-devel on Aug.26,2011
   {MM: ~/R/MM/Pkg-ex/Matrix/bands-Jeremy_Silver-ex.R }
@@ -53,9 +55,7 @@ leave the for loops, as soon as is_lower == is_upper == 0.
    depends on (perm, LDL, super) arguments:
 *** DONE .chkName.CHM(name, perm, LDL, super) and .CHM.factor.name()
 *** TODO use the above
-** TODO new arg 'cache=FALSE': allow  cache=FALSE to disable the caching
-** TODO cor(<sparseMatrix>) and cov(<sparseMatrix>)  at least for y=NULL ("no y").
--> ~/R/MM/Pkg-ex/Matrix/cor_sparse-propos.R <- http://stackoverflow.com/questions/5888287/
+** TODO partly DONE; new arg 'cache=FALSE': allow  cache=FALSE to disable the caching
 * Generalization of Existing Classes and Methods ---------------------------
 ** TODO "Math2" , "Math", "Arith": keep triangular and symmetric
  Matrices when appropriate:

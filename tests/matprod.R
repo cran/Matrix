@@ -307,27 +307,39 @@ str(r2. <- v2 %*% M)
 stopifnot(identical3(r2, r2., t(as(v2, "matrix")) %*% M))
 
 
-## Sparse Cov.matrices from  Harri Kiiveri @ CSIRO
-a <- matrix(0,5,5)
-a[1,2] <- a[2,3] <- a[3,4] <- a[4,5] <- 1
-a <- a + t(a) + 2*diag(5)
-b <- as(a, "dsCMatrix") ## ok, but we recommend to use Matrix() ``almost always'' :
-(b. <- Matrix(a, sparse = TRUE))
-stopifnot(identical(b, b.))
-
 ###------------------------------------------------------------------
 ### Close to singular matrix W
 ### (from  micEconAids/tests/aids.R ... priceIndex = "S" )
-(load(system.file("external", "symW.rda", package="Matrix")))
+(load(system.file("external", "symW.rda", package="Matrix"))) # "symW"
 stopifnot(is(symW, "symmetricMatrix"))
+n <- nrow(symW)
+I <- .sparseDiagonal(n, shape="g")
+S <- as(symW, "matrix")
+sis <- solve(S,    S)
+## solve(<dsCMatrix>, <sparseMatrix>) when Cholmod fails was buggy for *long*:
+SIS <- solve(symW, symW)
+iw <- solve(symW)
+iss <- iw %*% symW
+##                                     nb-mm3
+assert.EQ.(I, drop0(sis), tol = 1e-9)# 2.6e-10
+assert.EQ.(I, SIS,        tol = 1e-7)# 8.2e-9
+assert.EQ.(I, iss,        tol = 4e-4)# 3.3e-5
+## solve(<dsCMatrix>, <dense..>) :
+I <- diag(nr=n)
+SIS <- solve(symW, as(symW,"denseMatrix"))
+iw  <- solve(symW, I)
+iss <- iw %*% symW
+assert.EQ.mat(SIS, I, tol = 1e-7, giveRE=TRUE)
+assert.EQ.mat(iss, I, tol = 4e-4, giveRE=TRUE)
+rm(SIS,iss)
+
 WW <- as(symW, "generalMatrix") # the one that gave problems
 IW <- solve(WW)
 class(I1 <- IW %*% WW)# "dge" or "dgC" (!)
 class(I2 <- WW %*% IW)
-I <- diag(nr=nrow(WW))
-stopifnot(all.equal(as(I1,"matrix"), I, check.attributes=FALSE, tol = 1e-4),
-          ## "Mean relative difference: 3.296549e-05"  (or "1.999949" for Matrix_1.0-13 !!!)
-          all.equal(as(I2,"matrix"), I, check.attributes=FALSE)) #default tol gives "1" for M.._1.0-13
+## these two were wrong for for M.._1.0-13:
+assert.EQ.(as(I1,"matrix"), I, tol = 1e-4)
+assert.EQ.(as(I2,"matrix"), I, tol = 7e-7)
 
 ## now slightly perturb WW (and hence break exact symmetry
 set.seed(131); ii <- sample(length(WW), size= 100)
@@ -357,22 +369,24 @@ class(Iw2 <- solve(SW2))# FIXME? should be "symmetric" but is not
 class(IW. <- as(Iw., "denseMatrix"))
 class(IW2 <- as(Iw2, "denseMatrix"))
 
-### FIXME {but it's not new}
-all.equal(I, as.matrix(IW. %*% SW.), tol=0, check.attributes=FALSE)## TRUE (or not sparse/dense case)
-## new *AND* old Matrix: 2.000056  -- older bug !!!
-all.equal(I, as.matrix(IW2 %*% SW2), tol=0, check.attributes=FALSE)## TRUE (or not sparse/dense case)
-## new *AND* old Matrix: 2.000048
-##
+### The next two were wrong for very long, too
+assert.EQ.(I, as.matrix(IW. %*% SW.), tol= 4e-4)
+assert.EQ.(I, as.matrix(IW2 %*% SW2), tol= 4e-4)
 dIW <- as(IW, "denseMatrix")
-all.equal(dIW, IW., tol=0, check.attributes=FALSE)
-## [1] "Mean relative difference: 5.964708e-13"
-## new *AND* old Matrix: 1.999562  (~= 2)
-all.equal(dIW, IW2, tol=0, check.attributes=FALSE)## TRUE (or not sparse/dense case)
-## new *AND* old Matrix: 1.999562  (~= 2)
+assert.EQ.(dIW, IW., tol= 4e-4)
+assert.EQ.(dIW, IW2, tol= 8e-4)
 
 ##------------------------------------------------------------------
 
 
+
+## Sparse Cov.matrices from  Harri Kiiveri @ CSIRO
+a <- matrix(0,5,5)
+a[1,2] <- a[2,3] <- a[3,4] <- a[4,5] <- 1
+a <- a + t(a) + 2*diag(5)
+b <- as(a, "dsCMatrix") ## ok, but we recommend to use Matrix() ``almost always'' :
+(b. <- Matrix(a, sparse = TRUE))
+stopifnot(identical(b, b.))
 
 ## calculate conditional variance matrix ( vars 3 4 5 given 1 2 )
 (B2 <- b[1:2, 1:2])
@@ -385,7 +399,7 @@ assert.EQ.mat(B2 %*% z.s, as(bb, "matrix"))
 ## -> dense RHS and dense result
 z. <- solve(as(B2, "dgCMatrix"), bb)# now *sparse*
 z  <- solve( B2, as(bb,"dgeMatrix"))
-stopifnot(TRUE,## FIXME is(z., "sparseMatrix"),
+stopifnot(is(z., "sparseMatrix"),
           all.equal(z, as(z.,"denseMatrix")))
 ## finish calculating conditional variance matrix
 v <- b[3:5,3:5] - crossprod(bb,z)

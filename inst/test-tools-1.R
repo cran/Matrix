@@ -193,6 +193,13 @@ assert.EQ <- function(target, current, tol = if(show) 0 else 1e-15,
     if(!T) stop("all.equal() |-> ", paste(ae, collapse=sprintf("%-19s","\n")))
 }
 
+##' a version with other "useful" defaults (tol, giveRE, check.attr..)
+assert.EQ. <- function(target, current,
+		       tol = if(show) 0 else .Machine$double.eps^0.5,
+		       giveRE = TRUE, show = FALSE, ...) {
+    assert.EQ(target, current, tol=tol, giveRE=giveRE, show=show,
+	      check.attributes=FALSE, ...)
+}
 
 ### ------- Part II  -- related to matrices, but *not* "Matrix" -----------
 

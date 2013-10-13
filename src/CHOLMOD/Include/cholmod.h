@@ -4,7 +4,7 @@
 
 /* -----------------------------------------------------------------------------
  * CHOLMOD/Include/cholmod.h.
- * Copyright (C) 2005-2006, Univ. of Florida.  Author: Timothy A. Davis
+ * Copyright (C) 2005-2013, Univ. of Florida.  Author: Timothy A. Davis
  * CHOLMOD/Include/cholmod.h is licensed under Version 2.1 of the GNU
  * Lesser General Public License.  See lesser.txt for a text of the license.
  * CHOLMOD is also available under other licenses; contact authors for details.
@@ -83,7 +83,7 @@ extern "C" {
 /* assume large file support.  If problems occur, compile with -DNLARGEFILE */
 #include "cholmod_io64.h"
 
-/* #include "SuiteSparse_config.h" */
+#include "SuiteSparse_config.h"
 
 #include "cholmod_config.h"
 
@@ -104,6 +104,10 @@ extern "C" {
 
 #ifndef NMODIFY
 #include "cholmod_modify.h"
+#endif
+
+#ifndef NCAMD
+#include "cholmod_camd.h"
 #endif
 
 #ifndef NPARTITION

@@ -5,6 +5,7 @@
 \alias{Cholesky,sparseMatrix-method}%  coerce
 \alias{Cholesky,nsparseMatrix-method}%  error for now; todo in the future
 \alias{Cholesky,Matrix-method}% <- "good" error message
+\alias{.SuiteSparse_version}
 \title{Cholesky Decomposition of a Sparse Matrix}
 \usage{
 Cholesky(A, perm = TRUE, LDL = !super, super = FALSE, Imult = 0, \dots)
@@ -142,6 +143,8 @@ str(dd <- .diag.dsC(mtm))
 dc <- .diag.dsC(Chx=C1) # <- directly from the Cholesky
 stopifnot(all.equal(dd,dc))
 }%dont
+# Version of the underlying SuiteSparse library by Tim Davis :
+.SuiteSparse_version()
 }
 \keyword{array}
 \keyword{algebra}

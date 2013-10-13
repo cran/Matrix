@@ -551,7 +551,7 @@ csi *cs_counts (const cs *A, const csi *parent, const csi *post, csi ata)
         if (parent [j] != -1) colcount [parent [j]] += colcount [j] ;
     }
     return (cs_idone (colcount, AT, w, 1)) ;    /* success: free workspace */
-}
+} 
 /* p [0..n] = cumulative sum of c [0..n-1], and then copy p [0..n-1] into c */
 double cs_cumsum (csi *p, csi *c, csi n)
 {
@@ -761,7 +761,7 @@ static csi cs_nonzero (csi i, csi j, double aij, void *other)
 csi cs_dropzeros (cs *A)
 {
     return (cs_fkeep (A, &cs_nonzero, NULL)) ;  /* keep all nonzero entries */
-}
+} 
 /* remove duplicate entries from A */
 csi cs_dupl (cs *A)
 {
@@ -1271,7 +1271,7 @@ cs *cs_multiply (const cs *A, const cs *B)
         if (nz + m > C->nzmax && !cs_sprealloc (C, 2*(C->nzmax)+m))
         {
             return (cs_done (C, w, x, 0)) ;             /* out of memory */
-        }
+        } 
         Ci = C->i ; Cx = C->x ;         /* C->i and C->x may be reallocated */
         Cp [j] = nz ;                   /* column j of C starts here */
         for (p = Bp [j] ; p < Bp [j+1] ; p++)
@@ -1371,7 +1371,7 @@ csi cs_print (const cs *A, csi brief)
             (double) n, (double) nzmax, (double) (Ap [n]), cs_norm (A)) ;
         for (j = 0 ; j < n ; j++)
         {
-            Rprintf ("    col %g : locations %g to %g\n", (double) j,
+            Rprintf ("    col %g : locations %g to %g\n", (double) j, 
                 (double) (Ap [j]), (double) (Ap [j+1]-1)) ;
             for (p = Ap [j] ; p < Ap [j+1] ; p++)
             {
@@ -1752,10 +1752,8 @@ css *cs_sqr (csi order, const cs *A, csi qr)
         post = cs_post (S->parent, n) ;
         S->cp = cs_counts (C, S->parent, post, 1) ;  /* col counts chol(C'*C) */
         cs_free (post) ;
-        ok = C && S->parent && S->cp &&
-	    cs_vcount (C, S) ; /* sets S->pinv et al */
+        ok = C && S->parent && S->cp && cs_vcount (C, S) ;
         if (ok) for (S->unz = 0, k = 0 ; k < n ; k++) S->unz += S->cp [k] ;
-        ok = ok && S->lnz >= 0 && S->unz >= 0 ;     /* csi overflow guard */
         if (order) cs_spfree (C) ;
     }
     else

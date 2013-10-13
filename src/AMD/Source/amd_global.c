@@ -76,9 +76,9 @@ void *(*amd_calloc) (size_t, size_t) = NULL ;
 int (*amd_printf) (const char *, ...) = mexPrintf ;
 #else
 #include <stdio.h>
+// For use with R package 'Matrix':
 #include <R_ext/Print.h>
-#define printf Rprintf
-int (*amd_printf) (const char *, ...) = printf ;
+void (*amd_printf) (const char *, ...) = Rprintf ;
 #endif
 #else
 int (*amd_printf) (const char *, ...) = NULL ;

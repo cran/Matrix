@@ -47,7 +47,7 @@ rankMatrix <- function(x, tol = NULL,
 	}#  -------
     }
     if(!useGrad) {
-	x.dense <- is(x,"denseMatrix")
+	x.dense <- is.numeric(x) || is(x,"denseMatrix")
 	findTol <- function() {         # the "Matlab" default:
 	    stopifnot(diff(sval) <= 0)
 	    max(d) * .Machine$double.eps * abs(sval[1])

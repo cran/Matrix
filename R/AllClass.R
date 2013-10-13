@@ -714,7 +714,7 @@ setClassUnion("xMatrix", ## those Matrix classes with an 'x' slot
 ## e.g. for "Arith" methods:
 setClassUnion("numLike", members = c("numeric", "logical"))
 
-setClassUnion("numIndex", members = "numeric")
+##setClassUnion("numIndex", members = "numeric")
 
 ## Note "rle" is a sealed oldClass (and "virtual" as w/o prototype)
 setClass("rleDiff", representation(first = "numLike", rle = "rle"),

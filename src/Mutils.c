@@ -1035,7 +1035,7 @@ SEXP Mmatrix(SEXP args)
 	}
     }
 
- #ifndef LONG_VECTOR_SUPPORT
+#ifndef LONG_VECTOR_SUPPORT
    if ((double)nr * (double)nc > INT_MAX)
 	error(_("too many elements specified"));
 #endif

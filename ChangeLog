@@ -1,3 +1,28 @@
+2013-09-26  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/spModels.R (fac2sparse, fac2Sparse): newly exported; plus
+	'giveCsparse' option.
+
+2013-09-16  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/scripts/0get-SuiteSparse.sh: new download script, for
+	* src/CHOLMOD/*, src/AMD/*, ...: getting SuiteSparse version 4.2.1
+
+	* R/zzz.R (.SuiteSparse_version): new function
+
+2013-09-13  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/dsCMatrix.R (solve.dsC.*): finally fix the long-lasting
+	undetected solve(<dsC>) bug (only in case Cholmod fails) [r2908].
+
+	* DESCRIPTION (Version): 1.0-15, CRAN-released 2013-09-26
+
+2013-09-12  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 1.0-14, CRAN-released 2013-09-12
+	* R/dgCMatrix.R: "stop gap fix" for R 3.0.2: partly revert
+	solve(<sparse>,*) changes in 1.0-13.
+
 2013-08-27 Fabian Scheipl  <fabian.scheipl@stat.uni-muenchen.de>
 
 	* man/indMatrix-class.Rd: new "indMatrix" class, a natural
@@ -6,13 +31,17 @@
 
 2013-05-09  Martin Maechler  <maechler@stat.math.ethz.ch>
 
-	* DESCRIPTION (Version): 1.0-13
+	* DESCRIPTION (Version): 1.0-13, CRAN-released 2013-09-10
 
 	* R/KhatriRao.R: Efficient KhatriRao() by Michael Cysouw
 
+2013-03-26  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 1.0-12, CRAN-released 2013-03-26
+
 2012-11-10  Martin Maechler  <maechler@stat.math.ethz.ch>
 
-	* DESCRIPTION (Version): 1.0-11
+	* DESCRIPTION (Version): 1.0-11, CRAN-released 2013-02-02
 
 	* R/SparseM-conv.R: as(<csr>, "dgCMatrix") now works again
 	* tests/other-pkgs.R: test that.

@@ -27,7 +27,15 @@ extern "C" {
 #define UF_long_id "%" UF_long_idd
 #endif
 
-#define CHOLMOD_DATE "Jan 25, 2011"
+#define CHOLMOD_HAS_VERSION_FUNCTION
+
+#define CHOLMOD_DATE "April 25, 2013"
+#define CHOLMOD_VER_CODE(main,sub) ((main) * 1000 + (sub))
+#define CHOLMOD_MAIN_VERSION 2
+#define CHOLMOD_SUB_VERSION 1
+#define CHOLMOD_SUBSUB_VERSION 2
+#define CHOLMOD_VERSION \
+    CHOLMOD_VER_CODE(CHOLMOD_MAIN_VERSION,CHOLMOD_SUB_VERSION)
 // from ../../src/CHOLMOD/Include/cholmod_core.h - line 275 :
 /* Each CHOLMOD object has its own type code. */
 
@@ -43,8 +51,12 @@ extern "C" {
 
 /* itype defines the types of integer used: */
 #define CHOLMOD_INT 0		/* all integer arrays are int */
-#define CHOLMOD_INTLONG 1	/* most are int, some are UF_long */
-#define CHOLMOD_LONG 2		/* all integer arrays are UF_long */
+#define CHOLMOD_INTLONG 1	/* most are int, some are SuiteSparse_long */
+#define CHOLMOD_LONG 2		/* all integer arrays are SuiteSparse_long */
+
+/* The itype of all parameters for all CHOLMOD routines must match.
+ * FUTURE WORK: CHOLMOD_INTLONG is not yet supported.
+ */
 
 /* dtype defines what the numerical type is (double or float): */
 #define CHOLMOD_DOUBLE 0	/* all numerical values are double */
@@ -74,6 +86,7 @@ extern "C" {
 #define CHOLMOD_OUT_OF_MEMORY (-2)	/* failure: out of memory */
 #define CHOLMOD_TOO_LARGE (-3)		/* failure: integer overflow occured */
 #define CHOLMOD_INVALID (-4)		/* failure: invalid input */
+#define CHOLMOD_GPU_PROBLEM (-5)        /* failure: GPU fatal error */
 #define CHOLMOD_NOT_POSDEF (1)		/* warning: matrix not pos. def. */
 #define CHOLMOD_DSMALL (2)		/* warning: D for LDL'  or diag(L) or */
 					/* LL' has tiny absolute value */
@@ -713,7 +726,7 @@ typedef struct cholmod_sparse_struct
 
 } cholmod_sparse ;
 
-// in ../../src/CHOLMOD/Include/cholmod_core.h  skip forward to - line 1495 :
+// in ../../src/CHOLMOD/Include/cholmod_core.h  skip forward to - line 1554 :
 /* A symbolic and numeric factorization, either simplicial or supernodal.
  * In all cases, the row indices in the columns of L are kept sorted. */
 
@@ -736,6 +749,9 @@ typedef struct cholmod_factor_struct
 
     void *Perm ;	/* size n, permutation used */
     void *ColCount ;	/* size n, column counts for simplicial L */
+
+    void *IPerm ;       /* size n, inverse permutation.  Only created by
+                         * cholmod_solve2 if Bset is used. */
 
     /* ---------------------------------------------------------------------- */
     /* simplicial factorization */
@@ -828,17 +844,17 @@ typedef struct cholmod_factor_struct
      *	    except for the numerical values (x and z).
      */
 
-    int itype ;		/* The integer arrays are Perm, ColCount, p, i, nz,
-			 * next, prev, super, pi, px, and s.  If itype is
-			 * CHOLMOD_INT, all of these are int arrays.
-			 * CHOLMOD_INTLONG: p, pi, px are UF_long, others int.
-			 * CHOLMOD_LONG:    all integer arrays are UF_long. */
-    int xtype ;		/* pattern, real, complex, or zomplex */
-    int dtype ;		/* x and z double or float */
+    int itype ; /* The integer arrays are Perm, ColCount, p, i, nz,
+                 * next, prev, super, pi, px, and s.  If itype is
+		 * CHOLMOD_INT, all of these are int arrays.
+		 * CHOLMOD_INTLONG: p, pi, px are SuiteSparse_long, others int.
+		 * CHOLMOD_LONG:    all integer arrays are SuiteSparse_long. */
+    int xtype ; /* pattern, real, complex, or zomplex */
+    int dtype ; /* x and z double or float */
 
 } cholmod_factor ;
 
-// in ../../src/CHOLMOD/Include/cholmod_core.h  skip forward to - line 1773 :
+// in ../../src/CHOLMOD/Include/cholmod_core.h  skip forward to - line 1836 :
 /* A dense matrix in column-oriented form.  It has no itype since it contains
  * no integers.  Entry in row i and column j is located in x [i+j*d].
  */
@@ -856,7 +872,7 @@ typedef struct cholmod_dense_struct
 
 } cholmod_dense ;
 
-// in ../../src/CHOLMOD/Include/cholmod_core.h  skip forward to - line 1952 :
+// in ../../src/CHOLMOD/Include/cholmod_core.h  skip forward to - line 2033 :
 /* A sparse matrix stored in triplet form. */
 
 typedef struct cholmod_triplet_struct
@@ -871,11 +887,54 @@ typedef struct cholmod_triplet_struct
     void *x ;		/* size nzmax or 2*nzmax, if present */
     void *z ;		/* size nzmax, if present */
 
-    int stype ;		/* symmetry type */
-    //                  [................................]
-    int itype ;		/* CHOLMOD_LONG: i and j are UF_long.  Otherwise int. */
-    int xtype ;		/* pattern, real, complex, or zomplex */
-    int dtype ;		/* x and z are double or float */
+    int stype ;		/* Describes what parts of the matrix are considered:
+			 *
+	* 0:  matrix is "unsymmetric": use both upper and lower triangular parts
+	*     (the matrix may actually be symmetric in pattern and value, but
+	*     both parts are explicitly stored and used).  May be square or
+	*     rectangular.
+	* >0: matrix is square and symmetric.  Entries in the lower triangular
+	*     part are transposed and added to the upper triangular part when
+	*     the matrix is converted to cholmod_sparse form.
+	* <0: matrix is square and symmetric.  Entries in the upper triangular
+	*     part are transposed and added to the lower triangular part when
+	*     the matrix is converted to cholmod_sparse form.
+	*
+	* Note that stype>0 and stype<0 are different for cholmod_sparse and
+	* cholmod_triplet.  The reason is simple.  You can permute a symmetric
+	* triplet matrix by simply replacing a row and column index with their
+	* new row and column indices, via an inverse permutation.  Suppose
+	* P = L->Perm is your permutation, and Pinv is an array of size n.
+	* Suppose a symmetric matrix A is represent by a triplet matrix T, with
+	* entries only in the upper triangular part.  Then the following code:
+	*
+	*	Ti = T->i ;
+	*	Tj = T->j ;
+	*	for (k = 0 ; k < n  ; k++) Pinv [P [k]] = k ;
+	*	for (k = 0 ; k < nz ; k++) Ti [k] = Pinv [Ti [k]] ;
+	*	for (k = 0 ; k < nz ; k++) Tj [k] = Pinv [Tj [k]] ;
+	*
+	* creates the triplet form of C=P*A*P'.  However, if T initially
+	* contains just the upper triangular entries (T->stype = 1), after
+	* permutation it has entries in both the upper and lower triangular
+	* parts.  These entries should be transposed when constructing the
+	* cholmod_sparse form of A, which is what cholmod_triplet_to_sparse
+	* does.  Thus:
+	*
+	*	C = cholmod_triplet_to_sparse (T, 0, &Common) ;
+	*
+	* will return the matrix C = P*A*P'.
+	*
+	* Since the triplet matrix T is so simple to generate, it's quite easy
+	* to remove entries that you do not want, prior to converting T to the
+	* cholmod_sparse form.  So if you include these entries in T, CHOLMOD
+	* assumes that there must be a reason (such as the one above).  Thus,
+	* no entry in a triplet matrix is ever ignored.
+	*/
+
+    int itype ; /* CHOLMOD_LONG: i and j are SuiteSparse_long.  Otherwise int */
+    int xtype ; /* pattern, real, complex, or zomplex */
+    int dtype ; /* x and z are double or float */
 
 } cholmod_triplet ;
 

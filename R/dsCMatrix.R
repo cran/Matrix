@@ -75,18 +75,28 @@ setMethod("triu", "dsCMatrix",
 	      else triu(as(x, "dgCMatrix"), k = k, ...)
 	  })
 
-solve.dsC.mat <- function(a,b, tol) {
+solve.dsC.mat <- function(a,b, tol = .Machine$double.eps) {
     r <- tryCatch(.Call(dsCMatrix_matrix_solve, a, b),
 		  error=function(e)NULL, warning=function(w)NULL)
     if(is.null(r)) { ## cholmod factorization was not ok
-	Matrix.msg("Cholmod Cholesky factorization was unsuccessful --> using LU")
-	if(missing(tol) || is.na(tol)) tol <- 1.# special "code" for 'order := 2' in C
-	e.a <- expand(lu.a <- LU.dgC(as(a,"dgCMatrix"), tol=tol, errSing=TRUE))
-	##  A = PLU  <--> A^{-1} x = U^-1 L^-1 P x
-	solve(e.a$U, solve(e.a$L, b[lu.a@p + 1L,]))
+	Matrix.msg("solve.dsC.mat(): Cholmod factorization unsuccessful --> using LU(<dgC>)")
+	.solve.sparse.dgC(as(a,"dgCMatrix"), b=b, tol=tol)
     }
     else r
 }
+
+## ``Fully-sparse'' solve()  {different Cholmod routine, otherwise "the same"}:
+solve.dsC.dC <- function(a,b, tol = .Machine$double.eps) {
+    r <- tryCatch(.Call(dsCMatrix_Csparse_solve, a, b),
+		  error=function(e)NULL, warning=function(w)NULL)
+    if(is.null(r)) { ## cholmod factorization was not ok
+	Matrix.msg("solve.dsC.dC(): Cholmod factorization unsuccessful --> using LU(<dgC>)")
+	.solve.sparse.dgC(as(a,"dgCMatrix"), b=b, tol=tol)
+    }
+    else r
+}
+
+## <sparse> . <dense> ------------------------
 
 setMethod("solve", signature(a = "dsCMatrix", b = "ddenseMatrix"),
 	  function(a, b, ...) {
@@ -110,19 +120,8 @@ setMethod("solve", signature(a = "dsCMatrix", b = "numeric"),
 	  solve.dsC.mat(a, .Call(dup_mMatrix_as_dgeMatrix, b)),
 	  valueClass = "dgeMatrix")
 
-## ``Fully-sparse'' solve() -- only used here; separate function for debugging etc
-solve.dsC.dC <- function(a,b, tol) {
-    r <- tryCatch(.Call(dsCMatrix_Csparse_solve, a, b),
-		  error=function(e)NULL, warning=function(w)NULL)
-    if(is.null(r)) { ## cholmod factorization was not ok
-	Matrix.msg("Cholmod Cholesky factorization was unsuccessful --> using LU")
-	if(missing(tol) || is.na(tol)) tol <- 1.# special "code" for 'order := 2' in C
-	e.a <- expand(lu.a <- LU.dgC(as(a,"dgCMatrix"), tol=tol, errSing=TRUE))
-	##  A = PLU  <--> A^{-1} x = U^-1 L^-1 P x
-	solve(e.a$U, solve(e.a$L, b[lu.a@p + 1L,]))
-    }
-    else r
-}
+## <sparse> . <sparse> ------------------------
+
 setMethod("solve", signature(a = "dsCMatrix", b = "dsparseMatrix"),
 	  function(a, b, ...) {
 	      cb <- getClassDef(class(b))

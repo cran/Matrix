@@ -26,6 +26,7 @@
  *          function pointers amd_malloc, amd_free, amd_realloc, and
  *          amd_calloc at run-time for AMD to work properly.
  */
+
 // For use with R package 'Matrix':
 #define NPRINT
 

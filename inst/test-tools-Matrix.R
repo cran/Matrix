@@ -330,7 +330,7 @@ checkMatrix <- function(m, m.m = if(do.matrix) as(m, "matrix"),
 			do.matrix = !isSparse || prod(dim(m)) < 1e6,
 			do.t = TRUE, doNorm = TRUE, doOps = TRUE,
                         doSummary = TRUE, doCoerce = TRUE,
-			doCoerce2 = doCoerce && !isRsp,
+			doCoerce2 = doCoerce && !isRsp, doDet = do.matrix,
 			do.prod = do.t && do.matrix && !isRsp,
 			verbose = TRUE, catFUN = cat)
 {
@@ -473,7 +473,7 @@ checkMatrix <- function(m, m.m = if(do.matrix) as(m, "matrix"),
 	if(!isInd && !isRsp &&
            !(extends(cld, "TsparseMatrix") && Matrix:::is_duplicatedT(m, di = d)))
                                         # 'diag<-' is does not change attrib:
-	    stopifnot(identical(m, m.d))
+	    stopifnot(Qidentical(m, m.d))# e.g., @factors may differ
     }
     else if(!identical(m, m.d)) { # dense : 'diag<-' is does not change attrib
 	if(isTri && m@diag == "U" && m.d@diag == "N" &&
@@ -540,8 +540,10 @@ checkMatrix <- function(m, m.m = if(do.matrix) as(m, "matrix"),
 		CatF("symmpart(m) + skewpart(m) == m: ")
 		Q.eq.symmpart(m)
 		CatF("ok;  determinant(): ")
-		if(any(is.na(m.m)) && extends(cld, "triangularMatrix"))
-		    Cat(" skipped: is triang. and has NA")
+		if(!doDet)
+		    Cat(" skipped (!doDet): ")
+		else if(any(is.na(m.m)) && extends(cld, "triangularMatrix"))
+		    Cat(" skipped: is triang. and has NA: ")
 		else
 		    stopifnot(eqDeterminant(m, m.m, NA.Inf.ok=TRUE))
 		Cat("ok\n")

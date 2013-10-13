@@ -186,7 +186,6 @@ The easiest---but not at memory resources efficient---way is to go via the
 dense \Rfun{model.matrix} result:
 <<npk_ex>>=
 data(npk, package="MASS")
-
 npk.mf <- model.frame(yield ~ block + N*P*K, data = npk)
 ## str(npk.mf) # the data frame + "terms" attribute
 

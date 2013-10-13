@@ -3,6 +3,13 @@
 
 Rboolean isValid_Csparse(SEXP x); /* -> Csparse.c */
 
+SEXP get_SuiteSparse_version() {
+    SEXP ans = allocVector(INTSXP, 3);
+    int* version = INTEGER(ans);
+    SuiteSparse_version(version);
+    return ans;
+}
+
 cholmod_common c;
 cholmod_common cl;
 

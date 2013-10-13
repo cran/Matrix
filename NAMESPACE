@@ -2,28 +2,32 @@ useDynLib(Matrix, .registration=TRUE)
 
 ## Import non-base functions we need explicitly,
 ## notably for which we define methods:
-importFrom("lattice", levelplot)
+importFrom("lattice", levelplot, panel.levelplot.raster)
 importFrom("graphics", image)
 importFrom("utils", head, tail, assignInNamespace)
 importFrom("stats", cov2cor, toeplitz, update#, vcov
-           )
+	   )
 
 importFrom("grid", grid.rect, gpar, grob)# others via 'grid::'
 
+## try to import all we need, but not more
 importFrom("methods",
 	   ## still needed {group generics needed to be explicitly imported} ?
 	   Ops, Arith, Compare, Logic, Math, Math2, Summary, Complex,
-           ## generics for which we export new methods:
+	   ## generics for which we export new methods:
 	   cbind2, rbind2, coerce, show
 	   , kronecker
 	   ## things we call,.. necessary when Matrix is loaded, but not attached, as in
-           ## Rscript --vanilla -e 'require(methods);(M <- Matrix::Matrix(0:1,3,3));as(M,"sparseMatrix")'
-	   , is, as, new
-	   )
+	   ## Rscript --vanilla -e 'require(methods);(M <- Matrix::Matrix(0:1,3,3));as(M,"sparseMatrix")'
+	   , callGeneric, as, is, extends, new
+	   , getClass, getClassDef, validObject
+	   , setClass, setClassUnion, setMethod, setOldClass
+	   , setValidity, slot, "slot<-"
+	   , signature, representation, prototype)
 
 
 ## Generics and functions defined in this package
-export("Cholesky",
+export("Cholesky", ".SuiteSparse_version",
        "Diagonal", ".symDiagonal", ".sparseDiagonal",
        "Hilbert", "KhatriRao",
        "Matrix",
@@ -39,12 +43,13 @@ export("Cholesky",
        ## "rowMeans", "rowSums",
        "condest", "onenormest",
        "det",# << "identical" as base - but with correct determinant()
+       ## "mkDet", # <- useful in other packages (Rmpfr, gmp) .. hmm --> 'stats' ?
        ".diag.dsC",# -> R/dsCMatrix.R --has FIXME
-       "diagN2U", "diagU2N", ".diagU2N",
+       "diagN2U", "diagU2N", ".diagU2N", ".diag2tT", ".diag2sT",
        "drop0",
        "expand",
        "expm",
-       "facmul",
+       "facmul", "fac2sparse", "fac2Sparse",
        "forceSymmetric",
        "isTriangular",
        "isDiagonal",
@@ -72,7 +77,6 @@ export("Cholesky",
        "pack", "unpack"
        , ".updateCHMfactor"
        , ".validateCsparse"
-#        "writeHB",
        , "writeMM"
        )
 if(getRversion() < "2.15.0")
@@ -84,13 +88,13 @@ export("cBind",
 
 
 exportClasses(
-              ## Class unions:
+	      ## Class unions:
 	      "index",
 	      "replValue", # if we don't export it, things fail in dispatch
 	      "atomicVector",
 	      "number",
 ## LOGIC      "logic",
-              "abIndex", "rleDiff",
+	      "abIndex", "rleDiff",
 
 	      ## --- 'Matrix' mother and all its daughters : ---------------
 	      "Matrix",
@@ -172,7 +176,7 @@ exportClasses(
 	      "ntTMatrix",
 
 	      "indMatrix",
-          "pMatrix",
+	  "pMatrix",
 
 	      "corMatrix", # unused
 
@@ -201,7 +205,7 @@ exportClasses(
 	      "nCHMsimpl",# unused
 
 	      "sparseQR",
-## 	      "SPQR",
+##	      "SPQR",
 
 	      "Schur",
 
@@ -227,10 +231,10 @@ exportMethods(## for both own and "other" generics:
 	      "Ops",
 	      "Summary",
 
-              ## re-export S4 methods, for "stats"-S3-generics:
-              "cov2cor",
-              "toeplitz",
-              "update",
+	      ## re-export S4 methods, for "stats"-S3-generics:
+	      "cov2cor",
+	      "toeplitz",
+	      "update",
 
 	      "!",
 	      "+",# for dgT(Matrix) only
@@ -251,7 +255,7 @@ exportMethods(## for both own and "other" generics:
 	      "as.logical",
 	      "band",
 	      "chol",
-              "chol2inv",
+	      "chol2inv",
 	      "colMeans",
 	      "colSums",
 	      "coerce",
@@ -263,24 +267,22 @@ exportMethods(## for both own and "other" generics:
 	      "dim<-",
 	      "dimnames",
 	      "dimnames<-",
-              "drop",
+	      "drop",
 	      "expand",
 	      "expm",
-              "format",
+	      "format",
 	      "head",
 	      "image",
 	      "forceSymmetric",
 	      "isSymmetric",
-##	       "isDiagonal",
-##	       "isTriangular",
 	      "is.na",
 	      "is.finite", "is.infinite",
 	      "kronecker",
 	      "length",
-              "mean",
+	      "mean",
 	      "norm",
-              "nnzero",
-              "print",# print(x, ...) when show(x) is not sufficient
+	      "nnzero",
+	      "print",# print(x, ...) when show(x) is not sufficient
 	      "qr",
 	      "qr.R", "qr.Q",
 	      "qr.qy",
@@ -296,16 +298,16 @@ exportMethods(## for both own and "other" generics:
 	      "solve",
 ##               "spqr",
 	      "summary",
-              "symmpart",
-              "skewpart",
+	      "symmpart",
+	      "skewpart",
 	      "t",
 	      "tail",
 	      "tcrossprod",
 	      "tril",
 	      "triu",
 	      "updown",
-              "unname",
-              "which",
+	      "unname",
+	      "which",
 	      "zapsmall"
 	      )
 if(getRversion() > "3.1.0")

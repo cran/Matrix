@@ -156,6 +156,23 @@ stopifnot(all.equal(ncr, ncF))# norm type does not matter at all in this example
 ## cov2cor() does not just fix it up equivalently :
 norm(pr - cov2cor(ncr$mat)) # = 0.09994
 norm(pr -       ncr.1$mat)  # = 0.08746 / 0.08805
+
+### 3) a real data example from a 'systemfit' model (3 eq.):
+(load(system.file("external", "symW.rda", package="Matrix"))) # "symW"
+dim(symW) #  24 x 24
+class(symW)# "dsCMatrix": sparse symmetric
+if(dev.interactive())  image(symW)
+EV <- eigen(symW, only=TRUE)$values
+summary(EV) ## looking more closely {EV sorted decreasingly}:
+tail(EV)# all 6 are negative
+EV2 <- eigen(sWpos <- nearPD(symW)$mat, only=TRUE)$values
+stopifnot(EV2 > 0)
+if(require("sfsmisc")) {
+       plot(pmax(1e-3,EV), EV2, type="o", log="xy", xaxt="n",yaxt="n")
+       eaxis(1); eaxis(2)
+} else plot(pmax(1e-3,EV), EV2, type="o", log="xy")
+abline(0,1, col="red3",lty=2)
+
 }
 \keyword{algebra}
 \keyword{array}

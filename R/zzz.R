@@ -23,3 +23,8 @@ rBind <- methods:::rbind
 {
     library.dynam.unload("Matrix", libpath)
 }
+
+.SuiteSparse_version <- function() {
+    ssv <- .Call(get_SuiteSparse_version)
+    package_version(list(major = ssv[1], minor = paste(ssv[2:3], collapse=".")))
+}

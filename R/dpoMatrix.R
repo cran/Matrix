@@ -8,13 +8,16 @@ setAs("dpoMatrix", "dppMatrix",
 
 setAs("dpoMatrix", "corMatrix",
       function(from) {
+	  if(!is.null(cm <- from@factors$correlation)) return(cm)
+          ## else 
 	  sd <- sqrt(diag(from))
 	  if(is.null(names(sd)) && !is.null(nms <- from@Dimnames[[1]]))
 	      names(sd) <- nms
 	  Is <- Diagonal(x = 1/sd)
-	  new("corMatrix", as(forceSymmetric(Is %*% from %*% Is),
-			      "dpoMatrix"),
-	      sd = unname(sd))
+	  .set.factors(from, "correlation",
+		       new("corMatrix", as(forceSymmetric(Is %*% from %*% Is),
+					   "dpoMatrix"),
+			   sd = unname(sd)))
       })
 
 setAs("dpoMatrix", "lMatrix",

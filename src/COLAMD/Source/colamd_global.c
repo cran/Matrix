@@ -18,8 +18,7 @@ int (*colamd_printf) (const char *, ...) = mexPrintf ;
 #include <stdio.h>
 // For use with R package 'Matrix':
 #include <R_ext/Print.h>
-#define printf Rprintf
-int (*colamd_printf) (const char *, ...) = printf ;
+void (*colamd_printf) (const char *, ...) = Rprintf ;
 #endif
 #else
 int (*colamd_printf) (const char *, ...) = ((void *) 0) ;

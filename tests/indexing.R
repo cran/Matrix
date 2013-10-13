@@ -211,6 +211,93 @@ for(kind in c("n", "l", "d")) {
 }## end{for}---------------------------------------------------------------
 showProc.time()
 
+if(doExtras) {### {was ./AAA_index.R, MM-only}
+    ## an nsparse-example
+    A <- Matrix(c(rep(c(1,0,0),2), rep(c(2,0),7), c(0,0,2), rep(0,4)), 3,9)
+    i <- c(3,1:2)
+    j <- c(3, 5, 9, 5, 9)
+    vv <- logical(length(i)*length(j)); vv[6:9] <- TRUE
+
+    print(An <- as(A,"nMatrix")); an <- as(An, "matrix")
+    assert.EQ.mat(An, an)
+    An[i, j] <- vv
+    an[i, j] <- vv
+    assert.EQ.mat(An, an)## error
+    if(!all(An == an)) show(drop0(An - an))
+    ## all are +1
+
+    options("Matrix.subassign.verbose" = TRUE)# output from C
+    An <- as(A,"nMatrix"); An[i, j] <- vv
+    ## and compare with this:
+    Al <- as(A,"lMatrix"); Al[i, j] <- vv
+    options("Matrix.subassign.verbose" = FALSE)
+
+    ##--- An interesting not small not large example  for  M[i,j] <- v ------------
+    ##
+    M <- Matrix(c(1, rep(0,7), 1:4), 3,4)
+    N0 <- kronecker(M,M)
+    mkN1 <- function(M) {
+        stopifnot(length(d <- dim(M)) == 2)
+        isC <- is(M,"CsparseMatrix")
+        M[,d[2]] <- c(0,2,0)
+        N <- kronecker(diag(x=1:2), M)## remains sparse if 'M' is
+        if(isC) N <- as(N, "CsparseMatrix")
+        diag(N[-1,]) <- -2
+        N[9,]  <- 1:4   # is recycled
+        N[,12] <- -7:-9 # ditto
+        N
+    }
+
+    show(N1 <- t(N <- mkN1(N0)))    # transpose {for display reasons}
+    C1 <- t(C <- mkN1(as(N0,"CsparseMatrix")))
+    stopifnot(all(C == N))
+    assert.EQ.mat(C, mkN1(as.matrix(N0)))
+
+    C. <- C1
+    show(N <- N1) ; n <- as.matrix(N); str(N)
+    sort(i <- c(6,8,19,11,21,20,10,7,12,9,5,18,17,22,13))## == c(5:13, 17:22))
+    sort(j <- c(3,8,6,15,10,4,14,13,16,2,11,17,7,5))## == c(2:8, 10:11, 13:17)
+    val <- v.l <- 5*c(0,6,0,7,0,0,8:9, 0,0)
+    show(spv <- as(val, "sparseVector")); str(spv)
+
+    n [i,j] <- v.l
+    N [i,j] <- val# is recycled, too
+    C.[i,j] <- val
+    assert.EQ.mat(N,n) ; stopifnot(all(C. == N))
+    ## and the same *again*:
+    n [i,j] <- v.l
+    N [i,j] <- val
+    C.[i,j] <- val
+    assert.EQ.mat(N,n)
+    stopifnot(all(C. == N))
+
+    print(load(system.file("external", "symA.rda", package="Matrix"))) # "As"
+    stopifnot(isValid(As, "dsCMatrix"), identical(As@factors, list()))
+    R. <- drop0(chol(As))
+    stopifnot(1:32 == sort(diag(R.)), ## !
+              R.@x == as.integer(R.@x),## so it is an integer-valued chol-decomp !
+              ## shows that (1) As is *not* singular  (2) the matrix is not random
+              all.equal(crossprod(R.), As, tol=1e-15))
+    print(summary(evA <- eigen(As, only.values=TRUE)$val))
+    print(tail(evA)) ## largest three ~= 10^7,  smallest two *negative*
+    print(rcond(As)) # 1.722 e-21 == very bad !
+    ##-> this *is* a border line case, i.e. very close to singular !
+    ## and also determinant(.) is rather random here!
+    cc0 <- Cholesky(As)# no problem
+    try({
+        cc <- Cholesky(As, super=TRUE)
+        ## gives --on 32-bit only--
+        ## Cholmod error 'matrix not positive definite' at file:../Supernodal/t_cholmod_super_numeric.c, line 613
+        ecc <- expand(cc)
+        L.P <- with(ecc, crossprod(L,P))  ## == L'P
+        ## crossprod(L.P) == (L'P)' L'P == P'LL'P
+        stopifnot( all.equal(crossprod(L.P), As) )
+    })
+    ##---- end{ eigen( As ) -----------
+
+} ## only if(doExtras)
+
+
 ##---- Symmetric indexing of symmetric Matrix ----------
 m. <- mC
 m.[, c(2, 7:12)] <- 0
@@ -837,7 +924,9 @@ cat("checkMatrix() of all: \n---------\n")
 Sys.setlocale("LC_COLLATE", "C")# to keep ls() reproducible
 for(nm in ls()) if(is(.m <- get(nm), "Matrix")) {
     cat(nm, "\n")
-    checkMatrix(.m, verbose = FALSE)
+    checkMatrix(.m, verbose = FALSE
+		, doDet = nm != "As" ## <- "As" almost singular <=> det() "ill posed"
+		)
 }
 showProc.time()
 }#--------------end if(doExtras) -----------------------------------------------

@@ -70,6 +70,41 @@ if(FALSE) { ## TODO -- once R itself does better ...
     MLp <- Matrix(.Leap.seconds)## --> error (for now)
 }
 
+E <- rep(c(TRUE,NA,TRUE), length=8)
+F <- new("nsparseVector", length = 8L, i = c(2L, 5L, 8L))
+e <- as(E, "sparseVector"); f <- as(F,"lsparseVector")
+stopifnot(E | as.vector(F), identical(E | F, F | E),
+          all(e | f), all(E | F)) # <- failed  Ops.spv.spv
+
+dT <- new("dgTMatrix",
+	  i = c(1:2,1:2), j=rep(1:2, each=2), Dim = c(4L, 4L), x = c(1, 1, NA, 2))
+dt <- new("dtTMatrix", i = 0:3, j = 0:3, Dim = c(4L, 4L), x = c(1,0,0,0),
+	  uplo = "U", diag = "N")
+c1 <- as(dT, "CsparseMatrix")
+c2 <- as(dt, "CsparseMatrix")
+isValid(lc <- c1 > c2,"lgCMatrix")
+isValid(lt <- dT > dt,"lgCMatrix")
+stopifnot(identical(lc,lt))
+
+M <- Diagonal(4); M[1,2] <- 2 ; M
+cM <- crossprod(M) # >> as_cholmod_l_triplet(): could not reallocate for internal diagU2N()
+stopifnot(identical(cM, tcrossprod(t(M))))
+
+if(doExtras) { ## formerly in MM-only's ./AAA_latest.R
+    ## 2010-11-29 --- prompted by BDR:
+    mlp <- matrix(.leap.seconds)## 24 x 1 numeric matrix
+    Mlp <- Matrix(.leap.seconds)
+    assert.EQ.mat(Mlp, mlp)
+
+    S.na <- spMatrix(3, 4, c(1,2,3), c(2,3,3), c(NA,1,0))
+    show(S.na <- S.na - 2 * S.na)
+    show(L <- S.na != 0)
+
+    M0 <- Matrix(0, 3, 4)
+    show(Ln0 <- S.na != rep(0, prod(dim(L))))
+    stopifnot(Q.eq(L, Ln0), identical(Ln0, M0 != S.na))
+}## (doExtras) only
+
 ### Unit-diagonal and unitriangular  {methods need diagU2N() or similar}
 I <- Diagonal(3)
 (T <- as(I,"TsparseMatrix")) # unitriangular

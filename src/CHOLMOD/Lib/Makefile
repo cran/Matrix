@@ -38,7 +38,8 @@ CORE = cholmod_aat.o cholmod_add.o cholmod_band.o \
 	cholmod_change_factor.o cholmod_common.o cholmod_complex.o \
 	cholmod_copy.o cholmod_dense.o cholmod_error.o cholmod_factor.o \
 	cholmod_memory.o cholmod_sparse.o \
-	cholmod_transpose.o cholmod_triplet.o
+	cholmod_transpose.o cholmod_triplet.o \
+        cholmod_version.o
 
 CHECK = cholmod_check.o cholmod_read.o cholmod_write.o
 
@@ -69,7 +70,8 @@ LCORE = cholmod_l_aat.o cholmod_l_add.o cholmod_l_band.o \
 	cholmod_l_change_factor.o cholmod_l_common.o cholmod_l_complex.o \
 	cholmod_l_copy.o cholmod_l_dense.o cholmod_l_error.o \
 	cholmod_l_factor.o cholmod_l_memory.o \
-	cholmod_l_sparse.o cholmod_l_transpose.o cholmod_l_triplet.o
+	cholmod_l_sparse.o cholmod_l_transpose.o cholmod_l_triplet.o \
+        cholmod_l_version.o
 
 LCHECK = cholmod_l_check.o cholmod_l_read.o cholmod_l_write.o
 
@@ -173,6 +175,9 @@ cholmod_aat.o: ../Core/cholmod_aat.c
 cholmod_add.o: ../Core/cholmod_add.c
 	$(CC) $(ALL_CPPFLAGS) $(ALL_CFLAGS) -c ../Core/cholmod_add.c -o $@
 
+cholmod_version.o: ../Core/cholmod_version.c
+	$(CC) $(ALL_CPPFLAGS) $(ALL_CFLAGS) -c ../Core/cholmod_version.c -o $@
+
 #-------------------------------------------------------------------------------
 
 cholmod_l_common.o: ../Core/cholmod_common.c
@@ -217,6 +222,9 @@ cholmod_l_aat.o: ../Core/cholmod_aat.c
 
 cholmod_l_add.o: ../Core/cholmod_add.c
 	$(C) -DDLONG -c $(I) ../Core/cholmod_add.c -o $@
+
+cholmod_l_version.o: ../Core/cholmod_version.c
+	$(C) -DDLONG -c $(I) ../Core/cholmod_version.c -o $@
 
 
 #-------------------------------------------------------------------------------

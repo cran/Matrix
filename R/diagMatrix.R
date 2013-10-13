@@ -251,29 +251,29 @@ setMethod("is.infinite", signature(x = "diagonalMatrix"),
 ## "hack"  instead of signature  x = "diagonalMatrix" :
 ##
 ## ddi*:
-diag2tT <- function(from) .diag2tT(from, "U", "d")
-setAs("ddiMatrix", "triangularMatrix", diag2tT)
-##_no_longer_ setAs("ddiMatrix", "sparseMatrix", diag2tT)
+di2tT <- function(from) .diag2tT(from, "U", "d")
+setAs("ddiMatrix", "triangularMatrix", di2tT)
+##_no_longer_ setAs("ddiMatrix", "sparseMatrix", di2tT)
 ## needed too (otherwise <dense> -> Tsparse is taken):
-setAs("ddiMatrix", "TsparseMatrix", diag2tT)
-setAs("ddiMatrix", "dsparseMatrix", diag2tT)
+setAs("ddiMatrix", "TsparseMatrix", di2tT)
+setAs("ddiMatrix", "dsparseMatrix", di2tT)
 setAs("ddiMatrix", "CsparseMatrix",
       function(from) as(.diag2tT(from, "U", "d"), "CsparseMatrix"))
 setAs("ddiMatrix", "symmetricMatrix",
       function(from) .diag2sT(from, "U", "d"))
 ##
 ## ldi*:
-diag2tT <- function(from) .diag2tT(from, "U", "l")
-setAs("ldiMatrix", "triangularMatrix", diag2tT)
-##_no_longer_ setAs("ldiMatrix", "sparseMatrix", diag2tT)
+di2tT <- function(from) .diag2tT(from, "U", "l")
+setAs("ldiMatrix", "triangularMatrix", di2tT)
+##_no_longer_ setAs("ldiMatrix", "sparseMatrix", di2tT)
 ## needed too (otherwise <dense> -> Tsparse is taken):
-setAs("ldiMatrix", "TsparseMatrix", diag2tT)
-setAs("ldiMatrix", "lsparseMatrix", diag2tT)
+setAs("ldiMatrix", "TsparseMatrix", di2tT)
+setAs("ldiMatrix", "lsparseMatrix", di2tT)
 setAs("ldiMatrix", "CsparseMatrix",
       function(from) as(.diag2tT(from, "U", "l"), "CsparseMatrix"))
 setAs("ldiMatrix", "symmetricMatrix",
       function(from) .diag2sT(from, "U", "l"))
-
+rm(di2tT)
 
 setAs("diagonalMatrix", "nMatrix",
       function(from) {
@@ -564,7 +564,7 @@ diagdiagprod <- function(x, y) {
 	}
 	return(x)
     } else ## x is unit diagonal
-    return(y)
+	return(y)
 }
 
 setMethod("%*%", signature(x = "diagonalMatrix", y = "diagonalMatrix"),
@@ -654,24 +654,30 @@ setMethod("%*%", signature(x = "denseMatrix", y = "diagonalMatrix"),
 ## 	  function(x, y = NULL) {
 ##           })
 
+##' @param x CsparseMatrix
+##' @param y diagonalMatrix
+##' @return x %*% y
 Cspdiagprod <- function(x, y) {
     dx <- dim(x <- .Call(Csparse_diagU2N, x))
     dy <- dim(y)
     if(dx[2] != dy[1]) stop("non-matching dimensions")
-    if(y@diag == "N") {
+    if(y@diag == "N") { ## otherwise: y == Diagonal(n) : multiplication is identity
 	if(!all(y@x[1L] == y@x[-1L]) && is(x, "symmetricMatrix"))
 	    x <- as(x, "generalMatrix")
 	ind <- rep.int(seq_len(dx[2]), x@p[-1] - x@p[-dx[2]-1L])
 	x@x <- x@x * y@x[ind]
-    }
-    if(is(x, "compMatrix") && length(xf <- x@factors)) {
-        ## instead of dropping all factors, be smart about some
-	## TODO ......
-	x@factors <- list()
+	if(is(x, "compMatrix") && length(xf <- x@factors)) {
+	    ## instead of dropping all factors, be smart about some
+	    ## TODO ......
+	    x@factors <- list()
+	}
     }
     x
 }
 
+##' @param x diagonalMatrix
+##' @param y CsparseMatrix
+##' @return x %*% y
 diagCspprod <- function(x, y) {
     dx <- dim(x)
     dy <- dim(y <- .Call(Csparse_diagU2N, y))
@@ -680,15 +686,16 @@ diagCspprod <- function(x, y) {
 	if(!all(x@x[1L] == x@x[-1L]) && is(y, "symmetricMatrix"))
 	    y <- as(y, "generalMatrix")
 	y@x <- y@x * x@x[y@i + 1L]
-    }
-    if(is(y, "compMatrix") && length(yf <- y@factors)) {
-	## instead of dropping all factors, be smart about some
-	## TODO
-	keep <- character()
-	if(iLU <- names(yf) == "LU") {
-	    ## TODO keep <- "LU"
-	}
-	y@factors <- yf[keep]
+        if(is(y, "compMatrix") && length(yf <- y@factors)) {
+            ## TODO
+            if(FALSE) { ## instead of dropping all factors, be smart about some
+                keep <- character()
+                if(any(iLU <- names(yf) == "LU")) {
+                    keep <- "LU"
+                }
+                y@factors <- yf[keep]
+            } else y@factors <- list() ## for now
+        }
     }
     y
 }
@@ -722,11 +729,15 @@ setMethod("tcrossprod", signature(x = "sparseMatrix", y = "diagonalMatrix"),
 setMethod("%*%", signature(x = "diagonalMatrix", y = "CsparseMatrix"),
 	  function(x, y) diagCspprod(x, y))
 
+## instead of "sparseMatrix", use: [RT]sparse.. ("closer" in method dispatch)
+for(cl in c("TsparseMatrix", "RsparseMatrix")) {
+
 setMethod("%*%", signature(x = "diagonalMatrix", y = "sparseMatrix"),
 	  function(x, y) diagCspprod(as(x, "CsparseMatrix"), y))
 
 setMethod("%*%", signature(x = "sparseMatrix", y = "diagonalMatrix"),
 	  function(x, y) Cspdiagprod(as(x, "CsparseMatrix"), y))
+}
 
 setMethod("%*%", signature(x = "CsparseMatrix", y = "diagonalMatrix"),
 	  function(x, y) Cspdiagprod(x, y))

@@ -46,8 +46,12 @@
 }
 \section{Objects from the Class}{
   Objects can be created by calls of the form \code{new("dsCMatrix",
-    ...)} or \code{new("dsTMatrix", ...)} or (for \code{dsCMatrix}) also
-  automatically from \code{\link{Matrix}(.)}.
+    ...)} or \code{new("dsTMatrix", ...)}, or automatically via e.g.,
+  \code{as(*, "symmetricMatrix")}, or (for \code{dsCMatrix}) also
+  from \code{\link{Matrix}(.)}.
+
+  Creation \dQuote{from scratch} most efficiently happens via
+  \code{\link{sparseMatrix}(*, symmetric=TRUE)}.
 }
 \section{Slots}{
   \describe{

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Matrix 1.0-9\n"
 "Report-Msgid-Bugs-To: bugs.r-project.org\n"
-"POT-Creation-Date: 2013-03-26 16:27\n"
+"POT-Creation-Date: 2013-12-23 21:27\n"
 "PO-Revision-Date: 2012-08-22 08:17+0100\n"
 "Last-Translator: Łukasz Daniel <lukasz.daniel@gmail.com>\n"
 "Language-Team: Łukasz Daniel <lukasz.daniel@gmail.com>\n"
@@ -123,6 +123,20 @@ msgstr "jeszcze niezaimplementowane dla klasy"
 msgid "not a triangular matrix"
 msgstr "to nie jest macierz trójkątną"
 
+# Recommended/Matrix/R/dsyMatrix.R: 8
+# stop("not a symmetric matrix; consider forceSymmetric() or symmpart()")
+# Recommended/Matrix/R/ldenseMatrix.R: 65
+# stop("not a symmetric matrix; consider forceSymmetric() or symmpart()")
+# Recommended/Matrix/R/dgTMatrix.R: 37
+# stop("not a symmetric matrix; consider forceSymmetric() or symmpart()")
+# Recommended/Matrix/R/Csparse.R: 71
+# stop("not a symmetric matrix; consider forceSymmetric() or symmpart()")
+# Recommended/Matrix/R/ndenseMatrix.R: 77
+# stop("not a symmetric matrix; consider forceSymmetric() or symmpart()")
+msgid "not a symmetric matrix; consider forceSymmetric() or symmpart()"
+msgstr ""
+"to nie jest macierz symetryczna; rozważ 'forceSymmetric()' lub 'symmpart()'"
+
 # Recommended/Matrix/R/Auxiliaries.R: 775
 # stop("not yet implemented for matrix w/ typeof ", typeof(x))
 # Recommended/Matrix/R/Auxiliaries.R: 788
@@ -163,20 +177,6 @@ msgstr ""
 
 msgid "update must be TRUE/FALSE or '+' or '-'"
 msgstr "'update' musi wynosić TRUE/FALSE lub '+' lub '-'"
-
-# Recommended/Matrix/R/dsyMatrix.R: 8
-# stop("not a symmetric matrix; consider forceSymmetric() or symmpart()")
-# Recommended/Matrix/R/ldenseMatrix.R: 65
-# stop("not a symmetric matrix; consider forceSymmetric() or symmpart()")
-# Recommended/Matrix/R/dgTMatrix.R: 37
-# stop("not a symmetric matrix; consider forceSymmetric() or symmpart()")
-# Recommended/Matrix/R/Csparse.R: 71
-# stop("not a symmetric matrix; consider forceSymmetric() or symmpart()")
-# Recommended/Matrix/R/ndenseMatrix.R: 77
-# stop("not a symmetric matrix; consider forceSymmetric() or symmpart()")
-msgid "not a symmetric matrix; consider forceSymmetric() or symmpart()"
-msgstr ""
-"to nie jest macierz symetryczna; rozważ 'forceSymmetric()' lub 'symmpart()'"
 
 # Recommended/Matrix/R/Csparse.R: 184
 # stop("Matrix-internal error in <CsparseM>[i,,d]; please report")
@@ -476,6 +476,13 @@ msgstr ""
 msgid "m[ <ij-matrix> ]: inefficiently indexing single elements"
 msgstr "m[ <ij-matrix> ]: nieefektywne indeksowanie pojedynczych elementów"
 
+# Recommended/Matrix/R/Matrix.R: 667
+# stop(gettextf(
+# 		"nargs() = %d.  Extraneous illegal arguments inside '[ .. ]' (i.2col)?",
+# 			 nA))
+msgid "nargs() = %d.  Extraneous illegal arguments inside '[ .. ]' (i.2col)?"
+msgstr "nargs() = %d.  Obce nielegalne argumenty wewnątrz '[ .. ]' (i.2col)?"
+
 # Recommended/Matrix/R/Matrix.R: 656
 # stop(".M.sub.i.2col(): 'i' has no integer column number;\n
 # 		 "should never happen; please report")
@@ -495,13 +502,6 @@ msgid "such indexing must be by logical or 2-column numeric matrix"
 msgstr ""
 "takie indeksowanie musi być wykonane poprzez macierz logiczną lub 2-"
 "kolumnową macierz liczbową"
-
-# Recommended/Matrix/R/Matrix.R: 667
-# stop(gettextf(
-# 		"nargs() = %d.  Extraneous illegal arguments inside '[ .. ]' (i.2col)?",
-# 			 nA))
-msgid "nargs() = %d.  Extraneous illegal arguments inside '[ .. ]' (i.2col)?"
-msgstr "nargs() = %d.  Obce nielegalne argumenty wewnątrz '[ .. ]' (i.2col)?"
 
 # Recommended/Matrix/R/Matrix.R: 690
 # stop(".M.repl.i.2col(): 'i' has no integer column number;\n
@@ -690,11 +690,6 @@ msgstr "niepoprawna klasa:"
 msgid "not-yet-implemented coercion to \"TsparseMatrix\""
 msgstr "jeszcze niezaimplementowane przekształcenie na 'TsparseMatrix'"
 
-# Recommended/Matrix/R/Tsparse.R: 123
-# stop("'NA' indices are not (yet?) supported for sparse Matrices")
-msgid "'NA' indices are not (yet?) supported for sparse Matrices"
-msgstr "indeksy 'NA' nie są (jeszcze?) wspierane dla rzadkich macierzy"
-
 # Recommended/Matrix/R/sparseVector.R: 357
 # stop("you cannot mix negative and positive indices")
 # Recommended/Matrix/R/sparseVector.R: 424
@@ -709,6 +704,11 @@ msgstr "nie można mieszać ujemnych oraz dodatnich indeksów"
 #, fuzzy
 msgid "index larger than maximal %d"
 msgstr "indeks dłuższy niż maksymalny możliwy"
+
+# Recommended/Matrix/R/Tsparse.R: 123
+# stop("'NA' indices are not (yet?) supported for sparse Matrices")
+msgid "'NA' indices are not (yet?) supported for sparse Matrices"
+msgstr "indeksy 'NA' nie są (jeszcze?) wspierane dla rzadkich macierzy"
 
 # Recommended/Matrix/R/Tsparse.R: 138
 # stop(gettextf("logical subscript too long (%d, should be %d)",
@@ -756,7 +756,8 @@ msgstr "wewnętrzny błąd: macierz 'i' w 'replTmat()': proszę zgłosić raport
 # warning(gettextf("x[.] <- val: x is \"%s\", val not in {TRUE, FALSE} is coerced%s.",
 # 			     clx, if(iNA) " NA |--> TRUE" else ""))
 #, fuzzy
-msgid "x[.] <- val: x is %s, val not in {TRUE, FALSE} is coerced NA |--> TRUE."
+msgid ""
+"x[.] <- val: x is %s, val not in {TRUE, FALSE} is coerced; NA |--> TRUE."
 msgstr ""
 "x[.] <- wartość: 'x' to '%s', wartość nie w zakresie {TRUE, FALSE} zostaje "
 "przekształcona %s."
@@ -816,11 +817,6 @@ msgstr "indeksy wiersza muszą być <= 'nrow(.)' który wynosi"
 #, fuzzy
 msgid "column indices must be <= ncol(.) which is %d"
 msgstr "indeksy kolumn muszą być <= 'ncol(.)' który wynosi"
-
-# Recommended/Matrix/R/Tsparse.R: 725
-# warning("duplicate ij-entries in 'Matrix[ ij ] <- value'; using last")
-msgid "duplicate ij-entries in 'Matrix[ ij ] <- value'; using last"
-msgstr "powtórzone wpisy 'ij' w 'Matrix[ ij ] <- value'; używanie ostatniego"
 
 # Recommended/Matrix/R/abIndex.R: 13
 # stop("'force' must be (coercable to) TRUE or FALSE")
@@ -1017,6 +1013,10 @@ msgstr "wymiary nie zgadzają się z liczbą komórek"
 msgid "invalid nargs()= %d"
 msgstr "niepoprawne nargs()="
 
+msgid ""
+"LU computationally singular: ratio of extreme entries in |diag(U)| = %9.4g"
+msgstr ""
+
 # Recommended/Matrix/R/dgTMatrix.R: 20
 # stop("cannot coerce non-symmetric dgTMatrix to dsCMatrix class")
 #, fuzzy
@@ -1142,12 +1142,48 @@ msgid "inefficient coercion (lost triangularity); please report"
 msgstr ""
 "nieefektywne przekształcenie (utracono trójkątność); proszę zgłosić raport"
 
+# Recommended/Matrix/R/indMatrix.R: 15
+# stop("coercion to 'indMatrix' only works from integer numeric")
+#, fuzzy
+msgid "coercion to \"indMatrix\" only works from integer numeric"
+msgstr "przekształcenie na 'indMatrix' działa jedynie dla liczb całkowitych"
+
+msgid ""
+"coercion from list(i1,...,ik, d) to \"indMatrix\" failed.\n"
+" All entries must be integer valued and the number of columns, d, not "
+"smaller\n"
+" than the maximal index i*."
+msgstr ""
+
+# Recommended/Matrix/R/pMatrix.R: 47
+# stop("not a square matrix")
+#, fuzzy
+msgid "not a skinny matrix"
+msgstr "to nie jest macierz kwadratowa"
+
+# Recommended/Matrix/R/pMatrix.R: 49
+# stop("the number of non-zero entries differs from nrow(.)")
+msgid "the number of non-zero entries differs from nrow(.)"
+msgstr "liczba niezerowych wpisów różni się od 'nrow(.)'"
+
+# Recommended/Matrix/R/pMatrix.R: 55
+# stop("must have exactly one non-zero entry per row")
+msgid "must have exactly one non-zero entry per row"
+msgstr "potrzeba mieć dokładnie jeden niezerowy wpis na wiersz"
+
 # Recommended/Matrix/R/kronecker.R: 37
 # stop("kronecker method must use default 'FUN'")
 # Recommended/Matrix/R/kronecker.R: 55
 # stop("kronecker method must use default 'FUN'")
 msgid "kronecker method must use default 'FUN'"
 msgstr "metoda kroneckera musi użyć domyślnej 'FUN'"
+
+# Recommended/Matrix/R/pMatrix.R: 147
+# stop('replacing "pMatrix" entries is not allowed, as rarely sensible')
+msgid "replacing \"indMatrix\" entries is not allowed, as rarely sensible"
+msgstr ""
+"zastępowanie wpisów w 'indMatrix' jest niedozwolone, ponieważ jest to rzadko "
+"sensowne"
 
 # Recommended/Matrix/R/lMatrix.R: 8
 # stop("\"lMatrix\" object with NAs cannot be coerced to \"nMatrix\"")
@@ -1177,8 +1213,6 @@ msgid "temporarily disabled"
 msgstr "tymczasowo niedostępne"
 
 # Recommended/Matrix/R/pMatrix.R: 15
-# stop("coercion to 'pMatrix' only works from integer numeric")
-#, fuzzy
 msgid "coercion to \"pMatrix\" only works from integer numeric"
 msgstr "przekształcenie na 'pMatrix' działa jedynie dla liczb całkowitych"
 
@@ -1187,36 +1221,19 @@ msgstr "przekształcenie na 'pMatrix' działa jedynie dla liczb całkowitych"
 msgid "not a square matrix"
 msgstr "to nie jest macierz kwadratowa"
 
-# Recommended/Matrix/R/pMatrix.R: 49
-# stop("the number of non-zero entries differs from nrow(.)")
-msgid "the number of non-zero entries differs from nrow(.)"
-msgstr "liczba niezerowych wpisów różni się od 'nrow(.)'"
-
-# Recommended/Matrix/R/pMatrix.R: 55
-# stop("must have exactly one non-zero entry per row")
-msgid "must have exactly one non-zero entry per row"
-msgstr "potrzeba mieć dokładnie jeden niezerowy wpis na wiersz"
-
-# Recommended/Matrix/R/pMatrix.R: 147
-# stop('replacing "pMatrix" entries is not allowed, as rarely sensible')
-msgid "replacing \"pMatrix\" entries is not allowed, as rarely sensible"
-msgstr ""
-"zastępowanie wpisów w 'pMatrix' jest niedozwolone, ponieważ jest to rzadko "
-"sensowne"
-
 # Recommended/Matrix/R/products.R: 186
 # stop(gettextf('not-yet-implemented method for <%s> %%*%% <%s>',
 # 		  class(x), class(y)))
 msgid "not-yet-implemented method for <%s> %%*%% <%s>"
 msgstr "jeszcze niezaimplementowana metoda dla <%s> %%*%% <%s>"
 
-# Recommended/Matrix/R/rankMatrix.R: 63
-# stop(gettextf(
-# 			"method '%s' not applicable for qr() result class '%s'",
-# 				     method, class(q.r)[1]))
-#, fuzzy
-msgid "method %s not applicable for qr() result class %s"
-msgstr "metoda '%s' nie ma zastosowania dla wyniku 'qr()' o klasie '%s'"
+msgid ""
+"rankMatrix(<large sparse Matrix>, method = '%s') coerces to dense matrix.\n"
+" Probably should rather use method = 'qr' !?"
+msgstr ""
+
+msgid "rankMatrix(x, method='qr'): computing t(x) as nrow(x) < ncol(x)"
+msgstr ""
 
 # Recommended/Matrix/R/spModels.R: 113
 # stop("model frame and formula mismatch in model.matrix()")
@@ -1367,12 +1384,6 @@ msgstr "'nrow' nie jest czynnikiem długości 'length(x)'"
 msgid "Class %s is not yet implemented"
 msgstr "forma symetryczna '%s' nie jest jeszcze zaimplementowana"
 
-# Recommended/Matrix/R/sparseVector.R: 361
-# stop("too large index i > n =",n)
-#, fuzzy
-msgid "too large index i > n = %d"
-msgstr "zbyt duży indeks i > n ="
-
 # Recommended/Matrix/R/sparseVector.R: 377
 # stop("index must be numeric, logical or sparseVector for indexing sparseVectors")
 msgid ""
@@ -1393,6 +1404,26 @@ msgstr "(roz)pakowanie stosuje się jedynie do gęstych macierzy, class(x)='%s'"
 # stop("the matrix is not triangular")
 msgid "'x' is not symmetric nor triangular"
 msgstr "'x' nie jest macierzą symetryczną ani trójkątną"
+
+# Recommended/Matrix/R/Tsparse.R: 725
+# warning("duplicate ij-entries in 'Matrix[ ij ] <- value'; using last")
+#~ msgid "duplicate ij-entries in 'Matrix[ ij ] <- value'; using last"
+#~ msgstr ""
+#~ "powtórzone wpisy 'ij' w 'Matrix[ ij ] <- value'; używanie ostatniego"
+
+# Recommended/Matrix/R/rankMatrix.R: 63
+# stop(gettextf(
+# 			"method '%s' not applicable for qr() result class '%s'",
+# 				     method, class(q.r)[1]))
+#, fuzzy
+#~ msgid "method %s not applicable for qr() result class %s"
+#~ msgstr "metoda '%s' nie ma zastosowania dla wyniku 'qr()' o klasie '%s'"
+
+# Recommended/Matrix/R/sparseVector.R: 361
+# stop("too large index i > n =",n)
+#, fuzzy
+#~ msgid "too large index i > n = %d"
+#~ msgstr "zbyt duży indeks i > n ="
 
 # Recommended/Matrix/R/Auxiliaries.R: 338
 # message(sprintf("   [[ suppressing %d column names %s%s ]]", nc,

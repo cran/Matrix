@@ -58,5 +58,3 @@
   \code{\link[SparseM:matrix.csr-class]{matrix.csr}}.
 }
 \keyword{methods}
-
-

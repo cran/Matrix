@@ -20,8 +20,8 @@
 }
 \usage{% want \usage{} since we have many "surprising arguments"
 \S4method{image}{dgTMatrix}(x,
-      xlim = .5 + c(0, di[2]),
-      ylim = .5 + c(di[1], 0), aspect = "iso",
+      xlim = c(1, di[2]),
+      ylim = c(di[1], 1), aspect = "iso",
       sub = sprintf("Dimensions: \%d x \%d", di[1], di[2]),
       xlab = "Column", ylab = "Row", cuts = 15,
       useRaster = FALSE,
@@ -30,10 +30,13 @@
       lwd = NULL, \dots)
 }
 \arguments{
-  \item{x}{a Matrix object, i.e., fulfilling
-    \code{\link{is}(x, "Matrix")}.}
+  \item{x}{a Matrix object, i.e., fulfilling \code{\link{is}(x, "Matrix")}.}
   \item{xlim, ylim}{x- and y-axis limits; may be used to \dQuote{zoom
-      into} matrix.}
+      into} matrix.  Note that \eqn{x,y} \dQuote{feel reversed}:
+    \code{ylim} is for the rows (= 1st index) and \code{xlim} for the
+    columns (= 2nd index).  For convenience, when the limits are integer
+    valued, they are both extended by \code{0.5}; also, \code{ylim} is
+    always used decreasingly.}
   \item{aspect}{aspect ratio specified as number (y/x) or string;
     see \code{\link[lattice]{levelplot}}.}
   \item{sub, xlab, ylab}{axis annotation with sensible defaults;
@@ -98,8 +101,10 @@ image(sign(USCounties))## just the pattern
 ## Drawing borders around each rectangle;
     # again, viewing depends very much on the device:
 image(USCounties[1:400,1:200], lwd=.1)
-image(USCounties[1:200,1:200], lwd=.5)
-image(USCounties[1:200,1:200], lwd=.01)
+## Using (xlim,ylim) has advantage : matrix dimension and (col/row) indices:
+image(USCounties, c(1,200), c(1,400), lwd=.1)
+image(USCounties, c(1,300), c(1,200), lwd=.5 )
+image(USCounties, c(1,300), c(1,200), lwd=.01)
 
 if(doExtras <- interactive() || nzchar(Sys.getenv("R_MATRIX_CHECK_EXTRA")) ||
     identical("true", unname(Sys.getenv("R_PKG_CHECKING_doExtras")))) {

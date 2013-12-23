@@ -51,17 +51,6 @@
 
 % "[" are in ./Xtrct-methods.Rd
 %\alias{colMeans,..} etc are now in ./colSums.Rd
-% graph stuff
-\alias{coerce,graph,Matrix-method}
-\alias{coerce,graph,sparseMatrix-method}
-\alias{coerce,graph,CsparseMatrix-method}
-\alias{coerce,graphAM,sparseMatrix-method}
-\alias{coerce,graphNEL,CsparseMatrix-method}
-\alias{coerce,graphNEL,TsparseMatrix-method}
-\alias{coerce,sparseMatrix,graph-method}
-\alias{coerce,sparseMatrix,graphNEL-method}
-\alias{coerce,TsparseMatrix,graphNEL-method}
-\alias{coerce,dgTMatrix,graphNEL-method}
 %
 \description{Virtual Mother Class of All Sparse Matrices}
 \section{Slots}{
@@ -133,6 +122,9 @@
   \code{\link{xtabs}(*, sparse=TRUE)}, or
   \code{\link{sparse.model.matrix}()},
   for constructing sparse matrices.
+
+  \code{\link{T2graph}} for conversion of \code{"graph"} objects
+  (package \pkg{graph}) to and from sparse matrices.
 }
 \note{
   In method selection for multiplication operations (i.e. \code{\%*\%}

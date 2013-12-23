@@ -130,8 +130,6 @@ try( ## NOTE: *Both* checks  currently fail here:
 )
 
 ## Larger Scale random testing
-xtrChk <- TRUE  ## should work, but fails for *some* structurally rank deficient cases
-xtrChk <- FALSE ## for now [FIXME]
 oo <- options(Matrix.quiet.qr.R = TRUE, Matrix.verbose = TRUE)
 set.seed(101)
 
@@ -259,7 +257,7 @@ stopifnot(identical3(lu1, pmLU, pm@factors$LU),# TODO === por1@factors$LU
 
 Ipm <- solve(pm, sparse=FALSE)
 Spm <- solve(pm, sparse=TRUE)  # is not sparse at all, here
-assert.EQ.Mat(Ipm, Spm, giveRE=TRUE)
+assert.EQ.Mat(Ipm, Spm, giveRE=TRUE, tol = 1e-13)# seen 7.36e-15 only on 32-bit
 stopifnot(abs(as.vector(solve(Diagonal(30, x=10) %*% pm) / Ipm) - 1/10) < 1e-7,
 	  abs(as.vector(solve(rep.int(4, 30)	  *  pm) / Ipm) - 1/ 4) < 1e-7)
 

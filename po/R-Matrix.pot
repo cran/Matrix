@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Matrix 1.0-12\n"
-"POT-Creation-Date: 2013-03-26 16:33\n"
+"Project-Id-Version: Matrix 1.1-1\n"
+"POT-Creation-Date: 2013-12-23 21:27\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -52,6 +52,9 @@ msgstr ""
 msgid "not a triangular matrix"
 msgstr ""
 
+msgid "not a symmetric matrix; consider forceSymmetric() or symmpart()"
+msgstr ""
+
 msgid "not yet implemented for matrix with typeof %s"
 msgstr ""
 
@@ -71,9 +74,6 @@ msgid "'update' must be logical or '+' or '-'; 'C' a matrix, and 'L' a \"CHMfact
 msgstr ""
 
 msgid "update must be TRUE/FALSE or '+' or '-'"
-msgstr ""
-
-msgid "not a symmetric matrix; consider forceSymmetric() or symmpart()"
 msgstr ""
 
 msgid "Matrix-internal error in <CsparseM>[i,,d]; please report"
@@ -205,13 +205,13 @@ msgstr ""
 msgid "m[ <ij-matrix> ]: inefficiently indexing single elements"
 msgstr ""
 
+msgid "nargs() = %d.  Extraneous illegal arguments inside '[ .. ]' (i.2col)?"
+msgstr ""
+
 msgid ".M.sub.i.2col(): 'i' has no integer column number;\n should never happen; please report"
 msgstr ""
 
 msgid "such indexing must be by logical or 2-column numeric matrix"
-msgstr ""
-
-msgid "nargs() = %d.  Extraneous illegal arguments inside '[ .. ]' (i.2col)?"
 msgstr ""
 
 msgid ".M.repl.i.2col(): 'i' has no integer column number;\n should never happen; please report"
@@ -292,13 +292,13 @@ msgstr ""
 msgid "not-yet-implemented coercion to \"TsparseMatrix\""
 msgstr ""
 
-msgid "'NA' indices are not (yet?) supported for sparse Matrices"
-msgstr ""
-
 msgid "you cannot mix negative and positive indices"
 msgstr ""
 
 msgid "index larger than maximal %d"
+msgstr ""
+
+msgid "'NA' indices are not (yet?) supported for sparse Matrices"
 msgstr ""
 
 msgid "logical subscript too long (%d, should be %d)"
@@ -325,7 +325,7 @@ msgstr ""
 msgid "internal bug: matrix 'i' in replTmat(): please report"
 msgstr ""
 
-msgid "x[.] <- val: x is %s, val not in {TRUE, FALSE} is coerced NA |--> TRUE."
+msgid "x[.] <- val: x is %s, val not in {TRUE, FALSE} is coerced; NA |--> TRUE."
 msgstr ""
 
 msgid "x[.] <- val: x is %s, val not in {TRUE, FALSE} is coerced."
@@ -347,9 +347,6 @@ msgid "row indices must be <= nrow(.) which is %d"
 msgstr ""
 
 msgid "column indices must be <= ncol(.) which is %d"
-msgstr ""
-
-msgid "duplicate ij-entries in 'Matrix[ ij ] <- value'; using last"
 msgstr ""
 
 msgid "'force' must be (coercable to) TRUE or FALSE"
@@ -448,6 +445,9 @@ msgstr ""
 msgid "invalid nargs()= %d"
 msgstr ""
 
+msgid "LU computationally singular: ratio of extreme entries in |diag(U)| = %9.4g"
+msgstr ""
+
 msgid "cannot coerce non-symmetric \"dgTMatrix\" to \"dsCMatrix\" class"
 msgstr ""
 
@@ -505,7 +505,25 @@ msgstr ""
 msgid "inefficient coercion (lost triangularity); please report"
 msgstr ""
 
+msgid "coercion to \"indMatrix\" only works from integer numeric"
+msgstr ""
+
+msgid "coercion from list(i1,...,ik, d) to \"indMatrix\" failed.\n All entries must be integer valued and the number of columns, d, not smaller\n than the maximal index i*."
+msgstr ""
+
+msgid "not a skinny matrix"
+msgstr ""
+
+msgid "the number of non-zero entries differs from nrow(.)"
+msgstr ""
+
+msgid "must have exactly one non-zero entry per row"
+msgstr ""
+
 msgid "kronecker method must use default 'FUN'"
+msgstr ""
+
+msgid "replacing \"indMatrix\" entries is not allowed, as rarely sensible"
 msgstr ""
 
 msgid "\"lMatrix\" object with NAs cannot be coerced to \"nMatrix\""
@@ -529,19 +547,13 @@ msgstr ""
 msgid "not a square matrix"
 msgstr ""
 
-msgid "the number of non-zero entries differs from nrow(.)"
-msgstr ""
-
-msgid "must have exactly one non-zero entry per row"
-msgstr ""
-
-msgid "replacing \"pMatrix\" entries is not allowed, as rarely sensible"
-msgstr ""
-
 msgid "not-yet-implemented method for <%s> %%*%% <%s>"
 msgstr ""
 
-msgid "method %s not applicable for qr() result class %s"
+msgid "rankMatrix(<large sparse Matrix>, method = '%s') coerces to dense matrix.\n Probably should rather use method = 'qr' !?"
+msgstr ""
+
+msgid "rankMatrix(x, method='qr'): computing t(x) as nrow(x) < ncol(x)"
 msgstr ""
 
 msgid "model frame and formula mismatch in model.matrix()"
@@ -626,9 +638,6 @@ msgid "'nrow' is not a factor of length(x)"
 msgstr ""
 
 msgid "Class %s is not yet implemented"
-msgstr ""
-
-msgid "too large index i > n = %d"
 msgstr ""
 
 msgid "index must be numeric, logical or sparseVector for indexing sparseVectors"

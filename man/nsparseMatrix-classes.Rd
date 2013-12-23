@@ -48,6 +48,7 @@
 \alias{coerce,ngTMatrix,lgeMatrix-method}
 \alias{coerce,ngTMatrix,ngeMatrix-method}
 \alias{coerce,ngTMatrix,ntTMatrix-method}
+\alias{coerce,ngTMatrix,symmetricMatrix-method}
 \alias{coerce,ngTMatrix,triangularMatrix-method}
 \alias{coerce,nsCMatrix,dMatrix-method}
 \alias{coerce,nsCMatrix,dsCMatrix-method}

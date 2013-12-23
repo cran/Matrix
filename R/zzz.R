@@ -28,3 +28,7 @@ rBind <- methods:::rbind
     ssv <- .Call(get_SuiteSparse_version)
     package_version(list(major = ssv[1], minor = paste(ssv[2:3], collapse=".")))
 }
+
+if(getRversion() < "3.0.0") {
+    rep_len <- function(x, length.out) rep(x, length.out=length.out)
+}

@@ -87,7 +87,7 @@ for(n in allCl) {
 cat('Time elapsed: ', proc.time(),'\n') # for the above "part I"
 
 
-if(!interactive()) { # don't want to see on source()
+if(doExtras && !interactive()) { # don't want to see on source()
 
 cat("All classes in the 'Matrix' package:\n")
 for(cln in allCl) {
@@ -125,7 +125,7 @@ stopifnot(identical(as(mT,"CsparseMatrix"), mC))
 (mlC <- as(mC. , "lMatrix"))
 as(mlC,"ltCMatrix")
 
-
+if(!doExtras && !interactive()) q("no") ## (saving testing time)
 
 ### Test all classes:  validObject(new( * )) should be fulfilled -----------
 

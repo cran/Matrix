@@ -72,7 +72,7 @@ setMethod("qr.qty", signature(qr = "sparseQR", y = "Matrix"),
 				as(as(y, "denseMatrix"),"dgeMatrix"), TRUE),
 	  valueClass = "dgeMatrix")
 
-.coef.trunc <- function(qr, res, drop=FALSE) res[1:ncol(qr@R),,drop=drop]
+.coef.trunc <- function(qr, res, drop=FALSE) res[seq_len(ncol(qr@R)),,drop=drop]
 
 setMethod("qr.coef", signature(qr = "sparseQR", y = "ddenseMatrix"),
           function(qr, y)
@@ -88,6 +88,12 @@ setMethod("qr.coef", signature(qr = "sparseQR", y = "numeric"),
           function(qr, y)
 	  .coef.trunc(qr, .Call(sparseQR_coef, qr, y), drop=TRUE))
 
+setMethod("qr.coef", signature(qr = "sparseQR", y = "Matrix"),
+	  function(qr, y)
+	  .coef.trunc(qr, .Call(sparseQR_coef, qr,
+				as(as(y, "denseMatrix"),"dgeMatrix"))),
+	  valueClass = "dgeMatrix")
+
 setMethod("qr.resid", signature(qr = "sparseQR", y = "ddenseMatrix"),
           function(qr, y)
           .Call(sparseQR_resid_fitted, qr, y, TRUE),
@@ -102,6 +108,13 @@ setMethod("qr.resid", signature(qr = "sparseQR", y = "numeric"),
           function(qr, y)
 	  .Call(sparseQR_resid_fitted, qr, y, TRUE)@x)
 
+setMethod("qr.resid", signature(qr = "sparseQR", y = "Matrix"),
+	  function(qr, y)
+	  .Call(sparseQR_resid_fitted, qr,
+		as(as(y, "denseMatrix"),"dgeMatrix"), TRUE),
+	  valueClass = "dgeMatrix")
+
+
 setMethod("qr.fitted", signature(qr = "sparseQR", y = "ddenseMatrix"),
           function(qr, y, k)
           .Call(sparseQR_resid_fitted, qr, y, FALSE),
@@ -115,6 +128,13 @@ setMethod("qr.fitted", signature(qr = "sparseQR", y = "matrix"),
 setMethod("qr.fitted", signature(qr = "sparseQR", y = "numeric"),
           function(qr, y, k)
 	  .Call(sparseQR_resid_fitted, qr, y, FALSE)@x)
+
+setMethod("qr.fitted", signature(qr = "sparseQR", y = "Matrix"),
+	  function(qr, y, k)
+	  .Call(sparseQR_resid_fitted, qr,
+		as(as(y, "denseMatrix"),"dgeMatrix"), FALSE),
+	  valueClass = "dgeMatrix")
+
 
 ##
 setMethod("solve", signature(a = "sparseQR", b = "ANY"),

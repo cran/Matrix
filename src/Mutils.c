@@ -1087,3 +1087,79 @@ SEXP Mmatrix(SEXP args)
     UNPROTECT(1);
     return ans;
 }
+
+#define TRUE_  ScalarLogical(1)
+#define FALSE_ ScalarLogical(0)
+
+// Fast implementation of [ originally in  ../R/Auxiliaries.R ]
+// all0     <- function(x) !any(is.na(x)) && all(!x) ## ~= allFalse
+// allFalse <- function(x) !any(x) && !any(is.na(x)) ## ~= all0
+SEXP R_all0(SEXP x) {
+    R_xlen_t i, n = XLENGTH(x);
+    if(n == 0) return TRUE_;
+
+    switch(TYPEOF(x)) {
+    case LGLSXP: {
+	int *xx = LOGICAL(x);
+	for(i=0; i < n; i++)
+	    if(xx[i] == NA_LOGICAL || xx[i] != 0) return FALSE_;
+	return TRUE_;
+    }
+    case INTSXP: {
+	int *xx = INTEGER(x);
+	for(i=0; i < n; i++)
+	    if(xx[i] == NA_INTEGER || xx[i] != 0) return FALSE_;
+	return TRUE_;
+    }
+    case REALSXP: {
+	double *xx = REAL(x);
+	for(i=0; i < n; i++)
+	    if(ISNAN(xx[i]) || xx[i] != 0.) return FALSE_;
+	return TRUE_;
+    }
+    case RAWSXP: {
+	unsigned char *xx = RAW(x);
+	for(i=0; i < n; i++)
+	    if(xx[i] != 0) return FALSE_;
+	return TRUE_;
+    }
+    }
+    error(_("Argument must be numeric-like atomic vector"));
+    return R_NilValue; // -Wall
+}
+
+// Fast implementation of [ originally in  ../R/Auxiliaries.R ]
+// any0 <- function(x) isTRUE(any(x == 0)) ## ~= anyFalse
+// anyFalse <- function(x) isTRUE(any(!x)) ## ~= any0
+SEXP R_any0(SEXP x) {
+    R_xlen_t i, n = XLENGTH(x);
+    if(n == 0) return FALSE_;
+
+    switch(TYPEOF(x)) {
+    case LGLSXP: {
+	int *xx = LOGICAL(x);
+	for(i=0; i < n; i++) if(xx[i] == 0) return TRUE_;
+	return FALSE_;
+    }
+    case INTSXP: {
+	int *xx = INTEGER(x);
+	for(i=0; i < n; i++) if(xx[i] == 0) return TRUE_;
+	return FALSE_;
+    }
+    case REALSXP: {
+	double *xx = REAL(x);
+	for(i=0; i < n; i++) if(xx[i] == 0.) return TRUE_;
+	return FALSE_;
+    }
+    case RAWSXP: {
+	unsigned char *xx = RAW(x);
+	for(i=0; i < n; i++) if(xx[i] == 0) return TRUE_;
+	return FALSE_;
+    }
+    }
+    error(_("Argument must be numeric-like atomic vector"));
+    return R_NilValue; // -Wall
+}
+
+#undef TRUE_
+#undef FALSE_

@@ -39,9 +39,16 @@ setAs("lgTMatrix", "dgTMatrix",
           ## cannot copy factors, but can we use them?
           Dim = from@Dim, Dimnames= from@Dimnames))
 
+setAs("lgTMatrix", "triangularMatrix",
+      function(from) check.gT2tT(from, toClass = "ltTMatrix", do.n=FALSE))
 setAs("lgTMatrix", "ltTMatrix",
-      function(from) check.gT2tT(from, cl = "lgTMatrix", toClass = "ltTMatrix",
-				 do.n = FALSE))
+      function(from) check.gT2tT(from, toClass = "ltTMatrix", do.n=FALSE))
+
+setAs("lgTMatrix", "symmetricMatrix",
+      function(from) check.gT2sT(from, toClass = "lsTMatrix", do.n=FALSE))
+## We favor coercion to super-classes, here, "symmetricMatrix"
+## setAs("lgTMatrix", "lsTMatrix",
+##       function(from) check.gT2sT(from, toClass = "lsTMatrix", do.n=FALSE))
 
 
 if(FALSE) ## unneeded: use t.<TsparseMatrix>

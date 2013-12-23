@@ -6,10 +6,9 @@
 ##
 ## Ideas by Martin Maechler (April 2007) and Ravi Varadhan (October 2007)
 
-## (for now: use code & examples from /u/maechler/R/MM/NUMERICS/rankMat.R )
-
 rankMatrix <- function(x, tol = NULL,
-                       method = c("tolNorm2", "qrLINPACK", "useGrad", "maybeGrad"),
+                       method = c("tolNorm2", "qr.R", "qrLINPACK", "qr",
+                                  "useGrad", "maybeGrad"),
                        sval = svd(x, 0,0)$d, warn.t = TRUE)
 {
     ## Purpose: rank of a matrix ``as Matlab'' or "according to Ravi V"
@@ -48,38 +47,58 @@ rankMatrix <- function(x, tol = NULL,
     }
     if(!useGrad) {
 	x.dense <- is.numeric(x) || is(x,"denseMatrix")
-	findTol <- function() {         # the "Matlab" default:
-	    stopifnot(diff(sval) <= 0)
-	    max(d) * .Machine$double.eps * abs(sval[1])
-	}
-	if(method == "qrLINPACK") {
-	    if(is.null(tol) && x.dense) tol <- findTol()
-	    ## tol = NULL is fine for sparse QR
-	} else { ## (method != "qrLINPACK")
+        ## "qr" is allowed for backcompatibility [change @ 2013-11-24]
+        if((Meth <- method) == "qr")
+            method <- if(x.dense) "qrLINPACK" else "qr.R"
+        else Meth <- substr(method, 1,2)
+
+	if(Meth == "qr") {
+	    if(is.null(tol)) tol <- max(d) * .Machine$double.eps
+	} else { ## (Meth != "qr"), i.e. "tolNorm2"
 	    if(is.null(tol)) {
 		if(!x.dense && missing(sval) && prod(d) >= 100000L)
-		    warning(gettextf("rankMatrix(<large sparse Matrix>, method = '%s') coerces to dense matrix.\n  Probably should rather use  method = 'qrLINPACK' !?",
+		    warning(gettextf(
+ "rankMatrix(<large sparse Matrix>, method = '%s') coerces to dense matrix.
+ Probably should rather use method = 'qr' !?",
 				     method),
 			    immediate.=TRUE, domain=NA)
-		tol <- findTol()
+                ## the "Matlab" default:
+                stopifnot(diff(sval) <= 0) #=> sval[1]= max(sval)
+                tol <- max(d) * .Machine$double.eps
 	    } else stopifnot((tol <- as.numeric(tol)[[1]]) >= 0)
 	}
     }
 
     structure(## rank :
 	      if(useGrad) which.min(diff1)
-	      else if(method == "qrLINPACK") {
-		  if(do.t <- (d[1L] < d[2L]))
+	      else if(Meth == "qr") {
+		  if((do.t <- (d[1L] < d[2L])) && warn.t)
 		      warning(gettextf(
-			"rankMatrix(x, method='qrLINPACK'): computing t(x) as nrow(x) < ncol(x)"))
-		  q.r <- qr(if(do.t) t(x) else x, tol=tol, LAPACK = FALSE)
-		  if(is(q.r, "qr")) q.r$rank
-		  else if(is(q.r,"sparseQR")) sum(diag(q.r@R) != 0)
-		  else stop(gettextf(
-			"method %s not applicable for qr() result class %s",
-				     sQuote(method), dQuote(class(q.r)[1])),
-			    domain=NA)
-	      } else sum(sval >= tol),
+			"rankMatrix(x, method='qr'): computing t(x) as nrow(x) < ncol(x)"))
+		  q.r <- qr(if(do.t) t(x) else x, tol=tol, LAPACK = method != "qrLINPACK")
+		  if(x.dense && (method == "qrLINPACK"))
+                      q.r$rank
+                  else { ## else  "qr.R" or sparse {or a problem)
+		      diagR <-
+			  if(x.dense) # faster than, but equivalent to	diag(qr.R(q.r))
+			      diag(q.r$qr)
+			  else
+			      ## FIXME: Here, we could be quite a bit faster,
+			      ## by not returning the full sparseQR, but just
+			      ## doing the following in C, and return the rank.
+			      diag(q.r@R)
+
+                      d.i <- abs(diagR) ## is abs(.) unneeded? [FIXME]
+                      ## declare those entries to be zero that are < tol*max(.)
+                      sum(d.i >= tol * max(d.i))
+                      ## was sum(diag(q.r@R) != 0)
+                  }
+		  ## else stop(gettextf(
+		  ##       "method %s not applicable for qr() result class %s",
+		  ##       	     sQuote(method), dQuote(class(q.r)[1])),
+		  ##           domain=NA)
+	      }
+	      else sum(sval >= tol * sval[1]), ## "tolNorm2"
 	      "method" = method,
 	      "useGrad" = useGrad,
 	      "tol" = if(useGrad) NA else tol)

@@ -173,7 +173,7 @@ Cmp.Mat.atomic <- function(e1, e2) { ## result will inherit from "lMatrix"
             ## [dense & packed & not symmetric ] ==> must be "dtp*" :
             if(!extends(cl1, "dtpMatrix"))
                 stop("internal bug in \"Compare\" method (Cmp.Mat.atomic); please report")
-            rx <- rep(r0, length.out = prod(d))
+	    rx <- rep_len(r0, prod(d))
 	    rx[indTri(d[1], upper = (e1@uplo == "U"), diag=TRUE)] <- r
 	    r <- new("lgeMatrix", x = rx, Dim = d, Dimnames = dimnames(e1))
 	}
@@ -235,7 +235,7 @@ Cmp.Mat.atomic <- function(e1, e2) { ## result will inherit from "lMatrix"
             lClass <- if(extends(cl1, "symmetricMatrix")) "lsyMatrix" else "lgeMatrix"
             Matrix.msg(sprintf("sparse to dense (%s) coercion in '%s' -> %s",
                                lClass, .Generic, "Cmp.Mat.atomic"), .M.level = 2)
-            rx <- rep(r0, length.out = prod(d))
+	    rx <- rep_len(r0, prod(d))
 
             ## Here, we assume that 'r' and the indices align (!)
             encI <- .Call(m_encodeInd,
@@ -676,7 +676,7 @@ Logic.Mat.atomic <- function(e1, e2) { ## result will typically be "like" e1:
             ## [dense & packed & not symmetric ] ==> must be "ltp*" :
             if(!extends(cl1, "ltpMatrix"))
                 stop("internal bug in \"Logic\" method (Logic.Mat.atomic); please report")
-            rx <- rep(r0, length.out = prod(d))
+	    rx <- rep_len(r0, prod(d))
 	    rx[indTri(d[1], upper = (e1@uplo == "U"), diag=TRUE)] <- r
 	    r <- new("lgeMatrix", x = rx, Dim = d, Dimnames = dimnames(e1))
 	}
@@ -739,7 +739,7 @@ Logic.Mat.atomic <- function(e1, e2) { ## result will typically be "like" e1:
                 "lsyMatrix" else "lgeMatrix"
             Matrix.msg(sprintf("sparse to dense (%s) coercion in '%s' -> %s",
                                lClass, .Generic, "Logic.Mat.atomic"), .M.level = 2)
-            rx <- rep(r0, length.out = prod(d))
+	    rx <- rep_len(r0, prod(d))
 
             ## Here, we assume that 'r' and the indices align (!)
             encI <- .Call(m_encodeInd,

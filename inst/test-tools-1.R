@@ -11,6 +11,8 @@ if(!exists("paste0", .BaseNamespaceEnv)) # have in R >= 2.15.0
 identical3 <- function(x,y,z)	  identical(x,y) && identical (y,z)
 identical4 <- function(a,b,c,d)   identical(a,b) && identical3(b,c,d)
 identical5 <- function(a,b,c,d,e) identical(a,b) && identical4(b,c,d,e)
+identical6 <- function(a,b,c,d,e,f)  identical(a,b) && identical5(b,c,d,e,f)
+identical7 <- function(a,b,c,d,e,f,g)identical(a,b) && identical6(b,c,d,e,f,g)
 
 if( exists("assertCondition", asNamespace("tools")) ) { ## R > 3.0.1
 
@@ -86,7 +88,7 @@ tryCatch.W.E <- function(expr)
 }
 
 
-isValid <- function(x, class) validObject(x, test=TRUE) && is(x, class)
+isValid <- function(x, class) isTRUE(validObject(x, test=TRUE)) && is(x, class)
 
 ## Some (sparse) Lin.Alg. algorithms return 0 instead of NA, e.g.
 ## qr.coef(<sparseQR>, y).
@@ -180,13 +182,13 @@ S4_2list <- function(obj) {
    structure(lapply(sn, slot, object = obj), .Names = sn)
 }
 
-assert.EQ <- function(target, current, tol = if(show) 0 else 1e-15,
-                      giveRE = FALSE, show = FALSE, ...) {
+assert.EQ <- function(target, current, tol = if(showOnly) 0 else 1e-15,
+                      giveRE = FALSE, showOnly = FALSE, ...) {
     ## Purpose: check equality *and* show non-equality
     ## ----------------------------------------------------------------------
-    ## show: if TRUE, return (and hence typically print) all.equal(...)
+    ## showOnly: if TRUE, return (and hence typically print) all.equal(...)
     T <- isTRUE(ae <- all.equal(target, current, tol = tol, ...))
-    if(show) return(ae) else if(giveRE && T) { ## don't show if stop() later:
+    if(showOnly) return(ae) else if(giveRE && T) { ## don't show if stop() later:
 	ae0 <- if(tol == 0) ae else all.equal(target, current, tol = 0, ...)
 	if(!isTRUE(ae0)) cat(ae0,"\n")
     }
@@ -195,9 +197,9 @@ assert.EQ <- function(target, current, tol = if(show) 0 else 1e-15,
 
 ##' a version with other "useful" defaults (tol, giveRE, check.attr..)
 assert.EQ. <- function(target, current,
-		       tol = if(show) 0 else .Machine$double.eps^0.5,
-		       giveRE = TRUE, show = FALSE, ...) {
-    assert.EQ(target, current, tol=tol, giveRE=giveRE, show=show,
+		       tol = if(showOnly) 0 else .Machine$double.eps^0.5,
+		       giveRE = TRUE, showOnly = FALSE, ...) {
+    assert.EQ(target, current, tol=tol, giveRE=giveRE, showOnly=showOnly,
 	      check.attributes=FALSE, ...)
 }
 
@@ -218,22 +220,24 @@ as.mat <- function(m) {
     m
 }
 
-assert.EQ.mat <- function(M, m, tol = if(show) 0 else 1e-15, show=FALSE, giveRE = FALSE, ...) {
+assert.EQ.mat <- function(M, m, tol = if(showOnly) 0 else 1e-15,
+                          showOnly=FALSE, giveRE = FALSE, ...) {
     ## Purpose: check equality of  'Matrix' M with  'matrix' m
     ## ----------------------------------------------------------------------
     ## Arguments: M: is(., "Matrix") typically {but just needs working as(., "matrix")}
     ##            m: is(., "matrix")
-    ##            show: if TRUE, return (and hence typically print) all.equal(...)
+    ##            showOnly: if TRUE, return (and hence typically print) all.equal(...)
     validObject(M)
     MM <- as.mat(M)                     # as(M, "matrix")
     if(is.logical(MM) && is.numeric(m))
 	storage.mode(MM) <- "integer"
     attr(MM, "dimnames") <- attr(m, "dimnames") <- NULL
-    assert.EQ(MM, m, tol=tol, show=show, giveRE=giveRE)
+    assert.EQ(MM, m, tol=tol, showOnly=showOnly, giveRE=giveRE)
 }
 ## a short cut
-assert.EQ.Mat <- function(M, M2, tol = if(show) 0 else 1e-15, show=FALSE, giveRE = FALSE, ...)
-    assert.EQ.mat(M, as.mat(M2), tol=tol, show=show, giveRE=giveRE)
+assert.EQ.Mat <- function(M, M2, tol = if(showOnly) 0 else 1e-15,
+                          showOnly=FALSE, giveRE = FALSE, ...)
+    assert.EQ.mat(M, as.mat(M2), tol=tol, showOnly=showOnly, giveRE=giveRE)
 
 
 chk.matrix <- function(M) {

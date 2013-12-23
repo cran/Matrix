@@ -208,7 +208,7 @@ setMethod("[", signature(x = "CsparseMatrix",
 
 
 
-## workhorse for "[<-" -- both for d* and l*  C-sparse matrices :
+## workhorse for "[<-" -- for d*, l*, and n..C-sparse matrices :
 ## ---------     -----
 replCmat <- function (x, i, j, ..., value)
 {
@@ -224,8 +224,9 @@ replCmat <- function (x, i, j, ..., value)
     if(na == 3) { ## "vector (or 2-col) indexing"  M[i] <- v
 	x <- as(x, "TsparseMatrix")
 	x[i] <- value # may change class e.g. from dtT* to dgT*
-	clx <- sub(".Matrix$", "CMatrix", class(x))
-	if(any(is0(x@x))) ## drop all values that "happen to be 0"
+	clx <- sub(".Matrix$", "CMatrix", (c.x <- class(x)))
+	if("x" %in% .slotNames(c.x) && any0(x@x))
+	    ## drop all values that "happen to be 0"
 	    drop0(x, is.Csparse=FALSE) else as_CspClass(x, clx)
     }
     else ## nargs() == 4 :
@@ -354,7 +355,7 @@ replCmat4 <- function(x, i1, i2, iMi, jMi, value, spV = is(value,"sparseVector")
 	    has0 <-
 		if(spV) length(value@i) < lenV else any(value[!is.na(value)] == 0)
 	    if(lenV < lenRepl)
-		value <- rep(value, length = lenRepl)
+		value <- rep_len(value, lenRepl)
 	    ## Ideally we only replace them where value != 0 and drop the value==0
 	    ## ones; FIXME: see Davis(2006) "2.7 Removing entries", p.16, e.g. use cs_dropzeros()
 	    ##	     but really could be faster and write something like cs_drop_k(A, k)
@@ -384,7 +385,7 @@ replCmat4 <- function(x, i1, i2, iMi, jMi, value, spV = is(value,"sparseVector")
 	if(extends(clDx, "compMatrix") && length(x@factors)) # drop cashed ones
 	    x@factors <- list()
     }# else{ not using new memory-sparse  code
-    if(has.x && any(is0(x@x))) ## drop all values that "happen to be 0"
+    if(has.x && any0(x@x)) ## drop all values that "happen to be 0"
 	as_CspClass(drop0(x), clx)
     else as_CspClass(x, clx)
 } ## replCmat4
@@ -422,6 +423,13 @@ setReplaceMethod("[", signature(x = "CsparseMatrix", i = "matrix", j = "missing"
 		 as(.TM.repl.i.mat(as(x, "TsparseMatrix"), i=i, value=value),
 		    "CsparseMatrix"))
 ## more in ./sparseMatrix.R (and ./Matrix.R )
+
+setReplaceMethod("[", signature(x = "CsparseMatrix", i = "Matrix", j = "missing",
+				value = "replValue"),
+		 function(x, i, j, ..., value)
+		 ## goto Tsparse modify and convert back:
+		 as(.TM.repl.i.mat(as(x, "TsparseMatrix"), i=i, value=value),
+		    "CsparseMatrix"))
 
 
 setMethod("t", signature(x = "CsparseMatrix"),

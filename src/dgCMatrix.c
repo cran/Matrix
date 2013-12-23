@@ -212,7 +212,7 @@ SEXP dgCMatrix_QR(SEXP Ap, SEXP order)
 {
     CSP A = AS_CSP__(Ap), D;
     int io = INTEGER(order)[0];
-    Rboolean verbose = (io < 0);
+    Rboolean verbose = (io < 0);// verbose=TRUE, encoded with negative 'order'
     int m = A->m, n = A->n, ord = asLogical(order) ? 3 : 0, *p;
     R_CheckStack();
 

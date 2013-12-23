@@ -1,6 +1,7 @@
 ##-*- mode: org -*-
 
 * *Urgent* in some sense ---------------------------------------------------
+** TODO M[<sparse 2-column Matrix>] indexing should work (but with a warning: use *dense*!)
 ** TODO src/CHOLMOD/MatrixOps/cholmod_symmetry.c  is "cool" and fast;
 Definitely should use it for solve(<dgCMatrix>)  {it seems MATLAB does};
 alternatively also is_sym() [in src/cs_utils.c], see below.
@@ -34,6 +35,7 @@ leave the for loops, as soon as is_lower == is_upper == 0.
 ** TODO cbind2() / rbind2() for sparseMatrices: dimnames propagation should
   happen in C, see  R/bind2.R and src/Csparse.c (Csparse_horzcat etc).
 
+** TODO use  getOption("Matrix.quiet") in more places [--> less messages/warnings]
 ** TODO Check for DimNames propagation in coercion and other operations.
   Done for (%*%, crossprod, tcrossprod).
 

@@ -9,14 +9,22 @@ isN0 <- function(x)  is.na(x) | x != 0
 is1  <- function(x) !is.na(x) & x   # also == "isTRUE componentwise"
 
 ##
-all0 <- function(x) !any(is.na(x)) && all(!x) ## ~= allFalse
-any0 <- function(x) isTRUE(any(x == 0))	      ## ~= anyFalse
+##all0 <- function(x) !any(is.na(x)) && all(!x) ## ~= allFalse
+all0 <- function(x) .Call(R_all0, x)
+
+## any0 <- function(x) isTRUE(any(x == 0))	      ## ~= anyFalse
+any0 <- function(x) .Call(R_any0, x)
+
 ## These work "identically" for  1 ('==' TRUE)  and 0 ('==' FALSE)
 ##	(but give a warning for "double"  1 or 0)
 ## TODO: C versions of these would be faster
 allTrue  <- function(x) all(x)  && !any(is.na(x))
-allFalse <- function(x) !any(x) && !any(is.na(x))## ~= all0
-anyFalse <- function(x) isTRUE(any(!x))		 ## ~= any0
+
+##allFalse <- function(x) !any(x) && !any(is.na(x))## ~= all0, but allFalse(NULL) = TRUE w/warning
+allFalse <- function(x) .Call(R_all0, x)
+
+##anyFalse <- function(x) isTRUE(any(!x))		 ## ~= any0
+anyFalse <- function(x) .Call(R_any0, x)
 
 as1 <- function(x, mod=mode(x))
     switch(mod, "integer"= 1L, "double"=, "numeric"= 1, "logical"= TRUE,
@@ -788,7 +796,7 @@ tT2gT <- function(x, cl = class(x), toClass, cld = getClassDef(cl)) {
 ## Fast very special one
 ## .gT2tC <- function(x, uplo, diag) .Call(Tsparse_to_tCsparse, x, uplo, diag)
 
-gT2tT <- function(x, uplo, diag, cl = class(x), toClass,
+gT2tT <- function(x, uplo, diag, toClass,
 		  do.n = extends(toClass, "nMatrix"))
 {
     ## coerce *gTMatrix to *tTMatrix {general -> triangular}
@@ -810,15 +818,34 @@ gT2tT <- function(x, uplo, diag, cl = class(x), toClass,
 	    x = x@x[sel], Dim = x@Dim, Dimnames = x@Dimnames)
 }
 
-check.gT2tT <- function(from, cl = MatrixClass(class(from)),
-			toClass, do.n = extends(toClass, "nMatrix")) {
+check.gT2tT <- function(from, toClass, do.n = extends(toClass, "nMatrix")) {
     if(isTr <- isTriangular(from)) {
-        force(cl)
 	gT2tT(from, uplo = .if.NULL(attr(isTr, "kind"), "U"),
 	      diag = "N", ## improve: also test for unit diagonal
-	      cl = cl, toClass = toClass, do.n = do.n)
+	      toClass = toClass, do.n = do.n)
     } else stop("not a triangular matrix")
 }
+
+gT2sT <- function(x, toClass, do.n = extends(toClass, "nMatrix")) {
+    upper <- x@i <= x@j
+    i <- x@i[upper]
+    j <- x@j[upper]
+    if(do.n) ## no 'x' slot
+	new("nsTMatrix", Dim = x@Dim, Dimnames = x@Dimnames,
+	    i = i, j = j, uplo = "U")
+    else
+	new(toClass, Dim = x@Dim, Dimnames = x@Dimnames,
+	    i = i, j = j, x = x@x[upper], uplo = "U")
+}
+
+check.gT2sT <- function(x, toClass, do.n = extends(toClass, "nMatrix"))
+{
+    if(isSymmetric(x))
+        gT2sT(x, toClass, do.n)
+    else
+	stop("not a symmetric matrix; consider forceSymmetric() or symmpart()")
+}
+
 
 if(FALSE)# unused
 l2d_meth <- function(x) {
@@ -1155,16 +1182,20 @@ isTriC <- function(object, upper = NA) {
     }
 }
 
+
+## When the matrix is known to be [n x n] aka "square"
+## (need "vector-indexing" work for 'M'):
+.is.diagonal.sq.matrix <- function(M, n = dim(M)[1L])
+    all0(M[rep_len(c(FALSE, rep.int(TRUE,n)), n^2)])
+
 .is.diagonal <- function(object) {
     ## "matrix" or "denseMatrix" (but not "diagonalMatrix")
     d <- dim(object)
-    if(d[1] != (n <- d[2])) FALSE
-    else if(is.matrix(object))
-        ## requires that "vector-indexing" works for 'object' :
-        all0(object[rep(c(FALSE, rep.int(TRUE,n)), length = n^2)])
+    if(d[1L] != (n <- d[2L])) FALSE
+    else if(is.matrix(object)) .is.diagonal.sq.matrix(object, n)
     else ## "denseMatrix" -- packed or unpacked
         if(is(object, "generalMatrix")) # "dge", "lge", ...
-            all0(object@x[rep(c(FALSE, rep.int(TRUE,n)), length = n^2)])
+	    .is.diagonal.sq.matrix(object@x, n)
         else { ## "dense" but not {diag, general}, i.e. triangular or symmetric:
             ## -> has 'uplo'  differentiate between packed and unpacked
 
@@ -1176,7 +1207,7 @@ isTriC <- function(object, upper = NA) {
             }
 
 ### very cheap workaround
-	    all0(as.matrix(object)[rep(c(FALSE, rep.int(TRUE,n)), length = n^2)])
+	    all0(as.matrix(object)[rep_len(c(FALSE, rep.int(TRUE,n)), n^2)])
         }
 }
 

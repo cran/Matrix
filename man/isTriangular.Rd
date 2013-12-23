@@ -1,5 +1,5 @@
 \name{isTriangular}
-\title{isTriangular() and isDiagonal() and Methods}
+\title{isTriangular() and isDiagonal() Methods}
 %\docType{methods} both generic *and* methods
 \alias{isDiagonal}
 \alias{isDiagonal-methods}

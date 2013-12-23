@@ -186,12 +186,12 @@ SEXP Csparse_subassign(SEXP x, SEXP i_, SEXP j_, SEXP value)
 	    case x_pattern:// "n"
 	    case x_logical:// "l"
 		if(ctype_v >= 3)
-		    warning(_("x[] <- val: val must be logical for \"%s\" x"),
+		    warning(_("x[] <- val: val is coerced to logical for \"%s\" x"),
 			    valid_cM[ctype_x]);
 		break;
 	    case x_integer:
 		if(ctype_v >= 4)
-		    error(_("x[] <- val: val must be integer or logical for \"%s\" x"),
+		    error(_("x[] <- val: val should be integer or logical, is coerced to integer, for \"%s\" x"),
 			  valid_cM[ctype_x]);
 		break;
 	    case x_double:

@@ -52,8 +52,10 @@
   \pkg{Matrix} package.
 }
 \section{Objects from the Class}{
-  Objects can be created by calls of the form \code{new("dgCMatrix", ...)} or
-  often more easily via \code{\link{Matrix}(*, sparse = TRUE)}.
+  Objects can be created by calls of the form \code{new("dgCMatrix",
+    ...)}, more typically via \code{as(*, "CsparseMatrix")} or similar.
+  Often however, more easily via \code{\link{Matrix}(*, sparse = TRUE)},
+  or most efficiently via \code{\link{sparseMatrix}()}.
 }
 \section{Slots}{
   \describe{

@@ -2,6 +2,9 @@
 
 [[ This file 'Done' lists items that were in file ./TODO at some time ]]
 
+** DONE M[ <negative vector> ] <- value   now works for sparse M;
+   chkAssign() in file:tests/indexing.R now also tests this.
+
 - Sparse matrix methods can now be based on the CHOLMOD package.  We
    will need to migrate from the current code to CHOLMOD-based code
    using #ifdef USE_CHOLMOD.  Some of the things to be done

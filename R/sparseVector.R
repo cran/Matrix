@@ -390,18 +390,8 @@ intIv <- function(i, n, cl.i = getClass(class(i)))
 	return(seq_len(n))
     ## else :
     if(extends(cl.i, "numeric")) {
-	storage.mode(i) <- "integer"
-	if(any(i < 0L)) {
-	    if(any(i > 0L))
-		stop("you cannot mix negative and positive indices")
-	    seq_len(n)[i]
-	} else {
-	    if(length(i) && max(i) > n)
-		stop(gettextf("too large index i > n = %d", n), domain=NA)
-	    if(any(z <- i == 0))
-		i <- i[!z]
-	    i
-	}
+        storage.mode(i) <- "integer"
+        int2i(i,n) ##-> ./Tsparse.R 
     }
     else if (extends(cl.i, "logical")) {
 	seq_len(n)[i]

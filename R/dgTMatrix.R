@@ -25,18 +25,6 @@ setAs("dgTMatrix", "dsCMatrix",
           new("dsCMatrix", Dim = uC@Dim, p = uC@p, i = uC@i, x = uC@x, uplo = "U")
       })
 
-setAs("dgTMatrix", "dsTMatrix",
-      function(from) {
-	  if(isSymmetric(from)) {
-	      upper <- from@i <= from@j
-	      new("dsTMatrix", Dim = from@Dim, Dimnames = from@Dimnames,
-		  i = from@i[upper],
-		  j = from@j[upper], x = from@x[upper], uplo = "U")
-	  }
-	  else
-	      stop("not a symmetric matrix; consider forceSymmetric() or symmpart()")
-      })
-
 ## This is faster:
 setAs("dgTMatrix", "dtCMatrix",
       function(from) {
@@ -48,11 +36,14 @@ setAs("dgTMatrix", "dtCMatrix",
       })
 
 setAs("dgTMatrix", "dtTMatrix",
-      function(from) check.gT2tT(from, cl = "dgTMatrix", toClass = "dtTMatrix",
-				 do.n = FALSE))
+      function(from) check.gT2tT(from, toClass = "dtTMatrix", do.n=FALSE))
 setAs("dgTMatrix", "triangularMatrix",
-      function(from) check.gT2tT(from, cl = "dgTMatrix", toClass = "dtTMatrix",
-				 do.n = FALSE))
+      function(from) check.gT2tT(from, toClass = "dtTMatrix", do.n=FALSE))
+
+setAs("dgTMatrix", "dsTMatrix",
+      function(from) check.gT2sT(from, toClass = "dsTMatrix", do.n=FALSE))
+setAs("dgTMatrix", "symmetricMatrix",
+      function(from) check.gT2sT(from, toClass = "dsTMatrix", do.n=FALSE))
 
 mat2dgT <- function(from) {
     x <- as.double(from)
@@ -73,9 +64,8 @@ setAs("matrix", "dgTMatrix", mat2dgT)
 
 setMethod("image", "dgTMatrix",
           function(x,
-		   xlim = .5 + c(0, di[2]),
-		   ylim = .5 + c(di[1], 0),
-                   aspect = "iso", ## was default "fill"
+		   xlim = c(1, di[2]),
+		   ylim = c(di[1], 1), aspect = "iso",
                    sub = sprintf("Dimensions: %d x %d", di[1], di[2]),
 		   xlab = "Column", ylab = "Row", cuts = 15,
 		   useRaster = FALSE,
@@ -106,7 +96,11 @@ setMethod("image", "dgTMatrix",
                   }
           if(!is.null(lwd) && !(is.numeric(lwd) && all(lwd >= 0))) # allow lwd=0
               stop("'lwd' must be NULL or non-negative numeric")
-
+          stopifnot(length(xlim) == 2, length(ylim) == 2)
+	  ## ylim: the rows count from top to bottom:
+	  ylim <- sort(ylim, decreasing=TRUE)
+	  if(all(xlim == round(xlim))) xlim <- xlim+ c(-.5, .5)
+	  if(all(ylim == round(ylim))) ylim <- ylim+ c(-.5, .5)
           levelplot(x@x ~ (x@j + 1L) * (x@i + 1L),
                     sub = sub, xlab = xlab, ylab = ylab,
                     xlim = xlim, ylim = ylim, aspect = aspect,
@@ -124,7 +118,7 @@ setMethod("image", "dgTMatrix",
                     num.r <- length(col.regions)
 		    col.regions <-
 			if (num.r <= numcol)
-			    rep(col.regions, length = numcol)
+			    rep_len(col.regions, numcol)
 			else col.regions[1+ ((1:numcol-1)*(num.r-1)) %/% (numcol-1)]
                     zcol <- rep.int(NA_integer_, length(z))
 		    for (i in seq_along(col.regions))

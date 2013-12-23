@@ -69,14 +69,15 @@ tst <- function(n, i = 1) {
               {C <- (ee / D == ee / diag(n)); all(is.na(C) | C)},
               TRUE)
 }
-tmp <- sapply(1:16, tst) # failed in Matrix 1.0-4
-i <- sapply(1:16, function(i) sample(i,1))
-tmp <- mapply(tst, n= 1:16, i= i)# failed too
+nn <- if(doExtras) 27 else 7
+tmp <- sapply(1:nn, tst) # failed in Matrix 1.0-4
+i <- sapply(1:nn, function(i) sample(i,1))
+tmp <- mapply(tst, n= 1:nn, i= i)# failed too
 
 showProc.time()
 set.seed(111)
 local({
-    for(i in 1:20) {
+    for(i in 1:(if(doExtras) 20 else 5)) {
         M <- rspMat(n=1000, 200, density = 1/20)
         v <- rnorm(ncol(M))
         m <- as(M,"matrix")
@@ -188,6 +189,7 @@ lsp <- xpp > 0
 isValid(lsC <- as(lsp, "sparseMatrix"), "lsCMatrix")
 
 showProc.time()
+if(!doExtras && !interactive()) q("no") ## (saving testing time)
 
 ### Systematically look at all "Ops" group generics for "all" Matrix classes
 ### -------------- Main issue: Detect infinite recursion problems

@@ -80,6 +80,8 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(LU_expand, 1),
     CALLDEF(LU_validate, 1),
     CALLDEF(Matrix_expand_pointers, 1),
+    CALLDEF(R_all0, 1),
+    CALLDEF(R_any0, 1),
     CALLDEF(R_to_CMatrix, 1),
     CALLDEF(SVD_validate, 1),
     CALLDEF(Tsparse_validate, 1),

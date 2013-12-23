@@ -16,7 +16,7 @@
 % \alias{Ops,TsparseMatrix,CsparseMatrix-method}
 % \alias{Ops,CsparseMatrix,TsparseMatrix-method}
 %
-% "[" are in ./Xtrct-methods.Rd
+% "[" are in ./Xtrct-methods.Rd;  "[<-" in ./Subassign-methods.Rd
 \alias{\%*\%,TsparseMatrix,ANY-method}
 \alias{\%*\%,ANY,TsparseMatrix-method}
 \alias{\%*\%,TsparseMatrix,Matrix-method}
@@ -34,7 +34,7 @@
 \alias{tcrossprod,Matrix,TsparseMatrix-method}
 \alias{tcrossprod,TsparseMatrix,TsparseMatrix-method}
 \alias{tcrossprod,TsparseMatrix,missing-method}
-%% \alias{solve,TsparseMatrix,ANY-method}--> solve-methods.Rd
+%% \alias{solve,TsparseMatrix,ANY-method}--> ./solve-methods.Rd
 \alias{t,TsparseMatrix-method}
 %
 \description{The \code{"TsparseMatrix"} class is the virtual class of
@@ -73,6 +73,12 @@ Class \code{"Matrix"}, by class \code{"sparseMatrix"}.
   coerced to a \code{\linkS4class{CsparseMatrix}} for further
   operations.
 
+  Note that all \code{new(.)}, \code{\link{spMatrix}} and
+  \code{\link{sparseMatrix}(*, giveCsparse=FALSE)} constructors
+  for \code{"TsparseMatrix"} classes implicitly add \eqn{x_k}'s that belong to identical
+  \eqn{(i_k, j_k)} pairs, see, the example below, or also
+  \code{"\linkS4class{dgTMatrix}"}.
+
   For convenience, methods for some operations such as \code{\%*\%}
   and \code{crossprod} are defined for
   \code{\linkS4class{TsparseMatrix}} objects.  These methods simply
@@ -89,5 +95,9 @@ Class \code{"Matrix"}, by class \code{"sparseMatrix"}.
 showClass("TsparseMatrix")
 ## or just the subclasses' names
 names(getClass("TsparseMatrix")@subclasses)
+
+T3 <- spMatrix(3,4, i=c(1,3:1), j=c(2,4:2), x=1:4)
+T3 # only 3 non-zero entries, 5 = 1+4 !
+\dontshow{stopifnot(nnzero(T3) == 3)}
 }
 \keyword{classes}

@@ -918,7 +918,7 @@ setMethod("Arith", signature(e1 = "ddiMatrix", e2 = arg2),
 	  function(e1,e2) {
 	      n <- e1@Dim[1]
 	      f0 <- callGeneric(0, e2)
-	      if(all(is0(f0))) { # remain diagonal
+	      if(all0(f0)) { # remain diagonal
 		  L1 <- (le <- length(e2)) == 1L
 		  if(e1@diag == "U") {
 		      if(any((r <- callGeneric(1, e2)) != 1)) {
@@ -940,7 +940,7 @@ setMethod("Arith", signature(e1 = arg1, e2 = "ddiMatrix"),
 	  function(e1,e2) {
 	      n <- e2@Dim[1]
 	      f0 <- callGeneric(e1, 0)
-	      if(all(is0(f0))) { # remain diagonal
+	      if(all0(f0)) { # remain diagonal
 		  L1 <- (le <- length(e1)) == 1L
 		  if(e2@diag == "U") {
 		      if(any((r <- callGeneric(e1, 1)) != 1)) {
@@ -963,7 +963,7 @@ setMethod("Arith", signature(e1 = "ldiMatrix", e2 = arg2),
 	  function(e1,e2) {
 	      n <- e1@Dim[1]
 	      f0 <- callGeneric(0, e2)
-	      if(all(is0(f0))) { # remain diagonal
+	      if(all0(f0)) { # remain diagonal
 		  L1 <- (le <- length(e2)) == 1L
 		  E <- copyClass(e1, "ddiMatrix", c("diag", "Dim", "Dimnames"))#FIXME: if ok, check=FALSE
 		  ## E <- copyClass(e1, "ddiMatrix", check=FALSE)
@@ -988,7 +988,7 @@ setMethod("Arith", signature(e1 = arg1, e2 = "ldiMatrix"),
 	  function(e1,e2) {
 	      n <- e2@Dim[1]
 	      f0 <- callGeneric(e1, 0)
-	      if(all(is0(f0))) { # remain diagonal
+	      if(all0(f0)) { # remain diagonal
 		  L1 <- (le <- length(e1)) == 1L
 		  E <- copyClass(e2, "ddiMatrix", c("diag", "Dim", "Dimnames"))#FIXME: if ok, check=FALSE
 		  ## E <- copyClass(e2, "ddiMatrix", check=FALSE)
@@ -1021,7 +1021,7 @@ setMethod("Ops", signature(e1 = "ddiMatrix", e2 = arg2),
 	  function(e1,e2) {
 	      n <- e1@Dim[1]
 	      f0 <- callGeneric(0, e2)
-	      if(all(is0(f0))) { # remain diagonal
+	      if(all0(f0)) { # remain diagonal
 		  L1 <- (le <- length(e2)) == 1L
 		  E <- copyClass(e1, "ldiMatrix", c("diag", "Dim", "Dimnames"))#FIXME: if ok, check=FALSE
 		  ## E <- copyClass(e1, "ldiMatrix", check=FALSE)
@@ -1047,7 +1047,7 @@ setMethod("Ops", signature(e1 = "ldiMatrix", e2 = arg2),
 	  function(e1,e2) {
 	      n <- e1@Dim[1]
 	      f0 <- callGeneric(FALSE, e2)
-	      if(all(is0(f0))) { # remain diagonal
+	      if(all0(f0)) { # remain diagonal
 		  L1 <- (le <- length(e2)) == 1L
 
 		  if(e1@diag == "U") {

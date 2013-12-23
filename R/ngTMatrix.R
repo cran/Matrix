@@ -57,10 +57,15 @@ setAs("ngTMatrix", "lgTMatrix",
 	  Dim = from@Dim, Dimnames= from@Dimnames))
 setAs("ngTMatrix", "lMatrix", function(from) as(from, "lgTMatrix"))
 
+setAs("ngTMatrix", "triangularMatrix",
+      function(from) check.gT2tT(from, toClass = "ntTMatrix", do.n=TRUE))
 setAs("ngTMatrix", "ntTMatrix",
-      function(from) check.gT2tT(from, cl = "ngTMatrix", toClass = "ntTMatrix",
-				 do.n = TRUE))
-setAs("ngTMatrix", "triangularMatrix", function(from) as(from, "ntTMatrix"))
+      function(from) check.gT2tT(from, toClass = "ntTMatrix", do.n=TRUE))
+setAs("ngTMatrix", "symmetricMatrix",
+      function(from) check.gT2sT(from, toClass = "nsTMatrix", do.n=TRUE))
+## We favor coercion to super-classes, here, "symmetricMatrix"
+## setAs("ngTMatrix", "nsTMatrix",
+##       function(from) check.gT2sT(from, toClass = "nsTMatrix", do.n=TRUE))
 
 
 if(FALSE) ## unneeded: use t.<TsparseMatrix>

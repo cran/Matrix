@@ -36,7 +36,7 @@ spMatrix <- function(nrow, ncol,
 
 sparseMatrix <- function(i = ep, j = ep, p, x, dims, dimnames,
                          symmetric = FALSE, index1 = TRUE,
-                         giveCsparse = TRUE, check = TRUE)
+                         giveCsparse = TRUE, check = TRUE, use.last.ij = FALSE)
 {
   ## Purpose: user-level substitute for most  new(<sparseMatrix>, ..) calls
   ## Author: Douglas Bates, Date: 12 Jan 2009, based on Martin's version
@@ -48,7 +48,7 @@ sparseMatrix <- function(i = ep, j = ep, p, x, dims, dimnames,
             stop("'p' must be a non-decreasing vector (0, ...)")
         ep <- rep.int(seq_along(dp), dp)
     }
-    ## i and j are now both defined.  Make them 1-based indices.
+    ## i and j are now both defined (via default = ep).  Make them 1-based indices.
     i1 <- as.logical(index1)[1]
     i <- as.integer(i + !(m.i || i1))
     j <- as.integer(j + !(m.j || i1))
@@ -77,8 +77,19 @@ sparseMatrix <- function(i = ep, j = ep, p, x, dims, dimnames,
 	if(length(x) != (n <- length(i))) { ## recycle
 	    if(length(x) != 1 && n %% length(x) != 0)
 		warning("length(i) is not a multiple of length(x)")
-	    x <- rep(x, length.out = n)
+	    x <- rep_len(x, n)
 	}
+        if(use.last.ij && (id <- anyDuplicated(cbind(i,j), fromLast=TRUE))) {
+            i <- i[-id]
+            j <- j[-id]
+            x <- x[-id]
+            if(any(idup <- duplicated(cbind(i,j), fromLast=TRUE))) {
+                ndup <- -which(idup)
+                i <- i[ndup]
+                j <- j[ndup]
+                x <- x[ndup]
+            }
+        }
 	r@x <- x
     }
     r@i <- i - 1L
@@ -98,6 +109,8 @@ sparseMatrix <- function(i = ep, j = ep, p, x, dims, dimnames,
 ## Add some utils that may no longer be needed in future versions of the 'graph' package
 graph.has.weights <- function(g) "weight" %in% names(graph::edgeDataDefaults(g))
 
+graph.non.1.weights <- function(g) any(unlist(graph::edgeData(g, attr = "weight")) != 1)
+
 graph.wgtMatrix <- function(g)
 {
     ## Purpose: work around "graph" package's  as(g, "matrix") bug
@@ -114,9 +127,11 @@ graph.wgtMatrix <- function(g)
 
     ## Usual case, when there are edges:
     if(has.w <- graph.has.weights(g)) {
+        ## graph.non.1.weights(g) :
         w <- unlist(graph::edgeData(g, attr = "weight"))
         has.w <- any(w != 1)
     } ## now 'has.w' is TRUE  iff  there are weights != 1
+    ## now 'has.w' is TRUE  iff  there are weights != 1
     m <- as(g, "matrix")
     ## now is a 0/1 - matrix (instead of 0/wgts) with the 'graph' bug
     if(has.w) { ## fix it if needed
@@ -149,50 +164,56 @@ setAs("graph", "Matrix", function(from) as(from, "CsparseMatrix"))
 setAs("graphNEL", "CsparseMatrix",
       function(from) as(as(from, "TsparseMatrix"), "CsparseMatrix"))
 
-setAs("graphNEL", "TsparseMatrix",
-      function(from) {
-          nd <- graph::nodes(from)
-          dm <- rep.int(length(nd), 2)
-	  symm <- graph::edgemode(from) == "undirected"
-
- 	  if(graph.has.weights(from)) {
-	      eWts <- graph::edgeWeights(from)
-	      lens <- unlist(lapply(eWts, length))
-	      i <- rep.int(0:(dm[1]-1), lens) # column indices (0-based)
-	      To <- unlist(lapply(eWts, names))
-	      j <- as.integer(match(To,nd) - 1L) # row indices (0-based)
-	      ## symm <- symm && <weights must also be symmetric>: improbable
-	      ## if(symm) new("dsTMatrix", .....) else
-	      new("dgTMatrix", i = i, j = j, x = unlist(eWts),
-		  Dim = dm, Dimnames = list(nd, nd))
-	  }
- 	  else { ## no weights: 0/1 matrix -> logical
-              edges <- lapply(from@edgeL[nd], "[[", "edges")
-              lens <- unlist(lapply(edges, length))
-              ## nnz <- sum(unlist(lens))  # number of non-zeros
-              i <- rep.int(0:(dm[1]-1), lens) # column indices (0-based)
-              j <- as.integer(unlist(edges) - 1) # row indices (0-based)
-              if(symm) {            # symmetric: ensure upper triangle
-                  tmp <- i
-                  flip <- i > j
-                  i[flip] <- j[flip]
-                  j[flip] <- tmp[flip]
-                  new("nsTMatrix", i = i, j = j, Dim = dm,
-                      Dimnames = list(nd, nd), uplo = "U")
-              } else {
-                  new("ngTMatrix", i = i, j = j, Dim = dm,
-                      Dimnames = list(nd, nd))
-              }
-          }
-      })
+graph2T <- function(from, use.weights =
+		    graph.has.weights(from) && graph.non.1.weights(from)) {
+    nd <- graph::nodes(from); dnms <- list(nd,nd)
+    dm <- rep.int(length(nd), 2)
+    edge2i <- function(e) {
+	## return (0-based) row indices 'i'
+	rep.int(0:(dm[1]-1L),
+		## lens <-
+		vapply(e, length, 0))
+    }
+	
+    if(use.weights) {
+	eWts <- graph::edgeWeights(from); names(eWts) <- NULL
+	i <- edge2i(eWts)
+	To <- unlist(lapply(eWts, names))
+	j <- as.integer(match(To,nd)) - 1L # columns indices (0-based)
+	## symm <- symm && <weights must also be symmetric>: improbable
+	## if(symm) new("dsTMatrix", .....) else
+	new("dgTMatrix", i = i, j = j, x = unlist(eWts), Dim = dm, Dimnames = dnms)
+    }
+    else { ## no weights: 0/1 matrix -> logical
+	edges <- lapply(from@edgeL[nd], "[[", "edges")
+	symm <- graph::edgemode(from) == "undirected"
+	if(symm)# each edge appears twice; keep upper triangle only
+	    edges <- lapply(seq_along(edges), function(i) {e <- edges[[i]]; e[e >= i]})
+	i <- edge2i(edges)
+	j <- as.integer(unlist(edges)) - 1L # column indices (0-based)
+	## if(symm) {			# symmetric: ensure upper triangle
+	##     tmp <- i
+	##     flip <- i > j
+	##     i[flip] <- j[flip]
+	##     j[flip] <- tmp[flip]
+	##     new("nsTMatrix", i = i, j = j, Dim = dm, Dimnames = dnms, uplo = "U")
+	## } else {
+	##     new("ngTMatrix", i = i, j = j, Dim = dm, Dimnames = dnms)
+	## }
+	new(if(symm) "nsTMatrix" else "ngTMatrix",
+	    i = i, j = j, Dim = dm, Dimnames = dnms)# uplo = "U" is default
+    }
+}
+setAs("graphNEL", "TsparseMatrix", function(from) graph2T(from))
 
 setAs("sparseMatrix", "graph", function(from) as(from, "graphNEL"))
 setAs("sparseMatrix", "graphNEL",
-      ## since have specific method for Tsparse below, are Csparse or Rsparse,
+      ## since have specific method for Tsparse below, 'from' is *not*,
       ## i.e. do not need to "uniquify" the T* matrix:
-      function(from) Tsp2grNEL(as(from, "TsparseMatrix"), need.uniq=FALSE))
+      function(from) T2graph(as(from, "TsparseMatrix"), need.uniq=FALSE))
+setAs("TsparseMatrix", "graphNEL", function(from) T2graph(from))
 
-Tsp2grNEL <- function(from, need.uniq = is_not_uniqT(from)) {
+T2graph <- function(from, need.uniq = is_not_uniqT(from), edgemode = NULL) {
     d <- dim(from)
     if(d[1] != d[2])
 	stop("only square matrices can be used as incidence matrices for graphs")
@@ -201,24 +222,26 @@ Tsp2grNEL <- function(from, need.uniq = is_not_uniqT(from)) {
     if(is.null(rn <- dimnames(from)[[1]]))
 	rn <- as.character(1:n)
     if(need.uniq) ## Need to 'uniquify' the triplets!
-        from <- uniq(from)
+	from <- uniqTsparse(from)
 
-    if(isSymmetric(from)) { # either "symmetricMatrix" or otherwise
-	##-> undirected graph: every edge only once!
-	if(!is(from, "symmetricMatrix")) {
-	    ## a general matrix which happens to be symmetric
-	    ## ==> remove the double indices
-	    from <- tril(from)
-	}
-        eMode <- "undirected"
-    } else {
-        eMode <- "directed"
-    }
+    if(is.null(edgemode))
+        edgemode <- 
+            if(isSymmetric(from)) { # either "symmetricMatrix" or otherwise
+                ##-> undirected graph: every edge only once!
+                if(!is(from, "symmetricMatrix")) {
+                    ## a general matrix which happens to be symmetric
+                    ## ==> remove the double indices
+                    from <- tril(from)
+                }
+                "undirected"
+            } else {
+                "directed"
+            }
     ## every edge is there only once, either upper or lower triangle
     ft1 <- cbind(rn[from@i + 1L], rn[from@j + 1L])
-    graph::ftM2graphNEL(ft1, W = from@x, V= rn, edgemode= eMode)
+    graph::ftM2graphNEL(ft1, W = if(.hasSlot(from,"x")) as.numeric(from@x), ## else NULL
+			V = rn, edgemode=edgemode)
 }
-setAs("TsparseMatrix", "graphNEL", function(from) Tsp2grNEL(from))
 
 
 ### Subsetting -- basic things (drop = "missing") are done in ./Matrix.R

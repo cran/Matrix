@@ -27,7 +27,7 @@
 \alias{t,CsparseMatrix-method}
 \alias{tcrossprod,CsparseMatrix,CsparseMatrix-method}
 \alias{tcrossprod,CsparseMatrix,missing-method}
-% "[" are in ./Xtrct-methods.Rd
+% "[" are in ./Xtrct-methods.Rd; "[<-" in ./Subassign-methods.Rd
 %% Group methods --------- FIXME: not tested yet (or documented)
 \alias{Compare,CsparseMatrix,CsparseMatrix-method}
 \alias{Arith,CsparseMatrix,CsparseMatrix-method}
@@ -80,9 +80,6 @@ Class \code{"Matrix"}, by class \code{"sparseMatrix"}.
     \item{band}{\code{signature(x = "CsparseMatrix")}: ... }
     \item{-}{\code{signature(e1 = "CsparseMatrix", e2 = "numeric")}: ... }
     \item{-}{\code{signature(e1 = "numeric", e2 = "CsparseMatrix")}: ... }
-    \item{[<-}{\code{signature(x = "CsparseMatrix", i = "index", j = "missing", value = "replValue")}: ... }
-    \item{[<-}{\code{signature(x = "CsparseMatrix", i = "index", j = "index", value = "replValue")}: ... }
-    \item{[<-}{\code{signature(x = "CsparseMatrix", i = "missing", j = "index", value = "replValue")}: ... }
     \item{\%*\%}{\code{signature(x = "CsparseMatrix", y = "CsparseMatrix")}: ... }
     \item{\%*\%}{\code{signature(x = "CsparseMatrix", y = "denseMatrix")}: ... }
     \item{\%*\%}{\code{signature(x = "CsparseMatrix", y = "matrix")}: ... }

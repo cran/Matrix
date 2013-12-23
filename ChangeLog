@@ -1,3 +1,9 @@
+2013-12-23  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/dgTMatrix.R (image): (xlim, ylim) get a slightly changed
+	default, plus  ylim := sort(ylim, "decreasing").
+	This is strictly not back-compatible but should never harm.
+
 2013-09-26  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/spModels.R (fac2sparse, fac2Sparse): newly exported; plus

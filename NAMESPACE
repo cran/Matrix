@@ -51,6 +51,8 @@ export("Cholesky", ".SuiteSparse_version",
        "expm",
        "facmul", "fac2sparse", "fac2Sparse",
        "forceSymmetric",
+       ## 'graph' package (and class) related:
+       "T2graph", "graph2T",
        "isTriangular",
        "isDiagonal",
        "isLDL",

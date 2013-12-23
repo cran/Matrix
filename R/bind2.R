@@ -70,7 +70,7 @@ setMethod("rbind2", signature(x = "Matrix", y = "Matrix"),
 setMethod("cbind2", signature(x = "denseMatrix", y = "numeric"),
 	  function(x, y) {
 	      d <- dim(x); nr <- d[1]; nc <- d[2]
-	      y <- rep(y, length.out = nr) # 'silent procrustes'
+	      y <- rep_len(y, nr) # 'silent procrustes'
 	      ## beware of (packed) triangular, symmetric, ...
 	      x <- as(x, geClass(x))
 	      x@x <- c(x@x, as.double(y))
@@ -83,7 +83,7 @@ setMethod("cbind2", signature(x = "denseMatrix", y = "numeric"),
 setMethod("cbind2", signature(x = "numeric", y = "denseMatrix"),
 	  function(x, y) {
 	      d <- dim(y); nr <- d[1]; nc <- d[2]
-	      x <- rep(x, length.out = nr)
+	      x <- rep_len(x, nr)
 	      y <- as(y, geClass(y))
 	      y@x <- c(as.double(x), y@x)
 	      y@Dim[2] <- nc + 1L
@@ -350,7 +350,7 @@ setMethod("cbind2", signature(x = "sparseMatrix", y = "numeric"),
               d <- dim(x); nr <- d[1]; nc <- d[2]; cl <- class(x)
               x <- as(x, "CsparseMatrix")
               if(nr > 0) {
-                  y <- rep(y, length.out = nr) # 'silent procrustes'
+		  y <- rep_len(y, nr) # 'silent procrustes'
                   n0y <- y != 0
                   n.e <- length(x@i)
                   x@i <- c(x@i, (0:(nr-1))[n0y])
@@ -370,7 +370,7 @@ setMethod("cbind2", signature(x = "numeric", y = "sparseMatrix"),
               d <- dim(y); nr <- d[1]; nc <- d[2]; cl <- class(y)
               y <-  as(y, "CsparseMatrix")
               if(nr > 0) {
-                  x <- rep(x, length.out = nr) # 'silent procrustes'
+		  x <- rep_len(x, nr) # 'silent procrustes'
                   n0x <- x != 0
                   y@i <- c((0:(nr-1))[n0x], y@i)
                   y@p <- c(0L, sum(n0x) + y@p)

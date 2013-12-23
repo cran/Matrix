@@ -44,6 +44,8 @@
 \alias{coerce,lgTMatrix,lgCMatrix-method}
 \alias{coerce,lgTMatrix,lgeMatrix-method}
 \alias{coerce,lgTMatrix,lsCMatrix-method}
+\alias{coerce,lgTMatrix,triangularMatrix-method}
+\alias{coerce,lgTMatrix,symmetricMatrix-method}
 \alias{coerce,lgTMatrix,ltTMatrix-method}
 \alias{coerce,lgTMatrix,matrix-method}
 \alias{coerce,lsCMatrix,dgTMatrix-method}

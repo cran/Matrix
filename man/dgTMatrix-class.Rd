@@ -9,6 +9,7 @@
 \alias{coerce,dgTMatrix,dtCMatrix-method}
 \alias{coerce,dgTMatrix,dsTMatrix-method}
 \alias{coerce,dgTMatrix,dtTMatrix-method}
+\alias{coerce,dgTMatrix,symmetricMatrix-method}
 \alias{coerce,dgTMatrix,triangularMatrix-method}
 \alias{coerce,dgeMatrix,dgTMatrix-method}
 \alias{coerce,matrix,dgTMatrix-method}
@@ -22,7 +23,9 @@
 }
 \section{Objects from the Class}{
   Objects can be created by calls of the form \code{new("dgTMatrix",
-    ...)}, but more typically via \code{as(*, "dgTMatrix")}.
+    ...)}, but more typically via \code{as(*, "dgTMatrix")},
+  \code{\link{spMatrix}()}, or
+  \code{\link{sparseMatrix}(*, giveCsparse=FALSE)}.
 }
 \section{Slots}{
   \describe{
@@ -70,7 +73,13 @@
 %\author{}
 \note{Triplet matrices are a convenient form in which to construct sparse
   matrices after which they can be coerced to
-  \code{\linkS4class{dgCMatrix}} objects.}
+  \code{\linkS4class{dgCMatrix}} objects.
+
+  Note that both \code{new(.)} and \code{\link{spMatrix}} constructors
+  for \code{"dgTMatrix"} (and other \code{"linkS4class{TsparseMatrix}"}
+  classes) implicitly add \eqn{x_k}'s that belong to identical
+  \eqn{(i_k, j_k)} pairs.
+}
 \seealso{
   Class \code{\linkS4class{dgCMatrix}} or the superclasses
   \code{\linkS4class{dsparseMatrix}} and
@@ -87,6 +96,16 @@ stopifnot(identical(mT[lower.tri(mT)],
                     m [lower.tri(m) ]))
 mT[lower.tri(mT,diag=TRUE)] <- 0
 mT
+
+## Triplet representation with repeated (i,j) entries
+## *adds* the corresponding x's:
+T2 <- new("dgTMatrix",
+          i = as.integer(c(1,1,0,3,3)),
+          j = as.integer(c(2,2,4,0,0)), x=10*1:5, Dim=4:5)
+str(T2) # contains (i,j,x) slots exactly as above, but
+T2 ## has only three non-zero entries, as for repeated (i,j)'s,
+   ## the corresponding x's are "implicitly" added
+stopifnot(nnzero(T2) == 3)
 }
 \keyword{classes}
 \keyword{algebra}

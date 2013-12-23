@@ -35,7 +35,7 @@ KhatriRao <- function(X, Y = X, FUN = "*", make.dimnames = FALSE)
     dim <- as.integer(c(n1*n2, p))
 
     dns <- if (make.dimnames) { ## this is not good enough:  dnx, dny may be NULL
-	list(as.vector(outer(rownames(X),rownames(Y), FUN = "paste", sep = ":")),
+	list(as.vector(outer(rownames(Y),rownames(X), FUN = "paste", sep = ":")),
 	     colnames(X))
     } else list(NULL,NULL)
 

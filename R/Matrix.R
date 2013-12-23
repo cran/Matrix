@@ -599,8 +599,9 @@ for(ii in c("lMatrix", "logical"))
 rm(ii)
 
 
+##' x[ ij ]  where ij is (i,j) 2-column matrix
+##' @note only called from  .M.sub.i.2col(x, i) below
 subset.ij <- function(x, ij) {
-    ## x[ ij ]  where ij is (i,j) 2-column matrix
     m <- nrow(ij)
     if(m > 3) {
         cld <- getClassDef(class(x))
@@ -630,13 +631,12 @@ subset.ij <- function(x, ij) {
 
 	    m1 <- .Call(m_encodeInd, ij.x, di, checkBounds = FALSE)
             m2 <- .Call(m_encodeInd, ij -1L, di, checkBounds = TRUE)
-	    mi <- match(m1, m2, nomatch=0)
-	    mmi <- mi != 0
-	    ## Result:
+	    mi <- match(m2, m1, nomatch=0)
+	    mmi <- mi != 0L ## == (m2 %in% m1)
+	    ## Result: all FALSE or 0  apart from where we match non-zero entries
 	    ans <- vector(mode = .type.kind[.M.kindC(cld)], length = m)
 	    ## those that are *not* zero:
-	    ans[mi[mmi]] <-
-		if(extends(cld, "nsparseMatrix")) TRUE else x@x[mmi]
+	    ans[mmi] <- if(extends(cld, "nsparseMatrix")) TRUE else x@x[mi[mmi]]
 	    if(any(ina <- is.na(m2))) # has one or two NA in that (i,j) row
 		is.na(ans) <- ina
 	    ans
@@ -660,21 +660,20 @@ subset.ij <- function(x, ij) {
 .M.sub.i.2col <- function (x, i, j, ..., drop)
 {
     nA <- nargs()
-    if(nA == 2) { ##  M [ cbind(ii,jj) ] or M [ <logical matrix> ]
-	if(!is.integer(nc <- ncol(i)))
-	    stop(".M.sub.i.2col(): 'i' has no integer column number;\n should never happen; please report")
-	if(is.logical(i))
-	    return(.M.sub.i.logical(x, i=i)) # call with 2 args!
-	else if(!is.numeric(i) || nc != 2)
-	    stop("such indexing must be by logical or 2-column numeric matrix")
-	m <- nrow(i)
-        if(m == 0) return(vector(mode = .type.kind[.M.kind(x)]))
-        ## else
-        subset.ij(x, i)
+    if(nA != 2)
+        stop(domain=NA, gettextf(
+            "nargs() = %d.  Extraneous illegal arguments inside '[ .. ]' (i.2col)?", nA))
+    ## else: (nA == 2):	 M [ cbind(ii,jj) ] or M [ <logical matrix> ]
+    if(!is.integer(nc <- ncol(i)))
+        stop(".M.sub.i.2col(): 'i' has no integer column number;\n should never happen; please report")
+    if(is.logical(i))
+        return(.M.sub.i.logical(x, i=i)) # call with 2 args!
+    else if(!is.numeric(i) || nc != 2)
+        stop("such indexing must be by logical or 2-column numeric matrix")
+    if(!nrow(i)) return(vector(mode = .type.kind[.M.kind(x)]))
+    ## else
+    subset.ij(x, i)
 
-    } else stop(gettextf(
-		"nargs() = %d.  Extraneous illegal arguments inside '[ .. ]' (i.2col)?",
-			 nA), domain=NA)
 }
 setMethod("[", signature(x = "Matrix", i = "matrix", j = "missing"),# drop="ANY"
 	  .M.sub.i.2col)
@@ -687,7 +686,8 @@ setMethod("[", signature(x = "Matrix", i = "matrix", j = "missing", drop="missin
 
 ## A[ ij ] <- value,  where ij is (i,j) 2-column matrix :
 ## ----------------
-## The cheap general method --- FIXME: provide special ones; done for Tsparse..
+## The cheap general method, now only used for "pMatrix","indMatrix"
+## sparse all use  .TM.repl.i.mat()
 ## NOTE:  need '...' below such that setMethod() does
 ##	  not use .local() such that nargs() will work correctly:
 .M.repl.i.2col <- function (x, i, j, ..., value)
@@ -716,7 +716,7 @@ setMethod("[", signature(x = "Matrix", i = "matrix", j = "missing", drop="missin
 	if(length(value) > 0 && m %% length(value) != 0)
 	    warning("number of items to replace is not a multiple of replacement length")
 	## recycle:
-	value <- rep(value, length = m)
+	value <- rep_len(value, m)
 	i1 <- i[,1]
 	i2 <- i[,2]
 	if(m > 2)

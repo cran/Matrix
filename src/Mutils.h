@@ -290,6 +290,8 @@ SEXP new_dgeMatrix(int nrow, int ncol);
 SEXP m_encodeInd (SEXP ij, SEXP di, SEXP chk_bnds);
 SEXP m_encodeInd2(SEXP i, SEXP j, SEXP di, SEXP chk_bnds);
 
+SEXP R_all0(SEXP x);
+SEXP R_any0(SEXP x);
 
 static R_INLINE SEXP
 mMatrix_as_dgeMatrix(SEXP A)

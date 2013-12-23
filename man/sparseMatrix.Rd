@@ -1,12 +1,12 @@
 \name{sparseMatrix}
-%\Rdversion{1.1}
 \alias{sparseMatrix}
 \title{General Sparse Matrix Construction from Nonzero Entries}
 \description{
   User friendly construction of a compressed, column-oriented, sparse
   matrix, inheriting from \code{\link{class}}
-  \code{\linkS4class{CsparseMatrix}}, from locations (and values) of its
-  nonzero entries.
+  \code{\linkS4class{CsparseMatrix}} (or
+  \code{\linkS4class{TsparseMatrix}} if \code{giveCsparse} is false),
+  from locations (and values) of its nonzero entries.
 
   This is the recommended user interface rather than direct
   \code{\link{new}("***Matrix", ....)} calls.
@@ -14,17 +14,21 @@
 \usage{
 sparseMatrix(i = ep, j = ep, p, x, dims, dimnames,
              symmetric = FALSE, index1 = TRUE,
-             giveCsparse = TRUE, check = TRUE)
+             giveCsparse = TRUE, check = TRUE, use.last.ij = FALSE)
 }
 \arguments{
   \item{i,j}{integer vectors of the same length specifying the locations
     (row and column indices) of the non-zero (or non-\code{TRUE})
-    entries of the matrix.}
+    entries of the matrix.  Note that for \emph{repeated} pairs
+    \eqn{(i_k,j_k)}, when \code{x} is not missing, the corresponding
+    \eqn{x_k} are \emph{added}, in consistency with the definition of
+    the \code{"\linkS4class{TsparseMatrix}"} class, unless
+    \code{use.last.ij} is true, in which case only the \emph{last} of
+    the corresponding \eqn{(i_k, j_k, x_k)} triplet is used.}
   \item{p}{numeric (integer valued) vector of pointers, one for each
     column (or row), to the initial (zero-based) index of elements in the
     column (or row).  Exactly one of \code{i}, \code{j} or \code{p} must
     be missing.}
-
   \item{x}{
     optional values of the matrix entries.  If specified, must be of
     the same length as \code{i} / \code{j}, or of
@@ -50,6 +54,10 @@ sparseMatrix(i = ep, j = ep, p, x, dims, dimnames,
     very often more efficient subsequently, but not always.}
   \item{check}{logical indicating if a validity check is performed; do
     not set to \code{FALSE} unless you know what you're doing!}
+  \item{use.last.ij}{logical indicating if in the case of repeated,
+    i.e., duplicated pairs \eqn{(i_k, j_k)} only the last one should be
+    used.  The default, \code{FALSE}, corresponds to the
+    \code{"\linkS4class{TsparseMatrix}"} definition.}
 }
 \value{
   A sparse matrix, by default (see \code{giveCsparse}) in compressed,
@@ -75,9 +83,15 @@ sparseMatrix(i = ep, j = ep, p, x, dims, dimnames,
   The values of \code{i}, \code{j}, \code{p} and \code{index1} are used
   to create 1-based index vectors \code{i} and \code{j} from which a
   \code{\linkS4class{TsparseMatrix}} is constructed, with numerical
-  values given by \code{x}, if non-missing.  The
-  \code{\linkS4class{CsparseMatrix}} derived from this triplet form is
-  returned.
+  values given by \code{x}, if non-missing.  Note that in that case,
+  when some pairs \eqn{(i_k,j_k)} are repeated (aka
+  \dQuote{duplicated}), the corresponding \eqn{x_k} are \emph{added}, in
+  consistency with the definition of the
+  \code{"\linkS4class{TsparseMatrix}"} class, unless \code{use.last.ij}
+  is set to true.
+  %%
+  By default, when \code{giveCsparse} is true, the \code{\linkS4class{CsparseMatrix}} 
+  derived from this triplet form is returned.
 
   The reason for returning a \code{\linkS4class{CsparseMatrix}} object
   instead of the triplet format by default is that the compressed column
@@ -117,6 +131,14 @@ stopifnot(identical(A, A1))
 ## the (i,j) pairs can be repeated, in which case the x's are summed
 (args <- data.frame(i = c(i, 1), j = c(j, 2), x = c(x, 2)))
 (Aa <- do.call(sparseMatrix, args))
+## explicitly ask for elimination of such duplicates, so
+## that the last one is used:
+(A. <- do.call(sparseMatrix, c(args, list(use.last.ij = TRUE))))
+stopifnot(Aa[1,2] == 9, # 2+7 == 9
+          A.[1,2] == 2) # 2 was *after* 7
+
+## for a pattern matrix, of course there is no "summing":
+(nA <- do.call(sparseMatrix, args[c("i","j")]))
 
 dn <- list(LETTERS[1:3], letters[1:5])
 ## pointer vectors can be used, and the (i,x) slots are sorted if necessary:

@@ -23,7 +23,7 @@ assertWarning <- function(expr, verbose=getOption("verbose"))
 assertWarningAtLeast <- function(expr, verbose=getOption("verbose"))
     tools::assertCondition(expr, "error", "warning", verbose=verbose)
 
-} else { ## in R <= 3.0.1, use our old versions
+} else { ## in R <= 3.0.1 :
 
 ##' @title Ensure evaluating 'expr' signals an error
 ##' @param expr
@@ -38,32 +38,67 @@ assertError <- function(expr, verbose=getOption("verbose")) {
     invisible(t.res)
 }
 
-##' @title Ensure evaluating 'expr' signals a warning or an error
-##' @param expr
-##' @return the caught error/warning, invisibly
-##' @author Martin Maechler
-assertWarningAtLeast <- function(expr, verbose=getOption("verbose")) {
-    d.expr <- deparse(substitute(expr))
-    t.res <- tryCatch(expr, error = function(e)e, warning = function(w)w)
-    if(!(isE <- inherits(t.res, "error")) && !inherits(t.res, "warning"))
-	stop(d.expr, "\n\t did not give an error or warning", call. = FALSE)
-    if(verbose) cat("Asserted", if(isE) "Error:" else "Warning:",
-		    conditionMessage(t.res),"\n")
-    invisible(t.res)
+## Note that our previous version of assertWarning() did *not* work correctly:
+##     x <- 1:3; assertWarning({warning("bla:",x[1]); x[2] <- 99}); x
+## had 'x' not changed!
+
+
+## From ~/R/D/r-devel/R/src/library/tools/R/assertCondition.R :
+assertCondition <- function(expr, ...,
+                            .exprString = .deparseTrim(substitute(expr), cutoff = 30L),
+                            verbose = FALSE) {
+    fe <- function(e)e
+    getConds <- function(expr) {
+	conds <- list()
+	tryCatch(withCallingHandlers(expr,
+				     warning = function(w) {
+					 conds <<- c(conds, list(w))
+					 invokeRestart("muffleWarning")
+				     },
+				     condition = function(cond)
+					 conds <<- c(conds, list(cond))),
+		 error = function(e)
+		     conds <<- c(conds, list(e)))
+	conds
+    }
+    conds <- if(nargs() > 1) c(...) # else NULL
+    .Wanted <- if(nargs() > 1) paste(c(...), collapse = " or ") else "any condition"
+    res <- getConds(expr)
+    if(length(res)) {
+	if(is.null(conds)) {
+            if(verbose)
+                message("assertConditon: Successfully caught a condition\n")
+	    invisible(res)
+        }
+	else {
+	    ii <- sapply(res, function(cond) any(class(cond) %in% conds))
+	    if(any(ii)) {
+                if(verbose) {
+                    found <-
+                        unique(sapply(res, function(cond) class(cond)[class(cond) %in% conds]))
+                    message(sprintf("assertCondition: caught %s",
+                                    paste(dQuote(found), collapse =", ")))
+                }
+		invisible(res)
+            }
+	    else {
+                .got <- paste(unique((sapply(res, function(obj)class(obj)[[1]]))),
+                                     collapse = ", ")
+		stop(gettextf("Got %s in evaluating %s; wanted %s",
+			      .got, .exprString, .Wanted))
+            }
+	}
+    }
+    else
+	stop(gettextf("Failed to get %s in evaluating %s",
+		      .Wanted, .exprString))
 }
 
-##' @title Ensure evaluating 'expr' signals a warning
-##' @param expr
-##' @return the caught warning, invisibly
-##' @author Martin Maechler
-assertWarning <- function(expr, verbose=getOption("verbose")) {
-    d.expr <- deparse(substitute(expr))
-    t.res <- tryCatch(expr, warning = function(w)w)
-    if(!inherits(t.res, "warning"))
-	stop(d.expr, "\n\t did not give a warning", call. = FALSE)
-    if(verbose) cat("Asserted Warning:", conditionMessage(t.res),"\n")
-    invisible(t.res)
-}
+assertWarning <- function(expr, verbose=getOption("verbose"))
+    assertCondition(expr, "warning", verbose=verbose)
+assertWarningAtLeast <- function(expr, verbose=getOption("verbose"))
+    assertCondition(expr, "error", "warning", verbose=verbose)
+
 }# [else: no assertCondition ]
 
 ##' [ from R's  demo(error.catching) ]

@@ -33,7 +33,7 @@ te2 <- rbind(c(3*e_17 - 2*e_1, -3/2*e_17 + 3/2*e_1),
              c(4*e_17 - 4*e_1, -2  *e_17 + 3  *e_1))
 assert.EQ.mat(e2, te2, tol = 1e-13)
 ## See the (average relative) difference:
-all.equal(as(e2,"matrix"), te2, tol = 0) # 1.48e-14 on "lynne"
+all.equal(as(e2,"matrix"), te2, tolerance = 0) # 1.48e-14 on "lynne"
 
 ## The ``surprising identity''      det(exp(A)) == exp( tr(A) )
 ## or                           log det(exp(A)) == tr(A) :
@@ -71,8 +71,8 @@ exp.M6 <- expm(M6)
 as(exp.M6, "sparseMatrix")# prints a bit more nicely
 stopifnot(all.equal(t(exp.M6),
 		    expm(t(M6)), tol = 1e-12),
-          all.equal(exp.M6[,3], c(0,0,1,0,-2,0), tol = 1e-12),
-          all.equal(exp.M6[,5], c(0,0,0,0, 1,0), tol = 1e-12),
+          all.equal(exp.M6[,3], c(0,0,1,0,-2,0), tolerance = 1e-12),
+          all.equal(exp.M6[,5], c(0,0,0,0, 1,0), tolerance = 1e-12),
           all(exp.M6[3:4, c(1:2,5:6)] == 0)
           )
 

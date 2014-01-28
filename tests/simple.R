@@ -159,7 +159,7 @@ stopifnot(isSymmetric(M), isSymmetric(M.),
 	  !any(bdN != (0+bdN)), # <nsparse> o <dsparse>
 	  length(grep("Length", all.equal(M., (vM <- as.vector(M.))))) > 0,
 	  identical(M., (M2 <- Matrix(vM, 12,12))),
-	  all.equal(M., M2, tol=0)
+	  all.equal(M., M2, tolerance =0)
 	  )
 
 ## large sparse ones: these now directly "go sparse":
@@ -194,6 +194,13 @@ stopifnot(grep("too large", e1) == 1,
 stopifnot(suppressWarnings(any(Lrg)))# (double -> logical  warning)
 
 ## with dimnames:
+v <- c(a=1, b=2:3)
+m <- as.matrix(v)
+M <- as(v, "dgeMatrix")
+stopifnot(identical(dimnames(m), list(c("a", "b1", "b2"), NULL)),
+	  identical(M, as(m, "dgeMatrix")),
+	  identical(dimnames(M), dimnames(m)))
+
 m. <- matrix(c(0, 0, 2:0), 3, 5)
 dimnames(m.) <- list(LETTERS[1:3], letters[1:5])
 (m0 <- m <- Matrix(m.))
@@ -201,7 +208,7 @@ m@Dimnames[[2]] <- m@Dimnames[[1]]
 ## not valid anymore:
 (val <- validObject(m, test=TRUE)); stopifnot(is.character(val))
 dm <- as(m0, "denseMatrix")
-stopifnot(all.equal(rcond(dm), rcond(m.), tol = 1e-14),
+stopifnot(all.equal(rcond(dm), rcond(m.), tolerance = 1e-14),
 	  ##^^^^^^^ dm and m. are both dense, interestingly small differences
 	  ## show in at least one case of optimized BLAS
 	  all.equal(rcond(dm), 0.4899474520656),
@@ -428,7 +435,7 @@ str(xpx)# now with Cholesky factor
 stopifnot(validObject(xpx),
           validObject(xpy),
           validObject(res))
-stopifnot(all.equal(xpx %*% res, xpy, tol= 1e-12))
+stopifnot(all.equal(xpx %*% res, xpy, tolerance = 1e-12))
 lp <- xpx >= 1
 slp <- as(lp, "sparseMatrix")
 
@@ -472,12 +479,12 @@ s.ms2 <- solve(ms, ms)
 s.msm <- solve(ms, m)
 I4c <- as(Matrix(diag(4),sparse=TRUE), "generalMatrix")
 stopifnot(isValid(im, "Matrix"), isValid(I2, "Matrix"), class(I4c) == "dgCMatrix",
-          all.equal(I1, as(I2,"dgeMatrix"), tol = 1e-14),
-          all.equal(diag(4), as.mat(I2), tol = 1e-12),
-          all.equal(s.mm,  I2, tol = 1e-14),
-          all.equal(s.mms, I2, tol = 1e-14),
-          all.equal(s.ms2, s.msm, tol = 4e-15),
-          all.equal(s.ms2, I4c  , tol = 4e-15),
+          all.equal(I1, as(I2,"dgeMatrix"), tolerance = 1e-14),
+          all.equal(diag(4), as.mat(I2), tolerance = 1e-12),
+          all.equal(s.mm,  I2, tolerance = 1e-14),
+          all.equal(s.mms, I2, tolerance = 1e-14),
+          all.equal(s.ms2, s.msm, tolerance = 4e-15),
+          all.equal(s.ms2, I4c  , tolerance = 4e-15),
           abs(o4 - 1) < 1e-14)
 
 image(T125 <- kronecker(kronecker(t5,t5),t5),

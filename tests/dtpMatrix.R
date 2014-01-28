@@ -23,7 +23,7 @@ stopifnot(validObject(tp6),
           tp6@uplo == "U" && tt6@uplo == "L")
 
 all.equal(as(tp6.,"matrix"),
-          as(tp6, "matrix"), tol= 1e-15)
+          as(tp6, "matrix"), tolerance= 1e-15)
 (tr6 <- as(tp6, "dtrMatrix"))
 dH6 <- determinant(H6)
 D. <- determinant(tp6)

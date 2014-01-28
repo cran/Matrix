@@ -80,7 +80,7 @@ showMethods(chol, inherited = FALSE) # show different methods
 
 sy2 <- new("dsyMatrix", Dim = as.integer(c(2,2)), x = c(14, NA,32,77))
 (c2 <- chol(sy2))#-> "Cholesky" matrix
-stopifnot(all.equal(c2, chol(as(sy2, "dpoMatrix")), tol= 1e-13))
+stopifnot(all.equal(c2, chol(as(sy2, "dpoMatrix")), tolerance= 1e-13))
 str(c2)
 
 ## An example where chol() can't work
@@ -107,7 +107,7 @@ C2 <- chol(M2, pivot=TRUE)
 spd <- as(M2@factors[["spdCholesky"]], "Matrix")
 sPd <- as(M2@factors[["sPdCholesky"]], "Matrix")
 stopifnot(identical(t(spd), c2),
-          all.equal(t(sPd), C2, tol=0))#%% FIXME -- why not identical()?
+          all.equal(t(sPd), C2, tolerance=0))#%% FIXME -- why not identical()?
 }
 \keyword{algebra}
 \keyword{array}

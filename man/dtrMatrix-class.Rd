@@ -1,11 +1,6 @@
 \name{dtrMatrix-class}
 \title{Triangular, dense, numeric matrices}
 \docType{class}
-\alias{\%*\%,dtrMatrix,dtrMatrix-method}
-\alias{\%*\%,ddenseMatrix,dtrMatrix-method}
-\alias{\%*\%,dtrMatrix,ddenseMatrix-method}
-\alias{\%*\%,dtrMatrix,matrix-method}
-\alias{\%*\%,matrix,dtrMatrix-method}
 \alias{coerce,dgeMatrix,dtrMatrix-method}% or rather setIs?
 \alias{coerce,dtrMatrix,dtpMatrix-method}
 \alias{coerce,dtrMatrix,ltrMatrix-method}
@@ -13,13 +8,6 @@
 \alias{coerce,dtrMatrix,sparseMatrix-method}
 \alias{coerce,dtrMatrix,CsparseMatrix-method}
 \alias{coerce,matrix,dtrMatrix-method}
-\alias{crossprod,dtrMatrix,ddenseMatrix-method}
-\alias{crossprod,dtrMatrix,dtrMatrix-method}
-\alias{crossprod,dtrMatrix,matrix-method}
-\alias{crossprod,dtrMatrix,missing-method}
-\alias{tcrossprod,ddenseMatrix,dtrMatrix-method}
-\alias{tcrossprod,dtrMatrix,dtrMatrix-method}
-\alias{tcrossprod,matrix,dtrMatrix-method}
 \alias{determinant,dtrMatrix,logical-method}
 \alias{determinant,dtrMatrix,missing-method}
 \alias{diag,dtrMatrix-method}
@@ -60,14 +48,8 @@
   Class \code{"Matrix"} and others, by class \code{"ddenseMatrix"}.
 }
 \section{Methods}{
+  Among others (such as matrix products, e.g. \code{?\link{crossprod-methods}}),
   \describe{
-    \item{\%*\%}{\code{signature(x = "dtrMatrix", y = "matrix")} and other
-      signatures (use \code{showMethods("\%*\%", class="dtrMatrix")}):
-      matrix multiplication.  Multiplication of (matching) triangular
-      matrices now should remain triangular (in the sense of class
-      \linkS4class{triangularMatrix}).}
-    \item{crossprod,tcrossprod}{\code{signature(x = "dtrMatrix", y = "matrix")} and other
-      signatures, see \code{"\%*\%"} above.}
     \item{coerce}{\code{signature(from = "dgeMatrix", to = "dtrMatrix")}}
     \item{coerce}{\code{signature(from = "dtrMatrix", to = "matrix")}}
     \item{coerce}{\code{signature(from = "dtrMatrix", to = "ltrMatrix")}}

@@ -18,7 +18,7 @@ stopifnot(all.equal(mmT, mmT.))
 ## Should be the same but not quite: even length( * @ x ) differs!
 ##str(mmT, max=2)# much larger than mTm (i.e less sparse)
 ##str(mmT., max=2)# x slot is currently slightly larger --> improve tcrossprod()?
-##system.time(ae <- all.equal(as(mmT.,"matrix"), as(mmT,"matrix"), tol = 1e-14))
+##system.time(ae <- all.equal(as(mmT.,"matrix"), as(mmT,"matrix"), tolerance = 1e-14))
 ## 4-5 seconds on a 850 MHz, P III
 ##stopifnot(ae)
 
@@ -62,8 +62,8 @@ mc <- as(m1, "dgCMatrix")
 m2 <- as(mc, "dgTMatrix")## the same as 'm1' but without duplicates
 
 stopifnot(!isTRUE(all.equal.default(m1, m2)),
-          all.equal(as(m1,"matrix"), as(m2,"matrix"), tol=1e-15),
-          all.equal(crossprod(m1), crossprod(m2), tol=1e-15),
+          all.equal(as(m1,"matrix"), as(m2,"matrix"), tolerance =1e-15),
+          all.equal(crossprod(m1), crossprod(m2), tolerance =1e-15),
           identical(mc, as(m2, "dgCMatrix")))
 
 ### -> uniq* functions now in ../R/Auxiliaries.R

@@ -3,6 +3,10 @@
 \docType{class}
 \alias{dgeMatrix-class}
 % METHODS:
+%\alias{solve,....-method}--> solve-methods.Rd
+%\alias{\%*\%,....-method}     --> matrix-products.Rd
+%\alias{crossprod,...-method}--> matrix-products.Rd
+%\alias{tcrossprod,..-method}-->   "        "
 % Group ones
 \alias{Arith,dgeMatrix,dgeMatrix-method}
 \alias{Arith,dgeMatrix,logical-method}
@@ -13,24 +17,14 @@
 %\alias{Math2,dgeMatrix,numeric-method}
 % Others
 %
-\alias{\%*\%,dgeMatrix,dgeMatrix-method}
-\alias{\%*\%,dgeMatrix,matrix-method}
-\alias{\%*\%,dgeMatrix,numeric-method}
-\alias{\%*\%,matrix,dgeMatrix-method}
-\alias{\%*\%,numeric,dgeMatrix-method}
 \alias{as.vector,dgeMatrix,missing-method}
 \alias{coerce,dgeMatrix,matrix-method}
 \alias{coerce,dgeMatrix,triangularMatrix-method}
 \alias{coerce,dgeMatrix,lgeMatrix-method}
+\alias{coerce,numLike,dgeMatrix-method}
 \alias{coerce,matrix,dgeMatrix-method}
 \alias{colMeans,dgeMatrix-method}
 \alias{colSums,dgeMatrix-method}
-\alias{crossprod,dgeMatrix,dgeMatrix-method}
-\alias{crossprod,dgeMatrix,matrix-method}
-\alias{crossprod,dgeMatrix,numeric-method}
-\alias{crossprod,dgeMatrix,missing-method}
-\alias{crossprod,matrix,dgeMatrix-method}
-\alias{crossprod,numeric,dgeMatrix-method}
 \alias{determinant,dgeMatrix,logical-method}
 \alias{determinant,dgeMatrix,missing-method}
 \alias{diag,dgeMatrix-method}
@@ -45,14 +39,7 @@
 \alias{rcond,dgeMatrix,character-method}
 \alias{rowMeans,dgeMatrix-method}
 \alias{rowSums,dgeMatrix-method}
-%\alias{solve,dgeMatrix,matrix-method}--> solve-methods.Rd
 \alias{t,dgeMatrix-method}
-\alias{tcrossprod,dgeMatrix,missing-method}
-\alias{tcrossprod,dgeMatrix,dgeMatrix-method}
-\alias{tcrossprod,dgeMatrix,matrix-method}
-\alias{tcrossprod,dgeMatrix,numeric-method}
-\alias{tcrossprod,matrix,dgeMatrix-method}
-\alias{tcrossprod,numeric,dgeMatrix-method}
 %
 \description{A general numeric dense matrix in the S4 Matrix
   representation.  \code{dgeMatrix} is the \emph{\dQuote{standard}}
@@ -85,11 +72,11 @@
     \item{Math}{\code{signature(x = "dgeMatrix")}: ... }
     \item{Math2}{\code{signature(x = "dgeMatrix", digits = "numeric")}: ...}
   }
+  matrix products \code{\link[=crossprod-methods]{\%*\%}},
+  \code{\link[=crossprod-methods]{crossprod}()} and \code{tcrossprod()},
+  several \code{\link{solve}} methods,
   and other matrix methods available:
   \describe{
-    \item{\%*\%}{\code{signature(x = "dgeMatrix", y = "dgeMatrix")}:
-      Matrix multiplication; ditto for several other signature
-      combinations, see \code{showMethods("\%*\%", class = "dgeMatrix")}.}
     \item{Schur}{\code{signature(x = "dgeMatrix", vectors = "logical")}: ... }
     \item{Schur}{\code{signature(x = "dgeMatrix", vectors = "missing")}: ... }
     \item{chol}{\code{signature(x = "dgeMatrix")}: see \code{\link{chol}}.}
@@ -98,10 +85,6 @@
     \item{coerce}{\code{signature(from = "matrix", to = "dgeMatrix")}: ... }
     \item{colMeans}{\code{signature(x = "dgeMatrix")}: columnwise means (averages)}
     \item{colSums}{\code{signature(x = "dgeMatrix")}: columnwise sums}
-    \item{crossprod}{\code{signature(x = "dgeMatrix", y = "dgeMatrix")}:
-      ditto for several other signatures, use
-      \code{showMethods("crossprod", class = "dgeMatrix")}, matrix
-      crossproduct, an efficient version of \code{t(x) \%*\% y}.}
     \item{diag}{\code{signature(x = "dgeMatrix")}: ... }
     \item{dim}{\code{signature(x = "dgeMatrix")}: ... }
     \item{dimnames}{\code{signature(x = "dgeMatrix")}: ... }

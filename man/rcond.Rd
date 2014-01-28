@@ -123,7 +123,7 @@ if(interactive()) ## takes about 2 seconds
 system.time(r. <- rcond(M3, useInv=TRUE))
 if(interactive()) ## the values are not the same
   c(r, r.)  # 0.05555 0.013888
-\dontshow{stopifnot(all.equal(r., 1/72, tol=1e-12))}
+\dontshow{stopifnot(all.equal(r., 1/72, tolerance=1e-12))}
 }
 \keyword{array}
 \keyword{algebra}

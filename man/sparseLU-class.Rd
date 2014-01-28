@@ -69,7 +69,7 @@ stopifnot(identical(xA$ L, luA@L),
           identical(xA$ Q, as(luA@q +1L, "pMatrix")))
 
 P.LUQ <- with(xA, t(P) \%*\% L \%*\% U \%*\% Q)
-stopifnot(all.equal(A, P.LUQ, tol = 1e-12))
+stopifnot(all.equal(A, P.LUQ, tolerance = 1e-12))
 ## permute rows and columns of original matrix
 pA <- A[luA@p + 1L, luA@q + 1L]
 stopifnot(identical(pA, with(xA, P \%*\% A \%*\% t(Q))))

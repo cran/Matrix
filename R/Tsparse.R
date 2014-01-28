@@ -17,6 +17,10 @@ setAs("TsparseMatrix", "matrix",
 ## adjusted for triangular matrices not represented in cholmod
 .T.2.C <- function(from) .Call(Tsparse_to_Csparse, from, ##
 			       is(from, "triangularMatrix"))
+## fast, exported for power users
+.T2Cmat <- function(from, isTri = is(from, "triangularMatrix"))
+    .Call(Tsparse_to_Csparse, from, isTri)
+
 
 setAs("TsparseMatrix", "CsparseMatrix", .T.2.C)
 

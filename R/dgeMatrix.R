@@ -1,10 +1,12 @@
-setAs("matrix", "dgeMatrix",
-      function(from) .Call(dup_mMatrix_as_dgeMatrix, from))
+
+##' works for vectors, matrix, ..
+..2dge <- function(from) .Call(dup_mMatrix_as_dgeMatrix, from)
+
+setAs("matrix",  "dgeMatrix", ..2dge)
+setAs("numLike", "dgeMatrix", ..2dge)
 
 setAs("dgeMatrix", "matrix",
-      function(from) {
-	  array(from@x, dim = from@Dim, dimnames = from@Dimnames)
-      })
+      function(from) array(from@x, dim = from@Dim, dimnames = from@Dimnames))
 
 ## Group Methods, see ?Math (e.g.)
 
@@ -53,7 +55,7 @@ setMethod("rcond", signature(x = "dgeMatrix", norm = "character"),
 ##> if(getRversion() < "2.11.0" || R.version$`svn rev` < 51018)
 ##--- the same for "traditional"  'matrix':
 setMethod("norm", signature(x = "matrix", type = "character"),
-	  function(x, type, ...) .Call(dgeMatrix_norm, as(x,"dgeMatrix"), type),
+	  function(x, type, ...) .Call(dgeMatrix_norm, ..2dge(x), type),
 	  valueClass = "numeric")
 
 setMethod("t", signature(x = "dgeMatrix"), t_geMatrix)

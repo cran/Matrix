@@ -39,7 +39,7 @@ tst.c.abI <- function(lii) {
     a.i <- do.call(c, aii)
     avi <- as(v.i, "abIndex")
     ## identical() is too hard, as values & lengths can be double/integer
-    stopifnot(all.equal(a.i, avi, tol = 0))
+    stopifnot(all.equal(a.i, avi, tolerance = 0))
 }
 tst.c.abI(list(2:6, 70:50, 5:-2))
 ## now an example where *all* are uncompressed:

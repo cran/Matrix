@@ -132,10 +132,10 @@ mkNA.0 <- function(x) { x[is.na(x)] <- 0 ; x }
 
 
 is.all.equal3 <- function(x,y,z, tol = .Machine$double.eps^0.5)
-    isTRUE(all.equal(x,y, tol=tol)) && isTRUE(all.equal(y,z, tol=tol))
+    isTRUE(all.equal(x,y, tolerance=tol)) && isTRUE(all.equal(y,z, tolerance=tol))
 
 is.all.equal4 <- function(x,y,z,u, tol = .Machine$double.eps^0.5)
-    is.all.equal3(x,y,z, tol=tol) && isTRUE(all.equal(z,u, tol=tol))
+    is.all.equal3(x,y,z, tol=tol) && isTRUE(all.equal(z,u, tolerance=tol))
 
 ## A version of all.equal() for the slots
 all.slot.equal <- function(x,y, ...) {
@@ -149,13 +149,13 @@ all.slot.equal <- function(x,y, ...) {
 }
 
 ## all.equal() for list-coercible objects -- apart from *some* components
-all.equal.X <- function(x,y, except, ...)
+all.equal.X <- function(x,y, except, tol = .Machine$double.eps^0.5, ...)
 {
     .trunc <- function(x) {
 	ll <- as.list(x)
 	ll[ - match(except, names(ll), nomatch = 0L)]
     }
-    all.equal(.trunc(x), .trunc(y), ...)
+    all.equal(.trunc(x), .trunc(y), tolerance = tol, ...)
 }
 ## e.g. in lme4:
 ##  all.equal.X(env(m1), env(m2), except = c("call", "frame"))
@@ -222,9 +222,9 @@ assert.EQ <- function(target, current, tol = if(showOnly) 0 else 1e-15,
     ## Purpose: check equality *and* show non-equality
     ## ----------------------------------------------------------------------
     ## showOnly: if TRUE, return (and hence typically print) all.equal(...)
-    T <- isTRUE(ae <- all.equal(target, current, tol = tol, ...))
+    T <- isTRUE(ae <- all.equal(target, current, tolerance = tol, ...))
     if(showOnly) return(ae) else if(giveRE && T) { ## don't show if stop() later:
-	ae0 <- if(tol == 0) ae else all.equal(target, current, tol = 0, ...)
+	ae0 <- if(tol == 0) ae else all.equal(target, current, tolerance = 0, ...)
 	if(!isTRUE(ae0)) cat(ae0,"\n")
     }
     if(!T) stop("all.equal() |-> ", paste(ae, collapse=sprintf("%-19s","\n")))
@@ -288,5 +288,5 @@ chk.matrix <- function(M) {
 
 isOrthogonal <- function(x, tol = 1e-15) {
     all.equal(diag(as(zapsmall(crossprod(x)), "diagonalMatrix")),
-              rep(1, ncol(x)), tol = tol)
+              rep(1, ncol(x)), tolerance = tol)
 }

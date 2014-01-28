@@ -122,7 +122,7 @@ f12 <- gl(3,0, 12)
 stopifnot(
   all.equal(t( fac2sparse(ff) ),
 	    sparse.model.matrix(~ 0+ff),
-	    tol = 0, check.attributes=FALSE),
+	    tolerance = 0, check.attributes=FALSE),
   is(M <- fac2sparse(f30, drop= TRUE),"CsparseMatrix"), dim(M) == c(0, 0),
   is(M <- fac2sparse(f30, drop=FALSE),"CsparseMatrix"), dim(M) == c(3, 0),
   is(M <- fac2sparse(f12, drop= TRUE),"CsparseMatrix"), dim(M) == c(0,12),

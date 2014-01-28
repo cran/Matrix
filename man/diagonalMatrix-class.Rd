@@ -202,39 +202,8 @@
 \alias{t,diagonalMatrix-method}
 \alias{print,diagonalMatrix-method}
 \alias{show,diagonalMatrix-method}
-\alias{\%*\%,dgeMatrix,diagonalMatrix-method}
-\alias{\%*\%,matrix,diagonalMatrix-method}
-\alias{\%*\%,diagonalMatrix,dgeMatrix-method}
-\alias{\%*\%,diagonalMatrix,diagonalMatrix-method}
-\alias{\%*\%,diagonalMatrix,matrix-method}
-\alias{\%*\%,diagonalMatrix,CsparseMatrix-method}
-\alias{\%*\%,diagonalMatrix,sparseMatrix-method}
-\alias{\%*\%,CsparseMatrix,diagonalMatrix-method}
-\alias{\%*\%,sparseMatrix,diagonalMatrix-method}
-\alias{\%*\%,denseMatrix,diagonalMatrix-method}
-\alias{\%*\%,diagonalMatrix,denseMatrix-method}
-\alias{\%*\%,diagonalMatrix,lgeMatrix-method}
-\alias{\%*\%,lgeMatrix,diagonalMatrix-method}
-\alias{crossprod,CsparseMatrix,diagonalMatrix-method}
-\alias{crossprod,diagonalMatrix,CsparseMatrix-method}
-\alias{crossprod,diagonalMatrix,dgeMatrix-method}
-\alias{crossprod,diagonalMatrix,diagonalMatrix-method}
-\alias{crossprod,diagonalMatrix,lgeMatrix-method}
-\alias{crossprod,diagonalMatrix,matrix-method}
-\alias{crossprod,diagonalMatrix,missing-method}
-\alias{crossprod,diagonalMatrix,sparseMatrix-method}
-\alias{crossprod,sparseMatrix,diagonalMatrix-method}
-\alias{tcrossprod,CsparseMatrix,diagonalMatrix-method}
-\alias{tcrossprod,dgeMatrix,diagonalMatrix-method}
-\alias{tcrossprod,diagonalMatrix,CsparseMatrix-method}
-\alias{tcrossprod,diagonalMatrix,diagonalMatrix-method}
-\alias{tcrossprod,diagonalMatrix,matrix-method}
-\alias{tcrossprod,diagonalMatrix,missing-method}
-\alias{tcrossprod,diagonalMatrix,sparseMatrix-method}
-\alias{tcrossprod,lgeMatrix,diagonalMatrix-method}
-\alias{tcrossprod,matrix,diagonalMatrix-method}
-\alias{tcrossprod,sparseMatrix,diagonalMatrix-method}
-%\alias{solve,diagonalMatrix,Matrix-method}--> solve-methods.Rd
+%\alias{solve,...} --> solve-methods.Rd
+%\alias{\%*%,... } --> matrix-products.Rd
 \alias{summary,diagonalMatrix-method}
 \description{
   Class "diagonalMatrix" is the virtual class of all diagonal matrices.
@@ -268,12 +237,6 @@
     \item{coerce}{\code{signature(from = "diagonalMatrix", to = "matrix")}: ... }
     \item{coerce}{\code{signature(from = "diagonalMatrix", to = "sparseVector")}: ... }
     \item{t}{\code{signature(x = "diagonalMatrix")}: ... }
-    \item{\%*\%}{\code{signature(x = "dgeMatrix", y = "diagonalMatrix")}: ... }
-    \item{\%*\%}{\code{signature(x = "matrix", y = "diagonalMatrix")}: ... }
-    \item{\%*\%}{\code{signature(x = "diagonalMatrix", y = "matrix")}: ... }
-    \item{\%*\%}{\code{signature(x = "diagonalMatrix", y = "dgeMatrix")}: ... }
-
-    \item{crossprod}{\code{signature(x = "diagonalMatrix", y = "dgeMatrix")}: ... }
     \cr and many more methods
 
     \item{solve}{\code{signature(a = "diagonalMatrix", b, ...)}: is
@@ -314,7 +277,7 @@ stopifnot(identical(crossprod(I5), I5),
           identical(crossprod(I5, D5), D5),
           identical(tcrossprod(D5, I5), D5),
           identical(solve(D5), solve(D5, I5)),
-          all.equal(D5, solve(solve(D5)), tol = 1e-12)
+          all.equal(D5, solve(solve(D5)), tolerance = 1e-12)
           )
 solve(D5)# efficient as is diagonal
 

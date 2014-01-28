@@ -19,11 +19,6 @@
 \alias{diag,ndenseMatrix-method}
 \alias{norm,ndenseMatrix,character-method}
 \alias{which,ndenseMatrix-method}
-%%-- These are already in ./nsparseMatrix-classes.Rd :
-%\alias{\%*\%,nsparseMatrix,ndenseMatrix-method}
-%\alias{\%*\%,ndenseMatrix,nsparseMatrix-method}
-%\alias{crossprod,nsparseMatrix,ndenseMatrix-method}
-%\alias{crossprod,ndenseMatrix,nsparseMatrix-method}
 %
 \title{Virtual Class "ndenseMatrix" of Dense Logical Matrices}
 \description{

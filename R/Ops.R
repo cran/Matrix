@@ -1154,7 +1154,7 @@ A.M.n <- function(e1, e2) {
 	if(length(e2) == 1) {
 	    r[] <- f0
 	    r[non0ind(e1, getClassDef("dgCMatrix")) + 1L] <- callGeneric(e1@x, e2)
-	    as(r, "dgeMatrix")
+	    ..2dge(r)
 	} else {
 	    as(callGeneric(r, e2), "dgeMatrix")
 	}
@@ -1195,7 +1195,7 @@ A.n.M <- function(e1, e2) {
 	    r[] <- f0
 	    r[non0ind(e2, getClassDef("dgCMatrix")) + 1L] <-
 		callGeneric(e1, e2@x)
-	    as(r, "dgeMatrix")
+	    ..2dge(r)
 	} else {
 	    as(callGeneric(e1, r), "dgeMatrix")
 	}

@@ -1,5 +1,6 @@
 \name{dMatrix-class}
 \docType{class}
+\title{(Virtual) Class "dMatrix" of "double" Matrices}
 \alias{dMatrix-class}
 \alias{lMatrix-class}
 %
@@ -56,23 +57,9 @@
 \alias{lgamma,dMatrix-method}
 %
 \alias{zapsmall,dMatrix-method}
-\alias{\%*\%,nMatrix,lMatrix-method}
-\alias{\%*\%,lMatrix,nMatrix-method}
-\alias{\%*\%,lMatrix,lMatrix-method}
-\alias{\%*\%,nMatrix,nMatrix-method}
-\alias{\%*\%,dMatrix,lMatrix-method}
-\alias{\%*\%,dMatrix,nMatrix-method}
-\alias{\%*\%,lMatrix,dMatrix-method}
-\alias{\%*\%,nMatrix,dMatrix-method}
 %\alias{which,lMatrix-method}
 %
-% operations with one argument from the "integer" class
-\alias{crossprod,dMatrix,integer-method}
-\alias{crossprod,integer,dMatrix-method}
-%\alias{solve,dMatrix,integer-method}--> solve-methods.Rd
-\alias{\%*\%,dMatrix,integer-method}
-\alias{\%*\%,integer,dMatrix-method}
-\title{(Virtual) Class "dMatrix" of "double" Matrices}
+%\alias{solve,...} --> solve-methods.Rd
 \description{
   The \code{dMatrix} class is a virtual class contained by all actual
   classes of numeric matrices in the \pkg{Matrix} package.  Similarly,

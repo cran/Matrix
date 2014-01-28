@@ -97,7 +97,7 @@ signif(csm <- chol(sm), 4)
 if (toupper(ch@uplo) == "U") # which is TRUE
    crossprod(ch)
 stopifnot(all.equal(as(crossprod(ch), "matrix"),
-                    as(pm, "matrix"), tol=1e-14))
+                    as(pm, "matrix"), tolerance=1e-14))
 }
 \keyword{classes}
 \keyword{algebra}

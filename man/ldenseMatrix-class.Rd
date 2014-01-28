@@ -1,4 +1,5 @@
 \name{ldenseMatrix-class}
+\title{Virtual Class "ldenseMatrix" of Dense Logical Matrices}
 \docType{class}
 \alias{ldenseMatrix-class}
 % Group
@@ -6,8 +7,8 @@
 \alias{Ops,ldenseMatrix,ldenseMatrix-method}
 \alias{Logic,ldenseMatrix,lsparseMatrix-method}
 \alias{Logic,lsparseMatrix,ldenseMatrix-method}
-% purely "sparse" are in ./lsparseMatrix-classes.Rd
-%
+% purely "sparse" are in   ./lsparseMatrix-classes.Rd
+%%-- Matrix products: ---> ./matrix-products.Rd
 \alias{as.logical,ldenseMatrix-method}
 \alias{as.vector,ldenseMatrix,missing-method}
 \alias{coerce,matrix,ldenseMatrix-method}
@@ -15,13 +16,6 @@
 \alias{diag,ldenseMatrix-method}
 \alias{norm,ldenseMatrix,character-method}
 \alias{which,ldenseMatrix-method}
-%%-- These are already in ./lsparseMatrix-classes.Rd :
-%\alias{\%*\%,lsparseMatrix,ldenseMatrix-method}
-%\alias{\%*\%,ldenseMatrix,lsparseMatrix-method}
-%\alias{crossprod,lsparseMatrix,ldenseMatrix-method}
-%\alias{crossprod,ldenseMatrix,lsparseMatrix-method}
-%
-\title{Virtual Class "ldenseMatrix" of Dense Logical Matrices}
 \description{
   \code{ldenseMatrix} is the virtual class of all dense \bold{l}ogical
   (S4) matrices.  It extends both \code{\linkS4class{denseMatrix}}
@@ -41,12 +35,8 @@ Class \code{"Matrix"}, by class \code{"denseMatrix"}.
 }
 \section{Methods}{
   \describe{
-    \item{\%*\%}{\code{signature(x = "lsparseMatrix", y = "ldenseMatrix")}: ... }
-    \item{\%*\%}{\code{signature(x = "ldenseMatrix", y = "lsparseMatrix")}: ... }
     \item{coerce}{\code{signature(from = "matrix", to = "ldenseMatrix")}: ... }
     \item{coerce}{\code{signature(from = "ldenseMatrix", to = "matrix")}: ... }
-    \item{crossprod}{\code{signature(x = "lsparseMatrix", y = "ldenseMatrix")}: ... }
-    \item{crossprod}{\code{signature(x = "ldenseMatrix", y = "lsparseMatrix")}: ... }
     \item{as.vector}{\code{signature(x = "ldenseMatrix", mode = "missing")}: ...}
 
     \item{which}{\code{signature(x = "ndenseMatrix")}, semantically

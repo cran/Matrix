@@ -2,12 +2,6 @@
 \title{Packed Triangular Dense Matrices - "dtpMatrix"}
 \docType{class}
 \alias{dtpMatrix-class}
-\alias{crossprod,dtpMatrix,ddenseMatrix-method}
-\alias{crossprod,dtpMatrix,matrix-method}
-\alias{\%*\%,dtpMatrix,ddenseMatrix-method}
-\alias{\%*\%,dgeMatrix,dtpMatrix-method}
-\alias{\%*\%,dtpMatrix,matrix-method}
-\alias{\%*\%,matrix,dtpMatrix-method}
 \alias{coerce,dtpMatrix,dtTMatrix-method}
 \alias{coerce,dtpMatrix,dtrMatrix-method}
 \alias{coerce,dtpMatrix,ltpMatrix-method}

@@ -44,6 +44,7 @@ export("Cholesky", ".SuiteSparse_version",
        "condest", "onenormest",
        "det",# << "identical" as base - but with correct determinant()
        ## "mkDet", # <- useful in other packages (Rmpfr, gmp) .. hmm --> 'stats' ?
+       ".dsy2mat", ".dxC2mat", ".T2Cmat", "..2dge",
        ".diag.dsC",# -> R/dsCMatrix.R --has FIXME
        "diagN2U", "diagU2N", ".diagU2N", ".diag2tT", ".diag2sT",
        "drop0",
@@ -73,8 +74,7 @@ export("Cholesky", ".SuiteSparse_version",
        "symmpart",
        "skewpart",
        "tcrossprod",
-       "tril",
-       "triu",
+       "tril", "triu",
        "updown",
        "pack", "unpack"
        , ".updateCHMfactor"

@@ -7,14 +7,14 @@ stopifnot(c(0,0) == dim(Hilbert(0)),
           c(9,9) == dim(h9),
 	  identical(h9@factors, list()))
 str(h9)# no 'factors'
-all.equal(c(determinant(h9)$modulus), -96.7369456, tol= 2e-8)
+all.equal(c(determinant(h9)$modulus), -96.7369456, tolerance = 2e-8)
 ## determinant() now working via chol(): ==> h9 now has factorization
 stopifnot(names(h9@factors) == "Cholesky",
           identical(ch9 <- chol(h9), h9@factors$Cholesky))
 round(ch9, 3) ## round() preserves 'triangular' !
 str(f9 <- as(ch9, "dtrMatrix"))
 stopifnot(all.equal(rcond(h9), 9.0938e-13),
-          all.equal(rcond(f9), 9.1272e-7, tol = 1e-6))# more precision fails
+          all.equal(rcond(f9), 9.1272e-7, tolerance = 1e-6))# more precision fails
 options(digits=4)
 (cf9 <- crossprod(f9))# looks the same as  h9 :
 assert.EQ.mat(h9, as.matrix(cf9), tol=1e-15)
@@ -50,8 +50,8 @@ stopifnot(names(H6@factors)  == "pCholesky",
 	  names(hs@factors)  == "Cholesky") # for now
 chol(hs) # and that is cached in 'hs' too :
 stopifnot(names(hs@factors) %in% c("Cholesky","pCholesky"),
-	  all.equal(h9, crossprod(hs@factors$pCholesky), tol=1e-13),
-	  all.equal(h9, crossprod(hs@factors$ Cholesky), tol=1e-13))
+	  all.equal(h9, crossprod(hs@factors$pCholesky), tolerance =1e-13),
+	  all.equal(h9, crossprod(hs@factors$ Cholesky), tolerance =1e-13))
 
 hs@x <- 1/h9p@x # is not pos.def. anymore
 validObject(hs) # "but" this does not check
@@ -61,7 +61,7 @@ s9 <- solve(h9p, seq(nrow(h9p)))
 signif(t(s9)/10000, 4)# only rounded numbers are platform-independent
 (I9 <- h9p %*% s9)
 m9 <- matrix(1:9, dimnames = list(NULL,NULL))
-stopifnot(all.equal(m9, as.matrix(I9), tol = 2e-9))
+stopifnot(all.equal(m9, as.matrix(I9), tolerance = 2e-9))
 
 ### Testing nearPD() --- this is partly in  ../man/nearPD.Rd :
 pr <- Matrix(c(1,     0.477, 0.644, 0.478, 0.651, 0.826,
@@ -96,7 +96,7 @@ all.equal(nn["1",],
           c(r =0.0999444286984696, r.1= 0.0880468666522317,
             rs=0.0999444286984702, rs1= 0.0874614179943388,
             rH=0.0999444286984696, rH.1=0.0880468927726625),
-          tol=1e-9))
+          tolerance=1e-9))
 
 nr <- nL $rH.1 $mat
 stopifnot(
@@ -105,7 +105,7 @@ stopifnot(
 		0.8082100656035, 0.514511537243, 0.2503412693503, 0.673249718642,
 		0.7252316891977, 0.5972811755863, 0.5818673040157, 0.7444549621769,
 		0.7308954865819, 0.7713984381710, 0.8124321235679),
-	      tol = 1e-9))
+	      tolerance = 1e-9))
 showProc.time()
 
 
@@ -124,9 +124,9 @@ for(M in c(5, 12))
 	m <- cov2cor(m)
 	CPU <- CPU + system.time(n.m <- nearPD(m))[1]
 	X <- as(n.m$mat, "matrix")
-	stopifnot(all.equal(X, (X + t(X))/2, tol = 8*.Machine$double.eps),
+	stopifnot(all.equal(X, (X + t(X))/2, tolerance = 8*.Machine$double.eps),
 		  all.equal(eigen(n.m$mat, only.values=TRUE)$values,
-			    n.m$eigenvalues, tol = 4e-8))
+			    n.m$eigenvalues, tolerance = 4e-8))
     }
 cat('Time elapsed for ',nRep, 'nearPD(): ', CPU,'\n')
 showProc.time()
@@ -145,7 +145,7 @@ ev <- eigen(cspr, only.v = TRUE)$values
 stopifnot(is(spr, "dsCMatrix"),
           is(cspr,"dsCMatrix"),
           all.equal(ev, c(1.5901626099,  1.1902658504, 1, 1,
-                          0.80973414959, 0.40983739006), tol=1e-10))
+                          0.80973414959, 0.40983739006), tolerance=1e-10))
 
 x <- c(2,1,1,2)
 mM <- Matrix(x, 2,2, dimnames=rep( list(c("A","B")), 2))# dsy
@@ -167,7 +167,7 @@ assert.EQ.mat(c1, co.x)
 assert.EQ.mat(c2, co.x) # failed in Matrix 0.999375-9, because of
 ## the wrong automatic "dsyMatrix" -> "corMatrix" coerce method
 stopifnot(identical(dimnames(c1), dimnames(mM)),
-	  all.equal(c1, c3, tol=1e-15))
+	  all.equal(c1, c3, tolerance =1e-15))
 
 showProc.time()
 

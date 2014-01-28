@@ -363,7 +363,7 @@ setMethod("rcond", signature(x = "ANY", norm = "missing"),
 	  function(x, norm, ...) rcond(x, norm = "O", ...))
 
 setMethod("lu", "matrix", function(x, warnSing = TRUE, ...)
-	  lu(as(x, "dgeMatrix"), warnSing=warnSing, ...))
+	  lu(..2dge(x), warnSing=warnSing, ...))
 
 
 

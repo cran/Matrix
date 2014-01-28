@@ -75,10 +75,10 @@ Schur(Hilbert(9))              # Schur factorization (real eigenvalues)
 
 eTA <- eigen(Sch.A@T)
 str(SchA <- Schur(A, vectors=FALSE))# no 'T' ==> simple list
-stopifnot(all.equal(eTA$values, eigen(A)$values, tol = 1e-13),
+stopifnot(all.equal(eTA$values, eigen(A)$values, tolerance = 1e-13),
           all.equal(eTA$values,
                     local({z <- Sch.A@EValues
-                           z[order(Mod(z), decreasing=TRUE)]}), tol = 1e-13),
+                           z[order(Mod(z), decreasing=TRUE)]}), tolerance = 1e-13),
           identical(SchA$T, Sch.A@T),
           identical(SchA$EValues, Sch.A@EValues))
 

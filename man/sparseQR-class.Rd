@@ -137,10 +137,10 @@ str(qrm <- qr(mm))
  qc  <- qr.coef  (qrm, y); qc. <- qr.coef  (qrm, y.) # 2nd failed in Matrix <= 1.1-0
  qf  <- qr.fitted(qrm, y); qf. <- qr.fitted(qrm, y.)
  qs  <- qr.resid (qrm, y); qs. <- qr.resid (qrm, y.)
-stopifnot(all.equal(qc, as.numeric(qc.),  tol=1e-12),
-          all.equal(qf, as.numeric(qf.),  tol=1e-12),
-          all.equal(qs, as.numeric(qs.),  tol=1e-12),
-          all.equal(qf+qs, y, tol=1e-12))
+stopifnot(all.equal(qc, as.numeric(qc.),  tolerance=1e-12),
+          all.equal(qf, as.numeric(qf.),  tolerance=1e-12),
+          all.equal(qs, as.numeric(qs.),  tolerance=1e-12),
+          all.equal(qf+qs, y, tolerance=1e-12))
 %% FIXME: add more similarly to ./lu.Rd, see also ./qr-methods.Rd
 }
 \keyword{classes}

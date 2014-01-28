@@ -424,8 +424,8 @@ chkCholesky <- function(chmf, A) {
         c(nnzero(L.), nnzero(L)), "\n") ## 112, 95
     ecc <- expand(chmf)
     A... <- with(ecc, crossprod(crossprod(L,P)))
-    stopifnot(all.equal(L., ecc$L, tol = 1e-14),
-              all.equal(A,  A...,  tol = 1e-14, factorsCheck = FALSE))
+    stopifnot(all.equal(L., ecc$L, tolerance = 1e-14),
+              all.equal(A,  A...,  tolerance = 1e-14, factorsCheck = FALSE))
     invisible(ecc)
 }
 
@@ -474,9 +474,9 @@ ld3 <- .Call("dsCMatrix_LDL_D", mtm, TRUE, "sumLog")
 ld4 <- .Call("dsCMatrix_LDL_D", mtm, FALSE, "sumLog")
 stopifnot(all.equal(ld1, ld2),
 	  is.all.equal3(ld2, ld3, ld4),
-	  all.equal(ld.3, ld3, tol = 1e-14),
-	  all.equal(ld.4, ld4, tol = 1e-14),
-	  all.equal(ld1, as.vector(ld1.$modulus), tol = 1e-14))
+	  all.equal(ld.3, ld3, tolerance = 1e-14),
+	  all.equal(ld.4, ld4, tolerance = 1e-14),
+	  all.equal(ld1, as.vector(ld1.$modulus), tolerance = 1e-14))
 
 ## Some timing measurements
 mtm <- with(KNex, crossprod(mm))
@@ -498,7 +498,7 @@ cholCheck <- function(Ut, tol = 1e-12, super = FALSE, LDL = !super) {
     L2 <- update(L, Ut,  mult = 1)
     stopifnot(is.all.equal3(L, L1, L2, tol = tol),
               all.equal(update(L, UtU, mult = pi),
-                        update(L, Ut,  mult = pi), tol = tol)
+                        update(L, Ut,  mult = pi), tolerance = tol)
               )
 }
 
@@ -533,7 +533,7 @@ checkSchur <- function(A, SchurA = Schur(A), tol = 1e-14) {
     stopifnot(is(SchurA, "Schur"),
               isOrthogonal(Q <- SchurA@Q),
               all.equal(as.mat(A),
-                        as.mat(Q %*% SchurA@T %*% t(Q)), tol = tol))
+                        as.mat(Q %*% SchurA@T %*% t(Q)), tolerance = tol))
 }
 
 SH <- Schur(H5 <- Hilbert(5))
@@ -592,7 +592,7 @@ stopifnot(identical(sA, nca))
 A <- chol(D <- Diagonal(n, x = 0.5))
 ia <- chol2inv(A)
 stopifnot(is(ia, "diagonalMatrix"),
-	  all.equal(ia@x, rep(2,n), tol = 1e-15))
+	  all.equal(ia@x, rep(2,n), tolerance = 1e-15))
 
 
 cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''

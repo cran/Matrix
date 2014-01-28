@@ -39,7 +39,9 @@
 \alias{Logic,sparseVector,nMatrix-method}
 \alias{Summary,sparseVector-method}
 \alias{Summary,nsparseVector-method}
-%
+%% non-group :
+%\alias{solve,..} --> solve-methods.Rd
+%\alias{\%*\%,..} --> matrix-products.Rd
 \alias{coerce,ANY,sparseVector-method}
 \alias{coerce,ANY,nsparseVector-method}
 \alias{coerce,CsparseMatrix,sparseVector-method}
@@ -81,16 +83,8 @@
 \alias{mean,sparseVector-method}
 \alias{rep,sparseVector-method}
 \alias{show,sparseVector-method}
-% ../R/products.R :
-\alias{\%*\%,Matrix,sparseVector-method}
-\alias{\%*\%,sparseVector,Matrix-method}
-\alias{crossprod,Matrix,sparseVector-method}
-\alias{crossprod,sparseVector,Matrix-method}
-%\alias{solve,Matrix,sparseVector-method}--> solve-methods.Rd
 \alias{toeplitz}% only needed if(as.numeric(R.version$`svn rev`) < 60620)
 \alias{toeplitz,sparseVector-method}
-\alias{tcrossprod,Matrix,sparseVector-method}
-\alias{tcrossprod,sparseVector,Matrix-method}
 %
 \alias{head,sparseVector-method}
 \alias{tail,sparseVector-method}

@@ -63,10 +63,10 @@ setMethod("as.vector", signature(x = "dsCMatrix", mode = "missing"),
 ## cholmod_sparse_to_dense converts symmetric storage to general
 ## storage so symmetric classes are ok for conversion to matrix.
 ## unit triangular needs special handling
-setAs("dgCMatrix", "matrix", function(from) .Call(Csparse_to_matrix, from))
-setAs("dsCMatrix", "matrix", function(from) .Call(Csparse_to_matrix, from))
-setAs("dtCMatrix", "matrix", function(from)
-      .Call(Csparse_to_matrix, .Call(Csparse_diagU2N, from)))
+.dxC2mat <- function(from, chkUdiag=TRUE) .Call(Csparse_to_matrix, from, chkUdiag)
+setAs("dgCMatrix", "matrix", function(from) .Call(Csparse_to_matrix, from, FALSE))
+setAs("dsCMatrix", "matrix", function(from) .Call(Csparse_to_matrix, from, FALSE))
+setAs("dtCMatrix", "matrix", function(from) .Call(Csparse_to_matrix, from, TRUE))
 ## NB: Would *not* be ok for l*Matrix or n*Matrix,
 ## --------- as cholmod coerces to "REAL" aka "double"
 

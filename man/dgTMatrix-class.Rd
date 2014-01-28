@@ -13,9 +13,6 @@
 \alias{coerce,dgTMatrix,triangularMatrix-method}
 \alias{coerce,dgeMatrix,dgTMatrix-method}
 \alias{coerce,matrix,dgTMatrix-method}
-\alias{crossprod,dgTMatrix,missing-method}
-\alias{crossprod,dgTMatrix,matrix-method}
-\alias{crossprod,dgTMatrix,numeric-method}
 \description{The \code{"dgTMatrix"} class is the class of sparse
   matrices stored as (possibly redundant) triplets.  The internal
   representation is not at all unique, contrary to the one for class
@@ -59,10 +56,6 @@
     \item{coerce}{\code{signature(from = "matrix", to = "dgTMatrix")},
       (direct coercion from tradition matrix).}
 
-    \item{crossprod}{\code{signature(x = "dgTMatrix", y = "missing")}
-      returns \code{t(x) \%*\% x} as an \code{dsCMatrix} object.}
-    \item{crossprod}{\code{signature(x = "dgTMatrix", y = "matrix")}: ... }
-    \item{crossprod}{\code{signature(x = "dgTMatrix", y = "numeric")}: ... }
     \item{image}{\code{signature(x = "dgTMatrix")}: plots an image of
       \code{x} using the \code{\link[lattice]{levelplot}} function}
     \item{t}{\code{signature(x = "dgTMatrix")}: returns the transpose of

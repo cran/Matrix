@@ -17,10 +17,6 @@
 \alias{any,nsparseMatrix-method}
 \alias{-,nsparseMatrix,missing-method}
 \alias{!,nsparseMatrix-method}
-\alias{\%*\%,ngCMatrix,ngCMatrix-method}
-\alias{\%*\%,nsparseMatrix,nsparseMatrix-method}
-\alias{\%*\%,nsparseMatrix,ndenseMatrix-method}
-\alias{\%*\%,ndenseMatrix,nsparseMatrix-method}
 
 \alias{coerce,nsparseMatrix,dsparseMatrix-method}
 \alias{coerce,matrix,ngCMatrix-method}
@@ -83,22 +79,12 @@
 \alias{coerce,ntTMatrix,ntCMatrix-method}
 \alias{coerce,ntTMatrix,ntrMatrix-method}
 %
-\alias{crossprod,ngCMatrix,missing-method}
-\alias{crossprod,ngTMatrix,missing-method}
-\alias{crossprod,nsparseMatrix-method}
-\alias{crossprod,nsparseMatrix,missing-method}
-\alias{crossprod,nsparseMatrix,nsparseMatrix-method}
-\alias{crossprod,nsparseMatrix,ndenseMatrix-method}
-\alias{crossprod,ndenseMatrix,nsparseMatrix-method}
 \alias{t,ngCMatrix-method}
 \alias{t,ngTMatrix-method}
 \alias{t,nsCMatrix-method}
 \alias{t,ntCMatrix-method}
 \alias{t,nsTMatrix-method}
 \alias{t,ntTMatrix-method}
-\alias{tcrossprod,ngCMatrix,missing-method}
-\alias{tcrossprod,ngTMatrix,missing-method}
-\alias{tcrossprod,nsparseMatrix,missing-method}
 \alias{is.na,nsparseMatrix-method}
 \alias{which,ngTMatrix-method}
 \alias{which,nsparseMatrix-method}

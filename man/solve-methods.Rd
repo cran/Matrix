@@ -262,7 +262,7 @@ if(R.version$arch == "x86_64")
 a <- a + Diagonal(n)
 iad <- solve(a)
 ias <- solve(a, sparse=TRUE)
-stopifnot(all.equal(as(ias,"denseMatrix"), iad, tol=1e-14))
+stopifnot(all.equal(as(ias,"denseMatrix"), iad, tolerance=1e-14))
 I. <- iad \%*\% a          ; image(I.)
 I0 <- drop0(zapsmall(I.)); image(I0)
 .I <- a \%*\% iad

@@ -110,7 +110,7 @@ nearPD(x, corr = FALSE, keepDiag = FALSE, do2eigen = TRUE,
  n.A <- nearPD(A, corr=TRUE, do2eigen=FALSE)
  n.A[c("mat", "normF")]
  stopifnot(all.equal(n.A$mat[1,2], 0.760689917),
-	   all.equal(n.A$normF, 0.52779033, tol=1e-9) )
+	   all.equal(n.A$normF, 0.52779033, tolerance=1e-9) )
 
  set.seed(27)
  m <- matrix(round(rnorm(25),2), 5, 5)

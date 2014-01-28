@@ -128,8 +128,8 @@ str(hp6 <- as(h6, "dppMatrix"))
 
 ### Note that  as(*, "corMatrix")  *scales* the matrix
 (ch6 <- as(h6, "corMatrix"))
-stopifnot(all.equal(h6 * 27720, round(27720 * h6), tol = 1e-14),
-          all.equal(ch6@sd^(-2), 2*(1:6)-1, tol= 1e-12))
+stopifnot(all.equal(h6 * 27720, round(27720 * h6), tolerance = 1e-14),
+          all.equal(ch6@sd^(-2), 2*(1:6)-1, tolerance= 1e-12))
 chch <- chol(ch6)
 stopifnot(identical(chch, ch6@factors$Cholesky),
           all(abs(crossprod(chch) - ch6) < 1e-10))

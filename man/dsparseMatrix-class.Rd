@@ -8,14 +8,6 @@
 \alias{Arith,logical,dsparseMatrix-method}
 \alias{Arith,numeric,dsparseMatrix-method}
 %
-\alias{\%*\%,ddenseMatrix,dsparseMatrix-method}
-\alias{\%*\%,dgeMatrix,dsparseMatrix-method}
-\alias{\%*\%,dsparseMatrix,ddenseMatrix-method}
-\alias{\%*\%,dsparseMatrix,dgeMatrix-method}
-\alias{crossprod,ddenseMatrix,dsparseMatrix-method}
-\alias{crossprod,dgeMatrix,dsparseMatrix-method}
-\alias{crossprod,dsparseMatrix,ddenseMatrix-method}
-\alias{crossprod,dsparseMatrix,dgeMatrix-method}
 \alias{lu,dsparseMatrix-method}
 %
 \title{Virtual Class "dsparseMatrix" of Numeric Sparse Matrices}

@@ -307,7 +307,7 @@ if(doExtras) {### {was ./AAA_index.R, MM-only}
     stopifnot(1:32 == sort(diag(R.)), ## !
               R.@x == as.integer(R.@x),## so it is an integer-valued chol-decomp !
               ## shows that (1) As is *not* singular  (2) the matrix is not random
-              all.equal(crossprod(R.), As, tol=1e-15))
+              all.equal(crossprod(R.), As, tolerance =1e-15))
     print(summary(evA <- eigen(As, only.values=TRUE)$val))
     print(tail(evA)) ## largest three ~= 10^7,  smallest two *negative*
     print(rcond(As)) # 1.722 e-21 == very bad !
@@ -978,7 +978,7 @@ validObject(spCol <- f[,5000, drop=FALSE])
 ##
 ## *not* identical(): as(spCol, "sparseVector")@length is "double"prec:
 stopifnot(all.equal(as(spCol, "sparseVector"),
-                    as(sv,   "nsparseVector"), tol=0))
+                    as(sv,   "nsparseVector"), tolerance=0))
 if(doExtras) {#-----------------------------------------------------------------
 f[,5762] <- thisCol # now "fine" <<<<<<<<<< FIXME uses LARGE objects -- slow --
 ## is using  replCmat() in ../R/Csparse.R, then

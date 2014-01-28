@@ -2,12 +2,6 @@
 \docType{class}
 \title{Compressed, sparse, column-oriented numeric matrices}
 \alias{dgCMatrix-class}
-\alias{\%*\%,dgCMatrix,dgeMatrix-method}
-\alias{\%*\%,dgCMatrix,matrix-method}
-\alias{\%*\%,numeric,dgCMatrix-method}
-\alias{\%*\%,ddenseMatrix,dgCMatrix-method}
-\alias{\%*\%,dgeMatrix,dgCMatrix-method}
-\alias{\%*\%,matrix,dgCMatrix-method}
 \alias{as.vector,dgCMatrix,missing-method}
 \alias{coerce,matrix,dgCMatrix-method}
 \alias{coerce,dgeMatrix,dgCMatrix-method}
@@ -20,9 +14,6 @@
 \alias{coerce,dgCMatrix,matrix-method}
 \alias{coerce,dgCMatrix,vector-method}
 \alias{coerce,factor,dgCMatrix-method}
-\alias{crossprod,dgCMatrix,missing-method}
-\alias{crossprod,dgCMatrix,matrix-method}
-\alias{crossprod,dgCMatrix,dgeMatrix-method}
 \alias{diag,dgCMatrix-method}
 \alias{dim,dgCMatrix-method}
 %\alias{lu,dgCMatrix-method}-> ./lu.Rd
@@ -67,14 +58,11 @@
   }
 }
 \section{Methods}{
+  Matrix products (e.g., \link{crossprod-methods}), and (among other)
   \describe{
     \item{coerce}{\code{signature(from = "matrix", to = "dgCMatrix")}}
     \item{coerce}{\code{signature(from = "dgCMatrix", to = "matrix")}}
     \item{coerce}{\code{signature(from = "dgCMatrix", to = "dgTMatrix")}}
-    \item{crossprod}{\code{signature(x = "dgCMatrix", y = "missing")}
-      returns \code{t(x) \%*\% x} as an \code{dsCMatrix} object.}
-    \item{crossprod}{\code{signature(x = "dgCMatrix", y = "matrix")}: ... }
-    \item{crossprod}{\code{signature(x = "dgCMatrix", y = "numeric")}: ... }
     \item{diag}{\code{signature(x = "dgCMatrix")}: returns the diagonal
       of \code{x}}
     \item{dim}{\code{signature(x = "dgCMatrix")}: returns the dimensions

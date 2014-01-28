@@ -19,13 +19,10 @@
 \alias{Logic,ANY,Matrix-method}
 \alias{Summary,Matrix-method}
 \alias{mean,Matrix-method}
-\alias{\%*\%,Matrix,numeric-method}
-\alias{\%*\%,numeric,Matrix-method}
-\alias{\%*\%,Matrix,ANY-method}
-\alias{\%*\%,ANY,Matrix-method}
-\alias{\%*\%,Matrix,matrix-method}
-\alias{\%*\%,matrix,Matrix-method}
-% "[" are in ./Xtrct-methods.Rd ;  "[<-" in ./Subassign-methods.Rd
+% "["             ---> Xtrct-methods.Rd 
+% "[<-"           ---> Subassign-methods.Rd
+%\alias{solve,...} --> solve-methods.Rd
+%\alias{\%*%,... } --> matrix-products.Rd
 \alias{cbind2,ANY,Matrix-method}
 \alias{cbind2,Matrix,ANY-method}
 \alias{cbind2,Matrix,Matrix-method}
@@ -42,22 +39,6 @@
 \alias{rbind2,Matrix,missing-method}
 \alias{rbind2,NULL,Matrix-method}
 \alias{rbind2,atomicVector,Matrix-method}
-\alias{crossprod,ANY,Matrix-method}
-\alias{crossprod,Matrix,numeric-method}
-\alias{crossprod,Matrix,ANY-method}
-\alias{crossprod,Matrix,missing-method}
-\alias{crossprod,Matrix,Matrix-method}
-\alias{crossprod,Matrix,matrix-method}
-\alias{crossprod,matrix,Matrix-method}
-\alias{crossprod,numeric,Matrix-method}
-\alias{tcrossprod,ANY,Matrix-method}
-\alias{tcrossprod,Matrix,numeric-method}
-\alias{tcrossprod,Matrix,ANY-method}
-\alias{tcrossprod,Matrix,missing-method}
-\alias{tcrossprod,Matrix,Matrix-method}
-\alias{tcrossprod,Matrix,matrix-method}
-\alias{tcrossprod,matrix,Matrix-method}
-\alias{tcrossprod,numeric,Matrix-method}
 %
 \alias{cov2cor,Matrix-method}
 \alias{det}% "the function" (our copy of base::det)
@@ -203,7 +184,7 @@ M
 stopifnot(identical(M, Matrix(c(0,1,0,0), 2,12)),
           all.equal(det(cm),
                     determinant(as(cm,"matrix"), log=FALSE)$modulus,
-                    check.attr=FALSE))
+                    check.attributes=FALSE))
 }
 \keyword{classes}
 \keyword{algebra}

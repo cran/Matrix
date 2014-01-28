@@ -5,11 +5,6 @@
 % now separated from ./dgeMatrix-class.Rd - on purpose
 % METHODS:
 % undocu (FIXME)
-\alias{\%*\%,ddenseMatrix,ddenseMatrix-method}
-\alias{crossprod,ddenseMatrix,missing-method}
-\alias{crossprod,ddenseMatrix,dgCMatrix-method}
-\alias{tcrossprod,ddenseMatrix,missing-method}
-%
 \alias{show,ddenseMatrix-method}
 \alias{coerce,ddenseMatrix,matrix-method}
 \alias{coerce,ddenseMatrix,dgeMatrix-method}

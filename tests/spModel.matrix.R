@@ -12,7 +12,7 @@ mEQ <- function(x,y, ...) {
         message(gettextf("y had  %d  zero-columns", sum(i0)))
         y <- y[, !i0, drop=FALSE]
     }
-    isTRUE(all.equal(x,y, tol=0, ...))
+    isTRUE(all.equal(x,y, tolerance =0, ...))
 }
 
 ##' Is  sparse.model.matrix() giving the "same" as dense model.matrix() ?

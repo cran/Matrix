@@ -224,12 +224,7 @@ static void chTr2Ralloc(CHM_TR dest, CHM_TR src)
 CHM_SP as_cholmod_sparse(CHM_SP ans, SEXP x,
 			 Rboolean check_Udiag, Rboolean sort_in_place)
 {
-    static const char *valid[] = {
-	"dgCMatrix", "dsCMatrix", "dtCMatrix",
-	"lgCMatrix", "lsCMatrix", "ltCMatrix",
-	"ngCMatrix", "nsCMatrix", "ntCMatrix",
-	"zgCMatrix", "zsCMatrix", "ztCMatrix",
-	""};
+    static const char *valid[] = { MATRIX_VALID_Csparse, ""};
     int *dims = INTEGER(GET_SLOT(x, Matrix_DimSym)),
 	ctype = Matrix_check_class_etc(x, valid);
     SEXP islot = GET_SLOT(x, Matrix_iSym);
@@ -281,7 +276,8 @@ CHM_SP as_cholmod_sparse(CHM_SP ans, SEXP x,
 	}
     }
 
-    if (check_Udiag && ctype % 3 == 2 && (*diag_P(x) == 'U')) { /* diagU2N(.)  "in place" : */
+    if (check_Udiag && ctype % 3 == 2 // triangular
+	&& (*diag_P(x) == 'U')) { /* diagU2N(.)  "in place" : */
 	double one[] = {1, 0};
 	CHM_SP eye = cholmod_speye(ans->nrow, ans->ncol, ans->xtype, &c);
 	CHM_SP tmp = cholmod_add(ans, eye, one, one, TRUE, TRUE, &c);

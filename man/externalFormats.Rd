@@ -81,7 +81,7 @@ write.table(s.CA, file = outf, row.names=FALSE)
 ## and read it back -- showing off  sparseMatrix():
 dd <- read.table(outf, header=TRUE)
 mm <- do.call(sparseMatrix, dd)
-stopifnot(all.equal(mm, CAex, tol=1e-15))
+stopifnot(all.equal(mm, CAex, tolerance=1e-15))
 }
 \keyword{IO}
 \keyword{array}

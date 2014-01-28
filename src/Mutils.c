@@ -577,9 +577,9 @@ install_diagonal_int(int *dest, SEXP A)
 }
 
 
-/**  Duplicate a [dln]denseMatrix or a numeric matrix or vector
- *  as a [dln]geMatrix.
- *  This is for the many *_matrix_{prod,crossprod,tcrossprod,etc.}
+/** Duplicate a [dln]denseMatrix _or_ a numeric matrix or even vector as
+ *  a [dln]geMatrix.
+ *  This is for the many "*_matrix_{prod,crossprod,tcrossprod, etc.}"
  *  functions that work with both classed and unclassed matrices.
  *
  * @param A	  either a denseMatrix object or a matrix object
@@ -647,12 +647,18 @@ SEXP dup_mMatrix_as_geMatrix(SEXP A)
 	if (isMatrix(A)) {	/* "matrix" */				\
 	    ad = getAttrib(A, R_DimSymbol);				\
 	    an = getAttrib(A, R_DimNamesSymbol);			\
-	} else {/* maybe "numeric" (incl integer,logical) --> (n x 1) */\
+	} else {/* maybe "numeric" (incl integer,logical) --> (n x 1) */ \
 	    int* dd = INTEGER(ad = PROTECT(allocVector(INTSXP, 2)));	\
 	    nprot++;							\
 	    dd[0] = LENGTH(A);						\
 	    dd[1] = 1;							\
-	    an = R_NilValue;						\
+	    SEXP nms = getAttrib(A, R_NamesSymbol);			\
+	    if(nms != R_NilValue) {					\
+		an = PROTECT(allocVector(VECSXP, 2));			\
+		nprot++;						\
+	        SET_VECTOR_ELT(an, 0, nms);				\
+		/* not needed: SET_VECTOR_ELT(an, 1, R_NilValue); */    \
+	    } /* else nms = NULL ==> an remains NULL */                 \
  	}								\
 	ctype = 0
 

@@ -186,9 +186,9 @@ SEXP nz2Csparse(SEXP x, enum x_slot_kind r_kind)
     return ans;
 }
 
-SEXP Csparse_to_matrix(SEXP x)
+SEXP Csparse_to_matrix(SEXP x, SEXP chk)
 {
-    return chm_dense_to_matrix(cholmod_sparse_to_dense(AS_CHM_SP__(x), &c),
+    return chm_dense_to_matrix(cholmod_sparse_to_dense(AS_CHM_SP2(x, asLogical(chk)), &c),
 			       1 /*do_free*/, GET_SLOT(x, Matrix_DimNamesSym));
 }
 SEXP Csparse_to_vector(SEXP x)

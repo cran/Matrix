@@ -45,6 +45,8 @@ CHM_FR as_cholmod_factor (CHM_FR ans, SEXP x);
 /* the non-diagU2N-checking versions : */
 #define AS_CHM_SP__(x) as_cholmod_sparse ((CHM_SP)alloca(sizeof(cholmod_sparse)), x, FALSE, FALSE)
 #define AS_CHM_TR__(x) as_cholmod_triplet((CHM_TR)alloca(sizeof(cholmod_triplet)), x, FALSE)
+// optional diagU2N-checking
+#define AS_CHM_SP2(x,chk) as_cholmod_sparse ((CHM_SP)alloca(sizeof(cholmod_sparse)), x, chk, FALSE)
 
 
 #define N_AS_CHM_DN(x,nr,nc) M_numeric_as_chm_dense((CHM_DN)alloca(sizeof(cholmod_dense)), x , nr, nc )

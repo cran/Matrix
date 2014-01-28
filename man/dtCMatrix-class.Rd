@@ -126,9 +126,9 @@ I5 <- iu  \%*\% U5 # should equal the identity matrix
 i5 <- iu2 \%*\% U5
 asDiag <- function(M) as(drop0(M), "diagonalMatrix")
 stopifnot(
-   all.equal(Diagonal(5), asDiag(I5), tol=1e-14)
+   all.equal(Diagonal(5), asDiag(I5), tolerance=1e-14)
    ,
-   all.equal(Diagonal(5), asDiag(i5), tol=1e-14)
+   all.equal(Diagonal(5), asDiag(i5), tolerance=1e-14)
 )}
 \keyword{classes}
 \keyword{algebra}

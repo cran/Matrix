@@ -61,7 +61,7 @@ setMethod("is.na", signature(x = "sparseVector"),
 	  function(x) new("nsparseVector", i = x@i[is.na(x@x)], length= x@length))
 
 
-if(getRversion() > "3.1.0") {
+if(getRversion() >= "3.1.0") {
 setMethod("anyNA", signature(x = "nsparseVector"), function(x) FALSE)
 setMethod("anyNA", signature(x = "sparseVector"), function(x) anyNA(x@x))
 }

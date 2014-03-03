@@ -667,7 +667,7 @@ print.sparseSummary <- function (x, ...) {
 ##' This case should be particularly fast
 setMethod("isSymmetric", signature(object = "dgCMatrix"),
 	  function(object, tol = 100*.Machine$double.eps, ...)
-	      isTRUE(all.equal(.dgC.0.factors(object), t(object), tol = tol, ...)))
+	      isTRUE(all.equal(.dgC.0.factors(object), t(object), tolerance = tol, ...)))
 
 setMethod("isSymmetric", signature(object = "sparseMatrix"),
 	  function(object, tol = 100*.Machine$double.eps, ...) {
@@ -687,7 +687,7 @@ setMethod("isSymmetric", signature(object = "sparseMatrix"),
 		  ## use gC; "T" (triplet) is *not* unique!
 		  isTRUE(all.equal(.as.dgC.0.factors(  object),
 				   .as.dgC.0.factors(t(object)),
-				   tol = tol, ...))
+				   tolerance = tol, ...))
 	      else if (is(object, "lMatrix"))
 		  ## test for exact equality; FIXME(?): identical() too strict?
 		  identical(as(	 object,  "lgCMatrix"),

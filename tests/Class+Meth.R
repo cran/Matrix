@@ -2,6 +2,7 @@ library(Matrix)
 source(system.file("test-tools.R", package = "Matrix"))# identical3(),
                                         # further  checkMatrix(), etc
 if(interactive()) options(error = recover)
+options(warn=1)# show as they happen
 cat("doExtras:",doExtras,"\n")
 
 no.Mcl <- function(cl) ## TRUE if MatrixClass() returns empty, i

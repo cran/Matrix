@@ -22,8 +22,8 @@ library(Matrix)
 source(system.file("test-tools.R", package = "Matrix"))# identical3() etc
 
 if(interactive()) {
-    options(error = recover)
-} else options(Matrix.verbose = TRUE)# to show Matrix.msg()s
+    options(error = recover, warn = 1)
+} else options(Matrix.verbose = TRUE, warn = 1)# to show Matrix.msg()s
 
 ### Matrix() ''smartness''
 (d4 <- Matrix(diag(4)))

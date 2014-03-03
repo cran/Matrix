@@ -25,6 +25,8 @@ leave the for loops, as soon as is_lower == is_upper == 0.
 ** DONE generalize new "indMatrix" class, to allow 0 repetitions
  of some samples, i.e., columns of all 0 s. It's mathematically more
  natural --> typically will be useful.
+** DONE R/products.Rout -- [t]crossprod() could/should become more lenient with *vector*s
+*** TODO consider analagous changes to base-R [t]crossprod() 
 ** TODO cor(<sparseMatrix>) and cov(<sparseMatrix>)  at least for y=NULL ("no y").
 -> ~/R/MM/Pkg-ex/Matrix/cor_sparse-propos.R <- http://stackoverflow.com/questions/5888287/
 ** TODO Investigate the "band changing (and getting) ideas  'band<-' etc,
@@ -214,13 +216,11 @@ leave the for loops, as soon as is_lower == is_upper == 0.
   replCmat() uses as_CspClass() and drop0(.) which itself call
   as_CspClass() quite a bit.  --> try to replace these by
   as(*, "CsparseMatrix"); forceSymmetric, etc.
-
 ** writeMM(obj, file=stdout()) creates file "1" since file is silently
   assumed to be a string, i.e. cannot be a connection.
   An R (instead of C) version should be pretty simple, and would work with
   connections automatically ["lsparse" become either "real" or
   "pattern", "depending if they have NAs or not].
-
 ** <diagMatrix> o <ddenseMatrix> still works via sparse in some cases, but
   could return <diagMatrix> in the same cases where <diagMatrix> o <numeric> does.
 

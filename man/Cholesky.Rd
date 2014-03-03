@@ -27,7 +27,7 @@ Cholesky(A, perm = TRUE, LDL = !super, super = FALSE, Imult = 0, \dots)
     The alternative is LL' where \code{L} is lower triangular with
     arbitrary diagonal elements.  Default is \code{TRUE}.  Setting it to
     \code{\link{NA}} leaves the choice to a CHOLMOD-internal heuristic.}
-  \item{super}{logical scalar indicating is a supernodal decomposition
+  \item{super}{logical scalar indicating if a supernodal decomposition
     should be created.  The alternative is a simplicial decomposition.
     Default is \code{FALSE}.  Setting it to \code{\link{NA}} leaves the
     choice to a CHOLMOD-internal heuristic.}

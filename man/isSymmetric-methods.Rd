@@ -9,7 +9,7 @@
 \title{Methods for Function isSymmetric in Package 'Matrix'}
 \description{
   \code{isSymmetric(M)} returns a \code{\link{logical}} indicating
-  if \code{M} is a symmetric matrix.  This is a \pkg{base} function
+  if \code{M} is a symmetric matrix.  This (now) is a \pkg{base} function
   with a default method for the traditional matrices of \code{\link{class}}
   \code{"matrix"}.  Methods here are defined for virtual Matrix classes
   such that it works for all objects inheriting from class
@@ -19,6 +19,9 @@
   formal class (and subclasses) \code{"\linkS4class{symmetricMatrix}"}.
 }
 %% \usage{
+%% ## some methods have a 'tol' :
+%% \S4method{isSymmetric}{denseMatrix}(object, tol = 100 * .Machine$double.eps, ...) 
+%% \S4method{isSymmetric}{sparseMatrix}(object, tol = 100 * .Machine$double.eps, ...) 
 %% }
 %% \section{Methods}{
 %%   \describe{
@@ -35,5 +38,8 @@ M <- Matrix(c(1,2,2,1), 2,2)
 isSymmetric(M) # TRUE (*and* of formal class "dsyMatrix")
 isSymmetric(as(M, "dgeMatrix")) # still symmetric, even if not "formally"
 isSymmetric(triu(M)) # FALSE
+
+## Look at implementations:
+showMethods("isSymmetric", includeDefs=TRUE)# "ANY": base's S3 generic; 6 more
 }
 \keyword{methods}

@@ -30,8 +30,12 @@
       simply using \code{\link{all.equal.numeric}} directly and work via
       \code{\link{as.vector}()}.}
   }
+  There are more methods, notably also for
+  \code{"\linkS4class{sparseVector}"}'s, see \code{showMethods("all.equal")}.
 }
 \examples{
+showMethods("all.equal")
+
 (A <- spMatrix(3,3, i= c(1:3,2:1), j=c(3:1,1:2), x = 1:5))
 ex <- expand(lu. <- lu(A))
 stopifnot( all.equal(as(A[lu.@p + 1L, lu.@q + 1L], "CsparseMatrix"),

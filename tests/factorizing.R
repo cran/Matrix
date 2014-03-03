@@ -4,7 +4,6 @@ library(Matrix)
 
 source(system.file("test-tools.R", package = "Matrix"))# identical3() etc
 doExtras
-
 ### "sparseQR" : Check consistency of methods
 ##   --------
 data(KNex); mm <- KNex$mm; y <- KNex$y
@@ -331,6 +330,19 @@ for(n in c(5:12)) {
 	      relErr(A[p,p], tcrossprod(mCAp)) < 1e-14)
 }## for()
 
+mkCholhash <- function(r.all) {
+    ## r.all %*% (2^(2:0)), but only those that do not have NA / "?" :
+    stopifnot(is.character(rn <- rownames(r.all)),
+              is.matrix(r.all), is.logical(r.all))
+    c.rn <- vapply(rn, function(ch) strsplit(ch, " ")[[1]], character(3))
+    ## Now
+    h1 <- function(i) {
+        ok <- c.rn[,i] != "?"
+        r.all[i, ok] %*% 2^((2:0)[ok])
+    }
+    vapply(seq_len(nrow(r.all)), h1, numeric(1))
+}
+
 set.seed(17)
 (rr <- mkLDL(4))
 (CA <- Cholesky(rr$A))
@@ -339,7 +351,7 @@ stopifnot(all.equal(determinant(rr$A) -> detA,
           is.all.equal3(c(detA$modulus), log(det(rr$D)), sum(log(rr$D@x))))
 A12 <- mkLDL(12, 1/10)
 (r12 <- allCholesky(A12$A))[-1]
-aCh.hash <- r12$r.all %*% (2^(2:0))
+aCh.hash <- mkCholhash(r12$r.all)
 if(FALSE)## if(require("sfsmisc"))
 split(rownames(r12$r.all), Duplicated(aCh.hash))
 
@@ -351,7 +363,7 @@ for(n in 1:50) { ## used to seg.fault at n = 10 !
     ## Compare .. apart from the NAs that happen from (perm=FALSE, super=TRUE)
     iNA <- apply(is.na(r$r.all), 1, any)
     cat(sprintf(" -> %3s NAs\n", if(any(iNA)) format(sum(iNA)) else "no"))
-    stopifnot(aCh.hash[!iNA] == r$r.all[!iNA,] %*% (2^(2:0)))
+    stopifnot(aCh.hash[!iNA] == mkCholhash(r$r.all[!iNA,]))
 ##     cat("--------\n")
 }
 

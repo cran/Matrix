@@ -412,7 +412,6 @@ setMethod("crossprod", signature(x = "Matrix", y = "sparseVector"),
 setMethod("crossprod", signature(x = "sparseVector", y = "Matrix"), 
 	  function(x, y)
 	  crossprod(spV2M(x, nrow = length(x), ncol = 1L, check = FALSE), y))
-
 setMethod("crossprod", signature(x = "sparseVector", y = "sparseVector"), sp.x.sp)
 setMethod("crossprod", signature(x = "sparseVector", y = "missing"),
 	  function(x, y=NULL) sp.x.sp(x,x))

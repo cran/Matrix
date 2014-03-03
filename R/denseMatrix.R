@@ -199,7 +199,7 @@ setMethod("isSymmetric", signature(object = "denseMatrix"),
 	      if (is(object,"dMatrix"))
 		  isTRUE(all.equal(as(object, "dgeMatrix"),
 				   as(t(object), "dgeMatrix"),
-				   tol = tol, ...))
+				   tolerance = tol, ...))
 	      else if (is(object, "nMatrix"))
 		  identical(as(object, "ngeMatrix"),
 			    as(t(object), "ngeMatrix"))

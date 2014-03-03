@@ -3,6 +3,7 @@ library(Matrix)
 ### Matrix Products including  cross products
 
 source(system.file("test-tools.R", package = "Matrix"))
+options(warn=1)# show as they happen
 
 ### dimnames -- notably for matrix products
 ## from ../R/Auxiliaries.R :

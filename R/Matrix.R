@@ -120,8 +120,8 @@ setMethod("symmpart", signature(x = "matrix"), function(x) (x + t(x))/2)
 setMethod("skewpart", signature(x = "matrix"), function(x) (x - t(x))/2)
 
 
-if(getRversion() > "3.1.0")
-## NB: "nsparseMatrix" has extra method
+if(getRversion() >= "3.1.0")
+## NB: ./nsparseMatrix.R and ./sparseVector.R have extra methods
 setMethod("anyNA", signature(x = "xMatrix"),
 	  function(x) anyNA(x@x))
 

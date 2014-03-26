@@ -21,6 +21,13 @@
 \alias{anyNA,nsparseVector-method}
 \alias{anyNA,sparseVector-method}
 \alias{anyNA,xMatrix-method}
+%% xMatrix (classUnion) dispatching failing, --> workaround:
+\alias{anyNA,dMatrix-method}
+\alias{anyNA,iMatrix-method}
+\alias{anyNA,lMatrix-method}
+\alias{anyNA,zMatrix-method}
+\alias{anyNA,ndenseMatrix-method}
+%%end{workaround}
 \alias{is.na-methods}
 \description{
   Methods for function \code{\link{is.na}()}, \code{\link{is.finite}()},

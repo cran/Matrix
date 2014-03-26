@@ -22,7 +22,7 @@ importFrom("methods",
 	   , callGeneric, as, is, extends, new
 	   , getClass, getClassDef, validObject
 	   , setClass, setClassUnion, setMethod, setOldClass
-	   , setValidity, slot, "slot<-"
+	   , setValidity, slot, "slot<-", .hasSlot
 	   , signature, representation, prototype)
 
 
@@ -90,11 +90,18 @@ export("cBind",
 
 
 exportClasses(
-	      ## Class unions:
+    ## Class unions:
 	      "index",
 	      "replValue", # if we don't export it, things fail in dispatch
 	      "atomicVector",
 	      "number",
+	      "xsparseVector", # the class union of all 'x' slot sparseVector's
+              ## not exported (but exporting does not help for method dispatch bug!)
+              ## "numLike", 
+              ## "xMatrix", 
+              ## "mMatrix", 
+
+    ## all others:
 ## LOGIC      "logic",
 	      "abIndex", "rleDiff",
 
@@ -177,8 +184,7 @@ exportClasses(
 	      "ntRMatrix",
 	      "ntTMatrix",
 
-	      "indMatrix",
-	  "pMatrix",
+	      "indMatrix", "pMatrix",
 
 	      "corMatrix", # unused
 
@@ -216,8 +222,7 @@ exportClasses(
 	      "isparseVector",
 	      "lsparseVector",
 	      "nsparseVector",
-	      "zsparseVector",
-	      "xsparseVector" # the class union of all 'x' lost sparseVector's
+	      "zsparseVector"
 	      )
 
 

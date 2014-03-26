@@ -1,3 +1,7 @@
+2014-03-12  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/dgTMatrix.R (image): fix bug in default ylim computation.
+
 2014-01-28  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/products.R: matrix products overhauled; should work with sparseVectors;

@@ -336,9 +336,8 @@ replCmat4 <- function(x, i1, i2, iMi, jMi, value, spV = is(value,"sparseVector")
 	if(identical(Sys.getenv("USER"),"maechler"))## does it still happen? __ FIXME __
 	    stop("using	 \"old code\" part in  Csparse subassignment")
         ## else
-	warning("using	\"old code\" part in  Csparse subassignment\n",
-		" >>> please report to Matrix-authors@r-project.org",
-		immediate. = TRUE, domain = NA)
+	warning("using\"old code\" part in Csparse subassignment\n >>> please report to Matrix-authors@r-project.org",
+		immediate. = TRUE)
 
 	xj <- .Call(Matrix_expand_pointers, x@p)
 	sel <- (!is.na(match(x@i, i1)) &

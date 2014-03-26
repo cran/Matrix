@@ -382,7 +382,7 @@ replTmat <- function (x, i, j, ..., value)
 		x@j <- x@j[sel]
 		if(has.x)
 		    x@x <- x@x[sel]
-		if(extends(clDx, "compMatrix") && length(x@factors)) # drop cashed ones
+		if(.hasSlot(x, "factors") && length(x@factors)) # drop cashed ones
 		    x@factors <- list()
 	    }
 	    return(x)
@@ -430,7 +430,7 @@ replTmat <- function (x, i, j, ..., value)
 	}
 	x@i <- c(x@i, i %%  nr)
 	x@j <- c(x@j, i %/% nr)
-	if(extends(clDx, "compMatrix") && length(x@factors)) # drop cashed ones
+	if(.hasSlot(x, "factors") && length(x@factors)) # drop cashed ones
 	    x@factors <- list()
 	return(x)
     } ## {nargs = 3;  x[ii] <- value }
@@ -538,7 +538,7 @@ replTmat <- function (x, i, j, ..., value)
 	    x@j <- x@j[!sel]
             if(has.x)
 		x@x <- x@x[!sel]
-	    if(extends(clDx, "compMatrix") && length(x@factors)) # drop cashed ones
+	    if(.hasSlot(x, "factors") && length(x@factors)) # drop cashed ones
 		x@factors <- list()
 	}
 	return(x)
@@ -569,7 +569,7 @@ replTmat <- function (x, i, j, ..., value)
             if(has.x)
                 x@x <- c(x@x, value)
         }
-	if(extends(clDx, "compMatrix") && length(x@factors)) # drop cashed ones
+	if(.hasSlot(x, "factors") && length(x@factors)) # drop cashed ones
 	    x@factors <- list()
         return(x)
     }
@@ -665,7 +665,7 @@ replTmat <- function (x, i, j, ..., value)
 		x@x <- c(x@x, as.vector(value[iIN0]))
 	}
     }
-    if(extends(clDx, "compMatrix") && length(x@factors)) # drop cashed ones
+    if(.hasSlot(x, "factors") && length(x@factors)) # drop cashed ones
 	x@factors <- list()
     x
 } ## end{replTmat}
@@ -825,7 +825,7 @@ replTmat <- function (x, i, j, ..., value)
 	    x@x <- c(x@x, value[i.new])
     }
 
-    if(extends(clDx, "compMatrix") && length(x@factors)) # drop cashed ones
+    if(.hasSlot(x, "factors") && length(x@factors)) # drop cashed ones
 	x@factors <- list()
     x
 } ## end{.TM.repl.i.mat}

@@ -149,6 +149,13 @@
 
 /* Now the template which depends on the above macros : */
 
+/**
+ * colSums(), colMeans(),  rowSums() and rowMeans() for all sparce *gCMatrix()es
+ * @param NArm logical indicating if NA's should be remove 'na.rm' in R
+ * @param spRes logical = 'sparseResult' indicating if result should be sparse
+ * @param trans logical: TRUE <==> row[Sums/Means] <==> compute col*s( t(x) )
+ * @param means logical: TRUE <==> compute [row/col]Means() , not *Sums()
+ */
 SEXP gCMatrix_colSums(SEXP x, SEXP NArm, SEXP spRes, SEXP trans, SEXP means)
 {
     int mn = asLogical(means), sp = asLogical(spRes), tr = asLogical(trans);
@@ -162,14 +169,15 @@ SEXP gCMatrix_colSums(SEXP x, SEXP NArm, SEXP spRes, SEXP trans, SEXP means)
     }
 
     /* everything else *after* the above potential transpose : */
-    /* Don't declarations here require the C99 standard?  Can we assume C99? */
 
     int j, nc = cx->ncol;
     int *xp = (int *)(cx -> p);
 #ifdef _has_x_slot_
-    int na_rm = asLogical(NArm), i, dnm = 0/*Wall*/;
+    int na_rm = asLogical(NArm), // can have NAs only with an 'x' slot
+	i, dnm = 0/*Wall*/;
     double *xx = (double *)(cx -> x);
 #endif
+    // result value:  sparseResult (==> "*sparseVector") or dense (atomic)vector
     SEXP ans = PROTECT(sp ? NEW_OBJECT(MAKE_CLASS(SparseResult_class))
 			  : allocVector(SXP_ans, nc));
 

@@ -478,13 +478,17 @@ setMethod("Summary", signature(x = "ANY", na.rm = "ANY"),
 	  function(x, ..., na.rm) {
           if(!length(a <- list(...))) (get(.Generic, envir=baseenv()))(x, na.rm=na.rm)
           else {
-                 if(!is.null(v <- getOption("Matrix.verbose")) && v >= 1)
-		     message(sprintf("in Summary(<ANY>, .): %s(<%s>, <%s>%s)\n",
-				     .Generic, class(x), class(a[[1]]), if(length(a) > 1)", ..." else ""),
-			     domain = NA)
-                 do.call(.Generic, c(x, a, list(na.rm=na.rm)))
-             }})
-}
+              if(!is.null(v <- getOption("Matrix.verbose")) && v >= 1)
+                  if(length(a) > 1)
+                      message(gettextf("in Summary(<ANY>, .): %s(<%s>, <%s>,...)\n",
+                                       .Generic, class(x), class(a[[1]])), domain = NA)
+                  else
+                      message(sprintf("in Summary(<ANY>, .): %s(<%s>, <%s>)\n",
+                                      .Generic, class(x), class(a[[1]])), domain = NA)
+
+              do.call(.Generic, c(x, a, list(na.rm=na.rm)))
+	  }})
+}## {does not help --> not used}
 
 Summary.l <- function(x, ..., na.rm) { ## must be method directly
     if(.Generic %in% c("all", "any"))

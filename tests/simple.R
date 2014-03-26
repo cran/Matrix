@@ -60,6 +60,13 @@ I1[1,1] <- i1[1, ] <- I [ ,1] <- NA
 stopifnot(identical3(I,i1,I1))
 image(d4) # gave infinite recursion
 
+## Steve Walker, Mar 12, 2014:
+n <- 7
+(M <- triu(Matrix(seq_len(n^2), n, sparse=TRUE)))
+im <- image(M) # should be an n-by-n image plot, but is not
+stopifnot(n == diff(sort(im$y.limits)))
+## ylimits were too small (by 1 on each side)
+
 assertError( Matrix(factor(letters)) )
 mlp <- matrix(.leap.seconds)## 24 x 1 numeric matrix
 Mlp <- Matrix(.leap.seconds)

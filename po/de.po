@@ -1,15 +1,15 @@
 # Translation of matrix to German
-# Copyright (C) 2001-2012 The R Foundation
+# Copyright (C) 2001-2014 The R Foundation
 # This file is distributed under the same license as the matrix package.
 # Chris Leick <c.leick@vollbio.de>, 2009-2011.
-# Detlef Steuer <steure@hsu-hh.de>, 2012.
+# Detlef Steuer <steure@hsu-hh.de>, 2012-2014.
 msgid ""
 msgstr ""
-"Project-Id-Version: R 2.15.2 / matrix 1.0-10\n"
+"Project-Id-Version: R 3.1.0 / matrix 1.1-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-12-23 21:27+0100\n"
-"PO-Revision-Date: 2012-10-01 15:33+0200\n"
-"Last-Translator: Chris Leick <c.leick@vollbio.de>\n"
+"POT-Creation-Date: 2014-03-27 10:35+0100\n"
+"PO-Revision-Date: 2014-03-16 16:50+0100\n"
+"Last-Translator: Detlef Steuer <detlef.steuer@gmx.de>\n"
 "Language-Team: German <debian-l10n-german@lists.debian.org>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
@@ -49,6 +49,7 @@ msgstr "cholmod_change_factor fehlgeschlagen"
 #: Csparse.c:55
 msgid "Csparse_sort(x): x is not a valid (apart from sorting) CsparseMatrix"
 msgstr ""
+"Csparse_sort(x): x ist keine gültige (außerhalb von Sortieren) CsparseMatrix"
 
 #: Csparse.c:73
 msgid "slot p must have length = nrow(.) + 1"
@@ -252,86 +253,89 @@ msgstr "»uplo« muss UPP oder LOW sein"
 msgid "invalid class '%s' to dup_mMatrix_as_geMatrix"
 msgstr "ungültige Klasse »%s« für dup_mMatrix_as_geMatrix"
 
-#: Mutils.c:763
+#: Mutils.c:769
 #, c-format
 msgid "unexpected ctype = %d in dup_mMatrix_as_geMatrix"
 msgstr "unerwartetes ctype = %d in dup_mMatrix_as_geMatrix"
 
-#: Mutils.c:794
+#: Mutils.c:800
 #, c-format
 msgid "invalid class '%s' to dup_mMatrix_as_dgeMatrix"
 msgstr "ungültige Klasse »%s« für dup_mMatrix_as_dgeMatrix"
 
-#: Mutils.c:840
+#: Mutils.c:846
 msgid "Argument ij must be 2-column integer matrix"
 msgstr "Argument ij muss eine zweispaltige Ganzzahlmatrix sein"
 
-#: Mutils.c:856
+#: Mutils.c:862
 msgid "subscript 'i' out of bounds in M[ij]"
 msgstr "Subskript »i« außerhalb des Bereichs in M[ij]"
 
-#: Mutils.c:858
+#: Mutils.c:864
 msgid "subscript 'j' out of bounds in M[ij]"
 msgstr "Subskript »j« außerhalb des Bereichs in M[ij]"
 
-#: Mutils.c:897
+#: Mutils.c:903
 msgid "i and j must be integer vectors of the same length"
 msgstr "i und j müssen Ganzzahlvektoren mit der gleichen Länge sein"
 
-#: Mutils.c:983
+#: Mutils.c:989
 msgid "'data' must be of a vector type"
-msgstr ""
+msgstr "'data' muss ein Vektortyp sein"
 
-#: Mutils.c:990
+#: Mutils.c:996
 #, c-format
 msgid "invalid '%s' argument"
-msgstr ""
+msgstr "ungültiges '%s' Argument"
 
-#: Mutils.c:997 Mutils.c:1005
+#: Mutils.c:1003 Mutils.c:1011
 msgid "non-numeric matrix extent"
-msgstr ""
+msgstr "nicht-numerische Matrix Ausdehnung"
 
-#: Mutils.c:1000
+#: Mutils.c:1006
 msgid "invalid 'nrow' value (too large or NA)"
-msgstr ""
-
-#: Mutils.c:1002
-msgid "invalid 'nrow' value (< 0)"
-msgstr ""
+msgstr "unzulässiger Wert für 'nrow' (zu groß oder NA)"
 
 #: Mutils.c:1008
+msgid "invalid 'nrow' value (< 0)"
+msgstr "unzulässiger Wert für 'nrow' (< 0)"
+
+#: Mutils.c:1014
 msgid "invalid 'ncol' value (too large or NA)"
-msgstr ""
+msgstr "unzulässiger Wert für 'ncol' (zu groß oder NA)<"
 
-#: Mutils.c:1010
+#: Mutils.c:1016
 msgid "invalid 'ncol' value (< 0)"
-msgstr ""
+msgstr "unzulässiger Wert für 'ncol' (< 0)<"
 
-#: Mutils.c:1028
+#: Mutils.c:1034
 #, c-format
 msgid ""
 "data length [%d] is not a sub-multiple or multiple of the number of rows [%d]"
 msgstr ""
+"Datenlänge [%d] ist kein Teilvielfaches oder Vielfaches der Zahl der\n"
+"Zeilen [%d]"
 
-#: Mutils.c:1031
+#: Mutils.c:1037
 #, c-format
 msgid ""
 "data length [%d] is not a sub-multiple or multiple of the number of columns "
 "[%d]"
 msgstr ""
-
-#: Mutils.c:1034
-msgid "data length exceeds size of matrix"
-msgstr ""
+"Datenlänge [%d] ist kein Teilvielfaches oder Vielfaches der Zahl der\n"
+"Spalten [%d]<"
 
 #: Mutils.c:1040
-msgid "too many elements specified"
-msgstr ""
+msgid "data length exceeds size of matrix"
+msgstr "Datenlänge überschreitet Größe der Matrix"
 
-#: Mutils.c:1127 Mutils.c:1160
-#, fuzzy
+#: Mutils.c:1046
+msgid "too many elements specified"
+msgstr "zu viele Elemente angegeben"
+
+#: Mutils.c:1133 Mutils.c:1166
 msgid "Argument must be numeric-like atomic vector"
-msgstr "Argument y muss  numerisch oder ganzzahlig sein"
+msgstr "Argument muss zahl-ähnlich atomar sein"
 
 #: Tsparse.c:20
 msgid "lengths of slots i and j must match"
@@ -359,128 +363,128 @@ msgstr ""
 msgid "Argument rho must be an environment"
 msgstr "Argument rho muss eine Umgebung sein"
 
-#: chm_common.c:237
+#: chm_common.c:232
 msgid "invalid class of object to as_cholmod_sparse"
 msgstr "ungültige Klasse des Objektes zu as_cholmod_sparse"
 
-#: chm_common.c:239
+#: chm_common.c:234
 msgid "invalid object passed to as_cholmod_sparse"
 msgstr "ungültige Objekt an Klasse as_cholmod_sparse übergeben"
 
-#: chm_common.c:266
+#: chm_common.c:261
 msgid "in_place cholmod_sort returned an error code"
 msgstr "in_place cholmod_sort gab einen Fehlerkode zurück"
 
-#: chm_common.c:272
+#: chm_common.c:267
 msgid "cholmod_sort returned an error code"
 msgstr "cholmod_sort gab einen Fehlerkode zurück"
 
-#: chm_common.c:353
+#: chm_common.c:349
 msgid "chm_sparse_to_SEXP(<real>, *): invalid 'Rkind' (real kind code)"
 msgstr "chm_sparse_to_SEXP(<real>, *): ungültiges »Rkind« (echter Artkode)"
 
-#: chm_common.c:361
+#: chm_common.c:357
 msgid "unknown xtype in cholmod_sparse object"
 msgstr "unbekannter xtype in Objekt cholmod_sparse"
 
-#: chm_common.c:390 chm_common.c:585 chm_common.c:820 chm_common.c:870
+#: chm_common.c:386 chm_common.c:581 chm_common.c:816 chm_common.c:866
 msgid "complex sparse matrix code not yet written"
 msgstr "Kode für komplexe dünn besetzte Matrizen noch nicht geschrieben"
 
-#: chm_common.c:395 chm_common.c:590
+#: chm_common.c:391 chm_common.c:586
 msgid "Symmetric and triangular both set"
 msgstr "Symmetrisch und dreieckig sind beide gesetzt"
 
-#: chm_common.c:435
+#: chm_common.c:431
 msgid "invalid class of object to as_cholmod_triplet"
 msgstr "ungültige Klasse des Objektes zu as_cholmod_triplet"
 
-#: chm_common.c:459
+#: chm_common.c:455
 msgid "as_cholmod_triplet(): could not reallocate for internal diagU2N()"
 msgstr "as_cholmod_triplet(): konnte für internes diagU2N() nicht reallozieren"
 
-#: chm_common.c:557
+#: chm_common.c:553
 msgid "unknown xtype in cholmod_triplet object"
 msgstr "unbekannter xtype in Objekt cholmod_triplet"
 
-#: chm_common.c:636
+#: chm_common.c:632
 msgid "invalid class of object to as_cholmod_dense"
 msgstr "ungültige Klasse des Objektes zu as_cholmod_dense"
 
-#: chm_common.c:706
+#: chm_common.c:702
 #, c-format
 msgid "Cholmod error '%s' at file %s, line %d"
 msgstr "Cholmod-Fehler '%s' bei Datei %s, Zeile %d"
 
-#: chm_common.c:710
+#: chm_common.c:706
 #, c-format
 msgid "Cholmod warning '%s' at file %s, line %d"
 msgstr "Cholmod-Warnung '%s' bei Datei %s, Zeile %d"
 
-#: chm_common.c:739
+#: chm_common.c:735
 #, c-format
 msgid "Unable to initialize cholmod: error code %d"
 msgstr "cholmod kann nicht initialisiert werden: Fehlerkode %d"
 
-#: chm_common.c:786
+#: chm_common.c:782
 msgid "unknown 'Rkind'"
 msgstr "»Rkind« unbekannt"
 
-#: chm_common.c:793 chm_common.c:856
+#: chm_common.c:789 chm_common.c:852
 msgid "unknown xtype"
 msgstr "unbekannter xtype"
 
-#: chm_common.c:826 chm_common.c:879
+#: chm_common.c:822 chm_common.c:875
 msgid "code for cholmod_dense with holes not yet written"
 msgstr "Kode für cholmod_dense mit Löchern noch nicht geschrieben"
 
-#: chm_common.c:875
+#: chm_common.c:871
 msgid "don't know if a dense pattern matrix makes sense"
 msgstr "es ist nicht klar, ob eine dicht besetzte Mustermatrix sinnvoll ist"
 
-#: chm_common.c:942
+#: chm_common.c:938
 msgid "invalid class of object to as_cholmod_factor"
 msgstr "ungültige Klasse des Objektes zu as_cholmod_factor"
 
-#: chm_common.c:956
+#: chm_common.c:952
 msgid "Supernodal LDL' decomposition not available"
 msgstr "Superknoten-LDL'-Zerlegung nicht verfügbar"
 
-#: chm_common.c:958
+#: chm_common.c:954
 msgid "Supernodal/simplicial class inconsistent with type flags"
 msgstr "Superknoten-/simpliziale Klasse inkonstent mit Typkennzeichen"
 
-#: chm_common.c:976
+#: chm_common.c:972
 msgid "Number of supernodes must be positive when is_super is TRUE"
 msgstr "Anzahl der Superknoten muss positiv sein, wenn is_super TRUE ist"
 
-#: chm_common.c:979
+#: chm_common.c:975
 msgid "Lengths of super and pi must be equal"
 msgstr "Längen von super und pi müssen gleich sein"
 
-#: chm_common.c:983
+#: chm_common.c:979
 msgid "Lengths of super and px must be equal"
 msgstr "Längen von super und px müssen gleich sein"
 
-#: chm_common.c:996
+#: chm_common.c:992
 msgid "failure in as_cholmod_factor"
 msgstr "Misserfolg in as_cholmod_factor"
 
-#: chm_common.c:1024
+#: chm_common.c:1020
 msgid "CHOLMOD factorization was unsuccessful"
 msgstr "CHOLMOD-Faktorzerlegung war nicht erfolgreich"
 
-#: chm_common.c:1037
+#: chm_common.c:1033
 #, c-format
 msgid "f->xtype of %d not recognized"
 msgstr "f->xtype von %d nicht erkannt"
 
-#: chm_common.c:1102
+#: chm_common.c:1098
 #, c-format
 msgid "chm_diagN2U(<non-square matrix>): nrow=%d, ncol=%d"
 msgstr "chm_diagN2U(<nicht quadratische Matrix): nrow=%d, ncol=%d"
 
-#: chm_common.c:1145
+#: chm_common.c:1141
 #, c-format
 msgid "chm_diagN2U(x, uploT = %d): uploT should be +- 1"
 msgstr "chm_diagN2U(x, uploT = %d): uploT sollte +- 1 sein"
@@ -635,7 +639,7 @@ msgstr "ungültige class(x) »%s« in R_to_CMatrix(x)"
 msgid "dgCMatrix_lusol requires a square, non-empty matrix"
 msgstr "dgCMatrix_lusol benötigt eine quadratische, nicht leere Matrix"
 
-#: dgCMatrix.c:157 dgCMatrix.c:183 dgCMatrix.c:437 dgCMatrix.c:470
+#: dgCMatrix.c:157 dgCMatrix.c:184 dgCMatrix.c:438 dgCMatrix.c:472
 #: dgeMatrix.c:422 dpoMatrix.c:91 dpoMatrix.c:116 dppMatrix.c:80
 #: dspMatrix.c:78 dsyMatrix.c:85 dtCMatrix.c:90 dtCMatrix.c:106 dtrMatrix.c:98
 msgid "Dimensions of system to be solved are inconsistent"
@@ -645,69 +649,69 @@ msgstr "Dimensionen des Systems, das gelöst werden soll, sind inkonsistent"
 msgid "cs_lusol failed"
 msgstr "cs_lusol fehlgeschlagen"
 
-#: dgCMatrix.c:180
+#: dgCMatrix.c:181
 msgid "dgCMatrix_qrsol(., order) needs order in {0,..,3}"
 msgstr "dgCMatrix_qrsol(., Anordnung) benötigt Anordnung in {0,..,3}"
 
-#: dgCMatrix.c:189
+#: dgCMatrix.c:190
 #, c-format
 msgid "dgCMatrix_qrsol(<%d x %d>-matrix) requires a 'tall' rectangular matrix"
 msgstr ""
 "dgCMatrix_qrsol(<%d x %d>-Matrix) benötigt eine »lange« rechteckige Matrix"
 
-#: dgCMatrix.c:200
+#: dgCMatrix.c:201
 msgid "cs_qrsol() failed inside dgCMatrix_qrsol()"
 msgstr "cs_qrsol() innerhalb dgCMatrix_qrsol() fehlgeschlagen"
 
-#: dgCMatrix.c:219
+#: dgCMatrix.c:220
 msgid "A must have #{rows} >= #{columns}"
 msgstr "A muss #{rows} >= #{columns} haben"
 
-#: dgCMatrix.c:224
+#: dgCMatrix.c:225
 msgid "cs_sqr failed"
 msgstr "cs_sqr fehlgeschlagen"
 
-#: dgCMatrix.c:229
+#: dgCMatrix.c:230
 msgid "cs_qr failed"
 msgstr "cs_qr fehlgeschlagen"
 
-#: dgCMatrix.c:292
+#: dgCMatrix.c:293
 msgid "SuiteSparseQR_C_QR returned an error code"
 msgstr "SuiteSparseQR_C_QR gab einen Fehlerkode zurück"
 
-#: dgCMatrix.c:336
+#: dgCMatrix.c:337
 msgid "LU decomposition applies only to square matrices"
 msgstr "LU-Zerlegung ist nur bei quadratischen Matrizen anwendbar"
 
-#: dgCMatrix.c:345
+#: dgCMatrix.c:346
 msgid "cs_lu(A) failed: near-singular A (or out of memory)"
 msgstr ""
 "cs_lu(A) fehlgeschlagen: near-Singuläres A (oder außerhalb des Speichers)"
 
-#: dgCMatrix.c:405
+#: dgCMatrix.c:406
 msgid "dgCMatrix_matrix_solve(.., sparse=TRUE) not yet implemented"
-msgstr ""
+msgstr "dgCMatrix_matrix_solve(.., sparse=TRUE) noch nicht implementiert"
 
-#: dgCMatrix.c:468
+#: dgCMatrix.c:470
 msgid "dgCMatrix_cholsol requires a 'short, wide' rectangular matrix"
 msgstr "dgCMatrix_cholsol benötigt eine »short, wide«-rechteckige Matrix"
 
-#: dgCMatrix.c:476
+#: dgCMatrix.c:478
 msgid "cholmod_sdmult error (rhs)"
 msgstr "cholmod_sdmult-Fehler (rhs)"
 
-#: dgCMatrix.c:479
+#: dgCMatrix.c:481
 #, c-format
 msgid "cholmod_factorize failed: status %d, minor %d from ncol %d"
 msgstr "cholmod_factorize fehlgeschlagen: Status %d, Minor %d von ncol %d"
 
-#: dgCMatrix.c:483
+#: dgCMatrix.c:485
 #, c-format
 msgid "cholmod_solve (CHOLMOD_A) failed: status %d, minor %d from ncol %d"
 msgstr ""
 "cholmod_solve (CHOLMOD_A) fehlgeschlagen: Status %d, Minor %d von ncol %d"
 
-#: dgCMatrix.c:500
+#: dgCMatrix.c:502
 msgid "cholmod_sdmult error (resid)"
 msgstr "cholmod_sdmult-Fehler (resid)"
 
@@ -851,7 +855,7 @@ msgstr "Argument b muss eine numerische Matrix sein"
 
 #: dsCMatrix.c:25
 msgid "chm_factor_name(): did not get string of length 11"
-msgstr ""
+msgstr "chm_factor_name(): habe keine Zeichenkette der Länge 11 bekommen"
 
 #: dsCMatrix.c:99
 msgid ""
@@ -902,15 +906,18 @@ msgstr "Dimensionen von a (%d,%d) und b (%d,%d) sind nicht konform"
 
 #: dtpMatrix.c:131
 msgid "right=TRUE is not yet implemented __ FIXME"
-msgstr ""
+msgstr "right=TRUE ist noch nicht implementiert __ FIXME"
 
 #: dtrMatrix.c:120
 msgid "dtrMatrix must be square"
 msgstr "dtrMatrix muss quadratisch sein"
 
 #: dtrMatrix.c:160
-msgid "dtrMatrices in %*% must have matching (square) dim."
-msgstr "dtrMatrix in %*% muss quadratisch mit passender Dimension sein"
+#, fuzzy
+msgid "\"dtrMatrix\" objects in '%*%' must have matching (square) dimension"
+msgstr ""
+"\"dtrMatrix\" Objekte in '%*%' müssen quadratisch mit passender Dimension "
+"sein"
 
 #: dtrMatrix.c:247
 msgid "cannot set diag() as long as 'diag = \"U\"'"
@@ -937,9 +944,8 @@ msgid "length(p) must match nrow(V)"
 msgstr "length(p) muss zu nrow(V) passen"
 
 #: sparseQR.c:15
-#, fuzzy
 msgid "length(beta) must match ncol(V)"
-msgstr "length(beta) muss zu nrow(V) passen"
+msgstr "length(beta) muss zu ncol(V) passen"
 
 #: sparseQR.c:18
 msgid "length(q) must be zero or ncol(R)"
@@ -948,12 +954,12 @@ msgstr "length(q) muss null oder ncol(R) sein"
 #: sparseQR.c:46
 #, c-format
 msgid "sparseQR_Qmult(): nrow(y) = %d != %d = nrow(V)"
-msgstr ""
+msgstr "sparseQR_Qmult(): nrow(y) = %d != %d = nrow(V)"
 
 #: sparseQR.c:121 sparseQR.c:159 sparseQR.c:195
 #, c-format
 msgid "%s(): structurally rank deficient case: possibly WRONG zeros"
-msgstr ""
+msgstr "%s(): Fall mit strukturellem Rangdefizit: evtl FALSCHE Nullen"
 
 #: t_Csparse_subassign.c:144
 msgid "invalid class of 'x' in Csparse_subassign()"
@@ -964,16 +970,18 @@ msgid "invalid class of 'value' in Csparse_subassign()"
 msgstr "ungültige Klasse von 'value' in Csparse_subassign()"
 
 #: t_Csparse_subassign.c:189
-#, fuzzy, c-format
+#, c-format
 msgid "x[] <- val: val is coerced to logical for \"%s\" x"
-msgstr "x[] <- val: val muss logisch sein für \"%s\" x"
+msgstr "x[] <- val: val in booleschen Wert umgewandelt für \"%s\" x"
 
 #: t_Csparse_subassign.c:194
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "x[] <- val: val should be integer or logical, is coerced to integer, for \"%s"
 "\" x"
-msgstr "x[] <- val: val muss ganzzahlig oder logisch sein für \"%s\" x"
+msgstr ""
+"x[] <- val: val sollte ganzzahlig oder logisch sein, wird in ganze\n"
+"Zahl umgewandelt für \"%s\" x"
 
 #: t_Csparse_subassign.c:201
 msgid "programming error in Csparse_subassign() should never happen"

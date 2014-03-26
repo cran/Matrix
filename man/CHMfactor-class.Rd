@@ -190,16 +190,15 @@ isLDL(CX)
 str(CX) ## a "dCHMsimpl" object
 r <- expand(CX)
 L.P <- with(r, crossprod(L,P))  ## == L'P
-PLLP <- crossprod(L.P)          ## == (L'P)' L'P == P'LL'P
+PLLP <- crossprod(L.P)          ## == (L'P)' L'P == P'LL'P  = XX = M M'
 b <- sample(m)
 stopifnot(all.equal(PLLP, XX), % not needed: factorsCheck is off: check.attributes=FALSE),
           all(as.vector(solve(CX, b, system="P" )) == r$P \%*\% b),
           all(as.vector(solve(CX, b, system="Pt")) == t(r$P) \%*\% b) )
 
 u1 <- update(CX, XX,    mult=pi)
-if(FALSE) ## fails ___ FIXME ? ___
-u2 <- update(CX, t(M1), mult=pi)
-
+u2 <- update(CX, t(M1), mult=pi) # with the original M, where XX = M M'
+stopifnot(all.equal(u1,u2, tol=1e-14))
 
    ## [ See  help(Cholesky)  for more examples ]
    ##        -------------

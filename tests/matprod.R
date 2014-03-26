@@ -359,8 +359,8 @@ sis <- solve(S,    S)
 SIS <- solve(symW, symW)
 iw <- solve(symW)
 iss <- iw %*% symW
-##                                     nb-mm3
-assert.EQ.(I, drop0(sis), tol = 1e-9)# 2.6e-10
+##                                     nb-mm3   openBLAS (Avi A.)
+assert.EQ.(I, drop0(sis), tol = 1e-8)# 2.6e-10;  7.96e-9
 assert.EQ.(I, SIS,        tol = 1e-7)# 8.2e-9
 assert.EQ.(I, iss,        tol = 4e-4)# 3.3e-5
 ## solve(<dsCMatrix>, <dense..>) :

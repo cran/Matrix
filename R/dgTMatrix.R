@@ -99,8 +99,8 @@ setMethod("image", "dgTMatrix",
           stopifnot(length(xlim) == 2, length(ylim) == 2)
 	  ## ylim: the rows count from top to bottom:
 	  ylim <- sort(ylim, decreasing=TRUE)
-	  if(all(xlim == round(xlim))) xlim <- xlim+ c(-.5, .5)
-	  if(all(ylim == round(ylim))) ylim <- ylim+ c(-.5, .5)
+	  if(all(xlim == round(xlim))) xlim <- xlim+ c(-.5, +.5)
+	  if(all(ylim == round(ylim))) ylim <- ylim+ c(+.5, -.5) # decreasing!
           levelplot(x@x ~ (x@j + 1L) * (x@i + 1L),
                     sub = sub, xlab = xlab, ylab = ylab,
                     xlim = xlim, ylim = ylim, aspect = aspect,

@@ -100,9 +100,16 @@ sparseMatrix(i = ep, j = ep, p, x, dims, dimnames,
   \code{\linkS4class{CsparseMatrix}} is a unique representation of the
   sparse matrix.
 }
-\seealso{\code{\link{Matrix}(*, sparse=TRUE)} for the more usual
-  constructor of such matrices; further \code{\link{bdiag}} and
-  \code{\link{Diagonal}} for (block-)diagonal and
+\note{% We say so above (-> {index1}), but some do not read that
+  You \emph{do} need to use \code{index1 = FALSE} (or add \code{+ 1}
+  to \code{i} and \code{j}) if you want use the 0-based \code{i} (and
+  \code{j}) slots from existing sparse matrices.
+}
+\seealso{\code{\link{Matrix}(*, sparse=TRUE)} for the constructor of
+  such matrices from a \emph{dense} matrix.  That is easier in small
+  sample, but much less efficient (or impossible) for large matrices,
+  where something like \code{sparseMatrix()} is needed.
+  Further \code{\link{bdiag}} and \code{\link{Diagonal}} for (block-)diagonal and
   \code{\link{bandSparse}} for banded sparse matrix constructors.
 
   The standard \R \code{\link{xtabs}(*, sparse=TRUE)}, for sparse tables
@@ -127,6 +134,11 @@ summary(AA)
 set.seed(1); (perm <- sample(1:7))
 (A1 <- sparseMatrix(i[perm], j[perm], x = x[perm]))
 stopifnot(identical(A, A1))
+
+## The slots are 0-index based, so 
+try( sparseMatrix(i=A@i, p=A@p, x= seq_along(A@x)) )
+## fails and you should say so: 1-indexing is FALSE: 
+     sparseMatrix(i=A@i, p=A@p, x= seq_along(A@x), index1 = FALSE)
 
 ## the (i,j) pairs can be repeated, in which case the x's are summed
 (args <- data.frame(i = c(i, 1), j = c(j, 2), x = c(x, 2)))
@@ -184,7 +196,6 @@ rSparseMatrix <- function(nrow, ncol, nnz,
 
 M1 <- rSparseMatrix(1000, 20, nnz = 200)
 summary(M1)
-
 
 \donttest{% as SparseM is "outside"
 ## pointers example in converting from other sparse matrix representations.

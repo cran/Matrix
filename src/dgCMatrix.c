@@ -163,6 +163,7 @@ SEXP dgCMatrix_lusol(SEXP x, SEXP y)
 }
 #endif
 
+// called from package MatrixModels's R code
 SEXP dgCMatrix_qrsol(SEXP x, SEXP y, SEXP ord)
 {
     /* FIXME: extend this to work in multivariate case, i.e. y a matrix with > 1 column ! */
@@ -448,6 +449,7 @@ SEXP dgCMatrix_matrix_solve(SEXP Ap, SEXP b, SEXP give_sparse)
     return ans;
 }
 
+// called from package MatrixModels's R code:
 SEXP dgCMatrix_cholsol(SEXP x, SEXP y)
 {
     /* Solve Sparse Least Squares X %*% beta ~= y  with dense RHS y,

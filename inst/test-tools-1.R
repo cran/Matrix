@@ -16,12 +16,18 @@ identical7 <- function(a,b,c,d,e,f,g)identical(a,b) && identical6(b,c,d,e,f,g)
 
 if( exists("assertCondition", asNamespace("tools")) ) { ## R > 3.0.1
 
+if(FALSE) {
 assertError <- function(expr, verbose=getOption("verbose"))
     tools::assertCondition(expr, "error", verbose=verbose)
 assertWarning <- function(expr, verbose=getOption("verbose"))
     tools::assertCondition(expr, "warning", verbose=verbose)
 assertWarningAtLeast <- function(expr, verbose=getOption("verbose"))
     tools::assertCondition(expr, "error", "warning", verbose=verbose)
+} else {
+    require(tools)#-> assertError() and assertWarning()
+    assertWarningAtLeast <- function(expr, verbose=getOption("verbose"))
+        tools::assertCondition(expr, "error", "warning", verbose=verbose)
+}
 
 } else { ## in R <= 3.0.1 :
 
@@ -171,9 +177,9 @@ relErr <- function(target, current) { ## make this work for 'Matrix'
 
 ##' Compute the signed relative error between target and current vector -- vectorized
 ##' @title Relative Error (:= 0 when absolute error == 0)
-##' @param target
-##' @param current {maybe scalar; need  length(current) a multiple of length(target)}
-##' @return *vector* of the same length as target and current
+##' @param target  numeric, possibly scalar
+##' @param current numeric of length() a multiple of length(target)
+##' @return *vector* of the same length as current
 ##' @author Martin Maechler
 relErrV <- function(target, current) {
     n <- length(target <- as.vector(target))

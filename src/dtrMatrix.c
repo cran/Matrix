@@ -157,7 +157,7 @@ SEXP dtrMatrix_dtrMatrix_mm(SEXP a, SEXP b, SEXP right, SEXP trans)
 
     if (INTEGER(GET_SLOT(b, Matrix_DimSym))[0] != n)
 	/* validity checking already "assures" square matrices ... */
-	error(_("dtrMatrices in %*% must have matching (square) dim."));
+	error(_("\"dtrMatrix\" objects in '%*%' must have matching (square) dimension"));
     if(same_uplo) {
 	/* ==> result is triangular -- "dtrMatrix" !
 	 * val := dup_mMatrix_as_dtrMatrix(b) : */

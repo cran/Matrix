@@ -589,48 +589,73 @@ if(FALSE) { ## -- now have  .Call(m_encodeInd, ...) etc :
 
 ## nr= nrow: since  i in {0,1,.., nrow-1}  these are 1L "decimal" encodings:
 ## Further, these map to and from the usual "Fortran-indexing" (but 0-based)
-## __ care against integer overflow __
 encodeInd  <- function(ij, di) {
     stopifnot(length(di) == 2)
     nr <- di[1L]
+    ## __ care against integer overflow __
     if(prod(di) >= .Machine$integer.max) nr <- as.double(nr)
     ij[,1] + ij[,2] * nr
 }
 encodeInd2 <- function(i,j, di) {
     stopifnot(length(di) == 2)
     nr <- di[1L]
+    ## __ care against integer overflow __
     if(prod(di) >= .Machine$integer.max) nr <- as.double(nr)
     i +  j * nr
 }
-}## no more needed
+} else {
+##' Encode Matrix index (i,j)  |-->  i + j * nrow   {i,j : 0-origin}
+##'
+##' @param ij 2-column integer matrix
+##' @param dim dim(.), i.e. length 2 integer vector
+##' @param checkBnds logical indicating  0 <= ij[,k] < di[k]  need to be checked.
+##'
+##' @return encoded index; integer if prod(dim) is small; double otherwise
+encodeInd <- function(ij, dim, orig1=FALSE, checkBnds=TRUE)
+    .Call(m_encodeInd, ij, dim, orig1, checkBnds)
+## --> in ../src/Mutils.c :  m_encodeInd(ij, di, orig_1, chk_bnds)
+##                           ~~~~~~~~~~~
 
-## 'code' is 0-based; as.integer(.) because encode*() may produce double
+##' Here, 1-based indices (i,j) are default:
+encodeInd2 <- function(i, j, dim, orig1=TRUE, checkBnds=TRUE)
+    .Call(m_encodeInd2, i,j, dim, orig1, checkBnds)
+
+}
+
+##' Decode "encoded" (i,j) indices back to  cbind(i,j)
+##' This is the inverse of encodeInd(.)
+##'
+##' @title Decode "Encoded" (i,j) Indices
+##' @param code integer in 0:((n x m - 1)  <==> encodeInd(.) result
+##' @param nr the number of rows
+##' @return
+##' @author Martin Maechler
 decodeInd <- function(code, nr) cbind(as.integer(code %% nr),
-				      as.integer(code %/% nr))
+				      as.integer(code %/% nr), deparse.level=0L)
 
-complementInd <- function(ij, dim, checkBnds=FALSE)
+complementInd <- function(ij, dim, orig1=FALSE, checkBnds=FALSE)
 {
     ## Purpose: Compute the complement of the 2-column 0-based ij-matrix
     ##		but as 1-based indices
     n <- prod(dim)
     if(n == 0) return(integer(0))
-    seq_len(n)[-(1L + .Call(m_encodeInd, ij, dim, checkBnds))]
+    seq_len(n)[-(1L + .Call(m_encodeInd, ij, dim, orig1, checkBnds))]
 }
 
 unionInd <- function(ij1, ij2) unique(rbind(ij1, ij2))
 
-intersectInd <- function(ij1, ij2, di, checkBnds=FALSE) {
+intersectInd <- function(ij1, ij2, di, orig1=FALSE, checkBnds=FALSE) {
     ## from 2-column (i,j) matrices where i in {0,.., nrow-1},
     ## return only the *common* entries
-    decodeInd(intersect(.Call(m_encodeInd, ij1, di, checkBnds),
-			.Call(m_encodeInd, ij2, di, checkBnds)), nr=di[1])
+    decodeInd(intersect(.Call(m_encodeInd, ij1, di, orig1, checkBnds),
+			.Call(m_encodeInd, ij2, di, orig1, checkBnds)), nr=di[1])
 }
 
-WhichintersectInd <- function(ij1, ij2, di, checkBnds=FALSE) {
+WhichintersectInd <- function(ij1, ij2, di, orig1=FALSE, checkBnds=FALSE) {
     ## from 2-column (i,j) matrices where i \in {0,.., nrow-1},
     ## find *where*  common entries are in ij1 & ij2
-    m1 <- match(.Call(m_encodeInd, ij1, di, checkBnds),
-                .Call(m_encodeInd, ij2, di, checkBnds))
+    m1 <- match(.Call(m_encodeInd, ij1, di, orig1, checkBnds),
+                .Call(m_encodeInd, ij2, di, orig1, checkBnds))
     ni <- !is.na(m1)
     list(which(ni), m1[ni])
 }
@@ -689,11 +714,11 @@ asTuniq <- function(x) {
 
 ## is 'x' a uniq Tsparse Matrix ?
 is_not_uniqT <- function(x, di = dim(x))
-    is.unsorted(x@j) || anyDuplicated(.Call(m_encodeInd2, x@i, x@j, di, FALSE))
+    is.unsorted(x@j) || anyDuplicated(.Call(m_encodeInd2, x@i, x@j, di, FALSE, FALSE))
 
 ## is 'x' a TsparseMatrix with duplicated entries (to be *added* for uniq):
 is_duplicatedT <- function(x, di = dim(x))
-    anyDuplicated(.Call(m_encodeInd2, x@i, x@j, di, FALSE))
+    anyDuplicated(.Call(m_encodeInd2, x@i, x@j, di, FALSE, FALSE))
 
 
 t_geMatrix <- function(x) {
@@ -1312,7 +1337,8 @@ diagN2U <- function(x, cl = getClassDef(class(x)), checkDense = FALSE)
 	.dgC.0.factors(x)
 }
 
-.set.factors <- function(x, name, value) .Call(R_set_factors, x, value, name)
+.set.factors <- function(x, name, value, warn.no.slot=FALSE)
+    .Call(R_set_factors, x, value, name, warn.no.slot)
 
 ### Fast, much simplified version of tapply()
 tapply1 <- function (X, INDEX, FUN = NULL, ..., simplify = TRUE) {
@@ -1416,16 +1442,20 @@ setparts <- function(x,y, uniqueCheck = TRUE, check = TRUE) {
          int = if(n1 < n2) y[m1] else x[m2])
 }
 
-##' @title Warn about extraneous arguments in the "..."  (of its caller)
-## TODO NOTE:   R/src/library/base/R/seq.R  uses a simpler approach,
-##    *and* ngettext(.)  {->  singular/plural *and* translatable}
-##' @return
-##' @author Martin Maechler, June 2012
-chk.s <- function(...) {
-    if(length(list(...)))
-	warning(gettextf("arguments %s are disregarded in\n %s",
-			 sub(")$", '', sub("^list\\(", '', deparse(list(...), control=c()))),
-			 deparse(sys.call(-1), control=c())), call. = FALSE, domain=NA)
+##' @title Warn about extraneous arguments in the "..."  (of its caller).
+##' A merger of my approach and the one in seq.default()
+##' @author Martin Maechler, June 2012, May 2014
+##' @param ...
+##' @param which.call passed to sys.call().  A caller may use -2 if the message should
+##' mention *its* caller
+chk.s <- function(..., which.call = -1) {
+    if(nx <- length(list(...)))
+	warning(sprintf(ngettext(nx,
+                                 "extra argument %s will be disregarded in\n %s",
+                                 "extra arguments %s will be disregarded in\n %s"),
+                        sub(")$", '', sub("^list\\(", '', deparse(list(...), control=c()))),
+                        deparse(sys.call(which.call), control=c())),
+                call. = FALSE, domain=NA)
 }
 
 ##' *Only* to be used as function in

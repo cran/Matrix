@@ -5,7 +5,7 @@
 \description{
   \dQuote{Estimate}, i.e. compute approximately the CONDition number of
   a (potentially large, often sparse) matrix \code{A}.
-  It works by apply a fast approximation of the 1-norm,
+  It works by apply a fast \emph{randomized} approximation of the 1-norm,
   \code{norm(A,"1")}, through \code{onenormest(.)}.
 }
 \usage{
@@ -32,21 +32,30 @@ onenormest(A, t = min(n, 5), A.x, At.x, n,
     respectively.}
   \item{n}{\code{ == nrow(A)}, only needed when \code{A} is not specified.}
   \item{iter.max}{maximal number of iterations for the 1-norm estimator.}
-  \item{eps}{the relaive change that is deemed irrelevant.}
+  \item{eps}{the relative change that is deemed irrelevant.}
 }
-% \details{
-% %%  ~~ If necessary, more details than the description above ~~
-% }
-\value{Both functions return a \code{\link{list}};
-  \code{onenormest()} with components,
-  \item{est}{a number \eqn{> 0}, the estimated \code{norm(A, "1")}.}
-  \item{v}{the maximal \eqn{A X} column.}
+\details{
+  \code{\link{condest}()} calls \code{\link{lu}(A)}, and subsequently
+  \code{onenormest(A.x = , At.x = )} to compute an approximate norm of
+  the \emph{inverse} of \code{A}, \eqn{A^{-1}}, in a way which
+  keeps using sparse matrices efficiently when \code{A} is sparse.
 
-  The function \code{condest()} returns a list with components,
-  \item{est}{a number \eqn{> 0}, the estimated condition number
+  Note that \code{onenormest()} uses random vectors and hence
+  \emph{both} functions' results are random, i.e., depend on the random
+  seed, see, e.g., \code{\link{set.seed}()}.
+}
+\value{Both functions return a \code{\link{list}};
+  \code{condest()} with components,
+  \item{est}{a number \eqn{> 0}, the estimated (1-norm) condition number
     \eqn{\hat\kappa}{k.}; when \eqn{r :=}\code{rcond(A)},
     \eqn{1/\hat\kappa \approx r}{1/k. ~= r}.}
-  \item{v}{integer vector length \code{n}, with an \code{1} at the index
+  \item{v}{the maximal \eqn{A x} column, scaled to norm(v) = 1.
+    Consequently, \eqn{norm(A v) = norm(A) / est};
+    when \code{est} is large, \code{v} is an approximate null vector.}
+
+  The function \code{onenormest()} returns a list with components,
+  \item{est}{a number \eqn{> 0}, the estimated \code{norm(A, "1")}.}
+  \item{v}{0-1 integer vector length \code{n}, with an \code{1} at the index
     \code{j} with maximal column \code{A[,j]} in \eqn{A}.}
   \item{w}{numeric vector, the largest \eqn{A x} found.}
   \item{iter}{the number of iterations used.}
@@ -76,9 +85,19 @@ onenormest(A, t = min(n, 5), A.x, At.x, n,
 data(KNex)
 mtm <- with(KNex, crossprod(mm))
 system.time(ce <- condest(mtm))
+sum(abs(ce$v)) ## || v ||_1  == 1
+## Prove that  || A v || = || A || / est  (as ||v|| = 1):
+stopifnot(all.equal(norm(mtm \%*\% ce$v),
+                    norm(mtm) / ce$est))
+
 ## reciprocal
 1 / ce$est
 system.time(rc <- rcond(mtm)) # takes ca  3 x  longer
 rc
 all.equal(rc, 1/ce$est) # TRUE -- the approxmation was good
+
+one <- onenormest(mtm)
+str(one) ## est = 12.3
+## the maximal column:
+which(one$v == 1) # mostly 4, rarely 1, depending on random seed
 }

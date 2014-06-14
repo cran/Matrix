@@ -26,7 +26,7 @@ leave the for loops, as soon as is_lower == is_upper == 0.
  of some samples, i.e., columns of all 0 s. It's mathematically more
  natural --> typically will be useful.
 ** DONE R/products.Rout -- [t]crossprod() could/should become more lenient with *vector*s
-*** TODO consider analagous changes to base-R [t]crossprod() 
+*** TODO consider analagous changes to base-R [t]crossprod()
 ** TODO cor(<sparseMatrix>) and cov(<sparseMatrix>)  at least for y=NULL ("no y").
 -> ~/R/MM/Pkg-ex/Matrix/cor_sparse-propos.R <- http://stackoverflow.com/questions/5888287/
 ** TODO Investigate the "band changing (and getting) ideas  'band<-' etc,
@@ -39,8 +39,8 @@ leave the for loops, as soon as is_lower == is_upper == 0.
 
 ** TODO use  getOption("Matrix.quiet") in more places [--> less messages/warnings]
 ** TODO Check for DimNames propagation in coercion and other operations.
-  Done for (%*%, crossprod, tcrossprod).
-
+  Done for (%*%, crossprod, tcrossprod) -- but not systematically checked (tests/matprod.R)
+*** TODO For colSums(), rowSums()
 ** TODO Report the problem in the Linux ldexp manual page.  The second and
   third calls in the Synopsis should be to ldexpf and ldexpl.
 
@@ -60,6 +60,10 @@ leave the for loops, as soon as is_lower == is_upper == 0.
 *** DONE .chkName.CHM(name, perm, LDL, super) and .CHM.factor.name()
 *** TODO use the above
 ** TODO partly DONE; new arg 'cache=FALSE': allow  cache=FALSE to disable the caching
+** TODO 0-based vs 1-based indexing:   grep -nHE -e '[01]-(orig|ind|base)' *.R
+ Can I find a *uniform* language '1-based indexing' or '0-origin indexing' ?
+*** More systemtic possible via new argumnet 'orig_1' in  m_encodeInd(), m_encodeInd2()
+ ->  src/Mutils.c
 * Generalization of Existing Classes and Methods ---------------------------
 ** TODO "Math2" , "Math", "Arith": keep triangular and symmetric
  Matrices when appropriate:

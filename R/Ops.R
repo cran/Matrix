@@ -240,7 +240,7 @@ Cmp.Mat.atomic <- function(e1, e2) { ## result will inherit from "lMatrix"
             ## Here, we assume that 'r' and the indices align (!)
             encI <- .Call(m_encodeInd,
                           non0ind(e1, cl1, uniqT=FALSE, xtendSymm=FALSE),
-                          di = d, checkBounds = FALSE)
+                          di = d, orig1=FALSE, checkBounds=FALSE)
             rx[1L + encI] <- r
             r <- new(lClass, x = rx, Dim = d, Dimnames = dimnames(e1))
         }
@@ -744,7 +744,7 @@ Logic.Mat.atomic <- function(e1, e2) { ## result will typically be "like" e1:
             ## Here, we assume that 'r' and the indices align (!)
             encI <- .Call(m_encodeInd,
                           non0ind(e1, cl1, uniqT=FALSE, xtendSymm=FALSE),
-                          di = d, checkBounds = FALSE)
+                          di = d, orig1=FALSE, checkBounds=FALSE)
             rx[1L + encI] <- r
             r <- new(lClass, x = rx, Dim = d, Dimnames = dimnames(e1))
         }
@@ -1115,6 +1115,7 @@ setMethod("Arith", signature(e1 = "dtCMatrix", e2 = "dtCMatrix"),
 setMethod("Arith", signature(e1 = "CsparseMatrix", e2 = "numeric"), .Arith.CM.atom)
 setMethod("Arith", signature(e1 = "numeric", e2 = "CsparseMatrix"), .Arith.atom.CM)
 
+##' compute indices for recycling <numeric> of length 'len' to match sparseMatrix 'spM'
 .Ops.recycle.ind <- function(spM, len) {
     n <- prod(d <- dim(spM))
     if(n < len) stop("vector too long in Matrix - vector operation")
@@ -1122,7 +1123,7 @@ setMethod("Arith", signature(e1 = "numeric", e2 = "CsparseMatrix"), .Arith.atom.
         warning("longer object length\n\tis not a multiple of shorter object length")
     ## TODO(speedup!): construction of [1L + in0 %%len] via one .Call()
     in0 <- .Call(m_encodeInd, .Call(compressed_non_0_ij, spM, TRUE),
-                 d, FALSE)
+                 d, FALSE, FALSE)
     1L + in0 %% len
 }
 

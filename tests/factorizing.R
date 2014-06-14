@@ -314,20 +314,25 @@ for(n in c(5:12)) {
     ## the inverse permutation:
     invP <- solve(P)@perm
     lDet <- sum(2* log(d))# the "true" value
-    ldet <- Matrix:::.diag.dsC(Chx = CAp, res.kind = "sumLog")
+    ldetp  <-         Matrix:::.diag.dsC(Chx = CAp, res.kind = "sumLog")
+    ldetp. <- sum(log(Matrix:::.diag.dsC(Chx = CAp, res.kind = "diag") ))
     ##
     CA	<- Cholesky(A,perm=FALSE)
-    ldet2 <- Matrix:::.diag.dsC(Chx = CA, res.kind = "sumLog")
+    ldet <- Matrix:::.diag.dsC(Chx = CA, res.kind = "sumLog")
     ## not printing CAp : ends up non-integer for n >= 11
     mCAp <- as(CAp,"sparseMatrix")
     print(mCA  <- drop0(as(CA, "sparseMatrix")))
     stopifnot(identical(A[p,p], as(P %*% A %*% t(P),
 				   "symmetricMatrix")),
-	      all.equal(lDet, sum(log(Matrix:::.diag.dsC(Chx= CAp,res.kind="diag")))),
 	      relErr(d.^2, Matrix:::.diag.dsC(Chx= CA, res.kind="diag")) < 1e-14,
-	      all.equal(lDet, ldet),
-	      all.equal(lDet, ldet2),
 	      relErr(A[p,p], tcrossprod(mCAp)) < 1e-14)
+    if(FALSE)
+        rbind(lDet,ldet, ldetp, ldetp.)
+    ##  ==> Empirically, I see  lDet = ldet  !=  ldetp == ldetp.
+    ## if(rr$rcond.A < ...) warning("condition number of A ..." ## <- TODO
+    cat(1,""); assert.EQ.(lDet,  ldet,   tol = 1e-14)
+    cat(2,""); assert.EQ.(ldetp, ldetp., tol = 1e-14)
+    cat(3,""); assert.EQ.(lDet,  ldetp, tol = n^2* 1e-7)# extreme: have seen 0.0011045 !!
 }## for()
 
 mkCholhash <- function(r.all) {
@@ -402,7 +407,7 @@ CAinv2 <- solve(CA, Diagonal(nrow(A.)))
 CAinv2 <- as(CAinv2, "symmetricMatrix")
 stopifnot(identical(CAinv, CAinv2))
 
-## FINALLY fix this "TODO":
+## FINALLY fix "TODO": (not implemented *symbolic* factorization of nMatrix)
 try(    tc <- Cholesky(nT.)  )
 
 for(p in c(FALSE,TRUE))

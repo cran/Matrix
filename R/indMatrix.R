@@ -108,10 +108,16 @@ setMethod("crossprod", signature(x = "indMatrix", y = "Matrix"),
 setMethod("crossprod", signature(x = "indMatrix", y = "indMatrix"),
 	  function(x, y) {
 	      mmultCheck(x,y, 2L)
-	      xy <- interaction(x@perm, y@perm)
+              ## xy <- interaction(x@perm, y@perm)
+              ## this is wrong if any of the columns in X or Y are empty because interaction()
+              ## drops non-occuring levels from a non-factor. Explicitly defining a factor with
+              ## levels 1:ncol(<indMatrix>) avoids that.
+              nx <- x@Dim[2L]
+              ny <- y@Dim[2L]
+	      xy <- interaction(factor(x@perm, levels=seq_len(nx)),
+				factor(y@perm, levels=seq_len(ny)))
 	      Matrix(data= tabulate(xy, nbins=nlevels(xy)),
-		     nrow= x@Dim[2L],
-		     ncol= y@Dim[2L])
+		     nrow = nx, ncol = ny)
 	  })
 
 setMethod("tcrossprod", signature(x = "matrix", y = "indMatrix"),
@@ -131,9 +137,18 @@ setMethod("tcrossprod", signature(x = "indMatrix", y = "missing"),
 setMethod("kronecker", signature(X = "indMatrix", Y = "indMatrix"),
 	  function (X, Y, FUN = "*", make.dimnames = FALSE, ...) {
 	      if (FUN != "*") stop("kronecker method must use default 'FUN'")
-	      perm <- as.integer(interaction(rep(X@perm, each =Y@Dim[1]),
-					     rep(Y@perm, times=X@Dim[1]),
-					     lex.order=TRUE))
+## 	      perm <- as.integer(interaction(rep(X@perm, each =Y@Dim[1]),
+## 					     rep(Y@perm, times=X@Dim[1]),
+## 					     lex.order=TRUE))
+              ## this is wrong if any of the columns in X or Y are empty because interaction()
+              ## drops non-occuring levels from a non-factor. Explicitly defining a factor
+              ## with levels 1:ncol(.) avoids that.
+              perm <-  as.integer(interaction(factor(rep(X@perm, each =Y@Dim[1]),
+                                                     levels=seq_len(X@Dim[2])),
+                                              factor(rep.int(Y@perm, times=X@Dim[1]),
+                                                     levels=seq_len(Y@Dim[2])),
+                                              lex.order=TRUE))
+
 	      new("indMatrix", perm=perm, Dim=X@Dim*Y@Dim)
 	  })
 

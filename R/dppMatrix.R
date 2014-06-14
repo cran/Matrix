@@ -4,7 +4,7 @@ setAs("dppMatrix", "dpoMatrix",
       function(from)
       copyClass(.Call(dspMatrix_as_dsyMatrix, from),
 		"dpoMatrix",
-		sNames = c("x", "Dim", "Dimnames", "uplo", "factors")))
+		sNames = c("x", "Dim", "Dimnames", "uplo", "factors")))#FIXME , check=FALSE
 dpp2sC <- function(from) as(.Call(dspMatrix_as_dsyMatrix, from), "dsCMatrix")
 ## setAs("dppMatrix", "dsCMatrix", dpp2sC)
 setAs("dppMatrix", "CsparseMatrix", dpp2sC)
@@ -27,7 +27,7 @@ setAs("dspMatrix", "dppMatrix",
 	      stop("not a positive definite matrix")
 	  ## else
 	  copyClass(from, "dppMatrix",
-		    sNames = c("x", "Dim", "Dimnames", "uplo", "factors"))
+		    sNames = c("x", "Dim", "Dimnames", "uplo", "factors"))#FIXME , check=FALSE
       })
 
 

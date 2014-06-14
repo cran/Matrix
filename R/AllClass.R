@@ -635,7 +635,7 @@ setClass("denseLU", contains = "LU",
 	 validity = function(object) .Call(LU_validate, object))
 
 setClass("sparseLU", contains = "LU",
-	 representation(L = "dgCMatrix", U = "dgCMatrix",
+	 representation(L = "dtCMatrix", U = "dtCMatrix",
 			p = "integer", q = "integer"))
 
 ##--- QR ---
@@ -645,7 +645,7 @@ setClass("sparseQR", contains = "MatrixFactorization",
 			p = "integer", R = "dgCMatrix", q = "integer"),
 	 validity = function(object) .Call(sparseQR_validate, object))
 
-##-- "SPQR" ---> ./spqr.R  for noew
+##-- "SPQR" ---> ./spqr.R  for now
 
 ## "denseQR" -- ?  (``a version of''  S3 class "qr")
 

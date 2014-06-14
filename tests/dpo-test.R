@@ -6,8 +6,10 @@ h9 <- Hilbert(9)
 stopifnot(c(0,0) == dim(Hilbert(0)),
           c(9,9) == dim(h9),
 	  identical(h9@factors, list()))
-str(h9)# no 'factors'
-all.equal(c(determinant(h9)$modulus), -96.7369456, tolerance = 2e-8)
+str(h9)# no 'factors'		32b:	-96.73694669	2.08e-8
+assert.EQ.(c(determinant(h9)$modulus),	-96.7369487, tol = 8e-8)
+##				64b:	-96.73695078	2.15e-8
+
 ## determinant() now working via chol(): ==> h9 now has factorization
 stopifnot(names(h9@factors) == "Cholesky",
           identical(ch9 <- chol(h9), h9@factors$Cholesky))

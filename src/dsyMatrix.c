@@ -120,12 +120,18 @@ SEXP dsyMatrix_matrix_mm(SEXP a, SEXP b, SEXP rtP)
 
     if ((rt && n != adims[0]) || (!rt && m != adims[0]))
 	error(_("Matrices are not conformable for multiplication"));
-    if (m < 1 || n < 1) {
-/* 	error(_("Matrices with zero extents cannot be multiplied")); */
-    } else
+    if (m >=1 && n >= 1)
 	F77_CALL(dsymm)(rt ? "R" :"L", uplo_P(a), &m, &n, &one,
 			REAL(GET_SLOT(a, Matrix_xSym)), adims, bcp,
 			&m, &zero, vx, &m);
+    // add dimnames:
+    if(rt) { // v <- b %*% a : rownames(v) == rownames(b)  are already there
+	SET_VECTOR_ELT(GET_SLOT(val, Matrix_DimNamesSym), 1,
+		duplicate(VECTOR_ELT(GET_SLOT(a, Matrix_DimNamesSym), 1)));
+    } else { // v <- a %*% b : colnames(v) == colnames(b)  are already there
+	SET_VECTOR_ELT(GET_SLOT(val, Matrix_DimNamesSym), 0,
+		duplicate(VECTOR_ELT(GET_SLOT(a, Matrix_DimNamesSym), 0)));
+    }
     UNPROTECT(1);
     return val;
 }

@@ -75,10 +75,12 @@
     \item{coerce}{\code{signature(from = "dsyMatrix", to = "matrix")}}
     \item{coerce}{\code{signature(from = "dsyMatrix", to = "dspMatrix")}}
     \item{coerce}{\code{signature(from = "dspMatrix", to = "dsyMatrix")}}
-    \item{norm}{\code{signature(x = "dspMatrix", type = "character")}}
-    \item{norm}{\code{signature(x = "dsyMatrix", type = "character")}}
-    \item{norm}{\code{signature(x = "dspMatrix", type = "missing")}}
-    \item{norm}{\code{signature(x = "dsyMatrix", type = "missing")}}
+    \item{norm}{\code{signature(x = "dspMatrix", type = "character")}, or
+      \code{x = "dsyMatrix"} or \code{type = "missing"}: Computes the
+      matrix norm of the desired type, see, \code{\link{norm}}.}
+    \item{rcond}{\code{signature(x = "dspMatrix", type = "character")}, or
+      \code{x = "dsyMatrix"} or \code{type = "missing"}: Computes the
+      reciprocal condition number, \code{\link{rcond}()}.}
     \item{solve}{\code{signature(a = "dspMatrix", b = "....")}, and}
     \item{solve}{\code{signature(a = "dsyMatrix", b = "....")}: \code{x
 	<- solve(a,b)} solves \eqn{A x = b} for \eqn{x}; see
@@ -90,7 +92,6 @@
   }
 }
 %\references{}
-%\author{}
 \seealso{
   Classes \code{\linkS4class{dgeMatrix}} and \code{\linkS4class{Matrix}};
   \code{\link[base]{solve}}, \code{\link{norm}}, \code{\link{rcond}},

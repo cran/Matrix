@@ -163,9 +163,15 @@ SEXP set_factors(SEXP obj, SEXP val, char *nm)
 }
 
 // R interface [for updating the '@ factors' slot of a function *argument* [CARE!]
-SEXP R_set_factors(SEXP obj, SEXP val, SEXP name)
+SEXP R_set_factors(SEXP obj, SEXP val, SEXP name, SEXP warn)
 {
-    return set_factors(obj, val, (char *)CHAR(asChar(name)));
+    Rboolean do_warn = asLogical(warn);
+    if(R_has_slot(obj, Matrix_factorSym))
+	return set_factors(obj, val, (char *)CHAR(asChar(name)));
+    else {
+	if(do_warn) warning(_("Matrix object has no 'factors' slot"));
+	return val;
+    }
 }
 
 #if 0 				/* unused */
@@ -792,13 +798,14 @@ SEXP dup_mMatrix_as_dgeMatrix(SEXP A)
 
 	DUP_MMATRIX_NON_CLASS;
 
-	if (isInteger(A) || isLogical(A)) {
-	    A = PROTECT(coerceVector(A, REALSXP));
-	    nprot++;
+	if (!isReal(A)) {
+	    if (isInteger(A) || isLogical(A)) {
+		A = PROTECT(coerceVector(A, REALSXP));
+		nprot++;
+	    } else
+		error(_("invalid class '%s' to dup_mMatrix_as_dgeMatrix"),
+		      class_P(A));
 	}
-	if (!isReal(A))
-	    error(_("invalid class '%s' to dup_mMatrix_as_dgeMatrix"),
-		  class_P(A));
     }
 
     DUP_MMATRIX_SET_1;
@@ -834,41 +841,47 @@ SEXP new_dgeMatrix(int nrow, int ncol)
  *
  * @return encoded index; integer if prod(dim) is small; double otherwise
  */
-SEXP m_encodeInd(SEXP ij, SEXP di, SEXP chk_bnds)
+SEXP m_encodeInd(SEXP ij, SEXP di, SEXP orig_1, SEXP chk_bnds)
 {
     SEXP ans;
-    int *ij_di = NULL, n, *Di = INTEGER(di), *IJ, *j_;
-    Rboolean check_bounds = asLogical(chk_bnds);
+    int *ij_di = NULL, n, nprot=1;
+    Rboolean check_bounds = asLogical(chk_bnds), one_ind = asLogical(orig_1);
 
-    ij = PROTECT(coerceVector(ij, INTSXP));
+    if(TYPEOF(di) != INTSXP) {di = PROTECT(coerceVector(di, INTSXP)); nprot++; }
+    if(TYPEOF(ij) != INTSXP) {ij = PROTECT(coerceVector(ij, INTSXP)); nprot++; }
     if(!isMatrix(ij) ||
        (ij_di = INTEGER(getAttrib(ij, R_DimSymbol)))[1] != 2)
 	error(_("Argument ij must be 2-column integer matrix"));
     n = ij_di[0];
-    IJ = INTEGER(ij);
-    j_ = IJ+n;/* pointer offset! */
+    int *Di = INTEGER(di), *IJ = INTEGER(ij),
+	*j_ = IJ+n;/* pointer offset! */
 
     if((Di[0] * (double) Di[1]) >= 1 + (double)INT_MAX) { /* need double */
 	ans = PROTECT(allocVector(REALSXP, n));
 	double *ii = REAL(ans), nr = (double) Di[0];
-#define do_ii_FILL(_i_, _j_)					\
+#define do_ii_FILL(_i_, _j_)						\
 	int i;								\
 	if(check_bounds) {						\
 	    for(i=0; i < n; i++) {					\
 		if(_i_[i] == NA_INTEGER || _j_[i] == NA_INTEGER)	\
 		    ii[i] = NA_INTEGER;					\
 		else {							\
-		    if(_i_[i] < 0 || _i_[i] >= Di[0])			\
+		    register int i_i, j_i;				\
+	            if(one_ind) { i_i = _i_[i]-1; j_i = _j_[i]-1; }	\
+	            else        { i_i = _i_[i]  ; j_i = _j_[i]  ; }	\
+		    if(i_i < 0 || i_i >= Di[0])				\
 			error(_("subscript 'i' out of bounds in M[ij]")); \
-		    if(_j_[i] < 0 || _j_[i] >= Di[1])			\
+		    if(j_i < 0 || j_i >= Di[1])				\
 			error(_("subscript 'j' out of bounds in M[ij]")); \
-		    ii[i] = _i_[i] + _j_[i] * nr;			\
+		    ii[i] = i_i + j_i * nr;				\
 		}							\
 	    }								\
 	} else {							\
 	    for(i=0; i < n; i++)					\
 		ii[i] = (_i_[i] == NA_INTEGER || _j_[i] == NA_INTEGER)	\
-		    ? NA_INTEGER : _i_[i] + _j_[i] * nr;		\
+		    ? NA_INTEGER					\
+ 	            : (one_ind ? ((_i_[i]-1) + (_j_[i]-1)*nr)		\
+	                       :   _i_[i]    +  _j_[i]   *nr);		\
 	}
 
 	do_ii_FILL(IJ, j_);
@@ -878,7 +891,7 @@ SEXP m_encodeInd(SEXP ij, SEXP di, SEXP chk_bnds)
 
 	do_ii_FILL(IJ, j_);
     }
-    UNPROTECT(2);
+    UNPROTECT(nprot);
     return ans;
 }
 
@@ -887,22 +900,24 @@ SEXP m_encodeInd(SEXP ij, SEXP di, SEXP chk_bnds)
  *
  * @param i: integer vector
  * @param j: integer vector of same length as 'i'
+ * @param orig_1: logical: if TRUE, "1-origin" otherwise "0-origin"
  * @param di: dim(.), i.e. length 2 integer vector
  * @param chk_bnds: logical indicating  0 <= ij[,k] < di[k]  need to be checked.
  *
  * @return encoded index; integer if prod(dim) is small; double otherwise
  */
-SEXP m_encodeInd2(SEXP i, SEXP j, SEXP di, SEXP chk_bnds)
+SEXP m_encodeInd2(SEXP i, SEXP j, SEXP di, SEXP orig_1, SEXP chk_bnds)
 {
     SEXP ans;
-    int n = LENGTH(i);
-    int *Di = INTEGER(di), *i_, *j_;
-    Rboolean check_bounds = asLogical(chk_bnds);
+    int n = LENGTH(i), nprot = 1;
+    Rboolean check_bounds = asLogical(chk_bnds), one_ind = asLogical(orig_1);
 
-    if(LENGTH(j) != n || !isInteger(i) || !isInteger(j))
+    if(TYPEOF(di)!= INTSXP) {di = PROTECT(coerceVector(di,INTSXP)); nprot++; }
+    if(TYPEOF(i) != INTSXP) { i = PROTECT(coerceVector(i, INTSXP)); nprot++; }
+    if(TYPEOF(j) != INTSXP) { j = PROTECT(coerceVector(j, INTSXP)); nprot++; }
+    if(LENGTH(j) != n)
 	error(_("i and j must be integer vectors of the same length"));
-    i_ = INTEGER(i);
-    j_ = INTEGER(j);
+    int *Di = INTEGER(di), *i_ = INTEGER(i), *j_ = INTEGER(j);
 
     if((Di[0] * (double) Di[1]) >= 1 + (double)INT_MAX) { /* need double */
 	ans = PROTECT(allocVector(REALSXP, n));
@@ -915,7 +930,7 @@ SEXP m_encodeInd2(SEXP i, SEXP j, SEXP di, SEXP chk_bnds)
 
 	do_ii_FILL(i_, j_);
     }
-    UNPROTECT(1);
+    UNPROTECT(nprot);
     return ans;
 }
 #undef do_ii_FILL

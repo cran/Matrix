@@ -7,24 +7,17 @@
 %%-- %*% -------------------------------------
 \alias{\%*\%,dgeMatrix,dgeMatrix-method}
 \alias{\%*\%,dgeMatrix,matrix-method}
-\alias{\%*\%,dgeMatrix,numeric-method}
+\alias{\%*\%,dgeMatrix,numLike-method}
 \alias{\%*\%,matrix,dgeMatrix-method}
-\alias{\%*\%,numeric,dgeMatrix-method}
+\alias{\%*\%,numLike,dgeMatrix-method}
 \alias{\%*\%,numLike,CsparseMatrix-method}
 \alias{\%*\%,CsparseMatrix,CsparseMatrix-method}
 \alias{\%*\%,CsparseMatrix,ddenseMatrix-method}
 \alias{\%*\%,CsparseMatrix,matrix-method}
-\alias{\%*\%,CsparseMatrix,numeric-method}
+\alias{\%*\%,CsparseMatrix,numLike-method}
 \alias{\%*\%,ddenseMatrix,CsparseMatrix-method}
 \alias{\%*\%,matrix,CsparseMatrix-method}
-\alias{\%*\%,numeric,CsparseMatrix-method}
 \alias{\%*\%,ddenseMatrix,ddenseMatrix-method}
-\alias{\%*\%,dgCMatrix,dgeMatrix-method}
-\alias{\%*\%,dgCMatrix,matrix-method}
-\alias{\%*\%,numeric,dgCMatrix-method}
-\alias{\%*\%,ddenseMatrix,dgCMatrix-method}
-\alias{\%*\%,dgeMatrix,dgCMatrix-method}
-\alias{\%*\%,matrix,dgCMatrix-method}
 \alias{\%*\%,dgeMatrix,diagonalMatrix-method}
 \alias{\%*\%,matrix,diagonalMatrix-method}
 \alias{\%*\%,diagonalMatrix,dgeMatrix-method}
@@ -104,23 +97,20 @@
 \alias{crossprod-methods}
 \alias{crossprod,dgeMatrix,dgeMatrix-method}
 \alias{crossprod,dgeMatrix,matrix-method}
-\alias{crossprod,dgeMatrix,numeric-method}
+\alias{crossprod,dgeMatrix,numLike-method}
 \alias{crossprod,dgeMatrix,missing-method}
 \alias{crossprod,matrix,dgeMatrix-method}
 \alias{crossprod,numLike,dgeMatrix-method}
-\alias{crossprod,numLike,dgeMatrix-method}
-\alias{crossprod,numeric,CsparseMatrix-method}
+\alias{crossprod,numLike,CsparseMatrix-method}
 \alias{crossprod,CsparseMatrix,missing-method}
 \alias{crossprod,CsparseMatrix,CsparseMatrix-method}
 \alias{crossprod,CsparseMatrix,ddenseMatrix-method}
 \alias{crossprod,CsparseMatrix,matrix-method}
-\alias{crossprod,CsparseMatrix,numeric-method}
+\alias{crossprod,CsparseMatrix,numLike-method}
 \alias{crossprod,ddenseMatrix,CsparseMatrix-method}
 \alias{crossprod,matrix,CsparseMatrix-method}
 \alias{crossprod,ddenseMatrix,missing-method}
 \alias{crossprod,ddenseMatrix,dgCMatrix-method}
-\alias{crossprod,dgCMatrix,missing-method}
-\alias{crossprod,dgCMatrix,matrix-method}
 \alias{crossprod,dgCMatrix,dgeMatrix-method}
 \alias{crossprod,CsparseMatrix,diagonalMatrix-method}
 \alias{crossprod,diagonalMatrix,CsparseMatrix-method}
@@ -181,9 +171,9 @@
 \alias{crossprod,Matrix,TsparseMatrix-method}
 \alias{crossprod,TsparseMatrix,TsparseMatrix-method}
 \alias{crossprod,TsparseMatrix,missing-method}
-\alias{crossprod,dgTMatrix,missing-method}
-\alias{crossprod,dgTMatrix,matrix-method}
-\alias{crossprod,dgTMatrix,numeric-method}
+\alias{crossprod,symmetricMatrix,Matrix-method}
+\alias{crossprod,symmetricMatrix,missing-method}
+\alias{crossprod,symmetricMatrix,ANY-method}
 %%-- tcrossprod ------------------------------
 \alias{tcrossprod-methods}
 \alias{tcrossprod,dgeMatrix,missing-method}
@@ -192,18 +182,12 @@
 \alias{tcrossprod,dgeMatrix,numLike-method}
 \alias{tcrossprod,matrix,dgeMatrix-method}
 \alias{tcrossprod,numLike,dgeMatrix-method}
-\alias{tcrossprod,dgCMatrix,missing-method}
-\alias{tcrossprod,dgTMatrix,missing-method}
 \alias{tcrossprod,CsparseMatrix,ddenseMatrix-method}
 \alias{tcrossprod,CsparseMatrix,matrix-method}
 \alias{tcrossprod,CsparseMatrix,numLike-method}
-\alias{tcrossprod,Matrix,numLike-method}
 \alias{tcrossprod,ddenseMatrix,CsparseMatrix-method}
-\alias{tcrossprod,dgeMatrix,numLike-method}
 \alias{tcrossprod,matrix,CsparseMatrix-method}
 \alias{tcrossprod,numLike,CsparseMatrix-method}
-\alias{tcrossprod,numLike,Matrix-method}
-\alias{tcrossprod,numLike,dgeMatrix-method}
 \alias{tcrossprod,CsparseMatrix,CsparseMatrix-method}
 \alias{tcrossprod,CsparseMatrix,missing-method}
 \alias{tcrossprod,ddenseMatrix,missing-method}
@@ -218,13 +202,13 @@
 \alias{tcrossprod,matrix,diagonalMatrix-method}
 \alias{tcrossprod,sparseMatrix,diagonalMatrix-method}
 \alias{tcrossprod,ANY,Matrix-method}
-\alias{tcrossprod,Matrix,numeric-method}
+\alias{tcrossprod,numLike,Matrix-method}
+\alias{tcrossprod,Matrix,numLike-method}
 \alias{tcrossprod,Matrix,ANY-method}
 \alias{tcrossprod,Matrix,missing-method}
 \alias{tcrossprod,Matrix,Matrix-method}
 \alias{tcrossprod,Matrix,matrix-method}
 \alias{tcrossprod,matrix,Matrix-method}
-\alias{tcrossprod,numeric,Matrix-method}
 \alias{tcrossprod,ddenseMatrix,dtrMatrix-method}
 \alias{tcrossprod,dtrMatrix,dtrMatrix-method}
 \alias{tcrossprod,matrix,dtrMatrix-method}
@@ -254,6 +238,15 @@
 \alias{tcrossprod,Matrix,TsparseMatrix-method}
 \alias{tcrossprod,TsparseMatrix,TsparseMatrix-method}
 \alias{tcrossprod,TsparseMatrix,missing-method}
+\alias{tcrossprod,Matrix,symmetricMatrix-method}
+\alias{tcrossprod,ANY,symmetricMatrix-method}
+% (special class methods, added only for speedup:)
+\alias{tcrossprod,ddenseMatrix,dsCMatrix-method}
+\alias{tcrossprod,ddenseMatrix,lsCMatrix-method}
+\alias{tcrossprod,ddenseMatrix,nsCMatrix-method}
+\alias{tcrossprod,matrix,dsCMatrix-method}
+\alias{tcrossprod,matrix,lsCMatrix-method}
+\alias{tcrossprod,matrix,nsCMatrix-method}
 %%---------------
 %- these three are needed for R CMD check:
 \alias{\%*\%}
@@ -320,9 +313,9 @@
       ditto for several other signatures, use
       \code{showMethods("crossprod", class = "dgeMatrix")}, matrix
       crossproduct, an efficient version of \code{t(x) \%*\% y}.}
-    \item{crossprod}{\code{signature(x = "dgCMatrix", y = "missing")}
+    \item{crossprod}{\code{signature(x = "CsparseMatrix", y = "missing")}
       returns \code{t(x) \%*\% x} as an \code{dsCMatrix} object.}
-    \item{crossprod}{\code{signature(x = "dgTMatrix", y = "missing")}
+    \item{crossprod}{\code{signature(x = "TsparseMatrix", y = "missing")}
       returns \code{t(x) \%*\% x} as an \code{dsCMatrix} object.}
 
     \item{crossprod,tcrossprod}{\code{signature(x = "dtrMatrix", y =

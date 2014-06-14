@@ -12,6 +12,7 @@
 %
 \alias{coerce,CHMfactor,Matrix-method}
 \alias{coerce,CHMfactor,sparseMatrix-method}
+\alias{coerce,CHMfactor,triangularMatrix-method}
 \alias{coerce,CHMfactor,pMatrix-method}
 \alias{expand,CHMfactor-method}
 %\alias{solve,CHMfactor,...}%--> solve-methods.Rd
@@ -97,20 +98,22 @@ isLDL(x)
     \item{isLDL}{\code{(x)} returns a \code{\link{logical}} indicating if
       \code{x} is an \eqn{LDL'} decomposition or (when \code{FALSE}) an
       \eqn{LL'} one.}
-    \item{coerce}{\code{signature(from = "CHMfactor", to = "sparseMatrix")}
-      Returns the lower triangular factor \eqn{L} from the \eqn{LL'}
-      form of the Cholesky factorization.  Note that (currently) the
-      factor from the \eqn{LL'} form is always returned, even if the
-      \code{"CHMfactor"} object represents an \eqn{LDL'} decomposition.
+    \item{coerce}{\code{signature(from = "CHMfactor", to = "sparseMatrix")} 
+      (or equivalently, \code{to = "Matrix"} or \code{to = "triangularMatrix"})
+      
+      \code{as(*, "sparseMatrix")} returns the lower triangular factor
+      \eqn{L} from the \eqn{LL'} form of the Cholesky factorization.
+      Note that (currently) the factor from the \eqn{LL'} form is always
+      returned, even if the \code{"CHMfactor"} object represents an
+      \eqn{LDL'} decomposition.
       Furthermore, this is the factor after any fill-reducing
       permutation has been applied.  See the \code{expand} method for
       obtaining both the permutation matrix, \eqn{P}, and the lower
       Cholesky factor, \eqn{L}.}
-    \item{coerce}{\code{signature(from = "CHMfactor", to =
-	"pMatrix")} Returns the permutation matrix, \eqn{P},
-      representing the fill-reducing permutation used in the
-      decomposition.}
-    \item{expand}{\code{signature(x = "CHMfactor")} Returns a list with
+    \item{coerce}{\code{signature(from = "CHMfactor", to = "pMatrix")}
+      returns the permutation matrix \eqn{P}, representing the
+      fill-reducing permutation used in the decomposition.}
+    \item{expand}{\code{signature(x = "CHMfactor")} returns a list with
       components \code{P}, the matrix representing the fill-reducing
       permutation, and \code{L}, the lower triangular Cholesky factor.
       The original positive-definite matrix \eqn{A} corresponds to the product
@@ -118,7 +121,7 @@ isLDL(x)
       product may apparently have more non-zeros than the original
       matrix, even after applying \code{\link{drop0}} to it.  However,
       the extra "non-zeros" should be very small in magnitude.}
-    \item{image}{\code{signature(x = "CHMfactor")} Plot the image of the
+    \item{image}{\code{signature(x = "CHMfactor"):} Plot the image of the
       lower triangular factor, \eqn{L}, from the decomposition.  This method
       is equivalent to \code{image(as(x, "sparseMatrix"))} so the
       comments in the above description of the \code{coerce} method
@@ -135,7 +138,7 @@ isLDL(x)
       to produce \code{a}.  Analogously, \code{system = "L"} returns the
       solution \eqn{x}, of \eqn{Lx = b}.
       Similarly, for all system codes \bold{but} \code{"P"} and \code{"Pt"}
-      where, e.g., \code{x <- solve(a, b,system="P")} is equivalent to
+      where, e.g., \code{x <- solve(a, b, system="P")} is equivalent to
       \code{x <- P \%*\% b}.
 
       See also \code{\link{solve-methods}}.

@@ -89,12 +89,6 @@
   or column permutation.
   Here are the four different cases for an arbitrary matrix \eqn{M} and
   a permutation matrix \eqn{P} (where we assume matching dimensions):
-  %% \describe{
-  %%   \item{\eqn{MP =  }}{\code{M \%*\% P}  ..}
-  %%   \item{\eqn{PM =  }}{\code{P \%*\% M}  ..}
-  %%   \item{\eqn{P'M = }}{\code{crossprod(P,M)} (less efficiently, \code{t(P) \%*\% M})  ..}
-  %%   \item{\eqn{MP' = }}{\code{trossprod(M,P)} (less efficiently, \code{M \%*\% t(P)})  ..}
-  %% }
   \tabular{lclcl}{
     \eqn{MP }\tab= \tab\code{M \%*\% P}					    \tab= \tab\code{M[, i(p)]}\cr
     \eqn{PM }\tab= \tab\code{P \%*\% M}					    \tab= \tab\code{M[ p , ]} \cr

@@ -25,13 +25,13 @@ Diagonal(n, x = NULL)
     from this argument, either \code{"U"} or \code{"L"}.  Only rarely
     will it make sense to change this from the default.}
   \item{shape}{string of 1 character, one of \code{c("t","s","g")}, to
-    chose a triangular, symmetric or general result matrix.}
+    choose a triangular, symmetric or general result matrix.}
   \item{unitri}{optional logical indicating if a triangular result
     should be \dQuote{unit-triangular}, i.e., with \code{diag = "U"}
     slot, if possible.  The default, \code{\link{missing}}, is the same
     as \code{\link{TRUE}}.}
   \item{kind}{string of 1 character, one of \code{c("d","l","n")}, to
-    chose the storage mode of the result, from classes
+    choose the storage mode of the result, from classes
     \code{\linkS4class{dsparseMatrix}},
     \code{\linkS4class{lsparseMatrix}}, or
     \code{\linkS4class{nsparseMatrix}}, respectively.}

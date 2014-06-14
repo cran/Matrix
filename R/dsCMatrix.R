@@ -75,8 +75,8 @@ setMethod("triu", "dsCMatrix",
 	      else triu(as(x, "dgCMatrix"), k = k, ...)
 	  })
 
-solve.dsC.mat <- function(a,b, tol = .Machine$double.eps) {
-    r <- tryCatch(.Call(dsCMatrix_matrix_solve, a, b),
+solve.dsC.mat <- function(a,b, LDL = NA, tol = .Machine$double.eps) {
+    r <- tryCatch(.Call(dsCMatrix_matrix_solve, a, b, LDL),
 		  error=function(e)NULL, warning=function(w)NULL)
     if(is.null(r)) { ## cholmod factorization was not ok
 	Matrix.msg("solve.dsC.mat(): Cholmod factorization unsuccessful --> using LU(<dgC>)")
@@ -86,8 +86,8 @@ solve.dsC.mat <- function(a,b, tol = .Machine$double.eps) {
 }
 
 ## ``Fully-sparse'' solve()  {different Cholmod routine, otherwise "the same"}:
-solve.dsC.dC <- function(a,b, tol = .Machine$double.eps) {
-    r <- tryCatch(.Call(dsCMatrix_Csparse_solve, a, b),
+solve.dsC.dC <- function(a,b, LDL = NA, tol = .Machine$double.eps) {
+    r <- tryCatch(.Call(dsCMatrix_Csparse_solve, a, b, LDL),
 		  error=function(e)NULL, warning=function(w)NULL)
     if(is.null(r)) { ## cholmod factorization was not ok
 	Matrix.msg("solve.dsC.dC(): Cholmod factorization unsuccessful --> using LU(<dgC>)")
@@ -99,37 +99,38 @@ solve.dsC.dC <- function(a,b, tol = .Machine$double.eps) {
 ## <sparse> . <dense> ------------------------
 
 setMethod("solve", signature(a = "dsCMatrix", b = "ddenseMatrix"),
-	  function(a, b, ...) {
+	  function(a, b, LDL = NA, tol = .Machine$double.eps, ...) {
 	      if (class(b) != "dgeMatrix")
 		  b <- .Call(dup_mMatrix_as_dgeMatrix, b)
-	      solve.dsC.mat(a,b)
+	      solve.dsC.mat(a,b, LDL=LDL, tol=tol)
 	  },
 	  valueClass = "dgeMatrix")
 setMethod("solve", signature(a = "dsCMatrix", b = "denseMatrix"),
 	  ## only triggers for diagonal*, ldense*.. (but *not* ddense: above)
-	  function(a, b, ...)
-	  solve.dsC.mat(a, as(.Call(dup_mMatrix_as_geMatrix, b), "dgeMatrix")))
+	  function(a, b, LDL = NA, tol = .Machine$double.eps, ...)
+	  solve.dsC.mat(a, as(.Call(dup_mMatrix_as_geMatrix, b), "dgeMatrix"),
+			LDL=LDL, tol=tol))
 
 setMethod("solve", signature(a = "dsCMatrix", b = "matrix"),
-	  function(a, b, ...)
-	  solve.dsC.mat(a, .Call(dup_mMatrix_as_dgeMatrix, b)),
+	  function(a, b, LDL = NA, tol = .Machine$double.eps, ...)
+	  solve.dsC.mat(a, .Call(dup_mMatrix_as_dgeMatrix, b), LDL=LDL, tol=tol),
 	  valueClass = "dgeMatrix")
 
 setMethod("solve", signature(a = "dsCMatrix", b = "numeric"),
-	  function(a, b, ...)
-	  solve.dsC.mat(a, .Call(dup_mMatrix_as_dgeMatrix, b)),
+	  function(a, b, LDL = NA, tol = .Machine$double.eps, ...)
+	  solve.dsC.mat(a, .Call(dup_mMatrix_as_dgeMatrix, b), LDL=LDL, tol=tol),
 	  valueClass = "dgeMatrix")
 
 ## <sparse> . <sparse> ------------------------
 
 setMethod("solve", signature(a = "dsCMatrix", b = "dsparseMatrix"),
-	  function(a, b, ...) {
+	  function(a, b, LDL = NA, tol = .Machine$double.eps, ...) {
 	      cb <- getClassDef(class(b))
 	      if (!extends(cb, "CsparseMatrix"))
 		  cb <- getClassDef(class(b <- as(b, "CsparseMatrix")))
 	      if (extends(cb, "symmetricMatrix")) ## not supported (yet) by cholmod_spsolve
 		  b <- as(b, "dgCMatrix")
-	      solve.dsC.dC(a,b)
+	      solve.dsC.dC(a,b, LDL=LDL, tol=tol)
 	  })
 
 setMethod("solve", signature(a = "dsCMatrix", b = "missing"),
@@ -154,13 +155,16 @@ setMethod("t", signature(x = "dsCMatrix"),
 
 ### These two are very similar, the first one has the advantage to be applicable to 'Chx' directly:
 
+## "used" currently only in ../tests/factorizing.R
 .diag.dsC <- function(x, Chx = Cholesky(x, LDL=TRUE), res.kind = "diag") {
     force(Chx)
     if(!missing(Chx)) stopifnot(.isLDL(Chx), is.integer(Chx@p), is.double(Chx@x))
-    .Call(diag_tC, Chx@p, Chx@x, Chx@perm, res.kind)
+    .Call(diag_tC, Chx, res.kind)
     ##    ^^^^^^^ from ../src/Csparse.c
+    ## => res.kind in ("trace", "sumLog", "prod", "min", "max", "range", "diag", "diagBack")
 }
 
+## nowhere used/tested (FIXME?)
 ## here, we  *could* allow a 'mult = 0' factor :
 .CHM.LDL.D <- function(x, perm = TRUE, res.kind = "diag") {
     .Call(dsCMatrix_LDL_D, x, perm, res.kind)
@@ -181,7 +185,7 @@ ldet1.dsC <- function(x, ...) .Call(CHMfactor_ldetL2, Cholesky(x, ...))
 ## these are slightly faster (ca. 3 to 4 %):
 ldet2.dsC <- function(x, ...) {
     Ch <- Cholesky(x, super = FALSE, ...)
-    .Call(diag_tC, Ch@p, Ch@x, Ch@perm, "sumLog")
+    .Call(diag_tC, Ch, "sumLog")
 }
 ## only very slightly ( ~ < 1% ) faster (than "ldet2"):
 ldet3.dsC <- function(x, perm = TRUE)
@@ -206,7 +210,7 @@ setMethod("determinant", signature(x = "dsCMatrix", logarithm = "logical"),
           if(is.null(Chx))  ## we do *not* have a positive definite matrix
 	      detSparseLU(x, logarithm)
 	  else {
-              d <- .Call(diag_tC, Chx@p, Chx@x, Chx@perm, res.kind = "diag")
+              d <- .Call(diag_tC, Chx, res.kind = "diag")
 	      mkDet(d, logarithm=logarithm)
           }
       })

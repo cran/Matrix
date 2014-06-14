@@ -62,7 +62,7 @@ setAs("matrix", "dgTMatrix", mat2dgT)
 ## "[<-" methods { setReplaceMethod()s }  too ...
 
 
-setMethod("image", "dgTMatrix",
+setMethod("image", "dgTMatrix", ## *The* real one
           function(x,
 		   xlim = c(1, di[2]),
 		   ylim = c(di[1], 1), aspect = "iso",

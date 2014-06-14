@@ -185,6 +185,7 @@ SEXP dsCMatrix_LDL_D(SEXP Ap, SEXP permP, SEXP resultKind)
     ans = PROTECT(diag_tC_ptr(L->n,
 			      L->p,
 			      L->x,
+			      /* is_U = */ FALSE,
 			      L->Perm,
 			      resultKind));
     cholmod_free_factor(&L, &c);
@@ -193,9 +194,13 @@ SEXP dsCMatrix_LDL_D(SEXP Ap, SEXP permP, SEXP resultKind)
 }
 
 // using cholmod_spsolve() --> sparse result
-SEXP dsCMatrix_Csparse_solve(SEXP a, SEXP b)
+SEXP dsCMatrix_Csparse_solve(SEXP a, SEXP b, SEXP LDL)
 {
-    CHM_FR L = internal_chm_factor(a, /*perm*/-1, /*LDL*/-1, /*super*/-1, /*Imult*/0.);
+    int iLDL = asLogical(LDL);
+    // When parameter is set to  NA  in R, let CHOLMOD choose
+    if(iLDL == NA_LOGICAL) iLDL = -1;
+
+    CHM_FR L = internal_chm_factor(a, /*perm*/-1, iLDL, /*super*/-1, /*Imult*/0.);
     CHM_SP cx, cb;
     if(!chm_factor_ok(L))
 	return R_NilValue;// == "CHOLMOD factorization failed"
@@ -211,9 +216,13 @@ SEXP dsCMatrix_Csparse_solve(SEXP a, SEXP b)
 }
 
 // using cholmod_solve() --> dense result
-SEXP dsCMatrix_matrix_solve(SEXP a, SEXP b)
+SEXP dsCMatrix_matrix_solve(SEXP a, SEXP b, SEXP LDL)
 {
-    CHM_FR L = internal_chm_factor(a, -1, -1, -1, 0.);
+    int iLDL = asLogical(LDL);
+    // When parameter is set to  NA  in R, let CHOLMOD choose
+    if(iLDL == NA_LOGICAL) iLDL = -1;
+
+    CHM_FR L = internal_chm_factor(a, /*perm*/-1, iLDL, /*super*/-1, /*Imult*/0.);
     CHM_DN cx, cb;
     if(!chm_factor_ok(L))
 	return R_NilValue;// == "CHOLMOD factorization failed"

@@ -148,7 +148,7 @@ setMethod("%*%", signature(x = "CsparseMatrix", y = "ddenseMatrix"),
 	  function(x, y) .Call(Csparse_dense_prod, x, y))
 setMethod("%*%", signature(x = "CsparseMatrix", y = "matrix"),
 	  function(x, y) .Call(Csparse_dense_prod, x, y)) # was  x %*% Matrix(y)
-setMethod("%*%", signature(x = "CsparseMatrix", y = "numeric"),
+setMethod("%*%", signature(x = "CsparseMatrix", y = "numLike"),
 	  function(x, y) .Call(Csparse_dense_prod, x, y))
 
 
@@ -237,7 +237,7 @@ setMethod("crossprod", signature(x = "dgeMatrix", y = "dgeMatrix"),
 setMethod("crossprod", signature(x = "dgeMatrix", y = "matrix"),
 	  function(x, y = NULL) .Call(dgeMatrix_matrix_crossprod, x, y, FALSE),
 	  valueClass = "dgeMatrix")
-setMethod("crossprod", signature(x = "dgeMatrix", y = "numeric"),
+setMethod("crossprod", signature(x = "dgeMatrix", y = "numLike"),
 	  function(x, y = NULL) .Call(dgeMatrix_matrix_crossprod, x, y, FALSE),
 	  valueClass = "dgeMatrix")
 setMethod("crossprod", signature(x = "matrix", y = "dgeMatrix"),
@@ -310,13 +310,12 @@ setMethod("crossprod", signature(x = "CsparseMatrix", y = "CsparseMatrix"),
 	  function(x, y = NULL)
 	  .Call(Csparse_Csparse_crossprod, x, y, trans = FALSE))
 
-## FIXME: Generalize the class of y.  This specific method is to replace one
-##	  in dgCMatrix.R
+## FIXME: Generalize the class of y. (?? still ??)
 setMethod("crossprod", signature(x = "CsparseMatrix", y = "ddenseMatrix"),
 	  function(x, y = NULL) .Call(Csparse_dense_crossprod, x, y))
 setMethod("crossprod", signature(x = "CsparseMatrix", y = "matrix"),
 	  function(x, y = NULL) .Call(Csparse_dense_crossprod, x, y))
-setMethod("crossprod", signature(x = "CsparseMatrix", y = "numeric"),
+setMethod("crossprod", signature(x = "CsparseMatrix", y = "numLike"),
 	  function(x, y = NULL) .Call(Csparse_dense_crossprod, x, y))
 
 
@@ -391,15 +390,15 @@ setMethod("crossprod", signature(x = "ddenseMatrix", y = "CsparseMatrix"),
 	  function(x, y) t(.Call(Csparse_dense_crossprod, y, x)))
 setMethod("crossprod", signature(x = "matrix",	     y = "CsparseMatrix"),
 	  function(x, y) t(.Call(Csparse_dense_crossprod, y, x)))
-setMethod("crossprod", signature(x = "numeric",	     y = "CsparseMatrix"),
+setMethod("crossprod", signature(x = "numLike",	     y = "CsparseMatrix"),
 	  function(x, y) t(.Call(Csparse_dense_crossprod, y, x)))
 
 
 ## "Matrix" : cbind(), rbind() do  names -> dimnames
 setMethod("crossprod", signature(x = "Matrix", y = "numLike"),
-	  function(x, y) crossprod(x, cbind(y,deparse.level=0)))
-setMethod("crossprod", signature(x = "numLike", y = "Matrix"), 
-	  function(x, y) crossprod(rbind(x,deparse.level=0), y))
+	  function(x, y) crossprod(x, cbind(y, deparse.level=0)))
+setMethod("crossprod", signature(x = "numLike", y = "Matrix"),
+	  function(x, y) crossprod(cbind(x, deparse.level=0), y))
 
 setMethod("crossprod", signature(x = "Matrix", y = "matrix"),
 	  function(x, y) crossprod(x, Matrix(y)))
@@ -409,20 +408,37 @@ setMethod("crossprod", signature(x = "matrix", y = "Matrix"),
 ## sparseVector
 setMethod("crossprod", signature(x = "Matrix", y = "sparseVector"),
 	  function(x, y) crossprod(x, .sparseV2Mat(y)))
-setMethod("crossprod", signature(x = "sparseVector", y = "Matrix"), 
+setMethod("crossprod", signature(x = "sparseVector", y = "Matrix"),
 	  function(x, y)
 	  crossprod(spV2M(x, nrow = length(x), ncol = 1L, check = FALSE), y))
 setMethod("crossprod", signature(x = "sparseVector", y = "sparseVector"), sp.x.sp)
 setMethod("crossprod", signature(x = "sparseVector", y = "missing"),
 	  function(x, y=NULL) sp.x.sp(x,x))
 
+## Fallbacks -- symmetric LHS --> saving a t(.):
+##  {FIXME: want the method to be `%*%` -- but primitives are not allowed as methods}
+setMethod("crossprod", signature(x = "symmetricMatrix", y = "Matrix"),	function(x,y) x %*% y)
+setMethod("crossprod", signature(x = "symmetricMatrix", y = "missing"), function(x,y) x %*% x)
+setMethod("crossprod", signature(x = "symmetricMatrix", y = "ANY"),	function(x,y) x %*% y)
+##
 ## cheap fallbacks
 setMethod("crossprod", signature(x = "Matrix", y = "Matrix"),
-	  function(x, y) t(x) %*% y)
+	  function(x, y) {
+	      Matrix.msg(sprintf(
+	  "potentially suboptimal crossprod(\"%s\",\"%s\") as t(.) %s y",
+		  class(x), class(y), "%*%"))
+	      t(x) %*% y })
 setMethod("crossprod", signature(x = "Matrix", y = "missing"),
-	  function(x, y) t(x) %*% x)
+	  function(x, y) {
+	      Matrix.msg(paste0(
+	  "potentially suboptimal crossprod(<",class(x),">) as t(.) %*% . "))
+	      t(x) %*% x })
 setMethod("crossprod", signature(x = "Matrix", y = "ANY"),
-	  function(x, y) t(x) %*% y)
+	  function(x, y) {
+	      Matrix.msg(sprintf(
+	  "potentially suboptimal crossprod(\"%s\", <%s>[=<ANY>]) as t(.) %s y",
+		  class(x), class(y), "%*%"))
+	      t(x) %*% y })
 setMethod("crossprod", signature(x = "ANY", y = "Matrix"),
 	  function(x, y) t(x) %*% y)
 
@@ -515,9 +531,17 @@ setMethod("tcrossprod", signature(x = "CsparseMatrix", y = "numLike"),
 	  function(x, y) .Call(Csparse_dense_prod, x, rbind(y, deparse.level=0)))
 
 
+### -- xy' = (yx')' --------------------
 ### FIXME (speed):  Csparse_dense_crossprod  should also get a 'trans = TRUE'
 ## so we could have one less t(<dense>) in this:
-## -- xy' = (yx')'
+for(T in c("d", "l", "n")) { ## speedup for *symmetric* RHS
+    .sCMatrix <- paste0(T, "sCMatrix")
+    setMethod("tcrossprod", signature(x = "ddenseMatrix", y = .sCMatrix),
+	      function(x, y) t(.Call(Csparse_dense_prod, y, x)))
+    setMethod("tcrossprod", signature(x = "matrix", y = .sCMatrix),
+	      function(x, y) t(.Call(Csparse_dense_prod, y, x)))
+}
+rm(T, .sCMatrix)
 setMethod("tcrossprod", signature(x = "ddenseMatrix", y = "CsparseMatrix"),
 	  function(x, y) t(.Call(Csparse_dense_prod, y, t(x))))
 setMethod("tcrossprod", signature(x = "matrix",	      y = "CsparseMatrix"),
@@ -550,8 +574,8 @@ setMethod("tcrossprod", signature(x = "TsparseMatrix", y = "TsparseMatrix"),
 
 
 ## "Matrix"
-setMethod("tcrossprod", signature(x = "Matrix", y = "numLike"), 
-	  function(x, y) x %*% rbind(y,deparse.level=0))
+setMethod("tcrossprod", signature(x = "Matrix", y = "numLike"),
+	  function(x, y) x %*% rbind(y, deparse.level=0))
 setMethod("tcrossprod", signature(x = "numLike", y = "Matrix"), .v.Mt)
 setMethod("tcrossprod", signature(x = "Matrix", y = "matrix"),
 	  function(x, y = NULL) tcrossprod(x, Matrix(y)))
@@ -559,7 +583,7 @@ setMethod("tcrossprod", signature(x = "matrix", y = "Matrix"),
 	  function(x, y = NULL) tcrossprod(Matrix(x), y))
 
 ## sparseVector
-setMethod("tcrossprod", signature(x = "Matrix", y = "sparseVector"), 
+setMethod("tcrossprod", signature(x = "Matrix", y = "sparseVector"),
 	  function(x, y) tcrossprod(x, .sparseV2Mat(y)))
 setMethod("tcrossprod", signature(x = "sparseVector", y = "Matrix"), .v.Mt)
 setMethod("tcrossprod", signature(x = "sparseMatrix", y = "sparseVector"),
@@ -574,15 +598,31 @@ setMethod("tcrossprod", signature(x = "sparseVector", y = "missing"),
 	  spV2M(x, nrow=1L, ncol=length(x), check=FALSE))
 
 
+## Fallbacks -- symmetric RHS --> saving a t(.):
+##  {FIXME: want the method to be `%*%` -- but primitives are not allowed as methods}
+setMethod("tcrossprod", signature(x = "Matrix", y = "symmetricMatrix"),	function(x,y) x %*% y)
+setMethod("tcrossprod", signature(x = "ANY",    y = "symmetricMatrix"),	function(x,y) x %*% y)
+##
 ## cheap fallbacks
 setMethod("tcrossprod", signature(x = "Matrix", y = "Matrix"),
-	  function(x, y = NULL) x %*% t(y))
+	  function(x, y = NULL) {
+	      Matrix.msg(sprintf(
+	  "potentially suboptimal tcrossprod(\"%s\",\"%s\") as  x %s t(y)",
+		  class(x), class(y), "%*%"))
+	      x %*% t(y) })
 setMethod("tcrossprod", signature(x = "Matrix", y = "missing"),
-	  function(x, y = NULL) x %*% t(x))
+	  function(x, y = NULL) {
+	      Matrix.msg(paste0(
+	  "potentially suboptimal crossprod(<",class(x), ">) as  . %*% t(.)"))
+	      x %*% t(x) })
 setMethod("tcrossprod", signature(x = "Matrix", y = "ANY"),
 	  function(x, y = NULL) x %*% t(y))
 setMethod("tcrossprod", signature(x = "ANY", y = "Matrix"),
-	  function(x, y = NULL) x %*% t(y))
+	  function(x, y = NULL) {
+	      Matrix.msg(sprintf(
+	  "potentially suboptimal tcrossprod(<%s>[=<ANY>], \"%s\") as  x %s t(y)",
+		  class(x), class(y), "%*%"))
+	      x %*% t(y) })
 
 ## Local variables:
 ## mode: R

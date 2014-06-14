@@ -5,7 +5,7 @@
   User friendly construction sparse vectors,
   i.e., objects inheriting from \code{\link{class}}
   \code{\linkS4class{sparseVector}}, from indices and values of its
-  nonzero entries.
+  non-zero entries.
 }
 \details{
   zero entries in \code{x} are dropped automatically, analogously as

@@ -43,6 +43,10 @@ norm(x, type, \dots)
   \code{dlange}, \code{dlansy}, \code{dlantr}, \code{zlange},
   \code{zlansy}, and \code{zlantr}.
 }
+\seealso{
+  \code{\link{onenormest}()}, an \emph{approximate} randomized estimate
+  of the 1-norm condition number, efficient for large sparse matrices.
+}
 \references{
   Anderson, E., et al. (1994).
   \emph{LAPACK User's Guide,}

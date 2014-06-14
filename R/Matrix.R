@@ -294,12 +294,12 @@ setMethod("chol2inv", signature(x = "denseMatrix"),
 	  function (x, ...) chol2inv(as(as(x, "dMatrix"), "dtrMatrix"), ...))
 setMethod("chol2inv", signature(x = "diagonalMatrix"),
 	  function (x, ...) {
-	      chk.s(...)
+	      chk.s(..., which.call=-2)
 	      tcrossprod(solve(x))
 	  })
 setMethod("chol2inv", signature(x = "sparseMatrix"),
 	  function (x, ...) {
-	      chk.s(...)
+	      chk.s(..., which.call=-2)
 	      ## for now:
 	      tcrossprod(solve(as(x,"triangularMatrix")))
 	  })
@@ -483,8 +483,8 @@ setMethod("Summary", signature(x = "ANY", na.rm = "ANY"),
                       message(gettextf("in Summary(<ANY>, .): %s(<%s>, <%s>,...)\n",
                                        .Generic, class(x), class(a[[1]])), domain = NA)
                   else
-                      message(sprintf("in Summary(<ANY>, .): %s(<%s>, <%s>)\n",
-                                      .Generic, class(x), class(a[[1]])), domain = NA)
+                      message(gettextf("in Summary(<ANY>, .): %s(<%s>, <%s>)\n",
+                                       .Generic, class(x), class(a[[1]])), domain = NA)
 
               do.call(.Generic, c(x, a, list(na.rm=na.rm)))
 	  }})
@@ -633,8 +633,8 @@ subset.ij <- function(x, ij) {
 		ij.x <- non0.i(x, cld)
 	    }
 
-	    m1 <- .Call(m_encodeInd, ij.x, di, checkBounds = FALSE)
-            m2 <- .Call(m_encodeInd, ij -1L, di, checkBounds = TRUE)
+	    m1 <- .Call(m_encodeInd, ij.x, di, orig1=FALSE, checkBounds=FALSE)
+            m2 <- .Call(m_encodeInd, ij,   di, orig1= TRUE, checkBounds= TRUE)
 	    mi <- match(m2, m1, nomatch=0)
 	    mmi <- mi != 0L ## == (m2 %in% m1)
 	    ## Result: all FALSE or 0  apart from where we match non-zero entries

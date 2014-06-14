@@ -41,8 +41,9 @@ SEXP Csparse_vertcat(SEXP x, SEXP y);
 
 SEXP Rsparse_validate(SEXP x);
 
-SEXP diag_tC_ptr(int n, int *x_p, double *x_x, int *perm, SEXP resultKind);
-SEXP diag_tC(SEXP pslot, SEXP xslot, SEXP perm_slot, SEXP resultKind);
+SEXP diag_tC_ptr(int n, int *x_p, double *x_x, Rboolean is_U, int *perm,
+		 SEXP resultKind);
+SEXP diag_tC(SEXP obj, SEXP resultKind);
 
 // FIXME: these are nowhere used (are they?)
 SEXP create_Csparse(char* cls, int* i, int* j, int* p, int np,

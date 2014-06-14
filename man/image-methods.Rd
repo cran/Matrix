@@ -64,9 +64,10 @@
     the case of rastering.}
   \item{col.regions}{vector of gradually varying colors; see
     \code{\link[lattice]{levelplot}}.}
-  \item{lwd}{non-negative number or \code{NULL} (default), specifying the
-    line-width of the rectangles of each non-zero matrix entry (drawn by
-    \code{\link[grid]{grid.rect}}).  The default depends on the matrix
+  \item{lwd}{(only used when \code{useRaster} is false:) non-negative
+    number or \code{NULL} (default), specifying the line-width of the
+    rectangles of each non-zero matrix entry (drawn by
+    \code{\link[grid]{grid.rect}}).  The default depends on the matrix 
     dimension and the device size.}
   \item{\dots}{further arguments passed to methods and
     \code{\link[lattice]{levelplot}}, notably \code{at} for specifying

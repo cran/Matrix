@@ -682,7 +682,7 @@ diagCspprod <- function(x, y) {
     dx <- dim(x)
     dy <- dim(y <- .Call(Csparse_diagU2N, y))
     if(dx[2] != dy[1]) stop("non-matching dimensions")
-    if(x@diag == "N") { 
+    if(x@diag == "N") {
 	if(!all(x@x[1L] == x@x[-1L]) && is(y, "symmetricMatrix"))
 	    y <- as(y, "generalMatrix")
 	y@x <- y@x * x@x[y@i + 1L]
@@ -965,8 +965,7 @@ setMethod("Arith", signature(e1 = "ldiMatrix", e2 = arg2),
 	      f0 <- callGeneric(0, e2)
 	      if(all0(f0)) { # remain diagonal
 		  L1 <- (le <- length(e2)) == 1L
-		  E <- copyClass(e1, "ddiMatrix", c("diag", "Dim", "Dimnames"))#FIXME: if ok, check=FALSE
-		  ## E <- copyClass(e1, "ddiMatrix", check=FALSE)
+		  E <- copyClass(e1, "ddiMatrix", c("diag", "Dim", "Dimnames"), check=FALSE)
 		  ## storage.mode(E@x) <- "double"
 		  if(e1@diag == "U") {
 		      if(any((r <- callGeneric(1, e2)) != 1)) {
@@ -990,8 +989,7 @@ setMethod("Arith", signature(e1 = arg1, e2 = "ldiMatrix"),
 	      f0 <- callGeneric(e1, 0)
 	      if(all0(f0)) { # remain diagonal
 		  L1 <- (le <- length(e1)) == 1L
-		  E <- copyClass(e2, "ddiMatrix", c("diag", "Dim", "Dimnames"))#FIXME: if ok, check=FALSE
-		  ## E <- copyClass(e2, "ddiMatrix", check=FALSE)
+		  E <- copyClass(e2, "ddiMatrix", c("diag", "Dim", "Dimnames"), check=FALSE)
 		  ## storage.mode(E@x) <- "double"
 		  if(e2@diag == "U") {
 		      if(any((r <- callGeneric(e1, 1)) != 1)) {
@@ -1023,8 +1021,7 @@ setMethod("Ops", signature(e1 = "ddiMatrix", e2 = arg2),
 	      f0 <- callGeneric(0, e2)
 	      if(all0(f0)) { # remain diagonal
 		  L1 <- (le <- length(e2)) == 1L
-		  E <- copyClass(e1, "ldiMatrix", c("diag", "Dim", "Dimnames"))#FIXME: if ok, check=FALSE
-		  ## E <- copyClass(e1, "ldiMatrix", check=FALSE)
+		  E <- copyClass(e1, "ldiMatrix", c("diag", "Dim", "Dimnames"), check=FALSE)
 		  ## storage.mode(E@x) <- "logical"
 		  if(e1@diag == "U") {
 		      if(any((r <- callGeneric(1, e2)) != 1)) {

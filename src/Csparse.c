@@ -631,40 +631,49 @@ SEXP Csparse_MatrixMarket(SEXP x, SEXP fname)
  *
  * @return  a SEXP, either a (double) number or a length n-vector of diagonal entries
  */
-SEXP diag_tC_ptr(int n, int *x_p, double *x_x, int *perm, SEXP resultKind)
+SEXP diag_tC_ptr(int n, int *x_p, double *x_x, Rboolean is_U, int *perm,
 /*                                ^^^^^^ FIXME[Generalize] to int / ... */
+		 SEXP resultKind)
 {
     const char* res_ch = CHAR(STRING_ELT(resultKind,0));
-    enum diag_kind { diag, diag_backpermuted, trace, prod, sum_log
+    enum diag_kind { diag, diag_backpermuted, trace, prod, sum_log, min, max, range
     } res_kind = ((!strcmp(res_ch, "trace")) ? trace :
 		  ((!strcmp(res_ch, "sumLog")) ? sum_log :
 		   ((!strcmp(res_ch, "prod")) ? prod :
-		    ((!strcmp(res_ch, "diag")) ? diag :
-		     ((!strcmp(res_ch, "diagBack")) ? diag_backpermuted :
-		      -1)))));
-    int i, n_x, i_from = 0;
+		    ((!strcmp(res_ch, "min")) ? min :
+		     ((!strcmp(res_ch, "max")) ? max :
+		      ((!strcmp(res_ch, "range")) ? range :
+		       ((!strcmp(res_ch, "diag")) ? diag :
+			((!strcmp(res_ch, "diagBack")) ? diag_backpermuted :
+			 -1))))))));
+    int i, n_x, i_from;
     SEXP ans = PROTECT(allocVector(REALSXP,
 /*                                 ^^^^  FIXME[Generalize] */
 				   (res_kind == diag ||
-				    res_kind == diag_backpermuted) ? n : 1));
+				    res_kind == diag_backpermuted) ? n :
+				   (res_kind == range ? 2 : 1)));
     double *v = REAL(ans);
 /*  ^^^^^^      ^^^^  FIXME[Generalize] */
 
+    i_from = (is_U ? -1 : 0);
+
 #define for_DIAG(v_ASSIGN)					\
-    for(i = 0; i < n; i++, i_from += n_x) {			\
+    for(i = 0; i < n; i++) {					\
 	/* looking at i-th column */				\
 	n_x = x_p[i+1] - x_p[i];/* #{entries} in this column */	\
+	if( is_U) i_from += n_x;                                \
 	v_ASSIGN;						\
+	if(!is_U) i_from += n_x;                                \
     }
 
     /* NOTA BENE: we assume  -- uplo = "L" i.e. lower triangular matrix
      *            for uplo = "U" (makes sense with a "dtCMatrix" !),
-     *            should use  x_x[i_from + (nx - 1)] instead of x_x[i_from],
-     *            where nx = (x_p[i+1] - x_p[i])
+     *            should use  x_x[i_from + (n_x - 1)] instead of x_x[i_from],
+     *            where n_x = (x_p[i+1] - x_p[i])
      */
 
     switch(res_kind) {
-    case trace:
+    case trace: // = sum
 	v[0] = 0.;
 	for_DIAG(v[0] += x_x[i_from]);
 	break;
@@ -677,6 +686,23 @@ SEXP diag_tC_ptr(int n, int *x_p, double *x_x, int *perm, SEXP resultKind)
     case prod:
 	v[0] = 1.;
 	for_DIAG(v[0] *= x_x[i_from]);
+	break;
+
+    case min:
+	v[0] = R_PosInf;
+	for_DIAG(if(v[0] > x_x[i_from]) v[0] = x_x[i_from]);
+	break;
+
+    case max:
+	v[0] = R_NegInf;
+	for_DIAG(if(v[0] < x_x[i_from]) v[0] = x_x[i_from]);
+	break;
+
+    case range:
+	v[0] = R_PosInf;
+	v[1] = R_NegInf;
+	for_DIAG(if(v[0] > x_x[i_from]) v[0] = x_x[i_from];
+		 if(v[1] < x_x[i_from]) v[1] = x_x[i_from]);
 	break;
 
     case diag:
@@ -708,6 +734,7 @@ SEXP diag_tC_ptr(int n, int *x_p, double *x_x, int *perm, SEXP resultKind)
  * Extract the diagonal entries from *triangular* Csparse matrix  __or__ a
  * cholmod_sparse factor (LDL = TRUE).
  *
+ * @param obj -- now a cholmod_sparse factor or a dtCMatrix
  * @param pslot  'p' (column pointer)   slot of Csparse matrix/factor
  * @param xslot  'x' (non-zero entries) slot of Csparse matrix/factor
  * @param perm_slot  'perm' (= permutation vector) slot of corresponding CHMfactor;
@@ -716,16 +743,26 @@ SEXP diag_tC_ptr(int n, int *x_p, double *x_x, int *perm, SEXP resultKind)
  *
  * @return  a SEXP, either a (double) number or a length n-vector of diagonal entries
  */
-SEXP diag_tC(SEXP pslot, SEXP xslot, SEXP perm_slot, SEXP resultKind)
+SEXP diag_tC(SEXP obj, SEXP resultKind)
 {
+
+    SEXP
+	pslot = GET_SLOT(obj, Matrix_pSym),
+	xslot = GET_SLOT(obj, Matrix_xSym);
+    Rboolean is_U = (R_has_slot(obj, Matrix_uploSym) &&
+		     *CHAR(asChar(GET_SLOT(obj, Matrix_uploSym))) == 'U');
     int n = length(pslot) - 1, /* n = ncol(.) = nrow(.) */
-	*x_p  = INTEGER(pslot),
-	*perm = INTEGER(perm_slot);
+	*x_p  = INTEGER(pslot), pp = -1, *perm;
     double *x_x = REAL(xslot);
 /*  ^^^^^^        ^^^^ FIXME[Generalize] to INTEGER(.) / LOGICAL(.) / ... xslot !*/
 
-    return diag_tC_ptr(n, x_p, x_x, perm, resultKind);
+    if(R_has_slot(obj, Matrix_permSym))
+	perm = INTEGER(GET_SLOT(obj, Matrix_permSym));
+    else perm = &pp;
+
+    return diag_tC_ptr(n, x_p, x_x, is_U, perm, resultKind);
 }
+
 
 /**
  * Create a Csparse matrix object from indices and/or pointers.

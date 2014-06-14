@@ -106,3 +106,29 @@ setMethod("solve", signature(a = "dtCMatrix", b = "numeric"),
 	  function(a, b, ...) .Call(dtCMatrix_matrix_solve, a,
                                     as.matrix(as.double(b)), FALSE),
           valueClass = "dgeMatrix")
+
+if(FALSE)## still not working
+setMethod("diag", "dtCMatrix",
+	  function(x, nrow, ncol) .Call(diag_tC, x, "diag"))
+
+
+## no pivoting here, use  L or U
+setMethod("lu", "dtCMatrix",
+	  function(x, ...) {
+	      n <- (d <- x@Dim)[1L]
+	      p <- 0:(n-1L)
+	      if(x@uplo == "U")
+		  new("sparseLU",
+		      L = .trDiagonal(n, uplo="L"),
+		      U = x,
+		      p = p, q = p, Dim = d)
+	      else { ## "L" :  x = L = L I
+		  d <- diag(x)
+		  new("sparseLU",
+		      L = x %*% Diagonal(n, 1/d),
+		      U = .trDiagonal(n, x = d),
+		      p = p, q = p, Dim = d)
+	      }
+	  })
+
+

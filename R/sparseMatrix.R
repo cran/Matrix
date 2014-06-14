@@ -174,7 +174,7 @@ graph2T <- function(from, use.weights =
 		## lens <-
 		vapply(e, length, 0))
     }
-	
+
     if(use.weights) {
 	eWts <- graph::edgeWeights(from); names(eWts) <- NULL
 	i <- edge2i(eWts)
@@ -225,7 +225,7 @@ T2graph <- function(from, need.uniq = is_not_uniqT(from), edgemode = NULL) {
 	from <- uniqTsparse(from)
 
     if(is.null(edgemode))
-        edgemode <- 
+        edgemode <-
             if(isSymmetric(from)) { # either "symmetricMatrix" or otherwise
                 ##-> undirected graph: every edge only once!
                 if(!is(from, "symmetricMatrix")) {
@@ -418,7 +418,7 @@ formatSparseM <- function(x, zero.print = ".", align = c("fancy", "right"),
 	dimnames(cx) <- dn
     }
     if(missing(iN0))
-	iN0 <- 1L + .Call(m_encodeInd, non0ind(x, cld), di = d, FALSE)
+	iN0 <- 1L + .Call(m_encodeInd, non0ind(x, cld), di = d, FALSE, FALSE)
     ## ne <- length(iN0)
 
     if(asLogical) {
@@ -441,7 +441,7 @@ formatSparseM <- function(x, zero.print = ".", align = c("fancy", "right"),
                 ij <- rbind(ij, ij[notdiag, 2:1], deparse.level=0)
                 F. <-	  c(F., F.[notdiag])
             }
-            iN0 <- 1L + .Call(m_encodeInd, ij, di = d, FALSE)
+            iN0 <- 1L + .Call(m_encodeInd, ij, di = d, FALSE, FALSE)
             cx[iN0[F.]] <- ":" # non-structural FALSE (or "o", "," , "-" or "f")?
         }
     }
@@ -521,7 +521,7 @@ formatSpMatrix <- function(x, digits = NULL, # getOption("digits"),
 	## -> cannot use 'm' alone
         d <- dim(cx)
 	ne <- length(iN0 <- 1L + .Call(m_encodeInd, non0ind(x, cld),
-				       di = d, FALSE))
+				       di = d, FALSE, FALSE))
 	if(0 < ne && (logi || ne < prod(d))) {
 	    cx <- formatSparseM(x, zero.print, align, m=m, asLogical=logi,
 				digits=digits, cx=cx, iN0=iN0, dn=dn)
@@ -844,3 +844,61 @@ setMethod("writeMM", "sparseMatrix",
 ### --- sparse model matrix,  fac2sparse, etc ----> ./spModels.R
 
 ###  xtabs(*, sparse = TRUE) ---> part of standard package 'stats' since R 2.10.0
+
+##' @title Random Sparse Matrix
+##' @param nrow,
+##' @param ncol number of rows and columns, i.e., the matrix dimension
+##' @param nnz number of non-zero entries
+##' @param rand.x random number generator for 'x' slot
+##' @param ... optionally further arguments passed to sparseMatrix()
+##' @return a sparseMatrix of dimension (nrow, ncol)
+##' @author Martin Maechler
+##' @examples M1 <- rSparseMatrix(1000, 20, nnz = 200)
+##'           summary(M1)
+if(FALSE) ## better version below
+rsparsematrix <- function(nrow, ncol, nnz,
+                          rand.x = function(n) signif(rnorm(nnz), 2),
+                          warn.nnz = TRUE, ...)
+{
+    maxi.sample <- 2^31 # maximum n+1 for which sample(n) returns integer
+    stopifnot((nnz <- as.integer(nnz)) >= 0,
+	      nrow >= 0, ncol >= 0, nnz <= nrow * ncol,
+	      nrow < maxi.sample, ncol < maxi.sample)
+    ## to ensure that nnz is strictly followed, must act on duplicated (i,j):
+    i <- sample.int(nrow, nnz, replace = TRUE)
+    j <- sample.int(ncol, nnz, replace = TRUE)
+    dim <- c(nrow, ncol)
+    it <- 0
+    while((it <- it+1) < 100 &&
+	  anyDuplicated(n.ij <- encodeInd2(i, j, dim, checkBnds=FALSE))) {
+	m <- length(k.dup <- which(duplicated(n.ij)))
+	Matrix.msg(sprintf("%3g duplicated (i,j) pairs", m), .M.level = 2)
+	if(runif(1) <= 1/2)
+	    i[k.dup] <- sample.int(nrow, m, replace = TRUE)
+	else
+	    j[k.dup] <- sample.int(ncol, m, replace = TRUE)
+    }
+    if(warn.nnz && it == 100 && anyDuplicated(encodeInd2(i, j, dim, checkBnds=FALSE)))
+	warning("number of non zeros is smaller than 'nnz' because of duplicated (i,j)s")
+    sparseMatrix(i = i, j = j, x = rand.x(nnz), dims = dim, ...)
+}
+
+## No warn.nnz needed, as we sample the encoded (i,j) with*out* replacement:
+rsparsematrix <- function(nrow, ncol, density,
+                          nnz = round(density * maxE), symmetric = FALSE,
+                          rand.x = function(n) signif(rnorm(nnz), 2), ...)
+{
+    maxE <- if(symmetric) nrow*(nrow+1)/2 else nrow*ncol
+    stopifnot((nnz <- as.integer(nnz)) >= 0,
+	      nrow >= 0, ncol >= 0, nnz <= maxE)
+    ## sampling with*out* replacement (replace=FALSE !):
+    ijI <- -1L +
+	if(symmetric) sample(indTri(nrow, diag=TRUE), nnz)
+	else sample.int(maxE, nnz)
+    ## i,j below correspond to  ij <- decodeInd(code, nr) :
+    sparseMatrix(i = ijI  %% nrow,
+                 j = ijI %/% nrow,
+                 index1 = FALSE, symmetric = symmetric,
+                 x = rand.x(nnz), dims = c(nrow, ncol), ...)
+}
+

@@ -78,4 +78,3 @@ stopifnot(dim(KhatriRao(m,d)) == c(nrow(m)*nrow(d), ncol(d)))
 }
 \keyword{methods}
 \keyword{array}
-

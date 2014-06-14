@@ -4,12 +4,12 @@ setAs("dpoMatrix", "dppMatrix",
       function(from)
       copyClass(.Call(dsyMatrix_as_dspMatrix, from),
 		"dppMatrix",
-		sNames = c("x", "Dim", "Dimnames", "uplo", "factors")))
+		sNames = c("x", "Dim", "Dimnames", "uplo", "factors")))#FIXME , check=FALSE
 
 setAs("dpoMatrix", "corMatrix",
       function(from) {
 	  if(!is.null(cm <- from@factors$correlation)) return(cm)
-          ## else 
+          ## else
 	  sd <- sqrt(diag(from))
 	  if(is.null(names(sd)) && !is.null(nms <- from@Dimnames[[1]]))
 	      names(sd) <- nms

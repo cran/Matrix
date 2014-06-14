@@ -1,9 +1,8 @@
 \name{rcond}
 \title{Estimate the Reciprocal Condition Number}
 \alias{rcond}
-% most methods are documented in <foo>Matrix-class.Rd
+% most methods are "documented" in <foo>Matrix-class.Rd
 \alias{rcond,ANY,missing-method}
-\alias{rcond,matrix,character-method}%<- no longer for R >= 2.7.0
 \alias{rcond,Matrix,character-method}
 \alias{rcond,ldenseMatrix,character-method}
 \alias{rcond,ndenseMatrix,character-method}
@@ -22,11 +21,12 @@ rcond(x, norm, \dots)
 }
 \arguments{
   \item{x}{an \R object that inherits from the \code{Matrix} class.}
-  \item{norm}{
-    Character indicating the type of norm to be used in the estimate.
-    The default is \code{"O"} for the 1-norm (\code{"O"} is equivalent
-    to \code{"1"}).  The other possible value is \code{"I"} for the
-    infinity norm, see also \code{\link{norm}}.
+  \item{norm}{character string indicating the type of norm to be used in
+    the estimate. The default is \code{"O"} for the 1-norm (\code{"O"} is
+    equivalent to \code{"1"}).  For sparse matrices, when \code{useInv=TRUE},
+    \code{norm} can be any of the \code{kind}s allowed for \code{\link{norm}};
+    otherwise, the other possible value is \code{"I"} for the infinity
+    norm, see also \code{\link{norm}}.
   }
   \item{useInv}{logical (or \code{"Matrix"} containing
     \code{\link{solve}(x)}).  If not false, compute the reciprocal
@@ -82,7 +82,7 @@ rcond(x, norm, \dots)
   \eqn{p=2} (Euclidean) \code{\link{norm}}.
   \code{\link[base]{solve}}.
 
-  \code{\link{condest}}, a newer approximate estimate of
+  \code{\link{condest}}, a newer \emph{approximate} estimate of
   the (1-norm) condition number, particularly efficient for large sparse
   matrices.
 }
@@ -117,12 +117,15 @@ M <- bdiag(kronecker(Diagonal(2), m), kronecker(m,m))
 36*(iM <- solve(M)) # still sparse
 MM <- kronecker(Diagonal(10), kronecker(Diagonal(5),kronecker(m,M)))
 dim(M3 <- kronecker(bdiag(M,M),MM)) # 12'800 ^ 2
-if(interactive()) ## takes about 2 seconds
+if(interactive()) ## takes about 2 seconds if you have >= 8 GB RAM
   system.time(r <- rcond(M3))
 ## whereas this is *fast* even though it computes  solve(M3)
 system.time(r. <- rcond(M3, useInv=TRUE))
 if(interactive()) ## the values are not the same
   c(r, r.)  # 0.05555 0.013888
+## for all 4 norms available for sparseMatrix :
+cbind(rr <- sapply(c("1","I","F","M"),
+             function(N) rcond(M3, norm=N, useInv=TRUE)))
 \dontshow{stopifnot(all.equal(r., 1/72, tolerance=1e-12))}
 }
 \keyword{array}

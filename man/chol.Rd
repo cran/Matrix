@@ -27,16 +27,33 @@
 \usage{
 chol(x, \dots)
 \S4method{chol}{dsCMatrix}(x, pivot = FALSE, \dots)
+\S4method{chol}{dsparseMatrix}(x, pivot = FALSE, cache = TRUE, \dots)
 }
 \arguments{
   \item{x}{a (sparse or dense) square matrix, here inheriting from class
     \code{\linkS4class{Matrix}}; if \code{x} is not positive definite,
     an error is signalled.}
-  \item{pivot}{logical indicating if pivoting is to be used.}
+  \item{pivot}{logical indicating if pivoting is to be used.  Currently,
+    this is \emph{not} made use of for dense matrices.}
+  \item{cache}{logical indicating if the result should be cashed in
+    \code{x@factors}; note that this argument is experimental and only
+    available for some sparse matrices.}
   \item{\dots}{potentially further arguments passed to methods.}
 }
-% \details{
-% }
+\details{
+  Note that these Cholesky factorizations are typically \emph{cached} with
+  \code{x} currently, and these caches are available in
+  \code{x@factors}, which may be useful for the sparse case when
+  \code{pivot = TRUE}, where the permutation can be retrieved; see also
+  the examples.
+
+  However, this should not be considered part of the API and made
+  use of.  Rather consider \code{\link{Cholesky}()} in such situations,
+  since \code{chol(x, pivot=TRUE)} uses the same algorithm (but not the
+  same return value!) as \code{\link{Cholesky}(x, LDL=FALSE)} and
+  \code{chol(x)} corresponds to
+  \code{\link{Cholesky}(x, perm=FALSE, LDL=FALSE)}.
+}
 \section{Methods}{
   Use \code{\link{showMethods}(chol)} to see all; some are worth
   mentioning here:
@@ -54,14 +71,16 @@ chol(x, \dots)
 
     \item{chol}{\code{signature(x = "dsCMatrix", pivot = "logical")}:
       Returns (and stores) the Cholesky decomposition of \code{x}.  If
-      \code{pivot} is \code{TRUE} (the default) the Approximate Minimal
-      Degree (AMD) algorithm is used to create a reordering of the rows
-      and columns of \code{x} so as to reduce fill-in.}
+      \code{pivot} is true, the Approximate Minimal Degree (AMD)
+      algorithm is used to create a reordering of the rows and columns
+      of \code{x} so as to reduce fill-in.}
   }
 }
 \value{
   a matrix of class \code{\linkS4class{Cholesky}},
-  i.e., upper triangular: \eqn{R} such that \eqn{R'R = x}.
+  i.e., upper triangular: \eqn{R} such that \eqn{R'R = x} (if
+      \code{pivot=FALSE}) \emph{or} \eqn{P' R'R P = x} (if
+      \code{pivot=TRUE} and \eqn{P} is the corresponding permutation matrix).
 }
 \references{
   Timothy A. Davis (2006)
@@ -73,7 +92,8 @@ chol(x, \dots)
   \emph{SIAM J. Matrix Analysis and Applications},
   \bold{17}, 4, 886--905.
 }
-\seealso{The default from \pkg{base}, \code{\link[base]{chol}}.
+\seealso{The default from \pkg{base}, \code{\link[base]{chol}}; for more
+  flexibility (but not returning a matrix!) \code{\link{Cholesky}}.
 }
 \examples{
 showMethods(chol, inherited = FALSE) # show different methods
@@ -103,11 +123,16 @@ stopifnot(all.equal(sqrt(det(mm)), det(R)),
 (M2 <- toeplitz(as(c(1,.5, rep(0,12), -.1), "sparseVector")))
 c2 <- chol(M2)
 C2 <- chol(M2, pivot=TRUE)
-## check the caching of the factorizations:
-spd <- as(M2@factors[["spdCholesky"]], "Matrix")
-sPd <- as(M2@factors[["sPdCholesky"]], "Matrix")
-stopifnot(identical(t(spd), c2),
-          all.equal(t(sPd), C2, tolerance=0))#%% FIXME -- why not identical()?
+## For the experts, check the caching of the factorizations:
+ff <- M2@factors[["spdCholesky"]]
+FF <- M2@factors[["sPdCholesky"]]
+L1 <- as(ff, "Matrix")# pivot=FALSE: no perm.
+L2 <- as(FF, "Matrix"); P2 <- as(FF, "pMatrix")
+stopifnot(identical(t(L1), c2),
+          all.equal(t(L2), C2, tolerance=0),#-- why not identical()?
+          all.equal(M2, tcrossprod(L1)),             # M = LL'
+          all.equal(M2, crossprod(crossprod(L2, P2)))# M = P'L L'P
+         )
 }
 \keyword{algebra}
 \keyword{array}

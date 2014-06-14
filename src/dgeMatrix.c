@@ -157,12 +157,14 @@ SEXP dgeMatrix_matrix_crossprod(SEXP x, SEXP y, SEXP trans)
     double one = 1.0, zero = 0.0;
     Rboolean y_has_dimNames;
 
-    if (isInteger(y)) {
-	y = PROTECT(coerceVector(y, REALSXP));
-	nprot++;
+    if (!isReal(y)) {
+	if(isInteger(y) || isLogical(y)) {
+	    y = PROTECT(coerceVector(y, REALSXP));
+	    nprot++;
+	}
+	else
+	    error(_("Argument y must be numeric, integer or logical"));
     }
-    if (!isReal(y))
-	error(_("Argument y must be numeric or integer"));
     if(isMatrix(y)) {
 	yDims = INTEGER(getAttrib(y, R_DimSymbol));
 	yDnms = getAttrib(y, R_DimNamesSymbol);

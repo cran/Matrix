@@ -4,6 +4,7 @@
 \alias{lu,matrix-method}
 \alias{lu,dgeMatrix-method}
 \alias{lu,dgCMatrix-method}
+\alias{lu,dtCMatrix-method}
 \usage{
 lu(x, \dots)
 \S4method{lu}{matrix}(x, warnSing = TRUE, \dots)
@@ -27,7 +28,7 @@ lu(x, \dots)
     returns \code{\link{NA}} instead of an LU decomposition.  No
     warning is signalled and the useR should be careful in that case.
   }
-  \item{order}{logical or integer, used to chose which will-reducing
+  \item{order}{logical or integer, used to choose which fill-reducing
     permutation technique will be used internally.  Do not change unless
     you know what you are doing.}
   \item{tol}{positive number indicating the pivoting tolerance used in

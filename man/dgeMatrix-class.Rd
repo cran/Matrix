@@ -92,16 +92,14 @@
     \item{eigen}{\code{signature(x = "dgeMatrix", only.values= "missing")}: ...}
     \item{norm}{\code{signature(x = "dgeMatrix", type = "character")}: ... }
     \item{norm}{\code{signature(x = "dgeMatrix", type = "missing")}: ... }
-    \item{rcond}{\code{signature(x = "dgeMatrix", norm = "character")}: ... }
-    \item{rcond}{\code{signature(x = "dgeMatrix", norm = "missing")}: ... }
+    \item{rcond}{\code{signature(x = "dgeMatrix", norm = "character")}
+      or \code{norm = "missing"}:
+      the reciprocal condition number, \code{\link{rcond}()}.}
     \item{rowMeans}{\code{signature(x = "dgeMatrix")}: rowwise means (averages)}
     \item{rowSums}{\code{signature(x = "dgeMatrix")}: rowwise sums}
-    \item{t}{\code{signature(x = "dgeMatrix")}: ... }
+    \item{t}{\code{signature(x = "dgeMatrix")}: matrix transpose}
   }
 }
-%\references{}
-%\author{}
-%\note{}
 \seealso{
   Classes \code{\linkS4class{Matrix}},
   \code{\linkS4class{dtrMatrix}}, and \code{\linkS4class{dsyMatrix}}.

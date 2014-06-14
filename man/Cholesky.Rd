@@ -7,12 +7,13 @@
 \alias{Cholesky,Matrix-method}% <- "good" error message
 \alias{.SuiteSparse_version}
 \title{Cholesky Decomposition of a Sparse Matrix}
+\concept{Choleski}% alternative English form
 \usage{
 Cholesky(A, perm = TRUE, LDL = !super, super = FALSE, Imult = 0, \dots)
 }
 \description{
-  Computes the Cholesky decomposition of a sparse, symmetric,
-  positive-definite matrix.  However, typically \code{\link{chol}()}
+  Computes the Cholesky (aka \dQuote{Choleski}) decomposition of a
+  sparse, symmetric, positive-definite matrix.  However, typically \code{\link{chol}()}
   should rather be used unless you are interested in the different kinds
   of sparse Cholesky decompositions.
 }
@@ -45,8 +46,9 @@ Cholesky(A, perm = TRUE, LDL = !super, super = FALSE, Imult = 0, \dots)
 
   In other words, the result of \code{Cholesky()} is \emph{not} a
   matrix, and if you want one, you should probably rather use
-  \code{\link{chol}()}.
+  \code{\link{chol}()}, see Details.
 }
+%FAILS WHY??\newcommand{\tR}{\tilde{R}}% both \tR{} and simple '\tR' fails
 \details{
   This is a generic function with special methods for different types
   of matrices.  Use \code{\link{showMethods}("Cholesky")} to list all
@@ -56,8 +58,20 @@ Cholesky(A, perm = TRUE, LDL = !super, super = FALSE, Imult = 0, \dots)
   --- the only one available currently ---
   is based on functions from the CHOLMOD library.
 
-  Again: If you just want the Cholesky decomposition of a matrix, you
-  should probably rather use \code{\link{chol}(.)}.
+  Again: If you just want the Cholesky decomposition of a matrix in a
+  straightforward way, you should probably rather use \code{\link{chol}(.)}.
+
+  Note that if \code{perm=TRUE} (default), the decomposition is
+  \deqn{A = P' \tilde{L} D \tilde{L}' P = P' L L' P,}{A = P' L~ D L~' P = P' L L' P,}
+  where \eqn{L} can be extracted by \code{as(*, "Matrix")}, \eqn{P} by
+  \code{as(*, "pMatrix")} and both by \code{\link{expand}(*)}, see the
+  class \code{\linkS4class{CHMfactor}} documentation.
+
+  Note that consequently, you cannot easily get the \dQuote{traditional}
+  cholesky factor \eqn{R}, from this decomposition, as
+  \deqn{R'R = A = P'LL'P = P'\tilde{R}'\tilde{R} P = (\tilde{R}P)' (\tilde{R}P),}{
+        R'R = A = P'LL'P = P' R~' R~ P = (R~ P)' (R~ P),}
+  but \eqn{\tilde{R}P}{R~ P} is \emph{not} triangular even though \eqn{\tilde{R}}{R~} is.
 }
 \references{
   Tim Davis (2005)

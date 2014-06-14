@@ -72,7 +72,7 @@ SEXP set_double_by_name(SEXP obj, double val, char *nm);
 SEXP as_det_obj(double val, int log, int sign);
 SEXP get_factors(SEXP obj, char *nm);
 SEXP set_factors(SEXP obj, SEXP val, char *nm);
-SEXP R_set_factors(SEXP obj, SEXP val, SEXP name);
+SEXP R_set_factors(SEXP obj, SEXP val, SEXP name, SEXP warn);
 
 #if 0
 SEXP dgCMatrix_set_Dim(SEXP x, int nrow);
@@ -287,8 +287,8 @@ SEXP dup_mMatrix_as_dgeMatrix(SEXP A);
 SEXP dup_mMatrix_as_geMatrix (SEXP A);
 
 SEXP new_dgeMatrix(int nrow, int ncol);
-SEXP m_encodeInd (SEXP ij, SEXP di, SEXP chk_bnds);
-SEXP m_encodeInd2(SEXP i, SEXP j, SEXP di, SEXP chk_bnds);
+SEXP m_encodeInd (SEXP ij,        SEXP di, SEXP orig_1, SEXP chk_bnds);
+SEXP m_encodeInd2(SEXP i, SEXP j, SEXP di, SEXP orig_1, SEXP chk_bnds);
 
 SEXP R_all0(SEXP x);
 SEXP R_any0(SEXP x);

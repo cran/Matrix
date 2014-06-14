@@ -6,7 +6,7 @@
   matrix, inheriting from \code{\link{class}}
   \code{\linkS4class{CsparseMatrix}} (or
   \code{\linkS4class{TsparseMatrix}} if \code{giveCsparse} is false),
-  from locations (and values) of its nonzero entries.
+  from locations (and values) of its non-zero entries.
 
   This is the recommended user interface rather than direct
   \code{\link{new}("***Matrix", ....)} calls.
@@ -90,7 +90,7 @@ sparseMatrix(i = ep, j = ep, p, x, dims, dimnames,
   \code{"\linkS4class{TsparseMatrix}"} class, unless \code{use.last.ij}
   is set to true.
   %%
-  By default, when \code{giveCsparse} is true, the \code{\linkS4class{CsparseMatrix}} 
+  By default, when \code{giveCsparse} is true, the \code{\linkS4class{CsparseMatrix}}
   derived from this triplet form is returned.
 
   The reason for returning a \code{\linkS4class{CsparseMatrix}} object
@@ -135,9 +135,9 @@ set.seed(1); (perm <- sample(1:7))
 (A1 <- sparseMatrix(i[perm], j[perm], x = x[perm]))
 stopifnot(identical(A, A1))
 
-## The slots are 0-index based, so 
+## The slots are 0-index based, so
 try( sparseMatrix(i=A@i, p=A@p, x= seq_along(A@x)) )
-## fails and you should say so: 1-indexing is FALSE: 
+## fails and you should say so: 1-indexing is FALSE:
      sparseMatrix(i=A@i, p=A@p, x= seq_along(A@x), index1 = FALSE)
 
 ## the (i,j) pairs can be repeated, in which case the x's are summed
@@ -214,4 +214,3 @@ if(require(SparseM) && packageVersion("SparseM") >= 0.87 &&
 }% donttest
 }% example
 \keyword{array}
-

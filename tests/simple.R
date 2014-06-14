@@ -874,9 +874,12 @@ table(uniC <- sapply(lst[istri], function(.) get(.)@diag == "U"))
 lsUtr <- lst[istri][uniC]
 (di <- sapply(lsUtr, function(.) dim(get(.))))
 ## TODO: use %*%, crossprod(), .. on all those  4 x 4 -- and check "triangular rules"
-cat('Time elapsed: ', (.pt <- proc.time()),'\n') # "stats"
-##
 
+r <- tryCatch(chol2inv(Diagonal(x=1:10), pi=pi), warning=identity)
+stopifnot(grepl("extra argument pi .*chol2inv\\(Diagonal", r$message))
+
+
+cat('Time elapsed: ', (.pt <- proc.time()),'\n') # "stats"
 cat("doExtras:",doExtras,"\n")
 if(doExtras) {
     cat("checkMatrix() of all: \n---------\n")

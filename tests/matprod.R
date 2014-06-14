@@ -3,7 +3,9 @@ library(Matrix)
 ### Matrix Products including  cross products
 
 source(system.file("test-tools.R", package = "Matrix"))
-options(warn=1)# show as they happen
+doExtras
+options(warn=1, # show as they happen
+	Matrix.verbose = doExtras)
 
 ### dimnames -- notably for matrix products
 ## from ../R/Auxiliaries.R :
@@ -110,11 +112,19 @@ stopifnot((tru %*% tru)[i.lt] ==
 	  (trm %*% trm)[i.lt])
 
 ## crossprod() with numeric vector RHS and LHS
-assert.EQ.mat( crossprod(rep(1,5), m5),	 rbind( colSums(m5)))
-assert.EQ.mat( crossprod(rep(1,5), m.),	 rbind( colSums(m5)))
-assert.EQ.mat( crossprod(m5, rep(1,5)),	 cbind( colSums(m5)))
-assert.EQ.mat( crossprod(m., rep(1,5)),	 cbind( colSums(m5)))
+i5 <- rep.int(1, 5)
+isValid(S5 <- tcrossprod(tr5), "dpoMatrix")# and inherits from "dsy"
+G5 <- as(S5, "generalMatrix")# "dge"
+assert.EQ.mat( crossprod(i5, m5), rbind( colSums(m5)))
+assert.EQ.mat( crossprod(i5, m.), rbind( colSums(m5)))
+assert.EQ.mat( crossprod(m5, i5), cbind( colSums(m5)))
+assert.EQ.mat( crossprod(m., i5), cbind( colSums(m5)))
+assert.EQ.mat( crossprod(i5, S5), rbind( colSums(S5))) # failed in Matrix 1.1.4
 ## tcrossprod() with numeric vector RHS and LHS :
+stopifnot(identical(tcrossprod(i5, S5), # <- lost dimnames
+		    tcrossprod(i5, G5) -> m51),
+	  identical(dimnames(m51), list(NULL, LETTERS[1:5]))
+	  )
 m51 <- m5[, 1, drop=FALSE] # [6 x 1]
 m.1 <- m.[, 1, drop=FALSE] ; assert.EQ.mat(m51, m.1)
 ## The only (M . v) case
@@ -577,6 +587,18 @@ for(n in 1:250) {
         stop("The two crossprod()s differ!")
     } else if(n %% 25 == 0) cat(n, " ")
 }; cat("\n")
+
+## two with an empty column --- these failed till 2014-06-14
+X <- as(c(1,3,4,5,3), "indMatrix")
+Y <- as(c(2,3,4,2,2), "indMatrix")
+
+## kronecker:
+stopifnot(identical(X %x% Y,
+                    as(as.matrix(X) %x% as.matrix(Y), "indMatrix")))
+## crossprod:
+(XtY <- crossprod(X, Y))# gave warning in Matrix 1.1-3
+XtY_ok <- as(crossprod(as.matrix(X), as.matrix(Y)), "dgCMatrix")
+stopifnot(identical(XtY, XtY_ok)) # not true, previously
 
 
 cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''

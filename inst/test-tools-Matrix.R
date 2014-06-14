@@ -206,7 +206,9 @@ rUnitTri <- function(n, upper = TRUE, ...)
     r
 }
 
-mkLDL <- function(n, density = 1/3) {
+mkLDL <- function(n, density = 1/3,
+		  d0 = 10, ## use '10' to be "different" from L entries
+		  rcond = (n < 99), condest = (n >= 100)) {
     ## Purpose: make nice artificial   A = L D L'  (with exact numbers) decomp
     ## ----------------------------------------------------------------------
     ## Author: Martin Maechler, Date: 15 Mar 2008
@@ -218,11 +220,13 @@ mkLDL <- function(n, density = 1/3) {
     L[sample(n*n, nnz)] <- seq_len(nnz)
     L <- tril(L,-1)
     diag(L) <- 1
-    d.half <- sample(10*(n:1))# random permutation ; use '10*' to be "different" from L entries
+    d.half <- d0 * sample.int(n)# random permutation
     D <- Diagonal(x = d.half * d.half)
     A <- tcrossprod(L * rep(d.half, each=n))
     ## = as(L %*% D %*% t(L), "symmetricMatrix")
-    list(A = A, L = L, d.half = d.half, D = D)
+    list(A = A, L = L, d.half = d.half, D = D,
+         rcond.A = if(rcond) rcond(A, useInv=TRUE),
+         cond.A  = if(condest) condest(A)$est)
 }
 
 eqDeterminant <- function(m1, m2, NA.Inf.ok=FALSE, tol=.Machine$double.eps^0.5, ...)

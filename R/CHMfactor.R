@@ -1,10 +1,10 @@
 
-### FIXME:  We really want the separate parts (P,L,D)  of  A = P' L D L' P'
-### -----   --> ~/R/MM/Pkg-ex/Matrix/chol-ex.R             ----------------
-setAs("CHMfactor", "sparseMatrix",
-      function(from) .Call(CHMfactor_to_sparse, from))
-
-setAs("CHMfactor", "Matrix", function(from) as(from, "sparseMatrix"))
+### TODO: We really want the separate parts (P,L,D)  of  A = P' L D L' P
+### ---   --> ~/R/MM/Pkg-ex/Matrix/chol-ex.R             ---------------
+## but we currently only get   A = P' L L' P  --- now documented in ../man/Cholesky.Rd
+setAs("CHMfactor", "sparseMatrix",     function(from) .Call(CHMfactor_to_sparse, from))
+setAs("CHMfactor", "triangularMatrix", function(from) .Call(CHMfactor_to_sparse, from))
+setAs("CHMfactor", "Matrix",           function(from) .Call(CHMfactor_to_sparse, from))
 
 setAs("CHMfactor", "pMatrix", function(from) as(from@perm + 1L, "pMatrix"))
 
@@ -33,7 +33,7 @@ setMethod("image", "CHMfactor",
 	     system = c("A", "LDLt", "LD", "DLt", "L", "Lt", "D", "P", "Pt"),
 	     ...)
 {
-    chk.s(...)
+    chk.s(..., which.call=-2)
     sysDef <- eval(formals()$system)
     .Call(CHMfactor_solve,
 	  ##-> cholmod_solve() in  ../src/CHOLMOD/Cholesky/cholmod_solve.c
@@ -58,7 +58,7 @@ setMethod("solve", signature(a = "CHMfactor", b = "dsparseMatrix"),
 	  function(a, b,
 		   system = c("A", "LDLt", "LD", "DLt", "L", "Lt", "D", "P", "Pt"),
 		   ...) {
-	      chk.s(...)
+	      chk.s(..., which.call=-2)
 	      sysDef <- eval(formals()$system)
 	      .Call(CHMfactor_spsolve,	#--> cholmod_spsolve() in  ../src/CHOLMOD/Cholesky/cholmod_spsolve.c
 		    a, as(as(b, "CsparseMatrix"), "dgCMatrix"),
@@ -73,7 +73,7 @@ setMethod("solve", signature(a = "CHMfactor", b = "missing"),
 	  function(a, b,
 		   system = c("A", "LDLt", "LD","DLt", "L","Lt", "D", "P","Pt"),
 		   ...) {
-	      chk.s(...)
+	      chk.s(..., which.call=-2)
 	      sysDef <- eval(formals()$system)
 	      system <- match.arg(system, sysDef)
 	      i.sys <- match(system, sysDef, nomatch = 0L)
@@ -94,7 +94,7 @@ setMethod("solve", signature(a = "CHMfactor", b = "ANY"),
 
 setMethod("chol2inv", signature(x = "CHMfactor"),
 	  function (x, ...) {
-	      chk.s(...)
+	      chk.s(..., which.call=-2)
 	      solve(x, system = "A")
 	  })
 
@@ -121,7 +121,7 @@ setMethod("update", signature(object = "CHMfactor"),
 	     !is.null(v <- getOption("Matrix.verbose")) && v >= 1)
 	      message(gettextf("Quadratic matrix '%s' (=: A) is not formally\n	symmetric.  Will be treated as	A A' ",
 			       "parent"), domain=NA)
-	  chk.s(...)
+	  chk.s(..., which.call=-2)
 	  .Call(CHMfactor_update, object, parent, mult)
       })
 ##' fast version, somewhat hidden; here parent *must* be  'd[sg]CMatrix'

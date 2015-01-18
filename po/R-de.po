@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: R 3.1.0 / matrix 1.1-2\n"
 "Report-Msgid-Bugs-To: bugs.r-project.org\n"
-"POT-Creation-Date: 2014-03-26 21:03\n"
+"POT-Creation-Date: 2015-01-17 15:31\n"
 "PO-Revision-Date: 2014-03-28 10:23+0100\n"
 "Last-Translator: Detlef Steuer <steuer@hsu-hh.de>\n"
 "Language-Team: German <debian-l10n-german@lists.debian.org>\n"
@@ -48,6 +48,9 @@ msgstr "nicht konforme Matrixdimensionen in %s"
 msgid "dimnames [%d] mismatch in %s"
 msgstr "dimnames [%d] passen nicht in %s"
 
+msgid "names(dimnames(<matrix>)) must be NULL or of length two"
+msgstr ""
+
 msgid "Matrices must have same number of rows in %s"
 msgstr "Matrizen müssen die gleiche Anzahl Zeilen in %s haben"
 
@@ -81,11 +84,6 @@ msgstr "noch nicht implementiert für %s"
 
 msgid "general Matrix class not yet implemented for %s"
 msgstr "allgemeine Matrixklasse noch nicht implementiert für %s"
-
-msgid ""
-"arguments %s are disregarded in\n"
-" %s"
-msgstr "Argumente %s werden nicht berücksichtigt in %s"
 
 msgid ""
 "Quadratic matrix '%s' (=: A) is not formally\n"
@@ -194,8 +192,8 @@ msgstr "'%s()' ist noch nicht implementiert für Darstellung '%s'"
 
 msgid "trimmed mean of 'sparseVector' -- suboptimally using as.numeric(.)"
 msgstr ""
-"getrimmter Mittelwert von 'sparseVector' – suboptimalerweise wird as.numeric"
-"(.) benutzt"
+"getrimmter Mittelwert von 'sparseVector' – suboptimalerweise wird as."
+"numeric(.) benutzt"
 
 msgid "'V' is not a square matrix"
 msgstr "'V' ist keine quadratische Matrix"
@@ -242,14 +240,6 @@ msgstr ""
 
 msgid "'lag' and 'differences' must be integers >= 1"
 msgstr "'lag' und 'differences' müssen Ganzzahlen >=1 sein"
-
-msgid "programming error: min() should have dispatched w/ 1st arg much earlier"
-msgstr ""
-"Programmierfehler: min() ohne erstes Argument hätte eher abgefangen\n"
-"sein müssen"
-
-msgid "in Summary(<ANY>, .): %s(<%s>, <%s>,...)"
-msgstr "in Summary(<ANY>, .): %s(<%s>, <%s>, ...)"
 
 msgid "invalid or not-yet-implemented 'Matrix' subsetting"
 msgstr "ungültige oder noch nicht implementierte 'Matrix'-Untermenge"
@@ -362,6 +352,18 @@ msgstr "dim [produkt %d] passt nicht zur Länge des Objekts [%d]"
 
 msgid "invalid class: %s"
 msgstr "ungültige Klasse: %s"
+
+msgid "programming error: min() should have dispatched w/ 1st arg much earlier"
+msgstr ""
+"Programmierfehler: min() ohne erstes Argument hätte eher abgefangen\n"
+"sein müssen"
+
+msgid "in Summary(<ANY>, .): %s(<%s>, <%s>,...)"
+msgstr "in Summary(<ANY>, .): %s(<%s>, <%s>, ...)"
+
+#, fuzzy
+msgid "in Summary(<ANY>, .): %s(<%s>, <%s>)"
+msgstr "in Summary(<ANY>, .): %s(<%s>, <%s>, ...)"
 
 msgid "not-yet-implemented coercion to \"TsparseMatrix\""
 msgstr "noch nicht implementierte Typumwandlung zu 'TsparseMatrix'"
@@ -545,6 +547,12 @@ msgstr ""
 "Die LU Zerlegung ist computational singulär; Quotient der extremen Elemente "
 "von |diag(U)| = %9.4g"
 
+msgid "RHS 'b' has wrong number of rows:"
+msgstr ""
+
+msgid "RHS 'b' has wrong length"
+msgstr ""
+
 msgid "cannot coerce non-symmetric \"dgTMatrix\" to \"dsCMatrix\" class"
 msgstr ""
 "nicht symmetrische \"dgTMatrix\" kann nicht in \"dsCMatrix\" Klasse "
@@ -667,6 +675,10 @@ msgstr "keine quadratische Matrix"
 msgid "not-yet-implemented method for <%s> %%*%% <%s>"
 msgstr "noch nicht implementierte Methode für <%s> %%*%% <%s>"
 
+#, fuzzy
+msgid "non-conformable arguments"
+msgstr "nicht konforme Matrixdimensionen in %s"
+
 msgid ""
 "rankMatrix(<large sparse Matrix>, method = '%s') coerces to dense matrix.\n"
 " Probably should rather use method = 'qr' !?"
@@ -732,6 +744,9 @@ msgstr "rcond(.) über Umwandlung dünn besetzt -> dicht besetzt"
 msgid "'V' is not a *square* matrix"
 msgstr "'V' ist keine *quadratische* Matrix"
 
+msgid "number of non zeros is smaller than 'nnz' because of duplicated (i,j)s"
+msgstr ""
+
 msgid ""
 "qr.R(<sparse>) may differ from qr.R(<dense>) because of permutations.  "
 "Possibly use our qrR() instead"
@@ -785,6 +800,16 @@ msgstr ""
 
 msgid "'x' is not symmetric nor triangular"
 msgstr "'x' ist weder symmetrisch noch in Dreiecksform"
+
+#, fuzzy
+msgid ""
+"extra argument %s will be disregarded in\n"
+" %s"
+msgid_plural ""
+"extra arguments %s will be disregarded in\n"
+" %s"
+msgstr[0] "Argumente %s werden nicht berücksichtigt in %s"
+msgstr[1] "Argumente %s werden nicht berücksichtigt in %s"
 
 #~ msgid "longer object length"
 #~ msgstr "längere Objektlänge"

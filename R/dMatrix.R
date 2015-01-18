@@ -41,100 +41,11 @@ setAs("dMatrix", "nMatrix",
       })
 
 
-## Group Methods, see ?Arith (e.g.)
+## Group Methods:
 ## -----
-## >>> More specific methods for sub-classes (sparse), use these as "catch-all":
-
-## the non-Ops ones :
-setMethod("Math2",
-          ## Assume that  Generic(u, k) |--> u for u in {0,1}
-          ## which is true for round(), signif() ==> all structure maintained
-          signature(x = "dMatrix"),
-	  function(x, digits) {
-              x@x <- callGeneric(x@x, digits = digits)
-              x
-          })
-
-## at installation time:
-## "max" "min" "range"  "prod" "sum"   "any" "all" :
-summGenerics <- getGroupMembers("Summary")
-## w/o "prod" & "sum":
-summGener1 <- summGenerics[match(summGenerics, c("prod","sum"), 0) == 0]
-
-## [also needs extra work in ./AllGeneric.R ] :
-setMethod("Summary", signature(x = "ddenseMatrix", na.rm = "ANY"),
-	  function(x, ..., na.rm) {
-	      d <- x@Dim
-	      if(any(d == 0)) return(callGeneric(numeric(0), ..., na.rm=na.rm))
-	      clx <- getClassDef(class(x))
-	      if(extends(clx, "generalMatrix"))
-		  callGeneric(x@x, ..., na.rm = na.rm)
-	      else if(extends(clx, "symmetricMatrix")) { # incl packed, pos.def.
-		  if(.Generic %in% summGener1) {
-		      callGeneric(if (length(x@x) < prod(d)) x@x
-				  else x@x[indTri(d[1], upper= x@uplo == "U",
-						  diag= TRUE)],
-				  ..., na.rm = na.rm)
-		  } else callGeneric(as(x, "dgeMatrix")@x, ..., na.rm = na.rm)
-	      }
-	      else { ## triangular , packed
-		  if(.Generic %in% summGener1) {
-                      if(.Generic %in% c("any","all")) {
-                          Zero <- FALSE; One <- TRUE
-                      } else {
-                          Zero <- 0; One <- 1
-                      }
-		      callGeneric(x@x, Zero, if(x@diag == "U") One, ..., na.rm = na.rm)
-		  } else callGeneric(as(x, "dgeMatrix")@x, ..., na.rm = na.rm)
-	      }
-	  })
-
-setMethod("Summary", signature(x = "dsparseMatrix", na.rm = "ANY"),
-	  function(x, ..., na.rm)
-      {
-	  ne <- prod(d <- dim(x))
-	  if(ne == 0) return(callGeneric(numeric(0), ..., na.rm=na.rm))
-	  n <- d[1]
-	  clx <- getClassDef(class(x))
-	  isTri <- extends(clx, "triangularMatrix")
-	  if(extends(clx, "TsparseMatrix") && is_duplicatedT(x, di = d))
-	      x <- .Call(Tsparse_to_Csparse, x, isTri)# = as(x, "Csparsematrix")
-	  l.x <- length(x@x)
-	  if(l.x == ne) ## fully non-zero (and "general") - very rare but quick
-	      return( callGeneric(x@x, ..., na.rm = na.rm) )
-	  ## else  l.x < ne
-
-	  isSym <- !isTri && extends(clx, "symmetricMatrix")
-	  isU.tri <- isTri && x@diag == "U"
-	  ## "full": has *no* structural zero : very rare, but need to catch :
-	  full.x <- ((isSym && l.x == choose(n+1, 2)) ||
-		     (n == 1 && (isU.tri || l.x == 1)))
-	  isGener1 <- .Generic %in% summGener1
-	  if(isGener1) { ## not prod() or sum() -> no need check for symmetric
-	      logicF <- .Generic %in% c("any","all")
-	      ## we rely on  <generic>(x, NULL, y, ..)	:==  <generic>(x, y, ..):
-	      callGeneric(x@x,
-			  if(!full.x) { if(logicF) FALSE else 0 },
-			  if(isU.tri) { if(logicF) TRUE	 else 1 },
-			  ..., na.rm = na.rm)
-	  }
-	  else { ## prod() or sum() : care for "symmetric" and U2N
-	      if(!full.x && .Generic == "prod") {
-		  if(any(is.na(x@x))) NaN else 0
-	      }
-	      else
-		  callGeneric((if(isSym) as(x, "generalMatrix") else x)@x,
-			      if(!full.x) 0, # one 0 <==> many 0's
-			      if(isU.tri) rep.int(1, n),
-			      ..., na.rm = na.rm)
-	  }
-      })
-
-
-## "Ops" ("Arith", "Compare", "Logic") --> ./Ops.R
-
-## -- end{group generics} -----------------------
-
+## "Math", "Math2" in			--> ./Math.R
+## "Summary"				--> ./Summary.R
+## "Ops" ("Arith", "Compare", "Logic")	--> ./Ops.R
 
 
 

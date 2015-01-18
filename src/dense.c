@@ -340,9 +340,13 @@ SEXP dense_band(SEXP x, SEXP k1P, SEXP k2P)
 SEXP dense_to_symmetric(SEXP x, SEXP uplo, SEXP symm_test)
 /* Class of result will be [dln]syMatrix */
 {
+/*== FIXME: allow  uplo = NA   and then behave a bit like symmpart():
+ *== -----  would use the *dimnames* to determine U or L   (??)
+ */
+
     int symm_tst = asLogical(symm_test);
     SEXP dx = PROTECT(dup_mMatrix_as_geMatrix(x));
-    SEXP ans, dns;
+    SEXP ans, dns, nms_dns;
     const char *cl = class_P(dx);
     /* same as in ..._geMatrix() above:*/
     enum dense_enum { ddense, ldense, ndense
@@ -357,7 +361,7 @@ SEXP dense_to_symmetric(SEXP x, SEXP uplo, SEXP symm_test)
 
     if(symm_tst) {
 	int i,j;
-#define CHECK_SYMMETRIC							\
+#       define CHECK_SYMMETRIC						\
 	for (j = 0; j < n; j++)						\
 	    for (i = 0; i < j; i++)					\
 		if(xx[j * n + i] != xx[i * n + j]) {			\
@@ -376,23 +380,37 @@ SEXP dense_to_symmetric(SEXP x, SEXP uplo, SEXP symm_test)
 	    CHECK_SYMMETRIC
 	}
     }
+#   undef CHECK_SYMMETRIC
 
+    ans = PROTECT(NEW_OBJECT(MAKE_CLASS( M_type == ddense ? "dsyMatrix" :
+					(M_type == ldense ? "lsyMatrix" :
+					 "nsyMatrix"))));
+
+
+// --- FIXME: Use MK_SYMMETRIC_DIMNAMES_AND_RETURN  from below -- with "uplo" argument
+
+    /* need _symmetric_ dimnames */
     dns = GET_SLOT(dx, Matrix_DimNamesSym);
     if(!equal_string_vectors(VECTOR_ELT(dns,0),
 			     VECTOR_ELT(dns,1))) {
-	/* need _symmetric_ dimnames */
 	if(*CHAR(asChar(uplo)) == 'U')
 	    SET_VECTOR_ELT(dns,0, VECTOR_ELT(dns,1));
 	else
 	    SET_VECTOR_ELT(dns,1, VECTOR_ELT(dns,0));
     }
+    if(!isNull(nms_dns = getAttrib(dns, R_NamesSymbol)) &&
+       !R_compute_identical(STRING_ELT(nms_dns, 0),
+			    STRING_ELT(nms_dns, 1), 15)) { // names(dimnames(.)) :
+	if(*CHAR(asChar(uplo)) == 'U')
+	    SET_STRING_ELT(nms_dns, 0, STRING_ELT(nms_dns,1));
+	else
+	    SET_STRING_ELT(nms_dns, 1, STRING_ELT(nms_dns,0));
+	setAttrib(dns, R_NamesSymbol, nms_dns);
+    }
 
     /* Copy dx to ans;
      * Because slots of dx are freshly allocated and dx will not be
      * used, we use the slots themselves and don't duplicate */
-    ans = PROTECT(NEW_OBJECT(MAKE_CLASS( M_type == ddense ? "dsyMatrix" :
-					(M_type == ldense ? "lsyMatrix" :
-					 "nsyMatrix"))));
     SET_SLOT(ans, Matrix_xSym,	      GET_SLOT(dx, Matrix_xSym));
     SET_SLOT(ans, Matrix_DimSym,      GET_SLOT(dx, Matrix_DimSym));
     SET_SLOT(ans, Matrix_DimNamesSym, dns);
@@ -405,88 +423,82 @@ SEXP dense_to_symmetric(SEXP x, SEXP uplo, SEXP symm_test)
 SEXP ddense_symmpart(SEXP x)
 /* Class of the value will be dsyMatrix */
 {
-    SEXP dx = PROTECT(dup_mMatrix_as_dgeMatrix(x));
+    SEXP dx = dup_mMatrix_as_dgeMatrix(x);
     int *adims = INTEGER(GET_SLOT(dx, Matrix_DimSym)), n = adims[0];
 
     if(n != adims[1]) {
-	UNPROTECT(1);
 	error(_("matrix is not square! (symmetric part)"));
 	return R_NilValue; /* -Wall */
     } else {
-	SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("dsyMatrix"))), dns;
+	PROTECT(dx);
+	SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("dsyMatrix"))), dns, nms_dns;
 	double *xx = REAL(GET_SLOT(dx, Matrix_xSym));
-	int i,j;
 
 	/* only need to assign the *upper* triangle (uplo = "U");
 	 * noting that diagonal remains unchanged */
-	for (j = 0; j < n; j++) {
-	    for (i = 0; i < j; i++) {
+	for (int j = 0; j < n; j++) {
+	    for (int i = 0; i < j; i++) {
 		xx[j * n + i] = (xx[j * n + i] + xx[i * n + j]) / 2.;
 	    }
 	}
 
-	dns = GET_SLOT(dx, Matrix_DimNamesSym);
-	if(!equal_string_vectors(VECTOR_ELT(dns,0),
-				 VECTOR_ELT(dns,1))) {
-	    /* need _symmetric_ dimnames */
-	    SET_VECTOR_ELT(dns,0, VECTOR_ELT(dns,1));/* ==> uplo = "U" */
-	}
+#       define MK_SYMMETRIC_DIMNAMES_AND_RETURN				\
+									\
+	dns = GET_SLOT(dx, Matrix_DimNamesSym);				\
+	int J = 1;							\
+	if(!equal_string_vectors(VECTOR_ELT(dns,0),			\
+				 VECTOR_ELT(dns,1))) {			\
+	    /* _symmetric_ dimnames: behave as symmDN(*, col=TRUE) */	\
+	    if(isNull(VECTOR_ELT(dns, J)))				\
+		J = !J;							\
+	    SET_VECTOR_ELT(dns, !J, VECTOR_ELT(dns, J));		\
+	} /* names(dimnames(.)):*/					\
+	if(!isNull(nms_dns = getAttrib(dns, R_NamesSymbol)) &&		\
+	   !R_compute_identical(STRING_ELT(nms_dns, 0),			\
+				STRING_ELT(nms_dns, 1), 15)) { 		\
+	    SET_STRING_ELT(nms_dns, !J, STRING_ELT(nms_dns, J));	\
+	    setAttrib(dns, R_NamesSymbol, nms_dns);			\
+	}								\
+									\
+	/* Copy dx to ans;						\
+	 * Because slots of dx are freshly allocated and dx will not be	\
+	 * used, we use the slots themselves and don't duplicate */	\
+									\
+	SET_SLOT(ans, Matrix_xSym,	  GET_SLOT(dx, Matrix_xSym));	\
+	SET_SLOT(ans, Matrix_DimSym,	  GET_SLOT(dx, Matrix_DimSym));	\
+	SET_SLOT(ans, Matrix_DimNamesSym, dns);				\
+	SET_SLOT(ans, Matrix_uploSym,	  mkString("U"));		\
+									\
+	UNPROTECT(2);							\
+	return ans
 
-	/* Copy dx to ans;
-	 * Because slots of dx are freshly allocated and dx will not be
-	 * used, we use the slots themselves and don't duplicate */
-
-	SET_SLOT(ans, Matrix_xSym,	  GET_SLOT(dx, Matrix_xSym));
-	SET_SLOT(ans, Matrix_DimSym,	  GET_SLOT(dx, Matrix_DimSym));
-	SET_SLOT(ans, Matrix_DimNamesSym, dns);
-	SET_SLOT(ans, Matrix_uploSym,	  mkString("U"));
-
-	UNPROTECT(2);
-	return ans;
+        MK_SYMMETRIC_DIMNAMES_AND_RETURN;
     }
 }
 
 SEXP ddense_skewpart(SEXP x)
 /* Class of the value will be dgeMatrix */
 {
-    SEXP dx = PROTECT(dup_mMatrix_as_dgeMatrix(x));
+    SEXP dx = dup_mMatrix_as_dgeMatrix(x);
     int *adims = INTEGER(GET_SLOT(dx, Matrix_DimSym)), n = adims[0];
 
     if(n != adims[1]) {
-	UNPROTECT(1);
 	error(_("matrix is not square! (skew-symmetric part)"));
 	return R_NilValue; /* -Wall */
     } else {
-	SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("dgeMatrix"))), dns;
+	PROTECT(dx);
+	SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("dgeMatrix"))), dns, nms_dns;
 	double *xx = REAL(GET_SLOT(dx, Matrix_xSym));
-	int i,j;
 
-	for (j = 0; j < n; j++) {
+	for (int j = 0; j < n; j++) {
 	    xx[j * n + j] = 0.;
-	    for (i = 0; i < j; i++) {
+	    for (int i = 0; i < j; i++) {
 		double s = (xx[j * n + i] - xx[i * n + j]) / 2.;
 		xx[j * n + i] =  s;
 		xx[i * n + j] = -s;
 	    }
 	}
 
-	dns = GET_SLOT(dx, Matrix_DimNamesSym);
-	if(!equal_string_vectors(VECTOR_ELT(dns,0),
-				 VECTOR_ELT(dns,1))) {
-	    /* need _symmetric_ dimnames */
-	    SET_VECTOR_ELT(dns,0, VECTOR_ELT(dns,1));/* uplo = "U" */
-	}
-
-	/* Copy dx to ans;
-	 * Because slots of dx are freshly allocated and dx will not be
-	 * used, we use the slots themselves and don't duplicate */
-
-	SET_SLOT(ans, Matrix_xSym,	  GET_SLOT(dx, Matrix_xSym));
-	SET_SLOT(ans, Matrix_DimSym,	  GET_SLOT(dx, Matrix_DimSym));
-	SET_SLOT(ans, Matrix_DimNamesSym, dns);
-	SET_SLOT(ans, Matrix_uploSym,	  mkString("U"));
-
-	UNPROTECT(2);
-	return ans;
+        MK_SYMMETRIC_DIMNAMES_AND_RETURN;
     }
 }

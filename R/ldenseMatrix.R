@@ -2,6 +2,24 @@
 ####  ------------
 #### Contains  lge*;  ltr*, ltp*;  lsy*, lsp*;	 ldi*
 
+### NOTA BENE: Much of this is *very* parallel to ./ndenseMatrix.R
+###						  ~~~~~~~~~~~~~~~~
+
+## packed <->  non-packed :
+
+setAs("lspMatrix", "lsyMatrix",					##  vv for "l*", 1L for "n*"
+      lsp2lsy <- function(from) .Call(lspMatrix_as_lsyMatrix, from, 0L))
+
+setAs("lsyMatrix", "lspMatrix",
+      lsy2lsp <- function(from) .Call(lsyMatrix_as_lspMatrix, from, 0L))
+
+setAs("ltpMatrix", "ltrMatrix",
+      ltp2ltr <- function(from) .Call(ltpMatrix_as_ltrMatrix, from, 0L))
+
+setAs("ltrMatrix", "ltpMatrix",
+      ltr2ltp <- function(from) .Call(ltrMatrix_as_ltpMatrix, from, 0L))
+
+
 ## Logical -> Double {of same structure}:
 
 setAs("lgeMatrix", "dgeMatrix", function(from) l2d_Matrix(from, "lgeMatrix"))
@@ -10,39 +28,17 @@ setAs("lspMatrix", "dspMatrix", function(from) l2d_Matrix(from, "lspMatrix"))
 setAs("ltrMatrix", "dtrMatrix", function(from) l2d_Matrix(from, "ltrMatrix"))
 setAs("ltpMatrix", "dtpMatrix", function(from) l2d_Matrix(from, "ltpMatrix"))
 
-### NOTA BENE: Much of this is *very* parallel to ./ndenseMatrix.R
-###						  ~~~~~~~~~~~~~~~~
-
 ## all need be coercable to "lgeMatrix":
 
-setAs("lsyMatrix", "lgeMatrix",	 function(from)
-      .Call(lsyMatrix_as_lgeMatrix, from, 0L))
-setAs("ltrMatrix", "lgeMatrix",	 function(from)
-      .Call(ltrMatrix_as_lgeMatrix, from, 0L))
-setAs("ltpMatrix", "lgeMatrix",
-      function(from) as(as(from, "ltrMatrix"), "lgeMatrix"))
-setAs("lspMatrix", "lgeMatrix",
-      function(from) as(as(from, "lsyMatrix"), "lgeMatrix"))
+setAs("lsyMatrix", "lgeMatrix",
+      lsy2lge <- function(from) .Call(lsyMatrix_as_lgeMatrix, from, 0L))
+setAs("ltrMatrix", "lgeMatrix",
+      ltr2lge <- function(from) .Call(ltrMatrix_as_lgeMatrix, from, 0L))
+setAs("ltpMatrix", "lgeMatrix", function(from) ltr2lge(ltp2ltr(from)))
+setAs("lspMatrix", "lgeMatrix", function(from) lsy2lge(lsp2lsy(from)))
 ## and the reverse
-setAs("lgeMatrix", "ltpMatrix",
-      function(from) as(as(from, "ltrMatrix"), "ltpMatrix"))
-setAs("lgeMatrix", "lspMatrix",
-      function(from) as(as(from, "lsyMatrix"), "lspMatrix"))
-
-
-## packed <->  non-packed :
-
-setAs("lspMatrix", "lsyMatrix",
-      function(from) .Call(lspMatrix_as_lsyMatrix, from, 0L))
-
-setAs("lsyMatrix", "lspMatrix",
-      function(from) .Call(lsyMatrix_as_lspMatrix, from, 0L))
-
-setAs("ltpMatrix", "ltrMatrix",
-      function(from) .Call(ltpMatrix_as_ltrMatrix, from, 0L))
-
-setAs("ltrMatrix", "ltpMatrix",
-      function(from) .Call(ltrMatrix_as_ltpMatrix, from, 0L))
+setAs("lgeMatrix", "ltpMatrix", function(from) ltr2ltp(as(from, "ltrMatrix")))
+setAs("lgeMatrix", "lspMatrix", function(from) lsy2lsp(as(from, "lsyMatrix")))
 
 
 
@@ -78,8 +74,7 @@ setAs("lgeMatrix", "ltrMatrix",
 ###  ldense* <-> "matrix" :
 
 ## 1) "lge* :
-setAs("lgeMatrix", "matrix",
-      function(from) array(from@x, dim = from@Dim, dimnames = from@Dimnames))
+setAs("lgeMatrix", "matrix", ge2mat)
 
 setAs("matrix", "lgeMatrix",
       function(from) {
@@ -93,12 +88,10 @@ setAs("matrix", "lgeMatrix",
 
 setAs("matrix", "lsyMatrix",
       function(from) as(as(from, "lgeMatrix"), "lsyMatrix"))
-setAs("matrix", "lspMatrix",
-      function(from) as(as(from, "lsyMatrix"), "lspMatrix"))
+setAs("matrix", "lspMatrix", function(from) lsy2lsp(as(from, "lsyMatrix")))
 setAs("matrix", "ltrMatrix",
       function(from) as(as(from, "lgeMatrix"), "ltrMatrix"))
-setAs("matrix", "ltpMatrix",
-      function(from) as(as(from, "ltrMatrix"), "ltpMatrix"))
+setAs("matrix", "ltpMatrix", function(from) ltr2ltp(as(from, "ltrMatrix")))
 
 ## Useful if this was called e.g. for as(*, "lsyMatrix"), but it isn't
 setAs("matrix", "ldenseMatrix", function(from) as(from, "lgeMatrix"))
@@ -183,25 +176,6 @@ setMethod("t", signature(x = "lspMatrix"),
 
 setMethod("as.vector", signature(x = "ldenseMatrix", mode = "missing"),
 	  function(x, mode) as(x, "lgeMatrix")@x)
-
-setMethod("all", signature(x = "lsyMatrix"),
-          function(x, ..., na.rm = FALSE)
-          all(x@x, ..., na.rm = na.rm))
-## Note: the above "lsy*" method is needed [case below can be wrong]
-setMethod("all", signature(x = "ldenseMatrix"),
-	  function(x, ..., na.rm = FALSE) {
-	      if(prod(dim(x)) >= 1)
-		  (!is(x, "triangularMatrix") && !is(x, "diagonalMatrix") &&
-		   all(x@x, ..., na.rm = na.rm))
-	      else all(x@x, ..., na.rm = na.rm)
-	  })
-
-## setMethod("any", ) ---> ./lMatrix.R
-
-## setMethod("any", signature(x = "ldenseMatrix"),
-## 	  function(x, ..., na.rm = FALSE)
-## 	  (prod(dim(x)) >= 1 && is(x, "triangularMatrix") && x@diag == "U") ||
-## 	  any(x@x, ..., na.rm = na.rm))
 
 setMethod("norm", signature(x = "ldenseMatrix", type = "character"),
 	  function(x, type, ...)

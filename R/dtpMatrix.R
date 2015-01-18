@@ -1,7 +1,7 @@
 #### Triangular Packed Matrices -- Coercion and Methods
 
 setAs("dtpMatrix", "dtrMatrix",
-      function(from) .Call(dtpMatrix_as_dtrMatrix, from))
+      dtp2dtr <- function(from) .Call(dtpMatrix_as_dtrMatrix, from))
 
 ## Is this needed?  already have coercion to "TsparseMatrix" {FIXME}
 setAs("dtpMatrix", "dtTMatrix",
@@ -18,7 +18,7 @@ setAs("dtpMatrix", "dtTMatrix",
       })
 
 setAs("dtpMatrix", "matrix",
-      function(from) as(as(from, "dtrMatrix"), "matrix"))
+      function(from) as(dtp2dtr(from), "matrix"))
 setAs("matrix", "dtpMatrix",
       function(from) as(as(from, "dtrMatrix"), "dtpMatrix"))
 
@@ -75,6 +75,5 @@ setMethod("solve", signature(a = "dtpMatrix", b="matrix"),
 	  valueClass = "dgeMatrix")
 
 ## FIXME: speed up
-setMethod("t", signature(x = "dtpMatrix"),
-          function(x) as(t(as(x, "dtrMatrix")), "dtpMatrix"),
-          valueClass = "dtpMatrix")
+setMethod("t", "dtpMatrix",
+	  function(x) dtr2dtp(t(dtp2dtr(x))), valueClass = "dtpMatrix")

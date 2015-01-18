@@ -31,7 +31,7 @@ setAs("dgTMatrix", "dtCMatrix",
 	  if(!(iTri <- isTriangular(from)))
 	      stop("the matrix is not triangular")
 	  ## else
-	  stopifnot(is.character(uplo <- attr(iTri,"kind")))
+	  stopifnot(is.character(uplo <- attr(iTri, "kind")))
 	  .Call(Tsparse_to_tCsparse, from, uplo, "N")
       })
 

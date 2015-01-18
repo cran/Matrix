@@ -74,6 +74,18 @@ tmp <- sapply(1:nn, tst) # failed in Matrix 1.0-4
 i <- sapply(1:nn, function(i) sample(i,1))
 tmp <- mapply(tst, n= 1:nn, i= i)# failed too
 
+(lsy <- new("lsyMatrix", Dim = c(2L,2L), x=c(TRUE,FALSE,TRUE,TRUE)))
+nsy <- as(lsy, "nMatrix")
+(t1  <- new("ltrMatrix", Dim = c(1L,1L), x = TRUE))
+(t2  <- new("ltrMatrix", Dim = c(2L,2L), x = rep(TRUE,4)))
+stopifnot(all(lsy), # failed in Matrix 1.0-4
+          all(nsy), #  dito
+	  all(t1),  #   "
+          ## ok previously (all following):
+          !all(t2),
+	  all(sqrt(lsy) == 1))
+dsy <- lsy+1
+
 showProc.time()
 set.seed(111)
 local({
@@ -156,6 +168,10 @@ stopifnot(identical(dsc., Matrix((dsc + 1) -1)),
 str(lm1 <- dsc >= 1) # now ok (NA in proper place, however:
 lm1 ## NA used to print as ' ' , now 'N'
 (lm2 <- dsc == 1)# ditto
+stopifnot(identical(crossprod(lm1),# "lgC": here works!
+                    crossprod(as(lm1, "dMatrix"))),
+          identical(lm2, lm1 & lm2),
+	  identical(lm1, lm1 | lm2))
 
 ddsc <- kronecker(Diagonal(7), dsc)
 isValid(ddv <- rowSums(ddsc, sparse=TRUE), "sparseVector")
@@ -167,6 +183,14 @@ stopifnot(sv == colSums(kC), is.na(as.vector(ddv)) == na.ddv,
           isValid(sM/(-7:7), "CsparseMatrix"),
 	  all(EQ | na.ddv))
 
+## Subclasses (!)
+setClass("m.spV", contains = "dsparseVector")
+(m.ddv <- as(ddv, "m.spV"))
+stopifnot(all.equal(m.ddv, ddv))# failed
+setClass("m.dgC", contains = "dgCMatrix")
+(m.mC <- as(mC, "m.dgC"))
+stopifnot(all(m.mC == mC))
+
 ## Just for print "show":
 z <- round(rnorm(77), 2)
 z[sample(77,10)] <- NA
@@ -175,9 +199,6 @@ z[sample(77,15)] <- 0
 (D <- Matrix(z, 7)) # sparse
 abs(D) >= 0.5       # logical sparse
 
-stopifnot(identical(crossprod(lm1),# "lgC": here works!
-                    crossprod(as(lm1, "dMatrix"))
-                    ))
 
 ## For the checks below, remove some and add a few more objects:
 rm(list= ls(pat="^.[mMC]?$"))
@@ -194,13 +215,13 @@ if(!doExtras && !interactive()) q("no") ## (saving testing time)
 ### Systematically look at all "Ops" group generics for "all" Matrix classes
 ### -------------- Main issue: Detect infinite recursion problems
 cl <- sapply(ls(), function(.) class(get(.)))
-Mcl <- c(grep("Matrix$", cl, value=TRUE),
-         grep("sparseVector", cl, value=TRUE))
+Mcl <- cl[vapply(cl, extends, "Matrix", FUN.VALUE=NA) |
+          vapply(cl, extends, "sparseVector", FUN.VALUE=NA)]
 table(Mcl)
 ## choose *one* of each class:
 ## M.objs <- names(Mcl[!duplicated(Mcl)])
 ## choose all
-M.objs <- names(Mcl)
+M.objs <- names(Mcl) # == the ls() from above
 Mat.objs <- M.objs[vapply(M.objs, function(nm) is(get(nm), "Matrix"), NA)]
 MatDims <- t(vapply(Mat.objs, function(nm) dim(get(nm)), 0:1))
 noquote(cbind(Mcl[Mat.objs], format(MatDims)))
@@ -208,8 +229,8 @@ mDims <- MatDims %*% (d.sig <- c(1, 1000)) # "dim-signature" to match against
 
 m2num <- function(m) { if(is.integer(m)) storage.mode(m) <- "double" ; m }
 M.knd <- Matrix:::.M.kind
-cat("Checking all group generics for a set of arguments:\n",
-    "---------------------------------------------------\n", sep='')
+cat("Checking all Ops group generics for a set of arguments:\n",
+    "-------------------------------------------------------\n", sep='')
 options(warn = 2)#, error=recover)
 for(gr in getGroupMembers("Ops")) {
   cat(gr,"\n",paste(rep.int("=",nchar(gr)),collapse=""),"\n", sep='')
@@ -266,9 +287,65 @@ for(gr in getGroupMembers("Ops")) {
     cat("\n")
   }
 }
+showProc.time()
 
-stopifnot(identical(lm2, lm1 & lm2),
-	  identical(lm1, lm1 | lm2))
+options(warn = 0)# was 2
+mStop <- function(...) stop(..., call. = FALSE)
+##
+cat("Checking the Math (+ Math2) group generics for a set of arguments:\n",
+    "------------ ==== ------------------------------------------------\n", sep='')
+doStop <- function() mStop("**Math: ", f,"(<",class(M),">) of 'wrong' class ", dQuote(class(R)))
+mM  <- getGroupMembers("Math")
+mM2 <- getGroupMembers("Math2")
+(mVec <- grep("^cum", mM, value=TRUE)) ## <<- are special: return *vector* for matrix input
+for(f in c(mM, mM2)) {
+  cat(sprintf("%-9s :\n %-7s\n", paste0('"',f,'"'), paste(rep("-", nchar(f)), collapse="")))
+  givesVec <- f %in% mVec
+  fn <- get(f)
+  if(f %in% mM2) { fn0 <- fn ; fn <- function(x) fn0(x, digits=3) }
+  for(nm in M.objs) {
+    M <- get(nm, inherits=FALSE)
+    is.m <- length(dim(M)) == 2
+    cat("  '",nm,"':", if(is.m) "m" else "v", sep="")
+    R <- fn(M)
+    r <- fn(m <- if(is.m) as.mat(M) else as.vector(M))
+    stopifnot(identical(dim(R), dim(r)))
+    if(givesVec || !is.m) {
+        assert.EQ(R, r)
+    } else { ## (almost always:) matrix result
+        assert.EQ.mat(R, r)
+	## check preservation of properties, notably super class
+	if(prod(dim(M)) > 1 && is(M, "diagonalMatrix"  ) && isDiagonal  (R) && !is(R, "diagonalMatrix"  )) doStop()
+	if(prod(dim(M)) > 1 && is(M, "triangularMatrix") && (iT <- isTriangular(R)) && attr(iT, "kind") == M@uplo &&
+           !is(R, "triangularMatrix")) doStop()
+    }
+  }
+  cat("\n")
+}
+showProc.time()
+
+##
+cat("Checking the Summary group generics for a set of arguments:\n",
+    "------------ ======= ------------------------------------------------\n", sep='')
+doStop <- function()
+    warning("**Summary: ", f,"(<",class(M),">) is not all.equal(..)", immediate.=TRUE)
+for(f in getGroupMembers("Summary")) {
+  cat(sprintf("%-9s :\n %-7s\n", paste0('"',f,'"'), paste(rep("-", nchar(f)), collapse="")))
+  givesVec <- f %in% mVec
+  fn <- get(f)
+  if(f %in% mM2) { fn0 <- fn ; fn <- function(x) fn0(x, digits=3) }
+  for(nm in M.objs) {
+    M <- get(nm, inherits=FALSE)
+    is.m <- length(dim(M)) == 2
+    cat("  '",nm,"':", if(is.m) "m" else "v", sep="")
+    R <- fn(M)
+    r <- fn(m <- if(is.m) as.mat(M) else as.vector(M))
+    stopifnot(identical(dim(R), dim(r)))
+    assert.EQ(R, r)
+  }
+  cat("\n")
+  ## if(length(warnings())) print(warnings())
+}
 
 
 cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''

@@ -9,10 +9,14 @@ isN0 <- function(x)  is.na(x) | x != 0
 is1  <- function(x) !is.na(x) & x   # also == "isTRUE componentwise"
 
 ##
+##allFalse <- function(x) !any(x) && !any(is.na(x))## ~= all0, but allFalse(NULL) = TRUE w/warning
 ##all0 <- function(x) !any(is.na(x)) && all(!x) ## ~= allFalse
+allFalse <-
 all0 <- function(x) .Call(R_all0, x)
 
+##anyFalse <- function(x) isTRUE(any(!x))		 ## ~= any0
 ## any0 <- function(x) isTRUE(any(x == 0))	      ## ~= anyFalse
+anyFalse <-
 any0 <- function(x) .Call(R_any0, x)
 
 ## These work "identically" for  1 ('==' TRUE)  and 0 ('==' FALSE)
@@ -20,12 +24,9 @@ any0 <- function(x) .Call(R_any0, x)
 ## TODO: C versions of these would be faster
 allTrue  <- function(x) all(x)  && !any(is.na(x))
 
-##allFalse <- function(x) !any(x) && !any(is.na(x))## ~= all0, but allFalse(NULL) = TRUE w/warning
-allFalse <- function(x) .Call(R_all0, x)
 
-##anyFalse <- function(x) isTRUE(any(!x))		 ## ~= any0
-anyFalse <- function(x) .Call(R_any0, x)
-
+## Note that mode(<integer>) = "numeric" -- as0(), as1() return "double"
+## which is good *AS LONG AS* we do not really have i..Matrix integer matrices
 as1 <- function(x, mod=mode(x))
     switch(mod, "integer"= 1L, "double"=, "numeric"= 1, "logical"= TRUE,
 	   "complex"= 1+0i, stop(gettextf("invalid 'mod': %s", mod), domain = NA))
@@ -82,6 +83,11 @@ Matrix.msg <- function(..., .M.level = 1) {
     if(!is.null(v <- getOption("Matrix.verbose")) && v >= .M.level)
         message(...)
 }
+
+## TODO: faster via C, either R's  R_data_class() [which needs to become API !]
+##       or even direct  getAttrib(x, R_ClassSymbol); ..
+##' class - single string, no "package" attribute,..
+.class0 <- function(x)  as.vector(class(x))
 
 ## we can set this to FALSE and possibly measure speedup:
 .copyClass.check <- TRUE
@@ -167,7 +173,7 @@ attr.all_Mat <- function(target, current,
 ## chol() via "dpoMatrix"
 ## This will only be called for *dense* matrices
 cholMat <- function(x, pivot = FALSE, ...) {
-    packed <- length(x@x) < prod(dim(x)) ## is it packed?
+    packed <- .isPacked(x)
     nmCh <- if(packed) "pCholesky" else "Cholesky"
     if(!is.null(ch <- x@factors[[nmCh]]))
 	return(ch) ## use the cache
@@ -288,30 +294,82 @@ mmultCheck <- function(a, b, kind = 1L) {
     ca
 }
 
-dimNamesCheck <- function(a, b) {
-    ## Constructs "sensical" dimnames for something like  a + b ;
-    ## assume dimCheck() has happened before
+##' Constructs "sensical" dimnames for something like  a + b ;
+##' assume dimCheck() has happened before
+##'
+##' NOTA BENE:   R's  ?Arithmetic  says
+##' ---------
+##'>  For arrays (and an array result) the dimensions and dimnames are taken from
+##'>  first argument if it is an array, otherwise the second.
+##' but that's not quite correct:
+##' The dimnames are taken from second *if* the first are NULL.
+##'
+##' @title Construct dimnames for  a  o  b
+##' @param a matrix
+##' @param b matrix
+##' @param useFirst logical indicating if dimnames(a), the first, is taken, unless NULL
+##' @param check logical indicating if a warning should be signalled for mismatches
+##' @return a \code{\link{list}} of length two with dimnames
+##' @author Martin Maechler
+dimNamesCheck <- function(a, b, useFirst = TRUE, check = FALSE) {
     nullDN <- list(NULL,NULL)
     h.a <- !identical(nullDN, dna <- dimnames(a))
     h.b <- !identical(nullDN, dnb <- dimnames(b))
     if(h.a || h.b) {
-	if (!h.b) dna
-	else if(!h.a) dnb
-	else { ## both have non-trivial dimnames
-	    r <- dna # "default" result
-	    for(j in 1:2) if(!is.null(dn <- dnb[[j]])) {
-		if(is.null(r[[j]]))
-		    r[[j]] <- dn
-		else if(!identical(r[[j]], dn))
-		    warning(gettextf("dimnames [%d] mismatch in %s", j,
-				     deparse(sys.call(sys.parent()))),
-			    call. = FALSE, domain=NA)
-	    }
-	    r
-	}
+        if(useFirst) {
+            if(!h.a) dnb else dna
+        } else {
+            if (!h.b) dna
+            else if(!h.a) dnb
+            else { ## both have non-trivial dimnames
+                r <- dna # "default" result
+                for(j in 1:2) if(!is.null(dn <- dnb[[j]])) {
+                    if(is.null(r[[j]]))
+                        r[[j]] <- dn
+                    else if(check && !identical(r[[j]], dn))
+                        warning(gettextf("dimnames [%d] mismatch in %s", j,
+                                         deparse(sys.call(sys.parent()))),
+                                call. = FALSE, domain=NA)
+                }
+                r
+            }
+        }
     }
     else
 	nullDN
+}
+
+##' @title Symmetrize dimnames(.)
+##' @param x a square matrix
+##' @param col logical indicating if the column names should be taken when
+##' both are non-NULL.
+##' @param names logical indicating if the names(dimnames(.)) should be
+##' symmetrized and kept *if* they differ.
+##' @return a matrix like \code{x}, say \code{r}, with dimnames fulfilling
+##' 		dr <- dimnames(r); identical(dr[1], dr[2])
+##' @author Martin Maechler
+symmetrizeDimnames <- function(x, col=TRUE, names=TRUE) {
+    dimnames(x) <- symmDN(dimnames(x), col=col, names=names)
+    x
+}
+
+symmDN <- function(dn, col=TRUE, names=TRUE) {
+    if(is.null(dn) || identical(dn[1L], dn[2L]))
+	return(dn)
+    J <-
+        if(col) {
+            if(is.null(dn[[2L]])) 1L else 2L
+        } else { ## !col : row
+            if(is.null(dn[[1L]])) 2L else 1L
+        }
+
+    if(!is.null(n <- names(dn))) {
+	if(length(n) != 2)
+	    stop("names(dimnames(<matrix>)) must be NULL or of length two")
+	if(n[1L] != n[2L])
+	    names(dn) <- if(names) n[c(J,J)] # else NULL
+    }
+    dn[c(J,J)]
 }
 
 rowCheck <- function(a, b) {
@@ -375,10 +433,10 @@ isPacked <- function(x)
     ## Is 'x' a packed (dense) matrix ?
     is(x, "denseMatrix") &&
     ## unneeded(!): any("x" == slotNames(x)) &&
-    length(x@x) < prod(dim(x))
+    length(x@x) < prod(x@Dim)
 }
 ##" Is 'x' a packed (dense) matrix -- "no-check" version
-.isPacked <- function(x) length(x@x) < prod(dim(x))
+.isPacked <- function(x) length(x@x) < prod(x@Dim)
 
 emptyColnames <- function(x, msg.if.not.empty = FALSE)
 {
@@ -400,6 +458,7 @@ emptyColnames <- function(x, msg.if.not.empty = FALSE)
     dimnames(x) <- list(dn[[1]], character(nc))
     x
 }
+
 
 
 ## The i-th unit vector  e[1:n] with e[j] = \delta_{i,j}
@@ -818,8 +877,12 @@ tT2gT <- function(x, cl = class(x), toClass, cld = getClassDef(cl)) {
 ## Just *modify* the 'x' object , using attr(x, "class') <- toClass
 
 
-## Fast very special one
-## .gT2tC <- function(x, uplo, diag) .Call(Tsparse_to_tCsparse, x, uplo, diag)
+## Fast very special one ../src/Tsparse.c -- as_cholmod_triplet() in ../src/chm_common.c
+## 'x' *must* inherit from TsparseMatrix!
+.gT2tC <- function(x, uplo, diag="N") .Call(Tsparse_to_tCsparse, x, uplo, diag)
+## Ditto in ../src/Csparse.c :
+.gC2tC <- function(x, uplo, diag="N") .Call(Csparse_to_tCsparse, x, uplo, diag)
+.gC2tT <- function(x, uplo, diag="N") .Call(Csparse_to_tTsparse, x, uplo, diag)
 
 gT2tT <- function(x, uplo, diag, toClass,
 		  do.n = extends(toClass, "nMatrix"))
@@ -908,14 +971,23 @@ l2d_meth <- function(x) {
 .M.kindC <- function(clx) { ## 'clx': class() *or* classdefinition
     if(is.character(clx))		# < speedup: get it once
         clx <- getClassDef(clx)
-    if(extends(clx, "sparseVector")) ## shortcut
-	substr(as.character(clx@className), 1,1)
-    else if(extends(clx, "dMatrix")) "d"
-    else if(extends(clx, "nMatrix")) "n"
-    else if(extends(clx, "lMatrix")) "l"
-    else if(extends(clx, "indMatrix")) "n" # permutation -> pattern
-    else if(extends(clx, "zMatrix")) "z"
-    else if(extends(clx, "iMatrix")) "i"
+    ex <- extends(clx)
+    if(any(ex == "sparseVector")) {
+	## must work for class *extending* "dsparseVector" ==> cannot use  (clx@className) !
+	if     (any(ex == "dsparseVector")) "d"
+	else if(any(ex == "nsparseVector")) "n"
+	else if(any(ex == "lsparseVector")) "l"
+	else if(any(ex == "zsparseVector")) "z"
+	else if(any(ex == "isparseVector")) "i"
+	else stop(gettextf(" not yet implemented for %s", clx@className),
+		  domain = NA)
+    }
+    else if(any(ex == "dMatrix")) "d"
+    else if(any(ex == "nMatrix")) "n"
+    else if(any(ex == "lMatrix")) "l"
+    else if(any(ex == "indMatrix")) "n" # permutation -> pattern
+    else if(any(ex == "zMatrix")) "z"
+    else if(any(ex == "iMatrix")) "i"
     else stop(gettextf(" not yet implemented for %s", clx@className),
 	      domain = NA)
 }
@@ -927,7 +999,7 @@ l2d_meth <- function(x) {
 		"n" = "logical",
 		"z" = "complex")
 ## the reverse, a "version of" .M.kind(.):
-.kind.type <- names(.type.kind); names(.kind.type) <- as.vector(.type.kind)
+.kind.type <- setNames(names(.type.kind), as.vector(.type.kind))
 
 .M.shape <- function(x, clx = class(x)) {
     ## 'clx': class() *or* class definition of x
@@ -940,9 +1012,10 @@ l2d_meth <- function(x) {
     else {
 	if(is.character(clx)) # < speedup: get it once
 	    clx <- getClassDef(clx)
-	if(extends(clx, "diagonalMatrix"))  "d"
-	else if(extends(clx, "triangularMatrix"))"t"
-	else if(extends(clx, "symmetricMatrix")) "s"
+        ex <- extends(clx)
+	if(     any(ex == "diagonalMatrix"))  "d"
+	else if(any(ex == "triangularMatrix"))"t"
+	else if(any(ex == "symmetricMatrix")) "s"
 	else "g"
     }
 }
@@ -1106,6 +1179,20 @@ asTri <- function(from, newclass) {
     else stop("not a triangular matrix")
 }
 
+mat2tri <- function(from, sparse=NA) {
+    isTri <- isTriangular(from)
+    if(isTri) {
+	d <- dim(from)
+	if(is.na(sparse))
+	    sparse <- prod(d) > 2*sum(isN0(from)) ## <==> sparseDefault() in Matrix()
+	if(sparse)
+	    as(as(from, "sparseMatrix"), "triangularMatrix")
+	else
+	    new(paste0(.M.kind(from),"trMatrix"), x = base::as.vector(from),
+                Dim = d, Dimnames = .M.DN(from), uplo = attr(isTri, "kind"))
+    }
+    else stop("not a triangular matrix")
+}
 
 
 try_as <- function(x, classes, tryAnyway = FALSE) {
@@ -1397,11 +1484,10 @@ all0Matrix <- function(n,m) {
 	p = rep.int(0L, m+1L))
 }
 
-setZero <- function(x) {
+.setZero <- function(x, newclass = if(d[1] == d[2]) "dsCMatrix" else "dgCMatrix") {
     ## all-0 matrix  from x  which must inherit from 'Matrix'
     d <- x@Dim
-    new(if(d[1] == d[2]) "dsCMatrix" else "dgCMatrix",
-	Dim = d, Dimnames = x@Dimnames, p = rep.int(0L, d[2]+1L))
+    new(newclass, Dim = d, Dimnames = x@Dimnames, p = rep.int(0L, d[2]+1L))
 }
 
 .M.vectorSub <- function(x,i) { ## e.g. M[0] , M[TRUE],  M[1:2]
@@ -1459,7 +1545,7 @@ chk.s <- function(..., which.call = -1) {
 }
 
 ##' *Only* to be used as function in
-##'    setMethod("Compare", ...., .Cmp.swap)  -->  ./Ops.R  & ./diagMatrix.R
+##'    setMethod.("Compare", ...., .Cmp.swap)  -->  ./Ops.R  & ./diagMatrix.R
 .Cmp.swap <- function(e1,e2) {
     ## "swap RHS and LHS" and use the method below:
     switch(.Generic,

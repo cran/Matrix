@@ -12,12 +12,6 @@ SEXP symmetricMatrix_validate(SEXP obj)
     return ScalarLogical(1);
 }
 
-SEXP dsyMatrix_validate(SEXP obj)
-{
-    /* since "dsy" inherits from "symmetric", and "dMatrix", only need this:*/
-    return dense_nonpacked_validate(obj);
-}
-
 double get_norm_sy(SEXP obj, const char *typstr)
 {
     char typnm[] = {'\0', '\0'};

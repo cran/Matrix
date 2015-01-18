@@ -342,16 +342,6 @@ setReplaceMethod("[", signature(x = "sparseMatrix", i = "ANY", j = "ANY",
 
 
 
-## Group Methods
-
-setMethod("Math",
-	  signature(x = "sparseMatrix"),
-	  function(x) callGeneric(as(x, "CsparseMatrix")))
-
-## further group methods -> see ./Ops.R {"Summary": ./dMatrix.R }
-
-
-
 ### --- print() and show() methods ---
 
 .formatSparseSimple <- function(m, asLogical=FALSE, digits=NULL,
@@ -366,7 +356,13 @@ setMethod("Math",
 	if(is.null(dim(cx))) {# e.g. in	1 x 1 case
 	    dim(cx) <- dim(m)
 	    dimnames(cx) <- dn
-	}
+	} else ## workaround bug in apply() which has lost row names:
+	    if(getRversion() < "3.2" && !is.null(names(dn))) {
+		if(is.null(dimnames(cx)))
+		    dimnames(cx) <- dn
+		else
+		    names(dimnames(cx)) <- names(dn)
+            }
     }
     if (missing(col.names))
 	col.names <- {
@@ -555,6 +551,7 @@ printSpMatrix <- function(x, digits = NULL, # getOption("digits"),
     invisible(x.orig)
 } ## printSpMatrix()
 
+##' The "real" show() / print() method, calling the above printSpMatrix():
 printSpMatrix2 <- function(x, digits = NULL, # getOption("digits"),
                            maxp = getOption("max.print"), zero.print = ".",
                            col.names, note.dropping.colnames = TRUE,
@@ -853,7 +850,7 @@ setMethod("writeMM", "sparseMatrix",
 ##' @param ... optionally further arguments passed to sparseMatrix()
 ##' @return a sparseMatrix of dimension (nrow, ncol)
 ##' @author Martin Maechler
-##' @examples M1 <- rSparseMatrix(1000, 20, nnz = 200)
+##' @examples M1 <- rsparsematrix(1000, 20, nnz = 200)
 ##'           summary(M1)
 if(FALSE) ## better version below
 rsparsematrix <- function(nrow, ncol, nnz,

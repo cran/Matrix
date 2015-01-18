@@ -36,12 +36,8 @@ setMethod("image", "dgCMatrix",
 ##
 ## "Arith" is now in ./Ops.R
 ##
-## "Math" is up in ./Csparse.R
-##
-## "Math2" is up in ./dMatrix.R
+## "Math" and "Math2"  in ./Math.R
 
-
-###---- end {Group Methods} -----------------
 
 
 ## "[<-" methods { setReplaceMethod()s }  are now in ./Csparse.R
@@ -95,12 +91,20 @@ setMethod("lu", signature(x = "sparseMatrix"),
 			  rU[1] / rU[2]),
 		 domain=NA)
     }
+    n <- dim(a)[1L] ## == dim(a)[2], as a[.,.] is square matrix
     b.isMat <-
 	if((b.miss <- missing(b))) {
 	    ## default b = Identity = Diagonal(nrow(a)), however more efficiently
-	    b <- .sparseDiagonal(dim(a)[1L])
+	    b <- .sparseDiagonal(n)
 	    TRUE
-	} else !is.null(dim(b))
+	} else {
+	    isM <- !is.null(dim(b))
+	    if(isM && nrow(b) != n)
+		stop("RHS 'b' has wrong number of rows:", nrow(b))
+	    if(!isM && length(b) != n)
+		stop("RHS 'b' has wrong length", length(b))
+	    isM
+        }
     ## bp := P %*% b
     bp <- if(b.isMat) b[lu.a@p+1L, ] else b[lu.a@p+1L]
     ## R:= U^{-1} L^{-1} P b
@@ -117,6 +121,18 @@ setMethod("lu", signature(x = "sparseMatrix"),
     chk.s(..., which.call=-2)
     if(sparse) .solve.sparse.dgC(a, b, tol=tol) else .Call(dgCMatrix_matrix_solve, a, b, FALSE)
 }
+
+## Provide also for pkg MatrixModels
+.solve.dgC.chol <- function(x, y)
+    .Call(dgCMatrix_cholsol, as(x, "CsparseMatrix"), y)
+.solve.dgC.qr <- function(x, y, order = 1L) {
+    cld <- getClass(class(x))
+    .Call(dgCMatrix_qrsol, # has AS_CSP(): must be dgC or dtC:
+          if(extends(cld, "dgCMatrix") || extends(cld, "dtCMatrix")) x
+          else as(x, "dgCMatrix"),
+          y, order)
+}
+
 
 setMethod("solve", signature(a = "dgCMatrix", b = "matrix"),	   .solve.dgC.mat)
 setMethod("solve", signature(a = "dgCMatrix", b = "ddenseMatrix"), .solve.dgC.mat)

@@ -44,9 +44,11 @@ export("Cholesky", ".SuiteSparse_version",
        "condest", "onenormest",
        "det",# << "identical" as base - but with correct determinant()
        ## "mkDet", # <- useful in other packages (Rmpfr, gmp) .. hmm --> 'stats' ?
-       ".dsy2mat", ".dxC2mat", ".T2Cmat", "..2dge",
+       ## FIXME: why exactly these and not e.g. dsp2dsy and many more?
+       ".dsy2mat", ".dsy2dsp", ".dxC2mat", ".T2Cmat", "..2dge", ".dense2sy",
        ".diag.dsC",# -> R/dsCMatrix.R --has FIXME
-       "diagN2U", "diagU2N", ".diagU2N", ".diag2tT", ".diag2sT",
+       ".solve.dgC.chol", ".solve.dgC.qr",
+       "diagN2U", "diagU2N", ".diagU2N", ".diag2tT", ".diag2sT", ".diag2mat",
        "drop0",
        "expand",
        "expm",
@@ -97,9 +99,9 @@ exportClasses(
 	      "number",
 	      "xsparseVector", # the class union of all 'x' slot sparseVector's
               ## not exported (but exporting does not help for method dispatch bug!)
-              ## "numLike", 
-              ## "xMatrix", 
-              ## "mMatrix", 
+              ## "numLike",
+              ## "xMatrix",
+              ## "mMatrix",
 
     ## all others:
 ## LOGIC      "logic",

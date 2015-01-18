@@ -198,6 +198,13 @@ bdiag <- function(...) {
     as(.bdiag(alis), "CsparseMatrix")
 }
 
+setMethod("tril", "diagonalMatrix", function(x, k = 0, ...)
+    if(k >= 0) x else .setZero(x, paste0(.M.kind(x), "tCMatrix")))
+
+setMethod("triu", "diagonalMatrix", function(x, k = 0, ...)
+    if(k <= 0) x else  .setZero(x, paste0(.M.kind(x), "tCMatrix")))
+
+
 
 .diag2tT <- function(from, uplo = "U", kind = .M.kind(from)) {
     ## to triangular Tsparse
@@ -227,7 +234,7 @@ bdiag <- function(...) {
 		n))
 }
 
-## diagonal -> triangular,  upper / lower depending on "partner":
+## diagonal -> triangular,  upper / lower depending on "partner" 'x':
 diag2tT.u <- function(d, x, kind = .M.kind(d))
     .diag2tT(d, uplo = if(is(x,"triangularMatrix")) x@uplo else "U", kind)
 
@@ -259,8 +266,7 @@ setAs("ddiMatrix", "TsparseMatrix", di2tT)
 setAs("ddiMatrix", "dsparseMatrix", di2tT)
 setAs("ddiMatrix", "CsparseMatrix",
       function(from) as(.diag2tT(from, "U", "d"), "CsparseMatrix"))
-setAs("ddiMatrix", "symmetricMatrix",
-      function(from) .diag2sT(from, "U", "d"))
+setAs("ddiMatrix", "symmetricMatrix", function(from) .diag2sT(from, "U", "d"))
 ##
 ## ldi*:
 di2tT <- function(from) .diag2tT(from, "U", "l")
@@ -271,8 +277,7 @@ setAs("ldiMatrix", "TsparseMatrix", di2tT)
 setAs("ldiMatrix", "lsparseMatrix", di2tT)
 setAs("ldiMatrix", "CsparseMatrix",
       function(from) as(.diag2tT(from, "U", "l"), "CsparseMatrix"))
-setAs("ldiMatrix", "symmetricMatrix",
-      function(from) .diag2sT(from, "U", "l"))
+setAs("ldiMatrix", "symmetricMatrix", function(from) .diag2sT(from, "U", "l"))
 rm(di2tT)
 
 setAs("diagonalMatrix", "nMatrix",
@@ -285,19 +290,25 @@ setAs("diagonalMatrix", "nMatrix",
 
 setAs("diagonalMatrix", "nsparseMatrix", function(from) as(from, "nMatrix"))
 
-## Cheap fast substitute for diag() which *does* preserve the mode of x :
+##' A version of diag(x,n) which *does* preserve the mode of x, where diag() "fails"
 mkDiag <- function(x, n) {
     y <- matrix(as0(mod=mode(x)), n,n)
     if (n > 0) y[1L + 0:(n - 1L) * (n + 1)] <- x
     y
 }
+## NB: diag(x,n) is really faster for n >= 20, and even more for large n
+## --> using diag() where possible, ==> .ddi2mat()
 
-setAs("diagonalMatrix", "matrix",
-      function(from) {
-	  ## want "ldiMatrix" -> <logical> "matrix" :
-	  mkDiag(if(from@diag == "U") as1(from@x) else from@x,
-		 n = from@Dim[1])
-      })
+.diag2mat <- function(from)
+    ## want "ldiMatrix" -> <logical> "matrix"  (but integer -> <double> for now)
+    mkDiag(if(from@diag == "U") as1(from@x) else from@x, n = from@Dim[1])
+
+.ddi2mat <- function(from)
+    base::diag(if(from@diag == "U") as1(from@x) else from@x, nrow = from@Dim[1])
+
+setAs("ddiMatrix", "matrix", .ddi2mat)
+## the non-ddi diagonalMatrix -- only "ldiMatrix" currently:
+setAs("diagonalMatrix", "matrix", .diag2mat)
 
 setMethod("as.vector", signature(x = "diagonalMatrix", mode="missing"),
 	  function(x, mode) {
@@ -516,11 +527,11 @@ setMethod("t", signature(x = "diagonalMatrix"),
           function(x) { x@Dimnames <- x@Dimnames[2:1] ; x })
 
 setMethod("isDiagonal",   "diagonalMatrix", function(object) TRUE)
-setMethod("isTriangular", "diagonalMatrix", function(object, ...) TRUE)
+setMethod("isTriangular", "diagonalMatrix", function(object, upper=NA, ...) TRUE)
 setMethod("isSymmetric",  "diagonalMatrix", function(object, ...) TRUE)
 
 setMethod("symmpart", signature(x = "diagonalMatrix"), function(x) x)
-setMethod("skewpart", signature(x = "diagonalMatrix"), setZero)
+setMethod("skewpart", signature(x = "diagonalMatrix"), function(x) .setZero(x))
 
 setMethod("chol", signature(x = "ddiMatrix"),
 	  function(x, pivot, ...) {
@@ -581,24 +592,20 @@ setMethod("tcrossprod", signature(x = "diagonalMatrix", y = "missing"),
 	  diagdiagprod, valueClass = "ddiMatrix")
 
 
+## analogous to matdiagprod() below:
 diagmatprod <- function(x, y) {
     ## x is diagonalMatrix
-    dx <- dim(x)
-    dy <- dim(y)
-    if(dx[2] != dy[1]) stop("non-matching dimensions")
-    as(if(x@diag == "U") y else x@x * y, "Matrix")
+    if(x@Dim[2] != nrow(y)) stop("non-matching dimensions")
+    Matrix(if(x@diag == "U") y else x@x * y)
 }
 setMethod("%*%", signature(x = "diagonalMatrix", y = "matrix"),
 	  diagmatprod)
 ## sneaky .. :
 formals(diagmatprod) <- alist(x=, y=NULL)
-setMethod("crossprod", signature(x = "diagonalMatrix", y = "matrix"),
-	  diagmatprod)
+setMethod("crossprod",  signature(x = "diagonalMatrix", y = "matrix"), diagmatprod)
 
 diagGeprod <- function(x, y) {
-    dx <- dim(x)
-    dy <- dim(y)
-    if(dx[2] != dy[1]) stop("non-matching dimensions")
+    if(x@Dim[2] != y@Dim[1]) stop("non-matching dimensions")
     if(x@diag != "U")
         y@x <- x@x * y@x
     y
@@ -611,22 +618,25 @@ setMethod("crossprod", signature(x = "diagonalMatrix", y = "dgeMatrix"),
 setMethod("crossprod", signature(x = "diagonalMatrix", y = "lgeMatrix"),
 	  diagGeprod)
 
+## analogous to diagmatprod() above:
 matdiagprod <- function(x, y) {
     dx <- dim(x)
-    dy <- dim(y)
-    if(dx[2] != dy[1]) stop("non-matching dimensions")
+    if(dx[2] != y@Dim[1]) stop("non-matching dimensions")
     Matrix(if(y@diag == "U") x else x * rep(y@x, each = dx[1]))
 }
-setMethod("%*%", signature(x = "matrix", y = "diagonalMatrix"),
-	  matdiagprod)
+setMethod("%*%", signature(x = "matrix", y = "diagonalMatrix"), matdiagprod)
 formals(matdiagprod) <- alist(x=, y=NULL)
-setMethod("tcrossprod", signature(x = "matrix", y = "diagonalMatrix"),
-	  matdiagprod)
+setMethod("tcrossprod",signature(x = "matrix", y = "diagonalMatrix"), matdiagprod)
+setMethod("crossprod", signature(x = "matrix", y = "diagonalMatrix"),
+	  function(x, y=NULL) {
+	      dx <- dim(x)
+	      if(dx[1] != y@Dim[1]) stop("non-matching dimensions")
+	      Matrix(t(rep.int(y@x, dx[2]) * x))
+	  })
 
 gediagprod <- function(x, y) {
     dx <- dim(x)
-    dy <- dim(y)
-    if(dx[2] != dy[1]) stop("non-matching dimensions")
+    if(dx[2] != y@Dim[1]) stop("non-matching dimensions")
     if(y@diag == "N")
 	x@x <- x@x * rep(y@x, each = dx[1])
     x
@@ -658,13 +668,12 @@ setMethod("%*%", signature(x = "denseMatrix", y = "diagonalMatrix"),
 ##' @param y diagonalMatrix
 ##' @return x %*% y
 Cspdiagprod <- function(x, y) {
-    dx <- dim(x <- .Call(Csparse_diagU2N, x))
-    dy <- dim(y)
-    if(dx[2] != dy[1]) stop("non-matching dimensions")
+    m <- ncol(x <- .Call(Csparse_diagU2N, x))
+    if(m != y@Dim[1]) stop("non-matching dimensions")
     if(y@diag == "N") { ## otherwise: y == Diagonal(n) : multiplication is identity
 	if(!all(y@x[1L] == y@x[-1L]) && is(x, "symmetricMatrix"))
 	    x <- as(x, "generalMatrix")
-	ind <- rep.int(seq_len(dx[2]), x@p[-1] - x@p[-dx[2]-1L])
+	ind <- rep.int(seq_len(m), x@p[-1] - x@p[-m-1L])
 	x@x <- x@x * y@x[ind]
         if(.hasSlot(x, "factors") && length(x@factors)) {# drop cashed ones
 	    ## instead of dropping all factors, be smart about some
@@ -679,9 +688,8 @@ Cspdiagprod <- function(x, y) {
 ##' @param y CsparseMatrix
 ##' @return x %*% y
 diagCspprod <- function(x, y) {
-    dx <- dim(x)
-    dy <- dim(y <- .Call(Csparse_diagU2N, y))
-    if(dx[2] != dy[1]) stop("non-matching dimensions")
+    y <- .Call(Csparse_diagU2N, y)
+    if(x@Dim[2] != y@Dim[1]) stop("non-matching dimensions")
     if(x@diag == "N") {
 	if(!all(x@x[1L] == x@x[-1L]) && is(y, "symmetricMatrix"))
 	    y <- as(y, "generalMatrix")
@@ -1099,6 +1107,7 @@ for(DI in diCls) {
     }
 }
 
+## Group methods "Math", "Math2" in			--> ./Math.R
 
 ### "Summary" : "max"   "min"   "range" "prod"  "sum"   "any"   "all"
 ### ----------   the last 4: separately here
@@ -1178,7 +1187,7 @@ setMethod("show", signature(object = "diagonalMatrix"),
 	      }
 	  })
 
-rm(arg1, arg2, other, DI, cl, c1, c2,
+rm(arg1, arg2, other, DI, Fun, cl, c1, c2,
    dense.subCl, diCls)# not used elsewhere
 
 setMethod("summary", signature(object = "diagonalMatrix"),

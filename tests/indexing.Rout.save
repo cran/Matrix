@@ -1,5 +1,5 @@
 
-R Under development (unstable) (2014-01-26 r64897) -- "Unsuffered Consequences"
+R version 3.1.1 Patched (2014-10-14 r66758) -- "Sock it to Me"
 Copyright (C) 2014 The R Foundation for Statistical Computing
 Platform: x86_64-unknown-linux-gnu (64-bit)
 
@@ -22,6 +22,7 @@ Type 'q()' to quit R.
 > stopifnot(suppressPackageStartupMessages(require(Matrix)))
 > 
 > source(system.file("test-tools.R", package = "Matrix"), keep.source = FALSE)
+Loading required package: tools
 > ##-> identical3() etc
 > cat("doExtras:",doExtras,"\n")
 doExtras: FALSE 
@@ -80,7 +81,7 @@ doExtras: FALSE
      [,1] [,2] [,3] [,4]
 > m[2:4, numeric(0)] #-> 3 x 0 Matrix
 3 x 0 Matrix of class "dgeMatrix"
-
+    
 [1,]
 [2,]
 [3,]
@@ -126,7 +127,35 @@ diagnosing replTmat(x,i,j,v): nargs()= 3; missing (i,j) = (0,1)
 + 	  identical(a.m, array(v, dim=dim(mn), dimnames=dimnames(mn)))
 + 	  )
 > showProc.time()
-Time elapsed:  0.232 0.002 0.237 
+Time elapsed:  0.257 0.018 0.287 
+> 
+> ## R-forge Matrix bug #2556: Subsetting a sparse matrix did remove  names(dimnames(.)) :
+> m44 <- matrix(1:16, 4, 4, dimnames=list(row=c('a','b','c','d'), col=c('x','y','z','w')))
+> ## Dense matrix: ------------------------------------------
+> a <- Matrix(m44)
+> identical(
++     dimnames(m44[,FALSE, drop=FALSE]),
++     dimnames(  a[,FALSE, drop=FALSE]))
+[1] TRUE
+> chk.ndn <- function(a, a0=m44)
++     stopifnot(identical(names(dimnames(a)), names(dimnames(a0))))
+> i <- 1:2
+> chk.ndn(a[i,]); chk.ndn(a[i, i])
+> ## Sparse matrix: -----------------------------------------
+> s <- as(a %% 3 == 1, "sparseMatrix")
+> ts <- as(s,"TsparseMatrix")
+> b <- sparseMatrix(i=1:3, j=rep(2,3), dims=c(4,4), dimnames=dimnames(s))
+> tb <- as(b,"TsparseMatrix")
+> stopifnot(identical5(
++     dimnames(a), dimnames(s), dimnames(ts),
++     dimnames(b), dimnames(tb)))
+> 
+> chk.ndn(b [i, i]); chk.ndn(b [i, ])
+> chk.ndn(s [i, i]); chk.ndn(s [i, ])
+> chk.ndn(tb[i, i]); chk.ndn(tb[i, ])
+> chk.ndn(ts[i, i]); chk.ndn(ts[i, ])
+> chk.ndn( b[ , 1, drop=FALSE]); chk.ndn( s[i, 2, drop=FALSE])
+> chk.ndn(tb[ , 1, drop=FALSE]); chk.ndn(ts[i, 2, drop=FALSE])
 > 
 > ## Printing sparse colnames:
 > ms[sample(28, 20)] <- 0
@@ -183,7 +212,7 @@ diagnosing replTmat(x,i,j,v): nargs()= 3; missing (i,j) = (0,1)
 + 	  identical3(m[!sel],  m[!ssel], as.matrix(m)[as.matrix(!ssel)])
 + 	  )
 > showProc.time()
-Time elapsed:  0.122 0.001 0.123 
+Time elapsed:  0.136 0.006 0.145 
 > 
 > ## more sparse Matrices --------------------------------------
 > 
@@ -519,7 +548,7 @@ ok( d )
 == ###======================================================================
 
 > showProc.time()
-Time elapsed:  0.842 0.001 0.846 
+Time elapsed:  1.006 0.013 1.036 
 > 
 > if(doExtras) {### {was ./AAA_index.R, MM-only}
 +     ## an nsparse-example
@@ -678,7 +707,7 @@ Time elapsed:  0.842 0.001 0.846
 +     assert.EQ.mat(T[i,i], ss[i,i])
 + }
 > showProc.time()
-Time elapsed:  0.265 0 0.265 
+Time elapsed:  0.233 0.001 0.235 
 > 
 > stopifnot(all.equal(mC[,3], mm[,3]),
 + 	  identical(mC[ij], mC[ij + 0.4]),
@@ -888,7 +917,7 @@ diagnosing replTmat(x,i,j,v): nargs()= 3; missing (i,j) = (0,1)
 + 	  all(sm[,-(1:3)] == 0)
 + 	  )
 > showProc.time()
-Time elapsed:  0.149 0.001 0.151 
+Time elapsed:  0.193 0 0.193 
 > 
 > ##---  "nsparse*" sub-assignment :----------
 > M <- Matrix(c(1, rep(0,7), 1:4), 3,4)
@@ -945,7 +974,7 @@ Time elapsed:  0.149 0.001 0.151
 ,k.,k.,k.,k.,k.,k.,k.,k.,k.,k.
 ,k.,k.,k.,k.,k.,k.,k.,k.,k.,k.
 ,k.,k.,k.,k.,k.> showProc.time()
-Time elapsed:  0.198 0 0.199 
+Time elapsed:  0.316 0 0.317 
 > Nn <- Nn0
 > ## Check that  NA is interpreted as TRUE (with a warning), for "nsparseMatrix":
 > assertWarning(Nn[ii <-     3  ] <- NA); stopifnot(isValid(Nn,"nsparseMatrix"), Nn[ii])
@@ -1120,7 +1149,7 @@ as(<triangular (ge)matrix>, dtCMatrix): valid: TRUE
 > stopifnot(is(T, "dtCMatrix"), identical(T[,3], c(10,10,10,0,0)),
 + 	  Qidentical(as(Z, "matrix"), z))
 > showProc.time()
-Time elapsed:  0.75 0.002 0.756 
+Time elapsed:  0.707 0.001 0.714 
 > 
 > 
 > ## "Vector indices" -------------------
@@ -1324,7 +1353,7 @@ Warning in `[<-`(`*tmp*`, i, value = 1:7) :
 > ## mixing of negative and positive must give error
 > assertError(mT[-1:1,])
 > showProc.time()
-Time elapsed:  0.183 0 0.184 
+Time elapsed:  0.204 0.001 0.206 
 > 
 > ## Sub *Assignment* ---- now works (partially):
 > mt0 <- mt
@@ -1432,7 +1461,7 @@ r5   .   2  4   .  6  .  .
 r2  2
 r4  .
 > showProc.time()
-Time elapsed:  0.157 0.001 0.158 
+Time elapsed:  0.179 0 0.18 
 > options(Matrix.verbose = TRUE)
 > 
 > mc # no longer has non-structural zeros
@@ -1653,7 +1682,7 @@ M[i,j] <- v :  coercing symmetric M[] into non-symmetric
 > assert.EQ.mat(t2, m)# ok
 > assert.EQ.mat(s2, m)# failed in 0.9975-8
 > showProc.time()
-Time elapsed:  0.709 0.001 0.713 
+Time elapsed:  0.745 0.006 0.759 
 > 
 > 
 > ## m[cbind(i,j)] <- value: (2-column matrix subassignment):
@@ -1796,7 +1825,7 @@ r5  TRUE TRUE FALSE TRUE TRUE TRUE TRUE
 > 
 > cc <- capture.output(show(dLrg))# show(<diag>) used to error for large n
 > showProc.time()
-Time elapsed:  0.687 0.003 0.692 
+Time elapsed:  0.627 0.016 0.655 
 > 
 > ## Large Matrix indexing / subassignment
 > ## ------------------------------------- (from ex. by Imran Rashid)
@@ -1869,4 +1898,4 @@ NULL
 > 
 > proc.time()
    user  system elapsed 
-  6.942   0.118   7.167 
+  7.518   0.198   7.878 

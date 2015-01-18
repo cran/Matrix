@@ -72,6 +72,33 @@ stopifnot(identical(mn["rc", "D"], mn[3,4]), mn[3,4] == 24,
 	  )
 showProc.time()
 
+## R-forge Matrix bug #2556: Subsetting a sparse matrix did remove  names(dimnames(.)) :
+m44 <- matrix(1:16, 4, 4, dimnames=list(row=c('a','b','c','d'), col=c('x','y','z','w')))
+## Dense matrix: ------------------------------------------
+a <- Matrix(m44)
+identical(
+    dimnames(m44[,FALSE, drop=FALSE]),
+    dimnames(  a[,FALSE, drop=FALSE]))
+chk.ndn <- function(a, a0=m44)
+    stopifnot(identical(names(dimnames(a)), names(dimnames(a0))))
+i <- 1:2
+chk.ndn(a[i,]); chk.ndn(a[i, i])
+## Sparse matrix: -----------------------------------------
+s <- as(a %% 3 == 1, "sparseMatrix")
+ts <- as(s,"TsparseMatrix")
+b <- sparseMatrix(i=1:3, j=rep(2,3), dims=c(4,4), dimnames=dimnames(s))
+tb <- as(b,"TsparseMatrix")
+stopifnot(identical5(
+    dimnames(a), dimnames(s), dimnames(ts),
+    dimnames(b), dimnames(tb)))
+
+chk.ndn(b [i, i]); chk.ndn(b [i, ])
+chk.ndn(s [i, i]); chk.ndn(s [i, ])
+chk.ndn(tb[i, i]); chk.ndn(tb[i, ])
+chk.ndn(ts[i, i]); chk.ndn(ts[i, ])
+chk.ndn( b[ , 1, drop=FALSE]); chk.ndn( s[i, 2, drop=FALSE])
+chk.ndn(tb[ , 1, drop=FALSE]); chk.ndn(ts[i, 2, drop=FALSE])
+
 ## Printing sparse colnames:
 ms[sample(28, 20)] <- 0
 ms <- t(rbind2(ms, 3*ms))

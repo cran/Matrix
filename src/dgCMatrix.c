@@ -170,7 +170,7 @@ SEXP dgCMatrix_qrsol(SEXP x, SEXP y, SEXP ord)
     SEXP ycp = PROTECT((TYPEOF(y) == REALSXP) ?
 		       duplicate(y) : coerceVector(y, REALSXP));
     CSP xc = AS_CSP(x); /* <--> x  may be  dgC* or dtC* */
-    int order = INTEGER(ord)[0];
+    int order = asInteger(ord);
 #ifdef _not_yet_do_FIXME__
     const char *nms[] = {"L", "coef", "Xty", "resid", ""};
     SEXP ans = PROTECT(Rf_mkNamed(VECSXP, nms));
@@ -284,15 +284,15 @@ SEXP dgCMatrix_SPQR(SEXP Ap, SEXP ordering, SEXP econ, SEXP tol)
     SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("SPQR")));
 
     CHM_SP A = AS_CHM_SP(Ap), Q, R;
-    UF_long *E, rank;/* not always = int   FIXME  (Windows_64 ?) */
+    SuiteSparse_long *E, rank;/* not always = int   FIXME  (Windows_64 ?) */
 
     if ((rank = SuiteSparseQR_C_QR(asInteger(ordering),
 				   asReal(tol),/* originally had SPQR_DEFAULT_TOL */
-				   (UF_long)asInteger(econ),/* originally had 0 */
+				   (SuiteSparse_long)asInteger(econ),/* originally had 0 */
 				   A, &Q, &R, &E, &cl)) == -1)
 	error(_("SuiteSparseQR_C_QR returned an error code"));
 
-    SET_SLOT(ans, Matrix_DimSym, duplicate(GET_SLOT(Ap, Matrix_DimSym)));
+    slot_dup(ans, Ap, Matrix_DimSym);
 /*     SET_VECTOR_ELT(ans, 0, */
 /* 		   chm_sparse_to_SEXP(Q, 0, 0, 0, "", R_NilValue)); */
     SET_SLOT(ans, install("Q"),
@@ -430,20 +430,22 @@ SEXP dgCMatrix_matrix_solve(SEXP Ap, SEXP b, SEXP give_sparse)
     L = AS_CSP__(GET_SLOT(lu, install("L")));
     U = AS_CSP__(GET_SLOT(lu, install("U")));
     R_CheckStack();
-
-    p = INTEGER(GET_SLOT(lu, Matrix_pSym));
-    q = LENGTH(qslot) ? INTEGER(qslot) : (int *) NULL;
-
-    if (U->n != n || nrhs < 1 || n < 1)
+    if (U->n != n)
 	error(_("Dimensions of system to be solved are inconsistent"));
-    for (j = 0; j < nrhs; j++) {
-	cs_pvec(p, ax + j * n, x, n);  /* x = b(p) */
-	cs_lsolve(L, x);	       /* x = L\x */
-	cs_usolve(U, x);	       /* x = U\x */
-	if (q)			       /* r(q) = x , hence r = Q' U{^-1} L{^-1} P b = A^{-1} b */
-	    cs_ipvec(q, x, ax + j * n, n);
-	else
-	    Memcpy(ax + j * n, x, n);
+    if(nrhs >= 1 && n >= 1) {
+	p = INTEGER(GET_SLOT(lu, Matrix_pSym));
+	q = LENGTH(qslot) ? INTEGER(qslot) : (int *) NULL;
+
+	for (j = 0; j < nrhs; j++) {
+	    cs_pvec(p, ax + j * n, x, n);  /* x = b(p) */
+	    cs_lsolve(L, x);	       /* x = L\x */
+	    cs_usolve(U, x);	       /* x = U\x */
+	    if (q)		       /* r(q) = x , hence
+					  r = Q' U{^-1} L{^-1} P b = A^{-1} b */
+		cs_ipvec(q, x, ax + j * n, n);
+	    else
+		Memcpy(ax + j * n, x, n);
+	}
     }
     UNPROTECT(1);
     return ans;

@@ -63,10 +63,10 @@ setMethod("forceSymmetric", signature(x="CsparseMatrix"),
 
 
 setMethod("symmpart", signature(x = "symmetricMatrix"), function(x) x)
-setMethod("skewpart", signature(x = "symmetricMatrix"), setZero)
+setMethod("skewpart", signature(x = "symmetricMatrix"), function(x) .setZero(x))
 
 ###------- pack() and unpack() --- for *dense*  symmetric & triangular matrices:
-packM <-  function(x, Mtype, kind, unpack) {
+packM <- function(x, Mtype, kind, unpack=FALSE) {
     cd <- getClassDef(cx <- class(x))
     if(extends(cd, "sparseMatrix"))
 	stop(sprintf("(un)packing only applies to dense matrices, class(x)='%s'",
@@ -82,12 +82,12 @@ packM <-  function(x, Mtype, kind, unpack) {
 	})
     } else as(x, paste0(.M.kindC(cd), Mtype))
 }
-setMethod("unpack", "symmetricMatrix", function(x, ...)
-	  packM(x, kind="symmetric", unpack=TRUE))
-setMethod("pack",   "symmetricMatrix", function(x, ...)
-	  packM(x, kind="symmetric", unpack=FALSE))
-setMethod("unpack", "triangularMatrix", function(x, ...) packM(x,"trMatrix"))
-setMethod("pack",   "triangularMatrix", function(x, ...) packM(x,"tpMatrix"))
+setMethod("unpack", "symmetricMatrix",
+          function(x, ...) packM(x, kind="symmetric", unpack=TRUE))
+setMethod("pack",   "symmetricMatrix", function(x, ...) packM(x, kind="symmetric"))
+setMethod("unpack", "triangularMatrix",
+	  function(x, ...) packM(x, "trMatrix", unpack=TRUE))
+setMethod("pack",   "triangularMatrix", function(x, ...) packM(x, "tpMatrix"))
 ## to produce a nicer error message:
 pckErr <- function(x, ...)
     stop(sprintf("(un)packing only applies to dense matrices, class(x)='%s'",
@@ -116,10 +116,10 @@ setMethod("pack", signature(x = "matrix"),
 	  })
 
 ## {"traditional"} specific methods
-setMethod("unpack", signature(x = "dspMatrix"),
-          function(x, ...) as(x, "dsyMatrix"), valueClass = "dsyMatrix")
-setMethod("unpack", signature(x = "dtpMatrix"),
-          function(x, ...) as(x, "dtrMatrix"), valueClass = "dtrMatrix")
+setMethod("unpack", "dspMatrix",
+	  function(x, ...) dsp2dsy(x), valueClass = "dsyMatrix")
+setMethod("unpack", "dtpMatrix",
+	  function(x, ...) dtp2dtr(x), valueClass = "dtrMatrix")
 ###
 
 

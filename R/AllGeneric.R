@@ -6,7 +6,7 @@
 
 setGeneric("isDiagonal", function(object) standardGeneric("isDiagonal"))
 
-setGeneric("isTriangular", function(object, ...) ## 'upper = NA'
+setGeneric("isTriangular", function(object, upper = NA, ...)
 	   standardGeneric("isTriangular"))
 
 ## isSymmetric is "S3 generic" in R's  base/R/eigen.R

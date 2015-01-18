@@ -215,17 +215,13 @@ setMethod("isSymmetric", signature(object = "denseMatrix"),
 			    as(t(object), "igeMatrix"))
 	  })
 
-setMethod("isTriangular", signature(object = "triangularMatrix"),
-	  function(object, ...) TRUE)
+## rather methods in ./triangularMatrix.R
+## setMethod("isTriangular", signature(object = "triangularMatrix"),
+## 	  function(object, ...) TRUE)
 
 setMethod("isTriangular", signature(object = "denseMatrix"), isTriMat)
 
 setMethod("isDiagonal", signature(object = "denseMatrix"), .is.diagonal)
-
-## FIXME: Once we have integer (idense..),  sign(), abs(.) may need different:
-setMethod("Math", signature(x = "denseMatrix"),
-	  function(x) callGeneric(as(x, "dMatrix")))
-                                        # -> ./ddenseMatrix.R has next method
 
 setMethod("rcond", signature(x = "denseMatrix", norm = "character"),
 	  function(x, norm, ...)

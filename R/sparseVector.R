@@ -83,12 +83,12 @@ setMethod("is.finite", signature(x = "sparseVector"),
 	  })
 
 
-sp2vec <- function(x, mode = .type.kind[substr(cl, 1,1)]) {
+sp2vec <- function(x, mode = .type.kind[.M.kindC(cl)]) {
     ## sparseVector  ->  vector
     cl <- class(x)
     r <- vector(mode, x@length)
     r[x@i] <-
-	if(cl != "nsparseVector") { # cheap test for 'has x slot'
+	if(any(.slotNames(cl) == "x")) { # cheap test for 'has x slot'
 	    if(is(x@x, mode)) x@x else as(x@x, mode)
 	} else TRUE
     r
@@ -304,7 +304,7 @@ spV2M <- function (x, nrow, ncol, byrow = FALSE, check = TRUE, symmetric = FALSE
     r
 }## {spV2M}
 
-.sparseV2Mat <- function(from) spV2M(from, nrow=length(from), ncol=1L, check=FALSE)
+.sparseV2Mat <- function(from) spV2M(from, nrow=from@length, ncol=1L, check=FALSE)
 setAs("sparseVector","Matrix", .sparseV2Mat)
 setAs("sparseVector","sparseMatrix", .sparseV2Mat)
 setAs("sparseVector","TsparseMatrix", .sparseV2Mat)
@@ -323,6 +323,8 @@ setMethod("dim<-", signature(x = "sparseVector", value = "ANY"),
 
 
 setMethod("length", "sparseVector", function(x) x@length)
+
+setMethod("t", "sparseVector", function(x) spV2M(x, nrow=1L, ncol=x@length, check=FALSE))
 
 setMethod("show", signature(object = "sparseVector"),
    function(object) {
@@ -391,7 +393,7 @@ intIv <- function(i, n, cl.i = getClass(class(i)))
     ## else :
     if(extends(cl.i, "numeric")) {
         storage.mode(i) <- "integer"
-        int2i(i,n) ##-> ./Tsparse.R 
+        int2i(i,n) ##-> ./Tsparse.R
     }
     else if (extends(cl.i, "logical")) {
 	seq_len(n)[i]
@@ -768,43 +770,11 @@ setMethod("rep", "sparseVector",
 
 ### Group Methods (!)
 ## "Ops" : ["Arith", "Compare", "Logic"]:  ---> in ./Ops.R
-##                                                 -------
-
-## "Summary" group : "max"   "min"   "range" "prod"  "sum"   "any"   "all"
-
-setMethod("Summary", signature(x = "nsparseVector", na.rm = "ANY"),
-	  function(x, ..., na.rm) { ## no 'x' slot, no NA's ..
-	      n <- x@length
-	      l.x <- length(x@i)
-	      if(l.x == n)
-		  callGeneric(rep.int(TRUE, n), ..., na.rm = na.rm)
-	      else ## l.x < n :	 has some FALSE entries
-		  switch(.Generic,
-			 "prod" = 0,
-			 "min"	= 0L,
-			 "all" = FALSE,
-			 "any" = l.x > 0,
-			 "sum" = l.x,
-			 "max" = as.integer(l.x > 0),
-			 "range" = c(0L, as.integer(l.x > 0)))
-	  })
-
-## The "other" "sparseVector"s ("d", "l", "i" ..): all have an	'x' slot :
-setMethod("Summary", signature(x = "sparseVector", na.rm = "ANY"),
-	  function(x, ..., na.rm) {
-	      n <- x@length
-	      l.x <- length(x@x)
-	      if(l.x == n) ## fully non-zero (and "general") - very rare but quick
-		  callGeneric(x@x, ..., na.rm = na.rm)
-	      else if(.Generic != "prod") {
-		  logicF <- .Generic %in% c("any","all")
-		  ## we rely on	 <generic>(x, NULL, y, ..) :==	<generic>(x, y, ..):
-		  callGeneric(x@x, if(logicF) FALSE else 0, ..., na.rm = na.rm)
-	      }
-	      else { ## prod()
-		  if(any(is.na(x@x))) NaN else 0
-	      }
-	  })
+##						     -----
+## "Summary"  ---> ./Summary.R
+##		     ---------
+## "Math", "Math2": ./Math.R
+##		     -------
 
 
 setMethod("solve", signature(a = "Matrix", b = "sparseVector"),

@@ -124,11 +124,22 @@ validObject(iu2 <- solve(U5, Diagonal(5)))# failed in earlier versions
 
 I5 <- iu  \%*\% U5 # should equal the identity matrix
 i5 <- iu2 \%*\% U5
+m53 <- matrix(1:15, 5,3, dimnames=list(NULL,letters[1:3]))
 asDiag <- function(M) as(drop0(M), "diagonalMatrix")
 stopifnot(
-   all.equal(Diagonal(5), asDiag(I5), tolerance=1e-14)
-   ,
-   all.equal(Diagonal(5), asDiag(i5), tolerance=1e-14)
-)}
+   all.equal(Diagonal(5), asDiag(I5), tolerance=1e-14) ,
+   all.equal(Diagonal(5), asDiag(i5), tolerance=1e-14) ,
+   identical(list(NULL, dimnames(m53)[[2]]), dimnames(solve(U5, m53)))
+)
+\dontshow{%
+i5. <- I5; colnames(i5.) <- LETTERS[11:15]
+M53 <- as(m53, "dgeMatrix")
+stopifnot(
+   identical((dns <- dimnames(solve(i5., M53))),
+             dimnames(solve(as.matrix(i5.), as.matrix(M53)))) ,
+   identical(dns, dimnames(solve(i5., as.matrix(M53))))
+)
+}%dont
+}
 \keyword{classes}
 \keyword{algebra}

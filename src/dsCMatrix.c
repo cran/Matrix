@@ -201,11 +201,11 @@ SEXP dsCMatrix_Csparse_solve(SEXP a, SEXP b, SEXP LDL)
     if(iLDL == NA_LOGICAL) iLDL = -1;
 
     CHM_FR L = internal_chm_factor(a, /*perm*/-1, iLDL, /*super*/-1, /*Imult*/0.);
-    CHM_SP cx, cb;
-    if(!chm_factor_ok(L))
+    if(!chm_factor_ok(L)) {
+	cholmod_free_factor(&L, &c);
 	return R_NilValue;// == "CHOLMOD factorization failed"
-
-    cb = AS_CHM_SP(b);
+    }
+    CHM_SP cb = AS_CHM_SP(b), cx;
     R_CheckStack();
 
     cx = cholmod_spsolve(CHOLMOD_A, L, cb, &c);
@@ -223,13 +223,13 @@ SEXP dsCMatrix_matrix_solve(SEXP a, SEXP b, SEXP LDL)
     if(iLDL == NA_LOGICAL) iLDL = -1;
 
     CHM_FR L = internal_chm_factor(a, /*perm*/-1, iLDL, /*super*/-1, /*Imult*/0.);
-    CHM_DN cx, cb;
-    if(!chm_factor_ok(L))
+    if(!chm_factor_ok(L)) {
+	cholmod_free_factor(&L, &c);
 	return R_NilValue;// == "CHOLMOD factorization failed"
+    }
 
-    cb = AS_CHM_DN(PROTECT(mMatrix_as_dgeMatrix(b)));
+    CHM_DN cx, cb = AS_CHM_DN(PROTECT(mMatrix_as_dgeMatrix(b)));
     R_CheckStack();
-
     cx = cholmod_solve(CHOLMOD_A, L, cb, &c);
     cholmod_free_factor(&L, &c);
     UNPROTECT(1);

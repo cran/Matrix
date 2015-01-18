@@ -27,23 +27,24 @@ rm(prefix)
 setAs("dtCMatrix", "dtTMatrix",
       function(from) .Call(Csparse_to_Tsparse, from, TRUE))
 
-setAs("CsparseMatrix", "denseMatrix",
-      function(from) {
-	  ## |-> cholmod_C -> cholmod_dense -> chm_dense_to_dense
-	  cld <- getClassDef(class(from))
-	  if (extends(cld, "generalMatrix"))
-	      .Call(Csparse_to_dense, from)
-	  else {
-	      ## Csparse_to_dense  loses symmetry and triangularity properties.
-	      ## With suitable changes to chm_dense_to_SEXP (../src/chm_common.c)
-	      ## we could do this in C code -- or do differently in C {FIXME!}
-	      if (extends(cld, "triangularMatrix") && from@diag == "U")
-		  from <- .Call(Csparse_diagU2N, from)
-	      as(.Call(Csparse_to_dense, from), # -> "[dln]geMatrix"
-		 paste0(.M.kind(from, cld),
-			.dense.prefixes[.M.shape(from, cld)], "Matrix"))
-	  }
-      })
+C2dense <- function(from) {
+    ## |-> cholmod_C -> cholmod_dense -> chm_dense_to_dense
+    cld <- getClassDef(class(from))
+    if (extends(cld, "generalMatrix"))
+	.Call(Csparse_to_dense, from)
+    else {
+	## Csparse_to_dense  loses symmetry and triangularity properties.
+	## With suitable changes to chm_dense_to_SEXP (../src/chm_common.c)
+	## we could do this in C code -- or do differently in C {FIXME!}
+	if (extends(cld, "triangularMatrix") && from@diag == "U")
+	    from <- .Call(Csparse_diagU2N, from)
+	as(.Call(Csparse_to_dense, from), # -> "[dln]geMatrix"
+	   paste0(.M.kindC(cld),
+		  .dense.prefixes[.M.shape(from, cld)], "Matrix"))
+    }
+}
+setAs("CsparseMatrix", "denseMatrix", C2dense)
+
 
 ## special cases (when a specific "to" class is specified)
 setAs("dgCMatrix", "dgeMatrix",
@@ -86,44 +87,6 @@ setAs("CsparseMatrix", "symmetricMatrix",
 
 ### Some group methods:
 
-setMethod("Math",
-	  signature(x = "CsparseMatrix"),
-	  function(x) {
-	      f0 <- callGeneric(0.)
-	      if(is0(f0)) {
-		  ## sparseness, symm., triang.,... preserved
-                  cl <- class(x)
-                  has.x <- !extends(cl, "nsparseMatrix")
-                  ## has.x  <==> *not* nonzero-pattern == "nMatrix"
-                  if(has.x) {
-                      type <- storage.mode(x@x)
-                      r <- callGeneric(x@x)
-                  } else { ## nsparseMatrix
-                      type <- ""
-		      r <- rep.int(as.double(callGeneric(TRUE)),
-				   switch(.sp.class(cl),
-					  CsparseMatrix = length(x@i),
-					  TsparseMatrix = length(x@i),
-					  RsparseMatrix = length(x@j)))
-                  }
-		  if(type == storage.mode(r)) {
-		      x@x <- r
-		      x
-		  } else { ## e.g. abs( <lgC> ) --> integer Csparse
-		      ## FIXME: when we have 'i*' classes, use them here:
-		      rx <- new(sub("^.", "d", cl))
-		      rx@x <- as.double(r)
-		      ## result is "same"
-		      sNams <- slotNames(cl)
-		      for(nm in sNams[sNams != "x"])
-			  slot(rx, nm) <- slot(x, nm)
-		      rx
-		  }
-	      } else { ## no sparseness
-		  callGeneric(as_dense(x))
-	      }
-	  }) ## {Math}
-
 
 ### Subsetting -- basic things (drop = "missing") are done in ./Matrix.R
 ### ---------- "["  and (currently) also ./sparseMatrix.R
@@ -136,7 +99,10 @@ subCsp_cols <- function(x, j, drop)
     r <- .Call(Csparse_submatrix, x, NULL, jj)
     if(!is.null(n <- dn[[1]])) r@Dimnames[[1]] <- n
     if(!is.null(n <- dn[[2]])) r@Dimnames[[2]] <- n[jj+1L]
-    if(drop && any(r@Dim == 1L)) drop(as(r, "matrix")) else r
+    if(drop && any(r@Dim == 1L)) drop(as(r, "matrix")) else {
+	if(!is.null(n <- names(dn))) names(r@Dimnames) <- n
+	r
+    }
 }
 
 subCsp_rows <- function(x, i, drop)# , cl = getClassDef(class(x))
@@ -147,7 +113,10 @@ subCsp_rows <- function(x, i, drop)# , cl = getClassDef(class(x))
     r <- .Call(Csparse_submatrix, x, ii, NULL)
     if(!is.null(n <- dn[[1]])) r@Dimnames[[1]] <- n[ii+1L]
     if(!is.null(n <- dn[[2]])) r@Dimnames[[2]] <- n
-    if(drop && any(r@Dim == 1L)) drop(as(r, "matrix")) else r
+    if(drop && any(r@Dim == 1L)) drop(as(r, "matrix")) else {
+	if(!is.null(n <- names(dn))) names(r@Dimnames) <- n
+	r
+    }
 }
 
 subCsp_ij <- function(x, i, j, drop)
@@ -164,17 +133,23 @@ subCsp_ij <- function(x, i, j, drop)
     if(!is.null(n <- dn[[1]])) r@Dimnames[[1]] <- n[ii + 1L]
     if(!is.null(n <- dn[[2]])) r@Dimnames[[2]] <- n[jj + 1L]
     if(!i.eq.j) {
-	if(drop && any(r@Dim == 1L)) drop(as(r, "matrix")) else r
+	if(drop && any(r@Dim == 1L)) drop(as(r, "matrix")) else {
+	    if(!is.null(n <- names(dn))) names(r@Dimnames) <- n
+	    r
+	}
     } else { ## i == j
 	if(drop) drop <- any(r@Dim == 1L)
 	if(drop)
 	    drop(as(r, "matrix"))
-	else if(extends((cx <- getClassDef(class(x))),
-                        "symmetricMatrix")) ## TODO? make more efficient:
-	    .gC2sym(r, uplo = x@uplo)## preserve uplo !
-	else if(extends(cx, "triangularMatrix") && !is.unsorted(ii))
-	    as(r, "triangularMatrix")
-	else r
+	else {
+	    if(!is.null(n <- names(dn))) names(r@Dimnames) <- n
+	    if(extends((cx <- getClassDef(class(x))),
+		       "symmetricMatrix")) ## TODO? make more efficient:
+		.gC2sym(r, uplo = x@uplo)## preserve uplo !
+	    else if(extends(cx, "triangularMatrix") && !is.unsorted(ii))
+		as(r, "triangularMatrix")
+	    else r
+	}
     }
 }
 
@@ -436,7 +411,7 @@ setMethod("t", signature(x = "CsparseMatrix"),
 
 
 ## NB: have extra tril(), triu() methods for symmetric ["dsC" and "lsC"] and
-## NB: for all triangular ones, where the latter may 'callNextMethod()' these:
+##     for all triangular ones, where the latter may 'callNextMethod()' these:
 setMethod("tril", "CsparseMatrix",
 	  function(x, k = 0, ...) {
 	      k <- as.integer(k[1])
@@ -444,8 +419,7 @@ setMethod("tril", "CsparseMatrix",
 	      stopifnot(-dd[1] <= k, k <= dd[1]) # had k <= 0
 	      r <- .Call(Csparse_band, x, -dd[1], k)
 	      ## return "lower triangular" if k <= 0
-	      if(sqr && k <= 0)
-		  as(r, paste0(.M.kind(x), "tCMatrix")) else r
+	      if(sqr && k <= 0) .gC2tC(r, uplo = "L") else r
 	  })
 
 setMethod("triu", "CsparseMatrix",
@@ -455,8 +429,7 @@ setMethod("triu", "CsparseMatrix",
 	      stopifnot(-dd[1] <= k, k <= dd[1]) # had k >= 0
 	      r <- .Call(Csparse_band, x, k, dd[2])
 	      ## return "upper triangular" if k >= 0
-	      if(sqr && k >= 0)
-		  as(r, paste0(.M.kind(x), "tCMatrix")) else r
+	      if(sqr && k >= 0) .gC2tC(r, uplo = "U") else r
 	  })
 
 setMethod("band", "CsparseMatrix",

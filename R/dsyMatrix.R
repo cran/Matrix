@@ -1,50 +1,54 @@
 ### Coercion and Methods for Dense Numeric Symmetric Matrices
 
-setAs("dgeMatrix", "dsyMatrix",
-     function(from) {
-	if(isSymmetric(from))# < with tolerance!
-	    .Call(dense_to_symmetric, from, "U", FALSE)
-	else
-	    stop("not a symmetric matrix; consider forceSymmetric() or symmpart()")
-     })
+##' @export (!) Note: ..?dense2sy() work for "dgeMatrix" *and* "matrix"
+.dense2sy <- function(from, ...) {
+    if(isSymmetric(from, ...)) # < with tolerance!
+	.Call(dense_to_symmetric, from, "U", FALSE)
+    else
+	stop("not a symmetric matrix; consider forceSymmetric() or symmpart()")
+}
 ## NB: The alternative, 'zero tolerance' { <=> isSymmetric(*, tol=0) }
 ##     breaks too much previous code -- though it would be much faster --
-## setAs("dgeMatrix", "dsyMatrix",
-##       function(from) .Call(dense_to_symmetric, from, "U", TRUE))
 
+##' usable directly as function in setAs() <== no "..."
+..dense2sy <- function(from) {
+    if(isSymmetric(from)) # < with tolerance!
+	.Call(dense_to_symmetric, from, "U", FALSE)
+    else
+	stop("not a symmetric matrix; consider forceSymmetric() or symmpart()")
+}
 
+setAs("dgeMatrix", "dsyMatrix", ..dense2sy)
 setAs("matrix", "dsyMatrix",
-      function(from) as(..2dge(from), "dsyMatrix"))
+      function(from) .dense2sy(..2dge(from)))
 
 .dsy2mat <- function(from, keep.dimnames=TRUE)# faster
     .Call(dsyMatrix_as_matrix, from, keep.dimnames)
-setAs("dsyMatrix", "matrix",
-      function(from) .Call(dsyMatrix_as_matrix, from, TRUE))
+..dsy2mat <- function(from) .Call(dsyMatrix_as_matrix, from, TRUE)
+setAs("dsyMatrix", "matrix", ..dsy2mat)
 
-setAs("dsyMatrix", "dspMatrix",
-      function(from) .Call(dsyMatrix_as_dspMatrix, from))
+.dsy2dsp <- function(from) .Call(dsyMatrix_as_dspMatrix, from)
+setAs("dsyMatrix", "dspMatrix", .dsy2dsp)
 
-setAs("dsyMatrix", "dsTMatrix",
-      function(from) { # 'dsT': only store upper *or* lower
-	  uplo <- from@uplo
-	  if(any((d <- dim(from)) == 0)) {
-	      ij <- matrix(0L, 0,2) ; m <- from@x
-	  } else {
-	      ## FIXME!	 working via "matrix" is *not* efficient:
-	      ## the "other triangle" is filled, compared with 0, and then trashed:
-	      m <- .Call(dsyMatrix_as_matrix, from, FALSE) # no dimnames!
-	      ij <- which(m != 0, arr.ind = TRUE)
-	      ij <- ij[if(uplo == "U") ij[,1] <= ij[,2] else ij[,1] >= ij[,2] ,
-		       , drop = FALSE]
-	  }
-	  new("dsTMatrix", i = ij[,1] - 1L, j = ij[,2] - 1L,
-	      x = as.vector(m[ij]), uplo = uplo,
-	      Dim = from@Dim, Dimnames = from@Dimnames)
-      })
+dsy2T <- function(from) { # 'dsT': only store upper *or* lower
+    uplo <- from@uplo
+    if(any((d <- dim(from)) == 0)) {
+	ij <- matrix(0L, 0,2) ; m <- from@x
+    } else {
+	## FIXME!	 working via "matrix" is *not* efficient:
+	## the "other triangle" is filled, compared with 0, and then trashed:
+	m <- .Call(dsyMatrix_as_matrix, from, FALSE) # no dimnames!
+	ij <- which(m != 0, arr.ind = TRUE)
+	ij <- ij[if(uplo == "U") ij[,1] <= ij[,2] else ij[,1] >= ij[,2], , drop = FALSE]
+    }
+    new("dsTMatrix", i = ij[,1] - 1L, j = ij[,2] - 1L,
+	x = as.vector(m[ij]), uplo = uplo,
+	Dim = from@Dim, Dimnames = from@Dimnames)
+}
+setAs("dsyMatrix", "dsTMatrix", dsy2T)
 
 setAs("dsyMatrix", "dsCMatrix",
-      function(from) as(as(from, "dsTMatrix"), "dsCMatrix"))
-
+      dsy2C <- function(from) .T2Cmat(dsy2T(from), isTri=FALSE))
 
 ## Note: Just *because* we have an explicit  dtr -> dge coercion,
 ##       show( <ddenseMatrix> ) is not okay, and we need our own:

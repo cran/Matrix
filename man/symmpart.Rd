@@ -38,14 +38,13 @@ skewpart(x)
     \code{"matrix"}, or typically, inheriting from the
     \code{\linkS4class{Matrix}} class.}
 }
-% \section{Methods}{
-% \describe{
-
-% \item{x = "Matrix"}{ ~~describe this method here }
-% }}
 \details{
   These are generic functions with several methods for different matrix
   classes, use e.g., \code{\link{showMethods}(symmpart)} to see them.
+
+  If the row and column names differ, the result will use the column
+  names unless they are (partly) \code{NULL} where the row names are
+  non-\code{NULL} (see also the examples).
 }
 \value{
   \code{symmpart()} returns a symmetric matrix, inheriting from
@@ -56,14 +55,22 @@ skewpart(x)
   typically of the same class as \code{x} (or the closest
   \dQuote{general} one, see \code{\linkS4class{generalMatrix}}).
 }
-%\references{ ~put references to the literature/web site here ~ }
-%\seealso{ ~~objects to See Also as \code{\link{help}}, ~~~ }
+\seealso{
+  \code{\link{isSymmetric}}.}
 \examples{
 m <- Matrix(1:4, 2,2)
 symmpart(m)
 skewpart(m)
 
 stopifnot(all(m == symmpart(m) + skewpart(m)))
+
+dn <- dimnames(m) <- list(row = c("r1", "r2"), col = c("var.1", "var.2"))
+stopifnot(all(m == symmpart(m) + skewpart(m)))
+colnames(m) <- NULL
+stopifnot(all(m == symmpart(m) + skewpart(m)))
+dimnames(m) <- unname(dn)
+stopifnot(all(m == symmpart(m) + skewpart(m)))
+
 
 ## investigate the current methods:
 showMethods(skewpart, include = TRUE)

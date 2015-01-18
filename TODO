@@ -1,6 +1,12 @@
 ##-*- mode: org -*-
 
 * *Urgent* in some sense ---------------------------------------------------
+** DONE [t]crossprod() could/should become more lenient with *vector*s: adapt R-devel (= R 3.2.0)'s rules:
+   see misc/products-Mv.R and *.Rout -- now tests/matprod.R ("3.2.0")
+*** DONE for  sparseVector o (sparse)vector
+*** DONE consider analagous changes to base-R
+** DONE m %*% M (crossprod, ..) with 0-dim. result give garbage
+** DONE M[i,j] should *not* drop dimnames (R-forge bug 2556, see ~/R/MM/Pkg-ex/Matrix/dimnames-prod.R)
 ** TODO M[<sparse 2-column Matrix>] indexing should work (but with a warning: use *dense*!)
 ** TODO src/CHOLMOD/MatrixOps/cholmod_symmetry.c  is "cool" and fast;
 Definitely should use it for solve(<dgCMatrix>)  {it seems MATLAB does};
@@ -21,12 +27,12 @@ alternatively also is_sym() [in src/cs_utils.c], see below.
 ** TODO src/cs_utils.c : I think is_sym() [only used in Matrix_cs_to_SEXP()] can be made sped up:
 leave the for loops, as soon as is_lower == is_upper == 0.
 
+** DONE "Math"/"Math2" *fail* entirely for sparseVectors
 * New smallish ideas, relatively urgent for MM -----------------------------
 ** DONE generalize new "indMatrix" class, to allow 0 repetitions
  of some samples, i.e., columns of all 0 s. It's mathematically more
  natural --> typically will be useful.
-** DONE R/products.Rout -- [t]crossprod() could/should become more lenient with *vector*s
-*** TODO consider analagous changes to base-R [t]crossprod()
+** DONE polnish translation (e-mail!)
 ** TODO cor(<sparseMatrix>) and cov(<sparseMatrix>)  at least for y=NULL ("no y").
 -> ~/R/MM/Pkg-ex/Matrix/cor_sparse-propos.R <- http://stackoverflow.com/questions/5888287/
 ** TODO Investigate the "band changing (and getting) ideas  'band<-' etc,
@@ -45,8 +51,7 @@ leave the for loops, as soon as is_lower == is_upper == 0.
   third calls in the Synopsis should be to ldexpf and ldexpl.
 
 ** TODO provide methods for "dspMatrix" and "dppMatrix"!
-  2012-07: mostly(?) DONE, with Ops, etc, also pack() / unpack()
-
+  2012-07: DONE with Ops, etc, also pack() / unpack(); not yet: "Math"
 ** TODO combine the C functions for multiplication by special forms and
   solution wrt special forms by using a 'right' argument and a
   'classed' argument.
@@ -65,9 +70,9 @@ leave the for loops, as soon as is_lower == is_upper == 0.
 *** More systemtic possible via new argumnet 'orig_1' in  m_encodeInd(), m_encodeInd2()
  ->  src/Mutils.c
 * Generalization of Existing Classes and Methods ---------------------------
-** TODO "Math2" , "Math", "Arith": keep triangular and symmetric
- Matrices when appropriate:
- particularly desirable for  "Math2": round(), signif()
+** DONE "Math2" , "Math", "Summary": keep diagonal, triangular and symmetric Matrices
+ when appropriate: particularly desirable for "Math2": round(), signif()
+** TODO "Arith" (and Ops ?): keep diagonal, triangular and symmetric Matrices where appropr.
 ** TODO For triangular matrices, ensure the four rules of "triangular matrix algebra"
   (Golub+Van Loan 1996, 3.1.8, p.93)"
 *** DONE since 2008-03-06 for Csparse
@@ -180,8 +185,8 @@ leave the for loops, as soon as is_lower == is_upper == 0.
   frequently in some computations {conditional normal distr. ...}.
   Since this can be done faster than by
     sum(diag(A %*% B))  even for traditional matrices, e.g.
-    	       sum(A * t(B)) or {even faster for "full" mat}
-	       crossprod(as.vector(A), as.vector(B))
+     sum(A * t(B)) or {sometimes even faster for "full" mat}
+	       crossprod(as.vector(A), as.vector(t(B)))
   and even more so for, e.g.  <sparse> %*% <dense>
   {used in Soeren's 'gR' computations},
   we should also provide a generic and methods.

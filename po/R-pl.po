@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Matrix 1.1-2-2\n"
 "Report-Msgid-Bugs-To: bugs.r-project.org\n"
-"POT-Creation-Date: 2014-03-26 21:03\n"
+"POT-Creation-Date: 2015-01-17 15:31\n"
 "PO-Revision-Date: 2014-03-27 14:47+0100\n"
 "Last-Translator: Łukasz Daniel <lukasz.daniel@gmail.com>\n"
 "Language-Team: Łukasz Daniel <lukasz.daniel@gmail.com>\n"
@@ -61,6 +61,9 @@ msgstr "niezgodne wymiary macierzy w %s"
 # warning(gettextf("dimnames [%d] mismatch in %s", j, deparse(sys.call(sys.parent()))), call. = FALSE, domain = "R-Matrix")
 msgid "dimnames [%d] mismatch in %s"
 msgstr "niezgodność nazw wymiarów [%d] w %s"
+
+msgid "names(dimnames(<matrix>)) must be NULL or of length two"
+msgstr ""
 
 # Matrix/R/Auxiliaries.R: 305
 # stop(gettextf("Matrices must have same number of rows in %s", deparse(sys.call(sys.parent()))), call. = FALSE, domain = "R-Matrix")
@@ -135,17 +138,6 @@ msgstr "jeszcze nie jest zaimplementowana dla %s"
 # stop(gettextf("general Matrix class not yet implemented for %s", dQuote(class(x))), domain = "R-Matrix")
 msgid "general Matrix class not yet implemented for %s"
 msgstr "ogólna klasa 'Matrix' jeszcze nie jest zaimplementowana dla %s"
-
-# Matrix/R/Auxiliaries.R: 1376
-# warning(sprintf(gettext("arguments %s are disregarded in\n %s", domain = "R-Matrix"),
-# 			 sub(")$", '', sub("^list\\(", '', deparse(list(...), control=c()))),
-# 			 deparse(sys.call(-1), control=c())), call. = FALSE, domain = NA)
-msgid ""
-"arguments %s are disregarded in\n"
-" %s"
-msgstr ""
-"argumenty %s zostały odrzucone w\n"
-" %s"
 
 # Matrix/R/CHMfactor.R: 122
 # message(sprintf(gettext("Quadratic matrix '%s' (=: A) is not formally symmetric. Will be treated as A A'", domain = "R-Matrix"), "parent"), domain = NA)
@@ -417,16 +409,6 @@ msgstr ""
 msgid "'lag' and 'differences' must be integers >= 1"
 msgstr "'lag' oraz 'differences' muszą być liczbami całkowitymi >= 1"
 
-# Matrix/R/Matrix.R: 459
-# stop("programming error: min() should have dispatched w/ 1st arg much earlier")
-msgid "programming error: min() should have dispatched w/ 1st arg much earlier"
-msgstr ""
-"błąd programistyczny: 'min()' powinno zostać wysłane z pierwszym argumentem "
-"znacznie wcześniej"
-
-msgid "in Summary(<ANY>, .): %s(<%s>, <%s>,...)"
-msgstr "w funkcji 'Summary(<ANY>, .): %s(<%s>, <%s>,...)'"
-
 # Matrix/R/Matrix.R: 563
 # stop("invalid or not-yet-implemented 'Matrix' subsetting")
 msgid "invalid or not-yet-implemented 'Matrix' subsetting"
@@ -640,6 +622,20 @@ msgstr "wymiar [produkt %d] nie zgadza się z długością obiektu [%d]"
 # stop(gettextf("invalid class: %s", dQuote(cl)), domain = "R-Matrix")
 msgid "invalid class: %s"
 msgstr "niepoprawna klasa: %s"
+
+# Matrix/R/Matrix.R: 459
+# stop("programming error: min() should have dispatched w/ 1st arg much earlier")
+msgid "programming error: min() should have dispatched w/ 1st arg much earlier"
+msgstr ""
+"błąd programistyczny: 'min()' powinno zostać wysłane z pierwszym argumentem "
+"znacznie wcześniej"
+
+msgid "in Summary(<ANY>, .): %s(<%s>, <%s>,...)"
+msgstr "w funkcji 'Summary(<ANY>, .): %s(<%s>, <%s>,...)'"
+
+#, fuzzy
+msgid "in Summary(<ANY>, .): %s(<%s>, <%s>)"
+msgstr "w funkcji 'Summary(<ANY>, .): %s(<%s>, <%s>,...)'"
 
 # Matrix/R/Tsparse.R: 8
 # stop("not-yet-implemented coercion to \"TsparseMatrix\"")
@@ -972,6 +968,12 @@ msgid ""
 msgstr ""
 "LU obliczeniowo osobliwa: stosunek ekstremalnych wpisów w |diag(U)| = %9.4g"
 
+msgid "RHS 'b' has wrong number of rows:"
+msgstr ""
+
+msgid "RHS 'b' has wrong length"
+msgstr ""
+
 # Matrix/R/dgTMatrix.R: 20
 # stop("cannot coerce non-symmetric \"dgTMatrix\" to \"dsCMatrix\" class")
 msgid "cannot coerce non-symmetric \"dgTMatrix\" to \"dsCMatrix\" class"
@@ -1187,6 +1189,12 @@ msgstr "to nie jest macierz kwadratowa"
 msgid "not-yet-implemented method for <%s> %%*%% <%s>"
 msgstr "jeszcze niezaimplementowana metoda dla <%s> %%*%% <%s>"
 
+# Matrix/R/Auxiliaries.R: 273
+# stop(gettextf("non-conformable matrix dimensions in %s", deparse(sys.call(sys.parent()))), call. = FALSE, domain = "R-Matrix")
+#, fuzzy
+msgid "non-conformable arguments"
+msgstr "niezgodne wymiary macierzy w %s"
+
 msgid ""
 "rankMatrix(<large sparse Matrix>, method = '%s') coerces to dense matrix.\n"
 " Probably should rather use method = 'qr' !?"
@@ -1290,6 +1298,9 @@ msgstr "'rcond(.)' poprzez przekształcenie rzadkie -> gęste"
 msgid "'V' is not a *square* matrix"
 msgstr "'V' nie jest macierzą *kwadratową*"
 
+msgid "number of non zeros is smaller than 'nnz' because of duplicated (i,j)s"
+msgstr ""
+
 # Matrix/R/sparseQR.R: 16
 # warning("qr.R(<sparse>) may differ from qr.R(<dense>) because of permutations.  Possibly use our qrR() instead")
 msgid ""
@@ -1376,6 +1387,27 @@ msgstr "(roz)pakowanie stosuje się jedynie do gęstych macierzy, class(x)='%s'"
 # stop("'x' is not symmetric nor triangular")
 msgid "'x' is not symmetric nor triangular"
 msgstr "'x' nie jest macierzą symetryczną ani trójkątną"
+
+# Matrix/R/Auxiliaries.R: 1376
+# warning(sprintf(gettext("arguments %s are disregarded in\n %s", domain = "R-Matrix"),
+# 			 sub(")$", '', sub("^list\\(", '', deparse(list(...), control=c()))),
+# 			 deparse(sys.call(-1), control=c())), call. = FALSE, domain = NA)
+#, fuzzy
+msgid ""
+"extra argument %s will be disregarded in\n"
+" %s"
+msgid_plural ""
+"extra arguments %s will be disregarded in\n"
+" %s"
+msgstr[0] ""
+"argumenty %s zostały odrzucone w\n"
+" %s"
+msgstr[1] ""
+"argumenty %s zostały odrzucone w\n"
+" %s"
+msgstr[2] ""
+"argumenty %s zostały odrzucone w\n"
+" %s"
 
 #~ msgid "longer object length"
 #~ msgstr "długość dłuższego obiektu"

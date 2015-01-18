@@ -27,6 +27,8 @@ SEXP Csparse_general_to_symmetric(SEXP x, SEXP uplo);
 SEXP Csparse_MatrixMarket(SEXP x, SEXP fname);
 SEXP Csparse_sort (SEXP x);
 SEXP Csparse_to_Tsparse(SEXP x, SEXP tri);
+SEXP Csparse_to_tCsparse(SEXP x, SEXP uplo, SEXP diag);
+SEXP Csparse_to_tTsparse(SEXP x, SEXP uplo, SEXP diag);
 SEXP Csparse_to_dense(SEXP x);
 SEXP Csparse_to_nz_pattern(SEXP x, SEXP tri);
 SEXP nz_pattern_to_Csparse(SEXP x, SEXP res_kind);

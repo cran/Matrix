@@ -1,21 +1,19 @@
 ### Coercion and Methods for Symmetric Packed Matrices
 
-setAs("dspMatrix", "dsyMatrix",
-      function(from) .Call(dspMatrix_as_dsyMatrix, from))
-dsp2sC <- function(from) as(.Call(dspMatrix_as_dsyMatrix, from), "dsCMatrix")
-## setAs("dspMatrix", "dsCMatrix", dsp2sC)
-setAs("dspMatrix", "CsparseMatrix", dsp2sC)
-setAs("dspMatrix", "sparseMatrix", dsp2sC)
+dsp2dsy <- function(from) .Call(dspMatrix_as_dsyMatrix, from)
+dsp2C <- function(from) dsy2C(.Call(dspMatrix_as_dsyMatrix, from))
+setAs("dspMatrix", "dsyMatrix", dsp2dsy)
+## setAs("dspMatrix", "dsCMatrix", dsp2C)
+setAs("dspMatrix", "CsparseMatrix", dsp2C)
+setAs("dspMatrix", "sparseMatrix", dsp2C)
 
 ## dge <--> dsp   via  dsy
-setAs("dgeMatrix", "dspMatrix",
-      function(from) as(as(from, "dsyMatrix"), "dspMatrix"))
-
-## S3-matrix <--> dsp   via  dsy
-setAs("dspMatrix", "matrix",
-      function(from) as(as(from, "dsyMatrix"), "matrix"))
+.dense2sp <- function(from) .dsy2dsp(.dense2sy(from))
+setAs("dgeMatrix", "dspMatrix", .dense2sp)
 setAs("matrix", "dspMatrix",
-      function(from) as(as(from, "dsyMatrix"), "dspMatrix"))
+      function(from) .dense2sp(..2dge(from)))
+## S3-matrix <--> dsp   via  dsy
+setAs("dspMatrix", "matrix", function(from) .dsy2mat(dsp2dsy(from)))
 
 
 

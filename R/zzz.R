@@ -29,6 +29,9 @@ rBind <- methods:::rbind
     package_version(list(major = ssv[1], minor = paste(ssv[2:3], collapse=".")))
 }
 
-if(getRversion() < "3.0.0") {
-    rep_len <- function(x, length.out) rep(x, length.out=length.out)
+if(getRversion() < "3.1.0") {
+    if(getRversion() < "3.0.0") {
+        rep_len <- function(x, length.out) rep(x, length.out=length.out)
+    }
+    anyNA <- function(x) any(is.na(x))
 }

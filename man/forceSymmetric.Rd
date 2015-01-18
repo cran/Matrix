@@ -46,21 +46,23 @@
 %
 \title{Force a Matrix to 'symmetricMatrix' Without Symmetry Checks}
 \description{
-  Force \code{x} (inheriting from \code{\linkS4class{Matrix}} class) to
-  \code{\linkS4class{symmetricMatrix}}, \bold{without} a symmetry check
-  (which \emph{is} applied for all \code{as(x, "symmetricMatrix")}
-  alikes).
+  Force a square matrix \code{x} to a \code{\linkS4class{symmetricMatrix}},
+  \bold{without} a symmetry check as it would be applied for \code{as(x,
+    "symmetricMatrix")}.
 }
 \usage{
 forceSymmetric(x, uplo)
 }
 \arguments{
-  \item{x}{a (classed) square matrix.}
-  \item{uplo}{optional string, \code{"U"} or \code{"L"}.
-    The default is \code{"U"} unless \code{x} already has a \code{uplo}
-    slot (i.e., when it is \code{\linkS4class{symmetricMatrix}},
-    or  \code{\linkS4class{triangularMatrix}}), where the default will
-    be \code{x@uplo}.}
+  \item{x}{any square matrix (of numbers), either \dQuote{"traditional"}
+    (\code{\link{matrix}}) or inheriting from
+    \code{\linkS4class{Matrix}}.}
+  \item{uplo}{optional string, \code{"U"} or \code{"L"} indicating which
+    \dQuote{triangle} half of \code{x} should determine the result.  The
+    default is \code{"U"} unless \code{x} already has a \code{uplo} slot
+    (i.e., when it is \code{\linkS4class{symmetricMatrix}}, or
+    \code{\linkS4class{triangularMatrix}}), where the default will be
+    \code{x@uplo}.}
 }
 % \details{
 %
@@ -69,8 +71,8 @@ forceSymmetric(x, uplo)
   a square matrix inheriting from class
   \code{\linkS4class{symmetricMatrix}}.
 }
-\seealso{\code{\link{symmpart}} for the symmetric part, or the coercions
-  \code{as(x, <symmetricMatrix class>)}.
+\seealso{\code{\link{symmpart}} for the symmetric part of a matrix, or
+  the coercions \code{as(x, <symmetricMatrix class>)}.
 }
 \examples{
  ## Hilbert matrix

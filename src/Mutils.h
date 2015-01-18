@@ -120,6 +120,8 @@ extern	 /* stored pointers to symbols initialized in R_init_Matrix */
 
 /* zero an array */
 #define AZERO(x, n) {int _I_, _SZ_ = (n); for(_I_ = 0; _I_ < _SZ_; _I_++) (x)[_I_] = 0;}
+// R's  RS.h :
+#define Memzero(p,n)  memset(p, 0, (size_t)(n) * sizeof(*p))
 
 /* number of elements in one triangle of a square matrix of order n */
 #define PACKED_LENGTH(n)   ((n) * ((n) + 1))/2
@@ -160,7 +162,7 @@ enum x_slot_kind {x_pattern=-1, x_double=0, x_logical=1, x_integer=2, x_complex=
 #define Real_KIND2(_x_)	(IS_S4_OBJECT(_x_) ? Real_kind(_x_) : \
 			 (isLogical(_x_) ? x_logical : 0))
 
-/* requires 'x' slot: */
+/* requires 'x' slot, i.e., not for ..nMatrix.  FIXME ? via R_has_slot(obj, name) */
 #define Real_kind(_x_)	(isReal(GET_SLOT(_x_, Matrix_xSym)) ? 0	:	\
 			 (isLogical(GET_SLOT(_x_, Matrix_xSym)) ? 1 : -1))
 
@@ -261,8 +263,10 @@ Rboolean any_NA_in_x(SEXP obj)
 static R_INLINE
 SEXP inv_permutation(SEXP p_, SEXP zero_p, SEXP zero_res)
 {
+    int np = 0;
+    if(!isInteger(p_)) {p_ = PROTECT(coerceVector(p_, INTSXP)); np++; }
     int *p = INTEGER(p_), n = LENGTH(p_);
-    SEXP val = allocVector(INTSXP, n);
+    SEXP val = allocVector(INTSXP, n);// (not PROTECT()ing: no alloc from here on)
     int *v = INTEGER(val), p_0 = asLogical(zero_p), r_0 = asLogical(zero_res);
     if(!p_0) v--; // ==> use 1-based indices
     // shorter (but not 100% sure if ok: is LHS always eval'ed *before* RHS ?) :
@@ -270,6 +274,7 @@ SEXP inv_permutation(SEXP p_, SEXP zero_p, SEXP zero_res)
     for(int i=0; i < n; ) {
 	int j = p[i]; v[j] = (r_0) ? i++ : ++i;
     }
+    UNPROTECT(np);
     return val;
 }
 
@@ -283,8 +288,9 @@ void make_i_matrix_symmetric(   int *to, SEXP from);
 
 SEXP Matrix_expand_pointers(SEXP pP);
 
-SEXP dup_mMatrix_as_dgeMatrix(SEXP A);
-SEXP dup_mMatrix_as_geMatrix (SEXP A);
+SEXP dup_mMatrix_as_dgeMatrix2(SEXP A, Rboolean tr_if_vec);
+SEXP dup_mMatrix_as_dgeMatrix (SEXP A);
+SEXP dup_mMatrix_as_geMatrix  (SEXP A);
 
 SEXP new_dgeMatrix(int nrow, int ncol);
 SEXP m_encodeInd (SEXP ij,        SEXP di, SEXP orig_1, SEXP chk_bnds);
@@ -294,9 +300,12 @@ SEXP R_all0(SEXP x);
 SEXP R_any0(SEXP x);
 
 static R_INLINE SEXP
-mMatrix_as_dgeMatrix(SEXP A)
-{
+mMatrix_as_dgeMatrix(SEXP A) {
     return strcmp(class_P(A), "dgeMatrix") ? dup_mMatrix_as_dgeMatrix(A) : A;
+}
+static R_INLINE SEXP
+mMatrix_as_dgeMatrix2(SEXP A, Rboolean tr_if_vec) {
+    return strcmp(class_P(A), "dgeMatrix") ? dup_mMatrix_as_dgeMatrix2(A, tr_if_vec) : A;
 }
 
 static R_INLINE SEXP

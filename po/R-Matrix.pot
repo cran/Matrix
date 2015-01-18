@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Matrix 1.1-3\n"
-"POT-Creation-Date: 2014-03-26 21:03\n"
+"Project-Id-Version: Matrix 1.1-4-3\n"
+"POT-Creation-Date: 2015-01-17 15:31\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -29,6 +29,9 @@ msgid "non-conformable matrix dimensions in %s"
 msgstr ""
 
 msgid "dimnames [%d] mismatch in %s"
+msgstr ""
+
+msgid "names(dimnames(<matrix>)) must be NULL or of length two"
 msgstr ""
 
 msgid "Matrices must have same number of rows in %s"
@@ -62,9 +65,6 @@ msgid "not yet implemented for %s"
 msgstr ""
 
 msgid "general Matrix class not yet implemented for %s"
-msgstr ""
-
-msgid "arguments %s are disregarded in\n %s"
 msgstr ""
 
 msgid "Quadratic matrix '%s' (=: A) is not formally\n\tsymmetric.  Will be treated as\tA A'"
@@ -193,12 +193,6 @@ msgstr ""
 msgid "'lag' and 'differences' must be integers >= 1"
 msgstr ""
 
-msgid "programming error: min() should have dispatched w/ 1st arg much earlier"
-msgstr ""
-
-msgid "in Summary(<ANY>, .): %s(<%s>, <%s>,...)"
-msgstr ""
-
 msgid "invalid or not-yet-implemented 'Matrix' subsetting"
 msgstr ""
 
@@ -290,6 +284,15 @@ msgid "dim [product %d] do not match the length of object [%d]"
 msgstr ""
 
 msgid "invalid class: %s"
+msgstr ""
+
+msgid "programming error: min() should have dispatched w/ 1st arg much earlier"
+msgstr ""
+
+msgid "in Summary(<ANY>, .): %s(<%s>, <%s>,...)"
+msgstr ""
+
+msgid "in Summary(<ANY>, .): %s(<%s>, <%s>)"
 msgstr ""
 
 msgid "not-yet-implemented coercion to \"TsparseMatrix\""
@@ -451,6 +454,12 @@ msgstr ""
 msgid "LU computationally singular: ratio of extreme entries in |diag(U)| = %9.4g"
 msgstr ""
 
+msgid "RHS 'b' has wrong number of rows:"
+msgstr ""
+
+msgid "RHS 'b' has wrong length"
+msgstr ""
+
 msgid "cannot coerce non-symmetric \"dgTMatrix\" to \"dsCMatrix\" class"
 msgstr ""
 
@@ -553,6 +562,9 @@ msgstr ""
 msgid "not-yet-implemented method for <%s> %%*%% <%s>"
 msgstr ""
 
+msgid "non-conformable arguments"
+msgstr ""
+
 msgid "rankMatrix(<large sparse Matrix>, method = '%s') coerces to dense matrix.\n Probably should rather use method = 'qr' !?"
 msgstr ""
 
@@ -610,6 +622,9 @@ msgstr ""
 msgid "'V' is not a *square* matrix"
 msgstr ""
 
+msgid "number of non zeros is smaller than 'nnz' because of duplicated (i,j)s"
+msgstr ""
+
 msgid "qr.R(<sparse>) may differ from qr.R(<dense>) because of permutations.  Possibly use our qrR() instead"
 msgstr ""
 
@@ -654,3 +669,8 @@ msgstr ""
 
 msgid "'x' is not symmetric nor triangular"
 msgstr ""
+
+msgid        "extra argument %s will be disregarded in\n %s"
+msgid_plural "extra arguments %s will be disregarded in\n %s"
+msgstr[0]    ""
+msgstr[1]    ""

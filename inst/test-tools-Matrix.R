@@ -176,12 +176,14 @@ rspMat <- function(n, m = n, density = 1/4, nnz = round(density * n*m),
 }
 
 
-## From \examples{..}  in ../man/sparseMatrix.Rd :
+## originally, from \examples{..}  in ../man/sparseMatrix.Rd :
 rSparseMatrix <- function(nrow, ncol, nnz,
 			  rand.x = function(n) round(rnorm(nnz), 2), ...)
 {
     stopifnot((nnz <- as.integer(nnz)) >= 0,
 	      nrow >= 0, ncol >= 0, nnz <= nrow * ncol)
+    .Deprecated("rsparsematrix")
+    ##=========
     sparseMatrix(i = sample(nrow, nnz, replace = TRUE),
 		 j = sample(ncol, nnz, replace = TRUE),
 		 x = rand.x(nnz), dims = c(nrow, ncol), ...)

@@ -3,6 +3,7 @@
 \alias{ndenseMatrix-class}
 \alias{!,ndenseMatrix-method}
 \alias{Ops,ndenseMatrix,ndenseMatrix-method}
+\alias{Summary,ndenseMatrix-method}
 \alias{as.logical,ndenseMatrix-method}
 \alias{coerce,matrix,ndenseMatrix-method}
 \alias{coerce,ndenseMatrix,matrix-method}

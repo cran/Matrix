@@ -58,9 +58,15 @@ SEXP CHMfactor_spsolve(SEXP a, SEXP b, SEXP system)
     if (!(sys--))		/* align with CHOLMOD defs: R's {1:9} --> {0:8},
 				   see ./CHOLMOD/Cholesky/cholmod_solve.c */
 	error(_("system argument is not valid"));
+
+    // dimnames:
+    SEXP dn = PROTECT(allocVector(VECSXP, 2));
+    // none from a: our CHMfactor objects have no dimnames
+    SET_VECTOR_ELT(dn, 1, duplicate(VECTOR_ELT(GET_SLOT(b, Matrix_DimNamesSym), 1)));
+    UNPROTECT(1);
+
     return chm_sparse_to_SEXP(cholmod_spsolve(sys, L, B, &c),
-			      1/*do_free*/, 0/*uploT*/, 0/*Rkind*/,
-			      "", GET_SLOT(b, Matrix_DimNamesSym));
+			      1/*do_free*/, 0/*uploT*/, 0/*Rkind*/, "", dn);
 }
 
 /**

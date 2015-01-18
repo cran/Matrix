@@ -210,6 +210,30 @@ SEXP Csparse_to_Tsparse(SEXP x, SEXP tri)
 			       GET_SLOT(x, Matrix_DimNamesSym));
 }
 
+SEXP Csparse_to_tCsparse(SEXP x, SEXP uplo, SEXP diag)
+{
+    CHM_SP chxs = AS_CHM_SP__(x);
+    int Rkind = (chxs->xtype != CHOLMOD_PATTERN) ? Real_kind(x) : 0;
+    R_CheckStack();
+    return chm_sparse_to_SEXP(chxs, /* dofree = */ 0,
+			      /* uploT = */ (*CHAR(asChar(uplo)) == 'U')? 1: -1,
+			       Rkind, /* diag = */ CHAR(STRING_ELT(diag, 0)),
+			       GET_SLOT(x, Matrix_DimNamesSym));
+}
+
+SEXP Csparse_to_tTsparse(SEXP x, SEXP uplo, SEXP diag)
+{
+    CHM_SP chxs = AS_CHM_SP__(x);
+    CHM_TR chxt = cholmod_sparse_to_triplet(chxs, &c);
+    int Rkind = (chxs->xtype != CHOLMOD_PATTERN) ? Real_kind(x) : 0;
+    R_CheckStack();
+    return chm_triplet_to_SEXP(chxt, 1,
+			      /* uploT = */ (*CHAR(asChar(uplo)) == 'U')? 1: -1,
+			       Rkind, /* diag = */ CHAR(STRING_ELT(diag, 0)),
+			       GET_SLOT(x, Matrix_DimNamesSym));
+}
+
+
 /* this used to be called  sCMatrix_to_gCMatrix(..)   [in ./dsCMatrix.c ]: */
 SEXP Csparse_symmetric_to_general(SEXP x)
 {
@@ -233,13 +257,34 @@ SEXP Csparse_general_to_symmetric(SEXP x, SEXP uplo)
 	return R_NilValue; /* -Wall */
     }
     CHM_SP chx = AS_CHM_SP__(x), chgx;
-    int uploT = (*CHAR(STRING_ELT(uplo,0)) == 'U') ? 1 : -1;
+    int uploT = (*CHAR(asChar(uplo)) == 'U') ? 1 : -1;
     int Rkind = (chx->xtype != CHOLMOD_PATTERN) ? Real_kind(x) : 0;
     R_CheckStack();
     chgx = cholmod_copy(chx, /* stype: */ uploT, chx->xtype, &c);
+
+    /* need _symmetric_ dimnames */
+    SEXP dns = PROTECT(duplicate(GET_SLOT(x, Matrix_DimNamesSym))),
+	nms_dns = getAttrib(dns, R_NamesSymbol);
+    if(!equal_string_vectors(VECTOR_ELT(dns, 0),
+			     VECTOR_ELT(dns, 1))) {
+	if(uploT == 1)
+	    SET_VECTOR_ELT(dns, 0, VECTOR_ELT(dns,1));
+	else
+	    SET_VECTOR_ELT(dns, 1, VECTOR_ELT(dns,0));
+    }
+    if(!isNull(nms_dns) &&  // names(dimnames(.)) :
+       !R_compute_identical(STRING_ELT(nms_dns, 0),
+			    STRING_ELT(nms_dns, 1), 15)) {
+	if(uploT == 1)
+	    SET_STRING_ELT(nms_dns, 0, STRING_ELT(nms_dns,1));
+	else
+	    SET_STRING_ELT(nms_dns, 1, STRING_ELT(nms_dns,0));
+	setAttrib(dns, R_NamesSymbol, nms_dns);
+    }
+
+    UNPROTECT(1);
     /* xtype: pattern, "real", complex or .. */
-    return chm_sparse_to_SEXP(chgx, 1, 0, Rkind, "",
-			      GET_SLOT(x, Matrix_DimNamesSym));
+    return chm_sparse_to_SEXP(chgx, 1, 0, Rkind, "", dns);
 }
 
 SEXP Csparse_transpose(SEXP x, SEXP tri)
@@ -256,6 +301,13 @@ SEXP Csparse_transpose(SEXP x, SEXP tri)
     tmp = VECTOR_ELT(dn, 0);	/* swap the dimnames */
     SET_VECTOR_ELT(dn, 0, VECTOR_ELT(dn, 1));
     SET_VECTOR_ELT(dn, 1, tmp);
+    if(!isNull(tmp = getAttrib(dn, R_NamesSymbol))) { // swap names(dimnames(.)):
+	SEXP nms_dns = PROTECT(allocVector(VECSXP, 2));
+	SET_VECTOR_ELT(nms_dns, 1, STRING_ELT(tmp, 0));
+        SET_VECTOR_ELT(nms_dns, 0, STRING_ELT(tmp, 1));
+	setAttrib(dn, R_NamesSymbol, nms_dns);
+	UNPROTECT(1);
+    }
     UNPROTECT(1);
     return chm_sparse_to_SEXP(chxt, 1, /* SWAP 'uplo' for triangular */
 			      tr ? ((*uplo_P(x) == 'U') ? -1 : 1) : 0,
@@ -345,7 +397,8 @@ SEXP Csparse_Csparse_crossprod(SEXP a, SEXP b, SEXP trans)
 SEXP Csparse_dense_prod(SEXP a, SEXP b)
 {
     CHM_SP cha = AS_CHM_SP(a);
-    SEXP b_M = PROTECT(mMatrix_as_dgeMatrix(b));
+    SEXP b_M = PROTECT(mMatrix_as_dgeMatrix2(b, // transpose_if_vector =
+					     cha->ncol == 1));
     CHM_DN chb = AS_CHM_DN(b_M);
     CHM_DN chc = cholmod_allocate_dense(cha->nrow, chb->ncol, cha->nrow,
 					chb->xtype, &c);
@@ -376,7 +429,8 @@ SEXP Csparse_dense_prod(SEXP a, SEXP b)
 SEXP Csparse_dense_crossprod(SEXP a, SEXP b)
 {
     CHM_SP cha = AS_CHM_SP(a);
-    SEXP b_M = PROTECT(mMatrix_as_dgeMatrix(b));
+    SEXP b_M = PROTECT(mMatrix_as_dgeMatrix2(b, // transpose_if_vector =
+					     cha->nrow == 1));
     CHM_DN chb = AS_CHM_DN(b_M);
     CHM_DN chc = cholmod_allocate_dense(cha->ncol, chb->ncol, cha->ncol,
 					chb->xtype, &c);
@@ -569,22 +623,27 @@ SEXP Csparse_submatrix(SEXP x, SEXP i, SEXP j)
     if (csize >= 0 && !isInteger(j))
 	error(_("Index j must be NULL or integer"));
 
+#define CHM_SUB(_M_, _i_, _j_)					\
+    cholmod_submatrix(_M_,					\
+		      (rsize < 0) ? NULL : INTEGER(_i_), rsize,	\
+		      (csize < 0) ? NULL : INTEGER(_j_), csize,	\
+		      TRUE, TRUE, &c)
+    CHM_SP ans;
     if (!chx->stype) {/* non-symmetric Matrix */
-	return chm_sparse_to_SEXP(cholmod_submatrix(chx,
-						    (rsize < 0) ? NULL : INTEGER(i), rsize,
-						    (csize < 0) ? NULL : INTEGER(j), csize,
-						    TRUE, TRUE, &c),
-				  1, 0, Rkind, "",
-				  /* FIXME: drops dimnames */ R_NilValue);
+	ans = CHM_SUB(chx, i, j);
     }
-				/* for now, cholmod_submatrix() only accepts "generalMatrix" */
-    CHM_SP tmp = cholmod_copy(chx, /* stype: */ 0, chx->xtype, &c);
-    CHM_SP ans = cholmod_submatrix(tmp,
-				   (rsize < 0) ? NULL : INTEGER(i), rsize,
-				   (csize < 0) ? NULL : INTEGER(j), csize,
-				   TRUE, TRUE, &c);
-    cholmod_free_sparse(&tmp, &c);
-    return chm_sparse_to_SEXP(ans, 1, 0, Rkind, "", R_NilValue);
+    else {
+	/* for now, cholmod_submatrix() only accepts "generalMatrix" */
+	CHM_SP tmp = cholmod_copy(chx, /* stype: */ 0, chx->xtype, &c);
+	ans = CHM_SUB(tmp, i, j);
+	cholmod_free_sparse(&tmp, &c);
+    }
+
+    // "FIXME": currently dropping dimnames, and adding them afterwards in R :
+    /* // dimnames: */
+    /* SEXP x_dns = GET_SLOT(x, Matrix_DimNamesSym), */
+    /* 	dn = PROTECT(allocVector(VECSXP, 2)); */
+    return chm_sparse_to_SEXP(ans, 1, 0, Rkind, "", /* dimnames: */ R_NilValue);
 }
 
 #define _d_Csp_

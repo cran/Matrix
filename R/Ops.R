@@ -1,5 +1,7 @@
-#### ------- All "Ops"  group methods for all Matrix classes ------------
-###               ===
+####--- All "Ops" group methods for all Matrix classes (incl sparseVector) ------
+####         ===   but diagonalMatrix  -> ./diagMatrix.R and  abIndex.R
+####                                        ~~~~~~~~~~~~      ~~~~~~~~~
+
 ### Note that the "Ops" group consists of
 ### sub-groups   "Arith", "Compare", and "Logic"
 ###               -----    -------        -----
@@ -8,19 +10,13 @@
 ###       'Logic'   :=  '"&"', '"|"'  (( but *not* '"!"' since that has
 ###			                 only one argument ))
 
-## in shell, find them with
-##    egrep 'Method\("(Ops|Compare|Arith|Logic)"' R/*R
-
-### "Ops" ---- remember Ops = {Arith, Compare, Logic}  [Logic: since R 2.4.1]
-### -----
-
-
-### Note: diagonalMatrix are handled by special methods -> ./diagMatrix.R
-###       --------------                                   ~~~~~~~~~~~~~~
+## find them with M-x grep -E 'Method\("(Ops|Compare|Arith|Logic)"' *.R
+##                --------
 
 ### Design decision for *sparseMatrix*:
 ### work via Csparse  since Tsparse are not-unique (<-> slots not compatible)
 
+### Dimnames: (partly) via  dimNamesCheck()  [ ./Auxiliaries.R ]
 
 ### --  0 -- (not dense *or* sparse) -----------------------------------
 
@@ -323,10 +319,13 @@ Ops.x.x <- function(e1, e2)
 	}
 	## now, in all cases @x should be matching & correct {only "uplo" part is used}
 	r <- callGeneric(e1@x, e2@x)
+	kr <- .M.kind(r)
+	if(kr == "d" && !is.double(r)) ## as "igeMatrix" does not yet exist!
+	    r <- as.double(r)
 	if(geM)
-	    new(paste0(.M.kind(r), "geMatrix"), x = r, Dim = d, Dimnames = dimnames(e1))
+	    new(paste0(kr, "geMatrix"), x = r, Dim = d, Dimnames = dimnames(e1))
 	else
-	    new(paste0(.M.kind(r), Mclass), x = r, Dim = d, Dimnames = dimnames(e1), uplo = e1@uplo)
+	    new(paste0(kr, Mclass), x = r, Dim = d, Dimnames = dimnames(e1), uplo = e1@uplo)
     }
     else {
 	r <- if(!dens1 && !dens2)
@@ -970,13 +969,13 @@ setMethod("Arith", signature(e1 = "dsCMatrix", e2 = "dsCMatrix"),
 
 ##-------- originally from ./dgCMatrix.R --------------------
 
-.Arith.Csparse <- function(e1, e2, Generic, class., triangular = FALSE)
+.Arith.Csparse <- function(e1, e2, Generic, class., triangular = FALSE, check.dimnames = TRUE)
 {
     ## Generic is one of  "+", "-", "*", "^", "%%", "%/%", "/"
 
     ## triangular:  TRUE  iff e1,e2 are triangular  _and_  e1@uplo == e2@uplo
     d <- dimCheck(e1, e2)
-    dn <- dimNamesCheck(e1, e2)
+    dn <- dimNamesCheck(e1, e2, check = check.dimnames)
     if(triangular) {
 	## need these for the 'x' slots in any case
 	if (e1@diag == "U") e1 <- .Call(Csparse_diagU2N, e1)

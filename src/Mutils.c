@@ -281,8 +281,8 @@ SEXP check_scalar_string(SEXP sP, char *vals, char *nm)
 }
 
 /* FIXME? Something like this should be part of the R API ?
- *        But then, R has the more general  compute_identical()
- * in src/main/identical.c: Rboolean compute_identical(SEXP x, SEXP y);
+ *        But then, R has the more general  R_compute_identical()
+ * in src/main/identical.c: Rboolean R_compute_identical(SEXP x, SEXP y);
 */
 Rboolean equal_string_vectors(SEXP s1, SEXP s2)
 {
@@ -649,26 +649,31 @@ SEXP dup_mMatrix_as_geMatrix(SEXP A)
 	    error(_("invalid class '%s' to dup_mMatrix_as_geMatrix"),
 		  class_P(A));
 
-#define	DUP_MMATRIX_NON_CLASS						\
+#define	DUP_MMATRIX_NON_CLASS(transpose_if_vec)				\
 	if (isMatrix(A)) {	/* "matrix" */				\
 	    ad = getAttrib(A, R_DimSymbol);				\
 	    an = getAttrib(A, R_DimNamesSymbol);			\
 	} else {/* maybe "numeric" (incl integer,logical) --> (n x 1) */ \
 	    int* dd = INTEGER(ad = PROTECT(allocVector(INTSXP, 2)));	\
 	    nprot++;							\
-	    dd[0] = LENGTH(A);						\
-	    dd[1] = 1;							\
+	    if(transpose_if_vec) {					\
+		dd[0] = 1;						\
+		dd[1] = LENGTH(A);					\
+	    } else {							\
+		dd[0] = LENGTH(A);					\
+		dd[1] = 1;						\
+	    }								\
 	    SEXP nms = getAttrib(A, R_NamesSymbol);			\
 	    if(nms != R_NilValue) {					\
 		an = PROTECT(allocVector(VECSXP, 2));			\
 		nprot++;						\
-	        SET_VECTOR_ELT(an, 0, nms);				\
+	        SET_VECTOR_ELT(an, (transpose_if_vec)? 1 : 0, nms);	\
 		/* not needed: SET_VECTOR_ELT(an, 1, R_NilValue); */    \
 	    } /* else nms = NULL ==> an remains NULL */                 \
  	}								\
 	ctype = 0
 
-	DUP_MMATRIX_NON_CLASS;
+	DUP_MMATRIX_NON_CLASS(FALSE);
     }
 
     ans = PROTECT(NEW_OBJECT(MAKE_CLASS(M_type == ddense ? "dgeMatrix" :
@@ -725,8 +730,7 @@ SEXP dup_mMatrix_as_geMatrix(SEXP A)
 	    break;								\
 	}  /* switch(ctype) */
 
-	DUP_MMATRIX_ddense_CASES
-
+	DUP_MMATRIX_ddense_CASES;
     }
     else { /* M_type == ldense || M_type = ndense  */
 	/* ldense -> lge */
@@ -781,7 +785,7 @@ SEXP dup_mMatrix_as_geMatrix(SEXP A)
     return ans;
 }
 
-SEXP dup_mMatrix_as_dgeMatrix(SEXP A)
+SEXP dup_mMatrix_as_dgeMatrix2(SEXP A, Rboolean tr_if_vec)
 {
     SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("dgeMatrix"))),
 	ad = R_NilValue , an = R_NilValue;	/* -Wall */
@@ -795,9 +799,6 @@ SEXP dup_mMatrix_as_dgeMatrix(SEXP A)
 	an = GET_SLOT(A, Matrix_DimNamesSym);
     }
     else if (ctype < 0) {	/* not a (recognized) classed matrix */
-
-	DUP_MMATRIX_NON_CLASS;
-
 	if (!isReal(A)) {
 	    if (isInteger(A) || isLogical(A)) {
 		A = PROTECT(coerceVector(A, REALSXP));
@@ -806,16 +807,18 @@ SEXP dup_mMatrix_as_dgeMatrix(SEXP A)
 		error(_("invalid class '%s' to dup_mMatrix_as_dgeMatrix"),
 		      class_P(A));
 	}
+	DUP_MMATRIX_NON_CLASS(tr_if_vec);
     }
 
     DUP_MMATRIX_SET_1;
-
-    DUP_MMATRIX_ddense_CASES
-
+    DUP_MMATRIX_ddense_CASES;
     UNPROTECT(nprot);
     return ans;
 }
 
+SEXP dup_mMatrix_as_dgeMatrix(SEXP A) {
+    return dup_mMatrix_as_dgeMatrix2(A, FALSE);
+}
 
 SEXP new_dgeMatrix(int nrow, int ncol)
 {

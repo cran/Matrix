@@ -18,6 +18,7 @@
 \alias{Logic,Matrix,ANY-method}
 \alias{Logic,ANY,Matrix-method}
 \alias{Summary,Matrix-method}
+\alias{Math2,Matrix-method}
 \alias{mean,Matrix-method}
 % "["             ---> Xtrct-methods.Rd 
 % "[<-"           ---> Subassign-methods.Rd

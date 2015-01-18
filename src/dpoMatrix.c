@@ -2,12 +2,16 @@
 
 SEXP dpoMatrix_validate(SEXP obj)
 {
-    int i, n = INTEGER(GET_SLOT(obj, Matrix_DimSym))[0];
-    int np1 = n + 1;
+    SEXP val;
+    if (isString(val = dense_nonpacked_validate(obj)))
+	return(val);
+
+    int n = INTEGER(GET_SLOT(obj, Matrix_DimSym))[0],
+	np1 = n + 1;
     double *x = REAL(GET_SLOT(obj, Matrix_xSym));
 
     /* quick but nondefinitive check on positive definiteness */
-    for (i = 0; i < n; i++)
+    for (int i = 0; i < n; i++)
 	if (x[i * np1] < 0)
 	    return mkString(_("dpoMatrix is not positive definite"));
     return ScalarLogical(1);

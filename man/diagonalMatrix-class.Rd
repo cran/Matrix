@@ -18,6 +18,7 @@
 \alias{determinant,diagonalMatrix,logical-method}
 \alias{norm,diagonalMatrix,character-method}
 %
+\alias{coerce,ddiMatrix,matrix-method}
 \alias{coerce,ddiMatrix,dgeMatrix-method}
 \alias{coerce,ddiMatrix,ddenseMatrix-method}
 \alias{coerce,ldiMatrix,ldenseMatrix-method}
@@ -59,6 +60,7 @@
 % \alias{diag,ldiMatrix-method}
 \alias{which,ldiMatrix-method}
 %
+\alias{Math,diagonalMatrix-method}% Math2: handled via "dMatrix" class
 \alias{Ops,diagonalMatrix,triangularMatrix-method}
 \alias{Ops,ddiMatrix,sparseMatrix-method}
 \alias{Ops,sparseMatrix,ddiMatrix-method}
@@ -244,6 +246,11 @@
 
     \item{which}{\code{signature(x = "nMatrix")}, semantically
       equivalent to \pkg{base} function \code{\link{which}(x, arr.ind)}.}
+
+    \item{"Math"}{\code{signature(x = "diagonalMatrix")}: all these
+      group methods return a \code{"diagonalMatrix"}, apart from
+      \code{\link{cumsum}()} etc which return a \emph{vector} also for
+      \pkg{base} \code{\link{matrix}}.}
 
     \item{*}{\code{signature(e1 = "ddiMatrix", e2="denseMatrix")}:
       arithmetic and other operators from the \code{\link[=S4groupGeneric]{Ops}}

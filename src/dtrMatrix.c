@@ -17,13 +17,6 @@ SEXP triangularMatrix_validate(SEXP obj)
     return ScalarLogical(1);
 }
 
-SEXP dtrMatrix_validate(SEXP obj)
-{
-    /* since "dtr" inherits from "triangular", and "dMatrix", only need this:*/
-    return dense_nonpacked_validate(obj);
-}
-
-
 static
 double get_norm(SEXP obj, const char *typstr)
 {
@@ -94,7 +87,7 @@ SEXP dtrMatrix_matrix_solve(SEXP a, SEXP b)
     int n = bdims[0], nrhs = bdims[1];
     double one = 1.0;
 
-    if (*adims != *bdims || bdims[1] < 1 || *adims < 1 || *adims != adims[1])
+    if (adims[0] != n || n != adims[1])
 	error(_("Dimensions of system to be solved are inconsistent"));
     F77_CALL(dtrsm)("L", uplo_P(a), "N", diag_P(a),
 		    &n, &nrhs, &one, REAL(GET_SLOT(a, Matrix_xSym)), &n,
@@ -103,7 +96,7 @@ SEXP dtrMatrix_matrix_solve(SEXP a, SEXP b)
     return ans;
 }
 
-/* to bu used for all three: '%*%', crossprod() and tcrossprod() */
+// to be used for all three: '%*%', crossprod() and tcrossprod()
 SEXP dtrMatrix_matrix_mm(SEXP a, SEXP b, SEXP right, SEXP trans)
 {
     /* Because a must be square, the size of the answer, val,

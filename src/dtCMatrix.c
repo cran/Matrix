@@ -86,14 +86,28 @@ SEXP dtCMatrix_matrix_solve(SEXP a, SEXP b, SEXP classed)
     double *bx;
     R_CheckStack();
 
-    if (*adims != n || nrhs < 1 || *adims < 1 || *adims != adims[1])
+    if (adims[0] != n || n != adims[1])
 	error(_("Dimensions of system to be solved are inconsistent"));
     Memcpy(INTEGER(ALLOC_SLOT(ans, Matrix_DimSym, INTSXP, 2)), bdims, 2);
-    /* FIXME: copy dimnames or Dimnames as well */
-    bx = Memcpy(REAL(ALLOC_SLOT(ans, Matrix_xSym, REALSXP, n * nrhs)),
-		REAL(cl ? GET_SLOT(b, Matrix_xSym):b), n * nrhs);
-    for (j = 0; j < nrhs; j++)
-	lo ? cs_lsolve(A, bx + n * j) : cs_usolve(A, bx + n * j);
+    // dimnames:
+    SEXP dn = PROTECT(allocVector(VECSXP, 2)), dn2;
+    SET_VECTOR_ELT(dn, 0, duplicate(VECTOR_ELT(GET_SLOT(a, Matrix_DimNamesSym), 1)));
+    if(!cl) {
+	dn2 = getAttrib(b, R_DimNamesSymbol);
+	if(dn2 != R_NilValue) // either NULL or  list(<dn1>, <dn2>)
+	    dn2 = VECTOR_ELT(dn2, 1);
+    }
+    SET_VECTOR_ELT(dn, 1, duplicate(cl // b can be "Matrix" or not:
+				    ? VECTOR_ELT(GET_SLOT(b, Matrix_DimNamesSym), 1)
+				    : dn2));
+    SET_SLOT(ans, Matrix_DimNamesSym, dn);
+    UNPROTECT(1);
+    if(n >= 1 && nrhs >=1) {
+	bx = Memcpy(REAL(ALLOC_SLOT(ans, Matrix_xSym, REALSXP, n * nrhs)),
+		    REAL(cl ? GET_SLOT(b, Matrix_xSym):b), n * nrhs);
+	for (j = 0; j < nrhs; j++)
+	    lo ? cs_lsolve(A, bx + n * j) : cs_usolve(A, bx + n * j);
+    }
     RETURN(ans);
 }
 
@@ -104,7 +118,7 @@ SEXP dtCMatrix_sparse_solve(SEXP a, SEXP b)
     R_CheckStack();
     if (A->m != A->n || B->n < 1 || A->n < 1 || A->n != B->m)
 	error(_("Dimensions of system to be solved are inconsistent"));
-    // *before* Calloc()ing below [memory leak]!
+    // *before* Calloc()ing below [memory leak]! -- FIXME: 0-extent should work
 
     int *xp = INTEGER(ALLOC_SLOT(ans, Matrix_pSym, INTSXP, (B->n) + 1)),
 	xnz = 10 * B->p[B->n];	/* initial estimate of nnz in x */
@@ -113,7 +127,7 @@ SEXP dtCMatrix_sparse_solve(SEXP a, SEXP b)
     double *tx = Calloc(xnz, double), *wrk = Calloc(  A->n, double);
 
     slot_dup(ans, b, Matrix_DimSym);
-    SET_DimNames(ans, b);
+
     xp[0] = 0;
     for (k = 0; k < B->n; k++) {
 	int top = cs_spsolve (A, B, k, xi, wrk, (int *)NULL, lo);
@@ -142,6 +156,13 @@ SEXP dtCMatrix_sparse_solve(SEXP a, SEXP b)
 
     Free(ti);  Free(tx);
     Free(wrk); Free(xi);
+
+    // dimnames:
+    SEXP dn = PROTECT(allocVector(VECSXP, 2));
+    SET_VECTOR_ELT(dn, 0, duplicate(VECTOR_ELT(GET_SLOT(a, Matrix_DimNamesSym), 1)));
+    SET_VECTOR_ELT(dn, 1, duplicate(VECTOR_ELT(GET_SLOT(b, Matrix_DimNamesSym), 1)));
+    SET_SLOT(ans, Matrix_DimNamesSym, dn);
+    UNPROTECT(1);
 
     RETURN(ans);
 }

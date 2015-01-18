@@ -215,8 +215,8 @@ SEXP Csparse_subassign(SEXP x, SEXP i_, SEXP j_, SEXP value)
     // Assuming that ans will have the same basic Matrix type as x :
     ans = PROTECT(NEW_OBJECT(MAKE_CLASS(valid_cM[ctype_x])));
     SET_SLOT(ans, Matrix_DimSym,      duplicate(dimslot));
-    SET_SLOT(ans, Matrix_DimNamesSym, duplicate(GET_SLOT(x, Matrix_DimNamesSym)));
-    SET_SLOT(ans, Matrix_pSym,        duplicate(GET_SLOT(x, Matrix_pSym)));
+    slot_dup(ans, x, Matrix_DimNamesSym);
+    slot_dup(ans, x, Matrix_pSym);
     SEXP r_pslot = GET_SLOT(ans, Matrix_pSym);
     // and assign the i- and x- slots at the end, as they are potentially modified
     // not just in content, but also in their *length*
@@ -419,8 +419,8 @@ SEXP Csparse_subassign(SEXP x, SEXP i_, SEXP j_, SEXP value)
     }// for( jj )
 
     if(ctype_x == 1) { // triangularMatrix: copy the 'diag' and 'uplo' slots
-	SET_SLOT(ans, Matrix_uploSym, duplicate(GET_SLOT(x, Matrix_uploSym)));
-	SET_SLOT(ans, Matrix_diagSym, duplicate(GET_SLOT(x, Matrix_diagSym)));
+	slot_dup(ans, x, Matrix_uploSym);
+	slot_dup(ans, x, Matrix_diagSym);
     }
     // now assign the i- and x- slots,  free memory and return :
     Memcpy(INTEGER(ALLOC_SLOT(ans, Matrix_iSym,  INTSXP, nnz)), ri, nnz);

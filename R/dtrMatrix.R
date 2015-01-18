@@ -6,12 +6,14 @@
 setAs("dgeMatrix", "dtrMatrix", function(from) asTri(from, "dtrMatrix"))
 
 setAs("dtrMatrix", "dtpMatrix",
-      function(from) .Call(dtrMatrix_as_dtpMatrix, from))
+      dtr2dtp <- function(from) .Call(dtrMatrix_as_dtpMatrix, from))
 
 setAs("dtrMatrix", "sparseMatrix", .dense2C)
 setAs("dtrMatrix", "CsparseMatrix", .dense2C)
 
 
+.dtr2mat <- function(from, keep.dimnames=TRUE)
+    .Call(dtrMatrix_as_matrix, from, keep.dimnames)
 ## needed for t() method
 setAs("dtrMatrix", "matrix",
       function(from) .Call(dtrMatrix_as_matrix, from, TRUE))

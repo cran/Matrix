@@ -12,6 +12,9 @@
 \alias{band,TsparseMatrix-method}
 \alias{tril,TsparseMatrix-method}
 \alias{triu,TsparseMatrix-method}
+%FIXME! \alias{band,diagonalMatrix-method}
+\alias{tril,diagonalMatrix-method}
+\alias{triu,diagonalMatrix-method}
 \alias{tril,dsCMatrix-method}
 \alias{tril,lsCMatrix-method}
 \alias{tril,nsCMatrix-method}

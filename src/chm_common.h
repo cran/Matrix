@@ -26,7 +26,7 @@ typedef       cholmod_triplet*       CHM_TR;
 typedef const cholmod_triplet* const_CHM_TR;
 
 extern cholmod_common c;	/* structure for int CHM routines */
-extern cholmod_common cl;	/* structure for UF_long routines */
+extern cholmod_common cl;	/* structure for SuiteSparse_long routines */
 
 /* NOTE: Versions of these are *EXPORTED* via ../inst/include/Matrix.h
  * ----  and used e.g., in the lme4 package

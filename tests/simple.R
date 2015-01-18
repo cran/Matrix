@@ -208,13 +208,43 @@ stopifnot(identical(dimnames(m), list(c("a", "b1", "b2"), NULL)),
 	  identical(M, as(m, "dgeMatrix")),
 	  identical(dimnames(M), dimnames(m)))
 
+## dimnames(.) of symmpart() / skewpart() :
+ns <- c("symmpart", "skewpart", "forceSymmetric")
+symFUNs <- setNames(lapply(ns, get), ns); rm(ns)
+chkSS <- function(m) {
+  r <- lapply(symFUNs, function(fn) fn(m))
+  m0 <- as(m, "matrix")
+  r0 <- lapply(symFUNs, function(fn) fn(m0))
+  isValid(fS  <- r [["forceSymmetric"]], "symmetricMatrix")
+  isValid(fS0 <- r0[["forceSymmetric"]], "symmetricMatrix")
+  dnms <- dimnames(m)
+  d.sy <- dimnames(r[["symmpart"]])
+  id <- if(is.null(dnms[[2]]) && !is.null(dnms[[1]])) 1 else 2
+  stopifnot(identical(d.sy, dnms[c(id,id)]),
+	    identical(d.sy, dimnames(r [["skewpart"]])),
+	    identical(d.sy, dimnames(r0[["skewpart"]])),
+	    all(m  == with(r,  symmpart + skewpart)),
+	    all(m0 == with(r0, symmpart + skewpart)),
+	    identical(dS <- dimnames(fS), dimnames(fS0)),
+	    identical(dS[1], dS[2]),
+	    TRUE)
+}
+for(m in list(Matrix(1:4, 2,2), Matrix(c(0, rep(1:0, 3),0:1), 3,3))) {
+    cat("\n---\nm:\n"); show(m)
+    chkSS(m)
+    dn <- list(row = paste0("r", 1:nrow(m)), col = paste0("var.", 1:ncol(m)))
+    dimnames(m) <- dn		; chkSS(m)
+    colnames(m) <- NULL		; chkSS(m)
+    dimnames(m) <- unname(dn)	; chkSS(m)
+}
+
 m. <- matrix(c(0, 0, 2:0), 3, 5)
 dimnames(m.) <- list(LETTERS[1:3], letters[1:5])
 (m0 <- m <- Matrix(m.))
 m@Dimnames[[2]] <- m@Dimnames[[1]]
 ## not valid anymore:
 (val <- validObject(m, test=TRUE)); stopifnot(is.character(val))
-dm <- as(m0, "denseMatrix")
+dm <- as(m0, "denseMatrix"); rm(m)
 stopifnot(all.equal(rcond(dm), rcond(m.), tolerance = 1e-14),
 	  ##^^^^^^^ dm and m. are both dense, interestingly small differences
 	  ## show in at least one case of optimized BLAS
@@ -222,7 +252,9 @@ stopifnot(all.equal(rcond(dm), rcond(m.), tolerance = 1e-14),
           ## show(<dgRMatrix>) had revealed a bug in C:
           identical(capture.output(show(as(m0, "RsparseMatrix")))[-(1:2)],
                     gsub("0", ".",  capture.output(show(m.))[-1])))
-rm(m)
+m.1 <- m.; dimnames(m.1) <- list(row=NULL, col=NULL)
+M.1 <- Matrix(m.1, sparse=TRUE)
+show(M.1)# had bug in .formatSparseSimple()
 
 ###--  Sparse Triangular :
 
@@ -237,7 +269,8 @@ stopifnot(class(t5) == "dtCMatrix",
 ## Maybe move to R once 'Matrix' is recommended
 sm <- selectMethod(coerce, c("dgCMatrix", "triangularMatrix"), verbose=TRUE)
 stopifnot(identical(sm(g5), t5))
-
+dimnames(t5) <- list(row=paste0("r",1:5), col=paste0("C.",1:5))
+s5 <- symmpart(t5) # gave an error
 
 (t1 <- new("dtTMatrix", x= c(3,7), i= 0:1, j=3:2,
            Dim= as.integer(c(4,4))))
@@ -275,6 +308,13 @@ stopifnot(is(Lg1, "diagonalMatrix"), is(D4m, "diagonalMatrix"),
           identical3(Lg1, Matrix(nnLg), as(nnLg, "diagonalMatrix")),
           all(Lg1 != (!Lg1)))
 
+## tri[lu](<diagonal>)
+td3 <- triu(diag(3)); stopifnot(is(td3, "triangularMatrix"), td3@uplo == "U")
+Ld3 <- tril(diag(3)); stopifnot(is(Ld3, "triangularMatrix"), Ld3@uplo == "L")
+## the latter did fail till 2014-12-20
+D3 <- Diagonal(3)
+stopifnot(identical3(D3, tril(D3), triu(D3)))
+## methods were missing
 
 ## as(<diag>, <anything>) :
 str(cls <- names(getClass("Matrix")@subclasses))# all Matrix classes
@@ -516,7 +556,11 @@ m.m <- as(m1k, "matrix")
 stopifnot(all.equal(colMeans(m1k), colMeans(m.m)),
           all.equal(colSums (m1k), colSums (m.m)),
           all.equal(rowMeans(m1k), rowMeans(m.m)),
-          all.equal(rowSums (m1k), rowSums (m.m)))
+          all.equal(rowSums (m1k), rowSums (m.m)),
+          all.equal(colMeans(m1k, na.rm=TRUE), colMeans(m.m, na.rm=TRUE)),
+          all.equal(colSums (m1k, na.rm=TRUE), colSums (m.m, na.rm=TRUE)),
+          all.equal(rowMeans(m1k, na.rm=TRUE), rowMeans(m.m, na.rm=TRUE)),
+          all.equal(rowSums (m1k, na.rm=TRUE), rowSums (m.m, na.rm=TRUE)) )
 
 ###-- kronecker for nonsparse uses Matrix(.):
 stopifnot(isValid(kr <- kronecker(m1, m6), "Matrix"))
@@ -878,6 +922,9 @@ lsUtr <- lst[istri][uniC]
 r <- tryCatch(chol2inv(Diagonal(x=1:10), pi=pi), warning=identity)
 stopifnot(grepl("extra argument pi .*chol2inv\\(Diagonal", r$message))
 
+assertError(new("ltrMatrix", Dim = c(2L,2L), x=TRUE))# gave "illegal" object w/o error
+assertError(new("ntrMatrix", Dim = c(2L,2L)))#  dito
+
 
 cat('Time elapsed: ', (.pt <- proc.time()),'\n') # "stats"
 cat("doExtras:",doExtras,"\n")
@@ -890,6 +937,15 @@ if(doExtras) {
     }
     cat('Time elapsed: ', proc.time() - .pt,'\n') # "stats"
 }
+
+##  new("nsyMatrix") + new("lgeMatrix") # failed
+cln <- sort(outer(c("l","n"), paste0(c("ge","sy"), "Matrix"), paste0))
+dim(c.c <- as.matrix(expand.grid(cln, cln, KEEP.OUT.ATTRS=FALSE))) # 16 x 2
+## clTry <- function(expr) class(tryCatch(expr, error=identity))[[1]]
+## '+' [Arith] failed -- now fixed
+cbind(c.c, Res = apply(c.c, 1, function(x) class(new(x[1]) + new(x[2]))))
+## '<' [Compare] works fine
+cbind(c.c, Res = apply(c.c, 1, function(x) class(new(x[1]) < new(x[2]))))
 
 if(!interactive()) warnings()
 

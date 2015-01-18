@@ -7,6 +7,7 @@
 \alias{Ops,ldenseMatrix,ldenseMatrix-method}
 \alias{Logic,ldenseMatrix,lsparseMatrix-method}
 \alias{Logic,lsparseMatrix,ldenseMatrix-method}
+\alias{Summary,ldenseMatrix-method}
 % purely "sparse" are in   ./lsparseMatrix-classes.Rd
 %%-- Matrix products: ---> ./matrix-products.Rd
 \alias{as.logical,ldenseMatrix-method}

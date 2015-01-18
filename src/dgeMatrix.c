@@ -91,7 +91,7 @@ SEXP dgeMatrix_crossprod(SEXP x, SEXP trans)
     double *vx = REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, n * n)),
 	one = 1.0, zero = 0.0;
 
-    AZERO(vx, n * n);
+    Memzero(vx, n * n);
     SET_SLOT(val, Matrix_uploSym, mkString("U"));
     ALLOC_SLOT(val, Matrix_factorSym, VECSXP, 0);
     vDims[0] = vDims[1] = n;
@@ -118,28 +118,29 @@ SEXP dgeMatrix_dgeMatrix_crossprod(SEXP x, SEXP y, SEXP trans)
     int xd = xDims[ tr], yd = yDims[ tr];/* the conformable dims */
     double one = 1.0, zero = 0.0;
 
+    if (xd != yd)
+	error(_("Dimensions of x and y are not compatible for %s"),
+	      tr ? "tcrossprod" : "crossprod");
     SET_SLOT(val, Matrix_factorSym, allocVector(VECSXP, 0));
-    SET_SLOT(val, Matrix_DimSym, allocVector(INTSXP, 2));
-    vDims = INTEGER(GET_SLOT(val, Matrix_DimSym));
-    if (xd > 0 && yd > 0 && n > 0 && m > 0) {
-	if (xd != yd)
-	    error(_("Dimensions of x and y are not compatible for %s"),
-		  tr ? "tcrossprod" : "crossprod");
-	vDims[0] = m; vDims[1] = n;
-	SET_SLOT(val, Matrix_xSym, allocVector(REALSXP, m * n));
+    vDims = INTEGER(ALLOC_SLOT(val, Matrix_DimSym, INTSXP, 2));
+    vDims[0] = m; vDims[1] = n;
+    double *v = REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, m * n));
+    if (xd > 0 && n > 0 && m > 0)
 	F77_CALL(dgemm)(tr ? "N" : "T", tr ? "T" : "N", &m, &n, &xd, &one,
 			REAL(GET_SLOT(x, Matrix_xSym)), xDims,
 			REAL(GET_SLOT(y, Matrix_xSym)), yDims,
-			&zero, REAL(GET_SLOT(val, Matrix_xSym)), &m);
-	/* establish dimnames */
-	SET_VECTOR_ELT(dn, 0,
-		       duplicate(VECTOR_ELT(GET_SLOT(x, Matrix_DimNamesSym),
-					    tr ? 0 : 1)));
-	SET_VECTOR_ELT(dn, 1,
-		       duplicate(VECTOR_ELT(GET_SLOT(y, Matrix_DimNamesSym),
-					    tr ? 0 : 1)));
-	SET_SLOT(val, Matrix_DimNamesSym, dn);
-    }
+			&zero, v, &m);
+    else
+	Memzero(v, m * n);
+
+    /* establish dimnames */
+    SET_VECTOR_ELT(dn, 0,
+		   duplicate(VECTOR_ELT(GET_SLOT(x, Matrix_DimNamesSym),
+					tr ? 0 : 1)));
+    SET_VECTOR_ELT(dn, 1,
+		   duplicate(VECTOR_ELT(GET_SLOT(y, Matrix_DimNamesSym),
+					tr ? 0 : 1)));
+    SET_SLOT(val, Matrix_DimNamesSym, dn);
     UNPROTECT(2);
     return val;
 }
@@ -171,34 +172,40 @@ SEXP dgeMatrix_matrix_crossprod(SEXP x, SEXP y, SEXP trans)
 	y_has_dimNames = yDnms != R_NilValue;
     } else { // ! matrix
 	yDims = INTEGER(yD = PROTECT(allocVector(INTSXP, 2))); nprot++;
-	yDims[0] = LENGTH(y);
-	yDims[1] = 1;
+	if(xDims[0] == 1) { // "new" (2014-10-10): "be tolerant" as for R 3.2.0
+	    yDims[0] = 1;
+	    yDims[1] = LENGTH(y);
+	} else {
+	    yDims[0] = LENGTH(y);
+	    yDims[1] = 1;
+	}
 	y_has_dimNames = FALSE;
     }
     int  n = yDims[!tr],/* (m,n) -> result dim */
 	yd = yDims[ tr];/* (xd,yd): the conformable dims */
+    if (xd != yd)
+	error(_("Dimensions of x and y are not compatible for %s"),
+	      tr ? "tcrossprod" : "crossprod");
     SET_SLOT(val, Matrix_factorSym, allocVector(VECSXP, 0));
-    SET_SLOT(val, Matrix_DimSym, allocVector(INTSXP, 2));
-    vDims = INTEGER(GET_SLOT(val, Matrix_DimSym));
-    if (xd > 0 && yd > 0 && n > 0 && m > 0) {
-	if (xd != yd)
-	    error(_("Dimensions of x and y are not compatible for %s"),
-		  tr ? "tcrossprod" : "crossprod");
-	vDims[0] = m; vDims[1] = n;
-	SET_SLOT(val, Matrix_xSym, allocVector(REALSXP, m * n));
+    vDims = INTEGER(ALLOC_SLOT(val, Matrix_DimSym, INTSXP, 2));
+    vDims[0] = m; vDims[1] = n;
+    double *v = REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, m * n));
+    if (xd > 0 && n > 0 && m > 0)
 	F77_CALL(dgemm)(tr ? "N" : "T", tr ? "T" : "N", &m, &n, &xd, &one,
 			REAL(GET_SLOT(x, Matrix_xSym)), xDims,
 			REAL(y), yDims,
-			&zero, REAL(GET_SLOT(val, Matrix_xSym)), &m);
-	/* establish dimnames */
-	SET_VECTOR_ELT(dn, 0,
-		       duplicate(VECTOR_ELT(GET_SLOT(x, Matrix_DimNamesSym),
-					    tr ? 0 : 1)));
-	if(y_has_dimNames)
-	    SET_VECTOR_ELT(dn, 1,
-			   duplicate(VECTOR_ELT(yDnms, tr ? 0 : 1)));
-	SET_SLOT(val, Matrix_DimNamesSym, dn);
-    }
+			&zero, v, &m);
+    else
+	Memzero(v, m * n);
+
+    /* establish dimnames */
+    SET_VECTOR_ELT(dn, 0,
+		   duplicate(VECTOR_ELT(GET_SLOT(x, Matrix_DimNamesSym),
+					tr ? 0 : 1)));
+    if(y_has_dimNames)
+	SET_VECTOR_ELT(dn, 1,
+		       duplicate(VECTOR_ELT(yDnms, tr ? 0 : 1)));
+    SET_SLOT(val, Matrix_DimNamesSym, dn);
     UNPROTECT(nprot);
     return val;
 }
@@ -420,13 +427,15 @@ SEXP dgeMatrix_matrix_solve(SEXP a, SEXP b)
 	*bdims = INTEGER(GET_SLOT(val, Matrix_DimSym));
     int info, n = bdims[0], nrhs = bdims[1];
 
-    if (*adims != *bdims || bdims[1] < 1 || *adims < 1 || *adims != adims[1])
+    if (adims[0] != n || adims[1] != n)
 	error(_("Dimensions of system to be solved are inconsistent"));
-    F77_CALL(dgetrs)("N", &n, &nrhs, REAL(GET_SLOT(lu, Matrix_xSym)), &n,
-		     INTEGER(GET_SLOT(lu, Matrix_permSym)),
-		     REAL(GET_SLOT(val, Matrix_xSym)), &n, &info);
-    if (info)
-	error(_("Lapack routine dgetrs: system is exactly singular"));
+    if(nrhs >= 1 && n >= 1) {
+	F77_CALL(dgetrs)("N", &n, &nrhs, REAL(GET_SLOT(lu, Matrix_xSym)), &n,
+			 INTEGER(GET_SLOT(lu, Matrix_permSym)),
+			 REAL(GET_SLOT(val, Matrix_xSym)), &n, &info);
+	if (info)
+	    error(_("Lapack routine dgetrs: system is exactly singular"));
+    }
     UNPROTECT(2);
     return val;
 }
@@ -442,49 +451,45 @@ SEXP dgeMatrix_matrix_mm(SEXP a, SEXP bP, SEXP right)
 	*cdims = INTEGER(ALLOC_SLOT(val, Matrix_DimSym, INTSXP, 2));
     double one = 1., zero = 0.;
 
-    if (asLogical(right)) { // b %*% a
-	int m = bdims[0], n = adims[1], k = bdims[1];
+    if (asLogical(right)) { // b %*% a : (m x k) (k x n) -> (m x n)
+	int m = bdims[0], k = bdims[1], n = adims[1];
 	if (adims[0] != k)
 	    error(_("Matrices are not conformable for multiplication"));
 	cdims[0] = m; cdims[1] = n;
-	if (m < 1 || n < 1 || k < 1) {
-/* 	    error(_("Matrices with zero extents cannot be multiplied")); */
-	    ALLOC_SLOT(val, Matrix_xSym, REALSXP, m * n);
+	double *v = REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, m * n));
+	if (m < 1 || n < 1 || k < 1) { // zero extent matrices should work
+	    Memzero(v, m * n);
 	} else {
 	    F77_CALL(dgemm) ("N", "N", &m, &n, &k, &one,
 			     REAL(GET_SLOT(b, Matrix_xSym)), &m,
 			     REAL(GET_SLOT(a, Matrix_xSym)), &k, &zero,
 			     REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, m * n)),
 			     &m);
-	    SET_VECTOR_ELT(dn, 0,
-			   duplicate(VECTOR_ELT(GET_SLOT(b, Matrix_DimNamesSym),
-						0)));
-	    SET_VECTOR_ELT(dn, 1,
-			   duplicate(VECTOR_ELT(GET_SLOT(a, Matrix_DimNamesSym),
-						1)));
 	}
-    } else {  // a %*% b
-	int m = adims[0], n = bdims[1], k = adims[1];
+	SET_VECTOR_ELT(dn, 0,
+		       duplicate(VECTOR_ELT(GET_SLOT(b, Matrix_DimNamesSym), 0)));
+	SET_VECTOR_ELT(dn, 1,
+		       duplicate(VECTOR_ELT(GET_SLOT(a, Matrix_DimNamesSym), 1)));
 
+    } else {  // a %*% b : (m x k) (k x n) -> (m x n)
+	int m = adims[0], k = adims[1], n = bdims[1];
 	if (bdims[0] != k)
 	    error(_("Matrices are not conformable for multiplication"));
 	cdims[0] = m; cdims[1] = n;
-	if (m < 1 || n < 1 || k < 1) {
-/* 	    error(_("Matrices with zero extents cannot be multiplied")); */
-	    ALLOC_SLOT(val, Matrix_xSym, REALSXP, m * n);
+	if (m < 1 || n < 1 || k < 1) { // zero extent matrices should work
+	    double *v = REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, m * n));
+	    Memzero(v, m * n);
 	} else {
 	    F77_CALL(dgemm) ("N", "N", &m, &n, &k, &one,
 			     REAL(GET_SLOT(a, Matrix_xSym)), &m,
 			     REAL(GET_SLOT(b, Matrix_xSym)), &k, &zero,
 			     REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, m * n)),
 			     &m);
-	    SET_VECTOR_ELT(dn, 0,
-			   duplicate(VECTOR_ELT(GET_SLOT(a, Matrix_DimNamesSym),
-						0)));
-	    SET_VECTOR_ELT(dn, 1,
-			   duplicate(VECTOR_ELT(GET_SLOT(b, Matrix_DimNamesSym),
-						1)));
 	}
+	SET_VECTOR_ELT(dn, 0,
+		       duplicate(VECTOR_ELT(GET_SLOT(a, Matrix_DimNamesSym), 0)));
+	SET_VECTOR_ELT(dn, 1,
+		       duplicate(VECTOR_ELT(GET_SLOT(b, Matrix_DimNamesSym), 1)));
     }
     /* establish dimnames */
     SET_SLOT(val, Matrix_DimNamesSym, dn);
@@ -724,9 +729,10 @@ SEXP dgeMatrix_Schur(SEXP x, SEXP vectors, SEXP isDGE)
     return val;
 } // dgeMatrix_Schur
 
+// colSums(), colMeans(), rowSums() and rowMeans() -- called from ../R/colSums.R
 SEXP dgeMatrix_colsums(SEXP x, SEXP naRmP, SEXP cols, SEXP mean)
 {
-    int keepNA = !asLogical(naRmP);
+    int keepNA = !asLogical(naRmP); // <==>  na.rm = FALSE,  the default
     int doMean = asLogical(mean);
     int useCols = asLogical(cols);
     int *dims = INTEGER(GET_SLOT(x, Matrix_DimSym));
@@ -735,28 +741,31 @@ SEXP dgeMatrix_colsums(SEXP x, SEXP naRmP, SEXP cols, SEXP mean)
     double *aa = REAL(ans), *xx = REAL(GET_SLOT(x, Matrix_xSym));
 
     if (useCols) {  /* col(Sums|Means) : */
-	int cnt = m;
-	for (j = 0; j < n; j++) {
-	    double *rx = xx + m * j;
+	int cnt = m; // := number of 'valid' entries in current column
+	for (j = 0; j < n; j++) { // column j :
+	    double *x_j = xx + m * j, s = 0.;
 
-	    aa[j] = 0;
 	    if (keepNA)
-		for (i = 0; i < m; i++) aa[j] += rx[i];
+		for (i = 0; i < m; i++) s += x_j[i];
 	    else {
 		cnt = 0;
 		for (i = 0; i < m; i++)
-		    if (!ISNAN(rx[i])) {cnt++; aa[j] += rx[i];}
+		    if (!ISNAN(x_j[i])) {cnt++; s += x_j[i];}
 	    }
 	    if (doMean) {
-		if (cnt > 0) aa[j] /= cnt; else aa[j] = NA_REAL;
+		if (cnt > 0) s /= cnt; else s = NA_REAL;
 	    }
+	    aa[j] = s;
 	}
     } else { /* row(Sums|Means) : */
-	double *Count = ((!keepNA) && doMean) ?
-	    Alloca(m, double) : (double*)NULL ;
+	Rboolean do_count = (!keepNA) && doMean;
+	int *cnt = do_count ? Alloca(m, int) : (int*) NULL;
 	R_CheckStack();
-
-	for (i = 0; i < m; i++) aa[i] = 0.0;
+	// (taking care to access x contiguously: vary i inside j)
+	for (i = 0; i < m; i++) {
+	    aa[i] = 0.;
+	    if(do_count) cnt[i] = 0;
+	}
 	for (j = 0; j < n; j++) {
 	    if (keepNA)
 		for (i = 0; i < m; i++) aa[i] += xx[i + j * m];
@@ -765,7 +774,7 @@ SEXP dgeMatrix_colsums(SEXP x, SEXP naRmP, SEXP cols, SEXP mean)
 		    double el = xx[i + j * m];
 		    if (!ISNAN(el)) {
 			aa[i] += el;
-			if (doMean) Count[i]++;
+			if (doMean) cnt[i]++;
 		    }
 		}
 	}
@@ -774,7 +783,7 @@ SEXP dgeMatrix_colsums(SEXP x, SEXP naRmP, SEXP cols, SEXP mean)
 		for (i = 0; i < m; i++) aa[i] /= n;
 	    else
 		for (i = 0; i < m; i++)
-		    aa[i] = (Count[i]>0)? aa[i]/Count[i]: NA_REAL;
+		    aa[i] = (cnt[i] > 0) ? aa[i]/cnt[i] : NA_REAL;
 	}
     }
 

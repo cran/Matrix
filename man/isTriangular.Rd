@@ -40,18 +40,17 @@
 %
 \description{
   \code{isTriangular(M)} returns a \code{\link{logical}} indicating
-  \code{M} is a triangular matrix.  Analogously,
+  if \code{M} is a triangular matrix.  Analogously,
   \code{isDiagonal(M)} is true iff \code{M} is a diagonal matrix.
 
   Contrary to \code{\link{isSymmetric}()}, these two functions are
-  generically from \pkg{Matrix} package, and hence also define methods
+  generically from package \pkg{Matrix}, and hence also define methods
   for traditional (\code{\link{class}} \code{"matrix"}) matrices.
 }
 \usage{
 isDiagonal(object)
 
-isTriangular(object, ...)
-\S4method{isTriangular}{CsparseMatrix}(object, upper = NA)
+isTriangular(object, upper = NA, \dots)
 }
 \arguments{
   \item{object}{any \R object, typically a matrix (traditional or Matrix
@@ -62,7 +61,11 @@ isTriangular(object, ...)
   \item{\dots}{potentially further arguments for other methods.}
 }
 \value{
-  a (\dQuote{scalar}) logical, \code{TRUE} or \code{FALSE}, never \code{\link{NA}}.
+  a (\dQuote{scalar}) logical, \code{TRUE} or \code{FALSE}, never
+  \code{\link{NA}}.  For \code{isTriangular()}, if the result is
+  \code{TRUE}, it may contain an attribute (see \code{\link{attributes}}
+  \code{"kind"}, either   \code{"L"} or \code{"U"} indicating if it is a
+  \bold{l}ower or \bold{u}pper triangular matrix.
 }
 \seealso{
   \code{\link{isSymmetric}}; formal class (and subclasses)
@@ -71,7 +74,7 @@ isTriangular(object, ...)
 }
 \examples{
 isTriangular(Diagonal(4))
-## is TRUE: a diagonl matrix is also (both upper and lower) triangular
+## is TRUE: a diagonal matrix is also (both upper and lower) triangular
 (M <- Matrix(c(1,2,0,1), 2,2))
 isTriangular(M) # TRUE (*and* of formal class "dtrMatrix")
 isTriangular(as(M, "dgeMatrix")) # still triangular, even if not "formally"

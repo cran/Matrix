@@ -2,6 +2,24 @@
 ####  ------------
 #### Contains  nge*;  ntr*, ntp*;  nsy*, nsp*;   ndi*
 
+### NOTA BENE: Much of this is *very* parallel to ./ldenseMatrix.R
+###						  ~~~~~~~~~~~~~~~~
+
+## packed <->  non-packed :
+
+setAs("nspMatrix", "nsyMatrix",					##  vv for "n*", 0L for "l*"
+      nsp2nsy <- function(from) .Call(lspMatrix_as_lsyMatrix, from, 1L))
+
+setAs("nsyMatrix", "nspMatrix",
+      nsy2nsp <- function(from) .Call(lsyMatrix_as_lspMatrix, from, 1L))
+
+setAs("ntpMatrix", "ntrMatrix",
+      ntp2ntr <- function(from) .Call(ltpMatrix_as_ltrMatrix, from, 1L))
+
+setAs("ntrMatrix", "ntpMatrix",
+      ntr2ntp <- function(from) .Call(ltrMatrix_as_ltpMatrix, from, 1L))
+
+
 ## Nonzero Pattern -> Double {of same structure}:
 
 setAs("ngeMatrix", "dgeMatrix", function(from) n2d_Matrix(from, "ngeMatrix"))
@@ -9,9 +27,6 @@ setAs("nsyMatrix", "dsyMatrix", function(from) n2d_Matrix(from, "nsyMatrix"))
 setAs("nspMatrix", "dspMatrix", function(from) n2d_Matrix(from, "nspMatrix"))
 setAs("ntrMatrix", "dtrMatrix", function(from) n2d_Matrix(from, "ntrMatrix"))
 setAs("ntpMatrix", "dtpMatrix", function(from) n2d_Matrix(from, "ntpMatrix"))
-
-### NOTA BENE: Much of this is *very* parallel to ./ldenseMatrix.R
-###						  ~~~~~~~~~~~~~~~~
 
 setAs("ndenseMatrix", "ldenseMatrix", function(from) n2l_Matrix(from))
 
@@ -23,38 +38,15 @@ setAs("ntpMatrix", "ltpMatrix", function(from) n2l_Matrix(from, "ntpMatrix"))
 
 ## all need be coercable to "ngeMatrix":
 
-setAs("nsyMatrix", "ngeMatrix",  function(from)
-      .Call(lsyMatrix_as_lgeMatrix, from, 1L))
-setAs("ntrMatrix", "ngeMatrix",  function(from)
-      .Call(ltrMatrix_as_lgeMatrix, from, 1L))
-setAs("ntpMatrix", "ngeMatrix",
-      function(from) as(as(from, "ntrMatrix"), "ngeMatrix"))
-setAs("nspMatrix", "ngeMatrix",
-      function(from) as(as(from, "nsyMatrix"), "ngeMatrix"))
+setAs("nsyMatrix", "ngeMatrix",
+      nsy2nge <- function(from) .Call(lsyMatrix_as_lgeMatrix, from, 1L))
+setAs("ntrMatrix", "ngeMatrix",
+      ntr2nge <- function(from) .Call(ltrMatrix_as_lgeMatrix, from, 1L))
+setAs("ntpMatrix", "ngeMatrix", function(from) ntr2nge(ntp2ntr(from)))
+setAs("nspMatrix", "ngeMatrix", function(from) nsy2nge(nsp2nsy(from)))
 ## and the reverse
-setAs("ngeMatrix", "ntpMatrix",
-      function(from) as(as(from, "ntrMatrix"), "ntpMatrix"))
-setAs("ngeMatrix", "nspMatrix",
-      function(from) as(as(from, "nsyMatrix"), "nspMatrix"))
-
-
-## packed <->  non-packed :
-
-setAs("nspMatrix", "nsyMatrix",
-      function(from)
-      .Call(lspMatrix_as_lsyMatrix, from, 1L))
-
-setAs("nsyMatrix", "nspMatrix",
-      function(from)
-      .Call(lsyMatrix_as_lspMatrix, from, 1L))
-
-setAs("ntpMatrix", "ntrMatrix",
-      function(from)
-      .Call(ltpMatrix_as_ltrMatrix, from, 1L))
-
-setAs("ntrMatrix", "ntpMatrix",
-      function(from)
-      .Call(ltrMatrix_as_ltpMatrix, from, 1L))
+setAs("ngeMatrix", "ntpMatrix", function(from) ntr2ntp(as(from, "ntrMatrix")))
+setAs("ngeMatrix", "nspMatrix", function(from) nsy2nsp(as(from, "nsyMatrix")))
 
 
 
@@ -90,8 +82,7 @@ setAs("ngeMatrix", "ntrMatrix",
 ###  ldense* <-> "matrix" :
 
 ## 1) "nge* :
-setAs("ngeMatrix", "matrix",
-      function(from) array(from@x, dim = from@Dim, dimnames = from@Dimnames))
+setAs("ngeMatrix", "matrix", ge2mat)
 
 setAs("matrix", "ngeMatrix",
       function(from) {
@@ -105,12 +96,10 @@ setAs("matrix", "ngeMatrix",
 
 setAs("matrix", "nsyMatrix",
       function(from) as(as(from, "ngeMatrix"), "nsyMatrix"))
-setAs("matrix", "nspMatrix",
-      function(from) as(as(from, "nsyMatrix"), "nspMatrix"))
+setAs("matrix", "nspMatrix", function(from) nsy2nsp(as(from, "nsyMatrix")))
 setAs("matrix", "ntrMatrix",
       function(from) as(as(from, "ngeMatrix"), "ntrMatrix"))
-setAs("matrix", "ntpMatrix",
-      function(from) as(as(from, "ntrMatrix"), "ntpMatrix"))
+setAs("matrix", "ntpMatrix", function(from) ntr2ntp(as(from, "ntrMatrix")))
 
 ## Useful if this was called e.g. for as(*, "nsyMatrix"), but it isn't
 setAs("matrix", "ndenseMatrix", function(from) as(from, "ngeMatrix"))

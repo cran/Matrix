@@ -12,7 +12,6 @@ SEXP dsyMatrix_norm(SEXP obj, SEXP type);
 SEXP dsyMatrix_rcond(SEXP obj, SEXP type);
 SEXP dsyMatrix_solve(SEXP a);
 SEXP dsyMatrix_trf(SEXP x);
-SEXP dsyMatrix_validate(SEXP obj);
 double get_norm_sy(SEXP obj, const char *typstr);
 
 #endif

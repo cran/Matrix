@@ -111,16 +111,6 @@ setMethod("which", "lsTMatrix", function(x, arr.ind)
 
 
 
-
-## all() methods ---> ldenseMatrix.R and lsparseMatrix.R
-
-setMethod("any", signature(x = "lMatrix"),
-	  function(x, ..., na.rm = FALSE)
-	  ## logical unit-triangular has TRUE diagonal:
-	  (prod(dim(x)) >= 1 && is(x, "triangularMatrix") && x@diag == "U") ||
-	  any(x@x, ..., na.rm = na.rm))
-
-
 setMethod("is.finite", signature(x = "lMatrix"), function(x) !is.na(x))
 setMethod("is.finite", signature(x = "nMatrix"), allTrueMatrix)
 

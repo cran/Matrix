@@ -116,7 +116,7 @@ cs *Matrix_as_cs(cs *ans, SEXP x, Rboolean check_Udiag)
  *
  * @return SEXP containing a copy of a
  */
-/* FIXME:  Change API : May need object,  not just class */
+/* FIXME:  Change API : May need object,  not just class name 'cl' */
 SEXP Matrix_cs_to_SEXP(cs *a, char *cl, int dofree)
 {
     static const char *valid[] = {"dgCMatrix", "dsCMatrix", "dtCMatrix", ""};

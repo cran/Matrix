@@ -189,6 +189,81 @@ all.equal((A %*% solve(A, y))@x, y)
 Atr <- new("dtrMatrix", Dim = A@Dim, x = A@x, uplo = "U")
 all.equal((Atr %*% solve(Atr, y))@x, y)
 
+## R-forge bug 5933 by Sebastian Herbert,
+## https://r-forge.r-project.org/tracker/index.php?func=detail&aid=5933&group_id=61&atid=294
+mLeft  <- matrix(data = double(0), nrow = 3, ncol = 0)
+mRight <- matrix(data = double(0), nrow = 0, ncol = 4)
+MLeft   <- Matrix(data = double(0), nrow = 3, ncol = 0)
+MRight  <- Matrix(data = double(0), nrow = 0, ncol = 4)
+stopifnot(identical3(class(mLeft), class(mRight), "matrix"))
+stopifnot(class(MLeft) ==  class(MRight),
+          class(MLeft) ==  "dgeMatrix")
+
+Qidentical3 <- function(a,b,c) Q.eq(a,b) && Q.eq(b,c)
+Qidentical4 <- function(a,b,c,d) Q.eq(a,b) && Q.eq(b,c) && Q.eq(c,d)
+chkP <- function(mLeft, mRight, MLeft, MRight, cl = class(MLeft)) {
+    ident4 <- if(extends(cl, "generalMatrix"))
+		  function(a,b,c,d) identical4(as(a, cl), b, c, d)
+	      else function(a,b,c,d) {
+		  assert.EQ.mat(M=b, m=a, tol=0)
+		  Qidentical3(b,c,d)
+	      }
+    mm <- mLeft %*% mRight # ok
+    m.m <- crossprod(mRight)
+    mm. <- tcrossprod(mLeft, mLeft)
+    stopifnot(mm == 0,
+              ident4(mm,
+                     mLeft %*% MRight,
+                     MLeft %*% mRight,
+                     MLeft %*% MRight),# now ok
+	      m.m == 0, identical(m.m, crossprod(mRight, mRight)),
+	      mm. == 0, identical(mm., tcrossprod(mLeft, mLeft)))
+    stopifnot(ident4(m.m,
+		     crossprod(MRight, MRight),
+		     crossprod(MRight, mRight),
+		     crossprod(mRight, MRight)))
+    stopifnot(ident4(mm.,
+		     tcrossprod(mLeft, MLeft),
+		     tcrossprod(MLeft, MLeft),
+		     tcrossprod(MLeft, mLeft)))
+}
+
+chkP(mLeft, mRight, MLeft, MRight, "dgeMatrix")
+m0 <- mLeft[FALSE,] # 0 x 0
+for(cls in c("triangularMatrix", "symmetricMatrix")) {
+    cat(cls,": "); isValid(ML0 <- as(MLeft[FALSE,], cls), cls)
+    chkP(m0, mRight, ML0, MRight, class(ML0))
+    chkP(mLeft, m0 , MLeft, ML0 , class(ML0))
+    chkP(m0,    m0 , ML0,   ML0 , class(ML0)); cat("\n")
+}
+
+
+## New in R 3.2.0 -- for traditional matrix m and vector v
+for(spV in c(FALSE,TRUE)) {
+    cat("sparseV:", spV, "\n")
+    v <- if(spV) as(1:3, "sparseVector") else 1:3
+    stopifnot(identical(class(v2 <- v[1:2]), class(v)))
+    assertError(crossprod(v, v2)) ; assertError(v %*% v2)
+    assertError(crossprod(v, 1:2)); assertError(v %*% 1:2)
+    assertError(crossprod(v, 2))  ; assertError(v %*% 2)
+    assertError(crossprod(1:2, v)); assertError(1:2 %*% v)
+    if(spV || getRversion() >= "3.2.0") {
+	cat("doing  vec x vec  ..\n")
+	stopifnot(identical(crossprod(2, v), t(2) %*% v),
+		  identical(5 %*% v, 5 %*% t(v)))
+    }
+    for(sp in c(FALSE, TRUE)) {
+        m <- Matrix(1:2, 1,2, sparse=sp)
+        cat(sprintf("class(m): '%s'\n", class(m)))
+	stopifnot(identical( crossprod(m, v), t(m) %*% v), # m'v gave *outer* prod wrongly!
+		  identical(tcrossprod(m, v2), m %*% v2))
+	assert.EQ.Mat(m %*% v2, m %*% 1:2, tol=0)
+    }
+    ## gave error "non-conformable arguments"
+}
+##  crossprod(m, v)  t(1 x 2) * 3 ==> (2 x 1) *  (1 x 3) ==> 2 x 3
+## tcrossprod(m,v2)    1 x 2  * 2 ==> (1 x 2) * t(1 x 2) ==> 1 x 1
+
 ### ------ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ### Sparse Matrix products
 ### ------
@@ -289,24 +364,32 @@ cl2 <- cl %*% cl
 validObject(cl2)
 
 cu3 <- tu[-1,-1]
-assert.EQ.mat(crossprod(tru, cu3),
+assert.EQ.mat(crossprod(tru, cu3),## <- "FIXME" should return triangular ...
 	      crossprod(trm, as.matrix(cu3)))
-## "FIXME" should return triangular ...
 
 cl2
+mcu <- as.matrix(cu)
 cu2. <- Diagonal(4) + Matrix(c(rep(0,9),14,0,0,6,0,0,0), 4,4)
-D4 <- Diagonal(4, x=10:7)
+D4 <- Diagonal(4, x=10:7); d4 <- as(D4, "matrix")
+D.D4 <- crossprod(D4); assert.EQ.mat(D.D4, crossprod(d4))
 stopifnot(all(cu2 == cu2.),# was wrong for ver. <= 0.999375-4
+          isValid(D.D4, "ddiMatrix"), identical(D.D4, tcrossprod(D4)),
+          identical4(crossprod(d4, D4), crossprod(D4, d4), tcrossprod(d4, D4), D.D4),
 	  is(cu2, "dtCMatrix"), is(cl2, "dtCMatrix"), # triangularity preserved
 	  cu2@diag == "U", cl2@diag == "U",# UNIT-triangularity preserved
-	  all.equal(D4 %*% cu, D4 %*% as.matrix(cu)),
-	  all.equal(cu %*% D4, as.matrix(cu) %*% D4),
+	  all.equal(D4 %*% cu, D4 %*% mcu),
+	  all.equal(cu %*% D4, mcu %*% D4),
 	  isValid(su <- crossprod(cu), "dsCMatrix"),
 	  all(D4 %*% su == D4 %*% as.mat(su)),
 	  all(su %*% D4 == as.mat(su) %*% D4),
 	  identical(t(cl2), cu2), # !!
-	  identical( crossprod(cu), Matrix( crossprod(as.matrix(cu)),sparse=TRUE)),
-	  identical(tcrossprod(cu), Matrix(tcrossprod(as.matrix(cu)),sparse=TRUE)))
+          identical ( crossprod(cu, D4),  crossprod(mcu, D4)),
+          identical4(tcrossprod(cu, D4), tcrossprod(mcu, D4), cu %*% D4, mcu %*% D4),
+          identical4(tcrossprod(D4,cu), tcrossprod(D4,mcu), D4 %*% t(cu), D4 %*% t(mcu)),
+	  identical( crossprod(cu), Matrix( crossprod(mcu),sparse=TRUE)),
+	  identical(tcrossprod(cu), Matrix(tcrossprod(mcu),sparse=TRUE)))
+assert.EQ.mat( crossprod(cu, D4),  crossprod(mcu, d4))
+assert.EQ.mat(tcrossprod(cu, D4), tcrossprod(mcu, d4))
 tr8 <- kronecker(rbind(c(2,0),c(1,4)), cl2)
 T8 <- tr8 %*% (tr8/2) # triangularity preserved?
 T8.2 <- (T8 %*% T8) / 4

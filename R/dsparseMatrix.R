@@ -55,9 +55,8 @@ setMethod("is.infinite", signature(x = "dsparseMatrix"),
 	      else is.na_nsp(x)
 	  })
 
-## Group Methods, see ?Arith (e.g.): "Ops" --> ./Ops.R
+## Group Methods, see ?Arith (e.g.): "Ops" --> ./Ops.R, "Math" in ./Math.R, ...
 ## -----
-## others moved to ./Csparse.R (and 'up' to ./sparseMatrix.R):
-##  "Math2" is in ./dMatrix.R
+
 
 

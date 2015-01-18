@@ -50,8 +50,7 @@ setClass("triangularMatrix",
 ## Virtual class of numeric matrices
 setClass("dMatrix",
 	 representation(x = "numeric", "VIRTUAL"), contains = "Matrix",
-	 validity = function(object)
-	 .Call(dMatrix_validate, object))
+	 validity = function(object) .Call(dMatrix_validate, object))
 
 ## Virtual class of integer matrices
 setClass("iMatrix",
@@ -174,9 +173,7 @@ setClass("dgeMatrix", contains = c("ddenseMatrix", "generalMatrix"),
 ## numeric, dense, non-packed, triangular matrices
 setClass("dtrMatrix",
 	 contains = c("ddenseMatrix", "triangularMatrix"),
-	 validity =
-	 function(object) .Call(dtrMatrix_validate, object)
-	 )
+	 validity = function(object) .Call(dense_nonpacked_validate, object))
 
 ## numeric, dense, packed, triangular matrices
 setClass("dtpMatrix",
@@ -188,9 +185,7 @@ setClass("dtpMatrix",
 ## numeric, dense, non-packed symmetric matrices
 setClass("dsyMatrix",
          contains = c("ddenseMatrix", "symmetricMatrix"),
-	 validity =
-	 function(object) .Call(dsyMatrix_validate, object)
-	 )
+	 validity = function(object) .Call(dense_nonpacked_validate, object))
 
 ## numeric, dense, packed symmetric matrices
 setClass("dspMatrix",
@@ -213,13 +208,14 @@ setClass("dppMatrix", contains = "dspMatrix",
 
 ## logical, dense, general matrices
 setClass("lgeMatrix", contains = c("ldenseMatrix", "generalMatrix"),
+         ## since "lge" inherits from "ldenseMatrix", only need this:
 	 ## checks that length( @ x) == prod( @ Dim):
-	 validity = function(object) stopifnot(length(object@x) == prod(object@Dim))
-	 )
+	 validity = function(object) .Call(dense_nonpacked_validate, object))
 ## i.e. "lgeMatrix" cannot be packed, but "ldenseMatrix" can ..
 
 ## logical, dense, non-packed, triangular matrices
 setClass("ltrMatrix",
+	 validity = function(object) .Call(dense_nonpacked_validate, object),
 	 contains = c("ldenseMatrix", "triangularMatrix"))
 
 ## logical, dense, packed, triangular matrices
@@ -228,6 +224,7 @@ setClass("ltpMatrix",
 
 ## logical, dense, non-packed symmetric matrices
 setClass("lsyMatrix",
+	 validity = function(object) .Call(dense_nonpacked_validate, object),
 	 contains = c("ldenseMatrix", "symmetricMatrix"))
 
 ## logical, dense, packed symmetric matrices
@@ -241,13 +238,12 @@ setClass("lspMatrix",
 
 ## logical, dense, general matrices
 setClass("ngeMatrix", contains = c("ndenseMatrix", "generalMatrix"),
-	 ## checks that length( @ x) == prod( @ Dim):
-	 validity = function(object)
-         stopifnot(length(object@x) == prod(object@Dim)))
+	 validity = function(object) .Call(dense_nonpacked_validate, object))
 ## i.e. "ngeMatrix" cannot be packed, but "ndenseMatrix" can ..
 
 ## logical, dense, non-packed, triangular matrices
 setClass("ntrMatrix",
+	 validity = function(object) .Call(dense_nonpacked_validate, object),
 	 contains = c("ndenseMatrix", "triangularMatrix"))
 
 ## logical, dense, packed, triangular matrices
@@ -256,6 +252,7 @@ setClass("ntpMatrix",
 
 ## logical, dense, non-packed symmetric matrices
 setClass("nsyMatrix",
+	 validity = function(object) .Call(dense_nonpacked_validate, object),
 	 contains = c("ndenseMatrix", "symmetricMatrix"))
 
 ## logical, dense, packed symmetric matrices
@@ -267,9 +264,9 @@ setClass("nspMatrix",
 
 
 ## 'diagonalMatrix' already has validity checking
-## diagonal, numeric matrices;	    "d*" has 'x' slot :
+## diagonal, numeric matrices; "dMatrix" has 'x' slot :
 setClass("ddiMatrix", contains = c("diagonalMatrix", "dMatrix"))# or "dMatrix"
-## diagonal, logical matrices; "ldense*" has 'x' slot :
+## diagonal, logical matrices; "lMatrix" has 'x' slot :
 setClass("ldiMatrix", contains = c("diagonalMatrix", "lMatrix"))
 
 setClass("corMatrix", representation(sd = "numeric"), contains = "dpoMatrix",
@@ -807,11 +804,12 @@ setClass("sparseVector",
          ## note that "numeric" contains "integer" (if I like it or not..)
 	 prototype = prototype(length = 0),
          validity = function(object) {
-             n <- object@length
-	     if(any(!is.finite(i <- object@i)))# no NA's !
-		 "'i' slot is not all finite"
-	     else if(any(i < 1) || any(i > n))
-		 sprintf("'i' must be in 1:%d", n)
+	     n <- object@length
+	     if(anyNA(i <- object@i))	 "'i' slot has NAs"
+	     else if(any(!is.finite(i))) "'i' slot is not all finite"
+	     else if(any(i < 1))	 "'i' must be >= 1"
+	     else if(n == 0 && length(i))"'i' must be empty when the object length is zero"
+	     else if(any(i > n)) sprintf("'i' must be in 1:%d", n)
 	     else if(is.unsorted(i, strictly=TRUE))
 		 "'i' must be sorted strictly increasingly"
              else TRUE
@@ -820,6 +818,8 @@ setClass("sparseVector",
 ##' initialization -- ensuring that  'i' is sorted (and 'x' alongside)
 setMethod("initialize", "sparseVector", function(.Object, i, x, ...)
       {
+	  ## NB: could simplify for R(-devel) >= 2015-01-14 (i.e. >= 3.2.0),
+	  ##	 assigning 'i' and 'x' and calling  callNextMethod() {w/o arg.s}
 	  has.x <- !missing(x)
 	  if(!missing(i)) {
 	      .Object@i <- ## (be careful to assign in all cases)
@@ -835,7 +835,7 @@ setMethod("initialize", "sparseVector", function(.Object, i, x, ...)
 		  else i
 	  }
 	  if(has.x) .Object@x <- x
-	  callNextMethod()
+	  callNextMethod(.Object, ...)
       })
 
 .validXspVec <- function(object) {

@@ -68,7 +68,7 @@ rowMeans(x, na.rm = FALSE, dims = 1, \dots)
 }
 \arguments{
   \item{x}{a Matrix, i.e., inheriting from  \code{\linkS4class{Matrix}}.}
-  \item{na.rm}{logical. Should missing values (including \code{NaN})
+  \item{na.rm}{logical.  Should missing values (including \code{NaN})
     be omitted from the calculations?}
   \item{dims}{completely ignored by the \code{Matrix} methods.}
   \item{\dots}{potentially further arguments, for method \code{<->}
@@ -100,8 +100,8 @@ length(MM@x) # 32
 (scm <- colSums(MM, sparseResult = TRUE))
 stopifnot(is(scm, "sparseVector"),
           identical(cm, as.numeric(scm)))
-rowSums(MM, sparseResult = TRUE) # 16 of 70 are not zero
-colMeans(MM, sparseResult = TRUE)
+rowSums (MM, sparseResult = TRUE) # 14 of 70 are not zero
+colMeans(MM, sparseResult = TRUE) # 16 of 80 are not zero
 ## Since we have no 'NA's, these two are equivalent :
 stopifnot(identical(rowMeans(MM, sparseResult = TRUE),
                     rowMeans(MM, sparseResult = TRUE, na.rm = TRUE)),

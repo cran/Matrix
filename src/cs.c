@@ -551,7 +551,7 @@ csi *cs_counts (const cs *A, const csi *parent, const csi *post, csi ata)
         if (parent [j] != -1) colcount [parent [j]] += colcount [j] ;
     }
     return (cs_idone (colcount, AT, w, 1)) ;    /* success: free workspace */
-}
+} 
 /* p [0..n] = cumulative sum of c [0..n-1], and then copy p [0..n-1] into c */
 double cs_cumsum (csi *p, csi *c, csi n)
 {
@@ -761,7 +761,7 @@ static csi cs_nonzero (csi i, csi j, double aij, void *other)
 csi cs_dropzeros (cs *A)
 {
     return (cs_fkeep (A, &cs_nonzero, NULL)) ;  /* keep all nonzero entries */
-}
+} 
 /* remove duplicate entries from A */
 csi cs_dupl (cs *A)
 {
@@ -1271,7 +1271,7 @@ cs *cs_multiply (const cs *A, const cs *B)
         if (nz + m > C->nzmax && !cs_sprealloc (C, 2*(C->nzmax)+m))
         {
             return (cs_done (C, w, x, 0)) ;             /* out of memory */
-        }
+        } 
         Ci = C->i ; Cx = C->x ;         /* C->i and C->x may be reallocated */
         Cp [j] = nz ;                   /* column j of C starts here */
         for (p = Bp [j] ; p < Bp [j+1] ; p++)
@@ -1371,7 +1371,7 @@ csi cs_print (const cs *A, csi brief)
             (double) n, (double) nzmax, (double) (Ap [n]), cs_norm (A)) ;
         for (j = 0 ; j < n ; j++)
         {
-            Rprintf ("    col %g : locations %g to %g\n", (double) j,
+            Rprintf ("    col %g : locations %g to %g\n", (double) j, 
                 (double) (Ap [j]), (double) (Ap [j+1]-1)) ;
             for (p = Ap [j] ; p < Ap [j+1] ; p++)
             {
@@ -1536,14 +1536,16 @@ csi *cs_randperm (csi n, csi seed)
     if (!p) return (NULL) ;             /* out of memory */
     for (k = 0 ; k < n ; k++) p [k] = n-k-1 ;
     if (seed == -1) return (p) ;        /* return reverse permutation */
-    srand (seed) ;                      /* get new random number seed */
+    GetRNGstate();/* <- for R package Matrix
+    srand (seed) ;                      .* get new random number seed */
     for (k = 0 ; k < n ; k++)
     {
-        j = k + (rand ( ) % (n-k)) ;    /* j = rand integer in range k to n-1 */
+        j = k + (int)(unif_rand() * (n-k)); // j = rand integer in range k to n-1
         t = p [j] ;                     /* swap p[k] and p[j] */
         p [j] = p [k] ;
         p [k] = t ;
     }
+    PutRNGstate(); // <- R package Matrix
     return (p) ;
 }
 /* xi [top...n-1] = nodes reachable from graph of G*P' via nodes in B(:,k).

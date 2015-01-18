@@ -5,26 +5,8 @@
 setAs("matrix",  "dgeMatrix", ..2dge)
 setAs("numLike", "dgeMatrix", ..2dge)
 
-setAs("dgeMatrix", "matrix",
-      function(from) array(from@x, dim = from@Dim, dimnames = from@Dimnames))
-
-## Group Methods, see ?Math (e.g.)
-
-##  "Arith" is in ./Ops.R
-
-setMethod("Math", signature(x = "dgeMatrix"),
-	  function(x) {
-	      x@x <- callGeneric(x@x)
-	      x
-	  })
-
-##  "Math2" is in ./dMatrix.R
-
-## "Summary"
-
-## "Compare"  now happens in ./dMatrix.R
-
-## -- end{group generics} -----------------------
+ge2mat <- function(from) array(from@x, dim = from@Dim, dimnames = from@Dimnames)
+setAs("dgeMatrix", "matrix", ge2mat)
 
 
 ##  "[" settings are "up in"  Matrix.R & denseMatrix.R

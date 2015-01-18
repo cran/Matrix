@@ -4,6 +4,7 @@
 \alias{coerce,triangularMatrix,symmetricMatrix-method}
 \alias{coerce,lgeMatrix,triangularMatrix-method}
 \alias{coerce,ngeMatrix,triangularMatrix-method}
+\alias{coerce,matrix,triangularMatrix-method}
 %
 \title{Virtual Class of Triangular Matrices in package:Matrix}
 \description{
@@ -56,5 +57,8 @@ showClass("triangularMatrix")
 scl <- getClass("triangularMatrix")@subclasses
 directly <- sapply(lapply(scl, slot, "by"), length) == 0
 names(scl)[directly]
+
+(m <- matrix(c(5,1,0,3), 2))
+as(m, "triangularMatrix")
 }
 \keyword{classes}

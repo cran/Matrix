@@ -8,6 +8,8 @@ setAs("dgeMatrix", "triangularMatrix", function(from) asTri(from, "dtrMatrix"))
 setAs("lgeMatrix", "triangularMatrix", function(from) asTri(from, "ltrMatrix"))
 setAs("ngeMatrix", "triangularMatrix", function(from) asTri(from, "ntrMatrix"))
 
+setAs("matrix", "triangularMatrix", function(from) mat2tri(from))
+
 .tril.tr <- function(x, k = 0, ...) {  # are always square
     k <- as.integer(k[1])
     dd <- dim(x)
@@ -43,10 +45,15 @@ for(cls in trCls.) {
 
 ## ditto here:
 
+isTriTri <- function(x, upper=NA) {
+    if(is.na(upper)) structure(TRUE, kind=x@uplo)
+    else if(upper) x@uplo == "U"
+    else           x@uplo == "L"
+}
 for(cls in trCls)
     setMethod("isTriangular", signature(object = cls),
-              function(object, ...) TRUE)
+	      function(object, upper=NA, ...) isTriTri(object, upper))
 ## instead of just for ....   signature(object = "triangularMatrix")
 
-rm(trCls, cls)
+rm(trCls, trCls., cls)
 

@@ -282,7 +282,6 @@ rm(di2tT)
 
 setAs("diagonalMatrix", "nMatrix",
       function(from) {
-	  n <- from@Dim[1]
 	  i <- if(from@diag == "U") integer(0) else which(isN0(from@x)) - 1L
 	  new("ntTMatrix", i = i, j = i, diag = from@diag,
 	      Dim = from@Dim, Dimnames = from@Dimnames)
@@ -581,15 +580,26 @@ diagdiagprod <- function(x, y) {
 setMethod("%*%", signature(x = "diagonalMatrix", y = "diagonalMatrix"),
 	  diagdiagprod, valueClass = "ddiMatrix")
 
-formals(diagdiagprod) <- alist(x=, y=x)
+
 setMethod("crossprod", signature(x = "diagonalMatrix", y = "diagonalMatrix"),
 	  diagdiagprod, valueClass = "ddiMatrix")
 setMethod("tcrossprod", signature(x = "diagonalMatrix", y = "diagonalMatrix"),
 	  diagdiagprod, valueClass = "ddiMatrix")
+
+##' crossprod(x) := x'x
+diagprod <- function(x) {
+    if(x@diag != "U") {
+        nx <- x@x * x@x
+        if(is.numeric(nx) && !is.numeric(x@x))
+            x <- as(x, "dMatrix")
+        x@x <- as.numeric(nx)
+    }
+    x
+}
 setMethod("crossprod", signature(x = "diagonalMatrix", y = "missing"),
-	  diagdiagprod, valueClass = "ddiMatrix")
+	  diagprod, valueClass = "ddiMatrix")
 setMethod("tcrossprod", signature(x = "diagonalMatrix", y = "missing"),
-	  diagdiagprod, valueClass = "ddiMatrix")
+	  diagprod, valueClass = "ddiMatrix")
 
 
 ## analogous to matdiagprod() below:
@@ -600,8 +610,6 @@ diagmatprod <- function(x, y) {
 }
 setMethod("%*%", signature(x = "diagonalMatrix", y = "matrix"),
 	  diagmatprod)
-## sneaky .. :
-formals(diagmatprod) <- alist(x=, y=NULL)
 setMethod("crossprod",  signature(x = "diagonalMatrix", y = "matrix"), diagmatprod)
 
 diagGeprod <- function(x, y) {
@@ -612,7 +620,6 @@ diagGeprod <- function(x, y) {
 }
 setMethod("%*%", signature(x= "diagonalMatrix", y= "dgeMatrix"), diagGeprod)
 setMethod("%*%", signature(x= "diagonalMatrix", y= "lgeMatrix"), diagGeprod)
-formals(diagGeprod) <- alist(x=, y=NULL)
 setMethod("crossprod", signature(x = "diagonalMatrix", y = "dgeMatrix"),
 	  diagGeprod, valueClass = "dgeMatrix")
 setMethod("crossprod", signature(x = "diagonalMatrix", y = "lgeMatrix"),
@@ -625,10 +632,9 @@ matdiagprod <- function(x, y) {
     Matrix(if(y@diag == "U") x else x * rep(y@x, each = dx[1]))
 }
 setMethod("%*%", signature(x = "matrix", y = "diagonalMatrix"), matdiagprod)
-formals(matdiagprod) <- alist(x=, y=NULL)
 setMethod("tcrossprod",signature(x = "matrix", y = "diagonalMatrix"), matdiagprod)
 setMethod("crossprod", signature(x = "matrix", y = "diagonalMatrix"),
-	  function(x, y=NULL) {
+	  function(x, y) {
 	      dx <- dim(x)
 	      if(dx[1] != y@Dim[1]) stop("non-matching dimensions")
 	      Matrix(t(rep.int(y@x, dx[2]) * x))
@@ -643,7 +649,6 @@ gediagprod <- function(x, y) {
 }
 setMethod("%*%", signature(x= "dgeMatrix", y= "diagonalMatrix"), gediagprod)
 setMethod("%*%", signature(x= "lgeMatrix", y= "diagonalMatrix"), gediagprod)
-formals(gediagprod) <- alist(x=, y=NULL)
 setMethod("tcrossprod", signature(x = "dgeMatrix", y = "diagonalMatrix"),
 	  gediagprod)
 setMethod("tcrossprod", signature(x = "lgeMatrix", y = "diagonalMatrix"),
@@ -841,7 +846,7 @@ diagOtri <- function(e1,e2) {
     ## result must be triangular
     r <- callGeneric(d1 <- .diag.x(e1), diag(e2)) # error if not "compatible"
     ## Check what happens with non-diagonals, i.e. (0 o 0), (FALSE o 0), ...:
-    e1.0 <- if(.n1 <- is.numeric(d1   )) 0 else FALSE
+    e1.0 <- if(is.numeric(d1)) 0 else FALSE
     r00 <- callGeneric(e1.0, if(.n2 <- is.numeric(e2[0])) 0 else FALSE)
     if(is0(r00)) { ##  r00 == 0 or FALSE --- result *is* triangular
         diag(e2) <- r

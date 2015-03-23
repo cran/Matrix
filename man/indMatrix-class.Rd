@@ -102,7 +102,7 @@
       the index matrix of the interaction of the two.}
   }
 }
-\author{Fabian Scheipl \email{....@uni-muenchen.de} building on existing
+\author{Fabian Scheipl, Uni Muenchen, building on existing
   "pMatrix", after a nice hike's conversation with Martin Maechler and
   tweaks by the latter.
 }

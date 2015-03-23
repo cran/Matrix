@@ -21,8 +21,8 @@
   \code{\linkS4class{dsCMatrix}} using
   \code{\link[spdep]{as_dsTMatrix_listw}} and coercion.
 }
-\source{
-  The data were retrieved from \url{http://sal.uiuc.edu/weights/zips/usc.zip},
+\source{ %% no \url anymore, as broken (Jan. 2015)
+  The data were retrieved from \code{http://sal.uiuc.edu/weights/zips/usc.zip},
   files \dQuote{usc.txt} and \dQuote{usc\_q.GAL}, with permission for use
   and distribution from Luc Anselin.
 }

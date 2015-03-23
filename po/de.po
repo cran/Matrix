@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: R 3.1.0 / matrix 1.1-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-01-17 15:31+0100\n"
+"POT-Creation-Date: 2015-01-19 10:40+0100\n"
 "PO-Revision-Date: 2014-03-16 16:50+0100\n"
 "Last-Translator: Detlef Steuer <detlef.steuer@gmx.de>\n"
 "Language-Team: German <debian-l10n-german@lists.debian.org>\n"
@@ -645,7 +645,7 @@ msgstr "dgCMatrix_lusol benötigt eine quadratische, nicht leere Matrix"
 
 #: dgCMatrix.c:157 dgCMatrix.c:184 dgCMatrix.c:434 dgCMatrix.c:474
 #: dgeMatrix.c:431 dpoMatrix.c:95 dpoMatrix.c:120 dppMatrix.c:80
-#: dspMatrix.c:78 dsyMatrix.c:79 dtCMatrix.c:90 dtCMatrix.c:115 dtrMatrix.c:91
+#: dspMatrix.c:78 dsyMatrix.c:79 dtCMatrix.c:90 dtCMatrix.c:120 dtrMatrix.c:91
 msgid "Dimensions of system to be solved are inconsistent"
 msgstr "Dimensionen des Systems, das gelöst werden soll, sind inkonsistent"
 

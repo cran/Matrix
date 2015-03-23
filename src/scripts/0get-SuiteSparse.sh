@@ -7,13 +7,29 @@ then echo 'Must run in Matrix/src/ !' ; exit 1
 fi
 getSPQR=no
 ##     --- since late summer 2010, we no longer get SPQR
-ufl_URL=http://www.cise.ufl.edu/research/sparse/SuiteSparse/current/
-TGZ=SuiteSparse.tar.gz
-# if [ -f $TGZ ]
-# then echo 'Tarfile present; not downloading (remove it to change this!)' ; ls -l $TGZ
-# else
-  wget -nc  $ufl_URL/$TGZ
-# fi
+#
+# Tim Davis moved to Texas A&M, on July 1, 2014
+# ufl_URL=http://www.cise.ufl.edu/research/sparse/SuiteSparse/current/
+# TGZ=SuiteSparse.tar.gz
+#  wget -nc  $ufl_URL/$TGZ
+TAM_url=http://faculty.cse.tamu.edu/davis/SuiteSparse
+ifile=index.html
+if [ -f $ifile ]; then fb=index_bak.html; if [ ! -f $fb ] ;then mv $ifile $fb ;fi;fi
+wget -nc $TAM_url/$ifile
+TGZ=`grep 'SuiteSparse-[0-9].*tar' $ifile | tail -1 | sed 's/.*href=//; s/>.*//'`
+echo "Found TGZ='$TGZ' in $ifile."
+if [ -f $TGZ ]
+then
+    echo 'Tarfile present; not downloading (remove it to change this!)'
+    echo 'Maybe *continue* downloading by'; echo;
+    echo "	  wget -c $TAM_url/$TGZ" ; echo
+    echo ' >> INTERRUPT (Ctrl C) within 7 sec !) if you want do that '
+    sleep 7
+else
+    echo '  ==> Trying to get it from '"$TAM_url :"
+    wget -nc $TAM_url/$TGZ
+fi
+ls -l $TGZ
 
 SS=SuiteSparse
 SSdocDir=../inst/doc/SuiteSparse
@@ -29,15 +45,17 @@ mv $Sdir/Makefile $Sdir/Makefile_orig
   ## touch the file $Sdir/SuiteSparse_config.mk.  We use other configuration
   ## environment variables but this name is embedded in some Makefiles
 touch $Sdir/SuiteSparse_config.mk
-  ## Need to add the Matrix-specific changes to SuiteSparse_config/SuiteSparse_config.h :
-## 2012-06: *no longer* patch -p0 < scripts/SuiteSparse_config.patch
   ## move directory *up*
 dd=`basename $Sdir`; mv $Sdir/* $dd/
+  ## Need to add the Matrix-specific changes to SuiteSparse_config/SuiteSparse_config.h :
+## 2014-08: different patch:
+patch -p0 < scripts/SuiteSparse_config.patch
 
 ## 2) COLAMD -----------------------------------------------
 Sdir=$SS/COLAMD
    ## install COLAMD/Source and COLAMD/Include directories
 tar zxf $TGZ $Sdir/Source/ $Sdir/Include/ $Sdir/Doc/ $Sdir/README.txt
+## MM {2014-12}: following Makefile no longer exists
 f=$Sdir/Source/Makefile
 if [ -f $f ]
 then Rscript --vanilla -e 'source("scripts/fixup-fn.R")' -e 'fixup("'$f'")'
@@ -46,7 +64,8 @@ fi
 mv $Sdir/README.txt $SSdocDir/COLAMD.txt
 mv $Sdir/Doc/ChangeLog $SSdocDir/COLAMD-ChangeLog.txt
 rm -rf $Sdir/Doc
-patch -p0 < scripts/COLAMD.patch
+# 2014: no longer
+# patch -p0 < scripts/COLAMD.patch
 ##          ---------------------
   ## move directory *up*
 dd=`basename $Sdir`; rsync -auv $Sdir/ $dd/
@@ -61,7 +80,8 @@ mv $Sdir/README.txt $SSdocDir/AMD.txt
   ## remove Fortran source files and GNUMakefile
 rm $Sdir/Source/*.f $Sdir/Lib/GNUmakefile
 #(for f in $Sdir/Include/amd_internal.h $Sdir/Source/amd_global.c; do diff -ubBw ${f}.~1~ $f ; done ) | tee scripts/AMD-noprint.patch
-patch -p0 < scripts/AMD-noprint.patch
+## 2014: no longer
+# patch -p0 < scripts/AMD-noprint.patch
 ##          ---------------------
   ## move directory *up*
 dd=`basename $Sdir`; rsync -auv $Sdir/ $dd/
@@ -84,7 +104,7 @@ mv $Sdir/Lib/Makefile $Sdir/Lib/Makefile_pre
   ## move directory *up*
 dd=`basename $Sdir`; rsync -auv $Sdir/ $dd/
 
-echo 'If there changes in the following you  ** MUST **  manually update  
+echo 'If there changes in the following you  ** MUST **  manually update
   <Matrix>/ inst/include/cholmod.h  --- to export what we have.
 
 Also, RcppEigen headers may also need to be updated -- ask Doug Bates.
@@ -96,9 +116,11 @@ echo 'Did the above show any non trivial diffs? --> do update inst/include/cholm
 
 svn revert $dd/Lib/Makefile
 ls -l $dd/Lib/Makefile_pre
-echo "now   diff $dd/Lib/Makefile $dd/Lib/Makefile_pre "
+echo "now   diff $dd/Lib/Makefile $dd/Lib/Makefile_pre  [I do it for you below]"
 echo ' make changes as necessary, and then (later)'
 echo " rm $dd"'/Lib/Makefile_*' ; echo
+echo "Ok, now   diff $dd/Lib/Makefile $dd/Lib/Makefile_pre :"
+diff $dd/Lib/Makefile $dd/Lib/Makefile_pre
 
 ## 5) CCparse -------------------------------------------------
 Sdir=$SS/CSparse

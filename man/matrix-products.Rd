@@ -287,7 +287,7 @@
 \S4method{crossprod}{dgeMatrix,missing}(x, y = NULL)
        ## .... and many more
 
-\S4method{tcrossprod}{CsparseMatrix,ddenseMatrix}(x, y = NULL)
+\S4method{tcrossprod}{CsparseMatrix,CsparseMatrix}(x, y = NULL)
        ## .... and many more
 }
 \arguments{

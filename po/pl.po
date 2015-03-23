@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Matrix 1.1-2-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-01-17 15:31+0100\n"
+"POT-Creation-Date: 2015-01-19 10:40+0100\n"
 "PO-Revision-Date: 2014-03-24 17:53+0100\n"
 "Last-Translator: Łukasz Daniel <lukasz.daniel@gmail.com>\n"
 "Language-Team: Łukasz Daniel <lukasz.daniel@gmail.com>\n"
@@ -1012,7 +1012,7 @@ msgstr "'dgCMatrix_lusol' wymaga kwadratowej, niepustej macierzy"
 # error(_("Dimensions of system to be solved are inconsistent"))
 #: dgCMatrix.c:157 dgCMatrix.c:184 dgCMatrix.c:434 dgCMatrix.c:474
 #: dgeMatrix.c:431 dpoMatrix.c:95 dpoMatrix.c:120 dppMatrix.c:80
-#: dspMatrix.c:78 dsyMatrix.c:79 dtCMatrix.c:90 dtCMatrix.c:115 dtrMatrix.c:91
+#: dspMatrix.c:78 dsyMatrix.c:79 dtCMatrix.c:90 dtCMatrix.c:120 dtrMatrix.c:91
 msgid "Dimensions of system to be solved are inconsistent"
 msgstr "Wymiary systemu, który ma być rozwiązany, są niespójne"
 

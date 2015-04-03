@@ -63,6 +63,7 @@ SEXP compressed_to_TMatrix(SEXP x, SEXP colP)
 	    slot_dup(ans, x, Matrix_diagSym);
     }
     SET_DimNames(ans, x);
+    // possibly asymmetric for symmetricMatrix is ok
     SET_SLOT(ans, indSym, duplicate(indP));
     expand_cmprPt(npt, INTEGER(pP),
 		  INTEGER(ALLOC_SLOT(ans, col ? Matrix_jSym : Matrix_iSym,
@@ -108,6 +109,7 @@ SEXP R_to_CMatrix(SEXP x)
     slot_dup(ans, x, Matrix_pSym);
     REPROTECT(ans = Csparse_transpose(ans, tri), ipx);
     SET_DimNames(ans, x);
+    // possibly asymmetric for symmetricMatrix is ok
     free(ncl);
     UNPROTECT(2);
     return ans;

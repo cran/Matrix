@@ -1,6 +1,15 @@
+2015-04-01  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* inst/NEWS.Rd: Moving ChangeLog to new (markup) NEWS file
+
+2015-03-16  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Auxiliaries.R (anyDuplicatedT): renamed from is_duplicatedT(),
+	and exported.  uniqTsparse(): exported too.
+
 2014-06-15  Martin Maechler  <maechler@stat.math.ethz.ch>
 
-	* DESCRIPTION (Version): 1.1-4, released to CRAN
+	* DESCRIPTION (Version): 1.1-4, released to CRAN on 2014-06-14
 	* src/dsyMatrix.c (dsyMatrix_matrix_mm): fix crossprod(<vec>, <dsyMatrix>) bug
 
 2014-04-26  Martin Maechler  <maechler@stat.math.ethz.ch>
@@ -9,7 +18,7 @@
 
 2014-03-30  Martin Maechler  <maechler@stat.math.ethz.ch>
 
-	* DESCRIPTION (Version): 1.1-3, released to CRAN
+	* DESCRIPTION (Version): 1.1-3, released to CRAN on 2014-03-30
 
 2014-03-12  Martin Maechler  <maechler@stat.math.ethz.ch>
 
@@ -24,7 +33,7 @@
 
 2014-01-20  Martin Maechler  <maechler@stat.math.ethz.ch>
 
-	* DESCRIPTION (Version): 1.1-2
+	* DESCRIPTION (Version): 1.1-2, released to CRAN on 2014-01-28
 
 	* NAMESPACE: export fast power-user coercion utilities
 	.dsy2mat(), .dxC2mat(), .T2Cmat(), ..2dge().

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Matrix 1.1-2-2\n"
 "Report-Msgid-Bugs-To: bugs.r-project.org\n"
-"POT-Creation-Date: 2015-01-17 15:31\n"
+"POT-Creation-Date: 2015-03-27 10:18\n"
 "PO-Revision-Date: 2014-03-27 14:47+0100\n"
 "Last-Translator: Łukasz Daniel <lukasz.daniel@gmail.com>\n"
 "Language-Team: Łukasz Daniel <lukasz.daniel@gmail.com>\n"
@@ -878,6 +878,9 @@ msgid "the %d-th (sub)-diagonal (k = %d) is too short; filling with NA's"
 msgstr ""
 "(pod)-diagonala %d (k = %d) jest zbyt krótkal wypełnianie wartościami NA"
 
+msgid "resulting x-slot has different type than x's or y's"
+msgstr ""
+
 # Matrix/R/condest.R: 74
 # stop("'A' must be a square matrix")
 # Matrix/R/condest.R: 194
@@ -1110,11 +1113,6 @@ msgstr ""
 " Wszystkie wpisy muszą być wartościami całkowitymi a liczba kolumn d nie "
 "może być mniejsza niż maksymalny indeks i*."
 
-# Matrix/R/indMatrix.R: 63
-# stop("not a skinny matrix")
-msgid "not a skinny matrix"
-msgstr "to nie jest chuda macierz"
-
 # Matrix/R/indMatrix.R: 65
 # stop("the number of non-zero entries differs from nrow(.)")
 # Matrix/R/pMatrix.R: 27
@@ -1194,6 +1192,12 @@ msgstr "jeszcze niezaimplementowana metoda dla <%s> %%*%% <%s>"
 #, fuzzy
 msgid "non-conformable arguments"
 msgstr "niezgodne wymiary macierzy w %s"
+
+# Matrix/R/diagMatrix.R: 225
+# stop(gettextf("%s kind not yet implemented", sQuote(kind)), domain = "R-Matrix")
+#, fuzzy
+msgid "'boolArith = %d' not yet implemented"
+msgstr "rodzaj %s nie jest jeszcze zaimplementowany"
 
 msgid ""
 "rankMatrix(<large sparse Matrix>, method = '%s') coerces to dense matrix.\n"
@@ -1408,6 +1412,11 @@ msgstr[1] ""
 msgstr[2] ""
 "argumenty %s zostały odrzucone w\n"
 " %s"
+
+# Matrix/R/indMatrix.R: 63
+# stop("not a skinny matrix")
+#~ msgid "not a skinny matrix"
+#~ msgstr "to nie jest chuda macierz"
 
 #~ msgid "longer object length"
 #~ msgstr "długość dłuższego obiektu"

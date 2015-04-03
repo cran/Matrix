@@ -42,13 +42,13 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(CHMfactor_updown,3),
     CALLDEF(destructive_CHM_update, 3),
     CALLDEF(Cholesky_validate, 1),
-    CALLDEF(Csparse_Csparse_prod, 2),
-    CALLDEF(Csparse_Csparse_crossprod, 3),
+    CALLDEF(Csparse_Csparse_prod, 3),
+    CALLDEF(Csparse_Csparse_crossprod, 4),
     CALLDEF(Csparse_MatrixMarket, 2),
     CALLDEF(Csparse_band, 3),
-    CALLDEF(Csparse_crossprod, 3),
-    CALLDEF(Csparse_dense_crossprod, 2),
-    CALLDEF(Csparse_dense_prod, 2),
+    CALLDEF(Csparse_crossprod, 4),
+    CALLDEF(Csparse_dense_crossprod, 3),
+    CALLDEF(Csparse_dense_prod, 3),
     CALLDEF(Csparse_diagN2U, 1),
     CALLDEF(Csparse_diagU2N, 1),
     CALLDEF(Csparse_drop, 2),
@@ -57,9 +57,9 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(Csparse_to_Tsparse, 2),
     CALLDEF(Csparse_to_tCsparse, 3),
     CALLDEF(Csparse_to_tTsparse, 3),
-    CALLDEF(Csparse_to_dense, 1),
+    CALLDEF(Csparse_to_dense, 2),
     CALLDEF(Csparse_to_nz_pattern, 2),
-    CALLDEF(Csparse_to_matrix, 2),
+    CALLDEF(Csparse_to_matrix, 3),
     CALLDEF(Csparse_to_vector, 1),
     CALLDEF(Csparse_submatrix, 3),
     CALLDEF(dCsparse_subassign, 4),
@@ -67,7 +67,7 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(iCsparse_subassign, 4),
     CALLDEF(nCsparse_subassign, 4),
     CALLDEF(zCsparse_subassign, 4),
-    CALLDEF(Csparse_general_to_symmetric, 2),
+    CALLDEF(Csparse_general_to_symmetric, 3),
     CALLDEF(Csparse_symmetric_to_general, 1),
     CALLDEF(Csparse_transpose, 2),
     CALLDEF(Csparse_validate, 1),
@@ -82,6 +82,7 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(LU_expand, 1),
     CALLDEF(LU_validate, 1),
     CALLDEF(Matrix_expand_pointers, 1),
+    CALLDEF(R_rbind2_vector, 2),
     CALLDEF(R_all0, 1),
     CALLDEF(R_any0, 1),
     CALLDEF(R_to_CMatrix, 1),
@@ -122,9 +123,12 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(dgeMatrix_Schur, 3),
     CALLDEF(dgeMatrix_colsums, 4),
     CALLDEF(dgeMatrix_crossprod, 2),
+    CALLDEF (geMatrix_crossprod, 2),
     CALLDEF(dgeMatrix_determinant, 2),
     CALLDEF(dgeMatrix_dgeMatrix_crossprod, 3),
+    CALLDEF (geMatrix_geMatrix_crossprod, 3),
     CALLDEF(dgeMatrix_matrix_mm, 3),
+    CALLDEF (geMatrix_matrix_mm, 3),
     CALLDEF(dgeMatrix_matrix_solve, 2),
     CALLDEF(dgeMatrix_dtpMatrix_mm, 2),
     CALLDEF(dgeMatrix_exp, 1),
@@ -134,6 +138,7 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(dgeMatrix_setDiag, 2),
     CALLDEF(lgeMatrix_setDiag, 2),
     CALLDEF(dgeMatrix_matrix_crossprod, 3),
+    CALLDEF (geMatrix_matrix_crossprod, 3),
     CALLDEF(dgeMatrix_norm, 2),
     CALLDEF(dgeMatrix_rcond, 2),
     CALLDEF(dgeMatrix_solve, 1),
@@ -246,6 +251,7 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(sparseQR_resid_fitted, 3),
     CALLDEF(triangularMatrix_validate, 1),
     CALLDEF(symmetricMatrix_validate, 1),
+    CALLDEF(R_symmetric_Dimnames, 1),
 
 /* still simple placeholders, but already used in ../R/AllClass.R : */
     CALLDEF(CHMfactor_validate, 1),
@@ -323,6 +329,7 @@ R_init_Matrix(DllInfo *dll)
     RREGDEF(cholmod_scale);
     RREGDEF(cholmod_sdmult);
     RREGDEF(cholmod_solve);
+    RREGDEF(cholmod_solve2);
     RREGDEF(cholmod_sort);
     RREGDEF(cholmod_sparse_to_dense);
     RREGDEF(cholmod_sparse_to_triplet);

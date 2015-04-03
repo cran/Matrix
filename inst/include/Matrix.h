@@ -18,11 +18,30 @@ extern "C" {
 #endif
 
 // Copied from ../../src/Mutils.h ----------------------------------------
-#define MATRIX_VALID_dense			\
+#define MATRIX_VALID_ge_dense			\
         "dmatrix", "dgeMatrix",			\
 	"lmatrix", "lgeMatrix",			\
 	"nmatrix", "ngeMatrix",			\
 	"zmatrix", "zgeMatrix"
+
+#define MATRIX_VALID_ddense					\
+		    "dgeMatrix", "dtrMatrix",			\
+		    "dsyMatrix", "dpoMatrix", "ddiMatrix",	\
+		    "dtpMatrix", "dspMatrix", "dppMatrix",	\
+		    /* sub classes of those above:*/		\
+		    /* dtr */ "Cholesky", "LDL", "BunchKaufman",\
+		    /* dtp */ "pCholesky", "pBunchKaufman",	\
+		    /* dpo */ "corMatrix"
+
+#define MATRIX_VALID_ldense			\
+		    "lgeMatrix", "ltrMatrix",	\
+		    "lsyMatrix", "ldiMatrix",	\
+		    "ltpMatrix", "lspMatrix"
+
+#define MATRIX_VALID_ndense			\
+		    "ngeMatrix", "ntrMatrix",	\
+		    "nsyMatrix",		\
+		    "ntpMatrix", "nspMatrix"
 
 #define MATRIX_VALID_Csparse			\
  "dgCMatrix", "dsCMatrix", "dtCMatrix",		\
@@ -41,6 +60,9 @@ extern "C" {
  "lgRMatrix", "lsRMatrix", "ltRMatrix",		\
  "ngRMatrix", "nsRMatrix", "ntRMatrix",		\
  "zgRMatrix", "zsRMatrix", "ztRMatrix"
+
+#define MATRIX_VALID_tri_Csparse		\
+   "dtCMatrix", "ltCMatrix", "ntCMatrix", "ztCMatrix"
 
 #define MATRIX_VALID_CHMfactor "dCHMsuper", "dCHMsimpl", "nCHMsuper", "nCHMsimpl"
 
@@ -77,6 +99,10 @@ int M_Matrix_check_class_etc(SEXP x, const char **valid);
 // ./Matrix_stubs.c   "illustrative example code" (of the above):
 bool Matrix_isclass_Csparse(SEXP x);
 bool Matrix_isclass_triplet(SEXP x);
+bool Matrix_isclass_ge_dense(SEXP x);
+bool Matrix_isclass_ddense(SEXP x);
+bool Matrix_isclass_ldense(SEXP x);
+bool Matrix_isclass_ndense(SEXP x);
 bool Matrix_isclass_dense(SEXP x);
 bool Matrix_isclass_CHMfactor(SEXP x);
 

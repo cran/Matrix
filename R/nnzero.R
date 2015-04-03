@@ -28,7 +28,7 @@ setMethod("nnzero", "sparseMatrix",
 	nn <- switch(.sp.class(cl),
 		     "CsparseMatrix" = x@p[d[2]+1L],# == length(x@i) only if not over-alloc.
 		     "TsparseMatrix" = {
-			 if(is_duplicatedT(x, di = d))
+			 if(anyDuplicatedT(x, di = d))
 			     x <- .Call(Tsparse_to_Csparse, x, iTri)
 			 length(x@i)
 		     },

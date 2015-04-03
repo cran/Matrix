@@ -23,7 +23,7 @@ rsparsematrix(nrow, ncol, density, nnz = round(density * maxE),
     class \code{\linkS4class{symmetricMatrix}}.  Note that in the symmetric
     case, \code{nnz} denotes the number of non zero entries of the upper
     (or lower) part of the matrix, including the diagonal.}
-  \item{rand.x}{the random number generator for the \code{x} slot, a
+  \item{rand.x}{\code{\link{NULL}} or the random number generator for the \code{x} slot, a
     \code{\link{function}} such that \code{rand.x(n)} generates a
     numeric vector of length \code{n}.  Typical examples are
     \code{rand.x = rnorm}, or \code{rand.x = runif}; the default is nice
@@ -34,9 +34,12 @@ rsparsematrix(nrow, ncol, density, nnz = round(density * maxE),
 \details{
   The algorithm first samples \dQuote{encoded} \eqn{(i,j)}s without
   replacement, via one dimensional indices, if not \code{symmetric}
-  \code{\link{sample.int}(nrow*ncol, nnz)}, then gets
-  \code{x <- rand.x(nnz)} and calls
-  \code{\link{sparseMatrix}(i=i, j=j, x=x, ..)}.
+  \code{\link{sample.int}(nrow*ncol, nnz)}, then---if \code{rand.x} is
+  not \code{NULL}---gets \code{x <- rand.x(nnz)} and calls
+  \code{\link{sparseMatrix}(i=i, j=j, x=x, ..)}.  When
+  \code{rand.x=NULL}, \code{\link{sparseMatrix}(i=i, j=j, ..)} will
+  return a patter\bold{n} matrix (i.e., inheriting from
+  \code{\linkS4class{nsparseMatrix}}).
 }
 \value{
   a \code{\linkS4class{sparseMatrix}}, say \code{M} of dimension (nrow,
@@ -55,6 +58,9 @@ summary(M1)
 ## a random *symmetric* Matrix
 (S9 <- rsparsematrix(9, 9, nnz = 10, symmetric=TRUE)) # dsCMatrix
 nnzero(S9)# ~ 20: as 'nnz' only counts one "triangle"
+
+## a random patter*n* aka boolean Matrix (no 'x' slot):
+(n7 <- rsparsematrix(5, 12, nnz = 10, rand.x = NULL))
 
 ## a [T]riplet representation sparseMatrix:
 T2 <- rsparsematrix(40, 12, nnz = 99, giveCsparse=FALSE)

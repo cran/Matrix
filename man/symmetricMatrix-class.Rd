@@ -4,8 +4,9 @@
 \alias{coerce,matrix,symmetricMatrix-method}
 \alias{coerce,denseMatrix,symmetricMatrix-method}
 \alias{coerce,CsparseMatrix,symmetricMatrix-method}
+\alias{dimnames,symmetricMatrix-method}
 %
-\title{Virtual Class of Symmetric Matrices in package:Matrix}
+\title{Virtual Class of Symmetric Matrices in Package Matrix}
 \description{
   The virtual class of symmetric matrices, \code{"symmetricMatrix"},
   from the package \pkg{Matrix} contains numeric and logical, dense and
@@ -32,10 +33,28 @@
   Class \code{"Matrix"}, directly.
 }
 \section{Methods}{
-  There's a C function \code{symmetricMatrix_validity()}
-  called by the internal validity checking functions.
-  %% Currently:
-  %% No methods defined with class "symmetricMatrix" in the signature.
+  \describe{
+    \item{coerce}{\code{signature(from = "ddiMatrix", to =
+	"symmetricMatrix")}: and many other coercion methods, some of
+      which are particularly optimized.}
+    \item{dimnames}{\code{signature(object = "symmetricMatrix")}:
+      returns \emph{symmetric} \code{\link{dimnames}}, even when the
+      \code{Dimnames} slot only has row or column names.  This allows to
+      save storage for large (typically sparse) symmetric matrices.}
+    \item{isSymmetric}{\code{signature(object = "symmetricMatrix")}:
+      returns \code{TRUE} trivially.}
+  }
+
+  There's a C function \code{symmetricMatrix_validate()}% in ../src/dsyMatrix.c
+  called by the internal validity checking functions, and also from
+  \code{\link{getValidity}(getClass("symmetricMatrix"))}.
+}
+\section{Validity and \code{\link{dimnames}}}{
+  The validity checks do not require a symmetric \code{Dimnames} slot,
+  so it can be \code{list(NULL, <character>)}, e.g., for efficiency.
+  However, \code{\link{dimnames}()} and other functions and methods
+  should behave as if the dimnames were symmetric, i.e., with both list
+  components identical.
 }
 \seealso{
   \code{\link{isSymmetric}} which has efficient methods
@@ -51,5 +70,8 @@ showClass("symmetricMatrix")
 scl <- getClass("symmetricMatrix")@subclasses
 directly <- sapply(lapply(scl, slot, "by"), length) == 0
 names(scl)[directly]
+
+## Methods -- applicaple to all subclasses above:
+showMethods(classes = "symmetricMatrix")
 }
 \keyword{classes}

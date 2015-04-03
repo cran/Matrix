@@ -1,5 +1,20 @@
 ##-*- mode: org -*-
 
+* Very *Urgent*
+** TODO <nsparseMatrix> %*% <nsparseMatrix> and crossprod(), tcrossprod() often return a pattern,
+   i.e., nsparseMatrix as well *because*  cholmod_ssmult() just does that even
+   if only *one* of the two matrices is a pattern matrix.  The latter case
+   is really wrong.  The above behavior seems many years old.. and
+   sometimes is interesting and good, using  Boolean arithmetic: T+T := T|T = T
+
+   Currently I think we should change to return *numeric*, i.e., behave the same as for
+   'ndenseMatrix' or 'lsparseMatrix' or traditional logical matrices.
+   OTOH, we then would want to provide the previous functionality via a
+   Matrix package R function in some way.  What name should this function get ?
+
+   What Matrix - dependent packages would break ?
+   ==> send e-mail to all maintainer(<reverse-dependencies-of-Matrix>) ??
+
 * *Urgent* in some sense ---------------------------------------------------
 ** DONE [t]crossprod() could/should become more lenient with *vector*s: adapt R-devel (= R 3.2.0)'s rules:
    see misc/products-Mv.R and *.Rout -- now tests/matprod.R ("3.2.0")
@@ -7,7 +22,11 @@
 *** DONE consider analagous changes to base-R
 ** DONE m %*% M (crossprod, ..) with 0-dim. result give garbage
 ** DONE M[i,j] should *not* drop dimnames (R-forge bug 2556, see ~/R/MM/Pkg-ex/Matrix/dimnames-prod.R)
+** DONE "Math"/"Math2" *fail* entirely for sparseVectors
+** DONE rbind2(<sparse>, <dense>) did not work, now is completely wrong !! (e.g. <dgC>, <dge>)
 ** TODO M[<sparse 2-column Matrix>] indexing should work (but with a warning: use *dense*!)
+** TODO doxygen (seed inst/Doxyfile and ../../www/doxygen/UPDATE_me.sh) now _fails_ partly, e.g., for
+        ------- e.g., for src/Csparse.c, Csp_dense_products(...)  around lines 600
 ** TODO src/CHOLMOD/MatrixOps/cholmod_symmetry.c  is "cool" and fast;
 Definitely should use it for solve(<dgCMatrix>)  {it seems MATLAB does};
 alternatively also is_sym() [in src/cs_utils.c], see below.
@@ -25,24 +44,28 @@ alternatively also is_sym() [in src/cs_utils.c], see below.
  level e.g. for solve(<dsyMatrix>).   Should define  expand() method or
  similar, see man/BunchKaufman-methods.Rd and R/dsyMatrix.R (at end).
 ** TODO src/cs_utils.c : I think is_sym() [only used in Matrix_cs_to_SEXP()] can be made sped up:
-leave the for loops, as soon as is_lower == is_upper == 0.
+ leave the for loops, as soon as is_lower == is_upper == 0.
 
-** DONE "Math"/"Math2" *fail* entirely for sparseVectors
+** TODO kronecker(<symmetric>, <symmetric>) should return symmetricMatrix, notably
+   when one of the arguments is diagonal
 * New smallish ideas, relatively urgent for MM -----------------------------
 ** DONE generalize new "indMatrix" class, to allow 0 repetitions
  of some samples, i.e., columns of all 0 s. It's mathematically more
  natural --> typically will be useful.
 ** DONE polnish translation (e-mail!)
+** DONE FIXME(2) and (3) in R/products.R: t(.Call(Csparse_dense_*))
 ** TODO cor(<sparseMatrix>) and cov(<sparseMatrix>)  at least for y=NULL ("no y").
--> ~/R/MM/Pkg-ex/Matrix/cor_sparse-propos.R <- http://stackoverflow.com/questions/5888287/
+   -> ~/R/MM/Pkg-ex/Matrix/cor_sparse-propos.R <- http://stackoverflow.com/questions/5888287/
+   -> ~/R/MM/Pkg-ex/Matrix/cor_cos.R and
+      ~/R/MM/Pkg-ex/Matrix/cor_cos_testing
+   Provide cor.sparse() and other association measures for sparse matrices.
 ** TODO Investigate the "band changing (and getting) ideas  'band<-' etc,
   from Jeremy D Silver, per posts to R-devel on Aug.26,2011
   {MM: ~/R/MM/Pkg-ex/Matrix/bands-Jeremy_Silver-ex.R }
+** TODO finalize and activate the _unused_ code in src/t_sparseVector.c
 
-** TODO FIXME(2) and (3) in R/products.R: t(.Call(Csparse_dense_*))
 ** TODO cbind2() / rbind2() for sparseMatrices: dimnames propagation should
   happen in C, see  R/bind2.R and src/Csparse.c (Csparse_horzcat etc).
-
 ** TODO use  getOption("Matrix.quiet") in more places [--> less messages/warnings]
 ** TODO Check for DimNames propagation in coercion and other operations.
   Done for (%*%, crossprod, tcrossprod) -- but not systematically checked (tests/matprod.R)
@@ -57,7 +80,6 @@ leave the for loops, as soon as is_lower == is_upper == 0.
   'classed' argument.
    [done with dgeMatrix_matrix_mm();  not yet for other classes;
     and for _crossprod()]
-
 ** DONE Cache '@factors' components also from R, e.g., for "Tsparse.."
    via .set.factors()
 ** TODO chol() and Cholesky() caching unfinished: the *name* [Ss][Pp][Dd]Cholesky
@@ -118,8 +140,6 @@ leave the for loops, as soon as is_lower == is_upper == 0.
 
 ** TODO make sure *all* group methods have (maybe "bail-out") setMethod for "Matrix".
   e.g. zapsmall(<pMatrix>) fails "badly"
-
-** TODO rbind2(<sparse>, <dense>) does not work  (e.g. <dgC>, <dge>)
 
 ** TODO <sparse> %*% <dense>  {also in crossprod/tcrossprod}  currently always
   returns <dense>, since --> Csparse_dense_prod --> cholmod_sdmult
@@ -302,8 +322,6 @@ leave the for loops, as soon as is_lower == is_upper == 0.
 ** TODO How can we ensure that     inst/include/cholmod.h		 remains
   correct and equivalent to  src/CHOLMOD/Include/cholmod_core.h  and  siblings ???
   {currently need to do this manually (Emacs M-x compare-windows) for the   typedefs}
-
-** finalize and activate the new *unused* code in src/t_sparseVector.c
 
 ** check all uses of  alloca()/Alloca() in  src/*.[ch]
   ensuring that the *size* allocated cannot grow with the

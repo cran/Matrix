@@ -18,6 +18,7 @@
 \alias{coerce,dsCMatrix,dsyMatrix-method}
 \alias{coerce,dsCMatrix,lsCMatrix-method}
 \alias{coerce,dsCMatrix,generalMatrix-method}
+\alias{coerce,dsCMatrix,denseMatrix-method}
 \alias{coerce,dsCMatrix,matrix-method}
 \alias{coerce,dsCMatrix,vector-method}
 \alias{coerce,dsCMatrix,nsCMatrix-method}
@@ -38,11 +39,12 @@
 \alias{determinant,dsCMatrix,missing-method}
 \alias{determinant,dsCMatrix,logical-method}
 \description{The \code{dsCMatrix} class is a class of symmetric, sparse
-  numeric matrices in the compressed, column-oriented format.  In this
-  implementation the non-zero elements in the columns are sorted into
-  increasing row order.\cr
-  The \code{dsTMatrix} class is the class of
-  symmetric, sparse numeric matrices in triplet format.
+  numeric matrices in the compressed, \bold{c}olumn-oriented format.  In
+  this implementation the non-zero elements in the columns are sorted
+  into increasing row order.
+
+  The \code{dsTMatrix} class is the class of symmetric, sparse numeric
+  matrices in \bold{t}riplet format.
 }
 \section{Objects from the Class}{
   Objects can be created by calls of the form \code{new("dsCMatrix",

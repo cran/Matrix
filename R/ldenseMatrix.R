@@ -102,10 +102,10 @@ setAs("ldenseMatrix", "matrix", ## uses the above l*M. -> lgeM.
 ## dense |-> compressed :
 
 setAs("lgeMatrix", "lgTMatrix",
-      function(from) as(.dense2C(from), "lgTMatrix"))
+      function(from) as(.dense2C(from, kind = "gen"), "lgTMatrix"))
 
-setAs("lgeMatrix", "lgCMatrix",
-      function(from) as(as(from, "lgTMatrix"), "lgCMatrix"))
+setAs("lgeMatrix", "lgCMatrix", # TODO: need as(*, ..) ?
+      function(from) as(.dense2C(from, kind = "gen"), "lgCMatrix"))
 
 setMethod("as.logical", signature(x = "ldenseMatrix"),
 	  function(x, ...) as(x, "lgeMatrix")@x)

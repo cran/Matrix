@@ -8,8 +8,10 @@ setAs("dgeMatrix", "dtrMatrix", function(from) asTri(from, "dtrMatrix"))
 setAs("dtrMatrix", "dtpMatrix",
       dtr2dtp <- function(from) .Call(dtrMatrix_as_dtpMatrix, from))
 
-setAs("dtrMatrix", "sparseMatrix", .dense2C)
-setAs("dtrMatrix", "CsparseMatrix", .dense2C)
+setAs("dtrMatrix", "sparseMatrix", function(from)
+    .dense2C(from, kind="tri", uplo=from@uplo))
+setAs("dtrMatrix", "CsparseMatrix", function(from)
+    .dense2C(from, kind="tri", uplo=from@uplo))
 
 
 .dtr2mat <- function(from, keep.dimnames=TRUE)
@@ -19,7 +21,7 @@ setAs("dtrMatrix", "matrix",
       function(from) .Call(dtrMatrix_as_matrix, from, TRUE))
 
 setAs("matrix", "dtrMatrix",
-      function(from) as(.Call(dup_mMatrix_as_dgeMatrix, from), "dtrMatrix"))
+      function(from) as(..2dge(from), "dtrMatrix"))
 
 setAs("Cholesky", "lMatrix",
       function(from) as(as(from, "dtrMatrix"), "lMatrix"))

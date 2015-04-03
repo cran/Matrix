@@ -18,20 +18,22 @@ setAs("nMatrix", "dMatrix",
 ## NOTE: This is *VERY* parallel to  ("lMatrix" -> "nMatrix") in ./lMatrix.R :
 setAs("dMatrix", "nMatrix",
       function(from) {
-	  if(any(is.na(from@x)))
-	      stop("\"dMatrix\" object with NAs cannot be coerced to \"nMatrix\"")
-	  ## i.e. from@x are only TRUE (or FALSE in dense case)
+	  if(anyNA(from@x) && ((.w <- isTRUE(getOption("Matrix.warn"))) ||
+				   isTRUE(getOption("Matrix.verbose")))) {
+	      (if(.w) warning else message)(
+		  "\"dMatrix\" object with NAs coerced to \"nMatrix\":  NA |-> TRUE")
+	      from@x[is.na(from@x)] <- 1 # "TRUE"
+	  }
 	  cld <- getClassDef(cl <- MatrixClass(class(from)))
-	  if(extends(cld, "diagonalMatrix")) { # have no "ndi*" etc class
-	      cl <- class(from <- as(from, "sparseMatrix"))
-	      isSp <- TRUE
-	  } else {
-	      isSp <- extends(cld, "sparseMatrix")
-	      if(isSp && any(from@x == 0)) {
-		  from <- drop0(from) # was drop0(from, cld)
-		  if(cl != (c. <- class(from)))
-		      cld <- getClassDef(cl <- c.)
-	      }
+	  if(extends(cld, "diagonalMatrix")) # no "ndi*" class
+	      ## should not happen, setAs(diagonalMatrix -> nMatrix) in ./diagMatrix.R:
+	      return(di2nMat(from))
+	  ## else
+	  isSp <- extends(cld, "sparseMatrix")
+	  if(isSp && any(from@x == 0)) {
+	      from <- drop0(from) # was drop0(from, cld)
+	      if(cl != (c. <- class(from)))
+		  cld <- getClassDef(cl <- c.)
 	  }
 	  sNams <- slotNames(cld)
 	  r <- copyClass(from, sub("^d", "n", cl), sNams[sNams != "x"])

@@ -16,7 +16,7 @@ assertError( new("dgeMatrix", Dim = as.integer(c(2,2)), x= as.double(1:5)))
 checkMatrix(m1 <- Matrix(1:6, ncol=2))
 checkMatrix(m2 <- Matrix(1:7 +0, ncol=3)) # a (desired) warning
 stopifnot(all(match(is(m1),
-   c("dgeMatrix", "ddenseMatrix", "generalMatrix", "dMatrix",
+   c("dgeMatrix", "ddenseMatrix", "generalMatrix", "geMatrix", "dMatrix",
      "denseMatrix", "compMatrix", "Matrix", "xMatrix", "mMatrix"), 0) > 0),
 	  dim(t(m1)) == 2:3,
 	  identical(m1, t(t(m1))))
@@ -87,11 +87,10 @@ assertError(new("dtrMatrix", Dim = 2:3,
 
 n <- 3:3
 assertError(new("dtCMatrix", Dim = c(n,n), diag = "U"))
-stopifnot(validObject(T <- new("dtTMatrix", Dim = c(n,n), diag = "U")),
-	  identical(as.mat(T), diag(n)),
-	  validObject(M <- new("dtCMatrix", Dim = c(n,n), diag = "U",
-			       p = rep.int(0:0, n+1)))
-	  )
+validObject(T <- new("dtTMatrix", Dim = c(n,n), diag = "U"))
+validObject(M <- new("dtCMatrix", Dim = c(n,n), diag = "U",
+		     p = rep.int(0:0, n+1)))
+stopifnot(identical(as.mat(T), diag(n)))
 
 set.seed(3) ; (p9 <- as(sample(9), "pMatrix"))
 ## Check that the correct error message is triggered
@@ -146,7 +145,7 @@ stopifnot(identical(grep("slot i is not.* increasing .*column$",
 m. <- mm
 m.@i <- c(mm@i, NA, NA, NA)
 m.@x <- c(mm@x, 10:12)
-stopifnot(validObject(m.))
+validObject(m.)
 m. # show() now works
 stopifnot(all(m. == mm), # in spite of
 	  length(m.@i) > length(mm@i),

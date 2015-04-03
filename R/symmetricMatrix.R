@@ -49,21 +49,45 @@ setMethod("forceSymmetric", signature(x="sparseMatrix"),
 	      callGeneric()
 	  })
 
-forceCspSymmetric <- function(x, uplo, isTri = is(x, "triangularMatrix"))
+##' @title Transform a CsparseMatrix into a [dln]sCMatrix (symmetricMatrix)
+##' @param x CsparseMatrix
+##' @param uplo missing, "U", or "L"
+##' @param isTri logical specifying if 'x' is triangular
+##' @param symDimnames logical specifying if dimnames() will be forced to
+##'  symmetric even when one of the two is NULL
+forceCspSymmetric <- function(x, uplo, isTri = is(x, "triangularMatrix"),
+                              symDimnames = FALSE)
 {
     ## isTri ==> effectively *diagonal*
     if(isTri && x@diag == "U")
 	x <- .Call(Csparse_diagU2N, x)
     if(missing(uplo))
 	uplo <- if(isTri) x@uplo else "U"
-    .Call(Csparse_general_to_symmetric, x, uplo)
+    .Call(Csparse_general_to_symmetric, x, uplo, symDimnames)
 }
+.gC2sym <- function(x, uplo, symDimnames = FALSE)
+    .Call(Csparse_general_to_symmetric, x, uplo, symDimnames)
+
+
 setMethod("forceSymmetric", signature(x="CsparseMatrix"),
 	  function(x, uplo) forceCspSymmetric(x, uplo))
 
 
 setMethod("symmpart", signature(x = "symmetricMatrix"), function(x) x)
 setMethod("skewpart", signature(x = "symmetricMatrix"), function(x) .setZero(x))
+
+##' Allow x@Dimnames to be contain one NULL with still symmetric dimnames()
+if(FALSE) ##' R version {overwritten, just below}:
+symmetricDimnames <- function(x) {
+    r <- x@Dimnames # validity ==> r is length-2 list
+    if(is.null(r[[1L]]) && !is.null(r[[2L]]))
+	r[[1L]] <- r[[2L]]
+    else if(is.null(r[[2L]]) && !is.null(r[[1L]]))
+	r[[2L]] <- r[[1L]]
+    r
+}
+symmetricDimnames <- function(x) .Call(R_symmetric_Dimnames, x)
+setMethod("dimnames", signature(x = "symmetricMatrix"), symmetricDimnames)
 
 ###------- pack() and unpack() --- for *dense*  symmetric & triangular matrices:
 packM <- function(x, Mtype, kind, unpack=FALSE) {

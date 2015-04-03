@@ -13,6 +13,7 @@
 \alias{coerce,dtCMatrix,ltCMatrix-method}
 \alias{coerce,dtCMatrix,ntCMatrix-method}
 \alias{coerce,dtCMatrix,TsparseMatrix-method}
+\alias{coerce,dtCMatrix,denseMatrix-method}
 \alias{coerce,dtCMatrix,matrix-method}
 \alias{coerce,dtTMatrix,dgTMatrix-method}
 \alias{coerce,dtTMatrix,dgeMatrix-method}
@@ -33,13 +34,16 @@
 \description{The \code{"dtCMatrix"} class is a class of triangular, sparse
   matrices in the compressed, column-oriented format.  In this
   implementation the non-zero elements in the columns are sorted into
-  increasing row order.  The \code{"dtTMatrix"} class is a class of
-  triangular, sparse matrices in triplet format.}
+  increasing row order.
+
+  The \code{"dtTMatrix"} class is a class of triangular, sparse matrices
+  in triplet format.
+}
 \section{Objects from the Class}{
   Objects can be created by calls of the form \code{new("dtCMatrix",
     ...)} or calls of the form  \code{new("dtTMatrix", ...)}, but more
   typically automatically via \code{\link{Matrix}()} or coercion such as
-  \code{as(x, "dtCMatrix")}.
+  \code{as(x, "triangularMatrix")}, or \code{as(x, "dtCMatrix")}.
 }
 \section{Slots}{
   \describe{

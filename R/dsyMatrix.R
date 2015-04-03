@@ -32,13 +32,13 @@ setAs("dsyMatrix", "dspMatrix", .dsy2dsp)
 
 dsy2T <- function(from) { # 'dsT': only store upper *or* lower
     uplo <- from@uplo
-    if(any((d <- dim(from)) == 0)) {
+    if(any0(dim(from))) {
 	ij <- matrix(0L, 0,2) ; m <- from@x
     } else {
 	## FIXME!	 working via "matrix" is *not* efficient:
 	## the "other triangle" is filled, compared with 0, and then trashed:
 	m <- .Call(dsyMatrix_as_matrix, from, FALSE) # no dimnames!
-	ij <- which(m != 0, arr.ind = TRUE)
+	ij <- which(m != 0, arr.ind = TRUE, useNames = FALSE)
 	ij <- ij[if(uplo == "U") ij[,1] <= ij[,2] else ij[,1] >= ij[,2], , drop = FALSE]
     }
     new("dsTMatrix", i = ij[,1] - 1L, j = ij[,2] - 1L,

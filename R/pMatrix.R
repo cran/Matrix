@@ -74,8 +74,7 @@ setMethod("%*%", signature(x = "Matrix", y = "pMatrix"),
 
 setMethod("%*%", signature(x = "pMatrix", y = "pMatrix"),
 	  function(x, y) {
-	      stopifnot(identical(d <- x@Dim, y@Dim))
-	      ## n <- d[1]
+	      stopifnot(identical(x@Dim, y@Dim))
 	      ## FIXME: dimnames dealing: as with S3 matrix's  %*%
 	      x@perm <- x@perm[y@perm]
 	      x

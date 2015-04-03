@@ -27,28 +27,32 @@ rm(prefix)
 setAs("dtCMatrix", "dtTMatrix",
       function(from) .Call(Csparse_to_Tsparse, from, TRUE))
 
+if(FALSE) ## old version
 C2dense <- function(from) {
     ## |-> cholmod_C -> cholmod_dense -> chm_dense_to_dense
     cld <- getClassDef(class(from))
     if (extends(cld, "generalMatrix"))
-	.Call(Csparse_to_dense, from)
-    else {
+	.Call(Csparse_to_dense, from, FALSE)
+    else { ## "triangular" or "symmetric" :
+        tri <- extends(cld, "triangularMatrix")
 	## Csparse_to_dense  loses symmetry and triangularity properties.
 	## With suitable changes to chm_dense_to_SEXP (../src/chm_common.c)
 	## we could do this in C code -- or do differently in C {FIXME!}
-	if (extends(cld, "triangularMatrix") && from@diag == "U")
+	if (tri && from@diag == "U")
 	    from <- .Call(Csparse_diagU2N, from)
-	as(.Call(Csparse_to_dense, from), # -> "[dln]geMatrix"
+	as(.Call(Csparse_to_dense, from, symm = !tri), # -> "[dln]geMatrix"
 	   paste0(.M.kindC(cld),
-		  .dense.prefixes[.M.shape(from, cld)], "Matrix"))
+		  .dense.prefixes[if(tri) "t" else "s"], "Matrix"))
     }
 }
+C2dense <- function(from) .Call(Csparse_to_dense, from, NA_integer_)
+
 setAs("CsparseMatrix", "denseMatrix", C2dense)
 
-
 ## special cases (when a specific "to" class is specified)
-setAs("dgCMatrix", "dgeMatrix",
-      function(from) .Call(Csparse_to_dense, from))
+setAs("dgCMatrix", "dgeMatrix",   function(from) .Call(Csparse_to_dense, from,  0L))
+setAs("dsCMatrix", "denseMatrix", function(from) .Call(Csparse_to_dense, from,  1L))
+setAs("dtCMatrix", "denseMatrix", function(from) .Call(Csparse_to_dense, from, -1L))
 
 setAs("dgCMatrix", "vector", function(from) .Call(Csparse_to_vector, from))
 setAs("dsCMatrix", "vector", function(from) .Call(Csparse_to_vector, from))
@@ -64,10 +68,11 @@ setMethod("as.vector", signature(x = "dsCMatrix", mode = "missing"),
 ## cholmod_sparse_to_dense converts symmetric storage to general
 ## storage so symmetric classes are ok for conversion to matrix.
 ## unit triangular needs special handling
-.dxC2mat <- function(from, chkUdiag=TRUE) .Call(Csparse_to_matrix, from, chkUdiag)
-setAs("dgCMatrix", "matrix", function(from) .Call(Csparse_to_matrix, from, FALSE))
-setAs("dsCMatrix", "matrix", function(from) .Call(Csparse_to_matrix, from, FALSE))
-setAs("dtCMatrix", "matrix", function(from) .Call(Csparse_to_matrix, from, TRUE))
+##' exported
+.dxC2mat <- function(from, chkUdiag=TRUE) .Call(Csparse_to_matrix, from, chkUdiag, NA)
+setAs("dgCMatrix", "matrix", function(from) .Call(Csparse_to_matrix, from, FALSE, FALSE))
+setAs("dsCMatrix", "matrix", function(from) .Call(Csparse_to_matrix, from, FALSE, TRUE))
+setAs("dtCMatrix", "matrix", function(from) .Call(Csparse_to_matrix, from, TRUE,  FALSE))
 ## NB: Would *not* be ok for l*Matrix or n*Matrix,
 ## --------- as cholmod coerces to "REAL" aka "double"
 

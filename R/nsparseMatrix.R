@@ -1,11 +1,10 @@
 #### Superclass Methods for all sparse nonzero-pattern matrices
 
-setAs("CsparseMatrix", "nsparseMatrix",
-      function(from) .Call(Csparse_to_nz_pattern, from,
-			   is(from, "triangularMatrix")))
-setAs("CsparseMatrix", "nMatrix",
-      function(from) .Call(Csparse_to_nz_pattern, from,
-			   is(from, "triangularMatrix")))
+.C2nC <- function(from, isTri = is(from, "triangularMatrix"))
+    .Call(Csparse_to_nz_pattern, from, isTri)
+
+setAs("CsparseMatrix", "nsparseMatrix", function(from) .C2nC(from))
+setAs("CsparseMatrix", "nMatrix",       function(from) .C2nC(from))
 
 setAs("nsparseMatrix", "dsparseMatrix", function(from) as(from, "dMatrix"))
 

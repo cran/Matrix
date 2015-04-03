@@ -13,28 +13,15 @@ setAs("nsCMatrix", "ngCMatrix",
 setAs("nsCMatrix", "nsTMatrix",
       function(from) .Call(Csparse_to_Tsparse, from, FALSE))
 
-## --- these now happen using  "nCsparseMatrix" -- in ./ngCMatrix.R
-##
-## .nsC2d <- function(from)
-##     new("dsCMatrix", i = from@i, p = from@p,
-## 	x = rep.int(1, length(from@i)), uplo = from@uplo,
-## 	Dim = from@Dim, Dimnames = from@Dimnames)
-
-## .nsC2l <- function(from)
-##     new("lsCMatrix", i = from@i, p = from@p,
-## 	x = rep.int(TRUE, length(from@i)), uplo = from@uplo,
-## 	Dim = from@Dim, Dimnames = from@Dimnames)
 
 ## Not needed, once we use "nCsparseMatrix" (-> ./ngCMatrix.R ):
-setAs("nsCMatrix", "dMatrix", nC2d)
-setAs("nsCMatrix", "dsparseMatrix", nC2d)
-setAs("nsCMatrix", "dsCMatrix", nC2d)
+setAs("nsCMatrix", "dMatrix", .nC2d)
+setAs("nsCMatrix", "dsparseMatrix", .nC2d)
+setAs("nsCMatrix", "dsCMatrix", .nC2d)
 ##
-setAs("nsCMatrix", "lMatrix", nC2l)
-setAs("nsCMatrix", "lsparseMatrix", nC2l)
-setAs("nsCMatrix", "lsCMatrix", nC2l)
-
-## rm(.nsC2d,.nsC2l) # don't even keep "hidden"
+setAs("nsCMatrix", "lMatrix", .nC2l)
+setAs("nsCMatrix", "lsparseMatrix", .nC2l)
+setAs("nsCMatrix", "lsCMatrix", .nC2l)
 
 ## have rather tril() and triu() methods than
 ## setAs("nsCMatrix", "ntCMatrix", ....)

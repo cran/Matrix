@@ -103,7 +103,7 @@ sparse.model.matrix <-
 	reorder <- match(sapply(attr(t,"variables"),deparse,
 				width.cutoff=500)[-1L],
 			 names(data))
-	if (any(is.na(reorder)))
+	if (anyNA(reorder))
 	    stop("model frame and formula mismatch in model.matrix()")
 	if(!isSeq(reorder, ncol(data), Ostart=FALSE))
 	    data <- data[,reorder, drop=FALSE]
@@ -275,7 +275,8 @@ is.model.frame <- function(x)
     is.matrix(attr(tms, "factors")) &&
     is.language(vv <- attr(tms, "variables")) &&
     vv[[1]] == as.symbol("list") &&
-    all((vars <- sapply(as.list(vv[-1]), as.character)) %in% colnames(x))
+    all(vapply(as.list(vv[-1]), as.character, "") %in% colnames(x))
+    ## all((vars <- sapply(as.list(vv[-1]), as.character)) %in% colnames(x))
     ## and we could go on testing vars
 }
 

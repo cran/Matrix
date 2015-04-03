@@ -7,7 +7,7 @@
 
 ## packed <->  non-packed :
 
-setAs("nspMatrix", "nsyMatrix",					##  vv for "n*", 0L for "l*"
+setAs("nspMatrix", "nsyMatrix",	##  1L for "n*", 0L for "l*" :      vv
       nsp2nsy <- function(from) .Call(lspMatrix_as_lsyMatrix, from, 1L))
 
 setAs("nsyMatrix", "nspMatrix",
@@ -112,14 +112,15 @@ setAs("ndenseMatrix", "matrix", ## uses the above l*M. -> lgeM.
 ## go via "l" because dense_to_Csparse can't be used for "n" [missing CHOLMOD function]
 setAs("ndenseMatrix", "CsparseMatrix",
       function(from) as(as(as(from, "lMatrix"), "CsparseMatrix"), "nMatrix"))
-## setAs("ndenseMatrix", "sparseMatrix",
-##       function(from) as(as(as(from, "lMatrix"), "sparseMatrix"), "nMatrix"))
+setAs("ndenseMatrix", "nsparseMatrix",
+      function(from) as(as(as(from, "lMatrix"), "sparseMatrix"), "nMatrix"))
+setAs("ndenseMatrix", "sparseMatrix", function(from) as(from, "nsparseMatrix"))
 
 setAs("ndenseMatrix", "TsparseMatrix",
       function(from) {
 	  if(is(from, "generalMatrix")) {
 	      ##  cheap but not so efficient:
-	      ij <- which(as(from,"matrix"), arr.ind = TRUE) - 1L
+	      ij <- which(as(from,"matrix"), arr.ind = TRUE, useNames = FALSE) - 1L
 	      new("ngTMatrix", i = ij[,1], j = ij[,2],
 		  Dim = from@Dim, Dimnames = from@Dimnames,
 		  factors = from@factors)
@@ -135,7 +136,7 @@ setAs("ndenseMatrix", "TsparseMatrix",
 setAs("ngeMatrix", "ngTMatrix",
       function(from) {
           ##  cheap but not so efficient:
-          ij <- which(as(from,"matrix"), arr.ind = TRUE) - 1L
+          ij <- which(as(from,"matrix"), arr.ind = TRUE, useNames = FALSE) - 1L
           new("ngTMatrix", i = ij[,1], j = ij[,2],
               Dim = from@Dim, Dimnames = from@Dimnames,
               factors = from@factors)

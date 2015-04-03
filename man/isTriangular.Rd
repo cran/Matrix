@@ -46,6 +46,9 @@
   Contrary to \code{\link{isSymmetric}()}, these two functions are
   generically from package \pkg{Matrix}, and hence also define methods
   for traditional (\code{\link{class}} \code{"matrix"}) matrices.
+
+  By our definition, triangular, diagonal and symmetric matrices are all
+  \emph{square}, i.e. have the same number of rows and columns.
 }
 \usage{
 isDiagonal(object)

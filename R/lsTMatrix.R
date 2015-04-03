@@ -25,6 +25,6 @@ setAs("lsTMatrix", "lsyMatrix",
 
 setMethod("t", "lsTMatrix",
 	  function(x)
-	  new("lsTMatrix", Dim = x@Dim, Dimnames = x@Dimnames,
+	  new("lsTMatrix", Dim = x@Dim, Dimnames = x@Dimnames[2:1],
 	      i = x@j, j = x@i, x = x@x,
 	      uplo = if (x@uplo == "U") "L" else "U"))

@@ -11,6 +11,7 @@
 \alias{coerce,ndenseMatrix,TsparseMatrix-method}
 \alias{coerce,ndenseMatrix,ldenseMatrix-method}
 \alias{coerce,ndenseMatrix,sparseMatrix-method}
+\alias{coerce,ndenseMatrix,nsparseMatrix-method}
 \alias{coerce,ngeMatrix,lgeMatrix-method}
 \alias{coerce,nspMatrix,lspMatrix-method}
 \alias{coerce,nsyMatrix,lsyMatrix-method}

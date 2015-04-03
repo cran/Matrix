@@ -39,6 +39,7 @@ CHM_DN numeric_as_chm_dense(CHM_DN ans, double *v, int nr, int nc);
 CHM_FR as_cholmod_factor (CHM_FR ans, SEXP x);
 
 #define AS_CHM_DN(x) as_cholmod_dense  ((CHM_DN)alloca(sizeof(cholmod_dense)), x )
+#define AS_CHM_xDN(x) as_cholmod_x_dense ((CHM_DN)alloca(sizeof(cholmod_dense)), x )
 #define AS_CHM_FR(x) as_cholmod_factor ((CHM_FR)alloca(sizeof(cholmod_factor)), x )
 #define AS_CHM_SP(x) as_cholmod_sparse ((CHM_SP)alloca(sizeof(cholmod_sparse)), x, TRUE, FALSE)
 #define AS_CHM_TR(x) as_cholmod_triplet((CHM_TR)alloca(sizeof(cholmod_triplet)),x, TRUE)
@@ -68,13 +69,15 @@ SEXP chm_sparse_to_SEXP(CHM_SP a, int dofree, int uploT, int Rkind,
 			const char *diag, SEXP dn);
 SEXP chm_triplet_to_SEXP(CHM_TR a, int dofree, int uploT, int Rkind,
 			 const char* diag, SEXP dn);
-SEXP chm_dense_to_SEXP(CHM_DN a, int dofree, int Rkind, SEXP dn);
+SEXP chm_dense_to_SEXP(CHM_DN a, int dofree, int Rkind, SEXP dn, Rboolean transp);
 /* 		       int uploST, char *diag, SEXP dn); */
 SEXP chm_dense_to_matrix(CHM_DN a, int dofree, SEXP dn);
 SEXP chm_dense_to_vector(CHM_DN a, int dofree);
 
+Rboolean chm_MOD_xtype(int to_xtype, cholmod_sparse *A, CHM_CM Common);
 
 void chm_diagN2U(CHM_SP chx, int uploT, Rboolean do_realloc);
+void chm_transpose_dense(CHM_DN ans, CHM_DN x);
 
 SEXP CHMfactor_validate(SEXP obj);
 SEXP CHMsimpl_validate(SEXP obj);

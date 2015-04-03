@@ -142,8 +142,8 @@ names(rr) <- apply(nn, 1, function(r)
                    paste(sub("(=.).*","\\\\1", r), collapse=","))% extra '\\' in Rd
 str(rr, max=1)
 
-str(re <- lapply(rr, expand), max=2)
-## each has a 'P' and a 'L' matrix %% FIXME !! --- "check" them  __unfinished__
+str(re <- lapply(rr, expand), max=2) ## each has a 'P' and a 'L' matrix
+%% FIXME !! --- "check" them  __unfinished__
 R0 <- chol(mm, pivot=FALSE)
 R1 <- chol(mm, pivot=TRUE )
 stopifnot(all.equal(t(R1), re[[1]]$L),

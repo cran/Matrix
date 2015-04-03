@@ -22,7 +22,8 @@ setMethod("qr.Q", "sparseQR",
 	  function(qr, complete=FALSE, Dvec)
       {
 	  d <- qr@Dim
-	  ir <- seq_len(d[k <- if(complete) 1L else 2L])
+	  ## ir <- seq_len(d[k <- if(complete) 1L else 2L])
+	  k <- if(complete) 1L else 2L
 	  if(missing(Dvec)) Dvec <- rep.int(1, if(complete) d[1] else min(d))
 	  D <- .sparseDiagonal(d[1], x=Dvec, cols=0L:(d[k] -1L))
 	  qr.qy(qr, D)

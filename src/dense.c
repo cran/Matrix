@@ -248,10 +248,10 @@ SEXP lapack_qr(SEXP Xin, SEXP tl)
 
 SEXP dense_to_Csparse(SEXP x)
 {
-    CHM_DN chxd = AS_CHM_DN(PROTECT(mMatrix_as_geMatrix(x)));
+    CHM_DN chxd = AS_CHM_xDN(PROTECT(mMatrix_as_geMatrix(x)));
     /* cholmod_dense_to_sparse() in CHOLMOD/Core/ below does only work for
        "REAL" 'xtypes', i.e. *not* for "nMatrix".
-       ===> need "_x" in above call.
+       ===> need "_x" in above AS_CHM_xDN() call.
 
        Also it cannot keep symmetric / triangular, hence the
        as_geMatrix() above.  Note that this is already a *waste* for
@@ -292,9 +292,8 @@ SEXP dense_band(SEXP x, SEXP k1P, SEXP k2P)
 	    sqr = (adims[0] == adims[1]),
 	    tru = (k1 >= 0), trl = (k2 <= 0);
 	const char *cl = class_P(ans);
-	enum dense_enum { ddense, ldense, ndense
-	} M_type = ( (cl[0] == 'd') ? ddense :
-		    ((cl[0] == 'l') ? ldense : ndense));
+	enum dense_enum M_type = ( (cl[0] == 'd') ? ddense :
+			      ((cl[0] == 'l') ? ldense : ndense));
 
 
 #define SET_ZERO_OUTSIDE				\
@@ -349,9 +348,8 @@ SEXP dense_to_symmetric(SEXP x, SEXP uplo, SEXP symm_test)
     SEXP ans, dns, nms_dns;
     const char *cl = class_P(dx);
     /* same as in ..._geMatrix() above:*/
-    enum dense_enum { ddense, ldense, ndense
-    } M_type = ( (cl[0] == 'd') ? ddense :
-		((cl[0] == 'l') ? ldense : ndense));
+    enum dense_enum M_type = ( (cl[0] == 'd') ? ddense :
+			  ((cl[0] == 'l') ? ldense : ndense));
     int *adims = INTEGER(GET_SLOT(dx, Matrix_DimSym)), n = adims[0];
     if(n != adims[1]) {
 	UNPROTECT(1);
@@ -400,7 +398,7 @@ SEXP dense_to_symmetric(SEXP x, SEXP uplo, SEXP symm_test)
     }
     if(!isNull(nms_dns = getAttrib(dns, R_NamesSymbol)) &&
        !R_compute_identical(STRING_ELT(nms_dns, 0),
-			    STRING_ELT(nms_dns, 1), 15)) { // names(dimnames(.)) :
+			    STRING_ELT(nms_dns, 1), 16)) { // names(dimnames(.)) :
 	if(*CHAR(asChar(uplo)) == 'U')
 	    SET_STRING_ELT(nms_dns, 0, STRING_ELT(nms_dns,1));
 	else
@@ -442,6 +440,7 @@ SEXP ddense_symmpart(SEXP x)
 	    }
 	}
 
+// FIXME?: Compare and synchronize with symmetric_DimNames() in ./Mutils.c
 #       define MK_SYMMETRIC_DIMNAMES_AND_RETURN				\
 									\
 	dns = GET_SLOT(dx, Matrix_DimNamesSym);				\
@@ -452,10 +451,11 @@ SEXP ddense_symmpart(SEXP x)
 	    if(isNull(VECTOR_ELT(dns, J)))				\
 		J = !J;							\
 	    SET_VECTOR_ELT(dns, !J, VECTOR_ELT(dns, J));		\
-	} /* names(dimnames(.)):*/					\
+	}								\
+	/* names(dimnames(.)): */					\
 	if(!isNull(nms_dns = getAttrib(dns, R_NamesSymbol)) &&		\
 	   !R_compute_identical(STRING_ELT(nms_dns, 0),			\
-				STRING_ELT(nms_dns, 1), 15)) { 		\
+				STRING_ELT(nms_dns, 1), 16)) { 		\
 	    SET_STRING_ELT(nms_dns, !J, STRING_ELT(nms_dns, J));	\
 	    setAttrib(dns, R_NamesSymbol, nms_dns);			\
 	}								\

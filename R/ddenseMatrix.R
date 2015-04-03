@@ -4,11 +4,10 @@
 ## >> but << needs all sub(sub(sub)) classes of "ddenseMatrix" listed
 ##   -----  in  ../src/Mutils.c
 
-setAs("ddenseMatrix", "dgeMatrix",
-      function(from) .Call(dup_mMatrix_as_dgeMatrix, from))
+setAs("ddenseMatrix", "dgeMatrix", ..2dge)
 
 setAs("ddenseMatrix", "matrix",
-      function(from) as(as(from, "dgeMatrix"), "matrix"))
+      function(from) as(..2dge(from), "matrix"))
 
 ## d(ouble) to l(ogical):
 setAs("dgeMatrix", "lgeMatrix", function(from) d2l_Matrix(from, "dgeMatrix"))
@@ -43,8 +42,7 @@ setAs("numeric", "CsparseMatrix",
       function(from)
       .Call(dense_to_Csparse, .Call(dup_mMatrix_as_dgeMatrix, from)))
 
-setMethod("as.numeric", signature(x = "ddenseMatrix"),
-	  function(x, ...) as(x, "dgeMatrix")@x)
+setMethod("as.numeric", "ddenseMatrix", function(x, ...) ..2dge(x)@x)
 
 ## -- see also ./Matrix.R  e.g., for a show() method
 
@@ -53,50 +51,50 @@ setMethod("as.numeric", signature(x = "ddenseMatrix"),
 ## dgeMatrix. Methods for special forms override these.
 
 setMethod("norm", signature(x = "ddenseMatrix", type = "missing"),
-	  function(x, type, ...) norm(as(x, "dgeMatrix")))
+	  function(x, type, ...) norm(..2dge(x)))
 
 setMethod("norm", signature(x = "ddenseMatrix", type = "character"),
-	  function(x, type, ...) norm(as(x, "dgeMatrix"), type))
+	  function(x, type, ...) norm(..2dge(x), type))
 
 setMethod("rcond", signature(x = "ddenseMatrix", norm = "missing"),
-	  function(x, norm, ...) rcond(as(x, "dgeMatrix"), ...))
+	  function(x, norm, ...) rcond(..2dge(x), ...))
 
 setMethod("rcond", signature(x = "ddenseMatrix", norm = "character"),
-	  function(x, norm, ...) rcond(as(x, "dgeMatrix"), norm, ...))
+	  function(x, norm, ...) rcond(..2dge(x), norm, ...))
 
 ## Not really useful; now require *identical* class for result:
 ## setMethod("t", signature(x = "ddenseMatrix"),
-## 	  function(x) callGeneric(as(x, "dgeMatrix")))
+## 	  function(x) callGeneric(..2dge(x)))
 
 ## "diag" --> specific methods for dge, dtr,dtp, dsy,dsp
 
 setMethod("solve", signature(a = "ddenseMatrix", b = "missing"),
-          function(a, b, ...) solve(as(a, "dgeMatrix")))
+          function(a, b, ...) solve(..2dge(a)))
 
 for(.b in c("Matrix","ANY")) ## << against ambiguity notes
 setMethod("solve", signature(a = "ddenseMatrix", b = .b),
-	  function(a, b, ...) solve(as(a, "dgeMatrix"), b))
+	  function(a, b, ...) solve(..2dge(a), b))
 for(.b in c("matrix","numeric")) ## << against ambiguity notes
 setMethod("solve", signature(a = "ddenseMatrix", b = .b),
-	  function(a, b, ...) solve(as(a, "dgeMatrix"), Matrix(b)))
+	  function(a, b, ...) solve(..2dge(a), Matrix(b)))
 rm(.b)
 
 setMethod("lu", signature(x = "ddenseMatrix"),
 	  function(x, ...)
-	  .set.factors(x, "LU", lu(as(x, "dgeMatrix"), ...)))
+	  .set.factors(x, "LU", lu(..2dge(x), ...)))
 
 setMethod("chol", signature(x = "ddenseMatrix"), cholMat)
 
 setMethod("determinant", signature(x = "ddenseMatrix", logarithm = "missing"),
-	  function(x, logarithm, ...) determinant(as(x, "dgeMatrix")))
+	  function(x, logarithm, ...) determinant(..2dge(x)))
 
 setMethod("determinant", signature(x = "ddenseMatrix", logarithm = "logical"),
 	  function(x, logarithm, ...)
-	  determinant(as(x, "dgeMatrix"), logarithm))
+	  determinant(..2dge(x), logarithm))
 
 ## now done for "dMatrix":
 ## setMethod("expm", signature(x = "ddenseMatrix"),
-##           function(x) callGeneric(as(x, "dgeMatrix")))
+##           function(x) callGeneric(..2dge(x)))
 
 
 .trilDense <- function(x, k = 0, ...) {

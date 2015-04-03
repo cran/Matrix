@@ -9,7 +9,7 @@ setAs("ANY", "sparseMatrix", function(from) as(from, "CsparseMatrix"))
 
 ## If people did not use xtabs(), but table():
 setAs("table", "sparseMatrix", function(from) {
-    if(length(d <- dim(from)) != 2)
+    if(length(dim(from)) != 2L)
         stop("only 2-dimensional tables can be directly coerced to sparse matrices")
     as(unclass(from), "CsparseMatrix")
 })
@@ -55,7 +55,7 @@ sparseMatrix <- function(i = ep, j = ep, p, x, dims, dimnames,
 
     ## "minimal dimensions" from (i,j,p); no warnings from empty i or j :
     dims.min <- suppressWarnings(c(max(i), max(j)))
-    if(any(is.na(dims.min))) stop("NA's in (i,j) are not allowed")
+    if(anyNA(dims.min)) stop("NA's in (i,j) are not allowed")
     if(missing(dims)) {
         dims <- dims.min
     } else { ## check dims
@@ -893,9 +893,14 @@ rsparsematrix <- function(nrow, ncol, density,
 	if(symmetric) sample(indTri(nrow, diag=TRUE), nnz)
 	else sample.int(maxE, nnz)
     ## i,j below correspond to  ij <- decodeInd(code, nr) :
-    sparseMatrix(i = ijI  %% nrow,
-                 j = ijI %/% nrow,
-                 index1 = FALSE, symmetric = symmetric,
-                 x = rand.x(nnz), dims = c(nrow, ncol), ...)
+    if(is.null(rand.x))
+	sparseMatrix(i = ijI  %% nrow,
+		     j = ijI %/% nrow,
+		     index1 = FALSE, symmetric = symmetric, dims = c(nrow, ncol), ...)
+    else
+	sparseMatrix(i = ijI  %% nrow,
+		     j = ijI %/% nrow,
+		     index1 = FALSE, symmetric = symmetric,
+		     x = rand.x(nnz), dims = c(nrow, ncol), ...)
 }
 

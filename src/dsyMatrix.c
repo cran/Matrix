@@ -95,7 +95,7 @@ SEXP dsyMatrix_as_matrix(SEXP from, SEXP keep_dimnames)
 				   REAL(GET_SLOT(from, Matrix_xSym)), n * n),
 			    from);
     if(asLogical(keep_dimnames))
-	setAttrib(val, R_DimNamesSymbol, GET_SLOT(from, Matrix_DimNamesSym));
+	setAttrib(val, R_DimNamesSymbol, R_symmetric_Dimnames(from));
     UNPROTECT(1);
     return val;
 }

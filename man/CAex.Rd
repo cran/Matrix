@@ -16,9 +16,9 @@
   \code{\linkS4class{dgCMatrix}}.
 }
 \details{
-  In some versions of \R, \code{\link{eigen}(CAex)} fell into an
-  infinite loop (whereas \code{\link{eigen}(CAex, EISPACK=TRUE)} has
-  been okay).
+  Historical note (2006-03-30):
+  In earlier versions of \R, \code{\link{eigen}(CAex)} fell into an
+  infinite loop whereas \code{\link{eigen}(CAex, EISPACK=TRUE)} had been okay.
 }
 % \source{ see above
 % }
@@ -28,7 +28,7 @@ str(CAex) # of class "dgCMatrix"
 
 image(CAex)# -> it's a simple band matrix with 5 bands
 ## and the eigen values are basically 1 (42 times) and 0 (30 x):
-zapsmall(ev <- eigen(CAex, EISPACK=TRUE, only.values=TRUE)$values)
+zapsmall(ev <- eigen(CAex, only.values=TRUE)$values)
 ## i.e., the matrix is symmetric, hence
 sCA <- as(CAex, "symmetricMatrix")
 ## and

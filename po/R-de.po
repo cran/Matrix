@@ -5,10 +5,10 @@
 # Detlef Steuer <steuer@hsu-hh.de>, 2012-2014.
 msgid ""
 msgstr ""
-"Project-Id-Version: R 3.1.0 / matrix 1.1-2\n"
+"Project-Id-Version: R 3.2.0 / matrix 1.1-2\n"
 "Report-Msgid-Bugs-To: bugs.r-project.org\n"
-"POT-Creation-Date: 2015-01-17 15:31\n"
-"PO-Revision-Date: 2014-03-28 10:23+0100\n"
+"POT-Creation-Date: 2015-03-27 10:18\n"
+"PO-Revision-Date: 2015-03-27 09:49+0100\n"
 "Last-Translator: Detlef Steuer <steuer@hsu-hh.de>\n"
 "Language-Team: German <debian-l10n-german@lists.debian.org>\n"
 "Language: de\n"
@@ -49,7 +49,7 @@ msgid "dimnames [%d] mismatch in %s"
 msgstr "dimnames [%d] passen nicht in %s"
 
 msgid "names(dimnames(<matrix>)) must be NULL or of length two"
-msgstr ""
+msgstr "names(dimnames(<matrix>)) muss entweder NULL oder von Länge 2 sein"
 
 msgid "Matrices must have same number of rows in %s"
 msgstr "Matrizen müssen die gleiche Anzahl Zeilen in %s haben"
@@ -361,9 +361,8 @@ msgstr ""
 msgid "in Summary(<ANY>, .): %s(<%s>, <%s>,...)"
 msgstr "in Summary(<ANY>, .): %s(<%s>, <%s>, ...)"
 
-#, fuzzy
 msgid "in Summary(<ANY>, .): %s(<%s>, <%s>)"
-msgstr "in Summary(<ANY>, .): %s(<%s>, <%s>, ...)"
+msgstr "in Summary(<ANY>, .): %s(<%s>, <%s>)"
 
 msgid "not-yet-implemented coercion to \"TsparseMatrix\""
 msgstr "noch nicht implementierte Typumwandlung zu 'TsparseMatrix'"
@@ -500,6 +499,9 @@ msgid "the %d-th (sub)-diagonal (k = %d) is too short; filling with NA's"
 msgstr ""
 "die  %d-te (Unter)-Diagonale (k = %d) ist zu kurz und wird mit NA aufgefüllt"
 
+msgid "resulting x-slot has different type than x's or y's"
+msgstr "resultierender x-slot hat einen anderen Typ als x oder y haben"
+
 msgid "'A' must be a square matrix"
 msgstr "'A' muss eine quadratische Matrix sein"
 
@@ -548,10 +550,10 @@ msgstr ""
 "von |diag(U)| = %9.4g"
 
 msgid "RHS 'b' has wrong number of rows:"
-msgstr ""
+msgstr "RHS 'b' hat falsche Zahl Zeilen:"
 
 msgid "RHS 'b' has wrong length"
-msgstr ""
+msgstr "RHS 'b' hat falsche Länge"
 
 msgid "cannot coerce non-symmetric \"dgTMatrix\" to \"dsCMatrix\" class"
 msgstr ""
@@ -634,9 +636,6 @@ msgstr ""
 "kleiner\n"
 " als der maximale Index i*."
 
-msgid "not a skinny matrix"
-msgstr "keine lange (\"skinny\") Matrix"
-
 msgid "the number of non-zero entries differs from nrow(.)"
 msgstr "die Anzahl der Nicht-Null-Einträge weicht von nrow(.) ab"
 
@@ -675,9 +674,12 @@ msgstr "keine quadratische Matrix"
 msgid "not-yet-implemented method for <%s> %%*%% <%s>"
 msgstr "noch nicht implementierte Methode für <%s> %%*%% <%s>"
 
-#, fuzzy
 msgid "non-conformable arguments"
-msgstr "nicht konforme Matrixdimensionen in %s"
+msgstr "nicht konforme Argumente"
+
+#, fuzzy
+msgid "'boolArith = %d' not yet implemented"
+msgstr "%s-Art noch nicht implementiert"
 
 msgid ""
 "rankMatrix(<large sparse Matrix>, method = '%s') coerces to dense matrix.\n"
@@ -745,7 +747,7 @@ msgid "'V' is not a *square* matrix"
 msgstr "'V' ist keine *quadratische* Matrix"
 
 msgid "number of non zeros is smaller than 'nnz' because of duplicated (i,j)s"
-msgstr ""
+msgstr "Anzahl von Nicht-Nullen ist kleiner als 'nnz' wegen doppelter (i,j)s"
 
 msgid ""
 "qr.R(<sparse>) may differ from qr.R(<dense>) because of permutations.  "
@@ -801,15 +803,17 @@ msgstr ""
 msgid "'x' is not symmetric nor triangular"
 msgstr "'x' ist weder symmetrisch noch in Dreiecksform"
 
-#, fuzzy
 msgid ""
 "extra argument %s will be disregarded in\n"
 " %s"
 msgid_plural ""
 "extra arguments %s will be disregarded in\n"
 " %s"
-msgstr[0] "Argumente %s werden nicht berücksichtigt in %s"
-msgstr[1] "Argumente %s werden nicht berücksichtigt in %s"
+msgstr[0] "extra Argument %s wird nicht berücksichtigt in %s"
+msgstr[1] "extra Argumente %s werden nicht berücksichtigt in %s"
+
+#~ msgid "not a skinny matrix"
+#~ msgstr "keine lange (\"skinny\") Matrix"
 
 #~ msgid "longer object length"
 #~ msgstr "längere Objektlänge"

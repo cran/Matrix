@@ -32,7 +32,7 @@ rankMatrix <- function(x, tol = NULL,
 
     stopifnot(length(d <- dim(x)) == 2)
     p <- min(d)
-    miss.meth <- missing(method)
+    ## miss.meth <- missing(method)
     method <- match.arg(method)
 
     if(useGrad <- (method %in% c("useGrad", "maybeGrad"))) {

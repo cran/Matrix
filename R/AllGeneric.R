@@ -9,6 +9,10 @@ setGeneric("isDiagonal", function(object) standardGeneric("isDiagonal"))
 setGeneric("isTriangular", function(object, upper = NA, ...)
 	   standardGeneric("isTriangular"))
 
+## Boolean Arithmetic Matrix multiplication
+setGeneric("%&%", function (x, y)  standardGeneric("%&%"))
+
+
 ## isSymmetric is "S3 generic" in R's  base/R/eigen.R
 
     setGeneric("facmul",
@@ -26,12 +30,19 @@ setGeneric("lu", function(x, ...) standardGeneric("lu"))
 ##NB     setGeneric("qr", def =   function(x, tol=1e-7,...) standardGeneric("qr"),
 ##NB                useAsDefault= function(x, tol=1e-7,...) base::qr(x, tol, ...))
 
+if(is.na(match("...", names(formals(implicitGeneric("crossprod")))))) {
+    ## base:crossprod() has no '...', but since 2015-03, there's an implicit generic
+    setGeneric("crossprod", function(x, y=NULL, ...) standardGeneric("crossprod"),
+               useAsDefault= function(x, y=NULL, ...) base::crossprod(x, y))
+    setGeneric("tcrossprod", function(x, y=NULL, ...) standardGeneric("tcrossprod"),
+               useAsDefault= function(x, y=NULL, ...) base::tcrossprod(x, y))
+}
+
     setGeneric("Schur", function(x, vectors, ...) standardGeneric("Schur"))
 
 setGeneric("unpack", function(x, ...) standardGeneric("unpack"))
 setGeneric("pack", function(x, ...) standardGeneric("pack"))
 
-##-     setGeneric("%p%", function(a, b) standardGeneric("%p%"))
 
     setGeneric("expm", function(x) standardGeneric("expm"))
 

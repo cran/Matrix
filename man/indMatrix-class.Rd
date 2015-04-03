@@ -1,4 +1,5 @@
 \name{indMatrix-class}
+\title{Index Matrices}
 \docType{class}
 \alias{indMatrix-class}
 \alias{-,indMatrix,missing-method}
@@ -29,7 +30,6 @@
 \alias{rowSums,indMatrix-method}
 \alias{rowMeans,indMatrix-method}
 %
-\title{Index matrices}
 \description{The \code{"indMatrix"} class is the class of index
   matrices, stored as 1-based integer index vectors.  An index matrix is
   a matrix with exactly one non-zero entry per row.
@@ -50,12 +50,13 @@
     \item{\code{perm}:}{An integer, 1-based index vector, i.e.
       an integer vector of length \code{Dim[1]} whose elements are taken from
       \code{1:Dim[2]}.}
-    \item{\code{Dim}:}{Object of class \code{"integer"}.  The dimensions
-      of the matrix which must skinny, i.e., the first dimension has to
-      be at least as large as the second.}
-    \item{\code{Dimnames}:}{list of length two; each component
-      containing NULL or a \code{\link{character}} vector length
-      equal the corresponding \code{Dim} element.}
+    \item{\code{Dim}:}{\code{\link{integer}} vector of length two.
+      In some applications, the matrix will be skinny, i.e., with at least
+      as many rows as columns.}
+    \item{\code{Dimnames}:}{a \code{\link{list}} of length two where
+      each component is either \code{\link{NULL}} or a
+      \code{\link{character}} vector of length equal to the
+      corresponding \code{Dim} element.}
   }
 }
 \section{Extends}{
@@ -168,8 +169,9 @@ s10[1:4, ]  # preserves "indMatrix"-class
 
 I1 <- as(c(5:1,6:4,7:3), "indMatrix")
 I2 <- as(7:1, "pMatrix")
-(I12 <- rBind(I1, I2))
+(I12 <- suppressWarnings(rBind(I1, I2)))
 stopifnot(is(I12, "indMatrix"),
+          if(getRversion() >= "3.2.0") identical(I12, rbind(I1, I2)) else TRUE,
 	  colSums(I12) == c(2L,2:4,4:2))
 }
 \keyword{classes}

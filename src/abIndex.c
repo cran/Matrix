@@ -1,4 +1,5 @@
-/* C-level Methods for the ``abstract Index'' class
+/** @file abIndex.c
+ * C-level Methods for the ``abstract Index'' class
  *
  * Note: this heavily builds on ideas and code from  Jens Oehlschlaegel,
  * ----  as implemented (in the GPL'ed part of) package 'ff'.

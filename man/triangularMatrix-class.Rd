@@ -6,14 +6,14 @@
 \alias{coerce,ngeMatrix,triangularMatrix-method}
 \alias{coerce,matrix,triangularMatrix-method}
 %
-\title{Virtual Class of Triangular Matrices in package:Matrix}
+\title{Virtual Class of Triangular Matrices in Package Matrix}
 \description{
   The virtual class of triangular matrices,\code{"triangularMatrix"},
-  from the package \pkg{Matrix} contains numeric and logical, dense and
-  sparse matrices, e.g., see the examples.
-
-  The main use will be in methods (and C functions) that can deal with
-  all triangular matrices.
+  the package \pkg{Matrix} contains \emph{square} (\code{\link{nrow} ==
+    \link{ncol}}) numeric and logical, dense and sparse matrices, e.g.,
+  see the examples.
+  A main use of the virtual class is in methods (and C functions) that
+  can deal with all triangular matrices.
 }
 % \section{Objects from the Class}{A virtual Class: No objects may be created from it.}
 \section{Slots}{

@@ -16,8 +16,29 @@
 ## based on [cr]bind2 :
 ##
 ## save to cBind / rBind  ("rename")
-cBind <- methods:::cbind
-rBind <- methods:::rbind
+if(getRversion() >= "3.2.0") {
+    ## New (2015-02)  base :: cbind(), rbind() which dispatch on S4 "when needed":
+    cBind <- function (..., deparse.level = 1) {
+	## not yet by default: (TODO: Once per session from ~ Oct.2015)
+	if(isTRUE(getOption("Matrix.warn")) ||
+	   isTRUE(getOption("Matrix.verbose")))
+	.Deprecated(msg = "'cBind' is deprecated.
+ Since R version 3.2.0, base's cbind() should work fine with S4 objects")
+	base::cbind(..., deparse.level=deparse.level)
+    }
+    rBind <- function (..., deparse.level = 1) {
+	## not yet by default: (TODO: ...)
+	if(isTRUE(getOption("Matrix.warn")) ||
+	   isTRUE(getOption("Matrix.verbose")))
+	.Deprecated(msg = "'rBind' is deprecated.
+ Since R version 3.2.0, base's rbind() should work fine with S4 objects")
+	base::rbind(..., deparse.level=deparse.level)
+    }
+
+} else {
+    cBind <- methods:::cbind
+    rBind <- methods:::rbind
+}
 
 .onUnload <- function(libpath)
 {

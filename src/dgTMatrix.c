@@ -18,8 +18,8 @@ SEXP xTMatrix_validate(SEXP x)
 
 static void
 d_insert_triplets_in_array(int m, int n, int nnz,
-			   const int xi[], const int xj[],
-			   const double xx[], double vx[])
+			   const int xi[], const int xj[], const double xx[],
+			   /* --> */ double vx[])
 {
     int i;
     memset(vx, 0, sizeof(double) * m * n);
@@ -30,13 +30,19 @@ d_insert_triplets_in_array(int m, int n, int nnz,
 
 static void
 l_insert_triplets_in_array(int m, int n, int nnz,
-			   const int xi[], const int xj[],
-			   const int xx[], int vx[])
+			   const int xi[], const int xj[], const int xx[],
+			   /* --> */ int vx[])
 {
     int i;
     memset(vx, 0, sizeof(int) * m * n);
     for (i = 0; i < nnz; i++) {
-	vx[xi[i] + xj[i] * m] += xx[i];	/* allow redundant entries in x */
+	int ind = xi[i] + xj[i] * m;
+	if(vx[ind] == NA_LOGICAL) {
+	    // do nothing: remains NA
+	} else if(xx[i] == NA_LOGICAL)
+	    vx[ind] = NA_LOGICAL;
+	else // "or" :
+	    vx[ind] |= xx[i];
     }
 }
 

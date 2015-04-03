@@ -4,7 +4,7 @@
 #define MAYBE_DECLARE_AND_GET_X_SLOT(__T__, __S__)	\
 	      DECLARE_AND_GET_X_SLOT(__T__, __S__)
 
-#define Matrix_T_as_DENSE(_C_TYPE_, _SEXP_, _SEXPTYPE_)			\
+#define Matrix_T_as_DENSE(_C_TYPE_, _SEXP_, _SEXPTYPE_, _SYMM_)		\
     SEXP dimP = GET_SLOT(x, Matrix_DimSym),				\
 	  xiP = GET_SLOT(x, Matrix_iSym);				\
     int k, n = INTEGER(dimP)[0], nnz = length(xiP);			\
@@ -14,7 +14,10 @@
     MAYBE_DECLARE_AND_GET_X_SLOT(_C_TYPE_, _SEXP_);			\
 									\
     SET_SLOT(val, Matrix_DimSym, duplicate(dimP));			\
-    SET_DimNames(val, x);						\
+    if(_SYMM_)								\
+	SET_DimNames_symm(val, x);					\
+    else								\
+	SET_DimNames(val, x);						\
     slot_dup(val, x, Matrix_uploSym)
 
 #define Matrix_T_as_DENSE_FINISH(_X_k_)		\
@@ -29,7 +32,7 @@ SEXP dsTMatrix_as_dsyMatrix(SEXP x)
 {
     SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dsyMatrix")));
 
-    Matrix_T_as_DENSE(double, REAL, REALSXP);
+    Matrix_T_as_DENSE(double, REAL, REALSXP, FALSE);
     Matrix_T_as_DENSE_FINISH(xx[k]);
 }
 
@@ -37,7 +40,7 @@ SEXP lsTMatrix_as_lsyMatrix(SEXP x)
 {
     SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("lsyMatrix")));
 
-    Matrix_T_as_DENSE(int, LOGICAL, LGLSXP);
+    Matrix_T_as_DENSE(int, LOGICAL, LGLSXP, FALSE);
     Matrix_T_as_DENSE_FINISH(xx[k]);
 }
 
@@ -47,7 +50,7 @@ SEXP dtTMatrix_as_dtrMatrix(SEXP x)
 {
     SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dtrMatrix")));
 
-    Matrix_T_as_DENSE(double, REAL, REALSXP);
+    Matrix_T_as_DENSE(double, REAL, REALSXP, FALSE);
     slot_dup(val, x, Matrix_diagSym);
     Matrix_T_as_DENSE_FINISH(xx[k]);
 }
@@ -56,7 +59,7 @@ SEXP ltTMatrix_as_ltrMatrix(SEXP x)
 {
     SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("ltrMatrix")));
 
-    Matrix_T_as_DENSE(int, LOGICAL, LGLSXP);
+    Matrix_T_as_DENSE(int, LOGICAL, LGLSXP, FALSE);
     slot_dup(val, x, Matrix_diagSym);
     Matrix_T_as_DENSE_FINISH(xx[k]);
 }
@@ -79,7 +82,7 @@ SEXP ltTMatrix_as_ltrMatrix(SEXP x)
 #define SET_x_SLOT		vx[nv] = xx[i]
 #define MAYBE_SET_x_SLOT	SET_x_SLOT
 
-#define Matrix_T_as_GENERAL(_C_TYPE_, _SEXP_, _SEXPTYPE_)		\
+#define Matrix_sT_as_GENERAL(_C_TYPE_, _SEXP_, _SEXPTYPE_)		\
     SEXP xiP = GET_SLOT(x, Matrix_iSym);				\
     /* , uplo = GET_SLOT(x, Matrix_uploSym); */				\
     int i, nnz = length(xiP), n0d, nv,					\
@@ -98,8 +101,8 @@ SEXP ltTMatrix_as_ltrMatrix(SEXP x)
     vj = INTEGER(ALLOC_SLOT(val, Matrix_jSym, INTSXP, nv));		\
     MAYBE_ALLOC_val_x_SLOT(_SEXP_, _SEXPTYPE_);				\
 									\
-    slot_dup(val, x, Matrix_DimSym); \
-    SET_DimNames(val, x);						\
+    slot_dup(val, x, Matrix_DimSym);					\
+    SET_DimNames_symm(val, x);						\
     /* copy the upper/lower triangle (including the diagonal)*/		\
     /* "at end" ([nv]): */						\
     nv = nnz - n0d;							\
@@ -125,14 +128,14 @@ SEXP ltTMatrix_as_ltrMatrix(SEXP x)
 SEXP dsTMatrix_as_dgTMatrix(SEXP x)
 {
     SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dgTMatrix")));
-    Matrix_T_as_GENERAL(double, REAL, REALSXP);
+    Matrix_sT_as_GENERAL(double, REAL, REALSXP);
 }
 
 
 SEXP lsTMatrix_as_lgTMatrix(SEXP x)
 {
     SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("lgTMatrix")));
-    Matrix_T_as_GENERAL(int, LOGICAL, LGLSXP);
+    Matrix_sT_as_GENERAL(int, LOGICAL, LGLSXP);
 }
 
 /* Now the 'nsparseMatrix' ones where input has no 'x' slot : ---------------*/
@@ -150,7 +153,7 @@ SEXP nsTMatrix_as_nsyMatrix(SEXP x)
 {
     SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("nsyMatrix")));
 
-    Matrix_T_as_DENSE(int, LOGICAL, LGLSXP);
+    Matrix_T_as_DENSE(int, LOGICAL, LGLSXP, FALSE);
     Matrix_T_as_DENSE_FINISH(1);
 }
 
@@ -158,7 +161,7 @@ SEXP ntTMatrix_as_ntrMatrix(SEXP x)
 {
     SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("ntrMatrix")));
 
-    Matrix_T_as_DENSE(int, LOGICAL, LGLSXP);
+    Matrix_T_as_DENSE(int, LOGICAL, LGLSXP, FALSE);
     slot_dup(val, x, Matrix_diagSym);
     Matrix_T_as_DENSE_FINISH(1);
 }
@@ -166,5 +169,5 @@ SEXP ntTMatrix_as_ntrMatrix(SEXP x)
 SEXP nsTMatrix_as_ngTMatrix(SEXP x)
 {
     SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("ngTMatrix")));
-    Matrix_T_as_GENERAL(int, LOGICAL, LGLSXP);
+    Matrix_sT_as_GENERAL(int, LOGICAL, LGLSXP);
 }

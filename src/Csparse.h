@@ -5,13 +5,15 @@
 #include "Mutils.h"
 
 Rboolean isValid_Csparse(SEXP x);
+SEXP Csp_dense_products(SEXP a, SEXP b,
+			Rboolean transp_a, Rboolean transp_b, Rboolean transp_ans);
 
-SEXP Csparse_Csparse_prod(SEXP a, SEXP b);
 SEXP Csparse_band(SEXP x, SEXP k1, SEXP k2);
-SEXP Csparse_crossprod(SEXP x, SEXP trans, SEXP triplet);
-SEXP Csparse_Csparse_crossprod(SEXP a, SEXP b, SEXP trans);
-SEXP Csparse_dense_crossprod(SEXP a, SEXP b);
-SEXP Csparse_dense_prod(SEXP a, SEXP b);
+SEXP Csparse_Csparse_prod(SEXP a, SEXP b, SEXP bool_arith);
+SEXP Csparse_Csparse_crossprod(SEXP a, SEXP b, SEXP trans, SEXP bool_arith);
+SEXP Csparse_crossprod(SEXP x, SEXP trans, SEXP triplet, SEXP bool_arith);
+SEXP Csparse_dense_crossprod(SEXP a, SEXP b, SEXP transp);
+SEXP Csparse_dense_prod     (SEXP a, SEXP b, SEXP transp);
 SEXP Csparse_diagU2N(SEXP x);
 SEXP Csparse_diagN2U(SEXP x);
 SEXP Csparse_drop(SEXP x, SEXP tol);
@@ -23,17 +25,18 @@ SEXP iCsparse_subassign(SEXP x, SEXP i_, SEXP j_, SEXP value);
 SEXP nCsparse_subassign(SEXP x, SEXP i_, SEXP j_, SEXP value);
 SEXP zCsparse_subassign(SEXP x, SEXP i_, SEXP j_, SEXP value);
 SEXP Csparse_symmetric_to_general(SEXP x);
-SEXP Csparse_general_to_symmetric(SEXP x, SEXP uplo);
+SEXP Csparse_general_to_symmetric(SEXP x, SEXP uplo, SEXP sym_dmns);
 SEXP Csparse_MatrixMarket(SEXP x, SEXP fname);
 SEXP Csparse_sort (SEXP x);
 SEXP Csparse_to_Tsparse(SEXP x, SEXP tri);
 SEXP Csparse_to_tCsparse(SEXP x, SEXP uplo, SEXP diag);
 SEXP Csparse_to_tTsparse(SEXP x, SEXP uplo, SEXP diag);
-SEXP Csparse_to_dense(SEXP x);
+SEXP Csparse_to_dense(SEXP x, SEXP symm_or_tri);
+SEXP Csparse2nz           (SEXP x, Rboolean tri);
 SEXP Csparse_to_nz_pattern(SEXP x, SEXP tri);
 SEXP nz_pattern_to_Csparse(SEXP x, SEXP res_kind);
 SEXP nz2Csparse           (SEXP x, enum x_slot_kind r_kind);
-SEXP Csparse_to_matrix(SEXP x, SEXP chk);
+SEXP Csparse_to_matrix(SEXP x, SEXP chk, SEXP symm);
 SEXP Csparse_to_vector(SEXP x);
 SEXP Csparse_transpose(SEXP x, SEXP tri);
 SEXP Csparse_validate (SEXP x);

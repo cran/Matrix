@@ -38,7 +38,7 @@ setMethod("Math",
 			  slot(rx, nm) <- slot(x, nm)
 		      rx
 		  }
-	      } else { ## no sparseness (or no matrix!):
+	      } else { ## no sparseness (or no matrix!); C2dense() returns *numeric*
 		  callGeneric(C2dense(x))
 	      }
 	  }) ## {Math}
@@ -64,7 +64,8 @@ setMethod("Math", "ddenseMatrix", function(x)
 	    }
 	}
 	else { ## triangularMatrix (no need for testing), includes, e.g. "corMatrix"!
-	    if(is0(f0 <- callGeneric(0.))) { ## -> result remains triangular
+	    ## if(is0(f0 <- callGeneric(0.))) { ## -> result remains triangular
+	    if(is0(callGeneric(0.))) { ## -> result remains triangular
 		cl <- .class0(x)
 		if(cl %in% (scl <- c("dtrMatrix","dtpMatrix"))) {
 		    x@x <- callGeneric(x@x)
@@ -111,7 +112,8 @@ setMethod("Math", signature(x = "diagonalMatrix"),
 	  function(x) {
 	      if(.Generic %in% Math.vecGenerics) # vector result
 		  callGeneric(.diag2mat(x))
-              else if(is0(f0 <- callGeneric(0.))) { ## result remains diagonal
+	      ## else if(is0(f0 <- callGeneric(0.))) { ## result remains diagonal
+	      else if(is0(callGeneric(0.))) { ## result remains diagonal
 		  cl <- class(x)
 		  if(!extends(cl, "ddiMatrix"))
 		      cl <- class(x <- as(x, "dMatrix"))
@@ -180,7 +182,7 @@ setMethod("Math", signature(x = "sparseVector"),
 	  function(x) {
 	      if(.Generic %nin% Math.vecGenerics && is0(callGeneric(0.))) {
 		  ## sparseness preserved
-		  cld <- getClassDef(cx <- class(x))
+		  cld <- getClassDef(class(x))
 		  kind <- .M.kindC(cld)# "d", "n", "l", "i", "z", ...
 		  has.x <- kind != "n"
 		  if(has.x) {

@@ -31,18 +31,18 @@ stopifnot(identical(ch9p, h9p@factors$pCholesky),
 h4  <- h9.[1:4, 1:4] # this and the next
 h9.[1,1] <- 10       # had failed in 0.995-14
 h9p[1,1] <- 10
-stopifnot(isValid(h9., "symmetricMatrix"),
-          isValid(h9p, "symmetricMatrix"),
-          isValid(h4,  "symmetricMatrix"))
+stopifnotValid(h9., "symmetricMatrix")
+stopifnotValid(h9p, "symmetricMatrix")
+stopifnotValid(h4,  "symmetricMatrix")
 
 h9p[1,2] <- 99
 stopifnot(class(h9p) == "dgeMatrix", h9p[1,1:2] == c(10,99))
 
 str(h9p <- as(h9, "dppMatrix"))# {again}
 h6 <- h9[1:6,1:6]
-stopifnot(all(h6 == Hilbert(6)), length(h6@factors) == 0,
-          is(th9p <- t(h9p), "dppMatrix"),
-	  is(h9p@factors$Cholesky,"Cholesky"))
+stopifnot(all(h6 == Hilbert(6)), length(h6@factors) == 0)
+stopifnotValid(th9p <- t(h9p), "dppMatrix")
+stopifnotValid(h9p@factors$Cholesky,"Cholesky")
 H6  <- as(h6, "dspMatrix")
 pp6 <- as(H6, "dppMatrix")
 po6 <- as(pp6,"dpoMatrix")

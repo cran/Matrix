@@ -20,7 +20,7 @@ setAs("matrix", "lgTMatrix",
 	      dn <- list(NULL,NULL)
 	  else dimnames(from) <- NULL
 	  TorNA <- is.na(from) | from
-	  ij <- which(TorNA, arr.ind = TRUE) - 1L
+	  ij <- which(TorNA, arr.ind = TRUE, useNames = FALSE) - 1L
 	  if(length(ij) == 0) ij <- matrix(ij, 0, 2)
 	  new("lgTMatrix",
 	      i = ij[,1],

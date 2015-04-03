@@ -7,7 +7,7 @@ setAs("ANY",    "denseMatrix", function(from) Matrix(from, sparse=FALSE))
 ## setAs("matrix", "denseMatrix", ....) which was slightly more efficient than
 ##  Matrix(.)  but would have many things in common
 
-setAs(from = "denseMatrix", to = "generalMatrix", as_geSimpl)
+setAs("denseMatrix", "generalMatrix", as_geSimpl)
 
 ## dense to sparse:
 ## : if we do this, do it "right", i.e. preserve symmetric/triangular!
@@ -16,19 +16,26 @@ setAs(from = "denseMatrix", to = "generalMatrix", as_geSimpl)
 ## ##      function(from) as(as(from, "dgeMatrix"), "dsparseMatrix"))
 ##       function(from) as(as(from, "dgeMatrix"), "dgCMatrix"))
 
-.dense2C <- function(from) {
-    cl <- class(from)
-    cld <- getClassDef(cl) ## get it once (speedup)
+.dense2C <- function(from, kind = NA, uplo = "U") {
+    useK <- is.character(kind) && length(kind) == 1 &&
+        kind %in% c("gen", "sym", "tri")
+    if(!useK) {
+        cl <- class(from)
+        cld <- getClassDef(cl) ## get it once (speedup)
+    }
     r <- .Call(dense_to_Csparse, from)# goes via "generalMatrix"
     ## FIXME: for symmetric / triangular matrices, this is a waste, notably if packed
-
-    if (extends(cld, "generalMatrix"))
+    if (useK && kind == "gen"  ||  !useK && extends(cld, "generalMatrix"))
 	r
-    else if(extends(cld, "symmetricMatrix"))
-	forceSymmetric(r)
-    else if(extends(cld, "diagonalMatrix"))
+    else if(useK && kind == "sym" || !useK && extends(cld, "symmetricMatrix"))
+	forceCspSymmetric(r, uplo, isTri = FALSE)
+    else if(!useK && extends(cld, "diagonalMatrix"))
 	stop("diagonalMatrix in .dense2C() -- should never happen, please report!")
     else { ## we have "triangular" :
+        if(useK) {
+            cl <- class(from)
+            cld <- getClassDef(cl) ## get it once (speedup)
+        }
 	if	(extends(cld,"dMatrix")) as(r, "dtCMatrix")
         else if (extends(cld,"lMatrix")) as(r, "ltCMatrix")
         else if (extends(cld,"nMatrix")) as(r, "ntCMatrix")
@@ -37,7 +44,7 @@ setAs(from = "denseMatrix", to = "generalMatrix", as_geSimpl)
     }
 }
 
-setAs("denseMatrix", "CsparseMatrix", .dense2C)
+setAs("denseMatrix", "CsparseMatrix", function(from) .dense2C(from))
 
 ## This sometimes fails (eg. for "lsyMatrix"), and we really want to
 ## use the generic ``go via Csparse'' (top of ./sparseMatrix.R) instead

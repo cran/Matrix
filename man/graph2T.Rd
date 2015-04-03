@@ -79,7 +79,7 @@ if(isTRUE(try(require(graph)))) { ## super careful .. for "checking reasons"
   ,
    identical(tg3 <- graph2T(g3), graph2T(g3, use.weights=FALSE))
   ,
-   identical(as(m3,"TsparseMatrix"), Matrix:::uniqTsparse(tg3))
+   identical(as(m3,"TsparseMatrix"), uniqTsparse(tg3))
   )
 }
   a. <- sparseMatrix(i= 4:1, j=1:4, dimnames=list(n4,n4), giveC=FALSE) # no 'x'

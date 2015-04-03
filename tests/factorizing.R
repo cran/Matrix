@@ -138,7 +138,7 @@ for(N in 1:(if(doExtras) 1008 else 24)) {
     checkQR.DS.both(A, Qinv.chk= NA, QtQ.chk=NA)
     ##                          --- => FALSE if struct. rank deficient
 }
-
+unique(warnings())
 
 ## Look at single "hard" cases: --------------------------------------
 
@@ -398,9 +398,9 @@ nT. <- as(AT <- as(A., "TsparseMatrix"),"nMatrix")
 stopifnot(all(nT.@i <= nT.@j),
 	  identical(qr(A1.8), qr(as(A1.8, "dgCMatrix"))))
 CA <- Cholesky(A.)
-stopifnot(isValid(CAinv <- solve(CA), "dsCMatrix"))
+stopifnotValid(CAinv <- solve(CA), "dsCMatrix")
 MA <- as(CA, "Matrix") # with a confusing warning -- FIXME!
-isValid(MAinv <- solve(MA), "dtCMatrix")
+stopifnotValid(MAinv <- solve(MA), "dtCMatrix")
 ## comparing MAinv with some solve(CA, system="...") .. *not* trivial? - TODO
 ##
 CAinv2 <- solve(CA, Diagonal(nrow(A.)))
@@ -596,8 +596,8 @@ stopifnot(all.equal(C, diag((5:1)^-2)))
 n <- 1e6 # was 595362
 A <- chol( D <- Diagonal(n) )
 stopifnot(identical(A,D)) # A remains (unit)diagonal
-is(tA <- as(A,"triangularMatrix"))
-isValid(tA, "dsparseMatrix")# currently is dtTMatrix
+is(tA <- as(A,"triangularMatrix"))# currently a dtTMatrix
+stopifnotValid(tA, "dsparseMatrix")
 CA <- as(tA, "CsparseMatrix")
 
 selectMethod(solve, c("dtCMatrix","missing"))

@@ -26,15 +26,14 @@
 }
 \section{Slots}{
   \describe{
-    \item{\code{i}:}{Object of class \code{"integer"} - the row indices
-      of non-zero entries \emph{in 0-base}, i.e., must be in
-      \code{0:(nrow(.)-1)}.}
-    \item{\code{j}:}{Object of class \code{"integer"} - the column
-      indices of non-zero entries.  Must be the same length as slot
-      \code{i} and \emph{0-based} as well, i.e., in \code{0:(ncol(.)-1)}.}
-    \item{\code{x}:}{Object of class \code{"numeric"} - the (non-zero)
+    \item{\code{i}:}{\code{\link{integer}} row indices of non-zero
+      entries \emph{in 0-base}, i.e., must be in \code{0:(nrow(.)-1)}.}
+    \item{\code{j}:}{\code{\link{integer}} column indices of non-zero
+      entries.  Must be the same length as slot \code{i} and
+      \emph{0-based} as well, i.e., in \code{0:(ncol(.)-1)}.}
+    \item{\code{x}:}{\code{\link{numeric}} vector - the (non-zero)
       entry at position \code{(i,j)}.  Must be the same length as slot
-      \code{i}. If an index pair occurs more than once the corresponding
+      \code{i}.  If an index pair occurs more than once, the corresponding
       values of slot \code{x} are added to form the element of the matrix.}
     \item{\code{Dim}:}{Object of class \code{"integer"} of length 2 -
       the dimensions of the matrix.}
@@ -69,14 +68,19 @@
   \code{\linkS4class{dgCMatrix}} objects.
 
   Note that both \code{new(.)} and \code{\link{spMatrix}} constructors
-  for \code{"dgTMatrix"} (and other \code{"linkS4class{TsparseMatrix}"}
+  for \code{"dgTMatrix"} (and other \code{"\linkS4class{TsparseMatrix}"}
   classes) implicitly add \eqn{x_k}'s that belong to identical
   \eqn{(i_k, j_k)} pairs.
+
+  However this means that a matrix typically can tbe stored in more than
+  one possible \code{"\linkS4class{TsparseMatrix}"} representations.
+  Use \code{\link{uniqTsparse}()} in order to ensure uniqueness of the
+  internal representation of such a matrix.
 }
 \seealso{
   Class \code{\linkS4class{dgCMatrix}} or the superclasses
   \code{\linkS4class{dsparseMatrix}} and
-  \code{\linkS4class{TsparseMatrix}};
+  \code{\linkS4class{TsparseMatrix}}; \code{\link{uniqTsparse}}.
 }
 \examples{
 m <- Matrix(0+1:28, nrow = 4)

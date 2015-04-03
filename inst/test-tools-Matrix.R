@@ -18,18 +18,19 @@ asD <- function(m) { ## as "Dense"
 }
 
 ## "normal" sparse Matrix: Csparse, no diag="U"
-asCsp <- function(x) Matrix:::diagU2N(as(x, "CsparseMatrix"))
+asCsp <- function(x) diagU2N(as(x, "CsparseMatrix"))
 
+##' @title quasi-identical dimnames
 Qidentical.DN <- function(dx, dy) {
-    ## quasi-identical dimnames
+
     stopifnot(is.list(dx) || is.null(dx),
 	      is.list(dy) || is.null(dy))
     ## "empty"
     (is.null.DN(dx) && is.null.DN(dy)) || identical(dx, dy)
 }
 
+##' quasi-identical()  for 'Matrix' matrices
 Qidentical <- function(x,y, strictClass = TRUE) {
-    ## quasi-identical - for 'Matrix' matrices
     if(class(x) != class(y)) {
         if(strictClass || !is(x, class(y)))
            return(FALSE)
@@ -38,7 +39,9 @@ Qidentical <- function(x,y, strictClass = TRUE) {
     slts <- slotNames(x)
     if("Dimnames" %in% slts) { ## always (or we have no 'Matrix')
 	slts <- slts[slts != "Dimnames"]
-	if(!(Qidentical.DN(x@Dimnames, y@Dimnames)))
+	if(!Qidentical.DN(x@Dimnames, y@Dimnames) &&
+	   ## allow for "completion" of (NULL, <names>) dimnames of symmetricMatrix:
+	   !Qidentical.DN(dimnames(x), dimnames(y)))
 	    return(FALSE)
     }
     if("factors" %in% slts) { ## allow one empty and one non-empty 'factors'
@@ -51,6 +54,18 @@ Qidentical <- function(x,y, strictClass = TRUE) {
         if(!identical(slot(x,sl), slot(y,sl)))
             return(FALSE)
     TRUE
+}
+
+##' quasi-identical()  for traditional ('matrix') matrices
+mQidentical <- function(x,y, strictClass = TRUE) {
+    if(class(x) != class(y)) {
+        if(strictClass || !is(x, class(y)))
+            return(FALSE)
+        ## else try further
+    }
+    if(!Qidentical.DN(dimnames(x), dimnames(y)))
+        return(FALSE)
+    identical(unname(x), unname(y))
 }
 
 Q.C.identical <- function(x,y, sparse = is(x,"sparseMatrix"),
@@ -71,7 +86,8 @@ Q.C.identical <- function(x,y, sparse = is(x,"sparseMatrix"),
 ##' @title  Quasi-equal for  'Matrix' matrices
 ##' @param x  Matrix
 ##' @param y  Matrix
-##' @param superclasses   x and y must coincide in (not) extending these
+##' @param superclasses  x and y must coincide in (not) extending these; set to empty,
+##'  if no class/inheritance checks should happen.
 ##' @param dimnames.check  logical indicating if dimnames(.) much match
 ##' @param tol  NA (--> use "==") or numerical tolerance for all.equal()
 ##' @return   logical:  Are x and y (quasi) equal ?
@@ -208,27 +224,47 @@ rUnitTri <- function(n, upper = TRUE, ...)
     r
 }
 
+##' Construct a nice (with exact numbers) random artificial  \eqn{A = L D L'}
+##' decomposition with a sparse \eqn{n \times n}{n x n} matrix \code{A} of
+##' density \code{density} and square root \eqn{D} determined by \code{d0}.
+##'
+##' If one of \code{rcond} or \code{condest} is true, \code{A} must be
+##' non-singular, both use an \eqn{LU} decomposition requiring
+##' non-singularity.
+##' @title Make Nice Artificial   A = L D L'  (With Exact Numbers) Decomposition
+##' @param n matrix dimension \eqn{n \times n}{n x n}
+##' @param density ratio of number of non-zero entries to total number
+##' @param d0 The sqrt of the diagonal entries of D default \code{10}, to be
+##' \dQuote{different} from \code{L} entries.
+##' @param rcond logical indicating if \code{\link{rcond}(A, useInv=TRUE)}
+##' should be returned which requires non-singular A and D.
+##' @param condest logical indicating if \code{\link{condest}(A)$est}
+##' should be returned which requires non-singular A and D.
+##' @return list with entries A, L, d.half, D, ..., where A inherits from
+##' class \code{"\linkS4class{symmetricMatrix}"} and should be equal to
+##' \code{as(L \%*\% D \%*\% t(L), "symmetricMatrix")}.
+##' @author Martin Maechler, Date: 15 Mar 2008
 mkLDL <- function(n, density = 1/3,
-		  d0 = 10, ## use '10' to be "different" from L entries
-		  rcond = (n < 99), condest = (n >= 100)) {
-    ## Purpose: make nice artificial   A = L D L'  (with exact numbers) decomp
-    ## ----------------------------------------------------------------------
-    ## Author: Martin Maechler, Date: 15 Mar 2008
-    stopifnot(n == round(n))
+                  d0 = 10, d.half = d0 * sample.int(n), # random permutation
+                  rcond = (n < 99), condest = (n >= 100))
+{
+    stopifnot(n == round(n), density <= 1)
     n <- as.integer(n)
+    stopifnot(n >= 1, is.numeric(d.half),
+              length(d.half) == n, d.half >= 0)
     L <- Matrix(0, n,n)
-
-    nnz <- round(n*n * density)
+    nnz <- round(density * n*n)
     L[sample(n*n, nnz)] <- seq_len(nnz)
-    L <- tril(L,-1)
+    L <- tril(L, -1L)
     diag(L) <- 1
-    d.half <- d0 * sample.int(n)# random permutation
-    D <- Diagonal(x = d.half * d.half)
+    dh2 <- d.half^2
+    non.sing <- sum(dh2 > 0) == n
+    D <- Diagonal(x = dh2)
     A <- tcrossprod(L * rep(d.half, each=n))
     ## = as(L %*% D %*% t(L), "symmetricMatrix")
     list(A = A, L = L, d.half = d.half, D = D,
-         rcond.A = if(rcond) rcond(A, useInv=TRUE),
-         cond.A  = if(condest) condest(A)$est)
+	 rcond.A = if (rcond  && non.sing) rcond(A, useInv=TRUE),
+	 cond.A  = if(condest && non.sing) condest(A)$est)
 }
 
 eqDeterminant <- function(m1, m2, NA.Inf.ok=FALSE, tol=.Machine$double.eps^0.5, ...)
@@ -309,6 +345,10 @@ allCholesky <- function(A, verbose = FALSE, silentTry = FALSE)
 	 r.uniq = CHM_to_pLs(r1[ ! dup.r1]))
 }
 
+##' Cheap  Boolean Arithmetic Matrix product
+##' Should be equivalent to  %&%  which is faster [not for large dense!].
+##' Consequently mainly used in  checkMatrix()
+boolProd <- function(x,y) as((abs(x) %*% abs(y)) > 0, "nMatrix")
 
 ###----- Checking a "Matrix" -----------------------------------------
 
@@ -415,7 +455,12 @@ checkMatrix <- function(m, m.m = if(do.matrix) as(m, "matrix"),
 		      dim(tcm) == rep.int(nrow(m), 2),
 		      ## FIXME: %*% drops dimnames
 		      Q.eq2(c.m, tm %*% m, tol = tolQ),
-		      Q.eq2(tcm, m %*% tm, tol = tolQ))
+		      Q.eq2(tcm, m %*% tm, tol = tolQ),
+                      ## should work with dimnames:
+		      Q.eq(m %&% tm, boolProd(m, tm), superclasses=NULL, tol = 0)
+                     ,
+		      Q.eq(tm %&% m, boolProd(tm, m), superclasses=NULL, tol = 0)
+                      )
 	}
     }
     if(!do.matrix) {
@@ -478,7 +523,7 @@ checkMatrix <- function(m, m.m = if(do.matrix) as(m, "matrix"),
 	n0m <- drop0(m) #==> n0m is Csparse
 	has0 <- !Qidentical(n0m, as(m,"CsparseMatrix"))
 	if(!isInd && !isRsp &&
-           !(extends(cld, "TsparseMatrix") && Matrix:::is_duplicatedT(m, di = d)))
+           !(extends(cld, "TsparseMatrix") && anyDuplicatedT(m, di = d)))
                                         # 'diag<-' is does not change attrib:
 	    stopifnot(Qidentical(m, m.d))# e.g., @factors may differ
     }
@@ -507,7 +552,7 @@ checkMatrix <- function(m, m.m = if(do.matrix) as(m, "matrix"),
 	ns <- as(m, "nsparseMatrix")
 	stopifnot(identical(n1,ns),
 		  isDiag || ((if(isSym) Matrix:::nnzSparse else sum)(n1) ==
-			     length(if(isInd) m@perm else Matrix:::diagU2N(m)@x)))
+			     length(if(isInd) m@perm else diagU2N(m)@x)))
         Cat("ok\n")
     }
 
@@ -575,7 +620,7 @@ checkMatrix <- function(m, m.m = if(do.matrix) as(m, "matrix"),
 	else if(extends(cld, "lMatrix")) { ## should fulfill even with NA:
 	    stopifnot(all(m | !m | ina), !any(!m & m & !ina))
 	    if(extends(cld, "TsparseMatrix")) # allow modify, since at end here
-		m <- Matrix:::uniqTsparse(m, clNam)
+		m <- uniqTsparse(m, clNam)
 	    stopifnot(identical(m, m & TRUE),
 		      identical(m, FALSE | m))
 	    ## also check the  coercions to [dln]Matrix
@@ -615,7 +660,7 @@ checkMatrix <- function(m, m.m = if(do.matrix) as(m, "matrix"),
 	    Cat("valid:", validObject(tm), "\n")
 	    if(m@uplo == tm@uplo) ## otherwise, the matrix effectively was *diagonal*
 		## note that diagU2N(<dtr>) |-> dtC :
-		stopifnot(Qidentical(tm, as(Matrix:::diagU2N(m), clNam)))
+		stopifnot(Qidentical(tm, as(diagU2N(m), clNam)))
 	}
 	else if(isDiag) {
 

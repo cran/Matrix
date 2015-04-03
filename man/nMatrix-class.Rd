@@ -57,10 +57,6 @@
 \section{Methods}{
   There is a bunch of coercion methods (for \code{\link{as}(..)}), e.g.,
   \describe{
-    \item{coerce}{\code{signature(from = "nMatrix", to = "matrix")}: ... }
-    \item{coerce}{\code{signature(from = "nMatrix", to = "dMatrix")}: ... }
-    \item{coerce}{\code{signature(from = "nMatrix", to = "lMatrix")}: ... }
-
     \item{coerce}{\code{signature(from = "matrix", to = "nMatrix")}:
       Note that these coercions (must) coerce \code{\link{NA}}s to
       non-zero, hence conceptually \code{TRUE}.
@@ -68,10 +64,22 @@
       \code{\linkS4class{sparseMatrix}} objects are coerced to
       \code{"nMatrix"} and hence to \code{\linkS4class{nsparseMatrix}}.
     }
-    \item{coerce}{\code{signature(from = "dMatrix", to = "nMatrix")}: ... }
-    \item{coerce}{\code{signature(from = "lMatrix", to = "nMatrix")}: ... }
-  }.
-  Additional methods contain group mehods, such as
+    \item{coerce}{\code{signature(from = "dMatrix", to = "nMatrix")}, and}
+    \item{coerce}{\code{signature(from = "lMatrix", to = "nMatrix")}:
+      For dense matrices with \code{\link{NA}}s, these
+      coercions are valid since \pkg{Matrix} version 1.2.0 (still with
+      a \code{\link{warning}} or a \code{\link{message}} if
+      \code{"Matrix.warn"}, or \code{"Matrix.verbose"}
+      \code{\link{options}} are set.)}
+
+    \item{coerce}{\code{signature(from = "nMatrix", to = "matrix")}: ... }
+    \item{coerce}{\code{signature(from = "nMatrix", to = "dMatrix")}: ... }
+    \item{coerce}{\code{signature(from = "nMatrix", to = "lMatrix")}: ... }
+  }
+
+  --- --- ---
+
+  Additional methods contain group methods, such as
   \describe{
     \item{Ops}{\code{signature(e1 = "nMatrix", e2 = "....")}, \dots}
     \item{Arith}{\code{signature(e1 = "nMatrix", e2 = "....")}, \dots}

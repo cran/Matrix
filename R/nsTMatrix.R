@@ -23,5 +23,5 @@ setAs("nsTMatrix", "nsyMatrix",
 
 setMethod("t", "nsTMatrix",
 	  function(x)
-	  new("nsTMatrix", Dim = x@Dim, Dimnames = x@Dimnames,
+	  new("nsTMatrix", Dim = x@Dim, Dimnames = x@Dimnames[2:1],
 	      i = x@j, j = x@i, uplo = if (x@uplo == "U") "L" else "U"))

@@ -27,18 +27,21 @@ setMethod("Summary", "ddenseMatrix",
 				  else x@x[indTri(d[1], upper= x@uplo == "U",
 						  diag= TRUE)],
 				  ..., na.rm = na.rm)
-		  } else callGeneric(as(x, "dgeMatrix")@x, ..., na.rm = na.rm)
+		  } else callGeneric(..2dge(x)@x, ..., na.rm = na.rm)
 	      }
 	      else { ## triangular , possibly packed
 		  if(.Generic %in% summGener1) {
-                      if(.Generic %in% c("any","all")) {
-                          Zero <- FALSE; One <- TRUE
-                      } else {
-                          Zero <- 0; One <- 1
-                      }
-		      callGeneric(x@x, if(d[1] >= 2) Zero, if(x@diag == "U") One,
+		      if(.Generic %in% c("any","all")) {
+			  Zero <- FALSE; One <- TRUE
+		      } else {
+			  Zero <- 0; One <- 1
+		      }
+		      callGeneric(if (length(x@x) < prod(d)) x@x ## <- 'packed'
+				  else x@x[indTri(d[1], upper= x@uplo == "U",
+						  diag= TRUE)],
+				  if(d[1] >= 2) Zero, if(x@diag == "U") One,
 				  ..., na.rm = na.rm)
-		  } else callGeneric(as(x, "dgeMatrix")@x, ..., na.rm = na.rm)
+		  } else callGeneric(..2dge(x)@x, ..., na.rm = na.rm)
 	      }
 	  })
 
@@ -50,7 +53,7 @@ setMethod("Summary", "dsparseMatrix",
 	  n <- d[1]
 	  clx <- getClassDef(class(x))
 	  isTri <- extends(clx, "triangularMatrix")
-	  if(extends(clx, "TsparseMatrix") && is_duplicatedT(x, di = d))
+	  if(extends(clx, "TsparseMatrix") && anyDuplicatedT(x, di = d))
 	      x <- .Call(Tsparse_to_Csparse, x, isTri)# = as(x, "Csparsematrix")
 	  l.x <- length(x@x)
 	  if(l.x == ne) ## fully non-zero (and "general") - very rare but quick
@@ -73,7 +76,7 @@ setMethod("Summary", "dsparseMatrix",
 	  }
 	  else { ## prod() or sum() : care for "symmetric" and U2N
 	      if(!full.x && .Generic == "prod") {
-		  if(any(is.na(x@x))) NaN else 0
+		  if(anyNA(x@x)) NaN else 0
 	      }
 	      else
 		  callGeneric((if(isSym) as(x, "generalMatrix") else x)@x,
@@ -313,6 +316,6 @@ setMethod("Summary", "sparseVector",
 		  callGeneric(x@x, if(logicF) FALSE else 0, ..., na.rm = na.rm)
 	      }
 	      else { ## prod()
-		  if(any(is.na(x@x))) NaN else 0
+		  if(anyNA(x@x)) NaN else 0
 	      }
 	  })

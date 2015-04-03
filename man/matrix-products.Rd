@@ -5,6 +5,20 @@
 \alias{crossprod-methods}
 \alias{tcrossprod-methods}
 %%-- %*% -------------------------------------
+\alias{\%*\%,ddenseMatrix,ldenseMatrix-method}
+\alias{\%*\%,ddenseMatrix,matrix-method}
+\alias{\%*\%,ddenseMatrix,ndenseMatrix-method}
+\alias{\%*\%,ldenseMatrix,ddenseMatrix-method}
+\alias{\%*\%,ldenseMatrix,ldenseMatrix-method}
+\alias{\%*\%,ldenseMatrix,matrix-method}
+\alias{\%*\%,ldenseMatrix,ndenseMatrix-method}
+\alias{\%*\%,matrix,ddenseMatrix-method}
+\alias{\%*\%,matrix,ldenseMatrix-method}
+\alias{\%*\%,matrix,ndenseMatrix-method}
+\alias{\%*\%,ndenseMatrix,ddenseMatrix-method}
+\alias{\%*\%,ndenseMatrix,ldenseMatrix-method}
+\alias{\%*\%,ndenseMatrix,matrix-method}
+\alias{\%*\%,ndenseMatrix,ndenseMatrix-method}
 \alias{\%*\%,dgeMatrix,dgeMatrix-method}
 \alias{\%*\%,dgeMatrix,matrix-method}
 \alias{\%*\%,dgeMatrix,numLike-method}
@@ -17,6 +31,8 @@
 \alias{\%*\%,CsparseMatrix,numLike-method}
 \alias{\%*\%,ddenseMatrix,CsparseMatrix-method}
 \alias{\%*\%,matrix,CsparseMatrix-method}
+\alias{\%*\%,matrix,sparseMatrix-method}
+\alias{\%*\%,sparseMatrix,matrix-method}
 \alias{\%*\%,ddenseMatrix,ddenseMatrix-method}
 \alias{\%*\%,dgeMatrix,diagonalMatrix-method}
 \alias{\%*\%,matrix,diagonalMatrix-method}
@@ -179,6 +195,20 @@
 \alias{crossprod,symmetricMatrix,Matrix-method}
 \alias{crossprod,symmetricMatrix,missing-method}
 \alias{crossprod,symmetricMatrix,ANY-method}
+\alias{crossprod,ddenseMatrix,ddenseMatrix-method}
+\alias{crossprod,ddenseMatrix,ldenseMatrix-method}
+\alias{crossprod,ddenseMatrix,matrix-method}
+\alias{crossprod,ddenseMatrix,ndenseMatrix-method}
+\alias{crossprod,ldenseMatrix,ddenseMatrix-method}
+\alias{crossprod,ldenseMatrix,ldenseMatrix-method}
+\alias{crossprod,ldenseMatrix,matrix-method}
+\alias{crossprod,ldenseMatrix,missing-method}
+\alias{crossprod,ldenseMatrix,ndenseMatrix-method}
+\alias{crossprod,ndenseMatrix,ddenseMatrix-method}
+\alias{crossprod,ndenseMatrix,ldenseMatrix-method}
+\alias{crossprod,ndenseMatrix,matrix-method}
+\alias{crossprod,ndenseMatrix,missing-method}
+\alias{crossprod,ndenseMatrix,ndenseMatrix-method}
 %%-- tcrossprod ------------------------------
 \alias{tcrossprod-methods}
 \alias{tcrossprod,dgeMatrix,missing-method}
@@ -247,6 +277,20 @@
 \alias{tcrossprod,TsparseMatrix,missing-method}
 \alias{tcrossprod,Matrix,symmetricMatrix-method}
 \alias{tcrossprod,ANY,symmetricMatrix-method}
+\alias{tcrossprod,ddenseMatrix,ddenseMatrix-method}
+\alias{tcrossprod,ddenseMatrix,ldenseMatrix-method}
+\alias{tcrossprod,ddenseMatrix,matrix-method}
+\alias{tcrossprod,ddenseMatrix,ndenseMatrix-method}
+\alias{tcrossprod,ldenseMatrix,ddenseMatrix-method}
+\alias{tcrossprod,ldenseMatrix,ldenseMatrix-method}
+\alias{tcrossprod,ldenseMatrix,matrix-method}
+\alias{tcrossprod,ldenseMatrix,missing-method}
+\alias{tcrossprod,ldenseMatrix,ndenseMatrix-method}
+\alias{tcrossprod,ndenseMatrix,ddenseMatrix-method}
+\alias{tcrossprod,ndenseMatrix,ldenseMatrix-method}
+\alias{tcrossprod,ndenseMatrix,matrix-method}
+\alias{tcrossprod,ndenseMatrix,missing-method}
+\alias{tcrossprod,ndenseMatrix,ndenseMatrix-method}
 % (special class methods, added only for speedup:)
 \alias{tcrossprod,ddenseMatrix,dsCMatrix-method}
 \alias{tcrossprod,ddenseMatrix,lsCMatrix-method}
@@ -279,28 +323,56 @@
   \code{tcrossprod(x)} is formally equivalent to, but faster than, the
   call \code{x \%*\% t(x)}, and so is \code{tcrossprod(x, y)} instead of
   \code{x \%*\% t(y)}.
+
+  \emph{Boolean} matrix products are computed via either
+  \code{\link{\%&\%}} or \code{boolArith = TRUE}.
 }
 \usage{
 \S4method{\%*\%}{CsparseMatrix,diagonalMatrix}(x, y)
-       ## .... and many more
 
-\S4method{crossprod}{dgeMatrix,missing}(x, y = NULL)
-       ## .... and many more
+\S4method{crossprod}{dgeMatrix,missing}(x, y = NULL, boolArith = NA, \dots)
+\S4method{crossprod}{CsparseMatrix,diagonalMatrix}(x, y = NULL, boolArith = NA, \dots)
+       ## .... and for many more signatures
 
-\S4method{tcrossprod}{CsparseMatrix,CsparseMatrix}(x, y = NULL)
-       ## .... and many more
+\S4method{tcrossprod}{CsparseMatrix,ddenseMatrix}(x, y = NULL, boolArith = NA, \dots)
+\S4method{tcrossprod}{TsparseMatrix,missing}(x, y = NULL, boolArith = NA, \dots)
+       ## .... and for many more signatures
 }
 \arguments{
   \item{x}{a matrix-like object}
   \item{y}{a matrix-like object, or for \code{[t]crossprod()}
     \code{NULL} (by default); the latter case is formally equivalent to
     \code{y = x}.}
+  \item{boolArith}{\code{\link{logical}}, i.e., \code{NA}, \code{TRUE},
+    or \code{FALSE}.  If true the result is (coerced to) a pattern
+    matrix, i.e., \code{"\linkS4class{nMatrix}"}, unless there are
+    \code{NA} entries and the result will be a
+    \code{"\linkS4class{lMatrix}"}.  If false the result is (coerced to)
+    numeric.  When \code{NA}, currently the default, the
+    result is a pattern matrix when \code{x} and \code{y} are
+    \code{"\linkS4class{nsparseMatrix}"} and numeric otherwise.}
+  \item{\dots}{potentially more arguments passed to and from methods.}
 }
 \details{
   For some classes in the \code{Matrix} package, such as
   \code{\linkS4class{dgCMatrix}}, it is much faster to calculate the
   cross-product of the transpose directly instead of calculating the
   transpose first and then its cross-product.
+
+  \code{boolArith = TRUE} for regular (\dQuote{non cross}) matrix
+  products, \code{\%*\%} cannot be specified.  Instead, we provide the
+  \code{\link{\%&\%}} operator for \emph{boolean} matrix products.
+}
+\note{
+  \code{boolArith = TRUE}, \code{FALSE} or \code{NA} has been newly
+  introduced for \pkg{Matrix} 1.2.0 (March 2015).  Its implementation
+  may be incomplete and partly missing.  Please report such omissions if
+  detected!
+
+  Currently, \code{boolArith = TRUE} is implemnted via
+  \code{\linkS4class{CsparseMatrix}} coercions which may be quite
+  inefficient for dense matrices.  Contributions for efficiency
+  improvements are welcome.
 }
 \value{
   A \code{\linkS4class{Matrix}} object, in the one argument case

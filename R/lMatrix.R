@@ -4,20 +4,23 @@ setAs("matrix", "lMatrix",
 ## NOTE: This is *VERY* parallel to  ("dMatrix" -> "nMatrix") in ./dMatrix.R :
 setAs("lMatrix", "nMatrix",
       function(from) {
-	  if(any(is.na(from@x)))
-	      stop("\"lMatrix\" object with NAs cannot be coerced to \"nMatrix\"")
-	  ## i.e. from@x are only TRUE or FALSE
+	  if(anyNA(from@x) && ((.w <- isTRUE(getOption("Matrix.warn"))) ||
+				   isTRUE(getOption("Matrix.verbose")))) {
+	      (if(.w) warning else message)(
+		  "\"lMatrix\" object with NAs coerced to \"nMatrix\":  NA |-> TRUE")
+	      from@x[is.na(from@x)] <- TRUE
+	  }
+	  ## ==> from@x are in {TRUE, FALSE}
 	  cld <- getClassDef(cl <- MatrixClass(class(from)))
-	  if(extends(cld, "diagonalMatrix")) { # have no "ndi*" etc class
-	      cl <- class(from <- as(from, "sparseMatrix"))
-	      isSp <- TRUE
-	  } else {
-	      isSp <- extends(cld, "sparseMatrix")
-	      if(isSp && !all(from@x)) {
-		  from <- drop0(from) # was drop0(from, cld)
-		  if(cl != (c. <- class(from)))
-		      cld <- getClassDef(cl <- c.)
-	      }
+	  if(extends(cld, "diagonalMatrix")) # no "ndi*" class
+	      ## should not happen, setAs(diagonalMatrix -> nMatrix) in ./diagMatrix.R:
+	      return(di2nMat(from))
+	  ## else
+	  isSp <- extends(cld, "sparseMatrix")
+	  if(isSp && !all(from@x)) {
+	      from <- drop0(from) # was drop0(from, cld)
+	      if(cl != (c. <- class(from)))
+		  cld <- getClassDef(cl <- c.)
 	  }
 	  sNams <- slotNames(cld)
 	  copyClass(from, sub("^l", "n", cl),
@@ -38,7 +41,7 @@ setAs("nMatrix", "lMatrix",
 
 setAs("dMatrix", "lMatrix",
       function(from) {
-	  cld <- getClassDef(newCl <- class2(cl <- class(from), "l"))
+	  cld <- getClassDef(newCl <- class2(class(from), "l"))
 	  sNams <- slotNames(cld)
 	  r <- copyClass(from, newCl, sNames = sNams[sNams != "x"])
 	  r@x <- as.logical(from@x)
@@ -68,6 +71,7 @@ setMethod("which", "ldiMatrix",
 	      i <- if(x@diag == "U") seq_len(n) else which(x@x)
 	      if(arr.ind) cbind(i,i, deparse.level = 0) else i + n*(i - 1L) })
 
+## FIXME?:  not 100% compatible to "base :: which" -- here useNames=FALSE hardcoded!
 whichDense <- function(x, arr.ind = FALSE) {
     wh <- which(x@x) ## faster but "forbidden": .Internal(which(x@x))
     if (arr.ind && !is.null(d <- dim(x)))
@@ -79,16 +83,17 @@ setMethod("which", "ldenseMatrix",
 	  function(x, arr.ind) whichDense(as(x, "lgeMatrix"), arr.ind=arr.ind))
 
 setMethod("which", "nsparseMatrix",
-	  function(x, arr.ind) {
-	      if(arr.ind) which(as(x, "TsparseMatrix"), arr.ind=TRUE)
+	  function(x, arr.ind, useNames = TRUE) {
+	      if(arr.ind) which(as(x, "TsparseMatrix"), arr.ind=TRUE, useNames=useNames)
 	      else as(x, "sparseVector")@i
 	  })
 setMethod("which", "lsparseMatrix",
-	  function(x, arr.ind) {
-	      if(arr.ind) which(as(x, "TsparseMatrix"), arr.ind=TRUE)
+	  function(x, arr.ind, useNames = TRUE) {
+	      if(arr.ind) which(as(x, "TsparseMatrix"), arr.ind=TRUE, useNames=useNames)
 	      else which(as(x, "sparseVector"))
 	  })
 
+## FIXME?:  not 100% compatible to "base :: which" -- here useNames=FALSE hardcoded!
 which.ngT <- function(x, arr.ind)
     if(arr.ind) cbind(x@i, x@j) + 1L else as(x, "sparseVector")@i
 setMethod("which", "ngTMatrix", which.ngT)
@@ -97,6 +102,7 @@ setMethod("which", "ntTMatrix", function(x, arr.ind)
 setMethod("which", "nsTMatrix", function(x, arr.ind)
 	  which.ngT(as(x, "generalMatrix"), arr.ind))
 
+## FIXME?:  not 100% compatible to "base :: which" -- here useNames=FALSE hardcoded!
 which.lgT <- function(x, arr.ind) {
     if(arr.ind) {
 	iT <- is1(x@x)

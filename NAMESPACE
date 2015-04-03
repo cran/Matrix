@@ -27,7 +27,8 @@ importFrom("methods",
 
 
 ## Generics and functions defined in this package
-export("Cholesky", ".SuiteSparse_version",
+export("%&%",
+       "Cholesky", ".SuiteSparse_version",
        "Diagonal", ".symDiagonal", ".sparseDiagonal",
        "Hilbert", "KhatriRao",
        "Matrix",
@@ -46,6 +47,7 @@ export("Cholesky", ".SuiteSparse_version",
        ## "mkDet", # <- useful in other packages (Rmpfr, gmp) .. hmm --> 'stats' ?
        ## FIXME: why exactly these and not e.g. dsp2dsy and many more?
        ".dsy2mat", ".dsy2dsp", ".dxC2mat", ".T2Cmat", "..2dge", ".dense2sy",
+       ".C2nC", ".nC2d", ".nC2l",
        ".diag.dsC",# -> R/dsCMatrix.R --has FIXME
        ".solve.dgC.chol", ".solve.dgC.qr",
        "diagN2U", "diagU2N", ".diagU2N", ".diag2tT", ".diag2sT", ".diag2mat",
@@ -54,8 +56,8 @@ export("Cholesky", ".SuiteSparse_version",
        "expm",
        "facmul", "fac2sparse", "fac2Sparse",
        "forceSymmetric",
-       ## 'graph' package (and class) related:
-       "T2graph", "graph2T",
+       "T2graph", "graph2T", ## <- 'graph' package (and class) related
+       "anyDuplicatedT", "uniqTsparse",
        "isTriangular",
        "isDiagonal",
        "isLDL",
@@ -87,6 +89,7 @@ if(getRversion() < "2.15.0")
     export(".M.classEnv")
 
 ## substitute for using  cbind() / rbind()
+## .Deprecated() for R version >= 3.2.0 [2015-04]:
 export("cBind",
        "rBind")
 

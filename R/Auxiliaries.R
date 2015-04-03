@@ -22,7 +22,7 @@ any0 <- function(x) .Call(R_any0, x)
 ## These work "identically" for  1 ('==' TRUE)  and 0 ('==' FALSE)
 ##	(but give a warning for "double"  1 or 0)
 ## TODO: C versions of these would be faster
-allTrue  <- function(x) all(x)  && !any(is.na(x))
+allTrue  <- function(x) all(x) && !anyNA(x)
 
 
 ## Note that mode(<integer>) = "numeric" -- as0(), as1() return "double"
@@ -233,7 +233,7 @@ detSparseLU <- function(x, logarithm = TRUE, ...) {
     ll <- lu(x, errSing = FALSE)
     ##          ^^^^^^^^^^^^^^^ no error in case of singularity
     if(identical(NA, ll)) { ## LU-decomposition failed with singularity
-	return(mkDet(ldet=if(any(is.na(x))) NaN else -Inf,
+	return(mkDet(ldet = if(anyNA(x)) NaN else -Inf,
 		     logarithm=logarithm, sig = 1L))
     }
     ## else
@@ -730,22 +730,12 @@ uniqTsparse <- function(x, class.x = c(class(x))) {
     ## and as() are based on C code  (all of them?)
     ##
     ## FIXME: Do it fast for the case where 'x' is already 'uniq'
-
-    switch(class.x,
-	   "dgTMatrix" = as(as(x, "dgCMatrix"), "dgTMatrix"),
-	   "dsTMatrix" = as(as(x, "dsCMatrix"), "dsTMatrix"),
-	   "dtTMatrix" = as(as(x, "dtCMatrix"), "dtTMatrix"),
-	   ## do we need this for "logical" ones, there's no sum() there!
-	   "lgTMatrix" = as(as(x, "lgCMatrix"), "lgTMatrix"),
-	   "lsTMatrix" = as(as(x, "lsCMatrix"), "lsTMatrix"),
-	   "ltTMatrix" = as(as(x, "ltCMatrix"), "ltTMatrix"),
-	   ## do we need this for "logical" ones, there's no sum() there!
-	   "ngTMatrix" = as(as(x, "ngCMatrix"), "ngTMatrix"),
-	   "nsTMatrix" = as(as(x, "nsCMatrix"), "nsTMatrix"),
-	   "ntTMatrix" = as(as(x, "ntCMatrix"), "ntTMatrix"),
-	   ## otherwise:
-	   stop(gettextf("not yet implemented for class %s", dQuote(class.x)),
-		domain = NA))
+    if(extends(class.x, "TsparseMatrix")) {
+	tri <- extends(class.x, "triangularMatrix")
+	.Call(Csparse_to_Tsparse, .Call(Tsparse_to_Csparse, x, tri), tri)
+    } else
+	stop(gettextf("not yet implemented for class %s", dQuote(class.x)),
+	     domain = NA)
 }
 
 ## Note: maybe, using
@@ -753,14 +743,13 @@ uniqTsparse <- function(x, class.x = c(class(x))) {
 ## would be slightly more efficient than as( <dgC> , "dgTMatrix")
 ## but really efficient would be to use only one .Call(.) for uniq(.) !
 
-## Earlier was:
-## drop0 <- function(x, clx = c(class(x)), tol = 0) {
 drop0 <- function(x, tol = 0, is.Csparse = NA) {
     .Call(Csparse_drop,
-	  if(isTRUE(is.Csparse) || is.na(is.Csparse) && is(x, "CsparseMatrix")) x else
-          as(x, "CsparseMatrix"),
+	  if(isTRUE(is.Csparse) || is.na(is.Csparse) && is(x, "CsparseMatrix"))
+	      x else as(x, "CsparseMatrix"),
 	  tol)
 }
+
 
 uniq <- function(x) {
     if(is(x, "TsparseMatrix")) uniqTsparse(x) else
@@ -773,10 +762,11 @@ asTuniq <- function(x) {
 
 ## is 'x' a uniq Tsparse Matrix ?
 is_not_uniqT <- function(x, di = dim(x))
-    is.unsorted(x@j) || anyDuplicated(.Call(m_encodeInd2, x@i, x@j, di, FALSE, FALSE))
+    is.unsorted(x@j) || anyDuplicatedT(x, di)
 
 ## is 'x' a TsparseMatrix with duplicated entries (to be *added* for uniq):
-is_duplicatedT <- function(x, di = dim(x))
+is_duplicatedT <- # <- keep old name for a while, as ../inst/test-tools-Matrix.R has used it
+anyDuplicatedT <- function(x, di = dim(x))
     anyDuplicated(.Call(m_encodeInd2, x@i, x@j, di, FALSE, FALSE))
 
 
@@ -807,6 +797,10 @@ fixupDense <- function(m, from, cldm = getClassDef(class(m))) {
     }
     m
 }
+
+##' @title Transform {vectors, matrix, Matrix, ...} to  dgeMatrix
+##' @export
+..2dge <- function(from) .Call(dup_mMatrix_as_dgeMatrix, from)
 
 ## -> ./ldenseMatrix.R :
 l2d_Matrix <- function(from, cl = MatrixClass(class(from)), cld = getClassDef(cl)) {
@@ -968,10 +962,9 @@ l2d_meth <- function(x) {
     else .M.kindC(clx)
 }
 
-.M.kindC <- function(clx) { ## 'clx': class() *or* classdefinition
+.M.kindC <- function(clx, ex = extends(clx)) { ## 'clx': class() *or* classdefinition
     if(is.character(clx))		# < speedup: get it once
-        clx <- getClassDef(clx)
-    ex <- extends(clx)
+	clx <- getClassDef(clx)
     if(any(ex == "sparseVector")) {
 	## must work for class *extending* "dsparseVector" ==> cannot use  (clx@className) !
 	if     (any(ex == "dsparseVector")) "d"
@@ -1116,8 +1109,6 @@ as_Csp2 <- function(x) {
     if(is(x, "triangularMatrix")) .Call(Csparse_diagU2N, x) else x
 }
 
-.gC2sym <- function(x, uplo) .Call(Csparse_general_to_symmetric, x, uplo)
-
 ## 'cl'   : class() *or* class definition of from
 as_gCsimpl2 <- function(from, cl = class(from))
     as(from, paste0(.M.kind(from, cl), "gCMatrix"))
@@ -1164,7 +1155,7 @@ as_CspClass <- function(x, cl) {
     ##(extends(cld, "diagonalMatrix") && isDiagonal(x)) ||
     if (extends(cld, "symmetricMatrix") && isSymmetric(x))
         forceSymmetric(as(x,"CsparseMatrix"))
-    else if (extends(cld, "triangularMatrix") && (iT <- isTriangular(x)))
+    else if (extends(cld, "triangularMatrix") && isTriangular(x))
 	as(x, cl)
     else if(is(x, "CsparseMatrix")) x
     else as(x, paste0(.M.kind(x, cld), "gCMatrix"))
@@ -1208,7 +1199,7 @@ try_as <- function(x, classes, tryAnyway = FALSE) {
 
 
 ## For *dense* matrices
-isTriMat <- function(object, upper = NA) {
+isTriMat <- function(object, upper = NA, ...) {
     ## pretest: is it square?
     d <- dim(object)
     if(d[1] != d[2]) return(FALSE)
@@ -1231,7 +1222,7 @@ isTriMat <- function(object, upper = NA) {
 }
 
 ## For Tsparse matrices:
-isTriT <- function(object, upper = NA) {
+isTriT <- function(object, upper = NA, ...) {
     ## pretest: is it square?
     d <- dim(object)
     if(d[1] != d[2]) return(FALSE)
@@ -1253,7 +1244,7 @@ isTriT <- function(object, upper = NA) {
 }
 
 ## For Csparse matrices
-isTriC <- function(object, upper = NA) {
+isTriC <- function(object, upper = NA, ...) {
     ## pretest: is it square?
     d <- dim(object)
     if(d[1] != d[2]) return(FALSE)
@@ -1312,12 +1303,10 @@ isTriC <- function(object, upper = NA) {
             ## -> has 'uplo'  differentiate between packed and unpacked
 
 ### .......... FIXME ...............
-
-            packed <- isPacked(object)
-            if(object@uplo == "U") {
-            } else { ## uplo == "L"
-            }
-
+	    ## packed <- isPacked(object)
+	    ## if(object@uplo == "U") {
+	    ## } else { ## uplo == "L"
+	    ## }
 ### very cheap workaround
 	    all0(as.matrix(object)[rep_len(c(FALSE, rep.int(TRUE,n)), n^2)])
         }

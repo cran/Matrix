@@ -140,23 +140,31 @@ setClass("lsparseMatrix", representation("VIRTUAL"),
 
 if(FALSE) { ##--not yet--
 setClass("isparseMatrix", representation("VIRTUAL"),
-	 contains = c("lMatrix", "sparseMatrix"))
+	 contains = c("iMatrix", "sparseMatrix"))
 }
 
 ## these are the "pattern" matrices for "symbolic analysis" of sparse OPs:
 setClass("nsparseMatrix", representation("VIRTUAL"),
 	 contains = c("nMatrix", "sparseMatrix"))
 
-if(FALSE) { ##-- a nice idea --- but needs more careful method re-definitions
-            ##-- such that the *correct* methods are dispatched:
-## Trying to use more economical method defs:
+## More Class Intersections {for method dispatch}:
+if(FALSE) { ## this is "natural" but gives WARNINGs when other packages use "it"
 setClass("dCsparseMatrix", representation("VIRTUAL"),
 	 contains = c("CsparseMatrix", "dsparseMatrix"))
 setClass("lCsparseMatrix", representation("VIRTUAL"),
 	 contains = c("CsparseMatrix", "lsparseMatrix"))
 setClass("nCsparseMatrix", representation("VIRTUAL"),
 	 contains = c("CsparseMatrix", "nsparseMatrix"))
+
+## dense general
+setClass("geMatrix", representation("VIRTUAL"),
+	 contains = c("denseMatrix", "generalMatrix"))
+
+} else { ## ----------- a version that maybe works better for other pkgs ---------
+
+ ##--> setClassUnion() ... below
 }
+
 
 ## ------------------ Proper (non-virtual) Classes ----------------------------
 
@@ -540,12 +548,12 @@ setClass("isRMatrix",
 setClass("indMatrix", representation(perm = "integer"),
 	 contains = c("sparseMatrix", "generalMatrix"),
 	 validity = function(object) {
-	     n <-  object@Dim[1]
-	     d <-  object@Dim[2]
+	     n <- object@Dim[1]
+	     d <- object@Dim[2]
 	     perm <- object@perm
 	     if (length(perm) != n)
 		 return(paste("length of 'perm' slot must be", n))
-	     if(n > 0 && (any(perm > d) | any(perm < 1)))
+	     if(n > 0 && (any(perm > d) || any(perm < 1)))
 		 return("'perm' slot is not a valid index")
 	     TRUE
 	 })
@@ -694,6 +702,17 @@ setClassUnion("xMatrix", ## those Matrix classes with an 'x' slot
                 "lMatrix",
                 "ndenseMatrix",
                 "zMatrix"))
+
+if(TRUE) { ##--- variant of setClass("dCsparse..." ..) etc working better for other pkgs -----
+
+setClassUnion("dCsparseMatrix", members = c("dgCMatrix", "dtCMatrix", "dsCMatrix"))
+setClassUnion("lCsparseMatrix", members = c("lgCMatrix", "ltCMatrix", "lsCMatrix"))
+setClassUnion("nCsparseMatrix", members = c("ngCMatrix", "ntCMatrix", "nsCMatrix"))
+
+## dense general
+setClassUnion("geMatrix", members = c("dgeMatrix", "lgeMatrix", "ngeMatrix"))
+}
+
 
 
 ## Definition  Packed := dense with length( . @x) < prod( . @Dim)

@@ -340,13 +340,14 @@ setMethod("[", signature(x = "abIndex", i = "index"),
 	  function (x, i, j, ..., drop)
       {
           switch(x@kind,
-                 "rleDiff" = {
-                     ## intIv() in ./sparseVector.R -- not memory-efficient (??)
-                     n <- length(x)
-                     ii <- intIv(i, n) ## ii : 1-based integer indices
-                     d <- x@rleD
-                     ## Now work with the equivalent of
-                     ##   cumsum(c(d@first, rep.int(d@rle$values, d@rle$lengths)))
+		 "rleDiff" = {
+		     ## FIXME
+		     ## intIv() in ./sparseVector.R -- not memory-efficient (??)
+		     ## n <- length(x)
+		     ## ii <- intIv(i, n) ## ii : 1-based integer indices
+		     ## d <- x@rleD
+		     ## Now work with the equivalent of
+		     ##   cumsum(c(d@first, rep.int(d@rle$values, d@rle$lengths)))
 
                      stop("<abIndex>[i]  is not yet implemented")
                  },
@@ -423,7 +424,7 @@ setMethod("Summary", signature(x = "abIndex", na.rm = "ANY"),
                      switch(.Generic,
                             "all" = {
                                 ## these often, but *not* always come in pairs
-                                en <- ends.rleD(d)
+				## en <- ends.rleD(d)
                                 ## so maybe it does not really help!
 
                                 stop("all(<abIndex>) is not yet implemented")
@@ -519,7 +520,7 @@ setMethod("Arith", signature(e1 = "abIndex", e2 = "numLike"),
 		     },
 		     "/" = {
                          if(is0(e2) ## division by 0
-                            && length(unique(sign(ee <- ends.rleD(e1@rleD)))) > 1) {
+                            && length(unique(sign(ends.rleD(e1@rleD)))) > 1) {
                              ## at least one subsequence contains 0, i.e., changes sign:
 			     warning("x / 0 for an <abIndex> x with sign-change\n no longer representable as 'rleDiff'")
                              return(vec2abI(abI2num(e1) / 0))
@@ -692,6 +693,7 @@ setAs("abIndex", "seqMat", function(from)
       ## we need to care for the "length 1" stretches:
       if(any(nonPair <- le[2* seq_len(m2 <- m %/% 2)] != 1)) {
 
+          m2 + n + va + nonPair # <- "dummy" using "unused"
           ## an "easy" (but not so efficient when 'm' is "large")
           ## way would be to "make these" into pairs, then work for that case...
       }

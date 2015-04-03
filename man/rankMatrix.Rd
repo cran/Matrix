@@ -151,7 +151,8 @@ set.seed(42)
 f1 <- factor(sample(50, 1000, replace=TRUE))
 f2 <- factor(sample(50, 1000, replace=TRUE))
 f3 <- factor(sample(50, 1000, replace=TRUE))
-D <- t(do.call('rBind', lapply(list(f1,f2,f3), as, 'sparseMatrix')))
+rbind. <- if(getRversion() < "3.2.0") rBind else rbind
+D <- t(do.call(rbind., lapply(list(f1,f2,f3), as, 'sparseMatrix')))
 dim(D); nnzero(D) ## 1000 x 150 // 3000 non-zeros (= 2\%)
 stopifnot(rankMatrix(D,           method='qr') == 148,
 	  rankMatrix(crossprod(D),method='qr') == 148)

@@ -230,15 +230,22 @@ SEXP ltrMatrix_getDiag(SEXP x) {
 }
 
 #define SET_trMatrix_Diag(_C_TYPE_, _SEXP_)				\
+    if ('U' == diag_P(x)[0])						\
+	error(_("cannot set diag() as long as 'diag = \"U\"'"));	\
+			    /* careful to recycle RHS value: */		\
     int n = INTEGER(GET_SLOT(x, Matrix_DimSym))[0];			\
-    SEXP ret = PROTECT(duplicate(x));					\
-    SEXP r_x = GET_SLOT(ret, Matrix_xSym);				\
+    int l_d = LENGTH(d); Rboolean d_full = (l_d == n);			\
+    if (!d_full && l_d != 1)						\
+	error(_("replacement diagonal has wrong length"));		\
+    SEXP ret = PROTECT(duplicate(x)),					\
+	r_x = GET_SLOT(ret, Matrix_xSym);				\
     _C_TYPE_ *dv = _SEXP_(d),						\
 	     *rv = _SEXP_(r_x);						\
 									\
-    if ('U' == diag_P(x)[0]) 						\
-	error(_("cannot set diag() as long as 'diag = \"U\"'"));        \
-    for (int i = 0; i < n; i++) rv[i * (n + 1)] = dv[i];		\
+    if(d_full) for (int i = 0; i < n; i++)				\
+	rv[i * (n + 1)] = dv[i];					\
+    else for (int i = 0; i < n; i++)					\
+	rv[i * (n + 1)] = *dv;						\
 									\
     UNPROTECT(1);							\
     return ret

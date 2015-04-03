@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Matrix 1.1-5\n"
-"POT-Creation-Date: 2015-01-19 10:40\n"
+"Project-Id-Version: Matrix 1.2-0\n"
+"POT-Creation-Date: 2015-03-27 10:18\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -412,6 +412,9 @@ msgstr ""
 msgid "the %d-th (sub)-diagonal (k = %d) is too short; filling with NA's"
 msgstr ""
 
+msgid "resulting x-slot has different type than x's or y's"
+msgstr ""
+
 msgid "'A' must be a square matrix"
 msgstr ""
 
@@ -523,9 +526,6 @@ msgstr ""
 msgid "coercion from list(i1,...,ik, d) to \"indMatrix\" failed.\n All entries must be integer valued and the number of columns, d, not smaller\n than the maximal index i*."
 msgstr ""
 
-msgid "not a skinny matrix"
-msgstr ""
-
 msgid "the number of non-zero entries differs from nrow(.)"
 msgstr ""
 
@@ -563,6 +563,9 @@ msgid "not-yet-implemented method for <%s> %%*%% <%s>"
 msgstr ""
 
 msgid "non-conformable arguments"
+msgstr ""
+
+msgid "'boolArith = %d' not yet implemented"
 msgstr ""
 
 msgid "rankMatrix(<large sparse Matrix>, method = '%s') coerces to dense matrix.\n Probably should rather use method = 'qr' !?"

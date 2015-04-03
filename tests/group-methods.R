@@ -21,9 +21,9 @@ stopifnot(all(signif(res) == signif(res, 6)),
 ## exp(): component wise
 signif(dd <- (expm(xpx) - exp(xpx)) / 1e34, 3)# 7 x 7
 
-stopifnot(validObject(xpx),
-          validObject(xpy),
-          validObject(dd))
+validObject(xpx)
+validObject(xpy)
+validObject(dd)
 
 ## "Math" also, for log() and [l]gamma() which need special treatment
 stopifnot(identical(exp(res)@x, exp(res@x)),
@@ -122,13 +122,14 @@ l3 <- upper.tri(matrix(, 3, 3))
 (ll3 <- Matrix(l3))
 dt3 <- (99* Diagonal(3) + (10 * ll3 + Diagonal(3)))/10
 (dsc <- crossprod(ll3))
-stopifnot(validObject(ll3), validObject(dsc),
-          identical(ll3, t(t(ll3))),
-          identical(dsc, t(t(dsc))),
-          isValid(dsc + 3 * Diagonal(nrow(dsc)), "dsCMatrix"),
-          isValid(dt3, "triangularMatrix"),   # remained triangular
-          isValid(dt3 > 0, "triangularMatrix")# ditto
-          )
+stopifnot(identical(ll3, t(t(ll3))),
+	  identical(dsc, t(t(dsc))))
+stopifnotValid(ll3, "ltCMatrix")
+stopifnotValid(dsc, "dsCMatrix")
+stopifnotValid(dsc + 3 * Diagonal(nrow(dsc)), "dsCMatrix")
+stopifnotValid(dt3, "triangularMatrix")    # remained triangular
+stopifnotValid(dt3 > 0, "triangularMatrix")# ditto
+
 
 (lm1 <- dsc >= 1) # now ok
 (lm2 <- dsc == 1) # now ok

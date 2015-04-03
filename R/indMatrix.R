@@ -60,7 +60,6 @@ setAs("nMatrix", "indMatrix",
       function(from) {
 	  from <- as(as(from, "TsparseMatrix"), "ngTMatrix")
 	  n <- (d <- from@Dim)[1]
-	  if(n < d[2]) stop("not a skinny matrix")
 	  if(length(i <- from@i) != n)
 	      stop("the number of non-zero entries differs from nrow(.)")
 	  if((need.sort <- is.unsorted(i))) {
@@ -127,9 +126,9 @@ setMethod("tcrossprod", signature(x = "Matrix", y = "indMatrix"),
 setMethod("tcrossprod", signature(x = "indMatrix", y = "indMatrix"),
 	  function(x, y) { mmultCheck(x,y, 3L); x[, y@perm] })
 
-
 setMethod("crossprod", signature(x = "indMatrix", y = "missing"),
-	  function(x, y=NULL) Diagonal(x=as.numeric(table(x@perm))))
+	  function(x, y=NULL) Diagonal(x = tabulate(x@perm, nbins=x@Dim[2L])))
+
 setMethod("tcrossprod", signature(x = "indMatrix", y = "missing"),
 	  function(x, y=NULL) x[,x@perm])
 
@@ -137,12 +136,9 @@ setMethod("tcrossprod", signature(x = "indMatrix", y = "missing"),
 setMethod("kronecker", signature(X = "indMatrix", Y = "indMatrix"),
 	  function (X, Y, FUN = "*", make.dimnames = FALSE, ...) {
 	      if (FUN != "*") stop("kronecker method must use default 'FUN'")
-## 	      perm <- as.integer(interaction(rep(X@perm, each =Y@Dim[1]),
-## 					     rep(Y@perm, times=X@Dim[1]),
-## 					     lex.order=TRUE))
-              ## this is wrong if any of the columns in X or Y are empty because interaction()
-              ## drops non-occuring levels from a non-factor. Explicitly defining a factor
-              ## with levels 1:ncol(.) avoids that.
+              ## Explicitly defining a factor with levels 1:ncol(.) avoids that
+              ## interaction() drops non-occuring levels when any of the
+              ## columns in X or Y are empty:
               perm <-  as.integer(interaction(factor(rep(X@perm, each =Y@Dim[1]),
                                                      levels=seq_len(X@Dim[2])),
                                               factor(rep.int(Y@perm, times=X@Dim[1]),

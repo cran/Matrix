@@ -1,3 +1,5 @@
+/** @file chm_common.c
+ */
 #include "chm_common.h"
 #include "Mutils.h"
 
@@ -96,12 +98,31 @@ SEXP CHM_set_common_env(SEXP rho) {
     return R_NilValue;
 }
 
+/** @brief stype := "symmetry type".
+ *
+ *  ./CHOLMOD/Include/cholmod_core.h says about  'int stype' entry of cholmod_sparse_struct:
+ *    ------------------------------
+ * 0:  matrix is "unsymmetric": use both upper and lower triangular parts
+ *     (the matrix may actually be symmetric in pattern and value, but
+ *     both parts are explicitly stored and used).  May be square or
+ *     rectangular.
+ * >0: matrix is square and symmetric, use upper triangular part.
+ *     Entries in the lower triangular part are ignored.
+ * <0: matrix is square and symmetric, use lower triangular part.
+ *     Entries in the upper triangular part are ignored.
+ */
 static int stype(int ctype, SEXP x)
 {
     if ((ctype % 3) == 1) return (*uplo_P(x) == 'U') ? 1 : -1;
     return 0;
 }
 
+/** @brief xtype: the _kind_ of numeric (think "x slot") of Cholmod sparse matrices.
+  #define CHOLMOD_PATTERN 0	 pattern only, no numerical values
+  #define CHOLMOD_REAL    1	 a real matrix
+  #define CHOLMOD_COMPLEX 2	 a complex matrix (ANSI C99 compatible)
+  #define CHOLMOD_ZOMPLEX 3	 a complex matrix (MATLAB compatible)
+*/
 static int xtype(int ctype)
 {
     switch(ctype / 3) {
@@ -404,6 +425,42 @@ SEXP chm_sparse_to_SEXP(CHM_SP a, int dofree, int uploT, int Rkind,
 }
 #undef DOFREE_MAYBE
 
+
+/**
+* Change the "type" of a cholmod_sparse matrix, i.e. modify it "in place"
+*
+* @param to_xtype requested xtype (pattern, real, complex, zomplex)
+* @param A sparse matrix to change
+* @param Common cholmod's common
+*
+* @return TRUE/FALSE , TRUE iff success
+*/
+Rboolean chm_MOD_xtype(int to_xtype, cholmod_sparse *A, CHM_CM Common) {
+//     *MOD*: shouting, as A is modified in place
+
+/* --------------------------------------------------------------------------
+ * cholmod_sparse_xtype: change the xtype of a sparse matrix
+ * --------------------------------------------------------------------------
+  int cholmod_sparse_xtype
+  (
+      // ---- input ----
+      int to_xtype,	//
+      // ---- in/out ---
+      cholmod_sparse *A, //
+      // ---------------
+      cholmod_common *Common
+  ) ;
+
+  int cholmod_l_sparse_xtype (int, cholmod_sparse *, cholmod_common *) ;
+*/
+    if((A->itype) == CHOLMOD_LONG) {
+	return (Rboolean) cholmod_l_sparse_xtype (to_xtype, A, Common);
+    } else {
+	return (Rboolean) cholmod_sparse_xtype   (to_xtype, A, Common);
+    }
+}
+
+
 /**
  * Populate ans with the pointers from x and modify its scalar
  * elements accordingly. Note that later changes to the contents of
@@ -615,7 +672,7 @@ SEXP chm_triplet_to_SEXP(CHM_TR a, int dofree, int uploT, int Rkind,
 CHM_DN as_cholmod_dense(CHM_DN ans, SEXP x)
 {
 #define _AS_cholmod_dense_1						\
-    static const char *valid[] = { MATRIX_VALID_dense, ""};		\
+    static const char *valid[] = { MATRIX_VALID_ge_dense, ""};		\
     int dims[2], ctype = Matrix_check_class_etc(x, valid), nprot = 0;	\
 									\
     if (ctype < 0) {		/* not a classed matrix */		\
@@ -671,7 +728,7 @@ CHM_DN as_cholmod_dense(CHM_DN ans, SEXP x)
 /* version of as_cholmod_dense() that produces a cholmod_dense matrix
  * with REAL 'x' slot -- i.e. treats "nMatrix" as "lMatrix" -- as only difference;
  * Not just via a flag in as_cholmod_dense() since that has fixed API */
-CHM_DN as_cholmod_x_dense(cholmod_dense *ans, SEXP x)
+CHM_DN as_cholmod_x_dense(CHM_DN ans, SEXP x)
 {
     _AS_cholmod_dense_1;
 
@@ -686,6 +743,28 @@ CHM_DN as_cholmod_x_dense(cholmod_dense *ans, SEXP x)
 
 #undef _AS_cholmod_dense_1
 #undef _AS_cholmod_dense_2
+
+/**
+* Transpose a cholmod_dense matrix  ("too trivial to be in CHOLMOD?")
+*
+* @param ans (pointer to) already allocated result of correct dimension
+* @param x   (pointer to) cholmod_dense matrix to be transposed
+*
+*/
+void chm_transpose_dense(CHM_DN ans, CHM_DN x)
+{
+    if (x->xtype != CHOLMOD_REAL)
+	error(_("chm_transpose_dense(ans, x) not yet implemented for %s different from %s"),
+	      "x->xtype", "CHOLMOD_REAL");
+    double *xx = x->x, *ansx = ans->x;
+    // Inspired from R's do_transpose() in .../R/src/main/array.c :
+    int i,j, nrow = x->nrow, len = x->nzmax, l_1 = len-1;
+    for (i = 0, j = 0; i < len; i++, j += nrow) {
+	if (j > l_1) j -= l_1;
+	ansx[i] = xx[j];
+    }
+    return;
+}
 
 void R_cholmod_error(int status, const char *file, int line, const char *message)
 {
@@ -748,20 +827,19 @@ int R_cholmod_start(CHM_CM c)
  * @param a matrix to be converted
  * @param dofree 0 - don't free a; > 0 cholmod_free a; < 0 Free a
  * @param Rkind type of R matrix to be generated (special to this function)
- * @param dn   -- dimnames [list(.,.) or NULL]
+ * @param dn   -- dimnames [list(.,.) or NULL;  __already__ transposed when transp is TRUE ]
+ * @param transp Rboolean, if TRUE, the result must be a copy of  t(a), i.e., "a transposed"
  *
  * @return SEXP containing a copy of a
  */
-
-/* FIXME: should also have args  (int uploST, char *diag) */
-
-SEXP chm_dense_to_SEXP(CHM_DN a, int dofree, int Rkind, SEXP dn)
+SEXP chm_dense_to_SEXP(CHM_DN a, int dofree, int Rkind, SEXP dn, Rboolean transp)
 {
+/* FIXME: should also have args  (int uploST, char *diag) */
     SEXP ans;
     char *cl = ""; /* -Wall */
     int *dims, ntot;
 
-    PROTECT(dn); /* << (why? -- just cut&paste from chm_dense_to_mat.. below*/
+    PROTECT(dn); // <-- no longer protected in caller
 
 #define DOFREE_de_MAYBE				\
     if (dofree > 0) cholmod_free_dense(&a, &c);	\
@@ -792,22 +870,44 @@ SEXP chm_dense_to_SEXP(CHM_DN a, int dofree, int Rkind, SEXP dn)
     ans = PROTECT(NEW_OBJECT(MAKE_CLASS(cl)));
 				/* allocate and copy common slots */
     dims = INTEGER(ALLOC_SLOT(ans, Matrix_DimSym, INTSXP, 2));
-    dims[0] = a->nrow; dims[1] = a->ncol;
+    if(transp) {
+	dims[1] = a->nrow; dims[0] = a->ncol;
+    } else {
+	dims[0] = a->nrow; dims[1] = a->ncol;
+    }
     ntot = dims[0] * dims[1];
     if (a->d == a->nrow) { /* copy data slot -- always present in dense(!) */
 	if (a->xtype == CHOLMOD_REAL) {
 	    int i, *m_x;
-	    double *a_x = (double *) a->x;
+	    double *ansx, *a_x = (double *) a->x;
 	    switch(Rkind) {
 	    case 0:
-		Memcpy(REAL(ALLOC_SLOT(ans, Matrix_xSym, REALSXP, ntot)),
-		       a_x, ntot);
+		ansx = REAL(ALLOC_SLOT(ans, Matrix_xSym, REALSXP, ntot));
+		if(transp) {
+		    // Inspired from R's do_transpose() in .../R/src/main/array.c :
+		    int i,j, nrow = a->nrow, len = ntot, l_1 = len-1;
+		    for (i = 0, j = 0; i < len; i++, j += nrow) {
+			if (j > l_1) j -= l_1;
+			ansx[i] = a_x[j];
+		    }
+		} else {
+		    Memcpy(ansx, a_x, ntot);
+		}
 		break;
 	    case -1: /* nge*/
 	    case 1:  /* lge*/
 		m_x = LOGICAL(ALLOC_SLOT(ans, Matrix_xSym, LGLSXP, ntot));
-		for (i=0; i < ntot; i++)
-		    m_x[i] = ISNAN(a_x[i]) ? NA_LOGICAL : (a_x[i] != 0);
+		if(transp) {
+		    // Inspired from R's do_transpose() in .../R/src/main/array.c :
+		    int i,j, nrow = a->nrow, len = ntot, l_1 = len-1;
+		    for (i = 0, j = 0; i < len; i++, j += nrow) {
+			if (j > l_1) j -= l_1;
+			m_x[i] = a_x[j];
+		    }
+		} else {
+		    for (i=0; i < ntot; i++)
+			m_x[i] = ISNAN(a_x[i]) ? NA_LOGICAL : (a_x[i] != 0);
+		}
 		break;
 	    }
 	}

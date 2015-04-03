@@ -10,10 +10,14 @@ setAs("Matrix", "denseMatrix",  function(from) as_dense(from))
 ## Maybe TODO:
 ## setAs("Matrix", "nMatrix", function(from) ....)
 
+## Anything: we build on  as.matrix(.) :
+## ---       authors can always provide their own specific  setAs(*, "Matrix")
+setAs("ANY", "Matrix", function(from) Matrix(as.matrix(from)))
+
 ## Most of these work; this is a last resort:
-setAs(from = "Matrix", to = "matrix", # do *not* call base::as.matrix() here:
+setAs("Matrix", "matrix", # do *not* call base::as.matrix() here:
       function(from) .bail.out.2("coerce", class(from), class(to)))
-setAs(from = "matrix", to = "Matrix", function(from) Matrix(from))
+setAs("matrix", "Matrix", function(from) Matrix(from))
 
 ## ## probably not needed eventually:
 ## setAs(from = "ddenseMatrix", to = "matrix",
@@ -494,7 +498,7 @@ setMethod("[", signature(x = "Matrix", i = "ANY", j = "ANY", drop = "ANY"),
 
 	## Note: current method dispatch seems not to call this ever
 
-	if(!any(is.na(i)) && all(i)) ## select everything
+	if(!anyNA(i) && all(i)) ## select everything
 	    x
 	else ## not selecting all -> result is *NOT* diagonal/triangular/symmetric/..
 	    ## keep j missing, but  drop = "logical"
@@ -619,7 +623,7 @@ setMethod("[", signature(x = "Matrix", i = "matrix", j = "missing", drop="missin
 	if(!is.integer(i)) storage.mode(i) <- "integer"
 	if(any(i < 0))
 	    stop("negative values are not allowed in a matrix subscript")
-	if(any(is.na(i)))
+	if(anyNA(i))
 	    stop("NAs are not allowed in subscripted assignments")
 	if(any(i0 <- (i == 0))) # remove them
             i <- i[ - which(i0, arr.ind = TRUE)[,"row"], ]

@@ -104,14 +104,19 @@
 \description{The \code{nsparseMatrix} class is a virtual class of sparse
   \emph{\dQuote{pattern}} matrices, i.e., binary matrices conceptually
   with \code{TRUE}/\code{FALSE} entries.  Only the positions of the
-  elements that are \code{TRUE} are stored.  These can be stored in the
-  ``triplet'' form (classes \code{ngTMatrix}, \code{nsTMatrix}, and
-  \code{ntTMatrix} which really contain pairs, not triplets) or in
-  compressed column-oriented form (classes \code{ngCMatrix},
-  \code{nsCMatrix}, and \code{ntCMatrix}) or in compressed row-oriented
-  form (classes \code{ngRMatrix}, \code{nsRMatrix}, and
-  \code{ntRMatrix}).  The second letter in the name of these non-virtual
-  classes indicates \code{g}eneral, \code{s}ymmetric, or \code{t}riangular.
+  elements that are \code{TRUE} are stored.
+
+  These can be stored in the \dQuote{triplet} form
+  (\code{\linkS4class{TsparseMatrix}}, subclasses \code{ngTMatrix},
+  \code{nsTMatrix}, and \code{ntTMatrix} which really contain pairs, not
+  triplets) or in compressed column-oriented form (class
+  \code{\linkS4class{CsparseMatrix}}, subclasses \code{ngCMatrix},
+  \code{nsCMatrix}, and \code{ntCMatrix}) or--\emph{rarely}--in
+  compressed row-oriented form (class \code{\linkS4class{RsparseMatrix}},
+  subclasses \code{ngRMatrix}, \code{nsRMatrix}, and \code{ntRMatrix}).
+  The second letter in the name of these non-virtual classes indicates
+  \code{g}eneral, \code{s}ymmetric, or \code{t}riangular.
+
 }
 \section{Objects from the Class}{
   Objects can be created by calls of the form \code{new("ngCMatrix",

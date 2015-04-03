@@ -100,9 +100,8 @@ solve.dsC.dC <- function(a,b, LDL = NA, tol = .Machine$double.eps) {
 
 setMethod("solve", signature(a = "dsCMatrix", b = "ddenseMatrix"),
 	  function(a, b, LDL = NA, tol = .Machine$double.eps, ...) {
-	      if (class(b) != "dgeMatrix")
-		  b <- .Call(dup_mMatrix_as_dgeMatrix, b)
-	      solve.dsC.mat(a,b, LDL=LDL, tol=tol)
+	      solve.dsC.mat(a, b = if(!is(b, "dgeMatrix")) ..2dge(b) else b,
+			    LDL=LDL, tol=tol)
 	  },
 	  valueClass = "dgeMatrix")
 setMethod("solve", signature(a = "dsCMatrix", b = "denseMatrix"),
@@ -113,12 +112,12 @@ setMethod("solve", signature(a = "dsCMatrix", b = "denseMatrix"),
 
 setMethod("solve", signature(a = "dsCMatrix", b = "matrix"),
 	  function(a, b, LDL = NA, tol = .Machine$double.eps, ...)
-	  solve.dsC.mat(a, .Call(dup_mMatrix_as_dgeMatrix, b), LDL=LDL, tol=tol),
+	  solve.dsC.mat(a, ..2dge(b), LDL=LDL, tol=tol),
 	  valueClass = "dgeMatrix")
 
 setMethod("solve", signature(a = "dsCMatrix", b = "numeric"),
 	  function(a, b, LDL = NA, tol = .Machine$double.eps, ...)
-	  solve.dsC.mat(a, .Call(dup_mMatrix_as_dgeMatrix, b), LDL=LDL, tol=tol),
+	  solve.dsC.mat(a, ..2dge(b), LDL=LDL, tol=tol),
 	  valueClass = "dgeMatrix")
 
 ## <sparse> . <sparse> ------------------------
@@ -197,7 +196,7 @@ setMethod("determinant", signature(x = "dsCMatrix", logarithm = "missing"),
 setMethod("determinant", signature(x = "dsCMatrix", logarithm = "logical"),
 	  function(x, logarithm, ...)
       {
-	  if((n <- x@Dim[1]) <= 1)
+	  if(x@Dim[1] <= 1L)
 	      return(mkDet(diag(x), logarithm))
 	  Chx <- tryCatch(suppressWarnings(Cholesky(x, LDL=TRUE)),
                           error = function(e) NULL)

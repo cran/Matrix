@@ -1,6 +1,5 @@
 
-##' works for vectors, matrix, ..
-..2dge <- function(from) .Call(dup_mMatrix_as_dgeMatrix, from)
+## ..2dge() -> ./Auxiliaries.R
 
 setAs("matrix",  "dgeMatrix", ..2dge)
 setAs("numLike", "dgeMatrix", ..2dge)

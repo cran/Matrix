@@ -329,7 +329,7 @@ if(doExtras) {### {was ./AAA_index.R, MM-only}
     stopifnot(all(C. == N))
 
     print(load(system.file("external", "symA.rda", package="Matrix"))) # "As"
-    stopifnot(isValid(As, "dsCMatrix"), identical(As@factors, list()))
+    stopifnotValid(As, "dsCMatrix"); stopifnot(identical(As@factors, list()))
     R. <- drop0(chol(As))
     stopifnot(1:32 == sort(diag(R.)), ## !
               R.@x == as.integer(R.@x),## so it is an integer-valued chol-decomp !
@@ -358,7 +358,7 @@ if(doExtras) {### {was ./AAA_index.R, MM-only}
 ##---- Symmetric indexing of symmetric Matrix ----------
 m. <- mC
 m.[, c(2, 7:12)] <- 0
-isValid(S <- crossprod(add.simpleDimnames(m.) %% 100), "dsCMatrix")
+stopifnotValid(S <- crossprod(add.simpleDimnames(m.) %% 100), "dsCMatrix")
 ss <- as(S, "matrix")
 ds <- as(S, "denseMatrix")
 ## NA-indexing of *dense* Matrices: should work as traditionally
@@ -540,7 +540,7 @@ for(i in 1:(if(doExtras) 200 else 25)) {
     assertWarning(Nn[1:2,] <- -pi)
     assertWarning(Nn[, 5] <- -pi)
     assertWarning(Nn[2:4, 5:8] <- -pi)
-    stopifnot(isValid(Nn,"nsparseMatrix"))
+    stopifnotValid(Nn,"nsparseMatrix")
     ##
     cat(".")
     if(i %% 10 == 0) cat("\n")
@@ -567,12 +567,15 @@ stopifnot(identical(m0[2,], m0[,2]),
 (m1 <- as(m0, "TsparseMatrix")) # dtTMatrix unitriangular
 (m2 <- as(m0, "CsparseMatrix")) # dtCMatrix unitriangular
 m1g <- as(m1, "generalMatrix")
-stopifnot(is(m1g, "dgTMatrix"))
+tr1 <- as(m1, "denseMatrix") # dtrMatrix unitriangular
+stopifnotValid(m1g, "dgTMatrix")
+diag(tr1) <- 100
+stopifnot(diag(tr1) == 100)# failed when 'diag<-' did not recycle
 assert.EQ.mat(m2[1:3,],    diag(5)[1:3,])
 assert.EQ.mat(m2[,c(4,1)], diag(5)[,c(4,1)])
 stopifnot(identical(m2[1:3,], as(m1[1:3,], "CsparseMatrix")),
-          identical(Matrix:::uniqTsparse(m1[, c(4,2)]),
-                    Matrix:::uniqTsparse(as(m2[, c(4,2)], "TsparseMatrix")))
+          identical(uniqTsparse(m1[, c(4,2)]),
+                    uniqTsparse(as(m2[, c(4,2)], "TsparseMatrix")))
           )## failed in 0.9975-11
 
 (uTr <- new("dtTMatrix", Dim = c(3L,3L), diag="U"))

@@ -100,7 +100,7 @@ setMethod("Compare", signature(e1 = "Matrix", e2 = "Matrix"),
 ## can be done for matching-dim "*geMatrix", and also
 ## matching-{dim + uplo} for *packed* (only!) symmetric+triangular
 .Ops.via.x <- function(e1,e2) {
-    d <- dimCheck(e1, e2)
+    dimCheck(e1, e2)
     e1@x <- callGeneric(e1@x, e2@x)
     e1
 }
@@ -195,7 +195,7 @@ Cmp.Mat.atomic <- function(e1, e2) { ## result will inherit from "lMatrix"
         }
 
         if(remainSparse) {
-            if(!any(is.na(r)) && ((Ar <- all(r)) || !any(r))) {
+            if(!anyNA(r) && ((Ar <- all(r)) || !any(r))) {
                 lClass <- class2(cl, "l") # is "lsparse*"
                 r <- new(lClass)
                 r@Dim <- d
@@ -268,8 +268,8 @@ Ops.x.x <- function(e1, e2)
 		le <- prod(d)
 		isPacked <- function(x) length(x@x) < le
 		Mclass <-
-		    if(sym <- extends(c1, "symmetricMatrix") &&
-			      extends(c2, "symmetricMatrix")) {
+		    if(extends(c1, "symmetricMatrix") &&
+		       extends(c2, "symmetricMatrix")) {
 			if(e1@uplo != e2@uplo)
 			    ## one is upper, one is lower
 			    e2 <- t(e2)
@@ -286,8 +286,8 @@ Ops.x.x <- function(e1, e2)
 			} else
 			    "syMatrix"
 		    }
-		    else if(tri <- extends(c1, "triangularMatrix") &&
-				   extends(c2, "triangularMatrix")) {
+		    else if(extends(c1, "triangularMatrix") &&
+			    extends(c2, "triangularMatrix")) {
 			if(!(geM <- e1@uplo != e2@uplo || isN0(callGeneric(0,0)))) {
 			    p1 <- isPacked(e1)
 			    p2 <- isPacked(e2)
@@ -306,7 +306,7 @@ Ops.x.x <- function(e1, e2)
 				"trMatrix"
 			}
 		    }
-		    else {
+		    else { ## not symmetric, not triangular  ==> "general"
 			geM <- TRUE
 		    }
 		if(geM)
@@ -701,7 +701,7 @@ Logic.Mat.atomic <- function(e1, e2) { ## result will typically be "like" e1:
         }
 
         if(remainSparse) {
-            if(!any(is.na(r)) && ((Ar <- all(r)) || !any(r))) {
+            if(!anyNA(r) && ((Ar <- all(r)) || !any(r))) {
                 lClass <- class2(cl, "l") # is "lsparse*"
                 r <- new(lClass)
                 r@Dim <- d
@@ -1151,7 +1151,7 @@ A.M.n <- function(e1, e2) {
     }
     else { ## non-sparse, since '0 o e2' is not (all) 0
 	r <- as(e1, "matrix")
-	if(length(e2) == 1) {
+	if(l2 == 1) {
 	    r[] <- f0
 	    r[non0ind(e1, getClassDef("dgCMatrix")) + 1L] <- callGeneric(e1@x, e2)
 	    ..2dge(r)
@@ -1191,7 +1191,7 @@ A.n.M <- function(e1, e2) {
     }
     else { ## non-sparse, since '0 o e2' is not (all) 0
 	r <- as(e2, "matrix")
-	if(length(e1) == 1) {
+	if(l1 == 1) {
 	    r[] <- f0
 	    r[non0ind(e2, getClassDef("dgCMatrix")) + 1L] <-
 		callGeneric(e1, e2@x)
@@ -1285,7 +1285,7 @@ setMethod("Compare", signature(e1 = "CsparseMatrix", e2 = "CsparseMatrix"),
 		  shape <- if(T) "t" else if(S) "s" else "g"
 	      }
 
-	      dn <- dimNamesCheck(e1, e2)
+	      dn <- dimNamesCheck(e1, e2) ## <- FIXME: for 'S'; allow staying
               ## the result object:
 	      newC <- sub("^.", "l", MatrixClass(class(e1)))
               ## FIXME: "n" result when e1 & e2 are "n", or even whenever possible
@@ -1441,11 +1441,11 @@ setMethod("Ops", signature(e1 = "ANY", e2 = "sparseVector"),
 setMethod("Ops", signature(e1 = "sparseVector", e2 = "atomicVector"),
 	  function(e1, e2) {
 	      if(length(e2) == 1) { ## scalar ------ special case - "fast"
-		  if(all0(rf <- callGeneric(FALSE, e2))) { # result remains sparse
+		  if(all0(callGeneric(FALSE, e2))) { # result remains sparse
 		      if(is(e1, "nsparseVector")) { # no 'x' slot, i.e. all TRUE
 			  r <- callGeneric(TRUE, e2)
 			  if(is.logical(r)) {
-			      if(isTRUE(at <- all(r))) # (could be NA)
+			      if(isTRUE(all(r))) # (could be NA)
 				  e1	# result unchanged
 			      else
 				  newSpVec("lsparseVector", x = r, e1)
@@ -1473,11 +1473,11 @@ setMethod("Ops", signature(e1 = "sparseVector", e2 = "atomicVector"),
 setMethod("Ops", signature(e1 = "atomicVector", e2 = "sparseVector"),
 	  function(e1, e2) {
 	      if(length(e1) == 1) { ## scalar ------ special case - "fast"
-		  if(all0(rf <- callGeneric(e1, FALSE))) { # result remains sparse
+		  if(all0(callGeneric(e1, FALSE))) { # result remains sparse
 		      if(is(e2, "nsparseVector")) { # no 'x' slot, i.e. all TRUE
 			  r <- callGeneric(e1, TRUE)
 			  if(is.logical(r)) {
-			      if(isTRUE(at <- all(r))) # (could be NA)
+			      if(isTRUE(all(r))) # (could be NA)
 				  e2	# result unchanged
 			      else
 				  newSpVec("lsparseVector", x = r, e2)

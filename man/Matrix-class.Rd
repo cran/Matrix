@@ -20,7 +20,7 @@
 \alias{Summary,Matrix-method}
 \alias{Math2,Matrix-method}
 \alias{mean,Matrix-method}
-% "["             ---> Xtrct-methods.Rd 
+% "["             ---> Xtrct-methods.Rd
 % "[<-"           ---> Subassign-methods.Rd
 %\alias{solve,...} --> solve-methods.Rd
 %\alias{\%*%,... } --> matrix-products.Rd
@@ -72,6 +72,7 @@
 %
 \alias{coerce,Matrix,matrix-method}%
 \alias{coerce,matrix,Matrix-method}
+\alias{coerce,ANY,Matrix-method}
 \alias{coerce,Matrix,denseMatrix-method}
 \alias{coerce,Matrix,CsparseMatrix-method}
 \alias{coerce,Matrix,sparseMatrix-method}
@@ -137,6 +138,9 @@
       \code{as.vector(m)} should be identical to \code{as.vector(as(m,
 	"matrix"))}, implemented more efficiently for some subclasses.}
     \item{as(x, "vector"), as(x, "numeric")}{etc, similarly.}
+
+    \item{coerce}{\code{signature(from = "ANY", to = "Matrix")}: This
+      relies on a correct \code{\link{as.matrix}()} method for \code{from}.}
   }
   There are many more methods that (conceptually should) work for all
   \code{"Matrix"} objects, e.g., \code{\link{colSums}},

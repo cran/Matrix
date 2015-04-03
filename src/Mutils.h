@@ -139,9 +139,18 @@ extern	 /* stored pointers to symbols initialized in R_init_Matrix */
     if(R_has_slot(src, sym))					\
 	SET_SLOT(dest, sym, duplicate(GET_SLOT(src, sym)))
 
-/* TODO: Make this faster for the case where dimnames = list(NULL,NULL)
- *       and hence don't have to be set ! */
-#define SET_DimNames(dest, src) slot_dup(dest, src, Matrix_DimNamesSym)
+static R_INLINE
+void SET_DimNames(SEXP dest, SEXP src) {
+    SEXP dn = GET_SLOT(src, Matrix_DimNamesSym);
+    // Be fast (do nothing!) for the case where dimnames = list(NULL,NULL) :
+    if (!(isNull(VECTOR_ELT(dn,0)) && isNull(VECTOR_ELT(dn,1))))
+	SET_SLOT(dest, Matrix_DimNamesSym, duplicate(dn));
+}
+
+// code in ./Mutils.c :
+SEXP symmetric_DimNames(SEXP dn);
+SEXP R_symmetric_Dimnames(SEXP x);
+void SET_DimNames_symm(SEXP dest, SEXP src);
 
 
 #define uplo_P(_x_) CHAR(STRING_ELT(GET_SLOT(_x_, Matrix_uploSym), 0))
@@ -150,6 +159,8 @@ extern	 /* stored pointers to symbols initialized in R_init_Matrix */
 		     CHAR(STRING_ELT(GET_SLOT(_x_, Matrix_diagSym), 0)) : " ")
 #define class_P(_x_) CHAR(asChar(getAttrib(_x_, R_ClassSymbol)))
 
+
+enum dense_enum { ddense, ldense, ndense };
 
 // Define this "Cholmod compatible" to some degree
 enum x_slot_kind {x_pattern=-1, x_double=0, x_logical=1, x_integer=2, x_complex=3};
@@ -296,6 +307,8 @@ SEXP new_dgeMatrix(int nrow, int ncol);
 SEXP m_encodeInd (SEXP ij,        SEXP di, SEXP orig_1, SEXP chk_bnds);
 SEXP m_encodeInd2(SEXP i, SEXP j, SEXP di, SEXP orig_1, SEXP chk_bnds);
 
+SEXP R_rbind2_vector(SEXP a, SEXP b);
+
 SEXP R_all0(SEXP x);
 SEXP R_any0(SEXP x);
 
@@ -315,11 +328,35 @@ mMatrix_as_geMatrix(SEXP A)
 }
 
 // Keep centralized --- *and* in sync with ../inst/include/Matrix.h :
-#define MATRIX_VALID_dense			\
+#define MATRIX_VALID_ge_dense			\
         "dmatrix", "dgeMatrix",			\
 	"lmatrix", "lgeMatrix",			\
 	"nmatrix", "ngeMatrix",			\
 	"zmatrix", "zgeMatrix"
+
+/* NB:  ddiMatrix & ldiMatrix are part of VALID_ddense / VALID_ldense
+ * --   even though they are no longer "denseMatrix" formally.
+ * CARE: dup_mMatrix_as_geMatrix() code depends on  14 ddense and 6 ldense
+ * ----  entries here :
+*/
+#define MATRIX_VALID_ddense					\
+		    "dgeMatrix", "dtrMatrix",			\
+		    "dsyMatrix", "dpoMatrix", "ddiMatrix",	\
+		    "dtpMatrix", "dspMatrix", "dppMatrix",	\
+		    /* sub classes of those above:*/		\
+		    /* dtr */ "Cholesky", "LDL", "BunchKaufman",\
+		    /* dtp */ "pCholesky", "pBunchKaufman",	\
+		    /* dpo */ "corMatrix"
+
+#define MATRIX_VALID_ldense			\
+		    "lgeMatrix", "ltrMatrix",	\
+		    "lsyMatrix", "ldiMatrix",	\
+		    "ltpMatrix", "lspMatrix"
+
+#define MATRIX_VALID_ndense			\
+		    "ngeMatrix", "ntrMatrix",	\
+		    "nsyMatrix",		\
+		    "ntpMatrix", "nspMatrix"
 
 #define MATRIX_VALID_Csparse			\
  "dgCMatrix", "dsCMatrix", "dtCMatrix",		\
@@ -338,6 +375,23 @@ mMatrix_as_geMatrix(SEXP A)
  "lgRMatrix", "lsRMatrix", "ltRMatrix",		\
  "ngRMatrix", "nsRMatrix", "ntRMatrix",		\
  "zgRMatrix", "zsRMatrix", "ztRMatrix"
+
+#define MATRIX_VALID_tri_Csparse		\
+   "dtCMatrix", "ltCMatrix", "ntCMatrix", "ztCMatrix"
+
+#ifdef __UN_USED__
+#define MATRIX_VALID_tri_sparse			\
+ "dtCMatrix",  "dtTMatrix", "dtRMatrix",	\
+ "ltCMatrix",  "ltTMatrix", "ltRMatrix",	\
+ "ntCMatrix",  "ntTMatrix", "ntRMatrix",	\
+ "ztCMatrix",  "ztTMatrix", "ztRMatrix"
+
+#define MATRIX_VALID_tri_dense			\
+ "dtrMatrix",  "dtpMatrix"			\
+ "ltrMatrix",  "ltpMatrix"			\
+ "ntrMatrix",  "ntpMatrix"			\
+ "ztrMatrix",  "ztpMatrix"
+#endif
 
 #define MATRIX_VALID_CHMfactor "dCHMsuper", "dCHMsimpl", "nCHMsuper", "nCHMsimpl"
 

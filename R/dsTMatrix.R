@@ -27,7 +27,7 @@ setAs("matrix",    "dsTMatrix", to_dsT)
 
 setMethod("t", "dsTMatrix",
 	  function(x)
-	  new("dsTMatrix", Dim = x@Dim, Dimnames = x@Dimnames,
+	  new("dsTMatrix", Dim = x@Dim, Dimnames = x@Dimnames[2:1],
 	      i = x@j, j = x@i, x = x@x,
 	      uplo = if (x@uplo == "U") "L" else "U"))
 

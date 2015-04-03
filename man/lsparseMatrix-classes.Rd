@@ -88,21 +88,27 @@
 \alias{which,ltTMatrix-method}
 %
 \description{The \code{lsparseMatrix} class is a virtual class of sparse
-  matrices with \code{TRUE}/\code{FALSE} entries.  Only the positions of the
-  elements that are \code{TRUE} are stored.  These can be stored in the
-  ``triplet'' form (classes \code{lgTMatrix}, \code{lsTMatrix}, and
-  \code{ltTMatrix} which really contain pairs, not triplets) or in
-  compressed column-oriented form (classes \code{lgCMatrix},
-  \code{lsCMatrix}, and \code{ltCMatrix}) or in compressed row-oriented
-  form (classes \code{lgRMatrix}, \code{lsRMatrix}, and
-  \code{ltRMatrix}).  The second letter in the name of these non-virtual
-  classes indicates \code{g}eneral, \code{s}ymmetric, or \code{t}riangular.
+  matrices with \code{TRUE}/\code{FALSE} or \code{NA} entries.  Only the
+  positions of the elements that are \code{TRUE} are stored.
+
+  These can be stored in the \dQuote{triplet} form (class
+  \code{\linkS4class{TsparseMatrix}}, subclasses \code{lgTMatrix},
+  \code{lsTMatrix}, and \code{ltTMatrix}) or in compressed
+  column-oriented form (class \code{\linkS4class{CsparseMatrix}},
+  subclasses \code{lgCMatrix}, \code{lsCMatrix}, and \code{ltCMatrix})
+  or--\emph{rarely}--in compressed row-oriented form (class
+  \code{\linkS4class{RsparseMatrix}}, subclasses \code{lgRMatrix},
+  \code{lsRMatrix}, and \code{ltRMatrix}).  The second letter in the
+  name of these non-virtual classes indicates \code{g}eneral,
+  \code{s}ymmetric, or \code{t}riangular.
 }
 \section{Objects from the Class}{
   Objects can be created by calls of the form \code{new("lgCMatrix",
     ...)} and so on.  More frequently objects are created by coercion of
-  a numeric sparse matrix to the logical form for use in
-  the symbolic analysis phase
+  a numeric sparse matrix to the logical form, e.g. in an expression
+  \code{x != 0}.
+
+  The logical form is also used in the symbolic analysis phase
   of an algorithm involving sparse matrices.  Such algorithms often
   involve two phases: a symbolic phase wherein the positions of the
   non-zeros in the result are determined and a numeric phase wherein the
@@ -110,6 +116,19 @@
   positions of the non-zero elements in any operands are of interest,
   hence any numeric sparse matrices can be treated as logical sparse
   matrices.
+}
+\details{
+  Note that triplet stored (\code{\linkS4class{TsparseMatrix}}) matrices
+  such as \code{lgTMatrix} may contain duplicated pairs of indices
+  \eqn{(i,j)} as for the corresponding numeric class
+  \code{\linkS4class{dgTMatrix}} where for such pairs, the corresponding
+  \code{x} slot entries are added.  For logical matrices, the \code{x}
+  entries corresponding to duplicated index pairs \eqn{(i,j)} are
+  \dQuote{added} as well if the addition is defined as logical \eqn{or},
+  i.e., \dQuote{\code{TRUE + TRUE  |->  TRUE}} and
+  \dQuote{\code{TRUE + FALSE  |->  TRUE}}.
+  Note the use of \code{\link{uniqTsparse}()} for getting an internally
+  unique representation without duplicated \eqn{(i,j)} entries.
 }
 \section{Slots}{
   \describe{
@@ -135,7 +154,7 @@
     \item{\code{j}:}{Object of class \code{"integer"} of length nnzero
       (number of non-zero elements).  These are the column numbers for
       each TRUE element in the matrix.  All other elements are FALSE.
-      Present in triplet and compressed column-oriented forms only.}
+      Present in triplet and compressed row-oriented forms only.}
     \item{\code{Dim}:}{Object of class \code{"integer"} - the dimensions
       of the matrix.}
   }
@@ -151,11 +170,8 @@
       for details, see the \code{\linkS4class{lMatrix}} class documentation.}
   }
 }
-%\references{}
-%\author{}
-%\note{}
 \seealso{
-  the class \code{\linkS4class{dgCMatrix}}
+  the class \code{\linkS4class{dgCMatrix}} and \code{\linkS4class{dgTMatrix}}
 }
 \examples{
 (m <- Matrix(c(0,0,2:0), 3,5, dimnames=list(LETTERS[1:3],NULL)))

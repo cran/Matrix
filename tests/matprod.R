@@ -7,69 +7,111 @@ doExtras
 options(warn=1, # show as they happen
 	Matrix.verbose = doExtras)
 
-### dimnames -- notably for matrix products
-## from ../R/Auxiliaries.R :
-.M.DN <- function(x) if(!is.null(dn <- dimnames(x))) dn else list(NULL,NULL)
-dnIdentical <- function(x,y) identical(.M.DN(x), .M.DN(y))
-chkDnProd <- function(m, M = Matrix(m), browse=FALSE) {
+##' Check matrix multiplications with (unit) Diagonal matrices
+chkDiagProd <- function(M) {
+    stopifnot(is.matrix(M) || is(M,"Matrix"))
+    I.l  <- Diagonal(nrow(M)) # I_n -- "unit" Diagonal
+    I.r  <- Diagonal(ncol(M)) # I_d
+    D2.l <- Diagonal(nrow(M), x = 2) # D_n
+    D2.r <- Diagonal(ncol(M), x = 2) # I_d
+    stopifnot(is.EQ.mat(M, M %*% I.r),
+	      is.EQ.mat(M, I.l %*% M),
+	      is.EQ.mat(2*M, M %*% D2.r),
+	      is.EQ.mat(M*2, D2.l %*% M),
+	      ## crossprod
+	      is.EQ.mat(t(M), crossprod(M, I.l)),
+	      is.EQ.mat(  M , crossprod(I.l, M)),
+	      is.EQ.mat(t(2*M), crossprod(M, D2.l)),
+	      is.EQ.mat(  M*2 , crossprod(D2.l, M)),
+	      ## tcrossprod
+	      is.EQ.mat(  M , tcrossprod(M, I.r)),
+	      is.EQ.mat(t(M), tcrossprod(I.r, M)),
+	      is.EQ.mat(  2*M , tcrossprod(M, D2.r)),
+	      is.EQ.mat(t(M*2), tcrossprod(D2.r, M)))
+}
+
+### dimnames -- notably for matrix products ----------------
+#
+##' Checks that matrix products are the same, including dimnames
+##'
+##' @param m matrix = traditional-R-matrix version of M
+##' @param M optional Matrix = "Matrix class version of m"
+##' @param browse
+chkDnProd <- function(m = as(M, "matrix"), M = Matrix(m), browse=FALSE) {
     ## TODO:
-    ## if(browse) stopifnot <- f.unction(...)  such that it enters browser()..
-    stopifnot(is.matrix(m), is(M, "Matrix"))
+    ## if(browse) stopifnot <- f.unction(...)  such that it enters browser() when it is not fulfilled
+    stopifnot(is.matrix(m), is(M, "Matrix"), identical(dim(m), dim(M)), dnIdentical(m,M))
     ## m is  n x d  (say)
+    is.square <- nrow(m) == ncol(m)
 
     p1 <- (tm <- t(m)) %*% m ## d x d
     p1. <- crossprod(m)
-    stopifnot(dnIdentical(p1, p1.))
+    stopifnot(is.EQ.mat3(p1, p1., crossprod(m,m)))
 
     t1 <- m %*% tm ## n x n
     t1. <- tcrossprod(m)
-    stopifnot(dnIdentical(t1, t1.))
+    stopifnot(is.EQ.mat3(t1, t1., tcrossprod(m,m)))
+
+    if(is.square) {
+	mm <- m %*% m
+	stopifnot(is.EQ.mat3(mm, crossprod(tm,m), tcrossprod(m,tm)))
+    }
+
+    chkDiagProd(m)## was not ok in Matrix 1.2.0
 
     ## Now the	"Matrix" ones -- should match the "matrix" above
     M0 <- M
     cat("sparse: ")
     for(sparse in c(TRUE, FALSE)) {
 	cat(sparse, "; ")
-	M <- as(M0, if(sparse)"sparseMatrix" else "denseMatrix")
+	M <- as(M0, if(sparse) "sparseMatrix" else "denseMatrix")
 	P1 <- (tM <- t(M)) %*% M
 	P1. <- crossprod(M)
-	stopifnot(dnIdentical(P1, P1.), dnIdentical(P1, p1),
-		  dnIdentical(P1., crossprod(M,M)),
-		  dnIdentical(P1., crossprod(M,m)),
-		  dnIdentical(P1., crossprod(m,M)))
+	stopifnot(is.EQ.mat3(P1, P1., p1),
+		  is.EQ.mat3(P1., crossprod(M,M), crossprod(M,m)),
+		  is.EQ.mat (P1., crossprod(m,M)))
 
 	## P1. is "symmetricMatrix" -- semantically "must have" symm.dimnames
 	PP1 <- P1. %*% P1. ## still  d x d
-	R <- triu(PP1);r <- as(R,"matrix") # upper - triangular
-	L <- tril(PP1);l <- as(L,"matrix") # lower - triangular
+	R <- triu(PP1); r <- as(R, "matrix") # upper - triangular
+	L <- tril(PP1); l <- as(L, "matrix") # lower - triangular
 	stopifnot(isSymmetric(P1.), isSymmetric(PP1),
-		  is(L,"triangularMatrix"), is(R,"triangularMatrix"),
-		  dnIdentical(PP1, (pp1 <- p1 %*% p1)),
+		  isDiagonal(L) || is(L,"triangularMatrix"),
+		  isDiagonal(R) || is(R,"triangularMatrix"),
+		  isTriangular(L, upper=FALSE), isTriangular(R, upper=TRUE),
+		  is.EQ.mat(PP1, (pp1 <- p1 %*% p1)),
 		  dnIdentical(PP1, R),
 		  dnIdentical(L, R))
 
 	T1 <- M %*% tM
 	T1. <- tcrossprod(M)
-	stopifnot(dnIdentical(T1, T1.), dnIdentical(T1, t1),
-		  dnIdentical(T1., tcrossprod(M,M)),
-		  dnIdentical(T1., tcrossprod(M,m)),
-		  dnIdentical(T1., tcrossprod(m,M)),
-		  dnIdentical(tcrossprod(T1., tM),
-			      tcrossprod(t1., tm)),
-		  dnIdentical(crossprod(T1., M),
-			      crossprod(t1., m)))
+	stopifnot(is.EQ.mat3(T1, T1., t1),
+		  is.EQ.mat3(T1., tcrossprod(M,M), tcrossprod(M,m)),
+		  is.EQ.mat (T1., tcrossprod(m,M)),
+		  is.EQ.mat(tcrossprod(T1., tM),
+			    tcrossprod(t1., tm)),
+		  is.EQ.mat(crossprod(T1., M),
+			    crossprod(t1., m)))
 
 	## Now, *mixing*  Matrix x matrix:
-	stopifnot(dnIdentical(tM %*% m, tm %*% M))
+	stopifnot(is.EQ.mat3(tM %*% m, tm %*% M, tm %*% m))
+
+	if(is.square)
+	    stopifnot(is.EQ.mat (mm, M %*% M),
+		      is.EQ.mat3(mm, crossprod(tM,M), tcrossprod(M,tM)),
+		      ## "mixing":
+		      is.EQ.mat3(mm, crossprod(tm,M), tcrossprod(m,tM)),
+		      is.EQ.mat3(mm, crossprod(tM,m), tcrossprod(M,tm)))
 
 	## Symmetric and Triangular
-	stopifnot(dnIdentical(PP1 %*% tM, pp1 %*% tm),
-		  dnIdentical(R %*% tM, r %*% tm),
-		  dnIdentical(L %*% tM, L %*% tm))
+	stopifnot(is.EQ.mat(PP1 %*% tM, pp1 %*% tm),
+		  is.EQ.mat(R %*% tM, r %*% tm),
+		  is.EQ.mat(L %*% tM, L %*% tm))
+
+	## Diagonal :
+	chkDiagProd(M)
     }
     cat("\n")
-
-
     invisible(TRUE)
 }
 
@@ -81,12 +123,25 @@ dimnames(m) <- list(LETTERS[1:3], letters[1:5])
 m0. <- m.0 <- m..
 dimnames(m0.)[1] <- list(NULL); m0.
 dimnames(m.0)[2] <- list(NULL); m.0
-##
+d <- diag(3); dimnames(d) <- list(c("u","v","w"), c("X","Y","Z")); d
+dU <- diagN2U(Matrix(d)) # unitriangular sparse
+(T <- new("dtrMatrix", diag = "U", x= c(0,0,5,0), Dim= c(2L,2L),
+          Dimnames= list(paste0("r",1:2),paste0("C",1:2)))) # unitriangular dense
+##                                                                   ^^^^^^^^^^^^
+## currently many warnings about sub-optimal matrix products :
 chkDnProd(m..)
 chkDnProd(m0.)
 chkDnProd(m.0)
 chkDnProd(m00)
-
+chkDnProd(M =   T)
+chkDnProd(M = t(T))
+chkDnProd(M =   dU)
+chkDnProd(M = t(dU))
+## all the above failed in 1.2-0 and 1.1-5, 1.1-4 some even earlier
+chkDnProd(M = Diagonal(4))
+chkDnProd(diag(x=3:1))
+chkDnProd(d)
+chkDnProd(M = as(d, "denseMatrix"))# M: dtrMatrix (diag = "N")
 
 
 m5 <- 1 + as(diag(-1:4)[-5,], "dgeMatrix")

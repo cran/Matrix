@@ -36,7 +36,8 @@ drop0(x, tol = 0, is.Csparse = NA)
   \code{\link{zapsmall}()},
   see the example.
 }
-\seealso{\code{\link{spMatrix}}, class \code{\linkS4class{sparseMatrix}}
+\seealso{\code{\link{spMatrix}}, class
+  \code{\linkS4class{sparseMatrix}}; \code{\link{nnzero}}
 }
 \examples{
 m <- spMatrix(10,20, i= 1:8, j=2:9, x = c(0:2,3:-1))

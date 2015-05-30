@@ -1,10 +1,55 @@
+% Check from R:
+%  news(db = tools:::.build_news_db_from_package_NEWS_Rd("~/R/Pkgs/Matrix/inst/NEWS.Rd"))
 \name{NEWS}
 \title{News for \R Package \pkg{Matrix}}% MM: look into ../svn-log-from.all
 \encoding{UTF-8}
 \newcommand{\CRANpkg}{\href{http://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 %% NB: The date (yyyy-mm-dd) is the "Packaged:" date in ../DESCRIPTION
 
-\section{Changes in version 1.2-0 (2015-04-03)}{
+\section{Changes in version 1.2-1 (2015-05-30)}{
+  \subsection{New Features}{
+    \itemize{
+      \item \code{"Matrix"} now has an \code{initialization()} method
+      coercing 0-length dimnames components to \code{NULL} and other
+      non-\code{NULL} dimnames to \code{character}.  Before, e.g.,
+      numeric dimnames components partially worked, even though it has
+      always been documented that non-\code{NULL} dimnames should be
+      \code{character}.
+      \item For \code{symmetricMatrix} objects which have symmetrical
+      dimnames by definition, it is allowed to only set one half of the
+      \code{dimnames} to save storage, e.g., \code{list(NULL, nms)} is
+      \emph{semantically} equivalent to \code{list(nms, nms)}.
+
+      \item \code{as.vector(<sparseVector>)} etc, now work, too.
+      \item \code{lu(\emph{<sparseMatrix>})} now keeps \code{dimnames}.
+      \item better \file{NEWS.Rd} (which pleases Kurt and \command{tidy} ;-)
+    }
+  }
+  \subsection{Bug Fixes}{
+    \itemize{
+      \item \code{S[] <- T} and \code{S[] <- spV} now work (in more cases)
+      for sparse matrices S, T and sparseVector \code{spV}.
+      \item Huge dense matrix multiplication did lead to segfaults, see
+      R-help, \dQuote{does segfault mean (always) a bug?}, May 5, 2015.
+      Fixed by using C's Alloca() only in smallish cases.
+      \item Optional arguments in \code{image()}, e.g., \code{main=
+	<..>)} now also work for \code{lgCMatrix}, \code{nMatrix} etc;
+      thanks to a 4.5 years old report by Mstislav Elagin.
+      \item \code{dimnames(A) <- val} now resets the \code{factors} slot
+      to empty, as the factorizations now keep dimnames more often.
+      \item \code{crossprod(<matrix>, Diagonal(<n>))} works again (and
+      these are tested more systematically).
+      \item Matrix products (\code{\%*\%}, \code{crossprod}, and
+      \code{tcrossprod}) for \code{"dtrMatrix"} are correct in all
+      cases, including keeping dimnames.
+      \item \code{Matrix(d)} (and other coercions to \code{"Matrix"})
+      now correctly keeps \code{dimnames} also when \code{d} is a
+      traditional \emph{diagonal} \code{"matrix"}.
+    }
+  }
+}
+
+\section{Changes in version 1.2-0 (2015-04-03, svn r3096)}{
   \subsection{New Features}{
     \itemize{
       \item New \code{\%&\%} for \dQuote{boolean arithmetic} matrix product.
@@ -61,7 +106,7 @@
   \subsection{Bug Fixes}{
     \itemize{
       \item Fix some \code{rbind2()} methods.
-      \item \code{t()} now tranposes the dimnames even for symmetric
+      \item \code{t()} now transposes the dimnames even for symmetric
       matrices.
       \item \code{diag(M) <- val} did not always recycle \code{val} to
       full length, e.g., when \code{M} was a \code{"dtrMatrix"}.
@@ -78,7 +123,7 @@
 \section{Changes in version 1.1-5 (2015-01-18, svn r3037)}{
   \subsection{New Features}{
     \itemize{
-      \item Start using \code{anyNA()} (for speedup).
+      \item More use of \code{anyNA()} (for speedup).
       \item Matrix products (\code{\%*\%}, \code{crossprod},
       \code{tcrossprod}) now behave compatibly to \R 3.2.0, i.e., more
       lenient in matching dimensions for matrix - vector products.
@@ -131,7 +176,7 @@
   }
   \subsection{Bug Fixes}{
     \itemize{
-      \item \code{image()} now get correct \code{ylim} again.
+      \item \code{image()} now gets correct \code{ylim} again.
       \item More consistent matrix products.
     }
   }
@@ -203,18 +248,63 @@
       \item Update to latest \command{SuiteSparse} C library by Tim Davis,
       U. Florida.
       \item ensuing \dQuote{C API changes}
+      \item new \code{.SuiteSparse_version()} function
+      \item Many \sQuote{Imports:} instead of \sQuote{Depends:}.
     }
   }
   \subsection{Bug Fixes}{
     \itemize{
-      \item fixed long lasting undetected \code{solve(<dsCMatrix>, *)} bug
-      \item
+      \item fixed long lasting undetected \code{solve(<dsCMatrix>, *)}
+      bug.
+      \item Our \code{all.equal()} methods no longer sometimes return
+      \code{c("TRUE", "....difference..")}.
+      \item \code{rankMatrix(<matrix>)}: fix the internal \code{x.dense}
+      definition.
     }
   }
 }
 
+\section{Changes in version 1.0-14 (2013-09-12, svn r2907)}{
+  \subsection{Bug Fixes}{
+    \itemize{
+      \item Revert some wrong changes to \code{solve(<sparse>, *)} from
+      1.0-13 (\dQuote{stop gap fix} for \R 3.0.2).
+    }
+  }
+}
 
-\section{Changes in version 1.0-14 (2013-09-12)}{
+\section{Changes in version 1.0-13 (2013-09-10, svn r2904)}{
+  \subsection{New Features}{
+    \itemize{
+      \item New (efficient) \code{KhatriRao()} function by Michael Cysouw
+      \item New \code{"indMatrix"} class of \dQuote{index matrices}, a
+      generalization of \code{"pMatrix"}, the permutation matrices, many
+      methods generalized from pMatrix to indMatrix.  All (initial)
+      functionality contributed by Fabian Scheibl, Univ.\sspace{} Munich.
+      \item Export and document \code{isDiagonal()} and
+      \code{isTriangular()} as they are useful outside of \pkg{Matrix}.
+      \item \code{rankMatrix(M, method="qr")} no longer needs
+      \code{sval} which makes it considerably more useful for large
+      sparse \code{M}.
+      \item Start providing \code{anyNA} methods for \eqn{R >= 3.1.0}.
+      \item \code{solve(<sparse> a, <sparse> b)}: if \code{a} is
+      symmetric, now compute \emph{sparse} result.
+      \item \code{nearPD()} gets new option \code{conv.norm.type = "I"}.
+      \item \code{determinant(<dpoMatrix>)} now uses \code{chol()}, and
+      hence also an existing (\sQuote{cached}) Cholesky factor.
+      \item 3 new \code{C -> R} utilities (including hidden \R function
+      \code{.set.factors()} for caching also from \R, not just in C).
+    }
+  }
+  \subsection{Bug Fixes}{
+    \itemize{
+      \item \code{M[] <- v} for unitriangular \code{M} now correct.
+      \item \code{lu(.)} no longer sometimes returns unsorted columns.
+    }
+  }
+}
+
+\section{Changes in version 1.0-12 (2013-03-26, svn r2872)}{
   \subsection{New Features}{
     \itemize{
       \item .
@@ -223,35 +313,6 @@
   \subsection{Bug Fixes}{
     \itemize{
       \item .
-    }
-  }
-}
-
-\section{Changes in version 1.0-13 (2013-09-10)}{
-  \subsection{New Features}{
-    \itemize{
-      \item New efficient \code{KhatriRao()} by Michael Cysouw
-      \item
-    }
-  }
-  \subsection{Bug Fixes}{
-    \itemize{
-      \item .
-      \item
-    }
-  }
-}
-
-\section{Changes in version 1.0-12 (2013-03-26)}{
-  \subsection{New Features}{
-    \itemize{
-      \item .
-    }
-  }
-  \subsection{Bug Fixes}{
-    \itemize{
-      \item .
-      \item
     }
   }
 }
@@ -449,10 +510,83 @@
     }
   }
 }
+
+
+% How can I add vertical space ?
+
+% \preformatted{} is not allowed, nor is \cr
+
+
+
+
+
+%--------------- start of DB+MM history: ------------------------
+
+\section{Changes in version 0.95-1 (2005-02-18, svn r561)}{
+  \subsection{Authorship}{
+    \itemize{
+      \item During Doug Bates' sabbatical in Zurich,
+      Martin Maechler becomes co-author of the \pkg{Matrix} package.
+    }
+  }
+  \subsection{New Features}{
+    \itemize{
+      \item Beginning of class reorganization with a more systematic
+      naming scheme.
+    }
+  }
+  \subsection{Bug Fixes}{
+    \itemize{
+      \item More (correct) coercions \code{as(<from>, <to>)}.
+    }
+  }
+}
+
+\section{Changes in version 0.9-1 (2005-01-24, svn r451)}{
+  \subsection{New Features}{
+    \itemize{
+      \item lme4 / lmer specific R code moved out to \pkg{lme4} package.
+    }
+  }
+  \subsection{Bug Fixes}{
+    \itemize{
+      \item .
+    }
+  }
+}
+
+
+
+
+% How can I add vertical space ?  ( \preformatted{} is not allowed, nor is \cr )
+
+
+%--------------- pre-pre-history: ------------------------
+
+\section{Changes in version 0.8-2 (2004-04-06, svn r51)}{
+  \subsection{Authorship}{
+    \itemize{
+      \item Doug Bates (only)
+    }
+  }
+  \subsection{New Features}{
+    \itemize{
+      \item Sparse matrices, classes and methods, partly via
+      \item Interface to LDL, TAUCS, Metis and UMFPACK C libraries
+    }
+  }
+}
+
+% How can I add vertical space ? .................................
+
+
+\section{Version 0.2-4}{
+\subsection{..., 0.3-1, 0.3-n (n=3,5,...,26): 22 more CRAN releases}{
+  \itemize{ \item ............................................. } }}
+
 % How can I add vertical space ?
 % \preformatted{} is not allowed, nor is \cr
 
-%--------------- pre-pre-history: ------------------------
 
 
 \section{Version 0.2-1 (2000-07-15)}{

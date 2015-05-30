@@ -1,4 +1,5 @@
 SEXP
+    Matrix_betaSym,
     Matrix_DimNamesSym,
     Matrix_DimSym,
     Matrix_diagSym,
@@ -9,6 +10,7 @@ SEXP
     Matrix_pSym,
     Matrix_permSym,
     Matrix_uploSym,
+    Matrix_VSym,
     Matrix_xSym,
 
     Matrix_NS;/* the Matrix Namespace ('environment') */

@@ -641,8 +641,10 @@ D[i] <- v; assert.EQ.mat(D,m) # ddi -> dtT -> dgT
 s[i] <- v; assert.EQ.mat(s,m) # dtT -> dgT
 S[i] <- v; assert.EQ.mat(S,m); S # dtC -> dtT -> dgT -> dgC
 m.L <- asLogical(m)
-C[i] <- v; assert.EQ.mat(C,m.L); validObject(C)
-N[i] <- v; assert.EQ.mat(N,m.L); validObject(N)
+C[i] <- v # - with a warning: C is nMatrix, v not T/F
+assert.EQ.mat(C,m.L); validObject(C)
+N[i] <- v # - with a warning
+assert.EQ.mat(N,m.L); validObject(N)
 stopifnot(Q.C.identical(D,s, checkClass=FALSE))
 ## logical *vector* indexing
 eval(.iniDiag.example)
@@ -651,7 +653,7 @@ M[L] <- z; assert.EQ.mat(M,m)
 D[L] <- z; assert.EQ.mat(D,m)
 s[L] <- z; assert.EQ.mat(s,m)
 S[L] <- z; assert.EQ.mat(S,m) ; S
-C[L] <- z; assert.EQ.mat(C,m.L)
+C[L] <- z; assert.EQ.mat(C,m.L) # with a good warning
 N[L] <- z; assert.EQ.mat(N,m.L)
 
 
@@ -705,10 +707,13 @@ M[i] <- v; assert.EQ.mat(M,m) # dge
 D[i] <- v; assert.EQ.mat(D,m) # ddi -> dtT -> dgT
 s[i] <- v; assert.EQ.mat(s,m) # dtT -> dgT
 S[i] <- v; assert.EQ.mat(S,m); S # dtC -> dtT -> dgT -> dgC
-N[i] <- v; assert.EQ.mat(N,m.L); N #
-C[i] <- v; assert.EQ.mat(C,m.L); C #
+N[i] <- v # with a good warning
+assert.EQ.mat(N,m.L); N
+C[i] <- v #  ..  .  ..  warning
+assert.EQ.mat(C,m.L); C #
 
-
+options(warn = 2) #---------------------# NO WARNINGS from here -----------------
+					# =====================
 ## 2) negative [i,j] indices
 mc <- mC[1:5, 1:7]
 mt <- mT[1:5, 1:7]
@@ -1038,5 +1043,42 @@ for(nm in ls()) if(is(.m <- get(nm), "Matrix")) {
 }
 showProc.time()
 }#--------------end if(doExtras) -----------------------------------------------
+
+## Bugs found by Peter Ralph
+n <- 17
+x <- Matrix(0, n,n)
+## x must have at least three nonzero entries
+x[1,1] <- x[2,1:2] <- 1.
+x0 <- x <- as(x,"dgTMatrix")  # if x is dgCMatrix, no error
+##
+z <- matrix(x) # <== not the "Matrix way":  a (n, 1) matrix
+z[1] <- 0
+
+x[1:n, 1:n] <- as(z, "sparseVector")
+## gave Error: ... invalid subscript type 'S4'
+x2 <- x
+
+dim(zC <- as(z, "dgCMatrix"))
+x <- x0
+x[] <- zC # did fail, then gave warning.
+x1 <- x
+##
+x <- x0
+x[] <- as(zC, "sparseVector") # did fail, too
+x2 <- x
+stopifnot(identical(x1,x2))
+x <- as(x0, "matrix")
+x[] <- z
+assert.EQ.mat(x1, x)
+
+i <- 4:7
+x1 <- x0; x1[cbind(i, i+10)] <- i^2
+x2 <- x0; x2[cbind(i, i+10)] <- as.matrix(i^2)
+## failed: nargs() = 4 ... please report
+
+stopifnot(isValid(x1, "dgTMatrix"), identical(x1, x2))
+
+
+showProc.time()
 
 if(!interactive()) warnings()

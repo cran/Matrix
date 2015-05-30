@@ -94,11 +94,11 @@ cs *Matrix_as_cs(cs *ans, SEXP x, Rboolean check_Udiag)
 	/* content(ans) := content(tmp) : */
 	ans->nzmax = nz;
 	/* The ans "slots" were pointers to x@ <slots>; all need new content now: */
-	ans->p = Memcpy((   int*) R_alloc(sizeof(   int), n+1),
+	ans->p = Memcpy((   int*) R_alloc(n+1, sizeof(int)),
 			(   int*) tmp->p, n+1);
-	ans->i = Memcpy((   int*) R_alloc(sizeof(   int), nz),
+	ans->i = Memcpy((   int*) R_alloc(nz, sizeof(int)),
 			(   int*) tmp->i, nz);
-	ans->x = Memcpy((double*) R_alloc(sizeof(double), nz),
+	ans->x = Memcpy((double*) R_alloc(nz, sizeof(double)),
 			(double*) tmp->x, nz);
 
 	cs_spfree(tmp);
@@ -113,11 +113,12 @@ cs *Matrix_as_cs(cs *ans, SEXP x, Rboolean check_Udiag)
  * @param a matrix to be converted
  * @param cl the name of the S4 class of the object to be generated
  * @param dofree 0 - don't free a; > 0 cs_free a; < 0 Free a
+ * @param dn either R_NilValue or an SEXP suitable for the Dimnames slot.
  *
  * @return SEXP containing a copy of a
  */
 /* FIXME:  Change API : May need object,  not just class name 'cl' */
-SEXP Matrix_cs_to_SEXP(cs *a, char *cl, int dofree)
+SEXP Matrix_cs_to_SEXP(cs *a, char *cl, int dofree, SEXP dn)
 {
     static const char *valid[] = {"dgCMatrix", "dsCMatrix", "dtCMatrix", ""};
     int ctype = Matrix_check_class(cl, valid);
@@ -127,6 +128,7 @@ SEXP Matrix_cs_to_SEXP(cs *a, char *cl, int dofree)
     SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS(cl)));
 				/* allocate and copy common slots */
     int *dims = INTEGER(ALLOC_SLOT(ans, Matrix_DimSym, INTSXP, 2));
+    PROTECT(dn); // <- as in chm_sparse_to_SEXP()
     dims[0] = a->m; dims[1] = a->n;
     Memcpy(INTEGER(ALLOC_SLOT(ans, Matrix_pSym, INTSXP, a->n + 1)),
 	   a->p, a->n + 1);
@@ -143,7 +145,9 @@ SEXP Matrix_cs_to_SEXP(cs *a, char *cl, int dofree)
     }
     if (dofree > 0) cs_spfree(a);
     if (dofree < 0) Free(a);
-    UNPROTECT(1);
+    if (dn != R_NilValue)
+	SET_SLOT(ans, Matrix_DimNamesSym, duplicate(dn));
+    UNPROTECT(2);
     return ans;
 }
 
@@ -211,7 +215,7 @@ csn *Matrix_as_csn(csn *ans, SEXP x)
 	ans->pinv = INTEGER(GET_SLOT(x, install("Pinv")));
 	break;
     case 1:
-	ans->B = REAL(GET_SLOT(x, install("beta")));
+	ans->B = REAL(GET_SLOT(x, Matrix_betaSym));
 	ans->pinv = (int*) NULL;
 	break;
     default:
@@ -274,10 +278,11 @@ SEXP Matrix_css_to_SEXP(css *S, char *cl, int dofree, int m, int n)
  * @param a csn object to be converted
  * @param cl the name of the S4 class of the object to be generated
  * @param dofree 0 - don't free a; > 0 cs_free a; < 0 Free a
+ * @param dn either R_NilValue or an SEXP suitable for the Dimnames slot. FIXME (L,U!)
  *
  * @return SEXP containing a copy of S
  */
-SEXP Matrix_csn_to_SEXP(csn *N, char *cl, int dofree)
+SEXP Matrix_csn_to_SEXP(csn *N, char *cl, int dofree, SEXP dn)
 {
     SEXP ans;
     static const char *valid[] = {"csn_LU", "csn_QR", ""};
@@ -290,16 +295,16 @@ SEXP Matrix_csn_to_SEXP(csn *N, char *cl, int dofree)
 				/* allocate and copy common slots */
     /* FIXME: Use the triangular matrix classes for csn_LU */
     SET_SLOT(ans, install("L"),	/* these are free'd later if requested */
-	     Matrix_cs_to_SEXP(N->L, "dgCMatrix", 0));
+	     Matrix_cs_to_SEXP(N->L, "dgCMatrix", 0, dn)); // FIXME: dn
     SET_SLOT(ans, install("U"),
-	     Matrix_cs_to_SEXP(N->U, "dgCMatrix", 0));
+	     Matrix_cs_to_SEXP(N->U, "dgCMatrix", 0, dn)); // FIXME: dn
     switch(ctype) {
     case 0:
 	Memcpy(INTEGER(ALLOC_SLOT(ans, install("Pinv"), INTSXP, n)),
 	       N->pinv, n);
 	break;
     case 1:
-	Memcpy(REAL(ALLOC_SLOT(ans, install("beta"), REALSXP, n)),
+	Memcpy(REAL(ALLOC_SLOT(ans, Matrix_betaSym, REALSXP, n)),
 	       N->B, n);
 	break;
     default:

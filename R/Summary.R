@@ -32,12 +32,12 @@ setMethod("Summary", "ddenseMatrix",
 	      else { ## triangular , possibly packed
 		  if(.Generic %in% summGener1) {
 		      if(.Generic %in% c("any","all")) {
-			  Zero <- FALSE; One <- TRUE
+			  Zero <- FALSE; One <- TRUE; xx <- as.logical(x@x)
 		      } else {
-			  Zero <- 0; One <- 1
+			  Zero <- 0; One <- 1; xx <- x@x
 		      }
-		      callGeneric(if (length(x@x) < prod(d)) x@x ## <- 'packed'
-				  else x@x[indTri(d[1], upper= x@uplo == "U",
+		      callGeneric(if (length(xx) < prod(d)) xx ## <- 'packed'
+				  else xx[indTri(d[1], upper= x@uplo == "U",
 						  diag= TRUE)],
 				  if(d[1] >= 2) Zero, if(x@diag == "U") One,
 				  ..., na.rm = na.rm)
@@ -67,12 +67,13 @@ setMethod("Summary", "dsparseMatrix",
 		     (n == 1 && (isU.tri || l.x == 1)))
 	  isGener1 <- .Generic %in% summGener1
 	  if(isGener1) { ## not prod() or sum() -> no need check for symmetric
-	      logicF <- .Generic %in% c("any","all")
 	      ## we rely on  <generic>(x, NULL, y, ..)	:==  <generic>(x, y, ..):
-	      callGeneric(x@x,
-			  if(!full.x) { if(logicF) FALSE else 0 },
-			  if(isU.tri) { if(logicF) TRUE	 else 1 },
-			  ..., na.rm = na.rm)
+	      if(any(.Generic == c("any","all"))) ## logic:
+		  callGeneric(as.logical(x@x), if(!full.x) FALSE, if(isU.tri) TRUE,
+			      ..., na.rm = na.rm)
+	      else
+		  callGeneric(x@x, if(!full.x) 0, if(isU.tri) 1,
+			      ..., na.rm = na.rm)
 	  }
 	  else { ## prod() or sum() : care for "symmetric" and U2N
 	      if(!full.x && .Generic == "prod") {
@@ -311,9 +312,11 @@ setMethod("Summary", "sparseVector",
 	      if(l.x == n) ## fully non-zero (and "general") - very rare but quick
 		  callGeneric(x@x, ..., na.rm = na.rm)
 	      else if(.Generic != "prod") {
-		  logicF <- .Generic %in% c("any","all")
 		  ## we rely on	 <generic>(x, NULL, y, ..) :==	<generic>(x, y, ..):
-		  callGeneric(x@x, if(logicF) FALSE else 0, ..., na.rm = na.rm)
+		  if(any(.Generic == c("any","all"))) ## logic:
+		      callGeneric(as.logical(x@x), FALSE, ..., na.rm = na.rm)
+		  else # "numeric"
+		      callGeneric(x@x, 0, ..., na.rm = na.rm)
 	      }
 	      else { ## prod()
 		  if(anyNA(x@x)) NaN else 0

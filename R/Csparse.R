@@ -196,12 +196,11 @@ replCmat <- function (x, i, j, ..., value)
     dn <- dimnames(x)
     iMi <- missing(i)
     jMi <- missing(j)
-    spV <- is(value, "sparseVector")
     na <- nargs()
     Matrix.msg("replCmat[x,i,j,.., val] : nargs()=", na,"; ",
 	       if(iMi | jMi) sprintf("missing (i,j) = (%d,%d)", iMi,jMi),
 	       .M.level = 2)
-    if(na == 3) { ## "vector (or 2-col) indexing"  M[i] <- v
+    if(na == 3) { ## vector (or 2-col) indexing M[i] <- v : includes M[TRUE] <- v or M[] <- v !
 	x <- as(x, "TsparseMatrix")
 	x[i] <- value # may change class e.g. from dtT* to dgT*
 	clx <- sub(".Matrix$", "CMatrix", (c.x <- class(x)))
@@ -213,7 +212,7 @@ replCmat <- function (x, i, j, ..., value)
 	replCmat4(x,
 		  i1 = if(iMi) 0:(di[1] - 1L) else .ind.prep2(i, 1, di, dn),
 		  i2 = if(jMi) 0:(di[2] - 1L) else .ind.prep2(j, 2, di, dn),
-                  iMi=iMi, jMi=jMi, value=value, spV=spV)
+                  iMi=iMi, jMi=jMi, value=value)
 } ## replCmat
 
 replCmat4 <- function(x, i1, i2, iMi, jMi, value, spV = is(value,"sparseVector"))

@@ -61,7 +61,7 @@
 	* R/dsCMatrix.R (solve.dsC.*): finally fix the long-lasting
 	undetected solve(<dsC>) bug (only in case Cholmod fails) [r2908].
 
-	* DESCRIPTION (Version): 1.0-15, CRAN-released 2013-09-26
+	* DESCRIPTION (Version): 1.0-15, CRAN-*non*-released 2013-09-26
 
 2013-09-12  Martin Maechler  <maechler@stat.math.ethz.ch>
 

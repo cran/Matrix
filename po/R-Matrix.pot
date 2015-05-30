@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Matrix 1.2-0\n"
-"POT-Creation-Date: 2015-03-27 10:18\n"
+"Project-Id-Version: Matrix 1.2-1\n"
+"POT-Creation-Date: 2015-05-12 16:53\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -436,9 +436,6 @@ msgstr ""
 msgid "not enough new vecs -- stop iterations"
 msgstr ""
 
-msgid "\"dMatrix\" object with NAs cannot be coerced to \"nMatrix\""
-msgstr ""
-
 msgid "diagonalMatrix in .dense2C() -- should never happen, please report!"
 msgstr ""
 
@@ -536,9 +533,6 @@ msgid "kronecker method must use default 'FUN'"
 msgstr ""
 
 msgid "replacing \"indMatrix\" entries is not allowed, as rarely sensible"
-msgstr ""
-
-msgid "\"lMatrix\" object with NAs cannot be coerced to \"nMatrix\""
 msgstr ""
 
 msgid "Matrix seems negative semi-definite"

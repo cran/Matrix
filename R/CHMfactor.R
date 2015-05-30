@@ -23,10 +23,7 @@ isLDL <- function(x)
 .isLDL <- function(x) as.logical(! x@type[2])# "!" = not as type[2] := (cholmod_factor)->is_ll
 
 setMethod("image", "CHMfactor",
-          function(x, ...) {
-              x <- as(as(x, "sparseMatrix"), "dgTMatrix")
-              callGeneric()
-          })
+          function(x, ...) image(as(as(x, "sparseMatrix"), "dgTMatrix"), ...))
 
 .CHM_solve <-
     function(a, b,

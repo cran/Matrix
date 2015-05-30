@@ -24,7 +24,8 @@
     %% \item{\code{Dim},\code{Dimnames}:}{The dimension (a length-2
     \item{\code{Dim, Dimnames}:}{The dimension (a length-2
       \code{"integer"}) and corresponding names (or \code{NULL}),
-      inherited from the \code{\linkS4class{Matrix}}, see there.}
+      inherited from the \code{\linkS4class{Matrix}}, see there.  See below,
+      about storing only one of the two \code{Dimnames} components.}
     \item{\code{factors}:}{a list of matrix factorizations, also from the
       \code{Matrix} class.}
   }
@@ -64,6 +65,18 @@
   \code{\linkS4class{lsCMatrix}} for a logical \emph{sparse} matrix class.
 }
 \examples{
+## An example about the symmetric Dimnames:
+sy <- sparseMatrix(i= c(2,4,3:5), j= c(4,7:5,5), x = 1:5, dims = c(7,7),
+                   symmetric=TRUE, dimnames = list(NULL, letters[1:7]))
+sy # shows symmetrical dimnames
+sy@Dimnames  # internally only one part is stored
+dimnames(sy) # both parts - as sy *is* symmetrical
+\dontshow{
+local({ nm <- letters[1:7]
+  stopifnot(identical(dimnames(sy), list(  nm, nm)),
+	    identical(sy@Dimnames , list(NULL, nm)))
+})
+}%dont
 showClass("symmetricMatrix")
 
 ## The names of direct subclasses:

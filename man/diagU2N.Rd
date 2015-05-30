@@ -1,5 +1,5 @@
 \name{diagU2N}
-\title{Transform Triangular Matrices from Unit Triangular to General and back}
+\title{Transform Triangular Matrices from Unit Triangular to General Triangular and Back}
 \alias{diagN2U}
 \alias{diagU2N}
 \alias{.diagU2N}
@@ -7,7 +7,7 @@
   Transform a triangular matrix \code{x}, i.e., of \code{\link{class}}
   \code{"\linkS4class{triangularMatrix}"},
   from (internally!) unit triangular (\dQuote{unitriangular}) to
-  \dQuote{general} (\code{diagU2N(x)}) or back (\code{diagN2U(x)}).
+  \dQuote{general} triangular (\code{diagU2N(x)}) or back (\code{diagN2U(x)}).
   Note that the latter, \code{diagN2U(x)}, also sets the diagonal to one
   in cases where \code{diag(x)} was not all one.
 
@@ -17,6 +17,7 @@
 }
 \usage{
  diagN2U(x, cl = getClassDef(class(x)), checkDense = FALSE)
+
  diagU2N(x, cl = getClassDef(class(x)), checkDense = FALSE)
 .diagU2N(x, cl, checkDense = FALSE)
 }
@@ -37,9 +38,11 @@
   utilities.
 }
 \value{
-  a triangular matrix of the same \code{\link{class}} and (semantically)
-  with identical entries as \code{x},
-  but with a different \code{diag} slot.
+  a triangular matrix of the same \code{\link{class}} but with a
+  different \code{diag} slot.  For \code{diagU2N} (semantically) with
+  identical entries as \code{x}, whereas in \code{diagN2U(x)}, the
+  off-diagonal entries are unchanged and the diagonal is set to all
+  \code{1} even if it was not previously.
 }
 \seealso{
   \code{"\linkS4class{triangularMatrix}"},

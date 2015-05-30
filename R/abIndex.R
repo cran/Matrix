@@ -260,7 +260,7 @@ combine_rleD <- function(rleList, m = length(rleList))
 
     ## llen1 <- unlist(lapply(lens, length)) + 1L
     ## n <- sum(llen1)
-    n <- m + sum(unlist(lapply(lens, length)))
+    n <- m + sum(lengths(lens, use.names=FALSE))
     ## comb(): intersperse x2[[j]] between lis[[j] & lis[[j+1]] :
     comb <- function(lis, x2)
         unlist(mapply(c, lis, x2, SIMPLIFY=FALSE, USE.NAMES=FALSE))

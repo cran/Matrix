@@ -7,7 +7,7 @@
 typedef cs  *CSP ;
 
 CSP Matrix_as_cs(CSP ans, SEXP x, Rboolean check_Udiag);
-SEXP Matrix_cs_to_SEXP(CSP A, char *cl, int dofree);
+SEXP Matrix_cs_to_SEXP(CSP A, char *cl, int dofree, SEXP dn);
 
 #define AS_CSP(x)   Matrix_as_cs((CSP)alloca(sizeof(cs)), x, TRUE)
 #define AS_CSP__(x) Matrix_as_cs((CSP)alloca(sizeof(cs)), x, FALSE)

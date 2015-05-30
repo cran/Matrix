@@ -76,17 +76,17 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(pCholesky_validate, 1),
     CALLDEF(Rsparse_validate, 1),
     CALLDEF(diag_tC, 2),
-#ifdef _valid_only_for_old_graph_package
-    CALLDEF(graphNEL_as_dgTMatrix, 2),
-#endif
     CALLDEF(LU_expand, 1),
     CALLDEF(LU_validate, 1),
+    CALLDEF(MatrixFactorization_validate, 1),
     CALLDEF(Matrix_expand_pointers, 1),
     CALLDEF(R_rbind2_vector, 2),
     CALLDEF(R_all0, 1),
     CALLDEF(R_any0, 1),
     CALLDEF(R_to_CMatrix, 1),
+#ifdef _Matrix_has_SVD_
     CALLDEF(SVD_validate, 1),
+#endif
     CALLDEF(Tsparse_validate, 1),
     CALLDEF(Tsparse_diagU2N, 1),
     CALLDEF(Tsparse_to_Csparse, 2),
@@ -100,10 +100,12 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(dense_to_symmetric, 3),
     CALLDEF(ddense_symmpart, 1),
     CALLDEF(ddense_skewpart, 1),
+    CALLDEF(dimNames_validate, 1),
+    CALLDEF(Dim_validate, 2),
     CALLDEF(dMatrix_validate, 1),
 
-    CALLDEF(dgCMatrix_LU, 4),
-    CALLDEF(dgCMatrix_QR, 2),
+    CALLDEF(dgCMatrix_LU, 5),
+    CALLDEF(dgCMatrix_QR, 3),
 #ifdef Matrix_with_SPQR
     CALLDEF(dgCMatrix_SPQR, 4),
 #endif
@@ -246,7 +248,7 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(lsq_dense_Chol, 2),
     CALLDEF(lsq_dense_QR, 2),
     CALLDEF(sparseQR_validate, 1),
-    CALLDEF(sparseQR_qty, 3),
+    CALLDEF(sparseQR_qty, 4),
     CALLDEF(sparseQR_coef, 2),
     CALLDEF(sparseQR_resid_fitted, 3),
     CALLDEF(triangularMatrix_validate, 1),
@@ -349,6 +351,7 @@ R_init_Matrix(DllInfo *dll)
     R_cholmod_start(&c);
 //    R_cholmod_l_start(&cl);
 
+    Matrix_betaSym = install("beta");
     Matrix_DimNamesSym = install("Dimnames");
     Matrix_DimSym = install("Dim");
     Matrix_diagSym = install("diag");
@@ -360,6 +363,7 @@ R_init_Matrix(DllInfo *dll)
     Matrix_permSym = install("perm");
     Matrix_uploSym = install("uplo");
     Matrix_xSym = install("x");
+    Matrix_VSym = install("V");
 
     Matrix_NS = R_FindNamespace(mkString("Matrix"));
     if(Matrix_NS == R_UnboundValue)

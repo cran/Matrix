@@ -12,12 +12,12 @@ is1  <- function(x) !is.na(x) & x   # also == "isTRUE componentwise"
 ##allFalse <- function(x) !any(x) && !any(is.na(x))## ~= all0, but allFalse(NULL) = TRUE w/warning
 ##all0 <- function(x) !any(is.na(x)) && all(!x) ## ~= allFalse
 allFalse <-
-all0 <- function(x) .Call(R_all0, x)
+all0 <- function(x) if(is.atomic(x)) .Call(R_all0, x) else !any(x) && !any(is.na(x))
 
 ##anyFalse <- function(x) isTRUE(any(!x))		 ## ~= any0
 ## any0 <- function(x) isTRUE(any(x == 0))	      ## ~= anyFalse
 anyFalse <-
-any0 <- function(x) .Call(R_any0, x)
+any0 <- function(x) if(is.atomic(x)) .Call(R_any0, x) else isTRUE(any(!x))
 
 ## These work "identically" for  1 ('==' TRUE)  and 0 ('==' FALSE)
 ##	(but give a warning for "double"  1 or 0)
@@ -34,6 +34,8 @@ as0 <- function(x, mod=mode(x))
     switch(mod, "integer"= 0L, "double"=, "numeric"= 0, "logical"= FALSE,
 	   "complex"= 0+0i, stop(gettextf("invalid 'mod': %s", mod), domain = NA))
 
+
+## NB:  .fixupDimnames() needs to be defined in ./AllClass.R
 
 .M.DN <- function(x) if(!is.null(dn <- dimnames(x))) dn else list(NULL,NULL)
 
@@ -52,6 +54,7 @@ is.null.DN <- function(dn) {
     }
 }
 
+##' return 'x' unless it is NULL where you'd use 'orElse'
 .if.NULL <- function(x, orElse) if(!is.null(x)) x else orElse
 
 ##  not %in%  :
@@ -64,7 +67,7 @@ is.null.DN <- function(dn) {
 ##' @return TRUE or FALSE
 ##' @author Martin Maechler
 isSeq <- function(i, n, Ostart = TRUE) {
-    ## FIXME: Port to C, use simple .Call() which is must faster notably in FALSE cases
+    ## FIXME: Port to C, use simple .Call() which is much faster notably in FALSE cases
     ##        and then *export* (and hence document)
     identical(i, if(Ostart) 0L:n else seq_len(n))
 }
@@ -1261,7 +1264,7 @@ isTriC <- function(object, upper = NA, ...) {
     ni <- 1:n
     ## the row indices split according to column:
     ilist <- split(object@i, factor(rep.int(ni, diff(object@p)), levels= ni))
-    lil <- unlist(lapply(ilist, length), use.names = FALSE)
+    lil <- lengths(ilist, use.names = FALSE)
     if(any(lil == 0)) {
 	pos <- lil > 0
 	if(!any(pos)) ## matrix of all 0's

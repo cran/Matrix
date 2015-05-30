@@ -157,6 +157,7 @@
 \alias{crossprod,dtrMatrix,ddenseMatrix-method}
 \alias{crossprod,dtrMatrix,dtrMatrix-method}
 \alias{crossprod,dtrMatrix,matrix-method}
+\alias{crossprod,matrix,dtrMatrix-method}
 \alias{crossprod,dtrMatrix,missing-method}
 \alias{crossprod,indMatrix,matrix-method}
 \alias{crossprod,indMatrix,Matrix-method}

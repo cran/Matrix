@@ -342,6 +342,14 @@ setMethod("crossprod", signature(x = "dtrMatrix", y = "matrix"),
 	      else
 		  .Call(dtrMatrix_matrix_mm, x, y, FALSE, TRUE))
 
+## Not quite optimal, have unnecessary  t(x)  below: _FIXME_
+setMethod("crossprod", signature(x = "matrix", y = "dtrMatrix"),
+	  function(x, y=NULL, boolArith=NA, ...)
+	      if(isTRUE(boolArith)) ## FIXME: very inefficient
+		  crossprod(as(x,"sparseMatrix"), as(y,"sparseMatrix"), boolArith=TRUE)
+	      else
+		  .Call(dtrMatrix_matrix_mm, y, t(x), TRUE, FALSE))
+
 
 ## "dtpMatrix"
 if(FALSE) ## not yet in C
@@ -686,6 +694,7 @@ setMethod("tcrossprod", signature(x = "dtrMatrix", y = "dtrMatrix"),
 ## setMethod("tcrossprod", signature(x = "dtrMatrix", y = "ddenseMatrix"),
 ##	  function(x, y=NULL, boolArith=NA, ...) .Call(dtrMatrix_matrix_mm, y, x, TRUE, TRUE))
 
+###__ FIXME __ currently goes via geMatrix and loses triangularity !!
 ## setMethod("tcrossprod", signature(x = "dtrMatrix", y = "matrix"),
 ##	  function(x, y=NULL, boolArith=NA, ...) .Call(dtrMatrix_matrix_mm, y, x, TRUE, TRUE))
 

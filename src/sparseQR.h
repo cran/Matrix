@@ -6,7 +6,7 @@
 #include "chm_common.h"
 
 SEXP sparseQR_validate(SEXP x);
-SEXP sparseQR_qty(SEXP qr, SEXP y, SEXP trans);
+SEXP sparseQR_qty(SEXP qr, SEXP y, SEXP trans, SEXP keep_dimnames);
 SEXP sparseQR_coef(SEXP qr, SEXP y);
 SEXP sparseQR_resid_fitted(SEXP qr, SEXP y, SEXP resid);
 

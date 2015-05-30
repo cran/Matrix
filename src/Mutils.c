@@ -187,9 +187,8 @@ SEXP CMatrix_set_Dim(SEXP x, int nrow)
 #endif	/* unused */
 
 /* Fill in the "trivial remainder" in  n*m  array ;
- *  typically the 'x' slot of a "dtrMatrix" :
- * But should be usable for double/logical/int/complex : */
-
+ *  typically the 'x' slot of a "dtrMatrix", such that
+ *  it should be usable for double/logical/int/complex : */
 #define MAKE_TRIANGULAR_BODY(_TO_, _FROM_, _ZERO_, _ONE_)	\
 {								\
     int i, j, *dims = INTEGER(GET_SLOT(_FROM_, Matrix_DimSym));	\
@@ -315,6 +314,55 @@ SEXP dense_nonpacked_validate(SEXP obj)
 	return mkString(_("length of x slot != prod(Dim)"));
     return ScalarLogical(1);
 }
+
+SEXP dim_validate(SEXP Dim, const char* name) {
+    if (length(Dim) != 2)
+	return mkString(_("Dim slot must have length 2"));
+    if (TYPEOF(Dim) != INTSXP && TYPEOF(Dim) != REALSXP)
+	return mkString(_("Dim slot is not numeric"));
+    int
+	m = INTEGER(Dim)[0],
+	n = INTEGER(Dim)[1];
+    if (m < 0 || n < 0)
+	return mkString(dngettext(name,
+				  "Negative value in Dim",
+				  "Negative values in Dim",
+				  (m*n > 0) ? 2 : 1));
+    return ScalarLogical(1);
+}
+// to be called from R :
+SEXP Dim_validate(SEXP obj, SEXP name) {
+    return dim_validate(GET_SLOT(obj, Matrix_DimSym),
+			CHAR(STRING_ELT(name, 0)));
+}
+
+// obj must have @Dim and @Dimnames. Assume 'Dim' is already checked.
+SEXP dimNames_validate(SEXP obj)
+{
+    int *dims = INTEGER(GET_SLOT(obj, Matrix_DimSym));
+    SEXP dmNms = GET_SLOT(obj, Matrix_DimNamesSym);
+    if(!isNewList(dmNms))
+	return mkString(_("Dimnames slot is not a list"));
+    if(length(dmNms) != 2)
+	return mkString(_("Dimnames slot is a list, but not of length 2"));
+    char buf[99];
+    for(int j=0; j < 2; j++) { // x@Dimnames[j] must be NULL or character(length(x@Dim[j]))
+	if(!isNull(VECTOR_ELT(dmNms, j))) {
+	    if(TYPEOF(VECTOR_ELT(dmNms, j)) != STRSXP) {
+		sprintf(buf, _("Dimnames[%d] is not a character vector"), j+1);
+		return mkString(buf);
+	    }
+	    if(LENGTH(VECTOR_ELT(dmNms, j)) != 0 && // character(0) allowed here
+	       LENGTH(VECTOR_ELT(dmNms, j)) != dims[j]) {
+		sprintf(buf, _("length(Dimnames[%d]) differs from Dim[%d] which is %d"),
+			j+1, j+1, dims[j]);
+		return mkString(buf);
+	    }
+	}
+    }
+    return ScalarLogical(1);
+}
+
 
 
 #define PACKED_TO_FULL(TYPE)						\
@@ -1126,6 +1174,11 @@ SEXP Mmatrix(SEXP args)
 // all0     <- function(x) !any(is.na(x)) && all(!x) ## ~= allFalse
 // allFalse <- function(x) !any(x) && !any(is.na(x)) ## ~= all0
 SEXP R_all0(SEXP x) {
+    if (!isVectorAtomic(x)) {
+	if(length(x) == 0) return TRUE_;
+	// Typically S4.  TODO: Call the R code above, instead!
+	error(_("Argument must be numeric-like atomic vector"));
+    }
     R_xlen_t i, n = XLENGTH(x);
     if(n == 0) return TRUE_;
 
@@ -1163,6 +1216,11 @@ SEXP R_all0(SEXP x) {
 // any0 <- function(x) isTRUE(any(x == 0)) ## ~= anyFalse
 // anyFalse <- function(x) isTRUE(any(!x)) ## ~= any0
 SEXP R_any0(SEXP x) {
+    if (!isVectorAtomic(x)) {
+	if(length(x) == 0) return FALSE_;
+	// Typically S4.  TODO: Call the R code above, instead!
+	error(_("Argument must be numeric-like atomic vector"));
+    }
     R_xlen_t i, n = XLENGTH(x);
     if(n == 0) return FALSE_;
 

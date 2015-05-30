@@ -1,34 +1,55 @@
 #include "factorizations.h"
 
+SEXP MatrixFactorization_validate(SEXP obj)
+{
+    SEXP Dim = GET_SLOT(obj, Matrix_DimSym), val;
+    if (isString(val = dim_validate(Dim, "MatrixFactorization")))
+	return(val);
+    return ScalarLogical(1);
+}
+
 SEXP LU_validate(SEXP obj)
 {
-    return ScalarLogical(1);
+    SEXP x = GET_SLOT(obj, Matrix_xSym),
+	Dim = GET_SLOT(obj, Matrix_DimSym);
+    int m = INTEGER(Dim)[0], n = INTEGER(Dim)[1]; // checked already in MatrixF.._validate()
+    if(TYPEOF(x) != REALSXP)
+	return mkString(_("x slot is not \"double\""));
+    if(XLENGTH(x) != ((double) m) * n)
+	return mkString(_("x slot is not of correct length"));
+    return dimNames_validate(obj);
 }
 
 SEXP BunchKaufman_validate(SEXP obj)
 {
+    // TODO
     return ScalarLogical(1);
 }
 
 SEXP pBunchKaufman_validate(SEXP obj)
 {
+    // TODO
     return ScalarLogical(1);
 }
 
 SEXP Cholesky_validate(SEXP obj)
 {
+    // TODO
     return ScalarLogical(1);
 }
 
 SEXP pCholesky_validate(SEXP obj)
 {
+    // TODO
     return ScalarLogical(1);
 }
 
+#ifdef _Matrix_has_SVD_
 SEXP SVD_validate(SEXP obj)
 {
     return ScalarLogical(1);
 }
+#endif
 
 SEXP LU_expand(SEXP x)
 {
@@ -115,8 +136,8 @@ SEXP LU_expand(SEXP x)
     if(!is_sq) // m != n -- P is  m x m
 	INTEGER(GET_SLOT(P, Matrix_DimSym))[1] = m;
     perm = INTEGER(ALLOC_SLOT(P, Matrix_permSym, INTSXP, m));
-    iperm = Alloca(m, int);
-    R_CheckStack();
+    C_or_Alloca_TO(iperm, m, int);
+
     for (i = 0; i < m; i++) iperm[i] = i + 1; /* initialize permutation*/
     for (i = 0; i < nn; i++) {	/* generate inverse permutation */
 	int newp = pivot[i] - 1;
@@ -127,6 +148,7 @@ SEXP LU_expand(SEXP x)
     // invert the inverse
     for (i = 0; i < m; i++) perm[iperm[i] - 1] = i + 1;
 
+    if(m >= SMALL_4_Alloca) Free(iperm);
     UNPROTECT(1);
     return val;
 }

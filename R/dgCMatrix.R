@@ -24,11 +24,7 @@ setAs("dgCMatrix", "lgCMatrix",
 	  r
       })
 
-setMethod("image", "dgCMatrix",
-	  function(x, ...) {
-	      x <- as(x, "dgTMatrix")
-	      callGeneric()
-	  })
+setMethod("image", "dgCMatrix", function(x, ...) image(as(x, "dgTMatrix"), ...))
 
 ## Group Methods, see ?Arith (e.g.)
 ## -----
@@ -58,19 +54,20 @@ setMethod("determinant", signature(x = "dgCMatrix", logarithm = "logical"),
           detSparseLU) # using mkDet() --> ./Auxiliaries.R
 
 setMethod("qr", signature(x = "dgCMatrix"),
-	  function(x, tol = 1e-07, LAPACK = FALSE)
+	  function(x, tol = 1e-07, LAPACK = FALSE, keep.dimnames = TRUE,
+                   verbose = !is.null(v <- getOption("Matrix.verbose")) && v >= 1)
 	  .Call(dgCMatrix_QR, # -> cs_sqr() and cs_qr() >> ../src/dgCMatrix.c
 		x, ## order =
-                if(!is.null(v <- getOption("Matrix.verbose")) && v >= 1) -1L
-                else TRUE))
+                if(verbose) -1L else TRUE, keep.dimnames))
 
 setMethod("qr", signature(x = "sparseMatrix"),
 	  function(x, ...)
 	  qr(as(as(as(x, "CsparseMatrix"), "dsparseMatrix"), "dgCMatrix"), ...))
 
-LU.dgC <- function(x, errSing = TRUE, order = TRUE, tol = 1.0, ...)
-    .Call(dgCMatrix_LU, x, order, tol, errSing)
-
+LU.dgC <- function(x, errSing = TRUE, order = TRUE, tol = 1.0, keep.dimnames = TRUE, ...) {
+    chk.s(..., which.call=-2)
+    .Call(dgCMatrix_LU, x, order, tol, errSing, keep.dimnames) ## ../src/dgCMatrix.c
+}
 setMethod("lu", signature(x = "dgCMatrix"), LU.dgC)
 
 setMethod("lu", signature(x = "sparseMatrix"),

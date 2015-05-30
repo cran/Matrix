@@ -29,4 +29,4 @@ setAs("lsparseMatrix", "dsparseMatrix", function(from) as(from, "dMatrix"))
 
 
 
-setMethod("image", "lsparseMatrix", function(x, ...) image(as(x,"dMatrix")))
+setMethod("image", "lsparseMatrix", function(x, ...) image(as(x,"dMatrix"), ...))

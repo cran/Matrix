@@ -44,6 +44,7 @@ setMethod("drop", signature(x = "Matrix"),
 setMethod("as.vector", signature(x = "Matrix", mode = "missing"),
 	  function(x, mode) as.vector(as(x, "matrix"), mode))
 ## so base functions calling as.vector() work too:
+## S3 dispatch works for base::as.vector(), but S4 dispatch does not
 as.vector.Matrix <- function(x, mode) as.vector(as(x, "matrix"), mode)
 
 setAs("Matrix", "vector",  function(from) as.vector (as(from, "matrix")))
@@ -146,19 +147,30 @@ dimnamesGets <- function (x, value) {
 	!(is.null(v2 <- value[[2]]) || length(v2) == d[2]))
 	stop(gettextf("invalid dimnames given for %s object", dQuote(class(x))),
 	     domain=NA)
-    x@Dimnames <- # preserve names(value)!
-	lapply(value, function(v) if(!is.null(v)) as.character(v))
+    x@Dimnames <- .fixupDimnames(value)
     x
 }
-setMethod("dimnames<-", signature(x = "Matrix", value = "list"),
-	  dimnamesGets)
+dimnamesGetsNULL <- function(x) {
+    message("dimnames(.) <- NULL:  translated to \ndimnames(.) <- list(NULL,NULL)  <==>  unname(.)")
+    x@Dimnames <- list(NULL,NULL)
+    x
+}
+setMethod("dimnames<-", signature(x = "compMatrix", value = "list"),
+          function(x, value) { ## "compMatrix" have 'factors' slot
+              if(length(x@factors)) x@factors <- list()
+              dimnamesGets(x, value)
+          })
+setMethod("dimnames<-", signature(x = "Matrix", value = "list"), dimnamesGets)
+
+setMethod("dimnames<-", signature(x = "compMatrix", value = "NULL"),
+          function(x, value) { ## "compMatrix" have 'factors' slot
+              if(length(x@factors)) x@factors <- list()
+              dimnamesGetsNULL(x)
+          })
 
 setMethod("dimnames<-", signature(x = "Matrix", value = "NULL"),
-	  function(x, value) {
-	      message("dimnames(.) <- NULL:  translated to \ndimnames(.) <- list(NULL,NULL)  <==>  unname(.)")
-	      x@Dimnames <- list(NULL,NULL)
-	      x
-	  })
+	  function(x, value) dimnamesGetsNULL(x))
+
 
 setMethod("unname", signature("Matrix", force="missing"),
 	  function(obj) { obj@Dimnames <- list(NULL,NULL); obj})
@@ -184,6 +196,7 @@ Matrix <- function (data = NA, nrow = 1, ncol = 1, byrow = FALSE,
     if(is.null(sparse1 <- sparse) && (i.M || is(data, "matrix")))
 	sparse <- sparseDefault(data)
     doDN <- TRUE
+    i.m <- is.matrix(data)
     if (i.M) {
 	if (!sV) {
 	    if(!missing(nrow) || !missing(ncol)|| !missing(byrow))
@@ -194,7 +207,7 @@ Matrix <- function (data = NA, nrow = 1, ncol = 1, byrow = FALSE,
 	    ## else : convert  dense <-> sparse -> at end
 	}
     }
-    else if (!is.matrix(data)) { ## cut & paste from "base::matrix" :
+    else if (!i.m) { ## cut & paste from "base::matrix" :
 	## avoid copying to strip attributes in simple cases
 	if (is.object(data) || !is.atomic(data)) data <- as.vector(data)
 	if(length(data) == 1 && is0(data) && !identical(sparse, FALSE)) {
@@ -223,8 +236,8 @@ Matrix <- function (data = NA, nrow = 1, ncol = 1, byrow = FALSE,
 	    if(is.null(sparse))
 		sparse <- sparseDefault(data)
 	}
-        doDN <- FALSE
-    } else if(!missing(nrow) || !missing(ncol)|| !missing(byrow))
+        doDN <- FALSE # .. set above
+    } else if(!missing(nrow) || !missing(ncol)|| !missing(byrow)) ## i.m == is.matrix(.)
 	warning("'nrow', 'ncol', etc, are disregarded for matrix 'data'")
 
     ## 'data' is now a "matrix" or "Matrix"
@@ -662,7 +675,10 @@ setReplaceMethod("[", signature(x = "Matrix", i = "missing", j = "ANY",
 setReplaceMethod("[", signature(x = "Matrix", i = "ANY", j = "missing",
 				value = "Matrix"),
 		 function (x, i, j, ..., value)
-		 callGeneric(x=x, i=i, , value = as.vector(value)))
+		     if(nargs() == 3)
+			 callGeneric(x=x, i=i, value = as.vector(value))
+		     else
+			 callGeneric(x=x, i=i, , value = as.vector(value)))
 
 setReplaceMethod("[", signature(x = "Matrix", i = "ANY", j = "ANY",
 				value = "Matrix"),
@@ -678,7 +694,10 @@ setReplaceMethod("[", signature(x = "Matrix", i = "missing", j = "ANY",
 setReplaceMethod("[", signature(x = "Matrix", i = "ANY", j = "missing",
 				value = "matrix"),
 		 function (x, i, j, ..., value)
-		 callGeneric(x=x, i=i, , value = c(value)))
+		     if(nargs() == 3)
+			 callGeneric(x=x, i=i, value = c(value))
+		     else
+			 callGeneric(x=x, i=i, , value = c(value)))
 
 setReplaceMethod("[", signature(x = "Matrix", i = "ANY", j = "ANY",
 				value = "matrix"),

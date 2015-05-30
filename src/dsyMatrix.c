@@ -107,10 +107,13 @@ SEXP dsyMatrix_matrix_mm(SEXP a, SEXP b, SEXP rtP)
     int *adims = INTEGER(GET_SLOT(a, Matrix_DimSym)),
 	*bdims = INTEGER(GET_SLOT(val, Matrix_DimSym)),
 	m = bdims[0], n = bdims[1];
-    double one = 1., zero = 0.;
-    double *vx = REAL(GET_SLOT(val, Matrix_xSym));
-    double *bcp = Memcpy(Alloca(m * n, double), vx, m * n);
-    R_CheckStack();
+    double one = 1., zero = 0., mn = ((double) m) * ((double) n);
+    if (mn > INT_MAX)
+	error(_("Matrix dimension %d x %d (= %g) is too large"), m, n, mn);
+    // else: m * n will not overflow below
+    double *bcp, *vx = REAL(GET_SLOT(val, Matrix_xSym));
+    C_or_Alloca_TO(bcp, m * n, double);
+    Memcpy(bcp, vx, m * n);
 
     if ((rt && n != adims[0]) || (!rt && m != adims[0]))
 	error(_("Matrices are not conformable for multiplication"));
@@ -126,6 +129,7 @@ SEXP dsyMatrix_matrix_mm(SEXP a, SEXP b, SEXP rtP)
 	SET_VECTOR_ELT(GET_SLOT(val, Matrix_DimNamesSym), 0,
 		duplicate(VECTOR_ELT(GET_SLOT(a, Matrix_DimNamesSym), 0)));
     }
+    if(mn >= SMALL_4_Alloca) Free(bcp);
     UNPROTECT(1);
     return val;
 }
@@ -152,9 +156,11 @@ SEXP dsyMatrix_trf(SEXP x)
     perm = INTEGER(ALLOC_SLOT(val, Matrix_permSym, INTSXP, n));
     F77_CALL(dsytrf)(uplo, &n, vx, &n, perm, &tmp, &lwork, &info);
     lwork = (int) tmp;
-    work = Alloca(lwork, double);
-    R_CheckStack();
+    C_or_Alloca_TO(work, lwork, double);
+
     F77_CALL(dsytrf)(uplo, &n, vx, &n, perm, work, &lwork, &info);
+
+    if(lwork >= SMALL_4_Alloca) Free(work);
     if (info) error(_("Lapack routine dsytrf returned error code %d"), info);
     UNPROTECT(1);
     return set_factors(x, val, "BunchKaufman");

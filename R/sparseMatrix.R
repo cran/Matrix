@@ -95,7 +95,7 @@ sparseMatrix <- function(i = ep, j = ep, p, x, dims, dimnames,
     r@i <- i - 1L
     r@j <- j - 1L
     if(!missing(dimnames))
-	r@Dimnames <- dimnames
+	r@Dimnames <- .fixupDimnames(dimnames)
     if(check) validObject(r)
     if(giveCsparse) as(r, "CsparseMatrix") else r
 }
@@ -170,9 +170,7 @@ graph2T <- function(from, use.weights =
     dm <- rep.int(length(nd), 2)
     edge2i <- function(e) {
 	## return (0-based) row indices 'i'
-	rep.int(0:(dm[1]-1L),
-		## lens <-
-		vapply(e, length, 0))
+	rep.int(0:(dm[1]-1L), lengths(e))
     }
 
     if(use.weights) {
@@ -328,12 +326,15 @@ setReplaceMethod("[", signature(x = "sparseMatrix", i = "missing", j = "missing"
 setReplaceMethod("[", signature(x = "sparseMatrix", i = "missing", j = "ANY",
 				value = "sparseMatrix"),
 		 function (x, i, j, ..., value)
-		 callGeneric(x=x, , j=j, value = as(value, "sparseVector")))
+		     callGeneric(x=x, , j=j, value = as(value, "sparseVector")))
 
 setReplaceMethod("[", signature(x = "sparseMatrix", i = "ANY", j = "missing",
 				value = "sparseMatrix"),
 		 function (x, i, j, ..., value)
-		 callGeneric(x=x, i=i, , value = as(value, "sparseVector")))
+		     if(nargs() == 3)
+			 callGeneric(x=x, i=i, value = as(value, "sparseVector"))
+		     else
+			 callGeneric(x=x, i=i, , value = as(value, "sparseVector")))
 
 setReplaceMethod("[", signature(x = "sparseMatrix", i = "ANY", j = "ANY",
 				value = "sparseMatrix"),

@@ -38,6 +38,7 @@ if(getRversion() >= "3.2.0") {
 } else {
     cBind <- methods:::cbind
     rBind <- methods:::rbind
+    lengths <- function (x, use.names = TRUE) vapply(x, length, 1L, USE.NAMES = use.names)
 }
 
 .onUnload <- function(libpath)

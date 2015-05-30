@@ -17,6 +17,11 @@
   \pkg{Matrix}.  An image of a matrix simply color codes all matrix
   entries and draws the \eqn{n\times m}{n x m} matrix using an
   \eqn{n\times m}{n x m} grid of (colored) rectangles.
+
+  The \pkg{Matrix} package \code{image} methods are based on
+  \code{\link[lattice]{levelplot}()} from package \pkg{lattice}; hence
+  these methods return an \dQuote{object} of class \code{"trellis"},
+  producing a graphic when (auto-) \code{\link{print}()}ed.
 }
 \usage{% want \usage{} since we have many "surprising arguments"
 \S4method{image}{dgTMatrix}(x,
@@ -67,7 +72,7 @@
   \item{lwd}{(only used when \code{useRaster} is false:) non-negative
     number or \code{NULL} (default), specifying the line-width of the
     rectangles of each non-zero matrix entry (drawn by
-    \code{\link[grid]{grid.rect}}).  The default depends on the matrix 
+    \code{\link[grid]{grid.rect}}).  The default depends on the matrix
     dimension and the device size.}
   \item{\dots}{further arguments passed to methods and
     \code{\link[lattice]{levelplot}}, notably \code{at} for specifying
@@ -79,6 +84,15 @@
   \code{\linkS4class{dgTMatrix}} class.
   Use \code{showMethods(image)} to list them all.
 }
+\value{
+  as all \pkg{lattice} graphics functions, \code{image(<Matrix>)}
+  returns a \code{"trellis"} object, effectively the result of
+  \code{\link[lattice]{levelplot}()}.
+}
+\seealso{
+  \code{\link[lattice]{levelplot}}, and
+  \code{\link[lattice]{print.trellis}} from package \pkg{lattice}.
+}
 \examples{
 showMethods(image)
 ## If you want to see all the methods' implementations:
@@ -89,8 +103,11 @@ image(CAex, main = "image(CAex)")
 image(CAex, useAbs=TRUE, main = "image(CAex, useAbs=TRUE)")
 
 cCA <- Cholesky(crossprod(CAex), Imult = .01)
-image(cCA, main="Cholesky(crossprod(CAex), Imult = .01)")
-image(cCA, useAbs=TRUE)
+## See  ?print.trellis --- place two image() plots side by side:
+print(image(cCA, main="Cholesky(crossprod(CAex), Imult = .01)"),
+      split=c(x=1,y=1,nx=2, ny=1), more=TRUE)
+print(image(cCA, useAbs=TRUE),
+      split=c(x=2,y=1,nx=2,ny=1))
 
 data(USCounties)
 image(USCounties)# huge

@@ -77,12 +77,6 @@ setGeneric("nnzero", function(x, na.counted = NA) standardGeneric("nnzero"),
 
 setGeneric("updown", function(update, C, L) standardGeneric("updown"))
 
-##> must do this in any case, as long as this should *run* in R < 2.15.2
-##> if(as.numeric(R.version$`svn rev`) < 60620)
-setGeneric("toeplitz", function(x, ...) standardGeneric("toeplitz"),
-           useAsDefault= function(x, ...) stats::toeplitz(x))
-## and an entry in ../man/sparseVector-class.Rd
-
 if(FALSE)
    ## only "need this", as 'Dvec' should not get its default from base::qr.Q :
    ## unfortunately, this masks  base::qr.Q  with a warning

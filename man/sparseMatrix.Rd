@@ -180,7 +180,6 @@ stopifnot(isSymmetric(sy),
 M1 <- rsparsematrix(1000, 20, nnz = 200)
 summary(M1)
 
-\donttest{% as SparseM is "outside"
 ## pointers example in converting from other sparse matrix representations.
 if(require(SparseM) && packageVersion("SparseM") >= 0.87 &&
    nzchar(dfil <- system.file("textdata", "rua_32_ax.rua",
@@ -194,6 +193,5 @@ if(require(SparseM) && packageVersion("SparseM") >= 0.87 &&
   X2 <- as(X, "sparseMatrix")
   stopifnot(identical(XX, X.), identical(X., X2))
 }% if
-}% donttest
 }% example
 \keyword{array}

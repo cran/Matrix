@@ -9,7 +9,8 @@
 lu(x, \dots)
 \S4method{lu}{matrix}(x, warnSing = TRUE, \dots)
 \S4method{lu}{dgeMatrix}(x, warnSing = TRUE, \dots)
-\S4method{lu}{dgCMatrix}(x, errSing = TRUE, order = TRUE, tol = 1, \dots)
+\S4method{lu}{dgCMatrix}(x, errSing = TRUE, order = TRUE, tol = 1,
+   keep.dimnames = TRUE, \dots)
 }
 \description{
   Computes (generalized) triangular decompositions of square (sparse or
@@ -33,6 +34,10 @@ lu(x, \dots)
     you know what you are doing.}
   \item{tol}{positive number indicating the pivoting tolerance used in
     \code{cs_lu}.  Do only change with much care.}
+  \item{keep.dimnames}{logical indicating that \code{\link{dimnames}}
+    should be propagated to the result, i.e., \dQuote{kept}.  This was
+    hardcoded to \code{FALSE} in upto \pkg{Matrix} version 1.2-0.
+    Setting to \code{FALSE} may gain some performance.}
   \item{\dots}{further arguments passed to or from other methods.}
 }
 \value{
@@ -58,20 +63,31 @@ lu(x, \dots)
   % behave more similar to the dense method: still give an LU,
   % and an optional warning.
 }
+\note{
+  Because the underlying algorithm differ entirely,
+  in the \emph{dense} case (class \code{\linkS4class{denseLU}}), the
+  decomposition is
+  \deqn{A = P L U,}
+  %%    ---------
+  where as  in the \emph{sparse} case (class
+  \code{\linkS4class{sparseLU}}), it is
+  \deqn{A = P' L U Q.}
+  %%    ------------
+}
 \references{
   Golub, G., and Van Loan, C. F. (1989).
   \emph{Matrix Computations,}
   2nd edition, Johns Hopkins, Baltimore.
 
-  Tim Davis (2005)
-  \url{http://www.cise.ufl.edu/research/sparse/CSparse/}
+  %% Tim Davis (2005)
+  %% \url{http://www.cise.ufl.edu/research/sparse/CSparse/}
 
   Timothy A. Davis (2006)
   \emph{Direct Methods for Sparse Linear Systems}, SIAM Series
   \dQuote{Fundamentals of Algorithms}.
 }
 \seealso{
-  Class definitions \code{\linkS4class{LU}} and \code{\linkS4class{sparseLU}}
+  Class definitions \code{\linkS4class{denseLU}} and \code{\linkS4class{sparseLU}}
   and function \code{\link{expand}};
   \code{\link{qr}}, \code{\link{chol}}.
 }

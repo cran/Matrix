@@ -177,11 +177,7 @@ setAs("dsCMatrix", "dsRMatrix",
 ##          function(x) .Call(csc_transpose, x),
 ##          valueClass = "dgRMatrix")
 
-setMethod("image", "dgRMatrix",
-          function(x, ...) {
-              x <- as(x, "TsparseMatrix")
-              callGeneric()
-          })
+setMethod("image", "dgRMatrix", function(x, ...) image(as(x, "TsparseMatrix"), ...))
 
 setMethod("t", "RsparseMatrix", function(x) as(t(.R.2.T(x)), "RsparseMatrix"))
 

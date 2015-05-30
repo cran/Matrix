@@ -86,13 +86,22 @@ setMethod("is.finite", signature(x = "sparseVector"),
 sp2vec <- function(x, mode = .type.kind[.M.kindC(cl)]) {
     ## sparseVector  ->  vector
     cl <- class(x)
+    has.x <- any(.slotNames(cl) == "x") # cheap test for 'has x slot'
+    m.any <- (mode == "any")
+    if(m.any)
+	mode <- if(has.x) mode(x@x) else "logical"
     r <- vector(mode, x@length)
     r[x@i] <-
-	if(any(.slotNames(cl) == "x")) { # cheap test for 'has x slot'
-	    if(is(x@x, mode)) x@x else as(x@x, mode)
+	if(has.x) {
+	    if(m.any || is(x@x, mode)) x@x else as(x@x, mode)
 	} else TRUE
     r
 }
+
+## so base functions calling as.vector() work too:
+## S3 dispatch works for base::as.vector(), but S4 dispatch does not:
+as.vector.sparseVector <- sp2vec
+as.array.sparseVector <- as.matrix.sparseVector <- function(x, ...) .sparseV2Mat(x)
 
 ##' Construct new sparse vector , *dropping* zeros
 
@@ -173,6 +182,7 @@ setAs("CsparseMatrix", "sparseVector", ## could go via TsparseMatrix, but this i
       function(from) {
 	  d <- dim(from)
 	  n <- prod(d) # -> numeric, no integer overflow
+	  if((int.n <- n <= .Machine$integer.max)) n <- as.integer(n)
           cld <- getClassDef(class(from))
 	  kind <- .M.kind(from, cld)
 	  if(extends(cld, "symmetricMatrix"))
@@ -180,7 +190,7 @@ setAs("CsparseMatrix", "sparseVector", ## could go via TsparseMatrix, but this i
 	  else if(extends(cld, "triangularMatrix") && from@diag == "U")
 	      from <- .Call(Csparse_diagU2N, from)
           xj <- .Call(Matrix_expand_pointers, from@p)
-	  ii <- if(n < .Machine$integer.max)
+	  ii <- if(int.n)
 	      1L + from@i + d[1] * xj
 	  else
 	      1 + from@i + as.double(d[1]) * xj
@@ -195,6 +205,7 @@ setAs("TsparseMatrix", "sparseVector",
       function(from) {
 	  d <- dim(from)
 	  n <- prod(d) # -> numeric, no integer overflow
+	  if((int.n <- n <= .Machine$integer.max)) n <- as.integer(n)
           cld <- getClassDef(class(from))
 	  kind <- .M.kind(from, cld)
 	  if(extends(cld, "symmetricMatrix"))
@@ -203,7 +214,7 @@ setAs("TsparseMatrix", "sparseVector",
 	      from <- .Call(Tsparse_diagU2N, from)
 	  if(anyDuplicatedT(from, di = d))
 	      from <- uniqTsparse(from)
-	  ii <- if(n < .Machine$integer.max)
+	  ii <- if(int.n)
 	      1L + from@i + d[1] * from@j
 	  else
 	      1 + from@i + as.double(d[1]) * from@j
@@ -478,7 +489,7 @@ setMethod("[", signature(x = "sparseVector", i = "index"),
                       i.i <- match(ii[iDup], ii)
                       jm <- lapply(i.i, function(.) which(. == m))
                       sel <- c(which(sel), unlist(jm))
-                      x@i <- c(x@i, rep.int(which(iDup), sapply(jm, length)))
+                      x@i <- c(x@i, rep.int(which(iDup), lengths(jm)))
                   }
                   if (has.x)
                       x@x <- x@x[sel]

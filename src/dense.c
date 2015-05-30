@@ -149,8 +149,7 @@ SEXP lsq_dense_QR(SEXP X, SEXP y)
 	    ydims[0], n);
     k = ydims[1];
     if (k < 1 || p < 1) return allocMatrix(REALSXP, p, k);
-    xvals = (double *) R_alloc(n * p, sizeof(double));
-    Memcpy(xvals, REAL(X), n * p);
+    xvals = (double *) Memcpy(R_alloc(n * p, sizeof(double)), REAL(X), n * p);
     ans = PROTECT(duplicate(y));
     lwork = -1;
     F77_CALL(dgels)("N", &n, &p, &k, xvals, &n, REAL(ans), &n,

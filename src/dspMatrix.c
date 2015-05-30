@@ -141,21 +141,23 @@ SEXP dspMatrix_matrix_mm(SEXP a, SEXP b)
     SEXP val = PROTECT(dup_mMatrix_as_dgeMatrix(b));
     int *bdims = INTEGER(GET_SLOT(val, Matrix_DimSym));
     int i, ione = 1, n = bdims[0], nrhs = bdims[1];
+    double nn = ((double) n) * ((double) nrhs);
+    if (nn > INT_MAX)
+	error(_("Matrix dimension %d x %d (= %g) is too large"), n, nrhs, nn);
     const char *uplo = uplo_P(a);
     double *ax = REAL(GET_SLOT(a, Matrix_xSym)), one = 1., zero = 0.,
-	*vx = REAL(GET_SLOT(val, Matrix_xSym));
-    double *bx = Alloca(n * nrhs, double);
-    R_CheckStack();
+	*vx = REAL(GET_SLOT(val, Matrix_xSym)), *bx;
+    C_or_Alloca_TO(bx, n * nrhs, double);
 
     Memcpy(bx, vx, n * nrhs);
     if (bdims[0] != n)
 	error(_("Matrices are not conformable for multiplication"));
-    if (nrhs < 1 || n < 1) {
-/* 	error(_("Matrices with zero extents cannot be multiplied")); */
-    } else
+    if (nrhs >= 1 && n >= 1) {
 	for (i = 0; i < nrhs; i++)
 	    F77_CALL(dspmv)(uplo, &n, &one, ax, bx + i * n, &ione,
 			    &zero, vx + i * n, &ione);
+	if(n * nrhs >= SMALL_4_Alloca) Free(bx);
+    }
     UNPROTECT(1);
     return val;
 }

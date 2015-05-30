@@ -97,10 +97,22 @@ SEXP dtrMatrix_matrix_solve(SEXP a, SEXP b)
 }
 
 // to be used for all three: '%*%', crossprod() and tcrossprod()
+/** Matrix products  dense triangular Matrices o  <matrix>
+ *
+ * @param a triangular matrix of class "dtrMatrix"
+ * @param b a <matrix> or <any-denseMatrix>
+ * @param right logical, if true, compute b %*% a,  else  a %*% b
+ * @param trans logical, if true, "transpose a", i.e., use t(a), otherwise a
+ *
+ * @return the matrix product, one of   a %*% b, t(a) %*% b,  b %*% a, or  b %*% t(a)
+ *      depending on (right, trans) =    (F, F)    (F, T)      (T, F)        (T, T)
+ */
 SEXP dtrMatrix_matrix_mm(SEXP a, SEXP b, SEXP right, SEXP trans)
 {
-    /* Because a must be square, the size of the answer, val,
-     * is the same as the size of b */
+    /* called from "%*%", crossprod() and tcrossprod() in  ../R/products.R
+     *
+     * Because 'a' must be square, the size of the answer 'val',
+     * is the same as the size of 'b' */
     SEXP val = PROTECT(dup_mMatrix_as_dgeMatrix(b));
     int rt = asLogical(right); /* if(rt), compute b %*% op(a),  else  op(a) %*% b */
     int tr = asLogical(trans);/* if true, use t(a) */
@@ -113,61 +125,92 @@ SEXP dtrMatrix_matrix_mm(SEXP a, SEXP b, SEXP right, SEXP trans)
 	error(_("dtrMatrix must be square"));
     if ((rt && adims[0] != n) || (!rt && adims[1] != m))
 	error(_("Matrices are not conformable for multiplication"));
-    if (m < 1 || n < 1) {
-/* 	error(_("Matrices with zero extents cannot be multiplied")); */
-    } else /* BLAS */
+    if (m >= 1 && n >= 1) {
+	// Level 3 BLAS - DTRMM() --> see call further below
 	F77_CALL(dtrmm)(rt ? "R" : "L", uplo_P(a),
 			/*trans_A = */ tr ? "T" : "N",
 			diag_P(a), &m, &n, &one,
 			REAL(GET_SLOT(a, Matrix_xSym)), adims,
 			REAL(GET_SLOT(val, Matrix_xSym)), &m);
+    }
+
+    SEXP
+	dn_a = GET_SLOT( a,  Matrix_DimNamesSym),
+	dn   = GET_SLOT(val, Matrix_DimNamesSym);
+    /* matrix product   a %*% b, t(a) %*% b,  b %*% a, or  b %*% t(a)
+     * (right, trans) =  (F, F)    (F, T)      (T, F)        (T, T)
+     *   set:from_a   =   0:0       0:1         1:1           1:0
+     */
+    SET_VECTOR_ELT(dn, rt ? 1 : 0, VECTOR_ELT(dn_a, (rt+tr) % 2));
+
     UNPROTECT(1);
     return val;
 }
 
+/** Matrix products of dense triangular Matrices
+ *
+ * @param a triangular matrix of class "dtrMatrix"
+ * @param b  ( ditto )
+ * @param right logical, if true, compute b %*% a,  else  a %*% b
+ * @param trans logical, if true, "transpose a", i.e., use t(a), otherwise a
+ *
+ * @return the matrix product, one of   a %*% b, t(a) %*% b,  b %*% a, or  b %*% t(a)
+ *      depending on (right, trans) =    (F, F)    (F, T)      (T, F)        (T, T)
+ */
 SEXP dtrMatrix_dtrMatrix_mm(SEXP a, SEXP b, SEXP right, SEXP trans)
 {
-    /* to be called from "%*%" and crossprod(), tcrossprod(),
-     * from  ../R/products.R
-     *
-     * TWO cases : (1) result is triangular  <=> uplo are equal
+    /* called from "%*%" : (x,y, FALSE,FALSE),
+             crossprod() : (x,y, FALSE, TRUE) , and
+	     tcrossprod(): (y,x, TRUE , TRUE)
+     * 	     -
+     * TWO cases : (1) result is triangular  <=> uplo's "match" (i.e., non-equal iff trans)
      * ===         (2) result is "general"
      */
     SEXP val,/* = in case (2):  PROTECT(dup_mMatrix_as_dgeMatrix(b)); */
 	d_a = GET_SLOT(a, Matrix_DimSym),
-	uplo_a = GET_SLOT(a, Matrix_uploSym),
-	diag_a = GET_SLOT(a, Matrix_diagSym);
-    /* if(rt), compute b %*% a,  else  a %*% b */
+	uplo_a = GET_SLOT(a, Matrix_uploSym),  diag_a = GET_SLOT(a, Matrix_diagSym),
+	uplo_b = GET_SLOT(b, Matrix_uploSym),  diag_b = GET_SLOT(b, Matrix_diagSym);
     int rt = asLogical(right);
-    int tr = asLogical(trans);/* if true, use t(a) */
+    int tr = asLogical(trans);
     int *adims = INTEGER(d_a), n = adims[0];
     double *valx = (double *) NULL /*Wall*/;
     const char
 	*uplo_a_ch = CHAR(STRING_ELT(uplo_a, 0)), /* = uplo_P(a) */
-	*diag_a_ch = CHAR(STRING_ELT(diag_a, 0)); /* = diag_P(a) */
-    Rboolean same_uplo = (*uplo_a_ch == *uplo_P(b)),
+	*diag_a_ch = CHAR(STRING_ELT(diag_a, 0)), /* = diag_P(a) */
+	*uplo_b_ch = CHAR(STRING_ELT(uplo_b, 0)), /* = uplo_P(b) */
+	*diag_b_ch = CHAR(STRING_ELT(diag_b, 0)); /* = diag_P(b) */
+    Rboolean same_uplo = (*uplo_a_ch == *uplo_b_ch),
+	matching_uplo = tr ? (!same_uplo) : same_uplo,
 	uDiag_b = /* -Wall: */ FALSE;
 
     if (INTEGER(GET_SLOT(b, Matrix_DimSym))[0] != n)
 	/* validity checking already "assures" square matrices ... */
 	error(_("\"dtrMatrix\" objects in '%*%' must have matching (square) dimension"));
-    if(same_uplo) {
+    if(matching_uplo) {
 	/* ==> result is triangular -- "dtrMatrix" !
 	 * val := dup_mMatrix_as_dtrMatrix(b) : */
 	int sz = n * n;
 	val = PROTECT(NEW_OBJECT(MAKE_CLASS("dtrMatrix")));
-	SET_SLOT(val, Matrix_uploSym, duplicate(uplo_a));
+	SET_SLOT(val, Matrix_uploSym, duplicate(uplo_b));
 	SET_SLOT(val, Matrix_DimSym,  duplicate(d_a));
 	SET_DimNames(val, b);
 	valx = REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, sz));
 	Memcpy(valx, REAL(GET_SLOT(b, Matrix_xSym)), sz);
-	if((uDiag_b = *diag_P(b) == 'U')) {
+	if((uDiag_b = (*diag_b_ch == 'U'))) {
 	    /* unit-diagonal b - may contain garbage in diagonal */
 	    for (int i = 0; i < n; i++)
 		valx[i * (n+1)] = 1.;
 	}
     } else { /* different "uplo" ==> result is "dgeMatrix" ! */
 	val = PROTECT(dup_mMatrix_as_dgeMatrix(b));
+	SEXP
+	    dn_a = GET_SLOT( a , Matrix_DimNamesSym),
+	    dn   = GET_SLOT(val, Matrix_DimNamesSym);
+	/* matrix product   a %*% b, t(a) %*% b,  b %*% a, or  b %*% t(a)
+	 * (right, trans) =  (F, F)    (F, T)      (T, F)        (T, T)
+	 *   set:from_a   =   0:0       0:1         1:1           1:0
+	 */
+	SET_VECTOR_ELT(dn, rt ? 1 : 0, VECTOR_ELT(dn_a, (rt+tr) % 2));
     }
     if (n >= 1) {
 	double alpha = 1.;
@@ -177,11 +220,11 @@ SEXP dtrMatrix_dtrMatrix_mm(SEXP a, SEXP b, SEXP right, SEXP trans)
 	 *				  op(A):= t(A) "T"ransposed */
 	F77_CALL(dtrmm)(rt ? "R" : "L", uplo_a_ch,
 			/*trans_A = */ tr ? "T" : "N", diag_a_ch, &n, &n, &alpha,
-			REAL(GET_SLOT(a, Matrix_xSym)), adims,
+			REAL(GET_SLOT(a,   Matrix_xSym)), adims,
 			REAL(GET_SLOT(val, Matrix_xSym)), &n);
     }
-    if(same_uplo) {
-	make_d_matrix_triangular(valx, a); /* set "other triangle" to 0 */
+    if(matching_uplo) {
+	make_d_matrix_triangular(valx, tr ? b : a); /* set "other triangle" to 0 */
 	if(*diag_a_ch == 'U' && uDiag_b) /* result remains uni-diagonal */
 	    SET_SLOT(val, Matrix_diagSym, duplicate(diag_a));
     }

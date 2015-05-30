@@ -74,10 +74,10 @@ Cholesky(A, perm = TRUE, LDL = !super, super = FALSE, Imult = 0, \dots)
   but \eqn{\tilde{R}P}{R~ P} is \emph{not} triangular even though \eqn{\tilde{R}}{R~} is.
 }
 \references{
-  Tim Davis (2005)
-  \emph{{CHOLMOD}: sparse supernodal {Cholesky} factorization and
-    update/downdate}
-  \url{http://www.cise.ufl.edu/research/sparse/cholmod/}
+  Yanqing Chen, Timothy A. Davis, William W. Hager, and Sivasankaran Rajamanickam (2008)
+  Algorithm 887: CHOLMOD, Supernodal Sparse Cholesky Factorization and Update/Downdate.
+  \emph{ACM Trans. Math. Softw.} \bold{35}, 3, Article 22, 14 pages.
+  \url{http://doi.acm.org/10.1145/1391989.1391995}
 
   Timothy A. Davis (2006)
   \emph{Direct Methods for Sparse Linear Systems}, SIAM Series

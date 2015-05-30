@@ -85,7 +85,6 @@
 \alias{rep,sparseVector-method}
 \alias{show,sparseVector-method}
 \alias{t,sparseVector-method}
-\alias{toeplitz}% only needed if(as.numeric(R.version$`svn rev`) < 60620)
 \alias{toeplitz,sparseVector-method}
 %
 \alias{head,sparseVector-method}

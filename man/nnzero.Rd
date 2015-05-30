@@ -64,6 +64,8 @@ nnzero(x, na.counted = NA)
   \code{\link{length}} method; typically, \code{length(M)} is much
   larger than \code{nnzero(M)} for a sparse matrix M, and the latter is
   a better indication of the \emph{size} of \code{M}.
+
+  \code{\link{drop0}}, \code{\link{zapsmall}}.
 }
 \examples{
 m <- Matrix(0+1:28, nrow = 4)

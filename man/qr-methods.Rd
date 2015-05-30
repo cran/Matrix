@@ -16,7 +16,7 @@
 }
 \usage{
 qr(x, \dots)
-qrR(qr, complete=FALSE, backPermute=TRUE)
+qrR(qr, complete=FALSE, backPermute=TRUE, row.names = TRUE)
 }
 \arguments{
   \item{x}{a numeric or complex matrix whose QR decomposition is to be
@@ -28,6 +28,8 @@ qrR(qr, complete=FALSE, backPermute=TRUE)
   \item{backPermute}{logical indicating if the rows of the \eqn{\bold{R}}
     matrix should be back permuted such that \code{qrR()}'s result can
     be used directly to reconstruct the original matrix \eqn{\bold{X}}.}
+  \item{row.names}{logical indicating if \code{\link{rownames}} should
+    propagated to the result.}
   \item{\dots}{further arguments passed to or from other methods}
 }
 \section{Methods}{
@@ -43,22 +45,71 @@ qrR(qr, complete=FALSE, backPermute=TRUE)
   \code{\linkS4class{dgCMatrix}}.
 }
 \examples{
+%% FIXME: This is currently mixing example + regression tests
 ##------------- example of pivoting -- from base'  qraux.Rd -------------
 X <- Matrix(cbind(int = 1,
                   b1=rep(1:0, each=3), b2=rep(0:1, each=3),
                   c1=rep(c(1,0,0), 2), c2=rep(c(0,1,0), 2), c3=rep(c(0,0,1),2)),
             sparse=TRUE)
+rownames(X) <- paste0("r", seq_len(nrow(X)))
+dnX <- dimnames(X)
 X # is singular, columns "b2" and "c3" are "extra"
-(qx <- qr(X))
-# both @p and @q are non-trivial permutations
+c(rankMatrix(X)) # = 4 (not 6)
+##----- regular case ------------------------------------------
+Xr <- X[ , -c(3,6)] # the "regular" (non-singular) version of X
+stopifnot(rankMatrix(Xr) == ncol(Xr))
+Y <- cbind(y <- setNames(1:6, paste0("y", 1:6)))
+## regular case:
+m <- as.matrix
+qXr <- qr(  Xr)
+qxr <- qr(m(Xr))
+qcfXy <- qr.coef (qXr, y)
+qcfXY <- qr.coef (qXr, Y)
+stopifnot(
+          all.equal(qr.coef(qxr, y), cf <- c(int=6, b1=-3, c1=-2, c2=-1), tol=1e-15)
+,
+          all.equal(qr.coef(qxr, Y), as.matrix(cf), tol=1e-15)
+,
+          all.equal(unname(qcfXy), unname(cf), tol=1e-15) || # FAIL names: ## FIXME_______
+          all.equal(qcfXy, cf, tol=1e-15)
+,
+          all.equal(unname(m(qcfXY)), unname(m(cf)), tol=1e-15) || # FAIL dimnames: ## FIXME_______
+          all.equal(m(qcfXY), m(cf), tol=1e-15)
+,
+          all.equal(y, qr.fitted(qxr, y), tol=2e-15)
+,
+          all.equal(y, qr.fitted(qXr, y), tol=2e-15)
+,
+          all.equal(m(qr.fitted(qXr, Y)), qr.fitted(qxr, Y), tol=1e-15)
+,
+          all.equal(  qr.resid (qXr, y),  qr.resid (qxr, y), tol=1e-15)
+,
+          all.equal(m(qr.resid (qXr, Y)), qr.resid (qxr, Y), tol=1e-15)
+)
 
-drop0(R. <- qr.R(qx), tol=1e-15) # columns are int b1 c1 c2 b2 c3
-Q. <- qr.Q(qx)
-qI <- sort.list(qx@q) # the inverse 'q' permutation
-(X. <- drop0(Q. \%*\% R.[, qI], tol=1e-15))## just = X
+##----- singular case -----------------------------------------------
+(qX <- qr(  X))
+ qx <- qr(m(X))
+# both @p and @q are non-trivial permutations
+stopifnot(identical(dimnames(X), dnX))# some versions changed X's dimnames!
+
+drop0(R. <- qr.R(qX), tol=1e-15) # columns *permuted*: c3 b1 ..
+Q. <- qr.Q(qX)
+qI <- sort.list(qX@q) # the inverse 'q' permutation
+(X. <- drop0(Q. \%*\% R.[, qI], tol=1e-15))## just = X, incl. correct colnames
 stopifnot(all(X - X.) < 8*.Machine$double.eps,
-          ## qR(.) returns R already "back permuted" (as with qI):
-          identical(R.[, qI], qrR(qx)) )
+          ## qrR(.) returns R already "back permuted" (as with qI):
+          identical(R.[, qI], qrR(qX)) )
+##
+## In this sense, classical qr.coef() is fine:
+cfqx <- qr.coef(qx, y) # quite different from
+nna <- !is.na(cfqx)
+stopifnot(all.equal(unname(qr.fitted(qx,y)),
+                    as.numeric(X[,nna] \%*\% cfqx[nna])))
+## FIXME: do these make *any* sense? --- should give warnings !
+qr.coef(qX, y)
+qr.coef(qX, Y)
+rm(m)
 }
 \keyword{methods}
 \keyword{algebra}

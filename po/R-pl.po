@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Matrix 1.1-2-2\n"
 "Report-Msgid-Bugs-To: bugs.r-project.org\n"
-"POT-Creation-Date: 2015-03-27 10:18\n"
+"POT-Creation-Date: 2015-05-12 16:53\n"
 "PO-Revision-Date: 2014-03-27 14:47+0100\n"
 "Last-Translator: Łukasz Daniel <lukasz.daniel@gmail.com>\n"
 "Language-Team: Łukasz Daniel <lukasz.daniel@gmail.com>\n"
@@ -918,13 +918,6 @@ msgstr "natrafiona na cykl (2) -- zatrzymywanie iteracji"
 msgid "not enough new vecs -- stop iterations"
 msgstr "zbyt mało nowych wektorów -- zatrzymywanie iteracji"
 
-# Matrix/R/lMatrix.R: 8
-# stop("\"lMatrix\" object with NAs cannot be coerced to \"nMatrix\"")
-msgid "\"dMatrix\" object with NAs cannot be coerced to \"nMatrix\""
-msgstr ""
-"obiekt klasy \"dMatrix\" z wartościami NA nie może zostać przekształcony na "
-"obiekt klasy \"nMatrix\""
-
 # Matrix/R/denseMatrix.R: 30
 # stop("diagonalMatrix in .dense2C() -- should never happen, please report!")
 msgid "diagonalMatrix in .dense2C() -- should never happen, please report!"
@@ -1142,13 +1135,6 @@ msgid "replacing \"indMatrix\" entries is not allowed, as rarely sensible"
 msgstr ""
 "zastępowanie wpisów \"indMatrix\" jest niedozwolone, ponieważ jest to rzadko "
 "sensowne"
-
-# Matrix/R/lMatrix.R: 8
-# stop("\"lMatrix\" object with NAs cannot be coerced to \"nMatrix\"")
-msgid "\"lMatrix\" object with NAs cannot be coerced to \"nMatrix\""
-msgstr ""
-"obiekt klasy \"lMatrix\" z wartościami NA nie może zostać przekształcony na "
-"obiekt klasy \"nMatrix\""
 
 # Matrix/R/nearPD.R: 52
 # stop("Matrix seems negative semi-definite")
@@ -1412,6 +1398,20 @@ msgstr[1] ""
 msgstr[2] ""
 "argumenty %s zostały odrzucone w\n"
 " %s"
+
+# Matrix/R/lMatrix.R: 8
+# stop("\"lMatrix\" object with NAs cannot be coerced to \"nMatrix\"")
+#~ msgid "\"dMatrix\" object with NAs cannot be coerced to \"nMatrix\""
+#~ msgstr ""
+#~ "obiekt klasy \"dMatrix\" z wartościami NA nie może zostać przekształcony "
+#~ "na obiekt klasy \"nMatrix\""
+
+# Matrix/R/lMatrix.R: 8
+# stop("\"lMatrix\" object with NAs cannot be coerced to \"nMatrix\"")
+#~ msgid "\"lMatrix\" object with NAs cannot be coerced to \"nMatrix\""
+#~ msgstr ""
+#~ "obiekt klasy \"lMatrix\" z wartościami NA nie może zostać przekształcony "
+#~ "na obiekt klasy \"nMatrix\""
 
 # Matrix/R/indMatrix.R: 63
 # stop("not a skinny matrix")

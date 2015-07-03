@@ -1,29 +1,36 @@
 useDynLib(Matrix, .registration=TRUE)
 
-## Import non-base functions we need explicitly,
-## notably for which we define methods:
-importFrom("lattice", levelplot, panel.levelplot.raster)
-importFrom("graphics", image)
-importFrom("utils", head, tail, assignInNamespace)
-importFrom("stats", cov2cor, toeplitz, update#, vcov
-	   )
-
+## Import functions we need explicitly, notably for which we define methods:
+importFrom("grDevices", colorRampPalette, grey)
+importFrom("graphics", par, image)
 importFrom("grid", grid.rect, gpar, grob)# others via 'grid::'
+importFrom("lattice", levelplot, panel.levelplot.raster)
+
+importFrom("utils", str, head, tail, assignInNamespace)
+importFrom("stats"
+         , "contrasts<-", cov2cor
+         , diffinv, model.frame, rnorm, runif
+         , symnum, terms
+         , toeplitz, update#, vcov
+           )
 
 ## try to import all we need, but not more
-importFrom("methods",
+importFrom("methods"
 	   ## still needed {group generics needed to be explicitly imported} ?
-	   Ops, Arith, Compare, Logic, Math, Math2, Summary, Complex,
+         , Ops, Arith, Compare, Logic, Math, Math2, Summary, Complex
 	   ## generics for which we export new methods:
-	   cbind2, rbind2, coerce, show
-	   , kronecker
+         , cbind2, rbind2, coerce, show
+         , kronecker
 	   ## things we call,.. necessary when Matrix is loaded, but not attached, as in
 	   ## Rscript --vanilla -e 'require(methods);(M <- Matrix::Matrix(0:1,3,3));as(M,"sparseMatrix")'
-	   , callGeneric, as, is, extends, new
-	   , getClass, getClassDef, validObject
-	   , setClass, setClassUnion, setMethod, setOldClass
-	   , setValidity, slot, "slot<-", .hasSlot
-	   , signature, representation, prototype)
+         , as, is, extends, new
+         , callGeneric, callNextMethod
+         , .selectSuperClasses, .slotNames, canCoerce, packageSlot
+         , getClass, getClassDef, validObject
+         , setClass, setClassUnion, setMethod, setOldClass
+         , setValidity, slot, "slot<-", slotNames, .hasSlot
+         , signature, representation, prototype)
+
 
 
 ## Generics and functions defined in this package

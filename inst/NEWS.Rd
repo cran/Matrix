@@ -6,7 +6,23 @@
 \newcommand{\CRANpkg}{\href{http://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 %% NB: The date (yyyy-mm-dd) is the "Packaged:" date in ../DESCRIPTION
 
-\section{Changes in version 1.2-1 (2015-05-30)}{
+\section{Changes in version 1.2-2 (2015-07-03, svn r3131)}{
+  \subsection{New Features}{
+    \itemize{
+      \item Explicitly import from \dQuote{base} packages such as \code{"stats"}.
+    }
+  }
+  \subsection{Bug Fixes}{
+    \itemize{
+      \item Our \code{colSums(x)}, \code{rowMeans(y)}, \dots, methods
+      now \dQuote{keep names}, i.e., if the result is a numeric vector,
+      and the matrix \code{x} has column or row names, these become the
+      \code{names(.)} of the result, fixing R-forge bug #6018.
+    }
+  }
+}
+
+\section{Changes in version 1.2-1 (2015-05-30, svn r3127)}{
   \subsection{New Features}{
     \itemize{
       \item \code{"Matrix"} now has an \code{initialization()} method

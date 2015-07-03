@@ -74,7 +74,7 @@ alternatively also is_sym() [in src/cs_utils.c], see below.
 ** TODO use  getOption("Matrix.quiet") in more places [--> less messages/warnings]
 ** TODO Check for DimNames propagation in coercion and other operations.
   Done for (%*%, crossprod, tcrossprod) -- but not systematically checked (tests/matprod.R)
-*** TODO For colSums(), rowSums() [R-forge bug # 6018]
+*** TODO For colSums(), rowSums() [R-forge bug # 6018] --> 'FIXME' in R/colSums.R
 ** TODO Report the problem in the Linux ldexp manual page.  The second and
   third calls in the Synopsis should be to ldexpf and ldexpl.
 

@@ -1,34 +1,6 @@
 #### Collect methods for  colSums(), rowSums(), colMeans(), rowMeans() here.
 ####			  =======    -------    --------    --------
 
-## FIXME:  want  dimnames propagation for all -- do in C
-
-## .Call(dgCMatrix_colSums, x, na.rm, sparseResult, FALSE, FALSE))
-## .Call(dgCMatrix_colSums, x, na.rm, sparseResult, FALSE, TRUE))
-## .Call(dgCMatrix_colSums, x, na.rm, sparseResult, TRUE, FALSE))
-## .Call(dgCMatrix_colSums, x, na.rm, sparseResult, TRUE, TRUE))
-
-## .Call(dgeMatrix_colsums, x, na.rm, FALSE, FALSE),
-## .Call(dgeMatrix_colsums, x, na.rm, FALSE, TRUE),
-## .Call(dgeMatrix_colsums, x, na.rm, TRUE, FALSE),
-## .Call(dgeMatrix_colsums, x, na.rm, TRUE, TRUE),
-
-## .Call(igCMatrix_colSums, x, na.rm, sparseResult, FALSE, FALSE))
-## .Call(igCMatrix_colSums, x, na.rm, sparseResult, FALSE, TRUE))
-## .Call(igCMatrix_colSums, x, na.rm, sparseResult, TRUE, FALSE))
-## .Call(igCMatrix_colSums, x, na.rm, sparseResult, TRUE, TRUE))
-
-## .Call(lgCMatrix_colSums, x, na.rm, sparseResult, FALSE, FALSE))
-## .Call(lgCMatrix_colSums, x, na.rm, sparseResult, FALSE, TRUE))
-## .Call(lgCMatrix_colSums, x, na.rm, sparseResult, TRUE, FALSE))
-## .Call(lgCMatrix_colSums, x, na.rm, sparseResult, TRUE, TRUE))
-
-## .Call(ngCMatrix_colSums, x, na.rm, sparseResult, FALSE, FALSE))
-## .Call(ngCMatrix_colSums, x, na.rm, sparseResult, FALSE, TRUE))
-## .Call(ngCMatrix_colSums, x, na.rm, sparseResult, TRUE, FALSE))
-## .Call(ngCMatrix_colSums, x, na.rm, sparseResult, TRUE, TRUE))
-
-
 ## Utilities:
 
 ## .as.dgC.Fun <- function(x, na.rm = FALSE, dims = 1, sparseResult = FALSE) {
@@ -115,7 +87,7 @@ rm(.diag.Sum, .diag.Mean)
 
 ### 1) those with .Call(.), {d, i, l, n} gCMatrix  x  {col|row}{Sums|Means} :
 
-## the last two arguments to dgCMatrix_colSums are `trans' and `means'
+## the last two arguments to .gCMatrix_(col|col)(Sums|Means)  are 'trans' and 'means'
 setMethod("colSums", signature(x = "dgCMatrix"),
 	  function(x, na.rm = FALSE, dims = 1, sparseResult = FALSE)
           .Call(dgCMatrix_colSums, x, na.rm, sparseResult, FALSE, FALSE))

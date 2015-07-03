@@ -894,6 +894,9 @@ SEXP dgeMatrix_colsums(SEXP x, SEXP naRmP, SEXP cols, SEXP mean)
 	if(do_count && m >= SMALL_4_Alloca) Free(cnt);
     }
 
+    SEXP nms = VECTOR_ELT(GET_SLOT(x, Matrix_DimNamesSym), useCols ? 1 : 0);
+    if(!isNull(nms))
+	setAttrib(ans, R_NamesSymbol, duplicate(nms));
     UNPROTECT(1);
     return ans;
 }

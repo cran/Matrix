@@ -138,8 +138,8 @@ SEXP Csparse_subassign(SEXP x, SEXP i_, SEXP j_, SEXP value)
 			 "zsparseVector",// 5      3
 			 ""};
 
-    int ctype_x = Matrix_check_class_etc(x,     valid_cM),
-	ctype_v = Matrix_check_class_etc(value, valid_spv);
+    int ctype_x = R_check_class_etc(x,     valid_cM),
+	ctype_v = R_check_class_etc(value, valid_spv);
     if (ctype_x < 0)
 	error(_("invalid class of 'x' in Csparse_subassign()"));
     if (ctype_v < 0)

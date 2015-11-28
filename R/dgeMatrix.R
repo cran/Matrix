@@ -11,8 +11,8 @@ setAs("dgeMatrix", "matrix", ge2mat)
 ##  "[" settings are "up in"  Matrix.R & denseMatrix.R
 
 
-setMethod("as.vector", signature(x = "dgeMatrix", mode = "missing"),
-          function(x, mode) x@x)
+setMethod("as.vector", "dgeMatrix",
+          function(x, mode) as.vector(x@x, mode))
 
 setMethod("norm", signature(x = "dgeMatrix", type = "missing"),
 	  function(x, type, ...) norm(x, type = "O", ...))

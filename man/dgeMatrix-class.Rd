@@ -17,7 +17,7 @@
 %\alias{Math2,dgeMatrix,numeric-method}
 % Others
 %
-\alias{as.vector,dgeMatrix,missing-method}
+\alias{as.vector,dgeMatrix-method}
 \alias{coerce,dgeMatrix,matrix-method}
 \alias{coerce,dgeMatrix,triangularMatrix-method}
 \alias{coerce,dgeMatrix,lgeMatrix-method}

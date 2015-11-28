@@ -1,7 +1,5 @@
 #### Triangular Matrices -- Coercion and Methods
 
-
-## or rather setIs() {since test can fail }?
 ## FIXME: get rid of this (coerce to "triangular..") ?!?
 setAs("dgeMatrix", "dtrMatrix", function(from) asTri(from, "dtrMatrix"))
 

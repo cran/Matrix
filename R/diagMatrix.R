@@ -309,7 +309,7 @@ setAs("ddiMatrix", "matrix", .ddi2mat)
 ## the non-ddi diagonalMatrix -- only "ldiMatrix" currently:
 setAs("diagonalMatrix", "matrix", .diag2mat)
 
-setMethod("as.vector", signature(x = "diagonalMatrix", mode="missing"),
+setMethod("as.vector", "diagonalMatrix",
 	  function(x, mode) {
 	      n <- x@Dim[1]
               mod.x <- mode(x@x)
@@ -317,7 +317,7 @@ setMethod("as.vector", signature(x = "diagonalMatrix", mode="missing"),
 	      if(n)
 		  r[1 + 0:(n - 1L) * (n + 1)] <-
 		      if(x@diag == "U") as1(mod=mod.x) else x@x
-	      r
+	      as.vector(r, mode)
 	  })
 
 setAs("diagonalMatrix", "generalMatrix", # prefer sparse:

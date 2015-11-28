@@ -1,8 +1,5 @@
 #ifndef MATRIX_H
 #define MATRIX_H
-#include <Rdefines.h>
-#include <Rconfig.h>
-#include "cholmod.h" //--->  M_cholmod_*() declarations
 
 #ifdef	__cplusplus
 extern "C" {
@@ -10,6 +7,22 @@ extern "C" {
 #else
 # define bool Rboolean
 #endif
+
+// From ../../src/Mutils.h :
+#ifdef __GNUC__
+# undef alloca
+# define alloca(x) __builtin_alloca((x))
+#elif defined(__sun) || defined(_AIX)
+/* this is necessary (and sufficient) for Solaris 10 and AIX 6: */
+# include <alloca.h>
+#endif
+/* For R >= 3.2.2, the 'elif' above shall be replaced by
+#elif defined(HAVE_ALLOCA_H)
+*/
+
+#include <Rdefines.h>
+#include <Rconfig.h>
+#include "cholmod.h" //--->  M_cholmod_*() declarations
 
 #ifdef HAVE_VISIBILITY_ATTRIBUTE
 # define attribute_hidden __attribute__ ((visibility ("hidden")))
@@ -43,10 +56,15 @@ extern "C" {
 		    "nsyMatrix",		\
 		    "ntpMatrix", "nspMatrix"
 
+#define MATRIX_VALID_dCsparse			\
+ "dgCMatrix", "dsCMatrix", "dtCMatrix"
+#define MATRIX_VALID_nCsparse			\
+ "ngCMatrix", "nsCMatrix", "ntCMatrix"
+
 #define MATRIX_VALID_Csparse			\
- "dgCMatrix", "dsCMatrix", "dtCMatrix",		\
+    MATRIX_VALID_dCsparse,			\
  "lgCMatrix", "lsCMatrix", "ltCMatrix",		\
- "ngCMatrix", "nsCMatrix", "ntCMatrix",		\
+    MATRIX_VALID_nCsparse,			\
  "zgCMatrix", "zsCMatrix", "ztCMatrix"
 
 #define MATRIX_VALID_Tsparse			\

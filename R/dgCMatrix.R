@@ -77,7 +77,7 @@ setMethod("lu", signature(x = "sparseMatrix"),
 			  ...)))
 
 
-.solve.sparse.dgC <- function(a, b, tol = .Machine$double.eps) {
+.solve.dgC.lu <- function(a, b, tol = .Machine$double.eps) {
     ## @MM: see also solveSparse() in  ~/R/MM/Pkg-ex/Matrix/Doran-A.R
     lu.a <- LU.dgC(a)
     if(tol > 0) {
@@ -111,11 +111,11 @@ setMethod("lu", signature(x = "sparseMatrix"),
 
 ## FIXME: workaround, till  .Call(dgCMatrix_matrix_solve, a, b, sparse=TRUE)  works:
 .solve.dgC <- function(a, b, sparse, tol = .Machine$double.eps)
-    if(sparse) .solve.sparse.dgC(a, b, tol=tol) else .Call(dgCMatrix_matrix_solve, a, b, FALSE)
+    if(sparse) .solve.dgC.lu(a, b, tol=tol) else .Call(dgCMatrix_matrix_solve, a, b, FALSE)
 
 .solve.dgC.mat <- function(a, b, sparse=FALSE, tol = .Machine$double.eps, ...) {
     chk.s(..., which.call=-2)
-    if(sparse) .solve.sparse.dgC(a, b, tol=tol) else .Call(dgCMatrix_matrix_solve, a, b, FALSE)
+    if(sparse) .solve.dgC.lu(a, b, tol=tol) else .Call(dgCMatrix_matrix_solve, a, b, FALSE)
 }
 
 ## Provide also for pkg MatrixModels
@@ -162,6 +162,6 @@ setMethod("solve", signature(a = "dgCMatrix", b = "missing"),
 		  sparse <- FALSE # (old default)
 	      }
 	      if(sparse)
-		  .solve.sparse.dgC(a, tol=tol) # -> "smart" diagonal b
+		  .solve.dgC.lu(a, tol=tol) # -> "smart" diagonal b
 	      else .Call(dgCMatrix_matrix_solve, a, b=diag(nrow(a)), FALSE)
 	  })

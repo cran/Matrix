@@ -17,8 +17,8 @@
 }
 \usage{
 formatSparseM(x, zero.print = ".", align = c("fancy", "right"),
-              m = as(x,"matrix"), asLogical=NULL, digits=NULL,
-              cx, iN0, dn = dimnames(m))
+              m = as(x,"matrix"), asLogical=NULL, uniDiag=NULL,
+              digits=NULL, cx, iN0, dn = dimnames(m))
 
 .formatSparseSimple(m, asLogical=FALSE, digits=NULL,
 		    col.names, note.dropping.colnames = TRUE,
@@ -35,6 +35,10 @@ formatSparseM(x, zero.print = ".", align = c("fancy", "right"),
   \item{m}{(optional) a (standard \R) \code{\link{matrix}} version of \code{x}.}
   \item{asLogical}{should the matrix be formatted as a logical matrix
     (or rather as a numeric one); mostly for \code{formatSparseM()}.}
+  \item{uniDiag}{logical indicating if the diagonal entries of a sparse
+    unit triangular or unit-diagonal matrix should be formatted as
+    \code{"I"} instead of \code{"1"} (to emphasize that the 1's are
+    \dQuote{structural}).}
   \item{digits}{significant digits to use for printing, see
     \code{\link{print.default}}.}
   \item{cx}{(optional) character matrix; a formatted version of \code{x}, still
@@ -63,7 +67,7 @@ formatSparseM(x, zero.print = ".", align = c("fancy", "right"),
 m <- suppressWarnings(matrix(c(0, 3.2, 0,0, 11,0,0,0,0,-7,0), 4,9))
 fm <- formatSparseM(m)
 noquote(fm)
-## nice, but this is nicer :
+## nice, but this is nicer {with "units" vertically aligned}:
 print(fm, quote=FALSE, right=TRUE)
 ## and "the same" as :
 Matrix(m)

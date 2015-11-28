@@ -80,7 +80,7 @@ solve.dsC.mat <- function(a,b, LDL = NA, tol = .Machine$double.eps) {
 		  error=function(e)NULL, warning=function(w)NULL)
     if(is.null(r)) { ## cholmod factorization was not ok
 	Matrix.msg("solve.dsC.mat(): Cholmod factorization unsuccessful --> using LU(<dgC>)")
-	.solve.sparse.dgC(as(a,"dgCMatrix"), b=b, tol=tol)
+	.solve.dgC.lu(as(a,"dgCMatrix"), b=b, tol=tol)
     }
     else r
 }
@@ -91,7 +91,7 @@ solve.dsC.dC <- function(a,b, LDL = NA, tol = .Machine$double.eps) {
 		  error=function(e)NULL, warning=function(w)NULL)
     if(is.null(r)) { ## cholmod factorization was not ok
 	Matrix.msg("solve.dsC.dC(): Cholmod factorization unsuccessful --> using LU(<dgC>)")
-	.solve.sparse.dgC(as(a,"dgCMatrix"), b=b, tol=tol)
+	.solve.dgC.lu(as(a,"dgCMatrix"), b=b, tol=tol)
     }
     else r
 }

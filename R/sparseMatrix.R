@@ -398,8 +398,8 @@ setReplaceMethod("[", signature(x = "sparseMatrix", i = "ANY", j = "ANY",
 
 ### NB: Want this to work also for logical or numeric traditional matrix 'x':
 formatSparseM <- function(x, zero.print = ".", align = c("fancy", "right"),
-                          m = as(x,"matrix"), asLogical=NULL, digits=NULL,
-                          cx, iN0, dn = dimnames(m))
+                          m = as(x,"matrix"), asLogical=NULL, uniDiag=NULL,
+                          digits=NULL, cx, iN0, dn = dimnames(m))
 {
     cld <- getClassDef(class(x))
     if(is.null(asLogical)) {
@@ -417,7 +417,6 @@ formatSparseM <- function(x, zero.print = ".", align = c("fancy", "right"),
     if(missing(iN0))
 	iN0 <- 1L + .Call(m_encodeInd, non0ind(x, cld), di = d, FALSE, FALSE)
     ## ne <- length(iN0)
-
     if(asLogical) {
         cx[m] <- "|"
         if(!extends(cld, "sparseMatrix"))
@@ -466,6 +465,20 @@ formatSparseM <- function(x, zero.print = ".", align = c("fancy", "right"),
         else
             zero.print <- rep.int(zero.print, length(cols))
     } ## else "right" : nothing to do
+    if(!asLogical && isTRUE(uniDiag)) { ## use "I" in diagonal -- pad correctly
+        if(any(diag(x) != 1))
+            stop("uniDiag=TRUE, but not all diagonal entries are 1")
+        D <- diag(cx) # use
+        if(any((ir <- regexpr("1", D)) < 0)) {
+            warning("uniDiag=TRUE, not all entries in diagonal coded as 1")
+        } else {
+            ir <- as.vector(ir)
+            nD <- nchar(D, "bytes")
+            ## replace "1..." by "I  " (I plus blanks)
+            substr(D, ir, nD) <- sprintf("I%*s", nD - ir, "")
+            diag(cx) <- D
+        }
+    }
     cx[-iN0] <- zero.print
     cx
 }## formatSparseM()
@@ -475,13 +488,15 @@ formatSparseM <- function(x, zero.print = ".", align = c("fancy", "right"),
 formatSpMatrix <- function(x, digits = NULL, # getOption("digits"),
                            maxp = 1e9, # ~ 1/2 * .Machine$integer.max, ## getOption("max.print"),
                            cld = getClassDef(class(x)), zero.print = ".",
-                           col.names, note.dropping.colnames = TRUE,
+                           col.names, note.dropping.colnames = TRUE, uniDiag = TRUE,
                            align = c("fancy", "right"))
 {
     stopifnot(extends(cld, "sparseMatrix"))
     validObject(x) # have seen seg.faults for invalid objects
     d <- dim(x)
-    if(extends(cld, "triangularMatrix") && x@diag == "U") {
+    unitD <- extends(cld, "triangularMatrix") && x@diag == "U"
+    ## Will note it is *unit*-diagonal by using "I" instead of "1"
+    if(unitD) {
 	if(extends(cld, "CsparseMatrix"))
 	    x <- .Call(Csparse_diagU2N, x)
 	else if(extends(cld, "TsparseMatrix"))
@@ -493,7 +508,6 @@ formatSpMatrix <- function(x, digits = NULL, # getOption("digits"),
 	    cld <- getClassDef(class(x))
 	}
     }
-    ## TODO?  Could note it is *unit*-diagonal, e.g., by using "I" instead of "1" ?
 
     if(prod(d) > maxp) { # "Large" => will be "cut"
         ## only coerce to dense that part which won't be cut :
@@ -520,7 +534,8 @@ formatSpMatrix <- function(x, digits = NULL, # getOption("digits"),
 	ne <- length(iN0 <- 1L + .Call(m_encodeInd, non0ind(x, cld),
 				       di = d, FALSE, FALSE))
 	if(0 < ne && (logi || ne < prod(d))) {
-	    cx <- formatSparseM(x, zero.print, align, m=m, asLogical=logi,
+	    cx <- formatSparseM(x, zero.print, align, m=m,
+				asLogical = logi, uniDiag = unitD & uniDiag,
 				digits=digits, cx=cx, iN0=iN0, dn=dn)
 	} else if (ne == 0)# all zeroes
 	    cx[] <- zero.print
@@ -536,29 +551,29 @@ formatSpMatrix <- function(x, digits = NULL, # getOption("digits"),
 printSpMatrix <- function(x, digits = NULL, # getOption("digits"),
 			  maxp = getOption("max.print"),
 			  cld = getClassDef(class(x)), zero.print = ".",
-			  col.names, note.dropping.colnames = TRUE,
+			  col.names, note.dropping.colnames = TRUE, uniDiag = TRUE,
 			  col.trailer = '', align = c("fancy", "right"))
 {
     stopifnot(extends(cld, "sparseMatrix"))
-    x.orig <- x # to be returned
     cx <- formatSpMatrix(x, digits=digits, maxp=maxp, cld=cld,
 			 zero.print=zero.print, col.names=col.names,
 			 note.dropping.colnames=note.dropping.colnames,
-			 align=align)
+                         uniDiag=uniDiag, align=align)
     if(col.trailer != '')
         cx <- cbind(cx, col.trailer, deparse.level = 0)
     ## right = TRUE : cheap attempt to get better "." alignment
     print(cx, quote = FALSE, right = TRUE, max = maxp)
-    invisible(x.orig)
+    invisible(x)
 } ## printSpMatrix()
 
 ##' The "real" show() / print() method, calling the above printSpMatrix():
 printSpMatrix2 <- function(x, digits = NULL, # getOption("digits"),
                            maxp = getOption("max.print"), zero.print = ".",
-                           col.names, note.dropping.colnames = TRUE,
+                           col.names, note.dropping.colnames = TRUE, uniDiag = TRUE,
                            suppRows = NULL, suppCols = NULL,
                            col.trailer = if(suppCols) "......" else "",
-                           align = c("fancy", "right"))
+                           align = c("fancy", "right"),
+                           width = getOption("width"), fitWidth = TRUE)
 {
     d <- dim(x)
     cl <- class(x)
@@ -567,55 +582,79 @@ printSpMatrix2 <- function(x, digits = NULL, # getOption("digits"),
 	" (unitriangular)" else ""
     cat(sprintf('%d x %d sparse Matrix of class "%s"%s\n',
                 d[1], d[2], cl, xtra))
+    setW <-  !missing(width) && width > getOption("width")
+    if(setW) {
+	op <- options(width = width) ; on.exit( options(op) ) }
     if((identical(suppRows,FALSE) && identical(suppCols, FALSE)) ||
        (!isTRUE(suppRows) && !isTRUE(suppCols) && prod(d) <= maxp))
-    {
+    { ## "small matrix" and supp* not TRUE : no rows or columns are suppressed
         if(missing(col.trailer) && is.null(suppCols))
             suppCols <- FALSE # for 'col.trailer'
         printSpMatrix(x, cld=cld, digits=digits, maxp=maxp,
                       zero.print=zero.print, col.names=col.names,
-                      note.dropping.colnames=note.dropping.colnames,
+                      note.dropping.colnames=note.dropping.colnames, uniDiag=uniDiag,
                       col.trailer=col.trailer, align=align)
-    } else { ## d[1] > maxp / d[2] >= nr : -- this needs [,] working:
+    }
+    else { ## d[1] > maxp / d[2] >= nr : -- this needs [,] working:
 	validObject(x)
-	nR <- d[1] ## nrow
-	useW <- getOption("width") - (format.info(nR, digits=digits)[1] + 3+1)
-	##			     space for "[<last>,] "
-
-	## --> suppress rows and/or columns in printing ...
-
-	if(is.null(suppCols)) suppCols <- (d[2] * 2 > useW)
-	nc <- if(suppCols) (useW - (1 + nchar(col.trailer))) %/% 2 else d[2]
-	nr <- maxp %/% nc
-	if(is.null(suppRows)) suppRows <- (nr < nR)
-
-	sTxt <- c("in show(); maybe adjust 'options(max.print= *)'",
+	sTxt <- c(" ", gettext(
+			   "in show(); maybe adjust 'options(max.print= *, width = *)'"),
 		  "\n ..............................\n")
+	useW <- width - (format.info(d[1], digits=digits)[1] + 3+1)
+	##  ==  width - space for the largest row label : "[<last>,] "
+
+	## Suppress rows and/or columns in printing ...
+        ## ---------------------------------------- but which exactly depends on format
+        ## Determining number of columns - first assuming all zeros : ". . "..: 2 chars/column
+        ## i.e., we get the *maximal* numbers of columns to keep, nc :
+	if(is.null(suppCols)) # i.e., "it depends" ..
+            suppCols <- (d[2] * 2 > useW) # used in 'col.trailer' default
+        nCc <- 1 + nchar(col.trailer, "width")
+	if(suppCols) {
+            nc <- (useW - nCc) %/% 2
+            x <- x[ , 1:nc, drop = FALSE]
+        } else
+            nc <- d[2]
+	nr <- maxp %/% nc # if nc becomes smaller,  nr will become larger (!)
+        if(is.null(suppRows)) suppRows <- (nr < d[1])
 	if(suppRows) {
-	    if(suppCols)
-                x <- x[ , 1:nc, drop = FALSE]
 	    n2 <- ceiling(nr / 2)
-	    printSpMatrix(x[seq_len(min(nR, max(1, n2))), , drop=FALSE],
+	    if(fitWidth) {
+		## one iteration of improving the width, by "fake printing" :
+		cM <- formatSpMatrix(x[seq_len(min(d[1], max(1, n2))), , drop = FALSE],
+				     digits=digits, maxp=maxp, zero.print=zero.print,
+				     col.names=col.names, align=align,
+				     note.dropping.colnames=note.dropping.colnames, uniDiag=FALSE)
+                ## width needed (without the 'col.trailer's  'nCc'):
+		matW <- nchar(capture.output(print(cM, quote=FALSE, right=FALSE))[[1]])
+                needW <- matW + (if(suppCols) nCc else 0)
+                if(needW > useW) { ## need more width
+                    op <- options(width = width+(needW-useW))
+                    if(!setW) on.exit( options(op) )
+                }
+	    }
+	    printSpMatrix(x[seq_len(min(d[1], max(1, n2))), , drop=FALSE],
 			  digits=digits, maxp=maxp,
 			  zero.print=zero.print, col.names=col.names,
-			  note.dropping.colnames=note.dropping.colnames,
+			  note.dropping.colnames=note.dropping.colnames, uniDiag=uniDiag,
 			  col.trailer = col.trailer, align=align)
+	    suppTxt <- gettext(if(suppCols) "suppressing columns and rows" else "suppressing rows")
 	    cat("\n ..............................",
-		"\n ........suppressing rows ", sTxt, "\n", sep='')
+		"\n ........", suppTxt, sTxt, "\n", sep='')
 	    ## tail() automagically uses "[..,]" rownames:
 	    printSpMatrix(tail(x, max(1, nr-n2)),
 			  digits=digits, maxp=maxp,
 			  zero.print=zero.print, col.names=col.names,
-			  note.dropping.colnames=note.dropping.colnames,
+			  note.dropping.colnames=note.dropping.colnames, uniDiag=FALSE,
 			  col.trailer = col.trailer, align=align)
 	}
 	else if(suppCols) {
 	    printSpMatrix(x[ , 1:nc , drop = FALSE],
 			  digits=digits, maxp=maxp,
 			  zero.print=zero.print, col.names=col.names,
-			  note.dropping.colnames=note.dropping.colnames,
+			  note.dropping.colnames=note.dropping.colnames, uniDiag=uniDiag,
 			  col.trailer = col.trailer, align=align)
-	    cat("\n .....suppressing columns ", sTxt, sep='')
+	    cat("\n .....", gettext("suppressing columns"), sTxt, sep='')
 	}
 	else stop("logic programming error in printSpMatrix2(), please report")
 

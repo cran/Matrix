@@ -19,7 +19,18 @@ stopifnot(M[-4,2] == 2:4,
 	  no.Mcl("pMatrix"),
 	  no.Mcl("indMatrix"))
 
+## FIXME:  Export  MatrixClass !!
 
+## [matrix-Bugs][6182] Coercion method doesn't work on child class
+## Bugs item #6182, at 2015-09-01 17:49 by Vitalie Spinu
+setClass("A", contains = "ngCMatrix")
+ngc <- as(diag(3), "ngCMatrix")
+validObject(dd <- as(ngc, "dgCMatrix")) # fine
+A. <- as(ngc, "A")
+stopifnot(identical(as(A., "dgCMatrix"), dd))
+## as(.) coercion failed in Matrix <= 1.2.3
+stopifnot(all( abs(A.)# failed too
+              == diag(3)))
 
 setClass("posDef", contains = "dspMatrix")
 N <- as(as(crossprod(M) + Diagonal(4), "denseMatrix"),"dspMatrix")

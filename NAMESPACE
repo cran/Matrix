@@ -6,7 +6,7 @@ importFrom("graphics", par, image)
 importFrom("grid", grid.rect, gpar, grob)# others via 'grid::'
 importFrom("lattice", levelplot, panel.levelplot.raster)
 
-importFrom("utils", str, head, tail, assignInNamespace)
+importFrom("utils", str, head, tail, assignInNamespace, capture.output)
 importFrom("stats"
          , "contrasts<-", cov2cor
          , diffinv, model.frame, rnorm, runif
@@ -39,6 +39,7 @@ export("%&%",
        "Diagonal", ".symDiagonal", ".sparseDiagonal",
        "Hilbert", "KhatriRao",
        "Matrix",
+       "MatrixClass",
        "spMatrix",
        "sparseMatrix", "rsparsematrix",
        "Schur",
@@ -56,7 +57,7 @@ export("%&%",
        ".dsy2mat", ".dsy2dsp", ".dxC2mat", ".T2Cmat", "..2dge", ".dense2sy",
        ".C2nC", ".nC2d", ".nC2l",
        ".diag.dsC",# -> R/dsCMatrix.R --has FIXME
-       ".solve.dgC.chol", ".solve.dgC.qr",
+       .solve.dgC.chol, .solve.dgC.qr, .solve.dgC.lu,
        "diagN2U", "diagU2N", ".diagU2N", ".diag2tT", ".diag2sT", ".diag2mat",
        "drop0",
        "expand",

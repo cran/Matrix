@@ -304,28 +304,28 @@ setMethod("cbind2", signature(x = "sparseMatrix", y = "denseMatrix"),
 	  function(x, y, sparse = NA, ...) {
 	      nr <- rowCheck(x,y)
 	      if(is.na(sparse)) # result is sparse if "enough zeros" <==> sparseDefault() in Matrix()
-		  sparse <- (nnzero(x)+nnzero(y)) * 2 < nr * (ncol(x)+ncol(y))
+		  sparse <- (nnzero(x,na.counted=TRUE)+nnzero(y,na.counted=TRUE)) * 2 < nr * (ncol(x)+ncol(y))
 	      if(sparse) cbind2sparse(x,y) else cbind2(as(x, "denseMatrix"), y)
 	  })
 setMethod("cbind2", signature(x = "denseMatrix", y = "sparseMatrix"),
 	  function(x, y, sparse = NA, ...) {
 	      nr <- rowCheck(x,y)
 	      if(is.na(sparse)) # result is sparse if "enough zeros" <==> sparseDefault() in Matrix()
-		  sparse <- (nnzero(x)+nnzero(y)) * 2 < nr * (ncol(x)+ncol(y))
+		  sparse <- (nnzero(x,na.counted=TRUE)+nnzero(y,na.counted=TRUE)) * 2 < nr * (ncol(x)+ncol(y))
 	      if(sparse) cbind2sparse(x,y) else cbind2(x, as(y, "denseMatrix"))
 	  })
 setMethod("rbind2", signature(x = "sparseMatrix", y = "denseMatrix"),
 	  function(x, y, sparse = NA, ...) {
 	      nc <- colCheck(x,y)
 	      if(is.na(sparse)) # result is sparse if "enough zeros" <==> sparseDefault() in Matrix()
-		  sparse <- (nnzero(x)+nnzero(y)) * 2 < (nrow(x)+nrow(y)) * nc
+		  sparse <- (nnzero(x,na.counted=TRUE)+nnzero(y,na.counted=TRUE)) * 2 < (nrow(x)+nrow(y)) * nc
 	      if(sparse) rbind2sparse(x,y) else rbind2(as(x, "denseMatrix"), y)
 	  })
 setMethod("rbind2", signature(x = "denseMatrix", y = "sparseMatrix"),
 	  function(x, y, sparse = NA, ...) {
 	      nc <- colCheck(x,y)
 	      if(is.na(sparse)) # result is sparse if "enough zeros" <==> sparseDefault() in Matrix()
-		  sparse <- (nnzero(x)+nnzero(y)) * 2 < (nrow(x)+nrow(y)) * nc
+		  sparse <- (nnzero(x,na.counted=TRUE)+nnzero(y,na.counted=TRUE)) * 2 < (nrow(x)+nrow(y)) * nc
 	      if(sparse) rbind2sparse(x,y) else rbind2(x, as(y, "denseMatrix"))
 	  })
 
@@ -335,28 +335,28 @@ setMethod("cbind2", signature(x = "sparseMatrix", y = "denseMatrix"),
 	  function(x, y, ...) {
 	      nr <- rowCheck(x,y)
 	      ## result is sparse if "enough zeros" <==> sparseDefault() in Matrix()
-	      sparse <- (nnzero(x)+nnzero(y)) * 2 < nr * (ncol(x)+ncol(y))
+	      sparse <- (nnzero(x,na.counted=TRUE)+nnzero(y,na.counted=TRUE)) * 2 < nr * (ncol(x)+ncol(y))
 	      if(sparse) cbind2sparse(x,y) else cbind2(as(x, "denseMatrix"), y)
 	  })
 setMethod("cbind2", signature(x = "denseMatrix", y = "sparseMatrix"),
 	  function(x, y, ...) {
 	      nr <- rowCheck(x,y)
 	      ## result is sparse if "enough zeros" <==> sparseDefault() in Matrix()
-	      sparse <- (nnzero(x)+nnzero(y)) * 2 < nr * (ncol(x)+ncol(y))
+	      sparse <- (nnzero(x,na.counted=TRUE)+nnzero(y,na.counted=TRUE)) * 2 < nr * (ncol(x)+ncol(y))
 	      if(sparse) cbind2sparse(x,y) else cbind2(x, as(y, "denseMatrix"))
 	  })
 setMethod("rbind2", signature(x = "sparseMatrix", y = "denseMatrix"),
 	  function(x, y, ...) {
 	      nc <- colCheck(x,y)
 	      ## result is sparse if "enough zeros" <==> sparseDefault() in Matrix()
-	      sparse <- (nnzero(x)+nnzero(y)) * 2 < (nrow(x)+nrow(y)) * nc
+	      sparse <- (nnzero(x,na.counted=TRUE)+nnzero(y,na.counted=TRUE)) * 2 < (nrow(x)+nrow(y)) * nc
 	      if(sparse) rbind2sparse(x,y) else rbind2(as(x, "denseMatrix"), y)
 	  })
 setMethod("rbind2", signature(x = "denseMatrix", y = "sparseMatrix"),
 	  function(x, y, ...) {
 	      nc <- colCheck(x,y)
 	      ## result is sparse if "enough zeros" <==> sparseDefault() in Matrix()
-	      sparse <- (nnzero(x)+nnzero(y)) * 2 < (nrow(x)+nrow(y)) * nc
+	      sparse <- (nnzero(x,na.counted=TRUE)+nnzero(y,na.counted=TRUE)) * 2 < (nrow(x)+nrow(y)) * nc
 	      if(sparse) rbind2sparse(x,y) else rbind2(x, as(y, "denseMatrix"))
 	  })
 }# older R -- no "sparse = NA"

@@ -7,7 +7,7 @@
 \alias{Arith,lgeMatrix,lgeMatrix-method}
 \alias{Compare,lgeMatrix,lgeMatrix-method}
 \alias{Logic,lgeMatrix,lgeMatrix-method}
-\alias{as.vector,lgeMatrix,missing-method}
+\alias{as.vector,lgeMatrix-method}
 \alias{coerce,matrix,lgeMatrix-method}
 \alias{coerce,lgeMatrix,dgeMatrix-method}
 \alias{coerce,lgeMatrix,matrix-method}

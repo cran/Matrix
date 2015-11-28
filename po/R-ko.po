@@ -1,20 +1,21 @@
 # Korean translations for Matrix package.
 # Recommended/Matrix/po/R-ko.po
 #
+# Thanks to Martin Maechler <maechler@stat.math.ethz.ch>
+#
 # This file is distributed under the same license as the R Matrix package.
 # Maintained by Chel Hee Lee <chl948@mail.usask.ca>, 2013-2015.
 #
 # Notes:
-# Source code review is completed (29-MAR-2015)
-#
+# Freezing on 15-JUL-2015 for R-3.3.0, QC: PASS
 # Freezing on 30-MAR-2015 for R-3.2.0, QC: PASS
 # Freezing on 28-FEB-2015 for R-3.1.3, QC: PASS
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: Matrix 1.1-3\n"
-"POT-Creation-Date: 2015-05-12 16:53\n"
-"PO-Revision-Date: 2015-03-29 18:45-0600\n"
+"POT-Creation-Date: 2015-07-16 21:44\n"
+"PO-Revision-Date: 2015-07-15 17:14-0600\n"
 "Last-Translator:Chel Hee Lee  <chl948@mail.usask.ca>\n"
 "Language-Team: Chel Hee Lee  <chl948@mail.usask.ca>\n"
 "Language: ko\n"
@@ -161,7 +162,7 @@ msgid "Invalid storage format: %s"
 msgstr "%s는 사용할 수 있는 저장형식(storage format)이 아닙니다."
 
 msgid "Invalid assembled indicator: %s"
-msgstr ""
+msgstr "Invalid assembled indicator: %s"
 
 msgid "file is not a MatrixMarket file"
 msgstr "file에 MatrixMarket 형식의 파일이 입력되지 않았습니다."
@@ -209,7 +210,7 @@ msgstr ""
 "표현(representation)이 '%2$s'의 경우에 아직 구현되지 않은 '%1$s()'입니다."
 
 msgid "trimmed mean of 'sparseVector' -- suboptimally using as.numeric(.)"
-msgstr ""
+msgstr "trimmed mean of 'sparseVector' -- suboptimally using as.numeric(.)"
 
 msgid "'V' is not a square matrix"
 msgstr "'V'는 정방행렬(square matrix)이 아닙니다."
@@ -275,7 +276,7 @@ msgstr ""
 "nargs() = %d.  필요이상의 인자들이 '[ .. ]' (i.logical)에 이용되었나요?"
 
 msgid "m[ <ij-matrix> ]: inefficiently indexing single elements"
-msgstr ""
+msgstr "m[ <ij-matrix> ]: inefficiently indexing single elements"
 
 msgid "nargs() = %d.  Extraneous illegal arguments inside '[ .. ]' (i.2col)?"
 msgstr "nargs() = %d.  필요이상의 인자들이 '[ .. ]' (i.2col)에 이용되었나요?"
@@ -302,7 +303,7 @@ msgstr ""
 " 이런 경우는 존재할 수 없으므로 패키지 관리자에게 보고해 주시길 부탁드립니다."
 
 msgid ".M.repl.i.2col(): drop 'matrix' case ..."
-msgstr ""
+msgstr ".M.repl.i.2col(): drop 'matrix' case ..."
 
 msgid "negative values are not allowed in a matrix subscript"
 msgstr "음수(negative values)는 행렬의 첨자(subscript)로 사용할 수 없습니다."
@@ -311,7 +312,7 @@ msgid "NAs are not allowed in subscripted assignments"
 msgstr "NA는 행렬의 첨자(subscripted assignment)로 사용할 수 없습니다."
 
 msgid "m[ <ij-matrix> ] <- v: inefficiently treating single elements"
-msgstr ""
+msgstr "m[ <ij-matrix> ] <- v: inefficiently treating single elements"
 
 msgid "nargs() = %d.  Extraneous illegal arguments inside '[ .. ]' ?"
 msgstr "nargs() = %d.  필요이상의 인자들이 '[ .. ]' 내에 이용되었나요?"
@@ -388,12 +389,13 @@ msgstr "%s는 사용가능한 클래스(class)가 아닙니다."
 
 msgid "programming error: min() should have dispatched w/ 1st arg much earlier"
 msgstr ""
+"programming error: min() should have dispatched w/ 1st arg much earlier"
 
 msgid "in Summary(<ANY>, .): %s(<%s>, <%s>,...)"
-msgstr ""
+msgstr "in Summary(<ANY>, .): %s(<%s>, <%s>,...)"
 
 msgid "in Summary(<ANY>, .): %s(<%s>, <%s>)"
-msgstr ""
+msgstr "in Summary(<ANY>, .): %s(<%s>, <%s>)"
 
 msgid "not-yet-implemented coercion to \"TsparseMatrix\""
 msgstr "\"TsparseMatrix\"으로의 강제변환(coercion)은 아직 구현되지 않았습니다."
@@ -405,20 +407,22 @@ msgid "index larger than maximal %d"
 msgstr "인덱스가 %d 보다 큽니다."
 
 msgid "'NA' indices are not (yet?) supported for sparse Matrices"
-msgstr ""
+msgstr "'NA'는 sparse Matrices에 (아직은?) 사용할 수 없는 인덱스입니다"
 
 msgid "logical subscript too long (%d, should be %d)"
 msgstr ""
 "길이가 너무 긴 논리형 첨자(subscript)입니다 (%2$d이어야 하는데 %1$d입니다)."
 
 msgid "no 'dimnames[[.]]': cannot use character indexing"
-msgstr ""
+msgstr "no 'dimnames[[.]]': 문자형 인덱싱을 사용할 수 없습니다"
 
 msgid "invalid character indexing"
-msgstr ""
+msgstr "유효하지 않은 문자형 인덱싱입니다"
 
 msgid "Matrix-internal error in <TsparseM>[i,,d]; please report"
 msgstr ""
+"<TsparseM>[i,,d] 내에서 행렬과 관련한 내부에러가 발생했습니다; 꼭 보고를 부탁"
+"드립니다"
 
 msgid "FIXME: NOT YET FINISHED IMPLEMENTATION"
 msgstr "FIXME: 완전한 구현이 아직 이루어지지 않았습니다."
@@ -493,7 +497,7 @@ msgid "too many arguments"
 msgstr "입력된 인자의 개수가 너무 많습니다."
 
 msgid "c(<abIndex>,..) of different kinds, coercing all to 'rleDiff'"
-msgstr ""
+msgstr "c(<abIndex>,..) of different kinds, 모두 'rleDiff'로 강제변환합니다"
 
 msgid "<abIndex>[i]  is not yet implemented"
 msgstr "<abIndex>[i]는 아직 구현되지 않았습니다."
@@ -514,6 +518,8 @@ msgid ""
 "x / 0 for an <abIndex> x with sign-change\n"
 " no longer representable as 'rleDiff'"
 msgstr ""
+"x / 0 for an <abIndex> x with sign-change\n"
+" no longer representable as 'rleDiff'"
 
 msgid "<abIndex>  -->  <seqMat>  is not yet implemented"
 msgstr "<abIndex>  -->  <seqMat>은 아직 구현되지 않았습니다."
@@ -555,16 +561,18 @@ msgid "not converged in %d iterations"
 msgstr "%d번째 반복에서도 수렴하지 않습니다."
 
 msgid "hit a cycle (1) -- stop iterations"
-msgstr ""
+msgstr "cycle (1)에 도달했습니다 -- 반복을 중지합니다"
 
 msgid "hit a cycle (2) -- stop iterations"
-msgstr ""
+msgstr "cycle (2)에 도달했습니다 -- 반복을 중지합니다"
 
 msgid "not enough new vecs -- stop iterations"
-msgstr ""
+msgstr "not enough new vecs -- stop iterations"
 
 msgid "diagonalMatrix in .dense2C() -- should never happen, please report!"
 msgstr ""
+"diagonalMatrix in .dense2C() -- 발생해서는 안되는 경우이므로 꼭 보고를 부탁드"
+"립니다!"
 
 msgid "undefined method for class %s"
 msgstr "클래스 %s에 정의된 메소드가 아닙니다."
@@ -573,7 +581,7 @@ msgid "dim(.) value must be numeric of length 2"
 msgstr "dim(.)의 값은 반드시 길이가 2인 수치형 벡터이어야 합니다."
 
 msgid "dimensions don't match the number of cells"
-msgstr ""
+msgstr "차원정보가 cell의 개수와 일치하지 않습니다"
 
 msgid "invalid nargs()= %d"
 msgstr "nargs()= %d의 값이 올바르지 않습니다."
@@ -581,6 +589,7 @@ msgstr "nargs()= %d의 값이 올바르지 않습니다."
 msgid ""
 "LU computationally singular: ratio of extreme entries in |diag(U)| = %9.4g"
 msgstr ""
+"LU computationally singular: ratio of extreme entries in |diag(U)| = %9.4g"
 
 msgid "RHS 'b' has wrong number of rows:"
 msgstr "우변의 'b'는 다음과 같은 올바르지 않은 행의 수를 가지고 있습니다: "
@@ -636,7 +645,7 @@ msgid "incompatible matrix dimensions"
 msgstr "차원(dimensions) 정보가 일치하지 않습니다."
 
 msgid "intermediate 'r' is of type %s"
-msgstr ""
+msgstr "intermediate 'r' is of type %s"
 
 msgid "not yet implemented .. please report"
 msgstr "아직 구현되지 않았습니다.  보고를 부탁드립니다."
@@ -684,6 +693,7 @@ msgstr ""
 
 msgid "replacing \"indMatrix\" entries is not allowed, as rarely sensible"
 msgstr ""
+"\"indMatrix\" 요소를 변경하는 것은 허용되지 않습니다, as rarely sensible"
 
 msgid "Matrix seems negative semi-definite"
 msgstr "음의 반정치(negative semi-definite) 행렬 같습니다."
@@ -709,7 +719,7 @@ msgid "not-yet-implemented method for <%s> %%*%% <%s>"
 msgstr "<%s> %%*%% <%s>에 사용할 수 있는 메소드가 아직 구현되지 않았습니다."
 
 msgid "non-conformable arguments"
-msgstr ""
+msgstr "non-conformable arguments"
 
 #, fuzzy
 msgid "'boolArith = %d' not yet implemented"
@@ -768,7 +778,7 @@ msgstr ""
 "다.  이를 꼭 보고 부탁드립니다."
 
 msgid "invalid 'col.names' string: %s"
-msgstr ""
+msgstr "%s은 올바른 'col.names' 문자열이 아닙니다"
 
 msgid "logic programming error in printSpMatrix2(), please report"
 msgstr ""
@@ -779,7 +789,7 @@ msgid "invalid 'type'"
 msgstr "올바르지 않은 'type'입니다."
 
 msgid "rcond(.) via sparse -> dense coercion"
-msgstr ""
+msgstr "rcond(.) via sparse -> dense coercion"
 
 msgid "'V' is not a *square* matrix"
 msgstr "'V'는 정방행렬(square matrix)이 아닙니다."
@@ -838,7 +848,7 @@ msgid "'times >= 0' is required"
 msgstr "'times >= 0'이 요구되어집니다."
 
 msgid "(un)packing only applies to dense matrices, class(x)='%s'"
-msgstr ""
+msgstr "(un)packing only applies to dense matrices, class(x)='%s'"
 
 msgid "'x' is not symmetric nor triangular"
 msgstr "'x'는 대칭(symmetric)도 아니고 삼각(triangular)도 아닙니다."
@@ -855,6 +865,9 @@ msgstr[0] "추가 인자들(extra arguments) %s는 %s에서 사용되지 않을 
 #~ msgstr ""
 #~ "NA를 가진 \"dMatrix\" 객체는 \"nMatrix\"로 강제변환(coerced) 할 수 없습니"
 #~ "다."
+
+#~ msgid "not a skinny matrix"
+#~ msgstr "not a skinny matrix"
 
 #~ msgid "\"lMatrix\" object with NAs cannot be coerced to \"nMatrix\""
 #~ msgstr ""

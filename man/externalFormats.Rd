@@ -76,10 +76,12 @@ writeMM(KNex$mm, "mmMM.mtx")
 ## very simple export - in triplet format - to text file:
 data(CAex)
 s.CA <- summary(CAex)
+s.CA # shows  (i, j, x)  [columns of a data frame]
 message("writing to ", outf <- tempfile())
 write.table(s.CA, file = outf, row.names=FALSE)
 ## and read it back -- showing off  sparseMatrix():
-dd <- read.table(outf, header=TRUE)
+str(dd <- read.table(outf, header=TRUE))
+## has columns (i, j, x) -> we can use via do.call() as arguments to sparseMatrix():
 mm <- do.call(sparseMatrix, dd)
 stopifnot(all.equal(mm, CAex, tolerance=1e-15))
 }

@@ -4,7 +4,7 @@
 \alias{printSpMatrix2}
 \title{Format and Print Sparse Matrices Flexibly}
 \description{
-  Format and print sparse matrices flexibly. These are the \dQuote{workhorses} used by
+  Format and print sparse matrices flexibly.  These are the \dQuote{workhorses} used by
   the \code{\link{format}}, \code{\link{show}} and \code{\link{print}}
   methods for sparse matrices.  If \code{x} is large,
   \code{printSpMatrix2(x)} calls \code{printSpMatrix()} twice, namely,
@@ -17,20 +17,21 @@
 \usage{
 formatSpMatrix(x, digits = NULL, maxp = 1e9,
                cld = getClassDef(class(x)), zero.print = ".",
-               col.names, note.dropping.colnames = TRUE,
+               col.names, note.dropping.colnames = TRUE, uniDiag = TRUE,
                align = c("fancy", "right"))
 
 printSpMatrix(x, digits = NULL, maxp = getOption("max.print"),
               cld = getClassDef(class(x)),
               zero.print = ".", col.names, note.dropping.colnames = TRUE,
-              col.trailer = "",
+              uniDiag = TRUE, col.trailer = "",
               align = c("fancy", "right"))
 
 printSpMatrix2(x, digits = NULL, maxp = getOption("max.print"),
               zero.print = ".", col.names, note.dropping.colnames = TRUE,
-              suppRows = NULL, suppCols = NULL,
+              uniDiag = TRUE, suppRows = NULL, suppCols = NULL,
               col.trailer = if(suppCols) "......" else "",
-              align = c("fancy", "right"))
+              align = c("fancy", "right"),
+              width = getOption("width"), fitWidth = TRUE)
 }
 \arguments{
   \item{x}{an \R object inheriting from class \code{\linkS4class{sparseMatrix}}.}
@@ -60,6 +61,10 @@ printSpMatrix2(x, digits = NULL, maxp = getOption("max.print"),
   \item{note.dropping.colnames}{logical specifying, when
     \code{col.names} is \code{FALSE} if the dropping of the column names
     should be noted, \code{TRUE} by default.}
+  \item{uniDiag}{logical indicating if the diagonal entries of a sparse
+    unit triangular or unit-diagonal matrix should be formatted as
+    \code{"I"} instead of \code{"1"} (to emphasize that the 1's are
+    \dQuote{structural}).}
   \item{col.trailer}{a string to be appended to the right of each
     column; this is typically made use of by \code{\link{show}(<sparseMatrix>)}
     only, when suppressing columns.}
@@ -75,8 +80,12 @@ printSpMatrix2(x, digits = NULL, maxp = getOption("max.print"),
     \code{zero.print = "."} with the position of \code{0}, i.e., the
     first decimal (one left of decimal point) of the numbers printed,
     whereas \code{align = "right"} just makes use of
-    \code{\link{print}(*, right = TRUE)}.
-  }
+    \code{\link{print}(*, right = TRUE)}.}
+  \item{width}{number, a positive integer, indicating the approximately
+    desired (line) width of the output, see also \code{fitWidth}.}
+  \item{fitWidth}{logical indicating if some effort should be made to
+    match the desired \code{width} or temporarily enlarge that if deemed
+    necessary.}
 }
 \details{
   \describe{
@@ -114,7 +123,8 @@ X2
 ## less nice, but possible:
 print(X2, col.names = TRUE) # use [,1] [,2] .. => does not fit
 
-t(X2) # suppressing column names
+## Possibilities with column names printing:
+      t(X2) # suppressing column names
 print(t(X2), col.names=TRUE)
 print(t(X2), zero.print = "", col.names="abbr. 1")
 print(t(X2), zero.print = "-", col.names="substring 2")

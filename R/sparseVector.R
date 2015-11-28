@@ -139,10 +139,7 @@ sparseVector <- function(x, i, length) {
 
 setAs("sparseVector", "vector", function(from) sp2vec(from))
 
-setMethod("as.vector", signature(x = "sparseVector", mode = "missing"),
-	  sp2vec)
-setMethod("as.vector", signature(x = "sparseVector", mode = "character"),
-	  sp2vec)
+setMethod("as.vector", "sparseVector", sp2vec)
 
 setMethod("as.numeric", "sparseVector", function(x) sp2vec(x, mode = "double"))
 setMethod("as.logical", "sparseVector", function(x) sp2vec(x, mode = "logical"))

@@ -216,16 +216,18 @@ stopifnotValid(rbind2(d1,d2), "dgeMatrix")## gave an error in Matrix 1.1-5
 ## ------------------- then (in 'devel', ~ 2015-03): completely wrong
 S <- .sparseDiagonal(2)
 s <- diag(2)
-S9 <- rBind(S,0,0,S,0,0,2)
-s9 <- rbind(s,0,0,s,0,0,2)
+S9 <- rBind(S,0,0,S,0,NaN,0,0,0,2)## r/cbind2() failed to determine 'sparse' in Matrix <= 1.2-2
+s9 <- rbind(s,0,0,s,0,NaN,0,0,0,2)
 assert.EQ.mat(S9, s9)
 D <- Matrix(1:6, 3,2); d <- as.matrix(D)
-stopifnot(identical(rbind(s9,d), rbind2(s9,d)))
+T9 <- t(S9); t9 <- t(s9); T <- t(D); t <- t(d)
+stopifnot(identical(rbind (s9,d), rbind2(s9,d)),
+	  identical(rbind2(D,S9), t(cbind2(T,T9))),
+	  identical(rbind2(S9,D), t(cbind2(T9,T))))
 assert.EQ.mat(rbind2(S9,D), rbind2(s9,d))
 assert.EQ.mat(rbind2(D,S9), rbind2(d,s9))
 ## now with cbind2() -- no problem!
-T9 <- t(S9); t9 <- t(s9); T <- t(D); t <- t(d)
-stopifnot(identical(cbind(t9,t), cbind2(t9,t)))
+stopifnot(identical(cbind (t9,t), cbind2(t9,t)))
 assert.EQ.mat(cbind2(T9,T), cbind2(t9,t))
 assert.EQ.mat(cbind2(T,T9), cbind2(t,t9))
 

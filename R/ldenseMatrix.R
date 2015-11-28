@@ -44,14 +44,6 @@ setAs("lgeMatrix", "lspMatrix", function(from) lsy2lsp(as(from, "lsyMatrix")))
 
 ### -> symmetric :
 
-if(FALSE) ## not sure if this is a good idea ... -- FIXME?
-setIs("lgeMatrix", "lsyMatrix",
-      test = function(obj) isSymmetric(obj),
-      replace = function(obj, value) { ## copy all slots
-	  for(n in slotNames(obj)) slot(obj, n) <- slot(value, n)
-      })
-
-### Alternative (at least works):
 setAs("lgeMatrix", "lsyMatrix",
       function(from) {
 	  if(isSymmetric(from))
@@ -65,7 +57,7 @@ setAs("lgeMatrix", "ltrMatrix",
       function(from) {
 	  if(isT <- isTriangular(from))
 	      new("ltrMatrix", x = from@x, Dim = from@Dim,
-		  Dimnames = from@Dimnames, uplo = .if.NULL(attr(isT, "kind"), "U"))
+		  Dimnames = from@Dimnames, uplo = attr(isT, "kind") %||% "U")
 	  ## TODO: also check 'diag'
 	  else stop("not a triangular matrix")
       })
@@ -174,8 +166,8 @@ setMethod("t", signature(x = "lspMatrix"),
 ## NOTE:  "&" and "|"  are now in group "Logic" c "Ops" --> ./Ops.R
 ##        "!" is in ./not.R
 
-setMethod("as.vector", signature(x = "ldenseMatrix", mode = "missing"),
-	  function(x, mode) as(x, "lgeMatrix")@x)
+setMethod("as.vector", "ldenseMatrix",
+	  function(x, mode) as.vector(as(x, "lgeMatrix")@x, mode))
 
 setMethod("norm", signature(x = "ldenseMatrix", type = "character"),
 	  function(x, type, ...)

@@ -182,8 +182,7 @@ summary(M1)
 
 ## pointers example in converting from other sparse matrix representations.
 if(require(SparseM) && packageVersion("SparseM") >= 0.87 &&
-   nzchar(dfil <- system.file("textdata", "rua_32_ax.rua",
-                              package = "SparseM"))) {
+   nzchar(dfil <- system.file("extdata", "rua_32_ax.rua", package = "SparseM"))) {
   X <- model.matrix(read.matrix.hb(dfil))
   XX <- sparseMatrix(j = X@ja, p = X@ia - 1L, x = X@ra, dims = X@dimension)
   validObject(XX)

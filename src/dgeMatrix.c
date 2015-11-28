@@ -1,4 +1,5 @@
 #include "dgeMatrix.h"
+// -> Mutils.h  etc
 
 SEXP dMatrix_validate(SEXP obj)
 {
@@ -106,7 +107,7 @@ SEXP dgeMatrix_crossprod(SEXP x, SEXP trans)
 
 
 double* gematrix_real_x(SEXP x, int nn) {
-    if(class_P(x)[0] == 'd') // <<- FIXME: use Matrix_check_class_etc(x, valid)  !!!
+    if(class_P(x)[0] == 'd') // <<- FIXME: use R_check_class_etc(x, valid)  !!!
 	return REAL(GET_SLOT(x, Matrix_xSym));
 #ifdef _potentically_more_efficient_but_not_working
     // else : 'l' or 'n' (for now !!)

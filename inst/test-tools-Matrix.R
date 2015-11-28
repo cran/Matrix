@@ -398,7 +398,7 @@ checkMatrix <- function(m, m.m = if(do.matrix) as(m, "matrix"),
     } else isRsp <- isDiag <- isInd <- isPerm <- FALSE
     isTri <- !isSym && !isDiag && !isInd && extends(cld, "triangularMatrix")
     is.n     <- extends(cld, "nMatrix")
-    nonMatr  <- clNam != Matrix:::MatrixClass(clNam, cld)
+    nonMatr  <- clNam != (Mcl <- MatrixClass(clNam, cld))
 
     Cat	 <- function(...) if(verbose) cat(...)
     CatF <- function(...) if(verbose) catFUN(...)
@@ -611,10 +611,10 @@ checkMatrix <- function(m, m.m = if(do.matrix) as(m, "matrix"),
     }
 
     if(doCoerce2 && do.matrix) { ## not for large m:  !m will be dense
-
 	if(is.n) {
-	    stopifnot(identical(m, as(as(m, "dMatrix"),"nMatrix")),
-		      identical(m, as(as(m, "lMatrix"),"nMatrix")),
+	    mM <- if(nonMatr) as(m, Mcl) else m
+	    stopifnot(identical(mM, as(as(m, "dMatrix"),"nMatrix")),
+		      identical(mM, as(as(m, "lMatrix"),"nMatrix")),
 		      identical(which(m), which(m.m)))
 	}
 	else if(extends(cld, "lMatrix")) { ## should fulfill even with NA:

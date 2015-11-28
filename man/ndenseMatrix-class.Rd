@@ -17,7 +17,7 @@
 \alias{coerce,nsyMatrix,lsyMatrix-method}
 \alias{coerce,ntpMatrix,ltpMatrix-method}
 \alias{coerce,ntrMatrix,ltrMatrix-method}
-\alias{as.vector,ndenseMatrix,missing-method}
+\alias{as.vector,ndenseMatrix-method}
 \alias{diag,ndenseMatrix-method}
 \alias{norm,ndenseMatrix,character-method}
 \alias{which,ndenseMatrix-method}

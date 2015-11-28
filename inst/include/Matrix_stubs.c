@@ -668,7 +668,7 @@ M_cholmod_scale(const_CHM_DN S, int scale, CHM_SP A,
 }
 
 
-// for now still *export*  M_Matrix_check_class_etc() -- deprecate it later__FIXME__
+// for now still *export*  M_Matrix_check_class_etc()
 int M_Matrix_check_class_etc(SEXP x, const char **valid)
 {
     REprintf("M_Matrix_check_class_etc() is deprecated; use R_check_class_etc() instead");
@@ -690,31 +690,31 @@ const char *Matrix_valid_Rsparse[] = { MATRIX_VALID_Rsparse, ""};
 const char *Matrix_valid_CHMfactor[]={ MATRIX_VALID_CHMfactor, ""};
 
 bool Matrix_isclass_Csparse(SEXP x) {
-    return M_Matrix_check_class_etc(x, Matrix_valid_Csparse) >= 0;
+    return R_check_class_etc(x, Matrix_valid_Csparse) >= 0;
 }
 
 bool Matrix_isclass_triplet(SEXP x) {
-    return M_Matrix_check_class_etc(x, Matrix_valid_triplet) >= 0;
+    return R_check_class_etc(x, Matrix_valid_triplet) >= 0;
 }
 
 bool Matrix_isclass_ge_dense(SEXP x) {
-    return M_Matrix_check_class_etc(x, Matrix_valid_ge_dense) >= 0;
+    return R_check_class_etc(x, Matrix_valid_ge_dense) >= 0;
 }
 bool Matrix_isclass_ddense(SEXP x) {
-    return M_Matrix_check_class_etc(x, Matrix_valid_ddense) >= 0;
+    return R_check_class_etc(x, Matrix_valid_ddense) >= 0;
 }
 bool Matrix_isclass_ldense(SEXP x) {
-    return M_Matrix_check_class_etc(x, Matrix_valid_ldense) >= 0;
+    return R_check_class_etc(x, Matrix_valid_ldense) >= 0;
 }
 bool Matrix_isclass_ndense(SEXP x) {
-    return M_Matrix_check_class_etc(x, Matrix_valid_ndense) >= 0;
+    return R_check_class_etc(x, Matrix_valid_ndense) >= 0;
 }
 bool Matrix_isclass_dense(SEXP x) {
-    return M_Matrix_check_class_etc(x, Matrix_valid_dense) >= 0;
+    return R_check_class_etc(x, Matrix_valid_dense) >= 0;
 }
 
 bool Matrix_isclass_CHMfactor(SEXP x) {
-    return M_Matrix_check_class_etc(x, Matrix_valid_CHMfactor) >= 0;
+    return R_check_class_etc(x, Matrix_valid_CHMfactor) >= 0;
 }
 
 #ifdef	__cplusplus

@@ -325,10 +325,8 @@ setAs("abIndex", "integer", function(from) as.integer(abI2num(from)))
 ## for S3 lovers and back-compatibility:
 setMethod(as.integer, "abIndex", function(x) as.integer(abI2num(x)))
 setMethod(as.numeric, "abIndex", function(x) abI2num(x))
-setMethod(as.vector,  c(x = "abIndex", mode = "ANY"), function(x) abI2num(x))
-setMethod(as.vector,  c(x = "abIndex", mode = "character"),
-	  ## this is beautiful -- because of as() !
-	  function(x, mode) as(abI2num(x), mode))
+setMethod("as.vector", "abIndex",
+	  function(x, mode) as.vector(abI2num(x), mode))
 
 ## Need   max(<i>), min(<i>),   all(<i> == <j>)   any(<i> == <j>)
 

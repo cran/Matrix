@@ -125,7 +125,7 @@ SEXP Csparse_to_dense(SEXP x, SEXP symm_or_tri)
 	ctype = 0; // <- default = "dgC"
     static const char *valid[] = { MATRIX_VALID_Csparse, ""};
     if(is_sym_or_tri == NA_INTEGER) { // find if  is(x, "symmetricMatrix") :
-	ctype = Matrix_check_class_etc(x, valid);
+	ctype = R_check_class_etc(x, valid);
 	is_sym = (ctype % 3 == 1);
 	is_tri = (ctype % 3 == 2);
     } else {
@@ -133,7 +133,7 @@ SEXP Csparse_to_dense(SEXP x, SEXP symm_or_tri)
 	is_tri = is_sym_or_tri < 0;
 	// => both are FALSE  iff  is_.. == 0
 	if(is_sym || is_tri)
-	    ctype = Matrix_check_class_etc(x, valid);
+	    ctype = R_check_class_etc(x, valid);
     }
     CHM_SP chxs = AS_CHM_SP__(x);// -> chxs->stype = +- 1 <==> symmetric
     R_CheckStack();
@@ -222,8 +222,16 @@ SEXP nz_pattern_to_Csparse(SEXP x, SEXP res_kind)
 SEXP nz2Csparse(SEXP x, enum x_slot_kind r_kind)
 {
     const char *cl_x = class_P(x);
-    if(cl_x[0] != 'n') error(_("not a 'n.CMatrix'"));
-    if(cl_x[2] != 'C') error(_("not a CsparseMatrix"));
+    // quick check - if ok, fast
+    if(cl_x[0] != 'n' || cl_x[2] != 'C') {
+	// e.g. class = "A", from  setClass("A", contains = "ngCMatrix")
+	static const char *valid[] = { MATRIX_VALID_nCsparse, ""};
+	int ctype = R_check_class_etc(x, valid);
+	if(ctype < 0)
+	    error(_("not a 'n.CMatrix'"));
+	else // fine : get a valid  cl_x  class_P()-like string :
+	    cl_x = valid[ctype];
+    }
     int nnz = LENGTH(GET_SLOT(x, Matrix_iSym));
     SEXP ans;
     char *ncl = alloca(strlen(cl_x) + 1); /* not much memory required */
@@ -272,7 +280,7 @@ SEXP Csparse_to_matrix(SEXP x, SEXP chk, SEXP symm)
     int is_sym = asLogical(symm);
     if(is_sym == NA_LOGICAL) { // find if  is(x, "symmetricMatrix") :
 	static const char *valid[] = { MATRIX_VALID_Csparse, ""};
-	int ctype = Matrix_check_class_etc(x, valid);
+	int ctype = R_check_class_etc(x, valid);
 	is_sym = (ctype % 3 == 1);
     }
     return chm_dense_to_matrix(
@@ -435,7 +443,6 @@ SEXP Csparse_Csparse_prod(SEXP a, SEXP b, SEXP bool_arith)
 	cha = AS_CHM_SP(a),
 	chb = AS_CHM_SP(b), chc;
     R_CheckStack();
-    // const char *cl_a = class_P(a), *cl_b = class_P(b);
     static const char *valid_tri[] = { MATRIX_VALID_tri_Csparse, "" };
     char diag[] = {'\0', '\0'};
     int uploT = 0, nprot = 1,
@@ -473,8 +480,8 @@ SEXP Csparse_Csparse_prod(SEXP a, SEXP b, SEXP bool_arith)
      * Note that in that case, the multiplication itself should happen
      * faster.  But there's no support for that in CHOLMOD */
 
-    if(Matrix_check_class_etc(a, valid_tri) >= 0 &&
-       Matrix_check_class_etc(b, valid_tri) >= 0)
+    if(R_check_class_etc(a, valid_tri) >= 0 &&
+       R_check_class_etc(b, valid_tri) >= 0)
 	if(*uplo_P(a) == *uplo_P(b)) { /* both upper, or both lower tri. */
 	    uploT = (*uplo_P(a) == 'U') ? 1 : -1;
 	    if(*diag_P(a) == 'U' && *diag_P(b) == 'U') { /* return UNIT-triag. */
@@ -540,7 +547,7 @@ SEXP Csparse_Csparse_crossprod(SEXP a, SEXP b, SEXP trans, SEXP bool_arith)
 	if(!a_is_n && !b_is_n) {
 	    // coerce 'a' to pattern
 	    SEXP da = PROTECT(Csparse2nz(a, /* tri = */
-					 Matrix_check_class_etc(a, valid_tri) >= 0)); nprot++;
+					 R_check_class_etc(a, valid_tri) >= 0)); nprot++;
 	    cha = AS_CHM_SP(da);
 	    R_CheckStack();
 	    // a_is_n = TRUE;
@@ -554,8 +561,8 @@ SEXP Csparse_Csparse_crossprod(SEXP a, SEXP b, SEXP trans, SEXP bool_arith)
 
     /* Preserve triangularity and unit-triangularity if appropriate;
      * see Csparse_Csparse_prod() for comments */
-    if(Matrix_check_class_etc(a, valid_tri) >= 0 &&
-       Matrix_check_class_etc(b, valid_tri) >= 0)
+    if(R_check_class_etc(a, valid_tri) >= 0 &&
+       R_check_class_etc(b, valid_tri) >= 0)
 	if(*uplo_P(a) != *uplo_P(b)) { /* one 'U', the other 'L' */
 	    uploT = (*uplo_P(b) == 'U') ? 1 : -1;
 	    if(*diag_P(a) == 'U' && *diag_P(b) == 'U') { /* return UNIT-triag. */
@@ -623,9 +630,9 @@ SEXP Csp_dense_products(SEXP a, SEXP b,
     /* repeating a "cheap part" of  mMatrix_as_dgeMatrix2(b, .)  to see if
      * we have a vector that we might 'transpose_if_vector' : */
     static const char *valid[] = {"_NOT_A_CLASS_", MATRIX_VALID_ddense, ""};
-    /* int ctype = Matrix_check_class_etc(b, valid);
+    /* int ctype = R_check_class_etc(b, valid);
      * if (ctype > 0)   /.* a ddenseMatrix object */
-    if (Matrix_check_class_etc(b, valid) < 0) {
+    if (R_check_class_etc(b, valid) < 0) {
 	// not a ddenseM*:  is.matrix() or vector:
 	b_is_vector = !isMatrix(b);
     }
@@ -739,7 +746,7 @@ SEXP Csparse_crossprod(SEXP x, SEXP trans, SEXP triplet, SEXP bool_arith)
 	// coerce 'x' to pattern
 	static const char *valid_tri[] = { MATRIX_VALID_tri_Csparse, "" };
 	SEXP dx = PROTECT(Csparse2nz(x, /* tri = */
-				     Matrix_check_class_etc(x, valid_tri) >= 0)); nprot++;
+				     R_check_class_etc(x, valid_tri) >= 0)); nprot++;
 	chx = AS_CHM_SP(dx);
 	R_CheckStack();
     }
@@ -775,7 +782,7 @@ SEXP Csparse_drop(SEXP x, SEXP tol)
 {
     const char *cl = class_P(x);
     /* dtCMatrix, etc; [1] = the second character =?= 't' for triangular */
-    int tr = (cl[1] == 't');
+    int tr = (cl[1] == 't'); // FIXME - rather  R_check_class_etc(..)
     CHM_SP chx = AS_CHM_SP__(x);
     CHM_SP ans = cholmod_copy(chx, chx->stype, chx->xtype, &c);
     double dtol = asReal(tol);

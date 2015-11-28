@@ -1,4 +1,5 @@
 \name{SparseM-conversions}
+\title{Sparse Matrix Coercion from and to those from package \pkg{SparseM}}
 \docType{methods}
 \alias{SparseM-coerce-methods}
 %
@@ -27,11 +28,13 @@
 \alias{coerce,matrix.coo,Matrix-method}
 \alias{coerce,matrix.csc,Matrix-method}
 %
-\title{Sparse Matrix Coercion from and to those from package "SparseM"}
 \description{
   Methods for coercion from and to sparse matrices from package \pkg{SparseM}
   are provided here, for ease of porting functionality to the
-  \pkg{Matrix} package, and comparing functionality of the two packages.
+  \pkg{Matrix} package, and comparing functionality of the two
+  packages.  All these work via the usual \code{\link{as}(., "<class>")}
+  coercion, \preformatted{  as(from, Class)
+}%pre
 }
 \section{Methods}{
   \describe{
@@ -53,7 +56,7 @@
   }
 }
 \seealso{
-  The documentation in package \pkg{SparseM}, such as
+  The documentation in CRAN package \CRANpkg{SparseM}, such as
   \code{\link[SparseM]{SparseM.ontology}}, and one important class,
   \code{\link[SparseM:matrix.csr-class]{matrix.csr}}.
 }

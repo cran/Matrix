@@ -16,9 +16,9 @@
 \description{
   The \pkg{Matrix} package has supported conversion from and to
   \code{"\link[graph:graph-class]{graph}"} objects from (Bioconductor) package
-  \pkg{graph} since summer 2005, via the usual \code{as(., "<class>")}
+  \pkg{graph} since summer 2005, via the usual \code{\link{as}(., "<class>")}
   coercion, \preformatted{  as(from, Class)
-}
+}%pre
   Since 2013, this functionality is further exposed as the
   \code{graph2T()} and \code{T2graph()} functions (with further
   arguments than just \code{from}), which convert graphs to and from

@@ -2,7 +2,7 @@
 \docType{class}
 \title{Compressed, sparse, column-oriented numeric matrices}
 \alias{dgCMatrix-class}
-\alias{as.vector,dgCMatrix,missing-method}
+\alias{as.vector,dgCMatrix-method}
 \alias{coerce,matrix,dgCMatrix-method}
 \alias{coerce,dgeMatrix,dgCMatrix-method}
 \alias{coerce,dgCMatrix,dgTMatrix-method}

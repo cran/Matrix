@@ -70,7 +70,7 @@ SEXP Tsparse_diagU2N(SEXP x)
 	""};
 /* #define xSXP(iTyp) ((iTyp == 0) ? REALSXP : ((iTyp == 1) ? LGLSXP : /\* else *\/ CPLXSXP)); */
 /* #define xTYPE(iTyp) ((iTyp == 0) ? double : ((iTyp == 1) ? int : /\* else *\/ Rcomplex)); */
-    int ctype = Matrix_check_class_etc(x, valid);
+    int ctype = R_check_class_etc(x, valid);
 
     if (ctype < 0 || *diag_P(x) != 'U') {
 	/* "trivially fast" when not triangular (<==> no 'diag' slot),

@@ -1,7 +1,7 @@
 
-R Under development (unstable) (2015-03-18 r68005) -- "Unsuffered Consequences"
+R version 3.2.2 Patched (2015-11-13 r69633) -- "Fire Safety"
 Copyright (C) 2015 The R Foundation for Statistical Computing
-Platform: x86_64-unknown-linux-gnu (64-bit)
+Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -212,7 +212,7 @@ A 1 4 7 10 100 1 4 7 10
 B 2 5 8 11 100 2 5 8 11
 C 3 6 9 12 100 3 6 9 12
 > showProc.time()
-Time elapsed:  0.104 0.019 0.128 
+Time elapsed:  0.075 0.009 0.086 
 > 
 > ### --- Diagonal / Sparse - had bugs
 > 
@@ -220,10 +220,10 @@ Time elapsed:  0.104 0.019 0.128
 > (D4T <- as(D4, "TsparseMatrix"))
 4 x 4 sparse Matrix of class "dtTMatrix" (unitriangular)
             
-[1,] 1 . . .
-[2,] . 1 . .
-[3,] . . 1 .
-[4,] . . . 1
+[1,] I . . .
+[2,] . I . .
+[3,] . . I .
+[4,] . . . I
 > D4C <- as(D4T, "CsparseMatrix")
 > c1 <- Matrix(0+0:3, 4, sparse=TRUE) ; r1 <- t(c1); r1
 1 x 4 sparse Matrix of class "dgCMatrix"
@@ -243,7 +243,7 @@ Time elapsed:  0.104 0.019 0.128
 + 	  identical(t(d4), cBind(Diagonal(4),     0:3)),
 + 	  identical(t(m4), rBind(Diagonal(x=-1:2), 0:3)))
 > showProc.time()
-Time elapsed:  0.059 0.009 0.068 
+Time elapsed:  0.041 0.006 0.047 
 > 
 > ### --- Sparse Matrices ---
 > 
@@ -293,7 +293,7 @@ rBind (m, v= 2 ), class(m) : dgeMatrix ,. dgCMatrix ,. dgTMatrix ,.
 cBind (m, v= c(1L, 0L) ), class(m) : dgeMatrix ,. dgCMatrix ,. dgTMatrix ,.
 rBind (m, v= c(1L, 0L) ), class(m) : dgeMatrix ,. dgCMatrix ,. dgTMatrix ,.
 > showProc.time()
-Time elapsed:  0.105 0.014 0.12 
+Time elapsed:  0.063 0.007 0.07 
 > 
 > cBind(0, mC); cBind(mC, 0)
 4 x 7 sparse Matrix of class "dgCMatrix"
@@ -517,16 +517,18 @@ v5    .    |    .    |    .
 > ## ------------------- then (in 'devel', ~ 2015-03): completely wrong
 > S <- .sparseDiagonal(2)
 > s <- diag(2)
-> S9 <- rBind(S,0,0,S,0,0,2)
-> s9 <- rbind(s,0,0,s,0,0,2)
+> S9 <- rBind(S,0,0,S,0,NaN,0,0,0,2)## r/cbind2() failed to determine 'sparse' in Matrix <= 1.2-2
+> s9 <- rbind(s,0,0,s,0,NaN,0,0,0,2)
 > assert.EQ.mat(S9, s9)
 > D <- Matrix(1:6, 3,2); d <- as.matrix(D)
-> stopifnot(identical(rbind(s9,d), rbind2(s9,d)))
+> T9 <- t(S9); t9 <- t(s9); T <- t(D); t <- t(d)
+> stopifnot(identical(rbind (s9,d), rbind2(s9,d)),
++ 	  identical(rbind2(D,S9), t(cbind2(T,T9))),
++ 	  identical(rbind2(S9,D), t(cbind2(T9,T))))
 > assert.EQ.mat(rbind2(S9,D), rbind2(s9,d))
 > assert.EQ.mat(rbind2(D,S9), rbind2(d,s9))
 > ## now with cbind2() -- no problem!
-> T9 <- t(S9); t9 <- t(s9); T <- t(D); t <- t(d)
-> stopifnot(identical(cbind(t9,t), cbind2(t9,t)))
+> stopifnot(identical(cbind (t9,t), cbind2(t9,t)))
 > assert.EQ.mat(cbind2(T9,T), cbind2(t9,t))
 > assert.EQ.mat(cbind2(T,T9), cbind2(t,t9))
 > 
@@ -534,8 +536,8 @@ v5    .    |    .    |    .
 > 
 > options(op)
 > showProc.time()
-Time elapsed:  0.264 0.037 0.301 
+Time elapsed:  0.181 0.017 0.198 
 > 
 > proc.time()
    user  system elapsed 
-  1.703   0.284   2.062 
+  1.028   0.149   1.259 

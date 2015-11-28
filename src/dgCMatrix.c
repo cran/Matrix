@@ -45,7 +45,7 @@ SEXP compressed_to_TMatrix(SEXP x, SEXP colP)
     int npt = length(pP) - 1;
     char *ncl = strdup(class_P(x));
     static const char *valid[] = { MATRIX_VALID_Csparse, MATRIX_VALID_Rsparse, ""};
-    int ctype = Matrix_check_class_etc(x, valid);
+    int ctype = R_check_class_etc(x, valid);
 
     if (ctype < 0)
 	error(_("invalid class(x) '%s' in compressed_to_TMatrix(x)"), ncl);
@@ -78,7 +78,7 @@ SEXP R_to_CMatrix(SEXP x)
     SEXP ans, tri = PROTECT(allocVector(LGLSXP, 1));
     char *ncl = strdup(class_P(x));
     static const char *valid[] = { MATRIX_VALID_Rsparse, ""};
-    int ctype = Matrix_check_class_etc(x, valid);
+    int ctype = R_check_class_etc(x, valid);
     int *x_dims = INTEGER(GET_SLOT(x, Matrix_DimSym)), *a_dims;
     PROTECT_INDEX ipx;
 

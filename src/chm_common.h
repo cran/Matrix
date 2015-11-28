@@ -4,6 +4,8 @@
 #include "SuiteSparse_config/SuiteSparse_config.h"
 #include "CHOLMOD/Include/cholmod.h"
 #include "Mutils.h"
+// -> R_check_class()  et al
+
 #ifdef Matrix_with_SPQR
 #  include "SPQR/Include/SuiteSparseQR_C.h"
 #endif

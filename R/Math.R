@@ -30,7 +30,7 @@ setMethod("Math",
 		      x
 		  } else { ## e.g. abs( <lgC> ) --> integer Csparse
 		      ## FIXME: when we have 'i*' classes, use them here:
-		      rx <- new(sub("^.", "d", cl))
+		      rx <- new(sub("^.", "d", MatrixClass(cl)))
 		      rx@x <- as.double(r)
 		      ## result is "same"
 		      sNams <- slotNames(cl)

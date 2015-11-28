@@ -1,7 +1,7 @@
 /** @file chm_common.c
  */
 #include "chm_common.h"
-#include "Mutils.h"
+// -> Mutils.h
 
 Rboolean isValid_Csparse(SEXP x); /* -> Csparse.c */
 
@@ -247,7 +247,7 @@ CHM_SP as_cholmod_sparse(CHM_SP ans, SEXP x,
 {
     static const char *valid[] = { MATRIX_VALID_Csparse, ""};
     int *dims = INTEGER(GET_SLOT(x, Matrix_DimSym)),
-	ctype = Matrix_check_class_etc(x, valid);
+	ctype = R_check_class_etc(x, valid);
     SEXP islot = GET_SLOT(x, Matrix_iSym);
 
     if (ctype < 0) error(_("invalid class of object to as_cholmod_sparse"));
@@ -480,7 +480,7 @@ Rboolean chm_MOD_xtype(int to_xtype, cholmod_sparse *A, CHM_CM Common) {
 CHM_TR as_cholmod_triplet(CHM_TR ans, SEXP x, Rboolean check_Udiag)
 {
     static const char *valid[] = { MATRIX_VALID_Tsparse, ""};
-    int ctype = Matrix_check_class_etc(x, valid),
+    int ctype = R_check_class_etc(x, valid),
 	*dims = INTEGER(GET_SLOT(x, Matrix_DimSym));
     SEXP islot = GET_SLOT(x, Matrix_iSym);
     int m = LENGTH(islot);
@@ -673,7 +673,7 @@ CHM_DN as_cholmod_dense(CHM_DN ans, SEXP x)
 {
 #define _AS_cholmod_dense_1						\
     static const char *valid[] = { MATRIX_VALID_ge_dense, ""};		\
-    int dims[2], ctype = Matrix_check_class_etc(x, valid), nprot = 0;	\
+    int dims[2], ctype = R_check_class_etc(x, valid), nprot = 0;	\
 									\
     if (ctype < 0) {		/* not a classed matrix */		\
 	if (isMatrix(x)) Memcpy(dims, INTEGER(getAttrib(x, R_DimSymbol)), 2); \
@@ -1032,7 +1032,7 @@ CHM_FR as_cholmod_factor(CHM_FR ans, SEXP x)
 {
     static const char *valid[] = { MATRIX_VALID_CHMfactor, ""};
     int *type = INTEGER(GET_SLOT(x, install("type"))),
-	ctype = Matrix_check_class_etc(x, valid);
+	ctype = R_check_class_etc(x, valid);
     SEXP tmp;
 
     if (ctype < 0) error(_("invalid class of object to as_cholmod_factor"));

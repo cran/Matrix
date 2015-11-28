@@ -14,8 +14,7 @@
 %
 \alias{as.integer,abIndex-method}
 \alias{as.numeric,abIndex-method}
-\alias{as.vector,abIndex,ANY-method}
-\alias{as.vector,abIndex,character-method}
+\alias{as.vector,abIndex-method}
 \alias{[,abIndex,index,ANY,ANY-method}
 \alias{coerce,logical,abIndex-method}
 \alias{coerce,numeric,abIndex-method}

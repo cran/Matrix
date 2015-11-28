@@ -71,8 +71,7 @@
 %
 \alias{as.logical,sparseVector-method}
 \alias{as.numeric,sparseVector-method}
-\alias{as.vector,sparseVector,missing-method}
-\alias{as.vector,sparseVector,character-method}
+\alias{as.vector,sparseVector-method}
 \alias{dim<-,sparseVector-method}
 \alias{is.na,nsparseVector-method}
 \alias{is.na,sparseVector-method}

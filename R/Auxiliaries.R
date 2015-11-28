@@ -34,10 +34,19 @@ as0 <- function(x, mod=mode(x))
     switch(mod, "integer"= 0L, "double"=, "numeric"= 0, "logical"= FALSE,
 	   "complex"= 0+0i, stop(gettextf("invalid 'mod': %s", mod), domain = NA))
 
+##' Should the matrix/Matrix  x  or a combination of x and y   be treated as  'sparse' ?
+## sparseDefault <- function(x, y=NULL) {
+##     if(is.null(y))
+##         prod(dim(x)) > 2*sum(isN0(as(x, "matrix")))
+##     else ## nrow / ncol ... differentiate  this would be for  rbind / cbind --> ./bind2.R
+##         (nnzero(x) + nnzero(y)) * 2 < (nrow(x)+nrow(y)) * nc
+## }
+sparseDefault <- function(x) prod(dim(x)) > 2*sum(isN0(as(x, "matrix")))
+
 
 ## NB:  .fixupDimnames() needs to be defined in ./AllClass.R
 
-.M.DN <- function(x) if(!is.null(dn <- dimnames(x))) dn else list(NULL,NULL)
+.M.DN <- function(x) dimnames(x) %||% list(NULL,NULL)
 
 .has.DN <- ## has non-trivial Dimnames slot?
     function(x) !identical(list(NULL,NULL), x@Dimnames)
@@ -55,7 +64,7 @@ is.null.DN <- function(dn) {
 }
 
 ##' return 'x' unless it is NULL where you'd use 'orElse'
-.if.NULL <- function(x, orElse) if(!is.null(x)) x else orElse
+`%||%` <- function(x, orElse) if(!is.null(x)) x else orElse
 
 ##  not %in%  :
 `%nin%` <- function (x, table) is.na(match(x, table))
@@ -111,20 +120,20 @@ copyClass <- function(x, newCl, sNames =
     r
 }
 
+##' Return the (maybe super-)class of class 'cl'   from "Matrix", returning  character(0) if there is none.
+##'
+##' @title The Matrix (Super-) Class of a Class
+##' @param cl string, class name
+##' @param cld its class definition
+##' @param ...Matrix if TRUE, the result must be of pattern "[dlniz]..Matrix"
+##'     where the first letter "[dlniz]" denotes the content kind.
+##' @param dropVirtual
+##' @param ... other arguments are passed to .selectSuperClasses()
+##' @return a character string
+##' @author Martin Maechler, Date: 24 Mar 2009
 MatrixClass <- function(cl, cld = getClassDef(cl),
 			...Matrix = TRUE, dropVirtual = TRUE, ...)
 {
-    ## Purpose: return the (maybe super-)class of class 'cl'   from "Matrix",
-    ##		returning  character(0) if there is none.
-    ## ----------------------------------------------------------------------
-    ## Arguments: cl: string, class name
-    ##		 cld: its class definition
-    ##	   ...Matrix: if TRUE, the result must be of pattern "[dlniz]..Matrix"
-    ##                where the first letter "[dlniz]" denotes the content kind.
-    ##	      ..... : other arguments are passed to .selectSuperClasses()
-    ## ----------------------------------------------------------------------
-    ## Author: Martin Maechler, Date: 24 Mar 2009
-
     ## stopifnot(is.character(cl))
     ## Hmm, packageSlot(cl)  *can* be misleading --> use  cld@package  first:
     if(is.null(pkg <- cld@package)) {
@@ -504,7 +513,7 @@ indTri <- function(n, upper = TRUE, diag = FALSE) {
     ## Indices of (strict) upper/lower triangular part
     ## == which(upper.tri(diag(n), diag=diag) or
     ##	  which(lower.tri(diag(n), diag=diag) -- but
-    ## more efficiently for largish 'n'
+    ## much more efficiently for largish 'n'
     stopifnot(length(n) == 1, n == (n. <- as.integer(n)), (n <- n.) >= 0)
     if(n <= 2) {
         if(n == 0) return(integer(0))
@@ -905,7 +914,7 @@ gT2tT <- function(x, uplo, diag, toClass,
 
 check.gT2tT <- function(from, toClass, do.n = extends(toClass, "nMatrix")) {
     if(isTr <- isTriangular(from)) {
-	gT2tT(from, uplo = .if.NULL(attr(isTr, "kind"), "U"),
+	gT2tT(from, uplo = attr(isTr, "kind") %||% "U",
 	      diag = "N", ## improve: also test for unit diagonal
 	      toClass = toClass, do.n = do.n)
     } else stop("not a triangular matrix")

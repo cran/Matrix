@@ -592,6 +592,12 @@ stopifnot(## something like the equivalent of  all(I. == Diagonal(3125)) :
           identical(as(I..,"diagonalMatrix"), I)
           )
 
+## printSpMatrix() ;  "suppressing (columns | rows) .." {and do it correctly!}
+IT3
+op <- options(width = 70, max.print = 1000)
+T125[-(1:50),] ## suppression ... is it correctly done?
+
+
 ###-- row- and column operations  {was ./rowcolOps.R }
 
 set.seed(321)

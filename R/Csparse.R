@@ -56,10 +56,10 @@ setAs("dtCMatrix", "denseMatrix", function(from) .Call(Csparse_to_dense, from, -
 
 setAs("dgCMatrix", "vector", function(from) .Call(Csparse_to_vector, from))
 setAs("dsCMatrix", "vector", function(from) .Call(Csparse_to_vector, from))
-setMethod("as.vector", signature(x = "dgCMatrix", mode = "missing"),
-	  function(x, mode) .Call(Csparse_to_vector, x))
-setMethod("as.vector", signature(x = "dsCMatrix", mode = "missing"),
-	  function(x, mode) .Call(Csparse_to_vector, x))
+setMethod("as.vector", "dgCMatrix",
+	  function(x, mode) as.vector(.Call(Csparse_to_vector, x), mode))
+setMethod("as.vector", "dsCMatrix",
+	  function(x, mode) as.vector(.Call(Csparse_to_vector, x), mode))
 ## could do these and more for as(., "numeric") ... but we *do* recommend  as(*,"vector"):
 ## setAs("dgCMatrix", "numeric", Csp2vec)
 ## setAs("dsCMatrix", "numeric", Csp2vec)

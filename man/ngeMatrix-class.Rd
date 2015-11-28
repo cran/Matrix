@@ -7,7 +7,7 @@
 \alias{Arith,ngeMatrix,ngeMatrix-method}
 \alias{Compare,ngeMatrix,ngeMatrix-method}
 \alias{Logic,ngeMatrix,ngeMatrix-method}
-\alias{as.vector,ngeMatrix,missing-method}
+\alias{as.vector,ngeMatrix-method}
 \alias{coerce,matrix,ngeMatrix-method}
 \alias{coerce,ngeMatrix,dgeMatrix-method}
 \alias{coerce,ngeMatrix,matrix-method}

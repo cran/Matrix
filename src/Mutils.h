@@ -13,6 +13,18 @@ extern "C" {
 #include <Rversion.h>
 #include <Rdefines.h> /* Rinternals.h + GET_SLOT etc */
 
+// must come after <R.h> above, for clang (2015-08-05)
+#ifdef __GNUC__
+# undef alloca
+# define alloca(x) __builtin_alloca((x))
+#elif defined(__sun) || defined(_AIX)
+/* this is necessary (and sufficient) for Solaris 10 and AIX 6: */
+# include <alloca.h>
+#endif
+/* For R >= 3.2.2, the 'elif' above shall be replaced by
+#elif defined(HAVE_ALLOCA_H)
+*/
+
 #ifdef ENABLE_NLS
 #include <libintl.h>
 #define _(String) dgettext ("Matrix", String)
@@ -20,14 +32,6 @@ extern "C" {
 #define _(String) (String)
 /* Note that this is not yet supported (for Windows, e.g.) in R 2.9.0 : */
 #define dngettext(pkg, String, StringP, N) (N > 1 ? StringP : String)
-#endif
-
-#ifdef __GNUC__
-# undef alloca
-# define alloca(x) __builtin_alloca((x))
-#elif defined(__sun) || defined(_AIX)
-/* this is necessary (and sufficient) for Solaris 10 and AIX 6: */
-# include <alloca.h>
 #endif
 
 #ifndef LONG_VECTOR_SUPPORT
@@ -372,10 +376,15 @@ mMatrix_as_geMatrix(SEXP A)
 		    "nsyMatrix",		\
 		    "ntpMatrix", "nspMatrix"
 
+#define MATRIX_VALID_dCsparse			\
+ "dgCMatrix", "dsCMatrix", "dtCMatrix"
+#define MATRIX_VALID_nCsparse			\
+ "ngCMatrix", "nsCMatrix", "ntCMatrix"
+
 #define MATRIX_VALID_Csparse			\
- "dgCMatrix", "dsCMatrix", "dtCMatrix",		\
+    MATRIX_VALID_dCsparse,			\
  "lgCMatrix", "lsCMatrix", "ltCMatrix",		\
- "ngCMatrix", "nsCMatrix", "ntCMatrix",		\
+    MATRIX_VALID_nCsparse,			\
  "zgCMatrix", "zsCMatrix", "ztCMatrix"
 
 #define MATRIX_VALID_Tsparse			\
@@ -412,6 +421,7 @@ mMatrix_as_geMatrix(SEXP A)
 /**
  * Return the 0-based index of a string match in a vector of strings
  * terminated by an empty string.  Returns -1 for no match.
+ * Is  __cheap__ :  __not__ looking at superclasses --> better use  R_check_class_etc(obj, *)
  *
  * @param class string to match
  * @param valid vector of possible matches terminated by an empty string
@@ -431,9 +441,20 @@ Matrix_check_class(char *class, const char **valid)
 /**
  * These are the ones "everyone" should use -- is() versions, also looking
  * at super classes:
+
+ * They now use R(semi_API) from  Rinternals.h :
+ * int R_check_class_and_super(SEXP x, const char **valid, SEXP rho);
+ * int R_check_class_etc      (SEXP x, const char **valid);
+
+ * R_check_class_etc      (x, v)      basically does  rho <- .classEnv(x)  and then calls
+ * R_check_class_and_super(x, v, rho)
  */
+// No longer:
+#ifdef DEPRECATED_Matrix_check_class_
 # define Matrix_check_class_etc R_check_class_etc
 # define Matrix_check_class_and_super R_check_class_and_super
+#endif
+
 
 /** Accessing  *sparseVectors :  fast (and recycling)  v[i] for v = ?sparseVector:
  * -> ./sparseVector.c  -> ./t_sparseVector.c :

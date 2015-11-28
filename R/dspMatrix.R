@@ -74,16 +74,3 @@ setMethod("diag", signature(x = "dspMatrix"),
 setMethod("diag<-", signature(x = "dspMatrix"),
 	  function(x, value) .Call(dspMatrix_setDiag, x, value))
 
-## The following allows  as(*, "dppMatrix").
-## However it *requires* that dppMatrix_chol() gives an error
-## for non-positive-semi-definite matrices -- which it does since 2005-10-03
-if(FALSE)## FIXME: This gives an error for singular pos.SEMI-def. matrices:
-setIs("dspMatrix", "dppMatrix",
-      test = function(obj)
-          "try-error" != class(try(.Call(dppMatrix_chol, obj), TRUE)),
-      replace = function(obj, value) {
-          ## copy all slots
-          for(n in slotNames(obj)) slot(obj, n) <- slot(value, n)
-          obj
-      })
-

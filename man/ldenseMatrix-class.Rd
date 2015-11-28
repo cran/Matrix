@@ -11,7 +11,7 @@
 % purely "sparse" are in   ./lsparseMatrix-classes.Rd
 %%-- Matrix products: ---> ./matrix-products.Rd
 \alias{as.logical,ldenseMatrix-method}
-\alias{as.vector,ldenseMatrix,missing-method}
+\alias{as.vector,ldenseMatrix-method}
 \alias{coerce,matrix,ldenseMatrix-method}
 \alias{coerce,ldenseMatrix,matrix-method}
 \alias{diag,ldenseMatrix-method}

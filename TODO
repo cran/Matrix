@@ -31,6 +31,8 @@ alternatively also is_sym() [in src/cs_utils.c], see below.
 
 ** TODO Look at Paul Bailey's problem -- CHOLMOD error (even seg.fault for him)
   --> ~/R/MM/Pkg-ex/Matrix/sparseOrderedLogit.R
+** TODO BunchKaufman() [and Schur()] should also get a "matrix" method,
+   so people like RP may stop whining about its non-availability in "base R" (2015-07-09)
 ** TODO BunchKaufman()'s result is not really useful yet {but it is used on C
  level e.g. for solve(<dsyMatrix>).   Should define  expand() method or
  similar, see man/BunchKaufman-methods.Rd and R/dsyMatrix.R (at end).
@@ -72,9 +74,9 @@ alternatively also is_sym() [in src/cs_utils.c], see below.
 ** TODO cbind2() / rbind2() for sparseMatrices: dimnames propagation should
   happen in C, see  R/bind2.R and src/Csparse.c (Csparse_horzcat etc).
 ** TODO use  getOption("Matrix.quiet") in more places [--> less messages/warnings]
-** TODO Check for DimNames propagation in coercion and other operations.
-  Done for (%*%, crossprod, tcrossprod) -- but not systematically checked (tests/matprod.R)
-*** TODO For colSums(), rowSums() [R-forge bug # 6018] --> 'FIXME' in R/colSums.R
+** DONE Check for DimNames propagation in coercion and other operations.
+*** DONE for (%*%, crossprod, tcrossprod), now systematically checked in tests/matprod.R
+*** DONE For colSums(), rowSums() [R-forge bug # 6018] --> 'FIXME' in R/colSums.R
 ** TODO Report the problem in the Linux ldexp manual page.  The second and
   third calls in the Synopsis should be to ldexpf and ldexpl.
 

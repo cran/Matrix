@@ -4,6 +4,9 @@
 \description{
   User friendly construction of a sparse matrix (inheriting from class
   \code{\linkS4class{TsparseMatrix}}) from the triplet representation.
+
+  This is much less flexible than \code{\link{sparseMatrix}()} and hence
+  somewhat \emph{deprecated}.
 }
 \usage{
 spMatrix(nrow, ncol, i = integer(), j = integer(), x = numeric())
@@ -27,10 +30,10 @@ spMatrix(nrow, ncol, i = integer(), j = integer(), x = numeric())
   \code{M[ i', j' ] == 0} for all other pairs \eqn{(i',j')}.
 }
 \seealso{\code{\link{Matrix}(*, sparse=TRUE)} for the more usual
-  constructor of such matrices; similarly, \code{\link{sparseMatrix}}
-  which is a bit more general than \code{spMatrix()} and returns a
-  \code{\linkS4class{CsparseMatrix}} which is often slightly more
-  desirable.   Further, \code{\link{bdiag}} and
+  constructor of such matrices.  Then, \code{\link{sparseMatrix}}
+  is more general and flexible than \code{spMatrix()} and by default
+  returns a \code{\linkS4class{CsparseMatrix}} which is often slightly
+  more desirable.   Further, \code{\link{bdiag}} and
   \code{\link{Diagonal}} for (block-)diagonal matrix constructors.
 
   Consider \code{\linkS4class{TsparseMatrix}} and similar class
@@ -49,7 +52,8 @@ L <- spMatrix(9, 30, i = rep(1:9, 3), 1:27,
               (1:27) \%\% 4 != 1)
 L # an "lgTMatrix"
 
-### This is a useful utility, to be used for experiments :
+
+## A simplified predecessor of  Matrix'  rsparsematrix() function :
 
  rSpMatrix <- function(nrow, ncol, nnz,
                        rand.x = function(n) round(rnorm(nnz), 2))
@@ -62,8 +66,7 @@ L # an "lgTMatrix"
      ## --------------------------------------------------------------
      ## Author: Martin Maechler, Date: 14.-16. May 2007
      stopifnot((nnz <- as.integer(nnz)) >= 0,
-               nrow >= 0, ncol >= 0,
-               nnz <= nrow * ncol)
+               nrow >= 0, ncol >= 0, nnz <= nrow * ncol)
      spMatrix(nrow, ncol,
               i = sample(nrow, nnz, replace = TRUE),
               j = sample(ncol, nnz, replace = TRUE),

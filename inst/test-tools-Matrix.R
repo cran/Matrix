@@ -191,8 +191,7 @@ rspMat <- function(n, m = n, density = 1/4, nnz = round(density * n*m),
     if (giveCsparse) as(x, "CsparseMatrix") else x
 }
 
-
-## originally, from \examples{..}  in ../man/sparseMatrix.Rd :
+## __DEPRECATED__ !!
 rSparseMatrix <- function(nrow, ncol, nnz,
 			  rand.x = function(n) round(rnorm(nnz), 2), ...)
 {

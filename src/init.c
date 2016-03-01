@@ -349,7 +349,7 @@ R_init_Matrix(DllInfo *dll)
     RREGDEF(numeric_as_chm_dense);
 
     R_cholmod_start(&c);
-//    R_cholmod_l_start(&cl);
+//    R_cholmod_start(&cl); << TODO; needs more work in ./chm_common.c etc
 
     Matrix_betaSym = install("beta");
     Matrix_DimNamesSym = install("Dimnames");

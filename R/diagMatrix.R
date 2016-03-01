@@ -128,6 +128,8 @@ if(FALSE)##--- no longer used:
     j_off <- c(0L, cumsum(vapply(Tlst, ncol, 1L)))
 
     clss <- vapply(Tlst, class, "")
+    ## NB ("FIXME"): this requires the component classes to be *called*
+    ## -- "dgTMatrix" | "dnTMatrix" etc (and not just *extend* those)!
     typ <- substr(clss, 2, 2)
     knd <- substr(clss, 1, 1)
     sym <- typ == "s" # symmetric ones

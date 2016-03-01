@@ -1,4 +1,5 @@
 \name{Matrix-class}
+\title{Virtual Class "Matrix" Class of Matrices}
 \docType{class}
 \alias{Matrix-class}
 \alias{!,Matrix-method}
@@ -79,8 +80,9 @@
 %\alias{solve,Matrix,....-method}--> ./solve-methods.Rd
 %\alias{unname,Matrix-method}
 \alias{unname,Matrix,missing-method}
+% Fake entries - so users find this:
+\alias{print.Matrix}
 %
-\title{Virtual Class "Matrix" Class of Matrices}
 \description{
   The \code{Matrix} class is a class contained by all actual
   classes in the \pkg{Matrix} package.  It is a \dQuote{virtual} class.
@@ -123,7 +125,8 @@
     \item{length}{\code{signature(x = "Matrix")}: simply defined as
       \code{prod(dim(x))} (and hence of mode \code{"double"}).}
     \item{show}{\code{signature(object = "Matrix")}: \code{\link{show}}
-      method for \code{\link{print}}ing.}
+      method for \code{\link{print}}ing.  For printing \emph{sparse}
+      matrices, see \code{\link{printSpMatrix}}.}
     \item{image}{\code{signature(object = "Matrix")}: draws an
       \code{\link{image}} of the matrix entries, using
       \code{\link[lattice]{levelplot}()} from package \pkg{lattice}.}

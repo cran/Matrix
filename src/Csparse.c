@@ -151,6 +151,12 @@ SEXP Csparse_to_dense(SEXP x, SEXP symm_or_tri)
      * BUT, much worse (FIXME!), it also transforms CHOLMOD_PATTERN ("n") matrices
      * to numeric (CHOLMOD_REAL) ones {and we "revert" via chm_dense_to_SEXP()}: */
     CHM_DN chxd = cholmod_sparse_to_dense(chxs, &c);
+    /* FIXME: The above FAILS for prod(dim(.)) > INT_MAX
+    /* TODO: use cholmod_l_* but also the 'cl' global ==> many changes in chm_common.[ch]
+     *
+     * >>>>>>>>>>> TODO <<<<<<<<<<<<
+     * CHM_DN chxd = cholmod_l_sparse_to_dense(chxs, &cl); */
+    //                   ^^^ important when prod(dim(.)) > INT_MAX
     int Rkind = (chxs->xtype == CHOLMOD_PATTERN)? -1 : Real_kind(x);
 
     SEXP ans = chm_dense_to_SEXP(chxd, 1, Rkind, GET_SLOT(x, Matrix_DimNamesSym),

@@ -35,7 +35,7 @@ spMatrix <- function(nrow, ncol,
 }
 
 sparseMatrix <- function(i = ep, j = ep, p, x, dims, dimnames,
-                         symmetric = FALSE, index1 = TRUE,
+                         symmetric = FALSE, triangular = FALSE, index1 = TRUE,
                          giveCsparse = TRUE, check = TRUE, use.last.ij = FALSE)
 {
   ## Purpose: user-level substitute for most  new(<sparseMatrix>, ..) calls
@@ -57,21 +57,34 @@ sparseMatrix <- function(i = ep, j = ep, p, x, dims, dimnames,
     dims.min <- suppressWarnings(c(max(i), max(j)))
     if(anyNA(dims.min)) stop("NA's in (i,j) are not allowed")
     if(missing(dims)) {
-        dims <- dims.min
+	dims <- if(symmetric || triangular) rep(max(dims.min), 2) else dims.min
     } else { ## check dims
         stopifnot(all(dims >= dims.min))
         dims <- as.integer(dims)
     }
-    sx <- if(symmetric) {
-        if(dims[1] != dims[2])
-            stop("symmetric matrix must be square")
-        "s"
-    } else "g"
+    if(symmetric && triangular)
+        stop("Both 'symmetric' and 'triangular', i.e. asking for diagonal matrix.  Use 'Diagonal()' instead")
+    sx <-
+        if(symmetric) {
+            if(dims[1] != dims[2]) stop("symmetric matrix must be square")
+            "s"
+        } else if(triangular) {
+            if(dims[1] != dims[2]) stop("triangular matrix must be square")
+            "t"
+        } else "g"
     isPat <- missing(x) ## <-> patter"n" Matrix
     kx <- if(isPat) "n" else .M.kind(x)
     r <- new(paste0(kx, sx, "TMatrix"))
     r@Dim <- dims
     if(symmetric && all(i >= j)) r@uplo <- "L" # else "U", the default
+    else if(triangular) {
+	r@uplo <-
+	    if(all(i >= j))
+		"L"
+	    else if(all(i <= j))
+		"U"
+	    else stop("triangular matrix must have all i >= j or i <= j")
+    }
     if(!isPat) {
 	if(kx == "d" && !is.double(x)) x <- as.double(x)
 	if(length(x) != (n <- length(i))) { ## recycle

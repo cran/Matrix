@@ -2,8 +2,9 @@
 
 SEXP MatrixFactorization_validate(SEXP obj)
 {
-    SEXP Dim = GET_SLOT(obj, Matrix_DimSym), val;
-    if (isString(val = dim_validate(Dim, "MatrixFactorization")))
+    SEXP val;
+    if (isString(val = dim_validate(GET_SLOT(obj, Matrix_DimSym),
+				    "MatrixFactorization")))
 	return(val);
     return ScalarLogical(1);
 }
@@ -60,6 +61,7 @@ SEXP LU_expand(SEXP x)
 	dd = GET_SLOT(x, Matrix_DimSym);
     int *iperm, *perm, *pivot = INTEGER(GET_SLOT(x, Matrix_permSym)),
 	*dim = INTEGER(dd), m = dim[0], n = dim[1], nn = m, i;
+    size_t m_ = (size_t) m; // to prevent integer (multiplication) overflow
     Rboolean is_sq = (n == m), L_is_tri = TRUE, U_is_tri = TRUE;
 
     // nn :=  min(n,m) ==  length(pivot[])
@@ -82,24 +84,25 @@ SEXP LU_expand(SEXP x)
 	SET_SLOT(L, Matrix_xSym, duplicate(lux));
 	SET_SLOT(L, Matrix_DimSym, duplicate(dd));
     } else { // !is_sq && L_is_tri -- m < n -- "wide" -- L is  m x m
-	double *Lx = REAL(ALLOC_SLOT(L, Matrix_xSym, REALSXP, m * m));
+	size_t m2 = m_ * m;
+	double *Lx = REAL(ALLOC_SLOT(L, Matrix_xSym, REALSXP, m2));
 	int *dL = INTEGER(ALLOC_SLOT(L, Matrix_DimSym, INTSXP, 2));
 	dL[0] = dL[1] = m;
 	// fill lower-diagonal (non-{0,1}) part -- remainder by make_d_matrix*() below:
-	Memcpy(Lx, REAL(lux), m * m);
+	Memcpy(Lx, REAL(lux), m2);
     }
     if(is_sq || !U_is_tri) {
 	SET_SLOT(U, Matrix_xSym, duplicate(lux));
 	SET_SLOT(U, Matrix_DimSym, duplicate(dd));
     } else { // !is_sq && U_is_tri -- m > n -- "long" -- U is  n x n
-	double *Ux = REAL(ALLOC_SLOT(U, Matrix_xSym, REALSXP, n * n)),
+	double *Ux = REAL(ALLOC_SLOT(U, Matrix_xSym, REALSXP, ((size_t) n) * n)),
 	       *xx = REAL(lux);
 	int *dU = INTEGER(ALLOC_SLOT(U, Matrix_DimSym, INTSXP, 2));
 	dU[0] = dU[1] = n;
 	/* fill upper-diagonal (non-0) part -- remainder by make_d_matrix*() below:
 	 * this is more complicated than in the L case, as the x / lux part we need
 	 * is  *not*  continguous:  Memcpy(Ux, REAL(lux), n * n); -- is  WRONG */
-	for (int j = 0; j < n; j++) {
+	for (size_t j = 0; j < n; j++) {
 	    Memcpy(Ux+j*n, xx+j*m, j+1);
 	    // for (i = 0; i <= j; i++)
 	    //   Ux[i + j*n] = xx[i + j*m];
@@ -112,10 +115,10 @@ SEXP LU_expand(SEXP x)
     } else { // L is "unit-diagonal" trapezoidal -- m > n -- "long"
 	// fill the upper right part with 0  *and* the diagonal with 1
 	double *Lx = REAL(GET_SLOT(L, Matrix_xSym));
-	int ii;
+	size_t ii;
 	for (i = 0, ii = 0; i < n; i++, ii+=(m+1)) { // ii = i*(m+1)
 	    Lx[ii] = 1.;
-	    for (int j = i*m; j < ii; j++)
+	    for (size_t j = i*m_; j < ii; j++)
 		Lx[j] = 0.;
 	}
     }
@@ -128,7 +131,7 @@ SEXP LU_expand(SEXP x)
 	// fill the lower left part with 0
 	double *Ux = REAL(GET_SLOT(U, Matrix_xSym));
 	for (i = 0; i < m; i++)
-	    for (int j = i*(m+1)+1; j < (i+1)*m; j++)
+	    for (size_t j = i*(m_+1) +1; j < (i+1)*m_; j++)
 		Ux[j] = 0.;
     }
 

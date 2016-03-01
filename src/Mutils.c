@@ -310,7 +310,7 @@ Rboolean equal_string_vectors(SEXP s1, SEXP s2)
 SEXP dense_nonpacked_validate(SEXP obj)
 {
     int *dims = INTEGER(GET_SLOT(obj, Matrix_DimSym));
-    if ((dims[0] * dims[1]) != length(GET_SLOT(obj, Matrix_xSym)))
+    if ((((double) dims[0]) * dims[1]) != XLENGTH(GET_SLOT(obj, Matrix_xSym)))
 	return mkString(_("length of x slot != prod(Dim)"));
     return ScalarLogical(1);
 }
@@ -318,8 +318,11 @@ SEXP dense_nonpacked_validate(SEXP obj)
 SEXP dim_validate(SEXP Dim, const char* name) {
     if (length(Dim) != 2)
 	return mkString(_("Dim slot must have length 2"));
-    if (TYPEOF(Dim) != INTSXP && TYPEOF(Dim) != REALSXP)
-	return mkString(_("Dim slot is not numeric"));
+    /* if (TYPEOF(Dim) != INTSXP && TYPEOF(Dim) != REALSXP) */
+    /* 	return mkString(_("Dim slot is not numeric")); */
+    if (TYPEOF(Dim) != INTSXP)
+	// TODO?: coerce REALSXP to INTSXP in the "double" case ???
+    	return mkString(_("Dim slot is not integer"));
     int
 	m = INTEGER(Dim)[0],
 	n = INTEGER(Dim)[1];

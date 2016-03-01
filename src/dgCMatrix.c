@@ -203,7 +203,7 @@ SEXP dgCMatrix_qrsol(SEXP x, SEXP y, SEXP ord)
 	error(_("cs_qrsol() failed inside dgCMatrix_qrsol()"));
 
     /* Solution is only in the first part of ycp -- cut its length back to n : */
-    ycp = lengthgets(ycp, (R_len_t) xc->n);
+    ycp = lengthgets(ycp, (R_xlen_t) xc->n);
 
     UNPROTECT(1);
     return ycp;

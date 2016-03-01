@@ -1,7 +1,7 @@
 #ifndef MATRIX_DENSE_H
 #define MATRIX_DENSE_H
 
-#include "Rdefines.h"
+#include "Rinternals.h"
 #include "R_ext/Lapack.h"
 
 SEXP lsq_dense_Chol(SEXP X, SEXP y);

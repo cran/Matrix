@@ -694,7 +694,7 @@ CHM_DN as_cholmod_dense(CHM_DN ans, SEXP x)
 				/* dimensions and nzmax */		\
     ans->d = ans->nrow = dims[0];					\
     ans->ncol = dims[1];						\
-    ans->nzmax = dims[0] * dims[1];					\
+    ans->nzmax = ((size_t)dims[0]) * dims[1];				\
 				/* set the xtype and any elements */	\
     switch(ctype / 2) {							\
     case 0: /* "d" */							\
@@ -875,7 +875,7 @@ SEXP chm_dense_to_SEXP(CHM_DN a, int dofree, int Rkind, SEXP dn, Rboolean transp
     } else {
 	dims[0] = a->nrow; dims[1] = a->ncol;
     }
-    ntot = dims[0] * dims[1];
+    ntot = ((size_t)dims[0]) * dims[1];
     if (a->d == a->nrow) { /* copy data slot -- always present in dense(!) */
 	if (a->xtype == CHOLMOD_REAL) {
 	    int i, *m_x;

@@ -65,6 +65,10 @@ alternatively also is_sym() [in src/cs_utils.c], see below.
    -> ~/R/MM/Pkg-ex/Matrix/cor_cos.R and
       ~/R/MM/Pkg-ex/Matrix/cor_cos_testing
    Provide cor.sparse() and other association measures for sparse matrices.
+** TODO Add larger collection of *random matrix generator* functions,
+ typically *sparse* ones: Have rsparseMatrix() [exported] already;
+ then rspMat(), rUnitTri(), mkLDL() [!] in inst/test-tools-Matrix.R ; then, e.g.,
+ rBlockTri() in man/bdiag.Rd.  (man/* ?;  tests/* )
 ** TODO port isSeq() to C [ R/Auxiliaries.R ]
 ** TODO Investigate the "band changing (and getting) ideas  'band<-' etc,
   from Jeremy D Silver, per posts to R-devel on Aug.26,2011

@@ -100,6 +100,11 @@ OBJS = $(DI) $(DL)
 #              ^^  FIXME?  MM thinks we should be able to only use $(DI)
 #  well, Doug thought so, too .. but it's currently wrong:
 # --> ../../chm_common.c  has a few  'cholmod_l_' left
+#
+# Well, it's even reverse now (2016-02): With 64-bit being standard,
+# we want to have e.g. dense n x m matrices  where  n x m  >> max_int,
+# and this *only* works for the *_l_* routines, i.e., those compiled with
+# 'DLONG' defined.
 
 LIB = ../../CHOLMOD.a
 

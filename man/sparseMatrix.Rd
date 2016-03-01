@@ -13,7 +13,7 @@
 }
 \usage{
 sparseMatrix(i = ep, j = ep, p, x, dims, dimnames,
-             symmetric = FALSE, index1 = TRUE,
+             symmetric = FALSE, triangular = FALSE, index1 = TRUE,
              giveCsparse = TRUE, check = TRUE, use.last.ij = FALSE)
 }
 \arguments{
@@ -42,6 +42,9 @@ sparseMatrix(i = ep, j = ep, p, x, dims, dimnames,
     specified, none, i.e., \code{\link{NULL}} ones, are used.}
   \item{symmetric}{logical indicating if the resulting matrix should be
     symmetric.  In that case, only the lower or upper triangle needs to
+    be specified via \eqn{(i/j/p)}.}
+  \item{triangular}{logical indicating if the resulting matrix should be
+    triangular.  In that case, the lower or upper triangle needs to
     be specified via \eqn{(i/j/p)}.}
   \item{index1}{logical scalar.  If \code{TRUE}, the default, the index
     vectors \code{i} and/or \code{j} are 1-based, as is the convention
@@ -80,6 +83,9 @@ sparseMatrix(i = ep, j = ep, p, x, dims, dimnames,
   \code{rep(seq_along(dp),dp)} where \code{dp <- diff(p)}, is used as
   the (1-based) row or column indices.
 
+  You cannot set both \code{singular} and \code{triangular} to true;
+  rather use \code{\link{Diagonal}()} (or its alternatives, see there).
+
   The values of \code{i}, \code{j}, \code{p} and \code{index1} are used
   to create 1-based index vectors \code{i} and \code{j} from which a
   \code{\linkS4class{TsparseMatrix}} is constructed, with numerical
@@ -112,6 +118,8 @@ sparseMatrix(i = ep, j = ep, p, x, dims, dimnames,
   Further \code{\link{bdiag}} and \code{\link{Diagonal}} for (block-)diagonal and
   \code{\link{bandSparse}} for banded sparse matrix constructors.
 
+  Random sparse matrices via \code{\link{rsparsematrix}()}.
+
   The standard \R \code{\link{xtabs}(*, sparse=TRUE)}, for sparse tables
   and \code{\link{sparse.model.matrix}()} for building sparse model
   matrices.
@@ -122,9 +130,14 @@ sparseMatrix(i = ep, j = ep, p, x, dims, dimnames,
 \examples{
 ## simple example
 i <- c(1,3:8); j <- c(2,9,6:10); x <- 7 * (1:7)
-(A <- sparseMatrix(i, j, x = x))
+(A <- sparseMatrix(i, j, x = x))                    ##  8 x 10 "dgCMatrix"
 summary(A)
 str(A) # note that *internally* 0-based row indices are used
+
+(sA <- sparseMatrix(i, j, x = x, symmetric = TRUE)) ## 10 x 10 "dsCMatrix"
+(tA <- sparseMatrix(i, j, x = x, triangular= TRUE)) ## 10 x 10 "dtCMatrix"
+stopifnot( all(sA == tA + t(tA)) ,
+           identical(sA, as(tA + t(tA), "symmetricMatrix")))
 
 ## dims can be larger than the maximum row or column indices
 (AA <- sparseMatrix(c(1,3:8), c(2,9,6:10), x = 7 * (1:7), dims = c(10,20)))

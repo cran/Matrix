@@ -55,5 +55,16 @@ ml <- c(as(matrix((1:24)\%\% 11 == 0, 6,4),"nMatrix"),
 mln <- c(ml, Diagonal(x = 1:3))
 stopifnot(is(bdiag(ml), "lsparseMatrix"),% failed in Matrix <= 1.0-2
           is(bdiag(mln),"dsparseMatrix") )
+
+## random (diagonal-)block-triangular matrices:
+rblockTri <- function(nb, max.ni, lambda = 3) {
+   .bdiag(replicate(nb, {
+         n <- sample.int(max.ni, 1)
+         tril(Matrix(rpois(n*n, lambda=lambda), n,n)) }))
+}
+
+(T4 <- rblockTri(4, 10, lambda = 1))
+image(T1 <- rblockTri(12, 20))
+
 }
 \keyword{array}

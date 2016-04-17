@@ -2,7 +2,7 @@ library(Matrix)
 
 ### Matrix Products including  cross products
 
-source(system.file("test-tools.R", package = "Matrix"))
+source(system.file("test-tools.R", package = "Matrix")) # is.EQ.mat(), dnIdentical() ..etc
 doExtras
 options(warn=1, # show as they happen
 	Matrix.verbose = doExtras)
@@ -899,6 +899,14 @@ set.seed(7); for(nn in 1:256) {
     stopifnot(all(L %&% D == as((L %*% abs(D)) > 0, "sparseMatrix")))
 }
 
-
+## [Diagonal]  o  [0-rows/colums] :
+m20 <- matrix(nrow = 2, ncol = 0); m02 <- t(m20)
+M20 <- Matrix(nrow = 2, ncol = 0); M02 <- t(M20)
+stopifnot(identical(dim(Diagonal(x=c(1,2)) %*% m20), c(2L, 0L)),
+          identical(dim(Diagonal(2)        %*% M20), c(2L, 0L)),
+          identical(dim(Diagonal(x=2:1)    %*% M20), c(2L, 0L)))
+stopifnot(identical(dim(m02 %*% Diagonal(x=c(1,2))), c(0L, 2L)),
+          identical(dim(M02 %*% Diagonal(2)       ), c(0L, 2L)),
+          identical(dim(M02 %*% Diagonal(x=2:1)   ), c(0L, 2L)))
 
 cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''

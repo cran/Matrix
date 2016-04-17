@@ -233,6 +233,26 @@ showProc.time <- local({ ## function + 'pct' variable
     }
 })
 
+##' A version of sfsmisc::Sys.memGB() which should never give an error
+##'  ( ~/R/Pkgs/sfsmisc/R/unix/Sys.ps.R  )
+##' TODO: A version that also works on Windows, using memory.size(max=TRUE)
+##' Windows help on memory.limit(): size in Mb (1048576 bytes), rounded down.
+
+Sys.memGB <- function(kind = "MemTotal") {## "MemFree" is typically more relevant
+    if(!file.exists(pf <- "/proc/meminfo"))
+	return(if(.Platform$OS.type == "windows")
+		   memory.limit() / 1000
+	       else NA)
+    mm <- tryCatch(drop(read.dcf(pf, fields=kind)),
+                   error = function(e) NULL)
+    if(is.null(mm) || any(is.na(mm)) || !all(grepl(" kB$", mm)))
+        return(NA)
+    ## return memory in giga bytes
+    as.numeric(sub(" kB$", "", mm)) / (1000 * 1024)
+}
+
+
+
 ##' @title turn an S4 object (with slots) into a list with corresponding components
 ##' @param obj an R object with a formal class (aka "S4")
 ##' @return a list with named components where \code{obj} had slots

@@ -5,12 +5,12 @@
 # Detlef Steuer <steuer@hsu-hh.de>, 2012-2014.
 msgid ""
 msgstr ""
-"Project-Id-Version: R 3.2.0 / matrix 1.1-2\n"
+"Project-Id-Version: R 3.3.0 / matrix 1.2-4\n"
 "Report-Msgid-Bugs-To: bugs.r-project.org\n"
-"POT-Creation-Date: 2015-05-12 16:53\n"
-"PO-Revision-Date: 2015-03-27 09:49+0100\n"
+"POT-Creation-Date: 2016-04-14 15:23\n"
+"PO-Revision-Date: 2016-04-14 12:55+0200\n"
 "Last-Translator: Detlef Steuer <steuer@hsu-hh.de>\n"
-"Language-Team: German <debian-l10n-german@lists.debian.org>\n"
+"Language-Team: R-Core <r-core@r-project.org>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -672,9 +672,8 @@ msgstr "noch nicht implementierte Methode für <%s> %%*%% <%s>"
 msgid "non-conformable arguments"
 msgstr "nicht passende Argumente"
 
-#, fuzzy
 msgid "'boolArith = %d' not yet implemented"
-msgstr "%s-Art noch nicht implementiert"
+msgstr "'boolArith = %d' noch nicht implementiert"
 
 msgid ""
 "rankMatrix(<large sparse Matrix>, method = '%s') coerces to dense matrix.\n"
@@ -712,8 +711,20 @@ msgstr "'p' muss ein nicht abnehmender Vektor (0, ...) sein"
 msgid "NA's in (i,j) are not allowed"
 msgstr "NAs sind in (i,j) nicht erlaubt"
 
+msgid ""
+"Both 'symmetric' and 'triangular', i.e. asking for diagonal matrix.  Use "
+"'Diagonal()' instead"
+msgstr ""
+
 msgid "symmetric matrix must be square"
 msgstr "symmetrische Matrix muss quadratisch sein"
+
+#, fuzzy
+msgid "triangular matrix must be square"
+msgstr "symmetrische Matrix muss quadratisch sein"
+
+msgid "triangular matrix must have all i >= j or i <= j"
+msgstr ""
 
 msgid "length(i) is not a multiple of length(x)"
 msgstr "length(i) ist kein Vielfaches von length(x)"
@@ -728,6 +739,26 @@ msgstr "Matrix-interner Fehler in <sparseM>[i,,d]. Bitte berichten"
 
 msgid "invalid 'col.names' string: %s"
 msgstr "ungültige 'col.names'-Zeichenkette: %s"
+
+msgid "uniDiag=TRUE, but not all diagonal entries are 1"
+msgstr ""
+
+msgid "uniDiag=TRUE, not all entries in diagonal coded as 1"
+msgstr ""
+
+msgid "in show(); maybe adjust 'options(max.print= *, width = *)'"
+msgstr ""
+
+#, fuzzy
+msgid "suppressing columns and rows"
+msgstr "[[ unterdrücke %d Spaltennamen %s ]]"
+
+msgid "suppressing rows"
+msgstr ""
+
+#, fuzzy
+msgid "suppressing columns"
+msgstr "[[ unterdrücke %d Spaltennamen %s ]]"
 
 msgid "logic programming error in printSpMatrix2(), please report"
 msgstr "logischer Programmierfehler in printSpMatrix2(), bitte berichten"

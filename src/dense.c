@@ -258,7 +258,10 @@ SEXP dense_to_Csparse(SEXP x)
        enhanced cholmod_dense_to_sparse(), with an extra boolean
        argument for symmetry.
     */
+    // TODO: When prod(dim(.)) > INT_MAX, we *must* use but cannot --> need itype = CHOLMOD_LONG
+    // ---- CHM_SP chxs = cholmod_l_dense_to_sparse(chxd, 1, &c);
     CHM_SP chxs = cholmod_dense_to_sparse(chxd, 1, &c);
+
     int Rkind = (chxd->xtype == CHOLMOD_REAL) ? Real_KIND2(x) : 0;
     /* Note: when 'x' was integer Matrix, Real_KIND(x) = -1, but *_KIND2(.) = 0 */
     R_CheckStack();

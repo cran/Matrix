@@ -14,7 +14,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Matrix 1.1-3\n"
-"POT-Creation-Date: 2015-07-16 21:44\n"
+"POT-Creation-Date: 2016-04-14 15:23\n"
 "PO-Revision-Date: 2015-07-15 17:14-0600\n"
 "Last-Translator:Chel Hee Lee  <chl948@mail.usask.ca>\n"
 "Language-Team: Chel Hee Lee  <chl948@mail.usask.ca>\n"
@@ -761,8 +761,20 @@ msgstr "'p'는 반드시 감소하지 않는(non-decreasing) 벡터 (0, ...)이�
 msgid "NA's in (i,j) are not allowed"
 msgstr "(i,j) 위치에 NA는 사용될 수 없습니다."
 
+msgid ""
+"Both 'symmetric' and 'triangular', i.e. asking for diagonal matrix.  Use "
+"'Diagonal()' instead"
+msgstr ""
+
 msgid "symmetric matrix must be square"
 msgstr "대칭행렬(symmetric matrix)는 반드시 정방(square)이어야 합니다."
+
+#, fuzzy
+msgid "triangular matrix must be square"
+msgstr "대칭행렬(symmetric matrix)는 반드시 정방(square)이어야 합니다."
+
+msgid "triangular matrix must have all i >= j or i <= j"
+msgstr ""
 
 msgid "length(i) is not a multiple of length(x)"
 msgstr "length(i)는 length(x)의 배수가 아닙니다."
@@ -779,6 +791,26 @@ msgstr ""
 
 msgid "invalid 'col.names' string: %s"
 msgstr "%s은 올바른 'col.names' 문자열이 아닙니다"
+
+msgid "uniDiag=TRUE, but not all diagonal entries are 1"
+msgstr ""
+
+msgid "uniDiag=TRUE, not all entries in diagonal coded as 1"
+msgstr ""
+
+msgid "in show(); maybe adjust 'options(max.print= *, width = *)'"
+msgstr ""
+
+#, fuzzy
+msgid "suppressing columns and rows"
+msgstr "[[ %d개의 열이름 %s를 제거합니다 ]]"
+
+msgid "suppressing rows"
+msgstr ""
+
+#, fuzzy
+msgid "suppressing columns"
+msgstr "[[ %d개의 열이름 %s를 제거합니다 ]]"
 
 msgid "logic programming error in printSpMatrix2(), please report"
 msgstr ""

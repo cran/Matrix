@@ -21,6 +21,7 @@
 \alias{coerce,indMatrix,nsparseMatrix-method}
 \alias{coerce,nMatrix,indMatrix-method}
 \alias{determinant,indMatrix,logical-method}
+\alias{isSymmetric,indMatrix-method}
 \alias{Summary,indMatrix-method}
 %
 \alias{rbind2,indMatrix,indMatrix-method}
@@ -104,7 +105,7 @@
   }
 }
 \author{Fabian Scheipl, Uni Muenchen, building on existing
-  "pMatrix", after a nice hike's conversation with Martin Maechler and
+  "pMatrix", after a nice hike's conversation with Martin Maechler; diverse
   tweaks by the latter.
 }
 \details{

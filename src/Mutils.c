@@ -1092,6 +1092,7 @@ SEXP Mmatrix(SEXP args)
 	    }
 	    break;
 	case RAWSXP:
+	    // FIXME:  N may overflow size_t !!
 	    memset(RAW(ans), 0, N);
 	    break;
 	default:

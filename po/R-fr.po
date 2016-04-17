@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Matrix 1.1-1\n"
-"POT-Creation-Date: 2015-05-12 16:53\n"
+"POT-Creation-Date: 2016-04-14 15:23\n"
 "PO-Revision-Date: 2014-03-30 09:07+0100\n"
 "Last-Translator: Philippe Grosjean <phgrosjean@sciviews.org>\n"
 "Language-Team: none\n"
@@ -742,8 +742,20 @@ msgstr "'p' doit être un vecteur non décroissant (0, …)"
 msgid "NA's in (i,j) are not allowed"
 msgstr "NAs dans (i,j) ne sont pas permis"
 
+msgid ""
+"Both 'symmetric' and 'triangular', i.e. asking for diagonal matrix.  Use "
+"'Diagonal()' instead"
+msgstr ""
+
 msgid "symmetric matrix must be square"
 msgstr "la matrice symétrique doit être carrée"
+
+#, fuzzy
+msgid "triangular matrix must be square"
+msgstr "la matrice symétrique doit être carrée"
+
+msgid "triangular matrix must have all i >= j or i <= j"
+msgstr ""
 
 msgid "length(i) is not a multiple of length(x)"
 msgstr "length(i) n'est pas un multiple de length(x)"
@@ -758,6 +770,26 @@ msgstr "erreur interne dans <sparseM>[i,,d] ; veuillez reporter ceci"
 
 msgid "invalid 'col.names' string: %s"
 msgstr "chaîne de caractères 'col.names' incorrect : %s"
+
+msgid "uniDiag=TRUE, but not all diagonal entries are 1"
+msgstr ""
+
+msgid "uniDiag=TRUE, not all entries in diagonal coded as 1"
+msgstr ""
+
+msgid "in show(); maybe adjust 'options(max.print= *, width = *)'"
+msgstr ""
+
+#, fuzzy
+msgid "suppressing columns and rows"
+msgstr "[[ suppression de %d noms de colonnes %s ]]"
+
+msgid "suppressing rows"
+msgstr ""
+
+#, fuzzy
+msgid "suppressing columns"
+msgstr "[[ suppression de %d noms de colonnes %s ]]"
 
 msgid "logic programming error in printSpMatrix2(), please report"
 msgstr ""

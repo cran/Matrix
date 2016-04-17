@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Matrix 1.2-3\n"
-"POT-Creation-Date: 2015-07-16 21:44\n"
+"Project-Id-Version: Matrix 1.2-5\n"
+"POT-Creation-Date: 2016-04-14 15:23\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -592,7 +592,16 @@ msgstr ""
 msgid "NA's in (i,j) are not allowed"
 msgstr ""
 
+msgid "Both 'symmetric' and 'triangular', i.e. asking for diagonal matrix.  Use 'Diagonal()' instead"
+msgstr ""
+
 msgid "symmetric matrix must be square"
+msgstr ""
+
+msgid "triangular matrix must be square"
+msgstr ""
+
+msgid "triangular matrix must have all i >= j or i <= j"
 msgstr ""
 
 msgid "length(i) is not a multiple of length(x)"
@@ -605,6 +614,24 @@ msgid "Matrix-internal error in <sparseM>[i,,d]; please report"
 msgstr ""
 
 msgid "invalid 'col.names' string: %s"
+msgstr ""
+
+msgid "uniDiag=TRUE, but not all diagonal entries are 1"
+msgstr ""
+
+msgid "uniDiag=TRUE, not all entries in diagonal coded as 1"
+msgstr ""
+
+msgid "in show(); maybe adjust 'options(max.print= *, width = *)'"
+msgstr ""
+
+msgid "suppressing columns and rows"
+msgstr ""
+
+msgid "suppressing rows"
+msgstr ""
+
+msgid "suppressing columns"
 msgstr ""
 
 msgid "logic programming error in printSpMatrix2(), please report"

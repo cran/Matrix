@@ -37,9 +37,13 @@ chkDiagProd <- function(M) {
 ##' @param m matrix = traditional-R-matrix version of M
 ##' @param M optional Matrix = "Matrix class version of m"
 ##' @param browse
-chkDnProd <- function(m = as(M, "matrix"), M = Matrix(m), browse=FALSE) {
+chkDnProd <- function(m = as(M, "matrix"), M = Matrix(m), browse=FALSE, warn.ok=FALSE) {
     ## TODO:
     ## if(browse) stopifnot <- f.unction(...)  such that it enters browser() when it is not fulfilled
+    if(!warn.ok) { # NO warnings allowd
+        op <- options(warn = 2)
+        on.exit(options(op))
+    }
     stopifnot(is.matrix(m), is(M, "Matrix"), identical(dim(m), dim(M)), dnIdentical(m,M))
     ## m is  n x d  (say)
     is.square <- nrow(m) == ncol(m)

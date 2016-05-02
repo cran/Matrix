@@ -3,12 +3,23 @@
 \name{NEWS}
 \title{News for \R Package \pkg{Matrix}}% MM: look into ../svn-log-from.all
 \encoding{UTF-8}
+%% as long as not R >= 3.2.0, ~/R/D/r-devel/R/share/Rd/macros/system.Rd :
 \newcommand{\CRANpkg}{\href{http://CRAN.R-project.org/package=#1}{\pkg{#1}}}
+\newcommand{\sspace}{\ifelse{latex}{\out{~}}{ }}
 %% NB: The date (yyyy-mm-dd) is the "Packaged:" date in ../DESCRIPTION
 
 %%_NOT YET__FIXME_   needs cholmod_l_dense_to_sparse() in our dense_to_Csparse()
 %% \item \code{as(<large-matrix>, "sparseMatrix")} no longer fails
 %%  when \code{prod(dim(.))} is larger than \eqn{2^{31} - 1}.
+
+\section{Changes in version 1.2-6 (2016-04-27, svn r3175)}{
+  \subsection{Bug Fixes}{
+    \itemize{
+      \item The 0-dim. Matrix multiplication fix in 1.2-5 did trigger
+      wrong warnings in other diagonal matrix multiplications.
+    }
+  }
+}
 
 \section{Changes in version 1.2-5 (2016-04-14, svn r3170)}{
   \subsection{New Features}{
@@ -413,7 +424,7 @@
   }
   \subsection{Bug Fixes}{
     \itemize{
-      \item \code{as(<csr>, "dgCMatrix")} (from package \pkg{SparseM})
+      \item \code{as(<csr>, "dgCMatrix")} (from package \CRANpkg{SparseM})
       now works again.
       \item .
     }
@@ -632,7 +643,7 @@
 \section{Changes in version 0.9-1 (2005-01-24, svn r451)}{
   \subsection{New Features}{
     \itemize{
-      \item lme4 / lmer specific R code moved out to \pkg{lme4} package.
+      \item lme4 / lmer specific R code moved out to \CRANpkg{lme4} package.
     }
   }
   \subsection{Bug Fixes}{

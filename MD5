@@ -1,5 +1,5 @@
 675a3a48a357cb2ee05ed285387b3e85 *ChangeLog
-9608758def925ffeb4ac7436b56754e8 *DESCRIPTION
+46d048f817926a9fc5f1d9f19d27e03b *DESCRIPTION
 49c7113b5e0e4fbf269132f6a5ff5b06 *LICENCE
 6ef254c93f93022aa467a78e059ff112 *NAMESPACE
 9f5c946b725cc3a503fa0b2e01c2c069 *R/AllClass.R
@@ -31,7 +31,7 @@ e4008b52dd9b6db2980f71640e8bda35 *R/denseMatrix.R
 1e4701a2f806db46dacff8049266ef70 *R/dgCMatrix.R
 1fc4711d16cafbba316edf09edace251 *R/dgTMatrix.R
 95f586465da565564e3cd4ab01566d92 *R/dgeMatrix.R
-0a0f2fb1b8c49a41c011de23e953b08e *R/diagMatrix.R
+9077b1e46c6ec71bf314e0c84f43c9bb *R/diagMatrix.R
 be76b734bbed865c5a76f90ecd874448 *R/dpoMatrix.R
 239dd04632141e119924f4b3a15e2188 *R/dppMatrix.R
 61c894c719a681323d62763230b5c6bc *R/dsCMatrix.R
@@ -77,7 +77,7 @@ a8d602a4f4fc0e3b83ae24955eb76e22 *R/sparseVector.R
 97e508e9e124aac0fb3dc3d046de347f *R/symmetricMatrix.R
 a3265f0761ef916f610e9849c6677600 *R/triangularMatrix.R
 7cca3f75bbd08bbfe4db900c5eace2eb *R/zzz.R
-7dae7e8b2c338e3882a9151afbd5cc30 *TODO
+497589b215c405addc91f5041a07fa8a *TODO
 43b7b07554e26a17e12f5eeb438854c2 *build/vignette.rds
 f2ad5375e270deeb7b041272dd095032 *cleanup
 d3528bc0cd82f248821809f253bffe35 *data/CAex.R
@@ -85,20 +85,20 @@ d3528bc0cd82f248821809f253bffe35 *data/CAex.R
 10b959df8869ec28b992f2ff6dad2991 *data/USCounties.R
 8734f0b040c6292983d273d4251d250a *inst/Copyrights
 ac3697580885d17a062ce39df01338ad *inst/Doxyfile
-1c8337a18b0885907b52a01fb31bd7a2 *inst/NEWS.Rd
+c57e30865f91a82a5f25370026517822 *inst/NEWS.Rd
 ea747a35318c564002a7144ebd510e28 *inst/doc/Announce.txt
 0eeea40a3fb6da7157d2862bba10713a *inst/doc/Comparisons.R
 09e13507b9832a30aa92e8aff0dc96a0 *inst/doc/Comparisons.Rnw
-0953a29e5ef22bee56aa636b473ddb57 *inst/doc/Comparisons.pdf
+bec625dcbef399d8c49dc5246daf957d *inst/doc/Comparisons.pdf
 3fb9bf234f272d784fde95ee66b75f71 *inst/doc/Design-issues.R
 7bf6c80a144d27b6baece257c69bd800 *inst/doc/Design-issues.Rnw
-56cb9e943258a2df322a719e7b549151 *inst/doc/Design-issues.pdf
+ee01555baf3f03f19856a19687ac78da *inst/doc/Design-issues.pdf
 6f66bd95aab28d7bf06a019e7fbc14b5 *inst/doc/Intro2Matrix.R
 a6d6903590a8f5ac036fdeb74b48bb89 *inst/doc/Intro2Matrix.Rnw
-1fa9a491f93c11879dfbf916c6b0d43b *inst/doc/Intro2Matrix.pdf
+895a813ad7ace72e654258ee0cbc0c16 *inst/doc/Intro2Matrix.pdf
 188b839523ce6ec32e1f00ec4e2bc18e *inst/doc/Introduction.R
 c39a26dfe7ccaafd044e88468155b153 *inst/doc/Introduction.Rnw
-fa4dda630dd032601fcb89aa5e012ef8 *inst/doc/Introduction.pdf
+68dd552e7b5ac08ac4abcb576935dc5a *inst/doc/Introduction.pdf
 7d60c8defc517d361513bac03d04f13b *inst/doc/SuiteSparse/AMD.txt
 e4f8cd28fc8be8ab14106630610b9c5f *inst/doc/SuiteSparse/CHOLMOD.txt
 0a80fb0db9cefb02e290ffd2f3431e6c *inst/doc/SuiteSparse/COLAMD.txt
@@ -107,7 +107,7 @@ d75882d4bb768ba0ea352291652daaee *inst/doc/SuiteSparse/SPQR.txt
 6d217288f5da4fe419afaa34988bf42d *inst/doc/SuiteSparse/UserGuides.txt
 2ab394c4daa5c94c2498ba3fa0578462 *inst/doc/sparseModels.R
 491d961ca64f8da569c817b82daa9c58 *inst/doc/sparseModels.Rnw
-1fdbd331611cf9821d72a5b76ebc7c1f *inst/doc/sparseModels.pdf
+277b8f258723e0380d5322e748573b3a *inst/doc/sparseModels.pdf
 dcd11f6947f910f743254824e930b2c7 *inst/external/CAex_slots.rda
 be886d6bb832210bb654b9ad064fe0ff *inst/external/KNex_slots.rda
 90f019ec81e67d7f3542f7ca39bf3f2d *inst/external/USCounties_slots.rda
@@ -152,7 +152,7 @@ c50c7e06a955a5d2ecea071b7160b2bf *man/MatrixClass.Rd
 12d75917210de453f9572de25be75995 *man/RsparseMatrix-class.Rd
 965323db9aa812ceff4c71d7b0881397 *man/Schur-class.Rd
 d15bfb87449f86c5cb9b65e77de821bb *man/Schur.Rd
-12da656e739b166f6ff138a5f8ad135a *man/SparseM-conv.Rd
+038f09ff73e709f9ca35c925e3351611 *man/SparseM-conv.Rd
 b946bf426edf45858278e6eaacb14f4a *man/Subassign-methods.Rd
 93b66f4c5fe69d4122fc140510c684de *man/TsparseMatrix-class.Rd
 61465055d850a039eac3853d4ad120b1 *man/USCounties.Rd
@@ -193,7 +193,7 @@ ac3f72f537dbfa72345d274fcde51e48 *man/dtCMatrix-class.Rd
 3f894c8473e90abe89ca43c9d8cbe465 *man/dtpMatrix-class.Rd
 22a99ac7381f2b826f73c3c76114bc1e *man/dtrMatrix-class.Rd
 81ec856c53625af15c043370bf37b29e *man/expand.Rd
-2b2294e5631ba7a0e09a71fb436574fc *man/expm.Rd
+46e9ac75926253a2ba245ed41a346171 *man/expm.Rd
 16101bc3d19b286913e0273c0cdeade5 *man/externalFormats.Rd
 dd7dc20ed8afa4c6a0dd752270ff2617 *man/facmul.Rd
 12fee6d998e1b954161ce53043fae6e2 *man/forceSymmetric.Rd
@@ -462,7 +462,7 @@ b2cc9ba163939e31d28c3277d24d4ea5 *tests/bind.R
 ed231754703a243d3731f29b7057cba4 *tests/group-methods.R
 91eff40fa758f2623f2a881718e75457 *tests/indexing.R
 e931d99d1a44e4615cc81ed7d2e201a7 *tests/indexing.Rout.save
-030d8da5f5c9d97c1b50713c7d6ac187 *tests/matprod.R
+e72bf6ea43b93d1425a2a90e6a8c6c31 *tests/matprod.R
 06d9de87597574aff0aa03776011bfa8 *tests/matr-exp.R
 128ccccdfe84c2dbed42bdce86258491 *tests/other-pkgs.R
 2787ae0732f209eee2a0965c196c3363 *tests/spModel.matrix.R

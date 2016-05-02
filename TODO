@@ -1,6 +1,8 @@
 ##-*- mode: org -*-
 
 * Very *Urgent*
+** TODO Using "long vectors" (i.e. 64 bit indices vectors) in CHOLMOD --> cholmod_l_*()
+*** e.g. segfault in crossprod() Csparse_crossprod -> cholmod_att()
 * *Urgent* in some sense ---------------------------------------------------
 ** DONE [t]crossprod() could/should become more lenient with *vector*s: adapt R-devel (= R 3.2.0)'s rules:
    see misc/products-Mv.R and *.Rout -- now tests/matprod.R ("3.2.0")
@@ -10,6 +12,7 @@
 ** DONE M[i,j] should *not* drop dimnames (R-forge bug 2556, see ~/R/MM/Pkg-ex/Matrix/dimnames-prod.R)
 ** DONE "Math"/"Math2" *fail* entirely for sparseVectors
 ** DONE rbind2(<sparse>, <dense>) did not work, now is completely wrong !! (e.g. <dgC>, <dge>)
+** TODO nnzero() is too slow for a large CsparseMatrix
 ** TODO qr.R(), qrR() etc currently *lose* column/row names {compared to base R's qr.R}, see,
    	drop0(R. <- qr.R(qx), tol=1e-15) # columns are int b1 c1 c2 b2 c3
    in man/qr-methods.Rd :                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ but there are no colnames!

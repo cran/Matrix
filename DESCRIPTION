@@ -1,6 +1,6 @@
 Package: Matrix
-Version: 1.2-5
-Date: 2016-04-14
+Version: 1.2-6
+Date: 2016-04-28
 Priority: recommended
 Title: Sparse and Dense Matrix Classes and Methods
 Author: Douglas Bates <bates@stat.wisc.edu> and Martin Maechler
@@ -20,6 +20,6 @@ BuildResaveData: no
 License: GPL (>= 2) | file LICENCE
 URL: http://Matrix.R-forge.R-project.org/
 NeedsCompilation: yes
-Packaged: 2016-04-14 16:04:55 UTC; maechler
+Packaged: 2016-04-28 14:49:36 UTC; maechler
 Repository: CRAN
-Date/Publication: 2016-04-17 14:01:25
+Date/Publication: 2016-05-02 15:51:43

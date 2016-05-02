@@ -8,6 +8,8 @@
 \alias{expm,symmetricMatrix-method}
 \alias{expm,ddiMatrix-method}
 \alias{expm,matrix-method}% < for now
+%% only as long as not requiring R >= 3.2.0:
+\newcommand{\CRANpkg}{\href{http://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 \description{
   Compute the exponential of a matrix.
 }
@@ -48,9 +50,9 @@ expm(x)
 }
 %\note{}
 \seealso{\code{\link{Schur}}; additionally,
-    \code{\link[expm]{expm}}, \code{\link[expm]{logm}}, etc in package \pkg{expm}.
+    \code{\link[expm]{expm}}, \code{\link[expm]{logm}}, etc in package \CRANpkg{expm}.
 }
-\note{The \pkg{expm} package contains newer (partly faster and more
+\note{The \CRANpkg{expm} package contains newer (partly faster and more
   accurate) algorithms for \code{expm()} and includes
   \code{\link[expm]{logm}} and \code{\link[expm]{sqrtm}}.
 }

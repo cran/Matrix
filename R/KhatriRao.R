@@ -20,16 +20,24 @@ KhatriRao <- function(X, Y = X, FUN = "*", make.dimnames = FALSE)
     stopifnot((p <- ncol(X)) == ncol(Y))
     X <- as(X,"CsparseMatrix")
     Y <- as(Y,"CsparseMatrix")
+    is.n <- (nX <- is(X, "nMatrix")) & (nY <- is(Y, "nMatrix"))
+
     xn <- diff(      X@p)
     yn <- diff(yp <- Y@p) ## both of length p
     newp <- as.integer(diffinv(xn*yn))
 
-    xn.yp <- xn[ as.logical(yn) ] # xn "where" Y is present
-    yj <- .Call(Matrix_expand_pointers, yp)## as(Y,"TsparseMatrix")@j
-    yj <- factor(yj) # for split() below
+
     rep.yn <- rep.int(yn,xn)
+    xn.yp <- xn[ as.logical(yn) ] # xn "where" Y is present
+    non0 <- length(xn.yp) > 0L && any(xn.yp != 0L)
     i1 <- rep.int(X@i, rep.yn)
-    i2 <- unlist(rep(split.default(Y@i,yj), xn.yp))
+    i2 <-
+	if(non0) {
+	    yj <- .Call(Matrix_expand_pointers, yp)## as(Y,"TsparseMatrix")@j
+	    yj <- factor(yj) # for 2x split() below
+	    unlist(rep(split.default(Y@i,yj), xn.yp))
+	}
+	else integer()
     n1 <- nrow(X); n2 <- nrow(Y)
     newi <- i1*n2 + i2
     dim <- as.integer(c(n1*n2, p))
@@ -39,13 +47,15 @@ KhatriRao <- function(X, Y = X, FUN = "*", make.dimnames = FALSE)
 	     colnames(X))
     } else list(NULL,NULL)
 
-    if((nX <- is(X, "nMatrix")) & (nY <- is(Y, "nMatrix")))
+    if(is.n)
 	new("ngCMatrix", Dim=dim, Dimnames=dns, i = newi, p = newp)
     else { ## at least one of 'X' and 'Y' has an "x" slot:
 	if(nX) X <- as(X, "lgCMatrix")
-	if(nY) Y <- as(Y, "lgCMatrix")
 	x1 <- rep.int(X@x, rep.yn)
-	x2 <- unlist(rep(split.default(Y@x,yj), xn.yp))
+	x2 <- if(non0) {
+		  if(nY) Y <- as(Y, "lgCMatrix")
+		  unlist(rep(split.default(Y@x,yj), xn.yp))
+	      } else if(nY) logical() else Y@x[0]
 	new("dgCMatrix", Dim=dim, Dimnames=dns, i = newi, p = newp,
 	    x = match.fun(FUN) (x1,x2))
     }

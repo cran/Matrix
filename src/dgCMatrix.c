@@ -1,3 +1,7 @@
+// to get strdup declared in glibc (when strict -std=c11 or -stdc99):
+#define _POSIX_C_SOURCE 200809L
+#include <string.h>
+
 #include "dgCMatrix.h"
 
 /* for Csparse_transpose() : */

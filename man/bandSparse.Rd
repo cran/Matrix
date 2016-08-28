@@ -11,7 +11,8 @@ bandSparse(n, m = n, k, diagonals, symmetric = FALSE, giveCsparse = TRUE)
 \arguments{
   \item{n,m}{the matrix dimension \eqn{(n,m) = (nrow, ncol)}.}
   \item{k}{integer vector of \dQuote{diagonal numbers}, with identical
-    meaning as in \code{\link{band}(*, k)}.}
+    meaning as in \code{\link{band}(*, k)}, i.e., relative to the main diagonal,
+    which is \code{k=0}.}
   \item{diagonals}{optional list of sub-/super- diagonals; if missing,
     the result will be a patter\bold{n} matrix, i.e., inheriting from
     class \code{\linkS4class{nMatrix}}.
@@ -74,7 +75,9 @@ B [1:15, 1:30]
 Bs[1:15, 1:30]
 ## can use a list *or* a matrix for specifying the diagonals:
 stopifnot(identical(B,  bandSparse(n, k = bk, diag = bMat)),
-	  identical(Bs, bandSparse(n, k = bk, diag = bMat, symmetric=TRUE)))
+	  identical(Bs, bandSparse(n, k = bk, diag = bMat, symmetric=TRUE))
+          , inherits(B, "dtCMatrix") # triangular!
+)
 }
 \keyword{array}
 \keyword{algebra}

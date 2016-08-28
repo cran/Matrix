@@ -1,8 +1,7 @@
 ### Note that "in theory" even base::as.vector() should be overloaded.
 ### In practice that could be too much of a performance penalty in some cases.
 
-.MatrixEnv <- new.env(parent=emptyenv())
-## as long as it's small, no 'hash = TRUE'
+.MatrixEnv <- new.env(parent = emptyenv(), hash = FALSE)#  e.g., for  once-per-session warnings
 
 .chm_common <- new.env(parent = emptyenv())
 ## environment in which to store some settings from cholmod_common
@@ -19,19 +18,27 @@
 if(getRversion() >= "3.2.0") {
     ## New (2015-02)  base :: cbind(), rbind() which dispatch on S4 "when needed":
     cBind <- function (..., deparse.level = 1) {
-	## not yet by default: (TODO: Once per session from ~ Oct.2015)
-	if(isTRUE(getOption("Matrix.warn")) ||
-	   isTRUE(getOption("Matrix.verbose")))
-	.Deprecated(msg = "'cBind' is deprecated.
+	## Once per session warning (or if "Matrix.(warn|verbose)"):
+	if(is.null(wrn <- get0("warned.cBind", .MatrixEnv)) ||
+           isTRUE(getOption("Matrix.warn")) ||
+	   isTRUE(getOption("Matrix.verbose"))) {
+            if(is.null(wrn))
+                assign("warned.cBind", TRUE, envir=.MatrixEnv) ||
+                    .Deprecated(msg = "'cBind' is deprecated.
  Since R version 3.2.0, base's cbind() should work fine with S4 objects")
+        }
 	base::cbind(..., deparse.level=deparse.level)
     }
     rBind <- function (..., deparse.level = 1) {
-	## not yet by default: (TODO: ...)
-	if(isTRUE(getOption("Matrix.warn")) ||
-	   isTRUE(getOption("Matrix.verbose")))
+	## Once per session warning (or if "Matrix.(warn|verbose)"):
+	if(is.null(wrn <- get0("warned.rBind", .MatrixEnv)) ||
+           isTRUE(getOption("Matrix.warn")) ||
+	   isTRUE(getOption("Matrix.verbose"))) {
+            if(is.null(wrn))
+                assign("warned.rBind", TRUE, envir=.MatrixEnv) ||
 	.Deprecated(msg = "'rBind' is deprecated.
  Since R version 3.2.0, base's rbind() should work fine with S4 objects")
+            }
 	base::rbind(..., deparse.level=deparse.level)
     }
 

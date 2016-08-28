@@ -19,7 +19,7 @@ bandSparse <- function(n, m = n, k, diagonals,
     k <- as.integer(k)
     n <- as.integer(n)
     m <- as.integer(m)
-    stopifnot(n >= 0, m >= 0, -n+1 <= k, k <= m - 1)
+    stopifnot(n >= 0, m >= 0, -n+1 <= (mik <- min(k)), (mak <- max(k)) <= m - 1)
     if(use.x) {
         if(diag.isMat) {
             if(ncol(diagonals) != len.k)
@@ -34,13 +34,18 @@ bandSparse <- function(n, m = n, k, diagonals,
             getD <- function(j) diagonals[[j]]
         }
     }
-    if(symmetric && any(k < 0) && any(k > 0))
-	stop("for symmetric band matrix, only specify upper or lower triangle\n hence, all k must have the same sign")
+    sqr <- n == m
+    if(symmetric) {
+        if(!sqr) stop("matrix can only be symmetric if square, but n != m")
+	if(mik < 0 && mak > 0)
+	    stop("for symmetric band matrix, only specify upper or lower triangle\n hence, all k must have the same sign")
+    } else
+	tri <- sqr && sign(mik)*sign(mak) >= 0 # triangular result
     dims <- c(n,m)
     k.lengths <- ## This is a bit "ugly"; I got the cases "by inspection"
 	if(n >= m) {
 	    ifelse(k >= m-n,  m - pmax(0,k), n+k)
-	} else { ## n < m
+	} else { ## n < m (?? k >= -n+1 always !!)
 	    ifelse(k >= -n+1, n + pmin(0,k), m-k)
 	}
     i <- j <- integer(sum(k.lengths))
@@ -80,10 +85,10 @@ bandSparse <- function(n, m = n, k, diagonals,
 	    new("nsTMatrix", i= i-1L, j= j-1L, Dim= dims, uplo=UpLo)
 	if(giveCsparse) as(T, "CsparseMatrix") else T
     }
-    else { ## general, not symmetric
+    else { ## not symmetric, possibly triangular
 	if(use.x)
-	    sparseMatrix(i=i, j=j, x=x, dims=dims, giveCsparse=giveCsparse)
+	    sparseMatrix(i=i, j=j, x=x, dims=dims, triangular=tri, giveCsparse=giveCsparse)
 	else
-	    sparseMatrix(i=i, j=j,	dims=dims, giveCsparse=giveCsparse)
+	    sparseMatrix(i=i, j=j,	dims=dims, triangular=tri, giveCsparse=giveCsparse)
     }
 }

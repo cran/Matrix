@@ -813,6 +813,11 @@ fixupDense <- function(m, from, cldm = getClassDef(class(m))) {
 ##' @title Transform {vectors, matrix, Matrix, ...} to  dgeMatrix
 ##' @export
 ..2dge <- function(from) .Call(dup_mMatrix_as_dgeMatrix, from)
+if(FALSE) ## FIXME: From R we want something like (but all in C - where inherits() is "free"
+..2dge <- function(from, check=TRUE) {
+    if(check && inherits(from,"geMatrix")) from
+    else .Call(dup_mMatrix_as_dgeMatrix, from)
+}
 
 ## -> ./ldenseMatrix.R :
 l2d_Matrix <- function(from, cl = MatrixClass(class(from)), cld = getClassDef(cl)) {

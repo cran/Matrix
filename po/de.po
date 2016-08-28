@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: R 3.3.0 / Matrix 1.2-4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-04-14 15:23+0200\n"
+"POT-Creation-Date: 2016-04-14 22:36+0200\n"
 "PO-Revision-Date: 2016-04-14 12:54+0200\n"
 "Last-Translator: Detlef Steuer <detlef.steuer@gmx.de>\n"
 "Language-Team: R Core <r-core@r-project.org>\n"
@@ -661,25 +661,25 @@ msgstr "Zweiter Aufruf von dgeqrf gab Fehlerkode %d zurück"
 msgid "Lapack routine dtrcon returned error code %d"
 msgstr "Lapack-Routine dtrcon gab Fehlerkode %d zurück"
 
-#: dense.c:284
+#: dense.c:287
 #, c-format
 msgid "Lower band %d > upper band %d"
 msgstr "Unteres Band %d > oberes Band %d"
 
-#: dense.c:355
+#: dense.c:358
 msgid "ddense_to_symmetric(): matrix is not square!"
 msgstr "ddense_to_symmetric(): Matrix ist nicht quadratisch."
 
-#: dense.c:366
+#: dense.c:369
 #, c-format
 msgid "matrix is not symmetric [%d,%d]"
 msgstr "Matrix ist nicht symmetrisch [%d,%d]"
 
-#: dense.c:427
+#: dense.c:430
 msgid "matrix is not square! (symmetric part)"
 msgstr "Matrix ist nicht quadratisch. (symmetrischer Teil)"
 
-#: dense.c:485
+#: dense.c:488
 msgid "matrix is not square! (skew-symmetric part)"
 msgstr "Matrix ist nicht quadratisch. (schief-symmetrischer Teil)"
 

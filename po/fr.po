@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Matrix 1.1-1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-04-14 15:23+0200\n"
+"POT-Creation-Date: 2016-04-14 22:36+0200\n"
 "PO-Revision-Date: 2014-03-30 09:05+0100\n"
 "Last-Translator: Philippe Grosjean <phgrosjean@sciviews.org>\n"
 "Language-Team: none\n"
@@ -665,25 +665,25 @@ msgstr "Le second appel à dgeqrf a renvoyé le code d'erreur %d"
 msgid "Lapack routine dtrcon returned error code %d"
 msgstr "La routine Lapack dtrcon a renvoyé le code d'erreur %d"
 
-#: dense.c:284
+#: dense.c:287
 #, c-format
 msgid "Lower band %d > upper band %d"
 msgstr "La bande basse %d > la bande haute %d"
 
-#: dense.c:355
+#: dense.c:358
 msgid "ddense_to_symmetric(): matrix is not square!"
 msgstr "ddense_to_symmetric() : la matrice n'est pas carrée !"
 
-#: dense.c:366
+#: dense.c:369
 #, c-format
 msgid "matrix is not symmetric [%d,%d]"
 msgstr "la matrice n'est pas symétrique [%d,%d]"
 
-#: dense.c:427
+#: dense.c:430
 msgid "matrix is not square! (symmetric part)"
 msgstr "la matrice n'est pas carrée ! (partie symétrique)"
 
-#: dense.c:485
+#: dense.c:488
 msgid "matrix is not square! (skew-symmetric part)"
 msgstr "la matrice n'est pas carrée ! (partie 'skew-symetric')"
 

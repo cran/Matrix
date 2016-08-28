@@ -662,10 +662,11 @@ SEXP dup_mMatrix_as_geMatrix(SEXP A)
     enum dense_enum M_type = ddense /* -Wall */;
 
     if (ctype > 0) { /* a [nld]denseMatrix or [dl]diMatrix object */
-	ad = GET_SLOT(A, Matrix_DimSym);
-	an = GET_SLOT(A, Matrix_DimNamesSym);
 	M_type = (ctype <= 14) ? ddense :
 	    ((ctype <= 14+6) ? ldense : ndense);
+	/// TODO: Return 'A' unduplicated if ctype indicates "?geMatrix"' -- and *new argument* 'check' is TRUE
+	ad = GET_SLOT(A, Matrix_DimSym);
+	an = GET_SLOT(A, Matrix_DimNamesSym);
     }
     else if (ctype < 0) {	/* not a (recognized) classed matrix */
 

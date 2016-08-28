@@ -114,14 +114,11 @@ sparse.model.matrix <-
 	namD <- names(data)
 	## turn any character columns into factors
 	for(i in namD)
-	    if(is.character(data[[i]])) {
+	    if(is.character(data[[i]]))
 		data[[i]] <- factor(data[[i]])
-		warning(gettextf("variable '%s' converted to a factor", i),
-			domain = NA)
-	    }
-	isF <- sapply(data, function(x) is.factor(x) || is.logical(x) )
+	isF <- vapply(data, function(x) is.factor(x) || is.logical(x), NA)
 	isF[int] <- FALSE
-	isOF <- sapply(data, is.ordered)
+	isOF <- vapply(data, is.ordered, NA)
 	for(nn in namD[isF])            # drop response
 	    if(is.null(attr(data[[nn]], "contrasts")))
 		contrasts(data[[nn]]) <- contr.funs[1 + isOF[nn]]

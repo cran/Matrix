@@ -213,6 +213,22 @@ relErrV <- function(target, current) {
     RE
 }
 
+##' @title Number of correct digits: Based on relErrV(), recoding "Inf" to 'zeroDigs'
+##' @param target  numeric vector of "true" values
+##' @param current numeric vector of "approximate" values
+##' @param zeroDigs how many correct digits should zero error give
+##' @return basically   -log10 (| relErrV(target, current) | )
+##' @author Martin Maechler, Summer 2011 (for 'copula')
+nCorrDigits <- function(target, current, zeroDigs = 16) {
+    stopifnot(zeroDigs >= -log10(.Machine$double.eps))# = 15.65
+    RE <- relErrV(target, current)
+    r <- -log10(abs(RE))
+    r[RE == 0] <- zeroDigs
+    r[is.na(RE) | r < 0] <- 0 # no correct digit, when relErr is NA
+    r
+}
+
+
 ## is.R22 <- (paste(R.version$major, R.version$minor, sep=".") >= "2.2")
 
 pkgRversion <- function(pkgname)

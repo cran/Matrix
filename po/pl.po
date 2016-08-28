@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Matrix 1.1-2-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-04-14 15:23+0200\n"
+"POT-Creation-Date: 2016-04-14 22:36+0200\n"
 "PO-Revision-Date: 2014-03-24 17:53+0100\n"
 "Last-Translator: Łukasz Daniel <lukasz.daniel@gmail.com>\n"
 "Language-Team: Łukasz Daniel <lukasz.daniel@gmail.com>\n"
@@ -990,33 +990,33 @@ msgstr "Procedura Lapack 'dtrcon()' zwróciła kod błędu %d"
 
 # Matrix/src/dense.c: 279
 # error(_("Lower band %d is greater than upper band %d"), k1, k2)
-#: dense.c:284
+#: dense.c:287
 #, c-format
 msgid "Lower band %d > upper band %d"
 msgstr "Niższe pasmo %d jest większe niż górne pasmo %d"
 
 # Matrix/src/dense.c: 348
 # error(_("ddense_to_symmetric(): matrix is not square!"))
-#: dense.c:355
+#: dense.c:358
 msgid "ddense_to_symmetric(): matrix is not square!"
 msgstr "ddense_to_symmetric(): macierz nie jest kwadratowa!"
 
 # Matrix/src/dense.c: 359
 # error(_("matrix is not symmetric [%d,%d]"), i+1, j+1)
-#: dense.c:366
+#: dense.c:369
 #, c-format
 msgid "matrix is not symmetric [%d,%d]"
 msgstr "macierz nie jest symetryczna [%d,%d]"
 
 # Matrix/src/dense.c: 407
 # error(_("matrix is not square! (symmetric part)"))
-#: dense.c:427
+#: dense.c:430
 msgid "matrix is not square! (symmetric part)"
 msgstr "macierz nie jest kwadratowa! (część symetryczna)"
 
 # Matrix/src/dense.c: 451
 # error(_("matrix is not square! (skew-symmetric part)"))
-#: dense.c:485
+#: dense.c:488
 msgid "matrix is not square! (skew-symmetric part)"
 msgstr "macierz nie jest kwadratowa! (część skośno-symetryczna)"
 

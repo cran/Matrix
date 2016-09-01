@@ -12,6 +12,9 @@
 %% \item \code{as(<large-matrix>, "sparseMatrix")} no longer fails
 %%  when \code{prod(dim(.))} is larger than \eqn{2^{31} - 1}.
 
+\section{Changes in version 1.2-7.1 (2016-08-29, svn r3187)}{
+  \itemize{ \item in C code, protect _POSIX_C_SOURCE by #ifdef __GLIBC__ }
+}
 \section{Changes in version 1.2-7 (2016-08-27, svn r3185)}{
   \subsection{New Features}{
     \itemize{

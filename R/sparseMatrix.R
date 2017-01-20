@@ -790,6 +790,7 @@ setMethod("dim<-", signature(x = "sparseMatrix", value = "ANY"),
 	      if(is(x, "CsparseMatrix")) as(r, "CsparseMatrix") else r
 	  })
 
+setMethod("rep", "sparseMatrix", function(x, ...) rep(as(x, "sparseVector"), ...))
 
 setMethod("norm", signature(x = "sparseMatrix", type = "character"),
 	  function(x, type, ...) {

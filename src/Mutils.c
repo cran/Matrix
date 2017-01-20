@@ -713,10 +713,10 @@ SEXP dup_mMatrix_as_geMatrix(SEXP A)
     ans = PROTECT(NEW_OBJECT(MAKE_CLASS(M_type == ddense ? "dgeMatrix" :
 					(M_type == ldense ? "lgeMatrix" :
 					 "ngeMatrix"))));
-#define DUP_MMATRIX_SET_1					\
-    SET_SLOT(ans, Matrix_DimSym, duplicate(ad));		\
-    SET_SLOT(ans, Matrix_DimNamesSym, (LENGTH(an) == 2) ? 	\
-	     duplicate(an): allocVector(VECSXP, 2));		\
+#define DUP_MMATRIX_SET_1						\
+    SET_SLOT(ans, Matrix_DimSym, duplicate(ad));			\
+    SET_SLOT(ans, Matrix_DimNamesSym, (!isNull(an) && LENGTH(an) == 2) ? \
+	     duplicate(an): allocVector(VECSXP, 2));			\
     sz = INTEGER(ad)[0] * INTEGER(ad)[1]
 
     DUP_MMATRIX_SET_1;

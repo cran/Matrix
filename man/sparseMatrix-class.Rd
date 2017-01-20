@@ -48,6 +48,7 @@
 \alias{determinant,dtCMatrix,logical-method}
 \alias{determinant,sparseMatrix,missing-method}
 \alias{determinant,sparseMatrix,logical-method}
+\alias{rep,sparseMatrix-method}
 % Fake, just so it is found by the naive user:}
 \alias{print.sparseMatrix}
 % "[" are in ./Xtrct-methods.Rd

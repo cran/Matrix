@@ -322,3 +322,10 @@ setMethod("Summary", "sparseVector",
 		  if(anyNA(x@x)) NaN else 0
 	      }
 	  })
+
+## help( pmin ) in R :
+##       -----
+## ‘pmax’ and ‘pmin’ will also work on classed objects with appropriate methods
+## for comparison, ‘is.na’ and ‘rep’ (if recycling of arguments is needed).
+##
+##--> and that now *does* work, in 'R 3.3.1 patched' and newer

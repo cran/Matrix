@@ -6,7 +6,9 @@
 // needed for FILE:
 #include <stdio.h>
 #include <stddef.h>
-// For use with R package 'Matrix'
+// For use with R package 'Matrix' (NA_REAL, warning(), REprintf(), ..)
+# include <R_ext/Arith.h>
+# include <R_ext/Error.h>
 # include <R_ext/Print.h>
 # include <R_ext/Random.h>
 # define printf Rprintf

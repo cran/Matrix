@@ -173,6 +173,7 @@
 #if defined (DLONG) || defined (ZLONG)
 
 #define Int SuiteSparse_long
+#define UInt SuiteSparse_ulong
 #define ID  SuiteSparse_long_id
 #define Int_MAX SuiteSparse_long_max
 
@@ -194,6 +195,7 @@
 #else
 
 #define Int int
+#define UInt unsigned Int
 #define ID "%d"
 #define Int_MAX INT_MAX
 

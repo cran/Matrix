@@ -2,7 +2,7 @@
 \alias{sparseVector}
 \title{Sparse Vector Construction from Nonzero Entries}
 \description{
-  User friendly construction sparse vectors,
+  User friendly construction of sparse vectors,
   i.e., objects inheriting from \code{\link{class}}
   \code{\linkS4class{sparseVector}}, from indices and values of its
   non-zero entries.

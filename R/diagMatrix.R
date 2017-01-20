@@ -120,6 +120,7 @@ if(FALSE)##--- no longer used:
     ## block-diagonal matrix [a dgTMatrix] from list of matrices
     stopifnot(is.list(lst), (nl <- length(lst)) >= 1)
 
+### FIXME: next line is *slow* when lst = list of 75'000  dense 3x3 matrices
     Tlst <- lapply(lapply(lst, as_Csp2), # includes "diagU2N"
 		   as, "TsparseMatrix")
     if(nl == 1) return(Tlst[[1]])

@@ -2,6 +2,8 @@
 
 library(Matrix)
 source(system.file("test-tools.R", package = "Matrix"))# identical3() etc
+assertV <- function(e) tools::assertError(e, verbose=TRUE)
+
 cat("doExtras:",doExtras,"\n")
 
 set.seed(2001)
@@ -232,7 +234,7 @@ m2num <- function(m) { if(is.integer(m)) storage.mode(m) <- "double" ; m }
 M.knd <- Matrix:::.M.kind
 cat("Checking all Ops group generics for a set of arguments:\n",
     "-------------------------------------------------------\n", sep='')
-options(warn = 2)#, error=recover)
+op <- options(warn = 2)#, error=recover)
 for(gr in getGroupMembers("Ops")) {
   cat(gr,"\n",paste(rep.int("=",nchar(gr)),collapse=""),"\n", sep='')
   for(f in getGroupMembers(gr)) {
@@ -290,7 +292,52 @@ for(gr in getGroupMembers("Ops")) {
 }
 showProc.time()
 
-options(warn = 0)# was 2
+###---- Now checking 0-length / 0-dim cases  <==> to R >= 3.4.0 !
+
+## arithmetic, logic, and comparison (relop) for 0-extent arrays
+(m <- Matrix(cbind(a=1[0], b=2[0])))
+Lm <- as(m, "lMatrix")
+## Im <- as(m, "iMatrix")
+stopifnot(
+    identical(m, m + 1), identical(m, m + 1[0]),
+    identical(m, m + NULL),## now (2016-09-27) ok
+    identical(m, Lm+ 1L) ,
+    identical(m, m+2:3), ## gave error "length does not match dimension"
+    identical(Lm, m & 1),
+    identical(Lm, m | 2:3),## had Warning "In .... : data length exceeds size of matrix"
+    identical(Lm, m & TRUE[0]),
+    identical(Lm, m | FALSE[0]),
+    identical(Lm, m > NULL),
+    identical(Lm, m > 1),
+    identical(Lm, m > .1[0]),## was losing dimnames
+    identical(Lm, m > NULL), ## was not-yet-implemented
+    identical(Lm, m <= 2:3)  ## had "wrong" warning
+)
+mm <- m[,c(1:2,2:1,2)]
+assertV(m + mm) # ... non-conformable arrays
+assertV(m | mm) # ... non-conformable arrays
+## Matrix: ok ;  R : ok, in R >= 3.4.0
+assertV(m == mm)
+## in R <= 3.3.x, relop returned logical(0) and  m + 2:3  returned numeric(0)
+##
+## arithmetic, logic, and comparison (relop) -- inconsistency for 1x1 array o <vector >= 2>:
+(m1 <- Matrix(1,1,1, dimnames=list("Ro","col")))
+##    col
+## Ro   1
+## Before Sep.2016, here, Matrix was the *CONTRARY* to R:
+assertV(m1  + 1:2)## M.: "correct" ERROR // R 3.4.0: "deprecated" warning (--> will be error)
+assertV(m1  & 1:2)## gave 1 x 1 [TRUE]  -- now Error, as R
+assertV(m1 <= 1:2)## gave 1 x 1 [TRUE]  -- now Error, as R
+assertV(m1  & 1:2)## gave 1 x 1 [TRUE]  -- now Error, as R
+assertV(m1 <= 1:2)## gave 1 x 1 [TRUE]  -- now Error, as R
+##
+##  arrays combined with NULL works
+stopifnot(identical(Matrix(3,1,1) + NULL, 3[0]))# FIXME not-yet-implemented -- now ok
+stopifnot(identical(Matrix(3,1,1) > NULL, T[0]))# FIXME not-yet-implemented -- now ok
+stopifnot(identical(Matrix(3,1,1) & NULL, T[0])) ## FIXME ... -- now ok
+## in R >= 3.4.0: logical(0) # with *no* warning and that's correct!
+
+options(op)# reset 'warn'
 mStop <- function(...) stop(..., call. = FALSE)
 ##
 cat("Checking the Math (+ Math2) group generics for a set of arguments:\n",

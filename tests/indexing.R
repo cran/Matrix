@@ -1079,6 +1079,40 @@ x2 <- x0; x2[cbind(i, i+10)] <- as.matrix(i^2)
 stopifnot(isValid(x1, "dgTMatrix"), identical(x1, x2))
 
 
+iv <- c(rep(0,100), 3, 0,0,7,0,0,0)
+sv0  <- sv  <- as(iv, "sparseVector")
+sv.0 <- sv. <- as(as.integer(iv), "sparseVector")
+stopifnot(canCoerce("integer", "sparseVector"))
+sv2 <- as(sv, "isparseVector")
+stopifnot(validObject(sv), validObject(sv2), identical(sv., sv2),
+          sv == sv.)
+n0 <- sv. != 0
+## --> ../R/sparseVector.R : replSPvec()
+if(interactive())  debug(Matrix:::replSPvec)
+##
+sv [n0] <- sv [n0]
+sv.[n0] <- sv.[n0] # gave error
+stopifnot(identical(sv , sv0),
+          identical(sv., sv.0))
+sv [3:7] <- 0
+sv.[3:7] <- 0L
+stopifnot(identical(sv , sv0), identical(sv., sv.0))
+sv [2:4] <- 2:4
+sv.[2:4] <- 2:4
+stopifnot(which(sv != 0) == (which(sv. != 0) -> in0),
+          in0 == c(2:4, 101L, 104L))
+sv [2:6] <- 0L
+sv.[2:6] <- 0L
+stopifnot(identical(sv , sv0), identical(sv., sv.0))
+
+## the next six *all* gave an error -- but should be no-op's:
+for(vv in list(sv, sv.0))
+    for(ind in list(0, FALSE, logical(length(vv))))
+        vv[ind] <- NA
+stopifnot(identical(sv , sv0), identical(sv., sv.0))
+
+
+
 showProc.time()
 
 if(!interactive()) warnings()

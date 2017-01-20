@@ -686,6 +686,8 @@ setClass("Schur", contains = "MatrixFactorization",
 ### Class Union :  no inheritance, but is(*, <class>) :
 
 setClassUnion("mMatrix", members = c("matrix", "Matrix"))
+if(FALSE) ## to be used in setMethod("c", "numM...") -- once that works
+setClassUnion("numMatrixLike", members = c("logical", "integer", "numeric", "mMatrix"))
 
 ## CARE: Sometimes we'd want all those for which 'x' contains all the data.
 ##       e.g. Diagonal() is "ddiMatrix" with 'x' slot of length 0, does *not* contain 1
@@ -797,10 +799,23 @@ setClassUnion("atomicVector", ## "double" is not needed, and not liked by some
 	      members = c("logical", "integer", "numeric",
 			  "complex", "raw", "character"))
 
-## --- Matrix - related (but not "Matrix" nor "Decomposition/Factorization):
+setClassUnion("numericVector", members = c("logical", "integer", "numeric"))
 
-## for 'value' in  x[..] <- value hence for all "contents" of our Matrices:
-setClassUnion("replValue", members = c("numeric", "logical", "complex", "raw"))
+setClassUnion("Mnumeric", members = c("numericVector", "Matrix"))
+## not "matrix" as that extends "vector" and contains "character", "structure" ...
+
+setValidity("Mnumeric",
+            function(object) {
+                if(is.numeric(object) ||
+                   is.logical(object) ||
+                   inherits(object, "Matrix")) return(TRUE)
+                ## else
+                "Not a valid 'Mnumeric' class object"
+		})
+
+
+
+## --- Matrix - related (but not "Matrix" nor "Decomposition/Factorization):
 
 ### Sparse Vectors ---- here use 1-based indexing ! -----------
 
@@ -894,6 +909,10 @@ setClassUnion("xsparseVector", ## those sparseVector's with an 'x' slot
                 "isparseVector",
                 "lsparseVector",
                 "zsparseVector"))
+
+## for 'value' in  x[..] <- value hence for all "contents" of our Matrices:
+setClassUnion("replValue",   members = c("numeric", "logical", "complex", "raw"))
+setClassUnion("replValueSp", members = c("replValue", "sparseVector", "Matrix"))
 
 
 setClass("determinant",

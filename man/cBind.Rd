@@ -59,7 +59,8 @@ rBind(..., deparse.level = 1)
 }
 \author{Martin Maechler}
 \seealso{\code{\link{cbind2}}, \code{\link{cbind}},
-  \code{\link[methods]{Methods}}.
+  Documentation in base \R's \pkg{methods} package% R <= 3.3.1 \code{\link[methods]{Methods}}.
+  .
 }
 \examples{
 (a <- matrix(c(2:1,1:2), 2,2))

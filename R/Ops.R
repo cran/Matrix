@@ -63,6 +63,12 @@ setMethod("Ops", signature(e1 = "matrix", e2 = "Matrix"),
 ## Note: things like  callGeneric(Matrix(e1, sparse=is(e2,"sparseMatrix")), e2))
 ##   may *not* be better: e.g. Matrix(.) can give *diagonal* instead of sparse
 
+##  NULL  should be treated as logical(0) {which often will be coerced to numeric(0)}:
+setMethod("Ops", signature(e1 = "Matrix", e2 = "NULL"),
+	  function(e1, e2) callGeneric(e1, logical()))
+setMethod("Ops", signature(e1 = "NULL", e2 = "Matrix"),
+	  function(e1, e2) callGeneric(logical(), e2))
+
 ## bail-outs -- on highest possible level, hence "Ops", not "Compare"/"Arith" :
 .bail.out.Ops <- function(e1, e2) {
     if(is(e1, "Matrix") && is(e2, "Matrix"))
@@ -121,20 +127,28 @@ setMethod("Compare", signature(e1 = "logical", e2 = "nMatrix"), .Cmp.swap)
 
 ## This is parallel to Logic.Mat.atomic() below --->  __keep parallel__ !
 Cmp.Mat.atomic <- function(e1, e2) { ## result will inherit from "lMatrix"
-    d <- e1@Dim
+    n1 <- prod(d <- e1@Dim)
     cl <- class(e1)
-    if((l2 <- length(e2)) == 0) {
-	if(prod(d) == 0)
-	    return(new(class2(cl, "l"), Dim= d))
-	else
-	    stop(gettextf("<Matrix> %s %s is undefined",
-			  .Generic, paste0(class(e2),"(0)")), domain=NA)
-    }
+    if((l2 <- length(e2)) == 0)
+	return(if(n1 == 0)
+                   new(class2(cl, "l"), Dim = d, Dimnames = e1@Dimnames)
+               else
+		   ## stop(gettextf("<Matrix> %s %s is undefined",
+		   ##     	  .Generic, paste0(class(e2),"(0)")), domain=NA)
+		   as.logical(e2))
+    ## else
+    if(n1 && n1 < l2)
+	stop(sprintf(
+	    "dim [product %d] do not match the length of object [%d]", n1, l2))
     cl1 <- getClassDef(cl)
     slots1 <- names(cl1@slots)
     has.x <- any("x" == slots1)# *fast* check for "x" slot presence
-    if(l2 > 1 && has.x) ## e2 cannot simply be compared with e1@x --> use another method
-        return(callGeneric(e1, Matrix(e2, nrow=d[1], ncol=d[2])))
+    if(l2 > 1 && has.x)
+	return(if(n1 == 0)
+		   new(class2(cl, "l"), x = callGeneric(e1@x, e2),
+		       Dim = d, Dimnames = e1@Dimnames)
+	       else ## e2 cannot simply be compared with e1@x --> use another method
+		   callGeneric(e1, Matrix(e2, nrow=d[1], ncol=d[2])))
     ## else
     Udg <- extends(cl1, "triangularMatrix") && e1@diag == "U"
     r0 <- callGeneric(0, e2)
@@ -145,7 +159,7 @@ Cmp.Mat.atomic <- function(e1, e2) { ## result will inherit from "lMatrix"
         r <- new(if(d[1] == d[2]) "lsyMatrix" else "lgeMatrix")
         r@Dim <- d
         r@Dimnames <- e1@Dimnames
-        r@x <- rep.int(TRUE, prod(d))
+        r@x <- rep.int(TRUE, n1)
     }
     else if(extends(cl1, "denseMatrix")) {
 	full <- !.isPacked(e1)	   # << both "dtr" and "dsy" are 'full'
@@ -169,7 +183,7 @@ Cmp.Mat.atomic <- function(e1, e2) { ## result will inherit from "lMatrix"
             ## [dense & packed & not symmetric ] ==> must be "dtp*" :
             if(!extends(cl1, "dtpMatrix"))
                 stop("internal bug in \"Compare\" method (Cmp.Mat.atomic); please report")
-	    rx <- rep_len(r0, prod(d))
+	    rx <- rep_len(r0, n1)
 	    rx[indTri(d[1], upper = (e1@uplo == "U"), diag=TRUE)] <- r
 	    r <- new("lgeMatrix", x = rx, Dim = d, Dimnames = e1@Dimnames)
 	}
@@ -231,7 +245,7 @@ Cmp.Mat.atomic <- function(e1, e2) { ## result will inherit from "lMatrix"
             lClass <- if(extends(cl1, "symmetricMatrix")) "lsyMatrix" else "lgeMatrix"
             Matrix.msg(sprintf("sparse to dense (%s) coercion in '%s' -> %s",
                                lClass, .Generic, "Cmp.Mat.atomic"), .M.level = 2)
-	    rx <- rep_len(r0, prod(d))
+	    rx <- rep_len(r0, n1)
 
             ## Here, we assume that 'r' and the indices align (!)
             encI <- .Call(m_encodeInd,
@@ -445,7 +459,12 @@ setMethod("Arith", signature(e1 = "dgeMatrix", e2 = "dgeMatrix"),
 A.M.n <- function(e1, e2) {
     d <- e1@Dim
     le <- length(e2)
-    if(le == 1 || le == d[1] || prod(d) == le) { # matching dim
+    if(le == 0)
+	if(prod(d) == 0)
+	    new(class2(class(e1), "d"), Dim = d, Dimnames = e1@Dimnames)
+	else
+	    as.numeric(e2)
+    else if(le == 1 || le == d[1] || any(prod(d) == c(le, 0L))) { # matching dim
         e1@x <- callGeneric(e1@x, as.vector(e2))
         e1
     } else stop ("length of 2nd arg does not match dimension of first")
@@ -457,7 +476,12 @@ setMethod("Arith", signature(e1 = "dgeMatrix", e2 = "sparseVector"), A.M.n)
 A.n.M <- function(e1, e2) {
     d <- e2@Dim
     le <- length(e1)
-    if(le == 1 || le == d[1] || prod(d) == le) { # matching dim
+    if(le == 0)
+	if(prod(d) == 0)
+	    new(class2(class(e2), "d"), Dim = d, Dimnames = e2@Dimnames)
+	else
+	    as.numeric(e1)
+    else if(le == 1 || le == d[1] || any(prod(d) == c(le, 0L))) { # matching dim
         e2@x <- callGeneric(as.vector(e1), e2@x)
         e2
     } else stop ("length of 1st arg does not match dimension of 2nd")
@@ -479,9 +503,17 @@ setMethod("Arith", signature(e1 = "ddenseMatrix", e2 = "ddenseMatrix"),
 .Arith.denseM.atom <- function(e1, e2) {
     ## since e1 = "dgeMatrix" has its own method, we have
     ## either symmetric or triangular !
-    d <- e1@Dim
+    n1 <- prod(d <- e1@Dim)
     le <- length(e2 <- as.vector(e2))
-    if(le == 1 || le == d[1] || prod(d) == le) { # matching dim
+    if(n1 && n1 < le)
+	stop(sprintf(
+	    "dim [product %d] do not match the length of object [%d]", n1, le))
+    if(le == 0)
+	if(prod(d) == 0)
+	    new(class2(class(e1), "d"), Dim = d, Dimnames = e1@Dimnames)
+	else
+	    as.numeric(e2)
+    else if(le == 1 || le == d[1] || any(prod(d) == c(le, 0L))) { # matching dim
         if(is(e1, "triangularMatrix")) {
             r0 <- callGeneric(0, e2)
             if(all0(r0)) {              # result remains triangular
@@ -512,7 +544,12 @@ setMethod("Arith", signature(e1 = "ddenseMatrix", e2 = "sparseVector"), .Arith.d
     d <- e2@Dim
     ## note that e2 is either symmetric or triangular here
     le <- length(e1 <- as.vector(e1))
-    if(le == 1 || le == d[1] || prod(d) == le) { # matching dim
+    if(le == 0)
+	if(prod(d) == 0)
+	    new(class2(class(e2), "d"), Dim = d, Dimnames = e2@Dimnames)
+	else
+	    as.numeric(e1)
+    else if(le == 1 || le == d[1] || any(prod(d) == c(le, 0L))) { # matching dim
 	if(is(e2, "triangularMatrix")) {
 	    r0 <- callGeneric(e1, 0)
 	    if(all0(r0)) {		# result remains triangular
@@ -624,23 +661,31 @@ for(Mcl in c("lMatrix","nMatrix","dMatrix"))
 
 ## This is parallel to Cmp.Mat.atomic() above --->  __keep parallel__ !
 Logic.Mat.atomic <- function(e1, e2) { ## result will typically be "like" e1:
-    e2 <- as.logical(e2)
-    if(.Generic == "&" && allTrue (e2)) return(as(e1, "lMatrix"))
-    if(.Generic == "|" && allFalse(e2)) return(as(e1, "lMatrix"))
-    d <- e1@Dim
+    l2 <- length(e2 <- as.logical(e2))
+    n1 <- prod(d <- e1@Dim)
+    if(n1 && n1 < l2)
+	stop(sprintf(
+	    "dim [product %d] do not match the length of object [%d]", n1, l2))
+    if(.Generic == "&" && l2 && allTrue (e2)) return(as(e1, "lMatrix"))
+    if(.Generic == "|" && l2 && allFalse(e2)) return(as(e1, "lMatrix"))
     cl <- class(e1)
-    if((l2 <- length(e2)) == 0) {
-	if(prod(d) == 0)
-	    return(new(class2(cl, "l"), Dim= d))
-	else
-	    stop(gettextf("<Matrix> %s %s is undefined",
-			  .Generic, paste0(class(e2),"(0)")), domain=NA)
-    }
+    if(l2 == 0)
+	return(if(n1 == 0)
+		   new(class2(cl, "l"), Dim = d, Dimnames = e1@Dimnames)
+	       else
+		   ## stop(gettextf("<Matrix> %s %s is undefined",
+		   ##     	  .Generic, paste0(class(e2),"(0)")), domain=NA)
+		   as.logical(e2))
+    ## else
     cl1 <- getClassDef(cl)
     slots1 <- names(cl1@slots)
     has.x <- any("x" == slots1)# *fast* check for "x" slot presence
-    if(l2 > 1 && has.x) ## e2 cannot simply be compared with e1@x --> use another method
-        return(callGeneric(e1, Matrix(e2, nrow=d[1], ncol=d[2])))
+    if(l2 > 1 && has.x)
+	return(if(prod(d) == 0)
+		   new(class2(cl, "l"), x = callGeneric(e1@x, e2),
+		       Dim = d, Dimnames = e1@Dimnames)
+	       else ## e2 cannot simply be compared with e1@x --> use another method
+		   callGeneric(e1, Matrix(e2, nrow=d[1], ncol=d[2])))
     ## else
     Udg <- extends(cl1, "triangularMatrix") && e1@diag == "U"
     r0 <- callGeneric(0, e2)
@@ -683,7 +728,8 @@ Logic.Mat.atomic <- function(e1, e2) { ## result will typically be "like" e1:
     }
     else { ##---- e1 is(. , sparseMatrix) -----------------
         ## FIXME: remove this test eventually
-        if(extends(cl1, "diagonalMatrix")) stop("Logic.Mat.atomic() should not be called for diagonalMatrix")
+        if(extends(cl1, "diagonalMatrix"))
+            stop("Logic.Mat.atomic() should not be called for diagonalMatrix")
         remainSparse <- allFalse(r0) ## <==> things remain sparse
         if(Udg) {          # e1 *is* unit-diagonal (triangular sparse)
             r1 <- callGeneric(1, e2)

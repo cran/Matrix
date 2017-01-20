@@ -1,10 +1,12 @@
 \name{uniqTsparse}
-\title{Unique TsparseMatrix Representations}
+\title{Unique (Sorted) TsparseMatrix Representations}
 \alias{uniqTsparse}
 \alias{anyDuplicatedT}
 \description{
-  Detect or \dQuote{unify} non-unique \code{\linkS4class{TsparseMatrix}}
-  matrices.
+  Detect or \dQuote{unify} (or \dQuote{standardize}) non-unique
+  \code{\linkS4class{TsparseMatrix}} matrices, prducing unique
+  \eqn{(i,j,x)} triplets which are \emph{sorted}, first in \eqn{j}, then
+  in \eqn{i} (in the sense of \code{\link{order}(j,i)}).
 
   Note that \code{new(.)}, \code{\link{spMatrix}} or
   \code{\link{sparseMatrix}} constructors for \code{"dgTMatrix"} (and
@@ -14,7 +16,7 @@
   \code{anyDuplicatedT()} reports the index of the first duplicated
   pair, or \code{0} if there is none.
 
-  \code{uniqTsparseT(x)} replaces duplicated index pairs \eqn{(i,j)} and their
+  \code{uniqTsparse(x)} replaces duplicated index pairs \eqn{(i,j)} and their
   corresponding \code{x} slot entries by the triple \eqn{(i,j, sx)}
   where \code{sx = sum(x [<all pairs matching (i,j)>])}, and for logical
   \code{x}, addition is replaced by logical \eqn{or}.
@@ -63,6 +65,12 @@ non_uniqT <- function(x, di = dim(x))
   is.unsorted(x@j) || anyDuplicatedT(x, di)
 non_uniqT(T2 ) # TRUE
 non_uniqT(T2u) # FALSE
+
+T3 <- T2u
+T3[1, c(1,3)] <- 10; T3[2, c(1,5)] <- 20
+T3u <- uniqTsparse(T3)
+str(T3u) # sorted in 'j', and within j, sorted in i
+stopifnot(!non_uniqT(T3u))
 
 ## Logical l.TMatrix and n.TMatrix :
 (L2 <- T2 > 0)

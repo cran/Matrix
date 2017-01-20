@@ -82,6 +82,15 @@ setMethod("is.finite", signature(x = "sparseVector"),
 	      r
 	  })
 
+##' Uniquify sparceVectors, i.e., bring them in "regularized" from,
+##' --- similar in spirit (and action!) as  uniqTsparse(.) for "TsparseMatrix"
+##' __FIXME__ better name ??  , then export and document!  __TODO__
+uniqSpVec <- function(x) {
+    ii <- sort.list(x@i, method = "radix")
+    x@i <- x@i[ii]
+    x@x <- x@x[ii]
+    x
+}
 
 sp2vec <- function(x, mode = .type.kind[.M.kindC(cl)]) {
     ## sparseVector  ->  vector
@@ -520,12 +529,11 @@ replSPvec <- function (x, i, value)
     n <- x@length
     ii <- intIv(i, n)
     lenRepl <- length(ii)
+    if(!lenRepl) return(x)
+    ## else:  lenRepl = length(ii) > 0
     lenV <- length(value)
-    if(lenV == 0) {
-	if(lenRepl != 0)
-	    stop("nothing to replace with")
-	else return(x)
-    }
+    if(lenV == 0)
+        stop("nothing to replace with")
     ## else: lenV := length(value) > 0
     if(lenRepl %% lenV != 0)
 	stop("number of items to replace is not a multiple of replacement length")
@@ -551,17 +559,17 @@ replSPvec <- function (x, i, value)
 		x@x <- x@x[!sel]
 	}
 	return(x)
-
     }
     ## else --	some( value != 0 ) --
     if(lenV > lenRepl)
 	stop("too many replacement values")
     else if(lenV < lenRepl)
 	value <- rep(value, length = lenRepl)
-    ## now:  length(value) == lenRepl
+    ## now:  length(value) == lenRepl > 0
 
     v0 <- is0(value)
     ## value[1:lenRepl]:  which are structural 0 now, which not?
+    v.sp <- inherits(value, "sparseVector")
 
     if(any(sel)) {
 	## indices of non-zero entries -- WRT to subvector
@@ -569,9 +577,10 @@ replSPvec <- function (x, i, value)
 
 	## 1a) replace those that are already non-zero with new val.
 	vN0 <- !v0[iN0]
-	if(any(vN0) && has.x)
-	    x@x[sel][vN0] <- value[iN0[vN0]]
-
+	if(any(vN0) && has.x) {
+	    vs <- value[iN0[vN0]]
+	    x@x[sel][vN0] <- if(v.sp) sp2vec(vs, mode=typeof(x@x)) else vs
+	}
 	## 1b) replace non-zeros with 0 --> drop entries
 	if(any(!vN0)) {
 	    i <- which(sel)[!vN0]
@@ -579,8 +588,7 @@ replSPvec <- function (x, i, value)
 		x@x <- x@x[-i]
 	    x@i <- x@i[-i]
 	}
-	iI0 <- if(length(iN0) < lenRepl)
-	    seq_len(lenRepl)[-iN0]
+	iI0 <- if(length(iN0) < lenRepl) seq_len(lenRepl)[-iN0] # else NULL
     } else iI0 <- seq_len(lenRepl)
 
     if(length(iI0) && any(vN0 <- !v0[iI0])) {
@@ -588,18 +596,18 @@ replSPvec <- function (x, i, value)
 	ij0 <- iI0[vN0]
 	x@i <- c(x@i, ii[ij0])
 	if(has.x)
-	    x@x <- c(x@x, value[ij0])
+	    x@x <- c(x@x, if(v.sp) sp2vec(value[ij0], mode=typeof(x@x)) else value[ij0])
     }
     x
 }
 
 setReplaceMethod("[", signature(x = "sparseVector", i = "index", j = "missing",
-				value = "replValue"),
+				value = "replValueSp"),
 		 replSPvec)
 
 setReplaceMethod("[", signature(x = "sparseVector",
                                 i = "sparseVector", j = "missing",
-				value = "replValue"),
+				value = "replValueSp"),
                  ## BTW, the important case: 'i' a *logical* sparseVector
 		 replSPvec)
 

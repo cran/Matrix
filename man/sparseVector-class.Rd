@@ -91,8 +91,8 @@
 \alias{[,sparseVector,index,ANY,ANY-method}
 \alias{[,sparseVector,lsparseVector,ANY,ANY-method}
 \alias{[,sparseVector,nsparseVector,ANY,ANY-method}
-\alias{[<-,sparseVector,index,missing,replValue-method}
-\alias{[<-,sparseVector,sparseVector,missing,replValue-method}
+\alias{[<-,sparseVector,index,missing,replValueSp-method}
+\alias{[<-,sparseVector,sparseVector,missing,replValueSp-method}
 % also indexing in "traditional" vectors:
 %R_FIXME \alias{[<-,atomicVector,sparseVector,missing,replValue-method}
 %R_FIXME  \alias{[,atomicVector,lsparseVector,ANY,ANY-method}

@@ -1895,8 +1895,14 @@ csi cs_usolve (const cs *U, double *x)
     n = U->n ; Up = U->p ; Ui = U->i ; Ux = U->x ;
     for (j = n-1 ; j >= 0 ; j--)
     {
-        x [j] /= Ux [Up [j+1]-1] ;
-        for (p = Up [j] ; p < Up [j+1]-1 ; p++)
+        csi Upj_1 = Up [j+1]-1;
+        if (Upj_1 < 0) {
+            warning("cs_usolve(U, x): U is not invertible (j=%d)", j);
+	    x [j] = NA_REAL;
+	} else {
+	    x [j] /= Ux [Upj_1] ;
+	}
+        for (p = Up [j] ; p < Upj_1 ; p++)
         {
             x [Ui [p]] -= Ux [p] * x [j] ;
         }
@@ -2030,11 +2036,17 @@ csi cs_utsolve (const cs *U, double *x)
     n = U->n ; Up = U->p ; Ui = U->i ; Ux = U->x ;
     for (j = 0 ; j < n ; j++)
     {
-        for (p = Up [j] ; p < Up [j+1]-1 ; p++)
+        csi Upj_1 = Up [j+1]-1;
+        for (p = Up [j] ; p < Upj_1 ; p++)
         {
             x [j] -= Ux [p] * x [Ui [p]] ;
         }
-        x [j] /= Ux [Up [j+1]-1] ;
+        if (Upj_1 < 0) {
+            warning("cs_utsolve(U, x): U' is not invertible (j=%d)", j);
+	    x [j] = NA_REAL;
+	} else {
+	    x [j] /= Ux [Upj_1] ;
+	}
     }
     return (1) ;
 }

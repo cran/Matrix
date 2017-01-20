@@ -10,6 +10,8 @@
 \alias{Ops,Matrix,Matrix-method}
 \alias{Ops,Matrix,ANY-method}
 \alias{Ops,ANY,Matrix-method}
+\alias{Ops,Matrix,NULL-method}
+\alias{Ops,NULL,Matrix-method}
 \alias{Ops,Matrix,matrix-method}
 \alias{Ops,matrix,Matrix-method}
 \alias{Ops,logical,Matrix-method}
@@ -78,6 +80,7 @@
 \alias{coerce,Matrix,CsparseMatrix-method}
 \alias{coerce,Matrix,sparseMatrix-method}
 %\alias{solve,Matrix,....-method}--> ./solve-methods.Rd
+\alias{rep,Matrix-method}
 %\alias{unname,Matrix-method}
 \alias{unname,Matrix,missing-method}
 % Fake entries - so users find this:

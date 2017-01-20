@@ -76,6 +76,10 @@ alternatively also is_sym() [in src/cs_utils.c], see below.
 ** TODO Investigate the "band changing (and getting) ideas  'band<-' etc,
   from Jeremy D Silver, per posts to R-devel on Aug.26,2011
   {MM: ~/R/MM/Pkg-ex/Matrix/bands-Jeremy_Silver-ex.R }
+*** TODO Similarly (maybe covered by his suggestion?): provide *inverse* of bandSparse()
+ in the sense that if 'dg.mat' is a ("LINPACK/EISPACK"-format) dense
+ (n x K) matrix containing K diagonals, and   BS <- bandSparse(.., diagonals=dg.mat);
+ dg.m <- getbands(BS,..)  would exactly return the 'dg.mat' matrix.
 ** TODO finalize and activate the _unused_ code in src/t_sparseVector.c
 
 ** TODO cbind2() / rbind2() for sparseMatrices: dimnames propagation should

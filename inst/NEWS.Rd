@@ -4,13 +4,38 @@
 \title{News for \R Package \pkg{Matrix}}% MM: look into ../svn-log-from.all
 \encoding{UTF-8}
 %% as long as not R >= 3.2.0, ~/R/D/r-devel/R/share/Rd/macros/system.Rd :
-\newcommand{\CRANpkg}{\href{http://CRAN.R-project.org/package=#1}{\pkg{#1}}}
+\newcommand{\CRANpkg}{\href{https://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 \newcommand{\sspace}{\ifelse{latex}{\out{~}}{ }}
 %% NB: The date (yyyy-mm-dd) is the "Packaged:" date in ../DESCRIPTION
 
 %%_NOT YET__FIXME_   needs cholmod_l_dense_to_sparse() in our dense_to_Csparse()
 %% \item \code{as(<large-matrix>, "sparseMatrix")} no longer fails
 %%  when \code{prod(dim(.))} is larger than \eqn{2^{31} - 1}.
+
+\section{Changes in version 1.2-8 (2017-01-16, svn r3201)}{
+  \subsection{New Features}{
+    \itemize{
+      \item 0-length matrix \code{"Ops"} (binary operations) are now
+      compatible to R-devel (to be \R 3.4.0).
+      \item C-API: \code{SuiteSparse_long} is now defined as
+      \code{int64_t} on all platforms, and we now include (C99) \file{inttypes.h}
+    }
+  }
+  \subsection{Bug Fixes}{
+    \itemize{
+      \item \code{x[.] <- value} now also works for
+      \code{"sparseVector"}'s, both as \code{x} and as \code{value}.
+      \item \code{x[FALSE] <- value} now also works for \code{"sparseVector"}'s.
+
+      \item \code{rep(x, *)} now works for \code{"sparseVector"}s and
+      sparse and dense \code{"Matrix"}-classed matrices \code{x}.
+
+      \item \code{solve(<sparse_LU>)} no gives an error in some cases of
+      singular matrices, where before the C code accessed illegal memory locations.
+    }
+  }
+}
+
 
 \section{Changes in version 1.2-7.1 (2016-08-29, svn r3187)}{
   \itemize{ \item in C code, protect _POSIX_C_SOURCE by #ifdef __GLIBC__ }

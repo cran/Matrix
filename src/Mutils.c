@@ -43,25 +43,23 @@ char La_rcond_type(const char *typstr)
 
 double get_double_by_name(SEXP obj, char *nm)
 {
-    SEXP nms = PROTECT(getAttrib(obj, R_NamesSymbol));
+    SEXP nms = getAttrib(obj, R_NamesSymbol);
     int i, len = length(obj);
 
     if ((!isReal(obj)) || (length(obj) > 0 && nms == R_NilValue))
 	error(_("object must be a named, numeric vector"));
     for (i = 0; i < len; i++) {
 	if (!strcmp(nm, CHAR(STRING_ELT(nms, i)))) {
-	    UNPROTECT(1);
 	    return REAL(obj)[i];
 	}
     }
-    UNPROTECT(1);
     return R_NaReal;
 }
 
 SEXP
 set_double_by_name(SEXP obj, double val, char *nm)
 {
-    SEXP nms = PROTECT(getAttrib(obj, R_NamesSymbol));
+    SEXP nms = getAttrib(obj, R_NamesSymbol);
     int i, len = length(obj);
 
     if ((!isReal(obj)) || (length(obj) > 0 && nms == R_NilValue))
@@ -69,7 +67,6 @@ set_double_by_name(SEXP obj, double val, char *nm)
     for (i = 0; i < len; i++) {
 	if (!strcmp(nm, CHAR(STRING_ELT(nms, i)))) {
 	    REAL(obj)[i] = val;
-	    UNPROTECT(1);
 	    return obj;
 	}
     }
@@ -84,7 +81,7 @@ set_double_by_name(SEXP obj, double val, char *nm)
 	}
 	REAL(nx)[len] = val;
 	SET_STRING_ELT(nnms, len, mkChar(nm));
-	UNPROTECT(2);
+	UNPROTECT(1);
 	return nx;
     }
 }
@@ -133,7 +130,7 @@ SEXP get_factors(SEXP obj, char *nm)
 SEXP set_factors(SEXP obj, SEXP val, char *nm)
 {
     SEXP fac = GET_SLOT(obj, Matrix_factorSym),
-	nms = PROTECT(getAttrib(fac, R_NamesSymbol));
+	nms = getAttrib(fac, R_NamesSymbol);
     int i, len = length(fac);
 
     if ((!isNewList(fac)) || (length(fac) > 0 && nms == R_NilValue))
@@ -143,7 +140,7 @@ SEXP set_factors(SEXP obj, SEXP val, char *nm)
     for (i = 0; i < len; i++) {
 	if (!strcmp(nm, CHAR(STRING_ELT(nms, i)))) {
 	    SET_VECTOR_ELT(fac, i, duplicate(val));
-	    UNPROTECT(2);
+	    UNPROTECT(1);
 	    return val;
 	}
     }
@@ -161,7 +158,7 @@ SEXP set_factors(SEXP obj, SEXP val, char *nm)
     SET_VECTOR_ELT(nfac, len, duplicate(val));
     SET_STRING_ELT(nnms, len, mkChar(nm));
     SET_SLOT(obj, Matrix_factorSym, nfac);
-    UNPROTECT(4);
+    UNPROTECT(3);
     return VECTOR_ELT(nfac, len);
 }
 
@@ -500,9 +497,7 @@ SEXP l_packed_setDiag(int *diag, int l_d, SEXP x, int n)
 #define tr_END_packed_setDiag						\
     if (*diag_P(x) == 'U') { /* uni-triangular */			\
 	/* after setting, typically is not uni-triangular anymore: */	\
-	SEXP ch_N = PROTECT(mkChar("N"));				\
-	SET_STRING_ELT(GET_SLOT(ret, Matrix_diagSym), 0, ch_N);		\
-	UNPROTECT(1);							\
+	SET_STRING_ELT(GET_SLOT(ret, Matrix_diagSym), 0, mkChar("N"));	\
     }									\
     END_packed_setDiag
 
@@ -544,11 +539,8 @@ SEXP d_packed_addDiag(double *diag, int l_d, SEXP x, int n)
 SEXP tr_d_packed_addDiag(double *diag, int l_d, SEXP x, int n)
 {
     SEXP ret = PROTECT(d_packed_addDiag(diag, l_d, x, n));
-    if (*diag_P(x) == 'U') { /* uni-triangular */
-	SEXP ch_N = PROTECT(mkChar("N"));
-	SET_STRING_ELT(GET_SLOT(ret, Matrix_diagSym), 0, ch_N);
-	UNPROTECT(1);
-    }
+    if (*diag_P(x) == 'U') /* uni-triangular */
+	SET_STRING_ELT(GET_SLOT(ret, Matrix_diagSym), 0, mkChar("N"));
     UNPROTECT(1);
     return ret;
 }
@@ -705,9 +697,10 @@ SEXP dup_mMatrix_as_geMatrix(SEXP A)
 		dd[0] = LENGTH(A);					\
 		dd[1] = 1;						\
 	    }								\
-	    SEXP nms = PROTECT(getAttrib(A, R_NamesSymbol)); nprot++;	\
+	    SEXP nms = getAttrib(A, R_NamesSymbol);			\
 	    if(nms != R_NilValue) {					\
-		an = PROTECT(allocVector(VECSXP, 2)); nprot++;		\
+		an = PROTECT(allocVector(VECSXP, 2));			\
+		nprot++;						\
 	        SET_VECTOR_ELT(an, (transpose_if_vec)? 1 : 0, nms);	\
 		/* not needed: SET_VECTOR_ELT(an, 1, R_NilValue); */    \
 	    } /* else nms = NULL ==> an remains NULL */                 \
@@ -831,7 +824,8 @@ SEXP dup_mMatrix_as_dgeMatrix2(SEXP A, Rboolean tr_if_vec)
     SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("dgeMatrix"))),
 	ad = R_NilValue , an = R_NilValue;	/* -Wall */
     static const char *valid[] = {"_NOT_A_CLASS_", MATRIX_VALID_ddense, ""};
-    int sz, ctype = R_check_class_etc(A, valid), nprot = 1;
+    int ctype = R_check_class_etc(A, valid),
+	nprot = 1, sz;
     double *ansx;
 
     if (ctype > 0) {		/* a ddenseMatrix object */
@@ -841,7 +835,8 @@ SEXP dup_mMatrix_as_dgeMatrix2(SEXP A, Rboolean tr_if_vec)
     else if (ctype < 0) {	/* not a (recognized) classed matrix */
 	if (!isReal(A)) {
 	    if (isInteger(A) || isLogical(A)) {
-		A = PROTECT(coerceVector(A, REALSXP)); nprot++;
+		A = PROTECT(coerceVector(A, REALSXP));
+		nprot++;
 	    } else
 		error(_("invalid class '%s' to dup_mMatrix_as_dgeMatrix"),
 		      class_P(A));
@@ -1127,26 +1122,26 @@ SEXP Mmatrix(SEXP args)
     int *d_a = INTEGER(GET_SLOT(a, Matrix_DimSym)),
 	*d_b = INTEGER(GET_SLOT(b, Matrix_DimSym)),
 	n1 = d_a[0], m = d_a[1],
-	n2 = d_b[0];
+	n2 = d_b[0],
+	nprot = 1;
+    SEXP ans,
+	a_x = GET_SLOT(a, Matrix_xSym),
+	b_x = GET_SLOT(b, Matrix_xSym);
     if(d_b[1] != m)
 	error(_("the number of columns differ in R_rbind2_vector: %d != %d"),
 	      m, d_b[1]);
-    SEXP
-	a_x = GET_SLOT(a, Matrix_xSym),
-	b_x = GET_SLOT(b, Matrix_xSym);
-    int nprot = 1;
     // Care: can have "ddenseMatrix" "ldenseMatrix" or "ndenseMatrix"
     if(TYPEOF(a_x) != TYPEOF(b_x)) { // choose the "common type"
 	// Now know: either LGLSXP or REALSXP. FIXME for iMatrix, zMatrix,..
-	if(TYPEOF(a_x) != REALSXP) {
-	    a_x = PROTECT(duplicate(coerceVector(a_x, REALSXP))); nprot++;
-	} else if(TYPEOF(b_x) != REALSXP) {
-	    b_x = PROTECT(duplicate(coerceVector(b_x, REALSXP))); nprot++;
-	}
+	if(TYPEOF(a_x) != REALSXP)
+	    a_x = PROTECT(duplicate(coerceVector(a_x, REALSXP)));
+	else if(TYPEOF(b_x) != REALSXP)
+	    b_x = PROTECT(duplicate(coerceVector(b_x, REALSXP)));
+	nprot++;
     }
 
-    SEXP ans = PROTECT(allocVector(TYPEOF(a_x), m * (n1 + n2)));
-    int ii = 0;
+    ans = PROTECT(allocVector(TYPEOF(a_x), m * (n1 + n2)));
+    int i, ii = 0;
     switch(TYPEOF(a_x)) {
     case LGLSXP: {
 	int
@@ -1154,10 +1149,11 @@ SEXP Mmatrix(SEXP args)
 	    *ax= LOGICAL(a_x),
 	    *bx= LOGICAL(b_x);
 
-#define COPY_a_AND_b_j					\
-	for(int j=0; j < m; j++) {			\
-	    Memcpy(r+ii, ax+ j*n1, n1); ii += n1;	\
-	    Memcpy(r+ii, bx+ j*n2, n2); ii += n2;	\
+#define COPY_a_AND_b_j						\
+/*  FIXME faster: use Memcpy() : */				\
+	for(int j=0; j < m; j++) {				\
+	    for(i=0; i < n1; i++) r[ii++] = ax[j*n1 + i];	\
+	    for(i=0; i < n2; i++) r[ii++] = bx[j*n2 + i];	\
 	}
 
 	COPY_a_AND_b_j;
@@ -1171,6 +1167,7 @@ SEXP Mmatrix(SEXP args)
 	COPY_a_AND_b_j;
     }
     } // switch
+
     UNPROTECT(nprot);
     return ans;
 }
@@ -1286,14 +1283,15 @@ SEXP symmetric_DimNames(SEXP dn) {
 	if (isNull(VECTOR_ELT(dn,1)))					\
 	    SET_VECTOR_ELT(dn, 1, VECTOR_ELT(dn, 0));			\
 	if(do_nm) { /* names(dimnames(.)): */				\
-	    SEXP nms_dn = PROTECT(getAttrib(dn, R_NamesSymbol));	\
+	    SEXP nms_dn = getAttrib(dn, R_NamesSymbol);			\
 	    if(!R_compute_identical(STRING_ELT(nms_dn, 0),		\
 				    STRING_ELT(nms_dn, 1), 16)) {	\
+		PROTECT(nms_dn);					\
 		int J = LENGTH(STRING_ELT(nms_dn, 0)) == 0; /* 0/1 */   \
 		SET_STRING_ELT(nms_dn, !J, STRING_ELT(nms_dn, J));	\
 		setAttrib(dn, R_NamesSymbol, nms_dn);			\
+		UNPROTECT(1);						\
             }								\
-	    UNPROTECT(1);						\
 	}								\
 	UNPROTECT(1)
 

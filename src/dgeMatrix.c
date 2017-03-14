@@ -78,8 +78,8 @@ SEXP dgeMatrix_crossprod(SEXP x, SEXP trans)
 #define DGE_CROSS_1							\
     int tr = asLogical(trans);/* trans=TRUE: tcrossprod(x) */		\
     SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dpoMatrix"))),		\
-	vDnms = PROTECT(ALLOC_SLOT(val, Matrix_DimNamesSym, VECSXP, 2)),\
-	nms  = VECTOR_ELT(GET_SLOT(x, Matrix_DimNamesSym), tr ? 0 : 1);	\
+	nms = VECTOR_ELT(GET_SLOT(x, Matrix_DimNamesSym), tr ? 0 : 1),	\
+	vDnms = ALLOC_SLOT(val, Matrix_DimNamesSym, VECSXP, 2);		\
     int *Dims = INTEGER(GET_SLOT(x, Matrix_DimSym)),			\
 	*vDims = INTEGER(ALLOC_SLOT(val, Matrix_DimSym, INTSXP, 2));	\
     int k = tr ? Dims[1] : Dims[0],					\
@@ -98,7 +98,7 @@ SEXP dgeMatrix_crossprod(SEXP x, SEXP trans)
     if(n)							\
 	F77_CALL(dsyrk)("U", tr ? "N" : "T", &n, &k, &one,	\
 			_X_X_, Dims, &zero, vx, &n);		\
-    UNPROTECT(2);						\
+    UNPROTECT(1);						\
     return val
 
     DGE_CROSS_1;

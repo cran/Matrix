@@ -122,13 +122,15 @@ SEXP dsyMatrix_matrix_mm(SEXP a, SEXP b, SEXP rtP)
 			REAL(GET_SLOT(a, Matrix_xSym)), adims, bcp,
 			&m, &zero, vx, &m);
     // add dimnames:
-    int nd = rt ?
-	1 : // v <- b %*% a : rownames(v) == rownames(b)  are already there
-	0;  // v <- a %*% b : colnames(v) == colnames(b)  are already there
-    SEXP nms = PROTECT(duplicate(VECTOR_ELT(GET_SLOT(a, Matrix_DimNamesSym), nd)));
-    SET_VECTOR_ELT(GET_SLOT(val, Matrix_DimNamesSym), nd, nms);
+    if(rt) { // v <- b %*% a : rownames(v) == rownames(b)  are already there
+	SET_VECTOR_ELT(GET_SLOT(val, Matrix_DimNamesSym), 1,
+		duplicate(VECTOR_ELT(GET_SLOT(a, Matrix_DimNamesSym), 1)));
+    } else { // v <- a %*% b : colnames(v) == colnames(b)  are already there
+	SET_VECTOR_ELT(GET_SLOT(val, Matrix_DimNamesSym), 0,
+		duplicate(VECTOR_ELT(GET_SLOT(a, Matrix_DimNamesSym), 0)));
+    }
     if(mn >= SMALL_4_Alloca) Free(bcp);
-    UNPROTECT(2);
+    UNPROTECT(1);
     return val;
 }
 

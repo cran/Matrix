@@ -413,20 +413,17 @@ SEXP Csparse_transpose(SEXP x, SEXP tri)
     tmp = VECTOR_ELT(dn, 0);	/* swap the dimnames */
     SET_VECTOR_ELT(dn, 0, VECTOR_ELT(dn, 1));
     SET_VECTOR_ELT(dn, 1, tmp);
-    tmp = PROTECT(getAttrib(dn, R_NamesSymbol));
-    if(!isNull(tmp)) { // swap names(dimnames(.)):
+    if(!isNull(tmp = getAttrib(dn, R_NamesSymbol))) { // swap names(dimnames(.)):
 	SEXP nms_dns = PROTECT(allocVector(VECSXP, 2));
 	SET_VECTOR_ELT(nms_dns, 1, STRING_ELT(tmp, 0));
         SET_VECTOR_ELT(nms_dns, 0, STRING_ELT(tmp, 1));
 	setAttrib(dn, R_NamesSymbol, nms_dns);
 	UNPROTECT(1);
     }
-
-    SEXP ans = chm_sparse_to_SEXP(chxt, 1, /* SWAP 'uplo' for triangular */
-				  tr ? ((*uplo_P(x) == 'U') ? -1 : 1) : 0,
-				  Rkind, tr ? diag_P(x) : "", dn);
-    UNPROTECT(2);
-    return ans;
+    UNPROTECT(1);
+    return chm_sparse_to_SEXP(chxt, 1, /* SWAP 'uplo' for triangular */
+			      tr ? ((*uplo_P(x) == 'U') ? -1 : 1) : 0,
+			      Rkind, tr ? diag_P(x) : "", dn);
 }
 
 /** @brief  A %*% B  - for matrices of class CsparseMatrix (R package "Matrix")

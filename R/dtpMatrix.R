@@ -45,7 +45,8 @@ setMethod("diag<-", signature(x = "dtpMatrix"),
 	  })
 
 setMethod("norm", signature(x = "dtpMatrix", type = "character"),
-	  function(x, type, ...) .Call(dtpMatrix_norm, x, type),
+	  function(x, type, ...)
+	      if(identical("2", type)) norm2(x) else .Call(dtpMatrix_norm, x, type),
 	  valueClass = "numeric")
 
 setMethod("norm", signature(x = "dtpMatrix", type = "missing"),

@@ -14,7 +14,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Matrix 1.1-3\n"
-"POT-Creation-Date: 2016-04-14 15:23\n"
+"POT-Creation-Date: 2017-02-10 12:21\n"
 "PO-Revision-Date: 2015-07-15 17:14-0600\n"
 "Last-Translator:Chel Hee Lee  <chl948@mail.usask.ca>\n"
 "Language-Team: Chel Hee Lee  <chl948@mail.usask.ca>\n"
@@ -328,8 +328,8 @@ msgstr "아직 구현되지 않은 'Matrix[<-' 메소드입(method)니다."
 msgid "inefficient method used for \"- e1\""
 msgstr "\"- e1\"를 사용하는데 비효율적인 메소드(method)입니다."
 
-msgid "<Matrix> %s %s is undefined"
-msgstr "<Matrix> %1$s %2$s는 정의되지 않았습니다."
+msgid "dim [product %d] do not match the length of object [%d]"
+msgstr "dim [product %d]의 값이 객체 [%d]의 길이와 일치하지 않습니다."
 
 msgid "internal bug in \"Compare\" method (Cmp.Mat.atomic); please report"
 msgstr ""
@@ -375,14 +375,14 @@ msgstr ""
 "객체의 길이(긴 것)가\n"
 "\t 다른 객체가 가지는 길이(짧은 것)의 배수가 아닙니다."
 
+msgid "<Matrix> %s %s is undefined"
+msgstr "<Matrix> %1$s %2$s는 정의되지 않았습니다."
+
 msgid "%s %s <Matrix> is undefined"
 msgstr "%s %s <Matrix>은 정의되지 않았습니다."
 
 msgid "longer object length is not a multiple of shorter object length"
 msgstr "객체의 길이(긴 것)이 다른 객체의 길이(짧은 것)의 배수가 아닙니다."
-
-msgid "dim [product %d] do not match the length of object [%d]"
-msgstr "dim [product %d]의 값이 객체 [%d]의 길이와 일치하지 않습니다."
 
 msgid "invalid class: %s"
 msgstr "%s는 사용가능한 클래스(class)가 아닙니다."
@@ -533,6 +533,9 @@ msgstr ""
 
 msgid "'diagonals' must have the same length (%d) as 'k'"
 msgstr "'diagnoals'의 길이는 반드시 'k'(=%d)이어야 합니다."
+
+msgid "matrix can only be symmetric if square, but n != m"
+msgstr ""
 
 msgid ""
 "for symmetric band matrix, only specify upper or lower triangle\n"
@@ -738,9 +741,6 @@ msgstr ""
 "model.matrix()를 사용할 때 모델프레임(model frame)과 모델식(formula)가 일치하"
 "지 않습니다."
 
-msgid "variable '%s' converted to a factor"
-msgstr "변수 '%s'가 요인(factor)로 변환되었습니다."
-
 msgid "invalid 'contrasts.arg' argument"
 msgstr "'contrasts.arg' 인자가 올바르지 않습니다."
 
@@ -892,6 +892,9 @@ msgid_plural ""
 "extra arguments %s will be disregarded in\n"
 " %s"
 msgstr[0] "추가 인자들(extra arguments) %s는 %s에서 사용되지 않을 것입니다."
+
+#~ msgid "variable '%s' converted to a factor"
+#~ msgstr "변수 '%s'가 요인(factor)로 변환되었습니다."
 
 #~ msgid "\"dMatrix\" object with NAs cannot be coerced to \"nMatrix\""
 #~ msgstr ""

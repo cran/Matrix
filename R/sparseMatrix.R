@@ -797,10 +797,11 @@ setMethod("norm", signature(x = "sparseMatrix", type = "character"),
 	      type <- toupper(substr(type[1], 1, 1))
 	      switch(type,  ##  max(<empty>, 0)  |-->  0
 		     "O" = ,
-                     "1" = max(colSums(abs(x)), 0), ## One-norm (L_1)
+		     "1" = max(colSums(abs(x)), 0), ## One-norm (L_1)
 		     "I" = max(rowSums(abs(x)), 0), ## L_Infinity
 		     "F" = sqrt(sum(x^2)), ## Frobenius
 		     "M" = max(abs(x), 0), ## Maximum modulus of all
+		     "2" = norm2(x), # maximal singular value
 		     ## otherwise:
 		     stop("invalid 'type'"))
 	  })

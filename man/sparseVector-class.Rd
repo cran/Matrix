@@ -72,6 +72,7 @@
 \alias{as.logical,sparseVector-method}
 \alias{as.numeric,sparseVector-method}
 \alias{as.vector,sparseVector-method}
+\alias{c.sparseVector}% S3 *and* exported functions
 \alias{dim<-,sparseVector-method}
 \alias{is.na,nsparseVector-method}
 \alias{is.na,sparseVector-method}
@@ -88,6 +89,8 @@
 %
 \alias{head,sparseVector-method}
 \alias{tail,sparseVector-method}
+\alias{which,nsparseVector-method}
+\alias{which,lsparseVector-method}
 \alias{[,sparseVector,index,ANY,ANY-method}
 \alias{[,sparseVector,lsparseVector,ANY,ANY-method}
 \alias{[,sparseVector,nsparseVector,ANY,ANY-method}
@@ -168,7 +171,9 @@
     \item{rep}{\code{signature(x = "sparseVector")} repeat \code{x},
       with the same argument list \code{(x, times, length.out, each,
 	...)} as the default method for rep().}
-
+    \item{which}{\code{signature(x = "nsparseVector")} and}
+    \item{which}{\code{signature(x = "lsparseVector")} return the
+      indices of the non-zero entries (which is trivial for sparse vectors).}
     \item{Ops}{\code{signature(e1 = "sparseVector", e2 = "*")}: define
       arithmetic, compare and logic operations, (see
       \code{\link[=S4groupGeneric]{Ops}}).}
@@ -187,6 +192,10 @@
       \code{\link{NA}} (or \code{NaN}), finite or infinite, entirely
       analogously to the corresponding base \R functions.}
   }
+  \code{c.sparseVector()} is an S3 method for all
+  \code{"sparseVector"}s, but automatic dispatch only happens for the
+  first argument, so it is useful also as regular \R function, see the
+  examples.
 }
 \seealso{
   \code{\link{sparseVector}()} for friendly construction of sparse
@@ -202,9 +211,8 @@ sx <- c(0,0,3, 3.2, 0,0,0,-3:1,0,0,2,0,0,5,0,0)
 (ss <- as(sx, "sparseVector"))
 
 ix <- as.integer(round(sx))
-(is <- as(ix, "sparseVector"))
-## an "isparseVector" (!)
-
+(is <- as(ix, "sparseVector")) ## an "isparseVector" (!)
+(ns <- sparseVector(i= c(7, 3, 2), length = 10)) # "nsparseVector"
 ## rep() works too:
 (ri <- rep(is, length.out= 25))
 
@@ -253,5 +261,24 @@ t(x20 <- sparseVector(c(9,3:1), i=c(1:2,4,7), length=20))
 stopifnot(is(T20, "symmetricMatrix"), is(T20, "sparseMatrix"),
 	  identical(unname(as.matrix(T20)),
                     toeplitz(as.vector(x20))))
+
+## c() method for "sparseVector" - also available as regular function
+(c1 <- c(x20, 0,0,0, -10*x20))
+(c2 <- c(ns, is, FALSE))
+(c3 <- c(ns, !ns, TRUE, NA, FALSE))
+(c4 <- c(ns, rev(ns)))
+## here, c() would produce a list {not dispatching to c.sparseVector()}
+(c5 <- c.sparseVector(0,0, x20))
+
+## checking (consistency)
+.v <- as.vector
+.s <- function(v) as(v, "sparseVector")
+stopifnot(
+  all.equal(c1, .s(c(.v(x20), 0,0,0, -10*.v(x20))),      tol=0),
+  all.equal(c2, .s(c(.v(ns), .v(is), FALSE)),            tol=0),
+  all.equal(c3, .s(c(.v(ns), !.v(ns), TRUE, NA, FALSE)), tol=0),
+  all.equal(c4, .s(c(.v(ns), rev(.v(ns)))),              tol=0),
+  all.equal(c5, .s(c(0,0, .v(x20))),                     tol=0)
+)
 }
 \keyword{classes}

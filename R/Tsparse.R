@@ -134,10 +134,9 @@ intI <- function(i, n, dn, give.dn = TRUE)
 
     has.dn <- !is.null.DN(dn)
     DN <- has.dn && give.dn
-    if(is(i, "numeric")) {
+    if(is.numeric(i) || is(i, "numeric")) { # inherits(<integer>, "numeric") is FALSE
 	storage.mode(i) <- "integer"
-	if(anyNA(i))
-	    stop("'NA' indices are not (yet?) supported for sparse Matrices")
+	if(anyNA(i)) stop("'NA' indices are not (yet?) supported for sparse Matrices")
 	if(any(i < 0L)) {
 	    if(any(i > 0L))
 		stop("you cannot mix negative and positive indices")
@@ -150,10 +149,11 @@ intI <- function(i, n, dn, give.dn = TRUE)
 	}
 	if(DN) dn <- dn[i]
     }
-    else if (is(i, "logical")) {
+    else if (is.logical(i) || inherits(i, "logical")) {
 	if(length(i) > n)
 	    stop(gettextf("logical subscript too long (%d, should be %d)",
 			  length(i), n), domain=NA)
+	if(anyNA(i)) stop("'NA' indices are not (yet?) supported for sparse Matrices")
 	i0 <- (0:(n - 1L))[i]
 	if(DN) dn <- dn[i]
     } else { ## character

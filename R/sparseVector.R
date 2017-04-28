@@ -92,10 +92,9 @@ uniqSpVec <- function(x) {
     x
 }
 
-sp2vec <- function(x, mode = .type.kind[.M.kindC(cl)]) {
+sp2vec <- function(x, mode = .type.kind[.M.kindC(class(x))]) {
     ## sparseVector  ->  vector
-    cl <- class(x)
-    has.x <- any(.slotNames(cl) == "x") # cheap test for 'has x slot'
+    has.x <- .hasSlot(x, "x")## has "x" slot
     m.any <- (mode == "any")
     if(m.any)
 	mode <- if(has.x) mode(x@x) else "logical"
@@ -115,25 +114,30 @@ as.array.sparseVector <- as.matrix.sparseVector <- function(x, ...) .sparseV2Mat
 ##' Construct new sparse vector , *dropping* zeros
 
 ##' @param class  character, the sparseVector class
-##' @param x      numeric/logical/...:  the 'x' slot
+##' @param x      numeric/logical/...:  the 'x' slot -- if missing ==> "nsparseVector"
 ##' @param i      integer: index of non-zero entries
 ##' @param length integer: the 'length' slot
 
 ##' @return a sparseVector, with 0-dropped 'x' (and 'i')
 newSpV <- function(class, x, i, length, drop0 = TRUE, checkSort = TRUE) {
-    if(length(x) == 1 && (li <- length(i)) != 1) ## recycle x :
-	x <- rep.int(x, li)
-    if(drop0 && isTRUE(any(x0 <- x == 0))) {
-	keep <- is.na(x) | !x0
-	x <- x[keep]
-	i <- i[keep]
+    if(has.x <- !missing(x)) {
+	if(length(x) == 1 && (li <- length(i)) != 1) ## recycle x :
+	    x <- rep.int(x, li)
+	if(drop0 && isTRUE(any(x0 <- x == 0))) {
+	    keep <- is.na(x) | !x0
+	    x <- x[keep]
+	    i <- i[keep]
+	}
     }
     if(checkSort && is.unsorted(i)) {
 	ii <- sort.list(i)
-	x <- x[ii]
+	if(has.x) x <- x[ii]
 	i <- i[ii]
     }
-    new(class, x = x, i = i, length = length)
+    if(has.x)
+	new(class, x = x, i = i, length = length)
+    else
+	new(class,        i = i, length = length)
 }
 ## a "version" of 'prev' with changed contents:
 newSpVec <- function(class, x, prev)
@@ -141,7 +145,7 @@ newSpVec <- function(class, x, prev)
 
 ## Exported:
 sparseVector <- function(x, i, length) {
-    newSpV(class = paste0(.V.kind(x), "sparseVector"),
+    newSpV(class = paste0(if(missing(x)) "n" else .V.kind(x), "sparseVector"),
            x=x, i=i, length=length)
 }
 
@@ -437,7 +441,7 @@ setMethod("head", signature(x = "sparseVector"),
 	      ## As we *know* that '@i' is sorted increasingly: [x@i <= n] <==> [1:kk]
 	      x@length <- n
 	      x@i <- x@i[ii <- seq_len(which.max(x@i > n) - 1L)]
-	      if(substr(class(x), 1,1) != "n") ## be fast, ...
+	      if(.hasSlot(x, "x")) ## has.x: has "x" slot
 		  x@x <- x@x[ii]
 	      x
 	  })
@@ -455,7 +459,7 @@ setMethod("tail", signature(x = "sparseVector"),
 	      N <- length(x@i)
 	      ii <- if(any(G <- x@i > n)) which.max(G):N else FALSE
 	      x@i <- x@i[ii] - n
-	      if(substr(class(x), 1,1) != "n") ## be fast, ...
+	      if(.hasSlot(x, "x")) ## has.x: has "x" slot
 		  x@x <- x@x[ii]
 	      x
 	  })
@@ -463,8 +467,7 @@ setMethod("tail", signature(x = "sparseVector"),
 
 setMethod("[", signature(x = "sparseVector", i = "index"),
 	  function (x, i, j, ..., drop) {
-	      cld <- getClassDef(class(x))
-	      has.x <- !extends(cld, "nsparseVector")
+	      has.x <- .hasSlot(x, "x")## has "x" slot
 	      n <- x@length
 	      if(extends(cl.i <- getClass(class(i)), "numeric") && any(i < 0)) {
 		  ## negative indices - remain sparse --> *not* using intIv()
@@ -494,7 +497,7 @@ setMethod("[", signature(x = "sparseVector", i = "index"),
 		  if(any(iDup <- duplicated(ii))) {
                       i.i <- match(ii[iDup], ii)
                       jm <- lapply(i.i, function(.) which(. == m))
-                      sel <- c(which(sel), unlist(jm))
+                      if (has.x) sel <- c(which(sel), unlist(jm))
                       x@i <- c(x@i, rep.int(which(iDup), lengths(jm)))
                   }
                   if (has.x)
@@ -546,8 +549,7 @@ replSPvec <- function (x, i, value)
 	lenRepl <- length(ii)
     }
 
-    cld <- getClassDef(class(x))
-    has.x <- !extends(cld, "nsparseVector")
+    has.x <- .hasSlot(x, "x")## has "x" slot
     m <- match(x@i, ii, nomatch = 0)
     sel <- m > 0L
 
@@ -680,8 +682,8 @@ all.equal.sparseV <- function(target, current, ...)
 	return(paste0("sparseVector", ": lengths (", lt, ", ", lc, ") differ"))
     }
 
-    t.has.x <- class(target)  != "nsparseVector"
-    c.has.x <- class(current) != "nsparseVector"
+    t.has.x <- .hasSlot(target,  "x")## has "x" slot
+    c.has.x <- .hasSlot(current, "x")## has "x" slot
     nz.t <- length(i.t <- target @i)
     nz.c <- length(i.c <- current@i)
     t.x <- if(t.has.x)	target@x else rep.int(TRUE, nz.t)
@@ -735,6 +737,39 @@ setMethod("all.equal", c(target = "sparseVector", current = "ANY"),
 	  all.equal(as.vector(target), current, ...))
 
 
+## S3 method for 'c' [but only for dispatch on 1st arg, hence also exported as fn]
+c.sparseVector <- function(...) {
+    svl <- lapply(list(...), as, Class = "sparseVector")
+    ## cls <- unique(unlist(lapply(svl, is)))
+    ns <- vapply(svl, slot, 1, "length")
+    if((N <- sum(ns)) < .Machine$integer.max) { # some purism ..
+	ns <- as.integer(ns)
+	N <- as.integer(N)
+    }
+    narg <- length(ns)
+    iss <- lapply(svl, slot, "i")
+    ## new 'i' slot:
+    ii <- unlist(iss) + rep(cumsum(c(0L, ns[-narg])), lengths(iss))
+    ## result must have 'x' slot if we have any
+    has.x <- any(have.x <- vapply(svl, .hasSlot, logical(1L), name = "x"))
+    if(has.x) {
+	cls <- if     (any(vapply(svl, is, NA, "zsparseVector"))) "zsparseVector"
+	       else if(any(vapply(svl, is, NA, "dsparseVector"))) "dsparseVector"
+	       else if(any(vapply(svl, is, NA, "isparseVector"))) "isparseVector"
+	       else "lsparseVector"
+	if(!(all.x <- all(have.x)))
+	    one <- if     (identical(cls, "lsparseVector")) TRUE
+		   else if(identical(cls, "isparseVector")) 1L else 1.
+	xx <- unlist(if(all.x) lapply(svl, slot, "x")
+		     else lapply(seq_len(narg), function(i) {
+			 if(have.x[[i]]) svl[[i]]@x
+			 else rep_len(one, length(iss[[i]]))
+		     }))
+	new(cls, x = xx,     i = ii, length = N)
+    } else ## no "x" slot
+	new("nsparseVector", i = ii, length = N)
+}
+
 ### rep(x, ...) -- rep() is primitive with internal default method with these args:
 ### -----------
 ### till R 2.3.1, it had  rep.default()  which we use as 'model' here.
@@ -743,7 +778,7 @@ repSpV <- function(x, times) {
     ## == rep.int(<sparseVector>, times)"
     times <- as.integer(times)# truncating as rep.default()
     n <- x@length
-    has.x <- substr(class(x), 1,1) != "n" ## fast, but hackish
+    has.x <- .hasSlot(x, "x")## has "x" slot
     ## just assign new correct slots:
     if(times <= 1) { ## be quick for {0, 1} times
         if(times < 0) stop("'times >= 0' is required")
@@ -798,8 +833,8 @@ setMethod("solve", signature(a = "Matrix", b = "sparseVector"),
 
 ## the 'i' slot is 1-based *and* has no NA's:
 
-setMethod("which", "nsparseVector", function(x, arr.ind) x@i)
-setMethod("which", "lsparseVector", function(x, arr.ind) x@i[is1(x@x)])
+setMethod("which", "nsparseVector", function(x, arr.ind, useNames) x@i)
+setMethod("which", "lsparseVector", function(x, arr.ind, useNames) x@i[is1(x@x)])
 ## and *error* for "dsparseVector", "i*", ...
 
 ##' indices of vector x[] to construct  Toeplitz matrix

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: R 3.3.0 / matrix 1.2-4\n"
 "Report-Msgid-Bugs-To: bugs.r-project.org\n"
-"POT-Creation-Date: 2016-04-14 15:23\n"
+"POT-Creation-Date: 2017-02-10 12:21\n"
 "PO-Revision-Date: 2016-04-14 12:55+0200\n"
 "Last-Translator: Detlef Steuer <steuer@hsu-hh.de>\n"
 "Language-Team: R-Core <r-core@r-project.org>\n"
@@ -302,8 +302,8 @@ msgstr "noch nicht implementierte 'Matrix[<-'-Methode"
 msgid "inefficient method used for \"- e1\""
 msgstr "ineffiziente Methode für '- e1' benutzt"
 
-msgid "<Matrix> %s %s is undefined"
-msgstr "<Matrix> %s %s ist undefiniert"
+msgid "dim [product %d] do not match the length of object [%d]"
+msgstr "dim [produkt %d] passt nicht zur Länge des Objekts [%d]"
 
 msgid "internal bug in \"Compare\" method (Cmp.Mat.atomic); please report"
 msgstr ""
@@ -341,14 +341,14 @@ msgstr ""
 "längere Objektlänge\n"
 "\tist kein Vielfaches der kürzeren Objektlänge"
 
+msgid "<Matrix> %s %s is undefined"
+msgstr "<Matrix> %s %s ist undefiniert"
+
 msgid "%s %s <Matrix> is undefined"
 msgstr "%s %s <Matrix> ist undefiniert"
 
 msgid "longer object length is not a multiple of shorter object length"
 msgstr "längere Objektlänge ist kein Vielfaches der kürzeren Objektlänge"
-
-msgid "dim [product %d] do not match the length of object [%d]"
-msgstr "dim [produkt %d] passt nicht zur Länge des Objekts [%d]"
 
 msgid "invalid class: %s"
 msgstr "ungültige Klasse: %s"
@@ -487,6 +487,9 @@ msgstr "'diagonals'-Matrix muss %d Spalten haben (= length(k) )"
 
 msgid "'diagonals' must have the same length (%d) as 'k'"
 msgstr "'diagonals' muss die gleiche Länge (%d) wie 'k' haben"
+
+msgid "matrix can only be symmetric if square, but n != m"
+msgstr ""
 
 msgid ""
 "for symmetric band matrix, only specify upper or lower triangle\n"
@@ -688,9 +691,6 @@ msgstr "rankMatrix(x, method='qr'): t(x) berechnet, da nrow(x) < ncol(x)"
 msgid "model frame and formula mismatch in model.matrix()"
 msgstr "Model-Frame und Formel passen nicht zusammen in model.matrix()"
 
-msgid "variable '%s' converted to a factor"
-msgstr "Variable '%s' konvertiert in einen Faktor"
-
 msgid "invalid 'contrasts.arg' argument"
 msgstr "unzulässiges 'contrasts.arg' Argument"
 
@@ -837,6 +837,9 @@ msgid_plural ""
 " %s"
 msgstr[0] "extra Argument %s wird nicht berücksichtigt in %s"
 msgstr[1] "extra Argumente %s werden nicht berücksichtigt in %s"
+
+#~ msgid "variable '%s' converted to a factor"
+#~ msgstr "Variable '%s' konvertiert in einen Faktor"
 
 #~ msgid "\"dMatrix\" object with NAs cannot be coerced to \"nMatrix\""
 #~ msgstr ""

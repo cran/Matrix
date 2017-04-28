@@ -272,7 +272,7 @@ replCmat4 <- function(x, i1, i2, iMi, jMi, value, spV = is(value,"sparseVector")
     if(extends(clDx, "dMatrix")) {
 	has.x <- TRUE
 	x <- .Call(dCsparse_subassign,
-		   if(clx %in% c("dgCMatrix", "dtCMatrix"))x
+		   if(clx %in% c("dgCMatrix", "dtCMatrix")) x
 		   else as(x, "dgCMatrix"),
 		   i1, i2,
 		   as(value, "sparseVector"))
@@ -280,7 +280,7 @@ replCmat4 <- function(x, i1, i2, iMi, jMi, value, spV = is(value,"sparseVector")
     else if(extends(clDx, "lMatrix")) {
 	has.x <- TRUE
 	x <- .Call(lCsparse_subassign,
-		   if(clx %in% c("lgCMatrix", "ltCMatrix"))x
+		   if(clx %in% c("lgCMatrix", "ltCMatrix")) x
 		   else as(x, "lgCMatrix"),
 		   i1, i2,
 		   as(value, "sparseVector"))

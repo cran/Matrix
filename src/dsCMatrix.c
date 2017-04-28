@@ -62,7 +62,7 @@ static CHM_FR
 internal_chm_factor(SEXP Ap, int perm, int LDL, int super, double Imult)
 {
     SEXP facs = GET_SLOT(Ap, Matrix_factorSym);
-    SEXP nms = getAttrib(facs, R_NamesSymbol);
+    SEXP nms = PROTECT(getAttrib(facs, R_NamesSymbol)); // being very careful..
     CHM_FR L;
     CHM_SP A = AS_CHM_SP__(Ap);
     R_CheckStack();
@@ -76,6 +76,7 @@ internal_chm_factor(SEXP Ap, int perm, int LDL, int super, double Imult)
 		/* copy the factor so later it can safely be cholmod_free'd */
 		L = cholmod_copy_factor(L, &c);
 		if (Imult) cholmod_factorize_p(A, &Imult, (int*)NULL, 0, L, &c);
+		UNPROTECT(1);
 		return L;
 	    }
 	}
@@ -115,6 +116,7 @@ internal_chm_factor(SEXP Ap, int perm, int LDL, int super, double Imult)
 	set_factors(Ap, chm_factor_to_SEXP(L, 0), fnm);
     }
     CHM_restore_common();
+    UNPROTECT(1);
     return L;
 }
 
@@ -133,13 +135,14 @@ SEXP dsCMatrix_chol(SEXP x, SEXP pivot)
 				     "N"/*diag*/, GET_SLOT(x, Matrix_DimNamesSym)));
 
     if (pivP) {
-	SEXP piv = PROTECT(allocVector(INTSXP, L->n));
+	SEXP piv = PROTECT(allocVector(INTSXP, L->n)),
+	     L_n = PROTECT(ScalarInteger((size_t) L->minor));
 	int *dest = INTEGER(piv), *src = (int*)L->Perm;
 
 	for (int i = 0; i < L->n; i++) dest[i] = src[i] + 1;
 	setAttrib(ans, install("pivot"), piv);
-	setAttrib(ans, install("rank"), ScalarInteger((size_t) L->minor));
-	UNPROTECT(1);
+	setAttrib(ans, install("rank"), L_n);
+	UNPROTECT(2);
     }
     cholmod_free_factor(&L, &c);
     UNPROTECT(1);

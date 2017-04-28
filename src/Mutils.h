@@ -12,6 +12,7 @@ extern "C" {
 #include <R.h>  /* includes Rconfig.h */
 #include <Rversion.h>
 #include <Rdefines.h> /* Rinternals.h + GET_SLOT etc */
+#include <R_ext/RS.h> /* for Memzero() */
 
 // must come after <R.h> above, for clang (2015-08-05)
 #ifdef __GNUC__
@@ -138,8 +139,6 @@ extern	 /* stored pointers to symbols initialized in R_init_Matrix */
 
 /* zero an array */
 #define AZERO(x, n) {int _I_, _SZ_ = (n); for(_I_ = 0; _I_ < _SZ_; _I_++) (x)[_I_] = 0;}
-// R's  RS.h :
-#define Memzero(p,n)  memset(p, 0, (size_t)(n) * sizeof(*p))
 
 /* number of elements in one triangle of a square matrix of order n */
 #define PACKED_LENGTH(n)   ((n) * ((n) + 1))/2

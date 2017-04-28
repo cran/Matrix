@@ -30,6 +30,21 @@ setClass("Matrix", contains = "VIRTUAL",
              else .Call(dimNames_validate, object)
 	 })
 
+if(FALSE)## Allowing 'Dimnames' to define 'Dim' --> would require changes in
+    ##  ../src/Mutils.c dimNames_validate() and how it is used in validity above
+setMethod("initialize", "Matrix", function(.Object, ...)
+    {
+        .Object <- callNextMethod()
+	if(length(args <- list(...)) && any(nzchar(snames <- names(args))) && "Dimnames" %in% snames)
+	{
+	    .Object@Dimnames <- DN <- .fixupDimnames(.Object@Dimnames)
+	    if(is.na(match("Dim", snames)) && !any(vapply(DN, is.null, NA)))
+		## take 'Dim' from 'Dimnames' dimensions
+		.Object@Dim <- lengths(DN, use.names=FALSE)
+	}
+	.Object
+    })
+
 if(getRversion() >= "3.2.0") {
 setMethod("initialize", "Matrix", function(.Object, ...)
     {

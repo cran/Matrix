@@ -66,21 +66,22 @@ setAs("lMatrix", "dgCMatrix",
 
 ## "ldi: is both "sparseMatrix" and "lMatrix" but not "lsparseMatrix"
 setMethod("which", "ldiMatrix",
-	  function(x, arr.ind) {
+	  function(x, arr.ind, useNames) {
 	      n <- x@Dim[1L]
 	      i <- if(x@diag == "U") seq_len(n) else which(x@x)
-	      if(arr.ind) cbind(i,i, deparse.level = 0) else i + n*(i - 1L) })
+	      if(arr.ind) arrayInd(i, x@Dim, x@Dimnames, useNames=useNames)
+	      else i + n*(i - 1L)
+          })
 
-## FIXME?:  not 100% compatible to "base :: which" -- here useNames=FALSE hardcoded!
-whichDense <- function(x, arr.ind = FALSE) {
+whichDense <- function(x, arr.ind = FALSE, useNames = TRUE) {
     wh <- which(x@x) ## faster but "forbidden": .Internal(which(x@x))
     if (arr.ind && !is.null(d <- dim(x)))
-	arrayInd(wh, d, useNames=FALSE) else wh
+	arrayInd(wh, d, dimnames(x), useNames=useNames) else wh
 }
-setMethod("which", "ndenseMatrix",
-	  function(x, arr.ind) whichDense(as(x, "ngeMatrix"), arr.ind=arr.ind))
-setMethod("which", "ldenseMatrix",
-	  function(x, arr.ind) whichDense(as(x, "lgeMatrix"), arr.ind=arr.ind))
+setMethod("which", "ndenseMatrix", function(x, arr.ind, useNames)
+    whichDense(as(x, "ngeMatrix"), arr.ind=arr.ind, useNames=useNames))
+setMethod("which", "ldenseMatrix", function(x, arr.ind, useNames)
+    whichDense(as(x, "lgeMatrix"), arr.ind=arr.ind, useNames=useNames))
 
 setMethod("which", "nsparseMatrix",
 	  function(x, arr.ind, useNames = TRUE) {
@@ -93,27 +94,37 @@ setMethod("which", "lsparseMatrix",
 	      else which(as(x, "sparseVector"))
 	  })
 
-## FIXME?:  not 100% compatible to "base :: which" -- here useNames=FALSE hardcoded!
-which.ngT <- function(x, arr.ind)
-    if(arr.ind) cbind(x@i, x@j) + 1L else as(x, "sparseVector")@i
-setMethod("which", "ngTMatrix", which.ngT)
-setMethod("which", "ntTMatrix", function(x, arr.ind)
-	  which.ngT(.Call(Tsparse_diagU2N, x), arr.ind))
-setMethod("which", "nsTMatrix", function(x, arr.ind)
-	  which.ngT(as(x, "generalMatrix"), arr.ind))
+##' construct dimnames as in arrayInd(*, useNames=TRUE)
+arrDimnames <- function(i, .dimnames)
+    list(.dimnames[[1L]][i],
+	 if(any(nzchar(nd <- names(.dimnames)))) nd else c("row", "col"))
 
-## FIXME?:  not 100% compatible to "base :: which" -- here useNames=FALSE hardcoded!
-which.lgT <- function(x, arr.ind) {
+which.ngT <- function(x, arr.ind, useNames = TRUE)
+    if(arr.ind) {
+        ij <- cbind(x@i, x@j) + 1L
+        if (useNames) dimnames(ij) <- arrDimnames(ij[,1L], x@Dimnames)
+        ij
+    } else as(x, "sparseVector")@i
+
+setMethod("which", "ngTMatrix", which.ngT)
+setMethod("which", "ntTMatrix", function(x, arr.ind, useNames = TRUE)
+	  which.ngT(.Call(Tsparse_diagU2N, x), arr.ind, useNames))
+setMethod("which", "nsTMatrix", function(x, arr.ind, useNames = TRUE)
+	  which.ngT(as(x, "generalMatrix"), arr.ind, useNames))
+
+which.lgT <- function(x, arr.ind, useNames = TRUE) {
     if(arr.ind) {
 	iT <- is1(x@x)
-	cbind(x@i[iT], x@j[iT]) + 1L
+	ij <- cbind(x@i[iT], x@j[iT]) + 1L
+        if (useNames) dimnames(ij) <- arrDimnames(ij[,1L], x@Dimnames)
+        ij
     } else which(as(x, "sparseVector"))
 }
 setMethod("which", "lgTMatrix", which.lgT)
-setMethod("which", "ltTMatrix", function(x, arr.ind)
-	  which.lgT(.Call(Tsparse_diagU2N, x), arr.ind))
-setMethod("which", "lsTMatrix", function(x, arr.ind)
-	  which.lgT(as(x, "generalMatrix"), arr.ind))
+setMethod("which", "ltTMatrix", function(x, arr.ind, useNames = TRUE)
+	  which.lgT(.Call(Tsparse_diagU2N, x), arr.ind, useNames))
+setMethod("which", "lsTMatrix", function(x, arr.ind, useNames = TRUE)
+	  which.lgT(as(x, "generalMatrix"), arr.ind, useNames))
 
 
 

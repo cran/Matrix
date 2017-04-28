@@ -57,7 +57,8 @@ setMethod("solve", signature(a = "dspMatrix", b = "ddenseMatrix"),
 ## 	  }, valueClass = "dgeMatrix")
 
 setMethod("norm", signature(x = "dspMatrix", type = "character"),
-          function(x, type, ...) .Call(dspMatrix_norm, x, type),
+	  function(x, type, ...)
+	      if(identical("2", type)) norm2(x) else .Call(dspMatrix_norm, x, type),
           valueClass = "numeric")
 
 setMethod("norm", signature(x = "dspMatrix", type = "missing"),

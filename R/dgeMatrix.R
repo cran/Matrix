@@ -17,7 +17,8 @@ setMethod("as.vector", "dgeMatrix",
 setMethod("norm", signature(x = "dgeMatrix", type = "missing"),
 	  function(x, type, ...) norm(x, type = "O", ...))
 setMethod("norm", signature(x = "dgeMatrix", type = "character"),
-	  function(x, type, ...) .Call(dgeMatrix_norm, x, type),
+	  function(x, type, ...)
+	      if(identical("2", type)) norm2(x) else .Call(dgeMatrix_norm, x, type),
 	  valueClass = "numeric")
 
 setMethod("rcond", signature(x = "dgeMatrix", norm = "missing"),
@@ -35,9 +36,10 @@ setMethod("rcond", signature(x = "dgeMatrix", norm = "character"),
 ##> Hence, keep the Matrix version active for now:
 ##> if(getRversion() < "2.11.0" || R.version$`svn rev` < 51018)
 ##--- the same for "traditional"  'matrix':
-setMethod("norm", signature(x = "matrix", type = "character"),
-	  function(x, type, ...) .Call(dgeMatrix_norm, ..2dge(x), type),
-	  valueClass = "numeric")
+## 2017-02-08: Rather keep using base norm for 'matrix'
+## setMethod("norm", signature(x = "matrix", type = "character"),
+## 	  function(x, type, ...) .Call(dgeMatrix_norm, ..2dge(x), type),
+## 	  valueClass = "numeric")
 
 setMethod("t", signature(x = "dgeMatrix"), t_geMatrix)
 

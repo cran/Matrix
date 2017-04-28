@@ -53,7 +53,7 @@ setMethod("diag<-", signature(x = "dtrMatrix"),
 
 setMethod("norm", signature(x = "dtrMatrix", type = "character"),
 	  function(x, type, ...)
-	  .Call(dtrMatrix_norm, x, type),
+	      if(identical("2", type)) norm2(x) else .Call(dtrMatrix_norm, x, type),
 	  valueClass = "numeric")
 
 setMethod("norm", signature(x = "dtrMatrix", type = "missing"),

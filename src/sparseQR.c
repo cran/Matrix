@@ -66,9 +66,11 @@ void sparseQR_Qmult(cs *V, SEXP dmns, double *beta, int *p, int trans,
     if(m >= SMALL_4_Alloca) Free(x);
     if(!isNull(dmns)) { // assign rownames to 'ans' matrix
 	// FIXME? colnames taken from 'y' ?!
-	if(!isNull(VECTOR_ELT(dmns, 0)))
-	    SET_VECTOR_ELT(GET_SLOT(ans, Matrix_DimNamesSym), 0,
-			   duplicate(VECTOR_ELT(dmns, 0)));
+	if(!isNull(VECTOR_ELT(dmns, 0))) {
+	    SEXP nms_0 = PROTECT(duplicate(VECTOR_ELT(dmns, 0)));
+	    SET_VECTOR_ELT(GET_SLOT(ans, Matrix_DimNamesSym), 0, nms_0);
+	    UNPROTECT(1);
+	}
     }
 }
 

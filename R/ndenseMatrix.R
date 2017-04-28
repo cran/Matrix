@@ -159,7 +159,10 @@ setMethod("as.vector", "ndenseMatrix",
 
 setMethod("norm", signature(x = "ndenseMatrix", type = "character"),
 	  function(x, type, ...)
-          .Call(dgeMatrix_norm, as(as(x,"dMatrix"),"dgeMatrix"), type),
+	      if(identical("2", type))
+		  norm2(x)
+	      else
+		  .Call(dgeMatrix_norm, as(as(x,"dMatrix"),"dgeMatrix"), type),
 	  valueClass = "numeric")
 
 setMethod("rcond", signature(x = "ndenseMatrix", norm = "character"),

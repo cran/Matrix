@@ -13,7 +13,7 @@ if(interactive()) {
 } else if(FALSE) { ## MM @ testing *manually* only
     options(error = recover, Matrix.verbose = TRUE, warn = 1)
 } else {
-    options(Matrix.verbose = TRUE, warn = 1)
+    options(                 Matrix.verbose = TRUE, warn = 1)
 }
 
 
@@ -71,6 +71,16 @@ stopifnot(identical(mn["rc", "D"], mn[3,4]), mn[3,4] == 24,
 	  identical(a.m, array(v, dim=dim(mn), dimnames=dimnames(mn)))
 	  )
 showProc.time()
+
+## Bug found thanks to Timothy Mak, Feb 3, 2017:
+## sparseMatrix logical indexing with (partial) NA:
+a.m <- as.matrix(mn)
+assert.EQ(as.matrix(ms), a.m) # incl. dimnames
+iN4 <- c(NA, TRUE, FALSE, TRUE)
+assert.EQ(as.matrix(mn[,iN4]), a.m[,iN4]) # (incl. dimnames)
+##assert.EQ(as.matrix(ms[,iN4]), a.m[,iN4]) # ms[, <with_NA>]  fails still :
+try(ms[,iN4])
+try(ms[,iN4] <- 100) ## <- segfaulted in Matrix <= 1.2-8  (!)
 
 ## R-forge Matrix bug #2556: Subsetting a sparse matrix did remove  names(dimnames(.)) :
 m44 <- matrix(1:16, 4, 4, dimnames=list(row=c('a','b','c','d'), col=c('x','y','z','w')))

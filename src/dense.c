@@ -170,7 +170,7 @@ SEXP lsq_dense_QR(SEXP X, SEXP y)
 
 SEXP lapack_qr(SEXP Xin, SEXP tl)
 {
-    SEXP ans, Givens, Gcpy, nms, pivot, qraux, X;
+    SEXP ans, Givens, Gcpy, nms, pivot, qraux, X, sym;
     int i, n, nGivens = 0, p, trsz, *Xdims, rank;
     double rcond = 0., tol = asReal(tl), *work;
 
@@ -239,8 +239,8 @@ SEXP lapack_qr(SEXP Xin, SEXP tl)
     for (i = 0; i < nGivens; i++)
 	SET_VECTOR_ELT(Gcpy, i, VECTOR_ELT(Givens, i));
     SET_VECTOR_ELT(ans, 1, ScalarInteger(rank));
-    setAttrib(ans, install("useLAPACK"), ScalarLogical(1));
-    setAttrib(ans, install("rcond"), ScalarReal(rcond));
+    sym = PROTECT(install("useLAPACK")); setAttrib(ans, sym, ScalarLogical(1)); UNPROTECT(1);
+    sym = PROTECT(install("rcond"));     setAttrib(ans, sym, ScalarReal(rcond));UNPROTECT(1);
     UNPROTECT(2);
     return ans;
 }
@@ -398,7 +398,8 @@ SEXP dense_to_symmetric(SEXP x, SEXP uplo, SEXP symm_test)
 	else
 	    SET_VECTOR_ELT(dns,1, VECTOR_ELT(dns,0));
     }
-    if(!isNull(nms_dns = getAttrib(dns, R_NamesSymbol)) &&
+    nms_dns = PROTECT(getAttrib(dns, R_NamesSymbol));
+    if(!isNull(nms_dns) &&
        !R_compute_identical(STRING_ELT(nms_dns, 0),
 			    STRING_ELT(nms_dns, 1), 16)) { // names(dimnames(.)) :
 	if(*CHAR(asChar(uplo)) == 'U')
@@ -416,7 +417,7 @@ SEXP dense_to_symmetric(SEXP x, SEXP uplo, SEXP symm_test)
     SET_SLOT(ans, Matrix_DimNamesSym, dns);
     SET_SLOT(ans, Matrix_uploSym,     ScalarString(asChar(uplo)));
 
-    UNPROTECT(2);
+    UNPROTECT(3);
     return ans;
 }
 
@@ -455,7 +456,8 @@ SEXP ddense_symmpart(SEXP x)
 	    SET_VECTOR_ELT(dns, !J, VECTOR_ELT(dns, J));		\
 	}								\
 	/* names(dimnames(.)): */					\
-	if(!isNull(nms_dns = getAttrib(dns, R_NamesSymbol)) &&		\
+	nms_dns = PROTECT(getAttrib(dns, R_NamesSymbol));               \
+	if(!isNull(nms_dns) &&						\
 	   !R_compute_identical(STRING_ELT(nms_dns, 0),			\
 				STRING_ELT(nms_dns, 1), 16)) { 		\
 	    SET_STRING_ELT(nms_dns, !J, STRING_ELT(nms_dns, J));	\
@@ -471,7 +473,7 @@ SEXP ddense_symmpart(SEXP x)
 	SET_SLOT(ans, Matrix_DimNamesSym, dns);				\
 	SET_SLOT(ans, Matrix_uploSym,	  mkString("U"));		\
 									\
-	UNPROTECT(2);							\
+	UNPROTECT(3);							\
 	return ans
 
         MK_SYMMETRIC_DIMNAMES_AND_RETURN;

@@ -413,17 +413,20 @@ SEXP Csparse_transpose(SEXP x, SEXP tri)
     tmp = VECTOR_ELT(dn, 0);	/* swap the dimnames */
     SET_VECTOR_ELT(dn, 0, VECTOR_ELT(dn, 1));
     SET_VECTOR_ELT(dn, 1, tmp);
-    if(!isNull(tmp = getAttrib(dn, R_NamesSymbol))) { // swap names(dimnames(.)):
+    tmp = PROTECT(getAttrib(dn, R_NamesSymbol));
+    if(!isNull(tmp)) { // swap names(dimnames(.)):
 	SEXP nms_dns = PROTECT(allocVector(VECSXP, 2));
 	SET_VECTOR_ELT(nms_dns, 1, STRING_ELT(tmp, 0));
         SET_VECTOR_ELT(nms_dns, 0, STRING_ELT(tmp, 1));
 	setAttrib(dn, R_NamesSymbol, nms_dns);
 	UNPROTECT(1);
     }
-    UNPROTECT(1);
-    return chm_sparse_to_SEXP(chxt, 1, /* SWAP 'uplo' for triangular */
-			      tr ? ((*uplo_P(x) == 'U') ? -1 : 1) : 0,
-			      Rkind, tr ? diag_P(x) : "", dn);
+
+    SEXP ans = chm_sparse_to_SEXP(chxt, 1, /* SWAP 'uplo' for triangular */
+				  tr ? ((*uplo_P(x) == 'U') ? -1 : 1) : 0,
+				  Rkind, tr ? diag_P(x) : "", dn);
+    UNPROTECT(2);
+    return ans;
 }
 
 /** @brief  A %*% B  - for matrices of class CsparseMatrix (R package "Matrix")
@@ -932,6 +935,17 @@ SEXP Csparse_submatrix(SEXP x, SEXP i, SEXP j)
     if (csize >= 0 && !isInteger(j))
 	error(_("Index j must be NULL or integer"));
 
+    /* Must treat 'NA's in i[] and j[] here -- they are *not* treated by Cholmod!
+     * haveNA := ...
+       if(haveNA) {
+         a. i = removeNA(i); j =removeNA(j), and remember where they were
+	 b. ans = CHM_SUB(.., i, j)
+	 c. add NA rows and/or columns to 'ans' according to
+	    place of NA's in i and/or j.
+       } else {
+         ans = CHM_SUB(.....)  // == current code
+       }
+     */
 #define CHM_SUB(_M_, _i_, _j_)					\
     cholmod_submatrix(_M_,					\
 		      (rsize < 0) ? NULL : INTEGER(_i_), rsize,	\
@@ -941,8 +955,8 @@ SEXP Csparse_submatrix(SEXP x, SEXP i, SEXP j)
     if (!chx->stype) {/* non-symmetric Matrix */
 	ans = CHM_SUB(chx, i, j);
     }
-    else {
-	/* for now, cholmod_submatrix() only accepts "generalMatrix" */
+    else { /* symmetric : "dsCMatrix";
+	      currently, cholmod_submatrix() only accepts "generalMatrix" */
 	CHM_SP tmp = cholmod_copy(chx, /* stype: */ 0, chx->xtype, &c);
 	ans = CHM_SUB(tmp, i, j);
 	cholmod_free_sparse(&tmp, &c);
@@ -954,6 +968,7 @@ SEXP Csparse_submatrix(SEXP x, SEXP i, SEXP j)
     /* 	dn = PROTECT(allocVector(VECSXP, 2)); */
     return chm_sparse_to_SEXP(ans, 1, 0, Rkind, "", /* dimnames: */ R_NilValue);
 }
+#undef CHM_SUB
 
 #define _d_Csp_
 #include "t_Csparse_subassign.c"

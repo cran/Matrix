@@ -15,6 +15,10 @@ n
 ## this:
 m <- Matrix::Matrix(cbind(1,0,diag(x=2:4)))
 m
+mt <- m + table(gl(3,5), gl(5,3))# failed in Matrix <= 1.2.9
+mt
+stopifnot(is(mt, "sparseMatrix"))
+
 ##--------------------------------------------------------------------
 
 library(Matrix)
@@ -22,19 +26,25 @@ library(Matrix)
 source(system.file("test-tools.R", package = "Matrix"))# identical3() etc
 
 if(interactive()) {
-    options(error = recover, warn = 1)
-} else options(Matrix.verbose = TRUE, warn = 1)# to show Matrix.msg()s
+    options(error = recover, Matrix.verbose = TRUE, warn = 1)
+} else options(              Matrix.verbose = TRUE, warn = 1)
+                                        #   ^^^^^^ to show Matrix.msg()s
 
 ### Matrix() ''smartness''
-(d4 <- Matrix(diag(4)))
+(d4 <- d40 <- Matrix(diag(4)))
 (z4 <- Matrix(0*diag(4)))
 (o4 <- Matrix(1+diag(4)))
 (tr <- Matrix(cbind(1,0:1)))
 (M4 <- Matrix(m4 <- cbind(0,rbind(6*diag(3),0))))
 dM4 <- Matrix(M4, sparse = FALSE)
 d4. <- diag(4); dimnames(d4.) <- dns <- rep(list(LETTERS[1:4]), 2)
-stopifnot(identical(dimnames(d4 <- Matrix(d4.)), dns),
-          identical3(d4, as(d4., "Matrix"), as(d4., "diagonalMatrix")))
+d4di<- as(d4., "diagonalMatrix")
+d4d <- as(d4., "denseMatrix")
+stopifnot(identical(d4di@x, numeric()), # was "named" unnecessarily
+          identical(dimnames(d4 <- Matrix(d4.)), dns), identical(unname(d4), d40),
+          identical3(d4, as(d4., "Matrix"), as(d4., "diagonalMatrix")),
+          is(d4d, "denseMatrix"))
+
 class(mN <-  Matrix(NA, 3,4)) # NA *is* logical
 validObject(Matrix(NA))
 bd4 <- bdiag(M4,dM4,M4)

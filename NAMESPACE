@@ -47,6 +47,7 @@ export("%&%",
        "band",
        "bandSparse",
        "bdiag", ".bdiag",
+       "c.sparseVector", # export to be used explicitly when 1st arg is not sparseVector
 ## no longer; implicit generics now
        ## "colMeans", "colSums", ## these needed a "..." added
        ## "rowMeans", "rowSums",
@@ -339,6 +340,7 @@ exportMethods("cbind2")
 S3method(print, sparseSummary)
 S3method(print, diagSummary)
 S3method(c, abIndex)# < for now -- S4 method on c() seems "difficult"
+S3method(c, sparseVector)#  (ditto)
 
 ## So that such dispatch also works inside base functions:
 S3method(as.array, Matrix)

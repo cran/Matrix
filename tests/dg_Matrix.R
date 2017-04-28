@@ -36,8 +36,8 @@ for(i in 1:10) {
     A    <- as(Am, "dgeMatrix")
     b <- matrix(rnorm(400), nrow = 4, ncol = 100)
     B <- as(b, "dgeMatrix")
-    assert.EQ.mat(A %*% B, Am %*%  b, tol=0)
-    assert.EQ.mat(B %*% A,  b %*% Am, tol=0)
+    assert.EQ.mat(A %*% B, Am %*%  b)
+    assert.EQ.mat(B %*% A,  b %*% Am)
     stopifnot(identical(A, as(Acsc, "dgeMatrix")),
               identical(Acsc, as(A, "dgCMatrix")),
               is.all.equal4(A %*% B, Acsc %*% B,

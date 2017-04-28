@@ -79,7 +79,8 @@ setMethod("solve", signature(a = "dsyMatrix", b = "denseMatrix"), ## eg. for ddi
 	  function(a, b, ...) .Call(dsyMatrix_matrix_solve, a, as(b,"dMatrix")))
 
 setMethod("norm", signature(x = "dsyMatrix", type = "character"),
-          function(x, type, ...) .Call(dsyMatrix_norm, x, type),
+          function(x, type, ...)
+	      if(identical("2", type)) norm2(x) else .Call(dsyMatrix_norm, x, type),
           valueClass = "numeric")
 
 setMethod("norm", signature(x = "dsyMatrix", type = "missing"),

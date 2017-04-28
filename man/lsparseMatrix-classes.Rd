@@ -83,7 +83,6 @@
 \alias{t,ltTMatrix-method}
 \alias{which,lgTMatrix-method}
 \alias{which,lsparseMatrix-method}
-\alias{which,lsparseVector-method}
 \alias{which,lsTMatrix-method}
 \alias{which,ltTMatrix-method}
 %

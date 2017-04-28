@@ -2,9 +2,12 @@
 \alias{rankMatrix}
 \title{Rank of a Matrix}
 \description{
-  Compute \sQuote{the} matrix rank, a well-defined functional in theory,
+  Compute \sQuote{the} matrix rank, a well-defined functional in theory(*),
   somewhat ambigous in practice.  We provide several methods, the
   default corresponding to Matlab's definition.
+
+  (*) The rank of a \eqn{n \times m}{n x m} matrix \eqn{A}, \eqn{rk(A)} is the maximal number of
+  linearly independent columns (or rows); hence \eqn{rk(A) \le min(n,m)}{rk(A) <= min(n,m)}.
 }
 \usage{
 rankMatrix(x, tol = NULL,

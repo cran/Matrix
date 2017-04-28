@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Matrix 1.2-6\n"
-"POT-Creation-Date: 2016-04-27 23:14\n"
+"Project-Id-Version: Matrix 1.2-9\n"
+"POT-Creation-Date: 2017-02-10 12:21\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -241,7 +241,7 @@ msgstr ""
 msgid "inefficient method used for \"- e1\""
 msgstr ""
 
-msgid "<Matrix> %s %s is undefined"
+msgid "dim [product %d] do not match the length of object [%d]"
 msgstr ""
 
 msgid "internal bug in \"Compare\" method (Cmp.Mat.atomic); please report"
@@ -274,13 +274,13 @@ msgstr ""
 msgid "longer object length\n\tis not a multiple of shorter object length"
 msgstr ""
 
+msgid "<Matrix> %s %s is undefined"
+msgstr ""
+
 msgid "%s %s <Matrix> is undefined"
 msgstr ""
 
 msgid "longer object length is not a multiple of shorter object length"
-msgstr ""
-
-msgid "dim [product %d] do not match the length of object [%d]"
 msgstr ""
 
 msgid "invalid class: %s"
@@ -404,6 +404,9 @@ msgid "'diagonals' matrix must have %d columns (= length(k) )"
 msgstr ""
 
 msgid "'diagonals' must have the same length (%d) as 'k'"
+msgstr ""
+
+msgid "matrix can only be symmetric if square, but n != m"
 msgstr ""
 
 msgid "for symmetric band matrix, only specify upper or lower triangle\n hence, all k must have the same sign"
@@ -569,9 +572,6 @@ msgid "rankMatrix(x, method='qr'): computing t(x) as nrow(x) < ncol(x)"
 msgstr ""
 
 msgid "model frame and formula mismatch in model.matrix()"
-msgstr ""
-
-msgid "variable '%s' converted to a factor"
 msgstr ""
 
 msgid "invalid 'contrasts.arg' argument"

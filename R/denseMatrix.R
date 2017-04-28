@@ -2,7 +2,7 @@
 ### These are "cheap" to program, but potentially far from efficient;
 ### Methods for specific subclasses will overwrite these:
 
-setAs("ANY",    "denseMatrix", function(from) Matrix(from, sparse=FALSE))
+setAs("ANY", "denseMatrix", function(from) Matrix(from, sparse=FALSE, doDiag=FALSE))
 ## Conceivably, could write
 ## setAs("matrix", "denseMatrix", ....) which was slightly more efficient than
 ##  Matrix(.)  but would have many things in common

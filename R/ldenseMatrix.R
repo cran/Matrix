@@ -171,7 +171,10 @@ setMethod("as.vector", "ldenseMatrix",
 
 setMethod("norm", signature(x = "ldenseMatrix", type = "character"),
 	  function(x, type, ...)
-          .Call(dgeMatrix_norm, as(as(x,"dMatrix"),"dgeMatrix"), type),
+	      if(identical("2", type))
+		  norm2(x)
+	      else
+		  .Call(dgeMatrix_norm, as(as(x,"dMatrix"),"dgeMatrix"), type),
 	  valueClass = "numeric")
 
 .rcond_via_d <- function(x, norm, ...)

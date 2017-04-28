@@ -12,6 +12,53 @@
 %% \item \code{as(<large-matrix>, "sparseMatrix")} no longer fails
 %%  when \code{prod(dim(.))} is larger than \eqn{2^{31} - 1}.
 
+\section{Changes in version 1.2-10 (2017-04-19, svn r3216)}{
+  \subsection{Bug Fixes}{
+    \itemize{
+      \item quite a collection of new \code{PROTECT(.)}'s thanks to
+      Tomas Kalibera's \sQuote{rprotect} analysis.
+    }
+  }
+}
+
+\section{Changes in version 1.2-9 (2017-03-08, svn r3211)}{
+  \subsection{New Features}{
+    \itemize{
+      \item \code{"Ops"} between "table", "xtabs", and our matrices now work.
+      \item \code{as(matrix(diag(3), 3, dimnames=rep(list(c("A","b","c")),2)),
+ 	"diagonalMatrix")@x} is no longer named.
+      \item \code{norm(x, "2")} now works as well (and equivalently to \code{base::norm}).
+      \item \code{sparseVector()} now also works without \code{x} argument.
+      \item \code{c.sparseVector()} method for \code{c()} of
+      sparseVectors (and available as regular function on purpose).
+    }
+  }
+  \subsection{Bug Fixes}{
+    \itemize{
+      \item \code{as(Diagonal(3), "denseMatrix")} no longer returns a
+      non-dense \code{"ddiMatrix"}.
+
+      \item \code{S[sel,] <- value} and similar no longer segfault, but
+      give a \code{"not (yet?) supported"} error
+      for sparse matrices \code{S} and logical \code{sel} when
+      \code{sel} contains \code{NA}s.
+
+      The same error (instead of a low-level one) is signalled for
+      \emph{indexing} (with NA-containing logical \code{sel}), i.e.,
+      \code{S[sel,]}.
+      %% from in ../TODO :
+      %% \item \code{S[sel,]}, \code{S[,sel] <- value} and similar now also work for
+      %% sparse matrices \code{S} and logical \code{sel} when \code{sel} contains \code{NA}s.
+
+      \item \code{which(x, arr.ind=TRUE, *)} (when \code{x} is a
+      \code{"lMatrix"} or \code{"nMatrix"}) now works the same as
+      \code{base::which}, obeying an optional \code{useNames} argument
+      which defaults to \code{TRUE}.  Previously, the resulting
+      two-column matrix typically had empty \code{dimnames}.
+    }
+  }
+}
+
 \section{Changes in version 1.2-8 (2017-01-16, svn r3201)}{
   \subsection{New Features}{
     \itemize{

@@ -84,7 +84,8 @@ nL <-
 
 sapply(nL, `[`, c("iterations", "normF"))
 
-allnorms <- function(d) sapply(c("1","I","F","M"), function(typ) norm(d, typ))
+allnorms <- function(d) vapply(c("1","I","F","M","2"),
+                               norm, x = d, double(1))
 
 ## "F" and "M" distances are larger for the (corr=TRUE) constrained:
 100 * sapply(nL, function(rr) allnorms((pr - rr  $ mat)))

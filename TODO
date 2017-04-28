@@ -4,14 +4,7 @@
 ** TODO Using "long vectors" (i.e. 64 bit indices vectors) in CHOLMOD --> cholmod_l_*()
 *** e.g. segfault in crossprod() Csparse_crossprod -> cholmod_att()
 * *Urgent* in some sense ---------------------------------------------------
-** DONE [t]crossprod() could/should become more lenient with *vector*s: adapt R-devel (= R 3.2.0)'s rules:
-   see misc/products-Mv.R and *.Rout -- now tests/matprod.R ("3.2.0")
-*** DONE for  sparseVector o (sparse)vector
-*** DONE consider analagous changes to base-R
-** DONE m %*% M (crossprod, ..) with 0-dim. result give garbage
-** DONE M[i,j] should *not* drop dimnames (R-forge bug 2556, see ~/R/MM/Pkg-ex/Matrix/dimnames-prod.R)
-** DONE "Math"/"Math2" *fail* entirely for sparseVectors
-** DONE rbind2(<sparse>, <dense>) did not work, now is completely wrong !! (e.g. <dgC>, <dge>)
+** TODO S[sel,] and  S[,sel] <- value should work for sparse S and NA-containing sel.
 ** TODO nnzero() is too slow for a large CsparseMatrix
 ** TODO qr.R(), qrR() etc currently *lose* column/row names {compared to base R's qr.R}, see,
    	drop0(R. <- qr.R(qx), tol=1e-15) # columns are int b1 c1 c2 b2 c3
@@ -55,8 +48,17 @@ alternatively also is_sym() [in src/cs_utils.c], see below.
    ==> Provide the previous functionality via a Matrix package R function:
    ==> We've introduced  '%&%' for Matrix 1.2-0  and 'boolArith = TRUE'
        for crossprod/tcrossprod.
-** TODO (see above) Should we always return *numeric*, i.e., behave the same as for
-   'ndenseMatrix' or 'lsparseMatrix' or traditional logical matrices ?
+** TODO (%*% (t)crossprod, see above) Should we always return *numeric*, i.e.,
+  behave the same as for 'ndenseMatrix' or 'lsparseMatrix' or traditional logical matrices?
+** DONE norm(matrix(1:4,2), type="2") should work as in base __AND__ we shold support type="2" (-> svd())
+** DONE [t]crossprod() could/should become more lenient with *vector*s: adapt R-devel (= R 3.2.0)'s rules:
+   see misc/products-Mv.R and *.Rout -- now tests/matprod.R ("3.2.0")
+*** DONE for  sparseVector o (sparse)vector
+*** DONE consider analagous changes to base-R
+** DONE m %*% M (crossprod, ..) with 0-dim. result give garbage
+** DONE M[i,j] should *not* drop dimnames (R-forge bug 2556, see ~/R/MM/Pkg-ex/Matrix/dimnames-prod.R)
+** DONE "Math"/"Math2" *fail* entirely for sparseVectors
+** DONE rbind2(<sparse>, <dense>) did not work, now is completely wrong !! (e.g. <dgC>, <dge>)
 * New smallish ideas, relatively urgent for MM -----------------------------
 ** DONE generalize new "indMatrix" class, to allow 0 repetitions
  of some samples, i.e., columns of all 0 s. It's mathematically more

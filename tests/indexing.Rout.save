@@ -1,6 +1,6 @@
 
-R version 3.3.2 Patched (2016-11-22 r71674) -- "Sincere Pumpkin Patch"
-Copyright (C) 2016 The R Foundation for Statistical Computing
+R version 3.3.2 Patched (2017-02-06 r72127) -- "Sincere Pumpkin Patch"
+Copyright (C) 2017 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -32,7 +32,7 @@ doExtras: FALSE
 + } else if(FALSE) { ## MM @ testing *manually* only
 +     options(error = recover, Matrix.verbose = TRUE, warn = 1)
 + } else {
-+     options(Matrix.verbose = TRUE, warn = 1)
++     options(                 Matrix.verbose = TRUE, warn = 1)
 + }
 > 
 > 
@@ -127,7 +127,21 @@ diagnosing replTmat(x,i,j,v): nargs()= 3; missing (i,j) = (0,1)
 + 	  identical(a.m, array(v, dim=dim(mn), dimnames=dimnames(mn)))
 + 	  )
 > showProc.time()
-Time elapsed:  0.144 0.019 0.164 
+Time elapsed:  0.209 0.013 0.224 
+> 
+> ## Bug found thanks to Timothy Mak, Feb 3, 2017:
+> ## sparseMatrix logical indexing with (partial) NA:
+> a.m <- as.matrix(mn)
+> assert.EQ(as.matrix(ms), a.m) # incl. dimnames
+> iN4 <- c(NA, TRUE, FALSE, TRUE)
+> assert.EQ(as.matrix(mn[,iN4]), a.m[,iN4]) # (incl. dimnames)
+> ##assert.EQ(as.matrix(ms[,iN4]), a.m[,iN4]) # ms[, <with_NA>]  fails still :
+> try(ms[,iN4])
+Error in intI(j, n = x@Dim[2], dn[[2]], give.dn = FALSE) : 
+  'NA' indices are not (yet?) supported for sparse Matrices
+> try(ms[,iN4] <- 100) ## <- segfaulted in Matrix <= 1.2-8  (!)
+Error in intI(i, n = di[margin], dn = dn[[margin]], give.dn = FALSE) : 
+  'NA' indices are not (yet?) supported for sparse Matrices
 > 
 > ## R-forge Matrix bug #2556: Subsetting a sparse matrix did remove  names(dimnames(.)) :
 > m44 <- matrix(1:16, 4, 4, dimnames=list(row=c('a','b','c','d'), col=c('x','y','z','w')))

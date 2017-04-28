@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Matrix 1.1-2-2\n"
 "Report-Msgid-Bugs-To: bugs.r-project.org\n"
-"POT-Creation-Date: 2016-04-14 15:23\n"
+"POT-Creation-Date: 2017-02-10 12:21\n"
 "PO-Revision-Date: 2014-03-27 14:47+0100\n"
 "Last-Translator: Łukasz Daniel <lukasz.daniel@gmail.com>\n"
 "Language-Team: Łukasz Daniel <lukasz.daniel@gmail.com>\n"
@@ -511,14 +511,16 @@ msgstr "jeszcze niezaimplementowana metoda 'Matrix[<-'"
 msgid "inefficient method used for \"- e1\""
 msgstr "nieefektywna metoda użyta dla '- e1'"
 
-# Matrix/R/Ops.R: 134
-# stop(sprintf(gettext("<Matrix> %s %s is undefined", domain = "R-Matrix"), .Generic, paste0(class(e2),"(0)")), domain = NA)
-# Matrix/R/Ops.R: 634
-# stop(sprintf(gettext("<Matrix> %s %s is undefined", domain = "R-Matrix"), .Generic, paste0(class(e2),"(0)")), domain = NA)
-# Matrix/R/Ops.R: 1126
-# stop(sprintf(gettext("<Matrix> %s %s is undefined", domain = "R-Matrix"), .Generic, paste0(class(e2),"(0)")), domain = NA)
-msgid "<Matrix> %s %s is undefined"
-msgstr "<Matrix> %s %s nie jest określone"
+# Matrix/R/Ops.R: 1595
+# stop(sprintf(
+# 		"dim [product %d] do not match the length of object [%d]",
+# 			 n1, n2))
+# Matrix/R/Ops.R: 1621
+# stop(sprintf(
+# 		"dim [product %d] do not match the length of object [%d]",
+# 			 n2, n1))
+msgid "dim [product %d] do not match the length of object [%d]"
+msgstr "wymiar [produkt %d] nie zgadza się z długością obiektu [%d]"
 
 # Matrix/R/Ops.R: 174
 # stop("internal bug in \"Compare\" method (Cmp.Mat.atomic); please report")
@@ -588,6 +590,15 @@ msgstr ""
 "długość dłuższego obiektu\n"
 "\tnie jest wielokrotnością długości krótszego obiektu"
 
+# Matrix/R/Ops.R: 134
+# stop(sprintf(gettext("<Matrix> %s %s is undefined", domain = "R-Matrix"), .Generic, paste0(class(e2),"(0)")), domain = NA)
+# Matrix/R/Ops.R: 634
+# stop(sprintf(gettext("<Matrix> %s %s is undefined", domain = "R-Matrix"), .Generic, paste0(class(e2),"(0)")), domain = NA)
+# Matrix/R/Ops.R: 1126
+# stop(sprintf(gettext("<Matrix> %s %s is undefined", domain = "R-Matrix"), .Generic, paste0(class(e2),"(0)")), domain = NA)
+msgid "<Matrix> %s %s is undefined"
+msgstr "<Matrix> %s %s nie jest określone"
+
 # Matrix/R/Ops.R: 1165
 # stop(sprintf(gettext("%s %s <Matrix> is undefined", domain = "R-Matrix"), paste0(class(e2),"(0)"), .Generic), domain = NA)
 msgid "%s %s <Matrix> is undefined"
@@ -604,17 +615,6 @@ msgstr "%s %s <Matrix> nie jest określone"
 msgid "longer object length is not a multiple of shorter object length"
 msgstr ""
 "długość dłuższego obiektu nie jest wielokrotnością długości krótszego obiektu"
-
-# Matrix/R/Ops.R: 1595
-# stop(sprintf(
-# 		"dim [product %d] do not match the length of object [%d]",
-# 			 n1, n2))
-# Matrix/R/Ops.R: 1621
-# stop(sprintf(
-# 		"dim [product %d] do not match the length of object [%d]",
-# 			 n2, n1))
-msgid "dim [product %d] do not match the length of object [%d]"
-msgstr "wymiar [produkt %d] nie zgadza się z długością obiektu [%d]"
 
 # Matrix/R/Rsparse.R: 32
 # stop(gettextf("invalid class: %s", dQuote(cl)), domain = "R-Matrix")
@@ -861,6 +861,9 @@ msgstr "macierz 'diagonals' musi mieć %d kolumnę (= length(k) )"
 # stop(gettextf("'diagonals' must have the same length (%d) as 'k'", len.k), domain = "R-Matrix")
 msgid "'diagonals' must have the same length (%d) as 'k'"
 msgstr "'diagonals' musi mieć tę samą długość (%d) co 'k'"
+
+msgid "matrix can only be symmetric if square, but n != m"
+msgstr ""
 
 # Matrix/R/bandSparse.R: 36
 # stop("for symmetric band matrix, only specify upper or lower triangle\n hence, all k must have the same sign")
@@ -1203,11 +1206,6 @@ msgstr "rankMatrix(x, method='qr'): obliczanie t(x) jako nrow(x) < ncol(x)"
 msgid "model frame and formula mismatch in model.matrix()"
 msgstr "niezgodność ramki modelu oraz formuły w 'model.matrix()'"
 
-# Matrix/R/spModels.R: 125
-# warning(gettextf("variable '%s' converted to a factor", i), domain = "R-Matrix")
-msgid "variable '%s' converted to a factor"
-msgstr "zmienna '%s' została zamieniona na czynnik"
-
 # Matrix/R/spModels.R: 137
 # stop("invalid 'contrasts.arg' argument")
 msgid "invalid 'contrasts.arg' argument"
@@ -1436,6 +1434,11 @@ msgstr[1] ""
 msgstr[2] ""
 "argumenty %s zostały odrzucone w\n"
 " %s"
+
+# Matrix/R/spModels.R: 125
+# warning(gettextf("variable '%s' converted to a factor", i), domain = "R-Matrix")
+#~ msgid "variable '%s' converted to a factor"
+#~ msgstr "zmienna '%s' została zamieniona na czynnik"
 
 # Matrix/R/lMatrix.R: 8
 # stop("\"lMatrix\" object with NAs cannot be coerced to \"nMatrix\"")

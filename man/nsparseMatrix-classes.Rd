@@ -88,7 +88,6 @@
 \alias{is.na,nsparseMatrix-method}
 \alias{which,ngTMatrix-method}
 \alias{which,nsparseMatrix-method}
-\alias{which,nsparseVector-method}
 \alias{which,nsTMatrix-method}
 \alias{which,ntTMatrix-method}
 % Group

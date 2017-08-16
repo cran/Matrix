@@ -76,7 +76,7 @@ A <- sparseMatrix(i, j, x = x)                      ##  8 x 10 "dgCMatrix"
 (allnorms(A) -> nA)
 allnorms(sA)
 allnorms(tA)
-stopifnot(all.equal(nA, allnorms(as.matrix(A))),
+stopifnot(all.equal(nA, allnorms(as(A, "matrix"))),
 	  all.equal(nA, allnorms(tA))) # because tA == rbind(A, 0, 0)
 A. <- A; A.[1,3] <- NA
 stopifnot(is.na(allnorms(A.))) # gave error

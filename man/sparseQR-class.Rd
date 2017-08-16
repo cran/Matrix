@@ -28,8 +28,10 @@
 %\alias{solve,sparseQR,ANY-method}--> solve-methods.Rd
 %
 \description{Objects class \code{"sparseQR"} represent a QR decomposition of a
-  sparse \eqn{n \times p}{n x p} rectangular matrix \eqn{X},
-  typically resulting from \code{\link{qr}()}
+  sparse \eqn{m \times n}{m x n} (\dQuote{long}: \eqn{m \ge n}{m >= n})
+  rectangular matrix \eqn{A}, typically resulting from
+  \code{\link{qr}()}, see \sQuote{Details} notably about row and column
+  permutations for pivoting.
 }
 
 \section{Objects from the Class}{
@@ -48,10 +50,10 @@
     \item{\code{p}:}{Object of class \code{"integer"}: Permutation
       (of \code{0:(n-1)}) applied to the rows of the original matrix.}
     \item{\code{R}:}{Object of class \code{"dgCMatrix"}: An upper
-      triangular matrix of dimension \ } % << FIXME
+      triangular matrix of the same dimension as \eqn{X}.}
     \item{\code{q}:}{Object of class \code{"integer"}: Permutation
-      applied from the right.  Can be of length 0 which implies no
-      permutation.}
+      applied from the right, i.e., to the \emph{columns} of the
+      original matrix.  Can be of length 0 which implies no permutation.}
   }
 }
 \section{Methods}{
@@ -89,20 +91,37 @@
 %\references{}
 %\author{}
 \details{
-  The decomposition is of the form \code{A[p+1,] == Q \%*\% R}, if
-  the \code{q} slot is of length 0 or \code{A[p+1,q+1] == Q \%*\% R}
-  where A is a sparse \eqn{m\times n}{m by n} matrix (\eqn{m\ge n}{m >= n}),
+  For a sparse \eqn{m \times n}{m x n} (\dQuote{long}: \eqn{m \ge n}{m >= n})
+  rectangular matrix \eqn{A}, the sparse QR decomposition is either 
+  \cr of the form \eqn{P A = Q R} with a (row)
+  permutation matrix \eqn{P}, (encoded in the \code{p} slot of the
+  result) if the \code{q} slot is of length 0,
+  \cr or of the form \eqn{P A P* = Q R} with an extra (column) permutation
+  matrix \eqn{P*} (encoded in the \code{q} slot).
+  Note that the row permutation \eqn{P A} in \R is simply \code{A[p+1, ]}
+  where \code{p} is the \code{p}-slot, a 0-based permutation of
+  \code{1:m} applied to the rows of the original matrix.
+
+  If the \code{q} slot has length \code{n} it is a 0-based permutation
+  of \code{1:n} applied to the columns of the original matrix to reduce
+  the amount of \dQuote{fill-in} in the matrix \eqn{R}, and
+  \eqn{A P*} in \R is simply \code{A[ , q+1]}.
+
   \eqn{R} is an \eqn{m\times n}{m by n} matrix that is zero below the
-  main diagonal.  The \code{p} slot is a 0-based permutation of
-  \code{1:m} applied to the rows of the original matrix.  If the \code{q}
-  slot has length \code{n} it is a 0-based permutation of \code{1:n}
-  applied to the columns of the original matrix to reduce the amount
-  of \dQuote{fill-in} in the matrix \eqn{R}.
+  main diagonal, i.e., upper triangular (\eqn{m\times m}{m by n}) with
+  \eqn{m-n} extra zero rows.
 
   The matrix \eqn{Q} is a "virtual matrix".  It is the product of
   \eqn{n} Householder transformations.  The information to generate
   these Householder transformations is stored in the \code{V} and
   \code{beta} slots.
+  \cr
+  Note however that \code{qr.Q()} returns the row permuted matrix
+  \eqn{Q* := P^{-1}Q = P'Q}{Q* := P^(-1) Q = P'Q} as permutation matrices are
+  orthogonal; and \eqn{Q*} is orthogonal itself because \eqn{Q} and \eqn{P} are.
+  This is useful because then, as in the dense matrix and \pkg{base} \R
+  matrix \code{\link{qr}} case, we have the mathematical identity
+  \deqn{P A = Q* R,} in \R as \preformatted{            A[p+1,] == qr.Q(*) \%*\% R .}
 
   The \code{"sparseQR"} methods for the \code{qr.*} functions return
   objects of class \code{"dgeMatrix"} (see
@@ -122,6 +141,8 @@
   \code{\link{qr.R}},     \code{\link{qr.fitted}},
   \code{\link{qr.resid}}, \code{\link{qr.coef}},
   \code{\link{qr.qty}},   \code{\link{qr.qy}},
+
+  Permutation matrices in the \pkg{Matrix} package: \code{\linkS4class{pMatrix}};
   \code{\linkS4class{dgCMatrix}}, \code{\linkS4class{dgeMatrix}}.
 
 %%% not (yet) in CRAN-released version of Matrix:

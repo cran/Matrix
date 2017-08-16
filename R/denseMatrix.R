@@ -262,3 +262,11 @@ setMethod("is.na", signature(x = "denseMatrix"),
 		      i = integer(0), p = rep.int(0L, d[2]+1L))
 	      }
 	  })
+
+if(.Matrix.avoiding.as.matrix) {
+setMethod("qr", signature(x = "ddenseMatrix"),
+	  function(x, ...) qr.default(ge2mat(..2dge(x)), ...))
+setMethod("qr", signature(x = "denseMatrix"),
+	  function(x, ...) qr(as(x, "ddenseMatrix"), ...))
+}
+

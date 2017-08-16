@@ -589,7 +589,7 @@ replTmat <- function (x, i, j, ..., value)
 ## FIXME: just for testing !!
 ## if(identical(Sys.getenv("USER"),"maechler")
 ##    if(lenRepl > 2) { # __________ ___ JUST for testing! _______________
-	if(is.null(v <- getOption("Matrix.quiet")) || !v)
+	if(nonTRUEoption("Matrix.quiet"))
 	    message(gettextf("x[.,.] <- val : x being coerced from Tsparse* to CsparseMatrix"),
 		    domain = NA)
 	return(replCmat4(as(x,"CsparseMatrix"), i1, i2, iMi=iMi, jMi=jMi,

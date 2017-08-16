@@ -81,7 +81,7 @@
 \alias{coerce,Matrix,sparseMatrix-method}
 %\alias{solve,Matrix,....-method}--> ./solve-methods.Rd
 \alias{rep,Matrix-method}
-%\alias{unname,Matrix-method}
+\alias{svd,Matrix-method}% only if(.Matrix.avoiding.as.matrix)
 \alias{unname,Matrix,missing-method}
 % Fake entries - so users find this:
 \alias{print.Matrix}
@@ -158,6 +158,7 @@
   %% --> ../tests/base-matrix-fun.R
 }
 \note{
+  %% Matrix.avoding.as.matrix  is in __contradiction__ to this (since 2005-09-30 !):
   Loading the \code{Matrix} namespace \dQuote{overloads}
   \code{\link{as.matrix}} and \code{\link{as.array}} in the \pkg{base}
   namespace by the equivalent of \code{function(x) as(x, "matrix")}.

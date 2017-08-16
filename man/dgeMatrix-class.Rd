@@ -33,6 +33,8 @@
 \alias{dimnames,dgeMatrix-method}
 \alias{eigen,dgeMatrix,missing-method}
 \alias{eigen,dgeMatrix,logical-method}
+\alias{eigen,Matrix,ANY,missing-method}% only if(.Matrix.avoiding.as.matrix)
+\alias{eigen,Matrix,ANY,logical-method}% only if(.Matrix.avoiding.as.matrix)
 \alias{norm,dgeMatrix,missing-method}
 \alias{norm,dgeMatrix,character-method}
 \alias{rcond,dgeMatrix,missing-method}

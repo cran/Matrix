@@ -296,7 +296,7 @@ setMethod("crossprod", signature(x = "matrix", y = "dgeMatrix"),
 
 setMethod("crossprod", signature(x = "numLike", y = "dgeMatrix"),
 	  function(x, y=NULL, boolArith=NA, ...)
-	      crossprod(as.matrix(as.double(x)), y, boolArith=boolArith, ...))
+	      crossprod(cbind(as.double(x), deparse.level=0L), y, boolArith=boolArith, ...))
 
 for(c.x in paste0(c("d", "l", "n"), "denseMatrix")) {
     setMethod("crossprod", signature(x = c.x, y = "missing"),
@@ -672,7 +672,7 @@ setMethod("tcrossprod", signature(x = "matrix", y = "missing"),
 		  .Call(dgeMatrix_crossprod, ..2dge(x), TRUE))
 setMethod("tcrossprod", signature(x = "numLike", y = "missing"),
 	  function(x, y=NULL, boolArith=NA, ...)
-	      tcrossprod(as.matrix(as.double(x)), boolArith=boolArith, ...))
+	      tcrossprod(cbind(as.double(x), deparse.level=0L), boolArith=boolArith, ...))
 }# FALSE
 
 setMethod("tcrossprod", signature(x = "ddenseMatrix", y = "missing"),

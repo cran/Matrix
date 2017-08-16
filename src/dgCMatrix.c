@@ -46,9 +46,9 @@ SEXP compressed_to_TMatrix(SEXP x, SEXP colP)
     /* however, for Csparse, we now effectively use the cholmod-based
      * Csparse_to_Tsparse() in ./Csparse.c ; maybe should simply write
      * an  as_cholmod_Rsparse() function and then do "as there" ...*/
-    SEXP indSym = col ? Matrix_iSym : Matrix_jSym,
-	ans, indP = GET_SLOT(x, indSym),
-	pP = GET_SLOT(x, Matrix_pSym);
+    SEXP indSym = col ? Matrix_iSym : Matrix_jSym, ans,
+	indP = PROTECT(GET_SLOT(x, indSym)),
+	  pP = PROTECT(GET_SLOT(x, Matrix_pSym));
     int npt = length(pP) - 1;
     char *ncl = strdup(class_P(x));
     static const char *valid[] = { MATRIX_VALID_Csparse, MATRIX_VALID_Rsparse, ""};
@@ -76,7 +76,7 @@ SEXP compressed_to_TMatrix(SEXP x, SEXP colP)
 		  INTEGER(ALLOC_SLOT(ans, col ? Matrix_jSym : Matrix_iSym,
 				     INTSXP, length(indP))));
     free(ncl);
-    UNPROTECT(1);
+    UNPROTECT(3);
     return ans;
 }
 
@@ -130,8 +130,8 @@ SEXP compressed_non_0_ij(SEXP x, SEXP colP)
 {
     int col = asLogical(colP); /* 1 if "C"olumn compressed;  0 if "R"ow */
     SEXP ans, indSym = col ? Matrix_iSym : Matrix_jSym;
-    SEXP indP = GET_SLOT(x, indSym),
-	pP = GET_SLOT(x, Matrix_pSym);
+    SEXP indP = PROTECT(GET_SLOT(x, indSym)),
+	 pP   = PROTECT(GET_SLOT(x, Matrix_pSym));
     int i, *ij;
     int nouter = INTEGER(GET_SLOT(x, Matrix_DimSym))[col ? 1 : 0],
 	n_el   = INTEGER(pP)[nouter]; /* is only == length(indP), if the
@@ -148,7 +148,7 @@ SEXP compressed_non_0_ij(SEXP x, SEXP colP)
 	for(i = 0; i < n_el; i++)
 	    ij[i + n_el] = INTEGER(indP)[i];
 
-    UNPROTECT(1);
+    UNPROTECT(3);
     return ans;
 }
 

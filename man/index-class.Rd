@@ -6,7 +6,7 @@
 \title{Virtual Class "index" - Simple Class for Matrix Indices}
 \description{The class \code{"index"} is a virtual class used for
   indices (in signatures) for matrix indexing and sub-assignment of
-  \pkg{"Matrix"} matrices.
+  \pkg{Matrix} matrices.
 
   In fact, it is currently implemented as a simple class union
   (\code{\link{setClassUnion}}) of

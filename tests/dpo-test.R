@@ -1,6 +1,7 @@
 ### Testing positive definite matrices
 library(Matrix)
 source(system.file("test-tools.R", package = "Matrix"))# identical3() etc
+cat("doExtras:",doExtras,"\n")
 
 h9 <- Hilbert(9)
 stopifnot(c(0,0) == dim(Hilbert(0)),
@@ -8,7 +9,7 @@ stopifnot(c(0,0) == dim(Hilbert(0)),
 	  identical(h9@factors, list()))
 str(h9)# no 'factors'		32b:	-96.73694669	2.08e-8
 assert.EQ.(c(determinant(h9)$modulus),	-96.7369487, tol = 8e-8)
-##				64b:	-96.73695078	2.15e-8
+##				64b:	-96.73695078	2.15e-8 then 6.469e-8
 
 ## determinant() now working via chol(): ==> h9 now has factorization
 stopifnot(names(h9@factors) == "Cholesky",
@@ -19,7 +20,7 @@ stopifnot(all.equal(rcond(h9), 9.0938e-13),
           all.equal(rcond(f9), 9.1272e-7, tolerance = 1e-6))# more precision fails
 options(digits=4)
 (cf9 <- crossprod(f9))# looks the same as  h9 :
-assert.EQ.mat(h9, as.matrix(cf9), tol=1e-15)
+assert.EQ.mat(h9, as(cf9,"matrix"), tol=1e-15)
 
 h9. <- round(h9, 2)# actually loses pos.def. "slightly"
                    # ==> the above may be invalid in the future
@@ -63,7 +64,7 @@ s9 <- solve(h9p, seq(nrow(h9p)))
 signif(t(s9)/10000, 4)# only rounded numbers are platform-independent
 (I9 <- h9p %*% s9)
 m9 <- matrix(1:9, dimnames = list(NULL,NULL))
-stopifnot(all.equal(m9, as.matrix(I9), tolerance = 2e-9))
+stopifnot(all.equal(m9, .asmatrix(I9), tolerance = 2e-9))
 
 ### Testing nearPD() --- this is partly in  ../man/nearPD.Rd :
 pr <- Matrix(c(1,     0.477, 0.644, 0.478, 0.651, 0.826,

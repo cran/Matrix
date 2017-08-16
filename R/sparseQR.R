@@ -13,8 +13,7 @@ qrR <- function(qr, complete = FALSE, backPermute = TRUE, row.names = TRUE) {
 }
 setMethod("qr.R", signature(qr = "sparseQR"),
 	  function(qr, complete = FALSE) {
-	      if((is.null(v <- getOption("Matrix.quiet.qr.R")) || !v) &&
-		 (is.null(v <- getOption("Matrix.quiet")) || !v))
+              if(nonTRUEoption("Matrix.quiet.qr.R") && nonTRUEoption("Matrix.quiet"))
 		  warning("qr.R(<sparse>) may differ from qr.R(<dense>) because of permutations.  Possibly use our qrR() instead")
 	      qrR(qr, complete=complete, backPermute=FALSE)
 	      })
@@ -82,9 +81,9 @@ setMethod("qr.qty", signature(qr = "sparseQR", y = "Matrix"),
 ## FIXME: really should happen in C, i.e sparseQR_coef() in ../src/sparseQR.c :
 .coef.trunc <- function(qr, res, drop=FALSE) {
     if((d <- lengths(res@Dimnames)) != c(0L,0L) && !identical(d, D <- res@Dim)) {
-	## Fix dimnames from dim:
-	length(res@Dimnames[[1]]) <- D[1]
-	length(res@Dimnames[[2]]) <- D[2]
+	## Fix dimnames from dim (when not NULL !) :
+	if(d[[1]]) length(res@Dimnames[[1]]) <- D[[1]]
+	if(d[[2]]) length(res@Dimnames[[2]]) <- D[[2]]
     }
     res[seq_len(ncol(qr@R)),,drop=drop]
 }

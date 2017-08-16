@@ -69,7 +69,6 @@ checkRN <- function(dd, B = rbind) {
     rn <- c("1:4", "c", "a+", "dd",  "")
     isMatr <- (length(dim(dd)) == 2)
     id <- if(isMatr) 5 else 4
-    if(!identical(B, methods:::rbind)) ## <= BUG in methods:::rbind !!
     identicalShow(rn[c(5,2:3, 5)], FN(deparse.level= 0)) # middle two names
     identicalShow(rn[c(5,2:3,id)], FN(deparse.level= 1)) # last shown if vector
     identicalShow(rn[c(1,2:3,id)], FN(deparse.level= 2)) # first shown; (last if vec.)
@@ -77,14 +76,14 @@ checkRN <- function(dd, B = rbind) {
 checkRN(10) # <==> ?cbind's ex
 checkRN(1:4)
 checkRN(       rbind(c(0:1,0,0)))
-if(FALSE)# not yet
-checkRN(Matrix(rbind(c(0:1,0,0))))
-## rBind(): -- works with the above workaround methods:::rbind bug
+if(getRversion() >= "3.5.0")
+checkRN(Matrix(rbind(c(0:1,0,0)))) ## in R <= 3.4.1, from methods:::rbind bug :
+## Modes: character, NULL Lengths: 4, 0 target is character, current is NULL
 checkRN(10 ,				rBind)
 checkRN(1:4,				rBind)
 checkRN(       rbind(c(0:1,0,0)),  	rBind)
+if(getRversion() >= "3.5.0") ## in R <= 3.4.x, from methods:::rbind bug
 checkRN(Matrix(rbind(c(0:1,0,0))), 	rBind)
-
 
 cBind(0, Matrix(0+0:1, 1,2), 3:2)# FIXME? should warn - as with matrix()
 as(rBind(0, Matrix(0+0:1, 1,2), 3:2),
@@ -219,7 +218,7 @@ s <- diag(2)
 S9 <- rBind(S,0,0,S,0,NaN,0,0,0,2)## r/cbind2() failed to determine 'sparse' in Matrix <= 1.2-2
 s9 <- rbind(s,0,0,s,0,NaN,0,0,0,2)
 assert.EQ.mat(S9, s9)
-D <- Matrix(1:6, 3,2); d <- as.matrix(D)
+D <- Matrix(1:6, 3,2); d <- as(D, "matrix")
 T9 <- t(S9); t9 <- t(s9); T <- t(D); t <- t(d)
 stopifnot(identical(rbind (s9,d), rbind2(s9,d)),
 	  identical(rbind2(D,S9), t(cbind2(T,T9))),

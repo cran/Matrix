@@ -2,16 +2,23 @@
 #### =====     =====
 
 ## eigen() is not even generic, and we haven't any C code,
-##	   but rather  base::eigen()  "magically"  works via as.matrix()
-if (FALSE) {
-setMethod("eigen", signature(x = "dgeMatrix", only.values = "missing"),
-	  function(x, symmetric, only.values, EISPACK) # << must match generic
-	  .Call(dgeMatrix_eigen, x, FALSE))
+## NOTE  base::eigen()  "magically"  can work via as.matrix()
+if(.Matrix.avoiding.as.matrix) {
+    ## ---- IFF  as.matrix(.)  <==>  as(., "matrix")  [which we consider _deprecating_]
+    ## FIXME: Code for *sparse* !! [RcppEigen ~??~]
+    setMethod("eigen", signature(x = "Matrix", only.values = "missing"),
+	      function(x, symmetric, only.values, EISPACK) # << must match generic
+		  base::eigen(as(x,"matrix"), symmetric, FALSE))
+    setMethod("eigen", signature(x = "Matrix", only.values = "logical"),
+	      function(x, symmetric, only.values, EISPACK)
+		  base::eigen(as(x,"matrix"), symmetric, only.values))
 
-setMethod("eigen", signature(x = "dgeMatrix", only.values = "logical"),
-	  function(x, symmetric, only.values, EISPACK)
-	  .Call(dgeMatrix_eigen, x, only.values))
-} #not yet
+    ## base::svd()  using  as.matrix() :=  asRbasematrix()
+    if(getRversion() < "3.5.0") # svd not yet implicit generic
+    setGeneric("svd", function(x, ...) base::svd(x, ...))
+    setMethod("svd", "Matrix",
+	      function (x, ...) base::svd(as(x,"matrix"), ...))
+}
 
 .dgeSchur <- function(x, vectors, ...) {
     cl <- .Call(dgeMatrix_Schur, x, TRUE, TRUE)

@@ -71,7 +71,7 @@ setMethod("solve", signature(a = "dppMatrix", b = "matrix"),
 setMethod("solve", signature(a = "dppMatrix", b = "integer"),
           function(a, b, ...) {
               storage.mode(b) <- "double"
-              .Call(dppMatrix_matrix_solve, a, as.matrix(b))
+              .Call(dppMatrix_matrix_solve, a, cbind(b, deparse.level=0L))
           }, valueClass = "dgeMatrix")
 
 setMethod("t", signature(x = "dppMatrix"),

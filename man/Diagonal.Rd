@@ -3,14 +3,17 @@
 \alias{Diagonal}
 \alias{.sparseDiagonal}
 \alias{.symDiagonal}
+\alias{.trDiagonal}
 \description{
   Create a diagonal matrix object, i.e., an object inheriting from
-  \code{\linkS4class{diagonalMatrix}}.
+  \code{\linkS4class{diagonalMatrix}} (or a sparse diagonal matrix in
+  cases that is prefered).
 }
 \usage{
 Diagonal(n, x = NULL)
 
-.symDiagonal(n, x = rep.int(1,n), uplo = "U")
+.symDiagonal(n, x = rep.int(1,n), uplo = "U",   kind = if(is.logical(x)) "l" else "d")
+ .trDiagonal(n, x = 1, uplo = "U", unitri=TRUE, kind = if(is.logical(x)) "l" else "d")
 .sparseDiagonal(n, x = 1, uplo = "U",
                 shape = if(missing(cols)) "t" else "g",
 	        unitri, kind, cols = if(n) 0:(n - 1L) else integer(0))
@@ -20,8 +23,9 @@ Diagonal(n, x = NULL)
     missing, \code{length(x)} is used.}
   \item{x}{numeric or logical; if missing, a \emph{unit} diagonal
     \eqn{n \times n}{n x n} matrix is created.}
-  \item{uplo}{for \code{.symDiagonal}, the resulting sparse
-    \code{\linkS4class{symmetricMatrix}} will have slot \code{uplo} set
+  \item{uplo}{for \code{.symDiagonal} (\code{.trDiagonal}), the resulting sparse
+    \code{\linkS4class{symmetricMatrix}} (or
+    \code{\linkS4class{triangularMatrix}}) will have slot \code{uplo} set
     from this argument, either \code{"U"} or \code{"L"}.  Only rarely
     will it make sense to change this from the default.}
   \item{shape}{string of 1 character, one of \code{c("t","s","g")}, to
@@ -46,12 +50,15 @@ Diagonal(n, x = NULL)
 
   \code{.symDiagonal()} returns an object of class
   \code{\linkS4class{dsCMatrix}} or \code{\linkS4class{lsCMatrix}},
-  i.e., a \emph{sparse} \emph{symmetric} matrix.  This can be
-  more efficient than \code{Diagonal(n)} when the result is combined
-  with further symmetric (sparse) matrices, however \emph{not} for
+  i.e., a \emph{sparse} \emph{symmetric} matrix.  Analogously,
+  \code{.triDiagonal} gives a sparse \code{\linkS4class{triangularMatrix}}.
+  This can be more efficient than \code{Diagonal(n)} when the result is combined
+  with further symmetric (sparse) matrices, e.g., in \code{\link{kronecker}},
+  however \emph{not} for
   matrix multiplications where \code{Diagonal()} is clearly preferred.
 
-  \code{.sparseDiagonal()}, the workhorse of \code{.symDiagonal} returns
+  \code{.sparseDiagonal()}, the workhorse of \code{.symDiagonal} and
+  \code{.trDiagonal} returns
   a \code{\linkS4class{CsparseMatrix}} (the resulting class depending
   on \code{shape} and \code{kind}) representation of \code{Diagonal(n)},
   or, when \code{cols} are specified, of \code{Diagonal(n)[, cols+1]}.

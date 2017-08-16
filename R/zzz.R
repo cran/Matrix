@@ -9,6 +9,17 @@
 .onLoad <- function(libname, pkgname)
 {
     .Call(CHM_set_common_env, .chm_common)
+    ## S4 method dispatch ambiguity warnings
+    if(is.null(getOption("ambiguousMethodSelection"))) {
+	if((!is.null(v <- getOption("Matrix.verbose")) && v >= 1) ||
+	   isTRUE(getOption("Matrix.ambiguityNotes")) ||
+	   interactive() && identical(Sys.info()[["user"]], "maechler")) {
+	    ## nothing
+	} else { # ambiguity notices are trashed
+	    options(ambiguousMethodSelection = function(cond) {})
+	    assign("no.methods.ambiguityNotes", TRUE, envir=.MatrixEnv)
+	}
+    }
 }
 
 ## Instead, simply re-assign the [cr]bind()s which are recursively
@@ -51,6 +62,8 @@ if(getRversion() >= "3.2.0") {
 .onUnload <- function(libpath)
 {
     library.dynam.unload("Matrix", libpath)
+    if(isTRUE(.MatrixEnv $ no.methods.ambiguityNotes))# revert
+	options(ambiguousMethodSelection = NULL)
 }
 
 .SuiteSparse_version <- function() {

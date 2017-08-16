@@ -959,3 +959,40 @@ rsparsematrix <- function(nrow, ncol, density,
 		     x = rand.x(nnz), dims = c(nrow, ncol), ...)
 }
 
+if(FALSE) ### FIXME: This would *NOT* be needed, if    as.matrix(<sparseMatrix>) was a no-op ;
+          ### -----  and then,  base::scale() -> base::scale.default() would work "magically" already..
+## scale() is S3 generic in base
+scale.sparseMatrix <- function(x, center = FALSE, scale = TRUE) {
+    if(center) warning("a sparseMatrix should rarely be centered: will not be sparse anymore")
+    ## x <- as.matrix(x)
+
+    ## This rest is *identically*  == base :: scale.default :
+    nc <- ncol(x)
+    if (is.logical(center)) {
+	if (center) {
+            center <- colMeans(x, na.rm=TRUE)
+	    x <- sweep(x, 2L, center, check.margin=FALSE)
+        }
+    }
+    else if (is.numeric(center) && (length(center) == nc))
+	x <- sweep(x, 2L, center, check.margin=FALSE)
+    else
+	stop("length of 'center' must equal the number of columns of 'x'")
+    if (is.logical(scale)) {
+	if (scale) {
+	    f <- function(v) {
+		v <- v[!is.na(v)]
+		sqrt(sum(v^2) / max(1, length(v) - 1L))
+	    }
+            scale <- apply(x, 2L, f)
+	    x <- sweep(x, 2L, scale, "/", check.margin=FALSE)
+	}
+    }
+    else if (is.numeric(scale) && length(scale) == nc)
+	x <- sweep(x, 2L, scale, "/", check.margin=FALSE)
+    else
+	stop("length of 'scale' must equal the number of columns of 'x'")
+    if(is.numeric(center)) attr(x, "scaled:center") <- center
+    if(is.numeric(scale)) attr(x, "scaled:scale") <- scale
+    x
+}

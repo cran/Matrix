@@ -88,7 +88,8 @@ rankMatrix(x, tol = NULL,
   used \code{tol = 0}, see also the seed(42) example below.
 }
 \value{
-  positive integer in \code{1:min(dim(x))}, with attributes detailing
+  If \code{x} is a matrix of all \code{0}, the rank is zero; otherwise,
+  a positive integer in \code{1:min(dim(x))} with attributes detailing
   the method used.
 }
 % \references{
@@ -159,6 +160,10 @@ D <- t(do.call(rbind., lapply(list(f1,f2,f3), as, 'sparseMatrix')))
 dim(D); nnzero(D) ## 1000 x 150 // 3000 non-zeros (= 2\%)
 stopifnot(rankMatrix(D,           method='qr') == 148,
 	  rankMatrix(crossprod(D),method='qr') == 148)
+
+## zero matrix has rank 0 :
+stopifnot(sapply(meths, function(.m.)
+                        rankMatrix(matrix(0, 2, 2), method = .m.)) == 0)
 }
 \keyword{algebra}
 \keyword{array}

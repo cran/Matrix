@@ -79,12 +79,15 @@ Diagonal <- function(n, x = NULL)
 }
 
 ## Pkg 'spdep' had (relatively slow) versions of this as_dsCMatrix_I()
-.symDiagonal <- function(n, x = rep.int(1,n), uplo = "U")
-    .sparseDiagonal(n, x, uplo, shape = "s")
+.symDiagonal <- function(n, x = rep.int(1,n), uplo = "U",
+			 kind = if(is.logical(x)) "l" else "d")
+    .sparseDiagonal(n, x, uplo, shape = "s", kind = kind)
 
+## NOTA BENE: .triDiagonal() would be misleading (<=> banded tri-diagonal matrix !)
 # instead of   diagU2N(as(Diagonal(n), "CsparseMatrix")), diag = "N" in any case:
-.trDiagonal <- function(n, x = 1, uplo = "U", unitri=TRUE)
-    .sparseDiagonal(n, x, uplo, shape = "t", unitri=unitri)
+.trDiagonal <- function(n, x = 1, uplo = "U", unitri=TRUE,
+			kind = if(is.logical(x)) "l" else "d")
+    .sparseDiagonal(n, x, uplo, shape = "t", unitri=unitri, kind=kind)
 
 
 ## This is modified from a post of Bert Gunter to R-help on  1 Sep 2005.

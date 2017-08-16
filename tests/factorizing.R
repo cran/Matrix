@@ -11,8 +11,8 @@ data(KNex); mm <- KNex$mm; y <- KNex$y
 stopifnot(is((Y <- Matrix(y)), "dgeMatrix"))
 md <- as(mm, "matrix")                  # dense
 
-(cS <- system.time(Sq <- qr(mm)))
-(cD <- system.time(Dq <- qr(md))) # 1.1 sec. (lynne, 2011); 0.535 sec. (lynne, 2014)
+(cS <- system.time(Sq <- qr(mm))) # 0.009
+(cD <- system.time(Dq <- qr(md))) # 0.499 (lynne, 2014 f)
 cD[1] / cS[1] # dense is  much ( ~ 100--170 times) slower
 
 ## MM__FIXME__: move these functions to ../inst/test-tools.R
@@ -26,8 +26,9 @@ chkQR <- function(a,
 {
     d <- dim(a)
     stopifnot((n <- d[1]) >= (p <- d[2]), is.numeric(y))
-    kind <- if(is.qr(a.qr)) "qr" else
-    if(is(a.qr, "sparseQR")) "spQR" else stop("unknown qr() class: ", class(a.qr))
+    kind <- if(is.qr(a.qr)) "qr"
+            else if(is(a.qr, "sparseQR")) "spQR"
+            else stop("unknown qr() class: ", class(a.qr))
     if(!missing(verbose) && verbose) {
 	op <- options(Matrix.verbose = verbose)
 	on.exit(options(op))
@@ -43,6 +44,7 @@ chkQR <- function(a,
     if(is.na(Qinv.chk)) Qinv.chk <- !sp.rank.def
 
     if(Qinv.chk) { ## qr.qy and qr.qty should be inverses,  Q'Q y = y = QQ' y :
+        if(verbose) cat("Qinv.chk=TRUE: checking   Q'Q y = y = QQ' y :\n")
 	## FIXME: Fails for structurally rank deficient sparse a's, but never for classical
 	assert.EQ(drop(qr.qy (a.qr, qr.qty(a.qr, y))), y, giveRE=giveRE, tol = tol/64)
 	assert.EQ(drop(qr.qty(a.qr, qr.qy (a.qr, y))), y, giveRE=giveRE, tol = tol/64)
@@ -54,8 +56,8 @@ chkQR <- function(a,
     invP <- sort.list(piv)
 
     .ckQR <- function(cmpl) { ## local function, using parent's variables
-        if(verbose) cat("complete = ",cmpl,":\n", sep="")
-        Q <- qr.Q(a.qr, complete=cmpl)
+        if(verbose) cat("complete = ",cmpl,": checking  X = Q R P*\n", sep="")
+        Q <- qr.Q(a.qr, complete=cmpl) # NB: Q is already "back permuted"
         R <- qr.R(a.qr, complete=cmpl)
         rr <- if(cmpl) n else p
         stopifnot(dim(Q) == c(n,rr),
@@ -91,7 +93,7 @@ chk.qr.D.S <- function(d., s., y, Y = Matrix(y), force = FALSE, tol = 1e-10) {
 }
 
 ##' "Combi" calling chkQR() on both "(sparse)Matrix" and 'traditional' version
-##' ------  and combine the two qr decomp.s using chk.qr.D.S()
+##' ------  and combine the two qr decompositions using chk.qr.D.S()
 ##'
 ##' @title check QR-decomposition, and compare sparse and dense one
 ##' @param A a 'Matrix' , typically 'sparseMatrix'
@@ -105,7 +107,7 @@ checkQR.DS.both <- function(A, Qinv.chk, QtQ.chk=NA,
 {
     stopifnot(is(A,"Matrix"))
     if(!quiet) cat("classical: ")
-    qa <- chkQR(as.matrix(A), Qinv.chk=TRUE, QtQ.chk=TRUE, tol=tol, giveRE=giveRE)# works always
+    qa <- chkQR(as(A, "matrix"), Qinv.chk=TRUE, QtQ.chk=TRUE, tol=tol, giveRE=giveRE)# works always
     if(!quiet) cat("[Ok] ---  sparse: ")
     qA <- chkQR(A, Qinv.chk=Qinv.chk, QtQ.chk=QtQ.chk, tol=tol, giveRE=giveRE)
     validObject(qA)
@@ -114,15 +116,27 @@ checkQR.DS.both <- function(A, Qinv.chk, QtQ.chk=NA,
     invisible(list(qA=qA, qa=qa))
 }
 
-if(doExtras) system.time({ ## ~ 20 sec {"large" example}   + 2x qr.R() warnings
+if(doExtras) { ## ~ 20 sec {"large" example}   + 2x qr.R() warnings
     cat("chkQR( <KNex> ) .. takes time .. ")
-    chkQR(mm, y=y, a.qr = Sq, verbose=TRUE)
-    chkQR(md, y=y, a.qr = Dq, verbose=TRUE)
+    system.time(chkQR(mm, y=y, a.qr = Sq, verbose=TRUE))
+    system.time(chkQR(md, y=y, a.qr = Dq, verbose=TRUE))
     cat(" done: [Ok]\n")
-})
+}
 
 ## consistency of results dense and sparse
 chk.qr.D.S(Dq, Sq, y, Y)
+
+## Another small example with pivoting (and column name "mess"):
+set.seed(1)
+X <- rsparsematrix(9,5, 1/4, dimnames=list(paste0("r", 1:9), LETTERS[1:5]))
+qX <- qr(X); qd <- qr(as(X, "matrix"))
+## numbers are the same, but names of sparse case are wrongly permuted
+qr.coef(qX, 1:9)
+qr.coef(qd, 1:9)
+if(FALSE) ## error:
+chk.qr.D.S(d. = qd, s. = qX, y = 1:9)
+
+
 
 ## rank deficient QR cases: ---------------
 
@@ -176,7 +190,7 @@ try( checkQR.DS.both(A1,  TRUE, FALSE) )
 try( checkQR.DS.both(A1, FALSE,  TRUE) )
 
 
-qa <- qr(as.matrix(A0))
+qa <- qr(as(A0,"matrix"))
 qA <- qr(A0)
 
 drop0(crossprod( Qd <- qr.Q(qa) ), 1e-15) # perfect = diag( 3 )

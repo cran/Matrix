@@ -1,6 +1,9 @@
 #### "Namespace private" Auxiliaries  such as method functions
 #### (called from more than one place --> need to be defined early)
 
+.Matrix.avoiding.as.matrix <- FALSE # (always on CRAN -- have documented it since 2015)
+## NB: sync with  ../NAMESPACE
+
 ## Need to consider NAs ;  "== 0" even works for logical & complex:
 ## Note that "!x" is faster than "x == 0", but does not (yet!) work for complex
 ## if we did these in C, would gain a factor 2 (or so):
@@ -68,6 +71,9 @@ is.null.DN <- function(dn) {
 
 ##  not %in%  :
 `%nin%` <- function (x, table) is.na(match(x, table))
+
+nonTRUEoption <- function(ch) is.null(v <- getOption(ch)) || !isTRUE(v)
+
 
 ##' @title Check identical(i, 0:n) {or identical(i, 1:n) when Ostart is false}
 ##' @param i an integer vector, to be compared with 0:n or 1:n
@@ -1331,7 +1337,7 @@ isTriC <- function(object, upper = NA, ...) {
 	    ## } else { ## uplo == "L"
 	    ## }
 ### very cheap workaround
-	    all0(as.matrix(object)[rep_len(c(FALSE, rep.int(TRUE,n)), n^2)])
+	    all0(as(object,"matrix")[rep_len(c(FALSE, rep.int(TRUE,n)), n^2)])
         }
 }
 

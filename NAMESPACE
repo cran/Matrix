@@ -36,7 +36,7 @@ importFrom("methods"
 ## Generics and functions defined in this package
 export("%&%",
        "Cholesky", ".SuiteSparse_version",
-       "Diagonal", ".symDiagonal", ".sparseDiagonal",
+       "Diagonal", ".symDiagonal", ".sparseDiagonal", ".trDiagonal",
        "Hilbert", "KhatriRao",
        "Matrix",
        "MatrixClass",
@@ -54,6 +54,7 @@ export("%&%",
        "condest", "onenormest",
        "det",# << "identical" as base - but with correct determinant()
        ## "mkDet", # <- useful in other packages (Rmpfr, gmp) .. hmm --> 'stats' ?
+       .asmatrix,
        ## FIXME: why exactly these and not e.g. dsp2dsy and many more?
        ".dsy2mat", ".dsy2dsp", ".dxC2mat", ".T2Cmat", "..2dge", ".dense2sy",
        ".C2nC", ".nC2d", ".nC2l",
@@ -93,8 +94,6 @@ export("%&%",
        , ".validateCsparse"
        , "writeMM"
        )
-if(getRversion() < "2.15.0")
-    export(".M.classEnv")
 
 ## substitute for using  cbind() / rbind()
 ## .Deprecated() for R version >= 3.2.0 [2015-04]:
@@ -288,6 +287,7 @@ exportMethods(## for both own and "other" generics:
 	      "dimnames",
 	      "dimnames<-",
 	      "drop",
+               ## "eigen", "svd", # only if(.Matrix.avoiding.as.matrix) <--> ./R/Auxiliaries.R
 	      "expand",
 	      "expm",
 	      "format",

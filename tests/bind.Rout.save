@@ -1,6 +1,6 @@
 
-R version 3.2.2 Patched (2015-11-13 r69633) -- "Fire Safety"
-Copyright (C) 2015 The R Foundation for Statistical Computing
+R Under development (unstable) (2017-08-04 r73035) -- "Unsuffered Consequences"
+Copyright (C) 2017 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -141,7 +141,6 @@ R1 10 11 10 11
 +     rn <- c("1:4", "c", "a+", "dd",  "")
 +     isMatr <- (length(dim(dd)) == 2)
 +     id <- if(isMatr) 5 else 4
-+     if(!identical(B, methods:::rbind)) ## <= BUG in methods:::rbind !!
 +     identicalShow(rn[c(5,2:3, 5)], FN(deparse.level= 0)) # middle two names
 +     identicalShow(rn[c(5,2:3,id)], FN(deparse.level= 1)) # last shown if vector
 +     identicalShow(rn[c(1,2:3,id)], FN(deparse.level= 2)) # first shown; (last if vec.)
@@ -149,15 +148,14 @@ R1 10 11 10 11
 > checkRN(10) # <==> ?cbind's ex
 > checkRN(1:4)
 > checkRN(       rbind(c(0:1,0,0)))
-> if(FALSE)# not yet
-+ checkRN(Matrix(rbind(c(0:1,0,0))))
-> ## rBind(): -- works with the above workaround methods:::rbind bug
+> if(getRversion() >= "3.5.0")
++ checkRN(Matrix(rbind(c(0:1,0,0)))) ## in R <= 3.4.1, from methods:::rbind bug :
+> ## Modes: character, NULL Lengths: 4, 0 target is character, current is NULL
 > checkRN(10 ,				rBind)
 > checkRN(1:4,				rBind)
 > checkRN(       rbind(c(0:1,0,0)),  	rBind)
-> checkRN(Matrix(rbind(c(0:1,0,0))), 	rBind)
-Modes: character, NULL Lengths: 4, 0 target is character, current is NULL 
-> 
+> if(getRversion() >= "3.5.0") ## in R <= 3.4.x, from methods:::rbind bug
++ checkRN(Matrix(rbind(c(0:1,0,0))), 	rBind)
 > 
 > cBind(0, Matrix(0+0:1, 1,2), 3:2)# FIXME? should warn - as with matrix()
 1 x 4 Matrix of class "dgeMatrix"
@@ -212,7 +210,7 @@ A 1 4 7 10 100 1 4 7 10
 B 2 5 8 11 100 2 5 8 11
 C 3 6 9 12 100 3 6 9 12
 > showProc.time()
-Time elapsed:  0.075 0.009 0.086 
+Time elapsed:  0.178 0.024 0.203 
 > 
 > ### --- Diagonal / Sparse - had bugs
 > 
@@ -243,7 +241,7 @@ Time elapsed:  0.075 0.009 0.086
 + 	  identical(t(d4), cBind(Diagonal(4),     0:3)),
 + 	  identical(t(m4), rBind(Diagonal(x=-1:2), 0:3)))
 > showProc.time()
-Time elapsed:  0.041 0.006 0.047 
+Time elapsed:  0.126 0.02 0.147 
 > 
 > ### --- Sparse Matrices ---
 > 
@@ -293,7 +291,7 @@ rBind (m, v= 2 ), class(m) : dgeMatrix ,. dgCMatrix ,. dgTMatrix ,.
 cBind (m, v= c(1L, 0L) ), class(m) : dgeMatrix ,. dgCMatrix ,. dgTMatrix ,.
 rBind (m, v= c(1L, 0L) ), class(m) : dgeMatrix ,. dgCMatrix ,. dgTMatrix ,.
 > showProc.time()
-Time elapsed:  0.063 0.007 0.07 
+Time elapsed:  0.061 0.004 0.065 
 > 
 > cBind(0, mC); cBind(mC, 0)
 4 x 7 sparse Matrix of class "dgCMatrix"
@@ -520,7 +518,7 @@ v5    .    |    .    |    .
 > S9 <- rBind(S,0,0,S,0,NaN,0,0,0,2)## r/cbind2() failed to determine 'sparse' in Matrix <= 1.2-2
 > s9 <- rbind(s,0,0,s,0,NaN,0,0,0,2)
 > assert.EQ.mat(S9, s9)
-> D <- Matrix(1:6, 3,2); d <- as.matrix(D)
+> D <- Matrix(1:6, 3,2); d <- as(D, "matrix")
 > T9 <- t(S9); t9 <- t(s9); T <- t(D); t <- t(d)
 > stopifnot(identical(rbind (s9,d), rbind2(s9,d)),
 + 	  identical(rbind2(D,S9), t(cbind2(T,T9))),
@@ -536,8 +534,8 @@ v5    .    |    .    |    .
 > 
 > options(op)
 > showProc.time()
-Time elapsed:  0.181 0.017 0.198 
+Time elapsed:  0.467 0.06 0.531 
 > 
 > proc.time()
    user  system elapsed 
-  1.028   0.149   1.259 
+  1.327   0.192   1.522 

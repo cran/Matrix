@@ -38,12 +38,17 @@ rankMatrix <- function(x, tol = NULL,
     if(useGrad <- (method %in% c("useGrad", "maybeGrad"))) {
 	stopifnot(length(sval) == p,
 		  diff(sval) <= 0) # must be sorted non-increasingly: max = s..[1]
-	ln.av <- log(abs(sval))
-	diff1 <- diff(ln.av)
-	if(method == "maybeGrad") {
-	    grad <- (min(ln.av) - max(ln.av)) / p
-	    useGrad <- (min(diff1) <= min(-3, 10 * grad))
-	}#  -------
+	if(sval[1] == 0) { ## <==> all singular values are zero  <==> Matrix = 0  <==> rank = 0
+	    useGrad <- FALSE
+	    method <- eval(formals()[["method"]])[[1]]
+	} else {
+	    ln.av <- log(abs(sval))
+	    diff1 <- diff(ln.av)
+	    if(method == "maybeGrad") {
+		grad <- (min(ln.av) - max(ln.av)) / p
+		useGrad <- !is.na(grad) &&  min(diff1) <= min(-3, 10 * grad)
+	    }#  -------
+	}
     }
     if(!useGrad) {
 	x.dense <- is.numeric(x) || is(x,"denseMatrix")
@@ -90,7 +95,7 @@ rankMatrix <- function(x, tol = NULL,
 
                       d.i <- abs(diagR) ## is abs(.) unneeded? [FIXME]
                       ## declare those entries to be zero that are < tol*max(.)
-                      sum(d.i >= tol * max(d.i))
+                      if((mdi <- max(d.i)) > 0) sum(d.i >= tol * mdi) else 0L # for 0-matrix
                       ## was sum(diag(q.r@R) != 0)
                   }
 		  ## else stop(gettextf(
@@ -98,7 +103,7 @@ rankMatrix <- function(x, tol = NULL,
 		  ##       	     sQuote(method), dQuote(class(q.r)[1])),
 		  ##           domain=NA)
 	      }
-	      else sum(sval >= tol * sval[1]), ## "tolNorm2"
+	      else if(sval[1] > 0) sum(sval >= tol * sval[1]) else 0L, ## "tolNorm2"
 	      "method" = method,
 	      "useGrad" = useGrad,
 	      "tol" = if(useGrad) NA else tol)

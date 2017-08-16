@@ -12,6 +12,40 @@
 %% \item \code{as(<large-matrix>, "sparseMatrix")} no longer fails
 %%  when \code{prod(dim(.))} is larger than \eqn{2^{31} - 1}.
 
+\section{Changes in version 1.2-11 (2017-08-08, svn r3223)}{
+  \subsection{New Features}{
+    \itemize{
+      \item S4 method dispatch no longer emits ambiguity
+      notes (by default) for everybody, apart from the package
+      maintainer.  You can reactivate them by
+      \code{options(Matrix.ambiguityNotes = TRUE)}
+    }
+  }
+  \subsection{Bug Fixes}{
+    \itemize{
+      \item \code{rankMatrix(<matrix of all 0>)} now gives zero for all
+      methods, as it should be.
+
+      \item no longer calling \code{length(NULL) <- <positive>} which
+      has been deprecated in R-devel since July.
+
+      \item \code{qr.coef(<sparseQR>, y)} now finally has correct (row)
+      names (from pivot back permutation).
+
+      \item \code{.trDiagonal()} utility is now exported.
+    }
+  }
+}
+
+\section{Changes in version 1.2-10 (2017-04-19, svn r3216)}{
+  \subsection{Bug Fixes}{
+    \itemize{
+      \item quite a collection of new \code{PROTECT(.)}'s thanks to
+      Tomas Kalibera's \sQuote{rprotect} analysis.
+    }
+  }
+}
+
 \section{Changes in version 1.2-9 (2017-03-08, svn r3211)}{
   \subsection{New Features}{
     \itemize{

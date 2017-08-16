@@ -4,11 +4,34 @@
 ** TODO Using "long vectors" (i.e. 64 bit indices vectors) in CHOLMOD --> cholmod_l_*()
 *** e.g. segfault in crossprod() Csparse_crossprod -> cholmod_att()
 * *Urgent* in some sense ---------------------------------------------------
+** TODO qr.coef() has *wrong* (column)names, even in full-rank case: see man/qr-methods.Rd ("FIXME"); maybe related to
+** TODO qr.R(), qrR() etc have *wrong* currently *lose* column/row names {compared to base R's qr.R}, see,
+   	drop0(R. <- qr.R(qx), tol=1e-15) # columns are int b1 c1 c2 b2 c3
+	in man/qr-methods.Rd :                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ but there are no colnames!
+** DONE should as.matrix() eventually become a no-op, as for Rmpfr::"mpfrMatrix" ?? -- *NO!*
+*** Big advantages:
+**** 1) Functions such as  base::scale.default() will work automagically
+**** 2) If   sM <- as.matrix(<sparseVector>) .. then  identical(as.matrix(sM) , sM)  -- not currently !!
+*** Bigger drawbacks:  Really I have to define Matrix methods for base functions that just worked perfectly via as.matrix
+**** 1a) eigen() base::eigen uses as.matrix() = asRbasematrix(); is not generic; called from nearPD()
+          ==> I've introduced "Matrix" S4 methods (and hence made eigen() S4 generic)
+**** 1b) svd()   same as eigen();  also called from norm(*, "2")
+          {as eigen()} would also need "Matrix" S4 methods
+**** 1c) qr()    needs additional dgeMatrix methods (as base::qr.default uses as.matrix())
+   and now warns, also, e.g., from rcond(<non-square dgeMatrix>)
+**** 2) base :: lower.tri() and upper.tri() also use as.matrix() but are not generic => would need to make them S4 genric
+***** for now: just redefinition in  inst/test-tools-Matrix.R  notably for CheckMatrix(), but also
+      for use in diverse ./tests/*.R.
+***** For R-devel (-> 3.5.0 in April 2018): lower.tri() / upper.tri() do *not* use as.matrix()
+**** 3)  Documented in more than one place that base functions work thanks to as.matrix()
+*** How to go there:  For a while  as.matrix() should give deprecation warning:  use  as(*,"matrix") and
+    ---- give substitute .asmatrix(), but that's not faster; simply calls as(*,"matrix")
+**** In R/Auxiliaries.R  .Matrix.avoiding.as.matrix <- TRUE  -- for experiments only
+**** turn off warning via  options(Matrix.quiet.as.matrix = TRUE)
 ** TODO S[sel,] and  S[,sel] <- value should work for sparse S and NA-containing sel.
 ** TODO nnzero() is too slow for a large CsparseMatrix
-** TODO qr.R(), qrR() etc currently *lose* column/row names {compared to base R's qr.R}, see,
-   	drop0(R. <- qr.R(qx), tol=1e-15) # columns are int b1 c1 c2 b2 c3
-   in man/qr-methods.Rd :                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ but there are no colnames!
+** TODO sparse.model.matrix(.) bug with NA's & na.action = "na.pass"  => ~/R/MM/Pkg-ex/Matrix/sparse.model-bugs_EB.R
+** TODO sparse.model.matrix(~ poly(x,3))  gives wrong column names    => ~/R/MM/Pkg-ex/Matrix/sparse.model-bugs_EB.R
 ** TODO lu() should preserve dimnames in a way such that lu(A) ~= PLU =.= A can rebuild A.
     R/
 ** TODO M[<sparse 2-column Matrix>] indexing should work (but with a warning: use *dense*!)

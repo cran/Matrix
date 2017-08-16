@@ -104,7 +104,7 @@ setMethod("solve", signature(a = "dtCMatrix", b = "matrix"),
 ## the as.double coercion?
 setMethod("solve", signature(a = "dtCMatrix", b = "numeric"),
 	  function(a, b, ...) .Call(dtCMatrix_matrix_solve, a,
-                                    as.matrix(as.double(b)), FALSE),
+				    cbind(as.double(b), deparse.level=0L), FALSE),
           valueClass = "dgeMatrix")
 
 if(FALSE)## still not working

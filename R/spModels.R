@@ -302,6 +302,7 @@ model.spmatrix <- function(trms, mf, transpose=FALSE,
     if(row.names)
 	rnames <- row.names(mf)
     ## mf:  make into list, dropping all attributes (but the names)
+### FIXME: for poly(., 5)  mf has a 5-column matrix as "one column" => looses names here
     fnames <- names(mf <- unclass(mf))
     attributes(mf) <- list(names = fnames)
 

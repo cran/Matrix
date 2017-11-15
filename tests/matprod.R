@@ -776,7 +776,7 @@ stopifnot(identical3(crossprod(iM), # <- wrong for Matrix <= 1.1-5
                      crossprod(iM, iM), Diagonal(x = 2:0)))
 
 N3 <- Diagonal(x=1:3)
-U3 <- Diagonal(3)
+U3 <- Diagonal(3) # unit diagonal (@diag = "U")
 C3 <- as(N3, "CsparseMatrix")
 lM <- as(IM2, "lMatrix")
 nM <- as(IM2, "nMatrix")

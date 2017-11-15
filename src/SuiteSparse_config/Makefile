@@ -5,7 +5,6 @@
 VERSION = 4.2.1
 
 PKG_CPPFLAGS = -DNTIMER
-include $(MkInclude)
 
 LIB = ../SuiteSparse_config.a
 

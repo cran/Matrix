@@ -23,7 +23,7 @@
 \alias{determinant,indMatrix,logical-method}
 \alias{isSymmetric,indMatrix-method}
 \alias{Summary,indMatrix-method}
-%
+%-- see also ./matrix-products.Rd, kronecker-methods.Rd, is.na-methods.Rd, ...
 \alias{rbind2,indMatrix,indMatrix-method}
 \alias{t,indMatrix-method}
 \alias{colSums,indMatrix-method}
@@ -105,8 +105,11 @@
   }
 }
 \author{Fabian Scheipl, Uni Muenchen, building on existing
-  "pMatrix", after a nice hike's conversation with Martin Maechler; diverse
-  tweaks by the latter.
+  \code{"\linkS4class{pMatrix}"}, after a nice hike's conversation with
+  Martin Maechler; diverse tweaks by the latter.
+  The \code{\link{crossprod}(x,y)} and \code{\link{kronecker}(x,y)}
+  methods when both arguments are \code{"indMatrix"} have been made
+  considerably faster thanks to a suggestion by Boris Vaillant.
 }
 \details{
   Matrix (vector) multiplication with index matrices from the left is

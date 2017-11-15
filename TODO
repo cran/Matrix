@@ -1,13 +1,14 @@
 ##-*- mode: org -*-
 
 * Very *Urgent*
+** TODO as(m, "sparseMatrix") must work when length(m) > max.int for 'matrix' m
+ -->  "~/R/MM/Pkg-ex/Matrix/large-mat-to-sparse.R"
 ** TODO Using "long vectors" (i.e. 64 bit indices vectors) in CHOLMOD --> cholmod_l_*()
 *** e.g. segfault in crossprod() Csparse_crossprod -> cholmod_att()
 * *Urgent* in some sense ---------------------------------------------------
-** TODO qr.coef() has *wrong* (column)names, even in full-rank case: see man/qr-methods.Rd ("FIXME"); maybe related to
-** TODO qr.R(), qrR() etc have *wrong* currently *lose* column/row names {compared to base R's qr.R}, see,
-   	drop0(R. <- qr.R(qx), tol=1e-15) # columns are int b1 c1 c2 b2 c3
-	in man/qr-methods.Rd :                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ but there are no colnames!
+** DONE qr.coef() has *wrong* (column)names, even in full-rank case: see man/qr-methods.Rd ("FIXME"); maybe related to
+** DONE qr.R(), qrR() etc have *wrong* currently *lose* column/row names {compared to base R's qr.R}, see,
+   	drop0(R. <- qr.R(qx), tol=1e-15) # columns are int b1 c1 c2 b2 c3 {in man/qr-methods.Rd}
 ** DONE should as.matrix() eventually become a no-op, as for Rmpfr::"mpfrMatrix" ?? -- *NO!*
 *** Big advantages:
 **** 1) Functions such as  base::scale.default() will work automagically

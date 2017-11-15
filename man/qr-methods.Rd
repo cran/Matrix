@@ -54,18 +54,18 @@ X <- cbind(int = 1,
            c1=rep(c(1,0,0), 2), c2=rep(c(0,1,0), 2), c3=rep(c(0,0,1),2))
 rownames(X) <- paste0("r", seq_len(nrow(X)))
 dnX <- dimnames(X)
-bX <- X
+bX <- X # [b]ase version of X
 X <- as(bX, "sparseMatrix")
 X # is singular, columns "b2" and "c3" are "extra"
 stopifnot(identical(dimnames(X), dnX))# some versions changed X's dimnames!
 c(rankMatrix(X)) # = 4 (not 6)
+m <- function(.) as(., "matrix")
 
 ##----- regular case ------------------------------------------
 Xr <- X[ , -c(3,6)] # the "regular" (non-singular) version of X
 stopifnot(rankMatrix(Xr) == ncol(Xr))
 Y <- cbind(y <- setNames(1:6, paste0("y", 1:6)))
 ## regular case:
-m <- function(.) as(., "matrix")
 qXr   <- qr(  Xr)
 qxr   <- qr(m(Xr))
 qxrLA <- qr(m(Xr), LAPACK=TRUE) # => qr.fitted(), qr.resid() not supported

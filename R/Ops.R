@@ -1441,7 +1441,12 @@ setMethod("Compare", signature(e1 = "CsparseMatrix", e2 = "CsparseMatrix"),
 
 ## "Arith" short cuts / exceptions
 setMethod("-", signature(e1 = "sparseMatrix", e2 = "missing"),
-	  function(e1, e2) { e1 <- diagU2N(e1); e1@x <- -e1@x; e1 })
+	  function(e1, e2) {
+	      e1 <- diagU2N(e1)
+	      e1@x <- -e1@x
+	      e1@factors <- list()# Drop Cholesky factors; TODO: Consider to modify & keep LU
+	      e1
+	  })
 ## with the following exceptions:
 setMethod("-", signature(e1 = "nsparseMatrix", e2 = "missing"),
 	  function(e1,e2) callGeneric(as(as(as(e1, "CsparseMatrix"), "dMatrix"), "dgCMatrix")))

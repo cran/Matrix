@@ -1020,15 +1020,13 @@ CHM_DN numeric_as_chm_dense(CHM_DN ans, double *v, int nr, int nc)
  * elements accordingly. Note that later changes to the contents of
  * ans will change the contents of the SEXP.
  *
- * In most cases this function is called through the macro AS_CHM_FR.
- * It is unusual to call it directly.
- *
  * @param ans an CHM_FR object
  * @param x pointer to an object that inherits from CHMfactor
+ * @param do_check logical indicating if check for correctness should happen
  *
  * @return ans containing pointers to the slots of x.
  */
-CHM_FR as_cholmod_factor(CHM_FR ans, SEXP x)
+CHM_FR as_cholmod_factor3(CHM_FR ans, SEXP x, Rboolean do_check)
 {
     static const char *valid[] = { MATRIX_VALID_CHMfactor, ""};
     int *type = INTEGER(GET_SLOT(x, install("type"))),
@@ -1088,9 +1086,27 @@ CHM_FR as_cholmod_factor(CHM_FR ans, SEXP x)
 	ans->next = INTEGER(GET_SLOT(x, install("nxt")));
 	ans->prev = INTEGER(GET_SLOT(x, install("prv")));
     }
-    if (!cholmod_check_factor(ans, &c))
+    if (do_check && !cholmod_check_factor(ans, &c))
 	error(_("failure in as_cholmod_factor"));
     return ans;
+}
+
+// This has been in the Matrix API  ( ../inst/include/Matrix.h
+/**
+ * Populate ans with the pointers from x and modify its scalar
+ * elements accordingly. Note that later changes to the contents of
+ * ans will change the contents of the SEXP.
+ *
+ * In most cases this function is called through the macro AS_CHM_FR.
+ * It is unusual to call it directly.
+ *
+ * @param ans an CHM_FR object
+ * @param x pointer to an object that inherits from CHMfactor
+ *
+ * @return ans containing pointers to the slots of x.
+ */
+CHM_FR as_cholmod_factor(CHM_FR ans, SEXP x) {
+    return as_cholmod_factor3(ans, x, /* do_check = */ TRUE);
 }
 
 

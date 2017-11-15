@@ -1,5 +1,3 @@
-include $(MkInclude)
-
 PKG_CPPFLAGS = -I../Include -I../../SuiteSparse_config
 
 LIB = ../../COLAMD.a

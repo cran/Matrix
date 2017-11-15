@@ -370,14 +370,15 @@
   may be incomplete and partly missing.  Please report such omissions if
   detected!
 
-  Currently, \code{boolArith = TRUE} is implemnted via
+  Currently, \code{boolArith = TRUE} is implemented via
   \code{\linkS4class{CsparseMatrix}} coercions which may be quite
   inefficient for dense matrices.  Contributions for efficiency
   improvements are welcome.
 }
 \value{
   A \code{\linkS4class{Matrix}} object, in the one argument case
-  of an appropriate symmetric matrix class.
+  of an appropriate \emph{symmetric} matrix class, i.e., inheriting from
+  \code{\linkS4class{symmetricMatrix}}.
 }
 \section{Methods}{
   \describe{

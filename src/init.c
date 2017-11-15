@@ -297,6 +297,7 @@ R_init_Matrix(DllInfo *dll)
 
     RREGDEF(as_cholmod_dense);
     RREGDEF(as_cholmod_factor);
+    RREGDEF(as_cholmod_factor3);
     RREGDEF(as_cholmod_sparse);
     RREGDEF(as_cholmod_triplet);
     RREGDEF(chm_factor_to_SEXP);

@@ -39,10 +39,14 @@ CHM_DN as_cholmod_dense  (CHM_DN ans, SEXP x);
 CHM_DN as_cholmod_x_dense(CHM_DN ans, SEXP x);
 CHM_DN numeric_as_chm_dense(CHM_DN ans, double *v, int nr, int nc);
 CHM_FR as_cholmod_factor (CHM_FR ans, SEXP x);
+CHM_FR as_cholmod_factor3(CHM_FR ans, SEXP x, Rboolean do_check);
 
 #define AS_CHM_DN(x)  as_cholmod_dense   ((CHM_DN)alloca(sizeof(cholmod_dense)), x )
 #define AS_CHM_xDN(x) as_cholmod_x_dense ((CHM_DN)alloca(sizeof(cholmod_dense)), x )
-#define AS_CHM_FR(x) as_cholmod_factor ((CHM_FR)alloca(sizeof(cholmod_factor)), x )
+#define AS_CHM_FR2(x, chk) as_cholmod_factor3((CHM_FR)alloca(sizeof(cholmod_factor)), x, chk)
+#define AS_CHM_FR(x)   AS_CHM_FR2(x, TRUE)
+// non-checking version (fast but "risky"):
+#define AS_CHM_FR__(x) AS_CHM_FR2(x, FALSE)
 #define AS_CHM_SP(x) as_cholmod_sparse ((CHM_SP)alloca(sizeof(cholmod_sparse)), x, TRUE, FALSE)
 #define AS_CHM_TR(x) as_cholmod_triplet((CHM_TR)alloca(sizeof(cholmod_triplet)),x, TRUE)
 /* the non-diagU2N-checking versions : */

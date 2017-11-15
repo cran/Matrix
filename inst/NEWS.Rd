@@ -11,8 +11,31 @@
 %%_NOT YET__FIXME_   needs cholmod_l_dense_to_sparse() in our dense_to_Csparse()
 %% \item \code{as(<large-matrix>, "sparseMatrix")} no longer fails
 %%  when \code{prod(dim(.))} is larger than \eqn{2^{31} - 1}.
+\section{Changes in version 1.2-12 (2017-11-10, svn r3239)}{
+  \subsection{New Features}{
+    \itemize{
+      \item \code{crossprod(x,y)} and \code{kronecker(x,y)} have become
+      considerably more efficient for large \code{"indMatrix"} objects
+      \code{x, y}, thanks to private nudging by Boris Vaillant.
+    }
+  }
+  \subsection{Bug Fixes}{
+    \itemize{
+      \item (R-forge Matrix bug #6185): \code{c < 0} now also works for
+      derived sparse Matrices (which only \emph{contain} Matrix
+      classes); via improving hidden \code{MatrixClass()}.   Part of
+      such derived matrices only work in R >= 3.5.0.
 
-\section{Changes in version 1.2-11 (2017-08-08, svn r3223)}{
+      \item using \code{Authors@R} in \file{../DESCRIPTION} to list all
+      contributors.
+
+      \item \code{solve(-m)} no longer should use a cached Cholesky
+      factorization (of \code{m}).
+    }
+  }
+}
+
+\section{Changes in version 1.2-11 (2017-08-10, svn r3225)}{
   \subsection{New Features}{
     \itemize{
       \item S4 method dispatch no longer emits ambiguity

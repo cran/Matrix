@@ -121,10 +121,12 @@ setMethod("crossprod", signature(x = "indMatrix", y = "indMatrix"),
               ## levels 1:ncol(<indMatrix>) avoids that.
               nx <- x@Dim[2L]
               ny <- y@Dim[2L]
-	      xy <- interaction(factor(x@perm, levels=seq_len(nx)),
-				factor(y@perm, levels=seq_len(ny)))
-	      Matrix(data= tabulate(xy, nbins=nlevels(xy)),
-		     nrow = nx, ncol = ny)
+	      ## xy <- interaction(factor(x@perm, levels=seq_len(nx)),
+	      ##   		   factor(y@perm, levels=seq_len(ny)))
+	      ## much faster (notably for large x,y):
+	      xy <- x@perm + nx*as.double(y@perm-1L)
+	      Matrix(tabulate(xy, nbins = nx*ny), nrow = nx, ncol = ny,
+		     dimnames = list(x@Dimnames[[2L]], y@Dimnames[[2L]]))
 	  })
 
 setMethod("tcrossprod", signature(x = "matrix", y = "indMatrix"),
@@ -144,16 +146,21 @@ setMethod("tcrossprod", signature(x = "indMatrix", y = "missing"),
 setMethod("kronecker", signature(X = "indMatrix", Y = "indMatrix"),
 	  function (X, Y, FUN = "*", make.dimnames = FALSE, ...) {
 	      if (FUN != "*") stop("kronecker method must use default 'FUN'")
-              ## Explicitly defining a factor with levels 1:ncol(.) avoids that
-              ## interaction() drops non-occuring levels when any of the
-              ## columns in X or Y are empty:
-              perm <-  as.integer(interaction(factor(rep(X@perm, each =Y@Dim[1]),
-                                                     levels=seq_len(X@Dim[2])),
-                                              factor(rep.int(Y@perm, times=X@Dim[1]),
-                                                     levels=seq_len(Y@Dim[2])),
-                                              lex.order=TRUE))
-
-	      new("indMatrix", perm=perm, Dim=X@Dim*Y@Dim)
+	      if(any(as.double(X@Dim)*Y@Dim >= .Machine$integer.max))
+		  stop("resulting matrix dimension would be too large")
+	      ## Explicitly defining a factor with levels 1:ncol(.) avoids that
+	      ## interaction() drops non-occuring levels when any of the
+	      ## columns in X or Y are empty:
+	      ## perm <-  as.integer(interaction(factor(rep(X@perm, each =Y@Dim[1]),
+	      ##                                        levels=seq_len(X@Dim[2])),
+	      ##                                 factor(rep.int(Y@perm, times=X@Dim[1]),
+	      ##                                        levels=seq_len(Y@Dim[2])),
+	      ##                                 lex.order=TRUE))
+	      ## much faster (notably for large X, Y):
+	      fX <- rep    (X@perm-1L, each  = Y@Dim[1])
+	      fY <- rep.int(Y@perm-1L, times = X@Dim[1])
+	      new("indMatrix", perm = 1L + fY + Y@Dim[2] * fX,
+		  Dim = X@Dim*Y@Dim)
 	  })
 
 

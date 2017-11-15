@@ -10,10 +10,11 @@
 \description{
   The virtual class of symmetric matrices, \code{"symmetricMatrix"},
   from the package \pkg{Matrix} contains numeric and logical, dense and
-  sparse matrices, e.g., see the examples.
+  sparse matrices, e.g., see the examples with the \dQuote{actual}
+  subclasses.
 
   The main use is in methods (and C functions) that can deal with
-  all symmetric matrices.
+  all symmetric matrices, and in \code{as(*, "symmetricMatrix")}.
 }
 % \section{Objects from the Class}{A virtual Class: No objects may be created from it.}
 \section{Slots}{

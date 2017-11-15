@@ -154,9 +154,11 @@ MatrixClass <- function(cl, cld = getClassDef(cl),
     else { ## possibly recursively
 	r <- .selectSuperClasses(cld@contains, dropVirtual = dropVirtual,
 				 namesOnly = TRUE, ...)
-	if(length(r))
-	    Recall(r[1], ...Matrix = ...Matrix, dropVirtual = dropVirtual)
-	else r
+	if(length(r)) {
+	    while(!length(r1 <- Recall(r[1], ...Matrix = ...Matrix, dropVirtual = dropVirtual))
+		  && length(r) > 1) r <- r[-1]
+	    r1
+	} else r
     }
 }
 
@@ -1552,13 +1554,16 @@ setparts <- function(x,y, uniqueCheck = TRUE, check = TRUE) {
 ##' @param ...
 ##' @param which.call passed to sys.call().  A caller may use -2 if the message should
 ##' mention *its* caller
-chk.s <- function(..., which.call = -1) {
+chk.s <- function(..., which.call = -1,
+		  depCtrl = if(exists("..deparseOpts")) "niceNames")
+{
     if(nx <- length(list(...)))
 	warning(sprintf(ngettext(nx,
                                  "extra argument %s will be disregarded in\n %s",
                                  "extra arguments %s will be disregarded in\n %s"),
-                        sub(")$", '', sub("^list\\(", '', deparse(list(...), control=c()))),
-                        deparse(sys.call(which.call), control=c())),
+                        sub(")$", '', sub("^list\\(", '',
+                                          deparse(list(...), control=depCtrl))),
+                        deparse(sys.call(which.call), control=depCtrl)),
                 call. = FALSE, domain=NA)
 }
 

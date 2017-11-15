@@ -51,12 +51,13 @@
 ## should also work with special-cased logical matrices
 l3 <- upper.tri(matrix(,3,3))
 M <- Matrix(l3)
-(N <- as(M, "nsparseMatrix"))
-N2 <- as(N, "generalMatrix")
+(N <- as(M, "nsparseMatrix")) # "ntCMatrix" (upper triangular)
+N2 <- as(N, "generalMatrix")  # (lost "t"riangularity)
 MM <- kronecker(M,M)
-NN <- kronecker(N,N)
+NN <- kronecker(N,N) # "dtTMatrix" i.e. did keep
 NN2 <- kronecker(N2,N2)
 stopifnot(identical(NN,MM),
+          is(NN2, "sparseMatrix"), all(NN2 == NN),
           is(NN, "triangularMatrix"))
 }
 \keyword{methods}

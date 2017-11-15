@@ -125,7 +125,7 @@ SEXP CHMfactor_ldetL2(SEXP x)
  * @param mult multiple of the identity to be added to A or AA' before
  * decomposing.
  *
- * \note: A and f must be compatible.  There is no check on this
+ * @note: A and f must be compatible.  There is no check on this
  * here.  Incompatibility of A and f will cause the CHOLMOD functions
  * to take an error exit.
  *
@@ -147,6 +147,7 @@ CHM_FR chm_factor_update(CHM_FR f, CHM_SP A, double mult)
     return f;
 }
 
+// called from R   .updateCHMfactor(object, parent, mult)
 SEXP CHMfactor_update(SEXP object, SEXP parent, SEXP mult)
 {
     CHM_FR L = AS_CHM_FR(object), Lcp;
@@ -157,13 +158,16 @@ SEXP CHMfactor_update(SEXP object, SEXP parent, SEXP mult)
     return chm_factor_to_SEXP(chm_factor_update(Lcp, A, asReal(mult)), 1);
 }
 
+// update its argument *in place*  <==> "destructive" <==> use with much caution!
 SEXP destructive_CHM_update(SEXP object, SEXP parent, SEXP mult)
 {
     CHM_FR L = AS_CHM_FR(object);
     CHM_SP A = AS_CHM_SP__(parent);
     R_CheckStack();
 
-    return chm_factor_to_SEXP(chm_factor_update(L, A, asReal(mult)), 0);
+    chm_factor_update(L, A, asReal(mult));
+    return R_NilValue;
+
 }
 
 SEXP CHMfactor_ldetL2up(SEXP x, SEXP parent, SEXP mult)

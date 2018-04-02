@@ -35,7 +35,7 @@ chol(x, \dots)
     an error is signalled.}
   \item{pivot}{logical indicating if pivoting is to be used.  Currently,
     this is \emph{not} made use of for dense matrices.}
-  \item{cache}{logical indicating if the result should be cashed in
+  \item{cache}{logical indicating if the result should be cached in
     \code{x@factors}; note that this argument is experimental and only
     available for some sparse matrices.}
   \item{\dots}{potentially further arguments passed to methods.}

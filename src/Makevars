@@ -25,7 +25,7 @@ sublibs: subclean sublibraries
 
 sublibraries: subclean
 	@for d in $(SUBDIRS); do \
-	  (cd $${d} && CFLAGS="$(CFLAGS)" CXXFLAGS="$(CXXFLAGS)" MAKE="$(MAKE) -f \"$(MkInclude)\" -fMakefile" $(MAKE) -f "$(MkInclude)" -f Makefile library) || exit 1; \
+	  (cd $${d} && CFLAGS="$(CFLAGS)" CXXFLAGS="$(CXXFLAGS)" MAKE="$(MAKE) -f \"$(MkInclude)\" -f Makefile" $(MAKE) -f "$(MkInclude)" -f Makefile library) || exit 1; \
 	done
 
 clean: subclean

@@ -86,7 +86,7 @@ SEXP _t1_ ## gTMatrix_to_ ## _t1_ ## geMatrix(SEXP x)			\
 {									\
     SEXP dd = GET_SLOT(x, Matrix_DimSym),				\
 	islot = GET_SLOT(x, Matrix_iSym),				\
-	ans = PROTECT(NEW_OBJECT(MAKE_CLASS(#_t1_ "geMatrix")));	\
+	ans = PROTECT(NEW_OBJECT_OF_CLASS(#_t1_ "geMatrix"));	\
 									\
     int *dims = INTEGER(dd),						\
 	m = dims[0],							\

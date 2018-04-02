@@ -45,7 +45,7 @@ stopifnot(all.equal(D6 %*% tp6, ge6),
 
 ## larger case
 set.seed(123)
-rl <- new("dtpMatrix", uplo="L", diag="N", Dim = rep.int(1000:1000,2),
+rl <- new("dtpMatrix", uplo="L", diag="N", Dim = c(1000L, 1000L),
           x = rnorm(500*1001))
 validObject(rl)
 str(rl)

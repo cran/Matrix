@@ -1,8 +1,8 @@
 ##-*- mode: org -*-
 
 * Very *Urgent*
-** TODO as(m, "sparseMatrix") must work when length(m) > max.int for 'matrix' m
- -->  "~/R/MM/Pkg-ex/Matrix/large-mat-to-sparse.R"
+** DONE as(m, "sparseMatrix") must work when length(m) > max.int for 'matrix' m
+ -->  see SM (3e6 x 1023) ex. in tests/Simple.R
 ** TODO Using "long vectors" (i.e. 64 bit indices vectors) in CHOLMOD --> cholmod_l_*()
 *** e.g. segfault in crossprod() Csparse_crossprod -> cholmod_att()
 * *Urgent* in some sense ---------------------------------------------------
@@ -29,6 +29,9 @@
     ---- give substitute .asmatrix(), but that's not faster; simply calls as(*,"matrix")
 **** In R/Auxiliaries.R  .Matrix.avoiding.as.matrix <- TRUE  -- for experiments only
 **** turn off warning via  options(Matrix.quiet.as.matrix = TRUE)
+** TODO sparse2int() using a X[...] * Y[...] construct which is too large --> Matrix bug #1330:
+*** See FIXME in ./R/spModels.R  and
+    https://r-forge.r-project.org/tracker/index.php?func=detail&aid=1330&group_id=61&atid=294
 ** TODO S[sel,] and  S[,sel] <- value should work for sparse S and NA-containing sel.
 ** TODO nnzero() is too slow for a large CsparseMatrix
 ** TODO sparse.model.matrix(.) bug with NA's & na.action = "na.pass"  => ~/R/MM/Pkg-ex/Matrix/sparse.model-bugs_EB.R
@@ -61,6 +64,12 @@ alternatively also is_sym() [in src/cs_utils.c], see below.
 
 ** TODO kronecker(<symmetric>, <symmetric>) should return symmetricMatrix, notably
    when one of the arguments is diagonal
+** DONE as(<traditional_matrix>, "CsparseMatrix")  -> dense_to_Csparse() is inefficient:
+        it first *copies* the matrix to a dgeMatrix {re-allocating!}, then
+        goes to sparse via  cholmod_(l_)dense_to_sparse.   ==>
+*** DONE Do this directly in C (also working around "too long // segfault problem we have there):
+    matrix_to_Csparse() plus .m2dgC() etc R short cuts
+** TODO extend C's matrix_to_Csparse() to optionally check for diagonal, (upper or lower) triangular, and/or symmetric case
 ** DONE <nsparseMatrix> %*% <sparseMatrix>, crossprod() & tcrossprod() often return
    a pattern, i.e., nsparseMatrix as well *because*  cholmod_ssmult() just does that even
    if only *one* of the two matrices is a pattern matrix.  The latter case
@@ -119,6 +128,8 @@ alternatively also is_sym() [in src/cs_utils.c], see below.
 
 ** TODO provide methods for "dspMatrix" and "dppMatrix"!
   2012-07: DONE with Ops, etc, also pack() / unpack(); not yet: "Math"
+** TODO "corMatrix" extends "dpoMatrix".. -- but we miss a *packed* corMatrix: "copMatrix" or "crpMatrix"
+   (well, this is "related to" the fact that we do not have too many packed matrix methods).
 ** TODO combine the C functions for multiplication by special forms and
   solution wrt special forms by using a 'right' argument and a
   'classed' argument.

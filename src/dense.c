@@ -247,7 +247,13 @@ SEXP lapack_qr(SEXP Xin, SEXP tl)
 
 SEXP dense_to_Csparse(SEXP x)
 {
-    CHM_DN chxd = AS_CHM_xDN(PROTECT(mMatrix_as_geMatrix(x)));
+    SEXP ge_x = PROTECT(mMatrix_as_geMatrix(x)),
+	Dim = GET_SLOT(ge_x, Matrix_DimSym);
+    int *dims = INTEGER(Dim);
+    Rboolean longi = (dims[0] * (double)dims[1] > INT_MAX);
+    // int itype = longi ? CHOLMOD_LONG : CHOLMOD_INT;
+    CHM_DN chxd = AS_CHM_xDN(ge_x); // cholmod_dense (has no itype)
+    CHM_SP chxs;
     /* cholmod_dense_to_sparse() in CHOLMOD/Core/ below does only work for
        "REAL" 'xtypes', i.e. *not* for "nMatrix".
        ===> need "_x" in above AS_CHM_xDN() call.
@@ -258,9 +264,30 @@ SEXP dense_to_Csparse(SEXP x)
        enhanced cholmod_dense_to_sparse(), with an extra boolean
        argument for symmetry.
     */
-    // TODO: When prod(dim(.)) > INT_MAX, we *must* use but cannot --> need itype = CHOLMOD_LONG
-    // ---- CHM_SP chxs = cholmod_l_dense_to_sparse(chxd, 1, &c);
-    CHM_SP chxs = cholmod_dense_to_sparse(chxd, 1, &c);
+#define DLONG
+/* You can try defining DLONG -- then just get a seg.fault :
+ *  I think it is because of this in  ./CHOLMOD/Include/cholmod_core.h :
+ *
+ The itype of all parameters for all CHOLMOD routines must match.
+ --- ^^^^^ ------------------------------------------------------
+ but then as_cholmod_dense should *not* make a difference: cholmod_dense has *no* itype   (????)
+*/
+    if(longi) { // calling cholmod_dense_to_sparse() gives wrong matrix
+#ifdef DLONG
+	chxs = cholmod_l_dense_to_sparse(chxd, 1, &cl);
+	// in gdb, I found that 'chxs' seems "basically empty": all
+	// p chxs->foo   give ''Cannot access memory at address 0x....''
+	// for now rather give error:
+	if(cl.status)
+	    error(_("dense_to_Csparse(<LARGE>): cholmod_l_dense_to_sparse failure status=%d"),
+		  cl.status);
+#else
+        error(_("Matrix dimension %d x %d (= %g) too large [FIXME calling cholmod_l_dense_to_sparse]"),
+	      m,n, m * (double)n);
+#endif
+    } else { // fits, using integer (instead of long int) 'itype'
+	chxs = cholmod_dense_to_sparse(chxd, 1, &c);
+    }
 
     int Rkind = (chxd->xtype == CHOLMOD_REAL) ? Real_KIND2(x) : 0;
     /* Note: when 'x' was integer Matrix, Real_KIND(x) = -1, but *_KIND2(.) = 0 */
@@ -322,9 +349,8 @@ SEXP dense_band(SEXP x, SEXP k1P, SEXP k2P)
 	}
 	else {
 	    /* Copy ans to a *trMatrix object (must be square) */
-	    SEXP aa= PROTECT(NEW_OBJECT(MAKE_CLASS(M_type == ddense? "dtrMatrix":
-						   (M_type== ldense? "ltrMatrix"
-						    : "ntrMatrix"))));
+	    SEXP aa= PROTECT(NEW_OBJECT_OF_CLASS(M_type == ddense? "dtrMatrix":
+						 (M_type== ldense? "ltrMatrix": "ntrMatrix")));
 	    /* Because slots of ans are freshly allocated and ans will not be
 	     * used, we use the slots themselves and don't duplicate */
 	    SET_SLOT(aa, Matrix_xSym,       GET_SLOT(ans, Matrix_xSym));
@@ -382,10 +408,8 @@ SEXP dense_to_symmetric(SEXP x, SEXP uplo, SEXP symm_test)
     }
 #   undef CHECK_SYMMETRIC
 
-    ans = PROTECT(NEW_OBJECT(MAKE_CLASS( M_type == ddense ? "dsyMatrix" :
-					(M_type == ldense ? "lsyMatrix" :
-					 "nsyMatrix"))));
-
+    ans = PROTECT(NEW_OBJECT_OF_CLASS(M_type == ddense ? "dsyMatrix" :
+				      (M_type == ldense ? "lsyMatrix" : "nsyMatrix")));
 
 // --- FIXME: Use MK_SYMMETRIC_DIMNAMES_AND_RETURN  from below -- with "uplo" argument
 
@@ -432,7 +456,7 @@ SEXP ddense_symmpart(SEXP x)
 	return R_NilValue; /* -Wall */
     } else {
 	PROTECT(dx);
-	SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("dsyMatrix"))), dns, nms_dns;
+	SEXP ans = PROTECT(NEW_OBJECT_OF_CLASS("dsyMatrix")), dns, nms_dns;
 	double *xx = REAL(GET_SLOT(dx, Matrix_xSym));
 
 	/* only need to assign the *upper* triangle (uplo = "U");
@@ -491,7 +515,7 @@ SEXP ddense_skewpart(SEXP x)
 	return R_NilValue; /* -Wall */
     } else {
 	PROTECT(dx);
-	SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("dgeMatrix"))), dns, nms_dns;
+	SEXP ans = PROTECT(NEW_OBJECT_OF_CLASS("dgeMatrix")), dns, nms_dns;
 	double *xx = REAL(GET_SLOT(dx, Matrix_xSym));
 
 	for (int j = 0; j < n; j++) {

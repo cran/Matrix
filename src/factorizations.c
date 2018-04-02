@@ -74,9 +74,9 @@ SEXP LU_expand(SEXP x)
 	}
     }
 
-    SET_VECTOR_ELT(val, 0, NEW_OBJECT(MAKE_CLASS(L_is_tri ? "dtrMatrix":"dgeMatrix")));
-    SET_VECTOR_ELT(val, 1, NEW_OBJECT(MAKE_CLASS(U_is_tri ? "dtrMatrix":"dgeMatrix")));
-    SET_VECTOR_ELT(val, 2, NEW_OBJECT(MAKE_CLASS("pMatrix")));
+    SET_VECTOR_ELT(val, 0, NEW_OBJECT_OF_CLASS(L_is_tri ? "dtrMatrix":"dgeMatrix"));
+    SET_VECTOR_ELT(val, 1, NEW_OBJECT_OF_CLASS(U_is_tri ? "dtrMatrix":"dgeMatrix"));
+    SET_VECTOR_ELT(val, 2, NEW_OBJECT_OF_CLASS("pMatrix"));
     L = VECTOR_ELT(val, 0);
     U = VECTOR_ELT(val, 1);
     P = VECTOR_ELT(val, 2);

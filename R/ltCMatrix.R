@@ -3,7 +3,10 @@
 setAs("ltCMatrix", "matrix",
       function(from) as(as(from, "lgCMatrix"), "matrix"))
 setAs("matrix", "ltCMatrix",
-      function(from) as(as(from, "dtCMatrix"), "ltCMatrix"))
+      function(from) {
+	  if(!is.logical(from)) storage.mode(from) <- "logical"
+	  .Call(matrix_to_Csparse, from, "ltCMatrix")
+      })
 
 setAs("ltCMatrix", "lgCMatrix",
       function(from) copyClass(diagU2N(from), "lgCMatrix",

@@ -125,7 +125,7 @@ SEXP Matrix_cs_to_SEXP(cs *a, char *cl, int dofree, SEXP dn)
 
     if (ctype < 0)
 	error(_("invalid class of object to %s"), "Matrix_cs_to_SEXP");
-    SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS(cl)));
+    SEXP ans = PROTECT(NEW_OBJECT_OF_CLASS(cl));
 				/* allocate and copy common slots */
     int *dims = INTEGER(ALLOC_SLOT(ans, Matrix_DimSym, INTSXP, 2));
     PROTECT(dn); // <- as in chm_sparse_to_SEXP()
@@ -245,7 +245,7 @@ SEXP Matrix_css_to_SEXP(css *S, char *cl, int dofree, int m, int n)
     if (ctype < 0)
 	error(_("Inappropriate class cl='%s' in Matrix_css_to_SEXP(S, cl, ..)"),
 	      cl);
-    ans = PROTECT(NEW_OBJECT(MAKE_CLASS(cl)));
+    ans = PROTECT(NEW_OBJECT_OF_CLASS(cl));
 				/* allocate and copy common slots */
     Memcpy(INTEGER(ALLOC_SLOT(ans, install("Q"), INTSXP, n)), S->q, n);
     nz = INTEGER(ALLOC_SLOT(ans, install("nz"), INTSXP, 3));
@@ -291,7 +291,7 @@ SEXP Matrix_csn_to_SEXP(csn *N, char *cl, int dofree, SEXP dn)
     if (ctype < 0)
 	error(_("Inappropriate class cl='%s' in Matrix_csn_to_SEXP(S, cl, ..)"),
 	      cl);
-    ans = PROTECT(NEW_OBJECT(MAKE_CLASS(cl)));
+    ans = PROTECT(NEW_OBJECT_OF_CLASS(cl));
 				/* allocate and copy common slots */
     /* FIXME: Use the triangular matrix classes for csn_LU */
     SET_SLOT(ans, install("L"),	/* these are free'd later if requested */

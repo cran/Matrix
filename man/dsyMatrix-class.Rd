@@ -1,4 +1,5 @@
 \name{dsyMatrix-class}
+\title{Symmetric Dense (Packed | Non-packed) Numeric Matrices}
 \docType{class}
 \alias{dspMatrix-class}
 \alias{dsyMatrix-class}
@@ -36,15 +37,18 @@
 \alias{rcond,dsyMatrix,missing-method}
 \alias{t,dspMatrix-method}
 \alias{t,dsyMatrix-method}
-\title{Symmetric Dense Numeric Matrices}
 \description{
-  The \code{"dsyMatrix"} class is the class of symmetric, dense matrices
-  in non-packed storage and \code{"dspMatrix"} is the class of symmetric
-  dense matrices in packed storage.  Only the upper triangle or the
-  lower triangle is stored.
+  \itemize{
+    \item{The \code{"dsyMatrix"} class is the class of symmetric, dense matrices
+      in \emph{non-packed} storage and}
+    \item{\code{"dspMatrix"} is the class of symmetric dense matrices in
+      \emph{packed} storage.  Only the upper triangle or the lower
+      triangle is stored.}
+  }
 }
 \section{Objects from the Class}{
-  Objects can be created by calls of the form \code{new("dsyMatrix", ...)}.
+  Objects can be created by calls of the form \code{new("dsyMatrix",
+    ...)} or \code{new("dspMatrix", ...)}, respectively.
 }
 \section{Slots}{
   \describe{
@@ -93,6 +97,10 @@
 }
 %\references{}
 \seealso{
+  The \emph{positive (Semi-)definite} dense (packed or non-packed
+  numeric matrix classes \code{\linkS4class{dpoMatrix}},
+  \code{\linkS4class{dppMatrix}} and \code{\linkS4class{corMatrix}},
+
   Classes \code{\linkS4class{dgeMatrix}} and \code{\linkS4class{Matrix}};
   \code{\link[base]{solve}}, \code{\link{norm}}, \code{\link{rcond}},
   \code{\link[base]{t}}

@@ -8,9 +8,61 @@
 \newcommand{\sspace}{\ifelse{latex}{\out{~}}{ }}
 %% NB: The date (yyyy-mm-dd) is the "Packaged:" date in ../DESCRIPTION
 
-%%_NOT YET__FIXME_   needs cholmod_l_dense_to_sparse() in our dense_to_Csparse()
+%%_NOT YET__FIXME_ : needs *MORE THAN* cholmod_l_dense_to_sparse() in
+%%----------------   our dense_to_Csparse() in ../src/dense.c (see there)
+%%
 %% \item \code{as(<large-matrix>, "sparseMatrix")} no longer fails
 %%  when \code{prod(dim(.))} is larger than \eqn{2^{31} - 1}.
+%
+\section{Changes in version 1.2-13 (2018-03-23, svn r3270)}{
+  \subsection{New Features}{
+    \itemize{
+      \item Faster \code{as(<matrix>, "sparseMatrix")} and coercion
+	\code{"dgCMatrix"}, \code{"ngCMatrix"}, etc, via new direct C
+	\code{matrix_to_Csparse()} which does \emph{not} go via
+	\code{"dgeMatrix"}.  This also works for large matrices
+	\code{m}, i.e., when \code{length(m) >= .Machine$integer.max}.
+
+	Also provide low-level \R functions \code{.m2dgC()},
+	\code{.m2lgC()}, and \code{.m2ngC()} for these.
+    }
+  }
+  \subsection{Bug Fixes}{
+    \itemize{
+      \item \code{cbind(NULL,<Matrix>)} no longer return \code{NULL};
+      analogously for \code{rbind()}, \code{rbind2()}, \code{cbind2()},
+      fixing very long standing typo in the corresponsing \code{cbind2()}
+      and \code{rbind2()} methods.
+
+      \item The deprecation warning (once per session) for
+      \code{cBind()} and \code{rBind()} finally works (fixing a simple thinko).
+
+      \item \code{cbind()} and \code{rbind()} for largish sparse
+      matrices no longer gives an error because of integer overflow
+      (in the default case where \code{sparse} is not been specified
+      hence is chosen by a \code{nnzero()} based heuristic).
+
+      \item \code{.symDiagonal(5, 5:1)} and \code{.trDiagonal(x = 4:1)}
+      now work as expected.
+
+      \item \code{Sp[i]} now is much more efficient for large sparse
+      matrices \code{Sp}, notably when the result is short.
+
+      \item \code{<sparseVector>[ <negative integer> ]} now also gives
+      the correct answer when the result is \dQuote{empty}, i.e., all
+      zero or false.
+
+      \item large \code{"dspMatrix"} and \code{"dtpMatrix"} objects can
+      now be constructed via \code{new(*, Dim = *, x = *)} also when
+      \code{length(x)} is larger than 2^31 (as the C internal
+      validation method no longer suffers from integer overflow).
+
+      \item More \samp{PROTECT()}ing to be \dQuote{rather safe than
+	sorry} thanks to Tomas Kalibera's check tools.
+    }
+  }
+}
+
 \section{Changes in version 1.2-12 (2017-11-10, svn r3239)}{
   \subsection{New Features}{
     \itemize{

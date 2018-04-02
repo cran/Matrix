@@ -349,10 +349,10 @@ assertV(m1 <= 1:2)## gave 1 x 1 [TRUE]  -- now Error, as R
 assertV(m1  & 1:2)## gave 1 x 1 [TRUE]  -- now Error, as R
 assertV(m1 <= 1:2)## gave 1 x 1 [TRUE]  -- now Error, as R
 ##
-##  arrays combined with NULL works
-stopifnot(identical(Matrix(3,1,1) + NULL, 3[0]))# FIXME not-yet-implemented -- now ok
-stopifnot(identical(Matrix(3,1,1) > NULL, T[0]))# FIXME not-yet-implemented -- now ok
-stopifnot(identical(Matrix(3,1,1) & NULL, T[0])) ## FIXME ... -- now ok
+##  arrays combined with NULL works now
+stopifnot(identical(Matrix(3,1,1) + NULL, 3[0]))
+stopifnot(identical(Matrix(3,1,1) > NULL, T[0]))
+stopifnot(identical(Matrix(3,1,1) & NULL, T[0]))
 ## in R >= 3.4.0: logical(0) # with *no* warning and that's correct!
 
 options(op)# reset 'warn'

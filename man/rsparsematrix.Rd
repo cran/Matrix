@@ -2,12 +2,14 @@
 \alias{rsparsematrix}
 \title{Random Sparse Matrix}
 \description{
-  Generate a Random Sparse Matrix Efficiently.
+  Generate a random sparse matrix efficiently.  The default has rounded
+  gaussian non-zero entries, and \code{rand.x = NULL} generates random
+  patter\bold{n} matrices, i.e. inheriting from \code{\linkS4class{nsparseMatrix}}.
 }
 \usage{
 rsparsematrix(nrow, ncol, density, nnz = round(density * maxE),
               symmetric = FALSE,
-              rand.x = function(n) signif(rnorm(nnz), 2), \dots)
+              rand.x = function(n) signif(rnorm(n), 2), \dots)
 }
 \arguments{
   \item{nrow, ncol}{number of rows and columns, i.e., the matrix
@@ -68,4 +70,3 @@ head(T2)
 }
 \keyword{array}
 \keyword{distribution}
-

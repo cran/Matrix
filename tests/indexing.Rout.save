@@ -1,6 +1,6 @@
 
-R version 3.4.1 Patched (2017-08-06 r73050) -- "Single Candle"
-Copyright (C) 2017 The R Foundation for Statistical Computing
+R Under development (unstable) (2018-03-18 r74422) -- "Unsuffered Consequences"
+Copyright (C) 2018 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -329,8 +329,8 @@ Time elapsed:  0.286 0 0.287
 +     show(mC[,1])
 +     show(mC[1:2,])
 +     show(mC[7,  drop = FALSE])
-+     assert.EQ.mat(mC[1:2,], mm[1:2,])
-+     assert.EQ.mat(mC[0,], mm[0,])
++     assert.EQ.mat(mC[1:2,],   mm[1:2,])
++     assert.EQ.mat(mC[0,],     mm[0,])
 +     assert.EQ.mat(mC[,FALSE], mm[,FALSE])
 +     ##
 +     ## *repeated* (aka 'duplicated') indices - did not work at all ...
@@ -347,7 +347,7 @@ Time elapsed:  0.286 0 0.287
 +     ## set.seed(7)
 +     op <- options(Matrix.verbose = FALSE)
 +     cat(" for(): ")
-+     for(n in 1:(if(doExtras) 50 else 5)) {
++     for(n in 1:(if(doExtras) 50 else 5)) { # (as chkAssign() is random)
 + 	chkAssign(mC, mm)
 + 	chkAssign(mC[-3,-2], mm[-3,-2])
 +         cat(".")
@@ -1855,6 +1855,7 @@ Time elapsed:  0.358 0.008 0.366
 > n <- 7000000
 > m <-  100000
 > nnz <- 20000
+> op <- options(Matrix.verbose = 2, warn = 1)
 > 
 > set.seed(12)
 > f <- sparseMatrix(i = sample(n, size=nnz, replace=TRUE),
@@ -1873,6 +1874,8 @@ Formal class 'ngCMatrix' [package "Matrix"] with 5 slots
 > prod(dim(f)) # 699930301096 == 699'930'301'096  (~ 700'000 millions)
 [1] 699930301096
 > str(thisCol <-  f[,5000])# logi [~ 7 mio....]
+M[m,i,m] : nargs()=3
+Csp[m,i,l] : nargs()=4
  logi [1:6999863] FALSE FALSE FALSE FALSE FALSE FALSE ...
 > sv <- as(thisCol, "sparseVector")
 > str(sv) ## "empty" !
@@ -1880,31 +1883,49 @@ Formal class 'lsparseVector' [package "Matrix"] with 3 slots
   ..@ x     : logi(0) 
   ..@ length: int 6999863
   ..@ i     : int(0) 
-> validObject(spCol <- f[,5000, drop=FALSE])
+> validObject(spCol <- f[,5000, drop=FALSE]) # "empty" [n x 1] ngCmatrix
+Csp[m,i,l] : nargs()=4
 [1] TRUE
 > ##
 > ## *not* identical(): as(spCol, "sparseVector")@length is "double"prec:
 > stopifnot(all.equal(as(spCol, "sparseVector"),
 +                     as(sv,   "nsparseVector"), tolerance=0))
-> if(doExtras) {#-----------------------------------------------------------------
-+ f[,5762] <- thisCol # now "fine" <<<<<<<<<< FIXME uses LARGE objects -- slow --
-+ ## is using  replCmat() in ../R/Csparse.R, then
-+ ##           replTmat() in ../R/Tsparse.R
-+ 
-+ fx <- sparseMatrix(i = sample(n, size=nnz, replace=TRUE),
+> if(interactive())
++     selectMethod("[<-", c("ngCMatrix", "missing","numeric", "logical"))
+>                                         # -> replCmat() in ../R/Csparse.R
+> f[,5762] <- thisCol # now "fine" and fast thanks to replCmat() --> replCmat4()
+replCmat[x,i,j,.., val] : nargs()=4; missing (i,j) = (1,0)
+> 
+> fx <- sparseMatrix(i = sample(n, size=nnz, replace=TRUE),
 +                    j = sample(m, size=nnz, replace=TRUE),
 +                    x = round(10*rnorm(nnz)))
-+ class(fx)## dgCMatrix
-+ fx[,6000] <- (tC <- rep(thisCol, length=nrow(fx)))# slow (as above)
-+ thCol <- fx[,2000]
-+ fx[,5762] <- thCol# slow
-+ stopifnot(is(f, "ngCMatrix"), is(fx, "dgCMatrix"),
+> class(fx)## dgCMatrix
+[1] "dgCMatrix"
+attr(,"package")
+[1] "Matrix"
+> fx[,6000] <- (tC <- rep(thisCol, length=nrow(fx)))# fine
+replCmat[x,i,j,.., val] : nargs()=4; missing (i,j) = (1,0)
+> thCol <- fx[,2000]
+M[m,i,m] : nargs()=3
+Csp[m,i,l] : nargs()=4
+> fx[,5762] <- thCol# fine
+replCmat[x,i,j,.., val] : nargs()=4; missing (i,j) = (1,0)
+> stopifnot(is(f, "ngCMatrix"), is(fx, "dgCMatrix"),
 + 	  identical(thisCol, f[,5762]),# perfect
 + 	  identical(as.logical(fx[,6000]), tC),
 + 	  identical(thCol,  fx[,5762]))
-+ 
-+ showProc.time()
-+ ##
+M[m,i,m] : nargs()=3
+Csp[m,i,l] : nargs()=4
+M[m,i,m] : nargs()=3
+Csp[m,i,l] : nargs()=4
+M[m,i,m] : nargs()=3
+Csp[m,i,l] : nargs()=4
+> 
+> showProc.time()
+Time elapsed:  2.09 0.719 2.819 
+> options(op)# revert
+> ##
+> if(doExtras) {#-----------------------------------------------------------------
 + cat("checkMatrix() of all: \n---------\n")
 + Sys.setlocale("LC_COLLATE", "C")# to keep ls() reproducible
 + for(nm in ls()) if(is(.m <- get(nm), "Matrix")) {
@@ -1964,9 +1985,9 @@ diagnosing replTmat(x,i,j,v): nargs()= 3; missing (i,j) = (0,1)
 > sv2 <- as(sv, "isparseVector")
 > stopifnot(validObject(sv), validObject(sv2), identical(sv., sv2),
 +           sv == sv.)
-> n0 <- sv. != 0
-> ## --> ../R/sparseVector.R : replSPvec()
-> if(interactive())  debug(Matrix:::replSPvec)
+> n0 <- sv. != 0 # -> is "lsparseV.."
+> if(FALSE)
++     debug(Matrix:::replSPvec) ## --> ../R/sparseVector.R : replSPvec()
 > ##
 > sv [n0] <- sv [n0]
 > sv.[n0] <- sv.[n0] # gave error
@@ -1995,7 +2016,6 @@ diagnosing replTmat(x,i,j,v): nargs()= 3; missing (i,j) = (0,1)
 Time elapsed:  0.576 0.054 0.633 
 > 
 > if(!interactive()) warnings()
-NULL
 > 
 > proc.time()
    user  system elapsed 

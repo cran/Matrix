@@ -87,19 +87,19 @@ SEXP sparseQR_qty(SEXP qr, SEXP y, SEXP trans, SEXP keep_dimnames)
 {
 
 //--- will be prepended also to other  sparseQR_..() functions below -----------
-#define INIT_sparseQR_(_DM_NMS_)						\
+#define INIT_sparseQR_(_DM_NMS_)					\
     SEXP V_ = GET_SLOT(qr, Matrix_VSym);				\
     CSP V = AS_CSP__(V_);						\
     R_CheckStack();							\
-    SEXP ans, aa, dnms = R_NilValue;					\
-    if(_DM_NMS_) dnms = GET_SLOT(V_, Matrix_DimNamesSym);		\
+    SEXP ans, aa, dmns = R_NilValue;					\
+    if(_DM_NMS_) dmns = GET_SLOT(V_, Matrix_DimNamesSym);		\
     PROTECT_INDEX ipx;                                                  \
     PROTECT_WITH_INDEX(ans = dup_mMatrix_as_dgeMatrix(y), &ipx);	\
     int *ydims = INTEGER(GET_SLOT(ans, Matrix_DimSym)),			\
 	m = ydims[0], n = ydims[1], M = V->m, *d_a;			\
     Rboolean rank_def = (m < M);					\
     if(rank_def) { /* must add 0-rows to y, i.e. ans, and remove them *before* return */ \
-	aa = PROTECT(NEW_OBJECT(MAKE_CLASS("dgeMatrix")));		\
+	aa = PROTECT(NEW_OBJECT_OF_CLASS("dgeMatrix"));			\
 	d_a = INTEGER(GET_SLOT(aa, Matrix_DimSym)); d_a[0] = M; d_a[1] = n; \
 	SEXP dn = GET_SLOT(aa, Matrix_DimNamesSym);			\
 	SET_VECTOR_ELT(dn, 1,						\
@@ -117,7 +117,7 @@ SEXP sparseQR_qty(SEXP qr, SEXP y, SEXP trans, SEXP keep_dimnames)
 
     INIT_sparseQR_(TRUE)
 	;
-    sparseQR_Qmult(V, dnms, REAL(GET_SLOT(qr, Matrix_betaSym)),
+    sparseQR_Qmult(V, dmns, REAL(GET_SLOT(qr, Matrix_betaSym)),
 		   INTEGER(GET_SLOT(qr, Matrix_pSym)), asLogical(trans),
 		   ans);
 #define EXIT_sparseQR_							\
@@ -151,22 +151,23 @@ SEXP sparseQR_coef(SEXP qr, SEXP y)
     int *q = INTEGER(qslot), lq = LENGTH(qslot), n_R = R->n; // = ncol(R)
     INIT_sparseQR_(FALSE); // <- FALSE: no dimnames from V
     // ans := R^{-1} Q' y ==>  rownames(ans) := rownames(R^{-1}) = colnames(R)
-    dnms = duplicate(GET_SLOT(R_, Matrix_DimNamesSym));
-    if(!isNull(VECTOR_ELT(dnms, 1))) { // need to correctly *permute* the colnames
-	SEXP cns = PROTECT(duplicate(VECTOR_ELT(dnms, 1)));
+    dmns = PROTECT(duplicate(GET_SLOT(R_, Matrix_DimNamesSym)));
+    if(!isNull(VECTOR_ELT(dmns, 1))) { // need to correctly *permute* the colnames
+	SEXP cns = PROTECT(duplicate(VECTOR_ELT(dmns, 1)));
 	// *back* permute colnames from 'qslot' :
 	for(int j=0; j < lq; j++)
-	    SET_STRING_ELT(VECTOR_ELT(dnms, 1), q[j], STRING_ELT(cns, j));
+	    SET_STRING_ELT(VECTOR_ELT(dmns, 1), q[j], STRING_ELT(cns, j));
 	UNPROTECT(1);
     }
 
     // rownames(ans) := colnames(ans)
-    SET_VECTOR_ELT(dnms, 0, VECTOR_ELT(dnms, 1));
+    SET_VECTOR_ELT(dmns, 0, VECTOR_ELT(dmns, 1));
 
     /* apply row permutation and multiply by Q' */
-    sparseQR_Qmult(V, dnms, REAL(GET_SLOT(qr, Matrix_betaSym)),
+    sparseQR_Qmult(V, dmns, REAL(GET_SLOT(qr, Matrix_betaSym)),
 		   INTEGER(GET_SLOT(qr, Matrix_pSym)), /* trans = */ TRUE,
 		   ans);
+    UNPROTECT(1); // dmns
 
     double *ax = REAL(GET_SLOT(ans, Matrix_xSym)), *x;
     if(lq) { C_or_Alloca_TO(x, M, double); }
@@ -201,7 +202,7 @@ SEXP sparseQR_resid_fitted(SEXP qr, SEXP y, SEXP want_resid)
     INIT_sparseQR_(FALSE);
     //             ..... ans should get rownames of 'y' ...
     /* apply row permutation and multiply by Q' */
-    sparseQR_Qmult(V, dnms, beta, p, /* trans = */ TRUE, ans);
+    sparseQR_Qmult(V, dmns, beta, p, /* trans = */ TRUE, ans);
 
     double *ax = REAL(GET_SLOT(ans, Matrix_xSym));
 // FIXME   (n,m) := dim(y)   vs  (N,M) := dim(V)  -- ok ??
@@ -213,7 +214,7 @@ SEXP sparseQR_resid_fitted(SEXP qr, SEXP y, SEXP want_resid)
 	    for (int i = N; i < M; i++) ax[i + j * M] = 0;
     }
     /* multiply by Q and apply inverse row permutation */
-    sparseQR_Qmult(V, dnms, beta, p, /* trans = */ FALSE, ans);
+    sparseQR_Qmult(V, dmns, beta, p, /* trans = */ FALSE, ans);
 
     if(rank_def) {
 	warning(_("%s(): structurally rank deficient case: possibly WRONG zeros"),

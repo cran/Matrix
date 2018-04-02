@@ -22,7 +22,7 @@ SEXP dppMatrix_chol(SEXP x)
 
     if (val != R_NilValue) return val;
     dims = INTEGER(dimP);
-    val = PROTECT(NEW_OBJECT(MAKE_CLASS("pCholesky")));
+    val = PROTECT(NEW_OBJECT_OF_CLASS("pCholesky"));
     SET_SLOT(val, Matrix_uploSym, duplicate(uploP));
     SET_SLOT(val, Matrix_diagSym, mkString("N"));
     SET_SLOT(val, Matrix_DimSym, duplicate(dimP));
@@ -56,7 +56,7 @@ SEXP dppMatrix_rcond(SEXP obj, SEXP type)
 SEXP dppMatrix_solve(SEXP x)
 {
     SEXP Chol = dppMatrix_chol(x);
-    SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dppMatrix")));
+    SEXP val = PROTECT(NEW_OBJECT_OF_CLASS("dppMatrix"));
     int *dims = INTEGER(GET_SLOT(x, Matrix_DimSym)), info;
 
     slot_dup(val, Chol, Matrix_uploSym);

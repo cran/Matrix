@@ -78,10 +78,11 @@ SEXP Tsparse_diagU2N(SEXP x)
 	return (x);
     }
     else { /* instead of going to Csparse -> Cholmod -> Csparse -> Tsparse, work directly: */
-	int i, n = INTEGER(GET_SLOT(x, Matrix_DimSym))[0],
-	    nnz = length(GET_SLOT(x, Matrix_iSym)),
+	int i, n = INTEGER(GET_SLOT(x, Matrix_DimSym))[0];
+	R_xlen_t
+	    nnz = xlength(GET_SLOT(x, Matrix_iSym)),
 	    new_n = nnz + n;
-	SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS(class_P(x))));
+	SEXP ans = PROTECT(NEW_OBJECT_OF_CLASS(class_P(x)));
 	int *islot = INTEGER(ALLOC_SLOT(ans, Matrix_iSym, INTSXP, new_n)),
 	    *jslot = INTEGER(ALLOC_SLOT(ans, Matrix_jSym, INTSXP, new_n));
 

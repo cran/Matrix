@@ -78,6 +78,7 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(diag_tC, 2),
     CALLDEF(LU_expand, 1),
     CALLDEF(LU_validate, 1),
+    CALLDEF(matrix_to_Csparse, 2),
     CALLDEF(MatrixFactorization_validate, 1),
     CALLDEF(Matrix_expand_pointers, 1),
     CALLDEF(R_rbind2_vector, 2),

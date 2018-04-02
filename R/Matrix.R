@@ -250,9 +250,6 @@ Matrix <- function (data = NA, nrow = 1, ncol = 1, byrow = FALSE,
 			Dimnames = if(is.null.DN(dimnames)) list(NULL,NULL)
 			else dimnames)
 	} else { ## normal case
-	    ## Now 'forbidden' :
-	    ## data <- .Internal(matrix(data, nrow, ncol, byrow, dimnames,
-	    ##				missing(nrow), missing(ncol)))
 	    data <- .External(Mmatrix,
 			      data, nrow, ncol, byrow, dimnames,
 			      missing(nrow), missing(ncol))
@@ -491,7 +488,7 @@ setMethod("[", signature(x = "Matrix", i = "index", j = "missing",
 			 drop = "missing"),
 	  function(x,i,j, ..., drop) {
 	      Matrix.msg("M[i,m,m] : nargs()=",nargs(), .M.level = 2)
-	      if(nargs() == 2) { ## e.g. M[0] , M[TRUE],  M[1:2]
+	      if(nargs() == 2) { ## e.g. M[0] , M[TRUE], M[1:2], M[-7]
                   .M.vectorSub(x,i)
 	      } else {
 		  callGeneric(x, i=i, , drop=TRUE)
@@ -504,7 +501,7 @@ setMethod("[", signature(x = "Matrix", i = "missing", j = "index",
 			 drop = "missing"),
 	  function(x,i,j, ..., drop) {
 	      Matrix.msg("M[m,i,m] : nargs()=",nargs(), .M.level = 2)
-	      callGeneric(x, j=j, drop= TRUE)
+	      callGeneric(x, , j=j, drop= TRUE)
 	  })
 setMethod("[", signature(x = "Matrix", i = "index", j = "index",
 			 drop = "missing"),
@@ -599,7 +596,7 @@ subset.ij <- function(x, ij) {
 
         } else { ## non-sparse : dense
             ##---- NEVER happens:  'denseMatrix' has its own setMethod(.) !
-            message("m[ <ij-matrix> ]: inefficiently indexing single elements")
+            message("m[<ij-matrix>]: inefficiently indexing single elements - should not happen, please report!")
             i1 <- ij[,1]
             i2 <- ij[,2]
             ## very inefficient for large m

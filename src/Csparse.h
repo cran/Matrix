@@ -50,6 +50,9 @@ SEXP diag_tC_ptr(int n, int *x_p, double *x_x, Rboolean is_U, int *perm,
 		 SEXP resultKind);
 SEXP diag_tC(SEXP obj, SEXP resultKind);
 
+// SEXP atomic_to_Csparse(SEXP cls, SEXP x, SEXP nrow, SEXP ncol, SEXP dimnames);
+SEXP matrix_to_Csparse(SEXP x, SEXP cls);
+
 // FIXME: these are nowhere used (are they?)
 SEXP create_Csparse(char* cls, int* i, int* j, int* p, int np,
 		    void* x, int nnz, int* dims, SEXP dimnames,

@@ -98,10 +98,18 @@ sp2vec <- function(x, mode = .type.kind[.M.kindC(class(x))]) {
     m.any <- (mode == "any")
     if(m.any)
 	mode <- if(has.x) mode(x@x) else "logical"
+    else if(has.x) # is.<mode>() is much faster than inherits() | is():
+        xxOk <- switch(mode,
+		       "double" = is.double(x@x),
+		       "logical" = is.logical(x@x),
+		       "integer" = is.integer(x@x),
+		       "complex" = is.complex(x@x),
+		       ## otherwise (does not happen with default 'mode'):
+		       inherits(x@x, mode))
     r <- vector(mode, x@length)
     r[x@i] <-
 	if(has.x) {
-	    if(m.any || is(x@x, mode)) x@x else as(x@x, mode)
+	    if(m.any || xxOk) x@x else as(x@x, mode)
 	} else TRUE
     r
 }
@@ -470,25 +478,22 @@ setMethod("[", signature(x = "sparseVector", i = "index"),
 	      has.x <- .hasSlot(x, "x")## has "x" slot
 	      n <- x@length
 	      if(extends(cl.i <- getClass(class(i)), "numeric") && any(i < 0)) {
-		  ## negative indices - remain sparse --> *not* using intIv()
 		  if(any(i > 0))
 		      stop("you cannot mix negative and positive indices")
 		  if(any(z <- i == 0)) i <- i[!z]
-
-		  ## all (i < 0) :
-
-		  ## FIXME: an efficient solution would use C here
+		  ## all (i < 0), negative indices:
+		  ## want to remain sparse --> *not* using intIv()
+		  ##
+		  ## TODO: more efficient solution would use C ..
 		  i <- unique(sort(-i)) # so we need to drop the 'i's
-		  if(any(nom <- is.na(m <- match(x@i, i)))) {
-		      ## eliminate those with non-0 match
-		      x@i <- x@i[nom]
-		      if(has.x) x@x <- x@x[nom]
-		  }
-		  ii <- findInterval(x@i, i)	## subtract that :
-		  x@i <- x@i - ii
-		  x@length <- x@length - length(i)
-
-              } else {
+		  nom <- is.na(m <- match(x@i, i))
+		  ## eliminate those non-0 which do match:
+		  x@i <- x@i[nom]
+		  if(has.x) x@x <- x@x[nom]
+		  ## now all x@i "appear in 'i' but must be adjusted for the removals:
+		  x@i <- x@i - findInterval(x@i, i)
+		  x@length <- n - length(i)
+              } else { ## i >= 0  or  non-numeric 'i'
                   ii <- intIv(i, n, cl.i=cl.i)
                   m <- match(x@i, ii, nomatch = 0)
                   sel <- m > 0L

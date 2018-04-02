@@ -132,13 +132,13 @@ SEXP get_factors(SEXP obj, char *nm)
 */
 SEXP set_factors(SEXP obj, SEXP val, char *nm)
 {
+    PROTECT(val); /* set_factors(..) may be called as "finalizer" after UNPROTECT()*/
     SEXP fac = GET_SLOT(obj, Matrix_factorSym),
 	nms = PROTECT(getAttrib(fac, R_NamesSymbol));
     int i, len = length(fac);
 
     if ((!isNewList(fac)) || (length(fac) > 0 && nms == R_NilValue))
 	error(_("'factors' slot must be a named list"));
-    PROTECT(val); /* set_factors(..) may be called as "finalizer" after UNPROTECT()*/
     // if there's already a 'nm' factor, we replace it and return:
     for (i = 0; i < len; i++) {
 	if (!strcmp(nm, CHAR(STRING_ELT(nms, i)))) {
@@ -342,16 +342,28 @@ SEXP Dim_validate(SEXP obj, SEXP name) {
 			CHAR(STRING_ELT(name, 0)));
 }
 
-// obj must have @Dim and @Dimnames. Assume 'Dim' is already checked.
-SEXP dimNames_validate(SEXP obj)
+/**
+ * Validate dimnames (the @Dim slot typically), assuming
+ * that 'dims' is already checked.
+ *
+ * Utility, called from  dimNames_validate(), but available to other routines.
+ *
+ * @param dmNms an R object should be valid `dimnames`
+ * @param dims  an integer vector of length 2 (must have been checked by caller!).
+
+ * @return a SEXP, either TRUE (= success) or an error message string ("character")
+ */
+SEXP dimNames_validate__(SEXP dmNms, int dims[], const char* obj_name)
 {
-    int *dims = INTEGER(GET_SLOT(obj, Matrix_DimSym));
-    SEXP dmNms = GET_SLOT(obj, Matrix_DimNamesSym);
-    if(!isNewList(dmNms))
-	return mkString(_("Dimnames slot is not a list"));
-    if(length(dmNms) != 2)
-	return mkString(_("Dimnames slot is a list, but not of length 2"));
     char buf[99];
+    if(!isNewList(dmNms)) {
+	sprintf(buf, _("%s is not a list"), obj_name);
+	return mkString(buf);
+    }
+    if(length(dmNms) != 2) {
+	sprintf(buf, _("%s is a list, but not of length 2"), obj_name);
+	return mkString(buf);
+    }
     for(int j=0; j < 2; j++) { // x@Dimnames[j] must be NULL or character(length(x@Dim[j]))
 	if(!isNull(VECTOR_ELT(dmNms, j))) {
 	    if(TYPEOF(VECTOR_ELT(dmNms, j)) != STRSXP) {
@@ -367,6 +379,23 @@ SEXP dimNames_validate(SEXP obj)
 	}
     }
     return ScalarLogical(1);
+}
+
+
+/**
+ * Check R (Matrix-like) object: must have @Dim and @Dimnames.
+ * Assume 'Dim' is already checked.
+ * (typically used in  S4 validity method)
+ *
+ * @param obj an R object (typically inheriting from `Matrix`)
+ *
+ * @return a SEXP, either TRUE (= success) or an error message string ("character")
+ */
+SEXP dimNames_validate(SEXP obj)
+{
+    return dimNames_validate__(/* dmNms = */ GET_SLOT(obj, Matrix_DimNamesSym),
+			       /* dims =  */ INTEGER(GET_SLOT(obj, Matrix_DimSym)),
+			       "Dimnames slot");
 }
 
 
@@ -665,7 +694,8 @@ SEXP dup_mMatrix_as_geMatrix(SEXP A)
 	MATRIX_VALID_ndense, /* 5  */
 	""};
     SEXP ans, ad = R_NilValue, an = R_NilValue;	/* -Wall */
-    int sz, ctype = R_check_class_etc(A, valid),
+    R_xlen_t sz;
+    int ctype = R_check_class_etc(A, valid),
 	nprot = 1;
     enum dense_enum M_type = ddense /* -Wall */;
 
@@ -717,14 +747,14 @@ SEXP dup_mMatrix_as_geMatrix(SEXP A)
 	DUP_MMATRIX_NON_CLASS(FALSE);
     }
 
-    ans = PROTECT(NEW_OBJECT(MAKE_CLASS(M_type == ddense ? "dgeMatrix" :
-					(M_type == ldense ? "lgeMatrix" :
-					 "ngeMatrix"))));
+    ans = PROTECT(NEW_OBJECT_OF_CLASS(M_type == ddense ? "dgeMatrix" :
+				      (M_type == ldense ? "lgeMatrix" :
+					 "ngeMatrix")));
 #define DUP_MMATRIX_SET_1						\
     SET_SLOT(ans, Matrix_DimSym, duplicate(ad));			\
     SET_SLOT(ans, Matrix_DimNamesSym, (!isNull(an) && LENGTH(an) == 2) ? \
 	     duplicate(an): allocVector(VECSXP, 2));			\
-    sz = INTEGER(ad)[0] * INTEGER(ad)[1]
+    sz = (R_xlen_t) INTEGER(ad)[0] * INTEGER(ad)[1]
 
     DUP_MMATRIX_SET_1;
 
@@ -828,10 +858,11 @@ SEXP dup_mMatrix_as_geMatrix(SEXP A)
 
 SEXP dup_mMatrix_as_dgeMatrix2(SEXP A, Rboolean tr_if_vec)
 {
-    SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("dgeMatrix"))),
+    SEXP ans = PROTECT(NEW_OBJECT_OF_CLASS("dgeMatrix")),
 	ad = R_NilValue , an = R_NilValue;	/* -Wall */
     static const char *valid[] = {"_NOT_A_CLASS_", MATRIX_VALID_ddense, ""};
-    int sz, ctype = R_check_class_etc(A, valid), nprot = 1;
+    R_xlen_t sz;
+    int ctype = R_check_class_etc(A, valid), nprot = 1;
     double *ansx;
 
     if (ctype > 0) {		/* a ddenseMatrix object */
@@ -861,7 +892,7 @@ SEXP dup_mMatrix_as_dgeMatrix(SEXP A) {
 
 SEXP new_dgeMatrix(int nrow, int ncol)
 {
-    SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("dgeMatrix"))),
+    SEXP ans = PROTECT(NEW_OBJECT_OF_CLASS("dgeMatrix")),
 	 ad = PROTECT(allocVector(INTSXP, 2));
 
     INTEGER(ad)[0] = nrow;
@@ -1339,3 +1370,15 @@ void SET_DimNames_symm(SEXP dest, SEXP src) {
     return;
 }
 
+/**
+ * A safe  NEW_OBJECT_OF_CLASS(cls),  where the caller must protect the
+ * return value of this function
+ *
+ * @param an R character string specifying the name of a known S4 class
+ */
+SEXP NEW_OBJECT_OF_CLASS(const char* cls)
+{
+    SEXP ans = NEW_OBJECT(PROTECT(MAKE_CLASS(cls)));
+    UNPROTECT(1);
+    return ans;
+}

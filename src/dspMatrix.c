@@ -7,9 +7,9 @@ SEXP dspMatrix_validate(SEXP obj)
     if(isString(val))
 	return(val);
     else { /* identical to the test in dtpMatrix_validate() : */
-	int d = INTEGER(GET_SLOT(obj, Matrix_DimSym))[0],
-	    lx = length(GET_SLOT(obj, Matrix_xSym));
-	if(lx * 2 != d*(d+1))
+	int d = INTEGER(GET_SLOT(obj, Matrix_DimSym))[0];
+	R_xlen_t lx = xlength(GET_SLOT(obj, Matrix_xSym));
+	if(lx * 2 != d*(R_xlen_t)(d+1))
 	    return(mkString(_("Incorrect length of 'x' slot")));
 	return ScalarLogical(1);
     }
@@ -52,7 +52,7 @@ SEXP dspMatrix_rcond(SEXP obj, SEXP type)
 SEXP dspMatrix_solve(SEXP a)
 {
     SEXP trf = dspMatrix_trf(a);
-    SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dspMatrix")));
+    SEXP val = PROTECT(NEW_OBJECT_OF_CLASS("dspMatrix"));
     int *dims = INTEGER(GET_SLOT(trf, Matrix_DimSym)), info;
 
     slot_dup(val, trf, Matrix_uploSym);
@@ -120,7 +120,7 @@ SEXP lspMatrix_setDiag(SEXP x, SEXP d)
 
 SEXP dspMatrix_as_dsyMatrix(SEXP from)
 {
-    SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dsyMatrix"))),
+    SEXP val = PROTECT(NEW_OBJECT_OF_CLASS("dsyMatrix")),
 	uplo = GET_SLOT(from, Matrix_uploSym),
 	dimP = GET_SLOT(from, Matrix_DimSym),
 	dmnP = GET_SLOT(from, Matrix_DimNamesSym);
@@ -173,7 +173,7 @@ SEXP dspMatrix_trf(SEXP x)
 
     if (val != R_NilValue) return val;
     dims = INTEGER(dimP);
-    val = PROTECT(NEW_OBJECT(MAKE_CLASS("pBunchKaufman")));
+    val = PROTECT(NEW_OBJECT_OF_CLASS("pBunchKaufman"));
     SET_SLOT(val, Matrix_uploSym, duplicate(uploP));
     SET_SLOT(val, Matrix_diagSym, mkString("N"));
     SET_SLOT(val, Matrix_DimSym, duplicate(dimP));

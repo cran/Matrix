@@ -30,9 +30,10 @@ SEXP CHMfactor_solve(SEXP a, SEXP b, SEXP system)
 	error(_("system argument is not valid"));
 
     X = cholmod_solve(sys, L, B, &c);
+    SEXP ans = chm_dense_to_SEXP(X, 1/*do_free*/, 0/*Rkind*/,
+				 GET_SLOT(bb, Matrix_DimNamesSym), FALSE);
     UNPROTECT(1);
-    return chm_dense_to_SEXP(X, 1/*do_free*/, 0/*Rkind*/,
-			     GET_SLOT(bb, Matrix_DimNamesSym), FALSE);
+    return ans;
 }
 
 SEXP CHMfactor_updown(SEXP upd, SEXP C_, SEXP L_)

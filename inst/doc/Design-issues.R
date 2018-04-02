@@ -1,5 +1,5 @@
 ### R code from vignette source 'Design-issues.Rnw'
-### Encoding: UTF-8
+### Encoding: ASCII
 
 ###################################################
 ### code chunk number 1: preliminaries
@@ -28,7 +28,7 @@ D4
 ###################################################
 str(I3 <- Diagonal(3)) ## empty 'x' slot
 
-getClass("diagonalMatrix") ## extending "denseMatrix"
+getClass("diagonalMatrix") ## extending "sparseMatrix"
 
 
 ###################################################

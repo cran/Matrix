@@ -938,7 +938,7 @@ rsparsematrix <- function(nrow, ncol, nnz,
 ## No warn.nnz needed, as we sample the encoded (i,j) with*out* replacement:
 rsparsematrix <- function(nrow, ncol, density,
                           nnz = round(density * maxE), symmetric = FALSE,
-                          rand.x = function(n) signif(rnorm(nnz), 2), ...)
+                          rand.x = function(n) signif(rnorm(n), 2), ...)
 {
     maxE <- if(symmetric) nrow*(nrow+1)/2 else nrow*ncol
     stopifnot((nnz <- as.integer(nnz)) >= 0,

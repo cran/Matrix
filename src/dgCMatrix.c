@@ -19,8 +19,8 @@ SEXP xCMatrix_validate(SEXP x)
 {
     /* Almost everything now in Csparse_validate ( ./Csparse.c )
      * *but* the checking of the 'x' slot : */
-    if (length(GET_SLOT(x, Matrix_iSym)) !=
-	length(GET_SLOT(x, Matrix_xSym)))
+    if (xlength(GET_SLOT(x, Matrix_iSym)) !=
+	xlength(GET_SLOT(x, Matrix_xSym)))
 	return mkString(_("lengths of slots 'i' and 'x' must match"));
 
     return ScalarLogical(1);
@@ -31,8 +31,8 @@ SEXP xRMatrix_validate(SEXP x)
 {
     /* Almost everything now in Rsparse_validate ( ./Csparse.c )
      * *but* the checking of the 'x' slot : */
-    if (length(GET_SLOT(x, Matrix_jSym)) !=
-	length(GET_SLOT(x, Matrix_xSym)))
+    if (xlength(GET_SLOT(x, Matrix_jSym)) !=
+	xlength(GET_SLOT(x, Matrix_xSym)))
 	return mkString(_("lengths of slots 'j' and 'x' must match"));
 
     return ScalarLogical(1);
@@ -59,7 +59,7 @@ SEXP compressed_to_TMatrix(SEXP x, SEXP colP)
 
     /* replace 'C' or 'R' with 'T' :*/
     ncl[2] = 'T';
-    ans = PROTECT(NEW_OBJECT(MAKE_CLASS(ncl)));
+    ans = PROTECT(NEW_OBJECT_OF_CLASS(ncl));
 
     slot_dup(ans, x, Matrix_DimSym);
     if((ctype / 3) % 4 != 2) /* not n..Matrix */
@@ -94,7 +94,7 @@ SEXP R_to_CMatrix(SEXP x)
 
     /* replace 'R' with 'C' : */
     ncl[2] = 'C';
-    PROTECT_WITH_INDEX(ans = NEW_OBJECT(MAKE_CLASS(ncl)), &ipx);
+    PROTECT_WITH_INDEX(ans = NEW_OBJECT_OF_CLASS(ncl), &ipx);
 
     a_dims = INTEGER(ALLOC_SLOT(ans, Matrix_DimSym, INTSXP, 2));
     /* reversed dim() since we will transpose: */
@@ -227,7 +227,7 @@ SEXP dgCMatrix_QR(SEXP Ap, SEXP order, SEXP keep_dimnames)
     R_CheckStack();
 
     if (m < n) error(_("A must have #{rows} >= #{columns}")) ;
-    SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("sparseQR")));
+    SEXP ans = PROTECT(NEW_OBJECT_OF_CLASS("sparseQR"));
     int *dims = INTEGER(ALLOC_SLOT(ans, Matrix_DimSym, INTSXP, 2));
     dims[0] = m; dims[1] = n;
     css *S = cs_sqr(ord, A, 1);	/* symbolic QR ordering & analysis*/
@@ -317,7 +317,7 @@ SEXP dgCMatrix_QR(SEXP Ap, SEXP order, SEXP keep_dimnames)
 SEXP dgCMatrix_SPQR(SEXP Ap, SEXP ordering, SEXP econ, SEXP tol)
 {
 /* SEXP ans = PROTECT(allocVector(VECSXP, 4)); */
-    SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("SPQR")));
+    SEXP ans = PROTECT(NEW_OBJECT_OF_CLASS("SPQR"));
 
     CHM_SP A = AS_CHM_SP(Ap), Q, R;
     SuiteSparse_long *E, rank;/* not always = int   FIXME  (Windows_64 ?) */
@@ -398,7 +398,7 @@ void install_lu(SEXP Ap, int order, double tol, Rboolean err_sing, Rboolean keep
     N->U = cs_transpose(D, 1);
     cs_spfree(D);
     p = cs_pinv(N->pinv, n);	/* p=pinv' */
-    ans = PROTECT(NEW_OBJECT(MAKE_CLASS("sparseLU")));
+    ans = PROTECT(NEW_OBJECT_OF_CLASS("sparseLU"));
     dims = INTEGER(ALLOC_SLOT(ans, Matrix_DimSym, INTSXP, 2));
     dims[0] = n; dims[1] = n;
     SEXP dn; Rboolean do_dn = FALSE;

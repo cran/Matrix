@@ -3,7 +3,11 @@
 setAs("ntCMatrix", "matrix",
       function(from) as(copyClass(diagU2N(from), "ngCMatrix"), "matrix"))
 setAs("matrix", "ntCMatrix",
-      function(from) as(as(from, "dtCMatrix"), "ntCMatrix"))
+      function(from) {
+	  if(!is.logical(from)) storage.mode(from) <- "logical"
+          if(anyNA(from)) stop("cannot coerce NA values to pattern \"ntCMatrix\"")
+          .Call(matrix_to_Csparse, from, "ntCMatrix")
+      })
 
 setAs("ntCMatrix", "TsparseMatrix",
       function(from) .Call(Csparse_to_Tsparse, from, TRUE))

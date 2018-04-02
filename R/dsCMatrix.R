@@ -24,8 +24,7 @@ setAs("dsCMatrix", "dgeMatrix",
 setAs("dsCMatrix", "matrix",
       function(from) as(as(from, "generalMatrix"), "matrix"))
 setAs("matrix", "dsCMatrix",
-      function(from)
-      as(as(as(from, "CsparseMatrix"), "symmetricMatrix"), "dMatrix"))
+      function(from) as(.m2dgC(from), "symmetricMatrix"))
 
 setAs("dsCMatrix", "lsCMatrix",
       function(from) new("lsCMatrix", i = from@i, p = from@p, uplo = from@uplo,

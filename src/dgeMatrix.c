@@ -77,7 +77,7 @@ SEXP dgeMatrix_crossprod(SEXP x, SEXP trans)
 {
 #define DGE_CROSS_1							\
     int tr = asLogical(trans);/* trans=TRUE: tcrossprod(x) */		\
-    SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dpoMatrix"))),		\
+    SEXP val = PROTECT(NEW_OBJECT_OF_CLASS("dpoMatrix")),		\
 	vDnms = PROTECT(ALLOC_SLOT(val, Matrix_DimNamesSym, VECSXP, 2)),\
 	nms  = VECTOR_ELT(GET_SLOT(x, Matrix_DimNamesSym), tr ? 0 : 1);	\
     int *Dims = INTEGER(GET_SLOT(x, Matrix_DimSym)),			\
@@ -146,7 +146,7 @@ SEXP dgeMatrix_dgeMatrix_crossprod(SEXP x, SEXP y, SEXP trans)
 {
 #define DGE_DGE_CROSS_1							\
     int tr = asLogical(trans);/* trans=TRUE: tcrossprod(x,y) */		\
-    SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dgeMatrix"))),		\
+    SEXP val = PROTECT(NEW_OBJECT_OF_CLASS("dgeMatrix")),		\
 	dn = PROTECT(allocVector(VECSXP, 2));				\
     int *xDims = INTEGER(GET_SLOT(x, Matrix_DimSym)),			\
 	*yDims = INTEGER(GET_SLOT(y, Matrix_DimSym)),			\
@@ -212,7 +212,7 @@ SEXP dgeMatrix_matrix_crossprod(SEXP x, SEXP y, SEXP trans)
 {
 #define DGE_MAT_CROSS_1							\
     int tr = asLogical(trans);/* trans=TRUE: tcrossprod(x,y) */		\
-    SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dgeMatrix"))),		\
+    SEXP val = PROTECT(NEW_OBJECT_OF_CLASS("dgeMatrix")),		\
 	dn = PROTECT(allocVector(VECSXP, 2)),				\
 	yDnms = R_NilValue, yD;						\
     int *xDims = INTEGER(GET_SLOT(x, Matrix_DimSym)),			\
@@ -299,7 +299,7 @@ SEXP geMatrix_matrix_crossprod(SEXP x, SEXP y, SEXP trans) {
 SEXP dgeMatrix_matrix_mm(SEXP a, SEXP bP, SEXP right)
 {
 #define DGE_MAT_MM_1(N_PROT)						\
-    SEXP val= PROTECT(NEW_OBJECT(MAKE_CLASS("dgeMatrix"))),		\
+    SEXP val= PROTECT(NEW_OBJECT_OF_CLASS("dgeMatrix")),		\
 	 dn = PROTECT(allocVector(VECSXP, 2));				\
     int nprot = N_PROT + 2,						\
 	*adims = INTEGER(GET_SLOT(a, Matrix_DimSym)),			\
@@ -474,7 +474,7 @@ SEXP dgeMatrix_LU_(SEXP x, Rboolean warn_sing)
     if (dims[0] < 1 || dims[1] < 1)
 	error(_("Cannot factor a matrix with zero extents"));
     npiv = (dims[0] < dims[1]) ? dims[0] : dims[1];
-    val = PROTECT(NEW_OBJECT(MAKE_CLASS("denseLU")));
+    val = PROTECT(NEW_OBJECT_OF_CLASS("denseLU"));
     slot_dup(val, x, Matrix_xSym);
     slot_dup(val, x, Matrix_DimSym);
     slot_dup(val, x, Matrix_DimNamesSym);
@@ -539,7 +539,7 @@ SEXP dgeMatrix_solve(SEXP a)
     double aNorm = get_norm(a, "1");
 
     /* the LU decomposition : */
-    SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dgeMatrix"))),
+    SEXP val = PROTECT(NEW_OBJECT_OF_CLASS("dgeMatrix")),
 	lu = dgeMatrix_LU_(a, TRUE);
     int *dims = INTEGER(GET_SLOT(lu, Matrix_DimSym)),
 	*pivot = INTEGER(GET_SLOT(lu, Matrix_permSym));

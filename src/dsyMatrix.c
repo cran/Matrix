@@ -52,7 +52,7 @@ SEXP dsyMatrix_rcond(SEXP obj, SEXP type)
 SEXP dsyMatrix_solve(SEXP a)
 {
     SEXP trf = dsyMatrix_trf(a);
-    SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dsyMatrix")));
+    SEXP val = PROTECT(NEW_OBJECT_OF_CLASS("dsyMatrix"));
     int *dims = INTEGER(GET_SLOT(trf, Matrix_DimSym)), info;
 
     slot_dup(val, trf, Matrix_uploSym);
@@ -144,7 +144,7 @@ SEXP dsyMatrix_trf(SEXP x)
 
     if (val != R_NilValue) return val;
     dims = INTEGER(dimP);
-    val = PROTECT(NEW_OBJECT(MAKE_CLASS("BunchKaufman")));
+    val = PROTECT(NEW_OBJECT_OF_CLASS("BunchKaufman"));
     SET_SLOT(val, Matrix_uploSym, duplicate(uploP));
     SET_SLOT(val, Matrix_diagSym, mkString("N"));
     SET_SLOT(val, Matrix_DimSym, duplicate(dimP));
@@ -167,7 +167,7 @@ SEXP dsyMatrix_trf(SEXP x)
 // this is very close to lsyMatrix_as_lsp*() in ./ldense.c  -- keep synced !
 SEXP dsyMatrix_as_dspMatrix(SEXP from)
 {
-    SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dspMatrix"))),
+    SEXP val = PROTECT(NEW_OBJECT_OF_CLASS("dspMatrix")),
 	uplo = GET_SLOT(from, Matrix_uploSym),
 	dimP = GET_SLOT(from, Matrix_DimSym);
     int n = *INTEGER(dimP);

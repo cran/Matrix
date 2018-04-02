@@ -1206,7 +1206,7 @@ mat2tri <- function(from, sparse=NA) {
     if(isTri) {
 	d <- dim(from)
 	if(is.na(sparse))
-	    sparse <- prod(d) > 2*sum(isN0(from)) ## <==> sparseDefault() in Matrix()
+	    sparse <- prod(d) > 2*sum(isN0(from)) ## <==> sparseDefault() above
 	if(sparse)
 	    as(as(from, "sparseMatrix"), "triangularMatrix")
 	else
@@ -1510,11 +1510,32 @@ all0Matrix <- function(n,m) {
     new(newclass, Dim = d, Dimnames = x@Dimnames, p = rep.int(0L, d[2]+1L))
 }
 
-.M.vectorSub <- function(x,i) { ## e.g. M[0] , M[TRUE],  M[1:2]
-    if(any(as.logical(i)) || prod(dim(x)) == 0)
-	## FIXME: for *large sparse*, use sparseVector !
+##' Subsetting matrix/vector in "vector style", e.g. M[0], M[TRUE], M[1:2], M[-7]
+##' @param x any matrix/Matrix/(sparse)vector, to be subset
+##' @param i integer (incl negative!) or logical 'index'.
+##' @param allowSparse logical indicating if the result may be a
+##'   \code{"sparseVector"}; the default is false for reasons of back
+##'   compatibility  (against efficiency here).
+##' @note 2018-03: Now partially based on \code{as(x, "sparseVector")[i]}
+##'   which has been improved itself.
+.M.vectorSub <- function(x, i, allowSparse=FALSE) {
+    if(prod(dim(x)) == 0)
 	as(x, "matrix")[i]
-    else ## save memory (for large sparse M):
+    else if(any(as.logical(i))) {
+	if(inherits(x, "denseMatrix"))
+	    as(x, "matrix")[i]
+	else { ## sparse ...
+	    ## if(is.logical(i)) # unfortunately, this is not-yet-implemented!
+	    ##     x[as(i, "sparseVector")]
+	    ## else if(all(i >= 0))
+	    if(is.numeric(i) && all(i >= 0))
+		subset.ij(x, ij = arrayInd(i, .dim=dim(x), useNames=FALSE))
+	    else if(allowSparse) # more efficient here
+		as(x, "sparseVector")[i]
+	    else # sparse result not allowed
+		sp2vec(as(x, "sparseVector")[i])
+	}
+    } else ## save memory (for large sparse M):
 	as.vector(x[1,1])[FALSE]
 }
 

@@ -29,7 +29,7 @@ SEXP dpoMatrix_chol(SEXP x)
 
     if (val != R_NilValue) return val;// use x@factors$Cholesky if available
     dims = INTEGER(dimP);
-    val = PROTECT(NEW_OBJECT(MAKE_CLASS("Cholesky")));
+    val = PROTECT(NEW_OBJECT_OF_CLASS("Cholesky"));
     SET_SLOT(val, Matrix_uploSym, duplicate(uploP));
     SET_SLOT(val, Matrix_diagSym, mkString("N"));
     SET_SLOT(val, Matrix_DimSym, duplicate(dimP));
@@ -68,7 +68,7 @@ SEXP dpoMatrix_rcond(SEXP obj, SEXP type)
 SEXP dpoMatrix_solve(SEXP x)
 {
     SEXP Chol = dpoMatrix_chol(x);
-    SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dpoMatrix")));
+    SEXP val = PROTECT(NEW_OBJECT_OF_CLASS("dpoMatrix"));
     int *dims = INTEGER(GET_SLOT(x, Matrix_DimSym)), info;
 
     SET_SLOT(val, Matrix_factorSym, allocVector(VECSXP, 0));
@@ -86,7 +86,7 @@ SEXP dpoMatrix_solve(SEXP x)
 SEXP dpoMatrix_dgeMatrix_solve(SEXP a, SEXP b)
 {
     SEXP Chol = dpoMatrix_chol(a),
-	val = PROTECT(NEW_OBJECT(MAKE_CLASS("dgeMatrix")));
+	val = PROTECT(NEW_OBJECT_OF_CLASS("dgeMatrix"));
     int *adims = INTEGER(GET_SLOT(a, Matrix_DimSym)),
 	*bdims = INTEGER(GET_SLOT(b, Matrix_DimSym)),
 	info;

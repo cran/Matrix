@@ -76,6 +76,30 @@ setAs("dtCMatrix", "matrix", function(from) .Call(Csparse_to_matrix, from, TRUE,
 ## NB: Would *not* be ok for l*Matrix or n*Matrix,
 ## --------- as cholmod coerces to "REAL" aka "double"
 
+.m2dgC <- function(from) {
+    if(!is.double(from)) storage.mode(from) <- "double"
+    .Call(matrix_to_Csparse, from, "dgCMatrix")
+}
+.m2lgC <- function(from) {
+    if(!is.logical(from)) storage.mode(from) <- "logical"
+    .Call(matrix_to_Csparse, from, "lgCMatrix")
+}
+.m2ngC <- function(from) {
+    if(!is.logical(from)) storage.mode(from) <- "logical"
+    if(anyNA(from)) stop("cannot coerce NA values to pattern \"ngCMatrix\"")
+    .Call(matrix_to_Csparse, from, "ngCMatrix")
+}
+setAs("matrix", "dgCMatrix", .m2dgC)
+setAs("matrix", "lgCMatrix", .m2lgC)
+setAs("matrix", "ngCMatrix", .m2ngC)
+
+setAs("matrix", "CsparseMatrix", ## => choosing 'l*' or 'dgCMatrix' (no tri-, sym-, diag-):
+      function(from) (if(is.logical(from)) .m2lgC else .m2dgC)(from))
+
+setAs("numeric", "CsparseMatrix",
+      function(from) (if(is.logical(from)) .m2lgC else .m2dgC)(as.matrix.default(from)))
+
+
 setAs("CsparseMatrix", "symmetricMatrix",
       function(from) {
 	  if(isSymmetric(from)) forceCspSymmetric(from)

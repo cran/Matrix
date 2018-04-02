@@ -31,13 +31,13 @@ if(getRversion() >= "3.2.0") {
     cBind <- function (..., deparse.level = 1) {
 	## Once per session warning (or if "Matrix.(warn|verbose)"):
 	if(is.null(wrn <- get0("warned.cBind", .MatrixEnv)) ||
-           isTRUE(getOption("Matrix.warn")) ||
+	   isTRUE(getOption("Matrix.warn")) ||
 	   isTRUE(getOption("Matrix.verbose"))) {
-            if(is.null(wrn))
-                assign("warned.cBind", TRUE, envir=.MatrixEnv) ||
-                    .Deprecated(msg = "'cBind' is deprecated.
+	    if(is.null(wrn))
+		assign("warned.cBind", TRUE, envir=.MatrixEnv)
+	    .Deprecated(msg = "'cBind' is deprecated.
  Since R version 3.2.0, base's cbind() should work fine with S4 objects")
-        }
+	}
 	base::cbind(..., deparse.level=deparse.level)
     }
     rBind <- function (..., deparse.level = 1) {
@@ -45,11 +45,11 @@ if(getRversion() >= "3.2.0") {
 	if(is.null(wrn <- get0("warned.rBind", .MatrixEnv)) ||
            isTRUE(getOption("Matrix.warn")) ||
 	   isTRUE(getOption("Matrix.verbose"))) {
-            if(is.null(wrn))
-                assign("warned.rBind", TRUE, envir=.MatrixEnv) ||
-	.Deprecated(msg = "'rBind' is deprecated.
+	    if(is.null(wrn))
+		assign("warned.rBind", TRUE, envir=.MatrixEnv)
+	    .Deprecated(msg = "'rBind' is deprecated.
  Since R version 3.2.0, base's rbind() should work fine with S4 objects")
-            }
+	}
 	base::rbind(..., deparse.level=deparse.level)
     }
 

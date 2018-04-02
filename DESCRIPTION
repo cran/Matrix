@@ -1,6 +1,6 @@
 Package: Matrix
-Version: 1.2-12
-Date: 2017-11-10
+Version: 1.2-13
+Date: 2018-03-23
 Priority: recommended
 Title: Sparse and Dense Matrix Classes and Methods
 Contact: Doug and Martin <Matrix-authors@R-project.org>
@@ -23,7 +23,7 @@ Description: A rich hierarchy of matrix classes, including triangular,
    symmetric, and diagonal matrices, both dense and sparse and with
    pattern, logical and numeric entries.   Numerous methods for and
    operations on these matrices, using 'LAPACK' and 'SuiteSparse' libraries.
-Depends: R (>= 3.0.1)
+Depends: R (>= 3.2.0)
 Imports: methods, graphics, grid, stats, utils, lattice
 Suggests: expm, MASS
 Enhances: MatrixModels, graph, SparseM, sfsmisc
@@ -33,8 +33,9 @@ LazyDataNote: not possible, since we use data/*.R *and* our classes
 BuildResaveData: no
 License: GPL (>= 2) | file LICENCE
 URL: http://Matrix.R-forge.R-project.org/
+BugReports: https://r-forge.r-project.org/tracker/?group_id=61
 NeedsCompilation: yes
-Packaged: 2017-11-10 22:29:40 UTC; maechler
+Packaged: 2018-03-25 19:05:28 UTC; maechler
 Author: Douglas Bates [aut],
   Martin Maechler [aut, cre],
   Timothy A. Davis [ctb] (SuiteSparse and 'cs' C libraries, notably
@@ -46,4 +47,4 @@ Author: Douglas Bates [aut],
     Regents of the University of California),
   R Core Team [ctb] (base R matrix implementation)
 Repository: CRAN
-Date/Publication: 2017-11-15 21:34:43 UTC
+Date/Publication: 2018-04-02 10:38:38 UTC

@@ -28,20 +28,6 @@ setAs("ddenseMatrix", "CsparseMatrix",
 setAs("dgeMatrix", "dgCMatrix",
       function(from) .Call(dense_to_Csparse, from))
 
-setAs("matrix", "CsparseMatrix",
-      function(from) .Call(dense_to_Csparse, from))
-
-## for historical i.e. backcompatibility reasons ..
-setAs("matrix", "dgCMatrix",
-      function(from) {
-          storage.mode(from) <- "double"
-          .Call(dense_to_Csparse, from)
-      })
-
-setAs("numeric", "CsparseMatrix",
-      function(from)
-      .Call(dense_to_Csparse, .Call(dup_mMatrix_as_dgeMatrix, from)))
-
 setMethod("as.numeric", "ddenseMatrix", function(x, ...) ..2dge(x)@x)
 
 ## -- see also ./Matrix.R  e.g., for a show() method

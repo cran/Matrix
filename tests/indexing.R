@@ -250,8 +250,8 @@ for(kind in c("n", "l", "d")) {
     show(mC[,1])
     show(mC[1:2,])
     show(mC[7,  drop = FALSE])
-    assert.EQ.mat(mC[1:2,], mm[1:2,])
-    assert.EQ.mat(mC[0,], mm[0,])
+    assert.EQ.mat(mC[1:2,],   mm[1:2,])
+    assert.EQ.mat(mC[0,],     mm[0,])
     assert.EQ.mat(mC[,FALSE], mm[,FALSE])
     ##
     ## *repeated* (aka 'duplicated') indices - did not work at all ...
@@ -268,7 +268,7 @@ for(kind in c("n", "l", "d")) {
     ## set.seed(7)
     op <- options(Matrix.verbose = FALSE)
     cat(" for(): ")
-    for(n in 1:(if(doExtras) 50 else 5)) {
+    for(n in 1:(if(doExtras) 50 else 5)) { # (as chkAssign() is random)
 	chkAssign(mC, mm)
 	chkAssign(mC[-3,-2], mm[-3,-2])
         cat(".")
@@ -1011,6 +1011,7 @@ showProc.time()
 n <- 7000000
 m <-  100000
 nnz <- 20000
+op <- options(Matrix.verbose = 2, warn = 1)
 
 set.seed(12)
 f <- sparseMatrix(i = sample(n, size=nnz, replace=TRUE),
@@ -1021,30 +1022,32 @@ prod(dim(f)) # 699930301096 == 699'930'301'096  (~ 700'000 millions)
 str(thisCol <-  f[,5000])# logi [~ 7 mio....]
 sv <- as(thisCol, "sparseVector")
 str(sv) ## "empty" !
-validObject(spCol <- f[,5000, drop=FALSE])
+validObject(spCol <- f[,5000, drop=FALSE]) # "empty" [n x 1] ngCmatrix
 ##
 ## *not* identical(): as(spCol, "sparseVector")@length is "double"prec:
 stopifnot(all.equal(as(spCol, "sparseVector"),
                     as(sv,   "nsparseVector"), tolerance=0))
-if(doExtras) {#-----------------------------------------------------------------
-f[,5762] <- thisCol # now "fine" <<<<<<<<<< FIXME uses LARGE objects -- slow --
-## is using  replCmat() in ../R/Csparse.R, then
-##           replTmat() in ../R/Tsparse.R
+if(interactive())
+    selectMethod("[<-", c("ngCMatrix", "missing","numeric", "logical"))
+                                        # -> replCmat() in ../R/Csparse.R
+f[,5762] <- thisCol # now "fine" and fast thanks to replCmat() --> replCmat4()
 
 fx <- sparseMatrix(i = sample(n, size=nnz, replace=TRUE),
                    j = sample(m, size=nnz, replace=TRUE),
                    x = round(10*rnorm(nnz)))
 class(fx)## dgCMatrix
-fx[,6000] <- (tC <- rep(thisCol, length=nrow(fx)))# slow (as above)
+fx[,6000] <- (tC <- rep(thisCol, length=nrow(fx)))# fine
 thCol <- fx[,2000]
-fx[,5762] <- thCol# slow
+fx[,5762] <- thCol# fine
 stopifnot(is(f, "ngCMatrix"), is(fx, "dgCMatrix"),
 	  identical(thisCol, f[,5762]),# perfect
 	  identical(as.logical(fx[,6000]), tC),
 	  identical(thCol,  fx[,5762]))
 
 showProc.time()
+options(op)# revert
 ##
+if(doExtras) {#-----------------------------------------------------------------
 cat("checkMatrix() of all: \n---------\n")
 Sys.setlocale("LC_COLLATE", "C")# to keep ls() reproducible
 for(nm in ls()) if(is(.m <- get(nm), "Matrix")) {
@@ -1098,9 +1101,9 @@ stopifnot(canCoerce("integer", "sparseVector"))
 sv2 <- as(sv, "isparseVector")
 stopifnot(validObject(sv), validObject(sv2), identical(sv., sv2),
           sv == sv.)
-n0 <- sv. != 0
-## --> ../R/sparseVector.R : replSPvec()
-if(interactive())  debug(Matrix:::replSPvec)
+n0 <- sv. != 0 # -> is "lsparseV.."
+if(FALSE)
+    debug(Matrix:::replSPvec) ## --> ../R/sparseVector.R : replSPvec()
 ##
 sv [n0] <- sv [n0]
 sv.[n0] <- sv.[n0] # gave error

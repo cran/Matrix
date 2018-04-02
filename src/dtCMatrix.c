@@ -77,7 +77,7 @@ SEXP tRMatrix_validate(SEXP x)
 SEXP dtCMatrix_matrix_solve(SEXP a, SEXP b, SEXP classed)
 {
     int cl = asLogical(classed);
-    SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("dgeMatrix")));
+    SEXP ans = PROTECT(NEW_OBJECT_OF_CLASS("dgeMatrix"));
     CSP A = AS_CSP(a);
     int *adims = INTEGER(GET_SLOT(a, Matrix_DimSym)),
 	*bdims = INTEGER(cl ? GET_SLOT(b, Matrix_DimSym) :
@@ -113,7 +113,7 @@ SEXP dtCMatrix_matrix_solve(SEXP a, SEXP b, SEXP classed)
 
 SEXP dtCMatrix_sparse_solve(SEXP a, SEXP b)
 {
-    SEXP ans = PROTECT(NEW_OBJECT(MAKE_CLASS("dgCMatrix")));
+    SEXP ans = PROTECT(NEW_OBJECT_OF_CLASS("dgCMatrix"));
     CSP A = AS_CSP(a), B = AS_CSP(b);
     R_CheckStack();
     if (A->m != A->n || B->n < 1 || A->n < 1 || A->n != B->m)

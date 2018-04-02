@@ -1,5 +1,5 @@
 \name{dpoMatrix-class}
-\title{Positive Semi-definite Dense Numeric Matrices}
+\title{Positive Semi-definite Dense (Packed | Non-packed) Numeric Matrices}
 \docType{class}
 \alias{dpoMatrix-class}
 \alias{dppMatrix-class}
@@ -51,14 +51,16 @@
 %\alias{solve,dpoMatrix,...-method}--> solve-methods.Rd
 \alias{t,dppMatrix-method}
 \description{
-  The \code{"dpoMatrix"} class is the class of
-  positive-semidefinite symmetric matrices in nonpacked storage.
-  The \code{"dppMatrix"} class is the same except in packed storage.
-  Only the upper triangle or the lower triangle is required to be
-  available.
-
-  The \code{"corMatrix"} class extends \code{"dpoMatrix"} with a slot \code{sd}.
-
+  \itemize{
+    \item{The \code{"dpoMatrix"} class is the class of
+      positive-semidefinite symmetric matrices in nonpacked storage.}
+    \item{The \code{"dppMatrix"} class is the same except in packed
+      storage.  Only the upper triangle or the lower triangle is
+      required to be available.}
+    \item{The \code{"corMatrix"} class of correlation matrices extends
+      \code{"dpoMatrix"} with a slot \code{sd}, which allows to restore
+      the original covariance matrix.}
+  }
 }
 \section{Objects from the Class}{Objects can be created by calls of the
   form \code{new("dpoMatrix", ...)} or from \code{crossprod} applied to

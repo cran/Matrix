@@ -179,7 +179,7 @@ SEXP gCMatrix_colSums(SEXP x, SEXP NArm, SEXP spRes, SEXP trans, SEXP means)
     double *xx = (double *)(cx -> x);
 #endif
     // result value:  sparseResult (==> "*sparseVector") or dense (atomic)vector
-    SEXP ans = PROTECT(sp ? NEW_OBJECT(MAKE_CLASS(SparseResult_class))
+    SEXP ans = PROTECT(sp ? NEW_OBJECT_OF_CLASS(SparseResult_class)
 		       : allocVector(SXP_ans, nc));
     if (sp) { // sparseResult, i.e. *sparseVector (never allocating length-nc)
 	int nza, i1, i2, p, *ai;

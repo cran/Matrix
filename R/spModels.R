@@ -37,9 +37,9 @@ fac2sparse <- function(from, to = c("d","i","l","n","z"),
 	df$x <- rep.int(switch(to,
 			       "d" = 1., "i" = 1L, "l" = TRUE, "z" = 1+0i),
 			nrow(df))
-    T <- do.call("new", c(list(Class = paste0(to, "gTMatrix"),
-			       Dim = c(length(levs), n),
-			       Dimnames = list(levs, names(fact))), df))
+    T <- do.call(new, c(list(Class = paste0(to, "gTMatrix"),
+                             Dim = c(length(levs), n),
+                             Dimnames = list(levs, names(fact))), df))
     if(giveCsparse) .Call(Tsparse_to_Csparse, T, FALSE) else T
 }
 
@@ -170,6 +170,9 @@ sparse.model.matrix <-
 ##' @author Martin Maechler
 sparse2int <- function(X, Y, do.names = TRUE, forceSparse = FALSE, verbose = FALSE)
 {
+### FIXME -- the    X[rep(..), ] * Y[rep(..), ]   construct can become HUGE, even for sparse X[],Y[]
+### ----- --> Matrix bug #1330 and  ~/R/MM/Pkg-ex/Matrix/sparse-matrix-fix.R
+
     if(do.names) {
 	dnx <- dimnames(X)
 	dny <- dimnames(Y)
@@ -188,7 +191,7 @@ sparse2int <- function(X, Y, do.names = TRUE, forceSparse = FALSE, verbose = FAL
 		else { ## numeric X (1 "column"),  sparseMatrix Y
 		    r <- Y
 		    dp <- Y@p[-1] - Y@p[-(Y@Dim[2]+1L)]
-		    ## stopifnot(all(dp %in% 0:1)) # just for now
+		    ## stopifnot(all(dp %in% 0:1))
 		    ## if(nx == 1)
 		    ## FIXME: similar trick would be applicable for nx > 2
 		    r@x <- X[dp == 1L] * Y@x
@@ -200,7 +203,7 @@ sparse2int <- function(X, Y, do.names = TRUE, forceSparse = FALSE, verbose = FAL
 		    ## FIXME: similar trick would be applicable for ny > 2
 		    r <- X
 		    dp <- X@p[-1] - X@p[-(X@Dim[2]+1L)]
-		    ## stopifnot(all(dp %in% 0:1)) # just for now - drop! - FIXME
+		    ## stopifnot(all(dp %in% 0:1))
 		    r@x <- Y[dp == 1L] * X@x
 		    r
 		}
@@ -214,6 +217,7 @@ sparse2int <- function(X, Y, do.names = TRUE, forceSparse = FALSE, verbose = FAL
 	    (if(ny == 1) X else X[rep.int(seq_len(nx), ny)     , ]) *
 	    (if(nx == 1) Y else Y[rep    (seq_len(ny),each=nx) , ])
 	}
+
     if(verbose) cat(sprintf(" sp..2int(%s[%d],%s[%d]) ",
 			    if(nX)"<N>" else "<sparse>", nx,
 			    if(nY)"<N>" else "<sparse>", ny))

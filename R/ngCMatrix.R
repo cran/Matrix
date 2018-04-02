@@ -26,7 +26,5 @@ setAs("ngCMatrix", "lgCMatrix", .nC2l)
 setAs("ngCMatrix", "matrix", function(from) .Call(ngC_to_matrix, from))
 ## not this: .Call(Csparse_to_matrix, from)), since it goes via dense -> double precision
 
-## TODO (maybe): write  matrix_to_lcsc()  in ../src/ngCMatrix.c
-setAs("matrix", "ngCMatrix",
-      function(from) as(as(from, "ngTMatrix"), "ngCMatrix"))
+setAs("matrix", "ngCMatrix", .m2ngC)
 

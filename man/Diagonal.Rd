@@ -6,14 +6,14 @@
 \alias{.trDiagonal}
 \description{
   Create a diagonal matrix object, i.e., an object inheriting from
-  \code{\linkS4class{diagonalMatrix}} (or a sparse diagonal matrix in
-  cases that is prefered).
+  \code{\linkS4class{diagonalMatrix}} (or a \dQuote{standard}
+  \code{\linkS4class{CsparseMatrix}} diagonal matrix in cases that is prefered).
 }
 \usage{
 Diagonal(n, x = NULL)
 
-.symDiagonal(n, x = rep.int(1,n), uplo = "U",   kind = if(is.logical(x)) "l" else "d")
- .trDiagonal(n, x = 1, uplo = "U", unitri=TRUE, kind = if(is.logical(x)) "l" else "d")
+.symDiagonal(n, x = rep.int(1,n), uplo = "U",   kind)
+ .trDiagonal(n, x = 1, uplo = "U", unitri=TRUE, kind)
 .sparseDiagonal(n, x = 1, uplo = "U",
                 shape = if(missing(cols)) "t" else "g",
 	        unitri, kind, cols = if(n) 0:(n - 1L) else integer(0))

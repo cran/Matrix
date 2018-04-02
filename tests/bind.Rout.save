@@ -1,6 +1,6 @@
 
-R Under development (unstable) (2017-08-04 r73035) -- "Unsuffered Consequences"
-Copyright (C) 2017 The R Foundation for Statistical Computing
+R Under development (unstable) (2018-03-18 r74422) -- "Unsuffered Consequences"
+Copyright (C) 2018 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -288,8 +288,8 @@ cBind (m, v= 0 ), class(m) : dgeMatrix ,. dgCMatrix ,. dgTMatrix ,.
 rBind (m, v= 0 ), class(m) : dgeMatrix ,. dgCMatrix ,. dgTMatrix ,.
 cBind (m, v= 2 ), class(m) : dgeMatrix ,. dgCMatrix ,. dgTMatrix ,.
 rBind (m, v= 2 ), class(m) : dgeMatrix ,. dgCMatrix ,. dgTMatrix ,.
-cBind (m, v= c(1L, 0L) ), class(m) : dgeMatrix ,. dgCMatrix ,. dgTMatrix ,.
-rBind (m, v= c(1L, 0L) ), class(m) : dgeMatrix ,. dgCMatrix ,. dgTMatrix ,.
+cBind (m, v= 1:0 ), class(m) : dgeMatrix ,. dgCMatrix ,. dgTMatrix ,.
+rBind (m, v= 1:0 ), class(m) : dgeMatrix ,. dgCMatrix ,. dgTMatrix ,.
 > showProc.time()
 Time elapsed:  0.061 0.004 0.065 
 > 

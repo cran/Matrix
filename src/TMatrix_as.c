@@ -30,7 +30,7 @@
 
 SEXP dsTMatrix_as_dsyMatrix(SEXP x)
 {
-    SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dsyMatrix")));
+    SEXP val = PROTECT(NEW_OBJECT_OF_CLASS("dsyMatrix"));
 
     Matrix_T_as_DENSE(double, REAL, REALSXP, FALSE);
     Matrix_T_as_DENSE_FINISH(xx[k]);
@@ -38,7 +38,7 @@ SEXP dsTMatrix_as_dsyMatrix(SEXP x)
 
 SEXP lsTMatrix_as_lsyMatrix(SEXP x)
 {
-    SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("lsyMatrix")));
+    SEXP val = PROTECT(NEW_OBJECT_OF_CLASS("lsyMatrix"));
 
     Matrix_T_as_DENSE(int, LOGICAL, LGLSXP, FALSE);
     Matrix_T_as_DENSE_FINISH(xx[k]);
@@ -48,7 +48,7 @@ SEXP lsTMatrix_as_lsyMatrix(SEXP x)
 
 SEXP dtTMatrix_as_dtrMatrix(SEXP x)
 {
-    SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dtrMatrix")));
+    SEXP val = PROTECT(NEW_OBJECT_OF_CLASS("dtrMatrix"));
 
     Matrix_T_as_DENSE(double, REAL, REALSXP, FALSE);
     slot_dup(val, x, Matrix_diagSym);
@@ -57,7 +57,7 @@ SEXP dtTMatrix_as_dtrMatrix(SEXP x)
 
 SEXP ltTMatrix_as_ltrMatrix(SEXP x)
 {
-    SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("ltrMatrix")));
+    SEXP val = PROTECT(NEW_OBJECT_OF_CLASS("ltrMatrix"));
 
     Matrix_T_as_DENSE(int, LOGICAL, LGLSXP, FALSE);
     slot_dup(val, x, Matrix_diagSym);
@@ -127,14 +127,14 @@ SEXP ltTMatrix_as_ltrMatrix(SEXP x)
  * seems not available there */
 SEXP dsTMatrix_as_dgTMatrix(SEXP x)
 {
-    SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("dgTMatrix")));
+    SEXP val = PROTECT(NEW_OBJECT_OF_CLASS("dgTMatrix"));
     Matrix_sT_as_GENERAL(double, REAL, REALSXP);
 }
 
 
 SEXP lsTMatrix_as_lgTMatrix(SEXP x)
 {
-    SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("lgTMatrix")));
+    SEXP val = PROTECT(NEW_OBJECT_OF_CLASS("lgTMatrix"));
     Matrix_sT_as_GENERAL(int, LOGICAL, LGLSXP);
 }
 
@@ -151,7 +151,7 @@ SEXP lsTMatrix_as_lgTMatrix(SEXP x)
 
 SEXP nsTMatrix_as_nsyMatrix(SEXP x)
 {
-    SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("nsyMatrix")));
+    SEXP val = PROTECT(NEW_OBJECT_OF_CLASS("nsyMatrix"));
 
     Matrix_T_as_DENSE(int, LOGICAL, LGLSXP, FALSE);
     Matrix_T_as_DENSE_FINISH(1);
@@ -159,7 +159,7 @@ SEXP nsTMatrix_as_nsyMatrix(SEXP x)
 
 SEXP ntTMatrix_as_ntrMatrix(SEXP x)
 {
-    SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("ntrMatrix")));
+    SEXP val = PROTECT(NEW_OBJECT_OF_CLASS("ntrMatrix"));
 
     Matrix_T_as_DENSE(int, LOGICAL, LGLSXP, FALSE);
     slot_dup(val, x, Matrix_diagSym);
@@ -168,6 +168,6 @@ SEXP ntTMatrix_as_ntrMatrix(SEXP x)
 
 SEXP nsTMatrix_as_ngTMatrix(SEXP x)
 {
-    SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("ngTMatrix")));
+    SEXP val = PROTECT(NEW_OBJECT_OF_CLASS("ngTMatrix"));
     Matrix_sT_as_GENERAL(int, LOGICAL, LGLSXP);
 }

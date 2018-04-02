@@ -165,8 +165,8 @@ SEXP Csparse_to_dense(SEXP x, SEXP symm_or_tri)
     if(is_sym) { // ==> want  [dln]syMatrix
 	const char cl1 = class_P(ans)[0];
 	PROTECT(ans);
-	SEXP aa = PROTECT(NEW_OBJECT(MAKE_CLASS((cl1 == 'd') ? "dsyMatrix" :
-						((cl1 == 'l') ? "lsyMatrix" : "nsyMatrix"))));
+	SEXP aa = PROTECT(NEW_OBJECT_OF_CLASS((cl1 == 'd') ? "dsyMatrix" :
+					      ((cl1 == 'l') ? "lsyMatrix" : "nsyMatrix")));
 	// No need to duplicate() as slots of ans are freshly allocated and ans will not be used
 	SET_SLOT(aa, Matrix_xSym,       GET_SLOT(ans, Matrix_xSym));
 	SET_SLOT(aa, Matrix_DimSym,     GET_SLOT(ans, Matrix_DimSym));
@@ -178,8 +178,8 @@ SEXP Csparse_to_dense(SEXP x, SEXP symm_or_tri)
     else if(is_tri) { // ==> want  [dln]trMatrix
 	const char cl1 = class_P(ans)[0];
 	PROTECT(ans);
-	SEXP aa = PROTECT(NEW_OBJECT(MAKE_CLASS((cl1 == 'd') ? "dtrMatrix" :
-						((cl1 == 'l') ? "ltrMatrix" : "ntrMatrix"))));
+	SEXP aa = PROTECT(NEW_OBJECT_OF_CLASS((cl1 == 'd') ? "dtrMatrix" :
+					      ((cl1 == 'l') ? "ltrMatrix" : "ntrMatrix")));
 	// No need to duplicate() as slots of ans are freshly allocated and ans will not be used
 	SET_SLOT(aa, Matrix_xSym,       GET_SLOT(ans, Matrix_xSym));
 	SET_SLOT(aa, Matrix_DimSym,     GET_SLOT(ans, Matrix_DimSym));
@@ -246,7 +246,7 @@ SEXP nz2Csparse(SEXP x, enum x_slot_kind r_kind)
     ncl[0] = (r_kind == x_double ? 'd' :
 	      (r_kind == x_logical ? 'l' :
 	       /* else (for now):  r_kind == x_integer : */ 'i'));
-    PROTECT(ans = NEW_OBJECT(MAKE_CLASS(ncl)));
+    PROTECT(ans = NEW_OBJECT_OF_CLASS(ncl));
     // create a correct 'x' slot:
     switch(r_kind) {
 	int i;
@@ -349,7 +349,6 @@ SEXP Csparse_symmetric_to_general(SEXP x)
     if (!(chx->stype))
 	error(_("Nonsymmetric matrix in Csparse_symmetric_to_general"));
     chgx = cholmod_copy(chx, /* stype: */ 0, chx->xtype, &c);
-    /* xtype: pattern, "real", complex or .. */
     return chm_sparse_to_SEXP(chgx, 1, 0, Rkind, "",
 			      symmetric_DimNames(GET_SLOT(x, Matrix_DimNamesSym)));
 }
@@ -395,7 +394,7 @@ SEXP Csparse_general_to_symmetric(SEXP x, SEXP uplo, SEXP sym_dmns)
 	}
 	UNPROTECT(1);
     }
-    /* xtype: pattern, "real", complex or .. */
+    /* Rkind: pattern, "real", complex or .. */
     return chm_sparse_to_SEXP(chgx, 1, 0, Rkind, "", dns);
 }
 
@@ -674,10 +673,10 @@ SEXP Csp_dense_products(SEXP a, SEXP b,
     if(cha->xtype == CHOLMOD_PATTERN) {
 	/* warning(_("Csparse_dense_prod(): cholmod_sdmult() not yet implemented for pattern./ ngCMatrix" */
 	/* 	  " --> slightly inefficient coercion")); */
-
 	// This *fails* to produce a CHOLMOD_REAL ..
-	// CHM_SP chd = cholmod_l_copy(cha, cha->stype, CHOLMOD_REAL, &c);
-	// --> use our Matrix-classes
+	// CHM_SP chd = cholmod_l_copy(cha, cha->stype, CHOLMOD_REAL, &cl);
+
+	// --> use our Matrix-classes: they work:
 	SEXP da = PROTECT(nz2Csparse(a, x_double)); nprot++;
 	cha = AS_CHM_SP(da);
     }
@@ -813,16 +812,17 @@ SEXP Csparse_horzcat(SEXP x, SEXP y)
 #define CSPARSE_CAT(_KIND_)						\
     CHM_SP chx = AS_CHM_SP__(x), chy = AS_CHM_SP__(y);			\
     R_CheckStack();							\
-    int Rk_x = (chx->xtype != CHOLMOD_PATTERN) ? Real_kind(x) : -3,	\
-	Rk_y = (chy->xtype != CHOLMOD_PATTERN) ? Real_kind(y) : -3, Rkind; \
-    if(Rk_x == -3 || Rk_y == -3) { /* at least one of them is patter"n" */ \
-	if(Rk_x == -3 && Rk_y == -3) { /* fine */			\
+    int Rk_x = (chx->xtype != CHOLMOD_PATTERN) ? Real_kind(x) : x_pattern, \
+	Rk_y = (chy->xtype != CHOLMOD_PATTERN) ? Real_kind(y) : x_pattern, Rkind; \
+    if(Rk_x == x_pattern || Rk_y == x_pattern) { /* at least one of them is patter"n" */ \
+	if(Rk_x == x_pattern && Rk_y == x_pattern) { /* fine */		\
 	} else { /* only one is a patter"n"				\
-		  * "Bug" in cholmod_horzcat()/vertcat(): returns patter"n" matrix if one of them is */	\
+		  * "Bug" in cholmod_horzcat()/vertcat():               \
+		  * returns patter"n" matrix if one of them is */	\
 	    Rboolean ok;						\
-	    if(Rk_x == -3) {						\
+	    if(Rk_x == x_pattern) {					\
 		ok = chm_MOD_xtype(CHOLMOD_REAL, chx, &c); Rk_x = 0;	\
-	    } else if(Rk_y == -3) {					\
+	    } else if(Rk_y == x_pattern) {				\
 		ok = chm_MOD_xtype(CHOLMOD_REAL, chy, &c); Rk_y = 0;	\
 	    } else							\
 		error(_("Impossible Rk_x/Rk_y in Csparse_%s(), please report"), _KIND_); \
@@ -1170,8 +1170,7 @@ SEXP create_Csparse(char* cls, int* i, int* j, int* p, int np,
 		    int index1)
 {
     SEXP ans;
-    int *ij = (int*)NULL, *tri, *trj,
-	mi, mj, mp, nrow = -1, ncol = -1;
+    int *ij = (int*)NULL, *tri, *trj, nrow = -1, ncol = -1;
     int xtype = -1;		/* -Wall */
     CHM_TR T;
     CHM_SP A;
@@ -1179,9 +1178,10 @@ SEXP create_Csparse(char* cls, int* i, int* j, int* p, int np,
     if (np < 0 || nnz < 0)
 	error(_("negative vector lengths not allowed: np = %d, nnz = %d"),
 	      np, nnz);
-    if (1 != ((mi = (i == (int*)NULL)) +
-	      (mj = (j == (int*)NULL)) +
-	      (mp = (p == (int*)NULL))))
+    int mi = (i == (int*)NULL), // := missing 'i'
+	mj = (j == (int*)NULL), // := missing 'j'
+	mp = (p == (int*)NULL); // := missing 'p'
+    if ((mi + mj + mp) != 1)
 	error(_("exactly 1 of 'i', 'j' or 'p' must be NULL"));
     if (mp) {
 	if (np) error(_("np = %d, must be zero when p is NULL"), np);
@@ -1232,7 +1232,7 @@ SEXP create_Csparse(char* cls, int* i, int* j, int* p, int np,
     /* check the class name */
     if (strlen(cls) != 8)
 	error(_("strlen of cls argument = %d, should be 8"), strlen(cls));
-    if (!strcmp(cls + 2, "CMatrix"))
+    if (strcmp(cls + 2, "CMatrix"))
 	error(_("cls = \"%s\" does not end in \"CMatrix\""), cls);
     switch(cls[0]) {
     case 'd':
@@ -1261,7 +1261,7 @@ SEXP create_Csparse(char* cls, int* i, int* j, int* p, int np,
     A = cholmod_triplet_to_sparse(T, nnz, &c);
     cholmod_free_triplet(&T, &c);
     /* copy the information to the SEXP */
-    ans = PROTECT(NEW_OBJECT(MAKE_CLASS(cls)));
+    ans = PROTECT(NEW_OBJECT_OF_CLASS(cls));
 // FIXME: This has been copied from chm_sparse_to_SEXP in  chm_common.c
     /* allocate and copy common slots */
     nnz = cholmod_nnz(A, &c);
@@ -1269,7 +1269,7 @@ SEXP create_Csparse(char* cls, int* i, int* j, int* p, int np,
     dims[0] = A->nrow; dims[1] = A->ncol;
     Memcpy(INTEGER(ALLOC_SLOT(ans, Matrix_pSym, INTSXP, A->ncol + 1)), (int*)A->p, A->ncol + 1);
     Memcpy(INTEGER(ALLOC_SLOT(ans, Matrix_iSym, INTSXP, nnz)), (int*)A->i, nnz);
-    switch(cls[1]) {
+    switch(cls[0]) {
     case 'd':
 	Memcpy(REAL(ALLOC_SLOT(ans, Matrix_xSym, REALSXP, nnz)), (double*)A->x, nnz);
 	break;
@@ -1281,3 +1281,114 @@ SEXP create_Csparse(char* cls, int* i, int* j, int* p, int np,
     UNPROTECT(1);
     return ans;
 }
+
+/**
+ * Create a Csparse matrix object from a traditional R matrix
+ *
+ * @param x   traditional R matrix (numeric, logical, ...)
+ * @param cls class (a string)
+ *
+ * @return an SEXP of a class inheriting from CsparseMatrix.
+ */
+SEXP matrix_to_Csparse(SEXP x, SEXP cls)
+{
+    if (!isMatrix(x))
+	error(_("%s must be (traditional R) matrix"), "'x'");
+    SEXP d_x  = getAttrib(x, R_DimSymbol),
+	dn_x  = getAttrib(x, R_DimNamesSymbol);
+    int nr = INTEGER(d_x)[0],
+	nc = INTEGER(d_x)[1];
+
+    if (!(isString(cls) && LENGTH(cls) == 1))
+	error(_("%s must be character string"), "'cls'");
+    R_xlen_t ii, n = XLENGTH(x);
+    int xtype = -1;
+    if (n != ((R_xlen_t) nr) * nc)
+	error(_("nrow * ncol = %d * %d must equal length(x) = %ld"), nr, nc, n);
+
+    const char *ccls = CHAR(STRING_ELT(cls, 0));
+    if (strlen(ccls) != 9)
+	error(_("strlen of cls argument = %d, should be 9"), strlen(ccls));
+    if (strcmp(ccls + 2, "CMatrix"))
+	error(_("cls = \"%s\" does not end in \"CMatrix\""), ccls);
+    switch(ccls[0]) {
+    case 'd':
+    case 'l':
+	xtype = CHOLMOD_REAL;
+    break;
+    case 'n':
+	xtype = CHOLMOD_PATTERN;
+	break;
+    default:
+	error(_("cls = \"%s\" must begin with 'd', 'l' or 'n' for now"), ccls);
+    }
+    /* if (ccls[1] != 'g') */
+    /* 	error(_("Only 'g'eneral sparse matrix types allowed")); */
+
+    SEXP ans = PROTECT(NEW_OBJECT_OF_CLASS(ccls));
+    SET_SLOT(ans, Matrix_DimSym, d_x);
+    SET_SLOT(ans, Matrix_DimNamesSym, (!isNull(dn_x) && LENGTH(dn_x) == 2)
+	     ? duplicate(dn_x)
+	     : allocVector(VECSXP, 2));
+
+    int nz = 0, // current number of nonzero entries
+	nnz = imax2(256, imax2(nr,nc));/* nnz := final number of nonzero entries, yet unknown;
+					   -- must start with guess and then grow */
+    int *rp = INTEGER(ALLOC_SLOT(ans, Matrix_pSym, INTSXP, nc + 1)),
+	*ri = Calloc(nnz, int); // to become i slot -- of not-yet-known length nnz
+
+    rp[0] = 0; // always
+
+    switch(TYPEOF(x)) {
+    case LGLSXP: {
+	if(xtype == CHOLMOD_PATTERN) {
+#         define _PATTERN_x
+#         include "t_matrix_to_Csp.c"
+	} else {
+#         define _LOGICAL_x
+#         include "t_matrix_to_Csp.c"
+	}
+	break;
+    }
+    case REALSXP: {
+#       define _DOUBLE_x
+#       include "t_matrix_to_Csp.c"
+	break;
+    }
+/* case INTSXP: we would have to use
+	x = coerceVector(x, REALSXP));
+   and then fall through to REALSXP case, but we must *not* modify 'x' here
+   FIXME: use a macro or (inline?) function with argument (y), where
+   -----  SEXP y = PROTECT(coerceVector(x, REALSXP))
+
+   ==> give error in INTSXP case, so caller (in R) must set  storage.mode(x) <- "double"
+*/
+#ifdef _USING_INTEGER_NOT_READY__
+    case INTSXP: {
+#       define _INTEGER_x
+#       include "t_matrix_to_Csp.c"
+	break;
+    }
+#endif
+#ifdef _USING_COMPLEX_NOT_READY__
+    case CPLXSXP: {
+#       define _COMPLEX_x
+#       include "t_matrix_to_Csp.c"
+	break;
+    }
+#endif
+    default:
+	error(_("%s must be a logical or double vector"), "'x'");
+	break;
+    }
+
+    Memcpy(INTEGER(ALLOC_SLOT(ans, Matrix_iSym,  INTSXP, nnz)), ri, nnz);
+    Free(ri);
+
+    UNPROTECT(1);
+    return ans;
+}
+
+
+
+

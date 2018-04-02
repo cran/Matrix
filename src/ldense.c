@@ -7,9 +7,8 @@
 /* this is very close to dspMatrix_as_dsy* () in ./dspMatrix.c : */
 SEXP lspMatrix_as_lsyMatrix(SEXP from, SEXP kind)
 {
-    SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS((asInteger(kind) == 1) ?
-					     "nsyMatrix" :
-					     "lsyMatrix"))),
+    SEXP val = PROTECT(NEW_OBJECT_OF_CLASS(
+			   (asInteger(kind) == 1) ? "nsyMatrix" : "lsyMatrix")),
 	uplo = GET_SLOT(from, Matrix_uploSym),
 	dimP = GET_SLOT(from, Matrix_DimSym),
 	dmnP = GET_SLOT(from, Matrix_DimNamesSym);
@@ -28,9 +27,8 @@ SEXP lspMatrix_as_lsyMatrix(SEXP from, SEXP kind)
 // this is very close to dsyMatrix_as_lsp*() in ./dsyMatrix.c  -- keep synced !
 SEXP lsyMatrix_as_lspMatrix(SEXP from, SEXP kind)
 {
-    SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS((asInteger(kind) == 1) ?
-					     "nspMatrix" :
-					     "lspMatrix"))),
+    SEXP val = PROTECT(NEW_OBJECT_OF_CLASS(
+			   (asInteger(kind) == 1) ? "nspMatrix" : "lspMatrix")),
 	uplo = GET_SLOT(from, Matrix_uploSym),
 	dimP = GET_SLOT(from, Matrix_DimSym);
     int n = *INTEGER(dimP);
@@ -52,9 +50,8 @@ SEXP lsyMatrix_as_lspMatrix(SEXP from, SEXP kind)
 // this is very close to dtpMatrix_as_dtr*() in ./dtpMatrix.c -- keep synced!
 SEXP ltpMatrix_as_ltrMatrix(SEXP from, SEXP kind)
 {
-    SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS((asInteger(kind) == 1) ?
-					     "ntrMatrix" :
-					     "ltrMatrix"))),
+    SEXP val = PROTECT(NEW_OBJECT_OF_CLASS(
+			   (asInteger(kind) == 1) ? "ntrMatrix" : "ltrMatrix")),
 	uplo = GET_SLOT(from, Matrix_uploSym),
 	diag = GET_SLOT(from, Matrix_diagSym),
 	dimP = GET_SLOT(from, Matrix_DimSym),
@@ -77,9 +74,8 @@ SEXP ltpMatrix_as_ltrMatrix(SEXP from, SEXP kind)
 /* this is very close to dtrMatrix_as_dtp* () in ./dtrMatrix.c : */
 SEXP ltrMatrix_as_ltpMatrix(SEXP from, SEXP kind)
 {
-    SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS((asInteger(kind) == 1) ?
-					     "ntpMatrix" :
-					     "ltpMatrix"))),
+    SEXP val = PROTECT(NEW_OBJECT_OF_CLASS(
+			   (asInteger(kind) == 1) ? "ntpMatrix" : "ltpMatrix")),
 	uplo = GET_SLOT(from, Matrix_uploSym),
 	diag = GET_SLOT(from, Matrix_diagSym),
 	dimP = GET_SLOT(from, Matrix_DimSym);
@@ -102,10 +98,8 @@ SEXP ltrMatrix_as_ltpMatrix(SEXP from, SEXP kind)
 /* this is very close to dtrMatrix_as_dge*() :*/
 SEXP ltrMatrix_as_lgeMatrix(SEXP from, SEXP kind)
 {
-    SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS((asInteger(kind) == 1) ?
-					     "ngeMatrix" :
-					     "lgeMatrix")));
-
+    SEXP val = PROTECT(NEW_OBJECT_OF_CLASS(
+			   (asInteger(kind) == 1) ? "ngeMatrix" : "lgeMatrix"));
     slot_dup(val, from, Matrix_xSym);
     slot_dup(val, from, Matrix_DimSym);
     slot_dup(val, from, Matrix_DimNamesSym);
@@ -119,10 +113,8 @@ SEXP ltrMatrix_as_lgeMatrix(SEXP from, SEXP kind)
 /* this is very close to dsyMatrix_as_dge*() :*/
 SEXP lsyMatrix_as_lgeMatrix(SEXP from, SEXP kind)
 {
-    SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS((asInteger(kind) == 1) ?
-					     "ngeMatrix" :
-					     "lgeMatrix")));
-
+    SEXP val = PROTECT(NEW_OBJECT_OF_CLASS(
+			   (asInteger(kind) == 1) ? "ngeMatrix" : "lgeMatrix"));
     slot_dup(val, from, Matrix_xSym);
     slot_dup(val, from, Matrix_DimSym);
     slot_dup(val, from, Matrix_DimNamesSym);

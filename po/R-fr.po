@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Matrix 1.1-1\n"
-"POT-Creation-Date: 2017-02-10 12:21\n"
+"POT-Creation-Date: 2018-04-06 22:43\n"
 "PO-Revision-Date: 2014-03-30 09:07+0100\n"
 "Last-Translator: Philippe Grosjean <phgrosjean@sciviews.org>\n"
 "Language-Team: none\n"
@@ -94,6 +94,10 @@ msgstr ""
 
 msgid "update must be TRUE/FALSE or '+' or '-'"
 msgstr "update doit être TRUE/FALSE ou '+' ou '-'"
+
+#, fuzzy
+msgid "cannot coerce NA values to pattern \"ngCMatrix\""
+msgstr "impossible de convertir automatiquement des 'NA's en \"nsparseMatrix\""
 
 msgid "Matrix-internal error in <CsparseM>[i,,d]; please report"
 msgstr ""
@@ -193,6 +197,16 @@ msgstr "'%s()' n'est pas implémenté pour le type d'élément '%s'"
 msgid "'%s()' is not yet implemented for  representation '%s'"
 msgstr "'%s' n'est pas implémenté pour la représentation '%s'"
 
+msgid ""
+"as.matrix(<Matrix>) is deprecated (to become a no-op in the future).\n"
+"Use  as(x, \"matrix\")  or .asmatrix(x) instead."
+msgstr ""
+
+msgid ""
+"as.array(<Matrix>) is deprecated. Use  as(x, \"matrix\")  or .asmatrix(x) "
+"instead."
+msgstr ""
+
 msgid "trimmed mean of 'sparseVector' -- suboptimally using as.numeric(.)"
 msgstr ""
 "moyenne élaguée du 'sparseVector' -- utilisation suboptimale de as.numeric()"
@@ -253,7 +267,10 @@ msgid ""
 msgstr ""
 "nargs() = %d. Arguments additionnels dans '[…]' inacceptables (i.logical) ?"
 
-msgid "m[ <ij-matrix> ]: inefficiently indexing single elements"
+#, fuzzy
+msgid ""
+"m[<ij-matrix>]: inefficiently indexing single elements - should not happen, "
+"please report!"
 msgstr "m[ <ij-matrix> ] : indice sur un seul élément inefficace "
 
 msgid "nargs() = %d.  Extraneous illegal arguments inside '[ .. ]' (i.2col)?"
@@ -671,6 +688,9 @@ msgstr "doit avoir exactement une entrée non zéro par ligne"
 msgid "kronecker method must use default 'FUN'"
 msgstr "méthode kronecker doit utiliser une 'FUN' par défaut"
 
+msgid "resulting matrix dimension would be too large"
+msgstr ""
+
 msgid "replacing \"indMatrix\" entries is not allowed, as rarely sensible"
 msgstr ""
 "le replacement d'entrées \"indMatrix\" n'est pas autorisé, c'est rarement "
@@ -687,6 +707,10 @@ msgstr "impossible de convertir automatiquement des 'NA's en \"nsparseMatrix\""
 
 msgid "temporarily disabled"
 msgstr "temporairement désactivé"
+
+#, fuzzy
+msgid "cannot coerce NA values to pattern \"ntCMatrix\""
+msgstr "impossible de convertir automatiquement des 'NA's en \"nsparseMatrix\""
 
 msgid "coercion to \"pMatrix\" only works from integer numeric"
 msgstr ""
@@ -806,6 +830,17 @@ msgstr "'V' n'est pas une matrice *carrée*"
 
 msgid "number of non zeros is smaller than 'nnz' because of duplicated (i,j)s"
 msgstr ""
+
+msgid "a sparseMatrix should rarely be centered: will not be sparse anymore"
+msgstr ""
+
+#, fuzzy
+msgid "length of 'center' must equal the number of columns of 'x'"
+msgstr "Les matrices doivent avoir le même nombre de colonnes dans %s"
+
+#, fuzzy
+msgid "length of 'scale' must equal the number of columns of 'x'"
+msgstr "Les matrices doivent avoir le même nombre de colonnes dans %s"
 
 msgid ""
 "qr.R(<sparse>) may differ from qr.R(<dense>) because of permutations.  "

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Matrix 1.1-2-2\n"
 "Report-Msgid-Bugs-To: bugs.r-project.org\n"
-"POT-Creation-Date: 2017-02-10 12:21\n"
+"POT-Creation-Date: 2018-04-06 22:43\n"
 "PO-Revision-Date: 2014-03-27 14:47+0100\n"
 "Last-Translator: Łukasz Daniel <lukasz.daniel@gmail.com>\n"
 "Language-Team: Łukasz Daniel <lukasz.daniel@gmail.com>\n"
@@ -160,6 +160,12 @@ msgstr ""
 # stop("update must be TRUE/FALSE or '+' or '-'")
 msgid "update must be TRUE/FALSE or '+' or '-'"
 msgstr "'update' musi wynosić TRUE/FALSE lub '+' lub '-'"
+
+# Matrix/R/ngTMatrix.R: 24
+# stop("cannot coerce 'NA's to \"nsparseMatrix\"")
+#, fuzzy
+msgid "cannot coerce NA values to pattern \"ngCMatrix\""
+msgstr "nie można przekształcić wartości 'NA' na 'nsparseMatrix'"
 
 # Matrix/R/Csparse.R: 190
 # stop("Matrix-internal error in <CsparseM>[i,,d]; please report")
@@ -333,6 +339,16 @@ msgstr "'%s()' nie jest jeszcze zaimplementowany dla typu '%s' elementu"
 msgid "'%s()' is not yet implemented for  representation '%s'"
 msgstr "'%s()' nie jest jeszcze zaimplementowane dla reprezentacji '%s'"
 
+msgid ""
+"as.matrix(<Matrix>) is deprecated (to become a no-op in the future).\n"
+"Use  as(x, \"matrix\")  or .asmatrix(x) instead."
+msgstr ""
+
+msgid ""
+"as.array(<Matrix>) is deprecated. Use  as(x, \"matrix\")  or .asmatrix(x) "
+"instead."
+msgstr ""
+
 # Matrix/R/Matrix.R: 71
 # warning("trimmed mean of 'sparseVector' -- suboptimally using as.numeric(.)")
 msgid "trimmed mean of 'sparseVector' -- suboptimally using as.numeric(.)"
@@ -428,7 +444,10 @@ msgstr ""
 
 # Matrix/R/Matrix.R: 644
 # message("m[ <ij-matrix> ]: inefficiently indexing single elements")
-msgid "m[ <ij-matrix> ]: inefficiently indexing single elements"
+#, fuzzy
+msgid ""
+"m[<ij-matrix>]: inefficiently indexing single elements - should not happen, "
+"please report!"
 msgstr "m[ <ij-matrix> ]: nieefektywne indeksowanie pojedynczych elementów"
 
 # Matrix/R/Matrix.R: 673
@@ -1132,6 +1151,9 @@ msgstr "potrzeba mieć dokładnie jeden niezerowy wpis na wiersz"
 msgid "kronecker method must use default 'FUN'"
 msgstr "metoda kroneckera musi użyć domyślnej 'FUN'"
 
+msgid "resulting matrix dimension would be too large"
+msgstr ""
+
 # Matrix/R/indMatrix.R: 158
 # stop('replacing "indMatrix" entries is not allowed, as rarely sensible')
 msgid "replacing \"indMatrix\" entries is not allowed, as rarely sensible"
@@ -1158,6 +1180,12 @@ msgstr "nie można przekształcić wartości 'NA' na 'nsparseMatrix'"
 # stop("function is temporarily disabled")
 msgid "temporarily disabled"
 msgstr "funkcja jest tymczasowo niedostępna"
+
+# Matrix/R/ngTMatrix.R: 24
+# stop("cannot coerce 'NA's to \"nsparseMatrix\"")
+#, fuzzy
+msgid "cannot coerce NA values to pattern \"ntCMatrix\""
+msgstr "nie można przekształcić wartości 'NA' na 'nsparseMatrix'"
 
 # Matrix/R/pMatrix.R: 17
 # stop("coercion to \"pMatrix\" only works from integer numeric")
@@ -1326,6 +1354,25 @@ msgstr "'V' nie jest macierzą *kwadratową*"
 
 msgid "number of non zeros is smaller than 'nnz' because of duplicated (i,j)s"
 msgstr ""
+
+msgid "a sparseMatrix should rarely be centered: will not be sparse anymore"
+msgstr ""
+
+# Matrix/R/bind2.R: 395
+# stop(gettextf("Matrices must have same number of columns in %s", deparse(sys.call(sys.parent()))), call. = FALSE, domain = "R-Matrix")
+# Matrix/R/Auxiliaries.R: 314
+# stop(gettextf("Matrices must have same number of columns in %s", deparse(sys.call(sys.parent()))), call. = FALSE, domain = "R-Matrix")
+#, fuzzy
+msgid "length of 'center' must equal the number of columns of 'x'"
+msgstr "Macierze muszą mieć tę samą liczbę kolumn w %s"
+
+# Matrix/R/bind2.R: 395
+# stop(gettextf("Matrices must have same number of columns in %s", deparse(sys.call(sys.parent()))), call. = FALSE, domain = "R-Matrix")
+# Matrix/R/Auxiliaries.R: 314
+# stop(gettextf("Matrices must have same number of columns in %s", deparse(sys.call(sys.parent()))), call. = FALSE, domain = "R-Matrix")
+#, fuzzy
+msgid "length of 'scale' must equal the number of columns of 'x'"
+msgstr "Macierze muszą mieć tę samą liczbę kolumn w %s"
 
 # Matrix/R/sparseQR.R: 16
 # warning("qr.R(<sparse>) may differ from qr.R(<dense>) because of permutations.  Possibly use our qrR() instead")

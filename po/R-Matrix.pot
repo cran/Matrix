@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Matrix 1.2-9\n"
-"POT-Creation-Date: 2017-02-10 12:21\n"
+"Project-Id-Version: Matrix 1.2-14\n"
+"POT-Creation-Date: 2018-04-06 22:43\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -74,6 +74,9 @@ msgid "'update' must be logical or '+' or '-'; 'C' a matrix, and 'L' a \"CHMfact
 msgstr ""
 
 msgid "update must be TRUE/FALSE or '+' or '-'"
+msgstr ""
+
+msgid "cannot coerce NA values to pattern \"ngCMatrix\""
 msgstr ""
 
 msgid "Matrix-internal error in <CsparseM>[i,,d]; please report"
@@ -157,6 +160,12 @@ msgstr ""
 msgid "'%s()' is not yet implemented for  representation '%s'"
 msgstr ""
 
+msgid "as.matrix(<Matrix>) is deprecated (to become a no-op in the future).\nUse  as(x, \"matrix\")  or .asmatrix(x) instead."
+msgstr ""
+
+msgid "as.array(<Matrix>) is deprecated. Use  as(x, \"matrix\")  or .asmatrix(x) instead."
+msgstr ""
+
 msgid "trimmed mean of 'sparseVector' -- suboptimally using as.numeric(.)"
 msgstr ""
 
@@ -202,7 +211,7 @@ msgstr ""
 msgid "nargs() = %d.  Extraneous illegal arguments inside '[ .. ]' (i.logical)?"
 msgstr ""
 
-msgid "m[ <ij-matrix> ]: inefficiently indexing single elements"
+msgid "m[<ij-matrix>]: inefficiently indexing single elements - should not happen, please report!"
 msgstr ""
 
 msgid "nargs() = %d.  Extraneous illegal arguments inside '[ .. ]' (i.2col)?"
@@ -535,6 +544,9 @@ msgstr ""
 msgid "kronecker method must use default 'FUN'"
 msgstr ""
 
+msgid "resulting matrix dimension would be too large"
+msgstr ""
+
 msgid "replacing \"indMatrix\" entries is not allowed, as rarely sensible"
 msgstr ""
 
@@ -548,6 +560,9 @@ msgid "cannot coerce 'NA's to \"nsparseMatrix\""
 msgstr ""
 
 msgid "temporarily disabled"
+msgstr ""
+
+msgid "cannot coerce NA values to pattern \"ntCMatrix\""
 msgstr ""
 
 msgid "coercion to \"pMatrix\" only works from integer numeric"
@@ -647,6 +662,15 @@ msgid "'V' is not a *square* matrix"
 msgstr ""
 
 msgid "number of non zeros is smaller than 'nnz' because of duplicated (i,j)s"
+msgstr ""
+
+msgid "a sparseMatrix should rarely be centered: will not be sparse anymore"
+msgstr ""
+
+msgid "length of 'center' must equal the number of columns of 'x'"
+msgstr ""
+
+msgid "length of 'scale' must equal the number of columns of 'x'"
 msgstr ""
 
 msgid "qr.R(<sparse>) may differ from qr.R(<dense>) because of permutations.  Possibly use our qrR() instead"

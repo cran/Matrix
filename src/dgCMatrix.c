@@ -535,7 +535,8 @@ SEXP dgCMatrix_cholsol(SEXP x, SEXP y)
      * cholmod_factorize("x", ..) finds L in  X'X = L'L directly */
     CHM_SP cx = AS_CHM_SP(x);
     /* FIXME: extend this to work in multivariate case, i.e. y a matrix with > 1 column ! */
-    CHM_DN cy = AS_CHM_DN(coerceVector(y, REALSXP)), rhs, cAns, resid;
+    SEXP y_ = PROTECT(coerceVector(y, REALSXP));
+    CHM_DN cy = AS_CHM_DN(y_), rhs, cAns, resid;
     CHM_FR L;
     int n = cx->ncol;/* #{obs.} {x = t(X) !} */
     double one[] = {1,0}, zero[] = {0,0}, neg1[] = {-1,0};
@@ -584,7 +585,7 @@ SEXP dgCMatrix_cholsol(SEXP x, SEXP y)
     cholmod_free_factor(&L, &c);
     cholmod_free_dense(&rhs, &c);
     cholmod_free_dense(&cAns, &c);
-    UNPROTECT(1);
+    UNPROTECT(2);
     return ans;
 }
 

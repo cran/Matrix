@@ -5,10 +5,10 @@
 # Detlef Steuer <steuer@hsu-hh.de>, 2012-2014.
 msgid ""
 msgstr ""
-"Project-Id-Version: R 3.3.0 / matrix 1.2-4\n"
+"Project-Id-Version: R 3.5.0 / matrix 1.2-12\n"
 "Report-Msgid-Bugs-To: bugs.r-project.org\n"
-"POT-Creation-Date: 2017-02-10 12:21\n"
-"PO-Revision-Date: 2016-04-14 12:55+0200\n"
+"POT-Creation-Date: 2018-04-06 22:43\n"
+"PO-Revision-Date: 2018-04-06 13:18+0200\n"
 "Last-Translator: Detlef Steuer <steuer@hsu-hh.de>\n"
 "Language-Team: R-Core <r-core@r-project.org>\n"
 "Language: de\n"
@@ -101,6 +101,10 @@ msgstr ""
 msgid "update must be TRUE/FALSE or '+' or '-'"
 msgstr "update muss entweder TRUE/FALSE, '+' oder '-' sein"
 
+#, fuzzy
+msgid "cannot coerce NA values to pattern \"ngCMatrix\""
+msgstr "'NA's können nicht in \"nsparseMatrix\" umgewandelt werden"
+
 msgid "Matrix-internal error in <CsparseM>[i,,d]; please report"
 msgstr "Matrixinterner Fehler in <CsparseM>[i,,d]. Bitte berichten"
 
@@ -190,6 +194,16 @@ msgstr "'%s()' ist noch nicht für Elementtyp '%s' implementiert"
 msgid "'%s()' is not yet implemented for  representation '%s'"
 msgstr "'%s()' ist noch nicht implementiert für Darstellung '%s'"
 
+msgid ""
+"as.matrix(<Matrix>) is deprecated (to become a no-op in the future).\n"
+"Use  as(x, \"matrix\")  or .asmatrix(x) instead."
+msgstr ""
+
+msgid ""
+"as.array(<Matrix>) is deprecated. Use  as(x, \"matrix\")  or .asmatrix(x) "
+"instead."
+msgstr ""
+
 msgid "trimmed mean of 'sparseVector' -- suboptimally using as.numeric(.)"
 msgstr ""
 "getrimmter Mittelwert von 'sparseVector' – suboptimalerweise wird as."
@@ -252,7 +266,10 @@ msgid ""
 msgstr ""
 "nargs() = %d. Irrelevante ungültige Argumente innerhalb '[ .. ]' (i.logical)?"
 
-msgid "m[ <ij-matrix> ]: inefficiently indexing single elements"
+#, fuzzy
+msgid ""
+"m[<ij-matrix>]: inefficiently indexing single elements - should not happen, "
+"please report!"
 msgstr "m[ <ij-matrix> ]: ineffiziente Indexierung einzelner Elemente"
 
 msgid "nargs() = %d.  Extraneous illegal arguments inside '[ .. ]' (i.2col)?"
@@ -490,6 +507,7 @@ msgstr "'diagonals' muss die gleiche Länge (%d) wie 'k' haben"
 
 msgid "matrix can only be symmetric if square, but n != m"
 msgstr ""
+"Matrix kann nur symmetrisch sein, wenn sie quadratisch ist, aber n != m"
 
 msgid ""
 "for symmetric band matrix, only specify upper or lower triangle\n"
@@ -645,6 +663,9 @@ msgstr "muss genau einen Nicht-Null-Eintrag pro Zeile haben"
 msgid "kronecker method must use default 'FUN'"
 msgstr "kronecker-Methode muss Standard 'FUN' benutzen"
 
+msgid "resulting matrix dimension would be too large"
+msgstr ""
+
 msgid "replacing \"indMatrix\" entries is not allowed, as rarely sensible"
 msgstr ""
 "Ersetzen von \"indMatrix\"-Einträgen ist nicht erlaubt, da selten sinnvoll"
@@ -660,6 +681,10 @@ msgstr "'NA's können nicht in \"nsparseMatrix\" umgewandelt werden"
 
 msgid "temporarily disabled"
 msgstr "zeitweise ausgeschaltet"
+
+#, fuzzy
+msgid "cannot coerce NA values to pattern \"ntCMatrix\""
+msgstr "'NA's können nicht in \"nsparseMatrix\" umgewandelt werden"
 
 msgid "coercion to \"pMatrix\" only works from integer numeric"
 msgstr ""
@@ -715,16 +740,17 @@ msgid ""
 "Both 'symmetric' and 'triangular', i.e. asking for diagonal matrix.  Use "
 "'Diagonal()' instead"
 msgstr ""
+"Sowohl 'symmetric' als auch 'triangular', also Diagonalgestalt. Nutze\n"
+" stattdessen 'Diagonal()'"
 
 msgid "symmetric matrix must be square"
 msgstr "symmetrische Matrix muss quadratisch sein"
 
-#, fuzzy
 msgid "triangular matrix must be square"
-msgstr "symmetrische Matrix muss quadratisch sein"
+msgstr "Dreiecksmatrix muss quadratisch sein"
 
 msgid "triangular matrix must have all i >= j or i <= j"
-msgstr ""
+msgstr "Deicksmatrix muss entweder alle i >= j oder i <= j haben"
 
 msgid "length(i) is not a multiple of length(x)"
 msgstr "length(i) ist kein Vielfaches von length(x)"
@@ -741,24 +767,22 @@ msgid "invalid 'col.names' string: %s"
 msgstr "ungültige 'col.names'-Zeichenkette: %s"
 
 msgid "uniDiag=TRUE, but not all diagonal entries are 1"
-msgstr ""
+msgstr "uniDiag=TRUE, aber nicht alle Diagonaleinträge sind 1"
 
 msgid "uniDiag=TRUE, not all entries in diagonal coded as 1"
-msgstr ""
+msgstr "uniDiag=TRUE, aber nicht alle Einträge der Diagonalen als 1 kodiert"
 
 msgid "in show(); maybe adjust 'options(max.print= *, width = *)'"
-msgstr ""
+msgstr "in show(); evtl. 'options(max.print= *, width= *)' anpassen"
 
-#, fuzzy
 msgid "suppressing columns and rows"
-msgstr "[[ unterdrücke %d Spaltennamen %s ]]"
+msgstr "unterdrücke Spalten und Zeilen"
 
 msgid "suppressing rows"
-msgstr ""
+msgstr "unterdrücke Zeilen"
 
-#, fuzzy
 msgid "suppressing columns"
-msgstr "[[ unterdrücke %d Spaltennamen %s ]]"
+msgstr "unterdrücke Spalten"
 
 msgid "logic programming error in printSpMatrix2(), please report"
 msgstr "logischer Programmierfehler in printSpMatrix2(), bitte berichten"
@@ -774,6 +798,17 @@ msgstr "'V' ist keine *quadratische* Matrix"
 
 msgid "number of non zeros is smaller than 'nnz' because of duplicated (i,j)s"
 msgstr "Anzahl von Nicht-Nullen ist kleiner als 'nnz' wegen doppelter (i,j)s"
+
+msgid "a sparseMatrix should rarely be centered: will not be sparse anymore"
+msgstr ""
+
+#, fuzzy
+msgid "length of 'center' must equal the number of columns of 'x'"
+msgstr "Matrizen müssen die gleiche Anzahl Spalten in %s haben"
+
+#, fuzzy
+msgid "length of 'scale' must equal the number of columns of 'x'"
+msgstr "Matrizen müssen die gleiche Anzahl Spalten in %s haben"
 
 msgid ""
 "qr.R(<sparse>) may differ from qr.R(<dense>) because of permutations.  "

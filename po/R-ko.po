@@ -14,7 +14,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Matrix 1.1-3\n"
-"POT-Creation-Date: 2017-02-10 12:21\n"
+"POT-Creation-Date: 2018-04-06 22:43\n"
 "PO-Revision-Date: 2015-07-15 17:14-0600\n"
 "Last-Translator:Chel Hee Lee  <chl948@mail.usask.ca>\n"
 "Language-Team: Chel Hee Lee  <chl948@mail.usask.ca>\n"
@@ -109,6 +109,10 @@ msgstr ""
 
 msgid "update must be TRUE/FALSE or '+' or '-'"
 msgstr "update는 반드시 TRUE/FALSE 또는 '+' 또는 '-'이어야 합니다."
+
+#, fuzzy
+msgid "cannot coerce NA values to pattern \"ngCMatrix\""
+msgstr "'NA'를 \"nsparseMatrix\"으로 강제변환(coerce)할 수 없습니다."
 
 msgid "Matrix-internal error in <CsparseM>[i,,d]; please report"
 msgstr ""
@@ -209,6 +213,16 @@ msgid "'%s()' is not yet implemented for  representation '%s'"
 msgstr ""
 "표현(representation)이 '%2$s'의 경우에 아직 구현되지 않은 '%1$s()'입니다."
 
+msgid ""
+"as.matrix(<Matrix>) is deprecated (to become a no-op in the future).\n"
+"Use  as(x, \"matrix\")  or .asmatrix(x) instead."
+msgstr ""
+
+msgid ""
+"as.array(<Matrix>) is deprecated. Use  as(x, \"matrix\")  or .asmatrix(x) "
+"instead."
+msgstr ""
+
 msgid "trimmed mean of 'sparseVector' -- suboptimally using as.numeric(.)"
 msgstr "trimmed mean of 'sparseVector' -- suboptimally using as.numeric(.)"
 
@@ -275,7 +289,10 @@ msgid ""
 msgstr ""
 "nargs() = %d.  필요이상의 인자들이 '[ .. ]' (i.logical)에 이용되었나요?"
 
-msgid "m[ <ij-matrix> ]: inefficiently indexing single elements"
+#, fuzzy
+msgid ""
+"m[<ij-matrix>]: inefficiently indexing single elements - should not happen, "
+"please report!"
 msgstr "m[ <ij-matrix> ]: inefficiently indexing single elements"
 
 msgid "nargs() = %d.  Extraneous illegal arguments inside '[ .. ]' (i.2col)?"
@@ -694,6 +711,9 @@ msgid "kronecker method must use default 'FUN'"
 msgstr ""
 "크로넥커 메소드(kronecker method)는 반드시 기본 'FUN'을 사용해야 합니다."
 
+msgid "resulting matrix dimension would be too large"
+msgstr ""
+
 msgid "replacing \"indMatrix\" entries is not allowed, as rarely sensible"
 msgstr ""
 "\"indMatrix\" 요소를 변경하는 것은 허용되지 않습니다, as rarely sensible"
@@ -709,6 +729,10 @@ msgstr "'NA'를 \"nsparseMatrix\"으로 강제변환(coerce)할 수 없습니다
 
 msgid "temporarily disabled"
 msgstr "일시적으로 사용할 수 없습니다."
+
+#, fuzzy
+msgid "cannot coerce NA values to pattern \"ntCMatrix\""
+msgstr "'NA'를 \"nsparseMatrix\"으로 강제변환(coerce)할 수 없습니다."
 
 msgid "coercion to \"pMatrix\" only works from integer numeric"
 msgstr ""
@@ -830,6 +854,17 @@ msgid "number of non zeros is smaller than 'nnz' because of duplicated (i,j)s"
 msgstr ""
 "중복된 (i,j)에 위치한 값들 때문에 영이 아닌 요소의 개수가 'nnz' 보다 작습니"
 "다."
+
+msgid "a sparseMatrix should rarely be centered: will not be sparse anymore"
+msgstr ""
+
+#, fuzzy
+msgid "length of 'center' must equal the number of columns of 'x'"
+msgstr "%s에 사용된 각 행렬이 가지는 열의 개수는 서로 같아야 합니다."
+
+#, fuzzy
+msgid "length of 'scale' must equal the number of columns of 'x'"
+msgstr "%s에 사용된 각 행렬이 가지는 열의 개수는 서로 같아야 합니다."
 
 msgid ""
 "qr.R(<sparse>) may differ from qr.R(<dense>) because of permutations.  "

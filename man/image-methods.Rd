@@ -32,7 +32,7 @@
       useRaster = FALSE,
       useAbs = NULL, colorkey = !useAbs,
       col.regions = NULL,
-      lwd = NULL, \dots)
+      lwd = NULL, border.col = NULL, \dots)
 }
 \arguments{
   \item{x}{a Matrix object, i.e., fulfilling \code{\link{is}(x, "Matrix")}.}
@@ -74,6 +74,11 @@
     rectangles of each non-zero matrix entry (drawn by
     \code{\link[grid]{grid.rect}}).  The default depends on the matrix
     dimension and the device size.}
+  \item{border.col}{color for the border of each rectangle. \code{NA}
+    means no border is drawn.   When \code{NULL} as by default,
+    \code{border.col <- if(lwd < .01) NA else NULL} is used.
+    Consider using an opaque color instead of \code{NULL} which
+    corresponds to \code{grid::\link[grid]{get.gpar}("col")}.}
   \item{\dots}{further arguments passed to methods and
     \code{\link[lattice]{levelplot}}, notably \code{at} for specifying
     (possibly non equidistant) cut values for dividing the matrix
@@ -97,7 +102,9 @@
 showMethods(image)
 ## If you want to see all the methods' implementations:
 showMethods(image, incl=TRUE, inherit=FALSE)
-
+\dontshow{## warnings should not happen here, notably when print(<trellis>)
+op <- options(warn = 2)
+}
 data(CAex)
 image(CAex, main = "image(CAex)")
 image(CAex, useAbs=TRUE, main = "image(CAex, useAbs=TRUE)")
@@ -123,14 +130,21 @@ image(USCounties[1:400,1:200], lwd=.1)
 image(USCounties, c(1,200), c(1,400), lwd=.1)
 image(USCounties, c(1,300), c(1,200), lwd=.5 )
 image(USCounties, c(1,300), c(1,200), lwd=.01)
-
+## These 3 are all equivalent :
+(I1 <- image(USCounties, c(1,100), c(1,100), useAbs=FALSE))
+ I2 <- image(USCounties, c(1,100), c(1,100), useAbs=FALSE,        border.col=NA)
+ I3 <- image(USCounties, c(1,100), c(1,100), useAbs=FALSE, lwd=2, border.col=NA)
+stopifnot(all.equal(I1, I2), all.equal(I2, I3))
+## using an opaque border color
+image(USCounties, c(1,100), c(1,100), useAbs=FALSE, lwd=3, border.col = adjustcolor("skyblue", 1/2))
+\dontshow{options(op)}
 if(doExtras <- interactive() || nzchar(Sys.getenv("R_MATRIX_CHECK_EXTRA")) ||
     identical("true", unname(Sys.getenv("R_PKG_CHECKING_doExtras")))) {
 ## Using raster graphics: For PDF this would give a 77 MB file,
 ## however, for such a large matrix, this is typically considerably
 ## *slower* (than vector graphics rectangles) in most cases :
 if(doPNG <- !dev.interactive())
-png("image-USCounties-raster.png", width=3200, height=3200)
+   png("image-USCounties-raster.png", width=3200, height=3200)
 image(USCounties, useRaster = TRUE) # should not suffer from anti-aliasing
 if(doPNG)
    dev.off()

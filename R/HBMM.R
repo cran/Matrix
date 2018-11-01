@@ -102,9 +102,9 @@ readMM <- function(file)
     nc <- scan1(integer())
     nz <- scan1(integer())
     checkIJ <- function(els) {
-	if(els$i < 1 || els$i > nr)
+	if(any(els$i < 1 | els$i > nr))
 	    stop("readMM(): row	 values 'i' are not in 1:nr", call.=FALSE)
-	if(els$j < 1 || els$j > nc)
+	if(any(els$j < 1 | els$j > nc))
 	    stop("readMM(): column values 'j' are not in 1:nc", call.=FALSE)
     }
     if (repr == "coordinate") {

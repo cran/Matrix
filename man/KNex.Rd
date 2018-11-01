@@ -16,7 +16,7 @@
   Roger Koenker and Pin Ng (2003).
   SparseM: A sparse matrix package for R;
   \emph{J. of Statistical Software}, \bold{8} (6),
-  \url{http://www.jstatsoft.org/}
+  \doi{10.18637/jss.v008.i06}
 }
 \examples{
 data(KNex)

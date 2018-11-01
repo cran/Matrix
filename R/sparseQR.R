@@ -80,7 +80,7 @@ setMethod("qr.qty", signature(qr = "sparseQR", y = "Matrix"),
 
 ## FIXME: really should happen in C, i.e sparseQR_coef() in ../src/sparseQR.c :
 .coef.trunc <- function(qr, res, drop=FALSE) {
-    if((d <- lengths(res@Dimnames)) != c(0L,0L) && !identical(d, D <- res@Dim)) {
+    if(!all((d <- lengths(res@Dimnames)) == 0L) && !identical(d, D <- res@Dim)) {
 	## Fix dimnames from dim (when not NULL !) :
 	if(d[[1]]) length(res@Dimnames[[1]]) <- D[[1]]
 	if(d[[2]]) length(res@Dimnames[[2]]) <- D[[2]]

@@ -77,7 +77,7 @@ Cholesky(A, perm = TRUE, LDL = !super, super = FALSE, Imult = 0, \dots)
   Yanqing Chen, Timothy A. Davis, William W. Hager, and Sivasankaran Rajamanickam (2008)
   Algorithm 887: CHOLMOD, Supernodal Sparse Cholesky Factorization and Update/Downdate.
   \emph{ACM Trans. Math. Softw.} \bold{35}, 3, Article 22, 14 pages.
-  \url{http://doi.acm.org/10.1145/1391989.1391995}
+  \doi{10.1145/1391989.1391995}
 
   Timothy A. Davis (2006)
   \emph{Direct Methods for Sparse Linear Systems}, SIAM Series

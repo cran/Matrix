@@ -127,7 +127,7 @@ if(doExtras) { ## ~ 20 sec {"large" example}   + 2x qr.R() warnings
 chk.qr.D.S(Dq, Sq, y, Y)
 
 ## Another small example with pivoting (and column name "mess"):
-set.seed(1)
+suppressWarnings(RNGversion("3.5.0")); set.seed(1)
 X <- rsparsematrix(9,5, 1/4, dimnames=list(paste0("r", 1:9), LETTERS[1:5]))
 qX <- qr(X); qd <- qr(as(X, "matrix"))
 ## numbers are the same, but names of sparse case are wrongly permuted

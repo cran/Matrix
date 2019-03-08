@@ -370,13 +370,7 @@ setReplaceMethod("[", signature(x = "sparseMatrix", i = "ANY", j = "ANY",
 	if(is.null(dim(cx))) {# e.g. in	1 x 1 case
 	    dim(cx) <- dim(m)
 	    dimnames(cx) <- dn
-	} else ## workaround bug in apply() which has lost row names:
-	    if(getRversion() < "3.2" && !is.null(names(dn))) {
-		if(is.null(dimnames(cx)))
-		    dimnames(cx) <- dn
-		else
-		    names(dimnames(cx)) <- names(dn)
-            }
+	}
     }
     if (missing(col.names))
 	col.names <- {
@@ -496,8 +490,8 @@ formatSparseM <- function(x, zero.print = ".", align = c("fancy", "right"),
     cx
 }## formatSparseM()
 
-## utility used inside sparseMatrix print()ing which might be useful
-## outside the Matrix package:
+##' The `format()` method for sparse Matrices; also used inside sparseMatrix print()ing,
+##' exported as it might be useful directly.
 formatSpMatrix <- function(x, digits = NULL, # getOption("digits"),
                            maxp = 1e9, # ~ 1/2 * .Machine$integer.max, ## getOption("max.print"),
                            cld = getClassDef(class(x)), zero.print = ".",
@@ -522,6 +516,7 @@ formatSpMatrix <- function(x, digits = NULL, # getOption("digits"),
 	}
     }
 
+    if(maxp < 100) maxp <- 100L # "stop gap"
     if(prod(d) > maxp) { # "Large" => will be "cut"
         ## only coerce to dense that part which won't be cut :
         nr <- maxp %/% d[2]
@@ -562,7 +557,7 @@ formatSpMatrix <- function(x, digits = NULL, # getOption("digits"),
 ## FIXME: prTriang() in ./Auxiliaries.R  should also get  align = "fancy"
 ##
 printSpMatrix <- function(x, digits = NULL, # getOption("digits"),
-			  maxp = getOption("max.print"),
+			  maxp = max(100L, getOption("max.print")),
 			  cld = getClassDef(class(x)), zero.print = ".",
 			  col.names, note.dropping.colnames = TRUE, uniDiag = TRUE,
 			  col.trailer = '', align = c("fancy", "right"))
@@ -581,7 +576,7 @@ printSpMatrix <- function(x, digits = NULL, # getOption("digits"),
 
 ##' The "real" show() / print() method, calling the above printSpMatrix():
 printSpMatrix2 <- function(x, digits = NULL, # getOption("digits"),
-                           maxp = getOption("max.print"), zero.print = ".",
+                           maxp = max(100L, getOption("max.print")), zero.print = ".",
                            col.names, note.dropping.colnames = TRUE, uniDiag = TRUE,
                            suppRows = NULL, suppCols = NULL,
                            col.trailer = if(suppCols) "......" else "",
@@ -598,11 +593,11 @@ printSpMatrix2 <- function(x, digits = NULL, # getOption("digits"),
     setW <-  !missing(width) && width > getOption("width")
     if(setW) {
 	op <- options(width = width) ; on.exit( options(op) ) }
-    if((identical(suppRows,FALSE) && identical(suppCols, FALSE)) ||
+    if((isFALSE(suppRows) && isFALSE(suppCols)) ||
        (!isTRUE(suppRows) && !isTRUE(suppCols) && prod(d) <= maxp))
     { ## "small matrix" and supp* not TRUE : no rows or columns are suppressed
         if(missing(col.trailer) && is.null(suppCols))
-            suppCols <- FALSE # for 'col.trailer'
+            suppCols <- FALSE # for default 'col.trailer'
         printSpMatrix(x, cld=cld, digits=digits, maxp=maxp,
                       zero.print=zero.print, col.names=col.names,
                       note.dropping.colnames=note.dropping.colnames, uniDiag=uniDiag,
@@ -632,9 +627,12 @@ printSpMatrix2 <- function(x, digits = NULL, # getOption("digits"),
         if(is.null(suppRows)) suppRows <- (nr < d[1])
 	if(suppRows) {
 	    n2 <- ceiling(nr / 2)
+            nr1 <- min(d[1], max(1L, n2)) #{rows} in 1st part
+            nr2 <- max(1L, nr-n2)         #{rows} in 2nd part
+            nr <- nr1+nr2 # total #{rows} to be printed
 	    if(fitWidth) {
 		## one iteration of improving the width, by "fake printing" :
-		cM <- formatSpMatrix(x[seq_len(min(d[1], max(1, n2))), , drop = FALSE],
+		cM <- formatSpMatrix(x[seq_len(nr1), , drop = FALSE],
 				     digits=digits, maxp=maxp, zero.print=zero.print,
 				     col.names=col.names, align=align,
 				     note.dropping.colnames=note.dropping.colnames, uniDiag=FALSE)
@@ -646,16 +644,18 @@ printSpMatrix2 <- function(x, digits = NULL, # getOption("digits"),
                     if(!setW) on.exit( options(op) )
                 }
 	    }
-	    printSpMatrix(x[seq_len(min(d[1], max(1, n2))), , drop=FALSE],
+	    printSpMatrix(x[seq_len(nr1), , drop=FALSE],
 			  digits=digits, maxp=maxp,
 			  zero.print=zero.print, col.names=col.names,
 			  note.dropping.colnames=note.dropping.colnames, uniDiag=uniDiag,
 			  col.trailer = col.trailer, align=align)
-	    suppTxt <- gettext(if(suppCols) "suppressing columns and rows" else "suppressing rows")
+	    suppTxt <- if(suppCols)
+                            gettextf("suppressing %d columns and %d rows", d[2]-nc , d[1]-nr)
+                       else gettextf("suppressing %d rows", d[1]-nr)
 	    cat("\n ..............................",
-		"\n ........", suppTxt, sTxt, "\n", sep='')
+		"\n ........", suppTxt, sTxt, sep='')
 	    ## tail() automagically uses "[..,]" rownames:
-	    printSpMatrix(tail(x, max(1, nr-n2)),
+	    printSpMatrix(tail(x, nr2),
 			  digits=digits, maxp=maxp,
 			  zero.print=zero.print, col.names=col.names,
 			  note.dropping.colnames=note.dropping.colnames, uniDiag=FALSE,
@@ -667,7 +667,7 @@ printSpMatrix2 <- function(x, digits = NULL, # getOption("digits"),
 			  zero.print=zero.print, col.names=col.names,
 			  note.dropping.colnames=note.dropping.colnames, uniDiag=uniDiag,
 			  col.trailer = col.trailer, align=align)
-	    cat("\n .....", gettext("suppressing columns"), sTxt, sep='')
+	    cat("\n .....", gettextf("suppressing %d columns", d[2]-nc), sTxt, sep='')
 	}
 	else stop("logic programming error in printSpMatrix2(), please report")
 

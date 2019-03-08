@@ -28,6 +28,7 @@ stopifnot(validObject(tmm), dim(tmm) == dm[2:1],
           identical(as(tmm, "matrix"), t(as(mm, "matrix"))))
 
 ## from a bug report by Guissepe Ragusa <gragusa@ucsd.edu>
+RNGversion("3.6.0")# future proof
 set.seed(101)
 for(i in 1:10) {
     A <- matrix(rnorm(400), nrow = 100, ncol = 4)

@@ -91,7 +91,8 @@ validObject(M <- new("dtCMatrix", Dim = c(n,n), diag = "U",
 		     p = rep.int(0:0, n+1)))
 stopifnot(identical(as.mat(T), diag(n)))
 
-set.seed(3) ; (p9 <- as(sample(9), "pMatrix"))
+suppressWarnings(RNGversion("3.5.0")); set.seed(3)
+(p9 <- as(sample(9), "pMatrix"))
 ## Check that the correct error message is triggered:
 ind.try <- try(p9[1,1] <- 1, silent = TRUE)
 np9 <- as(p9, "ngTMatrix")

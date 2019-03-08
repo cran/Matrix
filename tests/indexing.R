@@ -222,8 +222,9 @@ getDuplIndex <- function(n, k) {
 ## From package 'sfsmisc':
 repChar <- function (char, no) paste(rep.int(char, no), collapse = "")
 
+suppressWarnings(RNGversion("3.5.0")); set.seed(101)
 m <- 1:800
-set.seed(101) ; m[sample(800, 600)] <- 0
+m[sample(800, 600)] <- 0
 m0 <- Matrix(m, nrow = 40)
 m1 <- add.simpleDimnames(m0)
 for(kind in c("n", "l", "d")) {

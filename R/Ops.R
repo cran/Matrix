@@ -10,6 +10,11 @@
 ###       'Logic'   :=  '"&"', '"|"'  (( but *not* '"!"' since that has
 ###			                 only one argument ))
 
+## cache them [rather in package 'methods' ??]
+.ArithGenerics   <- getGroupMembers("Arith")
+.CompareGenerics <- getGroupMembers("Compare")
+.LogicGenerics   <- getGroupMembers("Logic")
+
 ## find them with M-x grep -E 'Method\("(Ops|Compare|Arith|Logic)"' *.R
 ##                --------
 
@@ -22,7 +27,7 @@
 
 ##-------- originally from ./Matrix.R --------------------
 
-## Some ``Univariate'' "Arith":
+## Some ``Univariate'' "Arith" (univariate := 2nd argument 'e2' is missing)
 setMethod("+", signature(e1 = "Matrix", e2 = "missing"), function(e1,e2) e1)
 
 ## "fallback":
@@ -147,10 +152,9 @@ Cmp.Mat.atomic <- function(e1, e2) { ## result will inherit from "lMatrix"
     cl <- class(e1)
     if((l2 <- length(e2)) == 0)
 	return(if(n1 == 0)
-                   new(class2(cl, "l"), Dim = d, Dimnames = e1@Dimnames)
+		   as(e1, class2(cl, "l"))# more expensive than (but working for "dgC*"):
+		   ## new(class2(cl, "l"), Dim = d, Dimnames = e1@Dimnames)
                else
-		   ## stop(gettextf("<Matrix> %s %s is undefined",
-		   ##     	  .Generic, paste0(class(e2),"(0)")), domain=NA)
 		   as.logical(e2))
     ## else
     if(n1 && n1 < l2)
@@ -405,22 +409,26 @@ setMethod("Ops", signature(e1="numeric", e2="nMatrix"),
 for(cl in c("numeric", "logical")) { # "complex", "raw" : basically "replValue"
 
 setMethod("Arith", signature(e1 = cl, e2 = "dpoMatrix"),
-	  function(e1, e2) if(length(e1) <= 1 && any(.Generic == c("*","/","+")) && (e1 > 0)) {
+	  function(e1, e2) if(!(l1 <- length(e1))) numeric()
+			   else if(l1 == 1 && any(.Generic == c("*","/","+")) && (e1 > 0)) {
 	      e2@x <- callGeneric(e1, e2@x) ; e2 # remains "dpo"
 	  } else ## in all other cases
 	  callGeneric(e1, as(e2, "dsyMatrix")))
 setMethod("Arith", signature(e1 = cl, e2 = "dppMatrix"),
-	  function(e1, e2) if(length(e1) <= 1 && any(.Generic == c("*","/","+")) && (e1 > 0)) {
+	  function(e1, e2) if(!(l1 <- length(e1))) numeric()
+			   else if(l1 == 1 && any(.Generic == c("*","/","+")) && (e1 > 0)) {
 	      e2@x <- callGeneric(e1, e2@x) ; e2 # remains "dpp"
 	  } else ## in all other cases
 	  callGeneric(e1, as(e2, "dspMatrix")))
 setMethod("Arith", signature(e1 = "dpoMatrix", e2 = cl),
-	  function(e1, e2) if(length(e2) <= 1 && any(.Generic == c("*","/","+")) && (e2 > 0)) {
+	  function(e1, e2) if(!(l2 <- length(e2))) numeric()
+			   else if(l2 == 1 && any(.Generic == c("*","/","+")) && (e2 > 0)) {
 	      e1@x <- callGeneric(e1@x, e2) ; e1 # remains "dpo"
 	  } else ## in all other cases
 	  callGeneric(as(e1, "dsyMatrix"), e2))
 setMethod("Arith", signature(e1 = "dppMatrix", e2 = cl),
-	  function(e1, e2) if(length(e2) <= 1 && any(.Generic == c("*","/","+")) && (e2 > 0)) {
+	  function(e1, e2) if(!(l2 <- length(e2))) numeric()
+			   else if(l2 == 1 && any(.Generic == c("*","/","+")) && (e2 > 0)) {
 	      e1@x <- callGeneric(e1@x, e2) ; e1 # remains "dpp"
 	  } else ## in all other cases
 	  callGeneric(as(e1, "dspMatrix"), e2))
@@ -687,10 +695,9 @@ Logic.Mat.atomic <- function(e1, e2) { ## result will typically be "like" e1:
     cl <- class(e1)
     if(l2 == 0)
 	return(if(n1 == 0)
-		   new(class2(cl, "l"), Dim = d, Dimnames = e1@Dimnames)
+		   as(e1, class2(cl, "l"))# more expensive than (but working for "dgC*"):
+		   ## new(class2(cl, "l"), Dim = d, Dimnames = e1@Dimnames)
 	       else
-		   ## stop(gettextf("<Matrix> %s %s is undefined",
-		   ##     	  .Generic, paste0(class(e2),"(0)")), domain=NA)
 		   as.logical(e2))
     ## else
     cl1 <- getClassDef(cl)
@@ -1179,7 +1186,7 @@ setMethod("Arith", signature(e1 = "numeric", e2 = "CsparseMatrix"), .Arith.atom.
 ##' compute indices for recycling <numeric> of length 'len' to match sparseMatrix 'spM'
 .Ops.recycle.ind <- function(spM, len) {
     n <- prod(d <- dim(spM))
-    if(n < len) stop("vector too long in Matrix - vector operation")
+    if(n && n < len) stop("vector too long in Matrix - vector operation")
     if(n %% len != 0) ## identical warning as in main/arithmetic.c
         warning("longer object length\n\tis not a multiple of shorter object length")
     ## TODO(speedup!): construction of [1L + in0 %%len] via one .Call()
@@ -1189,10 +1196,9 @@ setMethod("Arith", signature(e1 = "numeric", e2 = "CsparseMatrix"), .Arith.atom.
 }
 
 A.M.n <- function(e1, e2) {
-    if((l2 <- length(e2)) == 0)
-	stop(gettextf("<Matrix> %s %s is undefined",
-		      .Generic, paste0(class(e2),"(0)")), domain=NA)
-    is0f <- is0(f0 <- callGeneric(0, e2))
+    if((l2 <- length(e2)) == 0) # return 0-vector of e1's kind, as matrix()+<0>
+	return(if(length(e1)) vector(.type.kind[.M.kind(e1)]) else e1)
+    is0f <- is0(f0 <- callGeneric(0, e2)) #
     if(all(is0f)) { ## result keeps sparseness structure of e1
 	if(l2 > 1) {  #	 "recycle" e2 "carefully"
 	    e2 <- e2[.Ops.recycle.ind(e1, len = l2)]
@@ -1229,9 +1235,8 @@ setMethod("Arith", signature(e1 = "dsparseMatrix", e2 = "numeric"), .Arith.CM.at
 setMethod("Arith", signature(e1 = "dsparseMatrix", e2 = "logical"), .Arith.CM.atom)
 
 A.n.M <- function(e1, e2) {
-    if((l1 <- length(e1)) == 0)
-	stop(gettextf("%s %s <Matrix> is undefined",
-		      paste0(class(e2),"(0)"), .Generic), domain=NA)
+    if((l1 <- length(e1)) == 0) # return 0-vector of e2's kind, as <0> + matrix()
+	return(if(length(e2)) vector(.type.kind[.M.kind(e2)]) else e2)
     is0f <- is0(f0 <- callGeneric(e1, 0))
     if(all(is0f)) { ## result keeps sparseness structure of e2
 	if(l1 > 1) {  #	 "recycle" e1 "carefully"
@@ -1573,13 +1578,16 @@ setMethod("Ops", signature(e1 = "atomicVector", e2 = "sparseVector"),
 Ops.spV.spV <- function(e1, e2) {
     n1 <- e1@length
     n2 <- e2@length
+    if(!n1 || !n2) ## return 0-length :
+	return(if(is.na(match(.Generic, .ArithGenerics))) logical() else numeric())
+    ## else  n1, n2 >= 1 :
     if(n1 != n2) {
 	if(n1 < n2) {
 	    n <- n1 ; N <- n2
 	} else {
 	    n <- n2 ; N <- n1
 	}
-	if(n == 1) {		  # simple case, do not really recycle
+        if(n == 1L) { # simple case, do not really recycle
 	    if(n1 < n2) return(callGeneric(sp2vec(e1), e2))
 	    else	return(callGeneric(e1, sp2vec(e2)))
 	}
@@ -1667,7 +1675,7 @@ Ops.M.spV <- function(e1, e2) {
     n1 <- prod(d)
     n2 <- e2@length
     if(n1 != n2) {
-	if(n1 < n2) {
+	if(n1 && n1 < n2) { # 0-extent matrix + vector is fine
 	    stop(sprintf(
 		"dim [product %d] do not match the length of object [%d]",
 			 n1, n2))
@@ -1693,7 +1701,7 @@ Ops.spV.M <- function(e1, e2) {
     d <- e2@Dim
     n2 <- prod(d)
     if(n2 != n1) {
-	if(n2 < n1) {
+	if(n2 && n2 < n1) { # vector + 0-extent matrix  is fine
 	    stop(sprintf(
 		"dim [product %d] do not match the length of object [%d]",
 			 n2, n1))

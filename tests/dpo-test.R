@@ -113,7 +113,7 @@ stopifnot(
 showProc.time()
 
 
-set.seed(27)
+suppressWarnings(RNGversion("3.5.0")); set.seed(27)
 m9 <- h9 + rnorm(9^2)/1000 ; m9 <- (m9 + t(m9))/2
 nm9 <- nearPD(m9)
 showProc.time()

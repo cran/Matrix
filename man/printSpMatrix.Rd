@@ -20,13 +20,13 @@ formatSpMatrix(x, digits = NULL, maxp = 1e9,
                col.names, note.dropping.colnames = TRUE, uniDiag = TRUE,
                align = c("fancy", "right"))
 
-printSpMatrix(x, digits = NULL, maxp = getOption("max.print"),
+printSpMatrix(x, digits = NULL, maxp = max(100L, getOption("max.print")),
               cld = getClassDef(class(x)),
               zero.print = ".", col.names, note.dropping.colnames = TRUE,
               uniDiag = TRUE, col.trailer = "",
               align = c("fancy", "right"))
 
-printSpMatrix2(x, digits = NULL, maxp = getOption("max.print"),
+printSpMatrix2(x, digits = NULL, maxp = max(100L, getOption("max.print")),
               zero.print = ".", col.names, note.dropping.colnames = TRUE,
               uniDiag = TRUE, suppRows = NULL, suppCols = NULL,
               col.trailer = if(suppCols) "......" else "",
@@ -39,7 +39,9 @@ printSpMatrix2(x, digits = NULL, maxp = getOption("max.print"),
     \code{\link{print.default}}, the default, \code{\link{NULL}},
     corresponds to using \code{\link{getOption}("digits")}.}
   \item{maxp}{integer, default from \code{\link{options}(max.print)},
-    influences how many entries of large matrices are printed at all.}
+    influences how many entries of large matrices are printed at all.
+    Typically should not be smaller than around 1000; values smaller than
+    100 are silently \dQuote{rounded up} to 100.}% for now
   \item{cld}{the class definition of \code{x}; must be equivalent to
     \code{\link{getClassDef}(class(x))} and exists mainly for possible
     speedup.}

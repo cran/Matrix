@@ -522,6 +522,7 @@ indDiag <- function(n) cumsum(c(1L, rep.int(n+1L, n-1)))
 ### -----
 ### "Theory" behind this: /u/maechler/R/MM/MISC/lower-tri-w.o-matrix.R
 ## NB: also have "abIndex" version:  abIindTri() --> ./abIndex.R
+## Size problem:  indTri(n) is of size ~ n^2/2  which may be too large!
 indTri <- function(n, upper = TRUE, diag = FALSE) {
     ## Indices of (strict) upper/lower triangular part
     ## == which(upper.tri(diag(n), diag=diag) or
@@ -631,6 +632,7 @@ nnzSparse <- function(x, cl = class(x), cld = getClassDef(cl))
 ## For sparseness handling, return a
 ## 2-column (i,j) matrix of 0-based indices of non-zero entries:
 
+##' the workhorse for non0ind(.), but occasionally used directly
 non0.i <- function(M, cM = class(M), uniqT=TRUE) {
     if(extends(cM, "TsparseMatrix")) {
 	if(uniqT && is_not_uniqT(M))
@@ -643,6 +645,7 @@ non0.i <- function(M, cM = class(M), uniqT=TRUE) {
     }
 }
 
+##' the "more versatile / user" function (still not exported):
 non0ind <- function(x, cld = getClassDef(class(x)),
 		    uniqT = TRUE, xtendSymm = TRUE, check.Udiag = TRUE)
 {
@@ -979,7 +982,7 @@ l2d_meth <- function(x) {
     else .M.kindC(clx)
 }
 
-## the same as .M.kind, but also knows "i"
+##' *V*ector kind (as .M.kind, but also knows "i")
 .V.kind <- function(x, clx = class(x)) {
     ## 'clx': class() *or* class definition of x
     if(is.matrix(x) || is.atomic(x)) { ## 'old style' matrix or vector

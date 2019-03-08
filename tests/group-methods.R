@@ -220,7 +220,6 @@ z[sample(77,15)] <- 0
 (D <- Matrix(z, 7)) # sparse
 abs(D) >= 0.5       # logical sparse
 
-
 ## For the checks below, remove some and add a few more objects:
 rm(list= ls(pat="^.[mMC]?$"))
 D3 <- Diagonal(x=4:2); L7 <- Diagonal(7) > 0
@@ -228,15 +227,21 @@ T3 <- Diagonal(3) > 0; stopifnot(T3@diag == "U") # "uni-diagonal"
 validObject(xpp <- pack(round(xpx,2)))
 validObject(dtp <- pack(as(dt3, "denseMatrix")))
 lsp <- xpp > 0
-isValid(lsC <- as(lsp, "sparseMatrix"), "lsCMatrix")
+stopifnot(exprs = {
+    isValid(lsC <- as(lsp, "sparseMatrix"), "lsCMatrix")
+    ## 0-extent matrices {fixes in Feb.2019}:
+    isValid(L00 <- L7[FALSE,FALSE], "ldiMatrix")
+    isValid(x60 <- x2[,FALSE],      "dgCMatrix")
+    identical(t(x60), x06 <- x2[FALSE,])
+    isValid(x00 <- x06[,FALSE],     "dgCMatrix")
+    isValid(sv0 <- as(x06, "sparseVector"), "dsparseVector")
+})
 
 showProc.time()
-if(!doExtras && !interactive()) q("no") ## (saving testing time)
 
-### Systematically look at all "Ops" group generics for "all" Matrix classes
-### -------------- Main issue: Detect infinite recursion problems
+### Consider "all" Matrix classes
 cl <- sapply(ls(), function(.) class(get(.)))
-Mcl <- cl[vapply(cl, extends, "Matrix", FUN.VALUE=NA) |
+Mcl <- cl[vapply(cl, extends, "Matrix",       FUN.VALUE=NA) |
           vapply(cl, extends, "sparseVector", FUN.VALUE=NA)]
 table(Mcl)
 ## choose *one* of each class:
@@ -245,9 +250,15 @@ table(Mcl)
 M.objs <- names(Mcl) # == the ls() from above
 Mat.objs <- M.objs[vapply(M.objs, function(nm) is(get(nm), "Matrix"), NA)]
 MatDims <- t(vapply(Mat.objs, function(nm) dim(get(nm)), 0:1))
+## Nice summary info :
 noquote(cbind(Mcl[Mat.objs], format(MatDims)))
-mDims <- MatDims %*% (d.sig <- c(1, 1000)) # "dim-signature" to match against
 
+if(!doExtras && !interactive()) q("no") ## (saving testing time)
+
+### Systematically look at all "Ops" group generics for "all" Matrix classes
+### -------------- Main issue: Detect infinite recursion problems
+
+mDims <- MatDims %*% (d.sig <- c(1, 1000)) # "dim-signature" to match against
 m2num <- function(m) { if(is.integer(m)) storage.mode(m) <- "double" ; m }
 M.knd <- Matrix:::.M.kind
 cat("Checking all Ops group generics for a set of arguments:\n",
@@ -255,6 +266,7 @@ cat("Checking all Ops group generics for a set of arguments:\n",
 op <- options(warn = 2)#, error=recover)
 for(gr in getGroupMembers("Ops")) {
   cat(gr,"\n",paste(rep.int("=",nchar(gr)),collapse=""),"\n", sep='')
+  v0 <- if(gr == "Arith") numeric() else logical()
   for(f in getGroupMembers(gr)) {
     cat(sprintf("%9s :\n%9s\n", paste0('"',f,'"'), "--"))
     for(nm in M.objs) {
@@ -268,9 +280,19 @@ for(gr in getGroupMembers("Ops")) {
         validObject(r2 <- do.call(f, list(x,M)))
         stopifnot(dim(r1) == dim(M), dim(r2) == dim(M))
       }
+      ## M  o  0-length  === M :
+      validObject(M0. <- do.call(f, list(M, numeric())))
+      validObject(.M0 <- do.call(f, list(numeric(), M)))
+      if(length(M)) # <non-0-extent M>  o  <0-length v> == 0-length v
+	  stopifnot(identical(M0., v0), identical(.M0, v0))
+      else if(is(M, "Matrix"))
+	  stopifnot(identical(M0., as(M, if(gr == "Arith") "dMatrix" else "lMatrix")),
+		    identical(M0., .M0))
+      else # if(is(M, "sparseVector")) of length 0
+	  stopifnot(identical(M0., v0), identical(.M0, v0))
       ## M  o  <sparseVector>
       x <- numeric(n.m)
-      x[c(1,length(x))] <- 1:2
+      if(length(x)) x[c(1,length(x))] <- 1:2
       sv <- as(x, "sparseVector")
       cat("s.")
       validObject(r3 <- do.call(f, list(M, sv)))

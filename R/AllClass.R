@@ -288,7 +288,7 @@ setClass("nspMatrix",
 
 ## 'diagonalMatrix' already has validity checking
 ## diagonal, numeric matrices; "dMatrix" has 'x' slot :
-setClass("ddiMatrix", contains = c("diagonalMatrix", "dMatrix"))# or "dMatrix"
+setClass("ddiMatrix", contains = c("diagonalMatrix", "dMatrix"))
 ## diagonal, logical matrices; "lMatrix" has 'x' slot :
 setClass("ldiMatrix", contains = c("diagonalMatrix", "lMatrix"))
 

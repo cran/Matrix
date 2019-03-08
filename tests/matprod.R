@@ -241,7 +241,7 @@ assert.EQ.mat(pd., as(pd1,"matrix"))
 assert.EQ.mat(pd..,as(pd2,"matrix"))
 
 ## check that 'solve' and '%*%' are inverses
-set.seed(1)
+suppressWarnings(RNGversion("3.5.0")); set.seed(1)
 A <- Matrix(rnorm(25), nc = 5)
 y <- rnorm(5)
 all.equal((A %*% solve(A, y))@x, y)

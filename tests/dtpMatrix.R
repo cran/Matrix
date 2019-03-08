@@ -44,6 +44,7 @@ stopifnot(all.equal(D6 %*% tp6, ge6),
           all.equal(tp6 %*% D6, ge6))
 
 ## larger case
+RNGversion("3.6.0")# future proof
 set.seed(123)
 rl <- new("dtpMatrix", uplo="L", diag="N", Dim = c(1000L, 1000L),
           x = rnorm(500*1001))

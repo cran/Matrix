@@ -284,7 +284,8 @@ SEXP dgCMatrix_QR(SEXP Ap, SEXP order, SEXP keep_dimnames)
 	}
     } else
 	ALLOC_SLOT(ans, install("q"), INTSXP, 0);
-    SET_SLOT(ans, install("R"), Matrix_cs_to_SEXP(N->U, "dgCMatrix", 0, dn));
+    SEXP R = PROTECT(Matrix_cs_to_SEXP(N->U, "dgCMatrix", 0, dn));
+    SET_SLOT(ans, Matrix_RSym, R); UNPROTECT(1); // R
     if(do_dn) UNPROTECT(1); // dn
     cs_nfree(N);
     cs_sfree(S);
@@ -338,7 +339,7 @@ SEXP dgCMatrix_SPQR(SEXP Ap, SEXP ordering, SEXP econ, SEXP tol)
      * may make sense if to be used in the "spqr_solve" routines .. ?? */
 /*     SET_VECTOR_ELT(ans, 1, */
 /* 		   chm_sparse_to_SEXP(R, 0, 0, 0, "", R_NilValue)); */
-    SET_SLOT(ans, install("R"),
+    SET_SLOT(ans, Matrix_RSym,
 	     chm_sparse_to_SEXP(R, 0, 0, 0, "", R_NilValue));
     cholmod_free_sparse(&Al, &cl);
     cholmod_free_sparse(&R, &cl);
@@ -415,7 +416,7 @@ void install_lu(SEXP Ap, int order, double tol, Rboolean err_sing, Rboolean keep
 	    SET_VECTOR_ELT(dn, 1, R_NilValue); // colnames(.) := NULL
 	}
     }
-    SET_SLOT(ans, install("L"),
+    SET_SLOT(ans, Matrix_LSym,
 	     Matrix_cs_to_SEXP(N->L, "dtCMatrix", 0, do_dn ? dn : R_NilValue));
 
     if(keep_dimnms) {
@@ -435,7 +436,7 @@ void install_lu(SEXP Ap, int order, double tol, Rboolean err_sing, Rboolean keep
 	    SET_VECTOR_ELT(dn, 0, R_NilValue); // rownames(.) := NULL
 	}
     }
-    SET_SLOT(ans, install("U"),
+    SET_SLOT(ans, Matrix_USym,
 	     Matrix_cs_to_SEXP(N->U, "dtCMatrix", 0, do_dn ? dn : R_NilValue));
     if(do_dn) UNPROTECT(1); // dn
     Memcpy(INTEGER(ALLOC_SLOT(ans, Matrix_pSym, /* "p" */
@@ -501,8 +502,8 @@ SEXP dgCMatrix_matrix_solve(SEXP Ap, SEXP b, SEXP give_sparse)
 	lu = get_factors(Ap, "LU");
     }
     qslot = GET_SLOT(lu, install("q"));
-    L = AS_CSP__(GET_SLOT(lu, install("L")));
-    U = AS_CSP__(GET_SLOT(lu, install("U")));
+    L = AS_CSP__(GET_SLOT(lu, Matrix_LSym));
+    U = AS_CSP__(GET_SLOT(lu, Matrix_USym));
     R_CheckStack();
     if (U->n != n)
 	error(_("Dimensions of system to be solved are inconsistent"));

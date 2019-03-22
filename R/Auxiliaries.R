@@ -69,7 +69,7 @@ is.null.DN <- function(dn) {
 ##' return 'x' unless it is NULL where you'd use 'orElse'
 `%||%` <- function(x, orElse) if(!is.null(x)) x else orElse
 
-##  not %in%  :
+##'  not %in%  :
 `%nin%` <- function (x, table) is.na(match(x, table))
 
 nonTRUEoption <- function(ch) is.null(v <- getOption(ch)) || !isTRUE(v)

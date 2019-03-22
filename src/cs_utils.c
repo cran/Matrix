@@ -207,8 +207,8 @@ csn *Matrix_as_csn(csn *ans, SEXP x)
 
     if (ctype < 0)
 	error(_("invalid class of object to %s"), "Matrix_as_csn");
-    ans->U = Matrix_as_cs(GET_SLOT(x, install("U")));
-    ans->L = Matrix_as_cs(GET_SLOT(x, install("L")));
+    ans->U = Matrix_as_cs(GET_SLOT(x, Matrix_USym));
+    ans->L = Matrix_as_cs(GET_SLOT(x, Matrix_LSym));
     switch(ctype) {
     case 0:
 	ans->B = (double*) NULL;
@@ -294,9 +294,9 @@ SEXP Matrix_csn_to_SEXP(csn *N, char *cl, int dofree, SEXP dn)
     ans = PROTECT(NEW_OBJECT_OF_CLASS(cl));
 				/* allocate and copy common slots */
     /* FIXME: Use the triangular matrix classes for csn_LU */
-    SET_SLOT(ans, install("L"),	/* these are free'd later if requested */
+    SET_SLOT(ans, Matrix_LSym,	/* these are free'd later if requested */
 	     Matrix_cs_to_SEXP(N->L, "dgCMatrix", 0, dn)); // FIXME: dn
-    SET_SLOT(ans, install("U"),
+    SET_SLOT(ans, Matrix_USym,
 	     Matrix_cs_to_SEXP(N->U, "dgCMatrix", 0, dn)); // FIXME: dn
     switch(ctype) {
     case 0:

@@ -9,6 +9,8 @@
 * *Urgent* in some sense ---------------------------------------------------
 ** TODO (partly DONE via workaround "round up" to 100): print() / show() for small options(max.print=<n>):
     --> tests/Simple.R {'max.print'}
+** TODO API change: Should  Matrix(diag(2), sparse=TRUE, doDiag=TRUE)  not rather give "ddiMatrix" ??
+      Why change? Originally "ddiMatrix" etc extended denseMatrix but now sparseMatrix
 ** DONE qr.coef() has *wrong* (column)names, even in full-rank case: see man/qr-methods.Rd ("FIXME"); maybe related to
 ** DONE qr.R(), qrR() etc have *wrong* currently *lose* column/row names {compared to base R's qr.R}, see,
    	drop0(R. <- qr.R(qx), tol=1e-15) # columns are int b1 c1 c2 b2 c3 {in man/qr-methods.Rd}

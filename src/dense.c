@@ -22,24 +22,23 @@ static
 int left_cyclic(double x[], int ldx, int j, int k,
 		double cosines[], double sines[])
 {
-    double *lastcol;
-    int i, jj;
-
     if (j >= k)
 	error(_("incorrect left cyclic shift, j (%d) >= k (%d)"), j, k);
     if (j < 0)
 	error(_("incorrect left cyclic shift, j (%d) < 0"), j, k);
     if (ldx < k)
 	error(_("incorrect left cyclic shift, k (%d) > ldx (%d)"), k, ldx);
-    lastcol = (double*) R_alloc(k+1, sizeof(double));
+
+    double *lastcol = (double*) R_alloc(k+1, sizeof(double));
+    int i;
 				/* keep a copy of column j */
     for(i = 0; i <= j; i++) lastcol[i] = x[i + j*ldx];
 				/* For safety, zero the rest */
     for(i = j+1; i <= k; i++) lastcol[i] = 0.;
-    for(jj = j+1; jj <= k; jj++) { /* columns to be shifted */
-	int diagind = jj*(ldx+1), ind = (jj-j) - 1;
+    for(int jj = j+1, ind = 0; jj <= k; jj++, ind++) { /* columns to be shifted */
+	int diagind = jj*(ldx+1); //  ind == (jj-j) - 1
 	double tmp = x[diagind], cc, ss;
-				/* Calculate the Givens rotation. */
+	/* Calculate the Givens rotation. */
 				/* This modified the super-diagonal element */
 	F77_CALL(drotg)(x + diagind-1, &tmp, cosines + ind, sines + ind);
 	cc = cosines[ind]; ss = sines[ind];
@@ -68,7 +67,7 @@ SEXP getGivens(double x[], int ldx, int jmin, int rank)
     SET_VECTOR_ELT(ans, 0, ScalarInteger(jmin));
     SET_VECTOR_ELT(ans, 1, ScalarInteger(rank));
     SET_VECTOR_ELT(ans, 2, cosines = allocVector(REALSXP, shiftlen));
-    SET_VECTOR_ELT(ans, 3, sines = allocVector(REALSXP, shiftlen));
+    SET_VECTOR_ELT(ans, 3,   sines = allocVector(REALSXP, shiftlen));
     setAttrib(ans, R_NamesSymbol, nms = allocVector(STRSXP, 4));
     SET_STRING_ELT(nms, 0, mkChar("jmin"));
     SET_STRING_ELT(nms, 1, mkChar("rank"));
@@ -99,29 +98,29 @@ SEXP checkGivens(SEXP X, SEXP jmin, SEXP rank)
 SEXP lsq_dense_Chol(SEXP X, SEXP y)
 {
     SEXP ans;
-    int info, n, p, k, *Xdims, *ydims;
-    double *xpx, d_one = 1., d_zero = 0.;
+    double d_one = 1., d_zero = 0.;
 
     if (!(isReal(X) & isMatrix(X)))
 	error(_("X must be a numeric (double precision) matrix"));
-    Xdims = INTEGER(coerceVector(getAttrib(X, R_DimSymbol), INTSXP));
-    n = Xdims[0];
-    p = Xdims[1];
+    int *Xdims = INTEGER(coerceVector(getAttrib(X, R_DimSymbol), INTSXP)),
+	n = Xdims[0],
+	p = Xdims[1];
     if (!(isReal(y) & isMatrix(y)))
 	error(_("y must be a numeric (double precision) matrix"));
-    ydims = INTEGER(coerceVector(getAttrib(y, R_DimSymbol), INTSXP));
+    int *ydims = INTEGER(coerceVector(getAttrib(y, R_DimSymbol), INTSXP));
     if (ydims[0] != n)
 	error(_(
 	    "number of rows in y (%d) does not match number of rows in X (%d)"),
 	    ydims[0], n);
-    k = ydims[1];
+    int k = ydims[1];
     if (k < 1 || p < 1) return allocMatrix(REALSXP, p, k);
     ans = PROTECT(allocMatrix(REALSXP, p, k));
     F77_CALL(dgemm)("T", "N", &p, &k, &n, &d_one, REAL(X), &n, REAL(y), &n,
 		    &d_zero, REAL(ans), &p);
-    xpx = (double *) R_alloc(p * p, sizeof(double));
+    double *xpx = (double *) R_alloc(p * p, sizeof(double));
     F77_CALL(dsyrk)("U", "T", &p, &n, &d_one, REAL(X), &n, &d_zero,
 		    xpx, &p);
+    int info;
     F77_CALL(dposv)("U", &p, &k, xpx, &p, REAL(ans), &p, &info);
     if (info) error(_("Lapack routine dposv returned error code %d"), info);
     UNPROTECT(1);
@@ -131,34 +130,30 @@ SEXP lsq_dense_Chol(SEXP X, SEXP y)
 
 SEXP lsq_dense_QR(SEXP X, SEXP y)
 {
-    SEXP ans;
-    int info, n, p, k, *Xdims, *ydims, lwork;
-    double *work, tmp, *xvals;
-
     if (!(isReal(X) & isMatrix(X)))
 	error(_("X must be a numeric (double precision) matrix"));
-    Xdims = INTEGER(coerceVector(getAttrib(X, R_DimSymbol), INTSXP));
-    n = Xdims[0];
-    p = Xdims[1];
+    int *Xdims = INTEGER(coerceVector(getAttrib(X, R_DimSymbol), INTSXP)),
+	n = Xdims[0],
+	p = Xdims[1];
     if (!(isReal(y) & isMatrix(y)))
 	error(_("y must be a numeric (double precision) matrix"));
-    ydims = INTEGER(coerceVector(getAttrib(y, R_DimSymbol), INTSXP));
+    int *ydims = INTEGER(coerceVector(getAttrib(y, R_DimSymbol), INTSXP));
     if (ydims[0] != n)
 	error(_(
 	    "number of rows in y (%d) does not match number of rows in X (%d)"),
 	    ydims[0], n);
-    k = ydims[1];
+    int k = ydims[1];
     if (k < 1 || p < 1) return allocMatrix(REALSXP, p, k);
-    xvals = (double *) Memcpy(R_alloc(n * p, sizeof(double)), REAL(X), n * p);
-    ans = PROTECT(duplicate(y));
-    lwork = -1;
+    double tmp, *xvals = (double *) Memcpy(R_alloc(n * p, sizeof(double)), REAL(X), n * p);
+    SEXP ans = PROTECT(duplicate(y));
+    int lwork = -1, info;
     F77_CALL(dgels)("N", &n, &p, &k, xvals, &n, REAL(ans), &n,
 		    &tmp, &lwork, &info);
     if (info)
 	error(_("First call to Lapack routine dgels returned error code %d"),
 	      info);
     lwork = (int) tmp;
-    work = (double *) R_alloc(lwork, sizeof(double));
+    double *work = (double *) R_alloc(lwork, sizeof(double));
     F77_CALL(dgels)("N", &n, &p, &k, xvals, &n, REAL(ans), &n,
 		    work, &lwork, &info);
     if (info)
@@ -448,14 +443,13 @@ SEXP dense_to_symmetric(SEXP x, SEXP uplo, SEXP symm_test)
 SEXP ddense_symmpart(SEXP x)
 /* Class of the value will be dsyMatrix */
 {
-    SEXP dx = dup_mMatrix_as_dgeMatrix(x);
+    SEXP dx = PROTECT(dup_mMatrix_as_dgeMatrix(x));
     int *adims = INTEGER(GET_SLOT(dx, Matrix_DimSym)), n = adims[0];
 
     if(n != adims[1]) {
 	error(_("matrix is not square! (symmetric part)"));
 	return R_NilValue; /* -Wall */
     } else {
-	PROTECT(dx);
 	SEXP ans = PROTECT(NEW_OBJECT_OF_CLASS("dsyMatrix")), dns, nms_dns;
 	double *xx = REAL(GET_SLOT(dx, Matrix_xSym));
 

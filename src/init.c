@@ -365,6 +365,9 @@ R_init_Matrix(DllInfo *dll)
     Matrix_permSym = install("perm");
     Matrix_uploSym = install("uplo");
     Matrix_xSym = install("x");
+    Matrix_LSym = install("L");
+    Matrix_RSym = install("R");
+    Matrix_USym = install("U");
     Matrix_VSym = install("V");
 
     Matrix_NS = R_FindNamespace(mkString("Matrix"));

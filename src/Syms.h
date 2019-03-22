@@ -7,6 +7,7 @@ SEXP
     Matrix_iSym,
     Matrix_jSym,
     Matrix_lengthSym,
+    Matrix_LSym, Matrix_RSym, Matrix_USym,
     Matrix_pSym,
     Matrix_permSym,
     Matrix_uploSym,

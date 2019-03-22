@@ -32,14 +32,14 @@ nearPD(x, corr = FALSE, keepDiag = FALSE, do2eigen = TRUE,
     direct fixpoint iteration
     \eqn{Y_k = P_U(P_S(Y_{k-1}))}{Y(k) = P_U(P_S(Y(k-1)))}.}
   \item{only.values}{logical; if \code{TRUE}, the result is just the
-    vector of eigen values of the approximating matrix.}
+    vector of eigenvalues of the approximating matrix.}
   \item{ensureSymmetry}{logical; by default, \code{\link{symmpart}(x)}
     is used whenever \code{\link{isSymmetric}(x)} is not true.  The user
     can explicitly set this to \code{TRUE} or \code{FALSE}, saving the
     symmetry test. \emph{Beware} however that setting it \code{FALSE}
     for an \bold{a}symmetric input \code{x}, is typically nonsense!}
   \item{eig.tol}{defines relative positiveness of eigenvalues compared
-    to largest one, \eqn{\lambda_1}. Eigen values \eqn{\lambda_k} are
+    to largest one, \eqn{\lambda_1}. Eigenvalues \eqn{\lambda_k} are
     treated as if zero when \eqn{\lambda_k / \lambda_1 \le eig.tol}.}
   \item{conv.tol}{convergence tolerance for Higham algorithm.}
   \item{posd.tol}{tolerance for enforcing positive definiteness (in the
@@ -55,27 +55,28 @@ nearPD(x, corr = FALSE, keepDiag = FALSE, do2eigen = TRUE,
 \details{
   This implements the algorithm of Higham (2002), and then (if
   \code{do2eigen} is true) forces positive definiteness using code from
-  \code{\link[sfsmisc]{posdefify}}.  The algorithm of Knol DL and ten
-  Berge (1989) (not implemented here) is more general in (1) that it
-  allows constraints to fix some rows (and columns) of the matrix and (2)
-  to force the smallest eigenvalue to have a certain value.
+  \code{\link[sfsmisc]{posdefify}}.  The algorithm of Knol and ten
+  Berge (1989) (not implemented here) is more general in that it
+  allows constraints to (1) fix some rows (and columns) of the matrix and
+  (2) force the smallest eigenvalue to have a certain value.
 
   Note that setting \code{corr = TRUE} just sets \code{diag(.) <- 1}
   within the algorithm.
 
   Higham (2002) uses Dykstra's correction, but the version by Jens
-  Oehlschlaegel did not use it (accidentally), and has still lead to
-  good results; this simplification, now only via \code{doDykstra = FALSE},
-  was active in \code{nearPD()} upto Matrix version 0.999375-40.
+  Oehlschlaegel did not use it (accidentally), and still gave
+  reasonable results; this simplification, now only
+  used if \code{doDykstra = FALSE},
+  was active in \code{nearPD()} up to Matrix version 0.999375-40.
 }
 \value{
-  If \code{only.values = TRUE}, a numeric vector of eigen values of the
+  If \code{only.values = TRUE}, a numeric vector of eigenvalues of the
   approximating matrix;
   Otherwise, as by default, an S3 object of \code{\link{class}}
   \code{"nearPD"}, basically a list with components
   \item{mat}{a matrix of class \code{\linkS4class{dpoMatrix}}, the
   computed positive-definite matrix.}
-  \item{eigenvalues}{numeric vector of eigen values of \code{mat}.}
+  \item{eigenvalues}{numeric vector of eigenvalues of \code{mat}.}
   \item{corr}{logical, just the argument \code{corr}.}
   \item{normF}{the Frobenius norm (\code{\link{norm}(x-X, "F")}) of the
   difference between the original and the resulting matrix.}

@@ -48,27 +48,33 @@ void CHM_store_common() {
 }
 
 void CHM_restore_common() {
-    SEXP rho = chm_common_env;
-    c.dbound = asReal(findVarInFrame(rho, dboundSym));
-    c.grow0 = asReal(findVarInFrame(rho, grow0Sym));
-    c.grow1 = asReal(findVarInFrame(rho, grow1Sym));
-    c.grow2 = asInteger(findVarInFrame(rho, grow2Sym));
-    c.maxrank = asInteger(findVarInFrame(rho, maxrankSym));
-    c.supernodal_switch = asReal(findVarInFrame(rho, supernodal_switchSym));
-    c.supernodal = asLogical(findVarInFrame(rho, supernodalSym));
-    c.final_asis = asLogical(findVarInFrame(rho, final_asisSym));
-    c.final_super = asLogical(findVarInFrame(rho, final_superSym));
-    c.final_ll = asLogical(findVarInFrame(rho, final_llSym));
-    c.final_pack = asLogical(findVarInFrame(rho, final_packSym));
-    c.final_monotonic = asLogical(findVarInFrame(rho, final_monotonicSym));
-    c.final_resymbol = asLogical(findVarInFrame(rho, final_resymbolSym));
-    c.prefer_zomplex = asLogical(findVarInFrame(rho, prefer_zomplexSym));
-    c.prefer_upper = asLogical(findVarInFrame(rho, prefer_upperSym));
-    c.quick_return_if_not_posdef =
-	asLogical(findVarInFrame(rho, quick_return_if_not_posdefSym));
-    c.nmethods = asInteger(findVarInFrame(rho, nmethodsSym));
-    c.method[0].ordering = asInteger(findVarInFrame(rho, m0_ordSym));
-    c.postorder = asLogical(findVarInFrame(rho, postorderSym));
+    SEXP rho = chm_common_env, var;
+
+#define SET_AS_FROM_FRAME(_V_, _KIND_, _SYM_)	\
+    var = PROTECT(findVarInFrame(rho, _SYM_));	\
+    _V_ = _KIND_(var);				\
+    UNPROTECT(1)
+
+    SET_AS_FROM_FRAME(c.dbound, asReal,    dboundSym);
+    SET_AS_FROM_FRAME(c.grow0,  asReal,    grow0Sym);
+    SET_AS_FROM_FRAME(c.grow1,  asReal,    grow1Sym);
+    SET_AS_FROM_FRAME(c.grow2,  asInteger, grow2Sym);
+    SET_AS_FROM_FRAME(c.maxrank,asInteger, maxrankSym);
+    SET_AS_FROM_FRAME(c.supernodal_switch, asReal, supernodal_switchSym);
+    SET_AS_FROM_FRAME(c.supernodal,     asLogical, supernodalSym);
+    SET_AS_FROM_FRAME(c.final_asis,     asLogical, final_asisSym);
+    SET_AS_FROM_FRAME(c.final_super,    asLogical, final_superSym);
+    SET_AS_FROM_FRAME(c.final_ll,       asLogical, final_llSym);
+    SET_AS_FROM_FRAME(c.final_pack,     asLogical, final_packSym);
+    SET_AS_FROM_FRAME(c.final_monotonic,asLogical, final_monotonicSym);
+    SET_AS_FROM_FRAME(c.final_resymbol, asLogical, final_resymbolSym);
+    SET_AS_FROM_FRAME(c.prefer_zomplex, asLogical, prefer_zomplexSym);
+    SET_AS_FROM_FRAME(c.prefer_upper,   asLogical, prefer_upperSym);
+    SET_AS_FROM_FRAME(c.quick_return_if_not_posdef,
+					asLogical, quick_return_if_not_posdefSym);
+    SET_AS_FROM_FRAME(c.nmethods,           asInteger, nmethodsSym);
+    SET_AS_FROM_FRAME(c.method[0].ordering, asInteger, m0_ordSym);
+    SET_AS_FROM_FRAME(c.postorder,          asLogical, postorderSym);
 }
 
 SEXP CHM_set_common_env(SEXP rho) {

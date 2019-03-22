@@ -59,6 +59,11 @@ if(getRversion() >= "3.2.0") {
     lengths <- function (x, use.names = TRUE) vapply(x, length, 1L, USE.NAMES = use.names)
 }
 
+if(getRversion() < "3.5.0") {
+    isFALSE <- function (x) is.logical(x) && length(x) == 1L && !is.na(x) && !x
+    isTRUE  <- function (x) is.logical(x) && length(x) == 1L && !is.na(x) && x
+}
+
 .onUnload <- function(libpath)
 {
     library.dynam.unload("Matrix", libpath)

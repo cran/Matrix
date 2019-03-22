@@ -300,10 +300,10 @@ Rboolean any_NA_in_x(SEXP obj)
 static R_INLINE
 SEXP inv_permutation(SEXP p_, SEXP zero_p, SEXP zero_res)
 {
-    int np = 0;
+    int np = 1;
     if(!isInteger(p_)) {p_ = PROTECT(coerceVector(p_, INTSXP)); np++; }
     int *p = INTEGER(p_), n = LENGTH(p_);
-    SEXP val = allocVector(INTSXP, n);// (not PROTECT()ing: no alloc from here on)
+    SEXP val = PROTECT(allocVector(INTSXP, n));
     int *v = INTEGER(val), p_0 = asLogical(zero_p), r_0 = asLogical(zero_res);
     if(!p_0) v--; // ==> use 1-based indices
     // shorter (but not 100% sure if ok: is LHS always eval'ed *before* RHS ?) :

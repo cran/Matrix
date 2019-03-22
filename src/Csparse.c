@@ -163,8 +163,8 @@ SEXP Csparse_to_dense(SEXP x, SEXP symm_or_tri)
 				 /* transp: */ FALSE);
     // -> a [dln]geMatrix
     if(is_sym) { // ==> want  [dln]syMatrix
-	const char cl1 = class_P(ans)[0];
 	PROTECT(ans);
+	const char cl1 = class_P(ans)[0];
 	SEXP aa = PROTECT(NEW_OBJECT_OF_CLASS((cl1 == 'd') ? "dsyMatrix" :
 					      ((cl1 == 'l') ? "lsyMatrix" : "nsyMatrix")));
 	// No need to duplicate() as slots of ans are freshly allocated and ans will not be used
@@ -176,8 +176,8 @@ SEXP Csparse_to_dense(SEXP x, SEXP symm_or_tri)
 	return aa;
     }
     else if(is_tri) { // ==> want  [dln]trMatrix
-	const char cl1 = class_P(ans)[0];
 	PROTECT(ans);
+	const char cl1 = class_P(ans)[0];
 	SEXP aa = PROTECT(NEW_OBJECT_OF_CLASS((cl1 == 'd') ? "dtrMatrix" :
 					      ((cl1 == 'l') ? "ltrMatrix" : "ntrMatrix")));
 	// No need to duplicate() as slots of ans are freshly allocated and ans will not be used

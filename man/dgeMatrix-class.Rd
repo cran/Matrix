@@ -14,6 +14,7 @@
 \alias{Arith,logical,dgeMatrix-method}
 \alias{Arith,numeric,dgeMatrix-method}
 \alias{Math,dgeMatrix-method}
+\alias{log,dgeMatrix-method}
 %\alias{Math2,dgeMatrix,numeric-method}
 % Others
 %

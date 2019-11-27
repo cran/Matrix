@@ -36,6 +36,7 @@
 \alias{Logic,sparseVector,lMatrix-method}
 \alias{Logic,sparseVector,nMatrix-method}
 \alias{Math,sparseVector-method}
+\alias{log,sparseVector-method}
 \alias{Math2,dsparseVector-method}% or (dsparseVector, numeric) & (dsparseVector,missing) ?
 \alias{Math2,sparseVector-method}
 \alias{Summary,sparseVector-method}

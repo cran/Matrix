@@ -49,6 +49,7 @@ mat2dgT <- function(from) {
     x <- as.double(from)
     nz <- isN0(x)
     new("dgTMatrix", Dim = dim(from),
+        Dimnames = .M.DN(from),
         i = row(from)[nz] - 1L,
         j = col(from)[nz] - 1L,
         x = x[nz])
@@ -177,7 +178,7 @@ setMethod("+", signature(e1 = "dgTMatrix", e2 = "dgTMatrix"),
           function(e1, e2) {
               dimCheck(e1, e2)
               new("dgTMatrix", i = c(e1@i, e2@i), j = c(e1@j, e2@j),
-                  x = c(e1@x, e2@x), Dim = e1@Dim)
+                  x = c(e1@x, e2@x), Dim = e1@Dim, Dimnames = e1@Dimnames)
           })
 
 

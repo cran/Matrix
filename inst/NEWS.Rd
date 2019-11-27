@@ -14,7 +14,31 @@
 %% \item \code{as(<large-matrix>, "sparseMatrix")} no longer fails
 %%  when \code{prod(dim(.))} is larger than \eqn{2^{31} - 1}.
 %
-\section{Changes in version 1.2-17 (2019-03-.., svn r....)}{
+\section{Changes in version 1.2-18 (2019-11-26, manually picked from svn)}{
+  \subsection{Bug Fixes}{
+    \itemize{
+      \item Fix last(?) \code{PROTECT()} warning found by \command{rchk} in
+      \file{src/dense.c}'s \code{ddense_skewpart()}.
+
+      \item \code{as(m, "dgTMatrix")} does not lose \code{dimnames} anymore
+      when \code{m} is a (traditional) \code{matrix}.
+
+      \item \code{M[logical(0), ]} now has dimension \eqn{0 x k} for sparse
+      \code{M} as for base matrices.
+
+      \item \code{log(M, base)} (the 2-argument version of \code{log()})
+      wrongly gave the result for \code{base = exp(1)}, i.e., the 1-argument default.
+
+      \item \file{test-tools-Matrix.R}: \code{Qidentical()} no longer assumes
+      \code{class(<matrix>)} to be of length 1.
+
+      \item \file{test-tools-1.R}: provide bug-fixed \code{canCoerce()} in
+      old R versions.
+    }
+  }
+}
+
+\section{Changes in version 1.2-17 (2019-03-20, svn r3294)}{
   \subsection{New Features}{
     \itemize{
       \item (none)

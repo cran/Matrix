@@ -61,6 +61,7 @@
 \alias{which,ldiMatrix-method}
 %
 \alias{Math,diagonalMatrix-method}% Math2: handled via "dMatrix" class
+\alias{log,diagonalMatrix-method}
 \alias{Ops,diagonalMatrix,triangularMatrix-method}
 \alias{Ops,ddiMatrix,sparseMatrix-method}
 \alias{Ops,sparseMatrix,ddiMatrix-method}

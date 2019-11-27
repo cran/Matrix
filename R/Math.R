@@ -1,6 +1,9 @@
 ####--- All "Math" and "Math2" group methods for all Matrix classes (incl sparseVector) ------
-####	     ====	=====  but diagonalMatrix  -> ./diagMatrix.R and abIndex.R
-####							~~~~~~~~~~~~	 ~~~~~~~~~
+####	     ====	=====
+
+## "Design-bug":  log(x, base)  has *two* arguments // ditto for  "trunc()" !!
+## ---> need "log" methods "everywhere to catch 2-arg case !
+
 
 ###--------- Csparse
 
@@ -43,6 +46,8 @@ setMethod("Math",
 	      }
 	  }) ## {Math}
 
+setMethod("log", "CsparseMatrix", function(x, base = exp(1)) log(C2dense(x), base))
+
 ###--------- ddenseMatrix
 
 ##' Used for  dt[rp]Matrix, ds[yp]Matrix (and subclasses, e.g. dpo*(), cor*() !):
@@ -84,13 +89,35 @@ setMethod("Math", "ddenseMatrix", function(x)
 	}
     })
 
+## "log" with *two* arguments
+setMethod("log", "ddenseMatrix", function(x, base = exp(1))
+{
+    if(is(x, "symmetricMatrix")) { ## -> result symmetric: keeps class
+        cld <- getClassDef(class(x))
+        if((po <- extends(cld, "dpoMatrix")) || extends(cld, "dppMatrix")) { # result is *not* pos.def!
+            x <- as(x, if(po) "dsyMatrix" else "dspMatrix")
+        }
+        ## "symmetricMatrix" has 'factors' slot:
+        if(!is.null(x@factors)) x@factors <- list()
+        x@x <- log(x@x, base)
+        x
+    }
+    else { ## triangularMatrix or generalMatrix, includes, e.g. "corMatrix"!
+        if(inherits(x, "compMatrix")) # has 'factors' slot
+            if(!is.null(x@factors)) x@factors <- list()
+        ## result is general: *could* use  -Inf   for the whole 0-triangle,
+        ## but this is much easier:
+        log(as(x,"dgeMatrix"), base)
+    }
+})
+
 
 ###--------- denseMatrix
 
 ## FIXME: Once we have integer (idense..),  sign(), abs(.) may need different:
 setMethod("Math", signature(x = "denseMatrix"),
-	  function(x) callGeneric(as(x, "dMatrix")))
-                                        # -> ./ddenseMatrix.R has next method
+	  function(x) callGeneric(as(x, "dMatrix"))) # -> "ddenseMatrix" above
+setMethod("log", "denseMatrix", function(x, base = exp(1)) log(as(x, "dMatrix"), base))
 
 ###--------- dgeMatrix
 
@@ -103,6 +130,10 @@ setMethod("Math", signature(x = "dgeMatrix"),
 		  x
 	      }
 	  })
+setMethod("log", "dgeMatrix", function(x, base = exp(1)) {
+    x@x <- log(x@x, base)
+    x
+})
 
 ###--------- diagMatrix
 
@@ -147,6 +178,25 @@ setMethod("Math", signature(x = "diagonalMatrix"),
 	      }
 	  }) ## {Math}
 
+setMethod("log", "diagonalMatrix", function(x, base = exp(1)) {
+    ## no sparseness, i.e., no diagonal, but still symmetric:
+    r <- as(as(as(.diag2sT(x), "dMatrix"), "denseMatrix"), "dspMatrix")
+    diag(r) <- if(x@diag == "U") 0 else log(x@x, base)
+    ## Assign log(0, <base>) == -Inf  to all off-diagonal elements;
+    ## indices depend crucially on  uplo = "U" / "L" :
+    n <- x@Dim[[1L]]
+    if(n >= 1L) {
+        k <- seq_len(n)
+	i <- k*(k+1)/2 # as r@uplo == "U"
+        ## } else { # uplo == "L"
+        ##     cumsum(c(1, if(n>1) n:2))
+        ## }
+	r@x[-i] <- -Inf # = log(0, <base>)
+    }
+    r
+})
+
+
 ## NB: "Math2" (round, signif) for diagMatrix is perfectly via "dMatrix"
 
 
@@ -174,6 +224,8 @@ setMethod("Math2", signature(x = "Matrix"),
 
 setMethod("Math", signature(x = "sparseMatrix"),
 	  function(x) callGeneric(as(x, "CsparseMatrix")))
+
+setMethod("log", "sparseMatrix", function(x, base = exp(1)) log(as(x, "CsparseMatrix"), base))
 
 
 ###--------- sparseVector
@@ -203,6 +255,7 @@ setMethod("Math", signature(x = "sparseVector"),
 	      }
 	  })
 
+setMethod("log", "sparseVector", function(x, base = exp(1)) log(sp2vec(x), base))
 
 setMethod("Math2", signature(x = "dsparseVector"),
           ## Assume that  Generic(u, k) |--> u for u in {0,1}

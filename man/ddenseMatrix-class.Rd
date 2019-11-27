@@ -17,6 +17,7 @@
 \alias{Arith,logical,ddenseMatrix-method}
 \alias{Arith,numeric,ddenseMatrix-method}
 \alias{Math,ddenseMatrix-method}
+\alias{log,ddenseMatrix-method}
 \alias{Summary,ddenseMatrix-method}
 %
 \alias{as.numeric,ddenseMatrix-method}

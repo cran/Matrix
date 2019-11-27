@@ -39,8 +39,8 @@ Qidentical.DN <- function(dx, dy) {
 
 ##' quasi-identical()  for 'Matrix' matrices
 Qidentical <- function(x,y, strictClass = TRUE) {
-    if(class(x) != class(y)) {
-        if(strictClass || !is(x, class(y)))
+    if(!identical(class(x), cy <- class(y))) {
+        if(strictClass || !is(x, cy))
            return(FALSE)
         ## else try further
     }
@@ -66,8 +66,8 @@ Qidentical <- function(x,y, strictClass = TRUE) {
 
 ##' quasi-identical()  for traditional ('matrix') matrices
 mQidentical <- function(x,y, strictClass = TRUE) {
-    if(class(x) != class(y)) {
-        if(strictClass || !is(x, class(y)))
+    if(!identical(class(x), cy <- class(y))) {
+        if(strictClass || !is(x, cy))
             return(FALSE)
         ## else try further
     }

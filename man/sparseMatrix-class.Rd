@@ -4,6 +4,7 @@
 \alias{sparseMatrix-class}
 %% Group methods
 \alias{Math,sparseMatrix-method}
+\alias{log,sparseMatrix-method}
 %\alias{Math2,sparseMatrix,numeric-method}
 \alias{Ops,sparseMatrix,sparseMatrix-method}
 \alias{Ops,sparseMatrix,numeric-method}

@@ -501,14 +501,13 @@ SEXP ddense_symmpart(SEXP x)
 SEXP ddense_skewpart(SEXP x)
 /* Class of the value will be dgeMatrix */
 {
-    SEXP dx = dup_mMatrix_as_dgeMatrix(x);
+    SEXP dx = PROTECT(dup_mMatrix_as_dgeMatrix(x));
     int *adims = INTEGER(GET_SLOT(dx, Matrix_DimSym)), n = adims[0];
 
     if(n != adims[1]) {
 	error(_("matrix is not square! (skew-symmetric part)"));
 	return R_NilValue; /* -Wall */
     } else {
-	PROTECT(dx);
 	SEXP ans = PROTECT(NEW_OBJECT_OF_CLASS("dgeMatrix")), dns, nms_dns;
 	double *xx = REAL(GET_SLOT(dx, Matrix_xSym));
 

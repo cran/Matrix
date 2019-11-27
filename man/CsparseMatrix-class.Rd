@@ -19,6 +19,7 @@
 \alias{Arith,numeric,CsparseMatrix-method}
 \alias{Logic,CsparseMatrix,CsparseMatrix-method}
 \alias{Math,CsparseMatrix-method}
+\alias{log,CsparseMatrix-method}
 %
 \alias{.validateCsparse}
 %

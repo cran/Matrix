@@ -16,10 +16,10 @@
 #include "mex.h"
 #endif
 #define CS_VER 3                    /* CSparse Version */
-#define CS_SUBVER 1
-#define CS_SUBSUB 2
-#define CS_DATE "April 16, 2013"    /* CSparse release date */
-#define CS_COPYRIGHT "Copyright (c) Timothy A. Davis, 2006-2013"
+#define CS_SUBVER 2
+#define CS_SUBSUB 0
+#define CS_DATE "Sept 12, 2017"       /* CSparse release date */
+#define CS_COPYRIGHT "Copyright (c) Timothy A. Davis, 2006-2016"
 
 #ifdef MATLAB_MEX_FILE
 #undef csi
@@ -28,7 +28,7 @@
 // Matrix pkg:
 #define csi int
 #ifndef csi
-#define csi int
+#define csi ptrdiff_t
 #endif
 
 /* --- primary CSparse routines and data structures ------------------------- */

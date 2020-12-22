@@ -4,9 +4,6 @@
 
 /* -----------------------------------------------------------------------------
  * CHOLMOD/Cholesky Module.  Copyright (C) 2005-2013, Timothy A. Davis
- * The CHOLMOD/Cholesky Module is licensed under Version 2.1 of the GNU
- * Lesser General Public License.  See lesser.txt for a text of the license.
- * CHOLMOD is also available under other licenses; contact authors for details.
  * -------------------------------------------------------------------------- */
 
 /* Order and analyze a matrix (either simplicial or supernodal), in prepartion
@@ -33,7 +30,7 @@
  *	AMD:	    approximate minumum degree (AMD for the symmetric case,
  *		    COLAMD for the AA' case).
  *	METIS:	    nested dissection with METIS_NodeND
- *	NESDIS:	    nested dissection using METIS_NodeComputeSeparator,
+ *	NESDIS:	    nested dissection using METIS_ComputeVertexSeparator,
  *		    typically followed by a constrained minimum degree
  *		    (CAMD for the symmetric case, CCOLAMD for the AA' case).
  *
@@ -399,14 +396,14 @@ int CHOLMOD(analyze_ordering)
 /* === cholmod_analyze_p2 =================================================== */
 /* ========================================================================== */
 
-/* Ordering and analysis for sparse Cholesky or sparse QR.  CHOLMOD itself
- * always uses for_cholesky = TRUE.  The for_cholesky = FALSE option is
- * for SuiteSparseQR only. */
+/* Ordering and analysis for sparse Cholesky or sparse QR.  */
 
 cholmod_factor *CHOLMOD(analyze_p2)
 (
     /* ---- input ---- */
-    int for_cholesky,   /* if TRUE, then analyze for Cholesky; else for QR */
+    int for_whom,       /* FOR_SPQR     (0): for SPQR but not GPU-accelerated
+                           FOR_CHOLESKY (1): for Cholesky (GPU or not)
+                           FOR_SPQRGPU  (2): for SPQR with GPU acceleration */
     cholmod_sparse *A,	/* matrix to order and analyze */
     Int *UserPerm,	/* user-provided permutation, size A->nrow */
     Int *fset,		/* subset of 0:(A->ncol)-1 */
@@ -697,7 +694,7 @@ cholmod_factor *CHOLMOD(analyze_p2)
 	    /* -------------------------------------------------------------- */
 
 	    /* this method is based on METIS' node bissection routine
-	     * (METIS_NodeComputeSeparator).  In contrast to METIS_NodeND,
+	     * (METIS_ComputeVertexSeparator).  In contrast to METIS_NodeND,
 	     * it calls CAMD or CCOLAMD on the whole graph, instead of MMD
 	     * on just the leaves. */
 #ifndef NPARTITION
@@ -925,7 +922,7 @@ cholmod_factor *CHOLMOD(analyze_p2)
 		&A1, &A2, &S, &F, Common) ;
 
 	/* workspace: Flag (nrow), Head (nrow), Iwork (5*nrow) */
-	CHOLMOD(super_symbolic2) (for_cholesky, S, F, Lparent, L, Common) ;
+	CHOLMOD(super_symbolic2) (for_whom, S, F, Lparent, L, Common) ;
 	PRINT1 (("status %d\n", Common->status)) ;
 
 	CHOLMOD(free_sparse) (&A1, Common) ;

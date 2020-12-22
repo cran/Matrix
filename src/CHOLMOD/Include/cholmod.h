@@ -5,9 +5,6 @@
 /* -----------------------------------------------------------------------------
  * CHOLMOD/Include/cholmod.h.
  * Copyright (C) 2005-2013, Univ. of Florida.  Author: Timothy A. Davis
- * CHOLMOD/Include/cholmod.h is licensed under Version 2.1 of the GNU
- * Lesser General Public License.  See lesser.txt for a text of the license.
- * CHOLMOD is also available under other licenses; contact authors for details.
  * http://www.suitesparse.com
  *
  * Portions of CHOLMOD (the Core and Partition Modules) are copyrighted by the
@@ -87,6 +84,7 @@ extern "C" {
 
 #include "cholmod_config.h"
 
+
 /* CHOLMOD always includes the Core module. */
 #include "cholmod_core.h"
 
@@ -116,6 +114,10 @@ extern "C" {
 
 #ifndef NSUPERNODAL
 #include "cholmod_supernodal.h"
+#endif
+
+#ifdef GPU_BLAS
+#include "cholmod_gpu.h"
 #endif
 
 #ifdef __cplusplus

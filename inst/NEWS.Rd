@@ -14,6 +14,102 @@
 %% \item \code{as(<large-matrix>, "sparseMatrix")} no longer fails
 %%  when \code{prod(dim(.))} is larger than \eqn{2^{31} - 1}.
 %
+
+\section{Changes in version 1.3-0 (2020-12-15 r3351)}{
+  \subsection{Significant User-Visible Change}{
+    \itemize{
+      \item \code{Matrix(*, doDiag=TRUE)} where \code{doDiag=TRUE} has
+      always been the \emph{default} is now obeyed also in the sparse
+      case, as all \code{"diagonalMatrix"} are also \code{"sparseMatrix"}.
+
+      \code{Matrix(0, 3,3)} returns a \code{"ddiMatrix"} instead of a
+      \code{"dsCMatrix"} previously.  The latter is still returned from
+      \code{Matrix(0, 3,3, doDiag=FALSE)}, and e.g., \code{.symDiagonal(3,pi)}.
+
+      Also a triangular matrix, e.g., \code{"dtrMatrix"} is detected now in
+      cases with \code{NA}s.
+
+      This is both a bug fix \emph{and} an API change which breaks code
+      that assumes \code{Matrix(.)} to return a \code{"CsparseMatrix"} in
+      cases where it now returns a \code{"diagonalMatrix"} (which does
+      extend \code{"sparseMatrix"}).
+    }
+  }
+  \subsection{New Features}{
+    \itemize{
+      \item Subassignment to \code{"diagonalMatrix"} now returns
+      sparse \code{"triangularMatrix"} more often; also (sparse)
+      \code{"symmetricMatrix"}.
+
+      \item \code{nearPD()} gets new option: If \code{base.matrix = TRUE},
+      the resulting \code{mat} component is a \pkg{base} \code{matrix}, as
+      often used desired when \code{nearPD()} is used outside the
+      \pkg{Matrix} package context.
+
+      \item Factored out new \code{qr2rankMatrix()} utility from
+      \code{rankMatrix()}.
+
+      \item New \code{BunchKaufman(<matrix>)} method.
+
+      \item Added \code{wrld_1deg} sparse matrix example to
+      \emph{distributed} version of \pkg{Matrix} (no longer excluding it
+      via \file{.Rbuildignore}).
+
+      \item New (simple) \code{mat2triplet()} function to be used instead
+      of \code{summary(<sparseMatrix>)} in code.
+
+      \item Internal \code{.diag2tT()} gains new option \code{drop0 = TRUE}
+      and hence now by default drops zero diagonal entries.  Consequently,
+      e.g., \code{as(<diagonalMatrix>, "CsparseMatrix")} now drops such
+      zeros, too.
+
+      \item Updated the crucial underlying C libraries from SuiteSparse,
+      from 4.2.1 to 5.7.1 (from 2020-02-20), visible in \code{.SuiteSparse_version()} .
+
+      \item \code{sparseMatrix()} gets new argument \code{repr = "C"},
+      superseding the (now deprecated) \code{giveCsparse = TRUE}.  Allows
+      to return \code{"RsparseMatrix"} matrices.
+
+      Similarly, \code{rsparsematrix()}, \code{fac2sparse()} and \code{fac2Sparse()}
+      get the new \code{repr} argument and their \code{giveCsparse} is
+      deprecated, sometimes only informally for now.% no deprecation warning yet
+
+      \item \code{sparse.model.matrix()} gets option \code{sep = ""}, with,
+      e.g., \code{sep = ":"} allowing to get easier column names; from
+      R-forge Matrix (non-)bug #6581, by Vitalie Spinu.
+    }
+  }
+  \subsection{Bug Fixes}{
+    \itemize{
+      \item \code{rankMatrix(<sparse>, method="qr")} now returns \code{NA}
+      (or \code{NaN}) instead of signalling an error in the case the sparse
+      \eqn{Q R} decomposition gave \code{NA}s in \code{diag(R)}.
+
+      \item Coercion (\code{as(., .)}) from e.g., \code{"lsyMatrix"} to
+      \code{"CsparseMatrix"} silently made asymmetric dimnames symmetric,
+      as did the \emph{internal} \code{forceCspSymmetric(*, dimNames)}
+      which may be called from \code{forceSymmetric()}.
+
+      \item Adapt code to new Fortran requirements of passing length of
+      character arguments, thanks to Brian Ripley.
+
+      \item (R-forge Matrix bug #6659, reported by Georg Kindermann):
+      \code{<sparseVector>[i] <- val} bug fixed.
+
+      \item (R-forge Matrix bug #6666, reported by Ezra Tucker):
+      \code{which(<ldiMatrix>, array.ind=TRUE)} thinko fixed.
+
+      \item For R-devel Dec 4, 2020: adapt all.equal() check of sparse
+      matrix images (which contain panel functions with environments ..).
+
+      \item tried fixing warning \emph{'cholmod_factorize_p' accessing 16
+	bytes in a region of size 8 [-Wstringop-overflow=]} in
+      \file{src/dsCMatrix.c} (in two places); seen by pre-release-gcc11 compilation.
+    }
+  }
+}
+
+%
 \section{Changes in version 1.2-18 (2019-11-26, manually picked from svn)}{
   \subsection{Bug Fixes}{
     \itemize{

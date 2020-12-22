@@ -14,9 +14,12 @@ extern "C" {
 #include <Rdefines.h> /* Rinternals.h + GET_SLOT etc */
 #include <R_ext/RS.h> /* for Memzero() */
 
+/* NB: The "caller" aka "includer" needs to  #include <R_ext/Lapack.h> etc
+ * --  which defines  FCONE  etc (for LTO)
+*/
+
 #define imax2(x, y) ((x < y) ? y : x)
 #define imin2(x, y) ((x < y) ? x : y)
-
 
 // must come after <R.h> above, for clang (2015-08-05)
 #ifdef __GNUC__
@@ -46,6 +49,7 @@ extern "C" {
   typedef int R_xlen_t;
 # endif
 #endif
+
 
 #define Alloca(n, t)   (t *) alloca( (size_t) ( (n) * sizeof(t) ) )
 

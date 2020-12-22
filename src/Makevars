@@ -1,6 +1,6 @@
 # -*- Makefile -*-
 
-PKG_CPPFLAGS = -DNTIMER -I./SuiteSparse_config
+PKG_CPPFLAGS = -DNTIMER -I./SuiteSparse_config -DUSE_FC_LEN_T
 ## we use the BLAS and the LAPACK library:
 PKG_LIBS = $(SUBLIBS) $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)
 

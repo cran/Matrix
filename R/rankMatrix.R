@@ -6,10 +6,59 @@
 ##
 ## Ideas by Martin Maechler (April 2007) and Ravi Varadhan (October 2007)
 
+qr2rankMatrix <- function(qr, tol = NULL, isBqr = is.qr(qr), do.warn=TRUE) {
+    ## NB: 1) base::qr(*, LAPACK = TRUE/FALSE)  differ via attr(.,"useLAPACK")
+    ##     2) if LAPACK=TRUE, .$rank is useless (always = full rank)
+    ##
+    ## return ( . ) :
+    if(isBqr && !isTRUE(attr(qr, "useLAPACK")))
+        qr$rank
+    else {
+        diagR <- if(isBqr) # hence "useLAPACK" here
+                     diag(qr$qr) # faster than, but equivalent to   diag(qr.R(q.r))
+                 else ## ==> assume Matrix::qr() i.e., currently "sparseQR"
+                     ## FIXME: Here, we could be quite a bit faster,
+                     ## by not returning the full sparseQR, but just
+                     ## doing the following in C, and return the rank.
+                     diag(qr@R)
+
+        if(anyNA(diagR) || !all(is.finite(diagR))) {
+            if(do.warn) {
+                ifi <- is.finite(diagR)
+                warning(gettextf(
+                    "qr2rankMatrix(.): QR with only %d out of %d finite diag(R) entries",
+                    sum(ifi), length(ifi)))
+            }
+            ## return
+            NA_integer_
+            ## alternative: gives *too* small rank in typical cases
+            ## reduce the maximal rank by omitting all non-finite entries:
+            ## diagR <- diagR[is.finite(diagR)]
+            ## if(length(diagR) == 0)
+            ##     return(NA_integer_)
+        } else {
+            if(do.warn && any(diagR < 0))
+                warning(gettextf("qr2rankMatrix(.): QR has negative diag(R) entries"))
+            ## diagR <- diagR ## had abs(diagR) .. but that counts large negative entries
+            ## declare those entries to be zero that are < tol*max(.)
+            if((mdi <- max(diagR, na.rm=TRUE)) > 0) {
+                if(!is.numeric(tol)) {
+                    ## d := dim(x) extracted from qr, in both (dense and sparse) qr() cases
+                    d <- dim(if(isBqr) qr$qr else qr)
+                    tol <- max(d) * .Machine$double.eps
+                }
+                sum(diagR >= tol * mdi)
+                ## was sum(diag(q.r@R) != 0)
+            }
+            else 0L # for 0-matrix or all NaN or negative diagR[]
+        }
+    } ## else {Lapack or sparseQR}
+}
+
 rankMatrix <- function(x, tol = NULL,
                        method = c("tolNorm2", "qr.R", "qrLINPACK", "qr",
                                   "useGrad", "maybeGrad"),
-                       sval = svd(x, 0,0)$d, warn.t = TRUE)
+                       sval = svd(x, 0,0)$d, warn.t = TRUE, warn.qr = TRUE)
 {
     ## Purpose: rank of a matrix ``as Matlab'' or "according to Ravi V"
     ## ----------------------------------------------------------------------
@@ -81,27 +130,7 @@ rankMatrix <- function(x, tol = NULL,
 		      warning(gettextf(
 			"rankMatrix(x, method='qr'): computing t(x) as nrow(x) < ncol(x)"))
 		  q.r <- qr(if(do.t) t(x) else x, tol=tol, LAPACK = method != "qrLINPACK")
-		  if(x.dense && (method == "qrLINPACK"))
-                      q.r$rank
-                  else { ## else  "qr.R" or sparse {or a problem)
-		      diagR <-
-			  if(x.dense) # faster than, but equivalent to	diag(qr.R(q.r))
-			      diag(q.r$qr)
-			  else
-			      ## FIXME: Here, we could be quite a bit faster,
-			      ## by not returning the full sparseQR, but just
-			      ## doing the following in C, and return the rank.
-			      diag(q.r@R)
-
-                      d.i <- abs(diagR) ## is abs(.) unneeded? [FIXME]
-                      ## declare those entries to be zero that are < tol*max(.)
-                      if((mdi <- max(d.i)) > 0) sum(d.i >= tol * mdi) else 0L # for 0-matrix
-                      ## was sum(diag(q.r@R) != 0)
-                  }
-		  ## else stop(gettextf(
-		  ##       "method %s not applicable for qr() result class %s",
-		  ##       	     sQuote(method), dQuote(class(q.r)[1])),
-		  ##           domain=NA)
+                  qr2rankMatrix(q.r, tol=tol, isBqr = x.dense, do.warn = warn.qr)
 	      }
 	      else if(sval[1] > 0) sum(sval >= tol * sval[1]) else 0L, ## "tolNorm2"
 	      "method" = method,

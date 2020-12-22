@@ -5,9 +5,6 @@
 /* -----------------------------------------------------------------------------
  * CHOLMOD/Core Module.  Copyright (C) 2005-2013,
  * Univ. of Florida.  Author: Timothy A. Davis
- * The CHOLMOD/Core Module is licensed under Version 2.1 of the GNU
- * Lesser General Public License.  See lesser.txt for a text of the license.
- * CHOLMOD is also available under other licenses; contact authors for details.
  * -------------------------------------------------------------------------- */
 
 /* Core utility routines for the cholmod_factor object:
@@ -132,6 +129,7 @@ cholmod_factor *CHOLMOD(allocate_factor)
     L->pi = NULL ;
     L->px = NULL ;
     L->s = NULL ;
+    L->useGPU = 0;
 
     /* L has not been factorized */
     L->minor = n ;

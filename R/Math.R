@@ -9,42 +9,41 @@
 
 Math.vecGenerics <- grep("^cum", getGroupMembers("Math"), value=TRUE)
 ## "cummax" .. "cumsum" : work on full *vector* and return vector also for matrix input
-setMethod("Math",
-	  signature(x = "CsparseMatrix"),
-	  function(x) {
-	      if(.Generic %nin% Math.vecGenerics && is0(callGeneric(0.))) {
-		  ## sparseness, symm., triang.,... preserved
-                  cl <- class(x)
-                  has.x <- !extends(cl, "nsparseMatrix")
-                  ## has.x  <==> *not* nonzero-pattern == "nMatrix"
-                  if(has.x) {
-                      type <- storage.mode(x@x)
-                      r <- callGeneric(x@x)
-                  } else { ## nsparseMatrix
-                      type <- ""
-		      r <- rep.int(as.double(callGeneric(TRUE)),
-				   switch(.sp.class(cl),
-					  CsparseMatrix = length(x@i),
-					  TsparseMatrix = length(x@i),
-					  RsparseMatrix = length(x@j)))
-		  }
-		  if(type == storage.mode(r)) {
-		      x@x <- r
-		      x
-		  } else { ## e.g. abs( <lgC> ) --> integer Csparse
-		      ## FIXME: when we have 'i*' classes, use them here:
-		      rx <- new(sub("^.", "d", MatrixClass(cl)))
-		      rx@x <- as.double(r)
-		      ## result is "same"
-		      sNams <- slotNames(cl)
-		      for(nm in sNams[sNams != "x"])
-			  slot(rx, nm) <- slot(x, nm)
-		      rx
-		  }
-	      } else { ## no sparseness (or no matrix!); C2dense() returns *numeric*
-		  callGeneric(C2dense(x))
-	      }
-	  }) ## {Math}
+setMethod("Math", "CsparseMatrix", function(x)
+{
+    if(.Generic %nin% Math.vecGenerics && is0(callGeneric(0.))) {
+        ## sparseness, symm., triang.,... preserved
+        cl <- class(x)
+        has.x <- !extends(cl, "nsparseMatrix")
+        ## has.x  <==> *not* nonzero-pattern == "nMatrix"
+        if(has.x) {
+            type <- storage.mode(x@x)
+            r <- callGeneric(x@x)
+        } else { ## nsparseMatrix
+            type <- ""
+            r <- rep.int(as.double(callGeneric(TRUE)),
+                         switch(.sp.class(cl),
+                                CsparseMatrix = length(x@i),
+                                TsparseMatrix = length(x@i),
+                                RsparseMatrix = length(x@j)))
+        }
+        if(type == storage.mode(r)) {
+            x@x <- r
+            x
+        } else { ## e.g. abs( <lgC> ) --> integer Csparse
+            ## FIXME: when we have 'i*' classes, use them here:
+            rx <- new(sub("^.", "d", MatrixClass(cl)))
+            rx@x <- as.double(r)
+            ## result is "same"
+            sNams <- slotNames(cl)
+            for(nm in sNams[sNams != "x"])
+                slot(rx, nm) <- slot(x, nm)
+            rx
+        }
+    } else { ## no sparseness (or no matrix!); C2dense() returns *numeric*
+        callGeneric(C2dense(x))
+    }
+}) ## {Math}
 
 setMethod("log", "CsparseMatrix", function(x, base = exp(1)) log(C2dense(x), base))
 
@@ -57,32 +56,33 @@ setMethod("Math", "ddenseMatrix", function(x)
 	if(.Generic %in% Math.vecGenerics) # vector result
 	    callGeneric(as(x,"dgeMatrix")@x)
 	else if(is(x, "symmetricMatrix")) { ## -> result symmetric: keeps class
-	    cl <- .class0(x)
-	    if(cl %in% (scl <- c("dsyMatrix","dspMatrix"))) {
-		x@x <- callGeneric(x@x)
-		x
-	    } else { ## *sub*class of dsy/dsp: e.g., dpoMatrix
-		## -> "[dsy/dsp]Matrix":
-		x <- as(x, scl[match(scl, names(getClass(cl)@contains), nomatch=0L)])
-		x@x <- callGeneric(x@x)
-		x
-	    }
+            cld <- getClassDef(cl <- class(x))
+	    if((po <- extends(cld, "dpoMatrix")) || extends(cld, "dppMatrix")) { # result is *not* pos.def!
+		x <- as(x, if(po) "dsyMatrix" else "dspMatrix")
+            }
+            ## "symmetricMatrix" has 'factors' slot:
+            if(!is.null(x@factors)) x@factors <- list()
+            x@x <- callGeneric(x@x)
+            x
 	}
 	else { ## triangularMatrix (no need for testing), includes, e.g. "corMatrix"!
 	    ## if(is0(f0 <- callGeneric(0.))) { ## -> result remains triangular
 	    if(is0(callGeneric(0.))) { ## -> result remains triangular
-		cl <- .class0(x)
-		if(cl %in% (scl <- c("dtrMatrix","dtpMatrix"))) {
-		    x@x <- callGeneric(x@x)
-		    x
-		} else { ## *sub*class of dtr/dtp: e.g., corMatrix
-		    ## -> "[dtr/dtp]Matrix":
-		    x <- as(x, scl[match(scl, names(getClass(cl)@contains), nomatch=0L)])
-		    x@x <- callGeneric(x@x)
-		    x
-		}
+		cld <- getClassDef(cl <- class(x))
+                if(extends(cld, "triangularMatrix")) {
+                    if((isF <- extends(cld, "MatrixFactorization")) || extends(cld, "corMatrix")) {
+                        x <- as(x, if(isF && .isPacked(x)) "dtpMatrix" else "dtrMatrix")
+                    }
+                } else
+                    if(inherits(x, "compMatrix")) # has 'factors' slot
+                        if(!is.null(x@factors)) x@factors <- list()
+		x@x <- callGeneric(x@x)
+		x
 	    }
-	    else { ## result is general: *could* use f0 for the whole 0-triangle,
+	    else {
+                if(inherits(x, "compMatrix")) # has 'factors' slot
+                    if(!is.null(x@factors)) x@factors <- list()
+                ## result is general: *could* use f0 <- callGeneric(0.) for the whole 0-triangle,
 		## but this is much easier:
 		callGeneric(as(x,"dgeMatrix"))
 	    }
@@ -137,8 +137,7 @@ setMethod("log", "dgeMatrix", function(x, base = exp(1)) {
 
 ###--------- diagMatrix
 
-
-## Till 2014-08-04, went via "dtC" (triangular) -- "Math" method in ./Math.R
+## Till 2014-08-04, went via "dtC" (triangular)
 setMethod("Math", signature(x = "diagonalMatrix"),
 	  function(x) {
 	      if(.Generic %in% Math.vecGenerics) # vector result

@@ -4,9 +4,6 @@
 
 /* -----------------------------------------------------------------------------
  * CHOLMOD/Cholesky Module.  Copyright (C) 2005-2006, Timothy A. Davis
- * The CHOLMOD/Cholesky Module is licensed under Version 2.1 of the GNU
- * Lesser General Public License.  See lesser.txt for a text of the license.
- * CHOLMOD is also available under other licenses; contact authors for details.
  * -------------------------------------------------------------------------- */
 
 /* CHOLMOD interface to the AMD ordering routine.  Orders A if the matrix is
@@ -167,17 +164,6 @@ int CHOLMOD(amd)
 	Control [AMD_DENSE] = Common->method [Common->current].prune_dense ;
 	Control [AMD_AGGRESSIVE] = Common->method [Common->current].aggressive ;
     }
-
-    /* AMD_2 does not use amd_malloc and amd_free, but set these pointers just
-     * be safe. */
-    amd_malloc = Common->malloc_memory ;
-    amd_free = Common->free_memory ;
-    amd_calloc = Common->calloc_memory ;
-    amd_realloc = Common->realloc_memory ;
-
-    /* AMD_2 doesn't print anything either, but future versions might,
-     * so set the amd_printf pointer too. */
-    amd_printf = Common->print_function ;
 
 #ifdef LONG
     amd_l2 (n, C->p,  C->i, Len, C->nzmax, cnz, Nv, Next, Perm, Head, Elen,

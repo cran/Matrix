@@ -1,6 +1,6 @@
 
-R Under development (unstable) (2019-02-26 r76164) -- "Unsuffered Consequences"
-Copyright (C) 2019 The R Foundation for Statistical Computing
+R version 4.0.3 Patched (2020-11-02 r79393) -- "Bunny-Wunnies Freak Out"
+Copyright (C) 2020 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -129,7 +129,7 @@ diagnosing replTmat(x,i,j,v): nargs()= 3; missing (i,j) = (0,1)
 + 	  identical(a.m, array(v, dim=dim(mn), dimnames=dimnames(mn)))
 + 	  )
 > showProc.time()
-Time elapsed:  0.331 0.004 0.337 
+Time (user system elapsed): 0.444 0.014 0.46 
 > 
 > ## Bug found thanks to Timothy Mak, Feb 3, 2017:
 > ## sparseMatrix logical indexing with (partial) NA:
@@ -137,7 +137,7 @@ Time elapsed:  0.331 0.004 0.337
 > assert.EQ(as(ms,"matrix"), a.m) # incl. dimnames
 > iN4 <- c(NA, TRUE, FALSE, TRUE)
 > assert.EQ(as(mn[,iN4],"matrix"), a.m[,iN4]) # (incl. dimnames)
-> ##assert.EQ(as.matrix(ms[,iN4]), a.m[,iN4]) # ms[, <with_NA>]  fails still :
+> ##assert.EQ(as.matrix(ms[,iN4]), a.m[,iN4]) # ms[, <with_NA>]  fails still : _FIXME_
 > try(ms[,iN4])
 Error in intI(j, n = x@Dim[2], dn[[2]], give.dn = FALSE) : 
   'NA' indices are not (yet?) supported for sparse Matrices
@@ -172,6 +172,12 @@ Error in intI(i, n = di[margin], dn = dn[[margin]], give.dn = FALSE) :
 > chk.ndn(ts[i, i]); chk.ndn(ts[i, ])
 > chk.ndn( b[ , 1, drop=FALSE]); chk.ndn( s[i, 2, drop=FALSE])
 > chk.ndn(tb[ , 1, drop=FALSE]); chk.ndn(ts[i, 2, drop=FALSE])
+> 
+> L0 <- logical(0)
+> stopifnot(exprs = {
++     identical(dim(b[,L0]), c(4L, 0L))
++     identical(dim(b[L0,]), c(0L, 4L)) # failed till 2019-09-x
++ })
 > 
 > ## Printing sparse colnames:
 > ms[sample(28, 20)] <- 0
@@ -228,7 +234,7 @@ diagnosing replTmat(x,i,j,v): nargs()= 3; missing (i,j) = (0,1)
 + 	  identical3(m[!sel],  m[!ssel], .asmatrix(m)[.asmatrix(!ssel)])
 + 	  )
 > showProc.time()
-Time elapsed:  0.144 0.014 0.158 
+Time (user system elapsed): 0.192 0.008 0.2 
 > 
 > ## more sparse Matrices --------------------------------------
 > 
@@ -565,7 +571,7 @@ ok( d )
 == ###======================================================================
 
 > showProc.time()
-Time elapsed:  0.596 0.009 0.608 
+Time (user system elapsed): 0.781 0.001 0.784 
 > 
 > if(doExtras) {### {was ./AAA_index.R, MM-only}
 +     ## an nsparse-example
@@ -692,10 +698,11 @@ Time elapsed:  0.596 0.009 0.608
 > cB <- crossprod(Matrix(b, sparse=TRUE))
 > a <- matrix(0, 6, 6)
 > a[1:4, 1:4] <- cb
-> A1 <- A2 <- Matrix(0, 6, 6)#-> sparse
+> A1 <- A2 <- Matrix(0, 6, 6)#-> ddiMatrix
 > A1[1:4, 1:4] <- cb
 > A2[1:4, 1:4] <- cB
 > assert.EQ.mat(A1, a)# indeed
+> ## "must": symmetric and sparse, i.e., ds*Matrix:
 > stopifnot(identical(A1, A2), is(A1, "dsCMatrix"))
 > 
 > ## repeated ones ``the challenge'' (to do smartly):
@@ -723,7 +730,7 @@ Time elapsed:  0.596 0.009 0.608
 +     assert.EQ.mat(T[i,i], ss[i,i])
 + }
 > showProc.time()
-Time elapsed:  0.184 0.001 0.186 
+Time (user system elapsed): 0.306 0.001 0.308 
 > 
 > stopifnot(all.equal(mC[,3], mm[,3]),
 + 	  identical(mC[ij], mC[ij + 0.4]),
@@ -933,7 +940,7 @@ diagnosing replTmat(x,i,j,v): nargs()= 3; missing (i,j) = (0,1)
 + 	  all(sm[,-(1:3)] == 0)
 + 	  )
 > showProc.time()
-Time elapsed:  0.169 0.007 0.176 
+Time (user system elapsed): 0.216 0.001 0.218 
 > 
 > ##---  "nsparse*" sub-assignment :----------
 > M <- Matrix(c(1, rep(0,7), 1:4), 3,4)
@@ -990,7 +997,7 @@ Time elapsed:  0.169 0.007 0.176
 ,k.,k.,k.,k.,k.,k.,k.,k.,k.,k.
 ,k.,k.,k.,k.,k.,k.,k.,k.,k.,k.
 ,k.,k.,k.,k.,k.> showProc.time()
-Time elapsed:  0.123 0 0.123 
+Time (user system elapsed): 0.163 0.002 0.165 
 > Nn <- Nn0
 > ## Check that  NA is interpreted as TRUE (with a warning), for "nsparseMatrix":
 > assertWarning(Nn[ii <-     3  ] <- NA); stopifnot(isValid(Nn,"nsparseMatrix"), Nn[ii])
@@ -1168,7 +1175,7 @@ as(<triangular (ge)matrix>, dtCMatrix): valid: TRUE
 > stopifnot(is(T, "dtCMatrix"), identical(T[,3], c(10,10,10,0,0)),
 + 	  Qidentical(as(Z, "matrix"), z))
 > showProc.time()
-Time elapsed:  0.411 0.003 0.416 
+Time (user system elapsed): 0.6 0.001 0.604 
 > 
 > 
 > ## "Vector indices" -------------------
@@ -1193,7 +1200,7 @@ Time elapsed:  0.411 0.003 0.416
 > ## these now work correctly {though not very efficiently; hence warnings}
 > m[i] <- v # the role model: only first column is affected
 > M[i] <- v; assert.EQ.mat(M,m) # dge
-> D[i] <- v; assert.EQ.mat(D,m) # ddi -> dtT -> dgT
+> D[i] <- v; assert.EQ.mat(D,m) # ddi -> dtC (new! 2019-07; was dgT)
 diagnosing replTmat(x,i,j,v): nargs()= 3; missing (i,j) = (0,1)
 'sub-optimal sparse 'x[i] <- v' assignment: Coercing class dtTMatrix to dgTMatrix
 > s[i] <- v; assert.EQ.mat(s,m) # dtT -> dgT
@@ -1210,22 +1217,20 @@ diagnosing replTmat(x,i,j,v): nargs()= 3; missing (i,j) = (0,1)
 [4,]  . . . 1 . .
 [5,]  . . . . 1 .
 [6,] 20 . . . . 1
-> m.L <- asLogical(m)
-> C[i] <- v # - with a warning: C is nMatrix, v not T/F
+> m.L <- asLogical(m) ; assertWarning(
++ C[i] <- v, verbose=TRUE) # warning: C is nMatrix, v not T/F
 diagnosing replTmat(x,i,j,v): nargs()= 3; missing (i,j) = (0,1)
 'sub-optimal sparse 'x[i] <- v' assignment: Coercing class ntTMatrix to ngTMatrix
-Warning in `[<-`(`*tmp*`, i, value = c(10, 15, 20)) :
-  x[.] <- val: x is "ngTMatrix", val not in {TRUE, FALSE} is coerced.
-> assert.EQ.mat(C,m.L); validObject(C)
+Asserted warning: x[.] <- val: x is "ngTMatrix", val not in {TRUE, FALSE} is coerced.
+> assert.EQ.mat(C,m.L); validObject(C); assertWarning(
 [1] TRUE
-> N[i] <- v # - with a warning
++ N[i] <- v, verbose=TRUE)
 diagnosing replTmat(x,i,j,v): nargs()= 3; missing (i,j) = (0,1)
 'sub-optimal sparse 'x[i] <- v' assignment: Coercing class ntTMatrix to ngTMatrix
-Warning in `[<-`(`*tmp*`, i, value = c(10, 15, 20)) :
-  x[.] <- val: x is "ngTMatrix", val not in {TRUE, FALSE} is coerced.
+Asserted warning: x[.] <- val: x is "ngTMatrix", val not in {TRUE, FALSE} is coerced.
 > assert.EQ.mat(N,m.L); validObject(N)
 [1] TRUE
-> stopifnot(Q.C.identical(D,s, checkClass=FALSE))
+> stopifnot(identical(D, as(as(s, "triangularMatrix"), "CsparseMatrix")))
 > ## logical *vector* indexing
 > eval(.iniDiag.example)
 > m[L] <- z; m.L <- asLogical(m)
@@ -1236,7 +1241,7 @@ diagnosing replTmat(x,i,j,v): nargs()= 3; missing (i,j) = (0,1)
 > s[L] <- z; assert.EQ.mat(s,m)
 diagnosing replTmat(x,i,j,v): nargs()= 3; missing (i,j) = (0,1)
 'sub-optimal sparse 'x[i] <- v' assignment: Coercing class dtTMatrix to dgTMatrix
-> S[L] <- z; assert.EQ.mat(S,m) ; S
+> S[L] <- z; assert.EQ.mat(S,m) ; S ; assertWarning(
 diagnosing replTmat(x,i,j,v): nargs()= 3; missing (i,j) = (0,1)
 'sub-optimal sparse 'x[i] <- v' assignment: Coercing class dtTMatrix to dgTMatrix
 6 x 6 sparse Matrix of class "dgCMatrix"
@@ -1247,16 +1252,14 @@ diagnosing replTmat(x,i,j,v): nargs()= 3; missing (i,j) = (0,1)
 [4,]  . 99 .  1 99 .
 [5,]  .  . .  .  1 .
 [6,]  .  . .  .  . 1
-> C[L] <- z; assert.EQ.mat(C,m.L) # with a good warning
++ C[L] <- z, verbose=TRUE); assert.EQ.mat(C,m.L)  ; assertWarning(
 diagnosing replTmat(x,i,j,v): nargs()= 3; missing (i,j) = (0,1)
 'sub-optimal sparse 'x[i] <- v' assignment: Coercing class ntTMatrix to ngTMatrix
-Warning in `[<-`(`*tmp*`, i, value = c(50, 99)) :
-  x[.] <- val: x is "ngTMatrix", val not in {TRUE, FALSE} is coerced.
-> N[L] <- z; assert.EQ.mat(N,m.L)
+Asserted warning: x[.] <- val: x is "ngTMatrix", val not in {TRUE, FALSE} is coerced.
++ N[L] <- z, verbose=TRUE); assert.EQ.mat(N,m.L)
 diagnosing replTmat(x,i,j,v): nargs()= 3; missing (i,j) = (0,1)
 'sub-optimal sparse 'x[i] <- v' assignment: Coercing class ntTMatrix to ngTMatrix
-Warning in `[<-`(`*tmp*`, L, value = c(50, 99)) :
-  x[.] <- val: x is "ngTMatrix", val not in {TRUE, FALSE} is coerced.
+Asserted warning: x[.] <- val: x is "ngTMatrix", val not in {TRUE, FALSE} is coerced.
 > 
 > 
 > ## indexing [i]  vs  [i,] --- now ok
@@ -1317,7 +1320,7 @@ diagnosing replTmat(x,i,j,v): nargs()= 3; missing (i,j) = (0,1)
 > s[i] <- v; assert.EQ.mat(s,m) # dtT -> dgT
 diagnosing replTmat(x,i,j,v): nargs()= 3; missing (i,j) = (0,1)
 'sub-optimal sparse 'x[i] <- v' assignment: Coercing class dtTMatrix to dgTMatrix
-> S[i] <- v; assert.EQ.mat(S,m); S # dtC -> dtT -> dgT -> dgC
+> S[i] <- v; assert.EQ.mat(S,m); S ; assertWarning( # dtC -> dtT -> dgT -> dgC
 diagnosing replTmat(x,i,j,v): nargs()= 3; missing (i,j) = (0,1)
 'sub-optimal sparse 'x[i] <- v' assignment: Coercing class dtTMatrix to dgTMatrix
 6 x 6 sparse Matrix of class "dgCMatrix"
@@ -1328,12 +1331,11 @@ diagnosing replTmat(x,i,j,v): nargs()= 3; missing (i,j) = (0,1)
 [4,] . . . 1 . 5
 [5,] . . . . 1 6
 [6,] . . . . . 7
-> N[i] <- v # with a good warning
++ N[i] <- v, verbose=TRUE)
 diagnosing replTmat(x,i,j,v): nargs()= 3; missing (i,j) = (0,1)
 'sub-optimal sparse 'x[i] <- v' assignment: Coercing class ntTMatrix to ngTMatrix
-Warning in `[<-`(`*tmp*`, i, value = 1:7) :
-  x[.] <- val: x is "ngTMatrix", val not in {TRUE, FALSE} is coerced.
-> assert.EQ.mat(N,m.L); N
+Asserted warning: x[.] <- val: x is "ngTMatrix", val not in {TRUE, FALSE} is coerced.
+> assert.EQ.mat(N,m.L); N ; assertWarning(
 6 x 6 sparse Matrix of class "ngTMatrix"
                 
 [1,] | . . . . |
@@ -1342,11 +1344,10 @@ Warning in `[<-`(`*tmp*`, i, value = 1:7) :
 [4,] . . . | . |
 [5,] . . . . | |
 [6,] . . . . . |
-> C[i] <- v #  ..  .  ..  warning
++ C[i] <- v, verbose=TRUE)
 diagnosing replTmat(x,i,j,v): nargs()= 3; missing (i,j) = (0,1)
 'sub-optimal sparse 'x[i] <- v' assignment: Coercing class ntTMatrix to ngTMatrix
-Warning in `[<-`(`*tmp*`, i, value = 1:7) :
-  x[.] <- val: x is "ngTMatrix", val not in {TRUE, FALSE} is coerced.
+Asserted warning: x[.] <- val: x is "ngTMatrix", val not in {TRUE, FALSE} is coerced.
 > assert.EQ.mat(C,m.L); C #
 6 x 6 sparse Matrix of class "ngCMatrix"
                 
@@ -1377,7 +1378,7 @@ Warning in `[<-`(`*tmp*`, i, value = 1:7) :
 > ## mixing of negative and positive must give error
 > assertError(mT[-1:1,])
 > showProc.time()
-Time elapsed:  0.209 0.002 0.211 
+Time (user system elapsed): 0.268 0.013 0.283 
 > 
 > ## Sub *Assignment* ---- now works (partially):
 > mt0 <- mt
@@ -1485,7 +1486,7 @@ r5   .   2  4   .  6  .  .
 r2  2
 r4  .
 > showProc.time()
-Time elapsed:  0.196 0 0.197 
+Time (user system elapsed): 0.248 0.001 0.249 
 > options(Matrix.verbose = TRUE)
 > 
 > mc # no longer has non-structural zeros
@@ -1706,7 +1707,7 @@ M[i,j] <- v :  coercing symmetric M[] into non-symmetric
 > assert.EQ.mat(t2, m)# ok
 > assert.EQ.mat(s2, m)# failed in 0.9975-8
 > showProc.time()
-Time elapsed:  0.474 0.001 0.476 
+Time (user system elapsed): 0.625 0.002 0.629 
 > 
 > 
 > ## m[cbind(i,j)] <- value: (2-column matrix subassignment):
@@ -1746,21 +1747,31 @@ r5  TRUE TRUE FALSE TRUE TRUE TRUE TRUE
 > d6[cbind(ii,ii)] <- 7*ii
 > stopifnot(is(d6, "ddiMatrix"), identical(d6, Diagonal(x=c(7*1:2,1,7*4:5,1))))
 > 
-> for(j in 3:6) { ## even and odd j used to behave differently
+> sclass <- function(obj) as.vector(class(obj)) # as.v*(): drop attr(*,"package")
+> show2cls <- function(C,D, chr = "")
++     cat(sprintf("%s & %s%s: %s %s\n",
++                 deparse(substitute(C)), deparse(substitute(D)), chr,
++                 sclass(C), sclass(D)))
+> for(j in 2:6) { ## even and odd j used to behave differently
++     cat("j = ", j, ":\n-------\n")
 +     M <- Matrix(0, j,j); m <- matrix(0, j,j)
 +     T  <- as(M, "TsparseMatrix")
 +     TG <- as(T, "generalMatrix")
-+     G <-  as(M, "generalMatrix")
++     G  <- as(M, "generalMatrix");  show2cls(TG, G)
++     stopifnot(is(TG, "TsparseMatrix"),
++               is(G,  "CsparseMatrix"))
 +     id <- cbind(1:j,1:j)
 +     i2 <- cbind(1:j,j:1)
 +     m[id] <- 1:j
-+     M[id] <- 1:j ; stopifnot(is(M,"symmetricMatrix"))
-+     T[id] <- 1:j ; stopifnot(is(T,"symmetricMatrix"))
++     M[id] <- 1:j
++     T[id] <- 1:j ; show2cls(M, T,' ("diag")')
++     stopifnot(is(M, "diagonalMatrix"), # since 2019-07 // FIXME (?!) for j=1
++               is(T,"triangularMatrix"), isDiagonal(T)) # was "symmetricMatrix"
 +     G[id] <- 1:j
 +     TG[id]<- 1:j
 +     m[i2] <- 10
-+     M[i2] <- 10 ; stopifnot(is(M,"symmetricMatrix"))
-+     T[i2] <- 10 ; stopifnot(is(T,"symmetricMatrix"))
++     M[i2] <- 10
++     T[i2] <- 10 ; show2cls(M, T,' ("symm")')
 +     G[i2] <- 10
 +     TG[i2]<- 10
 +     ##
@@ -1769,6 +1780,41 @@ r5  TRUE TRUE FALSE TRUE TRUE TRUE TRUE
 +     assert.EQ.mat(G, m)
 +     assert.EQ.mat(TG,m)
 + }
+j =  2 :
+-------
+TG & G: dgTMatrix dgCMatrix
+M & T ("diag"): ddiMatrix dtTMatrix
+M[ij] <- v :  coercing symmetric M[] into non-symmetric
+M[ij] <- v :  coercing symmetric M[] into non-symmetric
+M & T ("symm"): dgTMatrix dgTMatrix
+j =  3 :
+-------
+TG & G: dgTMatrix dgCMatrix
+M & T ("diag"): ddiMatrix dtTMatrix
+M[ij] <- v :  coercing symmetric M[] into non-symmetric
+M[ij] <- v :  coercing symmetric M[] into non-symmetric
+M & T ("symm"): dgTMatrix dgTMatrix
+j =  4 :
+-------
+TG & G: dgTMatrix dgCMatrix
+M & T ("diag"): ddiMatrix dtTMatrix
+M[ij] <- v :  coercing symmetric M[] into non-symmetric
+M[ij] <- v :  coercing symmetric M[] into non-symmetric
+M & T ("symm"): dgTMatrix dgTMatrix
+j =  5 :
+-------
+TG & G: dgTMatrix dgCMatrix
+M & T ("diag"): ddiMatrix dtTMatrix
+M[ij] <- v :  coercing symmetric M[] into non-symmetric
+M[ij] <- v :  coercing symmetric M[] into non-symmetric
+M & T ("symm"): dgTMatrix dgTMatrix
+j =  6 :
+-------
+TG & G: dgTMatrix dgCMatrix
+M & T ("diag"): ddiMatrix dtTMatrix
+M[ij] <- v :  coercing symmetric M[] into non-symmetric
+M[ij] <- v :  coercing symmetric M[] into non-symmetric
+M & T ("symm"): dgTMatrix dgTMatrix
 > 
 > 
 > ## drop, triangular, ...
@@ -1849,7 +1895,7 @@ r5  TRUE TRUE FALSE TRUE TRUE TRUE TRUE
 > 
 > cc <- capture.output(show(dLrg))# show(<diag>) used to error for large n
 > showProc.time()
-Time elapsed:  0.429 0.004 0.434 
+Time (user system elapsed): 0.456 0.009 0.467 
 > 
 > ## Large Matrix indexing / subassignment
 > ## ------------------------------------- (from ex. by Imran Rashid)
@@ -1923,7 +1969,7 @@ M[m,i,m] : nargs()=3
 Csp[m,i,l] : nargs()=4
 > 
 > showProc.time()
-Time elapsed:  1.029 0.161 1.193 
+Time (user system elapsed): 1.37 0.143 1.518 
 > options(op)# revert
 > ##
 > if(doExtras) {#-----------------------------------------------------------------
@@ -2011,13 +2057,30 @@ diagnosing replTmat(x,i,j,v): nargs()= 3; missing (i,j) = (0,1)
 +         vv[ind] <- NA
 > stopifnot(identical(sv , sv0), identical(sv., sv.0))
 > 
+> ## <sparseVector>[i] <- val -- failed to resort @i sometimes:  (R-forge Matrix bug #6659)
+> y1 <- sparseVector(1:3, 13:15, 16)
+> y2 <- sparseVector(1:6, c(5, 6, 7, 9, 14, 15), 16)
+> i <- 1:16*12 # 12 24 36 ... 192
+> x <- sparseVector(numeric(1), 1, length=200)
+> x[i] <- y1     ; validObject(x[i]) # TRUE
+[1] TRUE
+> N <- x[i] + y2 ; validObject( N  ) # TRUE
+[1] TRUE
+> x[i] <- N ## <== bug was here ..
+> validObject(x)
+[1] TRUE
+> ## gave 'Error' invalid ..“dsparseVector”.. 'i' must be sorted strictly increasingly
+> stopifnot(all.equal(x[i] ,  y1+y2, tolerance=0),
++ 		    x[i] == y1+y2)
+> 
+> 
 > 
 > 
 > showProc.time()
-Time elapsed:  0.067 0 0.068 
+Time (user system elapsed): 0.102 0 0.102 
 > 
 > if(!interactive()) warnings()
 > 
 > proc.time()
    user  system elapsed 
-  4.860   0.283   5.221 
+  6.513   0.291   6.876 

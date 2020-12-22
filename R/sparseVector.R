@@ -601,9 +601,14 @@ replSPvec <- function (x, i, value)
     if(length(iI0) && any(vN0 <- !v0[iI0])) {
 	## 2) add those that were structural 0 (where value != 0)
 	ij0 <- iI0[vN0]
-	x@i <- c(x@i, ii[ij0])
-	if(has.x)
-	    x@x <- c(x@x, if(v.sp) sp2vec(value[ij0], mode=typeof(x@x)) else value[ij0])
+	ii <- c(x@i, ii[ij0]) # new x@i, must be sorted:
+	iInc <- sort.list(ii)
+	x@i <- ii[iInc]
+	if(has.x) # new @x, sorted along '@i':
+	    x@x <- c(x@x, if(v.sp)
+			      sp2vec(value[ij0], mode=typeof(x@x))
+			  else value[ij0]
+		     )[iInc]
     }
     x
 }
@@ -849,10 +854,25 @@ ind4toeplitz <- function(n) {
     abs(as.vector(col(A) - row(A))) + 1L
 }
 
-.toeplitz.spV <-  function(x, symmetric=TRUE, giveCsparse=TRUE) {
+.toeplitz.spV <-  function(x, symmetric=TRUE, repr = c("C","T","R"), giveCsparse) {
     ## semantically "identical" to stats::toeplitz
     n <- length(x)
     r <- spV2M(x[ind4toeplitz(n)], n,n, symmetric=symmetric, check=FALSE)
-    if (giveCsparse) as(r, "CsparseMatrix") else r
+    if(!missing(giveCsparse)) {
+	if(missing(repr)) {
+	    repr <- if(giveCsparse) "C" else "T"
+	    warning(gettextf(
+		"'giveCsparse' has been deprecated; setting 'repr = \"%s\"' for you", repr),
+		domain=NA)
+	} else ## !missing(repr)
+            if((.w <- isTRUE(getOption("Matrix.warn"))) ||
+                      isTRUE(getOption("Matrix.verbose")))
+	    (if(.w) warning else message)(
+                "'giveCsparse' has been deprecated; will use 'repr' instead")
+    }
+    switch(match.arg(repr),
+               "C" = as(r, "CsparseMatrix"),
+               "T" =    r,# TsparseMatrix
+               "R" = as(r, "RsparseMatrix"))
 }
 setMethod("toeplitz", "sparseVector", .toeplitz.spV)

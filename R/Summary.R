@@ -277,8 +277,7 @@ setMethod("any", "nsparseMatrix",
 	      cld <- getClassDef(class(x))
 	      if(extends(cld, "triangularMatrix") && x@diag == "U")
 		  TRUE # unit-diagonal
-	      else if(extends(cld, "CsparseMatrix") ||
-		      extends(cld, "TsparseMatrix"))
+	      else if(extends1of(cld, c("CsparseMatrix", "TsparseMatrix")))
 		  length(x@i) > 0
 	      else # RsparseMatrix
 		  length(x@j) > 0

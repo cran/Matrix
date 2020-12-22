@@ -37,6 +37,17 @@ as0 <- function(x, mod=mode(x))
     switch(mod, "integer"= 0L, "double"=, "numeric"= 0, "logical"= FALSE,
 	   "complex"= 0+0i, stop(gettextf("invalid 'mod': %s", mod), domain = NA))
 
+##' equivalent to   extends(cl, classes[1]) || extends(cl, classes[2]) || ....
+extends1of <- function(class, classes, ...) {
+    if(is.character(class))
+	class <- getClassDef(class[[1L]])
+    for(c2 in classes)
+	if(extends(class, c2, ...)) return(TRUE)
+    ## otherwise return
+    FALSE
+}
+
+
 ##' Should the matrix/Matrix  x  or a combination of x and y   be treated as  'sparse' ?
 ## sparseDefault <- function(x, y=NULL) {
 ##     if(is.null(y))
@@ -619,7 +630,7 @@ nnzSparse <- function(x, cl = class(x), cld = getClassDef(cl))
     ## Arguments: x sparseMatrix
     ## ----------------------------------------------------------------------
     ## Author: Martin Maechler, 18 Apr 2008
-    if(extends(cld, "CsparseMatrix") || extends(cld, "TsparseMatrix"))
+    if(extends1of(cld, c("CsparseMatrix", "TsparseMatrix")))
 	length(x@i)
     else if(extends(cld, "RsparseMatrix"))
 	length(x@j)
@@ -754,10 +765,10 @@ uniqTsparse <- function(x, class.x = c(class(x))) {
     ## Purpose: produce a *unique* triplet representation:
     ##		by having (i,j) sorted and unique
     ## -----------------------------------------------------------
-    ## The following is not quite efficient {but easy to program,
-    ## and as() are based on C code  (all of them?)
+    ## The following is not quite efficient, but easy to program,
+    ## and much based on C code
     ##
-    ## FIXME: Do it fast for the case where 'x' is already 'uniq'
+    ## TODO: faster for the case where 'x' is already 'uniq'?  if(anyDuplicatedT(.))
     if(extends(class.x, "TsparseMatrix")) {
 	tri <- extends(class.x, "triangularMatrix")
 	.Call(Csparse_to_Tsparse, .Call(Tsparse_to_Csparse, x, tri), tri)
@@ -765,6 +776,13 @@ uniqTsparse <- function(x, class.x = c(class(x))) {
 	stop(gettextf("not yet implemented for class %s", dQuote(class.x)),
 	     domain = NA)
 }
+
+##' non-exported version with*OUT* check -- called often only  if(anyDuplicatedT(.))
+.uniqTsparse <- function(x, class.x = c(class(x))) {
+    tri <- extends(class.x, "triangularMatrix")
+    .Call(Csparse_to_Tsparse, .Call(Tsparse_to_Csparse, x, tri), tri)
+}
+
 
 ## Note: maybe, using
 ## ----    xj <- .Call(Matrix_expand_pointers, x@p)
@@ -1109,7 +1127,7 @@ if(FALSE)
     NA_character_
 }
 
-.sp.class <- function(x) { ## find and return the "sparseness class"
+.sp.class <- function(x) { ## find and return the "sparseness class" (aka "representation")
     x <- if(!is.character(x)) MatrixClass(class(x)) else MatrixClass(x)
     if(any((ch <- substr(x,3,3)) == c("C","T","R")))
         return(paste0(ch, "sparseMatrix"))

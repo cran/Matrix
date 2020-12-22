@@ -1,19 +1,23 @@
 \name{rankMatrix}
-\alias{rankMatrix}
 \title{Rank of a Matrix}
+\alias{rankMatrix}
+\alias{qr2rankMatrix}
 \description{
   Compute \sQuote{the} matrix rank, a well-defined functional in theory(*),
-  somewhat ambigous in practice.  We provide several methods, the
+  somewhat ambiguous in practice.  We provide several methods, the
   default corresponding to Matlab's definition.
 
-  (*) The rank of a \eqn{n \times m}{n x m} matrix \eqn{A}, \eqn{rk(A)} is the maximal number of
-  linearly independent columns (or rows); hence \eqn{rk(A) \le min(n,m)}{rk(A) <= min(n,m)}.
+  (*) The rank of a \eqn{n \times m}{n x m} matrix \eqn{A}, \eqn{rk(A)},
+      is the maximal number of linearly independent columns (or rows); hence
+      \eqn{rk(A) \le min(n,m)}{rk(A) <= min(n,m)}.
 }
 \usage{
 rankMatrix(x, tol = NULL,
            method = c("tolNorm2", "qr.R", "qrLINPACK", "qr",
                       "useGrad", "maybeGrad"),
-           sval = svd(x, 0, 0)$d, warn.t = TRUE)
+           sval = svd(x, 0, 0)$d, warn.t = TRUE, warn.qr = TRUE)
+
+qr2rankMatrix(qr, tol = NULL, isBqr = is.qr(qr), do.warn = TRUE)
 }
 \arguments{
   \item{x}{numeric matrix, of dimension \eqn{n \times m}{n x m}, say.}
@@ -55,7 +59,6 @@ rankMatrix(x, tol = NULL,
 	the default, computing \code{\link{svd}()} currently coerces
 	\code{x} to a dense matrix.
       }
-
       \item{\code{"useGrad"}:}{considering the \dQuote{gradient} of the
 	(decreasing) singular values, the index of the \emph{smallest} gap.}
       \item{\code{"maybeGrad"}:}{choosing method \code{"useGrad"} only when
@@ -71,10 +74,26 @@ rankMatrix(x, tol = NULL,
     when it needs \code{\link{t}(x)} instead of \code{x}.  Currently, for
     \code{method = "qr"} only, gives a warning by default because the
     caller often could have passed \code{t(x)} directly, more efficiently.}
+  \item{warn.qr}{in the \eqn{QR} cases (i.e., if \code{method} starts with
+    \code{"qr"}), \code{rankMatrix()} calls
+    \code{qr2rankMarix(.., do.warn = warn.qr)}, see below.}
+
+%% qr2rankMatrix():
+  \item{qr}{an \R object resulting from \code{\link{qr}(x,..)}, i.e.,
+    typically inheriting from \code{\link{class}} \code{"\link{qr}"} or
+    \code{"\linkS4class{sparseQR}"}.}
+  \item{isBqr}{\code{\link{logical}} indicating if \code{qr} is resulting
+    from \pkg{base} \code{\link[base]{qr}()}.  (Otherwise, it is typically
+    from \pkg{Matrix} package sparse \code{\link[Matrix]{qr}}.)}
+  \item{do.warn}{logical; if true, warn about non-finite or negative
+    diagonal entries in the \eqn{R} matrix of the \eqn{QR} decomposition.
+    Do not change lightly!}
 }
-% \details{
-%   FIXME
-% }
+\details{
+  \code{qr2rankMatrix()} is typically called from \code{rankMatrix()} for
+  the \code{"qr"}* \code{method}s, but can be used directly - much more
+  efficiently in case the \code{qr}-decomposition is available anyway.
+}
 \note{For large sparse matrices \code{x}, unless you can specify
   \code{sval} yourself, currently \code{method = "qr"} may
   be the only feasible one, as the others need \code{sval} and call
@@ -85,17 +104,24 @@ rankMatrix(x, tol = NULL,
   Note that in the case of sparse \code{x}, \code{method = "qr"}, all
   non-strictly zero diagonal entries \eqn{d_i} where counted, up to
   including \pkg{Matrix} version 1.1-0, i.e., that method implicitly
-  used \code{tol = 0}, see also the seed(42) example below.
+  used \code{tol = 0}, see also the \code{set.seed(42)} example below.
 }
 \value{
-  If \code{x} is a matrix of all \code{0}, the rank is zero; otherwise,
-  a positive integer in \code{1:min(dim(x))} with attributes detailing
-  the method used.
+  If \code{x} is a matrix of all \code{0} (or of zero dimension), the rank
+  is zero; otherwise, typically a positive integer in \code{1:min(dim(x))}
+  with attributes detailing the method used.
+
+  There are rare cases where the sparse \eqn{QR} decomposition
+  \dQuote{fails} in so far as the diagonal entries of \eqn{R}, the
+  \eqn{d_i} (see above), end with non-finite, typically \code{\link{NaN}}
+  entries.  Then, a warning is signalled (unless \code{warn.qr} /
+  \code{do.warn} is not true) and \code{NA} (specifically,
+  \code{\link{NA_integer_}}) is returned.
 }
 % \references{
 % %% ~put references to the literature/web site here ~
 % }
-\author{Martin Maechler; for the "*Grad" methods, building on
+\author{Martin Maechler; for the "*Grad" methods building on
   suggestions by Ravi Varadhan.
 }
 \seealso{

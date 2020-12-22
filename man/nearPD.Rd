@@ -6,8 +6,9 @@
  one, typically a correlation or variance-covariance matrix.
 }
 \usage{
-nearPD(x, corr = FALSE, keepDiag = FALSE, do2eigen = TRUE,
-       doSym = FALSE, doDykstra = TRUE, only.values = FALSE,
+nearPD(x, corr = FALSE, keepDiag = FALSE, base.matrix = FALSE,
+       do2eigen = TRUE, doSym = FALSE,
+       doDykstra = TRUE, only.values = FALSE,
        ensureSymmetry = !isSymmetric(x),
        eig.tol = 1e-06, conv.tol = 1e-07, posd.tol = 1e-08,
        maxit = 100, conv.norm.type = "I", trace = FALSE)
@@ -22,6 +23,9 @@ nearPD(x, corr = FALSE, keepDiag = FALSE, do2eigen = TRUE,
   \item{keepDiag}{logical, generalizing \code{corr}: if \code{TRUE}, the
     resulting matrix should have the same diagonal
     (\code{\link{diag}(x)}) as the input matrix.}
+  \item{base.matrix}{logical indicating if the resulting \code{mat}
+    component should be a \pkg{base} \code{\link{matrix}} or (by default) a
+    \code{\linkS4class{Matrix}} of class \code{\linkS4class{dpoMatrix}}.}
   \item{do2eigen}{logical indicating if a
     \code{\link[sfsmisc]{posdefify}()} eigen step should be applied to
     the result of the Higham algorithm.}
@@ -110,9 +114,12 @@ nearPD(x, corr = FALSE, keepDiag = FALSE, do2eigen = TRUE,
  A <- matrix(1, 3,3); A[1,3] <- A[3,1] <- 0
  n.A <- nearPD(A, corr=TRUE, do2eigen=FALSE)
  n.A[c("mat", "normF")]
- stopifnot(all.equal(n.A$mat[1,2], 0.760689917),
-	   all.equal(n.A$normF, 0.52779033, tolerance=1e-9) )
-
+ n.A.m <- nearPD(A, corr=TRUE, do2eigen=FALSE, base.matrix=TRUE)$mat
+ stopifnot(exprs = {                           #=--------------
+   all.equal(n.A$mat[1,2], 0.760689917)
+   all.equal(n.A$normF, 0.52779033, tolerance=1e-9)
+   all.equal(n.A.m, unname(as.matrix(n.A$mat)), tolerance = 1e-15)# seen rel.d.= 1.46e-16
+ })
  set.seed(27)
  m <- matrix(round(rnorm(25),2), 5, 5)
  m <- m + t(m)

@@ -6,7 +6,8 @@
   super-diagonals.
 }
 \usage{
-bandSparse(n, m = n, k, diagonals, symmetric = FALSE, giveCsparse = TRUE)
+bandSparse(n, m = n, k, diagonals, symmetric = FALSE,
+           repr = "C", giveCsparse = (repr == "C"))
 }
 \arguments{
   \item{n,m}{the matrix dimension \eqn{(n,m) = (nrow, ncol)}.}
@@ -27,10 +28,17 @@ bandSparse(n, m = n, k, diagonals, symmetric = FALSE, giveCsparse = TRUE)
     (inheriting from class \code{\linkS4class{symmetricMatrix}}) and
     only the upper or lower triangle must be specified (via \code{k} and
     \code{diagonals}).}
-  \item{giveCsparse}{logical indicating if the result should be a
+  \item{repr}{\code{\link{character}} string, one of \code{"C"},
+    \code{"T"}, or \code{"R"}, specifying the sparse \emph{repr}esentation to
+    be used for the result, i.e., one from the super classes
+    \code{\linkS4class{CsparseMatrix}}, \code{\linkS4class{TsparseMatrix}}, or
+    \code{\linkS4class{RsparseMatrix}}.}
+  \item{giveCsparse}{(\bold{deprecated}, replaced with \code{repr}):
+    logical indicating if the result should be a
     \code{\linkS4class{CsparseMatrix}} or a
-    \code{\linkS4class{TsparseMatrix}}.  The default, \code{TRUE} is
-    very often more efficient subsequently, but not always.}
+    \code{\linkS4class{TsparseMatrix}}, where the default was \code{TRUE},
+    and now is determined from \code{repr}; very often Csparse matrices are
+    more efficient subsequently, but not always.}
 }
 % \details{  __needed ?__
 %

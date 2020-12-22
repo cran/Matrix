@@ -1,6 +1,4 @@
 \name{SparseM-conversions}
-%% only as long as not requiring R >= 3.2.0:
-\newcommand{\CRANpkg}{\href{https://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 \title{Sparse Matrix Coercion from and to those from package \pkg{SparseM}}
 \docType{methods}
 \alias{SparseM-coerce-methods}

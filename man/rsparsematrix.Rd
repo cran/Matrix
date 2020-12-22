@@ -31,7 +31,7 @@ rsparsematrix(nrow, ncol, density, nnz = round(density * maxE),
     \code{rand.x = rnorm}, or \code{rand.x = runif}; the default is nice
     for didactical purposes.}
   \item{\dots}{optionally further arguments passed to
-    \code{\link{sparseMatrix}()}, notably \code{giveCsparse}.}
+    \code{\link{sparseMatrix}()}, notably \code{repr}.}
 }
 \details{
   The algorithm first samples \dQuote{encoded} \eqn{(i,j)}s without
@@ -65,7 +65,7 @@ nnzero(S9)# ~ 20: as 'nnz' only counts one "triangle"
 (n7 <- rsparsematrix(5, 12, nnz = 10, rand.x = NULL))
 
 ## a [T]riplet representation sparseMatrix:
-T2 <- rsparsematrix(40, 12, nnz = 99, giveCsparse=FALSE)
+T2 <- rsparsematrix(40, 12, nnz = 99, repr = "T")
 head(T2)
 }
 \keyword{array}

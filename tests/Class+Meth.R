@@ -200,7 +200,7 @@ tstMatrixClass <-
         cat. <- function(...) cat(bl.string(offset), ...)
 
         clNam <- cl@subClass
-        cat("\n")
+        cat("\n==>")
         cat.(clNam)
         ##---------
         clD <- getClassDef(clNam)
@@ -230,17 +230,17 @@ tstMatrixClass <-
             denseC  <- extends(clD, "denseMatrix")
             if(!(sparseC || denseC))
                 stop("does not extend either 'sparse' or 'dense'")
-	    cat("; new(..): ")
+	    cat("; new(*): ")
 	    m <- new(clNam) ; cat("ok; ")
 	    m0 <- matrix(,0,0)
 	    if(canCoerce(m0, clNam)) {
-		cat("; as(matrix(,0,0), <.>): ")
+		cat("; canCoerce(matrix(,0,0), *) => as(m0, <.>): ")
 		stopifnot(Qidentical(m, as(m0, clNam))); cat("ok; ")
 	    }
             is_p <- extends(clD, "indMatrix")
             is_cor <- extends(clD, "corMatrix") # has diagonal divided out
 	    if(canCoerce(mm, clNam)) { ## replace 'm' by `non-empty' version
-		cat("canCoerce() ")
+		cat("canCoerce(mm, *) ")
 		m0 <- {
 		    if(triC) trm
 		    else if(is_p)

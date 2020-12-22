@@ -1,5 +1,6 @@
 bandSparse <- function(n, m = n, k, diagonals,
-		       symmetric = FALSE, giveCsparse = TRUE)
+		       symmetric = FALSE,
+                       repr = "C", giveCsparse = (repr == "C"))
 {
     ## Purpose: Compute a band-matrix by speciyfying its (sub-)diagonal(s)
     ## ----------------------------------------------------------------------
@@ -20,6 +21,11 @@ bandSparse <- function(n, m = n, k, diagonals,
     n <- as.integer(n)
     m <- as.integer(m)
     stopifnot(n >= 0, m >= 0, -n+1 <= (mik <- min(k)), (mak <- max(k)) <= m - 1)
+    if(missing(repr) && !giveCsparse) {
+	warning("'giveCsparse' has been deprecated; setting 'repr = \"T\"' for you")
+	repr <- "T"
+    } else if(!missing(repr) && !missing(giveCsparse))
+	warning("'giveCsparse' has been deprecated; will use 'repr' instead")
     if(use.x) {
         if(diag.isMat) {
             if(ncol(diagonals) != len.k)
@@ -83,12 +89,16 @@ bandSparse <- function(n, m = n, k, diagonals,
 	}
 	else
 	    new("nsTMatrix", i= i-1L, j= j-1L, Dim= dims, uplo=UpLo)
-	if(giveCsparse) as(T, "CsparseMatrix") else T
+        switch(repr,
+               "C" = as(T, "CsparseMatrix"),
+               "T" =    T,# TsparseMatrix
+               "R" = as(T, "RsparseMatrix"),
+               stop("invalid 'repr'; must be \"C\", \"T\", or \"R\""))
     }
     else { ## not symmetric, possibly triangular
 	if(use.x)
-	    sparseMatrix(i=i, j=j, x=x, dims=dims, triangular=tri, giveCsparse=giveCsparse)
+	    sparseMatrix(i=i, j=j, x=x, dims=dims, triangular=tri, repr=repr)
 	else
-	    sparseMatrix(i=i, j=j,	dims=dims, triangular=tri, giveCsparse=giveCsparse)
+	    sparseMatrix(i=i, j=j,	dims=dims, triangular=tri, repr=repr)
     }
 }

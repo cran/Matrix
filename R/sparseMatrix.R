@@ -36,7 +36,8 @@ spMatrix <- function(nrow, ncol,
 
 sparseMatrix <- function(i = ep, j = ep, p, x, dims, dimnames,
                          symmetric = FALSE, triangular = FALSE, index1 = TRUE,
-                         giveCsparse = TRUE, check = TRUE, use.last.ij = FALSE)
+                         repr = "C", giveCsparse = (repr == "C"),
+                         check = TRUE, use.last.ij = FALSE)
 {
   ## Purpose: user-level substitute for most  new(<sparseMatrix>, ..) calls
   ## Author: Douglas Bates, Date: 12 Jan 2009, based on Martin's version
@@ -48,6 +49,13 @@ sparseMatrix <- function(i = ep, j = ep, p, x, dims, dimnames,
             stop("'p' must be a non-decreasing vector (0, ...)")
         ep <- rep.int(seq_along(dp), dp)
     }
+    stopifnot(length(repr) == 1L, repr %in% c("C", "T", "R"))
+    ## NB: up to 2020-05, only had giveCsparse=TRUE  --> "C" or "T" -- remain back-compatible:
+    if(missing(repr) && !giveCsparse) {
+	warning("'giveCsparse' has been deprecated; setting 'repr = \"T\"' for you")
+	repr <- "T"
+    } else if(!missing(repr) && !missing(giveCsparse))
+	warning("'giveCsparse' has been deprecated; will use 'repr' instead")
     ## i and j are now both defined (via default = ep).  Make them 1-based indices.
     i1 <- as.logical(index1)[1]
     i <- as.integer(i + !(m.i || i1))
@@ -110,7 +118,11 @@ sparseMatrix <- function(i = ep, j = ep, p, x, dims, dimnames,
     if(!missing(dimnames))
 	r@Dimnames <- .fixupDimnames(dimnames)
     if(check) validObject(r)
-    if(giveCsparse) as(r, "CsparseMatrix") else r
+    switch(repr,
+	   "C" = as(r, "CsparseMatrix"),
+	   "T" =    r,# TsparseMatrix
+	   "R" = as(r, "RsparseMatrix"),
+	   stop("invalid 'repr'; must be \"C\", \"T\", or \"R\""))
 }
 
 ## "graph" coercions -- this needs the graph package which is currently
@@ -410,9 +422,10 @@ formatSparseM <- function(x, zero.print = ".", align = c("fancy", "right"),
 {
     cld <- getClassDef(class(x))
     if(is.null(asLogical)) {
-        binary <- extends(cld,"nsparseMatrix") || extends(cld, "indMatrix")# -> simple T / F
-        asLogical <- { binary || extends(cld,"lsparseMatrix") ||
-                       extends(cld,"matrix") && is.logical(x) }
+	asLogical <- extends1of(cld,
+				c("nsparseMatrix", "indMatrix", # -> simple T / F{ binary
+				  "lsparseMatrix")) ||
+	    (extends(cld, "matrix") && is.logical(x))
 					# has NA and (non-)structural FALSE
     }
     if(missing(cx))
@@ -685,23 +698,28 @@ setMethod("show", signature(object = "sparseMatrix"),
 
 
 ## For very large and very sparse matrices,  the above show()
-## is not really helpful;  Use  summary() as an alternative:
+## is not really helpful;  Use  summary() showing "triplet" as an alternative:
+
+mat2triplet <- function(x, uniqT = FALSE) {
+    T <- as(x, "TsparseMatrix")
+    if(uniqT && anyDuplicatedT(T)) T <- .uniqTsparse(T)
+    if(is(T, "nsparseMatrix"))
+         list(i = T@i + 1L, j = T@j + 1L)
+    else list(i = T@i + 1L, j = T@j + 1L, x = T@x)
+}
 
 setMethod("summary", signature(object = "sparseMatrix"),
-	  function(object, ...) {
-	      d <- dim(object)
-	      T <- as(object, "TsparseMatrix")
-	      ## return a data frame (int, int,	 {double|logical|...})	:
-	      r <- if(is(object,"nsparseMatrix"))
-		  data.frame(i = T@i + 1L, j = T@j + 1L)
-	      else data.frame(i = T@i + 1L, j = T@j + 1L, x = T@x)
-	      attr(r, "header") <-
-		  sprintf('%d x %d sparse Matrix of class "%s", with %d entries',
-			  d[1], d[2], class(object), length(T@i))
-	      ## use ole' S3 technology for such a simple case
-	      class(r) <- c("sparseSummary", class(r))
-	      r
-	  })
+          function(object, uniqT = FALSE, ...) {
+              d <- dim(object)
+              ## return a data frame (int, int,	 {double|logical|...})	:
+              r <- as.data.frame(mat2triplet(object, uniqT=uniqT))
+              attr(r, "header") <-
+                  sprintf('%d x %d sparse Matrix of class "%s", with %d entries',
+                          d[1], d[2], class(object), nrow(r))
+              ## use ole' S3 technology for such a simple case
+              class(r) <- c("sparseSummary", class(r))
+              r
+          })
 
 print.sparseSummary <- function (x, ...) {
     cat(attr(x, "header"),"\n")

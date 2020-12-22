@@ -15,7 +15,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Matrix 1.1-3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-06 22:43+0200\n"
+"POT-Creation-Date: 2020-04-02 17:39+0200\n"
 "PO-Revision-Date: 2015-07-15 17:14-0600\n"
 "Last-Translator:Chel Hee Lee  <chl948@mail.usask.ca>\n"
 "Language-Team: Chel Hee Lee  <chl948@mail.usask.ca>\n"
@@ -102,141 +102,141 @@ msgstr "nz2Csparse(): 유효하지 않거나 구현되지 않은 r_kind = %d입�
 msgid "Nonsymmetric matrix in Csparse_symmetric_to_general"
 msgstr "Csparse_symmetric_to_general에 비대칭행렬이 사용되었습니다"
 
-#: Csparse.c:360
+#: Csparse.c:361
 msgid "Csparse_general_to_symmetric(): matrix is not square!"
 msgstr "Csparse_general_to_symmetric(): 정방행렬이 아닙니다!"
 
-#: Csparse.c:772
+#: Csparse.c:783
 msgid "Csparse_crossprod(): error return from cholmod_aat()"
 msgstr "Csparse_crossprod(): cholmod_aat()로부터 에러가 반환되었습니다"
 
-#: Csparse.c:801
+#: Csparse.c:812
 msgid "cholmod_drop() failed"
 msgstr "cholmod_drop() failed"
 
-#: Csparse.c:828
+#: Csparse.c:839
 #, c-format
 msgid "Impossible Rk_x/Rk_y in Csparse_%s(), please report"
 msgstr ""
 
-#: Csparse.c:830
+#: Csparse.c:841
 #, c-format
 msgid "chm_MOD_xtype() was not successful in Csparse_%s(), please report"
 msgstr ""
 
-#: Csparse.c:934
+#: Csparse.c:945
 msgid "Index i must be NULL or integer"
 msgstr "인덱스 i는 반드시 NULL 또는 정수(integer)이어야 합니다."
 
-#: Csparse.c:936
+#: Csparse.c:947
 msgid "Index j must be NULL or integer"
 msgstr "인덱스 j는 반드시 NULL 또는 정수(integer)이어야 합니다."
 
-#: Csparse.c:995
+#: Csparse.c:1006
 #, c-format
 msgid "failure to open file \"%s\" for writing"
 msgstr "쓰기 위하여 파일 \"%s\"을 여는데 실패했습니다."
 
-#: Csparse.c:999
+#: Csparse.c:1010
 msgid "cholmod_write_sparse returned error code"
 msgstr "cholmod_write_sparse가 에러코드를 반환하였습니다."
 
-#: Csparse.c:1098
+#: Csparse.c:1109
 #, c-format
 msgid "%s = '%s' (back-permuted) is experimental"
 msgstr "%s = '%s' (back-permuted)는 실험단계에 있습니다"
 
-#: Csparse.c:1108
+#: Csparse.c:1119
 msgid "diag_tC(): invalid 'resultKind'"
 msgstr "diag_tC(): 유효한 'resultKind'가 아닙니다"
 
-#: Csparse.c:1179
+#: Csparse.c:1190
 #, c-format
 msgid "negative vector lengths not allowed: np = %d, nnz = %d"
 msgstr "벡터의 길이가 음수입니다: np = %d, nnz = %d"
 
-#: Csparse.c:1185
+#: Csparse.c:1196
 msgid "exactly 1 of 'i', 'j' or 'p' must be NULL"
 msgstr "'i', 'j', 또는 'p' 중의 하나만이 반드시 NULL 이어야 합니다."
 
-#: Csparse.c:1187
+#: Csparse.c:1198
 #, c-format
 msgid "np = %d, must be zero when p is NULL"
 msgstr "p가 NULL인 경우에는 반드시 np의 값은 0이어야 하는데 %d 입니다."
 
-#: Csparse.c:1190
+#: Csparse.c:1201
 #, c-format
 msgid "p[0] = %d, should be zero"
 msgstr "p[0]의 값은 0 이어야 하는데 %d 를 가집니다."
 
-#: Csparse.c:1193
+#: Csparse.c:1204
 msgid "p must be non-decreasing"
 msgstr "p는 반드시 감소하지 않아야(non-decreasing) 합니다."
 
-#: Csparse.c:1209
+#: Csparse.c:1220
 #, c-format
 msgid "Inconsistent dimensions: np = 0 and nnz = %d"
 msgstr "차원정보가 일치하지 않습니다: np = 0 그리고 nnz = %d"
 
-#: Csparse.c:1217
+#: Csparse.c:1228
 #, c-format
 msgid "invalid row index at position %d"
 msgstr "%d번째 위치에서 유효하지 않은 행인덱스가 있습니다"
 
-#: Csparse.c:1224
+#: Csparse.c:1235
 #, c-format
 msgid "invalid column index at position %d"
 msgstr "%d번째 위치에서 유효하지 않은 열인덱스가 있습니다"
 
-#: Csparse.c:1234
+#: Csparse.c:1245
 #, c-format
 msgid "strlen of cls argument = %d, should be 8"
 msgstr "cls의 strlen 인자의 길이는 8 이어야 하는데 %d 입니다."
 
-#: Csparse.c:1236 Csparse.c:1313
+#: Csparse.c:1247 Csparse.c:1324
 #, c-format
 msgid "cls = \"%s\" does not end in \"CMatrix\""
 msgstr "cls = \"%s\" does not end in \"CMatrix\""
 
-#: Csparse.c:1246
+#: Csparse.c:1257
 #, c-format
 msgid "cls = \"%s\" must begin with 'd', 'l' or 'n'"
 msgstr "cls = \"%s\"는 반드시 'd', 'l' 또는 'n'으로 시작해야 합니다."
 
-#: Csparse.c:1249
+#: Csparse.c:1260
 msgid "Only 'g'eneral sparse matrix types allowed"
 msgstr "Only 'g'eneral sparse matrix types allowed"
 
-#: Csparse.c:1277
+#: Csparse.c:1288
 msgid "code not yet written for cls = \"lgCMatrix\""
 msgstr "아직은 cls = \"lgCMatrix\"을 위하여 작성된 코드가 아닙니다"
 
-#: Csparse.c:1296
+#: Csparse.c:1307
 #, fuzzy, c-format
 msgid "%s must be (traditional R) matrix"
 msgstr "A는 반드시 논리형 행렬(logical matrix)이어야 합니다."
 
-#: Csparse.c:1303
+#: Csparse.c:1314
 #, fuzzy, c-format
 msgid "%s must be character string"
 msgstr "'s1'과 's2'는 반드시 \"character\"형 벡터이어야 합니다."
 
-#: Csparse.c:1307
+#: Csparse.c:1318
 #, c-format
 msgid "nrow * ncol = %d * %d must equal length(x) = %ld"
 msgstr ""
 
-#: Csparse.c:1311
+#: Csparse.c:1322
 #, fuzzy, c-format
 msgid "strlen of cls argument = %d, should be 9"
 msgstr "cls의 strlen 인자의 길이는 8 이어야 하는데 %d 입니다."
 
-#: Csparse.c:1323
+#: Csparse.c:1334
 #, fuzzy, c-format
 msgid "cls = \"%s\" must begin with 'd', 'l' or 'n' for now"
 msgstr "cls = \"%s\"는 반드시 'd', 'l' 또는 'n'으로 시작해야 합니다."
 
-#: Csparse.c:1381
+#: Csparse.c:1392
 #, fuzzy, c-format
 msgid "%s must be a logical or double vector"
 msgstr "A는 반드시 논리형 행렬(logical matrix)이어야 합니다."
@@ -263,167 +263,167 @@ msgstr ""
 msgid "object must be a named, numeric vector"
 msgstr "객체는 반드시 원소에 이름이 주어진 수치형 벡터이어야 합니다."
 
-#: Mutils.c:116 Mutils.c:141
+#: Mutils.c:118 Mutils.c:143
 msgid "'factors' slot must be a named list"
 msgstr "'factors' 슬롯은 반드시 이름이 주어진 리스트이어야 합니다"
 
-#: Mutils.c:175
+#: Mutils.c:177
 msgid "Matrix object has no 'factors' slot"
 msgstr "행렬의 객체가 'factors' 슬롯을 가지고 있지 않습니다"
 
-#: Mutils.c:265
+#: Mutils.c:267
 #, c-format
 msgid "'%s' slot must have length 1"
 msgstr "슬롯 '%s'의 길이는 반드시 1이어야 합니다."
 
-#: Mutils.c:269
+#: Mutils.c:271
 #, c-format
 msgid "'%s' must have string length 1"
 msgstr "'%s'는 반드시 길이가 1인 문자열(string)이어야 합니다."
 
-#: Mutils.c:276
+#: Mutils.c:278
 #, c-format
 msgid "'%s' must be in '%s'"
 msgstr "'%s'는 반드시 '%s'내에 있어야 합니다."
 
-#: Mutils.c:295
+#: Mutils.c:297
 msgid "'s1' and 's2' must be \"character\" vectors"
 msgstr "'s1'과 's2'는 반드시 \"character\"형 벡터이어야 합니다."
 
-#: Mutils.c:317
+#: Mutils.c:319
 msgid "length of x slot != prod(Dim)"
 msgstr "x 슬롯의 길이가 prod(Dim)과 같지 않습니다."
 
-#: Mutils.c:323
+#: Mutils.c:325
 msgid "Dim slot must have length 2"
 msgstr "Dim 슬롯(slot)의 길이는 반드시 2이어야 합니다."
 
-#: Mutils.c:328
+#: Mutils.c:330
 #, fuzzy
 msgid "Dim slot is not integer"
 msgstr "x 슬롯(slot)은 반드시 \"double\"형 숫자(numeric)이어야 합니다."
 
-#: Mutils.c:334
+#: Mutils.c:336
 msgid "Negative value in Dim"
 msgid_plural "Negative values in Dim"
 msgstr[0] "Dim 안에 음수가 있습니다."
 
-#: Mutils.c:360
+#: Mutils.c:362
 #, c-format
 msgid "%s is not a list"
 msgstr ""
 
-#: Mutils.c:364
+#: Mutils.c:366
 #, c-format
 msgid "%s is a list, but not of length 2"
 msgstr ""
 
-#: Mutils.c:370
+#: Mutils.c:372
 #, fuzzy, c-format
 msgid "Dimnames[%d] is not a character vector"
 msgstr "'s1'과 's2'는 반드시 \"character\"형 벡터이어야 합니다."
 
-#: Mutils.c:375
+#: Mutils.c:377
 #, c-format
 msgid "length(Dimnames[%d]) differs from Dim[%d] which is %d"
 msgstr ""
 
-#: Mutils.c:419 Mutils.c:445
+#: Mutils.c:421 Mutils.c:447
 msgid "'uplo' must be UPP or LOW"
 msgstr "'uplo'는 반드시 UPP 또는 LOW이어야 합니다."
 
-#: Mutils.c:500 dgeMatrix.c:420 dtrMatrix.c:282
+#: Mutils.c:504 dgeMatrix.c:420 dtrMatrix.c:287
 msgid "replacement diagonal has wrong length"
 msgstr ""
 
-#: Mutils.c:721
+#: Mutils.c:725
 #, c-format
 msgid "invalid class '%s' to dup_mMatrix_as_geMatrix"
 msgstr "dup_mMatrix_as_geMatrix에 올바르지 않은 클래스 '%s'입니다"
 
-#: Mutils.c:850
+#: Mutils.c:854
 #, c-format
 msgid "unexpected ctype = %d in dup_mMatrix_as_geMatrix"
 msgstr "dup_mMatrix_as_geMatrix에 사용할 수 없는 ctype = %d가 입력되었습니다."
 
-#: Mutils.c:877
+#: Mutils.c:881
 #, c-format
 msgid "invalid class '%s' to dup_mMatrix_as_dgeMatrix"
 msgstr "dup_mMatrix_as_dgeMatrix에 올바르지 않은 클래스 '%s'입니다"
 
-#: Mutils.c:927
+#: Mutils.c:931
 msgid "Argument ij must be 2-column integer matrix"
 msgstr "인자 ij는 반드시 2개의 열을 가진 정수형 행렬이어야 합니다."
 
-#: Mutils.c:946
+#: Mutils.c:950
 msgid "subscript 'i' out of bounds in M[ij]"
 msgstr "첨자 'i'가 M[ij]내에 존재하지 않습니다."
 
-#: Mutils.c:948
+#: Mutils.c:952
 msgid "subscript 'j' out of bounds in M[ij]"
 msgstr "첨자 'j'가 M[ij]내에 존재하지 않습니다."
 
-#: Mutils.c:992
+#: Mutils.c:996
 msgid "i and j must be integer vectors of the same length"
 msgstr ""
 "i와 j는 반드시 같은 길이를 가지는 정수형 벡터(integer vectors)이어야 합니다."
 
-#: Mutils.c:1037
+#: Mutils.c:1041
 msgid "'data' must be of a vector type"
 msgstr "'data'는 반드시 벡터형(vector type)이어야 합니다."
 
-#: Mutils.c:1044
+#: Mutils.c:1048
 #, c-format
 msgid "invalid '%s' argument"
 msgstr "'%s' 인자는 유효하지 않습니다"
 
-#: Mutils.c:1051 Mutils.c:1059
+#: Mutils.c:1055 Mutils.c:1063
 msgid "non-numeric matrix extent"
 msgstr "non-numeric matrix extent"
 
-#: Mutils.c:1054
+#: Mutils.c:1058
 msgid "invalid 'nrow' value (too large or NA)"
 msgstr "'nrow'의 값이 너무 크거나 NA이므로 올바르지 않습니다."
 
-#: Mutils.c:1056
+#: Mutils.c:1060
 msgid "invalid 'nrow' value (< 0)"
 msgstr "'nrow'의 값이 0 보다 작으므로 올바르지 않습니다."
 
-#: Mutils.c:1062
+#: Mutils.c:1066
 msgid "invalid 'ncol' value (too large or NA)"
 msgstr "'ncol'의 값이 너무 크거나 NA이므로 올바르지 않습니다."
 
-#: Mutils.c:1064
+#: Mutils.c:1068
 msgid "invalid 'ncol' value (< 0)"
 msgstr "'ncol'의 값이 0보다 작으므로 올바르지 않습니다."
 
-#: Mutils.c:1082
+#: Mutils.c:1086
 #, c-format
 msgid ""
 "data length [%d] is not a sub-multiple or multiple of the number of rows [%d]"
 msgstr "데이터의 길이[%d]가 행의 개수[%d]의 약수 또는 배수가 아닙니다"
 
-#: Mutils.c:1085
+#: Mutils.c:1089
 #, c-format
 msgid ""
 "data length [%d] is not a sub-multiple or multiple of the number of columns "
 "[%d]"
 msgstr "데이터의 길이[%d]가 열의 개수[%d]의 약수 또는 배수가 아닙니다"
 
-#: Mutils.c:1088
+#: Mutils.c:1092
 msgid "data length exceeds size of matrix"
 msgstr "데이터의 길이(data length)가 행렬의 크기(size of matrix)를 초과합니다."
 
-#: Mutils.c:1094
+#: Mutils.c:1098
 msgid "too many elements specified"
 msgstr "너무 많은 요소들이 지정되었습니다"
 
-#: Mutils.c:1163
+#: Mutils.c:1167
 #, c-format
 msgid "the number of columns differ in R_rbind2_vector: %d != %d"
 msgstr ""
 
-#: Mutils.c:1219 Mutils.c:1250 Mutils.c:1261 Mutils.c:1288
+#: Mutils.c:1223 Mutils.c:1254 Mutils.c:1265 Mutils.c:1292
 msgid "Argument must be numeric-like atomic vector"
 msgstr "인자는 반드시 수치형과 같은 기본형 벡터이어야합니다"
 
@@ -449,138 +449,138 @@ msgstr ""
 "TsparseMatrix에 사용되는 모든 열에 대한 인덱스 (슬롯 'j')는 반드시 0과 "
 "ncol-1 사이에 존재하는 정수이어야 합니다."
 
-#: chm_common.c:76
+#: chm_common.c:82
 msgid "Argument rho must be an environment"
 msgstr "인자 rho는 반드시 인바이런먼트(environment)이어야 합니다."
 
-#: chm_common.c:253
+#: chm_common.c:259
 msgid "invalid class of object to as_cholmod_sparse"
 msgstr "as_cholmod_sparse에 전달된 객체가 올바르지 않습니다."
 
-#: chm_common.c:255
+#: chm_common.c:261
 msgid "invalid object passed to as_cholmod_sparse"
 msgstr "as_cholmod_sparse에 전달된 객체가 올바르지 않습니다."
 
-#: chm_common.c:282
+#: chm_common.c:288
 msgid "in_place cholmod_sort returned an error code"
 msgstr "in_place cholmod_sort returned an error code"
 
-#: chm_common.c:288
+#: chm_common.c:294
 msgid "cholmod_sort returned an error code"
 msgstr "에러코드가 cholmod_sort로부터 반환되었습니다."
 
-#: chm_common.c:377
+#: chm_common.c:383
 msgid "chm_sparse_to_SEXP(<real>, *): invalid 'Rkind' (real kind code)"
 msgstr "chm_sparse_to_SEXP(<real>, *): invalid 'Rkind' (real kind code)"
 
-#: chm_common.c:385
+#: chm_common.c:391
 msgid "unknown xtype in cholmod_sparse object"
 msgstr "cholmod_sparse 객체에 사용할 수 있는 xtype이 아닙니다."
 
-#: chm_common.c:414 chm_common.c:645 chm_common.c:923 chm_common.c:973
+#: chm_common.c:420 chm_common.c:651 chm_common.c:929 chm_common.c:979
 msgid "complex sparse matrix code not yet written"
 msgstr "complex sparse matrix code not yet written"
 
-#: chm_common.c:419 chm_common.c:650
+#: chm_common.c:425 chm_common.c:656
 msgid "Symmetric and triangular both set"
 msgstr "Symmetric and triangular both set"
 
-#: chm_common.c:495
+#: chm_common.c:501
 msgid "invalid class of object to as_cholmod_triplet"
 msgstr "as_cholmod_triplet에 전달된 객체의 클래스가 올바르지 않습니다."
 
-#: chm_common.c:519
+#: chm_common.c:525
 msgid "as_cholmod_triplet(): could not reallocate for internal diagU2N()"
 msgstr "as_cholmod_triplet(): could not reallocate for internal diagU2N()"
 
-#: chm_common.c:617
+#: chm_common.c:623
 msgid "unknown xtype in cholmod_triplet object"
 msgstr "cholmod_triplet 객체에서 사용할 수 있는 xtype이 아닙니다."
 
-#: chm_common.c:696
+#: chm_common.c:702
 msgid "invalid class of object to as_cholmod_dense"
 msgstr "as_cholmod_dense에 전달된 객체의 클래스가 올바르지 않습니다."
 
-#: chm_common.c:764
+#: chm_common.c:770
 #, c-format
 msgid ""
 "chm_transpose_dense(ans, x) not yet implemented for %s different from %s"
 msgstr ""
 
-#: chm_common.c:788
+#: chm_common.c:794
 #, c-format
 msgid "Cholmod error '%s' at file %s, line %d"
 msgstr "Cholmod error '%s' at file %s, line %d"
 
-#: chm_common.c:792
+#: chm_common.c:798
 #, c-format
 msgid "Cholmod warning '%s' at file %s, line %d"
 msgstr "Cholmod warning '%s' at file %s, line %d"
 
-#: chm_common.c:821
+#: chm_common.c:827
 #, c-format
 msgid "Unable to initialize cholmod: error code %d"
 msgstr "cholmod를 초기화 할 수 없습니다: 에러코드 %d"
 
-#: chm_common.c:867
+#: chm_common.c:873
 msgid "unknown 'Rkind'"
 msgstr "사용할 수 있는 'Rkind'이 아닙니다."
 
-#: chm_common.c:874 chm_common.c:959
+#: chm_common.c:880 chm_common.c:965
 msgid "unknown xtype"
 msgstr "사용할 수 있는 xtype이 아닙니다."
 
-#: chm_common.c:929 chm_common.c:982
+#: chm_common.c:935 chm_common.c:988
 msgid "code for cholmod_dense with holes not yet written"
 msgstr "code for cholmod_dense with holes not yet written"
 
-#: chm_common.c:978
+#: chm_common.c:984
 msgid "don't know if a dense pattern matrix makes sense"
 msgstr "don't know if a dense pattern matrix makes sense"
 
-#: chm_common.c:1043
+#: chm_common.c:1049
 msgid "invalid class of object to as_cholmod_factor"
 msgstr "invalid class of object to as_cholmod_factor"
 
-#: chm_common.c:1057
+#: chm_common.c:1063
 msgid "Supernodal LDL' decomposition not available"
 msgstr "Supernodal LDL' decomposition not available"
 
-#: chm_common.c:1059
+#: chm_common.c:1065
 msgid "Supernodal/simplicial class inconsistent with type flags"
 msgstr "Supernodal/simplicial class inconsistent with type flags"
 
-#: chm_common.c:1077
+#: chm_common.c:1083
 msgid "Number of supernodes must be positive when is_super is TRUE"
 msgstr "is_super가 TRUE인 경우에 supernodes의 개수는 반드시 양수이어야 합니다."
 
-#: chm_common.c:1080
+#: chm_common.c:1086
 msgid "Lengths of super and pi must be equal"
 msgstr "super의 길이와 pi의 길이는 반드시 서로 같아야 합니다."
 
-#: chm_common.c:1084
+#: chm_common.c:1090
 msgid "Lengths of super and px must be equal"
 msgstr "super의 길이와 px의 길이는 반드시 서로 같아야 합니다."
 
-#: chm_common.c:1097
+#: chm_common.c:1103
 msgid "failure in as_cholmod_factor"
 msgstr "failure in as_cholmod_factor"
 
-#: chm_common.c:1143
+#: chm_common.c:1149
 msgid "CHOLMOD factorization was unsuccessful"
 msgstr "CHOLMOD factorization was unsuccessful"
 
-#: chm_common.c:1156
+#: chm_common.c:1162
 #, c-format
 msgid "f->xtype of %d not recognized"
 msgstr "f->xtype of %d not recognized"
 
-#: chm_common.c:1221
+#: chm_common.c:1227
 #, c-format
 msgid "chm_diagN2U(<non-square matrix>): nrow=%d, ncol=%d"
 msgstr "chm_diagN2U(<non-square matrix>): nrow=%d, ncol=%d"
 
-#: chm_common.c:1264
+#: chm_common.c:1270
 #, c-format
 msgid "chm_diagN2U(x, uploT = %d): uploT should be +- 1"
 msgstr "chm_diagN2U(x, uploT = %d): uploT은 반드시 1 또는 -1이어야 합니다"
@@ -615,117 +615,117 @@ msgid "Inappropriate class cl='%s' in Matrix_csn_to_SEXP(S, cl, ..)"
 msgstr ""
 "Matrix_csn_to_SEXP(S, cl, ..)에 입력된 cl='%s'는 올바른 클래스가 아닙니다."
 
-#: dense.c:29
+#: dense.c:26
 #, c-format
 msgid "incorrect left cyclic shift, j (%d) >= k (%d)"
 msgstr "incorrect left cyclic shift, j (%d) >= k (%d)"
 
-#: dense.c:31
+#: dense.c:28
 #, c-format
 msgid "incorrect left cyclic shift, j (%d) < 0"
 msgstr "incorrect left cyclic shift, j (%d) < 0"
 
-#: dense.c:33
+#: dense.c:30
 #, c-format
 msgid "incorrect left cyclic shift, k (%d) > ldx (%d)"
 msgstr "incorrect left cyclic shift, k (%d) > ldx (%d)"
 
-#: dense.c:78
+#: dense.c:77
 msgid "Unknown error in getGivens"
 msgstr "getGivens에서 알 수 없는 에러가 발생했습니다"
 
-#: dense.c:90 dense.c:106 dense.c:139
+#: dense.c:89 dense.c:104 dense.c:134
 msgid "X must be a numeric (double precision) matrix"
 msgstr "X는 반드시 double precision을 가진 수치형 행렬이어야 합니다."
 
-#: dense.c:111 dense.c:144
+#: dense.c:109 dense.c:139
 msgid "y must be a numeric (double precision) matrix"
 msgstr "y는 반드시 double precision을 가진 수치형 행렬이어야 합니다."
 
-#: dense.c:115 dense.c:148
+#: dense.c:113 dense.c:143
 #, c-format
 msgid "number of rows in y (%d) does not match number of rows in X (%d)"
 msgstr "y가 가진 행의 개수 (%d)가 X가 가진 행의 개수 (%d)와 일치하지 않습니다."
 
-#: dense.c:126
+#: dense.c:125
 #, c-format
 msgid "Lapack routine dposv returned error code %d"
 msgstr "다음의 에러코드가 Lapack 루틴 dposv으로부터 반환되었습니다: %d"
 
-#: dense.c:158
+#: dense.c:153
 #, c-format
 msgid "First call to Lapack routine dgels returned error code %d"
 msgstr ""
 "Lapack 루틴 dgels에 첫번째 호출로부터 다음과 같은 에러코드가 반환되었습니다: "
 "%d"
 
-#: dense.c:165
+#: dense.c:160
 #, c-format
 msgid "Second call to Lapack routine dgels returned error code %d"
 msgstr ""
 "Lapack 루틴 dgels에 두번째 호출로부터 다음과 같은 에러코드가 반환되었습니다: "
 "%d"
 
-#: dense.c:178
+#: dense.c:179
 msgid "X must be a real (numeric) matrix"
 msgstr "X는 반드시 실수(real)형 숫자를 가진 행렬이어야 합니다."
 
-#: dense.c:179
+#: dense.c:181
 #, c-format
 msgid "tol, given as %g, must be non-negative"
 msgstr "tol의 값은 음이 아닌 수이어야 하는데 %g를 가지고 있습니다."
 
-#: dense.c:180
+#: dense.c:182
 #, c-format
 msgid "tol, given as %g, must be <= 1"
 msgstr "tol의 값은 1보다 작거나 같아야 하는데 %g를 가지고 있습니다."
 
-#: dense.c:204
+#: dense.c:211
 #, c-format
 msgid "First call to dgeqrf returned error code %d"
 msgstr "dgeqrf에 첫번째 호출로부터 다음과 같은 에러코드가 반환되었습니다: %d"
 
-#: dense.c:210
+#: dense.c:217
 #, c-format
 msgid "Second call to dgeqrf returned error code %d"
 msgstr "dgeqrf에 두번째 호출로부터 다음과 같은 에러코드가 반환되었습니다: %d"
 
-#: dense.c:215 dense.c:235
+#: dense.c:222 dense.c:243
 #, c-format
 msgid "Lapack routine dtrcon returned error code %d"
 msgstr "에러코드 %d가 Lapack 루틴 dtrcon으로부터 반환되었습니다."
 
-#: dense.c:282
+#: dense.c:291
 #, c-format
 msgid "dense_to_Csparse(<LARGE>): cholmod_l_dense_to_sparse failure status=%d"
 msgstr ""
 
-#: dense.c:285
+#: dense.c:294
 #, c-format
 msgid ""
 "Matrix dimension %d x %d (= %g) too large [FIXME calling "
 "cholmod_l_dense_to_sparse]"
 msgstr ""
 
-#: dense.c:314
+#: dense.c:323
 #, c-format
 msgid "Lower band %d > upper band %d"
 msgstr "Lower band %d > upper band %d"
 
-#: dense.c:384
+#: dense.c:393
 msgid "ddense_to_symmetric(): matrix is not square!"
 msgstr "ddense_to_symmetric(): 정방행렬이 아닙니다!"
 
-#: dense.c:395
+#: dense.c:404
 #, c-format
 msgid "matrix is not symmetric [%d,%d]"
 msgstr "행렬이 대칭(symmetric)적이지 않습니다 [%d,%d]."
 
-#: dense.c:455
+#: dense.c:464
 msgid "matrix is not square! (symmetric part)"
 msgstr "정방행렬이 아닙니다! (symmetric part)"
 
-#: dense.c:514
+#: dense.c:522
 msgid "matrix is not square! (skew-symmetric part)"
 msgstr "정방행렬이 아닙니다! (skew-symmetric part)"
 
@@ -753,9 +753,9 @@ msgstr ""
 "dgCMatrix_lusol은 정방(square)이며 비어있지 않은(non-empty) 행렬을 필요로 합"
 "니다."
 
-#: dgCMatrix.c:166 dgCMatrix.c:193 dgCMatrix.c:508 dgCMatrix.c:550
-#: dgeMatrix.c:592 dpoMatrix.c:95 dpoMatrix.c:120 dppMatrix.c:80 dspMatrix.c:78
-#: dsyMatrix.c:79 dtCMatrix.c:90 dtCMatrix.c:120 dtrMatrix.c:91
+#: dgCMatrix.c:166 dgCMatrix.c:193 dgCMatrix.c:509 dgCMatrix.c:551
+#: dgeMatrix.c:592 dpoMatrix.c:96 dpoMatrix.c:121 dppMatrix.c:80 dspMatrix.c:78
+#: dsyMatrix.c:84 dtCMatrix.c:90 dtCMatrix.c:120 dtrMatrix.c:93
 msgid "Dimensions of system to be solved are inconsistent"
 msgstr "Dimensions of system to be solved are inconsistent"
 
@@ -794,45 +794,45 @@ msgstr ""
 msgid "cs_qr failed"
 msgstr "cs_qr 실패"
 
-#: dgCMatrix.c:329
+#: dgCMatrix.c:330
 msgid "SuiteSparseQR_C_QR returned an error code"
 msgstr "에러코드가 SuiteSparseQR_C_QR로부터 반환되었습니다."
 
-#: dgCMatrix.c:373
+#: dgCMatrix.c:374
 msgid "LU decomposition applies only to square matrices"
 msgstr "LU 분해(decomposition)은 오로지 정방행렬에만 적용됩니다."
 
-#: dgCMatrix.c:382
+#: dgCMatrix.c:383
 msgid "cs_lu(A) failed: near-singular A (or out of memory)"
 msgstr "cs_lu(A) failed: near-singular A (or out of memory)"
 
-#: dgCMatrix.c:468
+#: dgCMatrix.c:469
 msgid "dgcMatrix_LU(*, keep_dimnames = NA): NA taken as TRUE"
 msgstr ""
 
-#: dgCMatrix.c:480
+#: dgCMatrix.c:481
 msgid "dgCMatrix_matrix_solve(.., sparse=TRUE) not yet implemented"
 msgstr "dgCMatrix_matrix_solve(.., sparse=TRUE)은 아직 구현되지 않았습니다"
 
-#: dgCMatrix.c:548
+#: dgCMatrix.c:549
 msgid "dgCMatrix_cholsol requires a 'short, wide' rectangular matrix"
 msgstr "dgCMatrix_cholsol requires a 'short, wide' rectangular matrix"
 
-#: dgCMatrix.c:556
+#: dgCMatrix.c:557
 msgid "cholmod_sdmult error (rhs)"
 msgstr "cholmod_sdmult error (rhs)"
 
-#: dgCMatrix.c:559
+#: dgCMatrix.c:560
 #, c-format
 msgid "cholmod_factorize failed: status %d, minor %d from ncol %d"
 msgstr "cholmod_factorize 실패: 상태 %d, minor %d from ncol %d"
 
-#: dgCMatrix.c:563
+#: dgCMatrix.c:564
 #, c-format
 msgid "cholmod_solve (CHOLMOD_A) failed: status %d, minor %d from ncol %d"
 msgstr "cholmod_solve (CHOLMOD_A) 실패: 상태 %d, minor %d from ncol %d"
 
-#: dgCMatrix.c:580
+#: dgCMatrix.c:581
 msgid "cholmod_sdmult error (resid)"
 msgstr "cholmod_sdmult error (resid)"
 
@@ -871,8 +871,8 @@ msgstr "x와 y의 차원정보가 %s와 일치하지 않습니다."
 msgid "Argument y must be numeric, integer or logical"
 msgstr "인자 y는 반드시 수치형, 정수형, 또는 논리형이어야 합니다."
 
-#: dgeMatrix.c:314 dgeMatrix.c:318 dspMatrix.c:154 dsyMatrix.c:119
-#: dtrMatrix.c:127
+#: dgeMatrix.c:314 dgeMatrix.c:318 dspMatrix.c:154 dsyMatrix.c:124
+#: dtrMatrix.c:130
 msgid "Matrices are not conformable for multiplication"
 msgstr "곱셈연산을 할 수 있는 행렬들이 아닙니다"
 
@@ -884,7 +884,7 @@ msgstr ""
 msgid "Cannot factor a matrix with zero extents"
 msgstr "Cannot factor a matrix with zero extents"
 
-#: dgeMatrix.c:486 dpoMatrix.c:46 dppMatrix.c:36 dspMatrix.c:183
+#: dgeMatrix.c:486 dpoMatrix.c:47 dppMatrix.c:36 dspMatrix.c:183
 #, c-format
 msgid "Lapack routine %s returned error code %d"
 msgstr "에러코드 %2$d는 Lapack 루틴 %1$s로부터 얻어졌습니다."
@@ -961,16 +961,16 @@ msgstr "dgeMatrix_Schur: 코드 %d가 dgees로부터 반환되었습니다."
 msgid "dpoMatrix is not positive definite"
 msgstr "dpoMatrix는 양정치(positive definite)가 아닙니다."
 
-#: dpoMatrix.c:43 dppMatrix.c:33
+#: dpoMatrix.c:44 dppMatrix.c:33
 #, c-format
 msgid "the leading minor of order %d is not positive definite"
 msgstr "the leading minor of order %d is not positive definite"
 
-#: dpoMatrix.c:97
+#: dpoMatrix.c:98
 msgid "Cannot solve() for matrices with zero extents"
 msgstr "크기가 0인 행렬에 solve()를 사용할 수 없습니다"
 
-#: dpoMatrix.c:118
+#: dpoMatrix.c:119
 msgid "Argument b must be a numeric matrix"
 msgstr "인자 b는 반드시 수치형 행렬(numeric matrix)이어야 합니다."
 
@@ -997,7 +997,7 @@ msgstr "dsCMatrix_to_dgTMatrix에 비대칭 행렬이 전달되었습니다"
 msgid "Incorrect length of 'x' slot"
 msgstr "'x' 슬롯의 길이가 올바르지 않습니다."
 
-#: dspMatrix.c:146 dsyMatrix.c:112
+#: dspMatrix.c:146 dsyMatrix.c:117
 #, c-format
 msgid "Matrix dimension %d x %d (= %g) is too large"
 msgstr ""
@@ -1010,10 +1010,24 @@ msgstr "'Dim'은 2 보다 짧은 슬롯의 길이를 가지고 있습니다."
 msgid "Matrix is not square"
 msgstr "정방행렬이 아닙니다."
 
-#: dsyMatrix.c:162
+#: dsyMatrix.c:167 dsyMatrix.c:214
 #, c-format
 msgid "Lapack routine dsytrf returned error code %d"
 msgstr "Lapack 루틴 dsytrl로부터 다음의 에러코드가 반환되었습니다: %d"
+
+#: dsyMatrix.c:177
+#, fuzzy
+msgid "x must be a \"double\" (numeric) matrix"
+msgstr "X는 반드시 실수(real)형 숫자를 가진 행렬이어야 합니다."
+
+#: dsyMatrix.c:188
+#, fuzzy
+msgid "matrix_trf(x, *): matrix is not square"
+msgstr "ddense_to_symmetric(): 정방행렬이 아닙니다!"
+
+#: dsyMatrix.c:195
+msgid "matrix_trf(*, uplo): uplo must be string"
+msgstr ""
 
 #: dtCMatrix.c:28 dtCMatrix.c:63 dtTMatrix.c:24
 msgid "uplo='U' must not have sparse entries below the diagonal"
@@ -1023,28 +1037,28 @@ msgstr "uplo='U'의 경우에는 어떠한 값들도 대각의 아랫부분에 �
 msgid "uplo='L' must not have sparse entries above the diagonal"
 msgstr "uplo='L'의 경우는 어떠한 값들도 대각의 윗부분에 있어서는 안됩니다."
 
-#: dtpMatrix.c:124 dtpMatrix.c:152 dtpMatrix.c:183
+#: dtpMatrix.c:125 dtpMatrix.c:153 dtpMatrix.c:184
 #, c-format
 msgid "Dimensions of a (%d,%d) and b (%d,%d) do not conform"
 msgstr "a (%d,%d)와 b (%d,%d)의 크기가 서로 일치하지 않습니다."
 
-#: dtpMatrix.c:131
+#: dtpMatrix.c:132
 msgid "right=TRUE is not yet implemented __ FIXME"
 msgstr "right=TRUE의 경우는 아직 구현되지 않았습니다 __ FIXME"
 
-#: dtrMatrix.c:125
+#: dtrMatrix.c:128
 msgid "dtrMatrix must be square"
 msgstr "dtrMatrix는 정방행렬이 아닙니다."
 
-#: dtrMatrix.c:188
+#: dtrMatrix.c:192
 msgid "\"dtrMatrix\" objects in '%*%' must have matching (square) dimension"
 msgstr "\"dtrMatrix\" objects in '%*%' must have matching (square) dimension"
 
-#: dtrMatrix.c:277
+#: dtrMatrix.c:282
 msgid "cannot set diag() as long as 'diag = \"U\"'"
 msgstr "'diag = \"U\"'이기 때문에 diag()를 정할 수 없습니다."
 
-#: dtrMatrix.c:311
+#: dtrMatrix.c:316
 msgid "cannot add diag() as long as 'diag = \"U\"'"
 msgstr "'diag = \"U\"'이기 때문에 diag()를 추가할 수 없습니다."
 
@@ -1057,12 +1071,12 @@ msgstr "x 슬롯(slot)은 반드시 \"double\"형 숫자(numeric)이어야 합�
 msgid "x slot is not of correct length"
 msgstr ""
 
-#: init.c:372
+#: init.c:376
 msgid "missing 'Matrix' namespace: should never happen"
 msgstr ""
 "'Matrix' 네임스페이스(namespace)를 찾을 수 없습니다.  반드시 존재해야 합니다 "
 
-#: init.c:383
+#: init.c:387
 msgid "Matrix namespace not determined correctly"
 msgstr "올바르게 정의된 Matrix 네임스페이스(namespace)가 아닙니다"
 

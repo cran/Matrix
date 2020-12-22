@@ -55,10 +55,10 @@ Class \code{"Matrix"}, by class \code{"sparseMatrix"}.
   operations.
 
   Note that all \code{new(.)}, \code{\link{spMatrix}} and
-  \code{\link{sparseMatrix}(*, giveCsparse=FALSE)} constructors
-  for \code{"TsparseMatrix"} classes implicitly add \eqn{x_k}'s that belong to identical
-  \eqn{(i_k, j_k)} pairs, see, the example below, or also
-  \code{"\linkS4class{dgTMatrix}"}.
+  \code{\link{sparseMatrix}(*, repr="T")} constructors
+  for \code{"TsparseMatrix"} classes implicitly add (i.e., \dQuote{sum up})
+  \eqn{x_k}'s that belong to identical \eqn{(i_k, j_k)} pairs, see, the
+  example below, or also \code{"\linkS4class{dgTMatrix}"}.
 
   For convenience, methods for some operations such as \code{\%*\%}
   and \code{crossprod} are defined for

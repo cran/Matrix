@@ -6,34 +6,18 @@
  -->  see SM (3e6 x 1023) ex. in tests/Simple.R
 ** TODO Using "long vectors" (i.e. 64 bit indices vectors) in CHOLMOD --> cholmod_l_*()
 *** e.g. segfault in crossprod() Csparse_crossprod -> cholmod_att()
+** TODO 'symmetricMatrix' objects with *A*symmetric @Dimnames are formally "valid", but really are not,
+    see FIXME in symmetricMatrix_validate() in src/dsyMatrix.c ---> see TODO below: `forceCspSymmetric()`
 * *Urgent* in some sense ---------------------------------------------------
+** TODO `unique()` and `duplicated()` methods for "sparseVector" & "(sparse)Matrix"; have "*.matrix" S3 methods
 ** TODO (partly DONE via workaround "round up" to 100): print() / show() for small options(max.print=<n>):
     --> tests/Simple.R {'max.print'}
 ** TODO API change: Should  Matrix(diag(2), sparse=TRUE, doDiag=TRUE)  not rather give "ddiMatrix" ??
       Why change? Originally "ddiMatrix" etc extended denseMatrix but now sparseMatrix
-** DONE qr.coef() has *wrong* (column)names, even in full-rank case: see man/qr-methods.Rd ("FIXME"); maybe related to
-** DONE qr.R(), qrR() etc have *wrong* currently *lose* column/row names {compared to base R's qr.R}, see,
-   	drop0(R. <- qr.R(qx), tol=1e-15) # columns are int b1 c1 c2 b2 c3 {in man/qr-methods.Rd}
-** DONE should as.matrix() eventually become a no-op, as for Rmpfr::"mpfrMatrix" ?? -- *NO!*
-*** Big advantages:
-**** 1) Functions such as  base::scale.default() will work automagically
-**** 2) If   sM <- as.matrix(<sparseVector>) .. then  identical(as.matrix(sM) , sM)  -- not currently !!
-*** Bigger drawbacks:  Really I have to define Matrix methods for base functions that just worked perfectly via as.matrix
-**** 1a) eigen() base::eigen uses as.matrix() = asRbasematrix(); is not generic; called from nearPD()
-          ==> I've introduced "Matrix" S4 methods (and hence made eigen() S4 generic)
-**** 1b) svd()   same as eigen();  also called from norm(*, "2")
-          {as eigen()} would also need "Matrix" S4 methods
-**** 1c) qr()    needs additional dgeMatrix methods (as base::qr.default uses as.matrix())
-   and now warns, also, e.g., from rcond(<non-square dgeMatrix>)
-**** 2) base :: lower.tri() and upper.tri() also use as.matrix() but are not generic => would need to make them S4 genric
-***** for now: just redefinition in  inst/test-tools-Matrix.R  notably for CheckMatrix(), but also
-      for use in diverse ./tests/*.R.
-***** For R-devel (-> 3.5.0 in April 2018): lower.tri() / upper.tri() do *not* use as.matrix()
-**** 3)  Documented in more than one place that base functions work thanks to as.matrix()
-*** How to go there:  For a while  as.matrix() should give deprecation warning:  use  as(*,"matrix") and
-    ---- give substitute .asmatrix(), but that's not faster; simply calls as(*,"matrix")
-**** In R/Auxiliaries.R  .Matrix.avoiding.as.matrix <- TRUE  -- for experiments only
-**** turn off warning via  options(Matrix.quiet.as.matrix = TRUE)
+      Currently 'doDiag's documentation starts as  'doDiag: only when ‘sparse = FALSE’, ....'
+      This would change, and doDiag would be active *also* for 'sparse = TRUE'
+** TODO Do section in ./vignettes/Design-issues.Rnw (& man/symmetricMatrix-class.Rd ?) about *dimnames*
+**  also mentioning forceSymmetric(); maybe that wd "inherit" arg. 'symDimnames' in {T,F,NA} from forceCspSymmetric().
 ** TODO sparse2int() using a X[...] * Y[...] construct which is too large --> Matrix bug #1330:
 *** See FIXME in ./R/spModels.R  and
     https://r-forge.r-project.org/tracker/index.php?func=detail&aid=1330&group_id=61&atid=294
@@ -59,11 +43,11 @@ alternatively also is_sym() [in src/cs_utils.c], see below.
 
 ** TODO Look at Paul Bailey's problem -- CHOLMOD error (even seg.fault for him)
   --> ~/R/MM/Pkg-ex/Matrix/sparseOrderedLogit.R
-** TODO BunchKaufman() [and Schur()] should also get a "matrix" method,
+** TODO Schur() should also get a "matrix" method,
    so people like RP may stop whining about its non-availability in "base R" (2015-07-09)
-** TODO BunchKaufman()'s result is not really useful yet {but it is used on C
- level e.g. for solve(<dsyMatrix>).   Should define  expand() method or
- similar, see man/BunchKaufman-methods.Rd and R/dsyMatrix.R (at end).
+** TODO BunchKaufman()'s result is not really useful yet, but it is used on C
+ level e.g. for solve(<dsyMatrix>). NB: is a generalized LDL' [with pivoting!].  Should
+ define  expand() method or similar, see man/BunchKaufman-methods.Rd and R/dsyMatrix.R (at end).
 ** TODO src/cs_utils.c : I think is_sym() [only used in Matrix_cs_to_SEXP()] can be made sped up:
  leave the for loops, as soon as is_lower == is_upper == 0.
 
@@ -97,7 +81,32 @@ alternatively also is_sym() [in src/cs_utils.c], see below.
 ** DONE M[i,j] should *not* drop dimnames (R-forge bug 2556, see ~/R/MM/Pkg-ex/Matrix/dimnames-prod.R)
 ** DONE "Math"/"Math2" *fail* entirely for sparseVectors
 ** DONE rbind2(<sparse>, <dense>) did not work, now is completely wrong !! (e.g. <dgC>, <dge>)
+** DONE qr.coef() has *wrong* (column)names, even in full-rank case: see man/qr-methods.Rd ("FIXME"); maybe related to
+** DONE qr.R(), qrR() etc have *wrong* currently *lose* column/row names {compared to base R's qr.R}, see,
+   	drop0(R. <- qr.R(qx), tol=1e-15) # columns are int b1 c1 c2 b2 c3 {in man/qr-methods.Rd}
+** DONE should as.matrix() eventually become a no-op, as for Rmpfr::"mpfrMatrix" ?? -- *NO!*
+*** Big advantages:
+**** 1) Functions such as  base::scale.default() will work automagically
+**** 2) If   sM <- as.matrix(<sparseVector>) .. then  identical(as.matrix(sM) , sM)  -- not currently !!
+*** Bigger drawbacks:  Really I have to define Matrix methods for base functions that just worked perfectly via as.matrix
+**** 1a) eigen() base::eigen uses as.matrix() = asRbasematrix(); is not generic; called from nearPD()
+          ==> I've introduced "Matrix" S4 methods (and hence made eigen() S4 generic)
+**** 1b) svd()   same as eigen();  also called from norm(*, "2")
+          {as eigen()} would also need "Matrix" S4 methods
+**** 1c) qr()    needs additional dgeMatrix methods (as base::qr.default uses as.matrix())
+   and now warns, also, e.g., from rcond(<non-square dgeMatrix>)
+**** 2) base :: lower.tri() and upper.tri() also use as.matrix() but are not generic => would need to make them S4 genric
+***** for now: just redefinition in  inst/test-tools-Matrix.R  notably for CheckMatrix(), but also
+      for use in diverse ./tests/*.R.
+***** For R-devel (-> 3.5.0 in April 2018): lower.tri() / upper.tri() do *not* use as.matrix()
+**** 3)  Documented in more than one place that base functions work thanks to as.matrix()
+*** How to go there:  For a while  as.matrix() should give deprecation warning:  use  as(*,"matrix") and
+    ---- give substitute .asmatrix(), but that's not faster; simply calls as(*,"matrix")
+**** In R/Auxiliaries.R  .Matrix.avoiding.as.matrix <- TRUE  -- for experiments only
+**** turn off warning via  options(Matrix.quiet.as.matrix = TRUE)
+** DONE BunchKaufman() got a "matrix" method.
 * New smallish ideas, relatively urgent for MM -----------------------------
+** TODO qr1() as non-pivoting rank-correcting -- .Call(lapack_qr, ..) in src/dense.c
 ** DONE generalize new "indMatrix" class, to allow 0 repetitions
  of some samples, i.e., columns of all 0 s. It's mathematically more
  natural --> typically will be useful.

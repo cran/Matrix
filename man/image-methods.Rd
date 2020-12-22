@@ -134,7 +134,8 @@ image(USCounties, c(1,300), c(1,200), lwd=.01)
 (I1 <- image(USCounties, c(1,100), c(1,100), useAbs=FALSE))
  I2 <- image(USCounties, c(1,100), c(1,100), useAbs=FALSE,        border.col=NA)
  I3 <- image(USCounties, c(1,100), c(1,100), useAbs=FALSE, lwd=2, border.col=NA)
-stopifnot(all.equal(I1, I2), all.equal(I2, I3))
+stopifnot(all.equal(I1, I2, check.environment=FALSE),
+          all.equal(I2, I3, check.environment=FALSE))
 ## using an opaque border color
 image(USCounties, c(1,100), c(1,100), useAbs=FALSE, lwd=3, border.col = adjustcolor("skyblue", 1/2))
 \dontshow{options(op)}

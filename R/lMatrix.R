@@ -69,8 +69,11 @@ setMethod("which", "ldiMatrix",
 	  function(x, arr.ind, useNames) {
 	      n <- x@Dim[1L]
 	      i <- if(x@diag == "U") seq_len(n) else which(x@x)
+              ## ensure no integer overflow in  i + n*(i - ._1)  {int. if (n <= 46340L)}:
+              ._1  <- if(n <= as.integer(sqrt(.Machine$integer.max))) 1L else 1
+              i <- i + n*(i - ._1)
 	      if(arr.ind) arrayInd(i, x@Dim, x@Dimnames, useNames=useNames)
-	      else i + n*(i - 1L)
+	      else i
           })
 
 whichDense <- function(x, arr.ind = FALSE, useNames = TRUE) {

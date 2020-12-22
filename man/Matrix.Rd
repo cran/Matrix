@@ -19,15 +19,16 @@ Matrix(data=NA, nrow=1, ncol=1, byrow=FALSE, dimnames=NULL,
     \code{\link{NULL}} (as per default).}
   \item{sparse}{logical or \code{NULL}, specifying if the result should
     be sparse or not.  By default, it is made sparse when more than half
-    of the entries are 0.
+    of the entries are 0.}
+  \item{doDiag}{logical indicating if a \code{\linkS4class{diagonalMatrix}}
+    object should be returned when the resulting matrix is diagonal
+    (\emph{mathematically}).  As class \code{\linkS4class{diagonalMatrix}}
+    \code{\link{extends}} \code{\linkS4class{sparseMatrix}}, this is a
+    natural default for all values of \code{sparse}.
 
-    Note that when the resulting matrix is diagonal (\dQuote{mathematically}),
-    \code{sparse=FALSE} results in a \code{\linkS4class{diagonalMatrix}},
-    unless \code{doDiag=FALSE} as well, see the first examples.}
-  \item{doDiag}{only when \code{sparse = FALSE}, logical indicating
-    if a \code{\linkS4class{diagonalMatrix}} object should be considered
-    (default).  Otherwise, in such a case, a dense (symmetric) matrix
-    will be returned.}
+    Otherwise, if \code{doDiag} is false, a dense or sparse (depending on
+    \code{sparse}) \emph{symmetric} matrix will be returned.}
+
   \item{forceCheck}{logical indicating if the checks for structure
     should even happen when \code{data} is already a \code{"Matrix"}
     object.}
@@ -74,29 +75,35 @@ Matrix(data=NA, nrow=1, ncol=1, byrow=FALSE, dimnames=NULL,
 \examples{
 Matrix(0, 3, 2)             # 3 by 2 matrix of zeros -> sparse
 Matrix(0, 3, 2, sparse=FALSE)# -> 'dense'
-Matrix(0, 2, 2, sparse=FALSE)# diagonal !
-Matrix(0, 2, 2, sparse=FALSE, doDiag=FALSE)# -> dense
+
+## 4 cases - 3 different results :
+Matrix(0, 2, 2)              # diagonal !
+Matrix(0, 2, 2, sparse=FALSE)# (ditto)
+Matrix(0, 2, 2,               doDiag=FALSE)# -> sparse symm. "dsCMatrix"
+Matrix(0, 2, 2, sparse=FALSE, doDiag=FALSE)# -> dense  symm. "dsyMatrix"
+
 Matrix(1:6, 3, 2)           # a 3 by 2 matrix (+ integer warning)
 Matrix(1:6 + 1, nrow=3)
 
 ## logical ones:
-Matrix(diag(4) >  0)# -> "ldiMatrix" with diag = "U"
-Matrix(diag(4) >  0, sparse=TRUE)# -> sparse...
-Matrix(diag(4) >= 0)# -> "lsyMatrix" (of all 'TRUE')
+Matrix(diag(4) >  0) # -> "ldiMatrix" with diag = "U"
+Matrix(diag(4) >  0, sparse=TRUE) #  (ditto)
+Matrix(diag(4) >= 0) # -> "lsyMatrix" (of all 'TRUE')
 ## triangular
 l3 <- upper.tri(matrix(,3,3))
-(M <- Matrix(l3))  # -> "ltCMatrix"
-Matrix(! l3)# -> "ltrMatrix"
-as(l3, "CsparseMatrix")
+(M <- Matrix(l3))   # -> "ltCMatrix"
+Matrix(! l3)        # -> "ltrMatrix"
+as(l3, "CsparseMatrix")# "lgCMatrix"
 
 Matrix(1:9, nrow=3,
        dimnames = list(c("a", "b", "c"), c("A", "B", "C")))
 (I3 <- Matrix(diag(3)))# identity, i.e., unit "diagonalMatrix"
-str(I3) # note the empty 'x' slot
+str(I3) # note  'diag = "U"' and the empty 'x' slot
 
 (A <- cbind(a=c(2,1), b=1:2))# symmetric *apart* from dimnames
 Matrix(A)                    # hence 'dgeMatrix'
 (As <- Matrix(A, dimnames = list(NULL,NULL)))# -> symmetric
+forceSymmetric(A) # also symmetric, w/ symm. dimnames
 stopifnot(is(As, "symmetricMatrix"),
           is(Matrix(0, 3,3), "sparseMatrix"),
           is(Matrix(FALSE, 1,1), "sparseMatrix"))

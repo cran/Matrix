@@ -1,6 +1,6 @@
 #!/bin/sh
 ## This *REPLACES* former ./UFsparse_download.sh
-## Update Libraries from Tim Davis (University of Florida (UF))' "SuiteSparse":
+## Update Libraries from Tim Davis (formerly University of Florida (UF), now Texas A&M)'s  "SuiteSparse":
 #
 if [ ! -d ../src -o  ! -d ./scripts ]
 then echo 'Must run in Matrix/src/ !' ; exit 1
@@ -12,26 +12,35 @@ getSPQR=no
 # ufl_URL=http://www.cise.ufl.edu/research/sparse/SuiteSparse/current/
 # TGZ=SuiteSparse.tar.gz
 #  wget -nc  $ufl_URL/$TGZ
-TAM_url=http://faculty.cse.tamu.edu/davis/SuiteSparse
-ifile=index.html
-if [ -f $ifile ]; then fb=index_bak.html; if [ ! -f $fb ] ;then mv $ifile $fb ;fi;fi
-wget -nc $TAM_url/$ifile
-TGZ=`grep 'SuiteSparse-[0-9].*tar' $ifile | tail -1 | sed 's/.*href=//; s/>.*//'`
-echo "Found TGZ='$TGZ' in $ifile."
+## 2020-04-03: Pointed to from  http://faculty.cse.tamu.edu/davis/suitesparse.html
+## ----------- SuiteSparse is on github currently:
+GH_base=https://github.com/DrTimothyAldenDavis/SuiteSparse
+GH_rel=${GH_base}/releases
+GH_latest=${GH_rel}/latest
+curl --dump-header hd_latest $GH_latest > curl_out 2>&1
+# Careful: curl gives results "in MSDOS Format" with \cr\lf --> remove \r
+VER=$(sed -n -e '/^location:/{p;q}' hd_latest | tee SS_location | sed 's#.*/v\([1-9]\.[0-9]\.[0-9]\)\r#\1#')
+echo "SS_location:"; cat SS_location
+echo "
+  SuiteSparse version VER='$VER'
+"
+GH_tar_url=https://github.com/DrTimothyAldenDavis/SuiteSparse/archive/v${VER}.tar.gz
+SS=SuiteSparse-${VER}
+TGZ=${SS}.tar.gz
 if [ -f $TGZ ]
 then
     echo 'Tarfile present; not downloading (remove it to change this!)'
     echo 'Maybe *continue* downloading by'; echo;
-    echo "	  wget -c $TAM_url/$TGZ" ; echo
-    echo ' >> INTERRUPT (Ctrl C) within 7 sec !) if you want do that '
-    sleep 7
+    echo "	  wget -c $GH_tar_url -O $TGZ" ; echo
+## just for experimenting!
+#    echo ' >> INTERRUPT (Ctrl C) within 7 sec !) if you want do that '
+#    sleep 7
 else
-    echo '  ==> Trying to get it from '"$TAM_url :"
-    wget -nc $TAM_url/$TGZ
+    echo '  ==> Trying to get it from '"$GH_tar_url :"
+    wget -nc $GH_tar_url -O $TGZ
 fi
 ls -l $TGZ
 
-SS=SuiteSparse
 SSdocDir=../inst/doc/SuiteSparse
 
 ## 1) SuiteSparse_config ---------------------------------------------
@@ -122,7 +131,7 @@ echo " rm $dd"'/Lib/Makefile_*' ; echo
 echo "Ok, now   diff $dd/Lib/Makefile $dd/Lib/Makefile_pre :"
 diff $dd/Lib/Makefile $dd/Lib/Makefile_pre
 
-## 5) CCparse -------------------------------------------------
+## 5) CSparse -------------------------------------------------
 Sdir=$SS/CSparse
   ## install CSparse/Source & CSparse/Include
 tar zxf $TGZ $Sdir/Source $Sdir/Include $Sdir/README.txt

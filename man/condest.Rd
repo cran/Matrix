@@ -66,8 +66,8 @@ onenormest(A, t = min(n, 5), A.x, At.x, n,
   A Block Algorithm for Matrix 1-Norm Estimation, with an Application to 1-Norm
   Pseudospectra.
   \emph{SIAM J. Matrix Anal. Appl.} \bold{21}, 4, 1185--1201.
-  \doi{10.1137/S0895479899356080}
-  %% and \url{http://citeseer.ist.psu.edu/223007.html}
+  %% ok for ETH etc, but not free:  \doi{10.1137/S0895479899356080}
+  \url{https://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.7.9804}
 
   William W. Hager (1984).
   Condition Estimates.

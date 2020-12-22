@@ -36,16 +36,4 @@ SEXP dgeMatrix_svd(SEXP x, SEXP nu, SEXP nv);
 SEXP dgeMatrix_exp(SEXP x);
 SEXP dgeMatrix_colsums(SEXP x, SEXP naRmP, SEXP cols, SEXP mean);
 
-/* DGESDD - compute the singular value decomposition (SVD); of a   */
-/* real M-by-N matrix A, optionally computing the left and/or      */
-/* right singular vectors.  If singular vectors are desired, it uses a */
-/* divide-and-conquer algorithm.                                   */
-void F77_NAME(dgesdd)(const char *jobz,
-		      const int *m, const int *n,
-		      double *a, const int *lda, double *s,
-		      double *u, const int *ldu,
-		      double *vt, const int *ldvt,
-		      double *work, const int *lwork, int *iwork, int *info);
-
-
 #endif

@@ -1,14 +1,14 @@
 # Translation of R-matrix to German
-# Copyright (C) 2001 The R Foundation
+# Copyright (C) 2001-2020 The R Foundation
 # This file is distributed under the same license as the matrix package.
 # Chris Leick <c.leick@vollbio.de>, 2009.
-# Detlef Steuer <steuer@hsu-hh.de>, 2012-2014.
+# Detlef Steuer <steuer@hsu-hh.de>, 2012-2020.
 msgid ""
 msgstr ""
-"Project-Id-Version: R 3.5.0 / matrix 1.2-12\n"
+"Project-Id-Version: R 4.0.0 / matrix 1.3-0\n"
 "Report-Msgid-Bugs-To: bugs.r-project.org\n"
-"POT-Creation-Date: 2018-04-06 22:43\n"
-"PO-Revision-Date: 2018-04-06 13:18+0200\n"
+"POT-Creation-Date: 2020-04-02 16:19\n"
+"PO-Revision-Date: 2020-04-01 16:01+0200\n"
 "Last-Translator: Detlef Steuer <steuer@hsu-hh.de>\n"
 "Language-Team: R-Core <r-core@r-project.org>\n"
 "Language: de\n"
@@ -101,9 +101,8 @@ msgstr ""
 msgid "update must be TRUE/FALSE or '+' or '-'"
 msgstr "update muss entweder TRUE/FALSE, '+' oder '-' sein"
 
-#, fuzzy
 msgid "cannot coerce NA values to pattern \"ngCMatrix\""
-msgstr "'NA's können nicht in \"nsparseMatrix\" umgewandelt werden"
+msgstr "'NA's können nicht in \"ngCMatrix\" umgewandelt werden"
 
 msgid "Matrix-internal error in <CsparseM>[i,,d]; please report"
 msgstr "Matrixinterner Fehler in <CsparseM>[i,,d]. Bitte berichten"
@@ -198,11 +197,15 @@ msgid ""
 "as.matrix(<Matrix>) is deprecated (to become a no-op in the future).\n"
 "Use  as(x, \"matrix\")  or .asmatrix(x) instead."
 msgstr ""
+"as.matrix(<Matrix>) is veraltet (und zukünftig no-op).\n"
+"Bitte as(x, \"matrix\") oder .asmatrix() stattdessen nutzen."
 
 msgid ""
 "as.array(<Matrix>) is deprecated. Use  as(x, \"matrix\")  or .asmatrix(x) "
 "instead."
 msgstr ""
+"as.array(<Matrix>) ist veraltet. Bitte stattdessen as(x, \"matrix\") oder ."
+"asmatrix(x) nutzen"
 
 msgid "trimmed mean of 'sparseVector' -- suboptimally using as.numeric(.)"
 msgstr ""
@@ -266,11 +269,12 @@ msgid ""
 msgstr ""
 "nargs() = %d. Irrelevante ungültige Argumente innerhalb '[ .. ]' (i.logical)?"
 
-#, fuzzy
 msgid ""
 "m[<ij-matrix>]: inefficiently indexing single elements - should not happen, "
 "please report!"
-msgstr "m[ <ij-matrix> ]: ineffiziente Indexierung einzelner Elemente"
+msgstr ""
+"m[ <ij-matrix> ]: ineffiziente Indexierung einzelner Elemente - sollte nicht "
+"passieren, bitte rückmelden!"
 
 msgid "nargs() = %d.  Extraneous illegal arguments inside '[ .. ]' (i.2col)?"
 msgstr ""
@@ -357,12 +361,6 @@ msgid ""
 msgstr ""
 "längere Objektlänge\n"
 "\tist kein Vielfaches der kürzeren Objektlänge"
-
-msgid "<Matrix> %s %s is undefined"
-msgstr "<Matrix> %s %s ist undefiniert"
-
-msgid "%s %s <Matrix> is undefined"
-msgstr "%s %s <Matrix> ist undefiniert"
 
 msgid "longer object length is not a multiple of shorter object length"
 msgstr "längere Objektlänge ist kein Vielfaches der kürzeren Objektlänge"
@@ -664,7 +662,7 @@ msgid "kronecker method must use default 'FUN'"
 msgstr "kronecker-Methode muss Standard 'FUN' benutzen"
 
 msgid "resulting matrix dimension would be too large"
-msgstr ""
+msgstr "Dimenson der Ergebnismatrix wäre zu groß"
 
 msgid "replacing \"indMatrix\" entries is not allowed, as rarely sensible"
 msgstr ""
@@ -682,9 +680,8 @@ msgstr "'NA's können nicht in \"nsparseMatrix\" umgewandelt werden"
 msgid "temporarily disabled"
 msgstr "zeitweise ausgeschaltet"
 
-#, fuzzy
 msgid "cannot coerce NA values to pattern \"ntCMatrix\""
-msgstr "'NA's können nicht in \"nsparseMatrix\" umgewandelt werden"
+msgstr "'NA's können nicht in \"ntCMatrix\" umgewandelt werden"
 
 msgid "coercion to \"pMatrix\" only works from integer numeric"
 msgstr ""
@@ -702,6 +699,12 @@ msgstr "nicht passende Argumente"
 
 msgid "'boolArith = %d' not yet implemented"
 msgstr "'boolArith = %d' noch nicht implementiert"
+
+msgid "qr2rankMatrix(.): QR with only %d out of %d finite diag(R) entries"
+msgstr "qr2rankMatrix(.): QR Zerlegung mit nur %d von %d endlichen diag(R) Werten"
+
+msgid "qr2rankMatrix(.): QR has negative diag(R) entries"
+msgstr "qr2rankMatrix(.): QR enthält negative diag(R) Werte"
 
 msgid ""
 "rankMatrix(<large sparse Matrix>, method = '%s') coerces to dense matrix.\n"
@@ -775,14 +778,14 @@ msgstr "uniDiag=TRUE, aber nicht alle Einträge der Diagonalen als 1 kodiert"
 msgid "in show(); maybe adjust 'options(max.print= *, width = *)'"
 msgstr "in show(); evtl. 'options(max.print= *, width= *)' anpassen"
 
-msgid "suppressing columns and rows"
-msgstr "unterdrücke Spalten und Zeilen"
+msgid "suppressing %d columns and %d rows"
+msgstr "%d Spalten und %d Zeilen werden unterdrückt"
 
-msgid "suppressing rows"
-msgstr "unterdrücke Zeilen"
+msgid "suppressing %d rows"
+msgstr "%d Zeilen werden unterdrückt"
 
-msgid "suppressing columns"
-msgstr "unterdrücke Spalten"
+msgid "suppressing %d columns"
+msgstr "%d Spalten werden unterdrückt"
 
 msgid "logic programming error in printSpMatrix2(), please report"
 msgstr "logischer Programmierfehler in printSpMatrix2(), bitte berichten"
@@ -801,14 +804,14 @@ msgstr "Anzahl von Nicht-Nullen ist kleiner als 'nnz' wegen doppelter (i,j)s"
 
 msgid "a sparseMatrix should rarely be centered: will not be sparse anymore"
 msgstr ""
+"eine schwach besetze Matrix sollte kaum je zentriert werden: sie ist dann "
+"nicht mehr schwach besetzt"
 
-#, fuzzy
 msgid "length of 'center' must equal the number of columns of 'x'"
-msgstr "Matrizen müssen die gleiche Anzahl Spalten in %s haben"
+msgstr "Länge von 'center' muss der Spaltenzahl von 'x' entsprechen"
 
-#, fuzzy
 msgid "length of 'scale' must equal the number of columns of 'x'"
-msgstr "Matrizen müssen die gleiche Anzahl Spalten in %s haben"
+msgstr "Länge von 'scale' muss der Spaltenzahl von 'x' entsprechen"
 
 msgid ""
 "qr.R(<sparse>) may differ from qr.R(<dense>) because of permutations.  "
@@ -872,6 +875,12 @@ msgid_plural ""
 " %s"
 msgstr[0] "extra Argument %s wird nicht berücksichtigt in %s"
 msgstr[1] "extra Argumente %s werden nicht berücksichtigt in %s"
+
+#~ msgid "<Matrix> %s %s is undefined"
+#~ msgstr "<Matrix> %s %s ist undefiniert"
+
+#~ msgid "%s %s <Matrix> is undefined"
+#~ msgstr "%s %s <Matrix> ist undefiniert"
 
 #~ msgid "variable '%s' converted to a factor"
 #~ msgstr "Variable '%s' konvertiert in einen Faktor"

@@ -169,7 +169,8 @@ SEXP sparseQR_coef(SEXP qr, SEXP y)
 		   ans);
     UNPROTECT(1); // dmns
 
-    double *ax = REAL(GET_SLOT(ans, Matrix_xSym)), *x;
+    double *ax = REAL(GET_SLOT(ans, Matrix_xSym)),
+	*x = (double*) NULL;
     if(lq) { C_or_Alloca_TO(x, M, double); }
     for (int j = 0; j < n; j++) {
 	double *aj = ax + j * M;

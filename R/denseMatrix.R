@@ -16,7 +16,7 @@ setAs("denseMatrix", "generalMatrix", as_geSimpl)
 ## ##      function(from) as(as(from, "dgeMatrix"), "dsparseMatrix"))
 ##       function(from) as(as(from, "dgeMatrix"), "dgCMatrix"))
 
-.dense2C <- function(from, kind = NA, uplo = "U") {
+.dense2C <- function(from, kind = NA, uplo = "U", symDimnames = FALSE) {
     useK <- is.character(kind) && length(kind) == 1 &&
         kind %in% c("gen", "sym", "tri")
     if(!useK) {
@@ -28,7 +28,7 @@ setAs("denseMatrix", "generalMatrix", as_geSimpl)
     if (useK && kind == "gen"  ||  !useK && extends(cld, "generalMatrix"))
 	r
     else if(useK && kind == "sym" || !useK && extends(cld, "symmetricMatrix"))
-	forceCspSymmetric(r, uplo, isTri = FALSE)
+	forceCspSymmetric(r, uplo, isTri = FALSE, symDimnames=symDimnames)
     else if(!useK && extends(cld, "diagonalMatrix"))
 	stop("diagonalMatrix in .dense2C() -- should never happen, please report!")
     else { ## we have "triangular" :

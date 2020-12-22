@@ -5,9 +5,6 @@
 /* -----------------------------------------------------------------------------
  * CHOLMOD/Include/cholmod_supernodal.h.
  * Copyright (C) 2005-2006, Timothy A. Davis
- * CHOLMOD/Include/cholmod_supernodal.h is licensed under Version 2.0 of the GNU
- * General Public License.  See gpl.txt for a text of the license.
- * CHOLMOD is also available under other licenses; contact authors for details.
  * http://www.suitesparse.com
  * -------------------------------------------------------------------------- */
 
@@ -78,14 +75,14 @@ int cholmod_l_super_symbolic (cholmod_sparse *, cholmod_sparse *,
 /* cholmod_super_symbolic2 */
 /* -------------------------------------------------------------------------- */
 
-/* Analyze for supernodal Cholesky or multifrontal QR.  CHOLMOD itself always
- * analyzes for supernodal Cholesky, of course.  This "for_cholesky = TRUE"
- * option is used by SuiteSparseQR only.   Added for V1.7 */
+/* Analyze for supernodal Cholesky or multifrontal QR */
 
 int cholmod_super_symbolic2
 (
     /* ---- input ---- */
-    int for_cholesky,   /* Cholesky if TRUE, QR if FALSE */
+    int for_whom,       /* FOR_SPQR     (0): for SPQR but not GPU-accelerated
+                           FOR_CHOLESKY (1): for Cholesky (GPU or not)
+                           FOR_SPQRGPU  (2): for SPQR with GPU acceleration */
     cholmod_sparse *A,	/* matrix to analyze */
     cholmod_sparse *F,	/* F = A' or A(:,f)' */
     int *Parent,	/* elimination tree */

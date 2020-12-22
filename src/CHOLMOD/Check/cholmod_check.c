@@ -4,9 +4,6 @@
 
 /* -----------------------------------------------------------------------------
  * CHOLMOD/Check Module.  Copyright (C) 2005-2013, Timothy A. Davis
- * The CHOLMOD/Check Module is licensed under Version 2.1 of the GNU
- * Lesser General Public License.  See lesser.txt for a text of the license.
- * CHOLMOD is also available under other licenses; contact authors for details.
  * -------------------------------------------------------------------------- */
 
 /* Routines to check and print the contents of the 5 CHOLMOD objects:
@@ -54,7 +51,7 @@
  * Common->precise controls the # of digits printed for numerical entries
  * (5 if FALSE, 15 if TRUE).
  *
- * If Common->print_function is NULL, then no printing occurs.  The
+ * If SuiteSparse_config.printf_func is NULL, then no printing occurs.  The
  * cholmod_check_* and cholmod_print_* routines still check their inputs and
  * return TRUE/FALSE if the object is valid or not.
  *
@@ -81,9 +78,9 @@
 
 #define PR(i,format,arg) \
 { \
-    if (print >= i && Common->print_function != NULL) \
+    if (print >= i && SuiteSparse_config.printf_func != NULL) \
     { \
-	(Common->print_function) (format, arg) ; \
+	SuiteSparse_config.printf_func (format, arg) ; \
     } \
 }
 
@@ -248,11 +245,9 @@ static int check_common
 	    P1 ("%s", "status: ERROR, method not installed\n") ;
 	    break ;
 
-#if GPU_BLAS
 	case CHOLMOD_GPU_PROBLEM:
 	    P1 ("%s", "status: ERROR, GPU had a fatal error\n") ;
 	    break ;
-#endif
 
 	case CHOLMOD_NOT_POSDEF:
 	    P1 ("%s", "status: warning, matrix not positive definite\n") ;
@@ -674,7 +669,7 @@ static SuiteSparse_long check_sparse
     double *Ax, *Az ;
     Int *Ap, *Ai, *Anz ;
     Int nrow, ncol, nzmax, sorted, packed, j, p, pend, i, nz, ilast,
-	space, init_print, dnz, count, xtype ;
+	init_print, dnz, count, xtype ;
     const char *type = "sparse" ;
 
     /* ---------------------------------------------------------------------- */
@@ -849,16 +844,10 @@ static SuiteSparse_long check_sparse
 	    nz = MAX (0, Anz [j]) ;
 	    pend = p + nz ;
 	}
-	/* Note that space can be negative if the matrix is non-monotonic */
-	space = Ap [j+1] - p ;
 	P4 ("  col "ID":", j) ;
 	P4 (" nz "ID"", nz) ;
 	P4 (" start "ID"", p) ;
 	P4 (" end "ID"", pend) ;
-	if (!packed)
-	{
-	    P4 (" space "ID"", space) ;
-	}
 	P4 ("%s", ":\n") ;
 	if (p < 0 || pend > nzmax)
 	{
@@ -1506,7 +1495,7 @@ static int check_factor
 	count, precise, init_print, ilast, lnz, head, tail, jprev, plast,
 	jnext, examine_super, nsuper, s, k1, k2, psi, psend, psx, nsrow, nscol,
 	ps2, psxend, ssize, xsize, maxcsize, maxesize, nsrow2, jj, ii, xtype ;
-    Int for_cholesky ;
+    Int check_Lpx ;
     const char *type = "factor" ;
 
     /* ---------------------------------------------------------------------- */
@@ -1893,8 +1882,11 @@ static int check_factor
 		ERR ("invalid: L->pi invalid") ;
 	    }
 
-            for_cholesky = (Lpx [0] != 123456) ;
-	    if (for_cholesky && (Lpx [0] != 0 || MAX (1, Lpx[nsuper]) != xsize))
+            /* If Lpx [0] is 123456, then supernodes are present but
+               Lpx [0...nsuper] is not defined, so don't check it.  This is
+               used in the non-GPU accelerated SPQR */
+            check_Lpx = (Lpx [0] != 123456) ;
+	    if (check_Lpx && (Lpx [0] != 0 || MAX (1, Lpx[nsuper]) != xsize))
 	    {
 		ERR ("invalid: L->px invalid") ;
 	    }
@@ -1911,7 +1903,7 @@ static int check_factor
 		nsrow2 = nsrow - nscol ;
 		ps2 = psi + nscol ;
 
-                if (for_cholesky)
+                if (check_Lpx)
                 {
                     psx = Lpx [s] ;
                     psxend = Lpx [s+1] ;
@@ -1924,14 +1916,14 @@ static int check_factor
 		P4 ("to "ID". ", k2-1) ;
 		P4 ("nz in first col: "ID".\n", nsrow) ;
 
-                if (for_cholesky)
+                if (check_Lpx)
                 {
                     P4 ("  values start "ID", ", psx) ;
                     P4 ("end "ID"\n", psxend) ;
                 }
 
 		if (k1 > k2 || k1 < 0 || k2 > n || nsrow < nscol || nsrow2 < 0
-                    || (for_cholesky && psxend - psx != nsrow * nscol))
+                    || (check_Lpx && psxend - psx != nsrow * nscol))
 		{
 		    ERR ("invalid supernode") ;
 		}
@@ -2576,7 +2568,7 @@ int CHOLMOD(dump_partition)
     SuiteSparse_long n,
     Int *Cp,
     Int *Ci,
-    Int *Cnw,
+    Int *Cnw,       /* can be NULL */
     Int *Part,
     SuiteSparse_long sepsize,
     cholmod_common *Common
@@ -2590,7 +2582,8 @@ int CHOLMOD(dump_partition)
     chek [2] = 0 ;
     for (j = 0 ; j < n ; j++)
     {
-	PRINT2 (("--------j "ID" in part "ID" nw "ID"\n", j, Part [j], Cnw[j]));
+	PRINT2 (("--------j "ID" in part "ID" nw "ID"\n", j, Part [j],
+            Cnw ? (Cnw[j]):1));
 	which = Part [j] ;
 	for (p = Cp [j] ; p < Cp [j+1] ; p++)
 	{
@@ -2618,7 +2611,7 @@ int CHOLMOD(dump_partition)
 	    PRINT0 (("Part out of range\n")) ;
 	    ok = FALSE ;
 	}
-	chek [which] += Cnw [j] ;
+	chek [which] += (Cnw ? (Cnw [j]) : 1) ;
     }
     PRINT1 (("sepsize %ld check "ID" "ID" "ID"\n",
 		sepsize, chek[0], chek[1],chek[2]));

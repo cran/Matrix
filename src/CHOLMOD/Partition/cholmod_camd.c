@@ -4,9 +4,6 @@
 
 /* -----------------------------------------------------------------------------
  * CHOLMOD/Partition Module.  Copyright (C) 2005-2013, Timothy A. Davis
- * The CHOLMOD/Partition Module is licensed under Version 2.1 of the GNU
- * Lesser General Public License.  See lesser.txt for a text of the license.
- * CHOLMOD is also available under other licenses; contact authors for details.
  * http://www.suitesparse.com
  * -------------------------------------------------------------------------- */
 
@@ -179,17 +176,6 @@ int CHOLMOD(camd)
 	Control [CAMD_DENSE] = Common->method [Common->current].prune_dense ;
 	Control [CAMD_AGGRESSIVE] = Common->method [Common->current].aggressive;
     }
-
-    /* CAMD_2 does not use camd_malloc and camd_free, but set these pointers
-     * just be safe. */
-    camd_malloc = Common->malloc_memory ;
-    camd_free = Common->free_memory ;
-    camd_calloc = Common->calloc_memory ;
-    camd_realloc = Common->realloc_memory ;
-
-    /* CAMD_2 doesn't print anything either, but future versions might,
-     * so set the camd_printf pointer too. */
-    camd_printf = Common->print_function ;
 
 #ifdef LONG
     /* DEBUG (camd_l_debug_init ("cholmod_l_camd")) ; */

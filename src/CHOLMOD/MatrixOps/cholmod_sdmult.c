@@ -4,9 +4,6 @@
 
 /* -----------------------------------------------------------------------------
  * CHOLMOD/MatrixOps Module.  Copyright (C) 2005-2006, Timothy A. Davis
- * The CHOLMOD/MatrixOps Module is licensed under Version 2.0 of the GNU
- * General Public License.  See gpl.txt for a text of the license.
- * CHOLMOD is also available under other licenses; contact authors for details.
  * http://www.suitesparse.com
  * -------------------------------------------------------------------------- */
 
@@ -32,6 +29,7 @@
  * must all match.
  */
 
+#ifndef NGPL
 #ifndef NMATRIXOPS
 
 #include "cholmod_internal.h"
@@ -146,4 +144,5 @@ int CHOLMOD(sdmult)
     DEBUG (CHOLMOD(dump_dense) (Y, "Y", Common)) ;
     return (TRUE) ;
 }
+#endif
 #endif

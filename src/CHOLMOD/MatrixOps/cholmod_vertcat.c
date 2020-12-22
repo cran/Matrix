@@ -4,9 +4,6 @@
 
 /* -----------------------------------------------------------------------------
  * CHOLMOD/MatrixOps Module.  Copyright (C) 2005-2006, Timothy A. Davis
- * The CHOLMOD/MatrixOps Module is licensed under Version 2.0 of the GNU
- * General Public License.  See gpl.txt for a text of the license.
- * CHOLMOD is also available under other licenses; contact authors for details.
  * http://www.suitesparse.com
  * -------------------------------------------------------------------------- */
 
@@ -23,6 +20,7 @@
  * are supported only if "values" is FALSE.
  */
 
+#ifndef NGPL
 #ifndef NMATRIXOPS
 
 #include "cholmod_internal.h"
@@ -198,4 +196,5 @@ cholmod_sparse *CHOLMOD(vertcat)
     CHOLMOD(free_sparse) (&B2, Common) ;
     return (C) ;
 }
+#endif
 #endif

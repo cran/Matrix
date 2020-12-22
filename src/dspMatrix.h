@@ -1,8 +1,9 @@
 #ifndef MATRIX_SPMATRIX_H
 #define MATRIX_SPMATRIX_H
 
-#include "dgeMatrix.h"
-#include "R_ext/Lapack.h"
+#include <R_ext/Lapack.h>
+#include "Mutils.h"
+//was #include "dgeMatrix.h" -- seems much too much
 
 SEXP dspMatrix_validate(SEXP obj);
 double get_norm_sp(SEXP obj, const char *typstr);

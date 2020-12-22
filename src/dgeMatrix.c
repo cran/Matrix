@@ -42,7 +42,7 @@ double get_norm(SEXP obj, const char *typstr)
 	}
 	return F77_CALL(dlange)(typstr, dims, dims+1,
 				REAL(GET_SLOT(obj, Matrix_xSym)),
-				dims, work);
+				dims, work FCONE);
     }
 }
 
@@ -68,7 +68,7 @@ SEXP dgeMatrix_rcond(SEXP obj, SEXP type)
 		     dims, REAL(GET_SLOT(LU, Matrix_xSym)),
 		     dims, &anorm, &rcond,
 		     (double *) R_alloc(4*dims[0], sizeof(double)),
-		     (int *) R_alloc(dims[0], sizeof(int)), &info);
+		     (int *) R_alloc(dims[0], sizeof(int)), &info FCONE);
     UNPROTECT(1);
     return ScalarReal(rcond);
 }
@@ -97,7 +97,7 @@ SEXP dgeMatrix_crossprod(SEXP x, SEXP trans)
 #define DGE_CROSS_DO(_X_X_)					\
     if(n)							\
 	F77_CALL(dsyrk)("U", tr ? "N" : "T", &n, &k, &one,	\
-			_X_X_, Dims, &zero, vx, &n);		\
+			_X_X_, Dims, &zero, vx, &n FCONE FCONE);	\
     UNPROTECT(2);						\
     return val
 
@@ -175,7 +175,7 @@ SEXP dgeMatrix_dgeMatrix_crossprod(SEXP x, SEXP y, SEXP trans)
     if (xd > 0 && n > 0 && m > 0)					\
 	F77_CALL(dgemm)(tr ? "N" : "T", tr ? "T" : "N", &m, &n, &xd, &one, \
 			_X_X_, xDims,					\
-			_Y_Y_, yDims, &zero, v, &m);			\
+			_Y_Y_, yDims, &zero, v, &m FCONE FCONE);	\
     else								\
 	Memzero(v, m * n);						\
     UNPROTECT(2);							\
@@ -269,7 +269,7 @@ SEXP dgeMatrix_matrix_crossprod(SEXP x, SEXP y, SEXP trans)
     if (xd > 0 && n > 0 && m > 0)					\
 	F77_CALL(dgemm)(tr ? "N" : "T", tr ? "T" : "N", &m, &n, &xd, &one, \
 			_X_X_, xDims, REAL(y), yDims, 			\
-			&zero, v, &m);					\
+			&zero, v, &m FCONE FCONE);			\
     else								\
 	Memzero(v, m * n);						\
     UNPROTECT(nprot);							\
@@ -336,10 +336,10 @@ SEXP dgeMatrix_matrix_mm(SEXP a, SEXP bP, SEXP right)
     } else {								\
 	if (Rt) { /* b %*% a  */					\
 	    F77_CALL(dgemm) ("N", "N", &m, &n, &k, &one,		\
-			     _B_X_, &m, _A_X_, &k, &zero, v, &m);	\
+			     _B_X_, &m, _A_X_, &k, &zero, v, &m FCONE FCONE); \
 	} else {  /* a %*% b  */					\
 	    F77_CALL(dgemm) ("N", "N", &m, &n, &k, &one,		\
-			     _A_X_, &m,	_B_X_, &k, &zero, v, &m); 	\
+			     _A_X_, &m,	_B_X_, &k, &zero, v, &m FCONE FCONE); \
 	}								\
     }									\
     UNPROTECT(nprot);							\
@@ -560,7 +560,7 @@ SEXP dgeMatrix_solve(SEXP a)
         double rcond;
         F77_CALL(dgecon)("1", dims, x, dims, &aNorm, &rcond,
                          (double *) R_alloc(4*dims[0], sizeof(double)),
-                         (int *) R_alloc(dims[0], sizeof(int)), &info);
+                         (int *) R_alloc(dims[0], sizeof(int)), &info FCONE);
         if (info)
             error(_("error [%d] from Lapack 'dgecon()'"), info);
         if(rcond < DOUBLE_EPS)
@@ -593,7 +593,7 @@ SEXP dgeMatrix_matrix_solve(SEXP a, SEXP b)
     if(nrhs >= 1 && n >= 1) {
 	F77_CALL(dgetrs)("N", &n, &nrhs, REAL(GET_SLOT(lu, Matrix_xSym)), &n,
 			 INTEGER(GET_SLOT(lu, Matrix_permSym)),
-			 REAL(GET_SLOT(val, Matrix_xSym)), &n, &info);
+			 REAL(GET_SLOT(val, Matrix_xSym)), &n, &info FCONE);
 	if (info)
 	    error(_("Lapack routine dgetrs: system is exactly singular"));
     }
@@ -623,7 +623,7 @@ SEXP dgeMatrix_svd(SEXP x, SEXP nnu, SEXP nnv)
 			 REAL(VECTOR_ELT(val, 0)),
 			 REAL(VECTOR_ELT(val, 1)), &m,
 			 REAL(VECTOR_ELT(val, 2)), &mm,
-			 &tmp, &lwork, iwork, &info);
+			 &tmp, &lwork, iwork, &info FCONE);
 	lwork = (int) tmp;
 	C_or_Alloca_TO(work, lwork, double);
 
@@ -631,7 +631,7 @@ SEXP dgeMatrix_svd(SEXP x, SEXP nnu, SEXP nnv)
 			 REAL(VECTOR_ELT(val, 0)),
 			 REAL(VECTOR_ELT(val, 1)), &m,
 			 REAL(VECTOR_ELT(val, 2)), &mm,
-			 work, &lwork, iwork, &info);
+			 work, &lwork, iwork, &info FCONE);
 
 	if(n_iw  >= SMALL_4_Alloca) Free(iwork);
 	if(lwork >= SMALL_4_Alloca) Free(work);
@@ -694,13 +694,13 @@ SEXP dgeMatrix_exp(SEXP x)
     }
 
     /* Preconditioning 2. Balancing with dgebal. */
-    F77_CALL(dgebal)("P", &n, v, &n, &ilo, &ihi, perm, &j);
+    F77_CALL(dgebal)("P", &n, v, &n, &ilo, &ihi, perm, &j FCONE);
     if (j) error(_("dgeMatrix_exp: LAPACK routine dgebal returned %d"), j);
-    F77_CALL(dgebal)("S", &n, v, &n, &ilos, &ihis, scale, &j);
+    F77_CALL(dgebal)("S", &n, v, &n, &ilos, &ihis, scale, &j FCONE);
     if (j) error(_("dgeMatrix_exp: LAPACK routine dgebal returned %d"), j);
 
     /* Preconditioning 3. Scaling according to infinity norm */
-    inf_norm = F77_CALL(dlange)("I", &n, &n, v, &n, work);
+    inf_norm = F77_CALL(dlange)("I", &n, &n, v, &n, work FCONE);
     sqpow = (inf_norm > 0) ? (int) (1 + log(inf_norm)/log(2.)) : 0;
     if (sqpow < 0) sqpow = 0;
     if (sqpow > 0) {
@@ -717,12 +717,12 @@ SEXP dgeMatrix_exp(SEXP x)
 	double mult = padec[j];
 	/* npp = m * npp + padec[j] *m */
 	F77_CALL(dgemm)("N", "N", &n, &n, &n, &one, v, &n, npp, &n,
-			&zero, work, &n);
+			&zero, work, &n FCONE FCONE);
 	for (i = 0; i < nsqr; i++) npp[i] = work[i] + mult * v[i];
 	/* dpp = m * dpp + (m1_j * padec[j]) * m */
 	mult *= m1_j;
 	F77_CALL(dgemm)("N", "N", &n, &n, &n, &one, v, &n, dpp, &n,
-			&zero, work, &n);
+			&zero, work, &n FCONE FCONE);
 	for (i = 0; i < nsqr; i++) dpp[i] = work[i] + mult * v[i];
 	m1_j *= -1;
     }
@@ -736,7 +736,7 @@ SEXP dgeMatrix_exp(SEXP x)
     /* Pade' approximation is solve(dpp, npp) */
     F77_CALL(dgetrf)(&n, &n, dpp, &n, pivot, &j);
     if (j) error(_("dgeMatrix_exp: dgetrf returned error code %d"), j);
-    F77_CALL(dgetrs)("N", &n, &n, dpp, &n, pivot, npp, &n, &j);
+    F77_CALL(dgetrs)("N", &n, &n, dpp, &n, pivot, npp, &n, &j FCONE);
     if (j) error(_("dgeMatrix_exp: dgetrs returned error code %d"), j);
     Memcpy(v, npp, nsqr);
 
@@ -744,7 +744,7 @@ SEXP dgeMatrix_exp(SEXP x)
     /* Preconditioning 3: square the result for every power of 2 */
     while (sqpow--) {
 	F77_CALL(dgemm)("N", "N", &n, &n, &n, &one, v, &n, v, &n,
-			&zero, work, &n);
+			&zero, work, &n FCONE FCONE);
 	Memcpy(v, work, nsqr);
     }
     /* Preconditioning 2: apply inverse scaling */
@@ -820,7 +820,7 @@ SEXP dgeMatrix_Schur(SEXP x, SEXP vectors, SEXP isDGE)
     SET_VECTOR_ELT(val, 3, allocMatrix(REALSXP, vecs ? n : 0, vecs ? n : 0));
     F77_CALL(dgees)(vecs ? "V" : "N", "N", NULL, dims, (double *) NULL, dims, &izero,
 		    (double *) NULL, (double *) NULL, (double *) NULL, dims,
-		    &tmp, &lwork, (int *) NULL, &info);
+		    &tmp, &lwork, (int *) NULL, &info FCONE FCONE);
     if (info) error(_("dgeMatrix_Schur: first call to dgees failed"));
     lwork = (int) tmp;
     C_or_Alloca_TO(work, lwork, double);
@@ -828,7 +828,7 @@ SEXP dgeMatrix_Schur(SEXP x, SEXP vectors, SEXP isDGE)
     F77_CALL(dgees)(vecs ? "V" : "N", "N", NULL, dims, REAL(VECTOR_ELT(val, 2)), dims,
 		    &izero, REAL(VECTOR_ELT(val, 0)), REAL(VECTOR_ELT(val, 1)),
 		    REAL(VECTOR_ELT(val, 3)), dims, work, &lwork,
-		    (int *) NULL, &info);
+		    (int *) NULL, &info FCONE FCONE);
     if(lwork >= SMALL_4_Alloca) Free(work);
     if (info) error(_("dgeMatrix_Schur: dgees returned code %d"), info);
     UNPROTECT(nprot);

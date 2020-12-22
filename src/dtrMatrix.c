@@ -29,7 +29,8 @@ double get_norm(SEXP obj, const char *typstr)
 	work = (double *) R_alloc(dims[0], sizeof(double));
     }
     return F77_CALL(dlantr)(typnm, uplo_P(obj), diag_P(obj), dims, dims+1,
-			    REAL(GET_SLOT(obj, Matrix_xSym)), dims, work);
+			    REAL(GET_SLOT(obj, Matrix_xSym)), dims, 
+			    work FCONE FCONE FCONE);
 }
 
 
@@ -48,7 +49,8 @@ SEXP dtrMatrix_rcond(SEXP obj, SEXP type)
     F77_CALL(dtrcon)(typnm, uplo_P(obj), diag_P(obj), dims,
 		     REAL(GET_SLOT(obj, Matrix_xSym)), dims, &rcond,
 		     (double *) R_alloc(3*dims[0], sizeof(double)),
-		     (int *) R_alloc(dims[0], sizeof(int)), &info);
+		     (int *) R_alloc(dims[0], sizeof(int)),
+		     &info FCONE FCONE FCONE);
     return ScalarReal(rcond);
 }
 
@@ -57,7 +59,7 @@ SEXP dtrMatrix_solve(SEXP a)
     SEXP val = PROTECT(duplicate(a));
     int info, *Dim = INTEGER(GET_SLOT(val, Matrix_DimSym));
     F77_CALL(dtrtri)(uplo_P(val), diag_P(val), Dim,
-		     REAL(GET_SLOT(val, Matrix_xSym)), Dim, &info);
+		     REAL(GET_SLOT(val, Matrix_xSym)), Dim, &info FCONE FCONE);
     UNPROTECT(1);
     return val;
 }
@@ -74,7 +76,7 @@ SEXP dtrMatrix_chol2inv(SEXP a)
     slot_dup(val, a, Matrix_xSym);
     n = *INTEGER(GET_SLOT(val, Matrix_DimSym));
     F77_CALL(dpotri)(uplo_P(val), &n,
-		     REAL(GET_SLOT(val, Matrix_xSym)), &n, &info);
+		     REAL(GET_SLOT(val, Matrix_xSym)), &n, &info FCONE);
     UNPROTECT(1);
     return val;
 }
@@ -91,7 +93,8 @@ SEXP dtrMatrix_matrix_solve(SEXP a, SEXP b)
 	error(_("Dimensions of system to be solved are inconsistent"));
     F77_CALL(dtrsm)("L", uplo_P(a), "N", diag_P(a),
 		    &n, &nrhs, &one, REAL(GET_SLOT(a, Matrix_xSym)), &n,
-		    REAL(GET_SLOT(ans, Matrix_xSym)), &n);
+		    REAL(GET_SLOT(ans, Matrix_xSym)),
+		    &n FCONE FCONE FCONE FCONE);
     UNPROTECT(1);
     return ans;
 }
@@ -131,7 +134,8 @@ SEXP dtrMatrix_matrix_mm(SEXP a, SEXP b, SEXP right, SEXP trans)
 			/*trans_A = */ tr ? "T" : "N",
 			diag_P(a), &m, &n, &one,
 			REAL(GET_SLOT(a, Matrix_xSym)), adims,
-			REAL(GET_SLOT(val, Matrix_xSym)), &m);
+			REAL(GET_SLOT(val, Matrix_xSym)),
+			&m FCONE FCONE FCONE FCONE);
     }
 
     SEXP
@@ -221,7 +225,8 @@ SEXP dtrMatrix_dtrMatrix_mm(SEXP a, SEXP b, SEXP right, SEXP trans)
 	F77_CALL(dtrmm)(rt ? "R" : "L", uplo_a_ch,
 			/*trans_A = */ tr ? "T" : "N", diag_a_ch, &n, &n, &alpha,
 			REAL(GET_SLOT(a,   Matrix_xSym)), adims,
-			REAL(GET_SLOT(val, Matrix_xSym)), &n);
+			REAL(GET_SLOT(val, Matrix_xSym)),
+			&n FCONE FCONE FCONE FCONE);
     }
     if(matching_uplo) {
 	make_d_matrix_triangular(valx, tr ? b : a); /* set "other triangle" to 0 */

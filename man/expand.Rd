@@ -1,5 +1,6 @@
 \name{expand}
-\title{Expand a Decomposition into Factors}
+\title{Expand a (Matrix) Decomposition into Factors}
+\alias{expand}
 \usage{
 expand(x, \dots)
 }

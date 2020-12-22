@@ -2,7 +2,7 @@
 
 library(Matrix)
 source(system.file("test-tools.R", package = "Matrix"))# identical3() etc
-assertV <- function(e) tools::assertError(e, verbose=TRUE)
+assertErrV <- function(e) tools::assertError(e, verbose=TRUE)
 
 cat("doExtras:",doExtras,"\n")
 
@@ -28,9 +28,11 @@ validObject(xpy)
 validObject(dd)
 
 ## "Math" also, for log() and [l]gamma() which need special treatment
-stopifnot(identical(exp(res)@x, exp(res@x)),
-          identical(log(abs(res))@x, log(abs((res@x)))),
-          identical(lgamma(res)@x, lgamma(res@x)))
+stopifnot(exprs = {
+    identical(exp(res)@x, exp(res@x))
+    identical(log(abs(res))@x, log(abs((res@x))))
+    identical(lgamma(res)@x, lgamma(res@x))
+})
 
 
 ###--- sparse matrices ---------
@@ -88,6 +90,40 @@ stopifnot(all(lsy), # failed in Matrix 1.0-4
 	  all(sqrt(lsy) == 1))
 dsy <- lsy+1
 
+D3 <- Diagonal(x=4:2); L7 <- Diagonal(7) > 0
+validObject(xpp <- pack(round(xpx,2)))
+lsp <- xpp > 0
+(dsyU <- as(as(.diag2sT(D3), "dMatrix"), "denseMatrix"))
+ lsyU <- as(as(.diag2sT(Diagonal(5) > 0), "lMatrix"), "denseMatrix")
+str(lsyU)
+stopifnot({
+    isValid(dsyU,               "dsyMatrix") && dsyU@uplo == "U"
+    isValid(dsyL <- t(dsyU),    "dsyMatrix") && dsyL@uplo == "L"
+    isValid(dspU <- pack(dsyU), "dspMatrix") && dspU@uplo == "U"
+    isValid(dspL <- pack(dsyL), "dspMatrix") && dspL@uplo == "L"
+    isValid(lsyU,               "lsyMatrix") && lsyU@uplo == "U"
+    isValid(lsyL <- t(lsyU),    "lsyMatrix") && lsyL@uplo == "L"
+    isValid(lspU <- pack(lsyU), "lspMatrix") && lspU@uplo == "U"
+    isValid(lspL <- pack(lsyL), "lspMatrix") && lspL@uplo == "L"
+    ##
+    ## log(x, <base>) -- was mostly *wrong* upto 2019-10 [Matrix <= 1.2-17]
+    all.equal(log(abs(dsy), 2), log2(abs(dsy)))
+    all.equal(log(abs(dsyL),2), log2(abs(dsyL)))
+    all.equal(log(abs(dspU),2), log2(abs(dspU)))
+    all.equal(log(abs(dspL),2), log2(abs(dspL)))
+    ## These always worked, as {0,1} -> {-Inf,0} independent of 'base':
+    all.equal(log(abs(lsy), 2), log2(abs(lsy)))
+    all.equal(log(abs(lsyL),2), log2(abs(lsyL)))
+    all.equal(log(abs(lspU),2), log2(abs(lspU)))
+    all.equal(log(abs(lspL),2), log2(abs(lspL)))
+    ##
+    all.equal(log(abs(res), 2), log2(abs(res)))
+    all.equal(log(abs(xpy), 2), log2(abs(xpy)))
+    all.equal(log(abs(xpp), 2), log2(abs(xpp)))
+    all.equal(log(abs( D3), 2), log2(abs( D3)))
+    all.equal(log(abs( L7), 2), log2(abs( L7)))
+})
+
 showProc.time()
 set.seed(111)
 local({
@@ -111,9 +147,11 @@ local({
     str(BB)
     print(st)
     if(Sys.info()[["sysname"]] == "Linux") {
-        mips <- as.numeric(sub(".*: *", '',
+        mips <- try(as.numeric(sub(".*: *", '',
                                grep("bogomips", readLines("/proc/cpuinfo"),
-                                    value=TRUE)[[1]]))
+                                    ignore.case=TRUE, # e.g. ARM : "BogoMIPS"
+                                    value=TRUE)[[1]])))
+        if(is.numeric(mips) && all(mips) > 0)
         stopifnot(st[1] < 1000/mips)# ensure there was no gross inefficiency
     }
 })
@@ -160,11 +198,11 @@ dsc - dsc
 dsc + 1 # -> no longer sparse
 Tsc <- as(dsc, "TsparseMatrix")
 dsc. <- drop0(dsc)
-stopifnot(identical(dsc., Matrix((dsc + 1) -1)),
+stopifnot(Q.eq(dsc., Matrix((dsc + 1) - 1)),
 	  identical(as(-Tsc,"CsparseMatrix"), (-1) * Tsc),
 	  identical(-dsc., (-1) * dsc.),
 	  identical3(-Diagonal(3), Diagonal(3, -1), (-1) * Diagonal(3)),
-	  identical(dsc., Matrix((Tsc + 1) -1)), # ok (exact arithmetic)
+	  Q.eq(dsc., Matrix((Tsc + 1) -1)), # ok (exact arithmetic)
 	  Q.eq(0 != dsc, dsc != Matrix(0, 3, 3)),
 	  Q.eq(0 != dsc, dsc != c(0,0)) # with a warning ("not multiple ..")
 	  )
@@ -222,11 +260,8 @@ abs(D) >= 0.5       # logical sparse
 
 ## For the checks below, remove some and add a few more objects:
 rm(list= ls(pat="^.[mMC]?$"))
-D3 <- Diagonal(x=4:2); L7 <- Diagonal(7) > 0
 T3 <- Diagonal(3) > 0; stopifnot(T3@diag == "U") # "uni-diagonal"
-validObject(xpp <- pack(round(xpx,2)))
 validObject(dtp <- pack(as(dt3, "denseMatrix")))
-lsp <- xpp > 0
 stopifnot(exprs = {
     isValid(lsC <- as(lsp, "sparseMatrix"), "lsCMatrix")
     ## 0-extent matrices {fixes in Feb.2019}:
@@ -268,7 +303,8 @@ for(gr in getGroupMembers("Ops")) {
   cat(gr,"\n",paste(rep.int("=",nchar(gr)),collapse=""),"\n", sep='')
   v0 <- if(gr == "Arith") numeric() else logical()
   for(f in getGroupMembers(gr)) {
-    cat(sprintf("%9s :\n%9s\n", paste0('"',f,'"'), "--"))
+    line <- strrep("-", nchar(f) + 2)
+    cat(sprintf("%s\n%s :\n%s\n", line, dQuote(f), line))
     for(nm in M.objs) {
       if(doExtras) cat("  '",nm,"' ", sep="")
       M <- get(nm, inherits=FALSE)
@@ -278,7 +314,8 @@ for(gr in getGroupMembers("Ops")) {
         cat(".")
         validObject(r1 <- do.call(f, list(M,x)))
         validObject(r2 <- do.call(f, list(x,M)))
-        stopifnot(dim(r1) == dim(M), dim(r2) == dim(M))
+        stopifnot(dim(r1) == dim(M), dim(r2) == dim(M),
+                  allow.logical0 = TRUE)
       }
       ## M  o  0-length  === M :
       validObject(M0. <- do.call(f, list(M, numeric())))
@@ -296,7 +333,7 @@ for(gr in getGroupMembers("Ops")) {
       sv <- as(x, "sparseVector")
       cat("s.")
       validObject(r3 <- do.call(f, list(M, sv)))
-      stopifnot(dim(r3) == dim(M))
+      stopifnot(identical(dim(r3), dim(M)))
       if(doExtras && is(M, "Matrix")) { ## M o <Matrix>
         d <- dim(M)
         ds <- sum(d * d.sig)         # signature .. match with all other sigs
@@ -311,16 +348,19 @@ for(gr in getGroupMembers("Ops")) {
             r4 <- m2num(as.mat(do.call(f, list(M., as.mat(M2)))))
             cat(",")
             if(!identical(r4, as.mat(R4))) {
-              cat(sprintf("\n %s %s %s not identical: r4 \\ R4:\n",
-                          nm, f, oM))
-              print(r4); print(R4)
-              C1 <- (eq <- R4 == r4) | ((nr4 <- is.na(r4)) & !is.finite(R4))
-              if(isTRUE(all(C1)) && (k1 <- M.knd(M)) != "d" && (k2 <- M.knd(M2)) != "d")
-                cat(" --> ",k1,"",f,"", k2,
-                    " (ok): only difference is NA (matrix) and NaN/Inf (Matrix)\n")
+              cat(sprintf("\n %s %s %s gave not identical r4 & R4:\n",
+                          nm, f, oM));     print(r4); print(R4)
+              C1 <- (eq <- R4 == r4) | (N4 <- as.logical((nr4 <- is.na(eq)) & !is.finite(R4)))
+              if(isTRUE(all(C1)))
+                  cat(sprintf(
+                      " --> %s %s %s (ok): only difference is %s (matrix) and %s (Matrix)\n",
+                      M.knd(M), f, M.knd(M2)
+                    , paste(vapply(unique(r4[N4]), format, ""), collapse="/")
+                    , paste(vapply(unique(R4[N4]), format, ""), collapse="/")
+                      ))
               else if(isTRUE(all(eq | (nr4 & Matrix:::is0(R4)))))
                 cat(" --> 'ok': only difference is 'NA' (matrix) and 0 (Matrix)\n")
-              else stop("differing \"too much\"")
+              else stop("R4 & r4 differ \"too much\"")
             }
           }
           cat("i")
@@ -330,6 +370,7 @@ for(gr in getGroupMembers("Ops")) {
     cat("\n")
   }
 }
+if(length(warnings())) print(summary(warnings()))
 showProc.time()
 
 ###---- Now checking 0-length / 0-dim cases  <==> to R >= 3.4.0 !
@@ -354,10 +395,10 @@ stopifnot(
     identical(Lm, m <= 2:3)  ## had "wrong" warning
 )
 mm <- m[,c(1:2,2:1,2)]
-assertV(m + mm) # ... non-conformable arrays
-assertV(m | mm) # ... non-conformable arrays
+assertErrV(m + mm) # ... non-conformable arrays
+assertErrV(m | mm) # ... non-conformable arrays
 ## Matrix: ok ;  R : ok, in R >= 3.4.0
-assertV(m == mm)
+assertErrV(m == mm)
 ## in R <= 3.3.x, relop returned logical(0) and  m + 2:3  returned numeric(0)
 ##
 ## arithmetic, logic, and comparison (relop) -- inconsistency for 1x1 array o <vector >= 2>:
@@ -365,11 +406,11 @@ assertV(m == mm)
 ##    col
 ## Ro   1
 ## Before Sep.2016, here, Matrix was the *CONTRARY* to R:
-assertV(m1  + 1:2)## M.: "correct" ERROR // R 3.4.0: "deprecated" warning (--> will be error)
-assertV(m1  & 1:2)## gave 1 x 1 [TRUE]  -- now Error, as R
-assertV(m1 <= 1:2)## gave 1 x 1 [TRUE]  -- now Error, as R
-assertV(m1  & 1:2)## gave 1 x 1 [TRUE]  -- now Error, as R
-assertV(m1 <= 1:2)## gave 1 x 1 [TRUE]  -- now Error, as R
+assertErrV(m1  + 1:2)## M.: "correct" ERROR // R 3.4.0: "deprecated" warning (--> will be error)
+assertErrV(m1  & 1:2)## gave 1 x 1 [TRUE]  -- now Error, as R
+assertErrV(m1 <= 1:2)## gave 1 x 1 [TRUE]  -- now Error, as R
+assertErrV(m1  & 1:2)## gave 1 x 1 [TRUE]  -- now Error, as R
+assertErrV(m1 <= 1:2)## gave 1 x 1 [TRUE]  -- now Error, as R
 ##
 ##  arrays combined with NULL works now
 stopifnot(identical(Matrix(3,1,1) + NULL, 3[0]))
@@ -432,8 +473,9 @@ for(f in getGroupMembers("Summary")) {
     assert.EQ(R, r)
   }
   cat("\n")
-  ## if(length(warnings())) print(warnings())
+  if(length(warnings())) print(summary(warnings()))
 }
+
 
 
 cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''

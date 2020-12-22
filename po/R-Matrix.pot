@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Matrix 1.2-14\n"
-"POT-Creation-Date: 2018-04-06 22:43\n"
+"Project-Id-Version: Matrix 1.3-0\n"
+"POT-Creation-Date: 2020-04-02 16:19\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -281,12 +281,6 @@ msgid "vector too long in Matrix - vector operation"
 msgstr ""
 
 msgid "longer object length\n\tis not a multiple of shorter object length"
-msgstr ""
-
-msgid "<Matrix> %s %s is undefined"
-msgstr ""
-
-msgid "%s %s <Matrix> is undefined"
 msgstr ""
 
 msgid "longer object length is not a multiple of shorter object length"
@@ -580,6 +574,12 @@ msgstr ""
 msgid "'boolArith = %d' not yet implemented"
 msgstr ""
 
+msgid "qr2rankMatrix(.): QR with only %d out of %d finite diag(R) entries"
+msgstr ""
+
+msgid "qr2rankMatrix(.): QR has negative diag(R) entries"
+msgstr ""
+
 msgid "rankMatrix(<large sparse Matrix>, method = '%s') coerces to dense matrix.\n Probably should rather use method = 'qr' !?"
 msgstr ""
 
@@ -640,13 +640,13 @@ msgstr ""
 msgid "in show(); maybe adjust 'options(max.print= *, width = *)'"
 msgstr ""
 
-msgid "suppressing columns and rows"
+msgid "suppressing %d columns and %d rows"
 msgstr ""
 
-msgid "suppressing rows"
+msgid "suppressing %d rows"
 msgstr ""
 
-msgid "suppressing columns"
+msgid "suppressing %d columns"
 msgstr ""
 
 msgid "logic programming error in printSpMatrix2(), please report"

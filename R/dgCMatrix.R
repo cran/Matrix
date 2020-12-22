@@ -124,7 +124,7 @@ setMethod("lu", signature(x = "sparseMatrix"),
 .solve.dgC.qr <- function(x, y, order = 1L) {
     cld <- getClass(class(x))
     .Call(dgCMatrix_qrsol, # has AS_CSP(): must be dgC or dtC:
-          if(extends(cld, "dgCMatrix") || extends(cld, "dtCMatrix")) x
+          if(extends1of(cld, c("dgCMatrix", "dtCMatrix"))) x
           else as(x, "dgCMatrix"),
           y, order)
 }

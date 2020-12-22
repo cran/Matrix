@@ -19,7 +19,7 @@ L=update.log
 Rcd="require('tools'); update_pkg_po('$pkgDIR')"
 ##   --------------------------------  as of R 3.0.0
 echo $Rcd > $L
-echo $Rcd | $R --slave 2>&1 | tee -a $L
+echo $Rcd | $R --no-echo 2>&1 | tee -a $L
 echo 'end{make pkg-update}' ; echo ''
 echo 'Test with (e.g.)'
 echo '       LANGUAGE=de R --no-environ --no-save' ; echo ''

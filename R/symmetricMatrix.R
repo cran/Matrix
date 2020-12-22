@@ -54,9 +54,9 @@ setMethod("forceSymmetric", signature(x="sparseMatrix"),
 ##' @param uplo missing, "U", or "L"
 ##' @param isTri logical specifying if 'x' is triangular
 ##' @param symDimnames logical specifying if dimnames() will be forced to
-##'  symmetric even when one of the two is NULL
-forceCspSymmetric <- function(x, uplo, isTri = is(x, "triangularMatrix"),
-                              symDimnames = FALSE)
+##'  symmetric even when one of the two is NULL.
+##' New: 3 cases  {FALSE, NA, TRUE} [default: now 'NA' was equivalent to originally 'FALSE']
+forceCspSymmetric <- function(x, uplo, isTri = is(x, "triangularMatrix"), symDimnames = NA)
 {
     ## isTri ==> effectively *diagonal*
     if(isTri && x@diag == "U")
@@ -65,7 +65,7 @@ forceCspSymmetric <- function(x, uplo, isTri = is(x, "triangularMatrix"),
 	uplo <- if(isTri) x@uplo else "U"
     .Call(Csparse_general_to_symmetric, x, uplo, symDimnames)
 }
-.gC2sym <- function(x, uplo, symDimnames = FALSE)
+.gC2sym <- function(x, uplo, symDimnames = NA)
     .Call(Csparse_general_to_symmetric, x, uplo, symDimnames)
 
 

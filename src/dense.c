@@ -116,12 +116,12 @@ SEXP lsq_dense_Chol(SEXP X, SEXP y)
     if (k < 1 || p < 1) return allocMatrix(REALSXP, p, k);
     ans = PROTECT(allocMatrix(REALSXP, p, k));
     F77_CALL(dgemm)("T", "N", &p, &k, &n, &d_one, REAL(X), &n, REAL(y), &n,
-		    &d_zero, REAL(ans), &p);
+		    &d_zero, REAL(ans), &p FCONE FCONE);
     double *xpx = (double *) R_alloc(p * p, sizeof(double));
     F77_CALL(dsyrk)("U", "T", &p, &n, &d_one, REAL(X), &n, &d_zero,
-		    xpx, &p);
+		    xpx, &p FCONE FCONE);
     int info;
-    F77_CALL(dposv)("U", &p, &k, xpx, &p, REAL(ans), &p, &info);
+    F77_CALL(dposv)("U", &p, &k, xpx, &p, REAL(ans), &p, &info FCONE);
     if (info) error(_("Lapack routine dposv returned error code %d"), info);
     UNPROTECT(1);
     return ans;
@@ -148,14 +148,14 @@ SEXP lsq_dense_QR(SEXP X, SEXP y)
     SEXP ans = PROTECT(duplicate(y));
     int lwork = -1, info;
     F77_CALL(dgels)("N", &n, &p, &k, xvals, &n, REAL(ans), &n,
-		    &tmp, &lwork, &info);
+		    &tmp, &lwork, &info FCONE);
     if (info)
 	error(_("First call to Lapack routine dgels returned error code %d"),
 	      info);
     lwork = (int) tmp;
     double *work = (double *) R_alloc(lwork, sizeof(double));
     F77_CALL(dgels)("N", &n, &p, &k, xvals, &n, REAL(ans), &n,
-		    work, &lwork, &info);
+		    work, &lwork, &info FCONE);
     if (info)
 	error(_("Second call to Lapack routine dgels returned error code %d"),
 	      info);
@@ -163,35 +163,47 @@ SEXP lsq_dense_QR(SEXP X, SEXP y)
     return ans;
 }
 
+/* Rank-Correcting/Adapting LAPACK  QR Decomposition
+ * From Doug Bates' initial import; __unused__
+
+ * Provides a qr() with 'rcond' and rank reduction while(rcond < tol),
+ * possibly via Givens rotations but WITHOUT PIVOTING
+
+ * .Call(Matrix:::lapack_qr, A, 1e-17) --> ~/R/MM/Pkg-ex/Matrix/qr-rank-deficient.R
+
+ * TODO: export as Matrix::qrNoPiv() or qr1()  or similar
+ */
 SEXP lapack_qr(SEXP Xin, SEXP tl)
 {
-    SEXP ans, Givens, Gcpy, nms, pivot, qraux, X, sym;
-    int i, n, nGivens = 0, p, trsz, *Xdims, rank;
-    double rcond = 0., tol = asReal(tl), *work;
-
     if (!(isReal(Xin) & isMatrix(Xin)))
 	error(_("X must be a real (numeric) matrix"));
+    double tol = asReal(tl);
     if (tol < 0.) error(_("tol, given as %g, must be non-negative"), tol);
     if (tol > 1.) error(_("tol, given as %g, must be <= 1"), tol);
-    ans = PROTECT(allocVector(VECSXP,5));
+    SEXP ans = PROTECT(allocVector(VECSXP,5)), X, qraux, pivot;
     SET_VECTOR_ELT(ans, 0, X = duplicate(Xin));
-    Xdims = INTEGER(coerceVector(getAttrib(X, R_DimSymbol), INTSXP));
-    n = Xdims[0]; p = Xdims[1];
-    SET_VECTOR_ELT(ans, 2, qraux = allocVector(REALSXP, (n < p) ? n : p));
+    int *Xdims = INTEGER(coerceVector(getAttrib(X, R_DimSymbol), INTSXP)),
+	n = Xdims[0], i,
+	p = Xdims[1],
+	trsz = (n < p) ? n : p ; /* size of triangular part of decomposition */
+
+    SET_VECTOR_ELT(ans, 2, qraux = allocVector(REALSXP, trsz));
     SET_VECTOR_ELT(ans, 3, pivot = allocVector(INTSXP, p));
     for (i = 0; i < p; i++) INTEGER(pivot)[i] = i + 1;
-    trsz = (n < p) ? n : p;	/* size of triangular part of decomposition */
-    rank = trsz;
-    Givens = PROTECT(allocVector(VECSXP, rank - 1));
+    SEXP nms,
+	Givens = PROTECT(allocVector(VECSXP, trsz - 1));
     setAttrib(ans, R_NamesSymbol, nms = allocVector(STRSXP, 5));
     SET_STRING_ELT(nms, 0, mkChar("qr"));
     SET_STRING_ELT(nms, 1, mkChar("rank"));
     SET_STRING_ELT(nms, 2, mkChar("qraux"));
     SET_STRING_ELT(nms, 3, mkChar("pivot"));
     SET_STRING_ELT(nms, 4, mkChar("Givens"));
+    int rank = trsz,
+	nGivens = 0;
+    double rcond = 0.;
     if (n > 0 && p > 0) {
 	int  info, *iwork, lwork;
-	double *xpt = REAL(X), tmp;
+	double *xpt = REAL(X), *work, tmp;
 
 	lwork = -1;
 	F77_CALL(dgeqrf)(&n, &p, xpt, &n, REAL(qraux), &tmp, &lwork, &info);
@@ -205,15 +217,15 @@ SEXP lapack_qr(SEXP Xin, SEXP tl)
 	    error(_("Second call to dgeqrf returned error code %d"), info);
 	iwork = (int *) R_alloc(trsz, sizeof(int));
 	F77_CALL(dtrcon)("1", "U", "N", &rank, xpt, &n, &rcond,
-			 work, iwork, &info);
+			 work, iwork, &info FCONE FCONE FCONE);
 	if (info)
 	    error(_("Lapack routine dtrcon returned error code %d"), info);
 	while (rcond < tol) {	/* check diagonal elements */
 	    double minabs = (xpt[0] < 0.) ? -xpt[0]: xpt[0];
 	    int jmin = 0;
 	    for (i = 1; i < rank; i++) {
-		double el = xpt[i*(n+1)];
-		el = (el < 0.) ? -el: el;
+		double el = xpt[i*n]; // had  i*(n+1)  which looks wrong to MM
+		if(el < 0.) el = -el;
 		if (el < minabs) {
 		    jmin = i;
 		    minabs = el;
@@ -222,14 +234,16 @@ SEXP lapack_qr(SEXP Xin, SEXP tl)
 	    if (jmin < (rank - 1)) {
 		SET_VECTOR_ELT(Givens, nGivens, getGivens(xpt, n, jmin, rank));
 		nGivens++;
-	    }
+	    } // otherwise jmin == (rank - 1) , so just "drop that column"
 	    rank--;
+	    // new  rcond := ... for reduced rank
 	    F77_CALL(dtrcon)("1", "U", "N", &rank, xpt, &n, &rcond,
-			     work, iwork, &info);
+			     work, iwork, &info FCONE FCONE FCONE);
 	    if (info)
 		error(_("Lapack routine dtrcon returned error code %d"), info);
 	}
     }
+    SEXP Gcpy, sym;
     SET_VECTOR_ELT(ans, 4, Gcpy = allocVector(VECSXP, nGivens));
     for (i = 0; i < nGivens; i++)
 	SET_VECTOR_ELT(Gcpy, i, VECTOR_ELT(Givens, i));

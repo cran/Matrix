@@ -278,7 +278,7 @@ chkP <- function(mLeft, mRight, MLeft, MRight, cl = class(MLeft)) {
                      MLeft %*% mRight,
                      MLeft %*% MRight),# now ok
 	      m.m == 0, identical(m.m, crossprod(mRight, mRight)),
-	      mm. == 0, identical(mm., tcrossprod(mLeft, mLeft)))
+	      mm. == 0, identical(mm., tcrossprod(mLeft, mLeft)),  allow.logical0 = TRUE)
     stopifnot(ident4(m.m,
 		     crossprod(MRight, MRight),
 		     crossprod(MRight, mRight),

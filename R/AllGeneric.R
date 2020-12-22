@@ -68,7 +68,7 @@ setGeneric("skewpart", function(x) standardGeneric("skewpart"))
 
 ## A version of coercion to  "symmetric" which does *NOT* check,
 ## but just takes the ## upper (or lower) values and
-## ``declares'' the symmetric:
+## ``declares'' the result symmetric:
 setGeneric("forceSymmetric",
 	   function(x, uplo) standardGeneric("forceSymmetric"))
 

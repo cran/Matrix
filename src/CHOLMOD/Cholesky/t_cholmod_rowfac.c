@@ -4,9 +4,6 @@
 
 /* -----------------------------------------------------------------------------
  * CHOLMOD/Cholesky Module.  Copyright (C) 2005-2006, Timothy A. Davis
- * The CHOLMOD/Cholesky Module is licensed under Version 2.1 of the GNU
- * Lesser General Public License.  See lesser.txt for a text of the license.
- * CHOLMOD is also available under other licenses; contact authors for details.
  * -------------------------------------------------------------------------- */
 
 /* Template routine for cholmod_rowfac.  Supports any numeric xtype
@@ -31,7 +28,9 @@ static int TEMPLATE (cholmod_rowfac)
     size_t kend,	/* last row to factorize is kend-1 */
 #ifdef MASK
     /* These inputs are used for cholmod_rowfac_mask only */
-    Int *mask,		/* size A->nrow. if mask[i] then W(i) is set to zero */
+    Int *mask,		/* size A->nrow. if mask[i] >= maskmark
+                           then W(i) is set to zero */
+    Int maskmark,
     Int *RLinkUp,	/* size A->nrow. link list of rows to compute */
 #endif
     /* ---- in/out --- */
@@ -248,7 +247,7 @@ static int TEMPLATE (cholmod_rowfac)
             for (s = top ; s < n ; s++)
             {
                 i = Stack [s] ;
-                if (mask [i] >= 0)
+                if (mask [i] >= maskmark)
 		{
 		    CLEAR (Wx,Wz,i) ;	/* set W(i) to zero */
 		}

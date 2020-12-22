@@ -126,8 +126,8 @@ for(M in c(5, 12))
 	m <- m + t(m)
 	diag(m) <- pmax(0, diag(m)) + 1
 	m <- cov2cor(m)
-	CPU <- CPU + system.time(n.m <- nearPD(m))[1]
-	X <- as(n.m$mat, "matrix")
+	CPU <- CPU + system.time(n.m <- nearPD(m, base.matrix=TRUE))[1]
+	X <- n.m$mat
 	stopifnot(all.equal(X, (X + t(X))/2, tolerance = 8*.Machine$double.eps),
 		  all.equal(eigen(n.m$mat, only.values=TRUE)$values,
 			    n.m$eigenvalues, tolerance = 4e-8))

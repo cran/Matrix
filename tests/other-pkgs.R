@@ -23,12 +23,16 @@ if((Sys.getenv("USER")=="maechler" || nzchar(Sys.getenv("R_MATRIX_CHECK_EXTRA"))
 
     } else { ## do things
 
+        if(find("which")[[1]] != "package:Matrix") ## horribly, BiocGenerics::which() masks
+            ## *and* kills the correct working of Matrix::which(.) ___ why on earth ?!??!?!! ___
+            which <- Matrix::which
+
     if(!dev.interactive(orNone=TRUE)) pdf("other-pkg-graph.pdf")
 
     ## 0) Simplest non-trivial graph: has no weights:
     g0 <- graphNEL(paste(1:2), edgeL=list("1"="2"), "directed")
     m0 <- as(g0, "Matrix")
-    stopifnot(is(m0,"ngCMatrix"), dim(m0) == c(2,2), which(m0) == 3)
+    stopifnot(is(m0,"ngCMatrix"), dim(m0) == c(2,2), Matrix::which(m0) == 3)
     g. <- as(m0, "graph") ## failed in Matrix <= 1.1-0
     m. <- as(g., "Matrix")
     stopifnot( identical(m., m0) ) ## but (g0, g.) differ: the latter has '1' weights

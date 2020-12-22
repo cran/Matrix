@@ -2,12 +2,29 @@
 /* === Include/cholmod_blas.h =============================================== */
 /* ========================================================================== */
 
+/* For R's Matrix package (by Martin Maechler), need FCLEN FCONE :
+ * _NOT_ the full  #include <R_ext/BLAS.h>
+ *  ---  but just */
+#define USE_FC_LEN_T
+#include <Rconfig.h> // included by R.h, so define USE_FC_LEN_T early
+
+#ifdef FC_LEN_T
+//# pragma message ( "FC_LEN_T is defined -- FCLEN and FCONE are defined using it" )
+// _instead of_   # include <stddef.h> // for size_t if needed
+// use a "hack" : but this fails # define size_t long int
+// --> try to use  size_t as it has been defined earlier
+# define FCLEN ,FC_LEN_T
+# define FCONE ,(FC_LEN_T)1
+#else
+# define FCLEN
+# define FCONE
+#endif
+
+
+
 /* -----------------------------------------------------------------------------
  * CHOLMOD/Include/cholmod_blas.h.
  * Copyright (C) 2005-2006, Univ. of Florida.  Author: Timothy A. Davis
- * CHOLMOD/Include/cholmod_blas.h is licensed under Version 2.1 of the GNU
- * Lesser General Public License.  See lesser.txt for a text of the license.
- * CHOLMOD is also available under other licenses; contact authors for details.
  * -------------------------------------------------------------------------- */
 
 /* This does not need to be included in the user's program. */
@@ -174,7 +191,7 @@
 
 void BLAS_DGEMV (char *trans, BLAS_INT *m, BLAS_INT *n, double *alpha,
 	double *A, BLAS_INT *lda, double *X, BLAS_INT *incx, double *beta,
-	double *Y, BLAS_INT *incy) ;
+	double *Y, BLAS_INT *incy FCLEN) ;
 
 #define BLAS_dgemv(trans,m,n,alpha,A,lda,X,incx,beta,Y,incy) \
 { \
@@ -186,13 +203,13 @@ void BLAS_DGEMV (char *trans, BLAS_INT *m, BLAS_INT *n, double *alpha,
     } \
     if (!CHECK_BLAS_INT || BLAS_OK) \
     { \
-	BLAS_DGEMV (trans, &M, &N, alpha, A, &LDA, X, &INCX, beta, Y, &INCY) ; \
+	BLAS_DGEMV (trans, &M, &N, alpha, A, &LDA, X, &INCX, beta, Y, &INCY FCONE) ; \
     } \
 }
 
 void BLAS_ZGEMV (char *trans, BLAS_INT *m, BLAS_INT *n, double *alpha,
 	double *A, BLAS_INT *lda, double *X, BLAS_INT *incx, double *beta,
-	double *Y, BLAS_INT *incy) ;
+	double *Y, BLAS_INT *incy FCLEN) ;
 
 #define BLAS_zgemv(trans,m,n,alpha,A,lda,X,incx,beta,Y,incy) \
 { \
@@ -204,12 +221,12 @@ void BLAS_ZGEMV (char *trans, BLAS_INT *m, BLAS_INT *n, double *alpha,
     } \
     if (!CHECK_BLAS_INT || BLAS_OK) \
     { \
-	BLAS_ZGEMV (trans, &M, &N, alpha, A, &LDA, X, &INCX, beta, Y, &INCY) ; \
+	BLAS_ZGEMV (trans, &M, &N, alpha, A, &LDA, X, &INCX, beta, Y, &INCY FCONE) ; \
     } \
 }
 
 void BLAS_DTRSV (char *uplo, char *trans, char *diag, BLAS_INT *n, double *A,
-	BLAS_INT *lda, double *X, BLAS_INT *incx) ;
+	BLAS_INT *lda, double *X, BLAS_INT *incx FCLEN FCLEN FCLEN) ;
 
 #define BLAS_dtrsv(uplo,trans,diag,n,A,lda,X,incx) \
 { \
@@ -220,12 +237,12 @@ void BLAS_DTRSV (char *uplo, char *trans, char *diag, BLAS_INT *n, double *A,
     } \
     if (!CHECK_BLAS_INT || BLAS_OK) \
     { \
-	BLAS_DTRSV (uplo, trans, diag, &N, A, &LDA, X, &INCX) ; \
+	BLAS_DTRSV (uplo, trans, diag, &N, A, &LDA, X, &INCX FCONE FCONE FCONE) ; \
     } \
 }
 
 void BLAS_ZTRSV (char *uplo, char *trans, char *diag, BLAS_INT *n, double *A,
-	BLAS_INT *lda, double *X, BLAS_INT *incx) ;
+	BLAS_INT *lda, double *X, BLAS_INT *incx FCLEN FCLEN FCLEN) ;
 
 #define BLAS_ztrsv(uplo,trans,diag,n,A,lda,X,incx) \
 { \
@@ -236,13 +253,13 @@ void BLAS_ZTRSV (char *uplo, char *trans, char *diag, BLAS_INT *n, double *A,
     } \
     if (!CHECK_BLAS_INT || BLAS_OK) \
     { \
-	BLAS_ZTRSV (uplo, trans, diag, &N, A, &LDA, X, &INCX) ; \
+	BLAS_ZTRSV (uplo, trans, diag, &N, A, &LDA, X, &INCX FCONE FCONE FCONE) ; \
     } \
 }
 
 void BLAS_DTRSM (char *side, char *uplo, char *transa, char *diag, BLAS_INT *m,
 	BLAS_INT *n, double *alpha, double *A, BLAS_INT *lda, double *B,
-	BLAS_INT *ldb) ;
+	BLAS_INT *ldb FCLEN FCLEN FCLEN FCLEN) ;
 
 #define BLAS_dtrsm(side,uplo,transa,diag,m,n,alpha,A,lda,B,ldb) \
 { \
@@ -254,13 +271,13 @@ void BLAS_DTRSM (char *side, char *uplo, char *transa, char *diag, BLAS_INT *m,
     } \
     if (!CHECK_BLAS_INT || BLAS_OK) \
     { \
-	BLAS_DTRSM (side, uplo, transa, diag, &M, &N, alpha, A, &LDA, B, &LDB);\
+	BLAS_DTRSM (side, uplo, transa, diag, &M, &N, alpha, A, &LDA, B, &LDB FCONE FCONE FCONE FCONE);\
     } \
 }
 
 void BLAS_ZTRSM (char *side, char *uplo, char *transa, char *diag, BLAS_INT *m,
 	BLAS_INT *n, double *alpha, double *A, BLAS_INT *lda, double *B,
-	BLAS_INT *ldb) ;
+	BLAS_INT *ldb FCLEN FCLEN FCLEN FCLEN) ;
 
 #define BLAS_ztrsm(side,uplo,transa,diag,m,n,alpha,A,lda,B,ldb) \
 { \
@@ -272,13 +289,13 @@ void BLAS_ZTRSM (char *side, char *uplo, char *transa, char *diag, BLAS_INT *m,
     } \
     if (!CHECK_BLAS_INT || BLAS_OK) \
     { \
-	BLAS_ZTRSM (side, uplo, transa, diag, &M, &N, alpha, A, &LDA, B, &LDB);\
+	BLAS_ZTRSM (side, uplo, transa, diag, &M, &N, alpha, A, &LDA, B, &LDB FCONE FCONE FCONE FCONE);\
     } \
 }
 
 void BLAS_DGEMM (char *transa, char *transb, BLAS_INT *m, BLAS_INT *n,
 	BLAS_INT *k, double *alpha, double *A, BLAS_INT *lda, double *B,
-	BLAS_INT *ldb, double *beta, double *C, BLAS_INT *ldc) ;
+	BLAS_INT *ldb, double *beta, double *C, BLAS_INT *ldc FCLEN FCLEN) ;
 
 #define BLAS_dgemm(transa,transb,m,n,k,alpha,A,lda,B,ldb,beta,C,ldc) \
 { \
@@ -291,13 +308,13 @@ void BLAS_DGEMM (char *transa, char *transb, BLAS_INT *m, BLAS_INT *n,
     if (!CHECK_BLAS_INT || BLAS_OK) \
     { \
 	BLAS_DGEMM (transa, transb, &M, &N, &K, alpha, A, &LDA, B, &LDB, beta, \
-	    C, &LDC) ; \
+	    C, &LDC FCONE FCONE) ; \
     } \
 }
 
 void BLAS_ZGEMM (char *transa, char *transb, BLAS_INT *m, BLAS_INT *n,
 	BLAS_INT *k, double *alpha, double *A, BLAS_INT *lda, double *B,
-	BLAS_INT *ldb, double *beta, double *C, BLAS_INT *ldc) ;
+	BLAS_INT *ldb, double *beta, double *C, BLAS_INT *ldc FCLEN FCLEN) ;
 
 #define BLAS_zgemm(transa,transb,m,n,k,alpha,A,lda,B,ldb,beta,C,ldc) \
 { \
@@ -310,13 +327,13 @@ void BLAS_ZGEMM (char *transa, char *transb, BLAS_INT *m, BLAS_INT *n,
     if (!CHECK_BLAS_INT || BLAS_OK) \
     { \
 	BLAS_ZGEMM (transa, transb, &M, &N, &K, alpha, A, &LDA, B, &LDB, beta, \
-	    C, &LDC) ; \
+	    C, &LDC FCONE FCONE) ; \
     } \
 }
 
 void BLAS_DSYRK (char *uplo, char *trans, BLAS_INT *n, BLAS_INT *k,
 	double *alpha, double *A, BLAS_INT *lda, double *beta, double *C,
-	BLAS_INT *ldc) ;
+	BLAS_INT *ldc FCLEN FCLEN) ;
 
 #define BLAS_dsyrk(uplo,trans,n,k,alpha,A,lda,beta,C,ldc) \
 { \
@@ -328,13 +345,13 @@ void BLAS_DSYRK (char *uplo, char *trans, BLAS_INT *n, BLAS_INT *k,
     } \
     if (!CHECK_BLAS_INT || BLAS_OK) \
     { \
-	BLAS_DSYRK (uplo, trans, &N, &K, alpha, A, &LDA, beta, C, &LDC) ; \
+	BLAS_DSYRK (uplo, trans, &N, &K, alpha, A, &LDA, beta, C, &LDC FCONE FCONE) ; \
     } \
 } \
 
 void BLAS_ZHERK (char *uplo, char *trans, BLAS_INT *n, BLAS_INT *k,
 	double *alpha, double *A, BLAS_INT *lda, double *beta, double *C,
-	BLAS_INT *ldc) ;
+	BLAS_INT *ldc FCLEN FCLEN) ;
 
 #define BLAS_zherk(uplo,trans,n,k,alpha,A,lda,beta,C,ldc) \
 { \
@@ -346,12 +363,12 @@ void BLAS_ZHERK (char *uplo, char *trans, BLAS_INT *n, BLAS_INT *k,
     } \
     if (!CHECK_BLAS_INT || BLAS_OK) \
     { \
-	BLAS_ZHERK (uplo, trans, &N, &K, alpha, A, &LDA, beta, C, &LDC) ; \
+	BLAS_ZHERK (uplo, trans, &N, &K, alpha, A, &LDA, beta, C, &LDC FCONE FCONE) ; \
     } \
 } \
 
 void LAPACK_DPOTRF (char *uplo, BLAS_INT *n, double *A, BLAS_INT *lda,
-	BLAS_INT *info) ;
+	BLAS_INT *info FCLEN) ;
 
 #define LAPACK_dpotrf(uplo,n,A,lda,info) \
 { \
@@ -362,13 +379,13 @@ void LAPACK_DPOTRF (char *uplo, BLAS_INT *n, double *A, BLAS_INT *lda,
     } \
     if (!CHECK_BLAS_INT || BLAS_OK) \
     { \
-	LAPACK_DPOTRF (uplo, &N, A, &LDA, &INFO) ; \
+	LAPACK_DPOTRF (uplo, &N, A, &LDA, &INFO FCONE) ; \
     } \
     info = INFO ; \
 }
 
 void LAPACK_ZPOTRF (char *uplo, BLAS_INT *n, double *A, BLAS_INT *lda,
-	BLAS_INT *info) ;
+	BLAS_INT *info FCLEN) ;
 
 #define LAPACK_zpotrf(uplo,n,A,lda,info) \
 { \
@@ -379,7 +396,7 @@ void LAPACK_ZPOTRF (char *uplo, BLAS_INT *n, double *A, BLAS_INT *lda,
     } \
     if (!CHECK_BLAS_INT || BLAS_OK) \
     { \
-	LAPACK_ZPOTRF (uplo, &N, A, &LDA, &INFO) ; \
+	LAPACK_ZPOTRF (uplo, &N, A, &LDA, &INFO FCONE) ; \
     } \
     info = INFO ; \
 }

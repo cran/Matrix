@@ -65,6 +65,7 @@ internal_chm_factor(SEXP Ap, int perm, int LDL, int super, double Imult)
     SEXP nms = PROTECT(getAttrib(facs, R_NamesSymbol)); // being very careful..
     CHM_FR L;
     CHM_SP A = AS_CHM_SP__(Ap);
+    double mm[2] = {0, 0}; mm[0] = Imult;
     R_CheckStack();
 
     CHM_store_common();		/* save settings from c */
@@ -75,7 +76,7 @@ internal_chm_factor(SEXP Ap, int perm, int LDL, int super, double Imult)
 		R_CheckStack();
 		/* copy the factor so later it can safely be cholmod_free'd */
 		L = cholmod_copy_factor(L, &c);
-		if (Imult) cholmod_factorize_p(A, &Imult, (int*)NULL, 0, L, &c);
+		if (Imult) cholmod_factorize_p(A, mm, (int*)NULL, 0, L, &c);
 		UNPROTECT(1);
 		return L;
 	    }
@@ -95,7 +96,7 @@ internal_chm_factor(SEXP Ap, int perm, int LDL, int super, double Imult)
 	// *_restore_*() below or in R_cholmod_error() will restore c.<foo>
 	L = cholmod_analyze(A, &c);
     }
-    if (!cholmod_factorize_p(A, &Imult, (int*)NULL, 0 /*fsize*/, L, &c))
+    if (!cholmod_factorize_p(A, mm, (int*)NULL, 0 /*fsize*/, L, &c))
 	// have never seen this, rather R_cholmod_error(status, ..) is called :
 	error(_("Cholesky factorization failed; unusually, please report to Matrix-authors"));
 

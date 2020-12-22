@@ -316,7 +316,7 @@ replTmat <- function (x, i, j, ..., value)
     .all0 <- function(v) if(spV) length(v@i) == 0 else all0(v)
     delayedAssign("value.not.logical",
                   !(if(spV) {
-                      extends(clDv, "lsparseVector") || extends(clDv, "nsparseVector")
+                      extends1of(clDv, "lsparseVector", "nsparseVector")
                   } else {
                       is.logical(value) || is.logical(as.vector(value))
                   }))
@@ -695,7 +695,7 @@ replTmat <- function (x, i, j, ..., value)
 	## c(i) : drop "matrix" to logical vector
 	x[as.vector(i)] <- value
 	return(x)
-    } else if(extends(cli <- getClassDef(class(i)),"lMatrix") || extends(cli, "nMatrix")) {
+    } else if(extends1of(cli <- getClassDef(class(i)), c("lMatrix", "nMatrix"))) {
 	Matrix.msg(".TM.repl.i.mat(): \"lMatrix\" case ...", .M.level=2)
 	i <- which(as(i, if(extends(cli, "sparseMatrix")) "sparseVector" else "vector"))
 	## x[i] <- value ; return(x)

@@ -82,7 +82,7 @@
       The \code{\link{format}} method for sparse matrices, see
       \code{\link{formatSpMatrix}()} for details such as the extra
       optional arguments.}
-    \item{summary}{\code{(object = "sparseMatrix")}: Returns
+    \item{summary}{\code{(object = "sparseMatrix", uniqT=FALSE)}: Returns
       an object of S3 class \code{"sparseSummary"} which is basically a
       \code{\link{data.frame}} with columns \code{(i,j,x)} (or just
       \code{(i,j)} for \code{\linkS4class{nsparseMatrix}} class objects)

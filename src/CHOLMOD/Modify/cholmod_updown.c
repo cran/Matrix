@@ -5,9 +5,6 @@
 /* -----------------------------------------------------------------------------
  * CHOLMOD/Modify Module.
  * Copyright (C) 2005-2006, Timothy A. Davis and William W. Hager.
- * The CHOLMOD/Modify Module is licensed under Version 2.0 of the GNU
- * General Public License.  See gpl.txt for a text of the license.
- * CHOLMOD is also available under other licenses; contact authors for details.
  * http://www.suitesparse.com
  * -------------------------------------------------------------------------- */
 
@@ -61,6 +58,7 @@
  * numeric identity matrix.
  */
 
+#ifndef NGPL
 #ifndef NMODIFY
 
 #include "cholmod_internal.h"
@@ -86,7 +84,7 @@ int CHOLMOD(updown)
     cholmod_common *Common
 )
 {
-    return (CHOLMOD(updown_mask) (update, C, NULL, NULL, L, NULL, NULL,
+    return (CHOLMOD(updown_mask2) (update, C, NULL, NULL, 0, L, NULL, NULL,
 	Common)) ;
 }
 
@@ -115,7 +113,7 @@ int CHOLMOD(updown_solve)
     cholmod_common *Common
 )
 {
-    return (CHOLMOD(updown_mask) (update, C, NULL, NULL, L, X, DeltaB,
+    return (CHOLMOD(updown_mask2) (update, C, NULL, NULL, 0, L, X, DeltaB,
 	Common)) ;
 }
 
@@ -380,7 +378,7 @@ int CHOLMOD(updown_mark)
     cholmod_common *Common
 )
 {
-    return (CHOLMOD(updown_mask) (update, C, colmark, NULL, L, X, DeltaB,
+    return (CHOLMOD(updown_mask2) (update, C, colmark, NULL, 0, L, X, DeltaB,
 	Common)) ;
 }
 
@@ -396,6 +394,31 @@ int CHOLMOD(updown_mask)
     cholmod_sparse *C,	/* the incoming sparse update */
     Int *colmark,	/* Int array of size n.  See cholmod_updown.c */
     Int *mask,		/* size n */
+    /* ---- in/out --- */
+    cholmod_factor *L,	/* factor to modify */
+    cholmod_dense *X,	/* solution to Lx=b (size n-by-1) */
+    cholmod_dense *DeltaB,  /* change in b, zero on output */
+    /* --------------- */
+    cholmod_common *Common
+)
+{
+    Int maskmark = 0 ;
+    return (CHOLMOD(updown_mask2) (update, C, colmark, mask, maskmark,
+        L, X, DeltaB, Common)) ;
+}
+
+/* ========================================================================== */
+/* === cholmod_updown_mask2 ================================================= */
+/* ========================================================================== */
+
+int CHOLMOD(updown_mask2)
+(
+    /* ---- input ---- */
+    int update,		/* TRUE for update, FALSE for downdate */
+    cholmod_sparse *C,	/* the incoming sparse update */
+    Int *colmark,	/* Int array of size n.  See cholmod_updown.c */
+    Int *mask,		/* size n */
+    Int maskmark,
     /* ---- in/out --- */
     cholmod_factor *L,	/* factor to modify */
     cholmod_dense *X,	/* solution to Lx=b (size n-by-1) */
@@ -1389,19 +1412,19 @@ int CHOLMOD(updown_mask)
 	{
 	    case 1:
 		updown_1_r (update, C, k, L, W, OrderedPath, npaths, mask,
-		    Common) ;
+		    maskmark, Common) ;
 		break ;
 	    case 2:
 		updown_2_r (update, C, k, L, W, OrderedPath, npaths, mask,
-		    Common) ;
+		    maskmark, Common) ;
 		break ;
 	    case 4:
 		updown_4_r (update, C, k, L, W, OrderedPath, npaths, mask,
-		    Common) ;
+		    maskmark, Common) ;
 		break ;
 	    case 8:
 		updown_8_r (update, C, k, L, W, OrderedPath, npaths, mask,
-		    Common) ;
+		    maskmark, Common) ;
 		break ;
 	}
 
@@ -1567,4 +1590,5 @@ int CHOLMOD(updown_mask)
     DEBUG (CHOLMOD(dump_factor) (L, "output L for updown", Common)) ;
     return (TRUE) ;
 }
+#endif
 #endif

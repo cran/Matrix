@@ -4,9 +4,6 @@
 
 /* -----------------------------------------------------------------------------
  * CHOLMOD/Cholesky Module.  Copyright (C) 2005-2006, Timothy A. Davis
- * The CHOLMOD/Cholesky Module is licensed under Version 2.1 of the GNU
- * Lesser General Public License.  See lesser.txt for a text of the license.
- * CHOLMOD is also available under other licenses; contact authors for details.
  * -------------------------------------------------------------------------- */
 
 /* Compute the row and column counts of the Cholesky factor L of the matrix
@@ -57,7 +54,7 @@
 /* === initialize_node ====================================================== */
 /* ========================================================================== */
 
-static int initialize_node  /* initial work for kth node in postordered etree */
+static Int initialize_node  /* initial work for kth node in postordered etree */
 (
     Int k,		/* at the kth step of the algorithm (and kth node) */
     Int Post [ ],	/* Post [k] = i, the kth node in postordered etree */

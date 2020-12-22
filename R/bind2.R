@@ -104,8 +104,8 @@ cbind2DN <- function(dnx,dny, ncx,ncy) {
     rn <- if(!is.null(dnx[[1]])) dnx[[1]] else dny[[1]]
     cx <- dnx[[2]] ; cy <- dny[[2]]
     cn <- if(is.null(cx) && is.null(cy)) NULL
-    else c(if(!is.null(cx)) cx else character(ncx),
-           if(!is.null(cy)) cy else character(ncy))
+	  else c(if(!is.null(cx)) cx else character(ncx),
+		 if(!is.null(cy)) cy else character(ncy))
     list(rn, cn)
 }
 

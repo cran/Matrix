@@ -12,109 +12,10 @@ stopifnot(is((Y <- Matrix(y)), "dgeMatrix"))
 md <- as(mm, "matrix")                  # dense
 
 (cS <- system.time(Sq <- qr(mm))) # 0.009
-(cD <- system.time(Dq <- qr(md))) # 0.499 (lynne, 2014 f)
+(cD <- system.time(Dq <- qr(md))) # 0.499 (lynne, 2014 f); 1.04 lynne 2019 ?????
 cD[1] / cS[1] # dense is  much ( ~ 100--170 times) slower
 
-## MM__FIXME__: move these functions to ../inst/test-tools.R
-chkQR <- function(a,
-                  y = seq_len(nrow(a)),## RHS: made to contain no 0
-                  a.qr = qr(a), tol = 1e-11, # 1e-13 failing very rarely (interesting)
-                  ##----------
-                  Qinv.chk = !sp.rank.def, QtQ.chk = !sp.rank.def,
-                  verbose = getOption("Matrix.verbose", FALSE), giveRE = verbose,
-                  quiet = FALSE)
-{
-    d <- dim(a)
-    stopifnot((n <- d[1]) >= (p <- d[2]), is.numeric(y))
-    kind <- if(is.qr(a.qr)) "qr"
-            else if(is(a.qr, "sparseQR")) "spQR"
-            else stop("unknown qr() class: ", class(a.qr))
-    if(!missing(verbose) && verbose) {
-	op <- options(Matrix.verbose = verbose)
-	on.exit(options(op))
-    }
-    ## rank.def <- switch(kind,
-    ##     	       "qr"  = a.qr$rank < length(a.qr$pivot),
-    ##     	       "spQR" = a.qr@V@Dim[1] > a.qr@Dim[1])
-    sp.rank.def <- (kind == "spQR") && (a.qr@V@Dim[1] > a.qr@Dim[1])
-    if(sp.rank.def && !quiet && (missing(Qinv.chk) || missing(QtQ.chk)))
-	message("is sparse *structurally* rank deficient:  Qinv.chk=",
-		Qinv.chk,", QtQ.chk=",QtQ.chk)
-    if(is.na(QtQ.chk )) QtQ.chk  <- !sp.rank.def
-    if(is.na(Qinv.chk)) Qinv.chk <- !sp.rank.def
-
-    if(Qinv.chk) { ## qr.qy and qr.qty should be inverses,  Q'Q y = y = QQ' y :
-        if(verbose) cat("Qinv.chk=TRUE: checking   Q'Q y = y = QQ' y :\n")
-	## FIXME: Fails for structurally rank deficient sparse a's, but never for classical
-	assert.EQ(drop(qr.qy (a.qr, qr.qty(a.qr, y))), y, giveRE=giveRE, tol = tol/64)
-	assert.EQ(drop(qr.qty(a.qr, qr.qy (a.qr, y))), y, giveRE=giveRE, tol = tol/64)
-    }
-
-    piv <- switch(kind,
-                  "qr" = a.qr$pivot,
-                  "spQR" = 1L + a.qr@q)# 'q', not 'p' !!
-    invP <- sort.list(piv)
-
-    .ckQR <- function(cmpl) { ## local function, using parent's variables
-        if(verbose) cat("complete = ",cmpl,": checking  X = Q R P*\n", sep="")
-        Q <- qr.Q(a.qr, complete=cmpl) # NB: Q is already "back permuted"
-        R <- qr.R(a.qr, complete=cmpl)
-        rr <- if(cmpl) n else p
-        stopifnot(dim(Q) == c(n,rr),
-                  dim(R) == c(rr,p))
-        assert.EQ.Mat(a, Q %*% R[, invP], giveRE=giveRE, tol=tol)
-        ##            =  ===============
-	if(QtQ.chk)
-	    assert.EQ.mat(crossprod(Q), diag(rr), giveRE=giveRE, tol=tol)
-        ##                ===========   ====
-    }
-    .ckQR(FALSE)
-    .ckQR(TRUE)
-    invisible(a.qr)
-}## end{chkQR}
-
-##' Check QR-consistency of dense and sparse
-chk.qr.D.S <- function(d., s., y, Y = Matrix(y), force = FALSE, tol = 1e-10) {
-    stopifnot(is.qr(d.), is(s., "sparseQR"))
-    cc <- qr.coef(d.,y)
-    rank.def <- any(is.na(cc)) && d.$rank < length(d.$pivot)
-    if(rank.def && force) cc <- mkNA.0(cc) ## set NA's to 0 .. ok, in some case
-
-    ## when system is rank deficient, have differing cases, not always just NA <-> 0 coef
-    ## FIXME though:  resid & fitted should be well determined
-    if(force || !rank.def) stopifnot(
-### FIXME: temporary:
-###	is.all.equal3(	    cc	     , drop(qr.coef  (s.,y)), drop(qr.coef  (s.,Y)), tol=tol),
-	is.all.equal3(	unname( cc ) , drop(qr.coef  (s.,y)), drop(qr.coef  (s.,Y)), tol=tol),
-### END{FIXME}
-	is.all.equal3(qr.resid (d.,y), drop(qr.resid (s.,y)), drop(qr.resid (s.,Y)), tol=tol),
-	is.all.equal3(qr.fitted(d.,y), drop(qr.fitted(s.,y)), drop(qr.fitted(s.,Y)), tol=tol)
-	)
-}
-
-##' "Combi" calling chkQR() on both "(sparse)Matrix" and 'traditional' version
-##' ------  and combine the two qr decompositions using chk.qr.D.S()
-##'
-##' @title check QR-decomposition, and compare sparse and dense one
-##' @param A a 'Matrix' , typically 'sparseMatrix'
-##' @param Qinv.chk
-##' @param QtQ.chk
-##' @param quiet
-##' @return list with 'qA' (sparse QR) and 'qa' (traditional (dense) QR)
-##' @author Martin Maechler
-checkQR.DS.both <- function(A, Qinv.chk, QtQ.chk=NA,
-                            quiet=FALSE, giveRE=TRUE, tol = 1e-13)
-{
-    stopifnot(is(A,"Matrix"))
-    if(!quiet) cat("classical: ")
-    qa <- chkQR(as(A, "matrix"), Qinv.chk=TRUE, QtQ.chk=TRUE, tol=tol, giveRE=giveRE)# works always
-    if(!quiet) cat("[Ok] ---  sparse: ")
-    qA <- chkQR(A, Qinv.chk=Qinv.chk, QtQ.chk=QtQ.chk, tol=tol, giveRE=giveRE)
-    validObject(qA)
-    if(!quiet) cat("[Ok]\n")
-    chk.qr.D.S(qa, qA, y = 10 + 1:nrow(A), tol = 256*tol)# ok [not done in rank deficient case!]
-    invisible(list(qA=qA, qa=qa))
-}
+## chkQR() in ../inst/test-tools-1.R ;
 
 if(doExtras) { ## ~ 20 sec {"large" example}   + 2x qr.R() warnings
     cat("chkQR( <KNex> ) .. takes time .. ")
@@ -124,16 +25,16 @@ if(doExtras) { ## ~ 20 sec {"large" example}   + 2x qr.R() warnings
 }
 
 ## consistency of results dense and sparse
+##	chk.qr.D.S() and  checkQR.DS.both() >>> ../inst/test-tools-Matrix.R
 chk.qr.D.S(Dq, Sq, y, Y)
 
 ## Another small example with pivoting (and column name "mess"):
 suppressWarnings(RNGversion("3.5.0")); set.seed(1)
 X <- rsparsematrix(9,5, 1/4, dimnames=list(paste0("r", 1:9), LETTERS[1:5]))
 qX <- qr(X); qd <- qr(as(X, "matrix"))
-## numbers are the same, but names of sparse case are wrongly permuted
-qr.coef(qX, 1:9)
-qr.coef(qd, 1:9)
-if(FALSE) ## error:
+## are the same (now, *including* names):
+assert.EQ(print(qr.coef(qX, 1:9)), qr.coef(qd, 1:9), tol=1e-14)
+if(FALSE) ## error: (FIXME ?)
 chk.qr.D.S(d. = qd, s. = qX, y = 1:9)
 
 
@@ -558,6 +459,26 @@ Zt <- new("dgCMatrix", Dim = c(6L, 30L), x = 2*1:30,
           i = rep(0:5, each=5),
           p = 0:30, Dimnames = list(LETTERS[1:6], NULL))
 cholCheck(0.78 * Zt, tol=1e-14)
+
+oo <- options(Matrix.quiet.qr.R = TRUE, warn = 2)# no warnings allowed
+qrZ <- qr(t(Zt))
+Rz <- qr.R(qrZ)
+stopifnot(exprs = {
+    inherits(qrZ, "sparseQR")
+    inherits(Rz, "sparseMatrix")
+    isTriangular(Rz)
+    isDiagonal(Rz) # even though formally a "dtCMatrix"
+    qr2rankMatrix(qrZ, do.warn=FALSE) == 6
+})
+options(oo)
+
+## problematic rank deficient rankMatrix() case -- only seen in large cases ??
+Z. <- readRDS(system.file("external", "Z_NA_rnk.rds", package="Matrix"))
+tools::assertWarning(rnkZ. <- rankMatrix(Z., method = "qr")) # gave errors
+qrZ. <- qr(Z.)
+rnk2 <- qr2rankMatrix(qrZ.) # warning ".. only 684 out of 822 finite diag(R) entries"
+di <- diag(qrZ.@R)
+stopifnot(is.na(rnkZ.), is(qrZ, "sparseQR"), is.na(rnk2), anyNA(di))
 
 showSys.time(
 for(i in 1:120) {

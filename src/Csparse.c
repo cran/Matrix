@@ -353,6 +353,7 @@ SEXP Csparse_symmetric_to_general(SEXP x)
 			      symmetric_DimNames(GET_SLOT(x, Matrix_DimNamesSym)));
 }
 
+// Called from R's  forceCspSymmetric() ,  .gC2sym()
 SEXP Csparse_general_to_symmetric(SEXP x, SEXP uplo, SEXP sym_dmns)
 {
     int *adims = INTEGER(GET_SLOT(x, Matrix_DimSym)), n = adims[0];
@@ -367,33 +368,43 @@ SEXP Csparse_general_to_symmetric(SEXP x, SEXP uplo, SEXP sym_dmns)
     chgx = cholmod_copy(chx, /* stype: */ uploT, chx->xtype, &c);
 
     SEXP dns = GET_SLOT(x, Matrix_DimNamesSym);
-    if(asLogical(sym_dmns))
+    int symDmns = asLogical(sym_dmns); /* 1, NA_LOGICAL or 0 */
+    /* 3 cases:
+       FALSE: keep as is;
+       TRUE : symmetric dimnames in any case
+       NA   : symmetrize if(...)
+    */
+    if(symDmns == FALSE) { } // *keep* asymmetric dimnames:  do nothing
+/// FIXME: TRUE: *should* do symmetric dimnames in any case, but does *NOT* --> symmetric_Dimnames()
+    else if(symDmns == TRUE)
 	dns = symmetric_DimNames(dns);
-    else if((!isNull(VECTOR_ELT(dns, 0)) &&
-	     !isNull(VECTOR_ELT(dns, 1))) ||
-	    !isNull(getAttrib(dns, R_NamesSymbol))) {
-	/* symmetrize them if both are not NULL
-	 * or names(dimnames(.)) is asymmetric : */
-	dns = PROTECT(duplicate(dns));
-	if(!equal_string_vectors(VECTOR_ELT(dns, 0),
-				 VECTOR_ELT(dns, 1))) {
-	    if(uploT == 1)
-		SET_VECTOR_ELT(dns, 0, VECTOR_ELT(dns,1));
-	    else
-		SET_VECTOR_ELT(dns, 1, VECTOR_ELT(dns,0));
+    else // NA_LOGICAL (was 'FALSE' case) :
+	if((!isNull(VECTOR_ELT(dns, 0)) &&
+	    !isNull(VECTOR_ELT(dns, 1))) ||
+	   !isNull(getAttrib(dns, R_NamesSymbol))) {
+	    /* symmetrize them if both are not NULL
+	     * or names(dimnames(.)) is asymmetric : */
+/// FIXME --- this is partly *MORE* than what 'TRUE' case above does !!!!
+	    dns = PROTECT(duplicate(dns));
+	    if(!equal_string_vectors(VECTOR_ELT(dns, 0),
+				     VECTOR_ELT(dns, 1))) {
+		if(uploT == 1)
+		    SET_VECTOR_ELT(dns, 0, VECTOR_ELT(dns,1));
+		else
+		    SET_VECTOR_ELT(dns, 1, VECTOR_ELT(dns,0));
+	    }
+	    SEXP nms_dns = getAttrib(dns, R_NamesSymbol);
+	    if(!isNull(nms_dns) &&  // names(dimnames(.)) :
+	       !R_compute_identical(STRING_ELT(nms_dns, 0),
+				    STRING_ELT(nms_dns, 1), 16)) {
+		if(uploT == 1)
+		    SET_STRING_ELT(nms_dns, 0, STRING_ELT(nms_dns,1));
+		else
+		    SET_STRING_ELT(nms_dns, 1, STRING_ELT(nms_dns,0));
+		setAttrib(dns, R_NamesSymbol, nms_dns);
+	    }
+	    UNPROTECT(1);
 	}
-	SEXP nms_dns = getAttrib(dns, R_NamesSymbol);
-	if(!isNull(nms_dns) &&  // names(dimnames(.)) :
-	   !R_compute_identical(STRING_ELT(nms_dns, 0),
-				STRING_ELT(nms_dns, 1), 16)) {
-	    if(uploT == 1)
-		SET_STRING_ELT(nms_dns, 0, STRING_ELT(nms_dns,1));
-	    else
-		SET_STRING_ELT(nms_dns, 1, STRING_ELT(nms_dns,0));
-	    setAttrib(dns, R_NamesSymbol, nms_dns);
-	}
-	UNPROTECT(1);
-    }
     /* Rkind: pattern, "real", complex or .. */
     return chm_sparse_to_SEXP(chgx, 1, 0, Rkind, "", dns);
 }
@@ -1286,7 +1297,7 @@ SEXP create_Csparse(char* cls, int* i, int* j, int* p, int np,
  * Create a Csparse matrix object from a traditional R matrix
  *
  * @param x   traditional R matrix (numeric, logical, ...)
- * @param cls class (a string)
+ * @param cls class (a string), currently must be  "..CMatrix"
  *
  * @return an SEXP of a class inheriting from CsparseMatrix.
  */

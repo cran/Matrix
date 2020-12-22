@@ -24,7 +24,7 @@ fac2sparse <- function(from, to = c("d","i","l","n","z"), drop.unused.levels = F
 
 ## This version can deal with NA's [maybe slightly less efficient (how much?)] :
 fac2sparse <- function(from, to = c("d","i","l","n","z"),
-		       drop.unused.levels = TRUE, giveCsparse = TRUE)
+		       drop.unused.levels = TRUE, repr = c("C","T","R"), giveCsparse)
 {
     ## factor(-like) --> sparseMatrix {also works for integer, character}
     fact <- if (drop.unused.levels) factor(from) else as.factor(from)
@@ -40,7 +40,14 @@ fac2sparse <- function(from, to = c("d","i","l","n","z"),
     T <- do.call(new, c(list(Class = paste0(to, "gTMatrix"),
                              Dim = c(length(levs), n),
                              Dimnames = list(levs, names(fact))), df))
-    if(giveCsparse) .Call(Tsparse_to_Csparse, T, FALSE) else T
+    ## silent, back compatible (not yet warning about 'giveCsparse' deprecation):
+    repr <- if(missing(repr) && !missing(giveCsparse))
+		if(giveCsparse) "C" else "T"
+	    else match.arg(repr)
+    switch(repr,
+	   "C" = .Call(Tsparse_to_Csparse, T, FALSE),
+	   "T" =    T,# TsparseMatrix
+	   "R" = as(T, "RsparseMatrix"))
 }
 
 setAs("factor", "sparseMatrix", function(from) fac2sparse(from, to = "d"))
@@ -60,13 +67,13 @@ setAs("factor", "sparseMatrix", function(from) fac2sparse(from, to = "d"))
 ##' @return a list of length two, each with the corresponding t(model matrix),
 ##'	when the corresponding factorPatt12 is true.
 fac2Sparse <- function(from, to = c("d","i","l","n","z"),
-		       drop.unused.levels = TRUE, giveCsparse = TRUE,
+		       drop.unused.levels = TRUE, repr = c("C","T","R"), giveCsparse,
 		       factorPatt12, contrasts.arg = NULL)
 {
     stopifnot(is.logical(factorPatt12), length(factorPatt12) == 2)
     if(any(factorPatt12))
 	m <- fac2sparse(from, to=to, drop.unused.levels=drop.unused.levels,
-			giveCsparse=giveCsparse)
+                        repr=repr, giveCsparse=giveCsparse)
     ##
     ## code '2' : keep dummy, i.e. no contrasts :
     ans <- list(NULL, if(factorPatt12[2]) m)
@@ -94,7 +101,9 @@ fac2Sparse <- function(from, to = c("d","i","l","n","z"),
 sparse.model.matrix <-
     function(object, data = environment(object), contrasts.arg = NULL,
 	     xlev = NULL, transpose = FALSE,
-	     drop.unused.levels = FALSE, row.names=TRUE, verbose=FALSE, ...)
+	     drop.unused.levels = FALSE, row.names = TRUE
+	   , sep = ""
+	   , verbose = FALSE, ...)
 {
     t <- if(missing(data)) terms(object) else terms(object, data=data)
     if (is.null(attr(data, "terms")))
@@ -150,7 +159,7 @@ sparse.model.matrix <-
     ans <- model.spmatrix(t, data, transpose=transpose,
     ##     ==============
 			  drop.unused.levels=drop.unused.levels,
-			  row.names=row.names, verbose=verbose)
+			  row.names=row.names, sep=sep, verbose=verbose)
     ## </Sparse>
     attr(ans, "contrasts") <-
 	lapply(data[isF], function(x) attr(x, "contrasts"))
@@ -296,7 +305,7 @@ is.model.frame <- function(x)
 ##' @return sparse matrix (class "dgCMatrix")
 ##' @author Martin Maechler
 model.spmatrix <- function(trms, mf, transpose=FALSE,
-			   drop.unused.levels = FALSE, row.names=TRUE, verbose=FALSE)
+			   drop.unused.levels = FALSE, row.names=TRUE, sep="", verbose=FALSE)
 {
     ## Author: Martin Maechler, Date:  7 Jul 2009
 
@@ -328,7 +337,7 @@ model.spmatrix <- function(trms, mf, transpose=FALSE,
 	cat(sprintf("model.spm..(): (n=%d, nVar=%d (m=%d), nTrm=%d)\n",
 		    n, nVar,m, nTrm))
     if(m > nVar) mf <- mf[seq_len(nVar)]
-    stopifnot(fnames == names(mf))
+    stopifnot(fnames == names(mf), allow.logical0 = TRUE)
     noVar <- nVar == 0
     ##>> this seems wrong; we use  1:nVar for indexing mf[] below ..
     ##>> if(noVar) nVar <- 1L # (as in ~/R/D/r-devel/R/src/main/model.c)
@@ -370,10 +379,8 @@ model.spmatrix <- function(trms, mf, transpose=FALSE,
 		       function(s) {
 			   if(is.null(s)) return(s)
 			   ## else
-			   rownames(s) <-
-			       paste0(nam, if(is.null(rownames(s)))
-				      ## for some contr.*(), have lost rownames; hmm..
-				      seq_len(nrow(s)) else rownames(s))
+			   rownames(s) <- ## for some contr.*(), have lost rownames; hmm..
+			       paste(nam, rownames(s) %||% seq_len(nrow(s)), sep=sep)
 			   s
 		       })
 	} else { ## continuous variable --> "matrix" - for all of them
@@ -381,7 +388,7 @@ model.spmatrix <- function(trms, mf, transpose=FALSE,
 		class(f) <- if(length(cl) > 1L) cl[!iA]
 	    nr <- if(is.matrix(f)) nrow(f <- t(f)) else (dim(f) <- c(1L, length(f)))[1]
 	    if(is.null(rownames(f)))
-		rownames(f) <- if(nr == 1) nam else paste0(nam, seq_len(nr))
+		rownames(f) <- if(nr == 1) nam else paste(nam, seq_len(nr), sep=sep)
 	    mf[[i]] <- f
 	}
     }

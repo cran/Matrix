@@ -16,7 +16,8 @@
 	   interactive() && identical(Sys.info()[["user"]], "maechler")) {
 	    ## nothing
 	} else { # ambiguity notices are trashed
-	    options(ambiguousMethodSelection = function(cond) {})
+	    N <- function(cond) NULL; environment(N) <- emptyenv()
+	    options(ambiguousMethodSelection = N)
 	    assign("no.methods.ambiguityNotes", TRUE, envir=.MatrixEnv)
 	}
     }

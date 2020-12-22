@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Matrix 1.1-1\n"
-"POT-Creation-Date: 2018-04-06 22:43\n"
+"POT-Creation-Date: 2020-04-02 16:19\n"
 "PO-Revision-Date: 2014-03-30 09:07+0100\n"
 "Last-Translator: Philippe Grosjean <phgrosjean@sciviews.org>\n"
 "Language-Team: none\n"
@@ -366,12 +366,6 @@ msgstr ""
 "la longueur de l'objet le plus long\n"
 "\tn'est pas un multiple de la longueur de l'objet le plus court"
 
-msgid "<Matrix> %s %s is undefined"
-msgstr "<Matrix> %s %s est indéfini"
-
-msgid "%s %s <Matrix> is undefined"
-msgstr "%s %s <Matrix> est indéfini"
-
 msgid "longer object length is not a multiple of shorter object length"
 msgstr ""
 "la longueur de l'objet le plus long n'est pas un multiple de la longueur de "
@@ -731,6 +725,12 @@ msgstr "matrices de dimensions incompatibles dans %s"
 msgid "'boolArith = %d' not yet implemented"
 msgstr "le type %s n'est pas encore implémenté"
 
+msgid "qr2rankMatrix(.): QR with only %d out of %d finite diag(R) entries"
+msgstr ""
+
+msgid "qr2rankMatrix(.): QR has negative diag(R) entries"
+msgstr ""
+
 msgid ""
 "rankMatrix(<large sparse Matrix>, method = '%s') coerces to dense matrix.\n"
 " Probably should rather use method = 'qr' !?"
@@ -805,14 +805,15 @@ msgid "in show(); maybe adjust 'options(max.print= *, width = *)'"
 msgstr ""
 
 #, fuzzy
-msgid "suppressing columns and rows"
+msgid "suppressing %d columns and %d rows"
 msgstr "[[ suppression de %d noms de colonnes %s ]]"
 
-msgid "suppressing rows"
-msgstr ""
+#, fuzzy
+msgid "suppressing %d rows"
+msgstr "[[ suppression de %d noms de colonnes %s ]]"
 
 #, fuzzy
-msgid "suppressing columns"
+msgid "suppressing %d columns"
 msgstr "[[ suppression de %d noms de colonnes %s ]]"
 
 msgid "logic programming error in printSpMatrix2(), please report"
@@ -908,6 +909,12 @@ msgstr[0] ""
 msgstr[1] ""
 "les arguments %s ne sont pas utilisés dans\n"
 " %s"
+
+#~ msgid "<Matrix> %s %s is undefined"
+#~ msgstr "<Matrix> %s %s est indéfini"
+
+#~ msgid "%s %s <Matrix> is undefined"
+#~ msgstr "%s %s <Matrix> est indéfini"
 
 #~ msgid "variable '%s' converted to a factor"
 #~ msgstr "variable '%s' converti en facteur"

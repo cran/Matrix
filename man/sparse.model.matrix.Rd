@@ -4,7 +4,7 @@
 \alias{fac2sparse}
 \alias{fac2Sparse}
 \description{Construct a sparse model or \dQuote{design} matrix,
-  form a formula and data frame (\code{sparse.model.matrix}) or a single
+  from a formula and data frame (\code{sparse.model.matrix}) or a single
   factor (\code{fac2sparse}).
 
   The \code{fac2[Ss]parse()} functions are utilities, also used
@@ -15,12 +15,12 @@
 sparse.model.matrix(object, data = environment(object),
 		    contrasts.arg = NULL, xlev = NULL, transpose = FALSE,
 		    drop.unused.levels = FALSE, row.names = TRUE,
-		    verbose = FALSE, \dots)
+		    sep = "", verbose = FALSE, \dots)
 
 fac2sparse(from, to = c("d", "i", "l", "n", "z"),
-	   drop.unused.levels = TRUE, giveCsparse = TRUE)
+	   drop.unused.levels = TRUE, repr = c("C","T","R"), giveCsparse)
 fac2Sparse(from, to = c("d", "i", "l", "n", "z"),
-	   drop.unused.levels = TRUE, giveCsparse = TRUE,
+	   drop.unused.levels = TRUE, repr = c("C","T","R"), giveCsparse,
 	   factorPatt12, contrasts.arg = NULL)
 }
 \arguments{
@@ -47,14 +47,21 @@ fac2Sparse(from, to = c("d", "i", "l", "n", "z"),
     \code{FALSE}, 2010-07, for compatibility with \R's standard (dense)
     \code{\link{model.matrix}()}.}
   \item{row.names}{logical indicating if row names should be used.}
+  \item{sep}{\code{\link{character}} string passed to \code{\link{paste}()}
+    when constructing column names from the variable name and its levels.}
   \item{verbose}{logical or integer indicating if (and how much)
     progress output should be printed.}
   \item{\dots}{further arguments passed to or from other methods.}
   \item{from}{(for \code{fac2sparse()}:) a \code{\link{factor}}.}
   \item{to}{a character indicating the \dQuote{kind} of sparse matrix to
     be returned.  The default, \code{"d"} is for \code{\link{double}}.}
-  \item{giveCsparse}{(for \code{fac2sparse()}:) logical indicating if
+  \item{giveCsparse}{\bold{deprecated}, replaced with \code{repr}; logical indicating if
     the result must be a \code{\linkS4class{CsparseMatrix}}.}
+  \item{repr}{\code{\link{character}} string, one of \code{"C"},
+    \code{"T"}, or \code{"R"}, specifying the sparse \emph{repr}esentation to
+    be used for the result, i.e., one from the super classes
+    \code{\linkS4class{CsparseMatrix}}, \code{\linkS4class{TsparseMatrix}}, or
+    \code{\linkS4class{RsparseMatrix}}.}
   \item{factorPatt12}{logical vector, say \code{fp}, of length two;
     when \code{fp[1]} is true, return \dQuote{contrasted} \code{t(X)};
     when \code{fp[2]} is true, the original (\dQuote{dummy})
@@ -62,8 +69,8 @@ fac2Sparse(from, to = c("d", "i", "l", "n", "z"),
 }
 \value{
   a sparse matrix, extending \code{\linkS4class{CsparseMatrix}} (for
-  \code{fac2sparse()} if \code{giveCsparse} is true as per default; a
-  \code{\linkS4class{TsparseMatrix}}, otherwise).
+  \code{fac2sparse()} if \code{repr = "C"} as per default; a
+  \code{\linkS4class{TsparseMatrix}} or \code{\linkS4class{RsparseMatrix}}, otherwise).
 
   For \code{fac2Sparse()}, a \code{\link{list}} of length two, both
   components with the corresponding transposed model matrix, where the

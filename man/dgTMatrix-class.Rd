@@ -22,7 +22,7 @@
   Objects can be created by calls of the form \code{new("dgTMatrix",
     ...)}, but more typically via \code{as(*, "dgTMatrix")},
   \code{\link{spMatrix}()}, or
-  \code{\link{sparseMatrix}(*, giveCsparse=FALSE)}.
+  \code{\link{sparseMatrix}(*, repr = "T")}.
 }
 \section{Slots}{
   \describe{
@@ -72,7 +72,7 @@
   classes) implicitly add \eqn{x_k}'s that belong to identical
   \eqn{(i_k, j_k)} pairs.
 
-  However this means that a matrix typically can tbe stored in more than
+  However this means that a matrix typically can be stored in more than
   one possible \code{"\linkS4class{TsparseMatrix}"} representations.
   Use \code{\link{uniqTsparse}()} in order to ensure uniqueness of the
   internal representation of such a matrix.

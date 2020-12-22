@@ -173,7 +173,6 @@
 #if defined (DLONG) || defined (ZLONG)
 
 #define Int SuiteSparse_long
-#define UInt SuiteSparse_ulong
 #define ID  SuiteSparse_long_id
 #define Int_MAX SuiteSparse_long_max
 
@@ -195,7 +194,6 @@
 #else
 
 #define Int int
-#define UInt unsigned Int
 #define ID "%d"
 #define Int_MAX INT_MAX
 
@@ -215,13 +213,6 @@
 #define AMD_preprocess amd_preprocess
 
 #endif
-
-/* ========================================================================= */
-/* === PRINTF macro ======================================================== */
-/* ========================================================================= */
-
-/* All output goes through the PRINTF macro.  */
-#define PRINTF(params) { if (amd_printf != NULL) (void) amd_printf params ; }
 
 /* ------------------------------------------------------------------------- */
 /* AMD routine definitions (not user-callable) */
@@ -333,11 +324,11 @@ GLOBAL void AMD_dump
 #define ASSERT(expression) (assert (expression))
 #endif
 
-#define AMD_DEBUG0(params) { PRINTF (params) ; }
-#define AMD_DEBUG1(params) { if (AMD_debug >= 1) PRINTF (params) ; }
-#define AMD_DEBUG2(params) { if (AMD_debug >= 2) PRINTF (params) ; }
-#define AMD_DEBUG3(params) { if (AMD_debug >= 3) PRINTF (params) ; }
-#define AMD_DEBUG4(params) { if (AMD_debug >= 4) PRINTF (params) ; }
+#define AMD_DEBUG0(params) { SUITESPARSE_PRINTF (params) ; }
+#define AMD_DEBUG1(params) { if (AMD_debug >= 1) SUITESPARSE_PRINTF (params) ; }
+#define AMD_DEBUG2(params) { if (AMD_debug >= 2) SUITESPARSE_PRINTF (params) ; }
+#define AMD_DEBUG3(params) { if (AMD_debug >= 3) SUITESPARSE_PRINTF (params) ; }
+#define AMD_DEBUG4(params) { if (AMD_debug >= 4) SUITESPARSE_PRINTF (params) ; }
 
 #else
 

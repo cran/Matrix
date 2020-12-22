@@ -12,9 +12,9 @@
 \usage{
 Diagonal(n, x = NULL)
 
-.symDiagonal(n, x = rep.int(1,n), uplo = "U",   kind)
- .trDiagonal(n, x = 1, uplo = "U", unitri=TRUE, kind)
-.sparseDiagonal(n, x = 1, uplo = "U",
+   .symDiagonal(n, x = rep.int(1,n), uplo = "U",   kind)
+    .trDiagonal(n, x = 1,            uplo = "U", unitri=TRUE, kind)
+.sparseDiagonal(n, x = 1,            uplo = "U",
                 shape = if(missing(cols)) "t" else "g",
 	        unitri, kind, cols = if(n) 0:(n - 1L) else integer(0))
 }

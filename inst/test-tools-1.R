@@ -241,11 +241,12 @@ showSys.time <- function(expr, ...) {
     invisible(st)
 }
 showProc.time <- local({ ## function + 'pct' variable
-    pct <- proc.time()
-    function(final="\n") { ## CPU elapsed __since last called__
-	ot <- pct ; pct <<- proc.time()
-	## 'Time ..' *not* to be translated:  tools::Rdiff() skips its lines!
-	cat('Time elapsed: ', (pct - ot)[1:3], final)
+    pct <- summary(proc.time())# length 3, shorter names
+    function(final="\n", ind=TRUE) { ## CPU elapsed __since last called__
+	ot <- pct ; pct <<- summary(proc.time())
+	delta <- (pct - ot)[ind]
+	##  'Time' *not* to be translated:  tools::Rdiff() skips its lines!
+	cat('Time', paste0("(",paste(names(delta),collapse=" "),"):"), delta, final)
     }
 })
 
@@ -273,9 +274,11 @@ Sys.memGB <- function(kind = "MemTotal") {## "MemFree" is typically more relevan
 ##' @param obj an R object with a formal class (aka "S4")
 ##' @return a list with named components where \code{obj} had slots
 ##' @author Martin Maechler
-S4_2list <- function(obj) {
-   sn <- slotNames(obj)
-   structure(lapply(sn, slot, object = obj), .Names = sn)
+S4_2list <- # <- "old" name (I like less: too hard to remember)
+as.listS4 <- function(obj) {
+   sn <- .slotNames(obj)
+   ## structure(lapply(sn, slot, object = obj), .Names = sn)
+   `names<-`(lapply(sn, slot, object = obj), sn)
 }
 
 assert.EQ <- function(target, current, tol = if(showOnly) 0 else 1e-15,
@@ -388,3 +391,61 @@ is.EQ.mat3 <- function(M1, M2, M3, tol = 1e-15, dimnames = TRUE, ...) {
 		  unname(as(M2, "matrix")),
 		  unname(as(M3, "matrix")), tol=tol, ...)
 }
+
+##' here, as it also works for qr(<base matrix>)
+chkQR <- function(a,
+                  y = seq_len(nrow(a)),## RHS: made to contain no 0
+                  a.qr = qr(a), tol = 1e-11, # 1e-13 failing very rarely (interesting)
+                  ##----------
+                  Qinv.chk = !sp.rank.def, QtQ.chk = !sp.rank.def,
+                  verbose = getOption("Matrix.verbose", FALSE), giveRE = verbose,
+                  quiet = FALSE)
+{
+    d <- dim(a)
+    stopifnot((n <- d[1]) >= (p <- d[2]), is.numeric(y))
+    kind <- if(is.qr(a.qr)) "qr"
+            else if(is(a.qr, "sparseQR")) "spQR"
+            else stop("unknown qr() class: ", class(a.qr))
+    if(!missing(verbose) && verbose) {
+	op <- options(Matrix.verbose = verbose)
+	on.exit(options(op))
+    }
+    ## rank.def <- switch(kind,
+    ##     	       "qr"  = a.qr$rank < length(a.qr$pivot),
+    ##     	       "spQR" = a.qr@V@Dim[1] > a.qr@Dim[1])
+    sp.rank.def <- (kind == "spQR") && (a.qr@V@Dim[1] > a.qr@Dim[1])
+    if(sp.rank.def && !quiet && (missing(Qinv.chk) || missing(QtQ.chk)))
+	message("is sparse *structurally* rank deficient:  Qinv.chk=",
+		Qinv.chk,", QtQ.chk=",QtQ.chk)
+    if(is.na(QtQ.chk )) QtQ.chk  <- !sp.rank.def
+    if(is.na(Qinv.chk)) Qinv.chk <- !sp.rank.def
+
+    if(Qinv.chk) { ## qr.qy and qr.qty should be inverses,  Q'Q y = y = QQ' y :
+        if(verbose) cat("Qinv.chk=TRUE: checking   Q'Q y = y = QQ' y :\n")
+	## FIXME: Fails for structurally rank deficient sparse a's, but never for classical
+	assert.EQ(drop(qr.qy (a.qr, qr.qty(a.qr, y))), y, giveRE=giveRE, tol = tol/64)
+	assert.EQ(drop(qr.qty(a.qr, qr.qy (a.qr, y))), y, giveRE=giveRE, tol = tol/64)
+    }
+
+    piv <- switch(kind,
+                  "qr" = a.qr$pivot,
+                  "spQR" = 1L + a.qr@q)# 'q', not 'p' !!
+    invP <- sort.list(piv)
+
+    .ckQR <- function(cmpl) { ## local function, using parent's variables
+        if(verbose) cat("complete = ",cmpl,": checking  X = Q R P*\n", sep="")
+        Q <- qr.Q(a.qr, complete=cmpl) # NB: Q is already "back permuted"
+        R <- qr.R(a.qr, complete=cmpl)
+        rr <- if(cmpl) n else p
+        stopifnot(dim(Q) == c(n,rr),
+                  dim(R) == c(rr,p))
+        assert.EQ.Mat(a, Q %*% R[, invP], giveRE=giveRE, tol=tol)
+        ##            =  ===============
+	if(QtQ.chk)
+	    assert.EQ.mat(crossprod(Q), diag(rr), giveRE=giveRE, tol=tol)
+        ##                ===========   ====
+    }
+    .ckQR(FALSE)
+    .ckQR(TRUE)
+    invisible(a.qr)
+}## end{chkQR}

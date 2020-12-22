@@ -1072,6 +1072,7 @@ csn *cs_lu (const cs *A, const css *S, double tol)
             }
         }
         if (ipiv == -1 || a <= 0) return (cs_ndone (N, NULL, xi, x, 0)) ;
+        /* tol=1 for  partial pivoting; tol<1 gives preference to diagonal */
         if (pinv [col] < 0 && fabs (x [col]) >= a*tol) ipiv = col ;
         /* --- Divide by pivot ---------------------------------------------- */
         pivot = x [ipiv] ;          /* the chosen pivot */
@@ -1895,14 +1896,8 @@ csi cs_usolve (const cs *U, double *x)
     n = U->n ; Up = U->p ; Ui = U->i ; Ux = U->x ;
     for (j = n-1 ; j >= 0 ; j--)
     {
-        csi Upj_1 = Up [j+1]-1;
-        if (Upj_1 < 0) {
-            warning("cs_usolve(U, x): U is not invertible (j=%d)", j);
-	    x [j] = NA_REAL;
-	} else {
-	    x [j] /= Ux [Upj_1] ;
-	}
-        for (p = Up [j] ; p < Upj_1 ; p++)
+        x [j] /= Ux [Up [j+1]-1] ;
+        for (p = Up [j] ; p < Up [j+1]-1 ; p++)
         {
             x [Ui [p]] -= Ux [p] * x [j] ;
         }
@@ -1930,6 +1925,7 @@ csi cs_sprealloc (cs *A, csi nzmax)
     csi ok, oki, okj = 1, okx = 1 ;
     if (!A) return (0) ;
     if (nzmax <= 0) nzmax = (CS_CSC (A)) ? (A->p [A->n]) : A->nz ;
+    nzmax = CS_MAX (nzmax, 1) ;
     A->i = cs_realloc (A->i, nzmax, sizeof (csi), &oki) ;
     if (CS_TRIPLET (A)) A->p = cs_realloc (A->p, nzmax, sizeof (csi), &okj) ;
     if (A->x) A->x = cs_realloc (A->x, nzmax, sizeof (double), &okx) ;
@@ -2036,17 +2032,11 @@ csi cs_utsolve (const cs *U, double *x)
     n = U->n ; Up = U->p ; Ui = U->i ; Ux = U->x ;
     for (j = 0 ; j < n ; j++)
     {
-        csi Upj_1 = Up [j+1]-1;
-        for (p = Up [j] ; p < Upj_1 ; p++)
+        for (p = Up [j] ; p < Up [j+1]-1 ; p++)
         {
             x [j] -= Ux [p] * x [Ui [p]] ;
         }
-        if (Upj_1 < 0) {
-            warning("cs_utsolve(U, x): U' is not invertible (j=%d)", j);
-	    x [j] = NA_REAL;
-	} else {
-	    x [j] /= Ux [Upj_1] ;
-	}
+        x [j] /= Ux [Up [j+1]-1] ;
     }
     return (1) ;
 }

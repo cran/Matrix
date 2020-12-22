@@ -825,7 +825,10 @@ int R_cholmod_start(CHM_CM c)
     int res;
     if (!(res = cholmod_start(c)))
 	error(_("Unable to initialize cholmod: error code %d"), res);
-    c->print_function = R_cholmod_printf; /* Rprintf gives warning */
+    /*SuiteSparse <= 4.x.y :
+     * c->print_function = R_cholmod_printf; /. Rprintf gives warning */
+    SuiteSparse_config.printf_func = R_cholmod_printf;/* Rprintf gives warning */
+    //                                 ^^^^^^^^^ now is misnomer
     /* Since we provide an error handler, it may not be a good idea to allow CHOLMOD printing,
      * because that's not easily suppressed on the R level :
      * Hence consider, at least temporarily *  c->print_function = NULL; */

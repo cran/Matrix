@@ -5,9 +5,6 @@
 /* -----------------------------------------------------------------------------
  * CHOLMOD/Modify Module.  Copyright (C) 2005-2006,
  * Timothy A. Davis and William W. Hager.
- * The CHOLMOD/Modify Module is licensed under Version 2.0 of the GNU
- * General Public License.  See gpl.txt for a text of the license.
- * CHOLMOD is also available under other licenses; contact authors for details.
  * http://www.suitesparse.com
  * -------------------------------------------------------------------------- */
 
@@ -93,6 +90,7 @@ static void NUMERIC (WDIM, r)
     Path_type Path [ ],
     Int npaths,
     Int mask [ ],	/* size n */
+    Int maskmark,
     cholmod_common *Common
 )
 {
@@ -131,7 +129,7 @@ static void NUMERIC (WDIM, r)
 	{
 	    i = Ci [p] ;
 	    ASSERT (i >= 0 && i < (Int) (C->nrow)) ;
-	    if (mask == NULL || mask [i] < 0)
+	    if (mask == NULL || mask [i] < maskmark)
 	    {
 		Wpath [WDIM * i] = Cx [p] ;
 	    }

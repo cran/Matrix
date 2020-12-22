@@ -28,7 +28,7 @@ setMethod("rcond", signature(x = "dspMatrix", norm = "missing"),
           valueClass = "numeric")
 
 setMethod("BunchKaufman", signature(x = "dspMatrix"),
-	  function(x) .Call(dspMatrix_trf, x))
+	  function(x, ...) .Call(dspMatrix_trf, x))
 
 ## Should define multiplication from the right
 
@@ -65,9 +65,8 @@ setMethod("norm", signature(x = "dspMatrix", type = "missing"),
           function(x, type, ...) .Call(dspMatrix_norm, x, "O"),
           valueClass = "numeric")
 
-## FIXME: speed up!
 setMethod("t", signature(x = "dspMatrix"),
-          function(x) as(t(as(x, "dsyMatrix")), "dspMatrix"),
+          function(x) .dsy2dsp(t(dsp2dsy(x))),
           valueClass = "dspMatrix")
 
 setMethod("diag", signature(x = "dspMatrix"),

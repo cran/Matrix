@@ -4,9 +4,6 @@
 
 /* -----------------------------------------------------------------------------
  * CHOLMOD/Cholesky Module.  Copyright (C) 2005-2013, Timothy A. Davis
- * The CHOLMOD/Cholesky Module is licensed under Version 2.1 of the GNU
- * Lesser General Public License.  See lesser.txt for a text of the license.
- * CHOLMOD is also available under other licenses; contact authors for details.
  * -------------------------------------------------------------------------- */
 
 /* Solve one of the following systems.  D is identity for an LL' factorization,
@@ -1675,9 +1672,6 @@ int CHOLMOD(solve2)         /* returns TRUE on success, FALSE on failure */
         }
     }
 
-    /*
-    printf ("bye from solve2\n") ;
-    */
     DEBUG (CHOLMOD(dump_dense) (X, "X result", Common)) ;
     return (TRUE) ;
 }

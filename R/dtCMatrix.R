@@ -20,9 +20,12 @@ setAs("dtCMatrix", "dgCMatrix",
       function(from) {
           if (from@diag == "U")
               from <- .Call(Csparse_diagU2N, from)
-          new("dgCMatrix",
-              i = from@i, p = from@p, x = from@x,
-              Dim = from@Dim, Dimnames = from@Dimnames)
+          ## new("dgCMatrix",
+          ##     i = from@i, p = from@p, x = from@x,
+          ##     Dim = from@Dim, Dimnames = from@Dimnames)
+          ## ---> Rather faster, no checking:
+          copyClass(from, "dgCMatrix",
+                    sNames = c("i", "p", "x", "Dim", "Dimnames"), check = FALSE)
       })
 
 setAs("dtCMatrix", "dsCMatrix", function(from) as(from, "symmetricMatrix"))

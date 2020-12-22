@@ -9,6 +9,11 @@ SEXP symmetricMatrix_validate(SEXP obj)
         return mkString(_("Matrix is not square"));
     if (isString(val = check_scalar_string(GET_SLOT(obj, Matrix_uploSym),
 					   "LU", "uplo"))) return val;
+    /* FIXME: Check dimnames {with a modular separate function}: Allow 1 of 2  to be NULL,
+     * -----  but otherwise may *NOT* differ !!
+     * currently,  I2 <- Diagonal(2) ; dimnames(I2) <- list(c("A","B"), c("x","y")); L2 <- !!I2
+     * produces such an "invalid" symmetric matrix:  L2[1:2,1:2] then fails
+     */
     return ScalarLogical(1);
 }
 
@@ -24,7 +29,7 @@ double get_norm_sy(SEXP obj, const char *typstr)
     }
     return F77_CALL(dlansy)(typnm, uplo_P(obj),
 			    dims, REAL(GET_SLOT(obj, Matrix_xSym)),
-			    dims, work);
+			    dims, work FCONE FCONE);
 }
 
 SEXP dsyMatrix_norm(SEXP obj, SEXP type)
@@ -45,7 +50,7 @@ SEXP dsyMatrix_rcond(SEXP obj, SEXP type)
 		     INTEGER(GET_SLOT(trf, Matrix_permSym)),
 		     &anorm, &rcond,
 		     (double *) R_alloc(2*dims[0], sizeof(double)),
-		     (int *) R_alloc(dims[0], sizeof(int)), &info);
+		     (int *) R_alloc(dims[0], sizeof(int)), &info FCONE);
     return ScalarReal(rcond);
 }
 
@@ -62,7 +67,7 @@ SEXP dsyMatrix_solve(SEXP a)
 		     REAL(GET_SLOT(val, Matrix_xSym)), dims,
 		     INTEGER(GET_SLOT(trf, Matrix_permSym)),
 		     (double *) R_alloc((long) dims[0], sizeof(double)),
-		     &info);
+		     &info FCONE);
     UNPROTECT(1);
     return val;
 }
@@ -81,7 +86,7 @@ SEXP dsyMatrix_matrix_solve(SEXP a, SEXP b)
 		     REAL(GET_SLOT(trf, Matrix_xSym)), adims,
 		     INTEGER(GET_SLOT(trf, Matrix_permSym)),
 		     REAL(GET_SLOT(val, Matrix_xSym)),
-		     bdims, &info);
+		     bdims, &info FCONE);
     UNPROTECT(1);
     return val;
 }
@@ -120,7 +125,7 @@ SEXP dsyMatrix_matrix_mm(SEXP a, SEXP b, SEXP rtP)
     if (m >=1 && n >= 1)
 	F77_CALL(dsymm)(rt ? "R" :"L", uplo_P(a), &m, &n, &one,
 			REAL(GET_SLOT(a, Matrix_xSym)), adims, bcp,
-			&m, &zero, vx, &m);
+			&m, &zero, vx, &m FCONE FCONE);
     // add dimnames:
     int nd = rt ?
 	1 : // v <- b %*% a : rownames(v) == rownames(b)  are already there
@@ -134,35 +139,83 @@ SEXP dsyMatrix_matrix_mm(SEXP a, SEXP b, SEXP rtP)
 
 SEXP dsyMatrix_trf(SEXP x)
 {
-    SEXP val = get_factors(x, "BunchKaufman"),
-	dimP = GET_SLOT(x, Matrix_DimSym),
-	uploP = GET_SLOT(x, Matrix_uploSym);
-    int *dims = INTEGER(dimP), *perm, info;
-    int lwork = -1, n = dims[0];
-    const char *uplo = CHAR(STRING_ELT(uploP, 0));
-    double tmp, *vx, *work;
-
+    SEXP val = get_factors(x, "BunchKaufman");
     if (val != R_NilValue) return val;
-    dims = INTEGER(dimP);
+
+    SEXP dimP = GET_SLOT(x, Matrix_DimSym),
+	uploP = GET_SLOT(x, Matrix_uploSym);
+    int n = INTEGER(dimP)[0];
+    const char *uplo = CHAR(STRING_ELT(uploP, 0));
+
     val = PROTECT(NEW_OBJECT_OF_CLASS("BunchKaufman"));
     SET_SLOT(val, Matrix_uploSym, duplicate(uploP));
     SET_SLOT(val, Matrix_diagSym, mkString("N"));
     SET_SLOT(val, Matrix_DimSym, duplicate(dimP));
-    vx = REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, n * n));
+    double *vx = REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, n * n));
     AZERO(vx, n * n);
-    F77_CALL(dlacpy)(uplo, &n, &n, REAL(GET_SLOT(x, Matrix_xSym)), &n, vx, &n);
-    perm = INTEGER(ALLOC_SLOT(val, Matrix_permSym, INTSXP, n));
-    F77_CALL(dsytrf)(uplo, &n, vx, &n, perm, &tmp, &lwork, &info);
+    F77_CALL(dlacpy)(uplo, &n, &n, REAL(GET_SLOT(x, Matrix_xSym)), &n, vx, &n FCONE);
+    int *perm = INTEGER(ALLOC_SLOT(val, Matrix_permSym, INTSXP, n)),
+	info, lwork = -1;
+    double tmp, *work;
+    F77_CALL(dsytrf)(uplo, &n, vx, &n, perm, &tmp, &lwork, &info FCONE);
     lwork = (int) tmp;
     C_or_Alloca_TO(work, lwork, double);
 
-    F77_CALL(dsytrf)(uplo, &n, vx, &n, perm, work, &lwork, &info);
+    F77_CALL(dsytrf)(uplo, &n, vx, &n, perm, work, &lwork, &info FCONE);
 
     if(lwork >= SMALL_4_Alloca) Free(work);
     if (info) error(_("Lapack routine dsytrf returned error code %d"), info);
     UNPROTECT(1);
     return set_factors(x, val, "BunchKaufman");
 }
+
+/** BunchKaufmann(<simple matrix>)
+ */
+SEXP matrix_trf(SEXP x, SEXP uploP)
+{
+    if (!(isReal(x) & isMatrix(x)))
+	error(_("x must be a \"double\" (numeric) matrix"));
+    SEXP dimP = getAttrib(x, R_DimSymbol);
+    int nprot = 1;
+    if(TYPEOF(dimP) == INTSXP)
+	dimP = duplicate(dimP);
+    else {
+        dimP = PROTECT(coerceVector(dimP, INTSXP)); nprot++;
+    }
+    int *dims = INTEGER(dimP),
+	n = dims[0];
+    if(n != dims[1])
+	error(_("matrix_trf(x, *): matrix is not square"));
+    /* In principle, we "should" check that the matrix is symmetric,
+       OTOH, we only use its lower or upper (depending on 'uploP') triangular part */
+    if(uploP == R_NilValue) {
+	uploP = mkString("U"); // Default: if not specified, use "U"
+    } else {
+	if(TYPEOF(uploP) != STRSXP)
+	    error(_("matrix_trf(*, uplo): uplo must be string"));
+	uploP = duplicate(uploP); // as we "add" it to the result
+    }
+    const char *uplo = CHAR(STRING_ELT(uploP, 0));
+    SEXP val = PROTECT(NEW_OBJECT_OF_CLASS("BunchKaufman"));
+    SET_SLOT(val, Matrix_uploSym, uploP);
+    SET_SLOT(val, Matrix_diagSym, mkString("N"));
+    SET_SLOT(val, Matrix_DimSym, dimP);
+    double *vx = REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, n * n)); // n x n result matrix
+    AZERO(vx, n * n);
+    F77_CALL(dlacpy)(uplo, &n, &n, REAL(x), &n, vx, &n FCONE);
+    int *perm = INTEGER(ALLOC_SLOT(val, Matrix_permSym, INTSXP, n)),
+         info, lwork = -1;
+    double tmp, *work;
+    F77_CALL(dsytrf)(uplo, &n, vx, &n, perm, &tmp, &lwork, &info FCONE);
+    lwork = (int) tmp;
+    C_or_Alloca_TO(work, lwork, double);
+    F77_CALL(dsytrf)(uplo, &n, vx, &n, perm, work, &lwork, &info FCONE);
+    if(lwork >= SMALL_4_Alloca) Free(work);
+    if (info) error(_("Lapack routine dsytrf returned error code %d"), info);
+    UNPROTECT(nprot);
+    return val;
+}
+
 
 // this is very close to lsyMatrix_as_lsp*() in ./ldense.c  -- keep synced !
 SEXP dsyMatrix_as_dspMatrix(SEXP from)

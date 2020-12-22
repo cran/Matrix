@@ -213,13 +213,22 @@ setMethod("triu", "diagonalMatrix", function(x, k = 0, ...)
 
 
 
-.diag2tT <- function(from, uplo = "U", kind = .M.kind(from)) {
+.diag2tT <- function(from, uplo = "U", kind = .M.kind(from), drop0 = TRUE) {
     ## to triangular Tsparse
-    i <- if(from@diag == "U") integer(0) else seq_len(from@Dim[1]) - 1L
+    x <- from@x
+    i <- if(from@diag == "U")
+	      integer(0L)
+	  else if(drop0 & any0(x)) {
+	      ii <- which(isN0(x))
+	      x <- x[ii]
+	      ii - 1L
+	  }
+	  else
+	      seq_len(from@Dim[1]) - 1L
     new(paste0(kind, "tTMatrix"),
 	diag = from@diag, Dim = from@Dim, Dimnames = from@Dimnames,
 	uplo = uplo,
-	x = from@x, # <- ok for diag = "U" and "N" (!)
+	x = x, # <- ok for diag = "U" and "N" (!)
 	i = i, j = i)
 }
 
@@ -242,8 +251,8 @@ setMethod("triu", "diagonalMatrix", function(x, k = 0, ...)
 }
 
 ## diagonal -> triangular,  upper / lower depending on "partner" 'x':
-diag2tT.u <- function(d, x, kind = .M.kind(d))
-    .diag2tT(d, uplo = if(is(x,"triangularMatrix")) x@uplo else "U", kind)
+diag2tT.u <- function(d, x, kind = .M.kind(d), drop0 = TRUE)
+    .diag2tT(d, uplo = if(is(x,"triangularMatrix")) x@uplo else "U", kind, drop0)
 
 ## diagonal -> sparse {triangular OR symmetric} (upper / lower) depending on "partner":
 diag2Tsmart <- function(d, x, kind = .M.kind(d)) {
@@ -272,7 +281,11 @@ setAs("ddiMatrix", "triangularMatrix", di2tT)
 setAs("ddiMatrix", "TsparseMatrix", di2tT)
 setAs("ddiMatrix", "dsparseMatrix", di2tT)
 setAs("ddiMatrix", "CsparseMatrix",
-      function(from) as(.diag2tT(from, "U", "d"), "CsparseMatrix"))
+      function(from) .T2Cmat(.diag2tT(from, "U", "d"), isTri=TRUE))
+## Such that  as(Matrix(0, d,d), "dgCMatrix")  continues working:
+setAs("ddiMatrix", "dgCMatrix",
+      function(from) .T2Cmat(.diag2tT(from, "U", "d"), isTri=TRUE))
+
 setAs("ddiMatrix", "symmetricMatrix", function(from) .diag2sT(from, "U", "d"))
 ##
 ## ldi*:
@@ -283,7 +296,7 @@ setAs("ldiMatrix", "triangularMatrix", di2tT)
 setAs("ldiMatrix", "TsparseMatrix", di2tT)
 setAs("ldiMatrix", "lsparseMatrix", di2tT)
 setAs("ldiMatrix", "CsparseMatrix",
-      function(from) as(.diag2tT(from, "U", "l"), "CsparseMatrix"))
+      function(from) .T2Cmat(.diag2tT(from, "U", "l"), isTri=TRUE))
 setAs("ldiMatrix", "symmetricMatrix", function(from) .diag2sT(from, "U", "l"))
 rm(di2tT)
 
@@ -420,9 +433,8 @@ setMethod("[", signature(x = "diagonalMatrix", i = "missing",
 
 ## When you assign to a diagonalMatrix, the result should be
 ## diagonal or sparse ---
-## FIXME: this now fails because the "denseMatrix" methods come first in dispatch
-## Only(?) current bug:  x[i] <- value  is wrong when  i is *vector*
 replDiag <- function(x, i, j, ..., value) {
+## FIXME: if   (i == j)  &&  isSymmetric(value) then -- want symmetricMatrix result! -- or diagMatrix
     x <- as(x, "CsparseMatrix")# was "Tsparse.." till 2012-07
     if(missing(i))
 	x[, j] <- value
@@ -437,7 +449,11 @@ replDiag <- function(x, i, j, ..., value) {
 			   na), domain=NA)
     } else
 	x[i,j] <- value
-    if(isDiagonal(x)) as(x, "diagonalMatrix") else x
+    ## TODO: the following is a bit expensive; have cases above e.g. [i,] where
+    ## ----- we could check *much* faster :
+    if(isDiagonal(x))   as(x, "diagonalMatrix") else
+    if(isTriangular(x)) as(x, "triangularMatrix") else
+    if(isSymmetric(x))  as(x, "symmetricMatrix") else x
 }
 
 setReplaceMethod("[", signature(x = "diagonalMatrix", i = "index",
@@ -490,7 +506,11 @@ setReplaceMethod("[", signature(x = "diagonalMatrix",
 			     x@x[ii] <- value
 			     x
 			 } else { ## no longer diagonal, but remain sparse:
-			     x <- as(x, "TsparseMatrix")
+###  FIXME:  use  uplo="U" or uplo="L"  (or *not* "triangularMatrix") depending on LE <- i <= j
+###          all(LE) //  all(!LE) // remaining cases
+
+## --> use                        .diag2tT(from, uplo = "U", kind = .M.kind(from))
+			     x <- as(x, "triangularMatrix") # was "TsparseMatrix"
 			     x[i] <- value
 			     x
 			 }
@@ -832,7 +852,7 @@ Cspdiagprod <- function(x, y, boolArith = NA, ...) {
 	    as(x, "lMatrix")
 	} else {
 	    ## else boolArith is  NA or FALSE {which are equivalent here, das diagonal = "numLike"}
-	    if(extends(cx, "nMatrix") || extends(cx, "lMatrix"))
+	    if(extends1of(cx, c("nMatrix", "lMatrix")))
 		as(x, "dMatrix") else x
 	}
     }
@@ -877,7 +897,7 @@ diagCspprod <- function(x, y, boolArith = NA, ...) {
 	    as(y, "lMatrix")
 	} else {
 	    ## else boolArith is  NA or FALSE {which are equivalent here, das diagonal = "numLike"}
-	    if(extends(cy, "nMatrix") || extends(cy, "lMatrix"))
+	    if(extends1of(cy, c("nMatrix", "lMatrix")))
 		as(y, "dMatrix") else y
 	}
     }

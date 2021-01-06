@@ -4,11 +4,11 @@
 if(interactive()) {
     options(error = recover, warn = 1)
 } else if(FALSE) { ## MM @ testing *manually* only
-    options(error = recover, Matrix.verbose = TRUE, warn = 1)
+    options(error = recover, Matrix.verbose = 2,   warn = 1)
 } else {
-    options(                 Matrix.verbose = TRUE, warn = 1)
+    options(                 Matrix.verbose = 2, warn = 1)
 }
-## Matrix.verbose = TRUE (*before* loading 'Matrix' pkg)
+## Matrix.verbose = .. (*before* loading 'Matrix' pkg)
 ## ==> will also show method dispath ambiguity messages: getOption("ambiguousMethodSelection")
 
 #### suppressPackageStartupMessages(...)  as we have an *.Rout.save to Rdiff against
@@ -597,6 +597,62 @@ stopifnot(identical(m2[1:3,], as(m1[1:3,], "CsparseMatrix")),
           identical(uniqTsparse(m1[, c(4,2)]),
                     uniqTsparse(as(m2[, c(4,2)], "TsparseMatrix")))
           )## failed in 0.9975-11
+
+## 0-dimensional diagonal - subsetting ----------------------------
+## before that diagU2N() etc for 0-dim. dtC*:
+m0. <- m00 <- matrix(numeric(),0,0)
+dimnames(m0.) <- list(NULL, NULL)
+ tC0.<- new("dtCMatrix")
+ tC0 <- new("dtCMatrix", diag="U")
+(gC0 <- new("dgCMatrix")) # 0 x 0
+D0 <- Diagonal(0)
+stopifnot(exprs = {
+    identical(m0.,       as(tC0, "matrix")) # failed: Cholmod error 'invalid xtype' ..
+    identical(numeric(), as(tC0, "numeric"))#   "
+    identical(numeric(), tC0[ 0 ])# --> .M.vectorSub(x, i) failed in as(., "matrix")
+    identical(m00[TRUE ], tC0[TRUE ])# (worked already)
+    identical(m00[FALSE], tC0[FALSE])#    ditto
+    ##
+    identical(D0, D0[0,0]) # used to fail --> subCsp_ij  (..)
+    identical(D0, D0[ ,0]) #  (ditto)     --> subCsp_cols(..)
+    identical(D0, D0[0, ]) #     "        --> subCsp_rows(..)
+    identical(D0, D0[,])          # (worked already)
+    identical(m00[ 0 ],  D0[ 0 ] )#      ditto
+    identical(m00[TRUE ], D0[TRUE ])#      "
+    identical(m00[FALSE], D0[FALSE])#      "
+    ##
+    identical(tC0.,tC0[0,0]) # failed --> subCsp_ij  (..)
+    identical(gC0, tC0[ ,0]) #   "    --> subCsp_cols(..)
+    identical(gC0, tC0[0, ]) #   "    --> subCsp_rows(..)
+    identical(tC0, tC0[,])   # (worked already)
+    ## vector indexing
+})
+
+expr <- quote({ ## FIXME -- both 'TRUE' and 'FALSE'  should fail "out of bound",etc
+  D0[TRUE, TRUE ]
+  D0[    , TRUE ]
+  D0[TRUE,      ] # worked  but should *NOT*
+ tC0[TRUE, TRUE ]
+ tC0[    , TRUE ]
+ tC0[TRUE,      ] # worked  but should *NOT*
+  ##
+  D0[FALSE,FALSE] # fails --> subCsp_ij(..) -> intI()
+  D0[     ,FALSE] #    ditto ............
+  D0[FALSE,     ] #    ditto
+ tC0[FALSE,FALSE] #      "
+ tC0[FALSE,     ] #      "
+ tC0[     ,FALSE] #      "
+})
+EE <- lapply(expr[-1], function(e)
+    list(expr = e,
+         r    = tryCatch(eval(e), error = identity)))
+exR <- lapply(EE, `[[`, "r")
+stopifnot(exprs = {
+    vapply(exR, inherits, logical(1), what = "error")
+    unique( vapply(exR, `[[`, "<msg>", "message")
+           ) == "logical subscript too long (1, should be 0)"
+})
+
 
 (uTr <- new("dtTMatrix", Dim = c(3L,3L), diag="U"))
 uTr[1,] <- 0

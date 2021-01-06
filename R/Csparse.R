@@ -515,3 +515,26 @@ setMethod("Cholesky", signature(A = "CsparseMatrix"),
 setMethod("Cholesky", signature(A = "nsparseMatrix"),
 	  function(A, perm = TRUE, LDL = !super, super = FALSE, Imult = 0, ...)
 	  stop("Cholesky(<nsparse...>) -> *symbolic* factorization -- not yet implemented"))
+
+if(FALSE)
+isDiagCsp <- function(object) {
+    d <- dim(object)
+    if((n <- d[1]) != d[2])
+        FALSE
+    else if(n == 0)
+        TRUE
+    else # (n >= 1)
+        ## "FIXME": do this in C  --->>> for now use Csparse_to_Tsparse
+        (m <- length(i <- object@i)) == 0 || {
+            m <= n && !anyDuplicated(i) &&
+                ## length(p <- object@p) == n+1L &&
+                all((dp <- diff(object@p)) <= 1L) &&
+                length(j <- base::which(dp == 1L)) == m && all(j == i+1L)
+        }
+}
+if(FALSE)
+setMethod("isDiagonal", signature(object = "CsparseMatrix"), isDiagCsp)
+
+setMethod("isDiagonal", signature(object = "CsparseMatrix"),
+	  function(object) isDiagTsp(.Call(Csparse_to_Tsparse, object, is(object, "triangularMatrix"))))
+

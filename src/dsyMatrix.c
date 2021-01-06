@@ -176,12 +176,11 @@ SEXP matrix_trf(SEXP x, SEXP uploP)
     if (!(isReal(x) & isMatrix(x)))
 	error(_("x must be a \"double\" (numeric) matrix"));
     SEXP dimP = getAttrib(x, R_DimSymbol);
-    int nprot = 1;
     if(TYPEOF(dimP) == INTSXP)
 	dimP = duplicate(dimP);
-    else {
-        dimP = PROTECT(coerceVector(dimP, INTSXP)); nprot++;
-    }
+    else
+        dimP = coerceVector(dimP, INTSXP);
+    PROTECT(dimP);
     int *dims = INTEGER(dimP),
 	n = dims[0];
     if(n != dims[1])
@@ -195,6 +194,7 @@ SEXP matrix_trf(SEXP x, SEXP uploP)
 	    error(_("matrix_trf(*, uplo): uplo must be string"));
 	uploP = duplicate(uploP); // as we "add" it to the result
     }
+    PROTECT(uploP);
     const char *uplo = CHAR(STRING_ELT(uploP, 0));
     SEXP val = PROTECT(NEW_OBJECT_OF_CLASS("BunchKaufman"));
     SET_SLOT(val, Matrix_uploSym, uploP);
@@ -212,7 +212,7 @@ SEXP matrix_trf(SEXP x, SEXP uploP)
     F77_CALL(dsytrf)(uplo, &n, vx, &n, perm, work, &lwork, &info FCONE);
     if(lwork >= SMALL_4_Alloca) Free(work);
     if (info) error(_("Lapack routine dsytrf returned error code %d"), info);
-    UNPROTECT(nprot);
+    UNPROTECT(3);
     return val;
 }
 

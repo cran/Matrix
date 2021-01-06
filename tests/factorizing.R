@@ -476,9 +476,32 @@ options(oo)
 Z. <- readRDS(system.file("external", "Z_NA_rnk.rds", package="Matrix"))
 tools::assertWarning(rnkZ. <- rankMatrix(Z., method = "qr")) # gave errors
 qrZ. <- qr(Z.)
+options(warn=1)
 rnk2 <- qr2rankMatrix(qrZ.) # warning ".. only 684 out of 822 finite diag(R) entries"
+oo <- options(warn=2)# no warnings allowed from here
 di <- diag(qrZ.@R)
 stopifnot(is.na(rnkZ.), is(qrZ, "sparseQR"), is.na(rnk2), anyNA(di))
+
+## The above bug fix was partly wrongly extended to  dense matrices for "qr.R":
+x <- cbind(1, rep(0:9, 18))
+qr.R(qr(x))              # one negative diagonal
+qr.R(qr(x, LAPACK=TRUE)) # two negative diagonals
+chkRnk <- function(x, rnk) {
+    stopifnot(exprs = {
+        rankMatrix(x) == rnk
+        rankMatrix(x, method="maybeGrad") == rnk ## but "useGrad" is not !
+        rankMatrix(x, method="qrLINPACK") == rnk
+        rankMatrix(x, method="qr.R"     ) == rnk
+    })# the last gave '0' and a warning in Matrix 1.3-0
+}
+chkRnk(   x,    2)
+chkRnk(diag(1), 1) # had "empty stopifnot" (-> Error in MM's experimental setup) +  warning 'min(<empty>)'
+(m3 <- cbind(2, rbind(diag(pi, 2), 8)))
+chkRnk(m3, 3)
+chkRnk(matrix(0, 4,3), 0)
+chkRnk(matrix(1, 5,5), 1) # had failed for "maybeGrad"
+chkRnk(matrix(1, 5,2), 1)
+
 
 showSys.time(
 for(i in 1:120) {
@@ -549,6 +572,26 @@ assert.EQ.mat(     crossprod(chol2inv(chol(Diagonal(x = 5:1)))),
 stopifnot(all.equal(C, diag((5:1)^-2)))
 ## failed in some versions because of a "wrong" implicit generic
 
+U <- cbind(1:0, 2*(1:2))
+(sU <- as(U, "dtCMatrix"))
+validObject(sS <- crossprod(sU))
+C. <- chol(sS)
+stopifnot(all.equal(C., sU, tol=1e-15))
+## chol(<triangular sparse which is diagonal>)
+tC7 <- .trDiagonal(7, 7:1)
+stopifnotValid(tC7, "dtCMatrix")
+ch7  <- chol(tC7) ## this (and the next 2) failed: 'no slot .. "factors" ..."dtCMatrix"'
+chT7 <- chol(tT7 <- as(tC7, "TsparseMatrix"))
+chR7 <- chol(tR7 <- as(tC7, "RsparseMatrix"))
+stopifnot(expr = {
+    isDiagonal(ch7)
+    identical(chT7, ch7) # "ddiMatrix" all of them
+    identical(chR7, ch7) # "ddiMatrix" all of them
+    all.equal(sqrt(7:1), diag(ch7 ))
+})
+
+
+
 ## From [Bug 14834] New: chol2inv *** caught segfault ***
 n <- 1e6 # was 595362
 A <- chol( D <- Diagonal(n) )
@@ -568,6 +611,5 @@ ia <- chol2inv(A)
 stopifnot(is(ia, "diagonalMatrix"),
 	  all.equal(ia@x, rep(2,n), tolerance = 1e-15))
 
-
 cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
-if(!interactive()) warnings()
+

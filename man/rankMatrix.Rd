@@ -85,7 +85,8 @@ qr2rankMatrix(qr, tol = NULL, isBqr = is.qr(qr), do.warn = TRUE)
   \item{isBqr}{\code{\link{logical}} indicating if \code{qr} is resulting
     from \pkg{base} \code{\link[base]{qr}()}.  (Otherwise, it is typically
     from \pkg{Matrix} package sparse \code{\link[Matrix]{qr}}.)}
-  \item{do.warn}{logical; if true, warn about non-finite or negative
+  \item{do.warn}{logical; if true, warn about non-finite (or in the
+    \code{sparseQR} case negative)
     diagonal entries in the \eqn{R} matrix of the \eqn{QR} decomposition.
     Do not change lightly!}
 }
@@ -136,8 +137,8 @@ rankMatrix(cbind(1, 0, 1:3)) # 2
 H12 <- Hilbert(12)
 rankMatrix(H12, tol = 1e-20) # 12;  but  11  with default method & tol.
 sapply(meths, function(.m.) rankMatrix(H12, method = .m.))
-## tolNorm2    qr   qr.R  qrLINPACK  useGrad maybeGrad
-##       11    12     11         12       11        11
+## tolNorm2   qr.R  qrLINPACK   qr  useGrad maybeGrad
+##       11     11         12   12       11        11
 ## The meaning of 'tol' for method="qrLINPACK" and *dense* x is not entirely "scale free"
 rMQL <- function(ex, M) rankMatrix(M, method="qrLINPACK",tol = 10^-ex)
 rMQR <- function(ex, M) rankMatrix(M, method="qr.R",     tol = 10^-ex)
@@ -163,6 +164,7 @@ sapply(5:15, rMQR, M = 1000 * H12) # the *same*
 M15 <- kronecker(diag(x=c(100,1,10)), Hilbert(5))
 sapply(meths, function(.m.) rankMatrix(M15, method = .m.))
 #--> all 15, but 'useGrad' has 14.
+sapply(meths, function(.m.) rankMatrix(M15, method = .m., tol = 1e-7)) # all 14
 
 ## "large" sparse
 n <- 250000; p <- 33; nnz <- 10000

@@ -3,6 +3,7 @@
 setMethod("image", "dsparseMatrix",
 	  function(x, ...) image(as(x, "dgTMatrix"), ...))
 
+## fails e.g. for 'dtCMatrix'; "triangularMatrix" has own method in ./triangularMatrix.R
 setMethod("chol", signature(x = "dsparseMatrix"),
 	   function(x, pivot=FALSE, cache=TRUE, ...) {
 	       nm <- if(pivot) "sPdCholesky" else "spdCholesky"

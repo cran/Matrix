@@ -303,7 +303,7 @@ CHM_SP as_cholmod_sparse(CHM_SP ans, SEXP x,
 	}
     }
 
-    if (check_Udiag && ctype % 3 == 2 // triangular
+    if (check_Udiag && ctype % 3 == 2 /* triangular */ && ans->nrow // fails for Dim = (0,0)
 	&& (*diag_P(x) == 'U')) { /* diagU2N(.)  "in place" : */
 	double one[] = {1, 0};
 	CHM_SP eye = cholmod_speye(ans->nrow, ans->ncol, ans->xtype, &c);

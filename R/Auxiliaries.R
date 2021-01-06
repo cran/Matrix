@@ -1604,8 +1604,8 @@ chk.s <- function(..., which.call = -1,
                                  "extra argument %s will be disregarded in\n %s",
                                  "extra arguments %s will be disregarded in\n %s"),
                         sub(")$", '', sub("^list\\(", '',
-                                          deparse(list(...), control=depCtrl))),
-                        deparse(sys.call(which.call), control=depCtrl)),
+                                          deparse1(list(...), control=depCtrl))),
+                        deparse1(sys.call(which.call), control=depCtrl)),
                 call. = FALSE, domain=NA)
 }
 

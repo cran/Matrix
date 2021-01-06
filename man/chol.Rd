@@ -19,6 +19,9 @@
 \alias{chol,lsCMatrix-method}
 \alias{chol,nsCMatrix-method}
 \alias{chol,nsCMatrix-method}
+\alias{chol,dtCMatrix-method}
+\alias{chol,dtRMatrix-method}
+\alias{chol,dtTMatrix-method}
 %
 \description{
   Compute the Choleski factorization of a real symmetric

@@ -2,7 +2,7 @@
 #define MATRIX_DENSE_H
 
 #include <Rinternals.h>
-#include <R_ext/Lapack.h>
+#include "Lapack-etc.h"
 
 SEXP lsq_dense_Chol(SEXP X, SEXP y);
 SEXP lsq_dense_QR(SEXP X, SEXP y);

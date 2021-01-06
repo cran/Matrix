@@ -15,6 +15,40 @@
 %%  when \code{prod(dim(.))} is larger than \eqn{2^{31} - 1}.
 %
 
+\section{Changes in version 1.3-2 (2021-01-05 r3362)}{
+  \subsection{Bug Fixes}{
+    \itemize{
+      \item \code{rankMatrix()} tweaks for the singular values based methods,
+      notably \code{method = "maybeGrad"}.
+
+      \item \code{as(new("dtCMatrix", diag="U"), "matrix")} now works, as
+      C-level \code{diagU2N()} now also works for 0-dimensional triangular
+      matrices; this also fixes a subsetting (\dQuote{indexing}) bug of
+      such 0-dimensional matrices, thanks to a report by Aaron Lun.
+
+      \item logical subsetting of 0-dim. (diagonal/triangular) matrices
+      fixes.
+
+      \item The new \code{FCONE} macros added for newer Fortran/C compiler
+      combinations are now defined back compatibly with R >= 3.6.0.
+
+      \item \code{chol(<diagonal dt[CRT]Matrix>)} now works.
+
+      \item \file{rchk}: fix potentially un\code{PROTECT}ed vars in
+      \file{src/dsyMatrix.c}
+    }
+  }
+}
+
+\section{Changes in version 1.3-1 (2020-12-23 r3352)}{
+  \subsection{Bug Fixes}{
+    \itemize{
+      \item \code{rankMatrix(<dense>, method="qr.R")} no longer assumes
+      non-negative diagonal entries of the \eqn{R} matrix.
+    }
+  }
+}
+
 \section{Changes in version 1.3-0 (2020-12-15 r3351)}{
   \subsection{Significant User-Visible Change}{
     \itemize{

@@ -2,7 +2,7 @@
 #define MATRIX_GEMATRIX_H
 
 #include <R_ext/Boolean.h>
-#include <R_ext/Lapack.h>
+#include "Lapack-etc.h"
 #include "Mutils.h"
 
 SEXP dMatrix_validate(SEXP obj);

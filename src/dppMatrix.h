@@ -1,7 +1,7 @@
 #ifndef MATRIX_PPMATRIX_H
 #define MATRIX_PPMATRIX_H
 
-#include <R_ext/Lapack.h>
+#include "Lapack-etc.h"
 #include "Mutils.h"
 #include "dspMatrix.h"
 

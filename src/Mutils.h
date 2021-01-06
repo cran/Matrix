@@ -14,9 +14,8 @@ extern "C" {
 #include <Rdefines.h> /* Rinternals.h + GET_SLOT etc */
 #include <R_ext/RS.h> /* for Memzero() */
 
-/* NB: The "caller" aka "includer" needs to  #include <R_ext/Lapack.h> etc
- * --  which defines  FCONE  etc (for LTO)
-*/
+// NB: For  'FCONE'  etc (for LTO), the "includer" will  #include "Lapack-etc.h"
+// --
 
 #define imax2(x, y) ((x < y) ? y : x)
 #define imin2(x, y) ((x < y) ? x : y)

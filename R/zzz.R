@@ -54,16 +54,25 @@ if(getRversion() >= "3.2.0") {
 	base::rbind(..., deparse.level=deparse.level)
     }
 
-} else {
+} else { ## R <= 3.1.x
     cBind <- methods:::cbind
     rBind <- methods:::rbind
     lengths <- function (x, use.names = TRUE) vapply(x, length, 1L, USE.NAMES = use.names)
 }
 
-if(getRversion() < "3.5.0") {
+if((Rv <- getRversion()) < "4.0.0") {
+  deparse1 <- function (expr, collapse = " ", width.cutoff = 500L, ...)
+      paste(deparse(expr, width.cutoff, ...), collapse = collapse)
+  ## not equivalent ...
+  ...length <- function() eval(quote(length(list(...))), sys.frame(-1L))
+
+  if(Rv < "3.5.0") {
     isFALSE <- function (x) is.logical(x) && length(x) == 1L && !is.na(x) && !x
     isTRUE  <- function (x) is.logical(x) && length(x) == 1L && !is.na(x) && x
+  }
 }
+rm(Rv)
+
 
 .onUnload <- function(libpath)
 {

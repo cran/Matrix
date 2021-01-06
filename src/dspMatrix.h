@@ -1,7 +1,7 @@
 #ifndef MATRIX_SPMATRIX_H
 #define MATRIX_SPMATRIX_H
 
-#include <R_ext/Lapack.h>
+#include "Lapack-etc.h"
 #include "Mutils.h"
 //was #include "dgeMatrix.h" -- seems much too much
 

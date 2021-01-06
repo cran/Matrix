@@ -37,9 +37,9 @@ qr2rankMatrix <- function(qr, tol = NULL, isBqr = is.qr(qr), do.warn=TRUE) {
             ## if(length(diagR) == 0)
             ##     return(NA_integer_)
         } else {
-            if(do.warn && any(diagR < 0))
+            if(isBqr) diagR <- abs(diagR) # in base qr(), sign( diag(R) ) are *not* coerced to positive
+            else if(do.warn && any(diagR < 0))
                 warning(gettextf("qr2rankMatrix(.): QR has negative diag(R) entries"))
-            ## diagR <- diagR ## had abs(diagR) .. but that counts large negative entries
             ## declare those entries to be zero that are < tol*max(.)
             if((mdi <- max(diagR, na.rm=TRUE)) > 0) {
                 if(!is.numeric(tol)) {
@@ -76,7 +76,6 @@ rankMatrix <- function(x, tol = NULL,
     ## tolerance criterion,
     ##
     ## Author: Ravi Varadhan, Date: 22 October 2007 // Tweaks: MM, Oct.23
-
     ## ----------------------------------------------------------------------
 
     stopifnot(length(d <- dim(x)) == 2)
@@ -85,17 +84,18 @@ rankMatrix <- function(x, tol = NULL,
     method <- match.arg(method)
 
     if(useGrad <- (method %in% c("useGrad", "maybeGrad"))) {
-	stopifnot(length(sval) == p,
-		  diff(sval) <= 0) # must be sorted non-increasingly: max = s..[1]
+	stopifnot(length(sval) == p)
+	if(p > 1) stopifnot(diff(sval) <= 0) # must be sorted non-increasingly: max = s..[1]
 	if(sval[1] == 0) { ## <==> all singular values are zero  <==> Matrix = 0  <==> rank = 0
 	    useGrad <- FALSE
 	    method <- eval(formals()[["method"]])[[1]]
 	} else {
 	    ln.av <- log(abs(sval))
+	    if(any(s0 <- sval == 0)) ln.av[s0] <- - .Machine$double.xmax # so we get diff() == 0
 	    diff1 <- diff(ln.av)
 	    if(method == "maybeGrad") {
 		grad <- (min(ln.av) - max(ln.av)) / p
-		useGrad <- !is.na(grad) &&  min(diff1) <= min(-3, 10 * grad)
+		useGrad <- !is.na(grad) && p > 1 && min(diff1) <= min(-3, 10 * grad)
 	    }#  -------
 	}
     }
@@ -117,7 +117,7 @@ rankMatrix <- function(x, tol = NULL,
 				     method),
 			    immediate.=TRUE, domain=NA)
                 ## the "Matlab" default:
-                stopifnot(diff(sval) <= 0) #=> sval[1]= max(sval)
+                if(p > 1) stopifnot(diff(sval) <= 0) #=> sval[1]= max(sval)
                 tol <- max(d) * .Machine$double.eps
 	    } else stopifnot((tol <- as.numeric(tol)[[1]]) >= 0)
 	}

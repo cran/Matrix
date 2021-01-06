@@ -57,3 +57,13 @@ for(cls in trCls)
 
 rm(trCls, trCls., cls)
 
+cholTrimat <- function(x, ...) {
+    if(isDiagonal(x))
+        cholDiag(as(x, "diagonalMatrix"), ...)
+    else stop("'x' is not symmetric -- chol() undefined.")
+}
+setMethod("chol", signature(x = "dtCMatrix"), cholTrimat)
+setMethod("chol", signature(x = "dtTMatrix"), cholTrimat)
+setMethod("chol", signature(x = "dtRMatrix"), cholTrimat)
+## setMethod("chol", signature(x = "triangularMatrix"), cholTrimat)
+

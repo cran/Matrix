@@ -771,6 +771,8 @@ setMethod("isSymmetric", signature(object = "sparseMatrix"),
 setMethod("isTriangular", signature(object = "CsparseMatrix"), isTriC)
 setMethod("isTriangular", signature(object = "TsparseMatrix"), isTriT)
 
+## no longer used for "Csparse*" which has own method in ./Csparse.R , nor
+##                for "Tsparse*" which has own method in ./Tsparse.R ... so only for Rsparse*?
 setMethod("isDiagonal", signature(object = "sparseMatrix"),
 	  function(object) {
               d <- dim(object)

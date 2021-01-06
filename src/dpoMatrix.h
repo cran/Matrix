@@ -1,7 +1,7 @@
 #ifndef MATRIX_POMATRIX_H
 #define MATRIX_POMATRIX_H
 
-#include <R_ext/Lapack.h>
+#include "Lapack-etc.h"
 #include "Mutils.h"
 
 SEXP dpoMatrix_rcond(SEXP obj, SEXP type);

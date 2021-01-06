@@ -559,15 +559,16 @@ setMethod("isSymmetric",  "diagonalMatrix", function(object, ...) TRUE)
 setMethod("symmpart", signature(x = "diagonalMatrix"), function(x) x)
 setMethod("skewpart", signature(x = "diagonalMatrix"), function(x) .setZero(x))
 
-setMethod("chol", signature(x = "ddiMatrix"),
-	  function(x, pivot, ...) {
-	      if(x@diag == "U") return(x)
-	      ## else
-	      if(any(x@x < 0))
-		  stop("chol() is undefined for diagonal matrix with negative entries")
-	      x@x <- sqrt(x@x)
-	      x
-	  })
+cholDiag <- function(x, pivot, ...) { ## x : typically "ddiMatrix"
+    if(x@diag == "U") return(x)
+    ## else
+    if(any(x@x < 0))
+        stop("chol() is undefined for diagonal matrix with negative entries")
+    x@x <- sqrt(x@x)
+    x
+}
+setMethod("chol", signature(x = "ddiMatrix"), cholDiag)
+
 ## chol(L) is L for logical diagonal:
 setMethod("chol", signature(x = "ldiMatrix"), function(x, pivot, ...) x)
 

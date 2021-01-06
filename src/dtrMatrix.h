@@ -1,7 +1,7 @@
 #ifndef MATRIX_TRMATRIX_H
 #define MATRIX_TRMATRIX_H
 
-#include <R_ext/Lapack.h>
+#include "Lapack-etc.h"
 #include "Mutils.h"
 
 SEXP dtrMatrix_norm(SEXP obj, SEXP type);

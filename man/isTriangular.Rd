@@ -8,6 +8,8 @@
 \alias{isDiagonal,denseMatrix-method}
 \alias{isDiagonal,diagonalMatrix-method}
 \alias{isDiagonal,sparseMatrix-method}
+\alias{isDiagonal,CsparseMatrix-method}
+\alias{isDiagonal,TsparseMatrix-method}
 \alias{isDiagonal,matrix-method}
 %
 \alias{isTriangular}

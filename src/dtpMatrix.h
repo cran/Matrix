@@ -2,7 +2,7 @@
 #ifndef MATRIX_TPMATRIX_H
 #define MATRIX_TPMATRIX_H
 
-#include <R_ext/Lapack.h>
+#include "Lapack-etc.h"
 #include "Mutils.h"
 
 SEXP dtpMatrix_validate(SEXP obj);

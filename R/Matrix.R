@@ -526,11 +526,8 @@ setMethod("[", signature(x = "Matrix", i = "ANY", j = "ANY", drop = "ANY"),
 	else as(as(as(x, "generalMatrix"), "denseMatrix"), toC)@x[as.vector(i)]
 	## -> error when lengths don't match
     }
-    else if(nA == 3) { ## M[i, ]  e.g.,  M [ M[,1, drop=FALSE] >= 7, ]
-
-	## Note: current method dispatch seems not to call this ever
-
-	if(length(i) && !anyNA(i) && all(i)) ## select everything
+    else if(nA == 3) { ## M[ <logic>, ]  e.g.,  M [ M[,1, drop=FALSE] >= 7, ]  or M[TRUE,]
+	if(length(i) && x@Dim[1L] && !anyNA(i) && all(i)) ## select everything
 	    x
 	else ## not selecting all -> result is *NOT* diagonal/triangular/symmetric/..
 	    ## keep j missing, but  drop = "logical"

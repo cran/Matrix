@@ -142,7 +142,7 @@ intI <- function(i, n, dn, give.dn = TRUE)
 		stop("you cannot mix negative and positive indices")
 	    i0 <- (0:(n - 1L))[i]
 	} else {
-	    if(length(i) && max(i, na.rm=TRUE) > n)
+	    if(length(i) && max(i, na.rm=TRUE) > n) # base has "subscript out of bounds":
 		stop(gettextf("index larger than maximal %d", n), domain=NA)
 	    if(any(z <- i == 0)) i <- i[!z]
 	    i0 <- i - 1L		# transform to 0-indexing
@@ -908,3 +908,12 @@ setMethod("t", signature(x = "TsparseMatrix"),
 	      r@Dimnames <- x@Dimnames[2:1]
 	      r
       })
+
+isDiagTsp <- function(object) {
+    d <- dim(object)
+    if(d[1] != d[2])
+        FALSE
+    else
+        length(i <- object@i) == length(j <- object@j) && all(i == j)
+}
+setMethod("isDiagonal", signature(object = "TsparseMatrix"), isDiagTsp)

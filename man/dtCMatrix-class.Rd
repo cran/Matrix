@@ -4,6 +4,7 @@
 \alias{dtCMatrix-class}% C  and
 \alias{dtTMatrix-class}% T
 %
+\alias{coerce,ddiMatrix,dtCMatrix-method}
 \alias{coerce,dtCMatrix,dgCMatrix-method}
 \alias{coerce,dtCMatrix,dgeMatrix-method}
 \alias{coerce,dtCMatrix,dgTMatrix-method}

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Matrix 1.1-2-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-04-02 17:39+0200\n"
+"POT-Creation-Date: 2021-02-11 12:54+0100\n"
 "PO-Revision-Date: 2014-03-24 17:53+0100\n"
 "Last-Translator: Łukasz Daniel <lukasz.daniel@gmail.com>\n"
 "Language-Team: Łukasz Daniel <lukasz.daniel@gmail.com>\n"
@@ -467,7 +467,7 @@ msgstr ""
 msgid "'uplo' must be UPP or LOW"
 msgstr "'uplo' musi być UPP lub LOW"
 
-#: Mutils.c:504 dgeMatrix.c:420 dtrMatrix.c:287
+#: Mutils.c:504 dgeMatrix.c:420 dtrMatrix.c:288
 msgid "replacement diagonal has wrong length"
 msgstr ""
 
@@ -691,7 +691,7 @@ msgstr "nieznany 'xtype' w obiekcie klasy \"cholmod_sparse\""
 # error(_("complex sparse matrix code not yet written"))
 # Matrix/src/chm_common.c: 862
 # error(_("complex sparse matrix code not yet written"))
-#: chm_common.c:420 chm_common.c:651 chm_common.c:929 chm_common.c:979
+#: chm_common.c:420 chm_common.c:651 chm_common.c:932 chm_common.c:982
 msgid "complex sparse matrix code not yet written"
 msgstr "kod dla zespolonych rzadkich macierzy nie został jeszcze napisany"
 
@@ -760,7 +760,7 @@ msgstr "Nie można zainicjować funkcji 'cholmod()': kod błędu %d"
 
 # Matrix/src/chm_common.c: 778
 # error(_("unknown 'Rkind'"))
-#: chm_common.c:873
+#: chm_common.c:876
 msgid "unknown 'Rkind'"
 msgstr "nieznany 'Rkind'"
 
@@ -768,7 +768,7 @@ msgstr "nieznany 'Rkind'"
 # error(_("unknown 'xtype'"))
 # Matrix/src/chm_common.c: 848
 # error(_("unknown 'xtype'"))
-#: chm_common.c:880 chm_common.c:965
+#: chm_common.c:883 chm_common.c:968
 msgid "unknown xtype"
 msgstr "nieznany 'xtype'"
 
@@ -776,69 +776,69 @@ msgstr "nieznany 'xtype'"
 # error(_("code for 'cholmod_dense()' function with holes not yet written"))
 # Matrix/src/chm_common.c: 871
 # error(_("code for 'cholmod_dense()' functionwith holes not yet written"))
-#: chm_common.c:935 chm_common.c:988
+#: chm_common.c:938 chm_common.c:991
 msgid "code for cholmod_dense with holes not yet written"
 msgstr "kod dla funkcji 'cholmod_dense()' z dziurami nie jest jeszcze napisany"
 
 # Matrix/src/chm_common.c: 867
 # error(_("don't know if a dense pattern matrix makes sense"))
-#: chm_common.c:984
+#: chm_common.c:987
 msgid "don't know if a dense pattern matrix makes sense"
 msgstr "nie wiadomo, czy gęsty wzrór macierzy ma sens"
 
 # Matrix/src/chm_common.c: 934
 # error(_("invalid class of object passed to 'as_cholmod_factor' function"))
-#: chm_common.c:1049
+#: chm_common.c:1052
 msgid "invalid class of object to as_cholmod_factor"
 msgstr ""
 "niepoprawna klasa obiektu przekazanego do funkcji 'as_cholmod_factor()'"
 
 # Matrix/src/chm_common.c: 948
 # error(_("Supernodal LDL decomposition not available"))
-#: chm_common.c:1063
+#: chm_common.c:1066
 msgid "Supernodal LDL' decomposition not available"
 msgstr "Dekompozycja supernodalna LDL nie jest dostępna"
 
 # Matrix/src/chm_common.c: 950
 # error(_("Supernodal/simplicial class inconsistent with 'type' flags"))
-#: chm_common.c:1065
+#: chm_common.c:1068
 msgid "Supernodal/simplicial class inconsistent with type flags"
 msgstr "klasa supernodal/simplicial niespójna z flagami 'type'"
 
 # Matrix/src/chm_common.c: 968
 # error(_("Number of supernodes must be positive when 'is_super' argument is TRUE"))
-#: chm_common.c:1083
+#: chm_common.c:1086
 msgid "Number of supernodes must be positive when is_super is TRUE"
 msgstr ""
 "Liczba super węzłów musi być dodatnia gdy argument 'is_super' ma wartość TRUE"
 
 # Matrix/src/chm_common.c: 971
 # error(_("Lengths of 'super' and 'pi' arguments must be equal"))
-#: chm_common.c:1086
+#: chm_common.c:1089
 msgid "Lengths of super and pi must be equal"
 msgstr "Długości 'super' oraz 'pi' muszą być równe"
 
 # Matrix/src/chm_common.c: 975
 # error(_("Lengths of 'super' and 'px' arguments must be equal"))
-#: chm_common.c:1090
+#: chm_common.c:1093
 msgid "Lengths of super and px must be equal"
 msgstr "Długości 'super' oraz 'px' muszą być równe"
 
 # Matrix/src/chm_common.c: 988
 # error(_("failure in 'as_cholmod_factor' function"))
-#: chm_common.c:1103
+#: chm_common.c:1106
 msgid "failure in as_cholmod_factor"
 msgstr "niepowodzenie w funkcji 'as_cholmod_factor()'"
 
 # Matrix/src/chm_common.c: 1016
 # error(_("CHOLMOD factorization was unsuccessful"))
-#: chm_common.c:1149
+#: chm_common.c:1152
 msgid "CHOLMOD factorization was unsuccessful"
 msgstr "Faktoryzacja 'CHOLMOD' nie powiodła się"
 
 # Matrix/src/chm_common.c: 1029
 # error(_("f->xtype of %d not recognized"), f->xtype)
-#: chm_common.c:1162
+#: chm_common.c:1165
 #, c-format
 msgid "f->xtype of %d not recognized"
 msgstr "'f->xtype' dla %d nie został rozpoznany"
@@ -846,14 +846,14 @@ msgstr "'f->xtype' dla %d nie został rozpoznany"
 # Matrix/src/chm_common.c: 1094
 # error(_("chm_diagN2U(<non-square matrix>): nrow=%d, ncol=%d"),
 # 	      n, chx->ncol)
-#: chm_common.c:1227
+#: chm_common.c:1230
 #, c-format
 msgid "chm_diagN2U(<non-square matrix>): nrow=%d, ncol=%d"
 msgstr "chm_diagN2U(<niekwadratowa macierz>): nrow=%d, ncol=%d"
 
 # Matrix/src/chm_common.c: 1137
 # error(_("chm_diagN2U(x, uploT = %d): uploT should be +- 1"), uploT)
-#: chm_common.c:1270
+#: chm_common.c:1273
 #, c-format
 msgid "chm_diagN2U(x, uploT = %d): uploT should be +- 1"
 msgstr "chm_diagN2U(x, uploT = %d): 'uploT' powinien wynosić +/- 1"
@@ -1490,7 +1490,7 @@ msgstr ""
 
 # Matrix/src/dsCMatrix.c: 99
 # error(_("Cholesky factorization failed; unusually, please report to Matrix-authors"))
-#: dsCMatrix.c:100
+#: dsCMatrix.c:101
 msgid ""
 "Cholesky factorization failed; unusually, please report to Matrix-authors"
 msgstr ""
@@ -1499,13 +1499,13 @@ msgstr ""
 
 # Matrix/src/dsCMatrix.c: 105
 # error(_("internal_chm_factor: Cholesky factorization failed"))
-#: dsCMatrix.c:106
+#: dsCMatrix.c:107
 msgid "internal_chm_factor: Cholesky factorization failed"
 msgstr "internal_chm_factor: faktoryzacja Cholesky'ego nie powiodła się"
 
 # Matrix/src/dsCMatrix.c: 241
 # error(_("Non-symmetric matrix passed to 'dsCMatrix_to_dgTMatrix' function"))
-#: dsCMatrix.c:253
+#: dsCMatrix.c:254
 msgid "Non-symmetric matrix passed to dsCMatrix_to_dgTMatrix"
 msgstr ""
 "Niesymetryczna macierz przekazana do funkcji 'dsCMatrix_to_dgTMatrix()'"
@@ -1555,12 +1555,12 @@ msgstr "'X' musi być rzeczywistą (liczbową) macierzą"
 
 # Matrix/src/dense.c: 348
 # error(_("ddense_to_symmetric(): matrix is not square!"))
-#: dsyMatrix.c:188
+#: dsyMatrix.c:187
 #, fuzzy
 msgid "matrix_trf(x, *): matrix is not square"
 msgstr "ddense_to_symmetric(): macierz nie jest kwadratowa!"
 
-#: dsyMatrix.c:195
+#: dsyMatrix.c:194
 msgid "matrix_trf(*, uplo): uplo must be string"
 msgstr ""
 
@@ -1610,23 +1610,20 @@ msgstr "'right = TRUE' nie jest jeszcze zaimplementowane __ NAPRAW_MNIE"
 msgid "dtrMatrix must be square"
 msgstr "obiekt klasy \"dtrMatrix\" musi być kwadratowy"
 
-# Matrix/src/dtrMatrix.c: 161
-# error(_("objects of class \"dtrMatrices\" in %*% must have matching (square) dimensions"))
 #: dtrMatrix.c:192
-#, fuzzy
-msgid "\"dtrMatrix\" objects in '%*%' must have matching (square) dimension"
+#, c-format
+msgid "dimension mismatch in matrix multiplication of \"dtrMatrix\": %d != %d"
 msgstr ""
-"obiekty klasy \"dtrMatrix\" w '%*%' muszą mieć pasujące (kwadratowe) wymiary."
 
 # Matrix/src/dtrMatrix.c: 248
 # error(_("cannot set diag() as long as 'diag = \"U\"'"))
-#: dtrMatrix.c:282
+#: dtrMatrix.c:283
 msgid "cannot set diag() as long as 'diag = \"U\"'"
 msgstr "nie można ustawić 'diag()' dopóki 'diag = \"U\"'"
 
 # Matrix/src/dtrMatrix.c: 269
 # error(_("cannot add diag() as long as 'diag = \"U\"'"))
-#: dtrMatrix.c:316
+#: dtrMatrix.c:317
 msgid "cannot add diag() as long as 'diag = \"U\"'"
 msgstr "nie można dodać 'diag()' dopóki 'diag = \"U\"'"
 
@@ -1643,13 +1640,13 @@ msgstr ""
 
 # Matrix/src/init.c: 356
 # error(_("missing 'Matrix' namespace: should never happen"))
-#: init.c:376
+#: init.c:377
 msgid "missing 'Matrix' namespace: should never happen"
 msgstr "brakuje przestrzeni nazw 'Matrix': nie powinno się wydarzyć"
 
 # Matrix/src/init.c: 367
 # error(_("Matrix namespace not determined correctly"))
-#: init.c:387
+#: init.c:388
 msgid "Matrix namespace not determined correctly"
 msgstr "przestrzeń nazw macierzy nie została poprawnie określona"
 
@@ -1691,7 +1688,7 @@ msgstr "sparseQR_Qmult(): nrow(y) = %d != %d = nrow(V)"
 # Matrix/src/sparseQR.c: 195
 # warning(_("%s(): structurally rank deficient case: possibly WRONG zeros"),
 # 		"sparseQR_resid_fitted")
-#: sparseQR.c:136 sparseQR.c:185 sparseQR.c:220
+#: sparseQR.c:136 sparseQR.c:186 sparseQR.c:221
 #, c-format
 msgid "%s(): structurally rank deficient case: possibly WRONG zeros"
 msgstr ""
@@ -1736,6 +1733,14 @@ msgstr ""
 msgid "programming error in Csparse_subassign() should never happen"
 msgstr ""
 "błąd programowy w funkcji 'Csparse_subassign()' nie powinien się wydarzyć"
+
+# Matrix/src/dtrMatrix.c: 161
+# error(_("objects of class \"dtrMatrices\" in %*% must have matching (square) dimensions"))
+#, fuzzy
+#~ msgid "\"dtrMatrix\" objects in '%*%' must have matching (square) dimension"
+#~ msgstr ""
+#~ "obiekty klasy \"dtrMatrix\" w '%*%' muszą mieć pasujące (kwadratowe) "
+#~ "wymiary."
 
 #~ msgid "not a CsparseMatrix"
 #~ msgstr "to nie jest 'CsparseMatrix'"

@@ -60,15 +60,14 @@ str(lundA <- readMM(system.file("external/lund_a.mtx",
                                 package = "Matrix")))
 str(lundA <- readHB(system.file("external/lund_a.rsa",
                                 package = "Matrix")))
+str(jgl009 <- ## https://math.nist.gov/MatrixMarket/data/Harwell-Boeing/counterx/counterx.html
+        readMM(system.file("external/jgl009.mtx", package = "Matrix")))
 \dontrun{
 ## NOTE: The following examples take quite some time
 ## ----  even on a fast internet connection:
 if(FALSE) # the URL has been corrected, but we need an un-tar step!
 str(sm <-
  readHB(gzcon(url("https://www.cise.ufl.edu/research/sparse/RB/Boeing/msc00726.tar.gz"))))
-
-str(jgl009 <-
- readMM(gzcon(url("ftp://math.nist.gov/pub/MatrixMarket2/Harwell-Boeing/counterx/jgl009.mtx.gz"))))
 }
 data(KNex)
 ## Store as MatrixMarket (".mtx") file, here inside temporary dir./folder:

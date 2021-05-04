@@ -117,7 +117,9 @@ sp2vec <- function(x, mode = .type.kind[.M.kindC(class(x))]) {
 ## so base functions calling as.vector() work too:
 ## S3 dispatch works for base::as.vector(), but S4 dispatch does not:
 as.vector.sparseVector <- sp2vec
-as.array.sparseVector <- as.matrix.sparseVector <- function(x, ...) .sparseV2Mat(x)
+## work as in base:
+as.matrix.sparseVector <- function(x, ...) as.matrix.default(sp2vec(x))
+as.array.sparseVector  <- function(x, ...) as.array.default (sp2vec(x))
 
 ##' Construct new sparse vector , *dropping* zeros
 

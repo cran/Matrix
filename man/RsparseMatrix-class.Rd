@@ -22,7 +22,7 @@
 %
 \alias{t,RsparseMatrix-method}
 %
-\title{Class "RsparseMatrix" of Sparse Matrices in Column-compressed Form}
+\title{Class "RsparseMatrix" of Sparse Matrices in Row-compressed Form}
 \description{The \code{"RsparseMatrix"} class is the virtual class of
   all sparse matrices coded in sorted compressed row-oriented form.
   Since it is a virtual class, no objects may be created from it.  See
@@ -45,11 +45,13 @@
   Class \code{"Matrix"}, by class \code{"sparseMatrix"}.
 }
 \section{Methods}{
-  Only \bold{few} methods are defined currently on purpose, since we
+  Originally, \bold{few} methods were defined on purpose, as we
   rather use the \code{\linkS4class{CsparseMatrix}} in \pkg{Matrix}.
-  Recently, more methods were added but \emph{beware} that these
+  Then, more methods were added but \emph{beware} that these
   typically do \emph{not} return \code{"RsparseMatrix"} results, but
-  rather Csparse* or Tsparse* ones.
+  rather Csparse* or Tsparse* ones; e.g., \code{R[i, j] <- v} for an
+  \code{"RsparseMatrix"} \code{R} works, but after the assignment, \code{R}
+  is a (triplet) \code{"TsparseMatrix"}.
   \describe{
     \item{t}{\code{signature(x = "RsparseMatrix")}: ... }
     \item{coerce}{\code{signature(from = "RsparseMatrix", to = "CsparseMatrix")}: ... }

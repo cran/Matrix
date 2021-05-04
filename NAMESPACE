@@ -99,6 +99,7 @@ export("%&%",
 
 ## substitute for using  cbind() / rbind()
 ## .Deprecated() for R version >= 3.2.0 [2015-04]:
+## .Defunct()  since Matrix 1.3-3 (Jan/Feb 2021):
 export("cBind",
        "rBind")
 

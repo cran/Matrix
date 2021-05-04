@@ -3,6 +3,9 @@ library(Matrix)
 
 source(system.file("test-tools.R", package = "Matrix"))
 
+## from ../R/Auxiliaries.R :
+no_facts <- Matrix:::.drop.factors
+
 ## the empty ones:
 checkMatrix(new("dgeMatrix"))
 checkMatrix(Matrix(,0,0))
@@ -41,7 +44,7 @@ checkMatrix(dcm <- as(cm, "dgeMatrix"))#'dge'
 checkMatrix(mcm <- as(cm, "dMatrix")) # 'dsy' + factors -- buglet? rather == cm?
 checkMatrix(mc. <- as(cm, "Matrix"))  # dpo --> dsy -- (as above)  FIXME? ??
 stopifnot(identical(mc., mcm),
-	  identical(cm, (2*cm)/2),# remains dpo
+	  identical(no_facts(cm), (2*cm)/2),# remains dpo
 	  identical(cm + cp, cp + cs),# dge
 	  identical(mc., mcm),
 	  all(2*cm == mcm * 2))

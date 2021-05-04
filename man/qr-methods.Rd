@@ -75,19 +75,18 @@ cf <- c(int=6, b1=-3, c1=-2, c2=-1)
 doExtras <- interactive() || nzchar(Sys.getenv("R_MATRIX_CHECK_EXTRA")) ||
     identical("true", unname(Sys.getenv("R_PKG_CHECKING_doExtras")))
 tolE <- if(doExtras) 1e-15 else 1e-13
-stopifnot(
-    all.equal(qr.coef(qxr,  y),   cf, tol=tolE)
-  , getRversion() <= "3.4.1" ||
-    all.equal(qr.coef(qxrLA,y),   cf, tol=tolE)
-  , all.equal(qr.coef(qxr,  Y), m(cf), tol=tolE)
-  , all.equal(  qcfXy,    cf, tol=tolE)
-  , all.equal(m(qcfXY), m(cf), tol=tolE)
-  , all.equal(y, qr.fitted(qxr, y), tol=2*tolE)
-  , all.equal(y, qr.fitted(qXr, y), tol=2*tolE)
-  , all.equal(m(qr.fitted(qXr, Y)), qr.fitted(qxr, Y), tol=tolE)
-  , all.equal(  qr.resid (qXr, y),  qr.resid (qxr, y), tol=tolE)
-  , all.equal(m(qr.resid (qXr, Y)), qr.resid (qxr, Y), tol=tolE)
-)
+stopifnot(exprs = {
+  all.equal(qr.coef(qxr,  y),   cf,  tol=tolE)
+  all.equal(qr.coef(qxrLA,y),   cf,  tol=tolE)
+  all.equal(qr.coef(qxr,  Y), m(cf), tol=tolE)
+  all.equal(  qcfXy,    cf, tol=tolE)
+  all.equal(m(qcfXY), m(cf), tol=tolE)
+  all.equal(y, qr.fitted(qxr, y), tol=2*tolE)
+  all.equal(y, qr.fitted(qXr, y), tol=2*tolE)
+  all.equal(m(qr.fitted(qXr, Y)), qr.fitted(qxr, Y), tol=tolE)
+  all.equal(  qr.resid (qXr, y),  qr.resid (qxr, y), tol=tolE)
+  all.equal(m(qr.resid (qXr, Y)), qr.resid (qxr, Y), tol=tolE)
+})
 
 ##----- rank-deficient ("singular") case ------------------------------------
 

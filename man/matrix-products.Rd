@@ -1,10 +1,8 @@
 \name{matrix-products}
 \docType{methods}
 \title{Matrix (Cross) Products (of Transpose)}
-\alias{\%*\%-methods}
-\alias{crossprod-methods}
-\alias{tcrossprod-methods}
 %%-- %*% -------------------------------------
+\alias{\%*\%-methods}
 \alias{\%*\%,ddenseMatrix,ldenseMatrix-method}
 \alias{\%*\%,ddenseMatrix,matrix-method}
 \alias{\%*\%,ddenseMatrix,ndenseMatrix-method}

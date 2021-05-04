@@ -186,8 +186,7 @@ all.equal.X <- function(x,y, except, tol = .Machine$double.eps^0.5, ...)
 ##  all.equal.X(env(m1), env(m2), except = c("call", "frame"))
 
 ## The relative error typically returned by all.equal:
-relErr <- function(target, current) { ## make this work for 'Matrix'
-    ## ==> no mean() ..
+relErr <- function(target, current) { ## make this work for 'Matrix' ==> no mean() ..
     n <- length(current)
     if(length(target) < n)
         target <- rep(target, length.out = n)

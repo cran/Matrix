@@ -15,7 +15,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Matrix 1.1-3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-04-02 17:39+0200\n"
+"POT-Creation-Date: 2021-02-11 12:54+0100\n"
 "PO-Revision-Date: 2015-07-15 17:14-0600\n"
 "Last-Translator:Chel Hee Lee  <chl948@mail.usask.ca>\n"
 "Language-Team: Chel Hee Lee  <chl948@mail.usask.ca>\n"
@@ -332,7 +332,7 @@ msgstr ""
 msgid "'uplo' must be UPP or LOW"
 msgstr "'uplo'는 반드시 UPP 또는 LOW이어야 합니다."
 
-#: Mutils.c:504 dgeMatrix.c:420 dtrMatrix.c:287
+#: Mutils.c:504 dgeMatrix.c:420 dtrMatrix.c:288
 msgid "replacement diagonal has wrong length"
 msgstr ""
 
@@ -477,7 +477,7 @@ msgstr "chm_sparse_to_SEXP(<real>, *): invalid 'Rkind' (real kind code)"
 msgid "unknown xtype in cholmod_sparse object"
 msgstr "cholmod_sparse 객체에 사용할 수 있는 xtype이 아닙니다."
 
-#: chm_common.c:420 chm_common.c:651 chm_common.c:929 chm_common.c:979
+#: chm_common.c:420 chm_common.c:651 chm_common.c:932 chm_common.c:982
 msgid "complex sparse matrix code not yet written"
 msgstr "complex sparse matrix code not yet written"
 
@@ -522,65 +522,65 @@ msgstr "Cholmod warning '%s' at file %s, line %d"
 msgid "Unable to initialize cholmod: error code %d"
 msgstr "cholmod를 초기화 할 수 없습니다: 에러코드 %d"
 
-#: chm_common.c:873
+#: chm_common.c:876
 msgid "unknown 'Rkind'"
 msgstr "사용할 수 있는 'Rkind'이 아닙니다."
 
-#: chm_common.c:880 chm_common.c:965
+#: chm_common.c:883 chm_common.c:968
 msgid "unknown xtype"
 msgstr "사용할 수 있는 xtype이 아닙니다."
 
-#: chm_common.c:935 chm_common.c:988
+#: chm_common.c:938 chm_common.c:991
 msgid "code for cholmod_dense with holes not yet written"
 msgstr "code for cholmod_dense with holes not yet written"
 
-#: chm_common.c:984
+#: chm_common.c:987
 msgid "don't know if a dense pattern matrix makes sense"
 msgstr "don't know if a dense pattern matrix makes sense"
 
-#: chm_common.c:1049
+#: chm_common.c:1052
 msgid "invalid class of object to as_cholmod_factor"
 msgstr "invalid class of object to as_cholmod_factor"
 
-#: chm_common.c:1063
+#: chm_common.c:1066
 msgid "Supernodal LDL' decomposition not available"
 msgstr "Supernodal LDL' decomposition not available"
 
-#: chm_common.c:1065
+#: chm_common.c:1068
 msgid "Supernodal/simplicial class inconsistent with type flags"
 msgstr "Supernodal/simplicial class inconsistent with type flags"
 
-#: chm_common.c:1083
+#: chm_common.c:1086
 msgid "Number of supernodes must be positive when is_super is TRUE"
 msgstr "is_super가 TRUE인 경우에 supernodes의 개수는 반드시 양수이어야 합니다."
 
-#: chm_common.c:1086
+#: chm_common.c:1089
 msgid "Lengths of super and pi must be equal"
 msgstr "super의 길이와 pi의 길이는 반드시 서로 같아야 합니다."
 
-#: chm_common.c:1090
+#: chm_common.c:1093
 msgid "Lengths of super and px must be equal"
 msgstr "super의 길이와 px의 길이는 반드시 서로 같아야 합니다."
 
-#: chm_common.c:1103
+#: chm_common.c:1106
 msgid "failure in as_cholmod_factor"
 msgstr "failure in as_cholmod_factor"
 
-#: chm_common.c:1149
+#: chm_common.c:1152
 msgid "CHOLMOD factorization was unsuccessful"
 msgstr "CHOLMOD factorization was unsuccessful"
 
-#: chm_common.c:1162
+#: chm_common.c:1165
 #, c-format
 msgid "f->xtype of %d not recognized"
 msgstr "f->xtype of %d not recognized"
 
-#: chm_common.c:1227
+#: chm_common.c:1230
 #, c-format
 msgid "chm_diagN2U(<non-square matrix>): nrow=%d, ncol=%d"
 msgstr "chm_diagN2U(<non-square matrix>): nrow=%d, ncol=%d"
 
-#: chm_common.c:1270
+#: chm_common.c:1273
 #, c-format
 msgid "chm_diagN2U(x, uploT = %d): uploT should be +- 1"
 msgstr "chm_diagN2U(x, uploT = %d): uploT은 반드시 1 또는 -1이어야 합니다"
@@ -978,18 +978,18 @@ msgstr "인자 b는 반드시 수치형 행렬(numeric matrix)이어야 합니�
 msgid "chm_factor_name(): did not get string of length 11"
 msgstr "chm_factor_name(): 길이가 11인 문자열을 가지지 못했습니다"
 
-#: dsCMatrix.c:100
+#: dsCMatrix.c:101
 msgid ""
 "Cholesky factorization failed; unusually, please report to Matrix-authors"
 msgstr ""
 "콜레스키 분해에 실패했습니다.  Matrix 패키지의 저자에게 보고해 주시길 부탁드"
 "립니다 "
 
-#: dsCMatrix.c:106
+#: dsCMatrix.c:107
 msgid "internal_chm_factor: Cholesky factorization failed"
 msgstr "internal_chm_factor: 콜레스키 분해에 실패했습니다"
 
-#: dsCMatrix.c:253
+#: dsCMatrix.c:254
 msgid "Non-symmetric matrix passed to dsCMatrix_to_dgTMatrix"
 msgstr "dsCMatrix_to_dgTMatrix에 비대칭 행렬이 전달되었습니다"
 
@@ -1020,12 +1020,12 @@ msgstr "Lapack 루틴 dsytrl로부터 다음의 에러코드가 반환되었습�
 msgid "x must be a \"double\" (numeric) matrix"
 msgstr "X는 반드시 실수(real)형 숫자를 가진 행렬이어야 합니다."
 
-#: dsyMatrix.c:188
+#: dsyMatrix.c:187
 #, fuzzy
 msgid "matrix_trf(x, *): matrix is not square"
 msgstr "ddense_to_symmetric(): 정방행렬이 아닙니다!"
 
-#: dsyMatrix.c:195
+#: dsyMatrix.c:194
 msgid "matrix_trf(*, uplo): uplo must be string"
 msgstr ""
 
@@ -1051,14 +1051,15 @@ msgid "dtrMatrix must be square"
 msgstr "dtrMatrix는 정방행렬이 아닙니다."
 
 #: dtrMatrix.c:192
-msgid "\"dtrMatrix\" objects in '%*%' must have matching (square) dimension"
-msgstr "\"dtrMatrix\" objects in '%*%' must have matching (square) dimension"
+#, c-format
+msgid "dimension mismatch in matrix multiplication of \"dtrMatrix\": %d != %d"
+msgstr ""
 
-#: dtrMatrix.c:282
+#: dtrMatrix.c:283
 msgid "cannot set diag() as long as 'diag = \"U\"'"
 msgstr "'diag = \"U\"'이기 때문에 diag()를 정할 수 없습니다."
 
-#: dtrMatrix.c:316
+#: dtrMatrix.c:317
 msgid "cannot add diag() as long as 'diag = \"U\"'"
 msgstr "'diag = \"U\"'이기 때문에 diag()를 추가할 수 없습니다."
 
@@ -1071,12 +1072,12 @@ msgstr "x 슬롯(slot)은 반드시 \"double\"형 숫자(numeric)이어야 합�
 msgid "x slot is not of correct length"
 msgstr ""
 
-#: init.c:376
+#: init.c:377
 msgid "missing 'Matrix' namespace: should never happen"
 msgstr ""
 "'Matrix' 네임스페이스(namespace)를 찾을 수 없습니다.  반드시 존재해야 합니다 "
 
-#: init.c:387
+#: init.c:388
 msgid "Matrix namespace not determined correctly"
 msgstr "올바르게 정의된 Matrix 네임스페이스(namespace)가 아닙니다"
 
@@ -1101,7 +1102,7 @@ msgstr "length(q)는 반드시 0 또는 ncol(R)이어야 합니다."
 msgid "sparseQR_Qmult(): nrow(y) = %d != %d = nrow(V)"
 msgstr "sparseQR_Qmult(): nrow(y) = %d != %d = nrow(V)"
 
-#: sparseQR.c:136 sparseQR.c:185 sparseQR.c:220
+#: sparseQR.c:136 sparseQR.c:186 sparseQR.c:221
 #, c-format
 msgid "%s(): structurally rank deficient case: possibly WRONG zeros"
 msgstr "%s(): 구조적으로 계수에 문제가 있는 경우입니다: possibly WRONG zeros"
@@ -1133,6 +1134,10 @@ msgid "programming error in Csparse_subassign() should never happen"
 msgstr ""
 "Csparse_subassign()를 사용 중 발생하지 말아야 하는 프로그래밍 에러"
 "(programming error)가 발견되었습니다."
+
+#~ msgid "\"dtrMatrix\" objects in '%*%' must have matching (square) dimension"
+#~ msgstr ""
+#~ "\"dtrMatrix\" objects in '%*%' must have matching (square) dimension"
 
 #~ msgid "not a CsparseMatrix"
 #~ msgstr "CsparseMatrix가 아닙니다."

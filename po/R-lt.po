@@ -1,0 +1,778 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Matrix 1.3-3\n"
+"POT-Creation-Date: 2021-01-29 17:44\n"
+"PO-Revision-Date: 2021-03-01 20:55+0200\n"
+"Last-Translator: Gabrielė Stupurienė <gabriele.stupuriene@mif.vu.lt>\n"
+"Language-Team: none\n"
+"Language: lt\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.4.2\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && (n%100<11 || n%100>19) ? 0 : n%10>=2 && n%10<=9 && (n%100<11 || n%100>19) ? 1 : 2);\n"
+
+msgid "invalid 'mod': %s"
+msgstr "negaliojantis 'mod': %s"
+
+msgid "not-yet-implemented method for %s(<%s>).\n"
+" ->>  Ask the package authors to implement the missing feature."
+msgstr "dar neįgyvendintas metodas dėl %s (<%s>).\n"
+" ->> Paprašykite paketo autorių įgyvendinti trūkstamą funkciją."
+
+msgid "not-yet-implemented method for %s(<%s>, <%s>).\n"
+" ->>  Ask the package authors to implement the missing feature."
+msgstr "dar neįgyvendintas metodas dėl %s (<%s>, <%s>).\n"
+" ->> Paprašykite paketo autorių įgyvendinti trūkstamą funkciją."
+
+msgid "'x' is not positive definite -- chol() undefined."
+msgstr "'x' nėra teigiamai apibrėžtas -- chol() neapibrėžtas."
+
+msgid "Matrices must have same dimensions in %s"
+msgstr "Matricos turi turėti tuos pačius matmenis %s"
+
+msgid "non-conformable matrix dimensions in %s"
+msgstr "neatitinkantys matricos matmenys, esantys %s"
+
+msgid "dimnames [%d] mismatch in %s"
+msgstr "dimnames [%d] neatitikimas %s"
+
+msgid "names(dimnames(<matrix>)) must be NULL or of length two"
+msgstr "names(dimnames(<matrix>)) turi būti NULL arba dviejų ilgių"
+
+msgid "Matrices must have same number of rows in %s"
+msgstr "Matricos turi turėti tą patį eilučių skaičių %s"
+
+msgid "Matrices must have same number of columns in %s"
+msgstr "Matricos turi turėti tą patį stulpelių skaičių %s"
+
+msgid "[[ suppressing %d column names %s ... ]]"
+msgstr "[[ nerodyti %d stulpelių pavadinimų %s ... ]]"
+
+msgid "[[ suppressing %d column names %s ]]"
+msgstr "[[ nerodyti %d stulpelių pavadinimų %s ]]"
+
+msgid "'x' must be \"sparseMatrix\""
+msgstr "'x' turi būti \"sparseMatrix\""
+
+msgid "not yet implemented for class %s"
+msgstr "dar neįgyvendinta klasei %s"
+
+msgid "not a triangular matrix"
+msgstr "ne trikampė matrica"
+
+msgid "not a symmetric matrix; consider forceSymmetric() or symmpart()"
+msgstr "ne simetriška matrica; apsvarstykite forceSymmetric() arba symmpart()"
+
+msgid "not yet implemented for matrix with typeof %s"
+msgstr "dar neįgyvendinta matricai su typeof %s"
+
+msgid "not yet implemented for %s"
+msgstr "dar neįgyvendinta %s"
+
+msgid "general Matrix class not yet implemented for %s"
+msgstr "bendroji Matrix klasė dar neįgyvendinta %s"
+
+msgid "Quadratic matrix '%s' (=: A) is not formally\n"
+"\tsymmetric.  Will be treated as\tA A'"
+msgstr "Kvadratinė matrica '%s' (=: A) formaliai nėra\n"
+"\tsimetrinis.  Bus traktuojama kaip as\tA A'"
+
+msgid "'update' must be logical or '+' or '-'; 'C' a matrix, and 'L' a \"CHMfactor\""
+msgstr "'update' turi būti loginis arba '+' arba '-'; 'C' matrica, o 'L' – \"CHMfactor\""
+
+msgid "update must be TRUE/FALSE or '+' or '-'"
+msgstr "atnaujinimas turi būti TRUE/FALSE arba '+' arba '-'"
+
+msgid "cannot coerce NA values to pattern \"ngCMatrix\""
+msgstr "negalima paversti NA reikšmes į modelį \"ngCMatrix\""
+
+msgid "Matrix-internal error in <CsparseM>[i,,d]; please report"
+msgstr "Matricos vidinė klaida, esanti <CsparseM>[i,,d]; prašome pranešti"
+
+msgid "nothing to replace with"
+msgstr "nėra nieko pakeisti su"
+
+msgid "number of items to replace is not a multiple of replacement length"
+msgstr "keičiamų elementų skaičius nėra keičiamo ilgio kartotinis"
+
+msgid "too many replacement values"
+msgstr "per daug pakeitimo reikšmių"
+
+msgid "i1[1] == 0 ==> C-level verbosity will not happen!"
+msgstr "i1[1] == 0 ==> C lygio daugiakalbiškumas neįvyks!"
+
+msgid "using\t \"old code\" part in  Csparse subassignment"
+msgstr "naudojant\t \"senojo kodo\" dalį Csparse antriniame priskyrime"
+
+msgid "using\"old code\" part in Csparse subassignment\n"
+" >>> please report to Matrix-authors@r-project.org"
+msgstr "naudojant \"senojo kodo\" dalį Csparse antriniame priskyrime\n"
+" >>> prašome pranešti Matrix-authors@r-project.org"
+
+msgid "Cholesky(<nsparse...>) -> *symbolic* factorization -- not yet implemented"
+msgstr "Cholesky(<nsparse...>) -> *symbolic* faktoringas -- dar neįgyvendintas"
+
+msgid "Not a valid format"
+msgstr "Neleistinas formatas"
+
+msgid "'file' must be a character string or connection"
+msgstr "'file' turi būti simbolių eilutė ar ryšys"
+
+msgid "Invalid storage type: %s"
+msgstr "Netinkamas saugyklos tipas: %s"
+
+msgid "Only numeric sparse matrices allowed"
+msgstr "Leidžiamos tik skaitinės sparse matricos"
+
+msgid "Invalid storage format: %s"
+msgstr "Neleistinas saugyklos formatas: %s"
+
+msgid "Invalid assembled indicator: %s"
+msgstr "Neleistinas surinktas indikatorius: %s"
+
+msgid "file is not a MatrixMarket file"
+msgstr "failas nėra MatrixMarket failas"
+
+msgid "type '%s' not recognized"
+msgstr "tipas '%s' neatpažįstamas"
+
+msgid "representation '%s' not recognized"
+msgstr "neatpažįstamas atvaizdavimas '%s'"
+
+msgid "element type '%s' not recognized"
+msgstr "elemento tipas '%s' neatpažįstamas"
+
+msgid "symmetry form '%s' not recognized"
+msgstr "simetrinė forma '%s' neatpažįstama"
+
+msgid "readMM(): row\t values 'i' are not in 1:nr"
+msgstr "readMM(): eilučių\t reikšmės 'i' nėra 1:nr"
+
+msgid "readMM(): column values 'j' are not in 1:nc"
+msgstr "readMM(): stulpelių reikšmės 'j' nėra 1:nc"
+
+msgid "symmetry form 'skew-symmetric' not yet implemented for reading"
+msgstr "simetriška forma 'skew-symmetric', dar neįgyvendinta skaitymui"
+
+msgid "symmetry form 'hermitian' not yet implemented for reading"
+msgstr "simetrinė forma 'hermitian' dar neįgyvendinta skaitymui"
+
+msgid "symmetry form '%s' is not yet implemented"
+msgstr "simetrinė forma '%s' dar neįgyvendinta"
+
+msgid "element type 'complex' not yet implemented"
+msgstr "elemento tipas 'complex' dar neįgyvendintas"
+
+msgid "'%s()' is not yet implemented for element type '%s'"
+msgstr "'%s()' dar neįgyvendinta elementų tipui '%s'"
+
+msgid "'%s()' is not yet implemented for  representation '%s'"
+msgstr "'%s()' dar neįgyvendinta '%s' atvaizdavimui"
+
+msgid "as.matrix(<Matrix>) is deprecated (to become a no-op in the future).\n"
+"Use  as(x, \"matrix\")  or .asmatrix(x) instead."
+msgstr "as.matrix(<Matrix>) yra nebenaudojamas (ateityje taps no-op).\n"
+"Vietoj to naudokite as(x, \"matrix\") arba .asmatrix(x)."
+
+msgid "as.array(<Matrix>) is deprecated. Use  as(x, \"matrix\")  or .asmatrix(x) instead."
+msgstr "as.array(<Matrix>) nebenaudojamas. Vietoj to naudokite as(x, \"matrix\") arba .asmatrix(x)."
+
+msgid "trimmed mean of 'sparseVector' -- suboptimally using as.numeric(.)"
+msgstr "apdorotas 'sparseVector' vidurkis -- suboptimally naudojant as.numeric(.)"
+
+msgid "'V' is not a square matrix"
+msgstr "'V' nėra kvadratinė matrica"
+
+msgid "diag(.) had 0 or NA entries; non-finite result is doubtful"
+msgstr "diag(.) turėjo 0 arba NA įrašus; abejotinas ne baigtinis rezultatas"
+
+msgid "invalid dimnames given for %s object"
+msgstr "neleistinas dimnames %s objektui"
+
+msgid "dimnames(.) <- NULL:  translated to \n"
+"dimnames(.) <- list(NULL,NULL)  <==>  unname(.)"
+msgstr "dimnames(.) <- NULL: išverstas į \n"
+"dimnames(.) <- list(NULL,NULL) <==> unname(.)"
+
+msgid "'nrow', 'ncol', etc, are disregarded when 'data' is \"Matrix\" already"
+msgstr "Į 'nrow', 'ncol' ir t. t. neatsižvelgiama, kai 'data' jau yra \"Matrix\""
+
+msgid "invalid 'data'"
+msgstr "neleistinas 'data'"
+
+msgid "'nrow', 'ncol', etc, are disregarded for matrix 'data'"
+msgstr "matricos 'data' atveju neatsižvelgiama į 'nrow', 'ncol' ir t. t."
+
+msgid "complex matrices not yet implemented in Matrix package"
+msgstr "kompleksinės matricos dar neįgyvendintos Matrix pakete"
+
+msgid "using slow kronecker() method"
+msgstr "naudojant lėtą kronecker() metodą"
+
+msgid "Cholesky(A) called for 'A' of class \"%s\";\n"
+"\t it is currently defined for sparseMatrix only; consider using chol() instead"
+msgstr "Cholesky(A) iškvietė dėl 'A' klasės \"%s\";\n"
+"\t šiuo metu jis nustatytas tik rsparseMatrix; apsvarstyti galimybę vietoj to naudoti chol ()"
+
+msgid "'lag' and 'differences' must be integers >= 1"
+msgstr "'lag' ir 'differences' turi būti sveikieji skaičiai >= 1"
+
+msgid "invalid or not-yet-implemented 'Matrix' subsetting"
+msgstr "neleistinas arba dar neįgyvendintas 'Matrix' pogrupis"
+
+msgid "<sparse>[ <logic> ] : .M.sub.i.logical() maybe inefficient"
+msgstr "<sparse>[ <logic> ] : . M.sub.i.logical() gal neefektyvus"
+
+msgid "nargs() = %d.  Extraneous illegal arguments inside '[ .. ]' (i.logical)?"
+msgstr "nargs() = %d.  Pašaliniai neteisėti argumentai viduje '[ .. ]' (i.logical)?"
+
+msgid "m[<ij-matrix>]: inefficiently indexing single elements - should not happen, please report!"
+msgstr "m[<ij-matrix>]: neefektyviai indeksuojant pavienius elementus - neturėtų įvykti, prašome pranešti!"
+
+msgid "nargs() = %d.  Extraneous illegal arguments inside '[ .. ]' (i.2col)?"
+msgstr "nargs() = %d.  Pašaliniai neteisėti argumentai viduje '[ .. ]' (i.2col)?"
+
+msgid ".M.sub.i.2col(): 'i' has no integer column number;\n"
+" should never happen; please report"
+msgstr ".M.sub.i.2col(): 'i' neturi sveiko skaičiaus stulpelio numerio;\n"
+" niekada neturėtų įvykti; prašome pranešti"
+
+msgid "such indexing must be by logical or 2-column numeric matrix"
+msgstr "toks indeksavimas turi būti loginis arba 2 stulpelių skaitinė matrica"
+
+msgid ".M.repl.i.2col(): 'i' has no integer column number;\n"
+" should never happen; please report"
+msgstr ".M.repl.i.2col(): 'i' neturi sveiko skaičiaus stulpelio numerio;\n"
+" niekada neturėtų įvykti; prašome pranešti"
+
+msgid ".M.repl.i.2col(): drop 'matrix' case ..."
+msgstr ".M.repl.i.2col(): išmetė 'matrix' atveją ..."
+
+msgid "negative values are not allowed in a matrix subscript"
+msgstr "matricos apatiniame indekse neigiamos reikšmės neleidžiamos"
+
+msgid "NAs are not allowed in subscripted assignments"
+msgstr "NA neleidžiamos apatinio indekso priskyrimuose"
+
+msgid "m[ <ij-matrix> ] <- v: inefficiently treating single elements"
+msgstr "m[ <ij-matrix> ] <- v: neefektyviai apdorojant pavienius elementus"
+
+msgid "nargs() = %d.  Extraneous illegal arguments inside '[ .. ]' ?"
+msgstr "nargs() = %d.  Pašaliniai neteisėti argumentai viduje '[ .. ]' ?"
+
+msgid "RHS 'value' (class %s) matches 'ANY', but must match matrix class %s"
+msgstr "RHS 'value' (%s klasė) atitinka 'ANY', tačiau turi atitikti matricos klasę %s"
+
+msgid "not-yet-implemented 'Matrix[<-' method"
+msgstr "dar neįgyvendintas 'Matrix[<-' method"
+
+msgid "inefficient method used for \"- e1\""
+msgstr "neefektyvus metodas, naudojamas \"- e1\""
+
+msgid "dim [product %d] do not match the length of object [%d]"
+msgstr "dim [product %d] neatitinka objekto ilgio [%d]"
+
+msgid "internal bug in \"Compare\" method (Cmp.Mat.atomic); please report"
+msgstr "vidinė klaida \"Compare\" metode (Cmp.Mat.atomic); prašome pranešti"
+
+msgid "Cmp.Mat.atomic() should not be called for diagonalMatrix"
+msgstr "Cmp.Mat.atomic() negalima būti iškviestas diagonalMatrix"
+
+msgid "Matrices must have same number of rows for arithmetic"
+msgstr "Matricos turi turėti tą patį eilučių skaičių aritmetikai"
+
+msgid "number of rows are not compatible for %s"
+msgstr "eilučių skaičius nesuderinamas su %s"
+
+msgid "length of 2nd arg does not match dimension of first"
+msgstr "2-ojo arg ilgis neatitinka pirmojo dimensijos"
+
+msgid "length of 1st arg does not match dimension of 2nd"
+msgstr "1-mo arg ilgis nesutampa su 2-ojo dimensija"
+
+msgid "internal bug in \"Logic\" method (Logic.Mat.atomic); please report"
+msgstr "vidinė klaida \"Logic\" metode (Logic.Mat.atomic); prašome pranešti"
+
+msgid "Logic.Mat.atomic() should not be called for diagonalMatrix"
+msgstr "Logic.Mat.atomic() neturėtų būti iškviečiamas dėl diagonalMatrix"
+
+msgid "vector too long in Matrix - vector operation"
+msgstr "vektorius, esantis Matrix, per ilgas - vektoriaus operacija"
+
+msgid "longer object length\n"
+"\tis not a multiple of shorter object length"
+msgstr "ilgesnis objekto ilgis\n"
+"\tnėra trumpesnio objekto ilgio kartotinis"
+
+msgid "longer object length is not a multiple of shorter object length"
+msgstr "ilgesnis objekto ilgis nėra trumpesnio objekto ilgio kartotinis"
+
+msgid "invalid class: %s"
+msgstr "netinkama klasė: %s"
+
+msgid "programming error: min() should have dispatched w/ 1st arg much earlier"
+msgstr "programavimo klaida: min() turėjo išsiųsti w/ 1st arg daug anksčiau"
+
+msgid "in Summary(<ANY>, .): %s(<%s>, <%s>,...)"
+msgstr "esantis Summary(<ANY>, .): %s(<%s>, <%s>,...)"
+
+msgid "in Summary(<ANY>, .): %s(<%s>, <%s>)"
+msgstr "esantis Summary(<ANY>, .): %s(<%s>, <%s>)"
+
+msgid "not-yet-implemented coercion to \"TsparseMatrix\""
+msgstr "dar neįgyvendinta paverstas į \"TsparseMatrix\""
+
+msgid "you cannot mix negative and positive indices"
+msgstr "negalite maišyti neigiamų ir teigiamų indeksų"
+
+msgid "index larger than maximal %d"
+msgstr "indeksas didesnis nei maksimalus %d"
+
+msgid "'NA' indices are not (yet?) supported for sparse Matrices"
+msgstr "'NA' indeksai nėra (dar?) remiami sparse Matrices"
+
+msgid "logical subscript too long (%d, should be %d)"
+msgstr "loginis apatinis indeksas per ilgas (%d, turėtų būti %d)"
+
+msgid "no 'dimnames[[.]]': cannot use character indexing"
+msgstr "nėra 'dimnames[[.]]': negalima naudoti simbolių indeksavimo"
+
+msgid "invalid character indexing"
+msgstr "neleistinas simbolių indeksavimas"
+
+msgid "Matrix-internal error in <TsparseM>[i,,d]; please report"
+msgstr "Matricos vidinė klaida, esanti <TsparseM>[i,,d]; prašome pranešti"
+
+msgid "FIXME: NOT YET FINISHED IMPLEMENTATION"
+msgstr "FIXME: DAR NEBAIGTAS ĮGYVENDINIMAS"
+
+msgid "internal bug: missing 'i' in replTmat(): please report"
+msgstr "vidinė klaida: trūksta 'i' replTmat(): prašome pranešti"
+
+msgid "[ <character> ] indexing not allowed: forgot a \",\" ?"
+msgstr "[ <character> ] indeksavimas neleidžiamas: pamiršote \",\" ?"
+
+msgid "internal bug: matrix 'i' in replTmat(): please report"
+msgstr "vidinė klaida: matrica 'i', esanti replTmat(): prašome pranešti"
+
+msgid "x[.] <- val: x is %s, val not in {TRUE, FALSE} is coerced; NA |--> TRUE."
+msgstr "x[.] <- val: x yra %s, val, kurio nėra {TRUE, FALSE} yra paverčiamas; NA |--> TRUE."
+
+msgid "x[.] <- val: x is %s, val not in {TRUE, FALSE} is coerced."
+msgstr "x[.] <- val: x yra %s, val, kurio nėra {TRUE, FALSE} yra paverčiamas."
+
+msgid "x[.,.] <- val: x is %s, val not in {TRUE, FALSE} is coerced NA |--> TRUE."
+msgstr "x[...] <- val: x yra %s, val, kurio nėra {TRUE, FALSE} yra paverčiamas NA |--> TRUE."
+
+msgid "x[.,.] <- val: x is %s, val not in {TRUE, FALSE} is coerced."
+msgstr "x[.,.] <- val: x yra %s, val, kurio nėra {TRUE, FALSE} yra paverčiamas."
+
+msgid "x[.,.] <- val : x being coerced from Tsparse* to CsparseMatrix"
+msgstr "x[.,.] <- val: x yra paverčiamas iš Tsparse* į CsparseMatrix"
+
+msgid "nargs() = %d should never happen; please report."
+msgstr "nargs() = %d niekada neturėtų įvykti; prašome pranešti."
+
+msgid "row indices must be <= nrow(.) which is %d"
+msgstr "eilučių indeksai turi būti < = nrow(.), kuris yra %d"
+
+msgid "column indices must be <= ncol(.) which is %d"
+msgstr "stulpelių indeksai turi būti <= ncol(.), kuris yra %d"
+
+msgid "'force' must be (coercable to) TRUE or FALSE"
+msgstr "'force' turi būti (verčiama į) TRUE arba FALSE"
+
+msgid "invalid (to - from)/by in seq(.)"
+msgstr "negaliojantis (iki - nuo)/pagal seq(.)"
+
+msgid "wrong sign in 'by' argument"
+msgstr "neteisingas ženklas 'by' argumente"
+
+msgid "'by' argument is much too small"
+msgstr "'by' argumentas per mažas"
+
+msgid "length must be non-negative number"
+msgstr "ilgis turi būti ne neigiamas skaičius"
+
+msgid "too many arguments"
+msgstr "per daug argumentų"
+
+msgid "c(<abIndex>,..) of different kinds, coercing all to 'rleDiff'"
+msgstr "c(<abIndex>,..) įvairių rūšių, paverčiant visus į 'rleDiff'"
+
+msgid "<abIndex>[i]  is not yet implemented"
+msgstr "<abIndex>[i] dar neįgyvendinta"
+
+msgid "all(<abIndex>) is not yet implemented"
+msgstr "all(<abIndex>) dar neįgyvendinti"
+
+msgid "sum(<abIndex>) is not yet implemented"
+msgstr "sum(<abIndex>) dar neįgyvendinta"
+
+msgid "prod(<abIndex>) is not yet implemented"
+msgstr "prod(<abIndex>) dar neįgyvendintas"
+
+msgid "not yet implemented"
+msgstr "dar neįvykdyta"
+
+msgid "x / 0 for an <abIndex> x with sign-change\n"
+" no longer representable as 'rleDiff'"
+msgstr "x / 0 dėl <abIndex> x su ženklo pakeitimu\n"
+" nebeatitinkamas kaip 'rleDiff'"
+
+msgid "<abIndex>  -->  <seqMat>  is not yet implemented"
+msgstr "<abIndex>  --><seqMat>  dar neįgyvendinta"
+
+msgid "<seqMat>  -->  <abIndex>  is not yet implemented"
+msgstr "<seqMat>  --> <abIndex> dar neįgyvendintas"
+
+msgid "'giveCsparse' has been deprecated; setting 'repr = \"T\"' for you"
+msgstr "'giveCsparse' nebenaudojamas; nustatymas 'repr = \"T\"' jums"
+
+msgid "'giveCsparse' has been deprecated; will use 'repr' instead"
+msgstr "'giveCsparse' nebenaudojamas; vietoj to naudos 'repr'"
+
+msgid "'diagonals' matrix must have %d columns (= length(k) )"
+msgstr "'diagonals' matricoje turi būti %d stulpeliai (= length(k) )"
+
+msgid "'diagonals' must have the same length (%d) as 'k'"
+msgstr "'diagonals' turi būti tokio pat ilgio (%d) kaip ir 'k'"
+
+msgid "matrix can only be symmetric if square, but n != m"
+msgstr "matrica gali būti simetriška tik kvadratinė, bet n != m"
+
+msgid "for symmetric band matrix, only specify upper or lower triangle\n"
+" hence, all k must have the same sign"
+msgstr "simetrinės juostos matricai nurodykite tik viršutinį arba apatinį trikampį\n"
+" taigi, visi k turi turėti tą patį ženklą"
+
+msgid "the %d-th (sub)-diagonal (k = %d) is too short; filling with NA's"
+msgstr "%d įstrižainė (k = %d) yra per trumpa; užpildymas su NA"
+
+msgid "invalid 'repr'; must be \"C\", \"T\", or \"R\""
+msgstr "negaliojantis 'repr'; turi būti \"C\", \"T\" arba \"R\""
+
+msgid "resulting x-slot has different type than x's or y's"
+msgstr "gautas x-slot turi skirtingą tipą nei x arba y"
+
+msgid "'A' must be a square matrix"
+msgstr "'A' turi būti kvadratinė matrica"
+
+msgid "must either specify 'A' or the functions 'A.x' and 'At.x'"
+msgstr "turi nurodyti 'A' arba funkcijas 'A.x' ir 'At.x'"
+
+msgid "when 'A' is specified, 'A.x' and 'At.x' are disregarded"
+msgstr "kai nurodyta 'A', į 'A.x' and 'At.x' neatsižvelgiama"
+
+msgid "not converged in %d iterations"
+msgstr "nekonverguoja %d iteracijose"
+
+msgid "hit a cycle (1) -- stop iterations"
+msgstr "pasiekti ciklą (1) -- sustabdyti iteracijas"
+
+msgid "hit a cycle (2) -- stop iterations"
+msgstr "pasiekti ciklą (2) -- sustabdyti iteracijas"
+
+msgid "not enough new vecs -- stop iterations"
+msgstr "nepakanka naujų vecs -- sustabdyti iteracijas"
+
+msgid "diagonalMatrix in .dense2C() -- should never happen, please report!"
+msgstr "diagonalMatrix, esanti .dense2C() -- niekada neturėtų atsitikti, prašome pranešti!"
+
+msgid "undefined method for class %s"
+msgstr "neapibrėžtas metodas klasei %s"
+
+msgid "dim(.) value must be numeric of length 2"
+msgstr "dim(.) reikšmė turi būti skaitinio ilgio 2"
+
+msgid "dimensions don't match the number of cells"
+msgstr "matmenys neatitinka langelių skaičiaus"
+
+msgid "invalid nargs()= %d"
+msgstr "neleistini nargs()= %d"
+
+msgid "LU computationally singular: ratio of extreme entries in |diag(U)| = %9.4g"
+msgstr "LU skaičiavimo singuliarumas: ekstremalių įrašų santykis |diag(U)| = %9.4g"
+
+msgid "RHS 'b' has wrong number of rows:"
+msgstr "RHS 'b' turi neteisingą eilučių skaičių:"
+
+msgid "RHS 'b' has wrong length"
+msgstr "RHS 'b' ilgis neteisingas"
+
+msgid "cannot coerce non-symmetric \"dgTMatrix\" to \"dsCMatrix\" class"
+msgstr "negalima paversti nesimetrinio \"dgTMatrix\" į \"dsCMatrix\" klasę"
+
+msgid "the matrix is not triangular"
+msgstr "matrica nėra trikampė"
+
+msgid "'lwd' must be NULL or non-negative numeric"
+msgstr "'lwd' turi būti NULL arba ne neigiamas skaitinis"
+
+msgid "'x' has invalid data type"
+msgstr "'x' turi neleistiną duomenų tipą"
+
+msgid "length(x) must be either 1 or #{cols}"
+msgstr "length(x) turi būti 1 arba #{cols}"
+
+msgid "some arguments are not matrices"
+msgstr "kai kurie argumentai nėra matricos"
+
+msgid "%s kind not yet implemented"
+msgstr "%s rūšis dar neįgyvendinta"
+
+msgid "non-square matrix"
+msgstr "nekvadratinė matrica"
+
+msgid "matrix with non-zero off-diagonals cannot be coerced to \"diagonalMatrix\""
+msgstr "matricos su ne nulinėmis įstrižainėmis negalima paversti į \"diagonalMatrix\""
+
+msgid "matrix is not diagonal"
+msgstr "matrica nėra įstrižainė"
+
+msgid "Internal bug: nargs()=%d; please report"
+msgstr "Vidinė klaida: nargs()=%d; prašome pranešti"
+
+msgid "chol() is undefined for diagonal matrix with negative entries"
+msgstr "chol() neapibrėžtas įstrižainei matricai su neigiamais įrašais"
+
+msgid "non-matching dimensions"
+msgstr "nesutampančios dimensijos"
+
+msgid "incompatible matrix dimensions"
+msgstr "nesuderinamos matricos dimensijos"
+
+msgid "intermediate 'r' is of type %s"
+msgstr "tarpinis 'r' yra %s tipo"
+
+msgid "not yet implemented .. please report"
+msgstr "dar neįgyvendinta .. prašome pranešti"
+
+msgid "not a positive definite matrix"
+msgstr "ne teigiamai abiprėžta matrica"
+
+msgid "as(.,\"dsCMatrix\") is deprecated (since 2008); do use as(., \"symmetricMatrix\")"
+msgstr "as(.,\"dsCMatrix\") nebenaudojamas (nuo 2008 m.); naudoti as(., \"symmetricMatrix\")"
+
+msgid "inefficient coercion (lost triangularity); please report"
+msgstr "neefektyvi pavertimas (prarastas trianguliarumas); prašome pranešti"
+
+msgid "coercion to \"indMatrix\" only works from integer numeric"
+msgstr "pavertimas į \"indMatrix\" veikia tik iš sveikųjų skaitinių"
+
+msgid "coercion from list(i1,...,ik, d) to \"indMatrix\" failed.\n"
+" All entries must be integer valued and the number of columns, d, not smaller\n"
+" than the maximal index i*."
+msgstr "pavertimas iš list(i1,...,ik, d) į \"indMatrix\" nepavyko.\n"
+" Visi įrašai turi būti vertinami kaip sveikieji ir stulpelių skaičius d ne mažesnis\n"
+" nei maksimalus indeksas i*."
+
+msgid "the number of non-zero entries differs from nrow(.)"
+msgstr "ne nulinių įrašų skaičius skiriasi nuo nrow(.)"
+
+msgid "must have exactly one non-zero entry per row"
+msgstr "eilutėje turi būti lygiai vienas ne nulinis įrašas"
+
+msgid "kronecker method must use default 'FUN'"
+msgstr "kronecker metodas turi naudoti numatytąjį 'FUN'"
+
+msgid "resulting matrix dimension would be too large"
+msgstr "gautas matricos matmuo būtų per didelis"
+
+msgid "replacing \"indMatrix\" entries is not allowed, as rarely sensible"
+msgstr "pakeisti \"indMatrix\" įrašų neleidžiama, kaip retai praktiškų"
+
+msgid "Matrix seems negative semi-definite"
+msgstr "Matrica atrodo pusiau neigiamai apibrėžta"
+
+msgid "'nearPD()' did not converge in %d iterations"
+msgstr "'nearPD()' nekonvergavo %d iteracijose"
+
+msgid "cannot coerce 'NA's to \"nsparseMatrix\""
+msgstr "negalima paversti 'NA' į \"nsparseMatrix\""
+
+msgid "temporarily disabled"
+msgstr "laikinai išjungtas"
+
+msgid "cannot coerce NA values to pattern \"ntCMatrix\""
+msgstr "negalima paversti NA reikšmes į modelį \"ntCMatrix\""
+
+msgid "coercion to \"pMatrix\" only works from integer numeric"
+msgstr "pavertimas į \"pMatrix\" veikia tik iš sveikųjų skaitinių"
+
+msgid "not a square matrix"
+msgstr "ne kvadratinė matrica"
+
+msgid "not-yet-implemented method for <%s> %%*%% <%s>"
+msgstr "dar neįgyvendintas metodas <%s> %%*%% <%s>"
+
+msgid "non-conformable arguments"
+msgstr "neatitinkantys argumentai"
+
+msgid "'boolArith = %d' not yet implemented"
+msgstr "'boolArith = %d' dar neįgyvendintas"
+
+msgid "qr2rankMatrix(.): QR with only %d out of %d finite diag(R) entries"
+msgstr "qr2rankMatrix(.): QR tik su %d iš %d baigtinių diag(R) įrašų"
+
+msgid "qr2rankMatrix(.): QR has negative diag(R) entries"
+msgstr "qr2rankMatrix(.): QR turi neigiamų diag(R) įrašų"
+
+msgid "rankMatrix(<large sparse Matrix>, method = '%s') coerces to dense matrix.\n"
+" Probably should rather use method = 'qr' !?"
+msgstr "rankMatrix(<large sparse Matrix>, method = '%s') paverčiamas į tankio matricą.\n"
+" Tikriausiai reikėtų naudoti metodą = 'qr' !?"
+
+msgid "rankMatrix(x, method='qr'): computing t(x) as nrow(x) < ncol(x)"
+msgstr "rankMatrix(x, method='qr'): skaičiavimas t(x) kaip nrow(x) < ncol(x)"
+
+msgid "model frame and formula mismatch in model.matrix()"
+msgstr "modelio sistemos ir formulės neatitikimas model.matrix()"
+
+msgid "invalid 'contrasts.arg' argument"
+msgstr "neleistinas argumentas 'contrasts.arg'"
+
+msgid "variable '%s' is absent, its contrast will be ignored"
+msgstr "kintamojo '%s' nėra, jo kontrastas bus ignoruojamas"
+
+msgid "only 2-dimensional tables can be directly coerced to sparse matrices"
+msgstr "tik 2 matmenų lentelės gali būti tiesiogiai paverstos į sparse matricas"
+
+msgid "exactly one of 'i', 'j', or 'p' must be missing from call"
+msgstr "iškvietimo metu turi trūkti tiksliai vieno iš 'i', 'j' arba 'p'"
+
+msgid "'p' must be a non-decreasing vector (0, ...)"
+msgstr "'p' turi būti nemažėjantis vektorius (0, ...)"
+
+msgid "NA's in (i,j) are not allowed"
+msgstr "NA esantys (i,j) yra neleidžiami"
+
+msgid "Both 'symmetric' and 'triangular', i.e. asking for diagonal matrix.  Use 'Diagonal()' instead"
+msgstr "Ir 'symmetric', ir 'triangular', t. y. prašant įstrižinės matricos.  Vietoj to naudokite 'Diagonal()'"
+
+msgid "symmetric matrix must be square"
+msgstr "simetrinė matrica turi būti kvadratinė"
+
+msgid "triangular matrix must be square"
+msgstr "trikampė matrica turi būti kvadratinė"
+
+msgid "triangular matrix must have all i >= j or i <= j"
+msgstr "trikampė matrica turi turėti visus i >= j arba i <= j"
+
+msgid "length(i) is not a multiple of length(x)"
+msgstr "length(i) nėra length(x) kartotinis"
+
+msgid "only square matrices can be used as incidence matrices for graphs"
+msgstr "tik kvadratinės matricos gali būti naudojamos kaip paplitimo matricos grafikams"
+
+msgid "Matrix-internal error in <sparseM>[i,,d]; please report"
+msgstr "Matricos vidinė klaida, esanti <sparseM>[i,,d]; prašome pranešti"
+
+msgid "invalid 'col.names' string: %s"
+msgstr "neleistina 'col.names' eilutė: %s"
+
+msgid "uniDiag=TRUE, but not all diagonal entries are 1"
+msgstr "uniDiag=TRUE, bet ne visi įstrižainės įrašai yra 1"
+
+msgid "uniDiag=TRUE, not all entries in diagonal coded as 1"
+msgstr "uniDiag=TRUE, ne visi įstrižainės įrašai, koduoti kaip 1"
+
+msgid "in show(); maybe adjust 'options(max.print= *, width = *)'"
+msgstr "show(); galbūt pritaikyti 'options(max.print= *, width = *)'"
+
+msgid "suppressing %d columns and %d rows"
+msgstr "nerodyti %d stulpelių ir %d eilučių"
+
+msgid "suppressing %d rows"
+msgstr "nerodyti %d eilučių"
+
+msgid "suppressing %d columns"
+msgstr "nerodyti %d stulpelių"
+
+msgid "logic programming error in printSpMatrix2(), please report"
+msgstr "loginio programavimo klaida printSpMatrix2(), prašome pranešti"
+
+msgid "invalid 'type'"
+msgstr "neleistinas 'type'"
+
+msgid "rcond(.) via sparse -> dense coercion"
+msgstr "rcond(.) per sparse -> dense pavertimą"
+
+msgid "'V' is not a *square* matrix"
+msgstr "'V' nėra *kvadratinė* matrica"
+
+msgid "number of non zeros is smaller than 'nnz' because of duplicated (i,j)s"
+msgstr "ne nulių skaičius yra mažesnis už 'nnz' dėl dubliuotų (i,j)s"
+
+msgid "a sparseMatrix should rarely be centered: will not be sparse anymore"
+msgstr "sparseMatrix retai turėtų būti centre: daugiau nebus sparse"
+
+msgid "length of 'center' must equal the number of columns of 'x'"
+msgstr "'center' ilgis turi būti lygus stulpelių skaičiui 'x'"
+
+msgid "length of 'scale' must equal the number of columns of 'x'"
+msgstr "'scale' ilgis turi būti lygus stulpelių skaičiui 'x'"
+
+msgid "qr.R(<sparse>) may differ from qr.R(<dense>) because of permutations.  Possibly use our qrR() instead"
+msgstr "qr.R(<sparse>) gali skirtis nuo qr.R(<dense>) dėl perstatų.  Galbūt vietoj to naudokite mūsų qrR()"
+
+msgid "cannot coerce 'NA's to \"nsparseVector\""
+msgstr "negalima paversti 'NA' į \"nsparseVector\""
+
+msgid "'x' must inherit from \"sparseVector\""
+msgstr "'x' turi paveldėti iš \"sparseVector\""
+
+msgid "'ncol' must be >= 0"
+msgstr "'ncol' turi būti >= 0"
+
+msgid "'nrow' must be >= 0"
+msgstr "'nrow' turi būti >= 0"
+
+msgid "Must specify 'nrow' when 'symmetric' is true"
+msgstr "Turi nurodyti 'nrow', kai 'symmetric' yra teisinga"
+
+msgid "'nrow' and 'ncol' must be the same when 'symmetric' is true"
+msgstr "'nrow' ir 'ncol' turi būti vienodi, kai 'symmetric' yra teisinga"
+
+msgid "'x' must have length nrow^2 when 'symmetric' is true"
+msgstr "'x' turi būti ilgio nrow^2, kai 'symmetric' yra teisingas"
+
+msgid "'ncol' is not a factor of length(x)"
+msgstr "'ncol' nėra length(x) faktorius"
+
+msgid "'nrow' is not a factor of length(x)"
+msgstr "\"nrow\" nėra length(x) faktorius"
+
+msgid "Class %s is not yet implemented"
+msgstr "Klasės %s dar neįgyvendinta"
+
+msgid "index must be numeric, logical or sparseVector for indexing sparseVectors"
+msgstr "indeksas turi būti skaitinis, loginis arba sparseVector, sparseVectors indeksavimui"
+
+msgid "'times >= 0' is required"
+msgstr "'times >= 0' yra būtinas"
+
+msgid "'giveCsparse' has been deprecated; setting 'repr = \"%s\"' for you"
+msgstr "'giveCsparse' nebenaudojamas; nustatymas 'repr = \"%s\"' jums"
+
+msgid "(un)packing only applies to dense matrices, class(x)='%s'"
+msgstr "(iš)pakavimas taikomas tik tankio matricoms, class(x)='%s'"
+
+msgid "'x' is not symmetric nor triangular"
+msgstr "'x' nėra nei simetriškas, nei trikampis"
+
+msgid "'x' is not symmetric -- chol() undefined."
+msgstr "'x' nėra simetriškas -- chol() neapibrėžtas."
+
+msgid "extra argument %s will be disregarded in\n"
+" %s"
+msgid_plural "extra arguments %s will be disregarded in\n"
+" %s"
+msgstr[0] "papildomas argumentas %s, į kurį bus neatsižvelgiama\n"
+" %s"
+msgstr[1] "papildomi argumentai %s, į kuriuos bus neatsižvelgiama\n"
+" %s"
+msgstr[2] "papildomų argumentų %s, į kuriuos bus neatsižvelgiama\n"
+" %s"
+

@@ -1,5 +1,5 @@
 \name{isTriangular}
-\title{isTriangular() and isDiagonal() Methods}
+\title{isTriangular() and isDiagonal() Checking if Matrix is Triangular or Diagonal}
 %\docType{methods} both generic *and* methods
 \alias{isDiagonal}
 \alias{isDiagonal-methods}

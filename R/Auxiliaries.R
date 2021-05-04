@@ -1465,8 +1465,20 @@ diagN2U <- function(x, cl = getClassDef(class(x)), checkDense = FALSE)
 	.dgC.0.factors(x)
 }
 
+## Caches 'value' in the 'factors' slot of 'x', i.e. modifies 'x', and returns 'value'
+## WARNING:: for updating the '@ factors' slot of a function *argument* [CARE!]
 .set.factors <- function(x, name, value, warn.no.slot=FALSE)
     .Call(R_set_factors, x, value, name, warn.no.slot)
+
+##' Change function *argument* 'x', emptying its 'factors' slot; USE with CARE! __ DANGER ! __
+##' @return TRUE iff 'x' is modified, FALSE if not.
+.empty.factors <- function(x, warn.no.slot=FALSE)
+    .Call(R_empty_factors, x, warn.no.slot)
+
+##' The *SAFE* regular function version:  empty the factor slot
+.drop.factors <- function(x, check=FALSE)
+   `slot<-`(x, "factors", check=check, value=list())
+
 
 ### Fast, much simplified version of tapply()
 tapply1 <- function (X, INDEX, FUN = NULL, ..., simplify = TRUE) {

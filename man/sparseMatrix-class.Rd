@@ -13,15 +13,15 @@
 \alias{Ops,sparseMatrix,diagonalMatrix-method}
 %
 \alias{cbind2,sparseMatrix,sparseMatrix-method}
-\alias{cbind2,denseMatrix,sparseMatrix-method}
-\alias{cbind2,sparseMatrix,denseMatrix-method}
+%\alias{cbind2,denseMatrix,sparseMatrix-method} in ./cBind.Rd
+%\alias{cbind2,sparseMatrix,denseMatrix-method}   ditto
 \alias{cbind2,sparseMatrix,matrix-method}
 \alias{cbind2,matrix,sparseMatrix-method}
 \alias{cbind2,sparseMatrix,numeric-method}
 \alias{cbind2,numeric,sparseMatrix-method}
 \alias{rbind2,sparseMatrix,sparseMatrix-method}
-\alias{rbind2,denseMatrix,sparseMatrix-method}
-\alias{rbind2,sparseMatrix,denseMatrix-method}
+%\alias{rbind2,denseMatrix,sparseMatrix-method} in ./cBind.Rd
+%\alias{rbind2,sparseMatrix,denseMatrix-method}   ditto
 \alias{rbind2,sparseMatrix,matrix-method}
 \alias{rbind2,matrix,sparseMatrix-method}
 \alias{rbind2,sparseMatrix,numeric-method}

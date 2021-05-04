@@ -5,7 +5,7 @@ if(interactive()) options(error = recover)
 options(warn=1)# show as they happen
 cat("doExtras:",doExtras,"\n")
 
-no.Mcl <- function(cl) ## TRUE if MatrixClass() returns empty, i
+no.Mcl <- function(cl) ## TRUE if MatrixClass() returns empty, i.e., have "no Matrix-pkg class"
     identical(Matrix:::MatrixClass(cl), character(0))
 
 setClass("myDGC", contains = "dgCMatrix")
@@ -31,6 +31,16 @@ stopifnot(identical(as(A., "dgCMatrix"), dd))
 ## as(.) coercion failed in Matrix <= 1.2.3
 stopifnot(all( abs(A.)# failed too
               == diag(3)))
+
+d <- Diagonal(3)
+(dC <- as(d, "CsparseMatrix")) # "dtCMatrix" (unitriangular)
+(dgC <- as(d, "dgCMatrix"))# did not work in Matrix <= 1.2.x
+stopifnot(exprs = {
+    is(dgC, "dgCMatrix") # was wrong in Matrix 1.3.2
+    identical(dgC, as(dC, "dgCMatrix"))
+    identical(dC , new("dtCMatrix", p = rep(0L, 4), Dim = c(3L, 3L), diag = "U"))
+    identical(dC , diagN2U(as(dgC, "triangularMatrix")))
+})
 
 setClass("posDef", contains = "dspMatrix")
 N <- as(as(crossprod(M) + Diagonal(4), "denseMatrix"),"dspMatrix")

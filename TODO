@@ -338,17 +338,7 @@ alternatively also is_sym() [in src/cs_utils.c], see below.
   chunks and would not need to re-allocate anything in many cases.
   HOWEVER, replCmat() in R/Csparse.R is still far from making use of that.
 
-** DONE Thanks to base::rbind, cbind now doing S4 dispatch on C level:
-   no Need anymore:... [[actually the contrary: do deprecate  rbind2() etc eventually!]]
-   advertize  rbind2() / cbind2() and (rather?) rBind() / cBind()
-   	      ------                            -----
-  in all vignettes / talks / ... !!
-  People erronously try rbind/cbind see that they don't work and then
-  reinvent the wheel!
-  --> Consider using the new  'dotMethods' functionality to define
-      cbind() and rbind() versions that work with Matrix.
-      The "Rmpfr" package does that now.
-
+** DONE Thanks to base::rbind, cbind now doing S4 dispatch on C level
 ** TODO In  all(M1 == M2)  for sparse large matrices M1, M2 (e.g. M2 <- M1 !),
   the intermediate 'M1 == M2' typically is dense, hence potentially using
   humongous amount of memory.

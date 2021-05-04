@@ -14,10 +14,7 @@
 % sparse methods
 \alias{chol,dsparseMatrix-method}
 \alias{chol,dsCMatrix-method}
-\alias{chol,dsCMatrix-method}
 \alias{chol,lsCMatrix-method}
-\alias{chol,lsCMatrix-method}
-\alias{chol,nsCMatrix-method}
 \alias{chol,nsCMatrix-method}
 \alias{chol,dtCMatrix-method}
 \alias{chol,dtRMatrix-method}

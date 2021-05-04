@@ -367,7 +367,7 @@ replCmat4 <- function(x, i1, i2, iMi, jMi, value, spV = is(value,"sparseVector")
 	    ##	     but really could be faster and write something like cs_drop_k(A, k)
 	    ## v0 <- 0 == value
 	    ## if (lenRepl == 1) and v0 is TRUE, the following is not doing anything
-	    ##-	 --> ./dgTMatrix.R	and its	 replTmat()
+	    ##-	 --> ./Tsparse.R	and its	 replTmat()
 	    ## x@x[sel[!v0]] <- value[!v0]
 	    x@x[sel] <- as.vector(value[iN0])
 	    if(extends(clDx, "compMatrix") && length(x@factors)) # drop cashed ones

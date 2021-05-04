@@ -292,7 +292,6 @@ is.model.frame <- function(x)
 
 
 ##' Create a sparse model matrix from a model frame.
-##' -- This version uses  'rBind' and returns  X' i.e. t(X) :
 ##'
 ##' @title Sparse Model Matrix from Model Frame
 ##' @param trms a "terms" object

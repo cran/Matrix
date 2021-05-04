@@ -54,7 +54,7 @@ setMethod("head", signature(x = "Matrix"), utils::head.matrix)
 setMethod("tail", signature(x = "Matrix"), utils::tail.matrix)
 
 setMethod("drop", signature(x = "Matrix"),
-	  function(x) if(all(dim(x) != 1)) x else drop(as(x, "matrix")))
+	  function(x) if(all(x@Dim != 1L)) x else drop(as(x, "matrix")))
 
 ## slow "fall back" method {subclasses should have faster ones}:
 setMethod("as.vector", "Matrix",
@@ -216,7 +216,7 @@ Matrix <- function (data = NA, nrow = 1, ncol = 1, byrow = FALSE,
 	data <- spV2M(data, nrow, ncol, byrow=byrow)
 	i.M <- sparse <- forceCheck <- sM <- sV <- TRUE
     }
-    if(is.null(sparse1 <- sparse) && (i.M || is(data, "matrix")))
+    if(is.null(sparse) && (i.M || is(data, "matrix")))
 	sparse <- sparseDefault(data)
     doDN <- TRUE # by default
     if (i.M) {
@@ -234,7 +234,7 @@ Matrix <- function (data = NA, nrow = 1, ncol = 1, byrow = FALSE,
 	if (is.object(data) || !is.atomic(data)) data <- as.vector(data)
 	if(length(data) == 1 && is0(data) && !identical(sparse, FALSE)) {
 	    ## Matrix(0, ...) : always sparse unless "sparse = FALSE":
-	    if(is.null(sparse)) sparse1 <- sparse <- TRUE
+	    if(is.null(sparse)) sparse <- TRUE
 	    i.M <- sM <- TRUE
 	    if (missing(nrow)) nrow <- ceiling(1/ncol) else
 	    if (missing(ncol)) ncol <- ceiling(1/nrow)
@@ -474,10 +474,28 @@ setMethod("image", "Matrix",
 ## Using "index" for indices should allow
 ## integer (numeric), logical, or character (names!) indices :
 
-## "x[]":
+## "x[]" *or* x[,] *or* x[, , drop=<TRUE/FALSE>]
+setMethod("[", signature(x = "Matrix",
+			 i = "missing", j = "missing", drop = "missing"),
+	  function(x,i,j, ..., drop) {
+	      Matrix.msg("M[m,m,m] : nargs()=",nargs(), .M.level = 2)
+	      if(nargs() == 2) { ##  M[]
+		  x
+	      } else { # nargs() = 3
+		  callGeneric(x, , , drop=TRUE)
+	      }
+	  })
+setMethod("[", signature(x = "Matrix",
+			 i = "missing", j = "missing", drop = "logical"),
+	  function (x, i, j, ..., drop) {
+	      Matrix.msg(sprintf("M[m,m, %s] : nargs()=%d", format(drop), nargs()), .M.level = 2)
+	      if(isTRUE(drop) && any(x@Dim == 1L)) drop(as(x, "matrix")) else x
+	  })
+## otherwise:  drop is neither missing nor logical
 setMethod("[", signature(x = "Matrix",
 			 i = "missing", j = "missing", drop = "ANY"),
-	  function (x, i, j, ..., drop) x)
+	  function (x, i, j, ..., drop) stop("invalid 'drop' in Matrix subsetting"))
+
 
 ## missing 'drop' --> 'drop = TRUE'
 ##                     -----------

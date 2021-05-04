@@ -179,6 +179,27 @@ SEXP R_set_factors(SEXP obj, SEXP val, SEXP name, SEXP warn)
     }
 }
 
+// R interface for emptying the '@ factors' slot of *function *argument* 'obj' [CARE!]
+SEXP R_empty_factors(SEXP obj, SEXP warn)
+{
+    Rboolean do_warn = asLogical(warn), modified = FALSE;
+    PROTECT(obj);
+    if(R_has_slot(obj, Matrix_factorSym)) {
+	SEXP fac = GET_SLOT(obj, Matrix_factorSym);
+	if (length(fac) > 0) { // if there's a non-empty factor slot, replace it with list()
+	    SEXP fac = PROTECT(allocVector(VECSXP, 0));
+	    SET_SLOT(obj, Matrix_factorSym, fac);
+	    modified = TRUE;
+	    UNPROTECT(1);
+	}
+    } else {
+	if(do_warn) warning(_("Matrix object has no 'factors' slot"));
+    }
+    UNPROTECT(1);
+    return ScalarLogical(modified);
+}
+
+
 #if 0 				/* unused */
 /* useful for all the ..CMatrix classes (and ..R by [0] <-> [1]); but unused */
 SEXP CMatrix_set_Dim(SEXP x, int nrow)

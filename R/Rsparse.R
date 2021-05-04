@@ -195,12 +195,12 @@ setMethod("band", "RsparseMatrix",
 setReplaceMethod("[", signature(x = "RsparseMatrix", i = "index", j = "missing",
 				value = "replValue"),
 		 function (x, i, j, ..., value)
-		 replTmat(as(x,"TsparseMatrix"), i=i, value=value))
+		 replTmat(as(x,"TsparseMatrix"), i=i, , value=value))
 
 setReplaceMethod("[", signature(x = "RsparseMatrix", i = "missing", j = "index",
 				value = "replValue"),
-		 function (x, i, j, ..., value)
-		 replTmat(as(x,"TsparseMatrix"), j=j, value=value))
+		 function (x, i, j, ..., value)# extra " , ": want nargs() == 4
+		 replTmat(as(x,"TsparseMatrix"), , j=j, value=value))
 
 setReplaceMethod("[", signature(x = "RsparseMatrix", i = "index", j = "index",
 				value = "replValue"),
@@ -214,8 +214,8 @@ setReplaceMethod("[", signature(x = "RsparseMatrix", i = "index", j = "missing",
 
 setReplaceMethod("[", signature(x = "RsparseMatrix", i = "missing", j = "index",
 				value = "sparseVector"),
-		 function (x, i, j, ..., value)
-		 replTmat(as(x,"TsparseMatrix"), j=j, value=value))
+		 function (x, i, j, ..., value)# extra " , ": want nargs() == 4
+		 replTmat(as(x,"TsparseMatrix"), , j=j, value=value))
 
 setReplaceMethod("[", signature(x = "RsparseMatrix", i = "index", j = "index",
 				value = "sparseVector"),

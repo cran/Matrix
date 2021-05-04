@@ -1,0 +1,1121 @@
+# Lithuanian translations for Matrix package.
+# Copyright (C) 2020 THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the Matrix package.
+# Gabrielė Stupurienė <gabriele.stupuriene@mif.vu.lt>, 2020.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Matrix 1.3-3\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-02-11 12:54+0100\n"
+"PO-Revision-Date: 2021-02-25 14:30+0200\n"
+"Last-Translator: Gabrielė Stupurienė <gabriele.stupuriene@mif.vu.lt>\n"
+"Language-Team: none\n"
+"Language: lt\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && (n%100<11 || n%100>19) ? 0 : n"
+"%10>=2 && n%10<=9 && (n%100<11 || n%100>19) ? 1 : 2);\n"
+"X-Generator: Poedit 2.4.2\n"
+
+#: CHMfactor.c:14
+#, c-format
+msgid "cholmod_change_factor failed with status %d"
+msgstr "cholmod_change_factor nepavyko su būsena %d"
+
+#: CHMfactor.c:30 CHMfactor.c:61
+msgid "system argument is not valid"
+msgstr "sistemos argumentas neleistinas"
+
+#: CHMfactor.c:48
+#, c-format
+msgid "cholmod_updown() returned %d"
+msgstr "cholmod_updown() grąžintas %d"
+
+#: CHMfactor.c:104
+#, c-format
+msgid "diagonal element %d of Cholesky factor is missing"
+msgstr "trūksta Choleskio faktoriaus įstrižainės elemento %d"
+
+#: CHMfactor.c:142
+#, c-format
+msgid "cholmod_factorize_p failed: status %d, minor %d of ncol %d"
+msgstr "cholmod_factorize_p nepavyko: būsena %d, nedideli %d iš ncol %d"
+
+#: CHMfactor.c:147
+msgid "cholmod_change_factor failed"
+msgstr "cholmod_change_factor nepavyko"
+
+#: Csparse.c:58
+msgid "Csparse_sort(x): x is not a valid (apart from sorting) CsparseMatrix"
+msgstr "Csparse_sort(x): x nėra galiojantis (išskyrus rūšiavimą) CsparseMatrix"
+
+#: Csparse.c:76
+msgid "slot p must have length = nrow(.) + 1"
+msgstr "lauko p ilgis turi būti = nrow(.) + 1"
+
+#: Csparse.c:78
+msgid "first element of slot p must be zero"
+msgstr "pirmasis lauko p elementas turi būti lygus nuliui"
+
+#: Csparse.c:81
+msgid "last element of slot p must match length of slots j and x"
+msgstr "paskutinis lauko p elementas turi atitikti laukų j ir x ilgį"
+
+#: Csparse.c:84
+msgid "all column indices must be between 0 and ncol-1"
+msgstr "visi stulpelių indeksai turi būti nuo 0 iki ncol-1"
+
+#: Csparse.c:89
+msgid "slot p must be non-decreasing"
+msgstr "laukas p turi būti nemažėjantis"
+
+#: Csparse.c:100
+msgid "slot j is not increasing inside a column"
+msgstr "laukas j nedidėja stulpelio viduje"
+
+#: Csparse.c:102
+msgid "slot j is not *strictly* increasing inside a column"
+msgstr "laukas j nėra *griežtai* didėjantis stulpelio viduje"
+
+#: Csparse.c:214
+msgid "Csparse_to_nz_pattern(x, tri = NA): 'tri' is taken as TRUE"
+msgstr "Csparse_to_nz_pattern(x, tri = NA): 'tri' laikoma TRUE"
+
+#: Csparse.c:237
+msgid "not a 'n.CMatrix'"
+msgstr "ne 'n.CMatrix'"
+
+#: Csparse.c:267
+#, c-format
+msgid "nz2Csparse(): invalid/non-implemented r_kind = %d"
+msgstr "nz2Csparse(): netinkamas/neįgyvendintas r_kind = %d"
+
+#: Csparse.c:350
+msgid "Nonsymmetric matrix in Csparse_symmetric_to_general"
+msgstr "Nesimetrinė matrica, esanti Csparse_symmetric_to_general"
+
+#: Csparse.c:361
+msgid "Csparse_general_to_symmetric(): matrix is not square!"
+msgstr "Csparse_general_to_symmetric (): matrica nėra kvadratinė!"
+
+#: Csparse.c:783
+msgid "Csparse_crossprod(): error return from cholmod_aat()"
+msgstr "Csparse_crossprod(): klaida grąžinima iš cholmod_aat()"
+
+#: Csparse.c:812
+msgid "cholmod_drop() failed"
+msgstr "cholmod_drop() nepavyko"
+
+#: Csparse.c:839
+#, c-format
+msgid "Impossible Rk_x/Rk_y in Csparse_%s(), please report"
+msgstr "Neįmanoma Rk_x/Rk_y, esanti Csparse_%s(), prašome pranešti"
+
+#: Csparse.c:841
+#, c-format
+msgid "chm_MOD_xtype() was not successful in Csparse_%s(), please report"
+msgstr "chm_MOD_xtype() nebuvo sėkmingas Csparse_%s(), prašome pranešti"
+
+#: Csparse.c:945
+msgid "Index i must be NULL or integer"
+msgstr "Rodyklė i turi būti NULL arba sveikasis skaičius"
+
+#: Csparse.c:947
+msgid "Index j must be NULL or integer"
+msgstr "Rodyklė j turi būti NULL arba sveikasis skaičius"
+
+#: Csparse.c:1006
+#, c-format
+msgid "failure to open file \"%s\" for writing"
+msgstr "nepavyko atidaryti failo \"%s\" rašymui"
+
+#: Csparse.c:1010
+msgid "cholmod_write_sparse returned error code"
+msgstr "cholmod_write_sparse grąžintas klaidos kodas"
+
+#: Csparse.c:1109
+#, c-format
+msgid "%s = '%s' (back-permuted) is experimental"
+msgstr "%s = '%s' (atgalinis) yra eksperimentinis"
+
+#: Csparse.c:1119
+msgid "diag_tC(): invalid 'resultKind'"
+msgstr "diag_tC(): netinkamas 'resultKind'"
+
+#: Csparse.c:1190
+#, c-format
+msgid "negative vector lengths not allowed: np = %d, nnz = %d"
+msgstr "neigiami vektoriaus ilgiai neleidžiami: np = %d, nnz = %d"
+
+#: Csparse.c:1196
+msgid "exactly 1 of 'i', 'j' or 'p' must be NULL"
+msgstr "tiksliai 1 iš 'i', 'j' arba 'p' turi būti NULL"
+
+#: Csparse.c:1198
+#, c-format
+msgid "np = %d, must be zero when p is NULL"
+msgstr "np = %d, turi būti nulis, kai p yra NULL"
+
+#: Csparse.c:1201
+#, c-format
+msgid "p[0] = %d, should be zero"
+msgstr "p[0] = %d, turėtų būti nulis"
+
+#: Csparse.c:1204
+msgid "p must be non-decreasing"
+msgstr "p turi būti nemažėjantis"
+
+#: Csparse.c:1220
+#, c-format
+msgid "Inconsistent dimensions: np = 0 and nnz = %d"
+msgstr "Nenuoseklūs matmenys: np = 0 ir nnz = %d"
+
+#: Csparse.c:1228
+#, c-format
+msgid "invalid row index at position %d"
+msgstr "neleistinas eilutės indeksas padėtyje %d"
+
+#: Csparse.c:1235
+#, c-format
+msgid "invalid column index at position %d"
+msgstr "neleistinas stulpelio indeksas padėtyje %d"
+
+#: Csparse.c:1245
+#, c-format
+msgid "strlen of cls argument = %d, should be 8"
+msgstr "cls argumento strlen = %d, turėtų būti 8"
+
+#: Csparse.c:1247 Csparse.c:1324
+#, c-format
+msgid "cls = \"%s\" does not end in \"CMatrix\""
+msgstr "cls = \"%s\" nesibaigia \"CMatrix\""
+
+#: Csparse.c:1257
+#, c-format
+msgid "cls = \"%s\" must begin with 'd', 'l' or 'n'"
+msgstr "cls = \"%s\" turi prasidėti 'd', 'l' arba 'n'"
+
+#: Csparse.c:1260
+msgid "Only 'g'eneral sparse matrix types allowed"
+msgstr "Leidžiami tik 'g'eneral sparse matricų tipai"
+
+#: Csparse.c:1288
+msgid "code not yet written for cls = \"lgCMatrix\""
+msgstr "kodas dar neparašytas dėl cls = \"lgCMatrix\""
+
+#: Csparse.c:1307
+#, c-format
+msgid "%s must be (traditional R) matrix"
+msgstr "%s turi būti (tradicinė R) matrica"
+
+#: Csparse.c:1314
+#, c-format
+msgid "%s must be character string"
+msgstr "%s turi būti simbolių eilutė"
+
+#: Csparse.c:1318
+#, c-format
+msgid "nrow * ncol = %d * %d must equal length(x) = %ld"
+msgstr "nrow * ncol = %d * %d turi būti lygus length(x) = %ld"
+
+#: Csparse.c:1322
+#, c-format
+msgid "strlen of cls argument = %d, should be 9"
+msgstr "cls argumento strlen = %d, turėtų būti 9"
+
+#: Csparse.c:1334
+#, c-format
+msgid "cls = \"%s\" must begin with 'd', 'l' or 'n' for now"
+msgstr "cls = \"%s\" turi prasidėti 'd', 'l' arba 'n'"
+
+#: Csparse.c:1392
+#, c-format
+msgid "%s must be a logical or double vector"
+msgstr "%s turi būti loginis arba dvigubas vektorius"
+
+#: Mutils.c:14 Mutils.c:33
+#, c-format
+msgid "argument type[1]='%s' must be a one-letter character string"
+msgstr "argumentas type[1]='%s' turi būti vienos raidės simbolio eilutė"
+
+#: Mutils.c:22
+#, c-format
+msgid "argument type[1]='%s' must be one of 'M','1','O','I','F' or 'E'"
+msgstr ""
+"argumentas type[1]='%s' turi būti vienas iš 'M','1','O','I','F' arba 'E'"
+
+#: Mutils.c:39
+#, c-format
+msgid "argument type[1]='%s' must be one of '1','O', or 'I'"
+msgstr "argumentas type[1]='%s' turi būti vienas iš '1','O' arba 'I'"
+
+#: Mutils.c:50 Mutils.c:68
+msgid "object must be a named, numeric vector"
+msgstr "objektas turi būti įvardytas, skaitinis vektorius"
+
+#: Mutils.c:118 Mutils.c:143
+msgid "'factors' slot must be a named list"
+msgstr "'factors' laukas turi būti įvardytas sąrašas"
+
+#: Mutils.c:177
+msgid "Matrix object has no 'factors' slot"
+msgstr "Matricos objektas neturi 'factors' lauko"
+
+#: Mutils.c:267
+#, c-format
+msgid "'%s' slot must have length 1"
+msgstr "'%s' lauko ilgis turi būti 1"
+
+#: Mutils.c:271
+#, c-format
+msgid "'%s' must have string length 1"
+msgstr "'%s' eilutės ilgis turi būti 1"
+
+#: Mutils.c:278
+#, c-format
+msgid "'%s' must be in '%s'"
+msgstr "'%s' turi būti '%s'"
+
+#: Mutils.c:297
+msgid "'s1' and 's2' must be \"character\" vectors"
+msgstr "'s1' ir 's2' turi būti \"character\" vektoriai"
+
+#: Mutils.c:319
+msgid "length of x slot != prod(Dim)"
+msgstr "x lauko ilgis != prod(Dim)"
+
+#: Mutils.c:325
+msgid "Dim slot must have length 2"
+msgstr "Dim laukas turi būti 2 ilgio"
+
+#: Mutils.c:330
+msgid "Dim slot is not integer"
+msgstr "Dim laukas nėra sveikasis skaičius"
+
+#: Mutils.c:336
+msgid "Negative value in Dim"
+msgid_plural "Negative values in Dim"
+msgstr[0] "Neigiama dim reikšmė"
+msgstr[1] "Neigiamos dim reikšmės"
+msgstr[2] "Neigiamų dim reikšmių"
+
+#: Mutils.c:362
+#, c-format
+msgid "%s is not a list"
+msgstr "%s nėra sąrašas"
+
+#: Mutils.c:366
+#, c-format
+msgid "%s is a list, but not of length 2"
+msgstr "%s yra sąrašas, bet ne ilgio 2"
+
+#: Mutils.c:372
+#, c-format
+msgid "Dimnames[%d] is not a character vector"
+msgstr "Dimnames[%d] nėra simbolių vektorius"
+
+#: Mutils.c:377
+#, c-format
+msgid "length(Dimnames[%d]) differs from Dim[%d] which is %d"
+msgstr "length(Dimnames[%d]) skiriasi nuo Dim[%d], kuris yra %d"
+
+#: Mutils.c:421 Mutils.c:447
+msgid "'uplo' must be UPP or LOW"
+msgstr "'uplo' turi būti UPP arba LOW"
+
+#: Mutils.c:504 dgeMatrix.c:420 dtrMatrix.c:288
+msgid "replacement diagonal has wrong length"
+msgstr "keitimo įstrižainės ilgis neteisingas"
+
+#: Mutils.c:725
+#, c-format
+msgid "invalid class '%s' to dup_mMatrix_as_geMatrix"
+msgstr "netinkama klasė '%s' į dup_mMatrix_as_geMatrix"
+
+#: Mutils.c:854
+#, c-format
+msgid "unexpected ctype = %d in dup_mMatrix_as_geMatrix"
+msgstr "netikėtas ctype = %d, esantis dup_mMatrix_as_geMatrix"
+
+#: Mutils.c:881
+#, c-format
+msgid "invalid class '%s' to dup_mMatrix_as_dgeMatrix"
+msgstr "netinkama klasė '%s' į dup_mMatrix_as_dgeMatrix"
+
+#: Mutils.c:931
+msgid "Argument ij must be 2-column integer matrix"
+msgstr "Argumentas ij turi būti 2 stulpelių sveikųjų skaičių matrica"
+
+#: Mutils.c:950
+msgid "subscript 'i' out of bounds in M[ij]"
+msgstr "apatinis indeksas 'i' už M[ij] ribų"
+
+#: Mutils.c:952
+msgid "subscript 'j' out of bounds in M[ij]"
+msgstr "apatinis indeksas 'j' už M[ij] ribų"
+
+#: Mutils.c:996
+msgid "i and j must be integer vectors of the same length"
+msgstr "i ir j turi būti to paties ilgio sveikieji vektoriai"
+
+#: Mutils.c:1041
+msgid "'data' must be of a vector type"
+msgstr "'data' turi būti vektoriaus tipo"
+
+#: Mutils.c:1048
+#, c-format
+msgid "invalid '%s' argument"
+msgstr "netinkamas argumentas '%s'"
+
+#: Mutils.c:1055 Mutils.c:1063
+msgid "non-numeric matrix extent"
+msgstr "neskaitinės matricos dydis"
+
+#: Mutils.c:1058
+msgid "invalid 'nrow' value (too large or NA)"
+msgstr "neleistina 'nrow' reikšmė (per didelė arba NA)"
+
+#: Mutils.c:1060
+msgid "invalid 'nrow' value (< 0)"
+msgstr "neleistina 'nrow' reikšmė (< 0)"
+
+#: Mutils.c:1066
+msgid "invalid 'ncol' value (too large or NA)"
+msgstr "neleistina 'ncol' reikšmė (per didelė arba NA)"
+
+#: Mutils.c:1068
+msgid "invalid 'ncol' value (< 0)"
+msgstr "neleistina 'ncol' reikšmė (< 0)"
+
+#: Mutils.c:1086
+#, c-format
+msgid ""
+"data length [%d] is not a sub-multiple or multiple of the number of rows [%d]"
+msgstr "duomenų ilgis [%d] nėra eilučių skaičiaus pogrupis ar kartotinis [%d]"
+
+#: Mutils.c:1089
+#, c-format
+msgid ""
+"data length [%d] is not a sub-multiple or multiple of the number of columns "
+"[%d]"
+msgstr ""
+"duomenų ilgis [%d] nėra stulpelių skaičiaus pogrupis ar kartotinis [%d]"
+
+#: Mutils.c:1092
+msgid "data length exceeds size of matrix"
+msgstr "duomenų ilgis viršija matricos dydį"
+
+#: Mutils.c:1098
+msgid "too many elements specified"
+msgstr "nurodyta per daug elementų"
+
+#: Mutils.c:1167
+#, c-format
+msgid "the number of columns differ in R_rbind2_vector: %d != %d"
+msgstr "stulpelių skaičius skiriasi R_rbind2_vector: %d != %d"
+
+#: Mutils.c:1223 Mutils.c:1254 Mutils.c:1265 Mutils.c:1292
+msgid "Argument must be numeric-like atomic vector"
+msgstr "Argumentas turi būti skaitinis atominis vektorius"
+
+#: Tsparse.c:20
+msgid "lengths of slots i and j must match"
+msgstr "laukų i ir j ilgiai turi atitikti"
+
+#: Tsparse.c:23
+msgid "slot Dim must have length 2"
+msgstr "laukas Dim turi būti 2 ilgio"
+
+#: Tsparse.c:27
+msgid ""
+"all row indices (slot 'i') must be between 0 and nrow-1 in a TsparseMatrix"
+msgstr ""
+"visi eilučių indeksai (laukas 'i') turi būti nuo 0 iki nrow-1, esančio "
+"TsparseMatrix"
+
+#: Tsparse.c:29
+msgid ""
+"all column indices (slot 'j') must be between 0 and ncol-1 in a TsparseMatrix"
+msgstr ""
+"visi stulpelių indeksai (laukas 'j') turi būti nuo 0 iki ncol-1, esančio "
+"TsparseMatrix"
+
+#: chm_common.c:82
+msgid "Argument rho must be an environment"
+msgstr "Argumentas rho turi būti aplinka"
+
+#: chm_common.c:259
+msgid "invalid class of object to as_cholmod_sparse"
+msgstr "netinkama objekto klasė į as_cholmod_sparse"
+
+#: chm_common.c:261
+msgid "invalid object passed to as_cholmod_sparse"
+msgstr "neleistinas objektas perduotas į as_cholmod_sparse"
+
+#: chm_common.c:288
+msgid "in_place cholmod_sort returned an error code"
+msgstr "in_place cholmod_sort grąžino klaidos kodą"
+
+#: chm_common.c:294
+msgid "cholmod_sort returned an error code"
+msgstr "cholmod_sort grąžino klaidos kodą"
+
+#: chm_common.c:383
+msgid "chm_sparse_to_SEXP(<real>, *): invalid 'Rkind' (real kind code)"
+msgstr ""
+"chm_sparse_to_SEXP (<real>, *): neteisingas 'Rkind' (tikrasis rūšies kodas)"
+
+#: chm_common.c:391
+msgid "unknown xtype in cholmod_sparse object"
+msgstr "nežinomas xtype cholmod_sparse objekte"
+
+#: chm_common.c:420 chm_common.c:651 chm_common.c:932 chm_common.c:982
+msgid "complex sparse matrix code not yet written"
+msgstr "sudėtinis sparse matricos kodas dar neįrašytas"
+
+#: chm_common.c:425 chm_common.c:656
+msgid "Symmetric and triangular both set"
+msgstr "Simetriškas ir trikampis abiejų rinkinys"
+
+#: chm_common.c:501
+msgid "invalid class of object to as_cholmod_triplet"
+msgstr "netinkama objekto klasė į as_cholmod_triplet"
+
+#: chm_common.c:525
+msgid "as_cholmod_triplet(): could not reallocate for internal diagU2N()"
+msgstr "as_cholmod_triplet(): nepavyko perskirstyti vidiniam diagU2N()"
+
+#: chm_common.c:623
+msgid "unknown xtype in cholmod_triplet object"
+msgstr "nežinomas xtype cholmod_triplet objekte"
+
+#: chm_common.c:702
+msgid "invalid class of object to as_cholmod_dense"
+msgstr "netinkama objekto klasė į as_cholmod_dense"
+
+#: chm_common.c:770
+#, c-format
+msgid ""
+"chm_transpose_dense(ans, x) not yet implemented for %s different from %s"
+msgstr "chm_transpose_dense(ans, x) dar neįgyvendintas dėl %s skiriasi nuo %s"
+
+#: chm_common.c:794
+#, c-format
+msgid "Cholmod error '%s' at file %s, line %d"
+msgstr "Cholmod klaida '%s' faile %s, eilutė %d"
+
+#: chm_common.c:798
+#, c-format
+msgid "Cholmod warning '%s' at file %s, line %d"
+msgstr "Cholmod įspėjimas '%s' faile %s, eilutė %d"
+
+#: chm_common.c:827
+#, c-format
+msgid "Unable to initialize cholmod: error code %d"
+msgstr "Neįmanoma inicijuoti cholmod: klaidos kodas %d"
+
+#: chm_common.c:876
+msgid "unknown 'Rkind'"
+msgstr "nežinomas 'Rkind'"
+
+#: chm_common.c:883 chm_common.c:968
+msgid "unknown xtype"
+msgstr "nežinomas xtype"
+
+#: chm_common.c:938 chm_common.c:991
+msgid "code for cholmod_dense with holes not yet written"
+msgstr "cholmod_dense kodas su dar neįrašytais tarpais"
+
+#: chm_common.c:987
+msgid "don't know if a dense pattern matrix makes sense"
+msgstr "nežinau, ar tankio modelio matrica turi prasmę"
+
+#: chm_common.c:1052
+msgid "invalid class of object to as_cholmod_factor"
+msgstr "netinkama objekto klasė į as_cholmod_factor"
+
+#: chm_common.c:1066
+msgid "Supernodal LDL' decomposition not available"
+msgstr "Supernodal LDL' skilimas negalimas"
+
+#: chm_common.c:1068
+msgid "Supernodal/simplicial class inconsistent with type flags"
+msgstr "Supernodal/simplicial klasė nesuderinama su tipo vėliavėlėmis"
+
+#: chm_common.c:1086
+msgid "Number of supernodes must be positive when is_super is TRUE"
+msgstr "Super mazgų skaičius turi būti teigiamas, kai is_super yra TRUE"
+
+#: chm_common.c:1089
+msgid "Lengths of super and pi must be equal"
+msgstr "Super ir pi ilgiai turi būti lygūs"
+
+#: chm_common.c:1093
+msgid "Lengths of super and px must be equal"
+msgstr "Super ir px ilgiai turi būti lygūs"
+
+#: chm_common.c:1106
+msgid "failure in as_cholmod_factor"
+msgstr "klaida, esanti as_cholmod_factor"
+
+#: chm_common.c:1152
+msgid "CHOLMOD factorization was unsuccessful"
+msgstr "CHOLMOD faktoringas buvo nesėkmingas"
+
+#: chm_common.c:1165
+#, c-format
+msgid "f->xtype of %d not recognized"
+msgstr "neatpažintas %d f->xtype"
+
+#: chm_common.c:1230
+#, c-format
+msgid "chm_diagN2U(<non-square matrix>): nrow=%d, ncol=%d"
+msgstr "chm_diagN2U(<non-square matrix>): nrow=%d, ncol=%d"
+
+#: chm_common.c:1273
+#, c-format
+msgid "chm_diagN2U(x, uploT = %d): uploT should be +- 1"
+msgstr "chm_diagN2U(x, uploT = %d): uploT turi būti +- 1"
+
+#: cs_utils.c:37
+msgid "csp_eye argument n must be positive"
+msgstr "csp_eye argumentas n turi būti teigiamas"
+
+#: cs_utils.c:68
+msgid "invalid class of 'x' in Matrix_as_cs(a, x)"
+msgstr "netinkama 'x' klasė, esanti Matrix_as_cs(a, x)"
+
+#: cs_utils.c:127 cs_utils.c:174 cs_utils.c:189 cs_utils.c:209 cs_utils.c:222
+#, c-format
+msgid "invalid class of object to %s"
+msgstr "netinkama objekto klasė į %s"
+
+#: cs_utils.c:141
+#, c-format
+msgid "cs matrix not compatible with class '%s'"
+msgstr "cs matrica nesuderinama su klase '%s'"
+
+#: cs_utils.c:246 cs_utils.c:265
+#, c-format
+msgid "Inappropriate class cl='%s' in Matrix_css_to_SEXP(S, cl, ..)"
+msgstr "Netinkama klasė cl ='%s', esanti Matrix_css_to_SEXP(S, cl, ..)"
+
+#: cs_utils.c:292 cs_utils.c:311
+#, c-format
+msgid "Inappropriate class cl='%s' in Matrix_csn_to_SEXP(S, cl, ..)"
+msgstr "Netinkama klasė cl ='%s', esanti Matrix_csn_to_SEXP(S, cl, ..)"
+
+#: dense.c:26
+#, c-format
+msgid "incorrect left cyclic shift, j (%d) >= k (%d)"
+msgstr "neteisingas kairysis ciklinis pastūmimas, j (%d) >= k (%d)"
+
+#: dense.c:28
+#, c-format
+msgid "incorrect left cyclic shift, j (%d) < 0"
+msgstr "neteisingas kairysis ciklinis pastūmimas, j (%d) < 0"
+
+#: dense.c:30
+#, c-format
+msgid "incorrect left cyclic shift, k (%d) > ldx (%d)"
+msgstr "neteisingas kairysis ciklinis pastūmimas, k (%d) > ldx (%d)"
+
+#: dense.c:77
+msgid "Unknown error in getGivens"
+msgstr "Nežinoma getGivens klaida"
+
+#: dense.c:89 dense.c:104 dense.c:134
+msgid "X must be a numeric (double precision) matrix"
+msgstr "X turi būti skaitinė (dvigubo tikslumo) matrica"
+
+#: dense.c:109 dense.c:139
+msgid "y must be a numeric (double precision) matrix"
+msgstr "y turi būti skaitinė (dvigubo tikslumo) matrica"
+
+#: dense.c:113 dense.c:143
+#, c-format
+msgid "number of rows in y (%d) does not match number of rows in X (%d)"
+msgstr ""
+"eilučių skaičius, esantis y (%d) neatitinka eilučių skaičiaus, esančio X (%d)"
+
+#: dense.c:125
+#, c-format
+msgid "Lapack routine dposv returned error code %d"
+msgstr "Lapack programa dposv grąžino klaidos kodą %d"
+
+#: dense.c:153
+#, c-format
+msgid "First call to Lapack routine dgels returned error code %d"
+msgstr "Pirmasis iškvietimas į Lapack programą dgels grąžino klaidos kodą %d"
+
+#: dense.c:160
+#, c-format
+msgid "Second call to Lapack routine dgels returned error code %d"
+msgstr "Antrasis skambutis į Lapack programą dgels grąžino klaidos kodą %d"
+
+#: dense.c:179
+msgid "X must be a real (numeric) matrix"
+msgstr "X turi būti realioji (skaitinė) matrica"
+
+#: dense.c:181
+#, c-format
+msgid "tol, given as %g, must be non-negative"
+msgstr "tol, kaip %g, turi būti ne neigiamas"
+
+#: dense.c:182
+#, c-format
+msgid "tol, given as %g, must be <= 1"
+msgstr "tol, kaip %g, turi būti < = 1"
+
+#: dense.c:211
+#, c-format
+msgid "First call to dgeqrf returned error code %d"
+msgstr "Pirmasis iškvietimas į dgeqrf grąžino klaidos kodą %d"
+
+#: dense.c:217
+#, c-format
+msgid "Second call to dgeqrf returned error code %d"
+msgstr "Antrasis iškvietimas į dgeqrf grąžino klaidos kodą %d"
+
+#: dense.c:222 dense.c:243
+#, c-format
+msgid "Lapack routine dtrcon returned error code %d"
+msgstr "Lapack programa dtrcon grąžino klaidos kodą %d"
+
+#: dense.c:291
+#, c-format
+msgid "dense_to_Csparse(<LARGE>): cholmod_l_dense_to_sparse failure status=%d"
+msgstr "dense_to_Csparse(<LARGE>): cholmod_l_dense_to_sparse klaida status=%d"
+
+#: dense.c:294
+#, c-format
+msgid ""
+"Matrix dimension %d x %d (= %g) too large [FIXME calling "
+"cholmod_l_dense_to_sparse]"
+msgstr ""
+"Matricos dimensija %d x %d (= %g) per didelė [FIXME iškvietė "
+"cholmod_l_dense_to_sparse]"
+
+#: dense.c:323
+#, c-format
+msgid "Lower band %d > upper band %d"
+msgstr "Apatinė juosta %d > viršutinė juosta %d"
+
+#: dense.c:393
+msgid "ddense_to_symmetric(): matrix is not square!"
+msgstr "ddense_to_symmetric (): matrica nėra kvadratinė!"
+
+#: dense.c:404
+#, c-format
+msgid "matrix is not symmetric [%d,%d]"
+msgstr "matrica nėra simetrinė [%d,%d]"
+
+#: dense.c:464
+msgid "matrix is not square! (symmetric part)"
+msgstr "matrica nėra kvadratinė! (simetrinė dalis)"
+
+#: dense.c:522
+msgid "matrix is not square! (skew-symmetric part)"
+msgstr "matrica nėra kvadratinė! (Iškreipta simetriška dalis)"
+
+#: dgCMatrix.c:24
+msgid "lengths of slots 'i' and 'x' must match"
+msgstr "laukų 'i' ir 'x' ilgiai turi atitikti"
+
+#: dgCMatrix.c:36
+msgid "lengths of slots 'j' and 'x' must match"
+msgstr "laukų 'j' ir 'x' ilgiai turi atitikti"
+
+#: dgCMatrix.c:58
+#, c-format
+msgid "invalid class(x) '%s' in compressed_to_TMatrix(x)"
+msgstr "netinkama class(x) '%s', esanti compressed_to_TMatrix(x)"
+
+#: dgCMatrix.c:93
+#, c-format
+msgid "invalid class(x) '%s' in R_to_CMatrix(x)"
+msgstr "netinkama class(x) '%s', esanti R_to_CMatrix(x)"
+
+#: dgCMatrix.c:164
+msgid "dgCMatrix_lusol requires a square, non-empty matrix"
+msgstr "dgCMatrix_lusol reikia kvadratinės, netuščios matricos"
+
+#: dgCMatrix.c:166 dgCMatrix.c:193 dgCMatrix.c:509 dgCMatrix.c:551
+#: dgeMatrix.c:592 dpoMatrix.c:96 dpoMatrix.c:121 dppMatrix.c:80 dspMatrix.c:78
+#: dsyMatrix.c:84 dtCMatrix.c:90 dtCMatrix.c:120 dtrMatrix.c:93
+msgid "Dimensions of system to be solved are inconsistent"
+msgstr "Sistemos, kurią reikia išspręsti, matmenys yra nenuoseklūs"
+
+#: dgCMatrix.c:168
+msgid "cs_lusol failed"
+msgstr "cs_lusol nepavyko"
+
+#: dgCMatrix.c:190
+msgid "dgCMatrix_qrsol(., order) needs order in {0,..,3}"
+msgstr "dgCMatrix_qrsol(., tvarka) reikia tvarkos {0,..,3}"
+
+#: dgCMatrix.c:199
+#, c-format
+msgid "dgCMatrix_qrsol(<%d x %d>-matrix) requires a 'tall' rectangular matrix"
+msgstr ""
+"dgCMatrix_qrsol(<%d x %d>-matrix) reikalauja 'tall' stačiakampės matricos"
+
+#: dgCMatrix.c:210
+msgid "cs_qrsol() failed inside dgCMatrix_qrsol()"
+msgstr "cs_qrsol() nepavyko viduje dgCMatrix_qrsol ()"
+
+#: dgCMatrix.c:229
+msgid "A must have #{rows} >= #{columns}"
+msgstr "Turi būti #{rows} >= #{columns}"
+
+#: dgCMatrix.c:234
+msgid "cs_sqr failed"
+msgstr "cs_sqr nepavyko"
+
+#: dgCMatrix.c:237
+msgid "dgcMatrix_QR(*, keep_dimnames = NA): NA taken as TRUE"
+msgstr "dgcMatrix_QR(*, keep_dimnames = NA): NA laikoma TRUE"
+
+#: dgCMatrix.c:243
+msgid "cs_qr failed"
+msgstr "cs_qr nepavyko"
+
+#: dgCMatrix.c:330
+msgid "SuiteSparseQR_C_QR returned an error code"
+msgstr "SuiteSparseQR_C_QR grąžino klaidos kodą"
+
+#: dgCMatrix.c:374
+msgid "LU decomposition applies only to square matrices"
+msgstr "LU dekompozicija taikoma tik kvadratinėms matricoms"
+
+#: dgCMatrix.c:383
+msgid "cs_lu(A) failed: near-singular A (or out of memory)"
+msgstr "cs_lu (A) nepavyko: beveik singuliari A (arba trūksta atminties)"
+
+#: dgCMatrix.c:469
+msgid "dgcMatrix_LU(*, keep_dimnames = NA): NA taken as TRUE"
+msgstr "dgcMatrix_LU(*, keep_dimnames = NA): NA laikoma TRUE"
+
+#: dgCMatrix.c:481
+msgid "dgCMatrix_matrix_solve(.., sparse=TRUE) not yet implemented"
+msgstr "dgCMatrix_matrix_solve(.., sparse=TRUE) dar neįgyvendinta"
+
+#: dgCMatrix.c:549
+msgid "dgCMatrix_cholsol requires a 'short, wide' rectangular matrix"
+msgstr "dgCMatrix_cholsol reikia 'short, wide' stačiakampės matricos"
+
+#: dgCMatrix.c:557
+msgid "cholmod_sdmult error (rhs)"
+msgstr "cholmod_sdmult klaida (rhs)"
+
+#: dgCMatrix.c:560
+#, c-format
+msgid "cholmod_factorize failed: status %d, minor %d from ncol %d"
+msgstr "cholmod_factorize nepavyko: būsena %d, nedideli %d iš ncol %d"
+
+#: dgCMatrix.c:564
+#, c-format
+msgid "cholmod_solve (CHOLMOD_A) failed: status %d, minor %d from ncol %d"
+msgstr "cholmod_solve (CHOLMOD_A) nepavyko: būsena %d, nedideli %d iš ncol %d"
+
+#: dgCMatrix.c:581
+msgid "cholmod_sdmult error (resid)"
+msgstr "cholmod_sdmult klaida (resid)"
+
+#: dgTMatrix.c:15
+msgid "lengths of slots i and x must match"
+msgstr "laukų i ir x ilgiai turi atitikti"
+
+#: dgTMatrix.c:33 dgTMatrix.c:62
+#, c-format
+msgid "too large matrix: %.0f"
+msgstr "per didelė matrica: %.0f"
+
+#: dgTMatrix.c:97
+#, c-format
+msgid "Cannot coerce to too large *geMatrix with %.0f entries"
+msgstr "Negalima pakeisti į per didelį *geMatrix su %.0f įrašais"
+
+#: dgeMatrix.c:9
+msgid "x slot must be numeric \"double\""
+msgstr "x laukas turi būti skaitinis \"double\""
+
+#: dgeMatrix.c:25
+msgid "factors slot must be named list"
+msgstr "faktorių laukas turi būti įvardytas sąrašas"
+
+#: dgeMatrix.c:63
+msgid "rcond requires a square, non-empty matrix"
+msgstr "rcond reikia kvadratinės, netuščios matricos"
+
+#: dgeMatrix.c:159 dgeMatrix.c:252
+#, c-format
+msgid "Dimensions of x and y are not compatible for %s"
+msgstr "X ir y matmenys nesuderinami su %s"
+
+#: dgeMatrix.c:231
+msgid "Argument y must be numeric, integer or logical"
+msgstr "Argumentas y turi būti skaitinis, sveikasis skaičius arba loginis"
+
+#: dgeMatrix.c:314 dgeMatrix.c:318 dspMatrix.c:154 dsyMatrix.c:124
+#: dtrMatrix.c:130
+msgid "Matrices are not conformable for multiplication"
+msgstr "Matricos nėra tinkamos daugybai"
+
+#: dgeMatrix.c:456
+msgid "diagonal to be added has wrong length"
+msgstr "pridedamos įstrižainės ilgis neteisingas"
+
+#: dgeMatrix.c:475
+msgid "Cannot factor a matrix with zero extents"
+msgstr "Negalima faktorizuoti matricos su nuliniais dydžiais"
+
+#: dgeMatrix.c:486 dpoMatrix.c:47 dppMatrix.c:36 dspMatrix.c:183
+#, c-format
+msgid "Lapack routine %s returned error code %d"
+msgstr "Lapack programa %s grąžino klaidos kodą %d"
+
+#: dgeMatrix.c:488
+#, c-format
+msgid "Exact singularity detected during LU decomposition: %s, i=%d."
+msgstr "Tikslus singuliarumas, aptiktas LU dekomponavimo metu: %s, i=%d."
+
+#: dgeMatrix.c:510
+msgid "Determinant requires a square matrix"
+msgstr "Determinantui reikia kvadratinės matricos"
+
+#: dgeMatrix.c:552
+msgid "Solve requires a square matrix"
+msgstr "Norint išspręsti reikia kvadratinės matricos"
+
+#: dgeMatrix.c:565
+#, c-format
+msgid "error [%d] from Lapack 'dgecon()'"
+msgstr "klaida [%d] iš Lapack 'dgecon()'"
+
+#: dgeMatrix.c:567
+#, c-format
+msgid ""
+"Lapack dgecon(): system computationally singular, reciprocal condition "
+"number = %g"
+msgstr ""
+"Lapack dgecon(): singuliariai apskaičiuota sistema, abipusės sąlygos "
+"skaičius = %g"
+
+#: dgeMatrix.c:577
+msgid "Lapack routine dgetri: system is exactly singular"
+msgstr "Lapack programa dgetri: sistema yra tiksliai singuliari"
+
+#: dgeMatrix.c:598
+msgid "Lapack routine dgetrs: system is exactly singular"
+msgstr "Lapack programa dgetrs: sistema yra tiksliai singuliari"
+
+#: dgeMatrix.c:681
+msgid "Matrix exponential requires square, non-null matrix"
+msgstr "Matricos eksponentė reikalauja kvadratinės, ne nulinės matricos"
+
+#: dgeMatrix.c:698 dgeMatrix.c:700
+#, c-format
+msgid "dgeMatrix_exp: LAPACK routine dgebal returned %d"
+msgstr "dgeMatrix_exp: LAPACK programa dgebal grąžino %d"
+
+#: dgeMatrix.c:738
+#, c-format
+msgid "dgeMatrix_exp: dgetrf returned error code %d"
+msgstr "dgeMatrix_exp: dgetrf grąžino klaidos kodą %d"
+
+#: dgeMatrix.c:740
+#, c-format
+msgid "dgeMatrix_exp: dgetrs returned error code %d"
+msgstr "dgeMatrix_exp: dgetrs grąžino klaidos kodą %d"
+
+#: dgeMatrix.c:813
+msgid "dgeMatrix_Schur: argument x must be a non-null square matrix"
+msgstr "dgeMatrix_Schur: argumentas x turi būti ne nulinė kvadratinė matrica"
+
+#: dgeMatrix.c:824
+msgid "dgeMatrix_Schur: first call to dgees failed"
+msgstr "dgeMatrix_Schur: pirmasis iškvietimas į dgees nepavyko"
+
+#: dgeMatrix.c:833
+#, c-format
+msgid "dgeMatrix_Schur: dgees returned code %d"
+msgstr "dgeMatrix_Schur: dgees grąžintas kodas %d"
+
+#: dpoMatrix.c:16
+msgid "dpoMatrix is not positive definite"
+msgstr "dpoMatrix nėra teigiamai apibrėžta"
+
+#: dpoMatrix.c:44 dppMatrix.c:33
+#, c-format
+msgid "the leading minor of order %d is not positive definite"
+msgstr "vadovaujantis minoras, kurio eilė yra %d, nėra teigiamai apibrėžtas"
+
+#: dpoMatrix.c:98
+msgid "Cannot solve() for matrices with zero extents"
+msgstr "Negalima solve() matricoms su nuliniais dydžiais"
+
+#: dpoMatrix.c:119
+msgid "Argument b must be a numeric matrix"
+msgstr "Argumentas b turi būti skaitinė matrica"
+
+#: dsCMatrix.c:25
+msgid "chm_factor_name(): did not get string of length 11"
+msgstr "chm_factor_name(): negavo 11 ilgio eilutės"
+
+#: dsCMatrix.c:101
+msgid ""
+"Cholesky factorization failed; unusually, please report to Matrix-authors"
+msgstr ""
+"Cholesky faktoringas nepavyko; neįprastai, prašome pranešti Matrix autoriams"
+
+#: dsCMatrix.c:107
+msgid "internal_chm_factor: Cholesky factorization failed"
+msgstr "internal_chm_factor: Cholesky faktoringas nepavyko"
+
+#: dsCMatrix.c:254
+msgid "Non-symmetric matrix passed to dsCMatrix_to_dgTMatrix"
+msgstr "Ne simetrinė matrica perduota į dsCMatrix_to_dgTMatrix"
+
+#: dspMatrix.c:13 dtpMatrix.c:17
+msgid "Incorrect length of 'x' slot"
+msgstr "Neteisingas 'x' lauko ilgis"
+
+#: dspMatrix.c:146 dsyMatrix.c:117
+#, c-format
+msgid "Matrix dimension %d x %d (= %g) is too large"
+msgstr "Matricos matmenys %d x %d (= %g) yra per dideli"
+
+#: dsyMatrix.c:7 dtrMatrix.c:10
+msgid "'Dim' slot has length less than two"
+msgstr "'Dim' lauko ilgis yra mažesnis nei du"
+
+#: dsyMatrix.c:9 dtrMatrix.c:12
+msgid "Matrix is not square"
+msgstr "Matrica nėra kvadratinė"
+
+#: dsyMatrix.c:167 dsyMatrix.c:214
+#, c-format
+msgid "Lapack routine dsytrf returned error code %d"
+msgstr "Lapack programa dsytrf grąžino klaidos kodą %d"
+
+#: dsyMatrix.c:177
+msgid "x must be a \"double\" (numeric) matrix"
+msgstr "x turi būti \"double\" (skaitinė) matrica"
+
+#: dsyMatrix.c:187
+msgid "matrix_trf(x, *): matrix is not square"
+msgstr "matrix_trf(x, *): matrica nėra kvadratinė"
+
+#: dsyMatrix.c:194
+msgid "matrix_trf(*, uplo): uplo must be string"
+msgstr "matrix_trf(*, uplo): uplo turi būti eilutė"
+
+#: dtCMatrix.c:28 dtCMatrix.c:63 dtTMatrix.c:24
+msgid "uplo='U' must not have sparse entries below the diagonal"
+msgstr "uplo='U' neturi turėti sparse įrašų po įstrižainės"
+
+#: dtCMatrix.c:34 dtCMatrix.c:69 dtTMatrix.c:29
+msgid "uplo='L' must not have sparse entries above the diagonal"
+msgstr "uplo='L' neturi turėti sparse įrašų virš įstrižainės"
+
+#: dtpMatrix.c:125 dtpMatrix.c:153 dtpMatrix.c:184
+#, c-format
+msgid "Dimensions of a (%d,%d) and b (%d,%d) do not conform"
+msgstr "Matmenys a (%d,%d) ir b (%d,%d) neatitinka"
+
+#: dtpMatrix.c:132
+msgid "right=TRUE is not yet implemented __ FIXME"
+msgstr "right=TRUE dar neįgyvendinta __ FIXME"
+
+#: dtrMatrix.c:128
+msgid "dtrMatrix must be square"
+msgstr "dtrMatrix turi būti kvadratinė"
+
+#: dtrMatrix.c:192
+#, c-format
+msgid "dimension mismatch in matrix multiplication of \"dtrMatrix\": %d != %d"
+msgstr ""
+
+#: dtrMatrix.c:283
+msgid "cannot set diag() as long as 'diag = \"U\"'"
+msgstr "negali nustatyti diag() tol, kol 'diag = \"U\"'"
+
+#: dtrMatrix.c:317
+msgid "cannot add diag() as long as 'diag = \"U\"'"
+msgstr "negali pridėti diag() tol, kol 'diag = \"U\"'"
+
+#: factorizations.c:18
+msgid "x slot is not \"double\""
+msgstr "x laukas nėra \"double\""
+
+#: factorizations.c:20
+msgid "x slot is not of correct length"
+msgstr "x laukas nėra tinkamo ilgio"
+
+#: init.c:377
+msgid "missing 'Matrix' namespace: should never happen"
+msgstr "trūksta 'Matrix' vardų srities: niekada neturėtų įvykti"
+
+#: init.c:388
+msgid "Matrix namespace not determined correctly"
+msgstr "Matricos vardų sritis nustatyta neteisingai"
+
+#: lgCMatrix.c:58
+msgid "A must be a logical matrix"
+msgstr "A turi būti loginė matrica"
+
+#: sparseQR.c:13
+msgid "length(p) must match nrow(V)"
+msgstr "length(p) turi atitikti nrow(V)"
+
+#: sparseQR.c:15
+msgid "length(beta) must match ncol(V)"
+msgstr "length(beta) turi atitikti ncol(V)"
+
+#: sparseQR.c:18
+msgid "length(q) must be zero or ncol(R)"
+msgstr "length(q) turi būti lygus nuliui arba ncol(R)"
+
+#: sparseQR.c:46
+#, c-format
+msgid "sparseQR_Qmult(): nrow(y) = %d != %d = nrow(V)"
+msgstr "sparseQR_Qmult(): nrow(y) = %d != %d = nrow(V)"
+
+#: sparseQR.c:136 sparseQR.c:186 sparseQR.c:221
+#, c-format
+msgid "%s(): structurally rank deficient case: possibly WRONG zeros"
+msgstr "%s(): struktūrinio rango deficito atvejis: galbūt WRONG nuliai"
+
+#: t_Csparse_subassign.c:144
+msgid "invalid class of 'x' in Csparse_subassign()"
+msgstr "netinkama 'x' klasė, esanti Csparse_subassign()"
+
+#: t_Csparse_subassign.c:146
+msgid "invalid class of 'value' in Csparse_subassign()"
+msgstr "netinkama 'value' klasė, esanti Csparse_subassign()"
+
+#: t_Csparse_subassign.c:189
+#, c-format
+msgid "x[] <- val: val is coerced to logical for \"%s\" x"
+msgstr "x[] <- val: val yra paverstas į loginį \"%s\" x"
+
+#: t_Csparse_subassign.c:194
+#, c-format
+msgid ""
+"x[] <- val: val should be integer or logical, is coerced to integer, for \"%s"
+"\" x"
+msgstr ""
+"x[] <- val: val turėtų būti sveikasis skaičius arba loginis, yra pakeistas į "
+"sveikąjį skaičių dėl \"%s\" x"
+
+#: t_Csparse_subassign.c:201
+msgid "programming error in Csparse_subassign() should never happen"
+msgstr "programavimo klaida Csparse_subassign() niekada neturėtų įvykti"
+
+#~ msgid "\"dtrMatrix\" objects in '%*%' must have matching (square) dimension"
+#~ msgstr ""
+#~ "\"dtrMatrix\" objektai, esantys '%*%', turi turėti sutampantį "
+#~ "(kvadratinį) matmenį"

@@ -14,7 +14,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Matrix 1.1-3\n"
-"POT-Creation-Date: 2020-04-02 16:19\n"
+"POT-Creation-Date: 2021-01-29 17:44\n"
 "PO-Revision-Date: 2015-07-15 17:14-0600\n"
 "Last-Translator:Chel Hee Lee  <chl948@mail.usask.ca>\n"
 "Language-Team: Chel Hee Lee  <chl948@mail.usask.ca>\n"
@@ -538,6 +538,12 @@ msgstr "<abIndex>  -->  <seqMat>은 아직 구현되지 않았습니다."
 msgid "<seqMat>  -->  <abIndex>  is not yet implemented"
 msgstr "<seqMat>  -->  <abIndex>은 아직 구현되지 않았습니다."
 
+msgid "'giveCsparse' has been deprecated; setting 'repr = \"T\"' for you"
+msgstr ""
+
+msgid "'giveCsparse' has been deprecated; will use 'repr' instead"
+msgstr ""
+
 msgid "'diagonals' matrix must have %d columns (= length(k) )"
 msgstr ""
 "'diagonals' 행렬은 반드시 %d (=length(k))개의 열을 가지고 있어야 합니다."
@@ -558,6 +564,9 @@ msgstr ""
 
 msgid "the %d-th (sub)-diagonal (k = %d) is too short; filling with NA's"
 msgstr "%d-번째 (부분)-대각 (k = %d)이 너무 짧아 NA로 채웁니다."
+
+msgid "invalid 'repr'; must be \"C\", \"T\", or \"R\""
+msgstr ""
 
 msgid "resulting x-slot has different type than x's or y's"
 msgstr ""
@@ -915,11 +924,20 @@ msgstr ""
 msgid "'times >= 0' is required"
 msgstr "'times >= 0'이 요구되어집니다."
 
+msgid "'giveCsparse' has been deprecated; setting 'repr = \"%s\"' for you"
+msgstr ""
+
 msgid "(un)packing only applies to dense matrices, class(x)='%s'"
 msgstr "(un)packing only applies to dense matrices, class(x)='%s'"
 
 msgid "'x' is not symmetric nor triangular"
 msgstr "'x'는 대칭(symmetric)도 아니고 삼각(triangular)도 아닙니다."
+
+#, fuzzy
+msgid "'x' is not symmetric -- chol() undefined."
+msgstr ""
+"'x'는 양정치(positive definite) 행렬이 아니므로 chol()가 정의되어지지 않습니"
+"다."
 
 msgid ""
 "extra argument %s will be disregarded in\n"

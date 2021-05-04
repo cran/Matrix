@@ -56,7 +56,7 @@ setMethod("Math", "ddenseMatrix", function(x)
 	if(.Generic %in% Math.vecGenerics) # vector result
 	    callGeneric(as(x,"dgeMatrix")@x)
 	else if(is(x, "symmetricMatrix")) { ## -> result symmetric: keeps class
-            cld <- getClassDef(cl <- class(x))
+            cld <- getClassDef(class(x))
 	    if((po <- extends(cld, "dpoMatrix")) || extends(cld, "dppMatrix")) { # result is *not* pos.def!
 		x <- as(x, if(po) "dsyMatrix" else "dspMatrix")
             }
@@ -68,7 +68,7 @@ setMethod("Math", "ddenseMatrix", function(x)
 	else { ## triangularMatrix (no need for testing), includes, e.g. "corMatrix"!
 	    ## if(is0(f0 <- callGeneric(0.))) { ## -> result remains triangular
 	    if(is0(callGeneric(0.))) { ## -> result remains triangular
-		cld <- getClassDef(cl <- class(x))
+		cld <- getClassDef(class(x))
                 if(extends(cld, "triangularMatrix")) {
                     if((isF <- extends(cld, "MatrixFactorization")) || extends(cld, "corMatrix")) {
                         x <- as(x, if(isF && .isPacked(x)) "dtpMatrix" else "dtrMatrix")

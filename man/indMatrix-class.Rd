@@ -173,9 +173,9 @@ s10[1:4, ]  # preserves "indMatrix"-class
 
 I1 <- as(c(5:1,6:4,7:3), "indMatrix")
 I2 <- as(7:1, "pMatrix")
-(I12 <- suppressWarnings(rBind(I1, I2)))
+(I12 <- rbind(I1, I2))
 stopifnot(is(I12, "indMatrix"),
-          if(getRversion() >= "3.2.0") identical(I12, rbind(I1, I2)) else TRUE,
+          identical(I12, rbind(I1, I2)),
 	  colSums(I12) == c(2L,2:4,4:2))
 }
 \keyword{classes}

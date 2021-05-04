@@ -4,7 +4,6 @@
 \usage{
 expand(x, \dots)
 }
-\alias{expand}
 \description{
   Expands decompositions stored in compact form into factors.
 }

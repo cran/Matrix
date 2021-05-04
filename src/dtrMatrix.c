@@ -29,7 +29,7 @@ double get_norm(SEXP obj, const char *typstr)
 	work = (double *) R_alloc(dims[0], sizeof(double));
     }
     return F77_CALL(dlantr)(typnm, uplo_P(obj), diag_P(obj), dims, dims+1,
-			    REAL(GET_SLOT(obj, Matrix_xSym)), dims, 
+			    REAL(GET_SLOT(obj, Matrix_xSym)), dims,
 			    work FCONE FCONE FCONE);
 }
 
@@ -189,7 +189,8 @@ SEXP dtrMatrix_dtrMatrix_mm(SEXP a, SEXP b, SEXP right, SEXP trans)
 
     if (INTEGER(GET_SLOT(b, Matrix_DimSym))[0] != n)
 	/* validity checking already "assures" square matrices ... */
-	error(_("\"dtrMatrix\" objects in '%*%' must have matching (square) dimension"));
+	error(_("dimension mismatch in matrix multiplication of \"dtrMatrix\": %d != %d"),
+	      n, INTEGER(GET_SLOT(b, Matrix_DimSym))[0]);
     if(matching_uplo) {
 	/* ==> result is triangular -- "dtrMatrix" !
 	 * val := dup_mMatrix_as_dtrMatrix(b) : */

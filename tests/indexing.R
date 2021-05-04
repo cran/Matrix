@@ -1,9 +1,10 @@
 #### For both 'Extract' ("[") and 'Replace' ("[<-") Method testing
 ####    aka    subsetting     and  subassignment
+####           ~~~~~~~~~~          ~~~~~~~~~~~~~
 
 if(interactive()) {
     options(error = recover, warn = 1)
-} else if(FALSE) { ## MM @ testing *manually* only
+} else if(FALSE) { ## MM / developer  testing *manually* :
     options(error = recover, Matrix.verbose = 2,   warn = 1)
 } else {
     options(                 Matrix.verbose = 2, warn = 1)
@@ -225,9 +226,6 @@ getDuplIndex <- function(n, k) {
     i
 }
 
-## From package 'sfsmisc':
-repChar <- function (char, no) paste(rep.int(char, no), collapse = "")
-
 suppressWarnings(RNGversion("3.5.0")); set.seed(101)
 m <- 1:800
 m[sample(800, 600)] <- 0
@@ -281,9 +279,9 @@ for(kind in c("n", "l", "d")) {
         cat(".")
     }
     options(op)
-    cat(sprintf("\n[Ok]%s\n\n", repChar("-", 64)))
+    cat(sprintf("\n[Ok]%s\n\n", strrep("-", 64)))
  }
- cat(sprintf("\nok( %s )\n== ###%s\n\n", kind, repChar("=", 70)))
+ cat(sprintf("\nok( %s )\n== ###%s\n\n", kind, strrep("=", 70)))
 }## end{for}---------------------------------------------------------------
 showProc.time()
 
@@ -973,8 +971,20 @@ assert.EQ.mat(t2, m)# ok
 assert.EQ.mat(s2, m)# failed in 0.9975-8
 showProc.time()
 
+## sub-assign  RsparseMatrix -- Matrix bug [#6709] by David Cortes
+## https://r-forge.r-project.org/tracker/?func=detail&atid=294&aid=6709&group_id=61
+## simplified by MM
+X <- new("dgCMatrix", i = c(0L,3L), p = c(0L,2L,2L,2L), x = c(100, -20), Dim = c(12L,3L))
+R <- as(X, "RsparseMatrix")
+T <- as(R, "TsparseMatrix")
+T[, 2] <- 22 # works fine
+R[, 2] <- 22 # failed, as it called replTmat() giving narg() == 3
+## now R is Tsparse (as documented on ../man/RsparseMatrix-class.Rd),
+identical(R, T) ## but as this may change, rather R & T should have the same *content*
+assert.EQ.Mat(R, T)
 
-## m[cbind(i,j)] <- value: (2-column matrix subassignment):
+
+## m[cbind(i,j)] <- value: (2-column matrix subassignment): -------------------------
 m.[ cbind(3:5, 1:3) ] <- 1:3
 stopifnot(m.[3,1] == 1, m.[4,2] == 2)
 nt. <- nt ; nt[rbind(2:3, 3:4, c(3,3))] <- FALSE
@@ -1212,10 +1222,50 @@ validObject(x)
 ## gave 'Error' invalid ..“dsparseVector”.. 'i' must be sorted strictly increasingly
 stopifnot(all.equal(x[i] ,  y1+y2, tolerance=0),
 		    x[i] == y1+y2)
-
-
-
-
 showProc.time()
 
 if(!interactive()) warnings()
+
+## [matrix-Bugs][#6720] Subsetting with empty indices does not drop -- 17 Apr 2021, by David Cortes
+##  https://r-forge.r-project.org/tracker/?func=detail&atid=294&aid=6720&group_id=61
+
+## extended by MM to all versions of "empty" :
+x <- c(1,8)
+(m1 <-  rbind(x))
+m1[]             # remains matrix
+m1[,,drop=FALSE] # ditto
+m1[,] # [1] 1 2 -- drops (as default drop=TRUE !)
+
+## Sparse Matrix and  actually *any* Matrix-extending class did not work
+(M1 <- as(m1, "denseMatrix")) # "dgeMatrix"
+S1 <- as(m1, "CsparseMatrix")
+R1 <- as(m1, "RsparseMatrix")
+stopifnot(exprs = {
+    identical(M1[], M1) # remains
+    identical(S1[], S1) # remains
+    identical(R1[], R1) # remains
+    identical(M1[,,drop=FALSE], M1) # ditto
+    identical(S1[,,drop=FALSE], S1) #  "
+    identical(R1[,,drop=FALSE], R1) #  "
+    ## but drop=TRUE  which is the *default* much be obeyed (also for *empty* (i,j):
+    identical(m1[,], x)
+    identical(M1[,], x) # should drop, but did not
+    identical(S1[,], x) #  "
+    identical(R1[,], x) #  "
+    identical(m1[,,drop=TRUE], x)
+    identical(M1[,,drop=TRUE], x) # should drop, but did not
+    identical(S1[,,drop=TRUE], x) #  "
+    identical(R1[,,drop=TRUE], x)  # "
+})
+
+
+## [matrix-Bugs][#6721] Assignment to 'dgRMatrix' with missing index takes only first element
+## MM: This has been fixed already!
+X <- rbind(0, 1:3, 0, c(0,1,0))
+Rx <- as(X, "RsparseMatrix")
+Cx <- as(X, "CsparseMatrix")
+X [2,] <- 0
+Cx[2,] <- 0
+Rx[2,] <- 0
+stopifnot(all(Cx == X),
+          all(Rx == X))

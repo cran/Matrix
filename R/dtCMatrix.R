@@ -16,17 +16,15 @@ setAs("dtCMatrix", "ntCMatrix", # just drop 'x' slot:
 setAs("matrix", "dtCMatrix",
       function(from) as(as(from, "dtTMatrix"), "dtCMatrix"))
 
-setAs("dtCMatrix", "dgCMatrix",
-      function(from) {
-          if (from@diag == "U")
-              from <- .Call(Csparse_diagU2N, from)
-          ## new("dgCMatrix",
-          ##     i = from@i, p = from@p, x = from@x,
-          ##     Dim = from@Dim, Dimnames = from@Dimnames)
-          ## ---> Rather faster, no checking:
-          copyClass(from, "dgCMatrix",
-                    sNames = c("i", "p", "x", "Dim", "Dimnames"), check = FALSE)
-      })
+##' dtC* |-> dgC*  (provide for direct use in other coercions) :
+.dtC2g <- function(from) {
+    if (from@diag == "U")
+        from <- .Call(Csparse_diagU2N, from)
+    ## new("dgCMatrix", .....) # ---> Rather faster, no checking:
+    copyClass(from, "dgCMatrix",
+              sNames = c("i", "p", "x", "Dim", "Dimnames"), check = FALSE)
+}
+setAs("dtCMatrix", "dgCMatrix", .dtC2g)
 
 setAs("dtCMatrix", "dsCMatrix", function(from) as(from, "symmetricMatrix"))
 

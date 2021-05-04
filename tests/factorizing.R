@@ -204,7 +204,7 @@ table(Ppm@x == 0)# (194, 123) - has 123 "zero" and 14 ``almost zero" entries
 m <- matrix(c(0, NA, 0, NA, NA, 0, 0, 0, 1), 3,3)
 m0 <- rbind(0,cbind(0,m))
 M <- as(m,"Matrix"); M ## "dsCMatrix" ...
-M0 <- rBind(0, cBind(0, M))
+M0 <- rbind(0, cbind(0, M))
 dM  <- as(M, "denseMatrix")
 dM0 <- as(M0,"denseMatrix")
 try( lum  <- lu(M) )# Err: "near-singular A"
@@ -610,6 +610,25 @@ A <- chol(D <- Diagonal(n, x = 0.5))
 ia <- chol2inv(A)
 stopifnot(is(ia, "diagonalMatrix"),
 	  all.equal(ia@x, rep(2,n), tolerance = 1e-15))
+
+##------- Factor caches must be cleaned - even after scalar-Ops such as "2 *"
+set.seed(7)
+d <- 5
+S <- 10*Diagonal(d) + rsparsematrix(d,d, 1/4)
+class(M <- as(S, "denseMatrix")) # dgeMatrix
+m <- as.matrix(M)
+(dS <- determinant(S))
+stopifnot(exprs = {
+    all.equal(determinant(m), dS, tol=1e-15)
+    all.equal(dS, determinant(M), tol=1e-15)
+    ## These had failed, as the "LU" factor cache was kept unchanged in 2*M :
+    all.equal(determinant(2*S), determinant(2*M) -> d2M)
+    all.equal(determinant(S^2), determinant(M^2) -> dM2)
+    all.equal(determinant(m^2), dM2)
+    all.equal(d*log(2), c(d2M$modulus - dS$modulus))
+})
+
+
 
 cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
 

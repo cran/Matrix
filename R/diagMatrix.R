@@ -280,25 +280,25 @@ setAs("ddiMatrix", "triangularMatrix", di2tT)
 ## needed too (otherwise <dense> -> Tsparse is taken):
 setAs("ddiMatrix", "TsparseMatrix", di2tT)
 setAs("ddiMatrix", "dsparseMatrix", di2tT)
-setAs("ddiMatrix", "CsparseMatrix",
-      function(from) .T2Cmat(.diag2tT(from, "U", "d"), isTri=TRUE))
+ddi2Csp <- function(from) .T2Cmat(.diag2tT(from, "U", "d"), isTri=TRUE) #-> dtC*
+setAs("ddiMatrix", "dtCMatrix",     ddi2Csp)
+setAs("ddiMatrix", "CsparseMatrix", ddi2Csp)
 ## Such that  as(Matrix(0, d,d), "dgCMatrix")  continues working:
-setAs("ddiMatrix", "dgCMatrix",
-      function(from) .T2Cmat(.diag2tT(from, "U", "d"), isTri=TRUE))
+setAs("ddiMatrix", "dgCMatrix", function(from) .dtC2g(ddi2Csp(from)))
 
 setAs("ddiMatrix", "symmetricMatrix", function(from) .diag2sT(from, "U", "d"))
 ##
 ## ldi*:
-di2tT <- function(from) .diag2tT(from, "U", "l")
-setAs("ldiMatrix", "triangularMatrix", di2tT)
+ldi2tT <- function(from) .diag2tT(from, "U", "l")
+setAs("ldiMatrix", "triangularMatrix", ldi2tT)
 ##_no_longer_ setAs("ldiMatrix", "sparseMatrix", di2tT)
 ## needed too (otherwise <dense> -> Tsparse is taken):
-setAs("ldiMatrix", "TsparseMatrix", di2tT)
-setAs("ldiMatrix", "lsparseMatrix", di2tT)
+setAs("ldiMatrix", "TsparseMatrix", ldi2tT)
+setAs("ldiMatrix", "lsparseMatrix", ldi2tT)
 setAs("ldiMatrix", "CsparseMatrix",
       function(from) .T2Cmat(.diag2tT(from, "U", "l"), isTri=TRUE))
 setAs("ldiMatrix", "symmetricMatrix", function(from) .diag2sT(from, "U", "l"))
-rm(di2tT)
+rm(ldi2tT)
 
 setAs("diagonalMatrix", "nMatrix",
       di2nMat <- function(from) {
@@ -988,7 +988,7 @@ setMethod("solve", signature(a = "diagonalMatrix", b = "Matrix"),
 
 ###---------------- <Ops> (<Arith>, <Logic>, <Compare> ) ----------------------
 
-## Use function for several signatures, in order to evade
+## Use as S4 method for several signatures ==>  using callGeneric()
 diagOdiag <- function(e1,e2) {
     ## result should also be diagonal _ if possible _
     r <- callGeneric(.diag.x(e1), .diag.x(e2)) # error if not "compatible"
@@ -1020,7 +1020,8 @@ diagOdiag <- function(e1,e2) {
 	n <- d[1L]
 	stopifnot(length(r) == n)
 	if(isNum && !is.double(r)) r <- as.double(r)
-	xx <- as.vector(matrix(rbind(r, matrix(r00,n,n)), n,n))
+	## faster (?) than  m <- matrix(r00,n,n); diag(m) <- r ; as.vector(m)
+        xx <- rbind(r, matrix(r00,n,n), deparse.level=0L)[seq_len(n*n)]
 	newcl <-
 	    paste0(if(isNum) "d" else if(isLog) {
 		if(!anyNA(r) && !anyNA(r00)) "n" else "l"

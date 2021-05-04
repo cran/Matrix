@@ -15,6 +15,76 @@
 %%  when \code{prod(dim(.))} is larger than \eqn{2^{31} - 1}.
 %
 
+\section{Changes in version 1.3-3 (2021-05-01 r3390)}{
+  \subsection{Deprecated and Defunct}{
+    \itemize{
+      \item \code{cBind()} and \code{rBind()} are now defunct:
+      simply use \code{cbind()} and \code{rbind()} instead.
+    }
+  }
+  \subsection{Dependency}{
+    \itemize{
+      \item For now revert to \code{R (>= 3.5.0)} dependency to accomodate
+      users on older R installations.
+    }
+  }
+  \subsection{Bug Fixes}{
+    \itemize{
+      \item Fixed a thinko (in 1.3-2): Now direct coercion from
+      \code{"ddiMatrix"} to \code{"dgCMatrix"}, and hence, e.g.,
+      \code{as(Matrix(1, sparse=TRUE), "dgCMatrix") now works.}
+
+      \item Fixed error message in <dtrMatrix> multiplication.
+
+      \item Fixed long-standing bug in \code{R[,j] <- v} when \code{R} is "Rsparse*",
+      R-forge Matrix bug #6709 by David Cortes.
+
+      \item \file{./include/cholmod.h} and \file{./include/Matrix_stubs.h}
+      needed updating from SparseSuite update; R-forge Matrix bug #6714 by
+      Kasper Kristensen (TMB pkg).
+
+      \item \code{as.matrix()} and \code{as.array()} now work for
+      \code{"sparseVector"}s as expected; see Matrix bug #6708.
+
+      \item \code{M[,]} (and similar) now work as in base \R; ; R-forge Matrix bug #6720 by
+      David Cortes.
+
+      \item \code{-S} now works also when \code{S} has no `factors` slot.
+      It signalled an error, e.g., for sparse triangular matrices \code{S};
+      R-forge Matrix bug #6656, reported by Chun Fung (Jackson) Kwok.
+
+      \item \code{M*2} and similar no longer keep cached factorizations (in
+      `factors` slot), but drop them via internal new \code{.empty.factors()}.
+      R-forge Matrix bug #6606, reported by Tomas Lumley.
+
+      \item removed the nowhere used (and unexported but still active)
+      class union \code{"Mnumeric"} which actually trickled into many base
+      classes properties.  Notably would it break validity of \code{factor}
+      with a proposed change in validity checking, as factors were also
+      \code{"Mnumeric"} but did not fulfill its validity method.
+
+      \item removed a few duplicated \code{.alias{.}} from \file{man/*.Rd}.
+    }
+  }
+  \subsection{Misc}{
+    \itemize{
+      \item translation updates (of outlines only); finally added Italian
+      (by Daniele Medri) to svn; updated French (by Philippe Grosjean),
+      forgotten (R part of) Korean.
+      New Lithuanian translations by Gabriele Stupuriene & Rimantas Zakauskas.
+
+      \item In internal \code{diagOdiag()} method, no longer use
+      \code{matrix(x, n,n)} when \code{x} is longer than n*n.
+
+      \item Update tests/*.R to future \code{matrix(x, n,k)} warning in more
+      mismatch cases.
+
+      \item Eliminating the need for \file{ftp://*}, add the very small
+      \code{jgl009} MatrixMarket example to our \file{external/} files.
+    }
+  }
+}
+
 \section{Changes in version 1.3-2 (2021-01-05 r3362)}{
   \subsection{Bug Fixes}{
     \itemize{

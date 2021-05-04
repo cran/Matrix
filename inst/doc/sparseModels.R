@@ -66,7 +66,7 @@ xtabs(~ wool + tension, data = warpbreaks)
 ### code chunk number 9: modMat-warpbreaks
 ###################################################
 tmm <- with(warpbreaks,
-            rBind(as(tension, "sparseMatrix"),
+            rbind(as(tension, "sparseMatrix"),
                   as(wool,    "sparseMatrix")[-1,,drop=FALSE]))
 print(  image(tmm)  ) # print(.) the lattice object
 
@@ -79,7 +79,7 @@ morley$Expt <- factor(morley$Expt)
 morley$Run <- factor(morley$Run)
 str(morley)
 t.mm <- with(morley,
-             rBind(as(Expt, "sparseMatrix"),
+             rbind(as(Expt, "sparseMatrix"),
                    as(Run,  "sparseMatrix")[-1,]))
 print(  image(t.mm)  ) # print(.) the lattice object
 

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: R 4.0.0 / matrix 1.3-0\n"
 "Report-Msgid-Bugs-To: bugs.r-project.org\n"
-"POT-Creation-Date: 2020-04-02 16:19\n"
+"POT-Creation-Date: 2021-01-29 17:44\n"
 "PO-Revision-Date: 2020-04-01 16:01+0200\n"
 "Last-Translator: Detlef Steuer <steuer@hsu-hh.de>\n"
 "Language-Team: R-Core <r-core@r-project.org>\n"
@@ -497,6 +497,12 @@ msgstr "<abIndex> --> <seqMat> ist noch nicht implementiert"
 msgid "<seqMat>  -->  <abIndex>  is not yet implemented"
 msgstr "<seqMat> --> <abIndex> ist noch nicht implementiert"
 
+msgid "'giveCsparse' has been deprecated; setting 'repr = \"T\"' for you"
+msgstr ""
+
+msgid "'giveCsparse' has been deprecated; will use 'repr' instead"
+msgstr ""
+
 msgid "'diagonals' matrix must have %d columns (= length(k) )"
 msgstr "'diagonals'-Matrix muss %d Spalten haben (= length(k) )"
 
@@ -517,6 +523,9 @@ msgstr ""
 msgid "the %d-th (sub)-diagonal (k = %d) is too short; filling with NA's"
 msgstr ""
 "die  %d-te (Unter)-Diagonale (k = %d) ist zu kurz und wird mit NA aufgefüllt"
+
+msgid "invalid 'repr'; must be \"C\", \"T\", or \"R\""
+msgstr ""
 
 msgid "resulting x-slot has different type than x's or y's"
 msgstr "resultierender x-slot hat einen anderen Typ als x oder y"
@@ -701,7 +710,8 @@ msgid "'boolArith = %d' not yet implemented"
 msgstr "'boolArith = %d' noch nicht implementiert"
 
 msgid "qr2rankMatrix(.): QR with only %d out of %d finite diag(R) entries"
-msgstr "qr2rankMatrix(.): QR Zerlegung mit nur %d von %d endlichen diag(R) Werten"
+msgstr ""
+"qr2rankMatrix(.): QR Zerlegung mit nur %d von %d endlichen diag(R) Werten"
 
 msgid "qr2rankMatrix(.): QR has negative diag(R) entries"
 msgstr "qr2rankMatrix(.): QR enthält negative diag(R) Werte"
@@ -860,12 +870,19 @@ msgstr ""
 msgid "'times >= 0' is required"
 msgstr "'times >= 0' wird benötigt"
 
+msgid "'giveCsparse' has been deprecated; setting 'repr = \"%s\"' for you"
+msgstr ""
+
 msgid "(un)packing only applies to dense matrices, class(x)='%s'"
 msgstr ""
 "(ent)packen ist nur für dicht besetzte Matrizen anwendbar, class(x)='%s'"
 
 msgid "'x' is not symmetric nor triangular"
 msgstr "'x' ist weder symmetrisch noch in Dreiecksform"
+
+#, fuzzy
+msgid "'x' is not symmetric -- chol() undefined."
+msgstr "'x' ist nicht positiv definit -- chol() undefiniert."
 
 msgid ""
 "extra argument %s will be disregarded in\n"

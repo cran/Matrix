@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Matrix 1.1-2-2\n"
 "Report-Msgid-Bugs-To: bugs.r-project.org\n"
-"POT-Creation-Date: 2020-04-02 16:19\n"
+"POT-Creation-Date: 2021-01-29 17:44\n"
 "PO-Revision-Date: 2014-03-27 14:47+0100\n"
 "Last-Translator: Łukasz Daniel <lukasz.daniel@gmail.com>\n"
 "Language-Team: Łukasz Daniel <lukasz.daniel@gmail.com>\n"
@@ -857,6 +857,12 @@ msgstr "<abIndex>  -->  <seqMat> nie jest jeszcze zaimplementowane"
 msgid "<seqMat>  -->  <abIndex>  is not yet implemented"
 msgstr "<seqMat>  -->  <abIndex> nie jest jeszcze zaimplementowane"
 
+msgid "'giveCsparse' has been deprecated; setting 'repr = \"T\"' for you"
+msgstr ""
+
+msgid "'giveCsparse' has been deprecated; will use 'repr' instead"
+msgstr ""
+
 # Matrix/R/bandSparse.R: 26
 # stop(sprintf(ngettext(len.k, "'diagonals' matrix must have %d column (= length(k) )", "'diagonals' matrix must have %d columns (= length(k) )", domain = "R-Matrix"), len.k), domain = NA)
 msgid "'diagonals' matrix must have %d columns (= length(k) )"
@@ -885,6 +891,9 @@ msgstr ""
 msgid "the %d-th (sub)-diagonal (k = %d) is too short; filling with NA's"
 msgstr ""
 "(pod)-diagonala %d (k = %d) jest zbyt krótkal wypełnianie wartościami NA"
+
+msgid "invalid 'repr'; must be \"C\", \"T\", or \"R\""
+msgstr ""
 
 msgid "resulting x-slot has different type than x's or y's"
 msgstr ""
@@ -1442,6 +1451,9 @@ msgstr ""
 msgid "'times >= 0' is required"
 msgstr "wymagane jest 'times >= 0'"
 
+msgid "'giveCsparse' has been deprecated; setting 'repr = \"%s\"' for you"
+msgstr ""
+
 # Matrix/R/symmetricMatrix.R: 72
 # stop(sprintf("(un)packing only applies to dense matrices, class(x)='%s'",
 # 		     cx))
@@ -1455,6 +1467,14 @@ msgstr "(roz)pakowanie stosuje się jedynie do gęstych macierzy, class(x)='%s'"
 # stop("'x' is not symmetric nor triangular")
 msgid "'x' is not symmetric nor triangular"
 msgstr "'x' nie jest macierzą symetryczną ani trójkątną"
+
+# Matrix/R/Auxiliaries.R: 167
+# stop("'x' is not positive definite -- chol() undefined.")
+# Matrix/R/dsparseMatrix.R: 18
+# stop("'x' is not positive definite -- chol() undefined.")
+#, fuzzy
+msgid "'x' is not symmetric -- chol() undefined."
+msgstr "'x' nie jest dodatnio określone -- nieokreślony 'chol()'."
 
 # Matrix/R/Auxiliaries.R: 1376
 # warning(sprintf(gettext("arguments %s are disregarded in\n %s", domain = "R-Matrix"),

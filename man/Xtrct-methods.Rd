@@ -5,6 +5,8 @@
 % NB: "[<-" are in ./Subassign-methods.Rd
 %                  ~~~~~~~~~~~~~~~~~~~~~~
 \alias{[,Matrix,missing,missing,ANY-method}
+\alias{[,Matrix,missing,missing,logical-method}
+\alias{[,Matrix,missing,missing,missing-method}
 \alias{[,Matrix,missing,index,missing-method}
 \alias{[,Matrix,index,missing,missing-method}
 \alias{[,Matrix,index,index,missing-method}

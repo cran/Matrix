@@ -30,7 +30,7 @@ bdiag(\dots)
   A \emph{sparse} matrix obtained by combining the arguments into a
   block diagonal matrix.
 
-  The value of \code{bdiag()} inheris from class
+  The value of \code{bdiag()} inherits from class
   \code{\linkS4class{CsparseMatrix}}, whereas
   \code{.bdiag()} returns a \code{\linkS4class{TsparseMatrix}}.
 }

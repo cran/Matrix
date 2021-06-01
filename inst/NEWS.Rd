@@ -62,6 +62,7 @@
       classes properties.  Notably would it break validity of \code{factor}
       with a proposed change in validity checking, as factors were also
       \code{"Mnumeric"} but did not fulfill its validity method.
+      Similarly removed (disabled) unused class union \code{"numericVector"}.
 
       \item removed a few duplicated \code{.alias{.}} from \file{man/*.Rd}.
     }

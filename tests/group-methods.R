@@ -39,9 +39,15 @@ M <- Matrix(1:12, 4,3)
 m <- cbind(4:1)
 stopifnot(exprs = {
     identical(M*m, M*c(m)) # M*m failed in Matrix_1.3-3 pre-release:
+    identical(m*M, c(m)*M)
     ## M*m: Error in eval(....) : object 'x1' not found
     isValid(M1 <- M[, 1, drop=FALSE], "dgeMatrix")
     identical(M*M1, M*M1[,1]) # M*M1 failed ..
+    identical(M-M1, M-M1[,1])
+    identical(M/M1, M/M1[,1])
+    identical(M1*M, M1[,1]*M)
+    identical(M1-M, M1[,1]-M)
+    identical(M1/M, M1[,1]/M)
 })
 
 

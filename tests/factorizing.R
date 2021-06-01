@@ -166,7 +166,7 @@ for(nnn in 1:100) {
     y <- sample(x., replace=TRUE)
     m <- sample(2:6, 1)
     n <- sample(2:7, 1)
-    x <- suppressWarnings(matrix(y, m,n))
+    x <- matrix(seq_len(m*n), m,n)
     lux <- lu(x)# occasionally a warning about exact singularity
     xx <- with(expand(lux), (P %*% L %*% U))
     print(dim(xx))

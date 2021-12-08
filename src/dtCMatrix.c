@@ -103,10 +103,11 @@ SEXP dtCMatrix_matrix_solve(SEXP a, SEXP b, SEXP classed)
     SET_SLOT(ans, Matrix_DimNamesSym, dn);
     UNPROTECT(1);
     if(n >= 1 && nrhs >=1) {
-	bx = Memcpy(REAL(ALLOC_SLOT(ans, Matrix_xSym, REALSXP, n * nrhs)),
-		    REAL(cl ? GET_SLOT(b, Matrix_xSym):b), n * nrhs);
+	R_xlen_t n_ = n;
+	bx = Memcpy(REAL(ALLOC_SLOT(ans, Matrix_xSym, REALSXP, n_ * nrhs)),
+		    REAL(cl ? GET_SLOT(b, Matrix_xSym) : b),   n_ * nrhs);
 	for (j = 0; j < nrhs; j++)
-	    lo ? cs_lsolve(A, bx + n * j) : cs_usolve(A, bx + n * j);
+	    lo ? cs_lsolve(A, bx + n_ * j) : cs_usolve(A, bx + n_ * j);
     }
     RETURN(ans);
 }
@@ -120,6 +121,7 @@ SEXP dtCMatrix_sparse_solve(SEXP a, SEXP b)
 	error(_("Dimensions of system to be solved are inconsistent"));
     // *before* Calloc()ing below [memory leak]! -- FIXME: 0-extent should work
 
+    // FIXME: xnz  == same type as *xp; must assume no integer overflow below ("10 *" and " xnz *= 2 ")
     int *xp = INTEGER(ALLOC_SLOT(ans, Matrix_pSym, INTSXP, (B->n) + 1)),
 	xnz = 10 * B->p[B->n];	/* initial estimate of nnz in x */
     int k, lo = uplo_P(a)[0] == 'L', pos = 0;

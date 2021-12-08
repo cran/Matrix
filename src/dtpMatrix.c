@@ -134,11 +134,12 @@ SEXP dtpMatrix_matrix_mm(SEXP x, SEXP y, SEXP right, SEXP trans)
 	    for (int j = 0; j < n; j++) // X %*% y[,j]
 		F77_CALL(dtpmv)(uplo, /*trans = */ tr ? "T" : "N",
 				diag, yDim, xx,
-				vx + j * m, &ione FCONE FCONE FCONE);
+				vx + j * (size_t) m, &ione FCONE FCONE FCONE);
 	}
     UNPROTECT(1);
     return val;
 }
+
 
 SEXP dtpMatrix_matrix_solve(SEXP a, SEXP b)
 {
@@ -157,7 +158,7 @@ SEXP dtpMatrix_matrix_solve(SEXP a, SEXP b)
 	*vx = REAL(GET_SLOT(val, Matrix_xSym));
     for (int j = 0; j < bDim[1]; j++) /* a^{-1} %*% b[,j]  via BLAS 2 DTPSV(.) */
 	F77_CALL(dtpsv)(uplo, "N", diag, bDim, ax,
-			vx + j * bDim[0], &ione FCONE FCONE);
+			vx + j * (size_t) bDim[0], &ione FCONE FCONE);
 #else
     F77_CALL(dtptrs)(uplo, "N", diag, /* n= */ aDim, /* nrhs = */ &bDim[1],
 	/* ap = */ REAL(GET_SLOT(a, Matrix_xSym)),

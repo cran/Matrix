@@ -42,6 +42,12 @@ SEXP xRMatrix_validate(SEXP x)
  * only with {32bit + R-devel + enable-R-shlib} -- no idea why */
 SEXP compressed_to_TMatrix(SEXP x, SEXP colP)
 {
+    char *ncl = strdup(class_P(x));
+    static const char *valid[] = { MATRIX_VALID_Csparse, MATRIX_VALID_Rsparse, ""};
+    int ctype = R_check_class_etc(x, valid);
+    if (ctype < 0)
+	error(_("invalid class(x) '%s' in compressed_to_TMatrix(x)"), ncl);
+
     int col = asLogical(colP); /* 1 if "C"olumn compressed;  0 if "R"ow */
     /* however, for Csparse, we now effectively use the cholmod-based
      * Csparse_to_Tsparse() in ./Csparse.c ; maybe should simply write
@@ -50,12 +56,6 @@ SEXP compressed_to_TMatrix(SEXP x, SEXP colP)
 	indP = PROTECT(GET_SLOT(x, indSym)),
 	  pP = PROTECT(GET_SLOT(x, Matrix_pSym));
     int npt = length(pP) - 1;
-    char *ncl = strdup(class_P(x));
-    static const char *valid[] = { MATRIX_VALID_Csparse, MATRIX_VALID_Rsparse, ""};
-    int ctype = R_check_class_etc(x, valid);
-
-    if (ctype < 0)
-	error(_("invalid class(x) '%s' in compressed_to_TMatrix(x)"), ncl);
 
     /* replace 'C' or 'R' with 'T' :*/
     ncl[2] = 'T';
@@ -82,16 +82,15 @@ SEXP compressed_to_TMatrix(SEXP x, SEXP colP)
 
 SEXP R_to_CMatrix(SEXP x)
 {
-    SEXP ans, tri = PROTECT(allocVector(LGLSXP, 1));
     char *ncl = strdup(class_P(x));
     static const char *valid[] = { MATRIX_VALID_Rsparse, ""};
     int ctype = R_check_class_etc(x, valid);
-    int *x_dims = INTEGER(GET_SLOT(x, Matrix_DimSym)), *a_dims;
-    PROTECT_INDEX ipx;
-
     if (ctype < 0)
 	error(_("invalid class(x) '%s' in R_to_CMatrix(x)"), ncl);
 
+    SEXP ans, tri = PROTECT(allocVector(LGLSXP, 1));
+    int *x_dims = INTEGER(GET_SLOT(x, Matrix_DimSym)), *a_dims;
+    PROTECT_INDEX ipx;
     /* replace 'R' with 'C' : */
     ncl[2] = 'C';
     PROTECT_WITH_INDEX(ans = NEW_OBJECT_OF_CLASS(ncl), &ipx);
@@ -220,7 +219,7 @@ SEXP dgCMatrix_qrsol(SEXP x, SEXP y, SEXP ord)
 //  Usage: [V,beta,p,R,q] = cs_qr(A) ;
 SEXP dgCMatrix_QR(SEXP Ap, SEXP order, SEXP keep_dimnames)
 {
-    CSP A = AS_CSP__(Ap), D;
+    CSP A = AS_CSP__(Ap);
     int io = INTEGER(order)[0];
     Rboolean verbose = (io < 0);// verbose=TRUE, encoded with negative 'order'
     int m0 = A->m, m = m0, n = A->n, ord = asLogical(order) ? 3 : 0, *p;
@@ -239,10 +238,10 @@ SEXP dgCMatrix_QR(SEXP Ap, SEXP order, SEXP keep_dimnames)
     if(verbose && S->m2 > m) // in ./cs.h , m2 := # of rows for QR, after adding fictitious rows
 	Rprintf("Symbolic QR(): Matrix structurally rank deficient (m2-m = %d)\n",
 		S->m2 - m);
-    csn *N = cs_qr(A, S);		/* numeric QR factorization */
+    csn *N = cs_qr(A, S);	/* numeric QR factorization */
     if (!N) error(_("cs_qr failed")) ;
     cs_dropzeros(N->L);		/* drop zeros from V and sort */
-    D = cs_transpose(N->L, 1); cs_spfree(N->L);
+    CSP D = cs_transpose(N->L, 1); cs_spfree(N->L);
     N->L = cs_transpose(D, 1); cs_spfree(D);
     cs_dropzeros(N->U);		/* drop zeros from R and sort */
     D = cs_transpose(N->U, 1); cs_spfree(N->U) ;
@@ -345,9 +344,8 @@ SEXP dgCMatrix_SPQR(SEXP Ap, SEXP ordering, SEXP econ, SEXP tol)
     cholmod_free_sparse(&R, &cl);
     cholmod_free_sparse(&Q, &cl);
     if (E) {
-	int *Er;
 	SET_VECTOR_ELT(ans, 2, allocVector(INTSXP, A->ncol));
-	Er = INTEGER(VECTOR_ELT(ans, 2));
+	int *Er = INTEGER(VECTOR_ELT(ans, 2));
 	for (int i = 0; i < A->ncol; i++) Er[i] = (int) E[i];
 	Free(E);
     } else SET_VECTOR_ELT(ans, 2, allocVector(INTSXP, 0));
@@ -362,23 +360,20 @@ SEXP dgCMatrix_SPQR(SEXP Ap, SEXP ordering, SEXP econ, SEXP tol)
 void install_lu(SEXP Ap, int order, double tol, Rboolean err_sing, Rboolean keep_dimnms)
 {
     // (order, tol) == (1, 1) by default, when called from R.
-    SEXP ans;
-    css *S;
-    csn *N;
-    int n, *p, *dims;
-    CSP A = AS_CSP__(Ap), D;
+    CSP A = AS_CSP__(Ap);
     R_CheckStack();
 
-    n = A->n;
+    int n = A->n;
     if (A->m != n)
 	error(_("LU decomposition applies only to square matrices"));
     if (order) {		/* not using natural order */
 	order = (tol == 1) ? 2	/* amd(S'*S) w/dense rows or I */
 	    : 1;		/* amd (A+A'), or natural */
     }
-    S = cs_sqr(order, A, /*qr = */ 0);	/* symbolic ordering */
-    N = cs_lu(A, S, tol);	/* numeric factorization */
+    css *S = cs_sqr(order, A, /*qr = */ 0);	/* symbolic ordering */
+    csn *N = cs_lu(A, S, tol);	/* numeric factorization */
     if (!N) {
+	cs_sfree(S);
 	if(err_sing)
 	    error(_("cs_lu(A) failed: near-singular A (or out of memory)"));
 	else {
@@ -389,7 +384,7 @@ void install_lu(SEXP Ap, int order, double tol, Rboolean err_sing, Rboolean keep
 	}
     }
     cs_dropzeros(N->L);		/* drop zeros from L and sort it */
-    D = cs_transpose(N->L, 1);
+    CSP D = cs_transpose(N->L, 1);
     cs_spfree(N->L);
     N->L = cs_transpose(D, 1);
     cs_spfree(D);
@@ -398,9 +393,9 @@ void install_lu(SEXP Ap, int order, double tol, Rboolean err_sing, Rboolean keep
     cs_spfree(N->U);
     N->U = cs_transpose(D, 1);
     cs_spfree(D);
-    p = cs_pinv(N->pinv, n);	/* p=pinv' */
-    ans = PROTECT(NEW_OBJECT_OF_CLASS("sparseLU"));
-    dims = INTEGER(ALLOC_SLOT(ans, Matrix_DimSym, INTSXP, 2));
+    int *p = cs_pinv(N->pinv, n);	/* p=pinv' */
+    SEXP ans = PROTECT(NEW_OBJECT_OF_CLASS("sparseLU"));
+    int *dims = INTEGER(ALLOC_SLOT(ans, Matrix_DimSym, INTSXP, 2));
     dims[0] = n; dims[1] = n;
     SEXP dn; Rboolean do_dn = FALSE;
     if(keep_dimnms) {
@@ -508,18 +503,19 @@ SEXP dgCMatrix_matrix_solve(SEXP Ap, SEXP b, SEXP give_sparse)
     if (U->n != n)
 	error(_("Dimensions of system to be solved are inconsistent"));
     if(nrhs >= 1 && n >= 1) {
+	R_xlen_t n_ = n; // <=> no overflow in j * n_
 	p = INTEGER(GET_SLOT(lu, Matrix_pSym));
 	q = LENGTH(qslot) ? INTEGER(qslot) : (int *) NULL;
 
 	for (j = 0; j < nrhs; j++) {
-	    cs_pvec(p, ax + j * n, x, n);  /* x = b(p) */
+	    cs_pvec(p, ax + j * n_, x, n);  /* x = b(p) */
 	    cs_lsolve(L, x);	       /* x = L\x */
 	    cs_usolve(U, x);	       /* x = U\x */
 	    if (q)		       /* r(q) = x , hence
 					  r = Q' U{^-1} L{^-1} P b = A^{-1} b */
-		cs_ipvec(q, x, ax + j * n, n);
+		cs_ipvec(q, x, ax + j * n_, n);
 	    else
-		Memcpy(ax + j * n, x, n);
+		Memcpy(ax + j * n_, x, n);
 	}
     }
     if(n >= SMALL_4_Alloca) Free(x);

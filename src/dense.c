@@ -337,10 +337,11 @@ SEXP dense_band(SEXP x, SEXP k1P, SEXP k2P)
 #define SET_ZERO_OUTSIDE				\
 	for (j = 0; j < n; j++) {			\
 	    int i, i1 = j - k2, i2 = j + 1 - k1;	\
+	    R_xlen_t jm = j * (R_xlen_t) m;		\
 	    if(i1 > m) i1 = m;				\
 	    if(i2 < 0) i2 = 0;				\
-	    for (i = 0; i < i1; i++) xx[i + j * m] = 0;	\
-	    for (i = i2; i < m; i++) xx[i + j * m] = 0;	\
+	    for (i = 0; i < i1; i++) xx[i + jm] = 0;	\
+	    for (i = i2; i < m; i++) xx[i + jm] = 0;	\
 	}
 
 	if(M_type == ddense) {
@@ -396,10 +397,11 @@ SEXP dense_to_symmetric(SEXP x, SEXP uplo, SEXP symm_test)
 
     if(symm_tst) {
 	int i,j;
+	R_xlen_t n_ = n;
 #       define CHECK_SYMMETRIC						\
 	for (j = 0; j < n; j++)						\
 	    for (i = 0; i < j; i++)					\
-		if(xx[j * n + i] != xx[i * n + j]) {			\
+		if(xx[j * n_ + i] != xx[i * n_ + j]) {			\
 		    UNPROTECT(1);					\
 		    error(_("matrix is not symmetric [%d,%d]"), i+1, j+1); \
 		    return R_NilValue; /* -Wall */			\
@@ -469,9 +471,10 @@ SEXP ddense_symmpart(SEXP x)
 
 	/* only need to assign the *upper* triangle (uplo = "U");
 	 * noting that diagonal remains unchanged */
+	R_xlen_t n_ = n;
 	for (int j = 0; j < n; j++) {
 	    for (int i = 0; i < j; i++) {
-		xx[j * n + i] = (xx[j * n + i] + xx[i * n + j]) / 2.;
+		xx[j * n_ + i] = (xx[j * n_ + i] + xx[i * n_ + j]) / 2.;
 	    }
 	}
 
@@ -524,13 +527,14 @@ SEXP ddense_skewpart(SEXP x)
     } else {
 	SEXP ans = PROTECT(NEW_OBJECT_OF_CLASS("dgeMatrix")), dns, nms_dns;
 	double *xx = REAL(GET_SLOT(dx, Matrix_xSym));
+	R_xlen_t n_ = n;
 
-	for (int j = 0; j < n; j++) {
-	    xx[j * n + j] = 0.;
+	for (int j = 0; j < n_; j++) {
+	    xx[j * n_ + j] = 0.;
 	    for (int i = 0; i < j; i++) {
-		double s = (xx[j * n + i] - xx[i * n + j]) / 2.;
-		xx[j * n + i] =  s;
-		xx[i * n + j] = -s;
+		double s = (xx[j * n_ + i] - xx[i * n_ + j]) / 2.;
+		xx[j * n_ + i] =  s;
+		xx[i * n_ + j] = -s;
 	    }
 	}
 

@@ -138,13 +138,16 @@ sparse.model.matrix <-
 		stop("invalid 'contrasts.arg' argument")
 	    for (nn in namC) {
 		if (is.na(ni <- match(nn, namD)))
-		    warning(gettextf("variable '%s' is absent, its contrast will be ignored", nn),
+		    warning(gettextf("variable '%s' is absent, its contrast will be ignored",
+                                     nn),
 			    domain = NA)
 		else {
 		    ca <- contrasts.arg[[nn]]
-## FIXME: work for *sparse* ca
-		    if(is.matrix(ca)) contrasts(data[[ni]], ncol(ca)) <- ca
-		    else contrasts(data[[ni]]) <- contrasts.arg[[nn]]
+		    ## for R >= 4.2 or so, simply  contrasts(*, ncol(.)) <- ca
+		    if(is.matrix(ca) || inherits(ca, "Matrix"))
+			contrasts(data[[ni]], ncol(ca)) <- ca
+		    else # function | string
+			contrasts(data[[ni]]) <- ca
 		}
 	    }
 	}
@@ -254,7 +257,9 @@ sparseInt.r <- function(rList, do.names = TRUE, forceSparse = FALSE, verbose=FAL
 {
     nl <- length(rList)
     if(forceSparse)
-	F <- function(m) if(is.matrix(m)) .Call(dense_to_Csparse, m) else m
+	F <- function(m)
+            if(is.matrix(m) || is(m, "denseMatrix")) .Call(dense_to_Csparse, m)
+            else m
     if(verbose)
 	cat("sparseInt.r(<list>[1:",nl,"], f.Sp=",forceSparse,"): is.mat()= (",
 	    paste(symnum(vapply(rList, is.matrix, NA)), collapse=""),
@@ -266,6 +271,7 @@ sparseInt.r <- function(rList, do.names = TRUE, forceSparse = FALSE, verbose=FAL
 	r <- rList[[1]]
 	for(j in 2:nl)
 	    r <- sparse2int(r, rList[[j]],
+                            forceSparse=forceSparse,
 			    do.names=do.names, verbose=verbose)
 	if(forceSparse) F(r) else r
     }
@@ -304,7 +310,8 @@ is.model.frame <- function(x)
 ##' @return sparse matrix (class "dgCMatrix")
 ##' @author Martin Maechler
 model.spmatrix <- function(trms, mf, transpose=FALSE,
-			   drop.unused.levels = FALSE, row.names=TRUE, sep="", verbose=FALSE)
+			   drop.unused.levels = FALSE, row.names=TRUE, sep="",
+                           verbose=FALSE)
 {
     ## Author: Martin Maechler, Date:  7 Jul 2009
 

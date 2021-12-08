@@ -6,8 +6,8 @@ SEXP dpoMatrix_validate(SEXP obj)
     if (isString(val = dense_nonpacked_validate(obj)))
 	return(val);
 
-    int n = INTEGER(GET_SLOT(obj, Matrix_DimSym))[0],
-	np1 = n + 1;
+    int n = INTEGER(GET_SLOT(obj, Matrix_DimSym))[0];
+    R_xlen_t np1 = n + 1;
     double *x = REAL(GET_SLOT(obj, Matrix_xSym));
 
     /* quick but nondefinitive check on positive definiteness */
@@ -25,6 +25,7 @@ SEXP dpoMatrix_chol(SEXP x)
     const char *uplo = CHAR(STRING_ELT(uploP, 0));
     int *dims = INTEGER(dimP), info;
     int n = dims[0];
+    const R_xlen_t n2 = ((R_xlen_t)n) * n; // = n^2
     double *vx;
 
     if (val != R_NilValue) return val;// use x@factors$Cholesky if available
@@ -33,8 +34,8 @@ SEXP dpoMatrix_chol(SEXP x)
     SET_SLOT(val, Matrix_uploSym, duplicate(uploP));
     SET_SLOT(val, Matrix_diagSym, mkString("N"));
     SET_SLOT(val, Matrix_DimSym, duplicate(dimP));
-    vx = REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, n * n));
-    AZERO(vx, n * n);
+    vx = REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, n2));
+    AZERO(vx, n2);
     F77_CALL(dlacpy)(uplo, &n, &n, REAL(GET_SLOT(x, Matrix_xSym)),
 		     &n, vx, &n FCONE);
     if (n > 0) {

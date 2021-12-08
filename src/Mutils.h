@@ -11,8 +11,16 @@ extern "C" {
 #include <ctype.h>
 #include <R.h>  /* includes Rconfig.h */
 #include <Rversion.h>
-#include <Rdefines.h> /* Rinternals.h + GET_SLOT etc */
+#include <Rinternals.h>
 #include <R_ext/RS.h> /* for Memzero() */
+
+// previously from <Rdefines.h> :
+#ifndef GET_SLOT
+# define GET_SLOT(x, what)       R_do_slot(x, what)
+# define SET_SLOT(x, what, value) R_do_slot_assign(x, what, value)
+# define MAKE_CLASS(what)	R_do_MAKE_CLASS(what)
+# define NEW_OBJECT(class_def)	R_do_new_object(class_def)
+#endif
 
 // NB: For  'FCONE'  etc (for LTO), the "includer" will  #include "Lapack-etc.h"
 // --
@@ -50,7 +58,7 @@ extern "C" {
 #endif
 
 
-#define Alloca(n, t)   (t *) alloca( (size_t) ( (n) * sizeof(t) ) )
+#define Alloca(n, t)   (t *) alloca( ((size_t) n) * sizeof(t) )
 
 #define SMALL_4_Alloca 10000
 //			==== R uses the same cutoff in several places
@@ -413,6 +421,9 @@ mMatrix_as_geMatrix(SEXP A)
 
 #define MATRIX_VALID_tri_Csparse		\
    "dtCMatrix", "ltCMatrix", "ntCMatrix", "ztCMatrix"
+
+#define MATRIX_VALID_sym_Csparse		\
+   "dsCMatrix", "lsCMatrix", "nsCMatrix", "zsCMatrix"
 
 #ifdef __UN_USED__
 #define MATRIX_VALID_tri_sparse			\

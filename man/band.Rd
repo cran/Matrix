@@ -136,10 +136,15 @@ tril(m5, -1)    # strict lower triangle
 triu(m5, 1)     # strict upper triangle
 band(m5, -1, 2) # general band
 (m65 <- Matrix(rnorm(30), nc = 5))  # not square
-triu(m65)       # result in not dtrMatrix unless square
+triu(m65)       # result not "dtrMatrix" unless square
 (sm5 <- crossprod(m65)) # symmetric
-   band(sm5, -1, 1)# symmetric band preserves symmetry property
+   band(sm5, -1, 1)# "dsyMatrix": symmetric band preserves symmetry property
 as(band(sm5, -1, 1), "sparseMatrix")# often preferable
+(sm <- round(crossprod(triu(mm/2)))) # sparse symmetric ("dsC*")
+band(sm, -1,1) # remains "dsC", *however*
+band(sm, -2,1) # -> "dgC"
+%% Problem is the underlying  cholmod_band()  which really does symmetric
+%% banding *only* *if* the matrix is cholmod-symmetric i.e. 'stype != 0'
 %%
 \dontshow{ ## this uses special methods
 (x.x <- crossprod(mm))

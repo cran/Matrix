@@ -470,10 +470,16 @@ setMethod("band", "CsparseMatrix",
 	      k2 <- as.integer(k2[1])
 	      dd <- dim(x); sqr <- dd[1] == dd[2]
 	      stopifnot(-dd[1] <= k1, k1 <= k2, k2 <= dd[2])
-	      r <- .Call(Csparse_band, diagU2N(x), k1, k2)
-	      if(sqr && k1 * k2 >= 0) ## triangular
+	      if(extends(cl <- getClassDef(class(x)), "symmetricMatrix") && k1 != -k2) {
+		  ## result is *not* symmetric (but C's Csparse_band will keep '->stype'):
+		  x <- as(x, "generalMatrix") # -> .Call(Csparse_symmetric_to_general, .)
+	      } else if(extends(cl, "triangularMatrix") && x@diag == "U")
+		  x <- .diagU2N(x, cl)
+	      r <- .Call(Csparse_band, x, k1, k2)
+	      if(sqr && as.numeric(k1) * k2 >= 0) ## triangular result
 		  as(r, paste0(.M.kind(x), "tCMatrix"))
 	      else if (k1 < 0  &&  k1 == -k2  && isSymmetric(x)) ## symmetric
+		  ## does this always work ??
 		  as(r, paste0(.M.kind(x), "sCMatrix"))
 	      else
 		  r

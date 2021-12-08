@@ -66,7 +66,7 @@ setMethod("norm", signature(x = "dspMatrix", type = "missing"),
           valueClass = "numeric")
 
 setMethod("t", signature(x = "dspMatrix"),
-          function(x) .dsy2dsp(t(dsp2dsy(x))),
+          function(x) .dsy2dsp(t(dsp2dsy(x))), # FIXME inefficient
           valueClass = "dspMatrix")
 
 setMethod("diag", signature(x = "dspMatrix"),

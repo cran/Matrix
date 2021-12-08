@@ -423,26 +423,28 @@ SEXP dimNames_validate(SEXP obj)
 
 
 
-#define PACKED_TO_FULL(TYPE)						\
-TYPE *packed_to_full_ ## TYPE(TYPE *dest, const TYPE *src,		\
-		        int n, enum CBLAS_UPLO uplo)			\
-{									\
-    int i, j, pos = 0;							\
-									\
-    AZERO(dest, n*n);							\
-    for (j = 0; j < n; j++) {						\
-	switch(uplo) {							\
-	case UPP:							\
-	    for (i = 0; i <= j; i++) dest[i + j * n] = src[pos++];	\
-	    break;							\
-	case LOW:							\
-	    for (i = j; i < n; i++) dest[i + j * n] = src[pos++];	\
-	    break;							\
-	default:							\
-	    error(_("'uplo' must be UPP or LOW"));			\
-	}								\
-    }									\
-    return dest;							\
+#define PACKED_TO_FULL(TYPE)					\
+TYPE *packed_to_full_ ## TYPE(TYPE *dest, const TYPE *src,	\
+		        int n, enum CBLAS_UPLO uplo)		\
+{								\
+    int i, j, pos = 0;						\
+    size_t n2 = n * (size_t)n;					\
+								\
+    AZERO(dest, n2);						\
+    for (j = 0; j < n; j++) {					\
+        size_t jn = j * (size_t)n;				\
+	switch(uplo) {						\
+	case UPP:						\
+	    for (i = 0; i <= j; i++) dest[i + jn] = src[pos++];	\
+	    break;						\
+	case LOW:						\
+	    for (i = j; i < n; i++)  dest[i + jn] = src[pos++];	\
+	    break;						\
+	default:						\
+	    error(_("'uplo' must be UPP or LOW"));		\
+	}							\
+    }								\
+    return dest;						\
 }
 
 PACKED_TO_FULL(double)
@@ -675,10 +677,11 @@ install_diagonal(double *dest, SEXP A)
     int nc = INTEGER(GET_SLOT(A, Matrix_DimSym))[0];
     int i, ncp1 = nc + 1, unit = *diag_P(A) == 'U';
     double *ax = REAL(GET_SLOT(A, Matrix_xSym));
+    size_t in1 = 0;
 
-    AZERO(dest, nc * nc);
-    for (i = 0; i < nc; i++)
-	dest[i * ncp1] = (unit) ? 1. : ax[i];
+    AZERO(dest, nc * (size_t)nc);
+    for (i = 0; i < nc; i++, in1 += ncp1) // in1 == i * ncp1
+	dest[in1] = (unit) ? 1. : ax[i];
     return dest;
 }
 
@@ -688,10 +691,11 @@ install_diagonal_int(int *dest, SEXP A)
     int nc = INTEGER(GET_SLOT(A, Matrix_DimSym))[0];
     int i, ncp1 = nc + 1, unit = *diag_P(A) == 'U';
     int *ax = INTEGER(GET_SLOT(A, Matrix_xSym));
+    size_t in1 = 0;
 
-    AZERO(dest, nc * nc);
-    for (i = 0; i < nc; i++)
-	dest[i * ncp1] = (unit) ? 1 : ax[i];
+    AZERO(dest, nc * (size_t)nc);
+    for (i = 0; i < nc; i++, in1 += ncp1) // in1 == i * ncp1
+	dest[in1] = (unit) ? 1 : ax[i];
     return dest;
 }
 
@@ -719,7 +723,6 @@ SEXP dup_mMatrix_as_geMatrix(SEXP A)
 	MATRIX_VALID_ndense, /* 5  */
 	""};
     SEXP ans, ad = R_NilValue, an = R_NilValue;	/* -Wall */
-    R_xlen_t sz;
     int ctype = R_check_class_etc(A, valid),
 	nprot = 1;
     enum dense_enum M_type = ddense /* -Wall */;
@@ -775,13 +778,14 @@ SEXP dup_mMatrix_as_geMatrix(SEXP A)
     ans = PROTECT(NEW_OBJECT_OF_CLASS(M_type == ddense ? "dgeMatrix" :
 				      (M_type == ldense ? "lgeMatrix" :
 					 "ngeMatrix")));
-#define DUP_MMATRIX_SET_1						\
+#define DUP_MMATRIX_SET_1(_IS_SYM_) do {				\
     SET_SLOT(ans, Matrix_DimSym, duplicate(ad));			\
-    SET_SLOT(ans, Matrix_DimNamesSym, (!isNull(an) && LENGTH(an) == 2) ? \
-	     duplicate(an): allocVector(VECSXP, 2));			\
-    sz = (R_xlen_t) INTEGER(ad)[0] * INTEGER(ad)[1]
+    SET_SLOT(ans, Matrix_DimNamesSym, _IS_SYM_ ? symmetric_DimNames(an) : \
+       (!isNull(an) && LENGTH(an) == 2) ? duplicate(an): allocVector(VECSXP,2)); \
+} while(0)
 
-    DUP_MMATRIX_SET_1;
+    R_xlen_t sz = ((R_xlen_t) INTEGER(ad)[0]) * INTEGER(ad)[1];
+    Rboolean is_symm = FALSE;
 
     if(M_type == ddense) { /* ddense -> dge */
 
@@ -806,6 +810,7 @@ SEXP dup_mMatrix_as_geMatrix(SEXP A)
 	case 14:	 		/* ---	corMatrix */			\
 	    Memcpy(ansx, REAL(GET_SLOT(A, Matrix_xSym)), sz);			\
 	    make_d_matrix_symmetric(ansx, A);					\
+	    is_symm = TRUE;							\
 	    break;								\
 	case 5:			/* ddiMatrix */					\
 	    install_diagonal(ansx, A);						\
@@ -823,10 +828,12 @@ SEXP dup_mMatrix_as_geMatrix(SEXP A)
 				  INTEGER(ad)[0],				\
 				  *uplo_P(A) == 'U' ? UPP : LOW);		\
 	    make_d_matrix_symmetric(ansx, A);					\
+	    is_symm = TRUE;							\
 	    break;								\
 	}  /* switch(ctype) */
 
-	DUP_MMATRIX_ddense_CASES;
+	DUP_MMATRIX_ddense_CASES; // also setting  is_symm
+	DUP_MMATRIX_SET_1(is_symm);
     }
     else { /* M_type == ldense || M_type = ndense  */
 	/* ldense -> lge */
@@ -851,6 +858,7 @@ SEXP dup_mMatrix_as_geMatrix(SEXP A)
 	case 3+14+6:			/* nsyMatrix */
 	    Memcpy(ansx, LOGICAL(GET_SLOT(A, Matrix_xSym)), sz);
 	    make_i_matrix_symmetric(ansx, A);
+	    is_symm = TRUE;
 	    break;
 	case 4+14:			/* ldiMatrix */
 	    // case 4+14+6:      /* ndiMatrix _DOES NOT EXIST_ */
@@ -869,11 +877,14 @@ SEXP dup_mMatrix_as_geMatrix(SEXP A)
 			       INTEGER(ad)[0],
 			       *uplo_P(A) == 'U' ? UPP : LOW);
 	    make_i_matrix_symmetric(ansx, A);
+	    is_symm = TRUE;
 	    break;
 
 	default:
 	    error(_("unexpected ctype = %d in dup_mMatrix_as_geMatrix"), ctype);
 	}  /* switch(ctype) */
+
+	DUP_MMATRIX_SET_1(is_symm);
 
     }  /* if(M_type == .) */
 
@@ -886,7 +897,6 @@ SEXP dup_mMatrix_as_dgeMatrix2(SEXP A, Rboolean tr_if_vec)
     SEXP ans = PROTECT(NEW_OBJECT_OF_CLASS("dgeMatrix")),
 	ad = R_NilValue , an = R_NilValue;	/* -Wall */
     static const char *valid[] = {"_NOT_A_CLASS_", MATRIX_VALID_ddense, ""};
-    R_xlen_t sz;
     int ctype = R_check_class_etc(A, valid), nprot = 1;
     double *ansx;
 
@@ -905,8 +915,10 @@ SEXP dup_mMatrix_as_dgeMatrix2(SEXP A, Rboolean tr_if_vec)
 	DUP_MMATRIX_NON_CLASS(tr_if_vec);
     }
 
-    DUP_MMATRIX_SET_1;
-    DUP_MMATRIX_ddense_CASES;
+    R_xlen_t sz = ((R_xlen_t) INTEGER(ad)[0]) * INTEGER(ad)[1];
+    Rboolean is_symm = FALSE;
+    DUP_MMATRIX_ddense_CASES; // also setting  is_symm
+    DUP_MMATRIX_SET_1(is_symm);
     UNPROTECT(nprot);
     return ans;
 }
@@ -924,7 +936,7 @@ SEXP new_dgeMatrix(int nrow, int ncol)
     INTEGER(ad)[1] = ncol;
     SET_SLOT(ans, Matrix_DimSym, ad);
     SET_SLOT(ans, Matrix_DimNamesSym, allocVector(VECSXP, 2));
-    ALLOC_SLOT(ans, Matrix_xSym, REALSXP, nrow * ncol);
+    ALLOC_SLOT(ans, Matrix_xSym, REALSXP, ((R_xlen_t) nrow) * ncol);
 
     UNPROTECT(2);
     return ans;
@@ -1214,7 +1226,7 @@ SEXP Mmatrix(SEXP args)
 	for(int j=0; j < m; j++) {			\
 	    Memcpy(r+ii, ax+ j*n1, n1); ii += n1;	\
 	    Memcpy(r+ii, bx+ j*n2, n2); ii += n2;	\
-	}
+	} ; break
 
 	COPY_a_AND_b_j;
     }
@@ -1374,7 +1386,6 @@ SEXP symmetric_DimNames(SEXP dn) {
 SEXP R_symmetric_Dimnames(SEXP x) {
     return symmetric_DimNames(GET_SLOT(x, Matrix_DimNamesSym));
 }
-
 
 /**
  * Set 'Dimnames' slot of 'dest' from the one of 'src' when

@@ -72,13 +72,11 @@ checkRN <- function(dd, B = rbind) {
 checkRN(10) # <==> ?cbind's ex
 checkRN(1:4)
 checkRN(       rbind(c(0:1,0,0)))
-if(getRversion() >= "3.5.0")
 checkRN(Matrix(rbind(c(0:1,0,0)))) ## in R <= 3.4.1, from methods:::rbind bug :
 ## Modes: character, NULL Lengths: 4, 0 target is character, current is NULL
 checkRN(10 ,				rbind)
 checkRN(1:4,				rbind)
 checkRN(       rbind(c(0:1,0,0)),  	rbind)
-if(getRversion() >= "3.5.0") ## in R <= 3.4.x, from methods:::rbind bug
 checkRN(Matrix(rbind(c(0:1,0,0))), 	rbind)
 
 cbind(0, Matrix(0+0:1, 1,2), 3:2)# FIXME? should warn - as with matrix()
@@ -92,6 +90,18 @@ str(im)
 str(mi)
 (m1m <- cbind(M,I=100,M2))
 showProc.time()
+
+## lgeMatrix -- rbind2() had bug (in C code):
+is.lge <- function(M) isValid(M, "lgeMatrix")
+stopifnot(exprs = {
+    is.lge(rbind(M2 > 0, M2 < 0)) # had Error in rbind2():
+    ## REAL() can only be applied to a 'numeric', not a 'logical'
+    is.lge(rbind(M2 < 0, M2 > 0)) # ditto
+    is.lge(rbind(Matrix(1:6 %% 3 != 0, 2,3), FALSE))
+    is.lge(L <- rbind(Matrix(TRUE, 2,3), TRUE))
+    all(L)
+    is.lge(rbind(Matrix(TRUE, 2,3), FALSE))
+})
 
 ### --- Diagonal / Sparse - had bugs
 

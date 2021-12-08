@@ -141,22 +141,22 @@ SEXP dspMatrix_matrix_mm(SEXP a, SEXP b)
     SEXP val = PROTECT(dup_mMatrix_as_dgeMatrix(b));
     int *bdims = INTEGER(GET_SLOT(val, Matrix_DimSym));
     int i, ione = 1, n = bdims[0], nrhs = bdims[1];
-    double nn = ((double) n) * ((double) nrhs);
-    if (nn > INT_MAX)
-	error(_("Matrix dimension %d x %d (= %g) is too large"), n, nrhs, nn);
+    R_xlen_t nn = n * (R_xlen_t) nrhs;
     const char *uplo = uplo_P(a);
     double *ax = REAL(GET_SLOT(a, Matrix_xSym)), one = 1., zero = 0.,
 	*vx = REAL(GET_SLOT(val, Matrix_xSym)), *bx;
-    C_or_Alloca_TO(bx, n * nrhs, double);
 
-    Memcpy(bx, vx, n * nrhs);
+    C_or_Alloca_TO(bx, nn, double);
+    Memcpy(bx, vx, nn);
     if (bdims[0] != n)
 	error(_("Matrices are not conformable for multiplication"));
     if (nrhs >= 1 && n >= 1) {
-	for (i = 0; i < nrhs; i++)
-	    F77_CALL(dspmv)(uplo, &n, &one, ax, bx + i * n, &ione,
-			    &zero, vx + i * n, &ione FCONE);
-	if(n * nrhs >= SMALL_4_Alloca) Free(bx);
+	R_xlen_t in;
+	for (i = 0, in = 0; i < nrhs; i++, in += n) { // in := i * n (w/o overflow!)
+	    F77_CALL(dspmv)(uplo, &n, &one, ax, bx + in, &ione,
+			    &zero, vx + in, &ione FCONE);
+	}
+	if(nn >= SMALL_4_Alloca) Free(bx);
     }
     UNPROTECT(1);
     return val;

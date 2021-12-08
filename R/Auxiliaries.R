@@ -115,6 +115,12 @@ Matrix.msg <- function(..., .M.level = 1) {
         message(...)
 }
 
+## not yet used; see also msg.and.solve.dgC.lu() in ./dsCMatrix.R
+Matrix.msg12 <- function(m1, m2, ...) {
+    if(!is.null(v <- getOption("Matrix.verbose")) && v >= 1)
+        message(if(v >= 2) m2 else m1, ...)
+}
+
 ## TODO: faster via C, either R's  R_data_class() [which needs to become API !]
 ##       or even direct  getAttrib(x, R_ClassSymbol); ..
 ##' class - single string, no "package" attribute,..
@@ -190,7 +196,7 @@ attr.all_Mat <- function(target, current,
 	all.equal(attrSlots(target,  factors=factorsCheck),
 		  attrSlots(current, factors=factorsCheck),
 		  check.attributes = TRUE, ...) ## else NULL
-    if((c1 <- class(target)) != (c2 <- class(current)))
+    if(!identical((c1 <- class(target)), (c2 <- class(current))))
 	## list(): so we can easily check for this
 	list(c(if(!isTRUE(msg)) msg, paste0("class(target) is ", c1, ", current is ", c2)))
     else msg
@@ -1441,6 +1447,7 @@ diagU2N <- function(x, cl = getClassDef(class(x)), checkDense = FALSE)
 {
     ## as we promise that the diagonal entries are not accessed when
     ##	diag = "U",   we don't even need to set them to one !!
+    ## and *contrary* to the sparseMatrix case, we keep the diagonal entries in @x !
     x@diag <- "U"
     x
 }

@@ -251,18 +251,18 @@ showProc.time <- local({ ## function + 'pct' variable
 
 ##' A version of sfsmisc::Sys.memGB() which should never give an error
 ##'  ( ~/R/Pkgs/sfsmisc/R/unix/Sys.ps.R  )
-##' TODO: A version that also works on Windows, using memory.size(max=TRUE)
-##' Windows help on memory.limit(): size in Mb (1048576 bytes), rounded down.
-
-Sys.memGB <- function(kind = "MemTotal") {## "MemFree" is typically more relevant
+##' TODO: on Windows, with memory.size() & memory.limit() defunct, how do I get it ????
+Sys.memGB <- function(kind = "MemTotal", ## "MemFree" is typically more relevant
+                      NA.value = 2.10201) {
     if(!file.exists(pf <- "/proc/meminfo"))
 	return(if(.Platform$OS.type == "windows")
-		   memory.limit() / 1000
-	       else NA)
+                   NA.value ## memory.limit() / 1000  ## no longer with R 4.2.0
+	       else
+                   NA.value)
     mm <- tryCatch(drop(read.dcf(pf, fields=kind)),
                    error = function(e) NULL)
     if(is.null(mm) || any(is.na(mm)) || !all(grepl(" kB$", mm)))
-        return(NA)
+        return(NA.value)
     ## return memory in giga bytes
     as.numeric(sub(" kB$", "", mm)) / (1000 * 1024)
 }

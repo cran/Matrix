@@ -3,9 +3,6 @@
 \name{NEWS}
 \title{News for \R Package \pkg{Matrix}}% MM: look into ../svn-log-from.all
 \encoding{UTF-8}
-%% as long as not R >= 3.2.0, ~/R/D/r-devel/R/share/Rd/macros/system.Rd :
-\newcommand{\CRANpkg}{\href{https://CRAN.R-project.org/package=#1}{\pkg{#1}}}
-\newcommand{\sspace}{\ifelse{latex}{\out{~}}{ }}
 %% NB: The date (yyyy-mm-dd) is the "Packaged:" date in ../DESCRIPTION
 
 %%_NOT YET__FIXME_ : needs *MORE THAN* cholmod_l_dense_to_sparse() in
@@ -14,6 +11,89 @@
 %% \item \code{as(<large-matrix>, "sparseMatrix")} no longer fails
 %%  when \code{prod(dim(.))} is larger than \eqn{2^{31} - 1}.
 %
+
+\section{Changes in version 1.4-0 (2021-12-08 r3419)}{
+  \subsection{Bug Fixes}{
+    \itemize{
+      \item Update many \file{src/*.c} preventing integer overflow in
+      \dQuote{pointer} and index computations for large (dense) matrices;
+      prompted by Dario Strbenac's post to R-devel.% June 7, "dgTMatrix Segmentation Fault"
+
+      \item \code{sparse.model.matrix(.., contrasts.arg = <.. ddiMatrix ..>)}
+      now works correctly, fixing R-forge Matrix bug #6673 by Davor Josipovic.
+
+      \item \code{sparse.model.matrix(..)} now also works in cases the
+      contrast matrix has become a \code{"denseMatrix"}; e.g., in a case
+      using \code{poly(.)} in the formula; now works correctly, fixing
+      R-forge Matrix bug #6657 and useful suggestions by Nick Hanewinckel.
+
+      \item Fixed the internal \code{attr.all_Mat()} auxiliary for
+      \code{all.equal()}, notably for the case when exactly one of the
+      matrices is a base \code{matrix}.
+
+      \item Fixed long-standing bug in the \code{rbind2()} method for
+      logical dense matrices, specifically \code{"lgeMatrix"}, thanks to
+      the notice by Aaron Lun.
+
+      \item fix leak in C-level \code{Csparse_to_dense()} thanks to Bill
+      Dunlap in \R's \PR{18204} and \code{install_lu()}
+      called from \code{solve(<dgCMatrix>)} in \PR{18206}.
+
+      \item fix leak in crossprod(<dsTMatrix>), thanks to report and patch
+      in \PR{18205} by Bill Dunlap.
+
+      \item \code{band(M, k1, k2)} now also works when \code{k1 * k2} is
+      larger than 2^31-1, the maximal integer, fixing R-forge Matrix bug
+      6743 by Ariel Paulson.  Further, it works when \code{M} is a sparse
+      \code{"symmetricMatrix"} but the band is not symmetric, \code{k1 != -k2}.
+
+      \item fix leak in C-level code for \code{cbind(m1,m2)} or
+      \code{rbind(*)} when \code{m1} is \code{"n.Csparse"} and \code{m2} is
+      not, thanks to Bill Dunlap's diagnosis and patch in \R's \PR{18210}.
+
+      \item \code{sparseVector(i=integer(), length=2^33)} now does show/print,
+      after fixing a bug in the \code{head()} method for \emph{empty}
+      sparseVectors.  Reported by David Cortes as Matrix bug #6745.
+
+      \item inverting or solving \code{dsCMatrix} no longer catches C level
+      warnings too early which would not free, but rather leak memory;
+      thanks to Bill Dunlap's analysis and patch in \R's \PR{18214}.
+      Additionally, such warnings and error are \code{message()}d when
+      \code{getOption("Matrix.verbose")} is \code{ >= 1}.
+
+      \item \file{test-tools-1.R}: \code{Sys.memGB()} can no longer use
+      \code{memory.limit()} on Windows; no returns \code{NA.value = 2.10201}
+      in such cases.
+
+      \item \code{ss <-  <sparseVector>[i]} gave an invalid sparseVector
+      \code{ss} as \code{ss@i} was not necessarily sorted; thanks to a
+      report by Quran Wu.
+
+      \item \code{as(<dsyMatrix>, "generalMatrix")} and similar, sometimes
+      did \emph{not} use (C-level) \code{symmetric_Dimnames()} etc; report
+      (to \R's \PR{18250} by  Mikael Jagan); fixed all on C level.  As a
+      consequence, you will now see \emph{more} preserved dimnames after
+      matrix transformations or operations which involved symmetric matrices.
+
+      \item \code{as(<ddiMatrix>, "matrix")} no longer loses dimnames,
+      thanks to Mikael Jagan's report as Matrix bug #6751.      
+    }
+  }
+  \subsection{Misc}{
+    \itemize{
+      \item No longer include \file{Rdefines.h} as it is somewhat deprecated.
+    }
+  }
+}
+
+\section{Changes in version 1.3-4 (2021-05-24 r3392)}{
+  \subsection{Misc}{
+    \itemize{
+      \item Update \code{matrix(<data>, n,m)} in \file{tests/*} to work with
+      \command{R-devel CMD check --as-cran}
+    }
+  }
+}
 
 \section{Changes in version 1.3-3 (2021-05-01 r3390)}{
   \subsection{Deprecated and Defunct}{

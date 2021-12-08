@@ -41,6 +41,9 @@ writeMM(obj, file, \dots)
   MatrixMarket format.  The function \code{writeHB} was deprecated and
   has now been removed.  Please use \code{writeMM} instead.
 
+  Note that these formats do \emph{not} know anything about
+  \code{\link{dimnames}}, hence these are dropped by \code{writeMM()}.
+
   A very simple way to export small sparse matrices \code{S}, is to use
   \code{summary(S)} which returns a \code{\link{data.frame}} with
   columns \code{i}, \code{j}, and possibly \code{x}, see \code{summary} in

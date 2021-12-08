@@ -83,6 +83,9 @@ extern "C" {
 #define MATRIX_VALID_tri_Csparse		\
    "dtCMatrix", "ltCMatrix", "ntCMatrix", "ztCMatrix"
 
+#define MATRIX_VALID_sym_Csparse		\
+   "dsCMatrix", "lsCMatrix", "nsCMatrix", "zsCMatrix"
+
 #define MATRIX_VALID_CHMfactor "dCHMsuper", "dCHMsimpl", "nCHMsuper", "nCHMsimpl"
 
 CHM_SP M_as_cholmod_sparse (CHM_SP ans, SEXP x, Rboolean check_Udiag, Rboolean sort_in_place);

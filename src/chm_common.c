@@ -248,6 +248,9 @@ static void chTr2Ralloc(CHM_TR dest, CHM_TR src)
  * @return ans containing pointers to the slots of x, *unless*
  *	check_Udiag and x is unitriangular.
  */
+/* AS_CHM_SP  (x) := as_cholmod_sparse((CHM_SP)alloca(sizeof(cholmod_sparse)), x, TRUE,  FALSE)
+ * AS_CHM_SP__(x) := as_cholmod_sparse((CHM_SP)alloca(sizeof(cholmod_sparse)), x, FALSE, FALSE)
+ */
 CHM_SP as_cholmod_sparse(CHM_SP ans, SEXP x,
 			 Rboolean check_Udiag, Rboolean sort_in_place)
 {
@@ -276,7 +279,7 @@ CHM_SP as_cholmod_sparse(CHM_SP ans, SEXP x,
      * utility, but the lengths of x and i should agree. */
     ans->nzmax = LENGTH(islot);
 				/* values depending on ctype */
-    ans->x = xpt(ctype, x);
+    ans->x     = xpt  (ctype, x);
     ans->stype = stype(ctype, x);
     ans->xtype = xtype(ctype);
 

@@ -94,6 +94,7 @@
 \S4method{solve}{CHMfactor,ddenseMatrix}(a, b,
       system = c("A", "LDLt", "LD", "DLt", "L", "Lt", "D", "P", "Pt"), \dots)
 
+\S4method{solve}{dgCMatrix,missing}(a, b, sparse = NA  , tol = .Machine$double.eps, \dots)
 \S4method{solve}{dgCMatrix,matrix}(a, b, sparse = FALSE, tol = .Machine$double.eps, \dots)
 
   solve(a, b, ...) ## *the* two-argument version, almost always preferred to

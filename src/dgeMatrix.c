@@ -84,10 +84,11 @@ SEXP dgeMatrix_crossprod(SEXP x, SEXP trans)
 	*vDims = INTEGER(ALLOC_SLOT(val, Matrix_DimSym, INTSXP, 2));	\
     int k = tr ? Dims[1] : Dims[0],					\
 	n = tr ? Dims[0] : Dims[1];					\
-    double *vx = REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, n * n)),	\
+    R_xlen_t n_ = n, n2 = n_ * n_;					\
+    double *vx = REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, n2)),	\
 	one = 1.0, zero = 0.0;						\
     									\
-    Memzero(vx, n * n);							\
+    Memzero(vx, n2);							\
     SET_SLOT(val, Matrix_uploSym, mkString("U"));			\
     ALLOC_SLOT(val, Matrix_factorSym, VECSXP, 0);			\
     vDims[0] = vDims[1] = n;						\
@@ -130,7 +131,7 @@ double* gematrix_real_x(SEXP x, int nn) {
 SEXP _geMatrix_crossprod(SEXP x, SEXP trans)
 {
     DGE_CROSS_1;
-    double *x_x = gematrix_real_x(x, k * n);
+    double *x_x = gematrix_real_x(x, k * n_);
     DGE_CROSS_DO(x_x);
 }
 
@@ -169,7 +170,7 @@ SEXP dgeMatrix_dgeMatrix_crossprod(SEXP x, SEXP y, SEXP trans)
     SET_SLOT(val, Matrix_DimNamesSym, dn);				\
     vDims = INTEGER(ALLOC_SLOT(val, Matrix_DimSym, INTSXP, 2));		\
     vDims[0] = m; vDims[1] = n;						\
-    double *v = REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, m * n))
+    double *v = REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, m * (R_xlen_t) n))
 
 #define DGE_DGE_CROSS_DO(_X_X_, _Y_Y_)					\
     if (xd > 0 && n > 0 && m > 0)					\
@@ -177,7 +178,7 @@ SEXP dgeMatrix_dgeMatrix_crossprod(SEXP x, SEXP y, SEXP trans)
 			_X_X_, xDims,					\
 			_Y_Y_, yDims, &zero, v, &m FCONE FCONE);	\
     else								\
-	Memzero(v, m * n);						\
+	Memzero(v,  m * (R_xlen_t) n);					\
     UNPROTECT(2);							\
     return val
 
@@ -191,8 +192,8 @@ SEXP _geMatrix__geMatrix_crossprod(SEXP x, SEXP y, SEXP trans)
 {
     DGE_DGE_CROSS_1;
 
-    double *x_x = gematrix_real_x(x, m * xd);
-    double *y_x = gematrix_real_x(y, n * yd);
+    double *x_x = gematrix_real_x(x, m * (R_xlen_t) xd);
+    double *y_x = gematrix_real_x(y, n * (R_xlen_t) yd);
 
     DGE_DGE_CROSS_DO(x_x, y_x);
 }
@@ -263,7 +264,7 @@ SEXP dgeMatrix_matrix_crossprod(SEXP x, SEXP y, SEXP trans)
 		       duplicate(VECTOR_ELT(yDnms, tr ? 0 : 1)));	\
     SET_SLOT(val, Matrix_DimNamesSym, dn);				\
 									\
-    double *v = REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, m * n))
+    double *v = REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP,  m * (R_xlen_t) n))
 
 #define DGE_MAT_CROSS_DO(_X_X_)						\
     if (xd > 0 && n > 0 && m > 0)					\
@@ -271,7 +272,7 @@ SEXP dgeMatrix_matrix_crossprod(SEXP x, SEXP y, SEXP trans)
 			_X_X_, xDims, REAL(y), yDims, 			\
 			&zero, v, &m FCONE FCONE);			\
     else								\
-	Memzero(v, m * n);						\
+	Memzero(v,  m * (R_xlen_t) n);					\
     UNPROTECT(nprot);							\
     return val
 
@@ -283,7 +284,7 @@ SEXP dgeMatrix_matrix_crossprod(SEXP x, SEXP y, SEXP trans)
 SEXP _geMatrix_matrix_crossprod(SEXP x, SEXP y, SEXP trans) {
     DGE_MAT_CROSS_1;
 
-    double *x_x = gematrix_real_x(x, m * xd);
+    double *x_x = gematrix_real_x(x, m * (R_xlen_t) xd);
 
     DGE_MAT_CROSS_DO(x_x);
 }
@@ -328,11 +329,11 @@ SEXP dgeMatrix_matrix_mm(SEXP a, SEXP bP, SEXP right)
 		       VECTOR_ELT(GET_SLOT(Rt ? a : b,			\
 					   Matrix_DimNamesSym), 1)));	\
     SET_SLOT(val, Matrix_DimNamesSym, dn);				\
-    double *v = REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, m * n))
+    double *v = REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, m * (R_xlen_t) n))
 
 #define DGE_MAT_MM_DO(_A_X_, _B_X_)					\
     if (m < 1 || n < 1 || k < 1) {/* zero extent matrices should work */ \
-	Memzero(v, m * n);						\
+	Memzero(v, m * (R_xlen_t) n);					\
     } else {								\
 	if (Rt) { /* b %*% a  */					\
 	    F77_CALL(dgemm) ("N", "N", &m, &n, &k, &one,		\
@@ -354,8 +355,8 @@ SEXP dgeMatrix_matrix_mm(SEXP a, SEXP bP, SEXP right)
 //! as dgeMatrix_matrix_mm() but a can be  [dln]geMatrix
 SEXP _geMatrix_matrix_mm(SEXP a, SEXP b, SEXP right) {
     DGE_MAT_MM_1(0);
-    double *a_x = gematrix_real_x(a, k * (Rt ? n : m));
-    double *b_x = gematrix_real_x(b, k * (Rt ? m : n));
+    double *a_x = gematrix_real_x(a, k * (R_xlen_t)(Rt ? n : m));
+    double *b_x = gematrix_real_x(b, k * (R_xlen_t)(Rt ? m : n));
     DGE_MAT_MM_DO(a_x, b_x);
 }
 
@@ -376,6 +377,7 @@ SEXP dgeMatrix_getDiag(SEXP x)
 #define geMatrix_getDiag_1					\
     int *dims = INTEGER(GET_SLOT(x, Matrix_DimSym));		\
     int i, m = dims[0], nret = (m < dims[1]) ? m : dims[1];	\
+    R_xlen_t m1 = m + 1;					\
     SEXP x_x = GET_SLOT(x, Matrix_xSym)
 
     geMatrix_getDiag_1;
@@ -385,7 +387,7 @@ SEXP dgeMatrix_getDiag(SEXP x)
 
 #define geMatrix_getDiag_2			\
     for (i = 0; i < nret; i++) {		\
-	rv[i] = xv[i * (m + 1)];		\
+	rv[i] = xv[i * m1];			\
     }						\
     UNPROTECT(1);				\
     return ret
@@ -423,10 +425,11 @@ SEXP dgeMatrix_setDiag(SEXP x, SEXP d)
     double *dv = REAL(d), *rv = REAL(r_x);
 
 #define geMatrix_setDiag_2			\
+    R_xlen_t m1 = m + 1;                        \
     if(d_full) for (int i = 0; i < nret; i++)	\
-	rv[i * (m + 1)] = dv[i];		\
+	rv[i * m1] = dv[i];			\
     else for (int i = 0; i < nret; i++)		\
-	rv[i * (m + 1)] = *dv;			\
+	rv[i * m1] = *dv;			\
     UNPROTECT(1);				\
     return ret
 
@@ -448,6 +451,7 @@ SEXP dgeMatrix_addDiag(SEXP x, SEXP d)
 {
     int *dims = INTEGER(GET_SLOT(x, Matrix_DimSym)),
 	m = dims[0], nret = (m < dims[1]) ? m : dims[1];
+    R_xlen_t m1 = m + 1;
     SEXP ret = PROTECT(duplicate(x)),
 	r_x = GET_SLOT(ret, Matrix_xSym);
     double *dv = REAL(d), *rv = REAL(r_x);
@@ -455,8 +459,8 @@ SEXP dgeMatrix_addDiag(SEXP x, SEXP d)
     if (!d_full && l_d != 1)
 	error(_("diagonal to be added has wrong length"));
 
-    if(d_full) for (int i = 0; i < nret; i++) rv[i * (m + 1)] += dv[i];
-    else for (int i = 0; i < nret; i++)	      rv[i * (m + 1)] += *dv;
+    if(d_full) for (int i = 0; i < nret; i++) rv[i * m1] += dv[i];
+    else for (int i = 0; i < nret; i++)	      rv[i * m1] += *dv;
     UNPROTECT(1);
     return ret;
 }
@@ -614,6 +618,8 @@ SEXP dgeMatrix_svd(SEXP x, SEXP nnu, SEXP nnv)
 	    lwork = -1, info;
 	double tmp, *work;
 	int *iwork, n_iw = 8 * mm;
+	if(8 * (double)mm != n_iw) // integer overflow
+	    error(_("dgeMatrix_svd(x,*): dim(x)[j] = %d is too large"), mm);
 	C_or_Alloca_TO(iwork, n_iw, int);
 
 	SET_VECTOR_ELT(val, 0, allocVector(REALSXP, mm));
@@ -664,7 +670,8 @@ SEXP dgeMatrix_exp(SEXP x)
     const double one = 1.0, zero = 0.0;
     const int i1 = 1;
     int *Dims = INTEGER(GET_SLOT(x, Matrix_DimSym));
-    const int n = Dims[1], nsqr = n * n, np1 = n + 1;
+    const int n = Dims[1];
+    const R_xlen_t n_ = n, np1 = n + 1, nsqr = n_ * n_; // nsqr = n^2
 
     SEXP val = PROTECT(duplicate(x));
     int i, ilo, ilos, ihi, ihis, j, sqpow;
@@ -706,7 +713,7 @@ SEXP dgeMatrix_exp(SEXP x)
     if (sqpow > 0) {
 	double scale_factor = 1.0;
 	for (i = 0; i < sqpow; i++) scale_factor *= 2.;
-	for (i = 0; i < nsqr; i++) v[i] /= scale_factor;
+	for (R_xlen_t i = 0; i < nsqr; i++) v[i] /= scale_factor;
     }
 
     /* Pade' approximation. Powers v^8, v^7, ..., v^1 */
@@ -718,16 +725,16 @@ SEXP dgeMatrix_exp(SEXP x)
 	/* npp = m * npp + padec[j] *m */
 	F77_CALL(dgemm)("N", "N", &n, &n, &n, &one, v, &n, npp, &n,
 			&zero, work, &n FCONE FCONE);
-	for (i = 0; i < nsqr; i++) npp[i] = work[i] + mult * v[i];
+	for (R_xlen_t i = 0; i < nsqr; i++) npp[i] = work[i] + mult * v[i];
 	/* dpp = m * dpp + (m1_j * padec[j]) * m */
 	mult *= m1_j;
 	F77_CALL(dgemm)("N", "N", &n, &n, &n, &one, v, &n, dpp, &n,
 			&zero, work, &n FCONE FCONE);
-	for (i = 0; i < nsqr; i++) dpp[i] = work[i] + mult * v[i];
+	for (R_xlen_t i = 0; i < nsqr; i++) dpp[i] = work[i] + mult * v[i];
 	m1_j *= -1;
     }
     /* Zero power */
-    for (i = 0; i < nsqr; i++) dpp[i] *= -1.;
+    for (R_xlen_t i = 0; i < nsqr; i++) dpp[i] *= -1.;
     for (j = 0; j < n; j++) {
 	npp[j * np1] += 1.;
 	dpp[j * np1] += 1.;
@@ -748,9 +755,11 @@ SEXP dgeMatrix_exp(SEXP x)
 	Memcpy(v, work, nsqr);
     }
     /* Preconditioning 2: apply inverse scaling */
-    for (j = 0; j < n; j++)
+    for (j = 0; j < n; j++) {
+	R_xlen_t jn = j * n_;
 	for (i = 0; i < n; i++)
-	    v[i + j * n] *= scale[i]/scale[j];
+	    v[i + jn] *= scale[i]/scale[j];
+    }
 
 
     /* 2 b) Inverse permutation  (if not the identity permutation) */
@@ -759,7 +768,7 @@ SEXP dgeMatrix_exp(SEXP x)
 
 #define SWAP_ROW(I,J) F77_CALL(dswap)(&n, &v[(I)], &n, &v[(J)], &n)
 
-#define SWAP_COL(I,J) F77_CALL(dswap)(&n, &v[(I)*n], &i1, &v[(J)*n], &i1)
+#define SWAP_COL(I,J) F77_CALL(dswap)(&n, &v[(I)*n_], &i1, &v[(J)*n_], &i1)
 
 #define RE_PERMUTE(I)				\
 	int p_I = (int) (perm[I]) - 1;		\
@@ -780,7 +789,7 @@ SEXP dgeMatrix_exp(SEXP x)
     /* Preconditioning 1: Trace normalization */
     if (trshift > 0.) {
 	double mult = exp(trshift);
-	for (i = 0; i < nsqr; i++) v[i] *= mult;
+	for (R_xlen_t i = 0; i < nsqr; i++) v[i] *= mult;
     }
 
     /* Clean up */
@@ -811,12 +820,14 @@ SEXP dgeMatrix_Schur(SEXP x, SEXP vectors, SEXP isDGE)
     n = dims[0];
     if (n != dims[1] || n < 1)
 	error(_("dgeMatrix_Schur: argument x must be a non-null square matrix"));
+    const R_xlen_t n2 = ((R_xlen_t)n) * n; // = n^2
+
     SET_VECTOR_ELT(val, 0, allocVector(REALSXP, n));
     SET_VECTOR_ELT(val, 1, allocVector(REALSXP, n));
     SET_VECTOR_ELT(val, 2, allocMatrix(REALSXP, n, n));
     Memcpy(REAL(VECTOR_ELT(val, 2)),
 	   REAL(is_dge ? GET_SLOT(x, Matrix_xSym) : x),
-	   n * n);
+	   n2);
     SET_VECTOR_ELT(val, 3, allocMatrix(REALSXP, vecs ? n : 0, vecs ? n : 0));
     F77_CALL(dgees)(vecs ? "V" : "N", "N", NULL, dims, (double *) NULL, dims, &izero,
 		    (double *) NULL, (double *) NULL, (double *) NULL, dims,
@@ -843,13 +854,14 @@ SEXP dgeMatrix_colsums(SEXP x, SEXP naRmP, SEXP cols, SEXP mean)
     int useCols = asLogical(cols);
     int *dims = INTEGER(GET_SLOT(x, Matrix_DimSym));
     int i, j, m = dims[0], n = dims[1];
+    R_xlen_t m_ = (R_xlen_t) m; // ==> use "long-integer" arithmetic for indices
     SEXP ans = PROTECT(allocVector(REALSXP, (useCols) ? n : m));
     double *aa = REAL(ans), *xx = REAL(GET_SLOT(x, Matrix_xSym));
 
     if (useCols) {  /* col(Sums|Means) : */
-	int cnt = m; // := number of 'valid' entries in current column
+	R_xlen_t cnt = m_; // := number of 'valid' entries in current column
 	for (j = 0; j < n; j++) { // column j :
-	    double *x_j = xx + m * j, s = 0.;
+	    double *x_j = xx + m_ * j, s = 0.;
 
 	    if (keepNA)
 		for (i = 0; i < m; i++) s += x_j[i];
@@ -875,10 +887,10 @@ SEXP dgeMatrix_colsums(SEXP x, SEXP naRmP, SEXP cols, SEXP mean)
 	}
 	for (j = 0; j < n; j++) {
 	    if (keepNA)
-		for (i = 0; i < m; i++) aa[i] += xx[i + j * m];
+		for (i = 0; i < m; i++) aa[i] += xx[i + j * m_];
 	    else
 		for (i = 0; i < m; i++) {
-		    double el = xx[i + j * m];
+		    double el = xx[i + j * m_];
 		    if (!ISNAN(el)) {
 			aa[i] += el;
 			if (doMean) cnt[i]++;

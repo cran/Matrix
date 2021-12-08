@@ -18,7 +18,7 @@ SEXP lgC_to_matrix(SEXP x)
     for (j = 0; j < ncol; j++) {
 	int ind;
 	for (ind = xp[j]; ind < xp[j+1]; ind++)
-	    ax[j * nrow + xi[ind]] = xx[ind];
+	    ax[j * (size_t)nrow + xi[ind]] = xx[ind];
     }
     if (!(isNull(VECTOR_ELT(dn,0)) && isNull(VECTOR_ELT(dn,1))))
 	setAttrib(ans, R_DimNamesSymbol, duplicate(dn));
@@ -42,7 +42,7 @@ SEXP ngC_to_matrix(SEXP x)
     for (j = 0; j < ncol; j++) {
 	int ind;
 	for (ind = xp[j]; ind < xp[j+1]; ind++)
-	    ax[j * nrow + xi[ind]] = 1;
+	    ax[j * (size_t)nrow + xi[ind]] = 1;
     }
     if (!(isNull(VECTOR_ELT(dn,0)) && isNull(VECTOR_ELT(dn,1))))
 	setAttrib(ans, R_DimNamesSymbol, duplicate(dn));

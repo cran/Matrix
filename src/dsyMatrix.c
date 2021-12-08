@@ -95,9 +95,10 @@ SEXP dsyMatrix_as_matrix(SEXP from, SEXP keep_dimnames)
 {
     int n = INTEGER(GET_SLOT(from, Matrix_DimSym))[0];
     SEXP val = PROTECT(allocMatrix(REALSXP, n, n));
+    R_xlen_t nsqr = n; nsqr *= n;
 
     make_d_matrix_symmetric(Memcpy(REAL(val),
-				   REAL(GET_SLOT(from, Matrix_xSym)), n * n),
+				   REAL(GET_SLOT(from, Matrix_xSym)), nsqr),
 			    from);
     if(asLogical(keep_dimnames))
 	setAttrib(val, R_DimNamesSymbol, R_symmetric_Dimnames(from));
@@ -112,16 +113,16 @@ SEXP dsyMatrix_matrix_mm(SEXP a, SEXP b, SEXP rtP)
     int *adims = INTEGER(GET_SLOT(a, Matrix_DimSym)),
 	*bdims = INTEGER(GET_SLOT(val, Matrix_DimSym)),
 	m = bdims[0], n = bdims[1];
-    double one = 1., zero = 0., mn = ((double) m) * ((double) n);
-    if (mn > INT_MAX)
-	error(_("Matrix dimension %d x %d (= %g) is too large"), m, n, mn);
-    // else: m * n will not overflow below
-    double *bcp, *vx = REAL(GET_SLOT(val, Matrix_xSym));
-    C_or_Alloca_TO(bcp, m * n, double);
-    Memcpy(bcp, vx, m * n);
 
     if ((rt && n != adims[0]) || (!rt && m != adims[0]))
 	error(_("Matrices are not conformable for multiplication"));
+
+    double one = 1., zero = 0.;
+    R_xlen_t mn = m * (R_xlen_t)n;
+    double *bcp, *vx = REAL(GET_SLOT(val, Matrix_xSym));
+    C_or_Alloca_TO(bcp, mn, double);
+    Memcpy(bcp, vx, mn);
+
     if (m >=1 && n >= 1)
 	F77_CALL(dsymm)(rt ? "R" :"L", uplo_P(a), &m, &n, &one,
 			REAL(GET_SLOT(a, Matrix_xSym)), adims, bcp,
@@ -130,7 +131,8 @@ SEXP dsyMatrix_matrix_mm(SEXP a, SEXP b, SEXP rtP)
     int nd = rt ?
 	1 : // v <- b %*% a : rownames(v) == rownames(b)  are already there
 	0;  // v <- a %*% b : colnames(v) == colnames(b)  are already there
-    SEXP nms = PROTECT(duplicate(VECTOR_ELT(GET_SLOT(a, Matrix_DimNamesSym), nd)));
+    SEXP nms = PROTECT(VECTOR_ELT(
+		symmetric_DimNames(GET_SLOT(a, Matrix_DimNamesSym)), nd));
     SET_VECTOR_ELT(GET_SLOT(val, Matrix_DimNamesSym), nd, nms);
     if(mn >= SMALL_4_Alloca) Free(bcp);
     UNPROTECT(2);
@@ -145,14 +147,15 @@ SEXP dsyMatrix_trf(SEXP x)
     SEXP dimP = GET_SLOT(x, Matrix_DimSym),
 	uploP = GET_SLOT(x, Matrix_uploSym);
     int n = INTEGER(dimP)[0];
+    R_xlen_t nsqr = n; nsqr *= n; // nsqr = n^2 (w/o overflow !)
     const char *uplo = CHAR(STRING_ELT(uploP, 0));
 
     val = PROTECT(NEW_OBJECT_OF_CLASS("BunchKaufman"));
     SET_SLOT(val, Matrix_uploSym, duplicate(uploP));
     SET_SLOT(val, Matrix_diagSym, mkString("N"));
     SET_SLOT(val, Matrix_DimSym, duplicate(dimP));
-    double *vx = REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, n * n));
-    AZERO(vx, n * n);
+    double *vx = REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, nsqr));
+    AZERO(vx, nsqr);
     F77_CALL(dlacpy)(uplo, &n, &n, REAL(GET_SLOT(x, Matrix_xSym)), &n, vx, &n FCONE);
     int *perm = INTEGER(ALLOC_SLOT(val, Matrix_permSym, INTSXP, n)),
 	info, lwork = -1;
@@ -183,6 +186,8 @@ SEXP matrix_trf(SEXP x, SEXP uploP)
     PROTECT(dimP);
     int *dims = INTEGER(dimP),
 	n = dims[0];
+    R_xlen_t nsqr = n; nsqr *= n; // nsqr = n^2 (w/o overflow !)
+
     if(n != dims[1])
 	error(_("matrix_trf(x, *): matrix is not square"));
     /* In principle, we "should" check that the matrix is symmetric,
@@ -200,8 +205,8 @@ SEXP matrix_trf(SEXP x, SEXP uploP)
     SET_SLOT(val, Matrix_uploSym, uploP);
     SET_SLOT(val, Matrix_diagSym, mkString("N"));
     SET_SLOT(val, Matrix_DimSym, dimP);
-    double *vx = REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, n * n)); // n x n result matrix
-    AZERO(vx, n * n);
+    double *vx = REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, nsqr)); // n x n result matrix
+    AZERO(vx, nsqr);
     F77_CALL(dlacpy)(uplo, &n, &n, REAL(x), &n, vx, &n FCONE);
     int *perm = INTEGER(ALLOC_SLOT(val, Matrix_permSym, INTSXP, n)),
          info, lwork = -1;

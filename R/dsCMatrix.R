@@ -74,25 +74,46 @@ setMethod("triu", "dsCMatrix",
 	      else triu(as(x, "dgCMatrix"), k = k, ...)
 	  })
 
-solve.dsC.mat <- function(a,b, LDL = NA, tol = .Machine$double.eps) {
-    r <- tryCatch(.Call(dsCMatrix_matrix_solve, a, b, LDL),
-		  error=function(e)NULL, warning=function(w)NULL)
-    if(is.null(r)) { ## cholmod factorization was not ok
-	Matrix.msg("solve.dsC.mat(): Cholmod factorization unsuccessful --> using LU(<dgC>)")
+
+msg.and.solve.dgC.lu <- function(name, r, wrns,  a, b, tol) {
+    if ((E <- inherits(r, "error")) || length(wrns) > 0) {
+	if(!is.null(v <- getOption("Matrix.verbose")) && v >= 1) { ## as Matrix.msg() but more sophisticated
+	    fmt <- "%s(): Cholmod factorization unsuccessful %s --> using LU(<dgC>)"
+	    if(v == 1)
+		ch <- ""
+	    else { # v >= 2
+		ch <- if(E) conditionMessage(r) # else NULL
+		if(length(wrns)) # show them (possibly additionally)
+		    ch <- paste0(c(ch, unlist(lapply(wrns, conditionMessage))), collapse=";\n ")
+	    }
+	    message(gettextf(fmt, name, ch))
+	}
 	.solve.dgC.lu(as(a,"dgCMatrix"), b=b, tol=tol)
     }
     else r
 }
 
+solve.dsC.mat <- function(a,b, LDL = NA, tol = .Machine$double.eps) {
+    ## need to *not* catch warnings directly, so CHOLMOD free()s
+    solveWrn <- list()
+    r <- withCallingHandlers(
+	tryCatch(.Call(dsCMatrix_matrix_solve, a, b, LDL),
+	  error = function(e) e),
+	warning = function(w) { solveWrn[[length(solveWrn)+1L]] <<- w
+				tryInvokeRestart("muffleWarning")} )
+    msg.and.solve.dgC.lu("solve.dsC.mat", r, solveWrn, a, b, tol)
+}
+
 ## ``Fully-sparse'' solve()  {different Cholmod routine, otherwise "the same"}:
 solve.dsC.dC <- function(a,b, LDL = NA, tol = .Machine$double.eps) {
-    r <- tryCatch(.Call(dsCMatrix_Csparse_solve, a, b, LDL),
-		  error=function(e)NULL, warning=function(w)NULL)
-    if(is.null(r)) { ## cholmod factorization was not ok
-	Matrix.msg("solve.dsC.dC(): Cholmod factorization unsuccessful --> using LU(<dgC>)")
-	.solve.dgC.lu(as(a,"dgCMatrix"), b=b, tol=tol)
-    }
-    else r
+    ## need to *not* catch warnings directly, so CHOLMOD free()s
+    solveWrn <- list()
+    r <- withCallingHandlers(
+	tryCatch(.Call(dsCMatrix_Csparse_solve, a, b, LDL),
+	  error = function(e) e),
+	warning = function(w) { solveWrn[[length(solveWrn)+1L]] <<- w
+				tryInvokeRestart("muffleWarning") })
+    msg.and.solve.dgC.lu("solve.dsC.dC", r, solveWrn, a, b, tol)
 }
 
 ## <sparse> . <dense> ------------------------

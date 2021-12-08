@@ -4,6 +4,7 @@
 ** DONE 0-dim sparseMatrices fail for all "Ops" --> ~/R/MM/Pkg-ex/Matrix/bug-0-length-Ops.R
 ** DONE as(m, "sparseMatrix") must work when length(m) > max.int for 'matrix' m
  -->  see SM (3e6 x 1023) ex. in tests/Simple.R
+** TODO Matrix-Bugs [#6729] 2021-06 ./tests/AAA_latest.R: provide .KhatriRao() for "general" (notably dense,complex,..) matrices
 ** TODO Using "long vectors" (i.e. 64 bit indices vectors) in CHOLMOD --> cholmod_l_*()
 *** e.g. segfault in crossprod() Csparse_crossprod -> cholmod_att()
 ** TODO 'symmetricMatrix' objects with *A*symmetric @Dimnames are formally "valid", but really are not,

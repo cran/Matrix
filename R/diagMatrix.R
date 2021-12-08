@@ -323,7 +323,8 @@ mkDiag <- function(x, n) {
     mkDiag(if(from@diag == "U") as1(from@x) else from@x, n = from@Dim[1])
 
 .ddi2mat <- function(from)
-    base::diag(if(from@diag == "U") as1(from@x) else from@x, nrow = from@Dim[1])
+    `dimnames<-`(base::diag(if(from@diag == "U") as1(from@x) else from@x, nrow = from@Dim[1]),
+                 from@Dimnames)
 
 setAs("ddiMatrix", "matrix", .ddi2mat)
 ## the non-ddi diagonalMatrix -- only "ldiMatrix" currently:

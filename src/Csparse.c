@@ -135,16 +135,17 @@ SEXP Csparse_to_dense(SEXP x, SEXP symm_or_tri)
 	if(is_sym || is_tri)
 	    ctype = R_check_class_etc(x, valid);
     }
-    CHM_SP chxs = AS_CHM_SP__(x);// -> chxs->stype = +- 1 <==> symmetric
+    CHM_SP chxs = AS_CHM_SP__(x);// -> chxs->stype = +- 1 <==> symmetric // allocated with alloca()
     R_CheckStack();
-    if(is_tri && *diag_P(x) == 'U') { // ==>  x := diagU2N(x), directly for chxs
+    Rboolean is_U_tri = is_tri && *diag_P(x) == 'U';
+    if(is_U_tri) { // ==>  x := diagU2N(x), directly for chxs;  further: must free chxs
 	CHM_SP eye = cholmod_speye(chxs->nrow, chxs->ncol, chxs->xtype, &c);
 	double one[] = {1, 0};
 	CHM_SP ans = cholmod_add(chxs, eye, one, one,
 				 /* values: */ ((ctype / 3) != 2), // TRUE iff not "nMatrix"
 				 TRUE, &c);
 	cholmod_free_sparse(&eye, &c);
-	chxs = cholmod_copy_sparse(ans, &c);
+	chxs = cholmod_copy_sparse(ans, &c); // replacing alloca'd chxs with malloc'ed one, which must be freed
 	cholmod_free_sparse(&ans, &c);
     }
     /* The following loses the symmetry property, since cholmod_dense has none,
@@ -157,7 +158,11 @@ SEXP Csparse_to_dense(SEXP x, SEXP symm_or_tri)
      * >>>>>>>>>>> TODO <<<<<<<<<<<<
      * CHM_DN chxd = cholmod_l_sparse_to_dense(chxs, &cl); */
     //                   ^^^ important when prod(dim(.)) > INT_MAX
-    int Rkind = (chxs->xtype == CHOLMOD_PATTERN)? -1 : Real_kind(x);
+    int chxs_xtype = chxs->xtype;
+    int chxs_stype = chxs->stype;
+    if(is_U_tri)
+       cholmod_free_sparse(&chxs, &c);
+    int Rkind = (chxs_xtype == CHOLMOD_PATTERN)? -1 : Real_kind(x);
 
     SEXP ans = chm_dense_to_SEXP(chxd, 1, Rkind, GET_SLOT(x, Matrix_DimNamesSym),
 				 /* transp: */ FALSE);
@@ -171,7 +176,7 @@ SEXP Csparse_to_dense(SEXP x, SEXP symm_or_tri)
 	SET_SLOT(aa, Matrix_xSym,       GET_SLOT(ans, Matrix_xSym));
 	SET_SLOT(aa, Matrix_DimSym,     GET_SLOT(ans, Matrix_DimSym));
 	SET_SLOT(aa, Matrix_DimNamesSym,GET_SLOT(ans, Matrix_DimNamesSym));
-	SET_SLOT(aa, Matrix_uploSym, mkString((chxs->stype > 0) ? "U" : "L"));
+	SET_SLOT(aa, Matrix_uploSym, mkString((chxs_stype > 0) ? "U" : "L"));
 	UNPROTECT(2);
 	return aa;
     }
@@ -511,11 +516,16 @@ SEXP Csparse_Csparse_prod(SEXP a, SEXP b, SEXP bool_arith)
 	    else diag[0]= 'N';
 	}
 
+    // establish dimnames --  extra care for *symmetric* Csparse:
+    static const char *valid_sym[] = { MATRIX_VALID_sym_Csparse, "" };
+    Rboolean
+	a_symm = R_check_class_etc(a, valid_sym) >= 0,
+	b_symm = R_check_class_etc(b, valid_sym) >= 0;
     SEXP dn = PROTECT(allocVector(VECSXP, 2));
-    SET_VECTOR_ELT(dn, 0,	/* establish dimnames */
-		   duplicate(VECTOR_ELT(GET_SLOT(a, Matrix_DimNamesSym), 0)));
+    SET_VECTOR_ELT(dn, 0,
+		   duplicate(VECTOR_ELT(a_symm ? R_symmetric_Dimnames(a) : GET_SLOT(a, Matrix_DimNamesSym), 0)));
     SET_VECTOR_ELT(dn, 1,
-		   duplicate(VECTOR_ELT(GET_SLOT(b, Matrix_DimNamesSym), 1)));
+		   duplicate(VECTOR_ELT(b_symm ? R_symmetric_Dimnames(b) : GET_SLOT(b, Matrix_DimNamesSym), 1)));
     UNPROTECT(nprot);
     return chm_sparse_to_SEXP(chc, 1, uploT, /*Rkind*/0, diag, dn);
 }
@@ -772,12 +782,12 @@ SEXP Csparse_crossprod(SEXP x, SEXP trans, SEXP triplet, SEXP bool_arith)
 
     if (!tr) chxt = cholmod_transpose(chx, chx->xtype, &c);
 
-    if (x_is_sym) // cholmod_aat() does not like symmetric
-	chxc = cholmod_copy(tr ? chx : chxt, /* stype: */ 0,
-			    chx->xtype, &c);
+    // cholmod_aat() does not like symmetric
+    chxc = x_is_sym ? cholmod_copy(tr ? chx : chxt, /* stype: */ 0, chx->xtype, &c) : NULL;
     // CHOLMOD/Core/cholmod_aat.c :
     chcp = cholmod_aat(x_is_sym ? chxc : (tr ? chx : chxt),
 		       (int *) NULL, 0, /* mode: */ chx->xtype, &c);
+    if (chxc) cholmod_free_sparse(&chxc, &c);
     if(!chcp) {
 	UNPROTECT(1);
 	error(_("Csparse_crossprod(): error return from cholmod_aat()"));
@@ -823,6 +833,10 @@ SEXP Csparse_horzcat(SEXP x, SEXP y)
 #define CSPARSE_CAT(_KIND_)						\
     CHM_SP chx = AS_CHM_SP__(x), chy = AS_CHM_SP__(y);			\
     R_CheckStack();							\
+    void* chx_x = chx->x;						\
+    void* chx_z = chx->z;						\
+    void* chy_x = chy->x;						\
+    void* chy_z = chy->z;						\
     int Rk_x = (chx->xtype != CHOLMOD_PATTERN) ? Real_kind(x) : x_pattern, \
 	Rk_y = (chy->xtype != CHOLMOD_PATTERN) ? Real_kind(y) : x_pattern, Rkind; \
     if(Rk_x == x_pattern || Rk_y == x_pattern) { /* at least one of them is patter"n" */ \
@@ -847,8 +861,21 @@ SEXP Csparse_horzcat(SEXP x, SEXP y)
     CSPARSE_CAT("horzcat");
     // TODO: currently drops dimnames - and we fix at R level;
 
-    return chm_sparse_to_SEXP(cholmod_horzcat(chx, chy, 1, &c),
+    SEXP retval = chm_sparse_to_SEXP(cholmod_horzcat(chx, chy, 1, &c),
 			      1, 0, Rkind, "", R_NilValue);
+/* AS_CHM_SP(x) fills result with points to R-allocated memory but
+   chm_MOD_xtype can change ->x and ->z to cholmod_alloc'ed memory.
+   The former needs no freeing but the latter does.
+   The first 2 arguments to cholmod_free should contain the number
+   and size of things being freed, but lying about that is sort of ok. */
+#define CSPARSE_CAT_CLEANUP					\
+    if (chx_x != chx->x) cholmod_free(0, 0, chx->x, &c);	\
+    if (chx_z != chx->z) cholmod_free(0, 0, chx->z, &c);	\
+    if (chy_x != chy->x) cholmod_free(0, 0, chy->x, &c);	\
+    if (chy_z != chy->z) cholmod_free(0, 0, chy->z, &c)
+
+    CSPARSE_CAT_CLEANUP;
+    return retval;
 }
 
 /** @brief Vertical Concatenation -  rbind( <Csparse>,  <Csparse>)
@@ -858,8 +885,10 @@ SEXP Csparse_vertcat(SEXP x, SEXP y)
     CSPARSE_CAT("vertcat");
     // TODO: currently drops dimnames - and we fix at R level;
 
-    return chm_sparse_to_SEXP(cholmod_vertcat(chx, chy, 1, &c),
+    SEXP retval = chm_sparse_to_SEXP(cholmod_vertcat(chx, chy, 1, &c),
 			      1, 0, Rkind, "", R_NilValue);
+    CSPARSE_CAT_CLEANUP;
+    return retval;
 }
 
 SEXP Csparse_band(SEXP x, SEXP k1, SEXP k2)
@@ -869,7 +898,7 @@ SEXP Csparse_band(SEXP x, SEXP k1, SEXP k2)
     CHM_SP ans = cholmod_band(chx, asInteger(k1), asInteger(k2), chx->xtype, &c);
     R_CheckStack();
 
-    return chm_sparse_to_SEXP(ans, 1, 0, Rkind, "",
+    return chm_sparse_to_SEXP(ans, 1, /* uploT = */ 0, Rkind, "",
 			      GET_SLOT(x, Matrix_DimNamesSym));
 }
 

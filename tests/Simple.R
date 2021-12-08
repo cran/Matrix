@@ -24,7 +24,6 @@ stopifnot(is(mt, "sparseMatrix"))
 library(Matrix)
 
 source(system.file("test-tools.R", package = "Matrix"))# identical3() etc
-(doExtras <- doExtras && getRversion() >= "3.4") # so have withAutoprint(.)
 
 if(interactive()) {
     options(error = recover, Matrix.verbose = TRUE, warn = 1)
@@ -328,7 +327,7 @@ diag(Lrg[2:9,1:8]) <- 1:8
 e1 <- try(Lrg == Lrg) # ==> Cholmod error 'problem too large' at file ../Core/cholmod_dense.c, line 105
 ## (error message almost ok)
 
-(memGB <- Sys.memGB("MemFree")) # from test-tools-1.R
+(memGB <- Sys.memGB("MemFree")) # from test-tools-1.R, only works with /proc/*
 system.time( # ~10 sec.                            __vv__
     e2 <- if(doExtras && is.finite(memGB) && memGB > 30) { # need around 18 GB
               try(!Lrg) # now *works* on 64-bit machines with enough RAM
@@ -1073,6 +1072,38 @@ for(k1 in (-n):m)
 	stopifnotValid(bs1 <- band(s1, k1,k2), "CsparseMatrix")
         stopifnot(all(r1 == s1))
     }
+## large dimensions -- gave integer overflow
+## R-forge bug 6743 by Ariel Paulson
+## https://r-forge.r-project.org/tracker/?func=detail&atid=294&aid=6743&group_id=61
+n <- 47000
+stopifnotValid(Mn <- sparseMatrix(i = rep(1:6, 2), dims = c(n,n),
+                                  j = c(1L,4L, 6:8, 10:12, 16:19)), "nsparseMatrix")
+stopifnotValid(M <- as(Mn, "dMatrix"), "dgCMatrix")
+dim(M) # 47000 47000
+i <- 46341
+stopifnotValid(bM <- band(M, i,   i  ), "dtCMatrix")
+## gave Error in  if (sqr && k1 * k2 >= 0) ....
+##      In addition: Warning message:
+##      In k1 * k2 : NAs produced by integer overflow
+x <- 1:999
+bM2 <- bandSparse(n, k=i+(0:3), diagonals = list(x,10*x,32*x,5*x), symmetric=TRUE)
+stopifnotValid(bM2, "dsCMatrix")
+stopifnotValid(bb2 <- band(bM2, k1=i-2, k2=i+5), "dtCMatrix")
+stopifnotValid(b0  <- band(bM2, -1000, 1000),    "dsCMatrix")
+stopifnotValid(b0a <- band(bM2, -1000, 1001),    "dgCMatrix")
+(id <- nrow(M)-i)# 659
+colN <- colSums(bM2 != 0)
+stopifnot(exprs = {
+    identical(bb2, triu(bM2))
+    identical(b0 @x, numeric(0))
+    identical(b0a@x, numeric(0))
+    identical(bM2, band(bM2, -(i+3), i+3))
+    assert.EQ(as(bM2, "generalMatrix"),
+              band(bM2, -(i+3), i+11), showOnly = TRUE)
+    colN == { cN <- c(1:3, rep(4L, id-3)); c(rev(cN), rep(0L, i-id), cN)}
+})
+## some of these failed before Matrix 1.4.0 (Oct.7, 2021)
+
 
 D. <- Diagonal(x= c(-2,3:4)); D.[lower.tri(D.)] <- 1:3 ; D.
 D0 <- Diagonal(x= 0:3);       D0[upper.tri(D0)] <- 1:6 ; D0
@@ -1191,7 +1222,35 @@ stopifnot(identical(--dC, dC),
           )
 ## both  - <sparse-triang.> gave : Error .... 'factors’ is not a slot in class “dtTMatrix”
 
+## R PR#18250 - by Mikael Jagan
+nm2 <- c("a","b")
+x <- new("dspMatrix", x = c(3,2,1), Dim = c(2L,2L), Dimnames = list(nm2, NULL))
+dn <- list(nm2,nm2)
+stopifnotValid(x. <- unpack(x), "dsyMatrix")
+validObject( y  <- as(x , "generalMatrix") )
+validObject( y. <- as(x., "generalMatrix") )
+stopifnotValid( l  <- x > 0,     "lspMatrix")
+stopifnotValid( l. <- unpack(l), "lsyMatrix")
+stopifnotValid( lg <- as(l, "generalMatrix"), "lgeMatrix")
+stopifnotValid( lg2<- as(l.,"generalMatrix"), "lgeMatrix")
+stopifnot(exprs = {
+    identical(dimnames(x ), dn)
+    identical(dimnames(x.), dn)
+    identical(dimnames(y ), dn) # was wrong
+    identical(dimnames(y.), dn) # was wrong
+    identical(dimnames(l ), dn)
+    identical(dimnames(l.), dn)
+    identical(dimnames(lg), dn) # was wrong
+    identical(lg, lg2)
+    ## even more cases (?)
+})
 
+dn4 <- list(letters[1:4], LETTERS[1:4])
+(D4n <- `dimnames<-`(D4, dn4))
+m4 <- as(D4n, "matrix")
+stopifnot(identical(dimnames(m4), dn4),
+          Q.eq(D4n, m4, superclasses = "mMatrix"))
+## as(<ddi>, "matrix")  had lost dimnames before
 
 ## Platform - and other such info -- so we find it in old saved outputs
 .libPaths()

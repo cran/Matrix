@@ -23,7 +23,7 @@
 \description{
   The \code{"dtrMatrix"} class is the class of triangular, dense,
   numeric matrices in nonpacked storage.  The \code{"dtpMatrix"} class
-  is the same except in packed storage.
+  is the same except in packed storage, see \code{\link{pack}()}.
 }
 \section{Objects from the Class}{
   Objects can be created by calls of the form \code{new("dtrMatrix", ...)}.
@@ -80,5 +80,18 @@
 (T <- as(M, "dtrMatrix")) ## upper triangular is default
 (T2 <- as(t(M), "dtrMatrix"))
 stopifnot(T@uplo == "U", T2@uplo == "L", identical(T2, t(T)))
+
+m <- matrix(0,4,4); m[upper.tri(m)] <- 1:6
+(t1 <- Matrix(m+diag(,4)))
+str(t1p <- pack(t1))
+(t1pu <- diagN2U(t1p))
+stopifnot(exprs = {
+   inherits(t1 , "dtrMatrix"); validObject(t1)
+   inherits(t1p, "dtpMatrix"); validObject(t1p)
+   inherits(t1pu,"dtCMatrix"); validObject(t1pu)
+   t1pu@x == 1:6
+   all(t1pu == t1p)
+   identical((t1pu - t1)@x, numeric())# sparse all-0
+})
 }
 \keyword{classes}

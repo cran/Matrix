@@ -1,5 +1,5 @@
 
-R version 4.0.5 Patched (2021-03-31 r80163) -- "Shake and Throw"
+R Under development (unstable) (2021-11-30 r81267) -- "Unsuffered Consequences"
 Copyright (C) 2021 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -179,7 +179,7 @@ M[m,i,m] : nargs()=3
 M[m,i,m] : nargs()=3
 Csp[m,i,l] : nargs()=4
 > showProc.time()
-Time (user system elapsed): 0.419 0.013 0.435 
+Time (user system elapsed): 0.361 0.014 0.377 
 > 
 > ## Bug found thanks to Timothy Mak, Feb 3, 2017:
 > ## sparseMatrix logical indexing with (partial) NA:
@@ -324,7 +324,7 @@ M[logi,m,m] : nargs()=2
 M[logi,m,m] : nargs()=2
 M[logi,m,m] : nargs()=2
 > showProc.time()
-Time (user system elapsed): 0.185 0 0.185 
+Time (user system elapsed): 0.121 0.001 0.122 
 > 
 > ## more sparse Matrices --------------------------------------
 > 
@@ -1116,7 +1116,7 @@ ok( d )
 == ###======================================================================
 
 > showProc.time()
-Time (user system elapsed): 0.777 0.004 0.784 
+Time (user system elapsed): 0.62 0.007 0.629 
 > 
 > if(doExtras) {### {was ./AAA_index.R, MM-only}
 +     ## an nsparse-example
@@ -1345,7 +1345,7 @@ Csp[i,i,l] : nargs()=4
 M[i,i,m] : nargs()=3
 Csp[i,i,l] : nargs()=4
 > showProc.time()
-Time (user system elapsed): 0.258 0.001 0.26 
+Time (user system elapsed): 0.172 0.001 0.174 
 > 
 > stopifnot(all.equal(mC[,3], mm[,3]),
 + 	  identical(mC[ij], mC[ij + 0.4]),
@@ -1666,7 +1666,7 @@ Csp[i,m,l] : nargs()=4
 M[m,i,m] : nargs()=3
 Csp[m,i,l] : nargs()=4
 > showProc.time()
-Time (user system elapsed): 0.186 0.001 0.188 
+Time (user system elapsed): 0.153 0 0.153 
 > 
 > ##---  "nsparse*" sub-assignment :----------
 > M <- Matrix(c(1, rep(0,7), 1:4), 3,4)
@@ -1823,7 +1823,7 @@ k.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; missing (i,j
 .. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; missing (i,j) = (1,0)
 .. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; 
 .> showProc.time()
-Time (user system elapsed): 0.177 0.002 0.179 
+Time (user system elapsed): 0.146 0.001 0.147 
 > Nn <- Nn0
 > ## Check that  NA is interpreted as TRUE (with a warning), for "nsparseMatrix":
 > assertWarning(Nn[ii <-     3  ] <- NA); stopifnot(isValid(Nn,"nsparseMatrix"), Nn[ii])
@@ -2255,7 +2255,7 @@ as(<triangular (ge)matrix>, dtCMatrix): valid: TRUE
 M[m,i,m] : nargs()=3
 Csp[m,i,l] : nargs()=4
 > showProc.time()
-Time (user system elapsed): 0.596 0.006 0.605 
+Time (user system elapsed): 0.499 0.017 0.518 
 > 
 > 
 > ## "Vector indices" -------------------
@@ -2633,7 +2633,7 @@ M[i,m,m] : nargs()=3
 Tsp[i,m,l]: nargs()=4
 Csp[i,m,l] : nargs()=4
 > showProc.time()
-Time (user system elapsed): 0.277 0 0.279 
+Time (user system elapsed): 0.26 0.016 0.278 
 > 
 > ## Sub *Assignment* ---- now works (partially):
 > mt0 <- mt
@@ -2788,7 +2788,7 @@ Csp[i,i,l] : nargs()=4
 r2  2
 r4  .
 > showProc.time()
-Time (user system elapsed): 0.248 0.001 0.249 
+Time (user system elapsed): 0.168 0.001 0.17 
 > options(Matrix.verbose = TRUE)
 > 
 > mc # no longer has non-structural zeros
@@ -3009,7 +3009,7 @@ M[i,j] <- v :  coercing symmetric M[] into non-symmetric
 > assert.EQ.mat(t2, m)# ok
 > assert.EQ.mat(s2, m)# failed in 0.9975-8
 > showProc.time()
-Time (user system elapsed): 0.563 0 0.565 
+Time (user system elapsed): 0.443 0.001 0.444 
 > 
 > ## sub-assign  RsparseMatrix -- Matrix bug [#6709] by David Cortes
 > ## https://r-forge.r-project.org/tracker/?func=detail&atid=294&aid=6709&group_id=61
@@ -3210,7 +3210,10 @@ M & T ("symm"): dgTMatrix dgTMatrix
 > 
 > cc <- capture.output(show(dLrg))# show(<diag>) used to error for large n
 > showProc.time()
-Time (user system elapsed): 0.389 0.005 0.394 
+Time (user system elapsed): 0.308 0.009 0.318 
+> 
+> ## FIXME: "dspMatrix" (symmetric *packed*) not going via "matrix"
+> 
 > 
 > ## Large Matrix indexing / subassignment
 > ## ------------------------------------- (from ex. by Imran Rashid)
@@ -3284,7 +3287,7 @@ M[m,i,m] : nargs()=3
 Csp[m,i,l] : nargs()=4
 > 
 > showProc.time()
-Time (user system elapsed): 1.063 0.172 1.238 
+Time (user system elapsed): 1.242 0.222 1.467 
 > options(op)# revert
 > ##
 > if(doExtras) {#-----------------------------------------------------------------
@@ -3338,7 +3341,55 @@ diagnosing replTmat(x,i,j,v): nargs()= 3; missing (i,j) = (0,1)
 > ## failed: nargs() = 4 ... please report
 > 
 > stopifnot(isValid(x1, "dgTMatrix"), identical(x1, x2))
+> showProc.time()
+Time (user system elapsed): 0.033 0 0.033 
 > 
+> 
+> ## check valid indexing (using *random* indices, often duplicated):
+> chk_dsp_ind <- function(sv, n=512, negI = FALSE, verbose=FALSE) {
++     stopifnot(inherits(sv, "dsparseVector"), n >= 1)
++     d <- length(sv)
++     ## lambda=2 ==> aiming for short 'i' {easier to work with}
++     P <- rpois(n, lambda = if(negI) 5 else 2)
++     for(i in seq_len(n)) {
++         I <-
++             if(negI) { # negative indices: 2 are, 4 neither ... always "valid" !!
++                 k <- max(4L, d - max(1L, P[i]))
++                 if(verbose) cat(sprintf("size=k = %2d: ", k))
++                 - sort(sample.int(d, size=k))# replace=FALSE
++             }
++             else
++                 sample.int(d, size=1L+P[i], replace=TRUE)
++         ##
++         validObject(ss <- sv[I]) # Error if not true
++     }
++     invisible()
++ }
+> s <- as(c(3,5,6), "sparseVector")
+> set.seed(11); chk_dsp_ind(s)
+> set.seed(3)
+> (s2 <- as(rsparsematrix(ncol=1, nrow=37, density=1/4),"sparseVector"))
+sparse vector (nnz/length = 9/37) of class "dsparseVector"
+ [1]      .      .      . -2.200      .      .  0.330      . -1.300      .
+[11]      .  0.950      .  0.140      .      .  0.810      .      .  0.540
+[21]      .      .      .      .      .      .      .      .      .  0.013
+[31]      .      . -0.580      .      .      .      .
+> (s3 <- as(rsparsematrix(ncol=1, nrow=64, density=1/4),"sparseVector"))
+sparse vector (nnz/length = 16/64) of class "dsparseVector"
+ [1]     .     .     .     .     .     .     .     .  1.80     .  2.50     .
+[13]     .     . -0.76     .     .     . -0.58     .     .     . -0.80  0.84
+[25]     .     .  1.30     .     .     . -0.51     .     .     .     . -0.62
+[37]     .     .     .  0.71     .     .     .     .     .     . -1.30     .
+[49] -1.60     .     .     .     .  0.10     .     . -1.30     .  0.18     .
+[61]     .     .     . -1.30
+> set.seed(1)
+> chk_dsp_ind(s2)
+> chk_dsp_ind(s3)
+> ##
+> set.seed(47)
+> ## system.time(e.N2 <- chk_dsp_ind(s2, negI=TRUE, verbose=TRUE))
+> chk_dsp_ind(s2, negI=TRUE)
+> chk_dsp_ind(s3, negI=TRUE)
 > 
 > iv <- c(rep(0,100), 3, 0,0,7,0,0,0)
 > sv0  <- sv  <- as(iv, "sparseVector")
@@ -3388,7 +3439,7 @@ diagnosing replTmat(x,i,j,v): nargs()= 3; missing (i,j) = (0,1)
 > stopifnot(all.equal(x[i] ,  y1+y2, tolerance=0),
 + 		    x[i] == y1+y2)
 > showProc.time()
-Time (user system elapsed): 0.107 0 0.107 
+Time (user system elapsed): 0.688 0.001 0.691 
 > 
 > if(!interactive()) warnings()
 > 
@@ -3446,6 +3497,88 @@ x    1    8
 > stopifnot(all(Cx == X),
 +           all(Rx == X))
 > 
+> ## [matrix-Bugs][#6745] show(<large sparseVector>)
+> ## NB: is from a bug in head(*); *only* applies to  *empty* sparseV: length(x@i) == 0
+> op <- options(max.print=999)
+> ( s0 <- sparseVector(i=integer(), length=2^33)) # show -> head() failed in Matrix <= 1.3-*
+sparse vector (nnz/length = 0/8589934592) of class "nsparseVector"
+  [1] . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+ [38] . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+ [75] . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+[112] . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+[149] . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+[186] . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+[223] . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+[260] . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+[297] . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+[334] . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+[371] . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+[408] . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+[445] . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+[482] . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+[519] . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+[556] . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+[593] . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+[630] . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+[667] . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+[704] . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+[741] . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+[778] . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+[815] . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+[852] . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+[889] . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+[926] . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+[963] . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+ ............................
+ ........suppressing 8589933593 entries in show(); maybe adjust 'options(max.print= *)'
+ ............................
+
+> (xs0 <- sparseVector(i=integer(), length=2^33, x = numeric()))# ditto
+sparse vector (nnz/length = 0/8589934592) of class "dsparseVector"
+  [1] . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+ [38] . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+ [75] . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+[112] . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+[149] . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+[186] . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+[223] . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+[260] . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+[297] . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+[334] . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+[371] . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+[408] . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+[445] . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+[482] . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+[519] . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+[556] . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+[593] . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+[630] . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+[667] . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+[704] . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+[741] . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+[778] . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+[815] . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+[852] . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+[889] . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+[926] . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+[963] . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+ ............................
+ ........suppressing 8589933593 entries in show(); maybe adjust 'options(max.print= *)'
+ ............................
+
+> options(op); tail(s0) ; tail(xs0) # (always worked)
+sparse vector (nnz/length = 0/6) of class "nsparseVector"
+[1] . . . . . .
+sparse vector (nnz/length = 0/6) of class "dsparseVector"
+[1] . . . . . .
+> ## *related* bug in `[` --> needed to fix intIv() for such large sparseVectors
+> stopifnot(exprs = {
++     identical(s0[length(s0) - 3:0], # gave Error in if (any(i < 0L)) { : missing value ....
++               new("nsparseVector", i=integer(), length=4L))
++     identical(xs0[length(s0) - 3:0], # gave Error ..
++               new("dsparseVector", i=integer(), length=4L))
++ })
+> 
 > proc.time()
    user  system elapsed 
-  5.906   0.269   6.251 
+  5.780   0.353   6.241 

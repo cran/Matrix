@@ -42,13 +42,14 @@ void sparseQR_Qmult(cs *V, SEXP dmns, double *beta, int *p, int trans,
     /* y: contents of a V->m by nrhs, i.e. dim(y) == ydims[0:1], dense matrix
      * -- Note that V->m = m2 : V may contain "spurious 0 rows" (structural rank deficiency) */
     int m = V->m, n = V->n;
+    size_t m_ = m;
     if (ydims[0] != m)
 	error(_("sparseQR_Qmult(): nrow(y) = %d != %d = nrow(V)"), ydims[0], m);
     double *x; // workspace
     C_or_Alloca_TO(x, m, double);
     if (trans) {
 	for (int j = 0; j < ydims[1]; j++) {
-	    double *yj = y + j * m;
+	    double *yj = y + j * m_;
 	    cs_pvec(p, yj, x, m);	/* x(0:m-1) = y(p(0:m-1), j) */
 	    Memcpy(yj, x, m);	/* replace it */
 	    for (int k = 0 ; k < n ; k++)   /* apply H[1]...H[n] */
@@ -56,7 +57,7 @@ void sparseQR_Qmult(cs *V, SEXP dmns, double *beta, int *p, int trans,
 	}
     } else {
 	for (int j = 0; j < ydims[1]; j++) {
-	    double *yj = y + j * m;
+	    double *yj = y + j * m_;
 	    for (int k = n - 1 ; k >= 0 ; k--) /* apply H[n]...H[1] */
 		cs_happly(V, k, beta[k], yj);
 	    cs_ipvec(p, yj, x, m); /* inverse permutation */
@@ -103,13 +104,13 @@ SEXP sparseQR_qty(SEXP qr, SEXP y, SEXP trans, SEXP keep_dimnames)
 	d_a = INTEGER(GET_SLOT(aa, Matrix_DimSym)); d_a[0] = M; d_a[1] = n; \
 	SEXP dn = GET_SLOT(aa, Matrix_DimNamesSym);			\
 	SET_VECTOR_ELT(dn, 1,						\
-		       duplicate(VECTOR_ELT(GET_SLOT(ans, Matrix_DimNamesSym), 1))); \
+		       duplicate(VECTOR_ELT(GET_SLOT(ans, Matrix_DimNamesSym), 1)));	\
 	SET_SLOT(aa, Matrix_DimNamesSym, dn);				\
 	double *yy = REAL( GET_SLOT(ans, Matrix_xSym));     /* m * n */	\
-	double *xx = REAL(ALLOC_SLOT(aa, Matrix_xSym, REALSXP, M * n));	\
+	double *xx = REAL(ALLOC_SLOT(aa, Matrix_xSym, REALSXP, M * (R_xlen_t) n));	\
 	for(int j = 0; j < n; j++) { /* j-th column */			\
 	    Memcpy(xx + j*M, yy + j*m, m); /* copy          x[   1:m , j ] := yy[,j] */	\
-	    for(int i = m; i < M; i++) xx[i + j*M] = 0.;/*  x[(m+1):M, j ] := 0	*/ \
+	    for(int i = m; i < M; i++) xx[i + j*M] = 0.;/*  x[(m+1):M, j ] := 0	*/	\
 	}								\
 	REPROTECT(ans = duplicate(aa), ipx); /* is  M x n  now */	\
     }
@@ -124,7 +125,7 @@ SEXP sparseQR_qty(SEXP qr, SEXP y, SEXP trans, SEXP keep_dimnames)
     /* remove the extra rows from ans */				\
 	d_a[0] = m;/* -> @Dim is ok;  @Dimnames (i.e. colnames) still are */ \
 	double *yy = REAL( GET_SLOT(ans, Matrix_xSym)); /* is  M  x n */ \
-	double *xx = REAL(ALLOC_SLOT(aa, Matrix_xSym, REALSXP, m * n));	\
+	double *xx = REAL(ALLOC_SLOT(aa, Matrix_xSym, REALSXP, m * (R_xlen_t) n)); \
 	for(int j = 0; j < n; j++) { /*  j-th column */			\
 	    Memcpy(xx + j*m, yy + j*M, m); /* copy    x[ 1:m, j ] := yy[,j] */ \
 	}								\

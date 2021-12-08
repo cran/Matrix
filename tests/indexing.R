@@ -1090,6 +1090,9 @@ stopifnot(identical(Diagonal(x = 1+ 1:n), dLrg),
 cc <- capture.output(show(dLrg))# show(<diag>) used to error for large n
 showProc.time()
 
+## FIXME: "dspMatrix" (symmetric *packed*) not going via "matrix"
+
+
 ## Large Matrix indexing / subassignment
 ## ------------------------------------- (from ex. by Imran Rashid)
 n <- 7000000
@@ -1176,7 +1179,42 @@ x2 <- x0; x2[cbind(i, i+10)] <- .asmatrix(i^2)
 ## failed: nargs() = 4 ... please report
 
 stopifnot(isValid(x1, "dgTMatrix"), identical(x1, x2))
+showProc.time()
 
+
+## check valid indexing (using *random* indices, often duplicated):
+chk_dsp_ind <- function(sv, n=512, negI = FALSE, verbose=FALSE) {
+    stopifnot(inherits(sv, "dsparseVector"), n >= 1)
+    d <- length(sv)
+    ## lambda=2 ==> aiming for short 'i' {easier to work with}
+    P <- rpois(n, lambda = if(negI) 5 else 2)
+    for(i in seq_len(n)) {
+        I <-
+            if(negI) { # negative indices: 2 are, 4 neither ... always "valid" !!
+                k <- max(4L, d - max(1L, P[i]))
+                if(verbose) cat(sprintf("size=k = %2d: ", k))
+                - sort(sample.int(d, size=k))# replace=FALSE
+            }
+            else
+                sample.int(d, size=1L+P[i], replace=TRUE)
+        ##
+        validObject(ss <- sv[I]) # Error if not true
+    }
+    invisible()
+}
+s <- as(c(3,5,6), "sparseVector")
+set.seed(11); chk_dsp_ind(s)
+set.seed(3)
+(s2 <- as(rsparsematrix(ncol=1, nrow=37, density=1/4),"sparseVector"))
+(s3 <- as(rsparsematrix(ncol=1, nrow=64, density=1/4),"sparseVector"))
+set.seed(1)
+chk_dsp_ind(s2)
+chk_dsp_ind(s3)
+##
+set.seed(47)
+## system.time(e.N2 <- chk_dsp_ind(s2, negI=TRUE, verbose=TRUE))
+chk_dsp_ind(s2, negI=TRUE)
+chk_dsp_ind(s3, negI=TRUE)
 
 iv <- c(rep(0,100), 3, 0,0,7,0,0,0)
 sv0  <- sv  <- as(iv, "sparseVector")
@@ -1269,3 +1307,17 @@ Cx[2,] <- 0
 Rx[2,] <- 0
 stopifnot(all(Cx == X),
           all(Rx == X))
+
+## [matrix-Bugs][#6745] show(<large sparseVector>)
+## NB: is from a bug in head(*); *only* applies to  *empty* sparseV: length(x@i) == 0
+op <- options(max.print=999)
+( s0 <- sparseVector(i=integer(), length=2^33)) # show -> head() failed in Matrix <= 1.3-*
+(xs0 <- sparseVector(i=integer(), length=2^33, x = numeric()))# ditto
+options(op); tail(s0) ; tail(xs0) # (always worked)
+## *related* bug in `[` --> needed to fix intIv() for such large sparseVectors
+stopifnot(exprs = {
+    identical(s0[length(s0) - 3:0], # gave Error in if (any(i < 0L)) { : missing value ....
+              new("nsparseVector", i=integer(), length=4L))
+    identical(xs0[length(s0) - 3:0], # gave Error ..
+              new("dsparseVector", i=integer(), length=4L))
+})

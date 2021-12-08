@@ -7,9 +7,9 @@
 #define Matrix_T_as_DENSE(_C_TYPE_, _SEXP_, _SEXPTYPE_, _SYMM_)		\
     SEXP dimP = GET_SLOT(x, Matrix_DimSym),				\
 	  xiP = GET_SLOT(x, Matrix_iSym);				\
-    int k, n = INTEGER(dimP)[0], nnz = length(xiP);			\
-    int *xi = INTEGER(xiP), *xj = INTEGER(GET_SLOT(x, Matrix_jSym)),	\
-	sz = n * n;							\
+    int k, n = INTEGER(dimP)[0]; R_xlen_t nnz = xlength(xiP);		\
+    int *xi = INTEGER(xiP), *xj = INTEGER(GET_SLOT(x, Matrix_jSym));	\
+    R_xlen_t n_ = n, sz = n * n_;					\
     _C_TYPE_ *tx = _SEXP_(ALLOC_SLOT(val, Matrix_xSym, _SEXPTYPE_, sz)); \
     MAYBE_DECLARE_AND_GET_X_SLOT(_C_TYPE_, _SEXP_);			\
 									\
@@ -23,7 +23,7 @@
 #define Matrix_T_as_DENSE_FINISH(_X_k_)		\
     AZERO(tx, sz);				\
     for (k = 0; k < nnz; k++)			\
-	tx[xi[k] + xj[k] * n] = _X_k_;		\
+	tx[xi[k] + xj[k] * n_] = _X_k_;		\
     UNPROTECT(1);				\
     return val
 

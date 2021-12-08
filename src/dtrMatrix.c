@@ -194,7 +194,7 @@ SEXP dtrMatrix_dtrMatrix_mm(SEXP a, SEXP b, SEXP right, SEXP trans)
     if(matching_uplo) {
 	/* ==> result is triangular -- "dtrMatrix" !
 	 * val := dup_mMatrix_as_dtrMatrix(b) : */
-	int sz = n * n;
+	R_xlen_t sz = n * (R_xlen_t) n, np1 = n+1;
 	val = PROTECT(NEW_OBJECT_OF_CLASS("dtrMatrix"));
 	SET_SLOT(val, Matrix_uploSym, duplicate(uplo_b));
 	SET_SLOT(val, Matrix_DimSym,  duplicate(d_a));
@@ -204,7 +204,7 @@ SEXP dtrMatrix_dtrMatrix_mm(SEXP a, SEXP b, SEXP right, SEXP trans)
 	if((uDiag_b = (*diag_b_ch == 'U'))) {
 	    /* unit-diagonal b - may contain garbage in diagonal */
 	    for (int i = 0; i < n; i++)
-		valx[i * (n+1)] = 1.;
+		valx[i * np1] = 1.;
 	}
     } else { /* different "uplo" ==> result is "dgeMatrix" ! */
 	val = PROTECT(dup_mMatrix_as_dgeMatrix(b));

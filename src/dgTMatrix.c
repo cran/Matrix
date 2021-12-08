@@ -23,7 +23,7 @@ d_insert_triplets_in_array(int m, int n, int nnz,
 {
     // For ( m*n ) > INT_MAX,  we here assume that size_t is using 64-bit !
     size_t m_ = (size_t) m, len = sizeof(double) * m_ * n;
-    if(len == sizeof(double) * (double)m_ *n)
+    if(len == sizeof(double) * (double)m_ * n)
 	memset(vx, 0, len);
     else { // len did overflow -- this should call memset() several times:
 	size_t max_l = (1 << (sizeof(size_t)-1)); // = 2^(N-1)
@@ -52,7 +52,7 @@ l_insert_triplets_in_array(int m, int n, int nnz,
 {
     // For ( m*n ) > INT_MAX,  we here assume that size_t is using 64-bit !
     size_t m_ = (size_t) m, len = sizeof(int) * m_ * n;
-    if(len == sizeof(int) * (double)m_ *n)
+    if(len == sizeof(int) * (double)m_ * n)
 	memset(vx, 0, len);
     else { // len did overflow -- this should call memset() several times:
 	size_t max_l = (1 << (sizeof(size_t)-1)); // = 2^(N-1)

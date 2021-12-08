@@ -90,8 +90,8 @@ double chm_factor_ldetL2(CHM_FR f)
 		nc = lsup[i + 1] - lsup[i];
 	    double *x = (double*)(f->x) + ((int*)(f->px))[i];
 
-	    for (j = 0; j < nc; j++) {
-		ans += 2 * log(fabs(x[j * nrp1]));
+	    for (R_xlen_t jn = 0, j = 0; j < nc; j++, jn += nrp1) { // jn := j * nrp1
+		ans += 2 * log(fabs(x[jn]));
 	    }
 	}
     } else {

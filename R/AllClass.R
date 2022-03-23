@@ -82,6 +82,10 @@ setClass("triangularMatrix", contains = c("Matrix", "VIRTUAL"),
 	 prototype = prototype(uplo = "U", diag = "N"),
 	 validity = function(object) .Call(triangularMatrix_validate, object))
 
+setClass("packedMatrix", contains = c("Matrix", "VIRTUAL"),
+	 slots = c(uplo = "character"),
+	 prototype = prototype(uplo = "U"),
+	 validity = function(object) .Call(packedMatrix_validate, object))
 
 ## Virtual class of numeric matrices
 setClass("dMatrix", contains = c("Matrix", "VIRTUAL"), slots = c(x = "numeric"),
@@ -217,7 +221,7 @@ setClass("dtrMatrix",
 
 ## numeric, dense, packed, triangular matrices
 setClass("dtpMatrix",
-	 contains = c("ddenseMatrix", "triangularMatrix"),
+	 contains = c("ddenseMatrix", "triangularMatrix", "packedMatrix"),
 	 validity = function(object) .Call(dtpMatrix_validate, object))
 
 
@@ -228,7 +232,7 @@ setClass("dsyMatrix",
 
 ## numeric, dense, packed symmetric matrices
 setClass("dspMatrix",
-	 contains = c("ddenseMatrix", "symmetricMatrix"),
+	 contains = c("ddenseMatrix", "symmetricMatrix", "packedMatrix"),
 	 validity = function(object) .Call(dspMatrix_validate, object))
 
 ## numeric, dense, non-packed, positive-definite, symmetric matrices
@@ -257,7 +261,7 @@ setClass("ltrMatrix",
 
 ## logical, dense, packed, triangular matrices
 setClass("ltpMatrix",
-	 contains = c("ldenseMatrix", "triangularMatrix"))
+	 contains = c("ldenseMatrix", "triangularMatrix", "packedMatrix"))
 
 ## logical, dense, non-packed symmetric matrices
 setClass("lsyMatrix",
@@ -266,7 +270,7 @@ setClass("lsyMatrix",
 
 ## logical, dense, packed symmetric matrices
 setClass("lspMatrix",
-	 contains = c("ldenseMatrix", "symmetricMatrix"),
+	 contains = c("ldenseMatrix", "symmetricMatrix", "packedMatrix"),
 	 validity = function(object) .Call(dspMatrix_validate, object)
 	 ## "dsp", "lsp" and "nsp" have the same validate
 	 )
@@ -285,7 +289,7 @@ setClass("ntrMatrix",
 
 ## logical, dense, packed, triangular matrices
 setClass("ntpMatrix",
-	 contains = c("ndenseMatrix", "triangularMatrix"))
+	 contains = c("ndenseMatrix", "triangularMatrix", "packedMatrix"))
 
 ## logical, dense, non-packed symmetric matrices
 setClass("nsyMatrix",
@@ -294,7 +298,7 @@ setClass("nsyMatrix",
 
 ## logical, dense, packed symmetric matrices
 setClass("nspMatrix",
-	 contains = c("ndenseMatrix", "symmetricMatrix"),
+	 contains = c("ndenseMatrix", "symmetricMatrix", "packedMatrix"),
 	 validity = function(object) .Call(dspMatrix_validate, object)
 	 ## "dsp", "lsp" and "nsp" have the same validate
 	 )

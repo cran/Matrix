@@ -403,8 +403,17 @@ setAs("Matrix", "diagonalMatrix",
       })
 
 
-setMethod("diag", signature(x = "diagonalMatrix"),
-          function(x = 1, nrow, ncol) .diag.x(x))
+diag.x <- function(x, nrow, ncol, names=TRUE) {
+    y <- .diag.x(x)
+    if(names) {
+        nms <- dimnames(x)
+        if(is.list(nms) && !any(vapply(nms, is.null, NA)) &&
+           identical((nm <- nms[[1L]][im <- seq_len(min(dim(x)))]), nms[[2L]][im]))
+            names(y) <- nm
+    }
+    y
+}
+setMethod("diag", signature(x = "diagonalMatrix"), diag.x)
 
 subDiag <- function(x, i, j, ..., drop) {
     x <- as(x, "CsparseMatrix") ## << was "TsparseMatrix" (Csparse is faster now)

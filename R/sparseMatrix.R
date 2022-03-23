@@ -796,7 +796,7 @@ setMethod("Cholesky", signature(A = "sparseMatrix"),
 		   perm=perm, LDL=LDL, super=super, Imult=Imult, ...))
 
 setMethod("diag", signature(x = "sparseMatrix"),
-	  function(x, nrow, ncol) diag(as(x, "CsparseMatrix")))
+	  function(x, nrow, ncol, names=TRUE) diag(as(x, "CsparseMatrix"), names=names))
 
 setMethod("dim<-", signature(x = "sparseMatrix", value = "ANY"),
 	  function(x, value) {

@@ -551,7 +551,7 @@ csi *cs_counts (const cs *A, const csi *parent, const csi *post, csi ata)
         if (parent [j] != -1) colcount [parent [j]] += colcount [j] ;
     }
     return (cs_idone (colcount, AT, w, 1)) ;    /* success: free workspace */
-} 
+}
 /* p [0..n] = cumulative sum of c [0..n-1], and then copy p [0..n-1] into c */
 double cs_cumsum (csi *p, csi *c, csi n)
 {
@@ -688,7 +688,7 @@ csd *cs_dmperm (const cs *A, csi seed)
     wi = r ; wj = s ;                           /* use r and s as workspace */
     for (j = 0 ; j < n ; j++) wj [j] = -1 ;     /* unmark all cols for bfs */
     for (i = 0 ; i < m ; i++) wi [i] = -1 ;     /* unmark all rows for bfs */
-    cs_bfs (A, n, wi, wj, q, imatch, jmatch, 1) ;       /* find C1, R1 from C0*/
+         cs_bfs (A, n, wi, wj, q, imatch, jmatch, 1) ;  /* find C1, R1 from C0*/
     ok = cs_bfs (A, m, wj, wi, p, jmatch, imatch, 3) ;  /* find R3, C3 from R0*/
     if (!ok) return (cs_ddone (D, NULL, jmatch, 0)) ;
     cs_unmatched (n, wj, q, cc, 0) ;                    /* unmatched set C0 */
@@ -761,7 +761,7 @@ static csi cs_nonzero (csi i, csi j, double aij, void *other)
 csi cs_dropzeros (cs *A)
 {
     return (cs_fkeep (A, &cs_nonzero, NULL)) ;  /* keep all nonzero entries */
-} 
+}
 /* remove duplicate entries from A */
 csi cs_dupl (cs *A)
 {
@@ -1272,7 +1272,7 @@ cs *cs_multiply (const cs *A, const cs *B)
         if (nz + m > C->nzmax && !cs_sprealloc (C, 2*(C->nzmax)+m))
         {
             return (cs_done (C, w, x, 0)) ;             /* out of memory */
-        } 
+        }
         Ci = C->i ; Cx = C->x ;         /* C->i and C->x may be reallocated */
         Cp [j] = nz ;                   /* column j of C starts here */
         for (p = Bp [j] ; p < Bp [j+1] ; p++)
@@ -1372,7 +1372,7 @@ csi cs_print (const cs *A, csi brief)
             (double) n, (double) nzmax, (double) (Ap [n]), cs_norm (A)) ;
         for (j = 0 ; j < n ; j++)
         {
-            Rprintf ("    col %g : locations %g to %g\n", (double) j, 
+            Rprintf ("    col %g : locations %g to %g\n", (double) j,
                 (double) (Ap [j]), (double) (Ap [j+1]-1)) ;
             for (p = Ap [j] ; p < Ap [j+1] ; p++)
             {
@@ -1528,7 +1528,12 @@ csi cs_qrsol (csi order, const cs *A, double *b)
 }
 /* return a random permutation vector, the identity perm, or p = n-1:-1:0.
  * seed = -1 means p = n-1:-1:0.  seed = 0 means p = identity.  otherwise
- * p = random permutation.  */
+ * p = random permutation. */
+/*
+ * NB: We use R's RNG *and* its state; i.e., if seed is not -1 or 0,
+ * ==  'seed' is *not* used at all in this version of cs_randperm() !
+*/
+
 csi *cs_randperm (csi n, csi seed)
 {
     csi *p, k, j, t ;

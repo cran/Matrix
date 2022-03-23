@@ -476,7 +476,7 @@ x.x <- crossprod(mC)
 stopifnot(class(x.x) == "dsCMatrix",
           class(x.x. <- round(x.x / 10000)) == "dsCMatrix",
           identical(x.x[cbind(2:6, 2:6)],
-                    diag(x.x [2:6, 2:6])))
+                    diag(x.x[2:6, 2:6], names=FALSE)))
 head(x.x.) # Note the *non*-structural 0's printed as "0"
 tail(x.x., -3) # all but the first three lines
 

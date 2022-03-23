@@ -67,7 +67,7 @@
 {
     Type_x* xx = STYP_x(x);
 #ifdef has_x_slot
-    Type_x* rx = Calloc(nnz, Type_x); // to become  x slot
+    Type_x* rx = R_Calloc(nnz, Type_x); // to become  x slot
 #endif
     ii = 0; // ii in  0..(n-1)
     for(int j=0; j < nc; ) { // look at 0-based column 'j' <=> 1-based R: x[, j+1]
@@ -83,9 +83,9 @@
 		if(++nz >= nnz && ii < n-1) {// increase nnz and grow both 'rx' and 'ri'
 		    // current density ~= nz / ii == estim.final dens. ==> est. nnz = nz*n/ii
 		    nnz = imax2(nnz+256, imax2(5*nnz/4, (nz * n) / ii));
-		    ri = Realloc(ri, nnz, int);
+		    ri = R_Realloc(ri, nnz, int);
 #ifdef has_x_slot
-		    rx = Realloc(rx, nnz, Type_x);
+		    rx = R_Realloc(rx, nnz, Type_x);
 #endif
 		}
 	    }
@@ -97,7 +97,7 @@
     nnz = nz;
 #ifdef has_x_slot
     Memcpy( STYP_x(ALLOC_SLOT(ans, Matrix_xSym,   SXP_x, nnz)), rx, nnz);
-    Free(rx);
+    R_Free(rx);
 #endif
 }
 

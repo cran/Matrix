@@ -1,4 +1,4 @@
-SuiteSparse_config, 2020, Timothy A. Davis, http://www.suitesparse.com
+SuiteSparse_config, 2021, Timothy A. Davis, http://www.suitesparse.com
 (formerly the UFconfig package)
 
 This directory contains a default SuiteSparse_config.mk file.  It tries to
@@ -32,6 +32,7 @@ these packages do not require SuiteSparse_config.
   LPDASA   LP Dual Active Set Algorithm
   RBio     read/write files in Rutherford/Boeing format
   SPQR     sparse QR factorization (full name: SuiteSparseQR)
+  SLIP_LU  sparse left-looking integer-preserving LU factorization
 
 SuiteSparse_config is not required by these packages:
 

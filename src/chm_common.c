@@ -331,7 +331,7 @@ CHM_SP as_cholmod_sparse(CHM_SP ans, SEXP x,
  * optionally, free a or free both a and its the pointers to its contents.
  *
  * @param a  (cholmod_sparse) matrix to be converted
- * @param dofree 0 - don't free a; > 0 cholmod_free a; < 0 Free a
+ * @param dofree 0 - don't free a; > 0 cholmod_free a; < 0 R_Free a
  * @param uploT 0 - not triangular; > 0 upper triangular; < 0 lower
  * @param Rkind - vector type to store for a->xtype == CHOLMOD_REAL,
  *                0 - REAL; 1 - LOGICAL  [unused for other a->xtype]
@@ -366,7 +366,7 @@ SEXP chm_sparse_to_SEXP(CHM_SP a, int dofree, int uploT, int Rkind,
 #define DOFREE_MAYBE							\
     if (dofree > 0)							\
 	longi ? cholmod_l_free_sparse(&a, &cl) : cholmod_free_sparse(&a, &c); \
-    else if (dofree < 0) Free(a)
+    else if (dofree < 0) R_Free(a)
 
 
     switch(a->xtype) {
@@ -576,7 +576,7 @@ CHM_TR as_cholmod_triplet(CHM_TR ans, SEXP x, Rboolean check_Udiag)
  * optionally, free a or free both a and its the pointers to its contents.
  *
  * @param a matrix to be converted
- * @param dofree 0 - don't free a; > 0 cholmod_free a; < 0 Free a
+ * @param dofree 0 - don't free a; > 0 cholmod_free a; < 0 R_Free a
  * @param uploT 0 - not triangular; > 0 upper triangular; < 0 lower
  * @param Rkind - vector type to store for a->xtype == CHOLMOD_REAL,
  *                0 - REAL; 1 - LOGICAL
@@ -598,7 +598,7 @@ SEXP chm_triplet_to_SEXP(CHM_TR a, int dofree, int uploT, int Rkind,
 
 #define DOFREE_MAYBE					\
     if (dofree > 0) cholmod_free_triplet(&a, &c);	\
-    else if (dofree < 0) Free(a)
+    else if (dofree < 0) R_Free(a)
 
     switch(a->xtype) {
     case CHOLMOD_PATTERN:
@@ -844,7 +844,7 @@ int R_cholmod_start(CHM_CM c)
  * optionally, free a or free both a and its pointer to its contents.
  *
  * @param a matrix to be converted
- * @param dofree 0 - don't free a; > 0 cholmod_free a; < 0 Free a
+ * @param dofree 0 - don't free a; > 0 cholmod_free a; < 0 R_Free a
  * @param Rkind type of R matrix to be generated (special to this function)
  * @param dn   -- dimnames [list(.,.) or NULL;  __already__ transposed when transp is TRUE ]
  * @param transp Rboolean, if TRUE, the result must be a copy of  t(a), i.e., "a transposed"
@@ -862,7 +862,7 @@ SEXP chm_dense_to_SEXP(CHM_DN a, int dofree, int Rkind, SEXP dn, Rboolean transp
 
 #define DOFREE_de_MAYBE				\
     if (dofree > 0) cholmod_free_dense(&a, &c);	\
-    else if (dofree < 0) Free(a);
+    else if (dofree < 0) R_Free(a);
 
     switch(a->xtype) {		/* determine the class of the result */
 /* CHOLMOD_PATTERN never happens because cholmod_dense can't :
@@ -953,7 +953,7 @@ SEXP chm_dense_to_SEXP(CHM_DN a, int dofree, int Rkind, SEXP dn, Rboolean transp
  * or free both a and its pointer to its contents.
  *
  * @param a cholmod_dense structure to be converted {already REAL for original l..CMatrix}
- * @param dofree 0 - don't free a; > 0 cholmod_free a; < 0 Free a
+ * @param dofree 0 - don't free a; > 0 cholmod_free a; < 0 R_Free a
  * @param dn either R_NilValue or an SEXP suitable for the Dimnames slot.
  *
  * @return SEXP containing a copy of a as a matrix object
@@ -1008,7 +1008,7 @@ SEXP chm_dense_to_matrix(CHM_DN a, int dofree, SEXP dn)
  * or free both a and its pointer to its contents.
  *
  * @param a cholmod_dense structure to be converted
- * @param dofree 0 - don't free a; > 0 cholmod_free a; < 0 Free a
+ * @param dofree 0 - don't free a; > 0 cholmod_free a; < 0 R_Free a
  *
  * @return SEXP containing a copy of a  in the sense of  as.vector(a)
  */
@@ -1134,7 +1134,7 @@ CHM_FR as_cholmod_factor(CHM_FR ans, SEXP x) {
  * optionally, free f or free both f and its pointer to its contents.
  *
  * @param f cholmod_factor object to be converted
- * @param dofree 0 - don't free a; > 0 cholmod_free a; < 0 Free a
+ * @param dofree 0 - don't free a; > 0 cholmod_free a; < 0 R_Free a
  *
  * @return SEXP containing a copy of a
  */
@@ -1147,7 +1147,7 @@ SEXP chm_factor_to_SEXP(CHM_FR f, int dofree)
 #define DOFREE_MAYBE					\
     if(dofree) {					\
 	if (dofree > 0) cholmod_free_factor(&f, &c);	\
-	else /* dofree < 0 */ Free(f);			\
+	else /* dofree < 0 */ R_Free(f);			\
     }
 
     if(!chm_factor_ok(f)) {

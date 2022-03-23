@@ -64,6 +64,8 @@ SEXP dtpMatrix_solve(SEXP a)
     return val;
 }
 
+/* MJ: No longer needed ... replacement in ./packedMatrix.c */
+#if 0
 
 // also applicable to dspMatrix , dppMatrix :
 SEXP dtpMatrix_getDiag(SEXP x)
@@ -99,12 +101,14 @@ SEXP ltpMatrix_setDiag(SEXP x, SEXP d)
     return tr_l_packed_setDiag(INTEGER(d), LENGTH(d), x, n);
 }
 
+#endif /* MJ */
+
+
 SEXP dtpMatrix_addDiag(SEXP x, SEXP d)
 {
     int n = INTEGER(GET_SLOT(x, Matrix_DimSym))[0];
     return tr_d_packed_addDiag(REAL(d), LENGTH(d), x, n);
 }
-
 
 SEXP dtpMatrix_matrix_mm(SEXP x, SEXP y, SEXP right, SEXP trans)
 {

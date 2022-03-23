@@ -16,46 +16,49 @@ setAs("ngTMatrix", "matrix",
 ## setAs("ngTMatrix", "matrix", # go via fast C code:
 ##       function(from) as(as(from, "ngCMatrix"), "matrix"))
 
-setAs("matrix", "ngTMatrix",
-      function(from) {
-	  if(!is.logical(from))
-	      storage.mode(from) <- "logical"
-	  if(anyNA(from))
-	      stop("cannot coerce 'NA's to \"nsparseMatrix\"")
-          dn <- dimnames(from)
-          if(is.null.DN(dn))
-              dn <- list(NULL,NULL)
-          else dimnames(from) <- NULL # such that which(.) does not see any:
-	  ij <- which(from, arr.ind = TRUE, useNames = FALSE) - 1L
-	  if(length(ij) == 0) ij <- matrix(ij, 0, 2)
-	  new("ngTMatrix",
-	      i = ij[,1],
-	      j = ij[,2],
-	      Dim = as.integer(dim(from)),
-	      Dimnames = dn)
-	  })
+.m2ngTn <- function(from, na.is.not.0 = FALSE) {
+    if(!is.logical(from)) storage.mode(from) <- "logical"
+    if(na.is.not.0) {
+        if(any(iN <- is.na(from)))
+            from[iN] <- TRUE
+    } else if(anyNA(from))
+        stop("cannot coerce 'NA's to \"nsparseMatrix\"")
+    dn <- dimnames(from)
+    if(is.null.DN(dn))
+        dn <- list(NULL,NULL)
+    else dimnames(from) <- NULL # such that which(.) does not see any:
+    ij <- which(from, arr.ind = TRUE, useNames = FALSE) - 1L
+    if(length(ij) == 0) ij <- matrix(ij, 0, 2)
+    new("ngTMatrix",
+        i = ij[,1],
+        j = ij[,2],
+        Dim = as.integer(dim(from)),
+        Dimnames = dn)
+}
 
-setAs("matrix", "nMatrix", function(from) as(from, "ngTMatrix"))
+setAs("matrix", "ngTMatrix", function(from) .m2ngTn(from))
+setAs("matrix", "nMatrix",   function(from) .m2ngTn(from))
 
-setAs("ngTMatrix", "dgTMatrix",
-      function(from)
-      ## more efficient than
-      ## as(as(as(sM, "ngCMatrix"), "dgCMatrix"), "dgTMatrix")
-      new("dgTMatrix", i = from@i, j = from@j,
-	  x = rep.int(1, length(from@i)),
-	  ## cannot copy factors, but can we use them?
-	  Dim = from@Dim, Dimnames= from@Dimnames))
-setAs("ngTMatrix", "dMatrix", function(from) as(from, "dgTMatrix"))
-setAs("ngTMatrix", "dsparseMatrix", function(from) as(from, "dgTMatrix"))
+## also works for lgT* or ltT* when it has no NA nor FALSE in @x :
+.n2dgT <- function(from)
+    new("dgTMatrix", i = from@i, j = from@j,
+        x = rep.int(1, length(from@i)),
+        ## cannot copy factors, but can we use them?
+        Dim = from@Dim, Dimnames= from@Dimnames)
+
+setAs("ngTMatrix", "dgTMatrix",     .n2dgT)
+setAs("ngTMatrix", "dMatrix",       .n2dgT)
+setAs("ngTMatrix", "dsparseMatrix", .n2dgT)
 
 
-setAs("ngTMatrix", "lgTMatrix",
-      function(from)
-      new("lgTMatrix", i = from@i, j = from@j,
-	  x = rep.int(TRUE, length(from@i)),
-	  ## cannot copy factors, but can we use them?
-	  Dim = from@Dim, Dimnames= from@Dimnames))
-setAs("ngTMatrix", "lMatrix", function(from) as(from, "lgTMatrix"))
+.n2lgT <- function(from)
+    new("lgTMatrix", i = from@i, j = from@j,
+        x = rep.int(TRUE, length(from@i)),
+        ## cannot copy factors, but can we use them?
+        Dim = from@Dim, Dimnames= from@Dimnames)
+
+setAs("ngTMatrix", "lgTMatrix", .n2lgT)
+setAs("ngTMatrix", "lMatrix",   .n2lgT)
 
 setAs("ngTMatrix", "triangularMatrix",
       function(from) check.gT2tT(from, toClass = "ntTMatrix", do.n=TRUE))

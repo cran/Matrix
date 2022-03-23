@@ -46,6 +46,16 @@ if(Rv < "4.0.0") {
   ## not equivalent ...
   ...length <- function() eval(quote(length(list(...))), sys.frame(-1L))
 
+  tryInvokeRestart <- function(r, ...) {
+    if (!isRestart(r))
+        r <- findRestart(r)
+
+    if (is.null(r))
+        invisible(NULL)
+    else
+        .Internal(.invokeRestart(r, list(...)))
+  }
+
   if(Rv < "3.5.0") {
     isFALSE <- function (x) is.logical(x) && length(x) == 1L && !is.na(x) && !x
     isTRUE  <- function (x) is.logical(x) && length(x) == 1L && !is.na(x) && x

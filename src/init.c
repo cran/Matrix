@@ -23,6 +23,7 @@
 #include "ldense.h"
 #include "lgCMatrix.h"
 #include "sparseQR.h"
+#include "packedMatrix.h"
 #include <R_ext/Rdynload.h>
 
 #include "Syms.h"
@@ -74,6 +75,7 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(Csparse_validate, 1),
     CALLDEF(Csparse_validate2, 2),
     CALLDEF(Csparse_vertcat, 2),
+    CALLDEF(Csparse_dmperm, 3),
     CALLDEF(pCholesky_validate, 1),
     CALLDEF(Rsparse_validate, 1),
     CALLDEF(diag_tC, 2),
@@ -188,11 +190,16 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(dspMatrix_solve, 1),
     CALLDEF(dspMatrix_trf, 1),
     CALLDEF(dspMatrix_validate, 1),
+
+/* MJ: No longer needed ... replacement in ./packedMatrix.c */
+#if 0
     CALLDEF(dspMatrix_getDiag, 1),
     CALLDEF(lspMatrix_getDiag, 1),
     CALLDEF(dspMatrix_setDiag, 2),
     CALLDEF(lspMatrix_setDiag, 2),
-/*     CALLDEF(dtCMatrix_solve, 1), */
+#endif
+    
+    /* CALLDEF(dtCMatrix_solve, 1), */
     CALLDEF(dtCMatrix_matrix_solve, 3),
     CALLDEF(dtCMatrix_sparse_solve, 2),
     CALLDEF(dtTMatrix_as_dtrMatrix, 1),
@@ -200,10 +207,15 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(ntTMatrix_as_ntrMatrix, 1),
     CALLDEF(dtpMatrix_as_dtrMatrix, 1),
     CALLDEF(dtpMatrix_addDiag, 2),
+
+/* MJ: No longer needed ... replacement in ./packedMatrix.c */
+#if 0
     CALLDEF(dtpMatrix_getDiag, 1),
     CALLDEF(ltpMatrix_getDiag, 1),
     CALLDEF(dtpMatrix_setDiag, 2),
     CALLDEF(ltpMatrix_setDiag, 2),
+#endif
+    
     CALLDEF(dtpMatrix_matrix_mm, 4),
     CALLDEF(dtpMatrix_matrix_solve, 2),
     CALLDEF(dtpMatrix_norm, 2),
@@ -255,7 +267,15 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(sparseQR_resid_fitted, 3),
     CALLDEF(triangularMatrix_validate, 1),
     CALLDEF(symmetricMatrix_validate, 1),
+    CALLDEF(packedMatrix_validate, 1),
     CALLDEF(R_symmetric_Dimnames, 1),
+
+    CALLDEF(packedMatrix_t, 1),
+    CALLDEF(packedMatrix_diag_get, 2),
+    CALLDEF(packedMatrix_diag_set, 2),
+    CALLDEF(packedMatrix_sub1, 2),
+    CALLDEF(packedMatrix_sub1_mat, 2),
+    CALLDEF(packedMatrix_sub2, 4),
 
 /* still simple placeholders, but already used in ../R/AllClass.R : */
     CALLDEF(CHMfactor_validate, 1),

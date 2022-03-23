@@ -21,9 +21,9 @@
 \alias{.dsy2mat}% hidden but exported
 \alias{coerce,dsyMatrix,matrix-method}
 \alias{coerce,matrix,dsyMatrix-method}
-\alias{diag,dspMatrix-method}
+% \alias{diag,dspMatrix-method} -> ./packedMatrix-class.Rd
 \alias{diag,dsyMatrix-method}
-\alias{diag<-,dspMatrix-method}
+% \alias{diag<-,dspMatrix-method}
 \alias{diag<-,dsyMatrix-method}
 %
 \alias{show,dsyMatrix-method}
@@ -35,7 +35,7 @@
 \alias{rcond,dspMatrix,missing-method}
 \alias{rcond,dsyMatrix,character-method}
 \alias{rcond,dsyMatrix,missing-method}
-\alias{t,dspMatrix-method}
+% \alias{t,dspMatrix-method}
 \alias{t,dsyMatrix-method}
 \description{
   \itemize{

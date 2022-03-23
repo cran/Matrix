@@ -6,6 +6,7 @@
 #include "Csparse.h"
 #include "Tsparse.h"
 #include "chm_common.h"
+#include "cs_utils.h" /* -> ./cs.h  for cs_dmperm() */
 
 /** "Cheap" C version of  Csparse_validate() - *not* sorting : */
 Rboolean isValid_Csparse(SEXP x)
@@ -432,7 +433,7 @@ SEXP Csparse_transpose(SEXP x, SEXP tri)
     if(!isNull(tmp)) { // swap names(dimnames(.)):
 	SEXP nms_dns = PROTECT(allocVector(VECSXP, 2));
 	SET_VECTOR_ELT(nms_dns, 1, STRING_ELT(tmp, 0));
-        SET_VECTOR_ELT(nms_dns, 0, STRING_ELT(tmp, 1));
+	SET_VECTOR_ELT(nms_dns, 0, STRING_ELT(tmp, 1));
 	setAttrib(dn, R_NamesSymbol, nms_dns);
 	UNPROTECT(1);
     }
@@ -645,7 +646,8 @@ SEXP Csp_dense_products(SEXP a, SEXP b,
 			Rboolean transp_a, Rboolean transp_b, Rboolean transp_ans)
 {
     CHM_SP cha = AS_CHM_SP(a);
-    int a_nc = transp_a ? cha->nrow : cha->ncol,
+    size_t
+	a_nc = transp_a ? cha->nrow : cha->ncol,
 	a_nr = transp_a ? cha->ncol : cha->nrow;
     Rboolean
 	maybe_transp_b = (a_nc == 1),
@@ -670,7 +672,7 @@ SEXP Csp_dense_products(SEXP a, SEXP b,
 	/* determine *if* we want/need to transpose at all:
 	 * if (length(b) == ncol(A)) have match: use dim = c(n, 1) (<=> do *not* transp);
 	 *  otherwise, try to transpose: ok  if (ncol(A) == 1) [see also above]:  */
-	maybe_transp_b = (LENGTH(b) != a_nc);
+	maybe_transp_b = (XLENGTH(b) != a_nc);
 	// Here, we transpose already in mMatrix_as_dge*()  ==> don't do it later:
 	transp_b = FALSE;
     }
@@ -678,7 +680,7 @@ SEXP Csp_dense_products(SEXP a, SEXP b,
 
     CHM_DN chb = AS_CHM_DN(b_M), b_t;
     R_CheckStack();
-    int ncol_b;
+    size_t ncol_b;
     if(transp_b) { // transpose b:
 	b_t = cholmod_allocate_dense(chb->ncol, chb->nrow, chb->ncol, chb->xtype, &c);
 	chm_transpose_dense(b_t, chb);
@@ -861,8 +863,9 @@ SEXP Csparse_horzcat(SEXP x, SEXP y)
     CSPARSE_CAT("horzcat");
     // TODO: currently drops dimnames - and we fix at R level;
 
-    SEXP retval = chm_sparse_to_SEXP(cholmod_horzcat(chx, chy, 1, &c),
-			      1, 0, Rkind, "", R_NilValue);
+    SEXP retval = PROTECT(
+	chm_sparse_to_SEXP(cholmod_horzcat(chx, chy, 1, &c),
+			   1, 0, Rkind, "", R_NilValue));
 /* AS_CHM_SP(x) fills result with points to R-allocated memory but
    chm_MOD_xtype can change ->x and ->z to cholmod_alloc'ed memory.
    The former needs no freeing but the latter does.
@@ -872,7 +875,8 @@ SEXP Csparse_horzcat(SEXP x, SEXP y)
     if (chx_x != chx->x) cholmod_free(0, 0, chx->x, &c);	\
     if (chx_z != chx->z) cholmod_free(0, 0, chx->z, &c);	\
     if (chy_x != chy->x) cholmod_free(0, 0, chy->x, &c);	\
-    if (chy_z != chy->z) cholmod_free(0, 0, chy->z, &c)
+    if (chy_z != chy->z) cholmod_free(0, 0, chy->z, &c);	\
+    UNPROTECT(1);
 
     CSPARSE_CAT_CLEANUP;
     return retval;
@@ -885,8 +889,9 @@ SEXP Csparse_vertcat(SEXP x, SEXP y)
     CSPARSE_CAT("vertcat");
     // TODO: currently drops dimnames - and we fix at R level;
 
-    SEXP retval = chm_sparse_to_SEXP(cholmod_vertcat(chx, chy, 1, &c),
-			      1, 0, Rkind, "", R_NilValue);
+    SEXP retval  = PROTECT(
+	chm_sparse_to_SEXP(cholmod_vertcat(chx, chy, 1, &c),
+			   1, 0, Rkind, "", R_NilValue));
     CSPARSE_CAT_CLEANUP;
     return retval;
 }
@@ -978,12 +983,12 @@ SEXP Csparse_submatrix(SEXP x, SEXP i, SEXP j)
     /* Must treat 'NA's in i[] and j[] here -- they are *not* treated by Cholmod!
      * haveNA := ...
        if(haveNA) {
-         a. i = removeNA(i); j =removeNA(j), and remember where they were
+	 a. i = removeNA(i); j =removeNA(j), and remember where they were
 	 b. ans = CHM_SUB(.., i, j)
 	 c. add NA rows and/or columns to 'ans' according to
 	    place of NA's in i and/or j.
        } else {
-         ans = CHM_SUB(.....)  // == current code
+	 ans = CHM_SUB(.....)  // == current code
        }
      */
 #define CHM_SUB(_M_, _i_, _j_)					\
@@ -1055,7 +1060,7 @@ SEXP Csparse_MatrixMarket(SEXP x, SEXP fname)
  * @return  a SEXP, either a (double) number or a length n-vector of diagonal entries
  */
 SEXP diag_tC_ptr(int n, int *x_p, double *x_x, Rboolean is_U, int *perm,
-/*                                ^^^^^^ FIXME[Generalize] to int / ... */
+/*                                ^^^^^^ FIXME[Generalize] to int / ... -- via x_slot_kind ? */
 		 SEXP resultKind)
 {
     const char* res_ch = CHAR(STRING_ELT(resultKind,0));
@@ -1168,7 +1173,6 @@ SEXP diag_tC_ptr(int n, int *x_p, double *x_x, Rboolean is_U, int *perm,
  */
 SEXP diag_tC(SEXP obj, SEXP resultKind)
 {
-
     SEXP
 	pslot = GET_SLOT(obj, Matrix_pSym),
 	xslot = GET_SLOT(obj, Matrix_xSym);
@@ -1233,7 +1237,7 @@ SEXP create_Csparse(char* cls, int* i, int* j, int* p, int np,
 		    error(_("p must be non-decreasing"));
 	    if (p[np] != nnz)
 		error("p[np] = %d != nnz = %d", p[np], nnz);
-	    ij = Calloc(nnz, int);
+	    ij = R_Calloc(nnz, int);
 	    if (mi) {
 		i = ij;
 		nrow = np;
@@ -1304,9 +1308,10 @@ SEXP create_Csparse(char* cls, int* i, int* j, int* p, int np,
     ans = PROTECT(NEW_OBJECT_OF_CLASS(cls));
 // FIXME: This has been copied from chm_sparse_to_SEXP in  chm_common.c
     /* allocate and copy common slots */
-    nnz = cholmod_nnz(A, &c);
+    nnz = (int) cholmod_nnz(A, &c);
     dims = INTEGER(ALLOC_SLOT(ans, Matrix_DimSym, INTSXP, 2));
-    dims[0] = A->nrow; dims[1] = A->ncol;
+    dims[0] = (int) A->nrow;
+    dims[1] = (int) A->ncol;
     Memcpy(INTEGER(ALLOC_SLOT(ans, Matrix_pSym, INTSXP, A->ncol + 1)), (int*)A->p, A->ncol + 1);
     Memcpy(INTEGER(ALLOC_SLOT(ans, Matrix_iSym, INTSXP, nnz)), (int*)A->i, nnz);
     switch(cls[0]) {
@@ -1375,7 +1380,7 @@ SEXP matrix_to_Csparse(SEXP x, SEXP cls)
 	nnz = imax2(256, imax2(nr,nc));/* nnz := final number of nonzero entries, yet unknown;
 					   -- must start with guess and then grow */
     int *rp = INTEGER(ALLOC_SLOT(ans, Matrix_pSym, INTSXP, nc + 1)),
-	*ri = Calloc(nnz, int); // to become i slot -- of not-yet-known length nnz
+	*ri = R_Calloc(nnz, int); // to become i slot -- of not-yet-known length nnz
 
     rp[0] = 0; // always
 
@@ -1423,12 +1428,91 @@ SEXP matrix_to_Csparse(SEXP x, SEXP cls)
     }
 
     Memcpy(INTEGER(ALLOC_SLOT(ans, Matrix_iSym,  INTSXP, nnz)), ri, nnz);
-    Free(ri);
+    R_Free(ri);
 
     UNPROTECT(1);
     return ans;
 }
 
 
+// seed will *not* be used unless it's -1 (inverse perm.) or  0 ("no" / identity) perm.
+static csd* Csparse_dmperm_raw(SEXP mat, SEXP seed)
+{
+    mat = PROTECT(duplicate(mat));
+    CSP matx = AS_CSP__(mat); /* m x n ; compressed column, *double* 'x' or none */
+    int iseed = asInteger(seed);
+    R_CheckStack();
+    UNPROTECT(1);
+    return cs_dmperm(matx, iseed); // -> ./cs.c
+}
 
+/* NB:  cs.h  defines the 'csd' struct as  (NB: csi :== int in  Matrix, for now)
 
+   typedef struct cs_dmperm_results    // cs_dmperm or cs_scc output
+   {
+   csi *p ;        // size m, row permutation
+   csi *q ;        // size n, column permutation
+   csi *r ;        // size nb+1, block k is rows r[k] to r[k+1]-1 in A(p,q)
+   csi *s ;        // size nb+1, block k is cols s[k] to s[k+1]-1 in A(p,q)
+   csi nb ;        // # of blocks in fine dmperm decomposition
+   csi rr [5] ;    // coarse row decomposition
+   csi cc [5] ;    // coarse column decomposition
+   } csd ;
+*/
+
+/* MM: should allow to return the full info above
+   (Timothy Davis, p.126, explains why it's interesting ..) */
+
+/* Here, return the full *named* list to R */
+SEXP Csparse_dmperm(SEXP mat, SEXP seed, SEXP nAns) {
+    csd *DMp = Csparse_dmperm_raw(mat, seed);
+    if(DMp == NULL) // "failure" in cs_dmperm()
+	return(R_NilValue);
+    int *dims = INTEGER(GET_SLOT(mat, Matrix_DimSym)),
+	m = dims[0],
+	n = dims[1],
+	n_ans = asInteger(nAns),
+	nb = DMp->nb;
+
+    SEXP nms = PROTECT(allocVector(STRSXP, n_ans));
+    SEXP ans = PROTECT(allocVector(VECSXP, n_ans));
+    R_CheckStack();
+    int *ip;
+    /* p : */SET_STRING_ELT(nms, 0, mkChar("p"));
+             SET_VECTOR_ELT(ans, 0, allocVector(INTSXP, m));
+    ip = INTEGER(VECTOR_ELT(ans, 0));
+    /* 0-based permutation:
+     * Memcpy(ip , (int*)(DMp->p), m); */
+    // 1-based permutation:
+    for(int i=0; i < m; i++) ip[i] = DMp->p[i] + 1;
+
+    /* q : */SET_STRING_ELT(nms, 1, mkChar("q"));
+             SET_VECTOR_ELT(ans, 1, allocVector(INTSXP, n));
+    ip = INTEGER(VECTOR_ELT(ans, 1));
+    /* 0-based permutation:
+     * Memcpy(ip , (int*)(DMp->q), m); */
+    // 1-based permutation:
+    for(int i=0; i < n; i++) ip[i] = DMp->q[i] + 1;
+
+    if(n_ans > 2) {
+      /* r : */  SET_STRING_ELT(nms, 2, mkChar("r"));
+		 SET_VECTOR_ELT(ans, 2, allocVector(INTSXP, nb+1));
+      Memcpy(INTEGER(VECTOR_ELT(ans, 2)), (int*)(DMp->r),   nb+1);
+
+      /* s : */  SET_STRING_ELT(nms, 3, mkChar("s"));
+		 SET_VECTOR_ELT(ans, 3, allocVector(INTSXP, nb+1));
+      Memcpy(INTEGER(VECTOR_ELT(ans, 3)), (int*)(DMp->s),   nb+1);
+      if(n_ans > 4) {
+	/* rr5 :*/ SET_STRING_ELT(nms, 4, mkChar("rr5"));
+		   SET_VECTOR_ELT(ans, 4, allocVector(INTSXP, 5));
+	Memcpy(INTEGER(VECTOR_ELT(ans, 4)), (int*)(DMp->rr),  5);
+
+	/* cc5 :*/ SET_STRING_ELT(nms, 5, mkChar("cc5"));
+		   SET_VECTOR_ELT(ans, 5, allocVector(INTSXP, 5));
+	Memcpy(INTEGER(VECTOR_ELT(ans, 5)), (int*)(DMp->cc),  5);
+      }
+    }
+    setAttrib(ans, R_NamesSymbol, nms);
+    UNPROTECT(2);
+    return ans;
+}

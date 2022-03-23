@@ -18,7 +18,7 @@
 \alias{coerce,ntpMatrix,ltpMatrix-method}
 \alias{coerce,ntrMatrix,ltrMatrix-method}
 \alias{as.vector,ndenseMatrix-method}
-\alias{diag,ndenseMatrix-method}
+% \alias{diag,ndenseMatrix-method} -> now methods by subclass
 \alias{norm,ndenseMatrix,character-method}
 \alias{which,ndenseMatrix-method}
 %

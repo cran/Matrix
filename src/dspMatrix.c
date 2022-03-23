@@ -84,6 +84,10 @@ SEXP dspMatrix_matrix_solve(SEXP a, SEXP b)
     return val;
 }
 
+
+/* MJ: No longer needed ... replacement in ./packedMatrix.c */
+#if 0
+
 SEXP dspMatrix_getDiag(SEXP x)
 
 {
@@ -116,6 +120,8 @@ SEXP lspMatrix_setDiag(SEXP x, SEXP d)
     int n = INTEGER(GET_SLOT(x, Matrix_DimSym))[0];
     return l_packed_setDiag(INTEGER(d), LENGTH(d), x, n);
 }
+
+#endif /* MJ */
 
 
 SEXP dspMatrix_as_dsyMatrix(SEXP from)
@@ -156,7 +162,7 @@ SEXP dspMatrix_matrix_mm(SEXP a, SEXP b)
 	    F77_CALL(dspmv)(uplo, &n, &one, ax, bx + in, &ione,
 			    &zero, vx + in, &ione FCONE);
 	}
-	if(nn >= SMALL_4_Alloca) Free(bx);
+	if(nn >= SMALL_4_Alloca) R_Free(bx);
     }
     UNPROTECT(1);
     return val;

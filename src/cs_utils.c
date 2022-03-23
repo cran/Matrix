@@ -60,21 +60,26 @@ static CSP csp_eye(int n)
  */
 cs *Matrix_as_cs(cs *ans, SEXP x, Rboolean check_Udiag)
 {
-    static const char *valid[] = {"dgCMatrix", "dtCMatrix", ""};
+    static const char *valid[] =
+	{ "dgCMatrix", "dtCMatrix"
+	  // 0            1
+	, "ngCMatrix", "ntCMatrix"
+	  // 2            3
+	, ""};
     /* had also "dsCMatrix", but that only stores one triangle */
-    int *dims, ctype = R_check_class_etc(x, valid);
-    SEXP islot;
-
+    int ctype = R_check_class_etc(x, valid);
     if (ctype < 0) error(_("invalid class of 'x' in Matrix_as_cs(a, x)"));
+    // now, ctype >= 0
+    Rboolean has_x = ctype < 2;
 				/* dimensions and nzmax */
-    dims = INTEGER(GET_SLOT(x, Matrix_DimSym));
+    int *dims = INTEGER(GET_SLOT(x, Matrix_DimSym));
     ans->m = dims[0]; ans->n = dims[1];
-    islot = GET_SLOT(x, Matrix_iSym);
+    SEXP islot = GET_SLOT(x, Matrix_iSym);
     ans->nz = -1;		/* indicates compressed column storage */
     ans->nzmax = LENGTH(islot);
     ans->i = INTEGER(islot);
     ans->p = INTEGER(GET_SLOT(x, Matrix_pSym));
-    ans->x = REAL(GET_SLOT(x, Matrix_xSym));
+    ans->x = has_x ? REAL(GET_SLOT(x, Matrix_xSym)) : NULL;
 
     if(check_Udiag && ctype == 1 && (*diag_P(x) == 'U')) { /* diagU2N(.) : */
 	int n = dims[0];
@@ -98,6 +103,7 @@ cs *Matrix_as_cs(cs *ans, SEXP x, Rboolean check_Udiag)
 			(   int*) tmp->p, n+1);
 	ans->i = Memcpy((   int*) R_alloc(nz, sizeof(int)),
 			(   int*) tmp->i, nz);
+	if(has_x)
 	ans->x = Memcpy((double*) R_alloc(nz, sizeof(double)),
 			(double*) tmp->x, nz);
 
@@ -112,7 +118,7 @@ cs *Matrix_as_cs(cs *ans, SEXP x, Rboolean check_Udiag)
  *
  * @param a matrix to be converted
  * @param cl the name of the S4 class of the object to be generated
- * @param dofree 0 - don't free a; > 0 cs_free a; < 0 Free a
+ * @param dofree 0 - don't free a; > 0 cs_free a; < 0 R_Free a
  * @param dn either R_NilValue or an SEXP suitable for the Dimnames slot.
  *
  * @return SEXP containing a copy of a
@@ -144,7 +150,7 @@ SEXP Matrix_cs_to_SEXP(cs *a, char *cl, int dofree, SEXP dn)
 	SET_SLOT(ans, Matrix_uploSym, mkString(uplo < 0 ? "L" : "U"));
     }
     if (dofree > 0) cs_spfree(a);
-    if (dofree < 0) Free(a);
+    if (dofree < 0) R_Free(a);
     if (dn != R_NilValue)
 	SET_SLOT(ans, Matrix_DimNamesSym, duplicate(dn));
     UNPROTECT(2);
@@ -230,7 +236,7 @@ csn *Matrix_as_csn(csn *ans, SEXP x)
  *
  * @param a css object to be converted
  * @param cl the name of the S4 class of the object to be generated
- * @param dofree 0 - don't free a; > 0 cs_free a; < 0 Free a
+ * @param dofree 0 - don't free a; > 0 cs_free a; < 0 R_Free a
  * @param m number of rows in original matrix
  * @param n number of columns in original matrix
  *
@@ -266,7 +272,7 @@ SEXP Matrix_css_to_SEXP(css *S, char *cl, int dofree, int m, int n)
 	      cl);
     }
     if (dofree > 0) cs_sfree(S);
-    if (dofree < 0) Free(S);
+    if (dofree < 0) R_Free(S);
     UNPROTECT(1);
     return ans;
 }
@@ -277,7 +283,7 @@ SEXP Matrix_css_to_SEXP(css *S, char *cl, int dofree, int m, int n)
  *
  * @param a csn object to be converted
  * @param cl the name of the S4 class of the object to be generated
- * @param dofree 0 - don't free a; > 0 cs_free a; < 0 Free a
+ * @param dofree 0 - don't free a; > 0 cs_free a; < 0 R_Free a
  * @param dn either R_NilValue or an SEXP suitable for the Dimnames slot. FIXME (L,U!)
  *
  * @return SEXP containing a copy of S
@@ -313,7 +319,7 @@ SEXP Matrix_csn_to_SEXP(csn *N, char *cl, int dofree, SEXP dn)
     }
     if (dofree > 0) cs_nfree(N);
     if (dofree < 0) {
-	Free(N->L); Free(N->U); Free(N);
+	R_Free(N->L); R_Free(N->U); R_Free(N);
     }
     UNPROTECT(1);
     return ans;

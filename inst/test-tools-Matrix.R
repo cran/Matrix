@@ -519,16 +519,20 @@ checkMatrix <- function(m, m.m = if(do.matrix) as(m, "matrix"),
     }
 
     if(!isInd)
-        m.d <- local({ m. <- m; diag(m.) <- diag(m); m. })
+        m.d <- local({ m. <- m
+            diag(m.) <- diag(m) ## << *assigning* to 'm.' now typically annihilates @factor
+            if(.hasSlot(m, "factors") && length(f <- m@factors))
+                m.@factors <- f
+            m. })
     if(do.matrix)
     stopifnot(identical(dim(m.m), dim(m)),
-	      ## base::diag() keeps names [Matrix FIXME]
+
 ## now that "pMatrix" subsetting gives *LOGICAL*
 ## 	      if(isPerm) {
 ## 		  identical(as.integer(unname(diag(m))), unname(diag(m.m)))
 ## 	      } else
-	      identical(unname(diag(m)),
-			unname(diag(m.m))),## not for NA: diag(m) == diag(m.m),
+	      identical(diag(m), # base:: *and* Matrix diag()  now keep names
+			diag(m.m)),## not for NA: diag(m) == diag(m.m),
 	      identical(nnzero(m), sum(m.m != 0)),
 	      identical(nnzero(m, na.= FALSE), sum(m.m != 0, na.rm = TRUE)),
 	      identical(nnzero(m, na.= TRUE),  sum(m.m != 0 | is.na(m.m)))
@@ -695,7 +699,7 @@ checkMatrix <- function(m, m.m = if(do.matrix) as(m, "matrix"),
     }
 
     invisible(TRUE)
-}
+} ## {checkMatrix}
 
 ### --- These use
 

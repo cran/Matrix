@@ -116,3 +116,4 @@ sparseQR.o: sparseQR.c sparseQR.h Mutils.h \
  CHOLMOD/Include/cholmod_cholesky.h CHOLMOD/Include/cholmod_partition.h \
  CHOLMOD/Include/cholmod_camd.h CHOLMOD/Include/cholmod_supernodal.h \
  CHOLMOD/Include/cholmod_matrixops.h CHOLMOD/Include/cholmod_modify.h
+packedMatrix.o: packedMatrix.c packedMatrix.h Mutils.h Syms.h

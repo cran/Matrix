@@ -12,11 +12,11 @@
 \alias{coerce,lsyMatrix,lspMatrix-method}
 \alias{coerce,matrix,lsyMatrix-method}
 \alias{coerce,matrix,lspMatrix-method}
-\alias{diag,lspMatrix-method}
+% \alias{diag,lspMatrix-method} -> ./packedMatrix-class.Rd
 \alias{diag,lsyMatrix-method}
-\alias{diag<-,lspMatrix-method}
+% \alias{diag<-,lspMatrix-method}
 \alias{diag<-,lsyMatrix-method}
-\alias{t,lspMatrix-method}
+% \alias{t,lspMatrix-method}
 \alias{t,lsyMatrix-method}
 %
 \description{

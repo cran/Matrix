@@ -107,8 +107,17 @@ setAs("dsyMatrix", "dpoMatrix",
 		    sNames = c("x", "Dim", "Dimnames", "uplo", "factors"))
       })
 
-setMethod("diag", signature(x = "dsyMatrix"),
-	  function(x, nrow, ncol) .Call(dgeMatrix_getDiag, x))
+.dsy.diag <- function(x, nrow, ncol, names=TRUE) {
+    if(min(dim(x)) == 0L) return(numeric(0L))
+    y <- .Call(dgeMatrix_getDiag, x)
+    if(names) {
+        nms <- symmetricDimnames(x)
+        if(is.list(nms) && length(nms) == 2L)
+            names(y) <- nms[[1L]]
+    }
+    y
+}
+setMethod("diag", signature(x = "dsyMatrix"), .dsy.diag)
 setMethod("diag<-", signature(x = "dsyMatrix"),
 	  function(x, value) .Call(dgeMatrix_setDiag, x, value))
 

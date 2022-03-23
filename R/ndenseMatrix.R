@@ -146,10 +146,14 @@ setMethod("as.logical", signature(x = "ndenseMatrix"),
 setMethod("t", signature(x = "ngeMatrix"), t_geMatrix)
 setMethod("t", signature(x = "ntrMatrix"), t_trMatrix)
 setMethod("t", signature(x = "nsyMatrix"), t_trMatrix)
+
+## MJ: No longer needed ... replacement in ./packedMatrix.R
+if (FALSE) {
 setMethod("t", signature(x = "ntpMatrix"),
 	  function(x) as(t(as(x, "ntrMatrix")), "ntpMatrix"))
 setMethod("t", signature(x = "nspMatrix"),
 	  function(x) as(t(as(x, "nsyMatrix")), "nspMatrix"))
+}
 
 ## NOTE:  "&" and "|"  are now in group "Logic" c "Ops" --> ./Ops.R
 ##        "!" is in ./not.R

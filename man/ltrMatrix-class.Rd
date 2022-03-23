@@ -13,11 +13,11 @@
 \alias{coerce,ltrMatrix,ltpMatrix-method}
 \alias{coerce,matrix,ltrMatrix-method}
 \alias{coerce,matrix,ltpMatrix-method}
+% \alias{diag,ltpMatrix-method} -> ./packedMatrix-class.Rd
 \alias{diag,ltrMatrix-method}
-\alias{diag,ltpMatrix-method}
-\alias{diag<-,ltpMatrix-method}
+% \alias{diag<-,ltpMatrix-method}
 \alias{diag<-,ltrMatrix-method}
-\alias{t,ltpMatrix-method}
+% \alias{t,ltpMatrix-method}
 \alias{t,ltrMatrix-method}
 %
 \title{Triangular Dense Logical Matrices}

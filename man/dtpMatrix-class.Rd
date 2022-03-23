@@ -9,14 +9,14 @@
 \alias{coerce,matrix,dtpMatrix-method}
 \alias{determinant,dtpMatrix,missing-method}
 \alias{determinant,dtpMatrix,logical-method}
-\alias{diag,dtpMatrix-method}
-\alias{diag<-,dtpMatrix-method}
+% \alias{diag,dtpMatrix-method} -> ./packedMatrix-class.Rd
+% \alias{diag<-,dtpMatrix-method}
 \alias{norm,dtpMatrix,character-method}
 \alias{norm,dtpMatrix,missing-method}
 \alias{rcond,dtpMatrix,character-method}
 \alias{rcond,dtpMatrix,missing-method}
-%\alias{solve,dtpMatrix,...-method}%--> solve-methods.Rd
-\alias{t,dtpMatrix-method}
+% \alias{solve,dtpMatrix,...-method}%--> solve-methods.Rd
+% \alias{t,dtpMatrix-method}
 \description{The \code{"dtpMatrix"} class is the class of triangular,
   dense, numeric matrices in packed storage.  The \code{"dtrMatrix"}
   class is the same except in nonpacked storage.}

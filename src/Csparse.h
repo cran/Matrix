@@ -43,6 +43,7 @@ SEXP Csparse_validate (SEXP x);
 SEXP Csparse_validate2(SEXP x, SEXP maybe_modify);
 SEXP Csparse_validate_(SEXP x, Rboolean maybe_modify);
 SEXP Csparse_vertcat(SEXP x, SEXP y);
+SEXP Csparse_dmperm     (SEXP mat, SEXP seed, SEXP nAns);
 
 SEXP Rsparse_validate(SEXP x);
 

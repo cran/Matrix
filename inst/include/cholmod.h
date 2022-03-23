@@ -4,50 +4,39 @@
 #include <stddef.h>
 #include <limits.h>
 
-// Rather use C99 -- which we require in R anyway
-#include <inttypes.h>
-
-
 #ifdef	__cplusplus
 extern "C" {
 #endif
 
-// from ../../src/SuiteSparse_config/SuiteSparse_config.h :
+// synced from >>>> ../../src/SuiteSparse_config/SuiteSparse_config.h :
+
+// Rather use C99 -- which we require in R anyway
+#include <inttypes.h>
+
 #ifndef SuiteSparse_long
 
-/* #ifdef _WIN64 */
+#if !defined(_WIN64) || defined(_UCRT)
 
-/* #define SuiteSparse_long __int64 */
-/* #define SuiteSparse_long_max _I64_MAX */
-/* #define SuiteSparse_long_idd "I64d" */
+#define SuiteSparse_long long
+#define SuiteSparse_long_max LONG_MAX
+#define SuiteSparse_long_idd "ld"
 
-/* #else */
+#else // _WIN64 but not _UCRT
 
-/* #define SuiteSparse_long long */
-/* #define SuiteSparse_long_max LONG_MAX */
-/* #define SuiteSparse_long_idd "ld" */
-
-/* #endif */
-
-#define SuiteSparse_long int64_t
-    // typically long (but on WIN64)
-#define SuiteSparse_ulong uint64_t
-    //  only needed for ../COLAMD/Source/colamd.c (original has 'unsigned Int' which fails!!)
-#define SuiteSparse_long_max 9223372036854775801
-    // typically LONG_MAX (but ..)
+#define SuiteSparse_long __int64
+#define SuiteSparse_long_max _I64_MAX
 #define SuiteSparse_long_idd PRId64
+
+#endif
+
+/* #define SuiteSparse_long int64_t */
+/*     // typically long (but on WIN64) */
+/* #define SuiteSparse_long_max 9223372036854775801 */
+/*     // typically LONG_MAX (but ..) */
+/* #define SuiteSparse_long_idd PRId64 */
     // typically "ld"
 
 #define SuiteSparse_long_id "%" SuiteSparse_long_idd
-#endif
-
-/* For backward compatibility with prior versions of SuiteSparse.  The UF_*
- * macros are deprecated and will be removed in a future version. */
-#ifndef UF_long
-#define UF_long     SuiteSparse_long
-#define UF_long_max SuiteSparse_long_max
-#define UF_long_idd SuiteSparse_long_idd
-#define UF_long_id  SuiteSparse_long_id
 #endif
 
 

@@ -64,7 +64,7 @@ void sparseQR_Qmult(cs *V, SEXP dmns, double *beta, int *p, int trans,
 	    Memcpy(yj, x, m);
 	}
     }
-    if(m >= SMALL_4_Alloca) Free(x);
+    if(m >= SMALL_4_Alloca) R_Free(x);
     if(!isNull(dmns)) { // assign rownames to 'ans' matrix
 	// FIXME? colnames taken from 'y' ?!
 	if(!isNull(VECTOR_ELT(dmns, 0))) {
@@ -181,7 +181,7 @@ SEXP sparseQR_coef(SEXP qr, SEXP y)
 	    Memcpy(aj, x, n_R);
 	}
     }
-    if(lq && M >= SMALL_4_Alloca) Free(x);
+    if(lq && M >= SMALL_4_Alloca) R_Free(x);
 
     if(rank_def) {
 	warning(_("%s(): structurally rank deficient case: possibly WRONG zeros"),

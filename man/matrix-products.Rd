@@ -109,6 +109,8 @@
 \alias{\%*\%,TsparseMatrix,Matrix-method}
 \alias{\%*\%,Matrix,TsparseMatrix-method}
 \alias{\%*\%,TsparseMatrix,TsparseMatrix-method}
+\alias{\%*\%,RsparseMatrix,mMatrix-method}
+\alias{\%*\%,mMatrix,RsparseMatrix-method}
 %%-- crossprod -------------------------------
 \alias{crossprod-methods}
 \alias{crossprod,dgeMatrix,dgeMatrix-method}
@@ -208,6 +210,10 @@
 \alias{crossprod,ndenseMatrix,matrix-method}
 \alias{crossprod,ndenseMatrix,missing-method}
 \alias{crossprod,ndenseMatrix,ndenseMatrix-method}
+\alias{crossprod,ANY,RsparseMatrix-method}
+\alias{crossprod,RsparseMatrix,ANY-method}
+\alias{crossprod,RsparseMatrix,mMatrix-method}
+\alias{crossprod,mMatrix,RsparseMatrix-method}
 %%-- tcrossprod ------------------------------
 \alias{tcrossprod-methods}
 \alias{tcrossprod,dgeMatrix,missing-method}
@@ -297,6 +303,10 @@
 \alias{tcrossprod,matrix,dsCMatrix-method}
 \alias{tcrossprod,matrix,lsCMatrix-method}
 \alias{tcrossprod,matrix,nsCMatrix-method}
+\alias{tcrossprod,ANY,RsparseMatrix-method}
+\alias{tcrossprod,RsparseMatrix,ANY-method}
+\alias{tcrossprod,RsparseMatrix,mMatrix-method}
+\alias{tcrossprod,mMatrix,RsparseMatrix-method}
 %%---------------
 %- these three are needed for R CMD check:
 \alias{\%*\%}

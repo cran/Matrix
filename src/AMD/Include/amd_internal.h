@@ -11,20 +11,6 @@
 /* This file is for internal use in AMD itself, and does not normally need to
  * be included in user code (it is included in UMFPACK, however).   All others
  * should use amd.h instead.
- *
- * The following compile-time definitions affect how AMD is compiled.
- *
- *      -DNPRINT
- *
- *          Disable all printing.  stdio.h will not be included.  Printing can
- *          be re-enabled at run-time by setting the global pointer amd_printf
- *          to printf (or mexPrintf for a MATLAB mexFunction).
- *
- *      -DNMALLOC
- *
- *          No memory manager is defined at compile-time.  You MUST define the
- *          function pointers amd_malloc, amd_free, amd_realloc, and
- *          amd_calloc at run-time for AMD to work properly.
  */
 
 // For use with R package 'Matrix':

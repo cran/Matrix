@@ -43,8 +43,24 @@ setMethod("rcond", signature(x = "dgeMatrix", norm = "character"),
 
 setMethod("t", signature(x = "dgeMatrix"), t_geMatrix)
 
+..get.diag <- function(x, nrow, ncol, names=TRUE) {
+    ##         vvvvvvvvvvvvvvvvv here just a place holder, replaced in .mkSpec.diag()
+    y <- .Call(dgeMatrix_getDiag, x) # double or logical
+    if(names) {
+        nms <- dimnames(x)
+        if(is.list(nms) && !any(vapply(nms, is.null, NA)) &&
+           identical((nm <- nms[[1L]][im <- seq_len(min(dim(x)))]), nms[[2L]][im]))
+            names(y) <- nm
+    }
+    y
+}
+.mkSpec.diag <- function(symb) {
+    rr <- ..get.diag
+    body(rr)[[2]][[3]][[2]] <- symb
+    rr
+}
+.dge.diag <- .mkSpec.diag(quote(dgeMatrix_getDiag))
 
-.dge.diag <- function(x, nrow, ncol) .Call(dgeMatrix_getDiag, x)
 setMethod("diag", signature(x = "dgeMatrix"), .dge.diag)
 setMethod("diag<-", signature(x = "dgeMatrix"),
 	  function(x, value) .Call(dgeMatrix_setDiag, x, value))

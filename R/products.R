@@ -225,6 +225,13 @@ setMethod("%*%", signature(x = "Matrix", y = "matrix"),
 setMethod("%*%", signature(x = "matrix", y = "Matrix"),
 	  function(x, y) Matrix(x) %*% y)
 
+## RsparseMatrix -- via CsparseMatrix:
+setMethod("%*%", signature(x = "mMatrix", y = "RsparseMatrix"),
+	  function(x, y) x %*% .R.2.C(y))
+setMethod("%*%", signature(x = "RsparseMatrix", y = "mMatrix"),
+	  function(x, y) .R.2.C(x) %*% y)
+
+
 ## bail-out methods in order to get better error messages
 .local.bail.out <- function (x, y)
     stop(gettextf('not-yet-implemented method for <%s> %%*%% <%s>',
@@ -589,6 +596,15 @@ setMethod("crossprod", signature(x = "symmetricMatrix", y = "ANY"),
 	  function(x,y=NULL, boolArith=NA, ...)
 	      if(isTRUE(boolArith)) x %&% y else x %*% y)
 ##
+
+## RsparseMatrix -- via CsparseMatrix:
+for(mClass in c("mMatrix", "ANY")) {
+    setMethod("crossprod", signature(x = mClass, y = "RsparseMatrix"),
+	      function(x, y) crossprod(x, .R.2.C(y)))
+    setMethod("crossprod", signature(x = "RsparseMatrix", y = mClass),
+	      function(x, y) crossprod(.R.2.C(x), y))
+}
+
 ## cheap fallbacks
 setMethod("crossprod", signature(x = "Matrix", y = "Matrix"),
 	  function(x, y=NULL, boolArith=NA, ...) {
@@ -863,6 +879,15 @@ setMethod("tcrossprod", signature(x = "sparseVector", y = "numLike"),
 		  .sparseV2Mat(x) %*% t(x)
 	      }
 	  })
+
+
+## RsparseMatrix -- via CsparseMatrix:
+for(mClass in c("mMatrix", "ANY")) {
+    setMethod("tcrossprod", signature(x = mClass, y = "RsparseMatrix"),
+	      function(x, y) crossprod(x, .R.2.C(y)))
+    setMethod("tcrossprod", signature(x = "RsparseMatrix", y = mClass),
+	      function(x, y) crossprod(.R.2.C(x), y))
+}
 
 
 ## Fallbacks -- symmetric RHS --> saving a t(.):

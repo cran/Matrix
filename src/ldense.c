@@ -118,12 +118,12 @@ SEXP lsyMatrix_as_lgeMatrix(SEXP from, SEXP kind)
     slot_dup(val, from, Matrix_xSym);
     slot_dup(val, from, Matrix_DimSym);
     // slot_dup(val, from, Matrix_DimNamesSym) + symmetric_Dimnames():
-    SET_SLOT(val, Matrix_DimNamesSym,
-	     symmetric_DimNames(duplicate(GET_SLOT(from, Matrix_DimNamesSym))));
+    SEXP d_nms = PROTECT(duplicate(GET_SLOT(from, Matrix_DimNamesSym)));
+    SET_SLOT(val, Matrix_DimNamesSym, symmetric_DimNames(d_nms));
     SET_SLOT(val, Matrix_factorSym, allocVector(VECSXP, 0));
 
     make_i_matrix_symmetric(LOGICAL(GET_SLOT(val, Matrix_xSym)), from);
-    UNPROTECT(1);
+    UNPROTECT(2);
     return val;
 }
 

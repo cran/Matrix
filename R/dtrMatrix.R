@@ -42,7 +42,7 @@ setMethod("determinant", signature(x = "dtrMatrix", logarithm = "logical"),
 	  function(x, logarithm, ...) mkDet(diag(x), logarithm))
 
 setMethod("diag", signature(x = "dtrMatrix"),
-          function(x, nrow, ncol) .Call(dtrMatrix_getDiag, x),
+          .mkSpec.diag(quote(dtrMatrix_getDiag)),
           valueClass = "numeric")
 setMethod("diag<-", signature(x = "dtrMatrix"),
 	  function(x, value) {

@@ -1,5 +1,6 @@
 #include "dgeMatrix.h"
 // -> Mutils.h  etc
+#include <float.h>
 
 SEXP dMatrix_validate(SEXP obj)
 {
@@ -118,8 +119,8 @@ double* gematrix_real_x(SEXP x, int nn) {
     for(int i=0; i < nn; i++)
 	x_x[i] = (double) xi[i];
 
-    // FIXME: this is not possible either; the *caller* would have to Free(.)
-    if(nn >= SMALL_4_Alloca) Free(x_x);
+    // FIXME: this is not possible either; the *caller* would have to R_Free(.)
+    if(nn >= SMALL_4_Alloca) R_Free(x_x);
 #else
     // ideally should be PROTECT()ed ==> make sure R does not run gc() now!
     double *x_x = REAL(coerceVector(GET_SLOT(x, Matrix_xSym), REALSXP));
@@ -567,7 +568,7 @@ SEXP dgeMatrix_solve(SEXP a)
                          (int *) R_alloc(dims[0], sizeof(int)), &info FCONE);
         if (info)
             error(_("error [%d] from Lapack 'dgecon()'"), info);
-        if(rcond < DOUBLE_EPS)
+        if(rcond < DBL_EPSILON)
             error(_("Lapack dgecon(): system computationally singular, reciprocal condition number = %g"),
 		  rcond);
 
@@ -639,8 +640,8 @@ SEXP dgeMatrix_svd(SEXP x, SEXP nnu, SEXP nnv)
 			 REAL(VECTOR_ELT(val, 2)), &mm,
 			 work, &lwork, iwork, &info FCONE);
 
-	if(n_iw  >= SMALL_4_Alloca) Free(iwork);
-	if(lwork >= SMALL_4_Alloca) Free(work);
+	if(n_iw  >= SMALL_4_Alloca) R_Free(iwork);
+	if(lwork >= SMALL_4_Alloca) R_Free(work);
     }
     UNPROTECT(1);
     return val;
@@ -675,13 +676,13 @@ SEXP dgeMatrix_exp(SEXP x)
 
     SEXP val = PROTECT(duplicate(x));
     int i, ilo, ilos, ihi, ihis, j, sqpow;
-    int *pivot = Calloc(n, int);
-    double *dpp = Calloc(nsqr, double), /* denominator power Pade' */
-	*npp = Calloc(nsqr, double), /* numerator power Pade' */
-	*perm = Calloc(n, double),
-	*scale = Calloc(n, double),
+    int *pivot = R_Calloc(n, int);
+    double *dpp = R_Calloc(nsqr, double), /* denominator power Pade' */
+	*npp = R_Calloc(nsqr, double), /* numerator power Pade' */
+	*perm = R_Calloc(n, double),
+	*scale = R_Calloc(n, double),
 	*v = REAL(GET_SLOT(val, Matrix_xSym)),
-	*work = Calloc(nsqr, double), inf_norm, m1_j/*= (-1)^j */, trshift;
+	*work = R_Calloc(nsqr, double), inf_norm, m1_j/*= (-1)^j */, trshift;
     R_CheckStack();
 
     if (n < 1 || Dims[0] != n)
@@ -793,7 +794,7 @@ SEXP dgeMatrix_exp(SEXP x)
     }
 
     /* Clean up */
-    Free(work); Free(scale); Free(perm); Free(npp); Free(dpp); Free(pivot);
+    R_Free(work); R_Free(scale); R_Free(perm); R_Free(npp); R_Free(dpp); R_Free(pivot);
     UNPROTECT(1);
     return val;
 }
@@ -840,7 +841,7 @@ SEXP dgeMatrix_Schur(SEXP x, SEXP vectors, SEXP isDGE)
 		    &izero, REAL(VECTOR_ELT(val, 0)), REAL(VECTOR_ELT(val, 1)),
 		    REAL(VECTOR_ELT(val, 3)), dims, work, &lwork,
 		    (int *) NULL, &info FCONE FCONE);
-    if(lwork >= SMALL_4_Alloca) Free(work);
+    if(lwork >= SMALL_4_Alloca) R_Free(work);
     if (info) error(_("dgeMatrix_Schur: dgees returned code %d"), info);
     UNPROTECT(nprot);
     return val;
@@ -904,7 +905,7 @@ SEXP dgeMatrix_colsums(SEXP x, SEXP naRmP, SEXP cols, SEXP mean)
 		for (i = 0; i < m; i++)
 		    aa[i] = (cnt[i] > 0) ? aa[i]/cnt[i] : NA_REAL;
 	}
-	if(do_count && m >= SMALL_4_Alloca) Free(cnt);
+	if(do_count && m >= SMALL_4_Alloca) R_Free(cnt);
     }
 
     SEXP nms = VECTOR_ELT(GET_SLOT(x, Matrix_DimNamesSym), useCols ? 1 : 0);

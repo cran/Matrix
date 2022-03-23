@@ -1480,7 +1480,7 @@ Csp[i,i,l] : nargs()=4
 > stopifnot(class(x.x) == "dsCMatrix",
 +           class(x.x. <- round(x.x / 10000)) == "dsCMatrix",
 +           identical(x.x[cbind(2:6, 2:6)],
-+                     diag(x.x [2:6, 2:6])))
++                     diag(x.x[2:6, 2:6], names=FALSE)))
 M[i,i,m] : nargs()=3
 Csp[i,i,l] : nargs()=4
 > head(x.x.) # Note the *non*-structural 0's printed as "0"

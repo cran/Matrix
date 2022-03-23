@@ -10,11 +10,6 @@
 ## compressed_to_TMatrix -- fails on 32bit--enable-R-shlib with segfault {Kurt}
 ## ------------ --> ../src/dgCMatrix.c
 .R.2.T <- function(from) .Call(compressed_to_TMatrix, from, FALSE)
-## slow R-level workaround
-## this is cheap; alternative: going there directly, using
-##	i <- .Call(Matrix_expand_pointers, from@p),
-if(FALSE)
-.R.2.T <- function(from) as(.R.2.C(from), "TsparseMatrix")
 
 ## R_to_CMatrix
 ## ------------ --> ../src/dgCMatrix.c
@@ -68,7 +63,7 @@ if(FALSE)## "slow" unneeded R-level version
     if(icl %/% 3 != 2) ## not "n..Matrix" --> has 'x' slot
         r@x <- from@x
     if(icl %% 3 != 0) {                 # symmetric or triangular
-        r@uplo <- from@uplo
+        r@uplo <- if(from@uplo == "U") "L" else "U"
         if(icl %% 3 == 2)               # triangular
             r@diag <- from@diag
     }
@@ -119,15 +114,12 @@ setAs("RsparseMatrix", "matrix",
 ## one of the few coercions "to <specific>" {tested in ../tests/Class+Meth.R}
 setAs("matrix", "dgRMatrix", .viaC.to.dgR)
 
-## *very* cheap substitute:  work via t(.) and Csparse
-.viaC.to.R <- function(from) {
-    m <- as(t(from), "CsparseMatrix")# preserve symmetry/triangular
-    clx <- getClassDef(class(m))
+.tC.2.R <- function(m, cl = class(m), clx = getClassDef(cl)) {
     has.x <- !extends(clx, "nsparseMatrix")## <==> has 'x' slot
     sh <- .M.shapeC(m,clx)
     r <- new(paste0(.M.kindC(clx), sh, "RMatrix"))
-    r@Dim <- dim(from)
-    r@Dimnames <-  .M.DN(from)
+    r@Dim      <- m@Dim[2:1]
+    r@Dimnames <- m@Dimnames[2:1]
     r@p <- m@p
     r@j <- m@i
     if(has.x)
@@ -140,9 +132,21 @@ setAs("matrix", "dgRMatrix", .viaC.to.dgR)
     r
 }
 
+## *very* cheap substitute:  work via t(.) and Csparse
+.viaC.to.R <- function(from) {
+    m <- as(t(from), "CsparseMatrix")# preserve symmetry/triangular
+    .tC.2.R(m)
+}
+
 setAs("matrix",      "RsparseMatrix", .viaC.to.R)
 setAs("denseMatrix", "RsparseMatrix", .viaC.to.R)
 setAs("sparseMatrix","RsparseMatrix", .viaC.to.R)
+.C.2.R <- function(from) { ## slightly more efficiently than .viaC.to.R() :
+    cld <- getClassDef(class(from))
+    .tC.2.R(.Call(Csparse_transpose, from, extends(cld, "triangularMatrix")),
+            clx = cld)
+}
+setAs("CsparseMatrix", "RsparseMatrix", .C.2.R)
 
 ## symmetric: can use same 'p' slot
 setAs("dsCMatrix", "dsRMatrix",
@@ -175,9 +179,9 @@ setAs("dsCMatrix", "dsRMatrix",
 ##          function(x) .Call(csc_transpose, x),
 ##          valueClass = "dgRMatrix")
 
-setMethod("image", "dgRMatrix", function(x, ...) image(as(x, "TsparseMatrix"), ...))
+setMethod("image", "dgRMatrix", function(x, ...) image(.R.2.T(x), ...))
 
-setMethod("t", "RsparseMatrix", function(x) as(t(.R.2.T(x)), "RsparseMatrix"))
+setMethod("t", "RsparseMatrix", function(x) .C.2.R(.tR.2.C(x)))
 
 
 ## Want tril(), triu(), band() --- just as "indexing" ---
@@ -227,6 +231,3 @@ setReplaceMethod("[", signature(x = "RsparseMatrix", i = "matrix", j = "missing"
 				value = "replValue"),
 		 function (x, i, j, ..., value)
 		 .TM.repl.i.mat(as(x,"TsparseMatrix"), i=i, value=value))
-
-
-

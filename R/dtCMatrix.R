@@ -109,8 +109,8 @@ setMethod("solve", signature(a = "dtCMatrix", b = "numeric"),
           valueClass = "dgeMatrix")
 
 if(FALSE)## still not working
-setMethod("diag", "dtCMatrix",
-	  function(x, nrow, ncol) .Call(diag_tC, x, "diag"))
+setMethod("diag", "dtCMatrix",  ##vvvvv see .dge.diag()
+	  function(x, nrow, ncol, names=TRUE) .Call(diag_tC, x, "diag"))
 
 
 ## no pivoting here, use  L or U

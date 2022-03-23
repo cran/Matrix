@@ -12,6 +12,53 @@
 %%  when \code{prod(dim(.))} is larger than \eqn{2^{31} - 1}.
 %
 
+\section{Changes in version 1.4-1 (2022-03-21 r3446)}{
+  \subsection{Bug Fixes}{
+    \itemize{
+      \item \code{diag(x)} methods now mostly also keep \code{names} from
+      \code{dimnames(x)} by default and obey \code{names=*} more generally.
+    }
+  }
+  \subsection{New Features}{
+    \itemize{
+      \item New virtual class \code{packedMatrix} containing packed (dense)
+      symmetric and triangular matrices.  Methods for subscripting,
+      including \code{diag()}, notably keeping names by default and for
+      \code{t()} which are memory efficient, i.e., do not work via
+      unpacking, thanks to Mikael Jagan.
+
+      \item New \code{dmperm()} implementing a Dulmage-Mendelsohn
+      decomposition, thanks to the persistency of Mauricio Vargas (@uc.cl).
+
+      \item Export more low-level conversion utilities:
+      \code{.n2dgT}, \code{.m2ngCn}, \code{.m2ngTn}.
+
+      \item Provide some matrix multiplication methods for \code{"RsparseMatrix"}.
+    }
+  }
+  \subsection{Misc}{
+    \itemize{
+      \item Our C sources now use \code{R_Calloc()}, \code{R_Free()}
+      etc, instead of the shorter versions with 'R_'. Consequently, we
+      get closer to \code{STRICT_R_HEADERS}.
+      Also, include \code{<float.h>} for \code{DBL_EPSILON}.
+
+      \item \code{PROTECT()} 3 more; as from \samp{rchk} for Matrix 1.4-0.
+
+      \item Slightly better patch notably for Windows,
+      for \file{src/SuiteSparse_config/SuiteSparse_config.h}
+
+      \item Fix to continue working for \R 3.5.0 and newer, providing
+      \code{tryInvokeRestart()} for older versions of \R, thanking
+      Michael Chirico for the heads up.
+
+      \item Modified \code{AZERO()} to work with \code{R_xlen_t} and new
+      \code{AZEROs()} for \code{size_t}; other tweaks to evade
+      \code{-Wconversion} warnings.
+    }
+  }
+}
+
 \section{Changes in version 1.4-0 (2021-12-08 r3419)}{
   \subsection{Bug Fixes}{
     \itemize{
@@ -76,7 +123,7 @@
       matrix transformations or operations which involved symmetric matrices.
 
       \item \code{as(<ddiMatrix>, "matrix")} no longer loses dimnames,
-      thanks to Mikael Jagan's report as Matrix bug #6751.      
+      thanks to Mikael Jagan's report as Matrix bug #6751.
     }
   }
   \subsection{Misc}{
@@ -969,7 +1016,8 @@
     }
   }
 }
-
+%% TODO: fill in from here <<<<<<<<<<<<<<<<<<<
+%% ----  using ../ChangeLog and notably my ../svn-log-from.all
 \section{Changes in version 1.0-12 (2013-03-26, svn r2872)}{
   \subsection{New Features}{
     \itemize{

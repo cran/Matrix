@@ -52,8 +52,8 @@ SEXP Matrix_RLE_(SEXP x_, SEXP force_)
 	const char *res_nms[] = {"lengths", "values", ""};
 	SEXP ans;
 	if(n > 0) { /* needed for force=TRUE */
-	    len = Calloc(n2, int);
-	    val = Calloc(n2, Type_x_);
+	    len = R_Calloc(n2, int);
+	    val = R_Calloc(n2, Type_x_);
 
 	    lv = x[0];
 	    ln = 1;
@@ -65,8 +65,8 @@ SEXP Matrix_RLE_(SEXP x_, SEXP force_)
 		    len[c] = ln;
 		    c++;
 		    if (no_force && c == n2) { /* reached the "efficiency bound" */
-			Free(len);
-			Free(val);
+			R_Free(len);
+			R_Free(val);
 			UNPROTECT(1); return R_NilValue;
 		    }
 		    lv = x[i];
@@ -86,7 +86,7 @@ SEXP Matrix_RLE_(SEXP x_, SEXP force_)
 	}
 	setAttrib(ans, R_ClassSymbol, mkString("rle"));
 
-	if(n > 0) { Free(len); Free(val); }
+	if(n > 0) { R_Free(len); R_Free(val); }
 	UNPROTECT(2);
 	return ans;
     }

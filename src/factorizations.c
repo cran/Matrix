@@ -151,7 +151,7 @@ SEXP LU_expand(SEXP x)
     // invert the inverse
     for (i = 0; i < m; i++) perm[iperm[i] - 1] = i + 1;
 
-    if(m >= SMALL_4_Alloca) Free(iperm);
+    if(m >= SMALL_4_Alloca) R_Free(iperm);
     UNPROTECT(1);
     return val;
 }

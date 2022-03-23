@@ -120,6 +120,8 @@ SEXP R_to_CMatrix(SEXP x)
     UNPROTECT(2);
     return ans;
 }
+// NB: C_to_RMatrix(.)  may be nice, but would need Rsparse_transpose()
+
 
 /** Return a 2 column matrix  '' cbind(i, j) ''  of 0-origin index vectors (i,j)
  *  which entirely correspond to the (i,j) slots of
@@ -347,7 +349,7 @@ SEXP dgCMatrix_SPQR(SEXP Ap, SEXP ordering, SEXP econ, SEXP tol)
 	SET_VECTOR_ELT(ans, 2, allocVector(INTSXP, A->ncol));
 	int *Er = INTEGER(VECTOR_ELT(ans, 2));
 	for (int i = 0; i < A->ncol; i++) Er[i] = (int) E[i];
-	Free(E);
+	R_Free(E);
     } else SET_VECTOR_ELT(ans, 2, allocVector(INTSXP, 0));
     SET_VECTOR_ELT(ans, 3, ScalarInteger((int)rank));
     UNPROTECT(1);
@@ -518,7 +520,7 @@ SEXP dgCMatrix_matrix_solve(SEXP Ap, SEXP b, SEXP give_sparse)
 		Memcpy(ax + j * n_, x, n);
 	}
     }
-    if(n >= SMALL_4_Alloca) Free(x);
+    if(n >= SMALL_4_Alloca) R_Free(x);
     UNPROTECT(1);
     return ans;
 }
@@ -534,13 +536,13 @@ SEXP dgCMatrix_cholsol(SEXP x, SEXP y)
     /* FIXME: extend this to work in multivariate case, i.e. y a matrix with > 1 column ! */
     SEXP y_ = PROTECT(coerceVector(y, REALSXP));
     CHM_DN cy = AS_CHM_DN(y_), rhs, cAns, resid;
-    CHM_FR L;
-    int n = cx->ncol;/* #{obs.} {x = t(X) !} */
+    /* const -- but do not fit when used in calls: */
     double one[] = {1,0}, zero[] = {0,0}, neg1[] = {-1,0};
     const char *nms[] = {"L", "coef", "Xty", "resid", ""};
     SEXP ans = PROTECT(Rf_mkNamed(VECSXP, nms));
     R_CheckStack();
 
+    size_t n = cx->ncol;/* #{obs.} {x = t(X) !} */
     if (n < cx->nrow || n <= 0)
 	error(_("dgCMatrix_cholsol requires a 'short, wide' rectangular matrix"));
     if (cy->nrow != n)
@@ -551,7 +553,7 @@ SEXP dgCMatrix_cholsol(SEXP x, SEXP y)
      * here: rhs := 1 * x %*% y + 0 =  x %*% y =  X'y  */
     if (!(cholmod_sdmult(cx, 0 /* trans */, one, zero, cy, rhs, &c)))
 	error(_("cholmod_sdmult error (rhs)"));
-    L = cholmod_analyze(cx, &c);
+    CHM_FR L = cholmod_analyze(cx, &c);
     if (!cholmod_factorize(cx, L, &c))
 	error(_("cholmod_factorize failed: status %d, minor %d from ncol %d"),
 	      c.status, L->minor, L->n);
@@ -562,11 +564,11 @@ SEXP dgCMatrix_cholsol(SEXP x, SEXP y)
     /* L : */
     SET_VECTOR_ELT(ans, 0, chm_factor_to_SEXP(L, 0));
     /* coef : */
-    SET_VECTOR_ELT(ans, 1, allocVector(REALSXP, cx->nrow));
+            SET_VECTOR_ELT(ans, 1, allocVector(REALSXP,  cx->nrow));
     Memcpy(REAL(VECTOR_ELT(ans, 1)), (double*)(cAns->x), cx->nrow);
     /* X'y : */
 /* FIXME: Change this when the "effects" vector is available */
-    SET_VECTOR_ELT(ans, 2, allocVector(REALSXP, cx->nrow));
+            SET_VECTOR_ELT(ans, 2, allocVector(REALSXP, cx->nrow));
     Memcpy(REAL(VECTOR_ELT(ans, 2)), (double*)(rhs->x), cx->nrow);
     /* resid := y */
     resid = cholmod_copy_dense(cy, &c);
@@ -576,7 +578,7 @@ SEXP dgCMatrix_cholsol(SEXP x, SEXP y)
     if (!(cholmod_sdmult(cx, 1/* trans */, neg1, one, cAns, resid, &c)))
 	error(_("cholmod_sdmult error (resid)"));
     /* FIXME: for multivariate case, i.e. resid  *matrix* with > 1 column ! */
-    SET_VECTOR_ELT(ans, 3, allocVector(REALSXP, n));
+            SET_VECTOR_ELT(ans, 3,   allocVector(REALSXP, n));
     Memcpy(REAL(VECTOR_ELT(ans, 3)), (double*)(resid->x), n);
 
     cholmod_free_factor(&L, &c);

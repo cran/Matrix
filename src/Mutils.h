@@ -67,12 +67,13 @@ extern "C" {
 	if(_N_ < SMALL_4_Alloca) {				\
 	    _VAR_ = Alloca(_N_, _TYPE_);  R_CheckStack();	\
 	} else {						\
-	    _VAR_ = Calloc(_N_, _TYPE_);			\
+	    _VAR_ = R_Calloc(_N_, _TYPE_);			\
 	}
-// and user needs to   if(_N_ >= SMALL_4_Alloca)  Free(_VAR_);
+// and user needs to   if(_N_ >= SMALL_4_Alloca)  R_Free(_VAR_);
 
 SEXP triangularMatrix_validate(SEXP obj);
 SEXP symmetricMatrix_validate(SEXP obj);
+SEXP packedMatrix_validate(SEXP obj);
 SEXP dense_nonpacked_validate(SEXP obj);
 SEXP dim_validate(SEXP Dim, const char* name);
 SEXP Dim_validate(SEXP obj, SEXP name);
@@ -122,17 +123,19 @@ SEXP dgCMatrix_set_Dim(SEXP x, int nrow);
 SEXP check_scalar_string(SEXP sP, char *vals, char *nm);
 Rboolean equal_string_vectors(SEXP s1, SEXP s2);
 
+/* MJ: No longer needed ... replacement in ./packedMatrix.c */
+#if 0
 void d_packed_getDiag(double *dest, SEXP x, int n);
 void l_packed_getDiag(   int *dest, SEXP x, int n);
 SEXP d_packed_setDiag(double *diag, int l_d, SEXP x, int n);
 SEXP l_packed_setDiag(   int *diag, int l_d, SEXP x, int n);
-SEXP d_packed_addDiag(double *diag, int l_d, SEXP x, int n);
-
 void tr_d_packed_getDiag(double *dest, SEXP x, int n);
 void tr_l_packed_getDiag(   int *dest, SEXP x, int n);
-
 SEXP tr_d_packed_setDiag(double *diag, int l_d, SEXP x, int n);
 SEXP tr_l_packed_setDiag(   int *diag, int l_d, SEXP x, int n);
+#endif /* MJ */
+
+SEXP d_packed_addDiag(double *diag, int l_d, SEXP x, int n);
 SEXP tr_d_packed_addDiag(double *diag, int l_d, SEXP x, int n);
 
 SEXP Matrix_getElement(SEXP list, char *nm);
@@ -155,11 +158,10 @@ FULL_TO_PACKED(int);
 extern	 /* stored pointers to symbols initialized in R_init_Matrix */
 #include "Syms.h"
 
-/* zero an array */
-#define AZERO(x, n) {int _I_, _SZ_ = (n); for(_I_ = 0; _I_ < _SZ_; _I_++) (x)[_I_] = 0;}
-
-/* number of elements in one triangle of a square matrix of order n */
-#define PACKED_LENGTH(n)   ((n) * ((n) + 1))/2
+/* zero an array --- but note   Memzero() which might be FASTER and uses R_SIZE_T (== size_t for C) */
+#define AZERO3(x, n, itype) {itype _I_, _SZ_ = (n); for(_I_ = 0; _I_ < _SZ_; _I_++) (x)[_I_] = 0;}
+#define AZERO(x, n)  AZERO3(x, n, R_xlen_t)
+#define AZEROs(x, n) AZERO3(x, n, size_t)
 
 /* duplicate the slot with name given by sym from src to dest */
 
@@ -190,7 +192,7 @@ void SET_DimNames_symm(SEXP dest, SEXP src);
 
 #define uplo_P(_x_) CHAR(STRING_ELT(GET_SLOT(_x_, Matrix_uploSym), 0))
 #define diag_P(_x_) CHAR(STRING_ELT(GET_SLOT(_x_, Matrix_diagSym), 0))
-#define Diag_P(_x_) (R_has_slot(x, Matrix_diagSym) ?			\
+#define Diag_P(_x_) (R_has_slot(_x_, Matrix_diagSym) ?			\
 		     CHAR(STRING_ELT(GET_SLOT(_x_, Matrix_diagSym), 0)) : " ")
 #define class_P(_x_) CHAR(asChar(getAttrib(_x_, R_ClassSymbol)))
 

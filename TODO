@@ -165,11 +165,14 @@ alternatively also is_sym() [in src/cs_utils.c], see below.
 ** DONE "Math2" , "Math", "Summary": keep diagonal, triangular and symmetric Matrices
  when appropriate: particularly desirable for "Math2": round(), signif()
 ** TODO "Arith" (and Ops ?): keep diagonal, triangular and symmetric Matrices where appropr.
+*** DONE "almost surely" -- is this *tested ?*
 ** TODO For triangular matrices, ensure the four rules of "triangular matrix algebra"
   (Golub+Van Loan 1996, 3.1.8, p.93)"
 *** DONE since 2008-03-06 for Csparse
 *** DONE since 2010-07-23 for <dtr> %*% <dtr>
 *** TODO e.g. for  <ltr> %*% <dtC>
+** TODO R/Ops.R: "Logic" & "Compare" should *keep* "nsparseMatrix" (not go to "lsparse*")
+*** unfinished: "nTsparseMatrix" .. eg. "ngT" o "ngT" could work via (i,j) only
 ** TODO "d" <-> "l" coercion for all "[TCR]" sparse matrices is really trivial:
   "d" -> "l" : drops the 'x' slot
   "l" -> "d" : construct an 'x' slot of all '1'
@@ -309,7 +312,12 @@ alternatively also is_sym() [in src/cs_utils.c], see below.
   is simple {and remains sparse, as solve(L) is still block triangular}
 ** facmul() has no single method defined;  it looks like a good idea though
   (instead of the infamous qr.qy, qr.qty,.... functions)
-
+** TODO tests/dpo-test.R
+        tests/factorizing.R
+	tests/indexing.R
+	tests/matprod.R
+	tests/validObj.R    :  have RNGversion("3.5.0")
+   ... rerun with RNGversion("4.2.0") { == ("3.6.0") }  and fix tolerances! etc
 ** TODO symmpart() and skewpart()  for *sparse* matrices still use (x +/- t(x))/2
   and could be made more efficient.
   Consider going via  asTuniq() or something very close to

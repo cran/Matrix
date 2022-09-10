@@ -1,65 +1,52 @@
 \name{dMatrix-class}
-\docType{class}
 \title{(Virtual) Class "dMatrix" of "double" Matrices}
+\docType{class}
+%
 \alias{dMatrix-class}
 \alias{lMatrix-class}
 %
-\alias{show,dMatrix-method}
-%\alias{coerce,dMatrix,matrix-method}
-\alias{coerce,dMatrix,lMatrix-method}
-\alias{coerce,lMatrix,dMatrix-method}
-\alias{coerce,lMatrix,dgCMatrix-method}
-\alias{coerce,matrix,lMatrix-method}
-%\alias{coerce,dMatrix,dgeMatrix-method}
-\alias{[,dMatrix,lMatrix,missing,ANY-method}
-\alias{[,dMatrix,logical,missing,ANY-method}
-% Group methods
-\alias{Ops,dMatrix,dMatrix-method}
-\alias{Ops,dMatrix,lMatrix-method}
-\alias{Ops,dMatrix,nMatrix-method}
-\alias{Ops,lMatrix,dMatrix-method}
-\alias{Ops,lMatrix,lMatrix-method}
-\alias{Ops,lMatrix,numeric-method}
-\alias{Ops,nMatrix,dMatrix-method}
-\alias{Ops,numeric,lMatrix-method}
-\alias{Arith,dMatrix,dMatrix-method}
-\alias{Arith,lMatrix,logical-method}
-\alias{Arith,lMatrix,numeric-method}
-\alias{Arith,logical,lMatrix-method}
-\alias{Arith,numeric,lMatrix-method}
 \alias{Compare,dMatrix,logical-method}
 \alias{Compare,dMatrix,numeric-method}
-\alias{Compare,lMatrix,logical-method}
-\alias{Compare,lMatrix,numeric-method}
 \alias{Compare,logical,dMatrix-method}
-\alias{Compare,logical,lMatrix-method}
 \alias{Compare,numeric,dMatrix-method}
-\alias{Compare,numeric,lMatrix-method}
 \alias{Logic,dMatrix,logical-method}
 \alias{Logic,dMatrix,numeric-method}
+\alias{Logic,dMatrix,sparseVector-method}
+\alias{Logic,logical,dMatrix-method}
+\alias{Logic,numeric,dMatrix-method}
+\alias{Math2,dMatrix-method}
+\alias{Ops,dMatrix,dMatrix-method}
+\alias{Ops,dMatrix,ddiMatrix-method}
+\alias{Ops,dMatrix,lMatrix-method}
+\alias{Ops,dMatrix,ldiMatrix-method}
+\alias{Ops,dMatrix,nMatrix-method}
+\alias{coerce,matrix,dMatrix-method}
+\alias{coerce,numLike,dMatrix-method}
+\alias{zapsmall,dMatrix-method}
+%
+\alias{Arith,lMatrix,numeric-method}
+\alias{Arith,lMatrix,logical-method}
+\alias{Arith,logical,lMatrix-method}
+\alias{Arith,numeric,lMatrix-method}
+\alias{Compare,lMatrix,logical-method}
+\alias{Compare,lMatrix,numeric-method}
+\alias{Compare,logical,lMatrix-method}
+\alias{Compare,numeric,lMatrix-method}
 \alias{Logic,lMatrix,logical-method}
 \alias{Logic,lMatrix,numeric-method}
-\alias{Logic,logical,dMatrix-method}
+\alias{Logic,lMatrix,sparseVector-method}
 \alias{Logic,logical,lMatrix-method}
-\alias{Logic,numeric,dMatrix-method}
 \alias{Logic,numeric,lMatrix-method}
+\alias{Ops,lMatrix,dMatrix-method}
+\alias{Ops,lMatrix,lMatrix-method}
+\alias{Ops,lMatrix,nMatrix-method}
+\alias{Ops,lMatrix,numeric-method}
+\alias{Ops,numeric,lMatrix-method}
 \alias{Summary,lMatrix-method}
-%% R <= 2.5.x :
-% \alias{Math2,dMatrix,ANY-method}% Math2 = round + signif,.., but
-% \alias{Math2,dMatrix,missing-method}
-% % for silly reasons, need these 2+3 as well:
-% \alias{round,dMatrix,numeric-method}
-% \alias{signif,dMatrix,numeric-method}
-%% R-2.6.0 - maybe
-\alias{Math2,dMatrix-method}
-\alias{log,dMatrix-method}
-\alias{gamma,dMatrix-method}
-\alias{lgamma,dMatrix-method}
+\alias{coerce,lMatrix,dgCMatrix-method}
+\alias{coerce,matrix,lMatrix-method}
+\alias{coerce,numLike,lMatrix-method}
 %
-\alias{zapsmall,dMatrix-method}
-\alias{which,lMatrix-method}
-%
-%\alias{solve,...} --> solve-methods.Rd
 \description{
   The \code{dMatrix} class is a virtual class contained by all actual
   classes of numeric matrices in the \pkg{Matrix} package.  Similarly,

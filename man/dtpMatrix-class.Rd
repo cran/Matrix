@@ -1,22 +1,19 @@
 \name{dtpMatrix-class}
 \title{Packed Triangular Dense Matrices - "dtpMatrix"}
 \docType{class}
+%
 \alias{dtpMatrix-class}
+%
+\alias{coerce,dtpMatrix,dgeMatrix-method}
+\alias{coerce,dtpMatrix,dspMatrix-method}
+\alias{coerce,dtpMatrix,dtCMatrix-method}
+\alias{coerce,dtpMatrix,dtRMatrix-method}
 \alias{coerce,dtpMatrix,dtTMatrix-method}
 \alias{coerce,dtpMatrix,dtrMatrix-method}
 \alias{coerce,dtpMatrix,ltpMatrix-method}
-\alias{coerce,dtpMatrix,matrix-method}
+\alias{coerce,dtpMatrix,ntpMatrix-method}
 \alias{coerce,matrix,dtpMatrix-method}
-\alias{determinant,dtpMatrix,missing-method}
-\alias{determinant,dtpMatrix,logical-method}
-% \alias{diag,dtpMatrix-method} -> ./packedMatrix-class.Rd
-% \alias{diag<-,dtpMatrix-method}
-\alias{norm,dtpMatrix,character-method}
-\alias{norm,dtpMatrix,missing-method}
-\alias{rcond,dtpMatrix,character-method}
-\alias{rcond,dtpMatrix,missing-method}
-% \alias{solve,dtpMatrix,...-method}%--> solve-methods.Rd
-% \alias{t,dtpMatrix-method}
+%
 \description{The \code{"dtpMatrix"} class is the class of triangular,
   dense, numeric matrices in packed storage.  The \code{"dtrMatrix"}
   class is the same except in nonpacked storage.}
@@ -76,9 +73,9 @@
 showClass("dtrMatrix")
 
 example("dtrMatrix-class", echo=FALSE)
-(p1 <- as(T2, "dtpMatrix"))
+(p1 <- pack(T2))
 str(p1)
-(pp <- as(T, "dtpMatrix"))
+(pp <- pack(T))
 ip1 <- solve(p1)
 stopifnot(length(p1@x) == 3, length(pp@x) == 3,
           p1 @ uplo == T2 @ uplo, pp @ uplo == T @ uplo,

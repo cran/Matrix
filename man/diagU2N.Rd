@@ -1,8 +1,10 @@
 \name{diagU2N}
 \title{Transform Triangular Matrices from Unit Triangular to General Triangular and Back}
+%
 \alias{diagN2U}
 \alias{diagU2N}
 \alias{.diagU2N}
+%
 \description{
   Transform a triangular matrix \code{x}, i.e., of \code{\link{class}}
   \code{"\linkS4class{triangularMatrix}"},
@@ -17,9 +19,9 @@
 }
 \usage{
  diagN2U(x, cl = getClassDef(class(x)), checkDense = FALSE)
-
  diagU2N(x, cl = getClassDef(class(x)), checkDense = FALSE)
-.diagU2N(x, cl, checkDense = FALSE)
+.diagU2N(x, cl = getClassDef(class(x)), checkDense = FALSE)
+%.diagN2U(x, cl = getClassDef(class(x)), checkDense = FALSE) % export?
 }
 \arguments{
   \item{x}{a \code{\linkS4class{triangularMatrix}}, often sparse.}
@@ -54,15 +56,14 @@
 (t.u <- diagN2U(10*T))# changes the diagonal!
 stopifnot(all(T == uT), diag(t.u) == 1,
           identical(T, diagU2N(uT)))
-T[upper.tri(T)] <- 5
+T[upper.tri(T)] <- 5 # still "dtC"
 T <- diagN2U(as(T,"triangularMatrix"))
-stopifnot(T@diag == "U")
-dT <- as(T, "denseMatrix")
-dt. <- diagN2U(dT)
-dtU <- diagN2U(dT, checkDense=TRUE)
-stopifnot(is(dtU, "denseMatrix"), is(dt., "sparseMatrix"),
-          all(dT == dt.), all(dT == dtU),
-          dt.@diag == "U", dtU@diag == "U")
+dT <- as(T, "denseMatrix") # (unitriangular)
+dT.n <- diagU2N(dT, checkDense = TRUE)
+sT.n <- diagU2N(dT)
+stopifnot(is(dT.n, "denseMatrix"), is(sT.n, "sparseMatrix"),
+          dT@diag == "U", dT.n@diag == "N", sT.n@diag == "N",
+          all(dT == dT.n), all(dT == sT.n))
 }
 \keyword{utilities}
 \keyword{classes}

@@ -1,87 +1,88 @@
-#### Number of "structural" non-zeros --- this is  nnzmax() in Matlab
-####        of effectively  non-zero values =      nnz()     "   "
+## METHODS FOR GENERIC: nnzero
+## * used to retrieve number of nonzero elements,
+##   i.e., number of elements excl. both structural and non-structural zeros
+## * like MATLAB's nnz() but more sophisticated due to handling of NA
+## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-## Our nnzero() is like Matlab's nnz() -- but more sophisticated because of NAs
-## New: generic function instead of  if(..) ... else if(..) ......
-##
-## na.counted: TRUE : NA's are counted, they are not 0
-##	       NA   : NA's are not known (0 or not) ==>	 result := NA
-##	       FALSE: NA's are omitted before counting
-## "Default" : for non-"Matrix" (e.g. classical matrices):
-setMethod("nnzero", "ANY",
-	  function(x, na.counted = NA)	sum(nz.NA(x, na.counted)))
-setMethod("nnzero", "diagonalMatrix",
-	  function(x, na.counted = NA) sum(nz.NA(diag(x), na.counted)))
-setMethod("nnzero", "indMatrix", function(x, na.counted = NA) x@Dim[1])
-## other (not "indMatrix", not "diagonalMatrix") "sparseMatrix":
-setMethod("nnzero", "sparseMatrix",
-	  function(x, na.counted = NA)
-      {
-	d <- x@Dim
-	if(any(d == 0)) return(0L)
-	cl <- class(x)
-	## speedup:
-	cld <- getClassDef(cl)
-	n <- d[1]
-	iSym <- extends(cld, "symmetricMatrix")
-        iTri <- if(iSym) FALSE else extends(cld, "triangularMatrix")
-	nn <- switch(.sp.class(cl),
-		     "CsparseMatrix" = x@p[d[2]+1L],# == length(x@i) only if not over-alloc.
-		     "TsparseMatrix" = {
-			 if(anyDuplicatedT(x, di = d))
-			     x <- .Call(Tsparse_to_Csparse, x, iTri)
-			 length(x@i)
-		     },
-		     "RsparseMatrix" = x@p[n+1L])
-	if(!extends(cld, "nMatrix")) # <==> has 'x' slot : consider NAs in it:
-	    nn <- sum(nz.NA(if(nn < length(x@x)) x@x[seq_len(nn)] else x@x,
-			    na.counted))
+## na.counted:
+## FALSE ... NA is treated as    zero and so excluded from count
+##  TRUE ... NA is treated as nonzero and so included   in count
+##    NA ... NA is indeterminate (could be zero or nonzero) hence count is NA
 
-	if(iSym)
-	    nn+nn - sum(nz.NA(diag(x), na.counted))
-	else if(iTri && x@diag == "U")
-	    nn + n else nn
-    })
+## For logical, integer, double, and complex vectors
+.nnz <- function(x, na.counted = NA, nnzmax = length(x))
+    .Call(R_nnz, x, na.counted, nnzmax)
 
-setMethod("nnzero", "denseMatrix",
-	  function(x, na.counted = NA)
-      {
-	  d <- x@Dim
-	  if(any(d == 0)) return(0L)
-	  cl <- class(x)
-	  ## speedup:
-	  cld <- getClassDef(cl)
-	  n <- d[1]
-	  iSym <- extends(cld, "symmetricMatrix")
-	  ## dense, not diagonal: Can use 'x' slot;
-	  if(iSym || extends(cld, "triangularMatrix")) {
-	      ## now !iSym  <==> "triangularMatrix"
-	      upper <- (x@uplo == "U")
-	      if(length(x@x) < n*n) { ## packed symmetric | triangular
-		  if(iSym) {
-		      ## indices of *diagonal* entries for packed :
-		      iDiag <- cumsum(if(upper) 1:n else c(1L, if(n > 1)n:2))
-		      ## symmetric packed: count off-diagonals *twice*
-		      2L* sum(nz.NA(x@x[-iDiag], na.counted)) +
-			  sum(nz.NA(x@x[ iDiag], na.counted))
-		  }
-		  else ## triangular packed
-		      sum(nz.NA(x@x, na.counted))
-	      }
-	      else {
-		  ## not packed, but may have "arbitrary"
-		  ## entries in the non-relevant upper/lower triangle
-		  s <- sum(nz.NA(x@x[indTri(n, upper=upper)], na.counted))
-		  (if(iSym) 2L * s else s) +
-		      (if(!iSym && x@diag == "U")
-		       n else sum(nz.NA(x@x[indDiag(n)], na.counted)))
-	      }
-	  }
-	  else { ## dense general <--> .geMatrix
-	      sum(nz.NA(x@x, na.counted))
-	  }
-      })
-## Working via sparse*:
+## For any class with methods for 'is.na' and '!='
+.nnz.fallback <- function(x, na.counted = NA)
+    sum(if(is.na(na.counted))
+            x != 0
+        else if(na.counted)
+            is.na(x) | x != 0
+        else !is.na(x) & x != 0)
+
+.nnz.dispatching <- function(x, na.counted = NA)
+    switch(typeof(x), logical =, integer =, double =, complex = .nnz,
+           .nnz.fallback)(x, na.counted)
+
+setMethod("nnzero",    "ANY", .nnz.fallback)
+setMethod("nnzero", "vector", .nnz.dispatching)
+setMethod("nnzero",  "array", .nnz.dispatching)
+
+rm(.nnz.dispatching)
+
 setMethod("nnzero", "CHMfactor",
 	  function(x, na.counted = NA)
-	  nnzero(as(x,"sparseMatrix"), na.counted=na.counted))
+              callGeneric(as(x, "CsparseMatrix"), na.counted))
+
+setMethod("nnzero", "diagonalMatrix",
+	  function(x, na.counted = NA)
+              if(x@diag == "N") .nnz(x@x, na.counted) else x@Dim[1L])
+
+setMethod("nnzero", "indMatrix",
+          function(x, na.counted = NA) x@Dim[1L])
+
+setMethod("nnzero", "sparseMatrix",
+	  function(x, na.counted = NA) {
+	      d <- x@Dim
+              if(any(d == 0L))
+                  return(0L)
+              cld <- getClassDef(class(x))
+              N <- if(extends(cld, "CsparseMatrix"))
+                       x@p[d[2L]+1L]
+                   else if(extends(cld, "RsparseMatrix"))
+                       x@p[d[1L]+1L]
+                   else length((x <- .Call(Tsparse_aggregate, x))@i)
+              if(!extends(cld, "nsparseMatrix"))
+                  N <- .nnz(x@x, na.counted, N)
+              if(extends(cld, "generalMatrix"))
+                  N
+              else if(extends(cld, "symmetricMatrix"))
+                  N + N - .nnz(diag(x), na.counted)
+              else if(x@diag != "N")
+                  N + d[1L]
+              else N
+          })
+
+setMethod("nnzero", "denseMatrix",
+	  function(x, na.counted = NA) {
+              d <- x@Dim
+              if(any(d == 0L))
+                  return(0L)
+              xx <- x@x
+              cld <- getClassDef(class(x))
+              if(extends(cld, "ndenseMatrix"))
+                  na.counted <- TRUE
+              if(extends(cld, "generalMatrix"))
+                  return(.nnz(xx, na.counted))
+              n <- d[1L]
+              upper <- x@uplo == "U"
+              if(extends(cld, "unpackedMatrix"))
+                  xx <- xx[indTri(n, upper, diag = TRUE, packed = FALSE)]
+              N <- .nnz(xx, na.counted)
+              if(extends(cld, "symmetricMatrix"))
+                  N + N - .nnz(diag(x), na.counted)
+              else if(x@diag != "N")
+                  N + n - .nnz(xx[indDiag(n, upper, packed = TRUE)], na.counted)
+              else N
+          })

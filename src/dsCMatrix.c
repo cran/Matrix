@@ -114,7 +114,7 @@ internal_chm_factor(SEXP Ap, int perm, int LDL, int super, double Imult)
 	char fnm[12] = "...Cholesky";// 11 + final \0
 	chm_factor_name(fnm, perm, LDL, super);
 
-	set_factors(Ap, chm_factor_to_SEXP(L, 0), fnm);
+	set_factor(Ap, fnm, chm_factor_to_SEXP(L, 0));
     }
     CHM_restore_common();
     UNPROTECT(1);
@@ -133,8 +133,8 @@ SEXP dsCMatrix_chol(SEXP x, SEXP pivot)
     R = cholmod_transpose(Rt, /*values*/ 1, &c);
     cholmod_free_sparse(&Rt, &c);
     ans = PROTECT(chm_sparse_to_SEXP(R, 1/*do_free*/, 1/*uploT*/, 0/*Rkind*/,
-				     "N"/*diag*/, GET_SLOT(x, Matrix_DimNamesSym)));
-
+				     "N"/*diag*/, R_NilValue));
+    set_symmetrized_DimNames(ans, GET_SLOT(x, Matrix_DimNamesSym), -1);
     if (pivP) {
 	SEXP piv = PROTECT(allocVector(INTSXP, L->n)),
 	     L_n = PROTECT(ScalarInteger((size_t) L->minor));
@@ -232,7 +232,7 @@ SEXP dsCMatrix_matrix_solve(SEXP a, SEXP b, SEXP LDL)
 	return R_NilValue;// == "CHOLMOD factorization failed"
     }
 
-    CHM_DN cx, cb = AS_CHM_DN(PROTECT(mMatrix_as_dgeMatrix(b)));
+    CHM_DN cx, cb = AS_CHM_DN(PROTECT(dense_as_general(b, 'd', 2, 0)));
     R_CheckStack();
     cx = cholmod_solve(CHOLMOD_A, L, cb, &c);
     cholmod_free_factor(&L, &c);

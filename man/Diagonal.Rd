@@ -1,9 +1,11 @@
 \name{Diagonal}
 \title{Create Diagonal Matrix Object}
+%
 \alias{Diagonal}
 \alias{.sparseDiagonal}
 \alias{.symDiagonal}
 \alias{.trDiagonal}
+%
 \description{
   Create a diagonal matrix object, i.e., an object inheriting from
   \code{\linkS4class{diagonalMatrix}} (or a \dQuote{standard}

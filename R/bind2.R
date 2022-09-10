@@ -7,13 +7,21 @@
 ###-- Sparse ------------------------------------------------------------
 
 setMethod("cbind2", signature(x = "sparseMatrix", y = "matrix"),
-	  function(x, y, ...) cbind2(x, .Call(dense_to_Csparse, y)))
+	  function(x, y, ...) {
+              cbind2(x, .Call(R_dense_as_sparse, y, ".gC", NULL, NULL))
+          })
 setMethod("cbind2", signature(x = "matrix", y = "sparseMatrix"),
-	  function(x, y, ...) cbind2(.Call(dense_to_Csparse, x), y))
+	  function(x, y, ...) {
+              cbind2(.Call(R_dense_as_sparse, x, ".gC", NULL, NULL), y)
+          })
 setMethod("rbind2", signature(x = "sparseMatrix", y = "matrix"),
-	  function(x, y, ...) rbind2(x, .Call(dense_to_Csparse, y)))
+	  function(x, y, ...) {
+              rbind2(x, .Call(R_dense_as_sparse, y, ".gC", NULL, NULL))
+          })
 setMethod("rbind2", signature(x = "matrix", y = "sparseMatrix"),
-	  function(x, y, ...) rbind2(.Call(dense_to_Csparse, x), y))
+	  function(x, y, ...) {
+              rbind2(.Call(R_dense_as_sparse, x, ".gC", NULL, NULL), y)
+          })
 
 ## originally from ./Matrix.R : -------------------------------
 
@@ -72,7 +80,7 @@ setMethod("cbind2", signature(x = "denseMatrix", y = "numeric"),
 	      d <- dim(x); nr <- d[1]; nc <- d[2]
 	      y <- rep_len(y, nr) # 'silent procrustes'
 	      ## beware of (packed) triangular, symmetric, ...
-	      x <- as(x, geClass(x))
+	      x <- .dense2g(x)
 	      x@x <- c(x@x, as.double(y))
 	      x@Dim[2] <- nc + 1L
 	      if(is.character(dn <- x@Dimnames[[2]]))
@@ -84,7 +92,7 @@ setMethod("cbind2", signature(x = "numeric", y = "denseMatrix"),
 	  function(x, y, ...) {
 	      d <- dim(y); nr <- d[1]; nc <- d[2]
 	      x <- rep_len(x, nr)
-	      y <- as(y, geClass(y))
+	      y <- .dense2g(y)
 	      y@x <- c(as.double(x), y@x)
 	      y@Dim[2] <- nc + 1L
 	      if(is.character(dn <- y@Dimnames[[2]]))
@@ -94,9 +102,9 @@ setMethod("cbind2", signature(x = "numeric", y = "denseMatrix"),
 
 
 setMethod("cbind2", signature(x = "denseMatrix", y = "matrix"),
-	  function(x, y, ...) cbind2(x, as_geSimpl(y)))
+	  function(x, y, ...) cbind2(x, .m2ge(y, ".")))
 setMethod("cbind2", signature(x = "matrix", y = "denseMatrix"),
-	  function(x, y, ...) cbind2(as_geSimpl(x), y))
+	  function(x, y, ...) cbind2(.m2ge(x, "."), y))
 
 cbind2DN <- function(dnx,dny, ncx,ncy) {
     ## R and S+ are different in which names they take
@@ -116,8 +124,8 @@ setMethod("cbind2", signature(x = "denseMatrix", y = "denseMatrix"),
 	      ncy <- y@Dim[2]
 	      ## beware of (packed) triangular, symmetric, ...
 	      hasDN <- !is.null.DN(dnx <- dimnames(x)) | !is.null.DN(dny <- dimnames(y))
-	      x <- as(x, geClass(x))
-	      y <- as(y, geClass(y))
+	      x <- .dense2g(x)
+	      y <- .dense2g(y)
 	      xx <- c(x@x, y@x)
 	      ## be careful, e.g., if we have an 'n' and 'd'
 	      if(identical((tr <- typeof(xx)), typeof(x@x))) {
@@ -152,9 +160,9 @@ setMethod("rbind2", signature(x = "numeric", y = "denseMatrix"),
 	  })
 
 setMethod("rbind2", signature(x = "denseMatrix", y = "matrix"),
-	  function(x, y, ...) rbind2(x, as_geSimpl(y)))
+	  function(x, y, ...) rbind2(x, .m2ge(y, ".")))
 setMethod("rbind2", signature(x = "matrix", y = "denseMatrix"),
-	  function(x, y, ...) rbind2(as_geSimpl(x), y))
+	  function(x, y, ...) rbind2(.m2ge(x, "."), y))
 
 rbind2DN <- function(dnx, dny, nrx,nry) {
     if(!is.null.DN(dnx) || !is.null.DN(dny)) {
@@ -175,8 +183,8 @@ setMethod("rbind2", signature(x = "denseMatrix", y = "denseMatrix"),
 	      nry <- y@Dim[1]
 	      ## beware of (packed) triangular, symmetric, ...
 	      hasDN <- !is.null.DN(dnx <- dimnames(x)) | !is.null.DN(dny <- dimnames(y))
-	      x <- as(x, geClass(x))
-	      y <- as(y, geClass(y))
+	      x <- .dense2g(x)
+	      y <- .dense2g(y)
 	      xx <- .Call(R_rbind2_vector, x, y)
 	      ## be careful, e.g., if we have an 'n' and 'd'
 	      if(identical((tr <- typeof(xx)), typeof(x@x))) {
@@ -196,30 +204,35 @@ setMethod("rbind2", signature(x = "denseMatrix", y = "denseMatrix"),
 
 ## For diagonalMatrix:  preserve sparseness {not always optimal, but "the law"}
 
-## hack to suppress the obnoxious dispatch ambiguity warnings:
-diag2Sp <- function(x) suppressWarnings(as(x, "CsparseMatrix"))
-
 setMethod("cbind2", signature(x = "diagonalMatrix", y = "sparseMatrix"),
-	  function(x, y, ...) cbind2(diag2Sp(x), as(y,"CsparseMatrix")))
+	  function(x, y, ...)
+              cbind2(.diag2sparse(x, ".gC"), as(y, "CsparseMatrix")))
 setMethod("cbind2", signature(x = "sparseMatrix", y = "diagonalMatrix"),
-	  function(x, y, ...) cbind2(as(x,"CsparseMatrix"), diag2Sp(y)))
+	  function(x, y, ...)
+              cbind2(as(x, "CsparseMatrix"), .diag2sparse(y, ".gC")))
 setMethod("rbind2", signature(x = "diagonalMatrix", y = "sparseMatrix"),
-	  function(x, y, ...) rbind2(diag2Sp(x), as(y,"CsparseMatrix")))
+	  function(x, y, ...)
+              rbind2(.diag2sparse(x, ".gC"), as(y, "CsparseMatrix")))
 setMethod("rbind2", signature(x = "sparseMatrix", y = "diagonalMatrix"),
-	  function(x, y, ...) rbind2(as(x,"CsparseMatrix"), diag2Sp(y)))
+	  function(x, y, ...)
+              rbind2(as(x, "CsparseMatrix"), .diag2sparse(y, ".gC")))
 
 ## in order to evade method dispatch ambiguity, but still remain "general"
 ## we use this hack instead of signature  x = "diagonalMatrix"
 for(cls in names(getClass("diagonalMatrix")@subclasses)) {
 
  setMethod("cbind2", signature(x = cls, y = "matrix"),
-	   function(x, y, ...) cbind2(diag2Sp(x), .Call(dense_to_Csparse, y)))
+	   function(x, y, ...)
+               cbind2(.diag2sparse(x, ".gC"), .m2sparse(y, ".gC")))
  setMethod("cbind2", signature(x = "matrix", y = cls),
-	   function(x, y, ...) cbind2(.Call(dense_to_Csparse, x), diag2Sp(y)))
+	   function(x, y, ...)
+               cbind2(.m2sparse(x, ".gC"), .diag2sparse(y, ".gC")))
  setMethod("rbind2", signature(x = cls, y = "matrix"),
-	   function(x, y, ...) rbind2(diag2Sp(x), .Call(dense_to_Csparse, y)))
+	   function(x, y, ...)
+               rbind2(.diag2sparse(x, ".gC"), .m2sparse(y, ".gC")))
  setMethod("rbind2", signature(x = "matrix", y = cls),
-	   function(x, y, ...) rbind2(.Call(dense_to_Csparse, x), diag2Sp(y)))
+	   function(x, y, ...)
+               rbind2(.m2sparse(x, ".gC"), .diag2sparse(y, ".gC")))
 
  ## These are already defined for "Matrix"
  ## -- repeated here for method dispatch disambiguation	 {"design-FIXME" ?}
@@ -240,8 +253,8 @@ for(cls in names(getClass("diagonalMatrix")@subclasses)) {
 ## ------> ../src/Csparse.c
 
 ## Fast - almost non-checking methods
-.cbind2Csp <- function(x,y) .Call(Csparse_horzcat, as_Csp2(x), as_Csp2(y))
-.rbind2Csp <- function(x,y) .Call(Csparse_vertcat, as_Csp2(x), as_Csp2(y))
+.cbind2Csp <- function(x,y) .Call(Csparse_horzcat, asCspN(x), asCspN(y))
+.rbind2Csp <- function(x,y) .Call(Csparse_vertcat, asCspN(x), asCspN(y))
 
 cbind2sparse <- function(x,y) {
     ## beware of (packed) triangular, symmetric, ...

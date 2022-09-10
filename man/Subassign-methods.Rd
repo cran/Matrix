@@ -1,97 +1,72 @@
 \name{[<--methods}
-\docType{methods}
-\alias{[<--methods}
-\alias{Subassign-methods}% <- nicer to use in \link{.}
-%
 \title{Methods for "[<-" - Assigning to Subsets for 'Matrix'}
-% in ../R/Matrix.R
+\docType{methods}
+%
+\alias{[<--methods}
+\alias{Subassign-methods}
+%
+\alias{[<-,CsparseMatrix,Matrix,missing,replValue-method}
+\alias{[<-,CsparseMatrix,index,index,replValue-method}
+\alias{[<-,CsparseMatrix,index,index,sparseVector-method}
+\alias{[<-,CsparseMatrix,index,missing,replValue-method}
+\alias{[<-,CsparseMatrix,index,missing,sparseVector-method}
+\alias{[<-,CsparseMatrix,matrix,missing,replValue-method}
+\alias{[<-,CsparseMatrix,missing,index,replValue-method}
+\alias{[<-,CsparseMatrix,missing,index,sparseVector-method}
 \alias{[<-,Matrix,ANY,ANY,ANY-method}
 \alias{[<-,Matrix,ANY,ANY,Matrix-method}
-\alias{[<-,Matrix,ANY,missing,Matrix-method}
-\alias{[<-,Matrix,missing,ANY,Matrix-method}
 \alias{[<-,Matrix,ANY,ANY,matrix-method}
+\alias{[<-,Matrix,ANY,missing,Matrix-method}
 \alias{[<-,Matrix,ANY,missing,matrix-method}
-\alias{[<-,Matrix,missing,ANY,matrix-method}
-\alias{[<-,Matrix,matrix,missing,replValue-method}
-\alias{[<-,Matrix,lsparseMatrix,missing,replValue-method}
-\alias{[<-,Matrix,nsparseMatrix,missing,replValue-method}
 \alias{[<-,Matrix,ldenseMatrix,missing,replValue-method}
+\alias{[<-,Matrix,lsparseMatrix,missing,replValue-method}
+\alias{[<-,Matrix,matrix,missing,replValue-method}
+\alias{[<-,Matrix,missing,ANY,Matrix-method}
+\alias{[<-,Matrix,missing,ANY,matrix-method}
 \alias{[<-,Matrix,ndenseMatrix,missing,replValue-method}
-% \alias{[<-,Matrix,missing,numeric,missing-method}
-% \alias{[<-,Matrix,numeric,missing,missing-method}
-% \alias{[<-,Matrix,numeric,numeric,missing-method}
-% in ../R/denseMatrix.R
-\alias{[<-,denseMatrix,index,missing,replValue-method}
+\alias{[<-,Matrix,nsparseMatrix,missing,replValue-method}
+\alias{[<-,RsparseMatrix,index,index,replValue-method}
+\alias{[<-,RsparseMatrix,index,index,sparseVector-method}
+\alias{[<-,RsparseMatrix,index,missing,replValue-method}
+\alias{[<-,RsparseMatrix,index,missing,sparseVector-method}
+\alias{[<-,RsparseMatrix,matrix,missing,replValue-method}
+\alias{[<-,RsparseMatrix,missing,index,replValue-method}
+\alias{[<-,RsparseMatrix,missing,index,sparseVector-method}
+\alias{[<-,TsparseMatrix,Matrix,missing,replValue-method}
+\alias{[<-,TsparseMatrix,index,index,replValue-method}
+\alias{[<-,TsparseMatrix,index,index,sparseVector-method}
+\alias{[<-,TsparseMatrix,index,missing,replValue-method}
+\alias{[<-,TsparseMatrix,index,missing,sparseVector-method}
+\alias{[<-,TsparseMatrix,matrix,missing,replValue-method}
+\alias{[<-,TsparseMatrix,missing,index,replValue-method}
+\alias{[<-,TsparseMatrix,missing,index,sparseVector-method}
 \alias{[<-,denseMatrix,index,index,replValue-method}
+\alias{[<-,denseMatrix,index,missing,replValue-method}
 \alias{[<-,denseMatrix,matrix,missing,replValue-method}
 \alias{[<-,denseMatrix,missing,index,replValue-method}
 \alias{[<-,denseMatrix,missing,missing,ANY-method}
-% in ../R/diagMatrix.R
 \alias{[<-,diagonalMatrix,index,index,replValue-method}
+\alias{[<-,diagonalMatrix,index,index,sparseMatrix-method}
+\alias{[<-,diagonalMatrix,index,index,sparseVector-method}
 \alias{[<-,diagonalMatrix,index,missing,replValue-method}
+\alias{[<-,diagonalMatrix,index,missing,sparseMatrix-method}
+\alias{[<-,diagonalMatrix,index,missing,sparseVector-method}
 \alias{[<-,diagonalMatrix,matrix,missing,replValue-method}
 \alias{[<-,diagonalMatrix,missing,index,replValue-method}
-\alias{[<-,diagonalMatrix,missing,missing,ANY-method}
-%
-\alias{[<-,diagonalMatrix,index,index,sparseMatrix-method}
-\alias{[<-,diagonalMatrix,index,missing,sparseMatrix-method}
 \alias{[<-,diagonalMatrix,missing,index,sparseMatrix-method}
-%
-\alias{[<-,diagonalMatrix,index,index,sparseVector-method}
-\alias{[<-,diagonalMatrix,index,missing,sparseVector-method}
 \alias{[<-,diagonalMatrix,missing,index,sparseVector-method}
-%
-% -> ../R/sparseMatrix.R :
+\alias{[<-,diagonalMatrix,missing,missing,ANY-method}
+\alias{[<-,indMatrix,index,index,ANY-method}
+\alias{[<-,indMatrix,index,missing,ANY-method}
+\alias{[<-,indMatrix,missing,index,ANY-method}
+\alias{[<-,indMatrix,missing,missing,ANY-method}
 \alias{[<-,sparseMatrix,ANY,ANY,sparseMatrix-method}
 \alias{[<-,sparseMatrix,ANY,missing,sparseMatrix-method}
 \alias{[<-,sparseMatrix,missing,ANY,sparseMatrix-method}
 \alias{[<-,sparseMatrix,missing,missing,ANY-method}
-% -> ../R/indMatrix.R : -- these give errors
-\alias{[<-,indMatrix,index,ANY,ANY-method}
-\alias{[<-,indMatrix,missing,index,ANY-method}
-\alias{[<-,indMatrix,missing,missing,ANY-method}
-% -> ../R/Tsparse.R : replValue = { numeric, logical }
-\alias{[<-,TsparseMatrix,index,index,replValue-method}
-\alias{[<-,TsparseMatrix,index,missing,replValue-method}
-\alias{[<-,TsparseMatrix,matrix,missing,replValue-method}
-\alias{[<-,TsparseMatrix,Matrix,missing,replValue-method}
-\alias{[<-,TsparseMatrix,lMatrix,missing,replValue-method}
-\alias{[<-,TsparseMatrix,nMatrix,missing,replValue-method}
-\alias{[<-,TsparseMatrix,missing,index,replValue-method}
-\alias{[<-,TsparseMatrix,missing,index,sparseVector-method}
-\alias{[<-,TsparseMatrix,index,missing,sparseVector-method}
-\alias{[<-,TsparseMatrix,index,index,sparseVector-method}
-% \alias{[<-,dgTMatrix,missing,missing,numeric-method}
-% -> ../R/Csparse.R :
-\alias{[<-,CsparseMatrix,index,index,replValue-method}
-\alias{[<-,CsparseMatrix,index,missing,replValue-method}
-\alias{[<-,CsparseMatrix,Matrix,missing,replValue-method}
-\alias{[<-,CsparseMatrix,matrix,missing,replValue-method}
-\alias{[<-,CsparseMatrix,lsparseMatrix,missing,replValue-method}
-\alias{[<-,CsparseMatrix,nsparseMatrix,missing,replValue-method}
-\alias{[<-,CsparseMatrix,ldenseMatrix,missing,replValue-method}
-\alias{[<-,CsparseMatrix,ndenseMatrix,missing,replValue-method}
-\alias{[<-,CsparseMatrix,missing,index,replValue-method}
-\alias{[<-,CsparseMatrix,missing,index,sparseVector-method}
-\alias{[<-,CsparseMatrix,index,missing,sparseVector-method}
-\alias{[<-,CsparseMatrix,index,index,sparseVector-method}
-% %
-\alias{[<-,RsparseMatrix,index,index,replValue-method}
-\alias{[<-,RsparseMatrix,index,missing,replValue-method}
-\alias{[<-,RsparseMatrix,matrix,missing,replValue-method}
-\alias{[<-,RsparseMatrix,missing,index,replValue-method}
-\alias{[<-,RsparseMatrix,missing,index,sparseVector-method}
-\alias{[<-,RsparseMatrix,index,missing,sparseVector-method}
-\alias{[<-,RsparseMatrix,index,index,sparseVector-method}
-% %
-% \alias{[<-,dsparseMatrix,missing,index,numeric-method}
-% \alias{[<-,dsparseMatrix,index,missing,numeric-method}
-% \alias{[<-,dsparseMatrix,index,index,numeric-method}
-% %
-% \alias{[<-,lsparseMatrix,missing,numeric,logical-method}
-% \alias{[<-,lsparseMatrix,numeric,missing,logical-method}
-% \alias{[<-,lsparseMatrix,numeric,numeric,logical-method}
-%-------
+\alias{[<-,sparseVector,index,missing,replValueSp-method}
+\alias{[<-,sparseVector,sparseVector,missing,replValueSp-method}
+%
 \description{
   Methods for \code{"[<-"}, i.e., extraction or subsetting mostly of
   matrices, in package \pkg{Matrix}.

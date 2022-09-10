@@ -2,23 +2,20 @@
 
 SEXP MatrixFactorization_validate(SEXP obj)
 {
-    SEXP val;
-    if (isString(val = dim_validate(GET_SLOT(obj, Matrix_DimSym),
-				    "MatrixFactorization")))
-	return(val);
-    return ScalarLogical(1);
+    return Dim_validate(GET_SLOT(obj, Matrix_DimSym), "MatrixFactorization");
 }
 
 SEXP LU_validate(SEXP obj)
 {
-    SEXP x = GET_SLOT(obj, Matrix_xSym),
-	Dim = GET_SLOT(obj, Matrix_DimSym);
-    int m = INTEGER(Dim)[0], n = INTEGER(Dim)[1]; // checked already in MatrixF.._validate()
-    if(TYPEOF(x) != REALSXP)
-	return mkString(_("x slot is not \"double\""));
-    if(XLENGTH(x) != ((double) m) * n)
-	return mkString(_("x slot is not of correct length"));
-    return dimNames_validate(obj);
+    /* NB: 'Dim' already checked by MatrixFactorization_validate() */
+    
+    SEXP x = GET_SLOT(obj, Matrix_xSym);
+    if (!isReal(x))
+	return mkString(_("'x' slot is not of type \"double\""));
+    int *pdim = INTEGER(GET_SLOT(obj, Matrix_DimSym));
+    if (XLENGTH(x) != pdim[0] * (double) pdim[1])
+	return mkString(_("length of 'x' slot is not prod(Dim)"));
+    return DimNames_validate(obj, pdim);
 }
 
 SEXP BunchKaufman_validate(SEXP obj)
@@ -88,7 +85,7 @@ SEXP LU_expand(SEXP x)
 	double *Lx = REAL(ALLOC_SLOT(L, Matrix_xSym, REALSXP, m2));
 	int *dL = INTEGER(ALLOC_SLOT(L, Matrix_DimSym, INTSXP, 2));
 	dL[0] = dL[1] = m;
-	// fill lower-diagonal (non-{0,1}) part -- remainder by make_d_matrix*() below:
+	// fill lower-diagonal (non-{0,1}) part -- remainder by ddense_unpacked_make_*() below:
 	Memcpy(Lx, REAL(lux), m2);
     }
     if(is_sq || !U_is_tri) {
@@ -99,7 +96,7 @@ SEXP LU_expand(SEXP x)
 	       *xx = REAL(lux);
 	int *dU = INTEGER(ALLOC_SLOT(U, Matrix_DimSym, INTSXP, 2));
 	dU[0] = dU[1] = n;
-	/* fill upper-diagonal (non-0) part -- remainder by make_d_matrix*() below:
+	/* fill upper-diagonal (non-0) part -- remainder by ddense_unpacked_make_*() below:
 	 * this is more complicated than in the L case, as the x / lux part we need
 	 * is  *not*  continguous:  Memcpy(Ux, REAL(lux), n * n); -- is  WRONG */
 	for (size_t j = 0; j < n; j++) {
@@ -111,35 +108,25 @@ SEXP LU_expand(SEXP x)
     if(L_is_tri) {
 	SET_SLOT(L, Matrix_uploSym, mkString("L"));
 	SET_SLOT(L, Matrix_diagSym, mkString("U"));
-	make_d_matrix_triangular(REAL(GET_SLOT(L, Matrix_xSym)), L);
-    } else { // L is "unit-diagonal" trapezoidal -- m > n -- "long"
-	// fill the upper right part with 0  *and* the diagonal with 1
-	double *Lx = REAL(GET_SLOT(L, Matrix_xSym));
-	size_t ii;
-	for (i = 0, ii = 0; i < n; i++, ii+=(m+1)) { // ii = i*(m+1)
-	    Lx[ii] = 1.;
-	    for (size_t j = i*m_; j < ii; j++)
-		Lx[j] = 0.;
-	}
     }
+    // fill the upper right part with 0  *and* the diagonal with 1
+    ddense_unpacked_make_triangular(REAL(GET_SLOT(L, Matrix_xSym)),
+				    m, (is_sq || !L_is_tri) ? n : m, 'L', 'U');
 
     if(U_is_tri) {
 	SET_SLOT(U, Matrix_uploSym, mkString("U"));
 	SET_SLOT(U, Matrix_diagSym, mkString("N"));
-	make_d_matrix_triangular(REAL(GET_SLOT(U, Matrix_xSym)), U);
-    } else { // U is trapezoidal -- m < n
-	// fill the lower left part with 0
-	double *Ux = REAL(GET_SLOT(U, Matrix_xSym));
-	for (i = 0; i < m; i++)
-	    for (size_t j = i*(m_+1) +1; j < (i+1)*m_; j++)
-		Ux[j] = 0.;
+	
     }
-
+    // fill the lower left part with 0
+    ddense_unpacked_make_triangular(REAL(GET_SLOT(U, Matrix_xSym)),
+				    (is_sq || !U_is_tri) ? m : n, n, 'U', 'N');
+    
     SET_SLOT(P, Matrix_DimSym, duplicate(dd));
     if(!is_sq) // m != n -- P is  m x m
 	INTEGER(GET_SLOT(P, Matrix_DimSym))[1] = m;
     perm = INTEGER(ALLOC_SLOT(P, Matrix_permSym, INTSXP, m));
-    C_or_Alloca_TO(iperm, m, int);
+    Calloc_or_Alloca_TO(iperm, m, int);
 
     for (i = 0; i < m; i++) iperm[i] = i + 1; /* initialize permutation*/
     for (i = 0; i < nn; i++) {	/* generate inverse permutation */
@@ -151,7 +138,7 @@ SEXP LU_expand(SEXP x)
     // invert the inverse
     for (i = 0; i < m; i++) perm[iperm[i] - 1] = i + 1;
 
-    if(m >= SMALL_4_Alloca) R_Free(iperm);
+    Free_FROM(iperm, m);
     UNPROTECT(1);
     return val;
 }

@@ -1,11 +1,18 @@
 \name{expand}
 \title{Expand a (Matrix) Decomposition into Factors}
+%
 \alias{expand}
-\usage{
-expand(x, \dots)
-}
+%
+\alias{expand,CHMfactor-method}
+\alias{expand,MatrixFactorization-method}
+\alias{expand,denseLU-method}
+\alias{expand,sparseLU-method}
+%
 \description{
   Expands decompositions stored in compact form into factors.
+}
+\usage{
+expand(x, \dots)
 }
 \arguments{
   \item{x}{a matrix decomposition.}

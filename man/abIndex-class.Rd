@@ -1,43 +1,33 @@
 \name{abIndex-class}
 \title{Class "abIndex" of Abstract Index Vectors}
-\Rdversion{1.1}
 \docType{class}
+\Rdversion{1.1}
 %
 \alias{abIndex-class}
+\alias{seqMat-class} % not yet documented {unexported}
 %
-\alias{seqMat-class}% unexported for now
-% hence, we do not yet mention these further below:
-\alias{coerce,abIndex,seqMat-method}
-\alias{coerce,numeric,seqMat-method}
-\alias{coerce,seqMat,abIndex-method}
-\alias{coerce,seqMat,numeric-method}
-%
+\alias{Arith,abIndex,abIndex-method}
+\alias{Arith,abIndex,numLike-method}
+\alias{Arith,numLike,abIndex-method}
+\alias{Ops,ANY,abIndex-method}
+\alias{Ops,abIndex,ANY-method}
+\alias{Ops,abIndex,abIndex-method}
+\alias{Summary,abIndex-method}
 \alias{as.integer,abIndex-method}
 \alias{as.numeric,abIndex-method}
 \alias{as.vector,abIndex-method}
-\alias{[,abIndex,index,ANY,ANY-method}
-\alias{coerce,logical,abIndex-method}
-\alias{coerce,numeric,abIndex-method}
 \alias{coerce,abIndex,integer-method}
 \alias{coerce,abIndex,numeric-method}
+\alias{coerce,abIndex,seqMat-method}
 \alias{coerce,abIndex,vector-method}
-\alias{drop,abIndex-method}% not mentioned below {experimental}
+\alias{coerce,logical,abIndex-method}
+\alias{coerce,numeric,abIndex-method}
+\alias{coerce,numeric,seqMat-method}
+\alias{coerce,seqMat,abIndex-method}
+\alias{coerce,seqMat,numeric-method}
+\alias{drop,abIndex-method} % not yet documented {experimental}
 \alias{length,abIndex-method}
 \alias{show,abIndex-method}
-\alias{is.na,abIndex-method}
-\alias{is.finite,abIndex-method}% not yet mentioned
-\alias{is.infinite,abIndex-method}
-%
-\alias{Ops,numeric,abIndex-method}
-\alias{Ops,abIndex,abIndex-method}
-\alias{Ops,abIndex,numeric-method}
-\alias{Ops,abIndex,ANY-method}
-\alias{Ops,ANY,abIndex-method}
-\alias{Arith,abIndex,abIndex-method}
-\alias{Arith,abIndex,numLike-method}% \alias{Arith,abIndex,numeric-method}
-\alias{Arith,numLike,abIndex-method}% \alias{Arith,numeric,abIndex-method}
-%
-\alias{Summary,abIndex-method}
 %
 \description{
   The \code{"abIndex"} \code{\link{class}}, short for \dQuote{Abstract

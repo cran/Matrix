@@ -1,32 +1,40 @@
 \name{Matrix-class}
 \title{Virtual Class "Matrix" Class of Matrices}
 \docType{class}
+%
 \alias{Matrix-class}
+%
 \alias{!,Matrix-method}
-%% Group methods:
-\alias{-,Matrix,missing-method}
+\alias{&,Matrix,ddiMatrix-method}
+\alias{&,Matrix,ldiMatrix-method}
+\alias{*,Matrix,ddiMatrix-method}
+\alias{*,Matrix,ldiMatrix-method}
 \alias{+,Matrix,missing-method}
+\alias{-,Matrix,missing-method}
 \alias{Arith,Matrix,Matrix-method}
-\alias{Ops,Matrix,Matrix-method}
-\alias{Ops,Matrix,ANY-method}
-\alias{Ops,ANY,Matrix-method}
-\alias{Ops,Matrix,NULL-method}
-\alias{Ops,NULL,Matrix-method}
-\alias{Ops,Matrix,matrix-method}
-\alias{Ops,matrix,Matrix-method}
-\alias{Ops,logical,Matrix-method}
-\alias{Ops,Matrix,logical-method}
-\alias{Logic,logical,Matrix-method}
-\alias{Logic,Matrix,logical-method}
-\alias{Logic,Matrix,ANY-method}
+\alias{Arith,Matrix,lsparseMatrix-method}
+\alias{Arith,Matrix,nsparseMatrix-method}
 \alias{Logic,ANY,Matrix-method}
-\alias{Summary,Matrix-method}
+\alias{Logic,Matrix,ANY-method}
+\alias{Logic,Matrix,nMatrix-method}
 \alias{Math2,Matrix-method}
-\alias{mean,Matrix-method}
-% "["             ---> Xtrct-methods.Rd
-% "[<-"           ---> Subassign-methods.Rd
-%\alias{solve,...} --> solve-methods.Rd
-%\alias{\%*%,... } --> matrix-products.Rd
+\alias{Ops,ANY,Matrix-method}
+\alias{Ops,Matrix,ANY-method}
+\alias{Ops,Matrix,NULL-method}
+\alias{Ops,Matrix,ddiMatrix-method}
+\alias{Ops,Matrix,ldiMatrix-method}
+\alias{Ops,Matrix,matrix-method}
+\alias{Ops,Matrix,sparseVector-method}
+\alias{Ops,NULL,Matrix-method}
+\alias{Ops,matrix,Matrix-method}
+\alias{Summary,Matrix-method}
+\alias{^,Matrix,ddiMatrix-method}
+\alias{^,Matrix,ldiMatrix-method}
+\alias{as.array,Matrix-method}
+\alias{as.logical,Matrix-method}
+\alias{as.matrix,Matrix-method}
+\alias{as.numeric,Matrix-method}
+\alias{as.vector,Matrix-method}
 \alias{cbind2,ANY,Matrix-method}
 \alias{cbind2,Matrix,ANY-method}
 \alias{cbind2,Matrix,Matrix-method}
@@ -34,7 +42,41 @@
 \alias{cbind2,Matrix,atomicVector-method}
 \alias{cbind2,Matrix,missing-method}
 \alias{cbind2,NULL,Matrix-method}
-\alias{cbind2,atomicVector,Matrix-method}
+\alias{coerce,ANY,Matrix-method}
+\alias{coerce,Matrix,CsparseMatrix-method}
+\alias{coerce,Matrix,complex-method}
+\alias{coerce,Matrix,corMatrix-method}
+\alias{coerce,Matrix,denseMatrix-method}
+\alias{coerce,Matrix,diagonalMatrix-method}
+\alias{coerce,Matrix,dpoMatrix-method}
+\alias{coerce,Matrix,dppMatrix-method}
+\alias{coerce,Matrix,denseMatrix-method}
+\alias{coerce,Matrix,indMatrix-method}
+\alias{coerce,Matrix,integer-method}
+\alias{coerce,Matrix,logical-method}
+\alias{coerce,Matrix,matrix-method}
+\alias{coerce,Matrix,numeric-method}
+\alias{coerce,Matrix,pMatrix-method}
+\alias{coerce,Matrix,sparseMatrix-method}
+\alias{coerce,Matrix,symmetricMatrix-method}
+\alias{coerce,Matrix,triangularMatrix-method}
+\alias{coerce,Matrix,vector-method}
+\alias{coerce,matrix,Matrix-method}
+\alias{cov2cor,Matrix-method}
+\alias{determinant,Matrix,missing-method}
+\alias{determinant,Matrix,logical-method}
+\alias{diff,Matrix-method}
+\alias{dim,Matrix-method}
+\alias{dimnames,Matrix-method}
+\alias{dimnames<-,Matrix,NULL-method}
+\alias{dimnames<-,Matrix,list-method}
+\alias{drop,Matrix-method}
+\alias{eigen,Matrix,ANY,logical-method} % if(.Matrix.avoiding.as.matrix)
+\alias{eigen,Matrix,ANY,missing-method} % if(.Matrix.avoiding.as.matrix)
+\alias{head,Matrix-method}
+\alias{initialize,Matrix-method}
+\alias{length,Matrix-method}
+\alias{mean,Matrix-method}
 \alias{rbind2,ANY,Matrix-method}
 \alias{rbind2,Matrix,ANY-method}
 \alias{rbind2,Matrix,Matrix-method}
@@ -42,49 +84,13 @@
 \alias{rbind2,Matrix,atomicVector-method}
 \alias{rbind2,Matrix,missing-method}
 \alias{rbind2,NULL,Matrix-method}
-\alias{rbind2,atomicVector,Matrix-method}
-%
-\alias{cov2cor,Matrix-method}
-\alias{det}% "the function" (our copy of base::det)
-\alias{determinant,Matrix,missing-method}
-\alias{determinant,Matrix,logical-method}
-\alias{diag,Matrix-method}
-\alias{drop,Matrix-method}
-\alias{head,Matrix-method}
-\alias{tail,Matrix-method}
-\alias{diff,Matrix-method}
-\alias{dim,Matrix-method}
-\alias{dim<-,Matrix-method}
-\alias{dimnames,Matrix-method}
-\alias{dimnames<-,Matrix,list-method}
-\alias{dimnames<-,Matrix,NULL-method}
-\alias{length,Matrix-method}
-\alias{show,Matrix-method}
-\alias{as.array,Matrix-method}
-\alias{as.matrix,Matrix-method}
-\alias{as.vector,Matrix-method}
-\alias{as.numeric,Matrix-method}
-\alias{as.logical,Matrix-method}
-\alias{t,Matrix-method}
-\alias{unname,Matrix-method}
-\alias{coerce,Matrix,vector-method}
-\alias{coerce,Matrix,numeric-method}
-\alias{coerce,Matrix,logical-method}
-\alias{coerce,Matrix,integer-method}
-\alias{coerce,Matrix,complex-method}
-%
-\alias{coerce,Matrix,matrix-method}%
-\alias{coerce,matrix,Matrix-method}
-\alias{coerce,ANY,Matrix-method}
-\alias{coerce,Matrix,denseMatrix-method}
-\alias{coerce,Matrix,CsparseMatrix-method}
-\alias{coerce,Matrix,sparseMatrix-method}
-%\alias{solve,Matrix,....-method}--> ./solve-methods.Rd
 \alias{rep,Matrix-method}
-\alias{svd,Matrix-method}% only if(.Matrix.avoiding.as.matrix)
+\alias{tail,Matrix-method}
 \alias{unname,Matrix,missing-method}
-% Fake entries - so users find this:
-\alias{print.Matrix}
+\alias{svd,Matrix-method} % if(.Matrix.avoiding.as.matrix)
+%
+\alias{det} % for our copy of base::det
+\alias{print.Matrix} % spoof, only so that users find this topic
 %
 \description{
   The \code{Matrix} class is a class contained by all actual

@@ -1,6 +1,7 @@
 \name{lgeMatrix-class}
 \docType{class}
 \title{Class "lgeMatrix" of General Dense Logical Matrices}
+%
 \alias{lgeMatrix-class}
 %
 \alias{!,lgeMatrix-method}
@@ -8,18 +9,19 @@
 \alias{Compare,lgeMatrix,lgeMatrix-method}
 \alias{Logic,lgeMatrix,lgeMatrix-method}
 \alias{as.vector,lgeMatrix-method}
-\alias{coerce,matrix,lgeMatrix-method}
 \alias{coerce,lgeMatrix,dgeMatrix-method}
-\alias{coerce,lgeMatrix,matrix-method}
 \alias{coerce,lgeMatrix,lgCMatrix-method}
+\alias{coerce,lgeMatrix,lgRMatrix-method}
 \alias{coerce,lgeMatrix,lgTMatrix-method}
-\alias{coerce,lgeMatrix,lsyMatrix-method}
-\alias{coerce,lgeMatrix,ltrMatrix-method}
-\alias{coerce,lgeMatrix,ltpMatrix-method}
 \alias{coerce,lgeMatrix,lspMatrix-method}
-\alias{diag,lgeMatrix-method}
-\alias{diag<-,lgeMatrix-method}
-\alias{t,lgeMatrix-method}
+\alias{coerce,lgeMatrix,lsyMatrix-method}
+\alias{coerce,lgeMatrix,ltpMatrix-method}
+\alias{coerce,lgeMatrix,ltrMatrix-method}
+\alias{coerce,lgeMatrix,matrix-method}
+\alias{coerce,lgeMatrix,ngeMatrix-method}
+\alias{coerce,lgeMatrix,vector-method}
+\alias{coerce,matrix,lgeMatrix-method}
+\alias{coerce,numLike,lgeMatrix-method}
 %
 \description{This is the class of general dense \code{\link{logical}}
   matrices.
@@ -59,6 +61,6 @@ set.seed(1)
 (lM <- Matrix(matrix(rnorm(28), 4,7) > 0))# a simple random lgeMatrix
 set.seed(11)
 (lC <- Matrix(matrix(rnorm(28), 4,7) > 0))# a simple random lgCMatrix
-as(lM, "lgCMatrix")
+as(lM, "CsparseMatrix")
 }
 \keyword{classes}

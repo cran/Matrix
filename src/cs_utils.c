@@ -123,11 +123,11 @@ cs *Matrix_as_cs(cs *ans, SEXP x, Rboolean check_Udiag)
  *
  * @return SEXP containing a copy of a
  */
-// FIXME: Change API : Use object,  not just class name 'cl' -- and use R_check_class(obj, *)
+// FIXME: Change API : Use object,  not just class name 'cl' -- and use R_check_class_etc(obj, *)
 SEXP Matrix_cs_to_SEXP(cs *a, char *cl, int dofree, SEXP dn)
 {
     static const char *valid[] = {"dgCMatrix", "dsCMatrix", "dtCMatrix", ""};
-    int ctype = Matrix_check_class(cl, valid);
+    int ctype = Matrix_check_class_(cl, valid);
 
     if (ctype < 0)
 	error(_("invalid class of object to %s"), "Matrix_cs_to_SEXP");
@@ -171,10 +171,9 @@ SEXP Matrix_cs_to_SEXP(cs *a, char *cl, int dofree, SEXP dn)
  */
 css *Matrix_as_css(css *ans, SEXP x)
 {
-    char *cl = class_P(x);
     static const char *valid[] = {"css_LU", "css_QR", ""};
     int *nz = INTEGER(GET_SLOT(x, install("nz"))),
-	ctype = Matrix_check_class(cl, valid);
+	ctype = Matrix_check_class(x, valid);
 
     if (ctype < 0)
 	error(_("invalid class of object to %s"), "Matrix_as_css");
@@ -209,7 +208,7 @@ css *Matrix_as_css(css *ans, SEXP x)
 csn *Matrix_as_csn(csn *ans, SEXP x)
 {
     static const char *valid[] = {"csn_LU", "csn_QR", ""};
-    int ctype = Matrix_check_class(class_P(x), valid);
+    int ctype = Matrix_check_class(x, valid);
 
     if (ctype < 0)
 	error(_("invalid class of object to %s"), "Matrix_as_csn");
@@ -246,7 +245,7 @@ SEXP Matrix_css_to_SEXP(css *S, char *cl, int dofree, int m, int n)
 {
     SEXP ans;
     static const char *valid[] = {"css_LU", "css_QR", ""};
-    int *nz, ctype = Matrix_check_class(cl, valid);
+    int *nz, ctype = Matrix_check_class_(cl, valid);
 
     if (ctype < 0)
 	error(_("Inappropriate class cl='%s' in Matrix_css_to_SEXP(S, cl, ..)"),

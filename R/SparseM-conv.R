@@ -1,83 +1,72 @@
-####-----------  Minimal conversion utilities  <-->  "SparseM"
+## METHODS ENHANCING PACKAGE: sparseM
+## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-### I.  The  "natural pairs"  between the two packages:
+## ~~~~ COERCIONS FROM SparseM TO Matrix ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-setAs("matrix.csr", "dgRMatrix",
-      function(from) {
-	  new("dgRMatrix",
-	      x = from@ra, j = from@ja - 1L, p = from@ia - 1L,
-	      Dim = from@dimension)
-      })
-setAs("dgRMatrix", "matrix.csr",
-      function(from) {
-	  new("matrix.csr",
-	      ra = from@x, ja = from@j + 1L, ia = from@p + 1L,
-	      dimension = from@Dim)
-      })
-
-
+## Natural pairs
 setAs("matrix.csc", "dgCMatrix",
-      function(from) {
-	  new("dgCMatrix",
-	      x = from@ra, i = from@ja - 1L, p = from@ia - 1L,
-	      Dim = from@dimension)
-      })
-setAs("dgCMatrix", "matrix.csc",
-      function(from) {
-	  new("matrix.csc",
-	      ra = from@x, ja = from@i + 1L, ia = from@p + 1L,
-	      dimension = from@Dim)
-      })
-
+      function(from) new("dgCMatrix", Dim = from@dimension,
+                         p = from@ia - 1L, i = from@ja - 1L, x = from@ra))
+setAs("matrix.csr", "dgRMatrix",
+      function(from) new("dgRMatrix", Dim = from@dimension,
+                         p = from@ia - 1L, j = from@ja - 1L, x = from@ra))
 setAs("matrix.coo", "dgTMatrix",
-      function(from) {
-	  new("dgTMatrix",
-	      x = from@ra, i = from@ia - 1L, j = from@ja - 1L,
-	      Dim = from@dimension)
-      })
-setAs("dgTMatrix", "matrix.coo",
-      function(from) {
-	  new("matrix.coo",
-	      ra = from@x, ia = from@i + 1L, ja = from@j + 1L,
-	      dimension = from@Dim)
-      })
+      function(from) new("dgTMatrix", Dim = from@dimension,
+                         i = from@ia - 1L, j = from@ja - 1L, x = from@ra))
 
-### II.  Enable coercion to the ``favorite'' of each package;
-### ---         ----------------------------
-###      i.e.,  "dgCMatrix" and  "matrix.csr"
-
-setAs("dsparseMatrix", "matrix.csr",
-      function(from) as(as(as(from, "RsparseMatrix"), "dgRMatrix"), "matrix.csr"))
-
-##
+## Remaining matrix.c(sc|sr|oo) to dgCMatrix
 setAs("matrix.csr", "dgCMatrix",
-      function(from) as(as(from, "dgRMatrix"), "CsparseMatrix"))
+      function(from) .CR2RC(as(from, "dgRMatrix")))
 setAs("matrix.coo", "dgCMatrix",
-      function(from) as(as(from, "dgTMatrix"), "dgCMatrix"))
+      function(from) .T2C(as(from, "dgTMatrix")))
 
-### also define the virtual coercions that we (should) advertize:
-setAs("matrix.csr", "RsparseMatrix", function(from) as(from, "dgRMatrix"))
-setAs("matrix.csc", "CsparseMatrix", function(from) as(from, "dgCMatrix"))
-setAs("matrix.coo", "TsparseMatrix", function(from) as(from, "dgTMatrix"))
-## to "Csparse*" and "Tsparse*" should work for all sparse:
-setAs("matrix.csr", "CsparseMatrix",
-      function(from) as(as(from, "dgRMatrix"), "CsparseMatrix"))
-setAs("matrix.coo", "CsparseMatrix",
-      function(from) as(as(from, "dgTMatrix"), "CsparseMatrix"))
+## Each matrix.c(sc|sr|oo) to each [CRT]sparseMatrix
+setAs("matrix.csc", "CsparseMatrix",
+      function(from)        as(from, "dgCMatrix"))
+setAs("matrix.csc", "RsparseMatrix",
+      function(from) .CR2RC(as(from, "dgCMatrix")))
 setAs("matrix.csc", "TsparseMatrix",
-      function(from) as(as(from, "dgCMatrix"), "TsparseMatrix"))
+      function(from)  .CR2T(as(from, "dgCMatrix")))
+setAs("matrix.csr", "CsparseMatrix",
+      function(from) .CR2RC(as(from, "dgRMatrix")))
+setAs("matrix.csr", "RsparseMatrix",
+      function(from)        as(from, "dgRMatrix"))
 setAs("matrix.csr", "TsparseMatrix",
-      function(from) as(as(from, "dgRMatrix"), "TsparseMatrix"))
-## Also *from* (our favorite) Csparse should work to all 3 SparseM
-setAs("CsparseMatrix", "matrix.csr",
-      function(from) as(as(from, "RsparseMatrix"), "matrix.csr"))
-setAs("CsparseMatrix", "matrix.coo",
-      function(from) as(as(from, "TsparseMatrix"), "matrix.coo"))
-setAs("CsparseMatrix", "matrix.csc",
-      function(from) as(as(from, "dgCMatrix"), "matrix.csc"))
+      function(from)  .CR2T(as(from, "dgRMatrix")))
+setAs("matrix.coo", "CsparseMatrix",
+      function(from)   .T2C(as(from, "dgTMatrix")))
+setAs("matrix.coo", "RsparseMatrix",
+      function(from)   .T2R(as(from, "dgTMatrix")))
+setAs("matrix.coo", "TsparseMatrix",
+      function(from)        as(from, "dgTMatrix"))
 
-## Easy coercion: just always use as( <SparseM.mat>, "Matrix") :
+## Each matrix.c(sc|sr|oo) to sparseMatrix, Matrix ("easy")
+## NB: favouring column format over row format
+setAs("matrix.csc", "sparseMatrix", function(from) as(from, "CsparseMatrix"))
+setAs("matrix.csr", "sparseMatrix", function(from) as(from, "CsparseMatrix"))
+setAs("matrix.coo", "sparseMatrix", function(from) as(from, "TsparseMatrix"))
+setAs("matrix.csc",       "Matrix", function(from) as(from, "CsparseMatrix"))
+setAs("matrix.csr",       "Matrix", function(from) as(from, "CsparseMatrix"))
+setAs("matrix.coo",       "Matrix", function(from) as(from, "TsparseMatrix"))
 
-setAs("matrix.csr", "Matrix", function(from) as(from, "CsparseMatrix")) # we favor!
-setAs("matrix.coo", "Matrix", function(from) as(from, "TsparseMatrix"))
-setAs("matrix.csc", "Matrix", function(from) as(from, "CsparseMatrix"))
+
+## ~~~~ COERCIONS FROM Matrix TO SparseM ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+## Natural pairs
+setAs("dgCMatrix", "matrix.csc",
+      function(from) new("matrix.csc", dimension = from@Dim,
+                         ia = from@p + 1L, ja = from@i + 1L, ra = from@x))
+setAs("dgRMatrix", "matrix.csr",
+      function(from) new("matrix.csr", dimension = from@Dim,
+                         ia = from@p + 1L, ja = from@j + 1L, ra = from@x))
+setAs("dgTMatrix", "matrix.coo",
+      function(from) new("matrix.coo", dimension = from@Dim,
+                         ia = from@i + 1L, ja = from@j + 1L, ra = from@x))
+
+## Everything else
+setAs("Matrix", "matrix.csc",
+      function(from) as(as(as(as(from, "dMatrix"), "generalMatrix"), "CsparseMatrix"), "matrix.csc"))
+setAs("Matrix", "matrix.csr",
+      function(from) as(as(as(as(from, "dMatrix"), "generalMatrix"), "RsparseMatrix"), "matrix.csr"))
+setAs("Matrix", "matrix.coo",
+      function(from) as(as(as(as(from, "dMatrix"), "generalMatrix"), "TsparseMatrix"), "matrix.coo"))

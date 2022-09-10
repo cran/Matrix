@@ -82,17 +82,14 @@ bandSparse <- function(n, m = n, k, diagonals,
     }
     if(symmetric) { ## we should have smarter sparseMatrix()
 	UpLo <- if(min(k) >= 0) "U" else "L"
-	T <- if(use.x) {
-	    if(is.integer(x)) x <- as.double(x)
-	    cc <- paste0(.M.kind(x), "sTMatrix")
-	    new(cc, i= i-1L, j= j-1L, x = x, Dim= dims, uplo=UpLo)
-	}
-	else
-	    new("nsTMatrix", i= i-1L, j= j-1L, Dim= dims, uplo=UpLo)
-        switch(repr,
-               "C" = as(T, "CsparseMatrix"),
-               "T" =    T,# TsparseMatrix
-               "R" = as(T, "RsparseMatrix"),
+	T <-
+            if(use.x) {
+                if(is.integer(x))
+                    x <- as.double(x)
+                cc <- paste0(.M.kind(x), "sTMatrix")
+                new(cc, i= i-1L, j= j-1L, x = x, Dim= dims, uplo=UpLo)
+            } else new("nsTMatrix", i= i-1L, j= j-1L, Dim= dims, uplo=UpLo)
+        switch(repr, "C" = .T2C(T), "T" = T, "R" = .T2R(T),
                stop("invalid 'repr'; must be \"C\", \"T\", or \"R\""))
     }
     else { ## not symmetric, possibly triangular

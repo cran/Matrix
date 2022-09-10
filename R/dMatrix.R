@@ -1,5 +1,9 @@
 ### Define Methods that can be inherited for all subclasses
 
+## MJ: no longer ... prefer more efficient methods defined for denseMatrix,
+##     .sparseMatrix, and diagonalMatrix separately, going via C utilities
+##     R_(dense|sparse)_as_kind() and R_diagonal_as_sparse()
+if(FALSE) {
 ##-> "dMatrix" <--> "lMatrix"   ---> ./lMatrix.R
 
 ## these two are parallel to "n <-> l" in the above :
@@ -41,7 +45,7 @@ setAs("dMatrix", "nMatrix",
 	      r@x <- as.logical(from@x)
 	  r
       })
-
+} ## MJ
 
 ## Group Methods:
 ## -----

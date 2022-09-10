@@ -1,59 +1,45 @@
 \name{sparseMatrix-class}
-\docType{class}
 \title{Virtual Class "sparseMatrix" --- Mother of Sparse Matrices}
+\docType{class}
+%
 \alias{sparseMatrix-class}
-%% Group methods
-\alias{Math,sparseMatrix-method}
-\alias{log,sparseMatrix-method}
-%\alias{Math2,sparseMatrix,numeric-method}
-\alias{Ops,sparseMatrix,sparseMatrix-method}
-\alias{Ops,sparseMatrix,numeric-method}
-\alias{Ops,numeric,sparseMatrix-method}
-\alias{Ops,diagonalMatrix,sparseMatrix-method}
-\alias{Ops,sparseMatrix,diagonalMatrix-method}
 %
-\alias{cbind2,sparseMatrix,sparseMatrix-method}
-%\alias{cbind2,denseMatrix,sparseMatrix-method} in ./cBind.Rd
-%\alias{cbind2,sparseMatrix,denseMatrix-method}   ditto
-\alias{cbind2,sparseMatrix,matrix-method}
-\alias{cbind2,matrix,sparseMatrix-method}
-\alias{cbind2,sparseMatrix,numeric-method}
-\alias{cbind2,numeric,sparseMatrix-method}
-\alias{rbind2,sparseMatrix,sparseMatrix-method}
-%\alias{rbind2,denseMatrix,sparseMatrix-method} in ./cBind.Rd
-%\alias{rbind2,sparseMatrix,denseMatrix-method}   ditto
-\alias{rbind2,sparseMatrix,matrix-method}
-\alias{rbind2,matrix,sparseMatrix-method}
-\alias{rbind2,sparseMatrix,numeric-method}
-\alias{rbind2,numeric,sparseMatrix-method}
-%
-\alias{coerce,ANY,sparseMatrix-method}
-\alias{coerce,table,sparseMatrix-method}
-\alias{coerce,factor,sparseMatrix-method}
-\alias{coerce,sparseMatrix,generalMatrix-method}
-\alias{coerce,sparseMatrix,symmetricMatrix-method}
-\alias{coerce,sparseMatrix,triangularMatrix-method}
 \alias{-,sparseMatrix,missing-method}
+\alias{Math,sparseMatrix-method}
+\alias{Ops,numeric,sparseMatrix-method}
+\alias{Ops,sparseMatrix,ddiMatrix-method}
+\alias{Ops,sparseMatrix,ldiMatrix-method}
+\alias{Ops,sparseMatrix,nsparseMatrix-method}
+\alias{Ops,sparseMatrix,numeric-method}
+\alias{Ops,sparseMatrix,sparseMatrix-method}
+\alias{cbind2,matrix,sparseMatrix-method}
+%\alias{cbind2,sparseMatrix,denseMatrix-method} % needed in ./cBind.Rd
+\alias{cbind2,sparseMatrix,diagonalMatrix-method}
+\alias{cbind2,sparseMatrix,matrix-method}
+\alias{cbind2,sparseMatrix,sparseMatrix-method}
+\alias{coerce,ANY,sparseMatrix-method}
+\alias{coerce,factor,sparseMatrix-method}
+\alias{coerce,matrix,sparseMatrix-method}
+\alias{coerce,numLike,sparseMatrix-method}
+\alias{coerce,sparseMatrix,indMatrix-method}
+\alias{coerce,sparseMatrix,sparseVector-method}
+\alias{coerce,table,sparseMatrix-method}
 \alias{cov2cor,sparseMatrix-method}
-\alias{diag,sparseMatrix-method}
 \alias{dim<-,sparseMatrix-method}
 \alias{format,sparseMatrix-method}
-\alias{lu,sparseMatrix-method}
+\alias{log,sparseMatrix-method}
 \alias{mean,sparseMatrix-method}
 \alias{print,sparseMatrix-method}
+\alias{rbind2,matrix,sparseMatrix-method}
+%\alias{rbind2,sparseMatrix,denseMatrix-method} % needed in ./cBind.Rd
+\alias{rbind2,sparseMatrix,diagonalMatrix-method}
+\alias{rbind2,sparseMatrix,matrix-method}
+\alias{rbind2,sparseMatrix,sparseMatrix-method}
+\alias{rep,sparseMatrix-method}
 \alias{show,sparseMatrix-method}
 \alias{summary,sparseMatrix-method}
-\alias{norm,sparseMatrix,character-method}
-\alias{determinant,dgCMatrix,logical-method}
-\alias{determinant,dsparseMatrix,logical-method}
-\alias{determinant,dtCMatrix,logical-method}
-\alias{determinant,sparseMatrix,missing-method}
-\alias{determinant,sparseMatrix,logical-method}
-\alias{rep,sparseMatrix-method}
-% Fake, just so it is found by the naive user:}
-\alias{print.sparseMatrix}
-% "[" are in ./Xtrct-methods.Rd
-%\alias{colMeans,..} etc are now in ./colSums.Rd
+%
+\alias{print.sparseMatrix} % spoof, only so that users find this topic
 %
 \description{Virtual Mother Class of All Sparse Matrices}
 \section{Slots}{

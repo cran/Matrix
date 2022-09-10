@@ -2,6 +2,8 @@
 ####  "column compressed" format.
 #### -- many more specific things are e.g. in ./dgCMatrix.R
 
+## MJ: no longer needed ... replacement in ./sparseMatrix.R
+if(FALSE) {
 setAs("CsparseMatrix", "TsparseMatrix",
       function(from)
           ## |-> cholmod_C -> cholmod_T -> chm_triplet_to_SEXP
@@ -75,7 +77,10 @@ setAs("dsCMatrix", "matrix", function(from) .Call(Csparse_to_matrix, from, FALSE
 setAs("dtCMatrix", "matrix", function(from) .Call(Csparse_to_matrix, from, TRUE,  FALSE))
 ## NB: Would *not* be ok for l*Matrix or n*Matrix,
 ## --------- as cholmod coerces to "REAL" aka "double"
+} ## MJ
 
+## MJ: no longer needed ... replacement in ./denseMatrix.R
+if(FALSE) {
 ..m2dgC <- function(from) .Call(matrix_to_Csparse, from, "dgCMatrix")
 ..m2lgC <- function(from) .Call(matrix_to_Csparse, from, "lgCMatrix")
 
@@ -109,14 +114,16 @@ setAs("matrix", "CsparseMatrix", ## => choosing 'l*' or 'dgCMatrix' (no tri-, sy
 
 setAs("numeric", "CsparseMatrix",
       function(from) (if(is.logical(from)) ..m2lgC else .m2dgC)(as.matrix.default(from)))
+} ## MJ
 
-
+## MJ: no longer needed ... method now inherited from Matrix
+if(FALSE) {
 setAs("CsparseMatrix", "symmetricMatrix",
       function(from) {
-	  if(isSymmetric(from)) forceCspSymmetric(from)
+	  if(isSymmetric(from)) forceSymmetricCsparse(from)
 	  else stop("not a symmetric matrix; consider forceSymmetric() or symmpart()")
       })
-
+} ## MJ
 
 .validateCsparse <- function(x, sort.if.needed = FALSE)
     .Call(Csparse_validate2, x, sort.if.needed)
@@ -165,30 +172,38 @@ subCsp_ij <- function(x, i, j, drop)
     d <- x@Dim
     dn <- x@Dimnames
     ## Take care that	x[i,i]	for symmetricM* stays symmetric
-    i.eq.j <- identical(i,j) # < want fast check
-    ii <- intI(i, n = d[1], dn[[1]], give.dn = FALSE)
-    jj <- if(i.eq.j && d[1] == d[2]) ii
-    else intI(j, n = d[2], dn[[2]], give.dn = FALSE)
+    i.eq.j <- identical(i, j) # < want fast check
+    ii <- intI(i, n = d[1L], dn[[1L]], give.dn = FALSE)
+    jj <- if(i.eq.j && d[1L] == d[2L])
+              ii
+          else intI(j, n = d[2L], dn[[2L]], give.dn = FALSE)
     r <- .Call(Csparse_submatrix, x, ii, jj)
-    if(!is.null(n <- dn[[1]])) r@Dimnames[[1]] <- n[ii + 1L]
-    if(!is.null(n <- dn[[2]])) r@Dimnames[[2]] <- n[jj + 1L]
+    if(!is.null(s <- dn[[1L]]))
+        r@Dimnames[[1L]] <- s[ii + 1L]
+    if(!is.null(s <- dn[[2L]]))
+        r@Dimnames[[2L]] <- s[jj + 1L]
     if(!i.eq.j) {
-	if(drop && any(r@Dim == 1L)) drop(as(r, "matrix")) else {
-	    if(!is.null(n <- names(dn))) names(r@Dimnames) <- n
+	if(drop && any(r@Dim == 1L))
+            drop(as(r, "matrix"))
+        else {
+	    if(!is.null(ndn <- names(dn)))
+                names(r@Dimnames) <- ndn
 	    r
 	}
-    } else { ## i == j
-	if(drop) drop <- any(r@Dim == 1L)
-	if(drop)
-	    drop(as(r, "matrix"))
-	else {
-	    if(!is.null(n <- names(dn))) names(r@Dimnames) <- n
-	    if(extends((cx <- getClassDef(class(x))), "symmetricMatrix"))
-		.gC2sym(r, uplo = x@uplo) # preserving uplo
-	    else if(extends(cx, "triangularMatrix") && !is.unsorted(ii))
-		as(r, "triangularMatrix")
-	    else r
-	}
+    } else if(drop && any(r@Dim == 1L)) {
+        drop(as(r, "matrix"))
+    } else {
+        if(!is.null(ndn <- names(dn)))
+            names(r@Dimnames) <- ndn
+        cld <- getClassDef(class(x))
+        if(extends(cld, "symmetricMatrix"))
+            ## preserving 'uplo'
+            .Call(R_sparse_force_symmetric, r, x@uplo)
+        else if(!extends(cld, "triangularMatrix") || is.unsorted(ii))
+            r
+        else if(x@uplo == "U")
+            triu(r)
+        else tril(r)
     }
 }
 
@@ -231,36 +246,41 @@ replCmat <- function (x, i, j, ..., value)
     iMi <- missing(i)
     jMi <- missing(j)
     na <- nargs()
-    Matrix.msg("replCmat[x,i,j,.., val] : nargs()=", na,"; ",
-	       if(iMi | jMi) sprintf("missing (i,j) = (%d,%d)", iMi,jMi),
+    Matrix.msg("replCmat[x,i,j,..,val] : nargs()=", na, "; ",
+	       if(iMi || jMi) sprintf("missing (i,j) = (%d,%d)", iMi, jMi),
 	       .M.level = 2)
-    if(na == 3) { ## vector (or 2-col) indexing M[i] <- v : includes M[TRUE] <- v or M[] <- v !
-	x <- as(x, "TsparseMatrix")
-	x[i] <- value # may change class e.g. from dtT* to dgT*
-	clx <- sub(".Matrix$", "CMatrix", (c.x <- class(x)))
-	if("x" %in% .slotNames(c.x) && any0(x@x))
+    if(na == 3L) { ## vector (or 2-col) indexing M[i] <- v : includes M[TRUE] <- v or M[] <- v !
+	x <- .CR2T(x)
+	x[i] <- value # may change class, e.g., from dtT* to dgT*
+	cl.C <- sub(".Matrix$", "CMatrix", class(x))
+	if(.hasSlot(x, "x") && any0(x@x))
 	    ## drop all values that "happen to be 0"
-	    drop0(x, is.Csparse=FALSE) else as_CspClass(x, clx)
-    }
-    else ## nargs() == 4 :
+	    drop0(x, is.Csparse = FALSE)
+        else as_CspClass(x, cl.C)
+    } else ## nargs() == 4 :
 	replCmat4(x,
-		  i1 = if(iMi) 0:(di[1] - 1L) else .ind.prep2(i, 1, di, dn),
-		  i2 = if(jMi) 0:(di[2] - 1L) else .ind.prep2(j, 2, di, dn),
-                  iMi=iMi, jMi=jMi, value=value)
+		  i1 = if(iMi)
+                           seq.int(from = 0L, length.out = di[1L])
+                       else .ind.prep2(i, 1L, di, dn),
+		  i2 = if(jMi)
+                           seq.int(from = 0L, length.out = di[2L])
+                       else .ind.prep2(j, 2L, di, dn),
+                  iMi = iMi, jMi = jMi, value = value)
 } ## replCmat
 
-replCmat4 <- function(x, i1, i2, iMi, jMi, value, spV = is(value,"sparseVector"))
+replCmat4 <- function(x, i1, i2, iMi, jMi, value,
+                      spV = is(value, "sparseVector"))
 {
     dind <- c(length(i1), length(i2)) # dimension of replacement region
     lenRepl <- prod(dind)
     lenV <- length(value)
     if(lenV == 0) {
-	if(lenRepl != 0)
+	if(lenRepl != 0L)
 	    stop("nothing to replace with")
-	else return(x)
+	return(x)
     }
     ## else: lenV := length(value)	 is > 0
-    if(lenRepl %% lenV != 0)
+    if(lenRepl %% lenV != 0L)
 	stop("number of items to replace is not a multiple of replacement length")
     if(lenV > lenRepl)
 	stop("too many replacement values")
@@ -273,24 +293,24 @@ replCmat4 <- function(x, i1, i2, iMi, jMi, value, spV = is(value,"sparseVector")
     if(x.sym) { ## only half the indices are there..
 	## using array() for large dind is a disaster...
 	mkArray <- if(spV) # TODO: room for improvement
-	    function(v, dim) spV2M(v, dim[1],dim[2]) else array
+	    function(v, dim) spV2M(v, dim[1L], dim[2L]) else array
 	x.sym <-
-	    (dind[1] == dind[2] && all(i1 == i2) &&
-	     (lenRepl == 1 || lenV == 1 ||
+	    (dind[1L] == dind[2L] && all(i1 == i2) &&
+	     (lenRepl == 1L || lenV == 1L ||
 	      isSymmetric(mkArray(value, dim=dind))))
 	## x.sym : result is *still* symmetric
-	x <- .Call(Csparse_symmetric_to_general, x) ## but do *not* redefine clx!
+	x <- .sparse2g(x) ## but do *not* redefine clx!
     }
     else if(extends(clDx, "triangularMatrix")) {
 	xU <- x@uplo == "U"
-	r.tri <- ((any(dind == 1) || dind[1] == dind[2]) &&
+	r.tri <- ((any(dind == 1) || dind[1L] == dind[2L]) &&
 		  if(xU) max(i1) <= min(i2) else max(i2) <= min(i1))
 	if(r.tri) { ## result is *still* triangular
 	    if(any(i1 == i2)) # diagonal will be changed
 		x <- diagU2N(x) # keeps class (!)
 	}
-	else { # go to "generalMatrix" and continue
-	    x <- as(x, paste0(.M.kind(x), "gCMatrix")) ## & do not redefine clx!
+	else { # go to "generalMatrix" and (do not redefine clx!) and continue
+	    x <- .sparse2g(x) # was as(x, paste0(.M.kind(x), "gCMatrix"))
 	}
     }
     ## Temporary hack for debugging --- remove eventually -- FIXME :
@@ -298,16 +318,16 @@ replCmat4 <- function(x, i1, i2, iMi, jMi, value, spV = is(value,"sparseVector")
     if(!is.null(v <- getOption("Matrix.subassign.verbose")) && v) {
 	op <- options(Matrix.verbose = 2); on.exit(options(op))
 	## the "hack" to signal "verbose" to the C code:
-	i1[1] <- -i1[1]
-	if(i1[1] == 0)
-	    warning("i1[1] == 0 ==> C-level verbosity will not happen!")
+	if(i1[1L] != 0L)
+            i1[1L] <- -i1[1L]
+        else warning("i1[1] == 0 ==> C-level verbosity will not happen!")
     }
 
     if(extends(clDx, "dMatrix")) {
 	has.x <- TRUE
 	x <- .Call(dCsparse_subassign,
 		   if(clx %in% c("dgCMatrix", "dtCMatrix")) x
-		   else as(x, "dgCMatrix"),
+		   else .sparse2g(x), # must get "dgCMatrix"
 		   i1, i2,
 		   as(value, "sparseVector"))
     }
@@ -315,7 +335,7 @@ replCmat4 <- function(x, i1, i2, iMi, jMi, value, spV = is(value,"sparseVector")
 	has.x <- TRUE
 	x <- .Call(lCsparse_subassign,
 		   if(clx %in% c("lgCMatrix", "ltCMatrix")) x
-		   else as(x, "lgCMatrix"),
+		   else .sparse2g(x), # must get "lgCMatrix"
 		   i1, i2,
 		   as(value, "sparseVector"))
     }
@@ -323,7 +343,7 @@ replCmat4 <- function(x, i1, i2, iMi, jMi, value, spV = is(value,"sparseVector")
 	has.x <- FALSE
 	x <- .Call(nCsparse_subassign,
 		   if(clx %in% c("ngCMatrix", "ntCMatrix"))x
-		   else as(x, "ngCMatrix"),
+		   else .sparse2g(x), # must get "ngCMatrix"
 		   i1, i2,
 		   as(value, "sparseVector"))
     }
@@ -331,7 +351,7 @@ replCmat4 <- function(x, i1, i2, iMi, jMi, value, spV = is(value,"sparseVector")
 	has.x <- TRUE
 	x <- .Call(iCsparse_subassign,
 		   if(clx %in% c("igCMatrix", "itCMatrix"))x
-		   else as(x, "igCMatrix"),
+		   else .sparse2g(x), # must get "igCMatrix"
 		   i1, i2,
 		   as(value, "sparseVector"))
     }
@@ -339,7 +359,7 @@ replCmat4 <- function(x, i1, i2, iMi, jMi, value, spV = is(value,"sparseVector")
 	has.x <- TRUE
 	x <- .Call(zCsparse_subassign,
 		   if(clx %in% c("zgCMatrix", "ztCMatrix"))x
-		   else as(x, "zgCMatrix"),
+		   else .sparse2g(x), # must get "zgCMatrix"
 		   i1, i2,
 		   ## here we only want zsparseVector {to not have to do this in C}:
 		   as(value, "zsparseVector"))
@@ -376,7 +396,7 @@ replCmat4 <- function(x, i1, i2, iMi, jMi, value, spV = is(value,"sparseVector")
 	    ##-	 --> ./Tsparse.R	and its	 replTmat()
 	    ## x@x[sel[!v0]] <- value[!v0]
 	    x@x[sel] <- as.vector(value[iN0])
-	    if(extends(clDx, "compMatrix") && length(x@factors)) # drop cashed ones
+	    if(extends(clDx, "compMatrix") && length(x@factors)) # drop cached ones
 		x@factors <- list()
 	    if(has0) x <- .Call(Csparse_drop, x, 0)
 
@@ -394,7 +414,7 @@ replCmat4 <- function(x, i1, i2, iMi, jMi, value, spV = is(value,"sparseVector")
 	    x[i1+1L, ] <- value
 	else
 	    x[i1+1L,i2+1L] <- value
-	if(extends(clDx, "compMatrix") && length(x@factors)) # drop cashed ones
+	if(extends(clDx, "compMatrix") && length(x@factors)) # drop cached ones
 	    x@factors <- list()
     }# else{ not using new memory-sparse  code
     if(has.x && any0(x@x)) ## drop all values that "happen to be 0"
@@ -443,53 +463,62 @@ setReplaceMethod("[", signature(x = "CsparseMatrix", i = "Matrix", j = "missing"
 		 as(.TM.repl.i.mat(as(x, "TsparseMatrix"), i=i, value=value),
 		    "CsparseMatrix"))
 
-
+## MJ: no longer needed ... replacement in ./sparseMatrix.R
+if(FALSE) {
 setMethod("t", signature(x = "CsparseMatrix"),
 	  function(x) .Call(Csparse_transpose, x, is(x, "triangularMatrix")))
-
 
 ## NB: have extra tril(), triu() methods for symmetric ["dsC" and "lsC"] and
 ##     for all triangular ones, where the latter may 'callNextMethod()' these:
 setMethod("tril", "CsparseMatrix",
 	  function(x, k = 0, ...) {
-	      k <- as.integer(k[1])
-	      dd <- dim(x); sqr <- dd[1] == dd[2]
-	      stopifnot(-dd[1] <= k, k <= dd[1]) # had k <= 0
-	      r <- .Call(Csparse_band, x, -dd[1], k)
-	      ## return "lower triangular" if k <= 0
-	      if(sqr && k <= 0) .gC2tC(r, uplo = "L") else r
+	      k <- as.integer(k[1L])
+	      m <- (d <- x@Dim)[1L]
+              n <- d[2L]
+              stopifnot(-m <= k, k <= n)
+	      r <- .Call(Csparse_band, x, -m, k)
+	      if(m == n && k <= 0L)
+                  ## lower triangular result
+                  .gC2tC(r, uplo = "L")
+              else r
 	  })
 
 setMethod("triu", "CsparseMatrix",
 	  function(x, k = 0, ...) {
-	      k <- as.integer(k[1])
-	      dd <- dim(x); sqr <- dd[1] == dd[2]
-	      stopifnot(-dd[1] <= k, k <= dd[1]) # had k >= 0
-	      r <- .Call(Csparse_band, x, k, dd[2])
-	      ## return "upper triangular" if k >= 0
-	      if(sqr && k >= 0) .gC2tC(r, uplo = "U") else r
+	      k <- as.integer(k[1L])
+	      m <- (d <- x@Dim)[1L]
+              n <- d[2L]
+              stopifnot(-m <= k, k <= n)
+	      r <- .Call(Csparse_band, x, k, n)
+	      if(m == n && k >= 0L)
+                  ## upper triangular result
+                  .gC2tC(r, uplo = "U")
+              else r
 	  })
 
 setMethod("band", "CsparseMatrix",
 	  function(x, k1, k2, ...) {
-	      k1 <- as.integer(k1[1])
-	      k2 <- as.integer(k2[1])
-	      dd <- dim(x); sqr <- dd[1] == dd[2]
-	      stopifnot(-dd[1] <= k1, k1 <= k2, k2 <= dd[2])
-	      if(extends(cl <- getClassDef(class(x)), "symmetricMatrix") && k1 != -k2) {
-		  ## result is *not* symmetric (but C's Csparse_band will keep '->stype'):
-		  x <- as(x, "generalMatrix") # -> .Call(Csparse_symmetric_to_general, .)
-	      } else if(extends(cl, "triangularMatrix") && x@diag == "U")
-		  x <- .diagU2N(x, cl)
+	      k1 <- as.integer(k1[1L])
+	      k2 <- as.integer(k2[1L])
+              m <- (d <- x@Dim)[1L]
+              n <- d[2L]
+	      stopifnot(-m <= k1, k2 <= n, k1 <= k2)
+              if(square <- m == n) {
+                  cld <- getClassDef(class(x))
+                  if(extends(cld, "symmetricMatrix") && k1 != -k2)
+                      ## result is not symmetric
+                      ## but C-level Csparse_band() keeps '->stype':
+                      x <- as(x, "generalMatrix")
+                  else if(extends(cld, "triangularMatrix") && x@diag == "U")
+                      x <- .diagU2N(x, cld)
+              }
 	      r <- .Call(Csparse_band, x, k1, k2)
-	      if(sqr && as.numeric(k1) * k2 >= 0) ## triangular result
-		  as(r, paste0(.M.kind(x), "tCMatrix"))
-	      else if (k1 < 0  &&  k1 == -k2  && isSymmetric(x)) ## symmetric
-		  ## does this always work ??
-		  as(r, paste0(.M.kind(x), "sCMatrix"))
-	      else
-		  r
-	  })
+	      if(square && as.double(k1) * k2 >= 0)
+                  ## triangular result (does this always work ??)
+                  as(r, "triangularMatrix")
+                  ## deprecated  as(r, paste0(.M.kind(x), "tCMatrix"))
+	      else r
+          })
 
 setMethod("diag", "CsparseMatrix",
 	  function(x, nrow, ncol, names=TRUE) {
@@ -507,8 +536,8 @@ setMethod("diag", "CsparseMatrix",
 	      }
 	      else {
 		  val <- rep.int(0, dlen)
-		  ## cMatrix not yet active but for future expansion
-		  if (is(dm, "cMatrix")) val <- as.complex(val)
+		  ## zMatrix not yet active but for future expansion
+		  if (is(dm, "zMatrix")) val <- as.complex(val)
 		  val[ind1] <- dm@x
 	      }
 	      if(names && dlen > 0L) {
@@ -519,59 +548,96 @@ setMethod("diag", "CsparseMatrix",
 	      }
 	      val
 	  })
+} ## MJ
 
 setMethod("writeMM", "CsparseMatrix",
 	  function(obj, file, ...)
 	  .Call(Csparse_MatrixMarket, obj, path.expand(as.character(file))))
 
-setMethod("Cholesky", signature(A = "CsparseMatrix"),
-	  function(A, perm = TRUE, LDL = !super, super = FALSE, Imult = 0, ...)
-	  Cholesky(as(A, "symmetricMatrix"),
-		   perm=perm, LDL=LDL, super=super, Imult=Imult, ...))
-
-## TODO (in ../TODO for quite a while .....):
-setMethod("Cholesky", signature(A = "nsparseMatrix"),
-	  function(A, perm = TRUE, LDL = !super, super = FALSE, Imult = 0, ...)
-	  stop("Cholesky(<nsparse...>) -> *symbolic* factorization -- not yet implemented"))
-
-if(FALSE)
-isDiagCsp <- function(object) {
-    d <- dim(object)
-    if((n <- d[1]) != d[2])
-        FALSE
-    else if(n == 0)
-        TRUE
-    else # (n >= 1)
-        ## "FIXME": do this in C  --->>> for now use Csparse_to_Tsparse
-        (m <- length(i <- object@i)) == 0 || {
-            m <= n && !anyDuplicated(i) &&
-                ## length(p <- object@p) == n+1L &&
-                all((dp <- diff(object@p)) <= 1L) &&
-                length(j <- base::which(dp == 1L)) == m && all(j == i+1L)
-        }
-}
-if(FALSE)
-setMethod("isDiagonal", signature(object = "CsparseMatrix"), isDiagCsp)
-
+## MJ: no longer needed ... replacement in ./sparseMatrix.R
+if(FALSE) {
+## FIXME: do isDiagonal(<CsparseMatrix>) in C ...
+## going via TsparseMatrix for now as coercion is done in C
+## and isDiagonal(<TsparseMatrix>) is fast
 setMethod("isDiagonal", signature(object = "CsparseMatrix"),
-	  function(object) isDiagTsp(.Call(Csparse_to_Tsparse, object, is(object, "triangularMatrix"))))
+	  function(object) {
+              d <- object@Dim
+              d[1L] == d[2L] && callGeneric(as(object, "TsparseMatrix"))
+          })
+if(FALSE) {
+setMethod("isDiagonal", signature(object = "CsparseMatrix"),
+          function(object) {
+              d <- object@Dim
+              i <- object@i
+              nnz <- length(i)
+              if((n <- d[1L]) != d[2L] || nnz > n)
+                  return(FALSE)
+              if(n <= 1L || nnz == 0L)
+                  return(TRUE)
+              ## now handling n-by-n ..CMatrix, n >= 2,
+              ## with at least one non-zero:
+              !anyDuplicated(i) && all((dp <- p[2:(n+1L)] - p[1:n]) <= 1L) &&
+                  length(j <- base::which(dp == 1L)) == nnz && all(j == i + 1L)
+          })
+}
+## FIXME: do isTriangular(<CsparseMatrix>, upper) in C
+.gCsp.is.tr <- function(object, upper = NA, ...) {
+    d <- object@Dim
+    if((n <- d[1L]) != d[2L])
+        return(FALSE)
+    i <- object@i
+    if(n <= 1L || length(i) == 0L)
+        return(if(is.na(upper)) `attr<-`(TRUE, "kind", "U") else TRUE)
+    ## now handling n-by-n .gCMatrix, n >= 2, with at least one non-zero:
+    ## splitting row indices by column:
+    p <- object@p
+    j1 <- seq_len(n)
+    j <- rep.int(j1, p[2:(n+1L)] - p[1:n])
+    levels(j) <- as.character(j1)
+    class(j) <- "factor"
+    si <- split.default(i, j)
+    ## discarding empty groups:
+    has.nz <- lengths(si, use.names = FALSE) > 0L
+    if(!all(has.nz)) {
+        j1 <- base::which(has.nz)
+	si <- si[j1]
+    }
+    j0 <- j1 - 1L
+    if(is.na(upper)) {
+	if(all(vapply(si, max, 0L, USE.NAMES = FALSE) <= j0))
+	    `attr<-`(TRUE, "kind", "U")
+	else if(all(vapply(si, min, 0L, USE.NAMES = FALSE) >= j0))
+	    `attr<-`(TRUE, "kind", "L")
+	else
+            FALSE
+    } else if(upper) {
+	all(vapply(si, max, 0L, USE.NAMES = FALSE) <= j0)
+    } else {
+	all(vapply(si, min, 0L, USE.NAMES = FALSE) >= j0)
+    }
+}
 
+## method for .sCMatrix in ./symmetricMatrix.R
+## method for .tCMatrix in ./triangularMatrix.R
+.Csp.subclasses <- names(getClassDef("CsparseMatrix")@subclasses)
+for (.cl in grep("^.gCMatrix$", .Csp.subclasses, value = TRUE))
+    setMethod("isTriangular", signature(object = .cl), .gCsp.is.tr)
+rm(.gCsp.is.tr, .Csp.subclasses, .cl)
+} ## MJ
 
 dmperm <- function(x, nAns = 6L, seed = 0L) {
-    stopifnot(length(nAns <- as.integer(nAns)) == 1, nAns %in% c(2L, 4L, 6L)
-            , length(seed <- as.integer(seed)) == 1, seed %in% -1:1
-              )
+    stopifnot(length(nAns <- as.integer(nAns)) == 1L, nAns %in% c(2L, 4L, 6L),
+              length(seed <- as.integer(seed)) == 1L, seed %in% -1:1)
     if(isS4(x)) {
-        cl <- getClass(class(x))
-        if(!extends(cl, "dgCMatrix") && !extends(cl, "dtCMatrix") &&
-           !extends(cl, "ngCMatrix") && !extends(cl, "ntCMatrix")
-           ) {
-            x <- as(as(x, "dMatrix"), "CsparseMatrix")
-            x <- as(x, if(isTriangular(x)) "triangularMatrix" else "generalMatrix")
-        }
-    } else { # typically traditional matrix
-        x <- .m2ngCn(x, na.is.not.0=TRUE)
+        cld <- getClassDef(class(x))
+        if(!extends(cld, "CsparseMatrix"))
+            cld <- getClassDef(class(x <- as(x, "CsparseMatrix")))
+        if(extends(cld, "symmetricMatrix"))
+            cld <- getClassDef(class(x <- .sparse2g(x)))
+        if(!(extends(cld, "dMatrix") || extends(cld, "nMatrix")))
+            x <- ..sparse2d(x)
+    } else { # typically a traditional matrix
+        x <- .m2sparse(x, "dgC", NULL, NULL)
     }
-    .Call(Csparse_dmperm, x, seed, nAns)
+    .Call(Csparse_dmperm, x, seed, nAns) # tolerating only [dn][gt]CMatrix 'x'
 }
-

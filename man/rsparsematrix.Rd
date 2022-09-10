@@ -1,6 +1,6 @@
 \name{rsparsematrix}
-\alias{rsparsematrix}
 \title{Random Sparse Matrix}
+\alias{rsparsematrix}
 \description{
   Generate a random sparse matrix efficiently.  The default has rounded
   gaussian non-zero entries, and \code{rand.x = NULL} generates random

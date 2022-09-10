@@ -1,28 +1,26 @@
 \name{ndenseMatrix-class}
+\title{Virtual Class "ndenseMatrix" of Dense Logical Matrices}
 \docType{class}
+%
 \alias{ndenseMatrix-class}
-\alias{!,ndenseMatrix-method}
+%
+\alias{&,ndenseMatrix,ddiMatrix-method}
+\alias{&,ndenseMatrix,ldiMatrix-method}
+\alias{*,ndenseMatrix,ddiMatrix-method}
+\alias{*,ndenseMatrix,ldiMatrix-method}
 \alias{Ops,ndenseMatrix,ndenseMatrix-method}
 \alias{Summary,ndenseMatrix-method}
+\alias{^,ndenseMatrix,ddiMatrix-method}
+\alias{^,ndenseMatrix,ldiMatrix-method}
 \alias{as.logical,ndenseMatrix-method}
+\alias{as.numeric,ndenseMatrix-method}
+\alias{as.vector,ndenseMatrix-method}
 \alias{coerce,matrix,ndenseMatrix-method}
 \alias{coerce,ndenseMatrix,matrix-method}
-\alias{coerce,ndenseMatrix,CsparseMatrix-method}
-\alias{coerce,ndenseMatrix,TsparseMatrix-method}
-\alias{coerce,ndenseMatrix,ldenseMatrix-method}
-\alias{coerce,ndenseMatrix,sparseMatrix-method}
-\alias{coerce,ndenseMatrix,nsparseMatrix-method}
-\alias{coerce,ngeMatrix,lgeMatrix-method}
-\alias{coerce,nspMatrix,lspMatrix-method}
-\alias{coerce,nsyMatrix,lsyMatrix-method}
-\alias{coerce,ntpMatrix,ltpMatrix-method}
-\alias{coerce,ntrMatrix,ltrMatrix-method}
-\alias{as.vector,ndenseMatrix-method}
-% \alias{diag,ndenseMatrix-method} -> now methods by subclass
-\alias{norm,ndenseMatrix,character-method}
+\alias{coerce,ndenseMatrix,vector-method}
+\alias{coerce,numLike,ndenseMatrix-method}
 \alias{which,ndenseMatrix-method}
 %
-\title{Virtual Class "ndenseMatrix" of Dense Logical Matrices}
 \description{
   \code{ndenseMatrix} is the virtual class of all dense \bold{l}ogical
   (S4) matrices.  It extends both \code{\linkS4class{denseMatrix}}

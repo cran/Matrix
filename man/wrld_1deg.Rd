@@ -1,7 +1,7 @@
 \name{wrld_1deg}
 \title{World 1-degree grid contiguity matrix}
-\alias{wrld_1deg}
 \docType{data}
+\alias{wrld_1deg}
 \description{
   This matrix represents the distance-based contiguities of 15260
   one-degree grid cells of land areas. The representation is as a
@@ -45,8 +45,7 @@
 data(wrld_1deg)
 (n <- ncol(wrld_1deg))
 IM <- .symDiagonal(n)
-doExtras <- interactive() || nzchar(Sys.getenv("R_MATRIX_CHECK_EXTRA")) ||
-    identical("true", unname(Sys.getenv("R_PKG_CHECKING_doExtras")))
+doExtras <- interactive() || nzchar(Sys.getenv("R_MATRIX_CHECK_EXTRA"))
 nn <- if(doExtras) 20 else 3
 set.seed(1)
 rho <- runif(nn, 0, 1)

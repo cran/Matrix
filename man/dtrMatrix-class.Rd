@@ -1,25 +1,20 @@
 \name{dtrMatrix-class}
 \title{Triangular, dense, numeric matrices}
 \docType{class}
-\alias{coerce,dgeMatrix,dtrMatrix-method}% or rather setIs?
+%
+\alias{dtrMatrix-class}
+%
+\alias{coerce,dtrMatrix,dgeMatrix-method}
+\alias{coerce,dtrMatrix,dgeMatrix-method}
+\alias{coerce,dtrMatrix,dsyMatrix-method}
+\alias{coerce,dtrMatrix,dtCMatrix-method}
+\alias{coerce,dtrMatrix,dtRMatrix-method}
+\alias{coerce,dtrMatrix,dtTMatrix-method}
 \alias{coerce,dtrMatrix,dtpMatrix-method}
 \alias{coerce,dtrMatrix,ltrMatrix-method}
-\alias{coerce,dtrMatrix,matrix-method}
-\alias{coerce,dtrMatrix,sparseMatrix-method}
-\alias{coerce,dtrMatrix,CsparseMatrix-method}
+\alias{coerce,dtrMatrix,ntrMatrix-method}
 \alias{coerce,matrix,dtrMatrix-method}
-\alias{determinant,dtrMatrix,logical-method}
-\alias{determinant,dtrMatrix,missing-method}
-\alias{diag,dtrMatrix-method}
-\alias{diag<-,dtrMatrix-method}
-\alias{norm,dtrMatrix,character-method}
-\alias{norm,dtrMatrix,missing-method}
-\alias{rcond,dtrMatrix,character-method}
-\alias{rcond,dtrMatrix,missing-method}
-\alias{show,dtrMatrix-method}
-%\alias{solve,dtrMatrix,matrix-method}--> solve-methods.Rd
-\alias{t,dtrMatrix-method}
-\alias{dtrMatrix-class}
+%
 \description{
   The \code{"dtrMatrix"} class is the class of triangular, dense,
   numeric matrices in nonpacked storage.  The \code{"dtpMatrix"} class
@@ -75,10 +70,10 @@
 }
 \examples{%% this is used from ./dtpMatrix-class.Rd (change with care!)
 (m <- rbind(2:3, 0:-1))
-(M <- as(m, "dgeMatrix"))
+(M <- as(m, "generalMatrix"))
 
-(T <- as(M, "dtrMatrix")) ## upper triangular is default
-(T2 <- as(t(M), "dtrMatrix"))
+(T <- as(M, "triangularMatrix")) # formally upper triangular
+(T2 <- as(t(M), "triangularMatrix"))
 stopifnot(T@uplo == "U", T2@uplo == "L", identical(T2, t(T)))
 
 m <- matrix(0,4,4); m[upper.tri(m)] <- 1:6

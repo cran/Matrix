@@ -1,18 +1,20 @@
 \name{graph-sparseMatrix}
 \title{Conversions "graph" <--> (sparse) Matrix}
+%
 \alias{graph2T}
 \alias{T2graph}
-% graph stuff
-\alias{coerce,graph,Matrix-method}
-\alias{coerce,graph,sparseMatrix-method}
-\alias{coerce,graph,CsparseMatrix-method}
-\alias{coerce,graphAM,sparseMatrix-method}
-\alias{coerce,graphNEL,CsparseMatrix-method}
-\alias{coerce,graphNEL,TsparseMatrix-method}
-\alias{coerce,sparseMatrix,graph-method}
-\alias{coerce,sparseMatrix,graphNEL-method}
+%
+\alias{coerce,Matrix,graph-method}
+\alias{coerce,Matrix,graphNEL-method}
 \alias{coerce,TsparseMatrix,graphNEL-method}
-\alias{coerce,dgTMatrix,graphNEL-method}
+\alias{coerce,graph,CsparseMatrix-method}
+\alias{coerce,graph,Matrix-method}
+\alias{coerce,graph,RsparseMatrix-method}
+\alias{coerce,graph,TsparseMatrix-method}
+\alias{coerce,graph,sparseMatrix-method}
+\alias{coerce,graphAM,TsparseMatrix-method}
+\alias{coerce,graphNEL,TsparseMatrix-method}
+%
 \description{
   The \pkg{Matrix} package has supported conversion from and to
   \code{"\link[graph:graph-class]{graph}"} objects from (Bioconductor) package

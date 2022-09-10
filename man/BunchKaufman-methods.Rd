@@ -1,11 +1,14 @@
 \name{BunchKaufman-methods}
 \title{Bunch-Kaufman Decomposition Methods}
 \docType{methods}
+%
 \alias{BunchKaufman}
 \alias{BunchKaufman-methods}
+%
 \alias{BunchKaufman,dspMatrix-method}
 \alias{BunchKaufman,dsyMatrix-method}
 \alias{BunchKaufman,matrix-method}
+%
 \description{
   The Bunch-Kaufman Decomposition of a square symmetric matrix \eqn{A}
   is \eqn{A = P LDL' P'} where \eqn{P} is a permutation matrix, \eqn{L}
@@ -48,9 +51,8 @@
 }
 \references{
   The original LAPACK source code, including documentation;
-  \url{https://www.netlib.org/lapack/double/dsytrf.f}
-  and
-  \url{https://www.netlib.org/lapack/double/dsptrf.f}
+  \url{https://netlib.org/lapack/double/dsytrf.f} and
+  \url{https://netlib.org/lapack/double/dsptrf.f}
 }
 \seealso{
   The resulting class, \code{\linkS4class{BunchKaufman}}.
@@ -68,10 +70,15 @@ if(FALSE) # no method defined yet for *sparse* :
 ## does apply to *dense* symmetric matrices:
 bkCA <- BunchKaufman(as(CAs, "denseMatrix"))
 bkCA
+pkCA <- pack(bkCA)
+stopifnot(is(bkCA, "triangularMatrix"),
+          is(pkCA, "triangularMatrix"),
+          is(pkCA, "packedMatrix"))
 
 image(bkCA)# shows how sparse it is, too
 str(R.CA <- as(bkCA, "sparseMatrix"))
 ## an upper triangular 72x72 matrix with only 144 non-zero entries
+stopifnot(is(R.CA, "triangularMatrix"), is(R.CA, "CsparseMatrix"))
 }
 \keyword{methods}
 

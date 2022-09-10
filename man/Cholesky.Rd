@@ -1,13 +1,16 @@
 \name{Cholesky}
-\alias{Cholesky}
-\alias{Cholesky,dsCMatrix-method}% -> ../R/dsCMatrix.R
-\alias{Cholesky,CsparseMatrix-method}% coerce
-\alias{Cholesky,sparseMatrix-method}%  coerce
-\alias{Cholesky,nsparseMatrix-method}%  error for now; todo in the future
-\alias{Cholesky,Matrix-method}% <- "good" error message
-\alias{.SuiteSparse_version}
+\concept{Choleski} % alternate English spelling
 \title{Cholesky Decomposition of a Sparse Matrix}
-\concept{Choleski}% alternative English form
+%
+\alias{Cholesky}
+%
+\alias{Cholesky,denseMatrix-method}
+\alias{Cholesky,dsCMatrix-method}
+\alias{Cholesky,nsparseMatrix-method}
+\alias{Cholesky,sparseMatrix-method}
+%
+\alias{.SuiteSparse_version}
+%
 \usage{
 Cholesky(A, perm = TRUE, LDL = !super, super = FALSE, Imult = 0, \dots)
 }
@@ -107,7 +110,7 @@ str(cm1  <- as(C1, "sparseMatrix"))
 str(cmat <- as(Cm, "sparseMatrix"))# hmm: super is *less* sparse here
 cm1[1:20, 1:20]
 
-b <- matrix(c(rep(0, 711), 1), nc = 1)
+b <- matrix(c(rep(0, 711), 1), ncol = 1)
 ## solve(Cm, b) by default solves  Ax = b, where A = Cm'Cm (= mtm)!
 ## hence, the identical() check *should* work, but fails on some GOTOblas:
 x <- solve(Cm, b)
@@ -136,13 +139,13 @@ expand(C1) ## to check printing
 (opts <- expand.grid(perm = c(TRUE,FALSE), LDL = c(TRUE,FALSE), super = c(FALSE,TRUE)))
 rr <- lapply(seq_len(nrow(opts)), function(i)
              do.call(Cholesky, c(list(A = mm), opts[i,])))
-nn <- do.call(expand.grid, c(attr(opts, "out.attr")$dimnames,
+nn <- do.call(expand.grid, c(attr(opts, "out.attrs")$dimnames,
               stringsAsFactors=FALSE,KEEP.OUT.ATTRS=FALSE))
 names(rr) <- apply(nn, 1, function(r)
                    paste(sub("(=.).*","\\\\1", r), collapse=","))% extra '\\' in Rd
-str(rr, max=1)
+str(rr, max.level=1)
 
-str(re <- lapply(rr, expand), max=2) ## each has a 'P' and a 'L' matrix
+str(re <- lapply(rr, expand), max.level=2) ## each has a 'P' and a 'L' matrix
 %% FIXME !! --- "check" them  __unfinished__
 R0 <- chol(mm, pivot=FALSE)
 R1 <- chol(mm, pivot=TRUE )

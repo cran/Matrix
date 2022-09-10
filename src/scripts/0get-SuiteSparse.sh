@@ -137,6 +137,10 @@ echo -n "Patching  cholmod_blas.h : "
 patch -p0 < scripts/cholmod_blas.patch
 echo '[Ok]'
 
+echo -n "Patching  cholmod_sdmult.c : "
+patch -p0 < scripts/cholmod_sdmult.patch
+echo '[Ok]'
+
 
 ## 5) CSparse -------------------------------------------------
 Sdir=$SS/CSparse
@@ -151,8 +155,10 @@ chmod a+r $f && mv $f .
   ## Source:
 MatrixDir=`pwd`
 cd $Sdir/Source
-cat cs_*.c | sed -e '1 p' -e '/^#include/d' -e 's/\bprintf/Rprintf/g' > $MatrixDir/cs.c
+cat cs_*.c | sed -e '1 p' -e '/^#include/d' > cs.c
+cp -p cs.c $MatrixDir/cs.c
 cd $MatrixDir
+## cs.patch from  cd .. ; diff -u SuiteSparse-5.10.1/CSparse/Source/cs.c cs.c > scripts/cs.patch
 patch -p0 < scripts/cs.patch
 echo '[Ok]'
 echo -n "removing $Sdir .."

@@ -1,7 +1,12 @@
 \name{generalMatrix-class}
-\docType{class}
-\alias{generalMatrix-class}
 \title{Class "generalMatrix" of General Matrices}
+\docType{class}
+%
+\alias{generalMatrix-class}
+%
+\alias{coerce,matrix,generalMatrix-method}
+\alias{coerce,numLike,generalMatrix-method}
+%
 \description{
   Virtual class of \dQuote{general} matrices; i.e., matrices
   that do not have a known property such as symmetric, triangular, or

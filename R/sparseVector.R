@@ -1,86 +1,59 @@
 #### All Methods in relation with the sparseVector (sub)classes
 
-
-## atomicVector : classUnion (logical,integer,double,....)
 setAs("atomicVector", "sparseVector",
       function(from) {
-	  n <- length(from)# *is* integer for atomic vectors
-	  r <- new(paste0(.V.kind(from), "sparseVector"), length = n)
-	  ii <- isN0(from)
-	  r@x <- from[ii]
-	  r@i <- seq_len(n)[ii]
+	  r <- new(paste0(.V.kind(from), "sparseVector"))
+	  r@length <- length(from)
+	  r@i <- ii <- which(isN0(from))
+          r@x <- from[ii]
 	  r
       })
-## dsparseVector: currently important, as later potentially made into d..Matrix :
+
 setAs("atomicVector", "dsparseVector",
       function(from) {
-	  n <- length(from)# *is* integer for atomic vectors
-	  r <- new("dsparseVector", length = n)
-	  ii <- isN0(from)
-	  r@x <- as.numeric(from)[ii]
-	  r@i <- seq_len(n)[ii]
+	  r <- new("dsparseVector")
+	  r@length <- length(from)
+          r@i <- ii <- which(isN0(from))
+	  r@x <- as.double(from)[ii]
 	  r
       })
 
 setAs("nsparseVector", "lsparseVector",
-      function(from) new("lsparseVector", i = from@i, length = from@length,
-			 x = rep.int(TRUE, length(from@i))))
-setAs("nsparseVector", "dsparseVector", function(from)
-      as(as(from, "lsparseVector"), "dsparseVector"))
-setAs("nsparseVector", "isparseVector", function(from)
-      as(as(from, "lsparseVector"), "isparseVector"))
-setAs("nsparseVector", "zsparseVector", function(from)
-      as(as(from, "lsparseVector"), "zsparseVector"))
-
-
-## "xsparseVector" : those with an 'x' slot (i.e., currently := not nsparse*)
-setAs("xsparseVector", "dsparseVector",
       function(from)
-      new("dsparseVector", x= as.double(from@x) , i= from@i, length= from@length))
-setAs("xsparseVector", "isparseVector",
+          new("lsparseVector", length = from@length, i = from@i,
+              x = rep.int(TRUE, length(from@i))))
+setAs("nsparseVector", "isparseVector",
       function(from)
-      new("isparseVector", x= as.integer(from@x), i= from@i, length= from@length))
-setAs("xsparseVector", "lsparseVector",
+          new("isparseVector", length = from@length, i = from@i,
+              x = rep.int(1L, length(from@i))))
+setAs("nsparseVector", "dsparseVector",
       function(from)
-      new("lsparseVector", x= as.logical(from@x), i= from@i, length= from@length))
-setAs("xsparseVector", "zsparseVector",
+          new("dsparseVector", length = from@length, i = from@i,
+              x = rep.int(1, length(from@i))))
+setAs("nsparseVector", "zsparseVector",
       function(from)
-      new("zsparseVector", x= as.complex(from@x), i= from@i, length= from@length))
+          new("zsparseVector", length = from@length, i = from@i,
+              x = rep.int(1+0i, length(from@i))))
 
-setAs("xsparseVector", "nsparseVector",
-      function(from) {
-	  if(anyNA(from@x))
-              stop("cannot coerce 'NA's to \"nsparseVector\"")
-          new("nsparseVector", i = from@i, length = from@length)
-      })
-
-setMethod("is.na", signature(x = "nsparseVector"),
-	  function(x) new("nsparseVector", length = x@length))## all FALSE
-setMethod("is.na", signature(x = "sparseVector"),
-	  ## x is *not* "nsparse*" as that has own method
-	  function(x) new("nsparseVector", i = x@i[is.na(x@x)], length= x@length))
-
-
-if(getRversion() >= "3.1.0") {
-setMethod("anyNA", signature(x = "nsparseVector"), function(x) FALSE)
-setMethod("anyNA", signature(x = "sparseVector"), function(x) anyNA(x@x))
-}
-
-setMethod("is.infinite", signature(x = "nsparseVector"),
-	  function(x) new("nsparseVector", length = x@length))## all FALSE
-setMethod("is.infinite", signature(x = "sparseVector"),
-	  ## x is *not* "nsparse*" as that has own method
-	  function(x) new("nsparseVector", i = x@i[is.infinite(x@x)], length= x@length))
-
-setMethod("is.finite", signature(x = "nsparseVector"),
-	  function(x) rep.int(TRUE, x@length))## all TRUE
-setMethod("is.finite", signature(x = "sparseVector"),
-	  function(x)  {
-	      ## x is *not* "nsparse*" as that has own method
-	      r <- rep.int(TRUE, x@length) ## mostly TRUE
-	      r[x@i[!is.finite(x@x)]] <- FALSE
-	      r
-	  })
+setAs("sparseVector", "nsparseVector",
+      function(from)
+	  new("nsparseVector", length = from@length, i = from@i))
+setAs("sparseVector", "lsparseVector",
+      function(from)
+          new("lsparseVector", length = from@length, i = from@i,
+              x = as.logical(from@x)))
+setAs("sparseVector", "isparseVector",
+      function(from)
+          new("isparseVector", length = from@length, i = from@i,
+              x = as.integer(from@x)))
+setAs("sparseVector", "dsparseVector",
+      function(from)
+          new("dsparseVector", length = from@length, i = from@i,
+              x = as.double(from@x)))
+setAs("sparseVector", "zsparseVector",
+      function(from)
+          new("zsparseVector", length = from@length, i = from@i,
+              x = as.complex(from@x)))
 
 ##' Uniquify sparceVectors, i.e., bring them in "regularized" from,
 ##' --- similar in spirit (and action!) as  uniqTsparse(.) for "TsparseMatrix"
@@ -92,7 +65,7 @@ uniqSpVec <- function(x) {
     x
 }
 
-sp2vec <- function(x, mode = .type.kind[.M.kindC(class(x))]) {
+sp2vec <- function(x, mode = .type.kind[.M.kind(x)]) {
     ## sparseVector  ->  vector
     has.x <- .hasSlot(x, "x")## has "x" slot
     m.any <- (mode == "any")
@@ -203,10 +176,10 @@ setAs("CsparseMatrix", "sparseVector", ## could go via TsparseMatrix, but this i
 	  d <- dim(from)
 	  n <- prod(d) # -> numeric, no integer overflow
 	  if((int.n <- n <= .Machine$integer.max)) n <- as.integer(n)
-          cld <- getClassDef(class(from))
-	  kind <- .M.kind(from, cld)
+          kind <- .M.kind(from)
+	  cld <- getClassDef(class(from))
 	  if(extends(cld, "symmetricMatrix"))
-	      from <- as(from, "generalMatrix")
+	      from <- .sparse2g(from)
 	  else if(extends(cld, "triangularMatrix") && from@diag == "U")
 	      from <- .Call(Csparse_diagU2N, from)
           xj <- .Call(Matrix_expand_pointers, from@p)
@@ -226,10 +199,10 @@ setAs("TsparseMatrix", "sparseVector",
 	  d <- dim(from)
 	  n <- prod(d) # -> numeric, no integer overflow
 	  if((int.n <- n <= .Machine$integer.max)) n <- as.integer(n)
-          cld <- getClassDef(class(from))
-	  kind <- .M.kind(from, cld)
+          kind <- .M.kind(from)
+	  cld <- getClassDef(class(from))
 	  if(extends(cld, "symmetricMatrix"))
-	      from <- as(from, "generalMatrix")
+	      from <- .sparse2g(from)
 	  else if(extends(cld, "triangularMatrix") && from@diag == "U")
 	      from <- .Call(Tsparse_diagU2N, from)
 	  if(anyDuplicatedT(from, di = d))
@@ -257,12 +230,11 @@ setAs("TsparseMatrix", "sparseVector",
 ##' @param byrow logical (see ?matrix)
 ##' @param check logical indicating if it needs to be checked that 'x' is a sparseVector
 ##' @param symmetric logical indicating if result must be "symmetricMatrix"
-##' @return an object inheriting from "sparseMatrix"
+##' @return an object inheriting from "TsparseMatrix"
 ##' @author Martin Maechler, May 2007 ff.
 spV2M <- function (x, nrow, ncol, byrow = FALSE, check = TRUE, symmetric = FALSE)
 {
-    cx <- class(x)
-    if(check && !extends(cx, "sparseVector"))
+    if(check && !is(x, "sparseVector"))
 	stop("'x' must inherit from \"sparseVector\"")
     if(!missing(ncol)) { ncol <- as.integer(ncol)
 			 if(ncol < 0) stop("'ncol' must be >= 0") }
@@ -297,17 +269,16 @@ spV2M <- function (x, nrow, ncol, byrow = FALSE, check = TRUE, symmetric = FALSE
     }
     ## now nrow * ncol >= n  (or 'symmetric')
     ##	   ~~~~~~~~~~~~~~~~
-    cld <- getClassDef(cx)
-    kind <- .M.kindC(cld)		# "d", "n", "l", "i", "z", ...
+    kind <- .M.kind(x) # "d", "n", "l", "i", "z", ...
     has.x <- kind != "n"
     clStem <- if(symmetric) "sTMatrix" else "gTMatrix"
     ## "careful_new()" :
     cNam <- paste0(kind, clStem)
     chngCl <- is.null(slotNames(newCl <- getClass(cNam, .Force=TRUE)))
     if(chngCl) { ## e.g. "igTMatrix" is not yet implemented
-	if(substr(cNam,1,1) == "z")
+	if(kind == "z")
 	    stop(gettextf("Class %s is not yet implemented", dQuote(cNam)),
-		 domain=NA)
+		 domain = NA)
 	## coerce to "double":
 	newCl <- getClass(paste0("d", clStem))
     }
@@ -335,27 +306,37 @@ spV2M <- function (x, nrow, ncol, byrow = FALSE, check = TRUE, symmetric = FALSE
     r
 }## {spV2M}
 
-.sparseV2Mat <- function(from) spV2M(from, nrow=from@length, ncol=1L, check=FALSE)
-setAs("sparseVector","Matrix", .sparseV2Mat)
-setAs("sparseVector","sparseMatrix", .sparseV2Mat)
-setAs("sparseVector","TsparseMatrix", .sparseV2Mat)
-setAs("sparseVector","CsparseMatrix",
-      function(from) .Call(Tsparse_to_Csparse, .sparseV2Mat(from), FALSE))
+.sparseV2Mat <- function(from)
+    spV2M(from, nrow = from@length, ncol = 1L, check = FALSE)
+setAs("sparseVector", "Matrix", .sparseV2Mat)
+setAs("sparseVector", "sparseMatrix", .sparseV2Mat)
+setAs("sparseVector", "TsparseMatrix", .sparseV2Mat)
+setAs("sparseVector", "CsparseMatrix", function(from) .T2C(.sparseV2Mat(from)))
+setAs("sparseVector", "RsparseMatrix", function(from) .T2R(.sparseV2Mat(from)))
 
-## This is very similar to the 'x = "sparseMatrix"' method in ./sparseMatrix.R:
-setMethod("dim<-", signature(x = "sparseVector", value = "ANY"),
+setMethod("dim<-", signature(x = "sparseVector"),
 	  function(x, value) {
-	      if(!is.numeric(value) || length(value) != 2)
-		  stop("dim(.) value must be numeric of length 2")
-	      if(length(x) != prod(value <- round(value)))
-		  stop("dimensions don't match the number of cells")
-	      spV2M(x, nrow=value[1], ncol=value[2])
+	      if(!is.numeric(value) || length(value) != 2L)
+		  stop("dimensions must be numeric of length 2")
+              if(anyNA(value))
+		  stop("dimensions cannot contain NA")
+              if(any(value < 0))
+                  stop("dimensions cannot contain negative values")
+              if(!is.integer(value)) {
+                  if(any(value > .Machine$integer.max))
+                      stop("dimensions cannot exceed 2^31-1")
+                  value <- as.integer(value)
+              }
+	      if((p <- prod(value)) != (len <- length(x)))
+		  stop(gettextf("assigned dimensions [product %.0f] do not match object length [%.0f]",
+                                p, len, domain = NA))
+	      spV2M(x, nrow = value[1L], ncol = value[2L])
 	  })
-
 
 setMethod("length", "sparseVector", function(x) x@length)
 
-setMethod("t", "sparseVector", function(x) spV2M(x, nrow=1L, ncol=x@length, check=FALSE))
+setMethod("t", "sparseVector",
+          function(x) spV2M(x, nrow = 1L, ncol = x@length, check = FALSE))
 
 setMethod("show", signature(object = "sparseVector"),
    function(object) {
@@ -555,7 +536,7 @@ replSPvec <- function (x, i, value)
 	ir <- lenRepl:1
 	keep <- match(ii, ii[ir]) == ir
 	ii <- ii[keep]
-	lenV <- length(value <- rep(value, length = lenRepl)[keep])
+	lenV <- length(value <- rep(value, length.out = lenRepl)[keep])
 	lenRepl <- length(ii)
     }
 
@@ -576,7 +557,7 @@ replSPvec <- function (x, i, value)
     if(lenV > lenRepl)
 	stop("too many replacement values")
     else if(lenV < lenRepl)
-	value <- rep(value, length = lenRepl)
+	value <- rep(value, length.out = lenRepl)
     ## now:  length(value) == lenRepl > 0
 
     v0 <- is0(value)
@@ -730,7 +711,10 @@ all.equal.sparseV <- function(target, current, ...)
     ## *and* have sorted the respective i-slot, the i-slots should match!
     stopifnot(all(i.c == i.t))
 
-    all.equal.numeric(c.x, t.x, ...)
+    if(is.logical(t.x))
+        all.equal.raw(t.x, c.x, ...)
+    else
+        all.equal.numeric(t.x, c.x, ...)
 } ## all.equal.sparseV
 
 
@@ -843,15 +827,6 @@ setMethod("rep", "sparseVector",
 ##		     -------
 
 
-setMethod("solve", signature(a = "Matrix", b = "sparseVector"),
-	  function(a, b, ...) callGeneric(a, as(b, "sparseMatrix")))
-
-## the 'i' slot is 1-based *and* has no NA's:
-
-setMethod("which", "nsparseVector", function(x, arr.ind, useNames) x@i)
-setMethod("which", "lsparseVector", function(x, arr.ind, useNames) x@i[is1(x@x)])
-## and *error* for "dsparseVector", "i*", ...
-
 ##' indices of vector x[] to construct  Toeplitz matrix
 ##' FIXME: write in C, port to  R('stats' package), and use in stats::toeplitz()
 ind4toeplitz <- function(n) {
@@ -862,22 +837,17 @@ ind4toeplitz <- function(n) {
 .toeplitz.spV <-  function(x, symmetric=TRUE, repr = c("C","T","R"), giveCsparse) {
     ## semantically "identical" to stats::toeplitz
     n <- length(x)
-    r <- spV2M(x[ind4toeplitz(n)], n,n, symmetric=symmetric, check=FALSE)
+    r <- spV2M(x[ind4toeplitz(n)], n,n, symmetric = symmetric, check = FALSE)
+    ##   ^^^^^ returning TsparseMatrix
     if(!missing(giveCsparse)) {
 	if(missing(repr)) {
 	    repr <- if(giveCsparse) "C" else "T"
-	    warning(gettextf(
-		"'giveCsparse' has been deprecated; setting 'repr = \"%s\"' for you", repr),
-		domain=NA)
+	    warning(gettextf("'giveCsparse' has been deprecated; setting 'repr = \"%s\"' for you",
+                             repr),
+                    domain = NA)
 	} else ## !missing(repr)
-            if((.w <- isTRUE(getOption("Matrix.warn"))) ||
-                      isTRUE(getOption("Matrix.verbose")))
-	    (if(.w) warning else message)(
-                "'giveCsparse' has been deprecated; will use 'repr' instead")
+            Matrix.msg("'giveCsparse' has been deprecated; will use 'repr' instead")
     }
-    switch(match.arg(repr),
-               "C" = as(r, "CsparseMatrix"),
-               "T" =    r,# TsparseMatrix
-               "R" = as(r, "RsparseMatrix"))
+    switch(match.arg(repr), "C" = .T2C(r), "T" = r, "R" = .T2R(r))
 }
 setMethod("toeplitz", "sparseVector", .toeplitz.spV)

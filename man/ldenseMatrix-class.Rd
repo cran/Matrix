@@ -1,22 +1,22 @@
 \name{ldenseMatrix-class}
 \title{Virtual Class "ldenseMatrix" of Dense Logical Matrices}
 \docType{class}
+%
 \alias{ldenseMatrix-class}
-% Group
-\alias{!,ldenseMatrix-method}
-\alias{Ops,ldenseMatrix,ldenseMatrix-method}
+%
+\alias{&,ldenseMatrix,ddiMatrix-method}
+\alias{&,ldenseMatrix,ldiMatrix-method}
+\alias{*,ldenseMatrix,ddiMatrix-method}
+\alias{*,ldenseMatrix,ldiMatrix-method}
 \alias{Logic,ldenseMatrix,lsparseMatrix-method}
-\alias{Logic,lsparseMatrix,ldenseMatrix-method}
+\alias{Ops,ldenseMatrix,ldenseMatrix-method}
 \alias{Summary,ldenseMatrix-method}
-% purely "sparse" are in   ./lsparseMatrix-classes.Rd
-%%-- Matrix products: ---> ./matrix-products.Rd
-\alias{as.logical,ldenseMatrix-method}
-\alias{as.vector,ldenseMatrix-method}
+\alias{^,ldenseMatrix,ddiMatrix-method}
+\alias{^,ldenseMatrix,ldiMatrix-method}
 \alias{coerce,matrix,ldenseMatrix-method}
-\alias{coerce,ldenseMatrix,matrix-method}
-\alias{diag,ldenseMatrix-method}
-\alias{norm,ldenseMatrix,character-method}
+\alias{coerce,numLike,ldenseMatrix-method}
 \alias{which,ldenseMatrix-method}
+%
 \description{
   \code{ldenseMatrix} is the virtual class of all dense \bold{l}ogical
   (S4) matrices.  It extends both \code{\linkS4class{denseMatrix}}

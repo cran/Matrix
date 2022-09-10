@@ -82,7 +82,7 @@
 		nr_j++;
 		if(++nz >= nnz && ii < n-1) {// increase nnz and grow both 'rx' and 'ri'
 		    // current density ~= nz / ii == estim.final dens. ==> est. nnz = nz*n/ii
-		    nnz = imax2(nnz+256, imax2(5*nnz/4, (nz * n) / ii));
+		    nnz = MAXOF(nnz+256, MAXOF(5*nnz/4, (nz * n) / ii));
 		    ri = R_Realloc(ri, nnz, int);
 #ifdef has_x_slot
 		    rx = R_Realloc(rx, nnz, Type_x);

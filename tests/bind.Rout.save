@@ -1,7 +1,7 @@
 
-R version 4.1.1 RC (2021-08-03 r80706) -- "Kick Things"
-Copyright (C) 2021 The R Foundation for Statistical Computing
-Platform: x86_64-pc-linux-gnu (64-bit)
+R version 4.2.1 Patched (2022-08-02 r82656) -- "Funny-Looking Kid"
+Copyright (C) 2022 The R Foundation for Statistical Computing
+Platform: aarch64-apple-darwin20 (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -63,7 +63,7 @@ Loading required package: tools
 + 	       Matrix(rbind (m2, m1+m2)))
 +    ,
 +     Qidentical(show  (rbind(R1 = 10:11, M1)),
-+ 	       Matrix(rbind(R1 = 10:11, m1)), strict=FALSE)
++ 	       Matrix(rbind(R1 = 10:11, m1)), strictClass=FALSE)
 +   , TRUE)
 3 x 8 Matrix of class "dgeMatrix"
      [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8]
@@ -170,11 +170,11 @@ C 3 6 9 12 10 40 70 100
 [3,] 100 3 6 9 12
 > str(im)
 Formal class 'dgeMatrix' [package "Matrix"] with 4 slots
-  ..@ x       : num [1:15] 100 100 100 1 2 3 4 5 6 7 ...
   ..@ Dim     : int [1:2] 3 5
   ..@ Dimnames:List of 2
   .. ..$ : NULL
   .. ..$ : chr [1:5] "I" "" "" "" ...
+  ..@ x       : num [1:15] 100 100 100 1 2 3 4 5 6 7 ...
   ..@ factors : list()
 > (mi <- cbind(M2, I = 1000))
 3 x 5 Matrix of class "dgeMatrix"
@@ -184,11 +184,11 @@ B 2 5 8 11 1000
 C 3 6 9 12 1000
 > str(mi)
 Formal class 'dgeMatrix' [package "Matrix"] with 4 slots
-  ..@ x       : num [1:15] 1 2 3 4 5 6 7 8 9 10 ...
   ..@ Dim     : int [1:2] 3 5
   ..@ Dimnames:List of 2
   .. ..$ : chr [1:3] "A" "B" "C"
   .. ..$ : chr [1:5] "a" "b" "c" "d" ...
+  ..@ x       : num [1:15] 1 2 3 4 5 6 7 8 9 10 ...
   ..@ factors : list()
 > (m1m <- cbind(M,I=100,M2))
 3 x 9 Matrix of class "dgeMatrix"
@@ -197,7 +197,7 @@ A 1 4 7 10 100 1 4 7 10
 B 2 5 8 11 100 2 5 8 11
 C 3 6 9 12 100 3 6 9 12
 > showProc.time()
-Time (user system elapsed): 0.085 0.002 0.088 
+Time (user system elapsed): 0.051 0.004 0.055 
 > 
 > ## lgeMatrix -- rbind2() had bug (in C code):
 > is.lge <- function(M) isValid(M, "lgeMatrix")
@@ -240,7 +240,7 @@ Time (user system elapsed): 0.085 0.002 0.088
 + 	  identical(t(d4), cbind(Diagonal(4),     0:3)),
 + 	  identical(t(m4), rbind(Diagonal(x=-1:2), 0:3)))
 > showProc.time()
-Time (user system elapsed): 0.043 0.005 0.048 
+Time (user system elapsed): 0.021 0.001 0.021 
 > 
 > ### --- Sparse Matrices ---
 > 
@@ -250,27 +250,25 @@ Time (user system elapsed): 0.043 0.005 0.048
 +            cbind(D4C, D4T))
 [1] FALSE
 > nr <- 4
-> m. <- matrix(c(0, 2:-1),  nr ,6)
-Warning message:
-In matrix(c(0, 2:-1), nr, 6) :
-  data length [5] is not a sub-multiple or multiple of the number of rows [4]
+> nc <- 6
+> m. <- matrix(rep_len(c(0, 2:-1), nr * nc), nr, nc)
 > M <- Matrix(m.)
-> (mC <- as(M, "dgCMatrix"))
+> (mC <- as(M, "CsparseMatrix"))
 4 x 6 sparse Matrix of class "dgCMatrix"
                     
 [1,] . -1  .  1  2 .
 [2,] 2  . -1  .  1 2
 [3,] 1  2  . -1  . 1
 [4,] .  1  2  . -1 .
-> (mT <- as(M, "dgTMatrix"))
+> (mT <- as(M, "TsparseMatrix"))
 4 x 6 sparse Matrix of class "dgTMatrix"
                     
 [1,] . -1  .  1  2 .
 [2,] 2  . -1  .  1 2
 [3,] 1  2  . -1  . 1
 [4,] .  1  2  . -1 .
-> stopifnot(identical(mT, as(mC, "dgTMatrix")),
-+           identical(mC, as(mT, "dgCMatrix")))
+> stopifnot(identical(mT, as(mC, "TsparseMatrix")),
++           identical(mC, as(mT, "CsparseMatrix")))
 > 
 > for(v in list(0, 2, 1:0))
 +     for(fnam in c("cbind", "rbind")) {
@@ -290,7 +288,7 @@ rbind (m, v= 2 ), class(m) : dgeMatrix ,. dgCMatrix ,. dgTMatrix ,.
 cbind (m, v= 1:0 ), class(m) : dgeMatrix ,. dgCMatrix ,. dgTMatrix ,.
 rbind (m, v= 1:0 ), class(m) : dgeMatrix ,. dgCMatrix ,. dgTMatrix ,.
 > showProc.time()
-Time (user system elapsed): 0.049 0.009 0.058 
+Time (user system elapsed): 0.023 0 0.024 
 > 
 > cbind(0, mC); cbind(mC, 0)
 4 x 7 sparse Matrix of class "dgCMatrix"
@@ -335,7 +333,7 @@ Time (user system elapsed): 0.049 0.009 0.058
 [3,] 1  2  . -1  . 1 . 7 . . . 1 . .
 [4,] .  1  2  . -1 . . 7 . . . . 1 .
 > stopifnot(identical3(cc, cbind(mT, 0,7,0, diag(nr), 0),
-+                      as( cbind( M, 0,7,0, diag(nr), 0), "dgCMatrix")))
++                      as( cbind( M, 0,7,0, diag(nr), 0), "CsparseMatrix")))
 > 
 > cbind(mC, 1, 100*mC, 0, 0:2)
 4 x 15 sparse Matrix of class "dgCMatrix"
@@ -386,7 +384,8 @@ D .  1  2  . -1 .   1    .  .  11  22   . -11  .    . .
 > 
 > 
 > ## logical (sparse) - should remain logical :
-> L5 <- Diagonal(n = 5, x = TRUE); v5 <- rep(x = c(FALSE,TRUE), length = ncol(L5))
+> L5 <- Diagonal(n = 5, x = TRUE)
+> v5 <- rep(x = c(FALSE,TRUE), length.out = ncol(L5))
 > stopifnot(is(show(rbind(L5,v5)), "lsparseMatrix"),
 + 	  is(show(cbind(v5,L5)), "lsparseMatrix"),
 + 	  is(rbind(L5, 2* v5), "dsparseMatrix"),
@@ -533,8 +532,8 @@ v5    .    |    .    |    .
 > 
 > options(op)
 > showProc.time()
-Time (user system elapsed): 0.142 0.01 0.152 
+Time (user system elapsed): 0.052 0.002 0.054 
 > 
 > proc.time()
    user  system elapsed 
-  0.866   0.113   1.030 
+  0.570   0.034   0.603 

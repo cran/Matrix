@@ -10,20 +10,20 @@ tmp <- function (X, Y, FUN = "*", make.dimnames = FALSE, ...) {
     kronecker(as(X, "TsparseMatrix"), Y,
 	      FUN = FUN, make.dimnames = make.dimnames, ...)
 }
-setMethod("kronecker", signature(X="diagonalMatrix", Y="ANY"	    ), tmp)
-setMethod("kronecker", signature(X="diagonalMatrix", Y="Matrix"	    ), tmp)
-setMethod("kronecker", signature(X="ANY",	   Y="sparseMatrix" ), tmp)
+setMethod("kronecker", signature(X="diagonalMatrix", Y="ANY"          ), tmp)
+setMethod("kronecker", signature(X="diagonalMatrix", Y="Matrix"       ), tmp)
+setMethod("kronecker", signature(X="ANY",            Y="sparseMatrix" ), tmp)
 ## the above could recurse infinitely :
-setMethod("kronecker", signature(X="sparseMatrix", Y="TsparseMatrix"), tmp)
+setMethod("kronecker", signature(X="sparseMatrix",   Y="TsparseMatrix"), tmp)
 
 tmp <- function (X, Y, FUN = "*", make.dimnames = FALSE, ...) {
     kronecker(X, as(Y, "TsparseMatrix"),
 	      FUN = FUN, make.dimnames = make.dimnames, ...)
 }
-setMethod("kronecker", signature(X="ANY",	  Y="diagonalMatrix"), tmp)
-setMethod("kronecker", signature(X="Matrix",	  Y="diagonalMatrix"), tmp)
-setMethod("kronecker", signature(X="sparseMatrix",  Y="ANY"	    ), tmp)
-setMethod("kronecker", signature(X="TsparseMatrix", Y="sparseMatrix"), tmp)
+setMethod("kronecker", signature(X="ANY",           Y="diagonalMatrix"), tmp)
+setMethod("kronecker", signature(X="Matrix",        Y="diagonalMatrix"), tmp)
+setMethod("kronecker", signature(X="sparseMatrix",  Y="ANY"           ), tmp)
+setMethod("kronecker", signature(X="TsparseMatrix", Y="sparseMatrix"  ), tmp)
 rm(tmp)
 
 ## from ./dgTMatrix.R :
@@ -51,8 +51,8 @@ setMethod("kronecker", signature(X = "dtTMatrix", Y = "dtTMatrix"),
 	  if (FUN != "*") stop("kronecker method must use default 'FUN'")
 	  ## otherwise we don't know that many results will be zero
 	  if(X@uplo != Y@uplo) { ## result not triangular
-	      X <- as(X, "dgTMatrix")
-	      Y <- as(Y, "dgTMatrix")
+	      X <- .sparse2g(X)
+	      Y <- .sparse2g(Y)
 	      return(callGeneric())
 	  }
 	  ## else: both 'uplo' are the same -- result *is* triangular
@@ -86,54 +86,45 @@ setMethod("kronecker", signature(X = "dtTMatrix", Y = "dtTMatrix"),
 
 setMethod("kronecker", signature(X = "dtTMatrix", Y = "dgTMatrix"),
 	  function (X, Y, FUN = "*", make.dimnames = FALSE, ...) {
-	      if(trY <- isTriangular(Y)) {
-		  Y <- gT2tT(Y, uplo = attr(trY, "kind") %||% "U",
-			     diag = "N", ## improve: also test for unit diagonal
-			     toClass = "dtTMatrix", do.n= FALSE)
-	      }
-	      else {
-		  X <- as(X, "dgTMatrix")
-	      }
+              if(it <- isTriangular(Y))
+                  ## improve: also test for unit diagonal
+                  Y <- if(attr(it, "kind") == "U") triu(Y) else tril(Y)
+	      else
+                  X <- .sparse2g(X)
 	      callGeneric() #-> dtT o dtT   or	 dgT o dgT
 	  })
 
 setMethod("kronecker", signature(X = "dgTMatrix", Y = "dtTMatrix"),
 	  function (X, Y, FUN = "*", make.dimnames = FALSE, ...) {
-	      if(trX <- isTriangular(X)) {
-		  X <- gT2tT(X, uplo = attr(trX, "kind") %||% "U",
-			     diag = "N", ## improve: also test for unit diagonal
-			     toClass = "dtTMatrix", do.n= FALSE)
-	      }
-	      else {
-		  Y <- as(Y, "dgTMatrix")
-	      }
+              if(it <- isTriangular(X))
+                  ## improve: also test for unit diagonal
+                  X <- if(attr(it, "kind") == "U") triu(X) else tril(X)
+	      else
+		  Y <- .sparse2g(Y)
 	      callGeneric() #-> dtT o dtT   or	 dgT o dgT
 	  })
 
 setMethod("kronecker", signature(X = "TsparseMatrix", Y = "TsparseMatrix"),
 	  function (X, Y, FUN = "*", make.dimnames = FALSE, ...) {
-	      if(!is(X, "dMatrix")) X <- as(X, "dMatrix")
-	      if(!is(Y, "dMatrix")) Y <- as(Y, "dMatrix")
-	      if(is(X, "symmetricMatrix")) X <- as(X, "generalMatrix")
-	      if(is(Y, "symmetricMatrix")) Y <- as(Y, "generalMatrix")
-	      callGeneric()
+              if(.hasSlot(X, "uplo") && !.hasSlot(X, "diag"))
+                  X <- .sparse2g(X)
+              if(.hasSlot(Y, "uplo") && !.hasSlot(Y, "diag"))
+                  Y <- .sparse2g(Y)
+              X <- ..sparse2d(X)
+              Y <- ..sparse2d(Y)
+              callGeneric()
 	  })
 
-if(FALSE) # probably not needed
-setMethod("kronecker", signature(X = "dgTMatrix", Y = "TsparseMatrix"),
-	  function (X, Y, FUN = "*", make.dimnames = FALSE, ...) {
-	      ## a case where Y is neither "dgT" nor "dtT" :
-	      if(!is(Y, "dMatrix")) Y <- as(Y, "dMatrix")
-	      if(is(Y, "symmetricMatrix")) Y <- as(Y, "generalMatrix")
-	      callGeneric()
-	  })
-
-## from ./dsparseMatrix.R :
 setMethod("kronecker", signature(X = "dsparseMatrix", Y = "dsparseMatrix"),
 	  function (X, Y, FUN = "*", make.dimnames = FALSE, ...) {
-	      if(is(X, "symmetricMatrix")) X <- as(X, "generalMatrix")
-	      if(is(Y, "symmetricMatrix")) Y <- as(Y, "generalMatrix")
-	      kronecker(as(X, "TsparseMatrix"), as(Y, "TsparseMatrix"),
-			FUN = FUN, make.dimnames = make.dimnames, ...)
+              if(.hasSlot(X, "uplo") && !.hasSlot(X, "diag"))
+                  X <- .sparse2g(X)
+              if(.hasSlot(Y, "uplo") && !.hasSlot(Y, "diag"))
+                  Y <- .sparse2g(Y)
+              if(.hasSlot(X, "p"))
+                  X <- .CR2T(X)
+              if(.hasSlot(Y, "p"))
+                  Y <- .CR2T(Y)
+              callGeneric()
 	  })
 

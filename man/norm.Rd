@@ -1,12 +1,18 @@
 \name{norm}
 \title{Matrix Norms}
+%
 \alias{norm}
+%
 \alias{norm,ANY,missing-method}
-\alias{norm,matrix,character-method}
-\alias{norm,Matrix,character-method}
-\usage{
-norm(x, type, \dots)
-}
+\alias{norm,denseMatrix,character-method}
+\alias{norm,dgeMatrix,character-method}
+\alias{norm,diagonalMatrix,character-method}
+\alias{norm,dspMatrix,character-method}
+\alias{norm,dsyMatrix,character-method}
+\alias{norm,dtpMatrix,character-method}
+\alias{norm,dtrMatrix,character-method}
+\alias{norm,sparseMatrix,character-method}
+%
 \description{
   Computes a matrix norm of \code{x}, using Lapack for dense matrices.
   The norm can be the one  (\code{"O"}, or \code{"1"}) norm, the
@@ -14,6 +20,9 @@ norm(x, type, \dots)
   the maximum modulus (\code{"M"}) among elements of a matrix, or the
   spectral norm or 2-norm (\code{"2"}), as determined by the value of
   \code{type}.
+}
+\usage{
+norm(x, type, \dots)
 }
 \arguments{
   \item{x}{

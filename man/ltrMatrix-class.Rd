@@ -1,26 +1,32 @@
 \name{ltrMatrix-class}
+\title{Triangular Dense Logical Matrices}
 \docType{class}
+%
 \alias{ltpMatrix-class}
 \alias{ltrMatrix-class}
 %
 \alias{!,ltpMatrix-method}
-\alias{!,ltrMatrix-method}
 \alias{coerce,ltpMatrix,dtpMatrix-method}
 \alias{coerce,ltpMatrix,lgeMatrix-method}
+\alias{coerce,ltpMatrix,ltCMatrix-method}
+\alias{coerce,ltpMatrix,ltRMatrix-method}
+\alias{coerce,ltpMatrix,ltTMatrix-method}
+\alias{coerce,ltpMatrix,lspMatrix-method}
 \alias{coerce,ltpMatrix,ltrMatrix-method}
+\alias{coerce,ltpMatrix,ntpMatrix-method}
+\alias{coerce,matrix,ltpMatrix-method}
+%
+\alias{!,ltrMatrix-method}
 \alias{coerce,ltrMatrix,dtrMatrix-method}
 \alias{coerce,ltrMatrix,lgeMatrix-method}
+\alias{coerce,ltrMatrix,ltCMatrix-method}
+\alias{coerce,ltrMatrix,ltRMatrix-method}
+\alias{coerce,ltrMatrix,ltTMatrix-method}
+\alias{coerce,ltrMatrix,lsyMatrix-method}
 \alias{coerce,ltrMatrix,ltpMatrix-method}
+\alias{coerce,ltrMatrix,ntrMatrix-method}
 \alias{coerce,matrix,ltrMatrix-method}
-\alias{coerce,matrix,ltpMatrix-method}
-% \alias{diag,ltpMatrix-method} -> ./packedMatrix-class.Rd
-\alias{diag,ltrMatrix-method}
-% \alias{diag<-,ltpMatrix-method}
-\alias{diag<-,ltrMatrix-method}
-% \alias{t,ltpMatrix-method}
-\alias{t,ltrMatrix-method}
 %
-\title{Triangular Dense Logical Matrices}
 \description{
   The \code{"ltrMatrix"} class is the class of triangular, dense,
   logical matrices in nonpacked storage.  The \code{"ltpMatrix"} class
@@ -62,10 +68,10 @@
 showClass("ltrMatrix")
 
 str(new("ltpMatrix"))
-(lutr <- as(upper.tri(matrix(,4,4)), "ltrMatrix"))
-str(lutp <- as(lutr, "ltpMatrix"))# packed matrix: only 10 = (4+1)*4/2 entries
-!lutp ## the logical negation (is *not* logical triangular !)
+(lutr <- as(upper.tri(matrix(, 4, 4)), "ldenseMatrix"))
+str(lutp <- pack(lutr)) # packed matrix: only 10 = 4*(4+1)/2 entries
+!lutp # the logical negation (is *not* logical triangular !)
 ## but this one is:
-stopifnot(all.equal(lutp, as(!!lutp, "ltpMatrix")))
+stopifnot(all.equal(lutp, pack(!!lutp)))
 }
 \keyword{classes}

@@ -1,13 +1,13 @@
 \name{facmul}
 \title{Multiplication by Decomposition Factors}
-\usage{
-facmul(x, factor, y, transpose, left, \dots)
-}
 \alias{facmul}
 \alias{facmul.default}
 \description{
     Performs multiplication by factors for certain decompositions (and
     allows explicit formation of those factors).
+}
+\usage{
+facmul(x, factor, y, transpose, left, \dots)
 }
 \arguments{
     \item{x}{

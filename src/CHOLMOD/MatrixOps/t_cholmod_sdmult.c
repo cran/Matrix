@@ -79,8 +79,10 @@ static void TEMPLATE (cholmod_sdmult)
     kcol = X->ncol ;
     dy = Y->d ;
     dx = X->d ;
-    w = W ;
-    Wz = W + 4*nx ;
+    if (A->stype != 0 && kcol >= 4) {
+	w = W ;
+	Wz = W + 4*nx ;
+    }
 
     /* ---------------------------------------------------------------------- */
     /* Y = beta * Y */

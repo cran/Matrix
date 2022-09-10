@@ -1,23 +1,31 @@
 \name{lsyMatrix-class}
 \title{Symmetric Dense Logical Matrices}
 \docType{class}
+%
 \alias{lspMatrix-class}
 \alias{lsyMatrix-class}
 %
+\alias{!,lsyMatrix-method}
 \alias{coerce,lspMatrix,dspMatrix-method}
-\alias{coerce,lspMatrix,lsyMatrix-method}
 \alias{coerce,lspMatrix,lgeMatrix-method}
+\alias{coerce,lspMatrix,lsCMatrix-method}
+\alias{coerce,lspMatrix,lsRMatrix-method}
+\alias{coerce,lspMatrix,lsTMatrix-method}
+\alias{coerce,lspMatrix,lsyMatrix-method}
+\alias{coerce,lspMatrix,ltpMatrix-method}
+\alias{coerce,lspMatrix,nspMatrix-method}
+\alias{coerce,matrix,lspMatrix-method}
+%
+\alias{!,lspMatrix-method}
 \alias{coerce,lsyMatrix,dsyMatrix-method}
 \alias{coerce,lsyMatrix,lgeMatrix-method}
+\alias{coerce,lsyMatrix,lsCMatrix-method}
+\alias{coerce,lsyMatrix,lsRMatrix-method}
+\alias{coerce,lsyMatrix,lsTMatrix-method}
 \alias{coerce,lsyMatrix,lspMatrix-method}
+\alias{coerce,lsyMatrix,ltrMatrix-method}
+\alias{coerce,lsyMatrix,nsyMatrix-method}
 \alias{coerce,matrix,lsyMatrix-method}
-\alias{coerce,matrix,lspMatrix-method}
-% \alias{diag,lspMatrix-method} -> ./packedMatrix-class.Rd
-\alias{diag,lsyMatrix-method}
-% \alias{diag<-,lspMatrix-method}
-\alias{diag<-,lsyMatrix-method}
-% \alias{t,lspMatrix-method}
-\alias{t,lsyMatrix-method}
 %
 \description{
   The \code{"lsyMatrix"} class is the class of symmetric, dense logical
@@ -59,11 +67,11 @@
   \code{\link[base]{t}}
 }
 \examples{
-(M2 <- Matrix(c(TRUE, NA,FALSE,FALSE), 2,2)) # logical dense (ltr)
+(M2 <- Matrix(c(TRUE, NA, FALSE, FALSE), 2, 2)) # logical dense (ltr)
 str(M2)
 # can
 (sM <- M2 | t(M2)) # "lge"
-as(sM, "lsyMatrix")
-str(sM <- as(sM, "lspMatrix")) # packed symmetric
+as(sM, "symmetricMatrix")
+str(sM <- as(sM, "packedMatrix")) # packed symmetric
 }
 \keyword{classes}

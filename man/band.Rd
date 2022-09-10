@@ -1,123 +1,84 @@
 \name{band}
+\title{Extract bands of a matrix}
 \docType{methods}
-\alias{band-methods}
-\alias{tril-methods}
-\alias{triu-methods}
-\alias{band,CsparseMatrix-method}
-\alias{tril,CsparseMatrix-method}
-\alias{triu,CsparseMatrix-method}
-\alias{band,RsparseMatrix-method}
-\alias{tril,RsparseMatrix-method}
-\alias{triu,RsparseMatrix-method}
-\alias{band,TsparseMatrix-method}
-\alias{tril,TsparseMatrix-method}
-\alias{triu,TsparseMatrix-method}
-%FIXME! \alias{band,diagonalMatrix-method}
-\alias{tril,diagonalMatrix-method}
-\alias{triu,diagonalMatrix-method}
-\alias{tril,dsCMatrix-method}
-\alias{tril,lsCMatrix-method}
-\alias{tril,nsCMatrix-method}
-\alias{triu,dsCMatrix-method}
-\alias{triu,lsCMatrix-method}
-\alias{triu,nsCMatrix-method}
-\alias{band,ddenseMatrix-method}
-\alias{tril,ddenseMatrix-method}
-\alias{triu,ddenseMatrix-method}
-\alias{band,denseMatrix-method}
-\alias{tril,denseMatrix-method}
-\alias{triu,denseMatrix-method}
-\alias{band,matrix-method}
-\alias{tril,matrix-method}
-\alias{triu,matrix-method}
-% Begin{UGLY-disAMBIGUATION-hack} -- in ../R/triangularMatrix.R
-% we would want to define 'triangularMatrix' methods, but they ambiguate with the above!
-% \alias{tril,triangularMatrix-method}
-% \alias{triu,triangularMatrix-method}
-\alias{tril,dtCMatrix-method}
-\alias{tril,dtRMatrix-method}
-\alias{tril,dtTMatrix-method}
-\alias{tril,dtpMatrix-method}
-\alias{tril,dtrMatrix-method}
-\alias{tril,ltCMatrix-method}
-\alias{tril,ltRMatrix-method}
-\alias{tril,ltTMatrix-method}
-\alias{tril,ltpMatrix-method}
-\alias{tril,ltrMatrix-method}
-\alias{tril,ntCMatrix-method}
-\alias{tril,ntRMatrix-method}
-\alias{tril,ntTMatrix-method}
-\alias{tril,ntpMatrix-method}
-\alias{tril,ntrMatrix-method}
-\alias{tril,itTMatrix-method}
-\alias{tril,itCMatrix-method}
-\alias{tril,itRMatrix-method}
-\alias{triu,dtCMatrix-method}
-\alias{triu,dtRMatrix-method}
-\alias{triu,dtTMatrix-method}
-\alias{triu,dtpMatrix-method}
-\alias{triu,dtrMatrix-method}
-\alias{triu,ltCMatrix-method}
-\alias{triu,ltRMatrix-method}
-\alias{triu,ltTMatrix-method}
-\alias{triu,ltpMatrix-method}
-\alias{triu,ltrMatrix-method}
-\alias{triu,ntCMatrix-method}
-\alias{triu,ntRMatrix-method}
-\alias{triu,ntTMatrix-method}
-\alias{triu,ntpMatrix-method}
-\alias{triu,ntrMatrix-method}
-\alias{triu,itTMatrix-method}
-\alias{triu,itCMatrix-method}
-\alias{triu,itRMatrix-method}
-% End{UGLY-disAMBIGUATION-hack}
 %
 \alias{band}
-\alias{tril}
+\alias{band-methods}
 \alias{triu}
-\title{Extract bands of a matrix}
+\alias{triu-methods}
+\alias{tril}
+\alias{tril-methods}
+%
+\alias{band,CsparseMatrix-method}
+\alias{band,RsparseMatrix-method}
+\alias{band,TsparseMatrix-method}
+\alias{band,denseMatrix-method}
+\alias{band,diagonalMatrix-method}
+\alias{band,indMatrix-method}
+\alias{band,matrix-method}
+\alias{triu,CsparseMatrix-method}
+\alias{triu,RsparseMatrix-method}
+\alias{triu,TsparseMatrix-method}
+\alias{triu,denseMatrix-method}
+\alias{triu,diagonalMatrix-method}
+\alias{triu,indMatrix-method}
+\alias{triu,matrix-method}
+\alias{tril,CsparseMatrix-method}
+\alias{tril,RsparseMatrix-method}
+\alias{tril,TsparseMatrix-method}
+\alias{tril,denseMatrix-method}
+\alias{tril,diagonalMatrix-method}
+\alias{tril,indMatrix-method}
+\alias{tril,matrix-method}
+%
 \description{
-  Returns a new matrix formed by extracting the lower triangle
-  (\code{tril}) or the upper triangle (\code{triu}) or a general band
-  relative to the diagonal (\code{band}), and setting other elements
-  to zero.  The general forms of these functions include integer
-  arguments to specify how many diagonal bands above or below the main
-  diagonal are not set to zero.
+  Return the matrix obtained by setting to zero elements below a diagonal
+  (\code{triu}), above a diagonal (\code{tril}), or outside of a general
+  band (\code{band}).
 }
 \usage{
 band(x, k1, k2, \dots)
-tril(x, k = 0, \dots)
 triu(x, k = 0, \dots)
+tril(x, k = 0, \dots)
 }
 \arguments{
   \item{x}{a matrix-like object}
-  \item{k,k1,k2}{integers specifying the diagonal bands that will not
-  be set to zero.  These are given relative to the main diagonal,
-  which is \code{k=0}.  A negative value of \code{k} indicates a
-  diagonal below the main diagonal and a positive value indicates a
-  diagonal above the main diagonal.}
- \item{\dots}{Optional arguments used by specific methods. (None used at present.)}
+  \item{k,k1,k2}{integers specifying the diagonals that are not set to
+    zero.  These are interpreted relative to the main diagonal, which
+    is \code{k=0}.  Positive and negative values of \code{k} indicate
+    diagonals above and below the main diagonal, respectively.}
+  \item{\dots}{optional arguments passed methods (currently unused
+    by package \pkg{Matrix})}
+}
+\details{
+  \code{triu(x, k)} is equivalent to \code{band(x, k, dim(x)[2])}.
+  Similarly,
+  \code{tril(x, k)} is equivalent to \code{band(x, -dim(x)[1], k)}.
 }
 \value{
-  An object of an appropriate matrix class.  The class of the value of
-  \code{tril} or \code{triu} inherits from
-  \code{\linkS4class{triangularMatrix}} when appropriate.  Note that the
-  result is of class \code{\linkS4class{sparseMatrix}} only if \code{x} is.
+  An object of a suitable matrix class, inheriting from
+  \code{\linkS4class{triangularMatrix}} where appropriate.
+  It inherits from \code{\linkS4class{sparseMatrix}} if
+  and only if \code{x} does.
 }
 \section{Methods}{
   \describe{
     \item{x = "CsparseMatrix"}{method for compressed, sparse,
       column-oriented matrices.}
-    \item{x = "TsparseMatrix"}{method for sparse matrices in triplet format.}
     \item{x = "RsparseMatrix"}{method for compressed, sparse,
       row-oriented matrices.}
-    \item{x = "ddenseMatrix"}{method for dense numeric matrices,
-      including packed numeric matrices.}
+    \item{x = "TsparseMatrix"}{method for sparse matrices in
+      triplet format.}
+    \item{x = "diagonalMatrix"}{method for diagonal matrices.}
+    \item{x = "denseMatrix"}{method for dense matrices in
+      packed or unpacked format.}
+    \item{x = "matrix"}{method for traditional matrices
+      of implicit class \code{\link{matrix}}.}
   }
 }
 \seealso{
-  \code{\link{bandSparse}} for the \emph{construction} of a banded
-  sparse matrix directly from its non-zero diagonals.
+  \code{\link{bandSparse}} for the \emph{construction} of a
+  banded sparse matrix directly from its non-zero diagonals.
 }
 \examples{
 ## A random sparse matrix :
@@ -130,12 +91,12 @@ tril(mm)        # lower triangle
 tril(mm, -1)    # strict lower triangle
 triu(mm,  1)    # strict upper triangle
 band(mm, -1, 2) # general band
-(m5 <- Matrix(rnorm(25), nc = 5))
+(m5 <- Matrix(rnorm(25), ncol = 5))
 tril(m5)        # lower triangle
 tril(m5, -1)    # strict lower triangle
 triu(m5, 1)     # strict upper triangle
 band(m5, -1, 2) # general band
-(m65 <- Matrix(rnorm(30), nc = 5))  # not square
+(m65 <- Matrix(rnorm(30), ncol = 5))  # not square
 triu(m65)       # result not "dtrMatrix" unless square
 (sm5 <- crossprod(m65)) # symmetric
    band(sm5, -1, 1)# "dsyMatrix": symmetric band preserves symmetry property

@@ -1,9 +1,10 @@
 \name{cBind}
 \title{'cbind()' and 'rbind()' recursively built on cbind2/rbind2}
-\alias{cBind}
-\alias{rBind}
-%no \alias{cbind2} or \alias{rbind2}
-% many more cbind2|rbind2 methods are in *-class.Rd, e.g. ./sparseMatrix-class.Rd
+%
+\alias{cBind} % but not \alias{cbind2}
+\alias{rBind} % but not \alias{rbind2}
+%% needed here instead of in ./sparseMatrix.Rd and ./denseMatrix.Rd
+%% only because we use \S4Method{} below:
 \alias{cbind2,denseMatrix,sparseMatrix-method}
 \alias{cbind2,sparseMatrix,denseMatrix-method}
 \alias{rbind2,denseMatrix,sparseMatrix-method}

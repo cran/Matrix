@@ -1,6 +1,6 @@
 \name{mat2triplet}
-\alias{mat2triplet}
 \title{Map Matrix to its Triplet Representation}
+\alias{mat2triplet}
 \description{
   From an \R object coercible to \code{"\linkS4class{TsparseMatrix}"},
   typically a (sparse) matrix, produce its triplet representation which may

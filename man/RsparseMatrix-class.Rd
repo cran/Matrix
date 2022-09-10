@@ -1,29 +1,24 @@
 \name{RsparseMatrix-class}
+\title{Class "RsparseMatrix" of Sparse Matrices in Row-compressed Form}
 \docType{class}
+%
 \alias{RsparseMatrix-class}
 %
+\alias{as.vector,RsparseMatrix-method}
 \alias{coerce,RsparseMatrix,CsparseMatrix-method}
 \alias{coerce,RsparseMatrix,TsparseMatrix-method}
 \alias{coerce,RsparseMatrix,denseMatrix-method}
 \alias{coerce,RsparseMatrix,dgeMatrix-method}
 \alias{coerce,RsparseMatrix,generalMatrix-method}
 \alias{coerce,RsparseMatrix,matrix-method}
-\alias{coerce,RsparseMatrix,dsparseMatrix-method}
-\alias{coerce,RsparseMatrix,lsparseMatrix-method}
-\alias{coerce,RsparseMatrix,nsparseMatrix-method}
-\alias{coerce,RsparseMatrix,dMatrix-method}
-\alias{coerce,RsparseMatrix,lMatrix-method}
-\alias{coerce,RsparseMatrix,nMatrix-method}
+\alias{coerce,RsparseMatrix,packedMatrix-method}
+\alias{coerce,RsparseMatrix,unpackedMatrix-method}
+\alias{coerce,RsparseMatrix,vector-method}
 \alias{coerce,matrix,RsparseMatrix-method}
-\alias{coerce,denseMatrix,RsparseMatrix-method}
-\alias{coerce,sparseMatrix,RsparseMatrix-method}
-\alias{coerce,CsparseMatrix,RsparseMatrix-method}
-% all other ..RMatrix coercions -- here as well for now --
-\alias{coerce,matrix,dgRMatrix-method}
-%
+\alias{coerce,numLike,RsparseMatrix-method}
+\alias{diag,RsparseMatrix-method}
 \alias{t,RsparseMatrix-method}
 %
-\title{Class "RsparseMatrix" of Sparse Matrices in Row-compressed Form}
 \description{The \code{"RsparseMatrix"} class is the virtual class of
   all sparse matrices coded in sorted compressed row-oriented form.
   Since it is a virtual class, no objects may be created from it.  See

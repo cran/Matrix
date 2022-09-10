@@ -1,12 +1,17 @@
 \name{nnzero}
 \title{The Number of Non-Zero Values of a Matrix}
+%
 \alias{nnzero}
+%
 \alias{nnzero,ANY-method}
+\alias{nnzero,CHMfactor-method}
+\alias{nnzero,array-method}
 \alias{nnzero,denseMatrix-method}
 \alias{nnzero,diagonalMatrix-method}
 \alias{nnzero,indMatrix-method}
 \alias{nnzero,sparseMatrix-method}
-\alias{nnzero,CHMfactor-method}
+\alias{nnzero,vector-method}
+%
 \description{
   Returns the number of non-zero values of a numeric-like \R object, and
   in particular an object \code{x} inheriting from class
@@ -70,7 +75,7 @@ nnzero(x, na.counted = NA)
 \examples{
 m <- Matrix(0+1:28, nrow = 4)
 m[-3,c(2,4:5,7)] <- m[ 3, 1:4] <- m[1:3, 6] <- 0
-(mT <- as(m, "dgTMatrix"))
+(mT <- as(m, "TsparseMatrix"))
 nnzero(mT)
 (S <- crossprod(mT))
 nnzero(S)

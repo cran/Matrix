@@ -1,25 +1,32 @@
 \name{ntrMatrix-class}
+\title{Triangular Dense Logical Matrices}
 \docType{class}
+%
 \alias{ntpMatrix-class}
 \alias{ntrMatrix-class}
 %
 \alias{!,ntpMatrix-method}
-\alias{!,ntrMatrix-method}
-\alias{coerce,ntpMatrix,dtpMatrix-method}
-\alias{coerce,ntpMatrix,ngeMatrix-method}
-\alias{coerce,ntpMatrix,ntrMatrix-method}
-\alias{coerce,ntrMatrix,dtrMatrix-method}
-\alias{coerce,ntrMatrix,ngeMatrix-method}
-\alias{coerce,ntrMatrix,ntpMatrix-method}
-\alias{coerce,matrix,ntrMatrix-method}
 \alias{coerce,matrix,ntpMatrix-method}
-\alias{diag,ntrMatrix-method}
-% \alias{diag<-,ntpMatrix-method} -> ./packedMatrix-class.Rd
-\alias{diag<-,ntrMatrix-method}
-% \alias{t,ntpMatrix-method}
-\alias{t,ntrMatrix-method}
+\alias{coerce,ntpMatrix,dtpMatrix-method}
+\alias{coerce,ntpMatrix,ltpMatrix-method}
+\alias{coerce,ntpMatrix,ngeMatrix-method}
+\alias{coerce,ntpMatrix,nspMatrix-method}
+\alias{coerce,ntpMatrix,ntCMatrix-method}
+\alias{coerce,ntpMatrix,ntRMatrix-method}
+\alias{coerce,ntpMatrix,ntTMatrix-method}
+\alias{coerce,ntpMatrix,ntrMatrix-method}
 %
-\title{Triangular Dense Logical Matrices}
+\alias{!,ntrMatrix-method}
+\alias{coerce,matrix,ntrMatrix-method}
+\alias{coerce,ntrMatrix,dtrMatrix-method}
+\alias{coerce,ntrMatrix,ltrMatrix-method}
+\alias{coerce,ntrMatrix,ngeMatrix-method}
+\alias{coerce,ntrMatrix,nsyMatrix-method}
+\alias{coerce,ntrMatrix,ntCMatrix-method}
+\alias{coerce,ntrMatrix,ntRMatrix-method}
+\alias{coerce,ntrMatrix,ntTMatrix-method}
+\alias{coerce,ntrMatrix,ntpMatrix-method}
+%
 \description{
   The \code{"ntrMatrix"} class is the class of triangular, dense,
   logical matrices in nonpacked storage.  The \code{"ntpMatrix"} class
@@ -63,10 +70,10 @@
 showClass("ntrMatrix")
 
 str(new("ntpMatrix"))
-(nutr <- as(upper.tri(matrix(,4,4)), "ntrMatrix"))
-str(nutp <- as(nutr, "ntpMatrix"))# packed matrix: only 10 = (4+1)*4/2 entries
-!nutp ## the logical negation (is *not* logical triangular !)
+(nutr <- as(upper.tri(matrix(, 4, 4)), "ndenseMatrix"))
+str(nutp <- pack(nutr)) # packed matrix: only 10 = 4*(4+1)/2 entries
+!nutp # the logical negation (is *not* logical triangular !)
 ## but this one is:
-stopifnot(all.equal(nutp, as(!!nutp, "ntpMatrix")))
+stopifnot(all.equal(nutp, pack(!!nutp)))
 }
 \keyword{classes}

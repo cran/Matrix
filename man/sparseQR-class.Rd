@@ -1,31 +1,32 @@
 \name{sparseQR-class}
-\docType{class}
 \title{Sparse QR decomposition of a sparse matrix}
+\docType{class}
+%
 \alias{sparseQR-class}
-\alias{qr.R,sparseQR-method}
-\alias{qr.Q}% the generic
+\alias{qr.Q} % catch ?qr.Q too
+%
 \alias{qr.Q,sparseQR-method}
+\alias{qr.R,sparseQR-method}
+\alias{qr.coef,sparseQR,Matrix-method}
 \alias{qr.coef,sparseQR,ddenseMatrix-method}
 \alias{qr.coef,sparseQR,matrix-method}
-\alias{qr.coef,sparseQR,Matrix-method}
 \alias{qr.coef,sparseQR,numeric-method}
+\alias{qr.fitted,sparseQR,Matrix-method}
 \alias{qr.fitted,sparseQR,ddenseMatrix-method}
 \alias{qr.fitted,sparseQR,matrix-method}
-\alias{qr.fitted,sparseQR,Matrix-method}
 \alias{qr.fitted,sparseQR,numeric-method}
+\alias{qr.qty,sparseQR,Matrix-method}
 \alias{qr.qty,sparseQR,ddenseMatrix-method}
 \alias{qr.qty,sparseQR,matrix-method}
 \alias{qr.qty,sparseQR,numeric-method}
-\alias{qr.qty,sparseQR,Matrix-method}
+\alias{qr.qy,sparseQR,Matrix-method}
 \alias{qr.qy,sparseQR,ddenseMatrix-method}
 \alias{qr.qy,sparseQR,matrix-method}
 \alias{qr.qy,sparseQR,numeric-method}
-\alias{qr.qy,sparseQR,Matrix-method}
+\alias{qr.resid,sparseQR,Matrix-method}
 \alias{qr.resid,sparseQR,ddenseMatrix-method}
 \alias{qr.resid,sparseQR,matrix-method}
-\alias{qr.resid,sparseQR,Matrix-method}
 \alias{qr.resid,sparseQR,numeric-method}
-%\alias{solve,sparseQR,ANY-method}--> solve-methods.Rd
 %
 \description{Objects class \code{"sparseQR"} represent a QR decomposition of a
   sparse \eqn{m \times n}{m x n} (\dQuote{long}: \eqn{m \ge n}{m >= n})
@@ -33,7 +34,6 @@
   \code{\link{qr}()}, see \sQuote{Details} notably about row and column
   permutations for pivoting.
 }
-
 \section{Objects from the Class}{
   Objects can be created by calls of the form \code{new("sparseQR", ...)}
   but are more commonly created by function \code{\link[base]{qr}} applied
@@ -153,7 +153,7 @@
 data(KNex)
 mm <- KNex $ mm
  y <- KNex $  y
- y. <- as(as.matrix(y), "dgCMatrix")
+ y. <- as(y, "CsparseMatrix")
 str(qrm <- qr(mm))
  qc  <- qr.coef  (qrm, y); qc. <- qr.coef  (qrm, y.) # 2nd failed in Matrix <= 1.1-0
  qf  <- qr.fitted(qrm, y); qf. <- qr.fitted(qrm, y.)

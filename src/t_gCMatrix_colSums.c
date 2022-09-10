@@ -126,7 +126,7 @@
 # define is_NA_x_(u) ISNAN(u)
 
 # define ColSUM_column(_i1_,_i2_,_SUM_)					\
-		if(mn) dnm = cx->nrow;	/* denominator for means */	\
+                if(mn) dnm = (int) cx->nrow;/* denominator for means */	\
 		for(i = _i1_, _SUM_ = 0; i < _i2_; i++) {		\
 		    if (is_NA_x_(xx[i])) {				\
 			if(!na_rm) {					\
@@ -144,7 +144,7 @@
 
 # define ColSUM_column(_i1_,_i2_,_SUM_)		\
 		_SUM_ = _i2_ - _i1_;		\
-		if(mn) _SUM_ /= cx->nrow
+		if(mn) _SUM_ /= (int) cx->nrow
 #endif
 
 /* Now the template which depends on the above macros : */
@@ -171,7 +171,7 @@ SEXP gCMatrix_colSums(SEXP x, SEXP NArm, SEXP spRes, SEXP trans, SEXP means)
 
     /* everything else *after* the above potential transpose : */
 
-    int j, nc = cx->ncol;
+    int j, nc = (int) cx->ncol;
     int *xp = (int *)(cx -> p);
 #ifdef _has_x_slot_
     int na_rm = asLogical(NArm), // can have NAs only with an 'x' slot

@@ -1,7 +1,7 @@
 \name{rleDiff-class}
+\title{Class "rleDiff" of  rle(diff(.))  Stored Vectors}
 \docType{class}
 \Rdversion{1.1}
-\title{Class "rleDiff" of  rle(diff(.))  Stored Vectors}
 \alias{rleDiff-class}
 \alias{show,rleDiff-method}
 \description{

@@ -5,8 +5,9 @@
 #include "Mutils.h"
 #include "dspMatrix.h"
 
-SEXP dppMatrix_rcond(SEXP obj, SEXP type);
 SEXP dppMatrix_validate(SEXP obj);
+
+SEXP dppMatrix_rcond(SEXP obj, SEXP type);
 SEXP dppMatrix_solve(SEXP a);
 SEXP dppMatrix_matrix_solve(SEXP a, SEXP b);
 SEXP dppMatrix_chol(SEXP x);

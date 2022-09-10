@@ -1,9 +1,12 @@
 \name{compMatrix-class}
-\docType{class}
 \title{Class "compMatrix" of Composite (Factorizable) Matrices}
+\docType{class}
+%
 \alias{compMatrix-class}
-\alias{dimnames<-,compMatrix,list-method}
+%
 \alias{dimnames<-,compMatrix,NULL-method}
+\alias{dimnames<-,compMatrix,list-method}
+%
 \description{
   Virtual class of \emph{composite} matrices; i.e., matrices
   that can be \emph{factorized}, typically as a product of simpler

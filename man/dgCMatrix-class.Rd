@@ -1,38 +1,26 @@
 \name{dgCMatrix-class}
-\docType{class}
 \title{Compressed, sparse, column-oriented numeric matrices}
+\docType{class}
+%
 \alias{dgCMatrix-class}
-\alias{as.vector,dgCMatrix-method}
-\alias{coerce,matrix,dgCMatrix-method}
-\alias{coerce,ddiMatrix,dgCMatrix-method}
-\alias{coerce,dgeMatrix,dgCMatrix-method}
-\alias{coerce,dgCMatrix,dgTMatrix-method}
-\alias{coerce,dgCMatrix,dsCMatrix-method}% deprecated
-\alias{coerce,dgCMatrix,dtCMatrix-method}
-\alias{coerce,dgCMatrix,lgCMatrix-method}
-\alias{coerce,dgCMatrix,ngCMatrix-method}
-\alias{coerce,dgCMatrix,dgeMatrix-method}
-\alias{coerce,dgCMatrix,matrix-method}
-\alias{coerce,dgCMatrix,vector-method}
-\alias{coerce,factor,dgCMatrix-method}
-\alias{diag,dgCMatrix-method}
-\alias{dim,dgCMatrix-method}
-%\alias{lu,dgCMatrix-method}-> ./lu.Rd
-\alias{isSymmetric,dgCMatrix-method}
-\alias{t,dgCMatrix-method}
-%\alias{solve,dgCMatrix,matrix-method}--> solve-methods.Rd
-%% Group methods --------- FIXME: These are not tested yet (or documented)
-\alias{Arith,logical,dgCMatrix-method}
-\alias{Arith,numeric,dgCMatrix-method}
+% 'Arith' not yet documented {untested} ... FIXME
+\alias{Arith,dgCMatrix,dgCMatrix-method}
 \alias{Arith,dgCMatrix,logical-method}
 \alias{Arith,dgCMatrix,numeric-method}
-\alias{Arith,dgCMatrix,dgCMatrix-method}
-% for silly reasons, need these 2+3 as well:
-\alias{round,dgCMatrix,numeric-method}
-\alias{signif,dgCMatrix,numeric-method}
-\alias{log,dgCMatrix-method}
-\alias{gamma,dgCMatrix-method}
-\alias{lgamma,dgCMatrix-method}
+\alias{Arith,logical,dgCMatrix-method}
+\alias{Arith,numeric,dgCMatrix-method}
+\alias{coerce,dgCMatrix,dgRMatrix-method}
+\alias{coerce,dgCMatrix,dgTMatrix-method}
+\alias{coerce,dgCMatrix,dgeMatrix-method}
+\alias{coerce,dgCMatrix,dsCMatrix-method}
+\alias{coerce,dgCMatrix,dsTMatrix-method}
+\alias{coerce,dgCMatrix,dtCMatrix-method}
+\alias{coerce,dgCMatrix,dtTMatrix-method}
+\alias{coerce,dgCMatrix,lgCMatrix-method}
+\alias{coerce,dgCMatrix,ngCMatrix-method}
+\alias{coerce,matrix,dgCMatrix-method}
+\alias{coerce,numLike,dgCMatrix-method}
+\alias{determinant,dgCMatrix,logical-method}
 %
 \description{The \code{dgCMatrix} class is a class of sparse numeric
   matrices in the compressed, sparse, column-oriented format.  In this

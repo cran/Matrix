@@ -1,10 +1,8 @@
 \name{LU-class}
+\title{LU (dense) Matrix Decompositions}
 \docType{class}
 \alias{LU-class}
 \alias{denseLU-class}
-\alias{expand,denseLU-method}
-%% \alias{solve,denseLU,missing-method}
-\title{LU (dense) Matrix Decompositions}
 \description{
   The \code{"LU"} class is the \emph{virtual} class of LU decompositions of
   real matrices.  \code{"denseLU"} the class of LU decompositions of

@@ -1,37 +1,35 @@
 \name{dtCMatrix-class}
 \title{Triangular, (compressed) sparse column matrices}
 \docType{class}
-\alias{dtCMatrix-class}% C  and
-\alias{dtTMatrix-class}% T
 %
-\alias{coerce,ddiMatrix,dtCMatrix-method}
+\alias{dtCMatrix-class}
+\alias{dtTMatrix-class}
+%
+\alias{Arith,dtCMatrix,dtCMatrix-method}
 \alias{coerce,dtCMatrix,dgCMatrix-method}
-\alias{coerce,dtCMatrix,dgeMatrix-method}
 \alias{coerce,dtCMatrix,dgTMatrix-method}
+\alias{coerce,dtCMatrix,dgeMatrix-method}
 \alias{coerce,dtCMatrix,dsCMatrix-method}
+\alias{coerce,dtCMatrix,dtRMatrix-method}
 \alias{coerce,dtCMatrix,dtTMatrix-method}
+\alias{coerce,dtCMatrix,dtpMatrix-method}
 \alias{coerce,dtCMatrix,dtrMatrix-method}
 \alias{coerce,dtCMatrix,ltCMatrix-method}
 \alias{coerce,dtCMatrix,ntCMatrix-method}
-\alias{coerce,dtCMatrix,TsparseMatrix-method}
-\alias{coerce,dtCMatrix,denseMatrix-method}
-\alias{coerce,dtCMatrix,matrix-method}
+\alias{coerce,matrix,dtCMatrix-method}
+%
+\alias{coerce,dtTMatrix,dgCMatrix-method}
 \alias{coerce,dtTMatrix,dgTMatrix-method}
 \alias{coerce,dtTMatrix,dgeMatrix-method}
+\alias{coerce,dtTMatrix,dsTMatrix-method}
 \alias{coerce,dtTMatrix,dtCMatrix-method}
+\alias{coerce,dtTMatrix,dtRMatrix-method}
+\alias{coerce,dtTMatrix,dtpMatrix-method}
 \alias{coerce,dtTMatrix,dtrMatrix-method}
-%no longer\alias{coerce,dtTMatrix,ltTMatrix-method}
-%no longer\alias{coerce,dtTMatrix,ntTMatrix-method}
-\alias{coerce,dtTMatrix,generalMatrix-method}
-\alias{coerce,dtTMatrix,matrix-method}
-\alias{coerce,matrix,dtCMatrix-method}
+\alias{coerce,dtTMatrix,ltTMatrix-method}
+\alias{coerce,dtTMatrix,ntTMatrix-method}
 \alias{coerce,matrix,dtTMatrix-method}
-%% Group methods
-\alias{Arith,dtCMatrix,dtCMatrix-method}
 %
-%\alias{solve,dtCMatrix,...-method}%--> solve-methods.Rd
-\alias{t,dtCMatrix-method}
-\alias{t,dtTMatrix-method}
 \description{The \code{"dtCMatrix"} class is a class of triangular, sparse
   matrices in the compressed, column-oriented format.  In this
   implementation the non-zero elements in the columns are sorted into
@@ -42,9 +40,9 @@
 }
 \section{Objects from the Class}{
   Objects can be created by calls of the form \code{new("dtCMatrix",
-    ...)} or calls of the form  \code{new("dtTMatrix", ...)}, but more
-  typically automatically via \code{\link{Matrix}()} or coercion such as
-  \code{as(x, "triangularMatrix")}, or \code{as(x, "dtCMatrix")}.
+    ...)} or calls of the form  \code{new("dtTMatrix", ...)},
+  but more typically automatically via \code{\link{Matrix}()}
+  or coercions such as \code{as(x, "triangularMatrix")}.
 }
 \section{Slots}{
   \describe{
@@ -108,7 +106,7 @@ t1
 ## from  0-diagonal to unit-diagonal {low-level step}:
 tu <- t1 ; tu@diag <- "U"
 tu
-(cu <- as(tu, "dtCMatrix"))
+(cu <- as(tu, "CsparseMatrix"))
 str(cu)# only two entries in @i and @x
 stopifnot(cu@i == 1:0,
           all(2 * symmpart(cu) == Diagonal(4) + forceSymmetric(cu)))
@@ -138,7 +136,7 @@ stopifnot(
 )
 \dontshow{%
 i5. <- I5; colnames(i5.) <- LETTERS[11:15]
-M53 <- as(m53, "dgeMatrix")
+M53 <- as(m53, "denseMatrix")
 stopifnot(
    identical((dns <- dimnames(solve(i5., M53))),
              dimnames(solve(as.matrix(i5.), as.matrix(M53)))) ,

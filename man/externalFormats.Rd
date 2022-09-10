@@ -1,11 +1,14 @@
 \name{externalFormats}
+\title{Read and write external matrix formats}
+%
 \alias{readHB}
 \alias{readMM}
-% \alias{writeHB}
+%\alias{writeHB}
 \alias{writeMM}
+%
 \alias{writeMM,CsparseMatrix-method}
 \alias{writeMM,sparseMatrix-method}
-\title{Read and write external matrix formats}
+%
 \description{
   Read matrices stored in the Harwell-Boeing or MatrixMarket formats
   or write \code{\linkS4class{sparseMatrix}} objects to one of these

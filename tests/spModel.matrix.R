@@ -57,8 +57,8 @@ op <- options(sparse.colnames = TRUE) # for convenience
 stopifnot(identical(## non-sensical, but "should work" (with a warning each):
 		    sparse.model.matrix(a~ 1, dd),
 		    sparse.model.matrix( ~ 1, dd)))
-sparse.model.matrix(~ a + b, dd, contrasts = list(a="contr.sum"))
-sparse.model.matrix(~ a + b, dd, contrasts = list(b="contr.SAS"))
+sparse.model.matrix(~ a + b, dd, contrasts.arg = list(a="contr.sum"))
+sparse.model.matrix(~ a + b, dd, contrasts.arg = list(b="contr.SAS"))
 xm <-  sparse.model.matrix(~ x, dM) # {no warning anymore ...}
 dxm <- Matrix(model.matrix(~ x, dM), sparse=TRUE)
 stopifnot(is(xm, "sparseMatrix"), mEQ(as(xm,"generalMatrix"), dxm))
@@ -69,18 +69,21 @@ stopifnot(isEQsparseDense(~ a + b, dd),
           isEQsparseDense(~ 0 + a + b, dd),
 	  identical(sparse.model.matrix(~  0 + a + b, dd),
 		    sparse.model.matrix(~ -1 + a + b, dd)),
-          isEQsparseDense(~ a + b, dd, contrasts = list(a="contr.sum")),
-          isEQsparseDense(~ a + b, dd, contrasts = list(a="contr.SAS")),
+          isEQsparseDense(~ a + b, dd, contrasts.arg = list(a="contr.sum")),
+          isEQsparseDense(~ a + b, dd, contrasts.arg = list(a="contr.SAS")),
 	  ## contrasts as *functions* or contrast *matrices* :
 	  isEQsparseDense(~ a + b, dd,
-			  contrasts = list(a=contr.sum, b=contr.treatment(4))),
-	  isEQsparseDense(~ a + b, dd, contrasts =
-			  list(a=contr.SAS(3),# << ok after 'contrasts<-' update
-                               b = function(n, contr=TRUE, sparse=FALSE)
-                               contr.sum(n=n, contr=contr, sparse=sparse))))
+			  contrasts.arg = list(
+                              a=contr.sum,
+                              b=contr.treatment(4))),
+	  isEQsparseDense(~ a + b, dd,
+                          contrasts.arg = list(
+                              a=contr.SAS(3),
+                              b = function(n, contr=TRUE, sparse=FALSE)
+                              contr.sum(n=n, contrasts=contr, sparse=sparse))))
 
 sm <- sparse.model.matrix(~a * b, dd,
-                          contrasts = list(a= contr.SAS(3, sparse = TRUE)))
+                          contrasts.arg = list(a=contr.SAS(3, sparse=TRUE)))
 sm
 ## FIXME: Move part of this to ../../MatrixModels/tests/
 ##stopifnot(all(sm == model.Matrix( ~a * b, dd, contrasts= list(a= contr.SAS(3)))))
@@ -109,11 +112,11 @@ all(mm[,"d5"] == 0)  ## !!!! --- correct: a column of all 0  <--> dropped level!
 stopifnot(all.equal(sm., mm[, - which("d5" == colnames(mm))])) ## indeed !
 ## i.e., sm has just dropped an all zero column --- which it should!
 
-stopifnot(isEQsparseDense(~ 1 + sin(x) + b*c + a:x, dd4, show=TRUE))
+stopifnot(isEQsparseDense(~ 1 + sin(x) + b*c + a:x, dd4, showFactors=TRUE))
 
-stopifnot(isEQsparseDense(~    I(a) + b*c + a:x, dd4, show=TRUE))
+stopifnot(isEQsparseDense(~    I(a) + b*c + a:x, dd4, showFactors=TRUE))
 ## no intercept -- works too
-stopifnot(isEQsparseDense(~ 0+ I(a) + b*c + a:x, dd4, show=TRUE))
+stopifnot(isEQsparseDense(~ 0+ I(a) + b*c + a:x, dd4, showFactors=TRUE))
 
 f <- ~ 1 + a + b*c + a*x
 attr(terms(f, data=dd4), "factors")
@@ -203,7 +206,7 @@ CidS <- lapply(df, contrasts, contrasts=FALSE, sparse=TRUE)
 X2  <- sparse.model.matrix(~ . -1, data = df, contrasts.arg = Cid)
 X2S <- sparse.model.matrix(~ . -1, data = df, contrasts.arg = CidS)
 X2
-stopifnot(all.equal(X2, X2S, tol=0))
+stopifnot(all.equal(X2, X2S, tolerance=0))
 ## X2S was missing the last column ('b6') in Matrix <= 1.x-y
 
 
@@ -212,7 +215,7 @@ mkD <-  function(n, p2 = 2^ceiling(log2(n)), sd = 10, rf = 4) {
     stopifnot(p2 >= n, n >= 0, p2 %% 2 == 0)
     G <- gl(2, p2/2, labels=c("M","F"))[sample.int(p2, n)]
     data.frame(sex = G,
-               age = round(rf*rnorm(n, m = 32 + 2*as.numeric(G), sd=sd)) / rf)
+               age = round(rf*rnorm(n, mean=32 + 2*as.numeric(G), sd=sd)) / rf)
 }
 set.seed(101)
 D1  <- mkD(47)

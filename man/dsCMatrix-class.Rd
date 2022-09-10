@@ -1,43 +1,38 @@
 \name{dsCMatrix-class}
 \title{Numeric Symmetric Sparse (column compressed) Matrices}
 \docType{class}
+%
 \alias{dsCMatrix-class}
 \alias{dsTMatrix-class}
 %
-%\alias{solve,dsCMatrix,...-method}--> solve-methods.Rd
-\alias{t,dsCMatrix-method}
-\alias{t,dsTMatrix-method}
-\alias{as.vector,dsCMatrix-method}
-\alias{coerce,dgeMatrix,dsCMatrix-method}
-\alias{coerce,dgeMatrix,dsTMatrix-method}
+\alias{Arith,dsCMatrix,dsCMatrix-method}
+\alias{coerce,dsCMatrix,RsparseMatrix-method}
 \alias{coerce,dsCMatrix,dgCMatrix-method}
 \alias{coerce,dsCMatrix,dgTMatrix-method}
 \alias{coerce,dsCMatrix,dgeMatrix-method}
 \alias{coerce,dsCMatrix,dsRMatrix-method}
 \alias{coerce,dsCMatrix,dsTMatrix-method}
+\alias{coerce,dsCMatrix,dspMatrix-method}
 \alias{coerce,dsCMatrix,dsyMatrix-method}
+\alias{coerce,dsCMatrix,dtCMatrix-method}
 \alias{coerce,dsCMatrix,lsCMatrix-method}
-\alias{coerce,dsCMatrix,generalMatrix-method}
-\alias{coerce,dsCMatrix,denseMatrix-method}
-\alias{coerce,dsCMatrix,matrix-method}
-\alias{coerce,dsCMatrix,vector-method}
 \alias{coerce,dsCMatrix,nsCMatrix-method}
+\alias{coerce,matrix,dsCMatrix-method}
+\alias{determinant,dsCMatrix,logical-method}
+%
+\alias{coerce,dsTMatrix,dgCMatrix-method}
 \alias{coerce,dsTMatrix,dgTMatrix-method}
 \alias{coerce,dsTMatrix,dgeMatrix-method}
+\alias{coerce,dsTMatrix,dsRMatrix-method}
 \alias{coerce,dsTMatrix,dsCMatrix-method}
+\alias{coerce,dsTMatrix,dspMatrix-method}
 \alias{coerce,dsTMatrix,dsyMatrix-method}
+\alias{coerce,dsTMatrix,dtTMatrix-method}
 \alias{coerce,dsTMatrix,lsTMatrix-method}
-\alias{coerce,dsTMatrix,matrix-method}
-\alias{coerce,dsyMatrix,dsCMatrix-method}
-\alias{coerce,dsyMatrix,dsTMatrix-method}
-\alias{coerce,dtCMatrix,dtRMatrix-method}
-\alias{coerce,matrix,dsCMatrix-method}
+\alias{coerce,dsTMatrix,nsTMatrix-method}
 \alias{coerce,matrix,dsTMatrix-method}
-\alias{coerce,graphNEL,dsCMatrix-method}
-%% Group methods
-\alias{Arith,dsCMatrix,dsCMatrix-method}
-\alias{determinant,dsCMatrix,missing-method}
-\alias{determinant,dsCMatrix,logical-method}
+\alias{determinant,dsTMatrix,logical-method}
+%
 \description{The \code{dsCMatrix} class is a class of symmetric, sparse
   numeric matrices in the compressed, \bold{c}olumn-oriented format.  In
   this implementation the non-zero elements in the columns are sorted
@@ -131,23 +126,21 @@
 mm <- Matrix(toeplitz(c(10, 0, 1, 0, 3)), sparse = TRUE)
 mm # automatically dsCMatrix
 str(mm)
-
-## how would we go from a manually constructed Tsparse* :
-mT <- as(mm, "dgTMatrix")
+mT <- as(as(mm, "generalMatrix"), "TsparseMatrix")
 
 ## Either
-(symM <- as(mT, "symmetricMatrix"))# dsT
-(symC <- as(symM, "CsparseMatrix"))# dsC
+(symM <- as(mT, "symmetricMatrix")) # dsT
+(symC <- as(symM, "CsparseMatrix")) # dsC
 ## or
-sC <- Matrix(mT, sparse=TRUE, forceCheck=TRUE)
+sT <- Matrix(mT, sparse=TRUE, forceCheck=TRUE) # dsT
 
 sym2 <- as(symC, "TsparseMatrix")
 ## --> the same as 'symM', a "dsTMatrix"
 \dontshow{
-stopifnot(identical(symC, sC), identical(sym2, symM),
+stopifnot(identical(sT, symM), identical(sym2, symM),
           class(sym2) == "dsTMatrix",
-	  identical(sym2[1,], sC[1,]),
-	  identical(sym2[,2], sC[,2]))
+	  identical(sym2[1,], sT[1,]),
+	  identical(sym2[,2], sT[,2]))
 }
 }
 \keyword{classes}

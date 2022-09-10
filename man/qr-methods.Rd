@@ -1,13 +1,15 @@
 \name{qr-methods}
 \title{QR Decomposition -- S4 Methods and Generic}
 \docType{methods}
+%
 \alias{qr}
-\alias{qrR}
 \alias{qr-methods}
+\alias{qrR}
+%
+\alias{qr,denseMatrix-method} % if(.Matrix.avoiding.as.matrix)
 \alias{qr,dgCMatrix-method}
 \alias{qr,sparseMatrix-method}
-\alias{qr,ddenseMatrix-method}% only if(.Matrix.avoiding.as.matrix)
-\alias{qr,denseMatrix-method}% only if(.Matrix.avoiding.as.matrix)
+%
 \description{
   The \pkg{Matrix} package provides methods for the QR decomposition
   of special classes of matrices.  There is a generic function which uses
@@ -72,8 +74,7 @@ qxrLA <- qr(m(Xr), LAPACK=TRUE) # => qr.fitted(), qr.resid() not supported
 qcfXy <- qr.coef (qXr, y) # vector
 qcfXY <- qr.coef (qXr, Y) # 4x1 dgeMatrix
 cf <- c(int=6, b1=-3, c1=-2, c2=-1)
-doExtras <- interactive() || nzchar(Sys.getenv("R_MATRIX_CHECK_EXTRA")) ||
-    identical("true", unname(Sys.getenv("R_PKG_CHECKING_doExtras")))
+doExtras <- interactive() || nzchar(Sys.getenv("R_MATRIX_CHECK_EXTRA"))
 tolE <- if(doExtras) 1e-15 else 1e-13
 stopifnot(exprs = {
   all.equal(qr.coef(qxr,  y),   cf,  tol=tolE)

@@ -1,106 +1,78 @@
-%%----- Docu for *all* sparse vector classes ----------
 \name{sparseVector-class}
-\docType{class}
 \title{Sparse Vector Classes}
+\docType{class}
+%
 \alias{sparseVector-class}
-% sub classes
 \alias{dsparseVector-class}
 \alias{isparseVector-class}
 \alias{lsparseVector-class}
 \alias{nsparseVector-class}
 \alias{zsparseVector-class}
-\alias{xsparseVector-class}% the class union
-%% Group methods
-\alias{Arith,sparseVector,sparseVector-method}
-\alias{Arith,dsparseVector,dsparseVector-method}
-\alias{-,dsparseVector,missing-method}
+\alias{xsparseVector-class} % union of [dilz]
+\alias{c.sparseVector} % exported (!) S3 method
+% sparse
 \alias{!,sparseVector-method}
-\alias{Logic,sparseVector,sparseVector-method}
-\alias{Logic,lsparseVector,lsparseVector-method}
-\alias{Logic,nsparseVector,nsparseVector-method}
-\alias{Ops,ANY,sparseVector-method}
-\alias{Ops,sparseVector,ANY-method}
-\alias{Ops,sparseVector,sparseVector-method}
-\alias{Ops,sparseVector,atomicVector-method}
-\alias{Ops,atomicVector,sparseVector-method}
-\alias{Ops,Matrix,sparseVector-method}
-\alias{Ops,sparseVector,Matrix-method}
-\alias{Arith,ddenseMatrix,sparseVector-method}
-\alias{Arith,dgeMatrix,sparseVector-method}
 \alias{Arith,sparseVector,ddenseMatrix-method}
 \alias{Arith,sparseVector,dgeMatrix-method}
-\alias{Logic,dMatrix,sparseVector-method}
-\alias{Logic,lMatrix,sparseVector-method}
-\alias{Logic,nMatrix,sparseVector-method}
+\alias{Arith,sparseVector,sparseVector-method}
 \alias{Logic,sparseVector,dMatrix-method}
 \alias{Logic,sparseVector,lMatrix-method}
 \alias{Logic,sparseVector,nMatrix-method}
+\alias{Logic,sparseVector,sparseVector-method}
 \alias{Math,sparseVector-method}
-\alias{log,sparseVector-method}
-\alias{Math2,dsparseVector-method}% or (dsparseVector, numeric) & (dsparseVector,missing) ?
 \alias{Math2,sparseVector-method}
+\alias{Ops,ANY,sparseVector-method}
+\alias{Ops,sparseVector,ANY-method}
+\alias{Ops,sparseVector,Matrix-method}
+\alias{Ops,sparseVector,atomicVector-method}
+\alias{Ops,sparseVector,sparseVector-method}
 \alias{Summary,sparseVector-method}
-\alias{Summary,nsparseVector-method}
-%% non-group :
-%\alias{solve,..} --> solve-methods.Rd
-%\alias{\%*\%,..} --> matrix-products.Rd
-\alias{coerce,ANY,sparseVector-method}
-\alias{coerce,ANY,nsparseVector-method}
-\alias{coerce,CsparseMatrix,sparseVector-method}
-\alias{coerce,TsparseMatrix,sparseVector-method}
-\alias{coerce,sparseMatrix,sparseVector-method}
-\alias{coerce,diagonalMatrix,sparseVector-method}
-\alias{coerce,atomicVector,sparseVector-method}
-\alias{coerce,atomicVector,dsparseVector-method}
-\alias{coerce,sparseVector,integer-method}
-\alias{coerce,sparseVector,logical-method}
-\alias{coerce,sparseVector,numeric-method}
-\alias{coerce,sparseVector,vector-method}
-\alias{coerce,sparseVector,Matrix-method}
-\alias{coerce,sparseVector,sparseMatrix-method}
-\alias{coerce,sparseVector,CsparseMatrix-method}
-\alias{coerce,sparseVector,TsparseMatrix-method}
-\alias{coerce,nsparseVector,lsparseVector-method}
-\alias{coerce,nsparseVector,dsparseVector-method}
-\alias{coerce,nsparseVector,isparseVector-method}
-\alias{coerce,nsparseVector,zsparseVector-method}
-\alias{coerce,xsparseVector,dsparseVector-method}
-\alias{coerce,xsparseVector,isparseVector-method}
-\alias{coerce,xsparseVector,lsparseVector-method}
-\alias{coerce,xsparseVector,zsparseVector-method}
-\alias{coerce,xsparseVector,nsparseVector-method}
-%
 \alias{as.logical,sparseVector-method}
 \alias{as.numeric,sparseVector-method}
 \alias{as.vector,sparseVector-method}
-\alias{c.sparseVector}% S3 *and* exported functions
+\alias{coerce,ANY,sparseVector-method}
+\alias{coerce,sparseVector,CsparseMatrix-method}
+\alias{coerce,sparseVector,Matrix-method}
+\alias{coerce,sparseVector,RsparseMatrix-method}
+\alias{coerce,sparseVector,TsparseMatrix-method}
+\alias{coerce,sparseVector,dsparseVector-method}
+\alias{coerce,sparseVector,integer-method}
+\alias{coerce,sparseVector,isparseVector-method}
+\alias{coerce,sparseVector,logical-method}
+\alias{coerce,sparseVector,lsparseVector-method}
+\alias{coerce,sparseVector,nsparseVector-method}
+\alias{coerce,sparseVector,numeric-method}
+\alias{coerce,sparseVector,sparseMatrix-method}
+\alias{coerce,sparseVector,vector-method}
+\alias{coerce,sparseVector,zsparseVector-method}
 \alias{dim<-,sparseVector-method}
-\alias{is.na,nsparseVector-method}
-\alias{is.na,sparseVector-method}
-\alias{is.finite,nsparseVector-method}
-\alias{is.finite,sparseVector-method}
-\alias{is.infinite,nsparseVector-method}
-\alias{is.infinite,sparseVector-method}
+\alias{head,sparseVector-method}
+\alias{initialize,sparseVector-method}
 \alias{length,sparseVector-method}
+\alias{log,sparseVector-method}
 \alias{mean,sparseVector-method}
 \alias{rep,sparseVector-method}
 \alias{show,sparseVector-method}
 \alias{t,sparseVector-method}
-\alias{toeplitz,sparseVector-method}
-%
-\alias{head,sparseVector-method}
 \alias{tail,sparseVector-method}
-\alias{which,nsparseVector-method}
+\alias{toeplitz,sparseVector-method}
+% dsparse
+\alias{-,dsparseVector,missing-method}
+\alias{Arith,dsparseVector,dsparseVector-method}
+\alias{Math2,dsparseVector-method}
+% isparse
+% lsparse
+\alias{Logic,lsparseVector,lsparseVector-method}
 \alias{which,lsparseVector-method}
-\alias{[,sparseVector,index,ANY,ANY-method}
-\alias{[,sparseVector,lsparseVector,ANY,ANY-method}
-\alias{[,sparseVector,nsparseVector,ANY,ANY-method}
-\alias{[<-,sparseVector,index,missing,replValueSp-method}
-\alias{[<-,sparseVector,sparseVector,missing,replValueSp-method}
-% also indexing in "traditional" vectors:
-%R_FIXME \alias{[<-,atomicVector,sparseVector,missing,replValue-method}
-%R_FIXME  \alias{[,atomicVector,lsparseVector,ANY,ANY-method}
-%R_FIXME  \alias{[,atomicVector,nsparseVector,ANY,ANY-method}
+% nsparse
+\alias{Summary,nsparseVector-method}
+\alias{coerce,ANY,nsparseVector-method}
+\alias{coerce,nsparseVector,dsparseVector-method}
+\alias{coerce,nsparseVector,isparseVector-method}
+\alias{coerce,nsparseVector,lsparseVector-method}
+\alias{coerce,nsparseVector,zsparseVector-method}
+\alias{which,nsparseVector-method}
+% zsparse
 %
 \description{Sparse Vector Classes: The virtual mother class
   \code{"sparseVector"} has the five actual daughter classes

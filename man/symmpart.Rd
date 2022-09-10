@@ -1,24 +1,28 @@
 \name{symmpart}
 \title{Symmetric Part and Skew(symmetric) Part of a Matrix}
-%% Hmm, want the generic and methods all in this file ...
-%% \docType{methods}
-\alias{symmpart}
-\alias{skewpart}
 %
+\alias{symmpart}
 \alias{symmpart-methods}
+\alias{skewpart}
 \alias{skewpart-methods}
+%
+\alias{symmpart,CsparseMatrix-method}
 \alias{symmpart,Matrix-method}
-\alias{skewpart,Matrix-method}
+\alias{symmpart,RsparseMatrix-method}
+\alias{symmpart,TsparseMatrix-method}
 \alias{symmpart,diagonalMatrix-method}
-\alias{skewpart,diagonalMatrix-method}
-\alias{symmpart,ddenseMatrix-method}
-\alias{skewpart,ddenseMatrix-method}
-\alias{symmpart,denseMatrix-method}
-\alias{skewpart,denseMatrix-method}
-\alias{symmpart,symmetricMatrix-method}
-\alias{skewpart,symmetricMatrix-method}
+\alias{symmpart,packedMatrix-method}
 \alias{symmpart,matrix-method}
+\alias{symmpart,unpackedMatrix-method}
+%
+\alias{skewpart,CsparseMatrix-method}
+\alias{skewpart,Matrix-method}
+\alias{skewpart,RsparseMatrix-method}
+\alias{skewpart,TsparseMatrix-method}
+\alias{skewpart,diagonalMatrix-method}
+\alias{skewpart,packedMatrix-method}
 \alias{skewpart,matrix-method}
+\alias{skewpart,unpackedMatrix-method}
 %
 \description{
   \code{symmpart(x)} computes the symmetric part \code{(x + t(x))/2} and

@@ -1,7 +1,9 @@
 \name{condest}
+\title{Compute Approximate CONDition number and 1-Norm of (Large) Matrices}
+%
 \alias{condest}
 \alias{onenormest}
-\title{Compute Approximate CONDition number and 1-Norm of (Large) Matrices}
+%
 \description{
   \dQuote{Estimate}, i.e. compute approximately the CONDition number of
   a (potentially large, often sparse) matrix \code{A}.

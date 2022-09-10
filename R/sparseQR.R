@@ -1,4 +1,6 @@
-#### Methods for the sparse QR decomposition
+## METHODS FOR CLASS: sparseQR
+## our "compact" representation of QR factorizations of sparse matrices
+## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ## TODO: qr.R() generic that allows optional args ['backPermute']
 ## --- so we can add it to our qr.R() method,  *instead* of this :
@@ -46,109 +48,90 @@ setMethod("qr.Q", "sparseQR",
 ## To change, would make these *implicit* generics in 'methods' - as qr.R
 ## Also,  qr() itself has  keep.names = TRUE/FALSE -- should be enough
 setMethod("qr.qy", signature(qr = "sparseQR", y = "ddenseMatrix"),
-          function(qr, y) .Call(sparseQR_qty, qr, y, FALSE, TRUE),
-          valueClass = "dgeMatrix")
+          function(qr, y) .Call(sparseQR_qty, qr, y, FALSE, TRUE))
 
 setMethod("qr.qy", signature(qr = "sparseQR", y = "matrix"),
-          function(qr, y) .Call(sparseQR_qty, qr, y, FALSE, TRUE),
-          valueClass = "dgeMatrix")
+          function(qr, y) .Call(sparseQR_qty, qr, y, FALSE, TRUE))
 
 setMethod("qr.qy", signature(qr = "sparseQR", y = "numeric"),
 	  ## drop to vector {to be 100% standard-R-matrix compatible} :
 	  function(qr, y) .Call(sparseQR_qty, qr, y, FALSE, TRUE)@x)
 
 setMethod("qr.qy", signature(qr = "sparseQR", y = "Matrix"),
-	  function(qr, y) .Call(sparseQR_qty, qr,
-				as(as(y, "denseMatrix"),"dgeMatrix"), FALSE, TRUE),
-	  valueClass = "dgeMatrix")
+	  function(qr, y)
+              .Call(sparseQR_qty,
+                    qr, .dense2g(as(y, "denseMatrix"), "d"), FALSE, TRUE))
 
 setMethod("qr.qty", signature(qr = "sparseQR", y = "ddenseMatrix"),
-          function(qr, y) .Call(sparseQR_qty, qr, y, TRUE, TRUE),
-          valueClass = "dgeMatrix")
+          function(qr, y) .Call(sparseQR_qty, qr, y, TRUE, TRUE))
 
 setMethod("qr.qty", signature(qr = "sparseQR", y = "matrix"),
-          function(qr, y) .Call(sparseQR_qty, qr, y, TRUE, TRUE),
-          valueClass = "dgeMatrix")
+          function(qr, y) .Call(sparseQR_qty, qr, y, TRUE, TRUE))
 
 setMethod("qr.qty", signature(qr = "sparseQR", y = "numeric"),
 	  function(qr, y) .Call(sparseQR_qty, qr, y, TRUE, TRUE)@x)
 
 setMethod("qr.qty", signature(qr = "sparseQR", y = "Matrix"),
-	  function(qr, y) .Call(sparseQR_qty, qr,
-				as(as(y, "denseMatrix"),"dgeMatrix"), TRUE, TRUE),
-	  valueClass = "dgeMatrix")
+	  function(qr, y)
+              .Call(sparseQR_qty,
+                    qr, .dense2g(as(y, "denseMatrix"), "d"), TRUE, TRUE))
 
 ## FIXME: really should happen in C, i.e sparseQR_coef() in ../src/sparseQR.c :
-.coef.trunc <- function(qr, res, drop=FALSE) {
-    if(!all((d <- lengths(res@Dimnames)) == 0L) && !identical(d, D <- res@Dim)) {
+.coef.trunc <- function(qr, res, drop = FALSE) {
+    if(!all((d <- lengths(res@Dimnames)) == 0L) &&
+       !identical(d, D <- res@Dim)) {
 	## Fix dimnames from dim (when not NULL !) :
-	if(d[[1]]) length(res@Dimnames[[1]]) <- D[[1]]
-	if(d[[2]]) length(res@Dimnames[[2]]) <- D[[2]]
+	if(d[[1L]]) length(res@Dimnames[[1L]]) <- D[[1L]]
+	if(d[[2L]]) length(res@Dimnames[[2L]]) <- D[[2L]]
     }
-    res[seq_len(ncol(qr@R)),,drop=drop]
+    res[seq_len(ncol(qr@R)), , drop = drop]
 }
 
 setMethod("qr.coef", signature(qr = "sparseQR", y = "ddenseMatrix"),
           function(qr, y)
-          .coef.trunc(qr, .Call(sparseQR_coef, qr, y)),
-          valueClass = "dgeMatrix")
+              .coef.trunc(qr, .Call(sparseQR_coef, qr, y), drop = FALSE))
 
 setMethod("qr.coef", signature(qr = "sparseQR", y = "matrix"),
           function(qr, y)
-          .coef.trunc(qr, .Call(sparseQR_coef, qr, y)),
-          valueClass = "dgeMatrix")
+              .coef.trunc(qr, .Call(sparseQR_coef, qr, y), drop = FALSE))
 
 setMethod("qr.coef", signature(qr = "sparseQR", y = "numeric"),
           function(qr, y)
-	  .coef.trunc(qr, .Call(sparseQR_coef, qr, y), drop=TRUE))
+              .coef.trunc(qr, .Call(sparseQR_coef, qr, y), drop = TRUE))
 
 setMethod("qr.coef", signature(qr = "sparseQR", y = "Matrix"),
 	  function(qr, y)
-	  .coef.trunc(qr, .Call(sparseQR_coef, qr,
-				as(as(y, "denseMatrix"),"dgeMatrix"))),
-	  valueClass = "dgeMatrix")
+              .coef.trunc(qr,
+                          .Call(sparseQR_coef,
+                                qr, .dense2g(as(y, "denseMatrix"), "d")),
+                          drop = FALSE))
 
 ##  qr.resid()  &  qr.fitted() : ---------------------------
 
 setMethod("qr.resid", signature(qr = "sparseQR", y = "ddenseMatrix"),
-          function(qr, y)
-          .Call(sparseQR_resid_fitted, qr, y, TRUE),
-          valueClass = "dgeMatrix")
+          function(qr, y) .Call(sparseQR_resid_fitted, qr, y, TRUE))
 
 setMethod("qr.resid", signature(qr = "sparseQR", y = "matrix"),
-          function(qr, y)
-          .Call(sparseQR_resid_fitted, qr, y, TRUE),
-          valueClass = "dgeMatrix")
+          function(qr, y) .Call(sparseQR_resid_fitted, qr, y, TRUE))
 
 setMethod("qr.resid", signature(qr = "sparseQR", y = "numeric"),
 	  function(qr, y) drop(.Call(sparseQR_resid_fitted, qr, y, TRUE)))
 
 setMethod("qr.resid", signature(qr = "sparseQR", y = "Matrix"),
 	  function(qr, y)
-	  .Call(sparseQR_resid_fitted, qr,
-		as(as(y, "denseMatrix"),"dgeMatrix"), TRUE),
-	  valueClass = "dgeMatrix")
+              .Call(sparseQR_resid_fitted,
+                    qr, .dense2g(as(y, "denseMatrix"), "d"), TRUE))
 
 setMethod("qr.fitted", signature(qr = "sparseQR", y = "ddenseMatrix"),
-          function(qr, y, k)
-          .Call(sparseQR_resid_fitted, qr, y, FALSE),
-          valueClass = "dgeMatrix")
+          function(qr, y, k) .Call(sparseQR_resid_fitted, qr, y, FALSE))
 
 setMethod("qr.fitted", signature(qr = "sparseQR", y = "matrix"),
-          function(qr, y, k)
-          .Call(sparseQR_resid_fitted, qr, y, FALSE),
-          valueClass = "dgeMatrix")
+          function(qr, y, k) .Call(sparseQR_resid_fitted, qr, y, FALSE))
 
 setMethod("qr.fitted", signature(qr = "sparseQR", y = "numeric"),
 	  function(qr, y, k) drop(.Call(sparseQR_resid_fitted, qr, y, FALSE)))
 
 setMethod("qr.fitted", signature(qr = "sparseQR", y = "Matrix"),
 	  function(qr, y, k)
-	  .Call(sparseQR_resid_fitted, qr,
-		as(as(y, "denseMatrix"),"dgeMatrix"), FALSE),
-	  valueClass = "dgeMatrix")
-
-
-##
-setMethod("solve", signature(a = "sparseQR", b = "ANY"),
-	  function(a, b, ...) qr.coef(a, b))
+	      .Call(sparseQR_resid_fitted,
+                    qr, .dense2g(as(y, "denseMatrix"), "d"), FALSE))

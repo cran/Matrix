@@ -1,90 +1,94 @@
 \name{isTriangular}
-\title{isTriangular() and isDiagonal() Checking if Matrix is Triangular or Diagonal}
-%\docType{methods} both generic *and* methods
-\alias{isDiagonal}
-\alias{isDiagonal-methods}
-\alias{isDiagonal,symmetricMatrix-method}
-\alias{isDiagonal,triangularMatrix-method}
-\alias{isDiagonal,denseMatrix-method}
-\alias{isDiagonal,diagonalMatrix-method}
-\alias{isDiagonal,sparseMatrix-method}
-\alias{isDiagonal,CsparseMatrix-method}
-\alias{isDiagonal,TsparseMatrix-method}
-\alias{isDiagonal,matrix-method}
+\title{Test whether a Matrix is Triangular or Diagonal}
 %
 \alias{isTriangular}
 \alias{isTriangular-methods}
-\alias{isTriangular,triangularMatrix-method}
-\alias{isTriangular,denseMatrix-method}
+\alias{isDiagonal}
+\alias{isDiagonal-methods}
+%
 \alias{isTriangular,diagonalMatrix-method}
-\alias{isTriangular,BunchKaufman-method}
-\alias{isTriangular,Cholesky-method}
-\alias{isTriangular,CsparseMatrix-method}
-\alias{isTriangular,TsparseMatrix-method}
-\alias{isTriangular,dtCMatrix-method}
-\alias{isTriangular,dtRMatrix-method}
-\alias{isTriangular,dtTMatrix-method}
-\alias{isTriangular,dtpMatrix-method}
-\alias{isTriangular,dtrMatrix-method}
-\alias{isTriangular,ltCMatrix-method}
-\alias{isTriangular,ltRMatrix-method}
-\alias{isTriangular,ltTMatrix-method}
-\alias{isTriangular,ltpMatrix-method}
-\alias{isTriangular,ltrMatrix-method}
-\alias{isTriangular,ntCMatrix-method}
-\alias{isTriangular,ntRMatrix-method}
-\alias{isTriangular,ntTMatrix-method}
-\alias{isTriangular,ntpMatrix-method}
-\alias{isTriangular,ntrMatrix-method}
-\alias{isTriangular,pBunchKaufman-method}
-\alias{isTriangular,pCholesky-method}
+\alias{isTriangular,indMatrix-method}
 \alias{isTriangular,matrix-method}
+\alias{isTriangular,symmetricMatrix-method}
+\alias{isTriangular,triangularMatrix-method}
+%
+\alias{isDiagonal,CsparseMatrix-method}
+\alias{isDiagonal,RsparseMatrix-method}
+\alias{isDiagonal,TsparseMatrix-method}
+\alias{isDiagonal,diagonalMatrix-method}
+\alias{isDiagonal,indMatrix-method}
+\alias{isDiagonal,matrix-method}
+\alias{isDiagonal,packedMatrix-method}
+\alias{isDiagonal,unpackedMatrix-method}
+% disambiguation:
+\alias{isTriangular,dgCMatrix-method}
+\alias{isTriangular,dgRMatrix-method}
+\alias{isTriangular,dgTMatrix-method}
+\alias{isTriangular,dgeMatrix-method}
+\alias{isTriangular,lgCMatrix-method}
+\alias{isTriangular,lgRMatrix-method}
+\alias{isTriangular,lgTMatrix-method}
+\alias{isTriangular,lgeMatrix-method}
+\alias{isTriangular,ngCMatrix-method}
+\alias{isTriangular,ngRMatrix-method}
+\alias{isTriangular,ngTMatrix-method}
+\alias{isTriangular,ngeMatrix-method}
 %
 \description{
-  \code{isTriangular(M)} returns a \code{\link{logical}} indicating
-  if \code{M} is a triangular matrix.  Analogously,
-  \code{isDiagonal(M)} is true iff \code{M} is a diagonal matrix.
+  \code{isTriangular} and \code{isDiagonal} test whether their argument
+  is a triangular or diagonal matrix, respectively.  Unlike the analogous
+  \code{\link{isSymmetric}}, these two functions are generically
+  from \pkg{Matrix} rather than \code{base}.  Hence \pkg{Matrix}
+  defines methods for traditional matrices of implicit \link{class}
+  \code{"\link{matrix}"} in addition to matrices inheriting from
+  virtual class \code{"\linkS4class{Matrix}"}.
 
-  Contrary to \code{\link{isSymmetric}()}, these two functions are
-  generically from package \pkg{Matrix}, and hence also define methods
-  for traditional (\code{\link{class}} \code{"matrix"}) matrices.
-
-  By our definition, triangular, diagonal and symmetric matrices are all
-  \emph{square}, i.e. have the same number of rows and columns.
+  By our definition, triangular and diagonal matrices are \emph{square},
+  i.e., they have the same number of rows and columns.
 }
 \usage{
-isDiagonal(object)
-
 isTriangular(object, upper = NA, \dots)
+
+isDiagonal(object)
 }
 \arguments{
-  \item{object}{any \R object, typically a matrix (traditional or Matrix
-    package).}
-  \item{upper}{logical, one of \code{NA} (default), \code{FALSE}, or
-    \code{TRUE} where the last two cases require a lower or upper
-    triangular \code{object} to result in \code{TRUE}.}
-  \item{\dots}{potentially further arguments for other methods.}
+  \item{object}{an \R object, typically a matrix.}
+  \item{upper}{a \link{logical}, either \code{TRUE} or \code{FALSE},
+    in which case \code{TRUE} is returned only for upper or lower
+    triangular \code{object}; or otherwise \code{\link{NA}} (the
+    default), in which case \code{TRUE} is returned for any triangular
+    \code{object}.}
+  \item{\dots}{further arguments passed to methods
+    (currently unused by \pkg{Matrix}).}
 }
 \value{
-  a (\dQuote{scalar}) logical, \code{TRUE} or \code{FALSE}, never
-  \code{\link{NA}}.  For \code{isTriangular()}, if the result is
-  \code{TRUE}, it may contain an attribute (see \code{\link{attributes}}
-  \code{"kind"}, either   \code{"L"} or \code{"U"} indicating if it is a
-  \bold{l}ower or \bold{u}pper triangular matrix.
+  A \link{logical}, either \code{TRUE} or \code{FALSE}
+  (never \code{\link{NA}}).
+
+  If \code{object} is triangular and \code{upper} is \code{NA}, then
+  \code{isTriangular} returns \code{TRUE} with an \link[=attr]{attribute} 
+  \code{kind}, either \code{"U"} or \code{"L"}, indicating that
+  \code{object} is \bold{u}pper or \bold{l}ower triangular, respectively.  
+  Users should not rely on how \code{kind} is determined for diagonal
+  matrices, which are both upper and lower triangular.
 }
 \seealso{
-  \code{\link{isSymmetric}}; formal class (and subclasses)
-  \code{"\linkS4class{triangularMatrix}"} and
-  \code{"\linkS4class{diagonalMatrix}"}.
+  \code{\link{isSymmetric}};
+  virtual classes \code{"\linkS4class{triangularMatrix}"} and
+  \code{"\linkS4class{diagonalMatrix}"} and their subclasses.
 }
 \examples{
 isTriangular(Diagonal(4))
 ## is TRUE: a diagonal matrix is also (both upper and lower) triangular
 (M <- Matrix(c(1,2,0,1), 2,2))
 isTriangular(M) # TRUE (*and* of formal class "dtrMatrix")
-isTriangular(as(M, "dgeMatrix")) # still triangular, even if not "formally"
+isTriangular(as(M, "generalMatrix")) # still triangular, even if not "formally"
 isTriangular(crossprod(M)) # FALSE
 
 isDiagonal(matrix(c(2,0,0,1), 2,2)) # TRUE
+
+## Look at implementations:
+showMethods("isTriangular", includeDefs = TRUE)
+showMethods("isDiagonal", includeDefs = TRUE)
 }
 \keyword{methods}

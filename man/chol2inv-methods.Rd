@@ -1,13 +1,17 @@
 \name{chol2inv-methods}
+\title{Inverse from Choleski or QR Decomposition -- Matrix Methods}
 \docType{methods}
-% \alias{chol2inv}% needed, if we want \usage{}
+%
+%\alias{chol2inv} % needed if we want \usage{}
 \alias{chol2inv-methods}
+%
 \alias{chol2inv,ANY-method}
-\alias{chol2inv,dtrMatrix-method}
 \alias{chol2inv,CHMfactor-method}
 \alias{chol2inv,denseMatrix-method}
+\alias{chol2inv,diagonalMatrix-method}
+\alias{chol2inv,dtrMatrix-method}
 \alias{chol2inv,sparseMatrix-method}
-\title{Inverse from Choleski or QR Decomposition -- Matrix Methods}
+%
 \description{
   Invert a symmetric, positive definite square matrix from its Choleski
   decomposition.  Equivalently, compute \eqn{(X'X)^{-1}}{(X'X)^(-1)}

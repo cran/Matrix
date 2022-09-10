@@ -1,28 +1,32 @@
 \name{dgTMatrix-class}
 \title{Sparse matrices in triplet form}
 \docType{class}
+%
 \alias{dgTMatrix-class}
+%
 \alias{+,dgTMatrix,dgTMatrix-method}
 \alias{coerce,dgTMatrix,dgCMatrix-method}
+\alias{coerce,dgTMatrix,dgRMatrix-method}
 \alias{coerce,dgTMatrix,dgeMatrix-method}
-\alias{coerce,dgTMatrix,matrix-method}
-\alias{coerce,dgTMatrix,dtCMatrix-method}
+\alias{coerce,dgTMatrix,dsCMatrix-method}
 \alias{coerce,dgTMatrix,dsTMatrix-method}
+\alias{coerce,dgTMatrix,dtCMatrix-method}
 \alias{coerce,dgTMatrix,dtTMatrix-method}
-\alias{coerce,dgTMatrix,symmetricMatrix-method}
-\alias{coerce,dgTMatrix,triangularMatrix-method}
-\alias{coerce,dgeMatrix,dgTMatrix-method}
+\alias{coerce,dgTMatrix,lgTMatrix-method}
+\alias{coerce,dgTMatrix,ngTMatrix-method}
 \alias{coerce,matrix,dgTMatrix-method}
+\alias{coerce,numLike,dgTMatrix-method}
+\alias{determinant,dgTMatrix,logical-method}
+%
 \description{The \code{"dgTMatrix"} class is the class of sparse
   matrices stored as (possibly redundant) triplets.  The internal
   representation is not at all unique, contrary to the one for class
   \code{\linkS4class{dgCMatrix}}.
 }
 \section{Objects from the Class}{
-  Objects can be created by calls of the form \code{new("dgTMatrix",
-    ...)}, but more typically via \code{as(*, "dgTMatrix")},
-  \code{\link{spMatrix}()}, or
-  \code{\link{sparseMatrix}(*, repr = "T")}.
+  Objects can be created by calls of the form
+  \code{new("dgTMatrix", ...)}, but more typically via
+  \code{\link{spMatrix}()} or \code{\link{sparseMatrix}(*, repr = "T")}.
 }
 \section{Slots}{
   \describe{
@@ -85,7 +89,7 @@
 \examples{
 m <- Matrix(0+1:28, nrow = 4)
 m[-3,c(2,4:5,7)] <- m[ 3, 1:4] <- m[1:3, 6] <- 0
-(mT <- as(m, "dgTMatrix"))
+(mT <- as(m, "TsparseMatrix"))
 str(mT)
 mT[1,]
 mT[4, drop = FALSE]

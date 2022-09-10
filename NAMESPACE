@@ -26,7 +26,7 @@ importFrom("methods"
          , as, is, extends, new
          , callGeneric, callNextMethod
          , .selectSuperClasses, .slotNames, canCoerce, packageSlot
-         , getClass, getClassDef, validObject
+         , getClass, getClassDef, isClassDef, validObject
          , setClass, setClassUnion, setMethod, setOldClass
          , setValidity, slot, "slot<-", slotNames, .hasSlot
          , signature, representation, prototype)
@@ -152,7 +152,9 @@ exportClasses(
 	      "RsparseMatrix",
 	      "ddenseMatrix",
 	      "ldenseMatrix",
-	      "ndenseMatrix",
+              "ndenseMatrix",
+              "unpackedMatrix",
+              "packedMatrix",
 
 	      "dgCMatrix",
 	      "dgRMatrix",

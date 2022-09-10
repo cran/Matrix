@@ -54,7 +54,7 @@ setMethod("Summary", "dsparseMatrix",
 	  clx <- getClassDef(class(x))
 	  isTri <- extends(clx, "triangularMatrix")
 	  if(extends(clx, "TsparseMatrix") && anyDuplicatedT(x, di = d))
-	      x <- .Call(Tsparse_to_Csparse, x, isTri)# = as(x, "Csparsematrix")
+	      x <- .T2C(x) # = as(x, "Csparsematrix")
 	  l.x <- length(x@x)
 	  if(l.x == ne) ## fully non-zero (and "general") - very rare but quick
 	      return( callGeneric(x@x, ..., na.rm = na.rm) )
@@ -80,7 +80,7 @@ setMethod("Summary", "dsparseMatrix",
 		  if(anyNA(x@x)) NaN else 0
 	      }
 	      else
-		  callGeneric((if(isSym) as(x, "generalMatrix") else x)@x,
+		  callGeneric((if(isSym) .sparse2g(x) else x)@x,
 			      if(!full.x) 0, # one 0 <==> many 0's
 			      if(isU.tri) rep.int(1, n),
 			      ..., na.rm = na.rm)
@@ -117,21 +117,20 @@ Summ.ln.dense <- function(x, ..., na.rm) {
 					diag= TRUE)],
 			..., na.rm = na.rm)
 	} else ## sum() -- FIXME-faster: use x@x[indTri(...)] similar to above
-	    callGeneric(as(x, paste0(if(any("ldenseMatrix" == ext)) "l" else "n", "geMatrix"))@x,
-			..., na.rm = na.rm)
+	    callGeneric(.dense2g(x)@x, ..., na.rm = na.rm)
     }
     else { ## triangular , possibly packed
 	if(.Generic != "sum") ## incl. prod() !
 	    callGeneric(x@x, if(d[1] >= 2) FALSE, if(x@diag == "U") TRUE, ..., na.rm = na.rm)
 	else ## sum() -- FIXME-faster: using indTri()..; in unit-diag. case: plus  n x TRUE = d[1]
 	    ## if packed: sum(x@x, if(x@diag == "U") d[1], ..., na.rm = na.rm)
-	    callGeneric(as(x, paste0(if(any("ldenseMatrix" == ext)) "l" else "n", "geMatrix"))@x,
-			..., na.rm = na.rm)
+	    callGeneric(.dense2g(x)@x, ..., na.rm = na.rm)
     }
 }
 
 setMethod("Summary", "ldenseMatrix", Summ.ln.dense)
 setMethod("Summary", "ndenseMatrix", Summ.ln.dense)
+rm(Summ.ln.dense)
 
 
 ###---------- lMatrix
@@ -155,7 +154,7 @@ setMethod("all", "lsparseMatrix",
 	      else if(is(x, "symmetricMatrix") && l.x == choose(d[1]+1, 2)) {
 		  if(.Generic %in% summGener1)
 		      all(x@x, ..., na.rm = na.rm)
-		  else all(as(x, "generalMatrix")@x, ..., na.rm = na.rm)
+		  else all(.sparse2g(x)@x, ..., na.rm = na.rm)
 	      }
 	      else FALSE ## has at least one structural 0
 	  })
@@ -217,7 +216,7 @@ setMethod("Summary", "ANY",
 	  function(x, ..., na.rm) {
           if(!length(a <- list(...))) (get(.Generic, envir=baseenv()))(x, na.rm=na.rm)
           else {
-              if(!is.null(v <- getOption("Matrix.verbose")) && v >= 1)
+              if(Matrix.verbose() >= 1)
                   if(length(a) > 1)
                       message(gettextf("in Summary(<ANY>, .): %s(<%s>, <%s>,...)\n",
                                        .Generic, class(x), class(a[[1]])), domain = NA)
@@ -250,6 +249,7 @@ Summary.np <- function(x, ..., na.rm) {
 setMethod("Summary", "lMatrix", Summary.l)
 setMethod("Summary", "nMatrix", Summary.np)
 setMethod("Summary", "indMatrix", Summary.np)
+rm(Summary.l, Summary.np)
 
 ###---------- nsparseMatrix
 
@@ -262,7 +262,7 @@ setMethod("all", "nsparseMatrix",
 		  return(FALSE)
 	      ## else
 	      if(extends(cld, "TsparseMatrix"))
-		  cld <- getClassDef(class(x <- as(x, "CsparseMatrix")))
+		  cld <- getClassDef(class(x <- .T2C(x)))
 	      ## now have Csparse or Rsparse: length of index slot = no.{TRUE}
 	      l.x <- length(if(extends(cld, "CsparseMatrix")) x@i else x@j)
 

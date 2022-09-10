@@ -1,43 +1,45 @@
 \name{chol}
-\title{Choleski Decomposition - 'Matrix' S4 Generic and Methods}
+\title{The Cholesky Decomposition - 'Matrix' S4 Generic and Methods}
+%
 \alias{chol}
 \alias{chol-methods}
-\alias{chol,Matrix-method}
-% dense methods
-\alias{chol,ddenseMatrix-method}
+%
+\alias{chol,diagonalMatrix-method}
+\alias{chol,dgCMatrix-method}
+\alias{chol,dgRMatrix-method}
+\alias{chol,dgTMatrix-method}
 \alias{chol,dgeMatrix-method}
-\alias{chol,dpoMatrix-method}
-\alias{chol,dppMatrix-method}
-%   diagonal
-\alias{chol,ddiMatrix-method}
-\alias{chol,ldiMatrix-method}
-% sparse methods
-\alias{chol,dsparseMatrix-method}
 \alias{chol,dsCMatrix-method}
-\alias{chol,lsCMatrix-method}
-\alias{chol,nsCMatrix-method}
-\alias{chol,dtCMatrix-method}
-\alias{chol,dtRMatrix-method}
-\alias{chol,dtTMatrix-method}
+\alias{chol,dsRMatrix-method}
+\alias{chol,dsTMatrix-method}
+\alias{chol,dspMatrix-method}
+\alias{chol,dsyMatrix-method}
+\alias{chol,generalMatrix-method}
+\alias{chol,symmetricMatrix-method}
+\alias{chol,triangularMatrix-method}
 %
 \description{
-  Compute the Choleski factorization of a real symmetric
-  positive-definite square matrix.
+  Compute the Cholesky factorization of a real symmetric
+  positive definite square matrix.
 }
 \usage{
 chol(x, \dots)
+\S4method{chol}{dsyMatrix}(x, \dots)
+\S4method{chol}{dspMatrix}(x, \dots)
 \S4method{chol}{dsCMatrix}(x, pivot = FALSE, \dots)
-\S4method{chol}{dsparseMatrix}(x, pivot = FALSE, cache = TRUE, \dots)
+\S4method{chol}{dsRMatrix}(x, pivot = FALSE, cache = TRUE, \dots)
+\S4method{chol}{dsTMatrix}(x, pivot = FALSE, cache = TRUE, \dots)
 }
 \arguments{
   \item{x}{a (sparse or dense) square matrix, here inheriting from class
-    \code{\linkS4class{Matrix}}; if \code{x} is not positive definite,
-    an error is signalled.}
+    \code{\linkS4class{Matrix}}; if \code{x} is not symmetric positive
+    definite, then an error is signalled.}
   \item{pivot}{logical indicating if pivoting is to be used.  Currently,
     this is \emph{not} made use of for dense matrices.}
-  \item{cache}{logical indicating if the result should be cached in
-    \code{x@factors}; note that this argument is experimental and only
-    available for some sparse matrices.}
+  \item{cache}{logical indicating if the result should be cached
+    in \code{x@factors}; note that this argument is experimental
+    and only available for certain classes inheriting from
+    \code{\linkS4class{compMatrix}}.}
   \item{\dots}{potentially further arguments passed to methods.}
 }
 \details{
@@ -58,22 +60,31 @@ chol(x, \dots)
   Use \code{\link{showMethods}(chol)} to see all; some are worth
   mentioning here:
   \describe{
-    \item{chol}{\code{signature(x = "dgeMatrix")}: works via
+    \item{chol}{\code{signature(x = "dpoMatrix")}:
+      Returns (and stores) the Cholesky decomposition of \code{x},
+      via LAPACK routines \code{dlacpy} and \code{dpotrf}.}
+    
+    \item{chol}{\code{signature(x = "dppMatrix")}:
+      Returns (and stores) the Cholesky decomposition of \code{x},
+      via LAPACK routine \code{dpptrf}.}
+
+    \item{chol}{\code{signature(x = "dsyMatrix")}: works via
       \code{"dpoMatrix"}, see class \code{\linkS4class{dpoMatrix}}.}
 
-    \item{chol}{\code{signature(x = "dpoMatrix")}:
-      Returns (and stores) the Cholesky decomposition of \code{x}, via
-      LAPACK routines \code{dlacpy} and \code{dpotrf}.}
+    \item{chol}{\code{signature(x = "dspMatrix")}: works via
+      \code{"dppMatrix"}, see class \code{\linkS4class{dppMatrix}}.}
+    
+    \item{chol}{\code{signature(x = "dsCMatrix")}:
+      Returns (and stores) the Cholesky decomposition of \code{x}.
+      If \code{pivot} is \code{TRUE}, then the Approximate Minimal
+      Degree (AMD) algorithm is used to create a reordering of the
+      rows and columns of \code{x} so as to reduce fill-in.}
 
-    \item{chol}{\code{signature(x = "dppMatrix")}:
-      Returns (and stores) the Cholesky decomposition via LAPACK routine
-      \code{dpptrf}.}
+    \item{chol}{\code{signature(x = "dsRMatrix")}: works via
+      \code{"dsCMatrix"}, see class \code{\linkS4class{dsCMatrix}}.}
 
-    \item{chol}{\code{signature(x = "dsCMatrix", pivot = "logical")}:
-      Returns (and stores) the Cholesky decomposition of \code{x}.  If
-      \code{pivot} is true, the Approximate Minimal Degree (AMD)
-      algorithm is used to create a reordering of the rows and columns
-      of \code{x} so as to reduce fill-in.}
+    \item{chol}{\code{signature(x = "dsTMatrix")}: works via
+      \code{"dsCMatrix"}, see class \code{\linkS4class{dsCMatrix}}.}
   }
 }
 \value{

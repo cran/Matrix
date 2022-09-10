@@ -45,7 +45,7 @@ stopifnot(
 	       Matrix(rbind (m2, m1+m2)))
    ,
     Qidentical(show  (rbind(R1 = 10:11, M1)),
-	       Matrix(rbind(R1 = 10:11, m1)), strict=FALSE)
+	       Matrix(rbind(R1 = 10:11, m1)), strictClass=FALSE)
   , TRUE)
 
 identical.or.eq <- function(x,y, tol=0, ...) {
@@ -131,12 +131,13 @@ identical4(cbind(diag(4), diag(4)),
            cbind(D4T, D4C),
            cbind(D4C, D4T))
 nr <- 4
-m. <- matrix(c(0, 2:-1),  nr ,6)
+nc <- 6
+m. <- matrix(rep_len(c(0, 2:-1), nr * nc), nr, nc)
 M <- Matrix(m.)
-(mC <- as(M, "dgCMatrix"))
-(mT <- as(M, "dgTMatrix"))
-stopifnot(identical(mT, as(mC, "dgTMatrix")),
-          identical(mC, as(mT, "dgCMatrix")))
+(mC <- as(M, "CsparseMatrix"))
+(mT <- as(M, "TsparseMatrix"))
+stopifnot(identical(mT, as(mC, "TsparseMatrix")),
+          identical(mC, as(mT, "CsparseMatrix")))
 
 for(v in list(0, 2, 1:0))
     for(fnam in c("cbind", "rbind")) {
@@ -158,7 +159,7 @@ stopifnot(identical(t(cbind(diag(nr),   mT)),
                       rbind(diag(nr), t(mT))))
 (cc <- cbind(mC, 0,7,0, diag(nr), 0))
 stopifnot(identical3(cc, cbind(mT, 0,7,0, diag(nr), 0),
-                     as( cbind( M, 0,7,0, diag(nr), 0), "dgCMatrix")))
+                     as( cbind( M, 0,7,0, diag(nr), 0), "CsparseMatrix")))
 
 cbind(mC, 1, 100*mC, 0, 0:2)
 cbind(mT, 1, 0, mT+10*mT, 0, 0:2)
@@ -173,7 +174,8 @@ cbind(mT, one, zero, mT+10*mT, zero, 0:2)
 
 
 ## logical (sparse) - should remain logical :
-L5 <- Diagonal(n = 5, x = TRUE); v5 <- rep(x = c(FALSE,TRUE), length = ncol(L5))
+L5 <- Diagonal(n = 5, x = TRUE)
+v5 <- rep(x = c(FALSE,TRUE), length.out = ncol(L5))
 stopifnot(is(show(rbind(L5,v5)), "lsparseMatrix"),
 	  is(show(cbind(v5,L5)), "lsparseMatrix"),
 	  is(rbind(L5, 2* v5), "dsparseMatrix"),

@@ -1,55 +1,39 @@
 \name{dpoMatrix-class}
 \title{Positive Semi-definite Dense (Packed | Non-packed) Numeric Matrices}
 \docType{class}
+%
 \alias{dpoMatrix-class}
 \alias{dppMatrix-class}
 \alias{corMatrix-class}
-%      ---
-\alias{coerce,dpoMatrix,corMatrix-method}
-\alias{coerce,dpoMatrix,dppMatrix-method}
-\alias{coerce,dpoMatrix,lMatrix-method}
-\alias{coerce,dpoMatrix,nMatrix-method}
-\alias{coerce,dppMatrix,lMatrix-method}
-\alias{coerce,dppMatrix,nMatrix-method}
-\alias{coerce,dppMatrix,sparseMatrix-method}
-\alias{coerce,dppMatrix,CsparseMatrix-method}
-\alias{coerce,dppMatrix,dpoMatrix-method}
-\alias{coerce,dspMatrix,dpoMatrix-method}
-\alias{coerce,dspMatrix,dppMatrix-method}
-\alias{coerce,matrix,corMatrix-method}
-\alias{coerce,Matrix,corMatrix-method}
-\alias{coerce,matrix,dpoMatrix-method}
-\alias{coerce,Matrix,dpoMatrix-method}
-\alias{coerce,matrix,dppMatrix-method}
-\alias{coerce,Matrix,dppMatrix-method}
-%\alias{coerce,corMatrix,lMatrix-method}
-\alias{Ops,dpoMatrix,logical-method}
-\alias{Ops,dpoMatrix,numeric-method}
-\alias{Ops,dppMatrix,logical-method}
-\alias{Ops,dppMatrix,numeric-method}
-\alias{Ops,logical,dpoMatrix-method}
-\alias{Ops,logical,dppMatrix-method}
-\alias{Ops,numeric,dpoMatrix-method}
-\alias{Ops,numeric,dppMatrix-method}
+%
 \alias{Arith,dpoMatrix,logical-method}
 \alias{Arith,dpoMatrix,numeric-method}
+\alias{Arith,logical,dpoMatrix-method}
+\alias{Arith,numeric,dpoMatrix-method}
+\alias{Ops,dpoMatrix,logical-method}
+\alias{Ops,dpoMatrix,numeric-method}
+\alias{Ops,logical,dpoMatrix-method}
+\alias{Ops,numeric,dpoMatrix-method}
+\alias{coerce,dpoMatrix,corMatrix-method}
+\alias{coerce,dpoMatrix,dppMatrix-method}
+\alias{coerce,matrix,dpoMatrix-method}
+\alias{determinant,dpoMatrix,logical-method}
+%
 \alias{Arith,dppMatrix,logical-method}
 \alias{Arith,dppMatrix,numeric-method}
-\alias{Arith,logical,dpoMatrix-method}
 \alias{Arith,logical,dppMatrix-method}
-\alias{Arith,numeric,dpoMatrix-method}
 \alias{Arith,numeric,dppMatrix-method}
-%
-\alias{rcond,dpoMatrix,character-method}
-\alias{rcond,dppMatrix,character-method}
-\alias{rcond,dpoMatrix,missing-method}
-\alias{rcond,dppMatrix,missing-method}
-\alias{determinant,dpoMatrix,logical-method}
+\alias{Ops,dppMatrix,logical-method}
+\alias{Ops,dppMatrix,numeric-method}
+\alias{Ops,logical,dppMatrix-method}
+\alias{Ops,numeric,dppMatrix-method}
+\alias{coerce,dppMatrix,corMatrix-method}
+\alias{coerce,dppMatrix,dpoMatrix-method}
+\alias{coerce,matrix,dppMatrix-method}
 \alias{determinant,dppMatrix,logical-method}
-\alias{determinant,dpoMatrix,missing-method}
-\alias{determinant,dppMatrix,missing-method}
-%\alias{solve,dpoMatrix,...-method}--> solve-methods.Rd
-\alias{t,dppMatrix-method}
+%
+\alias{coerce,matrix,corMatrix-method}
+%
 \description{
   \itemize{
     \item{The \code{"dpoMatrix"} class is the class of
@@ -115,6 +99,22 @@
 }
 %\references{}
 %\author{}
+\note{Currently the validity methods for these classes such as
+  \code{\link{getValidity}(getClass("dpoMatrix"))} for efficiency reasons
+  only check the diagonal entries of the matrix -- they may not be negative.
+  This is only necessary but not sufficient for a symmetric matrix to be
+  positive semi-definite.
+
+  A more reliable (but often more expensive) check for positive
+  semi-definiteness would look at the signs of \code{diag(\link{BunchKaufman}(.))}
+  (with some tolerance for very small negative values), and for (strict)
+  positive definiteness at something like
+  \code{!inherits(tryCatch(chol(.), error=identity), "error")} .
+  Indeed, when \emph{coercing} to these classes, a version
+  of \code{\link{Cholesky}()} or \code{\link{chol}()} is
+  typically used, e.g., see \code{selectMethod("coerce",
+    c(from="dsyMatrix", to="dpoMatrix"))} .
+}
 \seealso{
   Classes \code{\linkS4class{dsyMatrix}} and \code{\linkS4class{dgeMatrix}};
   further, \code{\link{Matrix}}, \code{\link{rcond}},

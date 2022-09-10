@@ -5,12 +5,537 @@
 \encoding{UTF-8}
 %% NB: The date (yyyy-mm-dd) is the "Packaged:" date in ../DESCRIPTION
 
-%%_NOT YET__FIXME_ : needs *MORE THAN* cholmod_l_dense_to_sparse() in
-%%----------------   our dense_to_Csparse() in ../src/dense.c (see there)
-%%
-%% \item \code{as(<large-matrix>, "sparseMatrix")} no longer fails
-%%  when \code{prod(dim(.))} is larger than \eqn{2^{31} - 1}.
-%
+\section{Changes in version 1.5-0 (2022-09-08 r3636)}{
+  \subsection{Deprecated and Defunct}{
+    \itemize{
+      \item With a few exceptions, direct coercions to non-virtual subclasses
+      of \code{Matrix} (e.g., \code{dsCMatrix}) have been formally deprecated.
+      For now, these will continue to work as before, but with a warning
+      indicating how to accomplish the desired coercion via virtual classes
+      (e.g., \code{symmetricMatrix}) alone.  How such warnings are signaled
+      is controlled by the global option \code{Matrix.warnDeprecatedCoerce}.
+      \describe{
+	\item{\code{0} or less}{is to be silent.}
+	\item{\code{1}}{is to signal a warning with each deprecated coercion.}
+	\item{\code{2} or greater}{is to signal an error with each
+	  deprecated coercion.}
+	\item{\code{NA}}{is to signal a message or warning (see below)
+	  with the next deprecated coercion and be silent after that.}
+      }
+      If unset or invalid, then the value of the environment variable
+      \env{R_MATRIX_WARN_DEPRECATED_COERCE} (\code{NA} if unset) is
+      used.  This is cached when the \pkg{Matrix} namespace is loaded.
+      \cr
+      Option values are coerced to integer before use.
+      \cr
+      To reduce disruption to existing code, the \code{NA} case signals
+      messages rather than warnings with coercions to the most-used
+      non-virtual subclasses of \code{Matrix}, namely \code{dg.Matrix}
+      and \code{d.CMatrix}.  This may change in the future.
+    }
+  }
+  \subsection{Bug Fixes}{
+    \itemize{
+      \item Symmetrization of \code{<Matrix>@Dimnames} and
+      \code{dimnames(<matrix>)} now goes through C utility \code{symmDN()}
+      in most places, resolving some earlier inconsistencies.
+
+      \item Many more validity methods now correctly operate under the
+      assumption that methods for superclasses have already been called,
+      eliminating many redundant checks.
+
+      \item Validation of \code{<Matrix>@Dim} now looks at type
+      \emph{before} length, avoiding a misleading error message.
+
+      \item Validation of \code{<Matrix>@Dimnames} now avoids
+      \code{isNewList}, which had allowed an error message suggesting
+      that \code{NULL} is a list.
+
+      \item Setting a factor on a \code{compMatrix} is now to install
+      the factor itself, not a copy, for efficiency and consistency
+      with the semantics of \code{<compMatrix>@factors[[name]] <- value}.
+
+      \item Long vector support in methods for packing and unpacking
+      \code{denseMatrix}, and others.
+
+      \item \code{diag<-} incorrectly preserved the class of dense matrices,
+      so that, e.g., \code{`diag<-`(x=<dpoMatrix>, value=-1)} was still a
+      \code{dpoMatrix}.  Now the result is always one of the more general
+      \code{.(ge|tr|sy|tp|sp)Matrix}.
+
+      \item \code{t(<corMatrix>)} no longer clears the \code{sd} slot.
+      \code{t(<p?BunchKaufman>)} now returns one of the more general
+      \code{dt[rp]Matrix}, rather than preserving class and clearing
+      the \code{perm} slot.
+
+      \item \code{t(<symmetricMatrix>)} no longer reverses the
+      \code{Dimnames} slot.  Symmetrization of \code{dn <- x@Dimnames}
+      and \code{t(x)@Dimnames} had given different results when
+      \code{dn[[1]]} and \code{dn[[2]]} were non-\code{NULL} and
+      asymmetric.
+
+      \item \code{isTriangular(x, upper)} had incorrectly returned
+      \code{FALSE} for \code{x} of class \code{triangularMatrix}
+      when \code{upper = TRUE} and \code{x@uplo = "L"} or when
+      \code{upper = FALSE} and \code{x@uplo = "U"}.
+      \code{isTriangular} is now equivalent to \code{isDiagonal}
+      in those cases.
+
+      \item \code{isSymmetric()} was equivalent to \code{isDiagonal()}
+      for triangular matrices, \emph{not} allowing numerical fuzz via an
+      argument \code{tol}.  A \code{tol} argument is now implemented
+      for all subclasses of \code{dMatrix} except for those inheriting
+      from \code{symmetricMatrix} or \code{diagonalMatrix}.
+
+      \item Methods for \code{isSymmetric} now also look at
+      \code{Dimnames} and \code{names(Dimnames)}, following
+      \code{isSymmetric.matrix} from \pkg{base}.  See also
+      New Features.
+
+      \item \code{band(x, -k, k)} for sparse \code{x} used
+      \code{isSymmetric(x)} (which tolerates numerical fuzz) to test
+      for symmetry, resulting in loss of information in some cases.
+      Now it tests that \code{x} inherits from \code{symmetricMatrix},
+      and so returns \code{symmetricMatrix} in fewer cases.
+
+      \item \code{triu(x, k)} and \code{tril(x, k)} incorrectly
+      required \code{k <= m} (instead of \code{k <= n}),
+      for \code{m}-by-\code{n} sparse \code{x}.  They now accept
+      all \code{k} from \code{-m} to \code{n}, with fewer errors
+      in the \code{m < n} case.
+
+      \item \code{crossprod(<Rsparse>, <Tsparse>)} and similar now work
+      again (optional \code{boolArith} was not passed on), fixing Matrix
+      bug #6766 by David Cortes.
+      Ditto for \code{tcrossprod()}, where the old result was even wrong
+      when it had \dQuote{worked}, before Matrix 1.2-0.
+
+      \item \code{as(<matrix>, "nMatrix")} can now be sparse \emph{or}
+      dense, going via \code{Matrix()}, for greater consistency with
+      coercions to \code{dMatrix} and \code{lMatrix}.
+      (Previously, the result was always an \code{ngTMatrix}.)
+
+      \item \code{forceSymmetric(<[RT]sparseMatrix>)} are now more
+      efficient, returning symmetric \code{[RT]sparseMatrix} without
+      intermediate coercions to \code{CsparseMatrix}.
+
+      \item \code{tcrossprod(a, b)} for unit triangular sparse matrices
+      now works correctly.
+
+      \item \code{!<ltrMatrix>} is no longer an error in the 0-by-0
+      unit diagonal case.
+
+      \item Coercions among \code{[CRT]sparseMatrix} preserve the
+      \code{factors} slot in more cases.
+
+      \item Coercions of overallocated \code{l.TMatrix} to
+      \code{denseMatrix} or \code{CsparseMatrix} now give \code{TRUE}
+      instead of \code{NA} in the \code{NA || TRUE} case, following
+      conventional logic.
+
+      \item Methods for unpacking and indexing \code{packedMatrix} and
+      for coercing from \code{[CRT]sparseMatrix} to \code{denseMatrix}
+      now check more consistently for overflow of \code{R_XLEN_T_MAX}.
+
+      \item \code{solve(<ddenseMatrix>, <ANY>)} is removed from
+      the method list.  It had allowed infinite recursion, e.g.,
+      with \code{solve(new("dgeMatrix"), NULL)}.
+
+      \item \code{is.na(<ndenseMatrix>)} gave \code{TRUE} where
+      the \code{x} slot had \code{NA}.  Now the result is always
+      a zero matrix.
+
+      \item \code{is.na(<.t[rp]Matrix>)} and
+      \code{is.infinite(<.t[rp]Matrix>)} ignored the \code{diag} slot,
+      behaving always as though \code{diag == "N"}.  They now give
+      \code{FALSE} on the diagonal in the \code{diag != "N"} case.
+
+      \item Now only \dQuote{nontrivial} matrix elements determine
+      whether \code{is.na(<denseMatrix>)} is an \code{ndenseMatrix}
+      or an \code{nsparseMatrix}.
+
+      \item \code{is.na(<ddenseMatrix>)} coerced to \code{lMatrix}.
+      This unnecessary step is avoided now, saving a potentially
+      nontrivial allocation.
+
+      \item \code{solve(<ddenseMatrix>, b)} coerced the first argument
+      to \code{dgeMatrix} when \code{b} was not a \code{ddenseMatrix}
+      or traditional \code{matrix}.  This unnecessary step is avoided now,
+      so that specialized methods for \code{d(tr|sy|po|tp|sp|pp)Matrix}
+      are used where possible (including for \code{b} inheriting from
+      \code{[ln]denseMatrix}, \code{sparseMatrix}, or \code{numLike}).
+
+      \item \code{`dim<-`(x, -x@Dim)} is now an error, no longer
+      yielding an invalid \code{Matrix} object.
+
+      \item \code{`dim<-`(x, x@Dim)} is now faster, returning \code{x}
+      without allocation in all cases.
+
+      \item \code{`dim<-`(x, value)} gives a better error when
+      \code{value} contains \code{NA} or elements exceeding
+      \code{INT_MAX}.
+
+      \item \code{`dim<-`(<RsparseMatrix>, value)} is now an
+      \code{RsparseMatrix}, rather than a \code{TsparseMatrix}.
+
+      \item For consistency with other methods,
+      \code{symmpart(<diagonalMatrix>)} now always inherits from
+      both \code{dMatrix} and \code{symmetricMatrix}, and
+      \code{skewpart(<diagonalMatrix>)} now always has symmetric
+      \code{Dimnames}.
+
+      \item Zeros on the diagonal of \code{skewpart(<[CRT]sparseMatrix>)}
+      are now \emph{structural}.
+
+      \item \code{as(<ndenseMatrix>, "(vector|matrix|[dl]Matrix)")}
+      and \code{nnzero(<ndenseMatrix>)} now correctly treat \code{NA}
+      in the \code{x} slot as \code{TRUE}.
+
+      \item \code{as(<[nl].TMatrix>, "dMatrix")} now correctly handles
+      the overallocated case: data for each unique \code{[i,j]}
+      pair are aggregated logically (\code{x1 || ... || xn}) rather than
+      arithmetically (\code{x1 + ... + xn}), so that elements of the
+      result are restricted to the set \code{c(0, 1, NA)}.
+      This bug had also affected the result of \code{sum(<[nl].TMatrix>)}.
+
+      \item \code{dimnames(as(x, "matrix"))} is now \code{NULL}
+      for \emph{all} \code{x} inheriting from \code{Matrix},
+      when \code{x@Dimnames} is the trivial \code{list(NULL, NULL)}.
+
+      \item \code{.bdiag(<named list>)} no longer propagates names
+      to the \code{Dim} slot of the result.
+
+      \item \code{as(<named vector>, "denseMatrix")} now correctly
+      propagates \code{names} to the result.
+
+      \item \code{as(<d.[CR]Matrix>, "lMatrix")} no longer drops
+      non-structural zeros, for greater consistency with analogous
+      coercions.
+
+      \item \code{Matrix(x, doDiag)} now behaves as documented
+      for diagonal matrices \code{x} with asymmetric \code{dimnames},
+      returning a \code{diagonalMatrix} when \code{doDiag = TRUE},
+      rather than a \code{triangularMatrix}.
+
+      \item Matrix(<n-dimensional table>) now works for \code{n != 2}.
+
+      \item \code{Matrix(<sparseVector>)} now works for vector lengths
+      other than 1, no longer giving an error about length mismatch
+      when neither of \code{nrow} and \code{ncol} are supplied.
+
+      \item \code{Matrix(<diagonalMatrix>, doDiag = FALSE)}
+      is now a \code{symmetricMatrix}, not a \code{diagonalMatrix},
+      matching the documentation of \code{doDiag}.
+
+      \item \code{Matrix(<.geMatrix>, sparse = TRUE, forceCheck)}
+      and \code{Matrix(<.g[CRT]Matrix>, sparse = FALSE, forceCheck)}
+      now respect \code{forceCheck = FALSE} by always returning
+      \code{generalMatrix}, i.e., \emph{not} testing for symmetric
+      or triangular structure.
+
+      \item \code{Matrix(0, nrow, )}, \code{Matrix(0, , ncol)} now
+      throw (correct) errors for \code{nrow}, \code{ncol} in the
+      interval \eqn{[0,1)}, consistent with \code{base::matrix()}.
+
+      \item \code{sparseDefault(<sparseMatrix>)} now counts zeros
+      without coercing to \code{matrix},
+      making \code{Matrix(<sparseMatrix>, sparse = NULL)} much more
+      efficient.
+
+      \item Methods for group generic \code{Math} no longer
+      preserve \code{x@diag == "U"} or lose \code{x@Dimnames}
+      when \code{f(0) == 0} and \code{f(1) != 1}.
+      (The former happened for \code{triangularMatrix} \code{x}
+      and the latter for \code{diagonalMatrix} \code{x}.)
+
+      \item \code{image(Z)} for a completely \dQuote{empty} (all 0)
+      \code{sparseMatrix} works again (?!).
+
+      \item \code{x[i, ] <- value} and \code{y[, j] <- value}
+      is now an error in more cases
+      for \code{m}-by-0 \code{CsparseMatrix} \code{x}
+      and 0-by-\code{n} \code{CsparseMatrix} \code{y}.
+      In these cases, subassignment gave a (formally) invalid result.
+
+      \item \code{chol(<ds[yp]Matrix>)} now calls the underlying
+      C-level routine exactly once.  Previously, it was called
+      an extra time in order to test for positive definiteness,
+      with the result thrown away (!).  Hence these methods should
+      become approximately two times faster.
+
+      \item \code{dimnames(chol(x))} is identical to \code{dimnames(x)}
+      in all cases, now even when \code{chol(x)} is constructed from a
+      cached \code{MatrixFactorization}, for greater consistency with
+      \code{base::chol.default()}.
+
+      \item \code{chol(<generalMatrix>)} no longer looks at
+      \code{Dimnames} when testing for symmetry.
+
+      \item \code{lu(<dtCMatrix>)} no longer returns an invalid
+      \code{sparseLU} object in the lower triangular case.
+
+      \item \code{lu(x)} had sometimes incorrectly cached its
+      return value as element \code{"lu"} (rather than \code{"LU"})
+      of \code{x@factors}.  Now it is always \code{"LU"}.
+
+      \item \code{"Compare"} operators, e.g., \code{a > b}, \code{x != y},
+      now work correctly in more dense unitriangular and sparse 0-extent
+      cases.
+
+      \item \code{!<nMatrix>} is now always an \code{nMatrix}, never
+      an \code{lMatrix}.
+
+      \item \code{!<ndenseMatrix>} and \code{which(<ndenseMatrix>)}
+      now correctly handle \code{NA} as \code{TRUE}.
+
+      \item{anyNA(<denseMatrix>)} had incorrectly returned
+      \code{anyNA(.@x)} in many cases, giving false positives
+      for some \code{.(tr|sy)Matrix} and \code{ndenseMatrix}.
+      Now methods respect the \dQuote{rules} of these classes.
+
+      \item The boolean arithmetic product \code{A \%&\% B} and e.g.,
+      \code{crossprod(A, B, boolArith=TRUE)} now should behave as if
+      \code{drop0(A)} and \code{drop0(B)} were used, i.e., for formally
+      sparse matrices, the boolean product results should be stable with
+      respect to non-structural vs structural zeros.
+
+      \item \code{t(<symmetricMatrix>)} now retains the \code{factors}
+      slot, avoiding recomputation.
+
+      \item \code{qr(<large sparse>)} no longer segfaults in some cases,
+      but now warns about \dQuote{Out of memory} and stops, fixing Matrix
+      bug #6610 reported by Benjamin Tyner.
+
+      \item Fixed \code{<sparse> \%*\% <dense>} possible memory corruption,
+      visible via valgrind, fixing Matrix bug #6726 reported by David Cortes.
+
+      \item Fixed the (quite \emph{long standing}) Matrix bug #6777,
+      reported by Manuel Koller: \code{tcrossprod(<matrix>, <[dln]sCMatrix>)}
+      has been wrong in some cases.
+    }
+  }
+  \subsection{New Features}{
+    \itemize{
+      \item \code{KhatriRao()} gets new \code{sparseY = TRUE} option and
+      also works for more \code{Matrix} classes.
+
+      \item Virtual class \code{packedMatrix} gains methods for
+      \code{pack}, \code{unpack}, \code{isSymmetric},
+      \code{isTriangular}, and \code{isDiagonal} implemented in C,
+      replacing those defined for many subclasses individually.
+
+      \item New virtual class \code{unpackedMatrix} containing
+      \code{denseMatrix} _without_ \code{packedMatrix}, with methods
+      for \code{pack}, \code{unpack}, \code{isSymmetric},
+      \code{isTriangular}, \code{isDiagonal}, \code{t}, \code{diag},
+      and \code{diag<-} implemented in C, replacing those defined for
+      many subclasses individually.
+
+      \item \code{isTriangular} and \code{isDiagonal} are now
+      implemented in C also for \code{[CRT]sparseMatrix} and standard
+      \code{matrix}.  \code{isSymmetric} is now implemented in C
+      for all \code{denseMatrix} and all \code{[CRT]sparseMatrix},
+      though these C routines are currently only called when testing
+      for \emph{exact} symmetry (always for \code{[ln]Matrix},
+      only when \code{tol = 0} for \code{dMatrix}).
+
+      \item Methods for \code{isSymmetric} gain an argument
+      \code{checkDN = TRUE} indicating whether symmetry of
+      \code{Dimnames} should be checked.  For backwards compatibility
+      and consistency with \code{isSymmetric.matrix} from \pkg{base},
+      the actual condition is \code{checkDN && check.attributes}.
+
+      \item \code{isTriangular(x, upper)} now has a \code{kind}
+      attribute \emph{if and only if} \code{x} is triangular and
+      \code{upper} is \code{NA}.
+
+      \item \code{diag(<unpackedMatrix>) <- value} now behaves like
+      \code{diag(<packedMatrix>) <- value}, supporting coercions
+      depending on \code{typeof(value)}, consistent with \code{diag<-}
+      from \pkg{base}.
+
+      \item \code{pack} and \code{unpack} are now identity functions
+      for \code{packedMatrix} and \code{unpackedMatrix} arguments,
+      respectively (previously an error).  \code{pack(<.geMatrix>)}
+      (previously an error) now behaves as \code{pack(<matrix>)},
+      i.e., by checking for symmetry or triangularity before packing.
+      \code{unpack(<matrix>)} now works and is equivalent to
+      \code{as(<matrix>, "unpackedMatrix")}, with result inheriting
+      from \code{.(ge|tr|sy)Matrix}, as appropriate.
+
+      \item Many more validity methods implemented in C, for efficiency,
+      including methods for \code{Matrix}, \code{compMatrix},
+      \code{diagonalMatrix}, \code{indMatrix}, \code{pMatrix},
+      \code{corMatrix}, \code{[liz]Matrix}, and \code{ndenseMatrix}.
+
+      \item The validity method of \code{dppMatrix} now follows
+      the validity method of \code{dpoMatrix}, requiring non-negative
+      diagonal elements.
+
+      \item Validation of \code{<Matrix>@Dimnames[[i]]} now tolerates
+      vector types other than character, which are coerced to character
+      in C via the new \code{R_DimNames_fixup()}, for greater
+      consistency with base \code{matrix()}.
+
+      \item \code{band(x, k1, k2)} is optimized further for both
+      dense and sparse \code{x}, returning \code{triangularMatrix},
+      \code{symmetricMatrix}, and \code{packedMatrix} in more cases.
+
+      \item \code{band()} is now implemented also for
+      \code{diagonalMatrix} (only \code{tri[ul]()} worked before).
+
+      \item Coercions \code{.ge<->.g[CRT]}, \code{.t[rp]<->.t[CRT]},
+      \code{.s[yp]<->.s[CRT]}, and \code{..[CRT]<->matrix} are now
+      fully implemented and optimized, with minimal intermediate
+      allocations.  These (and others) no longer rely on CHOLMOD,
+      which had handled integer types as double and required
+      preprocessing in many cases (with \code{diagU2N()}, etc.).
+
+      \item Fixes in group methods (e.g., \code{>}, \code{&}, \code{|}),
+      notably for matrices inheriting from class \code{symmetricMatrix},
+      \code{triangularMatrix}, \code{lMatrix}, or \code{nMatrix}.
+
+      \item \code{as.vector}, \code{as.numeric}, and \code{as.logical}
+      are now implemented for all \code{Matrix}.
+
+      \item Subassignment to \code{indMatrix} is no longer prohibited,
+      now going via \code{TsparseMatrix}.
+
+      \item \code{indMatrix} gains methods for \code{isTriangular},
+      \code{isDiagonal}, \code{diag}, \code{diag<-}, \code{band},
+      \code{tri[ul]}, and \code{forceSymmetric}.  It also gains
+      coercions to more virtual classes (notably \code{denseMatrix})
+      and a coercion to \code{pMatrix}.
+
+      \item \code{solve(<ddenseMatrix>, <numLike>)} now works in all
+      cases.
+
+      \item \code{determinant(<ds[yp]Matrix>)} is now much faster
+      in the positive definite case, no longer going via \code{dgeMatrix}.
+
+      \item \code{diag(<[CRT]sparseMatrix>)} is now done in C
+      and is highly optimized in the \code{.[ts][CR]Matrix} case.
+
+      \item \code{symmpart} and \code{skewpart} are now done in C
+      for all \code{denseMatrix} and all \code{[CRT]sparseMatrix}.
+      Both now more faithfully preserve the \dQuote{storage} of
+      their argument.  (Previously, \code{symmpart(<packedMatrix>)}
+      was an \code{unpackedMatrix},
+      and \code{(symm|skew)part(<[RT]sparseMatrix>)}
+      was a \code{CsparseMatrix}.)
+
+      \item \code{as(<vector|matrix>, "([dln]?dense|[dlnCRT]?sparse)Matrix")}
+      are now fully and more consistently implemented.  In the vector case,
+      the result is now always a \code{length}-by-1 \code{generalMatrix}.
+      In the matrix case, structure is now always examined, hence the result
+      is a \code{symmetricMatrix} or \code{triangularMatrix} in more cases.
+
+      \item \code{Matrix(<classed matrix>)} now works for classes
+      other than \code{table}.
+
+      \item \code{lu(<dt[rpCRT]Matrix>)} and \code{lu(<ddiMatrix>)}
+      now behave more consistently.  In the diagonal, upper triangular,
+      and unit lower triangular cases, the result is obtained
+      \dQuote{directly}, i.e., without pivoting.  In the non-unit
+      lower triangular case, it is obtained with pivoting.
+      (Previously, pivoting was never done for \code{dtCMatrix}
+      and always done for \code{dt[rpRT]Matrix} and \code{ddiMatrix}.)
+
+      \item \code{lu(x)} now caches its return value also for all
+      \code{ds.Matrix} \code{x} (by default).
+
+      \item \code{readMM()} now warns if the number of entries found
+      is less than number reported in the header.
+
+      \item \code{x[i]} now works for \code{nMatrix} \code{i},
+      just as for \code{lMatrix} i.  This supports constructions
+      such as \code{x[is.na(x)]}, where the logical operation
+      produces an \code{nMatrix} because it is never \code{NA}.
+    }
+  }
+  \subsection{Misc}{
+    \itemize{
+      \item \code{AZERO()} and friends gain an argument specifying
+      a zero constant (0 for \code{int} arrays, 0.0 for \code{double}
+      arrays).
+
+      \item C-level utilities \code{(R_)?[gs]et_factors()} have been
+      renamed \code{(R_)?[gs]et_factor()}, as they only ever get and
+      set \emph{one} factor.
+
+      \item The signature of \code{set_factor()} has been changed to
+      match other \code{set*()} functions:
+      to \code{(object,name,value)} from \code{(object,value,name)}.
+
+      \item For clarity, \code{set_factor()} now returns \code{void}
+      and is used like other \code{set*()} functions (i.e., for its
+      side effect).  The R interface is unchanged: \code{R_set_factor()}
+      continues to return the value being set.
+
+      \item C-level utilities
+      \code{make_[di]_matrix_(triangular|symmetric)()},
+      \code{packed_to_full_(double|int)()},
+      \code{full_to_packed_(double|int)()}, and
+      \code{install_diagonal(_int)?()}
+      are replaced by safer, more consistently named ones.
+      Previous versions allowed integer overflow.
+
+      \item C-level utilities \code{dup_mMatrix_as_d?geMatrix()} are
+      replaced by the more general \code{dense_as_general()}, which
+      takes arguments controlling memory allocation and the
+      \dQuote{kind} of the \code{.geMatrix} result.
+
+      \item New C-level utility \code{DimNames_is_symmetric()}
+      with R interface \code{isSymmetricDN()}, which should be
+      used consistently to test for symmetry of \code{[dD]imnames}.
+      Note that these are intended to behave consistently with
+      \code{symmetricMatrix_validate()},
+      by allowing, e.g., \code{list(NULL, nms)},
+      but not, e.g., \code{list(A = NULL, B = nms)}.
+
+      \item Coercions to \code{triangularMatrix} and
+      \code{symmetricMatrix} are now almost all inherited from
+      \code{Matrix}, whose methods simply call \code{tri[ul]()}
+      and \code{forceSymmetric()} if \code{isTriangular()} and
+      \code{isSymmetric()}, respectively, return \code{TRUE}.
+
+      \item Many of the exported \code{.*2*} utilities have been
+      redefined as aliases or wrappers of new, more general functions
+      (see below).  These not-yet-deprecated functions have been
+      centralized in \file{R/denseMatrix.R} and \file{R/sparseMatrix.R}.
+
+      \item New C-level utilities
+      \code{R_(dense|sparse)_as_kind()}
+      for coercion from one \dQuote{kind} to another;
+      \code{R_(dense|sparse)_as_general()}
+      for coercion from triangular and symmetric to general;
+      \code{R_(dense|sparse)_band()}
+      for coercion to triangular (and other banded);
+      \code{R_(unpacked*|packed*|sparse)_force_symmetric()}
+      for coercion to symmetric;
+      \code{R_(dense|sparse)_as_(sparse|dense)()}
+      for coercion between dense and sparse of the same \dQuote{kind}
+      and \dQuote{structure};
+      \code{R_diagonal_as_sparse()}
+      for coercion from \code{diagonalMatrix} to any
+      \code{[CRT]sparseMatrix};
+      \code{R_(dense|sparse|geMatrix)_as_(matrix|vector)()}
+      for coercion to base matrix and vector; and
+      \code{tCRsparse_as_RCsparse()} for the idioms
+      \code{as(t(<[CR]sparseMatrix>), "[RC]sparseMatrix")}.
+      These all have not-yet-exported R wrappers.
+
+      \item \code{indTri()} and \code{indDiag()} now in C,
+      with a new argument \code{packed} for efficiently indexing
+      \code{packedMatrix}.  \code{indDiag()} now behaves sensibly
+      in the \code{n = 0} case.
+
+      \item \code{.M.kind()}, \code{.M.shape()}, and (new)
+      \code{.M.repr()} are now done in C via \code{R_check_class_etc()},
+      requiring a class definition only in \dQuote{rare} cases.
+    }
+  }
+}
 
 \section{Changes in version 1.4-1 (2022-03-21 r3446)}{
   \subsection{Bug Fixes}{
@@ -39,8 +564,8 @@
   \subsection{Misc}{
     \itemize{
       \item Our C sources now use \code{R_Calloc()}, \code{R_Free()}
-      etc, instead of the shorter versions with 'R_'. Consequently, we
-      get closer to \code{STRICT_R_HEADERS}.
+      etc, instead of the shorter versions without 'R_'. Consequently,
+      we get closer to \code{STRICT_R_HEADERS}.
       Also, include \code{<float.h>} for \code{DBL_EPSILON}.
 
       \item \code{PROTECT()} 3 more; as from \samp{rchk} for Matrix 1.4-0.

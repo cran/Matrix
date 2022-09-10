@@ -134,17 +134,17 @@ setMethod("%*%", signature(x = "matrix", y = "dtpMatrix"),
 
 
 ## For multiplication operations, sparseMatrix overrides other method
-## selections.	Coerce a ddensematrix argument to a lsparseMatrix.
+## selections.	Coerce a ldensematrix argument to a lsparseMatrix.
 setMethod("%*%", signature(x = "lsparseMatrix", y = "ldenseMatrix"),
-	  function(x, y) x %*% as(y, "sparseMatrix"))
+	  function(x, y) x %*% .dense2sparse(y, "..C"))
 
 setMethod("%*%", signature(x = "ldenseMatrix", y = "lsparseMatrix"),
-	  function(x, y) as(x, "sparseMatrix") %*% y)
+	  function(x, y) .dense2sparse(x, "..C") %*% y)
 
 ## and coerce lsparse* to lgC*
 setMethod("%*%", signature(x = "lsparseMatrix", y = "lsparseMatrix"),
-	  function(x, y) as(x, "lgCMatrix") %*% as(y, "lgCMatrix"))
-
+	  function(x, y) .sparse2g(as(x, "CsparseMatrix")) %*%
+                         .sparse2g(as(y, "CsparseMatrix")))
 
 for(c.x in c("lMatrix", "nMatrix")) {
     setMethod("%*%", signature(x = c.x, y = "dMatrix"),
@@ -154,7 +154,7 @@ for(c.x in c("lMatrix", "nMatrix")) {
     for(c.y in c("lMatrix", "nMatrix"))
     setMethod("%*%", signature(x = c.x, y = c.y),
 	      function(x, y) as(x, "dMatrix") %*% as(y, "dMatrix"))
-}; rm(c.x, c.y)
+}
 
 setMethod("%*%", signature(x = "CsparseMatrix", y = "CsparseMatrix"),
 	  function(x, y) .Call(Csparse_Csparse_prod, x, y, boolArith=NA))
@@ -174,31 +174,31 @@ setMethod("%*%", signature(x = "sparseMatrix", y = "matrix"),
 #	   function(x, y) callGeneric(x, as(y, "CsparseMatrix")))
 
 setMethod("%*%", signature(x = "TsparseMatrix", y = "ANY"),
-	  function(x, y) .T.2.C(x) %*% y)
+	  function(x, y) .T2C(x) %*% y)
 setMethod("%*%", signature(x = "ANY", y = "TsparseMatrix"),
-	  function(x, y) x %*% .T.2.C(y))
+	  function(x, y) x %*% .T2C(y))
 setMethod("%*%", signature(x = "TsparseMatrix", y = "Matrix"),
-	  function(x, y) .T.2.C(x) %*% y)
+	  function(x, y) .T2C(x) %*% y)
 setMethod("%*%", signature(x = "Matrix", y = "TsparseMatrix"),
-	  function(x, y) x %*% .T.2.C(y))
+	  function(x, y) x %*% .T2C(y))
 setMethod("%*%", signature(x = "TsparseMatrix", y = "TsparseMatrix"),
-	  function(x, y) .T.2.C(x) %*% .T.2.C(y))
+	  function(x, y) .T2C(x) %*% .T2C(y))
 
 
 
 ##-------- Work via  as(*, lgC) : ------------
 
 ## For multiplication operations, sparseMatrix overrides other method
-## selections.	Coerce a ddensematrix argument to a nsparseMatrix.
+## selections.	Coerce a ndensematrix argument to a nsparseMatrix.
 setMethod("%*%", signature(x = "nsparseMatrix", y = "ndenseMatrix"),
-	  function(x, y) x %*% as(y, "nsparseMatrix"))
+	  function(x, y) x %*% .dense2sparse(y, "..C"))
 
 setMethod("%*%", signature(x = "ndenseMatrix", y = "nsparseMatrix"),
-	  function(x, y) as(x, "nsparseMatrix") %*% y)
+	  function(x, y) .dense2sparse(x, "..C") %*% y)
 ## and coerce nsparse* to lgC*
 setMethod("%*%", signature(x = "nsparseMatrix", y = "nsparseMatrix"),
-	  function(x, y) as(x, "ngCMatrix") %*% as(y, "ngCMatrix"))
-
+	  function(x, y) .sparse2g(as(x, "CsparseMatrix")) %*%
+                         .sparse2g(as(y, "CsparseMatrix")))
 
 ## x %*% y =  t(crossprod(y, t(x)))  unless when x is vector
 setMethod("%*%", signature(x = "ddenseMatrix", y = "CsparseMatrix"),
@@ -227,9 +227,9 @@ setMethod("%*%", signature(x = "matrix", y = "Matrix"),
 
 ## RsparseMatrix -- via CsparseMatrix:
 setMethod("%*%", signature(x = "mMatrix", y = "RsparseMatrix"),
-	  function(x, y) x %*% .R.2.C(y))
+	  function(x, y) x %*% as(y, "CsparseMatrix"))
 setMethod("%*%", signature(x = "RsparseMatrix", y = "mMatrix"),
-	  function(x, y) .R.2.C(x) %*% y)
+	  function(x, y) as(x, "CsparseMatrix") %*% y)
 
 
 ## bail-out methods in order to get better error messages
@@ -267,7 +267,7 @@ setMethod("%*%", signature(x = "numLike",      y = "sparseVector"), v.X.sp)
 setMethod("crossprod", signature(x = "dgeMatrix", y = "missing"),
 	  function(x, y = NULL, boolArith=NA, ...) {
 	      if(isTRUE(boolArith)) ## FIXME: very inefficient
-		  crossprod(as(x,"sparseMatrix"), boolArith=TRUE)
+		  crossprod(.dense2sparse(x, "..C"), boolArith=TRUE)
 	      else
 		  .Call(dgeMatrix_crossprod, x, FALSE)
 	  })
@@ -276,7 +276,8 @@ setMethod("crossprod", signature(x = "dgeMatrix", y = "missing"),
 setMethod("crossprod", signature(x = "dgeMatrix", y = "dgeMatrix"),
 	  function(x, y=NULL, boolArith=NA, ...) {
 	      if(isTRUE(boolArith)) ## FIXME: very inefficient
-		  crossprod(as(x,"sparseMatrix"), as(y,"sparseMatrix"), boolArith=TRUE)
+		  crossprod(.dense2sparse(x, "..C"), .dense2sparse(y, "..C"),
+                            boolArith=TRUE)
 	      else
 		  .Call(dgeMatrix_dgeMatrix_crossprod, x, y, FALSE)
 	  })
@@ -284,7 +285,8 @@ setMethod("crossprod", signature(x = "dgeMatrix", y = "dgeMatrix"),
 setMethod("crossprod", signature(x = "dgeMatrix", y = "matrix"),
 	  function(x, y=NULL, boolArith=NA, ...) {
 	      if(isTRUE(boolArith)) ## FIXME: very inefficient
-		  crossprod(as(x,"sparseMatrix"), as(y,"sparseMatrix"), boolArith=TRUE)
+		  crossprod(.dense2sparse(x, "..C"), .m2sparse(y, ".gC"),
+                            boolArith=TRUE)
 	      else
                   .Call(dgeMatrix_matrix_crossprod, x, y, FALSE)
 	  })
@@ -292,14 +294,15 @@ setMethod("crossprod", signature(x = "dgeMatrix", y = "matrix"),
 setMethod("crossprod", signature(x = "dgeMatrix", y = "numLike"),
 	  function(x, y=NULL, boolArith=NA, ...) {
 	      if(isTRUE(boolArith))
-		  crossprod(as(x,"sparseMatrix"), as(y,"sparseVector"), boolArith=TRUE)
+		  crossprod(.dense2sparse(x, "..C"), as(y, "sparseVector"),
+                            boolArith=TRUE)
 	      else
                   .Call(dgeMatrix_matrix_crossprod, x, y, FALSE)
 	  })
 
 setMethod("crossprod", signature(x = "matrix", y = "dgeMatrix"),
 	  function(x, y=NULL, boolArith=NA, ...)
-	      crossprod(..2dge(x), y, boolArith=boolArith, ...))
+	      crossprod(.m2ge(x, "d"), y, boolArith=boolArith, ...))
 
 setMethod("crossprod", signature(x = "numLike", y = "dgeMatrix"),
 	  function(x, y=NULL, boolArith=NA, ...)
@@ -309,18 +312,19 @@ for(c.x in paste0(c("d", "l", "n"), "denseMatrix")) {
     setMethod("crossprod", signature(x = c.x, y = "missing"),
 	      function(x, y = NULL, boolArith=NA, ...)
 		  if(isTRUE(boolArith)) ## FIXME: very inefficient
-		      crossprod(as(x,"sparseMatrix"), boolArith=TRUE)
+		      crossprod(.dense2sparse(x, "..C"), boolArith=TRUE)
 		  else
 		      .Call(geMatrix_crossprod, x, FALSE))
 
-    for(c.y in c("matrix", paste0(c("d", "l", "n"), "denseMatrix"))) {
-	setMethod("crossprod", signature(x = c.x, y = c.y),
-	  function(x, y=NULL, boolArith=NA, ...)
-	      if(isTRUE(boolArith)) ## FIXME: very inefficient
-		  crossprod(as(x,"sparseMatrix"), as(y,"sparseMatrix"), boolArith=TRUE)
-	      else
-		  .Call(geMatrix_geMatrix_crossprod, x, y, FALSE))
-    }
+    for(c.y in c("matrix", paste0(c("d", "l", "n"), "denseMatrix")))
+    setMethod("crossprod", signature(x = c.x, y = c.y),
+              function(x, y=NULL, boolArith=NA, ...)
+                  if(isTRUE(boolArith)) ## FIXME: very inefficient
+                      crossprod(.dense2sparse(x, "..C"),
+                                .m2sparse(y, "..C"),
+                                boolArith=TRUE)
+                  else
+                      .Call(geMatrix_geMatrix_crossprod, x, y, FALSE))
 }
 ## setMethod("crossprod", signature(x = "dtrMatrix", y = "missing"),
 ## 	  function(x, y = NULL, boolArith=NA, ...)
@@ -330,14 +334,16 @@ for(c.x in paste0(c("d", "l", "n"), "denseMatrix")) {
 setMethod("crossprod", signature(x = "dtrMatrix", y = "dtrMatrix"),
 	  function(x, y=NULL, boolArith=NA, ...)
 	      if(isTRUE(boolArith)) ## FIXME: very inefficient
-		  crossprod(as(x,"sparseMatrix"), as(y,"sparseMatrix"), boolArith=TRUE)
+		  crossprod(.dense2sparse(x, "..C"), .dense2sparse(y, "..C"),
+                            boolArith=TRUE)
 	      else
 		  .Call(dtrMatrix_dtrMatrix_mm, x, y, FALSE, TRUE))
 
 setMethod("crossprod", signature(x = "dtrMatrix", y = "ddenseMatrix"),
 	  function(x, y=NULL, boolArith=NA, ...)
 	      if(isTRUE(boolArith)) ## FIXME: very inefficient
-		  crossprod(as(x,"sparseMatrix"), as(y,"sparseMatrix"), boolArith=TRUE)
+		  crossprod(.dense2sparse(x, "..C"), .dense2sparse(y, "..C"),
+                            boolArith=TRUE)
 	      else
 		  .Call(dtrMatrix_matrix_mm, x, y, FALSE, TRUE))
 
@@ -345,7 +351,8 @@ setMethod("crossprod", signature(x = "dtrMatrix", y = "ddenseMatrix"),
 setMethod("crossprod", signature(x = "dtrMatrix", y = "matrix"),
 	  function(x, y=NULL, boolArith=NA, ...)
 	      if(isTRUE(boolArith)) ## FIXME: very inefficient
-		  crossprod(as(x,"sparseMatrix"), as(y,"sparseMatrix"), boolArith=TRUE)
+		  crossprod(.dense2sparse(x, "..C"), .m2sparse(y, ".gC"),
+                            boolArith=TRUE)
 	      else
 		  .Call(dtrMatrix_matrix_mm, x, y, FALSE, TRUE))
 
@@ -353,7 +360,8 @@ setMethod("crossprod", signature(x = "dtrMatrix", y = "matrix"),
 setMethod("crossprod", signature(x = "matrix", y = "dtrMatrix"),
 	  function(x, y=NULL, boolArith=NA, ...)
 	      if(isTRUE(boolArith)) ## FIXME: very inefficient
-		  crossprod(as(x,"sparseMatrix"), as(y,"sparseMatrix"), boolArith=TRUE)
+		  crossprod(.m2sparse(x, ".gC"), .dense2sparse(y, "..C"),
+                            boolArith=TRUE)
 	      else
 		  .Call(dtrMatrix_matrix_mm, y, t(x), TRUE, FALSE))
 
@@ -363,21 +371,24 @@ if(FALSE) ## not yet in C
 setMethod("crossprod", signature(x = "dtpMatrix", y = "dtpMatrix"),
 	  function(x, y=NULL, boolArith=NA, ...)
 	      if(isTRUE(boolArith))
-		  crossprod(as(x,"sparseMatrix"), as(y,"sparseMatrix"), boolArith=TRUE)
+		  crossprod(.dense2sparse(x, "..C"), .dense2sparse(y, "..C"),
+                            boolArith=TRUE)
 	      else
 		  .Call(dtpMatrix_dtpMatrix_mm, x, y, FALSE, TRUE))
 
 setMethod("crossprod", signature(x = "dtpMatrix", y = "ddenseMatrix"),
 	  function(x, y=NULL, boolArith=NA, ...)
 	      if(isTRUE(boolArith))
-		  crossprod(as(x,"sparseMatrix"), as(y,"sparseMatrix"), boolArith=TRUE)
+		  crossprod(.dense2sparse(x, "..C"), .dense2sparse(y, "..C"),
+                            boolArith=TRUE)
 	      else
 		  .Call(dtpMatrix_matrix_mm, x, y, FALSE, TRUE))
 
 setMethod("crossprod", signature(x = "dtpMatrix", y = "matrix"),
 	  function(x, y=NULL, boolArith=NA, ...)
 	      if(isTRUE(boolArith))
-		  crossprod(as(x,"sparseMatrix"), as(y,"sparseMatrix"), boolArith=TRUE)
+		  crossprod(.dense2sparse(x, "..C"), .m2sparse(y, ".gC"),
+                            boolArith=TRUE)
 	      else
 		  .Call(dtpMatrix_matrix_mm, x, y, FALSE, TRUE))
 
@@ -412,13 +423,13 @@ setMethod("crossprod", signature(x = "CsparseMatrix", y = "CsparseMatrix"),
 setMethod("crossprod", signature(x = "CsparseMatrix", y = "ddenseMatrix"),
 	  function(x, y=NULL, boolArith=NA, ...)
 	      if(isTRUE(boolArith))
-		  crossprod(x, as(y,"sparseMatrix"), boolArith=TRUE)
+		  crossprod(x, .dense2sparse(y, "..C"), boolArith=TRUE)
 	      else
 		  .Call(Csparse_dense_crossprod, x, y, " "))
 setMethod("crossprod", signature(x = "CsparseMatrix", y = "matrix"),
 	  function(x, y=NULL, boolArith=NA, ...)
 	      if(isTRUE(boolArith))
-		  crossprod(x, as(y,"sparseMatrix"), boolArith=TRUE)
+		  crossprod(x, .m2sparse(y, ".gC"), boolArith=TRUE)
 	      else
 		  .Call(Csparse_dense_crossprod, x, y, " "))
 setMethod("crossprod", signature(x = "CsparseMatrix", y = "numLike"),
@@ -435,50 +446,53 @@ setMethod("crossprod", signature(x = "TsparseMatrix", y = "missing"),
 
 setMethod("crossprod", signature(x = "TsparseMatrix", y = "ANY"),
 	  function(x, y = NULL, boolArith = NA, ...)
-              crossprod(.T.2.C(x), y, boolArith=boolArith, ...))
+              crossprod(.T2C(x), y, boolArith=boolArith, ...))
 setMethod("crossprod", signature(x = "ANY", y = "TsparseMatrix"),
 	  function(x, y=NULL, boolArith=NA, ...)
-              crossprod(x, .T.2.C(y), boolArith=boolArith, ...))
+              crossprod(x, .T2C(y), boolArith=boolArith, ...))
 setMethod("crossprod", signature(x = "TsparseMatrix", y = "Matrix"),
 	  function(x, y=NULL, boolArith=NA, ...)
-              crossprod(.T.2.C(x), y, boolArith=boolArith, ...))
+              crossprod(.T2C(x), y, boolArith=boolArith, ...))
 setMethod("crossprod", signature(x = "Matrix", y = "TsparseMatrix"),
 	  function(x, y=NULL, boolArith=NA, ...)
-              crossprod(x, .T.2.C(y), boolArith=boolArith, ...))
+              crossprod(x, .T2C(y), boolArith=boolArith, ...))
 setMethod("crossprod", signature(x = "TsparseMatrix", y = "TsparseMatrix"),
 	  function(x, y=NULL, boolArith=NA, ...)
-              crossprod(.T.2.C(x), .T.2.C(y), boolArith=boolArith, ...))
+              crossprod(.T2C(x), .T2C(y), boolArith=boolArith, ...))
 
 
 setMethod("crossprod", signature(x = "dsparseMatrix", y = "ddenseMatrix"),
 	  function(x, y=NULL, boolArith=NA, ...)
 	      if(isTRUE(boolArith))
-		  crossprod(as(x, "CsparseMatrix"), as(y,"sparseMatrix"), boolArith=TRUE)
+		  crossprod(as(x, "CsparseMatrix"), .dense2sparse(y, "..C"),
+                            boolArith=TRUE)
 	      else
 		  .Call(Csparse_dense_crossprod, as(x, "CsparseMatrix"), y, " "))
 
 setMethod("crossprod", signature(x = "ddenseMatrix", y = "dgCMatrix"),
 	  function(x, y=NULL, boolArith=NA, ...)
 	      if(isTRUE(boolArith))
-		  crossprod(as(x, "sparseMatrix"), y, boolArith=TRUE)
+		  crossprod(.dense2sparse(x, "..C"), y, boolArith=TRUE)
 	      else
 		  .Call(Csparse_dense_crossprod, y, x, "c"))
 setMethod("crossprod", signature(x = "ddenseMatrix", y = "dsparseMatrix"),
 	  function(x, y=NULL, boolArith=NA, ...)
 	      if(isTRUE(boolArith))
-		  crossprod(as(x, "sparseMatrix"), as(y, "CsparseMatrix"), boolArith=TRUE)
+		  crossprod(.dense2sparse(x, "..C"), as(y, "CsparseMatrix"),
+                            boolArith=TRUE)
 	      else
                   .Call(Csparse_dense_crossprod, as(y, "CsparseMatrix"), x, "c"))
 setMethod("crossprod", signature(x = "dgCMatrix", y = "dgeMatrix"),
 	  function(x, y=NULL, boolArith=NA, ...)
 	      if(isTRUE(boolArith))
-		  crossprod(x, as(y, "CsparseMatrix"), boolArith=TRUE)
+		  crossprod(x, .dense2sparse(y, "..C"), boolArith=TRUE)
 	      else
 		  .Call(Csparse_dense_crossprod, x, y, " "))
 setMethod("crossprod", signature(x = "dsparseMatrix", y = "dgeMatrix"),
 	  function(x, y=NULL, boolArith=NA, ...)
 	      if(isTRUE(boolArith))
-		  crossprod(as(x, "CsparseMatrix"), as(y, "CsparseMatrix"), boolArith=TRUE)
+		  crossprod(as(x, "CsparseMatrix"), .dense2sparse(y, "..C"),
+                            boolArith=TRUE)
 	      else
 		  .Call(Csparse_dense_crossprod, as(x, "CsparseMatrix"), y, " "))
 
@@ -492,38 +506,42 @@ setMethod("crossprod", signature(x = "dsparseMatrix", y = "dgeMatrix"),
 
 setMethod("crossprod", signature(x = "lsparseMatrix", y = "ldenseMatrix"),
 	  function(x, y=NULL, boolArith=NA, ...)
-	      crossprod(x, as(y, "sparseMatrix"), boolArith=boolArith, ...))
+	      crossprod(x, .dense2sparse(y, "..C"), boolArith=boolArith, ...))
 
 setMethod("crossprod", signature(x = "ldenseMatrix", y = "lsparseMatrix"),
 	  function(x, y=NULL, boolArith=NA, ...)
-	      crossprod(as(x, "sparseMatrix"), y, boolArith=boolArith, ...))
+	      crossprod(.dense2sparse(x, "..C"), y, boolArith=boolArith, ...))
 
 setMethod("crossprod", signature(x = "lsparseMatrix", y = "lsparseMatrix"),
 	  function(x, y=NULL, boolArith=NA, ...)
-	      crossprod(as(x, "lgCMatrix"), as(y, "lgCMatrix"), boolArith=boolArith, ...))
+              crossprod(.sparse2g(as(x, "CsparseMatrix")),
+                        .sparse2g(as(y, "CsparseMatrix")),
+                        boolArith=boolArith, ...))
 
 setMethod("crossprod", signature(x = "nsparseMatrix", y = "ndenseMatrix"),
 	  function(x, y=NULL, boolArith=NA, ...)
-	      crossprod(x, as(y, "sparseMatrix"), boolArith=boolArith, ...))
+	      crossprod(x, .dense2sparse(y, "..C"), boolArith=boolArith, ...))
 
 setMethod("crossprod", signature(x = "ndenseMatrix", y = "nsparseMatrix"),
 	  function(x, y=NULL, boolArith=NA, ...)
-	      crossprod(as(x, "sparseMatrix"), y, boolArith=boolArith, ...))
+	      crossprod(.dense2sparse(x, "..C"), y, boolArith=boolArith, ...))
 
 setMethod("crossprod", signature(x = "nsparseMatrix", y = "nsparseMatrix"),
 	  function(x, y=NULL, boolArith=NA, ...)
-	      crossprod(as(x, "ngCMatrix"), as(y, "ngCMatrix"), boolArith=boolArith, ...))
+              crossprod(.sparse2g(as(x, "CsparseMatrix")),
+                        .sparse2g(as(y, "CsparseMatrix")),
+                        boolArith=boolArith, ...))
 
 setMethod("crossprod", signature(x = "ddenseMatrix", y = "CsparseMatrix"),
 	  function(x, y=NULL, boolArith=NA, ...)
 	      if(isTRUE(boolArith))
-		  crossprod(as(x, "CsparseMatrix"), y, boolArith=TRUE)
+		  crossprod(.dense2sparse(x, "..C"), y, boolArith=TRUE)
 	      else
 		  .Call(Csparse_dense_crossprod, y, x, "c"))
 setMethod("crossprod", signature(x = "matrix",	     y = "CsparseMatrix"),
 	  function(x, y=NULL, boolArith=NA, ...)
 	      if(isTRUE(boolArith))
-		  crossprod(as(x, "CsparseMatrix"), y, boolArith=TRUE)
+		  crossprod(.m2sparse(x, ".gC"), y, boolArith=TRUE)
 	      else
 		  .Call(Csparse_dense_crossprod, y, x, "c"))
 setMethod("crossprod", signature(x = "numLike",	     y = "CsparseMatrix"),
@@ -595,14 +613,17 @@ setMethod("crossprod", signature(x = "symmetricMatrix", y = "Matrix"),
 setMethod("crossprod", signature(x = "symmetricMatrix", y = "ANY"),
 	  function(x,y=NULL, boolArith=NA, ...)
 	      if(isTRUE(boolArith)) x %&% y else x %*% y)
-##
 
 ## RsparseMatrix -- via CsparseMatrix:
 for(mClass in c("mMatrix", "ANY")) {
     setMethod("crossprod", signature(x = mClass, y = "RsparseMatrix"),
-	      function(x, y) crossprod(x, .R.2.C(y)))
+	      function(x, y, boolArith=NA, ...)
+                  crossprod(x, as(y, "CsparseMatrix"),
+                            boolArith=boolArith, ...))
     setMethod("crossprod", signature(x = "RsparseMatrix", y = mClass),
-	      function(x, y) crossprod(.R.2.C(x), y))
+	      function(x, y, boolArith=NA, ...)
+                  crossprod(as(x, "CsparseMatrix"), y,
+                            boolArith=boolArith, ...))
 }
 
 ## cheap fallbacks
@@ -632,32 +653,35 @@ setMethod("crossprod", signature(x = "ANY", y = "Matrix"),
 setMethod("tcrossprod", signature(x = "dgeMatrix", y = "dgeMatrix"),
 	  function(x, y=NULL, boolArith=NA, ...)
 	      if(isTRUE(boolArith)) ## FIXME: very inefficient
-		  tcrossprod(as(x, "sparseMatrix"), as(y,"sparseMatrix"), boolArith=TRUE)
+		  tcrossprod(.dense2sparse(x, "..C"), .dense2sparse(y, "..C"),
+                             boolArith=TRUE)
 	      else
 		  .Call(dgeMatrix_dgeMatrix_crossprod, x, y, TRUE))
 setMethod("tcrossprod", signature(x = "dgeMatrix", y = "matrix"),
 	  function(x, y=NULL, boolArith=NA, ...)
 	      if(isTRUE(boolArith)) ## FIXME: very inefficient
-		  tcrossprod(as(x, "sparseMatrix"), as(y,"sparseMatrix"), boolArith=TRUE)
+		  tcrossprod(.dense2sparse(x, "..C"), .m2sparse(y, ".gC"),
+                             boolArith=TRUE)
 	      else
 		  .Call(dgeMatrix_matrix_crossprod, x, y, TRUE))
 
 setMethod("tcrossprod", signature(x = "dgeMatrix", y = "numLike"),
 	  function(x, y=NULL, boolArith=NA, ...)
 	      if(isTRUE(boolArith)) ## FIXME: very inefficient
-		  tcrossprod(as(x, "sparseMatrix"), as(y,"sparseVector"), boolArith=TRUE)
+		  tcrossprod(.dense2sparse(x, "..C"), as(y,"sparseVector"),
+                             boolArith=TRUE)
 	      else
 		  .Call(dgeMatrix_matrix_crossprod, x, y, TRUE))
 
 setMethod("tcrossprod", signature(x = "matrix", y = "dgeMatrix"),
 	  function(x, y=NULL, boolArith=NA, ...)
-	      tcrossprod(..2dge(x), y, boolArith=boolArith, ...))
+	      tcrossprod(.m2ge(x, "d"), y, boolArith=boolArith, ...))
 setMethod("tcrossprod", signature(x = "numLike", y = "dgeMatrix"), .v.Mt)
 
 setMethod("tcrossprod", signature(x = "dgeMatrix", y = "missing"),
 	  function(x, y=NULL, boolArith=NA, ...)
 	      if(isTRUE(boolArith)) ## FIXME: very inefficient
-		  tcrossprod(as(x, "sparseMatrix"), boolArith=TRUE)
+		  tcrossprod(.dense2sparse(x, "..C"), boolArith=TRUE)
 	      else
 		  .Call(dgeMatrix_crossprod, x, TRUE))
 
@@ -665,25 +689,27 @@ for(c.x in paste0(c("d", "l", "n"), "denseMatrix")) {
     setMethod("tcrossprod", signature(x = c.x, y = "missing"),
 	      function(x, y=NULL, boolArith=NA, ...)
 		  if(isTRUE(boolArith)) ## FIXME: very inefficient
-		      tcrossprod(as(x, "sparseMatrix"), boolArith=TRUE)
+		      tcrossprod(.dense2sparse(x, "..C"), boolArith=TRUE)
 		  else
 		      .Call(geMatrix_crossprod, x, TRUE))
 
-    for(c.y in c("matrix", paste0(c("d", "l", "n"), "denseMatrix"))) {
-	setMethod("tcrossprod", signature(x = c.x, y = c.y),
-	  function(x, y=NULL, boolArith=NA, ...)
-	      if(isTRUE(boolArith)) ## FIXME: very inefficient
-		  tcrossprod(as(x,"sparseMatrix"), as(y,"sparseMatrix"), boolArith=TRUE)
-	      else
-		  .Call(geMatrix_geMatrix_crossprod, x, y, TRUE))
-    }
+    for(c.y in c("matrix", paste0(c("d", "l", "n"), "denseMatrix")))
+    setMethod("tcrossprod", signature(x = c.x, y = c.y),
+              function(x, y=NULL, boolArith=NA, ...)
+                  if(isTRUE(boolArith)) ## FIXME: very inefficient
+                      tcrossprod(.dense2sparse(x, "..C"),
+                                 .m2sparse(y, "..C"),
+                                 boolArith=TRUE)
+                  else
+                      .Call(geMatrix_geMatrix_crossprod, x, y, TRUE))
 }
+rm(c.x, c.y)
 
 if(FALSE) { ## this would mask 'base::tcrossprod'
 setMethod("tcrossprod", signature(x = "matrix", y = "missing"),
 	  function(x, y=NULL, boolArith=NA, ...)
 	      if(isTRUE(boolArith)) ## FIXME: very inefficient
-		  tcrossprod(as(x, "sparseMatrix"), boolArith=TRUE)
+		  tcrossprod(.m2sparse(x, ".gC"), boolArith=TRUE)
 	      else
 		  .Call(dgeMatrix_crossprod, ..2dge(x), TRUE))
 setMethod("tcrossprod", signature(x = "numLike", y = "missing"),
@@ -693,13 +719,14 @@ setMethod("tcrossprod", signature(x = "numLike", y = "missing"),
 
 setMethod("tcrossprod", signature(x = "ddenseMatrix", y = "missing"),
 	  function(x, y=NULL, boolArith=NA, ...)
-	      tcrossprod(as(x, "dgeMatrix"), boolArith=boolArith, ...))
+	      tcrossprod(.dense2g(x), boolArith=boolArith, ...))
 
 
 setMethod("tcrossprod", signature(x = "dtrMatrix", y = "dtrMatrix"),
 	  function(x, y=NULL, boolArith=NA, ...)
 	      if(isTRUE(boolArith)) ## FIXME: very inefficient
-		  tcrossprod(as(x, "sparseMatrix"), as(y,"sparseMatrix"), boolArith=TRUE)
+		  tcrossprod(.dense2sparse(x, "..C"), .dense2sparse(y, "..C"),
+                             boolArith=TRUE)
 	      else
 		  .Call(dtrMatrix_dtrMatrix_mm, y, x, TRUE, TRUE))
 
@@ -717,14 +744,16 @@ setMethod("tcrossprod", signature(x = "dtrMatrix", y = "dtrMatrix"),
 setMethod("tcrossprod", signature(x = "ddenseMatrix", y = "dtrMatrix"),
 	  function(x, y=NULL, boolArith=NA, ...)
 	      if(isTRUE(boolArith)) ## FIXME: very inefficient
-		  tcrossprod(as(x, "sparseMatrix"), as(y,"sparseMatrix"), boolArith=TRUE)
+		  tcrossprod(.dense2sparse(x, "..C"), .dense2sparse(y, "..C"),
+                             boolArith=TRUE)
 	      else
 		  .Call(dtrMatrix_matrix_mm, y, x, TRUE, TRUE))
 
 setMethod("tcrossprod", signature(x = "matrix", y = "dtrMatrix"),
 	  function(x, y=NULL, boolArith=NA, ...)
 	      if(isTRUE(boolArith)) ## FIXME: very inefficient
-		  tcrossprod(as(x, "sparseMatrix"), as(y,"sparseMatrix"), boolArith=TRUE)
+		  tcrossprod(.m2sparse(x, ".gC"), .dense2sparse(y, "..C"),
+                             boolArith=TRUE)
 	      else
 		  .Call(dtrMatrix_matrix_mm, y, x, TRUE, TRUE))
 
@@ -732,14 +761,16 @@ if(FALSE) { ## TODO in C
 setMethod("tcrossprod", signature(x = "ddenseMatrix", y = "dtpMatrix"),
 	  function(x, y=NULL, boolArith=NA, ...)
 	      if(isTRUE(boolArith)) ## FIXME: very inefficient
-		  tcrossprod(as(x, "sparseMatrix"), as(y,"sparseMatrix"), boolArith=TRUE)
+		  tcrossprod(.dense2sparse(x, "..C"), .dense2sparse(y, "..C"),
+                             boolArith=TRUE)
 	      else
 		  .Call(dtpMatrix_matrix_mm, y, x, TRUE, TRUE))
 
 setMethod("tcrossprod", signature(x = "matrix", y = "dtpMatrix"),
 	  function(x, y=NULL, boolArith=NA, ...)
 	      if(isTRUE(boolArith)) ## FIXME: very inefficient
-		  tcrossprod(as(x, "sparseMatrix"), as(y,"sparseMatrix"), boolArith=TRUE)
+		  tcrossprod(.m2sparse(x, ".gC"), .dense2sparse(y, "..C"),
+                             boolArith=TRUE)
 	      else
 		  .Call(dtpMatrix_matrix_mm, y, x, TRUE, TRUE))
 }# FALSE
@@ -758,13 +789,13 @@ for(dmat in c("ddenseMatrix", "matrix")) {
 setMethod("tcrossprod", signature(x = "CsparseMatrix", y = dmat),
 	  function(x, y=NULL, boolArith=NA, ...)
 	      if(isTRUE(boolArith)) ## FIXME: very inefficient
-		  tcrossprod(x, as(y,"CsparseMatrix"), boolArith=TRUE)
+		  tcrossprod(x, .m2sparse(y, "..C"), boolArith=TRUE)
 	      else
                   .Call(Csparse_dense_prod, x, y, "2"))
 setMethod("tcrossprod", signature(x = dmat, y = "CsparseMatrix"),
 	  function(x, y=NULL, boolArith=NA, ...)
               if(isTRUE(boolArith)) ## FIXME: very inefficient
-                  tcrossprod(as(x,"CsparseMatrix"), y, boolArith=TRUE)
+                  tcrossprod(.m2sparse(x, "..C"), y, boolArith=TRUE)
               else
 		  .Call(Csparse_dense_prod, y, x, "B"))
 
@@ -786,9 +817,9 @@ setMethod("tcrossprod", signature(x = "numLike",      y = "CsparseMatrix"),
 ### -- xy' = (yx')' --------------------
 tcr.dd.sC <- function(x, y=NULL, boolArith=NA, ...) {
     if(isTRUE(boolArith)) ## FIXME: very inefficient
-	tcrossprod(as(x,"CsparseMatrix"), y, boolArith=TRUE)
+	tcrossprod(.m2sparse(x, "..C"), y, boolArith=TRUE)
     else
-	.Call(Csparse_dense_prod, y, x, "c")
+	.Call(Csparse_dense_prod, y, x, "B")
 }
 for(.sCMatrix in paste0(c("d", "l", "n"), "sCMatrix")) { ## speedup for *symmetric* RHS
     setMethod("tcrossprod", signature(x = "ddenseMatrix", y = .sCMatrix), tcr.dd.sC)
@@ -803,19 +834,19 @@ setMethod("tcrossprod", signature(x = "TsparseMatrix", y = "missing"),
 
 setMethod("tcrossprod", signature(x = "ANY", y = "TsparseMatrix"),
 	  function(x, y=NULL, boolArith=NA, ...)
-	      tcrossprod(x, .T.2.C(y), boolArith=boolArith, ...))
+	      tcrossprod(x, .T2C(y), boolArith=boolArith, ...))
 setMethod("tcrossprod", signature(x = "TsparseMatrix", y = "ANY"),
 	  function(x, y=NULL, boolArith=NA, ...)
-	      tcrossprod(.T.2.C(x), y, boolArith=boolArith, ...))
+	      tcrossprod(.T2C(x), y, boolArith=boolArith, ...))
 setMethod("tcrossprod", signature(x = "Matrix", y = "TsparseMatrix"),
 	  function(x, y=NULL, boolArith=NA, ...)
-	      tcrossprod(x, .T.2.C(y), boolArith=boolArith, ...))
+	      tcrossprod(x, .T2C(y), boolArith=boolArith, ...))
 setMethod("tcrossprod", signature(x = "TsparseMatrix", y = "Matrix"),
 	  function(x, y=NULL, boolArith=NA, ...)
-	      tcrossprod(.T.2.C(x), y, boolArith=boolArith, ...))
+	      tcrossprod(.T2C(x), y, boolArith=boolArith, ...))
 setMethod("tcrossprod", signature(x = "TsparseMatrix", y = "TsparseMatrix"),
 	  function(x, y=NULL, boolArith=NA, ...)
-	      tcrossprod(.T.2.C(x), .T.2.C(y), boolArith=boolArith, ...))
+	      tcrossprod(.T2C(x), .T2C(y), boolArith=boolArith, ...))
 
 
 ## "Matrix"
@@ -884,9 +915,13 @@ setMethod("tcrossprod", signature(x = "sparseVector", y = "numLike"),
 ## RsparseMatrix -- via CsparseMatrix:
 for(mClass in c("mMatrix", "ANY")) {
     setMethod("tcrossprod", signature(x = mClass, y = "RsparseMatrix"),
-	      function(x, y) crossprod(x, .R.2.C(y)))
+	      function(x, y, boolArith=NA, ...)
+                  tcrossprod(x, as(y, "CsparseMatrix"),
+                             boolArith=boolArith, ...))
     setMethod("tcrossprod", signature(x = "RsparseMatrix", y = mClass),
-	      function(x, y) crossprod(.R.2.C(x), y))
+	      function(x, y, boolArith=NA, ...)
+                  tcrossprod(as(x, "CsparseMatrix"), y,
+                             boolArith=boolArith, ...))
 }
 
 
@@ -944,13 +979,41 @@ setMethod("%&%", signature(x = "matrix", y = "ANY"), function(x, y) x %&% as.mat
 setMethod("%&%", signature(x = "ANY", y = "matrix"), function(x, y) as.matrix(x) %&% y)
 setMethod("%&%", signature(x = "Matrix", y = "ANY"), function(x, y) x %&% as(y, "Matrix"))
 setMethod("%&%", signature(x = "ANY", y = "Matrix"), function(x, y) as(x, "Matrix") %&% y)
-## catch all
-setMethod("%&%", signature(x = "mMatrix", y = "mMatrix"),
+## catch all --- NB: These are *not* sufficient: sparse d* and l*  need to drop0() or use  do(.., drop0=TRUE)
+## setMethod("%&%", signature(x = "mMatrix", y = "mMatrix"),
+## 	  function(x, y) as(x, "nMatrix") %&% as(y, "nMatrix"))
+## setMethod("%&%", signature(x = "Matrix", y = "Matrix"),
+## 	  function(x, y) as(x, "nMatrix") %&% as(y, "nMatrix"))
+## setMethod("%&%", signature(x = "mMatrix", y = "nMatrix"), function(x, y) as(x, "nMatrix") %&% y)
+## setMethod("%&%", signature(x = "nMatrix", y = "mMatrix"), function(x, y) x %&% as(y, "nMatrix"))
+##  ==> restrict signatures to *dense*
+setMethod("%&%", signature(x = "matrix", y = "matrix"),
 	  function(x, y) as(x, "nMatrix") %&% as(y, "nMatrix"))
 setMethod("%&%", signature(x = "Matrix", y = "Matrix"),
+	  function(x, y) as(x, "denseMatrix") %&% as(y, "denseMatrix"))
+setMethod("%&%", signature(x = "denseMatrix", y = "denseMatrix"),
 	  function(x, y) as(x, "nMatrix") %&% as(y, "nMatrix"))
-setMethod("%&%", signature(x = "mMatrix", y = "nMatrix"), function(x, y) as(x, "nMatrix") %&% y)
-setMethod("%&%", signature(x = "nMatrix", y = "mMatrix"), function(x, y) x %&% as(y, "nMatrix"))
+## ensure  drop0() happens (*efficiently*) for sparse matrices:
+for(c1 in c("CsparseMatrix", "RsparseMatrix", "TsparseMatrix")) {
+  if(c1 == "CsparseMatrix")
+      for(c2 in c("RsparseMatrix", "TsparseMatrix"))
+	  setMethod("%&%", signature(x = c1, y = c2),
+		    function(x, y) .sparse2kind(x, "n", drop0=TRUE) %&%
+				   as(.sparse2kind(y, "n", drop0=TRUE), "CsparseMatrix"))
+  else # c1 = "R..." or "T..."
+      for(c2 in c("CsparseMatrix", "RsparseMatrix", "TsparseMatrix"))
+	  setMethod("%&%", signature(x = c1, y = c2),
+		    function(x, y) as(.sparse2kind(x, "n", drop0=TRUE), "CsparseMatrix") %&%
+				   as(.sparse2kind(y, "n", drop0=TRUE), "CsparseMatrix"))
+  ## FIXME?  coercion to  'CsparseMatrix' is too bossy; need one of C,R,T however :
+  setMethod("%&%", signature(x = "mMatrix", y = c1),
+	  function(x, y) .sparse2kind(as(x, "CsparseMatrix"), "n", drop0=TRUE) %&%
+			 .sparse2kind(y, "n", drop0=TRUE))
+  setMethod("%&%", signature(x = c1, y = "mMatrix"),
+            function(x, y) .sparse2kind(x, "n", drop0=TRUE) %&%
+                           .sparse2kind(as(y, "CsparseMatrix"), "n", drop0=TRUE))
+}
+rm(c1,c2)
 
 ## sparseVectors :
 sp.bx.sp <- function(x, y) Matrix(any(x & y), 1L, 1L, sparse=FALSE)
@@ -973,7 +1036,6 @@ setMethod("%&%", signature(x = "sparseVector", y = "mMatrix"), function(x, y)
 setMethod("%&%", signature(x = "sparseVector", y = "sparseVector"), sp.bX.sp)
 setMethod("%&%", signature(x = "sparseVector", y = "numLike"),      sp.bX.sp)
 setMethod("%&%", signature(x = "numLike",      y = "sparseVector"), v.bX.sp)
-
 ## For now --- suboptimally!!! --- we coerce to nsparseMatrix always:
 setMethod("%&%", signature(x = "nMatrix", y = "nsparseMatrix"),
 	  function(x, y) as(x, "nsparseMatrix") %&% y)

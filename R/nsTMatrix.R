@@ -2,6 +2,8 @@
 
 ### contains = "nsparseMatrix"
 
+## MJ: no longer needed ... replacement in ./sparseMatrix.R
+if(FALSE) {
 setAs("nsTMatrix", "matrix",
       function(from) as(as(from, "ngTMatrix"), "matrix"))
 
@@ -19,9 +21,12 @@ setAs("nsTMatrix", "dsTMatrix",
 
 setAs("nsTMatrix", "nsyMatrix",
       function(from) .Call(nsTMatrix_as_nsyMatrix, from))
+} ## MJ
 
-
+## MJ: no longer needed ... method now inherited from TsparseMatrix
+if(FALSE) {
 setMethod("t", "nsTMatrix",
 	  function(x)
 	  new("nsTMatrix", Dim = x@Dim, Dimnames = x@Dimnames[2:1],
 	      i = x@j, j = x@i, uplo = if (x@uplo == "U") "L" else "U"))
+} ## MJ

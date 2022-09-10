@@ -1,11 +1,17 @@
 \name{rcond}
 \title{Estimate the Reciprocal Condition Number}
+%
 \alias{rcond}
-% most methods are "documented" in <foo>Matrix-class.Rd
+%
 \alias{rcond,ANY,missing-method}
-\alias{rcond,Matrix,character-method}
-\alias{rcond,ldenseMatrix,character-method}
-\alias{rcond,ndenseMatrix,character-method}
+\alias{rcond,denseMatrix,character-method}
+\alias{rcond,dgeMatrix,character-method}
+\alias{rcond,dpoMatrix,character-method}
+\alias{rcond,dppMatrix,character-method}
+\alias{rcond,dspMatrix,character-method}
+\alias{rcond,dsyMatrix,character-method}
+\alias{rcond,dtpMatrix,character-method}
+\alias{rcond,dtrMatrix,character-method}
 \alias{rcond,sparseMatrix,character-method}
 %
 \usage{

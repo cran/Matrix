@@ -105,6 +105,9 @@ SEXP Rsparse_validate(SEXP x)
     return ScalarLogical(1);
 }
 
+/* MJ: no longer needed ... prefer R_sparse_as_dense() */
+#if 0
+
 /** @brief From a CsparseMatrix, produce a dense one.
  *
  * Directly deals with symmetric, triangular and general.
@@ -200,6 +203,8 @@ SEXP Csparse_to_dense(SEXP x, SEXP symm_or_tri)
 	return ans;
 }
 
+#endif /* MJ */
+
 // FIXME: do not go via CHM (should not be too hard, to just *drop* the x-slot, right?
 SEXP Csparse2nz(SEXP x, Rboolean tri)
 {
@@ -213,6 +218,10 @@ SEXP Csparse2nz(SEXP x, Rboolean tri)
 			      /* diag = */ tri ? diag_P(x) : "",
 			      GET_SLOT(x, Matrix_DimNamesSym));
 }
+
+/* MJ: no longer needed ... prefer R_sparse_as_kind() */
+#if 0
+
 SEXP Csparse_to_nz_pattern(SEXP x, SEXP tri)
 {
     int tr_ = asLogical(tri);
@@ -228,6 +237,8 @@ SEXP nz_pattern_to_Csparse(SEXP x, SEXP res_kind)
 {
     return nz2Csparse(x, asInteger(res_kind));
 }
+
+#endif /* MJ */
 
 // n.CMatrix --> [dli].CMatrix  (not going through CHM!)
 // NOTE: use chm_MOD_xtype(() to change type of  'cholmod_sparse' matrix
@@ -287,6 +298,9 @@ SEXP nz2Csparse(SEXP x, enum x_slot_kind r_kind)
     return ans;
 }
 
+/* MJ: no longer needed ... prefer R_sparse_as_matrix() */
+#if 0
+
 SEXP Csparse_to_matrix(SEXP x, SEXP chk, SEXP symm)
 {
     int is_sym = asLogical(symm);
@@ -299,14 +313,21 @@ SEXP Csparse_to_matrix(SEXP x, SEXP chk, SEXP symm)
 	cholmod_sparse_to_dense(AS_CHM_SP2(x, asLogical(chk)), &c),
 	1 /*do_free*/,
 	(is_sym
-	 ? symmetric_DimNames(GET_SLOT(x, Matrix_DimNamesSym))
-	 :                    GET_SLOT(x, Matrix_DimNamesSym)));
+	 ? get_symmetrized_DimNames(x, -1)
+	 : GET_SLOT(x, Matrix_DimNamesSym)));
 }
+
+#endif /* MJ */
+
+/* MJ: no longer needed ... prefer R_sparse_as_vector() */
+#if 0
 
 SEXP Csparse_to_vector(SEXP x)
 {
     return chm_dense_to_vector(cholmod_sparse_to_dense(AS_CHM_SP__(x), &c), 1);
 }
+
+#endif /* MJ */
 
 SEXP Csparse_to_Tsparse(SEXP x, SEXP tri)
 {
@@ -321,6 +342,9 @@ SEXP Csparse_to_Tsparse(SEXP x, SEXP tri)
 			       Rkind, tr ? diag_P(x) : "",
 			       GET_SLOT(x, Matrix_DimNamesSym));
 }
+
+/* MJ: unused */
+#if 0
 
 SEXP Csparse_to_tCsparse(SEXP x, SEXP uplo, SEXP diag)
 {
@@ -345,6 +369,10 @@ SEXP Csparse_to_tTsparse(SEXP x, SEXP uplo, SEXP diag)
 			       GET_SLOT(x, Matrix_DimNamesSym));
 }
 
+#endif
+
+/* MJ: no longer needed ... prefer R_sparse_as_general() */
+#if 0
 
 SEXP Csparse_symmetric_to_general(SEXP x)
 {
@@ -356,10 +384,15 @@ SEXP Csparse_symmetric_to_general(SEXP x)
 	error(_("Nonsymmetric matrix in Csparse_symmetric_to_general"));
     chgx = cholmod_copy(chx, /* stype: */ 0, chx->xtype, &c);
     return chm_sparse_to_SEXP(chgx, 1, 0, Rkind, "",
-			      symmetric_DimNames(GET_SLOT(x, Matrix_DimNamesSym)));
+			      get_symmetrized_DimNames(x, -1));
 }
 
-// Called from R's  forceCspSymmetric() ,  .gC2sym()
+#endif /* MJ */
+
+/* MJ: no longer needed ... prefer R_sparse_force_symmetric() */
+#if 0
+
+// Called from R's forceSymmetricCsparse(), .gC2sC()
 SEXP Csparse_general_to_symmetric(SEXP x, SEXP uplo, SEXP sym_dmns)
 {
     int *adims = INTEGER(GET_SLOT(x, Matrix_DimSym)), n = adims[0];
@@ -368,52 +401,36 @@ SEXP Csparse_general_to_symmetric(SEXP x, SEXP uplo, SEXP sym_dmns)
 	return R_NilValue; /* -Wall */
     }
     CHM_SP chx = AS_CHM_SP__(x), chgx;
-    int uploT = (*CHAR(asChar(uplo)) == 'U') ? 1 : -1;
+    int uploT = (*CHAR(asChar(uplo)) == 'U');
     int Rkind = (chx->xtype != CHOLMOD_PATTERN) ? Real_kind(x) : 0;
     R_CheckStack();
-    chgx = cholmod_copy(chx, /* stype: */ uploT, chx->xtype, &c);
+    chgx = cholmod_copy(chx, /* stype: */ (uploT ? 1 : -1), chx->xtype, &c);
 
-    SEXP dns = GET_SLOT(x, Matrix_DimNamesSym);
-    int symDmns = asLogical(sym_dmns); /* 1, NA_LOGICAL or 0 */
-    /* 3 cases:
-       FALSE: keep as is;
-       TRUE : symmetric dimnames in any case
-       NA   : symmetrize if(...)
+    SEXP ans, dn = GET_SLOT(x, Matrix_DimNamesSym);
+    int symDmns = asLogical(sym_dmns);
+    /* 3 cases ... 0: do nothing
+                   1: symmetrize
+          NA_LOGICAL: symmetrize if necessary
     */
-    if(symDmns == FALSE) { } // *keep* asymmetric dimnames:  do nothing
-/// FIXME: TRUE: *should* do symmetric dimnames in any case, but does *NOT* --> symmetric_Dimnames()
-    else if(symDmns == TRUE)
-	dns = symmetric_DimNames(dns);
-    else // NA_LOGICAL (was 'FALSE' case) :
-	if((!isNull(VECTOR_ELT(dns, 0)) &&
-	    !isNull(VECTOR_ELT(dns, 1))) ||
-	   !isNull(getAttrib(dns, R_NamesSymbol))) {
-	    /* symmetrize them if both are not NULL
-	     * or names(dimnames(.)) is asymmetric : */
-/// FIXME --- this is partly *MORE* than what 'TRUE' case above does !!!!
-	    dns = PROTECT(duplicate(dns));
-	    if(!equal_string_vectors(VECTOR_ELT(dns, 0),
-				     VECTOR_ELT(dns, 1))) {
-		if(uploT == 1)
-		    SET_VECTOR_ELT(dns, 0, VECTOR_ELT(dns,1));
-		else
-		    SET_VECTOR_ELT(dns, 1, VECTOR_ELT(dns,0));
-	    }
-	    SEXP nms_dns = getAttrib(dns, R_NamesSymbol);
-	    if(!isNull(nms_dns) &&  // names(dimnames(.)) :
-	       !R_compute_identical(STRING_ELT(nms_dns, 0),
-				    STRING_ELT(nms_dns, 1), 16)) {
-		if(uploT == 1)
-		    SET_STRING_ELT(nms_dns, 0, STRING_ELT(nms_dns,1));
-		else
-		    SET_STRING_ELT(nms_dns, 1, STRING_ELT(nms_dns,0));
-		setAttrib(dns, R_NamesSymbol, nms_dns);
-	    }
-	    UNPROTECT(1);
-	}
-    /* Rkind: pattern, "real", complex or .. */
-    return chm_sparse_to_SEXP(chgx, 1, 0, Rkind, "", dns);
+    symDmns = (symDmns == 1 ||
+	       (symDmns != 0 &&
+		((!isNull(VECTOR_ELT(dn, 0)) && !isNull(VECTOR_ELT(dn, 1))) ||
+		 !isNull(getAttrib(dn, R_NamesSymbol)))));
+    if (symDmns) {
+	SEXP newdn = PROTECT(allocVector(VECSXP, 2));
+	symmDN(newdn, dn, -1);
+	dn = newdn;
+    }
+    ans = chm_sparse_to_SEXP(chgx, 1, 0, Rkind, "", dn);
+    UNPROTECT(symDmns);
+    return ans;
 }
+
+#endif /* MJ */
+
+/* MJ: no longer needed ... prefer R_sparse_transpose() */
+/* MJ: however, some reverse dependencies built with Matrix < 1.4-2 need it */
+#ifdef Matrix_SupportingCachedMethods
 
 SEXP Csparse_transpose(SEXP x, SEXP tri)
 {
@@ -444,6 +461,8 @@ SEXP Csparse_transpose(SEXP x, SEXP tri)
     UNPROTECT(2);
     return ans;
 }
+
+#endif /* MJ */
 
 /** @brief  A %*% B  - for matrices of class CsparseMatrix (R package "Matrix")
  *
@@ -524,9 +543,13 @@ SEXP Csparse_Csparse_prod(SEXP a, SEXP b, SEXP bool_arith)
 	b_symm = R_check_class_etc(b, valid_sym) >= 0;
     SEXP dn = PROTECT(allocVector(VECSXP, 2));
     SET_VECTOR_ELT(dn, 0,
-		   duplicate(VECTOR_ELT(a_symm ? R_symmetric_Dimnames(a) : GET_SLOT(a, Matrix_DimNamesSym), 0)));
+		   duplicate(VECTOR_ELT(a_symm ?
+					get_symmetrized_DimNames(a, -1)
+					: GET_SLOT(a, Matrix_DimNamesSym), 0)));
     SET_VECTOR_ELT(dn, 1,
-		   duplicate(VECTOR_ELT(b_symm ? R_symmetric_Dimnames(b) : GET_SLOT(b, Matrix_DimNamesSym), 1)));
+		   duplicate(VECTOR_ELT(b_symm
+					? get_symmetrized_DimNames(b, -1)
+					: GET_SLOT(b, Matrix_DimNamesSym), 1)));
     UNPROTECT(nprot);
     return chm_sparse_to_SEXP(chc, 1, uploT, /*Rkind*/0, diag, dn);
 }
@@ -590,11 +613,11 @@ SEXP Csparse_Csparse_crossprod(SEXP a, SEXP b, SEXP trans, SEXP bool_arith)
     cholmod_free_sparse(&chTr, &c);
 
     /* Preserve triangularity and unit-triangularity if appropriate;
-     * see Csparse_Csparse_prod() for comments */
+     * see Csparse_Csparse_prod() for more comments */
     if(R_check_class_etc(a, valid_tri) >= 0 &&
        R_check_class_etc(b, valid_tri) >= 0)
 	if(*uplo_P(a) != *uplo_P(b)) { /* one 'U', the other 'L' */
-	    uploT = (*uplo_P(b) == 'U') ? 1 : -1;
+	    uploT = (*uplo_P(b) == (tr ? 'L' : 'U')) ? 1 : -1;
 	    if(*diag_P(a) == 'U' && *diag_P(b) == 'U') { /* return UNIT-triag. */
 		chm_diagN2U(chc, uploT, /* do_realloc */ FALSE);
 		diag[0]= 'U';
@@ -658,25 +681,22 @@ SEXP Csp_dense_products(SEXP a, SEXP b,
        according to the general R philosophy of treating vectors in matrix products.
     */
 
-    /* repeating a "cheap part" of  mMatrix_as_dgeMatrix2(b, .)  to see if
-     * we have a vector that we might 'transpose_if_vector' : */
-    static const char *valid[] = {"_NOT_A_CLASS_", MATRIX_VALID_ddense, ""};
-    /* int ctype = R_check_class_etc(b, valid);
-     * if (ctype > 0)   /.* a ddenseMatrix object */
-    if (R_check_class_etc(b, valid) < 0) {
-	// not a ddenseM*:  is.matrix() or vector:
+    /* repeating a "cheap part" of dense_as_general() 
+       to see if we have a vector that we might 'transpose_if_vector' : */
+    static const char *valid[] = {MATRIX_VALID_ddense, ""};
+    if (R_check_class_etc(b, valid) < 0)
+	// _not_ a ddenseM* or a ddiM*:  is.matrix() or vector:
 	b_is_vector = !isMatrix(b);
-    }
 
     if(b_is_vector) {
 	/* determine *if* we want/need to transpose at all:
 	 * if (length(b) == ncol(A)) have match: use dim = c(n, 1) (<=> do *not* transp);
 	 *  otherwise, try to transpose: ok  if (ncol(A) == 1) [see also above]:  */
 	maybe_transp_b = (XLENGTH(b) != a_nc);
-	// Here, we transpose already in mMatrix_as_dge*()  ==> don't do it later:
+	// Here, we transpose already in dense_as_ge*()  ==> don't do it later:
 	transp_b = FALSE;
     }
-    SEXP b_M = PROTECT(mMatrix_as_dgeMatrix2(b, maybe_transp_b));
+    SEXP b_M = PROTECT(dense_as_general(b, 'd', 2, maybe_transp_b));
 
     CHM_DN chb = AS_CHM_DN(b_M), b_t;
     R_CheckStack();
@@ -896,6 +916,10 @@ SEXP Csparse_vertcat(SEXP x, SEXP y)
     return retval;
 }
 
+/* MJ: no longer needed ... prefer R_sparse_band() */
+/* MJ: however, some reverse dependencies built with Matrix < 1.4-2 need it */
+#ifdef Matrix_SupportingCachedMethods
+
 SEXP Csparse_band(SEXP x, SEXP k1, SEXP k2)
 {
     CHM_SP chx = AS_CHM_SP__(x);
@@ -906,6 +930,8 @@ SEXP Csparse_band(SEXP x, SEXP k1, SEXP k2)
     return chm_sparse_to_SEXP(ans, 1, /* uploT = */ 0, Rkind, "",
 			      GET_SLOT(x, Matrix_DimNamesSym));
 }
+
+#endif /* MJ */
 
 SEXP Csparse_diagU2N(SEXP x)
 {
@@ -1327,6 +1353,9 @@ SEXP create_Csparse(char* cls, int* i, int* j, int* p, int np,
     return ans;
 }
 
+/* MJ: no longer needed ... prefer R_dense_as_sparse() */
+#if 0
+
 /**
  * Create a Csparse matrix object from a traditional R matrix
  *
@@ -1377,7 +1406,7 @@ SEXP matrix_to_Csparse(SEXP x, SEXP cls)
 	     : allocVector(VECSXP, 2));
 
     int nz = 0, // current number of nonzero entries
-	nnz = imax2(256, imax2(nr,nc));/* nnz := final number of nonzero entries, yet unknown;
+	nnz = MAXOF(256, MAXOF(nr,nc));/* nnz := final number of nonzero entries, yet unknown;
 					   -- must start with guess and then grow */
     int *rp = INTEGER(ALLOC_SLOT(ans, Matrix_pSym, INTSXP, nc + 1)),
 	*ri = R_Calloc(nnz, int); // to become i slot -- of not-yet-known length nnz
@@ -1434,6 +1463,7 @@ SEXP matrix_to_Csparse(SEXP x, SEXP cls)
     return ans;
 }
 
+#endif /* MJ */
 
 // seed will *not* be used unless it's -1 (inverse perm.) or  0 ("no" / identity) perm.
 static csd* Csparse_dmperm_raw(SEXP mat, SEXP seed)

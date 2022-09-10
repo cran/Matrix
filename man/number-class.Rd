@@ -1,7 +1,7 @@
 \name{number-class}
+\title{Class "number" of Possibly Complex Numbers}
 \docType{class}
 \alias{number-class}
-\title{Class "number" of Possibly Complex Numbers}
 \description{The class \code{"number"} is a virtual class,
   currently used for vectors of eigen values which can be
   \code{"numeric"} or \code{"complex"}.

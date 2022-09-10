@@ -1,23 +1,49 @@
 #### "corMatrix" (was "correlation" in 2005) ---
 #### ----------- correlation matrices, inheriting from  "dpoMatrix"
 
-## dpo* -> cor* is in ./dpoMatrix.R
-.M.2cor <- function(from) as(as(from, "dpoMatrix"), "corMatrix")
+.dpo2cor <- function(from) {
+    if(!is.null(r <- from@factors$correlation))
+        return(r)
+    sd <- sqrt(diag(from, names = FALSE))
+    Is <- Diagonal(x = 1 / sd)
+    r <- new("corMatrix", Dim = from@Dim, Dimnames = from@Dimnames,
+             uplo = from@uplo, x = (Is %*% from %*% Is)@x, sd = sd)
+    .set.factors(from, "correlation", r)
+}
+.M2cor <- function(from) .dpo2cor(as(from, "dpoMatrix"))
 
-setAs("Matrix", "corMatrix", .M.2cor)
-setAs("matrix", "corMatrix", .M.2cor)
+setAs("dpoMatrix", "corMatrix", .dpo2cor)
+setAs("dppMatrix", "corMatrix", .M2cor)
+setAs(   "matrix", "corMatrix", .M2cor)
+setAs(   "Matrix", "corMatrix", .M2cor)
 
-## This is necessary :
-setAs("dsyMatrix", "corMatrix", .M.2cor)
-## BUT only because __ MM thinks __
-## the *automatical* (by inheritance) coercion
-### dsyMatrix -> corMatrix coercion is wrong:
-## selectMethod(coerce, c("dsyMatrix","corMatrix")) # gives
+## The 'setAs' call below is necessary to override the _implicitly defined_
+## dsy->cor coercion (see ?setAs). Without it, we get:
+##
+## > selectMethod("coerce", c("dsyMatrix", "corMatrix"))
 ## function (from, to)
 ## {
 ##     obj <- new("corMatrix")
 ##     as(obj, "dsyMatrix") <- from
 ##     obj
 ## }
+##
+## which is incorrect!
+setAs("dsyMatrix", "corMatrix", .M2cor)
+rm(.M2cor)
 
-rm(.M.2cor)
+## MJ: no longer needed ... prefer variant above which is much faster
+if(FALSE) {
+.dpo2cor <- function(from) {
+    if(!is.null(cm <- from@factors$correlation))
+        return(cm)
+    sd <- sqrt(diag(from))
+    if(is.null(names(sd)) && !is.null(nms <- from@Dimnames[[1L]]))
+        names(sd) <- nms
+    Is <- Diagonal(x = 1 / sd)
+    .set.factors(from, "correlation",
+                 new("corMatrix",
+                     as(forceSymmetric(Is %*% from %*% Is), "dpoMatrix"),
+                     sd = unname(sd)))
+}
+} ## MJ

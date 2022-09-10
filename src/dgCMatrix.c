@@ -2,15 +2,15 @@
 // to get strdup declared in glibc (when strict -std=c11 or -stdc99):
 #define _POSIX_C_SOURCE 200809L
 #endif
-
 #include <string.h>
-
 #include "dgCMatrix.h"
+#include "chm_common.h"
 
+/* MJ: no longer */
+#if 0
 /* for Csparse_transpose() : */
 #include "Csparse.h"
-#include "chm_common.h"
-/* -> Mutils.h / SPQR ... */
+#endif /* MJ */
 
 /* FIXME -- we "forget" about dimnames almost everywhere : */
 
@@ -37,6 +37,9 @@ SEXP xRMatrix_validate(SEXP x)
 
     return ScalarLogical(1);
 }
+
+/* MJ: no longer needed ... prefer CRsparse_as_Tsparse */
+#if 0
 
 /* This and the following R_to_CMatrix() lead to memory-not-mapped seg.faults
  * only with {32bit + R-devel + enable-R-shlib} -- no idea why */
@@ -69,7 +72,7 @@ SEXP compressed_to_TMatrix(SEXP x, SEXP colP)
 	if(ctype % 3 == 2) /* t(riangular) : */
 	    slot_dup(ans, x, Matrix_diagSym);
     }
-    SET_DimNames(ans, x);
+    set_DimNames(ans, GET_SLOT(x, Matrix_DimNamesSym));
     // possibly asymmetric for symmetricMatrix is ok
     SET_SLOT(ans, indSym, duplicate(indP));
     expand_cmprPt(npt, INTEGER(pP),
@@ -79,6 +82,12 @@ SEXP compressed_to_TMatrix(SEXP x, SEXP colP)
     UNPROTECT(3);
     return ans;
 }
+
+#endif /* MJ */
+
+/* MJ: no longer needed ... 
+   now done via R_sparse_transpose(), tCRsparse_as_RCsparse() */
+#if 0
 
 SEXP R_to_CMatrix(SEXP x)
 {
@@ -114,7 +123,7 @@ SEXP R_to_CMatrix(SEXP x)
     SET_SLOT(ans, Matrix_iSym, duplicate(GET_SLOT(x, Matrix_jSym)));
     slot_dup(ans, x, Matrix_pSym);
     REPROTECT(ans = Csparse_transpose(ans, tri), ipx);
-    SET_DimNames(ans, x);
+    set_DimNames(ans, GET_SLOT(x, Matrix_DimNamesSym));
     // possibly asymmetric for symmetricMatrix is ok
     free(ncl);
     UNPROTECT(2);
@@ -122,6 +131,7 @@ SEXP R_to_CMatrix(SEXP x)
 }
 // NB: C_to_RMatrix(.)  may be nice, but would need Rsparse_transpose()
 
+#endif /* MJ */
 
 /** Return a 2 column matrix  '' cbind(i, j) ''  of 0-origin index vectors (i,j)
  *  which entirely correspond to the (i,j) slots of
@@ -381,7 +391,7 @@ void install_lu(SEXP Ap, int order, double tol, Rboolean err_sing, Rboolean keep
 	else {
 	    /* No warning: The useR should be careful :
 	     * Put  NA  into  "LU" factor */
-	    set_factors(Ap, ScalarLogical(NA_LOGICAL), "LU");
+	    set_factor(Ap, "LU", ScalarLogical(NA_LOGICAL));
 	    return;
 	}
     }
@@ -444,8 +454,9 @@ void install_lu(SEXP Ap, int order, double tol, Rboolean err_sing, Rboolean keep
     cs_nfree(N);
     cs_sfree(S);
     cs_free(p);
+    set_factor(Ap, "LU", ans);
     UNPROTECT(1);
-    set_factors(Ap, ans, "LU");
+    return;
 }
 
 SEXP dgCMatrix_LU(SEXP Ap, SEXP orderp, SEXP tolp, SEXP error_on_sing, SEXP keep_dimnames)
@@ -459,14 +470,14 @@ SEXP dgCMatrix_LU(SEXP Ap, SEXP orderp, SEXP tolp, SEXP error_on_sing, SEXP keep
      * OTOH, currently  (order, tol) === (1, 1) always.
      * It is true that length(LU@q) does flag the order argument.
      */
-    if (!isNull(ans = get_factors(Ap, "LU")))
+    if (!isNull(ans = get_factor(Ap, "LU")))
 	return ans;
     int keep_dimnms = asLogical(keep_dimnames);
     if(keep_dimnms == NA_LOGICAL) { keep_dimnms = TRUE;
 	warning(_("dgcMatrix_LU(*, keep_dimnames = NA): NA taken as TRUE"));
     }
     install_lu(Ap, asInteger(orderp), asReal(tolp), err_sing, keep_dimnms);
-    return get_factors(Ap, "LU");
+    return get_factor(Ap, "LU");
 }
 
 SEXP dgCMatrix_matrix_solve(SEXP Ap, SEXP b, SEXP give_sparse)
@@ -485,18 +496,18 @@ SEXP dgCMatrix_matrix_solve(SEXP Ap, SEXP b, SEXP give_sparse)
 	 */
 
     }
-    SEXP ans = PROTECT(dup_mMatrix_as_dgeMatrix(b)),
+    SEXP ans = PROTECT(dense_as_general(b, 'd', 2, 0)),
 	lu, qslot;
     CSP L, U;
     int *bdims = INTEGER(GET_SLOT(ans, Matrix_DimSym)), *p, *q;
     int j, n = bdims[0], nrhs = bdims[1];
     double *x, *ax = REAL(GET_SLOT(ans, Matrix_xSym));
-    C_or_Alloca_TO(x, n, double);
+    Calloc_or_Alloca_TO(x, n, double);
 
-    if (isNull(lu = get_factors(Ap, "LU"))) {
+    if (isNull(lu = get_factor(Ap, "LU"))) {
 	install_lu(Ap, /* order = */ 1, /* tol = */ 1.0, /* err_sing = */ TRUE,
 		   /* keep_dimnames = */ TRUE);
-	lu = get_factors(Ap, "LU");
+	lu = get_factor(Ap, "LU");
     }
     qslot = GET_SLOT(lu, install("q"));
     L = AS_CSP__(GET_SLOT(lu, Matrix_LSym));
@@ -520,7 +531,7 @@ SEXP dgCMatrix_matrix_solve(SEXP Ap, SEXP b, SEXP give_sparse)
 		Memcpy(ax + j * n_, x, n);
 	}
     }
-    if(n >= SMALL_4_Alloca) R_Free(x);
+    Free_FROM(x, n);
     UNPROTECT(1);
     return ans;
 }

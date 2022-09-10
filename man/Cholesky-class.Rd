@@ -1,18 +1,17 @@
 \name{Cholesky-class}
+\title{Cholesky and Bunch-Kaufman Decompositions}
 \docType{class}
+%
 \alias{Cholesky-class}
 \alias{pCholesky-class}
 \alias{BunchKaufman-class}
 \alias{pBunchKaufman-class}
 %
-\alias{coerce,pCholesky,lMatrix-method}
-\alias{coerce,pBunchKaufman,lMatrix-method}
-\alias{coerce,Cholesky,lMatrix-method}
-\alias{coerce,BunchKaufman,lMatrix-method}
 \alias{show,BunchKaufman-method}
 \alias{show,pBunchKaufman-method}
+\alias{show,Cholesky-method}
+\alias{show,pCholesky-method}
 %
-\title{Cholesky and Bunch-Kaufman Decompositions}
 \description{The \code{"Cholesky"} class is the class of Cholesky
   decompositions of positive-semidefinite, real dense matrices.  The
   \code{"BunchKaufman"} class is the class of Bunch-Kaufman
@@ -89,7 +88,7 @@
   ones, see the section \sQuote{Note}.
 }
 \examples{
-(sm <- as(as(Matrix(diag(5) + 1), "dsyMatrix"), "dspMatrix"))
+(sm <- pack(Matrix(diag(5) + 1))) # dspMatrix
 signif(csm <- chol(sm), 4)
 
 (pm <- crossprod(Matrix(rnorm(18), nrow = 6, ncol = 3)))

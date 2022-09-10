@@ -1,12 +1,12 @@
 \name{Matrix}
-\alias{Matrix}
 \title{Construct a Classed Matrix}
+\alias{Matrix}
+\description{
+  Construct a Matrix of a class that inherits from \code{Matrix}.
+}
 \usage{
 Matrix(data=NA, nrow=1, ncol=1, byrow=FALSE, dimnames=NULL,
        sparse = NULL, doDiag = TRUE, forceCheck = FALSE)
-}
-\description{
-  Construct a Matrix of a class that inherits from \code{Matrix}.
 }
 \arguments{
   \item{data}{an optional numeric data vector or matrix.}
@@ -28,6 +28,8 @@ Matrix(data=NA, nrow=1, ncol=1, byrow=FALSE, dimnames=NULL,
 
     Otherwise, if \code{doDiag} is false, a dense or sparse (depending on
     \code{sparse}) \emph{symmetric} matrix will be returned.}
+% MJ: not quite ... if 'dimnames' is asymmetric then the result
+%     is a triangularMatrix, not a symmetricMatrix ...
 
   \item{forceCheck}{logical indicating if the checks for structure
     should even happen when \code{data} is already a \code{"Matrix"}

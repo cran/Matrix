@@ -1,6 +1,6 @@
 \name{drop0}
-\alias{drop0}
 \title{Drop "Explicit Zeroes" from a Sparse Matrix}
+\alias{drop0}
 \description{
   Returns a sparse matrix with no \dQuote{explicit zeroes}, i.e., all
   zero or \code{FALSE} entries are dropped from the explicitly indexed

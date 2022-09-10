@@ -1,6 +1,6 @@
 \name{bandSparse}
-\alias{bandSparse}
 \title{Construct Sparse Banded Matrix from (Sup-/Super-) Diagonals}
+\alias{bandSparse}
 \description{
   Construct a sparse banded matrix by specifying its non-zero sup- and
   super-diagonals.

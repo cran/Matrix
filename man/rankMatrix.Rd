@@ -173,10 +173,10 @@ L <- sparseMatrix(i = sample.int(n, nnz, replace=TRUE),
 (st1 <- system.time(r1 <- rankMatrix(L)))                # warning+ ~1.5 sec (2013)
 (st2 <- system.time(r2 <- rankMatrix(L, method = "qr"))) # considerably faster!
 r1[[1]] == print(r2[[1]]) ## -->  ( 33  TRUE )
-\dontshow{ stopifnot(r1[[1]] == 33, 33 == r2[[1]])
- if(doExtras <- interactive() ||
-	identical("true", unname(Sys.getenv("R_PKG_CHECKING_doExtras"))))
-  stopifnot(st2[[1]] < 0.2) # seeing 0.03 (on ~ 2010-hardware; R 3.0.2)
+\dontshow{
+stopifnot(r1[[1]] == 33, 33 == r2[[1]])
+if(interactive() || nzchar(Sys.getenv("R_MATRIX_CHECK_EXTRA")))
+    stopifnot(st2[[1]] < 0.2) # seeing 0.03 (on ~ 2010-hardware; R 3.0.2)
 }
 ## another sparse-"qr" one, which ``failed'' till 2013-11-23:
 set.seed(42)

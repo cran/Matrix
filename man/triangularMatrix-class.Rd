@@ -1,12 +1,15 @@
 \name{triangularMatrix-class}
-\docType{class}
-\alias{triangularMatrix-class}
-\alias{coerce,triangularMatrix,symmetricMatrix-method}
-\alias{coerce,lgeMatrix,triangularMatrix-method}
-\alias{coerce,ngeMatrix,triangularMatrix-method}
-\alias{coerce,matrix,triangularMatrix-method}
-%
 \title{Virtual Class of Triangular Matrices in Package Matrix}
+\docType{class}
+%
+\alias{triangularMatrix-class}
+%
+\alias{Arith,triangularMatrix,diagonalMatrix-method}
+\alias{Compare,triangularMatrix,diagonalMatrix-method}
+\alias{Logic,triangularMatrix,diagonalMatrix-method}
+\alias{coerce,matrix,triangularMatrix-method}
+\alias{determinant,triangularMatrix,logical-method}
+%
 \description{
   The virtual class of triangular matrices,\code{"triangularMatrix"},
   the package \pkg{Matrix} contains \emph{square} (\code{\link{nrow} ==
@@ -25,7 +28,7 @@
       \code{"N"} for non-unit.  The diagonal elements are not
       accessed internally when \code{diag} is \code{"U"}. For
       \code{\linkS4class{denseMatrix}} classes, they need to be
-      allocated though, i.e., the length of the \code{x} slot does not
+      allocated though, such that the length of the \code{x} slot does not
       depend on \code{diag}.}
     \item{\code{Dim}, \code{Dimnames}:}{The dimension (a length-2
       \code{"integer"}) and corresponding names (or \code{NULL}),

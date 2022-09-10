@@ -1,25 +1,29 @@
 \name{CHMfactor-class}
 \title{CHOLMOD-based Cholesky Factorizations}
 \docType{class}
-\alias{CHMfactor-class}% "mother" virtual
-\alias{CHMsimpl-class}% virtual
-\alias{CHMsuper-class}% virtual
-\alias{dCHMsimpl-class}
-\alias{nCHMsimpl-class}
-\alias{dCHMsuper-class}
-\alias{nCHMsuper-class}
-\alias{isLDL}
 %
+\alias{CHMfactor-class}
+\alias{CHMsimpl-class}
+\alias{CHMsuper-class}
+\alias{dCHMsimpl-class}
+\alias{dCHMsuper-class}
+\alias{nCHMsimpl-class}
+\alias{nCHMsuper-class}
+%
+\alias{coerce,CHMfactor,CsparseMatrix-method}
 \alias{coerce,CHMfactor,Matrix-method}
+\alias{coerce,CHMfactor,RsparseMatrix-method}
+\alias{coerce,CHMfactor,TsparseMatrix-method}
+\alias{coerce,CHMfactor,dMatrix-method}
+\alias{coerce,CHMfactor,dsparseMatrix-method}
+\alias{coerce,CHMfactor,pMatrix-method}
 \alias{coerce,CHMfactor,sparseMatrix-method}
 \alias{coerce,CHMfactor,triangularMatrix-method}
-\alias{coerce,CHMfactor,pMatrix-method}
-\alias{expand,CHMfactor-method}
-%\alias{solve,CHMfactor,...}%--> solve-methods.Rd
-\alias{determinant,CHMfactor,missing-method}
 \alias{determinant,CHMfactor,logical-method}
 \alias{update,CHMfactor-method}
+%
 \alias{.updateCHMfactor}
+\alias{isLDL}
 %
 \description{The virtual class \code{"CHMfactor"} is a class of
   CHOLMOD-based Cholesky factorizations of symmetric, sparse,

@@ -1,6 +1,6 @@
 \name{sparseMatrix}
-\alias{sparseMatrix}
 \title{General Sparse Matrix Construction from Nonzero Entries}
+\alias{sparseMatrix}
 \description{
   User friendly construction of a compressed, column-oriented, sparse
   matrix, inheriting from \code{\link{class}}

@@ -1,6 +1,6 @@
 \name{Hilbert}
-\alias{Hilbert}
 \title{Generate a Hilbert matrix}
+\alias{Hilbert}
 \description{
     Generate the \code{n} by \code{n} symmetric Hilbert matrix.  Because
     these matrices are ill-conditioned for moderate to large \code{n},

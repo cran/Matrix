@@ -1,8 +1,7 @@
 \name{Schur-class}
+\title{Class "Schur" of Schur Matrix Factorizations}
 \docType{class}
 \alias{Schur-class}
-%
-\title{Class "Schur" of Schur Matrix Factorizations}
 \description{Class \code{"Schur"} is the class of Schur matrix
   factorizations.  These are a generalization of eigen value (or
   \dQuote{spectral}) decompositions for general (possibly asymmmetric)

@@ -1,7 +1,7 @@
 \name{CAex}
-\alias{CAex}
-\docType{data}
 \title{Albers' example Matrix with "Difficult" Eigen Factorization}
+\docType{data}
+\alias{CAex}
 \description{
   An example of a sparse matrix for which \code{\link{eigen}()} seemed
   to be difficult, an unscaled version of this has been posted to the
@@ -20,8 +20,7 @@
   In earlier versions of \R, \code{\link{eigen}(CAex)} fell into an
   infinite loop whereas \code{\link{eigen}(CAex, EISPACK=TRUE)} had been okay.
 }
-% \source{ see above
-% }
+% \source{}
 \examples{
 data(CAex)
 str(CAex) # of class "dgCMatrix"

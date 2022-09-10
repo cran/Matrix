@@ -2,9 +2,14 @@
 
 ### contains = "lsparseMatrix"
 
+## MJ: no longer needed ... replacement in ./denseMatrix.R
+if(FALSE) {
 setAs("matrix", "ltTMatrix",
       function(from) as(as(from, "ltrMatrix"), "TsparseMatrix"))
+} ## MJ
 
+## MJ: no longer needed ... replacement in ./sparseMatrix.R
+if(FALSE) {
 setAs("ltTMatrix", "lgTMatrix",
       function(from) tT2gT(from, cl = "ltTMatrix", toClass = "lgTMatrix"))
 setAs("ltTMatrix", "generalMatrix",
@@ -26,11 +31,13 @@ setAs("ltTMatrix", "ltrMatrix",
 
 setAs("ltTMatrix", "matrix",
       function(from) as(as(from, "ltrMatrix"), "matrix"))
+} ## MJ
 
-
-
+## MJ: no longer needed ... method now inherited from TsparseMatrix
+if(FALSE) {
 setMethod("t", "ltTMatrix",
 	  function(x)
 	  new("ltTMatrix", Dim = x@Dim[2:1], Dimnames = x@Dimnames[2:1],
 	      i = x@j, j = x@i, x = x@x, diag = x@diag,
 	      uplo = if (x@uplo == "U") "L" else "U"))
+} ## MJ

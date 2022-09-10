@@ -1,13 +1,14 @@
 \name{MatrixFactorization-class}
+\title{Class "MatrixFactorization" of Matrix Factorizations}
+\docType{class}
+%
 \alias{MatrixFactorization-class}
 \alias{CholeskyFactorization-class}
-\docType{class}
-\title{Class "MatrixFactorization" of Matrix Factorizations}
 %
+\alias{determinant,MatrixFactorization,missing-method}
 \alias{dim,MatrixFactorization-method}
-\alias{expand,MatrixFactorization-method}
 \alias{show,MatrixFactorization-method}
-%\alias{solve,MatrixFactorization,ANY-method}--> solve-methods.Rd
+%
 \description{
   The class \code{"MatrixFactorization"} is the virtual (super) class of
   (potentially) all matrix factorizations of matrices from package

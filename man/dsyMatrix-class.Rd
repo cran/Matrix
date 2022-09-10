@@ -1,42 +1,37 @@
 \name{dsyMatrix-class}
-\title{Symmetric Dense (Packed | Non-packed) Numeric Matrices}
+\title{Symmetric Dense (Packed or Unpacked) Numeric Matrices}
 \docType{class}
+%
 \alias{dspMatrix-class}
 \alias{dsyMatrix-class}
 %
-% \alias{solve, ..} --> solve-methods.Rd
-% \alias{\%*%,  ..} --> matrix-products.Rd
+\alias{coerce,dspMatrix,dgeMatrix-method}
+\alias{coerce,dspMatrix,dpoMatrix-method}
+\alias{coerce,dspMatrix,dppMatrix-method}
+\alias{coerce,dspMatrix,dsCMatrix-method}
+\alias{coerce,dspMatrix,dsRMatrix-method}
+\alias{coerce,dspMatrix,dsTMatrix-method}
 \alias{coerce,dspMatrix,dsyMatrix-method}
+\alias{coerce,dspMatrix,dtpMatrix-method}
 \alias{coerce,dspMatrix,lspMatrix-method}
-\alias{coerce,dspMatrix,matrix-method}
-\alias{coerce,dspMatrix,CsparseMatrix-method}
-\alias{coerce,dspMatrix,sparseMatrix-method}
-\alias{coerce,dgeMatrix,dspMatrix-method}
+\alias{coerce,dspMatrix,nspMatrix-method}
 \alias{coerce,matrix,dspMatrix-method}
-\alias{coerce,dgeMatrix,dsyMatrix-method}% or rather setIs?
-\alias{coerce,dsyMatrix,corMatrix-method}
-\alias{coerce,dsyMatrix,dpoMatrix-method}% instead of setIs
-\alias{coerce,dsyMatrix,dspMatrix-method}
-\alias{coerce,dsyMatrix,lsyMatrix-method}
-\alias{.dsy2mat}% hidden but exported
-\alias{coerce,dsyMatrix,matrix-method}
-\alias{coerce,matrix,dsyMatrix-method}
-% \alias{diag,dspMatrix-method} -> ./packedMatrix-class.Rd
-\alias{diag,dsyMatrix-method}
-% \alias{diag<-,dspMatrix-method}
-\alias{diag<-,dsyMatrix-method}
+\alias{determinant,dspMatrix,logical-method}
 %
-\alias{show,dsyMatrix-method}
-\alias{norm,dspMatrix,character-method}
-\alias{norm,dspMatrix,missing-method}
-\alias{norm,dsyMatrix,character-method}
-\alias{norm,dsyMatrix,missing-method}
-\alias{rcond,dspMatrix,character-method}
-\alias{rcond,dspMatrix,missing-method}
-\alias{rcond,dsyMatrix,character-method}
-\alias{rcond,dsyMatrix,missing-method}
-% \alias{t,dspMatrix-method}
-\alias{t,dsyMatrix-method}
+\alias{coerce,dsyMatrix,corMatrix-method}
+\alias{coerce,dsyMatrix,dgeMatrix-method}
+\alias{coerce,dsyMatrix,dpoMatrix-method}
+\alias{coerce,dsyMatrix,dppMatrix-method}
+\alias{coerce,dsyMatrix,dsCMatrix-method}
+\alias{coerce,dsyMatrix,dsRMatrix-method}
+\alias{coerce,dsyMatrix,dsTMatrix-method}
+\alias{coerce,dsyMatrix,dspMatrix-method}
+\alias{coerce,dsyMatrix,dtrMatrix-method}
+\alias{coerce,dsyMatrix,lsyMatrix-method}
+\alias{coerce,dsyMatrix,nsyMatrix-method}
+\alias{coerce,matrix,dsyMatrix-method}
+\alias{determinant,dsyMatrix,logical-method}
+%
 \description{
   \itemize{
     \item{The \code{"dsyMatrix"} class is the class of symmetric, dense matrices
@@ -125,8 +120,8 @@ stopifnot(1 == grep("not a positive definite matrix",
 
 ## 4x4 example
 m <- matrix(0,4,4); m[upper.tri(m)] <- 1:6
-sym <- m+t(m)+diag(11:14, 4); sym
-S1 <- as(sym, "dspMatrix")
+(sym <- m+t(m)+diag(11:14, 4))
+(S1 <- pack(sym))
 (S2 <- t(S1))
 stopifnot(all(S1 == S2)) # equal "seen as matrix", but differ internally :
 str(S1)

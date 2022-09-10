@@ -46,7 +46,7 @@ void sparseQR_Qmult(cs *V, SEXP dmns, double *beta, int *p, int trans,
     if (ydims[0] != m)
 	error(_("sparseQR_Qmult(): nrow(y) = %d != %d = nrow(V)"), ydims[0], m);
     double *x; // workspace
-    C_or_Alloca_TO(x, m, double);
+    Calloc_or_Alloca_TO(x, m, double);
     if (trans) {
 	for (int j = 0; j < ydims[1]; j++) {
 	    double *yj = y + j * m_;
@@ -64,7 +64,7 @@ void sparseQR_Qmult(cs *V, SEXP dmns, double *beta, int *p, int trans,
 	    Memcpy(yj, x, m);
 	}
     }
-    if(m >= SMALL_4_Alloca) R_Free(x);
+    Free_FROM(x, m);
     if(!isNull(dmns)) { // assign rownames to 'ans' matrix
 	// FIXME? colnames taken from 'y' ?!
 	if(!isNull(VECTOR_ELT(dmns, 0))) {
@@ -95,7 +95,7 @@ SEXP sparseQR_qty(SEXP qr, SEXP y, SEXP trans, SEXP keep_dimnames)
     SEXP ans, aa, dmns = R_NilValue;					\
     if(_DM_NMS_) dmns = GET_SLOT(V_, Matrix_DimNamesSym);		\
     PROTECT_INDEX ipx;                                                  \
-    PROTECT_WITH_INDEX(ans = dup_mMatrix_as_dgeMatrix(y), &ipx);	\
+    PROTECT_WITH_INDEX(ans = dense_as_general(y, 'd', 2, 0), &ipx); \
     int *ydims = INTEGER(GET_SLOT(ans, Matrix_DimSym)),			\
 	m = ydims[0], n = ydims[1], M = V->m, *d_a;			\
     Rboolean rank_def = (m < M);					\
@@ -163,7 +163,7 @@ SEXP sparseQR_coef(SEXP qr, SEXP y)
 
     // rownames(ans) := colnames(ans)
     SET_VECTOR_ELT(dmns, 0, VECTOR_ELT(dmns, 1));
-
+    
     /* apply row permutation and multiply by Q' */
     sparseQR_Qmult(V, dmns, REAL(GET_SLOT(qr, Matrix_betaSym)),
 		   INTEGER(GET_SLOT(qr, Matrix_pSym)), /* trans = */ TRUE,
@@ -172,7 +172,7 @@ SEXP sparseQR_coef(SEXP qr, SEXP y)
 
     double *ax = REAL(GET_SLOT(ans, Matrix_xSym)),
 	*x = (double*) NULL;
-    if(lq) { C_or_Alloca_TO(x, M, double); }
+    if (lq) Calloc_or_Alloca_TO(x, M, double);
     for (int j = 0; j < n; j++) {
 	double *aj = ax + j * M;
 	cs_usolve(R, aj);
@@ -181,7 +181,7 @@ SEXP sparseQR_coef(SEXP qr, SEXP y)
 	    Memcpy(aj, x, n_R);
 	}
     }
-    if(lq && M >= SMALL_4_Alloca) R_Free(x);
+    if (lq) Free_FROM(x, M);
 
     if(rank_def) {
 	warning(_("%s(): structurally rank deficient case: possibly WRONG zeros"),

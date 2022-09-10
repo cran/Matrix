@@ -1,7 +1,7 @@
 \name{KNex}
-\alias{KNex}
-\docType{data}
 \title{Koenker-Ng Example Sparse Model Matrix and Response Vector}
+\docType{data}
+\alias{KNex}
 \description{
   A model matrix \code{mm} and corresponding response vector \code{y}
   used in an example by Koenker and Ng.  The matrix \code{mm} is a sparse

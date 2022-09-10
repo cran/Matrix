@@ -9,7 +9,7 @@ MatrixRversion <- pkgRversion("Matrix")
 ###-- 1)  'graph' (from Bioconductor) ---------------------------
 ###-- ==  =======                     ---------------------------
 ## do not run the test "usually" for now [Solaris problem after detach() ..]:
-if((Sys.getenv("USER")=="maechler" || nzchar(Sys.getenv("R_MATRIX_CHECK_EXTRA"))) &&
+if((Sys.getenv("USER") == "maechler" || doExtras) &&
    isTRUE(try(require(graph)))) { # may be there and fail (with R-devel)
 
     if(packageDescription("graph")$Version <= "1.10.2") {
@@ -23,11 +23,14 @@ if((Sys.getenv("USER")=="maechler" || nzchar(Sys.getenv("R_MATRIX_CHECK_EXTRA"))
 
     } else { ## do things
 
-        if(find("which")[[1]] != "package:Matrix") ## horribly, BiocGenerics::which() masks
-            ## *and* kills the correct working of Matrix::which(.) ___ why on earth ?!??!?!! ___
-            which <- Matrix::which
+    if(find("which")[[1L]] != "package:Matrix")
+        ## horribly, BiocGenerics::which() masks
+        ## *and* kills the correct working of Matrix::which(.)
+        ## ___ why on earth ?!??!?!! ___
+        which <- Matrix::which
 
-    if(!dev.interactive(orNone=TRUE)) pdf("other-pkg-graph.pdf")
+    if(doPdf <- !dev.interactive(orNone = TRUE))
+        pdf("other-pkg-graph.pdf")
 
     ## 0) Simplest non-trivial graph: has no weights:
     g0 <- graphNEL(paste(1:2), edgeL=list("1"="2"), "directed")
@@ -71,7 +74,7 @@ if((Sys.getenv("USER")=="maechler" || nzchar(Sys.getenv("R_MATRIX_CHECK_EXTRA"))
     show( sgU )
 
     ## Reverse :  sparseMatrix -> graph
-    sm.g[1,2] <- 1
+    sm.g[1,2] <- TRUE
     gmg  <-  as(sm.g, "graph")
     validObject(gmg2 <-  as(sm.g, "graphNEL"))
     gmgw <-  as(sm.gw, "graph")
@@ -99,7 +102,8 @@ if((Sys.getenv("USER")=="maechler" || nzchar(Sys.getenv("R_MATRIX_CHECK_EXTRA"))
                               to   = c(rbind(25:48,49:72), 49:72))))
 
     detach("package:graph", unload = TRUE)
-    dev.off()
+    if(doPdf) dev.off()
+
     } # {else}
 
 } ## end{graph}

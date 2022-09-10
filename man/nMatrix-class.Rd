@@ -1,16 +1,9 @@
 \name{nMatrix-class}
+\title{Class "nMatrix" of Non-zero Pattern Matrices}
 \docType{class}
-\alias{nMatrix-class}
-\alias{show,nMatrix-method}
-\alias{coerce,matrix,nMatrix-method}
-\alias{coerce,nMatrix,matrix-method}
-\alias{coerce,nMatrix,dMatrix-method}
-\alias{coerce,dMatrix,nMatrix-method}
-\alias{coerce,nMatrix,lMatrix-method}
-\alias{coerce,lMatrix,nMatrix-method}
-% %\alias{coerce,dMatrix,dgeMatrix-method}
 %
-%% Group methods
+\alias{nMatrix-class}
+%
 \alias{Arith,logical,nMatrix-method}
 \alias{Arith,nMatrix,logical-method}
 \alias{Arith,nMatrix,numeric-method}
@@ -20,21 +13,22 @@
 \alias{Compare,nMatrix,nMatrix-method}
 \alias{Compare,nMatrix,numeric-method}
 \alias{Compare,numeric,nMatrix-method}
-\alias{Logic,Matrix,nMatrix-method}
-\alias{Logic,nMatrix,Matrix-method}
-\alias{Logic,nMatrix,nMatrix-method}
-\alias{Logic,nMatrix,logical-method}
-\alias{Logic,nMatrix,numeric-method}
 \alias{Logic,logical,nMatrix-method}
+\alias{Logic,nMatrix,Matrix-method}
+\alias{Logic,nMatrix,logical-method}
+\alias{Logic,nMatrix,nMatrix-method}
+\alias{Logic,nMatrix,numeric-method}
+\alias{Logic,nMatrix,sparseVector-method}
 \alias{Logic,numeric,nMatrix-method}
-\alias{Ops,lMatrix,nMatrix-method}
+\alias{Ops,nMatrix,dMatrix-method}
 \alias{Ops,nMatrix,lMatrix-method}
+\alias{Ops,nMatrix,nMatrix-method}
 \alias{Ops,nMatrix,numeric-method}
 \alias{Ops,numeric,nMatrix-method}
 \alias{Summary,nMatrix-method}
-%\alias{which,nMatrix-method}
+\alias{coerce,matrix,nMatrix-method}
+\alias{coerce,numLike,nMatrix-method}
 %
-\title{Class "nMatrix" of Non-zero Pattern Matrices}
 \description{
   The \code{nMatrix} class is the virtual \dQuote{mother} class of all
   \emph{\bold{n}on-zero pattern} (or simply \emph{patter\bold{n}})

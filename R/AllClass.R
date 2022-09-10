@@ -1,9 +1,19 @@
-## --- New "logic" class -- currently using "raw" instead of "logical"
-## LOGIC setClass("logic", contains = "raw")
+## README:
+##
+## Validity methods should assume that methods for superclasses have passed,
+## following 'validObject()'. We should _not_ be testing, e.g., length(Dim),
+## typeof(Dimnames), etc. repeatedly ...
+##
+## When checking whether a class is validated correctly, take care to follow
+## the 'contains' recursively!!
 
-##' To be used in initialize method or other Matrix constructors
-##'
-##' TODO: via .Call(..)
+
+## To be used in 'initialize' method for "Matrix", or other constructors
+## NB: This must be defined _here_ and _not_ be migrated to ./Auxiliaries.R
+fixupDN <- function(dn) .Call(R_DimNames_fixup, dn)
+
+## MJ: no longer
+if (FALSE) {
 .fixupDimnames <- function(dnms) {
     N.N <- list(NULL, NULL)
     if(is.null(dnms) || identical(dnms, N.N)) return(N.N)
@@ -16,593 +26,558 @@
 	dnms[i0] <- lapply(dnms[i0], as.character)
     dnms
 }
-
-
-## ------------- Virtual Classes ----------------------------------------
-
-## Mother class of all Matrix objects
-setClass("Matrix", contains = "VIRTUAL",
-	 slots = c(Dim = "integer", Dimnames = "list"),
-	 prototype = prototype(Dim = integer(2), Dimnames = list(NULL,NULL)),
-	 validity = function(object) {
-	     if(!isTRUE(r <- .Call(Dim_validate, object, "Matrix")))
-                 r
-             else .Call(dimNames_validate, object)
-	 })
-
-if(FALSE)## Allowing 'Dimnames' to define 'Dim' --> would require changes in
-    ##  ../src/Mutils.c dimNames_validate() and how it is used in validity above
-setMethod("initialize", "Matrix", function(.Object, ...)
-    {
-        .Object <- callNextMethod()
-	if(length(args <- list(...)) && any(nzchar(snames <- names(args))) && "Dimnames" %in% snames)
-	{
-	    .Object@Dimnames <- DN <- .fixupDimnames(.Object@Dimnames)
-	    if(is.na(match("Dim", snames)) && !any(vapply(DN, is.null, NA)))
-		## take 'Dim' from 'Dimnames' dimensions
-		.Object@Dim <- lengths(DN, use.names=FALSE)
-	}
-	.Object
-    })
-
-if(getRversion() >= "3.2.0") {
-setMethod("initialize", "Matrix", function(.Object, ...)
-    {
-        .Object <- callNextMethod()
-	if(length(args <- list(...)) && any(nzchar(snames <- names(args))) && "Dimnames" %in% snames)
-	    .Object@Dimnames <- .fixupDimnames(.Object@Dimnames)
-	.Object
-    })
-} else { ## R < 3.2.0
-setMethod("initialize", "Matrix", function(.Object, ...)
-    {
-	.Object <- callNextMethod(.Object, ...)
-	if(length(args <- list(...)) && any(nzchar(snames <- names(args))) && "Dimnames" %in% snames)
-	    .Object@Dimnames <- .fixupDimnames(.Object@Dimnames)
-	.Object
-    })
 }
 
-## The class of composite matrices - i.e. those for which it makes sense to
-## create a factorization
+
+## ====== Virtual Classes ==============================================
+
+## ------ The Mother Class "Matrix" ------------------------------------
+
+## Virtual class of all Matrix objects
+setClass("Matrix", contains = "VIRTUAL",
+	 slots = c(Dim = "integer", Dimnames = "list"),
+	 prototype = prototype(Dim = integer(2L), Dimnames = list(NULL, NULL)),
+	 validity = function(object) .Call(Matrix_validate, object))
+
+if(FALSE) {
+## Allowing 'Dimnames' to define 'Dim' ... would require changes
+## to DimNames_validate() in ../src/Mutils.c and how it is used
+## in Matrix_validate()
+setMethod("initialize", "Matrix",
+          function(.Object, ...) {
+              .Object <- callNextMethod()
+              if(length(args <- list(...)) &&
+                  any(nzchar(anames <- names(args))) &&
+                  "Dimnames" %in% anames) {
+                  ## Coerce non-character 'Dimnames[[i]]' to character
+                  ## and set zero-length 'Dimnames[[i]]' to NULL
+                  .Object@Dimnames <- DN <- fixupDN(.Object@Dimnames)
+                  if(!("Dim" %in% anames ||
+                       is.null(DN[[1L]]) || is.null(DN[[2L]]))) {
+                      ## Take 'Dim' from lengths of 'Dimnames'
+                      .Object@Dim <- lengths(DN, use.names = FALSE)
+                  }
+              }
+              .Object
+          })
+}
+
+setMethod("initialize", "Matrix",
+          function(.Object, ...) {
+              .Object <- callNextMethod()
+              if(length(args <- list(...)) &&
+                  any(nzchar(anames <- names(args))) &&
+                  "Dimnames" %in% anames) {
+                  ## Coerce non-character 'Dimnames[[i]]' to character
+                  ## and set zero-length 'Dimnames[[i]]' to NULL
+                  .Object@Dimnames <- fixupDN(.Object@Dimnames)
+              }
+              .Object
+          })
+
+
+## ------ Virtual by structure -----------------------------------------
+
+## Virtual class of composite matrices,
+## i.e., those for which it makes sense to define a factorization
 setClass("compMatrix", contains = c("Matrix", "VIRTUAL"),
-	 slots = c(factors = "list"))
+	 slots = c(factors = "list"),
+         validity = function(object) .Call(compMatrix_validate, object))
 
-## Virtual classes of Matrices determined by above/below diagonal relationships
-
+## Virtual class of matrices that are not symmetric, triangular, _or diagonal_
 setClass("generalMatrix", contains = c("compMatrix", "VIRTUAL"))
 
+## Virtual class of symmetric matrices
 setClass("symmetricMatrix", contains = c("compMatrix", "VIRTUAL"),
 	 slots = c(uplo = "character"),
 	 prototype = prototype(uplo = "U"),
 	 validity = function(object) .Call(symmetricMatrix_validate, object))
 
+## Virtual class of triangular matrices
 setClass("triangularMatrix", contains = c("Matrix", "VIRTUAL"),
 	 slots = c(uplo = "character", diag = "character"),
 	 prototype = prototype(uplo = "U", diag = "N"),
 	 validity = function(object) .Call(triangularMatrix_validate, object))
 
-setClass("packedMatrix", contains = c("Matrix", "VIRTUAL"),
-	 slots = c(uplo = "character"),
-	 prototype = prototype(uplo = "U"),
-	 validity = function(object) .Call(packedMatrix_validate, object))
 
-## Virtual class of numeric matrices
+## ------ Virtual by kind ----------------------------------------------
+
+## Virtual class of double matrices
 setClass("dMatrix", contains = c("Matrix", "VIRTUAL"), slots = c(x = "numeric"),
-	 validity = function(object) .Call(dMatrix_validate, object))
+         validity = function(object) .Call(dMatrix_validate, object))
+
+## Virtual class of logical matrices,
+## >>> typically the result of comparisons, e.g., <dMatrix> <relop> <dMatrix>
+## >>> hence NA are allowed and distinct from TRUE, in contrast with "nMatrix"
+setClass("lMatrix", contains = c("Matrix", "VIRTUAL"), slots = c(x = "logical"),
+         validity = function(object) .Call(lMatrix_validate, object))
+
+## Virtual class of nonzero pattern (or simply "pattern") matrices
+## NB: only "ndenseMatrix" requires an 'x' slot
+setClass("nMatrix", contains = c("Matrix", "VIRTUAL"))
 
 ## Virtual class of integer matrices
-setClass("iMatrix", contains = c("Matrix", "VIRTUAL"), slots = c(x = "integer"))
+setClass("iMatrix", contains = c("Matrix", "VIRTUAL"), slots = c(x = "integer"),
+         validity = function(object) .Call(iMatrix_validate, object))
 
-## Virtual class of logical matrices
-setClass("lMatrix", contains = c("Matrix", "VIRTUAL"), slots = c(x = "logical"))
+## Virtual class of complex matrices
+## >>> 'z' as in the names of Lapack routines
+setClass("zMatrix", contains = c("Matrix", "VIRTUAL"), slots = c(x = "complex"),
+         validity = function(object) .Call(zMatrix_validate, object))
 
-## Virtual class of nonzero pattern matrices
-setClass("nMatrix", contains = c("Matrix", "VIRTUAL"))
-## aka 'pattern' matrices -- have no x slot
 
-## Virtual class of complex matrices - 'z'  as in the names of Lapack routines
-setClass("zMatrix", contains = c("Matrix", "VIRTUAL"), slots = c(x = "complex"))
+## ------ Virtual Dense ------------------------------------------------
 
-## Virtual class of dense matrices (including "packed")
+## Virtual class of dense matrices
+## NB: included diagonal matrices until 0.999375-11 (2008-07)
+## NB: includes "unpacked" _and_ "packed" matrices
 setClass("denseMatrix", contains = c("Matrix", "VIRTUAL"))
 
-## Virtual class of dense, numeric matrices
+
+## ...... Virtual Dense ... by storage .................................
+
+## Virtual class of dense, "unpacked" matrices, s.t. length(.@x) == n*n
+setClass("unpackedMatrix", contains = c("denseMatrix", "VIRTUAL"),
+         validity = function(object) .Call(unpackedMatrix_validate, object))
+
+## Virtual class of dense, "packed" matrices, s.t. length(.@x) == n*(n+1)/2
+setClass("packedMatrix", contains = c("denseMatrix", "VIRTUAL"),
+         slots = c(uplo = "character"),
+         prototype = prototype(uplo = "U"),
+	 validity = function(object) .Call(packedMatrix_validate, object))
+
+
+## ...... Virtual Dense ... by kind ....................................
+
+## Virtual class of dense, double matrices
 setClass("ddenseMatrix", contains = c("dMatrix", "denseMatrix", "VIRTUAL"))
 
 ## Virtual class of dense, logical matrices
 setClass("ldenseMatrix", contains = c("lMatrix", "denseMatrix", "VIRTUAL"))
 
-if(FALSE) { ##--not yet--
+## Virtual class of dense, nonzero pattern matrices
+setClass("ndenseMatrix", contains = c("nMatrix", "denseMatrix", "VIRTUAL"),
+	 slots = c(x = "logical"),
+         validity = function(object) .Call(ndenseMatrix_validate, object))
+
+if(FALSE) { # --NOT YET--
 setClass("idenseMatrix", contains = c("iMatrix", "denseMatrix", "VIRTUAL"))
+setClass("zdenseMatrix", contains = c("zMatrix", "denseMatrix", "VIRTUAL"))
+} # --NOT YET--
+
+
+## ....... Virtual Dense ... class intersections .......................
+##                               {for method dispatch}
+
+if(FALSE) {
+## This is "natural" but gives WARNINGs when other packages use "it"
+setClass("geMatrix", contains = c("denseMatrix", "generalMatrix", "VIRTUAL"))
+} else {
+## This may work better for other packages
+## --> setClassUnion() ... below
 }
 
-## Virtual class of dense, nonzero pattern matrices - rarely used, for completeness
-setClass("ndenseMatrix", contains = c("nMatrix", "denseMatrix", "VIRTUAL"),
-	 slots = c(x = "logical"))
 
+## ------ Virtual Sparse -----------------------------------------------
 
-## virtual SPARSE ------------
-
+## Virtual class of sparse matrices
+## NB: includes diagonal matrices since 0.999375-11 (2008-07)
 setClass("sparseMatrix", contains = c("Matrix", "VIRTUAL"))
 
-## diagonal: has 'diag' slot;  diag = "U"  <--> have identity matrix
-setClass("diagonalMatrix", contains = c("sparseMatrix", "VIRTUAL"),
-         ## NOTE:                        ^^^^^^ was dense Matrix, until 0.999375-11 (2008-07)
-         slots = c(diag = "character"),
-	 validity = function(object) {
-	     d <- object@Dim
-	     if(d[1] != (n <- d[2])) return("matrix is not square")
-	     lx <- length(object@x)
-	     if(object@diag == "U") {
-		 if(lx != 0)
-		     return("diag = \"U\" (identity matrix) requires empty 'x' slot")
-	     } else if(object@diag == "N") {
-		 if(lx != n)
-		     return("diagonal matrix has 'x' slot of length != 'n'")
-	     } else return("diagonal matrix 'diag' slot must be \"U\" or \"N\"")
-	     TRUE
-	 },
-	 prototype = prototype(diag = "N")
-	 )
 
-## sparse matrices in Triplet representation (dgT, lgT, ..):
+## ...... Virtual Sparse ... by storage ................................
+
+## Virtual class of diagonal matrices
+setClass("diagonalMatrix", contains = c("sparseMatrix", "VIRTUAL"),
+         slots = c(diag = "character"),
+	 prototype = prototype(diag = "N"),
+         validity = function(object) .Call(diagonalMatrix_validate, object))
+
+## Virtual class of sparse matrices with triplet representation
 setClass("TsparseMatrix", contains = c("sparseMatrix", "VIRTUAL"),
 	 slots = c(i = "integer", j = "integer"),
-	 validity = function(object) .Call(Tsparse_validate, object)
-         )
+	 validity = function(object) .Call(Tsparse_validate, object))
 
+## Virtual class of compressed sparse column-oriented matrices
 setClass("CsparseMatrix", contains = c("sparseMatrix", "VIRTUAL"),
 	 slots = c(i = "integer", p = "integer"),
-	 prototype = prototype(p = 0L),# to be valid
-         validity = function(object) .Call(Csparse_validate, object)
-         )
+	 prototype = prototype(p = 0L), # to be valid
+         validity = function(object) .Call(Csparse_validate, object))
 
-if(FALSE) { ## in theory.. would be neat for  new("dgCMatrix", Dim = c(3L,3L))
-setMethod("initialize", "CsparseMatrix", function(.Object, ...) {
-    .Object <- callNextMethod()
-    .Object@p <- integer(.Object@Dim[2L] + 1L)
-    .Object
-})
-
-setMethod("initialize", "RsparseMatrix", function(.Object, ...) {
-    .Object <- callNextMethod()
-    .Object@p <- integer(.Object@Dim[1L] + 1L)
-    .Object
-})
-}# not yet (fails)
-
+## Virtual class of compressed sparse row-oriented matrices
 setClass("RsparseMatrix", contains = c("sparseMatrix", "VIRTUAL"),
 	 slots = c(p = "integer", j = "integer"),
-	 prototype = prototype(p = 0L),# to be valid
-	 validity = function(object) .Call(Rsparse_validate, object)
-         )
+	 prototype = prototype(p = 0L), # to be valid
+	 validity = function(object) .Call(Rsparse_validate, object))
 
+if(FALSE) { # --NOT YET-- (fails)
+## Would be nice, in theory, for new("dgCMatrix", Dim = c(3L, 3L))
+setMethod("initialize", "CsparseMatrix",
+          function(.Object, ...) {
+              .Object <- callNextMethod()
+              .Object@p <- integer(.Object@Dim[2L] + 1L)
+              .Object
+          })
+setMethod("initialize", "RsparseMatrix",
+          function(.Object, ...) {
+              .Object <- callNextMethod()
+              .Object@p <- integer(.Object@Dim[1L] + 1L)
+              .Object
+          })
+} # --NOT YET--
+
+## ...... Virtual Sparse ... by kind ...................................
+
+## Virtual class of sparse, double matrices
 setClass("dsparseMatrix", contains = c("dMatrix", "sparseMatrix", "VIRTUAL"))
 
+## Virtual class of sparse, logical matrices
 setClass("lsparseMatrix", contains = c("lMatrix", "sparseMatrix", "VIRTUAL"))
 
-if(FALSE) { ##--not yet--
-setClass("isparseMatrix", contains = c("iMatrix", "sparseMatrix", "VIRTUAL"))
-}
-
-## these are the "pattern" matrices for "symbolic analysis" of sparse OPs:
+## Virtual class of sparse, nonzero pattern matrices
+## >>> these are the "pattern" matrices from "symbolic analysis" of sparse OPs
 setClass("nsparseMatrix", contains = c("nMatrix", "sparseMatrix", "VIRTUAL"))
 
-## More Class Intersections {for method dispatch}:
-if(FALSE) { ## this is "natural" but gives WARNINGs when other packages use "it"
-setClass("dCsparseMatrix", contains = c("CsparseMatrix", "dsparseMatrix", "VIRTUAL"))
-setClass("lCsparseMatrix", contains = c("CsparseMatrix", "lsparseMatrix", "VIRTUAL"))
-setClass("nCsparseMatrix", contains = c("CsparseMatrix", "nsparseMatrix", "VIRTUAL"))
+if(FALSE) { # --NOT YET--
+setClass("isparseMatrix", contains = c("iMatrix", "sparseMatrix", "VIRTUAL"))
+setClass("zsparseMatrix", contains = c("zMatrix", "sparseMatrix", "VIRTUAL"))
+} # --NOT YET--
 
-## dense general
-setClass("geMatrix", contains = c("denseMatrix", "generalMatrix", "VIRTUAL"))
+## ...... Virtual Sparse ... class intersections .......................
+##                               {for method dispatch}
 
-} else { ## ----------- a version that maybe works better for other pkgs ---------
-
- ##--> setClassUnion() ... below
+if(FALSE) {
+## This is "natural" but gives WARNINGs when other packages use "it"
+setClass("dCsparseMatrix",
+         contains = c("dsparseMatrix", "CsparseMatrix", "VIRTUAL"))
+setClass("lCsparseMatrix",
+         contains = c("lsparseMatrix", "CsparseMatrix", "VIRTUAL"))
+setClass("nCsparseMatrix",
+         contains = c("nsparseMatrix", "CsparseMatrix", "VIRTUAL"))
+} else {
+## These may work better for other packages
+## --> setClassUnion() ... below
 }
 
 
-## ------------------ Proper (non-virtual) Classes ----------------------------
+## ====== Proper (Non-Virtual) Classes =================================
 
-##----------------------  DENSE	 -----------------------------------------
+## ------ Proper (Non-Virtual) Dense -----------------------------------
 
-## numeric, dense, general matrices
-setClass("dgeMatrix", contains = c("ddenseMatrix", "generalMatrix"),
-	 ## checks that length( @ x) == prod( @ Dim):
-	 validity = function(object) .Call(dgeMatrix_validate, object))
-## i.e. "dgeMatrix" cannot be packed, but "ddenseMatrix" can ..
+## ...... Dense, double ................................................
 
-## numeric, dense, non-packed, triangular matrices
+## General
+## NB: always "unpacked"
+setClass("dgeMatrix",
+         contains = c("unpackedMatrix", "ddenseMatrix", "generalMatrix"))
+
+## Unpacked, triangular
 setClass("dtrMatrix",
-	 contains = c("ddenseMatrix", "triangularMatrix"),
-	 validity = function(object) .Call(dense_nonpacked_validate, object))
+	 contains = c("unpackedMatrix", "ddenseMatrix", "triangularMatrix"))
 
-## numeric, dense, packed, triangular matrices
+## Packed, triangular
 setClass("dtpMatrix",
-	 contains = c("ddenseMatrix", "triangularMatrix", "packedMatrix"),
-	 validity = function(object) .Call(dtpMatrix_validate, object))
+	 contains = c("packedMatrix", "ddenseMatrix", "triangularMatrix"))
 
-
-## numeric, dense, non-packed symmetric matrices
+## Unpacked, symmetric
 setClass("dsyMatrix",
-         contains = c("ddenseMatrix", "symmetricMatrix"),
-	 validity = function(object) .Call(dense_nonpacked_validate, object))
+         contains = c("unpackedMatrix", "ddenseMatrix", "symmetricMatrix"))
 
-## numeric, dense, packed symmetric matrices
+## Packed, symmetric
 setClass("dspMatrix",
-	 contains = c("ddenseMatrix", "symmetricMatrix", "packedMatrix"),
-	 validity = function(object) .Call(dspMatrix_validate, object))
+	 contains = c("packedMatrix", "ddenseMatrix", "symmetricMatrix"))
 
-## numeric, dense, non-packed, positive-definite, symmetric matrices
+## Unpacked, symmetric, positive semidefinite
 setClass("dpoMatrix", contains = "dsyMatrix",
-	 validity = function(object) .Call(dpoMatrix_validate, object)
-	 )
+	 validity = function(object) .Call(dpoMatrix_validate, object))
 
-## numeric, dense, packed, positive-definite, symmetric matrices
+## Packed, symmetric, positive semidefinite
 setClass("dppMatrix", contains = "dspMatrix",
-	 validity = function(object) .Call(dppMatrix_validate, object)
+         validity = function(object) .Call(dppMatrix_validate, object))
 
-)
-##----- logical dense Matrices -- e.g. as result of <ddenseMatrix>  COMPARISON
+## Unpacked correlation matrices
+setClass("corMatrix", contains = "dpoMatrix", slots = c(sd = "numeric"),
+	 validity = function(object) .Call(corMatrix_validate, object))
 
-## logical, dense, general matrices
-setClass("lgeMatrix", contains = c("ldenseMatrix", "generalMatrix"),
-         ## since "lge" inherits from "ldenseMatrix", only need this:
-	 ## checks that length( @ x) == prod( @ Dim):
-	 validity = function(object) .Call(dense_nonpacked_validate, object))
-## i.e. "lgeMatrix" cannot be packed, but "ldenseMatrix" can ..
 
-## logical, dense, non-packed, triangular matrices
+## ...... Dense, logical ...............................................
+
+## General
+## NB: always "unpacked"
+setClass("lgeMatrix",
+         contains = c("unpackedMatrix", "ldenseMatrix", "generalMatrix"))
+
+## Unpacked, triangular
 setClass("ltrMatrix",
-	 validity = function(object) .Call(dense_nonpacked_validate, object),
-	 contains = c("ldenseMatrix", "triangularMatrix"))
+	 contains = c("unpackedMatrix", "ldenseMatrix", "triangularMatrix"))
 
-## logical, dense, packed, triangular matrices
+## Packed, triangular
 setClass("ltpMatrix",
-	 contains = c("ldenseMatrix", "triangularMatrix", "packedMatrix"))
+	 contains = c("packedMatrix", "ldenseMatrix", "triangularMatrix"))
 
-## logical, dense, non-packed symmetric matrices
+## Unpacked, symmetric
 setClass("lsyMatrix",
-	 validity = function(object) .Call(dense_nonpacked_validate, object),
-	 contains = c("ldenseMatrix", "symmetricMatrix"))
+         contains = c("unpackedMatrix", "ldenseMatrix", "symmetricMatrix"))
 
-## logical, dense, packed symmetric matrices
+## Packed, symmetric
 setClass("lspMatrix",
-	 contains = c("ldenseMatrix", "symmetricMatrix", "packedMatrix"),
-	 validity = function(object) .Call(dspMatrix_validate, object)
-	 ## "dsp", "lsp" and "nsp" have the same validate
-	 )
+	 contains = c("packedMatrix", "ldenseMatrix", "symmetricMatrix"))
 
-##----- nonzero pattern dense Matrices -- "for completeness"
 
-## logical, dense, general matrices
-setClass("ngeMatrix", contains = c("ndenseMatrix", "generalMatrix"),
-	 validity = function(object) .Call(dense_nonpacked_validate, object))
-## i.e. "ngeMatrix" cannot be packed, but "ndenseMatrix" can ..
+## ...... Dense, nonzero pattern .......................................
 
-## logical, dense, non-packed, triangular matrices
+## General
+## NB: always "unpacked"
+setClass("ngeMatrix",
+         contains = c("unpackedMatrix", "ndenseMatrix", "generalMatrix"))
+
+## Unpacked, triangular
 setClass("ntrMatrix",
-	 validity = function(object) .Call(dense_nonpacked_validate, object),
-	 contains = c("ndenseMatrix", "triangularMatrix"))
+	 contains = c("unpackedMatrix", "ndenseMatrix", "triangularMatrix"))
 
-## logical, dense, packed, triangular matrices
+## Packed, triangular
 setClass("ntpMatrix",
-	 contains = c("ndenseMatrix", "triangularMatrix", "packedMatrix"))
+	 contains = c("packedMatrix", "ndenseMatrix", "triangularMatrix"))
 
-## logical, dense, non-packed symmetric matrices
+## Unpacked, symmetric
 setClass("nsyMatrix",
-	 validity = function(object) .Call(dense_nonpacked_validate, object),
-	 contains = c("ndenseMatrix", "symmetricMatrix"))
+         contains = c("unpackedMatrix", "ndenseMatrix", "symmetricMatrix"))
 
-## logical, dense, packed symmetric matrices
+## Packed, symmetric
 setClass("nspMatrix",
-	 contains = c("ndenseMatrix", "symmetricMatrix", "packedMatrix"),
-	 validity = function(object) .Call(dspMatrix_validate, object)
-	 ## "dsp", "lsp" and "nsp" have the same validate
-	 )
+	 contains = c("packedMatrix", "ndenseMatrix", "symmetricMatrix"))
 
 
-## 'diagonalMatrix' already has validity checking
-## diagonal, numeric matrices; "dMatrix" has 'x' slot :
+## ------ Proper (Non-Virtual) Sparse ----------------------------------
+
+## ...... Sparse, double ...............................................
+
+## Diagonal
 setClass("ddiMatrix", contains = c("diagonalMatrix", "dMatrix"))
-## diagonal, logical matrices; "lMatrix" has 'x' slot :
-setClass("ldiMatrix", contains = c("diagonalMatrix", "lMatrix"))
 
-setClass("corMatrix", slots = c(sd = "numeric"), contains = "dpoMatrix",
-	 validity = function(object) {
-	     ## assuming that 'dpoMatrix' validity check has already happened:
-	     n <- object@Dim[2]
-	     if(length(sd <- object@sd) != n)
-		 return("'sd' slot must be of length 'dim(.)[1]'")
-	     if(any(!is.finite(sd)))# including NA
-		 return("'sd' slot has non-finite entries")
-	     if(any(sd < 0))
-		 return("'sd' slot has negative entries")
-	     TRUE
-	 })
-
-
-##-------------------- S P A R S E (non-virtual) --------------------------
-
-##---------- numeric sparse matrix classes --------------------------------
-
-## numeric, sparse, triplet general matrices
+## Triplet, general
 setClass("dgTMatrix",
 	 contains = c("TsparseMatrix", "dsparseMatrix", "generalMatrix"),
-	 validity = function(object) .Call(xTMatrix_validate, object)
-	 )
+	 validity = function(object) .Call(xTMatrix_validate, object))
 
-## Should not have dtTMatrix inherit from dgTMatrix because a dtTMatrix could
-## be less than fully stored if diag = "U".  Methods for the dgTMatrix
-## class would not produce correct results even though all the slots
-## are present.
-
-## numeric, sparse, triplet triangular matrices
+## Triplet, triangular
 setClass("dtTMatrix",
 	 contains = c("TsparseMatrix", "dsparseMatrix", "triangularMatrix"),
-	 validity = function(object) .Call(tTMatrix_validate, object)
-	 )
+	 validity = function(object) .Call(tTMatrix_validate, object))
 
-## numeric, sparse, triplet symmetric matrices(also only store one triangle)
+## NB: We should _not_ have ".tTMatrix" inherit from ".gTMatrix",
+## because a ".tTMatrix" could be less than fully stored if diag = "U".
+## Methods for ".gTMatrix" applied to such ".tTMatrix" would produce
+## incorrect results, even though all slots are present.
+
+## Triplet, symmetric
 setClass("dsTMatrix",
 	 contains = c("TsparseMatrix", "dsparseMatrix", "symmetricMatrix"),
-	 validity = function(object) .Call(tTMatrix_validate, object)
-	 )
+         ## Likewise only storing one triangle
+	 validity = function(object) .Call(tTMatrix_validate, object))
 
-## numeric, sparse, sorted compressed sparse column-oriented general matrices
+## CSC, general
 setClass("dgCMatrix",
 	 contains = c("CsparseMatrix", "dsparseMatrix", "generalMatrix"),
-	 validity = function(object) .Call(xCMatrix_validate, object)
-	 )
+	 validity = function(object) .Call(xCMatrix_validate, object))
 
-## special case: indicator rows for a factor - needs more careful definition
-##setClass("indicators", contains = "dgCMatrix", slots = c(levels = "character"))
-
-## see comments for dtTMatrix above
-## numeric, sparse, sorted compressed sparse column-oriented triangular matrices
+## CSC, triangular
 setClass("dtCMatrix",
 	 contains = c("CsparseMatrix", "dsparseMatrix", "triangularMatrix"),
-	 validity = function(object) .Call(tCMatrix_validate, object)
-	 )
+	 validity = function(object) .Call(tCMatrix_validate, object))
 
-## see comments for dsTMatrix above
-## numeric, sparse, sorted compressed sparse column-oriented symmetric matrices
+## CSC, symmetric
 setClass("dsCMatrix",
 	 contains = c("CsparseMatrix", "dsparseMatrix", "symmetricMatrix"),
-	 validity = function(object) .Call(tCMatrix_validate, object)
-	 )
+         ## Likewise only storing one triangle
+	 validity = function(object) .Call(tCMatrix_validate, object))
 
-if(FALSE) ## TODO ??? Class of positive definite (Csparse symmetric) Matrices:
-setClass("dpCMatrix", contains = "dsCMatrix",
-	 validity = function(object) TODO("test for pos.definite ??"))
-
-## numeric, sparse, sorted compressed sparse row-oriented general matrices
+## CSR, general
 setClass("dgRMatrix",
 	 contains = c("RsparseMatrix", "dsparseMatrix", "generalMatrix"),
-	 validity = function(object) .Call(xRMatrix_validate, object)
-	 )
+	 validity = function(object) .Call(xRMatrix_validate, object))
 
-## numeric, sparse, sorted compressed sparse row-oriented triangular matrices
+## CSR, triangular
 setClass("dtRMatrix",
 	 contains = c("RsparseMatrix", "dsparseMatrix", "triangularMatrix"),
-	 validity = function(object) .Call(tRMatrix_validate, object)
-	 )
+	 validity = function(object) .Call(tRMatrix_validate, object))
 
-## numeric, sparse, sorted compressed sparse row-oriented symmetric matrices
+## CSR, symmetric
 setClass("dsRMatrix",
 	 contains = c("RsparseMatrix", "dsparseMatrix", "symmetricMatrix"),
-	 validity = function(object) .Call(tRMatrix_validate, object)
-	 )
+         ## Likewise only storing one triangle
+	 validity = function(object) .Call(tRMatrix_validate, object))
 
-##---------- logical sparse matrix classes --------------------------------
+if (FALSE) { ## TODO
+## Indicator matrix of a factor ... needs more careful definition
+setClass("indicators", contains = "dgCMatrix", slots = c(levels = "character"))
 
-## these classes are typically result of Matrix comparisons, e.g.,
-##   <..Matrix>  >= v     (and hence can have NA's)
+## CSC, symmetic, positive semidefinite
+setClass("dpCMatrix", contains = "dsCMatrix",
+	 validity = function(object) TODO("test for positive semidefinite ??"))
+}
 
-## logical, sparse, triplet general matrices
+
+## ...... Sparse, logical ..............................................
+
+## Diagonal
+setClass("ldiMatrix", contains = c("diagonalMatrix", "lMatrix"))
+
+## Triplet, general
 setClass("lgTMatrix",
 	 contains = c("TsparseMatrix", "lsparseMatrix", "generalMatrix"),
-	 validity = function(object) .Call(xTMatrix_validate, object)
-	 )
+	 validity = function(object) .Call(xTMatrix_validate, object))
 
-## logical, sparse, triplet triangular matrices
+## Triplet, triangular
 setClass("ltTMatrix",
 	 contains = c("TsparseMatrix", "lsparseMatrix", "triangularMatrix"),
-	 validity = function(object) .Call(tTMatrix_validate, object)
-	 )
+	 validity = function(object) .Call(tTMatrix_validate, object))
 
-## logical, sparse, triplet symmetric matrices
+## Triplet, symmetric
 setClass("lsTMatrix",
 	 contains = c("TsparseMatrix", "lsparseMatrix", "symmetricMatrix"),
-	 validity = function(object) .Call(tTMatrix_validate, object)
-	 )
+         ## Likewise only storing one triangle
+	 validity = function(object) .Call(tTMatrix_validate, object))
 
-## logical, sparse, sorted compressed sparse column-oriented general matrices
+## CSC, general
 setClass("lgCMatrix",
 	 contains = c("CsparseMatrix", "lsparseMatrix", "generalMatrix"),
-	 validity = function(object) .Call(xCMatrix_validate, object)
-	 )
+	 validity = function(object) .Call(xCMatrix_validate, object))
 
-## logical, sparse, sorted compressed sparse column-oriented triangular matrices
+## CSC, triangular
 setClass("ltCMatrix",
 	 contains = c("CsparseMatrix", "lsparseMatrix", "triangularMatrix"),
-	 validity = function(object) .Call(xCMatrix_validate, object)
-	 )
+	 validity = function(object) .Call(xCMatrix_validate, object))
 
-## logical, sparse, sorted compressed sparse column-oriented symmetric matrices
+## CSC, symmetric
 setClass("lsCMatrix",
 	 contains = c("CsparseMatrix", "lsparseMatrix", "symmetricMatrix"),
-	 validity = function(object) .Call(xCMatrix_validate, object)
-	 )
+         ## Likewise only storing one triangle
+	 validity = function(object) .Call(xCMatrix_validate, object))
 
-## logical, sparse, sorted compressed sparse row-oriented general matrices
+## CSR, general
 setClass("lgRMatrix",
 	 contains = c("RsparseMatrix", "lsparseMatrix", "generalMatrix"),
-	 validity = function(object) .Call(xRMatrix_validate, object)
-	 )
+	 validity = function(object) .Call(xRMatrix_validate, object))
 
-## logical, sparse, sorted compressed sparse row-oriented triangular matrices
+## CSR, triangular
 setClass("ltRMatrix",
 	 contains = c("RsparseMatrix", "lsparseMatrix", "triangularMatrix"),
-	 validity = function(object) .Call(tRMatrix_validate, object)
-	 )
+	 validity = function(object) .Call(tRMatrix_validate, object))
 
-## logical, sparse, sorted compressed sparse row-oriented symmetric matrices
+## CSR, symmetric
 setClass("lsRMatrix",
 	 contains = c("RsparseMatrix", "lsparseMatrix", "symmetricMatrix"),
-	 validity = function(object) .Call(tRMatrix_validate, object)
-	 )
+         ## Likewise only storing one triangle
+	 validity = function(object) .Call(tRMatrix_validate, object))
 
-##---------- nonzero pattern sparse matrix classes ---------------------------
 
-## these classes are used in symbolic analysis to determine the
-## locations of non-zero entries
+## ...... Sparse, nonzero pattern ......................................
 
-## nonzero pattern, sparse, triplet general matrices
+## NB: Unlike [^n]sparseMatrix, there is no 'x' slot to validate here.
+
+## Triplet general
 setClass("ngTMatrix",
-	 contains = c("TsparseMatrix", "nsparseMatrix", "generalMatrix")
-         ## validity: Tsparse_validate should be enough
-	 )
+	 contains = c("TsparseMatrix", "nsparseMatrix", "generalMatrix"))
 
-## nonzero pattern, sparse, triplet triangular matrices
+## Triplet, triangular
 setClass("ntTMatrix",
-	 contains = c("TsparseMatrix", "nsparseMatrix", "triangularMatrix"),
-         ## validity: Tsparse_ and triangular*_validate should be enough
-	 )
+	 contains = c("TsparseMatrix", "nsparseMatrix", "triangularMatrix"))
 
-## nonzero pattern, sparse, triplet symmetric matrices
+## Triplet, symmetric
 setClass("nsTMatrix",
-	 contains = c("TsparseMatrix", "nsparseMatrix", "symmetricMatrix"),
-         ## validity: Tsparse_ and symmetric*_validate should be enough
-	 )
+	 contains = c("TsparseMatrix", "nsparseMatrix", "symmetricMatrix"))
 
-## nonzero pattern, sparse, sorted compressed column-oriented matrices
+## CSC, general
 setClass("ngCMatrix",
-	 contains = c("CsparseMatrix", "nsparseMatrix", "generalMatrix"),
-         ## validity: Csparse_validate should be enough
-	 )
+	 contains = c("CsparseMatrix", "nsparseMatrix", "generalMatrix"))
 
-setClass("ngCMatrix",
-	 contains = c("CsparseMatrix", "nsparseMatrix", "generalMatrix"),
-         ## validity: Csparse_validate should be enough
-	 )
-
-## nonzero pattern, sparse, sorted compressed column-oriented triangular matrices
+## CSC, triangular
 setClass("ntCMatrix",
-	 contains = c("CsparseMatrix", "nsparseMatrix", "triangularMatrix"),
-         ## validity: Csparse_ and triangular*_validate should be enough
-	 )
+	 contains = c("CsparseMatrix", "nsparseMatrix", "triangularMatrix"))
 
-## nonzero pattern, sparse, sorted compressed column-oriented symmetric matrices
+## CSC, symmetric
 setClass("nsCMatrix",
-	 contains = c("CsparseMatrix", "nsparseMatrix", "symmetricMatrix"),
-         ## validity: Csparse_ and symmetric*_validate should be enough
-	 )
+	 contains = c("CsparseMatrix", "nsparseMatrix", "symmetricMatrix"))
 
-## nonzero pattern, sparse, sorted compressed row-oriented general matrices
+## CSR, general
 setClass("ngRMatrix",
-	 contains = c("RsparseMatrix", "nsparseMatrix", "generalMatrix"),
-	 )
+	 contains = c("RsparseMatrix", "nsparseMatrix", "generalMatrix"))
 
-## nonzero pattern, sparse, sorted compressed row-oriented triangular matrices
+## CSR, triangular
 setClass("ntRMatrix",
-	 contains = c("RsparseMatrix", "nsparseMatrix", "triangularMatrix"),
-	 )
+	 contains = c("RsparseMatrix", "nsparseMatrix", "triangularMatrix"))
 
-## nonzero pattern, sparse, sorted compressed row-oriented symmetric matrices
+## CSR, symmetric
 setClass("nsRMatrix",
-	 contains = c("RsparseMatrix", "nsparseMatrix", "symmetricMatrix"),
-	 )
+	 contains = c("RsparseMatrix", "nsparseMatrix", "symmetricMatrix"))
 
-if(FALSE) { ##--not yet--
 
-##---------- integer sparse matrix classes --------------------------------
+if(FALSE) { # --NOT YET--
 
-## integer, sparse, triplet general matrices
+## ...... Sparse, integer ..............................................
+
+## Triplet, general
 setClass("igTMatrix",
 	 contains = c("TsparseMatrix", "isparseMatrix", "generalMatrix"),
-	 validity = function(object) .Call(xTMatrix_validate, object)
-	 )
+	 validity = function(object) .Call(xTMatrix_validate, object))
 
-## integer, sparse, triplet triangular matrices
+## Triplet, triangular
 setClass("itTMatrix",
 	 contains = c("TsparseMatrix", "isparseMatrix", "triangularMatrix"),
-	 validity = function(object) .Call(tTMatrix_validate, object)
-	 )
+	 validity = function(object) .Call(tTMatrix_validate, object))
 
-## integer, sparse, triplet symmetric matrices
+## Triplet, symmetric
 setClass("isTMatrix",
 	 contains = c("TsparseMatrix", "isparseMatrix", "symmetricMatrix"),
-	 validity = function(object) .Call(tTMatrix_validate, object)
-	 )
+         ## Likewise only storing one triangle
+	 validity = function(object) .Call(tTMatrix_validate, object))
 
-## integer, sparse, sorted compressed sparse column-oriented general matrices
+## CSC, general
 setClass("igCMatrix",
 	 contains = c("CsparseMatrix", "isparseMatrix", "generalMatrix"),
-	 validity = function(object) .Call(xCMatrix_validate, object)
-	 )
+	 validity = function(object) .Call(xCMatrix_validate, object))
 
-## integer, sparse, sorted compressed sparse column-oriented triangular matrices
+## CSC, triangular
 setClass("itCMatrix",
 	 contains = c("CsparseMatrix", "isparseMatrix", "triangularMatrix"),
-	 validity = function(object) .Call(xCMatrix_validate, object)
-	 )
+	 validity = function(object) .Call(tCMatrix_validate, object))
 
-## integer, sparse, sorted compressed sparse column-oriented symmetric matrices
+## CSC, symmetric
 setClass("isCMatrix",
 	 contains = c("CsparseMatrix", "isparseMatrix", "symmetricMatrix"),
-	 validity = function(object) .Call(xCMatrix_validate, object)
-	 )
+         ## Likewise only storing one triangle
+	 validity = function(object) .Call(tCMatrix_validate, object))
 
-## integer, sparse, sorted compressed sparse row-oriented general matrices
+## CSR, general
 setClass("igRMatrix",
 	 contains = c("RsparseMatrix", "isparseMatrix", "generalMatrix"),
-	 validity = function(object) .Call(xRMatrix_validate, object)
-	 )
+	 validity = function(object) .Call(xRMatrix_validate, object))
 
-## integer, sparse, sorted compressed sparse row-oriented triangular matrices
+## CSR, triangular
 setClass("itRMatrix",
 	 contains = c("RsparseMatrix", "isparseMatrix", "triangularMatrix"),
-	 validity = function(object) .Call(tRMatrix_validate, object)
-	 )
+	 validity = function(object) .Call(tRMatrix_validate, object))
 
-## integer, sparse, sorted compressed sparse row-oriented symmetric matrices
+## CSR, symmetric
 setClass("isRMatrix",
 	 contains = c("RsparseMatrix", "isparseMatrix", "symmetricMatrix"),
-	 validity = function(object) .Call(tRMatrix_validate, object)
-	 )
-}##--not yet--
+         ## Likewise only storing one triangle
+	 validity = function(object) .Call(tRMatrix_validate, object))
+
+} # --NOT YET--
+
+
 
 ##-------------------- index and permutation matrices--------------------------
 
 setClass("indMatrix", slots = c(perm = "integer"),
 	 contains = c("sparseMatrix", "generalMatrix"),
-	 validity = function(object) {
-	     n <- object@Dim[1]
-	     d <- object@Dim[2]
-	     perm <- object@perm
-	     if (length(perm) != n)
-		 return(paste("length of 'perm' slot must be", n))
-	     if(n > 0 && (any(perm > d) || any(perm < 1)))
-		 return("'perm' slot is not a valid index")
-	     TRUE
-	 })
+	 validity = function(object) .Call(indMatrix_validate, object))
 
 setClass("pMatrix", slots = c(perm = "integer"),
 	 contains = c("indMatrix"),
-	 validity = function(object) {
-	     d <- object@Dim
-	     if (d[2] != (n <- d[1])) return("pMatrix must be square")
-	     perm <- object@perm
-	     if (length(perm) != n)
-		 return(paste("length of 'perm' slot must be", n))
-	     if(n > 0 &&
-		!(all(range(perm) == c(1, n)) && length(unique(perm)) == n))
-		 return("'perm' slot is not a valid permutation")
-	     TRUE
-	 })
+	 validity = function(object) .Call(pMatrix_validate, object))
 
 
 ### Factorization classes ---------------------------------------------
@@ -723,7 +698,8 @@ if(FALSE) ## to be used in setMethod("c", "numM...") -- once that works
 setClassUnion("numMatrixLike", members = c("logical", "integer", "numeric", "mMatrix"))
 
 ## CARE: Sometimes we'd want all those for which 'x' contains all the data.
-##       e.g. Diagonal() is "ddiMatrix" with 'x' slot of length 0, does *not* contain 1
+##       e.g. Diagonal() is "ddiMatrix" with 'x' slot of length 0, not containing 1
+##       same for other  diag="U" (e.g. tridiag)
 setClassUnion("xMatrix", ## those Matrix classes with an 'x' slot
               c("dMatrix",
                 "iMatrix",
@@ -732,23 +708,29 @@ setClassUnion("xMatrix", ## those Matrix classes with an 'x' slot
                 "zMatrix"))
 
 if(TRUE) { ##--- variant of setClass("dCsparse..." ..) etc working better for other pkgs -----
+    ## currently *not* (explicitly) exported
 
+## "classical" Cholmod-like sparseMatrix  (not "indMatrix" or "diagonalMatrix"):
+if(FALSE)
+  setClassUnion("CRTsparseMatrix", members = c("CsparseMatrix", "RsparseMatrix", "TsparseMatrix"))
+  ## would be useful e.g. in ./products.R for "%&%" --- but it changes the method ordering
+  ## changing too much (for now)
+
+## These should be *closer* to their members than both {dln]sparse* and Csparse* -- but they are *NOT*
+## Could "fix" this be adding these as virtual classes and have the dgC* etc contain *these*
 setClassUnion("dCsparseMatrix", members = c("dgCMatrix", "dtCMatrix", "dsCMatrix"))
 setClassUnion("lCsparseMatrix", members = c("lgCMatrix", "ltCMatrix", "lsCMatrix"))
 setClassUnion("nCsparseMatrix", members = c("ngCMatrix", "ntCMatrix", "nsCMatrix"))
 
 ## dense general
 setClassUnion("geMatrix", members = c("dgeMatrix", "lgeMatrix", "ngeMatrix"))
+
+## dput(intersect(names(getClass("nsparseMatrix")@subclasses),
+##                names(getClass("TsparseMatrix")@subclasses)))
+if(FALSE)  ##-- not yet ---------
+setClassUnion("nTsparseMatrix", members = c("ngTMatrix", "ntTMatrix", "nsTMatrix"))
+
 }
-
-
-
-## Definition  Packed := dense with length( . @x) < prod( . @Dim)
-##	       ~~~~~~
-## REPLACED the following with	isPacked() in ./Auxiliaries.R :
-## setClassUnion("packedMatrix",
-##		 members = c("dspMatrix", "dppMatrix", "dtpMatrix",
-##		  "lspMatrix", "ltpMatrix", "diagonalMatrix"))
 
 
 ## --------------------- non-"Matrix" Classes --------------------------------
@@ -865,47 +847,23 @@ setClass("sparseVector",
          })
 
 ##' initialization -- ensuring that  'i' is sorted (and 'x' alongside)
-if(getRversion() >= "3.2.0") {
-setMethod("initialize", "sparseVector", function(.Object, i, x, ...)
-      {
-	  has.x <- !missing(x)
-	  if(!missing(i)) {
-	      i <- ## (be careful to assign in all cases)
-		  if(is.unsorted(i, strictly=TRUE)) {
-		      if(is(.Object, "xsparseVector") && has.x) {
-			  si <- sort.int(i, index.return=TRUE)
-			  x <- x[si$ix]
-			  si$x
-		      }
-		      else
-			  sort.int(i, method = "quick")
-		  }
-		  else i
-	  }
-	  if(has.x) x <- x
-	  callNextMethod()
-      })
-} else { ## R < 3.2.0
-setMethod("initialize", "sparseVector", function(.Object, i, x, ...)
-      {
-	  has.x <- !missing(x)
-	  if(!missing(i)) {
-	      .Object@i <- ## (be careful to assign in all cases)
-		  if(is.unsorted(i, strictly=TRUE)) {
-		      if(is(.Object, "xsparseVector") && has.x) {
-			  si <- sort.int(i, index.return=TRUE)
-			  x <- x[si$ix]
-			  si$x
-		      }
-		      else
-			  sort.int(i, method = "quick")
-		  }
-		  else i
-	  }
-	  if(has.x) .Object@x <- x
-	  callNextMethod(.Object, ...)
-      })
-}
+setMethod("initialize", "sparseVector",
+          function(.Object, i, x, ...) {
+              has.x <- !missing(x)
+              if(!missing(i)) {
+                  i <- ## (be careful to assign in all cases)
+                      if(is.unsorted(i, strictly=TRUE)) {
+                          if(is(.Object, "xsparseVector") && has.x) {
+                              si <- sort.int(i, index.return=TRUE)
+                              x <- x[si$ix]
+                              si$x
+                          } else sort.int(i, method = "quick")
+                      } else i
+              }
+              if(has.x)
+                  x <- x
+              callNextMethod()
+          })
 
 .validXspVec <- function(object) {
     ## n <- object@length
@@ -944,3 +902,6 @@ setClass("determinant",
 		   logarithm = "logical",
 		   sign = "integer",
 		   call = "call"))
+
+## --- New "logic" class -- currently using "raw" instead of "logical"
+## LOGIC setClass("logic", contains = "raw")

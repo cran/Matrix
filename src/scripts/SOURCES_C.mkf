@@ -26,4 +26,6 @@ SOURCES_C =  \
 	    lgCMatrix.c \
 	    sparseQR.c \
 	    abIndex.c \
-	    packedMatrix.c
+	    packedMatrix.c \
+	    unpackedMatrix.c \
+	    sparse.c

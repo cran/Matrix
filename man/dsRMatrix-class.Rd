@@ -1,7 +1,20 @@
 \name{dsRMatrix-class}
 \title{Symmetric Sparse Compressed Row Matrices}
 \docType{class}
+%
 \alias{dsRMatrix-class}
+%
+\alias{coerce,dsRMatrix,CsparseMatrix-method}
+\alias{coerce,dsRMatrix,dgRMatrix-method}
+\alias{coerce,dsRMatrix,dsCMatrix-method}
+\alias{coerce,dsRMatrix,dsTMatrix-method}
+\alias{coerce,dsRMatrix,dspMatrix-method}
+\alias{coerce,dsRMatrix,dsyMatrix-method}
+\alias{coerce,dsRMatrix,dtRMatrix-method}
+\alias{coerce,dsRMatrix,lsRMatrix-method}
+\alias{coerce,dsRMatrix,nsRMatrix-method}
+\alias{coerce,matrix,dsRMatrix-method}
+\alias{determinant,dsRMatrix,logical-method}
 %
 \description{The \code{dsRMatrix} class is a class of symmetric, sparse
   matrices in the compressed, row-oriented format.  In this

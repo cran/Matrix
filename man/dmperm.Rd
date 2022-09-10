@@ -1,10 +1,10 @@
 \name{dmperm}
-\alias{dmperm}
 \title{Dulmage-Mendelsohn Permutation / Decomposition}
+\alias{dmperm}
 \description{
   For any \eqn{n \times m}{n * m} (typically) sparse matrix \code{x}
   compute the Dulmage-Mendelsohn row and columns permutations which at
-  first splits the \eqn{n} rows and \code{m} columns into course partitions
+  first splits the \eqn{n} rows and \code{m} columns into coarse partitions
   each; and then a finer one, reordering rows and columns such that the
   permutated matrix is \dQuote{as upper triangular} as possible.
 }
@@ -80,7 +80,7 @@ set.seed(7)
 str( dm.7 <- dmperm(n7) )
 stopifnot(exprs = {
   lengths(dm.7[1:2]) == dim(n7)
-  identical(dm.7,      dmperm(as(n7, "dgCMatrix")))
+  identical(dm.7,      dmperm(as(n7, "dMatrix")))
   identical(dm.7[1:4], dmperm(n7, nAns=4))
   identical(dm.7[1:2], dmperm(n7, nAns=2))
 })

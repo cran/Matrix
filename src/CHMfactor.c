@@ -20,7 +20,7 @@ SEXP CHMfactor_to_sparse(SEXP x)
 SEXP CHMfactor_solve(SEXP a, SEXP b, SEXP system)
 {
     CHM_FR L = AS_CHM_FR(a);
-    SEXP bb = PROTECT(dup_mMatrix_as_dgeMatrix(b));
+    SEXP bb = PROTECT(dense_as_general(b, 'd', 2, 0));
     CHM_DN B = AS_CHM_DN(bb), X;
     int sys = asInteger(system);
     R_CheckStack();

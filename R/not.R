@@ -1,103 +1,63 @@
-#### --- All method definitions for  "!" (not) ---
+## METHODS FOR GENERIC: ! (not)
+## logical negation
+## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-## Divert everything to  "lMatrix" and its subclasses :
+## Divert everything other than [ln]Matrix to lMatrix:
 setMethod("!", "Matrix", function(x) !as(x, "lMatrix"))
 
-## -- diag ---
+## -- diagonalMatrix --
 
-setMethod("!", "ldiMatrix", function(x) {
-    r <- copyClass(x, "lsyMatrix", c("Dim","Dimnames"))
-    n <- x@Dim[1]
-    if (n > 0) {
-	## off-diagonal: assign all and then reassign diagonals:
-	rx <- rep.int(TRUE, n * n)
-	## diagonal entries:
-	rx[1L + 0:(n - 1L) * (n + 1L)] <- {
-	    if(x@diag == "N") !x@x else FALSE ## "U"
-	}
-	r@x <- rx
-    }
-    r
-})
+setMethod("!", "ldiMatrix",
+          function(x) {
+              r <- new("lspMatrix")
+              r@Dim <- d <- x@Dim
+              r@Dimnames <- x@Dimnames
+              if((n <- d[1L]) > 0L) {
+                  r@x <- rep.int(TRUE, 0.5 * n * (n + 1))
+                  r@x[indDiag(n = n, upper = TRUE, packed = TRUE)] <-
+                      if(x@diag == "N") !x@x else FALSE
+              }
+              r
+          })
 
-## -- lsparse --
+## -- [ln]sparseMatrix -- [[ FALSE->TRUE  =>  dense result ]]
 
-setMethod("!", "lsparseMatrix",
-          ## turns FALSE to TRUE --> dense matrix
-          function(x) !as(x, "denseMatrix"))# was "lgeMatrix"
+setMethod("!", "lsparseMatrix", function(x) !.sparse2dense(x))
+setMethod("!", "nsparseMatrix", function(x) !.sparse2dense(x))
 
-## Use "Matrix" method !as(. , "lMatrix")
-## setMethod("!", "nsparseMatrix",
-##           ## turns FALSE to TRUE --> dense matrix
-##           function(x) !as(x, "ngeMatrix"))
+## -- [ln]denseMatrix --
 
+for(.cl in paste0("l", c("ge", "sy", "sp"), "Matrix"))
+    setMethod("!", .cl,
+              function(x) {
+                  x@x <- !x@x
+                  x
+              })
 
-## -- ldense ---
+for(.cl in paste0("n", c("ge", "sy", "sp"), "Matrix"))
+    setMethod("!", .cl,
+              function(x) {
+                  x@x <- !(is.na(x@x) | x@x) # NA <=> TRUE
+                  x
+              })
 
-setMethod("!", "ltrMatrix",
-	  function(x) {
-	      x@x <- !x@x ## And now fill one triangle with '!FALSE' results :
-	      ## TODO: the following should be .Call using
-	      ##	a variation of make_array_triangular:
-	      r <- as(x, "lgeMatrix")
-	      n <- x@Dim[1]
-	      if(x@diag == "U")
-		  r@x[indDiag(n)] <- FALSE ## result has diagonal all FALSE
-	      r@x[indTri(n, upper=x@uplo != "U")] <- TRUE
-	      r
-	  })
+for(.cl in paste0("l", c("tr", "tp"), "Matrix"))
+    setMethod("!", .cl,
+              function(x) {
+                  r <- .dense2g(x)
+                  r@x <- !r@x
+                  r
+              })
 
-setMethod("!", "ltpMatrix", function(x) !as(x, "ltrMatrix"))
+for(.cl in paste0("n", c("tr", "tp"), "Matrix"))
+    setMethod("!", .cl,
+              function(x) {
+                  r <- .dense2g(x)
+                  r@x <- !(is.na(r@x) | r@x) # NA <=> TRUE
+                  r
+              })
 
-## for the other ldense* ones
-setMethod("!", "lgeMatrix", function(x) { x@x <- !x@x ; x })
-setMethod("!", "ldenseMatrix", function(x) {
-    if(is(x, "symmetricMatrix")) { # lsy | lsp
-	x@x <- !x@x
-	x
-    }
-    else ## triangular are dealt with above already : "general" here:
-	!as(x, "lgeMatrix")
-})
-
-## -- ndense ---
-
-setMethod("!", "ntrMatrix",
-	  function(x) {
-	      x@x <- !x@x
-	      ## And now we must fill one triangle with '!FALSE' results :
-
-	      ## TODO: the following should be .Call using
-	      ##	a variation of make_array_triangular:
-	      r <- as(x, "ngeMatrix")
-	      n <- x@Dim[1]
-	      coli <- rep(1:n, each=n)
-	      rowi <- rep(1:n, n)
-	      Udiag <- x@diag == "U"
-	      log.i <-
-		  if(x@uplo == "U") {
-		      if(Udiag) rowi >= coli else rowi > coli
-		  } else {
-		      if(Udiag) rowi <= coli else rowi < coli
-		  }
-	      r@x[log.i] <- TRUE
-	      r
-	  })
-
-setMethod("!", "ntpMatrix", function(x) !as(x, "ntrMatrix"))
-
-## for the other ldense* ones
-setMethod("!", "ngeMatrix", function(x) { x@x <- !x@x ; x })
-setMethod("!", "ndenseMatrix", function(x) {
-    if(is(x, "symmetricMatrix")) { # lsy | lsp
-	x@x <- !x@x
-	x
-    }
-    else ## triangular are dealt with above already : "general" here:
-	!as(x, "ngeMatrix")
-})
-
-### ---- sparseVector -----
+### -- sparseVector --
 
 setMethod("!", "sparseVector",
 	  function(x) {

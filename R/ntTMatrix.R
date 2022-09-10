@@ -2,9 +2,14 @@
 
 ### contains = "nsparseMatrix"
 
+## MJ: no longer needed ... replacement in ./denseMatrix.R
+if(FALSE) {
 setAs("matrix", "ntTMatrix",
       function(from) as(as(from, "ntrMatrix"), "TsparseMatrix"))
+} ## MJ
 
+## MJ: no longer needed ... replacement in ./sparseMatrix.R
+if(FALSE) {
 setAs("ntTMatrix", "ngTMatrix",
       function(from) tT2gT(from, cl = "ntTMatrix", toClass = "ngTMatrix"))
 setAs("ntTMatrix", "generalMatrix",
@@ -14,7 +19,6 @@ setAs("ntTMatrix", "ntCMatrix",
       function(from) .Call(Tsparse_to_Csparse, from, TRUE))
 setAs("ntTMatrix", "ngCMatrix",
       function(from) as(.Call(Tsparse_to_Csparse, from, TRUE), "ngCMatrix"))
-
 
 setAs("ntTMatrix", "dtTMatrix",
       function(from) new("dtTMatrix", i = from@i, j = from@j,
@@ -27,10 +31,13 @@ setAs("ntTMatrix", "ntrMatrix",
 
 setAs("ntTMatrix", "matrix",
       function(from) as(as(from, "ntrMatrix"), "matrix"))
+} ## MJ
 
-
+## MJ: no longer needed ... method now inherited from TsparseMatrix
+if(FALSE) {
 setMethod("t", "ntTMatrix",
 	  function(x)
 	  new("ntTMatrix", Dim = x@Dim[2:1], Dimnames = x@Dimnames[2:1],
 	      i = x@j, j = x@i, diag = x@diag,
 	      uplo = if (x@uplo == "U") "L" else "U"))
+} ## MJ

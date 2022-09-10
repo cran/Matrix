@@ -1,20 +1,5 @@
 #include "dspMatrix.h"
 
-/* Note:  also used for lspMatrix */
-SEXP dspMatrix_validate(SEXP obj)
-{
-    SEXP val = symmetricMatrix_validate(obj);
-    if(isString(val))
-	return(val);
-    else { /* identical to the test in dtpMatrix_validate() : */
-	int d = INTEGER(GET_SLOT(obj, Matrix_DimSym))[0];
-	R_xlen_t lx = xlength(GET_SLOT(obj, Matrix_xSym));
-	if(lx * 2 != d*(R_xlen_t)(d+1))
-	    return(mkString(_("Incorrect length of 'x' slot")));
-	return ScalarLogical(1);
-    }
-}
-
 double get_norm_sp(SEXP obj, const char *typstr)
 {
     char typnm[] = {'\0', '\0'};
@@ -69,7 +54,7 @@ SEXP dspMatrix_solve(SEXP a)
 SEXP dspMatrix_matrix_solve(SEXP a, SEXP b)
 {
     SEXP trf = dspMatrix_trf(a),
-	val = PROTECT(dup_mMatrix_as_dgeMatrix(b));
+	val = PROTECT(dense_as_general(b, 'd', 2, 0));
     int *adims = INTEGER(GET_SLOT(a, Matrix_DimSym)),
 	*bdims = INTEGER(GET_SLOT(val, Matrix_DimSym));
     int n = bdims[0], nrhs = bdims[1], info;
@@ -84,8 +69,57 @@ SEXP dspMatrix_matrix_solve(SEXP a, SEXP b)
     return val;
 }
 
+SEXP dspMatrix_matrix_mm(SEXP a, SEXP b)
+{
+    SEXP val = PROTECT(dense_as_general(b, 'd', 2, 0));
+    int *bdims = INTEGER(GET_SLOT(val, Matrix_DimSym));
+    int i, ione = 1, n = bdims[0], nrhs = bdims[1];
+    R_xlen_t nn = n * (R_xlen_t) nrhs;
+    const char *uplo = uplo_P(a);
+    double *ax = REAL(GET_SLOT(a, Matrix_xSym)), one = 1., zero = 0.,
+	*vx = REAL(GET_SLOT(val, Matrix_xSym)), *bx;
 
-/* MJ: No longer needed ... replacement in ./packedMatrix.c */
+    Calloc_or_Alloca_TO(bx, nn, double);
+    Memcpy(bx, vx, nn);
+    if (bdims[0] != n)
+	error(_("Matrices are not conformable for multiplication"));
+    if (nrhs >= 1 && n >= 1) {
+	R_xlen_t in;
+	for (i = 0, in = 0; i < nrhs; i++, in += n) { // in := i * n (w/o overflow!)
+	    F77_CALL(dspmv)(uplo, &n, &one, ax, bx + in, &ione,
+			    &zero, vx + in, &ione FCONE);
+	}
+	Free_FROM(bx, nn);
+    }
+    UNPROTECT(1);
+    return val;
+}
+
+SEXP dspMatrix_trf(SEXP x)
+{
+    SEXP val = get_factor(x, "pBunchKaufman"),
+	dimP = GET_SLOT(x, Matrix_DimSym),
+	uploP = GET_SLOT(x, Matrix_uploSym);
+    int *dims = INTEGER(dimP), *perm, info;
+    int n = dims[0];
+    const char *uplo = CHAR(STRING_ELT(uploP, 0));
+
+    if (val != R_NilValue) return val;
+    dims = INTEGER(dimP);
+    val = PROTECT(NEW_OBJECT_OF_CLASS("pBunchKaufman"));
+    SET_SLOT(val, Matrix_uploSym, duplicate(uploP));
+    SET_SLOT(val, Matrix_diagSym, mkString("N"));
+    SET_SLOT(val, Matrix_DimSym, duplicate(dimP));
+    slot_dup(val, x, Matrix_xSym);
+    perm = INTEGER(ALLOC_SLOT(val, Matrix_permSym, INTSXP, n));
+    F77_CALL(dsptrf)(uplo, dims, REAL(GET_SLOT(val, Matrix_xSym)), perm, &info FCONE);
+    if (info) error(_("Lapack routine %s returned error code %d"), "dsptrf", info);
+    set_factor(x, "pBunchKaufman", val);
+    UNPROTECT(1);
+    return val;
+}
+
+/* MJ: no longer needed ... prefer more general packedMatrix_diag_[gs]et() */
 #if 0
 
 SEXP dspMatrix_getDiag(SEXP x)
@@ -123,6 +157,8 @@ SEXP lspMatrix_setDiag(SEXP x, SEXP d)
 
 #endif /* MJ */
 
+/* MJ: no longer needed ... prefer more general packedMatrix_unpack() */
+#if 0
 
 SEXP dspMatrix_as_dsyMatrix(SEXP from)
 {
@@ -135,59 +171,13 @@ SEXP dspMatrix_as_dsyMatrix(SEXP from)
     SET_SLOT(val, Matrix_DimSym, duplicate(dimP));
     SET_SLOT(val, Matrix_DimNamesSym, duplicate(dmnP));
     SET_SLOT(val, Matrix_uploSym, duplicate(uplo));
-    packed_to_full_double(REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, n*n)),
-			  REAL(GET_SLOT(from, Matrix_xSym)), n,
-			  *CHAR(STRING_ELT(uplo, 0)) == 'U' ? UPP : LOW);
+    ddense_unpack(REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, n*n)),
+		  REAL(GET_SLOT(from, Matrix_xSym)),
+		  n,
+		  *CHAR(STRING_ELT(uplo, 0)) == 'U' ? UPP : LOW,
+		  NUN);
     UNPROTECT(1);
     return val;
 }
 
-SEXP dspMatrix_matrix_mm(SEXP a, SEXP b)
-{
-    SEXP val = PROTECT(dup_mMatrix_as_dgeMatrix(b));
-    int *bdims = INTEGER(GET_SLOT(val, Matrix_DimSym));
-    int i, ione = 1, n = bdims[0], nrhs = bdims[1];
-    R_xlen_t nn = n * (R_xlen_t) nrhs;
-    const char *uplo = uplo_P(a);
-    double *ax = REAL(GET_SLOT(a, Matrix_xSym)), one = 1., zero = 0.,
-	*vx = REAL(GET_SLOT(val, Matrix_xSym)), *bx;
-
-    C_or_Alloca_TO(bx, nn, double);
-    Memcpy(bx, vx, nn);
-    if (bdims[0] != n)
-	error(_("Matrices are not conformable for multiplication"));
-    if (nrhs >= 1 && n >= 1) {
-	R_xlen_t in;
-	for (i = 0, in = 0; i < nrhs; i++, in += n) { // in := i * n (w/o overflow!)
-	    F77_CALL(dspmv)(uplo, &n, &one, ax, bx + in, &ione,
-			    &zero, vx + in, &ione FCONE);
-	}
-	if(nn >= SMALL_4_Alloca) R_Free(bx);
-    }
-    UNPROTECT(1);
-    return val;
-}
-
-SEXP dspMatrix_trf(SEXP x)
-{
-    SEXP val = get_factors(x, "pBunchKaufman"),
-	dimP = GET_SLOT(x, Matrix_DimSym),
-	uploP = GET_SLOT(x, Matrix_uploSym);
-    int *dims = INTEGER(dimP), *perm, info;
-    int n = dims[0];
-    const char *uplo = CHAR(STRING_ELT(uploP, 0));
-
-    if (val != R_NilValue) return val;
-    dims = INTEGER(dimP);
-    val = PROTECT(NEW_OBJECT_OF_CLASS("pBunchKaufman"));
-    SET_SLOT(val, Matrix_uploSym, duplicate(uploP));
-    SET_SLOT(val, Matrix_diagSym, mkString("N"));
-    SET_SLOT(val, Matrix_DimSym, duplicate(dimP));
-    slot_dup(val, x, Matrix_xSym);
-    perm = INTEGER(ALLOC_SLOT(val, Matrix_permSym, INTSXP, n));
-    F77_CALL(dsptrf)(uplo, dims, REAL(GET_SLOT(val, Matrix_xSym)), perm, &info FCONE);
-    if (info) error(_("Lapack routine %s returned error code %d"), "dsptrf", info);
-    UNPROTECT(1);
-    return set_factors(x, val, "pBunchKaufman");
-}
-
+#endif /* MJ */

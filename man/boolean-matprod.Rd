@@ -1,37 +1,60 @@
 \name{\%&\%-methods}
 \title{Boolean Arithmetic Matrix Products: \code{\%&\%} and Methods}
 \docType{methods}
+%
+\concept{boolean matrix products}
 \alias{\%&\%}
 \alias{\%&\%-methods}
+%
 \alias{\%&\%,ANY,ANY-method}
-\alias{\%&\%,ANY,matrix-method}
 \alias{\%&\%,ANY,Matrix-method}
-\alias{\%&\%,matrix,ANY-method}
-\alias{\%&\%,Matrix,ANY-method}
-\alias{\%&\%,matrix,matrix-method}
-\alias{\%&\%,Matrix,Matrix-method}
-\alias{\%&\%,mMatrix,mMatrix-method}
-\alias{\%&\%,mMatrix,nMatrix-method}
-\alias{\%&\%,nMatrix,mMatrix-method}
-\alias{\%&\%,nMatrix,nMatrix-method}
-\alias{\%&\%,nMatrix,nsparseMatrix-method}
-\alias{\%&\%,nsparseMatrix,nMatrix-method}
-\alias{\%&\%,nsparseMatrix,nsparseMatrix-method}
-\alias{\%&\%,nCsparseMatrix,nCsparseMatrix-method}
-\alias{\%&\%,nCsparseMatrix,nsparseMatrix-method}
-\alias{\%&\%,nsparseMatrix,nCsparseMatrix-method}
-\alias{\%&\%,diagonalMatrix,geMatrix-method}
-\alias{\%&\%,geMatrix,diagonalMatrix-method}
+\alias{\%&\%,ANY,matrix-method}
 \alias{\%&\%,CsparseMatrix,diagonalMatrix-method}
+\alias{\%&\%,Matrix,ANY-method}
+\alias{\%&\%,Matrix,Matrix-method}
 \alias{\%&\%,diagonalMatrix,CsparseMatrix-method}
 \alias{\%&\%,diagonalMatrix,diagonalMatrix-method}
+\alias{\%&\%,diagonalMatrix,geMatrix-method}
 \alias{\%&\%,diagonalMatrix,sparseMatrix-method}
-\alias{\%&\%,sparseMatrix,diagonalMatrix-method}
+\alias{\%&\%,geMatrix,diagonalMatrix-method}
+%% \alias{\%&\%,mMatrix,mMatrix-method}
+%% \alias{\%&\%,mMatrix,nMatrix-method}
 \alias{\%&\%,mMatrix,sparseVector-method}
+\alias{\%&\%,matrix,ANY-method}
+\alias{\%&\%,nCsparseMatrix,nCsparseMatrix-method}
+\alias{\%&\%,nCsparseMatrix,nsparseMatrix-method}
+%% \alias{\%&\%,nMatrix,mMatrix-method}
+\alias{\%&\%,nMatrix,nMatrix-method}
+\alias{\%&\%,nMatrix,nsparseMatrix-method}
+\alias{\%&\%,nsparseMatrix,nCsparseMatrix-method}
+\alias{\%&\%,nsparseMatrix,nMatrix-method}
+\alias{\%&\%,nsparseMatrix,nsparseMatrix-method}
 \alias{\%&\%,numLike,sparseVector-method}
+\alias{\%&\%,sparseMatrix,diagonalMatrix-method}
 \alias{\%&\%,sparseVector,mMatrix-method}
 \alias{\%&\%,sparseVector,numLike-method}
 \alias{\%&\%,sparseVector,sparseVector-method}
+%
+\alias{\%&\%,denseMatrix,denseMatrix-method}
+\alias{\%&\%,mMatrix,sparseMatrix-method}
+\alias{\%&\%,matrix,matrix-method}
+\alias{\%&\%,sparseMatrix,mMatrix-method}
+\alias{\%&\%,sparseMatrix,sparseMatrix-method}
+%
+\alias{\%&\%,CsparseMatrix,RsparseMatrix-method}
+\alias{\%&\%,CsparseMatrix,TsparseMatrix-method}
+\alias{\%&\%,CsparseMatrix,mMatrix-method}
+\alias{\%&\%,RsparseMatrix,CsparseMatrix-method}
+\alias{\%&\%,RsparseMatrix,RsparseMatrix-method}
+\alias{\%&\%,RsparseMatrix,TsparseMatrix-method}
+\alias{\%&\%,RsparseMatrix,mMatrix-method}
+\alias{\%&\%,TsparseMatrix,CsparseMatrix-method}
+\alias{\%&\%,TsparseMatrix,RsparseMatrix-method}
+\alias{\%&\%,TsparseMatrix,TsparseMatrix-method}
+\alias{\%&\%,TsparseMatrix,mMatrix-method}
+\alias{\%&\%,mMatrix,CsparseMatrix-method}
+\alias{\%&\%,mMatrix,RsparseMatrix-method}
+\alias{\%&\%,mMatrix,TsparseMatrix-method}
 
 \description{
   For boolean or \dQuote{patter\bold{n}} matrices, i.e., \R objects of
@@ -61,11 +84,29 @@
   }% {describe}
 }% {Methods}
 \note{
-  The current implementation ends up coercing both \code{x} and \code{y}
-  to (virtual) class \code{\linkS4class{nsparseMatrix}} which may be
-  quite inefficient.  A future implementation may well return a matrix
+  These boolean arithmetic matrix products had been newly
+  introduced for \pkg{Matrix} 1.2.0 (March 2015).  Its implementation
+  has still not been tested extensively.
+
+  Originally, it was left unspecified how non-structural zeros, i.e., \code{0}'s
+  as part of the \code{M@x} slot should be treated for numeric
+  (\code{"\linkS4class{dMatrix}"}) and logical (\code{"\linkS4class{lMatrix}"})
+  sparse matrices.  We now specify that boolean matrix products should behave as if
+  applied to \code{\link{drop0}(M)}, i.e., as if dropping such zeros from
+  the matrix before using it.
+  \cr
+  Equivalently, for all matrices \code{M}, boolean arithmetic should work as if
+  applied to \code{M != 0} (or \code{M != FALSE}.
+
+  The current implementation ends up coercing both \code{x} and \code{y} to
+  (virtual) class \code{\linkS4class{nsparseMatrix}} which may be quite inefficient
+  for dense matrices.  A future implementation may well return a matrix
   with \bold{different} class, but the \dQuote{same} content, i.e., the
   same matrix entries \eqn{m_ij}{m[i,j]}.
+}
+\seealso{
+  \code{\link{\%*\%}}, \code{crossprod()}, or \code{\link{tcrossprod}()},
+  for (regular) matrix product methods.
 }
 \value{
   a pattern matrix, i.e., inheriting from \code{"\linkS4class{nMatrix}"},
@@ -75,6 +116,7 @@
 set.seed(7)
 L <- Matrix(rnorm(20) > 1,    4,5)
 (N <- as(L, "nMatrix"))
+L. <- L; L.[1:2,1] <- TRUE; L.@x[1:2] <- FALSE; L. # has "zeros" to drop0()
 D <- Matrix(round(rnorm(30)), 5,6) # -> values in -1:1 (for this seed)
 L \%&\% D
 stopifnot(identical(L \%&\% D, N \%&\% D),

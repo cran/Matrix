@@ -1,6 +1,6 @@
 \name{is.null.DN}
-\alias{is.null.DN}
 \title{Are the Dimnames \code{dn} NULL-like ?}
+\alias{is.null.DN}
 \description{
   Are the \code{\link{dimnames}} \code{dn} \code{\link{NULL}}-like?
 
@@ -51,5 +51,16 @@ stopifnot(m == m1, m1 == m2, m2 == m3, m3 == m4,
 	  identical(cm, capture.output(m2)),
 	  identical(cm, capture.output(m3)),
 	  identical(cm, capture.output(m4)))
+
+hasNoDimnames <- function(.) is.null.DN(dimnames(.))
+
+stopifnot(exprs = {
+  hasNoDimnames(m)
+  hasNoDimnames(m1); hasNoDimnames(m2)
+  hasNoDimnames(m3); hasNoDimnames(m4)
+  hasNoDimnames(Matrix(m) -> M)
+  hasNoDimnames(as(M, "sparseMatrix"))
+})
+
 }
 \keyword{utilities}

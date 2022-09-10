@@ -17,10 +17,10 @@ sparse.model.matrix(object, data = environment(object),
 		    drop.unused.levels = FALSE, row.names = TRUE,
 		    sep = "", verbose = FALSE, \dots)
 
-fac2sparse(from, to = c("d", "i", "l", "n", "z"),
-	   drop.unused.levels = TRUE, repr = c("C","T","R"), giveCsparse)
-fac2Sparse(from, to = c("d", "i", "l", "n", "z"),
-	   drop.unused.levels = TRUE, repr = c("C","T","R"), giveCsparse,
+fac2sparse(from, to = c("d", "l", "n"),
+	   drop.unused.levels = TRUE, repr = c("C", "R", "T"), giveCsparse)
+fac2Sparse(from, to = c("d", "l", "n"),
+	   drop.unused.levels = TRUE, repr = c("C", "R", "T"), giveCsparse,
 	   factorPatt12, contrasts.arg = NULL)
 }
 \arguments{

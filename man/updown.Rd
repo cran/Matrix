@@ -1,10 +1,13 @@
 \name{updown}
+\title{Up- and Down-Dating a Cholesky Decomposition}
+%
 \alias{updown}
 \alias{updown-methods}
+%
 \alias{updown,ANY,ANY,ANY-method}
 \alias{updown,character,mMatrix,CHMfactor-method}
 \alias{updown,logical,mMatrix,CHMfactor-method}
-\title{Up- and Down-Dating a Cholesky Decomposition}
+%
 \description{
   Compute the up- or down-dated Cholesky decomposition
 }

@@ -1,18 +1,22 @@
 \name{all-methods}
-\docType{methods}
-\alias{all-methods}
-\alias{all,Matrix-method}
-\alias{any,Matrix-method}
-% \alias{all,lMatrix-method}
-\alias{all,ldenseMatrix-method}
-\alias{all,lsparseMatrix-method}
-\alias{all,lsyMatrix-method}
-%
-\alias{any,lMatrix-method}
-% \alias{any,ldenseMatrix-method}
-% \alias{any,lsparseMatrix-method}
-%
 \title{"Matrix" Methods for Functions all() and any()}
+\docType{methods}
+%
+\alias{all-methods}
+\alias{any-methods}
+%
+\alias{all,Matrix-method}
+\alias{all,ddiMatrix-method}
+\alias{all,ldiMatrix-method}
+\alias{all,lsparseMatrix-method}
+\alias{all,nsparseMatrix-method}
+%
+\alias{any,Matrix-method}
+\alias{any,ddiMatrix-method}
+\alias{any,lMatrix-method}
+\alias{any,ldiMatrix-method}
+\alias{any,nsparseMatrix-method}
+%
 \description{
   The basic \R functions \code{\link{all}} and \code{\link{any}} now
   have methods for \code{\linkS4class{Matrix}} objects and should

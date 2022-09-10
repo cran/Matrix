@@ -1,29 +1,33 @@
 \name{CsparseMatrix-class}
+\title{Class "CsparseMatrix" of Sparse Matrices in Column-compressed Form}
 \docType{class}
+%
 \alias{CsparseMatrix-class}
-\alias{coerce,CsparseMatrix,lsparseMatrix-method}
-\alias{coerce,CsparseMatrix,lMatrix-method}
-\alias{coerce,CsparseMatrix,nsparseMatrix-method}
-\alias{coerce,CsparseMatrix,nMatrix-method}
-\alias{coerce,CsparseMatrix,TsparseMatrix-method}
-\alias{coerce,CsparseMatrix,denseMatrix-method}
-\alias{coerce,matrix,CsparseMatrix-method}
-\alias{coerce,numeric,CsparseMatrix-method}
-\alias{diag,CsparseMatrix-method}
-\alias{t,CsparseMatrix-method}
-% "[" are in ./Xtrct-methods.Rd; "[<-" in ./Subassign-methods.Rd
-%% Group methods --------- FIXME: not tested yet (or documented)
-\alias{Compare,CsparseMatrix,CsparseMatrix-method}
+%
 \alias{Arith,CsparseMatrix,CsparseMatrix-method}
 \alias{Arith,CsparseMatrix,numeric-method}
 \alias{Arith,numeric,CsparseMatrix-method}
+\alias{Compare,CsparseMatrix,CsparseMatrix-method}
 \alias{Logic,CsparseMatrix,CsparseMatrix-method}
 \alias{Math,CsparseMatrix-method}
+\alias{as.vector,CsparseMatrix-method}
+\alias{coerce,CsparseMatrix,RsparseMatrix-method}
+\alias{coerce,CsparseMatrix,TsparseMatrix-method}
+\alias{coerce,CsparseMatrix,denseMatrix-method}
+\alias{coerce,CsparseMatrix,generalMatrix-method}
+\alias{coerce,CsparseMatrix,matrix-method}
+\alias{coerce,CsparseMatrix,packedMatrix-method}
+\alias{coerce,CsparseMatrix,sparseVector-method}
+\alias{coerce,CsparseMatrix,unpackedMatrix-method}
+\alias{coerce,CsparseMatrix,vector-method}
+\alias{coerce,matrix,CsparseMatrix-method}
+\alias{coerce,numLike,CsparseMatrix-method}
+\alias{diag,CsparseMatrix-method}
 \alias{log,CsparseMatrix-method}
+\alias{t,CsparseMatrix-method}
 %
 \alias{.validateCsparse}
 %
-\title{Class "CsparseMatrix" of Sparse Matrices in Column-compressed Form}
 \description{The \code{"CsparseMatrix"} class is the virtual class of
   all sparse matrices coded in sorted compressed column-oriented form.
   Since it is a virtual class, no objects may be created from it.  See

@@ -21,14 +21,9 @@ setMethod("show", "pBunchKaufman",
 	      cat("packed 'Bunch-Kaufman' factorization of ")
 	      str(object)
 	  })
+## However, these result from chol() and should  *just be* a matrix to the non-expert user:
+setMethod("show",  "Cholesky", function(object) prMatrix(object))
+setMethod("show", "pCholesky", function(object) prMatrix(object))
+
 
 setMethod("dim", "MatrixFactorization", function(x) x@Dim)
-
-## e.g., for (CHMfactor, <num>):
-setMethod("solve", signature(a = "MatrixFactorization", b = "numeric"),
-	  function(a, b, ...) callGeneric(a, Matrix(b)))
-## catch others, otherwise base::solve is.
-setMethod("solve", signature(a = "MatrixFactorization", b = "ANY"),
-	  function(a, b, ...) .bail.out.2("solve", class(a), class(b)))
-setMethod("solve", signature(a = "MatrixFactorization", b = "missing"),
-	  function(a, b, ...) .bail.out.1("solve", class(a)))

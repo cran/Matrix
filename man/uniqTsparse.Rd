@@ -80,12 +80,16 @@ validObject(N2u <- uniqTsparse(N2))
 stopifnot(N2u@i == L2u@i, L2u@i == T2u@i,  N2@i == L2@i, L2@i == T2@i,
           N2u@j == L2u@j, L2u@j == T2u@j,  N2@j == L2@j, L2@j == T2@j)
 # now with a nasty NA  [partly failed in Matrix 1.1-5]:
-L2.N <- L2; L2.N@x[2] <- NA; L2.N
-validObject(L2.N)
-(m2N <- as.matrix(L2.N)) # looks "ok"
-iL <- as.integer(m2N)
-stopifnot(identical(10L, which(is.na(match(iL, 0:1)))))
-symnum(m2N)
+L.0N <- L.1N <- L2
+L.0N@x[1:2] <- c(FALSE, NA)
+L.1N@x[1:2] <- c(TRUE, NA)
+validObject(L.0N)
+validObject(L.1N)
+(m.0N <- as.matrix(L.0N))
+(m.1N <- as.matrix(L.1N))
+stopifnot(identical(10L, which(is.na(m.0N))), !anyNA(m.1N))
+symnum(m.0N)
+symnum(m.1N)
 }
 \keyword{utilities}
 \keyword{classes}

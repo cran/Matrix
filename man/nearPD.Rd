@@ -1,6 +1,6 @@
 \name{nearPD}
-\alias{nearPD}
 \title{Nearest Positive Definite Matrix}
+\alias{nearPD}
 \description{
  Compute the nearest positive definite matrix to an approximate
  one, typically a correlation or variance-covariance matrix.

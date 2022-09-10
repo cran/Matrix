@@ -1,27 +1,47 @@
 \name{lu}
 \title{(Generalized) Triangular Decomposition of a Matrix}
+%
 \alias{lu}
-\alias{lu,matrix-method}
-\alias{lu,dgeMatrix-method}
+%
+\alias{lu,denseMatrix-method}
+\alias{lu,diagonalMatrix-method}
 \alias{lu,dgCMatrix-method}
+\alias{lu,dgRMatrix-method}
+\alias{lu,dgTMatrix-method}
+\alias{lu,dgeMatrix-method}
+\alias{lu,dsCMatrix-method}
+\alias{lu,dsRMatrix-method}
+\alias{lu,dsTMatrix-method}
+\alias{lu,dspMatrix-method}
+\alias{lu,dsyMatrix-method}
 \alias{lu,dtCMatrix-method}
-\usage{
-lu(x, \dots)
-\S4method{lu}{matrix}(x, warnSing = TRUE, \dots)
-\S4method{lu}{dgeMatrix}(x, warnSing = TRUE, \dots)
-\S4method{lu}{dgCMatrix}(x, errSing = TRUE, order = TRUE, tol = 1,
-   keep.dimnames = TRUE, \dots)
-}
+\alias{lu,dtRMatrix-method}
+\alias{lu,dtTMatrix-method}
+\alias{lu,dtpMatrix-method}
+\alias{lu,dtrMatrix-method}
+\alias{lu,matrix-method}
+\alias{lu,sparseMatrix-method}
+%
 \description{
   Computes (generalized) triangular decompositions of square (sparse or
   dense) and non-square dense matrices.
+}
+\usage{
+lu(x, \dots)
+\S4method{lu}{matrix}(x, \dots)
+\S4method{lu}{dgeMatrix}(x, warnSing = TRUE, \dots)
+\S4method{lu}{dgCMatrix}(x, errSing = TRUE, order = TRUE, tol = 1,
+   keep.dimnames = TRUE, \dots)
+\S4method{lu}{dsyMatrix}(x, cache = TRUE, \dots)
+\S4method{lu}{dsCMatrix}(x, cache = TRUE, \dots)
 }
 \arguments{
   \item{x}{a dense or sparse matrix, in the latter case of square
     dimension.  No missing values or IEEE special values are allowed.}
   \item{warnSing}{(when \code{x} is a
-    \code{"\linkS4class{denseMatrix}"}) logical specifying if a \code{\link{warning}}
-    should be signalled when \code{x} is singular.}
+    \code{"\linkS4class{denseMatrix}"}) logical specifying if a
+    \code{\link{warning}} should be signalled when \code{x} is
+    singular.}
   \item{errSing}{(when \code{x} is a
     \code{"\linkS4class{sparseMatrix}"}) logical specifying if an error
     (see \code{\link{stop}}) should be signalled when \code{x} is
@@ -38,6 +58,10 @@ lu(x, \dots)
     should be propagated to the result, i.e., \dQuote{kept}.  This was
     hardcoded to \code{FALSE} in upto \pkg{Matrix} version 1.2-0.
     Setting to \code{FALSE} may gain some performance.}
+  \item{cache}{logical indicating if the result should be cached
+    in \code{x@factors}; note that this argument is experimental
+    and only available for certain classes inheriting from
+    \code{\linkS4class{compMatrix}}.}
   \item{\dots}{further arguments passed to or from other methods.}
 }
 \value{
@@ -51,15 +75,17 @@ lu(x, \dots)
   of matrices.  Use \code{\link{showMethods}("lu")} to list all the methods
   for the \code{\link{lu}} generic.
 
-  The method for class \code{\linkS4class{dgeMatrix}} (and all dense
-  matrices) is based on LAPACK's \code{"dgetrf"} subroutine.  It returns
-  a decomposition also for singular and non-square matrices.
+  The method for class \code{\linkS4class{dgeMatrix}} (and all dense,
+  non-triangular matrices) is based on LAPACK's \code{"dgetrf"}
+  subroutine.  It returns a decomposition also for singular and
+  non-square matrices.
 
-  The method for class \code{\linkS4class{dgCMatrix}} (and all sparse
-  matrices) is based on functions from the CSparse library.  It signals
-  an error (or returns \code{NA}, when \code{errSing = FALSE}, see
-  above) when the decomposition algorithm fails, as when \code{x} is
-  (too close to) singular.% yes, it would be nice if we could have it
+  The method for class \code{\linkS4class{dgCMatrix}} (and all sparse,
+  non-triangular matrices) is based on functions from the CSparse
+  library.  It signals an error (or returns \code{NA}, when
+  \code{errSing = FALSE}; see above) when the decomposition algorithm 
+  fails, as when \code{x} is (too close to) singular.
+  % yes, it would be nice if we could have it
   % behave more similar to the dense method: still give an LU,
   % and an optional warning.
 }

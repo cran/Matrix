@@ -1,5 +1,7 @@
 #### "TsparseMatrix" : Virtual class of sparse matrices in triplet-format
 
+## MJ: no longer needed ... replacement in ./denseMatrix.R
+if(FALSE) {
 ## more efficient than going via Csparse:
 setAs("matrix", "TsparseMatrix",
       function(from)
@@ -9,18 +11,12 @@ setAs("matrix", "TsparseMatrix",
 
 setAs("numeric", "TsparseMatrix",
       function(from) as(as.matrix(from), "TsparseMatrix"))
+} ## MJ
 
+## MJ: no longer needed ... replacement in ./sparseMatrix.R
+if(FALSE) {
 setAs("TsparseMatrix", "matrix",
       function(from) .Call(dgTMatrix_to_matrix, as(from, "dgTMatrix")))
-
-## in ../src/Tsparse.c :  |-> cholmod_T -> cholmod_C -> chm_sparse_to_SEXP
-## adjusted for triangular matrices not represented in cholmod
-.T.2.C <- function(from) .Call(Tsparse_to_Csparse, from, ##
-			       is(from, "triangularMatrix"))
-## fast, exported for power users
-.T2Cmat <- function(from, isTri = is(from, "triangularMatrix"))
-    .Call(Tsparse_to_Csparse, from, isTri)
-
 
 setAs("TsparseMatrix", "CsparseMatrix", .T.2.C)
 
@@ -62,8 +58,6 @@ setAs("TsparseMatrix", "nMatrix", .T.2.n)
 setAs("TsparseMatrix", "lsparseMatrix", .T.2.l)
 setAs("TsparseMatrix", "lMatrix", .T.2.l)
 
-
-
 ## Special cases   ("d", "l", "n")  %o%  ("g", "s", "t") :
 ## used e.g. in triu()
 
@@ -95,6 +89,7 @@ setAs("nsTMatrix", "nsCMatrix",
 
 setAs("ntTMatrix", "ntCMatrix",
       function(from) .Call(Tsparse_to_Csparse, from, TRUE))
+} ## MJ
 
 ### "[" :
 ### -----
@@ -217,7 +212,7 @@ setMethod("[", signature(x = "TsparseMatrix", i = "index", j = "missing",
 	      na <- nargs()
 	      Matrix.msg("Tsp[i,m,l]: nargs()=", na, .M.level=2)
 	      if(na == 4)
-		  .as.Tsp(as(x,"CsparseMatrix")[i, , drop=drop], noCheck = !drop)
+		  .as.Tsp(.T2C(x)[i, , drop=drop], noCheck = !drop)
 	      else if(na == 3) ## e.g. M[0] , M[TRUE],	M[1:2]
 		  .M.vectorSub(x,i)
 	      else ## should not happen
@@ -228,13 +223,13 @@ setMethod("[", signature(x = "TsparseMatrix", i = "index", j = "missing",
 setMethod("[", signature(x = "TsparseMatrix", i = "missing", j = "index",
 			 drop = "logical"),
 	  function (x, i, j, ..., drop) { ## select columns
-	      .as.Tsp(as(x,"CsparseMatrix")[, j, drop=drop], noCheck = !drop)
+	      .as.Tsp(.T2C(x)[, j, drop=drop], noCheck = !drop)
 	  })
 
 setMethod("[", signature(x = "TsparseMatrix",
 			 i = "index", j = "index", drop = "logical"),
 	  function (x, i, j, ..., drop)
-	  .as.Tsp(as(x,"CsparseMatrix")[i, j, drop=drop], noCheck = !drop))
+	  .as.Tsp(.T2C(x)[i, j, drop=drop], noCheck = !drop))
 
 ## This is "just for now" -- Thinking of *not* doing this in the future
 .as.Tsp <- function(x, noCheck)
@@ -259,7 +254,7 @@ setMethod("[", signature(x = "TsparseMatrix",
 	  if(is(x, "symmetricMatrix")) {
 	      isSym <- isTRUE(all(i == j))# work for i,j NA
 	      if(!isSym)
-		  x <- as(x, paste0(.M.kind(x), "gTMatrix"))
+		  x <- .sparse2g(x)
 	  } else isSym <- FALSE
 
 	  if(isSym) {
@@ -334,7 +329,7 @@ replTmat <- function (x, i, j, ..., value)
 
 	if(!is(x,"generalMatrix")) {
 	    cl <- class(x)
-	    x <- as(x, paste0(.M.kind(x), "gTMatrix"))
+	    x <- .sparse2g(x)
 	    Matrix.msg("'sub-optimal sparse 'x[i] <- v' assignment: Coercing class ",
 		       cl," to ",class(x))
 	}
@@ -386,7 +381,7 @@ replTmat <- function (x, i, j, ..., value)
 		x@j <- x@j[sel]
 		if(has.x)
 		    x@x <- x@x[sel]
-		if(.hasSlot(x, "factors") && length(x@factors)) # drop cashed ones
+		if(.hasSlot(x, "factors") && length(x@factors)) # drop cached ones
 		    x@factors <- list()
 	    }
 	    return(x)
@@ -439,7 +434,7 @@ replTmat <- function (x, i, j, ..., value)
 	    x@i <- c(x@i, i %%  nr)
 	    x@j <- c(x@j, i %/% nr)
 	}
-	if(.hasSlot(x, "factors") && length(x@factors)) # drop cashed ones
+	if(.hasSlot(x, "factors") && length(x@factors)) # drop cached ones
 	    x@factors <- list()
 	return(x)
     } ## {nargs = 3;  x[ii] <- value }
@@ -524,11 +519,8 @@ replTmat <- function (x, i, j, ..., value)
 	else toGeneral <- TRUE
     }
     if(toGeneral) { # go to "generalMatrix" and continue
-	if((.w <- isTRUE(getOption("Matrix.warn"))) ||
-	   (!is.null(v <- getOption("Matrix.verbose")) && v >= 1))
-	    (if(.w) warning else message)(
-	     "M[i,j] <- v :  coercing symmetric M[] into non-symmetric")
-        x <- as(x, paste0(.M.kind(x), "gTMatrix"))
+        Matrix.msg("M[i,j] <- v :  coercing symmetric M[] into non-symmetric")
+        x <- .sparse2g(x)
         clDx <- getClassDef(clx <- class(x))
     }
 
@@ -547,7 +539,7 @@ replTmat <- function (x, i, j, ..., value)
 	    x@j <- x@j[!sel]
             if(has.x)
 		x@x <- x@x[!sel]
-	    if(.hasSlot(x, "factors") && length(x@factors)) # drop cashed ones
+	    if(.hasSlot(x, "factors") && length(x@factors)) # drop cached ones
 		x@factors <- list()
 	}
 	return(x)
@@ -578,7 +570,7 @@ replTmat <- function (x, i, j, ..., value)
             if(has.x)
                 x@x <- c(x@x, value)
         }
-	if(.hasSlot(x, "factors") && length(x@factors)) # drop cashed ones
+	if(.hasSlot(x, "factors") && length(x@factors)) # drop cached ones
 	    x@factors <- list()
         return(x)
     }
@@ -592,7 +584,7 @@ replTmat <- function (x, i, j, ..., value)
 	if(nonTRUEoption("Matrix.quiet"))
 	    message(gettextf("x[.,.] <- val : x being coerced from Tsparse* to CsparseMatrix"),
 		    domain = NA)
-	return(replCmat4(as(x,"CsparseMatrix"), i1, i2, iMi=iMi, jMi=jMi,
+	return(replCmat4(.T2C(x), i1, i2, iMi=iMi, jMi=jMi,
 			 value = if(spV) value else as(value, "sparseVector"),
 			 spV = TRUE))
     }
@@ -675,7 +667,7 @@ replTmat <- function (x, i, j, ..., value)
 		x@x <- c(x@x, as.vector(value[iIN0]))
 	}
     }
-    if(.hasSlot(x, "factors") && length(x@factors)) # drop cashed ones
+    if(.hasSlot(x, "factors") && length(x@factors)) # drop cached ones
 	x@factors <- list()
     x
 } ## end{replTmat}
@@ -785,17 +777,14 @@ replTmat <- function (x, i, j, ..., value)
 	else toGeneral <- TRUE
     }
     if(toGeneral) { # go to "generalMatrix" and continue
-	if((.w <- isTRUE(getOption("Matrix.warn"))) || isTRUE(getOption("Matrix.verbose")))
-	    (if(.w) warning else message)(
-	     "M[ij] <- v :  coercing symmetric M[] into non-symmetric")
-	x <- as(x, paste0(.M.kind(x), "gTMatrix"))
+	Matrix.msg("M[ij] <- v :  coercing symmetric M[] into non-symmetric")
+	x <- .sparse2g(x)
 	clDx <- getClassDef(clx <- class(x))
     }
 
     ii.v <- .Call(m_encodeInd, i, di, orig1=TRUE, checkBounds = TRUE)
     if(id <- anyDuplicated(ii.v, fromLast=TRUE)) {
-        Matrix.msg("duplicate ij-entries in 'Matrix[ ij ] <- value'; using last",
-                   .M.level = 1)
+        Matrix.msg("M[ij] <- v :  duplicate ij-entries; using last")
         ii.v  <- ii.v [-id]
 	value <- value[-id]
         if(any(id <- duplicated(ii.v, fromLast=TRUE))) {
@@ -809,10 +798,9 @@ replTmat <- function (x, i, j, ..., value)
     i.repl <- !is.na(m1) # those that need to be *replaced*
 
     if(isN) { ## no 'x' slot
-	isN <- all(value %in% c(FALSE, TRUE)) # will result remain  "nMatrix" ?
+	isN <- is.logical(value) # will result remain  "nMatrix" ?
 	if(!isN)
-	    x <- as(x, paste0(if(extends(clDx, "lMatrix")) "l" else "d",
-			      .sparse.prefixes[.M.shape(x)], "TMatrix"))
+            x <- ..sparse2d(x)
     }
     has.x <- !isN ## isN  <===> "remains pattern matrix" <===> has no 'x' slot
 
@@ -820,7 +808,7 @@ replTmat <- function (x, i, j, ..., value)
 	if(has.x)
 	    x@x[m1[i.repl]] <- value[i.repl]
 	else { # nMatrix ; eliminate entries that are set to FALSE; keep others
-	    if(any(isF <- !value[i.repl]))  {
+	    if(any(isF <- is0(value[i.repl])))  {
 		ii <- m1[i.repl][isF]
 		x@i <- x@i[ -ii]
 		x@j <- x@j[ -ii]
@@ -835,7 +823,7 @@ replTmat <- function (x, i, j, ..., value)
 	    x@x <- c(x@x, value[i.new])
     }
 
-    if(.hasSlot(x, "factors") && length(x@factors)) # drop cashed ones
+    if(.hasSlot(x, "factors") && length(x@factors)) # drop cached ones
 	x@factors <- list()
     x
 } ## end{.TM.repl.i.mat}
@@ -873,27 +861,19 @@ setReplaceMethod("[", signature(x = "TsparseMatrix", i = "index", j = "index",
 				value = "sparseVector"),
 		 replTmat)
 
-
-
-
-setMethod("solve", signature(a = "TsparseMatrix", b = "ANY"),
-	  function(a, b, ...) solve(as(a, "CsparseMatrix"), b))
-setMethod("solve", signature(a = "TsparseMatrix", b = "missing"),
-	  function(a, b, ...) solve(as(a, "CsparseMatrix")))
-
-
+## MJ: no longer needed ... replacement in ./sparseMatrix.R
+if(FALSE) {
 ## Want tril(), triu(), band() --- just as "indexing" ---
 ## return a "close" class:
 setMethod("tril", "TsparseMatrix",
 	  function(x, k = 0, ...)
-	  as(tril(.T.2.C(x), k = k, ...), "TsparseMatrix"))
+	  as(tril(.T2C(x), k = k, ...), "TsparseMatrix"))
 setMethod("triu", "TsparseMatrix",
 	  function(x, k = 0, ...)
-	  as(triu(.T.2.C(x), k = k, ...), "TsparseMatrix"))
+	  as(triu(.T2C(x), k = k, ...), "TsparseMatrix"))
 setMethod("band", "TsparseMatrix",
 	  function(x, k1, k2, ...)
-	  as(band(.T.2.C(x), k1 = k1, k2 = k2, ...), "TsparseMatrix"))
-
+	  as(band(.T2C(x), k1 = k1, k2 = k2, ...), "TsparseMatrix"))
 
 ## For the "general" T ones (triangular & symmetric have special methods):
 setMethod("t", signature(x = "TsparseMatrix"),
@@ -909,11 +889,36 @@ setMethod("t", signature(x = "TsparseMatrix"),
 	      r
       })
 
-isDiagTsp <- function(object) {
-    d <- dim(object)
-    if(d[1] != d[2])
-        FALSE
-    else
-        length(i <- object@i) == length(j <- object@j) && all(i == j)
+setMethod("isDiagonal", signature(object = "TsparseMatrix"),
+          function(object) {
+              d <- object@Dim
+              d[1L] == d[2L] && all(object@i == object@j)
+          })
+
+.Tsp.is.tr <- function(object, upper = NA, ...) {
+    d <- object@Dim
+    if(d[1L] != d[2L])
+        return(FALSE)
+    i <- object@i
+    j <- object@j
+    if(is.na(upper)) {
+	if(all(i <= j))
+            `attr<-`(TRUE, "kind", "U")
+        else if(all(i >= j))
+            `attr<-`(TRUE, "kind", "L")
+        else
+            FALSE
+    } else if(upper) {
+	all(i <= j)
+    } else {
+	all(i >= j)
+    }
 }
-setMethod("isDiagonal", signature(object = "TsparseMatrix"), isDiagTsp)
+
+## method for .sTMatrix in ./symmetricMatrix.R
+## method for .tTMatrix in ./triangularMatrix.R
+.Tsp.subclasses <- names(getClassDef("TsparseMatrix")@subclasses)
+for (.cl in grep("^.gTMatrix$", .Tsp.subclasses, value = TRUE))
+    setMethod("isTriangular", signature(object = .cl), .Tsp.is.tr)
+rm(.Tsp.is.tr, .Tsp.subclasses, .cl)
+} ## MJ

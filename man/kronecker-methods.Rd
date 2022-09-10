@@ -1,6 +1,7 @@
 \name{kronecker-methods}
 \docType{methods}
 \title{Methods for Function 'kronecker()' in Package 'Matrix'}
+%
 \alias{kronecker-methods}
 %
 \alias{kronecker,ANY,Matrix-method}
@@ -8,19 +9,18 @@
 \alias{kronecker,ANY,sparseMatrix-method}
 \alias{kronecker,Matrix,ANY-method}
 \alias{kronecker,Matrix,diagonalMatrix-method}
+\alias{kronecker,TsparseMatrix,TsparseMatrix-method}
+\alias{kronecker,TsparseMatrix,sparseMatrix-method}
+\alias{kronecker,dgTMatrix,dgTMatrix-method}
+\alias{kronecker,dgTMatrix,dtTMatrix-method}
 \alias{kronecker,diagonalMatrix,ANY-method}
 \alias{kronecker,diagonalMatrix,Matrix-method}
+\alias{kronecker,dsparseMatrix,dsparseMatrix-method}
+\alias{kronecker,dtTMatrix,dgTMatrix-method}
+\alias{kronecker,dtTMatrix,dtTMatrix-method}
 \alias{kronecker,indMatrix,indMatrix-method}
 \alias{kronecker,sparseMatrix,ANY-method}
 \alias{kronecker,sparseMatrix,TsparseMatrix-method}
-%
-\alias{kronecker,TsparseMatrix,sparseMatrix-method}
-\alias{kronecker,TsparseMatrix,TsparseMatrix-method}
-\alias{kronecker,dgTMatrix,dgTMatrix-method}
-\alias{kronecker,dgTMatrix,dtTMatrix-method}
-\alias{kronecker,dtTMatrix,dgTMatrix-method}
-\alias{kronecker,dtTMatrix,dtTMatrix-method}
-\alias{kronecker,dsparseMatrix,dsparseMatrix-method}
 %
 \description{
   Computes Kronecker products for objects inheriting from

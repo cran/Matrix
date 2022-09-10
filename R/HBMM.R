@@ -3,7 +3,7 @@
 readone <- function(ln, iwd, nper, conv)
 {
     ln <- gsub("D", "E", ln)
-    inds <- seq(0, by = iwd, length = nper + 1)
+    inds <- seq(0, by = iwd, length.out = nper + 1)
     (conv)(substring(ln, 1 + inds[-length(inds)], inds[-1]))
 }
 
@@ -102,10 +102,15 @@ readMM <- function(file)
     nc <- scan1(integer())
     nz <- scan1(integer())
     checkIJ <- function(els) {
-	if(any(els$i < 1 | els$i > nr))
-	    stop("readMM(): row	 values 'i' are not in 1:nr", call.=FALSE)
-	if(any(els$j < 1 | els$j > nc))
-	    stop("readMM(): column values 'j' are not in 1:nc", call.=FALSE)
+        if((nz. <- length(els$i)) < nz)
+            warning(gettextf("readMM(): expected %d entries but found only %d",
+                             nz, nz.), call. = FALSE, domain = NA)
+        if(any(is.na(els$i) | els$i < 1L | els$i > nr))
+            stop(gettextf("readMM(): row indices 'i' are not in 1:nrow[=%d]",
+                          nr), call. = FALSE, domain = NA)
+        if(any(is.na(els$j) | els$j < 1L | els$j > nc))
+            stop(gettextf("readMM(): column indices 'j' are not in 1:ncol[=%d]",
+                          nc), call. = FALSE, domain = NA)
     }
     if (repr == "coordinate") {
 	switch(elt,

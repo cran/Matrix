@@ -1,6 +1,6 @@
 \name{invPerm}
-\alias{invPerm}
 \title{Inverse Permutation Vector}
+\alias{invPerm}
 \description{
   From a permutation vector \code{p}, compute its \emph{inverse}
   permutation vector.

@@ -1,7 +1,7 @@
 \name{formatSparseM}
+\title{Formatting Sparse Numeric Matrices Utilities}
 \alias{formatSparseM}
 \alias{.formatSparseSimple}
-\title{Formatting Sparse Numeric Matrices Utilities}
 \description{
   Utilities for formatting sparse numeric matrices in a flexible way.
   These functions are used by the \code{\link{format}} and \code{print}

@@ -1,13 +1,19 @@
 \name{expm}
 \title{Matrix Exponential}
+%
 \alias{expm}
+%
 \alias{expm,Matrix-method}
 \alias{expm,dMatrix-method}
-\alias{expm,dgeMatrix-method}
-\alias{expm,triangularMatrix-method}
-\alias{expm,symmetricMatrix-method}
 \alias{expm,ddiMatrix-method}
-\alias{expm,matrix-method}% < for now
+\alias{expm,dgeMatrix-method}
+\alias{expm,dspMatrix-method}
+\alias{expm,dsparseMatrix-method}
+\alias{expm,dsyMatrix-method}
+\alias{expm,dtpMatrix-method}
+\alias{expm,dtrMatrix-method}
+\alias{expm,matrix-method}
+%
 \description{
   Compute the exponential of a matrix.
 }
@@ -55,10 +61,10 @@ expm(x)
   \code{\link[expm]{logm}} and \code{\link[expm]{sqrtm}}.
 }
 \examples{
-(m1 <- Matrix(c(1,0,1,1), nc = 2))
+(m1 <- Matrix(c(1,0,1,1), ncol = 2))
 (e1 <- expm(m1)) ; e <- exp(1)
 stopifnot(all.equal(e1@x, c(e,0,e,e), tolerance = 1e-15))
-(m2 <- Matrix(c(-49, -64, 24, 31), nc = 2))
+(m2 <- Matrix(c(-49, -64, 24, 31), ncol = 2))
 (e2 <- expm(m2))
 (m3 <- Matrix(cbind(0,rbind(6*diag(3),0))))# sparse!
 (e3 <- expm(m3)) # upper triangular

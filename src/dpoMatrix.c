@@ -2,24 +2,36 @@
 
 SEXP dpoMatrix_validate(SEXP obj)
 {
-    SEXP val;
-    if (isString(val = dense_nonpacked_validate(obj)))
-	return(val);
-
-    int n = INTEGER(GET_SLOT(obj, Matrix_DimSym))[0];
-    R_xlen_t np1 = n + 1;
     double *x = REAL(GET_SLOT(obj, Matrix_xSym));
+    int n = INTEGER(GET_SLOT(obj, Matrix_DimSym))[0];
+    R_xlen_t pos = 0, np1 = (R_xlen_t) n + 1;
+    
+    /* Non-negative diagonal elements are necessary but _not_ sufficient */
+    for (int i = 0; i < n; ++i, pos += np1)
+	if (x[pos] < 0)
+	    return mkString(_("'dpoMatrix' is not positive semidefinite"));
+    return ScalarLogical(1);
+}
 
-    /* quick but nondefinitive check on positive definiteness */
-    for (int i = 0; i < n; i++)
-	if (x[i * np1] < 0)
-	    return mkString(_("dpoMatrix is not positive definite"));
+SEXP corMatrix_validate(SEXP obj)
+{
+    int n = INTEGER(GET_SLOT(obj, Matrix_DimSym))[0];
+    SEXP sd = GET_SLOT(obj, install("sd"));
+    if (XLENGTH(sd) != n)
+	return mkString(_("length of 'sd' slot is not equal to n=Dim[1]"));
+    double *psd = REAL(sd);
+    for (int i = 0; i < n; ++i) {
+	if (!R_FINITE(psd[i]))
+	    return mkString(_("'sd' slot has nonfinite elements"));
+	if (psd[i] < 0)
+	    return mkString(_("'sd' slot has negative elements"));
+    }
     return ScalarLogical(1);
 }
 
 SEXP dpoMatrix_chol(SEXP x)
 {
-    SEXP val = get_factors(x, "Cholesky"),
+    SEXP val = get_factor(x, "Cholesky"),
 	dimP = GET_SLOT(x, Matrix_DimSym),
 	uploP = GET_SLOT(x, Matrix_uploSym);
     const char *uplo = CHAR(STRING_ELT(uploP, 0));
@@ -34,8 +46,9 @@ SEXP dpoMatrix_chol(SEXP x)
     SET_SLOT(val, Matrix_uploSym, duplicate(uploP));
     SET_SLOT(val, Matrix_diagSym, mkString("N"));
     SET_SLOT(val, Matrix_DimSym, duplicate(dimP));
+    set_symmetrized_DimNames(val, GET_SLOT(x, Matrix_DimNamesSym), -1);
     vx = REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, n2));
-    AZERO(vx, n2);
+    AZERO(vx, n2, 0.0);
     F77_CALL(dlacpy)(uplo, &n, &n, REAL(GET_SLOT(x, Matrix_xSym)),
 		     &n, vx, &n FCONE);
     if (n > 0) {
@@ -48,8 +61,9 @@ SEXP dpoMatrix_chol(SEXP x)
 		error(_("Lapack routine %s returned error code %d"), "dpotrf", info);
 	}
     }
+    set_factor(x, "Cholesky", val);
     UNPROTECT(1);
-    return set_factors(x, val, "Cholesky");
+    return val;
 }
 
 SEXP dpoMatrix_rcond(SEXP obj, SEXP type)
@@ -85,44 +99,20 @@ SEXP dpoMatrix_solve(SEXP x)
     return val;
 }
 
-SEXP dpoMatrix_dgeMatrix_solve(SEXP a, SEXP b)
-{
-    SEXP Chol = dpoMatrix_chol(a),
-	val = PROTECT(NEW_OBJECT_OF_CLASS("dgeMatrix"));
-    int *adims = INTEGER(GET_SLOT(a, Matrix_DimSym)),
-	*bdims = INTEGER(GET_SLOT(b, Matrix_DimSym)),
-	info;
-
-    if (adims[1] != bdims[0])
-	error(_("Dimensions of system to be solved are inconsistent"));
-    if (adims[0] < 1 || bdims[1] < 1)
-	error(_("Cannot solve() for matrices with zero extents"));
-    SET_SLOT(val, Matrix_factorSym, allocVector(VECSXP, 0));
-    slot_dup(val, b, Matrix_DimSym);
-    slot_dup(val, b, Matrix_xSym);
-    F77_CALL(dpotrs)(uplo_P(Chol), adims, bdims + 1,
-		     REAL(GET_SLOT(Chol, Matrix_xSym)), adims,
-		     REAL(GET_SLOT(val, Matrix_xSym)),
-		     bdims, &info FCONE);
-    UNPROTECT(1);
-    return val;
-}
-
 SEXP dpoMatrix_matrix_solve(SEXP a, SEXP b)
 {
     SEXP Chol = dpoMatrix_chol(a),
-	val = PROTECT(duplicate(b));
+	val = PROTECT(dense_as_general(b, 'd', 2, 0));
     int *adims = INTEGER(GET_SLOT(a, Matrix_DimSym)),
-	*bdims = INTEGER(getAttrib(b, R_DimSymbol)),
+	*bdims = INTEGER(GET_SLOT(val, Matrix_DimSym)),
 	info;
 
-    if (!(isReal(b) && isMatrix(b)))
-	error(_("Argument b must be a numeric matrix"));
     if (*adims != *bdims || bdims[1] < 1 || *adims < 1)
 	error(_("Dimensions of system to be solved are inconsistent"));
     F77_CALL(dpotrs)(uplo_P(Chol), adims, bdims + 1,
 		     REAL(GET_SLOT(Chol, Matrix_xSym)), adims,
-		     REAL(val), bdims, &info FCONE);
+		     REAL(GET_SLOT(val, Matrix_xSym)),
+		     bdims, &info FCONE);
     UNPROTECT(1);
     return val;
 }

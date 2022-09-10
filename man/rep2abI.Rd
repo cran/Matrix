@@ -1,6 +1,6 @@
 \name{rep2abI}
-\alias{rep2abI}
 \title{Replicate Vectors into 'abIndex' Result}
+\alias{rep2abI}
 \description{
   \code{rep2abI(x, times)} conceptually computes
   \code{\link{rep.int}(x, times)} but with an

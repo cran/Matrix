@@ -1,22 +1,5 @@
 #include "dsyMatrix.h"
 
-SEXP symmetricMatrix_validate(SEXP obj)
-{
-    SEXP val = GET_SLOT(obj, Matrix_DimSym);
-    if (LENGTH(val) < 2)
-	return mkString(_("'Dim' slot has length less than two"));
-    if (INTEGER(val)[0] != INTEGER(val)[1])
-        return mkString(_("Matrix is not square"));
-    if (isString(val = check_scalar_string(GET_SLOT(obj, Matrix_uploSym),
-					   "LU", "uplo"))) return val;
-    /* FIXME: Check dimnames {with a modular separate function}: Allow 1 of 2  to be NULL,
-     * -----  but otherwise may *NOT* differ !!
-     * currently,  I2 <- Diagonal(2) ; dimnames(I2) <- list(c("A","B"), c("x","y")); L2 <- !!I2
-     * produces such an "invalid" symmetric matrix:  L2[1:2,1:2] then fails
-     */
-    return ScalarLogical(1);
-}
-
 double get_norm_sy(SEXP obj, const char *typstr)
 {
     char typnm[] = {'\0', '\0'};
@@ -36,7 +19,6 @@ SEXP dsyMatrix_norm(SEXP obj, SEXP type)
 {
     return ScalarReal(get_norm_sy(obj, CHAR(asChar(type))));
 }
-
 
 SEXP dsyMatrix_rcond(SEXP obj, SEXP type)
 {
@@ -75,7 +57,7 @@ SEXP dsyMatrix_solve(SEXP a)
 SEXP dsyMatrix_matrix_solve(SEXP a, SEXP b)
 {
     SEXP trf = dsyMatrix_trf(a),
-	val = PROTECT(dup_mMatrix_as_dgeMatrix(b));
+	val = PROTECT(dense_as_general(b, 'd', 2, 0));
     int *adims = INTEGER(GET_SLOT(a, Matrix_DimSym)),
 	*bdims = INTEGER(GET_SLOT(val, Matrix_DimSym)),
 	info;
@@ -91,24 +73,9 @@ SEXP dsyMatrix_matrix_solve(SEXP a, SEXP b)
     return val;
 }
 
-SEXP dsyMatrix_as_matrix(SEXP from, SEXP keep_dimnames)
-{
-    int n = INTEGER(GET_SLOT(from, Matrix_DimSym))[0];
-    SEXP val = PROTECT(allocMatrix(REALSXP, n, n));
-    R_xlen_t nsqr = n; nsqr *= n;
-
-    make_d_matrix_symmetric(Memcpy(REAL(val),
-				   REAL(GET_SLOT(from, Matrix_xSym)), nsqr),
-			    from);
-    if(asLogical(keep_dimnames))
-	setAttrib(val, R_DimNamesSymbol, R_symmetric_Dimnames(from));
-    UNPROTECT(1);
-    return val;
-}
-
 SEXP dsyMatrix_matrix_mm(SEXP a, SEXP b, SEXP rtP)
 {
-    SEXP val = PROTECT(dup_mMatrix_as_dgeMatrix(b));// incl. its dimnames
+    SEXP val = PROTECT(dense_as_general(b, 'd', 2, 0));// incl. dimnames
     int rt = asLogical(rtP); /* if(rt), compute b %*% a,  else  a %*% b */
     int *adims = INTEGER(GET_SLOT(a, Matrix_DimSym)),
 	*bdims = INTEGER(GET_SLOT(val, Matrix_DimSym)),
@@ -120,7 +87,7 @@ SEXP dsyMatrix_matrix_mm(SEXP a, SEXP b, SEXP rtP)
     double one = 1., zero = 0.;
     R_xlen_t mn = m * (R_xlen_t)n;
     double *bcp, *vx = REAL(GET_SLOT(val, Matrix_xSym));
-    C_or_Alloca_TO(bcp, mn, double);
+    Calloc_or_Alloca_TO(bcp, mn, double);
     Memcpy(bcp, vx, mn);
 
     if (m >=1 && n >= 1)
@@ -131,17 +98,16 @@ SEXP dsyMatrix_matrix_mm(SEXP a, SEXP b, SEXP rtP)
     int nd = rt ?
 	1 : // v <- b %*% a : rownames(v) == rownames(b)  are already there
 	0;  // v <- a %*% b : colnames(v) == colnames(b)  are already there
-    SEXP nms = PROTECT(VECTOR_ELT(
-		symmetric_DimNames(GET_SLOT(a, Matrix_DimNamesSym)), nd));
+    SEXP nms = PROTECT(VECTOR_ELT(get_symmetrized_DimNames(a, -1), nd));
     SET_VECTOR_ELT(GET_SLOT(val, Matrix_DimNamesSym), nd, nms);
-    if(mn >= SMALL_4_Alloca) R_Free(bcp);
+    Free_FROM(bcp, mn);
     UNPROTECT(2);
     return val;
 }
 
 SEXP dsyMatrix_trf(SEXP x)
 {
-    SEXP val = get_factors(x, "BunchKaufman");
+    SEXP val = get_factor(x, "BunchKaufman");
     if (val != R_NilValue) return val;
 
     SEXP dimP = GET_SLOT(x, Matrix_DimSym),
@@ -155,21 +121,22 @@ SEXP dsyMatrix_trf(SEXP x)
     SET_SLOT(val, Matrix_diagSym, mkString("N"));
     SET_SLOT(val, Matrix_DimSym, duplicate(dimP));
     double *vx = REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, nsqr));
-    AZERO(vx, nsqr);
+    AZERO(vx, nsqr, 0.0);
     F77_CALL(dlacpy)(uplo, &n, &n, REAL(GET_SLOT(x, Matrix_xSym)), &n, vx, &n FCONE);
     int *perm = INTEGER(ALLOC_SLOT(val, Matrix_permSym, INTSXP, n)),
 	info, lwork = -1;
     double tmp, *work;
     F77_CALL(dsytrf)(uplo, &n, vx, &n, perm, &tmp, &lwork, &info FCONE);
     lwork = (int) tmp;
-    C_or_Alloca_TO(work, lwork, double);
+    Calloc_or_Alloca_TO(work, lwork, double);
 
     F77_CALL(dsytrf)(uplo, &n, vx, &n, perm, work, &lwork, &info FCONE);
 
-    if(lwork >= SMALL_4_Alloca) R_Free(work);
+    Free_FROM(work, lwork);
     if (info) error(_("Lapack routine dsytrf returned error code %d"), info);
+    set_factor(x, "BunchKaufman", val);
     UNPROTECT(1);
-    return set_factors(x, val, "BunchKaufman");
+    return val;
 }
 
 /** BunchKaufmann(<simple matrix>)
@@ -206,21 +173,23 @@ SEXP matrix_trf(SEXP x, SEXP uploP)
     SET_SLOT(val, Matrix_diagSym, mkString("N"));
     SET_SLOT(val, Matrix_DimSym, dimP);
     double *vx = REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, nsqr)); // n x n result matrix
-    AZERO(vx, nsqr);
+    AZERO(vx, nsqr, 0.0);
     F77_CALL(dlacpy)(uplo, &n, &n, REAL(x), &n, vx, &n FCONE);
     int *perm = INTEGER(ALLOC_SLOT(val, Matrix_permSym, INTSXP, n)),
          info, lwork = -1;
     double tmp, *work;
     F77_CALL(dsytrf)(uplo, &n, vx, &n, perm, &tmp, &lwork, &info FCONE);
     lwork = (int) tmp;
-    C_or_Alloca_TO(work, lwork, double);
+    Calloc_or_Alloca_TO(work, lwork, double);
     F77_CALL(dsytrf)(uplo, &n, vx, &n, perm, work, &lwork, &info FCONE);
-    if(lwork >= SMALL_4_Alloca) R_Free(work);
+    Free_FROM(work, lwork);
     if (info) error(_("Lapack routine dsytrf returned error code %d"), info);
     UNPROTECT(3);
     return val;
 }
 
+/* MJ: no longer needed ... prefer more general unpackedMatrix_pack() */
+#if 0
 
 // this is very close to lsyMatrix_as_lsp*() in ./ldense.c  -- keep synced !
 SEXP dsyMatrix_as_dspMatrix(SEXP from)
@@ -232,10 +201,12 @@ SEXP dsyMatrix_as_dspMatrix(SEXP from)
 
     SET_SLOT(val, Matrix_DimSym, duplicate(dimP));
     SET_SLOT(val, Matrix_uploSym, duplicate(uplo));
-    full_to_packed_double(
+    ddense_pack(
 	REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, (n*(n+1))/2)),
-	REAL( GET_SLOT(from, Matrix_xSym)), n,
-	*CHAR(STRING_ELT(uplo, 0)) == 'U' ? UPP : LOW, NUN);
+	REAL( GET_SLOT(from, Matrix_xSym)),
+	n,
+	*CHAR(STRING_ELT(uplo, 0)) == 'U' ? UPP : LOW,
+	NUN);
     SET_SLOT(val, Matrix_DimNamesSym,
 	     duplicate(GET_SLOT(from, Matrix_DimNamesSym)));
     SET_SLOT(val, Matrix_factorSym,
@@ -243,3 +214,28 @@ SEXP dsyMatrix_as_dspMatrix(SEXP from)
     UNPROTECT(1);
     return val;
 }
+
+#endif /* MJ */
+
+/* MJ: no longer needed ... prefer more general R_dense_as_matrix() */
+#if 0
+
+SEXP dsyMatrix_as_matrix(SEXP from, SEXP keep_dimnames)
+{
+    int n = INTEGER(GET_SLOT(from, Matrix_DimSym))[0];
+    SEXP val = PROTECT(allocMatrix(REALSXP, n, n));
+    R_xlen_t nsqr = n; nsqr *= n;
+
+    ddense_unpacked_make_symmetric(Memcpy(REAL(val),
+					  REAL(GET_SLOT(from, Matrix_xSym)),
+					  nsqr),
+				   from);
+    if(asLogical(keep_dimnames))
+	setAttrib(val, R_DimNamesSymbol, get_symmetrized_DimNames(from, -1));
+    UNPROTECT(1);
+    return val;
+}
+
+#endif /* MJ */
+
+

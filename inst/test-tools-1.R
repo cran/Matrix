@@ -155,7 +155,7 @@ mkNA.0 <- function(x) { x[is.na(x)] <- 0 ; x }
 
 ##' ... : further arguments passed to all.equal() such as 'check.attributes'
 is.all.equal <- function(x,y, tol = .Machine$double.eps^0.5, ...)
-    identical(TRUE, all.equal(x,y, tolerance=tol, ...))
+    isTRUE(all.equal(x,y, tolerance=tol, ...))
 is.all.equal3 <- function(x,y,z, tol = .Machine$double.eps^0.5, ...)
     is.all.equal(x,y, tol=tol, ...) && is.all.equal(y,z, tol=tol, ...)
 
@@ -186,6 +186,7 @@ all.equal.X <- function(x,y, except, tol = .Machine$double.eps^0.5, ...)
 ##  all.equal.X(env(m1), env(m2), except = c("call", "frame"))
 
 ## The relative error typically returned by all.equal:
+if(!exists("relErr", mode="function"))##  use sfsmisc::relErr  if {sfsmisc} is attached:
 relErr <- function(target, current) { ## make this work for 'Matrix' ==> no mean() ..
     n <- length(current)
     if(length(target) < n)
@@ -199,6 +200,10 @@ relErr <- function(target, current) { ## make this work for 'Matrix' ==> no mean
 ##' @param current numeric of length() a multiple of length(target)
 ##' @return *vector* of the same length as current
 ##' @author Martin Maechler
+##'
+##' @note OUTDATED/SUPERSEDED by  sfsmisc::relErrV() which deals with Inf, denormalized, ...
+##'    ==> define it only if it does not exist visibly at this point:
+if(!exists("relErrV", mode="function"))
 relErrV <- function(target, current) {
     n <- length(target <- as.vector(target))
     ## assert( <length current> is multiple of <length target>) :
@@ -367,8 +372,11 @@ isOrthogonal <- function(x, tol = 1e-15) {
               rep(1, ncol(x)), tolerance = tol)
 }
 
-.M.DN <- Matrix:::.M.DN ## from ../R/Auxiliaries.R :
-dnIdentical  <- function(x,y) identical(.M.DN(x), .M.DN(y))
+## .M.DN <- Matrix:::.M.DN -- but do *NOT* want to load Matrix namespace!
+## from ../R/Auxiliaries.R :
+`%||%` <- function(x, orElse) if(!is.null(x)) x else orElse
+.M.DN <- function(x) dimnames(x) %||% list(NULL,NULL)
+dnIdentical  <- function(x,y)   identical (.M.DN(x), .M.DN(y))
 dnIdentical3 <- function(x,y,z) identical3(.M.DN(x), .M.DN(y), .M.DN(z))
 
 ##' @title Are two matrices practically equal - including dimnames
@@ -394,10 +402,13 @@ is.EQ.mat3 <- function(M1, M2, M3, tol = 1e-15, dimnames = TRUE, ...) {
 ##' here, as it also works for qr(<base matrix>)
 chkQR <- function(a,
                   y = seq_len(nrow(a)),## RHS: made to contain no 0
-                  a.qr = qr(a), tol = 1e-11, # 1e-13 failing very rarely (interesting)
+                  a.qr = qr(a),
+                  tol = 1e-11, # 1e-13 failing very rarely (interesting)
                   ##----------
-                  Qinv.chk = !sp.rank.def, QtQ.chk = !sp.rank.def,
-                  verbose = getOption("Matrix.verbose", FALSE), giveRE = verbose,
+                  Qinv.chk = !sp.rank.def,
+                  QtQ.chk = !sp.rank.def,
+                  verbose = getOption("Matrix.verbose", FALSE),
+                  giveRE = verbose,
                   quiet = FALSE)
 {
     d <- dim(a)

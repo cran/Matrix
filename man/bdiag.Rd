@@ -1,7 +1,7 @@
 \name{bdiag}
+\title{Construct a Block Diagonal Matrix}
 \alias{bdiag}
 \alias{.bdiag}
-\title{Construct a Block Diagonal Matrix}
 \description{
   Build a block diagonal matrix given several building block matrices.
 }

@@ -6,7 +6,8 @@
 
 #define Matrix_T_as_DENSE(_C_TYPE_, _SEXP_, _SEXPTYPE_, _SYMM_)		\
     SEXP dimP = GET_SLOT(x, Matrix_DimSym),				\
-	  xiP = GET_SLOT(x, Matrix_iSym);				\
+	dnP = GET_SLOT(x, Matrix_DimNamesSym),				\
+	xiP = GET_SLOT(x, Matrix_iSym);					\
     int k, n = INTEGER(dimP)[0]; R_xlen_t nnz = xlength(xiP);		\
     int *xi = INTEGER(xiP), *xj = INTEGER(GET_SLOT(x, Matrix_jSym));	\
     R_xlen_t n_ = n, sz = n * n_;					\
@@ -15,13 +16,13 @@
 									\
     SET_SLOT(val, Matrix_DimSym, duplicate(dimP));			\
     if(_SYMM_)								\
-	SET_DimNames_symm(val, x);					\
+	set_symmetrized_DimNames(val, dnP, -1);				\
     else								\
-	SET_DimNames(val, x);						\
+	set_DimNames(val, dnP);						\
     slot_dup(val, x, Matrix_uploSym)
 
-#define Matrix_T_as_DENSE_FINISH(_X_k_)		\
-    AZERO(tx, sz);				\
+#define Matrix_T_as_DENSE_FINISH(_X_k_, _ZERO_)	\
+    AZERO(tx, sz, _ZERO_);			\
     for (k = 0; k < nnz; k++)			\
 	tx[xi[k] + xj[k] * n_] = _X_k_;		\
     UNPROTECT(1);				\
@@ -33,7 +34,7 @@ SEXP dsTMatrix_as_dsyMatrix(SEXP x)
     SEXP val = PROTECT(NEW_OBJECT_OF_CLASS("dsyMatrix"));
 
     Matrix_T_as_DENSE(double, REAL, REALSXP, FALSE);
-    Matrix_T_as_DENSE_FINISH(xx[k]);
+    Matrix_T_as_DENSE_FINISH(xx[k], 0.0);
 }
 
 SEXP lsTMatrix_as_lsyMatrix(SEXP x)
@@ -41,7 +42,7 @@ SEXP lsTMatrix_as_lsyMatrix(SEXP x)
     SEXP val = PROTECT(NEW_OBJECT_OF_CLASS("lsyMatrix"));
 
     Matrix_T_as_DENSE(int, LOGICAL, LGLSXP, FALSE);
-    Matrix_T_as_DENSE_FINISH(xx[k]);
+    Matrix_T_as_DENSE_FINISH(xx[k], 0);
 }
 
 /* ---- Now the triangular ones --  have an extra  'diag'  slot : ------ */
@@ -52,7 +53,7 @@ SEXP dtTMatrix_as_dtrMatrix(SEXP x)
 
     Matrix_T_as_DENSE(double, REAL, REALSXP, FALSE);
     slot_dup(val, x, Matrix_diagSym);
-    Matrix_T_as_DENSE_FINISH(xx[k]);
+    Matrix_T_as_DENSE_FINISH(xx[k], 0.0);
 }
 
 SEXP ltTMatrix_as_ltrMatrix(SEXP x)
@@ -61,7 +62,7 @@ SEXP ltTMatrix_as_ltrMatrix(SEXP x)
 
     Matrix_T_as_DENSE(int, LOGICAL, LGLSXP, FALSE);
     slot_dup(val, x, Matrix_diagSym);
-    Matrix_T_as_DENSE_FINISH(xx[k]);
+    Matrix_T_as_DENSE_FINISH(xx[k], 0);
 }
 
 /*===================== Coercion to  gTMatrix ================================*/
@@ -102,7 +103,7 @@ SEXP ltTMatrix_as_ltrMatrix(SEXP x)
     MAYBE_ALLOC_val_x_SLOT(_SEXP_, _SEXPTYPE_);				\
 									\
     slot_dup(val, x, Matrix_DimSym);					\
-    SET_DimNames_symm(val, x);						\
+    set_symmetrized_DimNames(val, GET_SLOT(x, Matrix_DimNamesSym), -1);	\
     /* copy the upper/lower triangle (including the diagonal)*/		\
     /* "at end" ([nv]): */						\
     nv = nnz - n0d;							\
@@ -154,7 +155,7 @@ SEXP nsTMatrix_as_nsyMatrix(SEXP x)
     SEXP val = PROTECT(NEW_OBJECT_OF_CLASS("nsyMatrix"));
 
     Matrix_T_as_DENSE(int, LOGICAL, LGLSXP, FALSE);
-    Matrix_T_as_DENSE_FINISH(1);
+    Matrix_T_as_DENSE_FINISH(1, 0);
 }
 
 SEXP ntTMatrix_as_ntrMatrix(SEXP x)
@@ -163,7 +164,7 @@ SEXP ntTMatrix_as_ntrMatrix(SEXP x)
 
     Matrix_T_as_DENSE(int, LOGICAL, LGLSXP, FALSE);
     slot_dup(val, x, Matrix_diagSym);
-    Matrix_T_as_DENSE_FINISH(1);
+    Matrix_T_as_DENSE_FINISH(1, 0);
 }
 
 SEXP nsTMatrix_as_ngTMatrix(SEXP x)

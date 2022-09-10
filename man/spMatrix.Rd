@@ -1,6 +1,6 @@
 \name{spMatrix}
-\alias{spMatrix}
 \title{Sparse Matrix Constructor From Triplet}
+\alias{spMatrix}
 \description{
   User friendly construction of a sparse matrix (inheriting from class
   \code{\linkS4class{TsparseMatrix}}) from the triplet representation.

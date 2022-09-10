@@ -1,8 +1,8 @@
 \name{printSpMatrix}
+\title{Format and Print Sparse Matrices Flexibly}
 \alias{formatSpMatrix}
 \alias{printSpMatrix}
 \alias{printSpMatrix2}
-\title{Format and Print Sparse Matrices Flexibly}
 \description{
   Format and print sparse matrices flexibly.  These are the \dQuote{workhorses} used by
   the \code{\link{format}}, \code{\link{show}} and \code{\link{print}}

@@ -14,31 +14,39 @@
 ## %   the k-th column of the Khatri-Rao product is defined as
 ## %   kron(A(:,k),B(:,k)).
 
-
-KhatriRao <- function(X, Y = X, FUN = "*", make.dimnames = FALSE)
-{
+KhatriRao <- function(X, Y = X, FUN = "*",
+                      sparseY = TRUE, make.dimnames = FALSE) {
     stopifnot((p <- ncol(X)) == ncol(Y))
-    X <- as(X,"CsparseMatrix")
-    Y <- as(Y,"CsparseMatrix")
-    is.n <- (nX <- is(X, "nMatrix")) & (nY <- is(Y, "nMatrix"))
-
-    xn <- diff(      X@p)
-    yn <- diff(yp <- Y@p) ## both of length p
+    ## TODO? speedup when X = Diagonal(<n>)
+    X <- asCspN(X) # not-U-diag CsparseMatrix -->  can use @x, @p, @i
+    ## xn, yn; number of non-zero values per column
+    xn <- diff(X@p)
+    n1 <- nrow(X); n2 <- nrow(Y)
+    if(sparseY) {
+        Y <- asCspN(Y)
+        yn <- diff(yp <- Y@p) ## both of length p
+    } else {
+        if(!is.matrix(Y)) Y <- as.matrix(Y)# needed e.g. in c(Y) below)
+        yn <- rep(n2, p)
+    }
     newp <- as.integer(diffinv(xn*yn))
-
-
-    rep.yn <- rep.int(yn,xn)
+    ## indices for new values
+    ## dense: = newp <- as.integer(diffinv(xn*nrow(Y)))
     xn.yp <- xn[ as.logical(yn) ] # xn "where" Y is present
+    yj <- if(sparseY)
+              .Call(Matrix_expand_pointers, yp)## as(Y,"TsparseMatrix")@j
+          else rep(seq(p)-1L, each = n2)
+    yj <- factor(yj) # for split() below
     non0 <- length(xn.yp) > 0L && any(xn.yp != 0L)
+    rep.yn <- rep.int(yn, xn)
     i1 <- rep.int(X@i, rep.yn)
     i2 <-
 	if(non0) {
-	    yj <- .Call(Matrix_expand_pointers, yp)## as(Y,"TsparseMatrix")@j
-	    yj <- factor(yj) # for 2x split() below
-	    unlist(rep(split.default(Y@i,yj), xn.yp))
+            if(sparseY)
+                unlist(rep(split.default(Y@i,yj), xn.yp), use.names=FALSE)
+            else rep.int(seq.int(n2)-1L, p)
 	}
 	else integer()
-    n1 <- nrow(X); n2 <- nrow(Y)
     newi <- i1*n2 + i2
     dim <- as.integer(c(n1*n2, p))
 
@@ -47,15 +55,17 @@ KhatriRao <- function(X, Y = X, FUN = "*", make.dimnames = FALSE)
 	     colnames(X))
     } else list(NULL,NULL)
 
-    if(is.n)
+    if((nX <- is(X, "nMatrix")) & (nY <- is(Y, "nMatrix")))
 	new("ngCMatrix", Dim=dim, Dimnames=dns, i = newi, p = newp)
     else { ## at least one of 'X' and 'Y' has an "x" slot:
-	if(nX) X <- as(X, "lgCMatrix")
+	if(nX) X <- .sparse2g(..sparse2l(X))
 	x1 <- rep.int(X@x, rep.yn)
 	x2 <- if(non0) {
-		  if(nY) Y <- as(Y, "lgCMatrix")
-		  unlist(rep(split.default(Y@x,yj), xn.yp))
-	      } else if(nY) logical() else Y@x[0]
+		  if(nY && sparseY) Y <- .sparse2g(..sparse2l(X))
+                  yx <- if(sparseY) Y@x else c(Y)
+		  unlist(rep(split.default(yx, yj), xn.yp), use.names=FALSE)
+	      } else if(nY) logical() else (if(sparseY) Y@x else c(Y))[0]
+        if(!is.double(x1)) x1 <- as.double(x1) ## or if we had "igCMatrix" ...
 	new("dgCMatrix", Dim=dim, Dimnames=dns, i = newi, p = newp,
 	    x = match.fun(FUN) (x1,x2))
     }

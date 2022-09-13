@@ -1312,7 +1312,7 @@ SEXP R_sparse_band(SEXP from, SEXP k1, SEXP k2)
     /* Now allocating and filling out slots ... */
 
     SEXP i1, j1;
-    int *pi1, *pj1;
+    int *pi1 = NULL, *pj1 = NULL;
     
     PROTECT(i1 = allocVector(INTSXP, nnz1));
     SET_SLOT(to, Matrix_iSym, i1);
@@ -3188,9 +3188,11 @@ SEXP Tsparse_as_CRsparse(SEXP from, SEXP Csparse)
     
 #define T_AS_CR_2					\
     do {						\
-	workB[0] = 0;					\
-	for (i = 1; i < m_; ++i)			\
-	    workA[i] += (workB[i] = workA[i-1]);	\
+	if (r_ > 0) {					\
+	    workB[0] = 0;				\
+	    for (i = 1; i < m_; ++i)			\
+		workA[i] += (workB[i] = workA[i-1]);	\
+	}						\
     } while (0)
     
     /* 3. Group column indices and data by row in pj_[k], px_[k]

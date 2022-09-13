@@ -43,7 +43,7 @@ SEXP diag_tC_ptr(int n, int *x_p, double *x_x, Rboolean is_U, int *perm,
 SEXP diag_tC(SEXP obj, SEXP resultKind);
 
 /* MJ: no longer needed ... prefer R_sparse_band() */
-/* MJ: however, some reverse dependencies built with Matrix < 1.4-2 need it */
+/* MJ: however, some reverse dependencies built with Matrix < 1.5-0 need it */
 #ifdef Matrix_SupportingCachedMethods
 SEXP Csparse_band(SEXP x, SEXP k1, SEXP k2);
 #endif /* MJ */
@@ -88,7 +88,7 @@ SEXP Csparse_to_vector(SEXP x);
 #endif /* MJ */
 
 /* MJ: no longer needed ... prefer R_sparse_transpose() */
-/* MJ: however, some reverse dependencies built with Matrix < 1.4-2 need it */
+/* MJ: however, some reverse dependencies built with Matrix < 1.5-0 need it */
 #ifdef Matrix_SupportingCachedMethods
 SEXP Csparse_transpose(SEXP x, SEXP tri);
 #endif /* MJ */

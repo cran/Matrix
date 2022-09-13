@@ -116,7 +116,7 @@ Matrix.DeprecatedCoerce <- function(Class1, Class2) {
             else if(w.na || w == 1L)
                 warning
             else stop
-        warning.(gettextf("as(<%s>, \"%s\") is deprecated since Matrix 1.4-2; do %s instead",
+        warning.(gettextf("as(<%s>, \"%s\") is deprecated since Matrix 1.5-0; do %s instead",
                           cln1, cln2,
                           deparse1(.as.via.virtual(Class1, Class2, quote(.)))),
                  call. = FALSE, domain = NA)
@@ -127,7 +127,7 @@ Matrix.DeprecatedCoerce <- function(Class1, Class2) {
 }
 
 ## "Granular" coercions available in Matrix 1.4-1,
-## all candidates for deprecation in Matrix 1.4-2:
+## all candidates for deprecation in Matrix 1.5-0:
 if(FALSE) {
 stopifnot(packageVersion("Matrix") == "1.4.1")
 dput(lapply(grep("to=\"[dln](di|ge|tr|sy|tp|sp|[gts][CRT])Matrix\"",

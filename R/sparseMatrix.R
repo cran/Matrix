@@ -122,7 +122,7 @@ rm(.kind, .repr)
 
 ## More granular coercions .................................
 
-## DEPRECATED IN 1.4-2; see ./zzz.R
+## DEPRECATED IN 1.5-0; see ./zzz.R
 if(FALSE) {
 .kinds <- c("d", "l", "n")
 .strs  <- c("g", "t", "s")
@@ -240,7 +240,7 @@ setAs(    "dsCMatrix", "dgeMatrix", ..sparse2dge)
 setAs(    "dtTMatrix", "dgeMatrix", ..sparse2dge)
 setAs(    "dsTMatrix", "dgeMatrix", ..sparse2dge)
 setAs(    "ngTMatrix", "lgeMatrix", ..sparse2lge)
-} ## DEPRECATED IN 1.4-2; see ./zzz.R
+} ## DEPRECATED IN 1.5-0; see ./zzz.R
 
 ## Exported functions, now just aliases or wrappers ........
 ## (some or all could be made deprecated) ..................

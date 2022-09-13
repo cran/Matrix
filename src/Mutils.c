@@ -348,6 +348,7 @@ SEXP pMatrix_validate(SEXP obj)
 	    return mkString(_("'perm' slot contains duplicates"));
 	else
 	    u[*pperm] = 1;
+    ++u;
     Free_FROM(u, n);
     return ScalarLogical(1);
 }

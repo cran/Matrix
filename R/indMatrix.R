@@ -182,11 +182,11 @@ setMethod("as.numeric", signature(x = "indMatrix"),
 setMethod("as.logical", signature(x = "indMatrix"),
           function(x, ...) .ind2v(x))
 
-## DEPRECATED IN 1.4-2; see ./zzz.R
+## DEPRECATED IN 1.5-0; see ./zzz.R
 if(FALSE) {
 setAs("indMatrix", "ngTMatrix", .ind2ngT)
 setAs("indMatrix", "ngeMatrix", .ind2nge)
-} ## DEPRECATED IN 1.4-2; see ./zzz.R
+} ## DEPRECATED IN 1.5-0; see ./zzz.R
 
 rm(.ind2dge, .ind2lge, .ind2nge, .ind2n.p,
    .ind2dgC, .ind2lgC, .ind2ngC, .ind2ngR, # .ind2ngT,

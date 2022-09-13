@@ -336,7 +336,7 @@ rm(dl0, dd0)# too large to keep in memory and pass to checkMatrix()
 diag(Lrg[2:9,1:8]) <- 1:8
 ## ==:  Lrg[2:9,1:8] <- `diag<-`(Lrg[2:9,1:8], 1:8)
 
-options(warn = 1) # (Matrix 1.4-2 (Aug.2022): now warns when lots of memory is used)
+options(warn = 1) # Matrix 1.5-0 (Sep 2022): we now warn when lots of memory is used
 (memGB <- Sys.memGB("MemFree")) # from test-tools-1.R, only works with /proc/*
 system.time( # ~10 sec.                            __vv__
     e1 <- if(doExtras && is.finite(memGB) && memGB > 30) { # need around 18 GB

@@ -9,52 +9,30 @@
 \alias{colSums,CsparseMatrix-method}
 \alias{colSums,RsparseMatrix-method}
 \alias{colSums,TsparseMatrix-method}
-\alias{colSums,ddenseMatrix-method}
 \alias{colSums,denseMatrix-method}
-\alias{colSums,dgCMatrix-method}
-\alias{colSums,dgeMatrix-method}
 \alias{colSums,diagonalMatrix-method}
 \alias{colSums,indMatrix-method}
-\alias{colSums,lgCMatrix-method}
-\alias{colSums,ngCMatrix-method}
 %
 \alias{colMeans,CsparseMatrix-method}
 \alias{colMeans,RsparseMatrix-method}
 \alias{colMeans,TsparseMatrix-method}
-\alias{colMeans,ddenseMatrix-method}
 \alias{colMeans,denseMatrix-method}
-\alias{colMeans,dgCMatrix-method}
-\alias{colMeans,dgeMatrix-method}
 \alias{colMeans,diagonalMatrix-method}
 \alias{colMeans,indMatrix-method}
-\alias{colMeans,lgCMatrix-method}
-\alias{colMeans,ngCMatrix-method}
 %
-\alias{rowSums,diagonalMatrix-method}
 \alias{rowSums,CsparseMatrix-method}
 \alias{rowSums,RsparseMatrix-method}
 \alias{rowSums,TsparseMatrix-method}
-\alias{rowSums,ddenseMatrix-method}
 \alias{rowSums,denseMatrix-method}
-\alias{rowSums,dgCMatrix-method}
-\alias{rowSums,dgeMatrix-method}
 \alias{rowSums,diagonalMatrix-method}
 \alias{rowSums,indMatrix-method}
-\alias{rowSums,lgCMatrix-method}
-\alias{rowSums,ngCMatrix-method}
 %
-\alias{rowMeans,diagonalMatrix-method}
 \alias{rowMeans,CsparseMatrix-method}
 \alias{rowMeans,RsparseMatrix-method}
 \alias{rowMeans,TsparseMatrix-method}
-\alias{rowMeans,ddenseMatrix-method}
 \alias{rowMeans,denseMatrix-method}
-\alias{rowMeans,dgCMatrix-method}
-\alias{rowMeans,dgeMatrix-method}
 \alias{rowMeans,diagonalMatrix-method}
 \alias{rowMeans,indMatrix-method}
-\alias{rowMeans,lgCMatrix-method}
-\alias{rowMeans,ngCMatrix-method}
 %
 \description{
   Form row and column sums and means for
@@ -65,19 +43,19 @@
   \code{\link{numeric}} vector.
 }
 \usage{
-colSums (x, na.rm = FALSE, dims = 1, \dots)
-rowSums (x, na.rm = FALSE, dims = 1, \dots)
-colMeans(x, na.rm = FALSE, dims = 1, \dots)
-rowMeans(x, na.rm = FALSE, dims = 1, \dots)
+colSums (x, na.rm = FALSE, dims = 1L, \dots)
+rowSums (x, na.rm = FALSE, dims = 1L, \dots)
+colMeans(x, na.rm = FALSE, dims = 1L, \dots)
+rowMeans(x, na.rm = FALSE, dims = 1L, \dots)
 
 \S4method{colSums}{CsparseMatrix}(x, na.rm = FALSE,
-        dims = 1, sparseResult = FALSE)
+        dims = 1L, sparseResult = FALSE)
 \S4method{rowSums}{CsparseMatrix}(x, na.rm = FALSE,
-        dims = 1, sparseResult = FALSE)
+        dims = 1L, sparseResult = FALSE)
 \S4method{colMeans}{CsparseMatrix}(x, na.rm = FALSE,
-        dims = 1, sparseResult = FALSE)
+        dims = 1L, sparseResult = FALSE)
 \S4method{rowMeans}{CsparseMatrix}(x, na.rm = FALSE,
-        dims = 1, sparseResult = FALSE)
+        dims = 1L, sparseResult = FALSE)
 }
 \arguments{
   \item{x}{a Matrix, i.e., inheriting from  \code{\linkS4class{Matrix}}.}

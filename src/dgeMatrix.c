@@ -1,52 +1,229 @@
+#include <float.h> /* DBL_EPSILON */
 #include "dgeMatrix.h"
-// -> Mutils.h  etc
-#include <float.h>
 
-static
-double get_norm(SEXP obj, const char *typstr)
+/* FIXME: also allow an interface to LAPACK's 'dgesvx' which performs 
+          LU factorization then optionally does "equilibration" (row and
+	  column scaling) ... maybe also allow an interface to 'dgeequ' ... 
+*/
+
+SEXP dgeMatrix_trf_(SEXP obj, int warn)
 {
-    if(any_NA_in_x(obj))
-	return NA_REAL;
-    else {
-	char typnm[] = {'\0', '\0'};
-	int *dims = INTEGER(GET_SLOT(obj, Matrix_DimSym));
-	double *work = (double *) NULL;
-
-	typnm[0] = La_norm_type(typstr);
-	if (*typnm == 'I') {
-	    work = (double *) R_alloc(dims[0], sizeof(double));
-	}
-	return F77_CALL(dlange)(typstr, dims, dims+1,
-				REAL(GET_SLOT(obj, Matrix_xSym)),
-				dims, work FCONE);
+    SEXP val;
+    PROTECT_INDEX pidA;
+    PROTECT_WITH_INDEX(val = get_factor(obj, "LU"), &pidA);
+    if (!isNull(val)) {
+	UNPROTECT(1);
+	return val;
     }
+    REPROTECT(val = NEW_OBJECT_OF_CLASS("denseLU"), pidA);
+    
+    SEXP dim = PROTECT(GET_SLOT(obj, Matrix_DimSym)),
+	dimnames = PROTECT(GET_SLOT(obj, Matrix_DimNamesSym));
+    int *pdim = INTEGER(dim), r = (pdim[0] < pdim[1]) ? pdim[0] : pdim[1];
+    SET_SLOT(val, Matrix_DimSym, dim);
+    SET_SLOT(val, Matrix_DimNamesSym, dimnames);
+
+    if (r > 0) {
+	PROTECT_INDEX pidB;
+	SEXP perm = PROTECT(allocVector(INTSXP, r)), x;
+	PROTECT_WITH_INDEX(x = GET_SLOT(obj, Matrix_xSym), &pidB);
+	REPROTECT(x = duplicate(x), pidB);
+	int *pperm = INTEGER(perm), info;
+	double *px = REAL(x);
+	
+	F77_CALL(dgetrf)(pdim, pdim + 1, px, pdim, pperm, &info);
+	
+	if (info < 0)
+	    error(_("LAPACK '%s' gave error code %d"),
+		  "dgetrf", info);
+	else if (info > 0 && warn > 0) {
+	    /* MJ: 'dgetrf' does not distinguish between singular, */
+	    /*     finite matrices and matrices containing NaN ... */
+	    /*     hence this message can mislead                  */
+	    if (warn > 1)
+		error  (_("LAPACK '%s': matrix is exactly singular, "
+			  "U[i,i]=0, i=%d"),
+			"dgetrf", info);
+	    else 
+		warning(_("LAPACK '%s': matrix is exactly singular, "
+			  "U[i,i]=0, i=%d"),
+			"dgetrf", info);
+	}
+	
+	SET_SLOT(val, Matrix_permSym, perm);
+	SET_SLOT(val, Matrix_xSym, x);
+	UNPROTECT(2);
+    }
+    
+    set_factor(obj, "LU", val);
+    UNPROTECT(3);
+    return val;
+}
+
+SEXP dgeMatrix_trf(SEXP obj, SEXP warn)
+{
+    return dgeMatrix_trf_(obj, asInteger(warn));
+}
+
+double get_norm_dge(SEXP obj, const char *typstr)
+{
+    SEXP x = PROTECT(GET_SLOT(obj, Matrix_xSym));
+    R_xlen_t i, nx = XLENGTH(x);
+    double *px = REAL(x);
+    for (i = 0; i < nx; ++i) {
+	if (ISNAN(px[i])) {
+	    UNPROTECT(1);
+	    return NA_REAL;
+	}
+    }
+    SEXP dim = PROTECT(GET_SLOT(obj, Matrix_DimSym));
+    int *pdim = INTEGER(dim);
+    double norm, *work = NULL;
+
+    if (typstr[0] == 'I')
+	work = (double *) R_alloc(pdim[0], sizeof(double));
+    norm = F77_CALL(dlange)(typstr, pdim, pdim + 1, px, pdim,
+			    work FCONE);
+    
+    UNPROTECT(2);
+    return norm;
 }
 
 SEXP dgeMatrix_norm(SEXP obj, SEXP type)
 {
-    return ScalarReal(get_norm(obj, CHAR(asChar(type))));
+    char typstr[] = {'\0', '\0'};
+    PROTECT(type = asChar(type));
+    typstr[0] = La_norm_type(CHAR(type));
+    double norm = get_norm_dge(obj, typstr);
+    UNPROTECT(1);
+    return ScalarReal(norm);
 }
 
 SEXP dgeMatrix_rcond(SEXP obj, SEXP type)
 {
-    SEXP LU = PROTECT(dgeMatrix_LU_(obj, FALSE));/* <- not warning about singularity */
-    char typnm[] = {'\0', '\0'};
-    int *dims = INTEGER(GET_SLOT(LU, Matrix_DimSym)), info;
-    double anorm, rcond;
+    SEXP dim = PROTECT(GET_SLOT(obj, Matrix_DimSym));
+    int *pdim = INTEGER(dim);
+    if (pdim[0] != pdim[1] || pdim[0] < 1)
+	error(_("'rcond' requires a square, nonempty matrix"));
 
-    if (dims[0] != dims[1] || dims[0] < 1) {
-	UNPROTECT(1);
-	error(_("rcond requires a square, non-empty matrix"));
-    }
-    typnm[0] = La_rcond_type(CHAR(asChar(type)));
-    anorm = get_norm(obj, typnm);
-    F77_CALL(dgecon)(typnm,
-		     dims, REAL(GET_SLOT(LU, Matrix_xSym)),
-		     dims, &anorm, &rcond,
-		     (double *) R_alloc(4*dims[0], sizeof(double)),
-		     (int *) R_alloc(dims[0], sizeof(int)), &info FCONE);
-    UNPROTECT(1);
+    char typstr[] = {'\0', '\0'};
+    PROTECT(type = asChar(type));
+    typstr[0] = La_rcond_type(CHAR(type));
+
+    SEXP trf = PROTECT(dgeMatrix_trf_(obj, 0)),
+	x = PROTECT(GET_SLOT(trf, Matrix_xSym));
+    int info;
+    double *px = REAL(x), norm = get_norm_dge(obj, typstr), rcond;
+    
+    F77_CALL(dgecon)(typstr, pdim, px, pdim, &norm, &rcond,
+		     (double *) R_alloc(4 * pdim[0], sizeof(double)),
+		     (int *) R_alloc(pdim[0], sizeof(int)),
+		     &info FCONE);
+
+    UNPROTECT(4);
     return ScalarReal(rcond);
+}
+
+SEXP dgeMatrix_determinant(SEXP obj, SEXP logarithm)
+{
+    SEXP dim = PROTECT(GET_SLOT(obj, Matrix_DimSym));
+    int *pdim = INTEGER(dim), n = pdim[0];
+    if (pdim[1] != n)
+	error(_("determinant of non-square matrix is undefined"));
+    UNPROTECT(1); /* dim */
+    SEXP res;
+    if (n == 0) {
+	int givelog = asLogical(logarithm), sign = 1;
+	double modulus = (givelog) ? 0.0 : 1.0;
+	res = as_det_obj(modulus, givelog, sign);
+    } else {
+	SEXP trf = PROTECT(dgeMatrix_trf_(obj, 0));
+	res = denseLU_determinant(trf, logarithm);
+	UNPROTECT(1); /* trf */
+    }
+    return res;
+}
+
+SEXP dgeMatrix_solve(SEXP a)
+{
+    SEXP dim = PROTECT(GET_SLOT(a, Matrix_DimSym));
+    int *pdim = INTEGER(dim), n = pdim[0];
+    if (pdim[1] != n)
+	error(_("'solve' requires a square matrix"));
+    
+    SEXP val = PROTECT(NEW_OBJECT_OF_CLASS("dgeMatrix")),
+	dimnames = PROTECT(GET_SLOT(a, Matrix_DimNamesSym)),
+	trf = PROTECT(dgeMatrix_trf_(a, 1)),
+	perm = PROTECT(GET_SLOT(trf, Matrix_permSym)),
+	x;
+    PROTECT_INDEX pid;
+    PROTECT_WITH_INDEX(x = GET_SLOT(trf, Matrix_xSym), &pid);
+    REPROTECT(x = duplicate(x), pid);
+
+    SET_SLOT(val, Matrix_DimSym, dim);
+    set_reversed_DimNames(val, dimnames);
+    SET_SLOT(val, Matrix_xSym, x);
+    
+    if (n > 0) {
+        /* Is matrix _computationally_ singular ? */
+        double *px = REAL(x), norm = get_norm_dge(a, "1"), rcond;
+	int info;
+        F77_CALL(dgecon)("1", pdim, px, pdim, &norm, &rcond,
+                         (double *) R_alloc(4 * n, sizeof(double)),
+                         (int *) R_alloc(n, sizeof(int)),
+			 &info FCONE);
+        if (info)
+            error(_("LAPACK routine '%s' returned with error code %d"),
+		  "dgecon", info);
+        if (rcond < DBL_EPSILON)
+            error(_("LAPACK '%s': matrix is computationally singular, "
+		    "with reciprocal condition number %g"),
+		  "dgecon", rcond);
+	/* Only now try inversion and test if matrix is _exactly_ singular : */
+	double tmp;
+	int *pperm = INTEGER(perm), lwork = -1;
+	F77_CALL(dgetri)(pdim, px, pdim, pperm, &tmp, &lwork, &info);
+	lwork = (int) tmp;
+	F77_CALL(dgetri)(pdim, px, pdim, pperm,
+			 (double *) R_alloc((size_t) lwork, sizeof(double)),
+			 &lwork, &info);
+	if (info)
+	    error(_("LAPACK '%s': matrix is exactly singular"),
+		  "dgetri");
+    }
+    
+    UNPROTECT(6);
+    return val;
+}
+
+SEXP dgeMatrix_matrix_solve(SEXP a, SEXP b)
+{
+    SEXP val = PROTECT(dense_as_general(b, 'd', 2, 0)),
+	adim = PROTECT(GET_SLOT(a, Matrix_DimSym)),
+	bdim = PROTECT(GET_SLOT(val, Matrix_DimSym));
+    int *padim = INTEGER(adim), *pbdim = INTEGER(bdim);
+    
+    if (padim[0] != pbdim[0] || padim[0] < 1 || pbdim[1] < 1)
+	error(_("dimensions of system to be solved are inconsistent"));
+    
+    SEXP trf = PROTECT(dgeMatrix_trf_(a, 1)),
+	perm = PROTECT(GET_SLOT(trf, Matrix_permSym)),
+	x = PROTECT(GET_SLOT(trf, Matrix_xSym)),
+	y = PROTECT(GET_SLOT(val, Matrix_xSym));
+    
+    int *pperm = INTEGER(perm), info;
+    double *px = REAL(x), *py = REAL(y);
+    
+    if (pbdim[0] >= 1 && pbdim[1] >= 1) {
+	F77_CALL(dgetrs)("N", pbdim, pbdim + 1, px, pbdim, pperm, py, pbdim,
+			 &info FCONE);
+	if (info)
+	    error(_("LAPACK '%s': matrix is exactly singular"),
+		  "dgetrs");
+    }
+    
+    UNPROTECT(7);
+    return val;
 }
 
 SEXP dgeMatrix_crossprod(SEXP x, SEXP trans)
@@ -348,6 +525,7 @@ SEXP geMatrix_matrix_mm(SEXP a, SEXP b, SEXP right) {
 
 /* MJ: no longer needed ... prefer more general unpackedMatrix_diag_[gs]et() */
 #if 0
+
 SEXP dgeMatrix_getDiag(SEXP x)
 {
 #define geMatrix_getDiag_1					\
@@ -440,147 +618,8 @@ SEXP dgeMatrix_addDiag(SEXP x, SEXP d)
     UNPROTECT(1);
     return ret;
 }
+
 #endif /* MJ */
-
-
-SEXP dgeMatrix_LU_(SEXP x, Rboolean warn_sing)
-{
-    SEXP val = get_factor(x, "LU");
-    int *dims, npiv, info;
-
-    if (val != R_NilValue) /* nothing to do if it's there in 'factors' slot */
-	return val;
-    dims = INTEGER(GET_SLOT(x, Matrix_DimSym));
-    if (dims[0] < 1 || dims[1] < 1)
-	error(_("Cannot factor a matrix with zero extents"));
-    npiv = (dims[0] < dims[1]) ? dims[0] : dims[1];
-    val = PROTECT(NEW_OBJECT_OF_CLASS("denseLU"));
-    slot_dup(val, x, Matrix_xSym);
-    slot_dup(val, x, Matrix_DimSym);
-    slot_dup(val, x, Matrix_DimNamesSym);
-    F77_CALL(dgetrf)(dims, dims + 1, REAL(GET_SLOT(val, Matrix_xSym)),
-		     dims,
-		     INTEGER(ALLOC_SLOT(val, Matrix_permSym, INTSXP, npiv)),
-		     &info);
-    if (info < 0)
-	error(_("Lapack routine %s returned error code %d"), "dgetrf", info);
-    else if (info > 0 && warn_sing)
-	warning(_("Exact singularity detected during LU decomposition: %s, i=%d."),
-		"U[i,i]=0", info);
-    set_factor(x, "LU", val);
-    UNPROTECT(1);
-    return val;
-}
-// FIXME: also allow an interface to LAPACK's  dgesvx()  which uses LU fact.
-//        and then optionally does "equilibration" (row and column scaling)
-//  maybe also allow low-level interface to  dgeEQU() ...
-
-SEXP dgeMatrix_LU(SEXP x, SEXP warn_singularity)
-{
-    return dgeMatrix_LU_(x, asLogical(warn_singularity));
-}
-
-SEXP dgeMatrix_determinant(SEXP x, SEXP logarithm)
-{
-    int lg = asLogical(logarithm);
-    int *dims = INTEGER(GET_SLOT(x, Matrix_DimSym)),
-	n = dims[0], sign = 1;
-    double modulus = lg ? 0. : 1; /* initialize; = result for n == 0 */
-
-    if (n != dims[1])
-	error(_("Determinant requires a square matrix"));
-    if (n > 0) {
-	SEXP lu = dgeMatrix_LU_(x, /* do not warn about singular LU: */ FALSE);
-	int i, *jpvt = INTEGER(GET_SLOT(lu, Matrix_permSym));
-	double *luvals = REAL(GET_SLOT(lu, Matrix_xSym));
-
-	for (i = 0; i < n; i++) if (jpvt[i] != (i + 1)) sign = -sign;
-	if (lg) {
-	    for (i = 0; i < n; i++) {
-		double dii = luvals[i*(n + 1)]; /* ith diagonal element */
-		modulus += log(dii < 0 ? -dii : dii);
-		if (dii < 0) sign = -sign;
-	    }
-	} else {
-	    for (i = 0; i < n; i++)
-		modulus *= luvals[i*(n + 1)];
-	    if (modulus < 0) {
-		modulus = -modulus;
-		sign = -sign;
-	    }
-	}
-    }
-    return as_det_obj(modulus, lg, sign);
-}
-
-SEXP dgeMatrix_solve(SEXP a)
-{
-    /*  compute the 1-norm of the matrix, which is needed
-	later for the computation of the reciprocal condition number. */
-    double aNorm = get_norm(a, "1");
-
-    /* the LU decomposition : */
-    SEXP val = PROTECT(NEW_OBJECT_OF_CLASS("dgeMatrix")),
-	lu = dgeMatrix_LU_(a, TRUE);
-    int *dims = INTEGER(GET_SLOT(lu, Matrix_DimSym)),
-	*pivot = INTEGER(GET_SLOT(lu, Matrix_permSym));
-
-    /* prepare variables for the dgetri calls */
-    double *x, tmp;
-    int	info, lwork = -1;
-
-
-    if (dims[0] != dims[1]) error(_("Solve requires a square matrix"));
-    slot_dup(val, lu, Matrix_xSym);
-    x = REAL(GET_SLOT(val, Matrix_xSym));
-    slot_dup(val, lu, Matrix_DimSym);
-
-    if(dims[0]) /* the dimension is not zero */
-    {
-        /* is the matrix is *computationally* singular ? */
-        double rcond;
-        F77_CALL(dgecon)("1", dims, x, dims, &aNorm, &rcond,
-                         (double *) R_alloc(4*dims[0], sizeof(double)),
-                         (int *) R_alloc(dims[0], sizeof(int)), &info FCONE);
-        if (info)
-            error(_("error [%d] from Lapack 'dgecon()'"), info);
-        if(rcond < DBL_EPSILON)
-            error(_("Lapack dgecon(): system computationally singular, reciprocal condition number = %g"),
-		  rcond);
-
-        /* only now try the inversion and check if the matrix is *exactly* singular: */
-	F77_CALL(dgetri)(dims, x, dims, pivot, &tmp, &lwork, &info);
-	lwork = (int) tmp;
-	F77_CALL(dgetri)(dims, x, dims, pivot,
-			 (double *) R_alloc((size_t) lwork, sizeof(double)),
-			 &lwork, &info);
-	if (info)
-	    error(_("Lapack routine dgetri: system is exactly singular"));
-    }
-    UNPROTECT(1);
-    return val;
-}
-
-SEXP dgeMatrix_matrix_solve(SEXP a, SEXP b)
-{
-    SEXP val = PROTECT(dense_as_general(b, 'd', 2, 0)),
-	lu = PROTECT(dgeMatrix_LU_(a, TRUE));
-    int *adims = INTEGER(GET_SLOT(lu, Matrix_DimSym)),
-	*bdims = INTEGER(GET_SLOT(val, Matrix_DimSym));
-    int info, n = bdims[0], nrhs = bdims[1];
-
-    if (adims[0] != n || adims[1] != n)
-	error(_("Dimensions of system to be solved are inconsistent"));
-    if(nrhs >= 1 && n >= 1) {
-	F77_CALL(dgetrs)("N", &n, &nrhs, REAL(GET_SLOT(lu, Matrix_xSym)), &n,
-			 INTEGER(GET_SLOT(lu, Matrix_permSym)),
-			 REAL(GET_SLOT(val, Matrix_xSym)), &n, &info FCONE);
-	if (info)
-	    error(_("Lapack routine dgetrs: system is exactly singular"));
-    }
-    UNPROTECT(2);
-    return val;
-}
 
 SEXP dgeMatrix_svd(SEXP x, SEXP nnu, SEXP nnv)
 {
@@ -694,8 +733,8 @@ SEXP dgeMatrix_exp(SEXP x)
     }
 
     /* Pade' approximation. Powers v^8, v^7, ..., v^1 */
-    AZERO(npp, nsqr, 0.0);
-    AZERO(dpp, nsqr, 0.0);
+    AZERO(npp, nsqr, 0.0, R_xlen_t);
+    AZERO(dpp, nsqr, 0.0, R_xlen_t);
     m1_j = -1;
     for (j = 7; j >=0; j--) {
 	double mult = padec[j];
@@ -823,6 +862,9 @@ SEXP dgeMatrix_Schur(SEXP x, SEXP vectors, SEXP isDGE)
     return val;
 } // dgeMatrix_Schur
 
+/* MJ: no longer needed ... prefer more general R_dense_(col|row)Sums() */
+#if 0
+
 // colSums(), colMeans(), rowSums() and rowMeans() -- called from ../R/colSums.R
 SEXP dgeMatrix_colsums(SEXP x, SEXP naRmP, SEXP cols, SEXP mean)
 {
@@ -890,3 +932,5 @@ SEXP dgeMatrix_colsums(SEXP x, SEXP naRmP, SEXP cols, SEXP mean)
     UNPROTECT(1);
     return ans;
 }
+
+#endif /* MJ */

@@ -1,6 +1,6 @@
 /*------ Definition of a template for [dilnz]sparseVector_sub(...) : *
  *                       --------     ~~~~~~~~~~~~~~~~~~~~~~
- * i.e., included several times from ./Mutils.h
+ * i.e., included several times from ./sparseVector.c
  *                                     ~~~~~~~~
  */
 
@@ -80,13 +80,13 @@
 
 #elif defined (_CPLX_ans)
 
-static Rcomplex cmplx_zero() {
+static Rcomplex cmplx_zero(void) {
     Rcomplex z;
     z.r = z.i = 0.;
     return z;
 }
 #ifdef _using_NA_ans // <-- get rid of "non-used" warning message
-static Rcomplex cmplx_NA() {
+static Rcomplex cmplx_NA(void) {
     Rcomplex z;
     z.r = z.i = NA_REAL;
     return z;
@@ -128,8 +128,8 @@ static Rcomplex cmplx_NA() {
  *
  * @return
  */
-static R_INLINE
-Type_ans sparseVector_sub(int64_t i, int nnz_v, double* v_i, Type_ans* v_x, int64_t len_v)
+Type_ans sparseVector_sub(int64_t i, int nnz_v, double* v_i, Type_ans* v_x,
+			  int64_t len_v)
 {
 // double *v_i = INTEGER(GET_SLOT(vec, Matrix_iSym));
 // double *v_x =   REAL (GET_SLOT(vec, Matrix_xSym)); -- try to be agnostic about type

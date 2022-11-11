@@ -9,7 +9,7 @@
   somewhat \emph{deprecated}.
 }
 \usage{
-spMatrix(nrow, ncol, i = integer(), j = integer(), x = numeric())
+spMatrix(nrow, ncol, i = integer(), j = integer(), x = double())
 }
 \arguments{
   \item{nrow, ncol}{integers specifying the desired number of rows and

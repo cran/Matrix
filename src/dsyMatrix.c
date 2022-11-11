@@ -1,75 +1,247 @@
 #include "dsyMatrix.h"
 
-double get_norm_sy(SEXP obj, const char *typstr)
+SEXP dsyMatrix_trf_(SEXP obj, int warn)
 {
-    char typnm[] = {'\0', '\0'};
-    int *dims = INTEGER(GET_SLOT(obj, Matrix_DimSym));
-    double *work = (double *) NULL;
-
-    typnm[0] = La_norm_type(typstr);
-    if (*typnm == 'I' || *typnm == 'O') {
-        work = (double *) R_alloc(dims[0], sizeof(double));
+    SEXP val;
+    PROTECT_INDEX pid;
+    PROTECT_WITH_INDEX(val = get_factor(obj, "BunchKaufman"), &pid);
+    if (!isNull(val)) {
+	UNPROTECT(1);
+	return val;
     }
-    return F77_CALL(dlansy)(typnm, uplo_P(obj),
-			    dims, REAL(GET_SLOT(obj, Matrix_xSym)),
-			    dims, work FCONE FCONE);
+    REPROTECT(val = NEW_OBJECT_OF_CLASS("BunchKaufman"), pid);
+
+    SEXP dim = PROTECT(GET_SLOT(obj, Matrix_DimSym)),
+	uplo = PROTECT(GET_SLOT(obj, Matrix_uploSym));
+    int *pdim = INTEGER(dim), n = pdim[0];
+    SET_SLOT(val, Matrix_uploSym, uplo);
+    
+    if (n > 0) {
+	R_xlen_t nn;
+	SEXP dimnames = PROTECT(GET_SLOT(obj, Matrix_DimNamesSym)),
+	    perm = PROTECT(allocVector(INTSXP, n)),
+	    x = PROTECT(GET_SLOT(obj, Matrix_xSym)),
+	    y = PROTECT(allocVector(REALSXP, nn = XLENGTH(x)));
+	char ul = *CHAR(STRING_ELT(uplo, 0));
+	int *pperm = INTEGER(perm), lwork = -1, info;
+	double *px = REAL(x), *py = REAL(y), tmp, *work;
+	
+#define DSYTRF_FINISH(_UL_)						\
+	do {								\
+	    Memzero(py, nn);						\
+	    F77_CALL(dlacpy)(&_UL_, pdim, pdim, px, pdim, py, pdim FCONE); \
+	    F77_CALL(dsytrf)(&_UL_, pdim, py, pdim, pperm, &tmp, &lwork, \
+			     &info FCONE);				\
+	    lwork = (int) tmp;						\
+	    Calloc_or_Alloca_TO(work, lwork, double);			\
+	    F77_CALL(dsytrf)(&_UL_, pdim, py, pdim, pperm, work, &lwork, \
+			     &info FCONE);				\
+	    Free_FROM(work, lwork);					\
+	    								\
+	    if (info < 0)						\
+		error(_("LAPACK '%s' gave error code %d"),		\
+		      "dsytrf", info);					\
+	    else if (info > 0 && warn > 0) {				\
+		/* MJ: 'dsytrf' does not distinguish between singular, */ \
+		/*     finite matrices and matrices containing NaN ... */ \
+		/*     hence this message can mislead                  */ \
+		if (warn > 1)						\
+		    error  (_("LAPACK '%s': matrix is exactly singular, " \
+			      "D[i,i]=0, i=%d"),			\
+			    "dsytrf", info);				\
+		else							\
+		    warning(_("LAPACK '%s': matrix is exactly singular, " \
+			      "D[i,i]=0, i=%d"),			\
+			    "dsytrf", info);				\
+	    }								\
+	    								\
+	    SET_SLOT(val, Matrix_DimSym, dim);				\
+	    if (!isNull(dimnames))					\
+		set_symmetrized_DimNames(val, dimnames, -1);		\
+	    SET_SLOT(val, Matrix_permSym, perm);			\
+	    SET_SLOT(val, Matrix_xSym, y);				\
+	} while (0)
+
+	DSYTRF_FINISH(ul);
+	UNPROTECT(4);
+    }
+    
+    set_factor(obj, "BunchKaufman", val);
+    UNPROTECT(3);
+    return val;
+}
+
+SEXP dsyMatrix_trf(SEXP obj, SEXP warn)
+{
+    return dsyMatrix_trf_(obj, asInteger(warn));
+}
+
+SEXP matrix_trf_(SEXP obj, int warn, char uplo)
+{
+    
+    SEXP dim = PROTECT(getAttrib(obj, R_DimSymbol));
+    int *pdim = INTEGER(dim), n = pdim[0];
+    if (pdim[1] != n)
+	error(_("'matrix_trf()' requires a square matrix"));
+    SEXP val = PROTECT(NEW_OBJECT_OF_CLASS("BunchKaufman")),
+	ul = PROTECT(mkString((uplo == 'U') ? "U" : "L"));
+    SET_SLOT(val, Matrix_DimSym, ul);
+
+    if (n > 0) {
+	R_xlen_t nn = XLENGTH(obj);
+	SEXP dimnames = PROTECT(getAttrib(obj, R_DimNamesSymbol)),
+	    perm = PROTECT(allocVector(INTSXP, n)),
+	    y = PROTECT(allocVector(REALSXP, nn));
+	int *pperm = INTEGER(perm), lwork = -1, info;
+	double *px = REAL(obj), *py = REAL(y), tmp, *work;
+    
+	DSYTRF_FINISH(uplo);
+
+#undef DSYTRF_FINISH
+
+	UNPROTECT(3);
+    }
+    
+    UNPROTECT(3);
+    return val;
+}
+
+SEXP matrix_trf(SEXP obj, SEXP warn, SEXP uplo)
+{
+    if (TYPEOF(obj) != REALSXP)
+	ERROR_INVALID_TYPE("matrix", TYPEOF(obj), "matrix_trf");
+    if (!isMatrix(obj))
+	ERROR_INVALID_CLASS(obj, "matrix_trf");
+    
+    char ul = 'U';
+    if (TYPEOF(uplo) != STRSXP || LENGTH(uplo) < 1 ||
+	(uplo = STRING_ELT(uplo, 0)) == NA_STRING ||
+	((ul = *CHAR(uplo)) != 'U' && ul != 'L'))
+	error(_("invalid 'uplo' to 'matrix_trf()'; must be \"U\" or \"L\""));
+    
+    return matrix_trf_(obj, asInteger(warn), ul);
+}
+
+double get_norm_dsy(SEXP obj, const char *typstr)
+{
+    SEXP dim = PROTECT(GET_SLOT(obj, Matrix_DimSym)),
+	uplo = PROTECT(GET_SLOT(obj, Matrix_uploSym)),
+	x = PROTECT(GET_SLOT(obj, Matrix_xSym));
+    int *pdim = INTEGER(dim);
+    double *px = REAL(x), norm, *work = NULL;
+    const char *ul = CHAR(STRING_ELT(uplo, 0));
+    
+    if (typstr[0] == 'I' || typstr[0] == 'O')
+	work = (double *) R_alloc(pdim[0], sizeof(double));
+    norm = F77_CALL(dlansy)(typstr, ul, pdim, px, pdim, work FCONE FCONE);
+
+    UNPROTECT(3);
+    return norm;
 }
 
 SEXP dsyMatrix_norm(SEXP obj, SEXP type)
 {
-    return ScalarReal(get_norm_sy(obj, CHAR(asChar(type))));
+    char typstr[] = {'\0', '\0'};
+    PROTECT(type = asChar(type));
+    typstr[0] = La_norm_type(CHAR(type));
+    double norm = get_norm_dsy(obj, typstr);
+    UNPROTECT(1);
+    return ScalarReal(norm);
 }
 
-SEXP dsyMatrix_rcond(SEXP obj, SEXP type)
+SEXP dsyMatrix_rcond(SEXP obj)
 {
-    SEXP trf = dsyMatrix_trf(obj);
-    int *dims = INTEGER(GET_SLOT(obj, Matrix_DimSym)), info;
-    double anorm = get_norm_sy(obj, "O");
-    double rcond;
-
-    F77_CALL(dsycon)(uplo_P(trf), dims,
-		     REAL   (GET_SLOT(trf, Matrix_xSym)), dims,
-		     INTEGER(GET_SLOT(trf, Matrix_permSym)),
-		     &anorm, &rcond,
-		     (double *) R_alloc(2*dims[0], sizeof(double)),
-		     (int *) R_alloc(dims[0], sizeof(int)), &info FCONE);
+    SEXP trf = PROTECT(dsyMatrix_trf_(obj, 2)),
+	dim = PROTECT(GET_SLOT(trf, Matrix_DimSym)),
+	uplo = PROTECT(GET_SLOT(trf, Matrix_uploSym)),
+	perm = PROTECT(GET_SLOT(trf, Matrix_permSym)),
+	x = PROTECT(GET_SLOT(trf, Matrix_xSym));
+    
+    int *pdim = INTEGER(dim), *pperm = INTEGER(perm), info;
+    double *px = REAL(x), norm = get_norm_dsy(obj, "O"), rcond;
+    const char *ul = CHAR(STRING_ELT(uplo, 0));
+    
+    F77_CALL(dsycon)(ul, pdim, px, pdim, pperm, &norm, &rcond,
+		     (double *) R_alloc(2 * pdim[0], sizeof(double)),
+		     (int *) R_alloc(pdim[0], sizeof(int)),
+		     &info FCONE);
+    
+    UNPROTECT(5);
     return ScalarReal(rcond);
+}
+
+SEXP dsyMatrix_determinant(SEXP obj, SEXP logarithm)
+{
+    SEXP dim = PROTECT(GET_SLOT(obj, Matrix_DimSym));
+    int n = INTEGER(dim)[0];
+    UNPROTECT(1); /* dim */
+    SEXP res;
+    if (n == 0) {
+	int givelog = asLogical(logarithm), sign = 1;
+	double modulus = (givelog) ? 0.0 : 1.0;
+	res = as_det_obj(modulus, givelog, sign);
+    } else {
+	SEXP trf = PROTECT(dsyMatrix_trf_(obj, 0));
+	res = BunchKaufman_determinant(trf, logarithm);
+	UNPROTECT(1); /* trf */
+    }
+    return res;
 }
 
 SEXP dsyMatrix_solve(SEXP a)
 {
-    SEXP trf = dsyMatrix_trf(a);
-    SEXP val = PROTECT(NEW_OBJECT_OF_CLASS("dsyMatrix"));
-    int *dims = INTEGER(GET_SLOT(trf, Matrix_DimSym)), info;
-
-    slot_dup(val, trf, Matrix_uploSym);
-    slot_dup(val, trf, Matrix_xSym);
-    slot_dup(val, trf, Matrix_DimSym);
-    F77_CALL(dsytri)(uplo_P(val), dims,
-		     REAL(GET_SLOT(val, Matrix_xSym)), dims,
-		     INTEGER(GET_SLOT(trf, Matrix_permSym)),
-		     (double *) R_alloc((long) dims[0], sizeof(double)),
+    SEXP val = PROTECT(NEW_OBJECT_OF_CLASS("dsyMatrix")),
+	trf = PROTECT(dsyMatrix_trf_(a, 2)),
+	dim = PROTECT(GET_SLOT(trf, Matrix_DimSym)),
+	dimnames = PROTECT(GET_SLOT(trf, Matrix_DimNamesSym)),
+	uplo = PROTECT(GET_SLOT(trf, Matrix_uploSym)),
+	perm = PROTECT(GET_SLOT(trf, Matrix_permSym)),
+	x;
+    PROTECT_INDEX pid;
+    PROTECT_WITH_INDEX(x = GET_SLOT(trf, Matrix_xSym), &pid);
+    REPROTECT(x = duplicate(x), pid);
+    
+    SET_SLOT(val, Matrix_DimSym, dim);
+    SET_SLOT(val, Matrix_DimNamesSym, dimnames);
+    SET_SLOT(val, Matrix_uploSym, uplo);
+    SET_SLOT(val, Matrix_xSym, x);
+    
+    int *pdim = INTEGER(dim), *pperm = INTEGER(perm), info;
+    double *px = REAL(x);
+    const char *ul = CHAR(STRING_ELT(uplo, 0));
+    
+    F77_CALL(dsytri)(ul, pdim, px, pdim, pperm,
+		     (double *) R_alloc(pdim[0], sizeof(double)),
 		     &info FCONE);
-    UNPROTECT(1);
+    
+    UNPROTECT(7);
     return val;
 }
 
 SEXP dsyMatrix_matrix_solve(SEXP a, SEXP b)
 {
-    SEXP trf = dsyMatrix_trf(a),
-	val = PROTECT(dense_as_general(b, 'd', 2, 0));
-    int *adims = INTEGER(GET_SLOT(a, Matrix_DimSym)),
-	*bdims = INTEGER(GET_SLOT(val, Matrix_DimSym)),
-	info;
+    SEXP val = PROTECT(dense_as_general(b, 'd', 2, 0)),
+	adim = PROTECT(GET_SLOT(a, Matrix_DimSym)),
+	bdim = PROTECT(GET_SLOT(val, Matrix_DimSym));
+    int *padim = INTEGER(adim), *pbdim = INTEGER(bdim);
+    
+    if (padim[0] != pbdim[0] || padim[0] < 1 || pbdim[1] < 1)
+	error(_("dimensions of system to be solved are inconsistent"));
+    
+    SEXP trf = PROTECT(dsyMatrix_trf_(a, 2)),
+	uplo = PROTECT(GET_SLOT(trf, Matrix_uploSym)),
+	perm = PROTECT(GET_SLOT(trf, Matrix_permSym)),
+	x = PROTECT(GET_SLOT(trf, Matrix_xSym)),
+	y = PROTECT(GET_SLOT(val, Matrix_xSym));
+    
+    int *pperm = INTEGER(perm), info;
+    double *px = REAL(x), *py = REAL(y);
+    const char *ul = CHAR(STRING_ELT(uplo, 0));
+    
+    F77_CALL(dsytrs)(ul, pbdim, pbdim + 1, px, pbdim, pperm, py, pbdim,
+		     &info FCONE);
 
-    if (*adims != *bdims || bdims[1] < 1 || *adims < 1)
-	error(_("Dimensions of system to be solved are inconsistent"));
-    F77_CALL(dsytrs)(uplo_P(trf), adims, bdims + 1,
-		     REAL(GET_SLOT(trf, Matrix_xSym)), adims,
-		     INTEGER(GET_SLOT(trf, Matrix_permSym)),
-		     REAL(GET_SLOT(val, Matrix_xSym)),
-		     bdims, &info FCONE);
-    UNPROTECT(1);
+    UNPROTECT(8);
     return val;
 }
 
@@ -102,89 +274,6 @@ SEXP dsyMatrix_matrix_mm(SEXP a, SEXP b, SEXP rtP)
     SET_VECTOR_ELT(GET_SLOT(val, Matrix_DimNamesSym), nd, nms);
     Free_FROM(bcp, mn);
     UNPROTECT(2);
-    return val;
-}
-
-SEXP dsyMatrix_trf(SEXP x)
-{
-    SEXP val = get_factor(x, "BunchKaufman");
-    if (val != R_NilValue) return val;
-
-    SEXP dimP = GET_SLOT(x, Matrix_DimSym),
-	uploP = GET_SLOT(x, Matrix_uploSym);
-    int n = INTEGER(dimP)[0];
-    R_xlen_t nsqr = n; nsqr *= n; // nsqr = n^2 (w/o overflow !)
-    const char *uplo = CHAR(STRING_ELT(uploP, 0));
-
-    val = PROTECT(NEW_OBJECT_OF_CLASS("BunchKaufman"));
-    SET_SLOT(val, Matrix_uploSym, duplicate(uploP));
-    SET_SLOT(val, Matrix_diagSym, mkString("N"));
-    SET_SLOT(val, Matrix_DimSym, duplicate(dimP));
-    double *vx = REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, nsqr));
-    AZERO(vx, nsqr, 0.0);
-    F77_CALL(dlacpy)(uplo, &n, &n, REAL(GET_SLOT(x, Matrix_xSym)), &n, vx, &n FCONE);
-    int *perm = INTEGER(ALLOC_SLOT(val, Matrix_permSym, INTSXP, n)),
-	info, lwork = -1;
-    double tmp, *work;
-    F77_CALL(dsytrf)(uplo, &n, vx, &n, perm, &tmp, &lwork, &info FCONE);
-    lwork = (int) tmp;
-    Calloc_or_Alloca_TO(work, lwork, double);
-
-    F77_CALL(dsytrf)(uplo, &n, vx, &n, perm, work, &lwork, &info FCONE);
-
-    Free_FROM(work, lwork);
-    if (info) error(_("Lapack routine dsytrf returned error code %d"), info);
-    set_factor(x, "BunchKaufman", val);
-    UNPROTECT(1);
-    return val;
-}
-
-/** BunchKaufmann(<simple matrix>)
- */
-SEXP matrix_trf(SEXP x, SEXP uploP)
-{
-    if (!(isReal(x) & isMatrix(x)))
-	error(_("x must be a \"double\" (numeric) matrix"));
-    SEXP dimP = getAttrib(x, R_DimSymbol);
-    if(TYPEOF(dimP) == INTSXP)
-	dimP = duplicate(dimP);
-    else
-        dimP = coerceVector(dimP, INTSXP);
-    PROTECT(dimP);
-    int *dims = INTEGER(dimP),
-	n = dims[0];
-    R_xlen_t nsqr = n; nsqr *= n; // nsqr = n^2 (w/o overflow !)
-
-    if(n != dims[1])
-	error(_("matrix_trf(x, *): matrix is not square"));
-    /* In principle, we "should" check that the matrix is symmetric,
-       OTOH, we only use its lower or upper (depending on 'uploP') triangular part */
-    if(uploP == R_NilValue) {
-	uploP = mkString("U"); // Default: if not specified, use "U"
-    } else {
-	if(TYPEOF(uploP) != STRSXP)
-	    error(_("matrix_trf(*, uplo): uplo must be string"));
-	uploP = duplicate(uploP); // as we "add" it to the result
-    }
-    PROTECT(uploP);
-    const char *uplo = CHAR(STRING_ELT(uploP, 0));
-    SEXP val = PROTECT(NEW_OBJECT_OF_CLASS("BunchKaufman"));
-    SET_SLOT(val, Matrix_uploSym, uploP);
-    SET_SLOT(val, Matrix_diagSym, mkString("N"));
-    SET_SLOT(val, Matrix_DimSym, dimP);
-    double *vx = REAL(ALLOC_SLOT(val, Matrix_xSym, REALSXP, nsqr)); // n x n result matrix
-    AZERO(vx, nsqr, 0.0);
-    F77_CALL(dlacpy)(uplo, &n, &n, REAL(x), &n, vx, &n FCONE);
-    int *perm = INTEGER(ALLOC_SLOT(val, Matrix_permSym, INTSXP, n)),
-         info, lwork = -1;
-    double tmp, *work;
-    F77_CALL(dsytrf)(uplo, &n, vx, &n, perm, &tmp, &lwork, &info FCONE);
-    lwork = (int) tmp;
-    Calloc_or_Alloca_TO(work, lwork, double);
-    F77_CALL(dsytrf)(uplo, &n, vx, &n, perm, work, &lwork, &info FCONE);
-    Free_FROM(work, lwork);
-    if (info) error(_("Lapack routine dsytrf returned error code %d"), info);
-    UNPROTECT(3);
     return val;
 }
 

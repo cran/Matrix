@@ -108,14 +108,15 @@ mlp <- matrix(.leap.seconds)## 27 x 1 numeric matrix
 Mlp <- Matrix(.leap.seconds)
 stopifnot(identical(dim(Mlp), c(n.lsec, 1L)))
 assert.EQ.mat(Mlp, mlp)
-.Leap.seconds <- as.POSIXlt(.leap.seconds)
-(MLp <- as(.Leap.seconds, "Matrix"))# nice sparse  dgC* w/ col.names
-stopifnot(is.EQ.mat(MLp, as.matrix(.Leap.seconds)))
-(mLp <- matrix(.Leap.seconds))## prints fine as 27 x 1 matrix of dates (internally is list+dim)
-if(FALSE) { ## TODO?  POSIXlt -> numeric ??
-    MLp <- Matrix(.Leap.seconds)## --> error
-}
-
+lt.leap.seconds <- .LS <- as.POSIXlt(.leap.seconds)
+.LS <- unclass(.LS); .LS <- .LS[setdiff(names(.LS), "zone")]
+                     # "zone" is character (not there for GMT/UTC in R <= 4.2.x)
+(matLS <- data.matrix(data.frame(.LS)))
+stopifnot(inherits(MLp <- as(matLS, "Matrix"), "sparseMatrix"),
+          is.EQ.mat(MLp, matLS))
+printSpMatrix(MLp, col.names = TRUE) # nice sparse  dgC* w/ col.names
+(mLp <- matrix(lt.leap.seconds))## prints fine as 27 x 1 matrix of dates (internally is list+dim)
+##
 E <- rep(c(TRUE,NA,TRUE), length.out=8)
 F <- new("nsparseVector", length = 8L, i = c(2L, 5L, 8L))
 e <- as(E, "sparseVector"); f <- as(F,"lsparseVector")
@@ -254,10 +255,10 @@ stopifnot(isSymmetric(M), isSymmetric(M.),
 
 Filter(function(.) inherits(get(.), "symmetricMatrix"), ls())
 ## [1] "M"   "M."  "M2"  "cM"  "d4T" "d4d" "o4"  "sD"  "sc"
-tt <- as(kronecker(cM, Diagonal(x = c(10,1))), "symmetricMatrix")
-dimnames(tt) <- list(NULL, cn <- letters[1:ncol(tt)])
-stopifnotValid(tt, "dsTMatrix")
-(cc <- as(tt, "CsparseMatrix")) # shows *symmetric* dimnames
+cc <- kronecker(cM, Diagonal(x = c(10,1)))
+dimnames(cc) <- list(NULL, cn <- letters[1:ncol(cc)])
+stopifnotValid(cc, "dsCMatrix")
+(tt <- as(cc, "TsparseMatrix")) # shows *symmetric* dimnames
 stopifnot(identical3(  cc @Dimnames,   tt @Dimnames, list(NULL, cn)),
           ## t() does not reverse 'Dimnames' slot for symmetricMatrix
 	  identical3(t(cc)@Dimnames, t(tt)@Dimnames, list(NULL, cn)),
@@ -357,6 +358,11 @@ stopifnot(grep("too large", e1) == 1,
           !any(ina))# <- gave warning previously
 stopifnot(suppressWarnings(any(Lrg)))# (double -> logical  warning)
 rm(e1, e2)# too large...
+## Matrix bug #6610, did segfault
+system.time({ # ... sec                           __vv__
+ ## FIXME: reproducible example (not using 'MatrixModels' which triggers) "Out of memory" etc
+})
+
 
 RNGversion("3.6.0")# future proof
 if(doExtras && is.finite(memGB) && memGB > 49) withAutoprint({
@@ -812,8 +818,7 @@ assert.EQ.mat(kr,
 ## sparse:
 (kt1 <- kronecker(t1, tu))
 kt2 <- kronecker(t1c, cu)
-stopifnot(identical(Matrix:::uniq(kt1), Matrix:::uniq(kt2)))
-## but kt1 and kt2, both "dgT" are different since entries are not ordered!
+stopifnot(identical(as(kt1, "CsparseMatrix"), kt2))
 ktf <- kronecker(.asmatrix(t1), .asmatrix(tu))
 if(FALSE) # FIXME? our kronecker treats "0 * NA" as "0" for structural-0
 assert.EQ.mat(kt2, ktf, tol= 0)
@@ -1415,6 +1420,57 @@ stopifnot(identical(L2, L6), is(L2, "lgCMatrix"), identical(dim(L2), c(0L, 6L)))
 x.inf <- new("dgCMatrix", Dim = c(2L, 3L),
              p = c(0:2, 2L), i = 0:1, x = c(-Inf, Inf))
 stopifnot(identical(is.infinite(x.inf), as(abs(x.inf) == Inf, "nMatrix")))
+
+## C-level bugs in 1.5-0, detected by full CRAN (incl. ASAN) check
+as(new("dgTMatrix"), "CsparseMatrix") # out-of-bounds access
+as(seq_len(10000), "pMatrix") # segfault
+
+## <pMatrix> %*% <pMatrix> gave b %*% a prior to Matrix 1.5-2
+set.seed(163006)
+for(i in 1:6) {
+    x <- as(sample.int(10L), "pMatrix")
+    y <- as(sample.int(10L), "pMatrix")
+    stopifnot(as(x %*% y, "matrix") == as(x, "matrix") %*% as(y, "matrix"))
+}
+
+## <indMatrix> %*% <indMatrix> forgot to set 'Dim' briefly prior to 1.5-2
+x <- new("indMatrix", Dim = c(5L, 3L),
+         perm = sample.int(3L, size = 5L, replace = TRUE))
+y <- new("indMatrix", Dim = c(3L, 9L),
+         perm = sample.int(9L, size = 3L, replace = TRUE))
+validObject(x %*% y)
+
+## dimScale(x) (i.e., with 'd1' missing) did not work in 1.5-2;
+## same with dimScale(<matrix with NULL dimnames>) ...
+set.seed(3054)
+V <- matrix(rlnorm(16L), 4L, 4L)
+stopifnot(all.equal(as(dimScale(V), "matrix"), cov2cor(V)))
+
+## Diagonal(n, x, names=TRUE) must recycle 'x' _and_ its names
+p <- 6L
+a0 <- c(a = 0)
+stopifnot(identical(unname(nD <- Diagonal(n = p, x = a0, names = TRUE)),
+                    Diagonal(n = p, x = a0, names = FALSE)),
+          identical(nD, Diagonal(n = p, x = rep(a0, p), names = TRUE)))
+
+## Diagonal(n, names=<character>) should also get 'Dimnames'
+stopifnot(identical(Diagonal(1L, names = "a")@Dimnames, list("a", "a")))
+
+## Diagonal(x=<named 0-length>, names = TRUE) should get list(NULL, NULL)
+stopifnot(identical(Diagonal(x = a0[0L], names = TRUE)@Dimnames,
+                    list(NULL, NULL)))
+
+## names were forgotten prior to 1.5-3
+d1 <- Diagonal(1L, names = "b")
+stopifnot(identical(colSums(d1), c(b = 1)),
+          identical(rowMeans(as(d1, "indMatrix")), c(b = 1)))
+
+## na.rm was ignored prior to 1.5-3
+d1 <- Diagonal(x = NaN)
+stopifnot(identical(colSums(d1), NaN),
+          identical(colSums(d1, na.rm = TRUE), 0),
+          identical(rowMeans(d1), NaN),
+          identical(rowMeans(d1, na.rm = TRUE), NaN))
 
 ## Platform - and other such info -- so we find it in old saved outputs
 .libPaths()

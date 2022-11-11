@@ -34,6 +34,7 @@
 \alias{coerce,matrix,diagonalMatrix-method}
 \alias{determinant,diagonalMatrix,logical-method}
 \alias{diag,diagonalMatrix-method}
+\alias{diag<-,diagonalMatrix-method}
 \alias{log,diagonalMatrix-method}
 \alias{print,diagonalMatrix-method}
 \alias{rbind2,diagonalMatrix,sparseMatrix-method}

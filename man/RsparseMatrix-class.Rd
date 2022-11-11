@@ -17,6 +17,7 @@
 \alias{coerce,matrix,RsparseMatrix-method}
 \alias{coerce,numLike,RsparseMatrix-method}
 \alias{diag,RsparseMatrix-method}
+\alias{diag<-,RsparseMatrix-method}
 \alias{t,RsparseMatrix-method}
 %
 \description{The \code{"RsparseMatrix"} class is the virtual class of

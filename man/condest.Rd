@@ -65,11 +65,11 @@ onenormest(A, t = min(n, 5), A.x, At.x, n,
 \references{
 %% See also Tim Davis(2006, p.96):
   Nicholas J. Higham and Françoise Tisseur (2000).
-  A Block Algorithm for Matrix 1-Norm Estimation, with an Application to 1-Norm
-  Pseudospectra.
+  A Block Algorithm for Matrix 1-Norm Estimation, with an Application
+  to 1-Norm Pseudospectra.
   \emph{SIAM J. Matrix Anal. Appl.} \bold{21}, 4, 1185--1201.
-  %% ok for ETH etc, but not free:  \doi{10.1137/S0895479899356080}
-  \url{https://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.7.9804}
+  %% OK for ETH, etc., but not free: \doi{10.1137/S0895479899356080}
+  %% broken on 2022-10-20: \url{https://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.7.9804}
 
   William W. Hager (1984).
   Condition Estimates.

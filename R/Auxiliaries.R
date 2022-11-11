@@ -295,42 +295,41 @@ signPerm <- function(p)
     1L - (sum(clen %% 2 == 0) %% 2L)*2L
 }
 
-dimCheck <- function(a, b) {
-    da <- dim(a)
-    db <- dim(b)
+checkDim <- function(da, db) {
     if(any(da != db))
-	stop(gettextf("Matrices must have same dimensions in %s",
+	stop(gettextf("non-conformable matrix dimensions in %s",
 		      deparse(sys.call(sys.parent()))),
 	     call. = FALSE, domain = NA)
     da
 }
 
-mmultCheck <- function(a, b, kind = 1L) {
-    ## Check matching matrix dimensions and return that matching dim
-    ## 1)    %*%    : [n x m] , [m x k]
-    ## 2)  crossprod: [m x n] , [m x k]
-    ## 3) tcrossprod: [n x m] , [k x m]
-    ## switch(kind,
-    ##    { ## %*%  (kind = 1)
-    ##        ca <- dim(a)[2L]
-    ##        rb <- dim(b)[1L]
-    ##    },
-    ##    { ## crossprod   (kind = 2)
-    ##        ca <- dim(a)[1L]
-    ##        rb <- dim(b)[1L]
-    ##    },
-    ##    { ## tcrossprod  (kind = 3)
-    ##        ca <- dim(a)[2L]
-    ##        rb <- dim(b)[2L]
-    ##    })
-    ca <- dim(a)[1L + (kind %% 2L)]
-    rb <- dim(b)[1L + (kind  > 2)]
-    if(ca != rb)
+mmultDim <- function(d.a, d.b, type = 1L) {
+    ## Return the 'dim' of the product indicated by 'type':
+    ##     type 1:    a  %*%   b
+    ##          2:  t(a) %*%   b    {crossprod}
+    ##          3:    a  %*% t(b)  {tcrossprod}
+    ## after asserting that ncol(<left operand>) == nrow(<right operand>)
+    i.a <- 1L + (type != 2L)
+    i.b <- 1L + (type == 3L)
+    if(d.a[i.a] != d.b[i.b])
 	stop(gettextf("non-conformable matrix dimensions in %s",
 		      deparse(sys.call(sys.parent()))),
-	     call. = FALSE, domain=NA)
-    ca
+	     call. = FALSE, domain = NA)
+    c(d.a[-i.a], d.b[-i.b])
 }
+
+mmultDimnames <- function(dn.a, dn.b, type = 1L) {
+    ## Return the 'dimnames' of the product indicated by 'type':
+    ##     type 1:    a  %*%   b
+    ##          2:  t(a) %*%   b    {crossprod}
+    ##          3:    a  %*% t(b)  {tcrossprod}
+    c(if(is.null(dn.a)) list(NULL) else dn.a[2L - (type != 2L)],
+      if(is.null(dn.b)) list(NULL) else dn.b[2L - (type == 3L)])
+}
+
+## Still used in many places (for now):
+dimCheck <- function(a, b) checkDim(dim(a), dim(b))
+mmultCheck <- function(a, b, kind = 1L) mmultDim(dim(a), dim(b), type = kind)
 
 ##' Constructs "sensical" dimnames for something like  a + b ;
 ##' assume dimCheck() has happened before
@@ -590,15 +589,12 @@ symmetrizeDimnames <- function(x, col=TRUE, names=TRUE) {
 
 ..sparse2d <- function(from) # for setAs() but used widely:
     .Call(R_sparse_as_kind, from, "d", FALSE)
-##                                     drop0
 
 ..sparse2l <- function(from)
     .Call(R_sparse_as_kind, from, "l", FALSE)
-##                                     drop0
 
 ..sparse2n <- function(from)
     .Call(R_sparse_as_kind, from, "n", FALSE)
-##                                     drop0
 
 .diag2kind <- function(from, kind)
     .Call(R_diagonal_as_kind, from, kind)
@@ -741,24 +737,25 @@ isPacked <- function(x) {
 ##     e.g., .isPacked(new("dtpMatrix")) == FALSE ... FIXME ??
 .isPacked <- function(x) length(x@x) < prod(x@Dim)
 
-emptyColnames <- function(x, msg.if.not.empty = FALSE)
-{
+emptyColnames <- function(x, msg.if.not.empty = FALSE) {
     ## Useful for compact printing of (parts) of sparse matrices
     ## possibly	 dimnames(x) "==" NULL :
-    dn <- dimnames(x)
-    nc <- ncol(x)
-    if(msg.if.not.empty && is.list(dn) && length(dn) >= 2 &&
-       is.character(cn <- dn[[2]]) && any(cn != "")) {
-	lc <- length(cn)
-	message(if(lc > 3)
-		gettextf("   [[ suppressing %d column names %s ... ]]", nc,
-			 paste(sQuote(cn[1:3]), collapse = ", "))
-		else
-		gettextf("   [[ suppressing %d column names %s ]]", nc,
-			 paste(sQuote(cn[1:lc]), collapse = ", ")),
-		domain=NA)
-    }
-    dimnames(x) <- list(dn[[1]], character(nc))
+    if((nd <- length(d <- dim(x))) < 2L)
+        return(x)
+    nc <- d[2L]
+    if(is.null(dn <- dimnames(x)))
+        dn <- vector("list", nd)
+    else if(msg.if.not.empty &&
+            is.character(cn <- dn[[2L]]) &&
+            any(nzchar(cn)))
+        message(gettextf("  [[ suppressing %d column name%s %s ... ]]",
+                         nc,
+                         if(nc == 1L) "" else "s",
+                         paste0(sQuote(if(nc <= 3L) cn else cn[1:3]),
+                                collapse = ", ")),
+                domain = NA)
+    dn[[2L]] <- character(nc)
+    dimnames(x) <- dn
     x
 }
 
@@ -1542,9 +1539,7 @@ as_CspClass <- function(x, cl, cld = getClassDef(cl)) {
 asCspN <- function(x, cl = class(x), cld = getClassDef(cl)) {
     if(!extends(cld, "CsparseMatrix"))
         cld <- getClassDef(class(x <- as(x, "CsparseMatrix")))
-    if(extends(cld, "triangularMatrix") && x@diag == "U")
-        .Call(Csparse_diagU2N, x)
-    else x
+    .Call(R_sparse_diag_U2N, x)
 }
 
 ## MJ: no longer used
@@ -1711,9 +1706,7 @@ if(FALSE) {
 if(FALSE) {
 ## for "dtC*", "ltC* ..: directly
 xtC.diagU2N <- function(x) if(x@diag == "U") .Call(Csparse_diagU2N, x) else x
-} ## MJ
 
-if(FALSE) {
 ##' @title uni-diagonal to "regular" triangular Matrix
 ##'
 ##' NOTE:   class is *not* checked here! {speed}
@@ -1745,14 +1738,6 @@ if(FALSE) {
     }
     x@diag <- "N"
     x
-}
-} else {
-## MJ: We now have intelligent 'diag<-' methods for all denseMatrix,
-##     so this is enough:
-.dense.diagU2N <- function(x) {
-    diag(x) <- as1(x@x)
-    x
-}
 }
 
 ##' @title coerce triangular Matrix to uni-diagonal
@@ -1798,17 +1783,45 @@ if(FALSE) {
 	.Call(Csparse_diagN2U, as(x, "CsparseMatrix"))
     ## ^leaving as CsparseMatrix ... caller can coerce as necessary
 }
+} ## MJ
 
 diagU2N <- function (x, cl = getClassDef(class(x)), checkDense = FALSE) {
     if(extends(cl, "triangularMatrix") && x@diag == "U")
-        .diagU2N(x, cl, checkDense = checkDense)
+        .diagU2N(x, cl = cl, checkDense = checkDense)
     else x
+}
+
+.diagU2N <- function(x, cl = getClassDef(class(x)), checkDense = FALSE) {
+    if(!checkDense && extends(cl, "denseMatrix"))
+        x <- as(x, "CsparseMatrix")
+    ..diagU2N(x)
+}
+
+..diagU2N <- function(x) {
+    diag(x) <- TRUE
+    x
 }
 
 diagN2U <- function(x, cl = getClassDef(class(x)), checkDense = FALSE) {
     if(extends(cl, "triangularMatrix") && x@diag == "N")
-	.diagN2U(x, cl, checkDense = checkDense)
+	.diagN2U(x, cl = cl, checkDense = checkDense)
     else x
+}
+
+.diagN2U <- function(x, cl = getClassDef(class(x)), checkDense = FALSE) {
+    if(!checkDense & (isDense <- extends(cl, "denseMatrix")))
+        ..diagN2U(as(x, "CsparseMatrix"), sparse = TRUE)
+    else ..diagN2U(x, sparse = !isDense)
+}
+
+..diagN2U <- function(x, sparse) {
+    if(sparse && x@Dim[1L] > 0L)
+        x <- switch(x@uplo,
+                    U = .Call(R_sparse_band, x, 1L, NULL),
+                    L = .Call(R_sparse_band, x, NULL, -1L),
+                    stop("invalid 'uplo'"))
+    x@diag <- "U"
+    x
 }
 
 if(.Matrix.supporting.cached.methods) {
@@ -2007,4 +2020,55 @@ chk.s <- function(..., which.call = -1,
 	   "<=" = e2 >= e1,
 	   ">"	= e2 <	e1,
 	   ">=" = e2 <= e1)
+}
+
+
+### These two are very similar, the first one has the advantage
+### to be applicable to 'Chx' directly:
+
+## FIXME:  kind = "diagBack" is not yet implemented
+##	would be much more efficient, but there's no CHOLMOD UI (?)
+
+## "used" currently only in ../tests/factorizing.R
+.diag.dsC <- function(x, Chx = Cholesky(x, LDL=TRUE), res.kind = "diag") {
+    force(Chx)
+    if(!missing(Chx)) stopifnot(.isLDL(Chx), is.integer(Chx@p), is.double(Chx@x))
+    .Call(diag_tC, Chx, res.kind)
+    ##    ^^^^^^^ from ../src/Csparse.c
+    ## => res.kind in ("trace", "sumLog", "prod", "min", "max", "range", "diag", "diagBack")
+}
+
+## MJ: unused
+if(FALSE) {
+## here, we  *could* allow a 'mult = 0' factor :
+.CHM.LDL.D <- function(x, perm = TRUE, res.kind = "diag") {
+    .Call(dsCMatrix_LDL_D, x, perm, res.kind)
+    ##    ^^^^^^^^^^^^^^^^ from ../src/dsCMatrix.c
+}
+} ## MJ
+
+dimScale <- function(x, d1 = sqrt(1/diag(x, names = FALSE)), d2 = d1) {
+    dim.x <- dim(x)
+    D1 <- Diagonal(n = dim.x[1L], x = d1)
+    D2 <- if(missing(d2)) D1 else Diagonal(n = dim.x[2L], x = d2)
+    y <- D1 %*% x %*% D2 # inefficient for symmetricMatrix 'x', but "general"
+    if(isS4(x) && is(x, "symmetricMatrix") && identical(d1, d2))
+        y <- forceSymmetric(y, x@uplo)
+    if(is.list(dn <- dimnames(x)))
+        y@Dimnames <- dn
+    y
+}
+
+rowScale <- function(x, d) {
+    y <- Diagonal(n = nrow(x), x = d) %*% x
+    if(is.list(dn <- dimnames(x)))
+        y@Dimnames <- dn
+    y
+}
+
+colScale <- function(x, d) {
+    y <- x %*% Diagonal(n = ncol(x), x = d)
+    if(is.list(dn <- dimnames(x)))
+        y@Dimnames <- dn
+    y
 }

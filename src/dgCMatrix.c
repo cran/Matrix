@@ -1,8 +1,3 @@
-#ifdef __GLIBC__
-// to get strdup declared in glibc (when strict -std=c11 or -stdc99):
-#define _POSIX_C_SOURCE 200809L
-#endif
-#include <string.h>
 #include "dgCMatrix.h"
 #include "chm_common.h"
 
@@ -12,7 +7,8 @@
 #include "Csparse.h"
 #endif /* MJ */
 
-/* FIXME -- we "forget" about dimnames almost everywhere : */
+/* MJ: no longer needed ... replacement in ./validity.c */
+#if 0
 
 /* for dgCMatrix  _and_ lgCMatrix and others  (but *not*  ngC...) : */
 SEXP xCMatrix_validate(SEXP x)
@@ -37,6 +33,8 @@ SEXP xRMatrix_validate(SEXP x)
 
     return ScalarLogical(1);
 }
+
+#endif /* MJ */
 
 /* MJ: no longer needed ... prefer CRsparse_as_Tsparse */
 #if 0
@@ -163,7 +161,9 @@ SEXP compressed_non_0_ij(SEXP x, SEXP colP)
     return ans;
 }
 
-#if 0				/* unused */
+/* MJ: unused */
+#if 0 
+
 SEXP dgCMatrix_lusol(SEXP x, SEXP y)
 {
     SEXP ycp = PROTECT((TYPEOF(y) == REALSXP) ?
@@ -181,7 +181,8 @@ SEXP dgCMatrix_lusol(SEXP x, SEXP y)
     UNPROTECT(1);
     return ycp;
 }
-#endif
+
+#endif /* MJ */
 
 // called from package MatrixModels's R code
 SEXP dgCMatrix_qrsol(SEXP x, SEXP y, SEXP ord)
@@ -279,7 +280,7 @@ SEXP dgCMatrix_QR(SEXP Ap, SEXP order, SEXP keep_dimnames)
 	dn = R_NilValue; do_dn = FALSE;
     }
     if (ord) {
-	Memcpy(INTEGER(ALLOC_SLOT(ans, install("q"), INTSXP, n)), S->q, n);
+	Memcpy(INTEGER(ALLOC_SLOT(ans, Matrix_qSym, INTSXP, n)), S->q, n);
 	if(keep_dimnms) {
 	    dn = GET_SLOT(Ap, Matrix_DimNamesSym);
 	    do_dn = !isNull(VECTOR_ELT(dn, 1));
@@ -294,7 +295,7 @@ SEXP dgCMatrix_QR(SEXP Ap, SEXP order, SEXP keep_dimnames)
 	    } else dn = R_NilValue;
 	}
     } else
-	ALLOC_SLOT(ans, install("q"), INTSXP, 0);
+	ALLOC_SLOT(ans, Matrix_qSym, INTSXP, 0);
     SEXP R = PROTECT(Matrix_cs_to_SEXP(N->U, "dgCMatrix", 0, dn));
     SET_SLOT(ans, Matrix_RSym, R); UNPROTECT(1); // R
     if(do_dn) UNPROTECT(1); // dn
@@ -343,7 +344,7 @@ SEXP dgCMatrix_SPQR(SEXP Ap, SEXP ordering, SEXP econ, SEXP tol)
     slot_dup(ans, Ap, Matrix_DimSym);
 /*     SET_VECTOR_ELT(ans, 0, */
 /* 		   chm_sparse_to_SEXP(Q, 0, 0, 0, "", R_NilValue)); */
-    SET_SLOT(ans, install("Q"),
+    SET_SLOT(ans, Matrix_QSym,
 	     chm_sparse_to_SEXP(Q, 0, 0, 0, "", R_NilValue));
 
     /* Also gives a dgCMatrix (not a dtC* *triangular*) :
@@ -425,7 +426,13 @@ void install_lu(SEXP Ap, int order, double tol, Rboolean err_sing, Rboolean keep
     }
     SET_SLOT(ans, Matrix_LSym,
 	     Matrix_cs_to_SEXP(N->L, "dtCMatrix", 0, do_dn ? dn : R_NilValue));
-
+    if (n < 2) { /* is_sym() assumes upper, which is "wrong" in this case */
+	SEXP L = PROTECT(GET_SLOT(ans, Matrix_LSym)),
+	    uplo = PROTECT(mkString("L"));
+	SET_SLOT(L, Matrix_uploSym, uplo);
+	UNPROTECT(2);
+    }
+    
     if(keep_dimnms) {
 	if(do_dn) {
 	    UNPROTECT(1); // dn
@@ -446,11 +453,9 @@ void install_lu(SEXP Ap, int order, double tol, Rboolean err_sing, Rboolean keep
     SET_SLOT(ans, Matrix_USym,
 	     Matrix_cs_to_SEXP(N->U, "dtCMatrix", 0, do_dn ? dn : R_NilValue));
     if(do_dn) UNPROTECT(1); // dn
-    Memcpy(INTEGER(ALLOC_SLOT(ans, Matrix_pSym, /* "p" */
-			      INTSXP, n)), p, n);
+    Memcpy(INTEGER(ALLOC_SLOT(ans, Matrix_pSym, INTSXP, n)), p, n);
     if (order)
-	Memcpy(INTEGER(ALLOC_SLOT(ans, install("q"),
-				  INTSXP, n)), S->q, n);
+	Memcpy(INTEGER(ALLOC_SLOT(ans, Matrix_qSym, INTSXP, n)), S->q, n);
     cs_nfree(N);
     cs_sfree(S);
     cs_free(p);
@@ -509,7 +514,7 @@ SEXP dgCMatrix_matrix_solve(SEXP Ap, SEXP b, SEXP give_sparse)
 		   /* keep_dimnames = */ TRUE);
 	lu = get_factor(Ap, "LU");
     }
-    qslot = GET_SLOT(lu, install("q"));
+    qslot = GET_SLOT(lu, Matrix_qSym);
     L = AS_CSP__(GET_SLOT(lu, Matrix_LSym));
     U = AS_CSP__(GET_SLOT(lu, Matrix_USym));
     R_CheckStack();
@@ -599,6 +604,8 @@ SEXP dgCMatrix_cholsol(SEXP x, SEXP y)
     return ans;
 }
 
+/* MJ: no longer needed ... prefer CRsparse_(col|row)Sums() */
+#if 0
 
 /* Define all of
  *  dgCMatrix_colSums(....)
@@ -642,3 +649,5 @@ SEXP ngCMatrix_colSums(SEXP x, SEXP NArm, SEXP spRes, SEXP trans, SEXP means)
     else
 	return ngCMatrix_colSums_i(x, NArm, spRes, trans, means);
 }
+
+#endif /* MJ */

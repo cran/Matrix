@@ -259,20 +259,15 @@ rm(..sparse2unpacked, ..sparse2packed,
 
 ## ~~~~ CONSTRUCTORS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-spMatrix <- function(nrow, ncol,
-                     i = integer(), j = integer(), x = numeric())
-{
-    dim <- c(as.integer(nrow), as.integer(ncol))
-    ## The conformability of (i,j,x) with itself and with 'dim'
-    ## is checked automatically by internal "validObject()" inside new(.):
-    kind <- .M.kind(x)
-    new(paste0(kind, "gTMatrix"), Dim = dim,
-        x = if(kind == "d") as.double(x) else x,
-        ## our "Tsparse" Matrices use  0-based indices :
-        i = as.integer(i - 1L),
-        j = as.integer(j - 1L))
-}
+spMatrix <- function(nrow, ncol, i = integer(), j = integer(), x = double())
+    new(paste0(.M.kind(x), "gTMatrix"), # rely on new() to check validity
+        Dim = c(as.integer(nrow), as.integer(ncol)),
+        i = as.integer(i) - 1L,
+        j = as.integer(j) - 1L,
+        x = if(is.integer(x)) as.double(x) else x)
 
+if(FALSE) {
+## This version was used in Matrix <= 1.5-1
 sparseMatrix <- function(i = ep, j = ep, p, x, dims, dimnames,
                          symmetric = FALSE, triangular = FALSE, index1 = TRUE,
                          repr = "C", giveCsparse = (repr == "C"),
@@ -367,6 +362,141 @@ sparseMatrix <- function(i = ep, j = ep, p, x, dims, dimnames,
 	   "T" =    r,# TsparseMatrix
 	   "R" = as(r, "RsparseMatrix"),
 	   stop("invalid 'repr'; must be \"C\", \"T\", or \"R\""))
+}
+} else {
+## This version modifies the above (backwards compatibly) as follows:
+## * avoids default value 'ep' for 'i' and 'j', which is likely to confuse
+##   users not familiar with lazy evaluation and which was never explained
+##   in ../man/sparseMatrix.Rd
+## * uses a default value of 'repr' showing all allowed values,
+##   in conjunction with match.arg()
+## * omits the default value of 'giveCsparse' to further discourage use
+## * performs a few more (cheap) checks on the arguments to avoid bad errors
+## * supports length-0 'i', 'j'
+## * gives more appropriate errors in the missing(i) case
+## * allocates less in many places
+sparseMatrix <- function(i, j, p, x, dims, dimnames,
+                         symmetric = FALSE, triangular = FALSE, index1 = TRUE,
+                         repr = c("C", "R", "T"), giveCsparse,
+                         check = TRUE, use.last.ij = FALSE)
+{
+    if((m.i <- missing(i)) + (m.j <- missing(j)) + (m.p <- missing(p)) != 1L)
+        stop("exactly one of 'i', 'j', and 'p' must be missing from call")
+    if(symmetric && triangular)
+        stop("use Diagonal() to construct diagonal (symmetric && triangular) sparse matrices")
+    index1 <- as.logical(index1) # allowing {0,1}
+
+    repr <-
+        ## NB: prior to 2020-05, we had 'giveCsparse' {T->"C" [default], F->"T"}
+        ##     but no 'repr' ... the following is to remain backwards compatible
+        if(missing(giveCsparse))
+            match.arg(repr)
+        else if(!missing(repr)) {
+            warning("'giveCsparse' is deprecated; using 'repr' instead")
+            match.arg(repr)
+        ## } else {
+        ##     repr <- if(giveCsparse) "C" else "T"
+        ##     warning(gettextf("'giveCsparse' is deprecated; setting repr=\"%s\" for you", repr),
+        ##             domain = NA)
+        ## }
+        } else if(giveCsparse) {
+            ## NOT YET:
+            ## warning("'giveCsparse' is deprecated; setting repr=\"C\" for you")
+            "C"
+        } else {
+            warning("'giveCsparse' is deprecated; setting repr=\"T\" for you")
+            "T"
+        }
+
+    if(!m.p) {
+        p <- as.integer(p)
+        if((n.p <- length(p)) == 0L || anyNA(p) || p[1L] != 0L ||
+           any((dp <- p[-1L] - p[-n.p]) < 0L))
+            stop("'p' must be a nondecreasing vector c(0, ...)")
+        if((n.dp <- length(dp)) > .Machine$integer.max)
+            stop("dimensions cannot exceed 2^31-1")
+        i. <- rep.int(seq.int(from = 0L, length.out = n.dp), dp)
+        if(m.i) i <- i. else j <- i.
+    }
+
+    if(!m.i)
+        i <- if(index1) as.integer(i) - 1L else as.integer(i) # need 0-index
+    if(!m.j)
+        j <- if(index1) as.integer(j) - 1L else as.integer(j) # need 0-index
+
+    rij <- cbind(if(n.i <- length(i)) range(i) else 0:-1,
+                 if(n.j <- length(j)) range(j) else 0:-1,
+                 deparse.level = 0L)
+    if(anyNA(rij))
+        stop("'i' and 'j' must not contain NA") # and not overflow
+    if(any(rij[1L, ] < 0L))
+        stop("'i' and 'j' must be ", if(index1) "positive" else "non-negative")
+    dims <-
+        if(!missing(dims)) {
+            if(length(dims) != 2L ||
+               any(is.na(dims) | dims < 0L | dims >= .Machine$integer.max + 1))
+                stop("invalid 'dims'")
+            if(any(dims - 1L < rij[2L, ]))
+                stop("'dims' must contain all (i,j) pairs")
+            as.integer(dims)
+        } else if(symmetric || triangular)
+            rep.int(max(rij), 2L) + 1L
+        else rij[2L, ] + 1L
+
+    kind <- if(m.x <- missing(x)) "n" else .M.kind(x)
+    shape <-
+        if(symmetric) {
+            if(dims[1L] != dims[2L])
+                stop("symmetric matrix must be square")
+            "s"
+        } else if(triangular) {
+            if(dims[1L] != dims[2L])
+                stop("triangular matrix must be square")
+            "t"
+        } else "g"
+
+    r <- new(paste0(kind, shape, "TMatrix"))
+    r@Dim <- dims
+    if(haveDN <- !missing(dimnames) && !is.null(dimnames))
+        r@Dimnames <-
+            if(is.character(validDN(dimnames, dims)))
+                dimnames
+            else fixupDN(dimnames) # needs a valid argument
+    if((symmetric || triangular) && all(i >= j))
+        r@uplo <- "L" # else "U", the prototype
+    if(!m.x) {
+	if(is.integer(x))
+            x <- as.double(x)
+	if((n.x <- length(x)) > 0L && n.x != n.i) {
+            if(n.x < n.i) {
+                if(n.i %% n.x != 0L)
+                    warning(if(m.i) "p[length(p)] " else "length(i) ",
+                            "is not an integer multiple of length(x)")
+                x <- rep_len(x, n.i) # recycle
+            } else if(n.x == 1L)
+                x <- x[0L] # tolerate length(i) = 0, length(x) = 1
+            else stop("length(x) must not exceed ",
+                      if(m.i) "p[length(p)]" else "length(i)")
+	}
+        if(use.last.ij && n.i == n.j &&
+           anyDuplicated.matrix(ij <- cbind(i, j, deparse.level = 0L),
+                                fromLast = TRUE)) {
+            which.not.dup <- which(!duplicated(ij, fromLast = TRUE))
+            i <- i[which.not.dup]
+            j <- j[which.not.dup]
+            x <- x[which.not.dup]
+        }
+	r@x <- x
+    }
+    r@i <- i
+    r@j <- j
+
+    if(check)
+        validObject(r)
+    switch(repr, "C" = .T2C(r), "T" = r, "R" = .T2R(r),
+           ## should never happen:
+	   stop("invalid 'repr'; must be \"C\", \"R\", or \"T\""))
+}
 }
 
 
@@ -621,18 +751,8 @@ formatSpMatrix <- function(x, digits = NULL, # getOption("digits"),
     d <- dim(x)
     unitD <- extends(cld, "triangularMatrix") && x@diag == "U"
     ## Will note it is *unit*-diagonal by using "I" instead of "1"
-    if(unitD) {
-	if(extends(cld, "CsparseMatrix"))
-	    x <- .Call(Csparse_diagU2N, x)
-	else if(extends(cld, "TsparseMatrix"))
-	    x <- .Call(Tsparse_diagU2N, x)
-	else {
-	    kind <- .M.kind(x)
-	    x <- .Call(Tsparse_diagU2N,
-		       as(as(x, paste0(kind, "Matrix")), "TsparseMatrix"))
-	    cld <- getClassDef(class(x))
-	}
-    }
+    if(unitD)
+        x <- .Call(R_sparse_diag_U2N, x)
 
     if(maxp < 100) maxp <- 100L # "stop gap"
     if(prod(d) > maxp) { # "Large" => will be "cut"
@@ -898,11 +1018,12 @@ setMethod("cov2cor", signature(V = "sparseMatrix"),
 	      Is <- sqrt(1/diag(V))
 	      if (any(!is.finite(Is))) ## original had 0 or NA
 		  warning("diag(.) had 0 or NA entries; non-finite result is doubtful")
-	      Is <- Diagonal(x = Is)
+	      Is <- Diagonal(x = Is)# , names = TRUE
 	      r <- Is %*% V %*% Is
 	      r[cbind(1:p,1:p)] <- 1 # exact in diagonal
-	      as(r, "symmetricMatrix")
-	  })
+	      as(`dimnames<-`(r, symmDN(dimnames(V))), "symmetricMatrix")
+	      ## as(r, "symmetricMatrix")
+ })
 
 ## all.equal(): similar to all.equal_Mat() in ./Matrix.R ;
 ## -----------	eventually defer to  "sparseVector" methods:
@@ -1097,21 +1218,16 @@ forceSymmetricTsparse <- function(x, uplo) {
 }
 } ## MJ
 
-.sparse.diag <- function(x,nrow,ncol,names) .Call(R_sparse_diag_get, x, names)
+.sparse.diag.get <- function(x, nrow, ncol, names) .Call(R_sparse_diag_get, x, names)
+.sparse.diag.set <- function(x, value) .Call(R_sparse_diag_set, x, value)
 .sparse.band <- function(x, k1, k2, ...) .Call(R_sparse_band, x, k1, k2)
 .sparse.triu <- function(x, k = 0,  ...) .Call(R_sparse_band, x, k, NULL)
 .sparse.tril <- function(x, k = 0,  ...) .Call(R_sparse_band, x, NULL, k)
 .sparse.t    <- function(x)              .Call(R_sparse_transpose, x)
+.sparse.fS1  <- function(x, uplo) .Call(R_sparse_force_symmetric, x, NULL)
 .sparse.fS2  <- function(x, uplo) .Call(R_sparse_force_symmetric, x, uplo)
-.sparse.fS1  <- function(x, uplo) .Call(R_sparse_force_symmetric, x, "")
-
-.C.symmpart <-
-.R.symmpart <- function(x) .Call(CRsparse_symmpart, x)
-.T.symmpart <- function(x) .Call( Tsparse_symmpart, x)
-
-.C.skewpart <-
-.R.skewpart <- function(x) .Call(CRsparse_skewpart, x)
-.T.skewpart <- function(x) .Call( Tsparse_skewpart, x)
+.sparse.symmpart <- function(x) .Call(R_sparse_symmpart, x)
+.sparse.skewpart <- function(x) .Call(R_sparse_skewpart, x)
 
 .C.is.di <- function(object)
     .Call(Csparse_is_diagonal, object)
@@ -1188,21 +1304,18 @@ forceSymmetricTsparse <- function(x, uplo) {
 .sparse.subclasses <- names(getClass("sparseMatrix")@subclasses)
 
 for (.cl in grep("^[CRT]sparseMatrix$", .sparse.subclasses, value = TRUE)) {
-    setMethod("diag", signature(x = .cl), .sparse.diag)
+    setMethod("diag",   signature(x = .cl), .sparse.diag.get)
+    setMethod("diag<-", signature(x = .cl), .sparse.diag.set)
     setMethod("band", signature(x = .cl), .sparse.band)
     setMethod("triu", signature(x = .cl), .sparse.triu)
     setMethod("tril", signature(x = .cl), .sparse.tril)
     setMethod("t",    signature(x = .cl), .sparse.t)
-    setMethod("forceSymmetric", signature(x = .cl, uplo = "character"),
-              .sparse.fS2)
-    setMethod("symmpart", signature(x = .cl),
-              get(paste0(".", substr(.cl, 1L, 1L), ".symmpart"),
-                  mode = "function", inherits = FALSE))
-    setMethod("skewpart", signature(x = .cl),
-              get(paste0(".", substr(.cl, 1L, 1L), ".skewpart"),
-                  mode = "function", inherits = FALSE))
     setMethod("forceSymmetric", signature(x = .cl, uplo = "missing"),
               .sparse.fS1)
+    setMethod("forceSymmetric", signature(x = .cl, uplo = "character"),
+              .sparse.fS2)
+    setMethod("symmpart", signature(x = .cl), .sparse.symmpart)
+    setMethod("skewpart", signature(x = .cl), .sparse.skewpart)
     setMethod("isDiagonal", signature(object = .cl),
               get(paste0(".", substr(.cl, 1L, 1L), ".is.di"),
                   mode = "function", inherits = FALSE))
@@ -1220,7 +1333,7 @@ for (.cl in grep("^[dz][gt][CRT]Matrix$", .sparse.subclasses, value = TRUE))
     setMethod("isSymmetric", signature(object = .cl), .sparse.is.sy.dz)
 
 rm(.cl, .sparse.subclasses, .sparse.is.sy.dz,
-   list = c(grep("^[.]sparse[.](band|tri[ul]|t|fS[21])$",
+   list = c(grep("^[.]sparse[.](band|tri[ul]|t|fS[21]|symmpart)$",
                  ls(), value = TRUE),
-            grep("^[.][CRT][.](is[.](di|tr|sy)|(symm|skew)part)$",
+            grep("^[.][CRT][.](is[.](di|tr|sy)|skewpart)$",
                  ls(), value = TRUE)))

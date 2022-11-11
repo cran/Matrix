@@ -121,22 +121,25 @@ m. <- mm
 ip <- c(1:2, 4:3, 6:5) # permute the 'i' and 'x' slot just "inside column":
 m.@i <- m.i <- mm@i[ip]
 m.@x <- m.x <- mm@x[ip]
-stopifnot(grep("row indices are not", validObject(m., test=TRUE)) == 1)
+stopifnot(identical(1L, grep("not increasing within columns",
+                             validObject(m., test = TRUE))))
 Matrix:::.sortCsparse(m.) # don't use this at home, boys!
 m. # now is fixed
 
 ## Make sure that validObject() objects...
 ## 1) to wrong 'p'
 m. <- mm; m.@p[1] <- 1L
-stopifnot(grep("first element of slot p", validObject(m., test=TRUE)) == 1)
+stopifnot(identical(1L, grep("first element of 'p' slot",
+                             validObject(m., test = TRUE))))
 m.@p <- mm@p[c(1,3:2,4:6)]
-stopifnot(grep("^slot p.* non-decreasing", validObject(m., test=TRUE)) == 1)
+stopifnot(identical(1L, grep("not nondecreasing",
+                             validObject(m., test = TRUE))))
 ## 2) to non-strictly increasing i's:
 m. <- mm ; ix <- c(1:3,3,5:6)
 m.@i <- mm@i[ix]
 m.@x <- mm@x[ix]
-stopifnot(identical(grep("slot i is not.* increasing .*column$",
-                         validObject(m., test=TRUE)), 1L))
+stopifnot(identical(1L, grep("not increasing within columns",
+                             validObject(m., test = TRUE))))
 ## ix <- c(1:3, 3:6) # now the the (i,x) slots are too large (and decreasing at end)
 ## m.@i <- mm@i[ix]
 ## m.@x <- mm@x[ix]

@@ -480,7 +480,7 @@ options(oo)
 
 ## problematic rank deficient rankMatrix() case -- only seen in large cases ??
 Z. <- readRDS(system.file("external", "Z_NA_rnk.rds", package="Matrix"))
-tools::assertWarning(rnkZ. <- rankMatrix(Z., method = "qr")) # gave errors
+(rnkZ. <- rankMatrix(Z., method = "qr")) # gave errors; now warns typically, but not on aarm64 (M1)
 qrZ. <- qr(Z.)
 options(warn=1)
 rnk2 <- qr2rankMatrix(qrZ.) # warning ".. only 684 out of 822 finite diag(R) entries"
@@ -651,5 +651,33 @@ stopifnot(identical(cd1@Dimnames, rep(dn[2L], 2L)))
 cd2 <- chol(D.) # from cache
 stopifnot(identical(cd1, cd2))
 
-cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
+## lu(<m-by-0>), lu(<0-by-n>), BunchKaufman(<0-by-0>), chol(<0-by-0>)
+.NN <- list(NULL, NULL)
+## FIXME: denseLU should inherit from dgeMatrix in order to get
+##        proper 'Dimnames' prototype and initialize() method,
+##        analogously to Cholesky/dtrMatrix, pBunchKaufman/dtpMatrix, ...
+stopifnot(identical(lu(new("dgeMatrix", Dim = c(2L, 0L))),
+                    new("denseLU", Dim = c(2L, 0L), Dimnames = .NN)),
+          identical(lu(new("dgeMatrix", Dim = c(0L, 2L))),
+                    new("denseLU", Dim = c(0L, 2L), Dimnames = .NN)),
+          identical(BunchKaufman(new("dsyMatrix", uplo = "U")),
+                    new("BunchKaufman", uplo = "U")),
+          identical(BunchKaufman(new("dspMatrix", uplo = "L")),
+                    new("pBunchKaufman", uplo = "L")),
+          identical(chol(new("dpoMatrix", uplo = "U")),
+                    new("Cholesky", uplo = "U")),
+          identical(chol(new("dppMatrix", uplo = "L")),
+                    new("pCholesky", uplo = "U"))) # chol() always giving "U"!
 
+## determinant(<ds[yp]Matrix>) going via Bunch-Kaufman
+set.seed(15742)
+n <- 10L
+syU <- syL <- new("dsyMatrix", Dim = c(n, n), x = rnorm(n * n))
+spU <- spL <- new("dspMatrix", Dim = c(n, n), x = rnorm((n * (n + 1L)) %/% 2L))
+syL@uplo <- spL@uplo <- "L"
+for(m in list(syU, syL, spU, spL))
+    for(givelog in c(FALSE, TRUE))
+        stopifnot(all.equal(determinant(   m,            givelog),
+                            determinant(as(m, "matrix"), givelog)))
+
+cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''

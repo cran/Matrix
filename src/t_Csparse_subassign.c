@@ -3,7 +3,7 @@
  * i.e., included several times from ./Csparse.c
  *                                   ~~~~~~~~~~~
  *
- _slot_kind : use the integer codes matching  x_slot_kind in ./Mutils.h
+ _slot_kind : use the integer codes matching  x_slot_kind in ./Mdefines.h
  *							       ~~~~~~~~
  */
 

@@ -1,23 +1,3 @@
-## ~~~~ BACKWARDS COMPATIBILITY ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.Rv <- getRversion() # remove after using!
-if(.Rv < "4.0.0") {
-    deparse1 <- function (expr, collapse = " ", width.cutoff = 500L, ...)
-        paste(deparse(expr, width.cutoff, ...), collapse = collapse)
-    ...length <- function()
-        ## not equivalent to base::...length, as list(...) evaluates
-        eval(quote(length(list(...))), sys.frame(-1L))
-    tryInvokeRestart <- function(r, ...) {
-        if(!isRestart(r))
-            r <- findRestart(r)
-        if(is.null(r))
-            invisible(NULL)
-        else .Internal(.invokeRestart(r, list(...)))
-    }
-}
-rm(.Rv)
-
-
 ## ~~~~ PACKAGE ENVIRONMENTS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ## Recording default values of Matrix.* options
@@ -30,6 +10,25 @@ rm(.Rv)
 ## ~~~~ NAMESPACE HOOKS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .onLoad <- function(libname, pkgname) {
+    ## For backwards compatibility with earlier versions of R,
+    ## at least until x.y.z if we have Depends: R (>= x.y.z)
+    if((Rv <- getRversion()) < "4.1.3" &&
+       ## Namespace not locked yet, but being defensive here:
+       !environmentIsLocked(Mns <- parent.env(environment()))) {
+        assign("...names", envir = Mns, inherits = FALSE,
+               function() eval(quote(names(list(...))), sys.frame(-1L)))
+        if(Rv < "4.0.0") {
+            assign("deparse1", envir = Mns, inherits = FALSE,
+                   function(expr, collapse = " ", width.cutoff = 500L, ...)
+                       paste(deparse(expr, width.cutoff, ...),
+                             collapse = collapse))
+            assign("tryInvokeRestart", envir = Mns, inherits = FALSE,
+                   function(r, ...)
+                       tryCatch(invokeRestart(r, ...),
+                                error = function(e) invisible(NULL)))
+        }
+    }
+
     ## verbose:
     ## logical/integer (but often supplied as double),
     ## deciding _if_ conditions are signaled
@@ -135,6 +134,7 @@ dput(lapply(grep("to=\"[dln](di|ge|tr|sy|tp|sp|[gts][CRT])Matrix\"",
                  value = TRUE),
             function(s) unname(eval(str2lang(paste0("c(", s, ")"))))))
 }
+## Note:  Allow  as(*, "dpoMatrix")  to check for pos.(semi)definite-ness
 .from.to <- list(c("ddenseMatrix", "dgeMatrix"), c("ddiMatrix", "dgCMatrix"),
                  c("ddiMatrix", "dgeMatrix"), c("ddiMatrix", "dtCMatrix"),
                  c("dgCMatrix", "dgeMatrix"), c("dgCMatrix", "dgTMatrix"),

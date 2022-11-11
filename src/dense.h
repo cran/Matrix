@@ -4,13 +4,22 @@
 #include "Lapack-etc.h"
 #include "Mutils.h"
 
+SEXP matrix_as_dense(SEXP from, const char *code, char uplo, char diag,
+		     int new, int transpose_if_vector);
+SEXP R_matrix_as_dense(SEXP from, SEXP code, SEXP uplo, SEXP diag);
+
 SEXP R_dense_as_sparse(SEXP from, SEXP code, SEXP uplo, SEXP diag);
-SEXP R_dense_as_kind(SEXP from, SEXP kind);
 SEXP R_dense_as_matrix(SEXP from, SEXP ndense);
 SEXP R_geMatrix_as_matrix(SEXP from, SEXP ndense);
 SEXP R_dense_as_vector(SEXP from, SEXP ndense);
 SEXP R_geMatrix_as_vector(SEXP from, SEXP ndense);
+SEXP R_dense_as_kind(SEXP from, SEXP kind);
+SEXP dense_as_general(SEXP from, char kind, int new, int transpose_if_vector);
+SEXP R_dense_as_general(SEXP from, SEXP kind);
+
 SEXP R_dense_band(SEXP from, SEXP k1, SEXP k2);
+SEXP R_dense_colSums(SEXP obj, SEXP narm, SEXP mean);
+SEXP R_dense_rowSums(SEXP obj, SEXP narm, SEXP mean);
 
 SEXP lsq_dense_Chol(SEXP X, SEXP y);
 SEXP lsq_dense_QR(SEXP X, SEXP y);
@@ -38,7 +47,7 @@ SEXP dense_to_symmetric(SEXP x, SEXP uplo, SEXP symm_test);
 SEXP dense_band(SEXP x, SEXP k1, SEXP k2);
 #endif /* MJ */
 
-/* TODO: compare with macros in ./Mutils.h */
+/* TODO: compare with macros in ./Mdefines.h */
 
 #define VALID_DDENSE							\
 "dgeMatrix", "dtrMatrix", "dsyMatrix", "dtpMatrix", "dspMatrix"

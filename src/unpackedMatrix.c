@@ -1,5 +1,451 @@
 #include "unpackedMatrix.h"
 
+#define PACK(_PREFIX_, _CTYPE_, _ONE_)					\
+void _PREFIX_ ## dense_pack(_CTYPE_ *dest, const _CTYPE_ *src, int n,	\
+			    char uplo, char diag)			\
+{									\
+    int i, j;								\
+    R_xlen_t dpos = 0, spos = 0;					\
+    if (uplo == 'U') {							\
+	for (j = 0; j < n; spos += n-(++j))				\
+	    for (i = 0; i <= j; ++i)					\
+		dest[dpos++] = src[spos++];				\
+	if (diag != 'N') {						\
+	    dpos = 0;							\
+	    for (j = 0; j < n; dpos += (++j)+1)				\
+		dest[dpos] = _ONE_;					\
+	}								\
+    } else {								\
+    	for (j = 0; j < n; spos += (++j))				\
+	    for (i = j; i < n; ++i)					\
+		dest[dpos++] = src[spos++];				\
+	if (diag != 'N') {						\
+	    dpos = 0;							\
+	    for (j = 0; j < n; dpos += n-(j++))				\
+		dest[dpos] = _ONE_;					\
+	}								\
+    }									\
+    return;								\
+}
+
+/**
+ * @brief Pack a square `unpackedMatrix`.
+ * 
+ * Copies the upper or lower triangular part of `src` to `dest`,
+ * where it is stored contiguously ("packed"). Optionally resets 
+ * the diagonal elements to 1.
+ * 
+ * @param dest,src Pointers to the first elements of length-`(n*(n+1))/2`
+ *     and length-`n*n` (resp.) arrays, usually the "data" of the `x`
+ *     slot of an `n`-by-`n` `packedMatrix` and `unpackedMatrix` (resp.).
+ * @param n Size of matrix being packed.
+ * @param uplo,diag `char` specifying whether the "nontrivial part" 
+ *     is upper (`'U'`) or lower (`'L'`) and whether to "force" a
+ *     unit diagonal (`'U'`) or not (`'N'`).
+ */
+/* ddense_pack() */
+PACK(d, double, 1.0)
+/* idense_pack() */
+PACK(i, int, 1)
+/* zdense_pack() */
+PACK(z, Rcomplex, Matrix_zone)
+
+#undef PACK
+
+#define MAKE_TRIANGULAR(_PREFIX_, _CTYPE_, _ZERO_, _ONE_)		\
+void _PREFIX_ ## dense_unpacked_make_triangular(_CTYPE_ *x, int m, int n, \
+						char uplo, char diag)	\
+{									\
+    int i, j, r = (m < n) ? m : n;					\
+    R_xlen_t pos = 0;							\
+    if (uplo == 'U') {							\
+	for (j = 0; j < r; pos += (++j)+1)				\
+	    for (i = j+1; i < m; ++i)					\
+		x[++pos] = _ZERO_;					\
+    } else {								\
+	for (j = 0; j < r; pos += m-(j++))				\
+	    for (i = 0; i < j; ++i)					\
+		x[pos++] = _ZERO_;					\
+	for (j = r; j < n; ++j)						\
+	    for (i = 0; i < m; ++i)					\
+		x[pos++] = _ZERO_;					\
+    }									\
+    if (diag != 'N') {							\
+	pos = 0;							\
+	R_xlen_t m1a = (R_xlen_t) m + 1;				\
+	for (j = 0; j < r; ++j, pos += m1a)				\
+	    x[pos] = _ONE_;						\
+    }									\
+    return;								\
+}
+
+/**
+ * @brief Make triangular an `unpackedMatrix`.
+ * 
+ * "Triangularizes" the elements of an `m`-by-`n` `unpackedMatrix`,
+ * which need not be square (though all `triangularMatrix` _are_).
+ * 
+ * @param x A pointer to the first element of a length-`m*n` array,
+ *     usually the "data" of the `x` slot of an `m`-by-`n` `unpackedMatrix`.
+ * @param m,n Dimensions of matrix being triangularized.
+ * @param uplo,diag `char` constants specifying whether the matrix
+ *     should be upper (`'U'`) or lower (`'L'`) triangular and
+ *     whether it should have a unit diagonal (`'U'`) or not (`'N'`).
+ */
+/* ddense_unpacked_make_triangular() */
+MAKE_TRIANGULAR(d, double, 0.0, 1.0)
+/* idense_unpacked_make_triangular() */
+MAKE_TRIANGULAR(i, int, 0, 1)
+/* zdense_unpacked_make_triangular() */
+MAKE_TRIANGULAR(z, Rcomplex, Matrix_zzero, Matrix_zone)
+
+#undef MAKE_TRIANGULAR
+    
+#define MAKE_SYMMETRIC_SET_EQ(_X_, _DEST_, _SRC_)	\
+    _X_[_DEST_] = _X_[_SRC_]
+
+#define MAKE_SYMMETRIC_SET_CJ(_X_, _DEST_, _SRC_)	\
+    do {						\
+	_X_[_DEST_].r =  _X_[_SRC_].r;			\
+	_X_[_DEST_].i = -_X_[_SRC_].i;			\
+    } while (0)
+
+#define MAKE_SYMMETRIC(_PREFIX_, _CTYPE_, _SET_)			\
+void _PREFIX_ ## dense_unpacked_make_symmetric(_CTYPE_ *x, int n,	\
+					       char uplo)		\
+{									\
+    int i, j, n1s = n - 1;						\
+    R_xlen_t upos = n, lpos = 1;					\
+    if (uplo == 'U') {							\
+	for (j = 0; j < n; upos = (lpos += (++j)+1) + n1s)		\
+	    for (i = j+1; i < n; ++i, upos += n, ++lpos)		\
+		_SET_(x, lpos, upos);					\
+    } else {								\
+	for (j = 0; j < n; upos = (lpos += (++j)+1) + n1s)		\
+	    for (i = j+1; i < n; ++i, upos += n, ++lpos)		\
+		_SET_(x, upos, lpos);					\
+    }									\
+    return;								\
+}
+
+/**
+ * @brief Make symmetric a square `unpackedMatrix`.
+ * 
+ * "Symmetrizes" the elements of an `n`-by-`n` `unpackedMatrix`.
+ * 
+ * @param x A pointer to the first element of a length-`n*n` array,
+ *     usually the "data" of the `x` slot of an `n`-by-`n` `unpackedMatrix`.
+ * @param n Size of matrix being symmetrized.
+ * @param uplo A `char` specifying whether to copy the upper triangle
+ *     to the lower triangle (`'U'`) or to do the reverse (`'L'`).
+ */
+/* ddense_unpacked_make_symmetric() */
+MAKE_SYMMETRIC(d, double, MAKE_SYMMETRIC_SET_EQ)
+/* idense_unpacked_make_symmetric() */
+MAKE_SYMMETRIC(i, int, MAKE_SYMMETRIC_SET_EQ)
+/* zdense_unpacked_make_symmetric() */
+MAKE_SYMMETRIC(z, Rcomplex, MAKE_SYMMETRIC_SET_CJ)
+
+#undef MAKE_SYMMETRIC
+#undef MAKE_SYMMETRIC_SET_CJ
+#undef MAKE_SYMMETRIC_SET_EQ
+
+#define MAKE_BANDED(_PREFIX_, _CTYPE_, _ZERO_, _ONE_)			\
+void _PREFIX_ ## dense_unpacked_make_banded(_CTYPE_ *x, int m, int n,	\
+					    int a, int b, char diag)	\
+{									\
+    if (m == 0 || n == 0)						\
+	return;								\
+    if (a > b || a >= n || b <= -m) {					\
+	Memzero(x, (R_xlen_t) m * n);					\
+	return;								\
+    }									\
+    if (a <= -m) a = 1-m;						\
+    if (b >=  n) b = n-1;						\
+    									\
+    int i, j, i0, i1,							\
+	j0 = (a < 0) ? 0 : a,						\
+	j1 = (b < n-m) ? m+b : n;					\
+    									\
+    if (j0 > 0) {							\
+	R_xlen_t dx;							\
+	Memzero(x, dx = (R_xlen_t) m * j0);				\
+	x += dx;							\
+    }									\
+    for (j = j0; j < j1; ++j, x += m) {					\
+	i0 = j - b;							\
+	i1 = j - a + 1;							\
+	for (i = 0; i < i0; ++i)					\
+	    *(x + i) = _ZERO_;						\
+	for (i = i1; i < m; ++i)					\
+	    *(x + i) = _ZERO_;						\
+    }									\
+    if (j1 < n)								\
+	Memzero(x, (R_xlen_t) m * (n - j1));				\
+    if (diag != 'N' && a <= 0 && b >= 0) {				\
+	x -= m * (R_xlen_t) j;						\
+	R_xlen_t m1a = (R_xlen_t) m + 1;				\
+	for (j = 0; j < n; ++j, x += m1a)				\
+	    *x = _ONE_;							\
+    }									\
+    return;								\
+}
+MAKE_BANDED(d, double, 0.0, 1.0)
+MAKE_BANDED(i, int, 0, 1)
+MAKE_BANDED(z, Rcomplex, Matrix_zzero, Matrix_zone)
+
+#undef MAKE_BANDED
+
+#define COPY_DIAGONAL(_PREFIX_, _CTYPE_, _ONE_)				\
+void _PREFIX_ ## dense_unpacked_copy_diagonal(_CTYPE_ *dest,	        \
+					      const _CTYPE_ *src,	\
+					      int n, R_xlen_t len,	\
+    					      char uplo, char diag)	\
+{									\
+    int j;								\
+    R_xlen_t n1a = (R_xlen_t) n + 1;					\
+    if (diag != 'N') {							\
+	for (j = 0; j < n; ++j, dest += n1a)				\
+	    *dest = _ONE_;						\
+    } else if (len == n) {						\
+	/* copying from diagonalMatrix */				\
+	for (j = 0; j < n; ++j, dest += n1a, ++src)			\
+	    *dest = *src;						\
+    } else if (len == (n * n1a) / 2) {					\
+	/* copying from packedMatrix */					\
+	if (uplo == 'U') {						\
+	    for (j = 0; j < n; dest += n1a, src += (++j)+1)		\
+		*dest = *src;						\
+	} else {							\
+	    for (j = 0; j < n; dest += n1a, src += n-(j++))		\
+		*dest = *src;						\
+	}								\
+    } else if (len == (R_xlen_t) n * n) {				\
+	/* copying from square unpackedMatrix */			\
+	for (j = 0; j < n; ++j, dest += n1a, src += n1a)		\
+	    *dest = *src;						\
+    } else {								\
+	error(_("incompatible 'n' and 'len' to '*_copy_diagonal()'"));	\
+    }									\
+    return;								\
+}
+
+/**
+ * Copy a length-`n` diagonal to a length-`n*n` array.
+ * 
+ * @param dest A pointer to the first element of a length-`n*n` array,
+ *     usually the "data" of the `x` slot of an `n`-by-`n` `unpackedMatrix`.
+ * @param src A pointer to the first element of a length-`n`, 
+ *     length-`(n*(n+1))/2`, or length-`n*n` array, usually the "data"
+ *     of the `x` slot of an `n`-by-`n` `diagonalMatrix`, `packedMatrix`,
+ *     or `unpackedMatrix`, respectively.
+ * @param n Size of matrix being copied from and to.
+ * @param len Length of `src` array.
+ * @param uplo,diag `char` constants specifying whether `src` stores an 
+ *     upper (`'U'`) or lower (`'L'`) triangle when `len == (n*(n+1))/2` and
+ *     whether the matrix should have a unit diagonal (`'U'`) or not (`'N'`).
+ */
+/* ddense_unpacked_copy_diagonal() */
+COPY_DIAGONAL(d, double, 1.0)
+/* idense_unpacked_copy_diagonal() */
+COPY_DIAGONAL(i, int, 1)
+/* zdense_unpacked_copy_diagonal() */
+COPY_DIAGONAL(z, Rcomplex, Matrix_zone)
+
+#undef COPY_DIAGONAL
+
+#define IS_TRIANGULAR(_PREFIX_, _CTYPE_,				\
+		      _L_IS_NOT_ZERO_, _U_IS_NOT_ZERO_)			\
+static Rboolean _PREFIX_ ## dense_unpacked_is_triangular(const _CTYPE_ *x, \
+							 int n,		\
+							 char uplo)	\
+{									\
+    int i, j;								\
+    if (uplo == 'U') {							\
+	for (j = 0; j < n; x += (++j)+1)				\
+	    for (i = j+1; i < n; ++i)					\
+		if (_L_IS_NOT_ZERO_)					\
+		    return FALSE;					\
+    } else {								\
+	for (j = 0; j < n; x += n-(j++))				\
+	    for (i = 0; i < j; ++i)					\
+		if (_U_IS_NOT_ZERO_)					\
+		    return FALSE;					\
+    }									\
+    return TRUE;							\
+}
+
+/* ddense_unpacked_is_triangular() */
+IS_TRIANGULAR(d, double,
+		       ISNAN(*(++x)) || *x != 0.0,
+		       ISNAN(*x) || *(x++) != 0.0)
+/* idense_unpacked_is_triangular() */
+IS_TRIANGULAR(i, int,
+		       *(++x) != 0,
+		       *(x++) != 0)
+/* zdense_unpacked_is_triangular() */
+IS_TRIANGULAR(z, Rcomplex,
+		       ISNAN((*(++x)).r) || (*x).r != 0.0 ||
+		       ISNAN((*x).i) || (*x).i != 0.0,
+		       ISNAN((*x).r) || (*x).r != 0.0 ||
+		       ISNAN((*x).i) || (*(x++)).i != 0.0)
+
+#undef IS_TRIANGULAR
+
+#define IS_SYMMETRIC(_PREFIX_, _CTYPE_,					\
+		     _U_IS_NA_, _L_IS_NOT_NA_, _L_IS_NOT_EQUAL_)	\
+static Rboolean _PREFIX_ ## dense_unpacked_is_symmetric(const _CTYPE_ *x, \
+							int n)		\
+{									\
+    int i, j;								\
+    R_xlen_t upos = 0, lpos = 0;					\
+    for (j = 0; j < n; upos = (lpos += (++j)+1)) {			\
+	for (i = j+1; i < n; ++i) {					\
+	    upos += n; ++lpos;						\
+	    if (_U_IS_NA_) {						\
+		if (_L_IS_NOT_NA_)					\
+		    return FALSE;					\
+	    } else {							\
+		if (_L_IS_NOT_EQUAL_)					\
+		    return FALSE;					\
+	    }								\
+	}								\
+    }									\
+    return TRUE;							\
+}
+
+/* ddense_unpacked_is_symmetric() */
+IS_SYMMETRIC(d, double,
+		      ISNAN(x[upos]),
+		      !ISNAN(x[lpos]),
+		      ISNAN(x[lpos]) || x[lpos] != x[upos])
+/* ldense_unpacked_is_symmetric() */
+IS_SYMMETRIC(l, int,
+		      x[upos] == NA_LOGICAL,
+		      x[lpos] != NA_LOGICAL,
+		      (x[upos] == 0) ? (x[lpos] != 0) : (x[lpos] == 0))
+/* ndense_unpacked_is_symmetric() ... macro still works, if we cheat */
+IS_SYMMETRIC(n, int,
+		      x[upos] == 0,
+		      x[lpos] != 0,
+		      x[lpos] == 0)
+/* idense_unpacked_is_symmetric() */
+IS_SYMMETRIC(i, int,
+		      x[upos] == NA_INTEGER,
+		      x[lpos] != NA_INTEGER,
+		      x[lpos] != x[upos])
+/* zdense_unpacked_is_symmetric() */
+IS_SYMMETRIC(z, Rcomplex,
+		      ISNAN(x[upos].r) || ISNAN(x[upos].i) ,
+		      !(ISNAN(x[lpos].r) || ISNAN(x[lpos].i)),
+		      ISNAN(x[lpos].r) || ISNAN(x[lpos].i) ||
+		      x[upos].r != x[lpos].r || x[upos].i != -x[lpos].i)
+
+#undef IS_SYMMETRIC
+    
+#define IS_DIAGONAL(_PREFIX_, _CTYPE_, _OD_IS_NOT_ZERO_)		\
+static Rboolean _PREFIX_ ## dense_unpacked_is_diagonal(const _CTYPE_ *x, \
+						       int n)		\
+{									\
+    int i, j;								\
+    for (j = 0; j < n; ++j) {						\
+	for (i = 0; i < j; ++i)						\
+	    if (_OD_IS_NOT_ZERO_)					\
+		return FALSE;						\
+	++x; /* skip over diagonal */					\
+	for (i = j+1; i < n; ++i)					\
+	    if (_OD_IS_NOT_ZERO_)					\
+		return FALSE;						\
+    }									\
+    return TRUE;							\
+}
+
+/* ddense_unpacked_is_diagonal() */
+IS_DIAGONAL(d, double, ISNAN(*x) || *(x++) != 0.0)
+/* idense_unpacked_is_diagonal() */
+IS_DIAGONAL(i, int, *(x++) != 0)
+/* zdense_unpacked_is_diagonal() */
+IS_DIAGONAL(z, Rcomplex,
+		     ISNAN((*x).r) || (*(x)).r != 0.0 ||
+		     ISNAN((*x).i) || (*(x++)).i != 0.0)
+
+#undef IS_DIAGONAL
+
+SEXP unpacked_force(SEXP x, int n, char uplo, char diag)
+{
+    SEXPTYPE tx = TYPEOF(x);
+    if (tx < LGLSXP || tx > CPLXSXP)
+	ERROR_INVALID_TYPE("'x'", tx, "unpacked_force");
+    R_xlen_t nx = XLENGTH(x);
+    SEXP y = PROTECT(allocVector(tx, nx));
+    
+    if (diag == '\0') {
+
+#define FORCE_SYMMETRIC(_PREFIX_, _CTYPE_, _PTR_)			\
+	do {								\
+	    _CTYPE_ *px = _PTR_(x), *py = _PTR_(y);			\
+	    Memcpy(py, px, nx);						\
+	    _PREFIX_ ## dense_unpacked_make_symmetric(py, n, uplo);	\
+	} while (0)
+	
+	switch (tx) {
+	case REALSXP:
+	    FORCE_SYMMETRIC(d, double, REAL);
+	    break;
+	case LGLSXP:
+	    FORCE_SYMMETRIC(i, int, LOGICAL);
+	    break;
+	case INTSXP:
+	    FORCE_SYMMETRIC(i, int, INTEGER);
+	    break;
+	case CPLXSXP:
+	    FORCE_SYMMETRIC(z, Rcomplex, COMPLEX);
+	    break;
+	default:
+	    break;
+	}
+
+#undef FORCE_SYMMETRIC
+	
+    } else {
+
+#define FORCE_TRIANGULAR(_PREFIX_, _CTYPE_, _PTR_, _ONE_)		\
+	do {								\
+	    _CTYPE_ *px = _PTR_(x), *py = _PTR_(y);			\
+	    Memcpy(py, px, nx);						\
+	    _PREFIX_ ## dense_unpacked_make_triangular(py, n, n, uplo, diag); \
+	    if (diag != 'N') {						\
+		R_xlen_t n1a = (R_xlen_t) n + 1;			\
+		for (int j = 0; j < n; ++j, py += n1a)			\
+		    *py = _ONE_;					\
+	    }								\
+	} while (0)
+	
+	switch (tx) {
+	case REALSXP:
+	    FORCE_TRIANGULAR(d, double, REAL, 1.0);
+	    break;
+	case LGLSXP:
+	    FORCE_TRIANGULAR(i, int, LOGICAL, 1);
+	    break;
+	case INTSXP:
+	    FORCE_TRIANGULAR(i, int, INTEGER, 1);
+	    break;
+	case CPLXSXP:
+	    FORCE_TRIANGULAR(z, Rcomplex, COMPLEX, Matrix_zone);
+	    break;
+	default:
+	    break;
+	}
+
+#undef FORCE_TRIANGULAR
+	
+    }
+    
+    UNPROTECT(1);
+    return y;
+}
+
 /* pack(x), returning packedMatrix */
 SEXP unpackedMatrix_pack(SEXP from, SEXP strict, SEXP tr_if_ge, SEXP up_if_ge)
 {
@@ -16,53 +462,67 @@ SEXP unpackedMatrix_pack(SEXP from, SEXP strict, SEXP tr_if_ge, SEXP up_if_ge)
 	/*  7 */ "dspMatrix", "lspMatrix", "nspMatrix", ""};
     int ivalid = R_check_class_etc(from, valid_from);
     if (ivalid < 0)
-	ERROR_INVALID_CLASS(class_P(from), "unpackedMatrix_pack");
+	ERROR_INVALID_CLASS(from, "unpackedMatrix_pack");
     if (asLogical(strict) == 0) {
 	if (ivalid < 2)
 	    ivalid = 2; /* Cholesky,BunchKaufman->dtpMatrix */
 	else if (ivalid == 5 || ivalid == 6)
 	    ivalid = 7; /* corMatrix,dpoMatrix->dspMatrix */
     }
-
-    SEXP dim = GET_SLOT(from, Matrix_DimSym);
-    int *pdim = INTEGER(dim), n = pdim[0], shift = 0;
-    if (ivalid >= 10) {
-	/* .geMatrix */
-	if (pdim[1] != n)
-	    error(_("attempt to pack non-square matrix"));
-	shift = (asLogical(tr_if_ge) != 0) ?  3+2+3 :      3;
-	/*                                 ? ge->tp : ge->sp */
-    }
-
-    SEXPTYPE tx;
-    SEXP to = PROTECT(NEW_OBJECT_OF_CLASS(valid_to[ivalid - shift])),
-	dimnames = GET_SLOT(from, Matrix_DimNamesSym),
-	x_from = GET_SLOT(from, Matrix_xSym),
-	x_to = PROTECT(allocVector(tx = TYPEOF(x_from), PM_LENGTH(n))),
-	uplo;
-
-    SET_SLOT(to, Matrix_DimSym, dim);
+    
+    int shift = (ivalid < 10) ? 0 : ((asLogical(tr_if_ge) != 0) ? 3+2+3 : 3);
+    SEXP to = PROTECT(NEW_OBJECT_OF_CLASS(valid_to[ivalid - shift]));
+    
+    SEXP dim = PROTECT(GET_SLOT(from, Matrix_DimSym));
+    int *pdim = INTEGER(dim), n = pdim[0];
+    if (pdim[1] != n)
+	error(_("attempt to pack non-square matrix"));
+    if (n > 0)
+	SET_SLOT(to, Matrix_DimSym, dim);
+    UNPROTECT(1); /* dim */
+    
+    SEXP dimnames = PROTECT(GET_SLOT(from, Matrix_DimNamesSym));
     SET_SLOT(to, Matrix_DimNamesSym, dimnames);
-    SET_SLOT(to, Matrix_xSym, x_to);
-    if (ivalid >= 10) {
-	/* .geMatrix */
-	uplo = mkString((asLogical(up_if_ge) != 0) ? "U" : "L");
-    } else {
-	/* .(sy|tr)Matrix */
-	uplo = GET_SLOT(from, Matrix_uploSym);
+    UNPROTECT(1); /* dimnames */
+
+    SEXP uplo;
+    
+    if (ivalid >= 10)
+	PROTECT(uplo = mkString((asLogical(up_if_ge) != 0) ? "U" : "L"));
+    else {
+	/* .(tr|sy)Matrix */
+	PROTECT(uplo = GET_SLOT(from, Matrix_uploSym));
 	if (ivalid < 5) {
 	    /* .trMatrix */
-	    SET_SLOT(to, Matrix_diagSym, GET_SLOT(from, Matrix_diagSym));
-	    if (ivalid == 1)
+	    SEXP diag = PROTECT(GET_SLOT(from, Matrix_diagSym));
+	    char di = *CHAR(STRING_ELT(diag, 0));
+	    if (di != 'N')
+		SET_SLOT(to, Matrix_diagSym, diag);
+	    UNPROTECT(1); /* diag */
+	    if (ivalid == 1) {
 		/* BunchKaufman */
-		SET_SLOT(to, Matrix_permSym, GET_SLOT(from, Matrix_permSym));
+		SEXP perm = PROTECT(GET_SLOT(from, Matrix_permSym));
+		SET_SLOT(to, Matrix_permSym, perm);
+		UNPROTECT(1); /* perm */
+	    }
 	} else {
 	    /* .syMatrix */
-	    SET_SLOT(to, Matrix_factorSym, GET_SLOT(from, Matrix_factorSym));
+	    SEXP factors = PROTECT(GET_SLOT(from, Matrix_factorSym));
+	    if (LENGTH(factors) > 0)
+		SET_SLOT(to, Matrix_factorSym, factors);
+	    UNPROTECT(1); /* factors */
 	}
     }
-    SET_SLOT(to, Matrix_uploSym, uplo);
+    
     char ul = *CHAR(STRING_ELT(uplo, 0));
+    if (ul != 'U')
+	SET_SLOT(to, Matrix_uploSym, uplo);
+    UNPROTECT(1); /* uplo */
+
+    SEXPTYPE tx;
+    R_xlen_t nx = PM_LENGTH(n);
+    SEXP x_from = PROTECT(GET_SLOT(from, Matrix_xSym)),
+	x_to = PROTECT(allocVector(tx = TYPEOF(x_from), nx));
 
 #define PACK(_PREFIX_, _PTR_)						\
     _PREFIX_ ## dense_pack(_PTR_(x_to), _PTR_(x_from), n, ul, 'N')
@@ -84,10 +544,12 @@ SEXP unpackedMatrix_pack(SEXP from, SEXP strict, SEXP tr_if_ge, SEXP up_if_ge)
 	ERROR_INVALID_TYPE("'x' slot", tx, "unpackedMatrix_pack");
 	break;
     }
-
+    
 #undef PACK
 
-    UNPROTECT(2);
+    SET_SLOT(to, Matrix_xSym, x_to);
+
+    UNPROTECT(3); /* x_to, x_from, to */
     return to;
 }
 
@@ -95,22 +557,28 @@ SEXP unpackedMatrix_pack(SEXP from, SEXP strict, SEXP tr_if_ge, SEXP up_if_ge)
 SEXP unpackedMatrix_force_symmetric(SEXP from, SEXP uplo_to)
 {
     static const char *valid[] = {
-	"dsyMatrix", "lsyMatrix", "nsyMatrix", /* be fast */
-	"dtrMatrix", "ltrMatrix", "ntrMatrix",
-	"dgeMatrix", "lgeMatrix", "ngeMatrix", ""};
+	/* 0 */ "dgeMatrix", "lgeMatrix", "ngeMatrix",
+	/* 3 */ "dtrMatrix", "ltrMatrix", "ntrMatrix",
+	/* 6 */ "dsyMatrix", "lsyMatrix", "nsyMatrix", ""};
     int ivalid = R_check_class_etc(from, valid);
     if (ivalid < 0)
-	ERROR_INVALID_CLASS(class_P(from), "unpackedMatrix_force_symmetric");
+	ERROR_INVALID_CLASS(from, "unpackedMatrix_force_symmetric");
     const char *clf = valid[ivalid];
     
-    SEXP uplo_from;
-    char ulf = 'U', ult;
+    char ulf = 'U', ult = 'U';
     if (clf[1] != 'g') {
-	/* .(sy|tr)Matrix */
-	uplo_from = GET_SLOT(from, Matrix_uploSym);
-	ulf = *CHAR(STRING_ELT(uplo_from, 0));
+	/* .(tr|sy)Matrix */
+	SEXP uplo_from = PROTECT(GET_SLOT(from, Matrix_uploSym));
+	ulf = ult = *CHAR(STRING_ELT(uplo_from, 0));
+	UNPROTECT(1); /* uplo_from */
     }
-    ult = (isNull(uplo_to)) ? ulf : *CHAR(asChar(uplo_to));
+    
+    if (!isNull(uplo_to) &&
+	(TYPEOF(uplo_to) != STRSXP || LENGTH(uplo_to) < 1 ||
+	 (uplo_to = STRING_ELT(uplo_to, 0)) == NA_STRING ||
+	 ((ult = *CHAR(uplo_to)) != 'U' && ult != 'L')))
+	error(_("invalid 'uplo' to 'unpackedMatrix_force_symmetric()'"));
+    
     if (clf[1] == 's') {
 	/* .syMatrix */
 	if (ulf == ult)
@@ -118,33 +586,48 @@ SEXP unpackedMatrix_force_symmetric(SEXP from, SEXP uplo_to)
 	SEXP to = PROTECT(unpackedMatrix_transpose(from));
 	if (clf[0] == 'z') {
 	    /* Need _conjugate_ transpose */
-	    SEXP x = PROTECT(GET_SLOT(from, Matrix_xSym));
-	    conjugate(x);
-	    UNPROTECT(1);
+	    SEXP x_to = PROTECT(GET_SLOT(to, Matrix_xSym));
+	    conjugate(x_to);
+	    UNPROTECT(1); /* x_to */
 	}
-	UNPROTECT(1);
+	UNPROTECT(1); /* to */
 	return to;
     }
-    
-    SEXP dim = GET_SLOT(from, Matrix_DimSym);
-    int *pdim = INTEGER(dim), n = pdim[0];
-    if (pdim[1] != n)
-	error(_("attempt to symmetrize a non-square matrix"));
 
-    /* Now handling just square .(tr|ge)Matrix ... */
-    
+    /* Now handling just .(ge|tr)Matrix ... */
+
     char clt[] = ".syMatrix";
     clt[0] = clf[0];
     SEXP to = PROTECT(NEW_OBJECT_OF_CLASS(clt)),
-	dimnames = GET_SLOT(from, Matrix_DimNamesSym),
-	x_from = GET_SLOT(from, Matrix_xSym);
+	x_from = PROTECT(GET_SLOT(from, Matrix_xSym));
+    
+    SEXP dim = PROTECT(GET_SLOT(from, Matrix_DimSym));
+    int *pdim = INTEGER(dim), n = pdim[0];
+    if (pdim[1] != n)
+	error(_("attempt to symmetrize a non-square matrix"));
+    if (n > 0)
+	SET_SLOT(to, Matrix_DimSym, dim);
+    UNPROTECT(1); /* dim */
+    
+    SEXP dimnames = PROTECT(GET_SLOT(from, Matrix_DimNamesSym));
+    set_symmetrized_DimNames(to, dimnames, -1);
+    UNPROTECT(1); /* dimnames */
+
+    if (ult != 'U') {
+	PROTECT(uplo_to = mkString("L"));
+	SET_SLOT(to, Matrix_uploSym, uplo_to);
+	UNPROTECT(1); /* uplo_to */
+    }
     
     if (clf[1] == 'g' || ulf == ult) {
 	/* .geMatrix or .trMatrix with correct uplo */
 	SET_SLOT(to, Matrix_xSym, x_from);
     } else {
 	/* .trMatrix with incorrect uplo */
-	char di = *diag_P(from);
+	SEXP diag = PROTECT(GET_SLOT(from, Matrix_diagSym));
+	char di = *CHAR(STRING_ELT(diag, 0));
+	UNPROTECT(1); /* diag */
+
 	SEXPTYPE tx = TYPEOF(x_from);
 	R_xlen_t nx = XLENGTH(x_from);
 	SEXP x_to = PROTECT(allocVector(tx, nx));
@@ -177,15 +660,34 @@ SEXP unpackedMatrix_force_symmetric(SEXP from, SEXP uplo_to)
 #undef COPY_DIAGONAL
        
 	SET_SLOT(to, Matrix_xSym, x_to);
-	UNPROTECT(1);
+	UNPROTECT(1); /* x_to */
     }
 
-    SET_SLOT(to, Matrix_DimSym, dim);
-    set_symmetrized_DimNames(to, dimnames, -1);
-    SET_SLOT(to, Matrix_uploSym, mkString((ult == 'U') ? "U" : "L"));    
-    UNPROTECT(1);
+    UNPROTECT(2); /* x_from, to */
     return to;
 }
+
+#define UPM_IS_TR(_RES_, _X_, _N_, _UPLO_, _WHAT_, _METHOD_)		\
+    do {								\
+	switch (TYPEOF(_X_)) {						\
+	case REALSXP:							\
+	    _RES_ = ddense_unpacked_is_triangular(REAL(_X_), _N_, _UPLO_); \
+	    break;							\
+	case LGLSXP:							\
+	    _RES_ = idense_unpacked_is_triangular(LOGICAL(_X_), _N_, _UPLO_); \
+	    break;							\
+	case INTSXP:							\
+	    _RES_ = idense_unpacked_is_triangular(INTEGER(_X_), _N_, _UPLO_); \
+	    break;							\
+	case CPLXSXP:							\
+	    _RES_ = zdense_unpacked_is_triangular(COMPLEX(_X_), _N_, _UPLO_); \
+	    break;							\
+	default:							\
+	    ERROR_INVALID_TYPE(_WHAT_, TYPEOF(_X_), _METHOD_);		\
+	    _RES_ = FALSE;						\
+	    break;							\
+	}								\
+    } while (0)
 
 #define UPM_IS_SY(_RES_, _X_, _N_, _LDENSE_, _WHAT_, _METHOD_)		\
     do {								\
@@ -203,28 +705,6 @@ SEXP unpackedMatrix_force_symmetric(SEXP from, SEXP uplo_to)
 	    break;							\
 	case CPLXSXP:							\
 	    _RES_ = zdense_unpacked_is_symmetric(COMPLEX(_X_), _N_);	\
-	    break;							\
-	default:							\
-	    ERROR_INVALID_TYPE(_WHAT_, TYPEOF(_X_), _METHOD_);		\
-	    _RES_ = FALSE;						\
-	    break;							\
-	}								\
-    } while (0)
-
-#define UPM_IS_TR(_RES_, _X_, _N_, _UPLO_, _WHAT_, _METHOD_)		\
-    do {								\
-	switch (TYPEOF(_X_)) {						\
-	case REALSXP:							\
-	    _RES_ = ddense_unpacked_is_triangular(REAL(_X_), _N_, _UPLO_); \
-	    break;							\
-	case LGLSXP:							\
-	    _RES_ = idense_unpacked_is_triangular(LOGICAL(_X_), _N_, _UPLO_); \
-	    break;							\
-	case INTSXP:							\
-	    _RES_ = idense_unpacked_is_triangular(INTEGER(_X_), _N_, _UPLO_); \
-	    break;							\
-	case CPLXSXP:							\
-	    _RES_ = zdense_unpacked_is_triangular(COMPLEX(_X_), _N_, _UPLO_); \
 	    break;							\
 	default:							\
 	    ERROR_INVALID_TYPE(_WHAT_, TYPEOF(_X_), _METHOD_);		\
@@ -255,198 +735,211 @@ SEXP unpackedMatrix_force_symmetric(SEXP from, SEXP uplo_to)
 	}								\
     } while (0)
 
-/* isSymmetric(x, tol = 0, checkDN) */
-/* FIXME: not checking for real diagonal in complex case */
-SEXP unpackedMatrix_is_symmetric(SEXP obj, SEXP checkDN)
-{
-    static const char *valid[] = {
-	"dsyMatrix", "lsyMatrix", "nsyMatrix", /* be fast */
-	"dtrMatrix", "ltrMatrix", "ntrMatrix",
-	"dgeMatrix", "lgeMatrix", "ngeMatrix", ""};
-    int ivalid = R_check_class_etc(obj, valid);
-    if (ivalid < 0) {
-	ERROR_INVALID_CLASS(class_P(obj), "unpackedMatrix_is_symmetric");
-	return R_NilValue;
-    } else if (ivalid < 3) {
-	/* .syMatrix: symmetric by definition */
-	return ScalarLogical(1);
-    } else {
-	/* .(ge|tr)Matrix */
-	int *pdim = INTEGER(GET_SLOT(obj, Matrix_DimSym)), n = pdim[0];
-	if (ivalid >= 6 && pdim[1] != n)
-	    return ScalarLogical(0);
-	if (asLogical(checkDN) != 0 &&
-	    !DimNames_is_symmetric(GET_SLOT(obj, Matrix_DimNamesSym)))
-	    return ScalarLogical(0);
-	Rboolean res = FALSE;
-	SEXP x = GET_SLOT(obj, Matrix_xSym);
-	if (ivalid < 6) {
-	    /* .trMatrix: symmetric iff diagonal (upper _and_ lower tri.) */
-	    char ul = (*uplo_P(obj) == 'U') ? 'L' : 'U';
-	    UPM_IS_TR(res, x, n, ul,
-		      "'x' slot", "unpackedMatrix_is_symmetric");
-	} else {
-	    /* .geMatrix: need to do a complete symmetry check */
-	    UPM_IS_SY(res, x, n, ivalid == 7,
-		      "'x' slot", "unpackedMatrix_is_symmetric");
-	}
-	return ScalarLogical(res);
-    }
-}
-
-/* isSymmetric(x, tol = 0) */
-SEXP matrix_is_symmetric(SEXP obj, SEXP checkDN)
-{
-    int *pdim = INTEGER(getAttrib(obj, R_DimSymbol)), n = pdim[0];
-    if (pdim[1] != n)
-	return ScalarLogical(0);
-    if (asLogical(checkDN) != 0) {
-	SEXP dn = getAttrib(obj, R_DimNamesSymbol);
-	if (!isNull(dn) && !DimNames_is_symmetric(dn))
-	    return ScalarLogical(0);
-    }
-    Rboolean res = FALSE;
-    UPM_IS_SY(res, obj, n, 1, "matrix", "matrix_is_symmetric");
-    return ScalarLogical(res);
-}
-
-#define RETURN_TRUE_OF_KIND(_KIND_)					\
-    do {								\
-	SEXP ans = PROTECT(allocVector(LGLSXP, 1));			\
-	LOGICAL(ans)[0] = 1;						\
-	setAttrib(ans, install("kind"), _KIND_);			\
-	UNPROTECT(1);							\
-	return ans;							\
-    } while (0)
-
-#define RETURN_GE_IS_TR(_X_, _N_, _UPPER_, _WHAT_, _METHOD_)		\
+#define RETURN_GE_IS_TR(_X_, _N_, _UPPER_, _NPROT_, _WHAT_, _METHOD_)	\
     do {								\
 	Rboolean res = FALSE;						\
 	if (_UPPER_ == NA_LOGICAL) {					\
 	    UPM_IS_TR(res, _X_, _N_, 'U', _WHAT_, _METHOD_);		\
-	    if (res)							\
-	        RETURN_TRUE_OF_KIND(mkString("U"));			\
+	    if (res) {							\
+		UNPROTECT(_NPROT_);					\
+	        RETURN_TRUE_OF_KIND("U");				\
+	    }								\
 	    UPM_IS_TR(res, _X_, _N_, 'L', _WHAT_, _METHOD_);		\
-	    if (res)							\
-		RETURN_TRUE_OF_KIND(mkString("L"));			\
+	    if (res) {							\
+		UNPROTECT(_NPROT_);					\
+		RETURN_TRUE_OF_KIND("L");				\
+	    }								\
 	} else {							\
 	    UPM_IS_TR(res, _X_, _N_, (_UPPER_ != 0) ? 'U' : 'L',	\
 		      _WHAT_, _METHOD_);				\
-	    if (res)							\
-		return ScalarLogical(1);				\
 	}								\
-	return ScalarLogical(0);					\
+	UNPROTECT(_NPROT_);						\
+	return ScalarLogical(res);					\
     } while (0)
 
 /* isTriangular(x, upper) */
 SEXP unpackedMatrix_is_triangular(SEXP obj, SEXP upper)
 {
     static const char *valid[] = {
-	"dtrMatrix", "ltrMatrix", "ntrMatrix", /* be fast */
-	"dsyMatrix", "lsyMatrix", "nsyMatrix",
-	"dgeMatrix", "lgeMatrix", "ngeMatrix", ""};
+	/* 0 */ "dgeMatrix", "lgeMatrix", "ngeMatrix",
+	/* 3 */ "dtrMatrix", "ltrMatrix", "ntrMatrix",
+	/* 6 */ "dsyMatrix", "lsyMatrix", "nsyMatrix", ""};
     int ivalid = R_check_class_etc(obj, valid);
     if (ivalid < 0)
-	ERROR_INVALID_CLASS(class_P(obj), "unpackedMatrix_is_triangular");
+	ERROR_INVALID_CLASS(obj, "unpackedMatrix_is_triangular");
     
-    SEXP uplo;
-    char ul;
     int need_upper = asLogical(upper);
-    if (ivalid < 6) {
-	uplo = GET_SLOT(obj, Matrix_uploSym);
-	ul = *CHAR(STRING_ELT(uplo, 0));
-    }
-
-#define IF_DIAGONAL							\
-    Rboolean res = FALSE;						\
-    SEXP x = GET_SLOT(obj, Matrix_xSym);				\
-    int n = INTEGER(GET_SLOT(obj, Matrix_DimSym))[0];			\
-    UPM_IS_TR(res, x, n, (ul == 'U') ? 'L' : 'U',			\
-	      "'x' slot", "unpackedMatrix_is_triangular");		\
-    if (res)
     
     if (ivalid < 3) {
-	/* .trMatrix: be fast if 'upper', 'uplo' agree; else need diagonal */
-	if (need_upper == NA_LOGICAL) {
-	    RETURN_TRUE_OF_KIND(uplo);
-	} else if ((need_upper != 0 && ul == 'U') ||
-		   (need_upper == 0 && ul != 'U')) {
-	    return ScalarLogical(1);
+	/* .geMatrix: need to do a complete triangularity check */
+	SEXP dim = PROTECT(GET_SLOT(obj, Matrix_DimSym));
+	int *pdim = INTEGER(dim), n = pdim[0], s = pdim[1] == n;
+	UNPROTECT(1); /* dim */
+	if (!s)
+	    return ScalarLogical(0);
+	SEXP x = PROTECT(GET_SLOT(obj, Matrix_xSym));
+	RETURN_GE_IS_TR(x, n, need_upper, /* unprotect this many: */ 1,
+			"'x' slot", "unpackedMatrix_is_triangular");
+    } else {
+	/* .(tr|sy)Matrix */
+	SEXP uplo = PROTECT(GET_SLOT(obj, Matrix_uploSym));
+	char ul = *CHAR(STRING_ELT(uplo, 0));
+	UNPROTECT(1); /* uplo */
+	
+#define IF_DIAGONAL							\
+	Rboolean res = FALSE;						\
+	SEXP x = PROTECT(GET_SLOT(obj, Matrix_xSym)),			\
+	    dim = PROTECT(GET_SLOT(obj, Matrix_DimSym));		\
+	int n = INTEGER(dim)[0];					\
+	UPM_IS_TR(res, x, n, (ul == 'U') ? 'L' : 'U',			\
+		  "'x' slot", "unpackedMatrix_is_triangular");		\
+	UNPROTECT(2); /* dim, x */					\
+	if (res)
+	
+	if (ivalid < 6) {
+	    /* .trMatrix: fast if 'upper', 'uplo' agree; else need diagonal */
+	    if (need_upper == NA_LOGICAL)
+		RETURN_TRUE_OF_KIND((ul == 'U') ? "U" : "L");
+	    else if ((need_upper) ? ul == 'U' : ul != 'U')
+		return ScalarLogical(1);
+	    else {
+		IF_DIAGONAL {
+		    return ScalarLogical(1);
+		}
+	    }
 	} else {
+	    /* .syMatrix: triangular iff diagonal (upper _and_ lower tri.) */
 	    IF_DIAGONAL {
-		return ScalarLogical(1);
+		if (need_upper == NA_LOGICAL)
+		    RETURN_TRUE_OF_KIND("U");
+		else
+		    return ScalarLogical(1);
 	    }
 	}
-	return ScalarLogical(0);
-    } else if (ivalid < 6) {
-	/* .syMatrix: triangular iff diagonal (upper _and_ lower tri.) */
-	IF_DIAGONAL {
-	    if (need_upper == NA_LOGICAL) {
-		RETURN_TRUE_OF_KIND(mkString("U"));
-	    } else {
-		return ScalarLogical(1);
-	    }
-	}
-	return ScalarLogical(0);
 
 #undef IF_DIAGONAL
-	
-    } else {
-	/* .geMatrix: need to do a complete triangularity check */
-	int *pdim = INTEGER(GET_SLOT(obj, Matrix_DimSym)), n = pdim[0];
-	if (pdim[1] != n)
-	    return ScalarLogical(0);
-	SEXP x = GET_SLOT(obj, Matrix_xSym);
-	RETURN_GE_IS_TR(x, n, need_upper,
-			"'x' slot", "unpackedMatrix_is_triangular");
+
+	return ScalarLogical(0);
     }
 }
 
 /* isTriangular(x, upper) */
 SEXP matrix_is_triangular(SEXP obj, SEXP upper)
 {
-    int *pdim = INTEGER(getAttrib(obj, R_DimSymbol)), n = pdim[0];
-    if (pdim[1] != n)
+    SEXP dim = PROTECT(getAttrib(obj, R_DimSymbol));
+    int *pdim = INTEGER(dim), n = pdim[0], s = pdim[1] == n;
+    UNPROTECT(1); /* dim */
+    if (!s)
 	return ScalarLogical(0);
     int need_upper = asLogical(upper);
-    RETURN_GE_IS_TR(obj, n, need_upper,
+    RETURN_GE_IS_TR(obj, n, need_upper, /* unprotect this many: */ 0,
 		    "matrix", "matrix_is_triangular");
 }
 
 #undef RETURN_GE_IS_TR
-#undef RETURN_TRUE
+
+/* isSymmetric(x, tol = 0, checkDN) */
+/* FIXME: not checking for real diagonal in complex case */
+SEXP unpackedMatrix_is_symmetric(SEXP obj, SEXP checkDN)
+{
+    static const char *valid[] = {
+	/* 0 */ "dgeMatrix", "lgeMatrix", "ngeMatrix",
+	/* 3 */ "dtrMatrix", "ltrMatrix", "ntrMatrix",
+	/* 6 */ "dsyMatrix", "lsyMatrix", "nsyMatrix", ""};
+    int ivalid = R_check_class_etc(obj, valid);
+    if (ivalid < 0) {
+	ERROR_INVALID_CLASS(obj, "unpackedMatrix_is_symmetric");
+	return R_NilValue;
+    } else if (ivalid < 6) {
+	/* .(ge|tr)Matrix */
+	SEXP dim = PROTECT(GET_SLOT(obj, Matrix_DimSym));
+	int *pdim = INTEGER(dim), n = pdim[0], s = pdim[1] == n;
+	UNPROTECT(1); /* dim */
+	if (s && asLogical(checkDN) != 0) {
+	    SEXP dimnames = PROTECT(GET_SLOT(obj, Matrix_DimNamesSym));
+	    s = DimNames_is_symmetric(dimnames);
+	    UNPROTECT(1); /* dimnames */
+	}
+	if (!s)
+	    return ScalarLogical(0);
+	Rboolean res = FALSE;
+	SEXP x = PROTECT(GET_SLOT(obj, Matrix_xSym));
+	if (ivalid < 3) {
+	    /* .geMatrix: need to do a complete symmetry check */
+	    UPM_IS_SY(res, x, n, ivalid == 1,
+		      "'x' slot", "unpackedMatrix_is_symmetric");
+	} else {
+	    /* .trMatrix: symmetric iff diagonal (upper _and_ lower tri.) */
+	    SEXP uplo = PROTECT(GET_SLOT(obj, Matrix_uploSym));
+	    char ul = (*CHAR(STRING_ELT(uplo, 0)) == 'U') ? 'L' : 'U';
+	    UNPROTECT(1); /* uplo */
+	    UPM_IS_TR(res, x, n, ul,
+		      "'x' slot", "unpackedMatrix_is_symmetric");
+	}
+	UNPROTECT(1); /* x */
+	return ScalarLogical(res);
+    } else {
+	/* .syMatrix: symmetric by definition */
+	return ScalarLogical(1);
+    }
+}
+
+/* isSymmetric(x, tol = 0) */
+SEXP matrix_is_symmetric(SEXP obj, SEXP checkDN)
+{
+    SEXP dim = PROTECT(getAttrib(obj, R_DimSymbol));
+    int *pdim = INTEGER(dim), n = pdim[0], s = pdim[1] == n;
+    UNPROTECT(1); /* dim */
+    if (s && asLogical(checkDN) != 0) {
+	SEXP dimnames = PROTECT(getAttrib(obj, R_DimNamesSymbol));
+	s = isNull(dimnames) || DimNames_is_symmetric(dimnames);
+	UNPROTECT(1); /* dimnames */
+    }
+    if (!s)
+	return ScalarLogical(0);
+    Rboolean res = FALSE;
+    UPM_IS_SY(res, obj, n, 1, "matrix", "matrix_is_symmetric");
+    return ScalarLogical(res);
+}
 
 /* isDiagonal(x) */
 SEXP unpackedMatrix_is_diagonal(SEXP obj)
 {
     static const char *valid[] = {
-	"dtrMatrix", "ltrMatrix", "ntrMatrix",
-	"dsyMatrix", "lsyMatrix", "nsyMatrix",
-	"dgeMatrix", "lgeMatrix", "ngeMatrix", ""};
+	/* 0 */ "dgeMatrix", "lgeMatrix", "ngeMatrix",
+	/* 3 */ "dtrMatrix", "ltrMatrix", "ntrMatrix",
+	/* 6 */ "dsyMatrix", "lsyMatrix", "nsyMatrix", ""};
     int ivalid = R_check_class_etc(obj, valid);
     if (ivalid < 0)
-	ERROR_INVALID_CLASS(class_P(obj), "unpackedMatrix_is_diagonal");
-    int *pdim = INTEGER(GET_SLOT(obj, Matrix_DimSym)), n = pdim[0];
-    if (pdim[1] != n)
+	ERROR_INVALID_CLASS(obj, "unpackedMatrix_is_diagonal");
+    SEXP dim = PROTECT(GET_SLOT(obj, Matrix_DimSym));
+    int *pdim = INTEGER(dim), n = pdim[0], s = pdim[1] == n;
+    UNPROTECT(1); /* dim */
+    if (!s)
 	return ScalarLogical(0);
     Rboolean res = FALSE;
-    SEXP x = GET_SLOT(obj, Matrix_xSym);
-    if (ivalid < 6) {
-	/* .(sy|tr)Matrix: diagonal iff stored triangle is zero off diagonal */
-	char ul = (*uplo_P(obj) == 'U') ? 'L' : 'U';
-	UPM_IS_TR(res, x, n, ul, "'x' slot", "unpackedMatrix_is_diagonal");
-    } else {
+    SEXP x = PROTECT(GET_SLOT(obj, Matrix_xSym));
+    if (ivalid < 3) {
 	/* .geMatrix: need to do a complete diagonality check */
 	UPM_IS_DI(res, x, n, "'x' slot", "unpackedMatrix_is_diagonal");
+    } else {
+	/* .(tr|sy)Matrix: diagonal iff stored triangle is zero off diagonal */
+	SEXP uplo = PROTECT(GET_SLOT(obj, Matrix_uploSym));
+	char ul = (*CHAR(STRING_ELT(uplo, 0)) == 'U') ? 'L' : 'U';
+	UNPROTECT(1); /* uplo */
+	UPM_IS_TR(res, x, n, ul, "'x' slot", "unpackedMatrix_is_diagonal");
     }
+    UNPROTECT(1); /* x */
     return ScalarLogical(res);
 }
 
 /* isDiagonal(x) */
 SEXP matrix_is_diagonal(SEXP obj)
 {
-    int *pdim = INTEGER(getAttrib(obj, R_DimSymbol)), n = pdim[0];
-    if (pdim[1] != n)
+    SEXP dim = PROTECT(getAttrib(obj, R_DimSymbol));
+    int *pdim = INTEGER(dim), n = pdim[0], s = pdim[1] == n;
+    UNPROTECT(1); /* dim */
+    if (!s)
 	return ScalarLogical(0);
     Rboolean res = FALSE;
     UPM_IS_DI(res, obj, n, "matrix", "matrix_is_diagonal");
@@ -458,68 +951,85 @@ SEXP matrix_is_diagonal(SEXP obj)
 #undef UPM_IS_SY
 
 /* t(x), typically preserving class */
-/* MJ: Technically no need to do full transpose of .(sy|tr)Matrix ...  */
+/* MJ: Technically no need to do full transpose of .(tr|sy)Matrix ...  */
 /*     but then identical(.@x, t(t(.))@x) can be FALSE ...             */
 SEXP unpackedMatrix_transpose(SEXP from)
 {
     static const char *valid[] = {
-	/*  0 */ "Cholesky", "BunchKaufman",
-	/*  2 */ "dtrMatrix", "ltrMatrix", "ntrMatrix",
-	/*  5 */ "corMatrix", "dpoMatrix",
-	/*  7 */ "dsyMatrix", "lsyMatrix", "nsyMatrix",
-	/* 10 */ "dgeMatrix", "lgeMatrix", "ngeMatrix", ""};
+	/*  0 */ "dgeMatrix", "lgeMatrix", "ngeMatrix",
+	/*  3 */ "Cholesky", "BunchKaufman",
+	/*  5 */ "dtrMatrix", "ltrMatrix", "ntrMatrix",
+	/*  8 */ "corMatrix", "dpoMatrix",
+	/* 10 */ "dsyMatrix", "lsyMatrix", "nsyMatrix", ""};
     int ivalid = R_check_class_etc(from, valid);
     if (ivalid < 0)
-	ERROR_INVALID_CLASS(class_P(from), "unpackedMatrix_transpose");
-    if (ivalid == 1)
-	ivalid = 2; /* BunchKaufman->dtrMatrix */
+	ERROR_INVALID_CLASS(from, "unpackedMatrix_transpose");
+    if (ivalid == 4)
+	ivalid = 5; /* BunchKaufman->dtrMatrix */
     const char *cl = valid[ivalid];
     
-    SEXPTYPE tx;
-    R_xlen_t nx;
-    SEXP to = PROTECT(NEW_OBJECT_OF_CLASS(cl)),
-	dim = GET_SLOT(from, Matrix_DimSym),
-	dimnames = GET_SLOT(from, Matrix_DimNamesSym),
-	x0 = GET_SLOT(from, Matrix_xSym),
-	x1 = PROTECT(allocVector(tx = TYPEOF(x0), nx = XLENGTH(x0)));
+    SEXP to = PROTECT(NEW_OBJECT_OF_CLASS(cl));
+
+    SEXP dim = PROTECT(GET_SLOT(from, Matrix_DimSym)); 
     int *pdim = INTEGER(dim), m = pdim[0], n = pdim[1];
-    char ul = (ivalid < 10) ? *uplo_P(from) : '\0';
-    
-    /* Preserve or reverse 'Dim' slot (preserving if square) */
-    if (m == n) {
-	SET_SLOT(to, Matrix_DimSym, dim);
-    } else {
-	pdim = INTEGER(GET_SLOT(to, Matrix_DimSym));
+    if (m != n) {
+	UNPROTECT(1); /* dim */
+	PROTECT(dim = GET_SLOT(to, Matrix_DimSym));
+	pdim = INTEGER(dim);
 	pdim[0] = n;
 	pdim[1] = m;
-    }
-    /* Reverse or preserve 'Dimnames' slot (preserving if symmetric) */
-    if (ivalid < 5 || ivalid >= 10)
+    } else if (n > 0)
+	SET_SLOT(to, Matrix_DimSym, dim);
+    UNPROTECT(1); /* dim */
+
+    SEXP dimnames = PROTECT(GET_SLOT(from, Matrix_DimNamesSym));
+    if (ivalid < 8)
 	set_reversed_DimNames(to, dimnames);
     else
 	SET_SLOT(to, Matrix_DimNamesSym, dimnames);
-    if (ivalid < 10) {
-	/* Toggle 'uplo' slot */
-	SET_SLOT(to, Matrix_uploSym, mkString((ul == 'U') ? "L" : "U"));
-	if (ivalid < 5)
-	    /* Preserve 'diag' slot */
-	    SET_SLOT(to, Matrix_diagSym, GET_SLOT(from, Matrix_diagSym));
-	else
-	    /* Preserve 'factors' slot */
-	    SET_SLOT(to, Matrix_factorSym, GET_SLOT(from, Matrix_factorSym));
-	if (ivalid == 5)
-	    /* Preserve 'sd' slot */
-	    SET_SLOT(to, install("sd"), GET_SLOT(from, install("sd")));
+    UNPROTECT(1); /* dimnames */
+    
+    if (ivalid >= 3) {
+	SEXP uplo_from = PROTECT(GET_SLOT(from, Matrix_uploSym));
+	char ulf = *CHAR(STRING_ELT(uplo_from, 0));
+	UNPROTECT(1); /* uplo_from */
+	if (ulf == 'U') {
+	    SEXP uplo_to = PROTECT(mkString("L"));
+	    SET_SLOT(to, Matrix_uploSym, uplo_to);
+	    UNPROTECT(1); /* uplo_to */
+	}
+	if (ivalid < 8) {
+	    /* .trMatrix */
+	    SEXP diag = PROTECT(GET_SLOT(from, Matrix_diagSym));
+	    char di = *CHAR(STRING_ELT(diag, 0));
+	    if (di != 'N')
+		SET_SLOT(to, Matrix_diagSym, diag);
+	    UNPROTECT(1); /* diag */
+	} else {
+	    /* .syMatrix */
+	    SEXP factors = PROTECT(GET_SLOT(from, Matrix_factorSym));
+	    if (LENGTH(factors) > 0)
+		SET_SLOT(to, Matrix_factorSym, factors);
+	    UNPROTECT(1); /* factors */
+	    if (ivalid == 8) {
+		/* corMatrix */
+		SEXP sd = PROTECT(GET_SLOT(from, Matrix_sdSym));
+		SET_SLOT(to, Matrix_sdSym, sd);
+		UNPROTECT(1); /* sd */
+	    }
+	}
     }
-    /* NB: Nothing to do for 'factors' slot: prototype is already list() ...
-       FIXME: However, it would be much better to also "transpose" each 
-       factorization ... */
 
+    SEXPTYPE tx;
+    R_xlen_t nx;
+    SEXP x_from = PROTECT(GET_SLOT(from, Matrix_xSym)),
+	x_to = PROTECT(allocVector(tx = TYPEOF(x_from), nx = XLENGTH(x_from)));
+    
 #define UPM_T(_CTYPE_, _PTR_)						\
     do {								\
-	_CTYPE_ *px0 = _PTR_(x0), *px1 = _PTR_(x1);			\
+	_CTYPE_ *px0 = _PTR_(x_from), *px1 = _PTR_(x_to);		\
 	int i, j;							\
-	/* if (ivalid < 10) { */					\
+	/* if (ivalid >= 3) { */					\
 	/*     Memzero(px1, (size_t) n * n); */				\
 	/*     R_xlen_t upos = 0, lpos = 0; */				\
 	/*     if (ul == 'U') */					\
@@ -537,8 +1047,7 @@ SEXP unpackedMatrix_transpose(SEXP from)
 		*(px1++) = *px0;					\
 	/* } */								\
     } while (0)
-
-    /* Permute 'x' slot */
+    
     switch (tx) {
     case REALSXP: /* d..Matrix */
 	UPM_T(double, REAL);
@@ -556,11 +1065,12 @@ SEXP unpackedMatrix_transpose(SEXP from)
 	ERROR_INVALID_TYPE("'x' slot", tx, "unpackedMatrix_transpose");
 	break;
     }
-    SET_SLOT(to, Matrix_xSym, x1);
-
+    
 #undef UPM_T
 
-    UNPROTECT(2);
+    SET_SLOT(to, Matrix_xSym, x_to);
+
+    UNPROTECT(3); /* x_to, x_from, to */
     return to;
 }
 
@@ -571,12 +1081,26 @@ SEXP unpackedMatrix_diag_get(SEXP obj, SEXP nms)
     if (do_nms == NA_LOGICAL)
 	error(_("'names' must be TRUE or FALSE"));
 
-    int *pdim = INTEGER(GET_SLOT(obj, Matrix_DimSym)),
-	m = pdim[0], n = pdim[1], r = (m < n) ? m : n;
+    SEXP dim = PROTECT(GET_SLOT(obj, Matrix_DimSym));
+    int *pdim = INTEGER(dim), m = pdim[0], n = pdim[1], r = (m < n) ? m : n;
+    UNPROTECT(1); /* dim */
+
+    char ul = '\0', di = '\0';
+    if (HAS_SLOT(obj, Matrix_uploSym)) {
+	SEXP uplo = PROTECT(GET_SLOT(obj, Matrix_uploSym));
+	ul = *CHAR(STRING_ELT(uplo, 0));
+	UNPROTECT(1); /* uplo */
+
+	if (HAS_SLOT(obj, Matrix_diagSym)) {
+	    SEXP diag = PROTECT(GET_SLOT(obj, Matrix_diagSym));
+	    di = *CHAR(STRING_ELT(diag, 0));
+	    UNPROTECT(1); /* diag */
+	}
+    }
+    
     SEXPTYPE tx;
-    SEXP x = GET_SLOT(obj, Matrix_xSym),
+    SEXP x = PROTECT(GET_SLOT(obj, Matrix_xSym)),
 	res = PROTECT(allocVector(tx = TYPEOF(x), r));
-    char ul = *Uplo_P(obj), di = *Diag_P(obj);
     
 #define UPM_D_G(_CTYPE_, _PTR_, _ONE_)					\
     do {								\
@@ -587,7 +1111,7 @@ SEXP unpackedMatrix_diag_get(SEXP obj, SEXP nms)
 		*(pres++) = _ONE_;					\
 	} else {							\
 	    _CTYPE_ *px = _PTR_(x);					\
-	    R_xlen_t m1a = ((R_xlen_t) m) + 1;				\
+	    R_xlen_t m1a = (R_xlen_t) m + 1;				\
 	    for (j = 0; j < r; ++j, px += m1a)				\
 		*(pres++) = *px;					\
 	}								\
@@ -616,84 +1140,86 @@ SEXP unpackedMatrix_diag_get(SEXP obj, SEXP nms)
     if (do_nms) {
 	/* NB: The logic here must be adjusted once the validity method 
 	       for 'symmetricMatrix' enforces symmetric 'Dimnames' */
-	SEXP dn = GET_SLOT(obj, Matrix_DimNamesSym),
+	SEXP dn = PROTECT(GET_SLOT(obj, Matrix_DimNamesSym)),
 	    rn = VECTOR_ELT(dn, 0),
 	    cn = VECTOR_ELT(dn, 1);
 	if (isNull(cn)) {
-	    if (ul != ' ' && di == ' ' && !isNull(rn))
+	    if (ul != '\0' && di == '\0' && !isNull(rn))
 		setAttrib(res, R_NamesSymbol, rn);
 	} else {
-	    if (ul != ' ' && di == ' ')
+	    if (ul != '\0' && di == '\0')
 		setAttrib(res, R_NamesSymbol, cn);
 	    else if (!isNull(rn) &&
 		     (rn == cn || equal_string_vectors(rn, cn, r)))
 		setAttrib(res, R_NamesSymbol, (r == m) ? rn : cn);
 	}
+	UNPROTECT(1); /* dn */
     }
-    UNPROTECT(1);
+    
+    UNPROTECT(2); /* res, x */
     return res;
 }
 
 /* diag(x) <- value */
 SEXP unpackedMatrix_diag_set(SEXP obj, SEXP val)
 {
-    SEXP dim = GET_SLOT(obj, Matrix_DimSym);
+    static const char *valid[] = {
+	/* 0 */ "dgeMatrix", "lgeMatrix", "ngeMatrix",
+	/* 3 */ "dtrMatrix", "ltrMatrix", "ntrMatrix",
+	/* 6 */ "dsyMatrix", "lsyMatrix", "nsyMatrix", ""};
+    int ivalid = R_check_class_etc(obj, valid);
+    if (ivalid < 0)
+	ERROR_INVALID_CLASS(obj, "unpackedMatrix_diag_set");
+    
+    SEXP dim = PROTECT(GET_SLOT(obj, Matrix_DimSym));
     int *pdim = INTEGER(dim), m = pdim[0], n = pdim[1], r = (m < n) ? m : n;
-    R_xlen_t nv = XLENGTH(val);
-    if (nv != 1 && nv != r)
-	error(_("replacement diagonal has wrong length"));
 
-    SEXP x = GET_SLOT(obj, Matrix_xSym);
-    SEXPTYPE tx = TYPEOF(x), tv = TYPEOF(val);
-    if (tx < LGLSXP || tx > CPLXSXP)
-	ERROR_INVALID_TYPE("'x' slot", tx, "unpackedMatrix_diag_set");
+    SEXPTYPE tv = TYPEOF(val);
     if (tv < LGLSXP || tv > REALSXP)
 	/* Upper bound can become CPLXSXP once we have proper zMatrix */
 	error(_("replacement diagonal has incompatible type \"%s\""),
 	      type2char(tv));
     
-    static const char *valid[] = {
-	"dgeMatrix", "dsyMatrix", "dtrMatrix",
-	"lgeMatrix", "lsyMatrix", "ltrMatrix",
-	"ngeMatrix", "nsyMatrix", "ntrMatrix", ""};
-    int ivalid = R_check_class_etc(obj, valid);
-    if (ivalid < 0)
-	ERROR_INVALID_CLASS(class_P(obj), "unpackedMatrix_diag_set");
+    R_xlen_t nv = XLENGTH(val);
+    if (nv != 1 && nv != r)
+	error(_("replacement diagonal has wrong length"));
 
-    SEXP res;
-    int nprotect = 0;
+    SEXP x;
+    PROTECT_INDEX pid;
+    PROTECT_WITH_INDEX(x = GET_SLOT(obj, Matrix_xSym), &pid);
+    SEXPTYPE tx = TYPEOF(x);
     
     /* Allocate and coerce as necessary */
+    SEXP res;
     if (tv <= tx) {
-	if (tv < tx) {
-	    PROTECT(val = coerceVector(val, tv = tx));
-	    ++nprotect;
-	}
+	PROTECT(val = coerceVector(val, tv = tx));
 	PROTECT(res = NEW_OBJECT_OF_CLASS(valid[ivalid]));
-	PROTECT(x = duplicate(x));
-	nprotect += 2;
+	REPROTECT(x = duplicate(x), pid);
     } else { /* tv > tx */
 	/* dMatrix result is only possibility until we have proper [iz]Matrix */
-	if (tv < REALSXP) {
-	    PROTECT(val = coerceVector(val, tv = REALSXP));
-	    ++nprotect;
-	}
+	PROTECT(val = coerceVector(val, tv = REALSXP));
 	char cl[] = "d..Matrix";
 	cl[1] = valid[ivalid][1];
 	cl[2] = valid[ivalid][2];
 	PROTECT(res = NEW_OBJECT_OF_CLASS(cl));
-	PROTECT(x = coerceVector(x, tx = tv));
-	++nprotect;
+	REPROTECT(x = coerceVector(x, tx = tv), pid);
     }
-    SET_SLOT(res, Matrix_xSym, x);
-    
-    /* Transfer slots other than 'x', 'diag', and 'factors';
-       latter two should keep their prototypes "N" and list() */
-    SET_SLOT(res, Matrix_DimSym, dim);
-    SET_SLOT(res, Matrix_DimNamesSym, GET_SLOT(obj, Matrix_DimNamesSym));
-    if (R_has_slot(res, Matrix_uploSym))
-	SET_SLOT(res, Matrix_uploSym, GET_SLOT(obj, Matrix_uploSym));
 
+    if (m != n || n > 0)
+	SET_SLOT(res, Matrix_DimSym, dim);
+
+    SEXP dimnames = PROTECT(GET_SLOT(obj, Matrix_DimNamesSym));
+    SET_SLOT(res, Matrix_DimNamesSym, dimnames);
+    UNPROTECT(1); /* dimnames */
+
+    if (valid[ivalid][1] != 'g') {
+	SEXP uplo = PROTECT(GET_SLOT(obj, Matrix_uploSym));
+	char ul = *CHAR(STRING_ELT(uplo, 0));
+	if (ul != 'U')
+	    SET_SLOT(res, Matrix_uploSym, uplo);
+	UNPROTECT(1); /* uplo */
+    }
+    
 #define UPM_D_S(_CTYPE_, _PTR_)						\
     do {								\
 	_CTYPE_ *px = _PTR_(x), *pval = _PTR_(val);			\
@@ -726,8 +1252,10 @@ SEXP unpackedMatrix_diag_set(SEXP obj, SEXP val)
     }
 
 #undef UPM_D_S
+
+    SET_SLOT(res, Matrix_xSym, x);
     
-    UNPROTECT(nprotect);
+    UNPROTECT(4); /* x, res, val, dim */
     return res;
 }
 
@@ -735,35 +1263,44 @@ SEXP unpackedMatrix_diag_set(SEXP obj, SEXP val)
 SEXP unpackedMatrix_symmpart(SEXP from)
 {
     static const char *valid[] = {
-	"dgeMatrix", "dtrMatrix", "dsyMatrix",
-	"lgeMatrix", "ltrMatrix", "lsyMatrix",
-	"ngeMatrix", "ntrMatrix", "nsyMatrix", ""};
+	/* 0 */ "dgeMatrix", "lgeMatrix", "ngeMatrix",
+	/* 3 */ "dtrMatrix", "ltrMatrix", "ntrMatrix",
+	/* 6 */ "dsyMatrix", "lsyMatrix", "nsyMatrix", ""};
     int ivalid = R_check_class_etc(from, valid);
     if (ivalid < 0)
-	ERROR_INVALID_CLASS(class_P(from), "unpackedMatrix_symmpart");
-    const char *clf = valid[ivalid];
-    if (clf[1] == 's' && clf[0] == 'd')
-	return from;
+	ERROR_INVALID_CLASS(from, "unpackedMatrix_symmpart");
 
+    const char *clf = valid[ivalid];
+    if (clf[0] == 'd' && clf[1] == 's')
+	return from;
+    
     char clt[] = ".syMatrix";
     clt[0] = (clf[0] != 'z') ? 'd' : 'z';
-    SEXP to = PROTECT(NEW_OBJECT_OF_CLASS(clt)),
-	dim = GET_SLOT(from, Matrix_DimSym),
-	dimnames = GET_SLOT(from, Matrix_DimNamesSym),
-	uplo = (clf[1] != 'g') ? GET_SLOT(from, Matrix_uploSym) : R_NilValue,
-	x = GET_SLOT(from, Matrix_xSym);
+    SEXP to = PROTECT(NEW_OBJECT_OF_CLASS(clt));
     
+    SEXP dim = PROTECT(GET_SLOT(from, Matrix_DimSym));
     int *pdim = INTEGER(dim), n = pdim[0];
     if (pdim[1] != n)	
 	error(_("attempt to get symmetric part of non-square matrix"));
-    
-    PROTECT(x = (clf[0] == clt[0]) ? duplicate(x) : coerceVector(x, REALSXP));
+    if (n > 0)
+	SET_SLOT(to, Matrix_DimSym, dim);
+    UNPROTECT(1); /* dim */
+
+    SEXP dimnames = PROTECT(GET_SLOT(from, Matrix_DimNamesSym));
+    if (clf[1] != 's')
+	set_symmetrized_DimNames(to, dimnames, -1);
+    else
+	SET_SLOT(to, Matrix_DimNamesSym, dimnames);
+    UNPROTECT(1); /* dimnames */
+
+    SEXP x;
+    PROTECT_INDEX pid;
+    PROTECT_WITH_INDEX(x = GET_SLOT(from, Matrix_xSym), &pid);
+    REPROTECT(x = (clf[0] == clt[0]) ? duplicate(x) : coerceVector(x, REALSXP),
+	      pid);
     if (clf[0] == 'n')
 	na2one(x);
-
-    SET_SLOT(to, Matrix_DimSym, dim);
-    SET_SLOT(to, Matrix_xSym, x);
-
+    
     if (clf[1] == 'g') {
 
 	int i, j;
@@ -800,102 +1337,114 @@ SEXP unpackedMatrix_symmpart(SEXP from)
 	else
 	    UPM_SYMMPART_GE(Rcomplex, COMPLEX, ASSIGN_OFFDIAG_ZGE);
 	
-	set_symmetrized_DimNames(to, dimnames, -1);
+    } else {
+
+	SEXP uplo = PROTECT(GET_SLOT(from, Matrix_uploSym));
+	char ul = *CHAR(STRING_ELT(uplo, 0));
+	if (ul != 'U')
+	    SET_SLOT(to, Matrix_uploSym, uplo);
+	UNPROTECT(1); /* uplo */
 	
-    } else if (clf[1] == 't') {
+	if (clf[1] != 's') {
 
-	int i, j;
-	char ul = *CHAR(STRING_ELT(uplo, 0)), di = *diag_P(from);
-
+	    SEXP diag = PROTECT(GET_SLOT(from, Matrix_diagSym));
+	    char di = *CHAR(STRING_ELT(diag, 0));
+	    UNPROTECT(1); /* diag */
+	    
+	    int i, j;
+	    
 #define UPM_SYMMPART_TR(_CTYPE_, _PTR_, _ASSIGN_OFFDIAG_, _ASSIGN_ONDIAG_) \
-	do {								\
-	    _CTYPE_ *px = _PTR_(x);					\
-	    if (ul == 'U') {						\
-		for (j = 0; j < n; ++j) {				\
-		    for (i = 0; i < j; ++i, ++px)			\
-			_ASSIGN_OFFDIAG_;				\
-		    px += n-j;						\
+	    do {							\
+		_CTYPE_ *px = _PTR_(x);					\
+		if (ul == 'U') {					\
+		    for (j = 0; j < n; ++j) {				\
+			for (i = 0; i < j; ++i, ++px)			\
+			    _ASSIGN_OFFDIAG_;				\
+			px += n-j;					\
+		    }							\
+		} else {						\
+		    for (j = 0; j < n; ++j) {				\
+			px += j+1;					\
+			for (i = j+1; i < n; ++i, ++px)			\
+			    _ASSIGN_OFFDIAG_;				\
+		    }							\
 		}							\
-	    } else {							\
-		for (j = 0; j < n; ++j) {				\
-		    px += j+1;						\
-		    for (i = j+1; i < n; ++i, ++px)			\
-			_ASSIGN_OFFDIAG_;				\
+		if (di != 'N') {					\
+		    R_xlen_t n1a = (R_xlen_t) n + 1;			\
+		    px = _PTR_(x);					\
+		    for (j = 0; j < n; ++j, px += n1a)			\
+			_ASSIGN_ONDIAG_;				\
 		}							\
-	    }								\
-	    if (di != 'N') {						\
-		R_xlen_t n1a = (R_xlen_t) n + 1;			\
-		px = _PTR_(x);						\
-		for (j = 0; j < n; ++j, px += n1a)			\
-		    _ASSIGN_ONDIAG_;					\
-	    }								\
-	} while (0)
+	    } while (0)
+	    
+	    if (clt[0] != 'z')
+		UPM_SYMMPART_TR(double, REAL,
+				*px *= 0.5,
+				*px  = 1.0);
+	    else
+		UPM_SYMMPART_TR(Rcomplex, COMPLEX,
+				do {
+				    (*px).r *= 0.5;
+				    (*px).i *= 0.5;
+				} while (0),
+				do {
+				    (*px).r  = 1.0;
+				    (*px).i  = 0.0;
+				} while (0));
 	
-	if (clt[0] != 'z')
-	    UPM_SYMMPART_TR(double, REAL,
-			    *px *= 0.5,
-			    *px  = 1.0);
-	else
-	    UPM_SYMMPART_TR(Rcomplex, COMPLEX,
-			    do { (*px).r *= 0.5; (*px).i *= 0.5; } while (0),
-			    do { (*px).r  = 1.0; (*px).i  = 0.0; } while (0));
-	
-	set_symmetrized_DimNames(to, dimnames, -1);
-	SET_SLOT(to, Matrix_uploSym, uplo);
-	
-    } else { /* clf[1] == 's' */
-
-	if (clt[0] == 'z')
-	    /* Symmetric part of Hermitian matrix is real part */
-	    zeroIm(x);
-
-	SET_SLOT(to, Matrix_DimNamesSym, dimnames);	
-	SET_SLOT(to, Matrix_uploSym, uplo);
+	} else { /* clf[1] == 's' */
+	    
+	    if (clt[0] == 'z')
+		/* Symmetric part of Hermitian matrix is real part */
+		zeroIm(x);
+	    
+	}
 	
     }
 
-    UNPROTECT(2);
+    SET_SLOT(to, Matrix_xSym, x);
+    
+    UNPROTECT(2); /* x, to */
     return to;
 }
 
 /* symmpart(x) */
 SEXP matrix_symmpart(SEXP from)
 {
-    SEXP to,
-	dim = getAttrib(from, R_DimSymbol),
-	dimnames = getAttrib(from, R_DimNamesSymbol),
-	x = from;
-    int *pdim = INTEGER(dim), n = pdim[0], i, j, nprotect = 1;
-    R_xlen_t upos = 0, lpos = 0, nn = (R_xlen_t) n * n;
-
+    SEXP dim = PROTECT(getAttrib(from, R_DimSymbol));
+    int *pdim = INTEGER(dim), n = pdim[0];
     if (pdim[1] != n)	
 	error(_("attempt to get symmetric part of non-square matrix"));
+
+    SEXP to, x;
+    PROTECT_INDEX pid;
+    PROTECT_WITH_INDEX(x = from, &pid);
+
+    int i, j;
+    R_xlen_t upos = 0, lpos = 0, nn = (R_xlen_t) n * n;
     
     switch (TYPEOF(x)) {
     case LGLSXP:
     case INTSXP:
-	PROTECT(x = coerceVector(x, REALSXP));
-	++nprotect;
+	REPROTECT(x = coerceVector(x, REALSXP), pid);
     case REALSXP:
 	PROTECT(to = NEW_OBJECT_OF_CLASS("dsyMatrix"));
-	if (MAYBE_REFERENCED(x)) {
-	    PROTECT(x = allocVector(REALSXP, nn));
-	    Memcpy(REAL(x), REAL(from), nn);
-	    ++nprotect;
-	} else {
+	if (!MAYBE_REFERENCED(x))
 	    SET_ATTRIB(x, R_NilValue);
+	else {
+	    REPROTECT(x = allocVector(REALSXP, nn), pid);
+	    Memcpy(REAL(x), REAL(from), nn);
 	}
 	UPM_SYMMPART_GE(double, REAL, ASSIGN_OFFDIAG_DGE);
 	break;
 #ifdef HAVE_PROPER_ZMATRIX
     case CPLXSXP:
 	PROTECT(to = NEW_OBJECT_OF_CLASS("zsyMatrix"));
-	if (MAYBE_REFERENCED(x)) {
-	    PROTECT(x = allocVector(CPLXSXP, nn));
-	    Memcpy(COMPLEX(x), COMPLEX(from), nn);
-	    ++nprotect;
-	} else {
+	if (!MAYBE_REFERENCED(x))
 	    SET_ATTRIB(x, R_NilValue);
+	else {
+	    REPROTECT(x = allocVector(CPLXSXP, nn), pid);
+	    Memcpy(COMPLEX(x), COMPLEX(from), nn);
 	}
 	UPM_SYMMPART_GE(Rcomplex, COMPLEX, ASSIGN_OFFDIAG_ZGE);
 	break;
@@ -904,13 +1453,16 @@ SEXP matrix_symmpart(SEXP from)
 	ERROR_INVALID_TYPE("matrix", TYPEOF(x), "matrix_symmpart");
 	break;
     }
-    
-    SET_SLOT(to, Matrix_DimSym, dim);
-    if (!isNull(dimnames))
-	set_symmetrized_DimNames(to, dimnames, -1);
+
+    if (n > 0)
+	SET_SLOT(to, Matrix_DimSym, dim);
     SET_SLOT(to, Matrix_xSym, x);
 
-    UNPROTECT(nprotect);
+    SEXP dimnames = PROTECT(getAttrib(from, R_DimNamesSymbol));
+    if (!isNull(dimnames))
+	set_symmetrized_DimNames(to, dimnames, -1);
+    
+    UNPROTECT(4); /* dimnames, to, x, dim */
     return to;
 }
 
@@ -923,111 +1475,127 @@ SEXP matrix_symmpart(SEXP from)
 SEXP unpackedMatrix_skewpart(SEXP from)
 {
     static const char *valid[] = {
-	"dgeMatrix", "dtrMatrix", "dsyMatrix",
-	"lgeMatrix", "ltrMatrix", "lsyMatrix",
-	"ngeMatrix", "ntrMatrix", "nsyMatrix", ""};
+	/* 0 */ "dgeMatrix", "lgeMatrix", "ngeMatrix",
+	/* 3 */ "dtrMatrix", "ltrMatrix", "ntrMatrix",
+	/* 6 */ "dsyMatrix", "lsyMatrix", "nsyMatrix", ""};
     int ivalid = R_check_class_etc(from, valid);
     if (ivalid < 0)
-	ERROR_INVALID_CLASS(class_P(from), "unpackedMatrix_skewpart");
+	ERROR_INVALID_CLASS(from, "unpackedMatrix_skewpart");
     const char *clf = valid[ivalid];
 
-    SEXP to,
-	dim = GET_SLOT(from, Matrix_DimSym),
-	dimnames = GET_SLOT(from, Matrix_DimNamesSym),
-	uplo = (clf[1] != 'g') ? GET_SLOT(from, Matrix_uploSym) : R_NilValue,
-	x = GET_SLOT(from, Matrix_xSym);
+    char clt[] = "...Matrix";
+    clt[0] = (clf[0] != 'z') ? 'd' : 'z';
+    clt[1] = (clf[1] != 's') ? 'g' : 's';
+    clt[2] = (clf[1] != 's') ? 'e' : ((clf[0] != 'z') ? 'C' : 'y');
+    SEXP to = PROTECT(NEW_OBJECT_OF_CLASS(clt));
     
+    SEXP dim = PROTECT(GET_SLOT(from, Matrix_DimSym));
     int *pdim = INTEGER(dim), n = pdim[0];
-    if (pdim[1] != n)	
+    if (pdim[1] != n)
 	error(_("attempt to get skew-symmetric part of non-square matrix"));
+    if (n > 0)
+	SET_SLOT(to, Matrix_DimSym, dim);
+    UNPROTECT(1);
 
+    SEXP dimnames = PROTECT(GET_SLOT(from, Matrix_DimNamesSym));
+    if (clf[1] != 's')
+	set_symmetrized_DimNames(to, dimnames, -1);
+    else
+	SET_SLOT(to, Matrix_DimNamesSym, dimnames);
+    UNPROTECT(1);
+
+    char ul = 'U';
+    if (clf[1] != 'g') {
+	SEXP uplo = PROTECT(GET_SLOT(from, Matrix_uploSym));
+	ul = *CHAR(STRING_ELT(uplo, 0));
+	if (clf[1] == 's' && ul != 'U')
+	    SET_SLOT(to, Matrix_uploSym, uplo);
+	UNPROTECT(1); /* uplo */
+    }
+    
+    SEXP x;
+    PROTECT_INDEX pid;
+    PROTECT_WITH_INDEX(x = GET_SLOT(from, Matrix_xSym), &pid);
+    
     if (clf[1] != 's') {
-
+	
 	SEXP y;
-	char ul = (clf[1] != 'g') ? *CHAR(STRING_ELT(uplo, 0)) : 'U';
-	R_xlen_t upos = 0, lpos = 0;
 	int i, j;
-
-#define UPM_SKEWPART(_CTYPE_, _PTR_, _X_, _Y_,				\
-		     _ASSIGN_OFFDIAG_, _ASSIGN_ONDIAG_)			\
-	do {								\
-	    _CTYPE_ *px = _PTR_(_X_), *py = _PTR_(_Y_);			\
-	    if (ul == 'U') {						\
-		for (j = 0; j < n; ++j) {				\
-		    lpos = j;						\
-		    for (i = 0; i < j; ++i) {				\
-			_ASSIGN_OFFDIAG_(upos, lpos);			\
-			++upos; lpos += n;				\
-		    }							\
-		    _ASSIGN_ONDIAG_(upos);				\
-		    upos += n-j;					\
-		}							\
-	    } else {							\
-		for (j = 0; j < n; ++j) {				\
-		    upos = lpos;					\
-		    _ASSIGN_ONDIAG_(lpos);				\
-		    for (i = j+1; i < n; ++i) {				\
-			upos += n; ++lpos;				\
-			_ASSIGN_OFFDIAG_(lpos, upos);			\
-		    }							\
-		    lpos += j+2;					\
-		}							\
-	    }								\
+	R_xlen_t upos = 0, lpos = 0;
+	
+#define UPM_SKEWPART(_CTYPE_, _PTR_, _X_, _Y_,		\
+		     _ASSIGN_OFFDIAG_, _ASSIGN_ONDIAG_)	\
+	do {						\
+	    _CTYPE_ *px = _PTR_(_X_), *py = _PTR_(_Y_);	\
+	    if (ul == 'U') {				\
+		for (j = 0; j < n; ++j) {		\
+		    lpos = j;				\
+		    for (i = 0; i < j; ++i) {		\
+			_ASSIGN_OFFDIAG_(upos, lpos);	\
+			++upos; lpos += n;		\
+		    }					\
+		    _ASSIGN_ONDIAG_(upos);		\
+		    upos += n-j;			\
+		}					\
+	    } else {					\
+		for (j = 0; j < n; ++j) {		\
+		    upos = lpos;			\
+		    _ASSIGN_ONDIAG_(lpos);		\
+		    for (i = j+1; i < n; ++i) {		\
+			upos += n; ++lpos;		\
+			_ASSIGN_OFFDIAG_(lpos, upos);	\
+		    }					\
+		    lpos += j+2;			\
+		}					\
+	    }						\
 	} while (0)
 
-#define ASSIGN_ONDIAG_DGE(_DPOS_) py[_DPOS_] = 0.0
+#define ASSIGN_ONDIAG_DGE(_DPOS_)		\
+	py[_DPOS_] = 0.0
 	
-#define ASSIGN_OFFDIAG_DGE(_UPOS_, _LPOS_)				\
-	    do {							\
-		py[_UPOS_] = 0.5 * (px[_UPOS_] - px[_LPOS_]);		\
-		py[_LPOS_] = -py[_UPOS_];				\
-	    } while (0)
+#define ASSIGN_OFFDIAG_DGE(_UPOS_, _LPOS_)			\
+	do {							\
+	    py[_UPOS_] = 0.5 * (px[_UPOS_] - px[_LPOS_]);	\
+	    py[_LPOS_] = -py[_UPOS_];				\
+	} while (0)
 
-#define ASSIGN_OFFDIAG_DTR(_UPOS_, _LPOS_)			\
-	    do {						\
-		py[_UPOS_] = 0.5 * px[_UPOS_];			\
-		py[_LPOS_] = -py[_UPOS_];			\
-	    } while (0)
+#define ASSIGN_OFFDIAG_DTR(_UPOS_, _LPOS_)	\
+	do {					\
+	    py[_UPOS_] = 0.5 * px[_UPOS_];	\
+	    py[_LPOS_] = -py[_UPOS_];		\
+	} while (0)
 
-#define ASSIGN_ONDIAG_ZGE(_DPOS_) py[_DPOS_].r = py[_DPOS_].i = 0.0
+#define ASSIGN_ONDIAG_ZGE(_DPOS_)		\
+	py[_DPOS_].r = py[_DPOS_].i = 0.0
 	
-#define ASSIGN_OFFDIAG_ZGE(_UPOS_, _LPOS_)				\
-	    do {							\
-		py[_UPOS_].r = 0.5 * (px[_UPOS_].r - px[_LPOS_].r);	\
-		py[_UPOS_].i = 0.5 * (px[_UPOS_].i - px[_LPOS_].i);	\
-		py[_LPOS_].r = -py[upos].r;				\
-		py[_LPOS_].i = -py[upos].i;				\
-	    } while (0)
-
-#define ASSIGN_OFFDIAG_ZTR(_UPOS_, _LPOS_)				\
-	    do {							\
-		py[_UPOS_].r = 0.5 * px[_UPOS_].r;			\
-		py[_UPOS_].i = 0.5 * px[_UPOS_].i;			\
-		py[_LPOS_].r = -py[upos].r;				\
-		py[_LPOS_].i = -py[upos].i;				\
-	    } while (0)
+#define ASSIGN_OFFDIAG_ZGE(_UPOS_, _LPOS_)			\
+	do {							\
+	    py[_UPOS_].r = 0.5 * (px[_UPOS_].r - px[_LPOS_].r);	\
+	    py[_UPOS_].i = 0.5 * (px[_UPOS_].i - px[_LPOS_].i);	\
+	    py[_LPOS_].r = -py[upos].r;				\
+	    py[_LPOS_].i = -py[upos].i;				\
+	} while (0)
+	
+#define ASSIGN_OFFDIAG_ZTR(_UPOS_, _LPOS_)	\
+	do {					\
+	    py[_UPOS_].r = 0.5 * px[_UPOS_].r;	\
+	    py[_UPOS_].i = 0.5 * px[_UPOS_].i;	\
+	    py[_LPOS_].r = -py[upos].r;		\
+	    py[_LPOS_].i = -py[upos].i;		\
+	} while (0)
 	
 	if (clf[0] != 'z') {
-	    PROTECT(to = NEW_OBJECT_OF_CLASS("dgeMatrix"));
-	    if (clf[0] == 'd') {
+	    if (clf[0] == 'd')
 		PROTECT(y = allocVector(REALSXP, (R_xlen_t) n * n));
-		if (clf[1] == 'g')
-		    UPM_SKEWPART(double, REAL, x, y,
-				 ASSIGN_OFFDIAG_DGE, ASSIGN_ONDIAG_DGE);
-		else
-		    UPM_SKEWPART(double, REAL, x, y,
-				 ASSIGN_OFFDIAG_DTR, ASSIGN_ONDIAG_DGE);
-	    } else {
-		PROTECT(y = coerceVector(x, REALSXP));
-		if (clf[1] == 'g')
-		    UPM_SKEWPART(double, REAL, y, y,
-				 ASSIGN_OFFDIAG_DGE, ASSIGN_ONDIAG_DGE);
-		else
-		    UPM_SKEWPART(double, REAL, y, y,
-				 ASSIGN_OFFDIAG_DTR, ASSIGN_ONDIAG_DGE);
-	    }
+	    else
+		PROTECT(x = y = coerceVector(x, REALSXP));
+	    if (clf[1] == 'g')
+		UPM_SKEWPART(double, REAL, x, y,
+			     ASSIGN_OFFDIAG_DGE, ASSIGN_ONDIAG_DGE);
+	    else
+		UPM_SKEWPART(double, REAL, x, y,
+			     ASSIGN_OFFDIAG_DTR, ASSIGN_ONDIAG_DGE);
 	} else { /* clf[0] == 'z' */
-	    PROTECT(to = NEW_OBJECT_OF_CLASS("zgeMatrix"));
 	    PROTECT(y = allocVector(CPLXSXP, (R_xlen_t) n * n));
 	    if (clf[1] == 'g')
 		UPM_SKEWPART(Rcomplex, COMPLEX, x, y,
@@ -1036,83 +1604,76 @@ SEXP unpackedMatrix_skewpart(SEXP from)
 		UPM_SKEWPART(Rcomplex, COMPLEX, x, y,
 			     ASSIGN_OFFDIAG_ZTR, ASSIGN_ONDIAG_ZGE);
 	}
-
-	SET_SLOT(to, Matrix_DimSym, dim);
-	set_symmetrized_DimNames(to, dimnames, -1);
+	
 	SET_SLOT(to, Matrix_xSym, y);
-
+	UNPROTECT(1); /* y */
+	
     } else { /* clf[1] == 's' */
 
 	if (clf[0] != 'z') {
 	    /* Skew-symmetric part of symmetric matrix is zero matrix */
-	    PROTECT(to = NEW_OBJECT_OF_CLASS("dsCMatrix"));
 	    R_xlen_t n1a = (R_xlen_t) n + 1;
 	    SEXP p = PROTECT(allocVector(INTSXP, n1a));
 	    int *pp = INTEGER(p);
 	    Memzero(pp, n1a);
 	    SET_SLOT(to, Matrix_pSym, p);
+	    UNPROTECT(1); /* p */
 	} else {
 	    /* Skew-symmetric part of Hermitian matrix is imaginary part */
-	    PROTECT(to = NEW_OBJECT_OF_CLASS(clf));
-	    PROTECT(x = duplicate(GET_SLOT(from, Matrix_xSym)));
+	    REPROTECT(x = duplicate(x), pid);
 	    zeroRe(x);
 	    SET_SLOT(to, Matrix_xSym, x);
 	}
-
-	SET_SLOT(to, Matrix_DimSym, dim);
-	SET_SLOT(to, Matrix_DimNamesSym, dimnames);
-	SET_SLOT(to, Matrix_uploSym, uplo);
-
+	
     }
 
-    UNPROTECT(2);
+    UNPROTECT(2); /* x, to */
     return to;
 }
 
 /* skewpart(x) */
 SEXP matrix_skewpart(SEXP from)
 {
-    SEXP to,
-	dim = getAttrib(from, R_DimSymbol),
-	dimnames = getAttrib(from, R_DimNamesSymbol),
-	x = from;
-    int *pdim = INTEGER(dim), n = pdim[0], i, j, nprotect = 1;
-    R_xlen_t upos = 0, lpos = 0;
-    char ul = 'U';
-    
+    SEXP dim = PROTECT(getAttrib(from, R_DimSymbol));
+    int *pdim = INTEGER(dim), n = pdim[0];
     if (pdim[1] != n)	
 	error(_("attempt to get skew-symmetric part of non-square matrix"));
+
+    SEXP to, x;
+    PROTECT_INDEX pid;
+    PROTECT_WITH_INDEX(x = from, &pid);
+
+    char ul = 'U';
+    int i, j;
+    R_xlen_t upos = 0, lpos = 0;
     
     switch (TYPEOF(x)) {
     case LGLSXP:
     case INTSXP:
-	PROTECT(x = coerceVector(x, REALSXP));
-	++nprotect;
+	REPROTECT(x = coerceVector(x, REALSXP), pid);
     case REALSXP:
 	PROTECT(to = NEW_OBJECT_OF_CLASS("dgeMatrix"));
-	if (MAYBE_REFERENCED(x)) {
-	    PROTECT(x = allocVector(REALSXP, (R_xlen_t) n * n));
-	    UPM_SKEWPART(double, REAL, from, x,
-			 ASSIGN_OFFDIAG_DGE, ASSIGN_ONDIAG_DGE);
-	    ++nprotect;
-	} else {
+	if (!MAYBE_REFERENCED(x)) {
 	    SET_ATTRIB(x, R_NilValue);
 	    UPM_SKEWPART(double, REAL, x, x,
+			 ASSIGN_OFFDIAG_DGE, ASSIGN_ONDIAG_DGE);
+	} else {
+	    REPROTECT(x = allocVector(REALSXP, (R_xlen_t) n * n), pid);
+	    UPM_SKEWPART(double, REAL, from, x,
 			 ASSIGN_OFFDIAG_DGE, ASSIGN_ONDIAG_DGE);
 	}
 	break;
 #ifdef HAVE_PROPER_ZMATRIX
     case CPLXSXP:
 	PROTECT(to = NEW_OBJECT_OF_CLASS("zgeMatrix"));
-	if (MAYBE_REFERENCED(from)) {
-	    PROTECT(x = allocVector(CPLXSXP, (R_xlen_t) n * n));
-	    UPM_SKEWPART(Rcomplex, COMPLEX, from, x,
-			 ASSIGN_OFFDIAG_ZGE, ASSIGN_ONDIAG_ZGE);
-	    ++nprotect;
-	} else {
+	if (!MAYBE_REFERENCED(from)) {
 	    SET_ATTRIB(x, R_NilValue);
 	    UPM_SKEWPART(Rcomplex, COMPLEX, x, x,
 			 ASSIGN_OFFDIAG_DGE, ASSIGN_ONDIAG_DGE);
+	} else {
+	    REPROTECT(x = allocVector(CPLXSXP, (R_xlen_t) n * n), pid);
+	    UPM_SKEWPART(Rcomplex, COMPLEX, from, x,
+			 ASSIGN_OFFDIAG_ZGE, ASSIGN_ONDIAG_ZGE);
 	}
 	break;
 #endif
@@ -1120,13 +1681,16 @@ SEXP matrix_skewpart(SEXP from)
 	ERROR_INVALID_TYPE("matrix", TYPEOF(x), "matrix_skewpart");
 	break;
     }
-    
-    SET_SLOT(to, Matrix_DimSym, dim);
+
+    if (n > 0)
+	SET_SLOT(to, Matrix_DimSym, dim);
+    SET_SLOT(to, Matrix_xSym, x);
+
+    SEXP dimnames = PROTECT(getAttrib(from, R_DimNamesSymbol));
     if (!isNull(dimnames))
 	set_symmetrized_DimNames(to, dimnames, -1);
-    SET_SLOT(to, Matrix_xSym, x);
-    
-    UNPROTECT(nprotect);
+
+    UNPROTECT(4); /* dimnames, to, x, dim */
     return to;
 }
 

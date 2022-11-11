@@ -2,80 +2,79 @@
 \title{General Sparse Matrix Construction from Nonzero Entries}
 \alias{sparseMatrix}
 \description{
-  User friendly construction of a compressed, column-oriented, sparse
-  matrix, inheriting from \code{\link{class}}
-  \code{\linkS4class{CsparseMatrix}} (or
-  \code{\linkS4class{TsparseMatrix}} if \code{giveCsparse} is false),
-  from locations (and values) of its non-zero entries.
+  User-friendly construction of sparse matrices (inheriting from
+  virtual \code{\link{class}} \code{\linkS4class{CsparseMatrix}},
+  \code{\linkS4class{RsparseMatrix}}, or
+  \code{\linkS4class{TsparseMatrix}})
+  from the positions and values of their nonzero entries.
 
-  This is the recommended user interface rather than direct
-  \code{\link{new}("***Matrix", ....)} calls.
+  This interface is recommended over direct construction via
+  calls such as \code{\link{new}("..[CRT]Matrix", ...)}.
 }
 \usage{
-sparseMatrix(i = ep, j = ep, p, x, dims, dimnames,
+sparseMatrix(i, j, p, x, dims, dimnames,
              symmetric = FALSE, triangular = FALSE, index1 = TRUE,
-             repr = "C", giveCsparse = (repr == "C"),
+             repr = c("C", "R", "T"), giveCsparse,
              check = TRUE, use.last.ij = FALSE)
 }
 \arguments{
-  \item{i,j}{integer vectors of the same length specifying the locations
-    (row and column indices) of the non-zero (or non-\code{TRUE})
-    entries of the matrix.  Note that for \emph{repeated} pairs
-    \eqn{(i_k,j_k)}, when \code{x} is not missing, the corresponding
-    \eqn{x_k} are \emph{added}, in consistency with the definition of
-    the \code{"\linkS4class{TsparseMatrix}"} class, unless
-    \code{use.last.ij} is true, in which case only the \emph{last} of
-    the corresponding \eqn{(i_k, j_k, x_k)} triplet is used.}
-  \item{p}{numeric (integer valued) vector of pointers, one for each
-    column (or row), to the initial (zero-based) index of elements in the
-    column (or row).  Exactly one of \code{i}, \code{j} or \code{p} must
-    be missing.}
-  \item{x}{
-    optional values of the matrix entries.  If specified, must be of
-    the same length as \code{i} / \code{j}, or of
-    length one where it will be recycled to full length.  If missing,
-    the resulting matrix will be a 0/1 patter\bold{n} matrix, i.e.,
-    extending class \code{\linkS4class{nsparseMatrix}}.
-  }
-  \item{dims}{optional, non-negative, integer, dimensions vector of
-    length 2.  Defaults to \code{c(max(i), max(j))}.}
-  \item{dimnames}{optional list of \code{\link{dimnames}}; if not
-    specified, none, i.e., \code{\link{NULL}} ones, are used.}
-  \item{symmetric}{logical indicating if the resulting matrix should be
-    symmetric.  In that case, only the lower or upper triangle needs to
-    be specified via \eqn{(i/j/p)}.}
-  \item{triangular}{logical indicating if the resulting matrix should be
-    triangular.  In that case, the lower or upper triangle needs to
-    be specified via \eqn{(i/j/p)}.}
-  \item{index1}{logical scalar.  If \code{TRUE}, the default, the index
-    vectors \code{i} and/or \code{j} are 1-based, as is the convention
-    in \R.  That is, counting of rows and columns starts at 1.  If
-    \code{FALSE} the index vectors are 0-based so counting of rows and
-    columns starts at 0; this corresponds to the internal representation.}
+  \item{i,j}{integer vectors of equal length specifying the positions
+    (row and column indices) of the nonzero (or non-\code{TRUE}) entries
+    of the matrix.  Note that, when \code{x} is non-missing, the
+    \eqn{x_k} corresponding to \emph{repeated} pairs \eqn{(i_k,j_k)}
+    are \emph{added}, for consistency with the definition of class
+    \code{\linkS4class{TsparseMatrix}}, unless \code{use.last.ij} is
+    \code{TRUE}, in which case only the \emph{last} such \eqn{x_k} is
+    used.}
+  \item{p}{integer vector of pointers, one for each column (or row),
+    to the initial (zero-based) index of elements in the column (or row).
+    Exactly one of \code{i}, \code{j}, and \code{p} must be missing.}
+  \item{x}{optional, typically nonzero values for the matrix entries.
+    If specified, then the length must equal that of \code{i}
+    (or \code{j}) or equal 1, in which case \code{x} is recycled as
+    necessary.  If missing, then the result is a \bold{n}onzero pattern
+    matrix, i.e., inheriting from class \code{\linkS4class{nsparseMatrix}}.}
+  \item{dims}{optional length-2 integer vector of matrix dimensions.
+    If missing, then \code{!index1+c(max(i),max(j))} is used.}
+  \item{dimnames}{optional list of \code{\link{dimnames}}; if missing,
+    then \code{\link{NULL}} ones are used.}
+  \item{symmetric}{logical indicating if the resulting matrix should
+    be symmetric.  In that case, \eqn{(i,j,p)} should specify only one
+    triangle (upper or lower).}
+  \item{triangular}{logical indicating if the resulting matrix should
+    be triangular.  In that case, \eqn{(i,j,p)} should specify only one
+    triangle (upper or lower).}
+  \item{index1}{logical.  If \code{TRUE} (the default), then \code{i}
+    and \code{j} are interpreted as 1-based indices, following the \R
+    convention.  That is, counting of rows and columns starts at 1.
+    If \code{FALSE}, then they are interpreted as 0-based indices.}
   \item{repr}{\code{\link{character}} string, one of \code{"C"},
-    \code{"T"}, or \code{"R"}, specifying the sparse \emph{repr}esentation to
-    be used for the result, i.e., one from the super classes
-    \code{\linkS4class{CsparseMatrix}}, \code{\linkS4class{TsparseMatrix}}, or
-    \code{\linkS4class{RsparseMatrix}}.}
-  \item{giveCsparse}{(\bold{deprecated}, replaced with \code{repr}):
-    logical indicating if the result should be a
-    \code{\linkS4class{CsparseMatrix}} or a
-    \code{\linkS4class{TsparseMatrix}}, where the default was \code{TRUE},
-    and now is determined from \code{repr}; very often Csparse matrices are
-    more efficient subsequently, but not always.}
-  \item{check}{logical indicating if a validity check is performed; do
-    not set to \code{FALSE} unless you know what you're doing!}
-  \item{use.last.ij}{logical indicating if in the case of repeated,
-    i.e., duplicated pairs \eqn{(i_k, j_k)} only the last one should be
-    used.  The default, \code{FALSE}, corresponds to the
-    \code{"\linkS4class{TsparseMatrix}"} definition.}
+    \code{"R"}, and \code{"T"}, specifying the \bold{repr}esentation
+    of the sparse matrix result, i.e., specifying one of the virtual
+    classes \code{\linkS4class{CsparseMatrix}},
+    \code{\linkS4class{RsparseMatrix}}, and
+    \code{\linkS4class{TsparseMatrix}}.}
+  \item{giveCsparse}{(\bold{deprecated}, replaced by \code{repr})
+    logical indicating if the result should inherit from
+    \code{\linkS4class{CsparseMatrix}} or
+    \code{\linkS4class{TsparseMatrix}}.
+    Note that operations involving \code{CsparseMatrix} are very often
+    (but not always) more efficient.}
+  \item{check}{logical indicating whether to check that the result is
+    formally valid before returning.  Do not set to \code{FALSE} unless
+    you know what you are doing!}
+  \item{use.last.ij}{logical indicating if, in the case of repeated
+    (duplicated) pairs \eqn{(i_k,j_k)}, only the last pair should be
+    used.  \code{FALSE} (the default) is consistent with the definiton
+    of class \code{\linkS4class{TsparseMatrix}}.}
 }
 \value{
-  A sparse matrix, by default (from \code{repr = "C"}) in compressed,
-  column-oriented form, as an \R object inheriting from both
-  \code{\linkS4class{CsparseMatrix}} and \code{\linkS4class{generalMatrix}}.
+  A sparse matrix, by default in compressed sparse column format and
+  (formally) without symmetric or triangular structure, i.e.,
+  by default inheriting from both \code{\linkS4class{CsparseMatrix}}
+  and \code{\linkS4class{generalMatrix}}.
 }
-\details{
+\details{ % FIXME: quite a bit of repetition here (and below) ...
   Exactly one of the arguments \code{i}, \code{j} and \code{p} must be
   missing.
 
@@ -101,9 +100,9 @@ sparseMatrix(i = ep, j = ep, p, x, dims, dimnames,
   when some pairs \eqn{(i_k,j_k)} are repeated (aka
   \dQuote{duplicated}), the corresponding \eqn{x_k} are \emph{added}, in
   consistency with the definition of the
-  \code{"\linkS4class{TsparseMatrix}"} class, unless \code{use.last.ij}
+  \code{\linkS4class{TsparseMatrix}} class, unless \code{use.last.ij}
   is set to true.
-  %%
+  
   By default, when \code{repr = "C"}, the \code{\linkS4class{CsparseMatrix}}
   derived from this triplet form is returned, where \code{repr = "R"} now
   allows to directly get an \code{\linkS4class{RsparseMatrix}} and

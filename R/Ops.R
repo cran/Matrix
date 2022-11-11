@@ -323,9 +323,9 @@ Ops.x.x <- function(e1, e2)
 			    extends(c2, "triangularMatrix")) {
 			if(!(geM <- e1@uplo != e2@uplo || isN0(callGeneric(0,0)))) {
 			    if(e1@diag == "U")
-                                e1 <- .dense.diagU2N(e1)
+                                e1 <- ..diagU2N(e1)
 			    if(e2@diag == "U")
-                                e2 <- .dense.diagU2N(e2)
+                                e2 <- ..diagU2N(e2)
 			    p1 <- isPacked(e1)
 			    p2 <- isPacked(e2)
 			    if(p1 || p2) { ## at least one is packed
@@ -1083,8 +1083,8 @@ setMethod("Arith", signature(e1 = "dsCMatrix", e2 = "dsCMatrix"),
     dn <- dimNamesCheck(e1, e2, check = check.dimnames)
     if(triangular) {
 	## need these for the 'x' slots in any case
-	if (e1@diag == "U") e1 <- .Call(Csparse_diagU2N, e1)
-	if (e2@diag == "U") e2 <- .Call(Csparse_diagU2N, e2)
+	e1 <- .Call(R_sparse_diag_U2N, e1)
+	e2 <- .Call(R_sparse_diag_U2N, e2)
         ## slightly more efficient than non0.i() or non0ind():
 	ij1 <- .Call(compressed_non_0_ij, e1, isC=TRUE)
 	ij2 <- .Call(compressed_non_0_ij, e2, isC=TRUE)
@@ -1303,6 +1303,18 @@ setMethod("Arith", signature(e1 = "logical", e2 = "dgCMatrix"), A.n.M)
 setMethod("Arith", signature(e1 = "numeric", e2 = "dsparseMatrix"), .Arith.atom.CM)
 setMethod("Arith", signature(e1 = "logical", e2 = "dsparseMatrix"), .Arith.atom.CM)
 rm(A.M.n, A.n.M)
+
+
+##-------- originally from ./dgTMatrix.R --------------------
+
+## Uses the triplet convention of *adding* entries with same (i,j):
+setMethod("+", signature(e1 = "dgTMatrix", e2 = "dgTMatrix"),
+          function(e1, e2) {
+              dimCheck(e1, e2)
+              new("dgTMatrix", i = c(e1@i, e2@i), j = c(e1@j, e2@j),
+                  x = c(e1@x, e2@x), Dim = e1@Dim, Dimnames = e1@Dimnames)
+          })
+
 
 ##-------- originally from ./Csparse.R --------------------
 

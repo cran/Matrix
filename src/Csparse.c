@@ -4,7 +4,6 @@
  * Sparse matrices in compressed column-oriented form
  */
 #include "Csparse.h"
-#include "Tsparse.h"
 #include "chm_common.h"
 #include "cs_utils.h" /* -> ./cs.h  for cs_dmperm() */
 
@@ -37,11 +36,6 @@ Rboolean isValid_Csparse(SEXP x)
     return TRUE;
 }
 
-SEXP Csparse_validate(SEXP x) {
-    return Csparse_validate_(x, FALSE);
-}
-
-
 #define _t_Csparse_validate
 #include "t_Csparse_validate.c"
 
@@ -58,6 +52,14 @@ SEXP Csparse_sort (SEXP x) {
    int ok = Csparse_sort_2(x, TRUE); // modifying x directly
    if(!ok) warning(_("Csparse_sort(x): x is not a valid (apart from sorting) CsparseMatrix"));
    return x;
+}
+
+/* MJ: no longer needed ... replacement in ./validate.c */
+#if 0
+
+SEXP Csparse_validate(SEXP x)
+{
+    return Csparse_validate_(x, FALSE);
 }
 
 SEXP Rsparse_validate(SEXP x)
@@ -104,6 +106,8 @@ SEXP Rsparse_validate(SEXP x)
 
     return ScalarLogical(1);
 }
+
+#endif /* MJ */
 
 /* MJ: no longer needed ... prefer R_sparse_as_dense() */
 #if 0
@@ -329,6 +333,9 @@ SEXP Csparse_to_vector(SEXP x)
 
 #endif /* MJ */
 
+/* MJ: no longer needed ... prefer CRsparse_as_Tsparse() */
+#if 0
+
 SEXP Csparse_to_Tsparse(SEXP x, SEXP tri)
 {
     CHM_SP chxs = AS_CHM_SP__(x);
@@ -342,6 +349,8 @@ SEXP Csparse_to_Tsparse(SEXP x, SEXP tri)
 			       Rkind, tr ? diag_P(x) : "",
 			       GET_SLOT(x, Matrix_DimNamesSym));
 }
+
+#endif /* MJ */
 
 /* MJ: unused */
 #if 0
@@ -369,7 +378,7 @@ SEXP Csparse_to_tTsparse(SEXP x, SEXP uplo, SEXP diag)
 			       GET_SLOT(x, Matrix_DimNamesSym));
 }
 
-#endif
+#endif /* MJ */
 
 /* MJ: no longer needed ... prefer R_sparse_as_general() */
 #if 0
@@ -773,7 +782,7 @@ SEXP Csparse_crossprod(SEXP x, SEXP trans, SEXP triplet, SEXP bool_arith)
 #ifdef AS_CHM_DIAGU2N_FIXED_FINALLY
     CHM_TR cht = tripl ? AS_CHM_TR(x) : (CHM_TR) NULL;  int nprot = 1;
 #else /* workaround needed:*/
-    SEXP xx = PROTECT(Tsparse_diagU2N(x));
+    SEXP xx = PROTECT(R_sparse_diag_U2N(x));
     CHM_TR cht = tripl ? AS_CHM_TR__(xx) : (CHM_TR) NULL; int nprot = 2;
 #endif
     CHM_SP chcp, chxt, chxc,
@@ -933,6 +942,9 @@ SEXP Csparse_band(SEXP x, SEXP k1, SEXP k2)
 
 #endif /* MJ */
 
+/* MJ: no longer needed ... prefer R_sparse_diag_(U2N|N2U)() */
+#if 0
+
 SEXP Csparse_diagU2N(SEXP x)
 {
     const char *cl = class_P(x);
@@ -983,6 +995,8 @@ SEXP Csparse_diagN2U(SEXP x)
 	return ans;
     }
 }
+
+#endif
 
 /**
  * Indexing aka subsetting : Compute  x[i,j], also for vectors i and j

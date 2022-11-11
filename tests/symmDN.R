@@ -144,4 +144,39 @@ stopifnot(identical(new("dgeMatrix", x = as.double(1:4), Dim = c(2L, 2L),
 
 stopifnot(vapply(ldn, isSDN1, NA) == vapply(ldn, isSDN2, NA))
 
+
+## cov2cor(),  dimScale()  etc -- matrix-Bugs [#6783]  2022-10-23 by Ben  Bolker
+"https://r-forge.r-project.org/tracker/?func=detail&atid=294&aid=6783&group_id=61"
+
+## base R vs Matrix cov2cor()
+m <- diag(1:3)
+dimnames(m) <- adn <- list(LETTERS[1:3], letters[1:3]) # MM: *a*symmetric dimnames ..
+Md <- as(m, "denseMatrix")
+Ms <- as(m, "sparseMatrix")
+stopifnot(exprs = {
+    identical(adn, dimnames(cov2cor(m)))
+    identical((dn2 <- rep(adn[2], 2)), dimnames(ms <- forceSymmetric(m))) # a b c for *both* rows & cols
+    identical( dn2, dimnames(cMd <- cov2cor(Md)))
+    identical( dn2, dimnames(cMs <- cov2cor(Ms))) # gave error in Matrix <= 1.5-1
+    all.equal(as(cMd, "sparseMatrix"), cMs, tol=1e-15) # see even tol=0
+})
+
+dns <- rep(list(letters[1:3]), 2)
+m <- matrix(1:9, 3, dimnames = dns); m <- (m+t(m))/2 + 2*diag(3) # to be pos.def.
+m
+(cm <- cov2cor(m))
+(cM <- cov2cor(M <- as(m, "denseMatrix")))
+stopifnot(exprs = {
+    identical(dns, dimnames(cm))
+    inherits(cM, "dpoMatrix")
+    identical(dns, dimnames(cM))
+    inherits((cS <- cov2cor(S <- as(m, "sparseMatrix"))), "dsCMatrix")
+    identical(dns, dimnames(cS))
+    all.equal(cS, dimScale(S))
+    all.equal(as(cM, "sparseMatrix"), cS,      tol=2e-15) # see even tol=0
+    all.equal(cM, as(dimScale(M),"dpoMatrix"), tol=2e-15) # seen 1.665e-16
+})
+
+
+
 cat("Time elapsed:", proc.time(), "\n") # "stats"

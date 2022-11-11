@@ -1,27 +1,5 @@
 #include "sparseQR.h"
 
-SEXP sparseQR_validate(SEXP x)
-{
-    CSP V = AS_CSP__(GET_SLOT(x, Matrix_VSym)),
-	R = AS_CSP__(GET_SLOT(x, Matrix_RSym));
-    SEXP beta = GET_SLOT(x, Matrix_betaSym),
-	p = GET_SLOT(x, Matrix_pSym),
-	q = GET_SLOT(x, install("q"));
-    R_CheckStack();
-
-    if (LENGTH(p) != V->m)
-	return mkString(_("length(p) must match nrow(V)"));
-    if (LENGTH(beta) != V->n)
-	return mkString(_("length(beta) must match ncol(V)"));
-    int	lq = LENGTH(q);
-    if (lq && lq != R->n)
-	return mkString(_("length(q) must be zero or ncol(R)"));
-    if (V->n != R->n)
-	return mkString("ncol(V) != ncol(R)");
-    /* FIXME: Check that the permutations are permutations */
-    return ScalarLogical(1);
-}
-
 /**
  * Apply Householder transformations and the row permutation P to y
  *
@@ -146,7 +124,7 @@ SEXP sparseQR_qty(SEXP qr, SEXP y, SEXP trans, SEXP keep_dimnames)
 // Compute  qr.coef(qr, y)  :=  R^{-1} Q' y   {modulo row and column permutations}
 SEXP sparseQR_coef(SEXP qr, SEXP y)
 {
-    SEXP qslot = GET_SLOT(qr, install("q")), R_ = GET_SLOT(qr, Matrix_RSym);
+    SEXP qslot = GET_SLOT(qr, Matrix_qSym), R_ = GET_SLOT(qr, Matrix_RSym);
     CSP	R = AS_CSP__(R_);
     // FIXME: check  n_R, M (= R->m)   vs  n, m
     int *q = INTEGER(qslot), lq = LENGTH(qslot), n_R = R->n; // = ncol(R)

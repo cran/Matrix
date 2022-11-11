@@ -1,16 +1,13 @@
 #ifndef MATRIX_POMATRIX_H
 #define MATRIX_POMATRIX_H
 
-#include "Lapack-etc.h"
-#include "Mutils.h"
+#include "dsyMatrix.h"
 
-SEXP dpoMatrix_validate(SEXP obj);
-SEXP corMatrix_validate(SEXP obj);
+SEXP dpoMatrix_trf_(SEXP obj,  int warn);
+SEXP dpoMatrix_trf (SEXP obj, SEXP warn);
 
-SEXP dpoMatrix_rcond(SEXP obj, SEXP type);
+SEXP dpoMatrix_rcond(SEXP obj);
 SEXP dpoMatrix_solve(SEXP a);
 SEXP dpoMatrix_matrix_solve(SEXP a, SEXP b);
-SEXP dpoMatrix_chol(SEXP x);
-double get_norm_sy(SEXP obj, const char *typstr);
 
 #endif

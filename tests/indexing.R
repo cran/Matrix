@@ -1066,8 +1066,8 @@ stopifnot(identical(drop(M3), M3),
 	  !is(T3[,2, drop=FALSE], "triangularMatrix")
 	  )
 
-(T6 <- as(as(kronecker(Matrix(c(0,0,1,0),2,2), t(T3)), "lMatrix"),
-	  "triangularMatrix"))
+(T6 <- as(as(as(kronecker(Matrix(c(0,0,1,0),2,2), t(T3)),
+                "lMatrix"), "triangularMatrix"), "TsparseMatrix"))
 T6[1:4, -(1:3)] # failed (trying to coerce back to ltTMatrix)
 stopifnot(identical(T6[1:4, -(1:3)][2:3, -3],
 		    spMatrix(2,2, i=c(1,2,2), j=c(1,1,2), x=rep(TRUE,3))))

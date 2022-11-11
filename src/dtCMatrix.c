@@ -2,6 +2,9 @@
 #include "dtCMatrix.h"
 #include "cs_utils.h"
 
+/* MJ: no longer needed ... replacement in ./validity.c */
+#if 0
+
 #define RETURN(_CH_)   UNPROTECT(1); return (_CH_);
 
 /* This is used for *BOTH* triangular and symmetric Csparse: */
@@ -74,6 +77,8 @@ SEXP tRMatrix_validate(SEXP x)
     }
 }
 
+#endif /* MJ */
+
 SEXP dtCMatrix_matrix_solve(SEXP a, SEXP b, SEXP classed)
 {
     int cl = asLogical(classed);
@@ -109,7 +114,8 @@ SEXP dtCMatrix_matrix_solve(SEXP a, SEXP b, SEXP classed)
 	for (j = 0; j < nrhs; j++)
 	    lo ? cs_lsolve(A, bx + n_ * j) : cs_usolve(A, bx + n_ * j);
     }
-    RETURN(ans);
+    UNPROTECT(1);
+    return ans;
 }
 
 SEXP dtCMatrix_sparse_solve(SEXP a, SEXP b)
@@ -164,9 +170,7 @@ SEXP dtCMatrix_sparse_solve(SEXP a, SEXP b)
     SET_VECTOR_ELT(dn, 0, duplicate(VECTOR_ELT(GET_SLOT(a, Matrix_DimNamesSym), 1)));
     SET_VECTOR_ELT(dn, 1, duplicate(VECTOR_ELT(GET_SLOT(b, Matrix_DimNamesSym), 1)));
     SET_SLOT(ans, Matrix_DimNamesSym, dn);
-    UNPROTECT(1);
-
-    RETURN(ans);
+    UNPROTECT(2);
+    return ans;
 }
-#undef RETURN
 

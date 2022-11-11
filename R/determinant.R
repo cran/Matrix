@@ -4,7 +4,7 @@
 ## Constructor for "det" objects, used liberally below
 .mkDet <- function(d, logarithm = TRUE,
                    ldet = sum(log(abs(d))),
-                   sig = -1L+2L*as.integer(prod(sign(d)) >= 0)) {
+                   sig = if(prod(sign(d)) < 0) -1L else 1L) {
     ##             ^^^ -1 or 1, never 0
     modulus <- if(logarithm) ldet else exp(ldet)
     attr(modulus, "logarithm") <- logarithm
@@ -61,16 +61,23 @@
 
 ## ~~~~ SYMMETRIC ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-## Compute product of determinants in Cholesky factorization;
-## if that fails due to non-positive definiteness, then go via "general"
+## Compute product of determinants in Bunch-Kaufman factorization
+
+.det.dsy <- function(x, logarithm, ...)
+    .Call(dsyMatrix_determinant, x, logarithm)
+
+.det.dsp <- function(x, logarithm, ...)
+    .Call(dspMatrix_determinant, x, logarithm)
+
+## Compute product of determinants in Cholesky factorization
 
 .det.dpo <- function(x, logarithm, ...) {
-    cholx <- .Call(dpoMatrix_chol, x)
+    cholx <- .Call(dpoMatrix_trf, x, 2L)
     .mkDet(, logarithm, ldet = 2 * sum(log(abs(diag(cholx)))), sig = 1L)
 }
 
 .det.dpp <- function(x, logarithm, ...) {
-    cholx <- .Call(dppMatrix_chol, x)
+    cholx <- .Call(dppMatrix_trf, x, 2L)
     .mkDet(, logarithm, ldet = 2 * sum(log(abs(diag(cholx)))), sig = 1L)
 }
 
@@ -79,21 +86,8 @@
     .mkDet(.Call(diag_tC, cholx, res.kind = "diag"), logarithm)
 }
 
-.det.dsy <- function(x, logarithm, ...) {
-    if(x@Dim[1L] <= 1L)
-        .mkDet(diag(x, names = FALSE), logarithm)
-    else
-        tryCatch(suppressWarnings(.det.dpo(x, logarithm)),
-                 error = function(e) .det.dge(.dense2g(x, "."), logarithm))
-}
-
-.det.dsp <- function(x, logarithm, ...) {
-    if(x@Dim[1L] <= 1L)
-        .mkDet(diag(x, names = FALSE), logarithm)
-    else
-        tryCatch(suppressWarnings(.det.dpp(x, logarithm)),
-                 error = function(e) .det.dge(.dense2g(x, "."), logarithm))
-}
+## Compute product of determinants in Cholesky factorization;
+## if that fails due to non-positive definiteness, then go via "general"
 
 .det.dsC <- function(x, logarithm, ...) {
     if(x@Dim[1L] <= 1L)
@@ -108,15 +102,15 @@
 
 setMethod("determinant",
           signature(x = "Matrix", logarithm = "missing"),
-          function(x, logarithm, ...) callGeneric(x, TRUE, ...))
+          function(x, logarithm, ...) determinant(x, TRUE, ...))
 
 setMethod("determinant",
           signature(x = "MatrixFactorization", logarithm = "missing"),
-          function(x, logarithm, ...) callGeneric(x, TRUE, ...))
+          function(x, logarithm, ...) determinant(x, TRUE, ...))
 
 setMethod("determinant",
           signature(x = "Matrix", logarithm = "logical"),
-          function(x, logarithm, ...) callGeneric(as(x, "dMatrix"), logarithm, ...))
+          function(x, logarithm, ...) determinant(as(x, "dMatrix"), logarithm, ...))
 
 setMethod("determinant",
           signature(x = "triangularMatrix", logarithm = "logical"),

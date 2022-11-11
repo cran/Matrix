@@ -1,27 +1,30 @@
 \name{diagU2N}
 \title{Transform Triangular Matrices from Unit Triangular to General Triangular and Back}
 %
-\alias{diagN2U}
 \alias{diagU2N}
+\alias{diagN2U}
 \alias{.diagU2N}
+\alias{.diagN2U}
 %
 \description{
   Transform a triangular matrix \code{x}, i.e., of \code{\link{class}}
-  \code{"\linkS4class{triangularMatrix}"},
+  \code{\linkS4class{triangularMatrix}},
   from (internally!) unit triangular (\dQuote{unitriangular}) to
   \dQuote{general} triangular (\code{diagU2N(x)}) or back (\code{diagN2U(x)}).
   Note that the latter, \code{diagN2U(x)}, also sets the diagonal to one
   in cases where \code{diag(x)} was not all one.
-
-  \code{.diagU2N(x)} assumes but does \emph{not} check that \code{x} is
-  a \code{\linkS4class{triangularMatrix}} with \code{diag} slot
-  \code{"U"}, and should hence be used with care.
+  
+  \code{.diagU2N(x)} and \code{.diagN2U(x)} assume \emph{without}
+  checking that \code{x} is a \code{\linkS4class{triangularMatrix}} with
+  suitable \code{diag} slot (\code{"U"} and \code{"N"}, respectively),
+  hence they should be used with care.
 }
 \usage{
- diagN2U(x, cl = getClassDef(class(x)), checkDense = FALSE)
  diagU2N(x, cl = getClassDef(class(x)), checkDense = FALSE)
+ diagN2U(x, cl = getClassDef(class(x)), checkDense = FALSE)
+
 .diagU2N(x, cl = getClassDef(class(x)), checkDense = FALSE)
-%.diagN2U(x, cl = getClassDef(class(x)), checkDense = FALSE) % export?
+.diagN2U(x, cl = getClassDef(class(x)), checkDense = FALSE)
 }
 \arguments{
   \item{x}{a \code{\linkS4class{triangularMatrix}}, often sparse.}

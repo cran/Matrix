@@ -49,7 +49,7 @@ setMethod("chol", signature(x = "dsyMatrix"),
           function(x, ...) {
               if(!is.null(ch <- x@factors[["Cholesky"]]))
                   return(ch) # use the cache
-              tryCatch(.Call(dpoMatrix_chol, if(x@uplo == "U") x else t(x)),
+              tryCatch(.Call(dpoMatrix_trf, if(x@uplo == "U") x else t(x), 2L),
                        error = function(e) stop("chol(x) is undefined: 'x' is not positive definite"))
           })
 
@@ -57,7 +57,7 @@ setMethod("chol", signature(x = "dspMatrix"),
           function(x, ...) {
               if(!is.null(ch <- x@factors[["pCholesky"]]))
                   return(ch) # use the cache
-              tryCatch(.Call(dppMatrix_chol, if(x@uplo == "U") x else t(x)),
+              tryCatch(.Call(dppMatrix_trf, if(x@uplo == "U") x else t(x), 2L),
                        error = function(e) stop("chol(x) is undefined: 'x' is not positive definite"))
           })
 
@@ -157,8 +157,8 @@ setMethod("chol2inv", signature(x = "denseMatrix"), # ->dtrMatrix
 
 setMethod("chol2inv", signature(x = "dtrMatrix"),
 	  function (x, ...) {
-	      if(x@diag == "U")
-                  x <- .dense.diagU2N(x)
+	      if(x@diag != "N")
+                  x <- ..diagU2N(x)
 	      .Call(dtrMatrix_chol2inv, x)
 	  })
 

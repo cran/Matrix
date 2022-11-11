@@ -119,7 +119,7 @@ setMethod("cov2cor", signature(V = "Matrix"),
               Is <- Diagonal(x = Is)
               r <- Is %*% V %*% Is
 	      r[cbind(1:p,1:p)] <- 1 # exact in diagonal
-	      as(forceSymmetric(r), "dpoMatrix")
+	      as(forceSymmetric(`dimnames<-`(r,  dimnames(V))), "dpoMatrix")
           })
 
 ## MJ: no longer needed ... replacement in ./unpackedMatrix.R
@@ -133,12 +133,6 @@ setMethod("symmpart", signature(x = "matrix"),
 setMethod("skewpart", signature(x = "matrix"),
           function(x) symmetrizeDimnames(x - t(x)) / 2)
 } ## MJ
-
-setMethod("symmpart", signature(x = "Matrix"),
-	  function(x) symmpart(as(x, "dMatrix")))
-
-setMethod("skewpart", signature(x = "Matrix"),
-	  function(x) skewpart(as(x, "dMatrix")))
 
 setMethod("dim", signature(x = "Matrix"), function(x) x@Dim)
 
@@ -442,21 +436,6 @@ Matrix <- function(data = NA, nrow = 1, ncol = 1, byrow = FALSE,
 }
 }
 
-## There are special sparse methods in  ./kronecker.R  ; this is a "fall back":
-setMethod("kronecker", signature(X = "Matrix", Y = "ANY",
-				 FUN = "ANY", make.dimnames = "ANY"),
-	  function(X, Y, FUN, make.dimnames, ...) {
-	      if(is(X, "sparseMatrix"))
-		  warning("using slow kronecker() method")
-	      X <- as(X, "matrix") ; Matrix(callGeneric()) })
-
-setMethod("kronecker", signature(X = "ANY", Y = "Matrix",
-				 FUN = "ANY", make.dimnames = "ANY"),
-	  function(X, Y, FUN, make.dimnames, ...) {
-	      if(is(Y, "sparseMatrix"))
-		  warning("using slow kronecker() method")
-	      Y <- as(Y, "matrix") ; Matrix(callGeneric()) })
-
 ## The ``Right Thing'' to do :
 ## base::det() calls [base::]determinant();
 ## our det() should call our determinant() :
@@ -651,7 +630,7 @@ subset.ij <- function(x, ij) {
 	    tri.x <- extends(cld, "triangularMatrix")
 	    if(tri.x) {
 		## need these for the 'x' slot in any case
-		if (x@diag == "U") x <- .Call(Csparse_diagU2N, x)
+		x <- .Call(R_sparse_diag_U2N, x)
 		## slightly more efficient than non0.i() or non0ind():
 		ij.x <- .Call(compressed_non_0_ij, x, isC=TRUE)
 	    } else { ## symmetric / general : for symmetric, only "existing" part

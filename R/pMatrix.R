@@ -53,7 +53,8 @@ setAs("matrix", "pMatrix",
 
 ## ~~~~ METHODS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-## pMatrix are orthogonal, hence the transpose and inverse coincide
+## NB: pMatrix are orthogonal, hence the transpose and inverse coincide
+
 setMethod("t", signature(x = "pMatrix"),
           function(x) {
               x@perm <- invPerm(x@perm)
@@ -61,41 +62,162 @@ setMethod("t", signature(x = "pMatrix"),
               x
           })
 
-## FIXME: none of these handle '[dD]imnames' consistently with base products
+## setMethod("%*%", signature(x = "pMatrix", y = "matrix"), .) # inherited
+
+## setMethod("%*%", signature(x = "pMatrix", y = "Matrix"), .) # inherited
+
+## setMethod("%*%", signature(x = "pMatrix", y = "indMatrix"), .) # inherited
 
 setMethod("%*%", signature(x = "matrix", y = "pMatrix"),
-	  function(x, y) { mmultCheck(x,y); x[, invPerm(y@perm)] })
+	  function(x, y) {
+              mmultDim(dim(x), y@Dim, type = 1L)
+              r <- .m2ge(x[, invPerm(y@perm), drop = FALSE], "d")
+              r@Dimnames <- mmultDimnames(dimnames(x), y@Dimnames, type = 1L)
+              r
+          })
+
 setMethod("%*%", signature(x = "Matrix", y = "pMatrix"),
-	  function(x, y) { mmultCheck(x,y); x[, invPerm(y@perm)] })
-
-setMethod("%*%", signature(x = "pMatrix", y = "pMatrix"),
 	  function(x, y) {
-              stopifnot(identical(x@Dim, y@Dim))
-	      x@perm <- x@perm[y@perm]
-	      x
-	  })
+              mmultDim(x@Dim, y@Dim, type = 1L)
+              r <- as(x[, invPerm(y@perm), drop = FALSE], "dMatrix")
+              r@Dimnames <- mmultDimnames(dimnames(x), y@Dimnames, type = 1L)
+              r
+          })
 
-setMethod("crossprod", signature(x = "pMatrix", y = "matrix"),
-	  function(x, y) { mmultCheck(x,y, 2L); y[invPerm(x@perm) ,]})
-setMethod("crossprod", signature(x = "pMatrix", y = "Matrix"),
-	  function(x, y) { mmultCheck(x,y, 2L); y[invPerm(x@perm) ,]})
-setMethod("crossprod", signature(x = "pMatrix", y = "pMatrix"),
+setMethod("%*%", signature(x = "indMatrix", y = "pMatrix"),
+          function(x, y) {
+              mmultDim(x@Dim, y@Dim, type = 1L)
+              x@perm <- y@perm[x@perm]
+              x@Dimnames <- mmultDimnames(x@Dimnames, y@Dimnames, type = 1L)
+              x
+          })
+
+## setMethod("%&%", signature(x = "pMatrix", y = "matrix"), .) # inherited
+
+## setMethod("%&%", signature(x = "pMatrix", y = "Matrix"), .) # inherited
+
+## setMethod("%&%", signature(x = "pMatrix", y = "indMatrix"), .) # inherited
+
+setMethod("%&%", signature(x = "matrix", y = "pMatrix"),
 	  function(x, y) {
-	      stopifnot(identical(x@Dim, y@Dim))
-	      x@perm <- invPerm(x@perm)[y@perm]
-	      x
-	  })
+              mmultDim(dim(x), y@Dim, type = 1L)
+              r <- .m2ge(x[, invPerm(y@perm), drop = FALSE], "n")
+              r@Dimnames <- mmultDimnames(dimnames(x), y@Dimnames, type = 1L)
+              r
+          })
 
-setMethod("tcrossprod", signature(x = "pMatrix", y = "pMatrix"),
+setMethod("%&%", signature(x = "Matrix", y = "pMatrix"),
 	  function(x, y) {
-	      stopifnot(identical(x@Dim, y@Dim))
-	      x@perm <- x@perm[invPerm(y@perm)]
-	      x
-	  })
+              mmultDim(x@Dim, y@Dim, type = 1L)
+              r <- as(x[, invPerm(y@perm), drop = FALSE], "nMatrix")
+              r@Dimnames <- mmultDimnames(dimnames(x), y@Dimnames, type = 1L)
+              r
+          })
 
+setMethod("%&%", signature(x = "indMatrix", y = "pMatrix"),
+          function(x, y) {
+              mmultDim(x@Dim, y@Dim, type = 1L)
+              x@perm <- y@perm[x@perm]
+              x@Dimnames <- mmultDimnames(x@Dimnames, y@Dimnames, type = 1L)
+              x
+          })
 
 setMethod("crossprod", signature(x = "pMatrix", y = "missing"),
-          function(x, y=NULL) Diagonal(nrow(x)))
+          function(x, y = NULL, boolArith = NA, ...) {
+              r <- new(if(isTRUE(boolArith)) "ldiMatrix" else "ddiMatrix")
+              r@Dim <- x@Dim
+              r@Dimnames <- x@Dimnames[c(2L, 2L)]
+              r@diag <- "U"
+              r
+          })
+
+setMethod("crossprod", signature(x = "pMatrix", y = "matrix"),
+	  function(x, y = NULL, boolArith = NA, ...) {
+              mmultDim(x@Dim, dim(y), type = 2L)
+              r <- .m2ge(y[invPerm(x@perm), , drop = FALSE],
+                         if(isTRUE(boolArith)) "n" else "d")
+              r@Dimnames <- mmultDimnames(x@Dimnames, dimnames(y), type = 2L)
+              r
+          })
+
+setMethod("crossprod", signature(x = "pMatrix", y = "Matrix"),
+	  function(x, y = NULL, boolArith = NA, ...) {
+              mmultDim(x@Dim, y@Dim, type = 2L)
+              r <- as(y[invPerm(x@perm), , drop = FALSE],
+                      if(isTRUE(boolArith)) "nMatrix" else "dMatrix")
+              r@Dimnames <- mmultDimnames(x@Dimnames, dimnames(y), type = 2L)
+              r
+          })
+
+setMethod("crossprod", signature(x = "pMatrix", y = "indMatrix"),
+	  function(x, y = NULL, ...) {
+              mmultDim(x@Dim, y@Dim, type = 2L)
+	      y@perm <- y@perm[invPerm(x@perm)]
+              y@Dimnames <- mmultDimnames(x@Dimnames, y@Dimnames, type = 2L)
+	      y
+	  })
+
+setMethod("crossprod", signature(x = "matrix", y = "pMatrix"),
+	  function(x, y = NULL, boolArith = NA, ...) {
+              mmultDim(dim(x), y@Dim, type = 2L)
+              r <- .m2ge(t(x)[, invPerm(y@perm), drop = FALSE],
+                         if(isTRUE(boolArith)) "n" else "d")
+              r@Dimnames <- mmultDimnames(dimnames(x), y@Dimnames, type = 2L)
+              r
+          })
+
+setMethod("crossprod", signature(x = "Matrix", y = "pMatrix"),
+	  function(x, y = NULL, boolArith = NA, ...) {
+              mmultDim(x@Dim, y@Dim, type = 2L)
+              r <- as(t(x)[, invPerm(y@perm), drop = FALSE],
+                      if(isTRUE(boolArith)) "nMatrix" else "dMatrix")
+              r@Dimnames <- mmultDimnames(dimnames(x), y@Dimnames, type = 2L)
+              r
+          })
+
+## setMethod("crossprod", signature(x = "indMatrix", y = "pMatrix"), .) # inherited
+
 setMethod("tcrossprod", signature(x = "pMatrix", y = "missing"),
-          function(x, y=NULL) Diagonal(nrow(x)))
+          function(x, y = NULL, boolArith = NA, ...) {
+              r <- new(if(isTRUE(boolArith)) "ldiMatrix" else "ddiMatrix")
+              r@Dim <- x@Dim
+              r@Dimnames <- x@Dimnames[c(1L, 1L)]
+              r@diag <- "U"
+              r
+          })
+
+## setMethod("tcrossprod", signature(x = "pMatrix", y = "matrix"), .) # inherited
+
+## setMethod("tcrossprod", signature(x = "pMatrix", y = "Matrix"), .) # inherited
+
+## setMethod("tcrossprod", signature(x = "pMatrix", y = "indMatrix"), .) # inherited
+
+setMethod("tcrossprod", signature(x = "matrix", y = "pMatrix"),
+	  function(x, y = NULL, boolArith = NA, ...) {
+              mmultDim(dim(x), y@Dim, type = 3L)
+              r <- .m2ge(x[, y@perm, drop = FALSE],
+                         if(isTRUE(boolArith)) "n" else "d")
+              r@Dimnames <- mmultDimnames(dimnames(x), y@Dimnames, type = 3L)
+              r
+          })
+
+setMethod("tcrossprod", signature(x = "Matrix", y = "pMatrix"),
+	  function(x, y = NULL, boolArith = NA, ...) {
+              mmultDim(x@Dim, y@Dim, type = 3L)
+              r <- as(t(x)[, y@perm, drop = FALSE],
+                      if(isTRUE(boolArith)) "nMatrix" else "dMatrix")
+              r@Dimnames <- mmultDimnames(dimnames(x), y@Dimnames, type = 3L)
+              r
+          })
+
+setMethod("tcrossprod", signature(x = "indMatrix", y = "pMatrix"),
+	  function(x, y = NULL, ...) {
+              mmultDim(x@Dim, y@Dim, type = 3L)
+              x@perm <- invPerm(y@perm)[x@perm]
+	      x@Dimnames <- mmultDimnames(x@Dimnames, y@Dimnames, type = 3L)
+	      x
+	  })
+
+
+
 

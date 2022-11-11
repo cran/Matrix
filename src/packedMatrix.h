@@ -1,14 +1,13 @@
 #ifndef MATRIX_PAMATRIX_H
 #define MATRIX_PAMATRIX_H
 
-#include "Lapack-etc.h"
 #include "Mutils.h"
 
 SEXP packedMatrix_unpack(SEXP from, SEXP strict);
 SEXP packedMatrix_force_symmetric(SEXP from, SEXP uplo_to);
 
-SEXP packedMatrix_is_symmetric(SEXP obj, SEXP checkDN);
 SEXP packedMatrix_is_triangular(SEXP obj, SEXP upper);
+SEXP packedMatrix_is_symmetric(SEXP obj, SEXP checkDN);
 SEXP packedMatrix_is_diagonal(SEXP obj);
 
 SEXP packedMatrix_transpose(SEXP from);

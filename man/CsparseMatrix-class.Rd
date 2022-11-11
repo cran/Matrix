@@ -23,6 +23,7 @@
 \alias{coerce,matrix,CsparseMatrix-method}
 \alias{coerce,numLike,CsparseMatrix-method}
 \alias{diag,CsparseMatrix-method}
+\alias{diag<-,CsparseMatrix-method}
 \alias{log,CsparseMatrix-method}
 \alias{t,CsparseMatrix-method}
 %

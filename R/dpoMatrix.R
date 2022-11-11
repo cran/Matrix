@@ -5,7 +5,8 @@
 ## ~~~~ COERCIONS TO ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .dsy2dpo <- function(from) {
-    if(is.null(tryCatch(.Call(dpoMatrix_chol, from), error = function(e) NULL)))
+    if(is.null(tryCatch(.Call(dpoMatrix_trf, from, 2L),
+                        error = function(e) NULL)))
         stop("not a positive definite matrix")
     ## FIXME: check=FALSE
     copyClass(from, "dpoMatrix",

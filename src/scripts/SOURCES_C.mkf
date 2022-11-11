@@ -1,8 +1,6 @@
 SOURCES_C =  \
 	    CHMfactor.c \
 	    Csparse.c \
-            TMatrix_as.c \
-	    Tsparse.c \
 	    init.c \
             Mutils.c \
 	    chm_common.c \
@@ -10,7 +8,6 @@ SOURCES_C =  \
 	    cs_utils.c \
             dense.c \
             dgCMatrix.c \
-            dgTMatrix.c \
             dgeMatrix.c \
             dpoMatrix.c \
             dppMatrix.c \
@@ -18,14 +15,13 @@ SOURCES_C =  \
             dsyMatrix.c \
             dspMatrix.c \
             dtCMatrix.c \
-            dtTMatrix.c \
             dtrMatrix.c \
             dtpMatrix.c \
             factorizations.c \
-	    ldense.c \
-	    lgCMatrix.c \
 	    sparseQR.c \
+	    sparseVector.c \
 	    abIndex.c \
 	    packedMatrix.c \
 	    unpackedMatrix.c \
-	    sparse.c
+	    sparse.c \
+	    validity.c

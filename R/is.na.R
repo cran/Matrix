@@ -27,6 +27,7 @@ for(.kind in c("d", "l")) {
                   anyNA(x@x[k])
               })
 }
+rm(.kind)
 
 setMethod("anyNA", signature(x = "nsparseVector"),
           function(x) FALSE)
@@ -149,7 +150,8 @@ for(.kind in c("d", "l"))
                   get(paste0(".is.na.", .xx),
                       mode = "function", inherits = FALSE))
 rm(.is.na.ge, .is.na.tr, .is.na.tp,
-   .is.na.sy, .is.na.sp)
+   .is.na.sy, .is.na.sp,
+   .kind, .xx)
 
 setMethod("is.na", signature(x = "sparseVector"),
 	  function(x) new("nsparseVector", length = x@length,
@@ -272,7 +274,8 @@ for(.kind in c("d", "l"))
                   get(paste0(".is.finite.", .xx),
                       mode = "function", inherits = FALSE))
 rm(.is.finite.ge, .is.finite.tr, .is.finite.tp,
-   .is.finite.sy, .is.finite.sp, ..allTrueMatrix)
+   .is.finite.sy, .is.finite.sp, ..allTrueMatrix,
+   .kind, .xx)
 
 setMethod("is.finite", signature(x = "sparseVector"),
 	  function(x)  {
@@ -286,6 +289,7 @@ setMethod("is.finite", signature(x = "nsparseVector"),
 
 
 ## METHODS FOR GENERIC: is.infinite
+## NB: completely (!) parallel to 'is.infinite'
 ## [[ one more in ./abIndex.R ]]
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -375,7 +379,8 @@ for(.xx in c("ge", "tr", "tp", "sy", "sp"))
               get(paste0(".is.infinite.", .xx),
                   mode = "function", inherits = FALSE))
 rm(.is.infinite.ge, .is.infinite.tr, .is.infinite.tp,
-   .is.infinite.sy, .is.infinite.sp)
+   .is.infinite.sy, .is.infinite.sp,
+   .xx)
 
 setMethod("is.infinite", signature(x = "sparseVector"),
 	  function(x) new("nsparseVector", length = x@length,
@@ -384,4 +389,104 @@ setMethod("is.infinite", signature(x = "sparseVector"),
 setMethod("is.infinite", signature(x = "nsparseVector"),
 	  function(x) new("nsparseVector", length = x@length))
 
-rm(.kind, .xx)
+
+## METHODS FOR GENERIC: is.nan
+## NB: completely (!) parallel to 'is.infinite'
+## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+setMethod("is.nan", signature(x = "ddiMatrix"),
+          function(x) {
+              r <- new("ldiMatrix")
+              r@Dim <- d <- x@Dim
+              r@Dimnames <- x@Dimnames
+              r@x <- if(x@diag == "N") is.nan(x@x) else logical(d[1L])
+              r
+          })
+
+setMethod("is.nan", signature(x = "indMatrix"),
+          allFalseMatrix)
+
+setMethod("is.nan", signature(x = "nMatrix"),
+          allFalseMatrix)
+
+setMethod("is.nan", signature(x = "lMatrix"),
+          allFalseMatrix)
+
+setMethod("is.nan", signature(x = "dsparseMatrix"),
+	  function(x) {
+              if(any(is.nan(x@x))) {
+                  r <- .sparse2kind(x <- diagU2N(x), "l", drop0 = FALSE)
+                  r@x <- is.nan(x@x)
+                  .sparse2kind(r, "n", drop0 = TRUE)
+              } else allFalseMatrix(x)
+	  })
+
+.is.nan.ge <- function(x) {
+    if(any(i <- is.nan(x@x)))
+        new("ngeMatrix", Dim = x@Dim, Dimnames = x@Dimnames, x = i)
+    else allFalseMatrix(x)
+}
+
+.is.nan.tr <- function(x) {
+    if(any(i <- is.nan(x@x))) {
+        d <- x@Dim
+        k <- indTri(n = d[1L], upper = x@uplo != "U",
+                    diag = x@diag != "N", packed = FALSE)
+        i[k] <- FALSE
+        if(any(i))
+            new("ntrMatrix", Dim = d, Dimnames = x@Dimnames,
+                x = i, uplo = x@uplo)
+        else allFalseMatrix(x)
+    } else allFalseMatrix(x)
+}
+
+.is.nan.tp <- function(x) {
+    if(any(i <- is.nan(x@x))) {
+        d <- x@Dim
+        if(x@diag != "N") {
+            k <- indDiag(n = d[1L], upper = x@uplo == "U",
+                         packed = TRUE)
+            i[k] <- FALSE
+        }
+        if(any(i))
+            new("ntpMatrix", Dim = d, Dimnames = x@Dimnames,
+                x = i, uplo = x@uplo)
+        else allFalseMatrix(x)
+    } else allFalseMatrix(x)
+}
+
+.is.nan.sy <- function(x) {
+    if(any(i <- is.nan(x@x))) {
+        d <- x@Dim
+        k <- indTri(n = d[1L], upper = x@uplo != "U",
+                    diag = FALSE, packed = FALSE)
+        i[k] <- FALSE
+        if(any(i))
+            new("nsyMatrix", Dim = d, Dimnames = x@Dimnames,
+                x = i, uplo = x@uplo)
+        else allFalseMatrix(x)
+    } else allFalseMatrix(x)
+}
+
+.is.nan.sp <- function(x) {
+    if(any(i <- is.nan(x@x)))
+        new("nspMatrix", Dim = x@Dim, Dimnames = x@Dimnames,
+            x = i, uplo = x@uplo)
+    else allFalseMatrix(x)
+}
+
+for(.xx in c("ge", "tr", "tp", "sy", "sp"))
+    setMethod("is.nan", signature(x = paste0("d", .xx, "Matrix")),
+              get(paste0(".is.nan.", .xx),
+                  mode = "function", inherits = FALSE))
+rm(.is.nan.ge, .is.nan.tr, .is.nan.tp,
+   .is.nan.sy, .is.nan.sp,
+   .xx)
+
+setMethod("is.nan", signature(x = "sparseVector"),
+	  function(x) new("nsparseVector", length = x@length,
+                          i = x@i[is.nan(x@x)]))
+
+setMethod("is.nan", signature(x = "nsparseVector"),
+	  function(x) new("nsparseVector", length = x@length))
+

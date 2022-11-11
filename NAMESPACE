@@ -3,15 +3,16 @@ useDynLib(Matrix, .registration=TRUE)
 ## Import functions we need explicitly, notably for which we define methods:
 importFrom("grDevices", colorRampPalette, grey)
 importFrom("graphics", par, image)
-importFrom("grid", grid.rect, gpar, grob)# others via 'grid::'
+importFrom("grid", grid.rect, gpar)# others via 'grid::'
 importFrom("lattice", levelplot, panel.levelplot.raster)
 
-importFrom("utils", str, head, tail, assignInNamespace, capture.output)
+importFrom("utils", str, head, tail, capture.output)
 importFrom("stats"
          , "contrasts<-", cov2cor
          , diffinv, model.frame, rnorm, runif
          , symnum, terms
          , toeplitz, update#, vcov
+         , setNames
            )
 
 ## try to import all we need, but not more
@@ -26,10 +27,13 @@ importFrom("methods"
          , as, is, extends, new
          , callGeneric, callNextMethod
          , .selectSuperClasses, .slotNames, canCoerce, packageSlot
-         , getClass, getClassDef, isClassDef, validObject
+         , getClass, getClassDef, getGroupMembers, isClassDef, implicitGeneric
          , setClass, setClassUnion, setMethod, setOldClass
          , setValidity, slot, "slot<-", slotNames, .hasSlot
-         , signature, representation, prototype)
+         , signature, representation, prototype
+         , setAs, setGeneric, setReplaceMethod
+	 , validObject
+           )
 
 
 
@@ -63,8 +67,9 @@ export("%&%",
        .m2ngCn, .m2ngC, .m2ngTn,
        .diag.dsC,# -> R/dsCMatrix.R --has FIXME
        .solve.dgC.chol, .solve.dgC.qr, .solve.dgC.lu,
-       "diagN2U", "diagU2N", .diagU2N, .diag2tT, .diag2sT, .diag2mat,
-       dmperm,
+       "diagN2U", "diagU2N", .diagN2U, .diagU2N, .diag2tT, .diag2sT, .diag2mat,
+       "dimScale", "rowScale", "colScale",
+       "dmperm",
        "drop0",
        "expand",
        "expm",
@@ -95,10 +100,10 @@ export("%&%",
        "skewpart",
        "tril", "triu",
        "updown",
-       "pack", "unpack"
-       , .updateCHMfactor
-       , .validateCsparse
-       , "writeMM"
+       "pack", "unpack",
+       .updateCHMfactor,
+       .validateCsparse,
+       "writeMM"
        )
 
 ## substitute for using  cbind() / rbind()

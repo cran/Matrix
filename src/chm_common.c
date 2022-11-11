@@ -5,7 +5,7 @@
 
 Rboolean isValid_Csparse(SEXP x); /* -> Csparse.c */
 
-SEXP get_SuiteSparse_version() {
+SEXP get_SuiteSparse_version(void) {
     SEXP ans = allocVector(INTSXP, 3);
     int* version = INTEGER(ans);
     SuiteSparse_version(version);
@@ -22,7 +22,7 @@ static SEXP dboundSym, grow0Sym, grow1Sym, grow2Sym, maxrankSym,
     prefer_zomplexSym, prefer_upperSym, quick_return_if_not_posdefSym,
     nmethodsSym, m0_ordSym, postorderSym;
 
-void CHM_store_common() {
+void CHM_store_common(void) {
     SEXP rho = chm_common_env;
     defineVar(dboundSym, ScalarReal(c.dbound), rho);
     defineVar(grow0Sym, ScalarReal(c.grow0), rho);
@@ -47,7 +47,7 @@ void CHM_store_common() {
     defineVar(postorderSym, ScalarLogical(c.postorder), rho);
 }
 
-void CHM_restore_common() {
+void CHM_restore_common(void) {
     SEXP rho = chm_common_env, var;
 
 #define SET_AS_FROM_FRAME(_V_, _KIND_, _SYM_)	\
@@ -1288,21 +1288,3 @@ void chm_diagN2U(CHM_SP chx, int uploT, Rboolean do_realloc)
 	cholmod_reallocate_sparse(n_nnz, chx, &c);
     return;
 }
-
-/* Placeholders; TODO: use checks above (search "CHMfactor_validate"): */
-
-SEXP CHMfactor_validate(SEXP obj) /* placeholder */
-{
-    return ScalarLogical(1);
-}
-
-SEXP CHMsimpl_validate(SEXP obj) /* placeholder */
-{
-    return ScalarLogical(1);
-}
-
-SEXP CHMsuper_validate(SEXP obj) /* placeholder */
-{
-    return ScalarLogical(1);
-}
-

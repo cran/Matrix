@@ -1,5 +1,5 @@
 
-R version 4.2.1 Patched (2022-08-02 r82656) -- "Funny-Looking Kid"
+R Under development (unstable) (2022-10-12 r83083) -- "Unsuffered Consequences"
 Copyright (C) 2022 The R Foundation for Statistical Computing
 Platform: aarch64-apple-darwin20 (64-bit)
 
@@ -184,7 +184,7 @@ M[m,i,m] : nargs()=3
 M[m,i,m] : nargs()=3
 Csp[m,i,l] : nargs()=4
 > showProc.time()
-Time (user system elapsed): 0.198 0.006 0.204 
+Time (user system elapsed): 0.197 0.01 0.207 
 > 
 > ## Bug found thanks to Timothy Mak, Feb 3, 2017:
 > ## sparseMatrix logical indexing with (partial) NA:
@@ -272,7 +272,7 @@ replCmat[x,i,j,..,val] : nargs()=3; missing (i,j) = (0,1)
 diagnosing replTmat(x,i,j,v): nargs()= 3; missing (i,j) = (0,1)
 > ms <- t(rbind2(ms, 3*ms))
 > cnam1 <- capture.output(show(ms))[2] ; op <- options("sparse.colnames" = "abb3")
-   [[ suppressing 14 column names 'ra', 'rb', 'rc' ... ]]
+  [[ suppressing 14 column names 'ra', 'rb', 'rc' ... ]]
 > cnam2 <- capture.output(show(ms))[2] ; options(op) # revert
 > stopifnot(## sparse printing
 + 	  grep("^ +$", cnam1) == 1, # cnam1 is empty
@@ -329,7 +329,7 @@ M[logi,m,m] : nargs()=2
 M[logi,m,m] : nargs()=2
 M[logi,m,m] : nargs()=2
 > showProc.time()
-Time (user system elapsed): 0.071 0.002 0.073 
+Time (user system elapsed): 0.071 0.003 0.075 
 > 
 > ## more sparse Matrices --------------------------------------
 > 
@@ -654,7 +654,7 @@ FALSE
 M[i,m,m] : nargs()=3
 Csp[i,m,l] : nargs()=4
 2 x 20 sparse Matrix of class "ngCMatrix"
-   [[ suppressing 20 column names 'c1', 'c2', 'c3' ... ]]
+  [[ suppressing 20 column names 'c1', 'c2', 'c3' ... ]]
                                           
 r1 . . . | . . | . . . . | . . | . | . . .
 r2 . | . . . | . . . . . . | | . . . . | .
@@ -883,7 +883,7 @@ FALSE
 M[i,m,m] : nargs()=3
 Csp[i,m,l] : nargs()=4
 2 x 20 sparse Matrix of class "lgCMatrix"
-   [[ suppressing 20 column names 'c1', 'c2', 'c3' ... ]]
+  [[ suppressing 20 column names 'c1', 'c2', 'c3' ... ]]
                                           
 r1 . . . | . . | . . . . | . . | . | . . .
 r2 . | . . . | . . . . . . | | . . . . | .
@@ -1106,7 +1106,7 @@ r21 r22 r23 r24 r25 r26 r27 r28 r29 r30 r31 r32 r33 r34 r35 r36 r37 r38 r39 r40
 M[i,m,m] : nargs()=3
 Csp[i,m,l] : nargs()=4
 2 x 20 sparse Matrix of class "dgCMatrix"
-   [[ suppressing 20 column names 'c1', 'c2', 'c3' ... ]]
+  [[ suppressing 20 column names 'c1', 'c2', 'c3' ... ]]
                                                              
 r1 .  . . 121 .   . 241 . . . . 441   .   . 561 . 641 .   . .
 r2 . 42 .   . . 202   . . . . .   . 482 522   . .   . . 722 .
@@ -1138,7 +1138,7 @@ ok( d )
 == ###======================================================================
 
 > showProc.time()
-Time (user system elapsed): 0.319 0.01 0.328 
+Time (user system elapsed): 0.308 0.008 0.316 
 > 
 > if(doExtras) {### {was ./AAA_index.R, MM-only}
 +     ## an nsparse-example
@@ -1363,7 +1363,7 @@ Csp[i,i,l] : nargs()=4
 M[i,i,m] : nargs()=3
 Csp[i,i,l] : nargs()=4
 > showProc.time()
-Time (user system elapsed): 0.098 0.002 0.101 
+Time (user system elapsed): 0.094 0.002 0.096 
 > 
 > stopifnot(all.equal(mC[,3], mm[,3]),
 + 	  identical(mC[ij], mC[ij + 0.4]),
@@ -1504,7 +1504,7 @@ Csp[i,i,l] : nargs()=4
 > head(x.x.) # Note the *non*-structural 0's printed as "0"
 Csp[i,m,l] : nargs()=4
 6 x 20 sparse Matrix of class "dgCMatrix"
-   [[ suppressing 20 column names 'c1', 'c2', 'c3' ... ]]
+  [[ suppressing 20 column names 'c1', 'c2', 'c3' ... ]]
                                                            
 c1 1 0 .  1  .  1  1  3  .  3  2  1  6  1  .  2  4  6  5  1
 c2 0 6 2  1  3  5  7  5 12 14 14  9 11 16 12 13 17 19 19 10
@@ -1515,7 +1515,7 @@ c6 1 5 2  8  4 42  5 19 14  9  8 10 42 56 50 27 29 32 64 16
 > tail(x.x., -3) # all but the first three lines
 Csp[i,m,l] : nargs()=4
 17 x 20 sparse Matrix of class "dgCMatrix"
-   [[ suppressing 20 column names 'c1', 'c2', 'c3' ... ]]
+  [[ suppressing 20 column names 'c1', 'c2', 'c3' ... ]]
                                                                            
 c4  1  1  . 17  .  8  10 13   8   6  18  18  29  35  14   8  25  10  19  21
 c5  .  3  4  . 14  4  10  .   .  29   8   9  19  11  11   .   .  26  26  16
@@ -1540,7 +1540,7 @@ c20 1 10  7 21 16 16 121 44  25  32 129 106 155  81  86   . 100 111  55 541
 M[i,i,m] : nargs()=3
 Csp[i,i,l] : nargs()=4
 10 x 10 sparse Matrix of class "lsCMatrix"
-   [[ suppressing 10 column names 'c1', 'c2', 'c3' ... ]]
+  [[ suppressing 10 column names 'c1', 'c2', 'c3' ... ]]
                        
 c1  | | . | . | | | . |
 c2  | | | | | | | | | |
@@ -1556,7 +1556,7 @@ c10 | | | | | | | | | |
 M[i,m,m] : nargs()=3
 Csp[i,m,l] : nargs()=4
 3 x 20 sparse Matrix of class "lgCMatrix"
-   [[ suppressing 20 column names 'c1', 'c2', 'c3' ... ]]
+  [[ suppressing 20 column names 'c1', 'c2', 'c3' ... ]]
                                           
 c1 | | . | . | | | . | | | | | . | | | | |
 c2 | | | | | | | | | | | | | | | | | | | |
@@ -1678,14 +1678,14 @@ Csp[i,m,l] : nargs()=4
 M[m,i,m] : nargs()=3
 Csp[m,i,l] : nargs()=4
 > showProc.time()
-Time (user system elapsed): 0.082 0.004 0.085 
+Time (user system elapsed): 0.077 0.004 0.081 
 > 
 > ##---  "nsparse*" sub-assignment :----------
 > M <- Matrix(c(1, rep(0,7), 1:4), 3,4)
 > N0 <- kronecker(M,M)
 > Nn <- as(N0, "nMatrix"); nn <- as(Nn,"matrix")
 > (Nn00 <- Nn0 <- Nn); nn00 <- nn0 <- nn
-9 x 16 sparse Matrix of class "ngTMatrix"
+9 x 16 sparse Matrix of class "ngCMatrix"
                                      
  [1,] | . . | . . . . . . . . | . . |
  [2,] . . . | . . . . . . . . . . . |
@@ -1732,118 +1732,120 @@ Time (user system elapsed): 0.082 0.004 0.085
 +         cat("Now: class", class(Nn0)," :\n~~~~~~~~~~~~~~~~~\n")
 +     }
 + }
-,.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=24; 
-k.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; missing (i,j) = (0,1)
-.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; missing (i,j) = (1,0)
-.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; 
-.,.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=24; 
-k.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; missing (i,j) = (0,1)
-.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; missing (i,j) = (1,0)
-.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; 
-.,.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=24; 
-k.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; missing (i,j) = (0,1)
-.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; missing (i,j) = (1,0)
-.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; 
-.,.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=24; 
-k.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; missing (i,j) = (0,1)
-.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; missing (i,j) = (1,0)
-.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; 
-.,.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=24; 
-k.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; missing (i,j) = (0,1)
-.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; missing (i,j) = (1,0)
-.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; 
-.,.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=24; 
-k.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; missing (i,j) = (0,1)
-.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; missing (i,j) = (1,0)
-.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; 
-.,.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=24; 
-k.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; missing (i,j) = (0,1)
-.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; missing (i,j) = (1,0)
-.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; 
-.,.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=24; 
-k.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; missing (i,j) = (0,1)
-.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; missing (i,j) = (1,0)
-.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; 
-.,.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=24; 
-k.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; missing (i,j) = (0,1)
-.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; missing (i,j) = (1,0)
-.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; 
-.,.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=24; 
-k.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; missing (i,j) = (0,1)
-.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; missing (i,j) = (1,0)
-.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; 
+,replCmat[x,i,j,..,val] : nargs()=4; 
+kreplCmat[x,i,j,..,val] : nargs()=4; missing (i,j) = (0,1)
+replCmat[x,i,j,..,val] : nargs()=4; missing (i,j) = (1,0)
+replCmat[x,i,j,..,val] : nargs()=4; 
+.,replCmat[x,i,j,..,val] : nargs()=4; 
+kreplCmat[x,i,j,..,val] : nargs()=4; missing (i,j) = (0,1)
+replCmat[x,i,j,..,val] : nargs()=4; missing (i,j) = (1,0)
+replCmat[x,i,j,..,val] : nargs()=4; 
+.,replCmat[x,i,j,..,val] : nargs()=4; 
+kreplCmat[x,i,j,..,val] : nargs()=4; missing (i,j) = (0,1)
+replCmat[x,i,j,..,val] : nargs()=4; missing (i,j) = (1,0)
+replCmat[x,i,j,..,val] : nargs()=4; 
+.,replCmat[x,i,j,..,val] : nargs()=4; 
+kreplCmat[x,i,j,..,val] : nargs()=4; missing (i,j) = (0,1)
+replCmat[x,i,j,..,val] : nargs()=4; missing (i,j) = (1,0)
+replCmat[x,i,j,..,val] : nargs()=4; 
+.,replCmat[x,i,j,..,val] : nargs()=4; 
+kreplCmat[x,i,j,..,val] : nargs()=4; missing (i,j) = (0,1)
+replCmat[x,i,j,..,val] : nargs()=4; missing (i,j) = (1,0)
+replCmat[x,i,j,..,val] : nargs()=4; 
+.,replCmat[x,i,j,..,val] : nargs()=4; 
+kreplCmat[x,i,j,..,val] : nargs()=4; missing (i,j) = (0,1)
+replCmat[x,i,j,..,val] : nargs()=4; missing (i,j) = (1,0)
+replCmat[x,i,j,..,val] : nargs()=4; 
+.,replCmat[x,i,j,..,val] : nargs()=4; 
+kreplCmat[x,i,j,..,val] : nargs()=4; missing (i,j) = (0,1)
+replCmat[x,i,j,..,val] : nargs()=4; missing (i,j) = (1,0)
+replCmat[x,i,j,..,val] : nargs()=4; 
+.,replCmat[x,i,j,..,val] : nargs()=4; 
+kreplCmat[x,i,j,..,val] : nargs()=4; missing (i,j) = (0,1)
+replCmat[x,i,j,..,val] : nargs()=4; missing (i,j) = (1,0)
+replCmat[x,i,j,..,val] : nargs()=4; 
+.,replCmat[x,i,j,..,val] : nargs()=4; 
+kreplCmat[x,i,j,..,val] : nargs()=4; missing (i,j) = (0,1)
+replCmat[x,i,j,..,val] : nargs()=4; missing (i,j) = (1,0)
+replCmat[x,i,j,..,val] : nargs()=4; 
+.,replCmat[x,i,j,..,val] : nargs()=4; 
+kreplCmat[x,i,j,..,val] : nargs()=4; missing (i,j) = (0,1)
+replCmat[x,i,j,..,val] : nargs()=4; missing (i,j) = (1,0)
+replCmat[x,i,j,..,val] : nargs()=4; 
 .
-,.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=24; 
-k.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; missing (i,j) = (0,1)
-.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; missing (i,j) = (1,0)
-.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; 
-.,.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=24; 
-k.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; missing (i,j) = (0,1)
-.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; missing (i,j) = (1,0)
-.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; 
-.,.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=24; 
-k.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; missing (i,j) = (0,1)
-.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; missing (i,j) = (1,0)
-.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; 
-.,.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=24; 
-k.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; missing (i,j) = (0,1)
-.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; missing (i,j) = (1,0)
-.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; 
-.,.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=24; 
-k.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; missing (i,j) = (0,1)
-.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; missing (i,j) = (1,0)
-.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; 
-.,.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=24; 
-k.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; missing (i,j) = (0,1)
-.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; missing (i,j) = (1,0)
-.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; 
-.,.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=24; 
-k.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; missing (i,j) = (0,1)
-.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; missing (i,j) = (1,0)
-.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; 
-.,.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=24; 
-k.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; missing (i,j) = (0,1)
-.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; missing (i,j) = (1,0)
-.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; 
-.,.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=24; 
-k.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; missing (i,j) = (0,1)
-.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; missing (i,j) = (1,0)
-.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; 
-.,.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=24; 
-k.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; missing (i,j) = (0,1)
-.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; missing (i,j) = (1,0)
-.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; 
+,replCmat[x,i,j,..,val] : nargs()=4; 
+kreplCmat[x,i,j,..,val] : nargs()=4; missing (i,j) = (0,1)
+replCmat[x,i,j,..,val] : nargs()=4; missing (i,j) = (1,0)
+replCmat[x,i,j,..,val] : nargs()=4; 
+.,replCmat[x,i,j,..,val] : nargs()=4; 
+kreplCmat[x,i,j,..,val] : nargs()=4; missing (i,j) = (0,1)
+replCmat[x,i,j,..,val] : nargs()=4; missing (i,j) = (1,0)
+replCmat[x,i,j,..,val] : nargs()=4; 
+.,replCmat[x,i,j,..,val] : nargs()=4; 
+kreplCmat[x,i,j,..,val] : nargs()=4; missing (i,j) = (0,1)
+replCmat[x,i,j,..,val] : nargs()=4; missing (i,j) = (1,0)
+replCmat[x,i,j,..,val] : nargs()=4; 
+.,replCmat[x,i,j,..,val] : nargs()=4; 
+kreplCmat[x,i,j,..,val] : nargs()=4; missing (i,j) = (0,1)
+replCmat[x,i,j,..,val] : nargs()=4; missing (i,j) = (1,0)
+replCmat[x,i,j,..,val] : nargs()=4; 
+.,replCmat[x,i,j,..,val] : nargs()=4; 
+kreplCmat[x,i,j,..,val] : nargs()=4; missing (i,j) = (0,1)
+replCmat[x,i,j,..,val] : nargs()=4; missing (i,j) = (1,0)
+replCmat[x,i,j,..,val] : nargs()=4; 
+.,replCmat[x,i,j,..,val] : nargs()=4; 
+kreplCmat[x,i,j,..,val] : nargs()=4; missing (i,j) = (0,1)
+replCmat[x,i,j,..,val] : nargs()=4; missing (i,j) = (1,0)
+replCmat[x,i,j,..,val] : nargs()=4; 
+.,replCmat[x,i,j,..,val] : nargs()=4; 
+kreplCmat[x,i,j,..,val] : nargs()=4; missing (i,j) = (0,1)
+replCmat[x,i,j,..,val] : nargs()=4; missing (i,j) = (1,0)
+replCmat[x,i,j,..,val] : nargs()=4; 
+.,replCmat[x,i,j,..,val] : nargs()=4; 
+kreplCmat[x,i,j,..,val] : nargs()=4; missing (i,j) = (0,1)
+replCmat[x,i,j,..,val] : nargs()=4; missing (i,j) = (1,0)
+replCmat[x,i,j,..,val] : nargs()=4; 
+.,replCmat[x,i,j,..,val] : nargs()=4; 
+kreplCmat[x,i,j,..,val] : nargs()=4; missing (i,j) = (0,1)
+replCmat[x,i,j,..,val] : nargs()=4; missing (i,j) = (1,0)
+replCmat[x,i,j,..,val] : nargs()=4; 
+.,replCmat[x,i,j,..,val] : nargs()=4; 
+kreplCmat[x,i,j,..,val] : nargs()=4; missing (i,j) = (0,1)
+replCmat[x,i,j,..,val] : nargs()=4; missing (i,j) = (1,0)
+replCmat[x,i,j,..,val] : nargs()=4; 
 .
-,.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=24; 
-k.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; missing (i,j) = (0,1)
-.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; missing (i,j) = (1,0)
-.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; 
-.,.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=24; 
-k.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; missing (i,j) = (0,1)
-.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; missing (i,j) = (1,0)
-.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; 
-.,.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=24; 
-k.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; missing (i,j) = (0,1)
-.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; missing (i,j) = (1,0)
-.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; 
-.,.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=24; 
-k.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; missing (i,j) = (0,1)
-.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; missing (i,j) = (1,0)
-.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; 
-.,.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=24; 
-k.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; missing (i,j) = (0,1)
-.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; missing (i,j) = (1,0)
-.. replTmat(x,i,j,v): nargs()= 4; cl.(x)=ngTMatrix; len.(value)=1; 
+,replCmat[x,i,j,..,val] : nargs()=4; 
+kreplCmat[x,i,j,..,val] : nargs()=4; missing (i,j) = (0,1)
+replCmat[x,i,j,..,val] : nargs()=4; missing (i,j) = (1,0)
+replCmat[x,i,j,..,val] : nargs()=4; 
+.,replCmat[x,i,j,..,val] : nargs()=4; 
+kreplCmat[x,i,j,..,val] : nargs()=4; missing (i,j) = (0,1)
+replCmat[x,i,j,..,val] : nargs()=4; missing (i,j) = (1,0)
+replCmat[x,i,j,..,val] : nargs()=4; 
+.,replCmat[x,i,j,..,val] : nargs()=4; 
+kreplCmat[x,i,j,..,val] : nargs()=4; missing (i,j) = (0,1)
+replCmat[x,i,j,..,val] : nargs()=4; missing (i,j) = (1,0)
+replCmat[x,i,j,..,val] : nargs()=4; 
+.,replCmat[x,i,j,..,val] : nargs()=4; 
+kreplCmat[x,i,j,..,val] : nargs()=4; missing (i,j) = (0,1)
+replCmat[x,i,j,..,val] : nargs()=4; missing (i,j) = (1,0)
+replCmat[x,i,j,..,val] : nargs()=4; 
+.,replCmat[x,i,j,..,val] : nargs()=4; 
+kreplCmat[x,i,j,..,val] : nargs()=4; missing (i,j) = (0,1)
+replCmat[x,i,j,..,val] : nargs()=4; missing (i,j) = (1,0)
+replCmat[x,i,j,..,val] : nargs()=4; 
 .> showProc.time()
-Time (user system elapsed): 0.058 0.001 0.06 
+Time (user system elapsed): 0.066 0.001 0.066 
 > Nn <- Nn0
 > ## Check that  NA is interpreted as TRUE (with a warning), for "nsparseMatrix":
 > assertWarning(Nn[ii <-     3  ] <- NA); stopifnot(isValid(Nn,"nsparseMatrix"), Nn[ii])
+replCmat[x,i,j,..,val] : nargs()=3; missing (i,j) = (0,1)
 diagnosing replTmat(x,i,j,v): nargs()= 3; missing (i,j) = (0,1)
 M[i,m,m] : nargs()=2
 M[i,i,m] : nargs()=3
 Csp[i,i,l] : nargs()=4
 > assertWarning(Nn[ii <-   22:24] <- NA); stopifnot(isValid(Nn,"nsparseMatrix"), Nn[ii])
+replCmat[x,i,j,..,val] : nargs()=3; missing (i,j) = (0,1)
 diagnosing replTmat(x,i,j,v): nargs()= 3; missing (i,j) = (0,1)
 M[i,m,m] : nargs()=2
 M[i,i,m] : nargs()=3
@@ -1853,9 +1855,11 @@ Csp[i,i,l] : nargs()=4
 M[i,i,m] : nargs()=3
 Csp[i,i,l] : nargs()=4
 > assertWarning(Nn[ii <- -(1:99)] <- NA); stopifnot(isValid(Nn,"nsparseMatrix"), Nn[ii])
+replCmat[x,i,j,..,val] : nargs()=3; missing (i,j) = (0,1)
 diagnosing replTmat(x,i,j,v): nargs()= 3; missing (i,j) = (0,1)
 M[i,m,m] : nargs()=2
 > assertWarning(Nn[ii <- 3:4  ] <- c(0,NA))
+replCmat[x,i,j,..,val] : nargs()=3; missing (i,j) = (0,1)
 diagnosing replTmat(x,i,j,v): nargs()= 3; missing (i,j) = (0,1)
 > stopifnot(isValid(Nn,"nsparseMatrix"), Nn[ii] == 0:1)
 M[i,m,m] : nargs()=2
@@ -1864,6 +1868,7 @@ Csp[i,i,l] : nargs()=4
 M[i,i,m] : nargs()=3
 Csp[i,i,l] : nargs()=4
 > assertWarning(Nn[ii <- 25:27] <- c(0,1,NA))
+replCmat[x,i,j,..,val] : nargs()=3; missing (i,j) = (0,1)
 diagnosing replTmat(x,i,j,v): nargs()= 3; missing (i,j) = (0,1)
 > stopifnot(isValid(Nn,"nsparseMatrix"), Nn[ii] == c(FALSE,TRUE,TRUE))
 M[i,m,m] : nargs()=2
@@ -2221,7 +2226,7 @@ as(mm., "triangularMatrix"): valid: TRUE
 M[m,i,m] : nargs()=3
 Csp[m,i,l] : nargs()=4
 > showProc.time()
-Time (user system elapsed): 0.24 0.004 0.244 
+Time (user system elapsed): 0.243 0.005 0.248 
 > 
 > 
 > ## "Vector indices" -------------------
@@ -2621,7 +2626,7 @@ M[i,m,m] : nargs()=3
 Tsp[i,m,l]: nargs()=4
 Csp[i,m,l] : nargs()=4
 > showProc.time()
-Time (user system elapsed): 0.093 0.003 0.096 
+Time (user system elapsed): 0.088 0.003 0.092 
 > 
 > ## Sub *Assignment* ---- now works (partially):
 > mt0 <- mt
@@ -2776,7 +2781,7 @@ Csp[i,i,l] : nargs()=4
 r2  2
 r4  .
 > showProc.time()
-Time (user system elapsed): 0.088 0.001 0.089 
+Time (user system elapsed): 0.084 0.002 0.086 
 > options(Matrix.verbose = TRUE)
 > 
 > mc # no longer has non-structural zeros
@@ -2894,10 +2899,12 @@ diagnosing replTmat(x,i,j,v): nargs()= 3; missing (i,j) = (0,1)
  norm(m [4 x 4]) : 1  I  F  M  ok
  Summary:  ok
 as(., "nMatrix") giving full nonzero-pattern: ok
-2*m =?= m+m: ok
+2*m =?= m+m: suboptimal 'Arith' implementation of  'dsC*  o  dsC*'
+identical
 m >= m for all: ok
 m < m for none: ok
-symmpart(m) + skewpart(m) == m: ok;  determinant(): ok
+symmpart(m) + skewpart(m) == m: suboptimal 'Arith' implementation of  'dsC*  o  dsC*'
+ok;  determinant(): ok
 > dm <- Matrix(.asmatrix(dm))# -> "dsyMatrix"
 > (s2 <- as(dm, "sparseMatrix"))
 4 x 4 sparse Matrix of class "dsCMatrix"
@@ -2994,7 +3001,7 @@ M[i,j] <- v :  coercing symmetric M[] into non-symmetric
 > assert.EQ.mat(t2, m)# ok
 > assert.EQ.mat(s2, m)# failed in 0.9975-8
 > showProc.time()
-Time (user system elapsed): 0.221 0.003 0.224 
+Time (user system elapsed): 0.215 0.005 0.219 
 > 
 > ## sub-assign  RsparseMatrix -- Matrix bug [#6709] by David Cortes
 > ## https://r-forge.r-project.org/tracker/?func=detail&atid=294&aid=6709&group_id=61
@@ -3132,8 +3139,8 @@ M & T ("symm"): dgCMatrix dgTMatrix
 + 	  !is(T3[,2, drop=FALSE], "triangularMatrix")
 + 	  )
 > 
-> (T6 <- as(as(kronecker(Matrix(c(0,0,1,0),2,2), t(T3)), "lMatrix"),
-+ 	  "triangularMatrix"))
+> (T6 <- as(as(as(kronecker(Matrix(c(0,0,1,0),2,2), t(T3)),
++                 "lMatrix"), "triangularMatrix"), "TsparseMatrix"))
 6 x 6 sparse Matrix of class "ltTMatrix"
                 
 [1,] . . . . . .
@@ -3195,7 +3202,7 @@ M & T ("symm"): dgCMatrix dgTMatrix
 > 
 > cc <- capture.output(show(dLrg))# show(<diag>) used to error for large n
 > showProc.time()
-Time (user system elapsed): 0.149 0.006 0.154 
+Time (user system elapsed): 0.146 0.01 0.157 
 > 
 > ## FIXME: "dspMatrix" (symmetric *packed*) not going via "matrix"
 > 
@@ -3272,7 +3279,7 @@ M[m,i,m] : nargs()=3
 Csp[m,i,l] : nargs()=4
 > 
 > showProc.time()
-Time (user system elapsed): 0.645 0.072 0.717 
+Time (user system elapsed): 0.639 0.091 0.73 
 > options(op)# revert
 > ##
 > if(doExtras) {#-----------------------------------------------------------------
@@ -3331,7 +3338,7 @@ attr(,"package")
 [1] "Matrix"
 > stopifnot(isValid(x1, class(x1)), identical(x1, x2))
 > showProc.time()
-Time (user system elapsed): 0.015 0 0.016 
+Time (user system elapsed): 0.014 0.001 0.015 
 > 
 > 
 > ## check valid indexing (using *random* indices, often duplicated):
@@ -3428,7 +3435,7 @@ sparse vector (nnz/length = 16/64) of class "dsparseVector"
 > stopifnot(all.equal(x[i] ,  y1+y2, tolerance=0),
 + 		    x[i] == y1+y2)
 > showProc.time()
-Time (user system elapsed): 0.314 0.002 0.316 
+Time (user system elapsed): 0.302 0.002 0.304 
 > 
 > if(!interactive()) warnings()
 > 
@@ -3589,4 +3596,4 @@ sparse vector (nnz/length = 0/6) of class "dsparseVector"
 > 
 > proc.time()
    user  system elapsed 
-  3.038   0.147   3.184 
+  2.989   0.184   3.171 

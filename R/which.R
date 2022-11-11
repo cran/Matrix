@@ -68,10 +68,10 @@ setMethod("which", "lgTMatrix", .which.lgT)
 
 setMethod("which", "ntTMatrix",
           function(x, arr.ind, useNames = TRUE)
-              .which.ngT(.Call(Tsparse_diagU2N, x), arr.ind, useNames))
+              .which.ngT(.Call(R_sparse_diag_U2N, x), arr.ind, useNames))
 setMethod("which", "ltTMatrix",
           function(x, arr.ind, useNames = TRUE)
-              .which.lgT(.Call(Tsparse_diagU2N, x), arr.ind, useNames))
+              .which.lgT(.Call(R_sparse_diag_U2N, x), arr.ind, useNames))
 
 setMethod("which", "nsTMatrix",
           function(x, arr.ind, useNames = TRUE)

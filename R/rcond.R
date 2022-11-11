@@ -44,13 +44,13 @@ setMethod("rcond", signature(x = "dtpMatrix", norm = "character"),
 	  function(x, norm, ...) .Call(dtpMatrix_rcond, x, norm))
 
 setMethod("rcond", signature(x = "dsyMatrix", norm = "character"),
-          function(x, norm, ...) .Call(dsyMatrix_rcond, x, norm))
+          function(x, norm, ...) .Call(dsyMatrix_rcond, x))
 
 setMethod("rcond", signature(x = "dspMatrix", norm = "character"),
-          function(x, norm, ...) .Call(dspMatrix_rcond, x, norm))
+          function(x, norm, ...) .Call(dspMatrix_rcond, x))
 
 setMethod("rcond", signature(x = "dpoMatrix", norm = "character"),
-          function(x, norm, ...) .Call(dpoMatrix_rcond, x, norm))
+          function(x, norm, ...) .Call(dpoMatrix_rcond, x))
 
 setMethod("rcond", signature(x = "dppMatrix", norm = "character"),
-	  function(x, norm, ...) .Call(dppMatrix_rcond, x, norm))
+	  function(x, norm, ...) .Call(dppMatrix_rcond, x))

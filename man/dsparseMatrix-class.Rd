@@ -9,9 +9,9 @@
 \alias{Arith,logical,dsparseMatrix-method}
 \alias{Arith,numeric,dsparseMatrix-method}
 \alias{Ops,dsparseMatrix,nsparseMatrix-method}
+\alias{Summary,dsparseMatrix-method}
 \alias{as.logical,dsparseMatrix-method}
 \alias{as.numeric,dsparseMatrix-method}
-\alias{Summary,dsparseMatrix-method}
 \alias{coerce,dsparseMatrix,lMatrix-method}
 \alias{coerce,dsparseMatrix,lsparseMatrix-method}
 \alias{coerce,dsparseMatrix,nMatrix-method}

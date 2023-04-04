@@ -1,9 +1,10 @@
 \name{rleDiff-class}
 \title{Class "rleDiff" of  rle(diff(.))  Stored Vectors}
 \docType{class}
-\Rdversion{1.1}
+%
 \alias{rleDiff-class}
 \alias{show,rleDiff-method}
+%
 \description{
   Class \code{"rleDiff"} is for compactly storing long vectors
   which mainly consist of \emph{linear} stretches.  For such a vector

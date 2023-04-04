@@ -64,7 +64,7 @@ s9 <- solve(h9p, seq(nrow(h9p)))
 signif(t(s9)/10000, 4)# only rounded numbers are platform-independent
 (I9 <- h9p %*% s9)
 m9 <- as.matrix(1:9)
-stopifnot(all.equal(m9, .asmatrix(I9), tolerance = 2e-9))
+stopifnot(all.equal(m9, as(I9, "matrix"), tolerance = 2e-9))
 
 ### Testing nearPD() --- this is partly in  ../man/nearPD.Rd :
 pr <- Matrix(c(1,     0.477, 0.644, 0.478, 0.651, 0.826,

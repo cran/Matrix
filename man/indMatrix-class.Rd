@@ -23,8 +23,6 @@
 \alias{coerce,indMatrix,matrix-method}
 \alias{coerce,indMatrix,nMatrix-method}
 \alias{coerce,indMatrix,ndenseMatrix-method}
-\alias{coerce,indMatrix,ngTMatrix-method}
-\alias{coerce,indMatrix,ngeMatrix-method}
 \alias{coerce,indMatrix,nsparseMatrix-method}
 \alias{coerce,indMatrix,pMatrix-method}
 \alias{coerce,indMatrix,packedMatrix-method}
@@ -92,21 +90,14 @@
     \item{coerce}{\code{signature(from = "indMatrix", to = "matrix")}:
       coercion to a traditional FALSE/TRUE \code{\link{matrix}} of
       \code{\link{mode}} \code{logical}.}
-
-    \item{coerce}{\code{signature(from = "indMatrix", to = "ngTMatrix")}:
-      coercion to sparse logical matrix of class \code{\linkS4class{ngTMatrix}}.}
-
     \item{t}{\code{signature(x = "indMatrix")}: return the transpose of
       the index matrix (which is no longer an \code{indMatrix},
       but of class \code{\linkS4class{ngTMatrix}}.}
-
     \item{colSums, colMeans, rowSums, rowMeans}{\code{signature(x = "indMatrix")}:
       return the column or row sums or means.}
-
     \item{rbind2}{\code{signature(x = "indMatrix", y = "indMatrix")}: a
       fast method for rowwise catenation of two index matrices (with the
       same number of columns).}
-
     \item{kronecker}{\code{signature(X = "indMatrix", Y = "indMatrix")}:
       return the kronecker product of two index matrices, which corresponds to
       the index matrix of the interaction of the two.}

@@ -738,7 +738,7 @@ setClass("sparseVector", contains = "VIRTUAL",
              if(length(len) != 1L)
                  return("'length' slot does not have length 1")
              if(!is.finite(len))
-                 return("'length' slot is non-finite")
+                 return("'length' slot is not finite")
              if(len < 0)
                  return("'length' slot is negative")
              i <- object@i
@@ -746,7 +746,7 @@ setClass("sparseVector", contains = "VIRTUAL",
              if(i.len == 0L)
                  return(TRUE)
              if(i.len > len)
-                 return("'i' slot has length greater than 'length'")
+                 return("'i' slot has length greater than 'length' slot")
              i.num <- is.double(i)
              if(i.num)
                  i <- trunc(i)
@@ -773,11 +773,17 @@ setMethod("initialize", "sparseVector",
                   i <-
                       if(is.na(i.uns) || !i.uns)
                           i
-                      else if(.hasSlot(.Object, "x") && has.x) {
-                          s <- sort.int(i, method = "quick", index.return=TRUE)
-                          x <- x[s$ix]
-                          s$x
-                      } else sort.int(i, method = "quick")
+                      else {
+                          ## we know that there are no NA, and the order of
+                          ## ties does not matter (since ties are an error),
+                          ## hence it is safe to use "quick" here
+                          m <- if(is.integer(length(i))) "radix" else "quick"
+                          if(.hasSlot(.Object, "x") && has.x) {
+                              s <- sort.int(i, method = m, index.return = TRUE)
+                              x <- x[s$ix]
+                              s$x
+                          } else sort.int(i, method = m)
+                      }
               }
               callNextMethod()
           })

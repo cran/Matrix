@@ -4,16 +4,6 @@
 %
 \alias{dtpMatrix-class}
 %
-\alias{coerce,dtpMatrix,dgeMatrix-method}
-\alias{coerce,dtpMatrix,dspMatrix-method}
-\alias{coerce,dtpMatrix,dtCMatrix-method}
-\alias{coerce,dtpMatrix,dtRMatrix-method}
-\alias{coerce,dtpMatrix,dtTMatrix-method}
-\alias{coerce,dtpMatrix,dtrMatrix-method}
-\alias{coerce,dtpMatrix,ltpMatrix-method}
-\alias{coerce,dtpMatrix,ntpMatrix-method}
-\alias{coerce,matrix,dtpMatrix-method}
-%
 \description{The \code{"dtpMatrix"} class is the class of triangular,
   dense, numeric matrices in packed storage.  The \code{"dtrMatrix"}
   class is the same except in nonpacked storage.}
@@ -49,8 +39,6 @@
     \item{\%*\%}{\code{signature(x = "dtpMatrix", y = "dgeMatrix")}:
       Matrix multiplication; ditto for several other signature
       combinations, see \code{showMethods("\%*\%", class = "dtpMatrix")}.}
-    \item{coerce}{\code{signature(from = "dtpMatrix", to = "dtrMatrix")}}
-    \item{coerce}{\code{signature(from = "dtpMatrix", to = "matrix")}}
     \item{determinant}{\code{signature(x = "dtpMatrix", logarithm = "logical")}:
       the \code{\link{determinant}(x)} trivially is
       \code{prod(diag(x))}, but computed on log scale to prevent over-

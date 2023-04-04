@@ -43,7 +43,6 @@
 \alias{Ops,lMatrix,numeric-method}
 \alias{Ops,numeric,lMatrix-method}
 \alias{Summary,lMatrix-method}
-\alias{coerce,lMatrix,dgCMatrix-method}
 \alias{coerce,matrix,lMatrix-method}
 \alias{coerce,numLike,lMatrix-method}
 %
@@ -87,8 +86,6 @@
   }
   The following methods are also defined for all double matrices:
   \describe{
-    \item{coerce}{\code{signature(from = "dMatrix", to = "matrix")}: ... }
-    %
     \item{expm}{\code{signature(x = "dMatrix")}: computes the
       \emph{\dQuote{Matrix Exponential}}, see \code{\link{expm}}.}
     \item{zapsmall}{\code{signature(x = "dMatrix")}: ... }

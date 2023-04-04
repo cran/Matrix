@@ -1,23 +1,6 @@
 #ifndef MATRIX_UTILS_H
 #define MATRIX_UTILS_H
 
-#ifndef STRICT_R_HEADERS
-# define STRICT_R_HEADERS
-#endif
-
-#ifdef __GLIBC__
-/* to ensure that strdup() and others are declared
-   when string.h is included with R.h (WRE) :
-*/
-# define _POSIX_C_SOURCE 200809L
-#endif
-
-/* NB: system headers must come before R headers */
-
-#include <R.h>
-#include <Rinternals.h>
-#include <Rversion.h>
-
 #include "Mdefines.h"
 #include "Minlines.h"
 
@@ -27,6 +10,9 @@ extern "C" {
 #endif
 
 SEXP NEW_OBJECT_OF_CLASS(const char* what);
+
+void *Matrix_memset(void *dest,        int   ch, R_xlen_t length, size_t size);
+void *Matrix_memcpy(void *dest, const void *src, R_xlen_t length, size_t size);
 
 Rboolean DimNames_is_trivial(SEXP dn);
 Rboolean DimNames_is_symmetric(SEXP dn);
@@ -53,6 +39,8 @@ char type2kind(SEXPTYPE type);
 SEXPTYPE kind2type(char kind);
 size_t kind2size(char kind);
 
+const char *Matrix_nonvirtual(SEXP obj, int strict);
+SEXP R_Matrix_nonvirtual(SEXP obj, SEXP strict);
 char Matrix_kind(SEXP obj, int i2d);
 SEXP R_Matrix_kind(SEXP obj, SEXP i2d);
 char Matrix_shape(SEXP obj);

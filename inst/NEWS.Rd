@@ -1,11 +1,70 @@
 % Check from R:
 %  news(db = tools:::.build_news_db_from_package_NEWS_Rd("~/R/Pkgs/Matrix/inst/NEWS.Rd"))
 \name{NEWS}
-\title{News for \R Package \pkg{Matrix}}% MM: look into ../svn-log-from.all
+\title{News for \R{} Package \pkg{Matrix}}% MM: look into ../svn-log-from.all
 \encoding{UTF-8}
 %% NB: The date (yyyy-mm-dd) is the "Packaged:" date in ../DESCRIPTION
 
-\section{Changes in version 1.5-3 (2022-11-09 r3771)}{
+\section{Changes in version 1.5-4 (2023-04-02 r3837)}{
+  \subsection{Deprecated and Defunct}{
+    \itemize{
+      \item The following low level coercion utilities, which were
+      previously exported but always \dQuote{hidden} and undocumented,
+      are now deprecated:
+      \code{..2dge}, \code{.C2nC}, \code{.T2Cmat}, \code{.asmatrix},
+      \code{.dense2sy}, \code{.diag2mat}, \code{.diag2sT},
+      \code{.diag2tT}, \code{.dsy2dsp}, \code{.dsy2mat}, \code{.dxC2mat},
+      \code{.m2dgC}, \code{.m2lgC}, \code{.m2ngC}, \code{.m2ngCn},
+      \code{.m2ngTn}, \code{.n2dgT}, \code{.nC2d}, \code{.nC2l}.
+      \cr
+      The deprecations follow efforts to define more general and more
+      systematic (but still fast) coercion utilities, to allow expert
+      users to bypass S4 dispatch in more cases.  The subset of these
+      currently exported is documented under \code{help("fastMisc")}.
+      Deprecation warnings will suggest an appropriate replacement,
+      mostly from that list.
+      \cr
+      It is not always the case that the replacement can be
+      \dQuote{dropped in}, hence users should consult the relevant
+      documentation when changing their code.
+
+      \item Warnings signaled by coercion methods deprecated
+      in \pkg{Matrix} 1.5-0 now correctly inherit from class
+      \code{deprecatedWarning}.
+    }
+  }
+  \subsection{Bug Fixes}{
+    \itemize{
+      \item Defining \code{sequence.default} for \R{} \code{< 4.0.0},
+      so that \code{kronecker(<CsparseMatrix>, <CsparseMatrix>)},
+      \code{kronecker(<CsparseMatrix>, <diagonalMatrix>)}, and
+      \code{<diagonalMatrix> \%*\% <denseMatrix>} continue to work
+      there.
+    }
+  }
+  \subsection{Misc}{
+    \itemize{
+      \item C-level utilities \code{Matrix_memset()} and
+      \code{Matrix_memcpy()}, both new, are now used in many places
+      instead of API macros \code{Memzero()} and \code{Memcpy()}
+      which never check for overflow.  C-level macro \code{AZERO()}
+      is no longer defined.
+
+      \item C-level macro \code{Calloc_or_Alloca_TO()} now
+      zero-initializes also in the \code{alloca}-using case.
+
+      \item Replace deprecated \code{Rdefines.h} with
+      \code{Rinternals.h} and move inclusion outside of
+      \code{extern "C"} wrapper in API header
+      \file{inst/include/Matrix.h}.
+
+      \item Replace \code{sprintf} with \code{snprintf} globally
+      to avoid potential buffer overflows.
+    }
+  }
+}
+
+\section{Changes in version 1.5-3 (2022-11-10 r3772)}{
   \subsection{Bug Fixes}{
     \itemize{
       \item \code{dimScale(x)} with argument \code{d1} missing is no
@@ -793,8 +852,8 @@
       \item Slightly better patch notably for Windows,
       for \file{src/SuiteSparse_config/SuiteSparse_config.h}
 
-      \item Fix to continue working for \R 3.5.0 and newer, providing
-      \code{tryInvokeRestart()} for older versions of \R, thanking
+      \item Fix to continue working for \R{} 3.5.0 and newer, providing
+      \code{tryInvokeRestart()} for older versions of \R{}, thanking
       Michael Chirico for the heads up.
 
       \item Modified \code{AZERO()} to work with \code{R_xlen_t} and new
@@ -828,7 +887,7 @@
       the notice by Aaron Lun.
 
       \item fix leak in C-level \code{Csparse_to_dense()} thanks to Bill
-      Dunlap in \R's \PR{18204} and \code{install_lu()}
+      Dunlap in \R{}'s \PR{18204} and \code{install_lu()}
       called from \code{solve(<dgCMatrix>)} in \PR{18206}.
 
       \item fix leak in crossprod(<dsTMatrix>), thanks to report and patch
@@ -841,7 +900,7 @@
 
       \item fix leak in C-level code for \code{cbind(m1,m2)} or
       \code{rbind(*)} when \code{m1} is \code{"n.Csparse"} and \code{m2} is
-      not, thanks to Bill Dunlap's diagnosis and patch in \R's \PR{18210}.
+      not, thanks to Bill Dunlap's diagnosis and patch in \R{}'s \PR{18210}.
 
       \item \code{sparseVector(i=integer(), length=2^33)} now does show/print,
       after fixing a bug in the \code{head()} method for \emph{empty}
@@ -849,7 +908,7 @@
 
       \item inverting or solving \code{dsCMatrix} no longer catches C level
       warnings too early which would not free, but rather leak memory;
-      thanks to Bill Dunlap's analysis and patch in \R's \PR{18214}.
+      thanks to Bill Dunlap's analysis and patch in \R{}'s \PR{18214}.
       Additionally, such warnings and error are \code{message()}d when
       \code{getOption("Matrix.verbose")} is \code{ >= 1}.
 
@@ -863,7 +922,7 @@
 
       \item \code{as(<dsyMatrix>, "generalMatrix")} and similar, sometimes
       did \emph{not} use (C-level) \code{symmetric_Dimnames()} etc; report
-      (to \R's \PR{18250} by  Mikael Jagan); fixed all on C level.  As a
+      (to \R{}'s \PR{18250} by  Mikael Jagan); fixed all on C level.  As a
       consequence, you will now see \emph{more} preserved dimnames after
       matrix transformations or operations which involved symmetric matrices.
 
@@ -918,8 +977,8 @@
       \item \code{as.matrix()} and \code{as.array()} now work for
       \code{"sparseVector"}s as expected; see Matrix bug #6708.
 
-      \item \code{M[,]} (and similar) now work as in base \R; ; R-forge Matrix bug #6720 by
-      David Cortes.
+      \item \code{M[,]} (and similar) now work as in base \R{};
+      R-forge Matrix bug #6720 by David Cortes.
 
       \item \code{-S} now works also when \code{S} has no `factors` slot.
       It signalled an error, e.g., for sparse triangular matrices \code{S};
@@ -1121,7 +1180,7 @@
     \itemize{
       \item Fix new \code{PROTECT()} warnings (bugs?) found by \command{rchk}.
 
-      \item Provide \code{isFALSE()} for \R < 3.5.0 as now need it for
+      \item Provide \code{isFALSE()} for \R{} < 3.5.0 as now need it for
       sparseMatrix printing.
     }
   }
@@ -1189,7 +1248,7 @@
 	\code{"dgeMatrix"}.  This also works for large matrices
 	\code{m}, i.e., when \code{length(m) >= .Machine$integer.max}.
 
-	Also provide low-level \R functions \code{.m2dgC()},
+	Also provide low-level \R{} functions \code{.m2dgC()},
 	\code{.m2lgC()}, and \code{.m2ngC()} for these.
     }
   }
@@ -1329,7 +1388,7 @@
   \subsection{New Features}{
     \itemize{
       \item 0-length matrix \code{"Ops"} (binary operations) are now
-      compatible to R-devel (to be \R 3.4.0).
+      compatible to R-devel (to be \R{} 3.4.0).
       \item C-API: \code{SuiteSparse_long} is now defined as
       \code{int64_t} on all platforms, and we now include (C99) \file{inttypes.h}
     }
@@ -1357,7 +1416,7 @@
   \subsection{New Features}{
     \itemize{
       \item \code{cBind()} and \code{rBind()} have been almost silently
-      deprecated in \R \code{>= 3.2.0} and now give a warning,
+      deprecated in \R{} \code{>= 3.2.0} and now give a warning,
       \dQuote{once per session} only.
 
       \item \code{bandSparse(*, k=k, *)} now returns matrices inheriting from
@@ -1531,7 +1590,7 @@
 
       \item More thorough checking of \code{cbind2()} and
       \code{rbind2()} methods, notably as they are called from \code{cbind()}
-      and \code{rbind()} from \R version 3.2.0 on.
+      and \code{rbind()} from \R{} version 3.2.0 on.
 
       \code{rbind2(<dense>, <dense>)} is faster, being based on new C code.
 
@@ -1583,7 +1642,7 @@
     \itemize{
       \item More use of \code{anyNA()} (for speedup).
       \item Matrix products (\code{\%*\%}, \code{crossprod},
-      \code{tcrossprod}) now behave compatibly to \R 3.2.0, i.e., more
+      \code{tcrossprod}) now behave compatibly to \R{} 3.2.0, i.e., more
       lenient in matching dimensions for matrix - vector products.
       \item \code{isTriangular()} gets new optional argument \code{upper = NA}.
     }
@@ -1643,7 +1702,7 @@
 \section{Changes in version 1.1-2-2 (2014-03-04, svn r2966)}{
   \subsection{Bug Fixes}{
     \itemize{
-      \item correct adaption to \R 3.1.0
+      \item correct adaption to \R{} 3.1.0
       \item using \code{tolerance} (and not \sQuote{tol}) in \code{all.equal()}
     }
   }
@@ -1726,7 +1785,7 @@
   \subsection{Bug Fixes}{
     \itemize{
       \item Revert some wrong changes to \code{solve(<sparse>, *)} from
-      1.0-13 (\dQuote{stop gap fix} for \R 3.0.2).
+      1.0-13 (\dQuote{stop gap fix} for \R{} 3.0.2).
     }
   }
 }
@@ -1750,8 +1809,8 @@
       \item \code{nearPD()} gets new option \code{conv.norm.type = "I"}.
       \item \code{determinant(<dpoMatrix>)} now uses \code{chol()}, and
       hence also an existing (\sQuote{cached}) Cholesky factor.
-      \item 3 new \code{C -> R} utilities (including hidden \R function
-      \code{.set.factors()} for caching also from \R, not just in C).
+      \item 3 new \code{C -> R} utilities (including hidden \R{} function
+      \code{.set.factors()} for caching also from \R{}, not just in C).
     }
   }
   \subsection{Bug Fixes}{
@@ -2054,7 +2113,7 @@
   Douglas Bates (maintainer, principal author) and Saikat DebRoy.
   \subsection{Features}{
     \itemize{
-      \item \code{Matrix()} constructor for \R objects of class \code{Matrix}.
+      \item \code{Matrix()} constructor for \R{} objects of class \code{Matrix}.
       \item \code{Matrix.class()} returning informal subclasses such as
       \code{"Hermitian"}, \code{"LowerTriangular"}
       \item \code{is.Orthonormal()}, \code{is.Hermitian()} ,

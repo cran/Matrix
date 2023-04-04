@@ -140,7 +140,7 @@ int cholmod_sdmult
     cholmod_common *Common
 ) ;
 
-int cholmod_l_sdmult (cholmod_sparse *, int, double *, double *,
+int cholmod_l_sdmult (cholmod_sparse *, int, double [2], double [2],
     cholmod_dense *, cholmod_dense *Y, cholmod_common *) ;
 
 /* -------------------------------------------------------------------------- */

@@ -48,16 +48,6 @@
     \item{coerce}{\code{signature(from = "numeric", to = "pMatrix")}:
       a user convenience, to allow \code{as(perm, "pMatrix")} for
       numeric \code{perm} with integer values.}
-    \item{coerce}{\code{signature(from = "pMatrix", to = "matrix")}:
-      coercion to a traditional FALSE/TRUE \code{\link{matrix}} of
-      \code{\link{mode}} \code{logical}.
-      (in earlier version of \pkg{Matrix}, it resulted in a 0/1-integer
-      matrix; \code{logical} makes slightly more sense, corresponding
-      better to the \dQuote{natural} sparseMatrix counterpart,
-      \code{"ngTMatrix"}.)}
-
-    \item{coerce}{\code{signature(from = "pMatrix", to = "ngTMatrix")}:
-      coercion to sparse logical matrix of class \code{\linkS4class{ngTMatrix}}.}
     \item{determinant}{\code{signature(x = "pMatrix", logarithm="logical")}:
       Since permutation matrices are orthogonal, the determinant must be
       +1 or -1.  In fact, it is exactly the \emph{sign of the

@@ -1,6 +1,5 @@
 \name{abIseq}
 \title{Sequence Generation of "abIndex", Abstract Index Vectors}
-\Rdversion{1.1}
 %
 \alias{abIseq}
 \alias{abIseq1}

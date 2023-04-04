@@ -64,13 +64,13 @@ SEXP denseLU_expand(SEXP obj)
 	    SET_SLOT(T, Matrix_diagSym, diag);
 	    UNPROTECT(2); /* diag, uplo */
 
-	    Memcpy(py, px, (size_t) m * m);
+	    Matrix_memcpy(py, px, (R_xlen_t) m * m, sizeof(double));
 	    ddense_unpacked_make_triangular(px, m, n, 'U', 'N');
 	} else {
             /* G is unit lower trapezoidal, T is upper triangular */
 	    double *tmp = px;
 	    for (j = 0; j < n; ++j, px += m, py += r)
-		Memcpy(py, px, j+1);
+		Matrix_memcpy(py, px, j+1, sizeof(double));
 	    ddense_unpacked_make_triangular(tmp, m, n, 'L', 'U');
 	}
 	SET_SLOT(G, Matrix_xSym, x);

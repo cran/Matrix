@@ -26,7 +26,6 @@
 \alias{coerce,diagonalMatrix,nsparseMatrix-method}
 \alias{coerce,diagonalMatrix,packedMatrix-method}
 \alias{coerce,diagonalMatrix,sparseVector-method}
-\alias{coerce,diagonalMatrix,nMatrix-method}
 \alias{coerce,diagonalMatrix,symmetricMatrix-method}
 \alias{coerce,diagonalMatrix,triangularMatrix-method}
 \alias{coerce,diagonalMatrix,unpackedMatrix-method}

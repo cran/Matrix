@@ -1,7 +1,7 @@
 
-R Under development (unstable) (2022-10-12 r83083) -- "Unsuffered Consequences"
-Copyright (C) 2022 The R Foundation for Statistical Computing
-Platform: aarch64-apple-darwin20 (64-bit)
+R version 4.2.3 Patched (2023-03-15 r83996) -- "Shortstop Beagle"
+Copyright (C) 2023 The R Foundation for Statistical Computing
+Platform: aarch64-apple-darwin20.6.0 (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -184,7 +184,7 @@ M[m,i,m] : nargs()=3
 M[m,i,m] : nargs()=3
 Csp[m,i,l] : nargs()=4
 > showProc.time()
-Time (user system elapsed): 0.197 0.01 0.207 
+Time (user system elapsed): 0.197 0.008 0.204 
 > 
 > ## Bug found thanks to Timothy Mak, Feb 3, 2017:
 > ## sparseMatrix logical indexing with (partial) NA:
@@ -291,7 +291,7 @@ M[i,m,m] : nargs()=3
 [2,]   -1    9  100  200
 [3,]   -1   10   17   24
 > 
-> m. <- .asmatrix(m)
+> m. <- as(m, "matrix")
 > 
 > ## m[ cbind(i,j) ] indexing:
 > iN <- ij <- cbind(1:6, 2:3)
@@ -321,15 +321,15 @@ M[logi,m,m] : nargs()=2
 > stopifnot(is(sel, "lMatrix"), is(ssel, "lsparseMatrix"),
 + 	  identical3(as.mat(sel.), as.mat(sel), as.mat(ssel)),
 + 	  identical3(!sel, !ssel, nsel), # !<sparse> is typically dense
-+ 	  identical3(m[ sel],  m[ ssel], .asmatrix(m)[.asmatrix( ssel)]),
-+ 	  identical3(m[!sel],  m[!ssel], .asmatrix(m)[.asmatrix(!ssel)])
++ 	  identical3(m[ sel],  m[ ssel], as(m, "matrix")[as( ssel, "matrix")]),
++ 	  identical3(m[!sel],  m[!ssel], as(m, "matrix")[as(!ssel, "matrix")])
 + 	  )
 M[logi,m,m] : nargs()=2
 M[logi,m,m] : nargs()=2
 M[logi,m,m] : nargs()=2
 M[logi,m,m] : nargs()=2
 > showProc.time()
-Time (user system elapsed): 0.071 0.003 0.075 
+Time (user system elapsed): 0.072 0.002 0.076 
 > 
 > ## more sparse Matrices --------------------------------------
 > 
@@ -1138,7 +1138,7 @@ ok( d )
 == ###======================================================================
 
 > showProc.time()
-Time (user system elapsed): 0.308 0.008 0.316 
+Time (user system elapsed): 0.308 0.006 0.313 
 > 
 > if(doExtras) {### {was ./AAA_index.R, MM-only}
 +     ## an nsparse-example
@@ -1180,10 +1180,10 @@ Time (user system elapsed): 0.308 0.008 0.316
 +     show(N1 <- t(N <- mkN1(N0)))    # transpose {for display reasons}
 +     C1 <- t(C <- mkN1(as(N0,"CsparseMatrix")))
 +     stopifnot(all(C == N))
-+     assert.EQ.mat(C, mkN1(.asmatrix(N0)))
++     assert.EQ.mat(C, mkN1(as(N0, "matrix")))
 + 
 +     C. <- C1
-+     show(N <- N1) ; n <- .asmatrix(N); str(N)
++     show(N <- N1) ; n <- as(N, "matrix"); str(N)
 +     sort(i <- c(6,8,19,11,21,20,10,7,12,9,5,18,17,22,13))## == c(5:13, 17:22))
 +     sort(j <- c(3,8,6,15,10,4,14,13,16,2,11,17,7,5))## == c(2:8, 10:11, 13:17)
 +     val <- v.l <- 5*c(0,6,0,7,0,0,8:9, 0,0)
@@ -1363,7 +1363,7 @@ Csp[i,i,l] : nargs()=4
 M[i,i,m] : nargs()=3
 Csp[i,i,l] : nargs()=4
 > showProc.time()
-Time (user system elapsed): 0.094 0.002 0.096 
+Time (user system elapsed): 0.095 0.002 0.097 
 > 
 > stopifnot(all.equal(mC[,3], mm[,3]),
 + 	  identical(mC[ij], mC[ij + 0.4]),
@@ -1618,9 +1618,9 @@ replCmat[x,i,j,..,val] : nargs()=4; missing (i,j) = (0,1)
 M[i,i,m] : nargs()=3
 Csp[i,i,l] : nargs()=4
 replCmat[x,i,j,..,val] : nargs()=4; 
-> stopifnot(identical(unname(.asmatrix(A)),
+> stopifnot(identical(unname(as(A, "matrix")),
 + 		    local({a <- matrix(0,4,3); a[c(1,2,1), 2] <-  1 ; a})),
-+ 	  identical(unname(.asmatrix(B)),
++ 	  identical(unname(as(B, "matrix")),
 + 		    local({a <- matrix(0,4,3); a[c(1,2,1), 2] <- 1:3; a})),
 + 	  identical(C, drop0(B.)))
 > ## <sparse>[<logicalSparse>] <- v  failed in the past
@@ -1631,7 +1631,7 @@ diagnosing replTmat(x,i,j,v): nargs()= 3; missing (i,j) = (0,1)
 > C[C>0] <- 21
 .TM.repl.i.mat(): "lMatrix" case ...
 diagnosing replTmat(x,i,j,v): nargs()= 3; missing (i,j) = (0,1)
-> a. <- local({a <- .asmatrix(C.); a[a>0] <- 21; a})
+> a. <- local({a <- as(C., "matrix"); a[a>0] <- 21; a})
 > assert.EQ.mat(C, a.)
 > stopifnot(identical(C, as(T, "CsparseMatrix")))
 > 
@@ -1678,7 +1678,7 @@ Csp[i,m,l] : nargs()=4
 M[m,i,m] : nargs()=3
 Csp[m,i,l] : nargs()=4
 > showProc.time()
-Time (user system elapsed): 0.077 0.004 0.081 
+Time (user system elapsed): 0.079 0.004 0.082 
 > 
 > ##---  "nsparse*" sub-assignment :----------
 > M <- Matrix(c(1, rep(0,7), 1:4), 3,4)
@@ -1835,7 +1835,7 @@ kreplCmat[x,i,j,..,val] : nargs()=4; missing (i,j) = (0,1)
 replCmat[x,i,j,..,val] : nargs()=4; missing (i,j) = (1,0)
 replCmat[x,i,j,..,val] : nargs()=4; 
 .> showProc.time()
-Time (user system elapsed): 0.066 0.001 0.066 
+Time (user system elapsed): 0.065 0.001 0.067 
 > Nn <- Nn0
 > ## Check that  NA is interpreted as TRUE (with a warning), for "nsparseMatrix":
 > assertWarning(Nn[ii <-     3  ] <- NA); stopifnot(isValid(Nn,"nsparseMatrix"), Nn[ii])
@@ -2226,7 +2226,7 @@ as(mm., "triangularMatrix"): valid: TRUE
 M[m,i,m] : nargs()=3
 Csp[m,i,l] : nargs()=4
 > showProc.time()
-Time (user system elapsed): 0.243 0.005 0.248 
+Time (user system elapsed): 0.246 0.003 0.249 
 > 
 > 
 > ## "Vector indices" -------------------
@@ -2626,7 +2626,7 @@ M[i,m,m] : nargs()=3
 Tsp[i,m,l]: nargs()=4
 Csp[i,m,l] : nargs()=4
 > showProc.time()
-Time (user system elapsed): 0.088 0.003 0.092 
+Time (user system elapsed): 0.091 0.003 0.094 
 > 
 > ## Sub *Assignment* ---- now works (partially):
 > mt0 <- mt
@@ -2742,7 +2742,7 @@ Csp[i,i,l] : nargs()=4
 replCmat[x,i,j,..,val] : nargs()=4; 
 M[i,i,m] : nargs()=3
 Csp[i,i,l] : nargs()=4
-> mc[1:2,4:3] <- 4:1; stopifnot(.asmatrix(mc[1:2,4:3]) == 4:1)
+> mc[1:2,4:3] <- 4:1; stopifnot(as(mc[1:2,4:3], "matrix") == 4:1)
 replCmat[x,i,j,..,val] : nargs()=4; 
 M[i,i,m] : nargs()=3
 Csp[i,i,l] : nargs()=4
@@ -2781,7 +2781,7 @@ Csp[i,i,l] : nargs()=4
 r2  2
 r4  .
 > showProc.time()
-Time (user system elapsed): 0.084 0.002 0.086 
+Time (user system elapsed): 0.087 0.001 0.088 
 > options(Matrix.verbose = TRUE)
 > 
 > mc # no longer has non-structural zeros
@@ -2879,7 +2879,7 @@ diagnosing replTmat(x,i,j,v): nargs()= 3; missing (i,j) = (0,1)
  [9,] 0.100 0.091 0.083 0.077 0.071 0.067
 > Hc. <- Hc
 > Hc.[i,j] <- 0 ## now "works", but setting "non-structural" 0s
-> stopifnot(.asmatrix(Hc.[i,j]) == 0)
+> stopifnot(as(Hc.[i,j], "matrix") == 0)
 > Hc.[, 1:6]
 9 x 6 sparse Matrix of class "dgCMatrix"
                                          
@@ -2905,7 +2905,7 @@ m >= m for all: ok
 m < m for none: ok
 symmpart(m) + skewpart(m) == m: suboptimal 'Arith' implementation of  'dsC*  o  dsC*'
 ok;  determinant(): ok
-> dm <- Matrix(.asmatrix(dm))# -> "dsyMatrix"
+> dm <- Matrix(as(dm, "matrix"))# -> "dsyMatrix"
 > (s2 <- as(dm, "sparseMatrix"))
 4 x 4 sparse Matrix of class "dsCMatrix"
                 
@@ -3001,7 +3001,7 @@ M[i,j] <- v :  coercing symmetric M[] into non-symmetric
 > assert.EQ.mat(t2, m)# ok
 > assert.EQ.mat(s2, m)# failed in 0.9975-8
 > showProc.time()
-Time (user system elapsed): 0.215 0.005 0.219 
+Time (user system elapsed): 0.216 0.004 0.22 
 > 
 > ## sub-assign  RsparseMatrix -- Matrix bug [#6709] by David Cortes
 > ## https://r-forge.r-project.org/tracker/?func=detail&atid=294&aid=6709&group_id=61
@@ -3202,7 +3202,7 @@ M & T ("symm"): dgCMatrix dgTMatrix
 > 
 > cc <- capture.output(show(dLrg))# show(<diag>) used to error for large n
 > showProc.time()
-Time (user system elapsed): 0.146 0.01 0.157 
+Time (user system elapsed): 0.139 0.005 0.143 
 > 
 > ## FIXME: "dspMatrix" (symmetric *packed*) not going via "matrix"
 > 
@@ -3279,7 +3279,7 @@ M[m,i,m] : nargs()=3
 Csp[m,i,l] : nargs()=4
 > 
 > showProc.time()
-Time (user system elapsed): 0.639 0.091 0.73 
+Time (user system elapsed): 0.634 0.102 0.738 
 > options(op)# revert
 > ##
 > if(doExtras) {#-----------------------------------------------------------------
@@ -3329,7 +3329,7 @@ diagnosing replTmat(x,i,j,v): nargs()= 3; missing (i,j) = (0,1)
 > 
 > i <- 4:7
 > x1 <- x0; x1[cbind(i, i+10)] <- i^2
-> x2 <- x0; x2[cbind(i, i+10)] <- .asmatrix(i^2)
+> x2 <- x0; x2[cbind(i, i+10)] <- as(i^2, "matrix")
 > ## failed: nargs() = 4 ... please report
 > 
 > class(x1) # was "dgT", now "dgC"
@@ -3338,7 +3338,7 @@ attr(,"package")
 [1] "Matrix"
 > stopifnot(isValid(x1, class(x1)), identical(x1, x2))
 > showProc.time()
-Time (user system elapsed): 0.014 0.001 0.015 
+Time (user system elapsed): 0.015 0.001 0.015 
 > 
 > 
 > ## check valid indexing (using *random* indices, often duplicated):
@@ -3435,7 +3435,7 @@ sparse vector (nnz/length = 16/64) of class "dsparseVector"
 > stopifnot(all.equal(x[i] ,  y1+y2, tolerance=0),
 + 		    x[i] == y1+y2)
 > showProc.time()
-Time (user system elapsed): 0.302 0.002 0.304 
+Time (user system elapsed): 0.303 0.001 0.305 
 > 
 > if(!interactive()) warnings()
 > 
@@ -3596,4 +3596,4 @@ sparse vector (nnz/length = 0/6) of class "dsparseVector"
 > 
 > proc.time()
    user  system elapsed 
-  2.989   0.184   3.171 
+  3.001   0.177   3.176 

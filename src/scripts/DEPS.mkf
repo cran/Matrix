@@ -81,7 +81,7 @@ init.o: init.c abIndex.h \
   dgCMatrix.h cs_utils.h cs.h dgeMatrix.h dpoMatrix.h dsyMatrix.h \
   dppMatrix.h dspMatrix.h dsCMatrix.h dtCMatrix.h dtrMatrix.h \
   dtpMatrix.h factorizations.h sparseQR.h packedMatrix.h \
-  unpackedMatrix.h sparse.h validity.h
+  unpackedMatrix.h sparse.h subscript.h validity.h
 packedMatrix.o: packedMatrix.c packedMatrix.h \
   Mutils.h Mdefines.h Syms.h Minlines.h
 sparse.o: sparse.c sparse.h Mutils.h Mdefines.h Syms.h Minlines.h
@@ -96,6 +96,9 @@ sparseQR.o: sparseQR.c sparseQR.h \
   CHOLMOD/Include/cholmod_matrixops.h CHOLMOD/Include/cholmod_modify.h
 sparseVector.o: sparseVector.c sparseVector.h \
   Mutils.h Mdefines.h Syms.h Minlines.h t_sparseVector.c
+subscript.o: subscript.c subscript.h \
+  Mutils.h Mdefines.h Syms.h Minlines.h
 unpackedMatrix.o: unpackedMatrix.c unpackedMatrix.h \
   Mutils.h Mdefines.h Syms.h Minlines.h
-validity.o: validity.c validity.h Mutils.h Mdefines.h Syms.h Minlines.h
+validity.o: validity.c validity.h \
+  Mutils.h Mdefines.h Syms.h Minlines.h

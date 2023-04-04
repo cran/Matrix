@@ -2,8 +2,8 @@
 
 ## ~~~~ COERCIONS TO ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-setAs("Matrix", "symmetricMatrix", ..M2symm)
-setAs("matrix", "symmetricMatrix", ..M2symm)
+setAs("Matrix", "symmetricMatrix", ..M2sym)
+setAs("matrix", "symmetricMatrix", ..M2sym)
 
 ## MJ: prefer more general methods above going via forceSymmetric(),
 ##     for which specialized methods should be defined

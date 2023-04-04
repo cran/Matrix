@@ -253,17 +253,17 @@ for(n in c(5:12)) {
     ## the inverse permutation:
     invP <- solve(P)@perm
     lDet <- sum(2* log(d))# the "true" value
-    ldetp  <-         Matrix:::.diag.dsC(Chx = CAp, res.kind = "sumLog")
-    ldetp. <- sum(log(Matrix:::.diag.dsC(Chx = CAp, res.kind = "diag") ))
+    ldetp  <-         .diag.dsC(Chx = CAp, res.kind = "sumLog")
+    ldetp. <- sum(log(.diag.dsC(Chx = CAp, res.kind = "diag") ))
     ##
     CA	<- Cholesky(A,perm=FALSE)
-    ldet <- Matrix:::.diag.dsC(Chx = CA, res.kind = "sumLog")
+    ldet <- .diag.dsC(Chx = CA, res.kind = "sumLog")
     ## not printing CAp : ends up non-integer for n >= 11
     mCAp <- as(CAp,"sparseMatrix")
     print(mCA  <- drop0(as(CA, "sparseMatrix")))
     stopifnot(identical(A[p,p], as(P %*% A %*% t(P),
 				   "symmetricMatrix")),
-	      relErr(d.^2, Matrix:::.diag.dsC(Chx= CA, res.kind="diag")) < 1e-14,
+	      relErr(d.^2, .diag.dsC(Chx= CA, res.kind="diag")) < 1e-14,
 	      relErr(A[p,p], tcrossprod(mCAp)) < 1e-14)
     if(FALSE)
         rbind(lDet,ldet, ldetp, ldetp.)
@@ -479,14 +479,17 @@ stopifnot(exprs = {
 options(oo)
 
 ## problematic rank deficient rankMatrix() case -- only seen in large cases ??
+## MJ: NA in diag(<sparseQR>@R) not seen with Apple Clang 14.0.3
 Z. <- readRDS(system.file("external", "Z_NA_rnk.rds", package="Matrix"))
 (rnkZ. <- rankMatrix(Z., method = "qr")) # gave errors; now warns typically, but not on aarm64 (M1)
 qrZ. <- qr(Z.)
 options(warn=1)
 rnk2 <- qr2rankMatrix(qrZ.) # warning ".. only 684 out of 822 finite diag(R) entries"
 oo <- options(warn=2)# no warnings allowed from here
-di <- diag(qrZ.@R)
-stopifnot(is.na(rnkZ.), is(qrZ, "sparseQR"), is.na(rnk2), anyNA(di))
+di.NA <- anyNA(diag(qrZ.@R))
+stopifnot(is(qrZ, "sparseQR"),
+          identical(is.na(rnkZ.), di.NA),
+          identical(is.na(rnk2), di.NA))
 
 ## The above bug fix was partly wrongly extended to  dense matrices for "qr.R":
 x <- cbind(1, rep(0:9, 18))

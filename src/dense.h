@@ -9,10 +9,10 @@ SEXP matrix_as_dense(SEXP from, const char *code, char uplo, char diag,
 SEXP R_matrix_as_dense(SEXP from, SEXP code, SEXP uplo, SEXP diag);
 
 SEXP R_dense_as_sparse(SEXP from, SEXP code, SEXP uplo, SEXP diag);
-SEXP R_dense_as_matrix(SEXP from, SEXP ndense);
-SEXP R_geMatrix_as_matrix(SEXP from, SEXP ndense);
-SEXP R_dense_as_vector(SEXP from, SEXP ndense);
-SEXP R_geMatrix_as_vector(SEXP from, SEXP ndense);
+SEXP R_dense_as_matrix(SEXP from);
+SEXP R_geMatrix_as_matrix(SEXP from, SEXP pattern);
+SEXP R_dense_as_vector(SEXP from);
+SEXP R_geMatrix_as_vector(SEXP from, SEXP pattern);
 SEXP R_dense_as_kind(SEXP from, SEXP kind);
 SEXP dense_as_general(SEXP from, char kind, int new, int transpose_if_vector);
 SEXP R_dense_as_general(SEXP from, SEXP kind);

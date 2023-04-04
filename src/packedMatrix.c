@@ -56,7 +56,7 @@ void _PREFIX_ ## dense_packed_make_banded(_CTYPE_ *x, int n,		\
     if (n == 0)								\
 	return;								\
     if (a > b || a >= n || b <= -n) {					\
-	Memzero(x, PM_LENGTH(n));					\
+	Matrix_memset(x, 0, PM_LENGTH(n), sizeof(_CTYPE_));		\
 	return;								\
     }									\
     if (uplo == 'U') {							\
@@ -74,7 +74,7 @@ void _PREFIX_ ## dense_packed_make_banded(_CTYPE_ *x, int n,		\
     if (uplo == 'U') {							\
 	if (j0 > 0) {							\
 	    R_xlen_t dx;						\
-	    Memzero(x, dx = PM_LENGTH(j0));				\
+	    Matrix_memset(x, 0, dx = PM_LENGTH(j0), sizeof(_CTYPE_));	\
 	    x += dx;							\
 	}								\
 	for (j = j0; j < j1; x += (++j)) {				\
@@ -86,7 +86,7 @@ void _PREFIX_ ## dense_packed_make_banded(_CTYPE_ *x, int n,		\
 		*(x + i) = _ZERO_;					\
 	}								\
 	if (j1 < n)							\
-	    Memzero(x, PM_LENGTH(n) - PM_LENGTH(j1));			\
+	    Matrix_memset(x, 0, PM_LENGTH(n) - PM_LENGTH(j1), sizeof(_CTYPE_)); \
 	if (diag != 'N' && a == 0) {					\
 	    x -= PM_LENGTH(j);						\
 	    for (j = 0; j < n; x += (++j)+1)				\
@@ -95,7 +95,7 @@ void _PREFIX_ ## dense_packed_make_banded(_CTYPE_ *x, int n,		\
     } else {								\
 	if (j0 > 0) {							\
 	    R_xlen_t dx;						\
-	    Memzero(x, dx = PM_LENGTH(n) - PM_LENGTH(j0));		\
+	    Matrix_memset(x, 0, dx = PM_LENGTH(n) - PM_LENGTH(j0), sizeof(_CTYPE_)); \
 	    x += dx;							\
 	}								\
 	for (j = j0; j < j1; x += n-(j++)) {				\
@@ -107,7 +107,7 @@ void _PREFIX_ ## dense_packed_make_banded(_CTYPE_ *x, int n,		\
 		*(x + i - j) = _ZERO_;					\
 	}								\
 	if (j1 < n)							\
-	    Memzero(x, PM_LENGTH(n - j1));				\
+	    Matrix_memset(x, 0, PM_LENGTH(n - j1), sizeof(_CTYPE_));	\
 	if (diag != 'N' && b == 0) {					\
 	    x -= PM_LENGTH(n) - PM_LENGTH(j);				\
 	    for (j = 0; j < n; x += n-(j++))				\
@@ -377,24 +377,24 @@ SEXP packedMatrix_unpack(SEXP from, SEXP strict)
     SEXP x_from = PROTECT(GET_SLOT(from, Matrix_xSym)),
 	x_to = PROTECT(allocVector(tx = TYPEOF(x_from), nx));
     
-#define UNPACK(_PREFIX_, _PTR_)						\
+#define UNPACK(_PREFIX_, _CTYPE_, _PTR_)				\
     do {								\
-	Memzero(_PTR_(x_to), nx);					\
+	Matrix_memset(_PTR_(x_to), 0, nx, sizeof(_CTYPE_));		\
 	_PREFIX_ ## dense_unpack(_PTR_(x_to), _PTR_(x_from), n, ul, 'N'); \
     } while (0)
     
     switch (tx) {
-    case REALSXP: /* d..Matrix */
-	UNPACK(d, REAL);
-	break; 
-    case LGLSXP: /* [ln]..Matrix */
-	UNPACK(i, LOGICAL);
+    case LGLSXP: /* [nl]..Matrix */
+	UNPACK(i, int, LOGICAL);
 	break;
     case INTSXP: /* i..Matrix */
-	UNPACK(i, INTEGER);
+	UNPACK(i, int, INTEGER);
 	break;
+    case REALSXP: /* d..Matrix */
+	UNPACK(d, double, REAL);
+	break; 
     case CPLXSXP: /* z..Matrix */
-	UNPACK(z, COMPLEX);
+	UNPACK(z, Rcomplex, COMPLEX);
 	break;
     default:
 	ERROR_INVALID_TYPE("'x' slot", tx, "packedMatrix_unpack");
@@ -481,25 +481,25 @@ SEXP packedMatrix_force_symmetric(SEXP from, SEXP uplo_to)
 	R_xlen_t nx = XLENGTH(x_from);
 	SEXP x_to = PROTECT(allocVector(tx, nx));
 	
-#define COPY_DIAGONAL(_PREFIX_, _PTR_)					\
+#define COPY_DIAGONAL(_PREFIX_, _CTYPE_, _PTR_)				\
 	do {								\
-	    Memzero(_PTR_(x_to), nx);					\
+	    Matrix_memset(_PTR_(x_to), 0, nx, sizeof(_CTYPE_));		\
 	    _PREFIX_ ## dense_packed_copy_diagonal(			\
 		_PTR_(x_to), _PTR_(x_from), n, nx, ult, ulf, di);	\
 	} while (0)
 	
 	switch (tx) {
-	case REALSXP: /* d..Matrix */
-	    COPY_DIAGONAL(d, REAL);
-	    break;
-	case LGLSXP: /* [ln]..Matrix */
-	    COPY_DIAGONAL(i, LOGICAL);
+	case LGLSXP: /* [nl]..Matrix */
+	    COPY_DIAGONAL(i, int, LOGICAL);
 	    break;
 	case INTSXP: /* i..Matrix */
-	    COPY_DIAGONAL(i, INTEGER);
+	    COPY_DIAGONAL(i, int, INTEGER);
+	    break;
+	case REALSXP: /* d..Matrix */
+	    COPY_DIAGONAL(d, double, REAL);
 	    break;
 	case CPLXSXP: /* z..Matrix */
-	    COPY_DIAGONAL(z, COMPLEX);
+	    COPY_DIAGONAL(z, Rcomplex, COMPLEX);
 	    break;
 	default:
 	    ERROR_INVALID_TYPE("'x' slot", tx, "packedMatrix_force_symmetric");
@@ -519,14 +519,14 @@ SEXP packedMatrix_force_symmetric(SEXP from, SEXP uplo_to)
 #define PM_IS_DI(_RES_, _X_, _N_, _UPLO_, _METHOD_)			\
     do {								\
 	switch (TYPEOF(_X_)) {						\
-	case REALSXP:							\
-	    _RES_ = ddense_packed_is_diagonal(REAL(_X_), _N_, _UPLO_);	\
-	    break;							\
 	case LGLSXP:							\
 	    _RES_ = idense_packed_is_diagonal(LOGICAL(_X_), _N_, _UPLO_); \
 	    break;							\
 	case INTSXP:							\
 	    _RES_ = idense_packed_is_diagonal(INTEGER(_X_), _N_, _UPLO_); \
+	    break;							\
+	case REALSXP:							\
+	    _RES_ = ddense_packed_is_diagonal(REAL(_X_), _N_, _UPLO_);	\
 	    break;							\
 	case CPLXSXP:							\
 	    _RES_ = zdense_packed_is_diagonal(COMPLEX(_X_), _N_, _UPLO_); \
@@ -748,14 +748,14 @@ SEXP packedMatrix_diag_get(SEXP obj, SEXP nms)
     } while (0)
 
     switch (tx) {
-    case REALSXP: /* d..Matrix */
-	PM_D_G(double, REAL, 1.0);
-	break;
-    case LGLSXP: /* [ln]..Matrix */
+    case LGLSXP: /* [nl]..Matrix */
 	PM_D_G(int, LOGICAL, 1);
 	break;
     case INTSXP: /* i..Matrix */
 	PM_D_G(int, INTEGER, 1);
+	break;
+    case REALSXP: /* d..Matrix */
+	PM_D_G(double, REAL, 1.0);
 	break;
     case CPLXSXP: /* z..Matrix */
 	PM_D_G(Rcomplex, COMPLEX, Matrix_zone);
@@ -866,14 +866,14 @@ SEXP packedMatrix_diag_set(SEXP obj, SEXP val)
     } while (0)
 
     switch (tx) {
-    case REALSXP:
-	PM_D_S(double, REAL);
-	break;
     case LGLSXP:
 	PM_D_S(int, LOGICAL);
 	break;
     case INTSXP:
 	PM_D_S(int, INTEGER);
+	break;
+    case REALSXP:
+	PM_D_S(double, REAL);
 	break;
     case CPLXSXP:
 	PM_D_S(Rcomplex, COMPLEX);
@@ -1127,7 +1127,7 @@ SEXP packedMatrix_skewpart(SEXP from)
 	    R_xlen_t n1a = (R_xlen_t) n + 1;
 	    SEXP p = PROTECT(allocVector(INTSXP, n1a));
 	    int *pp = INTEGER(p);
-	    Memzero(pp, n1a);
+	    Matrix_memset(pp, 0, n1a, sizeof(int));
 	    SET_SLOT(to, Matrix_pSym, p);
 	    UNPROTECT(1); /* p */
 	} else {
@@ -1246,23 +1246,19 @@ SEXP packedMatrix_skewpart(SEXP from)
 	    res = PROTECT(allocVector(tx = TYPEOF(x), nindex));		\
 									\
 	switch (tx) {							\
-	case REALSXP: /* d..Matrix */					\
-	    PM_SUB1_END(double, REAL, NA_REAL, 0.0, 1.0);		\
-	    break;							\
-	case LGLSXP: /* [ln]..Matrix */					\
+	case LGLSXP: /* [nl]..Matrix */					\
 	    PM_SUB1_END(int, LOGICAL, NA_LOGICAL, 0, 1);		\
 	    break;							\
 	case INTSXP: /* i..Matrix */					\
 	    PM_SUB1_END(int, INTEGER, NA_INTEGER, 0, 1);		\
 	    break;							\
-	case CPLXSXP: /* z..Matrix */					\
-	{								\
-	    Rcomplex na, zero, one;					\
-	    na.r = NA_REAL; zero.r = 0.0; one.r = 1.0;			\
-	    na.i = NA_REAL; zero.i = 0.0; one.i = 0.0;			\
-	    PM_SUB1_END(Rcomplex, COMPLEX, na, zero, one);		\
+	case REALSXP: /* d..Matrix */					\
+	    PM_SUB1_END(double, REAL, NA_REAL, 0.0, 1.0);		\
 	    break;							\
-	}								\
+	case CPLXSXP: /* z..Matrix */					\
+	    PM_SUB1_END(Rcomplex, COMPLEX,				\
+			Matrix_zna, Matrix_zzero, Matrix_zone);	\
+	    break;							\
 	default:							\
 	    ERROR_INVALID_TYPE("'x' slot", tx, "packedMatrix_sub1");	\
 	    break;							\
@@ -1550,23 +1546,19 @@ SEXP packedMatrix_sub2(SEXP obj, SEXP index1, SEXP index2, SEXP drop)
 	x1 = PROTECT(allocVector(tx = TYPEOF(x0), nx));
     
     switch (tx) {
-    case REALSXP: /* d..Matrix */
-	PM_SUB2(double, REAL, NA_REAL, 0.0, 1.0);
-	break;
-    case LGLSXP: /* [ln]..Matrix */
+    case LGLSXP: /* [nl]..Matrix */
 	PM_SUB2(int, LOGICAL, NA_LOGICAL, 0, 1);
 	break;
     case INTSXP: /* i..Matrix */
 	PM_SUB2(int, INTEGER, NA_INTEGER, 0, 1);
 	break;
-    case CPLXSXP: /* z..Matrix */
-    {
-	Rcomplex na, zero, one;
-	na.r = NA_REAL; zero.r = 0.0; one.r = 1.0;
-	na.i = NA_REAL; zero.i = 0.0; one.i = 0.0;
-	PM_SUB2(Rcomplex, COMPLEX, na, zero, one);
+    case REALSXP: /* d..Matrix */
+	PM_SUB2(double, REAL, NA_REAL, 0.0, 1.0);
 	break;
-    }
+    case CPLXSXP: /* z..Matrix */
+	PM_SUB2(Rcomplex, COMPLEX,
+		Matrix_zna, Matrix_zzero, Matrix_zone);
+	break;
     default:
 	ERROR_INVALID_TYPE("'x' slot", tx, "packedMatrix_sub2");
 	break;

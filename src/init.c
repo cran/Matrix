@@ -19,11 +19,12 @@
 #include "packedMatrix.h"
 #include "unpackedMatrix.h"
 #include "sparse.h"
+#include "subscript.h"
 #include "validity.h"
 #include <R_ext/Rdynload.h>
 
 #include "Syms.h"
-Rcomplex Matrix_zzero, Matrix_zone;
+Rcomplex Matrix_zzero, Matrix_zone, Matrix_zna;
 
 #define CALLDEF(name, n)  {#name, (DL_FUNC) &name, n}
 #define EXTDEF(name, n)   {#name, (DL_FUNC) &name, n}
@@ -467,12 +468,17 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(R_DimNames_is_symmetric, 1),
     CALLDEF(R_symmDN, 1),
     CALLDEF(R_revDN, 1),
+    CALLDEF(R_Matrix_nonvirtual, 2),
     CALLDEF(R_Matrix_kind, 2),
     CALLDEF(R_Matrix_shape, 1),
     CALLDEF(R_Matrix_repr, 1),
     CALLDEF(R_index_triangle, 4),
     CALLDEF(R_index_diagonal, 3),
     CALLDEF(R_nnz, 3),
+
+    CALLDEF(R_subscript_1ary, 2),
+    CALLDEF(R_subscript_1ary_mat, 2),
+    CALLDEF(R_subscript_2ary, 3),
 
     CALLDEF(R_sparse_as_dense, 2),
     CALLDEF(R_sparse_as_matrix, 1),
@@ -514,9 +520,9 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(R_dense_as_general, 2),
     CALLDEF(R_dense_as_sparse, 4),
     CALLDEF(R_dense_as_kind, 2),
-    CALLDEF(R_dense_as_matrix, 2),
+    CALLDEF(R_dense_as_matrix, 1),
     CALLDEF(R_geMatrix_as_matrix, 2),
-    CALLDEF(R_dense_as_vector, 2),
+    CALLDEF(R_dense_as_vector, 1),
     CALLDEF(R_geMatrix_as_vector, 2),
     CALLDEF(R_dense_band, 3),
     CALLDEF(R_dense_colSums, 3),
@@ -694,8 +700,8 @@ R_init_Matrix(DllInfo *dll)
 #endif
 	error(_("Matrix namespace not determined correctly"));
 
-    Matrix_zzero.r = 0.0; Matrix_zone.r = 1.0;
-    Matrix_zzero.i = 0.0; Matrix_zone.i = 0.0;
+    Matrix_zzero.r = 0.0; Matrix_zone.r = 1.0; Matrix_zna.r = NA_REAL;
+    Matrix_zzero.i = 0.0; Matrix_zone.i = 0.0; Matrix_zna.i = NA_REAL;
 }
 
 void R_unload_Matrix(DllInfo *dll)

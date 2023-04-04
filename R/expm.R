@@ -67,5 +67,5 @@ setMethod("expm", signature(x = "matrix"),
               if(d[1L] != d[2L])
                   stop("matrix is not square")
               storage.mode(x) <- "double"
-              expm(if(isDiagonal(x)) .M2diag(x, check = FALSE) else .m2ge(x))
+              expm(if(isDiagonal(x)) forceDiagonal(x) else .m2ge(x))
           })

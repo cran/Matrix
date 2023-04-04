@@ -6,7 +6,7 @@
 
 setMethod("chol", signature(x = "generalMatrix"),
 	  function(x, ...) {
-              ch <- chol(.M2symm(x, checkDN = FALSE), ...)
+              ch <- chol(.M2sym(x, checkDN = FALSE), ...)
               ch@Dimnames <- x@Dimnames # restore asymmetric 'Dimnames'
               ch
           })
@@ -21,7 +21,7 @@ setMethod("chol", signature(x = "symmetricMatrix"),
 setMethod("chol", signature(x = "triangularMatrix"),
 	  function(x, ...) {
               if(isDiagonal(x))
-                  chol(.M2diag(x, check = FALSE), ...)
+                  chol(forceDiagonal(x), ...)
               else stop("chol(x) is undefined: 'x' is not symmetric")
           })
 
@@ -40,7 +40,7 @@ setMethod("chol", signature(x = "dgeMatrix"),
           function(x, cache = TRUE, ...) {
               if(!is.null(ch <- x@factors[["Cholesky"]]))
                   return(ch) # use the cache
-              ch <- chol(.M2symm(x, checkDN = FALSE), ...)
+              ch <- chol(.M2sym(x, checkDN = FALSE), ...)
               ch@Dimnames <- x@Dimnames # restore asymmetric 'Dimnames'
               if(cache) .set.factors(x, "Cholesky", ch) else ch
           })
@@ -74,7 +74,7 @@ setMethod("chol", signature(x = .cl),
                   ch@Dimnames <- x@Dimnames # as MF has no 'Dimnames' slot
                   return(ch)
               }
-              ch <- chol(y <- .M2symm(x, checkDN = FALSE), pivot = pivot, ...)
+              ch <- chol(y <- .M2sym(x, checkDN = FALSE), pivot = pivot, ...)
               ch@Dimnames <- x@Dimnames # restore asymmetric 'Dimnames'
               if(cache)
                   ## dsCMatrix_chol() caches CHMfactor and returns dtCMatrix
@@ -135,7 +135,7 @@ setMethod("Cholesky", signature(A = "denseMatrix"),
 
 setMethod("Cholesky", signature(A = "sparseMatrix"), # ->dsCMatrix
 	  function(A, perm = TRUE, LDL = !super, super = FALSE, Imult = 0, ...)
-              Cholesky(..sparse2d(.M2symm(as(A, "CsparseMatrix"))),
+              Cholesky(..sparse2d(.M2sym(as(A, "CsparseMatrix"))),
                        perm = perm, LDL = LDL, super = super, Imult = Imult,
                        ...))
 

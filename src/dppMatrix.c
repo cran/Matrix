@@ -71,8 +71,8 @@ SEXP dppMatrix_rcond(SEXP obj)
     const char *ul = CHAR(STRING_ELT(uplo, 0));
 
     F77_CALL(dppcon)(ul, pdim, px, &norm, &rcond,
-		     (double *) R_alloc(3 * pdim[0], sizeof(double)),
-		     (int *) R_alloc(pdim[0], sizeof(int)),
+		     (double *) R_alloc((size_t) 3 * pdim[0], sizeof(double)),
+		     (int *) R_alloc((size_t) pdim[0], sizeof(int)),
 		     &info FCONE);
 
     UNPROTECT(4);

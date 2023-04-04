@@ -24,4 +24,5 @@ SOURCES_C =  \
 	    packedMatrix.c \
 	    unpackedMatrix.c \
 	    sparse.c \
+	    subscript.c \
 	    validity.c

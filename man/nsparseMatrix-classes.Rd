@@ -35,108 +35,18 @@
 \alias{coerce,numLike,nsparseMatrix-method}
 \alias{which,nsparseMatrix-method}
 % ngC
-\alias{coerce,matrix,ngCMatrix-method}
-\alias{coerce,ngCMatrix,dgCMatrix-method}
-\alias{coerce,ngCMatrix,lgCMatrix-method}
-\alias{coerce,ngCMatrix,ngRMatrix-method}
-\alias{coerce,ngCMatrix,ngTMatrix-method}
-\alias{coerce,ngCMatrix,ngeMatrix-method}
-\alias{coerce,ngCMatrix,nsCMatrix-method}
-\alias{coerce,ngCMatrix,nsTMatrix-method}
-\alias{coerce,ngCMatrix,ntCMatrix-method}
-\alias{coerce,ngCMatrix,ntTMatrix-method}
-\alias{coerce,numLike,ngCMatrix-method}
 % ngR
-\alias{coerce,matrix,ngRMatrix-method}
-\alias{coerce,ngRMatrix,dgRMatrix-method}
-\alias{coerce,ngRMatrix,lgRMatrix-method}
-\alias{coerce,ngRMatrix,ngCMatrix-method}
-\alias{coerce,ngRMatrix,ngTMatrix-method}
-\alias{coerce,ngRMatrix,ngeMatrix-method}
-\alias{coerce,ngRMatrix,nsRMatrix-method}
-\alias{coerce,ngRMatrix,ntRMatrix-method}
-\alias{coerce,numLike,ngRMatrix-method}
 % ngT
-\alias{coerce,matrix,ngTMatrix-method}
-\alias{coerce,ngTMatrix,dgTMatrix-method}
-\alias{coerce,ngTMatrix,lgTMatrix-method}
-\alias{coerce,ngTMatrix,lgeMatrix-method}
-\alias{coerce,ngTMatrix,ngCMatrix-method}
-\alias{coerce,ngTMatrix,ngRMatrix-method}
-\alias{coerce,ngTMatrix,ngeMatrix-method}
-\alias{coerce,ngTMatrix,nsCMatrix-method}
-\alias{coerce,ngTMatrix,nsTMatrix-method}
-\alias{coerce,ngTMatrix,ntCMatrix-method}
-\alias{coerce,ngTMatrix,ntTMatrix-method}
-\alias{coerce,numLike,ngTMatrix-method}
 \alias{which,ngTMatrix-method}
 % ntC
-\alias{coerce,matrix,ntCMatrix-method}
-\alias{coerce,ntCMatrix,dtCMatrix-method}
-\alias{coerce,ntCMatrix,ltCMatrix-method}
-\alias{coerce,ntCMatrix,ngCMatrix-method}
-\alias{coerce,ntCMatrix,ngTMatrix-method}
-\alias{coerce,ntCMatrix,nsCMatrix-method}
-\alias{coerce,ntCMatrix,ntRMatrix-method}
-\alias{coerce,ntCMatrix,ntTMatrix-method}
-\alias{coerce,ntCMatrix,ntpMatrix-method}
-\alias{coerce,ntCMatrix,ntrMatrix-method}
 % ntR
-\alias{coerce,matrix,ntRMatrix-method}
-\alias{coerce,ntRMatrix,dtRMatrix-method}
-\alias{coerce,ntRMatrix,ltRMatrix-method}
-\alias{coerce,ntRMatrix,ngRMatrix-method}
-\alias{coerce,ntRMatrix,nsRMatrix-method}
-\alias{coerce,ntRMatrix,ntCMatrix-method}
-\alias{coerce,ntRMatrix,ntTMatrix-method}
-\alias{coerce,ntRMatrix,ntpMatrix-method}
-\alias{coerce,ntRMatrix,ntrMatrix-method}
 % ntT
-\alias{coerce,matrix,ntTMatrix-method}
-\alias{coerce,ntTMatrix,dtTMatrix-method}
-\alias{coerce,ntTMatrix,ltTMatrix-method}
-\alias{coerce,ntTMatrix,ngCMatrix-method}
-\alias{coerce,ntTMatrix,ngTMatrix-method}
-\alias{coerce,ntTMatrix,nsTMatrix-method}
-\alias{coerce,ntTMatrix,ntCMatrix-method}
-\alias{coerce,ntTMatrix,ntRMatrix-method}
-\alias{coerce,ntTMatrix,ntpMatrix-method}
-\alias{coerce,ntTMatrix,ntrMatrix-method}
 \alias{which,ntTMatrix-method}
 % nsC
-\alias{coerce,matrix,nsCMatrix-method}
 \alias{coerce,nsCMatrix,RsparseMatrix-method}
-\alias{coerce,nsCMatrix,dsCMatrix-method}
-\alias{coerce,nsCMatrix,lsCMatrix-method}
-\alias{coerce,nsCMatrix,ngCMatrix-method}
-\alias{coerce,nsCMatrix,ngTMatrix-method}
-\alias{coerce,nsCMatrix,nsRMatrix-method}
-\alias{coerce,nsCMatrix,nsTMatrix-method}
-\alias{coerce,nsCMatrix,nspMatrix-method}
-\alias{coerce,nsCMatrix,nsyMatrix-method}
-\alias{coerce,nsCMatrix,ntCMatrix-method}
 % nsR
-\alias{coerce,matrix,nsRMatrix-method}
 \alias{coerce,nsRMatrix,CsparseMatrix-method}
-\alias{coerce,nsRMatrix,dsRMatrix-method}
-\alias{coerce,nsRMatrix,lsRMatrix-method}
-\alias{coerce,nsRMatrix,ngRMatrix-method}
-\alias{coerce,nsRMatrix,nsCMatrix-method}
-\alias{coerce,nsRMatrix,nsTMatrix-method}
-\alias{coerce,nsRMatrix,nspMatrix-method}
-\alias{coerce,nsRMatrix,nsyMatrix-method}
-\alias{coerce,nsRMatrix,ntRMatrix-method}
 % nsT
-\alias{coerce,matrix,nsTMatrix-method}
-\alias{coerce,nsTMatrix,dsTMatrix-method}
-\alias{coerce,nsTMatrix,lsTMatrix-method}
-\alias{coerce,nsTMatrix,ngCMatrix-method}
-\alias{coerce,nsTMatrix,ngTMatrix-method}
-\alias{coerce,nsTMatrix,nsCMatrix-method}
-\alias{coerce,nsTMatrix,nsRMatrix-method}
-\alias{coerce,nsTMatrix,nspMatrix-method}
-\alias{coerce,nsTMatrix,nsyMatrix-method}
-\alias{coerce,nsTMatrix,ntTMatrix-method}
 \alias{which,nsTMatrix-method}
 %
 \description{The \code{nsparseMatrix} class is a virtual class of sparse

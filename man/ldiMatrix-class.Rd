@@ -44,19 +44,6 @@
 \alias{cbind2,ldiMatrix,atomicVector-method}
 \alias{cbind2,ldiMatrix,matrix-method}
 \alias{cbind2,matrix,ldiMatrix-method}
-\alias{coerce,ldiMatrix,ddiMatrix-method}
-\alias{coerce,ldiMatrix,lgCMatrix-method}
-\alias{coerce,ldiMatrix,lgRMatrix-method}
-\alias{coerce,ldiMatrix,lgTMatrix-method}
-\alias{coerce,ldiMatrix,lgeMatrix-method}
-\alias{coerce,ldiMatrix,lsCMatrix-method}
-\alias{coerce,ldiMatrix,lsRMatrix-method}
-\alias{coerce,ldiMatrix,lsTMatrix-method}
-\alias{coerce,ldiMatrix,lsyMatrix-method}
-\alias{coerce,ldiMatrix,ltCMatrix-method}
-\alias{coerce,ldiMatrix,ltRMatrix-method}
-\alias{coerce,ldiMatrix,ltTMatrix-method}
-\alias{coerce,ldiMatrix,ltrMatrix-method}
 \alias{prod,ldiMatrix-method}
 \alias{rbind2,ldiMatrix,atomicVector-method}
 \alias{rbind2,ldiMatrix,matrix-method}
@@ -84,7 +71,7 @@
 \section{Extends}{
   Class \code{"\linkS4class{diagonalMatrix}"} and
   class \code{"\linkS4class{lMatrix}"}, directly.
-
+  
   Class \code{"\linkS4class{sparseMatrix}"}, by class \code{"diagonalMatrix"}.
 }
 % \section{Methods}{

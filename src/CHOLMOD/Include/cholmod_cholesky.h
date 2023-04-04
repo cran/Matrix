@@ -165,7 +165,7 @@ int cholmod_factorize_p
     cholmod_common *Common
 ) ;
 
-int cholmod_l_factorize_p (cholmod_sparse *, double *, SuiteSparse_long *,
+int cholmod_l_factorize_p (cholmod_sparse *, double [2], SuiteSparse_long *,
     size_t, cholmod_factor *, cholmod_common *) ;
 
 /* -------------------------------------------------------------------------- */
@@ -384,7 +384,8 @@ int cholmod_rowfac
     cholmod_common *Common
 ) ;
 
-int cholmod_l_rowfac (cholmod_sparse *, cholmod_sparse *, double *, size_t,
+
+int cholmod_l_rowfac (cholmod_sparse *, cholmod_sparse *, double [2], size_t,
     size_t, cholmod_factor *, cholmod_common *) ;
 
 /* -------------------------------------------------------------------------- */
@@ -410,7 +411,7 @@ int cholmod_rowfac_mask
     cholmod_common *Common
 ) ;
 
-int cholmod_l_rowfac_mask (cholmod_sparse *, cholmod_sparse *, double *, size_t,
+int cholmod_l_rowfac_mask (cholmod_sparse *, cholmod_sparse *, double [2], size_t,
     size_t, SuiteSparse_long *, SuiteSparse_long *, cholmod_factor *,
     cholmod_common *) ;
 
@@ -431,7 +432,7 @@ int cholmod_rowfac_mask2
     cholmod_common *Common
 ) ;
 
-int cholmod_l_rowfac_mask2 (cholmod_sparse *, cholmod_sparse *, double *,
+int cholmod_l_rowfac_mask2 (cholmod_sparse *, cholmod_sparse *, double [2],
     size_t, size_t, SuiteSparse_long *, SuiteSparse_long, SuiteSparse_long *,
     cholmod_factor *, cholmod_common *) ;
 

@@ -27,10 +27,10 @@ SEXP sparse_as_dense(SEXP from, int packed)
     if (packed && clf[2] != 'C' && mn > R_XLEN_T_MAX)
 	error(_("coercing n-by-n [RT]sparseMatrix to packedMatrix "
 		"is not supported for n*n exceeding R_XLEN_T_MAX"));
-    if (dsize > 0x1p+30 /* 1 GiB */)
+    if (dsize > 0x1.0p+30 /* 1 GiB */)
 	warning(_("sparse->dense coercion: "
 		  "allocating vector of size %0.1f GiB"),
-		0x1p-30 * dsize);
+		0x1.0p-30 * dsize);
     if (m != n || n > 0)
 	SET_SLOT(to, Matrix_DimSym, dim);
     UNPROTECT(1); /* dim */
@@ -104,13 +104,13 @@ SEXP sparse_as_dense(SEXP from, int packed)
 #define SAD_C_X(_CTYPE_, _PTR_, _ZERO_, _ONE_, _NZ_)	\
 	do {						\
 	    _CTYPE_ *px0 = _PTR_(x0), *px1 = _PTR_(x1);	\
-	    Memzero(px1, nx);				\
+	    Matrix_memset(px1, 0, nx, sizeof(_CTYPE_));	\
 	    SAD_C(*(px0++));				\
 	} while (0)
 	    
 	if (clf[0] == 'n') {
 	    int *px1 = LOGICAL(x1);
-	    Memzero(px1, nx);
+	    Matrix_memset(px1, 0, nx, sizeof(int));
 	    SAD_C(1);
 	} else {
 	    SPARSE_CASES(tx, SAD_C_X);
@@ -161,13 +161,13 @@ SEXP sparse_as_dense(SEXP from, int packed)
 #define SAD_R_X(_CTYPE_, _PTR_, _ZERO_, _ONE_, _NZ_)	\
 	do {						\
 	    _CTYPE_ *px0 = _PTR_(x0), *px1 = _PTR_(x1);	\
-	    Memzero(px1, nx);				\
+	    Matrix_memset(px1, 0, nx, sizeof(_CTYPE_));	\
 	    SAD_R(*(px0++));				\
 	} while (0)
 
 	if (clf[0] == 'n') {
 	    int *px1 = LOGICAL(x1);
-	    Memzero(px1, nx);
+	    Matrix_memset(px1, 0, nx, sizeof(int));
 	    SAD_R(1);
 	} else {
 	    SPARSE_CASES(tx, SAD_R_X);
@@ -201,7 +201,7 @@ SEXP sparse_as_dense(SEXP from, int packed)
 	case 'n':
 	{
 	    int *px1 = LOGICAL(x1);
-	    Memzero(px1, nx);
+	    Matrix_memset(px1, 0, nx, sizeof(int));
 	    
 #define SAD_T_N(_INDEX_)				\
 	    do {					\
@@ -215,7 +215,7 @@ SEXP sparse_as_dense(SEXP from, int packed)
 	case 'l':
 	{
 	    int *px0 = LOGICAL(x0), *px1 = LOGICAL(x1);
-	    Memzero(px1, nx);
+	    Matrix_memset(px1, 0, nx, sizeof(int));
 
 #define SAD_T_L(_INDEX_)					\
 	    do {						\
@@ -236,7 +236,7 @@ SEXP sparse_as_dense(SEXP from, int packed)
 	case 'i':
 	{
 	    int *px0 = INTEGER(x0), *px1 = INTEGER(x1);
-	    Memzero(px1, nx);
+	    Matrix_memset(px1, 0, nx, sizeof(int));
 
 /* FIXME: not detecting integer overflow here */
 #define SAD_T_I(_INDEX_)					\
@@ -251,7 +251,7 @@ SEXP sparse_as_dense(SEXP from, int packed)
 	case 'd':
 	{
 	    double *px0 = REAL(x0), *px1 = REAL(x1);
-	    Memzero(px1, nx);
+	    Matrix_memset(px1, 0, nx, sizeof(double));
 
 #define SAD_T_D(_INDEX_) SAD_T_I(_INDEX_)
 
@@ -261,7 +261,7 @@ SEXP sparse_as_dense(SEXP from, int packed)
 	case 'z':
 	{
 	    Rcomplex *px0 = COMPLEX(x0), *px1 = COMPLEX(x1);
-	    Memzero(px1, nx);
+	    Matrix_memset(px1, 0, nx, sizeof(Rcomplex));
 	    R_xlen_t index;
 
 #define SAD_T_Z(_INDEX_)					\
@@ -551,7 +551,7 @@ SEXP R_sparse_as_general(SEXP from)
 	*(pp1++) = 0;
 	
 	if (clf[1] == 's') {
-	    Memzero(pp1, n);
+	    Matrix_memset(pp1, 0, n, sizeof(int));
 	    for (j = 0, k = 0; j < n; ++j) {
 		kend = pp0[j];
 		while (k < kend) {
@@ -589,7 +589,7 @@ SEXP R_sparse_as_general(SEXP from)
 
 	    int *pp1_;
 	    Calloc_or_Alloca_TO(pp1_, n, int);
-	    Memcpy(pp1_, pp1 - 1, n);
+	    Matrix_memcpy(pp1_, pp1 - 1, n, sizeof(int));
 	    
 #define SAG_CR(_XASSIGN_IJ_, _XASSIGN_JI_)				\
 	    do {							\
@@ -694,8 +694,8 @@ SEXP R_sparse_as_general(SEXP from)
 	int *pi1 = INTEGER(i1), *pj1 = INTEGER(j1);
 	SET_SLOT(to, Matrix_iSym, i1);
 	SET_SLOT(to, Matrix_jSym, j1);
-	Memcpy(pi1, pi0, nnz0);
-	Memcpy(pj1, pj0, nnz0);
+	Matrix_memcpy(pi1, pi0, nnz0, sizeof(int));
+	Matrix_memcpy(pj1, pj0, nnz0, sizeof(int));
 	pi1 += nnz0;
 	pj1 += nnz0;
 
@@ -725,7 +725,7 @@ SEXP R_sparse_as_general(SEXP from)
 #define SAG_T_X(_CTYPE_, _PTR_, _ZERO_, _ONE_, _NZ_)		\
 	    do {						\
 		_CTYPE_ *px0 = _PTR_(x0), *px1 = _PTR_(x1);	\
-		Memcpy(px1, px0, nnz0);				\
+		Matrix_memcpy(px1, px0, nnz0, sizeof(_CTYPE_));	\
 		px1 += nnz0;					\
 		SAG_T(*(px1++) = *px0, ++px0);			\
 	    } while (0)
@@ -752,7 +752,7 @@ SEXP R_sparse_as_general(SEXP from)
 #define SAG_T_X(_CTYPE_, _PTR_, _ZERO_, _ONE_, _NZ_)		\
 	    do {						\
 		_CTYPE_ *px0 = _PTR_(x0), *px1 = _PTR_(x1);	\
-		Memcpy(px1, px0, nnz0);				\
+		Matrix_memcpy(px1, px0, nnz0, sizeof(_CTYPE_));	\
 		px1 += nnz0;					\
 		SAG_T(*(px1++) = _ONE_);			\
 	    } while (0)
@@ -847,7 +847,7 @@ SEXP R_diagonal_as_sparse(SEXP from, SEXP code, SEXP uplo, SEXP drop0)
 	
 	if (clt[2] != 'T') {
 	    if (clt[1] == 't')
-		Memzero(pp, n1a);
+		Matrix_memset(pp, 0, n1a, sizeof(int));
 	    else
 		for (k = 0; k <= n; ++k)
 		    *(pp++) = k;
@@ -997,10 +997,10 @@ SEXP R_diagonal_as_dense(SEXP from, SEXP code, SEXP uplo)
 	size = nx * kind2size(clt[0]);
     if (nx > R_XLEN_T_MAX)
 	error(_("attempt to allocate vector of length exceeding R_XLEN_T_MAX"));
-    if (size > 0x1p+30) /* 1 GiB */
+    if (size > 0x1.0p+30) /* 1 GiB */
 	warning(_("sparse->dense coercion: "
 		  "allocating vector of size %0.1f GiB"),
-		0x1p-30 * size);
+		0x1.0p-30 * size);
     if (n > 0)
 	SET_SLOT(to, Matrix_DimSym, dim);
     UNPROTECT(1); /* dim */
@@ -1033,9 +1033,9 @@ SEXP R_diagonal_as_dense(SEXP from, SEXP code, SEXP uplo)
 
     SEXP x1 = PROTECT(allocVector(tx, (R_xlen_t) nx));
     
-#define DAD_COPY_DIAGONAL(_PREFIX_, _PTR_)				\
+#define DAD_COPY_DIAGONAL(_PREFIX_, _CTYPE_, _PTR_)			\
     do {								\
-	Memzero(_PTR_(x1), (R_xlen_t) nx);				\
+	Matrix_memset(_PTR_(x1), 0, (R_xlen_t) nx, sizeof(_CTYPE_));	\
 	if (clt[1] != 't' || di == 'N') {				\
 	    SEXP x0;							\
 	    PROTECT_INDEX pid;						\
@@ -1053,16 +1053,16 @@ SEXP R_diagonal_as_dense(SEXP from, SEXP code, SEXP uplo)
 	
     switch (tx) {
     case LGLSXP:
-	DAD_COPY_DIAGONAL(i, LOGICAL);
+	DAD_COPY_DIAGONAL(i, int, LOGICAL);
 	break;
     case INTSXP:
-	DAD_COPY_DIAGONAL(i, INTEGER);
+	DAD_COPY_DIAGONAL(i, int, INTEGER);
 	break;
     case REALSXP:
-	DAD_COPY_DIAGONAL(d, REAL);
+	DAD_COPY_DIAGONAL(d, double, REAL);
 	break;
     case CPLXSXP:
-	DAD_COPY_DIAGONAL(z, COMPLEX);
+	DAD_COPY_DIAGONAL(z, Rcomplex, COMPLEX);
 	break;
     default:
 	break;
@@ -1137,7 +1137,7 @@ SEXP R_sparse_drop0(SEXP from)
     ++nprotect;
     SEXPTYPE tx = TYPEOF(x0);
     int *pp0 = NULL;
-    R_xlen_t n1a = 0 /* -Wmaybe-uninitialized */, k, kend, nnz_, nnz0, nnz1 = 0;
+    R_xlen_t n1a = 0, k, kend, nnz_ = 0, nnz0, nnz1 = 0;
     
     if (cl[2] != 'T') {
 	PROTECT(p0 = GET_SLOT(from, Matrix_pSym));
@@ -1219,34 +1219,34 @@ SEXP R_sparse_drop0(SEXP from)
 	int *pp1 = INTEGER(p1), j;
 	n = (int) n1a - 1;
 
-#define DROP0_END(_CTYPE_, _PTR_, _ZERO_, _ONE_, _NZ_)	\
-	do {						\
-	    _CTYPE_ *px0 = _PTR_(x0), *px1 = _PTR_(x1);	\
-	    Memcpy(pi1, pi0, nnz_);			\
-	    Memcpy(px1, px0, nnz_);			\
-	    j = 0;					\
-	    while ((kend = pp0[j]) <= nnz_)		\
-		pp1[j++] = kend;			\
-	    for (k = nnz_; k < kend; ++k) {		\
-		if (_NZ_(px0[k])) {			\
-		    pi1[nnz_] = pi0[k];			\
-		    px1[nnz_] = px0[k];			\
-		    ++nnz_;				\
-		}					\
-	    }						\
-	    pp1[j] = nnz_;				\
-	    while (++j <= n) {				\
-		kend = pp0[j];				\
-		while (k < kend) {			\
-		    if (_NZ_(px0[k])) {			\
-			pi1[nnz_] = pi0[k];		\
-			px1[nnz_] = px0[k];		\
-			++nnz_;				\
-		    }					\
-		    ++k;				\
-		}					\
-		pp1[j] = nnz_;				\
-	    }						\
+#define DROP0_END(_CTYPE_, _PTR_, _ZERO_, _ONE_, _NZ_)		\
+	do {							\
+	    _CTYPE_ *px0 = _PTR_(x0), *px1 = _PTR_(x1);		\
+	    Matrix_memcpy(pi1, pi0, nnz_, sizeof(int));		\
+	    Matrix_memcpy(px1, px0, nnz_, sizeof(_CTYPE_));	\
+	    j = 0;						\
+	    while ((kend = pp0[j]) <= nnz_)			\
+		pp1[j++] = kend;				\
+	    for (k = nnz_; k < kend; ++k) {			\
+		if (_NZ_(px0[k])) {				\
+		    pi1[nnz_] = pi0[k];				\
+		    px1[nnz_] = px0[k];				\
+		    ++nnz_;					\
+		}						\
+	    }							\
+	    pp1[j] = nnz_;					\
+	    while (++j <= n) {					\
+		kend = pp0[j];					\
+		while (k < kend) {				\
+		    if (_NZ_(px0[k])) {				\
+			pi1[nnz_] = pi0[k];			\
+			px1[nnz_] = px0[k];			\
+			++nnz_;					\
+		    }						\
+		    ++k;					\
+		}						\
+		pp1[j] = nnz_;					\
+	    }							\
 	} while (0)
     
 	SPARSE_CASES(tx, DROP0_END);
@@ -1268,9 +1268,9 @@ SEXP R_sparse_drop0(SEXP from)
 #define DROP0_END(_CTYPE_, _PTR_, _ZERO_, _ONE_, _NZ_)		\
 	do {							\
 	    _CTYPE_ *px0 = _PTR_(x0), *px1 = _PTR_(x1);		\
-	    Memcpy(pi1, pi0, nnz_);				\
-	    Memcpy(pj1, pj0, nnz_);				\
-	    Memcpy(px1, px0, nnz_);				\
+	    Matrix_memcpy(pi1, pi0, nnz_, sizeof(int));		\
+	    Matrix_memcpy(pj1, pj0, nnz_, sizeof(int));		\
+	    Matrix_memcpy(px1, px0, nnz_, sizeof(_CTYPE_));	\
 	    for (k = nnz_; k < nnz0; ++k) {			\
 		if (_NZ_(px0[k])) {				\
 		    pi1[nnz_] = pi0[k];				\
@@ -1422,7 +1422,7 @@ SEXP R_sparse_band(SEXP from, SEXP k1, SEXP k2)
 	++pp1;
 
 	if (!sy && clf[1] == 's') {
-	    Memzero(pp1, n);
+	    Matrix_memset(pp1, 0, n, sizeof(int));
 	    for (j = 0, k = 0; j < n; ++j) {
 		kend = pp0[j];
 		while (k < kend) {
@@ -1510,7 +1510,7 @@ SEXP R_sparse_band(SEXP from, SEXP k1, SEXP k2)
 	    if (!sy && clf[1] == 's') {					\
 		int *pp1_;						\
 		Calloc_or_Alloca_TO(pp1_, n, int);			\
-		Memcpy(pp1_, pp1 - 1, n);				\
+		Matrix_memcpy(pp1_, pp1 - 1, n, sizeof(int));		\
 		for (j = 0, k = 0; j < n; ++j) {			\
 		    kend = pp0[j];					\
 		    while (k < kend) {					\
@@ -1740,7 +1740,7 @@ SEXP R_sparse_diag_get(SEXP obj, SEXP nms)
 	case 'n':
 	{
 	    int *pres = LOGICAL(res);
-	    Memzero(pres, r);
+	    Matrix_memset(pres, 0, r, sizeof(int));
 	    for (k = 0; k < nnz; ++k, ++pi, ++pj)
 		if (*pi == *pj)
 		    pres[*pi] = 1;
@@ -1749,7 +1749,7 @@ SEXP R_sparse_diag_get(SEXP obj, SEXP nms)
 	case 'l':
 	{
 	    int *px = LOGICAL(x), *pres = LOGICAL(res);
-	    Memzero(pres, r);
+	    Matrix_memset(pres, 0, r, sizeof(int));
 	    for (k = 0; k < nnz; ++k, ++pi, ++pj, ++px) {
 		if (*pi == *pj && *px != 0) {
 		    if (*px != NA_LOGICAL)
@@ -1764,7 +1764,7 @@ SEXP R_sparse_diag_get(SEXP obj, SEXP nms)
 	{
 	    /* FIXME: not detecting integer overflow here */
 	    int *px = INTEGER(x), *pres = INTEGER(res);
-	    Memzero(pres, r);
+	    Matrix_memset(pres, 0, r, sizeof(int));
 	    for (k = 0; k < nnz; ++k, ++pi, ++pj, ++px)
 		if (*pi == *pj)
 		    pres[*pi] += *px;
@@ -1773,7 +1773,7 @@ SEXP R_sparse_diag_get(SEXP obj, SEXP nms)
 	case 'd':
 	{
 	    double *px = REAL(x), *pres = REAL(res);
-	    Memzero(pres, r);
+	    Matrix_memset(pres, 0, r, sizeof(double));
 	    for (k = 0; k < nnz; ++k, ++pi, ++pj, ++px)
 		if (*pi == *pj)
 		    pres[*pi] += *px;
@@ -1782,7 +1782,7 @@ SEXP R_sparse_diag_get(SEXP obj, SEXP nms)
 	case 'z':
 	{
 	    Rcomplex *px = COMPLEX(x), *pres = COMPLEX(res);
-	    Memzero(pres, r);
+	    Matrix_memset(pres, 0, r, sizeof(Rcomplex));
 	    for (k = 0; k < nnz; ++k, ++pi, ++pj, ++px) {
 		if (*pi == *pj) {
 		    pres[*pi].r += (*px).r;
@@ -2286,7 +2286,7 @@ SEXP R_sparse_transpose(SEXP from)
     ++pp0;
         
     /* Counting number of nonzero elements, by "row" */
-    Memzero(pp1, m1a);
+    Matrix_memset(pp1, 0, m1a, sizeof(int));
     ++pp1;
     for (k = 0; k < nnz; ++k)
 	++pp1[pi0[k]];
@@ -2298,7 +2298,7 @@ SEXP R_sparse_transpose(SEXP from)
     /* Allocating work space */
     int *pp1_;
     Calloc_or_Alloca_TO(pp1_, m_, int);
-    Memcpy(pp1_, pp1 - 1, m_);
+    Matrix_memcpy(pp1_, pp1 - 1, m_, sizeof(int));
 
 #define SPARSE_T(_XASSIGN_)				\
     do {						\
@@ -2779,8 +2779,8 @@ SEXP R_sparse_force_symmetric(SEXP from, SEXP uplo_to)
 	
 	if (clf[1] == 't' && di != 'N') {
 	    if (ulf == ult) {
-		Memcpy(pi1, pi0, nnz0);
-		Memcpy(pj1, pj0, nnz0);
+		Matrix_memcpy(pi1, pi0, nnz0, sizeof(int));
+		Matrix_memcpy(pj1, pj0, nnz0, sizeof(int));
 		pi1 += nnz0;
 		pj1 += nnz0;
 	    }
@@ -2798,7 +2798,7 @@ SEXP R_sparse_force_symmetric(SEXP from, SEXP uplo_to)
 	    do {							\
 		_CTYPE_ *px0 = _PTR_(x0), *px1 = _PTR_(x1);		\
 		if (ulf == ult) {					\
-		    Memcpy(px1, px0, nnz0);				\
+		    Matrix_memcpy(px1, px0, nnz0, sizeof(_CTYPE_));	\
 		    px1 += nnz0;					\
 		}							\
 		SPARSE_FS(*(px1++) = _ONE_);				\
@@ -3350,7 +3350,7 @@ SEXP R_sparse_skewpart(SEXP from)
 		R_xlen_t n1a = (R_xlen_t) n + 1;
 		SEXP p1 = PROTECT(allocVector(INTSXP, n1a));
 		int *pp1 = INTEGER(p1);
-		Memzero(pp1, n1a);
+		Matrix_memset(pp1, 0, n1a, sizeof(int));
 		SET_SLOT(to, Matrix_pSym, p1);
 		UNPROTECT(1); /* p1 */
 	    }
@@ -3399,7 +3399,6 @@ SEXP R_sparse_skewpart(SEXP from)
 
 	int *pp1_;
 	Calloc_or_Alloca_TO(pp1_, n, int);
-	Memzero(pp1_, n);
 	
 	SEXP x0_ = NULL;
 	if (clf[0] != 'n') {
@@ -3902,11 +3901,10 @@ SEXP Tsparse_as_CRsparse(SEXP from, SEXP Csparse)
           workC[.]: unused			  
     */
     
-#define T_AS_CR_1				\
-    do {					\
-	Memzero(workA, m_);			\
-	for (k = 0; k < nnz0; ++k)		\
-	    ++workA[pi0[k]];			\
+#define T_AS_CR_1					\
+    do {						\
+	for (k = 0; k < nnz0; ++k)			\
+	    ++workA[pi0[k]];				\
     } while (0)
     
     /* 2. Compute cumulative sum in workA[i], copying to workB[i]
@@ -3917,11 +3915,9 @@ SEXP Tsparse_as_CRsparse(SEXP from, SEXP Csparse)
     
 #define T_AS_CR_2					\
     do {						\
-	if (r_ > 0) {					\
-	    workB[0] = 0;				\
+	if (r_ > 0)					\
 	    for (i = 1; i < m_; ++i)			\
 		workA[i] += (workB[i] = workA[i-1]);	\
-	}						\
     } while (0)
     
     /* 3. Group column indices and data by row in pj_[k], px_[k]
@@ -3985,18 +3981,18 @@ SEXP Tsparse_as_CRsparse(SEXP from, SEXP Csparse)
 	    px_[k]: corresponding data, "cumulated" appropriately 
     */
 
-#define T_AS_CR_5				\
-    do {					\
-	k = 0;					\
-	Memzero(workB, n_);			\
-	for (i = 0; i < m_; ++i) {		\
-	    kend_ = workC[i];			\
-	    while (k < kend_) {			\
-		++workB[pj_[k]];		\
-		++k;				\
-	    }					\
-	    k = workA[i];			\
-	}					\
+#define T_AS_CR_5					\
+    do {						\
+	k = 0;						\
+	Matrix_memset(workB, 0, n_, sizeof(int));	\
+	for (i = 0; i < m_; ++i) {			\
+	    kend_ = workC[i];				\
+	    while (k < kend_) {				\
+		++workB[pj_[k]];			\
+		++k;					\
+	    }						\
+	    k = workA[i];				\
+	}						\
     } while (0)
     
     /* 6. Compute cumulative sum in pp1[j], copying to workB[j]
@@ -4555,7 +4551,7 @@ SEXP _C_ ## sparse_is_symmetric(SEXP obj, SEXP checkDN)			\
 	nprotect = 2;							\
     Rboolean res = TRUE;						\
     Calloc_or_Alloca_TO(pp_, n, int);					\
-    Memcpy(pp_, pp, n);							\
+    Matrix_memcpy(pp_, pp, n, sizeof(int));				\
     ++pp;								\
     /* For all X[i,j] in "leading" triangle, */				\
     /* need that X[j,i] exists and X[j,i] == X[i,j] */			\
@@ -4565,15 +4561,6 @@ SEXP _C_ ## sparse_is_symmetric(SEXP obj, SEXP checkDN)			\
 	SEXP x0 = PROTECT(GET_SLOT(obj, Matrix_xSym));			\
 	++nprotect;							\
 	switch (TYPEOF(x0)) {						\
-	case REALSXP:							\
-	{								\
-	    double *px = REAL(x0);					\
-	    CR_IS_SYMMETRIC_LOOP(					\
-		ISNAN(px[pp_[i]])					\
-		? !ISNAN(px[k])						\
-		: (ISNAN(px[k]) || px[pp_[i]] != px[k]));		\
-	    break;							\
-	}								\
 	case LGLSXP:							\
 	{								\
 	    int *px = LOGICAL(x0);					\
@@ -4590,6 +4577,15 @@ SEXP _C_ ## sparse_is_symmetric(SEXP obj, SEXP checkDN)			\
 		px[pp_[i]] == NA_INTEGER				\
 		? (px[k] != NA_INTEGER)					\
 		: (px[k] == NA_INTEGER || px[pp_[i]] != px[k]));	\
+	    break;							\
+	}								\
+	case REALSXP:							\
+	{								\
+	    double *px = REAL(x0);					\
+	    CR_IS_SYMMETRIC_LOOP(					\
+		ISNAN(px[pp_[i]])					\
+		? !ISNAN(px[k])						\
+		: (ISNAN(px[k]) || px[pp_[i]] != px[k]));		\
 	    break;							\
 	}								\
 	case CPLXSXP:							\

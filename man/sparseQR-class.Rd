@@ -82,7 +82,6 @@
     \item{qr.resid}{\code{signature(qr = "sparseQR", y = "ddenseMatrix")}: ... }
     \item{qr.resid}{\code{signature(qr = "sparseQR", y = "matrix")}: ... }
     \item{qr.resid}{\code{signature(qr = "sparseQR", y = "numeric")}: ... }
-
     \item{solve}{\code{signature(a = "sparseQR", b = "ANY")}: For
       \code{solve(a,b)}, simply uses \code{qr.coef(a,b)}.}
   }

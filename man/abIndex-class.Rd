@@ -1,7 +1,6 @@
 \name{abIndex-class}
 \title{Class "abIndex" of Abstract Index Vectors}
 \docType{class}
-\Rdversion{1.1}
 %
 \alias{abIndex-class}
 \alias{seqMat-class} % not yet documented {unexported}
@@ -22,12 +21,13 @@
 \alias{coerce,abIndex,vector-method}
 \alias{coerce,logical,abIndex-method}
 \alias{coerce,numeric,abIndex-method}
-\alias{coerce,numeric,seqMat-method}
-\alias{coerce,seqMat,abIndex-method}
-\alias{coerce,seqMat,numeric-method}
 \alias{drop,abIndex-method} % not yet documented {experimental}
 \alias{length,abIndex-method}
 \alias{show,abIndex-method}
+%
+\alias{coerce,numeric,seqMat-method}
+\alias{coerce,seqMat,abIndex-method}
+\alias{coerce,seqMat,numeric-method}
 %
 \description{
   The \code{"abIndex"} \code{\link{class}}, short for \dQuote{Abstract

@@ -6,16 +6,16 @@ options(warn=1)# show as they happen
 cat("doExtras:",doExtras,"\n")
 
 no.Mcl <- function(cl) ## TRUE if MatrixClass() returns empty, i.e., have "no Matrix-pkg class"
-    identical(Matrix:::MatrixClass(cl), character(0))
+    identical(MatrixClass(cl), character(0))
 
 setClass("myDGC", contains = "dgCMatrix")
 M <- new("myDGC", as(Matrix(c(-2:4, rep(0,9)), 4), "CsparseMatrix"))
 M
 stopifnot(M[-4,2] == 2:4,
-	  Matrix:::MatrixClass("myDGC"    ) == "dgCMatrix",
-	  Matrix:::MatrixClass("Cholesky" ) == "dtrMatrix",
-	  Matrix:::MatrixClass("pCholesky") == "dtpMatrix",
-	  Matrix:::MatrixClass("corMatrix") == "dpoMatrix",
+	  MatrixClass("myDGC"    ) == "dgCMatrix",
+	  MatrixClass("Cholesky" ) == "dtrMatrix",
+	  MatrixClass("pCholesky") == "dtpMatrix",
+	  MatrixClass("corMatrix") == "dpoMatrix",
 	  no.Mcl("pMatrix"),
 	  no.Mcl("indMatrix"))
 

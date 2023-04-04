@@ -36,9 +36,6 @@
 }
 \section{Methods}{
   \describe{
-    \item{coerce}{\code{signature(from = "ddiMatrix", to =
-	"symmetricMatrix")}: and many other coercion methods, some of
-      which are particularly optimized.}
     \item{dimnames}{\code{signature(object = "symmetricMatrix")}:
       returns \emph{symmetric} \code{\link{dimnames}}, even when the
       \code{Dimnames} slot only has row or column names.  This allows to

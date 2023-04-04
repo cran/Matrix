@@ -117,7 +117,7 @@ int cholmod_super_numeric
     cholmod_common *Common
 ) ;
 
-int cholmod_l_super_numeric (cholmod_sparse *, cholmod_sparse *, double *,
+int cholmod_l_super_numeric (cholmod_sparse *, cholmod_sparse *, double [2],
     cholmod_factor *, cholmod_common *) ;
 
 /* -------------------------------------------------------------------------- */

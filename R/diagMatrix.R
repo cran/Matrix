@@ -2,8 +2,8 @@
 
 ## ~~~~ COERCIONS TO ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-setAs("Matrix", "diagonalMatrix", ..M2diag)
-setAs("matrix", "diagonalMatrix", ..M2diag)
+setAs("Matrix", "diagonalMatrix", .M2diag)
+setAs("matrix", "diagonalMatrix", .M2diag)
 
 ## MJ: no longer needed ... replacement above
 if(FALSE) {
@@ -76,14 +76,6 @@ setAs("Matrix", "diagonalMatrix",
 ..diag2gT <- function(from)
     .Call(R_diagonal_as_sparse, from, ".gT", "U", TRUE)
 
-## .diag2[ts]T() are exported ...
-.diag2tT <- function(from, uplo = "U", kind = ".", drop0 = TRUE)
-    .Call(R_diagonal_as_sparse, from,
-          `substr<-`(".tT", 1L, 1L, kind), uplo, drop0)
-.diag2sT <- function(from, uplo = "U", kind = ".", drop0 = TRUE)
-    .Call(R_diagonal_as_sparse, from,
-          `substr<-`(".sT", 1L, 1L, kind), uplo, drop0)
-
 ## For group methods
 .diag2tT.smart <- function(from, x, uplo = "U", kind = ".", drop0 = TRUE) {
     .Call(R_diagonal_as_sparse, from,
@@ -137,7 +129,7 @@ setAs("diagonalMatrix",           "matrix", .diag2m)
 setAs("diagonalMatrix",           "vector", .diag2v)
 
 setMethod("as.vector", signature(x = "diagonalMatrix"),
-          function(x, mode) as.vector(.diag2v(x), mode))
+          function(x, mode = "any") as.vector(.diag2v(x), mode))
 
 setMethod("as.numeric", signature(x = "diagonalMatrix"),
           function(x, ...) as.double(.diag2v(x)))
@@ -714,7 +706,7 @@ replDiag <- function(x, i, j, ..., value) {
     ## TODO: the following is a bit expensive; have cases above e.g. [i,] where
     ## ----- we could check *much* faster :
     if(isDiagonal(x))
-        .M2diag(x, check = FALSE)
+        forceDiagonal(x)
     else if(isSymmetric(x))
         forceSymmetric(x)
     else if(!(it <- isTriangular(x)))

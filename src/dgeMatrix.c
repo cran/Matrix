@@ -81,7 +81,7 @@ double get_norm_dge(SEXP obj, const char *typstr)
     double norm, *work = NULL;
 
     if (typstr[0] == 'I')
-	work = (double *) R_alloc(pdim[0], sizeof(double));
+	work = (double *) R_alloc((size_t) pdim[0], sizeof(double));
     norm = F77_CALL(dlange)(typstr, pdim, pdim + 1, px, pdim,
 			    work FCONE);
     
@@ -116,8 +116,8 @@ SEXP dgeMatrix_rcond(SEXP obj, SEXP type)
     double *px = REAL(x), norm = get_norm_dge(obj, typstr), rcond;
     
     F77_CALL(dgecon)(typstr, pdim, px, pdim, &norm, &rcond,
-		     (double *) R_alloc(4 * pdim[0], sizeof(double)),
-		     (int *) R_alloc(pdim[0], sizeof(int)),
+		     (double *) R_alloc((size_t) 4 * pdim[0], sizeof(double)),
+		     (int *) R_alloc((size_t) pdim[0], sizeof(int)),
 		     &info FCONE);
 
     UNPROTECT(4);
@@ -169,8 +169,8 @@ SEXP dgeMatrix_solve(SEXP a)
         double *px = REAL(x), norm = get_norm_dge(a, "1"), rcond;
 	int info;
         F77_CALL(dgecon)("1", pdim, px, pdim, &norm, &rcond,
-                         (double *) R_alloc(4 * n, sizeof(double)),
-                         (int *) R_alloc(n, sizeof(int)),
+                         (double *) R_alloc((size_t) 4 * n, sizeof(double)),
+                         (int *) R_alloc((size_t) n, sizeof(int)),
 			 &info FCONE);
         if (info)
             error(_("LAPACK routine '%s' returned with error code %d"),
@@ -733,8 +733,8 @@ SEXP dgeMatrix_exp(SEXP x)
     }
 
     /* Pade' approximation. Powers v^8, v^7, ..., v^1 */
-    AZERO(npp, nsqr, 0.0, R_xlen_t);
-    AZERO(dpp, nsqr, 0.0, R_xlen_t);
+    Matrix_memset(npp, 0, nsqr, sizeof(double));
+    Matrix_memset(dpp, 0, nsqr, sizeof(double));
     m1_j = -1;
     for (j = 7; j >=0; j--) {
 	double mult = padec[j];

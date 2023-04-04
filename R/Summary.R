@@ -27,7 +27,7 @@ setMethod("Summary", "ddenseMatrix",
 				  else x@x[indTri(d[1], upper= x@uplo == "U",
 						  diag= TRUE)],
 				  ..., na.rm = na.rm)
-		  } else callGeneric(..2dge(x)@x, ..., na.rm = na.rm)
+		  } else callGeneric(.dense2g(x)@x, ..., na.rm = na.rm)
 	      }
 	      else { ## triangular , possibly packed
 		  if(.Generic %in% summGener1) {
@@ -41,7 +41,7 @@ setMethod("Summary", "ddenseMatrix",
 						  diag= TRUE)],
 				  if(d[1] >= 2) Zero, if(x@diag == "U") One,
 				  ..., na.rm = na.rm)
-		  } else callGeneric(..2dge(x)@x, ..., na.rm = na.rm)
+		  } else callGeneric(.dense2g(x)@x, ..., na.rm = na.rm)
 	      }
 	  })
 

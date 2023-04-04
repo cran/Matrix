@@ -28,7 +28,7 @@ SEXP dsyMatrix_trf_(SEXP obj, int warn)
 	
 #define DSYTRF_FINISH(_UL_)						\
 	do {								\
-	    Memzero(py, nn);						\
+	    Matrix_memset(py, 0, nn, sizeof(double));			\
 	    F77_CALL(dlacpy)(&_UL_, pdim, pdim, px, pdim, py, pdim FCONE); \
 	    F77_CALL(dsytrf)(&_UL_, pdim, py, pdim, pperm, &tmp, &lwork, \
 			     &info FCONE);				\
@@ -78,7 +78,6 @@ SEXP dsyMatrix_trf(SEXP obj, SEXP warn)
 
 SEXP matrix_trf_(SEXP obj, int warn, char uplo)
 {
-    
     SEXP dim = PROTECT(getAttrib(obj, R_DimSymbol));
     int *pdim = INTEGER(dim), n = pdim[0];
     if (pdim[1] != n)
@@ -132,7 +131,7 @@ double get_norm_dsy(SEXP obj, const char *typstr)
     const char *ul = CHAR(STRING_ELT(uplo, 0));
     
     if (typstr[0] == 'I' || typstr[0] == 'O')
-	work = (double *) R_alloc(pdim[0], sizeof(double));
+	work = (double *) R_alloc((size_t) pdim[0], sizeof(double));
     norm = F77_CALL(dlansy)(typstr, ul, pdim, px, pdim, work FCONE FCONE);
 
     UNPROTECT(3);
@@ -162,8 +161,8 @@ SEXP dsyMatrix_rcond(SEXP obj)
     const char *ul = CHAR(STRING_ELT(uplo, 0));
     
     F77_CALL(dsycon)(ul, pdim, px, pdim, pperm, &norm, &rcond,
-		     (double *) R_alloc(2 * pdim[0], sizeof(double)),
-		     (int *) R_alloc(pdim[0], sizeof(int)),
+		     (double *) R_alloc((size_t) 2 * pdim[0], sizeof(double)),
+		     (int *) R_alloc((size_t) pdim[0], sizeof(int)),
 		     &info FCONE);
     
     UNPROTECT(5);
@@ -211,7 +210,7 @@ SEXP dsyMatrix_solve(SEXP a)
     const char *ul = CHAR(STRING_ELT(uplo, 0));
     
     F77_CALL(dsytri)(ul, pdim, px, pdim, pperm,
-		     (double *) R_alloc(pdim[0], sizeof(double)),
+		     (double *) R_alloc((size_t) pdim[0], sizeof(double)),
 		     &info FCONE);
     
     UNPROTECT(7);

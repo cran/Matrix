@@ -179,9 +179,9 @@ setAs("indMatrix", "diagonalMatrix", .ind2diag)
 setAs("indMatrix",        "pMatrix", .ind2p)
 
 setMethod("as.vector", signature(x = "indMatrix"),
-          function(x, mode) as.vector(.ind2v(x), mode))
+          function(x, mode = "any") as.vector(.ind2v(x), mode))
 setMethod("as.numeric", signature(x = "indMatrix"),
-          function(x, ...) as.double(.ind2v(x), mode))
+          function(x, ...) as.double(.ind2v(x)))
 setMethod("as.logical", signature(x = "indMatrix"),
           function(x, ...) .ind2v(x))
 

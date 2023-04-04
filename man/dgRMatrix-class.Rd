@@ -4,15 +4,6 @@
 %
 \alias{dgRMatrix-class}
 %
-\alias{coerce,dgRMatrix,dgCMatrix-method}
-\alias{coerce,dgRMatrix,dgTMatrix-method}
-\alias{coerce,dgRMatrix,dgeMatrix-method}
-\alias{coerce,dgRMatrix,dsRMatrix-method}
-\alias{coerce,dgRMatrix,dtRMatrix-method}
-\alias{coerce,dgRMatrix,lgRMatrix-method}
-\alias{coerce,dgRMatrix,ngRMatrix-method}
-\alias{coerce,matrix,dgRMatrix-method}
-\alias{coerce,numLike,dgRMatrix-method}
 \alias{determinant,dgRMatrix,logical-method}
 %
 \description{The \code{dgRMatrix} class is a class of sparse numeric
@@ -43,9 +34,6 @@
 }
 \section{Methods}{
   \describe{
-    \item{coerce}{\code{signature(from = "matrix", to = "dgRMatrix")}}
-    \item{coerce}{\code{signature(from = "dgRMatrix", to = "matrix")}}
-    \item{coerce}{\code{signature(from = "dgRMatrix", to = "dgTMatrix")}}
     \item{diag}{\code{signature(x = "dgRMatrix")}: returns the diagonal
       of \code{x}}
     \item{dim}{\code{signature(x = "dgRMatrix")}: returns the dimensions

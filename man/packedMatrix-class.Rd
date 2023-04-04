@@ -1,7 +1,6 @@
 \name{packedMatrix-class}
 \title{Virtual Class \code{"packedMatrix"} of Packed Dense Matrices}
 \docType{class}
-\Rdversion{1.1}
 %
 \alias{packedMatrix-class}
 %

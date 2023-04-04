@@ -11,8 +11,8 @@
 \alias{coerce,TsparseMatrix,generalMatrix-method}
 \alias{coerce,TsparseMatrix,matrix-method}
 \alias{coerce,TsparseMatrix,packedMatrix-method}
-\alias{coerce,TsparseMatrix,unpackedMatrix-method}
 \alias{coerce,TsparseMatrix,sparseVector-method}
+\alias{coerce,TsparseMatrix,unpackedMatrix-method}
 \alias{coerce,TsparseMatrix,vector-method}
 \alias{coerce,matrix,TsparseMatrix-method}
 \alias{coerce,numLike,TsparseMatrix-method}

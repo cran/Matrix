@@ -72,7 +72,7 @@ double get_norm_dsp(SEXP obj, const char *typstr)
     const char *ul = CHAR(STRING_ELT(uplo, 0));
     
     if (typstr[0] == 'I' || typstr[0] == 'O')
-	work = (double *) R_alloc(pdim[0], sizeof(double));
+	work = (double *) R_alloc((size_t) pdim[0], sizeof(double));
     norm = F77_CALL(dlansp)(typstr, ul, pdim, px, work FCONE FCONE);
 
     UNPROTECT(3);
@@ -102,8 +102,8 @@ SEXP dspMatrix_rcond(SEXP obj)
     const char *ul = CHAR(STRING_ELT(uplo, 0));
 
     F77_CALL(dspcon)(ul, pdim, px, pperm, &norm, &rcond, 
-		     (double *) R_alloc(2 * pdim[0], sizeof(double)),
-		     (int *) R_alloc(pdim[0], sizeof(int)),
+		     (double *) R_alloc((size_t) 2 * pdim[0], sizeof(double)),
+		     (int *) R_alloc((size_t) pdim[0], sizeof(int)),
 		     &info FCONE);
     
     UNPROTECT(5);
@@ -151,7 +151,7 @@ SEXP dspMatrix_solve(SEXP a)
     const char *ul = CHAR(STRING_ELT(uplo, 0));
 
     F77_CALL(dsptri)(ul, pdim, px, pperm, 
-		     (double *) R_alloc(pdim[0], sizeof(double)),
+		     (double *) R_alloc((size_t) pdim[0], sizeof(double)),
 		     &info FCONE);
     
     UNPROTECT(7);

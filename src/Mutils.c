@@ -15,6 +15,134 @@ SEXP NEW_OBJECT_OF_CLASS(const char* what)
     return obj;
 }
 
+/* memset() but passing length and size rather than their product 
+   which can overflow size_t ... hence _safer_ than Memzero()
+*/
+void *Matrix_memset(void *dest, int ch, R_xlen_t length, size_t size)
+{
+    if (dest && length > 0 && size > 0) {
+	
+	char *dest_ = (char *) dest;
+	size_t N = SIZE_MAX / size;
+	
+#if (SIZE_MAX < R_XLEN_T_MAX)
+	R_xlen_t S_M = (R_xlen_t) SIZE_MAX;
+	if (length <= S_M) {
+#endif
+	    
+	    /* 'length' is representable as size_t : */
+	    
+	    size_t n = (size_t) length;
+	    if (n <= N)
+		memset(dest_, ch, n * size);
+	    else {
+		size_t d = N * size;
+		while (n > N) {
+		    memset(dest_, ch, d);
+		    dest_ += d;
+		    n -= d;
+		}
+		memset(dest_, ch, n * size);
+	    }
+	    
+#if (SIZE_MAX < R_XLEN_T_MAX)
+	} else {
+
+	    /* 'length' would overflow size_t : */
+	    
+	    size_t n, d = N * size;
+	    while (length > S_M) {
+		n = SIZE_MAX;
+		while (n > N) {
+		    memset(dest_, ch, d);
+		    dest_ += d;
+		    n -= d;
+		}
+		memset(dest_, ch, n * size);
+		length -= S_M;
+	    }
+	    n = (size_t) length;
+	    while (n > N) {
+		memset(dest_, ch, d);
+		dest_ += d;
+		n -= d;
+	    }
+	    memset(dest_, ch, n * size);
+	    
+	}
+#endif
+
+    }
+
+    return dest;
+}
+
+/* memcpy() but passing length and size rather than their product 
+   which can overflow size_t ... hence _safer_ than Memcpy()
+*/
+void *Matrix_memcpy(void *dest, const void *src, R_xlen_t length, size_t size)
+{
+    if (dest && src && length > 0 && size > 0) {
+	
+	char *dest_ = (char *) dest;
+	const char *src_ = (const char *) src;
+	
+	size_t N = SIZE_MAX / size;
+	
+#if (SIZE_MAX < R_XLEN_T_MAX)
+	R_xlen_t S_M = (R_xlen_t) SIZE_MAX;
+	if (length <= S_M) {
+#endif
+	    
+	    /* 'length' is representable as size_t : */
+	    
+	    size_t n = (size_t) length;
+	    if (n <= N)
+		memcpy(dest_, src_, n * size);
+	    else {
+		size_t d = N * size;
+		while (n > N) {
+		    memcpy(dest_, src_, d);
+		    dest_ += d;
+		    src_ += d;
+		    n -= d;
+		}
+		memcpy(dest_, src_, n * size);
+	    }
+	    
+#if (SIZE_MAX < R_XLEN_T_MAX)
+	} else {
+
+	    /* 'length' would overflow size_t : */
+
+	    size_t n, d = N * size;
+	    while (length > S_M) {
+		n = SIZE_MAX;
+		while (n > N) {
+		    memcpy(dest_, src_, d);
+		    dest_ += d;
+		    src_ += d;
+		    n -= d;
+		}
+		memcpy(dest_, src_, n * size);
+		length -= S_M;
+	    }
+	    n = (size_t) length;
+	    while (n > N) {
+		memcpy(dest_, src_, d);
+		dest_ += d;
+		n -= d;
+	    }
+	    memcpy(dest_, src_, n * size);
+	    
+	}
+#endif
+
+    }
+
+    return dest;
+}
+
 
 /* More for 'Dimnames' ============================================== */
 
@@ -33,8 +161,8 @@ Rboolean DimNames_is_trivial(SEXP dn)
 
 Rboolean DimNames_is_symmetric(SEXP dn)
 {
-    /* NB: Assuming here that we have the 'Dimnames' slot 
-       of a _valid_ Matrix, so that the elements are either 
+    /* NB: Assuming here that we have the 'Dimnames' slot
+       of a _valid_ Matrix, so that the elements are either
        NULL or character vectors
 
        Keep synchronized with symmetricMatrix_validate() above,
@@ -66,9 +194,9 @@ SEXP R_DimNames_is_symmetric(SEXP dn)
 
 /**
  * @brief Produce symmetric `Dimnames` from possibly asymmetric ones.
- * 
+ *
  * Roughly `dest[1:2] <- rep(src[j], 2)`, where `j` is either 1 or 2
- * depending on `J`.  If `J` is 0 or 1, then `j = J+1`.  If `J` is -1, 
+ * depending on `J`.  If `J` is 0 or 1, then `j = J+1`.  If `J` is -1,
  * then `j = 1` if and only if `src[[2]]` is `NULL` and `src[[1]]`
  * is not.  For speed, it is assumed that `dest` is newly allocated,
  * i.e., that it is `list(NULL, NULL)`.
@@ -111,8 +239,8 @@ void symmDN(SEXP dest, SEXP src, int J /* -1|0|1 */)
 
 /**
  * @brief Reverse (or "transpose") `Dimnames`.
- * 
- * Roughly `dest[1:2] <- src[2:1]`.  For speed, it is assumed that 
+ *
+ * Roughly `dest[1:2] <- src[2:1]`.  For speed, it is assumed that
  * `dest` is newly allocated, i.e., that it is `list(NULL, NULL)`.
  *
  * @param dest,src Lists of length 2, typically the `Dimnames` slots
@@ -263,18 +391,18 @@ void set_factor(SEXP obj, const char *nm, SEXP val)
     return;
 }
 
-/** 
+/**
  * @brief Subassign by name to the `factors` slot of a `compMatrix`.
- * 
+ *
  * Like `obj\@factors[[nm]] <- val`, but modifying `obj` (rather than a copy)
  * _even if_ `obj` is referenced elsewhere, supporting "automagic" caching of
  * factorizations by R functions taking `compMatrix` as an argument.
  * _Use with care!_
- * 
+ *
  * @param obj A `compMatrix`.
  * @param nm A length-1 `STRSXP` giving a factor name.
  * @param val A `SEXP`, usually a `MatrixFactorization`.
- * @param warn A length-1 `LGLSXP`. Warn if `obj` has no `factors` slot 
+ * @param warn A length-1 `LGLSXP`. Warn if `obj` has no `factors` slot
  *     (in which case `obj` is untouched)?
  *
  * @return `val`.
@@ -292,16 +420,16 @@ SEXP R_set_factor(SEXP obj, SEXP nm, SEXP val, SEXP warn)
     return val;
 }
 
-/** 
+/**
  * @brief Empty the 'factors' slot of a 'compMatrix'.
- * 
+ *
  * Like `obj\@factors <- list()`, but modifying `obj` (rather than a copy)
  * _even if_ `obj` is referenced elsewhere, supporting "automagic" clearing
- * of the `factors` slot by R functions taking `compMatrix` as an argument. 
+ * of the `factors` slot by R functions taking `compMatrix` as an argument.
  * _Use with care!_
- * 
+ *
  * @param obj A `compMatrix`.
- * @param warn A length-1 LGLSXP. Warn if `obj` has no `factors` slot 
+ * @param warn A length-1 LGLSXP. Warn if `obj` has no `factors` slot
  *     (in which case `obj` is untouched)?
  *
  * @return `TRUE` if `obj` has a nonempty `factors` slot, `FALSE` otherwise.
@@ -343,7 +471,7 @@ char type2kind(SEXPTYPE type)
 	return 'z';
 #endif
     default:
-	error(_("unexpected type \"%s\" in 'type2kind()'"), type2char(type)); 
+	error(_("unexpected type \"%s\" in 'type2kind()'"), type2char(type));
 	return '\0';
     }
 }
@@ -391,30 +519,42 @@ size_t kind2size(char kind)
     }
 }
 
-/* TODO: compare with macros in ./Mdefines.h */
+const char *Matrix_nonvirtual(SEXP obj, int strict)
+{
+    if (!IS_S4_OBJECT(obj))
+	return "";
+    
+    static const char *valid_full[] = {
+	/* "denseLU", */
+	"Cholesky", "pCholesky",
+	"BunchKaufman", "pBunchKaufman",
+	"dpoMatrix", "dppMatrix",
+	"corMatrix", /* "copMatrix", */
+	"pMatrix",
+	VALID_NONVIRTUAL, "" };
 
-#define VALID_NONVIRTUAL						\
-/*  0 */ "dgCMatrix", "dgRMatrix", "dgTMatrix", "dgeMatrix",		\
-/*  4 */ "dsCMatrix", "dsRMatrix", "dsTMatrix", "dspMatrix", "dsyMatrix", \
-/*  9 */ "dtCMatrix", "dtRMatrix", "dtTMatrix", "dtpMatrix", "dtrMatrix", \
-/* 14 */ "ddiMatrix", "dsparseVector",					\
-/* 16 */ "lgCMatrix", "lgRMatrix", "lgTMatrix", "lgeMatrix",		\
-/* 20 */ "lsCMatrix", "lsRMatrix", "lsTMatrix", "lspMatrix", "lsyMatrix", \
-/* 25 */ "ltCMatrix", "ltRMatrix", "ltTMatrix", "ltpMatrix", "ltrMatrix", \
-/* 30 */ "ldiMatrix", "lsparseVector",					\
-/* 32 */ "ngCMatrix", "ngRMatrix", "ngTMatrix", "ngeMatrix",		\
-/* 36 */ "nsCMatrix", "nsRMatrix", "nsTMatrix", "nspMatrix", "nsyMatrix", \
-/* 41 */ "ntCMatrix", "ntRMatrix", "ntTMatrix", "ntpMatrix", "ntrMatrix", \
-/* 46 */ /* "ndiMatrix", */ "nsparseVector",				\
-/* 47 */ "igCMatrix", "igRMatrix", "igTMatrix", "igeMatrix",		\
-/* 51 */ "isCMatrix", "isRMatrix", "isTMatrix", "ispMatrix", "isyMatrix", \
-/* 56 */ "itCMatrix", "itRMatrix", "itTMatrix", "itpMatrix", "itrMatrix", \
-/* 61 */ "idiMatrix", "isparseVector",					\
-/* 63 */ "zgCMatrix", "zgRMatrix", "zgTMatrix", "zgeMatrix",		\
-/* 67 */ "zsCMatrix", "zsRMatrix", "zsTMatrix", "zspMatrix", "zsyMatrix", \
-/* 72 */ "ztCMatrix", "ztRMatrix", "ztTMatrix", "ztpMatrix", "ztrMatrix", \
-/* 77 */ "zdiMatrix", "zsparseVector",					\
-/* 79 */ "indMatrix", "pMatrix"
+    const char **valid = (strict) ? valid_full : valid_full + 8;
+    int ivalid = R_check_class_etc(obj, valid);
+    if (ivalid < 0)
+	return "";
+    return valid[ivalid];
+}
+
+SEXP R_Matrix_nonvirtual(SEXP obj, SEXP strict)
+{
+    return mkString(Matrix_nonvirtual(obj, asLogical(strict)));
+}
+
+#define RETURN_AS_STRSXP(_C_)			\
+    do {					\
+	char c = _C_;				\
+	if (!c)					\
+	    return mkString("");		\
+	else {					\
+	    char s[] = { c, '\0' };		\
+	    return mkString(s);			\
+	}					\
+    } while (0)
 
 char Matrix_kind(SEXP obj, int i2d)
 {
@@ -422,11 +562,9 @@ char Matrix_kind(SEXP obj, int i2d)
 	static const char *valid[] = { VALID_NONVIRTUAL, "" };
 	int ivalid = R_check_class_etc(obj, valid);
 	if (ivalid < 0)
-	    error(_("\"kind\" not yet defined for objects of class \"%s\""),
-		  class_P(obj));
-	if (ivalid >= 79)
-	    return 'n'; /* indMatrix, pMatrix */
-	return valid[ivalid][0];
+	    return '\0';
+	const char *cl = valid[ivalid];
+	return (cl[2] == 'd') ? 'n' : cl[0];
     } else {
 	switch (TYPEOF(obj)) {
 	case LGLSXP:
@@ -438,8 +576,6 @@ char Matrix_kind(SEXP obj, int i2d)
 	case CPLXSXP:
 	    return 'z';
 	default:
-	    error(_("\"kind\" not yet defined for objects of type \"%s\""),
-		  type2char(TYPEOF(obj)));
 	    return '\0';
 	}
     }
@@ -447,66 +583,61 @@ char Matrix_kind(SEXP obj, int i2d)
 
 SEXP R_Matrix_kind(SEXP obj, SEXP i2d)
 {
-    char k = Matrix_kind(obj, asLogical(i2d));
-    char s[] = { k, '\0' };
-    return mkString(s);
+    RETURN_AS_STRSXP(Matrix_kind(obj, asLogical(i2d)));
 }
 
 char Matrix_shape(SEXP obj)
 {
     if (!IS_S4_OBJECT(obj))
-	error(_("\"shape\" not yet defined for objects of type \"%s\""),
-		  type2char(TYPEOF(obj)));
+	return '\0';
     static const char *valid[] = { VALID_NONVIRTUAL, "" };
     int ivalid = R_check_class_etc(obj, valid);
     if (ivalid < 0)
-	error(_("\"shape\" not yet defined for objects of class \"%s\""),
-	      class_P(obj));
-    if (ivalid >= 79 || valid[ivalid][3] != 'M')
-	return 'g'; /* indMatrix, pMatrix, .sparseVector */
-    return valid[ivalid][1];
+	return '\0';
+    const char *cl = valid[ivalid];
+    return (cl[2] == 'd' || cl[3] != 'M') ? 'g' : cl[1];
 }
 
 SEXP R_Matrix_shape(SEXP obj)
 {
-    char k = Matrix_shape(obj);
-    char s[] = { k, '\0' };
-    return mkString(s);
+    RETURN_AS_STRSXP(Matrix_shape(obj));
 }
-
-/* TODO: compare with macros in ./Mdefines.h */
-
-#define VALID_CRTSPARSE				\
-"dgCMatrix", "dsCMatrix", "dtCMatrix",		\
-"lgCMatrix", "lsCMatrix", "ltCMatrix",		\
-"ngCMatrix", "nsCMatrix", "ntCMatrix",		\
-"dgRMatrix", "dsRMatrix", "dtRMatrix",		\
-"lgRMatrix", "lsRMatrix", "ltRMatrix",		\
-"ngRMatrix", "nsRMatrix", "ntRMatrix",		\
-"dgTMatrix", "dsTMatrix", "dtTMatrix",		\
-"lgTMatrix", "lsTMatrix", "ltTMatrix",		\
-"ngTMatrix", "nsTMatrix", "ntTMatrix"
 
 char Matrix_repr(SEXP obj)
 {
     if (!IS_S4_OBJECT(obj))
-	error(_("\"repr\" not yet defined for objects of type \"%s\""),
-	      type2char(TYPEOF(obj)));
-    static const char *valid[] = { VALID_CRTSPARSE, "" };
+	return '\0';
+    static const char *valid[] = { VALID_NONVIRTUAL_MATRIX, "" };
     int ivalid = R_check_class_etc(obj, valid);
     if (ivalid < 0)
-	return '\0'; /* useful to _not_ throw an error, for inheritance tests */
-    return valid[ivalid][2];
+	return '\0';
+    const char *cl = valid[ivalid];
+    switch (cl[2]) {
+    case 'e':
+    case 'r':
+    case 'y':
+	return 'u'; /* unpackedMatrix */
+    case 'p':
+	return 'p'; /* packedMatrix */
+    case 'C':
+    case 'R':
+    case 'T':
+	return cl[2]; /* [CRT]sparseMatrix */
+    case 'i':
+	return 'd'; /* diagonalMatrix */
+    case 'd':
+	return 'i'; /* indMatrix */
+    default:
+	return '\0';
+    }
 }
 
 SEXP R_Matrix_repr(SEXP obj)
 {
-    char k = Matrix_repr(obj);
-    if (k == '\0')
-	return mkString("");
-    char s[] = { k, '\0' };
-    return mkString(s);
+    RETURN_AS_STRSXP(Matrix_repr(obj));
 }
+
+#undef RETURN_AS_STRSXP
 
 
 /* For indexing ===================================================== */
@@ -521,7 +652,7 @@ SEXP R_index_triangle(SEXP n_, SEXP upper_, SEXP diag_, SEXP packed_)
     int i, j, upper = asLogical(upper_), diag = asLogical(diag_);
     double nr = (diag) ? 0.5 * (nn + n) : 0.5 * (nn - n);
     if (nx > INT_MAX) {
-	
+
 	PROTECT(r = allocVector(REALSXP, (R_xlen_t) nr));
 	double k = 1.0, *pr = REAL(r);
 
@@ -543,7 +674,7 @@ SEXP R_index_triangle(SEXP n_, SEXP upper_, SEXP diag_, SEXP packed_)
 		    }					\
 		} else {				\
 		    for (j = 0; j < n; ++j) {		\
-			k += 1.0;			\
+			k += _ONE_;			\
 			for (i = j+1; i < n; ++i) {	\
 			    *(pr++) = k;		\
 			    k += _ONE_;			\
@@ -590,18 +721,18 @@ SEXP R_index_triangle(SEXP n_, SEXP upper_, SEXP diag_, SEXP packed_)
 	} while (0)
 
 	DO_INDEX(1.0, nr);
-	
+
     } else {
-	
+
 	PROTECT(r = allocVector(INTSXP, (R_xlen_t) nr));
 	int k = 1, nr_ = (int) nr, *pr = INTEGER(r);
 
 	DO_INDEX(1, nr_);
 
 #undef DO_INDEX
-	
+
     }
-    
+
     UNPROTECT(1);
     return r;
 }
@@ -615,7 +746,7 @@ SEXP R_index_diagonal(SEXP n_, SEXP upper_, SEXP packed_)
     SEXP r;
     int j, upper = (packed) ? asLogical(upper_) : NA_LOGICAL;
     if (nx > INT_MAX) {
-	
+
 	PROTECT(r = allocVector(REALSXP, n));
 	double k = 1.0, *pr = REAL(r);
 
@@ -640,7 +771,7 @@ SEXP R_index_diagonal(SEXP n_, SEXP upper_, SEXP packed_)
 	} while (0)
 
 	DO_INDEX;
-	
+
     } else {
 
 	PROTECT(r = allocVector(INTSXP, n));
@@ -648,9 +779,9 @@ SEXP R_index_diagonal(SEXP n_, SEXP upper_, SEXP packed_)
 	DO_INDEX;
 
 #undef DO_INDEX
-	
+
     }
-    
+
     UNPROTECT(1);
     return r;
 }
@@ -848,7 +979,7 @@ SEXP v2spV(SEXP from)
 	    break;							\
 	}								\
     } while (0)
-    
+
     if (n_ <= INT_MAX) {
 	int k, n = (int) n_, nnz = 0;
 	PROTECT(length = ScalarInteger(n));
@@ -865,25 +996,25 @@ SEXP v2spV(SEXP from)
     SET_SLOT(to, Matrix_lengthSym, length);
     SET_SLOT(to, Matrix_iSym, i);
     SET_SLOT(to, Matrix_xSym, x);
-    
+
     UNPROTECT(4); /* x, i, length, to */
     return to;
 }
 
-/* That both 's1' and 's2' are STRSXP of length at least 'n' must be 
+/* That both 's1' and 's2' are STRSXP of length at least 'n' must be
    checked by the caller ... see, e.g., symmetricMatrix_validate() above
 */
 Rboolean equal_string_vectors(SEXP s1, SEXP s2, int n)
 {
     /* Only check the first 'n' elements, even if 's1' or 's2' is longer ...
-    
+
        Note that 'R_compute_identical()' in src/main/identical.c
-       is careful to distinguish between NA_STRING and "NA" in STRSXP, 
+       is careful to distinguish between NA_STRING and "NA" in STRSXP,
        but we need not be here ...
-       
+
        MJ: Why not?
     */
-	
+
     for (int i = 0; i < n; ++i)
 	if (strcmp(CHAR(STRING_ELT(s1, i)), CHAR(STRING_ELT(s2, i))) != 0)
 	    return FALSE;
@@ -916,9 +1047,9 @@ SEXP append_to_named_list(SEXP x, const char *nm, SEXP val)
 
 /* ================================================================== */
 /* ================================================================== */
-    
+
 /* La_norm_type() and La_rcond_type() have been in src/include/R_ext/Lapack.h
-   and later in src/modules/lapack/Lapack.c but have still not been available 
+   and later in src/modules/lapack/Lapack.c but have still not been available
    to package writers ...
 */
 char La_norm_type(const char *typstr)

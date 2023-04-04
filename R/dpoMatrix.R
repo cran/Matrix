@@ -21,7 +21,7 @@ setAs("dspMatrix", "dpoMatrix",
 setAs("matrix", "dpoMatrix",
       function(from) {
           storage.mode(from) <- "double"
-          .dsy2dpo(.M2symm(from))
+          .dsy2dpo(.M2sym(from))
       })
 
 setAs("Matrix", "dpoMatrix",

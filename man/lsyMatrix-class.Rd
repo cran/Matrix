@@ -2,30 +2,12 @@
 \title{Symmetric Dense Logical Matrices}
 \docType{class}
 %
-\alias{lspMatrix-class}
 \alias{lsyMatrix-class}
+\alias{lspMatrix-class}
 %
 \alias{!,lsyMatrix-method}
-\alias{coerce,lspMatrix,dspMatrix-method}
-\alias{coerce,lspMatrix,lgeMatrix-method}
-\alias{coerce,lspMatrix,lsCMatrix-method}
-\alias{coerce,lspMatrix,lsRMatrix-method}
-\alias{coerce,lspMatrix,lsTMatrix-method}
-\alias{coerce,lspMatrix,lsyMatrix-method}
-\alias{coerce,lspMatrix,ltpMatrix-method}
-\alias{coerce,lspMatrix,nspMatrix-method}
-\alias{coerce,matrix,lspMatrix-method}
 %
 \alias{!,lspMatrix-method}
-\alias{coerce,lsyMatrix,dsyMatrix-method}
-\alias{coerce,lsyMatrix,lgeMatrix-method}
-\alias{coerce,lsyMatrix,lsCMatrix-method}
-\alias{coerce,lsyMatrix,lsRMatrix-method}
-\alias{coerce,lsyMatrix,lsTMatrix-method}
-\alias{coerce,lsyMatrix,lspMatrix-method}
-\alias{coerce,lsyMatrix,ltrMatrix-method}
-\alias{coerce,lsyMatrix,nsyMatrix-method}
-\alias{coerce,matrix,lsyMatrix-method}
 %
 \description{
   The \code{"lsyMatrix"} class is the class of symmetric, dense logical
@@ -58,7 +40,7 @@
 \section{Methods}{
   Currently, mainly \code{\link{t}()} and coercion methods (for
   \code{\link{as}(.)}; use, e.g.,
-  \code{\link{showMethods}(class="dsyMatrix")} for details.
+  \code{\link{showMethods}(class="lsyMatrix")} for details.
 }
 %\references{}
 %\author{}

@@ -84,6 +84,13 @@ SEXP CHMfactor_validate(SEXP obj);
 SEXP CHMsimpl_validate(SEXP obj);
 SEXP CHMsuper_validate(SEXP obj);
 
+#define SNPRINTF(_BUFFER_, _FORMAT_, ...)				\
+    do {								\
+	_BUFFER_ = Alloca(Matrix_ErrorBufferSize, char);		\
+	R_CheckStack();							\
+	snprintf(_BUFFER_, Matrix_ErrorBufferSize, _FORMAT_, __VA_ARGS__); \
+    } while (0)
+
 #define UPRET(_N_, _S_)				\
     do {					\
 	UNPROTECT(_N_);				\

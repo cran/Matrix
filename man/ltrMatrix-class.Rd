@@ -2,30 +2,12 @@
 \title{Triangular Dense Logical Matrices}
 \docType{class}
 %
-\alias{ltpMatrix-class}
 \alias{ltrMatrix-class}
-%
-\alias{!,ltpMatrix-method}
-\alias{coerce,ltpMatrix,dtpMatrix-method}
-\alias{coerce,ltpMatrix,lgeMatrix-method}
-\alias{coerce,ltpMatrix,ltCMatrix-method}
-\alias{coerce,ltpMatrix,ltRMatrix-method}
-\alias{coerce,ltpMatrix,ltTMatrix-method}
-\alias{coerce,ltpMatrix,lspMatrix-method}
-\alias{coerce,ltpMatrix,ltrMatrix-method}
-\alias{coerce,ltpMatrix,ntpMatrix-method}
-\alias{coerce,matrix,ltpMatrix-method}
+\alias{ltpMatrix-class}
 %
 \alias{!,ltrMatrix-method}
-\alias{coerce,ltrMatrix,dtrMatrix-method}
-\alias{coerce,ltrMatrix,lgeMatrix-method}
-\alias{coerce,ltrMatrix,ltCMatrix-method}
-\alias{coerce,ltrMatrix,ltRMatrix-method}
-\alias{coerce,ltrMatrix,ltTMatrix-method}
-\alias{coerce,ltrMatrix,lsyMatrix-method}
-\alias{coerce,ltrMatrix,ltpMatrix-method}
-\alias{coerce,ltrMatrix,ntrMatrix-method}
-\alias{coerce,matrix,ltrMatrix-method}
+%
+\alias{!,ltpMatrix-method}
 %
 \description{
   The \code{"ltrMatrix"} class is the class of triangular, dense,
@@ -58,7 +40,7 @@
 \section{Methods}{
   Currently, mainly \code{\link{t}()} and coercion methods (for
   \code{\link{as}(.)}; use, e.g.,
-  \code{\link{showMethods}(class="ltpMatrix")} for details.
+  \code{\link{showMethods}(class="ltrMatrix")} for details.
 }
 \seealso{
   Classes \code{\linkS4class{lgeMatrix}}, \code{\linkS4class{Matrix}};

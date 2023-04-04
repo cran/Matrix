@@ -9,17 +9,7 @@
 \alias{Arith,dgCMatrix,numeric-method}
 \alias{Arith,logical,dgCMatrix-method}
 \alias{Arith,numeric,dgCMatrix-method}
-\alias{coerce,dgCMatrix,dgRMatrix-method}
-\alias{coerce,dgCMatrix,dgTMatrix-method}
-\alias{coerce,dgCMatrix,dgeMatrix-method}
-\alias{coerce,dgCMatrix,dsCMatrix-method}
-\alias{coerce,dgCMatrix,dsTMatrix-method}
-\alias{coerce,dgCMatrix,dtCMatrix-method}
-\alias{coerce,dgCMatrix,dtTMatrix-method}
-\alias{coerce,dgCMatrix,lgCMatrix-method}
-\alias{coerce,dgCMatrix,ngCMatrix-method}
 \alias{coerce,matrix,dgCMatrix-method}
-\alias{coerce,numLike,dgCMatrix-method}
 \alias{determinant,dgCMatrix,logical-method}
 %
 \description{The \code{dgCMatrix} class is a class of sparse numeric
@@ -48,8 +38,6 @@
   Matrix products (e.g., \link{crossprod-methods}), and (among other)
   \describe{
     \item{coerce}{\code{signature(from = "matrix", to = "dgCMatrix")}}
-    \item{coerce}{\code{signature(from = "dgCMatrix", to = "matrix")}}
-    \item{coerce}{\code{signature(from = "dgCMatrix", to = "dgTMatrix")}}
     \item{diag}{\code{signature(x = "dgCMatrix")}: returns the diagonal
       of \code{x}}
     \item{dim}{\code{signature(x = "dgCMatrix")}: returns the dimensions

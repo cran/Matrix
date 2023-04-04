@@ -1579,8 +1579,9 @@ cholmod_sparse *cholmod_add
     cholmod_common *Common
 ) ;
 
-cholmod_sparse *cholmod_l_add (cholmod_sparse *, cholmod_sparse *, double *,
-    double *, int, int, cholmod_common *) ;
+cholmod_sparse *cholmod_l_add (cholmod_sparse *, cholmod_sparse *,
+			       double [2], double [2],
+			       int, int, cholmod_common *) ;
 
 /* -------------------------------------------------------------------------- */
 /* cholmod_sparse_xtype: change the xtype of a sparse matrix */

@@ -4,17 +4,6 @@
 %
 \alias{dtrMatrix-class}
 %
-\alias{coerce,dtrMatrix,dgeMatrix-method}
-\alias{coerce,dtrMatrix,dgeMatrix-method}
-\alias{coerce,dtrMatrix,dsyMatrix-method}
-\alias{coerce,dtrMatrix,dtCMatrix-method}
-\alias{coerce,dtrMatrix,dtRMatrix-method}
-\alias{coerce,dtrMatrix,dtTMatrix-method}
-\alias{coerce,dtrMatrix,dtpMatrix-method}
-\alias{coerce,dtrMatrix,ltrMatrix-method}
-\alias{coerce,dtrMatrix,ntrMatrix-method}
-\alias{coerce,matrix,dtrMatrix-method}
-%
 \description{
   The \code{"dtrMatrix"} class is the class of triangular, dense,
   numeric matrices in nonpacked storage.  The \code{"dtpMatrix"} class
@@ -45,12 +34,6 @@
 \section{Methods}{
   Among others (such as matrix products, e.g. \code{?\link{crossprod-methods}}),
   \describe{
-    \item{coerce}{\code{signature(from = "dgeMatrix", to = "dtrMatrix")}}
-    \item{coerce}{\code{signature(from = "dtrMatrix", to = "matrix")}}
-    \item{coerce}{\code{signature(from = "dtrMatrix", to = "ltrMatrix")}}
-    \item{coerce}{\code{signature(from = "dtrMatrix", to = "matrix")}}
-    \item{coerce}{\code{signature(from = "matrix",    to = "dtrMatrix")}}
-
     \item{norm}{\code{signature(x = "dtrMatrix", type = "character")}}
     \item{rcond}{\code{signature(x = "dtrMatrix", norm = "character")}}
     \item{solve}{\code{signature(a = "dtrMatrix", b = "....")}}{efficientely

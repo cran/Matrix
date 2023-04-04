@@ -99,13 +99,13 @@ cs *Matrix_as_cs(cs *ans, SEXP x, Rboolean check_Udiag)
 	/* content(ans) := content(tmp) : */
 	ans->nzmax = nz;
 	/* The ans "slots" were pointers to x@ <slots>; all need new content now: */
-	ans->p = Memcpy((   int*) R_alloc(n+1, sizeof(int)),
-			(   int*) tmp->p, n+1);
-	ans->i = Memcpy((   int*) R_alloc(nz, sizeof(int)),
-			(   int*) tmp->i, nz);
+	ans->p = Memcpy((   int *) R_alloc((size_t) n+1, sizeof(int)),
+			(   int *) tmp->p, n+1);
+	ans->i = Memcpy((   int *) R_alloc((size_t)  nz, sizeof(int)),
+			(   int *) tmp->i, nz);
 	if(has_x)
-	ans->x = Memcpy((double*) R_alloc(nz, sizeof(double)),
-			(double*) tmp->x, nz);
+	ans->x = Memcpy((double *) R_alloc((size_t)  nz, sizeof(double)),
+			(double *) tmp->x, nz);
 
 	cs_spfree(tmp);
     }

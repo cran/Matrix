@@ -27,9 +27,9 @@
 ..tT2gC <- ..sT2gC <- function(from) .T2C(.sparse2g(from))
 ..tC2gT <- ..sC2gT <- function(from) .CR2T(.sparse2g(from))
 ..gT2tC <- function(from) .T2C(.M2tri(from))
-..gT2sC <- function(from) .T2C(.M2symm(from))
+..gT2sC <- function(from) .T2C(.M2sym(from))
 ..gC2tT <- function(from) .CR2T(.M2tri(from))
-..gC2sT <- function(from) .CR2T(.M2symm(from))
+..gC2sT <- function(from) .CR2T(.M2sym(from))
 
 ## To sparseMatrix .........................................
 
@@ -60,7 +60,7 @@ for (.cl in paste0(c("C", "R", "T"), "sparseMatrix")) {
     setAs(.cl, "vector", .sparse2v)
 
     setMethod("as.vector", signature(x = .cl),
-              function(x, mode) as.vector(.sparse2v(x), mode))
+              function(x, mode = "any") as.vector(.sparse2v(x), mode))
 }
 rm(.cl)
 
@@ -147,7 +147,7 @@ for (.kind in .kinds) {
     for (.str in c("g", "t"))
         for (.repr in .reprs)
             setAs(paste0(.kind, .str, .repr, "Matrix"),
-                  paste0(.kind,  "s", .repr, "Matrix"), ..M2symm)
+                  paste0(.kind,  "s", .repr, "Matrix"), ..M2sym)
 
     ## Non-triangular to triangular, preserving kind and storage
     for (.str in c("g", "s"))
@@ -241,17 +241,6 @@ setAs(    "dtTMatrix", "dgeMatrix", ..sparse2dge)
 setAs(    "dsTMatrix", "dgeMatrix", ..sparse2dge)
 setAs(    "ngTMatrix", "lgeMatrix", ..sparse2lge)
 } ## DEPRECATED IN 1.5-0; see ./zzz.R
-
-## Exported functions, now just aliases or wrappers ........
-## (some or all could be made deprecated) ..................
-
-.T2Cmat <- function(from, isTri) .BODY; body(.T2Cmat) <- body(.T2C)
-.C2nC <- function(from, isTri) .BODY; body(.C2nC) <- body(..sparse2n)
-.nC2d <- ..sparse2d
-.nC2l <- ..sparse2l
-.n2dgT <- ..sparse2d
-.diag2mat <- .diag2m
-.dxC2mat <- function(from, chkUdiag) .BODY; body(.dxC2mat) <- body(.sparse2m)
 
 rm(..sparse2unpacked, ..sparse2packed,
    ..sparse2dge, ..sparse2lge, ..sparse2nge)

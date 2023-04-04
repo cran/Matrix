@@ -17,7 +17,6 @@
 \alias{Summary,ddenseMatrix-method}
 \alias{^,ddenseMatrix,ddiMatrix-method}
 \alias{^,ddenseMatrix,ldiMatrix-method}
-\alias{coerce,ddenseMatrix,dgeMatrix-method}
 \alias{coerce,matrix,ddenseMatrix-method}
 \alias{coerce,numLike,ddenseMatrix-method}
 \alias{log,ddenseMatrix-method}

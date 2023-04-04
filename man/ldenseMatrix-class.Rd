@@ -36,10 +36,7 @@ Class \code{"Matrix"}, by class \code{"denseMatrix"}.
 }
 \section{Methods}{
   \describe{
-    \item{coerce}{\code{signature(from = "matrix", to = "ldenseMatrix")}: ... }
-    \item{coerce}{\code{signature(from = "ldenseMatrix", to = "matrix")}: ... }
     \item{as.vector}{\code{signature(x = "ldenseMatrix", mode = "missing")}: ...}
-
     \item{which}{\code{signature(x = "ndenseMatrix")}, semantically
       equivalent to \pkg{base} function \code{\link{which}(x, arr.ind)};
       for details, see the \code{\linkS4class{lMatrix}} class documentation.}

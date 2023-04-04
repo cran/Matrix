@@ -93,13 +93,13 @@ function(x,
 
                 ## Here: use "smart" default !
                 if(is.null(lwd)) {
-                    wh <- grid::current.viewport()[c("width", "height")]
+                    wh <- current.viewport()[c("width", "height")]
                     ## wh : current viewport dimension in pixel
                     wh <- (par("cra") / par("cin")) *
-                        c(grid::convertWidth(wh$width, "inches",
-                                             valueOnly = TRUE),
-                          grid::convertHeight(wh$height, "inches",
-                                              valueOnly = TRUE))
+                        c(convertWidth(wh$width, "inches",
+                                       valueOnly = TRUE),
+                          convertHeight(wh$height, "inches",
+                                        valueOnly = TRUE))
 
                     pSize <- wh/di ## size of one matrix-entry in pixels
                     pA <- prod(pSize) # the "area"

@@ -17,19 +17,16 @@ setAs("Matrix", "matrix", # do *not* call base::as.matrix() here:
       function(from) .bail.out.2("coerce", class(from), class(to)))
 setAs("matrix", "Matrix", function(from) Matrix(from))
 
-## not better; just for those hating typing
-.asmatrix <- function(x) as(x, "matrix")
-
 ## Such that also base functions dispatch properly on our classes:
 if(.Matrix.avoiding.as.matrix) {
     as.matrix.Matrix <- function(x, ...) {
         if(nonTRUEoption("Matrix.quiet.as.matrix") &&
            nonTRUEoption("Matrix.quiet"))
-            warning("as.matrix(<Matrix>) is deprecated (to become a no-op in the future).\nUse  as(x, \"matrix\")  or  .asmatrix(x)  instead.")
+            warning("as.matrix(<Matrix>) is deprecated (to become a no-op in the future).\nUse  as(x, \"matrix\")  instead.")
         as(x, "matrix")
     }
     as.array.Matrix <- function(x, ...) {
-        warning("as.array(<Matrix>) is deprecated. Use  as(x, \"matrix\")  or .asmatrix(x) instead.")
+        warning("as.array(<Matrix>) is deprecated. Use  as(x, \"matrix\")  instead.")
         as(x, "matrix")
     }
 } else { ## regularly -- documented since 2005 that this works
@@ -44,8 +41,8 @@ setMethod("as.array",  signature(x = "Matrix"),
           function(x, ...) as(x, "matrix"))
 
 ## head and tail apply to all Matrix objects for which subscripting is allowed:
-setMethod("head", signature(x = "Matrix"), utils::head.matrix)
-setMethod("tail", signature(x = "Matrix"), utils::tail.matrix)
+setMethod("head", signature(x = "Matrix"), head.matrix)
+setMethod("tail", signature(x = "Matrix"), tail.matrix)
 
 setMethod("drop", signature(x = "Matrix"),
 	  function(x) if(all(x@Dim != 1L)) x else drop(as(x, "matrix")))
@@ -416,7 +413,7 @@ Matrix <- function(data = NA, nrow = 1, ncol = 1, byrow = FALSE,
     ## numeric or logical matrix without a 'class' attribute
     if(doDiag && isDiagonal(data))
         ## as(<[mM]atrix>, "diagonalMatrix") uses check = TRUE (a waste)
-        return(.M2diag(data, check = FALSE))
+        return(forceDiagonal(data))
     if(i.m || i.sM != sparse) {
         data <- as(data, if(sparse) "CsparseMatrix" else "unpackedMatrix")
         if(i.m)

@@ -1,8 +1,6 @@
 \name{cBind}
 \title{'cbind()' and 'rbind()' recursively built on cbind2/rbind2}
 %
-\alias{cBind} % but not \alias{cbind2}
-\alias{rBind} % but not \alias{rbind2}
 %% needed here instead of in ./sparseMatrix.Rd and ./denseMatrix.Rd
 %% only because we use \S4Method{} below:
 \alias{cbind2,denseMatrix,sparseMatrix-method}
@@ -23,17 +21,6 @@
   \pkg{methods} package, i.e., standard \R, and have been provided for
   binding together \emph{two} matrices, where in \pkg{Matrix}, we have
   defined methods for these and the \code{'Matrix'} matrices.
-}
-\section{Historical Remark}{
-  Before \R version 3.2.0 (April 2015), we have needed a substitute for
-  \emph{S4-enabled} versions of \code{cbind} and \code{rbind}, and
-  provided \code{cBind} and \code{rBind} with identical syntax and
-  semantic in order to bind together multiple matrices (\code{"matrix"}
-  or \code{"Matrix"} and vectors.
-  With \R version 3.2.0 and newer, \code{cBind} and \code{rBind} are
-  \emph{deprecated} and produce a deprecation warning (via
-  \code{\link{.Deprecated}}), and your code should start using
-  \code{cbind()} and \code{rbind()} instead.
 }
 \usage{
 ## cbind(..., deparse.level = 1)

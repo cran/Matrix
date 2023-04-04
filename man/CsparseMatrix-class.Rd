@@ -80,8 +80,6 @@ Class \code{"Matrix"}, by class \code{"sparseMatrix"}.
     \item{coerce}{\code{signature(from = "CsparseMatrix", to = "TsparseMatrix")}: ... }
     \item{coerce}{\code{signature(from = "CsparseMatrix", to = "denseMatrix")}: ... }
     \item{coerce}{\code{signature(from = "CsparseMatrix", to = "matrix")}: ... }
-    \item{coerce}{\code{signature(from = "CsparseMatrix", to = "lsparseMatrix")}: ... }
-    \item{coerce}{\code{signature(from = "CsparseMatrix", to = "nsparseMatrix")}: ... }
     \item{coerce}{\code{signature(from = "TsparseMatrix", to = "CsparseMatrix")}: ... }
     \item{coerce}{\code{signature(from = "denseMatrix", to = "CsparseMatrix")}: ... }
     \item{diag}{\code{signature(x = "CsparseMatrix")}: ... }

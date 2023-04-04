@@ -85,7 +85,6 @@
 \alias{solve,matrix,sparseVector-method}
 \alias{solve,sparseQR,ANY-method}
 \alias{solve,sparseQR,missing-method}
-%
 \description{
   Methods for generic function \code{\link{solve}}, for solving linear
   systems of equations.  These solve for \eqn{X} in \deqn{A X = B}
@@ -253,6 +252,7 @@
   \code{\link{solve}}, \code{\link{lu}}, and class documentations
   \code{\linkS4class{CHMfactor}}, \code{\linkS4class{sparseLU}}, and
   \code{\linkS4class{MatrixFactorization}}.
+  %% Direct versions such as \code{\link{.solve.dgC.qr}()}
 }
 \examples{
 ## A close to symmetric example with "quite sparse" inverse:

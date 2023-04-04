@@ -212,7 +212,7 @@ int cholmod_rowadd_solve
     cholmod_common *Common
 ) ;
 
-int cholmod_l_rowadd_solve (size_t, cholmod_sparse *, double *,
+int cholmod_l_rowadd_solve (size_t, cholmod_sparse *, double [2],
     cholmod_factor *, cholmod_dense *, cholmod_dense *, cholmod_common *) ;
 
 /* -------------------------------------------------------------------------- */
@@ -238,7 +238,7 @@ int cholmod_rowadd_mark
     cholmod_common *Common
 ) ;
 
-int cholmod_l_rowadd_mark (size_t, cholmod_sparse *, double *,
+int cholmod_l_rowadd_mark (size_t, cholmod_sparse *, double [2],
     SuiteSparse_long *, cholmod_factor *, cholmod_dense *, cholmod_dense *,
     cholmod_common *) ;
 
@@ -291,7 +291,7 @@ int cholmod_rowdel_solve
     cholmod_common *Common
 ) ;
 
-int cholmod_l_rowdel_solve (size_t, cholmod_sparse *, double *,
+int cholmod_l_rowdel_solve (size_t, cholmod_sparse *, double [2],
     cholmod_factor *, cholmod_dense *, cholmod_dense *, cholmod_common *) ;
 
 /* -------------------------------------------------------------------------- */
@@ -317,7 +317,7 @@ int cholmod_rowdel_mark
     cholmod_common *Common
 ) ;
 
-int cholmod_l_rowdel_mark (size_t, cholmod_sparse *, double *,
+int cholmod_l_rowdel_mark (size_t, cholmod_sparse *, double [2],
     SuiteSparse_long *, cholmod_factor *, cholmod_dense *, cholmod_dense *,
     cholmod_common *) ;
 

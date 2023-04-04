@@ -1,6 +1,6 @@
 Package: Matrix
-Version: 1.5-3
-Date: 2022-11-09
+Version: 1.5-4
+Date: 2023-04-02
 Priority: recommended
 Title: Sparse and Dense Matrix Classes and Methods
 Contact: Matrix-authors@R-project.org
@@ -41,7 +41,7 @@ URL: https://Matrix.R-forge.R-project.org/,
         https://Matrix.R-forge.R-project.org/doxygen/
 BugReports: https://R-forge.R-project.org/tracker/?atid=294&group_id=61
 NeedsCompilation: yes
-Packaged: 2022-11-10 14:57:57 UTC; maechler
+Packaged: 2023-04-03 09:54:24 UTC; maechler
 Author: Douglas Bates [aut],
   Martin Maechler [aut, cre] (<https://orcid.org/0000-0002-8685-9910>),
   Mikael Jagan [aut] (<https://orcid.org/0000-0002-3542-2938>),
@@ -54,4 +54,4 @@ Author: Douglas Bates [aut],
     Regents of the University of California),
   R Core Team [ctb] (base R matrix implementation)
 Repository: CRAN
-Date/Publication: 2022-11-11 08:30:10 UTC
+Date/Publication: 2023-04-04 08:20:06 UTC

@@ -9,19 +9,8 @@
 \alias{Compare,ngeMatrix,ngeMatrix-method}
 \alias{Logic,ngeMatrix,ngeMatrix-method}
 \alias{as.vector,ngeMatrix-method}
-\alias{coerce,matrix,ngeMatrix-method}
-\alias{coerce,ngeMatrix,dgeMatrix-method}
-\alias{coerce,ngeMatrix,lgeMatrix-method}
 \alias{coerce,ngeMatrix,matrix-method}
-\alias{coerce,ngeMatrix,ngCMatrix-method}
-\alias{coerce,ngeMatrix,ngRMatrix-method}
-\alias{coerce,ngeMatrix,ngTMatrix-method}
-\alias{coerce,ngeMatrix,nspMatrix-method}
-\alias{coerce,ngeMatrix,nsyMatrix-method}
-\alias{coerce,ngeMatrix,ntpMatrix-method}
-\alias{coerce,ngeMatrix,ntrMatrix-method}
 \alias{coerce,ngeMatrix,vector-method}
-\alias{coerce,numLike,ngeMatrix-method}
 %
 \description{This is the class of general dense nonzero-pattern
   matrices, see \code{\linkS4class{nMatrix}}.

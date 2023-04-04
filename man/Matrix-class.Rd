@@ -43,21 +43,17 @@
 \alias{cbind2,Matrix,missing-method}
 \alias{cbind2,NULL,Matrix-method}
 \alias{coerce,ANY,Matrix-method}
-\alias{coerce,Matrix,CsparseMatrix-method}
 \alias{coerce,Matrix,complex-method}
 \alias{coerce,Matrix,corMatrix-method}
-\alias{coerce,Matrix,denseMatrix-method}
 \alias{coerce,Matrix,diagonalMatrix-method}
 \alias{coerce,Matrix,dpoMatrix-method}
 \alias{coerce,Matrix,dppMatrix-method}
-\alias{coerce,Matrix,denseMatrix-method}
 \alias{coerce,Matrix,indMatrix-method}
 \alias{coerce,Matrix,integer-method}
 \alias{coerce,Matrix,logical-method}
 \alias{coerce,Matrix,matrix-method}
 \alias{coerce,Matrix,numeric-method}
 \alias{coerce,Matrix,pMatrix-method}
-\alias{coerce,Matrix,sparseMatrix-method}
 \alias{coerce,Matrix,symmetricMatrix-method}
 \alias{coerce,Matrix,triangularMatrix-method}
 \alias{coerce,Matrix,vector-method}
@@ -150,7 +146,6 @@
       \code{as.vector(m)} should be identical to \code{as.vector(as(m,
 	"matrix"))}, implemented more efficiently for some subclasses.}
     \item{as(x, "vector"), as(x, "numeric")}{etc, similarly.}
-
     \item{coerce}{\code{signature(from = "ANY", to = "Matrix")}: This
       relies on a correct \code{\link{as.matrix}()} method for \code{from}.}
   }

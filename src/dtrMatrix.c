@@ -13,7 +13,7 @@ double get_norm_dtr(SEXP obj, const char *typstr)
     const char *ul = CHAR(STRING_ELT(uplo, 0)), *di = CHAR(STRING_ELT(diag, 0));
     
     if (typstr[0] == 'I')
-	work = (double *) R_alloc(pdim[0], sizeof(double));
+	work = (double *) R_alloc((size_t) pdim[0], sizeof(double));
     norm = F77_CALL(dlantr)(typstr, ul, di, pdim, pdim + 1, px, pdim,
 			    work FCONE FCONE FCONE);
 
@@ -47,8 +47,8 @@ SEXP dtrMatrix_rcond(SEXP obj, SEXP type)
     const char *ul = CHAR(STRING_ELT(uplo, 0)), *di = CHAR(STRING_ELT(diag, 0));
     
     F77_CALL(dtrcon)(typstr, ul, di, pdim, px, pdim, &rcond,
-		     (double *) R_alloc(3 * pdim[0], sizeof(double)),
-		     (int *) R_alloc(pdim[0], sizeof(int)),
+		     (double *) R_alloc((size_t) 3 * pdim[0], sizeof(double)),
+		     (int *) R_alloc((size_t) pdim[0], sizeof(int)),
 		     &info FCONE FCONE FCONE);
 
     UNPROTECT(5);

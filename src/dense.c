@@ -29,7 +29,7 @@ SEXP matrix_as_dense(SEXP from, const char *code, char uplo, char diag,
     }
 
     char cl[] = "...Matrix";
-    cl[0] = (code[0] == '.') ? type2kind(tf) : code[0];
+    cl[0] = (code[0] == '.' || code[0] == ',') ? type2kind(tf) : code[0];
     cl[1] = code[1];
     cl[2] = code[2];
     SEXP to = PROTECT(NEW_OBJECT_OF_CLASS(cl));
@@ -123,16 +123,16 @@ SEXP matrix_as_dense(SEXP from, const char *code, char uplo, char diag,
 	    ++nprotect;
 	    switch (tt) {
 	    case LGLSXP:
-		Memcpy(LOGICAL(x), LOGICAL(from), len);
+		Matrix_memcpy(LOGICAL(x), LOGICAL(from), len, sizeof(int));
 		break;
 	    case INTSXP:
-		Memcpy(INTEGER(x), INTEGER(from), len);
+		Matrix_memcpy(INTEGER(x), INTEGER(from), len, sizeof(int));
 		break;
 	    case REALSXP:
-		Memcpy(REAL(x), REAL(from), len);
+		Matrix_memcpy(REAL(x), REAL(from), len, sizeof(double));
 		break;
 	    case CPLXSXP:
-		Memcpy(COMPLEX(x), COMPLEX(from), len);
+		Matrix_memcpy(COMPLEX(x), COMPLEX(from), len, sizeof(Rcomplex));
 		break;
 	    default:
 		break;
@@ -609,14 +609,14 @@ SEXP R_dense_as_sparse(SEXP from, SEXP code, SEXP uplo, SEXP diag)
 #define DAS_CASES(_SEXPTYPE_)						\
     do {								\
 	switch (_SEXPTYPE_) {						\
-	case REALSXP:							\
-	    DAS_SUBCASES(double, REAL, ISNZ_REAL);			\
-	    break;							\
 	case LGLSXP:							\
 	    DAS_SUBCASES(int, LOGICAL, ISNZ_LOGICAL);			\
 	    break;							\
 	case INTSXP:							\
 	    DAS_SUBCASES(int, INTEGER, ISNZ_INTEGER);			\
+	    break;							\
+	case REALSXP:							\
+	    DAS_SUBCASES(double, REAL, ISNZ_REAL);			\
 	    break;							\
 	case CPLXSXP:							\
 	    DAS_SUBCASES(Rcomplex, COMPLEX, ISNZ_COMPLEX);		\
@@ -751,11 +751,10 @@ SEXP R_dense_as_sparse(SEXP from, SEXP code, SEXP uplo, SEXP diag)
 }
 
 /* as(<denseMatrix>, "matrix") */
-SEXP R_dense_as_matrix(SEXP from, SEXP ndense)
+SEXP R_dense_as_matrix(SEXP from)
 {
     /* Result must be newly allocated because we add attributes */
-    PROTECT(from = dense_as_general(
-		from, (asLogical(ndense) != 0) ? 'l' : '.', 1, 0));
+    PROTECT(from = dense_as_general(from, ',', 1, 0));
     SEXP to = PROTECT(GET_SLOT(from, Matrix_xSym)),
 	dim = PROTECT(GET_SLOT(from, Matrix_DimSym)),
 	dimnames = PROTECT(GET_SLOT(from, Matrix_DimNamesSym));
@@ -767,7 +766,7 @@ SEXP R_dense_as_matrix(SEXP from, SEXP ndense)
 }
 
 /* as(<.geMatrix>, "matrix") */
-SEXP R_geMatrix_as_matrix(SEXP from, SEXP ndense)
+SEXP R_geMatrix_as_matrix(SEXP from, SEXP pattern)
 {
     /* Result must be newly allocated because we add attributes */
     SEXP to,
@@ -776,7 +775,7 @@ SEXP R_geMatrix_as_matrix(SEXP from, SEXP ndense)
     PROTECT_INDEX pid;
     PROTECT_WITH_INDEX(to = GET_SLOT(from, Matrix_xSym), &pid);
     REPROTECT(to = duplicate(to), pid);
-    if (asLogical(ndense) != 0)
+    if (asLogical(pattern) != 0)
 	na2one(to);
     setAttrib(to, R_DimSymbol, dim);
     if (!DimNames_is_trivial(dimnames))
@@ -786,23 +785,22 @@ SEXP R_geMatrix_as_matrix(SEXP from, SEXP ndense)
 }
 
 /* as(<denseMatrix>, "vector") */
-SEXP R_dense_as_vector(SEXP from, SEXP ndense)
+SEXP R_dense_as_vector(SEXP from)
 {
     /* Result must be newly allocated if and only if different from 'x' slot */
-    PROTECT(from = dense_as_general(
-		from, (asLogical(ndense) != 0) ? 'l' : '.', 0, 0));
+    PROTECT(from = dense_as_general(from, ',', 0, 0));
     from = GET_SLOT(from, Matrix_xSym);
     UNPROTECT(1); /* from */
     return from;
 }
 
 /* as(<.geMatrix>, "vector") */
-SEXP R_geMatrix_as_vector(SEXP from, SEXP ndense)
+SEXP R_geMatrix_as_vector(SEXP from, SEXP pattern)
 {
     /* Result must be newly allocated if and only if different from 'x' slot */
     PROTECT_INDEX pid;
     PROTECT_WITH_INDEX(from = GET_SLOT(from, Matrix_xSym), &pid);
-    if (asLogical(ndense) != 0) {
+    if (asLogical(pattern) != 0) {
 	int *px = LOGICAL(from);
 	R_xlen_t nx = XLENGTH(from);
 	while (nx--) {
@@ -890,23 +888,23 @@ SEXP R_dense_as_kind(SEXP from, SEXP kind)
 			*px = 1;
 	    }
 	} else {
-	    /* n->[diz] */
+	    /* n->[idz] */
 	    REPROTECT(x = coerceVector(x, tt), pid);
 	    switch (tt) {
-	    case REALSXP:
-	    {
-		double *px = REAL(x);
-		for (ix = 0; ix < nx; ++ix, ++px)
-		    if (ISNAN(*px))
-			*px = 1.0;
-		break;
-	    }
 	    case INTSXP:
 	    {
 		int *px = INTEGER(x);
 		for (ix = 0; ix < nx; ++ix, ++px)
 		    if (*px == NA_INTEGER)
 			*px = 1;
+		break;
+	    }
+	    case REALSXP:
+	    {
+		double *px = REAL(x);
+		for (ix = 0; ix < nx; ++ix, ++px)
+		    if (ISNAN(*px))
+			*px = 1.0;
 		break;
 	    }
 	    case CPLXSXP:
@@ -940,9 +938,11 @@ SEXP R_dense_as_kind(SEXP from, SEXP kind)
  *
  * @param from A `denseMatrix`, a `diagonalMatrix`, a numeric or logical 
  *     `matrix`, or a numeric or logical vector.
- * @param kind A `char` flag, one of `'.'`, `'d'`, `'l'`, and `'n'`, 
+ * @param kind A `char` flag, one of `'.'`, `','`, `'d'`, `'l'`, and `'n'`, 
  *     indicating the "kind" of `.geMatrix` desired.  A dot `'.'` means 
- *     to preserve the "kind" of `from`.
+ *     to preserve the kind of `from`.  A comma `','` is equivalent to
+ *     `'.'` with the additional step of replacing `NA` with 1 for `from`
+ *     inheriting from `nMatrix`.
  * @param new An `int` flag allowing the user to control allocation.
  *     If 0, then usual copy-on-modify rules are employed.  
  *     If less than 0, then the `x` slot of the result is the result 
@@ -985,10 +985,11 @@ SEXP dense_as_general(SEXP from, char kind, int new, int transpose_if_vector)
     */
     
     const char *clf = valid[ivalid];
-    if (kind == '.')
+    int do_na2one = clf[0] == 'n' && kind != 'n' && kind != '.';
+    if (kind == '.' || kind == ',')
 	kind = clf[0];
-    Rboolean ge = (clf[1] == 'g'), ge0 = ge && kind == clf[0];
-    if (ge0 && new <= 0)
+    int ge = clf[1] == 'g', ge0 = ge && kind == clf[0];
+    if (ge0 && new <= 0 && !do_na2one)
 	return from;
     
     SEXP to;
@@ -1023,15 +1024,17 @@ SEXP dense_as_general(SEXP from, char kind, int new, int transpose_if_vector)
     SEXP x0;
     PROTECT_INDEX pidB;
     PROTECT_WITH_INDEX(x0 = GET_SLOT(from, Matrix_xSym), &pidB);
+    
     if (ge0) {
 	REPROTECT(x0 = duplicate(x0), pidB);
+	if (do_na2one)
+	    na2one(x0);
 	SET_SLOT(to, Matrix_xSym, x0);
 	UNPROTECT(2); /* x0, to */
 	return to;
     }
     
     SEXPTYPE tf = TYPEOF(x0), tt = kind2type(kind);
-    int do_na2one = clf[0] == 'n' && kind != 'n';
     if (ge) {
 	if (new == 0 && do_na2one) {
 	    /* Try to avoid an allocation ... */
@@ -1097,7 +1100,7 @@ SEXP dense_as_general(SEXP from, char kind, int new, int transpose_if_vector)
 	_CTYPE_ *px1 = _PTR_(x1);					\
 	if (clf[1] == 'd') {						\
 	    /* di->ge */						\
-	    Memzero(px1, (R_xlen_t) n * n);				\
+	    Matrix_memset(px1, 0, (R_xlen_t) n * n, sizeof(_CTYPE_));	\
 	    _PREFIX_ ## dense_unpacked_copy_diagonal(			\
 		px1, _PTR_(x0), n, n, ul /* unused */, di);		\
 	} else {							\
@@ -1209,26 +1212,26 @@ SEXP R_dense_band(SEXP from, SEXP k1, SEXP k2)
     
     SEXP x_from = NULL, x_to = NULL;
 
-#define UNPACKED_MAKE_BANDED(_PREFIX_, _PTR_)				\
+#define UNPACKED_MAKE_BANDED(_PREFIX_, _CTYPE_, _PTR_)			\
     _PREFIX_ ## dense_unpacked_make_banded(_PTR_(x_to), m, n, a, b, di)
     
-#define PACKED_MAKE_BANDED(_PREFIX_, _PTR_)				\
+#define PACKED_MAKE_BANDED(_PREFIX_, _CTYPE_, _PTR_)			\
     _PREFIX_ ## dense_packed_make_banded(_PTR_(x_to), n, a, b, ult, di)
     
 #define DENSE_BAND(_MAKE_BANDED_)					\
     do {								\
 	switch (TYPEOF(x_to)) {						\
-	case REALSXP: /* d..Matrix */					\
-	    _MAKE_BANDED_(d, REAL);					\
-	    break;							\
-	case LGLSXP: /* [ln]..Matrix */					\
-	    _MAKE_BANDED_(i, LOGICAL);					\
+	case LGLSXP: /* [nl]..Matrix */					\
+	    _MAKE_BANDED_(i, int, LOGICAL);				\
 	    break;							\
 	case INTSXP: /* i..Matrix */					\
-	    _MAKE_BANDED_(i, INTEGER);					\
+	    _MAKE_BANDED_(i, int, INTEGER);				\
+	    break;							\
+	case REALSXP: /* d..Matrix */					\
+	    _MAKE_BANDED_(d, double, REAL);				\
 	    break;							\
 	case CPLXSXP: /* z..Matrix */					\
-	    _MAKE_BANDED_(z, COMPLEX);					\
+	    _MAKE_BANDED_(z, Rcomplex, COMPLEX);			\
 	    break;							\
 	default:							\
 	    ERROR_INVALID_TYPE("'x' slot", TYPEOF(x_to), "R_dense_band"); \
@@ -1316,18 +1319,18 @@ SEXP R_dense_band(SEXP from, SEXP k1, SEXP k2)
 		PROTECT(x_to = allocVector(TYPEOF(x_from), nx));
 		++nprotect;
 		
-#define UNPACKED_COPY_DIAGONAL(_PREFIX_, _PTR_)				\
+#define UNPACKED_COPY_DIAGONAL(_PREFIX_, _CTYPE_, _PTR_)		\
 		do {							\
-		    Memzero(_PTR_(x_to), nx);				\
+		    Matrix_memset(_PTR_(x_to), 0, nx, sizeof(_CTYPE_));	\
 		    if (a <= 0 && b >= 0)				\
 			_PREFIX_ ## dense_unpacked_copy_diagonal(	\
 			    _PTR_(x_to), _PTR_(x_from),			\
 			    n, nx, 'U' /* unused */, di);		\
 		} while (0)
 
-#define PACKED_COPY_DIAGONAL(_PREFIX_, _PTR_)				\
+#define PACKED_COPY_DIAGONAL(_PREFIX_, _CTYPE_, _PTR_)			\
 		do {							\
-		    Memzero(_PTR_(x_to), nx);				\
+		    Matrix_memset(_PTR_(x_to), 0, nx, sizeof(_CTYPE_));	\
 		    if (a <= 0 && b >= 0)				\
 			_PREFIX_ ## dense_packed_copy_diagonal(		\
 			    _PTR_(x_to), _PTR_(x_from),			\
@@ -1988,7 +1991,7 @@ int left_cyclic(double x[], int ldx, int j, int k,
     if (ldx < k)
 	error(_("incorrect left cyclic shift, k (%d) > ldx (%d)"), k, ldx);
 
-    double *lastcol = (double*) R_alloc(k+1, sizeof(double));
+    double *lastcol = (double *) R_alloc((size_t) k + 1, sizeof(double));
     int i;
 				/* keep a copy of column j */
     for(i = 0; i <= j; i++) lastcol[i] = x[i + j*ldx];
@@ -2076,7 +2079,7 @@ SEXP lsq_dense_Chol(SEXP X, SEXP y)
     ans = PROTECT(allocMatrix(REALSXP, p, k));
     F77_CALL(dgemm)("T", "N", &p, &k, &n, &d_one, REAL(X), &n, REAL(y), &n,
 		    &d_zero, REAL(ans), &p FCONE FCONE);
-    double *xpx = (double *) R_alloc(p * p, sizeof(double));
+    double *xpx = (double *) R_alloc((size_t) p * p, sizeof(double));
     F77_CALL(dsyrk)("U", "T", &p, &n, &d_one, REAL(X), &n, &d_zero,
 		    xpx, &p FCONE FCONE);
     int info;
@@ -2102,7 +2105,10 @@ SEXP lsq_dense_QR(SEXP X, SEXP y)
 	    ydims[0], n);
     int k = ydims[1];
     if (k < 1 || p < 1) return allocMatrix(REALSXP, p, k);
-    double tmp, *xvals = (double *) Memcpy(R_alloc(n * p, sizeof(double)), REAL(X), n * p);
+    double tmp,
+	*xvals = (double *) Memcpy(R_alloc((size_t) n * p, sizeof(double)),
+				   REAL(X),
+				   (size_t) n * p);
     SEXP ans = PROTECT(duplicate(y));
     int lwork = -1, info;
     F77_CALL(dgels)("N", &n, &p, &k, xvals, &n, REAL(ans), &n,
@@ -2111,7 +2117,7 @@ SEXP lsq_dense_QR(SEXP X, SEXP y)
 	error(_("First call to Lapack routine dgels returned error code %d"),
 	      info);
     lwork = (int) tmp;
-    double *work = (double *) R_alloc(lwork, sizeof(double));
+    double *work = (double *) R_alloc((size_t) lwork, sizeof(double));
     F77_CALL(dgels)("N", &n, &p, &k, xvals, &n, REAL(ans), &n,
 		    work, &lwork, &info FCONE);
     if (info)
@@ -2168,12 +2174,13 @@ SEXP lapack_qr(SEXP Xin, SEXP tl)
 	if (info)
 	    error(_("First call to dgeqrf returned error code %d"), info);
 	lwork = (int) tmp;
-	work = (double *) R_alloc((lwork < 3*trsz) ? 3*trsz : lwork,
+	work = (double *) R_alloc(((size_t) lwork < (size_t) 3 * trsz)
+				  ? (size_t) 3 * trsz : (size_t) lwork,
 				  sizeof(double));
 	F77_CALL(dgeqrf)(&n, &p, xpt, &n, REAL(qraux), work, &lwork, &info);
 	if (info)
 	    error(_("Second call to dgeqrf returned error code %d"), info);
-	iwork = (int *) R_alloc(trsz, sizeof(int));
+	iwork = (int *) R_alloc((size_t) trsz, sizeof(int));
 	F77_CALL(dtrcon)("1", "U", "N", &rank, xpt, &n, &rcond,
 			 work, iwork, &info FCONE FCONE FCONE);
 	if (info)

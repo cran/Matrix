@@ -12,20 +12,8 @@
 \alias{Arith,numeric,dgeMatrix-method}
 \alias{Math,dgeMatrix-method}
 \alias{as.vector,dgeMatrix-method}
-\alias{coerce,dgeMatrix,dgCMatrix-method}
-\alias{coerce,dgeMatrix,dgRMatrix-method}
-\alias{coerce,dgeMatrix,dgTMatrix-method}
-\alias{coerce,dgeMatrix,dsTMatrix-method}
-\alias{coerce,dgeMatrix,dspMatrix-method}
-\alias{coerce,dgeMatrix,dsyMatrix-method}
-\alias{coerce,dgeMatrix,dtpMatrix-method}
-\alias{coerce,dgeMatrix,dtrMatrix-method}
-\alias{coerce,dgeMatrix,lgeMatrix-method}
 \alias{coerce,dgeMatrix,matrix-method}
-\alias{coerce,dgeMatrix,ngeMatrix-method}
 \alias{coerce,dgeMatrix,vector-method}
-\alias{coerce,matrix,dgeMatrix-method}
-\alias{coerce,numLike,dgeMatrix-method}
 \alias{determinant,dgeMatrix,logical-method}
 \alias{log,dgeMatrix-method}
 %
@@ -68,9 +56,6 @@
     \item{Schur}{\code{signature(x = "dgeMatrix", vectors = "logical")}: ... }
     \item{Schur}{\code{signature(x = "dgeMatrix", vectors = "missing")}: ... }
     \item{chol}{\code{signature(x = "dgeMatrix")}: see \code{\link{chol}}.}
-    \item{coerce}{\code{signature(from = "dgeMatrix", to = "lgeMatrix")}: ... }
-    \item{coerce}{\code{signature(from = "dgeMatrix", to = "matrix")}: ... }
-    \item{coerce}{\code{signature(from = "matrix", to = "dgeMatrix")}: ... }
     \item{colMeans}{\code{signature(x = "dgeMatrix")}: columnwise means (averages)}
     \item{colSums}{\code{signature(x = "dgeMatrix")}: columnwise sums}
     \item{diag}{\code{signature(x = "dgeMatrix")}: ... }

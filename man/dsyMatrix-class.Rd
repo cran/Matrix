@@ -2,35 +2,17 @@
 \title{Symmetric Dense (Packed or Unpacked) Numeric Matrices}
 \docType{class}
 %
-\alias{dspMatrix-class}
 \alias{dsyMatrix-class}
-%
-\alias{coerce,dspMatrix,dgeMatrix-method}
-\alias{coerce,dspMatrix,dpoMatrix-method}
-\alias{coerce,dspMatrix,dppMatrix-method}
-\alias{coerce,dspMatrix,dsCMatrix-method}
-\alias{coerce,dspMatrix,dsRMatrix-method}
-\alias{coerce,dspMatrix,dsTMatrix-method}
-\alias{coerce,dspMatrix,dsyMatrix-method}
-\alias{coerce,dspMatrix,dtpMatrix-method}
-\alias{coerce,dspMatrix,lspMatrix-method}
-\alias{coerce,dspMatrix,nspMatrix-method}
-\alias{coerce,matrix,dspMatrix-method}
-\alias{determinant,dspMatrix,logical-method}
+\alias{dspMatrix-class}
 %
 \alias{coerce,dsyMatrix,corMatrix-method}
-\alias{coerce,dsyMatrix,dgeMatrix-method}
 \alias{coerce,dsyMatrix,dpoMatrix-method}
 \alias{coerce,dsyMatrix,dppMatrix-method}
-\alias{coerce,dsyMatrix,dsCMatrix-method}
-\alias{coerce,dsyMatrix,dsRMatrix-method}
-\alias{coerce,dsyMatrix,dsTMatrix-method}
-\alias{coerce,dsyMatrix,dspMatrix-method}
-\alias{coerce,dsyMatrix,dtrMatrix-method}
-\alias{coerce,dsyMatrix,lsyMatrix-method}
-\alias{coerce,dsyMatrix,nsyMatrix-method}
-\alias{coerce,matrix,dsyMatrix-method}
 \alias{determinant,dsyMatrix,logical-method}
+%
+\alias{coerce,dspMatrix,dpoMatrix-method}
+\alias{coerce,dspMatrix,dppMatrix-method}
+\alias{determinant,dspMatrix,logical-method}
 %
 \description{
   \itemize{
@@ -68,12 +50,6 @@
 }
 \section{Methods}{
   \describe{
-    \item{coerce}{\code{signature(from = "ddenseMatrix", to = "dgeMatrix")}}
-    %
-    \item{coerce}{\code{signature(from = "dspMatrix", to = "matrix")}}
-    \item{coerce}{\code{signature(from = "dsyMatrix", to = "matrix")}}
-    \item{coerce}{\code{signature(from = "dsyMatrix", to = "dspMatrix")}}
-    \item{coerce}{\code{signature(from = "dspMatrix", to = "dsyMatrix")}}
     \item{norm}{\code{signature(x = "dspMatrix", type = "character")}, or
       \code{x = "dsyMatrix"} or \code{type = "missing"}: Computes the
       matrix norm of the desired type, see, \code{\link{norm}}.}

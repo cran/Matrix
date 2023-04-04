@@ -7,30 +7,8 @@
 %
 \alias{Arith,dsCMatrix,dsCMatrix-method}
 \alias{coerce,dsCMatrix,RsparseMatrix-method}
-\alias{coerce,dsCMatrix,dgCMatrix-method}
-\alias{coerce,dsCMatrix,dgTMatrix-method}
-\alias{coerce,dsCMatrix,dgeMatrix-method}
-\alias{coerce,dsCMatrix,dsRMatrix-method}
-\alias{coerce,dsCMatrix,dsTMatrix-method}
-\alias{coerce,dsCMatrix,dspMatrix-method}
-\alias{coerce,dsCMatrix,dsyMatrix-method}
-\alias{coerce,dsCMatrix,dtCMatrix-method}
-\alias{coerce,dsCMatrix,lsCMatrix-method}
-\alias{coerce,dsCMatrix,nsCMatrix-method}
-\alias{coerce,matrix,dsCMatrix-method}
 \alias{determinant,dsCMatrix,logical-method}
 %
-\alias{coerce,dsTMatrix,dgCMatrix-method}
-\alias{coerce,dsTMatrix,dgTMatrix-method}
-\alias{coerce,dsTMatrix,dgeMatrix-method}
-\alias{coerce,dsTMatrix,dsRMatrix-method}
-\alias{coerce,dsTMatrix,dsCMatrix-method}
-\alias{coerce,dsTMatrix,dspMatrix-method}
-\alias{coerce,dsTMatrix,dsyMatrix-method}
-\alias{coerce,dsTMatrix,dtTMatrix-method}
-\alias{coerce,dsTMatrix,lsTMatrix-method}
-\alias{coerce,dsTMatrix,nsTMatrix-method}
-\alias{coerce,matrix,dsTMatrix-method}
 \alias{determinant,dsTMatrix,logical-method}
 %
 \description{The \code{dsCMatrix} class is a class of symmetric, sparse
@@ -106,13 +84,6 @@
     \item{t}{\code{signature(x = "dsTMatrix")}: Transpose.  The
       \code{uplo} slot is swapped from \code{"U"} to \code{"L"} or vice
       versa, as for a \code{"dsCMatrix"}, see above.}
-    \item{coerce}{\code{signature(from = "dsCMatrix", to = "dgTMatrix")}}
-    \item{coerce}{\code{signature(from = "dsCMatrix", to = "dgeMatrix")}}
-    \item{coerce}{\code{signature(from = "dsCMatrix", to = "matrix")}}
-    \item{coerce}{\code{signature(from = "dsTMatrix", to = "dgeMatrix")}}
-    \item{coerce}{\code{signature(from = "dsTMatrix", to = "dsCMatrix")}}
-    \item{coerce}{\code{signature(from = "dsTMatrix", to = "dsyMatrix")}}
-    \item{coerce}{\code{signature(from = "dsTMatrix", to = "matrix")}}
   }
 }
 %\references{}

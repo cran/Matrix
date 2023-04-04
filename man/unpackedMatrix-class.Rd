@@ -1,6 +1,5 @@
 \name{unpackedMatrix-class}
 \title{Virtual Class \code{"unpackedMatrix"} of Unpacked Dense Matrices}
-\Rdversion{1.1}
 \docType{class}
 %
 \alias{unpackedMatrix-class}

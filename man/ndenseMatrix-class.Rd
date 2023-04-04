@@ -12,12 +12,7 @@
 \alias{Summary,ndenseMatrix-method}
 \alias{^,ndenseMatrix,ddiMatrix-method}
 \alias{^,ndenseMatrix,ldiMatrix-method}
-\alias{as.logical,ndenseMatrix-method}
-\alias{as.numeric,ndenseMatrix-method}
-\alias{as.vector,ndenseMatrix-method}
 \alias{coerce,matrix,ndenseMatrix-method}
-\alias{coerce,ndenseMatrix,matrix-method}
-\alias{coerce,ndenseMatrix,vector-method}
 \alias{coerce,numLike,ndenseMatrix-method}
 \alias{which,ndenseMatrix-method}
 %
@@ -42,8 +37,6 @@ Class \code{"Matrix"}, by class \code{"denseMatrix"}.
   \describe{
     \item{\%*\%}{\code{signature(x = "nsparseMatrix", y = "ndenseMatrix")}: ... }
     \item{\%*\%}{\code{signature(x = "ndenseMatrix", y = "nsparseMatrix")}: ... }
-    \item{coerce}{\code{signature(from = "matrix", to = "ndenseMatrix")}: ... }
-    \item{coerce}{\code{signature(from = "ndenseMatrix", to = "matrix")}: ... }
     \item{crossprod}{\code{signature(x = "nsparseMatrix", y = "ndenseMatrix")}: ... }
     \item{crossprod}{\code{signature(x = "ndenseMatrix", y = "nsparseMatrix")}: ... }
     \item{as.vector}{\code{signature(x = "ndenseMatrix", mode = "missing")}: ...}

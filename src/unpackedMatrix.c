@@ -157,7 +157,7 @@ void _PREFIX_ ## dense_unpacked_make_banded(_CTYPE_ *x, int m, int n,	\
     if (m == 0 || n == 0)						\
 	return;								\
     if (a > b || a >= n || b <= -m) {					\
-	Memzero(x, (R_xlen_t) m * n);					\
+	Matrix_memset(x, 0, (R_xlen_t) m * n, sizeof(_CTYPE_));		\
 	return;								\
     }									\
     if (a <= -m) a = 1-m;						\
@@ -169,7 +169,7 @@ void _PREFIX_ ## dense_unpacked_make_banded(_CTYPE_ *x, int m, int n,	\
     									\
     if (j0 > 0) {							\
 	R_xlen_t dx;							\
-	Memzero(x, dx = (R_xlen_t) m * j0);				\
+	Matrix_memset(x, 0, dx = (R_xlen_t) m * j0, sizeof(_CTYPE_));	\
 	x += dx;							\
     }									\
     for (j = j0; j < j1; ++j, x += m) {					\
@@ -181,7 +181,7 @@ void _PREFIX_ ## dense_unpacked_make_banded(_CTYPE_ *x, int m, int n,	\
 	    *(x + i) = _ZERO_;						\
     }									\
     if (j1 < n)								\
-	Memzero(x, (R_xlen_t) m * (n - j1));				\
+	Matrix_memset(x, 0, (R_xlen_t) m * (n - j1), sizeof(_CTYPE_));	\
     if (diag != 'N' && a <= 0 && b >= 0) {				\
 	x -= m * (R_xlen_t) j;						\
 	R_xlen_t m1a = (R_xlen_t) m + 1;				\
@@ -384,19 +384,19 @@ SEXP unpacked_force(SEXP x, int n, char uplo, char diag)
 #define FORCE_SYMMETRIC(_PREFIX_, _CTYPE_, _PTR_)			\
 	do {								\
 	    _CTYPE_ *px = _PTR_(x), *py = _PTR_(y);			\
-	    Memcpy(py, px, nx);						\
+	    Matrix_memcpy(py, px, nx, sizeof(_CTYPE_));			\
 	    _PREFIX_ ## dense_unpacked_make_symmetric(py, n, uplo);	\
 	} while (0)
 	
 	switch (tx) {
-	case REALSXP:
-	    FORCE_SYMMETRIC(d, double, REAL);
-	    break;
 	case LGLSXP:
 	    FORCE_SYMMETRIC(i, int, LOGICAL);
 	    break;
 	case INTSXP:
 	    FORCE_SYMMETRIC(i, int, INTEGER);
+	    break;
+	case REALSXP:
+	    FORCE_SYMMETRIC(d, double, REAL);
 	    break;
 	case CPLXSXP:
 	    FORCE_SYMMETRIC(z, Rcomplex, COMPLEX);
@@ -412,7 +412,7 @@ SEXP unpacked_force(SEXP x, int n, char uplo, char diag)
 #define FORCE_TRIANGULAR(_PREFIX_, _CTYPE_, _PTR_, _ONE_)		\
 	do {								\
 	    _CTYPE_ *px = _PTR_(x), *py = _PTR_(y);			\
-	    Memcpy(py, px, nx);						\
+	    Matrix_memcpy(py, px, nx, sizeof(_CTYPE_));			\
 	    _PREFIX_ ## dense_unpacked_make_triangular(py, n, n, uplo, diag); \
 	    if (diag != 'N') {						\
 		R_xlen_t n1a = (R_xlen_t) n + 1;			\
@@ -422,14 +422,14 @@ SEXP unpacked_force(SEXP x, int n, char uplo, char diag)
 	} while (0)
 	
 	switch (tx) {
-	case REALSXP:
-	    FORCE_TRIANGULAR(d, double, REAL, 1.0);
-	    break;
 	case LGLSXP:
 	    FORCE_TRIANGULAR(i, int, LOGICAL, 1);
 	    break;
 	case INTSXP:
 	    FORCE_TRIANGULAR(i, int, INTEGER, 1);
+	    break;
+	case REALSXP:
+	    FORCE_TRIANGULAR(d, double, REAL, 1.0);
 	    break;
 	case CPLXSXP:
 	    FORCE_TRIANGULAR(z, Rcomplex, COMPLEX, Matrix_zone);
@@ -528,14 +528,14 @@ SEXP unpackedMatrix_pack(SEXP from, SEXP strict, SEXP tr_if_ge, SEXP up_if_ge)
     _PREFIX_ ## dense_pack(_PTR_(x_to), _PTR_(x_from), n, ul, 'N')
     
     switch (tx) {
-    case REALSXP: /* d..Matrix */
-	PACK(d, REAL);
-	break;
     case LGLSXP: /* [ln]..Matrix */
 	PACK(i, LOGICAL);
 	break;
     case INTSXP: /* i..Matrix */
 	PACK(i, INTEGER);
+	break;
+    case REALSXP: /* d..Matrix */
+	PACK(d, REAL);
 	break;
     case CPLXSXP: /* z..Matrix */
     	PACK(z, COMPLEX);
@@ -632,25 +632,25 @@ SEXP unpackedMatrix_force_symmetric(SEXP from, SEXP uplo_to)
 	R_xlen_t nx = XLENGTH(x_from);
 	SEXP x_to = PROTECT(allocVector(tx, nx));
 
-#define COPY_DIAGONAL(_PREFIX_, _PTR_)					\
+#define COPY_DIAGONAL(_PREFIX_, _CTYPE_, _PTR_)				\
 	do {								\
-	    Memzero(_PTR_(x_to), nx);					\
+	    Matrix_memset(_PTR_(x_to), 0, nx, sizeof(_CTYPE_));		\
 	    _PREFIX_ ## dense_unpacked_copy_diagonal(			\
 		_PTR_(x_to), _PTR_(x_from), n, nx, 'U' /* unused */, di); \
 	} while (0)
 	
 	switch (tx) {
-	case REALSXP: /* d..Matrix */
-	    COPY_DIAGONAL(d, REAL);
-	    break;
-	case LGLSXP: /* [ln]..Matrix */
-	    COPY_DIAGONAL(i, LOGICAL);
+	case LGLSXP: /* [nl]..Matrix */
+	    COPY_DIAGONAL(i, int, LOGICAL);
 	    break;
 	case INTSXP: /* i..Matrix */
-	    COPY_DIAGONAL(i, INTEGER);
+	    COPY_DIAGONAL(i, int, INTEGER);
+	    break;
+	case REALSXP: /* d..Matrix */
+	    COPY_DIAGONAL(d, double, REAL);
 	    break;
 	case CPLXSXP: /* z..Matrix */
-	    COPY_DIAGONAL(z, COMPLEX);
+	    COPY_DIAGONAL(z, Rcomplex, COMPLEX);
 	    break;
 	default:
 	   ERROR_INVALID_TYPE("'x' slot", tx, "unpackedMatrix_force_symmetric");
@@ -670,14 +670,14 @@ SEXP unpackedMatrix_force_symmetric(SEXP from, SEXP uplo_to)
 #define UPM_IS_TR(_RES_, _X_, _N_, _UPLO_, _WHAT_, _METHOD_)		\
     do {								\
 	switch (TYPEOF(_X_)) {						\
-	case REALSXP:							\
-	    _RES_ = ddense_unpacked_is_triangular(REAL(_X_), _N_, _UPLO_); \
-	    break;							\
 	case LGLSXP:							\
 	    _RES_ = idense_unpacked_is_triangular(LOGICAL(_X_), _N_, _UPLO_); \
 	    break;							\
 	case INTSXP:							\
 	    _RES_ = idense_unpacked_is_triangular(INTEGER(_X_), _N_, _UPLO_); \
+	    break;							\
+	case REALSXP:							\
+	    _RES_ = ddense_unpacked_is_triangular(REAL(_X_), _N_, _UPLO_); \
 	    break;							\
 	case CPLXSXP:							\
 	    _RES_ = zdense_unpacked_is_triangular(COMPLEX(_X_), _N_, _UPLO_); \
@@ -692,9 +692,6 @@ SEXP unpackedMatrix_force_symmetric(SEXP from, SEXP uplo_to)
 #define UPM_IS_SY(_RES_, _X_, _N_, _LDENSE_, _WHAT_, _METHOD_)		\
     do {								\
 	switch (TYPEOF(_X_)) {						\
-	case REALSXP:							\
-	    _RES_ = ddense_unpacked_is_symmetric(REAL(_X_), _N_);	\
-	    break;							\
 	case LGLSXP:							\
 	    _RES_ = (_LDENSE_						\
 		     ? ldense_unpacked_is_symmetric(LOGICAL(_X_), _N_)	\
@@ -702,6 +699,9 @@ SEXP unpackedMatrix_force_symmetric(SEXP from, SEXP uplo_to)
 	    break;							\
 	case INTSXP:							\
 	    _RES_ = idense_unpacked_is_symmetric(INTEGER(_X_), _N_);	\
+	    break;							\
+	case REALSXP:							\
+	    _RES_ = ddense_unpacked_is_symmetric(REAL(_X_), _N_);	\
 	    break;							\
 	case CPLXSXP:							\
 	    _RES_ = zdense_unpacked_is_symmetric(COMPLEX(_X_), _N_);	\
@@ -716,14 +716,14 @@ SEXP unpackedMatrix_force_symmetric(SEXP from, SEXP uplo_to)
 #define UPM_IS_DI(_RES_, _X_, _N_, _WHAT_, _METHOD_)			\
     do {								\
 	switch (TYPEOF(_X_)) {						\
-	case REALSXP:							\
-	    _RES_ = ddense_unpacked_is_diagonal(REAL(_X_), _N_);	\
-	    break;							\
 	case LGLSXP:							\
 	    _RES_ = idense_unpacked_is_diagonal(LOGICAL(_X_), _N_);	\
 	    break;							\
 	case INTSXP:							\
 	    _RES_ = idense_unpacked_is_diagonal(INTEGER(_X_), _N_);	\
+	    break;							\
+	case REALSXP:							\
+	    _RES_ = ddense_unpacked_is_diagonal(REAL(_X_), _N_);	\
 	    break;							\
 	case CPLXSXP:							\
 	    _RES_ = zdense_unpacked_is_diagonal(COMPLEX(_X_), _N_);	\
@@ -1030,7 +1030,7 @@ SEXP unpackedMatrix_transpose(SEXP from)
 	_CTYPE_ *px0 = _PTR_(x_from), *px1 = _PTR_(x_to);		\
 	int i, j;							\
 	/* if (ivalid >= 3) { */					\
-	/*     Memzero(px1, (size_t) n * n); */				\
+	/*     Matrix_memset(px1, 0, (R_xlen_t) n * n, sizeof(_CTYPE_)); */ \
 	/*     R_xlen_t upos = 0, lpos = 0; */				\
 	/*     if (ul == 'U') */					\
 	/* 	for (j = 0; j < n; upos = (lpos += (++j))) */		\
@@ -1049,14 +1049,14 @@ SEXP unpackedMatrix_transpose(SEXP from)
     } while (0)
     
     switch (tx) {
-    case REALSXP: /* d..Matrix */
-	UPM_T(double, REAL);
-	break;
-    case LGLSXP: /* [ln]..Matrix */
+    case LGLSXP: /* [nl]..Matrix */
 	UPM_T(int, LOGICAL);
 	break;
     case INTSXP: /* i..Matrix */
 	UPM_T(int, INTEGER);
+	break;
+    case REALSXP: /* d..Matrix */
+	UPM_T(double, REAL);
 	break;
     case CPLXSXP: /* z..Matrix */
 	UPM_T(Rcomplex, COMPLEX);
@@ -1118,14 +1118,14 @@ SEXP unpackedMatrix_diag_get(SEXP obj, SEXP nms)
     } while (0)
     
     switch (tx) {
-    case REALSXP: /* d..Matrix */
-	UPM_D_G(double, REAL, 1.0);
-	break;
-    case LGLSXP: /* [ln]..Matrix */
+    case LGLSXP: /* [nl]..Matrix */
 	UPM_D_G(int, LOGICAL, 1);
 	break;
     case INTSXP: /* i..Matrix */
 	UPM_D_G(int, INTEGER, 1);
+	break;
+    case REALSXP: /* d..Matrix */
+	UPM_D_G(double, REAL, 1.0);
 	break;
     case CPLXSXP: /* z..Matrix */
 	UPM_D_G(Rcomplex, COMPLEX, Matrix_zone);
@@ -1234,14 +1234,14 @@ SEXP unpackedMatrix_diag_set(SEXP obj, SEXP val)
     } while (0)
     
     switch (tx) {
-    case REALSXP:
-	UPM_D_S(double, REAL);
-	break;
     case LGLSXP:
 	UPM_D_S(int, LOGICAL);
 	break;
     case INTSXP:
 	UPM_D_S(int, INTEGER);
+	break;
+    case REALSXP:
+	UPM_D_S(double, REAL);
 	break;
     case CPLXSXP:
 	UPM_D_S(Rcomplex, COMPLEX);
@@ -1433,7 +1433,7 @@ SEXP matrix_symmpart(SEXP from)
 	    SET_ATTRIB(x, R_NilValue);
 	else {
 	    REPROTECT(x = allocVector(REALSXP, nn), pid);
-	    Memcpy(REAL(x), REAL(from), nn);
+	    Matrix_memcpy(REAL(x), REAL(from), nn, sizeof(double));
 	}
 	UPM_SYMMPART_GE(double, REAL, ASSIGN_OFFDIAG_DGE);
 	break;
@@ -1444,7 +1444,7 @@ SEXP matrix_symmpart(SEXP from)
 	    SET_ATTRIB(x, R_NilValue);
 	else {
 	    REPROTECT(x = allocVector(CPLXSXP, nn), pid);
-	    Memcpy(COMPLEX(x), COMPLEX(from), nn);
+	    Matrix_memcpy(COMPLEX(x), COMPLEX(from), nn, sizeof(Rcomplex));
 	}
 	UPM_SYMMPART_GE(Rcomplex, COMPLEX, ASSIGN_OFFDIAG_ZGE);
 	break;
@@ -1615,7 +1615,7 @@ SEXP unpackedMatrix_skewpart(SEXP from)
 	    R_xlen_t n1a = (R_xlen_t) n + 1;
 	    SEXP p = PROTECT(allocVector(INTSXP, n1a));
 	    int *pp = INTEGER(p);
-	    Memzero(pp, n1a);
+	    Matrix_memset(pp, 0, n1a, sizeof(int));
 	    SET_SLOT(to, Matrix_pSym, p);
 	    UNPROTECT(1); /* p */
 	} else {

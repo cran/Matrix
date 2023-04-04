@@ -1,15 +1,32 @@
 #ifndef MATRIX_DEFINES_H
 #define MATRIX_DEFINES_H
 
-/* R has the same in several places : */
-#define Matrix_CallocThreshold 10000
-#define Matrix_ErrorBufferSize  4096
+/* NB: system headers should come before R headers */
 
-#define Matrix_SupportingCachedMethods
+#ifdef __GLIBC__
+/* ensure that strdup() and others are declared when string.h is included : */
+# define _POSIX_C_SOURCE 200809L
+#endif
 
-#undef Matrix_with_SPQR
-#undef HAVE_PROPER_IMATRIX
-#undef HAVE_PROPER_ZMATRIX
+#include <string.h>
+#include <stdint.h>
+#include <limits.h>
+
+#ifdef INT_FAST64_MAX
+typedef int_fast64_t Matrix_int_fast64_t;
+# define MATRIX_INT_FAST64_MAX INT_FAST64_MAX
+#else
+typedef    long long Matrix_int_fast64_t;
+# define MATRIX_INT_FAST64_MAX      LLONG_MAX
+#endif
+
+#ifndef STRICT_R_HEADERS
+# define STRICT_R_HEADERS
+#endif
+
+#include <R.h>
+#include <Rinternals.h>
+#include <Rversion.h>
 
 /* Copy and paste from WRE : */
 #ifdef ENABLE_NLS
@@ -17,7 +34,6 @@
 # define _(String) dgettext("Matrix", String)
 #else
 # define _(String) (String)
-/* <libintl.h> tests N == 1, _not_ N > 1 */
 # define dngettext(Domain, String, StringP, N) ((N == 1) ? String : StringP)
 #endif
 
@@ -39,9 +55,13 @@ extern void *alloca(size_t);
 # endif
 #endif
 
+/* R has the same in several places : */
+#define Matrix_CallocThreshold 10000
+#define Matrix_ErrorBufferSize  4096
+
 #define Alloca(_N_, _CTYPE_)					\
     (_CTYPE_ *) alloca((size_t) (_N_) * sizeof(_CTYPE_))
-    
+
 #define Calloc_or_Alloca_TO(_VAR_, _N_, _CTYPE_)		\
     do {							\
 	if (_N_ >= Matrix_CallocThreshold)			\
@@ -49,7 +69,7 @@ extern void *alloca(size_t);
 	else {							\
 	    _VAR_ = Alloca(_N_, _CTYPE_);			\
 	    R_CheckStack();					\
-	    /* Memzero(_VAR_, _N_); */				\
+	    memset(_VAR_, 0, (size_t) (_N_) * sizeof(_CTYPE_));	\
 	}							\
     } while (0)
 
@@ -57,15 +77,6 @@ extern void *alloca(size_t);
     do {							\
 	if (_N_ >= Matrix_CallocThreshold)			\
 	    R_Free(_VAR_);					\
-    } while (0)
-
-/* To zero an array ... however, note Memzero(), which calls memset()
-   and so can be faster in the range of R_SIZE_T (an alias for size_t in C)
-*/
-#define AZERO(_X_, _N_, _ZERO_, _CTYPE_)				\
-    do {								\
-	for (_CTYPE_ _I_ = 0, _LEN_ = (_N_); _I_ < _LEN_; ++_I_)	\
-	    (_X_)[_I_] = _ZERO_;					\
     } while (0)
 
 /* Copy and paste from now-deprecated Rdefines.h : */
@@ -83,7 +94,7 @@ extern
 
 /* Often used numbers, defined in ./init.c */
 extern
-Rcomplex Matrix_zzero, Matrix_zone; /* 0+0i, 1+0i */
+Rcomplex Matrix_zzero, Matrix_zone, Matrix_zna; /* 0+0i, 1+0i, NA+NAi */
 
 /* To become deprecated ... defensive code should PROTECT() more */
 #define class_P(x) CHAR(asChar(getAttrib(x, R_ClassSymbol)))
@@ -120,9 +131,15 @@ Rcomplex Matrix_zzero, Matrix_zone; /* 0+0i, 1+0i */
 #define STRICTLY_ISNZ_REAL(_X_)    (!ISNA_REAL(_X_)    && ISNZ_REAL(_X_))
 #define STRICTLY_ISNZ_COMPLEX(_X_) (!ISNA_COMPLEX(_X_) && ISNZ_COMPLEX(_X_))
 
-#define PM_AR21_UP(i, j) ((i) + (j) + ((R_xlen_t) (j) * ((j) - 1)) / 2)
-#define PM_AR21_LO(i, j, n2) ((i) + ((j) * ((n2) - (j) - 1)) / 2)
-#define PM_LENGTH(n) (n + ((R_xlen_t) (n) * ((n) - 1)) / 2)
+#define PM_AR21_UP(i, j)						\
+    ((R_xlen_t) ((i) + ((Matrix_int_fast64_t) (j) * (       (j) + 1)) / 2))
+#define PM_AR21_LO(i, j, m2)						\
+    ((R_xlen_t) ((i) + ((Matrix_int_fast64_t) (j) * ((m2) - (j) - 1)) / 2))
+#define PM_LENGTH(m)							\
+    ((R_xlen_t) ((m) + ((Matrix_int_fast64_t) (m) * (       (m) - 1)) / 2))
+
+#define SHOW(_X_) _X_
+#define HIDE(_X_)
 
 #define ERROR_INVALID_CLASS(_X_, _METHOD_)			\
     do {							\
@@ -173,6 +190,12 @@ enum x_slot_kind {
 #define Real_kind(_x_)				\
     (Real_kind_(GET_SLOT(_x_, Matrix_xSym)))
 
+/* Eventually these will no longer be needed : */
+#define Matrix_SupportingCachedMethods
+#undef Matrix_with_SPQR
+#undef HAVE_PROPER_IMATRIX
+#undef HAVE_PROPER_ZMATRIX
+
 
 /* ==== NO LONGER USED ============================================== */
 
@@ -215,6 +238,32 @@ enum CBLAS_SIDE {CblasLeft=141, CblasRight=142};
 
 /* ==== CLASS LISTS ================================================= */
 /* Keep synchronized with ../inst/include/Matrix.h !                  */
+
+#define VALID_NONVIRTUAL_MATRIX						\
+/*  0 */ "indMatrix",							\
+/*  1 */ "dgCMatrix", "dgRMatrix", "dgTMatrix", "dgeMatrix", "ddiMatrix", \
+/*  6 */ "dsCMatrix", "dsRMatrix", "dsTMatrix", "dsyMatrix", "dspMatrix", \
+/* 11 */ "dtCMatrix", "dtRMatrix", "dtTMatrix", "dtrMatrix", "dtpMatrix", \
+/* 16 */ "lgCMatrix", "lgRMatrix", "lgTMatrix", "lgeMatrix", "ldiMatrix", \
+/* 21 */ "lsCMatrix", "lsRMatrix", "lsTMatrix", "lsyMatrix", "lspMatrix", \
+/* 26 */ "ltCMatrix", "ltRMatrix", "ltTMatrix", "ltrMatrix", "ltpMatrix", \
+/* 31 */ "ngCMatrix", "ngRMatrix", "ngTMatrix", "ngeMatrix", "ndiMatrix", \
+/* 36 */ "nsCMatrix", "nsRMatrix", "nsTMatrix", "nsyMatrix", "nspMatrix", \
+/* 41 */ "ntCMatrix", "ntRMatrix", "ntTMatrix", "ntrMatrix", "ntpMatrix", \
+/* 46 */ "igCMatrix", "igRMatrix", "igTMatrix", "igeMatrix", "idiMatrix", \
+/* 51 */ "isCMatrix", "isRMatrix", "isTMatrix", "isyMatrix", "ispMatrix", \
+/* 56 */ "itCMatrix", "itRMatrix", "itTMatrix", "itrMatrix", "itpMatrix", \
+/* 61 */ "zgCMatrix", "zgRMatrix", "zgTMatrix", "zgeMatrix", "zdiMatrix", \
+/* 66 */ "zsCMatrix", "zsRMatrix", "zsTMatrix", "zsyMatrix", "zspMatrix", \
+/* 71 */ "ztCMatrix", "ztRMatrix", "ztTMatrix", "ztrMatrix", "ztpMatrix"
+
+#define VALID_NONVIRTUAL_VECTOR					\
+/* 76 */ "dsparseVector", "lsparseVector", "nsparseVector",	\
+         "isparseVector", "zsparseVector"
+
+#define VALID_NONVIRTUAL VALID_NONVIRTUAL_MATRIX, VALID_NONVIRTUAL_VECTOR
+
+/* Older ones : */
 
 #define MATRIX_VALID_ge_dense			\
     "dmatrix", "dgeMatrix",			\

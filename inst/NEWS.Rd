@@ -5,6 +5,15 @@
 \encoding{UTF-8}
 %% NB: The date (yyyy-mm-dd) is the "Packaged:" date in ../DESCRIPTION
 
+\section{Changes in version 1.5-4.1 (2023-05-16)}{
+  \subsection{Misc}{
+    \itemize{
+      \item Use \code{#ifdef PR18534fixed} to adapt to \R{}'s Lapack
+      header fix for \PR{18534}.
+    }
+  }
+}
+
 \section{Changes in version 1.5-4 (2023-04-02 r3837)}{
   \subsection{Deprecated and Defunct}{
     \itemize{

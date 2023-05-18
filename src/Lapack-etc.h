@@ -7,7 +7,13 @@
 #ifndef  USE_FC_LEN_T
 # define USE_FC_LEN_T
 #endif
+
 #include <Rconfig.h>
+#ifdef PR18534fixed
+// used by Lapack.h in R pre-4.4.0 from 2023-05-16
+# define usePR18534fix 1
+#endif
+
 #include <R_ext/Lapack.h>
 #ifndef FCONE
 # define FCONE

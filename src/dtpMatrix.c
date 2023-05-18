@@ -111,10 +111,13 @@ SEXP dtpMatrix_matrix_solve(SEXP a, SEXP b)
 	F77_CALL(dtpsv)(ul, "N", di, pbdim, px, py + (R_xlen_t) j * pbdim[0],
 			&one FCONE FCONE);
 #else
-    F77_CALL(dtptrs)(ul, "N", di, pbdim, pbdim + 1, px, py, pbdim,
-		     &one FCONE FCONE);
+    // a^{-1} %*% b[, j] : 
+    F77_CALL(dtptrs)(ul, "N", di, pbdim, pbdim + 1, px, py, pbdim, &one
+#  ifdef usePR18534fix
+		     FCONE
+#  endif
+                     FCONE FCONE);
 #endif
-    
     UNPROTECT(7);
     return val;
 }

@@ -1,38 +1,45 @@
 \name{pMatrix-class}
 \title{Permutation matrices}
+%
 \docType{class}
+\keyword{array}
+\keyword{classes}
 %
 \alias{pMatrix-class}
 %
-\alias{-,pMatrix,missing-method}
-\alias{coerce,integer,pMatrix-method}
 \alias{coerce,matrix,pMatrix-method}
 \alias{coerce,numeric,pMatrix-method}
 \alias{determinant,pMatrix,logical-method}
 \alias{t,pMatrix-method}
 %
-\description{The \code{"pMatrix"} class is the class of permutation
-  matrices, stored as 1-based integer permutation vectors.
-
-  Matrix (vector) multiplication with permutation matrices is equivalent
-  to row or column permutation, and is implemented that way in the
-  \pkg{Matrix} package, see the \sQuote{Details} below.
+\description{
+  The \code{pMatrix} class is the class of \emph{permutation} matrices,
+  stored as 1-based integer permutation vectors.  A permutation
+  matrix is a square matrix whose rows \emph{and} columns are all
+  standard unit vectors.  It follows that permutation matrices are
+  a special case of \emph{index} matrices (hence \code{pMatrix}
+  is defined as a direct subclass of \code{\linkS4class{indMatrix}}).
+  
+  Multiplying a matrix on the left by a permutation matrix is
+  equivalent to permuting its rows.  Analogously, multiplying a
+  matrix on the right by a permutation matrix is equivalent to
+  permuting its columns.  Indeed, such products are implemented in
+  \pkg{Matrix} as indexing operations; see \sQuote{Details} below.
 }
 \section{Objects from the Class}{
-  Objects can be created by calls of the form \code{new("pMatrix", ...)}
-  or by coercion from an integer permutation vector, see below.
+  Objects can be created explicitly with calls of the form
+  \code{new("pMatrix", ...)}, but they are more commonly created
+  by coercing 1-based integer index vectors, with calls of the
+  form \code{as(., "pMatrix")}; see \sQuote{Methods} below.
 }
 \section{Slots}{
   \describe{
-    \item{\code{perm}:}{An integer, 1-based permutation vector, i.e.
-      an integer vector of length \code{Dim[1]} whose elements form a
-      permutation of \code{1:Dim[1]}.}
-    \item{\code{Dim}:}{Object of class \code{"integer"}. The dimensions
-      of the matrix which must be a two-element vector of equal,
-      non-negative integers.}
-    \item{\code{Dimnames}:}{list of length two; each component
-      containing NULL or a \code{\link{character}} vector length
-      equal the corresponding \code{Dim} element.}
+    \item{\code{margin},\code{perm}}{inherited from superclass
+      \code{\linkS4class{indMatrix}}.  Here, \code{perm} is an
+      integer vector of length \code{Dim[1]} and a permutation
+      of \code{1:Dim[1]}}.
+    \item{\code{Dim},\code{Dimnames}}{inherited from virtual
+      superclass \code{\linkS4class{Matrix}}.}
   }
 }
 \section{Extends}{
@@ -40,63 +47,61 @@
 }
 \section{Methods}{
   \describe{
-    \item{\%*\%}{\code{signature(x = "matrix", y = "pMatrix")} and other
-      signatures (use \code{showMethods("\%*\%", class="pMatrix")}): ... }
-    \item{coerce}{\code{signature(from = "integer", to = "pMatrix")}:
-      This is enables typical \code{"pMatrix"} construction, given
-      a permutation vector of \code{1:n}, see the first example.}
-    \item{coerce}{\code{signature(from = "numeric", to = "pMatrix")}:
-      a user convenience, to allow \code{as(perm, "pMatrix")} for
-      numeric \code{perm} with integer values.}
-    \item{determinant}{\code{signature(x = "pMatrix", logarithm="logical")}:
-      Since permutation matrices are orthogonal, the determinant must be
-      +1 or -1.  In fact, it is exactly the \emph{sign of the
-	permutation}.}
-    \item{solve}{\code{signature(a = "pMatrix", b = "missing")}: return
-      the inverse permutation matrix; note that \code{solve(P)} is
-      identical to \code{t(P)} for permutation matrices.  See
-      \code{\link{solve-methods}} for other methods.}
-
-    \item{t}{\code{signature(x = "pMatrix")}: return the transpose of
-      the permutation matrix (which is also the inverse of the
-      permutation matrix).}
+    \item{\code{\%*\%}}{\code{signature(x = "pMatrix", y = "Matrix")}
+      and others listed by \code{showMethods("\%*\%", classes = "pMatrix")}:
+      matrix products implemented where appropriate as indexing operations.}
+    \item{\code{coerce}}{\code{signature(from = "numeric", to = "pMatrix")}:
+      supporting typical \code{pMatrix} construction from a vector
+      of positive integers, specifically a permutation of \code{1:n}.
+      Row permutation is assumed.}
+    \item{t}{\code{signature(x = "pMatrix")}:
+      the transpose, which is a \code{pMatrix} with identical
+      \code{perm} but opposite \code{margin}.  Coincides with
+      the inverse, as permutation matrices are orthogonal.}
+    \item{solve}{\code{signature(a = "pMatrix", b = "missing")}:
+      the inverse permutation matrix, which is a \code{pMatrix}
+      with identical \code{perm} but opposite \code{margin}.
+      Coincides with the transpose, as permutation matrices are
+      orthogonal.  See \code{showMethods("solve", classes = "pMatrix")}
+      for more signatures.}
+    \item{determinant}{\code{signature(x = "pMatrix", logarithm = "logical")}:
+      always returning 1 or -1, as permutation matrices are orthogonal.  
+      In fact, the result is exactly the \emph{sign} of the permutation.}
   }
 }
 \details{
-  Matrix multiplication with permutation matrices is equivalent to row
-  or column permutation.
-  Here are the four different cases for an arbitrary matrix \eqn{M} and
-  a permutation matrix \eqn{P} (where we assume matching dimensions):
+  By definition, a permutation matrix is both a row index matrix
+  and a column index matrix.  However, the \code{perm} slot of
+  a \code{pMatrix} cannot be used interchangeably as a row index
+  vector and column index vector.  If \code{margin=1}, then
+  \code{perm} is a row index vector, and the corresponding column
+  index vector can be computed as \code{\link{invPerm}(perm)}, i.e.,
+  by inverting the permutation.  Analogously, if \code{margin=2},
+  then \code{perm} and \code{invPerm(perm)} are column and row
+  index vectors, respectively.
+
+  Given an \code{n}-by-\code{n} row permutation matrix \code{P}
+  with \code{perm} slot \code{p} and a matrix \code{M} with
+  conformable dimensions, we have
   \tabular{lclcl}{
-    \eqn{MP }\tab= \tab\code{M \%*\% P}					    \tab= \tab\code{M[, i(p)]}\cr
-    \eqn{PM }\tab= \tab\code{P \%*\% M}					    \tab= \tab\code{M[ p , ]} \cr
-    \eqn{P'M}\tab= \tab\code{crossprod(P,M)} (\eqn{\approx}{~=}\code{t(P) \%*\% M})\tab= \tab\code{M[i(p), ]}\cr
-    \eqn{MP'}\tab= \tab\code{tcrossprod(M,P)} (\eqn{\approx}{~=}\code{M \%*\% t(P)})\tab= \tab\code{M[ , p ]} \cr
+    \eqn{P M} \tab = \tab \code{P \%*\% M}        \tab = \tab \code{M[p, ]}\cr
+    \eqn{M P} \tab = \tab \code{M \%*\% P}        \tab = \tab \code{M[, i(p)]}\cr
+    \eqn{P'M} \tab = \tab \code{crossprod(P, M)}  \tab = \tab \code{M[i(p), ]}\cr
+    \eqn{MP'} \tab = \tab \code{tcrossprod(M, P)} \tab = \tab \code{M[, p]}\cr
+    \eqn{P'P} \tab = \tab \code{crossprod(P)}     \tab = \tab \code{Diagonal(n)}\cr
+    \eqn{PP'} \tab = \tab \code{tcrossprod(P)}    \tab = \tab \code{Diagonal(n)}
   }
-  where \code{p} is the \dQuote{permutation vector} corresponding to the
-  permutation matrix \code{P} (see first note), and \code{i(p)} is short
-  for \code{\link{invPerm}(p)}.
-
-  Also one could argue that these are really only two cases if you take
-  into account that inversion (\code{\link{solve}}) and transposition
-  (\code{\link{t}}) are the same for permutation matrices \eqn{P}.
+  where \code{i := invPerm}.
 }
-\note{
-  For every permutation matrix \code{P}, there is a corresponding
-  permutation vector \code{p} (of indices, 1:n), and these are related by
-\preformatted{ P <- as(p, "pMatrix")
- p <- P@perm
-}
-  see also the \sQuote{Examples}.
-
-  \dQuote{Row-indexing} a permutation matrix typically returns
-  an \code{"indMatrix"}.  See \code{"\linkS4class{indMatrix}"} for all other
-  subsetting/indexing and subassignment (\code{A[..] <- v}) operations.
-}
-\seealso{\code{\link{invPerm}(p)} computes the inverse permutation of an
-  integer (index) vector \code{p}.
+\seealso{
+  Superclass \code{\linkS4class{indMatrix}} of index matrices,
+  for many inherited methods; \code{\link{invPerm}}, for computing
+  inverse permutation vectors.
 }
 \examples{
+\dontshow{ % for R_DEFAULT_PACKAGES=NULL
+library(stats, pos = "package:base", verbose = FALSE)
+}
 (pm1 <- as(as.integer(c(2,3,1)), "pMatrix"))
 t(pm1) # is the same as
 solve(pm1)
@@ -120,4 +125,3 @@ p10[1:7, 1:4] # gives an "ngTMatrix" (most economic!)
 ## row-indexing of a <pMatrix> keeps it as an <indMatrix>:
 p10[1:3, ]
 }
-\keyword{classes}

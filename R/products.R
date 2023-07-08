@@ -75,6 +75,7 @@ setMethod("%*%", signature(x = "dsyMatrix", y = "dsyMatrix"),  .dsy_m_mm)
 ## or even
 ## for(yCl in .directSubClasses(getClass("ddenseMatrix")))
 ##     setMethod("%*%", signature(x = "dsyMatrix", y = yCl), .dsy_m_mm)
+rm(.dsy_m_mm)
 
 setMethod("%*%", signature(x = "ddenseMatrix", y = "dsyMatrix"),
           function(x, y) .Call(dsyMatrix_matrix_mm, y, x, TRUE))
@@ -238,7 +239,7 @@ setMethod("%*%", signature(x = "RsparseMatrix", y = "mMatrix"),
 		  class(x), class(y)), domain=NA)
 setMethod("%*%", signature(x = "ANY", y = "Matrix"), .local.bail.out)
 setMethod("%*%", signature(x = "Matrix", y = "ANY"), .local.bail.out)
-
+rm(.local.bail.out)
 
 ### sparseVector
 sp.x.sp <- function(x, y) Matrix(sum(x * y), 1L, 1L, sparse=FALSE)
@@ -261,6 +262,8 @@ setMethod("%*%", signature(x = "sparseVector", y = "numLike"),      sp.X.sp)
 setMethod("%*%", signature(x = "numLike",      y = "sparseVector"), v.X.sp)
 ## setMethod("%*%", signature(x = "sparseMatrix", y = "sparseVector"),
 ##           function(x, y) x %*% .sparseV2Mat(y))
+
+rm(sp.X.sp, v.X.sp)
 
 ###--- II --- crossprod -----------------------------------------------------
 
@@ -602,6 +605,8 @@ setMethod("crossprod", signature(x = "numLike",      y = "sparseVector"),  v.T.s
 setMethod("crossprod", signature(x = "sparseVector", y = "missing"),
 	  function(x, y=NULL, boolArith=NA, ...) sp.t.sp(x,x, boolArith=boolArith, ...))
 
+rm(sp.T.sp, v.T.sp)
+
 ## Fallbacks -- symmetric LHS --> saving a t(.):
 ##  {FIXME: want the method to be `%*%` -- but primitives are not allowed as methods}
 setMethod("crossprod", signature(x = "symmetricMatrix", y = "missing"),
@@ -625,6 +630,7 @@ for(mClass in c("mMatrix", "ANY")) {
                   crossprod(as(x, "CsparseMatrix"), y,
                             boolArith=boolArith, ...))
 }
+rm(mClass)
 
 ## cheap fallbacks
 setMethod("crossprod", signature(x = "Matrix", y = "Matrix"),
@@ -800,6 +806,8 @@ setMethod("tcrossprod", signature(x = dmat, y = "CsparseMatrix"),
 		  .Call(Csparse_dense_prod, y, x, "B"))
 
 }
+rm(dmat)
+
 setMethod("tcrossprod", signature(x = "CsparseMatrix", y = "numLike"),
 	  function(x, y=NULL, boolArith=NA, ...)
 	      if(isTRUE(boolArith)) ## FIXME: very inefficient
@@ -825,7 +833,7 @@ for(.sCMatrix in paste0(c("d", "l", "n"), "sCMatrix")) { ## speedup for *symmetr
     setMethod("tcrossprod", signature(x = "ddenseMatrix", y = .sCMatrix), tcr.dd.sC)
     setMethod("tcrossprod", signature(x = "matrix", y = .sCMatrix), 	  tcr.dd.sC)
 }
-rm(dmat, .sCMatrix)
+rm(.sCMatrix, tcr.dd.sC)
 
 setMethod("tcrossprod", signature(x = "TsparseMatrix", y = "missing"),
 	  function(x, y = NULL, boolArith = NA, ...)
@@ -923,6 +931,7 @@ for(mClass in c("mMatrix", "ANY")) {
                   tcrossprod(as(x, "CsparseMatrix"), y,
                              boolArith=boolArith, ...))
 }
+rm(mClass)
 
 
 ## Fallbacks -- symmetric RHS --> saving a t(.):
@@ -1036,6 +1045,9 @@ setMethod("%&%", signature(x = "sparseVector", y = "mMatrix"), function(x, y)
 setMethod("%&%", signature(x = "sparseVector", y = "sparseVector"), sp.bX.sp)
 setMethod("%&%", signature(x = "sparseVector", y = "numLike"),      sp.bX.sp)
 setMethod("%&%", signature(x = "numLike",      y = "sparseVector"), v.bX.sp)
+
+rm(sp.bX.sp, v.bX.sp)
+
 ## For now --- suboptimally!!! --- we coerce to nsparseMatrix always:
 setMethod("%&%", signature(x = "nMatrix", y = "nsparseMatrix"),
 	  function(x, y) as(x, "nsparseMatrix") %&% y)
@@ -1053,7 +1065,7 @@ setMethod("%&%", signature(x = "nCsparseMatrix", y = "nsparseMatrix"),
 setMethod("%&%", signature(x = "nCsparseMatrix", y = "nCsparseMatrix"),
 	  function(x, y) .Call(Csparse_Csparse_prod, x, y, boolArith=TRUE))
 
-
+rm(.M.v, .v.M, .M.vt, .v.Mt)
 
 ## Local variables:
 ## mode: R

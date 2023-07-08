@@ -1,6 +1,9 @@
 \name{CsparseMatrix-class}
 \title{Class "CsparseMatrix" of Sparse Matrices in Column-compressed Form}
+%
 \docType{class}
+\keyword{array}
+\keyword{classes}
 %
 \alias{CsparseMatrix-class}
 %
@@ -119,4 +122,3 @@ getClass("CsparseMatrix")
 ## The common validity check function (based on C code):
 getValidity(getClass("CsparseMatrix"))
 }
-\keyword{classes}

@@ -1,17 +1,12 @@
-#ifndef MATRIX_SPVECTOR_H
-#define MATRIX_SPVECTOR_H
+#ifndef MATRIX_SPARSEVECTOR_H
+#define MATRIX_SPARSEVECTOR_H
 
 #include "Mutils.h"
 
-#define SPV_SUB(_KIND_, _CTYPE_)				\
-_CTYPE_ _KIND_ ## sparseVector_sub(int64_t i, int nnz_v,	\
-				   double* v_i, _CTYPE_ *v_x,	\
-				   int64_t len_v)
-SPV_SUB(n, int);
-SPV_SUB(l, int);
-SPV_SUB(i, int);
-SPV_SUB(d, double);
-SPV_SUB(z, Rcomplex);
-#undef SPV_SUB
+/* defined in ./sparse.c : */
+SEXP R_sparse_as_general(SEXP);
 
-#endif /* MATRIX_SPVECTOR_H */
+SEXP v2spV(SEXP from);
+SEXP CR2spV(SEXP from);
+
+#endif /* MATRIX_SPARSEVECTOR_H */

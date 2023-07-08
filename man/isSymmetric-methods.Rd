@@ -1,7 +1,12 @@
 \name{isSymmetric-methods}
 \title{Methods for Function 'isSymmetric' in Package 'Matrix'}
-\docType{methods}
 %
+\docType{methods}
+\keyword{array}
+\keyword{programming}
+\keyword{methods}
+%
+\alias{isSymmetric}
 \alias{isSymmetric-methods}
 %
 \alias{isSymmetric,diagonalMatrix-method}
@@ -98,4 +103,3 @@ isSymmetric(triu(M)) # FALSE
 ## Look at implementations:
 showMethods("isSymmetric", includeDefs = TRUE) # includes S3 generic from base
 }
-\keyword{methods}

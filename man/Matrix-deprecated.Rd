@@ -1,6 +1,9 @@
 \name{Matrix-deprecated}
 \title{Deprecated Functions in Package \pkg{Matrix}}
 %
+\keyword{internal}
+\keyword{misc}
+%
 \alias{Matrix-deprecated}
 %
 \alias{..2dge}
@@ -23,6 +26,16 @@
 \alias{.nC2d}
 \alias{.nC2l}
 %
+\alias{chol2inv,CHMfactor-method}
+\alias{coerce,CHMfactor,Matrix-method}
+\alias{coerce,CHMfactor,CsparseMatrix-method}
+\alias{coerce,CHMfactor,RsparseMatrix-method}
+\alias{coerce,CHMfactor,TsparseMatrix-method}
+\alias{coerce,CHMfactor,dMatrix-method}
+\alias{coerce,CHMfactor,dsparseMatrix-method}
+\alias{coerce,CHMfactor,pMatrix-method}
+\alias{coerce,CHMfactor,sparseMatrix-method}
+\alias{coerce,CHMfactor,triangularMatrix-method}
 \alias{coerce,RsparseMatrix,dgeMatrix-method}
 \alias{coerce,ddenseMatrix,dgeMatrix-method}
 \alias{coerce,ddiMatrix,dgCMatrix-method}
@@ -215,6 +228,18 @@
   of \pkg{Matrix} only and may be defunct as soon as the next release.
 }
 \usage{
+%% ## Deprecated in 1.6-0 ... on second thought, perhaps not yet
+%% \S4method{chol2inv}{CHMfactor}(x, ...)
+%% \S4method{coerce}{CHMfactor,Matrix}(from, to, strict = TRUE)
+%% \S4method{coerce}{CHMfactor,CsparseMatrix}(from, to, strict = TRUE)
+%% \S4method{coerce}{CHMfactor,RsparseMatrix}(from, to, strict = TRUE)
+%% \S4method{coerce}{CHMfactor,TsparseMatrix}(from, to, strict = TRUE)
+%% \S4method{coerce}{CHMfactor,dMatrix}(from, to, strict = TRUE)
+%% \S4method{coerce}{CHMfactor,dsparseMatrix}(from, to, strict = TRUE)
+%% \S4method{coerce}{CHMfactor,pMatrix}(from, to, strict = TRUE)
+%% \S4method{coerce}{CHMfactor,sparseMatrix}(from, to, strict = TRUE)
+%% \S4method{coerce}{CHMfactor,triangularMatrix}(from, to, strict = TRUE)
+%%
 ## Deprecated in 1.5-4
 ..2dge(from)
 .C2nC(from, isTri)
@@ -429,4 +454,3 @@
   \code{\link{base-deprecated}},
   \code{\link{Matrix-defunct}}
 }
-\keyword{internal}

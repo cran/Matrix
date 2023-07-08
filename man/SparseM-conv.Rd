@@ -1,8 +1,10 @@
-\name{SparseM-conversions}
+\name{coerce-methods-SparseM}
 \title{Sparse Matrix Coercion from and to those from package \pkg{SparseM}}
-\docType{methods}
 %
-\alias{SparseM-coerce-methods}
+\docType{methods}
+\keyword{methods}
+%
+\alias{coerce-methods-SparseM}
 %
 \alias{coerce,Matrix,matrix.coo-method}
 \alias{coerce,Matrix,matrix.csc-method}
@@ -66,4 +68,3 @@
   \code{\link[SparseM]{SparseM.ontology}}, and one important class,
   \code{\link[SparseM:matrix.csr-class]{matrix.csr}}.
 }
-\keyword{methods}

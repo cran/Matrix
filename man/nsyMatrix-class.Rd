@@ -1,6 +1,9 @@
 \name{nsyMatrix-class}
 \title{Symmetric Dense Nonzero-Pattern Matrices}
+%
 \docType{class}
+\keyword{array}
+\keyword{classes}
 %
 \alias{nsyMatrix-class}
 \alias{nspMatrix-class}
@@ -51,12 +54,14 @@
   \code{\link[base]{t}}
 }
 \examples{
+\dontshow{ % for R_DEFAULT_PACKAGES=NULL
+library(utils, pos = "package:base", verbose = FALSE)
+}
 (s0 <- new("nsyMatrix"))
 
 (M2 <- Matrix(c(TRUE, NA, FALSE, FALSE), 2, 2)) # logical dense (ltr)
-(sM <- M2 & t(M2)) # "lge"
-class(sM <- as(sM, "nMatrix"))         # -> "nge"
-     (sM <- as(sM, "symmetricMatrix")) # -> "nsy"
-str  (sM <- as(sM, "packedMatrix"))    # -> "nsp": packed symmetric
+(sM <- M2 & t(M2))                       # -> "lge"
+class(sM <- as(sM, "nMatrix"))           # -> "nge"
+     (sM <- as(sM, "symmetricMatrix"))   # -> "nsy"
+str(sM <- as(sM, "packedMatrix")) # -> "nsp", i.e., packed symmetric
 }
-\keyword{classes}

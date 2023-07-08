@@ -1,8 +1,9 @@
-\name{graph-sparseMatrix}
+\name{coerce-methods-graph}
 \title{Conversions "graph" <--> (sparse) Matrix}
 %
-\alias{graph2T}
-\alias{T2graph}
+\docType{methods}
+\keyword{methods}
+\keyword{utilities}
 %
 \alias{coerce,Matrix,graph-method}
 \alias{coerce,Matrix,graphNEL-method}
@@ -15,17 +16,16 @@
 \alias{coerce,graphAM,TsparseMatrix-method}
 \alias{coerce,graphNEL,TsparseMatrix-method}
 %
+\alias{T2graph}
+\alias{graph2T}
+%
 \description{
-  The \pkg{Matrix} package has supported conversion from and to
-  \code{"\link[graph:graph-class]{graph}"} objects from (Bioconductor) package
-  \pkg{graph} since summer 2005, via the usual \code{\link{as}(., "<class>")}
-  coercion, \preformatted{  as(from, Class)
-}%pre
-  Since 2013, this functionality is further exposed as the
-  \code{graph2T()} and \code{T2graph()} functions (with further
-  arguments than just \code{from}), which convert graphs to and from
-  the triplet form of sparse matrices (of class
-  \code{"\linkS4class{TsparseMatrix}"}) .
+  Since 2005, package \pkg{Matrix} has supported coercions to and
+  from class \code{\link[graph:graph-class]{graph}} from package
+  \href{https://bioconductor.org/packages/graph/}{\pkg{graph}}.
+  Since 2013, this functionality has been exposed via functions
+  \code{T2graph} and \code{graph2T}, which, unlike methods for
+  \code{\link{as}(from, "<Class>")}, support optional arguments.
 }
 \usage{
 graph2T(from, use.weights = )
@@ -57,17 +57,16 @@ T2graph(from, need.uniq = is_not_uniqT(from), edgemode = NULL)
   For \code{T2graph()} an \R object of class \code{"graph"}.
 }
 \seealso{
-  Note that the CRAN package \pkg{igraph} also provides conversions from
-  and to sparse matrices (of package \pkg{Matrix}) via its
-  \code{\link[igraph]{graph.adjacency}()} and
-  \code{\link[igraph]{get.adjacency}()}.
+  Package \CRANpkg{igraph}, which provides similar coercions
+  to and from its class \code{igraph} via functions
+  \code{graph_from_adjacency_matrix} and \code{as_adjacency_matrix}.
 }
 \examples{
-if(isTRUE(try(require(graph)))) { ## super careful .. for "checking reasons"
+if(requireNamespace("graph")) {
   n4 <- LETTERS[1:4]; dns <- list(n4,n4)
   show(a1 <- sparseMatrix(i= c(1:4),   j=c(2:4,1),   x = 2,    dimnames=dns))
   show(g1 <- as(a1, "graph")) # directed
-  unlist(edgeWeights(g1)) # all '2'
+  unlist(graph::edgeWeights(g1)) # all '2'
 
   show(a2 <- sparseMatrix(i= c(1:4,4), j=c(2:4,1:2), x = TRUE, dimnames=dns))
   show(g2 <- as(a2, "graph")) # directed
@@ -84,16 +83,15 @@ if(isTRUE(try(require(graph)))) { ## super careful .. for "checking reasons"
    identical(as(m3,"TsparseMatrix"), uniqTsparse(tg3))
   )
 }
-  a. <- sparseMatrix(i= 4:1, j=1:4, dimnames=list(n4,n4), giveC=FALSE) # no 'x'
+  a. <- sparseMatrix(i=4:1, j=1:4, dimnames=list(n4, n4), repr="T") # no 'x'
   show(a.) # "ngTMatrix"
   show(g. <- as(a., "graph"))
 \dontshow{
-  stopifnot(edgemode(g.) == "undirected", numEdges(g.) == 2,
+  stopifnot(graph::edgemode(g.) == "undirected",
+            graph::numEdges(g.) == 2,
             all.equal(as(g., "TsparseMatrix"),
                       as(a., "symmetricMatrix"))
 )
 }
-}% only if( graph )
 }
-\keyword{graph}
-\keyword{utilities}
+}

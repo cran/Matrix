@@ -1,6 +1,9 @@
 \name{generalMatrix-class}
 \title{Class "generalMatrix" of General Matrices}
+%
 \docType{class}
+\keyword{array}
+\keyword{classes}
 %
 \alias{generalMatrix-class}
 %
@@ -38,4 +41,3 @@
 % \examples{
 % ##---- Should be DIRECTLY executable !! ----
 % }
-\keyword{classes}

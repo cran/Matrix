@@ -1,6 +1,10 @@
 \name{compMatrix-class}
 \title{Class "compMatrix" of Composite (Factorizable) Matrices}
+%
 \docType{class}
+\keyword{algebra}
+\keyword{array}
+\keyword{classes}
 %
 \alias{compMatrix-class}
 %
@@ -46,4 +50,3 @@
 % \examples{
 %
 % }
-\keyword{classes}

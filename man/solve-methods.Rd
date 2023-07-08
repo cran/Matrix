@@ -1,258 +1,234 @@
 \name{solve-methods}
-\title{Methods in Package Matrix for Function \code{solve()}}
-\docType{methods}
+\title{Methods in Package \pkg{Matrix} for Function \code{solve}}
 %
-\alias{solve} % catch ?solve too
+\docType{methods}
+\keyword{algebra}
+\keyword{array}
+\keyword{methods}
+%
+\alias{solve}
 \alias{solve-methods}
 %
 \alias{solve,ANY,ANY-method}
-\alias{solve,CHMfactor,denseMatrix-method}
-\alias{solve,CHMfactor,sparseMatrix-method}
-\alias{solve,CHMfactor,matrix-method}
+\alias{solve,BunchKaufman,missing-method}
+\alias{solve,BunchKaufman,dgeMatrix-method}
 \alias{solve,CHMfactor,missing-method}
-\alias{solve,CHMfactor,numLike-method}
+\alias{solve,CHMfactor,dgeMatrix-method}
+\alias{solve,CHMfactor,dgCMatrix-method}
+\alias{solve,Cholesky,missing-method}
+\alias{solve,Cholesky,dgeMatrix-method}
 \alias{solve,CsparseMatrix,ANY-method}
 \alias{solve,Matrix,sparseVector-method}
-\alias{solve,MatrixFactorization,ANY-method}
-\alias{solve,MatrixFactorization,missing-method}
+\alias{solve,MatrixFactorization,CsparseMatrix-method}
+\alias{solve,MatrixFactorization,RsparseMatrix-method}
+\alias{solve,MatrixFactorization,TsparseMatrix-method}
+\alias{solve,MatrixFactorization,denseMatrix-method}
+\alias{solve,MatrixFactorization,dgCMatrix-method}
+\alias{solve,MatrixFactorization,dgeMatrix-method}
+\alias{solve,MatrixFactorization,diagonalMatrix-method}
+\alias{solve,MatrixFactorization,indMatrix-method}
+\alias{solve,MatrixFactorization,matrix-method}
+\alias{solve,MatrixFactorization,numLike-method}
 \alias{solve,MatrixFactorization,sparseVector-method}
 \alias{solve,RsparseMatrix,ANY-method}
+\alias{solve,Schur,ANY-method}
 \alias{solve,TsparseMatrix,ANY-method}
 \alias{solve,ddiMatrix,Matrix-method}
 \alias{solve,ddiMatrix,matrix-method}
 \alias{solve,ddiMatrix,missing-method}
 \alias{solve,ddiMatrix,numLike-method}
 \alias{solve,denseLU,missing-method}
+\alias{solve,denseLU,dgeMatrix-method}
 \alias{solve,denseMatrix,ANY-method}
 \alias{solve,dgCMatrix,denseMatrix-method}
 \alias{solve,dgCMatrix,matrix-method}
 \alias{solve,dgCMatrix,missing-method}
 \alias{solve,dgCMatrix,numLike-method}
 \alias{solve,dgCMatrix,sparseMatrix-method}
-\alias{solve,dgeMatrix,Matrix-method}
-\alias{solve,dgeMatrix,matrix-method}
-\alias{solve,dgeMatrix,missing-method}
-\alias{solve,dgeMatrix,numLike-method}
+\alias{solve,dgeMatrix,ANY-method}
 \alias{solve,diagonalMatrix,ANY-method}
-\alias{solve,dpoMatrix,Matrix-method}
-\alias{solve,dpoMatrix,matrix-method}
-\alias{solve,dpoMatrix,missing-method}
-\alias{solve,dpoMatrix,numLike-method}
-\alias{solve,dppMatrix,Matrix-method}
-\alias{solve,dppMatrix,matrix-method}
-\alias{solve,dppMatrix,missing-method}
-\alias{solve,dppMatrix,numLike-method}
+\alias{solve,dpoMatrix,ANY-method}
+\alias{solve,dppMatrix,ANY-method}
 \alias{solve,dsCMatrix,denseMatrix-method}
 \alias{solve,dsCMatrix,matrix-method}
 \alias{solve,dsCMatrix,missing-method}
 \alias{solve,dsCMatrix,numLike-method}
 \alias{solve,dsCMatrix,sparseMatrix-method}
-\alias{solve,dspMatrix,Matrix-method}
-\alias{solve,dspMatrix,matrix-method}
-\alias{solve,dspMatrix,missing-method}
-\alias{solve,dspMatrix,numLike-method}
-\alias{solve,dsyMatrix,Matrix-method}
-\alias{solve,dsyMatrix,matrix-method}
-\alias{solve,dsyMatrix,missing-method}
-\alias{solve,dsyMatrix,numLike-method}
-\alias{solve,dtpMatrix,Matrix-method}
-\alias{solve,dtpMatrix,matrix-method}
+\alias{solve,dspMatrix,ANY-method}
+\alias{solve,dsyMatrix,ANY-method}
+\alias{solve,dtCMatrix,dgCMatrix-method}
+\alias{solve,dtCMatrix,dgeMatrix-method}
+\alias{solve,dtCMatrix,missing-method}
+\alias{solve,dtCMatrix,triangularMatrix-method}
+\alias{solve,dtpMatrix,dgeMatrix-method}
 \alias{solve,dtpMatrix,missing-method}
-\alias{solve,dtpMatrix,numLike-method}
-\alias{solve,dtrMatrix,Matrix-method}
-\alias{solve,dtrMatrix,matrix-method}
+\alias{solve,dtpMatrix,triangularMatrix-method}
+\alias{solve,dtrMatrix,dgeMatrix-method}
 \alias{solve,dtrMatrix,missing-method}
-\alias{solve,dtrMatrix,numLike-method}
+\alias{solve,dtrMatrix,triangularMatrix-method}
 \alias{solve,indMatrix,ANY-method}
+\alias{solve,matrix,Matrix-method}
+\alias{solve,matrix,sparseVector-method}
+\alias{solve,pBunchKaufman,missing-method}
+\alias{solve,pBunchKaufman,dgeMatrix-method}
+\alias{solve,pCholesky,missing-method}
+\alias{solve,pCholesky,dgeMatrix-method}
 \alias{solve,pMatrix,Matrix-method}
 \alias{solve,pMatrix,matrix-method}
 \alias{solve,pMatrix,missing-method}
 \alias{solve,pMatrix,numLike-method}
-\alias{solve,dtCMatrix,dgCMatrix-method}
-\alias{solve,dtCMatrix,dgeMatrix-method}
-\alias{solve,dtCMatrix,dsCMatrix-method}
-\alias{solve,dtCMatrix,dspMatrix-method}
-\alias{solve,dtCMatrix,dsyMatrix-method}
-\alias{solve,dtCMatrix,dtCMatrix-method}
-\alias{solve,dtCMatrix,dtpMatrix-method}
-\alias{solve,dtCMatrix,dtrMatrix-method}
-\alias{solve,dtCMatrix,denseMatrix-method}
-\alias{solve,dtCMatrix,matrix-method}
-\alias{solve,dtCMatrix,missing-method}
-\alias{solve,dtCMatrix,numLike-method}
-\alias{solve,dtCMatrix,sparseMatrix-method}
-\alias{solve,matrix,Matrix-method}
-\alias{solve,matrix,sparseVector-method}
-\alias{solve,sparseQR,ANY-method}
+\alias{solve,sparseLU,missing-method}
+\alias{solve,sparseLU,dgeMatrix-method}
+\alias{solve,sparseLU,dgCMatrix-method}
 \alias{solve,sparseQR,missing-method}
+\alias{solve,sparseQR,dgeMatrix-method}
+\alias{solve,sparseQR,dgCMatrix-method}
+\alias{solve,triangularMatrix,CsparseMatrix-method}
+\alias{solve,triangularMatrix,RsparseMatrix-method}
+\alias{solve,triangularMatrix,TsparseMatrix-method}
+\alias{solve,triangularMatrix,denseMatrix-method}
+\alias{solve,triangularMatrix,dgCMatrix-method}
+\alias{solve,triangularMatrix,dgeMatrix-method}
+\alias{solve,triangularMatrix,diagonalMatrix-method}
+\alias{solve,triangularMatrix,indMatrix-method}
+\alias{solve,triangularMatrix,matrix-method}
+\alias{solve,triangularMatrix,numLike-method}
+%
 \description{
-  Methods for generic function \code{\link{solve}}, for solving linear
-  systems of equations.  These solve for \eqn{X} in \deqn{A X = B}
+  Methods for generic function \code{\link[base]{solve}} for solving
+  linear systems of equations,
+  i.e., for \eqn{X} in \eqn{A X = B}{A * X = B},
   where \eqn{A} is a square matrix and \eqn{X} and \eqn{B} are matrices
-  with compatible dimensions.  The usual \R syntax is
-  \preformatted{
-                        x <- solve(a, b, ...)
-  }
-  where \code{b} may also be a vector, in which case it is treated
-  as a 1-column matrix.  Methods support \code{a} inheriting from
-  virtual classes
-  \code{\linkS4class{Matrix}} and \code{\linkS4class{MatrixFactorization}}
-  and \code{b} inheriting from virtual classes
-  \code{Matrix} and \code{\linkS4class{sparseVector}}.
+  with dimensions consistent with \eqn{A}.
 }
 \usage{
-## solve(a, b, ...) # the two-argument version, almost always preferred to
-## solve(a,    ...) # the *rarely needed* one-argument version
-%^must comment; otherwise 'R CMD check' waffles
-\S4method{solve}{dgCMatrix,missing}(a, b, sparse = NA, \dots)
+solve(a, b, ...)
+
+\S4method{solve}{dgeMatrix,ANY}(a, b, tol = .Machine$double.eps, \dots)
+
+\S4method{solve}{dgCMatrix,missing}(a, b, sparse = TRUE, \dots)
 \S4method{solve}{dgCMatrix,matrix}(a, b, sparse = FALSE, \dots)
 \S4method{solve}{dgCMatrix,denseMatrix}(a, b, sparse = FALSE, \dots)
-\S4method{solve}{dgCMatrix,sparseMatrix}(a, b, sparse = NA, tol = .Machine$double.eps, \dots)
-\S4method{solve}{CHMfactor,denseMatrix}(a, b, system = c("A", "LDLt", "LD", "DLt", "L", "Lt", "D", "P", "Pt"), \dots)
+\S4method{solve}{dgCMatrix,sparseMatrix}(a, b, sparse = TRUE, \dots)
+
+\S4method{solve}{denseLU,dgeMatrix}(a, b, \dots)
+\S4method{solve}{BunchKaufman,dgeMatrix}(a, b, \dots)
+\S4method{solve}{Cholesky,dgeMatrix}(a, b, \dots)
+\S4method{solve}{sparseLU,dgCMatrix}(a, b, tol = .Machine$double.eps, \dots)
+\S4method{solve}{sparseQR,dgCMatrix}(a, b, \dots)
+\S4method{solve}{CHMfactor,dgCMatrix}(a, b, system = c("A", "LDLt", "LD", "DLt", "L", "Lt", "D", "P", "Pt"), \dots)
 }
 \arguments{
-  \item{a}{a square numeric matrix, \eqn{A}, typically of one of the
-    classes in \pkg{Matrix}.  Logical matrices are coerced to
-    corresponding numeric ones.}
-  \item{b}{numeric vector or matrix (dense or sparse) as RHS
-    of the linear system \eqn{Ax = b}.}
-  \item{sparse}{only when \code{a} is a \code{\linkS4class{sparseMatrix}}: 
-    logical specifying if the result should also (formally) be sparse.} % FIXME: mention pos. def., etc.
-  \item{tol}{only when \code{a} is a \code{sparseMatrix}
-    and \code{sparse} is \code{TRUE}: an error is signaled
-    if the ratio \code{min(d)/max(d)}, where \code{d = abs(diag(U))}
-    and \code{A = L U}, is \emph{less} than \code{tol}, indicating
-    (near-)singular \eqn{A}.}
-%  \item{tol}{only used when \code{a} is sparse, in the
-%      \code{\link{isSymmetric}(a, tol=*)} test, where that applies.}
-  \item{system}{only when \code{a} is a \code{\linkS4class{CHMfactor}}:
-    character string indicating the kind of linear system to be
-    solved, see below.  Note that the default, \code{"A"}, does
-    \emph{not} solve the triangular system (but \code{"L"} does).}
-  \item{\dots}{potentially further arguments to the methods.}
+  \item{a}{a \link[=is.finite]{finite} square matrix or
+    \code{\linkS4class{Matrix}} containing the coefficients
+    of the linear system, or otherwise a
+    \code{\linkS4class{MatrixFactorization}},
+    in which case methods behave (by default)
+    as if the factorized matrix were specified.}
+  \item{b}{a vector, \code{\linkS4class{sparseVector}},
+    matrix, or \code{\linkS4class{Matrix}} satisfying
+    \code{NROW(b) == nrow(a)}, giving the right-hand side(s)
+    of the linear system.  Vectors \code{b} are treated as
+    \code{length(b)}-by-1 matrices.  If \code{b} is missing,
+    then methods take \code{b} to be an identity matrix.}
+  \item{tol}{a non-negative number.  For \code{a} inheriting from
+    \code{\linkS4class{denseMatrix}}, an error is signaled if the
+    reciprocal one-norm condition number (see \code{\link[base]{rcond}})
+    of \code{a} is less than \code{tol}, indicating that \code{a} is
+    near-singular.  For \code{a} of class \code{\linkS4class{sparseLU}},
+    an error is signaled if the ratio \code{min(d)/max(d)} is less
+    than \code{tol}, where \code{d = abs(diag(a@U))}.  (Interpret
+    with care, as this ratio is a cheap heuristic and \emph{not}
+    in general equal to or even proportional to the reciprocal
+    one-norm condition number.)  Setting \code{tol = 0} disables
+    the test.}
+  \item{sparse}{a logical indicating if the result should be formally
+    sparse, i.e., if the result should inherit from virtual class
+    \code{\linkS4class{sparseMatrix}}.
+    Only methods for sparse \code{a} and missing or matrix \code{b}
+    have this argument.
+    Methods for missing or sparse \code{b} use \code{sparse = TRUE}
+    by default.  Methods for dense \code{b} use \code{sparse = FALSE}
+    by default.}
+  \item{system}{a string specifying a linear system to be solved.
+    Only methods for \code{a}
+    inheriting from \code{\linkS4class{CHMfactor}} have this argument.
+    See \sQuote{Details}.}
+  \item{\dots}{further arguments passed to or from methods.}
 }
+\details{
+  Methods for general and symmetric matrices \code{a} compute a
+  triangular factorization (LU, Bunch-Kaufman, or Cholesky)
+  and call the method for the corresponding factorization class.
+  The factorization is sparse if \code{a} is.  Methods for sparse,
+  symmetric matrices \code{a} attempt a Cholesky factorization
+  and perform an LU factorization only if that fails (typically
+  because \code{a} is not positive definite).
 
-\section{Methods}{
-  \describe{
-    \item{\code{signature(a = "ANY", b = "ANY")}}{is simply the
-      \pkg{base} package's S3 generic \code{\link{solve}}.}
+  Triangular, diagonal, and permutation matrices do not require
+  factorization (they are already \dQuote{factors}), hence methods
+  for those are implemented directly.  For triangular \code{a},
+  solutions are obtained by forward or backward substitution;
+  for diagonal \code{a}, they are obtained by scaling the rows
+  of \code{b}; and for permutations \code{a}, they are obtained
+  by permuting the rows of \code{b}.
 
-%% This is copy-paste  in  CHMfactor-class.Rd  {FIXME ?}
-    \item{\code{signature(a = "CHMfactor", b = "...."), system= *}}{The
-      \code{solve} methods for a \code{"\linkS4class{CHMfactor}"} object
-      take an optional third argument \code{system} whose value can be
-      one of the character strings \code{"A"}, \code{"LDLt"}, \code{"LD"},
-      \code{"DLt"}, \code{"L"}, \code{"Lt"}, \code{"D"}, \code{"P"} or
-      \code{"Pt"}.  This argument describes the system to be solved.  The
-      default,  \code{"A"}, is to solve \eqn{Ax = b} for \eqn{x} where
-      \code{A} is sparse, positive-definite matrix that was factored to produce
-      \code{a}.  Analogously, \code{system = "L"} returns the solution
-      \eqn{x}, of \eqn{Lx = b}; similarly, for all system codes
-      \bold{but} \code{"P"} and \code{"Pt"} where, e.g., \code{x <-
-	solve(a, b,system="P")} is equivalent to \code{x <- P \%*\% b}.
-
-      If \code{b} is a \code{\linkS4class{sparseMatrix}}, \code{system}
-      is used as above the corresponding sparse CHOLMOD algorithm is called.
-    }
-
-    \item{\code{signature(a = "ddenseMatrix", b = "....")}}{(for all
-      \code{b}) work via \code{as(a, "generalMatrix")}, using the its
-      methods, see below.}
-
-    \item{\code{signature(a = "denseLU", b = "missing")}}{
-      basically computes uses triangular forward- and back-solve.}
-
-    \item{\code{signature(a = "dgCMatrix", b = "matrix")}}{, and}
-    %% -> ../R/dgCMatrix.R
-    \item{\code{signature(a = "dgCMatrix", b = "ddenseMatrix")}}{with extra
-      argument list \code{( sparse = FALSE, tol = .Machine$double.eps ) }:
-      Uses the sparse \code{\link{lu}(a)} decomposition (which is cached
-      in \code{a}'s \code{factor} slot).
-      By default, \code{sparse=FALSE}, returns a
-      \code{\linkS4class{denseMatrix}}, since \eqn{U^{-1} L^{-1} B} may
-      not be sparse at all, even when \eqn{L} and \eqn{U} are.
-
-      If \code{sparse=TRUE}, returns a \code{\linkS4class{sparseMatrix}}
-      (which may not be very sparse at all, even if \code{a} \emph{was} sparse).
-    }
-
-    \item{\code{signature(a = "dgCMatrix", b = "dsparseMatrix")}}{, and}
-    \item{\code{signature(a = "dgCMatrix", b = "missing")}}{with extra
-      argument list \code{( sparse=FALSE, tol = .Machine$double.eps ) }:
-      Checks if \code{a} is symmetric, and in that case, coerces it to
-      \code{"\linkS4class{symmetricMatrix}"}, and then computes a
-      \emph{sparse} solution via sparse Cholesky factorization,
-      independently of the \code{sparse} argument.  If \code{a} is not
-      symmetric, the sparse \code{\link{lu}} decomposition is used
-      and the result will be sparse or dense, depending on the
-      \code{sparse} argument, exactly as for the above (\code{b =
-	"ddenseMatrix"}) case.
-    }
-
-    \item{\code{signature(a = "dgeMatrix", b = ".....")}}{
-      solve the system via internal LU, calling LAPACK routines
-      \code{dgetri} or \code{dgetrs}.
-    }
-
-    \item{\code{signature(a = "diagonalMatrix", b = "matrix")}}{and
-      other \code{b}s: Of course this is trivially implemented, as
-      \eqn{D^{-1}} is diagonal with entries \eqn{1 / D[i,i]}.}
-
-    \item{\code{signature(a = "dpoMatrix", b = "....Matrix")}}{, and}
-    \item{\code{signature(a = "dppMatrix", b = "....Matrix")}}{
-      The Cholesky decomposition of \code{a} is calculated (if
-      needed) while solving the system.}
-
-    \item{\code{signature(a = "dsCMatrix", b = "....")}}{% ../R/dsCMatrix.R
-      All these methods first try Cholmod's Cholesky factorization; if
-      that works, i.e., typically if \code{a} is positive semi-definite,
-      it is made use of.  Otherwise, the sparse LU decomposition is used
-      as for the \dQuote{general} matrices of class \code{"dgCMatrix"}.}
-
-    \item{\code{signature(a = "dspMatrix", b = "....")}}{, and}
-    \item{\code{signature(a = "dsyMatrix", b = "....")}}{% ../R/dsyMatrix.R
-      all end up calling LAPACK routines \code{dsptri}, \code{dsptrs},
-      \code{dsytrs} and \code{dsytri}.
-    }
-
-    \item{\code{signature(a = "dtCMatrix", b = "CsparseMatrix")}}{,}
-    \item{\code{signature(a = "dtCMatrix", b = "dgeMatrix")}}{, etc
-      sparse triangular solve, in traditional S/\R also known as
-      \code{\link{backsolve}}, or \code{\link{forwardsolve}}.
-      \code{solve(a,b)} is a \code{\linkS4class{sparseMatrix}} if
-      \code{b} is, and hence a \code{\linkS4class{denseMatrix}}
-      otherwise.
-    }
-
-    \item{\code{signature(a = "dtrMatrix", b = "ddenseMatrix")}}{, and}
-    \item{\code{signature(a = "dtpMatrix", b = "matrix")}}{, and% ../R/dtrMatrix.R
-      similar \code{b}, including \code{"missing"}, and
-      \code{"diagonalMatrix"}:
-
-      all use LAPACK based versions of efficient triangular
-      \code{\link{backsolve}}, or \code{\link{forwardsolve}}.
-    }
-
-    \item{\code{signature(a = "Matrix", b = "diagonalMatrix")}}{
-      works via \code{as(b, "CsparseMatrix")}.}
-
-    \item{\code{signature(a = "sparseQR", b = "ANY")}}{
-      simply uses \code{\link{qr.coef}(a, b)}.}
-
-    \item{\code{signature(a = "pMatrix", b = ".....")}}{
-      these methods typically use \code{\link{crossprod}(a,b)}, as
-      the inverse of a permutation matrix is the same as its transpose.}
-
-    \item{\code{signature(a = "TsparseMatrix", b = "ANY")}}{
-      all work via \code{as(a, "CsparseMatrix")}.}
-
+  Methods for dense \code{a} are built on 14 LAPACK routines:
+  class \code{d..Matrix}, where \code{..=(ge|tr|tp|sy|sp|po|pp)},
+  uses routines \code{d..tri} and \code{d..trs} for missing
+  and non-missing \code{b}, respectively.  A corollary is that
+  these methods always give a dense result.
+  
+  Methods for sparse \code{a} are built on CSparse routines
+  \code{cs_lsolve}, \code{cs_usolve}, and \code{cs_spsolve} and
+  CHOLMOD routines \code{cholmod_solve} and \code{cholmod_spsolve}.
+  By default, these methods give a vector result if \code{b}
+  is a vector, a sparse matrix result if \code{b} is missing
+  or a sparse matrix, and a dense matrix result if \code{b}
+  is a dense matrix.  One can override this behaviour by setting
+  the \code{sparse} argument, where available, but that should
+  be done with care.  Note that a sparse result may be sparse only
+  in the formal sense and not at all in the mathematical sense,
+  depending on the nonzero patterns of \code{a} and \code{b}.
+  Furthermore, whereas dense results are fully preallocated,
+  sparse results must be \dQuote{grown} in a loop over the columns
+  of \code{b}.
+  
+  Methods for \code{a} of class \code{\linkS4class{sparseQR}}
+  are simple wrappers around \code{\link{qr.coef}}, giving the
+  \emph{least squares} solution in overdetermined cases.
+  
+  Methods for \code{a} inheriting from \code{\linkS4class{CHMfactor}}
+  can solve systems other than the default one \eqn{A X = B}{A * X = B}.
+  The correspondance between its \code{system} argument the system
+  actually solved is outlined in the table below.
+  See \code{\link{CHMfactor-class}} for a definition of notation.
+  
+  \tabular{rrr}{
+    \code{system} \tab \code{\link{isLDL}(a)=TRUE} \tab \code{\link{isLDL}(a)=FALSE}\cr
+    \code{"A"} \tab \eqn{A X = B}{A * X = B} \tab \eqn{A X = B}{A * X = B}\cr
+    \code{"LDLt"} \tab \eqn{L_{1} D L_{1}' X = B}{L1 * D * L1' * X = B} \tab \eqn{L L' X = B}{L * L' * X = B}\cr
+    \code{"LD"} \tab \eqn{L_{1} D X = B}{L1 * D * X = B} \tab \eqn{L X = B}{L * X = B}\cr
+    \code{"DLt"} \tab \eqn{D L_{1}' X = B}{D * L1' * X = B} \tab \eqn{L' X = B}{L' * X = B}\cr
+    \code{"L"} \tab \eqn{L_{1} X = B}{L1 * X = B} \tab \eqn{L X = B}{L * X = B}\cr
+    \code{"Lt"} \tab \eqn{L_{1}' X = B}{L1' * X = B} \tab \eqn{L' X = B}{L' * X = B}\cr
+    \code{"D"} \tab \eqn{D X = B}{D * X = B} \tab \eqn{X = B}{X = B}\cr
+    \code{"P"} \tab \eqn{X = P_{1} B}{X = P1 * B} \tab \eqn{X = P_{1} B}{X = P1 * B}\cr
+    \code{"Pt"} \tab \eqn{X = P_{1}' B}{X = P1' * B} \tab \eqn{X = P_{1}' B}{X = P1' * B}
   }
-}%{Methods}
+}
 \seealso{
-  \code{\link{solve}}, \code{\link{lu}}, and class documentations
-  \code{\linkS4class{CHMfactor}}, \code{\linkS4class{sparseLU}}, and
-  \code{\linkS4class{MatrixFactorization}}.
-  %% Direct versions such as \code{\link{.solve.dgC.qr}()}
+  Virtual class \code{\linkS4class{MatrixFactorization}} and its
+  subclasses.
+
+  Generic functions \code{\link{Cholesky}}, \code{\link{BunchKaufman}},
+  \code{\link{Schur}}, \code{\link{lu}}, and \code{\link{qr}} for
+  \emph{computing} factorizations.
+
+  Generic function \code{\link[base]{solve}} from \pkg{base}.
+
+  Function \code{\link{qr.coef}} from \pkg{base} for computing
+  least squares solutions of overdetermined linear systems.
 }
 \examples{
 ## A close to symmetric example with "quite sparse" inverse:
@@ -266,7 +242,7 @@ n <- nrow(ZZ <- kronecker(XXt, Diagonal(x=c(4,1))))
 image(a <- 2*Diagonal(n) + ZZ \%*\% Diagonal(x=c(10, rep(1, n-1))))
 isSymmetric(a) # FALSE
 image(drop0(skewpart(a)))
-image(ia0 <- solve(a)) # checker board, dense [but really, a is singular!]
+image(ia0 <- solve(a, tol = 0)) # checker board, dense [but really, a is singular!]
 try(solve(a, sparse=TRUE))##-> error [ TODO: assertError ]
 ia. <- solve(a, sparse=TRUE, tol = 1e-19)##-> *no* error
 if(R.version$arch == "x86_64")
@@ -274,8 +250,8 @@ if(R.version$arch == "x86_64")
   stopifnot(all.equal(as.matrix(ia.), as.matrix(ia0)))
 a <- a + Diagonal(n)
 iad <- solve(a)
-ias <- solve(a, sparse=TRUE)
-stopifnot(all.equal(as(ias,"denseMatrix"), iad, tolerance=1e-14))
+ias <- solve(a, sparse=FALSE)
+stopifnot(all.equal(as(iad,"denseMatrix"), ias, tolerance=1e-14))
 I. <- iad \%*\% a          ; image(I.)
 I0 <- drop0(zapsmall(I.)); image(I0)
 .I <- a \%*\% iad
@@ -284,4 +260,3 @@ stopifnot( all.equal(as(I0, "diagonalMatrix"), Diagonal(n)),
            all.equal(as(.I0,"diagonalMatrix"), Diagonal(n)) )
 
 }
-\keyword{methods}

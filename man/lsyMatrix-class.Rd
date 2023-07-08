@@ -1,6 +1,9 @@
 \name{lsyMatrix-class}
 \title{Symmetric Dense Logical Matrices}
+%
 \docType{class}
+\keyword{array}
+\keyword{classes}
 %
 \alias{lsyMatrix-class}
 \alias{lspMatrix-class}
@@ -49,6 +52,9 @@
   \code{\link[base]{t}}
 }
 \examples{
+\dontshow{ % for R_DEFAULT_PACKAGES=NULL
+library(utils, pos = "package:base", verbose = FALSE)
+}
 (M2 <- Matrix(c(TRUE, NA, FALSE, FALSE), 2, 2)) # logical dense (ltr)
 str(M2)
 # can
@@ -56,4 +62,3 @@ str(M2)
 as(sM, "symmetricMatrix")
 str(sM <- as(sM, "packedMatrix")) # packed symmetric
 }
-\keyword{classes}

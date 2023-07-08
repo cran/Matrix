@@ -1,6 +1,12 @@
 \name{dmperm}
 \title{Dulmage-Mendelsohn Permutation / Decomposition}
+%
+\keyword{algebra}
+\keyword{array}
+\keyword{utilities}
+%
 \alias{dmperm}
+%
 \description{
   For any \eqn{n \times m}{n * m} (typically) sparse matrix \code{x}
   compute the Dulmage-Mendelsohn row and columns permutations which at
@@ -56,6 +62,9 @@ dmperm(x, nAns = 6L, seed = 0L)
  \code{\link{Schur}}, the class of permutation matrices; \code{"\linkS4class{pMatrix}"}.
 }
 \examples{
+\dontshow{ % for R_DEFAULT_PACKAGES=NULL
+library(utils, pos = "package:base", verbose = FALSE)
+}
 set.seed(17)
 (S9 <- rsparsematrix(9, 9, nnz = 10, symmetric=TRUE)) # dsCMatrix
 str( dm9 <- dmperm(S9) )
@@ -86,4 +95,3 @@ stopifnot(exprs = {
 })
 %% FIXME: Check permutations / blocks etc -- does it work ???
 }
-\keyword{algebra}

@@ -1,10 +1,20 @@
-\name{colSums}
+\name{colSums-methods}
 \title{Form Row and Column Sums and Means}
 %
+\docType{methods}
+\keyword{algebra}
+\keyword{arith}
+\keyword{array}
+\keyword{methods}
+%
 \alias{colSums}
+\alias{colSums-methods}
 \alias{colMeans}
+\alias{colMeans-methods}
 \alias{rowSums}
+\alias{rowSums-methods}
 \alias{rowMeans}
+\alias{rowMeans-methods}
 %
 \alias{colSums,CsparseMatrix-method}
 \alias{colSums,RsparseMatrix-method}
@@ -111,11 +121,10 @@ M
 colSums(M)
 rowMeans(M)
 ## Assertions :
-stopifnot(all.equal(colSums(M),
-		    setNames(c(1,1,6,6,6,6,3,2), colnames(M))),
-	  all.equal(rowMeans(M), structure(c(1,1,4,8,12,3,2) / 8,
-					   .Names = paste0("r", 1:7))))
+stopifnot(exprs = {
+    all.equal(colSums(M),
+              structure(c(1,1,6,6,6,6,3,2), names = colnames(M)))
+    all.equal(rowMeans(M),
+              structure(c(1,1,4,8,12,3,2)/8, names = paste0("r", 1:7)))
+})
 }
-\keyword{array}
-\keyword{algebra}
-\keyword{arith}

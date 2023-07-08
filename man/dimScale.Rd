@@ -1,8 +1,15 @@
 \name{dimScale}
 \title{Scale the Rows and Columns of a Matrix}
+%
+\keyword{algebra}
+\keyword{arith}
+\keyword{array}
+\keyword{utilities}
+%
 \alias{dimScale}
 \alias{rowScale}
 \alias{colScale}
+%
 \description{
   \code{dimScale}, \code{rowScale}, and \code{colScale} implement
   \code{D1 \%*\% x \%*\% D2}, \code{D \%*\% x}, and \code{x \%*\% D}

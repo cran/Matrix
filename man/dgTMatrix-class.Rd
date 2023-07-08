@@ -1,6 +1,9 @@
 \name{dgTMatrix-class}
 \title{Sparse matrices in triplet form}
+%
 \docType{class}
+\keyword{array}
+\keyword{classes}
 %
 \alias{dgTMatrix-class}
 %
@@ -63,6 +66,9 @@
   \code{\linkS4class{TsparseMatrix}}; \code{\link{uniqTsparse}}.
 }
 \examples{
+\dontshow{ % for R_DEFAULT_PACKAGES=NULL
+library(utils, pos = "package:base", verbose = FALSE)
+}
 m <- Matrix(0+1:28, nrow = 4)
 m[-3,c(2,4:5,7)] <- m[ 3, 1:4] <- m[1:3, 6] <- 0
 (mT <- as(m, "TsparseMatrix"))
@@ -84,5 +90,3 @@ T2 ## has only three non-zero entries, as for repeated (i,j)'s,
    ## the corresponding x's are "implicitly" added
 stopifnot(nnzero(T2) == 3)
 }
-\keyword{classes}
-\keyword{algebra}

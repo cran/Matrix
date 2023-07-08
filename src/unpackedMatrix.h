@@ -1,5 +1,5 @@
-#ifndef MATRIX_UNPAMATRIX_H
-#define MATRIX_UNPAMATRIX_H
+#ifndef MATRIX_UNPACKEDMATRIX_H
+#define MATRIX_UNPACKEDMATRIX_H
 
 #include "Mutils.h"
 
@@ -25,4 +25,4 @@ SEXP matrix_symmpart(SEXP from);
 SEXP unpackedMatrix_skewpart(SEXP from);
 SEXP matrix_skewpart(SEXP from);
 
-#endif
+#endif /* MATRIX_UNPACKEDMATRIX_H */

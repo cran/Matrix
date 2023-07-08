@@ -1,7 +1,13 @@
 \name{kronecker-methods}
-\docType{methods}
 \title{Methods for Function 'kronecker()' in Package 'Matrix'}
 %
+\docType{methods}
+\keyword{algebra}
+\keyword{arith}
+\keyword{array}
+\keyword{methods}
+%
+\alias{kronecker}
 \alias{kronecker-methods}
 %
 \alias{kronecker,CsparseMatrix,CsparseMatrix-method}

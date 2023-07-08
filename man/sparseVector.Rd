@@ -1,6 +1,10 @@
 \name{sparseVector}
-\alias{sparseVector}
 \title{Sparse Vector Construction from Nonzero Entries}
+%
+\keyword{utilities}
+%
+\alias{sparseVector}
+%
 \description{
   User friendly construction of sparse vectors,
   i.e., objects inheriting from \code{\link{class}}
@@ -32,6 +36,9 @@ sparseVector(x, i, length)
   the class \code{\linkS4class{sparseVector}}.
 }
 \examples{
+\dontshow{ % for R_DEFAULT_PACKAGES=NULL
+library(utils, pos = "package:base", verbose = FALSE)
+}
 str(sv <- sparseVector(x = 1:10, i = sample(999, 10), length=1000))
 
 sx <- c(0,0,3, 3.2, 0,0,0,-3:1,0,0,2,0,0,5,0,0)
@@ -44,4 +51,3 @@ stopifnot(identical(ss,
 stopifnot(identical(ns,
       new("nsparseVector", length = 10, i = c(2, 3, 7))))
 }
-\keyword{array}

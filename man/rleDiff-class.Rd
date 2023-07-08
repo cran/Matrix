@@ -1,6 +1,8 @@
 \name{rleDiff-class}
 \title{Class "rleDiff" of  rle(diff(.))  Stored Vectors}
+%
 \docType{class}
+\keyword{classes}
 %
 \alias{rleDiff-class}
 \alias{show,rleDiff-method}
@@ -43,4 +45,3 @@ showClass("rleDiff")
 ab <- c(abIseq(2, 100), abIseq(20, -2))
 ab@rleD  # is "rleDiff"
 }
-\keyword{classes}

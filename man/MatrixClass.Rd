@@ -1,5 +1,8 @@
 \name{MatrixClass}
 \title{The Matrix (Super-) Class of a Class}
+%
+\keyword{utilities}
+%
 \alias{MatrixClass}
 \description{
   Return the (maybe super-)\code{\link{class}} of class \code{cl} from
@@ -36,4 +39,3 @@ stopifnot(identical(
      MatrixClass("A"),
      "dgCMatrix"))
 }
-\keyword{classes}

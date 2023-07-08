@@ -1,6 +1,10 @@
 \name{condest}
 \title{Compute Approximate CONDition number and 1-Norm of (Large) Matrices}
 %
+\keyword{algebra}
+\keyword{math}
+\keyword{utilities}
+%
 \alias{condest}
 \alias{onenormest}
 %
@@ -64,7 +68,7 @@ onenormest(A, t = min(n, 5), A.x, At.x, n,
 }
 \references{
 %% See also Tim Davis(2006, p.96):
-  Nicholas J. Higham and Françoise Tisseur (2000).
+  Nicholas J. Higham and \enc{Françoise}{Francoise} Tisseur (2000).
   A Block Algorithm for Matrix 1-Norm Estimation, with an Application
   to 1-Norm Pseudospectra.
   \emph{SIAM J. Matrix Anal. Appl.} \bold{21}, 4, 1185--1201.
@@ -84,7 +88,10 @@ onenormest(A, t = min(n, 5), A.x, At.x, n,
   \code{\link{norm}}, \code{\link{rcond}}.
 }
 \examples{
-data(KNex)
+\dontshow{ % for R_DEFAULT_PACKAGES=NULL
+library(utils, pos = "package:base", verbose = FALSE)
+}
+data(KNex, package = "Matrix")
 mtm <- with(KNex, crossprod(mm))
 system.time(ce <- condest(mtm))
 sum(abs(ce$v)) ## || v ||_1  == 1

@@ -6,7 +6,7 @@
 #include "Mutils.h"
 // -> R_check_class()  et al
 
-#ifdef Matrix_with_SPQR
+#ifdef Matrix_WithSPQR
 #  include "SPQR/Include/SuiteSparseQR_C.h"
 #endif
 

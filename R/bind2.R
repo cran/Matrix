@@ -219,7 +219,7 @@ setMethod("rbind2", signature(x = "sparseMatrix", y = "diagonalMatrix"),
 
 ## in order to evade method dispatch ambiguity, but still remain "general"
 ## we use this hack instead of signature  x = "diagonalMatrix"
-for(cls in names(getClass("diagonalMatrix")@subclasses)) {
+for(cls in names(getClassDef("diagonalMatrix")@subclasses)) {
 
  setMethod("cbind2", signature(x = cls, y = "matrix"),
 	   function(x, y, ...)
@@ -245,7 +245,7 @@ for(cls in names(getClass("diagonalMatrix")@subclasses)) {
  setMethod("rbind2", signature(x = "atomicVector", y = cls),
 	   function(x, y, ...) rbind2(matrix(x, ncol = ncol(y)), y))
 }
-
+rm(cls)
 
 ## originally from ./dsparseMatrix.R : --------------------------------
 
@@ -427,16 +427,41 @@ setMethod("cbind2", signature(x = "numeric", y = "sparseMatrix"),
 
 }## -- no longer
 
-## Can be made very efficient
 setMethod("rbind2", signature(x = "indMatrix", y = "indMatrix"),
 	  function(x, y, ...) {
 	      dx <- x@Dim
 	      dy <- y@Dim
-	      if(dx[2] != dy[2])
-		  stop(gettextf("Matrices must have same number of columns in %s",
+              if((n <- dx[2L]) != dy[2L])
+		  stop(gettextf("number of columns of matrices must match in %s",
 				deparse(sys.call(sys.parent()))),
-		       call. = FALSE, domain=NA)
-	      new("indMatrix", Dim = c(dx[1]+dy[1], dx[2]),
-		  perm = c(x@perm,y@perm),
-		  Dimnames = rbind2DN(dimnames(x), dimnames(y), dx[1],dy[1]))
+		       call. = FALSE, domain = NA)
+              if(x@margin != 1L || y@margin != 1L)
+                  return(rbind2(as(x, "RsparseMatrix"), as(y, "RsparseMatrix")))
+              mx <- dx[1L]
+              my <- dy[1L]
+              r <- new("indMatrix")
+              r@Dim <- c(mx + my, n)
+              r@Dimnames <- rbind2DN(x@Dimnames, y@Dimnames, mx, my)
+              r@perm <- c(x@perm, y@perm)
+              r
+	  })
+
+setMethod("cbind2", signature(x = "indMatrix", y = "indMatrix"),
+	  function(x, y, ...) {
+	      dx <- x@Dim
+	      dy <- y@Dim
+              if((m <- dx[1L]) != dy[1L])
+		  stop(gettextf("number of rows of matrices must match in %s",
+				deparse(sys.call(sys.parent()))),
+		       call. = FALSE, domain = NA)
+              if(x@margin == 1L || y@margin == 1L)
+                  return(cbind2(as(x, "CsparseMatrix"), as(y, "CsparseMatrix")))
+              nx <- dx[2L]
+              ny <- dy[2L]
+              r <- new("indMatrix")
+              r@Dim <- c(m, nx + ny)
+              r@Dimnames <- cbind2DN(x@Dimnames, y@Dimnames, nx, ny)
+              r@perm <- c(x@perm, y@perm)
+              r@margin <- 2L
+              r
 	  })

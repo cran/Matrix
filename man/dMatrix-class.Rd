@@ -1,6 +1,9 @@
 \name{dMatrix-class}
 \title{(Virtual) Class "dMatrix" of "double" Matrices}
+%
 \docType{class}
+\keyword{array}
+\keyword{classes}
 %
 \alias{dMatrix-class}
 \alias{lMatrix-class}
@@ -115,6 +118,9 @@
   more efficient than) \code{zapsmall(x, digits=10)}.
 }
 \examples{
+\dontshow{ % for R_DEFAULT_PACKAGES=NULL
+library(stats, pos = "package:base", verbose = FALSE)
+}
  showClass("dMatrix")
 
  set.seed(101)
@@ -123,5 +129,3 @@
  (M. <- zapsmall(M))
  table(as.logical(M. == 0))
 }
-\keyword{classes}
-\keyword{algebra}

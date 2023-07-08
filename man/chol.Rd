@@ -1,14 +1,16 @@
-\name{chol}
-\title{The Cholesky Decomposition - 'Matrix' S4 Generic and Methods}
+\name{chol-methods}
+\title{Compute the Cholesky Factor of a Matrix}
+\docType{methods}
+%
+\keyword{algebra}
+\keyword{array}
+\keyword{methods}
 %
 \alias{chol}
 \alias{chol-methods}
 %
+\alias{chol,ddiMatrix-method}
 \alias{chol,diagonalMatrix-method}
-\alias{chol,dgCMatrix-method}
-\alias{chol,dgRMatrix-method}
-\alias{chol,dgTMatrix-method}
-\alias{chol,dgeMatrix-method}
 \alias{chol,dsCMatrix-method}
 \alias{chol,dsRMatrix-method}
 \alias{chol,dsTMatrix-method}
@@ -19,131 +21,198 @@
 \alias{chol,triangularMatrix-method}
 %
 \description{
-  Compute the Cholesky factorization of a real symmetric
-  positive definite square matrix.
+  Computes the upper triangular Cholesky factor of an
+  \eqn{n \times n}{n-by-n} real, symmetric, positive semidefinite
+  matrix \eqn{A}, optionally after pivoting.
+  That is the factor \eqn{L'} in
+  \deqn{P_{1} A P_{1}' = L L'}{P1 * A * P1' = L * L'}
+  or (equivalently)
+  \deqn{A = P_{1}' L L' P_{1}}{A = P1' * L * L' * P1}
+  where
+  \eqn{P_{1}}{P1} is a permutation matrix.
+
+  Methods for \code{\linkS4class{denseMatrix}} are built on
+  LAPACK routines \code{dpstrf}, \code{dpotrf}, and \code{dpptrf},
+  The latter two do not permute rows or columns,
+  so that \eqn{P_{1}}{P1} is an identity matrix.
+  
+  Methods for \code{\linkS4class{sparseMatrix}} are built on
+  CHOLMOD routines \code{cholmod_analyze} and \code{cholmod_factorize_p}.
 }
 \usage{
 chol(x, \dots)
-\S4method{chol}{dsyMatrix}(x, \dots)
+\S4method{chol}{dsyMatrix}(x, pivot = FALSE, tol = -1, \dots)
 \S4method{chol}{dspMatrix}(x, \dots)
 \S4method{chol}{dsCMatrix}(x, pivot = FALSE, \dots)
-\S4method{chol}{dsRMatrix}(x, pivot = FALSE, cache = TRUE, \dots)
-\S4method{chol}{dsTMatrix}(x, pivot = FALSE, cache = TRUE, \dots)
+\S4method{chol}{ddiMatrix}(x, \dots)
+\S4method{chol}{generalMatrix}(x, uplo = "U", \dots)
+\S4method{chol}{triangularMatrix}(x, uplo = "U", \dots)
 }
 \arguments{
-  \item{x}{a (sparse or dense) square matrix, here inheriting from class
-    \code{\linkS4class{Matrix}}; if \code{x} is not symmetric positive
-    definite, then an error is signalled.}
-  \item{pivot}{logical indicating if pivoting is to be used.  Currently,
-    this is \emph{not} made use of for dense matrices.}
-  \item{cache}{logical indicating if the result should be cached
-    in \code{x@factors}; note that this argument is experimental
-    and only available for certain classes inheriting from
-    \code{\linkS4class{compMatrix}}.}
-  \item{\dots}{potentially further arguments passed to methods.}
-}
-\details{
-  Note that these Cholesky factorizations are typically \emph{cached} with
-  \code{x} currently, and these caches are available in
-  \code{x@factors}, which may be useful for the sparse case when
-  \code{pivot = TRUE}, where the permutation can be retrieved; see also
-  the examples.
-
-  However, this should not be considered part of the API and made
-  use of.  Rather consider \code{\link{Cholesky}()} in such situations,
-  since \code{chol(x, pivot=TRUE)} uses the same algorithm (but not the
-  same return value!) as \code{\link{Cholesky}(x, LDL=FALSE)} and
-  \code{chol(x)} corresponds to
-  \code{\link{Cholesky}(x, perm=FALSE, LDL=FALSE)}.
-}
-\section{Methods}{
-  Use \code{\link{showMethods}(chol)} to see all; some are worth
-  mentioning here:
-  \describe{
-    \item{chol}{\code{signature(x = "dpoMatrix")}:
-      Returns (and stores) the Cholesky decomposition of \code{x},
-      via LAPACK routines \code{dlacpy} and \code{dpotrf}.}
-    
-    \item{chol}{\code{signature(x = "dppMatrix")}:
-      Returns (and stores) the Cholesky decomposition of \code{x},
-      via LAPACK routine \code{dpptrf}.}
-
-    \item{chol}{\code{signature(x = "dsyMatrix")}: works via
-      \code{"dpoMatrix"}, see class \code{\linkS4class{dpoMatrix}}.}
-
-    \item{chol}{\code{signature(x = "dspMatrix")}: works via
-      \code{"dppMatrix"}, see class \code{\linkS4class{dppMatrix}}.}
-    
-    \item{chol}{\code{signature(x = "dsCMatrix")}:
-      Returns (and stores) the Cholesky decomposition of \code{x}.
-      If \code{pivot} is \code{TRUE}, then the Approximate Minimal
-      Degree (AMD) algorithm is used to create a reordering of the
-      rows and columns of \code{x} so as to reduce fill-in.}
-
-    \item{chol}{\code{signature(x = "dsRMatrix")}: works via
-      \code{"dsCMatrix"}, see class \code{\linkS4class{dsCMatrix}}.}
-
-    \item{chol}{\code{signature(x = "dsTMatrix")}: works via
-      \code{"dsCMatrix"}, see class \code{\linkS4class{dsCMatrix}}.}
-  }
+  \item{x}{a \link[=is.finite]{finite}, symmetric, positive
+    semidefinite matrix or \code{\linkS4class{Matrix}} to
+    be factorized.  If \code{x} is square but not symmetric,
+    then it will be \emph{treated} as symmetric; see \code{uplo}.
+    Methods for dense \code{x} require positive definiteness
+    when \code{pivot = FALSE}.
+    Methods for sparse (but not diagonal) \code{x} require
+    positive definiteness unconditionally.}
+  \item{pivot}{a logical indicating if the rows and columns
+    of \eqn{x} should be pivoted.  Methods for sparse \code{x}
+    employ the approximate minimum degree (AMD) algorithm
+    in order to reduce fill-in, i.e., without regard for
+    numerical stability.}
+  \item{tol}{a \link[=is.finite]{finite} numeric tolerance,
+    used only if \code{pivot = TRUE}.
+    The factorization algorithm stops if the pivot is less than
+    or equal to \code{tol}.  Negative \code{tol} is equivalent
+    to \code{nrow(x) * .Machine$double.eps * max(diag(x))}.}
+  \item{uplo}{a string, either \code{"U"} or \code{"L"},
+    indicating which triangle of \code{x} should be used
+    to compute the factorization.  The default is \code{"U"},
+    even for lower triangular \code{x}, to be consistent with
+    \code{\link[base]{chol}} from \pkg{base}.}
+  \item{\dots}{further arguments passed to or from methods.}
 }
 \value{
-  a matrix of class \code{\linkS4class{Cholesky}},
-  i.e., upper triangular: \eqn{R} such that \eqn{R'R = x} (if
-      \code{pivot=FALSE}) \emph{or} \eqn{P' R'R P = x} (if
-      \code{pivot=TRUE} and \eqn{P} is the corresponding permutation matrix).
+  A matrix, \code{\linkS4class{triangularMatrix}},
+  or \code{\linkS4class{diagonalMatrix}} representing
+  the upper triangular Cholesky factor \eqn{L'}.
+  The result is a traditional matrix if \code{x} is a
+  traditional matrix, dense if \code{x} is dense, and
+  sparse if \code{x} is sparse.
+}
+\details{
+  For \code{x} inheriting from \code{\linkS4class{diagonalMatrix}},
+  the diagonal result is computed directly and without pivoting,
+  i.e., bypassing CHOLMOD.
+  
+  For all other \code{x}, \code{chol(x, pivot = value)} calls
+  \code{\link{Cholesky}(x, perm = value, \dots)} under the hood.
+  If you must know the permutation \eqn{P_{1}}{P1} in addition
+  to the Cholesky factor \eqn{L'}, then call \code{\link{Cholesky}}
+  directly, as the result of \code{chol(x, pivot = TRUE)} specifies
+  \eqn{L'} but not \eqn{P_{1}}{P1}.
+}
+\seealso{
+  The default method from \pkg{base}, \code{\link[base]{chol}},
+  called for traditional matrices \code{x}.
+
+  Generic function \code{\link{Cholesky}}, for more flexibility
+  notably when computing the Cholesky \emph{factorization} and
+  not only the \emph{factor} \eqn{L'}.
 }
 \references{
-  Timothy A. Davis (2006)
-  \emph{Direct Methods for Sparse Linear Systems}, SIAM Series
-  \dQuote{Fundamentals of Algorithms}.
+  The LAPACK source code, including documentation; see
+  \url{https://netlib.org/lapack/double/dpstrf.f},
+  \url{https://netlib.org/lapack/double/dpotrf.f}, and
+  \url{https://netlib.org/lapack/double/dpptrf.f}.
 
-  Tim Davis (1996),
-  An approximate minimal degree ordering algorithm,
-  \emph{SIAM J. Matrix Analysis and Applications},
-  \bold{17}, 4, 886--905.
-}
-\seealso{The default from \pkg{base}, \code{\link[base]{chol}}; for more
-  flexibility (but not returning a matrix!) \code{\link{Cholesky}}.
+  The CHOLMOD source code; see
+  \url{https://github.com/DrTimothyAldenDavis/SuiteSparse},
+  notably the header file \file{CHOLMOD/Include/cholmod.h}
+  defining \code{cholmod_factor_struct}.
+
+  Chen, Y., Davis, T. A., Hager, W. W., & Rajamanickam, S. (2008).
+  Algorithm 887: CHOLMOD, supernodal sparse Cholesky factorization
+  and update/downdate.
+  \emph{ACM Transactions on Mathematical Software},
+  \emph{35}(3), Article 22, 1-14.
+  \doi{10.1145/1391989.1391995}
+
+  Amestoy, P. R., Davis, T. A., & Duff, I. S. (2004).
+  Algorithm 837: AMD, an approximate minimum degree ordering algorithm.
+  \emph{ACM Transactions on Mathematical Software},
+  \emph{17}(4), 886-905.
+  \doi{10.1145/1024074.1024081}
+
+  Golub, G. H., & Van Loan, C. F. (2013).
+  \emph{Matrix computations} (4th ed.).
+  Johns Hopkins University Press.
+  \doi{10.56021/9781421407944}
 }
 \examples{
-showMethods(chol, inherited = FALSE) # show different methods
-
-sy2 <- new("dsyMatrix", Dim = as.integer(c(2,2)), x = c(14, NA,32,77))
-(c2 <- chol(sy2))#-> "Cholesky" matrix
-stopifnot(all.equal(c2, chol(as(sy2, "dpoMatrix")), tolerance= 1e-13))
-str(c2)
-
-## An example where chol() can't work
-(sy3 <- new("dsyMatrix", Dim = as.integer(c(2,2)), x = c(14, -1, 2, -7)))
-try(chol(sy3)) # error, since it is not positive definite
-
-## A sparse example --- exemplifying 'pivot'
-(mm <- toeplitz(as(c(10, 0, 1, 0, 3), "sparseVector"))) # 5 x 5
-(R <- chol(mm)) ## default:  pivot = FALSE
-R2 <- chol(mm, pivot=FALSE)
-stopifnot( identical(R, R2), all.equal(crossprod(R), mm) )
-(R. <- chol(mm, pivot=TRUE))# nice band structure,
-## but of course crossprod(R.) is *NOT* equal to mm
-## --> see Cholesky() and its examples, for the pivot structure & factorization
-stopifnot(all.equal(sqrt(det(mm)), det(R)),
-          all.equal(prod(diag(R)), det(R)),
-          all.equal(prod(diag(R.)), det(R)))
-
-## a second, even sparser example:
-(M2 <- toeplitz(as(c(1,.5, rep(0,12), -.1), "sparseVector")))
-c2 <- chol(M2)
-C2 <- chol(M2, pivot=TRUE)
-## For the experts, check the caching of the factorizations:
-ff <- M2@factors[["spdCholesky"]]
-FF <- M2@factors[["sPdCholesky"]]
-L1 <- as(ff, "Matrix")# pivot=FALSE: no perm.
-L2 <- as(FF, "Matrix"); P2 <- as(FF, "pMatrix")
-stopifnot(identical(t(L1), c2),
-          all.equal(t(L2), C2, tolerance=0),#-- why not identical()?
-          all.equal(M2, tcrossprod(L1)),             # M = LL'
-          all.equal(M2, crossprod(crossprod(L2, P2)))# M = P'L L'P
-         )
+\dontshow{ % for R_DEFAULT_PACKAGES=NULL
+library(stats, pos = "package:base", verbose = FALSE)
 }
-\keyword{algebra}
-\keyword{array}
+showMethods("chol", inherited = FALSE)
+set.seed(0)
+
+## ---- Dense ----------------------------------------------------------
+
+## chol(x, pivot = value) wrapping Cholesky(x, perm = value)
+selectMethod("chol", "dsyMatrix")
+
+## Except in packed cases where pivoting is not yet available
+selectMethod("chol", "dspMatrix")
+
+## .... Positive definite ..............................................
+
+(A1 <- new("dsyMatrix", Dim = c(2L, 2L), x = c(1, 2, 2, 5)))
+(R1.nopivot <- chol(A1))
+(R1 <- chol(A1, pivot = TRUE))
+
+## In 2-by-2 cases, we know that the permutation is 1:2 or 2:1,
+## even if in general 'chol' does not say ...
+
+stopifnot(exprs = {
+   all.equal(  A1           , as(crossprod(R1.nopivot), "dsyMatrix"))
+   all.equal(t(A1[2:1, 2:1]), as(crossprod(R1        ), "dsyMatrix"))
+   identical(Cholesky(A1)@perm, 2:1) # because 5 > 1
+})
+
+## .... Positive semidefinite but not positive definite ................
+
+(A2 <- new("dpoMatrix", Dim = c(2L, 2L), x = c(1, 2, 2, 4)))
+try(R2.nopivot <- chol(A2)) # fails as not positive definite
+(R2 <- chol(A2, pivot = TRUE)) # returns, with a warning and ...
+
+stopifnot(exprs = {
+   all.equal(t(A2[2:1, 2:1]), as(crossprod(R2), "dsyMatrix"))
+   identical(Cholesky(A2)@perm, 2:1) # because 4 > 1
+})
+
+## .... Not positive semidefinite ......................................
+
+(A3 <- new("dsyMatrix", Dim = c(2L, 2L), x = c(1, 2, 2, 3)))
+try(R3.nopivot <- chol(A3)) # fails as not positive definite
+(R3 <- chol(A3, pivot = TRUE)) # returns, with a warning and ...
+
+## _Not_ equal: see details and examples in help("Cholesky")
+all.equal(t(A3[2:1, 2:1]), as(crossprod(R3), "dsyMatrix"))
+
+## ---- Sparse ---------------------------------------------------------
+
+## chol(x, pivot = value) wrapping
+## Cholesky(x, perm = value, LDL = FALSE, super = FALSE)
+selectMethod("chol", "dsCMatrix")
+
+## Except in diagonal cases which are handled "directly"
+selectMethod("chol", "ddiMatrix")
+
+(A4 <- toeplitz(as(c(10, 0, 1, 0, 3), "sparseVector")))
+(ch.A4.nopivot <- Cholesky(A4, perm = FALSE, LDL = FALSE, super = FALSE))
+(ch.A4 <- Cholesky(A4, perm = TRUE, LDL = FALSE, super = FALSE))
+(R4.nopivot <- chol(A4))
+(R4 <- chol(A4, pivot = TRUE))
+
+det4 <- det(A4)
+b4 <- rnorm(5L)
+x4 <- solve(A4, b4)
+
+stopifnot(exprs = {
+    identical(R4.nopivot, expand1(ch.A4.nopivot, "L."))
+    identical(R4, expand1(ch.A4, "L."))
+    all.equal(A4, crossprod(R4.nopivot))
+    all.equal(A4[ch.A4@perm + 1L, ch.A4@perm + 1L], crossprod(R4))
+    all.equal(diag(R4.nopivot), sqrt(diag(ch.A4.nopivot)))
+    all.equal(diag(R4), sqrt(diag(ch.A4)))
+    all.equal(sqrt(det4), det(R4.nopivot))
+    all.equal(sqrt(det4), det(R4))
+    all.equal(det4, det(ch.A4.nopivot, sqrt = FALSE))
+    all.equal(det4, det(ch.A4, sqrt = FALSE))
+    all.equal(x4, solve(R4.nopivot, solve(t(R4.nopivot), b4)))
+    all.equal(x4, solve(ch.A4.nopivot, b4))
+    all.equal(x4, solve(ch.A4, b4))
+})
+}

@@ -54,38 +54,39 @@ graph2T <- function(from, use.weights =
     nd <- graph::nodes(from); dnms <- list(nd,nd)
     dm <- rep.int(length(nd), 2)
     edge2i <- function(e) {
-	## return (0-based) row indices 'i'
-	rep.int(0:(dm[1]-1L), lengths(e))
+        ## return (0-based) row indices 'i'
+        rep.int(0:(dm[1]-1L), lengths(e))
     }
 
     if(use.weights) {
-	eWts <- graph::edgeWeights(from); names(eWts) <- NULL
-	i <- edge2i(eWts)
-	To <- unlist(lapply(eWts, names))
-	j <- as.integer(match(To,nd)) - 1L # columns indices (0-based)
-	## symm <- symm && <weights must also be symmetric>: improbable
-	## if(symm) new("dsTMatrix", .....) else
-	new("dgTMatrix", i = i, j = j, x = unlist(eWts),
+        eWts <- graph::edgeWeights(from); names(eWts) <- NULL
+        i <- edge2i(eWts)
+        To <- unlist(lapply(eWts, names))
+        j <- as.integer(match(To,nd)) - 1L # columns indices (0-based)
+        ## symm <- symm && <weights must also be symmetric>: improbable
+        ## if(symm) new("dsTMatrix", .....) else
+        new("dgTMatrix", i = i, j = j, x = unlist(eWts),
             Dim = dm, Dimnames = dnms)
     } else { ## no weights: 0/1 matrix -> pattern
-	edges <- lapply(from@edgeL[nd], "[[", "edges")
-	symm <- graph::edgemode(from) == "undirected"
-	if(symm)# each edge appears twice; keep upper triangle only
-	    edges <- lapply(seq_along(edges),
+        edges <- lapply(from@edgeL[nd], "[[", "edges")
+        symm <- graph::edgemode(from) == "undirected"
+        if(symm)# each edge appears twice; keep upper triangle only
+            edges <- lapply(seq_along(edges),
                             function(i) {e <- edges[[i]]; e[e >= i]})
-	i <- edge2i(edges)
-	j <- as.integer(unlist(edges)) - 1L # column indices (0-based)
-	## if(symm) {			# symmetric: ensure upper triangle
-	##     tmp <- i
-	##     flip <- i > j
-	##     i[flip] <- j[flip]
-	##     j[flip] <- tmp[flip]
-	##     new("nsTMatrix", i = i, j = j, Dim = dm, Dimnames = dnms, uplo = "U")
-	## } else {
-	##     new("ngTMatrix", i = i, j = j, Dim = dm, Dimnames = dnms)
-	## }
-	new(if(symm) "nsTMatrix" else "ngTMatrix", i = i, j = j,
-	    Dim = dm, Dimnames = dnms)# uplo = "U" is default
+        i <- edge2i(edges)
+        j <- as.integer(unlist(edges)) - 1L # column indices (0-based)
+        ## if(symm) {			# symmetric: ensure upper triangle
+        ##     tmp <- i
+        ##     flip <- i > j
+        ##     i[flip] <- j[flip]
+        ##     j[flip] <- tmp[flip]
+        ##     new("nsTMatrix", i = i, j = j, Dim = dm, Dimnames = dnms,
+        ##         uplo = "U")
+        ## } else {
+        ##     new("ngTMatrix", i = i, j = j, Dim = dm, Dimnames = dnms)
+        ## }
+        new(if(symm) "nsTMatrix" else "ngTMatrix", i = i, j = j,
+            Dim = dm, Dimnames = dnms)# uplo = "U" is default
     }
 }
 
@@ -93,13 +94,13 @@ T2graph <- function(from, need.uniq = is_not_uniqT(from), edgemode = NULL)
 {
     d <- dim(from)
     if((n <- d[1L]) != d[2L])
-	stop("only square matrices can be used as graph incidence matrices")
+        stop("only square matrices can be used as graph incidence matrices")
     if(n == 0L)
         return(new("graphNEL"))
     if(is.null(rn <- dimnames(from)[[1]]))
-	rn <- as.character(1:n)
+        rn <- as.character(1:n)
     if(need.uniq) ## Need to 'uniquify' the triplets!
-	from <- uniqTsparse(from)
+        from <- uniqTsparse(from)
 
     if(is.null(edgemode))
         edgemode <-
@@ -118,7 +119,7 @@ T2graph <- function(from, need.uniq = is_not_uniqT(from), edgemode = NULL)
     ft1 <- cbind(rn[from@i + 1L], rn[from@j + 1L])
     graph::ftM2graphNEL(ft1,
                         W = if(.hasSlot(from,"x")) as.numeric(from@x),
-			V = rn,
+                        V = rn,
                         edgemode = edgemode)
 }
 
@@ -129,10 +130,10 @@ setAs("graphAM", "TsparseMatrix",
       function(from) {
           symm <- graph::edgemode(from) == "undirected" &&
               isSymmetric(from@adjMat)
-	  if(graph.has.weights(from))
-	      .m2sparse(graph.wgtMatrix(from), if(symm) "dsT" else "dgT")
+          if(graph.has.weights(from))
+              .m2sparse(graph.wgtMatrix(from), if(symm) "dsT" else "dgT")
           else ## no weights: 0/1 matrix -> pattern
-	      .m2sparse(   as(from, "matrix"), if(symm) "nsT" else "ngT")
+              .m2sparse(   as(from, "matrix"), if(symm) "nsT" else "ngT")
       })
 setAs("graphNEL", "TsparseMatrix",
       function(from) graph2T(from))

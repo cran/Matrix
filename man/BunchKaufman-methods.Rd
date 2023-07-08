@@ -1,6 +1,10 @@
 \name{BunchKaufman-methods}
-\title{Bunch-Kaufman Decomposition Methods}
+\title{Methods for Bunch-Kaufman Factorization}
+%
 \docType{methods}
+\keyword{algebra}
+\keyword{array}
+\keyword{methods}
 %
 \alias{BunchKaufman}
 \alias{BunchKaufman-methods}
@@ -10,75 +14,94 @@
 \alias{BunchKaufman,matrix-method}
 %
 \description{
-  The Bunch-Kaufman Decomposition of a square symmetric matrix \eqn{A}
-  is \eqn{A = P LDL' P'} where \eqn{P} is a permutation matrix, \eqn{L}
-  is \emph{unit}-lower triangular and \eqn{D} is \emph{block}-diagonal
-  with blocks of dimension \eqn{1\times 1}{1 x 1} or \eqn{2\times2}{2 x 2}.
-
-  This is generalization of a pivoting \eqn{LDL'} Cholesky decomposition.
+  Computes the Bunch-Kaufman factorization of an \eqn{n \times n}{n-by-n}
+  real, symmetric matrix \eqn{A}, which has the general form
+  \deqn{A = U D_{U} U' = L D_{L} L'}{A = U * DU * U' = L * DL * L'}
+  where
+  \eqn{D_{U}}{DU} and \eqn{D_{L}}{DL} are symmetric, block diagonal
+  matrices composed of \eqn{b_{U}}{bU} and \eqn{b_{L}}{bL}
+  \eqn{1 \times 1}{1-by-1} or \eqn{2 \times 2}{2-by-2} diagonal blocks;
+  \eqn{U = \prod_{k = 1}^{b_{U}} P_{k} U_{k}}{U = prod(Pk * Uk : k = 1,...,bU)}
+  is the product of \eqn{b_{U}}{bU} row-permuted unit upper triangular
+  matrices, each having nonzero entries above the diagonal in 1 or 2 columns;
+  and
+  \eqn{L = \prod_{k = 1}^{b_{L}} P_{k} L_{k}}{L = prod(Pk * Lk : k = 1,...,bL)}
+  is the product of \eqn{b_{L}}{bL} row-permuted unit lower triangular
+  matrices, each having nonzero entries below the diagonal in 1 or 2 columns.
+  
+  Methods are built on LAPACK routines \code{dsytrf} and \code{dsptrf}.
 }
 \usage{
-\S4method{BunchKaufman}{dsyMatrix}(x, \dots)
-\S4method{BunchKaufman}{dspMatrix}(x, \dots)
-\S4method{BunchKaufman}{matrix}(x, uplo = NULL, \dots)
+BunchKaufman(x, \dots)
+\S4method{BunchKaufman}{dsyMatrix}(x, warnSing = TRUE, \dots)
+\S4method{BunchKaufman}{dspMatrix}(x, warnSing = TRUE, \dots)
+\S4method{BunchKaufman}{matrix}(x, uplo = "U", \dots)
 }
 \arguments{
-  \item{x}{a symmetric square matrix.}
-  \item{uplo}{optional string, \code{"U"} or \code{"L"} indicating which
-    \dQuote{triangle} half of \code{x} should determine the result.  The
-    default is \code{"U"} unless \code{x} has a \code{uplo} slot which is
-    the case for those inheriting from class \code{\linkS4class{symmetricMatrix}},
-    where \code{x@uplo} will be used.}
-  \item{\dots}{potentially further arguments passed to methods.}
-}
-\section{Methods}{
-  Currently, only methods for \bold{dense} numeric symmetric matrices
-  are implemented.  To compute the Bunch-Kaufman decomposition, the methods
-  use either one of two Lapack routines:
-  \describe{
-    \item{\code{x = "dspMatrix"}}{routine \code{dsptrf()}; whereas}
-    \item{\code{x = "dsyMatrix"}}{, and}
-    \item{\code{x = "matrix"}}{use \code{dsytrf()}.}
-  }
+  \item{x}{a \link[=is.finite]{finite} symmetric matrix or
+    \code{\linkS4class{Matrix}} to be factorized.
+    If \code{x} is square but not symmetric, then it will be
+    \emph{treated} as symmetric; see \code{uplo}.}
+  \item{warnSing}{a logical indicating if a \link{warning} should
+    be signaled for singular \code{x}.}
+  \item{uplo}{a string, either \code{"U"} or \code{"L"},
+    indicating which triangle of \code{x} should be used
+    to compute the factorization.}
+  \item{\dots}{further arguments passed to or from methods.}
 }
 \value{
-  an object of class \code{\linkS4class{BunchKaufman}}, which can also
-  be used as a (triangular) matrix directly.  Somewhat amazingly,
-  it inherits its \code{uplo} slot from \code{x}.% FIXME?
-}
-\details{
-  FIXME: We really need an \code{expand()} method in order to \emph{work} with the result!
-}
-\references{
-  The original LAPACK source code, including documentation;
-  \url{https://netlib.org/lapack/double/dsytrf.f} and
-  \url{https://netlib.org/lapack/double/dsptrf.f}
+  An object representing the factorization, inheriting from
+  virtual class \code{\linkS4class{BunchKaufmanFactorization}}.
+  The specific class is \code{\linkS4class{BunchKaufman}} unless
+  \code{x} inherits from virtual class \code{\linkS4class{packedMatrix}},
+  in which case it is \code{\linkS4class{pBunchKaufman}}.
 }
 \seealso{
-  The resulting class, \code{\linkS4class{BunchKaufman}}.
-  Related decompositions are the LU,  \code{\link{lu}}, and the Cholesky,
-  \code{\link{chol}} (and for \emph{sparse} matrices,
-  \code{\link{Cholesky}}).
+  Classes \code{\linkS4class{BunchKaufman}} and
+  \code{\linkS4class{pBunchKaufman}} and their methods.
+  
+  Classes \code{\linkS4class{dsyMatrix}} and
+  \code{\linkS4class{dspMatrix}}.
+  
+  Generic functions \code{\link{expand1}} and \code{\link{expand2}},
+  for constructing matrix factors from the result.
+  
+  Generic functions \code{\link{Cholesky}}, \code{\link{Schur}},
+  \code{\link{lu}}, and \code{\link{qr}},
+  for computing other factorizations.
+}
+\references{
+  The LAPACK source code, including documentation; see
+  \url{https://netlib.org/lapack/double/dsytrf.f} and
+  \url{https://netlib.org/lapack/double/dsptrf.f}.
+
+  Golub, G. H., & Van Loan, C. F. (2013).
+  \emph{Matrix computations} (4th ed.).
+  Johns Hopkins University Press.
+  \doi{10.56021/9781421407944}
 }
 \examples{
-data(CAex)
-dim(CAex)
-isSymmetric(CAex)# TRUE
-CAs <- as(CAex, "symmetricMatrix")
-if(FALSE) # no method defined yet for *sparse* :
-   bk. <- BunchKaufman(CAs)
-## does apply to *dense* symmetric matrices:
-bkCA <- BunchKaufman(as(CAs, "denseMatrix"))
-bkCA
-pkCA <- pack(bkCA)
-stopifnot(is(bkCA, "triangularMatrix"),
-          is(pkCA, "triangularMatrix"),
-          is(pkCA, "packedMatrix"))
-
-image(bkCA)# shows how sparse it is, too
-str(R.CA <- as(bkCA, "sparseMatrix"))
-## an upper triangular 72x72 matrix with only 144 non-zero entries
-stopifnot(is(R.CA, "triangularMatrix"), is(R.CA, "CsparseMatrix"))
+\dontshow{ % for R_DEFAULT_PACKAGES=NULL
+library(utils, pos = "package:base", verbose = FALSE)
 }
-\keyword{methods}
+showMethods("BunchKaufman", inherited = FALSE)
+set.seed(0)
 
+data(CAex, package = "Matrix")
+class(CAex) # dgCMatrix
+isSymmetric(CAex) # symmetric, but not formally
+
+A <- as(CAex, "symmetricMatrix")
+class(A) # dsCMatrix
+
+## Have methods for denseMatrix (unpacked and packed),
+## but not yet sparseMatrix ...
+\dontrun{
+(bk.A <- BunchKaufman(A))
+}
+(bk.A <- BunchKaufman(as(A, "unpackedMatrix")))
+
+## A ~ U DU U' in floating point
+str(e.bk.A <- expand2(bk.A), max.level = 2L)
+stopifnot(all.equal(as(A, "matrix"), as(Reduce(`\%*\%`, e.bk.A), "matrix")))
+}

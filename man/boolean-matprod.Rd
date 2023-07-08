@@ -1,10 +1,15 @@
-\name{\%&\%-methods}
+\name{boolmatmult-methods}
 \title{Boolean Arithmetic Matrix Products: \code{\%&\%} and Methods}
-\docType{methods}
 %
-\concept{boolean matrix products}
+\docType{methods}
+\keyword{algebra}
+\keyword{array}
+\keyword{logic}
+\keyword{methods}
+%
 \alias{\%&\%}
 \alias{\%&\%-methods}
+\alias{boolmatmult-methods}
 %
 \alias{\%&\%,ANY,ANY-method}
 \alias{\%&\%,ANY,Matrix-method}
@@ -57,6 +62,10 @@
 \alias{\%&\%,nsparseMatrix,nMatrix-method}
 \alias{\%&\%,nsparseMatrix,nsparseMatrix-method}
 \alias{\%&\%,numLike,sparseVector-method}
+\alias{\%&\%,pMatrix,Matrix-method}
+\alias{\%&\%,pMatrix,indMatrix-method}
+\alias{\%&\%,pMatrix,matrix-method}
+\alias{\%&\%,pMatrix,pMatrix-method}
 \alias{\%&\%,sparseMatrix,mMatrix-method}
 \alias{\%&\%,sparseMatrix,sparseMatrix-method}
 \alias{\%&\%,sparseVector,mMatrix-method}
@@ -103,7 +112,7 @@
   the matrix before using it.
   \cr
   Equivalently, for all matrices \code{M}, boolean arithmetic should work as if
-  applied to \code{M != 0} (or \code{M != FALSE}.
+  applied to \code{M != 0} (or \code{M != FALSE}).
 
   The current implementation ends up coercing both \code{x} and \code{y} to
   (virtual) class \code{\linkS4class{nsparseMatrix}} which may be quite inefficient
@@ -120,6 +129,9 @@
   or an \code{"\linkS4class{ldiMatrix}"} in case of a diagonal matrix.
 }
 \examples{
+\dontshow{ % for R_DEFAULT_PACKAGES=NULL
+library(stats, pos = "package:base", verbose = FALSE)
+}
 set.seed(7)
 L <- Matrix(rnorm(20) > 1,    4,5)
 (N <- as(L, "nMatrix"))
@@ -139,4 +151,3 @@ crossprod(D, boolArith =  TRUE) # pattern: "nsCMatrix"
 crossprod(L, boolArith =  TRUE) #  ditto
 crossprod(L, boolArith = FALSE) # numeric: "dsCMatrix"
 }
-\keyword{methods}

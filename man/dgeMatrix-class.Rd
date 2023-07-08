@@ -1,6 +1,9 @@
 \name{dgeMatrix-class}
 \title{Class "dgeMatrix" of Dense Numeric (S4 Class) Matrices}
+%
 \docType{class}
+\keyword{array}
+\keyword{classes}
 %
 \alias{dgeMatrix-class}
 %
@@ -79,5 +82,3 @@
 
 }
 %\examples{}
-\keyword{classes}
-\keyword{algebra}

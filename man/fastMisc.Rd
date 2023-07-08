@@ -1,6 +1,8 @@
 \name{fastMisc}
 \title{\dQuote{Low Level} Coercions and Methods}
 %
+\keyword{utilities}
+%
 \alias{fastMisc}
 % coercions:
 \alias{.CR2RC}
@@ -29,6 +31,7 @@
 \alias{.solve.dgC.chol}
 \alias{.solve.dgC.lu}
 \alias{.solve.dgC.qr}
+\alias{.updateCHMfactor}
 %
 \description{
   \dQuote{Semi-API} functions used internally by \pkg{Matrix},
@@ -56,7 +59,7 @@
 .sparse2kind(from, kind, drop0 = FALSE)
 
 .dense2g(from, kind = ".")
-.sparse2g(from)
+.sparse2g(from, kind = ".")
 
 .dense2sparse(from, repr = "C")
 .sparse2dense(from, packed = FALSE)
@@ -75,6 +78,8 @@
 .solve.dgC.chol(a, b, check = TRUE)
 .solve.dgC.lu  (a, b, tol = .Machine$double.eps, check = TRUE)
 .solve.dgC.qr  (a, b, order = 3L, check = TRUE)
+
+.updateCHMfactor(object, parent, mult = 0)
 }
 \arguments{
   \item{from}{a \code{\linkS4class{Matrix}}, matrix, or vector.}
@@ -118,7 +123,7 @@
     \code{x}; if \code{Chx} is specified, \code{x} is unneeded.}
   \item{res.kind}{a string, one of \code{"trace", "sumLog", "prod", "min",
       "max", "range", "diag", "diagBack"}.}
-  %% solve.dgC.*()  --> ../R/solve.R :
+  %% .solve.dgC.*():  { in ../R/solve.R }
   \item{a}{a numeric symmetric sparse column-compressed
     \code{"\linkS4class{dsCMatrix}"}.}
   \item{b}{a vector or matrix, the \dQuote{right hand side} \eqn{b}
@@ -130,7 +135,15 @@
     in the LU decomposition.}
   \item{order}{only used for \code{.solve.dgC.qr()}; integer code in \code{0:3},
     determining which \dQuote{symbolic Cholesky} method in \sQuote{AMD} is
-    used; see \code{\link[MatrixModels]{lm.fit.sparse}} in package \CRANpkg{MatrixModels}.}
+    used; see \code{lm.fit.sparse} in package \CRANpkg{MatrixModels}.}
+  %% .updateCHMfactor():
+  \item{object}{a Cholesky factorization inheriting from virtual class
+    \code{CHMfactor}, almost always the result of a call to generic
+    function \code{\link{Cholesky}}.}
+  \item{parent}{an object of class \code{\linkS4class{dsCMatrix}}
+    or class \code{\linkS4class{dgCMatrix}}.}
+  \item{mult}{a numeric vector of postive length.  Only the first
+    element is used.  It must be finite.}
 }
 \details{
   Functions with names of the form \code{.<A>2<B>} implement coercions
@@ -138,20 +151,20 @@
   virtual class B, where the virtual classes are abbreviated as follows:
 
   \describe{
-    \item{M}{\code{\linkS4class{Matrix}}, matrix, or vector}
-    \item{m}{matrix}
-    \item{v}{vector}
-    \item{g}{\code{\linkS4class{generalMatrix}}}
-    \item{C}{\code{\linkS4class{CsparseMatrix}}}
-    \item{R}{\code{\linkS4class{RsparseMatrix}}}
-    \item{T}{\code{\linkS4class{TsparseMatrix}}}
-    \item{dense}{\code{\linkS4class{denseMatrix}}}
-    \item{sparse}{\code{\linkS4class{CsparseMatrix}},
+    \item{\code{M}}{\code{\linkS4class{Matrix}}, matrix, or vector}
+    \item{\code{m}}{matrix}
+    \item{\code{v}}{vector}
+    \item{\code{g}}{\code{\linkS4class{generalMatrix}}}
+    \item{\code{C}}{\code{\linkS4class{CsparseMatrix}}}
+    \item{\code{R}}{\code{\linkS4class{RsparseMatrix}}}
+    \item{\code{T}}{\code{\linkS4class{TsparseMatrix}}}
+    \item{\code{dense}}{\code{\linkS4class{denseMatrix}}}
+    \item{\code{sparse}}{\code{\linkS4class{CsparseMatrix}},
       \code{\linkS4class{RsparseMatrix}}, or
       \code{\linkS4class{TsparseMatrix}}}
-    \item{tri}{\code{\linkS4class{triangularMatrix}}}
-    \item{sym}{\code{\linkS4class{symmetricMatrix}}}
-    \item{diag}{\code{\linkS4class{diagonalMatrix}}}
+    \item{\code{tri}}{\code{\linkS4class{triangularMatrix}}}
+    \item{\code{sym}}{\code{\linkS4class{symmetricMatrix}}}
+    \item{\code{diag}}{\code{\linkS4class{diagonalMatrix}}}
   }
 
   Abbreviations should be seen as guides, rather than as an exact
@@ -174,21 +187,37 @@
   drop-in replacements for \code{as(., "*Matrix")}, but allowing users
   to pass optional arguments to the structure-checking functions.
 
-  \subsection{\code{.diag.dsC(x)}}{computes (or uses if \code{Chx} is
-    specified) the \eqn{LDL'} Cholesky decomposition of \code{x}, returning
-    diverse diagonal / determinant related statistics, for different result kinds,
-    see \code{res.kind} in \sQuote{Arguments} above.
+  \subsection{\code{.diag.dsC(x)}}{
+    This computes (or uses if \code{Chx} is specified) the Cholesky
+    factorization of \code{x} as \eqn{L D L'} in order to calculate
+    one of several statistics from the diagonal entries of \eqn{D}.
+    See \code{res.kind} under \sQuote{Arguments}.
   }
-  \subsection{\code{.solve.dgC.*()}}{
-    Note that \code{.solve.dgC.lu(a, ..)} needs a \emph{square} matrix
-    \code{a} and it and \code{.solve.dgC.qr(a, ..)} solve sparse \eqn{n \times n}{n * n}
-    matrix systems directly.
-
-    \code{.solve.dgC.qr()} and \code{.solve.dgC.chol()} may both be used to solve
-    sparse \emph{least squares} problems.
+  \subsection{\code{.solve.dgC.*(a, b)}}{
+    \code{.solve.dgC.lu(a, b)} needs a square matrix \code{a}.
+    \code{.solve.dgC.qr(a, b)} needs a \dQuote{long} matrix \code{a},
+    with \code{nrow(a) >= ncol(a)}.
+    \code{.solve.dgC.chol(a, b)} needs a symmetric, positive definite
+    matrix \code{a}.
+    
+    All three may be used to solve sparse systems directly.
+    Only \code{.solve.dgC.qr} and \code{.solve.dgC.chol} be used
+    to solve sparse \emph{least squares} problems.
+  }
+  \subsection{\code{.updateCHMfactor(object, parent, mult)}}{
+    This updates \code{object} with the result of Cholesky factorizing
+    \code{F(parent) + mult[1] * diag(nrow(parent))}, i.e.,
+    \code{F(parent)} plus \code{mult[1]} times the identity matrix,
+    where \code{F = identity} if \code{parent} is a \code{dsCMatrix}
+    and \code{F = tcrossprod} if \code{parent} is a \code{dgCMatrix}.
+    The nonzero pattern of \code{F(parent)} must match
+    that of \code{S} if \code{object = Cholesky(S, ...)}.
   }
 }
 \examples{
+\dontshow{ % for R_DEFAULT_PACKAGES=NULL
+library(utils, pos = "package:base", verbose = FALSE)
+}
 D. <- diag(x = c(1, 1, 2, 3, 5, 8))
 D.0 <- Diagonal(x = c(0, 0, 0, 3, 5, 8))
 S. <- toeplitz(as.double(1:6))
@@ -216,8 +245,7 @@ stopifnot(identical(.M2tri( D.), as(D., "triangularMatrix")),
 A <- tcrossprod(C.)/6 + Diagonal(3, 1/3); A[1,2] <- 3; A
 stopifnot(exprs = {
     is.numeric( x. <- c(2.2, 0, -1.2) )
-    all.equal(.solve.dgC.lu(A, c(1,0,0), check=FALSE),
-              Matrix(x.))
+    all.equal(x., .solve.dgC.lu(A, c(1,0,0), check=FALSE))
     all.equal(x., .solve.dgC.qr(A, c(1,0,0), check=FALSE))
 })
 

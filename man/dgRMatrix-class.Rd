@@ -1,6 +1,9 @@
 \name{dgRMatrix-class}
 \title{Sparse Compressed, Row-oriented Numeric Matrices}
+%
 \docType{class}
+\keyword{array}
+\keyword{classes}
 %
 \alias{dgRMatrix-class}
 %
@@ -48,5 +51,3 @@
   The \code{\linkS4class{dgCMatrix}} class (\bold{c}olumn compressed
   sparse) is really preferred.
 }
-\keyword{classes}
-\keyword{algebra}

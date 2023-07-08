@@ -258,7 +258,8 @@ tstMatrixClass <-
 		stopifnot(Qidentical(m, m0.)); cat("ok; ")
 	    }
             is_p <- extends(clD, "indMatrix")
-            is_cor <- extends(clD, "corMatrix") # has diagonal divided out
+            is_cor <- extends(clD, "corMatrix") || extends(clD, "pcorMatrix")
+            ## ^^^ has diagonal divided out
 	    if(canCoerce(mm, clNam)) { ## replace 'm' by `non-empty' version
 		cat("canCoerce(mm, *) ")
 		m0 <- {

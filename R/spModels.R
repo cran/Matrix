@@ -501,11 +501,13 @@ model.spmatrix <- function(trms, mf, transpose=FALSE,
 				  factorPatt12 = 1:2 %in% fp,
 				  contrasts.arg = contr),
 		       function(s) {
-			   if(is.null(s)) return(s)
-			   ## else
-			   rownames(s) <- ## for some contr.*(), have lost rownames; hmm..
-			       paste(nam, rownames(s) %||% seq_len(nrow(s)), sep=sep)
-			   s
+                           if(!is.null(s)) {
+                               ## for some contr.*(), have lost rownames; hmm..
+                               if(is.null(rn <- rownames(s)))
+                                   rn <- seq_len(nrow(s))
+                               rownames(s) <- paste(nam, rn, sep = sep)
+			   }
+                           s
 		       })
 	} else { ## continuous variable --> "matrix" - for all of them
 	    if(any(iA <- (cl <- class(f)) == "AsIs")) # drop "AsIs" class

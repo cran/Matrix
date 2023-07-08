@@ -1,6 +1,8 @@
 #### Testing  cbind() & rbind() -- based on cbind2() & rbind2()
 ##   (where using 'cBind()' and 'rBind()' in  Matrix)
 
+## for R_DEFAULT_PACKAGES=NULL :
+library(utils)
 
 library(Matrix)
 

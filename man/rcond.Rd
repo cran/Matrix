@@ -1,17 +1,26 @@
-\name{rcond}
+\name{rcond-methods}
 \title{Estimate the Reciprocal Condition Number}
 %
+\docType{methods}
+\keyword{algebra}
+\keyword{math}
+\keyword{methods}
+%
 \alias{rcond}
+\alias{rcond-methods}
 %
 \alias{rcond,ANY,missing-method}
 \alias{rcond,denseMatrix,character-method}
 \alias{rcond,dgeMatrix,character-method}
+\alias{rcond,diagonalMatrix,character-method}
 \alias{rcond,dpoMatrix,character-method}
 \alias{rcond,dppMatrix,character-method}
 \alias{rcond,dspMatrix,character-method}
 \alias{rcond,dsyMatrix,character-method}
 \alias{rcond,dtpMatrix,character-method}
 \alias{rcond,dtrMatrix,character-method}
+\alias{rcond,indMatrix,character-method}
+\alias{rcond,pMatrix,character-method}
 \alias{rcond,sparseMatrix,character-method}
 %
 \usage{
@@ -98,6 +107,9 @@ rcond(x, norm, \dots)
   2nd edition, Johns Hopkins, Baltimore.
 }
 \examples{
+\dontshow{ % for R_DEFAULT_PACKAGES=NULL
+library(stats, pos = "package:base", verbose = FALSE)
+}
 x <- Matrix(rnorm(9), 3, 3)
 rcond(x)
 ## typically "the same" (with more computational effort):
@@ -134,5 +146,3 @@ cbind(rr <- sapply(c("1","I","F","M"),
              function(N) rcond(M3, norm=N, useInv=TRUE)))
 \dontshow{stopifnot(all.equal(r., 1/72, tolerance=1e-12))}
 }
-\keyword{array}
-\keyword{algebra}

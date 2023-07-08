@@ -1,5 +1,9 @@
 \name{bdiag}
 \title{Construct a Block Diagonal Matrix}
+%
+\keyword{array}
+\keyword{utilities}
+%
 \alias{bdiag}
 \alias{.bdiag}
 \description{
@@ -50,6 +54,9 @@ bdiag(\dots)
   which return traditional matrices.
 }
 \examples{
+\dontshow{ % for R_DEFAULT_PACKAGES=NULL
+library(stats, pos = "package:base", verbose = FALSE)
+}
 bdiag(matrix(1:4, 2), diag(3))
 ## combine "Matrix" class and traditional matrices:
 bdiag(Diagonal(2), matrix(1:3, 3,4), diag(3:2))
@@ -69,7 +76,7 @@ stopifnot(is(bdiag(ml), "lsparseMatrix"),% failed in Matrix <= 1.0-2
 rblockTri <- function(nb, max.ni, lambda = 3) {
    .bdiag(replicate(nb, {
          n <- sample.int(max.ni, 1)
-         tril(Matrix(rpois(n*n, lambda=lambda), n,n)) }))
+         tril(Matrix(rpois(n * n, lambda = lambda), n, n)) }))
 }
 
 (T4 <- rblockTri(4, 10, lambda = 1))
@@ -97,8 +104,8 @@ bdiag_m <- function(lmat) {
         x = as.double(unlist(lmat, recursive=FALSE, use.names=FALSE)))
 }
 
-l12 <- replicate(12, matrix(rpois(16, lambda = 6.4), 4,4), simplify=FALSE)
+l12 <- replicate(12, matrix(rpois(16, lambda = 6.4), 4, 4),
+                 simplify=FALSE)
 dim(T12 <- bdiag_m(l12))# 48 x 48
 T12[1:20, 1:20]
 }
-\keyword{array}

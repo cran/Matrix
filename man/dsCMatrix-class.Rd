@@ -1,6 +1,9 @@
 \name{dsCMatrix-class}
 \title{Numeric Symmetric Sparse (column compressed) Matrices}
+%
 \docType{class}
+\keyword{array}
+\keyword{classes}
 %
 \alias{dsCMatrix-class}
 \alias{dsTMatrix-class}
@@ -94,6 +97,9 @@
   \code{\linkS4class{dgeMatrix}} and those mentioned above.
 }
 \examples{
+\dontshow{ % for R_DEFAULT_PACKAGES=NULL
+library(utils, pos = "package:base", verbose = FALSE)
+}
 mm <- Matrix(toeplitz(c(10, 0, 1, 0, 3)), sparse = TRUE)
 mm # automatically dsCMatrix
 str(mm)
@@ -114,5 +120,3 @@ stopifnot(identical(sT, symM), identical(sym2, symM),
 	  identical(sym2[,2], sT[,2]))
 }
 }
-\keyword{classes}
-\keyword{algebra}

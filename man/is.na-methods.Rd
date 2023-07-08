@@ -1,11 +1,21 @@
 \name{is.na-methods}
 \title{is.na(), is.finite() Methods for 'Matrix' Objects}
-\docType{methods}
 %
+\docType{methods}
+\keyword{NA}
+\keyword{math}
+\keyword{programming}
+\keyword{methods}
+%
+\alias{is.na}
 \alias{is.na-methods}
+\alias{is.nan}
 \alias{is.nan-methods}
+\alias{is.finite}
 \alias{is.finite-methods}
+\alias{is.infinite}
 \alias{is.infinite-methods}
+\alias{anyNA}
 \alias{anyNA-methods}
 %
 \alias{is.na,abIndex-method}
@@ -131,4 +141,3 @@ A[2, 3] <- A[1, 2] <- A[5, 5:9] <- NA
 (inA <- is.na(A))
 stopifnot(anyNA(A), sum(inA) == 1 + 1 + 5)
 }
-\keyword{methods}

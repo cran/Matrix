@@ -1,12 +1,75 @@
-\name{cBind}
+\name{cbind2-methods}
 \title{'cbind()' and 'rbind()' recursively built on cbind2/rbind2}
 %
-%% needed here instead of in ./sparseMatrix.Rd and ./denseMatrix.Rd
-%% only because we use \S4Method{} below:
+\docType{methods}
+\keyword{array}
+\keyword{manip}
+\keyword{methods}
+%
+\alias{cbind2}
+\alias{cbind2-methods}
+\alias{rbind2}
+\alias{rbind2-methods}
+%
+\alias{cbind2,ANY,Matrix-method}
+\alias{cbind2,Matrix,ANY-method}
+\alias{cbind2,Matrix,Matrix-method}
+\alias{cbind2,Matrix,NULL-method}
+\alias{cbind2,Matrix,atomicVector-method}
+\alias{cbind2,Matrix,missing-method}
+\alias{cbind2,NULL,Matrix-method}
+\alias{cbind2,atomicVector,Matrix-method}
+\alias{cbind2,atomicVector,ddiMatrix-method}
+\alias{cbind2,atomicVector,ldiMatrix-method}
+\alias{cbind2,ddiMatrix,atomicVector-method}
+\alias{cbind2,ddiMatrix,matrix-method}
+\alias{cbind2,denseMatrix,denseMatrix-method}
+\alias{cbind2,denseMatrix,matrix-method}
+\alias{cbind2,denseMatrix,numeric-method}
 \alias{cbind2,denseMatrix,sparseMatrix-method}
+\alias{cbind2,diagonalMatrix,sparseMatrix-method}
+\alias{cbind2,indMatrix,indMatrix-method}
+\alias{cbind2,ldiMatrix,atomicVector-method}
+\alias{cbind2,ldiMatrix,matrix-method}
+\alias{cbind2,matrix,ddiMatrix-method}
+\alias{cbind2,matrix,denseMatrix-method}
+\alias{cbind2,matrix,ldiMatrix-method}
+\alias{cbind2,matrix,sparseMatrix-method}
+\alias{cbind2,numeric,denseMatrix-method}
 \alias{cbind2,sparseMatrix,denseMatrix-method}
+\alias{cbind2,sparseMatrix,diagonalMatrix-method}
+\alias{cbind2,sparseMatrix,matrix-method}
+\alias{cbind2,sparseMatrix,sparseMatrix-method}
+%
+\alias{rbind2,ANY,Matrix-method}
+\alias{rbind2,Matrix,ANY-method}
+\alias{rbind2,Matrix,Matrix-method}
+\alias{rbind2,Matrix,NULL-method}
+\alias{rbind2,Matrix,atomicVector-method}
+\alias{rbind2,Matrix,missing-method}
+\alias{rbind2,NULL,Matrix-method}
+\alias{rbind2,atomicVector,Matrix-method}
+\alias{rbind2,atomicVector,ddiMatrix-method}
+\alias{rbind2,atomicVector,ldiMatrix-method}
+\alias{rbind2,ddiMatrix,atomicVector-method}
+\alias{rbind2,ddiMatrix,matrix-method}
+\alias{rbind2,denseMatrix,denseMatrix-method}
+\alias{rbind2,denseMatrix,matrix-method}
+\alias{rbind2,denseMatrix,numeric-method}
 \alias{rbind2,denseMatrix,sparseMatrix-method}
+\alias{rbind2,diagonalMatrix,sparseMatrix-method}
+\alias{rbind2,indMatrix,indMatrix-method}
+\alias{rbind2,ldiMatrix,atomicVector-method}
+\alias{rbind2,ldiMatrix,matrix-method}
+\alias{rbind2,matrix,ddiMatrix-method}
+\alias{rbind2,matrix,denseMatrix-method}
+\alias{rbind2,matrix,ldiMatrix-method}
+\alias{rbind2,matrix,sparseMatrix-method}
+\alias{rbind2,numeric,denseMatrix-method}
 \alias{rbind2,sparseMatrix,denseMatrix-method}
+\alias{rbind2,sparseMatrix,diagonalMatrix-method}
+\alias{rbind2,sparseMatrix,matrix-method}
+\alias{rbind2,sparseMatrix,sparseMatrix-method}
 %
 \description{
   The base functions \code{\link{cbind}} and \code{\link{rbind}} are
@@ -76,6 +139,3 @@ D <- Diagonal(2)
 stopifnot(validObject(M2), inherits(M2, "sparseMatrix"),
           dim(M2) == c(2,9))
 }
-\keyword{array}
-\keyword{manip}
-

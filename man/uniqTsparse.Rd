@@ -1,7 +1,14 @@
 \name{uniqTsparse}
 \title{Unique (Sorted) TsparseMatrix Representations}
+%
+\keyword{array}
+\keyword{logic}
+\keyword{manip}
+\keyword{utilities}
+%
 \alias{uniqTsparse}
 \alias{anyDuplicatedT}
+%
 \description{
   Detect or \dQuote{unify} (or \dQuote{standardize}) non-unique
   \code{\linkS4class{TsparseMatrix}} matrices, prducing unique
@@ -49,6 +56,10 @@ anyDuplicatedT(x, di = dim(x))
  \code{\linkS4class{dgTMatrix}}.
 }
 \examples{
+\dontshow{ % for R_DEFAULT_PACKAGES=NULL
+library(stats, pos = "package:base", verbose = FALSE)
+library(utils, pos = "package:base", verbose = FALSE)
+}
 example("dgTMatrix-class", echo=FALSE)
 ## -> 'T2'  with (i,j,x) slots of length 5 each
 T2u <- uniqTsparse(T2)
@@ -91,5 +102,3 @@ stopifnot(identical(10L, which(is.na(m.0N))), !anyNA(m.1N))
 symnum(m.0N)
 symnum(m.1N)
 }
-\keyword{utilities}
-\keyword{classes}

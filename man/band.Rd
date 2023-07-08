@@ -1,6 +1,9 @@
-\name{band}
+\name{band-methods}
 \title{Extract bands of a matrix}
+%
 \docType{methods}
+\keyword{array}
+\keyword{methods}
 %
 \alias{band}
 \alias{band-methods}
@@ -38,8 +41,8 @@
 }
 \usage{
 band(x, k1, k2, \dots)
-triu(x, k = 0, \dots)
-tril(x, k = 0, \dots)
+triu(x, k = 0L, \dots)
+tril(x, k = 0L, \dots)
 }
 \arguments{
   \item{x}{a matrix-like object}
@@ -81,6 +84,9 @@ tril(x, k = 0, \dots)
   banded sparse matrix directly from its non-zero diagonals.
 }
 \examples{
+\dontshow{ % for R_DEFAULT_PACKAGES=NULL
+library(stats, pos = "package:base", verbose = FALSE)
+}
 ## A random sparse matrix :
 set.seed(7)
 m <- matrix(0, 5, 5)
@@ -117,5 +123,3 @@ stopifnot(identical(triu(x.x), t(tril(x.x))),
 	  identical(as(x.x, "generalMatrix"), as(txx, "generalMatrix")))
 }
 }
-\keyword{methods}
-\keyword{algebra}

@@ -1,89 +1,118 @@
-#### Define those generics that we need, if they don't exist;
-#### not all will be exported
+## NB: Here, we do _not_ define generic versions of functions that:
+##     * are already (S3) generic in their package of origin
+##       (e.g., isSymmetric), because our first setMethod call
+##       will define a correct (S4) generic function automatically
+##     * already have _implicit_ generic definitions in package
+##       methods (e.g., qr.R); see methods/R/makeBasicFunsList.R
 
-    setGeneric("expand", function(x, ...) standardGeneric("expand"))
+setGeneric("%&%",
+           function(x, y)
+               standardGeneric("%&%"))
 
+setGeneric("BunchKaufman",
+           function(x, ...)
+               standardGeneric("BunchKaufman"))
 
-setGeneric("isDiagonal", function(object) standardGeneric("isDiagonal"))
-
-setGeneric("isTriangular", function(object, upper = NA, ...)
-	   standardGeneric("isTriangular"))
-
-## Boolean Arithmetic Matrix multiplication
-setGeneric("%&%", function (x, y)  standardGeneric("%&%"))
-
-
-## isSymmetric is "S3 generic" in R's  base/R/eigen.R
-
-    setGeneric("facmul",
-               function(x, factor, y, transpose, left, ...)
-               standardGeneric("facmul"))
-
-setGeneric("BunchKaufman", function(x, ...) standardGeneric("BunchKaufman"))
-setGeneric("lu", function(x, ...) standardGeneric("lu"))
-
-##NB ## do not redefine the "base signature"
-
-##NB setGeneric("chol", def = function(x, pivot= FALSE,...) standardGeneric("chol"),
-##NB            useAsDefault= function(x, pivot= FALSE,...) base::chol(x, pivot, ...))
-
-##NB     setGeneric("qr", def =   function(x, tol=1e-7,...) standardGeneric("qr"),
-##NB                useAsDefault= function(x, tol=1e-7,...) base::qr(x, tol, ...))
-
-if(is.na(match("...", names(formals(implicitGeneric("crossprod")))))) {
-    ## base:crossprod() has no '...', but since 2015-03, there's an implicit generic
-    setGeneric("crossprod", function(x, y=NULL, ...) standardGeneric("crossprod"),
-               useAsDefault= function(x, y=NULL, ...) base::crossprod(x, y))
-    setGeneric("tcrossprod", function(x, y=NULL, ...) standardGeneric("tcrossprod"),
-               useAsDefault= function(x, y=NULL, ...) base::tcrossprod(x, y))
-}
-
-    setGeneric("Schur", function(x, vectors, ...) standardGeneric("Schur"))
-
-setGeneric("unpack", function(x, ...) standardGeneric("unpack"))
-setGeneric("pack", function(x, ...) standardGeneric("pack"))
-
-
-    setGeneric("expm", function(x) standardGeneric("expm"))
-
-    setGeneric("writeMM", function(obj, file, ...)
-               standardGeneric("writeMM"))
-
-    setGeneric("tril", function(x, k = 0, ...)
-               standardGeneric("tril"))
-
-    setGeneric("triu", function(x, k = 0, ...)
-               standardGeneric("triu"))
-
-    setGeneric("band", function(x, k1, k2, ...)
-               standardGeneric("band"))
-
-    setGeneric("Cholesky",
-	       function(A, perm = TRUE, LDL = !super, super = FALSE,
-			Imult = 0, ...)
+setGeneric("Cholesky",
+           function(A, ...)
                standardGeneric("Cholesky"))
 
-setGeneric("symmpart", function(x) standardGeneric("symmpart"))
-setGeneric("skewpart", function(x) standardGeneric("skewpart"))
+setGeneric("Schur",
+           function(x, vectors = TRUE, ...)
+               standardGeneric("Schur"),
+           signature = "x")
 
-## A version of coercion to  "symmetric" which does *NOT* check,
-## but just takes the ## upper (or lower) values and
-## ``declares'' the result symmetric:
+setGeneric("band",
+           function(x, k1, k2, ...)
+               standardGeneric("band"),
+           signature = "x")
+
+setGeneric("expand",
+           function(x, ...)
+               standardGeneric("expand"))
+
+setGeneric("expand1",
+           function(x, which, ...)
+               standardGeneric("expand1"),
+           signature = "x")
+
+setGeneric("expand2",
+           function(x, ...)
+               standardGeneric("expand2"))
+
+setGeneric("expm",
+           function(x)
+               standardGeneric("expm"))
+
+setGeneric("facmul",
+           function(x, factor, y, trans = FALSE, left = TRUE, ...)
+               standardGeneric("facmul"),
+           signature = c("x", "y"))
+
 setGeneric("forceSymmetric",
-	   function(x, uplo) standardGeneric("forceSymmetric"))
+           function(x, uplo)
+               standardGeneric("forceSymmetric"))
 
-setGeneric("nnzero", function(x, na.counted = NA) standardGeneric("nnzero"),
-	   signature = "x")
+setGeneric("isDiagonal",
+           function(object)
+               standardGeneric("isDiagonal"))
 
-setGeneric("updown", function(update, C, L) standardGeneric("updown"))
+setGeneric("isTriangular",
+           function(object, upper = NA, ...)
+               standardGeneric("isTriangular"),
+           signature = "object")
+
+setGeneric("lu",
+           function(x, ...)
+               standardGeneric("lu"))
+
+setGeneric("nnzero",
+           function(x, na.counted = NA)
+               standardGeneric("nnzero"),
+           signature = "x")
+
+setGeneric("pack",
+           function(x, ...)
+               standardGeneric("pack"))
 
 if(FALSE)
-   ## only "need this", as 'Dvec' should not get its default from base::qr.Q :
-   ## unfortunately, this masks  base::qr.Q  with a warning
-setGeneric("qr.Q", function(qr, complete = FALSE, Dvec)
-	   standardGeneric("qr.Q"),
-	   useAsDefault = function(qr, complete = FALSE, Dvec) {
-	       if(missing(Dvec))
-		   base::qr.Q(qr, complete=complete)
-	       else base::qr.Q(qr, complete=complete, Dvec=Dvec)
-	   })
+## https://stat.ethz.ch/pipermail/r-devel/2023-June/082666.html
+setGeneric("qr.X",
+           function(qr, complete = FALSE, ncol, ...)
+               standardGeneric("qr.X"),
+           useAsDefault = function(qr, complete = FALSE, ncol, ...) {
+               if(missing(ncol))
+                   base::qr.X(qr, complete = complete)
+               else base::qr.X(qr, complete = complete, ncol = ncol)
+           },
+           signature = "qr")
+
+setGeneric("skewpart",
+           function(x)
+               standardGeneric("skewpart"))
+
+setGeneric("symmpart",
+           function(x)
+               standardGeneric("symmpart"))
+
+setGeneric("tril",
+           function(x, k = 0L, ...)
+               standardGeneric("tril"),
+           signature = "x")
+
+setGeneric("triu",
+           function(x, k = 0L, ...)
+               standardGeneric("triu"),
+           signature = "x")
+
+setGeneric("unpack",
+           function(x, ...)
+               standardGeneric("unpack"))
+
+setGeneric("updown",
+           function(update, C, L)
+               standardGeneric("updown"))
+
+setGeneric("writeMM",
+           function(obj, file, ...)
+               standardGeneric("writeMM"))

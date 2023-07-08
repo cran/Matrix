@@ -1,13 +1,13 @@
 ## METHODS FOR CLASS: dppMatrix
-## dense (packed) symmetric positive definite matrices
+## dense (packed) symmetric positive semidefinite matrices
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ## ~~~~ COERCIONS TO ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .dsp2dpp <- function(from) {
-    if(is.null(tryCatch(.Call(dppMatrix_trf, from, 2L),
+    if(is.null(tryCatch(Cholesky(from, perm = FALSE),
                         error = function(e) NULL)))
-        stop("not a positive definite matrix")
+        stop("not a positive definite matrix (and positive semidefiniteness is not checked)")
     ## FIXME: check=FALSE
     copyClass(from, "dppMatrix",
               sNames = c("Dim", "Dimnames", "uplo", "x", "factors"))
@@ -35,41 +35,3 @@ setAs("Matrix", "dppMatrix",
 ## ~~~~ COERCIONS FROM ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 setAs("dppMatrix", "dpoMatrix", function(from) unpack(from))
-
-## MJ: no longer needed
-if(FALSE) {
-setAs("dppMatrix", "dpoMatrix",
-      function(from) {
-          ## FIXME: check=FALSE
-          copyClass(.Call(dspMatrix_as_dsyMatrix, from),
-                    "dpoMatrix",
-                    sNames = c("x", "Dim", "Dimnames", "uplo", "factors"))
-      })
-} ## MJ
-
-## MJ: redundant, as coercions are inherited from superclass dspMatrix
-if(FALSE) {
-dpp2sC <- function(from) as(.Call(dspMatrix_as_dsyMatrix, from), "dsCMatrix")
-## setAs("dppMatrix", "dsCMatrix", dpp2sC)
-setAs("dppMatrix", "CsparseMatrix", dpp2sC)
-setAs("dppMatrix", "sparseMatrix", dpp2sC)
-} ## MJ
-
-## MJ: no longer needed ... replacement in ./denseMatrix.R
-## (was infelicitous anyway because result did not have packed storage)
-if(FALSE) {
-setAs("dppMatrix", "lMatrix",
-      function(from) as(as(from, "dsyMatrix"), "lMatrix"))
-setAs("dppMatrix", "nMatrix",
-      function(from) as(as(from, "dsyMatrix"), "nMatrix"))
-} ## MJ
-
-
-## ~~~~ METHODS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-## MJ: no longer needed ... replacement in ./packedMatrix.R
-if(FALSE) {
-setMethod("t", signature(x = "dppMatrix"),
-          function(x) as(t(as(x, "dspMatrix")), "dppMatrix"),
-          valueClass = "dppMatrix")
-} ## MJ

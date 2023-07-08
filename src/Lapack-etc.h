@@ -1,5 +1,5 @@
-#ifndef MATRIX_LAPACK_H
-#define MATRIX_LAPACK_H
+#ifndef MATRIX_LAPACK_ETC_H
+#define MATRIX_LAPACK_ETC_H
 
 /* Copy and paste from WRE : */
 
@@ -7,11 +7,10 @@
 #ifndef  USE_FC_LEN_T
 # define USE_FC_LEN_T
 #endif
-
 #include <Rconfig.h>
+
 #ifdef PR18534fixed
-// used by Lapack.h in R pre-4.4.0 from 2023-05-16
-# define usePR18534fix 1
+# define usePR18534fix
 #endif
 
 #include <R_ext/Lapack.h>
@@ -19,4 +18,4 @@
 # define FCONE
 #endif
 
-#endif /* MATRIX_LAPACK_H */
+#endif /* MATRIX_LAPACK_ETC_H */

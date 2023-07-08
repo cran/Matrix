@@ -1,6 +1,9 @@
 \name{dtpMatrix-class}
 \title{Packed Triangular Dense Matrices - "dtpMatrix"}
+%
 \docType{class}
+\keyword{array}
+\keyword{classes}
 %
 \alias{dtpMatrix-class}
 %
@@ -58,6 +61,9 @@
   Class \code{\linkS4class{dtrMatrix}}
 }
 \examples{
+\dontshow{ % for R_DEFAULT_PACKAGES=NULL
+library(utils, pos = "package:base", verbose = FALSE)
+}
 showClass("dtrMatrix")
 
 example("dtrMatrix-class", echo=FALSE)
@@ -74,4 +80,3 @@ stopifnot(length(p1@x) == 3, length(pp@x) == 3,
 	  identical(t(ip1), solve(pp)), is(ip1, "dtpMatrix"),
 	  all.equal(as(solve(p1,p1), "diagonalMatrix"), Diagonal(2)))
 }
-\keyword{classes}

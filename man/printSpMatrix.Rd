@@ -1,8 +1,14 @@
 \name{printSpMatrix}
 \title{Format and Print Sparse Matrices Flexibly}
+%
+\keyword{character}
+\keyword{print}
+\keyword{utilities}
+%
 \alias{formatSpMatrix}
 \alias{printSpMatrix}
 \alias{printSpMatrix2}
+%
 \description{
   Format and print sparse matrices flexibly.  These are the \dQuote{workhorses} used by
   the \code{\link{format}}, \code{\link{show}} and \code{\link{print}}
@@ -144,4 +150,3 @@ stopifnot(st[1] < 1.0) # only 0.09 on cmath-3
 options(op)
 }
 }
-\keyword{print}

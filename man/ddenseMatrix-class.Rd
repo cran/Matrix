@@ -1,6 +1,9 @@
 \name{ddenseMatrix-class}
 \title{Virtual Class "ddenseMatrix" of Numeric Dense Matrices}
+%
 \docType{class}
+\keyword{array}
+\keyword{classes}
 %
 \alias{ddenseMatrix-class}
 %
@@ -54,4 +57,3 @@ showClass("ddenseMatrix")
 
 showMethods(class = "ddenseMatrix", where = "package:Matrix")
 }
-\keyword{classes}

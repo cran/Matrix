@@ -1,3 +1,7 @@
+## for R_DEFAULT_PACKAGES=NULL :
+library(stats)
+library(utils)
+
 library(Matrix)
 
 ## This is example(sp....) -- much extended

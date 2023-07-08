@@ -1,11 +1,15 @@
 \name{unpackedMatrix-class}
 \title{Virtual Class \code{"unpackedMatrix"} of Unpacked Dense Matrices}
+%
 \docType{class}
+\keyword{array}
+\keyword{classes}
 %
 \alias{unpackedMatrix-class}
 %
 \alias{coerce,matrix,unpackedMatrix-method}
 \alias{coerce,numLike,unpackedMatrix-method}
+\alias{cov2cor,unpackedMatrix-method}
 \alias{diag,unpackedMatrix-method}
 \alias{diag<-,unpackedMatrix-method}
 \alias{t,unpackedMatrix-method}
@@ -60,4 +64,3 @@
 showClass("unpackedMatrix")
 showMethods(classes = "unpackedMatrix")
 }
-\keyword{classes}

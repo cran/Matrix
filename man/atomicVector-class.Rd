@@ -1,18 +1,14 @@
 \name{atomicVector-class}
 \title{Virtual Class "atomicVector" of Atomic Vectors}
+%
 \docType{class}
+\keyword{classes}
 %
 \alias{atomicVector-class}
 %
 \alias{Ops,atomicVector,sparseVector-method}
-\alias{cbind2,atomicVector,Matrix-method}
-\alias{cbind2,atomicVector,ddiMatrix-method}
-\alias{cbind2,atomicVector,ldiMatrix-method}
 \alias{coerce,atomicVector,dsparseVector-method}
 \alias{coerce,atomicVector,sparseVector-method}
-\alias{rbind2,atomicVector,Matrix-method}
-\alias{rbind2,atomicVector,ddiMatrix-method}
-\alias{rbind2,atomicVector,ldiMatrix-method}
 %
 \description{
   The \code{\link{class}} \code{"atomicVector"} is a
@@ -41,4 +37,3 @@
 \examples{
 showClass("atomicVector")
 }
-\keyword{classes}

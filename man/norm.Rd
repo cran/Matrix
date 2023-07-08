@@ -1,7 +1,13 @@
-\name{norm}
+\name{norm-methods}
 \title{Matrix Norms}
 %
+\docType{methods}
+\keyword{algebra}
+\keyword{math}
+\keyword{methods}
+%
 \alias{norm}
+\alias{norm-methods}
 %
 \alias{norm,ANY,missing-method}
 \alias{norm,denseMatrix,character-method}
@@ -11,6 +17,8 @@
 \alias{norm,dsyMatrix,character-method}
 \alias{norm,dtpMatrix,character-method}
 \alias{norm,dtrMatrix,character-method}
+\alias{norm,indMatrix,character-method}
+\alias{norm,pMatrix,character-method}
 \alias{norm,sparseMatrix,character-method}
 %
 \description{
@@ -90,4 +98,3 @@ stopifnot(all.equal(nA, allnorms(as(A, "matrix"))),
 A. <- A; A.[1,3] <- NA
 stopifnot(is.na(allnorms(A.))) # gave error
 }
-\keyword{algebra}

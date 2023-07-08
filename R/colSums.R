@@ -7,8 +7,7 @@
 ##
 ##        double result:           integer result:
 ##        * [nl]denseMatrix        * [nl]sparseMatrix
-##        * indMatrix {rowSums}    * indMatrix {colSums}
-##        * ldiMatrix
+##        * ldiMatrix              * indMatrix
 ##
 ##        hence we might consider changing to always give double ...
 
@@ -79,30 +78,40 @@ rm(.diag.cS, .diag.cM, .diag.rS, .diag.rM)
 
 setMethod("colSums",  signature(x = "indMatrix"),
 	  function(x, na.rm = FALSE, dims = 1L) {
-              r <- tabulate(x@perm, nbins = x@Dim[2L])
+              n <- x@Dim[2L]
+              r <- if(x@margin == 1L)
+                       tabulate(x@perm, n)
+                   else rep.int(1L, n)
               if(!is.null(nms <- x@Dimnames[[2L]]))
                   names(r) <- nms
               r
           })
-setMethod("colMeans", signature(x = "indMatrix"),
+setMethod("colMeans",  signature(x = "indMatrix"),
 	  function(x, na.rm = FALSE, dims = 1L) {
-              d <- x@Dim
-              r <- tabulate(x@perm, nbins = d[2L]) / d[1L]
+              n <- (d <- x@Dim)[2L]
+              r <- if(x@margin == 1L)
+                       tabulate(x@perm, n) / d[1L]
+                   else rep.int(1 / d[1L], n)
               if(!is.null(nms <- x@Dimnames[[2L]]))
                   names(r) <- nms
               r
           })
 setMethod("rowSums",  signature(x = "indMatrix"),
 	  function(x, na.rm = FALSE, dims = 1L) {
-              r <- rep.int(1, x@Dim[1L])
+              m <- x@Dim[1L]
+              r <- if(x@margin == 1L)
+                       rep.int(1L, m)
+                   else tabulate(x@perm, m)
               if(!is.null(nms <- x@Dimnames[[1L]]))
                   names(r) <- nms
               r
           })
-setMethod("rowMeans", signature(x = "indMatrix"),
+setMethod("rowMeans",  signature(x = "indMatrix"),
 	  function(x, na.rm = FALSE, dims = 1L) {
-              d <- x@Dim
-              r <- rep.int(1 / d[2L], d[1L])
+              m <- (d <- x@Dim)[1L]
+              r <- if(x@margin == 1L)
+                       rep.int(1 / d[2L], m)
+                   else tabulate(x@perm, m) / d[2L]
               if(!is.null(nms <- x@Dimnames[[1L]]))
                   names(r) <- nms
               r

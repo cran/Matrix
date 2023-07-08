@@ -1,64 +1,59 @@
-\name{facmul}
-\title{Multiplication by Decomposition Factors}
+\name{facmul-methods}
+\title{Multiplication by Factors from Matrix Factorizations}
+%
+\docType{methods}
+\keyword{arith}
+\keyword{array}
+\keyword{methods}
+%
 \alias{facmul}
-\alias{facmul.default}
+\alias{facmul-methods}
+%
 \description{
-    Performs multiplication by factors for certain decompositions (and
-    allows explicit formation of those factors).
+  Multiplies a matrix or vector on the left or right by a factor
+  from a matrix factorization or its transpose.
 }
 \usage{
-facmul(x, factor, y, transpose, left, \dots)
+facmul(x, factor, y, trans = FALSE, left = TRUE, \dots)
 }
 \arguments{
-    \item{x}{
-	a matrix decomposition. 
-	No missing values or IEEE special values are allowed.
-    }
-    \item{factor}{
-	an indicator for selecting a particular factor for multiplication.
-    }
-    \item{y}{
-	a matrix or vector to be multiplied by the factor or its transpose.
-	No missing values or IEEE special values are allowed.
-    }
-    \item{transpose}{
-	a logical value.  When \code{FALSE} (the default) the factor is
-	applied.  When \code{TRUE} the transpose of the factor is applied.
-    }
-    \item{left}{
-	a logical value.  When \code{TRUE} (the default) the factor is
-	applied from the left.  When \code{FALSE} the factor is applied
-	from the right.
-    }
-    \item{...}{
-	the method for \code{"qr.Matrix"} has additional arguments.
-    }
+  \item{x}{a \code{\linkS4class{MatrixFactorization}} object.}
+  \item{factor}{a character string indicating a factor in the
+    factorization represented by \code{x}, typically an element
+    of \code{names(\link{expand2}(x, \dots))}.}
+  \item{y}{a matrix or vector to be multiplied on the left or right
+    by the factor or its transpose.}
+  \item{trans}{a logical indicating if the transpose of the
+    factor should be used, rather than the factor itself.}
+  \item{left}{a logical indicating if the \code{y} should be
+    multiplied on the left by the factor, rather than on the right.}
+  \item{\dots}{further arguments passed to or from methods.}
 }
 \value{
-    the product of the selected factor (or its transpose) and \code{y}
+  The value of \code{op(M) \%*\% y} or \code{y \%*\% op(M)},
+  depending on \code{left}, where \code{M} is the factor
+  (always \emph{without} \code{dimnames}) and \code{op(M)}
+  is \code{M} or \code{t(M)}, depending on \code{trans}.
 }
-\section{NOTE}{
-    Factors for decompositions such as \code{lu} and \code{qr} can be
-    stored in a compact form.
-    The function \code{facmul} allows multiplication without explicit
-    formation of the factors, saving both storage and operations.
+\details{
+  \code{facmul} is experimental and currently no methods are
+  exported from \pkg{Matrix}.
 }
-\references{
-Golub, G., and Van Loan, C. F. (1989).
-\emph{Matrix Computations,}
-2nd edition, Johns Hopkins, Baltimore.
-}
-%  \seealso{
-%      \code{\link{facmul.lu.Matrix}}, \code{\link{facmul.lu.Hermitian}}, \code{\link{facmul.qr.Matrix}}, \code{\link{expand}}.
-%  }
 \examples{
-library(Matrix)
-x <- Matrix(rnorm(9), 3, 3)
+\dontshow{ % for R_DEFAULT_PACKAGES=NULL
+library(stats, pos = "package:base", verbose = FALSE)
+}
+## Conceptually, methods for 'facmul' _would_ behave as follows ...
 \dontrun{
-qrx <- qr(x)                      # QR factorization of x
-y <- rnorm(3)
-facmul( qr(x), factor = "Q", y)   # form Q y
+n <- 3L
+x <- lu(Matrix(rnorm(n * n), n, n))
+y <- rnorm(n)
+L <- unname(expand2(x)[[nm <- "L"]])
+stopifnot(exprs = {
+    all.equal(facmul(x, nm, y, trans = FALSE, left =  TRUE), L \%*\% y)
+    all.equal(facmul(x, nm, y, trans = FALSE, left = FALSE), y \%*\% L)
+    all.equal(facmul(x, nm, y, trans =  TRUE, left =  TRUE),  crossprod(L, y))
+    all.equal(facmul(x, nm, y, trans =  TRUE, left = FALSE), tcrossprod(y, L))
+})
 }
 }
-\keyword{array}
-\keyword{algebra}

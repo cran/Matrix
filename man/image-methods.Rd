@@ -1,7 +1,11 @@
 \name{image-methods}
 \title{Methods for image() in Package 'Matrix'}
-\docType{methods}
 %
+\docType{methods}
+\keyword{hplot}
+\keyword{methods}
+%
+\alias{image}
 \alias{image-methods}
 %
 \alias{image,ANY-method}
@@ -96,13 +100,17 @@
   \code{\link[lattice]{print.trellis}} from package \pkg{lattice}.
 }
 \examples{
+\dontshow{ % for R_DEFAULT_PACKAGES=NULL
+library(grDevices, pos = "package:base", verbose = FALSE)
+library(    utils, pos = "package:base", verbose = FALSE)
+}
 showMethods(image)
-## If you want to see all the methods' implementations:
-showMethods(image, incl=TRUE, inherit=FALSE)
-\dontshow{## warnings should not happen here, notably when print(<trellis>)
+## And if you want to see the method definitions:
+showMethods(image, includeDefs = TRUE, inherited = FALSE)
+\dontshow{ % warnings should not happen here, notably when print(<trellis>)
 op <- options(warn = 2)
 }
-data(CAex)
+data(CAex, package = "Matrix")
 image(CAex, main = "image(CAex)") -> imgC; imgC
 stopifnot(!is.null(leg <- imgC$legend), is.list(leg$right)) # failed for 2 days ..
 image(CAex, useAbs=TRUE, main = "image(CAex, useAbs=TRUE)")
@@ -114,7 +122,7 @@ print(image(cCA, main="Cholesky(crossprod(CAex), Imult = .01)"),
 print(image(cCA, useAbs=TRUE),
       split=c(x=2,y=1,nx=2,ny=1))
 
-data(USCounties)
+data(USCounties, package = "Matrix")
 image(USCounties)# huge
 image(sign(USCounties))## just the pattern
     # how the result looks, may depend heavily on
@@ -149,5 +157,3 @@ if(doPNG)
    ## and now look at the *.png image in a viewer you can easily zoom in and out
 }#only if(doExtras)
 }
-\keyword{methods}
-\keyword{hplot}

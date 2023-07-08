@@ -148,6 +148,6 @@ setMethod("image", "Matrix",
 
 setMethod("image", "CHMfactor",
           function(x, ...)
-              image(.sparse2g(as(x, "TsparseMatrix")), ...))
+              image(.sparse2g(.CR2T(expand1(x, "L"))), ...))
 
 rm(.image.dgT)

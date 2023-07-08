@@ -1,6 +1,9 @@
 \name{ngeMatrix-class}
 \title{Class "ngeMatrix" of General Dense Nonzero-pattern Matrices}
+%
 \docType{class}
+\keyword{array}
+\keyword{classes}
 %
 \alias{ngeMatrix-class}
 %
@@ -47,4 +50,3 @@ Class \code{"Matrix"}, by class \code{"ndenseMatrix"}.
 showClass("ngeMatrix")
 ## "lgeMatrix" is really more relevant
 }
-\keyword{classes}

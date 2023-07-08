@@ -1,6 +1,9 @@
 \name{nMatrix-class}
 \title{Class "nMatrix" of Non-zero Pattern Matrices}
+%
 \docType{class}
+\keyword{array}
+\keyword{classes}
 %
 \alias{nMatrix-class}
 %
@@ -86,5 +89,3 @@ as(L3, "nMatrix") # -> ntC*
 ## similar, not using Matrix()
 as(upper.tri(diag(3)), "nMatrix")# currently "ngTMatrix"
 }
-\keyword{classes}
-\keyword{algebra}

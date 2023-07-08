@@ -1,6 +1,10 @@
 \name{diagU2N}
 \title{Transform Triangular Matrices from Unit Triangular to General Triangular and Back}
 %
+\keyword{array}
+\keyword{attribute}
+\keyword{utilities}
+%
 \alias{diagU2N}
 \alias{diagN2U}
 \alias{.diagU2N}
@@ -54,7 +58,10 @@
   \code{"\linkS4class{dtCMatrix}"}.
 }
 \examples{
-(T <- Diagonal(7) + triu(Matrix(rpois(49, 1/4), 7,7), k = 1))
+\dontshow{ % for R_DEFAULT_PACKAGES=NULL
+library(stats, pos = "package:base", verbose = FALSE)
+}
+(T <- Diagonal(7) + triu(Matrix(rpois(49, 1/4), 7, 7), k = 1))
 (uT <- diagN2U(T)) # "unitriangular"
 (t.u <- diagN2U(10*T))# changes the diagonal!
 stopifnot(all(T == uT), diag(t.u) == 1,
@@ -68,5 +75,3 @@ stopifnot(is(dT.n, "denseMatrix"), is(sT.n, "sparseMatrix"),
           dT@diag == "U", dT.n@diag == "N", sT.n@diag == "N",
           all(dT == dT.n), all(dT == sT.n))
 }
-\keyword{utilities}
-\keyword{classes}

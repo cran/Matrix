@@ -1,49 +1,82 @@
-#### "corMatrix" (was "correlation" in 2005) ---
-#### ----------- correlation matrices, inheriting from  "dpoMatrix"
+## METHODS FOR CLASS: p?corMatrix
+## dense correlation matrices
+## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .dpo2cor <- function(from) {
-    if(!is.null(r <- from@factors$correlation))
-        return(r)
+    if(!is.null(to <- from@factors$correlation))
+        return(to)
     sd <- sqrt(diag(from, names = FALSE))
-    Is <- Diagonal(x = 1 / sd)
-    r <- new("corMatrix", Dim = from@Dim, Dimnames = from@Dimnames,
-             uplo = from@uplo, x = (Is %*% from %*% Is)@x, sd = sd)
-    .set.factors(from, "correlation", r)
+
+    to <- new("corMatrix")
+    to@Dim <- d <- from@Dim
+    to@Dimnames <- from@Dimnames
+    to@uplo <- from@uplo
+    to@sd <- sd
+
+    n <- d[1L]
+    x <- from@x / sd / rep(sd, each = n)
+    x[indDiag(n)] <- 1
+    to@x <- x
+
+    .set.factor(from, "correlation", to)
 }
+
+.dpp2pcor <- function(from) {
+    if(!is.null(to <- from@factors$correlation))
+        return(to)
+    sd <- sqrt(diag(from, names = FALSE))
+
+    to <- new("pcorMatrix")
+    to@Dim <- d <- from@Dim
+    to@Dimnames <- from@Dimnames
+    to@uplo <- uplo <- from@uplo
+    to@sd <- sd
+
+    n <- d[1L]
+    u <- uplo == "U"
+    if(u) {
+        r <- seq_len(n)
+        s <- 1L
+    } else {
+        r <- seq.int(to = 1L, by = -1L, length.out = n)
+        s <- seq_len(n)
+    }
+    x <-  from@x / rep.int(sd, r) / sd[sequence.default(r, s)]
+    x[indDiag(n, upper = u, packed = TRUE)] <- 1
+    to@x <- x
+
+    .set.factor(from, "correlation", to)
+}
+
 .M2cor <- function(from) .dpo2cor(as(from, "dpoMatrix"))
 
-setAs("dpoMatrix", "corMatrix", .dpo2cor)
-setAs("dppMatrix", "corMatrix", .M2cor)
-setAs(   "matrix", "corMatrix", .M2cor)
-setAs(   "Matrix", "corMatrix", .M2cor)
+.M2pcor <- function(from) .dpp2pcor(as(from, "dppMatrix"))
 
-## The 'setAs' call below is necessary to override the _implicitly defined_
-## dsy->cor coercion (see ?setAs). Without it, we get:
-##
-## > selectMethod("coerce", c("dsyMatrix", "corMatrix"))
-## function (from, to)
+setAs("dpoMatrix",  "corMatrix", .dpo2cor)
+setAs(   "Matrix",  "corMatrix", .M2cor)
+setAs(   "matrix",  "corMatrix", .M2cor)
+
+setAs("dppMatrix", "pcorMatrix", .dpp2pcor)
+setAs(   "Matrix", "pcorMatrix", .M2pcor)
+setAs(   "matrix", "pcorMatrix", .M2pcor)
+
+if(TRUE) {
+## Needed to bypass S4 quirk/bug ... without it we see the behaviour below (??)
+setAs("dsyMatrix",  "corMatrix", .M2cor)
+setAs("dspMatrix", "pcorMatrix", .M2pcor)
+} else {
+library(Matrix)
+body(selectMethod("coerce", c("dsyMatrix", "corMatrix")))
+## .dpo2cor(as(from, "dpoMatrix"))
+as(new("dsyMatrix"), "corMatrix")
+## 0 x 0 Matrix of class "corMatrix"
+## <0 x 0 matrix>
+body(selectMethod("coerce", c("dsyMatrix", "corMatrix")))
 ## {
 ##     obj <- new("corMatrix")
 ##     as(obj, "dsyMatrix") <- from
 ##     obj
 ## }
-##
-## which is incorrect!
-setAs("dsyMatrix", "corMatrix", .M2cor)
-rm(.M2cor)
-
-## MJ: no longer needed ... prefer variant above which is much faster
-if(FALSE) {
-.dpo2cor <- function(from) {
-    if(!is.null(cm <- from@factors$correlation))
-        return(cm)
-    sd <- sqrt(diag(from))
-    if(is.null(names(sd)) && !is.null(nms <- from@Dimnames[[1L]]))
-        names(sd) <- nms
-    Is <- Diagonal(x = 1 / sd)
-    .set.factors(from, "correlation",
-                 new("corMatrix",
-                     as(forceSymmetric(Is %*% from %*% Is), "dpoMatrix"),
-                     sd = unname(sd)))
 }
-} ## MJ
+
+rm(.M2cor, .M2pcor)

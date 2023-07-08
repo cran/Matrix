@@ -1,6 +1,12 @@
 \name{drop0}
 \title{Drop "Explicit Zeroes" from a Sparse Matrix}
+%
+\keyword{array}
+\keyword{manip}
+\keyword{utilities}
+%
 \alias{drop0}
+%
 \description{
   Returns a sparse matrix with no \dQuote{explicit zeroes}, i.e., all
   zero or \code{FALSE} entries are dropped from the explicitly indexed
@@ -58,6 +64,3 @@ I.. <- drop0(I., tol = 1e-15)
 stopifnot(all(I.0 == Diagonal(625)),
           nnzero(I..) == 625)
 }
-\keyword{utilities}
-\keyword{array}
-

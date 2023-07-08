@@ -1,6 +1,9 @@
 \name{ndenseMatrix-class}
 \title{Virtual Class "ndenseMatrix" of Dense Logical Matrices}
+%
 \docType{class}
+\keyword{array}
+\keyword{classes}
 %
 \alias{ndenseMatrix-class}
 %
@@ -55,4 +58,3 @@ showClass("ndenseMatrix")
 
 as(diag(3) > 0, "ndenseMatrix")# -> "nge"
 }
-\keyword{classes}

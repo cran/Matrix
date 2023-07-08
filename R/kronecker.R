@@ -26,12 +26,12 @@
 }
 
 setMethod("kronecker", signature(X = "diagonalMatrix", Y = "diagonalMatrix"),
-	  function(X, Y, FUN = "*", make.dimnames = FALSE, ...) {
+          function(X, Y, FUN = "*", make.dimnames = FALSE, ...) {
               if(!(missing(FUN) || identical(FUN, "*")))
                   stop("method for kronecker() must use default FUN=\"*\"")
               if(any(as.double(dX <- X@Dim) * (dY <- Y@Dim) >
                      .Machine$integer.max))
-		  stop("dimensions cannot exceed 2^31-1")
+                  stop("dimensions cannot exceed 2^31-1")
               r <- new("ddiMatrix")
               r@Dim <- dX * dY
               if((uX <- X@diag != "N") & (uY <- Y@diag != "N"))
@@ -46,16 +46,16 @@ setMethod("kronecker", signature(X = "diagonalMatrix", Y = "diagonalMatrix"),
                                                     dimnames(Y), dY)))
                   r@Dimnames <- dnr
               r
-	  })
+          })
 
 if(FALSE) { # --NOT YET--
 setMethod("kronecker", signature(X = "diagonalMatrix", Y = "denseMatrix"),
-	  function(X, Y, FUN = "*", make.dimnames = FALSE, ...) {
+          function(X, Y, FUN = "*", make.dimnames = FALSE, ...) {
               if(!(missing(FUN) || identical(FUN, "*")))
                   stop("method for kronecker() must use default FUN=\"*\"")
               if(any(as.double(dX <- X@Dim) * (dY <- Y@Dim) >
                      .Machine$integer.max))
-		  stop("dimensions cannot exceed 2^31-1")
+                  stop("dimensions cannot exceed 2^31-1")
               uX <- X@diag != "N"
               uY <- FALSE
               shape <- .M.shape(Y)
@@ -120,15 +120,15 @@ setMethod("kronecker", signature(X = "diagonalMatrix", Y = "denseMatrix"),
                   r@Dimnames <- dnr
               }
               r
-	  })
+          })
 
 setMethod("kronecker", signature(X = "denseMatrix", Y = "diagonalMatrix"),
-	  function(X, Y, FUN = "*", make.dimnames = FALSE, ...) {
+          function(X, Y, FUN = "*", make.dimnames = FALSE, ...) {
               if(!(missing(FUN) || identical(FUN, "*")))
                   stop("method for kronecker() must use default FUN=\"*\"")
               if(any(as.double(dX <- X@Dim) * (dY <- Y@Dim) >
                      .Machine$integer.max))
-		  stop("dimensions cannot exceed 2^31-1")
+                  stop("dimensions cannot exceed 2^31-1")
               shape <- .M.shape(X)
               uX <- FALSE
               uY <- Y@diag != "N"
@@ -220,7 +220,7 @@ setMethod("kronecker", signature(X = "denseMatrix", Y = "diagonalMatrix"),
                   r@Dimnames <- dnr
               }
               r
-	  })
+          })
 } # --NOT YET--
 
 setMethod("kronecker", signature(X = "denseMatrix", Y = "denseMatrix"),
@@ -229,7 +229,7 @@ setMethod("kronecker", signature(X = "denseMatrix", Y = "denseMatrix"),
                   stop("method for kronecker() must use default FUN=\"*\"")
               if(any(as.double(dX <- X@Dim) * (dY <- Y@Dim) >
                      .Machine$integer.max))
-		  stop("dimensions cannot exceed 2^31-1")
+                  stop("dimensions cannot exceed 2^31-1")
               shape <- switch(.M.shape(X),
                               g = "g",
                               t = if(.M.shape(Y) == "t" && X@uplo == Y@uplo)
@@ -269,12 +269,12 @@ setMethod("kronecker", signature(X = "denseMatrix", Y = "denseMatrix"),
           })
 
 setMethod("kronecker", signature(X = "diagonalMatrix", Y = "CsparseMatrix"),
-	  function(X, Y, FUN = "*", make.dimnames = FALSE, ...) {
+          function(X, Y, FUN = "*", make.dimnames = FALSE, ...) {
               if(!(missing(FUN) || identical(FUN, "*")))
                   stop("method for kronecker() must use default FUN=\"*\"")
               if(any(as.double(dX <- X@Dim) * (dY <- Y@Dim) >
                      .Machine$integer.max))
-		  stop("dimensions cannot exceed 2^31-1")
+                  stop("dimensions cannot exceed 2^31-1")
               uX <- X@diag != "N"
               uY <- FALSE
               shape <- .M.shape(Y)
@@ -325,15 +325,15 @@ setMethod("kronecker", signature(X = "diagonalMatrix", Y = "CsparseMatrix"),
                   r@Dimnames <- dnr
               }
               r
-	  })
+          })
 
 setMethod("kronecker", signature(X = "CsparseMatrix", Y = "diagonalMatrix"),
-	  function(X, Y, FUN = "*", make.dimnames = FALSE, ...) {
+          function(X, Y, FUN = "*", make.dimnames = FALSE, ...) {
               if(!(missing(FUN) || identical(FUN, "*")))
                   stop("method for kronecker() must use default FUN=\"*\"")
               if(any(as.double(dX <- X@Dim) * (dY <- Y@Dim) >
                      .Machine$integer.max))
-		  stop("dimensions cannot exceed 2^31-1")
+                  stop("dimensions cannot exceed 2^31-1")
               uX <- FALSE
               uY <- Y@diag != "N"
               shape <- .M.shape(X)
@@ -390,7 +390,7 @@ setMethod("kronecker", signature(X = "CsparseMatrix", Y = "diagonalMatrix"),
                   r@Dimnames <- dnr
               }
               r
-	  })
+          })
 
 setMethod("kronecker", signature(X = "CsparseMatrix", Y = "CsparseMatrix"),
           function(X, Y, FUN = "*", make.dimnames = FALSE, ...) {
@@ -398,7 +398,7 @@ setMethod("kronecker", signature(X = "CsparseMatrix", Y = "CsparseMatrix"),
                   stop("method for kronecker() must use default FUN=\"*\"")
               if(any(as.double(dX <- X@Dim) * (dY <- Y@Dim) >
                      .Machine$integer.max))
-		  stop("dimensions cannot exceed 2^31-1")
+                  stop("dimensions cannot exceed 2^31-1")
               uX <- uY <- FALSE
               if((sX <- .M.shape(X)) == "t")
                   uX <- X@diag != "N"
@@ -490,11 +490,11 @@ setMethod("kronecker", signature(X = "CsparseMatrix", Y = "CsparseMatrix"),
           })
 
 setMethod("kronecker", signature(X = "diagonalMatrix", Y = "RsparseMatrix"),
-	  function(X, Y, FUN = "*", make.dimnames = FALSE, ...)
+          function(X, Y, FUN = "*", make.dimnames = FALSE, ...)
               .tCR2RC(kronecker(t(X), .tCR2RC(Y), FUN, make.dimnames, ...)))
 
 setMethod("kronecker", signature(X = "RsparseMatrix", Y = "diagonalMatrix"),
-	  function(X, Y, FUN = "*", make.dimnames = FALSE, ...)
+          function(X, Y, FUN = "*", make.dimnames = FALSE, ...)
               .tCR2RC(kronecker(.tCR2RC(X), t(Y), FUN, make.dimnames, ...)))
 
 setMethod("kronecker", signature(X = "RsparseMatrix", Y = "RsparseMatrix"),
@@ -502,12 +502,12 @@ setMethod("kronecker", signature(X = "RsparseMatrix", Y = "RsparseMatrix"),
               .tCR2RC(kronecker(.tCR2RC(X), .tCR2RC(Y), FUN, make.dimnames, ...)))
 
 setMethod("kronecker", signature(X = "diagonalMatrix", Y = "TsparseMatrix"),
-	  function(X, Y, FUN = "*", make.dimnames = FALSE, ...) {
+          function(X, Y, FUN = "*", make.dimnames = FALSE, ...) {
               if(!(missing(FUN) || identical(FUN, "*")))
                   stop("method for kronecker() must use default FUN=\"*\"")
               if(any(as.double(dX <- X@Dim) * (dY <- Y@Dim) >
                      .Machine$integer.max))
-		  stop("dimensions cannot exceed 2^31-1")
+                  stop("dimensions cannot exceed 2^31-1")
               uX <- X@diag != "N"
               uY <- FALSE
               shape <- .M.shape(Y)
@@ -552,15 +552,15 @@ setMethod("kronecker", signature(X = "diagonalMatrix", Y = "TsparseMatrix"),
                   r@Dimnames <- dnr
               }
               r
-	  })
+          })
 
 setMethod("kronecker", signature(X = "TsparseMatrix", Y = "diagonalMatrix"),
-	  function(X, Y, FUN = "*", make.dimnames = FALSE, ...) {
+          function(X, Y, FUN = "*", make.dimnames = FALSE, ...) {
               if(!(missing(FUN) || identical(FUN, "*")))
                   stop("method for kronecker() must use default FUN=\"*\"")
               if(any(as.double(dX <- X@Dim) * (dY <- Y@Dim) >
                      .Machine$integer.max))
-		  stop("dimensions cannot exceed 2^31-1")
+                  stop("dimensions cannot exceed 2^31-1")
               uX <- FALSE
               uY <- Y@diag != "N"
               shape <- .M.shape(X)
@@ -599,7 +599,7 @@ setMethod("kronecker", signature(X = "TsparseMatrix", Y = "diagonalMatrix"),
                   r@Dimnames <- dnr
               }
               r
-	  })
+          })
 
 setMethod("kronecker", signature(X = "TsparseMatrix", Y = "TsparseMatrix"),
           function(X, Y, FUN = "*", make.dimnames = FALSE, ...) {
@@ -607,7 +607,7 @@ setMethod("kronecker", signature(X = "TsparseMatrix", Y = "TsparseMatrix"),
                   stop("method for kronecker() must use default FUN=\"*\"")
               if(any(as.double(dX <- X@Dim) * (dY <- Y@Dim) >
                      .Machine$integer.max))
-		  stop("dimensions cannot exceed 2^31-1")
+                  stop("dimensions cannot exceed 2^31-1")
               uX <- uY <- FALSE
               if((sX <- .M.shape(X)) == "t")
                   uX <- X@diag != "N"
@@ -674,30 +674,40 @@ setMethod("kronecker", signature(X = "TsparseMatrix", Y = "TsparseMatrix"),
           })
 
 setMethod("kronecker", signature(X = "diagonalMatrix", Y = "indMatrix"),
-	  function(X, Y, FUN = "*", make.dimnames = FALSE, ...)
+          function(X, Y, FUN = "*", make.dimnames = FALSE, ...)
               kronecker(X, as(Y, "nsparseMatrix"), FUN, make.dimnames, ...))
 
 setMethod("kronecker", signature(X = "indMatrix", Y = "diagonalMatrix"),
-	  function(X, Y, FUN = "*", make.dimnames = FALSE, ...)
+          function(X, Y, FUN = "*", make.dimnames = FALSE, ...)
               kronecker(as(X, "nsparseMatrix"), Y, FUN, make.dimnames, ...))
 
 setMethod("kronecker", signature(X = "indMatrix", Y = "indMatrix"),
-	  function(X, Y, FUN = "*", make.dimnames = FALSE, ...) {
+          function(X, Y, FUN = "*", make.dimnames = FALSE, ...) {
+              if((margin <- X@margin) != Y@margin)
+                  kronecker(as(X, "CsparseMatrix"), as(Y, "CsparseMatrix"),
+                            FUN, make.dimnames, ...)
               if(!(missing(FUN) || identical(FUN, "*")))
                   stop("method for kronecker() must use default FUN=\"*\"")
               if(any(as.double(dX <- X@Dim) * (dY <- Y@Dim) >
                      .Machine$integer.max))
-		  stop("dimensions cannot exceed 2^31-1")
+                  stop("dimensions cannot exceed 2^31-1")
               r <- new("indMatrix")
               r@Dim <- dX * dY
-              r@perm <- dY[2L] * rep(X@perm - 1L, each = dY[1L]) +
-                  rep.int(Y@perm, dX[1L])
+              r@perm <-
+                  if(margin == 1L)
+                      rep(dY[2L] * (X@perm - 1L), each = dY[1L]) +
+                          rep.int(Y@perm, dX[1L])
+                  else {
+                      r@margin <- 1L
+                      rep(dY[1L] * (X@perm - 1L), each = dY[2L]) +
+                          rep.int(Y@perm, dX[2L])
+                  }
               if(make.dimnames &&
                  !is.null(dnr <- .kroneckerDimnames(dimnames(X), dX,
                                                     dimnames(Y), dY)))
                   r@Dimnames <- dnr
               r
-	  })
+          })
 
 ## Catch everything else with these:
 
@@ -740,143 +750,3 @@ setMethod("kronecker", signature(X = "diagonalMatrix", Y = "Matrix"),
 setMethod("kronecker", signature(X = "indMatrix", Y = "Matrix"),
           function(X, Y, FUN = "*", make.dimnames = FALSE, ...)
               kronecker(as(X, "CsparseMatrix"), Y, FUN, make.dimnames, ...))
-
-
-## MJ: no longer needed ... replacement above
-if(FALSE) {
-setMethod("kronecker", signature(X = "Matrix", Y = "ANY",
-				 FUN = "ANY", make.dimnames = "ANY"),
-	  function(X, Y, FUN, make.dimnames, ...) {
-	      if(is(X, "sparseMatrix"))
-		  warning("using slow kronecker() method")
-	      X <- as(X, "matrix") ; Matrix(callGeneric()) })
-
-setMethod("kronecker", signature(X = "ANY", Y = "Matrix",
-				 FUN = "ANY", make.dimnames = "ANY"),
-	  function(X, Y, FUN, make.dimnames, ...) {
-	      if(is(Y, "sparseMatrix"))
-		  warning("using slow kronecker() method")
-	      Y <- as(Y, "matrix") ; Matrix(callGeneric()) })
-
-tmp <- function (X, Y, FUN = "*", make.dimnames = FALSE, ...) {
-    kronecker(as(X, "TsparseMatrix"), Y,
-	      FUN = FUN, make.dimnames = make.dimnames, ...)
-}
-setMethod("kronecker", signature(X="diagonalMatrix", Y="ANY"          ), tmp)
-setMethod("kronecker", signature(X="diagonalMatrix", Y="Matrix"       ), tmp)
-setMethod("kronecker", signature(X="ANY",            Y="sparseMatrix" ), tmp)
-## the above could recurse infinitely :
-setMethod("kronecker", signature(X="sparseMatrix",   Y="TsparseMatrix"), tmp)
-
-tmp <- function (X, Y, FUN = "*", make.dimnames = FALSE, ...) {
-    kronecker(X, as(Y, "TsparseMatrix"),
-	      FUN = FUN, make.dimnames = make.dimnames, ...)
-}
-setMethod("kronecker", signature(X="ANY",           Y="diagonalMatrix"), tmp)
-setMethod("kronecker", signature(X="Matrix",        Y="diagonalMatrix"), tmp)
-setMethod("kronecker", signature(X="sparseMatrix",  Y="ANY"           ), tmp)
-setMethod("kronecker", signature(X="TsparseMatrix", Y="sparseMatrix"  ), tmp)
-rm(tmp)
-
-## from ./dgTMatrix.R :
-setMethod("kronecker", signature(X = "dgTMatrix", Y = "dgTMatrix"),
-	  function (X, Y, FUN = "*", make.dimnames = FALSE, ...)
-      {
-	  if (FUN != "*") stop("kronecker method must use default 'FUN'")
-	  ## otherwise we don't know that many results will be zero
-	  ydim <- Y@Dim
-	  xi <- X@i
-	  xnnz <- length(xi)
-	  yi <- Y@i
-	  ynnz <- length(yi)
-	  new("dgTMatrix", Dim = X@Dim * ydim,
-	      i = rep.int(yi, xnnz) + ydim[1] * rep.int(xi, rep.int(ynnz, xnnz)),
-	      j = rep.int(Y@j, xnnz) + ydim[2] * rep.int(X@j, rep.int(ynnz, xnnz)),
-	      ## faster than x = as.vector(outer(Y@x, X@x, FUN = FUN)
-	      x = as.vector(Y@x %*% t(X@x)))
-      })
-
-## triangularity -- should be preserved "when obvious":
-setMethod("kronecker", signature(X = "dtTMatrix", Y = "dtTMatrix"),
-	  function (X, Y, FUN = "*", make.dimnames = FALSE, ...)
-      {
-	  if (FUN != "*") stop("kronecker method must use default 'FUN'")
-	  ## otherwise we don't know that many results will be zero
-	  if(X@uplo != Y@uplo) { ## result not triangular
-	      X <- .sparse2g(X)
-	      Y <- .sparse2g(Y)
-	      return(callGeneric())
-	  }
-	  ## else: both 'uplo' are the same -- result *is* triangular
-	  ## d.U <- (dX <- X@diag == "U") && (dY <- Y@diag == "U")
-	  if(Y@diag == "U")
-	      Y <- .diagU2N(Y, "dtTMatrix")
-	  ydim <- Y@Dim
-	  if(X@diag != "U") {
-	      xi <- X@i
-	      xj <- X@j
-	      xx <- X@x
-	  } else { ## X@diag == "U"
-	      nx <- X@Dim[1] # triangular matrices are square
-	      ii <- seq_len(nx) - 1L
-	      xi <- c(X@i, ii)
-	      xj <- c(X@j, ii)
-	      xx <- c(X@x, rep.int(1, nx))
-	  }
-	  xnnz <- length(xi)
-	  yi <- Y@i
-	  ynnz <- length(yi)
-	  new("dtTMatrix", Dim = X@Dim * ydim,
-	      i = rep.int(yi,  xnnz) + ydim[1] * rep.int(xi, rep.int(ynnz, xnnz)),
-	      j = rep.int(Y@j, xnnz) + ydim[2] * rep.int(xj, rep.int(ynnz, xnnz)),
-	      ## faster than x = as.vector(outer(Y@x, X@x, FUN = FUN)
-	      x = as.vector(Y@x %*% t(xx)),
-	      uplo = X@uplo,
-	      diag = "N" # if(d.U) { "U" , but drop the entries}  else "N"
-	      )
-      })
-
-setMethod("kronecker", signature(X = "dtTMatrix", Y = "dgTMatrix"),
-	  function (X, Y, FUN = "*", make.dimnames = FALSE, ...) {
-              if(it <- isTriangular(Y))
-                  ## improve: also test for unit diagonal
-                  Y <- if(attr(it, "kind") == "U") triu(Y) else tril(Y)
-	      else
-                  X <- .sparse2g(X)
-	      callGeneric() #-> dtT o dtT   or	 dgT o dgT
-	  })
-
-setMethod("kronecker", signature(X = "dgTMatrix", Y = "dtTMatrix"),
-	  function (X, Y, FUN = "*", make.dimnames = FALSE, ...) {
-              if(it <- isTriangular(X))
-                  ## improve: also test for unit diagonal
-                  X <- if(attr(it, "kind") == "U") triu(X) else tril(X)
-	      else
-		  Y <- .sparse2g(Y)
-	      callGeneric() #-> dtT o dtT   or	 dgT o dgT
-	  })
-
-setMethod("kronecker", signature(X = "TsparseMatrix", Y = "TsparseMatrix"),
-	  function (X, Y, FUN = "*", make.dimnames = FALSE, ...) {
-              if(.hasSlot(X, "uplo") && !.hasSlot(X, "diag"))
-                  X <- .sparse2g(X)
-              if(.hasSlot(Y, "uplo") && !.hasSlot(Y, "diag"))
-                  Y <- .sparse2g(Y)
-              X <- ..sparse2d(X)
-              Y <- ..sparse2d(Y)
-              callGeneric()
-	  })
-
-setMethod("kronecker", signature(X = "dsparseMatrix", Y = "dsparseMatrix"),
-	  function (X, Y, FUN = "*", make.dimnames = FALSE, ...) {
-              if(.hasSlot(X, "uplo") && !.hasSlot(X, "diag"))
-                  X <- .sparse2g(X)
-              if(.hasSlot(Y, "uplo") && !.hasSlot(Y, "diag"))
-                  Y <- .sparse2g(Y)
-              if(.hasSlot(X, "p"))
-                  X <- .CR2T(X)
-              if(.hasSlot(Y, "p"))
-                  Y <- .CR2T(Y)
-              callGeneric()
-	  })
-} ## MJ

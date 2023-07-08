@@ -1,7 +1,11 @@
 \name{KNex}
 \title{Koenker-Ng Example Sparse Model Matrix and Response Vector}
+%
 \docType{data}
+\keyword{datasets}
+%
 \alias{KNex}
+%
 \description{
   A model matrix \code{mm} and corresponding response vector \code{y}
   used in an example by Koenker and Ng.  The matrix \code{mm} is a sparse
@@ -19,9 +23,12 @@
   \doi{10.18637/jss.v008.i06}
 }
 \examples{
-data(KNex)
+\dontshow{ % for R_DEFAULT_PACKAGES=NULL
+library(utils, pos = "package:base", verbose = FALSE)
+}
+data(KNex, package = "Matrix")
 class(KNex$mm)
-  dim(KNex$mm)
+dim(KNex$mm)
 image(KNex$mm)
 str(KNex)
 
@@ -36,4 +43,3 @@ system.time(
 
 all.equal(sparse.sol, sp.sol2, tolerance = 1e-13) # TRUE
 }
-\keyword{datasets}

@@ -1,9 +1,13 @@
 \name{indMatrix-class}
 \title{Index Matrices}
+%
 \docType{class}
+\keyword{array}
+\keyword{classes}
 %
 \alias{indMatrix-class}
 %
+\alias{-,indMatrix,missing-method}
 \alias{Summary,indMatrix-method}
 \alias{as.logical,indMatrix-method}
 \alias{as.numeric,indMatrix-method}
@@ -26,117 +30,134 @@
 \alias{coerce,indMatrix,nsparseMatrix-method}
 \alias{coerce,indMatrix,pMatrix-method}
 \alias{coerce,indMatrix,packedMatrix-method}
+\alias{coerce,indMatrix,sparseVector-method}
 \alias{coerce,indMatrix,unpackedMatrix-method}
 \alias{coerce,indMatrix,vector-method}
-\alias{coerce,integer,indMatrix-method}
 \alias{coerce,list,indMatrix-method}
 \alias{coerce,matrix,indMatrix-method}
 \alias{coerce,numeric,indMatrix-method}
+\alias{determinant,indMatrix,logical-method}
 \alias{diag,indMatrix-method}
 \alias{diag<-,indMatrix-method}
-\alias{rbind2,indMatrix,indMatrix-method}
 \alias{t,indMatrix-method}
 %
-\description{The \code{"indMatrix"} class is the class of index
-  matrices, stored as 1-based integer index vectors.  An index matrix is
-  a matrix with exactly one non-zero entry per row.
-  Index matrices are useful for mapping observations to unique covariate
-  values, for example.
+\description{
+  The \code{indMatrix} class is the class of row and column
+  \emph{index} matrices, stored as 1-based integer index vectors.
+  A row (column) index matrix is a matrix whose rows (columns)
+  are standard unit vectors.  Such matrices are useful
+  when mapping observations to discrete sets of covariate values.
 
-  Matrix (vector) multiplication with index matrices is equivalent
-  to replicating and permuting rows, or \dQuote{sampling rows with
-  replacement}, and is implemented that way in the \pkg{Matrix} package,
-  see the \sQuote{Details} below.
+  Multiplying a matrix on the left by a row index matrix is
+  equivalent to indexing its rows, i.e., sampling the rows
+  \dQuote{with replacement}.  Analogously, multiplying a matrix
+  on the right by a column index matrix is equivalent to
+  indexing its columns.  Indeed, such products are implemented in
+  \pkg{Matrix} as indexing operations; see \sQuote{Details} below.
+
+  A matrix whose rows \emph{and} columns are standard unit vectors
+  is called a \emph{permutation} matrix.  This special case is
+  designated by the \code{\linkS4class{pMatrix}} class, a direct
+  subclass of \code{indMatrix}.
 }
 \section{Objects from the Class}{
-  Objects can be created by calls of the form \code{new("indMatrix", ...)}
-  or by coercion from an integer index vector, see below.
+  Objects can be created explicitly with calls of the form
+  \code{new("indMatrix", ...)}, but they are more commonly created
+  by coercing 1-based integer index vectors, with calls of the
+  form \code{as(., "indMatrix")}; see \sQuote{Methods} below.
 }
 \section{Slots}{
   \describe{
-    \item{\code{perm}:}{An integer, 1-based index vector, i.e.
-      an integer vector of length \code{Dim[1]} whose elements are taken from
-      \code{1:Dim[2]}.}
-    \item{\code{Dim}:}{\code{\link{integer}} vector of length two.
-      In some applications, the matrix will be skinny, i.e., with at least
-      as many rows as columns.}
-    \item{\code{Dimnames}:}{a \code{\link{list}} of length two where
-      each component is either \code{\link{NULL}} or a
-      \code{\link{character}} vector of length equal to the
-      corresponding \code{Dim} element.}
+    \item{\code{margin}}{an integer, either 1 or 2, specifying
+      whether the matrix is a row (1) or column (2) index.}
+    \item{\code{perm}}{a 1-based integer index vector, i.e.,
+      a vector of length \code{Dim[margin]} with elements
+      taken from \code{1:Dim[1+margin\%\%2]}.}
+    \item{\code{Dim},\code{Dimnames}}{inherited from virtual
+      superclass \code{\linkS4class{Matrix}}.}
   }
 }
 \section{Extends}{
-  Class \code{"\linkS4class{sparseMatrix}"} and
+  Classes \code{"\linkS4class{sparseMatrix}"} and
   \code{"\linkS4class{generalMatrix}"}, directly.
 }
 \section{Methods}{
   \describe{
-    \item{\%*\%}{\code{signature(x = "matrix", y = "indMatrix")} and other
-      signatures (use \code{showMethods("\%*\%", class="indMatrix")}): ... }
-    \item{coerce}{\code{signature(from = "integer", to = "indMatrix")}:
-      This enables typical \code{"indMatrix"} construction, given
-      an index vector from elements in \code{1:Dim[2]}, see the first example.}
-    \item{coerce}{\code{signature(from = "numeric", to = "indMatrix")}:
-      a user convenience, to allow \code{as(perm, "indMatrix")} for
-      numeric \code{perm} with integer values.}
-    \item{coerce}{\code{signature(from = "list", to = "indMatrix")}:
-      The list must have two (integer-valued) entries: the first giving
-      the index vector with elements in \code{1:Dim[2]}, the second giving
-      \code{Dim[2]}.  This allows \code{"indMatrix"} construction for
-      cases in which the values represented by the rightmost column(s)
-      are not associated with any observations, i.e., in which the index does
-      not contain values \code{Dim[2], Dim[2]-1, Dim[2]-2, ...}}
-    \item{coerce}{\code{signature(from = "indMatrix", to = "matrix")}:
-      coercion to a traditional FALSE/TRUE \code{\link{matrix}} of
-      \code{\link{mode}} \code{logical}.}
-    \item{t}{\code{signature(x = "indMatrix")}: return the transpose of
-      the index matrix (which is no longer an \code{indMatrix},
-      but of class \code{\linkS4class{ngTMatrix}}.}
-    \item{colSums, colMeans, rowSums, rowMeans}{\code{signature(x = "indMatrix")}:
-      return the column or row sums or means.}
-    \item{rbind2}{\code{signature(x = "indMatrix", y = "indMatrix")}: a
-      fast method for rowwise catenation of two index matrices (with the
-      same number of columns).}
+    \item{\code{\%*\%}}{\code{signature(x = "indMatrix", y = "Matrix")}
+      and others listed by \code{showMethods("\%*\%", classes = "indMatrix")}:
+      matrix products implemented where appropriate as indexing operations.}
+    \item{\code{coerce}}{\code{signature(from = "numeric", to = "indMatrix")}:
+      supporting typical \code{indMatrix} construction from
+      a vector of positive integers.  Row indexing is assumed.}
+    \item{\code{coerce}}{\code{signature(from = "list", to = "indMatrix")}:
+      supporting \code{indMatrix} construction for row \emph{and}
+      column indexing, including index vectors of length 0 and
+      index vectors whose maximum is less than the number of rows
+      or columns being indexed.}
+    \item{\code{coerce}}{\code{signature(from = "indMatrix", to = "matrix")}:
+      coercion to a traditional \code{\link{matrix}} of \link{logical} type,
+      with \code{FALSE} and \code{TRUE} in place of 0 and 1.}
+    \item{\code{t}}{\code{signature(x = "indMatrix")}:
+      the transpose, which is an \code{indMatrix} with identical
+      \code{perm} but opposite \code{margin}.}
+    \item{\code{rowSums},\code{rowMeans},\code{colSums},\code{colMeans}}{\code{signature(x = "indMatrix")}:
+      row and column sums and means.}
+    \item{\code{rbind2},\code{cbind2}}{\code{signature(x = "indMatrix", y = "indMatrix")}:
+      row-wise catenation of two row index matrices with equal numbers
+      of columns and column-wise catenation of two column index matrices
+      with equal numbers of rows.}
     \item{kronecker}{\code{signature(X = "indMatrix", Y = "indMatrix")}:
-      return the kronecker product of two index matrices, which corresponds to
-      the index matrix of the interaction of the two.}
+      Kronecker product of two row index matrices or two column index
+      matrices, giving the row or column index matrix corresponding to
+      their \dQuote{interaction}.}
   }
 }
-\author{Fabian Scheipl, Uni Muenchen, building on existing
-  \code{"\linkS4class{pMatrix}"}, after a nice hike's conversation with
-  Martin Maechler; diverse tweaks by the latter.
-  The \code{\link{crossprod}(x,y)} and \code{\link{kronecker}(x,y)}
-  methods when both arguments are \code{"indMatrix"} have been made
-  considerably faster thanks to a suggestion by Boris Vaillant.
+\author{Fabian Scheipl and Uni Muenchen, building on the existing class
+  \code{\linkS4class{pMatrix}} after a nice hike's conversation with
+  Martin Maechler.  Methods for \code{\link{crossprod}(x, y)} and
+  \code{\link{kronecker}(x, y)} with both arguments inheriting from
+  \code{indMatrix} were made considerably faster thanks to a suggestion
+  by Boris Vaillant.  Diverse tweaks by Martin Maechler and
+  Mikael Jagan, notably the latter's implementation of \code{margin},
+  prior to which the \code{indMatrix} class was designated only for
+  row index matrices.
 }
 \details{
-  Matrix (vector) multiplication with index matrices from the left is
-  equivalent to replicating and permuting rows of the matrix on the right
-  hand side.  (Similarly, matrix multiplication with the transpose of an
-  index matrix from the right corresponds to selecting \emph{columns}.)
-  The crossproduct of an index matrix \eqn{M} with itself is a diagonal
-  matrix with the number of entries in each column of \eqn{M} on the
-  diagonal, i.e., \eqn{M'M=}\code{Diagonal(x=table(M@perm))}.
+  The transpose of an index matrix is an index matrix with identical
+  \code{perm} but opposite \code{margin}.  Hence the transpose of a
+  row index matrix is a column index matrix, and vice versa.
 
-  Permutation matrices (of class \code{\linkS4class{pMatrix}}) are special
-  cases of index matrices: They are square, of dimension, say, \eqn{n
-  \times n}{n * n}, and their index vectors contain exactly all of \code{1:n}.
+  The cross product of a row index matrix \code{R} and itself is a
+  diagonal matrix whose diagonal entries are the the number of entries
+  in each column of \code{R}.
+  
+  Given a row index matrix \code{R} with \code{perm} slot \code{p},
+  a column index matrix \code{C} with \code{perm} slot \code{q},
+  and a matrix \code{M} with conformable dimensions, we have
+  \tabular{lclcl}{
+    \eqn{R M} \tab = \tab \code{R \%*\% M}        \tab = \tab \code{M[p, ]}\cr
+    \eqn{M C} \tab = \tab \code{M \%*\% C}        \tab = \tab \code{M[, q]}\cr
+    \eqn{C'M} \tab = \tab \code{crossprod(C, M)}  \tab = \tab \code{M[q, ]}\cr
+    \eqn{MR'} \tab = \tab \code{tcrossprod(M, R)} \tab = \tab \code{M[, p]}\cr
+    \eqn{R'R} \tab = \tab \code{crossprod(R)}     \tab = \tab \code{Diagonal(x=tabulate(p, ncol(R)))}\cr
+    \eqn{CC'} \tab = \tab \code{tcrossprod(C)}    \tab = \tab \code{Diagonal(x=tabulate(q, nrow(C)))}
+  }
 
-  While \dQuote{row-indexing} (of more than one row \emph{or} using
-  \code{drop=FALSE}) stays within the \code{"indMatrix"} class, all
-  other subsetting/indexing operations (\dQuote{column-indexing},
-  including, \code{\link{diag}}) on \code{"indMatrix"} objects treats
-  them as nonzero-pattern matrices (\code{"\linkS4class{ngTMatrix}"}
-  specifically), such that non-matrix subsetting results in
-  \code{\link{logical}} vectors.
-  Sub-assignment (\code{M[i,j] <- v}) is not sensible and hence an error
-  for these matrices.
+  Operations on index matrices that result in index matrices will
+  accordingly return an \code{indMatrix}.  These include products
+  of two column index matrices and (equivalently) column-indexing
+  of a column index matrix (when dimensions are not dropped).
+  Most other operations on \code{indMatrix} treat them as sparse
+  nonzero pattern matrices (i.e., inheriting from virtual class
+  \code{\linkS4class{nsparseMatrix}}).  Hence vector-valued subsets
+  of \code{indMatrix}, such as those given by \code{\link{diag}},
+  are always of type \code{"\link{logical}"}.
 }
 \seealso{
-  The permutation matrices \code{\linkS4class{pMatrix}} are special
-  index matrices.  The \dQuote{pattern} matrices,
-  \code{\linkS4class{nMatrix}} and its subclasses.
+  Subclass \code{\linkS4class{pMatrix}} of permutation matrices,
+  a special case of index matrices; virtual class
+  \code{\linkS4class{nMatrix}} of nonzero pattern matrices,
+  and its subclasses.
 }
 \examples{
 p1 <- as(c(2,3,1), "pMatrix")
@@ -177,4 +198,3 @@ stopifnot(is(I12, "indMatrix"),
           identical(I12, rbind(I1, I2)),
 	  colSums(I12) == c(2L,2:4,4:2))
 }
-\keyword{classes}

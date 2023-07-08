@@ -1,5 +1,10 @@
-\name{isTriangular}
+\name{isTriangular-methods}
 \title{Test whether a Matrix is Triangular or Diagonal}
+%
+\docType{methods}
+\keyword{array}
+\keyword{programming}
+\keyword{methods}
 %
 \alias{isTriangular}
 \alias{isTriangular-methods}
@@ -91,4 +96,3 @@ isDiagonal(matrix(c(2,0,0,1), 2,2)) # TRUE
 showMethods("isTriangular", includeDefs = TRUE)
 showMethods("isDiagonal", includeDefs = TRUE)
 }
-\keyword{methods}

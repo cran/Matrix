@@ -1,6 +1,9 @@
 \name{Diagonal}
 \title{Construct a Diagonal Matrix}
 %
+\keyword{array}
+\keyword{utilities}
+%
 \alias{Diagonal}
 \alias{.sparseDiagonal}
 \alias{.trDiagonal}
@@ -86,6 +89,9 @@ Diagonal(n, x = NULL, names = FALSE)
   further, class \code{\linkS4class{diagonalMatrix}}.
 }
 \examples{
+\dontshow{ % for R_DEFAULT_PACKAGES=NULL
+library(stats, pos = "package:base", verbose = FALSE)
+}
 Diagonal(3)
 Diagonal(x = 10^(3:1))
 Diagonal(x = (1:4) >= 2)#-> "ldiMatrix"
@@ -104,5 +110,3 @@ stopifnot(I4@diag == "U", all(I4 == diag(4)))
   stopifnot(L@diag == "U", identical(L, Diagonal(5) > 0))
 }
 }
-\keyword{array}
-\keyword{algebra}

@@ -1,6 +1,8 @@
 \name{index-class}
 \title{Virtual Class "index" - Simple Class for Matrix Indices}
+%
 \docType{class}
+\keyword{classes}
 %
 \alias{index-class}
 %
@@ -22,4 +24,3 @@
 \examples{
 showClass("index")
 }
-\keyword{classes}

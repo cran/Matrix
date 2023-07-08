@@ -1,6 +1,8 @@
 \name{number-class}
 \title{Class "number" of Possibly Complex Numbers}
+%
 \docType{class}
+\keyword{classes}
 %
 \alias{number-class}
 %
@@ -17,4 +19,3 @@
 showClass("number")
 stopifnot( is(1i, "number"), is(pi, "number"), is(1:3, "number") )
 }
-\keyword{classes}

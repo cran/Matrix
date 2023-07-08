@@ -1,6 +1,13 @@
 \name{is.null.DN}
 \title{Are the Dimnames \code{dn} NULL-like ?}
+%
+\keyword{array}
+\keyword{attribute}
+\keyword{programming}
+\keyword{utilities}
+%
 \alias{is.null.DN}
+%
 \description{
   Are the \code{\link{dimnames}} \code{dn} \code{\link{NULL}}-like?
 
@@ -37,30 +44,33 @@
   \code{\link{dimnames}}, \code{\link{matrix}}.
 }
 \examples{
-m <- matrix(round(100 * rnorm(6)), 2,3); m1 <- m2 <- m3 <- m4 <- m
+\dontshow{ % for R_DEFAULT_PACKAGES=NULL
+library(stats, pos = "package:base", verbose = FALSE)
+library(utils, pos = "package:base", verbose = FALSE)
+}
+m1 <- m2 <- m3 <- m4 <- m <-
+    matrix(round(100 * rnorm(6)), 2, 3)
 dimnames(m1) <- list(NULL, NULL)
 dimnames(m2) <- list(NULL, character())
 dimnames(m3) <- rev(dimnames(m2))
 dimnames(m4) <- rep(list(character()),2)
 
-m4 ## prints absolutely identically to  m
+m4 # prints absolutely identically to m
 
-stopifnot(m == m1, m1 == m2, m2 == m3, m3 == m4,
-	  identical(capture.output(m) -> cm,
-		    capture.output(m1)),
-	  identical(cm, capture.output(m2)),
-	  identical(cm, capture.output(m3)),
-	  identical(cm, capture.output(m4)))
-
-hasNoDimnames <- function(.) is.null.DN(dimnames(.))
-
+c.o <- capture.output
+cm <- c.o(m)
 stopifnot(exprs = {
-  hasNoDimnames(m)
-  hasNoDimnames(m1); hasNoDimnames(m2)
-  hasNoDimnames(m3); hasNoDimnames(m4)
-  hasNoDimnames(Matrix(m) -> M)
-  hasNoDimnames(as(M, "sparseMatrix"))
+    m == m1; m == m2; m == m3; m == m4
+	identical(cm, c.o(m1));	identical(cm, c.o(m2))
+	identical(cm, c.o(m3)); identical(cm, c.o(m4))
 })
 
+hasNoDimnames <- function(.) is.null.DN(dimnames(.))
+stopifnot(exprs = {
+    hasNoDimnames(m)
+    hasNoDimnames(m1); hasNoDimnames(m2)
+    hasNoDimnames(m3); hasNoDimnames(m4)
+    hasNoDimnames(Matrix(m) -> M)
+    hasNoDimnames(as(M, "sparseMatrix"))
+})
 }
-\keyword{utilities}

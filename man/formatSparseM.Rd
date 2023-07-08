@@ -1,7 +1,13 @@
 \name{formatSparseM}
 \title{Formatting Sparse Numeric Matrices Utilities}
+%
+\keyword{character}
+\keyword{print}
+\keyword{utilities}
+%
 \alias{formatSparseM}
 \alias{.formatSparseSimple}
+%
 \description{
   Utilities for formatting sparse numeric matrices in a flexible way.
   These functions are used by the \code{\link{format}} and \code{print}
@@ -77,5 +83,3 @@ noquote(f2 <- formatSparseM(m,align="r"))
 stopifnot(f2 == fm   |   m == 0, dim(f2) == dim(m),
          (f2 == ".") == (m == 0))
 }
-\keyword{utilities}
-\keyword{print}

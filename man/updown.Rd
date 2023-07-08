@@ -1,60 +1,77 @@
-\name{updown}
-\title{Up- and Down-Dating a Cholesky Decomposition}
+\name{updown-methods}
+\title{Updating and Downdating Sparse Cholesky Factorizations}
+%
+\docType{methods}
+\keyword{algebra}
+\keyword{array}
+\keyword{methods}
 %
 \alias{updown}
 \alias{updown-methods}
 %
-\alias{updown,ANY,ANY,ANY-method}
-\alias{updown,character,mMatrix,CHMfactor-method}
-\alias{updown,logical,mMatrix,CHMfactor-method}
+\alias{updown,character,Matrix,CHMfactor-method}
+\alias{updown,character,matrix,CHMfactor-method}
+\alias{updown,logical,Matrix,CHMfactor-method}
+\alias{updown,logical,dgCMatrix,CHMfactor-method}
+\alias{updown,logical,dsCMatrix,CHMfactor-method}
+\alias{updown,logical,dtCMatrix,CHMfactor-method}
+\alias{updown,logical,matrix,CHMfactor-method}
 %
 \description{
-  Compute the up- or down-dated Cholesky decomposition
+  Computes a rank-\eqn{k} update or downdate of a sparse Cholesky
+  factorization
+  \deqn{P_{1} A P_{1}' = L_{1} D L_{1}' = L L'}{P1 * A * P1' = L1 * D * L1' = L * L'}
+  which for some \eqn{k}-column matrix \eqn{C} is the factorization
+  \deqn{P_{1} (A + s C C') P_{1}' = \tilde{L}_{1} \tilde{D} \tilde{L}_{1}' = \tilde{L} \tilde{L}'}{P1 * (A + s * C * C') * P1' = L~1 * D~ * L~1' = L~ * L~'}
+  Here, \eqn{s = 1} for an update and \eqn{s = -1} for a downdate.
 }
 \usage{
 updown(update, C, L)
 }
 \arguments{
-  \item{update}{logical (\code{TRUE} or \code{FALSE}) or \code{"+"} or
-    \code{"-"} indicating if an up- or a down-date is to be computed.}
-  \item{C}{any \R object, coercable to a sparse matrix (i.e., of
-    subclass of \code{\linkS4class{sparseMatrix}}).}
-  \item{L}{a Cholesky factor, specifically, of class
-    \code{"\linkS4class{CHMfactor}"}.}
+  \item{update}{a logical (\code{TRUE} or \code{FALSE}) or
+    character (\code{"+"} or \code{"-"}) indicating if \code{L}
+    should be updated (or otherwise downdated).}
+  \item{C}{a \link[=is.finite]{finite} matrix or
+    \code{\linkS4class{Matrix}} such that
+    \code{\link{tcrossprod}(C)} has the dimensions of \code{L}.}
+  \item{L}{an object of class \code{\linkS4class{dCHMsimpl}} or
+    \code{\linkS4class{dCHMsuper}} specifying a sparse Cholesky
+    factorization.}
 }
-
-% \details{
-% }
-
 \value{
-  an updated Cholesky factor, of the same dimension as \code{L}.
-  Typically of class \code{"\linkS4class{dCHMsimpl}"} (a sub class of
-  \code{"\linkS4class{CHMfactor}"}).
-}
-\references{
-  CHOLMOD manual, currently beginning of chapter~18. ... %% FIXME
-}
-\author{Contributed by Nicholas Nagle, University of Tennessee, Knoxville, USA}
-\section{Methods}{
-  \describe{
-    \item{\code{signature(update = "character", C = "mMatrix", L = "CHMfactor")}}{..}
-    \item{\code{signature(update = "logical", C = "mMatrix", L = "CHMfactor")}}{ .. }
-  }
+  A sparse Cholesky factorization with dimensions matching \code{L},
+  typically of class \code{\linkS4class{dCHMsimpl}}.
 }
 \seealso{
- \code{\link{Cholesky}},
+  Classes
+  \code{\linkS4class{dCHMsimpl}} and \code{\linkS4class{dCHMsuper}}
+  and their methods, notably for generic function \code{\link{update}},
+  which is \emph{not} equivalent to \code{updown(update = TRUE)}.
+
+  Generic function \code{\link{Cholesky}}.
+}
+\author{Initial implementation by Nicholas Nagle, University of Tennessee.}
+\references{
+  Davis, T. A., Hager, W. W. (2001).
+  Multiple-rank modifications of a sparse Cholesky factorization.
+  \emph{SIAM Journal on Matrix Analysis and Applications},
+  \emph{22}(4), 997-1013.
+  \doi{10.1137/S0895479899357346}
 }
 \examples{
-dn <- list(LETTERS[1:3], letters[1:5])
-## pointer vectors can be used, and the (i,x) slots are sorted if necessary:
-m <- sparseMatrix(i = c(3,1, 3:2, 2:1), p= c(0:2, 4,4,6), x = 1:6, dimnames = dn)
-cA <- Cholesky(A <- crossprod(m) + Diagonal(5))
-166 * as(cA,"Matrix") ^ 2
-uc1 <- updown("+",   Diagonal(5), cA)
+m <- sparseMatrix(i = c(3, 1, 3:2, 2:1), p = c(0:2, 4, 4, 6), x = 1:6,
+                  dimnames = list(LETTERS[1:3], letters[1:5]))
+uc0 <- Cholesky(A <- crossprod(m) + Diagonal(5))
+uc1 <- updown("+", Diagonal(5, 1), uc0)
+uc2 <- updown("-", Diagonal(5, 1), uc1)
+stopifnot(all.equal(uc0, uc2))
+\dontshow{
+if(FALSE) {
 ## Hmm: this loses positive definiteness:
-uc2 <- updown("-", 2*Diagonal(5), cA)
-image(show(as(cA, "Matrix")))
-image(show(c2 <- as(uc2,"Matrix")))# severely negative entries
-##--> Warning
+uc2 <- updown("-", Diagonal(5, 2), uc0)
+image(show(as(uc0, "CsparseMatrix")))
+image(show(as(uc2, "CsparseMatrix"))) # severely negative entries
 }
-\keyword{methods}
+}
+}

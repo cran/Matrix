@@ -211,7 +211,7 @@ setMethod("t", signature(x = "unpackedMatrix"),
           function(x)
               .Call(unpackedMatrix_transpose, x))
 setMethod("diag", signature(x = "unpackedMatrix"),
-          function(x, nrow, ncol, names)
+          function(x, nrow, ncol, names = TRUE)
               .Call(unpackedMatrix_diag_get, x, names))
 setMethod("diag<-", signature(x = "unpackedMatrix"),
           function(x, value)
@@ -221,12 +221,15 @@ setMethod("symmpart", signature(x = "unpackedMatrix"),
           function(x) .Call(unpackedMatrix_symmpart, x))
 setMethod("symmpart", signature(x = "matrix"),
           ## function(x) .Call(matrix_symmpart, x)) # returning .syMatrix
-          function(x) symmetrizeDimnames(x + t(x)) / 2) # returning matrix
+          function(x) 0.5 * symmetrizeDimnames(x + t(x))) # returning matrix
 
 setMethod("skewpart", signature(x = "unpackedMatrix"),
           function(x) .Call(unpackedMatrix_skewpart, x))
 setMethod("skewpart", signature(x = "matrix"),
           ## function(x) .Call(matrix_skewpart, x)) # returning .geMatrix
-          function(x) symmetrizeDimnames(x - t(x)) / 2) # returning matrix
+          function(x) 0.5 * symmetrizeDimnames(x - t(x))) # returning matrix
+
+setMethod("cov2cor", signature(V = "unpackedMatrix"),
+          function(V) as(forceSymmetric(V), "corMatrix"))
 
 rm(.upM.subclasses)

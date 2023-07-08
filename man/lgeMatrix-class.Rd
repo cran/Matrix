@@ -1,6 +1,9 @@
 \name{lgeMatrix-class}
-\docType{class}
 \title{Class "lgeMatrix" of General Dense Logical Matrices}
+%
+\docType{class}
+\keyword{array}
+\keyword{classes}
 %
 \alias{lgeMatrix-class}
 %
@@ -44,6 +47,10 @@ Class \code{"Matrix"}, by class \code{"ldenseMatrix"}.
   \emph{sparse} logical classes such as \code{\linkS4class{lgCMatrix}}.
 }
 \examples{
+\dontshow{ % for R_DEFAULT_PACKAGES=NULL
+library(stats, pos = "package:base", verbose = FALSE)
+library(utils, pos = "package:base", verbose = FALSE)
+}
 showClass("lgeMatrix")
 str(new("lgeMatrix"))
 set.seed(1)
@@ -52,4 +59,3 @@ set.seed(11)
 (lC <- Matrix(matrix(rnorm(28), 4,7) > 0))# a simple random lgCMatrix
 as(lM, "CsparseMatrix")
 }
-\keyword{classes}

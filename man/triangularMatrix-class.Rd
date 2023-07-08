@@ -1,6 +1,9 @@
 \name{triangularMatrix-class}
 \title{Virtual Class of Triangular Matrices in Package Matrix}
+%
 \docType{class}
+\keyword{array}
+\keyword{classes}
 %
 \alias{triangularMatrix-class}
 %
@@ -64,4 +67,3 @@ names(scl)[directly]
 (m <- matrix(c(5,1,0,3), 2))
 as(m, "triangularMatrix")
 }
-\keyword{classes}

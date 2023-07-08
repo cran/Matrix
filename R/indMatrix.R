@@ -1,79 +1,103 @@
 ## METHODS FOR CLASS: indMatrix
-## row index matrices, i.e., matrices with standard unit row vectors
+## index matrices, i.e., matrices with standard unit vectors
+## for all rows _or_ all columns
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+## MJ: could export without dot and deprecate as(<list>, "indMatrix")
+.perm2ind <- function(perm, n, margin = 1L, check.p = FALSE) {
+    perm.i <- perm
+    if(!is.numeric(perm))
+        stop("'perm' must be numeric")
+    else if(anyNA(r <- range(perm)) || r[1L] < 1L ||
+            (is.double(perm) && any(perm != (perm.i <- as.integer(perm)))))
+        stop("elements of 'perm' must be positive integers")
+    else if((m.i <- length(perm)) > (M <- .Machine$integer.max) || r[2L] > M)
+        stop("dimensions cannot exceed 2^31-1")
+
+    if(missing(n))
+        n.i <- as.integer(r[2L])
+    else {
+        n.i <- n
+        if(!is.numeric(n) || length(n) != 1L || is.na(n) || n < 0L ||
+           (is.double(n) && n != (n.i <- as.integer(n))))
+            stop("'n' must be a non-negative integer")
+        else if(n > M)
+            stop("dimensions cannot exceed 2^31-1")
+        else if(r[2L] > n)
+            stop("elements of 'perm' cannot exceed 'n'")
+    }
+
+    if(!is.numeric(margin) || length(margin) != 1L || is.na(margin) ||
+       (margin != 1L && margin != 2L))
+        stop("'margin' must be 1 or 2")
+    margin.i <- as.integer(margin)
+
+    give.p <- check.p && m.i == n.i &&
+        (m.i == 0L || (all(r == c(1L, m.i)) && !anyDuplicated.default(perm.i)))
+
+    J <- new(if(give.p) "pMatrix" else "indMatrix")
+    nms <- names(perm)
+    if(margin.i == 1L) {
+        J@Dim <- c(m.i, n.i)
+        J@Dimnames = list(nms, if(give.p) nms)
+    } else {
+        J@Dim <- c(n.i, m.i)
+        J@Dimnames = list(if(give.p) nms, nms)
+        J@margin <- 2L
+    }
+    J@perm <- perm.i
+    J
+}
 
 
 ## ~~~~ COERCIONS TO ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-setAs("integer", "indMatrix",
-      function(from) {
-          if ((m <- length(from)) == 0L)
-              return(new("indMatrix"))
-          if(anyNA(from))
-              stop("'perm' slot cannot contain NA")
-          r <- range(from)
-          if(r[1L] < 1L)
-              stop("elements of 'perm' slot must be positive integers")
-          new("indMatrix",
-              Dim = c(m, r[2L]),
-              Dimnames = list(names(from), NULL),
-              perm = from)
-      })
-
 setAs("numeric", "indMatrix",
       function(from) {
-          if ((m <- length(from)) == 0L)
-              return(new("indMatrix"))
-          if(anyNA(from))
-              stop("'perm' slot cannot contain NA")
-          r <- range(from)
-          if((r2 <- r[2L]) > .Machine$integer.max)
-              stop("elements of 'perm' slot cannot exceed 2^31-1")
-          if(r[1L] < 1 || any(from != (from.i <- as.integer(from))))
+          J <- new("indMatrix")
+          if((m <- length(from)) == 0L)
+              return(J)
+          from.i <- from
+          if(anyNA(r <- range(from)) || r[1L] < 1L ||
+             (is.double(from) && any(from != (from.i <- as.integer(from)))))
               stop("elements of 'perm' slot must be positive integers")
-          new("indMatrix",
-              Dim = c(m, as.integer(r2)),
-              Dimnames = list(names(from), NULL),
-              perm = from.i)
+          if(m > (M <- .Machine$integer.max) || r[2L] > M)
+              stop("dimensions cannot exceed 2^31-1")
+          J@Dim <- c(m, as.integer(r[2L]))
+          J@Dimnames <- list(names(from), NULL)
+          J@perm <- from.i
+          J
       })
 
 setAs("list", "indMatrix",
-      ## Here, 'from' must be a list of the form 'list(perm, ncol)' ...
-      ## needed for the 'max(perm) < ncol' and 'length(perm) == 0L' cases
       function(from) {
           if(length(from) != 2L)
               stop("only lists of length 2 can be coerced to indMatrix")
-          n <- n.i <- from[[2L]]
-          if(!is.numeric(n) || length(n) != 1L ||
-             is.na(n) || n < 0 || n > .Machine$integer.max ||
-             (!is.integer(n) && n != (n.i <- as.integer(n))))
-              stop("<list>[[2]] must be a nonnegative integer less than or equal to 2^31-1")
-          perm <- perm.i <- from[[1L]]
-          if(!is.numeric(perm))
-              stop("<list>[[1]] must be numeric")
-          if(anyNA(perm))
-              stop("<list>[[1]] cannot contain NA")
-          r <- range(perm)
-          if(r[2L] > n.i)
-              stop("elements of <list>[[1]] cannot exceed <list>[[2]]")
-          if(r[1L] < 1 || (!is.integer(perm) &&
-                           any(perm != (perm.i <- as.integer(perm)))))
-              stop("elements of <list>[[1]] must be positive integers")
-          new("indMatrix",
-              Dim = c(length(perm.i), n.i),
-              Dimnames = list(names(perm.i), NULL),
-              perm = perm.i)
+          do.call(.perm2ind, unname(from))
       })
 
 setAs("nsparseMatrix", "indMatrix",
       function(from) {
-	  from <- as(as(from, "RsparseMatrix"), "generalMatrix")
-          p <- from@p
+          from <- .sparse2g(from)
+          J <- new("indMatrix")
+          J@Dim <- from@Dim
+          J@Dimnames <- from@Dimnames
+          from. <- as(from, "RsparseMatrix")
+          p <- from.@p
           m <- length(p) - 1L
-          if(m > 0L && any(p != 0:m))
-              stop("matrix must have exactly one nonzero element in each row")
-          new("indMatrix", Dim = from@Dim, Dimnames = from@Dimnames,
-              perm = from@j + 1L)
+          if(all(p == 0:m)) {
+              J@perm <- from.@j + 1L
+              return(J)
+          }
+          from. <- as(from, "CsparseMatrix")
+          p <- from.@p
+          n <- length(p) - 1L
+          if(all(p == 0:n)) {
+              J@perm <- from.@i + 1L
+              J@margin <- 2L
+              return(J)
+          }
+          stop("matrix must have exactly one nonzero element in each row or column")
       })
 
 setAs("Matrix", "indMatrix",
@@ -85,71 +109,113 @@ setAs("matrix", "indMatrix",
 
 ## ~~~~ COERCIONS FROM ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.ind2dge <- function(from) {
-    x <- double(prod(d <- from@Dim))
-    if((n <- d[1L]) > 0L)
-        x[seq_len(n) + (from@perm - 1L) * as.double(n)] <- 1
-    new("dgeMatrix", Dim = d, Dimnames = from@Dimnames, x = x)
+.ind2dge <- .ind2lge <- .ind2nge <- function(from) {
+    J <- new(.CLASS)
+    J@Dim <- d <- from@Dim
+    J@Dimnames <- from@Dimnames
+    perm <- from@perm
+    x <- .VECTOR(prod(d))
+    if((m <- length(perm)) > 0L) {
+        if(from@margin == 1L)
+            x[seq.int(  to =  0L, by =    1L, length.out = m) +
+              perm * as.double(m)] <- .ONE
+        else
+            x[seq.int(from = -1L, by = d[1L], length.out = m) +
+              perm               ] <- .ONE
+    }
+    J@x <- x
+    J
 }
-.ind2lge <- function(from) {
-    x <- logical(prod(d <- from@Dim))
-    if((n <- d[1L]) > 0L)
-        x[seq_len(n) + (from@perm - 1L) * as.double(n)] <- TRUE
-    new("lgeMatrix", Dim = d, Dimnames = from@Dimnames, x = x)
-}
-.ind2nge <- function(from) {
-    x <- logical(prod(d <- from@Dim))
-    if((n <- d[1L]) > 0L)
-        x[seq_len(n) + (from@perm - 1L) * as.double(n)] <- TRUE
-    new("ngeMatrix", Dim = d, Dimnames = from@Dimnames, x = x)
-}
+body(.ind2dge) <-
+    do.call(substitute, list(body(.ind2dge), list(.CLASS = "dgeMatrix",
+                                                  .VECTOR = quote(double),
+                                                  .ONE = 1)))
+body(.ind2lge) <-
+    do.call(substitute, list(body(.ind2lge), list(.CLASS = "lgeMatrix",
+                                                  .VECTOR = quote(logical),
+                                                  .ONE = TRUE)))
+body(.ind2nge) <-
+    do.call(substitute, list(body(.ind2nge), list(.CLASS = "ngeMatrix",
+                                                  .VECTOR = quote(logical),
+                                                  .ONE = TRUE)))
+
 .ind2n.p <- function(from) {
     from <-
         if(isSymmetric(from))
             forceSymmetric(from)
         else if(!(it <- isTriangular(from)))
             stop("matrix is not symmetric or triangular")
-        else if (attr(it, "kind") == "U")
+        else if(attr(it, "kind") == "U")
             triu(from)
         else tril(from)
     .Call(R_sparse_as_dense, from, TRUE)
 }
-.ind2dgC <- function(from) {
+
+.ind2dgC <- .ind2lgC <- .ind2ngC <- function(from) {
+    J <- new(.CLASS)
+    J@Dim <- d <- from@Dim
+    J@Dimnames <- from@Dimnames
     perm <- from@perm
-    d <- from@Dim
-    new("dgCMatrix", Dim = d, Dimnames = from@Dimnames,
-        p = c(0L, cumsum(tabulate(perm, d[2L]))), i = sort.list(perm) - 1L,
-        x = rep.int(1, length(perm)))
+    if(from@margin == 1L) {
+        J@p <- c(0L, cumsum(tabulate(perm, d[2L])))
+        J@i <- sort.list(perm) - 1L
+    } else {
+        J@p <- 0:length(perm)
+        J@i <- perm - 1L
+    }
+    J@x <- rep.int(.ONE, length(perm))
+    J
 }
-.ind2lgC <- function(from) {
-    perm <- from@perm
-    d <- from@Dim
-    new("lgCMatrix", Dim = d, Dimnames = from@Dimnames,
-        p = c(0L, cumsum(tabulate(perm, d[2L]))), i = sort.list(perm) - 1L,
-        x = rep.int(TRUE, length(perm)))
-}
-.ind2ngC <- function(from) {
-    perm <- from@perm
-    d <- from@Dim
-    new("ngCMatrix", Dim = d, Dimnames = from@Dimnames,
-        p = c(0L, cumsum(tabulate(perm, d[2L]))), i = sort.list(perm) - 1L)
-}
+body(.ind2dgC) <-
+    do.call(substitute, list(body(.ind2dgC), list(.CLASS = "dgCMatrix",
+                                                  .ONE = 1)))
+body(.ind2lgC) <-
+    do.call(substitute, list(body(.ind2lgC), list(.CLASS = "lgCMatrix",
+                                                  .ONE = TRUE)))
+body(.ind2ngC) <-
+    do.call(substitute, list(body(.ind2ngC), list(.CLASS = "ngCMatrix")))
+body(.ind2ngC)[[7L]] <- NULL
+
 .ind2ngR <- function(from) {
+    J <- new("ngRMatrix")
+    J@Dim <- d <- from@Dim
+    J@Dimnames <- from@Dimnames
     perm <- from@perm
-    new("ngRMatrix", Dim = from@Dim, Dimnames = from@Dimnames,
-        p = 0:length(perm), j = perm - 1L)
+    if(from@margin == 1L) {
+        J@p <- 0:length(perm)
+        J@j <- perm - 1L
+    } else {
+        J@p <- c(0L, cumsum(tabulate(perm, d[1L])))
+        J@j <- sort.list(perm) - 1L
+    }
+    J
 }
+
 .ind2ngT <- function(from) {
+    J <- new("ngTMatrix")
+    J@Dim      <- from@Dim
+    J@Dimnames <- from@Dimnames
     perm <- from@perm
-    new("ngTMatrix", Dim = from@Dim, Dimnames = from@Dimnames,
-        i = if((m <- length(perm)) > 0L) 0:(m-1L) else integer(0L),
-        j = perm - 1L)
+    if(from@margin == 1L) {
+        J@i <- seq.int(from = 0L, by = 1L, length.out = length(perm))
+        J@j <- perm - 1L
+    } else {
+        J@i <- perm - 1L
+        J@j <- seq.int(from = 0L, by = 1L, length.out = length(perm))
+    }
+    J
 }
+
 .ind2diag <- function(from) {
     if (!isDiagonal(from))
         stop("matrix is not diagonal; consider Diagonal(x=diag(.))")
-    new("ldiMatrix", Dim = from@Dim, Dimnames = from@Dimnames, diag = "U")
+    J <- new("ldiMatrix")
+    J@Dim <- from@Dim
+    J@Dimnames <- from@Dimnames
+    J@diag <- "U"
+    J
 }
+
 .ind2p <- function(from) new("pMatrix", from)
 
 setAs("indMatrix",    "denseMatrix", .ind2nge)
@@ -185,45 +251,39 @@ setMethod("as.numeric", signature(x = "indMatrix"),
 setMethod("as.logical", signature(x = "indMatrix"),
           function(x, ...) .ind2v(x))
 
-## DEPRECATED IN 1.5-0; see ./zzz.R
-if(FALSE) {
-setAs("indMatrix", "ngTMatrix", .ind2ngT)
-setAs("indMatrix", "ngeMatrix", .ind2nge)
-} ## DEPRECATED IN 1.5-0; see ./zzz.R
-
 rm(.ind2dge, .ind2lge, .ind2nge, .ind2n.p,
-   .ind2dgC, .ind2lgC, .ind2ngC, .ind2ngR, # .ind2ngT,
+   .ind2dgC, .ind2lgC, .ind2ngC, .ind2ngR, .ind2ngT,
    .ind2diag, .ind2p)
-
-if(!.Matrix.supporting.cached.methods) {
-rm(.ind2ngT)
-}
 
 
 ## ~~~~ METHODS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 setMethod("isSymmetric", signature(object = "indMatrix"),
-	  function(object, checkDN = TRUE, ...) {
-	      d <- object@Dim
-	      if((n <- d[1L]) != d[2L])
-		  return(FALSE)
+          function(object, checkDN = TRUE, ...) {
+              d <- object@Dim
+              if((n <- d[1L]) != d[2L])
+                  return(FALSE)
               if(checkDN) {
                   ca <- function(check.attributes = TRUE, ...) check.attributes
                   if(ca(...) && !isSymmetricDN(object@Dimnames))
                       return(FALSE)
               }
-              i <- seq_len(n)
-              j <- object@perm
-              all(j[j] == i)
-	  })
+              perm <- object@perm
+              all(perm[perm] == seq_len(n))
+          })
 
 setMethod("isTriangular", signature(object = "indMatrix"),
           function(object, upper = NA, ...) {
               d <- object@Dim
-	      if((n <- d[1L]) != d[2L])
-		  return(FALSE)
-              i <- seq_len(n)
-              j <- object@perm
+              if((n <- d[1L]) != d[2L])
+                  return(FALSE)
+              if(object@margin == 1L) {
+                  i <- seq_len(n)
+                  j <- object@perm
+              } else {
+                  i <- object@perm
+                  j <- seq_len(n)
+              }
               if(is.na(upper)) {
                   if(all(j >= i))
                       return(`attr<-`(TRUE, "kind", "U"))
@@ -240,23 +300,24 @@ setMethod("isTriangular", signature(object = "indMatrix"),
 setMethod("isDiagonal", signature(object = "indMatrix"),
           function(object) {
               d <- object@Dim
-	      if((n <- d[1L]) != d[2L])
-		  return(FALSE)
+              if((n <- d[1L]) != d[2L])
+                  return(FALSE)
               all(object@perm == seq_len(n))
           })
 
 setMethod("t", signature(x = "indMatrix"),
           function(x) {
-              r <- new("ngTMatrix")
+              r <- new("indMatrix")
               r@Dim <- x@Dim[2:1]
               r@Dimnames = x@Dimnames[2:1]
-              r@i <- (j <- x@perm) - 1L
-              r@j <- if((m <- length(j)) > 0L) 0:(m-1L) else integer(0L)
+              r@perm <- x@perm
+              if(x@margin == 1L)
+                  r@margin <- 2L
               r
           })
 
 setMethod("diag", signature(x = "indMatrix"),
-          function(x, nrow, ncol, names) {
+          function(x, nrow, ncol, names = TRUE) {
               if((m <- min(x@Dim)) == 0L)
                   return(logical(0L))
               i <- seq_len(m)
@@ -275,10 +336,10 @@ setMethod("band", signature(x = "indMatrix"),
           function(x, k1, k2, ...) band(as(x, "nsparseMatrix"), k1, k2))
 
 setMethod("triu", signature(x = "indMatrix"),
-          function(x, k, ...) triu(as(x, "nsparseMatrix")))
+          function(x, k = 0L, ...) triu(as(x, "nsparseMatrix")))
 
 setMethod("tril", signature(x = "indMatrix"),
-          function(x, k, ...) tril(as(x, "nsparseMatrix")))
+          function(x, k = 0L, ...) tril(as(x, "nsparseMatrix")))
 
 setMethod("forceSymmetric", signature(x = "indMatrix", uplo = "missing"),
           function(x, uplo) forceSymmetric(as(x, "nsparseMatrix")))
@@ -287,75 +348,146 @@ setMethod("forceSymmetric", signature(x = "indMatrix", uplo = "character"),
           function(x, uplo) forceSymmetric(as(x, "nsparseMatrix"), uplo))
 
 setMethod("symmpart", signature(x = "indMatrix"),
-	  function(x) symmpart(as(x, "dsparseMatrix")))
+          function(x) symmpart(as(x, "dsparseMatrix")))
 
 setMethod("skewpart", signature(x = "indMatrix"),
-	  function(x) skewpart(as(x, "dsparseMatrix")))
+          function(x) skewpart(as(x, "dsparseMatrix")))
+
+setMethod("%*%", signature(x = "indMatrix", y = "indMatrix"),
+          function(x, y) {
+              mx <- x@margin
+              my <- y@margin
+              px <- x@perm
+              py <- y@perm
+              r <- new(if(mx == my)
+                           "indMatrix"
+                       else if(mx == 1L)
+                           "dgeMatrix"
+                       else "dgTMatrix")
+              r@Dim <- mmultDim(x@Dim, y@Dim, type = 1L)
+              r@Dimnames <- mmultDimnames(x@Dimnames, y@Dimnames, type = 1L)
+              if(mx == my)
+                  r@perm <- if(mx == 1L) py[px] else { r@margin <- 2L; px[py] }
+              else if(mx == 1L)
+                  r@x <- as.double(px == rep(py, each = length(px)))
+              else {
+                  r@i <- px - 1L
+                  r@j <- py - 1L
+                  r@x <- rep.int(1, length(px))
+              }
+              r
+          })
 
 setMethod("%*%", signature(x = "indMatrix", y = "matrix"),
-	  function(x, y) {
+          function(x, y) {
+              if(x@margin != 1L)
+                  return(as(x, "dsparseMatrix") %*% y)
               mmultDim(x@Dim, dim(y), type = 1L)
               r <- .m2ge(y[x@perm, , drop = FALSE], "d")
               r@Dimnames <- mmultDimnames(x@Dimnames, dimnames(y), type = 1L)
               r
           })
 
+setMethod("%*%", signature(x = "matrix", y = "indMatrix"),
+          function(x, y) {
+              if(y@margin == 1L)
+                  return(x %*% as(y, "dsparseMatrix"))
+              mmultDim(dim(x), y@Dim, type = 1L)
+              r <- .m2ge(x[, y@perm, drop = FALSE], "d")
+              r@Dimnames <- mmultDimnames(dimnames(x), y@Dimnames, type = 1L)
+              r
+          })
+
 setMethod("%*%", signature(x = "indMatrix", y = "Matrix"),
-	  function(x, y) {
+          function(x, y) {
+              if(x@margin != 1L)
+                  return(as(x, "dsparseMatrix") %*% y)
               mmultDim(x@Dim, y@Dim, type = 1L)
               r <- as(y[x@perm, , drop = FALSE], "dMatrix")
               r@Dimnames <- mmultDimnames(x@Dimnames, dimnames(y), type = 1L)
               r
           })
 
-setMethod("%*%", signature(x = "matrix", y = "indMatrix"),
-	  function(x, y) x %*% as(y, "dsparseMatrix"))
-
 setMethod("%*%", signature(x = "Matrix", y = "indMatrix"),
-	  function(x, y) x %*% as(y, "dsparseMatrix"))
+          function(x, y) {
+              if(y@margin == 1L)
+                  return(x %*% as(y, "dsparseMatrix"))
+              mmultDim(x@Dim, y@Dim, type = 1L)
+              r <- as(x[, y@perm, drop = FALSE], "dMatrix")
+              r@Dimnames <- mmultDimnames(dimnames(x), y@Dimnames, type = 1L)
+              r
+          })
 
-setMethod("%*%", signature(x = "indMatrix", y = "indMatrix"),
-	  function(x, y) {
-              y@Dim <- mmultDim(x@Dim, y@Dim, type = 1L)
-              y@Dimnames <- mmultDimnames(x@Dimnames, y@Dimnames, type = 1L)
-              y@perm <- y@perm[x@perm]
-              y
+setMethod("%&%", signature(x = "indMatrix", y = "indMatrix"),
+          function(x, y) {
+              mx <- x@margin
+              my <- y@margin
+              px <- x@perm
+              py <- y@perm
+              r <- new(if(mx == my)
+                           "indMatrix"
+                       else if(mx == 1L)
+                           "ngeMatrix"
+                       else "ngTMatrix")
+              r@Dim <- mmultDim(x@Dim, y@Dim, type = 1L)
+              r@Dimnames <- mmultDimnames(x@Dimnames, y@Dimnames, type = 1L)
+              if(mx == my)
+                  r@perm <- if(mx == 1L) py[px] else { r@margin <- 2L; px[py] }
+              else if(mx == 1L)
+                  r@x <- px == rep(py, each = length(px))
+              else {
+                  r@i <- px - 1L
+                  r@j <- py - 1L
+              }
+              r
           })
 
 setMethod("%&%", signature(x = "indMatrix", y = "matrix"),
-	  function(x, y) {
+          function(x, y) {
+              if(x@margin != 1L)
+                  return(as(x, "nsparseMatrix") %&% y)
               mmultDim(x@Dim, dim(y), type = 1L)
               r <- .m2ge(y[x@perm, , drop = FALSE], "n")
               r@Dimnames <- mmultDimnames(x@Dimnames, dimnames(y), type = 1L)
               r
           })
 
+setMethod("%&%", signature(x = "matrix", y = "indMatrix"),
+          function(x, y) {
+              if(y@margin == 1L)
+                  return(x %&% as(y, "nsparseMatrix"))
+              mmultDim(dim(x), y@Dim, type = 1L)
+              r <- .m2ge(x[, y@perm, drop = FALSE], "n")
+              r@Dimnames <- mmultDimnames(dimnames(x), y@Dimnames, type = 1L)
+              r
+          })
+
 setMethod("%&%", signature(x = "indMatrix", y = "Matrix"),
-	  function(x, y) {
+          function(x, y) {
+              if(x@margin != 1L)
+                  return(as(x, "nsparseMatrix") %&% y)
               mmultDim(x@Dim, y@Dim, type = 1L)
               r <- as(y[x@perm, , drop = FALSE], "nMatrix")
               r@Dimnames <- mmultDimnames(x@Dimnames, dimnames(y), type = 1L)
               r
           })
 
-setMethod("%&%", signature(x = "matrix", y = "indMatrix"),
-	  function(x, y) x %*% as(y, "nsparseMatrix"))
-
 setMethod("%&%", signature(x = "Matrix", y = "indMatrix"),
-	  function(x, y) x %*% as(y, "nsparseMatrix"))
-
-setMethod("%&%", signature(x = "indMatrix", y = "indMatrix"),
-	  function(x, y) {
-              y@Dim <- mmultDim(x@Dim, y@Dim, type = 1L)
-              y@Dimnames <- mmultDimnames(x@Dimnames, y@Dimnames, type = 1L)
-              y@perm <- y@perm[x@perm]
-              y
+          function(x, y) {
+              if(y@margin == 1L)
+                  return(x %&% as(y, "nsparseMatrix"))
+              mmultDim(x@Dim, y@Dim, type = 1L)
+              r <- as(x[, y@perm, drop = FALSE], "nMatrix")
+              r@Dimnames <- mmultDimnames(dimnames(x), y@Dimnames, type = 1L)
+              r
           })
 
 setMethod("crossprod", signature(x = "indMatrix", y = "missing"),
-	  function(x, y = NULL, boolArith = NA, ...) {
+          function(x, y = NULL, boolArith = NA, ...) {
+              if(x@margin != 1L)
+                  return(tcrossprod(t(x), boolArith = boolArith, ...))
               n <- x@Dim[2L]
-              tt <- tabulate(x@perm, nbins = n)
+              tt <- tabulate(x@perm, n)
               if(isTRUE(boolArith)) {
                   r <- new("ldiMatrix")
                   r@x <- as.logical(tt)
@@ -369,109 +501,110 @@ setMethod("crossprod", signature(x = "indMatrix", y = "missing"),
           })
 
 setMethod("crossprod", signature(x = "indMatrix", y = "matrix"),
-	  function(x, y = NULL, boolArith = NA, ...)
-              (if(isTRUE(boolArith)) `%&%` else `%*%`)(t(x), y))
-
-setMethod("crossprod", signature(x = "indMatrix", y = "Matrix"),
-	  function(x, y = NULL, boolArith = NA, ...)
+          function(x, y = NULL, boolArith = NA, ...)
               (if(isTRUE(boolArith)) `%&%` else `%*%`)(t(x), y))
 
 setMethod("crossprod", signature(x = "matrix", y = "indMatrix"),
-	  function(x, y = NULL, boolArith = NA, ...) {
+          function(x, y = NULL, boolArith = NA, ...) {
+              mmultDim(dim(x), y@Dim, type = 2L)
               boolArith <- isTRUE(boolArith)
-              cl <- if(boolArith) "nsparseMatrix" else "dsparseMatrix"
-              crossprod(x, as(y, cl), boolArith = boolArith, ...)
+              if(y@margin == 1L) {
+                  cl <- if(boolArith) "nsparseMatrix" else "dsparseMatrix"
+                  r <- crossprod(x, as(y, cl), boolArith = boolArith, ...)
+              } else {
+                  kind <- if(boolArith) "n" else "d"
+                  r <- .m2ge(t(x)[, y@perm, drop = FALSE], kind)
+                  r@Dimnames <- mmultDimnames(dimnames(x), y@Dimnames,
+                                              type = 2L)
+              }
+              r
           })
+
+setMethod("crossprod", signature(x = "indMatrix", y = "Matrix"),
+          function(x, y = NULL, boolArith = NA, ...)
+              (if(isTRUE(boolArith)) `%&%` else `%*%`)(t(x), y))
 
 setMethod("crossprod", signature(x = "Matrix", y = "indMatrix"),
-	  function(x, y = NULL, boolArith = NA, ...) {
+          function(x, y = NULL, boolArith = NA, ...) {
+              mmultDim(x@Dim, y@Dim, type = 2L)
               boolArith <- isTRUE(boolArith)
-              cl <- if(boolArith) "nsparseMatrix" else "dsparseMatrix"
-              crossprod(x, as(y, cl), boolArith = boolArith, ...)
+              if(y@margin == 1L) {
+                  cl <- if(boolArith) "nsparseMatrix" else "dsparseMatrix"
+                  r <- crossprod(x, as(y, cl), boolArith = boolArith, ...)
+              } else {
+                  cl <- if(boolArith) "nMatrix" else "dMatrix"
+                  r <- as(t(x)[, y@perm, drop = FALSE], cl)
+                  r@Dimnames <- mmultDimnames(dimnames(x), y@Dimnames,
+                                              type = 2L)
+              }
+              r
           })
 
-setMethod("crossprod", signature(x = "indMatrix", y = "indMatrix"),
-	  function(x, y = NULL, boolArith = NA, ...) {
-              r <- new(if(boolArith <- isTRUE(boolArith))
-                           "ngTMatrix"
-                       else "dgTMatrix")
-              r@Dim <- mmultDim(x@Dim, y@Dim, type = 2L)
-              r@Dimnames <- mmultDimnames(x@Dimnames, y@Dimnames, type = 2L)
-              r@i <- i <- x@perm - 1L
-              r@j <-      y@perm - 1L
-              if(!boolArith && (k <- length(i)) > 0L)
-                  r@x <- rep.int(1, k)
-              r
-	  })
-
 setMethod("tcrossprod", signature(x = "indMatrix", y = "missing"),
-	  function(x, y = NULL, boolArith = TRUE, ...) {
-              r <- t(x)[x@perm, , drop = FALSE]
-              if(!isTRUE(boolArith))
-                  r <- as(r, "dsparseMatrix")
+          function(x, y = NULL, boolArith = TRUE, ...) {
+              if(x@margin != 1L)
+                  return(crossprod(t(x), boolArith = boolArith, ...))
+              if(isTRUE(boolArith)) {
+                  r <- new("ngeMatrix")
+                  r@x <- as.vector(
+                      `storage.mode<-`(as(x, "matrix"), "logical")[, x@perm])
+              } else {
+                  r <- new("dgeMatrix")
+                  r@x <- as.vector(
+                      `storage.mode<-`(as(x, "matrix"),  "double")[, x@perm])
+              }
+              r@Dim <- x@Dim[c(1L, 1L)]
               r@Dimnames <- x@Dimnames[c(1L, 1L)]
               r
           })
 
 setMethod("tcrossprod", signature(x = "indMatrix", y = "matrix"),
-	  function(x, y = NULL, boolArith = NA, ...) {
+          function(x, y = NULL, boolArith = NA, ...) {
               mmultDim(x@Dim, dim(y), type = 3L)
-              r <- .m2ge(t(y)[x@perm, , drop = FALSE],
-                         if(isTRUE(boolArith)) "n" else "d")
-              r@Dimnames <- mmultDimnames(x@Dimnames, dimnames(y), type = 3L)
-              r
-          })
-
-setMethod("tcrossprod", signature(x = "indMatrix", y = "Matrix"),
-	  function(x, y = NULL, boolArith = NA, ...) {
-              mmultDim(x@Dim, y@Dim, type = 3L)
-              r <- as(t(y)[x@perm, , drop = FALSE],
-                      if(isTRUE(boolArith)) "nMatrix" else "dMatrix")
-              r@Dimnames <- mmultDimnames(x@Dimnames, dimnames(y), type = 3L)
+              boolArith <- isTRUE(boolArith)
+              if(y@margin == 1L) {
+                  kind <- if(boolArith) "n" else "d"
+                  r <- .m2ge(t(y)[x@perm, , drop = FALSE], kind)
+                  r@Dimnames <- mmultDimnames(x@Dimnames, dimnames(y),
+                                              type = 3L)
+              } else {
+                  cl <- if(boolArith) "nsparseMatrix" else "dsparseMatrix"
+                  r <- tcrossprod(as(x, cl), y, boolArith = boolArith, ...)
+              }
               r
           })
 
 setMethod("tcrossprod", signature(x = "matrix", y = "indMatrix"),
-	  function(x, y = NULL, boolArith = NA, ...)
+          function(x, y = NULL, boolArith = NA, ...)
               (if(isTRUE(boolArith)) `%&%` else `%*%`)(x, t(y)))
 
-setMethod("tcrossprod", signature(x = "Matrix", y = "indMatrix"),
-	  function(x, y = NULL, boolArith = NA, ...)
-              (if(isTRUE(boolArith)) `%&%` else `%*%`)(x, t(y)))
-
-setMethod("tcrossprod", signature(x = "indMatrix", y = "indMatrix"),
-	  function(x, y = NULL, boolArith = NA, ...) {
-              r <- new(if(boolArith <- isTRUE(boolArith))
-                           "ngeMatrix"
-                       else "dgeMatrix")
-              r@Dim <- mmultDim(x@Dim, y@Dim, type = 3L)
-              r@Dimnames <- mmultDimnames(x@Dimnames, y@Dimnames, type = 2L)
-              x.perm <- x@perm
-              r@x <- (if(boolArith) identity else as.double)(
-                  x.perm == rep(y@perm, each = length(x.perm)))
+setMethod("tcrossprod", signature(x = "indMatrix", y = "Matrix"),
+          function(x, y = NULL, boolArith = NA, ...) {
+              mmultDim(x@Dim, y@Dim, type = 3L)
+              boolArith <- isTRUE(boolArith)
+              if(y@margin == 1L) {
+                  cl <- if(boolArith) "nMatrix" else "dMatrix"
+                  r <- as(t(y)[x@perm, , drop = FALSE], cl)
+                  r@Dimnames <- mmultDimnames(x@Dimnames, dimnames(y),
+                                              type = 3L)
+              } else {
+                  cl <- if(boolArith) "nsparseMatrix" else "dsparseMatrix"
+                  r <- tcrossprod(as(x, cl), y, boolArith = boolArith, ...)
+              }
               r
           })
 
-setMethod("[", signature(x = "indMatrix", i = "index", j = "missing",
-			 drop = "logical"),
-	  function (x, i, j, ..., drop)
-      {
-	  n <- length(newperm <- x@perm[i])
-	  if(drop && n == 1) { ## -> logical unit vector
-	      newperm == seq_len(x@Dim[2])
-	  } else { ## stay matrix
-	      if(!is.null((DN <- x@Dimnames)[[1]])) DN[[1]] <- DN[[1]][i]
-	      new("indMatrix", perm = newperm,
-		  Dim = c(n, x@Dim[2]), Dimnames = DN)
-	  }
-      })
+setMethod("tcrossprod", signature(x = "Matrix", y = "indMatrix"),
+          function(x, y = NULL, boolArith = NA, ...)
+              (if(isTRUE(boolArith)) `%&%` else `%*%`)(x, t(y)))
+
 
 .indMatrix.sub <- function(x, i, j, ..., value) {
     x <- as(x, "TsparseMatrix")
     callGeneric()
 }
 for (.i in c("missing", "index"))
-    for (.j in c("missing", "index"))
-        setReplaceMethod("[", signature(x = "indMatrix", i = .i, j = .j),
-                         .indMatrix.sub)
+for (.j in c("missing", "index"))
+setReplaceMethod("[", signature(x = "indMatrix", i = .i, j = .j, value = "ANY"),
+                 .indMatrix.sub)
 rm(.indMatrix.sub, .i, .j)

@@ -1,7 +1,11 @@
-\name{[<--methods}
+\name{Subassign-methods}
 \title{Methods for "[<-" - Assigning to Subsets for 'Matrix'}
-\docType{methods}
 %
+\docType{methods}
+\keyword{array}
+\keyword{methods}
+%
+\alias{[<-}
 \alias{[<--methods}
 \alias{Subassign-methods}
 %
@@ -103,6 +107,9 @@
   \code{\link{Extract}} about the standard subset assignment (and extraction).
 }
 \examples{
+\dontshow{ % for R_DEFAULT_PACKAGES=NULL
+library(stats, pos = "package:base", verbose = FALSE)
+}
 %% Note that ./Xtrct-methods.Rd has the indexing ones
 set.seed(101)
 (a <- m <- Matrix(round(rnorm(7*4),2), nrow = 7))
@@ -127,5 +134,3 @@ m[,2] <- 1:7
 m[-(1:6), ] <- 3:0 # not the first 6 rows, i.e. only the 7th
 as(m, "sparseMatrix")
 }
-\keyword{methods}
-\keyword{array}

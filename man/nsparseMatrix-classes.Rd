@@ -1,6 +1,9 @@
 \name{nsparseMatrix-classes}
 \title{Sparse "pattern" Matrices}
+%
 \docType{class}
+\keyword{array}
+\keyword{classes}
 %
 \alias{nsparseMatrix-class}
 \alias{ngCMatrix-class}
@@ -37,17 +40,14 @@
 % ngC
 % ngR
 % ngT
-\alias{which,ngTMatrix-method}
 % ntC
 % ntR
 % ntT
-\alias{which,ntTMatrix-method}
 % nsC
 \alias{coerce,nsCMatrix,RsparseMatrix-method}
 % nsR
 \alias{coerce,nsRMatrix,CsparseMatrix-method}
 % nsT
-\alias{which,nsTMatrix-method}
 %
 \description{The \code{nsparseMatrix} class is a virtual class of sparse
   \emph{\dQuote{pattern}} matrices, i.e., binary matrices conceptually
@@ -130,6 +130,9 @@
   the class \code{\linkS4class{dgCMatrix}}
 }
 \examples{
+\dontshow{ % for R_DEFAULT_PACKAGES=NULL
+library(utils, pos = "package:base", verbose = FALSE)
+}
 (m <- Matrix(c(0,0,2:0), 3,5, dimnames=list(LETTERS[1:3],NULL)))
 ## ``extract the nonzero-pattern of (m) into an nMatrix'':
 nm <- as(m, "nsparseMatrix") ## -> will be a "ngCMatrix"
@@ -145,11 +148,9 @@ nnm@x[2:4] <- c(FALSE, NA, NA)
 nnm
 as(nnm, "nMatrix") # NAs *and* non-structural 0  |--->  'TRUE'
 
-data(KNex)
+data(KNex, package = "Matrix")
 nmm <- as(KNex $ mm, "nMatrix")
 str(xlx <- crossprod(nmm))# "nsCMatrix"
 stopifnot(isSymmetric(xlx))
 image(xlx, main=paste("crossprod(nmm) : Sparse", class(xlx)))
 }
-\keyword{classes}
-\keyword{algebra}

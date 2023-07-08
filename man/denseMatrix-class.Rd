@@ -1,6 +1,9 @@
 \name{denseMatrix-class}
 \title{Virtual Class "denseMatrix" of All Dense Matrices}
+%
 \docType{class}
+\keyword{array}
+\keyword{classes}
 %
 \alias{denseMatrix-class}
 %
@@ -9,12 +12,6 @@
 \alias{as.logical,denseMatrix-method}
 \alias{as.numeric,denseMatrix-method}
 \alias{as.vector,denseMatrix-method}
-\alias{cbind2,denseMatrix,denseMatrix-method}
-\alias{cbind2,denseMatrix,matrix-method}
-\alias{cbind2,denseMatrix,numeric-method}
-%\alias{cbind2,denseMatrix,sparseMatrix-method} % needed in ./cBind.Rd
-\alias{cbind2,matrix,denseMatrix-method}
-\alias{cbind2,numeric,denseMatrix-method}
 \alias{coerce,ANY,denseMatrix-method}
 \alias{coerce,denseMatrix,CsparseMatrix-method}
 \alias{coerce,denseMatrix,RsparseMatrix-method}
@@ -38,12 +35,8 @@
 \alias{coerce,numLike,denseMatrix-method}
 \alias{dim<-,denseMatrix-method}
 \alias{log,denseMatrix-method}
-\alias{rbind2,denseMatrix,denseMatrix-method}
-\alias{rbind2,denseMatrix,matrix-method}
-\alias{rbind2,denseMatrix,numeric-method}
-%\alias{rbind2,denseMatrix,sparseMatrix-method} % needed in ./cBind.Rd
-\alias{rbind2,matrix,denseMatrix-method}
-\alias{rbind2,numeric,denseMatrix-method}
+\alias{mean,denseMatrix-method}
+\alias{rep,denseMatrix-method}
 \alias{show,denseMatrix-method}
 %
 \description{This is the virtual class of all dense (S4) matrices.
@@ -82,4 +75,3 @@
 \examples{
 showClass("denseMatrix")
 }
-\keyword{classes}

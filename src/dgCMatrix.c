@@ -1,135 +1,6 @@
 #include "dgCMatrix.h"
+#include "cs_utils.h"
 #include "chm_common.h"
-
-/* MJ: no longer */
-#if 0
-/* for Csparse_transpose() : */
-#include "Csparse.h"
-#endif /* MJ */
-
-/* MJ: no longer needed ... replacement in ./validity.c */
-#if 0
-
-/* for dgCMatrix  _and_ lgCMatrix and others  (but *not*  ngC...) : */
-SEXP xCMatrix_validate(SEXP x)
-{
-    /* Almost everything now in Csparse_validate ( ./Csparse.c )
-     * *but* the checking of the 'x' slot : */
-    if (xlength(GET_SLOT(x, Matrix_iSym)) !=
-	xlength(GET_SLOT(x, Matrix_xSym)))
-	return mkString(_("lengths of slots 'i' and 'x' must match"));
-
-    return ScalarLogical(1);
-}
-
-/* for dgRMatrix  _and_ lgRMatrix and others  (but *not*  ngC...) : */
-SEXP xRMatrix_validate(SEXP x)
-{
-    /* Almost everything now in Rsparse_validate ( ./Csparse.c )
-     * *but* the checking of the 'x' slot : */
-    if (xlength(GET_SLOT(x, Matrix_jSym)) !=
-	xlength(GET_SLOT(x, Matrix_xSym)))
-	return mkString(_("lengths of slots 'j' and 'x' must match"));
-
-    return ScalarLogical(1);
-}
-
-#endif /* MJ */
-
-/* MJ: no longer needed ... prefer CRsparse_as_Tsparse */
-#if 0
-
-/* This and the following R_to_CMatrix() lead to memory-not-mapped seg.faults
- * only with {32bit + R-devel + enable-R-shlib} -- no idea why */
-SEXP compressed_to_TMatrix(SEXP x, SEXP colP)
-{
-    char *ncl = strdup(class_P(x));
-    static const char *valid[] = { MATRIX_VALID_Csparse, MATRIX_VALID_Rsparse, ""};
-    int ctype = R_check_class_etc(x, valid);
-    if (ctype < 0)
-	error(_("invalid class(x) '%s' in compressed_to_TMatrix(x)"), ncl);
-
-    int col = asLogical(colP); /* 1 if "C"olumn compressed;  0 if "R"ow */
-    /* however, for Csparse, we now effectively use the cholmod-based
-     * Csparse_to_Tsparse() in ./Csparse.c ; maybe should simply write
-     * an  as_cholmod_Rsparse() function and then do "as there" ...*/
-    SEXP indSym = col ? Matrix_iSym : Matrix_jSym, ans,
-	indP = PROTECT(GET_SLOT(x, indSym)),
-	  pP = PROTECT(GET_SLOT(x, Matrix_pSym));
-    int npt = length(pP) - 1;
-
-    /* replace 'C' or 'R' with 'T' :*/
-    ncl[2] = 'T';
-    ans = PROTECT(NEW_OBJECT_OF_CLASS(ncl));
-
-    slot_dup(ans, x, Matrix_DimSym);
-    if((ctype / 3) % 4 != 2) /* not n..Matrix */
-	slot_dup(ans, x, Matrix_xSym);
-    if(ctype % 3) { /* s(ymmetric) or t(riangular) : */
-	slot_dup(ans, x, Matrix_uploSym);
-	if(ctype % 3 == 2) /* t(riangular) : */
-	    slot_dup(ans, x, Matrix_diagSym);
-    }
-    set_DimNames(ans, GET_SLOT(x, Matrix_DimNamesSym));
-    // possibly asymmetric for symmetricMatrix is ok
-    SET_SLOT(ans, indSym, duplicate(indP));
-    expand_cmprPt(npt, INTEGER(pP),
-		  INTEGER(ALLOC_SLOT(ans, col ? Matrix_jSym : Matrix_iSym,
-				     INTSXP, length(indP))));
-    free(ncl);
-    UNPROTECT(3);
-    return ans;
-}
-
-#endif /* MJ */
-
-/* MJ: no longer needed ... 
-   now done via R_sparse_transpose(), tCRsparse_as_RCsparse() */
-#if 0
-
-SEXP R_to_CMatrix(SEXP x)
-{
-    char *ncl = strdup(class_P(x));
-    static const char *valid[] = { MATRIX_VALID_Rsparse, ""};
-    int ctype = R_check_class_etc(x, valid);
-    if (ctype < 0)
-	error(_("invalid class(x) '%s' in R_to_CMatrix(x)"), ncl);
-
-    SEXP ans, tri = PROTECT(allocVector(LGLSXP, 1));
-    int *x_dims = INTEGER(GET_SLOT(x, Matrix_DimSym)), *a_dims;
-    PROTECT_INDEX ipx;
-    /* replace 'R' with 'C' : */
-    ncl[2] = 'C';
-    PROTECT_WITH_INDEX(ans = NEW_OBJECT_OF_CLASS(ncl), &ipx);
-
-    a_dims = INTEGER(ALLOC_SLOT(ans, Matrix_DimSym, INTSXP, 2));
-    /* reversed dim() since we will transpose: */
-    a_dims[0] = x_dims[1];
-    a_dims[1] = x_dims[0];
-
-    /* triangular: */ LOGICAL(tri)[0] = 0;
-    if((ctype / 3) != 2) /* not n..Matrix */
-	slot_dup(ans, x, Matrix_xSym);
-    if(ctype % 3) { /* s(ymmetric) or t(riangular) : */
-	SET_SLOT(ans, Matrix_uploSym,
-		 mkString((*uplo_P(x) == 'U') ? "L" : "U"));
-	if(ctype % 3 == 2) { /* t(riangular) : */
-	    LOGICAL(tri)[0] = 1;
-	    slot_dup(ans, x, Matrix_diagSym);
-	}
-    }
-    SET_SLOT(ans, Matrix_iSym, duplicate(GET_SLOT(x, Matrix_jSym)));
-    slot_dup(ans, x, Matrix_pSym);
-    REPROTECT(ans = Csparse_transpose(ans, tri), ipx);
-    set_DimNames(ans, GET_SLOT(x, Matrix_DimNamesSym));
-    // possibly asymmetric for symmetricMatrix is ok
-    free(ncl);
-    UNPROTECT(2);
-    return ans;
-}
-// NB: C_to_RMatrix(.)  may be nice, but would need Rsparse_transpose()
-
-#endif /* MJ */
 
 /** Return a 2 column matrix  '' cbind(i, j) ''  of 0-origin index vectors (i,j)
  *  which entirely correspond to the (i,j) slots of
@@ -161,9 +32,6 @@ SEXP compressed_non_0_ij(SEXP x, SEXP colP)
     return ans;
 }
 
-/* MJ: unused */
-#if 0 
-
 SEXP dgCMatrix_lusol(SEXP x, SEXP y)
 {
     SEXP ycp = PROTECT((TYPEOF(y) == REALSXP) ?
@@ -181,8 +49,6 @@ SEXP dgCMatrix_lusol(SEXP x, SEXP y)
     UNPROTECT(1);
     return ycp;
 }
-
-#endif /* MJ */
 
 // called from package MatrixModels's R code
 SEXP dgCMatrix_qrsol(SEXP x, SEXP y, SEXP ord)
@@ -226,319 +92,6 @@ SEXP dgCMatrix_qrsol(SEXP x, SEXP y, SEXP ord)
 
     UNPROTECT(1);
     return ycp;
-}
-
-// Modified version of Tim Davis's cs_qr_mex.c file for MATLAB (in CSparse)
-//  Usage: [V,beta,p,R,q] = cs_qr(A) ;
-SEXP dgCMatrix_QR(SEXP Ap, SEXP order, SEXP keep_dimnames)
-{
-    CSP A = AS_CSP__(Ap);
-    int io = INTEGER(order)[0];
-    Rboolean verbose = (io < 0);// verbose=TRUE, encoded with negative 'order'
-    int m0 = A->m, m = m0, n = A->n, ord = asLogical(order) ? 3 : 0, *p;
-    R_CheckStack();
-
-    if (m < n) error(_("A must have #{rows} >= #{columns}")) ;
-    SEXP ans = PROTECT(NEW_OBJECT_OF_CLASS("sparseQR"));
-    int *dims = INTEGER(ALLOC_SLOT(ans, Matrix_DimSym, INTSXP, 2));
-    dims[0] = m; dims[1] = n;
-    css *S = cs_sqr(ord, A, 1);	/* symbolic QR ordering & analysis*/
-    if (!S) error(_("cs_sqr failed"));
-    int keep_dimnms = asLogical(keep_dimnames);
-    if(keep_dimnms == NA_LOGICAL) { keep_dimnms = TRUE;
-	warning(_("dgcMatrix_QR(*, keep_dimnames = NA): NA taken as TRUE"));
-    }
-    if(verbose && S->m2 > m) // in ./cs.h , m2 := # of rows for QR, after adding fictitious rows
-	Rprintf("Symbolic QR(): Matrix structurally rank deficient (m2-m = %d)\n",
-		S->m2 - m);
-    csn *N = cs_qr(A, S);	/* numeric QR factorization */
-    if (!N) error(_("cs_qr failed")) ;
-    cs_dropzeros(N->L);		/* drop zeros from V and sort */
-    CSP D = cs_transpose(N->L, 1); cs_spfree(N->L);
-    N->L = cs_transpose(D, 1); cs_spfree(D);
-    cs_dropzeros(N->U);		/* drop zeros from R and sort */
-    D = cs_transpose(N->U, 1); cs_spfree(N->U) ;
-    N->U = cs_transpose(D, 1); cs_spfree(D);
-    m = N->L->m;		/* m may be larger now */
-    // MM: m := S->m2  also counting the ficticious rows (Tim Davis, p.72, 74f)
-    p = cs_pinv(S->pinv, m);	/* p = pinv' */
-    SEXP dn = R_NilValue; Rboolean do_dn = FALSE;
-    if(keep_dimnms) {
-	dn = GET_SLOT(Ap, Matrix_DimNamesSym);
-	do_dn = !isNull(VECTOR_ELT(dn, 0)) && m == m0;
-	// FIXME? also deal with case m > m0 ?
-	if(do_dn) { // keep rownames
-	    dn = PROTECT(duplicate(dn));
-	    SET_VECTOR_ELT(dn, 1, R_NilValue);
-	} else dn = R_NilValue;
-    }
-    SET_SLOT(ans, Matrix_VSym, Matrix_cs_to_SEXP(N->L, "dgCMatrix", 0, dn)); // "V"
-    Memcpy(REAL(ALLOC_SLOT(ans, Matrix_betaSym, REALSXP, n)), N->B, n);
-    Memcpy(INTEGER(ALLOC_SLOT(ans, Matrix_pSym,  INTSXP, m)), p, m);
-    if(do_dn) {
-	UNPROTECT(1); // dn
-	dn = R_NilValue; do_dn = FALSE;
-    }
-    if (ord) {
-	Memcpy(INTEGER(ALLOC_SLOT(ans, Matrix_qSym, INTSXP, n)), S->q, n);
-	if(keep_dimnms) {
-	    dn = GET_SLOT(Ap, Matrix_DimNamesSym);
-	    do_dn = !isNull(VECTOR_ELT(dn, 1));
-	    if(do_dn) {
-		dn = PROTECT(duplicate(dn));
-		// permute colnames by S->q :  cn <- cn[ S->q ] :
-		SEXP cns = PROTECT(duplicate(VECTOR_ELT(dn, 1)));
-		for(int j=0; j < n; j++)
-		    SET_STRING_ELT(VECTOR_ELT(dn, 1), j, STRING_ELT(cns, S->q[j]));
-		UNPROTECT(1);
-		SET_VECTOR_ELT(dn, 0, R_NilValue);
-	    } else dn = R_NilValue;
-	}
-    } else
-	ALLOC_SLOT(ans, Matrix_qSym, INTSXP, 0);
-    SEXP R = PROTECT(Matrix_cs_to_SEXP(N->U, "dgCMatrix", 0, dn));
-    SET_SLOT(ans, Matrix_RSym, R); UNPROTECT(1); // R
-    if(do_dn) UNPROTECT(1); // dn
-    cs_nfree(N);
-    cs_sfree(S);
-    cs_free(p);
-    UNPROTECT(1);
-    return ans;
-}
-
-#ifdef Matrix_with_SPQR
-/**
- * Return a SuiteSparse QR factorization of the sparse matrix A
- *
- * @param Ap (pointer to) a [m x n] dgCMatrix
- * @param ordering integer SEXP specifying the ordering strategy to be used
- *	see SPQR/Include/SuiteSparseQR_definitions.h
- * @param econ integer SEXP ("economy"): number of rows of R and columns of Q
- *      to return. The default is m. Using n gives the standard economy form.
- *      A value less than the estimated rank r is set to r, so econ=0 gives the
- *      "rank-sized" factorization, where nrow(R)==nnz(diag(R))==r.
- * @param tol double SEXP: if tol <= -2 use SPQR's default,
- *                         if -2 < tol < 0, then no tol is used; otherwise,
- *      tol > 0, use as tolerance: columns with 2-norm <= tol treated as 0
- *
- *
- * @return SEXP  "SPQR" object with slots (Q, R, p, rank, Dim):
- *	Q: dgCMatrix; R: dgCMatrix  [subject to change to dtCMatrix FIXME ?]
- *	p: integer: 0-based permutation (or length 0 <=> identity);
- *	rank: integer, the "revealed" rank   Dim: integer, original matrix dim.
- */
-SEXP dgCMatrix_SPQR(SEXP Ap, SEXP ordering, SEXP econ, SEXP tol)
-{
-/* SEXP ans = PROTECT(allocVector(VECSXP, 4)); */
-    SEXP ans = PROTECT(NEW_OBJECT_OF_CLASS("SPQR"));
-
-    CHM_SP A = AS_CHM_SP(Ap), Q, R;
-    SuiteSparse_long *E, rank;/* not always = int   FIXME  (Windows_64 ?) */
-
-    if ((rank = SuiteSparseQR_C_QR(asInteger(ordering),
-				   asReal(tol),/* originally had SPQR_DEFAULT_TOL */
-				   (SuiteSparse_long)asInteger(econ),/* originally had 0 */
-				   A, &Q, &R, &E, &cl)) == -1)
-	error(_("SuiteSparseQR_C_QR returned an error code"));
-
-    slot_dup(ans, Ap, Matrix_DimSym);
-/*     SET_VECTOR_ELT(ans, 0, */
-/* 		   chm_sparse_to_SEXP(Q, 0, 0, 0, "", R_NilValue)); */
-    SET_SLOT(ans, Matrix_QSym,
-	     chm_sparse_to_SEXP(Q, 0, 0, 0, "", R_NilValue));
-
-    /* Also gives a dgCMatrix (not a dtC* *triangular*) :
-     * may make sense if to be used in the "spqr_solve" routines .. ?? */
-/*     SET_VECTOR_ELT(ans, 1, */
-/* 		   chm_sparse_to_SEXP(R, 0, 0, 0, "", R_NilValue)); */
-    SET_SLOT(ans, Matrix_RSym,
-	     chm_sparse_to_SEXP(R, 0, 0, 0, "", R_NilValue));
-    cholmod_free_sparse(&Al, &cl);
-    cholmod_free_sparse(&R, &cl);
-    cholmod_free_sparse(&Q, &cl);
-    if (E) {
-	SET_VECTOR_ELT(ans, 2, allocVector(INTSXP, A->ncol));
-	int *Er = INTEGER(VECTOR_ELT(ans, 2));
-	for (int i = 0; i < A->ncol; i++) Er[i] = (int) E[i];
-	R_Free(E);
-    } else SET_VECTOR_ELT(ans, 2, allocVector(INTSXP, 0));
-    SET_VECTOR_ELT(ans, 3, ScalarInteger((int)rank));
-    UNPROTECT(1);
-    return ans;
-}
-#endif
-/* Matrix_with_SPQR */
-
-/* Modified version of Tim Davis's cs_lu_mex.c file for MATLAB */
-void install_lu(SEXP Ap, int order, double tol, Rboolean err_sing, Rboolean keep_dimnms)
-{
-    // (order, tol) == (1, 1) by default, when called from R.
-    CSP A = AS_CSP__(Ap);
-    R_CheckStack();
-
-    int n = A->n;
-    if (A->m != n)
-	error(_("LU decomposition applies only to square matrices"));
-    if (order) {		/* not using natural order */
-	order = (tol == 1) ? 2	/* amd(S'*S) w/dense rows or I */
-	    : 1;		/* amd (A+A'), or natural */
-    }
-    css *S = cs_sqr(order, A, /*qr = */ 0);	/* symbolic ordering */
-    csn *N = cs_lu(A, S, tol);	/* numeric factorization */
-    if (!N) {
-	cs_sfree(S);
-	if(err_sing)
-	    error(_("cs_lu(A) failed: near-singular A (or out of memory)"));
-	else {
-	    /* No warning: The useR should be careful :
-	     * Put  NA  into  "LU" factor */
-	    set_factor(Ap, "LU", ScalarLogical(NA_LOGICAL));
-	    return;
-	}
-    }
-    cs_dropzeros(N->L);		/* drop zeros from L and sort it */
-    CSP D = cs_transpose(N->L, 1);
-    cs_spfree(N->L);
-    N->L = cs_transpose(D, 1);
-    cs_spfree(D);
-    cs_dropzeros(N->U);		/* drop zeros from U and sort it */
-    D = cs_transpose(N->U, 1);
-    cs_spfree(N->U);
-    N->U = cs_transpose(D, 1);
-    cs_spfree(D);
-    int *p = cs_pinv(N->pinv, n);	/* p=pinv' */
-    SEXP ans = PROTECT(NEW_OBJECT_OF_CLASS("sparseLU"));
-    int *dims = INTEGER(ALLOC_SLOT(ans, Matrix_DimSym, INTSXP, 2));
-    dims[0] = n; dims[1] = n;
-    SEXP dn; Rboolean do_dn = FALSE;
-    if(keep_dimnms) {
-	dn = GET_SLOT(Ap, Matrix_DimNamesSym);
-	do_dn = !isNull(VECTOR_ELT(dn, 0));
-	if(do_dn) {
-	    dn = PROTECT(duplicate(dn));
-	    // permute rownames by p :  rn <- rn[ p ] :
-	    SEXP rn = PROTECT(duplicate(VECTOR_ELT(dn, 0)));
-	    for(int i=0; i < n; i++)
-		SET_STRING_ELT(VECTOR_ELT(dn, 0), i, STRING_ELT(rn, p[i]));
-	    UNPROTECT(1); // rn
-	    SET_VECTOR_ELT(dn, 1, R_NilValue); // colnames(.) := NULL
-	}
-    }
-    SET_SLOT(ans, Matrix_LSym,
-	     Matrix_cs_to_SEXP(N->L, "dtCMatrix", 0, do_dn ? dn : R_NilValue));
-    if (n < 2) { /* is_sym() assumes upper, which is "wrong" in this case */
-	SEXP L = PROTECT(GET_SLOT(ans, Matrix_LSym)),
-	    uplo = PROTECT(mkString("L"));
-	SET_SLOT(L, Matrix_uploSym, uplo);
-	UNPROTECT(2);
-    }
-    
-    if(keep_dimnms) {
-	if(do_dn) {
-	    UNPROTECT(1); // dn
-	    dn = GET_SLOT(Ap, Matrix_DimNamesSym);
-	}
-	do_dn = !isNull(VECTOR_ELT(dn, 1));
-	if(do_dn) {
-	    dn = PROTECT(duplicate(dn));
-	    if(order) { // permute colnames by S->q :  cn <- cn[ S->q ] :
-		SEXP cn = PROTECT(duplicate(VECTOR_ELT(dn, 1)));
-		for(int j=0; j < n; j++)
-		    SET_STRING_ELT(VECTOR_ELT(dn, 1), j, STRING_ELT(cn, S->q[j]));
-		UNPROTECT(1); // cn
-	    }
-	    SET_VECTOR_ELT(dn, 0, R_NilValue); // rownames(.) := NULL
-	}
-    }
-    SET_SLOT(ans, Matrix_USym,
-	     Matrix_cs_to_SEXP(N->U, "dtCMatrix", 0, do_dn ? dn : R_NilValue));
-    if(do_dn) UNPROTECT(1); // dn
-    Memcpy(INTEGER(ALLOC_SLOT(ans, Matrix_pSym, INTSXP, n)), p, n);
-    if (order)
-	Memcpy(INTEGER(ALLOC_SLOT(ans, Matrix_qSym, INTSXP, n)), S->q, n);
-    cs_nfree(N);
-    cs_sfree(S);
-    cs_free(p);
-    set_factor(Ap, "LU", ans);
-    UNPROTECT(1);
-    return;
-}
-
-SEXP dgCMatrix_LU(SEXP Ap, SEXP orderp, SEXP tolp, SEXP error_on_sing, SEXP keep_dimnames)
-{
-    SEXP ans;
-    Rboolean err_sing = asLogical(error_on_sing);
-    /* FIXME: dgCMatrix_LU should check ans for consistency in
-     * permutation type with the requested value - Should have two
-     * classes or two different names in the factors list for LU with
-     * permuted columns or not.
-     * OTOH, currently  (order, tol) === (1, 1) always.
-     * It is true that length(LU@q) does flag the order argument.
-     */
-    if (!isNull(ans = get_factor(Ap, "LU")))
-	return ans;
-    int keep_dimnms = asLogical(keep_dimnames);
-    if(keep_dimnms == NA_LOGICAL) { keep_dimnms = TRUE;
-	warning(_("dgcMatrix_LU(*, keep_dimnames = NA): NA taken as TRUE"));
-    }
-    install_lu(Ap, asInteger(orderp), asReal(tolp), err_sing, keep_dimnms);
-    return get_factor(Ap, "LU");
-}
-
-SEXP dgCMatrix_matrix_solve(SEXP Ap, SEXP b, SEXP give_sparse)
-// FIXME:  add  'keep_dimnames' as argument
-{
-    Rboolean sparse = asLogical(give_sparse);
-    if(sparse) {
-	// FIXME: implement this
-	error(_("dgCMatrix_matrix_solve(.., sparse=TRUE) not yet implemented"));
-
-	/* Idea: in the  for(j = 0; j < nrhs ..) loop below, build the *sparse* result matrix
-	 * ----- *column* wise -- which is perfect for dgCMatrix
-	 * --> build (i,p,x) slots "increasingly" [well, allocate in batches ..]
-	 *
-	 * --> maybe first a protoype in R
-	 */
-
-    }
-    SEXP ans = PROTECT(dense_as_general(b, 'd', 2, 0)),
-	lu, qslot;
-    CSP L, U;
-    int *bdims = INTEGER(GET_SLOT(ans, Matrix_DimSym)), *p, *q;
-    int j, n = bdims[0], nrhs = bdims[1];
-    double *x, *ax = REAL(GET_SLOT(ans, Matrix_xSym));
-    Calloc_or_Alloca_TO(x, n, double);
-
-    if (isNull(lu = get_factor(Ap, "LU"))) {
-	install_lu(Ap, /* order = */ 1, /* tol = */ 1.0, /* err_sing = */ TRUE,
-		   /* keep_dimnames = */ TRUE);
-	lu = get_factor(Ap, "LU");
-    }
-    qslot = GET_SLOT(lu, Matrix_qSym);
-    L = AS_CSP__(GET_SLOT(lu, Matrix_LSym));
-    U = AS_CSP__(GET_SLOT(lu, Matrix_USym));
-    R_CheckStack();
-    if (U->n != n)
-	error(_("Dimensions of system to be solved are inconsistent"));
-    if(nrhs >= 1 && n >= 1) {
-	R_xlen_t n_ = n; // <=> no overflow in j * n_
-	p = INTEGER(GET_SLOT(lu, Matrix_pSym));
-	q = LENGTH(qslot) ? INTEGER(qslot) : (int *) NULL;
-
-	for (j = 0; j < nrhs; j++) {
-	    cs_pvec(p, ax + j * n_, x, n);  /* x = b(p) */
-	    cs_lsolve(L, x);	       /* x = L\x */
-	    cs_usolve(U, x);	       /* x = U\x */
-	    if (q)		       /* r(q) = x , hence
-					  r = Q' U{^-1} L{^-1} P b = A^{-1} b */
-		cs_ipvec(q, x, ax + j * n_, n);
-	    else
-		Memcpy(ax + j * n_, x, n);
-	}
-    }
-    Free_FROM(x, n);
-    UNPROTECT(1);
-    return ans;
 }
 
 // called from package MatrixModels's R code:
@@ -604,50 +157,67 @@ SEXP dgCMatrix_cholsol(SEXP x, SEXP y)
     return ans;
 }
 
-/* MJ: no longer needed ... prefer CRsparse_(col|row)Sums() */
+/* MJ: unused */
 #if 0
 
-/* Define all of
- *  dgCMatrix_colSums(....)
- *  igCMatrix_colSums(....)
- *  lgCMatrix_colSums_d(....)
- *  lgCMatrix_colSums_i(....)
- *  ngCMatrix_colSums_d(....)
- *  ngCMatrix_colSums_i(....)
+/**
+ * Return a SuiteSparse QR factorization of the sparse matrix A
+ *
+ * @param Ap (pointer to) a [m x n] dgCMatrix
+ * @param ordering integer SEXP specifying the ordering strategy to be used
+ *	see SPQR/Include/SuiteSparseQR_definitions.h
+ * @param econ integer SEXP ("economy"): number of rows of R and columns of Q
+ *      to return. The default is m. Using n gives the standard economy form.
+ *      A value less than the estimated rank r is set to r, so econ=0 gives the
+ *      "rank-sized" factorization, where nrow(R)==nnz(diag(R))==r.
+ * @param tol double SEXP: if tol <= -2 use SPQR's default,
+ *                         if -2 < tol < 0, then no tol is used; otherwise,
+ *      tol > 0, use as tolerance: columns with 2-norm <= tol treated as 0
+ *
+ *
+ * @return SEXP  "SPQR" object with slots (Q, R, p, rank, Dim):
+ *	Q: dgCMatrix; R: dgCMatrix  [subject to change to dtCMatrix FIXME ?]
+ *	p: integer: 0-based permutation (or length 0 <=> identity);
+ *	rank: integer, the "revealed" rank   Dim: integer, original matrix dim.
  */
-#define _dgC_
-#include "t_gCMatrix_colSums.c"
-
-#define _igC_
-#include "t_gCMatrix_colSums.c"
-
-#define _lgC_
-#include "t_gCMatrix_colSums.c"
-
-#define _ngC_
-#include "t_gCMatrix_colSums.c"
-
-#define _lgC_mn
-#include "t_gCMatrix_colSums.c"
-
-#define _ngC_mn
-#include "t_gCMatrix_colSums.c"
-
-
-SEXP lgCMatrix_colSums(SEXP x, SEXP NArm, SEXP spRes, SEXP trans, SEXP means)
+SEXP dgCMatrix_SPQR(SEXP Ap, SEXP ordering, SEXP econ, SEXP tol)
 {
-    if(asLogical(means)) /* ==> result will be "double" / "dsparseVector" */
-	return lgCMatrix_colSums_d(x, NArm, spRes, trans, means);
-    else
-	return lgCMatrix_colSums_i(x, NArm, spRes, trans, means);
-}
+/* SEXP ans = PROTECT(allocVector(VECSXP, 4)); */
+    SEXP ans = PROTECT(NEW_OBJECT_OF_CLASS("SPQR"));
 
-SEXP ngCMatrix_colSums(SEXP x, SEXP NArm, SEXP spRes, SEXP trans, SEXP means)
-{
-    if(asLogical(means)) /* ==> result will be "double" / "dsparseVector" */
-	return ngCMatrix_colSums_d(x, NArm, spRes, trans, means);
-    else
-	return ngCMatrix_colSums_i(x, NArm, spRes, trans, means);
+    CHM_SP A = AS_CHM_SP(Ap), Q, R;
+    SuiteSparse_long *E, rank;/* not always = int   FIXME  (Windows_64 ?) */
+
+    if ((rank = SuiteSparseQR_C_QR(asInteger(ordering),
+				   asReal(tol),/* originally had SPQR_DEFAULT_TOL */
+				   (SuiteSparse_long)asInteger(econ),/* originally had 0 */
+				   A, &Q, &R, &E, &cl)) == -1)
+	error(_("SuiteSparseQR_C_QR returned an error code"));
+
+    slot_dup(ans, Ap, Matrix_DimSym);
+/*     SET_VECTOR_ELT(ans, 0, */
+/* 		   chm_sparse_to_SEXP(Q, 0, 0, 0, "", R_NilValue)); */
+    SET_SLOT(ans, Matrix_QSym,
+	     chm_sparse_to_SEXP(Q, 0, 0, 0, "", R_NilValue));
+
+    /* Also gives a dgCMatrix (not a dtC* *triangular*) :
+     * may make sense if to be used in the "spqr_solve" routines .. ?? */
+/*     SET_VECTOR_ELT(ans, 1, */
+/* 		   chm_sparse_to_SEXP(R, 0, 0, 0, "", R_NilValue)); */
+    SET_SLOT(ans, Matrix_RSym,
+	     chm_sparse_to_SEXP(R, 0, 0, 0, "", R_NilValue));
+    cholmod_free_sparse(&Al, &cl);
+    cholmod_free_sparse(&R, &cl);
+    cholmod_free_sparse(&Q, &cl);
+    if (E) {
+	SET_VECTOR_ELT(ans, 2, allocVector(INTSXP, A->ncol));
+	int *Er = INTEGER(VECTOR_ELT(ans, 2));
+	for (int i = 0; i < A->ncol; i++) Er[i] = (int) E[i];
+	R_Free(E);
+    } else SET_VECTOR_ELT(ans, 2, allocVector(INTSXP, 0));
+    SET_VECTOR_ELT(ans, 3, ScalarInteger((int)rank));
+    UNPROTECT(1);
+    return ans;
 }
 
 #endif /* MJ */

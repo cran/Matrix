@@ -1,6 +1,9 @@
 \name{ldenseMatrix-class}
 \title{Virtual Class "ldenseMatrix" of Dense Logical Matrices}
+%
 \docType{class}
+\keyword{array}
+\keyword{classes}
 %
 \alias{ldenseMatrix-class}
 %
@@ -50,4 +53,3 @@ showClass("ldenseMatrix")
 
 as(diag(3) > 0, "ldenseMatrix")
 }
-\keyword{classes}

@@ -1,6 +1,9 @@
 \name{symmetricMatrix-class}
 \title{Virtual Class of Symmetric Matrices in Package Matrix}
+%
 \docType{class}
+\keyword{array}
+\keyword{classes}
 %
 \alias{symmetricMatrix-class}
 %
@@ -85,4 +88,3 @@ names(scl)[directly]
 ## Methods -- applicaple to all subclasses above:
 showMethods(classes = "symmetricMatrix")
 }
-\keyword{classes}

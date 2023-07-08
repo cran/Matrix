@@ -1,6 +1,9 @@
 \name{dsyMatrix-class}
 \title{Symmetric Dense (Packed or Unpacked) Numeric Matrices}
+%
 \docType{class}
+\keyword{array}
+\keyword{classes}
 %
 \alias{dsyMatrix-class}
 \alias{dspMatrix-class}
@@ -12,6 +15,7 @@
 %
 \alias{coerce,dspMatrix,dpoMatrix-method}
 \alias{coerce,dspMatrix,dppMatrix-method}
+\alias{coerce,dspMatrix,pcorMatrix-method}
 \alias{determinant,dspMatrix,logical-method}
 %
 \description{
@@ -77,6 +81,9 @@
   \code{\link[base]{t}}
 }
 \examples{
+\dontshow{ % for R_DEFAULT_PACKAGES=NULL
+library(utils, pos = "package:base", verbose = FALSE)
+}
 ## Only upper triangular part matters (when uplo == "U" as per default)
 (sy2 <- new("dsyMatrix", Dim = as.integer(c(2,2)), x = c(14, NA,32,77)))
 str(t(sy2)) # uplo = "L", and the lower tri. (i.e. NA is replaced).
@@ -103,4 +110,3 @@ stopifnot(all(S1 == S2)) # equal "seen as matrix", but differ internally :
 str(S1)
 S2@x
 }
-\keyword{classes}

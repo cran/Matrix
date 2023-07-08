@@ -1,15 +1,17 @@
 \name{sparseVector-class}
 \title{Sparse Vector Classes}
+%
 \docType{class}
+\keyword{classes}
+\keyword{manip}
 %
 \alias{sparseVector-class}
-\alias{dsparseVector-class}
-\alias{isparseVector-class}
-\alias{lsparseVector-class}
 \alias{nsparseVector-class}
+\alias{lsparseVector-class}
+\alias{isparseVector-class}
+\alias{dsparseVector-class}
 \alias{zsparseVector-class}
-\alias{xsparseVector-class} % union of [dilz]
-\alias{c.sparseVector} % exported (!) S3 method
+\alias{xsparseVector-class}
 % sparse
 \alias{!,sparseVector-method}
 \alias{Arith,sparseVector,ddenseMatrix-method}
@@ -56,14 +58,6 @@
 \alias{t,sparseVector-method}
 \alias{tail,sparseVector-method}
 \alias{toeplitz,sparseVector-method}
-% dsparse
-\alias{-,dsparseVector,missing-method}
-\alias{Arith,dsparseVector,dsparseVector-method}
-\alias{Math2,dsparseVector-method}
-% isparse
-% lsparse
-\alias{Logic,lsparseVector,lsparseVector-method}
-\alias{which,lsparseVector-method}
 % nsparse
 \alias{Summary,nsparseVector-method}
 \alias{coerce,ANY,nsparseVector-method}
@@ -72,7 +66,17 @@
 \alias{coerce,nsparseVector,lsparseVector-method}
 \alias{coerce,nsparseVector,zsparseVector-method}
 \alias{which,nsparseVector-method}
+% lsparse
+\alias{Logic,lsparseVector,lsparseVector-method}
+\alias{which,lsparseVector-method}
+% isparse
+% dsparse
+\alias{-,dsparseVector,missing-method}
+\alias{Arith,dsparseVector,dsparseVector-method}
+\alias{Math2,dsparseVector-method}
 % zsparse
+%
+\alias{c.sparseVector}
 %
 \description{Sparse Vector Classes: The virtual mother class
   \code{"sparseVector"} has the five actual daughter classes
@@ -176,6 +180,9 @@
 }
 %\author{Martin}
 \examples{
+\dontshow{ % for R_DEFAULT_PACKAGES=NULL
+library(utils, pos = "package:base", verbose = FALSE)
+}
 getClass("sparseVector")
 getClass("dsparseVector")
 getClass("xsparseVector")# those with an 'x' slot
@@ -254,4 +261,3 @@ stopifnot(
   all.equal(c5, .s(c(0,0, .v(x20))),                     tol=0)
 )
 }
-\keyword{classes}

@@ -1,13 +1,13 @@
 ## METHODS FOR CLASS: dpoMatrix
-## dense (unpacked) symmetric positive definite matrices
+## dense (unpacked) symmetric positive semidefinite matrices
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ## ~~~~ COERCIONS TO ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .dsy2dpo <- function(from) {
-    if(is.null(tryCatch(.Call(dpoMatrix_trf, from, 2L),
+    if(is.null(tryCatch(Cholesky(from, perm = FALSE),
                         error = function(e) NULL)))
-        stop("not a positive definite matrix")
+        stop("not a positive definite matrix (and positive semidefiniteness is not checked)")
     ## FIXME: check=FALSE
     copyClass(from, "dpoMatrix",
               sNames = c("Dim", "Dimnames", "uplo", "x", "factors"))
@@ -35,25 +35,3 @@ setAs("Matrix", "dpoMatrix",
 ## ~~~~ COERCIONS FROM ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 setAs("dpoMatrix", "dppMatrix", function(from) pack(from))
-
-## MJ: no longer needed ... prefer above
-if(FALSE) {
-setAs("dpoMatrix", "dppMatrix",
-      function(from) {
-          ## FIXME: check=FALSE
-          copyClass(.Call(dsyMatrix_as_dspMatrix, from), "dppMatrix",
-                    sNames = c("x", "Dim", "Dimnames", "uplo", "factors"))
-      })
-} ## MJ
-
-## MJ: no longer needed ... replacement in ./denseMatrix.R
-if(FALSE) {
-setAs("dpoMatrix", "lMatrix",
-      function(from) as(as(from, "dsyMatrix"), "lMatrix"))
-setAs("dpoMatrix", "nMatrix",
-      function(from) as(as(from, "dsyMatrix"), "nMatrix"))
-} ## MJ
-
-
-## ~~~~ METHODS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-

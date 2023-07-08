@@ -1,6 +1,11 @@
 \name{rep2abI}
 \title{Replicate Vectors into 'abIndex' Result}
+%
+\keyword{manip}
+\keyword{utilities}
+%
 \alias{rep2abI}
+%
 \description{
   \code{rep2abI(x, times)} conceptually computes
   \code{\link{rep.int}(x, times)} but with an
@@ -27,4 +32,3 @@ rep2abI(x, times)
 stopifnot(identical(as(ab, "numeric"),
 	   rep(2:7, 4)))
 }
-\keyword{manip}

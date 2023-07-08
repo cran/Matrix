@@ -1,8 +1,13 @@
 \name{all-methods}
 \title{"Matrix" Methods for Functions all() and any()}
-\docType{methods}
 %
+\docType{methods}
+\keyword{logic}
+\keyword{methods}
+%
+\alias{all}
 \alias{all-methods}
+\alias{any}
 \alias{any-methods}
 %
 \alias{all,Matrix-method}
@@ -32,7 +37,6 @@
     \item{all}{\code{signature(x = "lsparseMatrix", ..., na.rm = FALSE)}: ...}
   }
 }
-\keyword{methods}
 \examples{
 M <- Matrix(1:12 +0, 3,4)
 all(M >= 1) # TRUE

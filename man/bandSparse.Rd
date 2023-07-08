@@ -1,6 +1,11 @@
 \name{bandSparse}
 \title{Construct Sparse Banded Matrix from (Sup-/Super-) Diagonals}
+%
+\keyword{array}
+\keyword{utilities}
+%
 \alias{bandSparse}
+%
 \description{
   Construct a sparse banded matrix by specifying its non-zero sup- and
   super-diagonals.
@@ -56,6 +61,9 @@ bandSparse(n, m = n, k, diagonals, symmetric = FALSE,
   \code{\link{Matrix}}.
 }
 \examples{
+\dontshow{ % for R_DEFAULT_PACKAGES=NULL
+library(stats, pos = "package:base", verbose = FALSE)
+}
 diags <- list(1:30, 10*(1:20), 100*(1:20))
 s1 <- bandSparse(13, k = -c(0:2, 6), diag = c(diags, diags[2]), symm=TRUE)
 s1
@@ -68,7 +76,7 @@ bk <- c(0:4, 7,9)
 
 ## If you want a pattern matrix, but with "sparse"-diagonals,
 ## you currently need to go via logical sparse:
-lLis <- lapply(list(rpois(20, 2), rpois(20,1), rpois(20,3))[c(1:3,2:3,3:2)],
+lLis <- lapply(list(rpois(20, 2), rpois(20, 1), rpois(20, 3))[c(1:3, 2:3, 3:2)],
                as.logical)
 (s4 <- bandSparse(20, k = bk, symm = TRUE, diag = lLis))
 (s4. <- as(drop0(s4), "nsparseMatrix"))
@@ -87,5 +95,3 @@ stopifnot(identical(B,  bandSparse(n, k = bk, diag = bMat)),
           , inherits(B, "dtCMatrix") # triangular!
 )
 }
-\keyword{array}
-\keyword{algebra}

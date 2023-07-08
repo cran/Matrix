@@ -1,6 +1,9 @@
 \name{ldiMatrix-class}
 \title{Class "ldiMatrix" of Diagonal Logical Matrices}
+%
 \docType{class}
+\keyword{array}
+\keyword{classes}
 %
 \alias{ldiMatrix-class}
 %
@@ -41,13 +44,7 @@
 \alias{Ops,ldiMatrix,sparseMatrix-method}
 \alias{Summary,ldiMatrix-method}
 \alias{as.logical,ldiMatrix-method}
-\alias{cbind2,ldiMatrix,atomicVector-method}
-\alias{cbind2,ldiMatrix,matrix-method}
-\alias{cbind2,matrix,ldiMatrix-method}
 \alias{prod,ldiMatrix-method}
-\alias{rbind2,ldiMatrix,atomicVector-method}
-\alias{rbind2,ldiMatrix,matrix-method}
-\alias{rbind2,matrix,ldiMatrix-method}
 \alias{sum,ldiMatrix-method}
 \alias{which,ldiMatrix-method}
 %
@@ -83,6 +80,9 @@
   \code{\linkS4class{diagonalMatrix}}; function \code{\link{Diagonal}}.
 }
 \examples{
+\dontshow{ % for R_DEFAULT_PACKAGES=NULL
+library(utils, pos = "package:base", verbose = FALSE)
+}
 (lM <- Diagonal(x = c(TRUE,FALSE,FALSE)))
 str(lM)#> gory details (slots)
 
@@ -90,4 +90,3 @@ crossprod(lM) # numeric
 (nM <- as(lM, "nMatrix"))# -> sparse (not formally ``diagonal'')
 crossprod(nM) # logical sparse
 }
-\keyword{classes}

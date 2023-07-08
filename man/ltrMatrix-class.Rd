@@ -1,6 +1,9 @@
 \name{ltrMatrix-class}
 \title{Triangular Dense Logical Matrices}
+%
 \docType{class}
+\keyword{array}
+\keyword{classes}
 %
 \alias{ltrMatrix-class}
 \alias{ltpMatrix-class}
@@ -47,6 +50,9 @@
   function \code{\link[base]{t}}
 }
 \examples{
+\dontshow{ % for R_DEFAULT_PACKAGES=NULL
+library(utils, pos = "package:base", verbose = FALSE)
+}
 showClass("ltrMatrix")
 
 str(new("ltpMatrix"))
@@ -56,4 +62,3 @@ str(lutp <- pack(lutr)) # packed matrix: only 10 = 4*(4+1)/2 entries
 ## but this one is:
 stopifnot(all.equal(lutp, pack(!!lutp)))
 }
-\keyword{classes}

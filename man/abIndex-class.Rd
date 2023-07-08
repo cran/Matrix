@@ -1,6 +1,8 @@
 \name{abIndex-class}
 \title{Class "abIndex" of Abstract Index Vectors}
+%
 \docType{class}
+\keyword{classes}
 %
 \alias{abIndex-class}
 \alias{seqMat-class} % not yet documented {unexported}
@@ -92,6 +94,9 @@
   \code{\link{numeric}}% ... FIXME
 }
 \examples{
+\dontshow{ % for R_DEFAULT_PACKAGES=NULL
+library(utils, pos = "package:base", verbose = FALSE)
+}
 showClass("abIndex")
 ii <- c(-3:40, 20:70)
 str(ai <- as(ii, "abIndex"))# note
@@ -101,4 +106,3 @@ ai # -> show() method
 stopifnot(identical(-3:20,
                     as(abIseq1(-3,20), "vector")))
 }
-\keyword{classes}

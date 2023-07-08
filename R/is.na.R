@@ -11,21 +11,21 @@ setMethod("anyNA", signature(x = "nMatrix"),
           function(x) FALSE)
 
 for(.kind in c("d", "l")) {
-    setMethod("anyNA", signature(x = paste0(.kind, "sparseMatrix")),
-              function(x) anyNA(x@x))
+setMethod("anyNA", signature(x = paste0(.kind, "sparseMatrix")),
+          function(x) anyNA(x@x))
 
-    setMethod("anyNA", signature(x = paste0(.kind, "denseMatrix")),
-              function(x) {
-                  if(!.hasSlot(x, "uplo"))
-                      return(anyNA(x@x))
-                  packed <- .isPacked(x)
-                  nonunit <- !.hasSlot(x, "diag") || x@diag == "N"
-                  if(packed && nonunit)
-                      return(anyNA(x@x))
-                  k <- indTri(n = x@Dim[1L], upper = x@uplo == "U",
-                              diag = nonunit, packed = packed)
-                  anyNA(x@x[k])
-              })
+setMethod("anyNA", signature(x = paste0(.kind, "denseMatrix")),
+          function(x) {
+              if(!.hasSlot(x, "uplo"))
+                  return(anyNA(x@x))
+              packed <- .isPacked(x)
+              nonunit <- !.hasSlot(x, "diag") || x@diag == "N"
+              if(packed && nonunit)
+                  return(anyNA(x@x))
+              k <- indTri(n = x@Dim[1L], upper = x@uplo == "U",
+                          diag = nonunit, packed = packed)
+              anyNA(x@x[k])
+          })
 }
 rm(.kind)
 
@@ -70,22 +70,22 @@ setMethod("is.na", signature(x = "nMatrix"),
           allFalseMatrix)
 
 setMethod("is.na", signature(x = "dsparseMatrix"),
-	  function(x) {
+          function(x) {
               if(anyNA(x@x)) { # don't allocate in FALSE case
                   r <- .sparse2kind(diagU2N(x), "l", drop0 = FALSE)
                   r@x <- is.na(r@x)
                   .sparse2kind(r, "n", drop0 = TRUE)
               } else allFalseMatrix(x)
-	  })
+          })
 
 setMethod("is.na", signature(x = "lsparseMatrix"),
-	  function(x) {
+          function(x) {
               if(anyNA(x@x)) { # don't allocate in FALSE case
                   r <- diagU2N(x)
                   r@x <- is.na(r@x)
                   .sparse2kind(r, "n", drop0 = TRUE)
               } else allFalseMatrix(x)
-	  })
+          })
 
 .is.na.ge <- function(x) {
     if(anyNA(x@x)) # don't allocate in FALSE case
@@ -154,11 +154,11 @@ rm(.is.na.ge, .is.na.tr, .is.na.tp,
    .kind, .xx)
 
 setMethod("is.na", signature(x = "sparseVector"),
-	  function(x) new("nsparseVector", length = x@length,
+          function(x) new("nsparseVector", length = x@length,
                           i = x@i[is.na(x@x)]))
 
 setMethod("is.na", signature(x = "nsparseVector"),
-	  function(x) new("nsparseVector", length = x@length))
+          function(x) new("nsparseVector", length = x@length))
 
 
 ## METHODS FOR GENERIC: is.finite
@@ -208,7 +208,7 @@ setMethod("is.finite", signature(x = "nMatrix"),
           ..allTrueMatrix)
 
 setMethod("is.finite", signature(x = "dsparseMatrix"),
-	  function(x) {
+          function(x) {
               if(!all(is.finite(x@x))) {
                   ## FIXME: use packed=TRUE once [<- is fast for packedMatrix
                   r <- allTrueMatrix(x, symmetric = NA, packed = FALSE)
@@ -218,11 +218,11 @@ setMethod("is.finite", signature(x = "dsparseMatrix"),
                   w <- which(!is.finite(x@x))
                   r@x[as.double(n) * x@j[w] + x@i[w] + 1] <- FALSE
                   r
-	      } else allTrueMatrix(x, symmetric = NA, packed = TRUE)
+              } else allTrueMatrix(x, symmetric = NA, packed = TRUE)
           })
 
 setMethod("is.finite", signature(x = "lsparseMatrix"),
-	  function(x) {
+          function(x) {
               if(anyNA(x@x)) { # don't allocate in FALSE case
                   ## FIXME: use packed=TRUE once [<- is fast for packedMatrix
                   r <- allTrueMatrix(x, symmetric = NA, packed = FALSE)
@@ -232,7 +232,7 @@ setMethod("is.finite", signature(x = "lsparseMatrix"),
                   w <- which(is.na(x@x))
                   r@x[as.double(n) * x@j[w] + x@i[w] + 1] <- FALSE
                   r
-	      } else allTrueMatrix(x, symmetric = NA, packed = TRUE)
+              } else allTrueMatrix(x, symmetric = NA, packed = TRUE)
           })
 
 .is.finite.ge <- function(x)
@@ -278,14 +278,14 @@ rm(.is.finite.ge, .is.finite.tr, .is.finite.tp,
    .kind, .xx)
 
 setMethod("is.finite", signature(x = "sparseVector"),
-	  function(x)  {
-	      r <- rep.int(TRUE, x@length)
-	      r[x@i[!is.finite(x@x)]] <- FALSE
-	      r
-	  })
+          function(x)  {
+              r <- rep.int(TRUE, x@length)
+              r[x@i[!is.finite(x@x)]] <- FALSE
+              r
+          })
 
 setMethod("is.finite", signature(x = "nsparseVector"),
-	  function(x) rep.int(TRUE, x@length))
+          function(x) rep.int(TRUE, x@length))
 
 
 ## METHODS FOR GENERIC: is.infinite
@@ -312,13 +312,13 @@ setMethod("is.infinite", signature(x = "lMatrix"),
           allFalseMatrix)
 
 setMethod("is.infinite", signature(x = "dsparseMatrix"),
-	  function(x) {
+          function(x) {
               if(any(is.infinite(x@x))) {
                   r <- .sparse2kind(x <- diagU2N(x), "l", drop0 = FALSE)
                   r@x <- is.infinite(x@x)
                   .sparse2kind(r, "n", drop0 = TRUE)
               } else allFalseMatrix(x)
-	  })
+          })
 
 .is.infinite.ge <- function(x) {
     if(any(i <- is.infinite(x@x)))
@@ -383,11 +383,11 @@ rm(.is.infinite.ge, .is.infinite.tr, .is.infinite.tp,
    .xx)
 
 setMethod("is.infinite", signature(x = "sparseVector"),
-	  function(x) new("nsparseVector", length = x@length,
+          function(x) new("nsparseVector", length = x@length,
                           i = x@i[is.infinite(x@x)]))
 
 setMethod("is.infinite", signature(x = "nsparseVector"),
-	  function(x) new("nsparseVector", length = x@length))
+          function(x) new("nsparseVector", length = x@length))
 
 
 ## METHODS FOR GENERIC: is.nan
@@ -413,13 +413,13 @@ setMethod("is.nan", signature(x = "lMatrix"),
           allFalseMatrix)
 
 setMethod("is.nan", signature(x = "dsparseMatrix"),
-	  function(x) {
+          function(x) {
               if(any(is.nan(x@x))) {
                   r <- .sparse2kind(x <- diagU2N(x), "l", drop0 = FALSE)
                   r@x <- is.nan(x@x)
                   .sparse2kind(r, "n", drop0 = TRUE)
               } else allFalseMatrix(x)
-	  })
+          })
 
 .is.nan.ge <- function(x) {
     if(any(i <- is.nan(x@x)))
@@ -484,9 +484,8 @@ rm(.is.nan.ge, .is.nan.tr, .is.nan.tp,
    .xx)
 
 setMethod("is.nan", signature(x = "sparseVector"),
-	  function(x) new("nsparseVector", length = x@length,
+          function(x) new("nsparseVector", length = x@length,
                           i = x@i[is.nan(x@x)]))
 
 setMethod("is.nan", signature(x = "nsparseVector"),
-	  function(x) new("nsparseVector", length = x@length))
-
+          function(x) new("nsparseVector", length = x@length))

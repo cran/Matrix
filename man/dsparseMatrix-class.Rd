@@ -1,6 +1,9 @@
 \name{dsparseMatrix-class}
 \title{Virtual Class "dsparseMatrix" of Numeric Sparse Matrices}
+%
 \docType{class}
+\keyword{array}
+\keyword{classes}
 %
 \alias{dsparseMatrix-class}
 %
@@ -47,4 +50,3 @@
 \examples{
 showClass("dsparseMatrix")
 }
-\keyword{classes}

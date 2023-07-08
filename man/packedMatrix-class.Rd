@@ -1,10 +1,14 @@
 \name{packedMatrix-class}
 \title{Virtual Class \code{"packedMatrix"} of Packed Dense Matrices}
+%
 \docType{class}
+\keyword{array}
+\keyword{classes}
 %
 \alias{packedMatrix-class}
 %
 \alias{coerce,matrix,packedMatrix-method}
+\alias{cov2cor,packedMatrix-method}
 \alias{diag,packedMatrix-method}
 \alias{diag<-,packedMatrix-method}
 \alias{t,packedMatrix-method}
@@ -45,36 +49,6 @@
     \item{t}{\code{signature(x = "packedMatrix")}: ... }
     \item{diag}{\code{signature(x = "packedMatrix")}: ... }
     \item{diag<-}{\code{signature(x = "packedMatrix")}: ... }
-    \item{[}{\code{signature(x = "packedMatrix", i = "missing", j = "missing", drop = "missing")}: ... }
-    \item{[}{\code{signature(x = "packedMatrix", i = "NULL", j = "missing", drop = "missing")}: ... }
-    \item{[}{\code{signature(x = "packedMatrix", i = "index", j = "missing", drop = "missing")}: ... }
-    \item{[}{\code{signature(x = "packedMatrix", i = "matrix", j = "missing", drop = "missing")}: ... }
-    \item{[}{\code{signature(x = "packedMatrix", i = "lMatrix", j = "missing", drop = "missing")}: ... }
-    \item{[}{\code{signature(x = "packedMatrix", i = "missing", j = "NULL", drop = "missing")}: ... }
-    \item{[}{\code{signature(x = "packedMatrix", i = "NULL", j = "NULL", drop = "missing")}: ... }
-    \item{[}{\code{signature(x = "packedMatrix", i = "index", j = "NULL", drop = "missing")}: ... }
-    \item{[}{\code{signature(x = "packedMatrix", i = "matrix", j = "NULL", drop = "missing")}: ... }
-    \item{[}{\code{signature(x = "packedMatrix", i = "lMatrix", j = "NULL", drop = "missing")}: ... }
-    \item{[}{\code{signature(x = "packedMatrix", i = "missing", j = "index", drop = "missing")}: ... }
-    \item{[}{\code{signature(x = "packedMatrix", i = "NULL", j = "index", drop = "missing")}: ... }
-    \item{[}{\code{signature(x = "packedMatrix", i = "index", j = "index", drop = "missing")}: ... }
-    \item{[}{\code{signature(x = "packedMatrix", i = "matrix", j = "index", drop = "missing")}: ... }
-    \item{[}{\code{signature(x = "packedMatrix", i = "lMatrix", j = "index", drop = "missing")}: ... }
-    \item{[}{\code{signature(x = "packedMatrix", i = "missing", j = "missing", drop = "logical")}: ... }
-    \item{[}{\code{signature(x = "packedMatrix", i = "NULL", j = "missing", drop = "logical")}: ... }
-    \item{[}{\code{signature(x = "packedMatrix", i = "index", j = "missing", drop = "logical")}: ... }
-    \item{[}{\code{signature(x = "packedMatrix", i = "matrix", j = "missing", drop = "logical")}: ... }
-    \item{[}{\code{signature(x = "packedMatrix", i = "lMatrix", j = "missing", drop = "logical")}: ... }
-    \item{[}{\code{signature(x = "packedMatrix", i = "missing", j = "NULL", drop = "logical")}: ... }
-    \item{[}{\code{signature(x = "packedMatrix", i = "NULL", j = "NULL", drop = "logical")}: ... }
-    \item{[}{\code{signature(x = "packedMatrix", i = "index", j = "NULL", drop = "logical")}: ... }
-    \item{[}{\code{signature(x = "packedMatrix", i = "matrix", j = "NULL", drop = "logical")}: ... }
-    \item{[}{\code{signature(x = "packedMatrix", i = "lMatrix", j = "NULL", drop = "logical")}: ... }
-    \item{[}{\code{signature(x = "packedMatrix", i = "missing", j = "index", drop = "logical")}: ... }
-    \item{[}{\code{signature(x = "packedMatrix", i = "NULL", j = "index", drop = "logical")}: ... }
-    \item{[}{\code{signature(x = "packedMatrix", i = "index", j = "index", drop = "logical")}: ... }
-    \item{[}{\code{signature(x = "packedMatrix", i = "matrix", j = "index", drop = "logical")}: ... }
-    \item{[}{\code{signature(x = "packedMatrix", i = "lMatrix", j = "index", drop = "logical")}: ... }
   }
 }
 %% \references{
@@ -91,4 +65,3 @@
 showClass("packedMatrix")
 showMethods(classes = "packedMatrix")
 }
-\keyword{classes}

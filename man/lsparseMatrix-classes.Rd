@@ -1,6 +1,9 @@
 \name{lsparseMatrix-classes}
 \title{Sparse logical matrices}
+%
 \docType{class}
+\keyword{array}
+\keyword{classes}
 %
 \alias{lsparseMatrix-class}
 \alias{lgCMatrix-class}
@@ -35,19 +38,16 @@
 % lgT
 \alias{Arith,lgTMatrix,lgTMatrix-method}
 \alias{Logic,lgTMatrix,lgTMatrix-method}
-\alias{which,lgTMatrix-method}
 % ltC
 \alias{Logic,ltCMatrix,ltCMatrix-method}
 % ltR
 % ltT
-\alias{which,ltTMatrix-method}
 % lsC
 \alias{Logic,lsCMatrix,lsCMatrix-method}
 \alias{coerce,lsCMatrix,RsparseMatrix-method}
 % lsR
 \alias{coerce,lsRMatrix,CsparseMatrix-method}
 % lsT
-\alias{which,lsTMatrix-method}
 %
 \description{The \code{lsparseMatrix} class is a virtual class of sparse
   matrices with \code{TRUE}/\code{FALSE} or \code{NA} entries.  Only the
@@ -136,13 +136,16 @@
   the class \code{\linkS4class{dgCMatrix}} and \code{\linkS4class{dgTMatrix}}
 }
 \examples{
+\dontshow{ % for R_DEFAULT_PACKAGES=NULL
+library(utils, pos = "package:base", verbose = FALSE)
+}
 (m <- Matrix(c(0,0,2:0), 3,5, dimnames=list(LETTERS[1:3],NULL)))
 (lm <- (m > 1)) # lgC
 !lm     # no longer sparse
 stopifnot(is(lm,"lsparseMatrix"),
           identical(!lm, m <= 1))
 
-data(KNex)
+data(KNex, package = "Matrix")
 str(mmG.1 <- (KNex $ mm) > 0.1)# "lgC..."
 table(mmG.1@x)# however with many ``non-structural zeros''
 ## from logical to nz_pattern -- okay when there are no NA's :
@@ -164,5 +167,3 @@ stopifnot(isSymmetric(xlx), isSymmetric(xnx),
           sapply(slotNames(xnx),
                  function(n) identical(slot(xnx, n), slot(xlx, n))))
 }
-\keyword{classes}
-\keyword{algebra}

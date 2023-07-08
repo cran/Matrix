@@ -1,36 +1,9 @@
-#### eigen() , Schur() etc
-#### =====     =====
+## METHODS FOR GENERIC: Schur
+## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-## eigen() is not even generic, and we haven't any C code,
-## NOTE  base::eigen()  "magically"  can work via as.matrix()
-if(.Matrix.avoiding.as.matrix) {
-    ## ---- IFF  as.matrix(.)  <==>  as(., "matrix")  [which we consider _deprecating_]
-    ## FIXME: Code for *sparse* !! [RcppEigen ~??~]
-    setMethod("eigen", signature(x = "Matrix", only.values = "missing"),
-	      function(x, symmetric, only.values, EISPACK) # << must match generic
-		  base::eigen(as(x,"matrix"), symmetric, FALSE))
-    setMethod("eigen", signature(x = "Matrix", only.values = "logical"),
-	      function(x, symmetric, only.values, EISPACK)
-		  base::eigen(as(x,"matrix"), symmetric, only.values))
-
-    ## base::svd()  using  as.matrix() :=  asRbasematrix()
-    setMethod("svd", "Matrix",
-	      function(x, ...) base::svd(as(x, "matrix"), ...))
-}
-
-
-## FIXME: C-level code should scan first for non-finite values
-##        since R-level test needs an allocation
-
-setMethod("Schur", signature(x = "Matrix", vectors = "missing"),
-          function(x, vectors, ...) Schur(x, TRUE, ...))
-
-setMethod("Schur", signature(x = "matrix", vectors = "missing"),
-          function(x, vectors, ...) Schur(x, TRUE, ...))
-
-setMethod("Schur", signature(x = "dgeMatrix", vectors = "logical"),
-	  function(x, vectors, ...) {
-              if(!all(is.finite(x@x)))
+setMethod("Schur", signature(x = "dgeMatrix"),
+          function(x, vectors = TRUE, ...) {
+              if(length(x.x <- x@x) && !all(is.finite(range(x.x))))
                   stop("'x' has non-finite values")
               cl <- .Call(dgeMatrix_Schur, x, vectors, TRUE)
               if(all(cl$WI == 0)) {
@@ -41,26 +14,29 @@ setMethod("Schur", signature(x = "dgeMatrix", vectors = "logical"),
                   T <- .m2ge(cl$T)
               }
               if(vectors)
-                  new("Schur", Dim = x@Dim, Q = .m2ge(cl$Z), T = T,
-                      EValues = vals)
+                  new("Schur", Dim = x@Dim, Dimnames = x@Dimnames,
+                      Q = .m2ge(cl$Z), T = T, EValues = vals)
               else list(T = T, EValues = vals)
           })
 
-setMethod("Schur", signature(x = "dsyMatrix", vectors = "logical"),
-	  function(x, vectors, ...) {
+setMethod("Schur", signature(x = "dsyMatrix"),
+          function(x, vectors = TRUE, ...) {
               e <- eigen(x, symmetric = TRUE, only.values = !vectors)
               vals <- as.double(e$values)
               T <- new("ddiMatrix", Dim = x@Dim, x = vals)
               if(vectors)
-                  new("Schur", Dim = x@Dim, Q = .m2ge(e$vectors), T = T,
-                      EValues = vals)
+                  new("Schur", Dim = x@Dim, Dimnames = symmDN(x@Dimnames),
+                      Q = .m2ge(e$vectors), T = T, EValues = vals)
               else list(T = T, EValues = vals)
           })
 
-setMethod("Schur", signature(x = "matrix", vectors = "logical"),
-	  function(x, vectors, ...) {
+setMethod("Schur", signature(x = "matrix"),
+          function(x, vectors = TRUE, ...) {
+              ## MJ: breaks package 'control' ?!
+              ## if(is.complex(x))
+              ##     stop("Schur(x) not yet supported for 'x' of type \"complex\"")
               storage.mode(x) <- "double"
-              if(!all(is.finite(x)))
+              if(length(x) && !all(is.finite(range(x))))
                   stop("'x' has non-finite values")
               cl <- .Call(dgeMatrix_Schur, x, vectors, FALSE)
               vals <-
@@ -73,47 +49,47 @@ setMethod("Schur", signature(x = "matrix", vectors = "logical"),
           })
 
 ## FIXME: don't coerce from sparse to dense
-setMethod("Schur", signature(x = "generalMatrix", vectors = "logical"),
-	  function(x, vectors, ...)
+setMethod("Schur", signature(x = "generalMatrix"),
+          function(x, vectors = TRUE, ...)
               Schur(as(as(x, "dMatrix"), "unpackedMatrix"), vectors, ...))
 
 ## FIXME: don't coerce from sparse to dense
-setMethod("Schur", signature(x = "symmetricMatrix", vectors = "logical"),
-	  function(x, vectors, ...)
+setMethod("Schur", signature(x = "symmetricMatrix"),
+          function(x, vectors = TRUE, ...)
               Schur(as(as(x, "dMatrix"), "unpackedMatrix"), vectors, ...))
 
-## Giving the _unsorted_ Schur factorization
-setMethod("Schur", signature(x = "diagonalMatrix", vectors = "logical"),
-	  function(x, vectors, ...) {
+setMethod("Schur", signature(x = "diagonalMatrix"),
+          function(x, vectors = TRUE, ...) {
               d <- x@Dim
               if(x@diag != "N") {
                   vals <- rep.int(1, d[1L])
                   T <- new("ddiMatrix", Dim = d, diag = "U")
               } else {
                   vals <- x@x
-                  if(!all(is.finite(vals)))
+                  if(length(vals) && !all(is.finite(range(vals))))
                       stop("'x' has non-finite values")
                   T <- new("ddiMatrix", Dim = d, x = vals)
               }
               if(vectors) {
                   Q <- new("ddiMatrix", Dim = d, diag = "U")
-                  new("Schur", Dim = d, Q = Q, T = T, EValues = vals)
+                  new("Schur", Dim = d, Dimnames = x@Dimnames,
+                      Q = Q, T = T, EValues = vals)
               } else list(T = T, EValues = vals)
           })
 
-setMethod("Schur", signature(x = "triangularMatrix", vectors = "logical"),
-	  function(x, vectors, ...) {
-              cld <- getClassDef(class(x))
-              if(!extends(cld, "nMatrix") &&
-                 (anyNA(x) || (extends(cld, "dMatrix") && any(is.infinite(x)))))
-                  ## any(is.finite(<sparseMatrix>)) would allocate too much
-                  stop("'x' has non-finite values")
+setMethod("Schur", signature(x = "triangularMatrix"),
+          function(x, vectors = TRUE, ...) {
               n <- (d <- x@Dim)[1L]
+              if(n == 0L)
+                  x@uplo <- "U"
+              else if(.M.kind(x) != "n" && !all(is.finite(range(x))))
+                  stop("'x' has non-finite values")
               vals <- diag(x, names = FALSE)
-              if(x@uplo == "U" || n == 0L) {
+              if(x@uplo == "U") {
                   if(vectors) {
                       Q <- new("ddiMatrix", Dim = d, diag = "U")
-                      new("Schur", Dim = d, Q = Q, T = x, EValues = vals)
+                      new("Schur", Dim = d, Dimnames = x@Dimnames,
+                          Q = Q, T = x, EValues = vals)
                   } else list(T = x, EValues = vals)
               } else {
                   perm <- n:1L
@@ -121,7 +97,27 @@ setMethod("Schur", signature(x = "triangularMatrix", vectors = "logical"),
                   T <- triu(x[perm, perm, drop = FALSE])
                   if(vectors) {
                       Q <- new("pMatrix", Dim = d, perm = perm)
-                      new("Schur", Dim = d, Q = Q, T = T, EValues = vals)
+                      new("Schur", Dim = d, Dimnames = x@Dimnames,
+                          Q = Q, T = T, EValues = vals)
                   } else list(T = x, EValues = vals)
               }
+          })
+
+
+## METHODS FOR CLASS: Schur
+## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+setMethod("expand1", signature(x = "Schur"),
+          function(x, which, ...)
+              switch(which, "Q" = x@Q, "T" = x@T, "Q." = t(x@Q),
+                     stop("'which' is not \"Q\", \"T\", or \"Q.\"")))
+
+setMethod("expand2", signature(x = "Schur"),
+          function(x, ...) {
+              Q  <- x@Q
+              Q. <- t(Q)
+              dn <- x@Dimnames
+              Q @Dimnames <- c(dn[1L], list(NULL))
+              Q.@Dimnames <- c(list(NULL), dn[2L])
+              list(Q = Q, T = x@T, Q. = Q.)
           })

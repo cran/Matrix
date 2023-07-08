@@ -1,6 +1,12 @@
 \name{externalFormats}
 \title{Read and write external matrix formats}
 %
+\docType{methods}
+\keyword{connection}
+\keyword{file}
+\keyword{methods}
+\keyword{utilities}
+%
 \alias{readHB}
 \alias{readMM}
 %\alias{writeHB}
@@ -58,31 +64,32 @@ writeMM(obj, file, \dots)
   \url{https://sparse.tamu.edu/}% was https://www.cise.ufl.edu/research/sparse/matrices/
 }
 \examples{
-str(pores <- readMM(system.file("external/pores_1.mtx",
-                                package = "Matrix")))
-str(utm <- readHB(system.file("external/utm300.rua",
-                               package = "Matrix")))
-str(lundA <- readMM(system.file("external/lund_a.mtx",
-                                package = "Matrix")))
-str(lundA <- readHB(system.file("external/lund_a.rsa",
-                                package = "Matrix")))
-str(jgl009 <- ## https://math.nist.gov/MatrixMarket/data/Harwell-Boeing/counterx/counterx.html
-        readMM(system.file("external/jgl009.mtx", package = "Matrix")))
-\dontrun{
+\dontshow{ % for R_DEFAULT_PACKAGES=NULL
+library(utils, pos = "package:base", verbose = FALSE)
+}
+str(pores <- readMM(system.file("external/pores_1.mtx", package = "Matrix")))
+str(utm   <- readHB(system.file("external/utm300.rua" , package = "Matrix")))
+str(lundA <- readMM(system.file("external/lund_a.mtx" , package = "Matrix")))
+str(lundA <- readHB(system.file("external/lund_a.rsa" , package = "Matrix")))
+## https://math.nist.gov/MatrixMarket/data/Harwell-Boeing/counterx/counterx.htm
+str(jgl   <- readMM(system.file("external/jgl009.mtx" , package = "Matrix")))
+
 ## NOTE: The following examples take quite some time
 ## ----  even on a fast internet connection:
-if(FALSE) # the URL has been corrected, but we need an un-tar step!
-str(sm <-
- readHB(gzcon(url("https://www.cise.ufl.edu/research/sparse/RB/Boeing/msc00726.tar.gz"))))
+if(FALSE) {
+## The URL has been corrected, but we need an untar step:
+u. <- url("https://www.cise.ufl.edu/research/sparse/RB/Boeing/msc00726.tar.gz")
+str(sm <- readHB(gzcon(u.)))
 }
-data(KNex)
+
+data(KNex, package = "Matrix")
 ## Store as MatrixMarket (".mtx") file, here inside temporary dir./folder:
 (MMfile <- file.path(tempdir(), "mmMM.mtx"))
 writeMM(KNex$mm, file=MMfile)
 file.info(MMfile)[,c("size", "ctime")] # (some confirmation of the file's)
 
 ## very simple export - in triplet format - to text file:
-data(CAex)
+data(CAex, package = "Matrix")
 s.CA <- summary(CAex)
 s.CA # shows  (i, j, x)  [columns of a data frame]
 message("writing to ", outf <- tempfile())
@@ -93,6 +100,3 @@ str(dd <- read.table(outf, header=TRUE))
 mm <- do.call(sparseMatrix, dd)
 stopifnot(all.equal(mm, CAex, tolerance=1e-15))
 }
-\keyword{IO}
-\keyword{array}
-\keyword{algebra}

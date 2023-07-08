@@ -1,6 +1,9 @@
 \name{dtrMatrix-class}
 \title{Triangular, dense, numeric matrices}
+%
 \docType{class}
+\keyword{array}
+\keyword{classes}
 %
 \alias{dtrMatrix-class}
 %
@@ -52,6 +55,9 @@
   \code{\linkS4class{triangularMatrix}}
 }
 \examples{%% this is used from ./dtpMatrix-class.Rd (change with care!)
+\dontshow{ % for R_DEFAULT_PACKAGES=NULL
+library(utils, pos = "package:base", verbose = FALSE)
+}
 (m <- rbind(2:3, 0:-1))
 (M <- as(m, "generalMatrix"))
 
@@ -72,4 +78,3 @@ stopifnot(exprs = {
    identical((t1pu - t1)@x, numeric())# sparse all-0
 })
 }
-\keyword{classes}

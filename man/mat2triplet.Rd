@@ -1,6 +1,11 @@
 \name{mat2triplet}
 \title{Map Matrix to its Triplet Representation}
+%
+\keyword{array}
+\keyword{utilities}
+%
 \alias{mat2triplet}
+%
 \description{
   From an \R object coercible to \code{"\linkS4class{TsparseMatrix}"},
   typically a (sparse) matrix, produce its triplet representation which may
@@ -45,14 +50,10 @@ mat2triplet(x, uniqT = FALSE)
   \code{\link{spMatrix}} and (one case of) \code{\link{sparseMatrix}}.
 }
 \examples{% ../R/sparseMatrix.R
-if(FALSE) ## The function is defined (don't redefine here!), simply as
-mat2triplet <- function(x, uniqT = FALSE) {
-    T <- as(x, "TsparseMatrix")
-    if(uniqT && anyDuplicatedT(T)) T <- .uniqTsparse(T)
-    if(is(T, "nsparseMatrix"))
-         list(i = T@i + 1L, j = T@j + 1L)
-    else list(i = T@i + 1L, j = T@j + 1L, x = T@x)
+\dontshow{ % for R_DEFAULT_PACKAGES=NULL
+library(utils, pos = "package:base", verbose = FALSE)
 }
+mat2triplet # simple definition
 
 i <- c(1,3:8); j <- c(2,9,6:10); x <- 7 * (1:7)
 (Ax <- sparseMatrix(i, j, x = x)) ##  8 x 10 "dgCMatrix"
@@ -63,7 +64,3 @@ D <- Diagonal(x=4:2)
 summary(D)
 str(mat2triplet(D))
 }
-\keyword{classes}
-\keyword{manip}
-\keyword{utilities}
-

@@ -1,3 +1,6 @@
+## for R_DEFAULT_PACKAGES=NULL :
+library(stats)
+
 library(Matrix)
 
 ## Matrix Exponential

@@ -1,70 +1,29 @@
-\name{[-methods}
+\name{Subscript-methods}
 \title{Methods for "[": Extraction or Subsetting in Package 'Matrix'}
+%
 \docType{methods}
+\keyword{array}
+\keyword{methods}
 %
+\alias{[}
 \alias{[-methods}
+\alias{Subscript-methods}
 %
-\alias{[,CsparseMatrix,index,index,logical-method}
-\alias{[,CsparseMatrix,index,missing,logical-method}
-\alias{[,CsparseMatrix,missing,index,logical-method}
-\alias{[,Matrix,ANY,ANY,ANY-method}
+\alias{[,Matrix,ANY,NULL,ANY-method}
+\alias{[,Matrix,NULL,ANY,ANY-method}
+\alias{[,Matrix,NULL,NULL,ANY-method}
+\alias{[,Matrix,index,index,logical-method}
 \alias{[,Matrix,index,index,missing-method}
+\alias{[,Matrix,index,missing,logical-method}
 \alias{[,Matrix,index,missing,missing-method}
 \alias{[,Matrix,lMatrix,missing,missing-method}
-\alias{[,Matrix,logical,missing,missing-method}
-\alias{[,Matrix,matrix,missing,ANY-method}
 \alias{[,Matrix,matrix,missing,missing-method}
+\alias{[,Matrix,missing,index,logical-method}
 \alias{[,Matrix,missing,index,missing-method}
-\alias{[,Matrix,missing,missing,ANY-method}
 \alias{[,Matrix,missing,missing,logical-method}
 \alias{[,Matrix,missing,missing,missing-method}
 \alias{[,Matrix,nMatrix,missing,missing-method}
-\alias{[,TsparseMatrix,index,index,logical-method}
-\alias{[,TsparseMatrix,index,missing,logical-method}
-\alias{[,TsparseMatrix,missing,index,logical-method}
 \alias{[,abIndex,index,ANY,ANY-method}
-\alias{[,denseMatrix,index,index,logical-method}
-\alias{[,denseMatrix,index,missing,logical-method}
-\alias{[,denseMatrix,matrix,missing,ANY-method}
-\alias{[,denseMatrix,matrix,missing,missing-method}
-\alias{[,denseMatrix,missing,index,logical-method}
-\alias{[,diagonalMatrix,index,index,logical-method}
-\alias{[,diagonalMatrix,index,missing,logical-method}
-\alias{[,diagonalMatrix,missing,index,logical-method}
-\alias{[,indMatrix,index,missing,logical-method}
-\alias{[,packedMatrix,NULL,NULL,logical-method}
-\alias{[,packedMatrix,NULL,NULL,missing-method}
-\alias{[,packedMatrix,NULL,index,logical-method}
-\alias{[,packedMatrix,NULL,index,missing-method}
-\alias{[,packedMatrix,NULL,missing,logical-method}
-\alias{[,packedMatrix,NULL,missing,missing-method}
-\alias{[,packedMatrix,index,NULL,logical-method}
-\alias{[,packedMatrix,index,NULL,missing-method}
-\alias{[,packedMatrix,index,index,logical-method}
-\alias{[,packedMatrix,index,index,missing-method}
-\alias{[,packedMatrix,index,missing,logical-method}
-\alias{[,packedMatrix,index,missing,missing-method}
-\alias{[,packedMatrix,lMatrix,NULL,logical-method}
-\alias{[,packedMatrix,lMatrix,NULL,missing-method}
-\alias{[,packedMatrix,lMatrix,index,logical-method}
-\alias{[,packedMatrix,lMatrix,index,missing-method}
-\alias{[,packedMatrix,lMatrix,missing,logical-method}
-\alias{[,packedMatrix,lMatrix,missing,missing-method}
-\alias{[,packedMatrix,matrix,NULL,logical-method}
-\alias{[,packedMatrix,matrix,NULL,missing-method}
-\alias{[,packedMatrix,matrix,index,logical-method}
-\alias{[,packedMatrix,matrix,index,missing-method}
-\alias{[,packedMatrix,matrix,missing,logical-method}
-\alias{[,packedMatrix,matrix,missing,missing-method}
-\alias{[,packedMatrix,missing,NULL,logical-method}
-\alias{[,packedMatrix,missing,NULL,missing-method}
-\alias{[,packedMatrix,missing,index,logical-method}
-\alias{[,packedMatrix,missing,index,missing-method}
-\alias{[,packedMatrix,missing,missing,logical-method}
-\alias{[,packedMatrix,missing,missing,missing-method}
-\alias{[,sparseMatrix,index,index,logical-method}
-\alias{[,sparseMatrix,index,missing,logical-method}
-\alias{[,sparseMatrix,missing,index,logical-method}
 \alias{[,sparseVector,index,ANY,ANY-method}
 \alias{[,sparseVector,lsparseVector,ANY,ANY-method}
 \alias{[,sparseVector,nsparseVector,ANY,ANY-method}
@@ -91,6 +50,10 @@
   \code{\link{Extract}} about the standard extraction.
 }
 \examples{
+\dontshow{ % for R_DEFAULT_PACKAGES=NULL
+library(stats, pos = "package:base", verbose = FALSE)
+library(utils, pos = "package:base", verbose = FALSE)
+}
 % regression tests are in ../tests/indexing.R
 str(m <- Matrix(round(rnorm(7*4),2), nrow = 7))
 stopifnot(identical(m, m[]))
@@ -103,5 +66,3 @@ m[,1:2]   # sub matrix of first two columns
 
 showMethods("[", inherited = FALSE)
 }
-\keyword{methods}
-\keyword{array}

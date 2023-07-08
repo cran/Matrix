@@ -1,3 +1,7 @@
+## for R_DEFAULT_PACKAGES=NULL :
+library(stats)
+library(utils)
+
 library(Matrix)
 
 ### Matrix Products including  cross products
@@ -395,7 +399,7 @@ stopifnot(all.equal(sum(rowSums(B %*% mc)), 5.82424475145))
 assert.EQ.mat(tcrossprod(B, mc), as.matrix(t(tcrossprod(mc, B))))
 
 m <- kronecker(Diagonal(2), mc)
-stopifnot(is(mc, "Cholesky"),
+stopifnot(is(mc, "dtrMatrix"),
 	  is(m, "sparseMatrix"))
 im <- solve(m)
 round(im, 3)
@@ -530,7 +534,8 @@ mr8 <- as(tr8,"matrix")
 m8. <- (mr8 %*% mr8 %*% mr8 %*% mr8)/16
 assert.EQ.mat(T8.2, m8.)
 
-data(KNex); mm <- KNex$mm
+data(KNex, package = "Matrix")
+mm <- KNex$mm
 M <- mm[1:500, 1:200]
 MT <- as(M, "TsparseMatrix")
 cpr   <- t(mm) %*% mm
@@ -819,7 +824,7 @@ assertError(crossprod(t(mm), P)) # ditto
 stopifnotValid(tm1, "dsCMatrix")
 stopifnot(exprs = {
     all.equal(tm1, tm2, tolerance = 1e-15)
-    identical(drop0(Im2 %*% tm2[1:3,]), Matrix(cbind(diag(3), 0)))
+    all.equal(Im2 %*% tm2[1:3,], Matrix(cbind(diag(3), 0)))
     identical(p, as.matrix(P))
     all(P %*% m == as.matrix(P) %*% m)
     all(P %*% mm == P %*% m)

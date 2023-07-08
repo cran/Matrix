@@ -1,9 +1,9 @@
 /** @file chm_common.c
  */
 #include "chm_common.h"
-// -> Mutils.h
 
-Rboolean isValid_Csparse(SEXP x); /* -> Csparse.c */
+/* defined in Csparse.c : */
+Rboolean isValid_Csparse(SEXP);
 
 SEXP get_SuiteSparse_version(void) {
     SEXP ans = allocVector(INTSXP, 3);
@@ -259,9 +259,11 @@ CHM_SP as_cholmod_sparse(CHM_SP ans, SEXP x,
 	ctype = R_check_class_etc(x, valid);
     SEXP islot = GET_SLOT(x, Matrix_iSym);
 
-    if (ctype < 0) error(_("invalid class of object to as_cholmod_sparse"));
+    if (ctype < 0)
+	error(_("invalid class of object to as_cholmod_sparse"));
     if (!isValid_Csparse(x))
 	error(_("invalid object passed to as_cholmod_sparse"));
+    
     memset(ans, 0, sizeof(cholmod_sparse)); /* zero the struct */
 
     ans->itype = CHOLMOD_INT;	/* characteristics of the system */
@@ -1048,63 +1050,64 @@ CHM_DN numeric_as_chm_dense(CHM_DN ans, double *v, int nr, int nc)
 CHM_FR as_cholmod_factor3(CHM_FR ans, SEXP x, Rboolean do_check)
 {
     static const char *valid[] = { MATRIX_VALID_CHMfactor, ""};
-    int *type = INTEGER(GET_SLOT(x, install("type"))),
-	ctype = R_check_class_etc(x, valid);
-    SEXP tmp;
+    int ctype = R_check_class_etc(x, valid);
+    if (ctype < 0)
+	error(_("object of invalid class to 'as_cholmod_factor()'"));
+    memset(ans, 0, sizeof(cholmod_factor));
 
-    if (ctype < 0) error(_("invalid class of object to as_cholmod_factor"));
-    memset(ans, 0, sizeof(cholmod_factor)); /* zero the struct */
+    SEXP tmp = GET_SLOT(x, install("type"));
+    int *type = INTEGER(tmp);
 
-    ans->itype = CHOLMOD_INT;	/* characteristics of the system */
-    ans->dtype = CHOLMOD_DOUBLE;
-    ans->z = (void *) NULL;
-    ans->xtype = (ctype < 2) ? CHOLMOD_REAL : CHOLMOD_PATTERN;
+    ans->ordering = type[0];
+    ans->is_super = type[2];
 
-    ans->ordering = type[0];	/* unravel the type */
-    ans->is_ll = (type[1] ? 1 : 0);
-    ans->is_super = (type[2] ? 1 : 0);
-    ans->is_monotonic = (type[3] ? 1 : 0);
-				/* check for consistency */
-    if ((!(ans->is_ll)) && ans->is_super)
-	error(_("Supernodal LDL' decomposition not available"));
-    if ((!type[2]) ^ (ctype % 2))
-	error(_("Supernodal/simplicial class inconsistent with type flags"));
-				/* slots always present */
-    tmp = GET_SLOT(x, Matrix_permSym);
-    ans->minor = ans->n = LENGTH(tmp); ans->Perm = INTEGER(tmp);
-    ans->ColCount = INTEGER(GET_SLOT(x, install("colcount")));
-    ans->z = ans->x = (void *) NULL;
-    if (ctype < 2) {
-	tmp = GET_SLOT(x, Matrix_xSym);
-	ans->x = REAL(tmp);
+    tmp = GET_SLOT(x, install("colcount"));
+    ans->n = LENGTH(tmp);
+    ans->minor = ans->n;
+    ans->ColCount = INTEGER(tmp);
+
+    if (ans->ordering != CHOLMOD_NATURAL)
+	ans->Perm = INTEGER(GET_SLOT(x, Matrix_permSym));
+    else {
+	int j, n = (int) ans->n, *Perm = (int *) R_alloc(ans->n, sizeof(int));
+	for (j = 0; j < n; ++j)
+	    Perm[j] = j;
+	ans->Perm = Perm;
     }
-    if (ans->is_super) {	/* supernodal factorization */
-	ans->xsize = LENGTH(tmp);
-	ans->maxcsize = type[4]; ans->maxesize = type[5];
-	ans->i = (int*)NULL;
+
+    ans->itype = CHOLMOD_INT;
+    ans->dtype = CHOLMOD_DOUBLE;
+    if (ctype >= 2)
+	ans->xtype = CHOLMOD_PATTERN;
+    else {
+	ans->xtype = CHOLMOD_REAL;
+	ans->x = REAL(GET_SLOT(x, Matrix_xSym));
+    }
+    
+    if (ans->is_super) {
 	tmp = GET_SLOT(x, install("super"));
-	ans->nsuper = LENGTH(tmp) - 1; ans->super = INTEGER(tmp);
-	/* Move these checks to the CHMfactor_validate function */
-	if (ans->nsuper < 1)
-	    error(_("Number of supernodes must be positive when is_super is TRUE"));
-	tmp = GET_SLOT(x, install("pi"));
-	if (LENGTH(tmp) != ans->nsuper + 1)
-	    error(_("Lengths of super and pi must be equal"));
-	ans->pi = INTEGER(tmp);
-	tmp = GET_SLOT(x, install("px"));
-	if (LENGTH(tmp) != ans->nsuper + 1)
-	    error(_("Lengths of super and px must be equal"));
-	ans->px = INTEGER(tmp);
-	tmp = GET_SLOT(x, install("s"));
-	ans->ssize = LENGTH(tmp); ans->s = INTEGER(tmp);
+	ans->nsuper = LENGTH(tmp) - 1;
+	ans->super = INTEGER(tmp);
+	ans->pi = INTEGER(GET_SLOT(x, install("pi")));
+	ans->px = INTEGER(GET_SLOT(x, install("px")));
+	ans->s = INTEGER(GET_SLOT(x, install("s")));
+	ans->ssize = ((int *) ans->pi)[ans->nsuper];
+	ans->xsize = ((int *) ans->px)[ans->nsuper];
+	ans->maxcsize = type[4];
+	ans->maxesize = type[5];
+	ans->is_ll = 1;
+	ans->is_monotonic = 1;
     } else {
-	ans->nzmax = LENGTH(tmp);
 	ans->p = INTEGER(GET_SLOT(x, Matrix_pSym));
 	ans->i = INTEGER(GET_SLOT(x, Matrix_iSym));
 	ans->nz = INTEGER(GET_SLOT(x, install("nz")));
 	ans->next = INTEGER(GET_SLOT(x, install("nxt")));
 	ans->prev = INTEGER(GET_SLOT(x, install("prv")));
+	ans->nzmax = ((int *) ans->p)[ans->n];
+	ans->is_ll = type[1];
+	ans->is_monotonic = type[3];
     }
+
     if (do_check && !cholmod_check_factor(ans, &c))
 	error(_("failure in as_cholmod_factor"));
     return ans;
@@ -1172,15 +1175,17 @@ SEXP chm_factor_to_SEXP(CHM_FR f, int dofree)
     dims = INTEGER(ALLOC_SLOT(ans, Matrix_DimSym, INTSXP, 2));
     dims[0] = dims[1] = f->n;
 				/* copy component of known length */
-    Memcpy(INTEGER(ALLOC_SLOT(ans, Matrix_permSym, INTSXP, f->n)),
-	   (int*)f->Perm, f->n);
-    Memcpy(INTEGER(ALLOC_SLOT(ans, install("colcount"), INTSXP, f->n)),
-	   (int*)f->ColCount, f->n);
-    type = INTEGER(ALLOC_SLOT(ans, install("type"), INTSXP, f->is_super ? 6 : 4));
+    type = INTEGER(ALLOC_SLOT(ans, install("type"), INTSXP, 6));
     type[0] = f->ordering; type[1] = f->is_ll;
     type[2] = f->is_super; type[3] = f->is_monotonic;
+    type[4] = f->maxcsize; type[5] = f->maxesize;
+    Memcpy(INTEGER(ALLOC_SLOT(ans, install("colcount"), INTSXP, f->n)),
+	   (int*)f->ColCount, f->n);
+    if (f->ordering != CHOLMOD_NATURAL) {
+	Memcpy(INTEGER(ALLOC_SLOT(ans, Matrix_permSym, INTSXP, f->n)),
+	       (int*)f->Perm, f->n);
+    }
     if (f->is_super) {
-	type[4] = f->maxcsize; type[5] = f->maxesize;
 	Memcpy(INTEGER(ALLOC_SLOT(ans, install("super"), INTSXP, f->nsuper + 1)),
 	       (int*)f->super, f->nsuper+1);
 	Memcpy(INTEGER(ALLOC_SLOT(ans, install("pi"), INTSXP, f->nsuper + 1)),

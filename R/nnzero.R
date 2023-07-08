@@ -32,19 +32,19 @@ setMethod("nnzero",  "array", .nnz.dispatching)
 rm(.nnz.dispatching)
 
 setMethod("nnzero", "CHMfactor",
-	  function(x, na.counted = NA)
-              callGeneric(as(x, "CsparseMatrix"), na.counted))
+          function(x, na.counted = NA)
+              nnzero(as(x, "CsparseMatrix"), na.counted))
 
 setMethod("nnzero", "diagonalMatrix",
-	  function(x, na.counted = NA)
+          function(x, na.counted = NA)
               if(x@diag == "N") .nnz(x@x, na.counted) else x@Dim[1L])
 
 setMethod("nnzero", "indMatrix",
-          function(x, na.counted = NA) x@Dim[1L])
+          function(x, na.counted = NA) length(x@perm))
 
 setMethod("nnzero", "sparseMatrix",
-	  function(x, na.counted = NA) {
-	      d <- x@Dim
+          function(x, na.counted = NA) {
+              d <- x@Dim
               if(any(d == 0L))
                   return(0L)
               cld <- getClassDef(class(x))
@@ -65,7 +65,7 @@ setMethod("nnzero", "sparseMatrix",
           })
 
 setMethod("nnzero", "denseMatrix",
-	  function(x, na.counted = NA) {
+          function(x, na.counted = NA) {
               d <- x@Dim
               if(any(d == 0L))
                   return(0L)

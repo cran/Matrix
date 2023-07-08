@@ -1,63 +1,71 @@
 \name{USCounties}
-\title{USCounties Contiguity Matrix}
+\title{Contiguity Matrix of U.S. Counties}
+%
 \docType{data}
+\keyword{datasets}
+%
 \alias{USCounties}
+%
 \description{
-  This matrix represents the contiguities of 3111 US counties using the
-  Queen criterion of at least a single shared boundary point. The
-  representation is as a row standardised spatial weights matrix
-  transformed to a symmetric matrix (see Ord (1975), p. 125).
+  This matrix gives the contiguities of 3111 U.S. counties,
+  using the queen criterion of at least one shared vertex
+  or edge.
 }
 \usage{data(USCounties)}
 \format{
-  A \eqn{3111 ^2} symmetric sparse matrix of class
-  \code{\linkS4class{dsCMatrix}} with 9101 non-zero entries.
+  A \eqn{3111 \times 3111}{3111-by-3111} sparse, symmetric
+  matrix of class \code{\linkS4class{dsCMatrix}}, with 9101
+  nonzero entries.
 }
-\details{
-  The data were read into \R using \code{\link[spdep]{read.gal}}, and
-  row-standardised and transformed to symmetry using
-  \code{\link[spdep]{nb2listw}} and \code{\link[spdep]{similar.listw}}.
-  This spatial weights object was converted to class
-  \code{\linkS4class{dsCMatrix}} using
-  \code{\link[spdep]{as_dsTMatrix_listw}} and coercion.
-}
-\source{ %% no \url anymore, as broken (Jan. 2015)
-  The data were retrieved from \code{http://sal.uiuc.edu/weights/zips/usc.zip},
-  files \dQuote{usc.txt} and \dQuote{usc_q.GAL}, with permission for use
-  and distribution from Luc Anselin (in early 2008).
+\source{
+  GAL lattice file \file{usc_q.GAL}
+  (retrieved in 2008 from
+  \file{http://sal.uiuc.edu/weights/zips/usc.zip}
+  with permission from Luc Anselin for use and distribution)
+  was read into \R{} using function \code{read.gal}
+  from package \CRANpkg{spdep}.
+
+  Neighbour lists were augmented with row-standardized
+  (and then symmetrized) spatial weights, using functions
+  \code{nb2listw} and \code{similar.listw} from packages
+  \CRANpkg{spdep} and \CRANpkg{spatialreg}.
+  The resulting \code{listw} object was coerced to class
+  \code{\linkS4class{dsTMatrix}}
+  using \code{as_dsTMatrix_listw} from \CRANpkg{spatialreg},
+  and subsequently to class \code{\linkS4class{dsCMatrix}}.
 }
 \references{
-  Ord, J. K. (1975)
-  Estimation methods for models of spatial interaction;
-  \emph{Journal of the American Statistical Association} \bold{70}, 120--126.
+  Ord, J. K. (1975).
+  Estimation methods for models of spatial interaction.
+  \emph{Journal of the American Statistical Association},
+  \emph{70}(349), 120-126.
+  \doi{10.2307/2285387}
 }
 \examples{
-data(USCounties)
-(n <- ncol(USCounties))
-IM <- .symDiagonal(n)
-nn <- 50
-set.seed(1)
-rho <- runif(nn, 0, 1)
-system.time(MJ <- sapply(rho, function(x)
-	determinant(IM - x * USCounties, logarithm = TRUE)$modulus))
-
-## can be done faster, by update()ing the Cholesky factor:
-nWC <- -USCounties
-C1 <- Cholesky(nWC, Imult = 2)
-system.time(MJ1 <- n * log(rho) +
-            sapply(rho, function(x)
-                   2 * c(determinant(update(C1, nWC, 1/x))$modulus)))
-all.equal(MJ, MJ1)
-\dontshow{stopifnot( all.equal(MJ, MJ1) )}
-
-C2 <- Cholesky(nWC, super = TRUE, Imult = 2)
-system.time(MJ2 <- n * log(rho) +
-            sapply(rho, function(x)
-                   2 * c(determinant(update(C2, nWC, 1/x))$modulus)))
-all.equal(MJ, MJ2)  \dontshow{stopifnot(all.equal(MJ, MJ2))}
-system.time(MJ3 <- n * log(rho) + Matrix:::ldetL2up(C1, nWC, 1/rho))
-stopifnot(all.equal(MJ, MJ3))
-system.time(MJ4 <- n * log(rho) + Matrix:::ldetL2up(C2, nWC, 1/rho))
-stopifnot(all.equal(MJ, MJ4))
+\dontshow{ % for R_DEFAULT_PACKAGES=NULL
+library(stats, pos = "package:base", verbose = FALSE)
+library(utils, pos = "package:base", verbose = FALSE)
 }
-\keyword{datasets}
+data(USCounties, package = "Matrix")
+(n <- ncol(USCounties))
+I <- .symDiagonal(n)
+
+set.seed(1)
+r <- 50L
+rho <- 1 / runif(r, 0, 0.5)
+
+system.time(MJ0 <- sapply(rho, function(mult)
+    determinant(USCounties + mult * I, logarithm = TRUE)$modulus))
+
+## Can be done faster by updating the Cholesky factor:
+
+C1 <- Cholesky(USCounties, Imult = 2)
+system.time(MJ1 <- sapply(rho, function(mult)
+    determinant(update(C1, USCounties, mult), sqrt = FALSE)$modulus))
+stopifnot(all.equal(MJ0, MJ1))
+
+C2 <- Cholesky(USCounties, super = TRUE, Imult = 2)
+system.time(MJ2 <- sapply(rho, function(mult)
+    determinant(update(C2, USCounties, mult), sqrt = FALSE)$modulus))
+stopifnot(all.equal(MJ0, MJ2))
+}

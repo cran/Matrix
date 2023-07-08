@@ -179,7 +179,7 @@ setMethod("Summary", "Matrix", ## FIXME (too cheap): all(<lMatrix>) should not g
 ## Try to make   min(1, <Matrix>)  work, i.e., not dispatch on first arg to .Primitive
 ## This for(..) gives {during installation}
 ## Error in setGeneric(F, signature = "...") :
-##   ‘max’ is a primitive function;  methods can be defined, but the generic function is implicit, and cannot be changed.
+##   'max' is a primitive function;  methods can be defined, but the generic function is implicit, and cannot be changed.
 if(FALSE)
 for(F in c("max", "min", "range", "prod", "sum", "any", "all")) {
     setGeneric(F, signature = "...")
@@ -324,7 +324,7 @@ setMethod("Summary", "sparseVector",
 
 ## help( pmin ) in R :
 ##       -----
-## ‘pmax’ and ‘pmin’ will also work on classed objects with appropriate methods
-## for comparison, ‘is.na’ and ‘rep’ (if recycling of arguments is needed).
+## 'pmax' and 'pmin' will also work on classed objects with appropriate methods
+## for comparison, 'is.na' and 'rep' (if recycling of arguments is needed).
 ##
 ##--> and that now *does* work, in 'R 3.3.1 patched' and newer

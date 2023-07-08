@@ -1,7 +1,12 @@
-\name{forceSymmetric}
+\name{forceSymmetric-methods}
 \title{Force a Matrix to 'symmetricMatrix' Without Symmetry Checks}
 %
+\docType{methods}
+\keyword{array}
+\keyword{methods}
+%
 \alias{forceSymmetric}
+\alias{forceSymmetric-methods}
 %
 \alias{forceSymmetric,CsparseMatrix,character-method}
 \alias{forceSymmetric,CsparseMatrix,missing-method}
@@ -65,4 +70,3 @@ forceSymmetric(x, uplo)
  (tm <- tril(M))
  forceSymmetric(tm)
 }
-\keyword{array}

@@ -1,8 +1,14 @@
-\name{unpack}
+\name{pack}
 \title{Representation of Packed and Unpacked Dense Matrices}
 %
+\docType{methods}
+\keyword{array}
+\keyword{methods}
+%
 \alias{pack}
+\alias{pack-methods}
 \alias{unpack}
+\alias{unpack-methods}
 %
 \alias{pack,dgeMatrix-method}
 \alias{pack,lgeMatrix-method}
@@ -77,6 +83,9 @@ unpack(x, \dots)
   \code{\link{identical}()}.  See the examples.
 }
 \examples{
+\dontshow{ % for R_DEFAULT_PACKAGES=NULL
+library(utils, pos = "package:base", verbose = FALSE)
+}
 showMethods("pack")
 (s <- crossprod(matrix(sample(15), 5,3))) # traditional symmetric matrix
 (sp <- pack(s))
@@ -99,5 +108,3 @@ stopifnot(!identical(z1, z2), # _not_ identical
           all(z1 == z2)) # but mathematically equal
 cbind(z1@x, z2@x) # (unused!) lower triangle is "lost" in translation
 }
-\keyword{array}
-\keyword{algebra}

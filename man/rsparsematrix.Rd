@@ -1,6 +1,12 @@
 \name{rsparsematrix}
 \title{Random Sparse Matrix}
+%
+\keyword{array}
+\keyword{distribution}
+\keyword{utilities}
+%
 \alias{rsparsematrix}
+%
 \description{
   Generate a random sparse matrix efficiently.  The default has rounded
   gaussian non-zero entries, and \code{rand.x = NULL} generates random
@@ -51,6 +57,9 @@ rsparsematrix(nrow, ncol, density, nnz = round(density * maxE),
 }
 \author{Martin Maechler}
 \examples{
+\dontshow{ % for R_DEFAULT_PACKAGES=NULL
+library(stats, pos = "package:base", verbose = FALSE)
+}
 set.seed(17)# to be reproducible
 M <- rsparsematrix(8, 12, nnz = 30) # small example, not very sparse
 M
@@ -68,5 +77,3 @@ nnzero(S9)# ~ 20: as 'nnz' only counts one "triangle"
 T2 <- rsparsematrix(40, 12, nnz = 99, repr = "T")
 head(T2)
 }
-\keyword{array}
-\keyword{distribution}

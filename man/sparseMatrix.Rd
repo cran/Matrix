@@ -1,6 +1,11 @@
 \name{sparseMatrix}
 \title{General Sparse Matrix Construction from Nonzero Entries}
+%
+\keyword{array}
+\keyword{utilities}
+%
 \alias{sparseMatrix}
+%
 \description{
   User-friendly construction of sparse matrices (inheriting from
   virtual \code{\link{class}} \code{\linkS4class{CsparseMatrix}},
@@ -137,6 +142,9 @@ sparseMatrix(i, j, p, x, dims, dimnames,
   definition help files.
 }
 \examples{
+\dontshow{ % for R_DEFAULT_PACKAGES=NULL
+library(utils, pos = "package:base", verbose = FALSE)
+}
 ## simple example
 i <- c(1,3:8); j <- c(2,9,6:10); x <- 7 * (1:7)
 (A <- sparseMatrix(i, j, x = x))                    ##  8 x 10 "dgCMatrix"
@@ -203,9 +211,10 @@ M1 <- rsparsematrix(1000, 20, nnz = 200)
 summary(M1)
 
 ## pointers example in converting from other sparse matrix representations.
-if(require(SparseM) && packageVersion("SparseM") >= 0.87 &&
+if(requireNamespace("SparseM") &&
+   packageVersion("SparseM") >= "0.87" &&
    nzchar(dfil <- system.file("extdata", "rua_32_ax.rua", package = "SparseM"))) {
-  X <- model.matrix(read.matrix.hb(dfil))
+  X <- SparseM::model.matrix(SparseM::read.matrix.hb(dfil))
   XX <- sparseMatrix(j = X@ja, p = X@ia - 1L, x = X@ra, dims = X@dimension)
   validObject(XX)
 
@@ -215,4 +224,3 @@ if(require(SparseM) && packageVersion("SparseM") >= 0.87 &&
   stopifnot(identical(XX, X.), identical(X., X2))
 }% if
 }% example
-\keyword{array}

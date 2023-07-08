@@ -13,8 +13,10 @@
 
 ## cache them [rather in package 'methods' ??]
 .ArithGenerics   <- getGroupMembers("Arith")
+if(FALSE) { # unused
 .CompareGenerics <- getGroupMembers("Compare")
 .LogicGenerics   <- getGroupMembers("Logic")
+}
 
 ## find them with M-x grep -E 'Method\("(Ops|Compare|Arith|Logic)"' *.R
 ##                --------
@@ -286,7 +288,7 @@ setMethod("Compare", signature(e1 = "lMatrix", e2 = "numeric"), Cmp.Mat.atomic)
 setMethod("Compare", signature(e1 = "lMatrix", e2 = "logical"), Cmp.Mat.atomic)
 setMethod("Compare", signature(e1 = "nMatrix", e2 = "numeric"), Cmp.Mat.atomic)
 setMethod("Compare", signature(e1 = "nMatrix", e2 = "logical"), Cmp.Mat.atomic)
-
+rm(Cmp.Mat.atomic)
 
 ## "xMatrix <-> work with 'x' slot {was originally just for "Compare"}:
 ##  -------  {also used for "Arith"}:
@@ -570,6 +572,7 @@ setMethod("Arith", signature(e1 = "ddenseMatrix", e2 = "logical"),
           .Arith.denseM.atom)
 setMethod("Arith", signature(e1 = "ddenseMatrix", e2 = "sparseVector"),
           .Arith.denseM.atom)
+rm(.Arith.denseM.atom)
 
 .Arith.atom.denseM <- function(e1, e2) {
     d <- e2@Dim
@@ -611,6 +614,7 @@ setMethod("Arith", signature(e1 =      "logical", e2 = "ddenseMatrix"),
           .Arith.atom.denseM)
 setMethod("Arith", signature(e1 = "sparseVector", e2 = "ddenseMatrix"),
           .Arith.atom.denseM)
+rm(.Arith.atom.denseM)
 
 ## "Logic"
 ## -------
@@ -634,6 +638,8 @@ setMethod("Compare", signature(e1="ngeMatrix", e2="ngeMatrix"), .Ops.via.x)
 setMethod("Logic",   signature(e1="ngeMatrix", e2="ngeMatrix"), .Ops.via.x)
 setMethod("Arith",   signature(e1="ngeMatrix", e2="ngeMatrix"), .Ops2dge.via.x)
 
+rm(.Ops.via.x, .Ops2dge.via.x)
+
 ## nMatrix -> lMatrix  conversions when "the other" is not nMatrix
 ## Use Ops.x.x unless both are sparse
 setMethod("Ops", signature(e1="dMatrix", e2="dMatrix"), Ops.x.x)
@@ -643,6 +649,9 @@ setMethod("Ops", signature(e1="nMatrix", e2="lMatrix"), Ops.x.x)
 setMethod("Ops", signature(e1="lMatrix", e2="nMatrix"), Ops.x.x)
 setMethod("Ops", signature(e1="nMatrix", e2="dMatrix"), Ops.x.x)
 setMethod("Ops", signature(e1="dMatrix", e2="nMatrix"), Ops.x.x)
+
+rm(Ops.x.x)
+
 ## ... both are sparse: cannot use Ops.x.x
 setMethod("Ops", signature(e1="nsparseMatrix", e2="lsparseMatrix"),
 	  function(e1,e2) callGeneric(..sparse2l(e1), e2))
@@ -853,7 +862,7 @@ Logic.Mat.atomic <- function(e1, e2) { ## result will typically be "like" e1:
 for(Mcl in c("lMatrix","nMatrix","dMatrix"))
     for(cl in c("logical", "numeric", "sparseVector"))
     setMethod("Logic", signature(e1 = Mcl, e2 = cl), Logic.Mat.atomic)
-
+rm(Logic.Mat.atomic, Mcl, cl)
 
 ### -- II -- sparse ----------------------------------------------------------
 
@@ -973,6 +982,8 @@ setMethod("Logic", signature(e1="lgCMatrix", e2="lgCMatrix"), m.Logic.lCMat)
 
 setMethod("Logic", signature(e1="lgTMatrix", e2="lgTMatrix"), Logic.lTMat)
 
+rm(m.Logic.lCMat, Logic.lTMat)
+
 setMethod("Logic", signature(e1 = "lsCMatrix", e2 = "lsCMatrix"),
 	  function(e1, e2) {
 	      if(e1@uplo == e2@uplo) Logic.lCMat(e1, e2, isOR = .Generic == "|")
@@ -1005,6 +1016,7 @@ setMethod("Logic", signature(e1 = "ltCMatrix", e2 = "ltCMatrix"),
 ## Now the other "Ops" for the "lgT" and "lgC" cases:
 setMethod("Arith", signature(e1="lgCMatrix", e2="lgCMatrix"), Ops.x.x.via.d)
 setMethod("Arith", signature(e1="lgTMatrix", e2="lgTMatrix"), Ops.x.x.via.d)
+rm(Ops.x.x.via.d)
 
 ## More generally:  Arith: l* and n*  via  d*
 setMethod("Arith", signature(e1="lsparseMatrix", e2="Matrix"),
@@ -1302,7 +1314,7 @@ setMethod("Arith", signature(e1 = "logical", e2 = "dgCMatrix"), A.n.M)
 ## coercing to "general*" / "dgC*"  would e.g. lose symmetry of  '3 * S'
 setMethod("Arith", signature(e1 = "numeric", e2 = "dsparseMatrix"), .Arith.atom.CM)
 setMethod("Arith", signature(e1 = "logical", e2 = "dsparseMatrix"), .Arith.atom.CM)
-rm(A.M.n, A.n.M)
+rm(A.M.n, A.n.M, .Arith.atom.CM, .Arith.CM.atom)
 
 
 ##-------- originally from ./dgTMatrix.R --------------------
@@ -1502,9 +1514,9 @@ setMethod("-", signature(e1 = "sparseMatrix", e2 = "missing"),
 	  })
 ## with the following exceptions:
 setMethod("-", signature(e1 = "nsparseMatrix", e2 = "missing"),
-	  function(e1, e2) - as(.sparse2g(..sparse2d(e1)), "CsparseMatrix"))
-setMethod("-", signature(e1 = "pMatrix", e2 = "missing"),
-          function(e1, e2) - as(e1, "TsparseMatrix"))
+	  function(e1, e2) -..sparse2d(e1))
+setMethod("-", signature(e1 = "indMatrix", e2 = "missing"),
+          function(e1, e2) -as(e1, "dsparseMatrix"))
 
 ## Group method  "Arith"
 
@@ -1542,8 +1554,6 @@ setMethod("Ops", signature(e1 = "numeric", e2 = "sparseMatrix"),
 ## setMethod("Compare", signature(e1 = "sparseMatrix", e2 = "sparseMatrix"),
 ## 	  function(e1, e2) callGeneric(as(e1, "CsparseMatrix"),
 ## 				       as(e2, "CsparseMatrix")))
-
-rm(Ops.x.x.via.d)
 
 
 ###-------- sparseVector -------------
@@ -1718,6 +1728,7 @@ setMethod("Logic", signature(e1 = "nsparseVector", e2 = "nsparseVector"),
 	      .bail.out.2(.Generic, class(e1), class(e2))
 	  })
 
+rm(Ops.spV.spV)
 
 ## 2)  spVec  o  [Mm]atrix : -------------
 
@@ -1776,3 +1787,5 @@ Ops.spV.M <- function(e1, e2) {
 ## try to use it in all cases
 setMethod("Ops", signature(e1 = "Matrix", e2 = "sparseVector"), Ops.M.spV)
 setMethod("Ops", signature(e1 = "sparseVector", e2 = "Matrix"), Ops.spV.M)
+
+rm(Ops.M.spV, Ops.spV.M)

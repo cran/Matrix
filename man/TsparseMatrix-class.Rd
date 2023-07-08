@@ -1,6 +1,9 @@
 \name{TsparseMatrix-class}
 \title{Class "TsparseMatrix" of Sparse Matrices in Triplet Form}
+%
 \docType{class}
+\keyword{array}
+\keyword{classes}
 %
 \alias{TsparseMatrix-class}
 %
@@ -83,4 +86,3 @@ T3 <- spMatrix(3,4, i=c(1,3:1), j=c(2,4:2), x=1:4)
 T3 # only 3 non-zero entries, 5 = 1+4 !
 \dontshow{stopifnot(nnzero(T3) == 3)}
 }
-\keyword{classes}

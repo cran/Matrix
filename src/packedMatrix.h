@@ -1,5 +1,5 @@
-#ifndef MATRIX_PAMATRIX_H
-#define MATRIX_PAMATRIX_H
+#ifndef MATRIX_PACKEDMATRIX_H
+#define MATRIX_PACKEDMATRIX_H
 
 #include "Mutils.h"
 
@@ -17,8 +17,4 @@ SEXP packedMatrix_diag_set(SEXP obj, SEXP val);
 SEXP packedMatrix_symmpart(SEXP from);
 SEXP packedMatrix_skewpart(SEXP from);
 
-SEXP packedMatrix_sub1(SEXP obj, SEXP index);
-SEXP packedMatrix_sub1_mat(SEXP obj, SEXP index);
-SEXP packedMatrix_sub2(SEXP obj, SEXP index1, SEXP index2, SEXP drop);
-
-#endif
+#endif /* MATRIX_PACKEDMATRIX_H */

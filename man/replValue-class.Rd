@@ -1,6 +1,8 @@
 \name{replValue-class}
 \title{Virtual Class "replValue" - Simple Class for Subassignment Values}
+%
 \docType{class}
+\keyword{classes}
 %
 \alias{replValue-class}
 %
@@ -20,4 +22,3 @@
 \examples{
 showClass("replValue")
 }
-\keyword{classes}

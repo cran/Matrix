@@ -1,5 +1,11 @@
-\name{symmpart}
+\name{symmpart-methods}
 \title{Symmetric Part and Skew(symmetric) Part of a Matrix}
+%
+\docType{methods}
+\keyword{algebra}
+\keyword{arith}
+\keyword{array}
+\keyword{methods}
 %
 \alias{symmpart}
 \alias{symmpart-methods}
@@ -79,5 +85,3 @@ stopifnot(all(m == symmpart(m) + skewpart(m)))
 ## investigate the current methods:
 showMethods(skewpart, include = TRUE)
 }
-\keyword{array}
-\keyword{arith}

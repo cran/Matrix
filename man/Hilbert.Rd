@@ -1,6 +1,11 @@
 \name{Hilbert}
 \title{Generate a Hilbert matrix}
+%
+\keyword{array}
+\keyword{utilities}
+%
 \alias{Hilbert}
+%
 \description{
     Generate the \code{n} by \code{n} symmetric Hilbert matrix.  Because
     these matrices are ill-conditioned for moderate to large \code{n},
@@ -20,5 +25,3 @@ Hilbert(n)
 \examples{
 Hilbert(6)
 }
-\keyword{array}
-\keyword{algebra}

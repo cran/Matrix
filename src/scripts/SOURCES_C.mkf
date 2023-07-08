@@ -9,19 +9,12 @@ SOURCES_C =  \
             dense.c \
             dgCMatrix.c \
             dgeMatrix.c \
-            dpoMatrix.c \
-            dppMatrix.c \
-            dsCMatrix.c \
-            dsyMatrix.c \
-            dspMatrix.c \
-            dtCMatrix.c \
-            dtrMatrix.c \
-            dtpMatrix.c \
             factorizations.c \
-	    sparseQR.c \
+	    kappa.c \
 	    sparseVector.c \
 	    abIndex.c \
 	    packedMatrix.c \
+	    products.c \
 	    unpackedMatrix.c \
 	    sparse.c \
 	    subscript.c \

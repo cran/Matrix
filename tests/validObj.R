@@ -3,8 +3,8 @@ library(Matrix)
 
 source(system.file("test-tools.R", package = "Matrix"))
 
-## from ../R/Auxiliaries.R :
-no_facts <- Matrix:::.drop.factors
+.drop.factors <- function(x, check = FALSE)
+    `slot<-`(x, "factors", check = check, value = list())
 
 ## the empty ones:
 checkMatrix(new("dgeMatrix"))
@@ -44,7 +44,7 @@ checkMatrix(dcm <- as(cm, "generalMatrix"))#'dge'
 checkMatrix(mcm <- as(cm, "dMatrix")) # 'dsy' + factors -- buglet? rather == cm?
 checkMatrix(mc. <- as(cm, "Matrix"))  # dpo --> dsy -- (as above)  FIXME? ??
 stopifnot(identical(mc., mcm),
-	  identical(no_facts(cm), (2*cm)/2),# remains dpo
+	  identical(.drop.factors(cm), (2*cm)/2),# remains dpo
 	  identical(cm + cp, cp + cs),# dge
 	  identical(mc., mcm),
 	  all(2*cm == mcm * 2))
@@ -104,7 +104,7 @@ stopifnot(is.logical(p9[1,]),
 	  isTRUE(p9[-c(1:6, 8:9), 1]),
 	  identical(t(p9), solve(p9)),
 	  identical(p9[TRUE, ], p9),
-          all.equal(p9[, TRUE], np9), # currently...
+          identical(p9[, TRUE], p9),
           identical(p9., np9.),
 	  identical(as(diag(9), "pMatrix"), as(1:9, "pMatrix"))
 	  )
@@ -174,14 +174,17 @@ stopifnot(is.character(msg))
 ##   invalid class "ngCMatrix" object: all row indices must be between 0 and nrow-1
 getLastMsg <- function(tryRes) {
     ## Extract "final" message from erronous try result
-    sub("\n$", "",
-        sub(".*: ", "", as.character(tryRes)))
+    sub("\n$", "", sub("^.*: ", "", as.character(tryRes)))
 }
-t <- try(show(foo)) ## error
-t2 <- try(head(foo))
-stopifnot(identical(msg, getLastMsg(t)),
-	  identical(1L, grep("as_cholmod_sparse", getLastMsg(t2))))
+t1 <- try(show(foo)) # error
+t2 <- try(head(foo)) # error, but previously a segfault
+stopifnot(identical(msg, getLastMsg(t1)),
+          identical(msg, getLastMsg(t2)))
 
+## test that all prototypes of nonvirtual classes are valid
+for (cl in c(names(getClassDef("Matrix")@subclasses),
+             names(getClassDef("MatrixFactorization")@subclasses)))
+    if(!isVirtualClass(def <- getClassDef(cl))) validObject(new(def))
 
 cat('Time elapsed: ', proc.time(),'\n') # "stats"
 

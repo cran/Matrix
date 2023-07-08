@@ -1,5 +1,9 @@
 ### Testing the group methods  --- some also happens in ./Class+Meth.R
 
+## for R_DEFAULT_PACKAGES=NULL :
+library(stats)
+library(utils)
+
 library(Matrix)
 source(system.file("test-tools.R", package = "Matrix"))# identical3() etc
 assertErrV <- function(e) tools::assertError(e, verbose=TRUE)
@@ -109,8 +113,8 @@ dsy <- lsy+1
 D3 <- Diagonal(x=4:2); L7 <- Diagonal(7) > 0
 validObject(xpp <- pack(round(xpx,2)))
 lsp <- xpp > 0
-(dsyU <- as(as(.diag2sT(D3), "dMatrix"), "denseMatrix"))
- lsyU <- as(as(.diag2sT(Diagonal(5) > 0), "lMatrix"), "denseMatrix")
+(dsyU <- .diag2dense(D3, "dsy"))
+ lsyU <- .diag2dense(Diagonal(5) > 0, "lsy")
 str(lsyU)
 stopifnot({
     isValid(dsyU,               "dsyMatrix") && dsyU@uplo == "U"
@@ -355,7 +359,7 @@ r <- M & m2 # failed in Matrix <= 1.4-1
 assert.EQ.mat(M        | m2 -> ro,
               as.mat(M)| m2, tol=0)
 D4 <- Diagonal(x=0+ 4:2)
-rd <- D4 | m2 # gave  invalid class “ltTMatrix” object: uplo='U' must not have sparse entries below the diagonal
+rd <- D4 | m2 # gave  invalid class "ltTMatrix" object: uplo='U' must not have sparse entries below the diagonal
 M2 <- Matrix(m2); T2 <- Matrix:::.diag2T.smart(D4, M2, kind="l")
 stopifnot(exprs = {
     all(!r)

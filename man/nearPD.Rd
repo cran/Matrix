@@ -1,6 +1,12 @@
 \name{nearPD}
 \title{Nearest Positive Definite Matrix}
+%
+\keyword{algebra}
+\keyword{array}
+\keyword{utilities}
+%
 \alias{nearPD}
+%
 \description{
  Compute the nearest positive definite matrix to an approximate
  one, typically a correlation or variance-covariance matrix.
@@ -68,8 +74,8 @@ nearPD(x, corr = FALSE, keepDiag = FALSE, base.matrix = FALSE,
   within the algorithm.
 
   Higham (2002) uses Dykstra's correction, but the version by Jens
-  Oehlschlaegel did not use it (accidentally), and still gave
-  reasonable results; this simplification, now only
+  \enc{Oehlschlägel}{Oehlschlaegel} did not use it (accidentally),
+  and still gave reasonable results; this simplification, now only
   used if \code{doDykstra = FALSE},
   was active in \code{nearPD()} up to Matrix version 0.999375-40.
 }
@@ -101,8 +107,9 @@ nearPD(x, corr = FALSE, keepDiag = FALSE, base.matrix = FALSE,
   Computing the nearest correlation matrix - a problem from finance;
   \emph{IMA Journal of Numerical Analysis} \bold{22}, 329--343.
 }
-\author{Jens Oehlschlaegel donated a first version.  Subsequent changes
-  by the Matrix package authors.
+\author{
+  Jens \enc{Oehlschlägel}{Oehlschlaegel} donated a first version.
+  Subsequent changes by the Matrix package authors.
 }
 \seealso{A first version of this (with non-optional \code{corr=TRUE})
   has been available as \code{\link[sfsmisc]{nearcor}()}; and
@@ -110,6 +117,12 @@ nearPD(x, corr = FALSE, keepDiag = FALSE, base.matrix = FALSE,
   \code{\link[sfsmisc]{posdefify}()}, both from package \pkg{sfsmisc}.
 }
 \examples{
+\dontshow{ % for R_DEFAULT_PACKAGES=NULL
+library(    stats, pos = "package:base", verbose = FALSE)
+library( graphics, pos = "package:base", verbose = FALSE)
+library(grDevices, pos = "package:base", verbose = FALSE)
+library(    utils, pos = "package:base", verbose = FALSE)
+}
  ## Higham(2002), p.334f - simple example
  A <- matrix(1, 3,3); A[1,3] <- A[3,1] <- 0
  n.A <- nearPD(A, corr=TRUE, do2eigen=FALSE)
@@ -130,8 +143,8 @@ nearPD(x, corr = FALSE, keepDiag = FALSE, base.matrix = FALSE,
  round(near.m$mat, 2)
  norm(m - near.m$mat) # 1.102 / 1.08
 
- if(require("sfsmisc")) {
-    m2 <- posdefify(m) # a simpler approach
+ if(requireNamespace("sfsmisc")) {
+    m2 <- sfsmisc::posdefify(m) # a simpler approach
     norm(m - m2)  # 1.185, i.e., slightly "less near"
  }
 
@@ -175,12 +188,10 @@ summary(EV) ## looking more closely {EV sorted decreasingly}:
 tail(EV)# all 6 are negative
 EV2 <- eigen(sWpos <- nearPD(symW)$mat, only=TRUE)$values
 stopifnot(EV2 > 0)
-if(require("sfsmisc")) {
-       plot(pmax(1e-3,EV), EV2, type="o", log="xy", xaxt="n",yaxt="n")
-       eaxis(1); eaxis(2)
-} else plot(pmax(1e-3,EV), EV2, type="o", log="xy")
-abline(0,1, col="red3",lty=2)
-
+if(requireNamespace("sfsmisc")) {
+    plot(pmax(1e-3,EV), EV2, type="o", log="xy", xaxt="n", yaxt="n")
+    for(side in 1:2) sfsmisc::eaxis(side)
+} else
+    plot(pmax(1e-3,EV), EV2, type="o", log="xy")
+abline(0, 1, col="red3", lty=2)
 }
-\keyword{algebra}
-\keyword{array}

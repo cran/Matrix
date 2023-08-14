@@ -31,7 +31,7 @@ importFrom("methods", .hasSlot, .selectSuperClasses, .slotNames,
 
 importFrom("stats", contr.SAS, contr.helmert, contr.poly, contr.sum,
            contr.treatment, "contrasts<-", cov2cor , diffinv, model.frame,
-           rnorm, runif, symnum, terms, toeplitz, update, setNames)
+           rnorm, runif, symnum, terms, toeplitz, update)
 
 importFrom("utils", capture.output, head, head.matrix, str, tail, tail.matrix)
 
@@ -40,39 +40,39 @@ importFrom("utils", capture.output, head, head.matrix, str, tail, tail.matrix)
 
 ## ---- Non-generic functions ------------------------------------------
 
-export(.CR2RC,
-       .CR2T,
+export(.M2C,
+       .M2R,
+       .M2T,
        .M2diag,
+       .M2gen,
+       .M2kind,
+       .M2m,
+       .M2packed,
        .M2sym,
        .M2tri,
+       .M2unpacked,
+       .M2v,
        .SuiteSparse_version,
-       .T2CR,
        .bdiag,
-       .dense2g,
-       .dense2kind,
-       .dense2m,
        .dense2sparse,
-       .dense2v,
        .diag.dsC,
        .diag2dense,
        .diag2sparse,
        .diagN2U,
        .diagU2N,
+       .ind2dense,
+       .ind2sparse,
        .formatSparseSimple,
        .m2dense,
        .m2sparse,
        .sparse2dense,
-       .sparse2g,
-       .sparse2kind,
-       .sparse2m,
-       .sparse2v,
        .sparseDiagonal,
        .symDiagonal,
        .trDiagonal,
        .solve.dgC.chol,
        .solve.dgC.lu,
        .solve.dgC.qr,
-       .tCR2RC,
+       .tCRT,
        .updateCHMfactor,
        .validateCsparse,
        Diagonal,
@@ -133,6 +133,10 @@ export(..2dge, .C2nC, .T2Cmat, .asmatrix, .dense2sy,
 
 ## Defunct since Matrix 1.3-3 {May 2021}
 export(cBind, rBind)
+
+## Redundant now but not yet deprecated ...
+export(.CR2RC, .CR2T, .T2CR, .dense2g, .dense2kind, .dense2m, .dense2v,
+       .sparse2g, .sparse2kind, .sparse2m, .sparse2v, .tCR2RC)
 
 
 ## ---- S3 generic functions -------------------------------------------

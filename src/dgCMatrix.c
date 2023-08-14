@@ -151,6 +151,7 @@ SEXP dgCMatrix_cholsol(SEXP x, SEXP y)
     Memcpy(REAL(VECTOR_ELT(ans, 3)), (double*)(resid->x), n);
 
     cholmod_free_factor(&L, &c);
+    cholmod_free_dense(&resid, &c);
     cholmod_free_dense(&rhs, &c);
     cholmod_free_dense(&cAns, &c);
     UNPROTECT(2);

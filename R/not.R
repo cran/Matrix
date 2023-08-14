@@ -44,7 +44,7 @@ for(.cl in paste0("n", c("ge", "sy", "sp"), "Matrix"))
 for(.cl in paste0("l", c("tr", "tp"), "Matrix"))
     setMethod("!", .cl,
               function(x) {
-                  r <- .dense2g(x)
+                  r <- .M2gen(x)
                   r@x <- !r@x
                   r
               })
@@ -52,7 +52,7 @@ for(.cl in paste0("l", c("tr", "tp"), "Matrix"))
 for(.cl in paste0("n", c("tr", "tp"), "Matrix"))
     setMethod("!", .cl,
               function(x) {
-                  r <- .dense2g(x)
+                  r <- .M2gen(x)
                   r@x <- !(is.na(r@x) | r@x) # NA <=> TRUE
                   r
               })

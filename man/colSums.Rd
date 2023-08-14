@@ -53,19 +53,19 @@
   \code{\link{numeric}} vector.
 }
 \usage{
-colSums (x, na.rm = FALSE, dims = 1L, \dots)
-rowSums (x, na.rm = FALSE, dims = 1L, \dots)
+ colSums(x, na.rm = FALSE, dims = 1L, \dots)
+ rowSums(x, na.rm = FALSE, dims = 1L, \dots)
 colMeans(x, na.rm = FALSE, dims = 1L, \dots)
 rowMeans(x, na.rm = FALSE, dims = 1L, \dots)
 
-\S4method{colSums}{CsparseMatrix}(x, na.rm = FALSE,
-        dims = 1L, sparseResult = FALSE)
-\S4method{rowSums}{CsparseMatrix}(x, na.rm = FALSE,
-        dims = 1L, sparseResult = FALSE)
-\S4method{colMeans}{CsparseMatrix}(x, na.rm = FALSE,
-        dims = 1L, sparseResult = FALSE)
-\S4method{rowMeans}{CsparseMatrix}(x, na.rm = FALSE,
-        dims = 1L, sparseResult = FALSE)
+\S4method{colSums}{CsparseMatrix} (x, na.rm = FALSE, dims = 1L,
+         sparseResult = FALSE, \dots)
+\S4method{rowSums}{CsparseMatrix} (x, na.rm = FALSE, dims = 1L,
+         sparseResult = FALSE, \dots)
+\S4method{colMeans}{CsparseMatrix}(x, na.rm = FALSE, dims = 1L,
+         sparseResult = FALSE, \dots)
+\S4method{rowMeans}{CsparseMatrix}(x, na.rm = FALSE, dims = 1L,
+         sparseResult = FALSE, \dots)
 }
 \arguments{
   \item{x}{a Matrix, i.e., inheriting from  \code{\linkS4class{Matrix}}.}

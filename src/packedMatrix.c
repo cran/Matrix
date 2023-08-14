@@ -88,7 +88,7 @@ void _PREFIX_ ## dense_packed_make_banded(_CTYPE_ *x, int n, \
 				*(x + i) = _ZERO_; \
 		} \
 		if (j1 < n) \
-			Matrix_memset(x, 0, PM_LENGTH(n) - PM_LENGTH(j1),\
+			Matrix_memset(x, 0, PM_LENGTH(n) - PM_LENGTH(j1), \
 			              sizeof(_CTYPE_)); \
 		if (diag != 'N' && a == 0) { \
 			x -= PM_LENGTH(j); \
@@ -183,7 +183,7 @@ void _PREFIX_ ## dense_packed_copy_diagonal(_CTYPE_ *dest, \
 				*dest = *src; \
 		} \
 	} else { \
-		error(_("incompatible 'n' and 'len' to '*_copy_diagonal()'")); \
+		error(_("incompatible '%s' and '%s' in %s()"), "n", "len", __func__); \
 	} \
 	return; \
 }
@@ -283,7 +283,7 @@ SEXP packed_transpose(SEXP x, int n, char uplo)
 {
 	SEXPTYPE tx = TYPEOF(x);
 	if (tx < LGLSXP || tx > CPLXSXP)
-		ERROR_INVALID_TYPE("'x'", tx, "packed_transpose");
+		ERROR_INVALID_TYPE(x, __func__);
 	R_xlen_t nx = XLENGTH(x);
 	SEXP y = PROTECT(allocVector(tx, nx));
 
@@ -313,103 +313,6 @@ SEXP packed_transpose(SEXP x, int n, char uplo)
 	return y;
 }
 
-/* unpack(x), returning unpackedMatrix */
-SEXP packedMatrix_unpack(SEXP from, SEXP strict)
-{
-	static const char *valid_from[] = {
-	/* 0 */ "dtpMatrix", "ltpMatrix", "ntpMatrix",
-	/* 3 */ "pcorMatrix", "dppMatrix", /* must match before dspMatrix */
-	/* 5 */ "dspMatrix", "lspMatrix", "nspMatrix", ""};
-	static const char *valid_to[] = {
-	/* 0 */ "dtrMatrix", "ltrMatrix", "ntrMatrix",
-	/* 3 */ "corMatrix", "dpoMatrix",
-	/* 5 */ "dsyMatrix", "lsyMatrix", "nsyMatrix", ""};
-	int ivalid = R_check_class_etc(from, valid_from);
-	if (ivalid < 0)
-		ERROR_INVALID_CLASS(from, "packedMatrix_unpack");
-	if (asLogical(strict) == 0 && (ivalid == 3 || ivalid == 4))
-		ivalid = 5; /* pcorMatrix,dppMatrix->dsyMatrix */
-
-	SEXP to = PROTECT(NEW_OBJECT_OF_CLASS(valid_to[ivalid]));
-
-	SEXP dim = PROTECT(GET_SLOT(from, Matrix_DimSym));
-	int n = INTEGER(dim)[0];
-	if ((double) n * n > R_XLEN_T_MAX)
-		error(_("attempt to allocate vector of length exceeding R_XLEN_T_MAX"));
-	if (n > 0)
-		SET_SLOT(to, Matrix_DimSym, dim);
-	UNPROTECT(1); /* dim */
-
-	SEXP dimnames = PROTECT(GET_SLOT(from, Matrix_DimNamesSym));
-	SET_SLOT(to, Matrix_DimNamesSym, dimnames);
-	UNPROTECT(1); /* dimnames */
-
-	SEXP uplo = PROTECT(GET_SLOT(from, Matrix_uploSym));
-	char ul = *CHAR(STRING_ELT(uplo, 0));
-	if (ul != 'U')
-		SET_SLOT(to, Matrix_uploSym, uplo);
-	UNPROTECT(1); /* uplo */
-
-	if (ivalid < 3) {
-		/* .tpMatrix */
-		SEXP diag = PROTECT(GET_SLOT(from, Matrix_diagSym));
-		char di = *CHAR(STRING_ELT(diag, 0));
-		if (di != 'N')
-			SET_SLOT(to, Matrix_diagSym, diag);
-		UNPROTECT(1); /* diag */
-	} else {
-		/* .spMatrix */
-		SEXP factors = PROTECT(GET_SLOT(from, Matrix_factorSym));
-		if (LENGTH(factors) > 0)
-			SET_SLOT(to, Matrix_factorSym, factors);
-		UNPROTECT(1); /* factors */
-
-		if (ivalid == 3) {
-			/* pcorMatrix */
-			SEXP sd = PROTECT(GET_SLOT(from, Matrix_sdSym));
-			if (LENGTH(sd) > 0)
-				SET_SLOT(to, Matrix_sdSym, sd);
-			UNPROTECT(1); /* sd */
-		}
-	}
-
-	SEXPTYPE tx;
-	R_xlen_t nx = (R_xlen_t) n * n;
-	SEXP x_from = PROTECT(GET_SLOT(from, Matrix_xSym)),
-		x_to = PROTECT(allocVector(tx = TYPEOF(x_from), nx));
-
-#define UNPACK(_PREFIX_, _CTYPE_, _PTR_) \
-	do { \
-		Matrix_memset(_PTR_(x_to), 0, nx, sizeof(_CTYPE_)); \
-		_PREFIX_ ## dense_unpack(_PTR_(x_to), _PTR_(x_from), n, ul, 'N'); \
-	} while (0)
-
-	switch (tx) {
-	case LGLSXP: /* [nl]..Matrix */
-		UNPACK(i, int, LOGICAL);
-		break;
-	case INTSXP: /* i..Matrix */
-		UNPACK(i, int, INTEGER);
-		break;
-	case REALSXP: /* d..Matrix */
-		UNPACK(d, double, REAL);
-		break;
-	case CPLXSXP: /* z..Matrix */
-		UNPACK(z, Rcomplex, COMPLEX);
-		break;
-	default:
-		ERROR_INVALID_TYPE("'x' slot", tx, "packedMatrix_unpack");
-		break;
-	}
-
-#undef UNPACK
-
-	SET_SLOT(to, Matrix_xSym, x_to);
-
-	UNPROTECT(3); /* x_to, x_from, to */
-	return to;
-}
-
 /* forceSymmetric(x, uplo), returning .spMatrix */
 SEXP packedMatrix_force_symmetric(SEXP from, SEXP uplo_to)
 {
@@ -418,7 +321,7 @@ SEXP packedMatrix_force_symmetric(SEXP from, SEXP uplo_to)
 	/* 3 */ "dspMatrix", "lspMatrix", "nspMatrix", ""};
 	int ivalid = R_check_class_etc(from, valid);
 	if (ivalid < 0)
-		ERROR_INVALID_CLASS(from, "packedMatrix_force_symmetric");
+		ERROR_INVALID_CLASS(from, __func__);
 	const char *clf = valid[ivalid];
 
 	SEXP uplo_from = PROTECT(GET_SLOT(from, Matrix_uploSym));
@@ -429,7 +332,7 @@ SEXP packedMatrix_force_symmetric(SEXP from, SEXP uplo_to)
 	    (TYPEOF(uplo_to) != STRSXP || LENGTH(uplo_to) < 1 ||
 	    (uplo_to = STRING_ELT(uplo_to, 0)) == NA_STRING ||
 	    ((ult = *CHAR(uplo_to)) != 'U' && ult != 'L')))
-		error(_("invalid 'uplo' to 'packedMatrix_force_symmetric()'"));
+		error(_("invalid '%s' to %s()"), "uplo", __func__);
 
 	if (clf[1] == 's') {
 		/* .spMatrix */
@@ -503,7 +406,7 @@ SEXP packedMatrix_force_symmetric(SEXP from, SEXP uplo_to)
 			COPY_DIAGONAL(z, Rcomplex, COMPLEX);
 			break;
 		default:
-			ERROR_INVALID_TYPE("'x' slot", tx, "packedMatrix_force_symmetric");
+			ERROR_INVALID_TYPE(x_from, __func__);
 			break;
 		}
 
@@ -517,7 +420,7 @@ SEXP packedMatrix_force_symmetric(SEXP from, SEXP uplo_to)
 	return to;
 }
 
-#define PM_IS_DI(_RES_, _X_, _N_, _UPLO_, _METHOD_) \
+#define PM_IS_DI(_RES_, _X_, _N_, _UPLO_) \
 do { \
 	switch (TYPEOF(_X_)) { \
 	case LGLSXP: \
@@ -533,7 +436,7 @@ do { \
 		_RES_ = zdense_packed_is_diagonal(COMPLEX(_X_), _N_, _UPLO_); \
 		break; \
 	default: \
-		ERROR_INVALID_TYPE("'x' slot", TYPEOF(_X_), _METHOD_); \
+		ERROR_INVALID_TYPE(_X_, __func__); \
 		_RES_ = FALSE; \
 		break; \
 	} \
@@ -547,7 +450,7 @@ SEXP packedMatrix_is_triangular(SEXP obj, SEXP upper)
 	/* 3 */ "dspMatrix", "lspMatrix", "nspMatrix", ""};
 	int ivalid = R_check_class_etc(obj, valid);
 	if (ivalid < 0)
-		ERROR_INVALID_CLASS(obj, "packedMatrix_is_triangular");
+		ERROR_INVALID_CLASS(obj, __func__);
 
 	int need_upper = asLogical(upper);
 
@@ -560,7 +463,7 @@ SEXP packedMatrix_is_triangular(SEXP obj, SEXP upper)
 	SEXP x = PROTECT(GET_SLOT(obj, Matrix_xSym)), \
 		dim = PROTECT(GET_SLOT(obj, Matrix_DimSym)); \
 	int n = INTEGER(dim)[0]; \
-	PM_IS_DI(res, x, n, ul, "packedMatrix_is_triangular"); \
+	PM_IS_DI(res, x, n, ul); \
 	UNPROTECT(2); /* dim, x */ \
 	if (res)
 
@@ -599,7 +502,7 @@ SEXP packedMatrix_is_symmetric(SEXP obj, SEXP checkDN)
 	/* 3 */ "dspMatrix", "lspMatrix", "nspMatrix", ""};
 	int ivalid = R_check_class_etc(obj, valid);
 	if (ivalid < 0) {
-		ERROR_INVALID_CLASS(obj, "packedMatrix_is_symmetric");
+		ERROR_INVALID_CLASS(obj, __func__);
 		return R_NilValue;
 	} else if (ivalid < 3) {
 		/* .tpMatrix: symmetric iff diagonal */
@@ -616,7 +519,7 @@ SEXP packedMatrix_is_symmetric(SEXP obj, SEXP checkDN)
 			uplo = PROTECT(GET_SLOT(obj, Matrix_uploSym));
 		int n = INTEGER(dim)[0];
 		char ul = *CHAR(STRING_ELT(uplo, 0));
-		PM_IS_DI(res, x, n, ul, "packedMatrix_is_symmetric");
+		PM_IS_DI(res, x, n, ul);
 		UNPROTECT(3); /* uplo, dim, x */
 		return ScalarLogical(res);
 	} else {
@@ -635,7 +538,7 @@ SEXP packedMatrix_is_diagonal(SEXP obj)
 	uplo = PROTECT(GET_SLOT(obj, Matrix_uploSym));
 	int n = INTEGER(dim)[0];
 	char ul = *CHAR(STRING_ELT(uplo, 0));
-	PM_IS_DI(res, x, n, ul, "packedMatrix_is_diagonal");
+	PM_IS_DI(res, x, n, ul);
 	UNPROTECT(3); /* uplo, dim, x */
 	return ScalarLogical(res);
 }
@@ -651,7 +554,7 @@ SEXP packedMatrix_transpose(SEXP from)
 	/* 5 */ "dspMatrix", "lspMatrix", "nspMatrix", ""};
 	int ivalid = R_check_class_etc(from, valid);
 	if (ivalid < 0)
-		ERROR_INVALID_CLASS(from, "packedMatrix_transpose");
+		ERROR_INVALID_CLASS(from, __func__);
 
 	SEXP to = PROTECT(NEW_OBJECT_OF_CLASS(valid[ivalid]));
 
@@ -714,7 +617,7 @@ SEXP packedMatrix_diag_get(SEXP obj, SEXP nms)
 {
 	int do_nms = asLogical(nms);
 	if (do_nms == NA_LOGICAL)
-		error(_("'names' must be TRUE or FALSE"));
+		error(_("'%s' must be %s or %s"), "names", "TRUE", "FALSE");
 
 	SEXP dim = PROTECT(GET_SLOT(obj, Matrix_DimSym));
 	int n = INTEGER(dim)[0];
@@ -767,7 +670,7 @@ SEXP packedMatrix_diag_get(SEXP obj, SEXP nms)
 		PM_D_G(Rcomplex, COMPLEX, Matrix_zone);
 		break;
 	default:
-		ERROR_INVALID_TYPE("'x' slot", tx, "packedMatrix_diag_get");
+		ERROR_INVALID_TYPE(x, __func__);
 		break;
 	}
 
@@ -803,7 +706,7 @@ SEXP packedMatrix_diag_set(SEXP obj, SEXP val)
 	/* 3 */ "dspMatrix", "lspMatrix", "nspMatrix", ""};
 	int ivalid = R_check_class_etc(obj, valid);
 	if (ivalid < 0)
-		ERROR_INVALID_CLASS(obj, "packedMatrix_diag_set");
+		ERROR_INVALID_CLASS(obj, __func__);
 
 	SEXP dim = PROTECT(GET_SLOT(obj, Matrix_DimSym));
 	int n = INTEGER(dim)[0];
@@ -886,7 +789,7 @@ SEXP packedMatrix_diag_set(SEXP obj, SEXP val)
 		PM_D_S(Rcomplex, COMPLEX);
 		break;
 	default:
-		ERROR_INVALID_TYPE("'x' slot", tx, "packedMatrix_diag_set");
+		ERROR_INVALID_TYPE(x, __func__);
 		break;
 	}
 
@@ -906,7 +809,7 @@ SEXP packedMatrix_symmpart(SEXP from)
 	/* 3 */ "dspMatrix", "lspMatrix", "nspMatrix", ""};
 	int ivalid = R_check_class_etc(from, valid);
 	if (ivalid < 0)
-		ERROR_INVALID_CLASS(from, "packedMatrix_symmpart");
+		ERROR_INVALID_CLASS(from, __func__);
 
 	const char *clf = valid[ivalid];
 	if (clf[0] == 'd' && clf[1] == 's')
@@ -1012,7 +915,7 @@ SEXP packedMatrix_skewpart(SEXP from)
 	/* 3 */ "dspMatrix", "lspMatrix", "nspMatrix", ""};
 	int ivalid = R_check_class_etc(from, valid);
 	if (ivalid < 0)
-		ERROR_INVALID_CLASS(from, "packedMatrix_skewpart");
+		ERROR_INVALID_CLASS(from, __func__);
 	const char *clf = valid[ivalid];
 
 	char clt[] = "...Matrix";
@@ -1047,8 +950,8 @@ SEXP packedMatrix_skewpart(SEXP from)
 	if (clf[1] != 's') {
 
 		if ((double) n * n > R_XLEN_T_MAX)
-			error(_("attempt to allocate vector of length exceeding "
-			        "R_XLEN_T_MAX"));
+			error(_("attempt to allocate vector of length exceeding %s"),
+			      "R_XLEN_T_MAX");
 
 		SEXP y;
 		int i, j;

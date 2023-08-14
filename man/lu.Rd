@@ -71,7 +71,7 @@ lu(x, \dots)
     sparse matrices.}
   \item{order}{an integer in \code{0:3} passed to CSparse routine
     \code{cs_sqr}, indicating a strategy for choosing the column
-    permutation \eqn{P_{2}}{P2}. 0 means no column permutation.
+    permutation \eqn{P_{2}}{P2}.  0 means no column permutation.
     1, 2, and 3 indicate a fill-reducing ordering of \eqn{A + A'},
     \eqn{\tilde{A}' \tilde{A}}{A~' * A~}, and \eqn{A' A}{A' * A},
     where \eqn{\tilde{A}}{A~} is \eqn{A} with \dQuote{dense} rows

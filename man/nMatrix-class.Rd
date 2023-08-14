@@ -30,7 +30,7 @@
 \alias{Ops,numeric,nMatrix-method}
 \alias{Summary,nMatrix-method}
 \alias{coerce,matrix,nMatrix-method}
-\alias{coerce,numLike,nMatrix-method}
+\alias{coerce,vector,nMatrix-method}
 %
 \description{
   The \code{nMatrix} class is the virtual \dQuote{mother} class of all

@@ -43,7 +43,6 @@
 \alias{Ops,ldiMatrix,numeric-method}
 \alias{Ops,ldiMatrix,sparseMatrix-method}
 \alias{Summary,ldiMatrix-method}
-\alias{as.logical,ldiMatrix-method}
 \alias{prod,ldiMatrix-method}
 \alias{sum,ldiMatrix-method}
 \alias{which,ldiMatrix-method}

@@ -14,7 +14,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Matrix 1.1-3\n"
-"POT-Creation-Date: 2023-06-30 17:17\n"
+"POT-Creation-Date: 2023-08-03 13:24\n"
 "PO-Revision-Date: 2015-07-15 17:14-0600\n"
 "Last-Translator:Chel Hee Lee  <chl948@mail.usask.ca>\n"
 "Language-Team: Chel Hee Lee  <chl948@mail.usask.ca>\n"
@@ -44,19 +44,6 @@ msgstr ""
 msgid "non-conformable matrix dimensions in %s"
 msgstr "%s에 입력된 행렬의 차원이 정합(conformable)하지 않습니다."
 
-msgid "dimnames [%d] mismatch in %s"
-msgstr "%2$s에 입력된 dimnames [%1$d]가 일치하지 않습니다."
-
-#, fuzzy
-msgid "matrix is not symmetric; consider forceSymmetric() or symmpart()"
-msgstr ""
-"대칭행렬(symmetric matrix)가 아닙니다.  forceSymmtric() 또는 symmpart() 함수"
-"의 사용을 고려해 보시길 바랍니다."
-
-#, fuzzy
-msgid "matrix is not triangular; consider triu() or tril()"
-msgstr "삼각행렬이 아닙니다."
-
 #, fuzzy
 msgid "complex \"diagonalMatrix\" not yet implemented"
 msgstr "%s의 경우에는 아직 구현되지 않은 일반적인 Matrix 클래스입니다."
@@ -64,27 +51,6 @@ msgstr "%s의 경우에는 아직 구현되지 않은 일반적인 Matrix 클래
 #, fuzzy
 msgid "cannot coerce matrix of type \"%s\" to \"diagonalMatrix\""
 msgstr "'NA'를 \"nsparseMatrix\"으로 강제변환(coerce)할 수 없습니다."
-
-msgid "matrix is not diagonal; consider Diagonal(x=diag(.))"
-msgstr ""
-
-msgid "matrix of invalid type \"%s\" to .m2dense.checking()"
-msgstr ""
-
-msgid "invalid kind \"%s\" to .m2dense.checking()"
-msgstr ""
-
-msgid "matrix of invalid type \"%s\" to .m2sparse.checking()"
-msgstr ""
-
-msgid "invalid kind \"%s\" to .m2sparse.checking()"
-msgstr ""
-
-msgid "Matrices must have same number of rows in %s"
-msgstr "%s에 사용된 각 행렬이 가지는 행의 개수는 서로 같아야 합니다."
-
-msgid "Matrices must have same number of columns in %s"
-msgstr "%s에 사용된 각 행렬이 가지는 열의 개수는 서로 같아야 합니다."
 
 #, fuzzy
 msgid "[[ suppressing %d column name%s %s ... ]]"
@@ -255,6 +221,9 @@ msgstr ""
 
 msgid "not-yet-implemented 'Matrix[<-' method"
 msgstr "아직 구현되지 않은 'Matrix[<-' 메소드입(method)니다."
+
+msgid "dimnames [%d] mismatch in %s"
+msgstr "%2$s에 입력된 dimnames [%1$d]가 일치하지 않습니다."
 
 msgid "inefficient method used for \"- e1\""
 msgstr "\"- e1\"를 사용하는데 비효율적인 메소드(method)입니다."
@@ -468,16 +437,19 @@ msgstr "%d-번째 (부분)-대각 (k = %d)이 너무 짧아 NA로 채웁니다."
 msgid "invalid 'repr'; must be \"C\", \"T\", or \"R\""
 msgstr ""
 
-msgid "resulting x-slot has different type than x's or y's"
+#, fuzzy
+msgid "number of rows of matrices must match"
+msgstr "%s의 경우 행의 개수가 올바르지 않습니다."
+
+#, fuzzy
+msgid "number of columns of matrices must match"
+msgstr "%s의 경우 행의 개수가 올바르지 않습니다."
+
+msgid "dimensions cannot exceed 2^31-1"
 msgstr ""
 
-#, fuzzy
-msgid "number of columns of matrices must match in %s"
-msgstr "%s의 경우 행의 개수가 올바르지 않습니다."
-
-#, fuzzy
-msgid "number of rows of matrices must match in %s"
-msgstr "%s의 경우 행의 개수가 올바르지 않습니다."
+msgid "resulting x-slot has different type than x's or y's"
+msgstr ""
 
 #, fuzzy
 msgid "chol(x) is undefined: 'x' is not positive semidefinite"
@@ -505,6 +477,31 @@ msgid "D[i,i] is negative, i=%d"
 msgstr ""
 
 msgid "'parent' is not formally sparse"
+msgstr ""
+
+#, fuzzy
+msgid "matrix is not symmetric; consider forceSymmetric(.) or symmpart(.)"
+msgstr ""
+"대칭행렬(symmetric matrix)가 아닙니다.  forceSymmtric() 또는 symmpart() 함수"
+"의 사용을 고려해 보시길 바랍니다."
+
+#, fuzzy
+msgid "matrix is not triangular; consider triu(.) or tril(.)"
+msgstr "삼각행렬이 아닙니다."
+
+msgid "matrix is not diagonal; consider Diagonal(x=diag(.))"
+msgstr ""
+
+msgid "matrix of invalid type \"%s\" to .m2dense.checking()"
+msgstr ""
+
+msgid "invalid kind \"%s\" to .m2dense.checking()"
+msgstr ""
+
+msgid "matrix of invalid type \"%s\" to .m2sparse.checking()"
+msgstr ""
+
+msgid "invalid kind \"%s\" to .m2sparse.checking()"
 msgstr ""
 
 msgid "'A' must be a square matrix"
@@ -536,9 +533,6 @@ msgid "dimensions cannot contain NA"
 msgstr ""
 
 msgid "dimensions cannot contain negative values"
-msgstr ""
-
-msgid "dimensions cannot exceed 2^31-1"
 msgstr ""
 
 msgid "invalid nargs()= %d"
@@ -611,9 +605,6 @@ msgstr ""
 msgid "'x' has non-finite values"
 msgstr ""
 
-msgid "Schur(x) not yet supported for 'x' of type \"complex\""
-msgstr ""
-
 msgid "'which' is not \"Q\", \"T\", or \"Q.\""
 msgstr ""
 
@@ -644,17 +635,8 @@ msgid "elements of 'perm' slot must be positive integers"
 msgstr ""
 
 #, fuzzy
-msgid "only lists of length 2 can be coerced to indMatrix"
-msgstr ""
-"NA를 가진 \"lMatrix\" 객체는 \"nMatrix\"로 강제변환(coerced) 될 수 없습니다."
-
-#, fuzzy
 msgid "matrix must have exactly one nonzero element in each row or column"
 msgstr "각 행마다 반드시 정확히 하나의 영이 아닌 항목을 가지고 있어야 합니다."
-
-#, fuzzy
-msgid "matrix is not symmetric or triangular"
-msgstr "'x'는 대칭(symmetric)도 아니고 삼각(triangular)도 아닙니다."
 
 #, fuzzy
 msgid "method for kronecker() must use default FUN=\"*\""
@@ -792,12 +774,6 @@ msgstr "'contrasts.arg' 인자가 올바르지 않습니다."
 
 msgid "variable '%s' is absent, its contrast will be ignored"
 msgstr "변수 '%s'를 찾을 수 없어 관련 대비(contrast)는 계산되지 않을 것입니다."
-
-#, fuzzy
-msgid "only 2-dimensional tables can be coerced to sparseMatrix"
-msgstr ""
-"오로지 2차원 테이블만이 희소행렬(sparse matrice)로 강제변환(coerced)될 수 있"
-"습니다."
 
 #, fuzzy
 msgid "exactly one of 'i', 'j', and 'p' must be missing from call"
@@ -985,20 +961,16 @@ msgid "incorrect number of dimensions"
 msgstr "차원(dimensions) 정보가 일치하지 않습니다."
 
 #, fuzzy
-msgid "matrix is not symmetric or"
+msgid "matrix is not symmetric or triangular"
 msgstr "'x'는 대칭(symmetric)도 아니고 삼각(triangular)도 아닙니다."
-
-#, fuzzy
-msgid "triangular"
-msgstr "삼각행렬(triangular matrix)가 아닙니다."
 
 #, fuzzy
 msgid "matrix is not symmetric"
 msgstr "삼각행렬이 아닙니다."
 
 #, fuzzy
-msgid "matrix is not"
-msgstr "대각행렬이 아닙니다."
+msgid "matrix is not triangular"
+msgstr "'x'는 대칭(symmetric)도 아니고 삼각(triangular)도 아닙니다."
 
 msgid "attempt to coerce matrix with NA to ngCMatrix"
 msgstr ""
@@ -1006,6 +978,36 @@ msgstr ""
 #, fuzzy
 msgid "invalid 'Class2'"
 msgstr "입력된 'data'는 올바르지 않습니다."
+
+#~ msgid "Matrices must have same number of rows in %s"
+#~ msgstr "%s에 사용된 각 행렬이 가지는 행의 개수는 서로 같아야 합니다."
+
+#~ msgid "Matrices must have same number of columns in %s"
+#~ msgstr "%s에 사용된 각 행렬이 가지는 열의 개수는 서로 같아야 합니다."
+
+#, fuzzy
+#~ msgid "only lists of length 2 can be coerced to indMatrix"
+#~ msgstr ""
+#~ "NA를 가진 \"lMatrix\" 객체는 \"nMatrix\"로 강제변환(coerced) 될 수 없습니"
+#~ "다."
+
+#, fuzzy
+#~ msgid "only 2-dimensional tables can be coerced to sparseMatrix"
+#~ msgstr ""
+#~ "오로지 2차원 테이블만이 희소행렬(sparse matrice)로 강제변환(coerced)될 수 "
+#~ "있습니다."
+
+#, fuzzy
+#~ msgid "matrix is not symmetric or"
+#~ msgstr "'x'는 대칭(symmetric)도 아니고 삼각(triangular)도 아닙니다."
+
+#, fuzzy
+#~ msgid "triangular"
+#~ msgstr "삼각행렬(triangular matrix)가 아닙니다."
+
+#, fuzzy
+#~ msgid "matrix is not"
+#~ msgstr "대각행렬이 아닙니다."
 
 #~ msgid "'x' is not positive definite -- chol() undefined."
 #~ msgstr ""

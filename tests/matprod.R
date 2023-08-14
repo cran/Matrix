@@ -878,7 +878,7 @@ stopifnot(Q.C.identical(NM, ## <- failed
                      U3 %*% lM -> U3l, # ditto
                      U3 %*% nM)  # wrongly gave ngTMatrix
           ,
-          isValid(U3l, "dgCMatrix")
+          isValid(U3l, "dgRMatrix")
           )
 
 selectMethod("%*%", c("dtCMatrix", "ngTMatrix")) # x %*% .T.2.C(y) -->

@@ -23,7 +23,7 @@
 \alias{coerce,abIndex,vector-method}
 \alias{coerce,logical,abIndex-method}
 \alias{coerce,numeric,abIndex-method}
-\alias{drop,abIndex-method} % not yet documented {experimental}
+\alias{drop,abIndex-method}
 \alias{length,abIndex-method}
 \alias{show,abIndex-method}
 %

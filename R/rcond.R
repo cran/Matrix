@@ -97,7 +97,7 @@ setMethod("rcond", signature(x = "pMatrix", norm = "character"),
 
 setMethod("rcond", signature(x = "denseMatrix", norm = "character"),
           function(x, norm, ...)
-              rcond(..dense2d(x), norm = norm, ...))
+              rcond(.M2kind(x, "d"), norm = norm, ...))
 
 setMethod("rcond", signature(x = "dgeMatrix", norm = "character"),
           function(x, norm, ...) {

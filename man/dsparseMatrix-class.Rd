@@ -13,14 +13,8 @@
 \alias{Arith,numeric,dsparseMatrix-method}
 \alias{Ops,dsparseMatrix,nsparseMatrix-method}
 \alias{Summary,dsparseMatrix-method}
-\alias{as.logical,dsparseMatrix-method}
-\alias{as.numeric,dsparseMatrix-method}
-\alias{coerce,dsparseMatrix,lMatrix-method}
-\alias{coerce,dsparseMatrix,lsparseMatrix-method}
-\alias{coerce,dsparseMatrix,nMatrix-method}
-\alias{coerce,dsparseMatrix,nsparseMatrix-method}
 \alias{coerce,matrix,dsparseMatrix-method}
-\alias{coerce,numLike,dsparseMatrix-method}
+\alias{coerce,vector,dsparseMatrix-method}
 %
 \description{The Class \code{"dsparseMatrix"} is the virtual (super) class of
   all numeric sparse matrices.

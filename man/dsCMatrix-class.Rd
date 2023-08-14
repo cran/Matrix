@@ -9,7 +9,6 @@
 \alias{dsTMatrix-class}
 %
 \alias{Arith,dsCMatrix,dsCMatrix-method}
-\alias{coerce,dsCMatrix,RsparseMatrix-method}
 \alias{determinant,dsCMatrix,logical-method}
 %
 \alias{determinant,dsTMatrix,logical-method}

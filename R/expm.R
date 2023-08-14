@@ -36,28 +36,28 @@ setMethod("expm", signature(x = "dgeMatrix"),
 
 setMethod("expm", signature(x = "dtrMatrix"),
 	  function(x) {
-              r <- .Call(dgeMatrix_exp, .dense2g(x))
+              r <- .Call(dgeMatrix_exp, .M2gen(x))
               if(x@uplo == "U") triu(r) else tril(r)
           })
 
 setMethod("expm", signature(x = "dtpMatrix"),
 	  function(x) {
-              r <- .Call(dgeMatrix_exp, .dense2g(x))
+              r <- .Call(dgeMatrix_exp, .M2gen(x))
               ## Pack without checking:
-              .Call(unpackedMatrix_pack, r, TRUE, TRUE, x@uplo == "U")
+              .Call(R_dense_as_packed, x, x@uplo, "N")
           })
 
 setMethod("expm", signature(x = "dsyMatrix"),
 	  function(x) {
-              r <- .Call(dgeMatrix_exp, .dense2g(x))
+              r <- .Call(dgeMatrix_exp, .M2gen(x))
               forceSymmetric(r)
           })
 
 setMethod("expm", signature(x = "dspMatrix"),
 	  function(x) {
-              r <- .Call(dgeMatrix_exp, .dense2g(x))
+              r <- .Call(dgeMatrix_exp, .M2gen(x))
               ## Pack without checking:
-              .Call(unpackedMatrix_pack, r, TRUE, FALSE, x@uplo == "U")
+              .Call(R_dense_as_packed, x, x@uplo, "")
           })
 
 ## Until R supports it:
@@ -67,5 +67,5 @@ setMethod("expm", signature(x = "matrix"),
               if(d[1L] != d[2L])
                   stop("matrix is not square")
               storage.mode(x) <- "double"
-              expm(if(isDiagonal(x)) forceDiagonal(x) else .m2ge(x))
+              expm(if(isDiagonal(x)) forceDiagonal(x) else .m2dense(x, ".ge"))
           })

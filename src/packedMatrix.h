@@ -3,7 +3,6 @@
 
 #include "Mutils.h"
 
-SEXP packedMatrix_unpack(SEXP from, SEXP strict);
 SEXP packedMatrix_force_symmetric(SEXP from, SEXP uplo_to);
 
 SEXP packedMatrix_is_triangular(SEXP obj, SEXP upper);

@@ -8,7 +8,7 @@
 \alias{unpackedMatrix-class}
 %
 \alias{coerce,matrix,unpackedMatrix-method}
-\alias{coerce,numLike,unpackedMatrix-method}
+\alias{coerce,vector,unpackedMatrix-method}
 \alias{cov2cor,unpackedMatrix-method}
 \alias{diag,unpackedMatrix-method}
 \alias{diag<-,unpackedMatrix-method}

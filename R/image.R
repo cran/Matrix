@@ -144,10 +144,10 @@ setMethod("image", "dgTMatrix", .image.dgT)
 
 setMethod("image", "Matrix",
           function(x, ...)
-              image(..sparse2d(.sparse2g(as(x, "TsparseMatrix"))), ...))
+              image(.M2kind(.M2gen(.M2T(x)), "d"), ...))
 
 setMethod("image", "CHMfactor",
           function(x, ...)
-              image(.sparse2g(.CR2T(expand1(x, "L"))), ...))
+              image(.M2gen(.M2T(expand1(x, "L"))), ...))
 
 rm(.image.dgT)

@@ -119,11 +119,11 @@ setMethod("determinant", signature(x = "dgCMatrix", logarithm = "logical"),
 
 setMethod("determinant", signature(x = "dgRMatrix", logarithm = "logical"),
           function(x, logarithm = TRUE, ...)
-              determinant(.tCR2RC(x), logarithm, ...))
+              determinant(.tCRT(x), logarithm, ...))
 
 setMethod("determinant", signature(x = "dgTMatrix", logarithm = "logical"),
           function(x, logarithm = TRUE, ...)
-              determinant(.T2C(x), logarithm, ...))
+              determinant(.M2C(x), logarithm, ...))
 
 setMethod("determinant", signature(x = "indMatrix", logarithm = "logical"),
           function(x, logarithm = TRUE, ...) {
@@ -189,11 +189,11 @@ setMethod("determinant", signature(x = "dsCMatrix", logarithm = "logical"),
 
 setMethod("determinant", signature(x = "dsRMatrix", logarithm = "logical"),
           function(x, logarithm = TRUE, ...)
-              determinant(.tCR2RC(x), logarithm, ...))
+              determinant(.tCRT(x), logarithm, ...))
 
 setMethod("determinant", signature(x = "dsTMatrix", logarithm = "logical"),
           function(x, logarithm = TRUE, ...)
-              determinant(.T2C(x), logarithm, ...))
+              determinant(.M2C(x), logarithm, ...))
 
 ## MJ: unused
 if(FALSE) {

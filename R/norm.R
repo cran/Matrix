@@ -16,7 +16,7 @@ setMethod("norm", signature(x = "sparseMatrix", type = "character"),
                      "2" =
                          {
                              warning("'norm' via sparse -> dense coercion")
-                             base::norm(.sparse2m(x), type = "2")
+                             base::norm(.M2m(x), type = "2")
                          },
                      "M" = , "m" =
                          max(abs(x)),
@@ -75,35 +75,35 @@ setMethod("norm", signature(x = "pMatrix", type = "character"),
           })
 
 setMethod("norm", signature(x = "denseMatrix", type = "character"),
-          function(x, type, ...) norm(..dense2d(x), type = type, ...))
+          function(x, type, ...) norm(.M2kind(x, "d"), type = type, ...))
 
 setMethod("norm", signature(x = "dgeMatrix", type = "character"),
           function(x, type, ...)
               if(identical(type, "2"))
-                  base::norm(.dense2m(x), type = "2")
+                  base::norm(.M2m(x), type = "2")
               else .Call(dgeMatrix_norm, x, type))
 
 setMethod("norm", signature(x = "dtrMatrix", type = "character"),
           function(x, type, ...) {
               if(identical(type, "2"))
-                  base::norm(.dense2m(x), type = "2")
+                  base::norm(.M2m(x), type = "2")
               else .Call(dtrMatrix_norm, x, type)
           })
 
 setMethod("norm", signature(x = "dtpMatrix", type = "character"),
           function(x, type, ...)
               if(identical(type, "2"))
-                  base::norm(.dense2m(x), type = "2")
+                  base::norm(.M2m(x), type = "2")
               else .Call(dtpMatrix_norm, x, type))
 
 setMethod("norm", signature(x = "dsyMatrix", type = "character"),
           function(x, type, ...)
               if(identical(type, "2"))
-                  base::norm(.dense2m(x), type = "2")
+                  base::norm(.M2m(x), type = "2")
               else .Call(dsyMatrix_norm, x, type))
 
 setMethod("norm", signature(x = "dspMatrix", type = "character"),
           function(x, type, ...)
               if(identical(type, "2"))
-                  base::norm(.dense2m(x), type = "2")
+                  base::norm(.M2m(x), type = "2")
               else .Call(dspMatrix_norm, x, type))

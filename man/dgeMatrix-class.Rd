@@ -14,9 +14,6 @@
 \alias{Arith,logical,dgeMatrix-method}
 \alias{Arith,numeric,dgeMatrix-method}
 \alias{Math,dgeMatrix-method}
-\alias{as.vector,dgeMatrix-method}
-\alias{coerce,dgeMatrix,matrix-method}
-\alias{coerce,dgeMatrix,vector-method}
 \alias{determinant,dgeMatrix,logical-method}
 \alias{log,dgeMatrix-method}
 %

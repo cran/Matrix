@@ -58,10 +58,10 @@ KhatriRao <- function(X, Y = X, FUN = "*",
     if((nX <- is(X, "nMatrix")) & (nY <- is(Y, "nMatrix")))
 	new("ngCMatrix", Dim=dim, Dimnames=dns, i = newi, p = newp)
     else { ## at least one of 'X' and 'Y' has an "x" slot:
-	if(nX) X <- .sparse2g(..sparse2l(X))
+	if(nX) X <- .M2gen(.M2kind(X, "l"))
 	x1 <- rep.int(X@x, rep.yn)
 	x2 <- if(non0) {
-		  if(nY && sparseY) Y <- .sparse2g(..sparse2l(X))
+		  if(nY && sparseY) Y <- .M2gen(.M2kind(X, "l"))
                   yx <- if(sparseY) Y@x else c(Y)
 		  unlist(rep(split.default(yx, yj), xn.yp), use.names=FALSE)
 	      } else if(nY) logical() else (if(sparseY) Y@x else c(Y))[0]

@@ -45,7 +45,7 @@ extends1of <- function(class, classes, ...) {
 ## Fast alternative to MatrixClass():
 ## - if strict=FALSE then gives "...Matrix" or ".sparseVector" or ""
 ## - if strict= TRUE then may also give one of these:
-##   "pMatrix", "p?Cholesky", "dp[op]Matrix", "p?corMatrix"
+##   "pMatrix", "dp[op]Matrix", "p?corMatrix"
 .M.nonvirtual <- function(x, strict = FALSE)
     .Call(R_Matrix_nonvirtual, x, strict)
 
@@ -75,8 +75,6 @@ extends1of <- function(class, classes, ...) {
 .isT        <- function(x) .M.repr(x) == "T"
 .isDiagonal <- function(x) .M.repr(x) == "d"
 .isInd      <- function(x) .M.repr(x) == "i"
-
-sparseDefault <- function(x) length(x) > 2 * nnzero(x, na.counted = TRUE)
 
 ## MJ: no longer used
 if(FALSE) {
@@ -214,14 +212,6 @@ asPerm <- function(pivot, off = 1L, ioff = 1L, n = length(pivot))
 invPerm <- function(p, zero.p = FALSE, zero.res = FALSE)
     invertPerm(p, if(zero.p) 0L else 1L, if(zero.res) 0L else 1L)
 
-checkDim <- function(d.a, d.b) {
-    if(any(d.a != d.b))
-	stop(gettextf("non-conformable matrix dimensions in %s",
-		      deparse(sys.call(sys.parent()))),
-	     call. = FALSE, domain = NA)
-    d.a
-}
-
 mmultDim <- function(d.a, d.b, type = 1L) {
     ## Return the 'dim' of the product indicated by 'type':
     ##     type 1:    a  %*%   b
@@ -231,9 +221,9 @@ mmultDim <- function(d.a, d.b, type = 1L) {
     i.a <- 1L + (type != 2L)
     i.b <- 1L + (type == 3L)
     if(d.a[i.a] != d.b[i.b])
-	stop(gettextf("non-conformable matrix dimensions in %s",
-		      deparse(sys.call(sys.parent()))),
-	     call. = FALSE, domain = NA)
+        stop(gettextf("non-conformable matrix dimensions in %s",
+                      deparse(sys.call(sys.parent()))),
+             call. = FALSE, domain = NA)
     c(d.a[-i.a], d.b[-i.b])
 }
 
@@ -246,55 +236,7 @@ mmultDimnames <- function(dn.a, dn.b, type = 1L) {
       if(is.null(dn.b)) list(NULL) else dn.b[2L - (type == 3L)])
 }
 
-## Still used in many places (for now):
-dimCheck <- function(a, b) checkDim(dim(a), dim(b))
-
-##' Constructs "sensical" dimnames for something like  a + b ;
-##' assume dimCheck() has happened before
-##'
-##' NOTA BENE:   R's  ?Arithmetic  says
-##' ---------
-##'>  For arrays (and an array result) the dimensions and dimnames are taken from
-##'>  first argument if it is an array, otherwise the second.
-##' but that's not quite correct:
-##' The dimnames are taken from second *if* the first are NULL.
-##'
-##' @title Construct dimnames for  a  o  b
-##' @param a matrix
-##' @param b matrix
-##' @param useFirst logical indicating if dimnames(a), the first, is taken, unless NULL
-##' @param check logical indicating if a warning should be signalled for mismatches
-##' @return a \code{\link{list}} of length two with dimnames
-##' @author Martin Maechler
-dimNamesCheck <- function(a, b, useFirst = TRUE, check = FALSE) {
-    nullDN <- list(NULL,NULL)
-    h.a <- !identical(nullDN, dna <- dimnames(a))
-    h.b <- !identical(nullDN, dnb <- dimnames(b))
-    if(h.a || h.b) {
-        if(useFirst) {
-            if(!h.a) dnb else dna
-        } else {
-            if (!h.b) dna
-            else if(!h.a) dnb
-            else { ## both have non-trivial dimnames
-                r <- dna # "default" result
-                for(j in 1:2) if(!is.null(dn <- dnb[[j]])) {
-                    if(is.null(r[[j]]))
-                        r[[j]] <- dn
-                    else if(check && !identical(r[[j]], dn))
-                        warning(gettextf("dimnames [%d] mismatch in %s", j,
-                                         deparse(sys.call(sys.parent()))),
-                                call. = FALSE, domain=NA)
-                }
-                r
-            }
-        }
-    }
-    else
-	nullDN
-}
-
-##' valid Matrix-class @Dimnames slot {assuming only NULL needs to be transformed}
+## dimnames->Dimnames
 .M.DN <- function(x)
     if(is.null(dn <- dimnames(x))) list(NULL, NULL) else dn
 
@@ -352,36 +294,6 @@ symmetrizeDimnames <- function(x) {
     else x
 }
 
-.M2sym <- function(from, ...) {
-    if(isSymmetric(from, ...))
-        forceSymmetric(from)
-    else
-        stop("matrix is not symmetric; consider forceSymmetric() or symmpart()")
-}
-..M2sym <- function(from) { # for setAs()
-    if(isSymmetric(from))
-        forceSymmetric(from)
-    else
-        stop("matrix is not symmetric; consider forceSymmetric() or symmpart()")
-}
-
-.M2tri <- function(from, ...) {
-    if(!(it <- isTriangular(from, ...)))
-        stop("matrix is not triangular; consider triu() or tril()")
-    else if(attr(it, "kind") == "U")
-        triu(from)
-    else
-        tril(from)
-}
-..M2tri <- function(from) { # for setAs()
-    if(!(it <- isTriangular(from)))
-        stop("matrix is not triangular; consider triu() or tril()")
-    else if(attr(it, "kind") == "U")
-        triu(from)
-    else
-        tril(from)
-}
-
 ## MJ: Implement forceTriangular() and export this and that?
 ## MJ: Notably this provides a model for (maybe, in the future) allowing
 ## forceSymmetric(<non-square>) ... by truncating the "too long" dimension.
@@ -427,229 +339,24 @@ forceDiagonal <- function(x, diag = NA_character_) {
         x = if(diag == "N") y else y[FALSE])
 }
 
-.M2diag <- function(from) {
-    if (!isDiagonal(from))
-        stop("matrix is not diagonal; consider Diagonal(x=diag(.))")
-    forceDiagonal(from)
-}
+.tCRT <- function(x, lazy = TRUE) .Call(R_sparse_transpose, x, lazy)
 
-.dense2g <- function(from, kind = ".")
-    .Call(R_dense_as_general, from, kind)
 
-.sparse2g <- function(from, kind = ".") {
-    if(!identical(kind, "."))
-        from <- .Call(R_sparse_as_kind, from, kind, FALSE)
-    .Call(R_sparse_as_general, from)
-}
+.drop0 <- function(x, tol = 0)
+    .Call(R_sparse_drop0, x, tol)
 
-.dense2m <- function(from)
-    .Call(R_dense_as_matrix, from)
-
-.sparse2m <- function(from)
-    .Call(R_sparse_as_matrix, from)
-
-.diag2m <- function(from) {
-    D <- diag(if(from@diag == "N") from@x else as1(from@x),
-              nrow = from@Dim[1L])
-    if(!identical(dn <- from@Dimnames, list(NULL, NULL)))
-        dimnames(D) <- dn
-    D
-}
-
-.ind2m <- function(from) {
-    d <- from@Dim
-    dn <- from@Dimnames
-    perm <- from@perm
-    J <- array(FALSE, d, if(!identical(dn, list(NULL, NULL))) dn)
-    if((m <- length(perm)) > 0L) {
-        if(from@margin == 1L)
-            J[seq.int(  to = 0L, by =    1L, length.out = m) +
-              perm * as.double(m)] <- TRUE
-        else
-            J[seq.int(from = 0L, by = d[1L], length.out = m) +
-              perm               ] <- TRUE
-    }
-    J
-}
-
-.ge2m <- function(from, pattern = FALSE)
-    .Call(R_geMatrix_as_matrix, from, pattern)
-
-.dense2v <- function(from)
-    .Call(R_dense_as_vector, from)
-
-.sparse2v <- function(from)
-    .Call(R_sparse_as_vector, from)
-
-.diag2v <- function(from) {
-    n <- from@Dim[1L]
-    x <- from@x
-    m <- mode(x)
-    r <- vector(m, length = n^2)
-    if(n > 0L)
-        r[1 + 0:(n - 1L) * (n + 1)] <- if(from@diag == "N") x else as1(mod = m)
-    r
-}
-
-.ind2v <- function(from) {
-    d <- from@Dim
-    perm <- from@perm
-    r <- logical(prod(d))
-    if((m <- length(perm)) > 0L) {
-        if(from@margin == 1L)
-            r[seq.int(  to = 0L, by =    1L, length.out = m) +
-              perm * as.double(m)] <- TRUE
-        else
-            r[seq.int(from = 0L, by = d[1L], length.out = m) +
-              perm               ] <- TRUE
-    }
-    r
-}
-
-.ge2v <- function(from, pattern = FALSE)
-    .Call(R_geMatrix_as_vector, from, pattern)
-
-.dense2kind <- function(from, kind)
-    .Call(R_dense_as_kind, from, kind)
-
-..dense2d <- function(from) # for setAs() but used widely:
-    .Call(R_dense_as_kind, from, "d")
-
-..dense2l <- function(from)
-    .Call(R_dense_as_kind, from, "l")
-
-..dense2n <- function(from)
-    .Call(R_dense_as_kind, from, "n")
-
-.sparse2kind <- function(from, kind, drop0 = FALSE)
-    .Call(R_sparse_as_kind, from, kind, drop0)
-
-..sparse2d <- function(from) # for setAs() but used widely:
-    .Call(R_sparse_as_kind, from, "d", FALSE)
-
-..sparse2l <- function(from)
-    .Call(R_sparse_as_kind, from, "l", FALSE)
-
-..sparse2n <- function(from)
-    .Call(R_sparse_as_kind, from, "n", FALSE)
-
-.diag2kind <- function(from, kind)
-    .Call(R_diagonal_as_kind, from, kind)
-
-..diag2d <- function(from)
-    .Call(R_diagonal_as_kind, from, "d")
-
-..diag2l <- function(from)
-    .Call(R_diagonal_as_kind, from, "l")
-
-.dense2sparse <- function(from, repr = "C")
-    .Call(R_dense_as_sparse, from, `substr<-`("...", 3L, 3L, repr), NULL, NULL)
-
-.diag2sparse <- function(from, code, uplo = "U", drop0 = TRUE)
-    .Call(R_diagonal_as_sparse, from, code, uplo, drop0)
-
-.sparse2dense <- function(from, packed = FALSE)
-    .Call(R_sparse_as_dense, from, packed)
-
-.diag2dense <- function(from, code, uplo = "U")
-    .Call(R_diagonal_as_dense, from, code, uplo)
-
-.m2ge <- function(from, kind = ".")
-    .Call(R_matrix_as_dense, from, `substr<-`(".ge", 1L, 1L, kind), NULL, NULL)
-
-.m2dense <- function(from, code, uplo = "U", diag = "N")
-    .Call(R_matrix_as_dense, from, code, uplo, diag)
-
-.m2dense.checking <- function(from, kind = ".", ...) {
-    switch(typeof(from), logical =, integer =, double = NULL,
-           stop(gettextf("matrix of invalid type \"%s\" to .m2dense.checking()",
-                         typeof(from)),
-                domain = NA))
-    if(kind != ".") {
-        ## These must happen before isSymmetric() call
-        storage.mode(from) <-
-            switch(kind, n =, l = "logical", d = "double",
-                   stop(gettextf("invalid kind \"%s\" to .m2dense.checking()",
-                                 kind),
-                        domain = NA))
-        if(kind == "n" && anyNA(from))
-            from[is.na(from)] <- TRUE
-    }
-    if(isSymmetric(from, ...))
-        .m2dense(from, paste0(kind, "sy"), "U", NULL)
-    else if(it <- isTriangular(from))
-        .m2dense(from, paste0(kind, "tr"), attr(it, "kind"), "N")
-    else
-        .m2dense(from, paste0(kind, "ge"), NULL, NULL)
-}
-
-.m2sparse <- function(from, code, uplo = "U", diag = "N")
-    .Call(R_dense_as_sparse, from, code, uplo, diag)
-
-.m2sparse.checking <- function(from, kind = ".", repr = "C", ...) {
-    switch(typeof(from), logical =, integer =, double = NULL,
-           stop(gettextf("matrix of invalid type \"%s\" to .m2sparse.checking()",
-                         typeof(from)),
-                domain = NA))
-    if(kind != ".") {
-        ## These must happen before isSymmetric() call
-        storage.mode(from) <-
-            switch(kind, n =, l = "logical", d = "double",
-                   stop(gettextf("invalid kind \"%s\" to .m2sparse.checking()",
-                                 kind),
-                        domain = NA))
-        if(kind == "n" && anyNA(from))
-            from[is.na(from)] <- TRUE
-    }
-    if(isSymmetric(from, ...))
-        .m2sparse(from, paste0(kind, "s", repr), "U", NULL)
-    else if(it <- isTriangular(from))
-        .m2sparse(from, paste0(kind, "t", repr), attr(it, "kind"), "N")
-    else
-        .m2sparse(from, paste0(kind, "g", repr), NULL, NULL)
-}
-
-.CR2T <- function(from)
-    .Call(CRsparse_as_Tsparse, from)
-.T2CR <- function(from, Csparse = TRUE)
-    .Call(Tsparse_as_CRsparse, from, Csparse)
-
-.T2C  <- function(from)
-    .Call(Tsparse_as_CRsparse, from, TRUE)
-.T2R  <- function(from)
-    .Call(Tsparse_as_CRsparse, from, FALSE)
-
-.tCR2RC <- function(from) .Call(tCRsparse_as_RCsparse, from)
-.CR2RC <- function(from) {
-    to <- .tCR2RC(.Call(R_sparse_transpose, from))
-    if(.hasSlot(from, "factors"))
-        to@factors <- from@factors
-    to
-}
-
-drop0.notol <- function(x)
-    .Call(R_sparse_drop0, x)
-
-rowCheck <- function(a, b) {
-    da <- dim(a)
-    db <- dim(b)
-    if(da[1] != db[1])
-	stop(gettextf("Matrices must have same number of rows in %s",
-		      deparse(sys.call(sys.parent()))),
-	     call. = FALSE, domain=NA)
-    ## return the common nrow()
-    da[1]
-}
-
-colCheck <- function(a, b) {
-    da <- dim(a)
-    db <- dim(b)
-    if(da[2] != db[2])
-	stop(gettextf("Matrices must have same number of columns in %s",
-		      deparse(sys.call(sys.parent()))),
-	     call. = FALSE, domain=NA)
-    ## return the common ncol()
-    da[2]
+drop0 <- function(x, tol = 0, is.Csparse = NA, give.Csparse = TRUE) {
+    tryCoerce <-
+        if(give.Csparse)
+            is.na(is.Csparse) || !is.Csparse
+        else if(.M.kind(x) != "n")
+            !.isCRT(x)
+        else if(all(.M.repr(x) != c("C", "R", "T", "i")))
+            TRUE
+        else return(x) # n[gst][CRT]Matrix or indMatrix
+    if(tryCoerce)
+        x <- if(isS4(x)) .M2C(x) else .m2sparse.checking(x, ".", "C")
+    .Call(R_sparse_drop0, x, as.double(tol))
 }
 
 emptyColnames <- function(x, msg.if.not.empty = FALSE) {
@@ -733,7 +440,7 @@ non0.i <- function(M, cM = class(M), uniqT = TRUE) {
         .Call(compressed_non_0_ij, M, FALSE)
     else if(extends(cld, "TsparseMatrix")) {
         if(uniqT && is_not_uniqT(M))
-	    .Call(compressed_non_0_ij, .T2C(M), TRUE)
+	    .Call(compressed_non_0_ij, .M2C(M), TRUE)
 	else cbind(M@i, M@j, deparse.level = 0L)
     } else if(extends(cld, "diagonalMatrix")) {
         i <- seq.int(from = 0L, length.out = M@Dim[1L])
@@ -820,23 +527,11 @@ uniqTsparse <- function(x, class.x = c(class(x))) {
     if(!extends(class.x, "TsparseMatrix"))
 	stop(gettextf("not yet implemented for class \"%s\"", dQuote(class.x)),
 	     domain = NA)
-    .CR2T(.T2C(x))
+    .M2T(.M2C(x))
 }
 
 ##' non-exported version with*OUT* check -- called often only  if(anyDuplicatedT(.))
-.uniqTsparse <- function(x) .CR2T(.T2C(x))
-
-drop0 <- function(x, tol = 0, is.Csparse = NA) {
-    ## ## MJ: My R_sparse_drop0() handles all [CRT]sparseMatrix without
-    ## ##     coercion, but we should assess how many packages depend on
-    ## ##     > is(drop0(...), "CsparseMatrix")
-    ## ##     before going ahead and using it ...
-    ## if(tol <= 0)
-    ##     return(.Call(R_sparse_drop0, x))
-    if(is.na(is.Csparse))
-        is.Csparse <- is(x, "CsparseMatrix")
-    .Call(Csparse_drop, if(is.Csparse) x else as(x, "CsparseMatrix"), tol)
-}
+.uniqTsparse <- function(x) .M2T(.M2C(x))
 
 asTuniq <- function(x) {
     if(is(x, "TsparseMatrix"))
@@ -864,52 +559,75 @@ class2 <- function(cl, kind = "l", do.sub = TRUE) {
 }
 
 ## typically used as .type.kind[.M.kind(x)]:
-.type.kind <- c("d" = "double",
-		"i" = "integer",
-		"l" = "logical",
-		"n" = "logical",
-		"z" = "complex")
+.type.kind <- c("n" = "logical",
+                "l" = "logical",
+                "i" = "integer",
+                "d" = "double",
+                "z" = "complex")
 
 ## the reverse, a "version of" .M.kind(.):
-.kind.type <- setNames(names(.type.kind), as.vector(.type.kind))
+.kind.type <- c("logical" = "l",
+                "integer" = "i",
+                "double" = "d",
+                "complex" = "z")
 
 ## (matrix|denseMatrix)->denseMatrix as similar as possible to "target"
 as_denseClass <- function(x, cl, cld = getClassDef(cl)) {
     kind <- .M.kind(x)
-    symmetric <- extends(cld, "symmetricMatrix") && isSymmetric(x)
+    cl <- .M.nonvirtual(new(cld))
+    if(cl == "indMatrix")
+        cl <- "ngeMatrix"
+    symmetric <- substr(cl, 2L, 2L) == "s" && isSymmetric(x)
     triangular <- !symmetric &&
-        (extends(cld, "triangularMatrix") && (it <- isTriangular(x)))
-    if(!(symmetric || triangular))
-        return(.dense2g(x, kind))
-    y <- if(symmetric)
-             forceSymmetric(x)
-         else if (attr(it, "kind") == "U")
-             triu(x)
-         else tril(x)
-    if(extends(cld, "packedMatrix"))
-        y <- pack(y)
-    .dense2kind(y, kind)
+        substr(cl, 2L, 2L) == "t" && (it <- isTriangular(x))
+    packed <- (symmetric || triangular) && substr(cl, 3L, 3L) == "p"
+    if(isS4(x)) {
+        r <- if(symmetric || triangular)
+                 .M2kind(if(symmetric)
+                             forceSymmetric(x)
+                         else if(attr(it, "kind") == "U")
+                             triu(x)
+                         else tril(x),
+                         kind)
+             else .M2gen(x, kind)
+        if(packed) pack(r) else r
+    }
+    else if(symmetric)
+        .m2dense(x, paste0(kind, "s", if(packed) "p" else "y"), "U", NULL)
+    else if(triangular)
+        .m2dense(x, paste0(kind, "t", if(packed) "p" else "r"), attr(it, "kind"), "N")
+    else .m2dense(x, paste0(kind, "ge"))
 }
 
 ## (matrix|sparseMatrix)->CsparseMatrix as similar as possible to "target"
 as_CspClass <- function(x, cl, cld = getClassDef(cl)) {
-    x <- as(x, "CsparseMatrix")
-    x <- if(extends(cld, "symmetricMatrix") && isSymmetric(x))
-             forceSymmetric(x)
-         else if(!(extends(cld, "triangularMatrix") && (it <- isTriangular(x))))
-             .sparse2g(x)
-         else if(attr(it, "kind") == "U")
-             triu(x)
-         else tril(x)
-    .sparse2kind(x, .M.kind(x))
+    kind <- .M.kind(x)
+    cl <- .M.nonvirtual(new(cld))
+    if(cl == "indMatrix")
+        cl <- "ngeMatrix"
+    symmetric <- substr(cl, 2L, 2L) == "s" && isSymmetric(x)
+    triangular <- !symmetric &&
+        substr(cl, 2L, 2L) == "t" && (it <- isTriangular(x))
+    if(isS4(x)) {
+        r <- if(symmetric || triangular)
+                 .M2kind(if(symmetric)
+                             forceSymmetric(x)
+                         else if(attr(it, "kind") == "U")
+                             triu(x)
+                         else tril(x),
+                         kind)
+             else .M2gen(x, kind)
+        .M2C(r)
+    }
+    else if(symmetric)
+        .m2sparse(x, paste0(kind, "sC"), "U", NULL)
+    else if(triangular)
+        .m2sparse(x, paste0(kind, "tC"), attr(it, "kind"), "N")
+    else .m2sparse(x, paste0(kind, "gC"))
 }
 
-## as(<Matrix>, <non-unit diagonal CsparseMatrix>)
-asCspN <- function(x, cl = class(x), cld = getClassDef(cl)) {
-    if(!extends(cld, "CsparseMatrix"))
-        cld <- getClassDef(class(x <- as(x, "CsparseMatrix")))
-    .Call(R_sparse_diag_U2N, x)
-}
+## as(<[Mm]atrix>, <non-unit triangular CsparseMatrix>)
+asCspN <- function(x) .Call(R_sparse_diag_U2N, as(x, "CsparseMatrix"))
 
 diagU2N <- function (x, cl = getClassDef(class(x)), checkDense = FALSE) {
     if(extends(cl, "triangularMatrix") && x@diag == "U")
@@ -930,7 +648,7 @@ diagU2N <- function (x, cl = getClassDef(class(x)), checkDense = FALSE) {
 
 diagN2U <- function(x, cl = getClassDef(class(x)), checkDense = FALSE) {
     if(extends(cl, "triangularMatrix") && x@diag == "N")
-	.diagN2U(x, cl = cl, checkDense = checkDense)
+        .diagN2U(x, cl = cl, checkDense = checkDense)
     else x
 }
 

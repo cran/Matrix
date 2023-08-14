@@ -4,10 +4,6 @@
 #include "Lapack-etc.h"
 #include "Mutils.h"
 
-/* defined in ./sparse.c : */
-SEXP R_sparse_diag_U2N(SEXP);
-SEXP sparse_as_kind(SEXP, char, int);
-
 SEXP dgeMatrix_crossprod(SEXP x, SEXP trans);
 SEXP  geMatrix_crossprod(SEXP x, SEXP trans);
 SEXP dgeMatrix_dgeMatrix_crossprod(SEXP x, SEXP y, SEXP trans);
@@ -29,13 +25,13 @@ SEXP dsyMatrix_matrix_mm(SEXP a, SEXP b, SEXP right);
 SEXP dspMatrix_matrix_mm(SEXP a, SEXP b);
 
 SEXP Csp_dense_products(SEXP a, SEXP b,
-			Rboolean trans_a,
-			Rboolean trans_b,
-			Rboolean trans_ans);
+                        Rboolean trans_a,
+                        Rboolean trans_b,
+                        Rboolean trans_ans);
 
-SEXP Csparse_Csparse_prod(SEXP a, SEXP b, SEXP bool_arith);
-SEXP Csparse_Csparse_crossprod(SEXP a, SEXP b, SEXP trans, SEXP bool_arith);
-SEXP Csparse_crossprod(SEXP x, SEXP trans, SEXP triplet, SEXP bool_arith);
+SEXP Csparse_Csparse_prod(SEXP a, SEXP b, SEXP boolArith);
+SEXP Csparse_Csparse_crossprod(SEXP a, SEXP b, SEXP trans, SEXP boolArith);
+SEXP Csparse_crossprod(SEXP x, SEXP trans, SEXP boolArith);
 
 SEXP Csparse_dense_prod     (SEXP a, SEXP b, SEXP trans);
 SEXP Csparse_dense_crossprod(SEXP a, SEXP b, SEXP trans);

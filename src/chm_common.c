@@ -346,9 +346,16 @@ CHM_SP as_cholmod_sparse(CHM_SP ans, SEXP x,
 SEXP chm_sparse_to_SEXP(CHM_SP a, int dofree, int uploT, int Rkind,
 			const char* diag, SEXP dn)
 {
+    PROTECT(dn); /* dn is usually UNPROTECTed before the call */
+
+				/* ensure a is sorted and packed */
+
+    Rboolean longi = (a->itype) == CHOLMOD_LONG;
+    if (!a->sorted || !a->packed)
+        longi ? cholmod_l_sort(a, &cl) : cholmod_sort(a, &c);
+
     SEXP ans;
     char *cls = "";/* -Wall */
-    Rboolean longi = (a->itype) == CHOLMOD_LONG;
     int *dims, nnz, *ansp, *ansi;
     // if (longi) :
     SuiteSparse_long
@@ -358,11 +365,6 @@ SEXP chm_sparse_to_SEXP(CHM_SP a, int dofree, int uploT, int Rkind,
     int *aii = (int*)(a->i),
 	*api = (int*)(a->p);
 
-    PROTECT(dn);  /* dn is usually UNPROTECTed before the call */
-
-				/* ensure a is sorted and packed */
-    if (!a->sorted || !a->packed)
-	longi ? cholmod_l_sort(a, &cl) : cholmod_sort(a, &c);
 				/* determine the class of the result */
 
 #define DOFREE_MAYBE							\

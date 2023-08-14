@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Matrix 1.1-1\n"
-"POT-Creation-Date: 2023-06-30 17:17\n"
+"POT-Creation-Date: 2023-08-03 13:24\n"
 "PO-Revision-Date: 2021-02-11 11:04+0100\n"
 "Last-Translator: Philippe Grosjean <phgrosjean@sciviews.org>\n"
 "Language-Team: none\n"
@@ -32,19 +32,6 @@ msgstr ""
 msgid "non-conformable matrix dimensions in %s"
 msgstr "matrices de dimensions incompatibles dans %s"
 
-msgid "dimnames [%d] mismatch in %s"
-msgstr "dimnames [%d] incohérentes dans %s"
-
-#, fuzzy
-msgid "matrix is not symmetric; consider forceSymmetric() or symmpart()"
-msgstr ""
-"ce n'est pas une matrice symétrique ; considérez forceSymmetric() ou "
-"symmpart()"
-
-#, fuzzy
-msgid "matrix is not triangular; consider triu() or tril()"
-msgstr "la matrice n'est pas triangulaire"
-
 #, fuzzy
 msgid "complex \"diagonalMatrix\" not yet implemented"
 msgstr "classe Matrix générale pas encore implémentée pour %s"
@@ -52,27 +39,6 @@ msgstr "classe Matrix générale pas encore implémentée pour %s"
 #, fuzzy
 msgid "cannot coerce matrix of type \"%s\" to \"diagonalMatrix\""
 msgstr "impossible de convertir automatiquement des 'NA's en \"nsparseMatrix\""
-
-msgid "matrix is not diagonal; consider Diagonal(x=diag(.))"
-msgstr ""
-
-msgid "matrix of invalid type \"%s\" to .m2dense.checking()"
-msgstr ""
-
-msgid "invalid kind \"%s\" to .m2dense.checking()"
-msgstr ""
-
-msgid "matrix of invalid type \"%s\" to .m2sparse.checking()"
-msgstr ""
-
-msgid "invalid kind \"%s\" to .m2sparse.checking()"
-msgstr ""
-
-msgid "Matrices must have same number of rows in %s"
-msgstr "Les matrices doivent avoir le même nombre de lignes dans %s"
-
-msgid "Matrices must have same number of columns in %s"
-msgstr "Les matrices doivent avoir le même nombre de colonnes dans %s"
 
 #, fuzzy
 msgid "[[ suppressing %d column name%s %s ... ]]"
@@ -243,6 +209,9 @@ msgstr ""
 
 msgid "not-yet-implemented 'Matrix[<-' method"
 msgstr "méthode 'Matrix[<-' non encore implémentée"
+
+msgid "dimnames [%d] mismatch in %s"
+msgstr "dimnames [%d] incohérentes dans %s"
 
 msgid "inefficient method used for \"- e1\""
 msgstr "méthode inefficace utilisée pour \"- e1\""
@@ -455,16 +424,19 @@ msgstr ""
 msgid "invalid 'repr'; must be \"C\", \"T\", or \"R\""
 msgstr "'repr' incorrect ; il doit être \"C\", \"T\", ou \"R\""
 
+#, fuzzy
+msgid "number of rows of matrices must match"
+msgstr "nombre incompatible de lignes pour %s"
+
+#, fuzzy
+msgid "number of columns of matrices must match"
+msgstr "nombre incompatible de lignes pour %s"
+
+msgid "dimensions cannot exceed 2^31-1"
+msgstr ""
+
 msgid "resulting x-slot has different type than x's or y's"
 msgstr "le slot x résultant a un type différent que celui des x ou des y"
-
-#, fuzzy
-msgid "number of columns of matrices must match in %s"
-msgstr "nombre incompatible de lignes pour %s"
-
-#, fuzzy
-msgid "number of rows of matrices must match in %s"
-msgstr "nombre incompatible de lignes pour %s"
 
 #, fuzzy
 msgid "chol(x) is undefined: 'x' is not positive semidefinite"
@@ -493,6 +465,31 @@ msgid "D[i,i] is negative, i=%d"
 msgstr ""
 
 msgid "'parent' is not formally sparse"
+msgstr ""
+
+#, fuzzy
+msgid "matrix is not symmetric; consider forceSymmetric(.) or symmpart(.)"
+msgstr ""
+"ce n'est pas une matrice symétrique ; considérez forceSymmetric() ou "
+"symmpart()"
+
+#, fuzzy
+msgid "matrix is not triangular; consider triu(.) or tril(.)"
+msgstr "la matrice n'est pas triangulaire"
+
+msgid "matrix is not diagonal; consider Diagonal(x=diag(.))"
+msgstr ""
+
+msgid "matrix of invalid type \"%s\" to .m2dense.checking()"
+msgstr ""
+
+msgid "invalid kind \"%s\" to .m2dense.checking()"
+msgstr ""
+
+msgid "matrix of invalid type \"%s\" to .m2sparse.checking()"
+msgstr ""
+
+msgid "invalid kind \"%s\" to .m2sparse.checking()"
 msgstr ""
 
 msgid "'A' must be a square matrix"
@@ -524,9 +521,6 @@ msgid "dimensions cannot contain NA"
 msgstr ""
 
 msgid "dimensions cannot contain negative values"
-msgstr ""
-
-msgid "dimensions cannot exceed 2^31-1"
 msgstr ""
 
 msgid "invalid nargs()= %d"
@@ -601,9 +595,6 @@ msgstr ""
 msgid "'x' has non-finite values"
 msgstr ""
 
-msgid "Schur(x) not yet supported for 'x' of type \"complex\""
-msgstr ""
-
 msgid "'which' is not \"Q\", \"T\", or \"Q.\""
 msgstr ""
 
@@ -634,18 +625,8 @@ msgid "elements of 'perm' slot must be positive integers"
 msgstr ""
 
 #, fuzzy
-msgid "only lists of length 2 can be coerced to indMatrix"
-msgstr ""
-"un objet \"Matrix\" avec NAs ne peut être converti automatiquement en "
-"\"nMatrix\""
-
-#, fuzzy
 msgid "matrix must have exactly one nonzero element in each row or column"
 msgstr "doit avoir exactement une entrée non zéro par ligne"
-
-#, fuzzy
-msgid "matrix is not symmetric or triangular"
-msgstr "'x' n'est ni symétrique ni triangulaire"
 
 #, fuzzy
 msgid "method for kronecker() must use default FUN=\"*\""
@@ -784,12 +765,6 @@ msgstr "argument 'contrast.arg' incorrect"
 
 msgid "variable '%s' is absent, its contrast will be ignored"
 msgstr "la variable '%s' est absente, ses contrastes seront ignorés"
-
-#, fuzzy
-msgid "only 2-dimensional tables can be coerced to sparseMatrix"
-msgstr ""
-"seules des tables bidimensionnelles peuvent être automatiquement converties "
-"en matrices éparses"
 
 #, fuzzy
 msgid "exactly one of 'i', 'j', and 'p' must be missing from call"
@@ -972,20 +947,16 @@ msgid "incorrect number of dimensions"
 msgstr "dimensions incompatibles des matrices"
 
 #, fuzzy
-msgid "matrix is not symmetric or"
+msgid "matrix is not symmetric or triangular"
 msgstr "'x' n'est ni symétrique ni triangulaire"
-
-#, fuzzy
-msgid "triangular"
-msgstr "ce n'est pas une matrice triangulaire"
 
 #, fuzzy
 msgid "matrix is not symmetric"
 msgstr "la matrice n'est pas triangulaire"
 
 #, fuzzy
-msgid "matrix is not"
-msgstr "la matrice n'est pas diagonale"
+msgid "matrix is not triangular"
+msgstr "'x' n'est ni symétrique ni triangulaire"
 
 msgid "attempt to coerce matrix with NA to ngCMatrix"
 msgstr ""
@@ -993,6 +964,36 @@ msgstr ""
 #, fuzzy
 msgid "invalid 'Class2'"
 msgstr "'data' incorrect"
+
+#~ msgid "Matrices must have same number of rows in %s"
+#~ msgstr "Les matrices doivent avoir le même nombre de lignes dans %s"
+
+#~ msgid "Matrices must have same number of columns in %s"
+#~ msgstr "Les matrices doivent avoir le même nombre de colonnes dans %s"
+
+#, fuzzy
+#~ msgid "only lists of length 2 can be coerced to indMatrix"
+#~ msgstr ""
+#~ "un objet \"Matrix\" avec NAs ne peut être converti automatiquement en "
+#~ "\"nMatrix\""
+
+#, fuzzy
+#~ msgid "only 2-dimensional tables can be coerced to sparseMatrix"
+#~ msgstr ""
+#~ "seules des tables bidimensionnelles peuvent être automatiquement "
+#~ "converties en matrices éparses"
+
+#, fuzzy
+#~ msgid "matrix is not symmetric or"
+#~ msgstr "'x' n'est ni symétrique ni triangulaire"
+
+#, fuzzy
+#~ msgid "triangular"
+#~ msgstr "ce n'est pas une matrice triangulaire"
+
+#, fuzzy
+#~ msgid "matrix is not"
+#~ msgstr "la matrice n'est pas diagonale"
 
 #~ msgid "'x' is not positive definite -- chol() undefined."
 #~ msgstr "'x' n'est pas positif fini --chol() non défini."

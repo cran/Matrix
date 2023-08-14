@@ -3,14 +3,14 @@
 
 setMethod("which", "ndenseMatrix",
           function(x, arr.ind = FALSE, useNames = TRUE) {
-              wh <- which(.dense2g(x, "l")@x) # NA <=> TRUE
+              wh <- which(.M2gen(x, "l")@x) # NA <=> TRUE
               if(arr.ind)
                   arrayInd(wh, x@Dim, dimnames(x), useNames = useNames)
               else wh
           })
 setMethod("which", "ldenseMatrix",
           function(x, arr.ind = FALSE, useNames = TRUE) {
-              wh <- which(.dense2g(x, "l")@x)
+              wh <- which(.M2gen(x, "l")@x)
               if(arr.ind)
                   arrayInd(wh, x@Dim, dimnames(x), useNames = useNames)
               else wh

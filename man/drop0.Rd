@@ -1,5 +1,5 @@
 \name{drop0}
-\title{Drop "Explicit Zeroes" from a Sparse Matrix}
+\title{Drop Non-Structural Zeros from a Sparse Matrix}
 %
 \keyword{array}
 \keyword{manip}
@@ -8,59 +8,66 @@
 \alias{drop0}
 %
 \description{
-  Returns a sparse matrix with no \dQuote{explicit zeroes}, i.e., all
-  zero or \code{FALSE} entries are dropped from the explicitly indexed
-  matrix entries.
+  Deletes \dQuote{non-structural} zeros (i.e., zeros stored explicitly,
+  in memory) from a sparse matrix and returns the result.
 }
 \usage{
-drop0(x, tol = 0, is.Csparse = NA)
+drop0(x, tol = 0, is.Csparse = NA, give.Csparse = TRUE)
 }
 \arguments{
-  \item{x}{a Matrix, typically sparse, i.e., inheriting from
-    \code{\linkS4class{sparseMatrix}}.}
-%   \item{clx}{[optional:] the \code{\link{class}} or \dQuote{class
-%       definition} (see \code{\link{getClassDef}}; it is of class
-%     \code{\linkS4class{classRepresentation}}) of \code{x}.\cr
-%     This argument just exists for the possibility of speedup.}
-  \item{tol}{non-negative number to be used as tolerance for checking if
-    an entry \eqn{x_{i,j}}{x[i,j]} should be considered to be zero.}
-  \item{is.Csparse}{logical indicating prior knowledge about the
-    \dQuote{Csparseness} of \code{x}.  This exists for possible speedup
-    reasons only.}
+  \item{x}{a \code{\linkS4class{Matrix}}, typically inheriting
+    from virtual class \code{\linkS4class{sparseMatrix}}.
+    \code{\linkS4class{denseMatrix}} and traditional vectors and
+    matrices are coerced to \code{\linkS4class{CsparseMatrix}},
+    with zeros dropped automatically, hence users passing such
+    \code{x} should consider \code{as(x, "CsparseMatrix")} instead,
+    notably in the \code{tol = 0} case.}
+  \item{tol}{a non-negative number.  If \code{x} is numeric,
+    then entries less than or equal to \code{tol} in absolute value
+    are deleted.}
+  \item{is.Csparse}{a logical used only if \code{give.Csparse}
+    is \code{TRUE}, indicating if \code{x} already inherits from
+    virtual class \code{\linkS4class{CsparseMatrix}}, in which
+    case coercion is not attempted, permitting some (typically
+    small) speed-up.}
+  \item{give.Csparse}{a logical indicating if the result must
+    inherit from virtual class \code{\linkS4class{CsparseMatrix}}.
+    If \code{FALSE} and \code{x} inherits from
+    \code{\linkS4class{RsparseMatrix}},
+    \code{\linkS4class{TsparseMatrix}}, or
+    \code{\linkS4class{indMatrix}},
+    then the result preserves the class of \code{x}.
+    The default value is \code{TRUE} only for backwards compatibility.}
 }
-% \details{
-%   ~~ If necessary, more details than the description above ~~
-% }
 \value{
-  a Matrix like \code{x} but with no explicit zeros, i.e.,
-  \code{!any(x@x == 0)}, always inheriting from
-  \code{\linkS4class{CsparseMatrix}}.
+  A \code{\linkS4class{sparseMatrix}}, the result of deleting
+  non-structural zeros from \code{x}, possibly after coercion.
 }
-% \author{Martin}
-\note{When a sparse matrix is the result of matrix multiplications, you
-  may want to consider combining \code{drop0()} with
-  \code{\link{zapsmall}()},
-  see the example.
+\note{
+  \code{drop0} is sometimes called in conjunction with
+  \code{\link{zapsmall}}, e.g., when dealing with sparse
+  matrix products; see the example.
 }
-\seealso{\code{\link{spMatrix}}, class
-  \code{\linkS4class{sparseMatrix}}; \code{\link{nnzero}}
+\seealso{
+  Function \code{\link{sparseMatrix}}, for constructing objects
+  inheriting from virtual class \code{\linkS4class{sparseMatrix}};
+  \code{\link{nnzero}}.
 }
 \examples{
-m <- spMatrix(10,20, i= 1:8, j=2:9, x = c(0:2,3:-1))
-m
+(m <- sparseMatrix(i = 1:8, j = 2:9, x = c(0:2, 3:-1),
+                   dims = c(10L, 20L)))
 drop0(m)
 
 ## A larger example:
 t5 <- new("dtCMatrix", Dim = c(5L, 5L), uplo = "L",
           x = c(10, 1, 3, 10, 1, 10, 1, 10, 10),
-	  i = c(0L,2L,4L, 1L, 3L,2L,4L, 3L, 4L),
-	  p = c(0L, 3L, 5L, 7:9))
-TT <- kronecker(t5, kronecker(kronecker(t5,t5), t5))
+          i = c(0L,2L,4L, 1L, 3L,2L,4L, 3L, 4L),
+          p = c(0L, 3L, 5L, 7:9))
+TT <- kronecker(t5, kronecker(kronecker(t5, t5), t5))
 IT <- solve(TT)
-I. <- TT \%*\% IT ;  nnzero(I.) # 697 ( = 625 + 72 )
+I. <- TT \%*\% IT ;  nnzero(I.) # 697 ( == 625 + 72 )
 I.0 <- drop0(zapsmall(I.))
 ## which actually can be more efficiently achieved by
 I.. <- drop0(I., tol = 1e-15)
-stopifnot(all(I.0 == Diagonal(625)),
-          nnzero(I..) == 625)
+stopifnot(all(I.0 == Diagonal(625)), nnzero(I..) == 625)
 }

@@ -15,7 +15,7 @@
 
 setMethod("qr", signature(x = "sparseMatrix"),
           function(x, ...)
-              qr(.sparse2g(as(x, "CsparseMatrix"), "d"), ...))
+              qr(.M2gen(as(x, "CsparseMatrix"), "d"), ...))
 
 setMethod("qr", signature(x = "dgCMatrix"),
           function(x, order = 3L, ...) {
@@ -236,15 +236,15 @@ setMethod("qr.coef", signature(qr = "sparseQR", y = "dgeMatrix"),
 
 setMethod("qr.coef", signature(qr = "sparseQR", y = "numLike"),
           function(qr, y)
-              drop(qr.coef(qr, .m2ge(y, "d"))))
+              drop(qr.coef(qr, .m2dense(y, "dge"))))
 
 setMethod("qr.coef", signature(qr = "sparseQR", y = "matrix"),
           function(qr, y)
-              qr.coef(qr, .m2ge(y, "d")))
+              qr.coef(qr, .m2dense(y, "dge")))
 
 setMethod("qr.coef", signature(qr = "sparseQR", y = "Matrix"),
           function(qr, y)
-              qr.coef(qr, .m2ge(as(y, "matrix"), "d")))
+              qr.coef(qr, .m2dense(as(y, "matrix"), "dge")))
 
 setMethod("qr.fitted", signature(qr = "sparseQR", y = "dgeMatrix"),
           function(qr, y, k = qr$rank) {
@@ -259,15 +259,15 @@ setMethod("qr.fitted", signature(qr = "sparseQR", y = "dgeMatrix"),
 
 setMethod("qr.fitted", signature(qr = "sparseQR", y = "numLike"),
           function(qr, y, k = qr$rank)
-              drop(qr.fitted(qr, .m2ge(y, "d"))))
+              drop(qr.fitted(qr, .m2dense(y, "dge"))))
 
 setMethod("qr.fitted", signature(qr = "sparseQR", y = "matrix"),
           function(qr, y, k = qr$rank)
-              qr.fitted(qr, .m2ge(y, "d")))
+              qr.fitted(qr, .m2dense(y, "dge")))
 
 setMethod("qr.fitted", signature(qr = "sparseQR", y = "Matrix"),
           function(qr, y, k = qr$rank)
-              qr.fitted(qr, .m2ge(as(y, "matrix"), "d")))
+              qr.fitted(qr, .m2dense(as(y, "matrix"), "dge")))
 
 setMethod("qr.resid", signature(qr = "sparseQR", y = "dgeMatrix"),
           function(qr, y) {
@@ -282,15 +282,15 @@ setMethod("qr.resid", signature(qr = "sparseQR", y = "dgeMatrix"),
 
 setMethod("qr.resid", signature(qr = "sparseQR", y = "numLike"),
           function(qr, y)
-              drop(qr.resid(qr, .m2ge(y, "d"))))
+              drop(qr.resid(qr, .m2dense(y, "dge"))))
 
 setMethod("qr.resid", signature(qr = "sparseQR", y = "matrix"),
           function(qr, y)
-              qr.resid(qr, .m2ge(y, "d")))
+              qr.resid(qr, .m2dense(y, "dge")))
 
 setMethod("qr.resid", signature(qr = "sparseQR", y = "Matrix"),
           function(qr, y)
-              qr.resid(qr, .m2ge(as(y, "matrix"), "d")))
+              qr.resid(qr, .m2dense(as(y, "matrix"), "dge")))
 
 setMethod("qr.qty", signature(qr = "sparseQR", y = "dgeMatrix"),
           function(qr, y) {
@@ -305,15 +305,15 @@ setMethod("qr.qty", signature(qr = "sparseQR", y = "dgeMatrix"),
 
 setMethod("qr.qty", signature(qr = "sparseQR", y = "numLike"),
           function(qr, y)
-              drop(qr.qty(qr, .m2ge(y, "d"))))
+              drop(qr.qty(qr, .m2dense(y, "dge"))))
 
 setMethod("qr.qty", signature(qr = "sparseQR", y = "matrix"),
           function(qr, y)
-              qr.qty(qr, .m2ge(y, "d")))
+              qr.qty(qr, .m2dense(y, "dge")))
 
 setMethod("qr.qty", signature(qr = "sparseQR", y = "Matrix"),
           function(qr, y)
-              qr.qty(qr, .m2ge(as(y, "matrix"), "d")))
+              qr.qty(qr, .m2dense(as(y, "matrix"), "dge")))
 
 setMethod("qr.qy", signature(qr = "sparseQR", y = "dgeMatrix"),
           function(qr, y) {
@@ -336,12 +336,12 @@ setMethod("qr.qy", signature(qr = "sparseQR", y = "dgeMatrix"),
 
 setMethod("qr.qy", signature(qr = "sparseQR", y = "numLike"),
           function(qr, y)
-              drop(qr.qy(qr, .m2ge(y, "d"))))
+              drop(qr.qy(qr, .m2dense(y, "dge"))))
 
 setMethod("qr.qy", signature(qr = "sparseQR", y = "matrix"),
           function(qr, y)
-              qr.qy(qr, .m2ge(y, "d")))
+              qr.qy(qr, .m2dense(y, "dge")))
 
 setMethod("qr.qy", signature(qr = "sparseQR", y = "Matrix"),
           function(qr, y)
-              qr.qy(qr, .m2ge(as(y, "matrix"), "d")))
+              qr.qy(qr, .m2dense(as(y, "matrix"), "dge")))

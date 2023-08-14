@@ -11,11 +11,11 @@ setMethod("Schur", signature(x = "dgeMatrix"),
                   T <- triu(cl$T)
               } else {
                   vals <- complex(real = cl$WR, imaginary = cl$WI)
-                  T <- .m2ge(cl$T)
+                  T <- .m2dense(cl$T, ".ge")
               }
               if(vectors)
                   new("Schur", Dim = x@Dim, Dimnames = x@Dimnames,
-                      Q = .m2ge(cl$Z), T = T, EValues = vals)
+                      Q = .m2dense(cl$Z, ".ge"), T = T, EValues = vals)
               else list(T = T, EValues = vals)
           })
 
@@ -26,7 +26,7 @@ setMethod("Schur", signature(x = "dsyMatrix"),
               T <- new("ddiMatrix", Dim = x@Dim, x = vals)
               if(vectors)
                   new("Schur", Dim = x@Dim, Dimnames = symmDN(x@Dimnames),
-                      Q = .m2ge(e$vectors), T = T, EValues = vals)
+                      Q = .m2dense(e$vectors, ".ge"), T = T, EValues = vals)
               else list(T = T, EValues = vals)
           })
 

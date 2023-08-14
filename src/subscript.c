@@ -17,7 +17,7 @@ static SEXP unpackedMatrix_subscript_1ary(SEXP x, SEXP w, const char *cl)
 	if (len == 0) \
 		return res; \
 	PROTECT(res); \
- \
+	 \
 	SEXP dim = PROTECT(GET_SLOT(x, Matrix_DimSym)); \
 	int *pdim = INTEGER(dim), m = pdim[0], n = pdim[1]; \
 	Matrix_int_fast64_t mn64 = (Matrix_int_fast64_t) m * n; \
@@ -25,7 +25,7 @@ static SEXP unpackedMatrix_subscript_1ary(SEXP x, SEXP w, const char *cl)
 
 #define SUB1_START_EXTRA(_SEXPTYPE_) \
 	SUB1_START(_SEXPTYPE_); \
- \
+	 \
 	int ge = cl[1] == 'g', tr = cl[1] == 't', upper = 1, nonunit = 1; \
 	if (!ge) { \
 		SEXP uplo = PROTECT(GET_SLOT(x, Matrix_uploSym)); \
@@ -406,7 +406,7 @@ SEXP R_subscript_1ary(SEXP x, SEXP i)
 	static const char *valid[] = { VALID_NONVIRTUAL_MATRIX, "" };
 	int ivalid = R_check_class_etc(x, valid);
 	if (ivalid < 0)
-		ERROR_INVALID_CLASS(x, "R_subscript_1ary");
+		ERROR_INVALID_CLASS(x, __func__);
 	ivalid += VALID_NONVIRTUAL_SHIFT(ivalid, 1);
 	const char *cl = valid[ivalid];
 	validObject(x, cl);
@@ -435,11 +435,13 @@ SEXP R_subscript_1ary(SEXP x, SEXP i)
 		cl_[0] = cl[0];
 		cl_[1] = cl[1];
 
-		SEXP T = PROTECT(ScalarLogical(1));
-		PROTECT(x = Tsparse_as_CRsparse(x, T));
-		x = CsparseMatrix_subscript_1ary(x, i, cl_);
+		/* defined in ./coerce.c : */
+		SEXP sparse_as_Csparse(SEXP, const char *);
 
-		UNPROTECT(2);
+		x = sparse_as_Csparse(x, cl);
+		PROTECT(x);
+		x = CsparseMatrix_subscript_1ary(x, i, cl_);
+		UNPROTECT(1);
 		return x;
 	}
 	case 'i':
@@ -463,11 +465,11 @@ static SEXP unpackedMatrix_subscript_1ary_mat(SEXP x, SEXP w, const char *cl)
 
 #define SUB1_START_EXTRA(_SEXPTYPE_) \
 	SUB1_START(_SEXPTYPE_); \
- \
+	 \
 	SEXP dim = PROTECT(GET_SLOT(x, Matrix_DimSym)); \
 	int m = INTEGER(dim)[0]; \
 	UNPROTECT(1); \
- \
+	 \
 	int ge = cl[1] == 'g', tr = cl[1] == 't', upper = 1, nonunit = 1; \
 	if (!ge) { \
 		SEXP uplo = PROTECT(GET_SLOT(x, Matrix_uploSym)); \
@@ -779,7 +781,7 @@ SEXP R_subscript_1ary_mat(SEXP x, SEXP i)
 	static const char *valid[] = { VALID_NONVIRTUAL_MATRIX, "" };
 	int ivalid = R_check_class_etc(x, valid);
 	if (ivalid < 0)
-		ERROR_INVALID_CLASS(x, "R_subscript_1ary_mat");
+		ERROR_INVALID_CLASS(x, __func__);
 	ivalid += VALID_NONVIRTUAL_SHIFT(ivalid, 1);
 	const char *cl = valid[ivalid];
 	validObject(x, cl);
@@ -808,11 +810,13 @@ SEXP R_subscript_1ary_mat(SEXP x, SEXP i)
 		cl_[0] = cl[0];
 		cl_[1] = cl[1];
 
-		SEXP T = PROTECT(ScalarLogical(1));
-		PROTECT(x = Tsparse_as_CRsparse(x, T));
-		x = CsparseMatrix_subscript_1ary_mat(x, i, cl_);
+		/* defined in ./coerce.c : */
+		SEXP sparse_as_Csparse(SEXP, const char *);
 
-		UNPROTECT(2);
+		x = sparse_as_Csparse(x, cl);
+		PROTECT(x);
+		x = CsparseMatrix_subscript_1ary_mat(x, i, cl_);
+		UNPROTECT(1);
 		return x;
 	}
 	case 'i':
@@ -992,11 +996,11 @@ static void sort_cr(SEXP obj, const char *cl)
 		for (k = 0; k < nnz; ++k) \
 			++workA[pi[k]]; \
 		--workA; \
- \
+		 \
 		for (i_ = 1; i_ < m; ++i_) \
 			workA[i_] = workB[i_] = workB[i_ - 1] + workA[i_]; \
 		workA[m] = nnz; \
- \
+		 \
 		++pp; \
 		k = 0; \
 		for (j_ = 0; j_ < n; ++j_) { \
@@ -1010,10 +1014,10 @@ static void sort_cr(SEXP obj, const char *cl)
 			} \
 		} \
 		--pp; \
- \
+		 \
 		for (j_ = 0; j_ < n; ++j_) \
 			workB[j_] = pp[j_]; \
- \
+		 \
 		++workA; \
 		k = 0; \
 		for (i_ = 0; i_ < m; ++i_) { \
@@ -1139,10 +1143,10 @@ static SEXP unpackedMatrix_subscript_2ary(SEXP x, SEXP i, SEXP j,
 	SEXP dim = PROTECT(GET_SLOT(x, Matrix_DimSym)); \
 	int *pdim = INTEGER(dim), m = pdim[0], n = pdim[1]; \
 	UNPROTECT(1); /* dim */ \
- \
+	 \
 	int ki, kj, \
-		mi = isNull(i), \
-		mj = isNull(j), \
+		mi = i == R_NilValue, \
+		mj = j == R_NilValue, \
 		ni = (mi) ? m : LENGTH(i), \
 		nj = (mj) ? n : LENGTH(j), \
 		*pi = (mi) ? NULL : INTEGER(i), \
@@ -1150,7 +1154,7 @@ static SEXP unpackedMatrix_subscript_2ary(SEXP x, SEXP i, SEXP j,
 
 #define SUB2_START_EXTRA(_E_, _R_, _Y_, _DENSE_) \
 	SUB2_START; \
- \
+	 \
 	int upper = 1, nonunit = 1, keep = 0; \
 	SEXP uplo, diag; \
 	if (cl[1] != 'g') { \
@@ -1163,7 +1167,7 @@ static SEXP unpackedMatrix_subscript_2ary(SEXP x, SEXP i, SEXP j,
 			UNPROTECT(1); /* diag */ \
 		} \
 	} \
- \
+	 \
 	char cl_[] = "...Matrix"; \
 	cl_[0] = cl[0]; \
 	cl_[1] = 'g'; \
@@ -1184,13 +1188,13 @@ static SEXP unpackedMatrix_subscript_2ary(SEXP x, SEXP i, SEXP j,
 		} \
 	} \
 	SEXP res = PROTECT(NEW_OBJECT_OF_CLASS(cl_)); \
- \
+	 \
 	PROTECT(dim = GET_SLOT(res, Matrix_DimSym)); \
 	pdim = INTEGER(dim); \
 	pdim[0] = ni; \
 	pdim[1] = nj; \
 	UNPROTECT(1); /* dim */ \
- \
+	 \
 	if ((cl[1] != 's') ? keep < 0 : keep < -1) { \
 		PROTECT(uplo = GET_SLOT(res, Matrix_uploSym)); \
 		SEXP uplo_ = PROTECT(mkChar("L")); \
@@ -1208,7 +1212,8 @@ static SEXP unpackedMatrix_subscript_2ary(SEXP x, SEXP i, SEXP j,
 
 	double ninj = (double) ni * nj;
 	if (ninj > R_XLEN_T_MAX)
-		error(_("attempt to allocate vector of length exceeding R_XLEN_T_MAX"));
+		error(_("attempt to allocate vector of length exceeding %s"),
+		      "R_XLEN_T_MAX");
 
 	SEXP x0 = PROTECT(GET_SLOT(x, Matrix_xSym)),
 		x1 = PROTECT(allocVector(TYPEOF(x0), (R_xlen_t) ninj));
@@ -1392,7 +1397,8 @@ static SEXP packedMatrix_subscript_2ary(SEXP x, SEXP i, SEXP j,
 	double ninj = (double) ni * nj,
 	ninj_ = (keep) ? 0.5 * (ninj + ni) : ninj;
 	if (ninj_ > R_XLEN_T_MAX)
-		error(_("attempt to allocate vector of length exceeding R_XLEN_T_MAX"));
+		error(_("attempt to allocate vector of length exceeding %s"),
+		      "R_XLEN_T_MAX");
 
 	SEXP x0 = PROTECT(GET_SLOT(x, Matrix_xSym)),
 		x1 = PROTECT(allocVector(TYPEOF(x0), (R_xlen_t) ninj_));
@@ -1497,10 +1503,12 @@ static SEXP CsparseMatrix_subscript_2ary(SEXP x, SEXP i, SEXP j,
 {
 	SUB2_START_EXTRA('C', 'C', 'C', 0);
 
-	PROTECT_INDEX pid;
-	PROTECT_WITH_INDEX(x, &pid);
-	if (cl[1] != 'g' && cl_[1] == 'g')
-		REPROTECT(x = R_sparse_as_general(x), pid);
+	if (cl[1] != 'g' && cl_[1] == 'g') {
+		/* defined in ./coerce.c : */
+		SEXP sparse_as_general(SEXP, const char *);
+		x = sparse_as_general(x, cl);
+	}
+	PROTECT(x);
 
 	SEXP p0 = PROTECT(GET_SLOT(x, Matrix_pSym)),
 		i0 = PROTECT(GET_SLOT(x, Matrix_iSym)),
@@ -1514,12 +1522,12 @@ static SEXP CsparseMatrix_subscript_2ary(SEXP x, SEXP i, SEXP j,
 
 #define SUB2_FINISH \
 	if (nnz > INT_MAX) \
-		error(_("x[i,j] too dense for CsparseMatrix; " \
-		        "would have more than 2^31-1 nonzero entries")); \
- \
+		error(_("%s too dense for %s; would have more than %s nonzero entries"), \
+		      "x[i,j]", "[CR]sparseMatrix", "2^31-1"); \
+	 \
 	PROTECT(i1 = allocVector(INTSXP, (R_xlen_t) nnz)); \
 	pi1 = INTEGER(i1); \
- \
+	 \
 	if (cl[0] == 'n') \
 		SUB2_LOOP(HIDE); \
 	else { \
@@ -1538,7 +1546,6 @@ static SEXP CsparseMatrix_subscript_2ary(SEXP x, SEXP i, SEXP j,
 
 	if (mi) {
 
-		pp1[0] = 0;
 		for (kj = 0; kj < nj; ++kj) {
 			nnz += pp0[pj[kj]] - pp0[pj[kj] - 1];
 			pp1[kj] = (int) nnz;
@@ -1636,9 +1643,9 @@ static SEXP CsparseMatrix_subscript_2ary(SEXP x, SEXP i, SEXP j,
 	if (doSort)
 		sort_cr(res, cl);
 	if (cl[1] == 's' && (keep == -1 || keep == 1)) {
-		PROTECT(uplo = mkString((keep == 1) ? "U" : "L"));
-		res = R_sparse_force_symmetric(res, uplo);
-		UNPROTECT(1); /* uplo */
+		/* defined in ./sparse.c : */
+		SEXP sparse_force_symmetric(SEXP, const char *, char);
+		res = sparse_force_symmetric(res, cl_, (keep == 1) ? 'U' : 'L');
 	}
 	UNPROTECT(2); /* x, res */
 	return res;
@@ -1649,10 +1656,12 @@ static SEXP RsparseMatrix_subscript_2ary(SEXP x, SEXP i, SEXP j,
 {
 	SUB2_START_EXTRA('R', 'R', 'R', 0);
 
-	PROTECT_INDEX pid;
-	PROTECT_WITH_INDEX(x, &pid);
-	if (cl[1] != 'g' && cl_[1] == 'g')
-		REPROTECT(x = R_sparse_as_general(x), pid);
+	if (cl[1] != 'g' && cl_[1] == 'g') {
+		/* defined in ./coerce.c : */
+		SEXP sparse_as_general(SEXP, const char *);
+		x = sparse_as_general(x, cl);
+	}
+	PROTECT(x);
 
 	SEXP p0 = PROTECT(GET_SLOT(x, Matrix_pSym)),
 		j0 = PROTECT(GET_SLOT(x, Matrix_jSym)),
@@ -1666,12 +1675,12 @@ static SEXP RsparseMatrix_subscript_2ary(SEXP x, SEXP i, SEXP j,
 
 #define SUB2_FINISH \
 	if (nnz > INT_MAX) \
-		error(_("x[i,j] too dense for RsparseMatrix; " \
-		        "would have more than 2^31-1 nonzero entries")); \
- \
+		error(_("%s too dense for %s; would have more than %s nonzero entries"), \
+		      "x[i,j]", "[CR]sparseMatrix", "2^31-1"); \
+	 \
 	PROTECT(j1 = allocVector(INTSXP, (R_xlen_t) nnz)); \
 	pj1 = INTEGER(j1); \
- \
+	 \
 	if (cl[0] == 'n') \
 		SUB2_LOOP(HIDE); \
 	else { \
@@ -1684,7 +1693,6 @@ static SEXP RsparseMatrix_subscript_2ary(SEXP x, SEXP i, SEXP j,
 
 	if (mj) {
 
-		pp1[0] = 0;
 		for (ki = 0; ki < ni; ++ki) {
 			nnz += pp0[pi[ki]] - pp0[pi[ki] - 1];
 			pp1[ki] = (int) nnz;
@@ -1783,9 +1791,9 @@ static SEXP RsparseMatrix_subscript_2ary(SEXP x, SEXP i, SEXP j,
 	if (doSort)
 		sort_cr(res, cl);
 	if (cl[1] == 's' && (keep == -1 || keep == 1)) {
-		PROTECT(uplo = mkString((keep == 1) ? "U" : "L"));
-		res = R_sparse_force_symmetric(res, uplo);
-		UNPROTECT(1); /* uplo */
+		/* defined in ./sparse.c : */
+		SEXP sparse_force_symmetric(SEXP, const char *, char);
+		res = sparse_force_symmetric(res, cl_, (keep == 1) ? 'U' : 'L');
 	}
 	UNPROTECT(2); /* x, res */
 	return res;
@@ -1867,8 +1875,9 @@ static SEXP diagonalMatrix_subscript_2ary(SEXP x, SEXP i, SEXP j,
 						++pp1[kj];
 			}
 			if (pp1[kj] > INT_MAX - pp1[kj - 1])
-				error(_("x[i,j] too dense for CsparseMatrix; "
-				        "would have more than 2^31-1 nonzero entries"));
+				error(_("%s too dense for %s; would have more than %s nonzero entries"), \
+				      "x[i,j]", "[CR]sparseMatrix", "2^31-1"); \
+
 			pp1[kj] += pp1[kj-1];
 		}
 
@@ -1931,8 +1940,8 @@ static SEXP indMatrix_subscript_2ary(SEXP x, SEXP i, SEXP j,
 	}
 
 	int ki, kj,
-		mi = isNull(i),
-		mj = isNull(j),
+		mi = i == R_NilValue,
+		mj = j == R_NilValue,
 		ni = (mi) ? m : LENGTH(i),
 		nj = (mj) ? n : LENGTH(j),
 		*pi = (mi) ? NULL : INTEGER(i),
@@ -2045,8 +2054,9 @@ static SEXP indMatrix_subscript_2ary(SEXP x, SEXP i, SEXP j,
 			for (kj = 0; kj < nj; ++kj) {
 				pp1[kj] = workA[pj[kj]];
 				if (pp1[kj] > INT_MAX - pp1[kj - 1])
-					error(_("x[i,j] too dense for [CR]sparseMatrix; "
-					        "would have more than 2^31-1 nonzero entries"));
+					error(_("%s too dense for %s; would have more than %s nonzero entries"), \
+					      "x[i,j]", "[CR]sparseMatrix", "2^31-1"); \
+
 				pp1[kj] += pp1[kj - 1];
 			}
 
@@ -2098,13 +2108,13 @@ static SEXP indMatrix_subscript_2ary(SEXP x, SEXP i, SEXP j,
 */
 SEXP R_subscript_2ary(SEXP x, SEXP i, SEXP j)
 {
-	if (isNull(i) && isNull(j))
+	if (i == R_NilValue && j == R_NilValue)
 		return x;
 
 	static const char *valid[] = { VALID_NONVIRTUAL_MATRIX, "" };
 	int ivalid = R_check_class_etc(x, valid);
 	if (ivalid < 0)
-		ERROR_INVALID_CLASS(x, "R_subscript_2ary");
+		ERROR_INVALID_CLASS(x, __func__);
 	ivalid += VALID_NONVIRTUAL_SHIFT(ivalid, 0);
 	const char *cl = valid[ivalid];
 	validObject(x, cl);
@@ -2127,12 +2137,12 @@ SEXP R_subscript_2ary(SEXP x, SEXP i, SEXP j)
 
 #define ERROR_IF_ANYNA(_I_) \
 	do { \
-		if (!isNull(_I_)) { \
+		if ((_I_) != R_NilValue) { \
 			SETCADR(call, _I_); \
 			PROTECT(value = eval(call, R_BaseEnv)); \
 			if (asLogical(value)) \
-				error(_("NA subscripts in x[i,j] " \
-				        "not supported for sparseMatrix 'x'")); \
+				error(_("NA subscripts in %s not supported for '%s' inheriting from %s"), \
+					  "x[i,j]", "x", "sparseMatrix"); \
 			UNPROTECT(1); \
 		} \
 	} while (0)
@@ -2155,13 +2165,17 @@ SEXP R_subscript_2ary(SEXP x, SEXP i, SEXP j)
 		cl_[0] = cl[0];
 		cl_[1] = cl[1];
 
-		PROTECT_INDEX pid;
-		SEXP T = PROTECT(ScalarLogical(1));
-		PROTECT_WITH_INDEX(x = Tsparse_as_CRsparse(x, T), &pid);
-		REPROTECT(x = CsparseMatrix_subscript_2ary(x, i, j, cl_), pid);
-		x = CRsparse_as_Tsparse(x);
+		/* defined in ./coerce.c : */
+		SEXP sparse_as_Csparse(SEXP, const char *);
+		SEXP sparse_as_Tsparse(SEXP, const char *);
 
-		UNPROTECT(2);
+		x = sparse_as_Csparse(x, cl);
+		PROTECT(x);
+		x = CsparseMatrix_subscript_2ary(x, i, j, cl_);
+		UNPROTECT(1);
+		PROTECT(x);
+		x = sparse_as_Tsparse(x, valid[R_check_class_etc(x, valid)]);
+		UNPROTECT(1);
 		return x;
 	}
 	case 'i':

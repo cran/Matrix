@@ -54,27 +54,6 @@ Rboolean isValid_Csparse(SEXP x)
     return TRUE;
 }
 
-/** @brief Csparse_drop(x, tol):  drop entries with absolute value < tol, i.e,
- *  at least all "explicit" zeros. */
-SEXP Csparse_drop(SEXP x, SEXP tol)
-{
-    const char *cl = class_P(x);
-    /* dtCMatrix, etc; [1] = the second character =?= 't' for triangular */
-    int tr = (cl[1] == 't'); // FIXME - rather  R_check_class_etc(..)
-    CHM_SP chx = AS_CHM_SP__(x);
-    CHM_SP ans = cholmod_copy(chx, chx->stype, chx->xtype, &c);
-    double dtol = asReal(tol);
-    int Rkind = (chx->xtype != CHOLMOD_PATTERN) ? Real_kind(x) : 0;
-    R_CheckStack();
-
-    if(!cholmod_drop(dtol, ans, &c))
-	error(_("cholmod_drop() failed"));
-   return chm_sparse_to_SEXP(ans, 1,
-			      tr ? ((*uplo_P(x) == 'U') ? 1 : -1) : 0,
-			      Rkind, tr ? diag_P(x) : "",
-			      GET_SLOT(x, Matrix_DimNamesSym));
-}
-
 /** @brief Horizontal Concatenation -  cbind( <Csparse>,  <Csparse>)
  */
 SEXP Csparse_horzcat(SEXP x, SEXP y)
@@ -250,6 +229,7 @@ SEXP Csparse_dmperm(SEXP mat, SEXP seed, SEXP nAns) {
       }
     }
     setAttrib(ans, R_NamesSymbol, nms);
+    DMp = cs_dfree(DMp);
     UNPROTECT(2);
     return ans;
 }

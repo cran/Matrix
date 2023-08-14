@@ -16,7 +16,7 @@
 \alias{^,ndenseMatrix,ddiMatrix-method}
 \alias{^,ndenseMatrix,ldiMatrix-method}
 \alias{coerce,matrix,ndenseMatrix-method}
-\alias{coerce,numLike,ndenseMatrix-method}
+\alias{coerce,vector,ndenseMatrix-method}
 \alias{which,ndenseMatrix-method}
 %
 \description{

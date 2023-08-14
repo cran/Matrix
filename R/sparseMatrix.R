@@ -2,120 +2,6 @@
 ## sparse matrices
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-
-## ~~~~ COERCIONS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-## To sparseMatrix .........................................
-
-setAs("ANY", "sparseMatrix",
-      function(from) Matrix(from, sparse = TRUE, doDiag = FALSE))
-
-## If people used table() instead of xtabs():
-setAs("table", "sparseMatrix",
-      function(from) {
-          if(length(dim(from)) != 2L)
-              stop("only 2-dimensional tables can be coerced to sparseMatrix")
-          as(unclass(from), "CsparseMatrix")
-      })
-
-## To dense ................................................
-
-..sparse2unpacked <- function(from)
-    .Call(R_sparse_as_dense, from, FALSE)
-..sparse2packed   <- function(from) {
-    if(!.hasSlot(from, "uplo"))
-        from <-
-            if(isSymmetric(from))
-                forceSymmetric(from)
-            else if(!(it <- isTriangular(from)))
-                stop("matrix is not symmetric or triangular")
-            else if (attr(it, "kind") == "U")
-                triu(from)
-            else tril(from)
-    .Call(R_sparse_as_dense, from, TRUE)
-}
-
-for (.cl in paste0(c("C", "R", "T"), "sparseMatrix")) {
-    setAs(.cl,    "denseMatrix", ..sparse2unpacked)
-    setAs(.cl, "unpackedMatrix", ..sparse2unpacked)
-    setAs(.cl,   "packedMatrix", ..sparse2packed)
-}
-
-rm(.cl, ..sparse2unpacked, ..sparse2packed)
-
-## To base matrix, base vector .............................
-
-for (.cl in paste0(c("C", "R", "T"), "sparseMatrix")) {
-    setAs(.cl, "matrix", .sparse2m)
-    setAs(.cl, "vector", .sparse2v)
-
-    setMethod("as.vector", signature(x = .cl),
-              function(x, mode = "any") as.vector(.sparse2v(x), mode))
-}
-rm(.cl)
-
-setMethod("as.numeric", signature(x = "dsparseMatrix"),
-          function(x, ...) .sparse2v(x))
-setMethod("as.numeric", signature(x = "lsparseMatrix"),
-          function(x, ...) as.double(.sparse2v(x)))
-setMethod("as.numeric", signature(x = "nsparseMatrix"),
-          function(x, ...) as.double(.sparse2v(x)))
-
-setMethod("as.logical", signature(x = "dsparseMatrix"),
-          function(x, ...) as.logical(.sparse2v(x)))
-setMethod("as.logical", signature(x = "lsparseMatrix"),
-          function(x, ...) .sparse2v(x))
-setMethod("as.logical", signature(x = "nsparseMatrix"),
-          function(x, ...) .sparse2v(x))
-
-## To "kind" ...............................................
-
-.kinds <- c("d", "l", "n")
-for (.kind in .kinds) {
-    .otherkinds <- .kinds[.kinds != .kind]
-    for (.otherkind in .otherkinds) {
-        .def <- get(sprintf("..sparse2%s", .otherkind),
-                    mode = "function", inherits = FALSE)
-        ## dsparseMatrix->[^d]Matrix, etc.
-        setAs(paste0(     .kind, "sparseMatrix"),
-              paste0(.otherkind,       "Matrix"), .def)
-        ## dsparseMatrix->[^d]sparseMatrix, etc.
-        setAs(paste0(     .kind, "sparseMatrix"),
-              paste0(.otherkind, "sparseMatrix"), .def)
-    }
-}
-rm(.kinds, .kind, .otherkinds, .otherkind, .def)
-
-## To "structure" ..........................................
-
-..sparse2g <- function(from)
-    .Call(R_sparse_as_general, from)
-
-setAs("CsparseMatrix", "generalMatrix", ..sparse2g)
-setAs("RsparseMatrix", "generalMatrix", ..sparse2g)
-setAs("TsparseMatrix", "generalMatrix", ..sparse2g)
-## setAs("sparseMatrix", "triangularMatrix", .) # inherited from Matrix
-## setAs("sparseMatrix",  "symmetricMatrix", .) # inherited from Matrix
-
-rm(..sparse2g)
-
-## To "storage" ............................................
-
-setAs("CsparseMatrix", "TsparseMatrix", .CR2T)
-setAs("CsparseMatrix", "RsparseMatrix", .CR2RC)
-setAs("RsparseMatrix", "CsparseMatrix", .CR2RC)
-setAs("RsparseMatrix", "TsparseMatrix", .CR2T)
-setAs("TsparseMatrix", "CsparseMatrix", .T2C)
-setAs("TsparseMatrix", "RsparseMatrix", .T2R)
-
-for (.kind in c("d", "l", "n"))
-    for (.repr in c("C", "R"))
-        setAs(paste0(.kind, "s", .repr, "Matrix"),
-              paste0(if(.repr == "C") "R" else "C", "sparseMatrix"),
-              .tCR2RC)
-rm(.kind, .repr)
-
-
 ## ~~~~ CONSTRUCTORS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 spMatrix <- function(nrow, ncol, i = integer(), j = integer(), x = double())
@@ -243,7 +129,7 @@ sparseMatrix <- function(i, j, p, x, dims, dimnames,
 
     if(check)
         validObject(r)
-    switch(repr, "C" = .T2C(r), "T" = r, "R" = .T2R(r),
+    switch(repr, "C" = .M2C(r), "T" = r, "R" = .M2R(r),
            ## should never happen:
            stop("invalid 'repr'; must be \"C\", \"R\", or \"T\""))
 }
@@ -864,7 +750,7 @@ scale.sparseMatrix <- function(x, center = FALSE, scale = TRUE) {
 .sparse.band <- function(x, k1, k2, ...) .Call(R_sparse_band, x, k1, k2)
 .sparse.triu <- function(x, k = 0L, ...) .Call(R_sparse_band, x, k, NULL)
 .sparse.tril <- function(x, k = 0L, ...) .Call(R_sparse_band, x, NULL, k)
-.sparse.t    <- function(x)              .Call(R_sparse_transpose, x)
+.sparse.t    <- function(x)              .Call(R_sparse_transpose, x, FALSE)
 .sparse.fS1  <- function(x, uplo) .Call(R_sparse_force_symmetric, x, NULL)
 .sparse.fS2  <- function(x, uplo) .Call(R_sparse_force_symmetric, x, uplo)
 .sparse.symmpart <- function(x) .Call(R_sparse_symmpart, x)

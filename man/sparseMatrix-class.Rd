@@ -18,8 +18,7 @@
 \alias{coerce,ANY,sparseMatrix-method}
 \alias{coerce,factor,sparseMatrix-method}
 \alias{coerce,matrix,sparseMatrix-method}
-\alias{coerce,numLike,sparseMatrix-method}
-\alias{coerce,table,sparseMatrix-method}
+\alias{coerce,vector,sparseMatrix-method}
 \alias{cov2cor,sparseMatrix-method}
 \alias{dim<-,sparseMatrix-method}
 \alias{format,sparseMatrix-method}

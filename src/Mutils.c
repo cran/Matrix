@@ -411,7 +411,8 @@ SEXP R_set_factor(SEXP obj, SEXP nm, SEXP val, SEXP warn)
 	else if (HAS_SLOT(obj, Matrix_factorSym))
 		set_factor(obj, CHAR(nm), val);
 	else if (asLogical(warn) != 0)
-		warning(_("attempt to set factor on Matrix without 'factors' slot"));
+		warning(_("attempt to set factor on %s without '%s' slot"),
+		        "Matrix", "factors");
 	return val;
 }
 
@@ -442,7 +443,8 @@ SEXP R_empty_factors(SEXP obj, SEXP warn)
 		}
 		UNPROTECT(1);
 	} else if (asLogical(warn) != 0)
-		warning(_("attempt to discard factors from Matrix without 'factors' slot"));
+		warning(_("attempt to discard factors from %s without '%s' slot"),
+		        "Matrix", "factors");
 	return ScalarLogical(0); /* no-op */
 }
 
@@ -642,14 +644,14 @@ void asPerm(const int *p, int *ip, int m, int n, int off, int ioff)
 SEXP R_isPerm(SEXP p, SEXP off)
 {
 	if (TYPEOF(p) != INTSXP)
-		error(_("'p' is not of type \"integer\""));
+		error(_("'%s' is not of type \"%s\""), "p", "integer");
 	if (TYPEOF(off) != INTSXP)
-		error(_("'off' is not of type \"integer\""));
+		error(_("'%s' is not of type \"%s\""), "off", "integer");
 	if (XLENGTH(off) != 1)
-		error(_("'off' does not have length 1"));
+		error(_("'%s' does not have length %d"), "off", 1);
 	int off_ = INTEGER(off)[0];
 	if (off_ == NA_INTEGER)
-		error(_("'off' is NA"));
+		error(_("'%s' is NA"), "off");
 	R_xlen_t n_ = XLENGTH(p);
 	if (n_ > INT_MAX)
 		return ScalarLogical(0);
@@ -659,14 +661,14 @@ SEXP R_isPerm(SEXP p, SEXP off)
 SEXP R_signPerm(SEXP p, SEXP off)
 {
 	if (TYPEOF(p) != INTSXP)
-		error(_("'p' is not of type \"integer\""));
+		error(_("'%s' is not of type \"%s\""), "p", "integer");
 	if (TYPEOF(off) != INTSXP)
-		error(_("'off' is not of type \"integer\""));
+		error(_("'%s' is not of type \"%s\""), "off", "integer");
 	if (XLENGTH(off) != 1)
-		error(_("'off' does not have length 1"));
+		error(_("'%s' does not have length %d"), "off", 1);
 	int off_ = INTEGER(off)[0];
 	if (off_ == NA_INTEGER)
-		error(_("'off' is NA"));
+		error(_("'%s' is NA"), "off");
 	R_xlen_t n_ = XLENGTH(p);
 	if (n_ > INT_MAX)
 		error(_("attempt to get sign of non-permutation"));
@@ -676,14 +678,14 @@ SEXP R_signPerm(SEXP p, SEXP off)
 SEXP R_invertPerm(SEXP p, SEXP off, SEXP ioff)
 {
 	if (TYPEOF(p) != INTSXP)
-		error(_("'p' is not of type \"integer\""));
+		error(_("'%s' is not of type \"%s\""), "p", "integer");
 	if (TYPEOF(off) != INTSXP || TYPEOF(ioff) != INTSXP)
-		error(_("'off' or 'ioff' is not of type \"integer\""));
+		error(_("'%s' or '%s' is not of type \"%s\""), "off", "ioff", "integer");
 	if (XLENGTH(off) != 1 || XLENGTH(ioff) != 1)
-		error(_("'off' or 'ioff' does not have length 1"));
+		error(_("'%s' or '%s' does not have length %d"), "off", "ioff", 1);
 	int off_ = INTEGER(off)[0], ioff_ = INTEGER(ioff)[0];
 	if (off_ == NA_INTEGER || ioff_ == NA_INTEGER)
-		error(_("'off' or 'ioff' is NA"));
+		error(_("'%s' or '%s' is NA"), "off", "ioff");
 	R_xlen_t n_ = XLENGTH(p);
 	if (n_ > INT_MAX)
 		error(_("attempt to invert non-permutation"));
@@ -696,24 +698,24 @@ SEXP R_invertPerm(SEXP p, SEXP off, SEXP ioff)
 SEXP R_asPerm(SEXP p, SEXP off, SEXP ioff, SEXP n)
 {
 	if (TYPEOF(p) != INTSXP)
-		error(_("'p' is not of type \"integer\""));
+		error(_("'%s' is not of type \"%s\""), "p", "integer");
 	R_xlen_t m_ = XLENGTH(p);
 	if (m_ > INT_MAX)
-		error(_("'p' has length exceeding 2^31-1"));
+		error(_("'%s' has length exceeding %s"), "p", "2^31-1");
 	if (TYPEOF(off) != INTSXP || TYPEOF(ioff) != INTSXP)
-		error(_("'off' or 'ioff' is not of type \"integer\""));
+		error(_("'%s' or '%s' is not of type \"%s\""), "off", "ioff", "integer");
 	if (XLENGTH(off) != 1 || XLENGTH(ioff) != 1)
-		error(_("'off' or 'ioff' does not have length 1"));
+		error(_("'%s' or '%s' does not have length %d"), "off", "ioff", 1);
 	int off_ = INTEGER(off)[0], ioff_ = INTEGER(ioff)[0];
 	if (off_ == NA_INTEGER || ioff_ == NA_INTEGER)
-		error(_("'off' or 'ioff' is NA"));
+		error(_("'%s' or '%s' is NA"), "off", "ioff");
 	if (TYPEOF(n) != INTSXP)
-		error(_("'n' is not of type \"integer\""));
+		error(_("'%s' is not of type \"%s\""), "n", "integer");
 	if (XLENGTH(n) != 1)
-		error(_("'n' does not have length 1"));
+		error(_("'%s' does not have length %d"), "n", 1);
 	int n_ = INTEGER(n)[0];
 	if (n_ == NA_INTEGER || n_ < m_)
-		error(_("'n' is NA or less than length(p)"));
+		error(_("'%s' is NA or less than %s"), "n", "length(p)");
 	SEXP ip = PROTECT(allocVector(INTSXP, n_));
 	asPerm(INTEGER(p), INTEGER(ip), (int) m_, n_, off_, ioff_);
 	UNPROTECT(1);
@@ -739,7 +741,7 @@ char type2kind(SEXPTYPE type)
 		return 'z';
 #endif
 	default:
-		error(_("unexpected type \"%s\" in 'type2kind()'"), type2char(type));
+		error(_("unexpected type \"%s\" in %s()"), type2char(type), __func__);
 		return '\0';
 	}
 }
@@ -761,7 +763,7 @@ SEXPTYPE kind2type(char kind)
 		return CPLXSXP;
 #endif
 	default:
-		error(_("unexpected kind \"%c\" in 'kind2type()'"), kind);
+		error(_("unexpected kind \"%c\" in %s()"), kind, __func__);
 		return NILSXP;
 	}
 }
@@ -782,7 +784,7 @@ size_t kind2size(char kind)
 		return sizeof(Rcomplex);
 #endif
 	default:
-		error(_("unexpected kind \"%c\" in 'kind2size()'"), kind);
+		error(_("unexpected kind \"%c\" in %s()"), kind, __func__);
 		return 0;
 	}
 }
@@ -915,9 +917,10 @@ SEXP R_index_triangle(SEXP n, SEXP packed, SEXP upper, SEXP diag)
 		nx = (packed_) ? n_ + (nn - n_) / 2 : nn,
 		nr = (diag_) ? n_ + (nn - n_) / 2 : (nn - n_) / 2;
 	if (nx > 0x1.0p+53)
-		error(_("indices would exceed 2^53"));
+		error(_("indices would exceed %s"), "2^53");
 	if (nr > R_XLEN_T_MAX)
-		error(_("attempt to allocate vector of length exceeding R_XLEN_T_MAX"));
+		error(_("attempt to allocate vector of length exceeding %s"),
+		      "R_XLEN_T_MAX");
 	if (nx > INT_MAX) {
 
 		PROTECT(r = allocVector(REALSXP, (R_xlen_t) nr));
@@ -999,7 +1002,7 @@ SEXP R_index_diagonal(SEXP n, SEXP packed, SEXP upper)
 		nn = (Matrix_int_fast64_t) n_ * n_,
 		nx = (packed_) ? n_ + (nn - n_) / 2 : nn;
 	if (nx > 0x1.0p+53)
-		error(_("indices would exceed 2^53"));
+		error(_("indices would exceed %s"), "2^53");
 	if (nx > INT_MAX) {
 
 		PROTECT(r = allocVector(REALSXP, n_));
@@ -1096,7 +1099,7 @@ SEXP R_nnz(SEXP x, SEXP countNA, SEXP nnzmax)
 		       ISNA_COMPLEX, ISNZ_COMPLEX, STRICTLY_ISNZ_COMPLEX);
 	break;
 	default:
-		ERROR_INVALID_TYPE("'x'", TYPEOF(x), "R_nnz");
+		ERROR_INVALID_TYPE(x, __func__);
 	}
 
 #undef DO_NNZ
@@ -1177,7 +1180,7 @@ void na2one(SEXP x)
 		break;
 	}
 	default:
-		ERROR_INVALID_TYPE("'x'", TYPEOF(x), "na2one");
+		ERROR_INVALID_TYPE(x, __func__);
 		break;
 	}
 	return;

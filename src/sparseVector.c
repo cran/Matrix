@@ -2,7 +2,6 @@
 
 SEXP v2spV(SEXP from)
 {
-	SEXPTYPE tx = TYPEOF(from);
 	SEXP to = NULL, length = NULL, i = NULL, x = NULL;
 	R_xlen_t n_ = XLENGTH(from);
 
@@ -29,7 +28,7 @@ SEXP v2spV(SEXP from)
 
 #define V2SPV_CASES(_CTYPE2_, _SEXPTYPE2_, _PTR2_) \
 	do { \
-		switch (tx) { \
+		switch (TYPEOF(from)) { \
 		case LGLSXP: \
 			V2SPV(l, ISNZ_LOGICAL, int, LGLSXP, LOGICAL, \
 			      _CTYPE2_, _SEXPTYPE2_, _PTR2_); \
@@ -47,7 +46,7 @@ SEXP v2spV(SEXP from)
 			      _CTYPE2_, _SEXPTYPE2_, _PTR2_); \
 			break; \
 		default: \
-			ERROR_INVALID_TYPE("object", tx, "v2spV"); \
+			ERROR_INVALID_TYPE(from, __func__); \
 			break; \
 		} \
 	} while (0)
@@ -78,24 +77,26 @@ SEXP CR2spV(SEXP from)
 	static const char *valid[] = { VALID_CSPARSE, VALID_RSPARSE, "" };
 	int ivalid = R_check_class_etc(from, valid);
 	if (ivalid < 0)
-		ERROR_INVALID_CLASS(from, "CR2spV");
-	const char *clf = valid[ivalid];
+		ERROR_INVALID_CLASS(from, __func__);
+	const char *cl = valid[ivalid];
 
-	PROTECT(from = R_sparse_as_general(from));
+	/* defined in ./coerce.c : */
+	SEXP sparse_as_general(SEXP, const char *);
+	PROTECT(from = sparse_as_general(from, cl));
+
+	char vcl[] = ".sparseVector";
+	vcl[0] = cl[0];
+	SEXP to = PROTECT(NEW_OBJECT_OF_CLASS(vcl));
 
 	SEXP dim = PROTECT(GET_SLOT(from, Matrix_DimSym));
 	int *pdim = INTEGER(dim), m = pdim[0], n = pdim[1];
 	Matrix_int_fast64_t mn = (Matrix_int_fast64_t) m * n;
 	UNPROTECT(1); /* dim */
 
-	char clt[] = ".sparseVector";
-	clt[0] = clf[0];
+	SEXP p = PROTECT(GET_SLOT(from, Matrix_pSym));
+	int *pp = INTEGER(p), nnz = (cl[2] == 'C') ? pp[n] : pp[m];
 
-	SEXP to = PROTECT(NEW_OBJECT_OF_CLASS(clt)),
-		p = PROTECT(GET_SLOT(from, Matrix_pSym)),
-	vlength, vi;
-	int *pp = INTEGER(p), nnz = (clf[2] == 'C') ? pp[n] : pp[m];
-
+	SEXP vlength, vi;
 	if (mn <= INT_MAX) {
 		PROTECT(vlength = ScalarInteger(m * n));
 		PROTECT(vi = allocVector(INTSXP, nnz));
@@ -106,7 +107,7 @@ SEXP CR2spV(SEXP from)
 	SET_SLOT(to, Matrix_lengthSym, vlength);
 	SET_SLOT(to, Matrix_iSym, vi);
 
-	if (clf[2] == 'C') {
+	if (cl[2] == 'C') {
 		SEXP i = PROTECT(GET_SLOT(from, Matrix_iSym));
 		int *pi = INTEGER(i), k, kend, j;
 		if (TYPEOF(vi) == INTSXP) {
@@ -130,7 +131,7 @@ SEXP CR2spV(SEXP from)
 				mj1a += m_;
 			}
 		}
-		if (clf[0] != 'n') {
+		if (cl[0] != 'n') {
 			SEXP vx = PROTECT(GET_SLOT(from, Matrix_xSym));
 			SET_SLOT(to, Matrix_xSym, vx);
 			UNPROTECT(1); /* vx */
@@ -178,7 +179,7 @@ SEXP CR2spV(SEXP from)
 			} \
 		} while (0)
 
-		if (clf[0] == 'n')
+		if (cl[0] == 'n')
 			R2SPV(, , HIDE);
 		else {
 			SEXP x = PROTECT(GET_SLOT(from, Matrix_xSym)),

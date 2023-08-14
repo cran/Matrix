@@ -17,7 +17,7 @@
 \alias{^,ldenseMatrix,ddiMatrix-method}
 \alias{^,ldenseMatrix,ldiMatrix-method}
 \alias{coerce,matrix,ldenseMatrix-method}
-\alias{coerce,numLike,ldenseMatrix-method}
+\alias{coerce,vector,ldenseMatrix-method}
 \alias{which,ldenseMatrix-method}
 %
 \description{

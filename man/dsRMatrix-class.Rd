@@ -7,7 +7,6 @@
 %
 \alias{dsRMatrix-class}
 %
-\alias{coerce,dsRMatrix,CsparseMatrix-method}
 \alias{determinant,dsRMatrix,logical-method}
 %
 \description{The \code{dsRMatrix} class is a class of symmetric, sparse

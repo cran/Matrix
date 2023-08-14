@@ -35,9 +35,8 @@ expm(x)
   series \code{expm(A) = I + A + A^2/2! + A^3/3! + ...} (although this is
   definitely not the way to compute it).  The method for the
   \code{dgeMatrix} class uses Ward's diagonal Pade' approximation with
-  three step preconditioning.
-  %% which used to be the state-of-the-art of the original
-  %% Moler & Van Loan (1978) "Nineteen dubious ..."
+  three step preconditioning, a recommendation from
+  Moler & Van Loan (1978) \dQuote{Nineteen dubious ways\dots}.
 }
 \value{
   The matrix exponential of \code{x}.
@@ -48,6 +47,13 @@ expm(x)
   Cleve Moler and Charles Van Loan (2003)
   Nineteen dubious ways to compute the exponential of a matrix,
   twenty-five years later. \emph{SIAM Review} \bold{45}, 1, 3--49.
+  \doi{10.1137/S00361445024180}
+
+  \emph{for historical reference mostly:}\cr
+  Moler, C. and Van Loan, C. (1978)
+  Nineteen dubious ways to compute the exponential of a matrix.
+  \emph{SIAM Review} \bold{20}, 4, 801--836.
+  \doi{10.1137/1020098}
 
   %% MM: Till we have something better, this is quite good:
   Eric W. Weisstein et al. (1999) \emph{Matrix Exponential}.
@@ -62,8 +68,8 @@ expm(x)
 \seealso{
   Package \CRANpkg{expm}, which provides newer (in some cases
   faster, more accurate) algorithms for computing the matrix
-  exponential via its own (non-generic) function \code{expm}.
-  \pkg{expm} also implements \code{logm}, \code{sqrtm}, etc.
+  exponential via its own (non-generic) function \code{expm()}.
+  \pkg{expm} also implements \code{logm()}, \code{sqrtm()}, etc.
 
   Generic function \code{\link{Schur}}.
 }

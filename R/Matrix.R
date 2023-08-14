@@ -3,34 +3,6 @@
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-## ~~~~ COERCIONS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-setAs(   "ANY", "Matrix", function(from) Matrix(as.matrix(from)))
-setAs("matrix", "Matrix", function(from) Matrix(          from ))
-
-## Need 'base' functions calling as.*() to dispatch to our S4 methods:
-as.vector.Matrix <- function(x, mode = "any") as.vector(as(x, "matrix"), mode)
-as.matrix.Matrix <- function(x, ...)                    as(x, "matrix")
- as.array.Matrix <- function(x, ...)                    as(x, "matrix")
-
-## FIXME: compare with methods for subclasses; avoid duplication
-
-setMethod("as.vector", signature(x = "Matrix"), as.vector.Matrix)
-setMethod("as.matrix", signature(x = "Matrix"), as.matrix.Matrix)
-setMethod( "as.array", signature(x = "Matrix"),  as.array.Matrix)
-
-setMethod("as.logical", signature(x = "Matrix"),
-          function(x, ...) as.logical(as.vector(x)))
-setMethod("as.numeric", signature(x = "Matrix"),
-          function(x, ...) as.numeric(as.vector(x)))
-
-setAs("Matrix",  "vector", function(from)  as.vector(as(from, "matrix")))
-setAs("Matrix", "logical", function(from) as.logical(as(from, "matrix")))
-setAs("Matrix", "integer", function(from) as.integer(as(from, "matrix")))
-setAs("Matrix", "numeric", function(from) as.numeric(as(from, "matrix")))
-setAs("Matrix", "complex", function(from) as.complex(as(from, "matrix")))
-
-
 ## ~~~~ CONSTRUCTORS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Matrix <- function(data = NA, nrow = 1, ncol = 1, byrow = FALSE,
@@ -90,8 +62,8 @@ Matrix <- function(data = NA, nrow = 1, ncol = 1, byrow = FALSE,
                 return(if(doDiag)
                            data
                        else if(sparse)
-                           .diag2sparse(data, ".sC", "U", FALSE)
-                       else .diag2dense(data, ".sy", "U"))
+                           .diag2sparse(data, "s", "C", "U")
+                       else .diag2dense(data, "s", FALSE, "U"))
             if(!forceCheck)
                 return(if(i.sM == sparse)
                            data

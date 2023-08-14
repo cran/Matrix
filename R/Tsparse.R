@@ -151,7 +151,7 @@ replTmat <- function (x, i, j, ..., value)
 
 	if(!is(x,"generalMatrix")) {
 	    cl <- class(x)
-	    x <- .sparse2g(x)
+	    x <- .M2gen(x)
 	    Matrix.msg("'sub-optimal sparse 'x[i] <- v' assignment: Coercing class ",
 		       cl," to ",class(x))
 	}
@@ -342,7 +342,7 @@ replTmat <- function (x, i, j, ..., value)
     }
     if(toGeneral) { # go to "generalMatrix" and continue
         Matrix.msg("M[i,j] <- v :  coercing symmetric M[] into non-symmetric")
-        x <- .sparse2g(x)
+        x <- .M2gen(x)
         clDx <- getClassDef(clx <- class(x))
     }
 
@@ -406,7 +406,7 @@ replTmat <- function (x, i, j, ..., value)
 	if(!isTRUE(getOption("Matrix.quiet")))
 	    message(gettextf("x[.,.] <- val : x being coerced from Tsparse* to CsparseMatrix"),
 		    domain = NA)
-	return(replCmat4(.T2C(x), i1, i2, iMi=iMi, jMi=jMi,
+	return(replCmat4(.M2C(x), i1, i2, iMi=iMi, jMi=jMi,
 			 value = if(spV) value else as(value, "sparseVector"),
 			 spV = TRUE))
     }
@@ -600,7 +600,7 @@ replTmat <- function (x, i, j, ..., value)
     }
     if(toGeneral) { # go to "generalMatrix" and continue
 	Matrix.msg("M[ij] <- v :  coercing symmetric M[] into non-symmetric")
-	x <- .sparse2g(x)
+	x <- .M2gen(x)
 	clDx <- getClassDef(clx <- class(x))
     }
 
@@ -622,7 +622,7 @@ replTmat <- function (x, i, j, ..., value)
     if(isN) { ## no 'x' slot
 	isN <- is.logical(value) # will result remain  "nMatrix" ?
 	if(!isN)
-            x <- ..sparse2d(x)
+            x <- .M2kind(x, "d")
     }
     has.x <- !isN ## isN  <===> "remains pattern matrix" <===> has no 'x' slot
 

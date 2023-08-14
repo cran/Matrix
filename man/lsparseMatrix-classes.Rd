@@ -22,14 +22,8 @@
 \alias{Logic,lsparseMatrix,lsparseMatrix-method}
 \alias{Ops,lsparseMatrix,lsparseMatrix-method}
 \alias{Ops,lsparseMatrix,nsparseMatrix-method}
-\alias{as.logical,lsparseMatrix-method}
-\alias{as.numeric,lsparseMatrix-method}
-\alias{coerce,lsparseMatrix,dMatrix-method}
-\alias{coerce,lsparseMatrix,dsparseMatrix-method}
-\alias{coerce,lsparseMatrix,nMatrix-method}
-\alias{coerce,lsparseMatrix,nsparseMatrix-method}
 \alias{coerce,matrix,lsparseMatrix-method}
-\alias{coerce,numLike,lsparseMatrix-method}
+\alias{coerce,vector,lsparseMatrix-method}
 \alias{which,lsparseMatrix-method}
 % lgC
 \alias{Arith,lgCMatrix,lgCMatrix-method}
@@ -44,9 +38,7 @@
 % ltT
 % lsC
 \alias{Logic,lsCMatrix,lsCMatrix-method}
-\alias{coerce,lsCMatrix,RsparseMatrix-method}
 % lsR
-\alias{coerce,lsRMatrix,CsparseMatrix-method}
 % lsT
 %
 \description{The \code{lsparseMatrix} class is a virtual class of sparse

@@ -1,9 +1,86 @@
-% Check from R:
-%  news(db = tools:::.build_news_db_from_package_NEWS_Rd("~/R/Pkgs/Matrix/inst/NEWS.Rd"))
+%% Build and check from R:
+%% news(db = tools:::.build_news_db_from_package_NEWS_Rd("<Matrix>/inst/NEWS.Rd"))
 \name{NEWS}
-\title{News for \R{} Package \pkg{Matrix}}% MM: look into ../svn-log-from.all
+\title{News for \R{} Package \pkg{Matrix}}
 \encoding{UTF-8}
-%% NB: The date (yyyy-mm-dd) is the "Packaged:" date in ../DESCRIPTION
+%% NB: The date (yyyy-mm-dd) is the "Packaged: " date in ../DESCRIPTION
+\section{Changes in version 1.6-1 (2023-08-11 r4228)}{
+  \subsection{New Features}{
+    \itemize{
+      \item Several new coercion utilities, exported and documented
+      in \code{help("fastMisc")}.  Some of these supercede ones made
+      available (experimentally) in \pkg{Matrix} 1.5-4; for example,
+      \code{.M2m} makes both \code{.dense2m} and \code{.sparse2m}
+      redundant.  The superceded ones are not yet formally deprecated,
+      but are no longer documented.
+
+      \item \code{drop0} is now implemented independently
+      of \code{CHOLMOD}, becoming more efficient notably for
+      logical arguments, no longer requiring a coercion to double.
+
+      \item \code{drop0} gains an argument \code{give.Csparse}
+      to complement \code{is.Csparse}.  \code{FALSE} indicates
+      that \code{RsparseMatrix}, \code{TsparseMatrix}, and
+      \code{indMatrix} arguments should be handled directly,
+      without a coercion to \code{CsparseMatrix}.  The default
+      value is \code{TRUE}, for backwards compatibility.
+    }
+  }
+  \subsection{Bug Fixes}{
+    \itemize{
+      \item Fix four Valgrind-detected memory bugs.
+
+      %% \item \code{[cr]bind(<vector>, <Matrix>)} now behaves as
+      %% \code{[cr]bind(<vector>, <matrix>)} in more cases, always
+      %% handling the vector as a 1-column (\code{cbind}) or 1-row
+      %% (\code{rbind}) matrix.
+
+      \item \code{<diagonalMatrix> \%*\% <RsparseMatrix>} works again.
+
+      \item \code{diag(<non-square RsparseMatrix>) <- value}
+      works again, no longer giving a \code{p} slot of length
+      \code{Dim[2]} rather than \code{Dim[1]}.
+
+      \item \code{as(<diagonalMatrix>, "symmetricMatrix")} now checks
+      for symmetric \code{Dimnames}, for consistency.
+
+      \item as(<indMatrix>, "[nld](sparse)?Matrix") now returns
+      a \code{.gRMatrix} or a \code{.gCMatrix} depending on the
+      \code{margin} slot.
+
+      \item \code{as(<[CR]sparseMatrix>, "generalMatrix")} now checks
+      if the number of nonzero entries in the result would exceed
+      \code{INT_MAX} and throws an error in that case.
+
+      \item Validity checks on the \code{perm} slot of classes
+      \code{Cholesky} and \code{pCholesky} have been enabled
+      (forgotten in \pkg{Matrix} 1.6-0).
+
+      \item API C function \code{chm_sparse_to_SEXP} now sorts and
+      packs its first argument \emph{before} assigning struct members
+      to variables, no longer accessing blocks of memory freed by
+      \code{cholmod_sort}.
+    }
+  }
+  \subsection{Misc}{
+    \itemize{
+      \item Run speed-measuring tests only \code{if(doExtras)}:
+      these were too slow when run under Valgrind.
+
+      \item Most coercion code has been migrated to \file{coerce.[Rch]}
+      from elsewhere.
+
+      \item The number of methods for generic functions \code{coerce}
+      and \code{as.*} has been reduced substantially, from 306 to 194
+      (not counting deprecated ones), partly as a result of efforts to
+      do more fine-grained dispatch in C code.
+
+      \item Files in \file{po/} and \code{inst/po/} have been updated
+      (again), as many more C level messages now use format strings
+      as a result of \code{vsnprintf} usage in \file{src/validity.c}.
+    }
+  }
+}
 
 \section{Changes in version 1.6-0 (2023-06-30 r4125)}{
   \subsection{Significant User-Visible Changes}{
@@ -1894,7 +1971,7 @@
       \emph{semantically} equivalent to \code{list(nms, nms)}.
 
       \item \code{as.vector(<sparseVector>)} etc, now work, too.
-      \item \code{lu(\emph{<sparseMatrix>})} now keeps \code{dimnames}.
+      \item \code{lu(<sparseMatrix>)} now keeps \code{dimnames}.
       \item better \file{NEWS.Rd} (which pleases Kurt and \command{tidy} ;-)
     }
   }

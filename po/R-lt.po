@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Matrix 1.3-3\n"
-"POT-Creation-Date: 2023-06-30 17:17\n"
+"POT-Creation-Date: 2023-08-03 13:24\n"
 "PO-Revision-Date: 2021-03-01 20:55+0200\n"
 "Last-Translator: Gabrielė Stupurienė <gabriele.stupuriene@mif.vu.lt>\n"
 "Language-Team: none\n"
@@ -33,17 +33,6 @@ msgstr ""
 msgid "non-conformable matrix dimensions in %s"
 msgstr "neatitinkantys matricos matmenys, esantys %s"
 
-msgid "dimnames [%d] mismatch in %s"
-msgstr "dimnames [%d] neatitikimas %s"
-
-#, fuzzy
-msgid "matrix is not symmetric; consider forceSymmetric() or symmpart()"
-msgstr "ne simetriška matrica; apsvarstykite forceSymmetric() arba symmpart()"
-
-#, fuzzy
-msgid "matrix is not triangular; consider triu() or tril()"
-msgstr "matrica nėra trikampė"
-
 #, fuzzy
 msgid "complex \"diagonalMatrix\" not yet implemented"
 msgstr "bendroji Matrix klasė dar neįgyvendinta %s"
@@ -51,27 +40,6 @@ msgstr "bendroji Matrix klasė dar neįgyvendinta %s"
 #, fuzzy
 msgid "cannot coerce matrix of type \"%s\" to \"diagonalMatrix\""
 msgstr "negalima paversti 'NA' į \"nsparseMatrix\""
-
-msgid "matrix is not diagonal; consider Diagonal(x=diag(.))"
-msgstr ""
-
-msgid "matrix of invalid type \"%s\" to .m2dense.checking()"
-msgstr ""
-
-msgid "invalid kind \"%s\" to .m2dense.checking()"
-msgstr ""
-
-msgid "matrix of invalid type \"%s\" to .m2sparse.checking()"
-msgstr ""
-
-msgid "invalid kind \"%s\" to .m2sparse.checking()"
-msgstr ""
-
-msgid "Matrices must have same number of rows in %s"
-msgstr "Matricos turi turėti tą patį eilučių skaičių %s"
-
-msgid "Matrices must have same number of columns in %s"
-msgstr "Matricos turi turėti tą patį stulpelių skaičių %s"
 
 #, fuzzy
 msgid "[[ suppressing %d column name%s %s ... ]]"
@@ -229,6 +197,9 @@ msgstr ""
 
 msgid "not-yet-implemented 'Matrix[<-' method"
 msgstr "dar neįgyvendintas 'Matrix[<-' method"
+
+msgid "dimnames [%d] mismatch in %s"
+msgstr "dimnames [%d] neatitikimas %s"
 
 msgid "inefficient method used for \"- e1\""
 msgstr "neefektyvus metodas, naudojamas \"- e1\""
@@ -417,16 +388,19 @@ msgstr "%d įstrižainė (k = %d) yra per trumpa; užpildymas su NA"
 msgid "invalid 'repr'; must be \"C\", \"T\", or \"R\""
 msgstr "negaliojantis 'repr'; turi būti \"C\", \"T\" arba \"R\""
 
+#, fuzzy
+msgid "number of rows of matrices must match"
+msgstr "eilučių skaičius nesuderinamas su %s"
+
+#, fuzzy
+msgid "number of columns of matrices must match"
+msgstr "eilučių skaičius nesuderinamas su %s"
+
+msgid "dimensions cannot exceed 2^31-1"
+msgstr ""
+
 msgid "resulting x-slot has different type than x's or y's"
 msgstr "gautas x-slot turi skirtingą tipą nei x arba y"
-
-#, fuzzy
-msgid "number of columns of matrices must match in %s"
-msgstr "eilučių skaičius nesuderinamas su %s"
-
-#, fuzzy
-msgid "number of rows of matrices must match in %s"
-msgstr "eilučių skaičius nesuderinamas su %s"
 
 #, fuzzy
 msgid "chol(x) is undefined: 'x' is not positive semidefinite"
@@ -454,6 +428,29 @@ msgid "D[i,i] is negative, i=%d"
 msgstr ""
 
 msgid "'parent' is not formally sparse"
+msgstr ""
+
+#, fuzzy
+msgid "matrix is not symmetric; consider forceSymmetric(.) or symmpart(.)"
+msgstr "ne simetriška matrica; apsvarstykite forceSymmetric() arba symmpart()"
+
+#, fuzzy
+msgid "matrix is not triangular; consider triu(.) or tril(.)"
+msgstr "matrica nėra trikampė"
+
+msgid "matrix is not diagonal; consider Diagonal(x=diag(.))"
+msgstr ""
+
+msgid "matrix of invalid type \"%s\" to .m2dense.checking()"
+msgstr ""
+
+msgid "invalid kind \"%s\" to .m2dense.checking()"
+msgstr ""
+
+msgid "matrix of invalid type \"%s\" to .m2sparse.checking()"
+msgstr ""
+
+msgid "invalid kind \"%s\" to .m2sparse.checking()"
 msgstr ""
 
 msgid "'A' must be a square matrix"
@@ -485,9 +482,6 @@ msgid "dimensions cannot contain NA"
 msgstr ""
 
 msgid "dimensions cannot contain negative values"
-msgstr ""
-
-msgid "dimensions cannot exceed 2^31-1"
 msgstr ""
 
 msgid "invalid nargs()= %d"
@@ -562,9 +556,6 @@ msgstr ""
 msgid "'x' has non-finite values"
 msgstr ""
 
-msgid "Schur(x) not yet supported for 'x' of type \"complex\""
-msgstr ""
-
 msgid "'which' is not \"Q\", \"T\", or \"Q.\""
 msgstr ""
 
@@ -594,16 +585,9 @@ msgstr "'ncol' turi būti >= 0"
 msgid "elements of 'perm' slot must be positive integers"
 msgstr ""
 
-msgid "only lists of length 2 can be coerced to indMatrix"
-msgstr ""
-
 #, fuzzy
 msgid "matrix must have exactly one nonzero element in each row or column"
 msgstr "eilutėje turi būti lygiai vienas ne nulinis įrašas"
-
-#, fuzzy
-msgid "matrix is not symmetric or triangular"
-msgstr "'x' nėra nei simetriškas, nei trikampis"
 
 #, fuzzy
 msgid "method for kronecker() must use default FUN=\"*\""
@@ -738,11 +722,6 @@ msgstr "neleistinas argumentas 'contrasts.arg'"
 
 msgid "variable '%s' is absent, its contrast will be ignored"
 msgstr "kintamojo '%s' nėra, jo kontrastas bus ignoruojamas"
-
-#, fuzzy
-msgid "only 2-dimensional tables can be coerced to sparseMatrix"
-msgstr ""
-"tik 2 matmenų lentelės gali būti tiesiogiai paverstos į sparse matricas"
 
 #, fuzzy
 msgid "exactly one of 'i', 'j', and 'p' must be missing from call"
@@ -918,20 +897,16 @@ msgid "incorrect number of dimensions"
 msgstr "nesuderinamos matricos dimensijos"
 
 #, fuzzy
-msgid "matrix is not symmetric or"
+msgid "matrix is not symmetric or triangular"
 msgstr "'x' nėra nei simetriškas, nei trikampis"
-
-#, fuzzy
-msgid "triangular"
-msgstr "ne trikampė matrica"
 
 #, fuzzy
 msgid "matrix is not symmetric"
 msgstr "matrica nėra trikampė"
 
 #, fuzzy
-msgid "matrix is not"
-msgstr "matrica nėra įstrižainė"
+msgid "matrix is not triangular"
+msgstr "'x' nėra nei simetriškas, nei trikampis"
 
 msgid "attempt to coerce matrix with NA to ngCMatrix"
 msgstr ""
@@ -939,6 +914,29 @@ msgstr ""
 #, fuzzy
 msgid "invalid 'Class2'"
 msgstr "neleistinas 'data'"
+
+#~ msgid "Matrices must have same number of rows in %s"
+#~ msgstr "Matricos turi turėti tą patį eilučių skaičių %s"
+
+#~ msgid "Matrices must have same number of columns in %s"
+#~ msgstr "Matricos turi turėti tą patį stulpelių skaičių %s"
+
+#, fuzzy
+#~ msgid "only 2-dimensional tables can be coerced to sparseMatrix"
+#~ msgstr ""
+#~ "tik 2 matmenų lentelės gali būti tiesiogiai paverstos į sparse matricas"
+
+#, fuzzy
+#~ msgid "matrix is not symmetric or"
+#~ msgstr "'x' nėra nei simetriškas, nei trikampis"
+
+#, fuzzy
+#~ msgid "triangular"
+#~ msgstr "ne trikampė matrica"
+
+#, fuzzy
+#~ msgid "matrix is not"
+#~ msgstr "matrica nėra įstrižainė"
 
 #~ msgid "'x' is not positive definite -- chol() undefined."
 #~ msgstr "'x' nėra teigiamai apibrėžtas -- chol() neapibrėžtas."

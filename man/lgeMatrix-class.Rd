@@ -11,9 +11,6 @@
 \alias{Arith,lgeMatrix,lgeMatrix-method}
 \alias{Compare,lgeMatrix,lgeMatrix-method}
 \alias{Logic,lgeMatrix,lgeMatrix-method}
-\alias{as.vector,lgeMatrix-method}
-\alias{coerce,lgeMatrix,matrix-method}
-\alias{coerce,lgeMatrix,vector-method}
 %
 \description{This is the class of general dense \code{\link{logical}}
   matrices.

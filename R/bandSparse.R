@@ -89,7 +89,7 @@ bandSparse <- function(n, m = n, k, diagonals,
                 cc <- paste0(.M.kind(x), "sTMatrix")
                 new(cc, i= i-1L, j= j-1L, x = x, Dim= dims, uplo=UpLo)
             } else new("nsTMatrix", i= i-1L, j= j-1L, Dim= dims, uplo=UpLo)
-        switch(repr, "C" = .T2C(T), "T" = T, "R" = .T2R(T),
+        switch(repr, "C" = .M2C(T), "T" = T, "R" = .M2R(T),
                stop("invalid 'repr'; must be \"C\", \"T\", or \"R\""))
     }
     else { ## not symmetric, possibly triangular

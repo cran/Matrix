@@ -5,6 +5,8 @@
 \keyword{methods}
 \keyword{utilities}
 %
+\alias{coerce-methods-graph}
+%
 \alias{coerce,Matrix,graph-method}
 \alias{coerce,Matrix,graphNEL-method}
 \alias{coerce,TsparseMatrix,graphNEL-method}

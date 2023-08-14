@@ -42,7 +42,6 @@
 \alias{Ops,ddiMatrix,numeric-method}
 \alias{Ops,ddiMatrix,sparseMatrix-method}
 \alias{Summary,ddiMatrix-method}
-\alias{as.numeric,ddiMatrix-method}
 \alias{prod,ddiMatrix-method}
 \alias{sum,ddiMatrix-method}
 %

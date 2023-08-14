@@ -2,15 +2,6 @@
 ## Hermitian {incl. real, symmetric} matrices
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-
-## ~~~~ COERCIONS TO ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-setAs("Matrix", "symmetricMatrix", ..M2sym)
-setAs("matrix", "symmetricMatrix", ..M2sym)
-
-
-## ~~~~ METHODS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 setMethod("dimnames", signature(x = "symmetricMatrix"),
           function(x) symmDN(x@Dimnames))
 

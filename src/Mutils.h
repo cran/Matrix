@@ -138,7 +138,7 @@ UNPACKED_COPY_DIAGONAL(i, int);
 UNPACKED_COPY_DIAGONAL(z, Rcomplex);
 #undef UNPACKED_COPY_DIAGONAL
 
-#define PACKED_COPY_DIAGONAL(_PREFIX_, _CTYPE_)				\
+#define PACKED_COPY_DIAGONAL(_PREFIX_, _CTYPE_) \
 void _PREFIX_ ## dense_packed_copy_diagonal(_CTYPE_ *, const _CTYPE_ *, \
                                             int, R_xlen_t, char, char, char)
 PACKED_COPY_DIAGONAL(d, double);
@@ -148,8 +148,6 @@ PACKED_COPY_DIAGONAL(z, Rcomplex);
 
 SEXP unpacked_force(SEXP, int, char, char);
 SEXP packed_transpose(SEXP, int, char);
-
-SEXP dense_as_general(SEXP, char, int, int);
 
 void validObject(SEXP, const char *);
 

@@ -3,10 +3,10 @@
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 setMethod("lu", signature(x = "matrix"),
-          function(x, ...) lu(.m2ge(x, "d"), ...))
+          function(x, ...) lu(.m2dense(x, "dge"), ...))
 
 setMethod("lu", signature(x = "denseMatrix"),
-          function(x, ...) lu(..dense2d(x), ...))
+          function(x, ...) lu(.M2kind(x, "d"), ...))
 
 setMethod("lu", signature(x = "dgeMatrix"),
           function(x, warnSing = TRUE, ...)
@@ -16,7 +16,7 @@ setMethod("lu", signature(x = "dsyMatrix"),
           function(x, cache = TRUE, ...) {
               if(!is.null(ch <- x@factors[["denseLU"]]))
                   return(ch)
-              r <- lu(.dense2g(x), ...)
+              r <- lu(.M2gen(x), ...)
               if(cache) .set.factor(x, "denseLU", r) else r
           })
 
@@ -24,7 +24,7 @@ setMethod("lu", signature(x = "dspMatrix"),
           function(x, cache = TRUE, ...) {
               if(!is.null(ch <- x@factors[["denseLU"]]))
                   return(ch)
-              r <- lu(.dense2g(x), ...)
+              r <- lu(.M2gen(x), ...)
               if(cache) .set.factor(x, "denseLU", r) else r
           })
 
@@ -35,15 +35,15 @@ setMethod("lu", signature(x = .cl),
                   r <- new("denseLU")
                   r@Dim <- d <- x@Dim
                   r@perm <- seq_len(d[1L])
-                  r@x <- .dense2g(x)@x
+                  r@x <- .M2gen(x)@x
                   r
-              } else lu(.dense2g(x), ...)
+              } else lu(.M2gen(x), ...)
           })
 rm(.cl)
 
 setMethod("lu", signature(x = "sparseMatrix"),
           function(x, ...)
-              lu(..sparse2d(as(x, "CsparseMatrix")), ...))
+              lu(.M2kind(.M2C(x), "d"), ...))
 
 setMethod("lu", signature(x = "dgCMatrix"),
           function(x, errSing = TRUE, order = NA_integer_, tol = 1, ...)
@@ -53,7 +53,7 @@ setMethod("lu", signature(x = "dsCMatrix"),
           function(x, cache = TRUE, ...) {
               if(!is.null(ch <- x@factors[["sparseLU"]]))
                   return(ch)
-              r <- lu(.sparse2g(x), ...)
+              r <- lu(.M2gen(x), ...)
               if(cache) .set.factor(x, "sparseLU", r) else r
           })
 
@@ -70,14 +70,14 @@ setMethod("lu", "dtCMatrix",
                   r@L <- if(upper) y else x
                   r@U <- if(upper) x else y
                   r@p <- r@q <- seq.int(from = 0L, length.out = n)
-              } else lu(.sparse2g(x), ...)
+              } else lu(.M2gen(x), ...)
           })
 
 setMethod("lu", signature(x = "dgRMatrix"),
           function(x, cache = TRUE, ...) {
               if(!is.null(ch <- x@factors[["sparseLU"]]))
                   return(ch)
-              r <- lu(.CR2RC(x), ...)
+              r <- lu(.M2C(x), ...)
               if(cache) .set.factor(x, "sparseLU", r) else r
           })
 
@@ -85,7 +85,7 @@ setMethod("lu", signature(x = "dsRMatrix"),
           function(x, cache = TRUE, ...) {
               if(!is.null(ch <- x@factors[["sparseLU"]]))
                   return(ch)
-              r <- lu(.sparse2g(.tCR2RC(x)), ...)
+              r <- lu(.M2gen(.tCRT(x)), ...)
               if(cache) .set.factor(x, "sparseLU", r) else r
           })
 
@@ -99,17 +99,17 @@ setMethod("lu", signature(x = "dtRMatrix"),
                   y@uplo <- if(upper) "L" else "U"
                   y@diag <- "U"
                   y@p <- integer(n + 1L)
-                  r@L <- if(upper) y else .CR2RC(x)
-                  r@U <- if(upper) .CR2RC(x) else y
+                  r@L <- if(upper) y else .M2C(x)
+                  r@U <- if(upper) .M2C(x) else y
                   r@p <- r@q <- seq.int(from = 0L, length.out = n)
-              } else lu(.sparse2g(.CR2RC(x)), ...)
+              } else lu(.M2gen(.M2C(x)), ...)
           })
 
 setMethod("lu", signature(x = "dgTMatrix"),
           function(x, cache = TRUE, ...) {
               if(!is.null(ch <- x@factors[["sparseLU"]]))
                   return(ch)
-              r <- lu(.T2C(x), ...)
+              r <- lu(.M2C(x), ...)
               if(cache) .set.factor(x, "sparseLU", r) else r
           })
 
@@ -117,7 +117,7 @@ setMethod("lu", signature(x = "dsTMatrix"),
           function(x, cache = TRUE, ...) {
               if(!is.null(ch <- x@factors[["sparseLU"]]))
                   return(ch)
-              r <- lu(.sparse2g(.T2C(x)), ...)
+              r <- lu(.M2gen(.M2C(x)), ...)
               if(cache) .set.factor(x, "sparseLU", r) else r
           })
 
@@ -131,11 +131,11 @@ setMethod("lu", signature(x = "dtTMatrix"),
                   y@uplo <- if(upper) "L" else "U"
                   y@diag <- "U"
                   y@p <- integer(n + 1L)
-                  r@L <- if(upper) y else .T2C(x)
-                  r@U <- if(upper) .T2C(x) else y
+                  r@L <- if(upper) y else .M2C(x)
+                  r@U <- if(upper) .M2C(x) else y
                   r@p <- r@q <- seq.int(from = 0L, length.out = n)
                   r
-              } else lu(.sparse2g(.T2C(x)), ...)
+              } else lu(.M2gen(.M2C(x)), ...)
           })
 
 setMethod("lu", "diagonalMatrix",

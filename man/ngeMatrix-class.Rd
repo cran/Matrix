@@ -11,9 +11,6 @@
 \alias{Arith,ngeMatrix,ngeMatrix-method}
 \alias{Compare,ngeMatrix,ngeMatrix-method}
 \alias{Logic,ngeMatrix,ngeMatrix-method}
-\alias{as.vector,ngeMatrix-method}
-\alias{coerce,ngeMatrix,matrix-method}
-\alias{coerce,ngeMatrix,vector-method}
 %
 \description{This is the class of general dense nonzero-pattern
   matrices, see \code{\linkS4class{nMatrix}}.

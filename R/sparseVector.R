@@ -121,8 +121,8 @@ spV2M <- function(x, nrow, ncol, byrow = FALSE,
 setAs("sparseVector",        "Matrix", .sparseV2Mat)
 setAs("sparseVector",  "sparseMatrix", .sparseV2Mat)
 setAs("sparseVector", "TsparseMatrix", .sparseV2Mat)
-setAs("sparseVector", "CsparseMatrix", function(from) .T2C(.sparseV2Mat(from)))
-setAs("sparseVector", "RsparseMatrix", function(from) .T2R(.sparseV2Mat(from)))
+setAs("sparseVector", "CsparseMatrix", function(from) .M2C(.sparseV2Mat(from)))
+setAs("sparseVector", "RsparseMatrix", function(from) .M2R(.sparseV2Mat(from)))
 
 sp2vec <- function(x, mode = .type.kind[.M.kind(x)]) {
     ## sparseVector  ->  vector
@@ -194,7 +194,7 @@ setAs("RsparseMatrix", "sparseVector",
       function(from) .Call(CR2spV, from))
 
 setAs("TsparseMatrix", "sparseVector",
-      function(from) .Call(CR2spV, .T2C(from)))
+      function(from) .Call(CR2spV, .M2C(from)))
 
 setAs("diagonalMatrix", "sparseVector",
       function(from) {
@@ -848,7 +848,7 @@ ind4toeplitz <- function(n) {
 	} else ## !missing(repr)
             Matrix.msg("'giveCsparse' has been deprecated; will use 'repr' instead")
     }
-    switch(match.arg(repr), "C" = .T2C(r), "T" = r, "R" = .T2R(r))
+    switch(match.arg(repr), "C" = .M2C(r), "T" = r, "R" = .M2R(r))
 }
 setMethod("toeplitz", "sparseVector", .toeplitz.spV)
 rm(.toeplitz.spV)

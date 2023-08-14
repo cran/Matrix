@@ -90,16 +90,18 @@
 ## ~~~~ DEPRECATED ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ..2dge <- function(from) {
-    .Deprecated(new = ".dense2g", package = "Matrix")
-    .dense2g(from, "d")
+    .Deprecated(new = ".M2gen", package = "Matrix")
+    if(isS4(from))
+        .M2gen(from, "d")
+    else .m2dense(from, "dge")
 }
 .C2nC <- function(from, isTri) {
-    .Deprecated(new = ".sparse2kind", package = "Matrix")
-    .sparse2kind(from, "n")
+    .Deprecated(new = ".M2kind", package = "Matrix")
+    .M2kind(from, "n")
 }
 .T2Cmat <- function(from, isTri) {
-    .Deprecated(new = ".T2CR", package = "Matrix")
-    .T2CR(from, Csparse = TRUE)
+    .Deprecated(new = ".M2C", package = "Matrix")
+    .M2C(from)
 }
 .asmatrix <- function(x) {
     .Deprecated(new = "as(., \"matrix\")", package = "Matrix")
@@ -110,33 +112,41 @@
     .M2sym(from, ...)
 }
 .diag2mat <- function(from) {
-    .Deprecated(new = "as(., \"matrix\")", package = "Matrix")
-    .diag2m(from)
+    .Deprecated(new = ".M2m", package = "Matrix")
+    .M2m(from)
 }
 .diag2sT <- function(from, uplo = "U", kind = ".", drop0 = TRUE) {
     .Deprecated(new = ".diag2sparse", package = "Matrix")
-    .diag2sparse(from, code = `substr<-`(".sT", 1L, 1L, kind),
-                 uplo = uplo, drop0 = drop0)
+    r <- .diag2sparse(from, "s", "T", uplo)
+    if(kind != ".")
+        r <- .M2kind(r, kind)
+    if(drop0)
+        r <- .drop0(r)
+    r
 }
 .diag2tT <- function(from, uplo = "U", kind = ".", drop0 = TRUE) {
     .Deprecated(new = ".diag2sparse", package = "Matrix")
-    .diag2sparse(from, code = `substr<-`(".tT", 1L, 1L, kind),
-                 uplo = uplo, drop0 = drop0)
+    to <- .diag2sparse(from, "t", "T", uplo)
+    if(kind != ".")
+        to <- .M2kind(to, kind)
+    if(drop0)
+        to <- .drop0(to)
+    to
 }
 .dsy2dsp <- function(from) {
-    .Deprecated(new = "pack", package = "Matrix")
-    pack(from)
+    .Deprecated(new = ".M2packed", package = "Matrix")
+    .M2packed(from)
 }
 .dsy2mat <- function(from, keep.dimnames = TRUE) {
-    .Deprecated(new = ".dense2m", package = "Matrix")
-    to <- .dense2m(from)
-    if (!keep.dimnames)
+    .Deprecated(new = ".M2m", package = "Matrix")
+    to <- .M2m(from)
+    if(!keep.dimnames)
         dimnames(to) <- NULL
     to
 }
 .dxC2mat <- function(from, chkUdiag) {
-    .Deprecated(new = ".sparse2m", package = "Matrix")
-    .sparse2m(from)
+    .Deprecated(new = ".M2m", package = "Matrix")
+    .M2m(from)
 }
 .m2dgC <- function(from) {
     .Deprecated(new = ".m2sparse", package = "Matrix")
@@ -165,16 +175,93 @@
     .m2sparse(from, "ngT")
 }
 .n2dgT <- function(from) {
-    .Deprecated(new = ".sparse2kind", package = "Matrix")
-    .sparse2kind(from, "d")
+    .Deprecated(new = ".M2kind", package = "Matrix")
+    .M2kind(from, "d")
 }
 .nC2d <- function(from) {
-    .Deprecated(new = ".sparse2kind", package = "Matrix")
-    .sparse2kind(from, "d")
+    .Deprecated(new = ".M2kind", package = "Matrix")
+    .M2kind(from, "d")
 }
 .nC2l <- function(from) {
-    .Deprecated(new = ".sparse2kind", package = "Matrix")
-    .sparse2kind(from, "l")
+    .Deprecated(new = ".M2kind", package = "Matrix")
+    .M2kind(from, "l")
+}
+
+.dense2m <- .sparse2m <- function(from) {
+    if(FALSE) {
+    .Deprecated(new = ".M2m", package = "Matrix")
+    }
+    .M2m(from)
+}
+
+.dense2v <- .sparse2v <- function(from) {
+    if(FALSE) {
+    .Deprecated(new = ".M2v", package = "Matrix")
+    }
+    .M2v(from)
+}
+
+.dense2kind <- function(from, kind) {
+    if(FALSE) {
+    .Deprecated(new = ".M2kind", package = "Matrix")
+    }
+    .M2kind(from, kind)
+}
+
+.sparse2kind <- function(from, kind, drop0 = FALSE) {
+    if(FALSE) {
+    .Deprecated(new = ".M2kind", package = "Matrix")
+    }
+    .M2kind(if(drop0) .drop0(from) else from, kind)
+}
+
+.dense2g <- .sparse2g <- function(from, kind = ".") {
+    if(FALSE) {
+    .Deprecated(new = ".M2gen", package = "Matrix")
+    }
+    .M2gen(from, kind)
+}
+
+.CR2RC <- function(from) {
+    if(.M.repr(from) != "C") {
+        if(FALSE) {
+        .Deprecated(new = ".M2C", package = "Matrix")
+        }
+        .M2C(from)
+    } else {
+        if(FALSE) {
+        .Deprecated(new = ".M2R", package = "Matrix")
+        }
+        .M2R(from)
+    }
+}
+
+.CR2T <- function(from) {
+    if(FALSE) {
+    .Deprecated(new = ".M2T", package = "Matrix")
+    }
+    .M2T(from)
+}
+
+.T2CR <- function(from, Csparse = TRUE) {
+    if(Csparse) {
+        if(FALSE) {
+        .Deprecated(new = ".M2C", package = "Matrix")
+        }
+        .M2C(from)
+    } else {
+        if(FALSE) {
+        .Deprecated(new = ".M2R", package = "Matrix")
+        }
+        .M2R(from)
+    }
+}
+
+.tCR2RC <- function(from) {
+    if(FALSE) {
+    .Deprecated(new = ".tCRT", package = "Matrix")
+    }
+    .tCRT(from)
 }
 
 ## Utility for Matrix.DeprecatedCoerce(); see below

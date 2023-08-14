@@ -4,13 +4,15 @@ static char La_norm_type(SEXP s)
 {
 #define ARGNAME "type"
 	if (TYPEOF(s) != STRSXP)
-		error(_("argument '%s' is not of type \"character\""), ARGNAME);
+		error(_("argument '%s' is not of type \"%s\""),
+		      ARGNAME, "character");
 	if (LENGTH(s) == 0)
-		error(_("argument '%s' has length 0"), ARGNAME);
+		error(_("argument '%s' has length %d"),
+		      ARGNAME, 0);
 	const char *type = CHAR(STRING_ELT(s, 0));
 	if (type[0] == '\0' || type[1] != '\0')
-		error(_("argument '%s' (\"%s\") does not have string length 1"),
-		      ARGNAME, type);
+		error(_("argument '%s' (\"%s\") does not have string length %d"),
+		      ARGNAME, type, 1);
 	char type_ = '\0';
 	switch (type[0]) {
 	case 'M':
@@ -33,8 +35,8 @@ static char La_norm_type(SEXP s)
 		type_ = 'F';
 		break;
 	default:
-		error(_("argument '%s' (\"%s\") is not \"M\", \"O\", \"1\", \"I\", \"F\", or \"E\""),
-		      ARGNAME, type);
+		error(_("argument '%s' (\"%s\") is not \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", or \"%s\""),
+		      ARGNAME, type, "M", "O", "1", "I", "F", "E");
 		break;
 	}
 	return type_;
@@ -45,13 +47,15 @@ static char La_rcond_type(SEXP s)
 {
 #define ARGNAME "norm"
 	if (TYPEOF(s) != STRSXP)
-		error(_("argument '%s' is not of type \"character\""), ARGNAME);
+		error(_("argument '%s' is not of type \"%s\""),
+		      ARGNAME, "character");
 	if (LENGTH(s) == 0)
-		error(_("argument '%s' has length 0"), ARGNAME);
+		error(_("argument '%s' has length %d"),
+		      ARGNAME, 0);
 	const char *type = CHAR(STRING_ELT(s, 0));
 	if (type[0] == '\0' || type[1] != '\0')
-		error(_("argument '%s' (\"%s\") does not have string length 1"),
-		      ARGNAME, type);
+		error(_("argument '%s' (\"%s\") does not have string length %d"),
+		      ARGNAME, type, 1);
 	char type_ = '\0';
 	switch (type[0]) {
 	case 'O':
@@ -64,8 +68,8 @@ static char La_rcond_type(SEXP s)
 		type_ = 'I';
 		break;
 	default:
-		error(_("argument '%s' (\"%s\") is not \"O\", \"1\", or \"I\""),
-		      ARGNAME, type);
+		error(_("argument '%s' (\"%s\") is not \"%s\", \"%s\", or \"%s\""),
+		      ARGNAME, type, "O", "1", "I");
 		break;
 	}
 	return type_;
@@ -100,9 +104,9 @@ SEXP dgeMatrix_rcond(SEXP obj, SEXP trf, SEXP type)
 	int *pdim = INTEGER(dim), m = pdim[0], n = pdim[1];
 	UNPROTECT(1); /* dim */
 	if (m != n)
-		error(_("rcond(x) is undefined: 'x' is not square"));
+		error(_("%s(%s) is undefined: '%s' is not square"), "rcond", "x", "x");
 	if (n == 0)
-		error(_("rcond(x) is undefined: 'x' has length 0"));
+		error(_("%s(%s) is undefined: '%s' has length %d"), "rcond", "x", "x", 0);
 
 	SEXP x = PROTECT(GET_SLOT(obj, Matrix_xSym)),
 		y = PROTECT(GET_SLOT(trf, Matrix_xSym));
@@ -153,7 +157,7 @@ SEXP dtrMatrix_rcond(SEXP obj, SEXP type)
 	int n = INTEGER(dim)[0];
 	UNPROTECT(1); /* dim */
 	if (n == 0)
-		error(_("rcond(x) is undefined: 'x' has length 0"));
+		error(_("%s(%s) is undefined: '%s' has length %d"), "rcond", "x", "x", 0);
 
 	SEXP uplo = PROTECT(GET_SLOT(obj, Matrix_uploSym)),
 		diag = PROTECT(GET_SLOT(obj, Matrix_diagSym));
@@ -206,7 +210,7 @@ SEXP dtpMatrix_rcond(SEXP obj, SEXP type)
 	int n = INTEGER(dim)[0];
 	UNPROTECT(1); /* dim */
 	if (n == 0)
-		error(_("rcond(x) is undefined: 'x' has length 0"));
+		error(_("%s(%s) is undefined: '%s' has length %d"), "rcond", "x", "x", 0);
 
 	SEXP uplo = PROTECT(GET_SLOT(obj, Matrix_uploSym)),
 		diag = PROTECT(GET_SLOT(obj, Matrix_diagSym));
@@ -257,7 +261,7 @@ SEXP dsyMatrix_rcond(SEXP obj, SEXP trf, SEXP type)
 	int n = INTEGER(dim)[0];
 	UNPROTECT(1); /* dim */
 	if (n == 0)
-		error(_("rcond(x) is undefined: 'x' has length 0"));
+		error(_("%s(%s) is undefined: '%s' has length %d"), "rcond", "x", "x", 0);
 
 	SEXP uplo = PROTECT(GET_SLOT(obj, Matrix_uploSym));
 	char uplo_ = CHAR(STRING_ELT(uplo, 0))[0];
@@ -312,7 +316,7 @@ SEXP dspMatrix_rcond(SEXP obj, SEXP trf, SEXP type)
 	int n = INTEGER(dim)[0];
 	UNPROTECT(1); /* dim */
 	if (n == 0)
-		error(_("rcond(x) is undefined: 'x' has length 0"));
+		error(_("%s(%s) is undefined: '%s' has length %d"), "rcond", "x", "x", 0);
 
 	SEXP uplo = PROTECT(GET_SLOT(obj, Matrix_uploSym));
 	char uplo_ = CHAR(STRING_ELT(uplo, 0))[0];
@@ -342,7 +346,7 @@ SEXP dpoMatrix_rcond(SEXP obj, SEXP trf, SEXP type)
 	int n = INTEGER(dim)[0];
 	UNPROTECT(1); /* dim */
 	if (n == 0)
-		error(_("rcond(x) is undefined: 'x' has length 0"));
+		error(_("%s(%s) is undefined: '%s' has length %d"), "rcond", "x", "x", 0);
 
 	SEXP uplo = PROTECT(GET_SLOT(obj, Matrix_uploSym));
 	char uplo_ = CHAR(STRING_ELT(uplo, 0))[0];
@@ -370,7 +374,7 @@ SEXP dppMatrix_rcond(SEXP obj, SEXP trf, SEXP type)
 	int n = INTEGER(dim)[0];
 	UNPROTECT(1); /* dim */
 	if (n == 0)
-		error(_("rcond(x) is undefined: 'x' has length 0"));
+		error(_("%s(%s) is undefined: '%s' has length %d"), "rcond", "x", "x", 0);
 
 	SEXP uplo = PROTECT(GET_SLOT(obj, Matrix_uploSym));
 	char uplo_ = CHAR(STRING_ELT(uplo, 0))[0];

@@ -662,7 +662,8 @@ stopifnot(identical(cu * 1:8, tu * 1:8), # but are no longer triangular
           identical(cu > .1, as(tu > .1, "CsparseMatrix")),
           all(cu >= 0, na.rm=TRUE), !all(cu >= 1), is.na(all(tu >= 0)),
           ## Csparse_drop: preserves triangularity incl diag="U"
-          identical(cu, .Call(Matrix:::Csparse_drop, cu, 0.))
+          ## ^^^^^^^^^^^^ now using more general R_sparse_drop0
+          identical(cu, .Call(Matrix:::R_sparse_drop0, cu, 0.))
           )
 assert.EQ.mat(cu * 1:8, mu * 1:8)
 
@@ -1502,6 +1503,48 @@ x <- as(matrix(c(FALSE, FALSE, TRUE, FALSE, TRUE, TRUE, FALSE, TRUE), 4L, 2L),
 stopifnot(identical(which(x), seq_along(x)[as.vector(!is.na(x) & x)]),
           identical(which(x, arr.ind = TRUE, useNames = FALSE),
                     arrayInd(which(x), dim(x), dimnames(x), useNames = FALSE)))
+
+## drop0(give.Csparse = FALSE)
+R <- new("dtRMatrix", Dim = c(6L, 6L), p = 0:6, j = 0:5, x = 0+0:5)
+T <- as(as(R, "TsparseMatrix"), "symmetricMatrix")
+for(tol in 0+0:5) {
+    i.tol <- R@x > tol
+    stopifnot(exprs = {
+        identical(drop0(R, tol = tol, give.Csparse = FALSE),
+                  new("dtRMatrix", Dim = c(6L, 6L),
+                      p = c(0L, cumsum(i.tol)), j = R@j[i.tol], x = R@x[i.tol]))
+        identical(drop0(T, tol = tol, give.Csparse = FALSE),
+                  new("dsTMatrix", Dim = c(6L, 6L),
+                      i = R@j[i.tol], j = R@j[i.tol], x = R@x[i.tol]))
+    })
+}
+## No-op for pattern-like sparse matrices:
+i1 <- new("indMatrix", Dim = c(6L, 8L), margin = 1L,
+          perm = sample.int(8L, size = 6L, replace = TRUE))
+i1.s <- as(i1, "nsparseMatrix")
+i1.d <- as(i1,  "ndenseMatrix")
+stopifnot(exprs = {
+    identical(drop0(i1  , give.Csparse = FALSE), i1)
+    identical(drop0(i1.s, give.Csparse = FALSE), i1.s)
+    identical(drop0(i1.d, give.Csparse = FALSE), as(i1.d, "CsparseMatrix"))
+})
+
+## Setting diagonal elements of non-square RsparseMatrix produced
+## an invalid object
+x <- new("dgRMatrix", Dim = c(1L, 2L), p = c(0L, 0L))
+diag(x) <- 1
+validObject(x)
+
+## Subassigning double to logical briefly did not change class
+x <- new("lgeMatrix", Dim = c(2L, 3L), x = logical(6L))
+y <- new("dgeMatrix", Dim = c(2L, 3L), x = replace(double(6L), 1L, 1))
+x[1L, 1L] <- 1
+stopifnot(identical(x, y))
+
+## as(<data.frame>, "Matrix") was briefly a error (invalid type "list")
+stopifnot(identical(as(data.frame(a = 1:2, b = 3:4), "Matrix"),
+                    new("dgeMatrix", x = as.double(1:4),
+                        Dim = c(2L, 2L), Dimnames = list(NULL, c("a", "b")))))
 
 
 ## Platform - and other such info -- so we find it in old saved outputs

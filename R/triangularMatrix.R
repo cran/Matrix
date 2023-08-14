@@ -2,14 +2,6 @@
 ## triangular matrices
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-## ~~~~ COERCIONS TO ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-setAs("Matrix", "triangularMatrix", ..M2tri)
-setAs("matrix", "triangularMatrix", ..M2tri)
-
-
-## ~~~~ METHODS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 setMethod("isTriangular", signature(object = "triangularMatrix"),
           function(object, upper = NA, ...) {
               if(is.na(upper))

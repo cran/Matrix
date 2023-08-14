@@ -41,7 +41,7 @@ setMethod("Math", signature(x = "ddenseMatrix"), function(x)
 {
     if(.Generic %in% Math.vecGenerics)
         ## Result is a vector
-        return(callGeneric(.dense2g(x, ".")@x))
+        return(callGeneric(.M2gen(x, ".")@x))
     cld <- getClassDef(class(x))
     if(extends(cld, "symmetricMatrix")) {
         ## Argument and result are symmetricMatrix
@@ -62,7 +62,7 @@ setMethod("Math", signature(x = "ddenseMatrix"), function(x)
         x
     } else {
         ## Argument is triangularMatrix, result is generalMatrix
-        callGeneric(.dense2g(x, "."))
+        callGeneric(.M2gen(x, "."))
     }
 })
 
@@ -80,17 +80,17 @@ setMethod("log", signature(x = "ddenseMatrix"), function(x, base = exp(1))
         x
     } else {
         ## Argument is triangularMatrix, result is generalMatrix
-        log(.dense2g(x, "."), base)
+        log(.M2gen(x, "."), base)
     }
 })
 
 ###--------- denseMatrix
 
 setMethod("Math", signature(x = "denseMatrix"),
-	  function(x) callGeneric(..dense2d(x)))
+	  function(x) callGeneric(.M2kind(x, "d")))
 
 setMethod("log", signature(x = "denseMatrix"),
-          function(x, base = exp(1)) log(..dense2d(x), base))
+          function(x, base = exp(1)) log(.M2kind(x, "d"), base))
 
 ###--------- CsparseMatrix
 
@@ -98,7 +98,7 @@ setMethod("Math", signature(x = "CsparseMatrix"), function(x)
 {
     if(.Generic %in% Math.vecGenerics)
         ## Result is a vector
-        return(callGeneric(.sparse2m(x)))
+        return(callGeneric(.M2m(x)))
     if(isN0(callGeneric(0)))
         ## Result is a denseMatrix
         return(callGeneric(.sparse2dense(x)))
@@ -134,7 +134,7 @@ setMethod("Math", signature(x = "diagonalMatrix"), function(x)
 {
     if(.Generic %in% Math.vecGenerics)
         ## Result is a vector
-        return(callGeneric(.diag2m(x)))
+        return(callGeneric(.M2m(x)))
     unit <- x@diag != "N"
     r <- callGeneric(if(unit) 1 else x@x)
     if(isN0(f0 <- callGeneric(0))) {

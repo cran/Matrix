@@ -1,5 +1,72 @@
 #include "products.h"
 #include "chm_common.h"
+#include "coerce.h"
+
+/* Given a denseMatrix, diagonalMatrix, matrix, or vector,
+   return a newly allocated dgeMatrix with newly allocated 'x'
+   and 'Dimnames' slots and an empty 'factors' slot; the 'Dim'
+   slot and elements of the 'Dimnames' slots need not be newly
+   allocated.
+
+   FIXME: Refactor the products and avoid such complexity altogether.
+*/
+static SEXP asdge(SEXP from, int transpose_if_vector)
+{
+	static const char *valid[] = {
+		VALID_DDENSE, VALID_LDENSE, VALID_NDENSE, VALID_DIAGONAL, "" };
+	int ivalid = R_check_class_etc(from, valid);
+
+	SEXP to;
+	if (ivalid < 0)
+		PROTECT(to = matrix_as_dense(from, "dge", '\0', '\0',
+		                             transpose_if_vector, 1));
+	else {
+		const char *cl = valid[ivalid];
+		if (cl[0] == 'd' && cl[1] == 'g' && cl[2] == 'e') {
+			PROTECT(to = NEW_OBJECT_OF_CLASS("dgeMatrix"));
+			SEXP dim = PROTECT(GET_SLOT(from, Matrix_DimSym)),
+				dimnames = PROTECT(GET_SLOT(from, Matrix_DimNamesSym)),
+				x = PROTECT(GET_SLOT(from, Matrix_xSym));
+			PROTECT(x = duplicate(x));
+			SET_SLOT(to, Matrix_DimSym, dim);
+			SET_SLOT(to, Matrix_DimNamesSym, dimnames);
+			SET_SLOT(to, Matrix_xSym, x);
+			UNPROTECT(4);
+		} else if (cl[0] == 'd') {
+			if (cl[1] == 'd' && cl[2] == 'i')
+				PROTECT(to = diagonal_as_dense(from, cl, 'g', 0, '\0'));
+			else {
+				PROTECT(to = dense_as_general(from, cl, 1));
+				SEXP factors = PROTECT(allocVector(VECSXP, 0));
+				SET_SLOT(to, Matrix_factorSym, factors);
+				UNPROTECT(1);
+			}
+		} else {
+			char cl_[] = "d..Matrix";
+			cl_[1] = cl[1]; cl_[2] = cl[2];
+			if (cl[1] == 'd' && cl[2] == 'i') {
+				to = diagonal_as_kind(from, cl, 'd');
+				PROTECT(to);
+				to = diagonal_as_dense(to, cl_, 'g', 0, '\0');
+			} else {
+				to = dense_as_kind(from, cl, 'd');
+				PROTECT(to);
+				to = dense_as_general(to, cl_, 0);
+			}
+			UNPROTECT(1);
+			PROTECT(to);
+		}
+	}
+
+	SEXP dn0 = PROTECT(GET_SLOT(to, Matrix_DimNamesSym)),
+		dn1 = PROTECT(allocVector(VECSXP, 2));
+	for (int i = 0; i < 2; ++i)
+		SET_VECTOR_ELT(dn1, i, VECTOR_ELT(dn0, i));
+	SET_SLOT(to, Matrix_DimNamesSym, dn1);
+
+	UNPROTECT(3);
+	return to;
+}
 
 SEXP dgeMatrix_crossprod(SEXP x, SEXP trans)
 {
@@ -65,7 +132,7 @@ static SEXP _geMatrix_crossprod(SEXP x, SEXP trans)
 
 SEXP geMatrix_crossprod(SEXP x, SEXP trans)
 {
-    SEXP y = PROTECT(dense_as_general(x, '.', 2, 0)),
+    SEXP y = PROTECT(asdge(x, 0)),
 	val = _geMatrix_crossprod(y, trans);
     UNPROTECT(1);
     return val;
@@ -130,8 +197,8 @@ static SEXP _geMatrix__geMatrix_crossprod(SEXP x, SEXP y, SEXP trans)
 
 SEXP geMatrix_geMatrix_crossprod(SEXP x, SEXP y, SEXP trans)
 {
-    SEXP gx = PROTECT(dense_as_general(x, '.', 2, 0)),
-	gy = PROTECT(dense_as_general(y, '.', 2, 0)),
+    SEXP gx = PROTECT(asdge(x, 0)),
+	gy = PROTECT(asdge(y, 0)),
 	val = _geMatrix__geMatrix_crossprod(gx, gy, trans);
     UNPROTECT(2);
     return val;
@@ -219,7 +286,7 @@ static SEXP _geMatrix_matrix_crossprod(SEXP x, SEXP y, SEXP trans)
 }
 
 SEXP geMatrix_matrix_crossprod(SEXP x, SEXP y, SEXP trans) {
-    SEXP dx = PROTECT(dense_as_general(x, '.', 2, 0)),
+    SEXP dx = PROTECT(asdge(x, 0)),
 	val = _geMatrix_matrix_crossprod(dx, y, trans);
     UNPROTECT(1);
     return val;
@@ -275,7 +342,7 @@ SEXP dgeMatrix_matrix_mm(SEXP a, SEXP bP, SEXP right)
     UNPROTECT(nprot);							\
     return val
 
-    SEXP b = PROTECT(dense_as_general(bP, 'd', 2, 0));
+    SEXP b = PROTECT(asdge(bP, 0));
     DGE_MAT_MM_1(1);
     DGE_MAT_MM_DO(REAL(GET_SLOT(a, Matrix_xSym)),
                   REAL(GET_SLOT(b, Matrix_xSym)));
@@ -293,8 +360,8 @@ static SEXP _geMatrix_matrix_mm(SEXP a, SEXP b, SEXP right)
 //! %*% -- generalized from dge to *ge():
 SEXP geMatrix_matrix_mm(SEXP a, SEXP b, SEXP right) {
     SEXP
-	da = PROTECT(dense_as_general(a, '.', 2, 0)),
-	db = PROTECT(dense_as_general(b, '.', 2, 0)),
+	da = PROTECT(asdge(a, 0)),
+	db = PROTECT(asdge(b, 0)),
 	val = _geMatrix_matrix_mm(da, db, right);
     UNPROTECT(2);
     return val;
@@ -319,7 +386,7 @@ SEXP dtrMatrix_dtrMatrix_mm(SEXP a, SEXP b, SEXP right, SEXP trans)
      * TWO cases : (1) result is triangular  <=> uplo's "match" (i.e., non-equal iff trans)
      * ===         (2) result is "general"
      */
-    SEXP val,/* = in case (2):  dense_as_general(b, 'd', 2, 0); */
+    SEXP val,/* = in case (2):  asdge(b, 0); */
 	d_a = GET_SLOT(a, Matrix_DimSym),
 	uplo_a = GET_SLOT(a, Matrix_uploSym),  diag_a = GET_SLOT(a, Matrix_diagSym),
 	uplo_b = GET_SLOT(b, Matrix_uploSym),  diag_b = GET_SLOT(b, Matrix_diagSym);
@@ -355,7 +422,7 @@ SEXP dtrMatrix_dtrMatrix_mm(SEXP a, SEXP b, SEXP right, SEXP trans)
 		valx[i * np1] = 1.;
 	}
     } else { /* different "uplo" ==> result is "dgeMatrix" ! */
-	val = PROTECT(dense_as_general(b, 'd', 2, 0));
+	val = PROTECT(asdge(b, 0));
 	SEXP
 	    dn_a = GET_SLOT( a , Matrix_DimNamesSym),
 	    dn   = GET_SLOT(val, Matrix_DimNamesSym);
@@ -407,7 +474,7 @@ SEXP dtrMatrix_matrix_mm(SEXP a, SEXP b, SEXP right, SEXP trans)
      *
      * Because 'a' must be square, the size of the answer 'val',
      * is the same as the size of 'b' */
-    SEXP val = PROTECT(dense_as_general(b, 'd', 2, 0));
+    SEXP val = PROTECT(asdge(b, 0));
     int rt = asLogical(right); /* if(rt), compute b %*% op(a),  else  op(a) %*% b */
     int tr = asLogical(trans);/* if true, use t(a) */
     int *adims = INTEGER(GET_SLOT(a, Matrix_DimSym)),
@@ -444,7 +511,7 @@ SEXP dtrMatrix_matrix_mm(SEXP a, SEXP b, SEXP right, SEXP trans)
 
 SEXP dtpMatrix_matrix_mm(SEXP x, SEXP y, SEXP right, SEXP trans)
 {
-    SEXP val = PROTECT(dense_as_general(y, 'd', 2, 0));
+    SEXP val = PROTECT(asdge(y, 0));
     int rt = asLogical(right); // if(rt), compute b %*% op(a), else op(a) %*% b
     int tr = asLogical(trans); // if(tr), op(a) = t(a), else op(a) = a
     /* Since 'x' is square (n x n ),   dim(x %*% y) = dim(y) */
@@ -500,7 +567,7 @@ SEXP dgeMatrix_dtpMatrix_mm(SEXP x, SEXP y)
 
 SEXP dspMatrix_matrix_mm(SEXP a, SEXP b)
 {
-    SEXP val = PROTECT(dense_as_general(b, 'd', 2, 0));
+    SEXP val = PROTECT(asdge(b, 0));
     int *bdims = INTEGER(GET_SLOT(val, Matrix_DimSym));
     int i, ione = 1, n = bdims[0], nrhs = bdims[1];
     R_xlen_t nn = n * (R_xlen_t) nrhs;
@@ -513,13 +580,13 @@ SEXP dspMatrix_matrix_mm(SEXP a, SEXP b)
     if (nrhs >= 1 && n >= 1) {
 	Matrix_Calloc(bx, nn, double);
 	Memcpy(bx, vx, nn);
-	
+
 	R_xlen_t in;
 	for (i = 0, in = 0; i < nrhs; i++, in += n) { // in := i * n (w/o overflow!)
 	    F77_CALL(dspmv)(uplo, &n, &one, ax, bx + in, &ione,
 			    &zero, vx + in, &ione FCONE);
 	}
-	
+
 	Matrix_Free(bx, nn);
     }
     UNPROTECT(1);
@@ -528,7 +595,7 @@ SEXP dspMatrix_matrix_mm(SEXP a, SEXP b)
 
 SEXP dsyMatrix_matrix_mm(SEXP a, SEXP b, SEXP right)
 {
-    SEXP val = PROTECT(dense_as_general(b, 'd', 2, 0));// incl. dimnames
+    SEXP val = PROTECT(asdge(b, 0));// incl. dimnames
     int rt = asLogical(right); /* if(rt), compute b %*% a,  else  a %*% b */
     int *adims = INTEGER(GET_SLOT(a, Matrix_DimSym)),
 	*bdims = INTEGER(GET_SLOT(val, Matrix_DimSym)),
@@ -588,80 +655,60 @@ SEXP dsyMatrix_matrix_mm(SEXP a, SEXP b, SEXP right)
  *   c <- t(t(a) %*% t(b)) C := (A'B')' = B A      TRUE	    "B"    |   |   |
  */
 SEXP Csp_dense_products(SEXP a, SEXP b,
-			Rboolean trans_a, Rboolean trans_b, Rboolean trans_ans)
+                        Rboolean trans_a, Rboolean trans_b, Rboolean trans_ans)
 {
-    CHM_SP cha = AS_CHM_SP(a);
-    size_t
-	a_nc = trans_a ? cha->nrow : cha->ncol,
-	a_nr = trans_a ? cha->ncol : cha->nrow;
-    Rboolean
-	maybe_trans_b = (a_nc == 1),
-	b_is_vector = FALSE;
-    /* NOTE: trans_b {<--> "use t(b) instead of b" }
-       ----  "interferes" with the  case automatic treatment of *vector* b.
-       In that case,  t(b) or b is used "whatever make more sense",
-       according to the general R philosophy of treating vectors in matrix products.
-    */
+	static const char *valid[] = { VALID_CSPARSE, "" };
+	int ivalid = R_check_class_etc(a, valid);
+	if (ivalid < 0)
+		ERROR_INVALID_CLASS(a, __func__);
+	const char *cl = valid[ivalid];
 
-    /* repeating a "cheap part" of dense_as_general() 
-       to see if we have a vector that we might 'transpose_if_vector' : */
-    static const char *valid[] = {MATRIX_VALID_ddense, ""};
-    if (R_check_class_etc(b, valid) < 0)
-	// _not_ a ddenseM* or a ddiM*:  is.matrix() or vector:
-	b_is_vector = !isMatrix(b);
+	if (cl[0] == 'n') {
+#if 0
+		warning(_("cholmod_sdmult() not yet implemented for pattern matrices -> coercing to double"));
+#endif
+		a = sparse_as_kind(a, cl, 'd');
+	}
+	PROTECT(a);
 
-    if(b_is_vector) {
-	/* determine *if* we want/need to transpose at all:
-	 * if (length(b) == ncol(A)) have match: use dim = c(n, 1) (<=> do *not* transpose);
-	 *  otherwise, try to transpose: ok  if (ncol(A) == 1) [see also above]:  */
-	maybe_trans_b = (XLENGTH(b) != a_nc);
-	// Here, we transpose already in dense_as_ge*()  ==> don't do it later:
-	trans_b = FALSE;
-    }
-    SEXP b_M = PROTECT(dense_as_general(b, 'd', 2, maybe_trans_b));
+	CHM_SP cha = AS_CHM_SP(a);
+	R_CheckStack();
+	size_t
+		a_nc = trans_a ? cha->nrow : cha->ncol,
+		a_nr = trans_a ? cha->ncol : cha->nrow;
 
-    CHM_DN chb = AS_CHM_DN(b_M), b_t;
-    R_CheckStack();
-    size_t ncol_b;
-    if(trans_b) { // transpose b:
-	b_t = cholmod_allocate_dense(chb->ncol, chb->nrow, chb->ncol, chb->xtype, &c);
-	chm_transpose_dense(b_t, chb);
-	ncol_b = b_t->ncol;
-    } else
-	ncol_b = chb->ncol;
-    // Result C {with dim() before it may be transposed}:
-    CHM_DN chc = cholmod_allocate_dense(a_nr, ncol_b, a_nr, chb->xtype, &c);
-    double one[] = {1,0}, zero[] = {0,0};
-    int nprot = 2;
+	Rboolean
+		b_is_vector = !(IS_S4_OBJECT(b) || isMatrix(b)),
+		b_transpose_if_vector = b_is_vector && XLENGTH(b) != a_nc;
+	if (b_is_vector)
+		trans_b = FALSE; /* don't transpose twice! */
+	PROTECT(b = asdge(b, b_transpose_if_vector));
 
-    /* Tim Davis, please FIXME:  currently (2010-11) *fails* when  a  is a pattern matrix:*/
-    if(cha->xtype == CHOLMOD_PATTERN) {
-	/* warning(_("Csparse_dense_prod(): cholmod_sdmult() not yet implemented for pattern./ ngCMatrix" */
-	/* 	  " --> slightly inefficient coercion")); */
-	// This *fails* to produce a CHOLMOD_REAL ..
-	// CHM_SP chd = cholmod_l_copy(cha, cha->stype, CHOLMOD_REAL, &cl);
+	CHM_DN chb = AS_CHM_DN(b);
+	R_CheckStack();
+	if (trans_b) {
+		CHM_DN chbt = cholmod_allocate_dense(chb->ncol, chb->nrow, chb->ncol,
+		                                     chb->xtype, &c);
+		chm_transpose_dense(chbt, chb);
+		chb = chbt;
+	}
+	size_t b_nc = chb->ncol;
 
-	// --> use our Matrix-classes: they work:
-	SEXP da = PROTECT(sparse_as_kind(a, 'd', 0)); nprot++;
-	cha = AS_CHM_SP(da);
-    }
+	CHM_DN chc = cholmod_allocate_dense(a_nr, b_nc, a_nr, chb->xtype, &c);
+	double one[] = {1.0, 0.0}, zero[] = {0.0, 0.0};
+	cholmod_sdmult(cha, trans_a, one, zero, chb, chc, &c);
 
-    /* cholmod_sdmult(A, transp, alpha, beta, X,  Y,  &c): depending on transp == 0 / != 0:
-     *  Y := alpha*(A*X) + beta*Y or alpha*(A'*X) + beta*Y;  here, alpha = 1, beta = 0:
-     *  Y := A*X  or  A'*X
-     *                       NB: always  <sparse> %*% <dense> !
-     */
-    cholmod_sdmult(cha, trans_a, one, zero, (trans_b ? b_t : chb), /* -> */ chc, &c);
+	SEXP dna = PROTECT(GET_SLOT(a, Matrix_DimNamesSym)),
+		dnb = PROTECT(GET_SLOT(b, Matrix_DimNamesSym)),
+		dnc = PROTECT(allocVector(VECSXP, 2));
+	SET_VECTOR_ELT(dnc, (trans_ans) ? 1 : 0, VECTOR_ELT(dna, (trans_a) ? 1 : 0));
+	SET_VECTOR_ELT(dnc, (trans_ans) ? 0 : 1, VECTOR_ELT(dnb, (trans_b) ? 0 : 1));
 
-    SEXP dn = PROTECT(allocVector(VECSXP, 2));	/* establish dimnames */
-    SET_VECTOR_ELT(dn, trans_ans ? 1 : 0,
-		   duplicate(VECTOR_ELT(GET_SLOT(a, Matrix_DimNamesSym), trans_a ? 1 : 0)));
-    SET_VECTOR_ELT(dn, trans_ans ? 0 : 1,
-		   duplicate(VECTOR_ELT(GET_SLOT(b_M, Matrix_DimNamesSym),
-					trans_b ? 0 : 1)));
-    if(trans_b) cholmod_free_dense(&b_t, &c);
-    UNPROTECT(nprot);
-    return chm_dense_to_SEXP(chc, 1, 0, dn, trans_ans);
+	if (trans_b)
+		cholmod_free_dense(&chb, &c);
+	SEXP ans = chm_dense_to_SEXP(chc, 1, 0, dnc, trans_ans);
+	UNPROTECT(5);
+	return ans;
 }
 
 /** @brief  A %*% B  - for matrices of class CsparseMatrix (R package "Matrix")
@@ -675,83 +722,88 @@ SEXP Csp_dense_products(SEXP a, SEXP b,
  * NOTA BENE:  cholmod_ssmult(A,B, ...) ->  ./CHOLMOD/MatrixOps/cholmod_ssmult.c
  * ---------  computes a patter*n* matrix __always_ when
  * *one* of A or B is pattern*n*, because of this (line 73-74):
-   ---------------------------------------------------------------------------
-    values = values &&
-	(A->xtype != CHOLMOD_PATTERN) && (B->xtype != CHOLMOD_PATTERN) ;
-   ---------------------------------------------------------------------------
+ * ---------------------------------------------------------------------------
+ * values = values &&
+ * (A->xtype != CHOLMOD_PATTERN) && (B->xtype != CHOLMOD_PATTERN) ;
+ * ---------------------------------------------------------------------------
  * ==> Often need to copy the patter*n* to a *l*ogical matrix first !!!
  */
-SEXP Csparse_Csparse_prod(SEXP a, SEXP b, SEXP bool_arith)
+SEXP Csparse_Csparse_prod(SEXP a, SEXP b, SEXP boolArith)
 {
-    CHM_SP
-	cha = AS_CHM_SP(a),
-	chb = AS_CHM_SP(b), chc;
-    R_CheckStack();
-    static const char *valid_tri[] = { MATRIX_VALID_tri_Csparse, "" };
-    char diag[] = {'\0', '\0'};
-    int uploT = 0, nprot = 1,
-	do_bool = asLogical(bool_arith); // TRUE / NA / FALSE
-    Rboolean
-	a_is_n = (cha->xtype == CHOLMOD_PATTERN),
-	b_is_n = (chb->xtype == CHOLMOD_PATTERN),
-	force_num = (do_bool == FALSE),
-	maybe_bool= (do_bool == NA_LOGICAL);
+	static const char *valid[] = { VALID_CSPARSE, "" };
+	int ivalid = R_check_class_etc(a, valid);
+	if (ivalid < 0)
+		ERROR_INVALID_CLASS(a, __func__);
+	const char *acl = valid[ivalid];
+	ivalid = R_check_class_etc(b, valid);
+	if (ivalid < 0)
+		ERROR_INVALID_CLASS(b, __func__);
+	const char *bcl = valid[ivalid];
 
-#ifdef DEBUG_Matrix_verbose
-    Rprintf("DBG Csparse_C*_prod(%s, %s)\n", class_P(a), class_P(b));
-#endif
-
-    if(a_is_n && (force_num || (maybe_bool && !b_is_n))) {
-	/* coerce 'a' to  double;
-	 * have no CHOLMOD function (pattern -> logical) --> use "our" code */
-	SEXP da = PROTECT(sparse_as_kind(a, 'd', 0)); nprot++;
-	cha = AS_CHM_SP(da);
-	R_CheckStack();
-	a_is_n = FALSE;
-    }
-    else if(b_is_n && (force_num || (maybe_bool && !a_is_n))) {
-	// coerce 'b' to  double
-	SEXP db = PROTECT(sparse_as_kind(b, 'd', 0)); nprot++;
-	chb = AS_CHM_SP(db);
-	R_CheckStack();
-	b_is_n = FALSE;
-    }
-    chc = cholmod_ssmult(cha, chb, /*out_stype:*/ 0,
-			 /* values : */ do_bool != TRUE,
-			 /* sorted = TRUE: */ 1, &c);
-
-    /* Preserve triangularity and even unit-triangularity if appropriate.
-     * Note that in that case, the multiplication itself should happen
-     * faster.  But there's no support for that in CHOLMOD */
-
-    if(R_check_class_etc(a, valid_tri) >= 0 &&
-       R_check_class_etc(b, valid_tri) >= 0)
-	if(*uplo_P(a) == *uplo_P(b)) { /* both upper, or both lower tri. */
-	    uploT = (*uplo_P(a) == 'U') ? 1 : -1;
-	    if(*diag_P(a) == 'U' && *diag_P(b) == 'U') { /* return UNIT-triag. */
-		/* "remove the diagonal entries": */
-		chm_diagN2U(chc, uploT, /* do_realloc */ FALSE);
-		diag[0]= 'U';
-	    }
-	    else diag[0]= 'N';
+	int doBool = asLogical(boolArith);
+	if (doBool == NA_LOGICAL)
+		doBool = (acl[0] == 'n' && bcl[0] == 'n');
+	if (doBool) {
+		if (acl[0] != 'n')
+			a = sparse_as_kind(a, acl, 'n');
+		PROTECT(a);
+		if (bcl[0] != 'n')
+			b = sparse_as_kind(b, bcl, 'n');
+		PROTECT(b);
+	} else {
+		if (acl[0] != 'd')
+			a = sparse_as_kind(a, acl, 'd');
+		PROTECT(a);
+		if (bcl[0] != 'd')
+			b = sparse_as_kind(b, bcl, 'd');
+		PROTECT(b);
 	}
 
-    // establish dimnames --  extra care for *symmetric* Csparse:
-    static const char *valid_sym[] = { MATRIX_VALID_sym_Csparse, "" };
-    Rboolean
-	a_symm = R_check_class_etc(a, valid_sym) >= 0,
-	b_symm = R_check_class_etc(b, valid_sym) >= 0;
-    SEXP dn = PROTECT(allocVector(VECSXP, 2));
-    SET_VECTOR_ELT(dn, 0,
-		   duplicate(VECTOR_ELT(a_symm ?
-					get_symmetrized_DimNames(a, -1)
-					: GET_SLOT(a, Matrix_DimNamesSym), 0)));
-    SET_VECTOR_ELT(dn, 1,
-		   duplicate(VECTOR_ELT(b_symm
-					? get_symmetrized_DimNames(b, -1)
-					: GET_SLOT(b, Matrix_DimNamesSym), 1)));
-    UNPROTECT(nprot);
-    return chm_sparse_to_SEXP(chc, 1, uploT, /*Rkind*/0, diag, dn);
+	CHM_SP cha = AS_CHM_SP(a), chb = AS_CHM_SP(b), chc;
+	R_CheckStack();
+	chc = cholmod_ssmult(cha, chb, 0, !doBool, 1, &c);
+
+	char ul = '\0', di = '\0';
+	if (acl[1] == 't' && bcl[1] == 't') {
+		SEXP auplo = PROTECT(GET_SLOT(a, Matrix_uploSym)),
+			buplo = PROTECT(GET_SLOT(b, Matrix_uploSym));
+		char aul = *CHAR(STRING_ELT(auplo, 0)),
+			bul = *CHAR(STRING_ELT(buplo, 0));
+		if (aul == bul) {
+			ul = aul;
+			di = 'N';
+			SEXP adiag = PROTECT(GET_SLOT(a, Matrix_diagSym)),
+				bdiag = PROTECT(GET_SLOT(b, Matrix_diagSym));
+			char adi = *CHAR(STRING_ELT(adiag, 0)),
+				bdi = *CHAR(STRING_ELT(bdiag, 0));
+			if (adi != 'N' && bdi != 'N') {
+				di = 'U';
+				chm_diagN2U(chc, (ul == 'U') ? 1 : -1, 0);
+			}
+			UNPROTECT(2);
+		}
+		UNPROTECT(2);
+	}
+
+	SEXP
+		dna = PROTECT((acl[1] != 's')
+		              ? GET_SLOT(a, Matrix_DimNamesSym)
+		              : get_symmetrized_DimNames(a, -1)),
+		dnb = PROTECT((bcl[1] != 's')
+		              ? GET_SLOT(b, Matrix_DimNamesSym)
+		              : get_symmetrized_DimNames(b, -1)),
+		dnc = PROTECT(allocVector(VECSXP, 2));
+	SET_VECTOR_ELT(dnc, 0, VECTOR_ELT(dna, 0));
+	SET_VECTOR_ELT(dnc, 1, VECTOR_ELT(dnb, 1));
+
+	SEXP ans = chm_sparse_to_SEXP(chc,
+	                              1,
+	                              (ul == '\0') ? 0 : ((ul == 'U') ? 1 : -1),
+	                              0,
+	                              (di == '\0') ? "" : ((di == 'N') ? "N" : "U"),
+	                              dnc);
+	UNPROTECT(5);
+	return ans;
 }
 
 /** @brief [t]crossprod (<Csparse>, <Csparse>)
@@ -764,138 +816,161 @@ SEXP Csparse_Csparse_prod(SEXP a, SEXP b, SEXP bool_arith)
  *
  * @return a CsparseMatrix, the (t)cross product of a and b.
  */
-SEXP Csparse_Csparse_crossprod(SEXP a, SEXP b, SEXP trans, SEXP bool_arith)
+SEXP Csparse_Csparse_crossprod(SEXP a, SEXP b, SEXP trans, SEXP boolArith)
 {
-    int tr = asLogical(trans), nprot = 1,
-	do_bool = asLogical(bool_arith); // TRUE / NA / FALSE
-    CHM_SP
-	cha = AS_CHM_SP(a),
-	chb = AS_CHM_SP(b),
-	chTr, chc;
-    R_CheckStack();
-    static const char *valid_tri[] = { MATRIX_VALID_tri_Csparse, "" };
-    char diag[] = {'\0', '\0'};
-    int uploT = 0;
-    Rboolean
-	a_is_n = (cha->xtype == CHOLMOD_PATTERN),
-	b_is_n = (chb->xtype == CHOLMOD_PATTERN),
-	force_num = (do_bool == FALSE),
-	maybe_bool= (do_bool == NA_LOGICAL);
+	static const char *valid[] = { VALID_CSPARSE, "" };
+	int ivalid = R_check_class_etc(a, valid);
+	if (ivalid < 0)
+		ERROR_INVALID_CLASS(a, __func__);
+	const char *acl = valid[ivalid];
+	ivalid = R_check_class_etc(b, valid);
+	if (ivalid < 0)
+		ERROR_INVALID_CLASS(b, __func__);
+	const char *bcl = valid[ivalid];
 
-    if(a_is_n && (force_num || (maybe_bool && !b_is_n))) {
-	// coerce 'a' to  double
-	SEXP da = PROTECT(sparse_as_kind(a, 'd', 0)); nprot++;
-	cha = AS_CHM_SP(da);
-	R_CheckStack();
-	// a_is_n = FALSE;
-    }
-    else if(b_is_n && (force_num || (maybe_bool && !a_is_n))) {
-	// coerce 'b' to  double
-	SEXP db = PROTECT(sparse_as_kind(b, 'd', 0)); nprot++;
-	chb = AS_CHM_SP(db);
-	R_CheckStack();
-	// b_is_n = FALSE;
-    }
-    else if(do_bool == TRUE) { // Want boolean arithmetic: sufficient if *one* is pattern:
-	if(!a_is_n && !b_is_n) {
-	    // coerce 'a' to pattern
-	    SEXP da = PROTECT(sparse_as_kind(a, 'n', 0)); nprot++;
-	    cha = AS_CHM_SP(da);
-	    R_CheckStack();
-	    // a_is_n = TRUE;
-	}
-    }
-    chTr = cholmod_transpose((tr) ? chb : cha, chb->xtype, &c);
-    chc = cholmod_ssmult((tr) ? cha : chTr, (tr) ? chTr : chb,
-			 /*out_stype:*/ 0, /* values : */ do_bool != TRUE,
-			 /* sorted = TRUE: */ 1, &c);
-    cholmod_free_sparse(&chTr, &c);
-
-    /* Preserve triangularity and unit-triangularity if appropriate;
-     * see Csparse_Csparse_prod() for more comments */
-    if(R_check_class_etc(a, valid_tri) >= 0 &&
-       R_check_class_etc(b, valid_tri) >= 0)
-	if(*uplo_P(a) != *uplo_P(b)) { /* one 'U', the other 'L' */
-	    uploT = (*uplo_P(b) == (tr ? 'L' : 'U')) ? 1 : -1;
-	    if(*diag_P(a) == 'U' && *diag_P(b) == 'U') { /* return UNIT-triag. */
-		chm_diagN2U(chc, uploT, /* do_realloc */ FALSE);
-		diag[0]= 'U';
-	    }
-	    else diag[0]= 'N';
+	int doTrans = asLogical(trans), doBool = asLogical(boolArith);
+	if (doBool == NA_LOGICAL)
+		doBool = (acl[0] == 'n' && bcl[0] == 'n');
+	if (doBool) {
+		if (acl[0] != 'n')
+			a = sparse_as_kind(a, acl, 'n');
+		PROTECT(a);
+		if (bcl[0] != 'n')
+			b = sparse_as_kind(b, bcl, 'n');
+		PROTECT(b);
+	} else {
+		if (acl[0] != 'd')
+			a = sparse_as_kind(a, acl, 'd');
+		PROTECT(a);
+		if (bcl[0] != 'd')
+			b = sparse_as_kind(b, bcl, 'd');
+		PROTECT(b);
 	}
 
-    SEXP dn = PROTECT(allocVector(VECSXP, 2));
-    SET_VECTOR_ELT(dn, 0,	/* establish dimnames */
-		   duplicate(VECTOR_ELT(GET_SLOT(a, Matrix_DimNamesSym),
-					(tr) ? 0 : 1)));
-    SET_VECTOR_ELT(dn, 1,
-		   duplicate(VECTOR_ELT(GET_SLOT(b, Matrix_DimNamesSym),
-					(tr) ? 0 : 1)));
-    UNPROTECT(nprot);
-    return chm_sparse_to_SEXP(chc, 1, uploT, /*Rkind*/0, diag, dn);
+	CHM_SP cha = AS_CHM_SP(a), chb = AS_CHM_SP(b), chc;
+	R_CheckStack();
+	if (doTrans)
+		chb = cholmod_transpose(chb, chb->xtype, &c);
+	else
+		cha = cholmod_transpose(cha, cha->xtype, &c);
+	chc = cholmod_ssmult(cha, chb, 0, !doBool, 1, &c);
+	if (doTrans)
+		cholmod_free_sparse(&chb, &c);
+	else
+		cholmod_free_sparse(&cha, &c);
+
+	char ul = '\0', di = '\0';
+	if (acl[1] == 't' && bcl[1] == 't') {
+		SEXP auplo = PROTECT(GET_SLOT(a, Matrix_uploSym)),
+			buplo = PROTECT(GET_SLOT(b, Matrix_uploSym));
+		char aul = *CHAR(STRING_ELT(auplo, 0)),
+			bul = *CHAR(STRING_ELT(buplo, 0));
+		if (aul != bul) {
+			ul = (doTrans) ? aul : bul;
+			di = 'N';
+			SEXP adiag = PROTECT(GET_SLOT(a, Matrix_diagSym)),
+				bdiag = PROTECT(GET_SLOT(b, Matrix_diagSym));
+			char adi = *CHAR(STRING_ELT(adiag, 0)),
+				bdi = *CHAR(STRING_ELT(bdiag, 0));
+			if (adi != 'N' && bdi != 'N') {
+				di = 'U';
+				chm_diagN2U(chc, (ul == 'U') ? 1 : -1, 0);
+			}
+			UNPROTECT(2);
+		}
+		UNPROTECT(2);
+	}
+
+	SEXP
+		dna = PROTECT((acl[1] != 's')
+		              ? GET_SLOT(a, Matrix_DimNamesSym)
+		              : get_symmetrized_DimNames(a, -1)),
+		dnb = PROTECT((bcl[1] != 's')
+		              ? GET_SLOT(b, Matrix_DimNamesSym)
+		              : get_symmetrized_DimNames(b, -1)),
+		dnc = PROTECT(allocVector(VECSXP, 2));
+	SET_VECTOR_ELT(dnc, 0, VECTOR_ELT(dna, (doTrans) ? 0 : 1));
+	SET_VECTOR_ELT(dnc, 1, VECTOR_ELT(dnb, (doTrans) ? 0 : 1));
+
+	SEXP ans = chm_sparse_to_SEXP(chc,
+	                              1,
+	                              (ul == '\0') ? 0 : ((ul == 'U') ? 1 : -1),
+	                              0,
+	                              (di == '\0') ? "" : ((di == 'N') ? "N" : "U"),
+	                              dnc);
+	UNPROTECT(5);
+	return ans;
 }
 
-/** @brief Computes   x'x  or  x x' -- *also* for Tsparse (triplet = TRUE)
-    see Csparse_Csparse_crossprod above for  x'y and x y'
-*/
-SEXP Csparse_crossprod(SEXP x, SEXP trans, SEXP triplet, SEXP bool_arith)
+/** @brief Computes   x'x  or  x x' -- *also* for Tsparse
+ *  see Csparse_Csparse_crossprod above for  x'y and x y'
+ */
+SEXP Csparse_crossprod(SEXP x, SEXP trans, SEXP boolArith)
 {
-    int tripl = asLogical(triplet),
-	tr   = asLogical(trans), /* gets reversed because _aat is tcrossprod */
-	do_bool = asLogical(bool_arith); // TRUE / NA / FALSE
-#ifdef AS_CHM_DIAGU2N_FIXED_FINALLY
-    CHM_TR cht = tripl ? AS_CHM_TR(x) : (CHM_TR) NULL;  int nprot = 1;
-#else /* workaround needed:*/
-    SEXP xx = PROTECT(R_sparse_diag_U2N(x));
-    CHM_TR cht = tripl ? AS_CHM_TR__(xx) : (CHM_TR) NULL; int nprot = 2;
-#endif
-    CHM_SP chcp, chxt, chxc,
-	chx = (tripl ?
-	       cholmod_triplet_to_sparse(cht, cht->nnz, &c) :
-	       AS_CHM_SP(x));
-    SEXP dn = PROTECT(allocVector(VECSXP, 2));
-    R_CheckStack();
-    Rboolean
-	x_is_n = (chx->xtype == CHOLMOD_PATTERN),
-	x_is_sym = chx->stype != 0,
-	force_num = (do_bool == FALSE);
+	static const char *valid[] = { VALID_CSPARSE, VALID_TSPARSE, "" };
+	int ivalid = R_check_class_etc(x, valid);
+	if (ivalid < 0)
+		ERROR_INVALID_CLASS(x, __func__);
+	const char *cl = valid[ivalid];
 
-    if(x_is_n && force_num) {
-	// coerce 'x' to  double
-	SEXP dx = PROTECT(sparse_as_kind(x, 'd', 0)); nprot++;
-	chx = AS_CHM_SP(dx);
-	R_CheckStack();
-    }
-    else if(do_bool == TRUE && !x_is_n) { // Want boolean arithmetic; need patter[n]
-	// coerce 'x' to pattern
-	SEXP dx = PROTECT(sparse_as_kind(x, 'n', 0)); nprot++;
-	chx = AS_CHM_SP(dx);
-	R_CheckStack();
-    }
+	int doTrans = asLogical(trans), doBool = asLogical(boolArith);
+	if (doBool == NA_LOGICAL)
+		doBool = cl[0] == 'n';
+	if (doBool) {
+		if (cl[0] != 'n')
+			x = sparse_as_kind(x, cl, 'n');
+	} else {
+		if (cl[0] != 'd')
+			x = sparse_as_kind(x, cl, 'd');
+	}
+	PROTECT(x);
 
-    if (!tr) chxt = cholmod_transpose(chx, chx->xtype, &c);
+	int doFree = 0;
+	CHM_SP chx, chc;
+	if (cl[2] != 'T') {
+		chx = AS_CHM_SP(x);
+		R_CheckStack();
+	} else {
+		/* defined in ./sparse.c : */
+		SEXP sparse_diag_U2N(SEXP, const char *);
+		x = sparse_diag_U2N(x, cl); /* work around as_cholmod_triplet (?) */
+		UNPROTECT(1);
+		PROTECT(x);
+		CHM_TR tmp = AS_CHM_TR__(x);
+		R_CheckStack();
+		chx = cholmod_triplet_to_sparse(tmp, tmp->nnz, &c);
+		doFree = 1;
+	}
+	if (!doTrans) {
+		CHM_SP tmp = cholmod_transpose(chx, chx->xtype, &c);
+		if (doFree)
+			cholmod_free_sparse(&chx, &c);
+		else doFree = 1;
+		chx = tmp;
+	}
+	if (chx->stype != 0) {
+		CHM_SP tmp = cholmod_copy(chx, 0, chx->xtype, &c);
+		if (doFree)
+			cholmod_free_sparse(&chx, &c);
+		else doFree = 1;
+		chx = tmp;
+	}
+	chc = cholmod_aat(chx, (int *) NULL, 0, chx->xtype, &c);
+	if (doFree)
+		cholmod_free_sparse(&chx, &c);
+	chc->stype = 1;
 
-    // cholmod_aat() does not like symmetric
-    chxc = x_is_sym ? cholmod_copy(tr ? chx : chxt, /* stype: */ 0, chx->xtype, &c) : NULL;
-    // CHOLMOD/Core/cholmod_aat.c :
-    chcp = cholmod_aat(x_is_sym ? chxc : (tr ? chx : chxt),
-		       (int *) NULL, 0, /* mode: */ chx->xtype, &c);
-    if (chxc) cholmod_free_sparse(&chxc, &c);
-    if(!chcp) {
-	UNPROTECT(1);
-	error(_("Csparse_crossprod(): error return from cholmod_aat()"));
-    }
-    cholmod_band_inplace(0, chcp->ncol, chcp->xtype, chcp, &c);
-    chcp->stype = 1; // symmetric
-    if (tripl) cholmod_free_sparse(&chx, &c);
-    if (!tr) cholmod_free_sparse(&chxt, &c);
-    SET_VECTOR_ELT(dn, 0,	/* establish dimnames */
-		   duplicate(VECTOR_ELT(GET_SLOT(x, Matrix_DimNamesSym),
-					(tr) ? 0 : 1)));
-    SET_VECTOR_ELT(dn, 1, duplicate(VECTOR_ELT(dn, 0)));
-    UNPROTECT(nprot);
-    // FIXME: uploT for symmetric ?
-    return chm_sparse_to_SEXP(chcp, 1, 0, 0, "", dn);
+	SEXP
+		dnx = PROTECT((cl[1] != 's')
+		              ? GET_SLOT(x, Matrix_DimNamesSym)
+		              : get_symmetrized_DimNames(x, -1)),
+		dnc = PROTECT(allocVector(VECSXP, 2));
+	SET_VECTOR_ELT(dnc, 0, VECTOR_ELT(dnx, (doTrans) ? 0 : 1));
+	SET_VECTOR_ELT(dnc, 1, VECTOR_ELT(dnx, (doTrans) ? 0 : 1));
+
+	SEXP ans = chm_sparse_to_SEXP(chc, 1, 0, 0, "", dnc);
+	UNPROTECT(3);
+	return ans;
 }
 
 SEXP Csparse_dense_prod(SEXP a, SEXP b, SEXP trans)

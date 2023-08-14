@@ -2,7 +2,9 @@
 #include "Csparse.h"
 #include "CHMfactor.h"
 #include "abIndex.h"
+#include "bind.h"
 #include "chm_common.h"
+#include "coerce.h"
 #include "dense.h"
 #include "dgCMatrix.h"
 #include "dgeMatrix.h"
@@ -22,7 +24,7 @@
 Rcomplex Matrix_zzero, Matrix_zone, Matrix_zna;
 
 #define CALLDEF(name, n)  {#name, (DL_FUNC) &name, n}
-#define EXTDEF(name, n)   {#name, (DL_FUNC) &name, n}
+#define  EXTDEF(name, n)  {#name, (DL_FUNC) &name, n}
 
 static R_CallMethodDef CallEntries[] = {
 	CALLDEF(CHM_set_common_env, 1),
@@ -37,10 +39,9 @@ static R_CallMethodDef CallEntries[] = {
 	CALLDEF(Csparse_Csparse_prod, 3),
 	CALLDEF(Csparse_Csparse_crossprod, 4),
 	CALLDEF(Csparse_MatrixMarket, 2),
-	CALLDEF(Csparse_crossprod, 4),
+	CALLDEF(Csparse_crossprod, 3),
 	CALLDEF(Csparse_dense_crossprod, 3),
 	CALLDEF(Csparse_dense_prod, 3),
-	CALLDEF(Csparse_drop, 2),
 	CALLDEF(Csparse_horzcat, 2),
 	CALLDEF(Csparse_sort, 1),
 
@@ -168,31 +169,18 @@ static R_CallMethodDef CallEntries[] = {
 	CALLDEF(R_subscript_1ary_mat, 2),
 	CALLDEF(R_subscript_2ary, 3),
 
-	CALLDEF(R_sparse_as_dense, 2),
-	CALLDEF(R_sparse_as_matrix, 1),
-	CALLDEF(R_sparse_as_vector, 1),
-	CALLDEF(R_sparse_as_kind, 3),
-	CALLDEF(R_sparse_as_general, 1),
-
-	CALLDEF(R_diagonal_as_sparse, 4),
-	CALLDEF(R_diagonal_as_dense, 3),
-	CALLDEF(R_diagonal_as_kind, 2),
-
-	CALLDEF(R_sparse_drop0, 1),
+	CALLDEF(R_sparse_drop0, 2),
 	CALLDEF(R_sparse_band, 3),
 	CALLDEF(R_sparse_diag_get, 2),
 	CALLDEF(R_sparse_diag_set, 2),
 	CALLDEF(R_sparse_diag_U2N, 1),
 	CALLDEF(R_sparse_diag_N2U, 1),
-	CALLDEF(R_sparse_transpose, 1),
+	CALLDEF(R_sparse_transpose, 2),
 	CALLDEF(R_sparse_force_symmetric, 2),
 	CALLDEF(R_sparse_symmpart, 1),
 	CALLDEF(R_sparse_skewpart, 1),
 
-	CALLDEF(CRsparse_as_Tsparse, 1),
-	CALLDEF(Tsparse_as_CRsparse, 2),
 	CALLDEF(Tsparse_aggregate, 1),
-	CALLDEF(tCRsparse_as_RCsparse, 1),
 	CALLDEF(Csparse_is_diagonal, 1),
 	CALLDEF(Rsparse_is_diagonal, 1),
 	CALLDEF(Tsparse_is_diagonal, 1),
@@ -204,14 +192,6 @@ static R_CallMethodDef CallEntries[] = {
 	CALLDEF(CRsparse_colSums, 4),
 	CALLDEF(CRsparse_rowSums, 4),
 
-	CALLDEF(R_matrix_as_dense, 4),
-	CALLDEF(R_dense_as_general, 2),
-	CALLDEF(R_dense_as_sparse, 4),
-	CALLDEF(R_dense_as_kind, 2),
-	CALLDEF(R_dense_as_matrix, 1),
-	CALLDEF(R_geMatrix_as_matrix, 2),
-	CALLDEF(R_dense_as_vector, 1),
-	CALLDEF(R_geMatrix_as_vector, 2),
 	CALLDEF(R_dense_band, 3),
 	CALLDEF(R_dense_colSums, 3),
 	CALLDEF(R_dense_rowSums, 3),
@@ -222,7 +202,6 @@ static R_CallMethodDef CallEntries[] = {
 	CALLDEF(matrix_symmpart, 1),
 	CALLDEF(matrix_skewpart, 1),
 
-	CALLDEF(unpackedMatrix_pack, 4),
 	CALLDEF(unpackedMatrix_force_symmetric, 2),
 	CALLDEF(unpackedMatrix_is_symmetric, 2),
 	CALLDEF(unpackedMatrix_is_triangular, 2),
@@ -233,7 +212,6 @@ static R_CallMethodDef CallEntries[] = {
 	CALLDEF(unpackedMatrix_symmpart, 1),
 	CALLDEF(unpackedMatrix_skewpart, 1),
 
-	CALLDEF(packedMatrix_unpack, 2),
 	CALLDEF(packedMatrix_force_symmetric, 2),
 	CALLDEF(packedMatrix_is_symmetric, 2),
 	CALLDEF(packedMatrix_is_triangular, 2),
@@ -297,11 +275,41 @@ static R_CallMethodDef CallEntries[] = {
 	CALLDEF(v2spV, 1),
 	CALLDEF(CR2spV, 1),
 
+	CALLDEF(R_matrix_as_dense, 4),
+	CALLDEF(R_sparse_as_dense, 2),
+	CALLDEF(R_diagonal_as_dense, 4),
+	CALLDEF(R_index_as_dense, 2),
+	CALLDEF(R_matrix_as_sparse, 4),
+	CALLDEF(R_dense_as_sparse, 2),
+	CALLDEF(R_diagonal_as_sparse, 4),
+	CALLDEF(R_index_as_sparse, 3),
+	CALLDEF(R_dense_as_kind, 2),
+	CALLDEF(R_sparse_as_kind, 2),
+	CALLDEF(R_diagonal_as_kind, 2),
+	CALLDEF(R_index_as_kind, 2),
+	CALLDEF(R_dense_as_general, 1),
+	CALLDEF(R_sparse_as_general, 1),
+	CALLDEF(R_dense_as_unpacked, 1),
+	CALLDEF(R_dense_as_packed, 3),
+	CALLDEF(R_sparse_as_Csparse, 1),
+	CALLDEF(R_sparse_as_Rsparse, 1),
+	CALLDEF(R_sparse_as_Tsparse, 1),
+	CALLDEF(R_Matrix_as_vector, 1),
+	CALLDEF(R_Matrix_as_matrix, 1),
+	CALLDEF(R_Matrix_as_unpacked, 1),
+	CALLDEF(R_Matrix_as_packed, 1),
+	CALLDEF(R_Matrix_as_Csparse, 1),
+	CALLDEF(R_Matrix_as_Rsparse, 1),
+	CALLDEF(R_Matrix_as_Tsparse, 1),
+	CALLDEF(R_Matrix_as_kind, 3),
+	CALLDEF(R_Matrix_as_general, 2),
+
 	{NULL, NULL, 0}
 };
 
 static const R_ExternalMethodDef ExtEntries[] = {
 	EXTDEF(Mmatrix, 7),
+	EXTDEF(R_bind, -1),
 	{NULL, NULL, 0}
 };
 

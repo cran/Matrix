@@ -4,37 +4,11 @@
 
 .pM.subclasses <- names(getClassDef("packedMatrix")@subclasses)
 
-
-## ~~~~ COERCIONS FROM ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-## as(<packedMatrix>,             "matrix") inherited from denseMatrix
-## as(<packedMatrix>,        "[dln]Matrix") inherited from denseMatrix
-## as(<packedMatrix>,   "[dln]denseMatrix") inherited from denseMatrix
-## as(<packedMatrix>,  "[dln]sparseMatrix") inherited from denseMatrix
-## as(<packedMatrix>,      "generalMatrix") inherited from denseMatrix
-## as(<packedMatrix>,   "triangularMatrix") inherited from      Matrix
-## as(<packedMatrix>,    "symmetricMatrix") inherited from      Matrix
-## as(<packedMatrix>,     "unpackedMatrix") inherited from denseMatrix
-## as(<packedMatrix>, "[CRT]?sparseMatrix") inherited from denseMatrix
-## as(<packedMatrix>,     "diagonalMatrix") inherited from      Matrix
-## as(<packedMatrix>,          "indMatrix") inherited from      Matrix
-
-
-## ~~~~ COERCIONS TO ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-## as(           <matrix>, "packedMatrix") in ./denseMatrix.R
-## as(      <denseMatrix>, "packedMatrix") in ./denseMatrix.R
-## as(<[CRT]sparseMatrix>, "packedMatrix") in ./sparseMatrix.R
-## as(   <diagonalMatrix>, "packedMatrix") in ./diagMatrix.R
-## as(        <indMatrix>, "packedMatrix") in ./indMatrix.R
-
-
-## ~~~~ METHODS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+setMethod("unpack", signature(x = "packedMatrix"),
+          function(x, ...) .Call(R_dense_as_unpacked, x))
 
 setMethod("pack", signature(x = "packedMatrix"),
           function(x, ...) x)
-setMethod("unpack", signature(x = "packedMatrix"),
-          function(x, ...) .Call(packedMatrix_unpack, x, TRUE))
 
 setMethod("forceSymmetric", signature(x = "packedMatrix", uplo = "missing"),
           function(x, uplo) .Call(packedMatrix_force_symmetric, x, NULL))

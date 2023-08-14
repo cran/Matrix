@@ -139,9 +139,9 @@ setAs("graphNEL", "TsparseMatrix",
       function(from) graph2T(from))
 
 setAs("graph", "CsparseMatrix",
-      function(from) .T2C(as(from, "TsparseMatrix")))
+      function(from) .M2C(as(from, "TsparseMatrix")))
 setAs("graph", "RsparseMatrix",
-      function(from) .T2R(as(from, "TsparseMatrix")))
+      function(from) .M2R(as(from, "TsparseMatrix")))
 setAs("graph", "TsparseMatrix",
       function(from) graph2T(as(from, "graphNEL")))
 setAs("graph", "sparseMatrix",

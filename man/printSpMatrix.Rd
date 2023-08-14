@@ -146,6 +146,8 @@ st <- system.time(show(M))
 sink()
 st
 
+if(interactive() || nzchar(Sys.getenv("R_MATRIX_CHECK_EXTRA")))
+## valgrind (2023-07-26) gave 10.5 sec!
 stopifnot(st[1] < 1.0) # only 0.09 on cmath-3
 options(op)
 }

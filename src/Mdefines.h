@@ -115,10 +115,12 @@ Rcomplex Matrix_zzero, Matrix_zone, Matrix_zna; /* 0+0i, 1+0i, NA+NAi */
 
 #define MAXOF(x, y) ((x < y) ? y : x)
 #define MINOF(x, y) ((x < y) ? x : y)
+#define  FIRSTOF(x, y) (x)
+#define SECONDOF(x, y) (y)
 
 #define ISNA_LOGICAL(_X_) ((_X_) == NA_LOGICAL)
 #define ISNA_INTEGER(_X_) ((_X_) == NA_INTEGER)
-#define ISNA_REAL(_X_)    ISNAN(_X_)
+#define ISNA_REAL(_X_)    (ISNAN(_X_))
 #define ISNA_COMPLEX(_X_) (ISNAN((_X_).r) || ISNAN((_X_).i))
 
 #define ISNZ_LOGICAL(_X_) ((_X_) != 0)
@@ -135,6 +137,42 @@ Rcomplex Matrix_zzero, Matrix_zone, Matrix_zna; /* 0+0i, 1+0i, NA+NAi */
 #define STRICTLY_ISNZ_COMPLEX(_X_) \
 	(!ISNA_COMPLEX(_X_) && ISNZ_COMPLEX(_X_))
 
+#define INCREMENT_PATTERN(_X_, _Y_) \
+	do { \
+		_X_ = 1; \
+	} while (0)
+#define INCREMENT_LOGICAL(_X_, _Y_) \
+	do { \
+		if (_Y_ == NA_LOGICAL) { \
+			if (_X_ == 0) \
+				_X_ = NA_LOGICAL; \
+		} else if (_Y_ != 0) \
+			_X_ = 1; \
+	} while (0)
+#define INCREMENT_INTEGER(_X_, _Y_) \
+	do { \
+		if (_X_ != NA_INTEGER) { \
+			if (_Y_ == NA_INTEGER) \
+				_X_ = NA_INTEGER; \
+			else if ((_Y_ < 0) \
+					 ? (_X_ <= INT_MIN - _Y_) \
+					 : (_X_ >  INT_MAX - _Y_)) { \
+				warning(_("NAs produced by integer overflow")); \
+				_X_ = NA_INTEGER; \
+			} else \
+				_X_ += _Y_; \
+		} \
+	} while (0)
+#define INCREMENT_REAL(_X_, _Y_) \
+	do { \
+		_X_ += _Y_; \
+	} while (0)
+#define INCREMENT_COMPLEX(_X_, _Y_) \
+	do { \
+		_X_.r += _Y_.r; \
+		_X_.i += _Y_.i; \
+	} while (0)
+
 #define PM_AR21_UP(i, j) \
 	((R_xlen_t) ((i) + ((Matrix_int_fast64_t) (j) * (       (j) + 1)) / 2))
 #define PM_AR21_LO(i, j, m2) \
@@ -142,24 +180,24 @@ Rcomplex Matrix_zzero, Matrix_zone, Matrix_zna; /* 0+0i, 1+0i, NA+NAi */
 #define PM_LENGTH(m) \
 	((R_xlen_t) ((m) + ((Matrix_int_fast64_t) (m) * (       (m) - 1)) / 2))
 
-#define SHOW(_X_) _X_
-#define HIDE(_X_)
+#define SHOW(...) __VA_ARGS__
+#define HIDE(...)
 
-#define ERROR_INVALID_CLASS(_X_, _METHOD_) \
+#define ERROR_INVALID_TYPE(_X_, _FUNC_) \
+	error(_("invalid type \"%s\" in %s()"), \
+	      type2char(TYPEOF(_X_)), _FUNC_)
+
+#define ERROR_INVALID_CLASS(_X_, _FUNC_) \
 do { \
-	SEXP class = PROTECT(getAttrib(_X_, R_ClassSymbol)); \
-	if (TYPEOF(class) == STRSXP && LENGTH(class) > 0) \
-		error(_("invalid class \"%s\" to '%s()'"), \
-		      CHAR(STRING_ELT(class, 0)), _METHOD_); \
-	else \
-		error(_("unclassed \"%s\" to '%s()'"), \
-		      type2char(TYPEOF(_X_)), _METHOD_); \
-	UNPROTECT(1); \
+	if (!OBJECT(_X_)) \
+		ERROR_INVALID_TYPE(_X_, _FUNC_); \
+	else { \
+		SEXP class = PROTECT(getAttrib(_X_, R_ClassSymbol)); \
+		error(_("invalid class \"%s\" in %s()"), \
+		      CHAR(STRING_ELT(class, 0)), _FUNC_); \
+		UNPROTECT(1); \
+	} \
 } while (0)
-
-#define ERROR_INVALID_TYPE(_WHAT_, _SEXPTYPE_, _METHOD_) \
-	error(_("%s of invalid type \"%s\" in '%s()'"), \
-	      _WHAT_, type2char(_SEXPTYPE_), _METHOD_)
 
 /* For C-level isTriangular() : */
 #define RETURN_TRUE_OF_KIND(_KIND_) \

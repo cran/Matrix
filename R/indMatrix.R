@@ -3,7 +3,6 @@
 ## for all rows _or_ all columns
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-## MJ: could export without dot and deprecate as(<list>, "indMatrix")
 .perm2ind <- function(perm, n, margin = 1L, check.p = FALSE) {
     perm.i <- perm
     if(!is.numeric(perm))
@@ -49,9 +48,6 @@
     J
 }
 
-
-## ~~~~ COERCIONS TO ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 setAs("numeric", "indMatrix",
       function(from) {
           J <- new("indMatrix")
@@ -69,16 +65,13 @@ setAs("numeric", "indMatrix",
           J
       })
 
+## FIXME: deprecate this method and export more general function .perm2ind
 setAs("list", "indMatrix",
-      function(from) {
-          if(length(from) != 2L)
-              stop("only lists of length 2 can be coerced to indMatrix")
-          do.call(.perm2ind, unname(from))
-      })
+      function(from) do.call(.perm2ind, unname(from)))
 
 setAs("nsparseMatrix", "indMatrix",
       function(from) {
-          from <- .sparse2g(from)
+          from <- .M2gen(from)
           J <- new("indMatrix")
           J@Dim <- from@Dim
           J@Dimnames <- from@Dimnames
@@ -99,164 +92,6 @@ setAs("nsparseMatrix", "indMatrix",
           }
           stop("matrix must have exactly one nonzero element in each row or column")
       })
-
-setAs("Matrix", "indMatrix",
-      function(from) as(as(from, "nsparseMatrix"), "indMatrix"))
-
-setAs("matrix", "indMatrix",
-      function(from) as(as(from, "nsparseMatrix"), "indMatrix"))
-
-
-## ~~~~ COERCIONS FROM ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.ind2dge <- .ind2lge <- .ind2nge <- function(from) {
-    J <- new(.CLASS)
-    J@Dim <- d <- from@Dim
-    J@Dimnames <- from@Dimnames
-    perm <- from@perm
-    x <- .VECTOR(prod(d))
-    if((m <- length(perm)) > 0L) {
-        if(from@margin == 1L)
-            x[seq.int(  to =  0L, by =    1L, length.out = m) +
-              perm * as.double(m)] <- .ONE
-        else
-            x[seq.int(from = -1L, by = d[1L], length.out = m) +
-              perm               ] <- .ONE
-    }
-    J@x <- x
-    J
-}
-body(.ind2dge) <-
-    do.call(substitute, list(body(.ind2dge), list(.CLASS = "dgeMatrix",
-                                                  .VECTOR = quote(double),
-                                                  .ONE = 1)))
-body(.ind2lge) <-
-    do.call(substitute, list(body(.ind2lge), list(.CLASS = "lgeMatrix",
-                                                  .VECTOR = quote(logical),
-                                                  .ONE = TRUE)))
-body(.ind2nge) <-
-    do.call(substitute, list(body(.ind2nge), list(.CLASS = "ngeMatrix",
-                                                  .VECTOR = quote(logical),
-                                                  .ONE = TRUE)))
-
-.ind2n.p <- function(from) {
-    from <-
-        if(isSymmetric(from))
-            forceSymmetric(from)
-        else if(!(it <- isTriangular(from)))
-            stop("matrix is not symmetric or triangular")
-        else if(attr(it, "kind") == "U")
-            triu(from)
-        else tril(from)
-    .Call(R_sparse_as_dense, from, TRUE)
-}
-
-.ind2dgC <- .ind2lgC <- .ind2ngC <- function(from) {
-    J <- new(.CLASS)
-    J@Dim <- d <- from@Dim
-    J@Dimnames <- from@Dimnames
-    perm <- from@perm
-    if(from@margin == 1L) {
-        J@p <- c(0L, cumsum(tabulate(perm, d[2L])))
-        J@i <- sort.list(perm) - 1L
-    } else {
-        J@p <- 0:length(perm)
-        J@i <- perm - 1L
-    }
-    J@x <- rep.int(.ONE, length(perm))
-    J
-}
-body(.ind2dgC) <-
-    do.call(substitute, list(body(.ind2dgC), list(.CLASS = "dgCMatrix",
-                                                  .ONE = 1)))
-body(.ind2lgC) <-
-    do.call(substitute, list(body(.ind2lgC), list(.CLASS = "lgCMatrix",
-                                                  .ONE = TRUE)))
-body(.ind2ngC) <-
-    do.call(substitute, list(body(.ind2ngC), list(.CLASS = "ngCMatrix")))
-body(.ind2ngC)[[7L]] <- NULL
-
-.ind2ngR <- function(from) {
-    J <- new("ngRMatrix")
-    J@Dim <- d <- from@Dim
-    J@Dimnames <- from@Dimnames
-    perm <- from@perm
-    if(from@margin == 1L) {
-        J@p <- 0:length(perm)
-        J@j <- perm - 1L
-    } else {
-        J@p <- c(0L, cumsum(tabulate(perm, d[1L])))
-        J@j <- sort.list(perm) - 1L
-    }
-    J
-}
-
-.ind2ngT <- function(from) {
-    J <- new("ngTMatrix")
-    J@Dim      <- from@Dim
-    J@Dimnames <- from@Dimnames
-    perm <- from@perm
-    if(from@margin == 1L) {
-        J@i <- seq.int(from = 0L, by = 1L, length.out = length(perm))
-        J@j <- perm - 1L
-    } else {
-        J@i <- perm - 1L
-        J@j <- seq.int(from = 0L, by = 1L, length.out = length(perm))
-    }
-    J
-}
-
-.ind2diag <- function(from) {
-    if (!isDiagonal(from))
-        stop("matrix is not diagonal; consider Diagonal(x=diag(.))")
-    J <- new("ldiMatrix")
-    J@Dim <- from@Dim
-    J@Dimnames <- from@Dimnames
-    J@diag <- "U"
-    J
-}
-
-.ind2p <- function(from) new("pMatrix", from)
-
-setAs("indMatrix",    "denseMatrix", .ind2nge)
-setAs("indMatrix", "unpackedMatrix", .ind2nge)
-setAs("indMatrix",   "packedMatrix", .ind2n.p)
-setAs("indMatrix",         "matrix", .ind2m)
-setAs("indMatrix",         "vector", .ind2v)
-
-setAs("indMatrix",        "dMatrix", .ind2dgC)
-setAs("indMatrix",  "dsparseMatrix", .ind2dgC)
-setAs("indMatrix",   "ddenseMatrix", .ind2dge)
-setAs("indMatrix",        "lMatrix", .ind2lgC)
-setAs("indMatrix",  "lsparseMatrix", .ind2lgC)
-setAs("indMatrix",   "ldenseMatrix", .ind2lge)
-setAs("indMatrix",        "nMatrix", .ind2ngC)
-setAs("indMatrix",  "nsparseMatrix", .ind2ngC)
-setAs("indMatrix",   "ndenseMatrix", .ind2nge)
-
-setAs("indMatrix",  "generalMatrix", .ind2ngC)
-## setAs("indMatrix", "triangularMatrix", .) # inherited from Matrix
-## setAs("indMatrix",  "symmetricMatrix", .) # inherited from Matrix
-
-setAs("indMatrix",  "CsparseMatrix", .ind2ngC)
-setAs("indMatrix",  "RsparseMatrix", .ind2ngR)
-setAs("indMatrix",  "TsparseMatrix", .ind2ngT)
-setAs("indMatrix", "diagonalMatrix", .ind2diag)
-setAs("indMatrix",        "pMatrix", .ind2p)
-
-setMethod("as.vector", signature(x = "indMatrix"),
-          function(x, mode = "any") as.vector(.ind2v(x), mode))
-setMethod("as.numeric", signature(x = "indMatrix"),
-          function(x, ...) as.double(.ind2v(x)))
-setMethod("as.logical", signature(x = "indMatrix"),
-          function(x, ...) .ind2v(x))
-
-rm(.ind2dge, .ind2lge, .ind2nge, .ind2n.p,
-   .ind2dgC, .ind2lgC, .ind2ngC, .ind2ngR, .ind2ngT,
-   .ind2diag, .ind2p)
-
-
-## ~~~~ METHODS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 setMethod("isSymmetric", signature(object = "indMatrix"),
           function(object, checkDN = TRUE, ...) {
@@ -383,7 +218,7 @@ setMethod("%*%", signature(x = "indMatrix", y = "matrix"),
               if(x@margin != 1L)
                   return(as(x, "dsparseMatrix") %*% y)
               mmultDim(x@Dim, dim(y), type = 1L)
-              r <- .m2ge(y[x@perm, , drop = FALSE], "d")
+              r <- .m2dense(y[x@perm, , drop = FALSE], "dge")
               r@Dimnames <- mmultDimnames(x@Dimnames, dimnames(y), type = 1L)
               r
           })
@@ -393,7 +228,7 @@ setMethod("%*%", signature(x = "matrix", y = "indMatrix"),
               if(y@margin == 1L)
                   return(x %*% as(y, "dsparseMatrix"))
               mmultDim(dim(x), y@Dim, type = 1L)
-              r <- .m2ge(x[, y@perm, drop = FALSE], "d")
+              r <- .m2dense(x[, y@perm, drop = FALSE], "dge")
               r@Dimnames <- mmultDimnames(dimnames(x), y@Dimnames, type = 1L)
               r
           })
@@ -447,7 +282,7 @@ setMethod("%&%", signature(x = "indMatrix", y = "matrix"),
               if(x@margin != 1L)
                   return(as(x, "nsparseMatrix") %&% y)
               mmultDim(x@Dim, dim(y), type = 1L)
-              r <- .m2ge(y[x@perm, , drop = FALSE], "n")
+              r <- .m2dense(y[x@perm, , drop = FALSE], "nge")
               r@Dimnames <- mmultDimnames(x@Dimnames, dimnames(y), type = 1L)
               r
           })
@@ -457,7 +292,7 @@ setMethod("%&%", signature(x = "matrix", y = "indMatrix"),
               if(y@margin == 1L)
                   return(x %&% as(y, "nsparseMatrix"))
               mmultDim(dim(x), y@Dim, type = 1L)
-              r <- .m2ge(x[, y@perm, drop = FALSE], "n")
+              r <- .m2dense(x[, y@perm, drop = FALSE], "nge")
               r@Dimnames <- mmultDimnames(dimnames(x), y@Dimnames, type = 1L)
               r
           })
@@ -512,8 +347,8 @@ setMethod("crossprod", signature(x = "matrix", y = "indMatrix"),
                   cl <- if(boolArith) "nsparseMatrix" else "dsparseMatrix"
                   r <- crossprod(x, as(y, cl), boolArith = boolArith, ...)
               } else {
-                  kind <- if(boolArith) "n" else "d"
-                  r <- .m2ge(t(x)[, y@perm, drop = FALSE], kind)
+                  r <- .m2dense(t(x)[, y@perm, drop = FALSE],
+                                if(boolArith) "nge" else "dge")
                   r@Dimnames <- mmultDimnames(dimnames(x), y@Dimnames,
                                               type = 2L)
               }
@@ -563,8 +398,8 @@ setMethod("tcrossprod", signature(x = "indMatrix", y = "matrix"),
               mmultDim(x@Dim, dim(y), type = 3L)
               boolArith <- isTRUE(boolArith)
               if(y@margin == 1L) {
-                  kind <- if(boolArith) "n" else "d"
-                  r <- .m2ge(t(y)[x@perm, , drop = FALSE], kind)
+                  r <- .m2dense(t(y)[x@perm, , drop = FALSE],
+                                if(boolArith) "nge" else "dge")
                   r@Dimnames <- mmultDimnames(x@Dimnames, dimnames(y),
                                               type = 3L)
               } else {

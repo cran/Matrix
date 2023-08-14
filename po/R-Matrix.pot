@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Matrix 1.6-0\n"
-"POT-Creation-Date: 2023-06-30 17:17\n"
+"Project-Id-Version: Matrix 1.6-1\n"
+"POT-Creation-Date: 2023-08-03 13:24\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,40 +22,10 @@ msgstr ""
 msgid "non-conformable matrix dimensions in %s"
 msgstr ""
 
-msgid "dimnames [%d] mismatch in %s"
-msgstr ""
-
-msgid "matrix is not symmetric; consider forceSymmetric() or symmpart()"
-msgstr ""
-
-msgid "matrix is not triangular; consider triu() or tril()"
-msgstr ""
-
 msgid "complex \"diagonalMatrix\" not yet implemented"
 msgstr ""
 
 msgid "cannot coerce matrix of type \"%s\" to \"diagonalMatrix\""
-msgstr ""
-
-msgid "matrix is not diagonal; consider Diagonal(x=diag(.))"
-msgstr ""
-
-msgid "matrix of invalid type \"%s\" to .m2dense.checking()"
-msgstr ""
-
-msgid "invalid kind \"%s\" to .m2dense.checking()"
-msgstr ""
-
-msgid "matrix of invalid type \"%s\" to .m2sparse.checking()"
-msgstr ""
-
-msgid "invalid kind \"%s\" to .m2sparse.checking()"
-msgstr ""
-
-msgid "Matrices must have same number of rows in %s"
-msgstr ""
-
-msgid "Matrices must have same number of columns in %s"
 msgstr ""
 
 msgid "[[ suppressing %d column name%s %s ... ]]"
@@ -197,6 +167,9 @@ msgid "RHS 'value' (class %s) matches 'ANY', but must match matrix class %s"
 msgstr ""
 
 msgid "not-yet-implemented 'Matrix[<-' method"
+msgstr ""
+
+msgid "dimnames [%d] mismatch in %s"
 msgstr ""
 
 msgid "inefficient method used for \"- e1\""
@@ -367,13 +340,16 @@ msgstr ""
 msgid "invalid 'repr'; must be \"C\", \"T\", or \"R\""
 msgstr ""
 
+msgid "number of rows of matrices must match"
+msgstr ""
+
+msgid "number of columns of matrices must match"
+msgstr ""
+
+msgid "dimensions cannot exceed 2^31-1"
+msgstr ""
+
 msgid "resulting x-slot has different type than x's or y's"
-msgstr ""
-
-msgid "number of columns of matrices must match in %s"
-msgstr ""
-
-msgid "number of rows of matrices must match in %s"
 msgstr ""
 
 msgid "chol(x) is undefined: 'x' is not positive semidefinite"
@@ -398,6 +374,27 @@ msgid "D[i,i] is negative, i=%d"
 msgstr ""
 
 msgid "'parent' is not formally sparse"
+msgstr ""
+
+msgid "matrix is not symmetric; consider forceSymmetric(.) or symmpart(.)"
+msgstr ""
+
+msgid "matrix is not triangular; consider triu(.) or tril(.)"
+msgstr ""
+
+msgid "matrix is not diagonal; consider Diagonal(x=diag(.))"
+msgstr ""
+
+msgid "matrix of invalid type \"%s\" to .m2dense.checking()"
+msgstr ""
+
+msgid "invalid kind \"%s\" to .m2dense.checking()"
+msgstr ""
+
+msgid "matrix of invalid type \"%s\" to .m2sparse.checking()"
+msgstr ""
+
+msgid "invalid kind \"%s\" to .m2sparse.checking()"
 msgstr ""
 
 msgid "'A' must be a square matrix"
@@ -428,9 +425,6 @@ msgid "dimensions cannot contain NA"
 msgstr ""
 
 msgid "dimensions cannot contain negative values"
-msgstr ""
-
-msgid "dimensions cannot exceed 2^31-1"
 msgstr ""
 
 msgid "invalid nargs()= %d"
@@ -496,9 +490,6 @@ msgstr ""
 msgid "'x' has non-finite values"
 msgstr ""
 
-msgid "Schur(x) not yet supported for 'x' of type \"complex\""
-msgstr ""
-
 msgid "'which' is not \"Q\", \"T\", or \"Q.\""
 msgstr ""
 
@@ -523,13 +514,7 @@ msgstr ""
 msgid "elements of 'perm' slot must be positive integers"
 msgstr ""
 
-msgid "only lists of length 2 can be coerced to indMatrix"
-msgstr ""
-
 msgid "matrix must have exactly one nonzero element in each row or column"
-msgstr ""
-
-msgid "matrix is not symmetric or triangular"
 msgstr ""
 
 msgid "method for kronecker() must use default FUN=\"*\""
@@ -641,9 +626,6 @@ msgid "'contrasts.arg' argument must be named"
 msgstr ""
 
 msgid "variable '%s' is absent, its contrast will be ignored"
-msgstr ""
-
-msgid "only 2-dimensional tables can be coerced to sparseMatrix"
 msgstr ""
 
 msgid "exactly one of 'i', 'j', and 'p' must be missing from call"
@@ -802,16 +784,13 @@ msgstr ""
 msgid "incorrect number of dimensions"
 msgstr ""
 
-msgid "matrix is not symmetric or"
-msgstr ""
-
-msgid "triangular"
+msgid "matrix is not symmetric or triangular"
 msgstr ""
 
 msgid "matrix is not symmetric"
 msgstr ""
 
-msgid "matrix is not"
+msgid "matrix is not triangular"
 msgstr ""
 
 msgid "attempt to coerce matrix with NA to ngCMatrix"

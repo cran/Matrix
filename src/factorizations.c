@@ -70,9 +70,9 @@ static SEXP cholmod2dgC(cholmod_sparse *A, const char *cl)
 	if (A->itype != CHOLMOD_INT ||
 	    A->xtype != CHOLMOD_REAL ||
 	    A->dtype != CHOLMOD_DOUBLE)
-		error(_("wrong itype or xtype or dtype"));
+		error(_("wrong '%s' or '%s' or '%s'"), "itype", "xtype", "dtype");
 	if (A->nrow > INT_MAX || A->ncol > INT_MAX)
-		error(_("dimensions cannot exceed 2^31-1"));
+		error(_("dimensions cannot exceed %s"), "2^31-1");
 	if (!A->sorted || !A->packed || A->stype != 0)
 		cholmod_sort(A, &c);
 	int m = (int) A->nrow, n = (int) A->ncol,
@@ -115,12 +115,13 @@ static cholmod_dense *dge2cholmod(SEXP obj)
 static SEXP cholmod2dge(const cholmod_dense *A, const char *cl)
 {
 	if (A->xtype != CHOLMOD_REAL || A->dtype != CHOLMOD_DOUBLE)
-		error(_("wrong xtype or dtype"));
+		error(_("wrong '%s' or '%s'"), "xtype", "dtype");
 	if (A->nrow > INT_MAX || A->ncol > INT_MAX)
-		error(_("dimensions cannot exceed 2^31-1"));
+		error(_("dimensions cannot exceed %s"), "2^31-1");
 	int m = (int) A->nrow, n = (int) A->ncol;
 	if ((double) m * n > R_XLEN_T_MAX)
-		error(_("attempt to allocate vector of length exceeding R_XLEN_T_MAX"));
+		error(_("attempt to allocate vector of length exceeding %s"),
+		      "R_XLEN_T_MAX");
 	size_t d = A->d;
 	R_xlen_t mn = (R_xlen_t) m * n;
 	SEXP obj = PROTECT(NEW_OBJECT_OF_CLASS(cl)),
@@ -149,7 +150,7 @@ static cholmod_factor *mf2cholmod(SEXP obj)
 	static const char *valid[] = { "dCHMsimpl", "dCHMsuper", "" };
 	int ivalid = R_check_class_etc(obj, valid);
 	if (ivalid < 0)
-		error(_("expected dCHMsimpl or dCHMsuper"));
+		error(_("expected %s or %s"), "dCHMsimpl", "dCHMsuper");
 	SEXP type = PROTECT(GET_SLOT(obj, install("type"))),
 		dim = PROTECT(GET_SLOT(obj, Matrix_DimSym)),
 		colcount = PROTECT(GET_SLOT(obj, install("colcount"))),
@@ -227,15 +228,15 @@ static SEXP cholmod2mf(const cholmod_factor *L)
 	if (L->itype != CHOLMOD_INT ||
 	    L->xtype != CHOLMOD_REAL ||
 	    L->dtype != CHOLMOD_DOUBLE)
-		error(_("wrong itype or xtype or dtype"));
+		error(_("wrong '%s' or '%s' or '%s"), "itype", "xtype", "dtype");
 	if (L->n > INT_MAX)
-		error(_("dimensions cannot exceed 2^31-1"));
+		error(_("dimensions cannot exceed %s"), "2^31-1");
 	if (L->super) {
 		if (L->maxcsize > INT_MAX)
-			error(_("maxcsize would overflow \"integer\""));
+			error(_("'%s' would overflow \"%s\""), "maxcsize", "integer");
 	} else {
 		if (L->n == INT_MAX)
-			error(_("n+1 would overflow \"integer\""));
+			error(_("n+1 would overflow \"%s\""), "integer");
 	}
 	if (L->minor < L->n) {
 		if (L->is_ll)
@@ -322,12 +323,10 @@ do { \
 	ERROR_LAPACK_1(_ROUTINE_, _INFO_); \
 	if ((_INFO_) > 0 && (_WARN_) > 0) { \
 		if (_WARN_ > 1) \
-			error  (_("LAPACK routine '%s': matrix is exactly singular, " \
-			          "%s[i,i]=0, i=%d"), \
+			error  (_("LAPACK routine '%s': matrix is exactly singular, %s[i,i]=0, i=%d"), \
 			        #_ROUTINE_, #_LETTER_, (_INFO_)); \
 		else \
-			warning(_("LAPACK routine '%s': matrix is exactly singular, " \
-			          "%s[i,i]=0, i=%d"), \
+			warning(_("LAPACK routine '%s': matrix is exactly singular, %s[i,i]=0, i=%d"), \
 			        #_ROUTINE_, #_LETTER_, (_INFO_)); \
 	} \
 } while (0)
@@ -337,12 +336,10 @@ do { \
 	ERROR_LAPACK_1(_ROUTINE_, _INFO_); \
 	if ((_INFO_) > 0 && (_WARN_) > 0) { \
 		if (_WARN_ > 1) \
-			error  (_("LAPACK routine '%s': leading principal minor " \
-			          "of order %d is not positive"), \
+			error  (_("LAPACK routine '%s': leading principal minor of order %d is not positive"), \
 			        #_ROUTINE_, (_INFO_)); \
 		else { \
-			warning(_("LAPACK routine '%s': leading principal minor " \
-			          "of order %d is not positive"), \
+			warning(_("LAPACK routine '%s': leading principal minor of order %d is not positive"), \
 			        #_ROUTINE_, (_INFO_)); \
 			UNPROTECT(_NPROTECT_); \
 			return ScalarInteger(_INFO_); \
@@ -355,14 +352,10 @@ do { \
 		ERROR_LAPACK_1(_ROUTINE_, _INFO_); \
 		if ((_INFO_) > 0 && (_WARN_) > 0) { \
 			if (_WARN_ > 1) \
-				error  (_("LAPACK routine '%s': matrix is rank deficient " \
-				          "or not positive definite, " \
-				          "the _computed_ rank is %d"), \
+				error  (_("LAPACK routine '%s': matrix is rank deficient or not positive definite, the _computed_ rank is %d"), \
 				        #_ROUTINE_, (_RANK_)); \
 			else \
-				warning(_("LAPACK routine '%s': matrix is rank deficient " \
-				          "or not positive definite, " \
-				          "the _computed_ rank is %d"), \
+				warning(_("LAPACK routine '%s': matrix is rank deficient or not positive definite, the _computed_ rank is %d"), \
 				        #_ROUTINE_, (_RANK_)); \
 		} \
 	} while (0)
@@ -651,7 +644,7 @@ SEXP dgCMatrix_trf(SEXP obj, SEXP order, SEXP tol, SEXP doError)
 {
 	double tol_ = asReal(tol);
 	if (ISNAN(tol_))
-		error(_("'tol' is not a number"));
+		error(_("'%s' is not a number"), "tol");
 
 	int order_ = asInteger(order);
 	if (order_ == NA_INTEGER)
@@ -669,7 +662,8 @@ SEXP dgCMatrix_trf(SEXP obj, SEXP order, SEXP tol, SEXP doError)
 	csn *N = NULL;
 	int *pp = NULL;
 	if (A->m != A->n)
-		error(_("LU factorization of m-by-n dgCMatrix requires m == n"));
+		error(_("LU factorization of m-by-n %s requires m == n"),
+		      "dgCMatrix");
 	if (!dgCMatrix_trf_(A, &S, &N, order_, tol_) ||
 	    !(pp = cs_pinv(N->pinv, A->m))) {
 		if (!pp) {
@@ -677,7 +671,8 @@ SEXP dgCMatrix_trf(SEXP obj, SEXP order, SEXP tol, SEXP doError)
 			N = cs_nfree(N);
 		}
 		if (asLogical(doError))
-			error(_("LU factorization of dgCMatrix failed: out of memory or near-singular"));
+			error(_("LU factorization of %s failed: out of memory or near-singular"),
+			      "dgCMatrix");
 		/* Defensive code will check with is(., "sparseLU") : */
 		UNPROTECT(1); /* val */
 		return ScalarLogical(NA_LOGICAL);
@@ -766,7 +761,8 @@ SEXP dgCMatrix_orf(SEXP obj, SEXP order, SEXP doError)
 	csn *N = NULL;
 	int *pp = NULL;
 	if (A->m < A->n)
-		error(_("QR factorization of m-by-n dgCMatrix requires m >= n"));
+		error(_("QR factorization of m-by-n %s requires m >= n"),
+		      "dgCMatrix");
 	if (!dgCMatrix_orf_(A, &S, &N, order_) ||
 	    !(pp = cs_pinv(S->pinv, S->m2))) {
 		if (!pp) {
@@ -774,7 +770,8 @@ SEXP dgCMatrix_orf(SEXP obj, SEXP order, SEXP doError)
 			N = cs_nfree(N);
 		}
 		if (asLogical(doError))
-			error(_("QR factorization of dgCMatrix failed: out of memory"));
+			error(_("QR factorization of %s failed: out of memory"),
+			      "dgCMatrix");
 		/* Defensive code will check with is(., "sparseQR") : */
 		UNPROTECT(1); /* val */
 		return ScalarLogical(NA_LOGICAL);
@@ -867,7 +864,7 @@ SEXP dpCMatrix_trf(SEXP obj,
 		super_ = asLogical(super);
 	double mult_ = asReal(mult);
 	if (!R_FINITE(mult_))
-		error(_("'mult' is not a number or not finite"));
+		error(_("'%s' is not a number or not finite"), "mult");
 
 	SEXP trf = R_NilValue;
 	char nm[] = "spdCholesky";
@@ -1290,7 +1287,8 @@ SEXP sparseQR_determinant(SEXP obj, SEXP logarithm)
 		SEXP R = PROTECT(GET_SLOT(obj, Matrix_RSym));
 		PROTECT(dim = GET_SLOT(R, Matrix_DimSym));
 		if (INTEGER(dim)[0] > n)
-			error(_("determinant(<sparseQR>) does not support structurally rank deficient case"));
+			error(_("%s(<%s>) does not support structurally rank deficient case"),
+			      "determinant", "sparseQR");
 		UNPROTECT(1); /* dim */
 
 		SEXP p = PROTECT(GET_SLOT(R, Matrix_pSym)),
@@ -1411,13 +1409,14 @@ SEXP denseLU_solve(SEXP a, SEXP b)
 	SEXP adim = PROTECT(GET_SLOT(a, Matrix_DimSym)); \
 	int *padim = INTEGER(adim), m = padim[0], n = m; \
 	if ((_MAYBE_NOT_SQUARE_) && padim[1] != m) \
-		error(_("'a' is not square")); \
+		error(_("'%s' is not square"), "a"); \
 	UNPROTECT(1); /* adim */ \
 	if (!isNull(b)) { \
 	SEXP bdim = PROTECT(GET_SLOT(b, Matrix_DimSym)); \
 	int *pbdim = INTEGER(bdim); \
 	if (pbdim[0] != m) \
-		error(_("dimensions of 'a' and 'b' are inconsistent")); \
+		error(_("dimensions of '%s' and '%s' are inconsistent"), \
+		      "a", "b"); \
 	n = pbdim[1]; \
 	UNPROTECT(1); /* bdim */ \
 	}
@@ -1610,7 +1609,7 @@ SEXP sparseLU_solve(SEXP a, SEXP b, SEXP sparse)
 {
 
 #define ERROR_SOLVE_OOM(_A_, _B_) \
-	error(_("solve(<%s>, <%s>) failed: out of memory"), #_A_, #_B_)
+	error(_("%s(<%s>, <%s>) failed: out of memory"), "solve", #_A_, #_B_)
 
 	SOLVE_START(0);
 	SEXP r,
@@ -1701,8 +1700,8 @@ SEXP sparseLU_solve(SEXP a, SEXP b, SEXP sparse)
 					if (_FRB_) \
 						B = cs_spfree(B); \
 					X = cs_spfree(X); \
-					error(_("attempt to construct sparse matrix with " \
-					        "more than 2^31-1 nonzero elements")); \
+					error(_("attempt to construct sparse matrix with more than %s nonzero elements"), \
+					      "2^31-1"); \
 				} \
 				nz += m - top; \
 				if (nz > nzmax) { \
@@ -1786,7 +1785,7 @@ SEXP CHMfactor_solve(SEXP a, SEXP b, SEXP sparse, SEXP system)
 	if (TYPEOF(system) != STRSXP || LENGTH(system) < 1 ||
 	    (system = STRING_ELT(system, 0)) == NA_STRING ||
 	    (ivalid = strmatch(CHAR(system), valid)) < 0)
-		error(_("invalid argument 'system'"));
+		error(_("invalid '%s' to %s()"), "system", __func__);
 	SOLVE_START(0);
 	SEXP r;
 	int j;
@@ -2051,12 +2050,13 @@ SEXP sparseQR_matmult(SEXP qr, SEXP y, SEXP op, SEXP complete, SEXP yxjj)
 			pyxjj += 1;
 		}
 	} else
-		error(_("invalid 'yxjj'"));
+		error(_("invalid '%s' to %s()"), "yxjj", __func__);
 	} else {
 		SEXP ydim = PROTECT(GET_SLOT(y, Matrix_DimSym));
 		int *pydim = INTEGER(ydim);
 		if (pydim[0] != m)
-			error(_("dimensions of 'qr' and 'y' are inconsistent"));
+			error(_("dimensions of '%s' and '%s' are inconsistent"),
+			     "qr", "y");
 		n = pydim[1];
 		UNPROTECT(1); /* ydim */
 
@@ -2166,7 +2166,7 @@ SEXP sparseQR_matmult(SEXP qr, SEXP y, SEXP op, SEXP complete, SEXP yxjj)
 		}
 	break;
 	default:
-		error(_("invalid 'op'"));
+		error(_("invalid '%s' to %s()"), "op", __func__);
 		break;
 	}
 
@@ -2220,7 +2220,7 @@ SEXP CHMfactor_update(SEXP obj, SEXP parent, SEXP mult)
 {
 	double mult_ = asReal(mult);
 	if (!R_FINITE(mult_))
-		error(_("'mult' is not a number or not finite"));
+		error(_("'%s' is not a number or not finite"), "mult");
 
 	cholmod_factor *L = cholmod_copy_factor(mf2cholmod(obj), &c);
 	cholmod_sparse *A = dgC2cholmod(parent);

@@ -4,6 +4,16 @@
 \title{News for \R{} Package \pkg{Matrix}}
 \encoding{UTF-8}
 %% NB: The date (yyyy-mm-dd) is the "Packaged: " date in ../DESCRIPTION
+\section{Changes in version 1.6-1.1 (2023-09-08)}{
+  \subsection{Misc}{
+    \itemize{
+      \item Export the generics \code{crossprod()} and \code{tcrossprod()}
+      explicitly, needed for R-devel when they become primitive internal
+      generics.
+    }
+  }
+}
+
 \section{Changes in version 1.6-1 (2023-08-11 r4228)}{
   \subsection{New Features}{
     \itemize{

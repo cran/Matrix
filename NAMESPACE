@@ -165,6 +165,8 @@ S3method(print, diagSummary)
 
 ## ---- S4 generic functions, methods ----------------------------------
 
+export(crossprod, tcrossprod) ## *necessary* (once .Primitive in base)
+
 ## From 'Matrix' {no need to also export(); see WRE}
 exportMethods("%&%",
               BunchKaufman,

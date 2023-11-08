@@ -103,7 +103,7 @@ stopifnot(all.equal(norm(mtm \%*\% ce$v),
 1 / ce$est
 system.time(rc <- rcond(mtm)) # takes ca  3 x  longer
 rc
-all.equal(rc, 1/ce$est) # TRUE -- the approxmation was good
+all.equal(rc, 1/ce$est) # TRUE -- the approximation was good
 
 one <- onenormest(mtm)
 str(one) ## est = 12.3

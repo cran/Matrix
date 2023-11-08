@@ -10,8 +10,10 @@
 \alias{!,Matrix-method}
 \alias{&,Matrix,ddiMatrix-method}
 \alias{&,Matrix,ldiMatrix-method}
+\alias{&,Matrix,ndiMatrix-method}
 \alias{*,Matrix,ddiMatrix-method}
 \alias{*,Matrix,ldiMatrix-method}
+\alias{*,Matrix,ndiMatrix-method}
 \alias{+,Matrix,missing-method}
 \alias{-,Matrix,missing-method}
 \alias{Arith,Matrix,Matrix-method}
@@ -30,9 +32,9 @@
 \alias{Ops,Matrix,sparseVector-method}
 \alias{Ops,NULL,Matrix-method}
 \alias{Ops,matrix,Matrix-method}
-\alias{Summary,Matrix-method}
 \alias{^,Matrix,ddiMatrix-method}
 \alias{^,Matrix,ldiMatrix-method}
+\alias{^,Matrix,ndiMatrix-method}
 \alias{as.array,Matrix-method}
 \alias{as.complex,Matrix-method}
 \alias{as.integer,Matrix-method}
@@ -44,42 +46,35 @@
 \alias{coerce,Matrix,CsparseMatrix-method}
 \alias{coerce,Matrix,RsparseMatrix-method}
 \alias{coerce,Matrix,TsparseMatrix-method}
-\alias{coerce,Matrix,array-method}
-\alias{coerce,Matrix,complex-method}
 \alias{coerce,Matrix,corMatrix-method}
 \alias{coerce,Matrix,dMatrix-method}
 \alias{coerce,Matrix,ddenseMatrix-method}
 \alias{coerce,Matrix,denseMatrix-method}
 \alias{coerce,Matrix,diagonalMatrix-method}
-\alias{coerce,Matrix,double-method}
 \alias{coerce,Matrix,dpoMatrix-method}
 \alias{coerce,Matrix,dppMatrix-method}
 \alias{coerce,Matrix,dsparseMatrix-method}
 \alias{coerce,Matrix,generalMatrix-method}
 \alias{coerce,Matrix,indMatrix-method}
-\alias{coerce,Matrix,integer-method}
 \alias{coerce,Matrix,lMatrix-method}
 \alias{coerce,Matrix,ldenseMatrix-method}
-\alias{coerce,Matrix,logical-method}
 \alias{coerce,Matrix,lsparseMatrix-method}
 \alias{coerce,Matrix,matrix-method}
 \alias{coerce,Matrix,nMatrix-method}
 \alias{coerce,Matrix,ndenseMatrix-method}
 \alias{coerce,Matrix,nsparseMatrix-method}
-\alias{coerce,Matrix,numeric-method}
 \alias{coerce,Matrix,pMatrix-method}
 \alias{coerce,Matrix,packedMatrix-method}
 \alias{coerce,Matrix,pcorMatrix-method}
 \alias{coerce,Matrix,sparseMatrix-method}
+\alias{coerce,Matrix,sparseVector-method}
 \alias{coerce,Matrix,symmetricMatrix-method}
 \alias{coerce,Matrix,triangularMatrix-method}
 \alias{coerce,Matrix,unpackedMatrix-method}
-\alias{coerce,Matrix,vector-method}
 \alias{coerce,matrix,Matrix-method}
 \alias{coerce,vector,Matrix-method}
 \alias{determinant,Matrix,missing-method}
 \alias{determinant,Matrix,logical-method}
-\alias{diff,Matrix-method}
 \alias{dim,Matrix-method}
 \alias{dimnames,Matrix-method}
 \alias{dimnames<-,Matrix,NULL-method}
@@ -90,8 +85,12 @@
 \alias{length,Matrix-method}
 \alias{tail,Matrix-method}
 \alias{unname,Matrix-method}
+\alias{zapsmall,Matrix-method}
 %
-\alias{det} % for our copy of base::det
+\alias{c.Matrix}
+%
+\alias{Matrix.Version} % FIXME: belongs in non-existent Matrix-package.Rd
+\alias{det}            % FIXME: ditto
 %
 \description{
   The \code{Matrix} class is a class contained by all actual

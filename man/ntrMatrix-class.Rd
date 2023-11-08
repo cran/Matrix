@@ -8,10 +8,6 @@
 \alias{ntrMatrix-class}
 \alias{ntpMatrix-class}
 %
-\alias{!,ntrMatrix-method}
-%
-\alias{!,ntpMatrix-method}
-%
 \description{
   The \code{"ntrMatrix"} class is the class of triangular, dense,
   logical matrices in nonpacked storage.  The \code{"ntpMatrix"} class

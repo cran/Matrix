@@ -28,23 +28,23 @@
 \alias{solve,MatrixFactorization,diagonalMatrix-method}
 \alias{solve,MatrixFactorization,indMatrix-method}
 \alias{solve,MatrixFactorization,matrix-method}
-\alias{solve,MatrixFactorization,numLike-method}
 \alias{solve,MatrixFactorization,sparseVector-method}
+\alias{solve,MatrixFactorization,vector-method}
 \alias{solve,RsparseMatrix,ANY-method}
 \alias{solve,Schur,ANY-method}
 \alias{solve,TsparseMatrix,ANY-method}
 \alias{solve,ddiMatrix,Matrix-method}
 \alias{solve,ddiMatrix,matrix-method}
 \alias{solve,ddiMatrix,missing-method}
-\alias{solve,ddiMatrix,numLike-method}
+\alias{solve,ddiMatrix,vector-method}
 \alias{solve,denseLU,missing-method}
 \alias{solve,denseLU,dgeMatrix-method}
 \alias{solve,denseMatrix,ANY-method}
 \alias{solve,dgCMatrix,denseMatrix-method}
 \alias{solve,dgCMatrix,matrix-method}
 \alias{solve,dgCMatrix,missing-method}
-\alias{solve,dgCMatrix,numLike-method}
 \alias{solve,dgCMatrix,sparseMatrix-method}
+\alias{solve,dgCMatrix,vector-method}
 \alias{solve,dgeMatrix,ANY-method}
 \alias{solve,diagonalMatrix,ANY-method}
 \alias{solve,dpoMatrix,ANY-method}
@@ -52,8 +52,8 @@
 \alias{solve,dsCMatrix,denseMatrix-method}
 \alias{solve,dsCMatrix,matrix-method}
 \alias{solve,dsCMatrix,missing-method}
-\alias{solve,dsCMatrix,numLike-method}
 \alias{solve,dsCMatrix,sparseMatrix-method}
+\alias{solve,dsCMatrix,vector-method}
 \alias{solve,dspMatrix,ANY-method}
 \alias{solve,dsyMatrix,ANY-method}
 \alias{solve,dtCMatrix,dgCMatrix-method}
@@ -76,7 +76,7 @@
 \alias{solve,pMatrix,Matrix-method}
 \alias{solve,pMatrix,matrix-method}
 \alias{solve,pMatrix,missing-method}
-\alias{solve,pMatrix,numLike-method}
+\alias{solve,pMatrix,vector-method}
 \alias{solve,sparseLU,missing-method}
 \alias{solve,sparseLU,dgeMatrix-method}
 \alias{solve,sparseLU,dgCMatrix-method}
@@ -92,7 +92,7 @@
 \alias{solve,triangularMatrix,diagonalMatrix-method}
 \alias{solve,triangularMatrix,indMatrix-method}
 \alias{solve,triangularMatrix,matrix-method}
-\alias{solve,triangularMatrix,numLike-method}
+\alias{solve,triangularMatrix,vector-method}
 %
 \description{
   Methods for generic function \code{\link[base]{solve}} for solving
@@ -200,7 +200,7 @@ solve(a, b, ...)
   
   Methods for \code{a} inheriting from \code{\linkS4class{CHMfactor}}
   can solve systems other than the default one \eqn{A X = B}{A * X = B}.
-  The correspondance between its \code{system} argument the system
+  The correspondence between its \code{system} argument the system
   actually solved is outlined in the table below.
   See \code{\link{CHMfactor-class}} for a definition of notation.
   

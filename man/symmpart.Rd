@@ -15,20 +15,18 @@
 \alias{symmpart,CsparseMatrix-method}
 \alias{symmpart,RsparseMatrix-method}
 \alias{symmpart,TsparseMatrix-method}
+\alias{symmpart,denseMatrix-method}
 \alias{symmpart,diagonalMatrix-method}
 \alias{symmpart,indMatrix-method}
-\alias{symmpart,packedMatrix-method}
 \alias{symmpart,matrix-method}
-\alias{symmpart,unpackedMatrix-method}
 %
 \alias{skewpart,CsparseMatrix-method}
 \alias{skewpart,RsparseMatrix-method}
 \alias{skewpart,TsparseMatrix-method}
+\alias{skewpart,denseMatrix-method}
 \alias{skewpart,diagonalMatrix-method}
 \alias{skewpart,indMatrix-method}
-\alias{skewpart,packedMatrix-method}
 \alias{skewpart,matrix-method}
-\alias{skewpart,unpackedMatrix-method}
 %
 \description{
   \code{symmpart(x)} computes the symmetric part \code{(x + t(x))/2} and
@@ -57,16 +55,18 @@ skewpart(x)
   non-\code{NULL} (see also the examples).
 }
 \value{
-  \code{symmpart()} returns a symmetric matrix, inheriting from
-  \code{\linkS4class{symmetricMatrix}} iff \code{x} inherited from
-  \code{Matrix}.
+  \code{symmpart(x)} returns a symmetric matrix,
+  inheriting from \code{\linkS4class{symmetricMatrix}}
+  or \code{\linkS4class{diagonalMatrix}} if \code{x}
+  inherits from \code{Matrix}.
 
-  \code{skewpart()} returns a skew-symmetric matrix,
-  typically of the same class as \code{x} (or the closest
-  \dQuote{general} one, see \code{\linkS4class{generalMatrix}}).
+  \code{skewpart(x)} returns a skew-symmetric matrix,
+  inheriting from \code{\linkS4class{generalMatrix}},
+  \code{\linkS4class{symmetricMatrix}} or
+  \code{\linkS4class{diagonalMatrix}} if \code{x}
+  inherits from \code{Matrix}.
 }
-\seealso{
-  \code{\link{isSymmetric}}.}
+\seealso{\code{\link{isSymmetric}}.}
 \examples{
 m <- Matrix(1:4, 2,2)
 symmpart(m)

@@ -1,104 +1,79 @@
 #ifndef MATRIX_COERCE_H
 #define MATRIX_COERCE_H
 
-#include "Mutils.h"
+#include <Rinternals.h>
 
-SEXP matrix_as_dense(SEXP from, const char *zzz, char ul, char di,
-                     int transpose_if_vector, int new);
+SEXP vector_as_dense(SEXP, const char *, char, char, int, int, int, SEXP);
+SEXP R_vector_as_dense(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 
-SEXP R_matrix_as_dense(SEXP from, SEXP class, SEXP uplo, SEXP diag);
+SEXP matrix_as_dense(SEXP, const char *, char, char, int, int);
+SEXP R_matrix_as_dense(SEXP, SEXP, SEXP, SEXP, SEXP);
 
-SEXP sparse_as_dense(SEXP from, const char *class, int packed);
+SEXP sparse_as_dense(SEXP, const char *, int);
+SEXP R_sparse_as_dense(SEXP, SEXP);
 
-SEXP R_sparse_as_dense(SEXP from, SEXP packed);
+SEXP diagonal_as_dense(SEXP, const char *, char, char, int, char);
+SEXP R_diagonal_as_dense(SEXP, SEXP, SEXP, SEXP, SEXP);
 
-SEXP diagonal_as_dense(SEXP from, const char *class,
-                       char shape, int packed, char ul);
+SEXP index_as_dense(SEXP, const char *, char);
+SEXP R_index_as_dense(SEXP, SEXP);
 
-SEXP R_diagonal_as_dense(SEXP from, SEXP shape, SEXP packed, SEXP uplo);
+SEXP vector_as_sparse(SEXP, const char *, char, char, int, int, int, SEXP);
+SEXP R_vector_as_sparse(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 
-SEXP index_as_dense(SEXP from, const char *class, char kind);
+SEXP matrix_as_sparse(SEXP, const char *, char, char, int);
+SEXP R_matrix_as_sparse(SEXP, SEXP, SEXP, SEXP, SEXP);
 
-SEXP R_index_as_dense(SEXP from, SEXP kind);
+SEXP dense_as_sparse(SEXP, const char *, char);
+SEXP R_dense_as_sparse(SEXP, SEXP);
 
-SEXP matrix_as_sparse(SEXP from, const char *zzz, char ul, char di,
-                      int transpose_if_vector);
+SEXP diagonal_as_sparse(SEXP, const char *, char, char, char, char);
+SEXP R_diagonal_as_sparse(SEXP, SEXP, SEXP, SEXP, SEXP);
 
-SEXP R_matrix_as_sparse(SEXP from, SEXP class, SEXP uplo, SEXP diag);
+SEXP index_as_sparse(SEXP, const char *, char, char);
+SEXP R_index_as_sparse(SEXP, SEXP, SEXP);
 
-SEXP dense_as_sparse(SEXP from, const char *class, char repr);
+SEXP dense_as_kind(SEXP, const char *, char, int);
+SEXP R_dense_as_kind(SEXP, SEXP);
 
-SEXP R_dense_as_sparse(SEXP from, SEXP repr);
+SEXP sparse_as_kind(SEXP, const char *, char);
+SEXP R_sparse_as_kind(SEXP, SEXP);
 
-SEXP diagonal_as_sparse(SEXP from, const char *class,
-                        char shape, char repr, char ul);
+SEXP diagonal_as_kind(SEXP, const char *, char);
+SEXP R_diagonal_as_kind(SEXP, SEXP);
 
-SEXP R_diagonal_as_sparse(SEXP from, SEXP shape, SEXP repr, SEXP uplo);
+SEXP index_as_kind(SEXP, const char *, char);
+SEXP R_index_as_kind(SEXP, SEXP);
 
-SEXP index_as_sparse(SEXP from, const char *class, char kind, char repr);
+SEXP dense_as_general(SEXP, const char *, int);
+SEXP R_dense_as_general(SEXP);
 
-SEXP R_index_as_sparse(SEXP from, SEXP kind, SEXP repr);
+SEXP sparse_as_general(SEXP, const char *);
+SEXP R_sparse_as_general(SEXP);
 
-SEXP dense_as_kind(SEXP from, const char *class, char kind);
+SEXP dense_as_unpacked(SEXP, const char *);
+SEXP R_dense_as_unpacked(SEXP);
 
-SEXP R_dense_as_kind(SEXP from, SEXP kind);
+SEXP dense_as_packed(SEXP, const char *, char, char);
+SEXP R_dense_as_packed(SEXP, SEXP, SEXP);
 
-SEXP sparse_as_kind(SEXP from, const char *class, char kind);
+SEXP sparse_as_Csparse(SEXP, const char *);
+SEXP R_sparse_as_Csparse(SEXP);
 
-SEXP R_sparse_as_kind(SEXP from, SEXP kind);
+SEXP sparse_as_Rsparse(SEXP, const char *);
+SEXP R_sparse_as_Rsparse(SEXP);
 
-SEXP diagonal_as_kind(SEXP from, const char *class, char kind);
+SEXP sparse_as_Tsparse(SEXP, const char *);
+SEXP R_sparse_as_Tsparse(SEXP);
 
-SEXP R_diagonal_as_kind(SEXP from, SEXP kind);
+SEXP R_Matrix_as_vector(SEXP);
+SEXP R_Matrix_as_matrix(SEXP);
+SEXP R_Matrix_as_unpacked(SEXP);
+SEXP R_Matrix_as_packed(SEXP);
+SEXP R_Matrix_as_Csparse(SEXP);
+SEXP R_Matrix_as_Rsparse(SEXP);
+SEXP R_Matrix_as_Tsparse(SEXP);
+SEXP R_Matrix_as_kind(SEXP, SEXP, SEXP);
+SEXP R_Matrix_as_general(SEXP, SEXP);
 
-SEXP index_as_kind(SEXP from, const char *class, char kind);
-
-SEXP R_index_as_kind(SEXP from, SEXP kind);
-
-SEXP dense_as_general(SEXP from, const char *class, int new);
-
-SEXP R_dense_as_general(SEXP from);
-
-SEXP sparse_as_general(SEXP from, const char *class);
-
-SEXP R_sparse_as_general(SEXP from);
-
-SEXP dense_as_unpacked(SEXP from, const char *class);
-
-SEXP R_dense_as_unpacked(SEXP from);
-
-SEXP dense_as_packed(SEXP from, const char *class, char ul, char di);
-
-SEXP R_dense_as_packed(SEXP from, SEXP uplo, SEXP diag);
-
-SEXP sparse_as_Csparse(SEXP from, const char *class);
-
-SEXP R_sparse_as_Csparse(SEXP from);
-
-SEXP sparse_as_Rsparse(SEXP from, const char *class);
-
-SEXP R_sparse_as_Rsparse(SEXP from);
-
-SEXP sparse_as_Tsparse(SEXP from, const char *class);
-
-SEXP R_sparse_as_Tsparse(SEXP from);
-
-SEXP R_Matrix_as_vector(SEXP from);
-
-SEXP R_Matrix_as_matrix(SEXP from);
-
-SEXP R_Matrix_as_unpacked(SEXP from);
-
-SEXP R_Matrix_as_packed(SEXP from);
-
-SEXP R_Matrix_as_Csparse(SEXP from);
-
-SEXP R_Matrix_as_Rsparse(SEXP from);
-
-SEXP R_Matrix_as_Tsparse(SEXP from);
-
-SEXP R_Matrix_as_kind(SEXP from, SEXP kind, SEXP sparse);
-
-SEXP R_Matrix_as_general(SEXP from, SEXP kind);
-
-#endif
+#endif /* MATRIX_COERCE_H */

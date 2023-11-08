@@ -125,7 +125,7 @@ setClass("packedMatrix", contains = c("denseMatrix", "VIRTUAL"),
 ## Virtual class of dense, _n_onzero pattern matrices
 setClass("ndenseMatrix", contains = c("nMatrix", "denseMatrix", "VIRTUAL"),
          slots = c(x = "logical"),
-         validity = function(object) .Call(ndenseMatrix_validate, object))
+         validity = function(object) .Call(nMatrix_validate, object))
 
 ## Virtual class of dense, logical matrices
 setClass("ldenseMatrix", contains = c("lMatrix", "denseMatrix", "VIRTUAL"))
@@ -142,18 +142,6 @@ if(FALSE) { # --NOT YET--
 ## Virtual class of dense, complex matrices
 setClass("zdenseMatrix", contains = c("zMatrix", "denseMatrix", "VIRTUAL"))
 } # --NOT YET--
-
-
-## ....... Virtual Dense ... class intersections .......................
-##                               {for method dispatch}
-
-if(FALSE) {
-## This is "natural" but gives WARNINGs when other packages use "it"
-setClass("geMatrix", contains = c("denseMatrix", "generalMatrix", "VIRTUAL"))
-} else {
-## This may work better for other packages
-## --> setClassUnion() ... below
-}
 
 
 ## ------ Virtual Sparse -----------------------------------------------
@@ -240,27 +228,6 @@ if(FALSE) { # --NOT YET--
 ## Virtual class of sparse, complex matrices
 setClass("zsparseMatrix", contains = c("zMatrix", "sparseMatrix", "VIRTUAL"))
 } # --NOT YET--
-
-
-## ...... Virtual Sparse ... class intersections .......................
-##                               {for method dispatch}
-
-if(FALSE) {
-## This is "natural" but gives WARNINGs when other packages use "it"
-setClass("nCsparseMatrix",
-         contains = c("nsparseMatrix", "CsparseMatrix", "VIRTUAL"))
-setClass("lCsparseMatrix",
-         contains = c("lsparseMatrix", "CsparseMatrix", "VIRTUAL"))
-setClass("iCsparseMatrix",
-         contains = c("isparseMatrix", "CsparseMatrix", "VIRTUAL"))
-setClass("dCsparseMatrix",
-         contains = c("dsparseMatrix", "CsparseMatrix", "VIRTUAL"))
-setClass("zCsparseMatrix",
-         contains = c("zsparseMatrix", "CsparseMatrix", "VIRTUAL"))
-} else {
-## These may work better for other packages
-## --> setClassUnion() ... below
-}
 
 
 ## ====== Non-Virtual Subclasses =======================================
@@ -356,11 +323,6 @@ setClass("pcorMatrix", contains = "dppMatrix",
 
 ## ------ Non-Virtual Sparse -------------------------------------------
 
-## NB: We should _not_ have .t[CRT]Matrix inherit from .g[CRT]Matrix,
-##     because a .t[CRT]Matrix could be less than fully stored if diag = "U".
-##     Methods for .g[CRT]Matrix applied to such .t[CRT]Matrix" could produce
-##     incorrect results, even though all slots are present.
-
 ## ...... Sparse, nonzero pattern ......................................
 
 ## NB: Unlike [^n]sparseMatrix (below), there is no 'x' slot to validate here.
@@ -406,6 +368,11 @@ setClass("ntTMatrix",
 setClass("nsTMatrix",
          contains = c("TsparseMatrix", "nsparseMatrix", "symmetricMatrix"),
          validity = function(object) .Call(sTMatrix_validate, object))
+
+## Diagonal
+setClass("ndiMatrix", contains = c("diagonalMatrix", "nMatrix"),
+         slots = c(x = "logical"),
+         validity = function(object) .Call(nMatrix_validate, object))
 
 
 ## ...... Sparse, logical ..............................................
@@ -509,15 +476,18 @@ setClass("dsTMatrix",
 ## Diagonal
 setClass("ddiMatrix", contains = c("diagonalMatrix", "dMatrix"))
 
-if (FALSE) { # TODO
+if(FALSE) { # TODO
 ## CSC, symmetic, positive semidefinite
 setClass("dpCMatrix", contains = "dsCMatrix",
-         validity = function(object) TODO("test that 'object' is positive semidefinite"))
+         validity = function(object) TODO("test positive semidefiniteness"))
 
-## Indicator matrix of a factor
-setClass("indicator", contains = "dgCMatrix",
-         slots = c(levels = "character"),
-         validity = function(object) TODO("test that there exists a factor 'g' such that identical(object, as(g, \"sparseMatrix\")) is TRUE"))
+## CSR, symmetic, positive semidefinite
+setClass("dpRMatrix", contains = "dsRMatrix",
+         validity = function(object) TODO("test positive semidefiniteness"))
+
+## Triplet, symmetic, positive semidefinite
+setClass("dpTMatrix", contains = "dsTMatrix",
+         validity = function(object) TODO("test positive semidefiniteness"))
 } # TODO
 
 
@@ -728,46 +698,10 @@ setClass("Schur", contains = "SchurFactorization",
 
 ## ------ The Mother Class 'sparseVector' ------------------------------
 
-## "longindex" should allow sparseVector of length >= 2^31,
-## which is necessary, e.g., when coercing from large sparseMatrix
-##
-## > setClass("longindex", contains = "numeric")
-##
-## but we use "numeric" here instead (for simplicity? efficiency?) ...
-## note that "numeric" contains "integer" (whether I like it or not) ...
-
 setClass("sparseVector", contains = "VIRTUAL",
          slots = c(length = "numeric", i = "numeric"), # 1-based index!
          prototype = list(length = 0),
-         validity = function(object) {
-             len <- object@length
-             if(length(len) != 1L)
-                 return("'length' slot does not have length 1")
-             if(!is.finite(len))
-                 return("'length' slot is not finite")
-             if(len < 0)
-                 return("'length' slot is negative")
-             i <- object@i
-             i.len <- length(i)
-             if(i.len == 0L)
-                 return(TRUE)
-             if(i.len > len)
-                 return("'i' slot has length greater than 'length' slot")
-             i.num <- is.double(i)
-             if(i.num)
-                 i <- trunc(i)
-             i.uns <- is.unsorted(i, strictly = TRUE)
-             if(is.na(i.uns))
-                 "'i' slot contains NA"
-             else if(i.uns || i[1L] < 1 || i[i.len] > len) {
-                 m <- if(i.uns)
-                          "'i' slot is not strictly increasing"
-                      else "'i' slot has elements not in 1:<'length' slot>"
-                 if(i.num)
-                     paste0(m, " after truncation towards zero")
-                 else m
-             } else TRUE
-         })
+         validity = function(object) .Call(sparseVector_validate, object))
 
 ## Allow users to do new("[nlidz]sparseVector", i=, x=) with unsorted 'i'
 setMethod("initialize", "sparseVector",
@@ -797,32 +731,23 @@ setMethod("initialize", "sparseVector",
 
 ## ------ Non-Virtual Subclasses ---------------------------------------
 
-.valid.xsparseVector <- function(object) {
-    if(length(object@x) != length(object@i))
-        "'i' and 'x' slots do not have equal length"
-    else TRUE
-}
-
-## No 'x' slot, hence nothing more to validate:
 setClass("nsparseVector", contains = "sparseVector")
 
 setClass("lsparseVector", contains = "sparseVector",
          slots = c(x = "logical"),
-         validity = .valid.xsparseVector)
+         validity = function(object) .Call(lsparseVector_validate, object))
 
 setClass("isparseVector", contains = "sparseVector",
          slots = c(x = "integer"),
-         validity = .valid.xsparseVector)
+         validity = function(object) .Call(isparseVector_validate, object))
 
 setClass("dsparseVector", contains = "sparseVector",
          slots = c(x = "numeric"),
-         validity = .valid.xsparseVector)
+         validity = function(object) .Call(dsparseVector_validate, object))
 
 setClass("zsparseVector", contains = "sparseVector",
          slots = c(x = "complex"),
-         validity = .valid.xsparseVector)
-
-rm(.valid.xsparseVector)
+         validity = function(object) .Call(zsparseVector_validate, object))
 
 
 ########################################################################
@@ -923,88 +848,13 @@ setClass("abIndex",
                          "'kind' is not \"int32\", \"double\", or \"rleDiff\"")
          })
 
-setClass("determinant",
-         ## based on S3 class 'det':
-         slots = c(modulus = "numeric", logarithm = "logical",
-                   sign = "integer", call = "call"),
-         validity = function(object) {
-             if(length(logarithm <- object@logarithm) != 1L)
-                 "'logarithm' slot does not have length 1"
-             else if(is.na(logarithm))
-                 "'logarithm' is not TRUE or FALSE"
-             else if(length(modulus <- object@modulus) != 1L)
-                 "'modulus' slot does not have length 1"
-             else if(logarithm && !is.na(modulus) && modulus < 0)
-                 "logarithm=FALSE but 'modulus' slot is negative"
-             else if(length(sign <- object@sign))
-                 "'sign' slot does not have length 1"
-             else if(is.na(sign) || (sign != -1L && sign != 1L))
-                 "'sign' slot is not -1 or 1"
-             else TRUE
-         })
-
 
 ########################################################################
 ##  5. Class unions
 ########################################################################
 
+## NB: these exist mainly to reduce duplication of methods
 ## NB: numeric = { double, integer }
-## NB: many of these are _not_ exported, on purpose
-
-## Union of matrix and Matrix:
-## * for certain "catch-all" methods; see, e.g., ./products.R
-## * note that is(x, "mMatrix") is stricter than length(dim(x)) == 2L,
-##   which allows, e.g., class 'table'
-setClassUnion("mMatrix",
-              members = c("matrix", "Matrix"))
-
-if(FALSE) { # --NOT YET--
-## for setMethod("c", "numMatrixLike"), once that works
-setClassUnion("numMatrixLike",
-              members = c("logical", "numeric", "mMatrix"))
-} # --NOT YET--
-
-if(TRUE) {
-## MJ: Somewhat surprisingly, these are not actually used anywhere;
-##     xsparseVector is only _mentioned_ in ../man/sparseVector-class.Rd.
-##     Keeping for now, if only for didactic reasons ...
-
-## Subclasses of Matrix with an 'x' slot:
-## NB: the 'x' slot need not contain all of the data (e.g., when diag = "U")
-setClassUnion("xMatrix",
-              members = c("ndenseMatrix", "lMatrix", "iMatrix",
-                          "dMatrix", "zMatrix"))
-
-## Subclasses of sparseVector with an 'x' slot:
-setClassUnion("xsparseVector",
-              members = c("lsparseVector", "isparseVector",
-                          "dsparseVector", "zsparseVector"))
-}
-
-## Intersection of denseMatrix and generalMatrix:
-## * currently only used in ./diagMatrix.R
-setClassUnion("geMatrix",
-              members = c("ngeMatrix", "lgeMatrix", "dgeMatrix"))
-
-## Intersection of nsparseMatrix and CsparseMatrix:
-## * _should_ be closer to its members than nsparseMatrix and CsparseMatrix
-##   but it is _not_
-## * a "fix" would be to define nCsparseMatrix as a (non-union) virtual class
-##   _and_ have n[gts]CMatrix extend it
-setClassUnion("nCsparseMatrix",
-              members = c("ngCMatrix", "ntCMatrix", "nsCMatrix"))
-setClassUnion("lCsparseMatrix",
-              members = c("lgCMatrix", "ltCMatrix", "lsCMatrix"))
-setClassUnion("dCsparseMatrix",
-              members = c("dgCMatrix", "dtCMatrix", "dsCMatrix"))
-
-if(FALSE) { # --NOT YET--
-## CHOLMOD-like sparseMatrix, i.e., excluding diagonalMatrix and indMatrix:
-## * would be useful, e.g., in ./products.R for '%&%',
-##   but at the moment it affects dispatch too much
-setClassUnion("CRTsparseMatrix",
-              members = c("CsparseMatrix", "RsparseMatrix", "TsparseMatrix"))
-} # --NOT YET--
 
 ## Atomic vectors:
 ## * note that is(<atomic matrix>, "atomicVector") is FALSE
@@ -1013,7 +863,7 @@ setClassUnion("atomicVector",
               members = c("logical", "numeric", "complex", "raw", "character"))
 
 ## Numeric-like vectors:
-## * for methods handling logical and integer as double; see, e.g., ./solve.R
+## * for methods handling logical and integer as double
 setClassUnion("numLike",
               members = c("logical", "numeric"))
 
@@ -1028,7 +878,6 @@ setClassUnion("index",
 setClassUnion("replValue",
               members = c("logical", "numeric", "complex", "raw"))
 setClassUnion("replValueSp",
-              ## MJ: why Matrix but not matrix ??
-              members = c("replValue", "sparseVector", "Matrix"))
+              members = c("replValue", "sparseVector", "matrix", "Matrix"))
 
 rm(.new, .initialize)

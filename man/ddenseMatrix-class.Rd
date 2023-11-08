@@ -9,20 +9,20 @@
 %
 \alias{&,ddenseMatrix,ddiMatrix-method}
 \alias{&,ddenseMatrix,ldiMatrix-method}
+\alias{&,ddenseMatrix,ndiMatrix-method}
 \alias{*,ddenseMatrix,ddiMatrix-method}
 \alias{*,ddenseMatrix,ldiMatrix-method}
+\alias{*,ddenseMatrix,ndiMatrix-method}
 \alias{Arith,ddenseMatrix,logical-method}
 \alias{Arith,ddenseMatrix,numeric-method}
 \alias{Arith,ddenseMatrix,sparseVector-method}
 \alias{Arith,logical,ddenseMatrix-method}
 \alias{Arith,numeric,ddenseMatrix-method}
-\alias{Math,ddenseMatrix-method}
-\alias{Summary,ddenseMatrix-method}
 \alias{^,ddenseMatrix,ddiMatrix-method}
 \alias{^,ddenseMatrix,ldiMatrix-method}
+\alias{^,ddenseMatrix,ndiMatrix-method}
 \alias{coerce,matrix,ddenseMatrix-method}
 \alias{coerce,vector,ddenseMatrix-method}
-\alias{log,ddenseMatrix-method}
 %
 \description{This is the virtual class of all dense numeric (i.e.,
   \bold{d}ouble, hence \emph{\dQuote{ddense}}) S4 matrices.

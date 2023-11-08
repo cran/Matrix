@@ -3,10 +3,10 @@
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 setMethod("lu", signature(x = "matrix"),
-          function(x, ...) lu(.m2dense(x, "dge"), ...))
+          function(x, ...) lu(.m2dense(x, ",ge"), ...))
 
 setMethod("lu", signature(x = "denseMatrix"),
-          function(x, ...) lu(.M2kind(x, "d"), ...))
+          function(x, ...) lu(.M2kind(x, ","), ...))
 
 setMethod("lu", signature(x = "dgeMatrix"),
           function(x, warnSing = TRUE, ...)
@@ -34,6 +34,7 @@ setMethod("lu", signature(x = .cl),
               if(x@uplo == "U" || x@diag == "U") {
                   r <- new("denseLU")
                   r@Dim <- d <- x@Dim
+                  r@Dimnames <- x@Dimnames
                   r@perm <- seq_len(d[1L])
                   r@x <- .M2gen(x)@x
                   r
@@ -43,7 +44,7 @@ rm(.cl)
 
 setMethod("lu", signature(x = "sparseMatrix"),
           function(x, ...)
-              lu(.M2kind(.M2C(x), "d"), ...))
+              lu(.M2kind(.M2C(x), ","), ...))
 
 setMethod("lu", signature(x = "dgCMatrix"),
           function(x, errSing = TRUE, order = NA_integer_, tol = 1, ...)
@@ -63,10 +64,12 @@ setMethod("lu", "dtCMatrix",
                   n <- (d <- x@Dim)[1L]
                   r <- new("sparseLU")
                   y <- new("dtCMatrix")
-                  y@Dim <- r@Dim <- d
+                  y@Dim <- d
                   y@uplo <- if(upper) "L" else "U"
                   y@diag <- "U"
                   y@p <- integer(n + 1L)
+                  r@Dim <- d
+                  r@Dimnames <- x@Dimnames
                   r@L <- if(upper) y else x
                   r@U <- if(upper) x else y
                   r@p <- r@q <- seq.int(from = 0L, length.out = n)
@@ -95,10 +98,12 @@ setMethod("lu", signature(x = "dtRMatrix"),
                   n <- (d <- x@Dim)[1L]
                   r <- new("sparseLU")
                   y <- new("dtCMatrix")
-                  y@Dim <- r@Dim <- d
+                  y@Dim <- d
                   y@uplo <- if(upper) "L" else "U"
                   y@diag <- "U"
                   y@p <- integer(n + 1L)
+                  r@Dim <- d
+                  r@Dimnames <- x@Dimnames
                   r@L <- if(upper) y else .M2C(x)
                   r@U <- if(upper) .M2C(x) else y
                   r@p <- r@q <- seq.int(from = 0L, length.out = n)
@@ -127,10 +132,12 @@ setMethod("lu", signature(x = "dtTMatrix"),
                   n <- (d <- x@Dim)[1L]
                   r <- new("sparseLU")
                   y <- new("dtCMatrix")
-                  y@Dim <- r@Dim <- d
+                  y@Dim <- d
                   y@uplo <- if(upper) "L" else "U"
                   y@diag <- "U"
                   y@p <- integer(n + 1L)
+                  r@Dim <- d
+                  r@Dimnames <- x@Dimnames
                   r@L <- if(upper) y else .M2C(x)
                   r@U <- if(upper) .M2C(x) else y
                   r@p <- r@q <- seq.int(from = 0L, length.out = n)
@@ -140,10 +147,11 @@ setMethod("lu", signature(x = "dtTMatrix"),
 
 setMethod("lu", "diagonalMatrix",
           function(x, ...) {
+              x <- .M2kind(x, ",")
               n <- (d <- x@Dim)[1L]
               L <- new("dtCMatrix")
               r <- new("sparseLU")
-              L@Dim <- r@Dim <- d
+              L@Dim <- d
               L@uplo <- "L"
               L@diag <- "U"
               L@p <- integer(n + 1L)
@@ -151,9 +159,11 @@ setMethod("lu", "diagonalMatrix",
               if(x@diag == "N") {
                   L@diag <- "N"
                   L@p <- seq.int(from = 0L, length.out = n + 1L)
-                  L@x <- as.double(x@x)
+                  L@x <- x@x
               }
               r@U <- L
+              r@Dim <- d
+              r@Dimnames <- x@Dimnames
               r@p <- r@q <- seq.int(from = 0L, length.out = n)
               r
           })
@@ -243,7 +253,9 @@ setMethod("expand1", signature(x = "denseLU"),
                          r@x <- .mkU(x@x, m, n)
                          r
                      },
-                     stop("'which' is not \"P1\", \"P1.\", \"L\", or \"U\""))
+                     stop(gettextf("'%1$s' is not \"%2$s1\", \"%2$s1.\", \"%3$s\", or \"%4$s\"",
+                                   "which", "P", "L", "U"),
+                          domain = NA))
           })
 
 ## returning list(P1', L, U), where A = P1' L U
@@ -320,7 +332,9 @@ setMethod("expand1", signature(x = "sparseLU"),
                      },
                      "L" = x@L,
                      "U" = x@U,
-                     stop("'which' is not \"P1\", \"P1.\", \"P2\", \"P2.\", \"L\", or \"U\""))
+                     stop(gettextf("'%1$s' is not \"%2$s1\", \"%2$s1.\", \"%2$s2\", \"%2$s2.\", \"%3$s\", or \"%4$s\"",
+                                   "which", "P", "L", "U"),
+                          domain = NA))
           })
 
 ## returning list(P1', L, U, P2'), where A = P1' L U P2'

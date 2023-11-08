@@ -10,9 +10,6 @@
 \alias{coerce,matrix,unpackedMatrix-method}
 \alias{coerce,vector,unpackedMatrix-method}
 \alias{cov2cor,unpackedMatrix-method}
-\alias{diag,unpackedMatrix-method}
-\alias{diag<-,unpackedMatrix-method}
-\alias{t,unpackedMatrix-method}
 %
 \description{
   Class \code{"unpackedMatrix"} is the \emph{virtual} class of dense
@@ -35,7 +32,6 @@
   Class \code{"\linkS4class{denseMatrix}"}, directly.
   Class \code{"\linkS4class{Matrix}"}, by class \code{"denseMatrix"},
   distance 2.
-  Class \code{"mMatrix"}, by class \code{"Matrix"}, distance 3.
   Class \code{"replValueSp"}, by class \code{"Matrix"}, distance 3.
 }
 \section{Methods}{

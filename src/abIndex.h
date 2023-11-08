@@ -1,10 +1,10 @@
-#ifndef MATRIX_AbstrINDEX_H
-#define MATRIX_AbstrINDEX_H
+#ifndef MATRIX_ABINDEX_H
+#define MATRIX_ABINDEX_H
 
-#include "Mutils.h"
+#include <Rinternals.h>
 
-SEXP Matrix_rle_i(SEXP x_, SEXP force_);
-SEXP Matrix_rle_d(SEXP x_, SEXP force_);
+SEXP Matrix_rle_i(SEXP, SEXP);
+SEXP Matrix_rle_d(SEXP, SEXP);
 
-#endif
+#endif /* MATRIX_ABINDEX_H */
 

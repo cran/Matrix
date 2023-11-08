@@ -9,14 +9,19 @@
 %
 \alias{-,denseMatrix,missing-method}
 \alias{Math,denseMatrix-method}
+\alias{Summary,denseMatrix-method}
 \alias{coerce,ANY,denseMatrix-method}
 \alias{coerce,matrix,denseMatrix-method}
 \alias{coerce,vector,denseMatrix-method}
+\alias{diag,denseMatrix-method}
+\alias{diag<-,denseMatrix-method}
+\alias{diff,denseMatrix-method}
 \alias{dim<-,denseMatrix-method}
 \alias{log,denseMatrix-method}
 \alias{mean,denseMatrix-method}
 \alias{rep,denseMatrix-method}
 \alias{show,denseMatrix-method}
+\alias{t,denseMatrix-method}
 %
 \description{This is the virtual class of all dense (S4) matrices.
   It partitions into two subclasses

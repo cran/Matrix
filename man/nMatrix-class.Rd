@@ -28,7 +28,6 @@
 \alias{Ops,nMatrix,nMatrix-method}
 \alias{Ops,nMatrix,numeric-method}
 \alias{Ops,numeric,nMatrix-method}
-\alias{Summary,nMatrix-method}
 \alias{coerce,matrix,nMatrix-method}
 \alias{coerce,vector,nMatrix-method}
 %

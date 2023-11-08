@@ -1,15 +1,9 @@
 #ifndef MATRIX_DGEMATRIX_H
 #define MATRIX_DGEMATRIX_H
 
-#include "Lapack-etc.h"
-#include "Mutils.h"
+#include <Rinternals.h>
 
-SEXP dgeMatrix_Schur(SEXP x, SEXP vectors, SEXP isDGE);
-SEXP dgeMatrix_exp(SEXP x);
+SEXP dgeMatrix_Schur(SEXP, SEXP, SEXP);
+SEXP dgeMatrix_exp(SEXP);
 
-/* MJ: unused */
-#if 0
-SEXP dgeMatrix_svd(SEXP x, SEXP nu, SEXP nv);
-#endif /* MJ */
-
-#endif
+#endif /* MATRIX_DGEMATRIX_H */

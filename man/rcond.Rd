@@ -11,14 +11,7 @@
 %
 \alias{rcond,ANY,missing-method}
 \alias{rcond,denseMatrix,character-method}
-\alias{rcond,dgeMatrix,character-method}
 \alias{rcond,diagonalMatrix,character-method}
-\alias{rcond,dpoMatrix,character-method}
-\alias{rcond,dppMatrix,character-method}
-\alias{rcond,dspMatrix,character-method}
-\alias{rcond,dsyMatrix,character-method}
-\alias{rcond,dtpMatrix,character-method}
-\alias{rcond,dtrMatrix,character-method}
 \alias{rcond,indMatrix,character-method}
 \alias{rcond,pMatrix,character-method}
 \alias{rcond,sparseMatrix,character-method}

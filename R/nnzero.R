@@ -9,12 +9,12 @@
 ##  TRUE ... NA is treated as nonzero and so included   in count
 ##    NA ... NA is indeterminate (could be zero or nonzero) hence count is NA
 
+ sparseDefault <- function(x) length(x) > 2 *  nnzero(x, na.counted = TRUE)
+.sparseDefault <- function(x) length(x) > 2 * .nnzero(x, na.counted = TRUE)
+
 ## For logical, integer, double, and complex vectors
 .nnzero <- function(x, na.counted = NA, nnzmax = length(x))
     .Call(R_nnz, x, na.counted, nnzmax)
-
- sparseDefault <- function(x) length(x) > 2 *  nnzero(x, na.counted = TRUE)
-.sparseDefault <- function(x) length(x) > 2 * .nnzero(x, na.counted = TRUE)
 
 ## For any class with methods for 'is.na' and '!='
 .nnzero.fallback <- function(x, na.counted = NA)
@@ -30,62 +30,58 @@
 
 setMethod("nnzero",    "ANY", .nnzero.fallback)
 setMethod("nnzero", "vector", .nnzero.dispatching)
-setMethod("nnzero",  "array", .nnzero.dispatching)
-
-rm(.nnzero.dispatching)
-
-setMethod("nnzero", "CHMfactor",
-          function(x, na.counted = NA)
-              nnzero(as(x, "CsparseMatrix"), na.counted))
-
-setMethod("nnzero", "diagonalMatrix",
-          function(x, na.counted = NA)
-              if(x@diag == "N") .nnzero(x@x, na.counted) else x@Dim[1L])
-
-setMethod("nnzero", "indMatrix",
-          function(x, na.counted = NA) length(x@perm))
-
-setMethod("nnzero", "sparseMatrix",
-          function(x, na.counted = NA) {
-              d <- x@Dim
-              if(any(d == 0L))
-                  return(0L)
-              cld <- getClassDef(class(x))
-              N <- if(extends(cld, "CsparseMatrix"))
-                       x@p[d[2L]+1L]
-                   else if(extends(cld, "RsparseMatrix"))
-                       x@p[d[1L]+1L]
-                   else length((x <- .Call(Tsparse_aggregate, x))@i)
-              if(!extends(cld, "nsparseMatrix"))
-                  N <- .nnzero(x@x, na.counted, N)
-              if(extends(cld, "generalMatrix"))
-                  N
-              else if(extends(cld, "symmetricMatrix"))
-                  N + N - .nnzero(diag(x), na.counted)
-              else if(x@diag != "N")
-                  N + d[1L]
-              else N
-          })
 
 setMethod("nnzero", "denseMatrix",
           function(x, na.counted = NA) {
               d <- x@Dim
               if(any(d == 0L))
                   return(0L)
-              xx <- x@x
-              cld <- getClassDef(class(x))
-              if(extends(cld, "ndenseMatrix"))
+              if(.M.kind(x) == "n")
                   na.counted <- TRUE
-              if(extends(cld, "generalMatrix"))
-                  return(.nnzero(xx, na.counted))
-              n <- d[1L]
-              upper <- x@uplo == "U"
-              if(extends(cld, "unpackedMatrix"))
-                  xx <- xx[indTri(n, upper, diag = TRUE, packed = FALSE)]
-              N <- .nnzero(xx, na.counted)
-              if(extends(cld, "symmetricMatrix"))
-                  N + N - .nnzero(diag(x), na.counted)
-              else if(x@diag != "N")
-                  N + n - .nnzero(xx[indDiag(n, upper, packed = TRUE)], na.counted)
-              else N
+              if((shape <- .M.shape(x)) != "g")
+                  x <- .M2packed(x)
+              N <- .nnzero(x@x, na.counted)
+              switch(shape,
+                     "g" = N,
+                     "s" = N + N - .nnzero(diag(x, names = FALSE), na.counted),
+                     "t" = if(x@diag == "N") N else N + d[1L] - .nnzero(x@x[indDiag(d[1L], upper = x@uplo == "U", packed = TRUE)], na.counted))
           })
+
+setMethod("nnzero", "sparseMatrix",
+          function(x, na.counted = NA) {
+              d <- x@Dim
+              if(any(d == 0L))
+                  return(0L)
+              N <- switch(.M.repr(x),
+                          "C" = x@p[d[2L]+1L],
+                          "R" = x@p[d[1L]+1L],
+                          "T" = length((x <- aggregateT(x))@i))
+              if(.M.kind(x) != "n")
+                  N <- .nnzero(x@x, na.counted, N)
+              switch(.M.shape(x),
+                     "g" = N,
+                     "s" = N + N - .nnzero(diag(x, names = FALSE), na.counted),
+                     "t" = if(x@diag == "N") N else N + d[1L])
+          })
+
+setMethod("nnzero", "diagonalMatrix",
+          function(x, na.counted = NA) {
+              if(x@diag != "N")
+                  x@Dim[1L]
+              else {
+                  y <- x@x
+                  if(.M.kind(x) == "n" && anyNA(y))
+                      y <- y | is.na(y)
+                  .nnzero(y, na.counted)
+              }
+          })
+
+setMethod("nnzero", "indMatrix",
+          function(x, na.counted = NA)
+              length(x@perm))
+
+setMethod("nnzero", "CHMfactor",
+          function(x, na.counted = NA)
+              nnzero(as(x, "CsparseMatrix"), na.counted))
+
+rm(.nnzero.dispatching)

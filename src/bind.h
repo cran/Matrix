@@ -1,8 +1,8 @@
 #ifndef MATRIX_BIND_H
 #define MATRIX_BIND_H
 
-#include "Mutils.h"
+#include <Rinternals.h>
 
-SEXP R_bind(SEXP args);
+SEXP R_bind(SEXP);
 
-#endif
+#endif /* MATRIX_BIND_H */

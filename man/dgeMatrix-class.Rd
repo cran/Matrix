@@ -13,9 +13,7 @@
 \alias{Arith,dgeMatrix,sparseVector-method}
 \alias{Arith,logical,dgeMatrix-method}
 \alias{Arith,numeric,dgeMatrix-method}
-\alias{Math,dgeMatrix-method}
 \alias{determinant,dgeMatrix,logical-method}
-\alias{log,dgeMatrix-method}
 %
 \description{A general numeric dense matrix in the S4 Matrix
   representation.  \code{dgeMatrix} is the \emph{\dQuote{standard}}

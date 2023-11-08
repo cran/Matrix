@@ -20,9 +20,9 @@
   \deqn{A = P_{1}' L U}{A = P1' * L * U}
   where
   \eqn{P_{1}}{P1} is an \eqn{m \times m}{m-by-m} permutation matrix, 
-  \eqn{L} is an \eqn{m \times \text{min}(m,n)}{m-by-min(m,n)}
+  \eqn{L} is an \eqn{m \times \min(m,n)}{m-by-min(m,n)}
   unit lower trapezoidal matrix, and
-  \eqn{U} is a  \eqn{\text{min}(m,n) \times n}{min(m,n)-by-n}
+  \eqn{U} is a  \eqn{\min(m,n) \times n}{min(m,n)-by-n}
   upper trapezoidal matrix.  If \eqn{m = n}, then the factors
   \eqn{L} and \eqn{U} are triangular.
 }

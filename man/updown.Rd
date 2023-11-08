@@ -9,8 +9,7 @@
 \alias{updown}
 \alias{updown-methods}
 %
-\alias{updown,character,Matrix,CHMfactor-method}
-\alias{updown,character,matrix,CHMfactor-method}
+\alias{updown,character,ANY,ANY-method}
 \alias{updown,logical,Matrix,CHMfactor-method}
 \alias{updown,logical,dgCMatrix,CHMfactor-method}
 \alias{updown,logical,dsCMatrix,CHMfactor-method}

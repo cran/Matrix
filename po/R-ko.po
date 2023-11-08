@@ -14,7 +14,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Matrix 1.1-3\n"
-"POT-Creation-Date: 2023-08-03 13:24\n"
+"POT-Creation-Date: 2023-11-02 21:33\n"
 "PO-Revision-Date: 2015-07-15 17:14-0600\n"
 "Last-Translator:Chel Hee Lee  <chl948@mail.usask.ca>\n"
 "Language-Team: Chel Hee Lee  <chl948@mail.usask.ca>\n"
@@ -24,78 +24,35 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-msgid "invalid 'mod': %s"
+#, fuzzy
+msgid "invalid mode \"%s\""
 msgstr "사용할 수 있는 'mod'(%s)가 아닙니다."
 
 msgid ""
-"not-yet-implemented method for %s(<%s>).\n"
-" ->>  Ask the package authors to implement the missing feature."
+"%s(<%s>, <%s>) is not yet implemented; ask maintainer(\"%s\") to implement "
+"the missing method"
 msgstr ""
-"%s(<%s>)의 경우에 대하여 아직 구현되지 않은 메소드(method)입니다.\n"
-" ->> 이 기능에 대한 구현을 패키지 관리자에게 문의해 주셨으면 합니다."
-
-msgid ""
-"not-yet-implemented method for %s(<%s>, <%s>).\n"
-" ->>  Ask the package authors to implement the missing feature."
-msgstr ""
-"%s(<%s>, <%s>)의 경우에 대하여 아직 구현되지 않은 메소드(method)입니다.\n"
-" ->> 이 기능에 대한 구현을 패키지 관리자에게 문의해 주시길 바랍니다."
-
-msgid "non-conformable matrix dimensions in %s"
-msgstr "%s에 입력된 행렬의 차원이 정합(conformable)하지 않습니다."
 
 #, fuzzy
-msgid "complex \"diagonalMatrix\" not yet implemented"
-msgstr "%s의 경우에는 아직 구현되지 않은 일반적인 Matrix 클래스입니다."
+msgid "complex %s not yet implemented"
+msgstr "클래스 %s는 아직 구현되지 않았습니다."
 
 #, fuzzy
-msgid "cannot coerce matrix of type \"%s\" to \"diagonalMatrix\""
+msgid "cannot coerce matrix of type \"%s\" to %s"
 msgstr "'NA'를 \"nsparseMatrix\"으로 강제변환(coerce)할 수 없습니다."
-
-#, fuzzy
-msgid "[[ suppressing %d column name%s %s ... ]]"
-msgstr "[[ %d개의 열이름 %s ...를 제거합니다 ]]"
 
 #, fuzzy
 msgid "non0.i() not yet implemented for class %s"
 msgstr "클래스 %s의 경우에 아직 구현되지 않았습니다."
 
-#, fuzzy
-msgid "not yet implemented for class \"%s\""
-msgstr "클래스 %s의 경우에 아직 구현되지 않았습니다."
-
-#, fuzzy
-msgid "invalid 'uplo'"
-msgstr "올바르지 않은 'type'입니다."
-
-msgid "which=\"%s\" invalid for x@uplo=\"%s\""
+msgid "%s=\"%s\" invalid for %s@uplo=\"%s\""
 msgstr ""
 
-msgid "'which' is not \"%1$s\", \"D%1$s\", or \"%1$s.\""
+msgid "'%s' is not \"%1$s\", \"D%1$s\", or \"%1$s.\""
 msgstr ""
 
-msgid "nothing to replace with"
-msgstr "교체(replace)해야 할 것이 아무것도 없습니다."
-
-msgid "number of items to replace is not a multiple of replacement length"
+msgid "unexpected %s=\"%s\" in '%s' method"
 msgstr ""
-"교체(replace)할 항목의 개수가 입력된 value가 가지는 길이의 배수가 아닙니다."
-
-msgid "too many replacement values"
-msgstr "교체에 이용될 값이 너무 많이 입력되었습니다."
-
-msgid "i1[1] == 0 ==> C-level verbosity will not happen!"
-msgstr "i1[1] == 0 ==> C-레벨에서의 진행과정표시는 나타나지 않을 것입니다!"
-
-msgid "using\t \"old code\" part in  Csparse subassignment"
-msgstr "using\t \"old code\" part in  Csparse subassignment"
-
-msgid ""
-"using\"old code\" part in Csparse subassignment\n"
-" >>> please report to Matrix-authors@r-project.org"
-msgstr ""
-"using\"old code\" part in Csparse subassignment\n"
-" >>> Matrix-authors@r-project.org으로 이를 보고해 주시길 바랍니다."
 
 msgid "Not a valid format"
 msgstr "올바른 형식(format)이 아닙니다."
@@ -167,60 +124,26 @@ msgid "'%s()' is not yet implemented for  representation '%s'"
 msgstr ""
 "표현(representation)이 '%2$s'의 경우에 아직 구현되지 않은 '%1$s()'입니다."
 
-msgid "'which' is not \"P1\", \"P1.\", \"L\", or \"U\""
+msgid "'%1$s' is not \"%2$s1\", \"%2$s1.\", \"%3$s\", or \"%4$s\""
 msgstr ""
-
-msgid "'which' is not \"P1\", \"P1.\", \"P2\", \"P2.\", \"L\", or \"U\""
-msgstr ""
-
-msgid "invalid 'data'"
-msgstr "입력된 'data'는 올바르지 않습니다."
-
-#, fuzzy
-msgid "'nrow', 'ncol', 'byrow' disregarded for [mM]atrix 'data'"
-msgstr "행렬 'data'인 경우에 입력된 'nrow', 'ncol' 등은 사용되지 않습니다."
-
-msgid "data is too long"
-msgstr ""
-
-msgid "'lag' and 'differences' must be integers >= 1"
-msgstr "'lag'과 'differences'는 반드시 1보다 크거나 같은 정수이어야 합니다."
 
 msgid ""
-".M.repl.i.2col(): 'i' has no integer column number;\n"
-" should never happen; please report"
+"'%1$s' is not \"%2$s1\", \"%2$s1.\", \"%2$s2\", \"%2$s2.\", \"%3$s\", or "
+"\"%4$s\""
 msgstr ""
-".M.repl.i.2col(): 'i'는 정수형 행번호(integer column number)을 가지고 있지 않"
-"습니다.\n"
-" 이런 경우는 존재할 수 없으므로 패키지 관리자에게 보고해 주시길 부탁드립니다."
 
-msgid "such indexing must be by logical or 2-column numeric matrix"
+msgid "longer object length is not a multiple of shorter object length"
+msgstr "객체의 길이(긴 것)이 다른 객체의 길이(짧은 것)의 배수가 아닙니다."
+
+#, fuzzy
+msgid "invalid class \"%s\" in '%s' method"
+msgstr "%s은 올바른 'col.names' 문자열이 아닙니다"
+
+msgid "invalid type \"%s\" in '%s' method"
 msgstr ""
-"이와 같은 유형의 인덱싱(indexing)은 반드시 논리형(logical) 또는 2개의 열로 구"
-"성된 수치형(numeric) 행렬에 의해서만 이루어져야 합니다."
 
-msgid ".M.repl.i.2col(): drop 'matrix' case ..."
-msgstr ".M.repl.i.2col(): drop 'matrix' case ..."
-
-msgid "negative values are not allowed in a matrix subscript"
-msgstr "음수(negative values)는 행렬의 첨자(subscript)로 사용할 수 없습니다."
-
-msgid "NAs are not allowed in subscripted assignments"
-msgstr "NA는 행렬의 첨자(subscripted assignment)로 사용할 수 없습니다."
-
-msgid "m[ <ij-matrix> ] <- v: inefficiently treating single elements"
-msgstr "m[ <ij-matrix> ] <- v: inefficiently treating single elements"
-
-msgid "nargs() = %d.  Extraneous illegal arguments inside '[ .. ]' ?"
-msgstr "nargs() = %d.  필요이상의 인자들이 '[ .. ]' 내에 이용되었나요?"
-
-msgid "RHS 'value' (class %s) matches 'ANY', but must match matrix class %s"
-msgstr ""
-"클래스 %s를 가지는 우변의 'value'는 'ANY'에 매치되지만, 반드시 행렬의 클래스 "
-"%s에 매치되어야 합니다."
-
-msgid "not-yet-implemented 'Matrix[<-' method"
-msgstr "아직 구현되지 않은 'Matrix[<-' 메소드입(method)니다."
+msgid "non-conformable matrix dimensions in %s"
+msgstr "%s에 입력된 행렬의 차원이 정합(conformable)하지 않습니다."
 
 msgid "dimnames [%d] mismatch in %s"
 msgstr "%2$s에 입력된 dimnames [%1$d]가 일치하지 않습니다."
@@ -275,18 +198,660 @@ msgstr ""
 "객체의 길이(긴 것)가\n"
 "\t 다른 객체가 가지는 길이(짧은 것)의 배수가 아닙니다."
 
-msgid "longer object length is not a multiple of shorter object length"
-msgstr "객체의 길이(긴 것)이 다른 객체의 길이(짧은 것)의 배수가 아닙니다."
+msgid "intermediate 'r' is of type %s"
+msgstr "intermediate 'r' is of type %s"
 
-msgid "programming error: min() should have dispatched w/ 1st arg much earlier"
+msgid "not yet implemented .. please report"
+msgstr "아직 구현되지 않았습니다.  보고를 부탁드립니다."
+
+msgid "'force' must be (coercable to) TRUE or FALSE"
+msgstr "'force'는 반드시 (강제변환될 수 있는) TRUE 또는 FALSE 이어야 합니다."
+
+msgid "invalid (to - from)/by in seq(.)"
+msgstr "seq(.)의 사용시 (to - from)/by의 값이 올바르지 않습니다."
+
+msgid "wrong sign in 'by' argument"
+msgstr "'by' 인자에 사용된 부호(sign)가 올바르지 않습니다."
+
+msgid "'by' argument is much too small"
+msgstr "'by' 인자에 사용된 값이 너무 작습니다."
+
+msgid "length must be non-negative number"
+msgstr "길이(length)는 반드시 음이 아닌 수이어야 합니다."
+
+msgid "too many arguments"
+msgstr "입력된 인자의 개수가 너무 많습니다."
+
+msgid "c(<abIndex>,..) of different kinds, coercing all to 'rleDiff'"
+msgstr "c(<abIndex>,..) of different kinds, 모두 'rleDiff'로 강제변환합니다"
+
+msgid "<abIndex>[i]  is not yet implemented"
+msgstr "<abIndex>[i]는 아직 구현되지 않았습니다."
+
+msgid "all(<abIndex>) is not yet implemented"
+msgstr "all(<abIndex>)는 아직 구현되지 않았습니다."
+
+msgid "sum(<abIndex>) is not yet implemented"
+msgstr "sum(<abIndex>)는 아직 구현되지 않았습니다."
+
+msgid "prod(<abIndex>) is not yet implemented"
+msgstr "prod(<abIndex>)는 아직 구현되지 않았습니다."
+
+msgid "not yet implemented"
+msgstr "아직 구현되지 않았습니다."
+
+msgid ""
+"x / 0 for an <abIndex> x with sign-change\n"
+" no longer representable as 'rleDiff'"
 msgstr ""
-"programming error: min() should have dispatched w/ 1st arg much earlier"
+"x / 0 for an <abIndex> x with sign-change\n"
+" no longer representable as 'rleDiff'"
 
-msgid "in Summary(<ANY>, .): %s(<%s>, <%s>,...)"
-msgstr "in Summary(<ANY>, .): %s(<%s>, <%s>,...)"
+msgid "<abIndex>  -->  <seqMat>  is not yet implemented"
+msgstr "<abIndex>  -->  <seqMat>은 아직 구현되지 않았습니다."
 
-msgid "in Summary(<ANY>, .): %s(<%s>, <%s>)"
-msgstr "in Summary(<ANY>, .): %s(<%s>, <%s>)"
+msgid "<seqMat>  -->  <abIndex>  is not yet implemented"
+msgstr "<seqMat>  -->  <abIndex>은 아직 구현되지 않았습니다."
+
+#, fuzzy
+msgid "%1$s(%2$s) is undefined: '%2$s' is not positive semidefinite"
+msgstr "chol()은 음의 값을 가진 대각행렬에 대하여 정의되지 않았습니다."
+
+#, fuzzy
+msgid "matrix is not square"
+msgstr "대각행렬이 아닙니다."
+
+msgid ""
+"'%1$s' is not \"%2$s1\", \"%2$s1.\", \"%3$s\", \"%3$s.\", \"%3$s1\", \"%3$s1."
+"\", or \"%4$s\""
+msgstr ""
+
+#, fuzzy
+msgid "'%s' does not inherit from virtual class %s"
+msgstr "'x'는 \"sparseVector\"로부터의 상속(inherit)이어야 합니다."
+
+msgid "D[i,i] is NA, i=%d"
+msgstr ""
+
+msgid "D[i,i] is negative, i=%d"
+msgstr ""
+
+msgid "'%1$s' is not formally symmetric; factorizing tcrossprod(%1$s)"
+msgstr ""
+
+#, fuzzy
+msgid "matrix is not symmetric; consider forceSymmetric(.) or symmpart(.)"
+msgstr ""
+"대칭행렬(symmetric matrix)가 아닙니다.  forceSymmtric() 또는 symmpart() 함수"
+"의 사용을 고려해 보시길 바랍니다."
+
+#, fuzzy
+msgid "matrix is not triangular; consider triu(.) or tril(.)"
+msgstr "삼각행렬이 아닙니다."
+
+msgid "matrix is not diagonal; consider Diagonal(x=diag(.))"
+msgstr ""
+
+#, fuzzy
+msgid "invalid type \"%s\" in '%s'"
+msgstr "올바르지 않은 'type'입니다."
+
+#, fuzzy
+msgid "invalid %s=\"%s\" to '%s'"
+msgstr "%s는 사용할 수 없는 저장형식(storage format)입니다."
+
+msgid "dimensions cannot exceed %s"
+msgstr ""
+
+#, fuzzy
+msgid "invalid class \"%s\" in '%s'"
+msgstr "%s은 올바른 'col.names' 문자열이 아닙니다"
+
+msgid "%s length cannot exceed %s"
+msgstr ""
+
+msgid "'A' must be a square matrix"
+msgstr "'A'는 반드시 정방행렬(square matrix)이어야 합니다."
+
+msgid "must either specify 'A' or the functions 'A.x' and 'At.x'"
+msgstr "'A' 또는 'A.x'와 'At.x'는 반드시 주어져야 합니다."
+
+msgid "when 'A' is specified, 'A.x' and 'At.x' are disregarded"
+msgstr "'A'가 주어진 경우에 입력된 'A.x'와 'At.x'는 사용되지 않습니다."
+
+msgid "not converged in %d iterations"
+msgstr "%d번째 반복에서도 수렴하지 않습니다."
+
+msgid "hit a cycle (1) -- stop iterations"
+msgstr "cycle (1)에 도달했습니다 -- 반복을 중지합니다"
+
+msgid "hit a cycle (2) -- stop iterations"
+msgstr "cycle (2)에 도달했습니다 -- 반복을 중지합니다"
+
+msgid "not enough new vecs -- stop iterations"
+msgstr "not enough new vecs -- stop iterations"
+
+msgid "invalid 'data'"
+msgstr "입력된 'data'는 올바르지 않습니다."
+
+#, fuzzy
+msgid "'nrow', 'ncol', 'byrow' disregarded for [mM]atrix 'data'"
+msgstr "행렬 'data'인 경우에 입력된 'nrow', 'ncol' 등은 사용되지 않습니다."
+
+msgid "data is too long"
+msgstr ""
+
+#, fuzzy
+msgid "exactly one of 'i', 'j', and 'p' must be missing from call"
+msgstr "'i', 'j', 또는 'p' 중 하나가 호출(call)로부터 누락된 것 같습니다. "
+
+msgid ""
+"use Diagonal() to construct diagonal (symmetric && triangular) sparse "
+"matrices"
+msgstr ""
+
+msgid "'giveCsparse' is deprecated; using 'repr' instead"
+msgstr ""
+
+msgid "'giveCsparse' is deprecated; setting repr=\"T\" for you"
+msgstr ""
+
+#, fuzzy
+msgid "'p' must be a nondecreasing vector c(0, ...)"
+msgstr "'p'는 반드시 감소하지 않는(non-decreasing) 벡터 (0, ...)이어야 합니다."
+
+msgid "dimensions cannot exceed 2^31-1"
+msgstr ""
+
+msgid "'i' and 'j' must not contain NA"
+msgstr ""
+
+msgid "'i' and 'j' must be"
+msgstr ""
+
+msgid "positive"
+msgstr ""
+
+msgid "non-negative"
+msgstr ""
+
+#, fuzzy
+msgid "invalid 'dims'"
+msgstr "입력된 'data'는 올바르지 않습니다."
+
+msgid "'dims' must contain all (i,j) pairs"
+msgstr ""
+
+msgid "symmetric matrix must be square"
+msgstr "대칭행렬(symmetric matrix)는 반드시 정방(square)이어야 합니다."
+
+#, fuzzy
+msgid "triangular matrix must be square"
+msgstr "대칭행렬(symmetric matrix)는 반드시 정방(square)이어야 합니다."
+
+msgid "p[length(p)]"
+msgstr ""
+
+msgid "length(i)"
+msgstr ""
+
+#, fuzzy
+msgid "is not an integer multiple of length(x)"
+msgstr "length(i)는 length(x)의 배수가 아닙니다."
+
+msgid "length(x) must not exceed"
+msgstr ""
+
+msgid "invalid 'repr'; must be \"C\", \"R\", or \"T\""
+msgstr ""
+
+#, fuzzy
+msgid "'n' must be a non-negative integer"
+msgstr "길이(length)는 반드시 음이 아닌 수이어야 합니다."
+
+msgid "'x' has unsupported class \"%s\""
+msgstr ""
+
+msgid "'x' has unsupported type \"%s\""
+msgstr ""
+
+msgid "attempt to recycle 'x' of length 0 to length 'n' (n > 0)"
+msgstr ""
+
+msgid "'shape' must be one of \"g\", \"t\", \"s\""
+msgstr ""
+
+msgid "'kind' must be one of \"d\", \"l\", \"n\""
+msgstr ""
+
+msgid "mismatch between typeof(x)=\"%s\" and kind=\"%s\"; using kind=\"%s\""
+msgstr ""
+
+#, fuzzy
+msgid "'cols' must be numeric"
+msgstr "'ncol'은 반드시 >= 0 이어야 합니다. "
+
+msgid "'cols' has elements not in seq(0, length.out = n)"
+msgstr ""
+
+msgid "'uplo' must be \"U\" or \"L\""
+msgstr ""
+
+#, fuzzy
+msgid "'lst' must be a list"
+msgstr "'ncol'은 반드시 >= 0 이어야 합니다. "
+
+msgid "'giveCsparse' has been deprecated; setting 'repr = \"T\"' for you"
+msgstr ""
+
+msgid "'giveCsparse' has been deprecated; will use 'repr' instead"
+msgstr ""
+
+msgid "'diagonals' matrix must have %d columns (= length(k) )"
+msgstr ""
+"'diagonals' 행렬은 반드시 %d (=length(k))개의 열을 가지고 있어야 합니다."
+
+msgid "'diagonals' must have the same length (%d) as 'k'"
+msgstr "'diagnoals'의 길이는 반드시 'k'(=%d)이어야 합니다."
+
+msgid "matrix can only be symmetric if square, but n != m"
+msgstr ""
+
+msgid ""
+"for symmetric band matrix, only specify upper or lower triangle\n"
+" hence, all k must have the same sign"
+msgstr ""
+"대칭 띠 행렬(symmetric band matrix)의 경우, 오로지 상삼각(upper triangle) 또"
+"는 하삼각(lower)만을 지정합니다. \n"
+" 따라서, 모든 k는 반드시 같은 부호(sign)를 가져야 합니다."
+
+msgid "the %d-th (sub)-diagonal (k = %d) is too short; filling with NA's"
+msgstr "%d-번째 (부분)-대각 (k = %d)이 너무 짧아 NA로 채웁니다."
+
+msgid "invalid 'repr'; must be \"C\", \"T\", or \"R\""
+msgstr ""
+
+msgid "'x' must inherit from \"sparseVector\""
+msgstr "'x'는 \"sparseVector\"로부터의 상속(inherit)이어야 합니다."
+
+msgid "'ncol' must be >= 0"
+msgstr "'ncol'은 반드시 >= 0 이어야 합니다. "
+
+msgid "'nrow' must be >= 0"
+msgstr "'nrow'는 반드시 >= 0 이어야 합니다."
+
+msgid "Must specify 'nrow' when 'symmetric' is true"
+msgstr "'symmetric'이 참인 경우에는 반드시 'nrow'를 지정해 주어야 합니다."
+
+msgid "'nrow' and 'ncol' must be the same when 'symmetric' is true"
+msgstr ""
+"'symmetric'이 참인 경우에는 반드시 'nrow'와 'ncol'을 지정해 주어야 합니다."
+
+msgid "'x' must have length nrow^2 when 'symmetric' is true"
+msgstr ""
+"'symmetric'이 참인 경우에는 'x'의 길이는 반드시 nrow^2와 같아야 합니다."
+
+msgid "'ncol' is not a factor of length(x)"
+msgstr "'ncol'는 길이가 length(x)인 요인(factor)가 아닙니다."
+
+msgid "'nrow' is not a factor of length(x)"
+msgstr "'nrow'는 길이가 length(x)인 요인(factor)가 아닙니다."
+
+msgid "Class %s is not yet implemented"
+msgstr "클래스 %s는 아직 구현되지 않았습니다."
+
+#, fuzzy
+msgid "'%s' and '%s' must be positive integers"
+msgstr "길이(length)는 반드시 음이 아닌 수이어야 합니다."
+
+#, fuzzy
+msgid "matrix is not symmetric or triangular"
+msgstr "'x'는 대칭(symmetric)도 아니고 삼각(triangular)도 아닙니다."
+
+#, fuzzy
+msgid "matrix is not symmetric"
+msgstr "삼각행렬이 아닙니다."
+
+#, fuzzy
+msgid "matrix is not triangular"
+msgstr "'x'는 대칭(symmetric)도 아니고 삼각(triangular)도 아닙니다."
+
+msgid ""
+"the default value of argument '%s' of method '%s(<%s>, <%s>)' may change "
+"from %s to %s as soon as the next release of Matrix; set '%s' when "
+"programming"
+msgstr ""
+
+msgid "determinant of non-square matrix is undefined"
+msgstr ""
+
+msgid "replacement diagonal has wrong length"
+msgstr ""
+
+msgid "replacement diagonal has incompatible type \"%s\""
+msgstr ""
+
+msgid "assigned dimensions are not of type \"%s\" or \"%s\""
+msgstr ""
+
+msgid "assigned dimensions do not have length %d"
+msgstr ""
+
+msgid "assigned dimensions are NA"
+msgstr ""
+
+msgid "assigned dimensions are negative"
+msgstr ""
+
+msgid "assigned dimensions exceed %s"
+msgstr ""
+
+#, fuzzy
+msgid "assigned dimensions [product %.0f] do not match object length [%.0f]"
+msgstr "dim [product %d]의 값이 객체 [%d]의 길이와 일치하지 않습니다."
+
+msgid "'%s' has non-finite values"
+msgstr ""
+
+msgid "'%1$s' is not \"%2$s\", \"%3$s\", or \"%2$s.\""
+msgstr ""
+
+#, fuzzy
+msgid "only square matrices can be used as graph incidence matrices"
+msgstr ""
+"오로지 정방(square) 행렬만이 그래프를 위한 접속행렬(incidence matrices)로서 "
+"사용할 수 있습니다."
+
+msgid "'lwd' must be NULL or non-negative numeric"
+msgstr "'lwd'는 반드시 NULL 또는 음이 아닌 수 이어야 합니다."
+
+#, fuzzy
+msgid "%s(<%s>) is not yet implemented"
+msgstr "클래스 %s는 아직 구현되지 않았습니다."
+
+msgid "'%s' is not of type \"%s\" or \"%s\""
+msgstr ""
+
+msgid "'%s' contains NA"
+msgstr ""
+
+msgid "'%s' has elements less than %d"
+msgstr ""
+
+#, fuzzy
+msgid "'%s' is not a non-negative number"
+msgstr "길이(length)는 반드시 음이 아닌 수이어야 합니다."
+
+msgid "'%s' has elements exceeding '%s'"
+msgstr ""
+
+msgid "'%s' is not %d or %d"
+msgstr ""
+
+#, fuzzy
+msgid "'%s' is not a permutation of seq_len(%s)"
+msgstr "'ncol'는 길이가 length(x)인 요인(factor)가 아닙니다."
+
+#, fuzzy
+msgid "matrix must have exactly one entry in each row or column"
+msgstr "각 행마다 반드시 정확히 하나의 영이 아닌 항목을 가지고 있어야 합니다."
+
+#, fuzzy
+msgid "attempt to coerce non-square matrix to %s"
+msgstr ""
+"비대칭(non-symmetric) \"dgTMatrix\"는 \"dsCMatrix\" 클래스로 강제변환"
+"(coerce) 할 수 없습니다. "
+
+#, fuzzy
+msgid "matrix must have exactly one entry in each row and column"
+msgstr "각 행마다 반드시 정확히 하나의 영이 아닌 항목을 가지고 있어야 합니다."
+
+#, fuzzy
+msgid "'%s' via sparse -> dense coercion"
+msgstr "rcond(.) via sparse -> dense coercion"
+
+#, fuzzy
+msgid "invalid %s=\"%s\""
+msgstr "nargs()= %d의 값이 올바르지 않습니다."
+
+msgid "norm"
+msgstr ""
+
+#, fuzzy
+msgid "'%s' method must use default %s=\"%s\""
+msgstr ""
+"크로넥커 메소드(kronecker method)는 반드시 기본 'FUN'을 사용해야 합니다."
+
+#, fuzzy
+msgid "number of nonzero entries cannot exceed %s"
+msgstr "%s의 경우 행의 개수가 올바르지 않습니다."
+
+msgid "Matrix seems negative semi-definite"
+msgstr "음의 반정치(negative semi-definite) 행렬 같습니다."
+
+msgid "'nearPD()' did not converge in %d iterations"
+msgstr "'nearPD()'는 %d 번째 반복에서도 수렴하지 않았습니다."
+
+#, fuzzy
+msgid "'cl' is not a character string"
+msgstr "'V'는 정방행렬(square matrix)이 아닙니다."
+
+msgid ""
+"not a positive definite matrix (and positive semidefiniteness is not checked)"
+msgstr ""
+
+#, fuzzy
+msgid "'%s' is not a square numeric matrix"
+msgstr "'V'는 정방행렬(square matrix)이 아닙니다."
+
+#, fuzzy
+msgid ""
+"diag(%s) has non-positive or non-finite entries; finite result is doubtful"
+msgstr ""
+"diag(.)에 0 또는 NA가 존재하므로 유한하지 않은 결과(non-finite result)를 얻"
+"을 것으로 생각됩니다."
+
+msgid "non-conformable arguments"
+msgstr "non-conformable arguments"
+
+msgid ""
+"matrix is structurally rank deficient; using augmented matrix with "
+"additional %d row(s) of zeros"
+msgstr ""
+
+msgid ""
+"'%1$s' is not \"%2$s1\", \"%2$s1.\", \"%2$s2\", \"%2$s2.\", \"%3$s\", "
+"\"%3$s1\", \"%4$s\", or \"%4$s1\""
+msgstr ""
+
+#, fuzzy
+msgid "'%s' has the wrong length"
+msgstr "우변의 'b'가 올바르지 않은 길이(length)를 가지고 있습니다."
+
+#, fuzzy
+msgid "invalid '%s': not in %d:%d"
+msgstr "%s은 올바른 'col.names' 문자열이 아닙니다"
+
+msgid "need greater '%s' as pivoting occurred"
+msgstr ""
+
+msgid "qr2rankMatrix(.): QR with only %d out of %d finite diag(R) entries"
+msgstr ""
+
+msgid ""
+"rankMatrix(<large sparse Matrix>, method = '%s') coerces to dense matrix.\n"
+" Probably should rather use method = 'qr' !?"
+msgstr ""
+
+msgid "rankMatrix(x, method='qr'): computing t(x) as nrow(x) < ncol(x)"
+msgstr "rankMatrix(x, method='qr'): nrow(x) < ncol(x)이므로 t(x)를 계산합니다."
+
+#, fuzzy
+msgid "[[ suppressing %d column name%s %s ... ]]"
+msgstr "[[ %d개의 열이름 %s ...를 제거합니다 ]]"
+
+msgid "invalid 'col.names' string: %s"
+msgstr "%s은 올바른 'col.names' 문자열이 아닙니다"
+
+msgid "uniDiag=TRUE, but not all diagonal entries are 1"
+msgstr ""
+
+msgid "uniDiag=TRUE, not all entries in diagonal coded as 1"
+msgstr ""
+
+msgid "in show(); maybe adjust options(max.print=, width=)"
+msgstr ""
+
+#, fuzzy
+msgid "suppressing %d columns and %d rows"
+msgstr "[[ %d개의 열이름 %s를 제거합니다 ]]"
+
+#, fuzzy
+msgid "suppressing %d rows"
+msgstr "[[ %d개의 열이름 %s를 제거합니다 ]]"
+
+#, fuzzy
+msgid "suppressing %d columns"
+msgstr "[[ %d개의 열이름 %s를 제거합니다 ]]"
+
+msgid "logic programming error in printSpMatrix2(), please report"
+msgstr ""
+"printSpMatrix2()를 이용 도중 논리적 프로그래밍 에러(logic programming error)"
+"가 발생했습니다.  이를 꼭 보고를 부탁드립니다."
+
+#, fuzzy
+msgid "'%s' is not square"
+msgstr "'V'는 정방행렬(square matrix)이 아닙니다."
+
+msgid "dimensions of '%s' and '%s' are inconsistent"
+msgstr ""
+
+msgid "'%1$s' is computationally singular, rcond(%1$s)=%2$g"
+msgstr ""
+
+msgid "'%s' is computationally singular, min(d)/max(d)=%g, d=abs(diag(U))"
+msgstr ""
+
+msgid "matrix is exactly singular, D[i,i]=0, i=%d"
+msgstr ""
+
+msgid "matrix is exactly singular, J[,j]=0, j=%d"
+msgstr ""
+
+msgid "matrix exactly singular, J[i,]=0, i=%d"
+msgstr ""
+
+msgid "cannot coerce from %s to %s"
+msgstr ""
+
+#, fuzzy
+msgid "model frame and formula mismatch in sparse.model.matrix()"
+msgstr ""
+"model.matrix()를 사용할 때 모델프레임(model frame)과 모델식(formula)가 일치하"
+"지 않습니다."
+
+#, fuzzy
+msgid "non-list contrasts argument ignored"
+msgstr "'contrasts.arg' 인자가 올바르지 않습니다."
+
+#, fuzzy
+msgid "'contrasts.arg' argument must be named"
+msgstr "'contrasts.arg' 인자가 올바르지 않습니다."
+
+msgid "variable '%s' is absent, its contrast will be ignored"
+msgstr "변수 '%s'를 찾을 수 없어 관련 대비(contrast)는 계산되지 않을 것입니다."
+
+msgid "a sparseMatrix should rarely be centered: will not be sparse anymore"
+msgstr ""
+
+#, fuzzy
+msgid "length of 'center' must equal the number of columns of 'x'"
+msgstr "%s에 사용된 각 행렬이 가지는 열의 개수는 서로 같아야 합니다."
+
+#, fuzzy
+msgid "length of 'scale' must equal the number of columns of 'x'"
+msgstr "%s에 사용된 각 행렬이 가지는 열의 개수는 서로 같아야 합니다."
+
+msgid "trimmed means are not defined for complex data"
+msgstr ""
+
+msgid "first element used of '%s' argument"
+msgstr ""
+
+#, fuzzy
+msgid "invalid '%s' argument"
+msgstr "입력된 'data'는 올바르지 않습니다."
+
+msgid "should never happen ..."
+msgstr ""
+
+msgid "'%s' is deprecated; using '%s' instead"
+msgstr ""
+
+msgid "'%s' is deprecated; setting %s=\"%s\""
+msgstr ""
+
+msgid ""
+".M.repl.i.2col(): 'i' has no integer column number;\n"
+" should never happen; please report"
+msgstr ""
+".M.repl.i.2col(): 'i'는 정수형 행번호(integer column number)을 가지고 있지 않"
+"습니다.\n"
+" 이런 경우는 존재할 수 없으므로 패키지 관리자에게 보고해 주시길 부탁드립니다."
+
+msgid "such indexing must be by logical or 2-column numeric matrix"
+msgstr ""
+"이와 같은 유형의 인덱싱(indexing)은 반드시 논리형(logical) 또는 2개의 열로 구"
+"성된 수치형(numeric) 행렬에 의해서만 이루어져야 합니다."
+
+msgid ".M.repl.i.2col(): drop 'matrix' case ..."
+msgstr ".M.repl.i.2col(): drop 'matrix' case ..."
+
+msgid "negative values are not allowed in a matrix subscript"
+msgstr "음수(negative values)는 행렬의 첨자(subscript)로 사용할 수 없습니다."
+
+msgid "NAs are not allowed in subscripted assignments"
+msgstr "NA는 행렬의 첨자(subscripted assignment)로 사용할 수 없습니다."
+
+msgid "number of items to replace is not a multiple of replacement length"
+msgstr ""
+"교체(replace)할 항목의 개수가 입력된 value가 가지는 길이의 배수가 아닙니다."
+
+msgid "m[ <ij-matrix> ] <- v: inefficiently treating single elements"
+msgstr "m[ <ij-matrix> ] <- v: inefficiently treating single elements"
+
+msgid "nargs() = %d.  Extraneous illegal arguments inside '[ .. ]' ?"
+msgstr "nargs() = %d.  필요이상의 인자들이 '[ .. ]' 내에 이용되었나요?"
+
+msgid "RHS 'value' (class %s) matches 'ANY', but must match matrix class %s"
+msgstr ""
+"클래스 %s를 가지는 우변의 'value'는 'ANY'에 매치되지만, 반드시 행렬의 클래스 "
+"%s에 매치되어야 합니다."
+
+msgid "not-yet-implemented 'Matrix[<-' method"
+msgstr "아직 구현되지 않은 'Matrix[<-' 메소드입(method)니다."
+
+msgid "invalid nargs()= %d"
+msgstr "nargs()= %d의 값이 올바르지 않습니다."
+
+msgid "nothing to replace with"
+msgstr "교체(replace)해야 할 것이 아무것도 없습니다."
+
+msgid "too many replacement values"
+msgstr "교체에 이용될 값이 너무 많이 입력되었습니다."
+
+msgid "i1[1] == 0 ==> C-level verbosity will not happen!"
+msgstr "i1[1] == 0 ==> C-레벨에서의 진행과정표시는 나타나지 않을 것입니다!"
+
+msgid "using\t \"old code\" part in  Csparse subassignment"
+msgstr "using\t \"old code\" part in  Csparse subassignment"
+
+msgid ""
+"using\"old code\" part in Csparse subassignment\n"
+" >>> please report to Matrix-authors@r-project.org"
+msgstr ""
+"using\"old code\" part in Csparse subassignment\n"
+" >>> Matrix-authors@r-project.org으로 이를 보고해 주시길 바랍니다."
 
 msgid "you cannot mix negative and positive indices"
 msgstr "인덱스에 음수와 양수를 혼용하여 사용할 수 없습니다."
@@ -358,581 +923,14 @@ msgstr "행에 사용되는 인덱스는 반드시 %d 보다 같거나 작아야
 msgid "column indices must be <= ncol(.) which is %d"
 msgstr "열에 사용되는 인덱스는 %d 보다 같거나 작아야 합니다. "
 
-msgid "'force' must be (coercable to) TRUE or FALSE"
-msgstr "'force'는 반드시 (강제변환될 수 있는) TRUE 또는 FALSE 이어야 합니다."
-
-msgid "invalid (to - from)/by in seq(.)"
-msgstr "seq(.)의 사용시 (to - from)/by의 값이 올바르지 않습니다."
-
-msgid "wrong sign in 'by' argument"
-msgstr "'by' 인자에 사용된 부호(sign)가 올바르지 않습니다."
-
-msgid "'by' argument is much too small"
-msgstr "'by' 인자에 사용된 값이 너무 작습니다."
-
-msgid "length must be non-negative number"
-msgstr "길이(length)는 반드시 음이 아닌 수이어야 합니다."
-
-msgid "too many arguments"
-msgstr "입력된 인자의 개수가 너무 많습니다."
-
-msgid "c(<abIndex>,..) of different kinds, coercing all to 'rleDiff'"
-msgstr "c(<abIndex>,..) of different kinds, 모두 'rleDiff'로 강제변환합니다"
-
-msgid "<abIndex>[i]  is not yet implemented"
-msgstr "<abIndex>[i]는 아직 구현되지 않았습니다."
-
-msgid "all(<abIndex>) is not yet implemented"
-msgstr "all(<abIndex>)는 아직 구현되지 않았습니다."
-
-msgid "sum(<abIndex>) is not yet implemented"
-msgstr "sum(<abIndex>)는 아직 구현되지 않았습니다."
-
-msgid "prod(<abIndex>) is not yet implemented"
-msgstr "prod(<abIndex>)는 아직 구현되지 않았습니다."
-
-msgid "not yet implemented"
-msgstr "아직 구현되지 않았습니다."
-
-msgid ""
-"x / 0 for an <abIndex> x with sign-change\n"
-" no longer representable as 'rleDiff'"
-msgstr ""
-"x / 0 for an <abIndex> x with sign-change\n"
-" no longer representable as 'rleDiff'"
-
-msgid "<abIndex>  -->  <seqMat>  is not yet implemented"
-msgstr "<abIndex>  -->  <seqMat>은 아직 구현되지 않았습니다."
-
-msgid "<seqMat>  -->  <abIndex>  is not yet implemented"
-msgstr "<seqMat>  -->  <abIndex>은 아직 구현되지 않았습니다."
-
-msgid "'giveCsparse' has been deprecated; setting 'repr = \"T\"' for you"
-msgstr ""
-
-msgid "'giveCsparse' has been deprecated; will use 'repr' instead"
-msgstr ""
-
-msgid "'diagonals' matrix must have %d columns (= length(k) )"
-msgstr ""
-"'diagonals' 행렬은 반드시 %d (=length(k))개의 열을 가지고 있어야 합니다."
-
-msgid "'diagonals' must have the same length (%d) as 'k'"
-msgstr "'diagnoals'의 길이는 반드시 'k'(=%d)이어야 합니다."
-
-msgid "matrix can only be symmetric if square, but n != m"
-msgstr ""
-
-msgid ""
-"for symmetric band matrix, only specify upper or lower triangle\n"
-" hence, all k must have the same sign"
-msgstr ""
-"대칭 띠 행렬(symmetric band matrix)의 경우, 오로지 상삼각(upper triangle) 또"
-"는 하삼각(lower)만을 지정합니다. \n"
-" 따라서, 모든 k는 반드시 같은 부호(sign)를 가져야 합니다."
-
-msgid "the %d-th (sub)-diagonal (k = %d) is too short; filling with NA's"
-msgstr "%d-번째 (부분)-대각 (k = %d)이 너무 짧아 NA로 채웁니다."
-
-msgid "invalid 'repr'; must be \"C\", \"T\", or \"R\""
-msgstr ""
-
-#, fuzzy
-msgid "number of rows of matrices must match"
-msgstr "%s의 경우 행의 개수가 올바르지 않습니다."
-
-#, fuzzy
-msgid "number of columns of matrices must match"
-msgstr "%s의 경우 행의 개수가 올바르지 않습니다."
-
-msgid "dimensions cannot exceed 2^31-1"
-msgstr ""
-
-msgid "resulting x-slot has different type than x's or y's"
-msgstr ""
-
-#, fuzzy
-msgid "chol(x) is undefined: 'x' is not positive semidefinite"
-msgstr "chol()은 음의 값을 가진 대각행렬에 대하여 정의되지 않았습니다."
-
-msgid "Cholesky(A) is undefined: 'A' is not positive semidefinite"
-msgstr ""
-
-#, fuzzy
-msgid "matrix is not square"
-msgstr "대각행렬이 아닙니다."
-
-msgid ""
-"'which' is not \"P1\", \"P1.\", \"L\", \"L.\", \"L1\", \"L1.\", or \"D\""
-msgstr ""
-
-#, fuzzy
-msgid "'x' does not inherit from virtual class CHMfactor"
-msgstr "'x'는 \"sparseVector\"로부터의 상속(inherit)이어야 합니다."
-
-msgid "D[i,i] is NA, i=%d"
-msgstr ""
-
-msgid "D[i,i] is negative, i=%d"
-msgstr ""
-
-msgid "'parent' is not formally sparse"
-msgstr ""
-
-#, fuzzy
-msgid "matrix is not symmetric; consider forceSymmetric(.) or symmpart(.)"
-msgstr ""
-"대칭행렬(symmetric matrix)가 아닙니다.  forceSymmtric() 또는 symmpart() 함수"
-"의 사용을 고려해 보시길 바랍니다."
-
-#, fuzzy
-msgid "matrix is not triangular; consider triu(.) or tril(.)"
-msgstr "삼각행렬이 아닙니다."
-
-msgid "matrix is not diagonal; consider Diagonal(x=diag(.))"
-msgstr ""
-
-msgid "matrix of invalid type \"%s\" to .m2dense.checking()"
-msgstr ""
-
-msgid "invalid kind \"%s\" to .m2dense.checking()"
-msgstr ""
-
-msgid "matrix of invalid type \"%s\" to .m2sparse.checking()"
-msgstr ""
-
-msgid "invalid kind \"%s\" to .m2sparse.checking()"
-msgstr ""
-
-msgid "'A' must be a square matrix"
-msgstr "'A'는 반드시 정방행렬(square matrix)이어야 합니다."
-
-msgid "must either specify 'A' or the functions 'A.x' and 'At.x'"
-msgstr "'A' 또는 'A.x'와 'At.x'는 반드시 주어져야 합니다."
-
-msgid "when 'A' is specified, 'A.x' and 'At.x' are disregarded"
-msgstr "'A'가 주어진 경우에 입력된 'A.x'와 'At.x'는 사용되지 않습니다."
-
-msgid "not converged in %d iterations"
-msgstr "%d번째 반복에서도 수렴하지 않습니다."
-
-msgid "hit a cycle (1) -- stop iterations"
-msgstr "cycle (1)에 도달했습니다 -- 반복을 중지합니다"
-
-msgid "hit a cycle (2) -- stop iterations"
-msgstr "cycle (2)에 도달했습니다 -- 반복을 중지합니다"
-
-msgid "not enough new vecs -- stop iterations"
-msgstr "not enough new vecs -- stop iterations"
-
-#, fuzzy
-msgid "dimensions must be numeric of length 2"
-msgstr "dim(.)의 값은 반드시 길이가 2인 수치형 벡터이어야 합니다."
-
-msgid "dimensions cannot contain NA"
-msgstr ""
-
-msgid "dimensions cannot contain negative values"
-msgstr ""
-
-msgid "invalid nargs()= %d"
-msgstr "nargs()= %d의 값이 올바르지 않습니다."
-
-msgid ""
-"the default value of argument 'sqrt' of method 'determinant(<CHMfactor>, "
-"<logical>)' may change from TRUE to FALSE as soon as the next release of "
-"Matrix; set 'sqrt' when programming"
-msgstr ""
-
-msgid "determinant of non-square matrix is undefined"
-msgstr ""
-
-#, fuzzy
-msgid "'n' must be a non-negative integer"
-msgstr "길이(length)는 반드시 음이 아닌 수이어야 합니다."
-
-msgid "'x' has unsupported class \"%s\""
-msgstr ""
-
-msgid "'x' has unsupported type \"%s\""
-msgstr ""
-
-msgid "attempt to recycle 'x' of length 0 to length 'n' (n > 0)"
-msgstr ""
-
-msgid "'shape' must be one of \"g\", \"t\", \"s\""
-msgstr ""
-
-msgid "'kind' must be one of \"d\", \"l\", \"n\""
-msgstr ""
-
-msgid "mismatch between typeof(x)=\"%s\" and kind=\"%s\"; using kind=\"%s\""
-msgstr ""
-
-#, fuzzy
-msgid "'cols' must be numeric"
-msgstr "'ncol'은 반드시 >= 0 이어야 합니다. "
-
-msgid "'cols' has elements not in seq(0, length.out = n)"
-msgstr ""
-
-msgid "'uplo' must be \"U\" or \"L\""
-msgstr ""
-
-#, fuzzy
-msgid "'lst' must be a list"
-msgstr "'ncol'은 반드시 >= 0 이어야 합니다. "
-
-msgid "replacement diagonal has wrong length"
-msgstr ""
-
-msgid "replacement diagonal has incompatible type \"%s\""
-msgstr ""
-
 msgid "Internal bug: nargs()=%d; please report"
 msgstr "내부버그 발견: nargs()=%d.  꼭 보고를 부탁드립니다."
-
-msgid "intermediate 'r' is of type %s"
-msgstr "intermediate 'r' is of type %s"
-
-msgid "not yet implemented .. please report"
-msgstr "아직 구현되지 않았습니다.  보고를 부탁드립니다."
-
-msgid ""
-"not a positive definite matrix (and positive semidefiniteness is not checked)"
-msgstr ""
-
-msgid "'x' has non-finite values"
-msgstr ""
-
-msgid "'which' is not \"Q\", \"T\", or \"Q.\""
-msgstr ""
-
-#, fuzzy
-msgid "only square matrices can be used as graph incidence matrices"
-msgstr ""
-"오로지 정방(square) 행렬만이 그래프를 위한 접속행렬(incidence matrices)로서 "
-"사용할 수 있습니다."
-
-msgid "'lwd' must be NULL or non-negative numeric"
-msgstr "'lwd'는 반드시 NULL 또는 음이 아닌 수 이어야 합니다."
-
-#, fuzzy
-msgid "'perm' must be numeric"
-msgstr "'A'는 반드시 정방행렬(square matrix)이어야 합니다."
-
-msgid "elements of 'perm' must be positive integers"
-msgstr ""
-
-msgid "elements of 'perm' cannot exceed 'n'"
-msgstr ""
-
-#, fuzzy
-msgid "'margin' must be 1 or 2"
-msgstr "'ncol'은 반드시 >= 0 이어야 합니다. "
-
-msgid "elements of 'perm' slot must be positive integers"
-msgstr ""
-
-#, fuzzy
-msgid "matrix must have exactly one nonzero element in each row or column"
-msgstr "각 행마다 반드시 정확히 하나의 영이 아닌 항목을 가지고 있어야 합니다."
-
-#, fuzzy
-msgid "method for kronecker() must use default FUN=\"*\""
-msgstr ""
-"크로넥커 메소드(kronecker method)는 반드시 기본 'FUN'을 사용해야 합니다."
-
-msgid "number of nonzero entries cannot exceed 2^31-1"
-msgstr ""
-
-msgid "Matrix seems negative semi-definite"
-msgstr "음의 반정치(negative semi-definite) 행렬 같습니다."
-
-msgid "'nearPD()' did not converge in %d iterations"
-msgstr "'nearPD()'는 %d 번째 반복에서도 수렴하지 않았습니다."
-
-#, fuzzy
-msgid "'norm' via sparse -> dense coercion"
-msgstr "rcond(.) via sparse -> dense coercion"
-
-msgid "invalid 'type'"
-msgstr "올바르지 않은 'type'입니다."
-
-msgid "'perm' slot must be a permutation of seq_along(perm)"
-msgstr ""
-
-#, fuzzy
-msgid "attempt to coerce non-square matrix to pMatrix"
-msgstr ""
-"비대칭(non-symmetric) \"dgTMatrix\"는 \"dsCMatrix\" 클래스로 강제변환"
-"(coerce) 할 수 없습니다. "
-
-#, fuzzy
-msgid "matrix must have exactly one nonzero element in each row and column"
-msgstr "각 행마다 반드시 정확히 하나의 영이 아닌 항목을 가지고 있어야 합니다."
-
-msgid "not-yet-implemented method for <%s> %%*%% <%s>"
-msgstr "<%s> %%*%% <%s>에 사용할 수 있는 메소드가 아직 구현되지 않았습니다."
-
-msgid "non-conformable arguments"
-msgstr "non-conformable arguments"
-
-#, fuzzy
-msgid "'boolArith = %d' not yet implemented"
-msgstr "아직 구현되지 않은 종류 %s입니다."
-
-msgid ""
-"matrix is structurally rank deficient; using augmented matrix with "
-"additional %d row(s) of zeros"
-msgstr ""
-
-msgid ""
-"'which' is not \"P1\", \"P1.\", \"P2\", \"P2.\", \"Q\", \"Q1\", \"R\", or "
-"\"R1\""
-msgstr ""
-
-#, fuzzy
-msgid "'Dvec' has the wrong length"
-msgstr "우변의 'b'가 올바르지 않은 길이(length)를 가지고 있습니다."
-
-#, fuzzy
-msgid "invalid 'ncol': not in 0:%d"
-msgstr "%s은 올바른 'col.names' 문자열이 아닙니다"
-
-msgid "need larger value of 'ncol' as pivoting occurred"
-msgstr ""
-
-msgid "qr2rankMatrix(.): QR with only %d out of %d finite diag(R) entries"
-msgstr ""
-
-msgid "qr2rankMatrix(.): QR has negative diag(R) entries"
-msgstr ""
-
-msgid ""
-"rankMatrix(<large sparse Matrix>, method = '%s') coerces to dense matrix.\n"
-" Probably should rather use method = 'qr' !?"
-msgstr ""
-
-msgid "rankMatrix(x, method='qr'): computing t(x) as nrow(x) < ncol(x)"
-msgstr "rankMatrix(x, method='qr'): nrow(x) < ncol(x)이므로 t(x)를 계산합니다."
-
-msgid "rcond(x) is undefined: 'x' has length 0"
-msgstr ""
-
-#, fuzzy
-msgid "'rcond' via sparse -> dense coercion"
-msgstr "rcond(.) via sparse -> dense coercion"
-
-#, fuzzy
-msgid "invalid 'norm'"
-msgstr "입력된 'data'는 올바르지 않습니다."
-
-#, fuzzy
-msgid "'a' is not square"
-msgstr "'V'는 정방행렬(square matrix)이 아닙니다."
-
-msgid "dimensions of 'a' and 'b' are inconsistent"
-msgstr ""
-
-msgid "'a' is computationally singular, rcond(a)=%g"
-msgstr ""
-
-msgid "'a' is computationally singular, min(d)/max(d)=%g, d=abs(diag(U))"
-msgstr ""
-
-msgid "matrix is exactly singular, D[i,i]=0, i=%d"
-msgstr ""
-
-msgid "matrix is exactly singular, J[,j]=0, j=%d"
-msgstr ""
-
-msgid "matrix exactly singular, J[i,]=0, i=%d"
-msgstr ""
-
-#, fuzzy
-msgid "cannot coerce zsparseVector to dgCMatrix"
-msgstr "'NA'를 \"nsparseMatrix\"으로 강제변환(coerce)할 수 없습니다."
-
-#, fuzzy
-msgid "cannot coerce zsparseVector to dgeMatrix"
-msgstr "'NA'를 \"nsparseVector\"로 강제변환(coerce) 할 수 없습니다."
-
-#, fuzzy
-msgid "model frame and formula mismatch in sparse.model.matrix()"
-msgstr ""
-"model.matrix()를 사용할 때 모델프레임(model frame)과 모델식(formula)가 일치하"
-"지 않습니다."
-
-#, fuzzy
-msgid "non-list contrasts argument ignored"
-msgstr "'contrasts.arg' 인자가 올바르지 않습니다."
-
-#, fuzzy
-msgid "'contrasts.arg' argument must be named"
-msgstr "'contrasts.arg' 인자가 올바르지 않습니다."
-
-msgid "variable '%s' is absent, its contrast will be ignored"
-msgstr "변수 '%s'를 찾을 수 없어 관련 대비(contrast)는 계산되지 않을 것입니다."
-
-#, fuzzy
-msgid "exactly one of 'i', 'j', and 'p' must be missing from call"
-msgstr "'i', 'j', 또는 'p' 중 하나가 호출(call)로부터 누락된 것 같습니다. "
-
-msgid ""
-"use Diagonal() to construct diagonal (symmetric && triangular) sparse "
-"matrices"
-msgstr ""
-
-msgid "'giveCsparse' is deprecated; using 'repr' instead"
-msgstr ""
-
-msgid "'giveCsparse' is deprecated; setting repr=\"T\" for you"
-msgstr ""
-
-#, fuzzy
-msgid "'p' must be a nondecreasing vector c(0, ...)"
-msgstr "'p'는 반드시 감소하지 않는(non-decreasing) 벡터 (0, ...)이어야 합니다."
-
-msgid "'i' and 'j' must not contain NA"
-msgstr ""
-
-msgid "'i' and 'j' must be"
-msgstr ""
-
-msgid "positive"
-msgstr ""
-
-msgid "non-negative"
-msgstr ""
-
-#, fuzzy
-msgid "invalid 'dims'"
-msgstr "입력된 'data'는 올바르지 않습니다."
-
-msgid "'dims' must contain all (i,j) pairs"
-msgstr ""
-
-msgid "symmetric matrix must be square"
-msgstr "대칭행렬(symmetric matrix)는 반드시 정방(square)이어야 합니다."
-
-#, fuzzy
-msgid "triangular matrix must be square"
-msgstr "대칭행렬(symmetric matrix)는 반드시 정방(square)이어야 합니다."
-
-msgid "p[length(p)]"
-msgstr ""
-
-msgid "length(i)"
-msgstr ""
-
-#, fuzzy
-msgid "is not an integer multiple of length(x)"
-msgstr "length(i)는 length(x)의 배수가 아닙니다."
-
-msgid "length(x) must not exceed"
-msgstr ""
-
-msgid "invalid 'repr'; must be \"C\", \"R\", or \"T\""
-msgstr ""
-
-msgid "invalid 'col.names' string: %s"
-msgstr "%s은 올바른 'col.names' 문자열이 아닙니다"
-
-msgid "uniDiag=TRUE, but not all diagonal entries are 1"
-msgstr ""
-
-msgid "uniDiag=TRUE, not all entries in diagonal coded as 1"
-msgstr ""
-
-msgid "in show(); maybe adjust 'options(max.print= *, width = *)'"
-msgstr ""
-
-#, fuzzy
-msgid "suppressing %d columns and %d rows"
-msgstr "[[ %d개의 열이름 %s를 제거합니다 ]]"
-
-#, fuzzy
-msgid "suppressing %d rows"
-msgstr "[[ %d개의 열이름 %s를 제거합니다 ]]"
-
-#, fuzzy
-msgid "suppressing %d columns"
-msgstr "[[ %d개의 열이름 %s를 제거합니다 ]]"
-
-msgid "logic programming error in printSpMatrix2(), please report"
-msgstr ""
-"printSpMatrix2()를 이용 도중 논리적 프로그래밍 에러(logic programming error)"
-"가 발생했습니다.  이를 꼭 보고를 부탁드립니다."
-
-msgid "'V' is not a *square* matrix"
-msgstr "'V'는 정방행렬(square matrix)이 아닙니다."
-
-msgid "diag(.) had 0 or NA entries; non-finite result is doubtful"
-msgstr ""
-"diag(.)에 0 또는 NA가 존재하므로 유한하지 않은 결과(non-finite result)를 얻"
-"을 것으로 생각됩니다."
-
-msgid "number of non zeros is smaller than 'nnz' because of duplicated (i,j)s"
-msgstr ""
-"중복된 (i,j)에 위치한 값들 때문에 영이 아닌 요소의 개수가 'nnz' 보다 작습니"
-"다."
-
-msgid "a sparseMatrix should rarely be centered: will not be sparse anymore"
-msgstr ""
-
-#, fuzzy
-msgid "length of 'center' must equal the number of columns of 'x'"
-msgstr "%s에 사용된 각 행렬이 가지는 열의 개수는 서로 같아야 합니다."
-
-#, fuzzy
-msgid "length of 'scale' must equal the number of columns of 'x'"
-msgstr "%s에 사용된 각 행렬이 가지는 열의 개수는 서로 같아야 합니다."
-
-msgid "'x' must inherit from \"sparseVector\""
-msgstr "'x'는 \"sparseVector\"로부터의 상속(inherit)이어야 합니다."
-
-msgid "'ncol' must be >= 0"
-msgstr "'ncol'은 반드시 >= 0 이어야 합니다. "
-
-msgid "'nrow' must be >= 0"
-msgstr "'nrow'는 반드시 >= 0 이어야 합니다."
-
-msgid "Must specify 'nrow' when 'symmetric' is true"
-msgstr "'symmetric'이 참인 경우에는 반드시 'nrow'를 지정해 주어야 합니다."
-
-msgid "'nrow' and 'ncol' must be the same when 'symmetric' is true"
-msgstr ""
-"'symmetric'이 참인 경우에는 반드시 'nrow'와 'ncol'을 지정해 주어야 합니다."
-
-msgid "'x' must have length nrow^2 when 'symmetric' is true"
-msgstr ""
-"'symmetric'이 참인 경우에는 'x'의 길이는 반드시 nrow^2와 같아야 합니다."
-
-msgid "'ncol' is not a factor of length(x)"
-msgstr "'ncol'는 길이가 length(x)인 요인(factor)가 아닙니다."
-
-msgid "'nrow' is not a factor of length(x)"
-msgstr "'nrow'는 길이가 length(x)인 요인(factor)가 아닙니다."
-
-msgid "Class %s is not yet implemented"
-msgstr "클래스 %s는 아직 구현되지 않았습니다."
-
-msgid ""
-"suboptimally using as.numeric(x) to compute trimmed mean of sparseVector 'x'"
-msgstr ""
 
 msgid ""
 "index must be numeric, logical or sparseVector for indexing sparseVectors"
 msgstr ""
 "sparseVectors를 인덱싱하기 위해서는 인덱스는 반드시 수치형, 논리형 또는 "
 "sparseVectors이어야 합니다."
-
-msgid "'times >= 0' is required"
-msgstr "'times >= 0'이 요구되어집니다."
-
-msgid "'giveCsparse' has been deprecated; setting 'repr = \"%s\"' for you"
-msgstr ""
 
 #, fuzzy
 msgid "invalid subscript class \"%s\""
@@ -942,10 +940,10 @@ msgstr "%s는 사용가능한 클래스(class)가 아닙니다."
 msgid "invalid subscript type \"%s\""
 msgstr "%s는 사용할 수 없는 저장형식(storage format)입니다."
 
-msgid "recycled [nl]sparseVector would have maximal index exceeding 2^53"
+msgid "recycled %s would have maximal index exceeding %s"
 msgstr ""
 
-msgid "subscripts exceeding 2^53 replaced with NA"
+msgid "subscripts exceeding %s replaced with NA"
 msgstr ""
 
 msgid "subscript out of bounds"
@@ -960,24 +958,121 @@ msgstr ""
 msgid "incorrect number of dimensions"
 msgstr "차원(dimensions) 정보가 일치하지 않습니다."
 
-#, fuzzy
-msgid "matrix is not symmetric or triangular"
-msgstr "'x'는 대칭(symmetric)도 아니고 삼각(triangular)도 아닙니다."
-
-#, fuzzy
-msgid "matrix is not symmetric"
-msgstr "삼각행렬이 아닙니다."
-
-#, fuzzy
-msgid "matrix is not triangular"
-msgstr "'x'는 대칭(symmetric)도 아니고 삼각(triangular)도 아닙니다."
-
-msgid "attempt to coerce matrix with NA to ngCMatrix"
+msgid "only zeros may be mixed with negative subscripts"
 msgstr ""
+
+msgid "'%s' has length 0 but '%s' does not"
+msgstr ""
+
+#, fuzzy
+msgid "attempt to coerce matrix with NA to %s"
+msgstr ""
+"비대칭(non-symmetric) \"dgTMatrix\"는 \"dsCMatrix\" 클래스로 강제변환"
+"(coerce) 할 수 없습니다. "
 
 #, fuzzy
 msgid "invalid 'Class2'"
 msgstr "입력된 'data'는 올바르지 않습니다."
+
+#, fuzzy
+#~ msgid "invalid 'each' argument"
+#~ msgstr "'by' 인자에 사용된 부호(sign)가 올바르지 않습니다."
+
+#, fuzzy
+#~ msgid "invalid 'times' argument"
+#~ msgstr "입력된 'data'는 올바르지 않습니다."
+
+#~ msgid ""
+#~ "not-yet-implemented method for %s(<%s>).\n"
+#~ " ->>  Ask the package authors to implement the missing feature."
+#~ msgstr ""
+#~ "%s(<%s>)의 경우에 대하여 아직 구현되지 않은 메소드(method)입니다.\n"
+#~ " ->> 이 기능에 대한 구현을 패키지 관리자에게 문의해 주셨으면 합니다."
+
+#~ msgid ""
+#~ "not-yet-implemented method for %s(<%s>, <%s>).\n"
+#~ " ->>  Ask the package authors to implement the missing feature."
+#~ msgstr ""
+#~ "%s(<%s>, <%s>)의 경우에 대하여 아직 구현되지 않은 메소드(method)입니다.\n"
+#~ " ->> 이 기능에 대한 구현을 패키지 관리자에게 문의해 주시길 바랍니다."
+
+#, fuzzy
+#~ msgid "complex \"diagonalMatrix\" not yet implemented"
+#~ msgstr "%s의 경우에는 아직 구현되지 않은 일반적인 Matrix 클래스입니다."
+
+#, fuzzy
+#~ msgid "not yet implemented for class \"%s\""
+#~ msgstr "클래스 %s의 경우에 아직 구현되지 않았습니다."
+
+#, fuzzy
+#~ msgid "invalid 'uplo'"
+#~ msgstr "올바르지 않은 'type'입니다."
+
+#~ msgid "'lag' and 'differences' must be integers >= 1"
+#~ msgstr "'lag'과 'differences'는 반드시 1보다 크거나 같은 정수이어야 합니다."
+
+#~ msgid ""
+#~ "programming error: min() should have dispatched w/ 1st arg much earlier"
+#~ msgstr ""
+#~ "programming error: min() should have dispatched w/ 1st arg much earlier"
+
+#~ msgid "in Summary(<ANY>, .): %s(<%s>, <%s>,...)"
+#~ msgstr "in Summary(<ANY>, .): %s(<%s>, <%s>,...)"
+
+#~ msgid "in Summary(<ANY>, .): %s(<%s>, <%s>)"
+#~ msgstr "in Summary(<ANY>, .): %s(<%s>, <%s>)"
+
+#, fuzzy
+#~ msgid "number of rows of matrices must match"
+#~ msgstr "%s의 경우 행의 개수가 올바르지 않습니다."
+
+#, fuzzy
+#~ msgid "number of columns of matrices must match"
+#~ msgstr "%s의 경우 행의 개수가 올바르지 않습니다."
+
+#, fuzzy
+#~ msgid "dimensions must be numeric of length 2"
+#~ msgstr "dim(.)의 값은 반드시 길이가 2인 수치형 벡터이어야 합니다."
+
+#, fuzzy
+#~ msgid "'perm' must be numeric"
+#~ msgstr "'A'는 반드시 정방행렬(square matrix)이어야 합니다."
+
+#, fuzzy
+#~ msgid "'margin' must be 1 or 2"
+#~ msgstr "'ncol'은 반드시 >= 0 이어야 합니다. "
+
+#~ msgid "not-yet-implemented method for <%s> %%*%% <%s>"
+#~ msgstr "<%s> %%*%% <%s>에 사용할 수 있는 메소드가 아직 구현되지 않았습니다."
+
+#, fuzzy
+#~ msgid "'boolArith = %d' not yet implemented"
+#~ msgstr "아직 구현되지 않은 종류 %s입니다."
+
+#, fuzzy
+#~ msgid "'rcond' via sparse -> dense coercion"
+#~ msgstr "rcond(.) via sparse -> dense coercion"
+
+#, fuzzy
+#~ msgid "invalid 'norm'"
+#~ msgstr "입력된 'data'는 올바르지 않습니다."
+
+#, fuzzy
+#~ msgid "cannot coerce zsparseVector to dgCMatrix"
+#~ msgstr "'NA'를 \"nsparseMatrix\"으로 강제변환(coerce)할 수 없습니다."
+
+#, fuzzy
+#~ msgid "cannot coerce zsparseVector to dgeMatrix"
+#~ msgstr "'NA'를 \"nsparseVector\"로 강제변환(coerce) 할 수 없습니다."
+
+#~ msgid ""
+#~ "number of non zeros is smaller than 'nnz' because of duplicated (i,j)s"
+#~ msgstr ""
+#~ "중복된 (i,j)에 위치한 값들 때문에 영이 아닌 요소의 개수가 'nnz' 보다 작습"
+#~ "니다."
+
+#~ msgid "'times >= 0' is required"
+#~ msgstr "'times >= 0'이 요구되어집니다."
 
 #~ msgid "Matrices must have same number of rows in %s"
 #~ msgstr "%s에 사용된 각 행렬이 가지는 행의 개수는 서로 같아야 합니다."

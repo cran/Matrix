@@ -28,7 +28,7 @@ DN <- function(x) {
 }
 
 ## SDN1(dn) is documented to behave as SDN2(dn, NULL)
-SDN1 <- Matrix:::symmDN
+SDN1 <- Matrix:::symDN
 SDN2 <- function(dn, uplo = NULL) {
     J <-
         if (is.null(uplo)) {

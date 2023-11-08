@@ -14,16 +14,14 @@
 \alias{forceSymmetric,RsparseMatrix,missing-method}
 \alias{forceSymmetric,TsparseMatrix,character-method}
 \alias{forceSymmetric,TsparseMatrix,missing-method}
+\alias{forceSymmetric,denseMatrix,character-method}
+\alias{forceSymmetric,denseMatrix,missing-method}
 \alias{forceSymmetric,diagonalMatrix,character-method}
 \alias{forceSymmetric,diagonalMatrix,missing-method}
 \alias{forceSymmetric,indMatrix,character-method}
 \alias{forceSymmetric,indMatrix,missing-method}
 \alias{forceSymmetric,matrix,character-method}
 \alias{forceSymmetric,matrix,missing-method}
-\alias{forceSymmetric,packedMatrix,character-method}
-\alias{forceSymmetric,packedMatrix,missing-method}
-\alias{forceSymmetric,unpackedMatrix,character-method}
-\alias{forceSymmetric,unpackedMatrix,missing-method}
 %
 \description{
   Force a square matrix \code{x} to a \code{\linkS4class{symmetricMatrix}},

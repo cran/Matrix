@@ -90,9 +90,8 @@ qr2rankMatrix(qr, tol = NULL, isBqr = is.qr(qr), do.warn = TRUE)
   \item{isBqr}{\code{\link{logical}} indicating if \code{qr} is resulting
     from \pkg{base} \code{\link[base]{qr}()}.  (Otherwise, it is typically
     from \pkg{Matrix} package sparse \code{\link[Matrix]{qr}}.)}
-  \item{do.warn}{logical; if true, warn about non-finite (or in the
-    \code{sparseQR} case negative)
-    diagonal entries in the \eqn{R} matrix of the \eqn{QR} decomposition.
+  \item{do.warn}{logical; if true, warn about non-finite diagonal
+    entries in the \eqn{R} matrix of the \eqn{QR} decomposition.
     Do not change lightly!}
 }
 \details{

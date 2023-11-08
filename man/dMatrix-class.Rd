@@ -17,7 +17,6 @@
 \alias{Logic,dMatrix,sparseVector-method}
 \alias{Logic,logical,dMatrix-method}
 \alias{Logic,numeric,dMatrix-method}
-\alias{Math2,dMatrix-method}
 \alias{Ops,dMatrix,dMatrix-method}
 \alias{Ops,dMatrix,ddiMatrix-method}
 \alias{Ops,dMatrix,lMatrix-method}
@@ -25,7 +24,6 @@
 \alias{Ops,dMatrix,nMatrix-method}
 \alias{coerce,matrix,dMatrix-method}
 \alias{coerce,vector,dMatrix-method}
-\alias{zapsmall,dMatrix-method}
 %
 \alias{Arith,lMatrix,numeric-method}
 \alias{Arith,lMatrix,logical-method}
@@ -45,7 +43,6 @@
 \alias{Ops,lMatrix,nMatrix-method}
 \alias{Ops,lMatrix,numeric-method}
 \alias{Ops,numeric,lMatrix-method}
-\alias{Summary,lMatrix-method}
 \alias{coerce,matrix,lMatrix-method}
 \alias{coerce,vector,lMatrix-method}
 %

@@ -7,7 +7,6 @@
 %
 \alias{RsparseMatrix-class}
 %
-\alias{coerce,RsparseMatrix,sparseVector-method}
 \alias{coerce,matrix,RsparseMatrix-method}
 \alias{coerce,vector,RsparseMatrix-method}
 \alias{diag,RsparseMatrix-method}

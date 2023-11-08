@@ -18,8 +18,8 @@ assertError( new("dgeMatrix", Dim = as.integer(c(2,2)), x= as.double(1:5)))
 
 checkMatrix(m1 <- Matrix(1:6, ncol=2))
 checkMatrix(m2 <- Matrix(1:7 +0, ncol=3)) # a (desired) warning
-c("dgeMatrix", "ddenseMatrix", "generalMatrix", "geMatrix", "dMatrix",
-  "denseMatrix", "compMatrix", "Matrix", "xMatrix", "mMatrix") -> m1.cl
+c("dgeMatrix", "ddenseMatrix", "generalMatrix", "dMatrix",
+  "denseMatrix", "compMatrix", "Matrix") -> m1.cl
 stopifnot(!anyNA(match(m1.cl, is(m1))),
 	  dim(t(m1)) == 2:3, identical(m1, t(t(m1))))
 c.nam <- paste("C",1:2, sep='')
@@ -123,7 +123,7 @@ m.@i <- m.i <- mm@i[ip]
 m.@x <- m.x <- mm@x[ip]
 stopifnot(identical(1L, grep("not increasing within columns",
                              validObject(m., test = TRUE))))
-Matrix:::.sortCsparse(m.) # don't use this at home, boys!
+.validateCsparse(m., TRUE) # don't use this at home, boys!
 m. # now is fixed
 
 ## Make sure that validObject() objects...

@@ -1,23 +1,28 @@
 SOURCES_C = \
-	CHMfactor.c \
 	Csparse.c \
-	init.c \
-	Mutils.c \
+	abIndex.c \
+	attrib.c \
 	bind.c \
 	chm_common.c \
+	cholmod-etc.c \
 	coerce.c \
 	cs.c \
-	cs_utils.c \
+	cs-etc.c \
 	dense.c \
+	determinant.c \
 	dgCMatrix.c \
 	dgeMatrix.c \
 	factorizations.c \
+	idz.c \
+	init.c \
 	kappa.c \
-	sparseVector.c \
-	abIndex.c \
-	packedMatrix.c \
+	objects.c \
+	perm.c \
 	products.c \
-	unpackedMatrix.c \
+	solve.c \
 	sparse.c \
+	sparseVector.c \
 	subscript.c \
+	utils-R.c \
+	utils.c \
 	validity.c

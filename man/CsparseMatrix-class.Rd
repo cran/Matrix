@@ -12,13 +12,10 @@
 \alias{Arith,numeric,CsparseMatrix-method}
 \alias{Compare,CsparseMatrix,CsparseMatrix-method}
 \alias{Logic,CsparseMatrix,CsparseMatrix-method}
-\alias{Math,CsparseMatrix-method}
-\alias{coerce,CsparseMatrix,sparseVector-method}
 \alias{coerce,matrix,CsparseMatrix-method}
 \alias{coerce,vector,CsparseMatrix-method}
 \alias{diag,CsparseMatrix-method}
 \alias{diag<-,CsparseMatrix-method}
-\alias{log,CsparseMatrix-method}
 \alias{t,CsparseMatrix-method}
 %
 \alias{.validateCsparse}

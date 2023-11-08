@@ -34,6 +34,9 @@ if(interactive()) {
 } else options(              Matrix.verbose = TRUE, warn = 1)
                                         #   ^^^^^^ to show Matrix.msg()s
 
+(Mv <- Matrix.Version())
+stopifnot(identical(packageVersion("Matrix"), Mv[["package"]]))
+
 ### Matrix() ''smartness''
 (d40 <- Matrix( diag(4)))
 (z4 <- Matrix(0*diag(4)))
@@ -114,7 +117,7 @@ mlp <- matrix(.leap.seconds)## 27 x 1 numeric matrix
 Mlp <- Matrix(.leap.seconds)
 stopifnot(identical(dim(Mlp), c(n.lsec, 1L)))
 assert.EQ.mat(Mlp, mlp)
-lt.leap.seconds <- .LS <- as.POSIXlt(.leap.seconds)
+lt.leap.seconds <- .LS <- as.POSIXlt(.leap.seconds, tz = "GMT") # GMT => sparse HMS
 .LS <- unclass(.LS); .LS <- .LS[setdiff(names(.LS), "zone")]
                      # "zone" is character (not there for GMT/UTC in R <= 4.2.x)
 (matLS <- data.matrix(data.frame(.LS)))
@@ -246,8 +249,8 @@ stopifnot(isSymmetric(M), isSymmetric(M.),
 	  is(bdN, "triangularMatrix"),
           all(sc == gc | (is.na(sc) & is.na(gc))),
 	  all.equal(N3,N3),
-	  tail(all.equal(N3, t(N3)), 1) == all.equal(1,-1),# ~= "Mean relative difference: 2"
-          all((bdN != t(bdN)) == (bdN + t(bdN))), # <nsparse> != <nsparse>  failed to work...
+	  identical(all.equal(N3, t(N3)), all.equal.raw(1:6, 2:7)), # == "6 element mismatches"
+	  all((bdN != t(bdN)) == (bdN + t(bdN))), # <nsparse> != <nsparse>  failed to work...
 	  !any((0+bdN) > bdN), # <dsparse> o <nsparse>
 	  !any(bdN != (0+bdN)), # <nsparse> o <dsparse>
 	  length(grep("Length", all.equal(M., (vM <- as.vector(M.))))) > 0,
@@ -284,8 +287,8 @@ ttdm <- as(tt, "denseMatrix")
 stopifnot(identical(dmat, ttdm),
           identical(dimnames(cc), dimnames(dmat)),
           ## coercing back should give original :
-	  identical(cc,              as(dmat, "sparseMatrix")),
-	  identical(uniqTsparse(tt), as(ttdm, "TsparseMatrix")))
+	  identical(cc,            as(dmat,  "sparseMatrix")),
+	  identical(asUniqueT(tt), as(ttdm, "TsparseMatrix")))
 
 ## MM: now *if* cc is "truly symmetric", these dimnames should be, too:
 d5 <- cn[1:5]; dnm5 <- list(d5,d5)
@@ -544,7 +547,7 @@ assert.EQ.mat(D4m, diag(x=c(4,6,6,4)))
 assert.EQ.mat(Lg1, diag(x= c(FALSE, rep(TRUE,3))))
 stopifnot(is(Lg1, "diagonalMatrix"), is(D4m, "diagonalMatrix"),
 	  is(D4., "diagonalMatrix"),
-          is(nLg, "symmetricMatrix"), is(nnLg, "symmetricMatrix"),
+          is(nLg, "generalMatrix"), is(nnLg, "generalMatrix"),
           identical3(Lg1,
                      Matrix(nnLg, forceCheck = TRUE),
                      as(nnLg, "diagonalMatrix")),
@@ -635,7 +638,7 @@ stopifnot(identical(ncu, as(lcu,"nsparseMatrix")),
 	  Q.eq(ncn, ncu),
 	  Q.eq(crossprod(drop0(lcu)), crossprod(lcu)),# crossprod works -> "dsCMatrix"
 	  identical(crossprod(ncu), cncn),
-	  Q.eq(cncn, t(ncu) %*% ncu)) #used to seg.fault
+	  Q.eq(cncn, t(ncu) %&% ncu)) #used to seg.fault
 
 U <- new("dtCMatrix", Dim = c(6L, 6L),
 	 i = c(0:1, 0L, 2:3, 1L, 4L),
@@ -958,7 +961,7 @@ pp <- as(pm,"dppMatrix")
 x <- round(100 * crossprod(Matrix(runif(25),5)))
 D <- Diagonal(5, round(1000*runif(5)))
 px <- pack(x)
-stopifnot(is(x, "dpoMatrix"), is(px,"dppMatrix"), is(D, "ddiMatrix"))
+stopifnot(is(x, "dsyMatrix"), is(px, "dspMatrix"), is(D, "ddiMatrix"))
 
 class(x+D)#--> now "dsyMatrix"
 stopifnot(is(x+D, "symmetricMatrix"),
@@ -1307,8 +1310,7 @@ showProc.time()
 dn4 <- list(letters[1:4], LETTERS[1:4])
 (D4n <- `dimnames<-`(D4, dn4))
 m4 <- as(D4n, "matrix")
-stopifnot(identical(dimnames(m4), dn4),
-          Q.eq(D4n, m4, superclasses = "mMatrix"))
+stopifnot(identical(dimnames(m4), dn4), Q.eq(D4n, m4, superclasses=NULL))
 ## as(<ddi>, "matrix")  had lost dimnames before
 
 s24 <- new("dgCMatrix", Dim = c(2L, 4L), p = integer(5L))
@@ -1360,7 +1362,6 @@ stopifnot(!any(is.na(.nge)),
           !any(is.na(.dtr)),
           !any(is.infinite(.dtr)),
           !any(is.na(.dsy)),
-          is(is.na(.dsy), "sparseMatrix"),
           !anyNA(.nge),
           !anyNA(.dtr),
           !anyNA(.dsy),
@@ -1376,7 +1377,7 @@ stopifnot(is(`dim<-`(.dgR, c(4L, 1L)), "RsparseMatrix")) # was TsparseMatrix
 .ldi.sp <- symmpart(new("ldiMatrix", Dim = c(1L, 1L), Dimnames = list("a", "b"),
                         x = TRUE))
 stopifnot(is(.ldi.sp, "dMatrix"),
-          is(.ldi.sp, "symmetricMatrix"),
+          is(.ldi.sp, "diagonalMatrix"),
           Matrix:::isSymmetricDN(.ldi.sp@Dimnames))
 
 ## as.vector(<ndenseMatrix>), etc. must do NA->TRUE
@@ -1546,6 +1547,9 @@ stopifnot(identical(as(data.frame(a = 1:2, b = 3:4), "Matrix"),
                     new("dgeMatrix", x = as.double(1:4),
                         Dim = c(2L, 2L), Dimnames = list(NULL, c("a", "b")))))
 
+## tri[ul](<.t[rp]Matrix>) was often wrong at least in 1.6-1
+u <- new("dtrMatrix", Dim = c(8L, 8L), x = as.double(seq_len(64L)))
+stopifnot(identical(triu(u, 1L), triu(as(u, "generalMatrix"), 1L)))
 
 ## Platform - and other such info -- so we find it in old saved outputs
 .libPaths()

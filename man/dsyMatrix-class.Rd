@@ -10,21 +10,19 @@
 %
 \alias{coerce,dsyMatrix,corMatrix-method}
 \alias{coerce,dsyMatrix,dpoMatrix-method}
-\alias{coerce,dsyMatrix,dppMatrix-method}
 \alias{determinant,dsyMatrix,logical-method}
 %
-\alias{coerce,dspMatrix,dpoMatrix-method}
 \alias{coerce,dspMatrix,dppMatrix-method}
 \alias{coerce,dspMatrix,pcorMatrix-method}
 \alias{determinant,dspMatrix,logical-method}
 %
 \description{
   \itemize{
-    \item{The \code{"dsyMatrix"} class is the class of symmetric, dense matrices
-      in \emph{non-packed} storage and}
-    \item{\code{"dspMatrix"} is the class of symmetric dense matrices in
+    \item The \code{"dsyMatrix"} class is the class of symmetric, dense matrices
+      in \emph{non-packed} storage and
+    \item \code{"dspMatrix"} is the class of symmetric dense matrices in
       \emph{packed} storage, see \code{\link{pack}()}.  Only the upper
-      triangle or the lower triangle is stored.}
+      triangle or the lower triangle is stored.
   }
 }
 \section{Objects from the Class}{

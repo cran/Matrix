@@ -8,10 +8,6 @@
 \alias{lsyMatrix-class}
 \alias{lspMatrix-class}
 %
-\alias{!,lsyMatrix-method}
-%
-\alias{!,lspMatrix-method}
-%
 \description{
   The \code{"lsyMatrix"} class is the class of symmetric, dense logical
   matrices in non-packed storage and \code{"lspMatrix"} is the class of

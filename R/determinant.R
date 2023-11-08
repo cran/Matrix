@@ -47,21 +47,17 @@ setMethod("determinant", signature(x = "sparseQR", logarithm = "logical"),
           function(x, logarithm = TRUE, ...)
               .Call(sparseQR_determinant, x, logarithm))
 
-setMethod("determinant", signature(x = "BunchKaufman", logarithm = "logical"),
+for(.cl in c("BunchKaufman", "pBunchKaufman"))
+setMethod("determinant", signature(x = .cl, logarithm = "logical"),
           function(x, logarithm = TRUE, ...)
-              .Call(BunchKaufman_determinant, x, logarithm, FALSE))
+              .Call(BunchKaufman_determinant, x, logarithm))
+rm(.cl)
 
-setMethod("determinant", signature(x = "pBunchKaufman", logarithm = "logical"),
+for(.cl in c("Cholesky", "pCholesky"))
+setMethod("determinant", signature(x = .cl, logarithm = "logical"),
           function(x, logarithm = TRUE, ...)
-              .Call(BunchKaufman_determinant, x, logarithm, TRUE))
-
-setMethod("determinant", signature(x = "Cholesky", logarithm = "logical"),
-          function(x, logarithm = TRUE, ...)
-              .Call(Cholesky_determinant, x, logarithm, FALSE))
-
-setMethod("determinant", signature(x = "pCholesky", logarithm = "logical"),
-          function(x, logarithm = TRUE, ...)
-              .Call(Cholesky_determinant, x, logarithm, TRUE))
+              .Call(Cholesky_determinant, x, logarithm))
+rm(.cl)
 
 setMethod("determinant", signature(x = "CHMfactor", logarithm = "logical"),
           function(x, logarithm = TRUE, sqrt = TRUE, ...) {
@@ -76,7 +72,9 @@ setMethod("determinant", signature(x = "CHMfactor", logarithm = "logical"),
                           oop <- options(warn = 2L)
                           on.exit(options(oop))
                       }
-                      warning("the default value of argument 'sqrt' of method 'determinant(<CHMfactor>, <logical>)' may change from TRUE to FALSE as soon as the next release of Matrix; set 'sqrt' when programming")
+                      warning(gettextf("the default value of argument '%s' of method '%s(<%s>, <%s>)' may change from %s to %s as soon as the next release of Matrix; set '%s' when programming",
+                                       "sqrt", "determinant", "CHMfactor", "logical", "TRUE", "FALSE", "sqrt"),
+                              domain = NA)
                   }
               }
               .Call(CHMfactor_determinant, x, logarithm, sqrt)
@@ -93,7 +91,7 @@ setMethod("determinant", signature(x = "Matrix", logarithm = "missing"),
 
 setMethod("determinant", signature(x = "Matrix", logarithm = "logical"),
           function(x, logarithm = TRUE, ...)
-              determinant(as(x, "dMatrix"), logarithm, ...))
+              determinant(.M2kind(x, ","), logarithm, ...))
 
 ## .... GENERAL ........................................................
 
@@ -109,7 +107,7 @@ setMethod("determinant", signature(x = "dgeMatrix", logarithm = "logical"),
 setMethod("determinant", signature(x = "dgCMatrix", logarithm = "logical"),
           function(x, logarithm = TRUE, ...) {
               d <- x@Dim
-              if((n <- d[1L]) != d[2L])
+              if(d[1L] != d[2L])
                   stop("determinant of non-square matrix is undefined")
               trf <- lu(x, errSing = FALSE)
               if(isS4(trf))
@@ -128,7 +126,7 @@ setMethod("determinant", signature(x = "dgTMatrix", logarithm = "logical"),
 setMethod("determinant", signature(x = "indMatrix", logarithm = "logical"),
           function(x, logarithm = TRUE, ...) {
               d <- x@Dim
-              if((n <- d[1L]) != d[2L])
+              if(d[1L] != d[2L])
                   stop("determinant of non-square matrix is undefined")
               if(anyDuplicated.default(perm <- x@perm))
                   .mkDet(-Inf, logarithm, 1L)
@@ -138,23 +136,6 @@ setMethod("determinant", signature(x = "indMatrix", logarithm = "logical"),
 setMethod("determinant", signature(x = "pMatrix", logarithm = "logical"),
           function(x, logarithm = TRUE, ...)
               .mkDet(0, logarithm, signPerm(x@perm)))
-
-
-## .... TRIANGULAR .....................................................
-
-setMethod("determinant", signature(x = "triangularMatrix", logarithm = "logical"),
-          function(x, logarithm = TRUE, ...) {
-              if(x@diag == "N")
-                  .mkDet(x = diag(x, names = FALSE), logarithm = logarithm)
-              else .mkDet(0, logarithm, 1L)
-          })
-
-setMethod("determinant", signature(x = "diagonalMatrix", logarithm = "logical"),
-          function(x, logarithm = TRUE, ...) {
-              if(x@diag == "N")
-                  .mkDet(x = x@x, logarithm = logarithm)
-              else .mkDet(0, logarithm, 1L)
-          })
 
 
 ## .... SYMMETRIC ......................................................
@@ -195,18 +176,13 @@ setMethod("determinant", signature(x = "dsTMatrix", logarithm = "logical"),
           function(x, logarithm = TRUE, ...)
               determinant(.M2C(x), logarithm, ...))
 
-## MJ: unused
-if(FALSE) {
-ldet1.dsC <- function(x, ...)
-    .Call(CHMfactor_ldetL2, Cholesky(x, ...))
 
-## ~3% faster than ldet1:
-ldet2.dsC <- function(x, ...) {
-    Ch <- Cholesky(x, super = FALSE, ...)
-    .Call(diag_tC, Ch, "sumLog")
-}
+## .... TRIANGULAR .....................................................
 
-## <1% faster than ldet2:
-ldet3.dsC <- function(x, perm = TRUE)
-    .Call(dsCMatrix_LDL_D, x, perm = perm, "sumLog")
-} ## MJ
+for(.cl in c("triangularMatrix", "diagonalMatrix"))
+setMethod("determinant", signature(x = .cl, logarithm = "logical"),
+          function(x, logarithm = TRUE, ...)
+              if(x@diag == "N")
+                  .mkDet(x = diag(x, names = FALSE), logarithm = logarithm)
+              else .mkDet(0, logarithm, 1L))
+rm(.cl)

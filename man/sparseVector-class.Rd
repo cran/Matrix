@@ -11,7 +11,6 @@
 \alias{isparseVector-class}
 \alias{dsparseVector-class}
 \alias{zsparseVector-class}
-\alias{xsparseVector-class}
 % sparse
 \alias{!,sparseVector-method}
 \alias{Arith,sparseVector,ddenseMatrix-method}
@@ -29,24 +28,35 @@
 \alias{Ops,sparseVector,atomicVector-method}
 \alias{Ops,sparseVector,sparseVector-method}
 \alias{Summary,sparseVector-method}
+\alias{as.array,sparseVector-method}
+\alias{as.complex,sparseVector-method}
+\alias{as.integer,sparseVector-method}
 \alias{as.logical,sparseVector-method}
+\alias{as.matrix,sparseVector-method}
 \alias{as.numeric,sparseVector-method}
 \alias{as.vector,sparseVector-method}
 \alias{coerce,ANY,sparseVector-method}
+\alias{coerce,matrix,sparseVector-method}
 \alias{coerce,sparseVector,CsparseMatrix-method}
 \alias{coerce,sparseVector,Matrix-method}
 \alias{coerce,sparseVector,RsparseMatrix-method}
 \alias{coerce,sparseVector,TsparseMatrix-method}
+\alias{coerce,sparseVector,denseMatrix-method}
 \alias{coerce,sparseVector,dsparseVector-method}
-\alias{coerce,sparseVector,integer-method}
+\alias{coerce,sparseVector,generalMatrix-method}
 \alias{coerce,sparseVector,isparseVector-method}
-\alias{coerce,sparseVector,logical-method}
 \alias{coerce,sparseVector,lsparseVector-method}
 \alias{coerce,sparseVector,nsparseVector-method}
-\alias{coerce,sparseVector,numeric-method}
 \alias{coerce,sparseVector,sparseMatrix-method}
-\alias{coerce,sparseVector,vector-method}
+\alias{coerce,sparseVector,unpackedMatrix-method}
 \alias{coerce,sparseVector,zsparseVector-method}
+\alias{coerce,vector,dsparseVector-method}
+\alias{coerce,vector,isparseVector-method}
+\alias{coerce,vector,lsparseVector-method}
+\alias{coerce,vector,nsparseVector-method}
+\alias{coerce,vector,sparseVector-method}
+\alias{coerce,vector,zsparseVector-method}
+\alias{diff,sparseVector-method}
 \alias{dim<-,sparseVector-method}
 \alias{head,sparseVector-method}
 \alias{initialize,sparseVector-method}
@@ -55,25 +65,22 @@
 \alias{mean,sparseVector-method}
 \alias{rep,sparseVector-method}
 \alias{show,sparseVector-method}
+\alias{sort,sparseVector-method}
 \alias{t,sparseVector-method}
 \alias{tail,sparseVector-method}
 \alias{toeplitz,sparseVector-method}
+\alias{zapsmall,sparseVector-method}
 % nsparse
-\alias{Summary,nsparseVector-method}
-\alias{coerce,ANY,nsparseVector-method}
-\alias{coerce,nsparseVector,dsparseVector-method}
-\alias{coerce,nsparseVector,isparseVector-method}
-\alias{coerce,nsparseVector,lsparseVector-method}
-\alias{coerce,nsparseVector,zsparseVector-method}
+\alias{!,nsparseVector-method}
 \alias{which,nsparseVector-method}
 % lsparse
+\alias{!,lsparseVector-method}
 \alias{Logic,lsparseVector,lsparseVector-method}
 \alias{which,lsparseVector-method}
 % isparse
 % dsparse
 \alias{-,dsparseVector,missing-method}
 \alias{Arith,dsparseVector,dsparseVector-method}
-\alias{Math2,dsparseVector-method}
 % zsparse
 %
 \alias{c.sparseVector}
@@ -102,13 +109,7 @@
     \item{\code{x}:}{(for all but \code{"nsparseVector"}):
       the non-zero entries.  This is of class \code{"numeric"} for class
       \code{"dsparseVector"},  \code{"logical"} for class
-      \code{"lsparseVector"}, etc.
-
-      Note that \code{"nsparseVector"}s have no \code{x} slot.
-      Further, mainly for ease of method definitions, we've defined the
-      class union (see \code{\link{setClassUnion}}) of all sparse vector
-      classes which \emph{have} an \code{x} slot, as class \code{"xsparseVector"}.
-      }
+      \code{"lsparseVector"}, etc.}
   }
 }
 \section{Methods}{
@@ -185,7 +186,6 @@ library(utils, pos = "package:base", verbose = FALSE)
 }
 getClass("sparseVector")
 getClass("dsparseVector")
-getClass("xsparseVector")# those with an 'x' slot
 
 sx <- c(0,0,3, 3.2, 0,0,0,-3:1,0,0,2,0,0,5,0,0)
 (ss <- as(sx, "sparseVector"))
@@ -230,16 +230,16 @@ system.time(for(i in 1:4) h2 <- v[1:1e6])
 
 stopifnot(identical(hv, h2),
           identical(is | FALSE, is != 0),
-	  validObject(svN), validObject(lis), as.logical(is.na(svN[4])),
-	  identical(is^2 > 0,	is & TRUE),
-	  all(!lis), !any(lis), length(nn@i) == 0, !any(nn), all(!nn),
-	  sum(lis) == 0, !prod(lis), range(lis) == c(0,0))
+          validObject(svN), validObject(lis), as.logical(is.na(svN[4])),
+          identical(is^2 > 0, is & TRUE),
+          all(!lis), !any(lis), length(nn@i) == 0, !any(nn), all(!nn),
+          sum(lis) == 0, !prod(lis), range(lis) == c(0,0))
 
 ## create and use the t(.) method:
 t(x20 <- sparseVector(c(9,3:1), i=c(1:2,4,7), length=20))
 (T20 <- toeplitz(x20))
 stopifnot(is(T20, "symmetricMatrix"), is(T20, "sparseMatrix"),
-	  identical(unname(as.matrix(T20)),
+          identical(unname(as.matrix(T20)),
                     toeplitz(as.vector(x20))))
 
 ## c() method for "sparseVector" - also available as regular function
@@ -253,11 +253,12 @@ stopifnot(is(T20, "symmetricMatrix"), is(T20, "sparseMatrix"),
 ## checking (consistency)
 .v <- as.vector
 .s <- function(v) as(v, "sparseVector")
-stopifnot(
-  all.equal(c1, .s(c(.v(x20), 0,0,0, -10*.v(x20))),      tol=0),
-  all.equal(c2, .s(c(.v(ns), .v(is), FALSE)),            tol=0),
-  all.equal(c3, .s(c(.v(ns), !.v(ns), TRUE, NA, FALSE)), tol=0),
-  all.equal(c4, .s(c(.v(ns), rev(.v(ns)))),              tol=0),
-  all.equal(c5, .s(c(0,0, .v(x20))),                     tol=0)
-)
+stopifnot(exprs = {
+    all.equal(c1, .s(c(.v(x20), 0,0,0, -10*.v(x20))),      tol = 0)
+    all.equal(c2, .s(c(.v(ns), .v(is), FALSE)),            tol = 0)
+    all.equal(c3, .s(c(.v(ns), !.v(ns), TRUE, NA, FALSE)), tol = 0)
+    all.equal(c4, .s(c(.v(ns), rev(.v(ns)))),              tol = 0,
+              check.class = FALSE)
+    all.equal(c5, .s(c(0,0, .v(x20))),                     tol = 0)
+})
 }

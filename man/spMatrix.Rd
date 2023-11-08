@@ -14,7 +14,7 @@
   somewhat \emph{deprecated}.
 }
 \usage{
-spMatrix(nrow, ncol, i = integer(), j = integer(), x = double())
+spMatrix(nrow, ncol, i = integer(0L), j = integer(0L), x = double(0L))
 }
 \arguments{
   \item{nrow, ncol}{integers specifying the desired number of rows and

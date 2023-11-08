@@ -7,7 +7,6 @@
 %
 \alias{lgeMatrix-class}
 %
-\alias{!,lgeMatrix-method}
 \alias{Arith,lgeMatrix,lgeMatrix-method}
 \alias{Compare,lgeMatrix,lgeMatrix-method}
 \alias{Logic,lgeMatrix,lgeMatrix-method}

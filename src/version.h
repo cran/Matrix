@@ -1,0 +1,18 @@
+#ifndef MATRIX_VERSION_H
+#define MATRIX_VERSION_H
+
+/* (version)_{10} = (major minor patch)_{256} */
+#define MATRIX_PACKAGE_VERSION 67074
+#define MATRIX_PACKAGE_MAJOR 1
+#define MATRIX_PACKAGE_MINOR 6
+#define MATRIX_PACKAGE_PATCH 2
+
+#define MATRIX_ABI_VERSION 1
+
+/* (version)_{10} = (major minor patch)_{256} */
+#define MATRIX_SUITESPARSE_VERSION 330241
+#define MATRIX_SUITESPARSE_MAJOR 5
+#define MATRIX_SUITESPARSE_MINOR 10
+#define MATRIX_SUITESPARSE_PATCH 1
+
+#endif /* MATRIX_VERSION_H */

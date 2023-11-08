@@ -7,17 +7,20 @@
 %
 \alias{indMatrix-class}
 %
+\alias{!,indMatrix-method}
 \alias{-,indMatrix,missing-method}
+\alias{Math,indMatrix-method}
 \alias{Summary,indMatrix-method}
 \alias{coerce,indMatrix,pMatrix-method}
-\alias{coerce,indMatrix,sparseVector-method}
 \alias{coerce,list,indMatrix-method}
 \alias{coerce,matrix,indMatrix-method}
 \alias{coerce,numeric,indMatrix-method}
 \alias{determinant,indMatrix,logical-method}
 \alias{diag,indMatrix-method}
 \alias{diag<-,indMatrix-method}
+\alias{log,indMatrix-method}
 \alias{t,indMatrix-method}
+\alias{which,indMatrix-method}
 %
 \description{
   The \code{indMatrix} class is the class of row and column

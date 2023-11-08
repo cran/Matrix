@@ -1,6 +1,63 @@
-####--- All "Ops" group methods for all Matrix classes (incl sparseVector) ---
-####         ===   but diagonalMatrix  -> ./diagMatrix.R and  abIndex.R
-####                                        ~~~~~~~~~~~~      ~~~~~~~~~
+## METHODS FOR GENERIC: Ops = {Arith, Compare, Logic} (group)
+## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+## > getGroupMembers("Ops")
+## [1] "Arith"   "Compare" "Logic"
+## > getGroupMembers("Arith")
+## [1] "+"   "-"   "*"   "^"   "%%"  "%/%" "/"
+## > getGroupMembers("Compare")
+## [1] "==" ">"  "<"  "!=" "<=" ">="
+## > getGroupMembers("Logic") # excluding unary "!" -> ./not.R
+## [1] "&" "|"
+
+if(FALSE) {
+## vvvv MJ: for _after_ 1.6-2, ditto ./(Arith|Compare|Logic).R
+.Ops.invalid <- function(x) {
+    if(is.object(x))
+        gettextf("invalid class \"%s\" in '%s' method", class(x)[1L], "Ops")
+    else gettextf("invalid type \"%s\" in '%s' method", typeof(x), "Ops")
+}
+
+for(.cl in c("Matrix", "sparseVector")) {
+setMethod("Ops", signature(e1 = .cl, e2 = "ANY"),
+          function(e1, e2)
+              if(any(typeof(e2) == c("logical", "integer", "double"))) {
+                  if(is.matrix(e2))
+                      callGeneric(e1, unclass(e2))
+                  else callGeneric(e2, as.vector(e2))
+              } else stop(.Ops.invalid(e2), domain = NA))
+
+setMethod("Ops", signature(e1 = "ANY", e2 = .cl),
+          function(e1, e2)
+              if(any(typeof(e1) == c("logical", "integer", "double"))) {
+                  if(is.matrix(e1))
+                      callGeneric(unclass(e1), e2)
+                  else callGeneric(as.vector(e1), e2)
+              } else stop(.Ops.invalid(e1), domain = NA))
+
+setMethod("Ops", signature(e1 = .cl, e2 = "NULL"),
+          function(e1, e2) callGeneric(e1, logical(0L)))
+
+setMethod("Ops", signature(e1 = "NULL", e2 = .cl),
+          function(e1, e2) callGeneric(logical(0L), e2))
+
+## MJ: OK, but I'd prefer to handle all "matrix" as ".geMatrix"
+setMethod("Ops", signature(e1 = .cl, e2 = "matrix"),
+          function(e1, e2)
+              if(any(typeof(e2) == c("logical", "integer", "double")))
+                  callGeneric(e1, Matrix(e2))
+              else stop(.Ops.invalid(e2), domain = NA))
+
+## MJ: OK, but I'd prefer to handle all "matrix" as ".geMatrix"
+setMethod("Ops", signature(e1 = "matrix", e2 = .cl),
+          function(e1, e2)
+              if(any(typeof(e1) == c("logical", "integer", "double")))
+                  callGeneric(Matrix(e1), e2)
+              else stop(.Ops.invalid(e1), domain = NA))
+}
+rm(.cl)
+## ^^^^ MJ: for _after_ 1.6-2, ditto ./(Arith|Compare|Logic).R
+}
 
 
 .Ops.checkDim <- function(d.a, d.b) {
@@ -39,23 +96,12 @@
     } else nullDN
 }
 
-### Note that the "Ops" group consists of
-### sub-groups   "Arith", "Compare", and "Logic"
-###               -----    -------        -----
-### where 'Arith'   :=  '"+"', '"-"', '"*"', '"^"', '"%%"', '"%/%"', '"/"'
-###       'Compare' := '"=="', '">"', '"<"', '"!="', '"<="', '">="'
-###       'Logic'   :=  '"&"', '"|"'
-###           but *not* '"!"' since that has only one argument : >>>>> ./not.R
-
 ## cache them [rather in package 'methods' ??]
 .ArithGenerics   <- getGroupMembers("Arith")
 if(FALSE) { # unused
 .CompareGenerics <- getGroupMembers("Compare")
 .LogicGenerics   <- getGroupMembers("Logic")
 }
-
-## find them with M-x grep -E 'Method\("(Ops|Compare|Arith|Logic)"' *.R
-##                --------
 
 ### Design decision for *sparseMatrix*:
 ### work via Csparse  since Tsparse are not-unique (<-> slots not compatible)
@@ -74,24 +120,24 @@ setMethod("-", signature(e1 = "Matrix", e2 = "missing"),
               0 - e1
           })
 setMethod("-", signature(e1 = "denseMatrix", e2 = "missing"),
-          function(e1, e2) { e1@x <- -e1@x; .empty.factors(e1); e1 })
-
-## "diagonalMatrix" -- only two cases -- easiest to do both
-setMethod("-", signature(e1 = "ddiMatrix", e2 = "missing"),
           function(e1, e2) {
-              if(e1@diag == "U") {
-                  e1@x <- rep.int(-1., e1@Dim[1])
-                  e1@diag <- "N"
-              } else ## diag == "N" -> using 'x' slot
-                  e1@x <- -e1@x
-              .empty.factors(e1)
+              e1@x <- -e1@x
+              if(.hasSlot(e1, "factors") && length(e1@factors))
+                  e1@factors <- list()
               e1
           })
-setMethod("-", signature(e1 = "ldiMatrix", e2 = "missing"),
+
+setMethod("-", signature(e1 = "diagonalMatrix", e2 = "missing"),
           function(e1, e2) {
-              d <- e1@Dim
-              new("ddiMatrix", Dim = d, Dimnames = e1@Dimnames, diag = "N",
-                  x = if(e1@diag == "U") rep.int(-1, d[1]) else -e1@x)
+              kind <- .M.kind(e1)
+              r <- new(if(kind == "z") "zdiMatrix" else "ddiMatrix")
+              r@Dim <- d <- e1@Dim
+              r@Dimnames <- e1@Dimnames
+              r@x <-
+                  if(e1@diag != "N")
+                      rep.int(if(kind == "z") -1+0i else -1, d[1L])
+                  else -(if(kind == "n") e1@x | is.na(e1@x) else e1@x)
+              r
           })
 
 
@@ -111,33 +157,16 @@ setMethod("Ops", signature(e1 = "Matrix", e2 = "NULL"),
 setMethod("Ops", signature(e1 = "NULL", e2 = "Matrix"),
           function(e1, e2) callGeneric(logical(), e2))
 
-## bail-outs -- on highest possible level, hence "Ops", not "Compare"/"Arith" :
-.bail.out.Ops <- function(e1, e2) {
-    if(is(e1, "mMatrix") && is(e2, "mMatrix"))
-        .Ops.checkDim(dim(e1), dim(e2))
-    .bail.out.2(.Generic, class(e1), class(e2))
-}
 setMethod("Ops", signature(e1 = "Matrix", e2 = "ANY"),
-          function(e1, e2) {
-              if(is(e1, "mMatrix") && is(e2, "mMatrix"))
-                  .Ops.checkDim(dim(e1), dim(e2))
-              if(is.matrix(e2) && identical(e2, as.matrix(e2)) &&
-                 is.object(e2) && !isS4(e2)) # e.g. for "table"
-                  callGeneric(e1, unclass(e2))
-              else
-                  .bail.out.2(.Generic, class(e1), class(e2))
-          })
+          function(e1, e2)
+              if(is.object(e2) && is.matrix(e2))
+                  callGeneric(e1, unclass(e2)) # e.g., for "table"
+              else .bail.out.2(.Generic, class(e1), class(e2)))
 setMethod("Ops", signature(e1 = "ANY", e2 = "Matrix"),
-          function(e1, e2) {
-              if(is(e1, "mMatrix") && is(e2, "mMatrix"))
-                  .Ops.checkDim(dim(e1), dim(e2))
-              if(is.matrix(e1) && identical(e1, as.matrix(e1)) &&
-                 is.object(e1) && !isS4(e1)) # e.g. for "table"
-                  callGeneric(unclass(e1), e2)
-              else
-                  .bail.out.2(.Generic, class(e1), class(e2))
-          })
-rm(.bail.out.Ops)
+          function(e1, e2)
+              if(is.object(e1) && is.matrix(e1))
+                  callGeneric(unclass(e1), e2) # e.g., for "table"
+              else .bail.out.2(.Generic, class(e1), class(e2)))
 
 ## "General principle"
 ##  - - - - - - - - -
@@ -165,10 +194,11 @@ setMethod("Compare", signature(e1 = "Matrix", e2 = "Matrix"),
 ## Working entirely on "matching" x slot:
 ## can be done for matching-dim "*geMatrix", and also
 ## matching-{dim + uplo} for *packed* (only!) symmetric+triangular
-.Ops.via.x <- function(e1,e2) {
+.Ops.via.x <- function(e1, e2) {
     .Ops.checkDim(dim(e1), dim(e2))
     e1@x <- callGeneric(e1@x, e2@x)
-    .empty.factors(e1)
+    if(.hasSlot(e1, "factors") && length(e1@factors))
+        e1@factors <- list()
     e1
 }
 
@@ -225,10 +255,6 @@ Cmp.Mat.atomic <- function(e1, e2) { ## result will inherit from "lMatrix"
         full <- !.isPacked(e1) # << both "dtr" and "dsy" are 'full'
         if(full || allFalse(r0) || extends(cl1, "symmetricMatrix")) {
             isTri <- extends(cl1, "triangularMatrix")
-            if(isTri) {
-                if(extends1of(cl1, c("Cholesky","BunchKaufman")))
-                    cl1 <- getClassDef(cl <- class(e1 <- as(e1, "dtrMatrix")))
-            }
             ## FIXME? using copyClass() to copy "relevant" slots
             r <- new(class2(cl, "l"), x = r, Dim = d, Dimnames = e1@Dimnames)
             if(extends(cl1, "symmetricMatrix")) {
@@ -293,7 +319,7 @@ Cmp.Mat.atomic <- function(e1, e2) { ## result will inherit from "lMatrix"
                         r@p <- rep.int(0L, 1+nrow(r))
                 }
             } else {  # some TRUE, FALSE, NA : go via unique 'Tsparse'
-                M <- asTuniq(e1)
+                M <- asUniqueT(e1)
                 nCl <- class2(class(M), 'l') # logical Tsparse
                 sN <- slotNames(nCl)
                 ## copy "the other slots" (important for "tr"/"sym"):
@@ -309,7 +335,7 @@ Cmp.Mat.atomic <- function(e1, e2) { ## result will inherit from "lMatrix"
             lClass <- if(extends(cl1, "symmetricMatrix"))
                           "lsyMatrix"
                       else "lgeMatrix"
-            Matrix.msg(sprintf("sparse to dense (%s) coercion in '%s' -> %s",
+            Matrix.message(sprintf("sparse to dense (%s) coercion in '%s' -> %s",
                                lClass, .Generic, "Cmp.Mat.atomic"),
                        .M.level = 2)
             rx <- rep_len(r0, n1)
@@ -399,9 +425,9 @@ Ops.x.x <- function(e1, e2)
         ## now, in all cases @x should be matching & correct
         ## {only "uplo" part is used}
         r <- callGeneric(e1@x, e2@x)
-        kr <- .M.kind(r)
-        if(kr == "d" && !is.double(r)) ## as "igeMatrix" does not yet exist!
+        if(is.integer(r)) ## as "igeMatrix" does not yet exist!
             r <- as.double(r)
+        kr <- .M.kind(r)
         if(geM)
             new(paste0(kr, "geMatrix"), x = r, Dim = d, Dimnames = e1@Dimnames)
         else
@@ -461,7 +487,8 @@ setMethod("Arith", signature(e1 = cl, e2 = "dpoMatrix"),
                   double(0L)
               else if(l1 == 1 && any(.Generic == c("*","/","+")) && (e1 > 0)) {
                   e2@x <- callGeneric(e1, e2@x)
-                  .empty.factors(e2)
+                  if(length(e2@factors))
+                      e2@factors <- list()
                   e2 # remains "dpo"
               } else
                   callGeneric(e1, as(e2, "dsyMatrix"))
@@ -472,7 +499,8 @@ setMethod("Arith", signature(e1 = cl, e2 = "dppMatrix"),
                   double(0L)
               else if(l1 == 1 && any(.Generic == c("*","/","+")) && (e1 > 0)) {
                   e2@x <- callGeneric(e1, e2@x)
-                  .empty.factors(e2)
+                  if(length(e2@factors))
+                      e2@factors <- list()
                   e2 # remains "dpp"
               } else
                   callGeneric(e1, as(e2, "dspMatrix"))
@@ -483,7 +511,8 @@ setMethod("Arith", signature(e1 = "dpoMatrix", e2 = cl),
                   double(0L)
               else if(l2 == 1 && any(.Generic == c("*","/","+")) && (e2 > 0)) {
                   e1@x <- callGeneric(e1@x, e2)
-                  .empty.factors(e1)
+                  if(length(e1@factors))
+                      e1@factors <- list()
                   e1 # remains "dpo"
               } else
                   callGeneric(as(e1, "dsyMatrix"), e2)
@@ -494,7 +523,8 @@ setMethod("Arith", signature(e1 = "dppMatrix", e2 = cl),
                   double(0L)
               else if(l2 == 1 && any(.Generic == c("*","/","+")) && (e2 > 0)) {
                   e1@x <- callGeneric(e1@x, e2)
-                  .empty.factors(e1)
+                  if(length(e1@factors))
+                      e1@factors <- list()
                   e1 # remains "dpp"
               } else
                   callGeneric(as(e1, "dspMatrix"), e2)
@@ -559,7 +589,8 @@ A.M.n <- function(e1, e2) {
     } else if(le == 1 || le == d[1] || any(prod(d) == c(le, 0L))) {
         ## matching dim
         e1@x <- callGeneric(e1@x, as.vector(e2))
-        .empty.factors(e1)
+        if(length(e1@factors))
+            e1@factors <- list()
         e1
     } else
         stop("length of 2nd arg does not match dimension of first")
@@ -579,7 +610,8 @@ A.n.M <- function(e1, e2) {
     } else if(le == 1 || le == d[1] || any(prod(d) == c(le, 0L))) {
         ## matching dim
         e2@x <- callGeneric(as.vector(e1), e2@x)
-        .empty.factors(e2)
+        if(length(e2@factors))
+            e2@factors <- list()
         e2
     } else
         stop("length of 1st arg does not match dimension of 2nd")
@@ -619,7 +651,6 @@ setMethod("Arith", signature(e1 = "ddenseMatrix", e2 = "ddenseMatrix"),
                 if(e1@diag == "U" && !all(1 == callGeneric(1,e2)))
                     e1 <- diagU2N(e1)
                 e1@x <- callGeneric(e1@x, e2)
-                .empty.factors(e1)
                 e1
             } else { ## result *general*
                 callGeneric(.M2gen(e1), e2)
@@ -627,7 +658,8 @@ setMethod("Arith", signature(e1 = "ddenseMatrix", e2 = "ddenseMatrix"),
         } else {                    ## symmetric
             if(le == 1) {           ## result remains symmetric
                 e1@x <- callGeneric(e1@x, e2)
-                .empty.factors(e1)
+                if(length(e1@factors))
+                    e1@factors <- list()
                 e1
             } else { ## (le == d[1] || prod(d) == le)
                 ## *might* remain symmetric, but 'x' may contain garbage
@@ -663,7 +695,6 @@ rm(.Arith.denseM.atom)
                 if(e2@diag == "U" && !all(1 == callGeneric(e1,1)))
                     e2 <- diagU2N(e2)
                 e2@x <- callGeneric(e1, e2@x)
-                .empty.factors(e2)
                 e2
             } else {			# result *general*
                 callGeneric(e1, .M2gen(e2))
@@ -671,7 +702,8 @@ rm(.Arith.denseM.atom)
         } else { ## symmetric
             if(le == 1) {		# result remains symmetric
                 e2@x <- callGeneric(e1, e2@x)
-                .empty.factors(e2)
+                if(length(e2@factors))
+                    e2@factors <- list()
                 e2
             } else { ## (le == d[1] || prod(d) == le)
                 ## *might* remain symmetric, but 'x' may contain garbage
@@ -839,10 +871,6 @@ Logic.Mat.atomic <- function(e1, e2) { ## result will typically be "like" e1:
         full <- !.isPacked(e1)	   # << both "dtr" and "dsy" are 'full'
         if(full || allFalse(r0) || extends(cl1, "symmetricMatrix")) {
             isTri <- extends(cl1, "triangularMatrix")
-            if(isTri) {
-                if(extends1of(cl1, c("Cholesky","BunchKaufman")))
-                    cl1 <- getClassDef(cl <- class(e1 <- as(e1, "dtrMatrix")))
-            }
             ## FIXME? using copyClass() to copy "relevant" slots
             r <- new(class2(cl, "l"), x = r, Dim = d, Dimnames = e1@Dimnames)
             if(extends(cl1, "symmetricMatrix")) {
@@ -908,7 +936,7 @@ Logic.Mat.atomic <- function(e1, e2) { ## result will typically be "like" e1:
                         r@p <- rep.int(0L, 1+nrow(r))
                 }
             } else {  # some TRUE, FALSE, NA : go via unique 'Tsparse'
-                M <- asTuniq(e1)
+                M <- asUniqueT(e1)
                 nCl <- class2(class(M), 'l') # logical Tsparse
                 sN <- slotNames(nCl)
                 ## copy "the other slots" (important for "tr"/"sym"):
@@ -924,7 +952,7 @@ Logic.Mat.atomic <- function(e1, e2) { ## result will typically be "like" e1:
             ## non sparse result
             lClass <- if(extends(cl1, "symmetricMatrix"))
                 "lsyMatrix" else "lgeMatrix"
-            Matrix.msg(sprintf("sparse to dense (%s) coercion in '%s' -> %s",
+            Matrix.message(sprintf("sparse to dense (%s) coercion in '%s' -> %s",
                                lClass, .Generic, "Logic.Mat.atomic"),
                        .M.level = 2)
             rx <- rep_len(r0, n1)
@@ -1028,7 +1056,8 @@ Logic.lCMat <- function(e1, e2, isOR) {
     ## Very easy case first :
     if(identical(e1@i, e2@i) && identical(e1@p, e2@p)) {
         e1@x <- if(isOR) e1@x | e2@x else e1@x & e2@x
-        .empty.factors(e1)
+        if(.hasSlot(e1, "factors") && length(e1@factors))
+            e1@factors <- list()
         return(e1)
     }
     ## else :
@@ -1046,7 +1075,8 @@ Logic.lTMat <- function(e1,e2) {
     ## Very easy case first :
     if(identical(e1@i, e2@i) && identical(e1@j, e2@j)) {
         e1@x <- callGeneric(e1@x, e2@x)
-        .empty.factors(e1)
+        if(.hasSlot(e1, "factors") && length(e1@factors))
+            e1@factors <- list()
         return(e1)
     }
     ## else :
@@ -1088,7 +1118,8 @@ setMethod("Logic", signature(e1 = "ltCMatrix", e2 = "ltCMatrix"),
                       d <- .Ops.checkDim(dim(e1), dim(e2))
                       .diag2sparse(new("ldiMatrix", Dim = d,
                                        x = get(.Generic)(diag(e1), diag(e2))),
-                                   shape = "t", repr = "C", uplo = e1@uplo)
+                                   kind = ".", shape = "t", repr = "C",
+                                   uplo = e1@uplo)
                   }
               }
           })
@@ -1161,7 +1192,7 @@ setMethod("Logic", signature(e1="lsparseMatrix", e2="lsparseMatrix"),
 ## -----
 setMethod("Arith", signature(e1 = "dsCMatrix", e2 = "dsCMatrix"),
           function(e1, e2) {
-              Matrix.msg("suboptimal 'Arith' implementation of  'dsC*  o  dsC*'")
+              Matrix.message("suboptimal 'Arith' implementation of  'dsC*  o  dsC*'")
               forceSymmetric(callGeneric(.M2gen(e1), .M2gen(e2)))
           })
 
@@ -1280,7 +1311,8 @@ setMethod("Arith", signature(e1 = "dtCMatrix", e2 = "dtCMatrix"),
                e1@diag == "U" && !all(1 == callGeneric(1, e2)))
                 e1 <- .diagU2N(e1, cld)
             e1@x <- callGeneric(e1@x, e2)
-            .empty.factors(e1)
+            if(.hasSlot(e1, "factors") && length(e1@factors))
+                e1@factors <- list()
             return(e1)
         }
     }
@@ -1299,7 +1331,8 @@ setMethod("Arith", signature(e1 = "dtCMatrix", e2 = "dtCMatrix"),
                e2@diag == "U" && !all(1 == callGeneric(e1, 1)))
                 e2 <- .diagU2N(e2, cld)
             e2@x <- callGeneric(e1, e2@x)
-            .empty.factors(e2)
+            if(.hasSlot(e2, "factors") && length(e2@factors))
+                e2@factors <- list()
             return(e2)
         }
     }
@@ -1332,7 +1365,8 @@ A.M.n <- function(e1, e2) {
             e2 <- e2[.Ops.recycle.ind(e1, len = l2)]
         }
         e1@x <- callGeneric(e1@x, e2)
-        .empty.factors(e1) # TODO: possibly rather *update* LU
+        if(length(e1@factors))
+            e1@factors <- list()
         e1
     } else if(mean(is0f) > 7/8) {
         ## remain sparse ['7/8' is *somewhat* arbitrary]
@@ -1340,7 +1374,8 @@ A.M.n <- function(e1, e2) {
             callGeneric(e1, as(e2, "sparseVector"))
         else { ## l2 == 1: e2 is "scalar"
             e1@x <- callGeneric(e1@x, e2)
-            .empty.factors(e1)
+            if(length(e1@factors))
+                e1@factors <- list()
             e1
         }
     } else { ## non-sparse, since '0 o e2' is not (all) 0
@@ -1373,14 +1408,16 @@ A.n.M <- function(e1, e2) {
             e1 <- e1[.Ops.recycle.ind(e2, len = l1)]
         }
         e2@x <- callGeneric(e1, e2@x)
-        .empty.factors(e2)
+        if(length(e2@factors))
+            e2@factors <- list()
         e2
     } else if(mean(is0f) > 7/8) { ## remain sparse ['7/8' is *somewhat* arbitrar
         if(l1 > 1) ## as not all callGeneric(e1, 0) is 0, e1 is typically sparse
             callGeneric(as(e1, "sparseVector"), e2)
         else { ## l1 == 1: e1 is "scalar"
             e2@x <- callGeneric(e1, e2@x)
-            .empty.factors(e2)
+            if(length(e2@factors))
+                e2@factors <- list()
             e2
         }
     } else { ## non-sparse, since '0 o e2' is not (all) 0
@@ -1464,7 +1501,7 @@ setMethod("Compare", signature(e1 = "CsparseMatrix", e2 = "CsparseMatrix"),
 
               cD1 <- getClassDef(class(e1))
               cD2 <- getClassDef(class(e2))
-              Matrix.msg(sprintf("Compare <Csparse> -- \"%s\" %s \"%s\" :\n",
+              Matrix.message(sprintf("Compare <Csparse> -- \"%s\" %s \"%s\" :\n",
                                  cD1@className, .Generic, cD2@className),
                          .M.level = 2)
 
@@ -1600,7 +1637,8 @@ setMethod("-", signature(e1 = "sparseMatrix", e2 = "missing"),
           function(e1, e2) {
               e1 <- diagU2N(e1)
               e1@x <- -e1@x
-              .empty.factors(e1)
+              if(.hasSlot(e1, "factors") && length(e1@factors))
+                  e1@factors <- list()
               e1
           })
 ## with the following exceptions:
@@ -1684,7 +1722,7 @@ setMethod("Ops", signature(e1 = "sparseVector", e2 = "atomicVector"),
                               e1@x <- r
                               e1
                           } else {
-                              newSpVec(paste0(.V.kind(r), "sparseVector"),
+                              newSpVec(paste0(.M.kind(r), "sparseVector"),
                                        x = r, e1)
                           }
                       }
@@ -1718,7 +1756,7 @@ setMethod("Ops", signature(e1 = "atomicVector", e2 = "sparseVector"),
                               e2@x <- r
                               e2
                           } else {
-                              newSpVec(paste0(.V.kind(r), "sparseVector"),
+                              newSpVec(paste0(.M.kind(r), "sparseVector"),
                                        x = r, e2)
                           }
                       }
@@ -1885,3 +1923,396 @@ setMethod("Ops", signature(e1 = "Matrix", e2 = "sparseVector"), Ops.M.spV)
 setMethod("Ops", signature(e1 = "sparseVector", e2 = "Matrix"), Ops.spV.M)
 
 rm(Ops.M.spV, Ops.spV.M)
+
+
+###---------------- diagonalMatrix ----------------------
+
+.diag2tT.smart <- function(from, x, kind = ".") {
+    shape <- .M.shape(x)
+    uplo <- if(shape == "t") x@uplo else "U"
+    .diag2sparse(from, kind, "t", "T", uplo)
+}
+.diag2T.smart <- function(from, x, kind = ".") {
+    shape <- .M.shape(x)
+    uplo <- if(shape == "s" || shape == "t") x@uplo else "U"
+    .diag2sparse(from, kind, if(shape == "s") "s" else "t", "T", uplo)
+}
+
+ .diag.x <- function(m) if(m@diag != "N") rep.int(as1(m@x), m@Dim[1L]) else m@x
+..diag.x <- function(m)                   rep.int(as1(m@x), m@Dim[1L])
+
+## Use as S4 method for several signatures ==>  using callGeneric()
+diagOdiag <- function(e1,e2) {
+    ## result should also be diagonal _ if possible _
+    r <- callGeneric(.diag.x(e1), .diag.x(e2)) # error if not "compatible"
+    ## Check what happens with non-diagonals, i.e. (0 o 0), (FALSE o 0), ...:
+    r00 <- callGeneric(if(is.numeric(e1@x)) 0 else FALSE,
+                       if(is.numeric(e2@x)) 0 else FALSE)
+    if(is0(r00)) { ##  r00 == 0 or FALSE --- result *is* diagonal
+        if(is.numeric(r)) { # "double" *or* "integer"
+            if(!is.double(r))
+                r <- as.double(r)
+            if(is.double(e2@x)) {
+                e2@x <- r
+                e2@diag <- "N"
+                return(e2)
+            }
+            if(!is.double(e1@x))
+                ## e.g. e1, e2 are logical;
+                e1 <- .M2kind(e1, "d")
+        }
+        else if(is.logical(r))
+            e1 <- .M2kind(e1, "l")
+        else stop(gettextf("intermediate 'r' is of type %s",
+                           typeof(r)), domain=NA)
+        e1@x <- r
+        e1@diag <- "N"
+        e1
+    }
+    else { ## result not diagonal, but at least symmetric:
+        ## e.g., m == m
+        isNum <- (is.numeric(r) || is.numeric(r00))
+        isLog <- (is.logical(r) || is.logical(r00))
+        Matrix.message("exploding <diag> o <diag> into dense matrix", .M.level = 2)
+        d <- e1@Dim
+        n <- d[1L]
+        stopifnot(length(r) == n)
+        if(isNum && !is.double(r))
+            r <- as.double(r)
+        ## faster (?) than  m <- matrix(r00,n,n); diag(m) <- r ; as.vector(m)
+        xx <- rbind(r, matrix(r00,n,n), deparse.level=0L)[seq_len(n*n)]
+        newcl <-
+            paste0(if(isNum) "d"
+                   else if(isLog) {
+                       if(!anyNA(r) && !anyNA(r00)) "n" else "l"
+                   } else stop("not yet implemented .. please report"), "syMatrix")
+
+        new(newcl, Dim = e1@Dim, Dimnames = e1@Dimnames, x = xx)
+    }
+}
+
+### This would be *the* way, but we get tons of "ambiguous method dispatch"
+## we use this hack instead of signature  x = "diagonalMatrix" :
+diCls <- names(getClassDef("diagonalMatrix")@subclasses)
+if(FALSE) {
+setMethod("Ops", signature(e1 = "diagonalMatrix", e2 = "diagonalMatrix"),
+          diagOdiag)
+} else { ## These are just for method disambiguation:
+    for(c1 in diCls)
+        for(c2 in diCls)
+            setMethod("Ops", signature(e1 = c1, e2 = c2), diagOdiag)
+    rm(c1, c2)
+}
+rm(diagOdiag)
+
+## diagonal  o  triangular  |-->  triangular
+## diagonal  o  symmetric   |-->  symmetric
+##    {also when other is sparse: do these "here" --
+##     before conversion to sparse, since that loses "diagonality"}
+diagOtri <- function(e1,e2) {
+    ## result must be triangular
+    r <- callGeneric(d1 <- .diag.x(e1), diag(e2)) # error if not "compatible"
+    ## Check what happens with non-diagonals, i.e. (0 o 0), (FALSE o 0), ...:
+    e1.0 <- if(is.numeric(d1)) 0 else FALSE
+    r00 <- callGeneric(e1.0, if(.n2 <- is.numeric(e2[0L])) 0 else FALSE)
+    if(is0(r00)) { ##  r00 == 0 or FALSE --- result *is* triangular
+        diag(e2) <- r
+        ## check what happens "in the triangle"
+        e2.2 <- if(.n2) 2 else TRUE
+        if(!callGeneric(e1.0, e2.2) == e2.2) { # values "in triangle" can change:
+            n <- dim(e2)[1L]
+            it <- indTri(n, upper = (e2@uplo == "U"))
+            e2[it] <- callGeneric(e1.0, e2[it])
+        }
+        e2
+    }
+    else { ## result not triangular ---> general
+        rr <- as(e2, "generalMatrix")
+        diag(rr) <- r
+        rr
+    }
+}
+
+
+setMethod("Ops", signature(e1 = "diagonalMatrix", e2 = "triangularMatrix"),
+          diagOtri)
+rm(diagOtri)
+
+## For the reverse,  Ops == "Arith" | "Compare" | "Logic"
+##   'Arith'  :=  '"+"', '"-"', '"*"', '"^"', '"%%"', '"%/%"', '"/"'
+setMethod("Arith", signature(e1 = "triangularMatrix", e2 = "diagonalMatrix"),
+          function(e1, e2) { ## this must only trigger for *dense* e1
+              switch(.Generic,
+                     "+" = `diag<-`(e1, as.double(diag(e1, names=FALSE) + .diag.x(e2))),
+                     "-" = `diag<-`(e1, as.double(diag(e1, names=FALSE) - .diag.x(e2))),
+                     "*" = {
+                         n <- e2@Dim[1L]
+                         d2 <- if(e2@diag == "U") { # unit-diagonal
+                                   d <- rep.int(as1(e2@x), n)
+                                   e2@x <- d
+                                   e2@diag <- "N"
+                                   d
+                               } else e2@x
+                         e2@x <- diag(e1) * d2
+                         e2
+                     },
+                     "^" = { ## will be dense ( as  <ANY> ^ 0 == 1 ):
+                         e1 ^ .diag2dense(e2, ".", "g", FALSE)
+                     },
+                     ## otherwise:
+                     callGeneric(e1, .diag2T.smart(e2, e1)))
+          })
+
+## Compare --> 'swap' (e.g.   e1 < e2   <==>  e2 > e1 ):
+setMethod("Compare", signature(e1 = "triangularMatrix", e2 = "diagonalMatrix"),
+          .Cmp.swap)
+## '&' and "|'  are commutative:
+setMethod("Logic", signature(e1 = "triangularMatrix", e2 = "diagonalMatrix"),
+          function(e1, e2) callGeneric(e2, e1))
+
+## For almost everything else, diag* shall be treated "as sparse" :
+## These are cheap implementations via coercion
+
+## For disambiguation --- define this for "sparseMatrix" , then for "ANY";
+## and because we can save an .M.kind() call, we use this explicit
+## "hack" for all diagonalMatrix *subclasses* instead of just "diagonalMatrix" :
+##
+## ddi*:
+setMethod("Ops", signature(e1 = "ddiMatrix", e2 = "sparseMatrix"),
+          function(e1,e2) callGeneric(.diag2T.smart(e1, e2, kind = "d"), e2))
+setMethod("Ops", signature(e1 = "sparseMatrix", e2 = "ddiMatrix"),
+          function(e1,e2) callGeneric(e1, .diag2T.smart(e2, e1, kind = "d")))
+## ldi*
+setMethod("Ops", signature(e1 = "ldiMatrix", e2 = "sparseMatrix"),
+          function(e1,e2) callGeneric(.diag2T.smart(e1, e2, kind = "l"), e2))
+setMethod("Ops", signature(e1 = "sparseMatrix", e2 = "ldiMatrix"),
+          function(e1,e2) callGeneric(e1, .diag2T.smart(e2, e1, kind = "l")))
+
+## Ops:	 Arith	--> numeric : "dMatrix"
+##	 Compare --> logical
+##	 Logic	 --> logical: "lMatrix"
+
+## Other = "numeric" : stay diagonal if possible
+## ddi*: Arith: result numeric, potentially ddiMatrix
+for(arg2 in c("numeric","logical"))
+setMethod("Arith", signature(e1 = "ddiMatrix", e2 = arg2),
+          function(e1,e2) {
+              n <- e1@Dim[1L]
+              if(length(e2) == 0L)
+                  return(if(n) numeric() else e1)
+              f0 <- callGeneric(0, e2)
+              if(all0(f0)) { # remain diagonal
+                  if(e1@diag == "U") {
+                      if(any((r <- callGeneric(1, e2)) != 1)) {
+                          e1@diag <- "N"
+                          e1@x[seq_len(n)] <- r # possibly recycling r
+                      } ## else: result = e1  (is "U" diag)
+                  } else if(n) {
+                      L1 <- (le <- length(e2)) == 1L
+                      r <- callGeneric(e1@x, e2)
+                      ## "future fixme": if we have idiMatrix, and r is 'integer', use idiMatrix
+                      e1@x[] <- if(L1) r else r[1L + ((n+1)*(0:(n-1L))) %% le]
+                  }
+                  e1
+              } else
+                  callGeneric(.diag2tT.smart(e1, e2, kind = "d"), e2)
+          })
+rm(arg2)
+
+for(arg1 in c("numeric","logical"))
+setMethod("Arith", signature(e1 = arg1, e2 = "ddiMatrix"),
+          function(e1,e2) {
+              n <- e2@Dim[1L]
+              if(length(e1) == 0L)
+                  return(if(n) numeric() else e2)
+              f0 <- callGeneric(e1, 0)
+              if(all0(f0)) { # remain diagonal
+                  if(e2@diag == "U") {
+                      if(any((r <- callGeneric(e1, 1)) != 1)) {
+                          e2@diag <- "N"
+                          e2@x[seq_len(n)] <- r # possibly recycling r
+                      } ## else: result = e2  (is "U" diag)
+                  } else {
+                      L1 <- (le <- length(e1)) == 1L
+                      r <- callGeneric(e1, e2@x)
+                      ## "future fixme": if we have idiMatrix, and r is 'integer', use idiMatrix
+                      e2@x[] <- if(L1) r else r[1L + ((n+1)*(0:(n-1L))) %% le]
+                  }
+                  e2
+              } else
+                  callGeneric(e1, .diag2tT.smart(e2, e1, kind = "d"))
+          })
+rm(arg1)
+
+## ldi* Arith --> result numeric, potentially ddiMatrix
+for(arg2 in c("numeric","logical"))
+setMethod("Arith", signature(e1 = "ldiMatrix", e2 = arg2),
+          function(e1,e2) {
+              n <- e1@Dim[1L]
+              if(length(e2) == 0L)
+                  return(if(n) numeric()
+                         else copyClass(e1, "ddiMatrix", c("diag", "Dim", "Dimnames"), check=FALSE))
+              f0 <- callGeneric(0, e2)
+              if(all0(f0)) { # remain diagonal
+                  E <- copyClass(e1, "ddiMatrix", c("diag", "Dim", "Dimnames"), check=FALSE)
+                  ## storage.mode(E@x) <- "double"
+                  if(e1@diag == "U") {
+                      if(any((r <- callGeneric(1, e2)) != 1)) {
+                          E@diag <- "N"
+                          E@x[seq_len(n)] <- r # possibly recycling r
+                      } ## else: result = E  (is "U" diag)
+                  } else if(n) {
+                      L1 <- (le <- length(e2)) == 1L
+                      r <- callGeneric(e1@x, e2)
+                      ## "future fixme": if we have idiMatrix, and r is 'integer', use idiMatrix
+                      E@x[seq_len(n)] <- if(L1) r else r[1L + ((n+1)*(0:(n-1L))) %% le]
+                  }
+                  E
+              } else
+                  callGeneric(.diag2tT.smart(e1, e2, kind = "l"), e2)
+          })
+rm(arg2)
+
+for(arg1 in c("numeric","logical"))
+setMethod("Arith", signature(e1 = arg1, e2 = "ldiMatrix"),
+          function(e1,e2) {
+              n <- e2@Dim[1L]
+              if(length(e1) == 0L)
+                  return(if(n) numeric()
+                         else copyClass(e2, "ddiMatrix",
+                                        c("diag", "Dim", "Dimnames"),
+                                        check=FALSE))
+              f0 <- callGeneric(e1, 0)
+              if(all0(f0)) { # remain diagonal
+                  E <- copyClass(e2, "ddiMatrix",
+                                 c("diag", "Dim", "Dimnames"),
+                                 check=FALSE)
+                  ## storage.mode(E@x) <- "double"
+                  if(e2@diag == "U") {
+                      if(any((r <- callGeneric(e1, 1)) != 1)) {
+                          E@diag <- "N"
+                          E@x[seq_len(n)] <- r # possibly recycling r
+                      } ## else: result = E  (is "U" diag)
+                  } else if(n) {
+                      L1 <- (le <- length(e1)) == 1L
+                      r <- callGeneric(e1, e2@x)
+                      ## "future fixme": if we have idiMatrix,
+                      ## and r is 'integer', use idiMatrix
+                      E@x[seq_len(n)] <-
+                          if(L1) r else r[1L + ((n+1)*(0:(n-1L))) %% le]
+                  }
+                  E
+              } else
+                  callGeneric(e1, .diag2tT.smart(e2, e1, kind = "l"))
+          })
+rm(arg1)
+
+## ddi*: for "Ops" without "Arith": <Compare> or <Logic> --> result logical, potentially ldi
+##
+## Note that  ("numeric", "ddiMatrix")  is simply swapped, e.g.,
+if(FALSE) {
+    selectMethod("<", c("numeric","lMatrix"))# Compare
+    selectMethod("&", c("numeric","lMatrix"))# Logic
+} ## so we don't need to define a method here :
+
+for(arg2 in c("numeric","logical"))
+setMethod("Ops", signature(e1 = "ddiMatrix", e2 = arg2),
+          function(e1,e2) {
+              n <- e1@Dim[1L]
+              if(length(e2) == 0L)
+                  return(if(n) logical()
+                         else copyClass(e1, "ldiMatrix",
+                                        c("diag", "Dim", "Dimnames"),
+                                        check=FALSE))
+              f0 <- callGeneric(0, e2)
+              if(all0(f0)) { # remain diagonal
+                  E <- copyClass(e1, "ldiMatrix",
+                                 c("diag", "Dim", "Dimnames"),
+                                 check=FALSE)
+                  ## storage.mode(E@x) <- "logical"
+                  if(e1@diag == "U") {
+                      if(any((r <- callGeneric(1, e2)) != 1)) {
+                          E@diag <- "N"
+                          E@x[seq_len(n)] <- r # possibly recycling r
+                      } ## else: result = E  (is "U" diag)
+                  } else if(n) {
+                      L1 <- (le <- length(e2)) == 1L
+                      r <- callGeneric(e1@x, e2)
+                      ## "future fixme": if we have idiMatrix,
+                      ### and r is 'integer', use idiMatrix
+                      E@x[seq_len(n)] <-
+                          if(L1) r else r[1L + ((n+1)*(0:(n-1L))) %% le]
+                  }
+                  E
+              } else
+                  callGeneric(.diag2tT.smart(e1, e2, kind = "d"), e2)
+          })
+rm(arg2)
+
+## ldi*: for "Ops" without "Arith": <Compare> or <Logic> --> result logical, potentially ldi
+for(arg2 in c("numeric","logical"))
+setMethod("Ops", signature(e1 = "ldiMatrix", e2 = arg2),
+          function(e1,e2) {
+              n <- e1@Dim[1L]
+              if(length(e2) == 0L)
+                  return(if(n) logical() else e1)
+              f0 <- callGeneric(FALSE, e2)
+              if(all0(f0)) { # remain diagonal
+                  if(e1@diag == "U") {
+                      if(any((r <- callGeneric(TRUE, e2)) != 1)) {
+                          e1@diag <- "N"
+                          e1@x[seq_len(n)] <- r # possibly recycling r
+                      } ## else: result = e1  (is "U" diag)
+                  } else if(n) {
+                      L1 <- (le <- length(e2)) == 1L
+                      r <- callGeneric(e1@x, e2)
+                      ## "future fixme": if we have idiMatrix,
+                      ## and r is 'integer', use idiMatrix
+                      e1@x[] <- if(L1) r else r[1L + ((n+1)*(0:(n-1L))) %% le]
+                  }
+                  e1
+              } else
+                  callGeneric(.diag2tT.smart(e1, e2, kind = "l"), e2)
+          })
+rm(arg2)
+
+## Not {"sparseMatrix", "numeric} :  {"denseMatrix", "matrix", ... }
+for(other in c("ANY", "Matrix", "dMatrix")) {
+    ## ddi*:
+    setMethod("Ops", signature(e1 = "ddiMatrix", e2 = other),
+              function(e1,e2) callGeneric(.diag2T.smart(e1, e2, kind="d"), e2))
+    setMethod("Ops", signature(e1 = other, e2 = "ddiMatrix"),
+              function(e1,e2) callGeneric(e1, .diag2T.smart(e2, e1, kind="d")))
+    ## ldi*:
+    setMethod("Ops", signature(e1 = "ldiMatrix", e2 = other),
+              function(e1,e2) callGeneric(.diag2T.smart(e1, e2, kind="l"), e2))
+    setMethod("Ops", signature(e1 = other, e2 = "ldiMatrix"),
+              function(e1,e2) callGeneric(e1, .diag2T.smart(e2, e1, kind="l")))
+}
+rm(other)
+
+## Direct subclasses of "denseMatrix": currently ddenseMatrix, ldense... :
+if(FALSE) # now also contains "geMatrix"
+dense.subCl <- local({ dM.scl <- getClassDef("denseMatrix")@subclasses
+    names(dM.scl)[vapply(dM.scl, slot, 0, "distance") == 1] })
+dense.subCl <- paste0(c("d","l","n"), "denseMatrix")
+for(DI in diCls) {
+    dMeth <-
+        if(extends(DI, "dMatrix"))
+            function(e1,e2) callGeneric(.diag2T.smart(e1, e2, kind = "d"), e2)
+        else # "lMatrix", the only other kind for now
+            function(e1,e2) callGeneric(.diag2T.smart(e1, e2, kind = "l"), e2)
+    for(c2 in c(dense.subCl, "Matrix")) {
+        for(Fun in c("*", "&")) {
+            setMethod(Fun, signature(e1 = DI, e2 = c2),
+                      function(e1,e2) callGeneric(e1, Diagonal(x = diag(e2))))
+            setMethod(Fun, signature(e1 = c2, e2 = DI),
+                      function(e1,e2) callGeneric(Diagonal(x = diag(e1)), e2))
+        }
+        setMethod("^", signature(e1 = c2, e2 = DI),
+                  function(e1,e2) callGeneric(Diagonal(x = diag(e1)), e2))
+        for(Fun in c("%%", "%/%", "/")) ## 0 <op> 0 |--> NaN  for these.
+            setMethod(Fun, signature(e1 = DI, e2 = c2), dMeth)
+    }
+}
+rm(dense.subCl, DI, dMeth, c2, Fun)

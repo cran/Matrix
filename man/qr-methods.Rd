@@ -67,8 +67,7 @@ qr(x, \dots)
   \eqn{(n-r)} rows of (partly non-structural) zeros, such that
   the augmented matrix has structural rank \eqn{n}.
   This augmented matrix is factorized as described above:
-  \deqn{P_1 A P_2 = P_1 \begin{bmatrix} A_{0} \\ 0 \end{bmatrix} P_2 = Q R}{%
-      P1 * A * P2 = P1 * [A0; 0] * P2 = Q * R}
+  \Sdeqn{P_1 A P_2 = P_1 \\\\\\\\begin{bmatrix} A_{0} \\\\\\\\\\\\\\\\ 0 \\\\\\\\end{bmatrix} P_2 = Q R}{P1 * A * P2 = P1 * [A0; 0] * P2 = Q * R}
   where \eqn{A_0}{A0} denotes the original, user-supplied
   \eqn{(m-(n-r)) \times n}{(m-(n-r))-by-n} matrix.
 }
@@ -123,7 +122,7 @@ eps <- .Machine$double.eps
 
 stopifnot(exprs = {
     rankMatrix(A1) == ncol(A1)
-    { d1 <- diag(qr.A1@R); sum(d1 < max(d1) * eps) == 0L }
+    { d1 <- abs(diag(qr.A1@R)); sum(d1 < max(d1) * eps) == 0L }
     rcond(crossprod(A1)) >= eps
     all.equal(qr.coef(qr.A1, b), drop(solve(crossprod(A1), crossprod(A1, b))))
     all.equal(qr.fitted(qr.A1, b) + qr.resid(qr.A1, b), b)
@@ -138,7 +137,7 @@ stopifnot(exprs = {
 
 stopifnot(exprs = {
     rankMatrix(A2) == ncol(A2) - 2L
-    { d2 <- diag(qr.A2@R); sum(d2 < max(d2) * eps) == 2L }
+    { d2 <- abs(diag(qr.A2@R)); sum(d2 < max(d2) * eps) == 2L }
     rcond(crossprod(A2)) < eps
 
     ## 'qr.coef' computes unique least squares solution of "nearby" problem
@@ -167,7 +166,7 @@ stopifnot(exprs = {
 
     ## The augmented matrix remains numerically rank deficient
     rankMatrix(A3) == ncol(A3) - 2L
-    { d3 <- diag(qr.A3@R); sum(d3 < max(d3) * eps) == 2L }
+    { d3 <- abs(diag(qr.A3@R)); sum(d3 < max(d3) * eps) == 2L }
     rcond(crossprod(A3)) < eps
 })
 

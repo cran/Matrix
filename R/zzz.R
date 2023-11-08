@@ -1,10 +1,33 @@
+## ~~~~ VERSION ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Matrix.Version <- function() {
+    n <- .Call(R_Matrix_version)
+    v <- .mapply(function(n, p, b, class) {
+                     r <- integer(p)
+                     while (p > 0L) {
+                         r[p] <- tmp <- n %% b
+                         n <- (n - tmp) %/% b
+                         p <- p - 1L
+                     }
+                     v <- list(r)
+                     class(v) <- c(class, "numeric_version")
+                     v
+                 },
+                 list(n = n, p = c(3L, 1L, 3L), b = c(256L, 10L, 256L),
+                      class = list("package_version", NULL, NULL)),
+                 NULL)
+    names(v) <- names(n)
+    v
+}
+
+
 ## ~~~~ PACKAGE ENVIRONMENTS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ## Recording default values of Matrix.* options
 .MatrixEnv <- new.env(parent = emptyenv(), hash = FALSE)
 
 ## Storing settings from 'cholmod_common'
-.chm_common <- new.env(parent = emptyenv())
+.CholmodCommonEnv <- new.env(parent = emptyenv())
 
 
 ## ~~~~ NAMESPACE HOOKS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -23,13 +46,20 @@
                        paste(deparse(expr, width.cutoff, ...),
                              collapse = collapse))
             assign("sequence.default", envir = Mns, inherits = FALSE,
-                   function(nvec, from = 1L, by = 1L, ...)
+                   function(nvec, from = 1L, by = 1L, ...) {
+                       if(length(nvec) == 0L)
+                           return(integer(0L))
+                       else if(length(from) == 0L || length(by) == 0L)
+                           stop(gettextf("'%s' has length 0 but '%s' does not",
+                                         if(length(from) == 0L) "from" else "by", "nvec"),
+                                domain = NA)
                        unlist(.mapply(seq.int,
                                       list(from = as.integer(from),
                                            by = as.integer(by),
                                            length.out = as.integer(nvec)),
                                       NULL),
-                              recursive = FALSE, use.names = FALSE))
+                              recursive = FALSE, use.names = FALSE)
+                   })
             assign("tryInvokeRestart", envir = Mns, inherits = FALSE,
                    function(r, ...)
                        tryCatch(invokeRestart(r, ...),
@@ -73,9 +103,9 @@
     ## >=2 ... persistent error
     ##  NA ... one-time warning
     wSD <- as.integer(Sys.getenv("R_MATRIX_WARN_SQRT_DEFAULT", NA))
-    assign("warnSqrtDefault", wDC, envir = .MatrixEnv)
+    assign("warnSqrtDefault", wSD, envir = .MatrixEnv)
 
-    .Call(CHM_set_common_env, .chm_common)
+    .Call(R_cholmod_common_envini, .CholmodCommonEnv)
     NULL
 }
 
@@ -117,18 +147,14 @@
 }
 .diag2sT <- function(from, uplo = "U", kind = ".", drop0 = TRUE) {
     .Deprecated(new = ".diag2sparse", package = "Matrix")
-    r <- .diag2sparse(from, "s", "T", uplo)
-    if(kind != ".")
-        r <- .M2kind(r, kind)
+    r <- .diag2sparse(from, kind, "s", "T", uplo)
     if(drop0)
         r <- .drop0(r)
     r
 }
 .diag2tT <- function(from, uplo = "U", kind = ".", drop0 = TRUE) {
     .Deprecated(new = ".diag2sparse", package = "Matrix")
-    to <- .diag2sparse(from, "t", "T", uplo)
-    if(kind != ".")
-        to <- .M2kind(to, kind)
+    to <- .diag2sparse(from, kind, "t", "T", uplo)
     if(drop0)
         to <- .drop0(to)
     to
@@ -159,19 +185,22 @@
 .m2ngC <- function(from) {
     .Deprecated(new = ".m2sparse", package = "Matrix")
     if(anyNA(from))
-        stop("attempt to coerce matrix with NA to ngCMatrix")
+        stop(gettextf("attempt to coerce matrix with NA to %s", "ngCMatrix"),
+             domain = NA)
     .m2sparse(from, "ngC")
 }
 .m2ngCn <- function(from, na.is.not.0 = FALSE) {
     .Deprecated(new = ".m2sparse", package = "Matrix")
     if(!na.is.not.0 && anyNA(from))
-        stop("attempt to coerce matrix with NA to ngCMatrix")
+        stop(gettextf("attempt to coerce matrix with NA to %s", "ngCMatrix"),
+             domain = NA)
     .m2sparse(from, "ngC")
 }
 .m2ngTn <- function(from, na.is.not.0 = FALSE) {
     .Deprecated(new = ".m2sparse", package = "Matrix")
     if(!na.is.not.0 && anyNA(from))
-        stop("attempt to coerce matrix with NA to ngCMatrix")
+        stop(gettextf("attempt to coerce matrix with NA to %s", "ngTMatrix"),
+             domain = NA)
     .m2sparse(from, "ngT")
 }
 .n2dgT <- function(from) {
@@ -262,6 +291,20 @@
     .Deprecated(new = ".tCRT", package = "Matrix")
     }
     .tCRT(from)
+}
+
+uniqTsparse <- function(x, class.x = class(x)) {
+    if(FALSE) {
+    .Deprecated(new = "asUniqueT", package = "Matrix")
+    }
+    asUniqueT(x, isT = extends(class.x, "TsparseMatrix"))
+}
+
+.SuiteSparse_version <- function() {
+    if(FALSE) {
+    .Deprecated(new = "Matrix.Version", package = "Matrix")
+    }
+    Matrix.Version()[["suitesparse"]]
 }
 
 ## Utility for Matrix.DeprecatedCoerce(); see below
@@ -560,11 +603,3 @@ cBind <- function(..., deparse.level = 1)
     .Defunct(new = "cbind", package = "Matrix")
 rBind <- function(..., deparse.level = 1)
     .Defunct(msg = "rbind", package = "Matrix")
-
-
-## ~~~~ "MISCELLANEOUS" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.SuiteSparse_version <- function() {
-    v <- .Call(get_SuiteSparse_version)
-    package_version(list(major = v[1L], minor = paste(v[2:3], collapse = ".")))
-}

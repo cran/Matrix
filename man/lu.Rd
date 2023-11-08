@@ -37,9 +37,9 @@
   where
   \eqn{P_{1}}{P1} is an \eqn{m \times m}{m-by-m} permutation matrix, 
   \eqn{P_{2}}{P2} is an \eqn{n \times n}{n-by-n} permutation matrix, 
-  \eqn{L} is an \eqn{m \times \text{min}(m,n)}{m-by-min(m,n)}
+  \eqn{L} is an \eqn{m \times \min(m,n)}{m-by-min(m,n)}
   unit lower trapezoidal matrix, and
-  \eqn{U} is a  \eqn{\text{min}(m,n) \times n}{min(m,n)-by-n}
+  \eqn{U} is a  \eqn{\min(m,n) \times n}{min(m,n)-by-n}
   upper trapezoidal matrix.
 
   Methods for \code{\linkS4class{denseMatrix}} are built on

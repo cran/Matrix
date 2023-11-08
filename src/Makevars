@@ -1,7 +1,7 @@
 # -*- Makefile -*-
 
-PKG_CPPFLAGS = -DNTIMER -I./SuiteSparse_config -DUSE_FC_LEN_T
-## we use the BLAS and the LAPACK library:
+PKG_CPPFLAGS = -I./SuiteSparse_config -DNTIMER
+PKG_CFLAGS = $(C_VISIBILITY)
 PKG_LIBS = $(SUBLIBS) $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)
 
 MkInclude = $(R_HOME)/etc${R_ARCH}/Makeconf

@@ -5,21 +5,18 @@ if(interactive()) options(error = recover)
 options(warn=1)# show as they happen
 cat("doExtras:",doExtras,"\n")
 
-no.Mcl <- function(cl) ## TRUE if MatrixClass() returns empty, i.e., have "no Matrix-pkg class"
-    identical(MatrixClass(cl), character(0))
-
 setClass("myDGC", contains = "dgCMatrix")
-M <- new("myDGC", as(Matrix(c(-2:4, rep(0,9)), 4), "CsparseMatrix"))
-M
-stopifnot(M[-4,2] == 2:4,
-	  MatrixClass("myDGC"    ) == "dgCMatrix",
-	  MatrixClass("Cholesky" ) == "dtrMatrix",
-	  MatrixClass("pCholesky") == "dtpMatrix",
-	  MatrixClass("corMatrix") == "dpoMatrix",
-	  no.Mcl("pMatrix"),
-	  no.Mcl("indMatrix"))
-
-## FIXME:  Export  MatrixClass !!
+(M <- new("myDGC", as(Matrix(c(-2:4, rep(0,9)), 4), "CsparseMatrix")))
+stopifnot(exprs = {
+    M[-4L, 2L] == 2:4
+    MatrixClass(     "myDGC") == "dgCMatrix"
+    MatrixClass( "dpoMatrix") == "dsyMatrix"
+    MatrixClass( "dppMatrix") == "dspMatrix"
+    MatrixClass( "corMatrix") == "dsyMatrix"
+    MatrixClass("pcorMatrix") == "dspMatrix"
+    identical(MatrixClass("indMatrix"), character(0L))
+    identical(MatrixClass(  "pMatrix"), character(0L))
+})
 
 ## [matrix-Bugs][6182] Coercion method doesn't work on child class
 ## Bugs item #6182, at 2015-09-01 17:49 by Vitalie Spinu

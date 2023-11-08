@@ -29,8 +29,9 @@
   This function can be seen as way to compute the inverse of a
   symmetric positive definite matrix given its Cholesky factor.
   Equivalently, it can be seen as a way to compute
-  \eqn{(X' X)^{-1}}{(X' X)^(-1)} given the \eqn{R} part
-  of the QR factorization of \eqn{X}.
+  \eqn{(X' X)^{-1}}{(X' X)^(-1)} given the \eqn{R} part of the
+  QR factorization of \eqn{X}, if \eqn{R} is constrained to have
+  positive diagonal entries.
 }
 \usage{
 chol2inv(x, \dots)

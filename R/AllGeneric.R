@@ -75,18 +75,6 @@ setGeneric("pack",
            function(x, ...)
                standardGeneric("pack"))
 
-if(FALSE)
-## https://stat.ethz.ch/pipermail/r-devel/2023-June/082666.html
-setGeneric("qr.X",
-           function(qr, complete = FALSE, ncol, ...)
-               standardGeneric("qr.X"),
-           useAsDefault = function(qr, complete = FALSE, ncol, ...) {
-               if(missing(ncol))
-                   base::qr.X(qr, complete = complete)
-               else base::qr.X(qr, complete = complete, ncol = ncol)
-           },
-           signature = "qr")
-
 setGeneric("skewpart",
            function(x)
                standardGeneric("skewpart"))

@@ -9,7 +9,7 @@ setMethod("expm", signature(x = "Matrix"),
               d <- x@Dim
               if(d[1L] != d[2L])
                   stop("matrix is not square")
-              expm(as(x, "dMatrix"))
+              expm(.M2kind(x, "d"))
           })
 
 setMethod("expm", signature(x = "dsparseMatrix"),
@@ -21,43 +21,43 @@ setMethod("expm", signature(x = "dsparseMatrix"),
           })
 
 setMethod("expm", signature(x = "ddiMatrix"),
-	  function(x) {
-	      if(x@diag == "N") {
-		  x@x <- exp(x@x)
-	      } else {
-		  x@diag <- "N"
-		  x@x <- rep.int(exp(1), x@Dim[1L])
-	      }
-	      x
-	  })
+          function(x) {
+              if(x@diag == "N") {
+                  x@x <- exp(x@x)
+              } else {
+                  x@diag <- "N"
+                  x@x <- rep.int(exp(1), x@Dim[1L])
+              }
+              x
+          })
 
 setMethod("expm", signature(x = "dgeMatrix"),
-	  function(x) .Call(dgeMatrix_exp, x))
+          function(x) .Call(dgeMatrix_exp, x))
 
 setMethod("expm", signature(x = "dtrMatrix"),
-	  function(x) {
+          function(x) {
               r <- .Call(dgeMatrix_exp, .M2gen(x))
               if(x@uplo == "U") triu(r) else tril(r)
           })
 
 setMethod("expm", signature(x = "dtpMatrix"),
-	  function(x) {
+          function(x) {
               r <- .Call(dgeMatrix_exp, .M2gen(x))
               ## Pack without checking:
-              .Call(R_dense_as_packed, x, x@uplo, "N")
+              .Call(R_dense_as_packed, r, x@uplo, "N")
           })
 
 setMethod("expm", signature(x = "dsyMatrix"),
-	  function(x) {
+          function(x) {
               r <- .Call(dgeMatrix_exp, .M2gen(x))
               forceSymmetric(r)
           })
 
 setMethod("expm", signature(x = "dspMatrix"),
-	  function(x) {
+          function(x) {
               r <- .Call(dgeMatrix_exp, .M2gen(x))
               ## Pack without checking:
-              .Call(R_dense_as_packed, x, x@uplo, "")
+              .Call(R_dense_as_packed, r, x@uplo, NULL)
           })
 
 ## Until R supports it:

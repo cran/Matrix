@@ -7,7 +7,6 @@
 %
 \alias{TsparseMatrix-class}
 %
-\alias{coerce,TsparseMatrix,sparseVector-method}
 \alias{coerce,matrix,TsparseMatrix-method}
 \alias{coerce,vector,TsparseMatrix-method}
 \alias{diag,TsparseMatrix-method}

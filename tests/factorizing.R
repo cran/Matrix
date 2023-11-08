@@ -393,7 +393,7 @@ chkCholesky <- function(chmf, A) {
     ecc <- expand(chmf)
     A... <- with(ecc, crossprod(crossprod(L,P)))
     stopifnot(all.equal(L., ecc$L, tolerance = 1e-14),
-              all.equal(A,  A...,  tolerance = 1e-14, factorsCheck = FALSE))
+              all.equal(A,  A...,  tolerance = 1e-14))
     invisible(ecc)
 }
 

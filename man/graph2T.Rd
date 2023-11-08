@@ -31,7 +31,7 @@
 }
 \usage{
 graph2T(from, use.weights = )
-T2graph(from, need.uniq = is_not_uniqT(from), edgemode = NULL)
+T2graph(from, need.uniq = !isUniqueT(from), edgemode = NULL)
 }
 \arguments{
   \item{from}{for \code{graph2T()}, an \R object of class
@@ -82,7 +82,7 @@ if(requireNamespace("graph")) {
   ,
    identical(tg3 <- graph2T(g3), graph2T(g3, use.weights=FALSE))
   ,
-   identical(as(m3,"TsparseMatrix"), uniqTsparse(tg3))
+   identical(as(m3,"TsparseMatrix"), asUniqueT(tg3))
   )
 }
   a. <- sparseMatrix(i=4:1, j=1:4, dimnames=list(n4, n4), repr="T") # no 'x'

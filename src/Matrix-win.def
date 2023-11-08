@@ -1,0 +1,3 @@
+LIBRARY Matrix.dll
+EXPORTS
+ R_init_Matrix

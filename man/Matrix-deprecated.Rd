@@ -8,6 +8,7 @@
 %
 \alias{..2dge}
 \alias{.C2nC}
+\alias{.SuiteSparse_version}
 \alias{.T2Cmat}
 \alias{.asmatrix}
 \alias{.dense2sy}

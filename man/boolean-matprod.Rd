@@ -14,63 +14,84 @@
 \alias{\%&\%,ANY,ANY-method}
 \alias{\%&\%,ANY,Matrix-method}
 \alias{\%&\%,ANY,matrix-method}
+\alias{\%&\%,ANY,sparseVector-method}
+\alias{\%&\%,ANY,vector-method}
+\alias{\%&\%,CsparseMatrix,CsparseMatrix-method}
 \alias{\%&\%,CsparseMatrix,RsparseMatrix-method}
 \alias{\%&\%,CsparseMatrix,TsparseMatrix-method}
+\alias{\%&\%,CsparseMatrix,denseMatrix-method}
 \alias{\%&\%,CsparseMatrix,diagonalMatrix-method}
-\alias{\%&\%,CsparseMatrix,mMatrix-method}
+\alias{\%&\%,CsparseMatrix,matrix-method}
+\alias{\%&\%,CsparseMatrix,vector-method}
 \alias{\%&\%,Matrix,ANY-method}
-\alias{\%&\%,Matrix,Matrix-method}
 \alias{\%&\%,Matrix,indMatrix-method}
 \alias{\%&\%,Matrix,pMatrix-method}
+\alias{\%&\%,Matrix,sparseVector-method}
 \alias{\%&\%,RsparseMatrix,CsparseMatrix-method}
 \alias{\%&\%,RsparseMatrix,RsparseMatrix-method}
 \alias{\%&\%,RsparseMatrix,TsparseMatrix-method}
+\alias{\%&\%,RsparseMatrix,denseMatrix-method}
 \alias{\%&\%,RsparseMatrix,diagonalMatrix-method}
-\alias{\%&\%,RsparseMatrix,mMatrix-method}
+\alias{\%&\%,RsparseMatrix,matrix-method}
+\alias{\%&\%,RsparseMatrix,vector-method}
 \alias{\%&\%,TsparseMatrix,CsparseMatrix-method}
 \alias{\%&\%,TsparseMatrix,RsparseMatrix-method}
 \alias{\%&\%,TsparseMatrix,TsparseMatrix-method}
+\alias{\%&\%,TsparseMatrix,denseMatrix-method}
 \alias{\%&\%,TsparseMatrix,diagonalMatrix-method}
-\alias{\%&\%,TsparseMatrix,mMatrix-method}
+\alias{\%&\%,TsparseMatrix,matrix-method}
+\alias{\%&\%,TsparseMatrix,vector-method}
+\alias{\%&\%,denseMatrix,CsparseMatrix-method}
+\alias{\%&\%,denseMatrix,RsparseMatrix-method}
+\alias{\%&\%,denseMatrix,TsparseMatrix-method}
 \alias{\%&\%,denseMatrix,denseMatrix-method}
 \alias{\%&\%,denseMatrix,diagonalMatrix-method}
+\alias{\%&\%,denseMatrix,matrix-method}
+\alias{\%&\%,denseMatrix,vector-method}
 \alias{\%&\%,diagonalMatrix,CsparseMatrix-method}
 \alias{\%&\%,diagonalMatrix,RsparseMatrix-method}
 \alias{\%&\%,diagonalMatrix,TsparseMatrix-method}
 \alias{\%&\%,diagonalMatrix,denseMatrix-method}
 \alias{\%&\%,diagonalMatrix,diagonalMatrix-method}
 \alias{\%&\%,diagonalMatrix,matrix-method}
+\alias{\%&\%,diagonalMatrix,vector-method}
 \alias{\%&\%,indMatrix,Matrix-method}
 \alias{\%&\%,indMatrix,indMatrix-method}
 \alias{\%&\%,indMatrix,matrix-method}
 \alias{\%&\%,indMatrix,pMatrix-method}
-\alias{\%&\%,mMatrix,CsparseMatrix-method}
-\alias{\%&\%,mMatrix,RsparseMatrix-method}
-\alias{\%&\%,mMatrix,TsparseMatrix-method}
-\alias{\%&\%,mMatrix,sparseMatrix-method}
-\alias{\%&\%,mMatrix,sparseVector-method}
+\alias{\%&\%,indMatrix,vector-method}
 \alias{\%&\%,matrix,ANY-method}
+\alias{\%&\%,matrix,CsparseMatrix-method}
+\alias{\%&\%,matrix,RsparseMatrix-method}
+\alias{\%&\%,matrix,TsparseMatrix-method}
+\alias{\%&\%,matrix,denseMatrix-method}
 \alias{\%&\%,matrix,diagonalMatrix-method}
 \alias{\%&\%,matrix,indMatrix-method}
 \alias{\%&\%,matrix,matrix-method}
 \alias{\%&\%,matrix,pMatrix-method}
-\alias{\%&\%,nCsparseMatrix,nCsparseMatrix-method}
-\alias{\%&\%,nCsparseMatrix,nsparseMatrix-method}
-\alias{\%&\%,nMatrix,nMatrix-method}
-\alias{\%&\%,nMatrix,nsparseMatrix-method}
-\alias{\%&\%,nsparseMatrix,nCsparseMatrix-method}
-\alias{\%&\%,nsparseMatrix,nMatrix-method}
-\alias{\%&\%,nsparseMatrix,nsparseMatrix-method}
-\alias{\%&\%,numLike,sparseVector-method}
+\alias{\%&\%,matrix,sparseVector-method}
+\alias{\%&\%,matrix,vector-method}
 \alias{\%&\%,pMatrix,Matrix-method}
 \alias{\%&\%,pMatrix,indMatrix-method}
 \alias{\%&\%,pMatrix,matrix-method}
 \alias{\%&\%,pMatrix,pMatrix-method}
-\alias{\%&\%,sparseMatrix,mMatrix-method}
-\alias{\%&\%,sparseMatrix,sparseMatrix-method}
-\alias{\%&\%,sparseVector,mMatrix-method}
-\alias{\%&\%,sparseVector,numLike-method}
+\alias{\%&\%,pMatrix,vector-method}
+\alias{\%&\%,sparseVector,ANY-method}
+\alias{\%&\%,sparseVector,Matrix-method}
+\alias{\%&\%,sparseVector,matrix-method}
 \alias{\%&\%,sparseVector,sparseVector-method}
+\alias{\%&\%,sparseVector,vector-method}
+\alias{\%&\%,vector,ANY-method}
+\alias{\%&\%,vector,CsparseMatrix-method}
+\alias{\%&\%,vector,RsparseMatrix-method}
+\alias{\%&\%,vector,TsparseMatrix-method}
+\alias{\%&\%,vector,denseMatrix-method}
+\alias{\%&\%,vector,diagonalMatrix-method}
+\alias{\%&\%,vector,indMatrix-method}
+\alias{\%&\%,vector,matrix-method}
+\alias{\%&\%,vector,pMatrix-method}
+\alias{\%&\%,vector,sparseVector-method}
+\alias{\%&\%,vector,vector-method}
 %
 \description{
   For boolean or \dQuote{patter\bold{n}} matrices, i.e., \R objects of
@@ -89,13 +110,10 @@
     \item{\code{signature(x = "ANY", y = "ANY")}}{ }
     \item{\code{signature(x = "ANY", y = "Matrix")}}{ }
     \item{\code{signature(x = "Matrix", y = "ANY")}}{ }
-    \item{\code{signature(x = "mMatrix", y = "mMatrix")}}{ }
     \item{\code{signature(x = "nMatrix", y = "nMatrix")}}{ }
     \item{\code{signature(x = "nMatrix", y = "nsparseMatrix")}}{ }
     \item{\code{signature(x = "nsparseMatrix", y = "nMatrix")}}{ }
     \item{\code{signature(x = "nsparseMatrix", y = "nsparseMatrix")}}{ }
-    \item{\code{signature(x = "sparseVector", y = "mMatrix")}}{ }
-    \item{\code{signature(x = "mMatrix", y = "sparseVector")}}{ }
     \item{\code{signature(x = "sparseVector", y = "sparseVector")}}{ }
   }% {describe}
 }% {Methods}

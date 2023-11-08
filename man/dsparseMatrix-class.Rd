@@ -12,7 +12,6 @@
 \alias{Arith,logical,dsparseMatrix-method}
 \alias{Arith,numeric,dsparseMatrix-method}
 \alias{Ops,dsparseMatrix,nsparseMatrix-method}
-\alias{Summary,dsparseMatrix-method}
 \alias{coerce,matrix,dsparseMatrix-method}
 \alias{coerce,vector,dsparseMatrix-method}
 %

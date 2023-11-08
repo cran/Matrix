@@ -63,8 +63,8 @@ body(..M2tri)[[2L]][[2L]][[2L]][[2L]][[3L]] <-
 .sparse2dense <- function(from, packed = FALSE)
     .Call(R_sparse_as_dense, from, packed)
 
-.diag2dense <- function(from, shape = "t", packed = FALSE, uplo = "U")
-    .Call(R_diagonal_as_dense, from, shape, packed, uplo)
+.diag2dense <- function(from, kind = ".", shape = "t", packed = FALSE, uplo = "U")
+    .Call(R_diagonal_as_dense, from, kind, shape, packed, uplo)
 
 .ind2dense <- function(from, kind = "n")
     .Call(R_index_as_dense, from, kind)
@@ -72,26 +72,27 @@ body(..M2tri)[[2L]][[2L]][[2L]][[2L]][[3L]] <-
 .dense2sparse <- function(from, repr = "C")
     .Call(R_dense_as_sparse, from, repr)
 
-.diag2sparse <- function(from, shape = "t", repr = "C", uplo = "U")
-    .Call(R_diagonal_as_sparse, from, shape, repr, uplo)
+.diag2sparse <- function(from, kind = ".", shape = "t", repr = "C", uplo = "U")
+    .Call(R_diagonal_as_sparse, from, kind, shape, repr, uplo)
 
 .ind2sparse <- function(from, kind = "n", repr = ".")
     .Call(R_index_as_sparse, from, kind, repr)
 
-.m2dense <- function(from, class, uplo = "U", diag = "N")
-    .Call(R_matrix_as_dense, from, class, uplo, diag)
+.m2dense <- function(from, class = ".ge", uplo = "U", diag = "N",
+                     trans = FALSE)
+    .Call(R_matrix_as_dense, from, class, uplo, diag, trans)
 
 .m2dense.checking <- function(from, kind = ".", ...) {
     switch(typeof(from), logical =, integer =, double = NULL,
-           stop(gettextf("matrix of invalid type \"%s\" to .m2dense.checking()",
-                         typeof(from)),
+           stop(gettextf("invalid type \"%s\" in '%s'",
+                         typeof(from), ".m2dense.checking"),
                 domain = NA))
     if(kind != ".") {
         ## These must happen before isSymmetric() call
         storage.mode(from) <-
             switch(kind, n =, l = "logical", d = "double",
-                   stop(gettextf("invalid kind \"%s\" to .m2dense.checking()",
-                                 kind),
+                   stop(gettextf("invalid %s=\"%s\" to '%s'",
+                                 "kind", kind, ".m2dense.checking"),
                         domain = NA))
         if(kind == "n" && anyNA(from))
             from[is.na(from)] <- TRUE
@@ -104,20 +105,21 @@ body(..M2tri)[[2L]][[2L]][[2L]][[2L]][[3L]] <-
         .m2dense(from, paste0(kind, "ge"), NULL, NULL)
 }
 
-.m2sparse <- function(from, class, uplo = "U", diag = "N")
-    .Call(R_matrix_as_sparse, from, class, uplo, diag)
+.m2sparse <- function(from, class = ".gC", uplo = "U", diag = "N",
+                      trans = FALSE)
+    .Call(R_matrix_as_sparse, from, class, uplo, diag, trans)
 
 .m2sparse.checking <- function(from, kind = ".", repr = "C", ...) {
     switch(typeof(from), logical =, integer =, double = NULL,
-           stop(gettextf("matrix of invalid type \"%s\" to .m2sparse.checking()",
-                         typeof(from)),
+           stop(gettextf("invalid type \"%s\" in '%s'",
+                         typeof(from), ".m2sparse.checking"),
                 domain = NA))
     if(kind != ".") {
         ## These must happen before isSymmetric() call
         storage.mode(from) <-
             switch(kind, n =, l = "logical", d = "double",
-                   stop(gettextf("invalid kind \"%s\" to .m2sparse.checking()",
-                                 kind),
+                   stop(gettextf("invalid %s=\"%s\" to '%s'",
+                                 "kind", kind, ".m2sparse.checking"),
                         domain = NA))
         if(kind == "n" && anyNA(from))
             from[is.na(from)] <- TRUE
@@ -130,53 +132,247 @@ body(..M2tri)[[2L]][[2L]][[2L]][[2L]][[3L]] <-
         .m2sparse(from, paste0(kind, "g", repr), NULL, NULL)
 }
 
+.V2kind <- function(from, kind = ".") {
+    if(kind == ".")
+        return(from)
+    kind. <- .M.kind(from)
+    if(kind == ",")
+        kind <- if(kind. == "z") "z" else "d"
+    if(kind == kind.)
+        return(from)
+    to <- new(paste0(kind, "sparseVector"))
+    to@length <- from@length
+    to@i <- from@i
+    if(kind != "n")
+        to@x <-
+            if(kind. == "n")
+                rep.int(switch(kind, "l" = TRUE, "i" = 1L, "d" = 1, "z" = 1+0i), length(from@i))
+            else as.vector(from@x, typeof(to@x))
+    to
+}
 
-## ==== From Matrix to vector ==========================================
+.V2v <- function(from) {
+    if(.M.kind(from) != "n") {
+        to <- vector(typeof(from@x), from@length)
+        to[from@i] <- from@x
+    } else {
+        to <- logical(from@length)
+        to[from@i] <- TRUE
+    }
+    to
+}
+
+.V2m <- function(from) {
+    if(is.double(m <- from@length)) {
+        if(m > .Machine$integer.max)
+            stop(gettextf("dimensions cannot exceed %s", "2^31-1"), domain = NA)
+        m <- as.integer(m)
+    }
+    to <- .V2v(from)
+    dim(to) <- c(m, 1L)
+    to
+}
+
+.V2a <- function(from) {
+    if(is.double(m <- from@length)) {
+        if(m > .Machine$integer.max)
+            stop(gettextf("dimensions cannot exceed %s", "2^31-1"), domain = NA)
+        m <- as.integer(m)
+    }
+    to <- .V2v(from)
+    dim(to) <- m
+    to
+}
+
+.V2unpacked <- function(from) {
+    if(is.double(m <- from@length)) {
+        if(m > .Machine$integer.max)
+            stop(gettextf("dimensions cannot exceed %s", "2^31-1"), domain = NA)
+        m <- as.integer(m)
+    }
+    kind <- .M.kind(from)
+    to <- new(paste0(if(kind == "i") "d" else kind, "geMatrix"))
+    to@Dim <- c(m, 1L)
+    to@x <- replace(vector(typeof(to@x), m), from@i,
+                    if(kind == "n") TRUE else from@x)
+    to
+}
+
+.V2C <- function(from) {
+    if(is.double(m <- from@length)) {
+        if(m > .Machine$integer.max)
+            stop(gettextf("dimensions cannot exceed %s", "2^31-1"), domain = NA)
+        m <- as.integer(m)
+    }
+    kind <- .M.kind(from)
+    to <- new(paste0(if(kind == "i") "d" else kind, "gCMatrix"))
+    to@Dim <- c(m, 1L)
+    to@p <- c(0L, length(from@i))
+    to@i <- as.integer(from@i) - 1L
+    if(kind != "n")
+        to@x <- if(kind == "i") as.double(from@x) else from@x
+    to
+}
+
+.V2R <- function(from) {
+    if(is.double(m <- from@length)) {
+        if(m > .Machine$integer.max)
+            stop(gettextf("dimensions cannot exceed %s", "2^31-1"), domain = NA)
+        m <- as.integer(m)
+    }
+    kind <- .M.kind(from)
+    to <- new(paste0(if(kind == "i") "d" else kind, "gRMatrix"))
+    to@Dim <- c(m, 1L)
+    to@p <- c(0L, cumsum(replace(logical(m), from@i, TRUE)))
+    to@j <- integer(length(from@i))
+    if(kind != "n")
+        to@x <- if(kind == "i") as.double(from@x) else from@x
+    to
+}
+
+.V2T <- function(from) {
+    if(is.double(m <- from@length)) {
+        if(m > .Machine$integer.max)
+            stop(gettextf("dimensions cannot exceed %s", "2^31-1"), domain = NA)
+        m <- as.integer(m)
+    }
+    kind <- .M.kind(from)
+    to <- new(paste0(if(kind == "i") "d" else kind, "gTMatrix"))
+    to@Dim <- c(m, 1L)
+    to@i <- as.integer(from@i) - 1L
+    to@j <- integer(length(from@i))
+    if(kind != "n")
+        to@x <- if(kind == "i") as.double(from@x) else from@x
+    to
+}
+
+## FIXME: define R_Matrix_as_sparseVector in ../src/coerce.c and use here
+.M2V <- function(from) {
+    repr <- .M.repr(from)
+    if(repr == "u" || repr == "p")
+        return(.Call( v2spV, .M2v(from)))
+    if(repr == "C" || repr == "R")
+        return(.Call(CR2spV,      from ))
+    if(repr == "T")
+        return(.Call(CR2spV, .M2C(from)))
+    if(repr != "d" && repr != "i") {
+        if(is.object(from))
+            stop(gettextf("invalid class \"%s\" in '%s'",
+                          class(from)[1L], ".M2V"),
+                 domain = NA)
+        else
+            stop(gettextf("invalid type \"%s\" in '%s'",
+                          typeof(from), ".M2V"),
+                 domain = NA)
+    }
+    d <- from@Dim
+    m <- d[1L]
+    n <- d[2L]
+    mn <- prod(d)
+    if(mn <= .Machine$integer.max)
+        mn <- as.integer(mn)
+    else if(mn > 0x1p+53)
+        stop(gettextf("%s length cannot exceed %s", "sparseVector", "2^53"),
+             domain = NA)
+    kind <- .M.kind(from)
+    to <- new(paste0(kind, "sparseVector"))
+    to@length <- mn
+    to@i <-
+        if(repr == "d") {
+            if(kind == "n" && from@diag == "N")
+                indDiag(n)[from@x | is.na(from@x)]
+            else
+                indDiag(n)
+        } else if(is.integer(mn)) {
+            if(from@margin == 1L)
+                seq.int(to =   0L, by = 1L, length.out = m) +
+                    from@perm * m
+            else
+                seq.int(from = 0L, by =  m, length.out = n) +
+                    from@perm
+        } else {
+            if(from@margin == 1L)
+                seq.int(  to = 0, by =            1, length.out = m) +
+                    from@perm * as.double(m)
+            else
+                seq.int(from = 0, by = as.double(m), length.out = n) +
+                    as.double(from@perm)
+        }
+    if(kind != "n")
+        to@x <-
+            if(from@diag == "N")
+                from@x
+            else rep.int(switch(kind, "l" = TRUE, "i" = 1L, "d" = 1, "z" = 1+0i), n)
+    to
+}
+
+.m2V <- function(from, kind = ".") {
+    to <- .Call(v2spV, from)
+    if(kind == ".")
+        to
+    else {
+        to. <- new(paste0(kind, "sparseVector"))
+        to.@length <- to@length
+        to.@i <- to@i
+        if(kind != "n")
+            to.@x <- as.vector(to@x, typeof(to.@x))
+        to.
+    }
+}
+
+
+## ==== To vector ======================================================
 
 ## Need 'base' functions calling as.*() to dispatch to our S4 methods:
 if (FALSE) {
 ## 2023-08-10: breaks iGraphMatch, mcmcsae, mcompanion
 ## which define proper subclasses of Matrix not extending
 ## any of _our_ proper subclasses of Matrix
-as.vector.Matrix <- function(x, mode = "any") as.vector(.M2v(x), mode)
-as.matrix.Matrix <- function(x, ...)                    .M2m(x)
- as.array.Matrix <- function(x, ...)                    .M2m(x)
+as.matrix.Matrix <- function(x, ...) .M2m(x)
+ as.array.Matrix <- function(x, ...) .M2m(x)
 } else {
-## Hence, for now ...
-as.vector.Matrix <- function(x, mode = "any") as.vector(as(x, "matrix"), mode)
-as.matrix.Matrix <- function(x, ...)                    as(x, "matrix")
- as.array.Matrix <- function(x, ...)                    as(x, "matrix")
+as.matrix.Matrix <- function(x, ...) as(x, "matrix")
+ as.array.Matrix <- function(x, ...) as(x, "matrix")
+setAs("Matrix", "matrix", .M2m)
 }
+as.matrix.sparseVector <- function(x, ...) .V2m(x)
+ as.array.sparseVector <- function(x, ...) .V2a(x)
 
 setMethod("as.vector" , signature(x = "Matrix"),
-          as.vector.Matrix)
+          function(x, mode = "any") as.vector(.M2v(x), mode))
 setMethod("as.matrix" , signature(x = "Matrix"),
           as.matrix.Matrix)
 setMethod("as.array"  , signature(x = "Matrix"),
-           as.array.Matrix)
+          as.array.Matrix)
 setMethod("as.logical", signature(x = "Matrix"),
           function(x, ...) as.logical(.M2v(x)))
 setMethod("as.integer", signature(x = "Matrix"),
           function(x, ...) as.integer(.M2v(x)))
-setMethod("as.double" , signature(x = "Matrix"),
-          function(x, ...) as.double (.M2v(x)))
 setMethod("as.numeric", signature(x = "Matrix"),
           function(x, ...) as.numeric(.M2v(x)))
 setMethod("as.complex", signature(x = "Matrix"),
           function(x, ...) as.complex(.M2v(x)))
 
-setAs("Matrix",  "vector", .M2v)
-setAs("Matrix",  "matrix", .M2m)
-setAs("Matrix",   "array", .M2m)
-setAs("Matrix", "logical", function(from) as.logical(.M2v(from)))
-setAs("Matrix", "integer", function(from) as.integer(.M2v(from)))
-setAs("Matrix",  "double", function(from) as.double (.M2v(from)))
-setAs("Matrix", "numeric", function(from) as.numeric(.M2v(from)))
-setAs("Matrix", "complex", function(from) as.complex(.M2v(from)))
+setMethod("as.vector" , signature(x = "sparseVector"),
+          function(x, mode = "any") as.vector(.V2v(x), mode))
+setMethod("as.matrix" , signature(x = "sparseVector"),
+          as.matrix.sparseVector)
+setMethod("as.array"  , signature(x = "sparseVector"),
+          as.array.sparseVector)
+setMethod("as.logical", signature(x = "sparseVector"),
+          function(x, ...) as.logical(.V2v(x)))
+setMethod("as.integer", signature(x = "sparseVector"),
+          function(x, ...) as.integer(.V2v(x)))
+setMethod("as.numeric", signature(x = "sparseVector"),
+          function(x, ...) as.numeric(.V2v(x)))
+setMethod("as.complex", signature(x = "sparseVector"),
+          function(x, ...) as.complex(.V2v(x)))
 
 
-## ==== From vector to Matrix ==========================================
+## ==== To Matrix ======================================================
 
+setAs("sparseVector", "Matrix",
+      .V2C)
 setAs("matrix", "Matrix",
       function(from) {
           if(isDiagonal(from))
@@ -187,14 +383,37 @@ setAs("matrix", "Matrix",
       })
 setAs("vector", "Matrix",
       function(from) {
-          if(is.object(from)) # e.g., data.frame
+          if(is.object(from) && length(dim(from)) == 2L) # e.g., data.frame
               as(as.matrix(from), "Matrix")
           else if(.sparseDefault(from))
               .m2sparse(from, ".gC")
           else .m2dense(from, ".ge")
       })
-setAs("ANY", "Matrix",
+setAs(   "ANY", "Matrix",
       function(from) as(as(from, "matrix"), "Matrix"))
+
+if(FALSE) {
+## MJ: not yet ... existing as(<CHMfactor>, "Matrix") must become defunct first
+setAs("MatrixFactorization", "Matrix",
+      function(from) {
+          n <- length(x <- expand2(from))
+          to <- x[[1L]]
+          if(n >= 2L) for(i in 2L:n) to <- to %*% x[[i]]
+          to
+      })
+}
+
+
+## ==== To sparseVector ================================================
+
+setAs("Matrix", "sparseVector",
+      function(from) .M2V(from))
+setAs("matrix", "sparseVector",
+      function(from) .m2V(from))
+setAs("vector", "sparseVector",
+      function(from) .m2V(from))
+setAs(   "ANY", "sparseVector",
+      function(from) as(as.vector(from), "sparseVector"))
 
 
 ## ==== To "kind" ======================================================
@@ -290,14 +509,37 @@ setAs("vector", "lsparseMatrix",
 setAs("vector", "dsparseMatrix",
       function(from) .m2sparse(from, "dgC"))
 
+setAs("sparseVector", "nsparseVector",
+      function(from) .V2kind(from, "n"))
+setAs("sparseVector", "lsparseVector",
+      function(from) .V2kind(from, "l"))
+setAs("sparseVector", "isparseVector",
+      function(from) .V2kind(from, "i"))
+setAs("sparseVector", "dsparseVector",
+      function(from) .V2kind(from, "d"))
+setAs("sparseVector", "zsparseVector",
+      function(from) .V2kind(from, "z"))
+
+setAs("vector", "nsparseVector",
+      function(from) .m2V(from, "n"))
+setAs("vector", "lsparseVector",
+      function(from) .m2V(from, "l"))
+setAs("vector", "isparseVector",
+      function(from) .m2V(from, "i"))
+setAs("vector", "dsparseVector",
+      function(from) .m2V(from, "d"))
+setAs("vector", "zsparseVector",
+      function(from) .m2V(from, "z"))
+
 
 ## ==== To "shape" =====================================================
 
-..m2gen <- function(from) .Call(R_matrix_as_dense, from, ".ge", NULL, NULL)
+..m2gen <- function(from) .m2dense(from, ".ge")
 
-setAs("Matrix",    "generalMatrix", ..M2gen)
-setAs("matrix",    "generalMatrix", ..m2gen)
-setAs("vector",    "generalMatrix", ..m2gen)
+setAs(      "Matrix", "generalMatrix", ..M2gen)
+setAs(      "matrix", "generalMatrix", ..m2gen)
+setAs(      "vector", "generalMatrix", ..m2gen)
+setAs("sparseVector", "generalMatrix",  .V2C)
 
 setAs("Matrix",  "symmetricMatrix", ..M2sym)
 setAs("matrix",  "symmetricMatrix", ..M2sym)
@@ -305,21 +547,18 @@ setAs("matrix",  "symmetricMatrix", ..M2sym)
 setAs("Matrix", "triangularMatrix", ..M2tri)
 setAs("matrix", "triangularMatrix", ..M2tri)
 
-setAs("Matrix",   "diagonalMatrix",  .M2diag)
-setAs("matrix",   "diagonalMatrix",  .M2diag)
-
 rm(..m2gen)
 
 setAs("diagonalMatrix",  "symmetricMatrix",
       function(from) {
           if(!isSymmetricDN(from@Dimnames))
               stop("matrix is not symmetric; consider forceSymmetric(.) or symmpart(.)")
-          .diag2sparse(from, "s", "C", "U")
+          .diag2sparse(from, ".", "s", "C", "U")
       })
 
 setAs("diagonalMatrix", "triangularMatrix",
       function(from)
-          .diag2sparse(from, "t", "C", "U"))
+          .diag2sparse(from, ".", "t", "C", "U"))
 
 
 ## ==== To "representation" ============================================
@@ -333,6 +572,7 @@ setAs("Matrix",  "RsparseMatrix", .M2R)
 setAs("Matrix",  "TsparseMatrix", .M2T)
 
 ## Do test for structure:
+## FIXME: wrongly assumes that methods are defined for pack(<sparseMatrix>) ...
 setAs("generalMatrix", "packedMatrix", function(from) pack(from))
 
 setAs("matrix",    "denseMatrix",
@@ -356,14 +596,14 @@ setAs("matrix", "dgCMatrix",
 
 setAs("vector",    "denseMatrix",
       function(from)
-          if(is.object(from)) # e.g., data.frame
+          if(is.object(from) && length(dim(from)) == 2L) # e.g., data.frame
               as(as.matrix(from),  "denseMatrix")
           else .m2dense(from, ".ge"))
 setAs("vector", "unpackedMatrix",
       function(from)  .m2dense(from, ".ge"))
 setAs("vector",   "sparseMatrix",
       function(from)
-          if(is.object(from)) # e.g., data.frame
+          if(is.object(from) && length(dim(from)) == 2L) # e.g., data.frame
               as(as.matrix(from), "sparseMatrix")
           else .m2sparse(from, ".gC"))
 setAs("vector",  "CsparseMatrix",
@@ -377,6 +617,16 @@ setAs("ANY",  "denseMatrix",
       function(from) as(as(from, "matrix"),  "denseMatrix"))
 setAs("ANY", "sparseMatrix",
       function(from) as(as(from, "matrix"), "sparseMatrix"))
+
+setAs("sparseVector",    "denseMatrix", .V2unpacked)
+setAs("sparseVector", "unpackedMatrix", .V2unpacked)
+setAs("sparseVector",   "sparseMatrix", .V2C)
+setAs("sparseVector",  "CsparseMatrix", .V2C)
+setAs("sparseVector",  "RsparseMatrix", .V2R)
+setAs("sparseVector",  "TsparseMatrix", .V2T)
+
+setAs("Matrix", "diagonalMatrix", .M2diag)
+setAs("matrix", "diagonalMatrix", .M2diag)
 
 setAs("Matrix", "indMatrix",
       function(from) as(as(from, "nsparseMatrix"), "indMatrix"))

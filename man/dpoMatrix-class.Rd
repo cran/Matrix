@@ -36,21 +36,23 @@
 \alias{coerce,matrix,dppMatrix-method}
 \alias{determinant,dppMatrix,logical-method}
 %
+\alias{coerce,corMatrix,pcorMatrix-method}
 \alias{coerce,matrix,corMatrix-method}
 %
+\alias{coerce,pcorMatrix,corMatrix-method}
 \alias{coerce,matrix,pcorMatrix-method}
 %
 \description{
   \itemize{
-    \item{The \code{"dpoMatrix"} class is the class of
-      positive-semidefinite symmetric matrices in nonpacked storage.}
-    \item{The \code{"dppMatrix"} class is the same except in packed
+    \item The \code{"dpoMatrix"} class is the class of
+      positive-semidefinite symmetric matrices in nonpacked storage.
+    \item The \code{"dppMatrix"} class is the same except in packed
       storage.  Only the upper triangle or the lower triangle is
-      required to be available.}
-    \item{The \code{"corMatrix"} and \code{"pcorMatrix"} classes
+      required to be available.
+    \item The \code{"corMatrix"} and \code{"pcorMatrix"} classes
       represent correlation matrices.  They extend \code{"dpoMatrix"}
       and \code{"dppMatrix"}, respectively, with an additional slot
-      \code{sd} allowing restoration of the original covariance matrix.}
+      \code{sd} allowing restoration of the original covariance matrix.
   }
 }
 \section{Objects from the Class}{Objects can be created by calls of the
@@ -93,8 +95,8 @@
       \code{x}.  The \code{norm} can be \code{"O"} for the
       one-norm (the default) or \code{"I"} for the infinity-norm.  For
       symmetric matrices the result does not depend on the norm.}
-    \item{solve}{\code{signature(a = "dpoMatrix", b = "....")}}{, and}
-    \item{solve}{\code{signature(a = "dppMatrix", b = "....")}}{work
+    \item{solve}{\code{signature(a = "dpoMatrix", b = "....")}, and}
+    \item{solve}{\code{signature(a = "dppMatrix", b = "....")}  work
       via the Cholesky composition, see also the Matrix \code{\link{solve-methods}}.}
     \item{Arith}{\code{signature(e1 = "dpoMatrix", e2 = "numeric")} (and
       quite a few other signatures): The result of (\dQuote{elementwise}
@@ -136,12 +138,14 @@ rcond(h6)
 str(h6)
 h6 * 27720 # is ``integer''
 solve(h6)
-str(hp6 <- as(h6, "dppMatrix"))
+str(hp6 <- pack(h6))
 
 ### Note that  as(*, "corMatrix")  *scales* the matrix
 (ch6 <- as(h6, "corMatrix"))
-stopifnot(all.equal(h6 * 27720, round(27720 * h6), tolerance = 1e-14),
-          all.equal(ch6@sd^(-2), 2*(1:6)-1, tolerance= 1e-12))
+stopifnot(all.equal(as(h6 * 27720, "dsyMatrix"), round(27720 * h6),
+                    tolerance = 1e-14),
+          all.equal(ch6@sd^(-2), 2*(1:6)-1,
+                    tolerance = 1e-12))
 chch <- Cholesky(ch6, perm = FALSE)
 stopifnot(identical(chch, ch6@factors$Cholesky),
           all(abs(crossprod(as(chch, "dtrMatrix")) - ch6) < 1e-10))

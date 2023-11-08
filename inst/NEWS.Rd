@@ -4,6 +4,231 @@
 \title{News for \R{} Package \pkg{Matrix}}
 \encoding{UTF-8}
 %% NB: The date (yyyy-mm-dd) is the "Packaged: " date in ../DESCRIPTION
+\section{Changes in version 1.6-2 (2023-11-03 r4486)}{
+  \subsection{Significant User-Visible Changes}{
+    \itemize{
+      \item Methods for generic functions \code{rbind2}, \code{cbind2},
+      \code{\%*\%}, \code{\%&\%}, \code{crossprod}, and \code{tcrossprod}
+      determine the class of the result using more strict rules,
+      designed to avoid \dQuote{surprising} coercions where possible.
+      Notably, operations involving \code{RsparseMatrix} now return
+      an \code{RsparseMatrix} in more cases.  \code{TsparseMatrix} and
+      \code{diagonalMatrix} may be handled as \code{CsparseMatrix} or as
+      \code{RsparseMatrix}, depending on context.
+    }
+  }
+  \subsection{New Features}{
+    \itemize{
+      \item New \R{} function \code{Matrix.Version}, taking no arguments
+      and returning \code{list(package, abi, suitesparse)}, a list
+      containing the numeric versions of the package, its ABI, and the
+      internal SuiteSparse library.  ABI versioning is new: the version
+      is 1 in this release and will be incremented by 1 in each future
+      release that changes the ABI. Versions and their components are
+      defined in a header for use by packages with \code{LinkingTo: Matrix}
+      in \file{DESCRIPTION}.  See \file{inst/include/Matrix/version.h}.
+
+      %% TODO {for 1.6-3}: Ops using (x@x | is.na(x@x)) for ndiMatrix 'x'
+      \item New nonvirtual class \code{ndiMatrix}, extending virtual
+      classes \code{diagonalMatrix} and \code{nMatrix}, for nonzero
+      pattern diagonal matrices.  It is used to represent the result
+      of \code{is.na}, \code{is.nan}, \code{is.infinite} applied to
+      \code{diagonalMatrix}, as well as diagonal boolean products.
+      Coercions \code{as(<diagonalMatrix>, "nMatrix")} now give
+      \code{ndiMatrix} instead of \code{ntCMatrix}.  The latter can
+      for now still be obtained by coercing to \code{nsparseMatrix}
+      instead of \code{nMatrix}.
+
+      \item New C-level validity methods for \code{sparseVector} and
+      \code{[nlidz]sparseVector}, now requiring \code{length} not
+      exceeding \code{2^53}, which on most platforms is the maximum
+      integer representable exactly as \code{double}.
+
+      \item \code{mean(<sparseVector>, trim=)} now works efficiently
+      for nonzero values of \code{trim}.
+
+      \item \code{rep(<sparseVector>, each=)} now works efficiently,
+      avoiding \code{rep(., times = rep(each, times = length(.)))}.
+
+      \item \code{.m2dense} and \code{.m2sparse} gain an argument
+      \code{trans} indicating if vectors that are not matrices should
+      be coerced to 1-row matrices rather than 1-column matrices.
+
+      \item \code{.m2dense} and \code{.m2sparse} can be called
+      with one argument.  Their \code{class} arguments admit new
+      default values \code{".ge"} and \code{".gC"}.
+
+      \item \code{.diag2dense} and \code{.diag2sparse} gain an
+      argument \code{kind} indicating the \dQuote{kind} of the
+      result.
+
+      \item New exports \code{.M2V} and \code{.m2V}, for coercing
+      \code{Matrix} and \code{matrix} (and in fact \code{vector})
+      to \code{sparseVector}.
+
+      \item New exports \code{isUniqueT} and \code{asUniqueT}, with
+      optional argument \code{byrow} allowing for row-major ordering
+      of entries.  \code{asUniqueT} supercedes \code{uniqTsparse},
+      which is no longer documented.
+
+      \item New export \code{aggregateT}, for aggregating
+      \code{TsparseMatrix} \emph{without} sorting.
+
+      \item Methods for \code{all.equal} now report the packages
+      where S4 classes are defined.
+
+      \item \code{sum(x)} and \code{prod(x)} no longer require a
+      coercion from \code{symmetricMatrix} to \code{generalMatrix}.
+      Results where coercions are now avoided may differ numerically
+      due to reordering of adds and multiplies, most commonly on
+      systems where \code{sizeof(long double) == sizeof(double)}.
+    }
+  }
+  \subsection{Bug Fixes}{
+    \itemize{
+      \item Methods for \code{cbind2} and \code{rbind2} did not in all
+      cases handle vectors as 1-column and 1-row matrices, respectively.
+
+      \item Methods for \code{cbind2} and \code{rbind2} did not handle
+      0-length vectors (including \code{NULL}) correctly where the result
+      would have 0 rows and columns, respectively.
+
+      \item Methods for \code{cbind2} and \code{rbind2} did not handle
+      \code{NA} in the \code{x} slot of \code{ndenseMatrix} correctly
+      (i.e., as \code{TRUE}).
+
+      \item \code{cbind2(<ndenseMatrix>, <ldenseMatrix>)} gave
+      \code{ngeMatrix} instead of \code{lgeMatrix}.
+      \code{cbind2(<lsparseMatrix>, <lsparseMatrix>)} gave
+      \code{dgCMatrix} instead of \code{lgCMatrix}.
+      Methods for \code{rbind2} had similar problems.
+
+      \item \code{rcond(<0-by-0>)} now returns \code{Inf}; see \PR{18543}.
+
+      \item \code{round(<dp[op]Matrix>)} and \code{signif(<dp[op]Matrix>)}
+      now return \code{ds[yp]Matrix} rather than \code{dp[op]Matrix} and
+      now discard \code{factors}.
+
+      \item Methods for \code{length} now return \code{integer} rather
+      than \code{double} if the result does not exceed \code{INT_MAX}.
+
+      \item \code{dsparseVector} with \code{x} slot of type
+      \code{integer} are now formally invalid, as always intended.
+
+      \item Methods for subscripting \code{sparseVector} did not behave
+      compatibly with \pkg{base} when supplied with fractional, \code{NA},
+      or out-of-bounds subscripts.
+
+      \item \code{symmpart(x)}, \code{skewpart(x)},
+      \code{band(x, k1, k2)}, \code{triu(x, k)}, and
+      \code{tril(x, k)} now always return a \code{.diMatrix}
+      for \code{x} inheriting from \code{diagonalMatrix}.
+
+      \item \code{colSums(<(n|l|ind)Matrix>)} and
+      \code{rowSums(<(n|l|ind)Matrix>)} now always give a result
+      of type \code{"integer"}.  Methods differed previously,
+      some giving \code{"double"} (as \pkg{base} does, suboptimally,
+      traditional matrices of type \code{"logical"}).
+
+      \item Some methods for generic function \code{lu} did not transmit
+      \code{Dimnames} to the result.
+
+      \item Some methods for group generic function \code{Summary}
+      ignored arguments matching \code{\dots}.  Other methods did
+      not ignore the \dQuote{garbage} elements of the \code{x} slot
+      of dense, triangular matrices.
+
+      \item \code{kronecker(<n.TMatrix>, <diagonalMatrix>)} threw
+      an error for attempting to access the nonexistent \code{x} slot
+      of its first argument.
+
+      \item Matrix products now behave exactly as \pkg{base} when
+      testing for conformable arguments.
+
+      \item Numeric products (\code{\%*\%}) did not always return a
+      \code{dMatrix}.
+
+      \item Methods for \code{all.equal} now \dQuote{see} attributes
+      of S4 objects that are not slots.  This can be disabled
+      by setting argument \code{check.attributes} to \code{NA},
+      which is otherwise equivalent to \code{TRUE}.
+
+      \item \code{prod(x)} is computed more diligently for \code{x}
+      inheriting from \code{sparseMatrix}, \code{sparseVector}, or
+      \code{.t[rp]Matrix}, i.e., those \code{x} that can be understood
+      to have \dQuote{structural} zeros.  Now, multiplication by zero
+      occurs at the position of the first structural zero in the matrix
+      or vector (when traversed by row in the case of \code{RsparseMatrix}).
+      An exception is \code{TsparseMatrix}, for which multiplication
+      by zero occurs before multiplication by any stored entry,
+      regardless of the position of the first structural zero in the
+      corresponding sorted matrix (to avoid the cost of sorting).
+
+      \item \code{tri[ul](<.t[rp]Matrix>, k)} was often wrong for
+      nonzero \code{k}, setting too many bands to zero.
+
+      \item C-level \code{tCsparse_diag} (formerly \code{diag_tC})
+      now handles structural zeros and \code{NaN} on the main diagonal
+      correctly.  Option \code{"diagBack"} now works correctly.
+
+      \item The prototype of API function \code{M_cholmod_band_inplace}
+      was wrongly copied from \code{cholmod_band},
+      instead of from \code{cholmod_band_inplace}.
+
+      \item Many API function prototypes wrongly used \code{const}
+      qualifiers where the registered routines do not.
+
+      \item \code{expm(x)} failed for \code{x} of class \code{dtpMatrix}
+      or \code{dspMatrix}, since \pkg{Matrix} version 1.6-1.
+
+      \item \code{.m2dense(x, ".ge")} allocated unnecessarily
+      for \code{x} without attributes.
+    }
+  }
+  \subsection{Misc}{
+    \itemize{
+      \item C code now refers to the symbol \code{factors} as
+      \code{Matrix_factorsSym}, rather than \code{Matrix_factorSym}.
+
+      \item Certain never or seldom used class unions are removed.
+
+      \item The content of \file{src/Mutils.[ch]} has been migrated
+      to more transparently named files: \file{src/attrib.[ch]},
+      \file{src/objects.[ch]}, etc.
+      Similarly, much of \file{src/factorizations.[ch]} have been
+      migrated to \file{src/solve.[ch]} and \file{src/determinant.[ch]}.
+
+      \item All matrix product code has been migrated to
+      \file{products.[Rch]}.
+
+      \item Files in \file{po/} and \file{inst/po/} have been updated
+      due to more frequent use of \code{gettextf} in \file{R/*.R}.
+
+      \item C code is prepared to handle complex matrices and their
+      factorizations.  Notably, new machinery in \file{src/cs-etc.[ch]}
+      will enable linking the CXSparse library instead of the CSparse
+      library, the latter supporting numeric types but not complex ones.
+
+      \item Some API declarations and macros not used by \emph{any}
+      reverse \code{LinkingTo} are removed or remapped.
+
+      \item API headers are now nested under \file{inst/include/Matrix/}
+      for better namespacing.  Where possible, packages should start to
+      use \code{LinkingTo: Matrix (>= 1.6-2)} and include files from the
+      new subdirectory, e.g., with \code{#include <Matrix/Matrix.h>}.
+
+      \item Users including API headers can define macro
+      \code{R_MATRIX_INLINE},
+      typically with \code{#define R_MATRIX_INLINE inline},
+      to allow the compiler to inline stubs for registered routines.
+
+      \item \pkg{Matrix} did not pass its checks under \R{} 3.5.0,
+      implicitly violating \code{Depends: R (>= 3.5.0)}.  This release
+      restores compatibility.
+    }
+  }
+}
+
 \section{Changes in version 1.6-1.1 (2023-09-08)}{
   \subsection{Misc}{
     \itemize{
@@ -85,7 +310,7 @@
       (not counting deprecated ones), partly as a result of efforts to
       do more fine-grained dispatch in C code.
 
-      \item Files in \file{po/} and \code{inst/po/} have been updated
+      \item Files in \file{po/} and \file{inst/po/} have been updated
       (again), as many more C level messages now use format strings
       as a result of \code{vsnprintf} usage in \file{src/validity.c}.
     }
@@ -1010,7 +1235,7 @@
       \item \code{!<ndenseMatrix>} and \code{which(<ndenseMatrix>)}
       now correctly handle \code{NA} as \code{TRUE}.
 
-      \item{anyNA(<denseMatrix>)} had incorrectly returned
+      \item \code{anyNA(<denseMatrix>)} had incorrectly returned
       \code{anyNA(.@x)} in many cases, giving false positives
       for some \code{.(tr|sy)Matrix} and \code{ndenseMatrix}.
       Now methods respect the \dQuote{rules} of these classes.
@@ -1635,8 +1860,8 @@
       \item regression tests depending on \code{sample()} now are future
       proof reproducible, via \code{RNGversion(.)}.
 
-      \item give information about #{rows} and #{columns} that are
-      suppressed in print()ing if the matrix is larger than `max.print`.
+      \item give information about #\{rows\} and #\{columns\} that are
+      suppressed in print()ing if the matrix is larger than \code{max.print}.
     }
   }
   \subsection{Bug Fixes}{

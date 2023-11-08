@@ -21,7 +21,7 @@ mat2triplet(x, uniqT = FALSE)
     package matrices.}
   \item{uniqT}{\code{\link{logical}} indicating if the triplet
     representation should be \sQuote{unique} in the sense of
-    \code{\link{uniqTsparse}()}.}
+    \code{\link{asUniqueT}(byrow=FALSE)}.}
 }
 \value{
   A \code{\link{list}}, typically with three components,

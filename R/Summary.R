@@ -1,330 +1,161 @@
-####--- All "Summary" group methods for all Matrix classes (incl sparseVector) ------
-####         =======  but diagonalMatrix  -> ./diagMatrix.R and abIndex.R
-####                                           ~~~~~~~~~~~~     ~~~~~~~~~
+## METHODS FOR GENERIC: Summary (group)
+## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-## M-x grep -E -e 'Method\("(Summary|max|min|range|all|any|prod|sum)"' *.R
-##     ----
+## > getGroupMembers("Summary")
+## [1] "max"   "min"   "range" "prod"  "sum"   "any"   "all"
 
-sG <- getGroupMembers("Summary")
-if(FALSE)
-    sG ## "max"   "min"   "range" "prod"  "sum"   "any"   "all"
-## w/o "prod" & "sum":
-summGener1 <- sG[match(sG, c("prod","sum"), 0) == 0]
-rm(sG)
+## NB: Summary depends on the existence, _not_ count, of zeros and ones.
+##     The only exception is 'sum' which ignores zeros and counts ones.
 
-###---------- dMatrix
-
-setMethod("Summary", "ddenseMatrix",
-	  function(x, ..., na.rm) {
-	      d <- x@Dim
-	      if(any(d == 0)) return(callGeneric(numeric(0), ..., na.rm=na.rm))
-	      clx <- getClassDef(class(x))
-	      if(extends(clx, "generalMatrix"))
-		  callGeneric(x@x, ..., na.rm = na.rm)
-	      else if(extends(clx, "symmetricMatrix")) { # incl packed, pos.def.
-		  if(.Generic %in% summGener1) {
-		      callGeneric(if (length(x@x) < prod(d)) x@x
-				  else x@x[indTri(d[1], upper= x@uplo == "U",
-						  diag= TRUE)],
-				  ..., na.rm = na.rm)
-		  } else callGeneric(.M2gen(x)@x, ..., na.rm = na.rm)
-	      }
-	      else { ## triangular , possibly packed
-		  if(.Generic %in% summGener1) {
-		      if(.Generic %in% c("any","all")) {
-			  Zero <- FALSE; One <- TRUE; xx <- as.logical(x@x)
-		      } else {
-			  Zero <- 0; One <- 1; xx <- x@x
-		      }
-		      callGeneric(if (length(xx) < prod(d)) xx ## <- 'packed'
-				  else xx[indTri(d[1], upper= x@uplo == "U",
-						  diag= TRUE)],
-				  if(d[1] >= 2) Zero, if(x@diag == "U") One,
-				  ..., na.rm = na.rm)
-		  } else callGeneric(.M2gen(x)@x, ..., na.rm = na.rm)
-	      }
-	  })
-
-setMethod("Summary", "dsparseMatrix",
-	  function(x, ..., na.rm)
-      {
-	  ne <- prod(d <- dim(x))
-	  if(ne == 0) return(callGeneric(numeric(0), ..., na.rm=na.rm))
-	  n <- d[1]
-	  clx <- getClassDef(class(x))
-	  isTri <- extends(clx, "triangularMatrix")
-	  if(extends(clx, "TsparseMatrix") && anyDuplicatedT(x, di = d))
-	      x <- .M2C(x) # = as(x, "Csparsematrix")
-	  l.x <- length(x@x)
-	  if(l.x == ne) ## fully non-zero (and "general") - very rare but quick
-	      return( callGeneric(x@x, ..., na.rm = na.rm) )
-	  ## else  l.x < ne
-
-	  isSym <- !isTri && extends(clx, "symmetricMatrix")
-	  isU.tri <- isTri && x@diag == "U"
-	  ## "full": has *no* structural zero : very rare, but need to catch :
-	  full.x <- ((isSym && l.x == choose(n+1, 2)) ||
-		     (n == 1 && (isU.tri || l.x == 1)))
-	  isGener1 <- .Generic %in% summGener1
-	  if(isGener1) { ## not prod() or sum() -> no need check for symmetric
-	      ## we rely on  <generic>(x, NULL, y, ..)	:==  <generic>(x, y, ..):
-	      if(any(.Generic == c("any","all"))) ## logic:
-		  callGeneric(as.logical(x@x), if(!full.x) FALSE, if(isU.tri) TRUE,
-			      ..., na.rm = na.rm)
-	      else
-		  callGeneric(x@x, if(!full.x) 0, if(isU.tri) 1,
-			      ..., na.rm = na.rm)
-	  }
-	  else { ## prod() or sum() : care for "symmetric" and U2N
-	      if(!full.x && .Generic == "prod") {
-		  if(anyNA(x@x)) NaN else 0
-	      }
-	      else
-		  callGeneric((if(isSym) .M2gen(x) else x)@x,
-			      if(!full.x) 0, # one 0 <==> many 0's
-			      if(isU.tri) rep.int(1, n),
-			      ..., na.rm = na.rm)
-	  }
-      })
-
-###---------- ldenseMatrix
-
-if(FALSE) # not correct (@x may contain "wrong" in "other" triangel
-setMethod("all", "lsyMatrix",
-          function(x, ..., na.rm = FALSE)
-          all(x@x, ..., na.rm = na.rm))
-if(FALSE) # replaced by "Summary" below
-## Note: the above "lsy*" method is needed [case below can be wrong]
-setMethod("all", "ldenseMatrix",
-	  function(x, ..., na.rm = FALSE) {
-	      if(prod(dim(x)) >= 1)
-		  (!is(x, "triangularMatrix") && !is(x, "diagonalMatrix") &&
-		   all(x@x, ..., na.rm = na.rm))
-	      else all(x@x, ..., na.rm = na.rm)
-	  })
-
-## almost copy_paste from "ddenseMatrix" above
-Summ.ln.dense <- function(x, ..., na.rm) {
-    d <- x@Dim
-    if(any(d == 0)) return(callGeneric(logical(0), ..., na.rm=na.rm))
-    ext <- extends(getClassDef(class(x)))
-    if(any("generalMatrix" == ext))
-	callGeneric(x@x, ..., na.rm = na.rm)
-    else if(any("symmetricMatrix" == ext)) { # incl packed, pos.def.
-	if(.Generic != "sum") { ## i.e., %in% summGener1
-	    callGeneric(if (length(x@x) < prod(d)) x@x
-			else x@x[indTri(d[1], upper= x@uplo == "U",
-					diag= TRUE)],
-			..., na.rm = na.rm)
-	} else ## sum() -- FIXME-faster: use x@x[indTri(...)] similar to above
-	    callGeneric(.M2gen(x)@x, ..., na.rm = na.rm)
-    }
-    else { ## triangular , possibly packed
-	if(.Generic != "sum") ## incl. prod() !
-	    callGeneric(x@x, if(d[1] >= 2) FALSE, if(x@diag == "U") TRUE, ..., na.rm = na.rm)
-	else ## sum() -- FIXME-faster: using indTri()..; in unit-diag. case: plus  n x TRUE = d[1]
-	    ## if packed: sum(x@x, if(x@diag == "U") d[1], ..., na.rm = na.rm)
-	    callGeneric(.M2gen(x)@x, ..., na.rm = na.rm)
-    }
-}
-
-setMethod("Summary", "ldenseMatrix", Summ.ln.dense)
-setMethod("Summary", "ndenseMatrix", Summ.ln.dense)
-rm(Summ.ln.dense)
-
-
-###---------- lMatrix
-
-setMethod("any", "lMatrix",
-	  function(x, ..., na.rm = FALSE)
-	  ## logical unit-triangular has TRUE diagonal:
-	  (prod(dim(x)) >= 1 && is(x, "triangularMatrix") && x@diag == "U") ||
-	  any(x@x, ..., na.rm = na.rm))
-
-###---------- lsparseMatrix
-
-##------- Work via  as(*, lgC) : ------------
-
-setMethod("all", "lsparseMatrix",
-	  function(x, ..., na.rm = FALSE) {
-	      d <- x@Dim
-	      l.x <- length(x@x)
-	      if(l.x == prod(d)) ## fully non-zero
-		  all(x@x, ..., na.rm = na.rm)
-	      else if(is(x, "symmetricMatrix") && l.x == choose(d[1]+1, 2)) {
-		  if(.Generic %in% summGener1)
-		      all(x@x, ..., na.rm = na.rm)
-		  else all(.M2gen(x)@x, ..., na.rm = na.rm)
-	      }
-	      else FALSE ## has at least one structural 0
-	  })
-
-
-###---------- Matrix
-
-## For all other Matrix objects {and note that "all" and "any" have their own}:
-
-setMethod("all", "Matrix",
-	  function(x, ..., na.rm)
-	  callGeneric(as(x, "lMatrix"), ..., na.rm=na.rm))
-
-setMethod("any", "Matrix",
-	  function(x, ..., na.rm)
-	  callGeneric(as(x, "lMatrix"), ..., na.rm=na.rm))
-
-setMethod("Summary", "Matrix", ## FIXME (too cheap): all(<lMatrix>) should not go via dMatrix!!
-	  function(x, ..., na.rm)
-	  callGeneric(as(x,"dMatrix"), ..., na.rm = na.rm))
-
-## Try to make   min(1, <Matrix>)  work, i.e., not dispatch on first arg to .Primitive
-## This for(..) gives {during installation}
-## Error in setGeneric(F, signature = "...") :
-##   'max' is a primitive function;  methods can be defined, but the generic function is implicit, and cannot be changed.
-if(FALSE)
-for(F in c("max", "min", "range", "prod", "sum", "any", "all")) {
-    setGeneric(F, signature = "...")
-}
-## try on "min" for now --- ~/R/Pkgs/Rmpfr/R/mpfr.R is the example (for "pmin")
-if(FALSE)## This gives error message that the "ANY" is method is sealed ...
-setMethod("min", "ANY",
-	  function(..., na.rm = FALSE) {
-	      args <- list(...)
-	      if(all(isAtm <- vapply(args, is.atomic, NA)))
-		  return( base::min(..., na.rm = na.rm) )
-              ## else try to dispatch on an argument which is a Matrix.. or in a
-              if(any(isM <- vapply(args, is, NA, class2="Matrix"))) {
-                  ## swap the Matrix with the first argument
-                  i <- which.max(isM)# the first "Matrix"
-                  if(i == 1)
-                      stop("programming error: min() should have dispatched w/ 1st arg much earlier")
-              } else { ## if no "Matrix", take the first non-atomic argument
-                  ## (FIXME: should take the first for which there is a method !)
-                  i <- which.max(!isAtm)
+setMethod("Summary", signature(x = "denseMatrix"),
+          function(x, ..., na.rm = FALSE) {
+              ## Avoid wrong overflow :
+              if(.Generic == "sum")
+                  return(sum (.Call(R_dense_sum , x, na.rm),
+                              ..., na.rm = na.rm))
+              if(.Generic == "prod")
+                  return(prod(.Call(R_dense_prod, x, na.rm),
+                              ..., na.rm = na.rm))
+              cl <- .M.nonvirtual(x)
+              kind <- substr(cl, 1L, 1L)
+              shape <- substr(cl, 2L, 2L)
+              repr <- substr(cl, 3L, 3L)
+              zero <- switch(kind, "n" = , "l" = FALSE, "i" = 0L, "d" = 0, "z" = 0+0i)
+              if(shape != "g") {
+                  if(repr != "p")
+                      x <- .M2packed(x)
+                  if(shape == "t" && x@diag != "N")
+                      diag(x) <- TRUE # copying, sadly
               }
-              ii <- seq_along(args)
-              ii[c(1,i)] <- c(i,1)
-              do.call(min, c(args[ii], list(na.rm=na.rm)))
+              n <- x@Dim[2L]
+              y <- x@x
+              y1 <- if(kind != "n" || !anyNA(y))
+                        y
+                    else y | is.na(y)
+              y2 <- if(shape == "t" && n > 1L)
+                        zero
+              get(.Generic, mode = "function")(y1, y2, ..., na.rm = na.rm)
           })
 
-if(FALSE) { ## FIXME: it does *not* solve the problem anyway ..
-##
-##  (m <- Matrix(c(0,0,2:0), 3,5))
-##   min(1,m)
-##-> error, as it calls the .Primitive min() and that does *not* dispatch on 2nd arg
-##
-setMethod("Summary", "ANY",
-	  function(x, ..., na.rm) {
-          if(!length(a <- list(...))) (get(.Generic, envir=baseenv()))(x, na.rm=na.rm)
-          else {
-              if(Matrix.verbose() >= 1)
-                  if(length(a) > 1)
-                      message(gettextf("in Summary(<ANY>, .): %s(<%s>, <%s>,...)\n",
-                                       .Generic, class(x), class(a[[1]])), domain = NA)
-                  else
-                      message(gettextf("in Summary(<ANY>, .): %s(<%s>, <%s>)\n",
-                                       .Generic, class(x), class(a[[1]])), domain = NA)
+setMethod("Summary", signature(x = "sparseMatrix"),
+          function(x, ..., na.rm = FALSE) {
+              ## Avoid wrong overflow :
+              if(.Generic == "sum")
+                  return(sum (.Call(R_sparse_sum , x, na.rm),
+                              ..., na.rm = na.rm))
+              if(.Generic == "prod")
+                  return(prod(.Call(R_sparse_prod, x, na.rm),
+                              ..., na.rm = na.rm))
+              cl <- .M.nonvirtual(x)
+              kind <- substr(cl, 1L, 1L)
+              shape <- substr(cl, 2L, 2L)
+              repr <- substr(cl, 3L, 3L)
+              switch(kind,
+                     "n" = ,
+                     "l" = { zero <- FALSE; one <- TRUE },
+                     "i" = { zero <- 0L   ; one <- 1L   },
+                     "d" = { zero <- 0    ; one <- 1    },
+                     "z" = { zero <- 0+0i ; one <- 1+0i })
+              ## Handle overallocation (hopefully rare ...) :
+              if(repr == "T") {
+                  x <- aggregateT(x)
+                  nnz <- length(x@i)
+              } else {
+                  nnz <- { p <- x@p; p[length(p)] }
+                  if(length(if(repr == "C") x@i else x@j) > nnz) {
+                      h <- seq_len(nnz)
+                      if(repr == "C")
+                          x@i <- x@i[h]
+                      else
+                          x@j <- x@j[h]
+                      if(kind != "n")
+                          x@x <- x@x[h]
+                  }
+              }
+              n <- (d <- x@Dim)[2L]
+              nnz.max <- if(shape == "s") 0.5 * (prod(d) + n) else prod(d)
+              y1 <- if(kind != "n")
+                        x@x
+                    else if(nnz > 0L)
+                        TRUE
+                    else logical(0L)
+              y2 <- if(nnz < nnz.max)
+                        zero
+              y3 <- if(n > 0L && shape == "t" && x@diag != "N")
+                        one
+              get(.Generic, mode = "function")(y1, y2, y3, ..., na.rm = na.rm)
+          })
 
-              do.call(.Generic, c(x, a, list(na.rm=na.rm)))
-	  }})
-}## {does not help --> not used}
+setMethod("Summary", signature(x = "diagonalMatrix"),
+          function(x, ..., na.rm = FALSE) {
+              kind <- .M.kind(x)
+              switch(kind,
+                     "n" = ,
+                     "l" = { zero <- FALSE; one <- TRUE },
+                     "i" = { zero <- 0L   ; one <- 1L   },
+                     "d" = { zero <- 0    ; one <- 1    },
+                     "z" = { zero <- 0+0i ; one <- 1+0i })
+              n <- x@Dim[2L]
+              y1 <- if(x@diag == "N") {
+                        y <- x@x
+                        if(kind != "n") {
+                            if(.Generic == "prod" && n > 1L)
+                                ## Avoid wrong overflow :
+                                c(y[1L], zero, y[-1L])
+                            else y
+                        }
+                        else if(!anyNA(y))
+                            y
+                        else y | is.na(y)
+                    }
+              y2 <- if(n > 1L)
+                        zero
+              y3 <- if(x@diag != "N") {
+                        if(.Generic == "sum")
+                            one * n
+                        else if(n > 0L)
+                            one
+                        else one[0L]
+                    }
+              get(.Generic, mode = "function")(y1, y2, y3, ..., na.rm = na.rm)
+          })
 
-Summary.l <- function(x, ..., na.rm) { ## must be method directly
-    if(.Generic %in% c("all", "any"))
-	callGeneric(x@x, ..., na.rm = na.rm)
-    else {
-	r <- callGeneric(as(x,"dMatrix"), ..., na.rm = na.rm)
-	if(.Generic != "prod" && !any(is.infinite(r))) as.integer(r) else r
-    }
-}
-## almost identical:
-Summary.np <- function(x, ..., na.rm) {
-    if(.Generic %in% c("all", "any"))
-	callGeneric(as(x, "lMatrix"), ..., na.rm = na.rm)
-    else {
-	r <- callGeneric(as(x,"dMatrix"), ..., na.rm = na.rm)
-	if(.Generic != "prod" && !any(is.infinite(r))) as.integer(r) else r
-    }
-}
-##
-setMethod("Summary", "lMatrix", Summary.l)
-setMethod("Summary", "nMatrix", Summary.np)
-setMethod("Summary", "indMatrix", Summary.np)
-rm(Summary.l, Summary.np)
+setMethod("Summary", signature(x = "indMatrix"),
+          function(x, ..., na.rm = FALSE) {
+              nnz <- length(x@perm)
+              y1 <- if(.Generic == "sum")
+                        nnz
+                    else if(nnz > 0L)
+                        TRUE
+                    else logical(0L)
+              y2 <- if(nnz < prod(x@Dim))
+                        FALSE
+              get(.Generic, mode = "function")(y1, y2, ..., na.rm = na.rm)
+          })
 
-###---------- nsparseMatrix
-
-setMethod("all", "nsparseMatrix",
-	  function(x, ..., na.rm = FALSE) {
-	      pd <- prod(d <- dim(x))
-	      if(pd == 0) return(TRUE)
-	      cld <- getClassDef(class(x))
-	      if(extends(cld, "triangularMatrix"))
-		  return(FALSE)
-	      ## else
-	      if(extends(cld, "TsparseMatrix"))
-		  cld <- getClassDef(class(x <- .M2C(x)))
-	      ## now have Csparse or Rsparse: length of index slot = no.{TRUE}
-	      l.x <- length(if(extends(cld, "CsparseMatrix")) x@i else x@j)
-
-	      (l.x == pd) || ## fully non-zero
-	      (extends(cld, "symmetricMatrix") && l.x == choose(d[1]+1, 2))
-	      ## else FALSE
-	  })
-
-setMethod("any", "nsparseMatrix",
-	  function(x, ..., na.rm = FALSE) {
-	      if(any(dim(x) == 0)) return(FALSE)
-	      cld <- getClassDef(class(x))
-	      if(extends(cld, "triangularMatrix") && x@diag == "U")
-		  TRUE # unit-diagonal
-	      else if(extends1of(cld, c("CsparseMatrix", "TsparseMatrix")))
-		  length(x@i) > 0
-	      else # RsparseMatrix
-		  length(x@j) > 0
-	  })
-
-
-###---------- sparseVector
-
-setMethod("Summary", "nsparseVector",
-	  function(x, ..., na.rm) { ## no 'x' slot, no NA's ..
-	      n <- x@length
-	      l.x <- length(x@i)
-	      if(l.x == n)
-		  callGeneric(rep.int(TRUE, n), ..., na.rm = na.rm)
-	      else ## l.x < n :	 has some FALSE entries
-		  switch(.Generic,
-			 "prod" = 0,
-			 "min"	= 0L,
-			 "all" = FALSE,
-			 "any" = l.x > 0,
-			 "sum" = l.x,
-			 "max" = as.integer(l.x > 0),
-			 "range" = c(0L, as.integer(l.x > 0)))
-	  })
-
-## The "other" "sparseVector"s ("d", "l", "i" ..): all have an	'x' slot :
-setMethod("Summary", "sparseVector",
-	  function(x, ..., na.rm) {
-	      n <- x@length
-	      l.x <- length(x@x)
-	      if(l.x == n) ## fully non-zero (and "general") - very rare but quick
-		  callGeneric(x@x, ..., na.rm = na.rm)
-	      else if(.Generic != "prod") {
-		  ## we rely on	 <generic>(x, NULL, y, ..) :==	<generic>(x, y, ..):
-		  if(any(.Generic == c("any","all"))) ## logic:
-		      callGeneric(as.logical(x@x), FALSE, ..., na.rm = na.rm)
-		  else # "numeric"
-		      callGeneric(x@x, 0, ..., na.rm = na.rm)
-	      }
-	      else { ## prod()
-		  if(anyNA(x@x)) NaN else 0
-	      }
-	  })
-
-## help( pmin ) in R :
-##       -----
-## 'pmax' and 'pmin' will also work on classed objects with appropriate methods
-## for comparison, 'is.na' and 'rep' (if recycling of arguments is needed).
-##
-##--> and that now *does* work, in 'R 3.3.1 patched' and newer
+setMethod("Summary", signature(x = "sparseVector"),
+          function(x, ..., na.rm = FALSE) {
+              kind <- .M.kind(x)
+              zero <- switch(kind, "n" = , "l" = FALSE, "i" = 0L, "d" = 0, "z" = 0+0i)
+              nnz <- length(i <- x@i)
+              nnz.max <- length(x)
+              y1 <- if(kind != "n") {
+                        y <- x@x
+                        if(.Generic == "prod" && nnz > 0L && nnz < nnz.max) {
+                            ## Avoid wrong overflow :
+                            if(i[1L] > 1L)
+                                c(zero, y)
+                            else if(nnz >= (q <- which.min(i == seq_along(i))))
+                                c(y[1L:(q - 1L)], zero, y[q:nnz])
+                            else y
+                        } else y
+                    }
+                    else if(.Generic == "sum")
+                        nnz
+                    else if(nnz > 0L)
+                        TRUE
+                    else logical(0L)
+              y2 <- if(nnz < nnz.max)
+                        zero
+              get(.Generic, mode = "function")(y1, y2, ..., na.rm = na.rm)
+          })

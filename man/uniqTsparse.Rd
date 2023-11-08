@@ -1,60 +1,58 @@
-\name{uniqTsparse}
-\title{Unique (Sorted) TsparseMatrix Representations}
+\name{asUniqueT}
+\title{Standardize a Sparse Matrix in Triplet Format}
 %
 \keyword{array}
 \keyword{logic}
 \keyword{manip}
 \keyword{utilities}
 %
-\alias{uniqTsparse}
 \alias{anyDuplicatedT}
+\alias{isUniqueT}
+\alias{asUniqueT}
+\alias{aggregateT}
+%
+\alias{uniqTsparse}
 %
 \description{
-  Detect or \dQuote{unify} (or \dQuote{standardize}) non-unique
-  \code{\linkS4class{TsparseMatrix}} matrices, prducing unique
-  \eqn{(i,j,x)} triplets which are \emph{sorted}, first in \eqn{j}, then
-  in \eqn{i} (in the sense of \code{\link{order}(j,i)}).
-
-  Note that \code{new(.)}, \code{\link{spMatrix}} or
-  \code{\link{sparseMatrix}} constructors for \code{"dgTMatrix"} (and
-  other \code{"\linkS4class{TsparseMatrix}"} classes) implicitly add
-  \eqn{x_k}'s that belong to identical \eqn{(i_k, j_k)} pairs.
-
-  \code{anyDuplicatedT()} reports the index of the first duplicated
-  pair, or \code{0} if there is none.
-
-  \code{uniqTsparse(x)} replaces duplicated index pairs \eqn{(i,j)} and their
-  corresponding \code{x} slot entries by the triple \eqn{(i,j, sx)}
-  where \code{sx = sum(x [<all pairs matching (i,j)>])}, and for logical
-  \code{x}, addition is replaced by logical \eqn{or}.
+  Detect or standardize a \code{\linkS4class{TsparseMatrix}} with
+  unsorted or duplicated \eqn{(i,j)} pairs.
 }
 \usage{
-uniqTsparse(x, class.x = c(class(x)))
-anyDuplicatedT(x, di = dim(x))
+anyDuplicatedT(x, \dots)
+isUniqueT(x, byrow = FALSE, isT = is(x, "TsparseMatrix"))
+asUniqueT(x, byrow = FALSE, isT = is(x, "TsparseMatrix"))
+aggregateT(x)
 }
 \arguments{
-  \item{x}{a sparse matrix stored in triplet form, i.e., inheriting
-    from class \code{\linkS4class{TsparseMatrix}}.}
-  \item{class.x}{optional character string specifying \code{class(x)}.}
-  \item{di}{the matrix dimension of \code{x}, \code{\link{dim}(x)}.}
+  \item{x}{an \R{} object.  \code{anyDuplicatedT} and \code{aggregateT}
+    require \code{x} inheriting from \code{\linkS4class{TsparseMatrix}}.
+    \code{asUniqueT} requires \code{x} inheriting from
+    \code{\linkS4class{Matrix}} and coerces \code{x}
+    to \code{\linkS4class{TsparseMatrix}} if necessary.}
+  \item{\dots}{optional arguments passed to the default method for
+    generic function \code{\link{anyDuplicated}}.}
+  \item{byrow}{a logical indicating if \code{x} should be sorted
+    by row then by column.}
+  \item{isT}{a logical indicating if \code{x} inherits from virtual
+    class \code{\linkS4class{TsparseMatrix}}.}
 }
-%% \details{
-%% }
 \value{
-  \code{uniqTsparse(x)} returns a \code{\linkS4class{TsparseMatrix}}
-  \dQuote{like x}, of the same class and with the same elements, just
-  internally possibly changed to \dQuote{unique} \eqn{(i,j,x)} triplets
-  in \emph{sorted} order.
+  \code{anyDuplicatedT(x)} returns the index of the first duplicated
+  \eqn{(i,j)} pair in \code{x} (0 if there are no duplicated pairs).
 
-  \code{anyDuplicatedT(x)} returns an \code{\link{integer}} as
-  \code{\link{anyDuplicated}}, the \emph{index}
-  of the first duplicated entry (from the \eqn{(i,j)} pairs)
-  if there is one, and \code{0} otherwise.
+  \code{isUniqueT(x)} returns \code{TRUE} if \code{x} is a
+  \code{\linkS4class{TsparseMatrix}} with sorted, nonduplicated
+  \eqn{(i,j)} pairs and \code{FALSE} otherwise.
+
+  \code{asUniqueT(x)} returns the unique
+  \code{\linkS4class{TsparseMatrix}} representation of \code{x} with
+  sorted, nonduplicated \eqn{(i,j)} pairs.  Values corresponding to
+  identical \eqn{(i,j)} pairs are aggregated by addition, where in the
+  logical case \dQuote{addition} refers to logical OR.
+  
+  \code{aggregateT(x)} aggregates without sorting.
 }
-\seealso{
- \code{\linkS4class{TsparseMatrix}}, for uniqueness, notably
- \code{\linkS4class{dgTMatrix}}.
-}
+\seealso{Virtual class \code{\linkS4class{TsparseMatrix}}.}
 \examples{
 \dontshow{ % for R_DEFAULT_PACKAGES=NULL
 library(stats, pos = "package:base", verbose = FALSE)
@@ -62,7 +60,7 @@ library(utils, pos = "package:base", verbose = FALSE)
 }
 example("dgTMatrix-class", echo=FALSE)
 ## -> 'T2'  with (i,j,x) slots of length 5 each
-T2u <- uniqTsparse(T2)
+T2u <- asUniqueT(T2)
 stopifnot(## They "are" the same (and print the same):
           all.equal(T2, T2u, tol=0),
           ## but not internally:
@@ -71,23 +69,20 @@ stopifnot(## They "are" the same (and print the same):
           length(T2 @x) == 5,
           length(T2u@x) == 3)
 
-## is 'x' a "uniq Tsparse" Matrix ?  [requires x to be TsparseMatrix!]
-non_uniqT <- function(x, di = dim(x))
-  is.unsorted(x@j) || anyDuplicatedT(x, di)
-non_uniqT(T2 ) # TRUE
-non_uniqT(T2u) # FALSE
+isUniqueT(T2 ) # FALSE
+isUniqueT(T2u) # TRUE
 
 T3 <- T2u
 T3[1, c(1,3)] <- 10; T3[2, c(1,5)] <- 20
-T3u <- uniqTsparse(T3)
+T3u <- asUniqueT(T3)
 str(T3u) # sorted in 'j', and within j, sorted in i
-stopifnot(!non_uniqT(T3u))
+stopifnot(isUniqueT(T3u))
 
 ## Logical l.TMatrix and n.TMatrix :
 (L2 <- T2 > 0)
-validObject(L2u <- uniqTsparse(L2))
+validObject(L2u <- asUniqueT(L2))
 (N2 <- as(L2, "nMatrix"))
-validObject(N2u <- uniqTsparse(N2))
+validObject(N2u <- asUniqueT(N2))
 stopifnot(N2u@i == L2u@i, L2u@i == T2u@i,  N2@i == L2@i, L2@i == T2@i,
           N2u@j == L2u@j, L2u@j == T2u@j,  N2@j == L2@j, L2@j == T2@j)
 # now with a nasty NA  [partly failed in Matrix 1.1-5]:

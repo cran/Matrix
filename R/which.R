@@ -1,47 +1,60 @@
 ## METHODS FOR GENERIC: which
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-setMethod("which", "ndenseMatrix",
+setMethod("which", signature(x = "ndenseMatrix"),
           function(x, arr.ind = FALSE, useNames = TRUE) {
-              wh <- which(.M2gen(x, "l")@x) # NA <=> TRUE
+              wh <- which(.M2v(x))
               if(arr.ind)
                   arrayInd(wh, x@Dim, dimnames(x), useNames = useNames)
               else wh
           })
-setMethod("which", "ldenseMatrix",
+setMethod("which", signature(x = "ldenseMatrix"),
           function(x, arr.ind = FALSE, useNames = TRUE) {
-              wh <- which(.M2gen(x, "l")@x)
+              wh <- which(.M2v(x))
               if(arr.ind)
                   arrayInd(wh, x@Dim, dimnames(x), useNames = useNames)
               else wh
           })
 
-setMethod("which", "nsparseMatrix",
+setMethod("which", signature(x = "nsparseMatrix"),
           function(x, arr.ind = FALSE, useNames = TRUE) {
-              wh <- which(as(x, "sparseVector"))
+              wh <- .M2V(x)@i
               if(arr.ind)
                   arrayInd(wh, x@Dim, dimnames(x), useNames = useNames)
               else wh
           })
-setMethod("which", "lsparseMatrix",
+setMethod("which", signature(x = "lsparseMatrix"),
           function(x, arr.ind = FALSE, useNames = TRUE) {
-              wh <- which(as(x, "sparseVector"))
+              wh <- { x. <- .M2V(x); x.@i[which(x.@x)] }
               if(arr.ind)
                   arrayInd(wh, x@Dim, dimnames(x), useNames = useNames)
               else wh
            })
-setMethod("which", "ldiMatrix",
+
+setMethod("which", signature(x = "ndiMatrix"),
           function(x, arr.ind = FALSE, useNames = TRUE) {
-              d <- x@Dim
-              wh <- indDiag(d[1L])
-              if(x@diag == "N")
-                  wh <- wh[which(x@x)]
+              wh <- .M2V(x)@i
               if(arr.ind)
-                  arrayInd(wh, d, x@Dimnames, useNames = useNames)
+                  arrayInd(wh, x@Dim, x@Dimnames, useNames = useNames)
+              else wh
+          })
+setMethod("which", signature(x = "ldiMatrix"),
+          function(x, arr.ind = FALSE, useNames = TRUE) {
+              wh <- { x. <- .M2V(x); x.@i[which(x.@x)] }
+              if(arr.ind)
+                  arrayInd(wh, x@Dim, x@Dimnames, useNames = useNames)
               else wh
           })
 
-setMethod("which", "nsparseVector",
+setMethod("which", signature(x = "nsparseVector"),
           function(x, arr.ind = FALSE, useNames = TRUE) x@i)
-setMethod("which", "lsparseVector",
+setMethod("which", signature(x = "lsparseVector"),
           function(x, arr.ind = FALSE, useNames = TRUE) x@i[which(x@x)])
+
+setMethod("which", signature(x = "indMatrix"),
+          function(x, arr.ind = FALSE, useNames = TRUE) {
+              wh <- .M2V(x)@i
+              if(arr.ind)
+                  arrayInd(wh, x@Dim, x@Dimnames, useNames = useNames)
+              else wh
+          })

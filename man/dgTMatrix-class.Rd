@@ -57,13 +57,13 @@
 
   However this means that a matrix typically can be stored in more than
   one possible \code{"\linkS4class{TsparseMatrix}"} representations.
-  Use \code{\link{uniqTsparse}()} in order to ensure uniqueness of the
+  Use \code{\link{asUniqueT}()} in order to ensure uniqueness of the
   internal representation of such a matrix.
 }
 \seealso{
   Class \code{\linkS4class{dgCMatrix}} or the superclasses
   \code{\linkS4class{dsparseMatrix}} and
-  \code{\linkS4class{TsparseMatrix}}; \code{\link{uniqTsparse}}.
+  \code{\linkS4class{TsparseMatrix}}; \code{\link{asUniqueT}}.
 }
 \examples{
 \dontshow{ % for R_DEFAULT_PACKAGES=NULL

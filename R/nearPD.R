@@ -119,12 +119,16 @@ nearPD <-
 	    diag(X) <- diagX0
     } ## end from posdefify(sfsmisc)
 
-    structure(list(mat =
-			if(base.matrix) X
-			else new("dpoMatrix", x = as.vector(X),
-				 Dim = c(n,n), Dimnames = .M.DN(x)),
-                   eigenvalues = d,
-                   corr = corr, normF = norm(x-X, "F"), iterations = iter,
-		   rel.tol = conv, converged = converged),
-	      class = "nearPD")
+    r <-
+        if(base.matrix)
+            X
+        else
+            new("dpoMatrix",
+                Dim = c(n, n),
+                Dimnames = dimnames(x) %||% list(NULL, NULL),
+                x = as.vector(X))
+    structure(list(mat = r, eigenvalues = d, corr = corr,
+                   normF = norm(x - X, "F"), iterations = iter,
+                   rel.tol = conv, converged = converged),
+              class = "nearPD")
 }

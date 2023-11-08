@@ -144,9 +144,9 @@ if(requireNamespace("SparseM")) {
 	M3 <- as(A.csr,               "Matrix") # dgC
 	M4 <- as(A.csc,               "Matrix") # dgC
 	M5 <- as(as(M, "matrix.coo"), "Matrix") # dgT
-	uniqT <- uniqTsparse
-	stopifnot(identical4(uniqT(T), uniqT(T.), uniqT(T3), uniqT(M5)),
-		  identical3(M, M3, M4))
+    stopifnot(identical4(asUniqueT(T ), asUniqueT(T.),
+                         asUniqueT(T3), asUniqueT(M5)),
+              identical3(M, M3, M4))
 
     } # {else}
 

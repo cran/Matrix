@@ -553,8 +553,8 @@ model.spmatrix <- function(trms, mf, transpose=FALSE,
                                     verbose = verbose) # or just (verbose >= 2)
 	if(verbose) cat(sprintf(dim.string, nrow(r), ncol(r), nrow(rj),ncol(rj)))
 	## fast version of cbind2() / rbind2(), w/o checks, dimnames, etc
-	r <- if(transpose) .Call(Csparse_vertcat, r, rj)
-		else	   .Call(Csparse_horzcat, r, t(rj))
+	r <- if(transpose) rbind.Matrix(r,   rj )
+         else	       cbind.Matrix(r, t(rj))
 	## if(verbose) cat(" [Ok]\n")
 	vNms <- c(vNms, dimnames(rj)[[1]])
 	counts[j] <- nrow(rj)

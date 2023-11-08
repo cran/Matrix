@@ -27,10 +27,8 @@ options(digits=4)
 (cf9 <- crossprod(f9))# looks the same as  h9 :
 assert.EQ.mat(h9, as(cf9,"matrix"), tol=1e-15)
 
-h9. <- round(h9, 2)# actually loses pos.def. "slightly"
-                   # ==> the above may be invalid in the future
-h9p  <- as(h9,  "dppMatrix")
-h9.p <- as(h9., "dppMatrix")
+h9. <- round(h9, 2) # dpo->dsy
+h9p <- pack(h9)
 ch9p <- Cholesky(h9p, perm = FALSE)
 stopifnot(identical(ch9p, h9p@factors$pCholesky),
 	  identical(names(h9p@factors), c("Cholesky", "pCholesky")))
@@ -54,8 +52,8 @@ pp6 <- as(H6, "dppMatrix")
 po6 <- as(pp6, "dpoMatrix")
 hs <- as(h9p, "dspMatrix")
 stopifnot(names(H6@factors)  == "pCholesky",
-	  names(pp6@factors) == "pCholesky",
-	  names(hs@factors)  == "Cholesky") # for now
+          names(pp6@factors) == "pCholesky",
+          names(hs@factors)  == "Cholesky") # for now
 chol(hs) # and that is cached in 'hs' too :
 stopifnot(names(hs@factors) %in% c("Cholesky","pCholesky"),
 	  all.equal(h9, crossprod(as(hs@factors$pCholesky, "dtpMatrix")),

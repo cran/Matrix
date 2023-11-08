@@ -8,10 +8,6 @@
 \alias{nsyMatrix-class}
 \alias{nspMatrix-class}
 %
-\alias{!,nsyMatrix-method}
-%
-\alias{!,nspMatrix-method}
-%
 \description{
   The \code{"nsyMatrix"} class is the class of symmetric, dense nonzero-pattern
   matrices in non-packed storage and \code{"nspMatrix"} is the class of

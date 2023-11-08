@@ -1,9 +1,9 @@
 #ifndef MATRIX_SPARSEVECTOR_H
 #define MATRIX_SPARSEVECTOR_H
 
-#include "Mutils.h"
+#include <Rinternals.h>
 
-SEXP v2spV(SEXP from);
-SEXP CR2spV(SEXP from);
+SEXP v2spV(SEXP);
+SEXP CR2spV(SEXP);
 
 #endif /* MATRIX_SPARSEVECTOR_H */

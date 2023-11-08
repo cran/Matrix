@@ -1,269 +1,285 @@
-####--- All "Math" and "Math2" group methods for all Matrix classes (incl sparseVector) ------
-####	     ====	=====
+## METHODS FOR GENERIC: Math (group)
+## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-## "Design-bug":  log(x, base)  has *two* arguments // ditto for  "trunc()" !!
-## ---> need "log" methods "everywhere to catch 2-arg case !
-
-
-### ~~~~ Math, log ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-## FIXME:
-## Once we start having non-virtual [iz]Matrix,
-## many of these will need adjustment ...
-
-## cum(min|max|sum|prod) return vector also for matrix arguments
-Math.vecGenerics <- grep("^cum", getGroupMembers("Math"), value = TRUE)
-
-###--------- dgeMatrix
-
-setMethod("Math", signature(x = "dgeMatrix"), function(x)
-{
-    if(.Generic %in% Math.vecGenerics)
-        callGeneric(x@x)
-    else {
-        x@x <- callGeneric(x@x)
-        x
-    }
-})
-
-setMethod("log", "dgeMatrix", function(x, base = exp(1))
-{
-    x@x <- log(x@x, base)
-    x
-})
-
-###--------- ddenseMatrix
-
-## Used for dt[rp]Matrix, ds[yp]Matrix (and subclasses, e.g., dpo*, cor*)
-##' _only_, as dgeMatrix has its own method above
-
-setMethod("Math", signature(x = "ddenseMatrix"), function(x)
-{
-    if(.Generic %in% Math.vecGenerics)
-        ## Result is a vector
-        return(callGeneric(.M2gen(x, ".")@x))
-    cld <- getClassDef(class(x))
-    if(extends(cld, "symmetricMatrix")) {
-        ## Argument and result are symmetricMatrix
-        if((po <- extends(cld, "dpoMatrix")) || extends(cld, "dppMatrix"))
-            ## But result is _not_ positive definite!
-            x <- as(x, if(po) "dsyMatrix" else "dspMatrix")
-        x@x <- callGeneric(x@x)
-        x@factors <- list()
-        x
-    } else if(is0(callGeneric(0))) {
-        ## Argument and result are triangularMatrix
-        if(extends(cld, "MatrixFactorization"))
-            ## But result is _not_ a factor or correlation
-            x <- as(x, if(.isPacked(x)) "dtpMatrix" else "dtrMatrix")
-        x@x <- callGeneric(x@x)
-        if(x@diag != "N" && isN1(f1 <- callGeneric(1)))
-            diag(x) <- f1
-        x
-    } else {
-        ## Argument is triangularMatrix, result is generalMatrix
-        callGeneric(.M2gen(x, "."))
-    }
-})
-
-## "log" with *two* arguments
-setMethod("log", signature(x = "ddenseMatrix"), function(x, base = exp(1))
-{
-    cld <- getClassDef(class(x))
-    if(extends(cld, "symmetricMatrix")) {
-        ## Argument and result are symmetricMatrix
-        if((po <- extends(cld, "dpoMatrix")) || extends(cld, "dppMatrix"))
-            ## But result is _not_ positive definite
-            x <- as(x, if(po) "dsyMatrix" else "dspMatrix")
-        x@x <- log(x@x, base)
-        x@factors <- list()
-        x
-    } else {
-        ## Argument is triangularMatrix, result is generalMatrix
-        log(.M2gen(x, "."), base)
-    }
-})
-
-###--------- denseMatrix
+## > getGroupMembers("Math")
+##  [1] "abs"      "sign"     "sqrt"     "ceiling"  "floor"    "trunc"
+##  [7] "cummax"   "cummin"   "cumprod"  "cumsum"   "exp"      "expm1"
+## [13] "log"      "log10"    "log2"     "log1p"    "cos"      "cosh"
+## [19] "sin"      "sinh"     "tan"      "tanh"     "acos"     "acosh"
+## [25] "asin"     "asinh"    "atan"     "atanh"    "cospi"    "sinpi"
+## [31] "tanpi"    "gamma"    "lgamma"   "digamma"  "trigamma"
 
 setMethod("Math", signature(x = "denseMatrix"),
-	  function(x) callGeneric(.M2kind(x, "d")))
+          function(x) {
+              g <- get(.Generic, mode = "function")
+              if(startsWith(.Generic, "cum"))
+                  return(g(.M2v(x)))
+              cl <- .M.nonvirtual(x)
+              kind <- substr(cl, 1L, 1L)
+              shape <- substr(cl, 2L, 2L)
+              if (kind == "z") {
+                  zero <- 0+0i; one <- 1+0i; a <- as.complex
+              } else {
+                  zero <- 0   ; one <- 1   ; a <- as.double
+                  substr(cl, 1L, 1L) <- "d"
+              }
+              if(shape == "t") {
+                  stay0 <- is0(a(g(zero)))
+                  if(!stay0) {
+                      x <- .M2gen(x)
+                      substr(cl, 2L, 3L) <- "ge"
+                  }
+              }
+              r <- new(cl)
+              r@Dim <- x@Dim
+              r@Dimnames <- x@Dimnames
+              if(shape == "s" || (shape == "t" && stay0))
+                  r@uplo <- x@uplo
+              r@x <- a(g({ y <- x@x; if(kind == "n") y | is.na(y) else y }))
+              if(shape == "t" && stay0 && x@diag != "N") {
+                  if(is1(g1 <- a(g(one))))
+                      r@diag <- "U"
+                  else diag(r) <- g1
+              }
+              r
+          })
 
 setMethod("log", signature(x = "denseMatrix"),
-          function(x, base = exp(1)) log(.M2kind(x, "d"), base))
-
-###--------- CsparseMatrix
-
-setMethod("Math", signature(x = "CsparseMatrix"), function(x)
-{
-    if(.Generic %in% Math.vecGenerics)
-        ## Result is a vector
-        return(callGeneric(.M2m(x)))
-    if(isN0(callGeneric(0)))
-        ## Result is a denseMatrix
-        return(callGeneric(.sparse2dense(x)))
-    ## Result preserves sparseness and structure (symmetric, triangular)
-    cld <- getClassDef(cl <- class(x))
-    if(isN1(callGeneric(1)))
-        x <- .Call(R_sparse_diag_U2N, x)
-    if(extends(cld, "nsparseMatrix")) {
-        ## No 'x' slot
-        r <- rep.int(callGeneric(1), length(x@i))
-    } else {
-        r <- callGeneric(x@x)
-        if(typeof(r) == typeof(x@x)) {
-            x@x <- r
-            return(x)
-        }
-    }
-    ## e.g., abs( <lgC> ) -> dgC
-    y <- new(`substr<-`(MatrixClass(cl, cld), 1L, 1L, "d"))
-    y@x <- as.double(r)
-    nms <- slotNames(cld)
-    for(nm in nms[nms != "x"])
-        slot(y, nm) <- slot(x, nm)
-    y
-}) ## {Math}
-
-setMethod("log", signature(x = "CsparseMatrix"),
-          function(x, base = exp(1)) log(.sparse2dense(x), base))
-
-###--------- diagonalMatrix
-
-setMethod("Math", signature(x = "diagonalMatrix"), function(x)
-{
-    if(.Generic %in% Math.vecGenerics)
-        ## Result is a vector
-        return(callGeneric(.M2m(x)))
-    unit <- x@diag != "N"
-    r <- callGeneric(if(unit) 1 else x@x)
-    if(isN0(f0 <- callGeneric(0))) {
-        ## Result is dense, symmetric
-        ## MJ: hmm ... what if the 'Dimnames' are asymmetric?
-        y <- new("dspMatrix")
-        n <- (y@Dim <- x@Dim)[1L]
-        y@Dimnames <- symmDN(x@Dimnames)
-        y@x <- rep.int(f0, 0.5 * n * (n + 1))
-        if(n > 0L)
-            diag(y) <- r
-        y
-    } else if(typeof(r) == typeof(x@x)) {
-        ## Result is diagonal ... modify 'x'
-        if(!unit) {
-            x@x <- r
-        } else if(isN1(r)) {
-            x@x <- rep.int(r, x@Dim[1L])
-            x@diag <- "N"
-        }
-        x
-    } else {
-        ## Result is diagonal ... modify new()
-        y <- new("ddiMatrix")
-        y@Dim <- x@Dim
-        y@Dimnames <- x@Dimnames
-        if(!unit)
-            y@x <- as.double(r)
-        else if(isN1(r))
-            y@x <- rep.int(as.double(r), x@Dim[1L])
-        else
-            y@diag <- "U"
-        y
-    }
-}) ## {Math}
-
-setMethod("log", "diagonalMatrix", function(x, base = exp(1))
-{
-    ## Result is dense, symmetric
-    ## MJ: hmm ... what if the 'Dimnames' are asymmetric?
-    y <- new("dspMatrix")
-    n <- (y@Dim <- x@Dim)[1L]
-    y@Dimnames <- symmDN(x@Dimnames)
-    y@x <- rep.int(-Inf, 0.5 * n * (n + 1))
-    if(n > 0L)
-        diag(y) <- if(x@diag == "N") log(x@x, base) else 0
-    y
-})
-
-###--------- sparseMatrix
+          function(x, ...) {
+              cl <- .M.nonvirtual(x)
+              kind <- substr(cl, 1L, 1L)
+              shape <- substr(cl, 2L, 2L)
+              if(kind != "z")
+                  substr(cl, 1L, 1L) <- "d"
+              if(shape == "t") {
+                  x <- .M2gen(x)
+                  substr(cl, 2L, 3L) <- "ge"
+              }
+              r <- new(cl)
+              r@Dim <- x@Dim
+              r@Dimnames <- x@Dimnames
+              if(shape == "s")
+                  r@uplo <- x@uplo
+              r@x <- log({ y <- x@x; if(kind == "n") y | is.na(y) else y }, ...)
+              r
+          })
 
 setMethod("Math", signature(x = "sparseMatrix"),
-	  function(x) callGeneric(as(x, "CsparseMatrix")))
+          function(x) {
+              g <- get(.Generic, mode = "function")
+              if(startsWith(.Generic, "cum"))
+                  return(g(.M2v(x)))
+              cl <- .M.nonvirtual(x)
+              kind <- substr(cl, 1L, 1L)
+              shape <- substr(cl, 2L, 2L)
+              repr <- substr(cl, 3L, 3L)
+              if (kind == "z") {
+                  zero <- 0+0i; one <- 1+0i; a <- as.complex
+              } else {
+                  zero <- 0   ; one <- 1   ; a <- as.double
+                  substr(cl, 1L, 1L) <- "d"
+              }
+              stay0 <- is0(g0 <- a(g(zero)))
+              if(!stay0)
+                  substr(cl, 2L, 3L) <- if(shape == "s") "sy" else "ge"
+              r <- new(cl)
+              r@Dim      <- x@Dim
+              r@Dimnames <- x@Dimnames
+              if(shape == "s" || (shape == "t" && stay0))
+                  r@uplo <- x@uplo
+              if(!stay0) {
+                  y <- .Call(CR2spV, if(repr == "T") .M2C(x) else x)
+                  tmp <- rep.int(g0, y@length)
+                  tmp[y@i] <- a(g(if(kind == "n") one else y@x))
+                  r@x <- tmp
+              } else {
+                  if(shape == "t" && x@diag != "N") {
+                      if(is1(a(g(one))))
+                          r@diag <- "U"
+                      else diag(x) <- TRUE
+                  }
+                  nnz <- length(
+                      switch(repr,
+                             "C" = { r@p <- x@p; r@i <- x@i },
+                             "R" = { r@p <- x@p; r@j <- x@j },
+                             "T" = { r@i <- x@i; r@j <- x@j }))
+                  r@x <- if(kind == "n") rep.int(a(g(one)), nnz) else a(g(x@x))
+              }
+              r
+          })
 
 setMethod("log", signature(x = "sparseMatrix"),
-          function(x, base = exp(1)) log(as(x, "CsparseMatrix"), base))
-
-###--------- sparseVector
-
-setMethod("Math", signature(x = "sparseVector"), function(x)
-{
-    if(.Generic %in% Math.vecGenerics || isN0(callGeneric(0)))
-        ## Result is a (traditional) vector
-        return(callGeneric(sp2vec(x)))
-    ## Result is a sparseVector
-    cld <- getClassDef(class(x))
-    if(extends(cld, "dsparseVector")) {
-        x@x <- callGeneric(x@x)
-        x
-    } else {
-        y <- new("dsparseVector")
-        y@x <-
-            if(extends(cld, "nsparseVector"))
-                rep.int(callGeneric(1), length(x@i))
-            else callGeneric(x@x)
-        y@i <- x@i
-        y@length <- x@length
-        y
-    }
-})
-
-setMethod("log", "sparseVector", function(x, base = exp(1))
-{
-    lx <- rep.int(-Inf, x@length)
-    if(length(x@i) > 0L)
-        lx[x@i] <- if(is(x, "nsparseVector")) 0 else log(x@x, base)
-    lx
-})
-
-
-### ~~~~ Math2 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-## NB: For round(), signif(), we have that Generic(u, k) |-> u
-##     for all u in {0,1}, for all k, implying that "structure"
-##     is invariant ... hence minimal "cases" are needed here
-
-setMethod("Math2", signature(x = "dMatrix"),
-          function(x, digits) {
-              x@x <- callGeneric(x@x, digits = digits)
-              x
+          function(x, ...) {
+              cl <- .M.nonvirtual(x)
+              kind <- substr(cl, 1L, 1L)
+              shape <- substr(cl, 2L, 2L)
+              repr <- substr(cl, 3L, 3L)
+              if(kind == "z") {
+                  zero <- 0+0i; one <- 1+0i
+              } else {
+                  zero <- 0   ; one <- 1
+                  substr(cl, 1L, 1L) <- "d"
+              }
+              substr(cl, 2L, 3L) <- if(shape == "s") "sy" else "ge"
+              r <- new(cl)
+              r@Dim      <- x@Dim
+              r@Dimnames <- x@Dimnames
+              if(shape == "s")
+                  r@uplo <- x@uplo
+              y <- .Call(CR2spV, if(repr == "T") .M2C(x) else x)
+              tmp <- rep.int(log(zero, ...), y@length)
+              tmp[y@i] <- log(if(kind == "n") one else y@x, ...)
+              r@x <- tmp
+              r
           })
 
-## As above, but first coercing to dMatrix:
+setMethod("Math", signature(x = "diagonalMatrix"),
+          function(x) {
+              g <- get(.Generic, mode = "function")
+              if(startsWith(.Generic, "cum"))
+                  return(g(.M2v(x)))
+              cl <- .M.nonvirtual(x)
+              kind <- substr(cl, 1L, 1L)
+              if (kind == "z") {
+                  zero <- 0+0i; one <- 1+0i; a <- as.complex
+              } else {
+                  zero <- 0   ; one <- 1   ; a <- as.double
+                  substr(cl, 1L, 1L) <- "d"
+              }
+              stay0 <- is0(g0 <- a(g(zero)))
+              if(!stay0)
+                  substr(cl, 2L, 3L) <- "ge"
+              r <- new(cl)
+              r@Dim <- d <- x@Dim
+              r@Dimnames <- x@Dimnames
+              if(!stay0) {
+                  if((n <- d[2L]) > 0L) {
+                      tmp <- matrix(g0, n, n)
+                      diag(tmp) <- a(g(if(x@diag != "N") one else { y <- x@x; if(kind == "n" && anyNA(y)) y | is.na(y) else y }))
+                      dim(tmp) <- NULL
+                      r@x <- tmp
+                  }
+              } else {
+                  if(x@diag != "N") {
+                      if(is1(g1 <- a(g(one))))
+                          r@diag <- "U"
+                      else r@x <- rep.int(g1, d[1L])
+                  } else r@x <- a(g({ y <- x@x; if(kind == "n" && anyNA(y)) y | is.na(y) else y }))
+              }
+              r
+          })
+
+setMethod("log", signature(x = "diagonalMatrix"),
+          function(x, ...) {
+              cl <- .M.nonvirtual(x)
+              kind <- substr(cl, 1L, 1L)
+              if(kind == "z") {
+                  zero <- 0+0i; one <- 1+0i
+              } else {
+                  zero <- 0   ; one <- 1
+                  substr(cl, 1L, 1L) <- "d"
+              }
+              substr(cl, 2L, 3L) <- "ge"
+              r <- new(cl)
+              r@Dim <- d <- x@Dim
+              r@Dimnames <- x@Dimnames
+              if((n <- d[2L]) > 0L) {
+                  tmp <- matrix(log(zero, ...), n, n)
+                  diag(tmp) <- log(if(x@diag != "N") one else { y <- x@x; if(kind == "n" && anyNA(y)) y | is.na(y) else y }, ...)
+                  dim(tmp) <- NULL
+                  r@x <- tmp
+              }
+              r
+          })
+
+setMethod("Math", signature(x = "indMatrix"),
+          function(x)
+              get(.Generic, mode = "function")(.M2kind(x, "n")))
+
+setMethod("log", signature(x = "indMatrix"),
+          function(x, ...)
+              log(.M2kind(x, "n"), ...))
+
+setMethod("Math", signature(x = "sparseVector"),
+          function(x) {
+              g <- get(.Generic, mode = "function")
+              if(startsWith(.Generic, "cum"))
+                  return(g(.V2v(x)))
+              kind <- .M.kind(x)
+              if(kind == "z") {
+                  zero <- 0+0i; one <- 1+0i; l <- "z"
+              } else if(kind == "d" || .Generic != "abs") {
+                  zero <- 0   ; one <- 1   ; l <- "d"
+              } else {
+                  zero <- 0L  ; one <- 1L  ; l <- "i"
+              }
+              if(isN0(g0 <- g(zero))) {
+                  r <- rep.int(g0, x@length)
+                  if((nnz <- length(x@i)) > 0L)
+                      r[x@i] <- if(kind == "n") rep.int(g(one), nnz) else g(x@x)
+              } else {
+                  r <- new(paste0(l, "sparseVector"))
+                  r@length <- x@length
+                  r@i <- x@i
+                  if((nnz <- length(x@i)) > 0L)
+                      r@x <- if(kind == "n") rep.int(g(one), nnz) else g(x@x)
+              }
+              r
+          })
+
+setMethod("log", signature(x = "sparseVector"),
+          function(x, ...) {
+              kind <- .M.kind(x)
+              if(kind == "z") {
+                  zero <- 0+0i; one <- 1+0i
+              } else {
+                  zero <- 0   ; one <- 1
+              }
+              r <- rep.int(log(zero, ...), x@length)
+              if(length(x@i) > 0L)
+                  r[x@i] <- log(if(kind == "n") one else x@x, ...)
+              r
+          })
+
+
+## METHODS FOR GENERIC: Math2 (group)
+## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+## > getGroupMembers("Math2")
+## [1] "round"  "signif"
+
 setMethod("Math2", signature(x = "Matrix"),
-	  function(x, digits) {
-	      x <- as(x, "dMatrix")
-	      x@x <- callGeneric(x@x, digits = digits)
-	      x
-	  })
-
-setMethod("Math2", signature(x = "dsparseVector"),
           function(x, digits) {
-              x@x <- callGeneric(x@x, digits = digits)
+              x <- .indefinite(.M2kind(x, ","))
+              x@x <- get(.Generic, mode = "function")(x@x, digits = digits)
+              if(.hasSlot(x, "factors") && length(x@factors) > 0L)
+                  x@factors <- list()
               x
           })
 
-## As above, but first coercing to dsparseVector:
 setMethod("Math2", signature(x = "sparseVector"),
-	  function(x, digits) {
-	      x <- as(x, "dsparseVector")
-	      x@x <- callGeneric(x@x, digits = digits)
-	      x
-	  })
+          function(x, digits) {
+              x <- .V2kind(x, ",")
+              x@x <- get(.Generic, mode = "function")(x@x, digits = digits)
+              x
+          })
 
 
-## ~~~~ Not group generic ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+## METHODS FOR GENERIC: zapsmall
+## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-setMethod("zapsmall", signature(x = "dMatrix"),
+setMethod("zapsmall", signature(x = "Matrix"),
           function(x, digits = getOption("digits")) {
-              x@x <- zapsmall(x@x, digits)
+              x <- .indefinite(.M2kind(x, ","))
+              x@x <- zapsmall(x@x, digits = digits)
+              if(.hasSlot(x, "factors") && length(x@factors) > 0L)
+                  x@factors <- list()
+              x
+          })
+
+setMethod("zapsmall", signature(x = "sparseVector"),
+          function(x, digits = getOption("digits")) {
+              x <- .V2kind(x, ",")
+              x@x <- zapsmall(x@x, digits = digits)
               x
           })

@@ -110,7 +110,7 @@ function(x,
                         else if(p1 > 3) 0.5
                         else 0.2
                     ## browser()
-                    Matrix.msg("rectangle size ",
+                    Matrix.message("rectangle size ",
                                paste(round(pSize, 1L), collapse = " x "),
                                " [pixels];  --> lwd :", formatC(lwd))
                 } else stopifnot(is.numeric(lwd), all(lwd >= 0)) # allow 0
@@ -143,8 +143,13 @@ function(x,
 setMethod("image", "dgTMatrix", .image.dgT)
 
 setMethod("image", "Matrix",
-          function(x, ...)
-              image(.M2kind(.M2gen(.M2T(x)), "d"), ...))
+          function(x, ...) {
+              if(.M.kind(x) == "z")
+                  stop(gettextf("%s(<%s>) is not yet implemented",
+                                "image", "zMatrix"),
+                       domain = NA)
+              image(.M2kind(.M2gen(.M2T(x)), "d"), ...)
+          })
 
 setMethod("image", "CHMfactor",
           function(x, ...)

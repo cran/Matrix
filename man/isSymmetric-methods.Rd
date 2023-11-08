@@ -9,24 +9,17 @@
 \alias{isSymmetric}
 \alias{isSymmetric-methods}
 %
+\alias{isSymmetric,CsparseMatrix-method}
+\alias{isSymmetric,RsparseMatrix-method}
+\alias{isSymmetric,TsparseMatrix-method}
+\alias{isSymmetric,denseMatrix-method}
 \alias{isSymmetric,diagonalMatrix-method}
 \alias{isSymmetric,indMatrix-method}
-\alias{isSymmetric,symmetricMatrix-method}
-\alias{isSymmetric,triangularMatrix-method}
-% disambiguation:
+% tolerating numerical fuzz for [dz]Matrix:
 \alias{isSymmetric,dgCMatrix-method}
 \alias{isSymmetric,dgRMatrix-method}
 \alias{isSymmetric,dgTMatrix-method}
 \alias{isSymmetric,dgeMatrix-method}
-\alias{isSymmetric,lgCMatrix-method}
-\alias{isSymmetric,lgRMatrix-method}
-\alias{isSymmetric,lgTMatrix-method}
-\alias{isSymmetric,lgeMatrix-method}
-\alias{isSymmetric,ngCMatrix-method}
-\alias{isSymmetric,ngRMatrix-method}
-\alias{isSymmetric,ngTMatrix-method}
-\alias{isSymmetric,ngeMatrix-method}
-% tolerating numerical fuzz for [dz]Matrix:
 \alias{isSymmetric,dtCMatrix-method}
 \alias{isSymmetric,dtRMatrix-method}
 \alias{isSymmetric,dtTMatrix-method}
@@ -45,24 +38,22 @@
   inheriting from virtual class \code{"\linkS4class{Matrix}"}.
 }
 \usage{
-\S4method{isSymmetric}{symmetricMatrix}(object, \dots)
-\S4method{isSymmetric}{triangularMatrix}(object, checkDN = TRUE, \dots)
+\S4method{isSymmetric}{denseMatrix}(object, checkDN = TRUE, \dots)
+\S4method{isSymmetric}{CsparseMatrix}(object, checkDN = TRUE, \dots)
+\S4method{isSymmetric}{RsparseMatrix}(object, checkDN = TRUE, \dots)
+\S4method{isSymmetric}{TsparseMatrix}(object, checkDN = TRUE, \dots)
 \S4method{isSymmetric}{diagonalMatrix}(object, checkDN = TRUE, \dots)
 \S4method{isSymmetric}{indMatrix}(object, checkDN = TRUE, \dots)
-\S4method{isSymmetric}{dgeMatrix}(object, tol = 100 * .Machine$double.eps, tol1 = 8 * tol, checkDN = TRUE, \dots)
-\S4method{isSymmetric}{lgeMatrix}(object, checkDN = TRUE, \dots)
-\S4method{isSymmetric}{ngeMatrix}(object, checkDN = TRUE, \dots)
-\S4method{isSymmetric}{dgCMatrix}(object, tol = 100 * .Machine$double.eps, checkDN = TRUE, \dots)
-\S4method{isSymmetric}{lgCMatrix}(object, checkDN = TRUE, \dots)
-\S4method{isSymmetric}{ngCMatrix}(object, checkDN = TRUE, \dots)
+\S4method{isSymmetric}{dgeMatrix}(object, checkDN = TRUE, tol = 100 * .Machine$double.eps, tol1 = 8 * tol, \dots)
+\S4method{isSymmetric}{dgCMatrix}(object, checkDN = TRUE, tol = 100 * .Machine$double.eps, \dots)
 }
 \arguments{
   \item{object}{a \code{"Matrix"}.}
+  \item{checkDN}{a \link{logical} indicating whether symmetry of the
+    \code{Dimnames} \link{slot} of \code{object} should be checked.}
   \item{tol, tol1}{numerical tolerances allowing \emph{approximate}
     symmetry of numeric (rather than logical) matrices.  See also
     \code{\link{isSymmetric.matrix}}.}
-  \item{checkDN}{a \link{logical} indicating whether symmetry of the
-    \code{Dimnames} \link{slot} of \code{object} should be checked.}
   \item{\dots}{further arguments passed to methods
     (typically methods for \code{\link{all.equal}}).}
 }

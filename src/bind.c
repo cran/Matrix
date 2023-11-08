@@ -1,10 +1,14 @@
-#include "bind.h"
+#include "Mdefines.h"
 #include "coerce.h"
+#include "bind.h"
 
 static const char *valid[] = { VALID_NONVIRTUAL_MATRIX, "" };
 
-static void scanArgs(SEXP args, SEXP exprs, int margin, int level,
-                     int *rdim, int *rdimnames, char *kind, char *repr)
+static SEXP tagWasVector = NULL;
+
+static
+void scanArgs(SEXP args, SEXP exprs, int margin, int level,
+              int *rdim, int *rdimnames, char *kind, char *repr)
 {
 	SEXP a, e, s, tmp;
 	int nS4 = 0, nDense = 0,
@@ -22,11 +26,11 @@ static void scanArgs(SEXP args, SEXP exprs, int margin, int level,
 		s = CAR(a);
 		if (s == R_NilValue)
 			continue;
-		if (IS_S4_OBJECT(s)) {
+		if (TYPEOF(s) == S4SXP) {
 			++nS4;
 			ivalid = R_check_class_etc(s, valid);
 			if (ivalid < 0) {
-				if (margin == 1)
+				if (margin)
 					ERROR_INVALID_CLASS(s, "cbind.Matrix");
 				else
 					ERROR_INVALID_CLASS(s, "rbind.Matrix");
@@ -38,7 +42,7 @@ static void scanArgs(SEXP args, SEXP exprs, int margin, int level,
 			if (rdim[!margin] < 0)
 				rdim[!margin] = sdim[!margin];
 			else if (sdim[!margin] != rdim[!margin]) {
-				if (margin == 1)
+				if (margin)
 					error(_("number of rows of matrices must match"));
 				else
 					error(_("number of columns of matrices must match"));
@@ -108,7 +112,7 @@ static void scanArgs(SEXP args, SEXP exprs, int margin, int level,
 			case 'd':
 				if (INTEGER(GET_SLOT(s, Matrix_marginSym))[0] - 1 != margin) {
 					anyN = 1;
-					if (margin == 1)
+					if (margin)
 						anyCsparse = 1;
 					else
 						anyRsparse = 1;
@@ -132,7 +136,7 @@ static void scanArgs(SEXP args, SEXP exprs, int margin, int level,
 				anyZ = 1;
 				break;
 			default:
-				if (margin == 1)
+				if (margin)
 					ERROR_INVALID_TYPE(s, "cbind.Matrix");
 				else
 					ERROR_INVALID_TYPE(s, "rbind.Matrix");
@@ -145,7 +149,7 @@ static void scanArgs(SEXP args, SEXP exprs, int margin, int level,
 				if (rdim[!margin] < 0)
 					rdim[!margin] = sdim[!margin];
 				else if (rdim[!margin] != sdim[!margin]) {
-					if (margin == 1)
+					if (margin)
 						error(_("number of rows of matrices must match"));
 					else
 						error(_("number of columns of matrices must match"));
@@ -187,7 +191,7 @@ static void scanArgs(SEXP args, SEXP exprs, int margin, int level,
 
 	for (a = args, e = exprs; a != R_NilValue; a = CDR(a), e = CDR(e)) {
 		s = CAR(a);
-		if ((s == R_NilValue && rdim[!margin] > 0) || IS_S4_OBJECT(s))
+		if ((s == R_NilValue && rdim[!margin] > 0) || TYPEOF(s) == S4SXP)
 			continue;
 		if (s == R_NilValue)
 			rdim[margin] += 1;
@@ -202,7 +206,7 @@ static void scanArgs(SEXP args, SEXP exprs, int margin, int level,
 				error(_("dimensions cannot exceed %s"), "2^31-1");
 			rdim[margin] += 1;
 			if (slen > rdim[!margin] || rdim[!margin] % (int) slen) {
-				if (margin == 1)
+				if (margin)
 					warning(_("number of rows of result is not a multiple of vector length"));
 				else
 					warning(_("number of columns of result is not a multiple of vector length"));
@@ -221,18 +225,15 @@ static void scanArgs(SEXP args, SEXP exprs, int margin, int level,
 	}
 
 	if (anyZ)
-#ifdef MATRIX_ENABLE_ZMATRIX
 		*kind = 'z';
+#ifndef MATRIX_ENABLE_IMATRIX
+	else if (anyD || anyI)
+		*kind = 'd';
 #else
-		error(_("complex matrices are not yet supported"));
-#endif
 	else if (anyD)
 		*kind = 'd';
 	else if (anyI)
-#ifdef MATRIX_ENABLE_IMATRIX
 		*kind = 'i';
-#else
-		*kind = 'd';
 #endif
 	else if (anyL)
 		*kind = 'l';
@@ -245,7 +246,7 @@ static void scanArgs(SEXP args, SEXP exprs, int margin, int level,
 		*repr = 'e';
 	else if (nDense == 0) {
 		if (anyCsparse && anyRsparse)
-			*repr = (margin == 1) ? 'C' : 'R';
+			*repr = (margin) ? 'C' : 'R';
 		else if (anyCsparse)
 			*repr = 'C';
 		else if (anyRsparse)
@@ -253,7 +254,7 @@ static void scanArgs(SEXP args, SEXP exprs, int margin, int level,
 		else if (anyTsparse)
 			*repr = 'T';
 		else if (anyDiagonal)
-			*repr = (margin == 1) ? 'C' : 'R';
+			*repr = (margin) ? 'C' : 'R';
 		else
 			*repr = '\0';
 	} else {
@@ -264,7 +265,7 @@ static void scanArgs(SEXP args, SEXP exprs, int margin, int level,
 		Matrix_int_fast64_t nnz = 0, len = 0, snnz = 0, slen = 0;
 		for (a = args; a != R_NilValue && nnz < INT_MAX; a = CDR(a)) {
 			s = CAR(a);
-			if (!IS_S4_OBJECT(s))
+			if (TYPEOF(s) != S4SXP)
 				continue;
 			ivalid = R_check_class_etc(s, valid);
 			scl = valid[ivalid + VALID_NONVIRTUAL_SHIFT(ivalid, 1)];
@@ -342,7 +343,7 @@ static void scanArgs(SEXP args, SEXP exprs, int margin, int level,
 		if (nnz > INT_MAX || nnz > len / 2)
 			*repr = 'e';
 		else if (anyCsparse && anyRsparse)
-			*repr = (margin == 1) ? 'C' : 'R';
+			*repr = (margin) ? 'C' : 'R';
 		else if (anyCsparse)
 			*repr = 'C';
 		else if (anyRsparse)
@@ -350,27 +351,30 @@ static void scanArgs(SEXP args, SEXP exprs, int margin, int level,
 		else if (anyTsparse)
 			*repr = 'T';
 		else
-			*repr = (margin == 1) ? 'C' : 'R';
+			*repr = (margin) ? 'C' : 'R';
 	}
 
 	return;
 }
 
-static void coerceArgs(SEXP args, int margin,
-                       int *rdim, char kind, char repr)
+static
+void coerceArgs(SEXP args, int margin,
+                int *rdim, char kind, char repr)
 {
-	SEXP a, s, tmp;
+	SEXP a, s, t, tmp;
 	int ivalid, isM;
 	char scl_[] = "...Matrix";
 	const char *scl;
 
 	for (a = args; a != R_NilValue; a = CDR(a)) {
 		s = CAR(a);
+		t = TAG(a);
+		SET_TAG(a, R_NilValue); /* to be replaced only if 's' is a vector */
 		if (s == R_NilValue)
 			continue;
 		PROTECT_INDEX pid;
 		PROTECT_WITH_INDEX(s, &pid);
-		if (IS_S4_OBJECT(s)) {
+		if (TYPEOF(s) == S4SXP) {
 			ivalid = R_check_class_etc(s, valid);
 			scl = valid[ivalid + VALID_NONVIRTUAL_SHIFT(ivalid, 1)];
 			switch (scl[2]) {
@@ -380,10 +384,10 @@ static void coerceArgs(SEXP args, int margin,
 			case 'p':
 				switch (repr) {
 				case 'e':
-					REPROTECT(s = dense_as_kind(s, scl, kind), pid);
+					REPROTECT(s = dense_as_kind(s, scl, kind, 0), pid);
 					scl_[0] = kind; scl_[1] = scl[1]; scl_[2] = scl[2];
 					REPROTECT(s = dense_as_general(
-						s, scl_, kind2type(kind) == kind2type(scl[0])), pid);
+						s, scl_, kindToType(kind) == kindToType(scl[0])), pid);
 					break;
 				case 'C':
 				case 'R':
@@ -423,16 +427,14 @@ static void coerceArgs(SEXP args, int margin,
 				}
 				break;
 			case 'i':
-				REPROTECT(s = diagonal_as_kind(s, scl, kind), pid);
-				scl_[0] = kind; scl_[1] = scl[1]; scl_[2] = scl[2];
 				switch (repr) {
 				case 'e':
-					REPROTECT(s = diagonal_as_dense(s, scl_, 'g', 0, '\0'), pid);
+					REPROTECT(s = diagonal_as_dense(s, scl_, kind, 'g', 0, '\0'), pid);
 					break;
 				case 'C':
 				case 'R':
 				case 'T':
-					REPROTECT(s = diagonal_as_sparse(s, scl_, 'g', repr, '\0'), pid);
+					REPROTECT(s = diagonal_as_sparse(s, scl_, kind, 'g', repr, '\0'), pid);
 					break;
 				default:
 					break;
@@ -458,12 +460,15 @@ static void coerceArgs(SEXP args, int margin,
 		} else {
 			tmp = getAttrib(s, R_DimSymbol);
 			isM = TYPEOF(tmp) == INTSXP && LENGTH(tmp) == 2;
-			if (!isM && rdim[!margin] > 0 && XLENGTH(s) == 0) {
-				UNPROTECT(1);
-				continue;
+			if (!isM) {
+				if (rdim[!margin] > 0 && XLENGTH(s) == 0) {
+					UNPROTECT(1);
+					continue;
+				}
+				SET_TAG(a, (t != R_NilValue) ? t : tagWasVector);
 			}
-			if (TYPEOF(s) != kind2type(kind))
-				REPROTECT(s = coerceVector(s, kind2type(kind)), pid);
+			if (TYPEOF(s) != kindToType(kind))
+				REPROTECT(s = coerceVector(s, kindToType(kind)), pid);
 			if (repr != 'e') {
 				if (!isM && XLENGTH(s) != rdim[!margin]) {
 					static SEXP replen = NULL;
@@ -486,8 +491,9 @@ static void coerceArgs(SEXP args, int margin,
 	return;
 }
 
-static void bindArgs(SEXP args, int margin, SEXP res,
-                     int *rdim, char kind, char repr)
+static
+void bindArgs(SEXP args, int margin, SEXP res,
+              int *rdim, char kind, char repr)
 {
 	SEXP a, s;
 
@@ -518,7 +524,7 @@ static void bindArgs(SEXP args, int margin, SEXP res,
 
 		int k, m = rdim[0], n = rdim[1];
 		R_xlen_t mn = (R_xlen_t) m * n;
-		SEXP x = PROTECT(allocVector(kind2type(kind), mn)), tmp;
+		SEXP x = PROTECT(allocVector(kindToType(kind), mn)), tmp;
 		SET_SLOT(res, Matrix_xSym, x);
 
 #define BIND_E(_CTYPE_, _PTR_, _MASK_) \
@@ -528,7 +534,7 @@ static void bindArgs(SEXP args, int margin, SEXP res,
 				s = CAR(a); \
 				if (s == R_NilValue) \
 					continue; \
-				if (!IS_S4_OBJECT(s)) \
+				if (TYPEOF(s) != S4SXP) \
 					tmp = getAttrib(s, R_DimSymbol); \
 				else { \
 					s = GET_SLOT(s, Matrix_xSym); \
@@ -536,7 +542,7 @@ static void bindArgs(SEXP args, int margin, SEXP res,
 				} \
 				mn = XLENGTH(s); \
 				ps = _PTR_(s); \
-				if (margin == 1) { \
+				if (margin) { \
 				if (!tmp || (TYPEOF(tmp) == INTSXP && LENGTH(tmp) == 2)) { \
 					Matrix_memcpy(px, ps, mn, sizeof(_CTYPE_)); \
 					px += mn; \
@@ -594,7 +600,7 @@ static void bindArgs(SEXP args, int margin, SEXP res,
 			BIND_CASES(BIND_E);
 		UNPROTECT(1);
 
-	} else if ((repr == 'C' && margin == 1) || (repr == 'R' && margin == 0)) {
+	} else if ((repr == 'C' && margin) || (repr == 'R' && !margin)) {
 
 		SEXP p = PROTECT(allocVector(INTSXP, (R_xlen_t) rdim[margin] + 1));
 		int *pp = INTEGER(p);
@@ -653,14 +659,14 @@ static void bindArgs(SEXP args, int margin, SEXP res,
 		if (kind == 'n')
 			BIND_C1R0(int, LOGICAL, HIDE);
 		else {
-			SEXP x = PROTECT(allocVector(kind2type(kind), nnz)), sx;
+			SEXP x = PROTECT(allocVector(kindToType(kind), nnz)), sx;
 			SET_SLOT(res, Matrix_xSym, x);
 			BIND_CASES(BIND_C1R0);
 			UNPROTECT(1);
 		}
 		UNPROTECT(2);
 
-	} else if ((repr == 'C' && margin == 0) || (repr == 'R' && margin == 1)) {
+	} else if ((repr == 'C' && !margin) || (repr == 'R' && margin)) {
 
 		SEXP p = PROTECT(allocVector(INTSXP, (R_xlen_t) rdim[!margin] + 1));
 		int *pp = INTEGER(p);
@@ -727,7 +733,7 @@ static void bindArgs(SEXP args, int margin, SEXP res,
 		if (kind == 'n')
 			BIND_C0R1(int, LOGICAL, HIDE);
 		else {
-			SEXP x = PROTECT(allocVector(kind2type(kind), nnz)), sx;
+			SEXP x = PROTECT(allocVector(kindToType(kind), nnz)), sx;
 			SET_SLOT(res, Matrix_xSym, x);
 			BIND_CASES(BIND_C0R1);
 			UNPROTECT(1);
@@ -773,16 +779,16 @@ static void bindArgs(SEXP args, int margin, SEXP res,
 				psj = INTEGER(sj); \
 				_MASK_(psx = _PTR_(sx)); \
 				k = XLENGTH(si); \
-				if (margin == 0) { \
+				if (margin) { \
 					while (k--) { \
-						*(pi++) = *(psi++) + pos; \
-						*(pj++) = *(psj++); \
+						*(pi++) = *(psi++); \
+						*(pj++) = *(psj++) + pos; \
 						_MASK_(*(px++) = *(psx++)); \
 					} \
 				} else { \
 					while (k--) { \
-						*(pi++) = *(psi++); \
-						*(pj++) = *(psj++) + pos; \
+						*(pi++) = *(psi++) + pos; \
+						*(pj++) = *(psj++); \
 						_MASK_(*(px++) = *(psx++)); \
 					} \
 				} \
@@ -795,7 +801,7 @@ static void bindArgs(SEXP args, int margin, SEXP res,
 		if (kind == 'n')
 			BIND_T(int, LOGICAL, HIDE);
 		else {
-			SEXP x = PROTECT(allocVector(kind2type(kind), nnz)), sx;
+			SEXP x = PROTECT(allocVector(kindToType(kind), nnz)), sx;
 			SET_SLOT(res, Matrix_xSym, x);
 			BIND_CASES(BIND_T);
 			UNPROTECT(1);
@@ -816,7 +822,7 @@ static void bindArgs(SEXP args, int margin, SEXP res,
 		}
 		SET_SLOT(res, Matrix_permSym, p);
 		UNPROTECT(1);
-		if (margin == 1)
+		if (margin)
 			INTEGER(GET_SLOT(res, Matrix_marginSym))[0] = 2;
 
 	}
@@ -830,8 +836,12 @@ static void bindArgs(SEXP args, int margin, SEXP res,
 	return;
 }
 
-static SEXP bind(SEXP args, SEXP exprs, int margin, int level)
+static
+SEXP bind(SEXP args, SEXP exprs, int margin, int level)
 {
+	if (!tagWasVector)
+		tagWasVector = install(".__WAS_VECTOR__."); /* for now, a hack */
+
 	int rdim[2], rdimnames[2];
 	char kind = '\0', repr = '\0';
 	scanArgs(args, exprs, margin, level,
@@ -855,7 +865,7 @@ static SEXP bind(SEXP args, SEXP exprs, int margin, int level)
 		rcl[2] = repr;
 		coerceArgs(args, margin, rdim, kind, repr);
 	}
-	SEXP res = PROTECT(NEW_OBJECT_OF_CLASS(rcl));
+	SEXP res = PROTECT(newObject(rcl));
 	bindArgs(args, margin, res, rdim, kind, repr);
 
 	SEXP dim = PROTECT(GET_SLOT(res, Matrix_DimSym));
@@ -866,7 +876,7 @@ static SEXP bind(SEXP args, SEXP exprs, int margin, int level)
 	if (rdimnames[0] || rdimnames[1]) {
 		SEXP dimnames = PROTECT(GET_SLOT(res, Matrix_DimNamesSym)),
 			marnames = R_NilValue, nms[2], nms_, a, e, s, tmp;
-		int i, ivalid, r, pos = 0, nprotect = 1;
+		int i, ivalid, r = -1, pos = 0, nprotect = 1;
 		const char *scl;
 		if (rdimnames[margin]) {
 			PROTECT(marnames = allocVector(STRSXP, rdim[margin]));
@@ -878,7 +888,7 @@ static SEXP bind(SEXP args, SEXP exprs, int margin, int level)
 			if (s == R_NilValue && rdim[!margin] > 0)
 				continue;
 			nms[0] = nms[1] = R_NilValue;
-			if (IS_S4_OBJECT(s)) {
+			if (TYPEOF(s) == S4SXP) {
 				ivalid = R_check_class_etc(s, valid);
 				scl = valid[ivalid + VALID_NONVIRTUAL_SHIFT(ivalid, 1)];
 				tmp = GET_SLOT(s, Matrix_DimSym);
@@ -903,23 +913,24 @@ static SEXP bind(SEXP args, SEXP exprs, int margin, int level)
 					r = 1;
 					if (rdim[!margin] > 0 && XLENGTH(s) == rdim[!margin])
 						nms[!margin] = getAttrib(s, R_NamesSymbol);
-					if (TAG(a) != R_NilValue)
-						nms[margin] = coerceVector(TAG(a), STRSXP);
-					else if (level == 2) {
-						PROTECT(nms_ = allocVector(EXPRSXP, 1));
-						SET_VECTOR_ELT(nms_, 0, CAR(e));
-						nms[margin] = coerceVector(nms_, STRSXP);
-						UNPROTECT(1);
-					} else if (level == 1 && TYPEOF(CAR(e)) == SYMSXP)
-						nms[margin] = coerceVector(CAR(e), STRSXP);
-				} else
-					continue;
+				}
+			}
+			if (TAG(a) != R_NilValue) { /* only if 's' is or was a vector */
+				if (TAG(a) != tagWasVector)
+					nms[margin] = coerceVector(TAG(a), STRSXP);
+				else if (level == 2) {
+					PROTECT(nms_ = allocVector(EXPRSXP, 1));
+					SET_VECTOR_ELT(nms_, 0, CAR(e));
+					nms[margin] = coerceVector(nms_, STRSXP);
+					UNPROTECT(1);
+				} else if (level == 1 && TYPEOF(CAR(e)) == SYMSXP)
+					nms[margin] = coerceVector(CAR(e), STRSXP);
 			}
 			if (rdimnames[!margin] && nms[!margin] != R_NilValue) {
 				SET_VECTOR_ELT(dimnames, !margin, nms[!margin]);
+				rdimnames[!margin] = 0;
 				if (!rdimnames[margin])
 					break;
-				rdimnames[!margin] = 1;
 			}
 			if (rdimnames[ margin] && nms[ margin] != R_NilValue)
 				for (i = 0; i < r; ++i)

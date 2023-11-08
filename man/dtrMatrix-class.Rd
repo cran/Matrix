@@ -37,13 +37,13 @@
 \section{Methods}{
   Among others (such as matrix products, e.g. \code{?\link{crossprod-methods}}),
   \describe{
-    \item{norm}{\code{signature(x = "dtrMatrix", type = "character")}}
-    \item{rcond}{\code{signature(x = "dtrMatrix", norm = "character")}}
-    \item{solve}{\code{signature(a = "dtrMatrix", b = "....")}}{efficientely
+    \item{norm}{\code{signature(x = "dtrMatrix", type = "character")}: ..}
+    \item{rcond}{\code{signature(x = "dtrMatrix", norm = "character")}: ..}
+    \item{solve}{\code{signature(a = "dtrMatrix", b = "....")}: efficiently
       use a \dQuote{forwardsolve} or \code{backsolve} for a lower or
       upper triangular matrix, respectively, see also
       \code{\link{solve-methods}}.}
-    \item{+, -, *, \dots, ==, >=, \dots}{all the \code{\link{Ops}} group
+    \item{+, -, *, \dots, ==, >=, \dots}{ all the \code{\link{Ops}} group
       methods are available.  When applied to two triangular matrices,
       these return a triangular matrix when easily possible.}
   }

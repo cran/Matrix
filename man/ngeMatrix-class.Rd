@@ -7,7 +7,6 @@
 %
 \alias{ngeMatrix-class}
 %
-\alias{!,ngeMatrix-method}
 \alias{Arith,ngeMatrix,ngeMatrix-method}
 \alias{Compare,ngeMatrix,ngeMatrix-method}
 \alias{Logic,ngeMatrix,ngeMatrix-method}

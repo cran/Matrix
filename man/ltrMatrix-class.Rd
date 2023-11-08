@@ -8,10 +8,6 @@
 \alias{ltrMatrix-class}
 \alias{ltpMatrix-class}
 %
-\alias{!,ltrMatrix-method}
-%
-\alias{!,ltpMatrix-method}
-%
 \description{
   The \code{"ltrMatrix"} class is the class of triangular, dense,
   logical matrices in nonpacked storage.  The \code{"ltpMatrix"} class

@@ -187,7 +187,7 @@ testDenseMatrix <- function(Class, ...) {
 
     if (is.sy) {
         tri0(m2, diag = TRUE) <- tri0(t(m2), diag = TRUE)
-        dimnames(m2) <- Matrix:::symmDN(M@Dimnames)
+        dimnames(m2) <- Matrix:::symDN(M@Dimnames)
     }
     if (is.tr && M@diag == "U") {
         diag(m2) <- .ONE
@@ -293,7 +293,7 @@ testDenseMatrix <- function(Class, ...) {
                   identical(isTriangular(M, upper = TRUE), TRUE),
                   identical(isTriangular(M, upper = FALSE), TRUE),
                   identical(isTriangular(M, upper = NA),
-                            `attr<-`(TRUE, "kind", "U")),
+                            `attr<-`(TRUE, "kind", M@uplo)),
                   isDiagonal(M))
     } else {
         ## Not symmetric

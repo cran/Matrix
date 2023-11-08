@@ -2,9 +2,7 @@
  *                       --------     ~~~~~~~~~~~~~~~~~~~~~~
  * i.e., included several times from ./Csparse.c
  *                                   ~~~~~~~~~~~
- *
- _slot_kind : use the integer codes matching  x_slot_kind in ./Mdefines.h
- *							       ~~~~~~~~
+ * _slot_kind : use the integer codes matching x_slot_kind in ./Csparse.c
  */
 
 #ifdef _d_Csp_
@@ -213,10 +211,10 @@ SEXP Csparse_subassign(SEXP x, SEXP i_, SEXP j_, SEXP value)
     SEXP ans;
     /* Instead of simple "duplicate": PROTECT(ans = duplicate(x)) , build up: */
     // Assuming that ans will have the same basic Matrix type as x :
-    ans = PROTECT(NEW_OBJECT_OF_CLASS(valid_cM[ctype_x]));
+    ans = PROTECT(newObject(valid_cM[ctype_x]));
     SET_SLOT(ans, Matrix_DimSym,      duplicate(dimslot));
-    slot_dup(ans, x, Matrix_DimNamesSym);
-    slot_dup(ans, x, Matrix_pSym);
+    SET_SLOT(ans, Matrix_DimNamesSym, duplicate(GET_SLOT(x, Matrix_DimNamesSym)));
+    SET_SLOT(ans, Matrix_pSym,        duplicate(GET_SLOT(x, Matrix_pSym)));
     SEXP r_pslot = GET_SLOT(ans, Matrix_pSym);
     // and assign the i- and x- slots at the end, as they are potentially modified
     // not just in content, but also in their *length*
@@ -419,13 +417,19 @@ SEXP Csparse_subassign(SEXP x, SEXP i_, SEXP j_, SEXP value)
     }// for( jj )
 
     if(ctype_x == 1) { // triangularMatrix: copy the 'diag' and 'uplo' slots
-	slot_dup(ans, x, Matrix_uploSym);
-	slot_dup(ans, x, Matrix_diagSym);
+	SET_SLOT(ans, Matrix_uploSym, duplicate(GET_SLOT(x, Matrix_uploSym)));
+	SET_SLOT(ans, Matrix_diagSym, duplicate(GET_SLOT(x, Matrix_diagSym)));
     }
     // now assign the i- and x- slots,  free memory and return :
-    Memcpy(INTEGER(ALLOC_SLOT(ans, Matrix_iSym,  INTSXP, nnz)), ri, nnz);
+	PROTECT(islot = allocVector(INTSXP, nnz));
+	Memcpy(INTEGER(islot), ri, nnz);
+	SET_SLOT(ans, Matrix_iSym, islot);
+	UNPROTECT(1);
 #ifdef _has_x_slot_
-    Memcpy( STYP_x(ALLOC_SLOT(ans, Matrix_xSym,   SXP_x, nnz)), rx, nnz);
+	PROTECT(islot = allocVector(SXP_x, nnz));
+	Memcpy(STYP_x(islot), rx, nnz);
+	SET_SLOT(ans, Matrix_xSym, islot);
+	UNPROTECT(1);
     R_Free(rx);
 #endif
     R_Free(ri);

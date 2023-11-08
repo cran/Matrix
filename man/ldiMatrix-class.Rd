@@ -6,6 +6,7 @@
 \keyword{classes}
 %
 \alias{ldiMatrix-class}
+\alias{ndiMatrix-class} % for now
 %
 \alias{!,ldiMatrix-method}
 \alias{\%\%,ldiMatrix,Matrix-method}
@@ -24,7 +25,6 @@
 \alias{*,ldiMatrix,ddenseMatrix-method}
 \alias{*,ldiMatrix,ldenseMatrix-method}
 \alias{*,ldiMatrix,ndenseMatrix-method}
-\alias{-,ldiMatrix,missing-method}
 \alias{/,ldiMatrix,Matrix-method}
 \alias{/,ldiMatrix,ddenseMatrix-method}
 \alias{/,ldiMatrix,ldenseMatrix-method}
@@ -39,13 +39,38 @@
 \alias{Ops,ldiMatrix,dMatrix-method}
 \alias{Ops,ldiMatrix,ddiMatrix-method}
 \alias{Ops,ldiMatrix,ldiMatrix-method}
+\alias{Ops,ldiMatrix,ndiMatrix-method}
 \alias{Ops,ldiMatrix,logical-method}
 \alias{Ops,ldiMatrix,numeric-method}
 \alias{Ops,ldiMatrix,sparseMatrix-method}
-\alias{Summary,ldiMatrix-method}
-\alias{prod,ldiMatrix-method}
-\alias{sum,ldiMatrix-method}
 \alias{which,ldiMatrix-method}
+%
+\alias{!,ndiMatrix-method}
+\alias{\%\%,ndiMatrix,Matrix-method}
+\alias{\%\%,ndiMatrix,ddenseMatrix-method}
+\alias{\%\%,ndiMatrix,ldenseMatrix-method}
+\alias{\%\%,ndiMatrix,ndenseMatrix-method}
+\alias{\%/\%,ndiMatrix,Matrix-method}
+\alias{\%/\%,ndiMatrix,ddenseMatrix-method}
+\alias{\%/\%,ndiMatrix,ldenseMatrix-method}
+\alias{\%/\%,ndiMatrix,ndenseMatrix-method}
+\alias{&,ndiMatrix,Matrix-method}
+\alias{&,ndiMatrix,ddenseMatrix-method}
+\alias{&,ndiMatrix,ldenseMatrix-method}
+\alias{&,ndiMatrix,ndenseMatrix-method}
+\alias{*,ndiMatrix,Matrix-method}
+\alias{*,ndiMatrix,Matrix-method}
+\alias{*,ndiMatrix,ddenseMatrix-method}
+\alias{*,ndiMatrix,ldenseMatrix-method}
+\alias{*,ndiMatrix,ndenseMatrix-method}
+\alias{/,ndiMatrix,Matrix-method}
+\alias{/,ndiMatrix,ddenseMatrix-method}
+\alias{/,ndiMatrix,ldenseMatrix-method}
+\alias{/,ndiMatrix,ndenseMatrix-method}
+\alias{Ops,ndiMatrix,ddiMatrix-method}
+\alias{Ops,ndiMatrix,ldiMatrix-method}
+\alias{Ops,ndiMatrix,ndiMatrix-method}
+\alias{which,ndiMatrix-method}
 %
 \description{The class \code{"ldiMatrix"} of logical diagonal matrices.
 %% FIXME add more
@@ -86,6 +111,6 @@ library(utils, pos = "package:base", verbose = FALSE)
 str(lM)#> gory details (slots)
 
 crossprod(lM) # numeric
-(nM <- as(lM, "nMatrix"))# -> sparse (not formally ``diagonal'')
-crossprod(nM) # logical sparse
+(nM <- as(lM, "nMatrix"))
+crossprod(nM) # pattern sparse
 }

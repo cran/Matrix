@@ -1,46 +1,55 @@
 ## METHODS FOR GENERIC: colSums, rowSums, colMeans, rowMeans
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-## FIXME? *Sums(<logical matrix>) is currently always of type "double";
-##        should *Sums(<([nl]|ind)Matrix>) behave the same?  We are not
-##        consistent.  Currently:
-##
-##        double result:           integer result:
-##        * [nl]denseMatrix        * [nl]sparseMatrix
-##        * ldiMatrix              * indMatrix
-##
-##        hence we might consider changing to always give double ...
-
-
 ## ==== denseMatrix ====================================================
 
 setMethod("colSums",  signature(x = "denseMatrix"),
           function(x, na.rm = FALSE, dims = 1L, ...)
-              .Call(R_dense_colSums, x, na.rm, FALSE))
+              .Call(R_dense_marginsum, x, 1L, na.rm, FALSE))
 setMethod("colMeans", signature(x = "denseMatrix"),
           function(x, na.rm = FALSE, dims = 1L, ...)
-              .Call(R_dense_colSums, x, na.rm, TRUE))
+              .Call(R_dense_marginsum, x, 1L, na.rm,  TRUE))
 setMethod("rowSums",  signature(x = "denseMatrix"),
           function(x, na.rm = FALSE, dims = 1L, ...)
-              .Call(R_dense_rowSums, x, na.rm, FALSE))
+              .Call(R_dense_marginsum, x, 0L, na.rm, FALSE))
 setMethod("rowMeans", signature(x = "denseMatrix"),
           function(x, na.rm = FALSE, dims = 1L, ...)
-              .Call(R_dense_rowSums, x, na.rm, TRUE))
+              .Call(R_dense_marginsum, x, 0L, na.rm,  TRUE))
 
 
 ## ==== sparseMatrix ===================================================
 
+## ---- [CRT]sparseMatrix ----------------------------------------------
+
+for (.cl in paste0(c("C", "R", "T"), "sparseMatrix")) {
+setMethod("colSums",  signature(x = .cl),
+          function(x, na.rm = FALSE, dims = 1L, sparseResult = FALSE, ...)
+              .Call(R_sparse_marginsum, x, 1L, na.rm, FALSE, sparseResult))
+setMethod("colMeans", signature(x = .cl),
+          function(x, na.rm = FALSE, dims = 1L, sparseResult = FALSE, ...)
+              .Call(R_sparse_marginsum, x, 1L, na.rm,  TRUE, sparseResult))
+setMethod("rowSums",  signature(x = .cl),
+          function(x, na.rm = FALSE, dims = 1L, sparseResult = FALSE, ...)
+              .Call(R_sparse_marginsum, x, 0L, na.rm, FALSE, sparseResult))
+setMethod("rowMeans", signature(x = .cl),
+          function(x, na.rm = FALSE, dims = 1L, sparseResult = FALSE, ...)
+              .Call(R_sparse_marginsum, x, 0L, na.rm,  TRUE, sparseResult))
+}
+rm(.cl)
+
+
 ## ---- diagonalMatrix -------------------------------------------------
 
 .diag.cS <- .diag.rS <- function(x, na.rm = FALSE, dims = 1L, ...) {
+    kind <- .M.kind(x)
     if((n <- x@Dim[1L]) == 0L)
-        return(double(0L))
+        return(vector(switch(kind, "z" = "complex", "d" = , "i" = "double", "integer"), 0L))
     else if(x@diag != "N")
-        r <- rep.int(1, n)
+        r <- rep.int(switch(kind, "z" = 1+0i, "d" = , "i" = 1, 1L), n)
     else {
-        r <- as.double(x@x)
-        if(na.rm)
-            r[is.na(r)] <- 0
+        r <- switch(kind, "z" = , "d" = x@x, "i" = as.double(x@x), as.integer(x@x))
+        if((na.rm || kind == "n") && anyNA(r))
+            r[is.na(r)] <- switch(kind, "z" = 0+0i, "d" = , "i" = 0, "n" = 1L, 0L)
     }
     if(!is.null(nms <- x@Dimnames[[.MARGIN]]))
         names(r) <- nms
@@ -50,14 +59,18 @@ body(.diag.cS) <- do.call(substitute, list(body(.diag.cS), list(.MARGIN = 2L)))
 body(.diag.rS) <- do.call(substitute, list(body(.diag.rS), list(.MARGIN = 1L)))
 
 .diag.cM <- .diag.rM <- function(x, na.rm = FALSE, dims = 1L, ...) {
+    kind <- .M.kind(x)
     if((n <- x@Dim[1L]) == 0L)
-        return(double(0L))
+        return(vector(switch(kind, "z" = "complex", "double"), 0L))
     else if(x@diag != "N")
-        r <- rep.int(1 / n, n)
+        r <- rep.int(switch(kind, "z" = 1+0i, 1) / n, n)
     else {
-        r <- as.double(x@x) / n
-        if(na.rm)
-            r[is.na(r)] <- if(n == 1L) NaN else 0
+        r <- x@x / n
+        if((na.rm || kind == "n") && anyNA(r))
+            r[is.na(r)] <- switch(kind,
+                                  "z" = if(n == 1L) NaN * (0+0i) else 0+0i,
+                                  "n" = 1 / n,
+                                  if(n == 1L) NaN else 0)
     }
     if(!is.null(nms <- x@Dimnames[[.MARGIN]]))
         names(r) <- nms
@@ -116,51 +129,3 @@ setMethod("rowMeans",  signature(x = "indMatrix"),
                   names(r) <- nms
               r
           })
-
-
-## ---- CsparseMatrix --------------------------------------------------
-
-setMethod("colSums",  signature(x = "CsparseMatrix"),
-          function(x, na.rm = FALSE, dims = 1L, sparseResult = FALSE, ...)
-              .Call(CRsparse_colSums, x, na.rm, FALSE, sparseResult))
-setMethod("colMeans", signature(x = "CsparseMatrix"),
-          function(x, na.rm = FALSE, dims = 1L, sparseResult = FALSE, ...)
-              .Call(CRsparse_colSums, x, na.rm, TRUE, sparseResult))
-setMethod("rowSums",  signature(x = "CsparseMatrix"),
-          function(x, na.rm = FALSE, dims = 1L, sparseResult = FALSE, ...)
-              .Call(CRsparse_rowSums, x, na.rm, FALSE, sparseResult))
-setMethod("rowMeans", signature(x = "CsparseMatrix"),
-          function(x, na.rm = FALSE, dims = 1L, sparseResult = FALSE, ...)
-              .Call(CRsparse_rowSums, x, na.rm, TRUE, sparseResult))
-
-
-## ---- RsparseMatrix --------------------------------------------------
-
-setMethod("colSums",  signature(x = "RsparseMatrix"),
-          function(x, na.rm = FALSE, dims = 1L, sparseResult = FALSE, ...)
-              .Call(CRsparse_rowSums, x, na.rm, FALSE, sparseResult))
-setMethod("colMeans", signature(x = "RsparseMatrix"),
-          function(x, na.rm = FALSE, dims = 1L, sparseResult = FALSE, ...)
-              .Call(CRsparse_rowSums, x, na.rm, TRUE, sparseResult))
-setMethod("rowSums",  signature(x = "RsparseMatrix"),
-          function(x, na.rm = FALSE, dims = 1L, sparseResult = FALSE, ...)
-              .Call(CRsparse_colSums, x, na.rm, FALSE, sparseResult))
-setMethod("rowMeans", signature(x = "RsparseMatrix"),
-          function(x, na.rm = FALSE, dims = 1L, sparseResult = FALSE, ...)
-              .Call(CRsparse_colSums, x, na.rm, TRUE, sparseResult))
-
-
-## ---- TsparseMatrix --------------------------------------------------
-
-setMethod("colSums",  signature(x = "TsparseMatrix"),
-          function(x, na.rm = FALSE, dims = 1L, sparseResult = FALSE, ...)
-              .Call(CRsparse_colSums, .M2C(x), na.rm, FALSE, sparseResult))
-setMethod("colMeans",  signature(x = "TsparseMatrix"),
-          function(x, na.rm = FALSE, dims = 1L, sparseResult = FALSE, ...)
-              .Call(CRsparse_colSums, .M2C(x), na.rm, TRUE, sparseResult))
-setMethod("rowSums",  signature(x = "TsparseMatrix"),
-          function(x, na.rm = FALSE, dims = 1L, sparseResult = FALSE, ...)
-              .Call(CRsparse_colSums, .M2R(x), na.rm, FALSE, sparseResult))
-setMethod("rowMeans",  signature(x = "TsparseMatrix"),
-          function(x, na.rm = FALSE, dims = 1L, sparseResult = FALSE, ...)
-              .Call(CRsparse_colSums, .M2R(x), na.rm, TRUE, sparseResult))

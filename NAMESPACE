@@ -7,10 +7,6 @@ useDynLib(Matrix, .registration = TRUE)
 ## (including generic functions for which we define methods),
 ## but not more ...
 
-## Some of the imports are necessary for when 'Matrix'
-## is loaded but not attached:
-## $ R --vanilla -e 'require(methods); (M <- Matrix::Matrix(0:1, 3L, 3L)); as(M, "sparseMatrix")'
-
 importFrom("grDevices", colorRampPalette, grey)
 
 importFrom("graphics", image, par)
@@ -23,10 +19,10 @@ importFrom("lattice", levelplot, panel.levelplot.raster)
 importFrom("methods", .hasSlot, .selectSuperClasses, .slotNames,
            Arith, Compare, Complex, Logic, Math, Math2, Ops, Summary,
            as, callGeneric, callNextMethod, canCoerce, cbind2, coerce,
-           extends, getClass, getClassDef, getGroupMembers,
-           implicitGeneric, is, isClassDef, kronecker, new, rbind2,
+           extends, getClassDef, getGroupMembers,
+           is, isClassDef, kronecker, new, rbind2,
            setAs, setClass, setClassUnion, setGeneric, setMethod,
-           setOldClass, setReplaceMethod, setValidity,
+           setOldClass, setReplaceMethod,
            signature, show, slot, "slot<-", slotNames, validObject)
 
 importFrom("stats", contr.SAS, contr.helmert, contr.poly, contr.sum,
@@ -43,6 +39,7 @@ importFrom("utils", capture.output, head, head.matrix, str, tail, tail.matrix)
 export(.M2C,
        .M2R,
        .M2T,
+       .M2V,
        .M2diag,
        .M2gen,
        .M2kind,
@@ -52,7 +49,6 @@ export(.M2C,
        .M2tri,
        .M2unpacked,
        .M2v,
-       .SuiteSparse_version,
        .bdiag,
        .dense2sparse,
        .diag.dsC,
@@ -63,6 +59,7 @@ export(.M2C,
        .ind2dense,
        .ind2sparse,
        .formatSparseSimple,
+       .m2V,
        .m2dense,
        .m2sparse,
        .sparse2dense,
@@ -79,15 +76,20 @@ export(.M2C,
        Hilbert,
        KhatriRao,
        Matrix,
+       Matrix.Version,
        MatrixClass,
        T2graph,
        abIseq,
        abIseq1,
+       aggregateT,
        anyDuplicatedT,
        asPerm,
+       asUniqueT,
        bandSparse,
        bdiag,
-       c.sparseVector, # c() dispatches on first argument only => allow method to be called explicitly if that argument may not be a sparseVector
+       ## 'c' dispatches on first argument only, so allow direct method calls :
+       ## c.Matrix, # not yet (see below)
+       c.sparseVector,
        colScale,
        condest,
        det,
@@ -106,6 +108,7 @@ export(.M2C,
        is.null.DN,
        isLDL,
        isPerm,
+       isUniqueT,
        mat2triplet,
        nearPD,
        onenormest,
@@ -123,8 +126,7 @@ export(.M2C,
        spMatrix,
        sparse.model.matrix,
        sparseMatrix,
-       sparseVector,
-       uniqTsparse)
+       sparseVector)
 
 ## Deprecated since Matrix 1.5-4 {Apr 2023}
 export(..2dge, .C2nC, .T2Cmat, .asmatrix, .dense2sy,
@@ -135,8 +137,9 @@ export(..2dge, .C2nC, .T2Cmat, .asmatrix, .dense2sy,
 export(cBind, rBind)
 
 ## Redundant now but not yet deprecated ...
-export(.CR2RC, .CR2T, .T2CR, .dense2g, .dense2kind, .dense2m, .dense2v,
-       .sparse2g, .sparse2kind, .sparse2m, .sparse2v, .tCR2RC)
+export(.CR2RC, .CR2T, .SuiteSparse_version, .T2CR, .dense2g, .dense2kind,
+       .dense2m, .dense2v, .sparse2g, .sparse2kind, .sparse2m, .sparse2v,
+       .tCR2RC, uniqTsparse)
 
 
 ## ---- S3 generic functions -------------------------------------------
@@ -147,25 +150,25 @@ export(.CR2RC, .CR2T, .T2CR, .dense2g, .dense2kind, .dense2m, .dense2v,
 ## ---- S3 methods -----------------------------------------------------
 
 ## So that dispatch also happens inside of 'base' functions:
-S3method(as.array, Matrix)
-S3method(as.array, sparseVector)
 S3method(as.matrix, Matrix)
 S3method(as.matrix, sparseVector)
-S3method(as.vector, Matrix)
-S3method(as.vector, sparseVector)
+S3method(as.array, Matrix)
+S3method(as.array, sparseVector)
 
 ## Because S4 dispatch is "hard" for c():
-S3method(c, abIndex)
+## S3method(c, Matrix) # breaks 7 rev. dep. {2023-09-08}
 S3method(c, sparseVector)
+S3method(c, abIndex)
 
 ## For printing return values of our summary() methods:
-S3method(print, sparseSummary)
 S3method(print, diagSummary)
+S3method(print, sparseSummary)
 
 
 ## ---- S4 generic functions, methods ----------------------------------
 
-export(crossprod, tcrossprod) ## *necessary* (once .Primitive in base)
+export(crossprod, tcrossprod) # *necessary* (once .Primitive in base)
+## MJ: why these and not also export(dim, ...) which are also primitive ??
 
 ## From 'Matrix' {no need to also export(); see WRE}
 exportMethods("%&%",
@@ -196,10 +199,9 @@ exportMethods("%&%",
 exportMethods("!",
               "%*%",
               "+",
-              all,
-              any,
               all.equal,
               as.array,
+              as.complex,
               as.integer,
               as.logical,
               as.matrix,
@@ -303,7 +305,7 @@ exportClasses(Matrix, # and its subclasses .............................
               nsRMatrix,
               nsTMatrix,
 
-              ## ndiMatrix,
+              ndiMatrix,
 
               lMatrix,
 
@@ -439,7 +441,6 @@ exportClasses(Matrix, # and its subclasses .............................
               index,
               number,
               replValue, # dispatch fails when not exported
-              xsparseVector,
 
               ## "Other" non-virtual {for now just experimental index classes}:
               abIndex,

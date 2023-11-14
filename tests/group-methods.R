@@ -599,11 +599,13 @@ stopifnot(all(M >= 1), !any(M < 0),
 ## prod(<symmetricMatrix>) does not perform multiplies in row/column order :
 x4 <- new("dspMatrix", Dim = c(4L, 4L),
           x = c(171, 53, 79, 205, 100, 285, 98, 15, 99, 84))
-p4 <- prod(x4)
-p4. <- prod(as(x4, "generalMatrix"))
+p4   <- prod(   x4)
+p4.  <- prod(as(x4, "generalMatrix"))
 p4.. <- prod(as(x4, "matrix"))
-stopifnot(all.equal(p4, p4.), identical(p4., p4..))
-all.equal(p4, p4., tolerance = 0)
+stopifnot(all.equal(p4,  p4. , tolerance = 1e-15),
+          all.equal(p4., p4.., tolerance = 1e-15))
+all.equal(p4,  p4. , tolerance = 0)
+all.equal(p4., p4.., tolerance = 0)
 .Machine[["sizeof.longdouble"]]
 
 cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''

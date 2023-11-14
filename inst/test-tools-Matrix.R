@@ -447,7 +447,10 @@ checkMatrix <- function(m, m.m = if(do.matrix) as(m, "matrix"),
                         doSummary = TRUE, doCoerce = TRUE,
 			doCoerce2 = doCoerce && !isRsp, doDet = do.matrix,
 			do.prod = do.t && do.matrix && !isRsp,
-			verbose = TRUE, catFUN = cat)
+			verbose = TRUE, catFUN = cat,
+                        MSG = if(interactive() || capabilities("long.double") || 
+                                 isTRUE(get0("doExtras"))) message else function(...) {}
+                        )
 {
     ## is also called from  dotestMat()  in ../tests/Class+Meth.R
 
@@ -551,11 +554,11 @@ checkMatrix <- function(m, m.m = if(do.matrix) as(m, "matrix"),
 	for(f in summList) {
 	    ## suppressWarnings():  e.g. any(<double>)	would warn here:
 	    r <- suppressWarnings(identical(f(m), f(m.m)))
-	    if(!isTRUE(r)) {
+	    if(!isTRUE(r)) { ## typically for prod()
 		f.nam <- sub("..$", '', sub("^\\.Primitive..", '', format(f)))
 		## sum() and prod() are sensitive to order of f. p. operations
 		## particularly on systems where sizeof(long double) == sizeof(double)
-		(if(any(f.nam == c("sum", "prod"))) message else stop)(
+		(if(any(f.nam == c("sum", "prod"))) MSG else stop)(
 		    sprintf("%s(m) [= %g] differs from %s(m.m) [= %g]",
 			    f.nam, f(m), f.nam, f(m.m)))
 	    }

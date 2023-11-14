@@ -1,4 +1,4 @@
-43935fbd767ff735531d1f491ad2834b *DESCRIPTION
+8d0a8862e6720381f6ad91b701530940 *DESCRIPTION
 7866cc186e8ad4d6a243c271f64c13fc *LICENCE
 ba6604808100abfe8137ad02b0a04f22 *NAMESPACE
 d641435295187325a3663988363105bb *R/AllClass.R
@@ -50,8 +50,8 @@ ee9131172b092aab5fe5cf65c31e7a3c *R/sparseVector.R
 652621c4dfe1d178c7d0b6dd6094d2ad *R/subscript.R
 4e983e0d3d1a87f0e9058bc9cf0b6143 *R/which.R
 69f3cdbddc841fd0b984e9b2ebc9f088 *R/zzz.R
-411e48e5e343aab2e0bbc4bd76e7d8cd *build/Matrix.pdf
-311137a19377831ac0c4ae705e7a47c3 *build/stage23.rdb
+67e0005a66bf87e12c1179b435c1f581 *build/Matrix.pdf
+8c1f231b6be2a509e34ac857a0de43bb *build/stage23.rdb
 75b445cb0f3b5549d3132a7236c6d050 *build/vignette.rds
 afeec9c25bf3c232f8567ee3f27cf0f6 *cleanup
 9f8e37cf17a5d4811d0c28f07148cf7d *data/CAex.R
@@ -59,19 +59,19 @@ c60c038f2c6d15c5303d81330991c838 *data/KNex.R
 d6193dad1031a61ebc3d3e38fabd252d *data/USCounties.R
 0d65337740b3914f535239cbe6e8a2df *data/datalist
 a40150a1c71deabec67e61af2b8f7e38 *data/wrld_1deg.R
-d91b5d22b0858b469536d522ae4a257c *inst/NEWS.Rd
+4678b4ef31bd6f9be39ebf701d1890e4 *inst/NEWS.Rd
 d1092f2de709b554fb06b516ee00a885 *inst/doc/Comparisons.R
 f6c9e4986022f1db4c085b8429d06fca *inst/doc/Comparisons.Rnw
-9519ab5b8d0b9f5c116738930a00ee1f *inst/doc/Comparisons.pdf
+d75c29b6d6251ceb575f3f0e4261e9dd *inst/doc/Comparisons.pdf
 3f45bdb5515081392d14b87f4770cb2b *inst/doc/Design-issues.R
 2bd2896847fb11eaf102158b8696c884 *inst/doc/Design-issues.Rnw
-f70f3abd6422990439dd0a55747d7c85 *inst/doc/Design-issues.pdf
+fd610ec99b3062e078d6b2759b5fcd67 *inst/doc/Design-issues.pdf
 3f87d045a10e0afc85a3385bab8f215b *inst/doc/Intro2Matrix.R
 448278dab638a78df6eb59270772cbe2 *inst/doc/Intro2Matrix.Rnw
-8e53c49c205ca61c40594bf85305666c *inst/doc/Intro2Matrix.pdf
+713681f1b9329d8b6e2761390e3abaee *inst/doc/Intro2Matrix.pdf
 1a59a7d3257a30349a5e10285ea05a69 *inst/doc/Introduction.R
 c39a26dfe7ccaafd044e88468155b153 *inst/doc/Introduction.Rnw
-5214716c0b7e493cb6423e220066e44c *inst/doc/Introduction.pdf
+82679e83e76c810b5b28664d8eef82fb *inst/doc/Introduction.pdf
 20ced7019f5a55639aa1af1a2dfa1057 *inst/doc/SuiteSparse/AMD.txt
 facc21d5bf9bcbf3e57a8b3c7bd1caa0 *inst/doc/SuiteSparse/CHOLMOD.txt
 a6693872cf6e74e758f3fa327c606fec *inst/doc/SuiteSparse/COLAMD.txt
@@ -79,7 +79,7 @@ d75882d4bb768ba0ea352291652daaee *inst/doc/SuiteSparse/SPQR.txt
 c7da19803d926fe0e3604c08bedfb3c5 *inst/doc/SuiteSparse/SuiteSparse_config.txt
 e4e486aee6a99cb21909bb6de32db68d *inst/doc/sparseModels.R
 813e0c8cc7a5f7ecff43e5882270a431 *inst/doc/sparseModels.Rnw
-fa417506b75c8e3758220b540fa946c0 *inst/doc/sparseModels.pdf
+be62d49a7f8fb435243178f3f04b4929 *inst/doc/sparseModels.pdf
 dcd11f6947f910f743254824e930b2c7 *inst/external/CAex_slots.rda
 be886d6bb832210bb654b9ad064fe0ff *inst/external/KNex_slots.rda
 90f019ec81e67d7f3542f7ca39bf3f2d *inst/external/USCounties_slots.rda
@@ -101,7 +101,7 @@ a8f80507036f68ab0180c36e4d874abd *inst/include/Matrix/alloca.h
 573270a60b73ad502ab087e00bb22d91 *inst/include/Matrix/cholmod.h
 a31e55cd9a1f668102dcf38b335eb134 *inst/include/Matrix/remap.h
 fedfc6bfec2247c1933a7bdf9bdce4df *inst/include/Matrix/stubs.c
-bec4a6bfb1f3ceacac962f61d9a81390 *inst/include/Matrix/version.h
+6bf71f44c24df06c5896443a5e5c09a8 *inst/include/Matrix/version.h
 7d96680b80f7792dda638a3900abab51 *inst/include/Matrix_stubs.c
 521f406135ff54057933d9a152482ec7 *inst/include/cholmod.h
 f16fb9f317d02aa9f4b0423532a2826c *inst/po/de/LC_MESSAGES/Matrix.mo
@@ -119,7 +119,7 @@ b4d9022d77514c2a71fc5692ac69c80e *inst/po/lt/LC_MESSAGES/R-Matrix.mo
 8e3ad6e4b476f6bea60a6a5429dd20b7 *inst/po/pl/LC_MESSAGES/Matrix.mo
 71c78aeb12f673f7e0665cc97cec9c76 *inst/po/pl/LC_MESSAGES/R-Matrix.mo
 3c1f83c7d331c9013a3435ab8a35984b *inst/test-tools-1.R
-0b63373d7be9cdc066b8344c157e8bc0 *inst/test-tools-Matrix.R
+bc0b1bbed7cee3d103d87aa4c3a303d5 *inst/test-tools-Matrix.R
 c54af18acaf2a18fad0cfe5f4fe54e83 *inst/test-tools.R
 2f258fd7ae54ca8e0c16d7538fb1810e *man/BunchKaufman-class.Rd
 cefbc46d17630ba3c2a013206b741886 *man/BunchKaufman-methods.Rd
@@ -443,7 +443,7 @@ ed9a22e450a45f8ab7ecbb5ebf47a06d *src/t_Csparse_subassign.c
 a819313eb7f9d3c3fc57990d6022b076 *src/utils.h
 68452519a0af12ef44ae93e39afb50e0 *src/validity.c
 9488bc95eb18488965cc74af6674cd76 *src/validity.h
-d6b09726a382b1aa2554405c4b2488cd *src/version.h
+ed6c934753e947c5d10edf58c29570fb *src/version.h
 242ec9448d48cc231d1369448e310018 *tests/Class+Meth.R
 6d046b4f202bc199400b4d5f02f8afd4 *tests/Simple.R
 5e53e6b4552a116eb3a0d6d2feff0105 *tests/abIndex-tsts.R
@@ -454,7 +454,7 @@ d8d4dec1de3026e421c1faeee559e6fe *tests/dg_Matrix.R
 d9e757825755abd46eaa5bb29f1b9848 *tests/dpo-test.R
 c8ee301b09c474efe164f0b1455f74a8 *tests/dtpMatrix.R
 71f1291cb2f3d3a53525b09fc500ff0a *tests/factorizing.R
-d7d4480cf1ec274a8d43965992728268 *tests/group-methods.R
+58db5af64179692469bceceebe17c8e9 *tests/group-methods.R
 ecda3b001378e86ba5dff287e0c2f91e *tests/indexing.R
 ff1b0ddb4c97e1da3ac465f113919c1d *tests/indexing.Rout.save
 3f2ff4d5c0d6f7678047da84d9f9c23c *tests/matprod.R

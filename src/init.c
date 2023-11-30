@@ -328,16 +328,15 @@ void attribute_visible R_init_Matrix(DllInfo *info)
 	/* Matrix: */
 	RREGDEF(sexp_as_cholmod_factor);
 	RREGDEF(sexp_as_cholmod_sparse);
+	RREGDEF(sexp_as_cholmod_triplet);
 	RREGDEF(sexp_as_cholmod_dense);
 	RREGDEF(numeric_as_cholmod_dense);
 	RREGDEF(cholmod_factor_as_sexp);
 	RREGDEF(cholmod_sparse_as_sexp);
+	RREGDEF(cholmod_triplet_as_sexp);
 	RREGDEF(cholmod_dense_as_sexp);
 	RREGDEF(cholmod_factor_ldetA);
 	RREGDEF(cholmod_factor_update);
-	/* Because lme4 inexplicably does not use _our_ headers: */
-	R_RegisterCCallable("Matrix", "chm_factor_ldetL2",
-	                    (DL_FUNC) cholmod_factor_ldetA);
 
 	Matrix_DimNamesSym = install("Dimnames");
 	Matrix_DimSym      = install("Dim");

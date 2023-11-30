@@ -120,7 +120,7 @@ Matrix.Version <- function() {
 ## ~~~~ DEPRECATED ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ..2dge <- function(from) {
-    .Deprecated(new = ".M2gen", package = "Matrix")
+    .Deprecated(new = ".M2gen(*, \"d\") or .m2dense(*, \"dge\")", package = "Matrix")
     if(isS4(from))
         .M2gen(from, "d")
     else .m2dense(from, "dge")

@@ -515,11 +515,22 @@ R_MATRIX_INLINE CHM_SP attribute_hidden
 M_sexp_as_cholmod_sparse(CHM_SP A, SEXP from,
                          Rboolean checkUnit, Rboolean sortInPlace)
 {
-	static CHM_SP(*fun)(CHM_SP, SEXP, Rboolean, Rboolean)= NULL;
+	static CHM_SP(*fun)(CHM_SP, SEXP, Rboolean, Rboolean) = NULL;
 	if (fun == NULL)
 		fun = (CHM_SP(*)(CHM_SP, SEXP, Rboolean, Rboolean))
 			R_GetCCallable("Matrix", "sexp_as_cholmod_sparse");
 	return fun(A, from, checkUnit, sortInPlace);
+}
+
+R_MATRIX_INLINE CHM_TR attribute_hidden
+M_sexp_as_cholmod_triplet(CHM_TR A, SEXP from,
+                          Rboolean checkUnit)
+{
+	static CHM_TR(*fun)(CHM_TR, SEXP, Rboolean) = NULL;
+	if (fun == NULL)
+		fun = (CHM_TR(*)(CHM_TR, SEXP, Rboolean))
+			R_GetCCallable("Matrix", "sexp_as_cholmod_triplet");
+	return fun(A, from, checkUnit);
 }
 
 R_MATRIX_INLINE CHM_DN attribute_hidden
@@ -561,6 +572,18 @@ M_cholmod_sparse_as_sexp(CHM_SP A, int doFree,
 	if (fun == NULL)
 		fun = (SEXP(*)(CHM_SP, int, int, int, const char *, SEXP))
 			R_GetCCallable("Matrix", "cholmod_sparse_as_sexp");
+	return fun(A, doFree, ttype, doLogic, diagString, dimnames);
+}
+
+R_MATRIX_INLINE SEXP attribute_hidden
+M_cholmod_triplet_as_sexp(CHM_TR A, int doFree,
+                          int ttype, int doLogic, const char *diagString,
+                          SEXP dimnames)
+{
+	static SEXP(*fun)(CHM_TR, int, int, int, const char *, SEXP) = NULL;
+	if (fun == NULL)
+		fun = (SEXP(*)(CHM_TR, int, int, int, const char *, SEXP))
+			R_GetCCallable("Matrix", "cholmod_triplet_as_sexp");
 	return fun(A, doFree, ttype, doLogic, diagString, dimnames);
 }
 

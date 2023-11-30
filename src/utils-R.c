@@ -385,17 +385,17 @@ SEXP Mmatrix(SEXP args)
 	if (lendat > 0) {
 		R_xlen_t nrc = (R_xlen_t) nr * nc;
 		if (lendat > 1 && nrc % lendat != 0) {
-			if (((lendat > nr) && (lendat / nr) * nr != lendat) ||
-				((lendat < nr) && (nr / lendat) * lendat != nr))
-				warning(_("data length [%d] is not a sub-multiple "
+			if ((lendat > nr && (lendat / nr) * nr != lendat) ||
+			    (lendat < nr && (nr / lendat) * lendat != nr))
+				warning(_("data length [%lld] is not a sub-multiple "
 				          "or multiple of the number of rows [%d]"),
-				        lendat, nr);
-			else if (((lendat > nc) && (lendat / nc) * nc != lendat) ||
-					 ((lendat < nc) && (nc / lendat) * lendat != nc))
-				warning(_("data length [%d] is not a sub-multiple "
+				        (long long)lendat, nr);
+			else if ((lendat > nc && (lendat / nc) * nc != lendat) ||
+				 (lendat < nc && (nc / lendat) * lendat != nc))
+				warning(_("data length [%lld] is not a sub-multiple "
 				          "or multiple of the number of columns [%d]"),
-						lendat, nc);
-		} else if ((lendat > 1) && (nrc == 0))
+					(long long)lendat, nc);
+		} else if (lendat > 1 && nrc == 0)
 			warning(_("data length exceeds size of matrix"));
 	}
 

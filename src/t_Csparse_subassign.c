@@ -267,8 +267,8 @@ SEXP Csparse_subassign(SEXP x, SEXP i_, SEXP j_, SEXP value)
 		    v = (value_is_nsp) ? one_ans : val_x[j_val];
 		    j_val++;// from now on, look at the next non-zero entry
 		} else { //  ii_v1 > val_i[j_val]
-		    REprintf("programming thinko in Csparse_subassign(*, i=%d,j=%d): ii_v=%d, v@i[j_val=%ld]=%g\n",
-			     i__,j__, ii_v1, j_val, val_i[j_val]);
+		    REprintf("programming thinko in Csparse_subassign(*, i=%d,j=%d): ii_v=%lld, v@i[j_val=%d]=%g\n",
+			     i__,j__, (long long)ii_v1, j_val, val_i[j_val]);
 		    j_val++;// from now on, look at the next non-zero entry
 		}
 	    }

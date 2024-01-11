@@ -1850,24 +1850,24 @@ void validObject(SEXP obj, const char *cl)
 	do { \
 		IS_VALID(_C_ ## sparseMatrix); \
 		if (cl[0] == 'n') { \
-			if (cl[1] == 't') \
-				IS_VALID(t ## _C_ ## Matrix); \
-			else if (cl[1] == 's') \
+			if (cl[1] == 's') \
 				IS_VALID(s ## _C_ ## Matrix); \
+			else if (cl[1] == 't') \
+				IS_VALID(t ## _C_ ## Matrix); \
 		} else { \
 			if (cl[1] == 'g') \
 				IS_VALID(xg ## _C_ ## Matrix); \
-			else if (cl[1] == 't') \
-				IS_VALID(xt ## _C_ ## Matrix); \
 			else if (cl[1] == 's') \
 				IS_VALID(xs ## _C_ ## Matrix); \
+			else if (cl[1] == 't') \
+				IS_VALID(xt ## _C_ ## Matrix); \
 		} \
 	} while (0)
 
 	IS_VALID(Matrix);
 
 	if ((cl[0] == 'i' && cl[1] == 'n' && cl[2] == 'd') ||
-		(cl[0] == 'p' && cl[1] != 'C' && cl[1] != 'c')) {
+		(cl[0] == 'p' && cl[1] != 'c')) {
 		IS_VALID(indMatrix);
 		if (cl[0] == 'p')
 			IS_VALID(pMatrix);
@@ -1875,11 +1875,7 @@ void validObject(SEXP obj, const char *cl)
 	}
 
 	const char *cl_ = cl;
-	if (cl[0] == 'C')
-		cl = "dtrMatrix";
-	else if (cl[0] == 'p' && cl[1] == 'C')
-		cl = "dtpMatrix";
-	else if (cl[0] == 'c')
+	if (cl[0] == 'c')
 		cl = "dpoMatrix";
 	else if (cl[0] == 'p' && cl[1] == 'c')
 		cl = "dppMatrix";
@@ -1895,10 +1891,10 @@ void validObject(SEXP obj, const char *cl)
 	else if (cl[0] == 'z')
 		IS_VALID(zMatrix);
 
-	if (cl[1] == 't')
-		IS_VALID(triangularMatrix);
-	else if (cl[1] == 's' || cl[1] == 'p')
+	if (cl[1] == 's' || cl[1] == 'p')
 		IS_VALID(symmetricMatrix);
+	else if (cl[1] == 't')
+		IS_VALID(triangularMatrix);
 	else if (cl[1] == 'd') {
 		IS_VALID(diagonalMatrix);
 		return;
@@ -1912,18 +1908,14 @@ void validObject(SEXP obj, const char *cl)
 		IS_VALID_SPARSE(T);
 	else if (cl[2] != 'p') {
 		IS_VALID(unpackedMatrix);
-		if (cl_[0] == 'C')
-			IS_VALID(Cholesky);
-		else if (cl[1] == 'p') {
+		if (cl[1] == 'p') {
 			IS_VALID(dpoMatrix);
 			if (cl_[0] == 'c')
 				IS_VALID(corMatrix);
 		}
 	} else {
 		IS_VALID(packedMatrix);
-		if (cl_[0] == 'p' && cl_[1] == 'C')
-			IS_VALID(pCholesky);
-		else if (cl[1] == 'p') {
+		if (cl[1] == 'p') {
 			IS_VALID(dppMatrix);
 			if (cl_[0] == 'p' && cl_[1] == 'c')
 				IS_VALID(pcorMatrix);

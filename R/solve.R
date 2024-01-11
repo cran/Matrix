@@ -586,12 +586,9 @@ setMethod("solve", signature(a = "pMatrix", b = "Matrix"),
 
 ## for now ... fast for this special case ...
 .spV2dgC <- function(x) {
-    if(is.double(m <- x@length)) {
-        if(trunc(m) > .Machine$integer.max)
-            stop(gettextf("dimensions cannot exceed %s", "2^31-1"),
-                 domain = NA)
-        m <- as.integer(m)
-    }
+    if(is.double(m <- length(x)))
+        stop(gettextf("dimensions cannot exceed %s", "2^31-1"),
+             domain = NA)
     i <- as.integer(x@i) - 1L
     nnz <- length(i)
     r <- new("dgCMatrix")
@@ -610,13 +607,9 @@ setMethod("solve", signature(a = "pMatrix", b = "Matrix"),
 
 ## for now ... fast for this special case ...
 .spV2dge <- function(x) {
-    m <- x@length
-    if(is.double(m)) {
-        if(trunc(m) > .Machine$integer.max)
-            stop(gettextf("dimensions cannot exceed %s", "2^31-1"),
-                 domain = NA)
-        m <- as.integer(m)
-    }
+    if(is.double(m <- length(x)))
+        stop(gettextf("dimensions cannot exceed %s", "2^31-1"),
+             domain = NA)
     r <- new("dgeMatrix")
     r@Dim <- c(m, 1L)
     r@x <- replace(double(m), x@i,

@@ -21,7 +21,7 @@ c.sparseVector <- function(...) {
     i <- match(vapply(args, .M.kind, ""), s)
     k <- range(i)
     n <- sum(args.length)
-    a <- if(n <= .Machine$integer.max) as.integer else as.double
+    a <- if(n - 1 <= .Machine$integer.max) as.integer else as.double
 
     r <- new(paste0(s[k[2L]], "sparseVector"))
     r@length <- a(n)

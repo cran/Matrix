@@ -93,7 +93,7 @@
       their \dQuote{interaction}.}
   }
 }
-\author{Fabian Scheipl and Uni Muenchen, building on the existing class
+\author{Fabian Scheipl at \file{uni-muenchen.de}, building on the existing class
   \code{\linkS4class{pMatrix}} after a nice hike's conversation with
   Martin Maechler.  Methods for \code{\link{crossprod}(x, y)} and
   \code{\link{kronecker}(x, y)} with both arguments inheriting from
@@ -111,7 +111,7 @@
   The cross product of a row index matrix \code{R} and itself is a
   diagonal matrix whose diagonal entries are the the number of entries
   in each column of \code{R}.
-  
+
   Given a row index matrix \code{R} with \code{perm} slot \code{p},
   a column index matrix \code{C} with \code{perm} slot \code{q},
   and a matrix \code{M} with conformable dimensions, we have

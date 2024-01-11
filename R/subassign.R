@@ -14,6 +14,236 @@
 ##               CsparseMatrix,RsparseMatrix,TsparseMatrix,
 ##               diagonalMatrix,indMatrix
 
+if(FALSE) { # TODO
+.subassign.invalid <- function(value) {
+    if(is.object(i))
+        gettextf("invalid subassignment value class \"%s\"", class(i)[1L])
+    else gettextf("invalid subassignment value type \"%s\"", typeof(i))
+}
+
+.subassign.1ary <- function(x, i, value) {
+
+}
+
+..subassign.1ary <- function(x, i, value) {
+
+}
+
+.subassign.1ary.mat <- function(x, i, value) {
+
+}
+
+..subassign.1ary.mat <- function(x, i, value) {
+
+}
+
+.subassign.2ary <- function(x, i, j, value) {
+
+}
+
+..subassign.2ary <- function(x, i, j, value) {
+
+}
+
+setMethod("[<-", signature(x = "Matrix", i = "missing", j = "missing",
+                           value = "ANY"),
+          function(x, i, j, ..., value) {
+              if(missing(value))
+                  stop("missing subassignment value")
+              na <- nargs()
+              if(na <= 4L)
+                  ## x[], x[, ] <- value
+                  .subassign.1ary(x, , value)
+              else
+                  ## x[, , ], etc. <- value
+                  stop("incorrect number of dimensions")
+          })
+
+setMethod("[<-", signature(x = "Matrix", i = "index", j = "missing",
+                           value = "ANY"),
+          function(x, i, j, ..., value) {
+              if(missing(value))
+                  stop("missing subassignment value")
+              na <- nargs()
+              if(na == 3L)
+                  ## x[i=] <- value
+                  .subassign.1ary(x, i, value)
+              else if(na == 4L)
+                  ## x[i=, ], x[, i=] <- value
+                  .subassign.2ary(x, i, , value)
+              else
+                  ## x[i=, , ], etc. <- value
+                  stop("incorrect number of dimensions")
+          })
+
+setMethod("[<-", signature(x = "Matrix", i = "missing", j = "index",
+                           value = "ANY"),
+          function(x, i, j, ..., value) {
+              if(missing(value))
+                  stop("missing subassignment value")
+              na <- nargs()
+              if(na == 3L)
+                  ## x[j=] <- value
+                  .subassign.1ary(x, j, value)
+              else if(na == 4L)
+                  ## x[j=, ], x[, j=] <- value
+                  .subassign.2ary(x, , j, value)
+              else
+                  ## x[, j=, ], etc. <- value
+                  stop("incorrect number of dimensions")
+          })
+
+setMethod("[<-", signature(x = "Matrix", i = "index", j = "index",
+                           value = "ANY"),
+          function(x, i, j, ..., value) {
+              if(missing(value))
+                  stop("missing subassignment value")
+              na <- nargs()
+              if(na == 4L)
+                  ## x[i=, j=], x[j=, i=] <- value
+                  .subassign.2ary(x, i, j, value)
+              else
+                  ## x[i=, j=, ], etc. <- value
+                  stop("incorrect number of dimensions")
+          })
+
+for(.cl in c("matrix", "nMatrix", "lMatrix"))
+setMethod("[<-", signature(x = "Matrix", i = .cl, j = "missing",
+                           value = "ANY"),
+          function(x, i, j, ..., value) {
+              if(missing(value))
+                  stop("missing subassignment value")
+              na <- nargs()
+              if(na == 3L)
+                  ## x[i=] <- value
+                  .subassign.1ary.mat(x, i, value)
+              else if(na == 4L)
+                  ## x[i=, ], x[, i=] <- value
+                  .subassign.2ary(x, i, , value)
+              else
+                  ## x[i=, , ], etc. <- value
+                  stop("incorrect number of dimensions")
+          })
+rm(.cl)
+
+setMethod("[<-", signature(x = "Matrix", i = "NULL", j = "ANY",
+                           value = "ANY"),
+          function(x, i, j, ..., value) {
+              i <- integer(0L)
+              callGeneric()
+          })
+
+setMethod("[<-", signature(x = "Matrix", i = "ANY", j = "NULL",
+                           value = "ANY"),
+          function(x, i, j, ..., value) {
+              j <- integer(0L)
+              callGeneric()
+          })
+
+setMethod("[<-", signature(x = "Matrix", i = "NULL", j = "NULL",
+                           value = "ANY"),
+          function(x, i, j, ..., value) {
+              i <- integer(0L)
+              j <- integer(0L)
+              callGeneric()
+          })
+
+setMethod("[<-", signature(x = "sparseVector", i = "missing", j = "missing",
+                           value = "ANY"),
+          function(x, i, j, ..., value) {
+              if(missing(value))
+                  stop("missing subassignment value")
+              if(nargs() > 3L)
+                  stop("incorrect number of dimensions")
+              if(isS4(value)) {
+                  if(!.isVector(value))
+                      stop(.subassign.invalid(value), domain = NA)
+              } else
+                  value <- switch(typeof(value),
+                                  "logical" =,
+                                  "integer" =,
+                                  "double" =,
+                                  "complex" = .m2V(value),
+                                  stop(.subassign.invalid(value), domain = NA))
+              n.x <- length(x)
+              n.value <- length(value)
+              if(n.x > 0L && n.value == 0L)
+                  stop("replacement has length zero")
+              k.x <- .M2kind(x)
+              k.value <- .M2kind(value)
+              if(k.x != k.value) {
+                  map <- `names<-`(1:5, c("n", "l", "i", "d", "z"))
+                  if(map[[k.value]] < map[[k.x]])
+                      value <- .V2kind(value, k.x)
+              }
+              if(n.value == 0L)
+                  return(value)
+              if(n.x %% n.value != 0L)
+                  warning("number of items to replace is not a multiple of replacement length")
+              .V.rep.len(value, n.x)
+          })
+
+setMethod("[<-", signature(x = "sparseVector", i = "index", j = "missing",
+                           value = "ANY"),
+          function(x, i, j, ..., value) {
+              if(missing(value))
+                  stop("missing subassignment value")
+              if(nargs() > 3L)
+                  stop("incorrect number of dimensions")
+              if(isS4(value)) {
+                  if(!.isVector(value))
+                      stop(.subassign.invalid(value), domain = NA)
+              } else
+                  value <- switch(typeof(value),
+                                  "logical" =,
+                                  "integer" =,
+                                  "double" =,
+                                  "complex" = .m2V(value),
+                                  stop(.subassign.invalid(value), domain = NA))
+              switch(typeof(i),
+                     "logical" = {},
+                     "integer" = {},
+                     "double" = {},
+                     stop(.subscript.invalid(value), domain = NA))
+              k.x <- .M2kind(x)
+              k.value <- .M2kind(value)
+              if(k.x != k.value) {
+                  map <- `names<-`(1:5, c("n", "l", "i", "d", "z"))
+                  if(map[[k.x]] < map[[k.value]])
+                      x <- .V2kind(x, k.value)
+              }
+              ## TODO
+          })
+
+setMethod("[<-", signature(x = "sparseVector", i = "nsparseVector", j = "missing",
+                           value = "ANY"),
+          function(x, i, j, ..., drop = TRUE) {
+              if(missing(value))
+                  stop("missing subassignment value")
+              if(nargs() > 3L)
+                  stop("incorrect number of dimensions")
+              x[.subscript.recycle(i, length(x), TRUE)] <- value
+              x
+          })
+
+setMethod("[<-", signature(x = "sparseVector", i = "lsparseVector", j = "missing",
+                           value = "ANY"),
+          function(x, i, j, ..., drop = TRUE) {
+              if(missing(value))
+                  stop("missing subassignment value")
+              if(nargs() > 3L)
+                  stop("incorrect number of dimensions")
+              x[.subscript.recycle(i, length(x), FALSE)] <- value
+              x
+          })
+
+setMethod("[<-", signature(x = "sparseVector", i = "NULL", j = "ANY",
+                           value = "ANY"),
+          function(x, i, j, ..., value) {
+              i <- integer(0L)
+              callGeneric()
+          })
+} # TODO
 
 ## ==== Matrix =========================================================
 

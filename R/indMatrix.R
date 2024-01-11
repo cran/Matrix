@@ -93,13 +93,13 @@ setAs("nsparseMatrix", "indMatrix",
       })
 
 setMethod("band", signature(x = "indMatrix"),
-          function(x, k1, k2, ...) band(.M2kind(x, "n"), k1, k2))
+          function(x, k1, k2, ...) band(.M2kind(x, "n"), k1, k2, ...))
 
 setMethod("triu", signature(x = "indMatrix"),
-          function(x, k = 0L, ...) triu(.M2kind(x, "n")))
+          function(x, k = 0L, ...) triu(.M2kind(x, "n"), k, ...))
 
 setMethod("tril", signature(x = "indMatrix"),
-          function(x, k = 0L, ...) tril(.M2kind(x, "n")))
+          function(x, k = 0L, ...) tril(.M2kind(x, "n"), k, ...))
 
 setMethod("diag", signature(x = "indMatrix"),
           function(x, nrow, ncol, names = TRUE) {

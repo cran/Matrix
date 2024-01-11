@@ -576,16 +576,23 @@ uTp <- new("dtpMatrix", x=c(2, 3, -1, 4:6, -2:1), Dim = c(p,p))
 ## Schur ( <general> )  <--> Schur( <triangular> )
 Su <- Schur(uT) ;   checkSchur(uT, Su)
 gT <- as(uT,"generalMatrix")
-Sg <- Schur(gT) ;   checkSchur(gT, Sg)
+Sg  <- Schur(gT) ;  checkSchur(gT, Sg)
 Stg <- Schur(t(gT));checkSchur(t(gT), Stg)
 Stu <- Schur(t(uT));checkSchur(t(uT), Stu)
 
-stopifnot(identical3(Sg@T, uT, Su@T),
-          identical(Sg@Q, as(diag(p), "generalMatrix")),
-          identical(Stg@T, as(t(gT[,p:1])[,p:1], "triangularMatrix")),
-          identical(Stg@Q, as(diag(p)[,p:1], "generalMatrix")),
-          identical(Stu@T, Stg@T))
-assert.EQ.mat(Stu@Q, as(Stg@Q,"matrix"), tol=0)
+stopifnot(exprs = {
+    identical3(Sg@T, uT, Su@T)
+    identical(Sg@Q, as(diag(p), "generalMatrix"))
+    ## LaPck 3.12.0: these must be more careful (Q is *different* permutation):
+    is.integer(print(ip <- invPerm(pp <- as(Stg@Q, "pMatrix")@perm)))
+    identical(Stg@T, as(t(gT[,ip])[,ip], "triangularMatrix"))
+    identical(Stg@Q, as(   diag(p)[,ip], "generalMatrix"))
+    ## Stu still has p:1 permutation, but should not rely on it
+    is.integer(print(i2 <- invPerm(as(Stu@Q, "pMatrix")@perm)))
+    identical(Stu@T, as(t(uT[,i2])[,i2], "triangularMatrix"))
+    identical(Stu@Q, as(   diag(p)[,i2], "pMatrix")) # Schur(<triangular>) ==> 'Q' is pMatrix
+})
+
 
 ## the pedigreemm example where solve(.) failed:
 p <- new("dtCMatrix", i = c(2L, 3L, 2L, 5L, 4L, 4:5), p = c(0L, 2L, 4:7, 7L),

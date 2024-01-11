@@ -163,33 +163,27 @@ body(..M2tri)[[2L]][[2L]][[2L]][[2L]][[3L]] <-
 }
 
 .V2m <- function(from) {
-    if(is.double(m <- from@length)) {
-        if(m > .Machine$integer.max)
-            stop(gettextf("dimensions cannot exceed %s", "2^31-1"), domain = NA)
-        m <- as.integer(m)
-    }
+    if(is.double(m <- length(from)))
+        stop(gettextf("dimensions cannot exceed %s", "2^31-1"),
+             domain = NA)
     to <- .V2v(from)
     dim(to) <- c(m, 1L)
     to
 }
 
 .V2a <- function(from) {
-    if(is.double(m <- from@length)) {
-        if(m > .Machine$integer.max)
-            stop(gettextf("dimensions cannot exceed %s", "2^31-1"), domain = NA)
-        m <- as.integer(m)
-    }
+    if(is.double(m <- length(from)))
+        stop(gettextf("dimensions cannot exceed %s", "2^31-1"),
+             domain = NA)
     to <- .V2v(from)
     dim(to) <- m
     to
 }
 
 .V2unpacked <- function(from) {
-    if(is.double(m <- from@length)) {
-        if(m > .Machine$integer.max)
-            stop(gettextf("dimensions cannot exceed %s", "2^31-1"), domain = NA)
-        m <- as.integer(m)
-    }
+    if(is.double(m <- length(from)))
+        stop(gettextf("dimensions cannot exceed %s", "2^31-1"),
+             domain = NA)
     kind <- .M.kind(from)
     to <- new(paste0(if(kind == "i") "d" else kind, "geMatrix"))
     to@Dim <- c(m, 1L)
@@ -199,11 +193,9 @@ body(..M2tri)[[2L]][[2L]][[2L]][[2L]][[3L]] <-
 }
 
 .V2C <- function(from) {
-    if(is.double(m <- from@length)) {
-        if(m > .Machine$integer.max)
-            stop(gettextf("dimensions cannot exceed %s", "2^31-1"), domain = NA)
-        m <- as.integer(m)
-    }
+    if(is.double(m <- length(from)))
+        stop(gettextf("dimensions cannot exceed %s", "2^31-1"),
+             domain = NA)
     kind <- .M.kind(from)
     to <- new(paste0(if(kind == "i") "d" else kind, "gCMatrix"))
     to@Dim <- c(m, 1L)
@@ -215,11 +207,9 @@ body(..M2tri)[[2L]][[2L]][[2L]][[2L]][[3L]] <-
 }
 
 .V2R <- function(from) {
-    if(is.double(m <- from@length)) {
-        if(m > .Machine$integer.max)
-            stop(gettextf("dimensions cannot exceed %s", "2^31-1"), domain = NA)
-        m <- as.integer(m)
-    }
+    if(is.double(m <- length(from)))
+        stop(gettextf("dimensions cannot exceed %s", "2^31-1"),
+             domain = NA)
     kind <- .M.kind(from)
     to <- new(paste0(if(kind == "i") "d" else kind, "gRMatrix"))
     to@Dim <- c(m, 1L)
@@ -231,11 +221,9 @@ body(..M2tri)[[2L]][[2L]][[2L]][[2L]][[3L]] <-
 }
 
 .V2T <- function(from) {
-    if(is.double(m <- from@length)) {
-        if(m > .Machine$integer.max)
-            stop(gettextf("dimensions cannot exceed %s", "2^31-1"), domain = NA)
-        m <- as.integer(m)
-    }
+    if(is.double(m <- length(from)))
+        stop(gettextf("dimensions cannot exceed %s", "2^31-1"),
+             domain = NA)
     kind <- .M.kind(from)
     to <- new(paste0(if(kind == "i") "d" else kind, "gTMatrix"))
     to@Dim <- c(m, 1L)

@@ -247,12 +247,12 @@ assert.EQ.mat <- function(M, m, tol = if(showOnly) 0 else 1e-15,
     if(is.logical(MM) && is.numeric(m))
 	storage.mode(MM) <- "integer"
     attr(MM, "dimnames") <- attr(m, "dimnames") <- NULL
-    assert.EQ(MM, m, tol=tol, showOnly=showOnly, giveRE=giveRE)
+    assert.EQ(MM, m, tol=tol, showOnly=showOnly, giveRE=giveRE, ...)
 }
 ## a short cut
 assert.EQ.Mat <- function(M, M2, tol = if(showOnly) 0 else 1e-15,
                           showOnly=FALSE, giveRE = FALSE, ...)
-    assert.EQ.mat(M, as.mat(M2), tol=tol, showOnly=showOnly, giveRE=giveRE)
+    assert.EQ.mat(M, as.mat(M2), tol=tol, showOnly=showOnly, giveRE=giveRE, ...)
 
 if(getRversion() <= "3.6.1" || R.version$`svn rev` < 77410)
     ## { methods::canCoerce() : use .class1(), not class() }

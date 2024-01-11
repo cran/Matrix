@@ -37,7 +37,7 @@
     \item{\code{margin},\code{perm}}{inherited from superclass
       \code{\linkS4class{indMatrix}}.  Here, \code{perm} is an
       integer vector of length \code{Dim[1]} and a permutation
-      of \code{1:Dim[1]}}.
+      of \code{1:Dim[1]}.}
     \item{\code{Dim},\code{Dimnames}}{inherited from virtual
       superclass \code{\linkS4class{Matrix}}.}
   }

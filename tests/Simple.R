@@ -1464,6 +1464,7 @@ x <- new("indMatrix", Dim = c(5L, 3L),
 y <- new("indMatrix", Dim = c(3L, 9L),
          perm = sample.int(9L, size = 3L, replace = TRUE))
 validObject(x %*% y)
+stopifnot(all(tril(y, -1) == 0)) # was wrong in Matrix 1.5-x
 
 ## dimScale(x) (i.e., with 'd1' missing) did not work in 1.5-2;
 ## same with dimScale(<matrix with NULL dimnames>) ...
@@ -1550,6 +1551,47 @@ stopifnot(identical(as(data.frame(a = 1:2, b = 3:4), "Matrix"),
 ## tri[ul](<.t[rp]Matrix>) was often wrong at least in 1.6-1
 u <- new("dtrMatrix", Dim = c(8L, 8L), x = as.double(seq_len(64L)))
 stopifnot(identical(triu(u, 1L), triu(as(u, "generalMatrix"), 1L)))
+
+## more tril()/triu() woes {introduced after 2021; present till 1.6-4}
+for(n in 0:7) {
+    cat("n = ", n,"\n----\n")
+    ##TODO: for(m in pmax(0, n-3):(n+3)) {
+    for(m in pmax(0, n-3):(n+3)) {  #--  n x m  matrix
+        cat(" m = ", m,": using k's in  ", (-n),":", m, "\n", sep="")
+        symm <- (m == n)
+        mn2 <- (mn <- m*n) %/% 2
+        ma <- array(seq_len(mn) - mn2 - 1/2, dim = c(n, m))
+        if(symm) ma <- crossprod(ma) # crossprod() to be symmetric
+        dM <- as(as(ma,   "denseMatrix"), "generalMatrix")
+        sM <- as(as(ma, "CsparseMatrix"), "generalMatrix")
+        for(k in (-n):m) {
+            trum <- triuChk(ma,k);  trlm <- trilChk(ma, k)
+            trud <- triuChk(dM,k);  trld <- trilChk(dM, k)
+            trus <- triuChk(sM,k);  trls <- trilChk(sM, k)
+            if(symm) {
+                assert.EQ(    trum,        t(tril(ma,-k)))
+                assert.EQ.mat(trud, as.mat(t(tril(dM,-k))))
+                assert.EQ.mat(trus, as.mat(t(tril(sM,-k))))
+            }
+            stopifnot(exprs = {
+                ## matrix
+                identical(trlm, band(ma, -n, k))
+                identical(trum, band(ma,  k, m))
+                inherits(trum, "denseMatrix") # "dge" / "dtr" ...
+                ## denseMatrix
+                identical(trld, band(dM, -n, k))
+                identical(trud, band(dM,  k, m))
+                inherits(trud, "denseMatrix")
+                assert.EQ.Mat(trud, trum, giveRE=TRUE)
+                ## sparseMatrix
+                identical(trls, band(sM, -n, k))
+                identical(trus, band(sM,  k, m))
+                inherits(trus, "sparseMatrix")
+                assert.EQ.Mat(trus, trum, giveRE=TRUE)
+            })
+        }
+    }
+}
 
 ## Platform - and other such info -- so we find it in old saved outputs
 .libPaths()

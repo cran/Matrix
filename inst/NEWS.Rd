@@ -4,6 +4,38 @@
 \title{News for \R{} Package \pkg{Matrix}}
 \encoding{UTF-8}
 %% NB: The date (yyyy-mm-dd) is the "Packaged: " date in ../DESCRIPTION
+\section{Changes in version 1.6-5 (2024-01-06 r4560)}{
+  \subsection{Bug Fixes}{
+    \itemize{
+      \item \code{x[]} works for \code{x} inheriting from virtual class
+      \code{sparseVector}.
+
+      \item \code{length(x)} is always an integer for \code{x}
+      inheriting from virtual class \code{sparseVector}.  Truncation
+      did not occur for \code{x@length} of type \code{"double"}
+      equal to or greater than \code{.Machine[["integer.max"]] + 1}.
+
+      \item \code{tril(<n-by-n>, -n)} now works again.
+
+      \item \code{tri[ul](<indMatrix>, k)} now works correctly for
+      \code{k != 0}.
+
+      \item \proglang{C} API function \code{cholmod_triplet_as_sexp}
+      transposes entries \dQuote{opposite} the \code{stype} when that
+      is nonzero, following CHOLMOD.
+
+      \item \code{R_init_Matrix} did not register \code{cholmod_defaults},
+      so calls to the corresponding stub did not work.
+    }
+  }
+  \subsection{Misc}{
+    \itemize{
+      \item \code{\%||\%} is defined in the \pkg{Matrix} namespace
+      only for \R{} versions less than 4.4.0.
+    }
+  }
+}
+
 \section{Changes in version 1.6-4 (2023-11-29 r4523)}{
   \subsection{Bug Fixes}{
     \itemize{

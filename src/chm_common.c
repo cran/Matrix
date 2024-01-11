@@ -100,8 +100,8 @@ cholmod_factor *sexp_as_cholmod_factor(cholmod_factor *L, SEXP from)
 		/* cholmod_check_factor allows L->Perm == NULL,
 		   but cholmod_copy_factor does not test, so it segfaults ...
 		*/
-		int j, n = (int) L->n, *Perm = (int *) R_alloc(L->n, sizeof(int));
-		for (j = 0; j < n; ++j)
+		int n = (int) L->n, *Perm = (int *) R_alloc(L->n, sizeof(int));
+		for (int j = 0; j < n; ++j)
 			Perm[j] = j;
 		L->Perm = Perm;
 	}
@@ -206,8 +206,8 @@ cholmod_sparse *sexp_as_cholmod_sparse(cholmod_sparse *A, SEXP from,
 	int *pdim = INTEGER(dim), m = pdim[0], n = pdim[1];
 
 	SEXP p = PROTECT(GET_SLOT(from, Matrix_pSym)),
-	     i = PROTECT(GET_SLOT(from, Matrix_iSym)),
-	   cpi = PROTECT(checkpi(p, i, m, n));
+		i = PROTECT(GET_SLOT(from, Matrix_iSym)),
+		cpi = PROTECT(checkpi(p, i, m, n));
 	if (TYPEOF(cpi) != LGLSXP)
 		error(_("'%s' failed in '%s': %s"),
 		      "checkpi", __func__, CHAR(STRING_ELT(cpi, 0)));
@@ -237,8 +237,8 @@ cholmod_sparse *sexp_as_cholmod_sparse(cholmod_sparse *A, SEXP from,
 
 	if (ni > pp[n]) { /* overallocated */
 		A->packed = 0;
-		int j, *tmp = (int *) R_alloc(n, sizeof(int));
-		for (j = 0; j < n; ++j)
+		int *tmp = (int *) R_alloc(n, sizeof(int));
+		for (int j = 0; j < n; ++j)
 			tmp[j] = pp[j + 1] - pp[j];
 		A->nz = tmp;
 	}
@@ -692,6 +692,7 @@ SEXP cholmod_factor_as_sexp(cholmod_factor *L, int doFree)
 		SET_SLOT(to, Matrix_xSym, x);
 		UNPROTECT(1);
 	}
+
 	FREE_THEN();
 
 #undef FREE_THEN
@@ -783,9 +784,9 @@ SEXP cholmod_sparse_as_sexp(cholmod_sparse *A, int doFree,
 			memcpy(REAL(x), A->x, (size_t) nnz * sizeof(double));
 		} else {
 			PROTECT(x = allocVector(LGLSXP, nnz));
-			int k, *px = LOGICAL(x);
+			int *px = LOGICAL(x);
 			double *py = (double *) A->x;
-			for (k = 0; k < nnz; ++k)
+			for (int k = 0; k < nnz; ++k)
 				px[k] = (ISNAN(py[k])) ? NA_LOGICAL : (py[k] != 0.0);
 		}
 		SET_SLOT(to, Matrix_xSym, x);
@@ -803,6 +804,7 @@ SEXP cholmod_sparse_as_sexp(cholmod_sparse *A, int doFree,
 	}
 	if (TYPEOF(dimnames) == VECSXP && LENGTH(dimnames) == 2)
 		SET_SLOT(to, Matrix_DimNamesSym, dimnames);
+
 	FREE_THEN();
 
 #undef FREE_THEN
@@ -879,6 +881,14 @@ SEXP cholmod_triplet_as_sexp(cholmod_triplet *A, int doFree,
 	INTEGER(dim)[1] = n;
 	memcpy(INTEGER(i), A->i, (size_t) nnz * sizeof(int));
 	memcpy(INTEGER(j), A->j, (size_t) nnz * sizeof(int));
+	if (A->stype != 0) {
+		int tmp, *pi = INTEGER(i), *pj = INTEGER(j);
+		for (R_xlen_t k = 0; k < nnz; ++k) {
+			tmp = pi[k];
+			pi[k] = pj[k];
+			pj[k] = tmp;
+		}
+	}
 	SET_SLOT(to, Matrix_iSym, i);
 	SET_SLOT(to, Matrix_jSym, j);
 	if (A->xtype != CHOLMOD_PATTERN) {
@@ -891,9 +901,9 @@ SEXP cholmod_triplet_as_sexp(cholmod_triplet *A, int doFree,
 			memcpy(REAL(x), A->x, (size_t) nnz * sizeof(double));
 		} else {
 			PROTECT(x = allocVector(LGLSXP, nnz));
-			int k, *px = LOGICAL(x);
+			int *px = LOGICAL(x);
 			double *py = (double *) A->x;
-			for (k = 0; k < nnz; ++k)
+			for (R_xlen_t k = 0; k < nnz; ++k)
 				px[k] = (ISNAN(py[k])) ? NA_LOGICAL : (py[k] != 0.0);
 		}
 		SET_SLOT(to, Matrix_xSym, x);
@@ -911,6 +921,7 @@ SEXP cholmod_triplet_as_sexp(cholmod_triplet *A, int doFree,
 	}
 	if (TYPEOF(dimnames) == VECSXP && LENGTH(dimnames) == 2)
 		SET_SLOT(to, Matrix_DimNamesSym, dimnames);
+
 	FREE_THEN();
 
 #undef FREE_THEN
@@ -976,6 +987,7 @@ SEXP cholmod_dense_as_sexp(cholmod_dense *A, int doFree)
 		memcpy(REAL(x), A->x, (size_t) m * n * sizeof(double));
 	}
 	SET_SLOT(to, Matrix_xSym, x);
+
 	FREE_THEN();
 
 #undef FREE_THEN

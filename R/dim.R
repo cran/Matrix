@@ -122,9 +122,11 @@ setMethod("length", "MatrixFactorization",
 
 setMethod("length", "sparseVector",
           function(x)
-              if(is.integer(r <- x@length) || r > .Machine$integer.max)
+              if(is.integer(r <- x@length))
                   r
-              else as.integer(r))
+              else if(r - 1 <= .Machine$integer.max)
+                  as.integer(r)
+              else trunc(r))
 
 
 ## METHODS FOR GENERIC: dimnames

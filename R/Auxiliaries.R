@@ -1,8 +1,6 @@
 #### "Namespace private" Auxiliaries  such as method functions
 #### (called from more than one place --> need to be defined early)
 
-`%||%` <- function(L, R) if (is.null(L)) R else L # stats:::`%||%`
-
 is0  <- function(x) !(is.na(x) | x)
 isN0 <- function(x)   is.na(x) | x
 is1  <- function(x)  !is.na(x) & x == 1L

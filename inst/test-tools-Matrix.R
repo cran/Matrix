@@ -448,7 +448,7 @@ checkMatrix <- function(m, m.m = if(do.matrix) as(m, "matrix"),
 			doCoerce2 = doCoerce && !isRsp, doDet = do.matrix,
 			do.prod = do.t && do.matrix && !isRsp,
 			verbose = TRUE, catFUN = cat,
-                        MSG = if(interactive() || capabilities("long.double") || 
+                        MSG = if(interactive() || capabilities("long.double") ||
                                  isTRUE(get0("doExtras"))) message else function(...) {}
                         )
 {
@@ -820,3 +820,18 @@ checkQR.DS.both <- function(A, Qinv.chk, QtQ.chk=NA,
     invisible(list(qA=qA, qa=qa))
 }
 
+non0.ij <- function(M) Matrix:::non0.i(as(M, "sparseMatrix"))
+
+triuChk <- function(x, k) {
+    ans <- triu(x, k)
+    ij <- non0.ij(ans)
+    stopifnot(identical(dim(x), dim(ans)), (ij %*% c(-1,1)) >= k)
+    ans
+}
+
+trilChk <- function(x, k) {
+    ans <- tril(x, k)
+    ij <- non0.ij(ans)
+    stopifnot(identical(dim(x), dim(ans)), (ij %*% c(-1,1)) <= k)
+    ans
+}

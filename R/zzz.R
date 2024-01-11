@@ -35,36 +35,43 @@ Matrix.Version <- function() {
 .onLoad <- function(libname, pkgname) {
     ## For backwards compatibility with earlier versions of R,
     ## at least until x.y.z if we have Depends: R (>= x.y.z)
-    if((Rv <- getRversion()) < "4.1.3" &&
-       ## Namespace not locked yet, but being defensive here:
-       !environmentIsLocked(Mns <- parent.env(environment()))) {
+    Mns <- parent.env(environment())
+    if(!environmentIsLocked(Mns)) {
+        ## Namespace not locked yet, but being defensive here
+        Rv <- getRversion()
+        if(Rv < "4.4.0") {
+        assign("%||%", envir = Mns, inherits = FALSE,
+               function(x, y) if(is.null(x)) y else x)
+        if(Rv < "4.1.3") {
         assign("...names", envir = Mns, inherits = FALSE,
                function() eval(quote(names(list(...))), sys.frame(-1L)))
         if(Rv < "4.0.0") {
-            assign("deparse1", envir = Mns, inherits = FALSE,
-                   function(expr, collapse = " ", width.cutoff = 500L, ...)
-                       paste(deparse(expr, width.cutoff, ...),
-                             collapse = collapse))
-            assign("sequence.default", envir = Mns, inherits = FALSE,
-                   function(nvec, from = 1L, by = 1L, ...) {
-                       if(length(nvec) == 0L)
-                           return(integer(0L))
-                       else if(length(from) == 0L || length(by) == 0L)
-                           stop(gettextf("'%s' has length 0 but '%s' does not",
-                                         if(length(from) == 0L) "from" else "by", "nvec"),
-                                domain = NA)
-                       unlist(.mapply(seq.int,
-                                      list(from = as.integer(from),
-                                           by = as.integer(by),
-                                           length.out = as.integer(nvec)),
-                                      NULL),
-                              recursive = FALSE, use.names = FALSE)
-                   })
-            assign("tryInvokeRestart", envir = Mns, inherits = FALSE,
-                   function(r, ...)
-                       tryCatch(invokeRestart(r, ...),
-                                error = function(e) invisible(NULL)))
-        }
+        assign("deparse1", envir = Mns, inherits = FALSE,
+               function(expr, collapse = " ", width.cutoff = 500L, ...)
+                   paste(deparse(expr, width.cutoff, ...),
+                         collapse = collapse))
+        assign("sequence.default", envir = Mns, inherits = FALSE,
+               function(nvec, from = 1L, by = 1L, ...) {
+                   if(length(nvec) == 0L)
+                       return(integer(0L))
+                   else if(length(from) == 0L || length(by) == 0L)
+                       stop(gettextf("'%s' has length 0 but '%s' does not",
+                                     if(length(from) == 0L) "from" else "by", "nvec"),
+                            domain = NA)
+                   unlist(.mapply(seq.int,
+                                  list(from = as.integer(from),
+                                       by = as.integer(by),
+                                       length.out = as.integer(nvec)),
+                                  NULL),
+                          recursive = FALSE, use.names = FALSE)
+               })
+        assign("tryInvokeRestart", envir = Mns, inherits = FALSE,
+               function(r, ...)
+                   tryCatch(invokeRestart(r, ...),
+                            error = function(e) invisible(NULL)))
+        } # Rv < "4.0.0"
+        } # Rv < "4.1.3"
+        } # Rv < "4.4.0"
     }
 
     ## verbose:

@@ -23,8 +23,8 @@ cholmod_factor *M2CHF(SEXP obj, int values)
 		/* cholmod_check_factor allows L->Perm == NULL,
 		   but cholmod_copy_factor does not test, so it segfaults ...
 		*/
-		int j, n = (int) L->n, *Perm = (int *) R_alloc(L->n, sizeof(int));
-		for (j = 0; j < n; ++j)
+		int n = (int) L->n, *Perm = (int *) R_alloc(L->n, sizeof(int));
+		for (int j = 0; j < n; ++j)
 			Perm[j] = j;
 		L->Perm = Perm;
 	}

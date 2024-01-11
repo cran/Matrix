@@ -26,7 +26,9 @@
 \alias{[,abIndex,index,ANY,ANY-method}
 \alias{[,sparseVector,NULL,ANY,ANY-method}
 \alias{[,sparseVector,index,missing,missing-method}
-\alias{[,sparseVector,sparseVector,missing,missing-method}
+\alias{[,sparseVector,lsparseVector,missing,missing-method}
+\alias{[,sparseVector,missing,missing,missing-method}
+\alias{[,sparseVector,nsparseVector,missing,missing-method}
 %
 \description{
   Methods for \code{"["}, i.e., extraction or subsetting mostly of

@@ -47,11 +47,12 @@ tril(x, k = 0L, \dots)
 \arguments{
   \item{x}{a matrix-like object}
   \item{k,k1,k2}{integers specifying the diagonals that are not set to
-    zero.  These are interpreted relative to the main diagonal, which
-    is \code{k=0}.  Positive and negative values of \code{k} indicate
+    zero, \code{k1 <= k2}.  These are interpreted relative to the main
+    diagonal, which is \code{k = 0}.
+    Positive and negative values of \code{k} indicate
     diagonals above and below the main diagonal, respectively.}
-  \item{\dots}{optional arguments passed methods (currently unused
-    by package \pkg{Matrix})}
+  \item{\dots}{optional arguments passed to methods, currently unused
+    by package \pkg{Matrix}.}
 }
 \details{
   \code{triu(x, k)} is equivalent to \code{band(x, k, dim(x)[2])}.

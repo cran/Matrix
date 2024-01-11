@@ -299,6 +299,7 @@ void attribute_visible R_init_Matrix(DllInfo *info)
 	RREGDEF(cholmod_copy_dense);
 	RREGDEF(cholmod_copy_factor);
 	RREGDEF(cholmod_copy_sparse);
+	RREGDEF(cholmod_defaults);
 	RREGDEF(cholmod_dense_to_sparse);
 	RREGDEF(cholmod_factor_to_sparse);
 	RREGDEF(cholmod_factorize);
@@ -323,8 +324,8 @@ void attribute_visible R_init_Matrix(DllInfo *info)
 	RREGDEF(cholmod_submatrix);
 	RREGDEF(cholmod_transpose);
 	RREGDEF(cholmod_triplet_to_sparse);
-	RREGDEF(cholmod_vertcat);
 	RREGDEF(cholmod_updown);
+	RREGDEF(cholmod_vertcat);
 	/* Matrix: */
 	RREGDEF(sexp_as_cholmod_factor);
 	RREGDEF(sexp_as_cholmod_sparse);

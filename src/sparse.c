@@ -584,18 +584,19 @@ SEXP R_sparse_band(SEXP from, SEXP k1, SEXP k2)
 	UNPROTECT(1);
 
 	int a, b;
-	if (k1 == R_NilValue)
-		a = (m > 0) ? 1 - m : 0;
+	if (k1 == R_NilValue) // tril()
+		a = -m ; // was (m > 0) ? 1 - m : 0;
 	else if ((a = asInteger(k1)) == NA_INTEGER || a < -m || a > n)
-		error(_("'%s' must be an integer from %s to %s"),
-		      "k1", "-Dim[1]", "Dim[2]");
-	if (k2 == R_NilValue)
-		b = (n > 0) ? n - 1 : 0;
+		error(_("'%s' (%d) must be an integer from %s (%d) to %s (%d)"),
+		      "k1", a, "-Dim[1]", -m, "Dim[2]", n);
+	if (k2 == R_NilValue) // triu()
+		b = n; // was (n > 0) ? n - 1 : 0;
 	else if ((b = asInteger(k2)) == NA_INTEGER || b < -m || b > n)
-		error(_("'%s' must be an integer from %s to %s"),
-		      "k2", "-Dim[1]", "Dim[2]");
+		error(_("'%s' (%d) must be an integer from %s (%d) to %s (%d)"),
+		      "k2", b, "-Dim[1]", -m, "Dim[2]", n);
 	else if (b < a)
-		error(_("'%s' must be less than or equal to '%s'"), "k1", "k2");
+		error(_("'%s' (%d) must be less than or equal to '%s' (%d)"),
+		      "k1", a, "k2", b);
 
 	return sparse_band(from, valid[ivalid], a, b);
 }

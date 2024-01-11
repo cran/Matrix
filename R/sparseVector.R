@@ -53,7 +53,7 @@ setMethod("mean", signature(x = "sparseVector"),
                       return(sum(x@x, na.rm = na.rm) / n)
                   ntrim <- trunc(n * min(trim, 0.5))
                   x <- .V.sort(x, na.last = NA)[(ntrim + 1):(n - ntrim)]
-                  sum(x@x) / x@length
+                  sum(x@x) / length(x)
               }
           })
 

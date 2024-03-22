@@ -43,7 +43,8 @@ function(x, exclude.informal, exclude.factors) {
                  "g" = if(exclude.factors) "factors",
                  "s" = c("uplo", if(exclude.factors) "factors"),
                  "t" = c("uplo", "diag"),
-                 "d" = "diag"))
+                 "d" = "diag",
+                 "i" = if(exclude.factors) "factors"))
     else "class"
     nms <- names(a)
     i <- match(nms, exclude, 0L) == 0L
@@ -103,18 +104,18 @@ function(target, current,
     if(is.null(msg[[1L]])) TRUE else msg[[1L]]
 }
 
-setMethod("all.equal", signature(target = "Matrix", current = "vector"),
+setMethod("all.equal", c(target = "Matrix", current = "vector"),
           .M.all.equal)
 
-setMethod("all.equal", signature(target = "vector", current = "Matrix"),
+setMethod("all.equal", c(target = "vector", current = "Matrix"),
           .M.all.equal)
 
-setMethod("all.equal", signature(target = "Matrix", current = "Matrix"),
+setMethod("all.equal", c(target = "Matrix", current = "Matrix"),
           .M.all.equal)
 
 ## And for completeness:
 
-setMethod("all.equal", signature(target = "Matrix", current = "sparseVector"),
+setMethod("all.equal", c(target = "Matrix", current = "sparseVector"),
           .M.all.equal)
 
 .V.attributes <-
@@ -179,16 +180,16 @@ function(target, current,
     if(is.null(msg[[1L]])) TRUE else msg[[1L]]
 }
 
-setMethod("all.equal", signature(target = "sparseVector", current = "vector"),
+setMethod("all.equal", c(target = "sparseVector", current = "vector"),
           .V.all.equal)
 
-setMethod("all.equal", signature(target = "vector", current = "sparseVector"),
+setMethod("all.equal", c(target = "vector", current = "sparseVector"),
           .V.all.equal)
 
-setMethod("all.equal", signature(target = "sparseVector", current = "sparseVector"),
+setMethod("all.equal", c(target = "sparseVector", current = "sparseVector"),
           .V.all.equal)
 
 ## And for completeness:
 
-setMethod("all.equal", signature(target = "sparseVector", current = "Matrix"),
+setMethod("all.equal", c(target = "sparseVector", current = "Matrix"),
           .V.all.equal)

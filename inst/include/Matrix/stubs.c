@@ -434,7 +434,7 @@ R_MATRIX_CHOLMOD(vertcat)(CHM_SP A, CHM_SP B, int values, CHM_CM Common)
 
 
 /* ---- cholmod_start ----------------------------------------------- */
-/* NB: keep synchronized with analogues in ../../src/chm_common.c     */
+/* NB: keep synchronized with analogues in ../../src/cholmod-common.c */
 
 R_MATRIX_INLINE void attribute_hidden
 R_MATRIX_CHOLMOD(error_handler)(int status, const char *file, int line,

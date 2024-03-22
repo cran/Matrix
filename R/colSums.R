@@ -3,16 +3,16 @@
 
 ## ==== denseMatrix ====================================================
 
-setMethod("colSums",  signature(x = "denseMatrix"),
+setMethod("colSums",  c(x = "denseMatrix"),
           function(x, na.rm = FALSE, dims = 1L, ...)
               .Call(R_dense_marginsum, x, 1L, na.rm, FALSE))
-setMethod("colMeans", signature(x = "denseMatrix"),
+setMethod("colMeans", c(x = "denseMatrix"),
           function(x, na.rm = FALSE, dims = 1L, ...)
               .Call(R_dense_marginsum, x, 1L, na.rm,  TRUE))
-setMethod("rowSums",  signature(x = "denseMatrix"),
+setMethod("rowSums",  c(x = "denseMatrix"),
           function(x, na.rm = FALSE, dims = 1L, ...)
               .Call(R_dense_marginsum, x, 0L, na.rm, FALSE))
-setMethod("rowMeans", signature(x = "denseMatrix"),
+setMethod("rowMeans", c(x = "denseMatrix"),
           function(x, na.rm = FALSE, dims = 1L, ...)
               .Call(R_dense_marginsum, x, 0L, na.rm,  TRUE))
 
@@ -22,16 +22,16 @@ setMethod("rowMeans", signature(x = "denseMatrix"),
 ## ---- [CRT]sparseMatrix ----------------------------------------------
 
 for (.cl in paste0(c("C", "R", "T"), "sparseMatrix")) {
-setMethod("colSums",  signature(x = .cl),
+setMethod("colSums",  c(x = .cl),
           function(x, na.rm = FALSE, dims = 1L, sparseResult = FALSE, ...)
               .Call(R_sparse_marginsum, x, 1L, na.rm, FALSE, sparseResult))
-setMethod("colMeans", signature(x = .cl),
+setMethod("colMeans", c(x = .cl),
           function(x, na.rm = FALSE, dims = 1L, sparseResult = FALSE, ...)
               .Call(R_sparse_marginsum, x, 1L, na.rm,  TRUE, sparseResult))
-setMethod("rowSums",  signature(x = .cl),
+setMethod("rowSums",  c(x = .cl),
           function(x, na.rm = FALSE, dims = 1L, sparseResult = FALSE, ...)
               .Call(R_sparse_marginsum, x, 0L, na.rm, FALSE, sparseResult))
-setMethod("rowMeans", signature(x = .cl),
+setMethod("rowMeans", c(x = .cl),
           function(x, na.rm = FALSE, dims = 1L, sparseResult = FALSE, ...)
               .Call(R_sparse_marginsum, x, 0L, na.rm,  TRUE, sparseResult))
 }
@@ -79,17 +79,17 @@ body(.diag.rS) <- do.call(substitute, list(body(.diag.rS), list(.MARGIN = 1L)))
 body(.diag.cM) <- do.call(substitute, list(body(.diag.cM), list(.MARGIN = 2L)))
 body(.diag.rM) <- do.call(substitute, list(body(.diag.rM), list(.MARGIN = 1L)))
 
-setMethod("colSums",  signature(x = "diagonalMatrix"), .diag.cS)
-setMethod("colMeans", signature(x = "diagonalMatrix"), .diag.cM)
-setMethod("rowSums",  signature(x = "diagonalMatrix"), .diag.rS)
-setMethod("rowMeans", signature(x = "diagonalMatrix"), .diag.rM)
+setMethod("colSums",  c(x = "diagonalMatrix"), .diag.cS)
+setMethod("colMeans", c(x = "diagonalMatrix"), .diag.cM)
+setMethod("rowSums",  c(x = "diagonalMatrix"), .diag.rS)
+setMethod("rowMeans", c(x = "diagonalMatrix"), .diag.rM)
 
 rm(.diag.cS, .diag.cM, .diag.rS, .diag.rM)
 
 
 ## ---- indMatrix (incl. pMatrix) --------------------------------------
 
-setMethod("colSums",  signature(x = "indMatrix"),
+setMethod("colSums",  c(x = "indMatrix"),
           function(x, na.rm = FALSE, dims = 1L, ...) {
               n <- x@Dim[2L]
               r <- if(x@margin == 1L)
@@ -99,7 +99,7 @@ setMethod("colSums",  signature(x = "indMatrix"),
                   names(r) <- nms
               r
           })
-setMethod("colMeans",  signature(x = "indMatrix"),
+setMethod("colMeans",  c(x = "indMatrix"),
           function(x, na.rm = FALSE, dims = 1L, ...) {
               n <- (d <- x@Dim)[2L]
               r <- if(x@margin == 1L)
@@ -109,7 +109,7 @@ setMethod("colMeans",  signature(x = "indMatrix"),
                   names(r) <- nms
               r
           })
-setMethod("rowSums",  signature(x = "indMatrix"),
+setMethod("rowSums",  c(x = "indMatrix"),
           function(x, na.rm = FALSE, dims = 1L, ...) {
               m <- x@Dim[1L]
               r <- if(x@margin == 1L)
@@ -119,7 +119,7 @@ setMethod("rowSums",  signature(x = "indMatrix"),
                   names(r) <- nms
               r
           })
-setMethod("rowMeans",  signature(x = "indMatrix"),
+setMethod("rowMeans",  c(x = "indMatrix"),
           function(x, na.rm = FALSE, dims = 1L, ...) {
               m <- (d <- x@Dim)[1L]
               r <- if(x@margin == 1L)

@@ -19,9 +19,7 @@
   of its \emph{proper} subclasses: currently \code{"[dln]spMatrix"}
   (packed symmetric), \code{"[dln]tpMatrix"} (packed triangular),
   and subclasses of these, such as
-  \code{"\linkS4class{dppMatrix}"},
-  \code{"\linkS4class{pCholesky}"}, and
-  \code{"\linkS4class{pBunchKaufman}"}.
+  \code{"\linkS4class{dppMatrix}"}.
 }
 \section{Slots}{
   \describe{
@@ -33,7 +31,6 @@
   Class \code{"\linkS4class{denseMatrix}"}, directly.
   Class \code{"\linkS4class{Matrix}"}, by class \code{"denseMatrix"},
   distance 2.
-  Class \code{"replValueSp"}, by class \code{"Matrix"}, distance 3.
 }
 \section{Methods}{
   \describe{

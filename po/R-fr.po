@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Matrix 1.1-1\n"
-"POT-Creation-Date: 2023-11-02 21:33\n"
+"POT-Creation-Date: 2024-03-15 17:22\n"
 "PO-Revision-Date: 2021-02-11 11:04+0100\n"
 "Last-Translator: Philippe Grosjean <phgrosjean@sciviews.org>\n"
 "Language-Team: none\n"
@@ -37,6 +37,33 @@ msgid "%s=\"%s\" invalid for %s@uplo=\"%s\""
 msgstr ""
 
 msgid "'%s' is not \"%1$s\", \"D%1$s\", or \"%1$s.\""
+msgstr ""
+
+#, fuzzy
+msgid "%1$s(%2$s) is undefined: '%2$s' is not positive semidefinite"
+msgstr ""
+"chol() est indéfini pour une matrice diagonale avec des entrées négatives"
+
+#, fuzzy
+msgid "matrix is not square"
+msgstr "la matrice n'est pas diagonale"
+
+msgid ""
+"'%1$s' is not \"%2$s1\", \"%2$s1.\", \"%3$s\", \"%3$s.\", \"%3$s1\", \"%3$s1."
+"\", or \"%4$s\""
+msgstr ""
+
+#, fuzzy
+msgid "'%s' does not inherit from virtual class %s"
+msgstr "'x' doit hériter de \"sparseVector\""
+
+msgid "D[i,i] is NA, i=%d"
+msgstr ""
+
+msgid "D[i,i] is negative, i=%d"
+msgstr ""
+
+msgid "'%1$s' is not formally symmetric; factorizing tcrossprod(%1$s)"
 msgstr ""
 
 msgid "unexpected %s=\"%s\" in '%s' method"
@@ -107,14 +134,6 @@ msgstr "'%s()' n'est pas encore implémenté pour le type d'élément '%s'"
 msgid "'%s()' is not yet implemented for  representation '%s'"
 msgstr "'%s' n'est pas encore implémenté pour la représentation '%s'"
 
-msgid "'%1$s' is not \"%2$s1\", \"%2$s1.\", \"%3$s\", or \"%4$s\""
-msgstr ""
-
-msgid ""
-"'%1$s' is not \"%2$s1\", \"%2$s1.\", \"%2$s2\", \"%2$s2.\", \"%3$s\", or "
-"\"%4$s\""
-msgstr ""
-
 msgid "longer object length is not a multiple of shorter object length"
 msgstr ""
 "la longueur de l'objet le plus long n'est pas un multiple de la longueur de "
@@ -179,11 +198,21 @@ msgstr ""
 "la longueur de l'objet le plus long\n"
 "\tn'est pas un multiple de la longueur de l'objet le plus court"
 
+#, fuzzy
+msgid "invalid class \"%s\" object in '%s' method"
+msgstr "chaîne de caractères 'col.names' incorrecte : %s"
+
 msgid "intermediate 'r' is of type %s"
 msgstr "le 'r' intermédiaire est de type %s"
 
 msgid "not yet implemented .. please report"
 msgstr "pas encore implémenté .. veuillez reporter ceci"
+
+msgid "'%s' has non-finite values"
+msgstr ""
+
+msgid "'%1$s' is not \"%2$s\", \"%3$s\", or \"%2$s.\""
+msgstr ""
 
 msgid "'force' must be (coercable to) TRUE or FALSE"
 msgstr "'force' doit être (convertible en) TRUE ou FALSE"
@@ -237,31 +266,10 @@ msgid "<seqMat>  -->  <abIndex>  is not yet implemented"
 msgstr "<seqMat>  -->  <abIndex> n'est pas encore implémenté"
 
 #, fuzzy
-msgid "%1$s(%2$s) is undefined: '%2$s' is not positive semidefinite"
+msgid "only square matrices can be used as graph incidence matrices"
 msgstr ""
-"chol() est indéfini pour une matrice diagonale avec des entrées négatives"
-
-#, fuzzy
-msgid "matrix is not square"
-msgstr "la matrice n'est pas diagonale"
-
-msgid ""
-"'%1$s' is not \"%2$s1\", \"%2$s1.\", \"%3$s\", \"%3$s.\", \"%3$s1\", \"%3$s1."
-"\", or \"%4$s\""
-msgstr ""
-
-#, fuzzy
-msgid "'%s' does not inherit from virtual class %s"
-msgstr "'x' doit hériter de \"sparseVector\""
-
-msgid "D[i,i] is NA, i=%d"
-msgstr ""
-
-msgid "D[i,i] is negative, i=%d"
-msgstr ""
-
-msgid "'%1$s' is not formally symmetric; factorizing tcrossprod(%1$s)"
-msgstr ""
+"seules des matrices carrées peuvent être utilisées comme matrices "
+"d'incidence pour les graphiques"
 
 #, fuzzy
 msgid "matrix is not symmetric; consider forceSymmetric(.) or symmpart(.)"
@@ -539,18 +547,6 @@ msgstr ""
 msgid "assigned dimensions [product %.0f] do not match object length [%.0f]"
 msgstr "dim [product %d] ne correspond pas à la longueur de l'objet [%d]"
 
-msgid "'%s' has non-finite values"
-msgstr ""
-
-msgid "'%1$s' is not \"%2$s\", \"%3$s\", or \"%2$s.\""
-msgstr ""
-
-#, fuzzy
-msgid "only square matrices can be used as graph incidence matrices"
-msgstr ""
-"seules des matrices carrées peuvent être utilisées comme matrices "
-"d'incidence pour les graphiques"
-
 msgid "'lwd' must be NULL or non-negative numeric"
 msgstr "'lwd' doit être un nombre non négatif ou NULL"
 
@@ -614,6 +610,33 @@ msgstr "méthode kronecker doit utiliser une 'FUN' par défaut"
 msgid "number of nonzero entries cannot exceed %s"
 msgstr "nombre incompatible de lignes pour %s"
 
+msgid "'%1$s' is not \"%2$s1\", \"%2$s1.\", \"%3$s\", or \"%4$s\""
+msgstr ""
+
+msgid ""
+"'%1$s' is not \"%2$s1\", \"%2$s1.\", \"%2$s2\", \"%2$s2.\", \"%3$s\", or "
+"\"%4$s\""
+msgstr ""
+
+msgid "non-conformable arguments"
+msgstr "matrices de dimensions incompatibles dans les arguments"
+
+#, fuzzy
+msgid "model frame and formula mismatch in sparse.model.matrix()"
+msgstr ""
+"le cadre du modèle et la formule ne correspondent pas dans model.matrix()"
+
+#, fuzzy
+msgid "non-list contrasts argument ignored"
+msgstr "argument 'contrast.arg' incorrect"
+
+#, fuzzy
+msgid "'contrasts.arg' argument must be named"
+msgstr "argument 'contrast.arg' incorrect"
+
+msgid "variable '%s' is absent, its contrast will be ignored"
+msgstr "la variable '%s' est absente, ses contrastes seront ignorés"
+
 msgid "Matrix seems negative semi-definite"
 msgstr "La matrice semble négative et semi-définie"
 
@@ -636,9 +659,6 @@ msgstr "'V' n'est pas une matrice *carrée*"
 msgid ""
 "diag(%s) has non-positive or non-finite entries; finite result is doubtful"
 msgstr "diag(.) avait 0 ou NA données ; un résultat non fini est douteux"
-
-msgid "non-conformable arguments"
-msgstr "matrices de dimensions incompatibles dans les arguments"
 
 msgid ""
 "matrix is structurally rank deficient; using augmented matrix with "
@@ -731,22 +751,6 @@ msgstr ""
 msgid "cannot coerce from %s to %s"
 msgstr ""
 
-#, fuzzy
-msgid "model frame and formula mismatch in sparse.model.matrix()"
-msgstr ""
-"le cadre du modèle et la formule ne correspondent pas dans model.matrix()"
-
-#, fuzzy
-msgid "non-list contrasts argument ignored"
-msgstr "argument 'contrast.arg' incorrect"
-
-#, fuzzy
-msgid "'contrasts.arg' argument must be named"
-msgstr "argument 'contrast.arg' incorrect"
-
-msgid "variable '%s' is absent, its contrast will be ignored"
-msgstr "la variable '%s' est absente, ses contrastes seront ignorés"
-
 msgid "a sparseMatrix should rarely be centered: will not be sparse anymore"
 msgstr ""
 "une sparseMatrix doit rarement être centrée : elle ne sera plus éparse "
@@ -758,26 +762,28 @@ msgstr "la longueur de 'center' doit être égale au nombre de colonnes de 'x'"
 msgid "length of 'scale' must equal the number of columns of 'x'"
 msgstr "la longueur de 'scale' doit être égale au nombre de colonnes de 'x'"
 
-msgid "trimmed means are not defined for complex data"
-msgstr ""
+#, fuzzy
+msgid "invalid subassignment value class \"%s\""
+msgstr "classe incorrecte : %s"
 
-msgid "first element used of '%s' argument"
+#, fuzzy
+msgid "invalid subassignment value type \"%s\""
+msgstr "Type de stockage incorrect : %s"
+
+msgid "missing subassignment value"
 msgstr ""
 
 #, fuzzy
-msgid "invalid '%s' argument"
-msgstr "'data' incorrect"
+msgid "incorrect number of dimensions"
+msgstr "dimensions incompatibles des matrices"
 
-msgid "should never happen ..."
+msgid "replacement has length zero"
 msgstr ""
 
-#, fuzzy
-msgid "'%s' is deprecated; using '%s' instead"
-msgstr "‘giveCsparse’ est obsolète ; utilisation de 'repr' à la place"
-
-#, fuzzy
-msgid "'%s' is deprecated; setting %s=\"%s\""
-msgstr "'giveCsparse' est obsolète ; j’ai mis 'repr = \"T\"' pour vous"
+msgid "number of items to replace is not a multiple of replacement length"
+msgstr ""
+"le nombre d'éléments à remplacer n'est pas un multiple de la longueur de "
+"remplacement"
 
 msgid ""
 ".M.repl.i.2col(): 'i' has no integer column number;\n"
@@ -800,11 +806,6 @@ msgstr ""
 
 msgid "NAs are not allowed in subscripted assignments"
 msgstr "Les NAs ne sont pas autorisés dans les assignations avec indices"
-
-msgid "number of items to replace is not a multiple of replacement length"
-msgstr ""
-"le nombre d'éléments à remplacer n'est pas un multiple de la longueur de "
-"remplacement"
 
 msgid "m[ <ij-matrix> ] <- v: inefficiently treating single elements"
 msgstr "m[ <ij-matrix> ] <- v : traitement inefficace d'éléments uniques"
@@ -942,12 +943,29 @@ msgstr ""
 msgid "logical subscript too long"
 msgstr "indice logique trop long (%d, devrait être %d)"
 
-#, fuzzy
-msgid "incorrect number of dimensions"
-msgstr "dimensions incompatibles des matrices"
-
 msgid "only zeros may be mixed with negative subscripts"
 msgstr ""
+
+msgid "trimmed means are not defined for complex data"
+msgstr ""
+
+msgid "first element used of '%s' argument"
+msgstr ""
+
+#, fuzzy
+msgid "invalid '%s' argument"
+msgstr "'data' incorrect"
+
+msgid "should never happen ..."
+msgstr ""
+
+#, fuzzy
+msgid "'%s' is deprecated; using '%s' instead"
+msgstr "‘giveCsparse’ est obsolète ; utilisation de 'repr' à la place"
+
+#, fuzzy
+msgid "'%s' is deprecated; setting %s=\"%s\""
+msgstr "'giveCsparse' est obsolète ; j’ai mis 'repr = \"T\"' pour vous"
 
 msgid "'%s' has length 0 but '%s' does not"
 msgstr ""

@@ -1,25 +1,23 @@
 \name{index-class}
-\title{Virtual Class "index" - Simple Class for Matrix Indices}
+\title{Virtual Class \dQuote{index} of Index Vectors}
 %
 \docType{class}
 \keyword{classes}
 %
 \alias{index-class}
 %
-\description{The class \code{"index"} is a virtual class used for
-  indices (in signatures) for matrix indexing and sub-assignment of
-  \pkg{Matrix} matrices.
-
-  In fact, it is currently implemented as a simple class union
-  (\code{\link{setClassUnion}}) of
-  \code{"numeric"},  \code{"logical"} and \code{"character"}.
+\description{
+  Class \code{index} is a virtual class designating index vectors,
+  or \dQuote{subscripts}, for (possibly named) vectors and arrays.
+  It is typically used in signatures of methods for the subscript
+  and subassignment operators, namely \code{[} and \code{[<-}.
+  It is implemented as a \emph{union} of the atomic vector classes
+  \code{\linkS4class{numeric}}, \code{\linkS4class{logical}},
+  and \code{\linkS4class{character}}.
 }
-\section{Objects from the Class}{Since it is a virtual Class, no objects
-  may be created from it.}
 \seealso{
-  \code{\link{[-methods}}, and
-  %% FIXME: bug in Rdconv needs '[Matrix]' below:
-  \code{\link[Matrix]{Subassign-methods}}, also for examples.
+  \code{\link{[}}, \code{\link{[-methods}}, and
+  \code{\link{[<--methods}}.
 }
 \examples{
 showClass("index")

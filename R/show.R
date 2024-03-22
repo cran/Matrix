@@ -1,6 +1,7 @@
 prMatrix <- function(x,
                      digits = getOption("digits"),
-                     maxp = getOption("max.print")) {
+                     maxp = getOption("max.print"),
+                     ...) {
     d <- dim(x)
     cl <- class(x) ## cld <- getClassDef(cl)
     tri <- extends(cl, "triangularMatrix")
@@ -30,7 +31,9 @@ prMatrix <- function(x,
 prTriang <- function(x,
                      digits = getOption("digits"),
                      maxp = getOption("max.print"),
-                     justify = "none", right = TRUE) {
+                     justify = "none",
+                     right = TRUE,
+                     ...) {
     ## modeled along stats:::print.dist
     upper <- x@uplo == "U"
     m <- as(x, "matrix")
@@ -41,8 +44,11 @@ prTriang <- function(x,
     invisible(x)
 }
 
-prDiag <- function(x, digits = getOption("digits"),
-                   justify = "none", right = TRUE) {
+prDiag <- function(x,
+                   digits = getOption("digits"),
+                   justify = "none",
+                   right = TRUE,
+                   ...) {
     cf <- array(".", dim = x@Dim, dimnames = x@Dimnames)
     cf[row(cf) == col(cf)] <-
         vapply(diag(x), format, "", digits = digits, justify = justify)
@@ -222,7 +228,8 @@ formatSpMatrix <- function(x,
                            col.names,
                            note.dropping.colnames = TRUE,
                            uniDiag = TRUE,
-                           align = c("fancy", "right")) {
+                           align = c("fancy", "right"),
+                           ...) {
     stopifnot(extends(cld, "sparseMatrix"))
     validObject(x) # have seen seg.faults for invalid objects
     d <- dim(x)
@@ -279,7 +286,8 @@ printSpMatrix <- function(x,
                           note.dropping.colnames = TRUE,
                           uniDiag = TRUE,
                           col.trailer = "",
-                          align = c("fancy", "right")) {
+                          align = c("fancy", "right"),
+                          ...) {
     stopifnot(extends(cld, "sparseMatrix"))
     cx <- formatSpMatrix(x, digits=digits, maxp=maxp, cld=cld,
                          zero.print=zero.print, col.names=col.names,
@@ -305,7 +313,8 @@ printSpMatrix2 <- function(x,
                            col.trailer = if(suppCols) "......" else "",
                            align = c("fancy", "right"),
                            width = getOption("width"),
-                           fitWidth = TRUE) {
+                           fitWidth = TRUE,
+                           ...) {
     d <- dim(x)
     cl <- class(x)
     cld <- getClassDef(cl)
@@ -418,7 +427,8 @@ printSpMatrix2 <- function(x,
 prSpVector <- function(x,
                        digits = getOption("digits"),
                        maxp = getOption("max.print"),
-                       zero.print = ".")
+                       zero.print = ".",
+                       ...)
 {
     cld <- getClassDef(class(x))
     stopifnot(extends(cld, "sparseVector"), maxp >= 1)
@@ -456,13 +466,13 @@ prSpVector <- function(x,
 ## METHODS FOR GENERIC: show
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-setMethod("show", signature(object = "denseMatrix"),
+setMethod("show", c(object = "denseMatrix"),
           function(object) prMatrix(object))
 
-setMethod("show", signature(object = "sparseMatrix"),
+setMethod("show", c(object = "sparseMatrix"),
           function(object) printSpMatrix2(object))
 
-setMethod("show", signature(object = "diagonalMatrix"),
+setMethod("show", c(object = "diagonalMatrix"),
           function(object) {
               d <- dim(object)
               cl <- class(object)
@@ -478,43 +488,43 @@ setMethod("show", signature(object = "diagonalMatrix"),
               }
           })
 
-setMethod("show", "MatrixFactorization",
+setMethod("show", c(object = "MatrixFactorization"),
           function(object) {
               cat("matrix factorization of ")
               str(object)
           })
 
-setMethod("show", "CholeskyFactorization",
+setMethod("show", c(object = "CholeskyFactorization"),
           function(object) {
               cat("Cholesky factorization of ")
               str(object)
           })
 
-setMethod("show", "BunchKaufmanFactorization",
+setMethod("show", c(object = "BunchKaufmanFactorization"),
           function(object) {
               cat("Bunch-Kaufman factorization of ")
               str(object)
           })
 
-setMethod("show", "SchurFactorization",
+setMethod("show", c(object = "SchurFactorization"),
           function(object) {
               cat("Schur factorization of ")
               str(object)
           })
 
-setMethod("show", "LU",
+setMethod("show", c(object = "LU"),
           function(object) {
               cat("LU factorization of ")
               str(object)
           })
 
-setMethod("show", "QR",
+setMethod("show", c(object = "QR"),
           function(object) {
               cat("QR factorization of ")
               str(object)
           })
 
-setMethod("show", signature(object = "sparseVector"),
+setMethod("show", c(object = "sparseVector"),
           function(object) {
               n <- object@length
               cl <- class(object)
@@ -541,24 +551,24 @@ setMethod("show", signature(object = "sparseVector"),
 ## METHODS FOR GENERIC: print
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-setMethod("print", signature(x = "sparseMatrix"),
+setMethod("print", c(x = "sparseMatrix"),
           printSpMatrix2)
 
-setMethod("print", signature(x = "diagonalMatrix"),
+setMethod("print", c(x = "diagonalMatrix"),
           prDiag)
 
 
 ## METHODS FOR GENERIC: format
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-setMethod("format", signature(x = "sparseMatrix"),
+setMethod("format", c(x = "sparseMatrix"),
           formatSpMatrix)
 
 
 ## METHODS FOR GENERIC: summary
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-setMethod("summary", signature(object = "sparseMatrix"),
+setMethod("summary", c(object = "sparseMatrix"),
           function(object, uniqT = FALSE, ...) {
               d <- object@Dim
               ## return a data frame (int, int, {double|logical}) :
@@ -570,7 +580,7 @@ setMethod("summary", signature(object = "sparseMatrix"),
               r
           })
 
-setMethod("summary", signature(object = "diagonalMatrix"),
+setMethod("summary", c(object = "diagonalMatrix"),
           function(object, ...) {
               d <- object@Dim
               r <- summary(object@x, ...)
@@ -581,7 +591,8 @@ setMethod("summary", signature(object = "diagonalMatrix"),
               r
           })
 
-print.sparseSummary <- print.diagSummary <- function (x, ...) {
+print.sparseSummary <- print.diagSummary <-
+function (x, ...) {
     cat(attr(x, "header"), "\n", sep = "")
     NextMethod()
     invisible(x)

@@ -4,7 +4,7 @@
 
 ## MJ: currently going via ddiMatrix or dgeMatrix in all cases
 
-setMethod("expm", signature(x = "Matrix"),
+setMethod("expm", c(x = "Matrix"),
           function(x) {
               d <- x@Dim
               if(d[1L] != d[2L])
@@ -12,7 +12,7 @@ setMethod("expm", signature(x = "Matrix"),
               expm(.M2kind(x, "d"))
           })
 
-setMethod("expm", signature(x = "dsparseMatrix"),
+setMethod("expm", c(x = "dsparseMatrix"),
           function(x) {
               d <- x@Dim
               if(d[1L] != d[2L])
@@ -20,7 +20,7 @@ setMethod("expm", signature(x = "dsparseMatrix"),
               expm(.sparse2dense(x))
           })
 
-setMethod("expm", signature(x = "ddiMatrix"),
+setMethod("expm", c(x = "ddiMatrix"),
           function(x) {
               if(x@diag == "N") {
                   x@x <- exp(x@x)
@@ -31,37 +31,37 @@ setMethod("expm", signature(x = "ddiMatrix"),
               x
           })
 
-setMethod("expm", signature(x = "dgeMatrix"),
-          function(x) .Call(dgeMatrix_exp, x))
+setMethod("expm", c(x = "dgeMatrix"),
+          function(x) .Call(dgeMatrix_expm, x))
 
-setMethod("expm", signature(x = "dtrMatrix"),
+setMethod("expm", c(x = "dtrMatrix"),
           function(x) {
-              r <- .Call(dgeMatrix_exp, .M2gen(x))
+              r <- .Call(dgeMatrix_expm, .M2gen(x))
               if(x@uplo == "U") triu(r) else tril(r)
           })
 
-setMethod("expm", signature(x = "dtpMatrix"),
+setMethod("expm", c(x = "dtpMatrix"),
           function(x) {
-              r <- .Call(dgeMatrix_exp, .M2gen(x))
+              r <- .Call(dgeMatrix_expm, .M2gen(x))
               ## Pack without checking:
               .Call(R_dense_as_packed, r, x@uplo, "N")
           })
 
-setMethod("expm", signature(x = "dsyMatrix"),
+setMethod("expm", c(x = "dsyMatrix"),
           function(x) {
-              r <- .Call(dgeMatrix_exp, .M2gen(x))
+              r <- .Call(dgeMatrix_expm, .M2gen(x))
               forceSymmetric(r)
           })
 
-setMethod("expm", signature(x = "dspMatrix"),
+setMethod("expm", c(x = "dspMatrix"),
           function(x) {
-              r <- .Call(dgeMatrix_exp, .M2gen(x))
+              r <- .Call(dgeMatrix_expm, .M2gen(x))
               ## Pack without checking:
               .Call(R_dense_as_packed, r, x@uplo, NULL)
           })
 
 ## Until R supports it:
-setMethod("expm", signature(x = "matrix"),
+setMethod("expm", c(x = "matrix"),
           function(x) {
               d <- dim(x)
               if(d[1L] != d[2L])

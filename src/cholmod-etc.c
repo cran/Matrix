@@ -272,6 +272,7 @@ SEXP CHF2M(cholmod_factor *L, int values)
 
 SEXP CHS2M(cholmod_sparse *A, int values, char shape)
 {
+	cholmod_sparse *A_ = A;
 	if (A->itype != CHOLMOD_INT)
 		error(_("wrong '%s'"), "itype");
 	if (values && A->xtype != CHOLMOD_REAL && A->xtype != CHOLMOD_COMPLEX)
@@ -280,8 +281,10 @@ SEXP CHS2M(cholmod_sparse *A, int values, char shape)
 		error(_("wrong '%s'"), "dtype");
 	if (A->nrow > INT_MAX || A->ncol > INT_MAX)
 		error(_("dimensions cannot exceed %s"), "2^31-1");
-	if (A->stype != 0 || !A->sorted || !A->packed)
+	if (!A->sorted)
 		cholmod_sort(A, &c);
+	if (!A->packed || A->stype != 0)
+		A = cholmod_copy(A, A->stype, 1, &c);
 	char cl[] = "..CMatrix";
 	cl[0] = (!values) ? 'n' : ((A->xtype == CHOLMOD_COMPLEX) ? 'z' : 'd');
 	cl[1] = shape;
@@ -309,6 +312,8 @@ SEXP CHS2M(cholmod_sparse *A, int values, char shape)
 		SET_SLOT(obj, Matrix_xSym, x);
 		UNPROTECT(1);
 	}
+	if (A != A_)
+		cholmod_free_sparse(&A, &c);
 	UNPROTECT(4);
 	return obj;
 }

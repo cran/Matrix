@@ -1376,3 +1376,11 @@ stopifnot(exprs = {
     Sii@uplo == "L"
     identical(as(Sii, "matrix"), as(S, "matrix")[4:1, 4:1])
 })
+
+## Bug #6839: regression in <.s[CT]Matrix>[<logical>] in Matrix 1.6-z
+x <- new("dsCMatrix", Dim = c(4L, 4L),
+         p = cumsum(0:4), i = sequence(1:4) - 1L, x = as.double(1:10))
+i <- c(TRUE, FALSE)
+xi <- as(x, "matrix")[i]
+for(cl in paste0(c("C", "R", "T"), "sparseMatrix"))
+    stopifnot(identical(as(x, cl)[i], xi))

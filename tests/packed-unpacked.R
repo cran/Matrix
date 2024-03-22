@@ -41,8 +41,7 @@ unpackedClass <- function(packedClass) {
                   ltpMatrix = "ltrMatrix",
                   ntpMatrix = "ntrMatrix",
                   dppMatrix = "dpoMatrix",
-                  pcorMatrix = "corMatrix",
-                  pCholesky = "Cholesky")[[packedClass@className]])
+                  copMatrix = "corMatrix")[[packedClass@className]])
 }
 packedClass <- function(unpackedClass) {
     getClassDef(c(dgeMatrix = NA,
@@ -55,8 +54,7 @@ packedClass <- function(unpackedClass) {
                   ltrMatrix = "ltpMatrix",
                   ntrMatrix = "ntpMatrix",
                   dpoMatrix = "dppMatrix",
-                  corMatrix = "pcorMatrix",
-                  Cholesky  = "pCholesky")[[unpackedClass@className]])
+                  corMatrix = "copMatrix")[[unpackedClass@className]])
 }
 ...Class <- function(denseClass) {
     cl <- "...Matrix"
@@ -122,7 +120,7 @@ testDenseClass <- function(Class, n) {
         if (extends(Class, "corMatrix"))
             newargs[["x"]] <-
                 lapply(newargs[["x"]], replace, iD(n), 1)
-        else if (extends(Class, "pcorMatrix"))
+        else if (extends(Class, "copMatrix"))
             newargs[["x"]] <-
                 Map(function(x, upper) replace(x, iD(n, upper, TRUE), 1),
                     newargs[["x"]], newargs[["uplo"]] == "U")
@@ -143,7 +141,7 @@ testDenseMatrix <- function(Class, ...) {
 
     ## This class needs special care because it has an additional 'sd' slot
     is.cr <- is.sy &&
-        (extends(Class, "corMatrix") || extends(Class, "pcorMatrix"))
+        (extends(Class, "corMatrix") || extends(Class, "copMatrix"))
 
     newargs <- list(Class = Class, ...)
     if (is.cr)

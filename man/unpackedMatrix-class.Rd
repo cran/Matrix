@@ -19,9 +19,7 @@
   subclasses: currently \code{"[dln]geMatrix"} (unpacked general),
   \code{"[dln]syMatrix"} (unpacked symmetric), \code{"[dln]trMatrix"}
   (unpacked triangular), and subclasses of these, such as
-  \code{"\linkS4class{dpoMatrix}"},
-  \code{"\linkS4class{Cholesky}"}, and
-  \code{"\linkS4class{BunchKaufman}"}.
+  \code{"\linkS4class{dpoMatrix}"}.
 }
 \section{Slots}{
   \describe{
@@ -32,7 +30,6 @@
   Class \code{"\linkS4class{denseMatrix}"}, directly.
   Class \code{"\linkS4class{Matrix}"}, by class \code{"denseMatrix"},
   distance 2.
-  Class \code{"replValueSp"}, by class \code{"Matrix"}, distance 3.
 }
 \section{Methods}{
   \describe{

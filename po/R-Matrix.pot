@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Matrix 1.6-2\n"
-"POT-Creation-Date: 2023-11-02 21:33\n"
+"Project-Id-Version: Matrix 1.7-0\n"
+"POT-Creation-Date: 2024-03-12 11:27\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -29,6 +29,27 @@ msgid "%s=\"%s\" invalid for %s@uplo=\"%s\""
 msgstr ""
 
 msgid "'%s' is not \"%1$s\", \"D%1$s\", or \"%1$s.\""
+msgstr ""
+
+msgid "%1$s(%2$s) is undefined: '%2$s' is not positive semidefinite"
+msgstr ""
+
+msgid "matrix is not square"
+msgstr ""
+
+msgid "'%1$s' is not \"%2$s1\", \"%2$s1.\", \"%3$s\", \"%3$s.\", \"%3$s1\", \"%3$s1.\", or \"%4$s\""
+msgstr ""
+
+msgid "'%s' does not inherit from virtual class %s"
+msgstr ""
+
+msgid "D[i,i] is NA, i=%d"
+msgstr ""
+
+msgid "D[i,i] is negative, i=%d"
+msgstr ""
+
+msgid "'%1$s' is not formally symmetric; factorizing tcrossprod(%1$s)"
 msgstr ""
 
 msgid "unexpected %s=\"%s\" in '%s' method"
@@ -94,12 +115,6 @@ msgstr ""
 msgid "'%s()' is not yet implemented for  representation '%s'"
 msgstr ""
 
-msgid "'%1$s' is not \"%2$s1\", \"%2$s1.\", \"%3$s\", or \"%4$s\""
-msgstr ""
-
-msgid "'%1$s' is not \"%2$s1\", \"%2$s1.\", \"%2$s2\", \"%2$s2.\", \"%3$s\", or \"%4$s\""
-msgstr ""
-
 msgid "longer object length is not a multiple of shorter object length"
 msgstr ""
 
@@ -151,10 +166,19 @@ msgstr ""
 msgid "longer object length\n\tis not a multiple of shorter object length"
 msgstr ""
 
+msgid "invalid class \"%s\" object in '%s' method"
+msgstr ""
+
 msgid "intermediate 'r' is of type %s"
 msgstr ""
 
 msgid "not yet implemented .. please report"
+msgstr ""
+
+msgid "'%s' has non-finite values"
+msgstr ""
+
+msgid "'%1$s' is not \"%2$s\", \"%3$s\", or \"%2$s.\""
 msgstr ""
 
 msgid "'force' must be (coercable to) TRUE or FALSE"
@@ -202,25 +226,7 @@ msgstr ""
 msgid "<seqMat>  -->  <abIndex>  is not yet implemented"
 msgstr ""
 
-msgid "%1$s(%2$s) is undefined: '%2$s' is not positive semidefinite"
-msgstr ""
-
-msgid "matrix is not square"
-msgstr ""
-
-msgid "'%1$s' is not \"%2$s1\", \"%2$s1.\", \"%3$s\", \"%3$s.\", \"%3$s1\", \"%3$s1.\", or \"%4$s\""
-msgstr ""
-
-msgid "'%s' does not inherit from virtual class %s"
-msgstr ""
-
-msgid "D[i,i] is NA, i=%d"
-msgstr ""
-
-msgid "D[i,i] is negative, i=%d"
-msgstr ""
-
-msgid "'%1$s' is not formally symmetric; factorizing tcrossprod(%1$s)"
+msgid "only square matrices can be used as graph incidence matrices"
 msgstr ""
 
 msgid "matrix is not symmetric; consider forceSymmetric(.) or symmpart(.)"
@@ -460,15 +466,6 @@ msgstr ""
 msgid "assigned dimensions [product %.0f] do not match object length [%.0f]"
 msgstr ""
 
-msgid "'%s' has non-finite values"
-msgstr ""
-
-msgid "'%1$s' is not \"%2$s\", \"%3$s\", or \"%2$s.\""
-msgstr ""
-
-msgid "only square matrices can be used as graph incidence matrices"
-msgstr ""
-
 msgid "'lwd' must be NULL or non-negative numeric"
 msgstr ""
 
@@ -520,6 +517,27 @@ msgstr ""
 msgid "number of nonzero entries cannot exceed %s"
 msgstr ""
 
+msgid "'%1$s' is not \"%2$s1\", \"%2$s1.\", \"%3$s\", or \"%4$s\""
+msgstr ""
+
+msgid "'%1$s' is not \"%2$s1\", \"%2$s1.\", \"%2$s2\", \"%2$s2.\", \"%3$s\", or \"%4$s\""
+msgstr ""
+
+msgid "non-conformable arguments"
+msgstr ""
+
+msgid "model frame and formula mismatch in sparse.model.matrix()"
+msgstr ""
+
+msgid "non-list contrasts argument ignored"
+msgstr ""
+
+msgid "'contrasts.arg' argument must be named"
+msgstr ""
+
+msgid "variable '%s' is absent, its contrast will be ignored"
+msgstr ""
+
 msgid "Matrix seems negative semi-definite"
 msgstr ""
 
@@ -536,9 +554,6 @@ msgid "'%s' is not a square numeric matrix"
 msgstr ""
 
 msgid "diag(%s) has non-positive or non-finite entries; finite result is doubtful"
-msgstr ""
-
-msgid "non-conformable arguments"
 msgstr ""
 
 msgid "matrix is structurally rank deficient; using augmented matrix with additional %d row(s) of zeros"
@@ -616,18 +631,6 @@ msgstr ""
 msgid "cannot coerce from %s to %s"
 msgstr ""
 
-msgid "model frame and formula mismatch in sparse.model.matrix()"
-msgstr ""
-
-msgid "non-list contrasts argument ignored"
-msgstr ""
-
-msgid "'contrasts.arg' argument must be named"
-msgstr ""
-
-msgid "variable '%s' is absent, its contrast will be ignored"
-msgstr ""
-
 msgid "a sparseMatrix should rarely be centered: will not be sparse anymore"
 msgstr ""
 
@@ -637,22 +640,22 @@ msgstr ""
 msgid "length of 'scale' must equal the number of columns of 'x'"
 msgstr ""
 
-msgid "trimmed means are not defined for complex data"
+msgid "invalid subassignment value class \"%s\""
 msgstr ""
 
-msgid "first element used of '%s' argument"
+msgid "invalid subassignment value type \"%s\""
 msgstr ""
 
-msgid "invalid '%s' argument"
+msgid "missing subassignment value"
 msgstr ""
 
-msgid "should never happen ..."
+msgid "incorrect number of dimensions"
 msgstr ""
 
-msgid "'%s' is deprecated; using '%s' instead"
+msgid "replacement has length zero"
 msgstr ""
 
-msgid "'%s' is deprecated; setting %s=\"%s\""
+msgid "number of items to replace is not a multiple of replacement length"
 msgstr ""
 
 msgid ".M.repl.i.2col(): 'i' has no integer column number;\n should never happen; please report"
@@ -668,9 +671,6 @@ msgid "negative values are not allowed in a matrix subscript"
 msgstr ""
 
 msgid "NAs are not allowed in subscripted assignments"
-msgstr ""
-
-msgid "number of items to replace is not a multiple of replacement length"
 msgstr ""
 
 msgid "m[ <ij-matrix> ] <- v: inefficiently treating single elements"
@@ -778,10 +778,25 @@ msgstr ""
 msgid "logical subscript too long"
 msgstr ""
 
-msgid "incorrect number of dimensions"
+msgid "only zeros may be mixed with negative subscripts"
 msgstr ""
 
-msgid "only zeros may be mixed with negative subscripts"
+msgid "trimmed means are not defined for complex data"
+msgstr ""
+
+msgid "first element used of '%s' argument"
+msgstr ""
+
+msgid "invalid '%s' argument"
+msgstr ""
+
+msgid "should never happen ..."
+msgstr ""
+
+msgid "'%s' is deprecated; using '%s' instead"
+msgstr ""
+
+msgid "'%s' is deprecated; setting %s=\"%s\""
 msgstr ""
 
 msgid "'%s' has length 0 but '%s' does not"

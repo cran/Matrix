@@ -9,6 +9,8 @@
 %
 \alias{coerce,matrix,symmetricMatrix-method}
 \alias{dimnames,symmetricMatrix-method}
+\alias{dimnames<-,symmetricMatrix,NULL-method}
+\alias{dimnames<-,symmetricMatrix,list-method}
 %
 \description{
   The virtual class of symmetric matrices, \code{"symmetricMatrix"},
@@ -22,16 +24,17 @@
 % \section{Objects from the Class}{A virtual Class: No objects may be created from it.}
 \section{Slots}{
   \describe{
-    \item{\code{uplo}:}{Object of class \code{"character"}.  Must be
-      either "U", for upper triangular, and "L", for lower triangular.}
-    %% below {Dim, Dimnames} work around Slot parsing buglet (< 2.2.0)
-    %% \item{\code{Dim},\code{Dimnames}:}{The dimension (a length-2
-    \item{\code{Dim, Dimnames}:}{The dimension (a length-2
-      \code{"integer"}) and corresponding names (or \code{NULL}),
-      inherited from the \code{\linkS4class{Matrix}}, see there.  See below,
-      about storing only one of the two \code{Dimnames} components.}
-    \item{\code{factors}:}{a list of matrix factorizations, also from the
-      \code{Matrix} class.}
+    \item{\code{Dim, Dimnames}}{inherited from virtual class
+      \code{\linkS4class{Matrix}}.  See comments below about
+      symmetry of \code{Dimnames}.}
+    \item{\code{factors}}{a list of
+      \code{\linkS4class{MatrixFactorization}} objects caching
+      factorizations of the matrix.  Typically, it is initialized
+      as an empty list and updated \dQuote{automagically} whenever
+      a factorization is computed.}
+    \item{\code{uplo}}{a character string, either \code{"U"} or
+      \code{"L"} indicating that only entries in the upper or lower
+      triangle are referenced.}
   }
 }
 \section{Extends}{

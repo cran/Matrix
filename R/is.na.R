@@ -1,8 +1,8 @@
 ## METHODS FOR GENERIC: anyNA
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-setMethod("anyNA", signature(x = "denseMatrix"),
-          function(x) {
+setMethod("anyNA", c(x = "denseMatrix"),
+          function(x, recursive = FALSE) {
               cl <- .M.nonvirtual(x)
               if(substr(cl, 1L, 1L)  == "n")
                   return(FALSE)
@@ -18,23 +18,27 @@ setMethod("anyNA", signature(x = "denseMatrix"),
               }
           })
 
-setMethod("anyNA", signature(x = "sparseMatrix"),
-          function(x) .M.kind(x) != "n" && anyNA(x@x))
+setMethod("anyNA", c(x = "sparseMatrix"),
+          function(x, recursive = FALSE)
+              .M.kind(x) != "n" && anyNA(x@x))
 
-setMethod("anyNA", signature(x = "diagonalMatrix"),
-          function(x) .M.kind(x) != "n" && length(y <- x@x) > 0L && anyNA(y))
+setMethod("anyNA", c(x = "diagonalMatrix"),
+          function(x, recursive = FALSE)
+              .M.kind(x) != "n" && length(y <- x@x) > 0L && anyNA(y))
 
-setMethod("anyNA", signature(x = "indMatrix"),
-          function(x) FALSE)
+setMethod("anyNA", c(x = "indMatrix"),
+          function(x, recursive = FALSE)
+              FALSE)
 
-setMethod("anyNA", signature(x = "sparseVector"),
-          function(x) .M.kind(x) != "n" && anyNA(x@x))
+setMethod("anyNA", c(x = "sparseVector"),
+          function(x, recursive = FALSE)
+              .M.kind(x) != "n" && anyNA(x@x))
 
 
 ## METHODS FOR GENERIC: is.na
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-setMethod("is.na", signature(x = "denseMatrix"),
+setMethod("is.na", c(x = "denseMatrix"),
           function(x) {
               cl <- .M.nonvirtual(x)
               never <- substr(cl, 1L, 1L) == "n"
@@ -56,7 +60,7 @@ setMethod("is.na", signature(x = "denseMatrix"),
               r
           })
 
-setMethod("is.na", signature(x = "sparseMatrix"),
+setMethod("is.na", c(x = "sparseMatrix"),
           function(x) {
               cl <- .M.nonvirtual(x)
               never <- substr(cl, 1L, 1L) == "n"
@@ -81,7 +85,7 @@ setMethod("is.na", signature(x = "sparseMatrix"),
               }
           })
 
-setMethod("is.na", signature(x = "diagonalMatrix"),
+setMethod("is.na", c(x = "diagonalMatrix"),
           function(x) {
               r <- new("ndiMatrix")
               r@Dim <- d <- x@Dim
@@ -92,7 +96,7 @@ setMethod("is.na", signature(x = "diagonalMatrix"),
               r
           })
 
-setMethod("is.na", signature(x = "indMatrix"),
+setMethod("is.na", c(x = "indMatrix"),
           function(x) {
               m <- x@margin
               r <- new(if(m == 1L) "ngRMatrix" else "ngCMatrix")
@@ -102,7 +106,7 @@ setMethod("is.na", signature(x = "indMatrix"),
               r
           })
 
-setMethod("is.na", signature(x = "sparseVector"),
+setMethod("is.na", c(x = "sparseVector"),
           function(x) {
               r <- new("nsparseVector")
               r@length <- x@length
@@ -116,7 +120,7 @@ setMethod("is.na", signature(x = "sparseVector"),
 ## NB: mostly parallel to is.na, completely parallel to is.infinite
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-setMethod("is.nan", signature(x = "denseMatrix"),
+setMethod("is.nan", c(x = "denseMatrix"),
           function(x) {
               cl <- .M.nonvirtual(x)
               never <- switch(substr(cl, 1L, 1L), "d" = , "z" = FALSE, TRUE)
@@ -138,7 +142,7 @@ setMethod("is.nan", signature(x = "denseMatrix"),
               r
           })
 
-setMethod("is.nan", signature(x = "sparseMatrix"),
+setMethod("is.nan", c(x = "sparseMatrix"),
           function(x) {
               cl <- .M.nonvirtual(x)
               never <- switch(substr(cl, 1L, 1L), "d" = , "z" = FALSE, TRUE)
@@ -163,7 +167,7 @@ setMethod("is.nan", signature(x = "sparseMatrix"),
               }
           })
 
-setMethod("is.nan", signature(x = "diagonalMatrix"),
+setMethod("is.nan", c(x = "diagonalMatrix"),
           function(x) {
               r <- new("ndiMatrix")
               r@Dim <- d <- x@Dim
@@ -175,7 +179,7 @@ setMethod("is.nan", signature(x = "diagonalMatrix"),
               r
           })
 
-setMethod("is.nan", signature(x = "indMatrix"),
+setMethod("is.nan", c(x = "indMatrix"),
           function(x) {
               m <- x@margin
               r <- new(if(m == 1L) "ngRMatrix" else "ngCMatrix")
@@ -185,7 +189,7 @@ setMethod("is.nan", signature(x = "indMatrix"),
               r
           })
 
-setMethod("is.nan", signature(x = "sparseVector"),
+setMethod("is.nan", c(x = "sparseVector"),
           function(x) {
               r <- new("nsparseVector")
               r@length <- x@length
@@ -198,7 +202,7 @@ setMethod("is.nan", signature(x = "sparseVector"),
 ## NB: mostly parallel to is.na, completely parallel to is.nan
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-setMethod("is.infinite", signature(x = "denseMatrix"),
+setMethod("is.infinite", c(x = "denseMatrix"),
           function(x) {
               cl <- .M.nonvirtual(x)
               never <- switch(substr(cl, 1L, 1L), "d" = , "z" = FALSE, TRUE)
@@ -220,7 +224,7 @@ setMethod("is.infinite", signature(x = "denseMatrix"),
               r
           })
 
-setMethod("is.infinite", signature(x = "sparseMatrix"),
+setMethod("is.infinite", c(x = "sparseMatrix"),
           function(x) {
               cl <- .M.nonvirtual(x)
               never <- switch(substr(cl, 1L, 1L), "d" = , "z" = FALSE, TRUE)
@@ -245,7 +249,7 @@ setMethod("is.infinite", signature(x = "sparseMatrix"),
               }
           })
 
-setMethod("is.infinite", signature(x = "diagonalMatrix"),
+setMethod("is.infinite", c(x = "diagonalMatrix"),
           function(x) {
               r <- new("ndiMatrix")
               r@Dim <- d <- x@Dim
@@ -257,7 +261,7 @@ setMethod("is.infinite", signature(x = "diagonalMatrix"),
               r
           })
 
-setMethod("is.infinite", signature(x = "indMatrix"),
+setMethod("is.infinite", c(x = "indMatrix"),
           function(x) {
               m <- x@margin
               r <- new(if(m == 1L) "ngRMatrix" else "ngCMatrix")
@@ -267,7 +271,7 @@ setMethod("is.infinite", signature(x = "indMatrix"),
               r
           })
 
-setMethod("is.infinite", signature(x = "sparseVector"),
+setMethod("is.infinite", c(x = "sparseVector"),
           function(x) {
               r <- new("nsparseVector")
               r@length <- x@length
@@ -279,7 +283,7 @@ setMethod("is.infinite", signature(x = "sparseVector"),
 ## METHODS FOR GENERIC: is.finite
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-setMethod("is.finite", signature(x = "denseMatrix"),
+setMethod("is.finite", c(x = "denseMatrix"),
           function(x) {
               cl <- .M.nonvirtual(x)
               always <- substr(cl, 1L, 1L) == "n"
@@ -320,7 +324,7 @@ setMethod("is.finite", signature(x = "denseMatrix"),
               r
           })
 
-setMethod("is.finite", signature(x = "sparseMatrix"),
+setMethod("is.finite", c(x = "sparseMatrix"),
           function(x) {
               cl <- .M.nonvirtual(x)
               always <- substr(cl, 1L, 1L) == "n"
@@ -349,7 +353,7 @@ setMethod("is.finite", signature(x = "sparseMatrix"),
               r
           })
 
-setMethod("is.finite", signature(x = "diagonalMatrix"),
+setMethod("is.finite", c(x = "diagonalMatrix"),
           function(x) {
               r <- new("nsyMatrix")
               r@Dim <- d <- x@Dim
@@ -364,7 +368,7 @@ setMethod("is.finite", signature(x = "diagonalMatrix"),
               r
           })
 
-setMethod("is.finite", signature(x = "indMatrix"),
+setMethod("is.finite", c(x = "indMatrix"),
           function(x)  {
               r <- new("ngeMatrix")
               r@Dim <- d <- x@Dim
@@ -373,7 +377,7 @@ setMethod("is.finite", signature(x = "indMatrix"),
               r
           })
 
-setMethod("is.finite", signature(x = "sparseVector"),
+setMethod("is.finite", c(x = "sparseVector"),
           function(x)  {
               r <- rep.int(TRUE, x@length)
               if(.M.kind(x) != "n")

@@ -420,8 +420,8 @@ diagN2U <- function(x, cl = getClassDef(class(x)), checkDense = FALSE) {
 .diag.dsC <- function(x, Chx = Cholesky(x, LDL = TRUE), res.kind = "diag") {
     if(!missing(Chx))
         stopifnot(.CHM.is.LDL(Chx), is.integer(Chx@p), is.double(Chx@x))
-    .Call(tCsparse_diag, Chx, res.kind)
-    ##    ^^^^^^^^^^^^^ in ../src/Csparse.c
+    .Call(dtCMatrix_diag, Chx, res.kind)
+    ##    ^^^^^^^^^^^^^^ in ../src/Csparse.c
 }
 
 dimScale <- function(x, d1 = sqrt(1/diag(x, names = FALSE)), d2 = d1) {

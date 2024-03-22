@@ -84,9 +84,6 @@
   }
 }
 \seealso{
-  The virtual class \code{\linkS4class{compMatrix}}
-  of \emph{factorizable} matrices.
-  
   Classes extending \code{CholeskyFactorization}, namely
   \code{\linkS4class{Cholesky}}, \code{\linkS4class{pCholesky}},
   and \code{\linkS4class{CHMfactor}}.

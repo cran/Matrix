@@ -1,9 +1,5 @@
 \name{Matrix-deprecated}
 \title{Deprecated Functions in Package \pkg{Matrix}}
-%
-\keyword{internal}
-\keyword{misc}
-%
 \alias{Matrix-deprecated}
 %
 \alias{..2dge}
@@ -26,6 +22,11 @@
 \alias{.n2dgT}
 \alias{.nC2d}
 \alias{.nC2l}
+%
+\alias{atomicVector-class}
+\alias{compMatrix-class}
+\alias{number-class}
+\alias{replValue-class}
 %
 \alias{chol2inv,CHMfactor-method}
 \alias{coerce,CHMfactor,Matrix-method}
@@ -455,3 +456,5 @@
   \code{\link{base-deprecated}},
   \code{\link{Matrix-defunct}}
 }
+\keyword{internal}
+\keyword{misc}

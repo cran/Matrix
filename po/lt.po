@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Matrix 1.3-3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-11-02 21:33-0400\n"
+"POT-Creation-Date: 2024-03-14 15:49-0400\n"
 "PO-Revision-Date: 2021-02-25 14:30+0200\n"
 "Last-Translator: Gabrielė Stupurienė <gabriele.stupuriene@mif.vu.lt>\n"
 "Language-Team: none\n"
@@ -19,30 +19,48 @@ msgstr ""
 "n%10>=2 && n%10<=9 && (n%100<11 || n%100>19) ? 1 : 2);\n"
 "X-Generator: Poedit 2.4.2\n"
 
-#: Csparse.c:26 Csparse.c:318 chm_common.c:165 chm_common.c:291
-#: chm_common.c:813 chm_common.c:816 chm_common.c:849 chm_common.c:867
-#: dgCMatrix.c:18 dgCMatrix.c:43 dgCMatrix.c:70 dgCMatrix.c:84 dgCMatrix.c:89
-#: dgCMatrix.c:94
+#: Csparse.c:26 Csparse.c:61 Csparse.c:86 Csparse.c:113 Csparse.c:127
+#: Csparse.c:132 Csparse.c:137 Csparse.c:411
 #, fuzzy, c-format
 msgid "'%s' failed"
 msgstr "cs_qr nepavyko"
 
-#: Csparse.c:35 chm_common.c:54
+#: Csparse.c:35 cholmod-common.c:54
 #, fuzzy, c-format
 msgid "'%s' slot is not increasing within columns after sorting"
 msgstr "laukas j nedidėja stulpelio viduje"
 
-#: Csparse.c:77 coerce.c:220 coerce.c:240 coerce.c:250 coerce.c:905
+#: Csparse.c:57
+#, fuzzy, c-format
+msgid "'%s' is empty or not square"
+msgstr "Matrica nėra kvadratinė"
+
+#: Csparse.c:59 Csparse.c:81 Csparse.c:104 solve.c:43 solve.c:988
+#, fuzzy, c-format
+msgid "dimensions of '%s' and '%s' are inconsistent"
+msgstr "Sistemos, kurią reikia išspręsti, matmenys yra nenuoseklūs"
+
+#: Csparse.c:83
+#, c-format
+msgid "%s(%s, %s) requires m-by-n '%s' with m >= n > 0"
+msgstr ""
+
+#: Csparse.c:106
+#, c-format
+msgid "%s(%s, %s) requires m-by-n '%s' with n >= m > 0"
+msgstr ""
+
+#: Csparse.c:194 coerce.c:220 coerce.c:240 coerce.c:250 coerce.c:905
 #: coerce.c:911 coerce.c:1015 coerce.c:1501 coerce.c:1521 coerce.c:1531
 #: coerce.c:2061 coerce.c:2256 coerce.c:2262 coerce.c:2268 coerce.c:2397
 #: coerce.c:2404 coerce.c:2494 coerce.c:2629 coerce.c:2707 coerce.c:2729
-#: coerce.c:4327 coerce.c:4396 dense.c:701 products.c:936 products.c:1288
-#: solve.c:719 solve.c:968 solve.c:1100 sparse.c:1233 sparse.c:1625
+#: coerce.c:4327 coerce.c:4396 dense.c:696 matmult.c:939 matmult.c:1291
+#: solve.c:719 solve.c:972 solve.c:1104 sparse.c:1234 sparse.c:1626
 #, fuzzy, c-format
 msgid "invalid '%s' to '%s'"
 msgstr "netinkamas argumentas '%s'"
 
-#: Csparse.c:316
+#: Csparse.c:409
 #, fuzzy, c-format
 msgid "failed to open file \"%s\" for writing"
 msgstr "nepavyko atidaryti failo \"%s\" rašymui"
@@ -65,11 +83,12 @@ msgstr ""
 msgid "number of columns of matrices must match"
 msgstr ""
 
-#: bind.c:51 bind.c:158 bind.c:182 bind.c:206 chm_common.c:474 chm_common.c:623
-#: chm_common.c:717 cholmod-etc.c:183 cholmod-etc.c:282 cholmod-etc.c:325
-#: coerce.c:215 coerce.c:235 coerce.c:260 coerce.c:268 coerce.c:276
-#: coerce.c:341 coerce.c:1496 coerce.c:1516 coerce.c:1543 coerce.c:1551
-#: coerce.c:1559 products.c:28 products.c:50 products.c:56
+#: bind.c:51 bind.c:158 bind.c:182 bind.c:206 cholmod-common.c:608
+#: cholmod-common.c:759 cholmod-common.c:874 cholmod-common.c:975
+#: cholmod-etc.c:183 cholmod-etc.c:283 cholmod-etc.c:330 coerce.c:215
+#: coerce.c:235 coerce.c:260 coerce.c:268 coerce.c:276 coerce.c:341
+#: coerce.c:1496 coerce.c:1516 coerce.c:1543 coerce.c:1551 coerce.c:1559
+#: matmult.c:28 matmult.c:50 matmult.c:56
 #, c-format
 msgid "dimensions cannot exceed %s"
 msgstr ""
@@ -82,134 +101,147 @@ msgstr ""
 msgid "number of columns of result is not a multiple of vector length"
 msgstr ""
 
-#: bind.c:626 bind.c:691 sparse.c:912 sparse.c:993
+#: bind.c:626 bind.c:691 sparse.c:913 sparse.c:994
 #, c-format
 msgid "%s cannot exceed %s"
 msgstr ""
 
-#: bind.c:756 bind.c:853 chm_common.c:720 cholmod-etc.c:328 coerce.c:29
+#: bind.c:756 bind.c:853 cholmod-common.c:978 cholmod-etc.c:333 coerce.c:29
 #: coerce.c:518 coerce.c:811 coerce.c:945 coerce.c:2772 coerce.c:3041
-#: coerce.c:3139 dense.c:924 products.c:151 products.c:212 products.c:291
-#: products.c:379 products.c:456 products.c:550 products.c:865 subscript.c:1232
+#: coerce.c:3146 dense.c:919 matmult.c:151 matmult.c:212 matmult.c:291
+#: matmult.c:379 matmult.c:456 matmult.c:550 matmult.c:868 subscript.c:1232
 #: subscript.c:1417 utils-R.c:32
 #, c-format
 msgid "attempt to allocate vector of length exceeding %s"
 msgstr ""
 
-#: bind.c:858 products.c:1354
+#: bind.c:858 matmult.c:1357
 msgid "should never happen ..."
 msgstr ""
 
-#: chm_common.c:11 chm_common.c:34 validity.c:38 validity.c:183 validity.c:262
-#: validity.c:281 validity.c:290 validity.c:309 validity.c:335 validity.c:355
-#: validity.c:405 validity.c:422 validity.c:456 validity.c:473 validity.c:507
-#: validity.c:509 validity.c:959 validity.c:992 validity.c:1074 validity.c:1094
-#: validity.c:1160 validity.c:1162 validity.c:1210 validity.c:1273
-#: validity.c:1275 validity.c:1321 validity.c:1368 validity.c:1417
-#: validity.c:1450 validity.c:1460 validity.c:1473 validity.c:1527
-#: validity.c:1529 validity.c:1561 validity.c:1573 validity.c:1596
-#: validity.c:1659 validity.c:1678 validity.c:1680 validity.c:1712
-#: validity.c:1747 validity.c:1775
+#: cholmod-common.c:11 cholmod-common.c:34 validity.c:29 validity.c:150
+#: validity.c:229 validity.c:248 validity.c:257 validity.c:299 validity.c:316
+#: validity.c:350 validity.c:367 validity.c:401 validity.c:403 validity.c:439
+#: validity.c:465 validity.c:485 validity.c:926 validity.c:959 validity.c:1041
+#: validity.c:1061 validity.c:1127 validity.c:1129 validity.c:1177
+#: validity.c:1240 validity.c:1242 validity.c:1288 validity.c:1335
+#: validity.c:1384 validity.c:1417 validity.c:1427 validity.c:1440
+#: validity.c:1494 validity.c:1496 validity.c:1528 validity.c:1540
+#: validity.c:1563 validity.c:1626 validity.c:1645 validity.c:1647
+#: validity.c:1679 validity.c:1714 validity.c:1742
 #, fuzzy, c-format
 msgid "'%s' slot is not of type \"%s\""
 msgstr "Dim laukas nėra sveikasis skaičius"
 
-#: chm_common.c:14 validity.c:357 validity.c:407 validity.c:458 validity.c:880
-#: validity.c:891 validity.c:961 validity.c:994 validity.c:1096 validity.c:1164
-#: validity.c:1212 validity.c:1277 validity.c:1323 validity.c:1462
-#: validity.c:1479 validity.c:1531 validity.c:1533 validity.c:1563
-#: validity.c:1575 validity.c:1598 validity.c:1714 validity.c:1751
-#: validity.c:1779 validity.c:1829
+#: cholmod-common.c:14 validity.c:274 validity.c:285 validity.c:301
+#: validity.c:352 validity.c:487 validity.c:928 validity.c:961 validity.c:1063
+#: validity.c:1131 validity.c:1179 validity.c:1244 validity.c:1290
+#: validity.c:1429 validity.c:1446 validity.c:1498 validity.c:1500
+#: validity.c:1530 validity.c:1542 validity.c:1565 validity.c:1681
+#: validity.c:1718 validity.c:1746 validity.c:1796
 #, fuzzy, c-format
 msgid "'%s' slot does not have length %s"
 msgstr "Dim laukas turi būti 2 ilgio"
 
-#: chm_common.c:18 validity.c:410 validity.c:461 validity.c:1667
-#: validity.c:1687 validity.c:1689
+#: cholmod-common.c:18 validity.c:304 validity.c:355 validity.c:1634
+#: validity.c:1654 validity.c:1656
 #, fuzzy, c-format
 msgid "first element of '%s' slot is not 0"
 msgstr "pirmasis lauko p elementas turi būti lygus nuliui"
 
-#: chm_common.c:23 chm_common.c:46 validity.c:43 validity.c:361 validity.c:414
-#: validity.c:432 validity.c:465 validity.c:483 validity.c:519 validity.c:521
-#: validity.c:1041 validity.c:1053 validity.c:1100 validity.c:1173
-#: validity.c:1185 validity.c:1286 validity.c:1298 validity.c:1327
-#: validity.c:1378 validity.c:1427 validity.c:1466 validity.c:1486
-#: validity.c:1567 validity.c:1583 validity.c:1608 validity.c:1672
-#: validity.c:1692 validity.c:1694 validity.c:1721
+#: cholmod-common.c:23 cholmod-common.c:46 validity.c:34 validity.c:308
+#: validity.c:326 validity.c:359 validity.c:377 validity.c:413 validity.c:415
+#: validity.c:491 validity.c:1008 validity.c:1020 validity.c:1067
+#: validity.c:1140 validity.c:1152 validity.c:1253 validity.c:1265
+#: validity.c:1294 validity.c:1345 validity.c:1394 validity.c:1433
+#: validity.c:1453 validity.c:1534 validity.c:1550 validity.c:1575
+#: validity.c:1639 validity.c:1659 validity.c:1661 validity.c:1688
 #, c-format
 msgid "'%s' slot contains NA"
 msgstr ""
 
-#: chm_common.c:26 validity.c:416 validity.c:467
+#: cholmod-common.c:26 validity.c:310 validity.c:361
 #, fuzzy, c-format
 msgid "'%s' slot is not nondecreasing"
 msgstr "laukas p turi būti nemažėjantis"
 
-#: chm_common.c:29 validity.c:418 validity.c:469
+#: cholmod-common.c:29 validity.c:312 validity.c:363
 #, c-format
 msgid "first differences of '%s' slot exceed %s"
 msgstr ""
 
-#: chm_common.c:37 validity.c:424 validity.c:475
+#: cholmod-common.c:37 validity.c:318 validity.c:369
 #, fuzzy, c-format
 msgid "'%s' slot has length less than %s"
 msgstr "'Dim' lauko ilgis yra mažesnis nei du"
 
-#: chm_common.c:49 validity.c:363 validity.c:434 validity.c:485 validity.c:523
-#: validity.c:526 validity.c:1043 validity.c:1102 validity.c:1175
-#: validity.c:1187 validity.c:1288 validity.c:1300 validity.c:1380
-#: validity.c:1429 validity.c:1488 validity.c:1610 validity.c:1723
+#: cholmod-common.c:49 validity.c:328 validity.c:379 validity.c:417
+#: validity.c:420 validity.c:493 validity.c:1010 validity.c:1069
+#: validity.c:1142 validity.c:1154 validity.c:1255 validity.c:1267
+#: validity.c:1347 validity.c:1396 validity.c:1455 validity.c:1577
+#: validity.c:1690
 #, fuzzy, c-format
 msgid "'%s' slot has elements not in {%s}"
 msgstr "'Dim' lauko ilgis yra mažesnis nei du"
 
-#: chm_common.c:467 chm_common.c:470 chm_common.c:472 chm_common.c:616
-#: chm_common.c:619 chm_common.c:621 chm_common.c:711 chm_common.c:713
-#: cholmod-etc.c:177 cholmod-etc.c:179 cholmod-etc.c:181 cholmod-etc.c:276
-#: cholmod-etc.c:278 cholmod-etc.c:280 cholmod-etc.c:319 cholmod-etc.c:321
-#: cs-etc.c:43
+#: cholmod-common.c:165 cholmod-common.c:296 cholmod-common.c:1072
+#: cholmod-common.c:1075 cholmod-common.c:1108 cholmod-common.c:1126
+#, fuzzy, c-format
+msgid "'%s' failed in '%s'"
+msgstr "cs_qr nepavyko"
+
+#: cholmod-common.c:212
+#, fuzzy, c-format
+msgid "'%s' failed in '%s': %s"
+msgstr "cs_qr nepavyko"
+
+#: cholmod-common.c:601 cholmod-common.c:604 cholmod-common.c:606
+#: cholmod-common.c:752 cholmod-common.c:755 cholmod-common.c:757
+#: cholmod-common.c:867 cholmod-common.c:870 cholmod-common.c:872
+#: cholmod-common.c:969 cholmod-common.c:971 cholmod-etc.c:177
+#: cholmod-etc.c:179 cholmod-etc.c:181 cholmod-etc.c:277 cholmod-etc.c:279
+#: cholmod-etc.c:281 cholmod-etc.c:324 cholmod-etc.c:326 cs-etc.c:43
 #, c-format
 msgid "wrong '%s'"
 msgstr ""
 
-#: chm_common.c:477 cholmod-etc.c:186
+#: cholmod-common.c:611 cholmod-etc.c:186
 #, fuzzy, c-format
 msgid "'%s' would overflow type \"%s\""
 msgstr "Dim laukas nėra sveikasis skaičius"
 
-#: chm_common.c:481 cholmod-etc.c:190
+#: cholmod-common.c:615 cholmod-etc.c:190
 #, c-format
 msgid "n+1 would overflow type \"%s\""
 msgstr ""
 
-#: chm_common.c:486 cholmod-etc.c:195
+#: cholmod-common.c:620 cholmod-etc.c:195
 #, fuzzy, c-format
 msgid "leading principal minor of order %d is not positive"
 msgstr "vadovaujantis minoras, kurio eilė yra %d, nėra teigiamai apibrėžtas"
 
-#: chm_common.c:489 cholmod-etc.c:198
+#: cholmod-common.c:623 cholmod-etc.c:198
 #, fuzzy, c-format
 msgid "leading principal minor of order %d is zero"
 msgstr "vadovaujantis minoras, kurio eilė yra %d, nėra teigiamai apibrėžtas"
 
-#: chm_common.c:715 cholmod-etc.c:323
+#: cholmod-common.c:973 cholmod-etc.c:328
 msgid "leading dimension not equal to number of rows"
 msgstr ""
 
-#: chm_common.c:778
+#: cholmod-common.c:1037
 #, c-format
 msgid ""
 "invalid simplicial Cholesky factorization: structural zero on main diagonal "
 "in column %d"
 msgstr ""
 
-#: chm_common.c:838
+#: cholmod-common.c:1097
 #, fuzzy, c-format
 msgid "CHOLMOD error '%s' at file '%s', line %d"
 msgstr "Cholmod klaida '%s' faile %s, eilutė %d"
 
-#: chm_common.c:841
+#: cholmod-common.c:1100
 #, fuzzy, c-format
 msgid "CHOLMOD warning '%s' at file '%s', line %d"
 msgstr "Cholmod įspėjimas '%s' faile %s, eilutė %d"
@@ -232,9 +264,9 @@ msgid "'%s' must be \"%s\" or \"%s\""
 msgstr "'%s' turi būti '%s'"
 
 #: coerce.c:246 coerce.c:496 coerce.c:793 coerce.c:917 coerce.c:1527
-#: coerce.c:1642 dense.c:322 dense.c:1107 dense.c:1683 dense.c:1688
-#: dense.c:1934 dense.c:2129 sparse.c:783 sparse.c:2448 sparse.c:3140
-#: sparse.c:3145 sparse.c:3150 sparse.c:3426 sparse.c:3663
+#: coerce.c:1642 dense.c:322 dense.c:1102 dense.c:1678 dense.c:1683
+#: dense.c:1929 dense.c:2124 sparse.c:784 sparse.c:2449 sparse.c:3141
+#: sparse.c:3146 sparse.c:3151 sparse.c:3427 sparse.c:3664
 #, fuzzy, c-format
 msgid "'%s' must be %s or %s"
 msgstr "'%s' turi būti '%s'"
@@ -284,112 +316,112 @@ msgstr ""
 msgid "attempt to pack a %s"
 msgstr "Determinantui reikia kvadratinės matricos"
 
-#: coerce.c:4330 dense.c:1237 sparse.c:2579
+#: coerce.c:4330 dense.c:1232 sparse.c:2580
 #, fuzzy, c-format
 msgid "'%s' must be %s or %s or %s"
 msgstr "'%s' turi būti '%s'"
 
 #: dense.c:210 dense.c:215 sparse.c:590 sparse.c:595
 #, fuzzy, c-format
-msgid "'%s' must be an integer from %s to %s"
+msgid "'%s' (%d) must be an integer from %s (%d) to %s (%d)"
 msgstr "'%s' turi būti '%s'"
 
 #: dense.c:218 sparse.c:598
 #, fuzzy, c-format
-msgid "'%s' must be less than or equal to '%s'"
+msgid "'%s' (%d) must be less than or equal to '%s' (%d)"
 msgstr "'%s' turi būti '%s'"
 
-#: dense.c:428 sparse.c:1069
+#: dense.c:428 sparse.c:1070
 #, fuzzy, c-format
 msgid "replacement diagonal has incompatible type \"%s\""
 msgstr "keitimo įstrižainės ilgis neteisingas"
 
-#: dense.c:437 sparse.c:1078
+#: dense.c:437 sparse.c:1079
 msgid "replacement diagonal has wrong length"
 msgstr "keitimo įstrižainės ilgis neteisingas"
 
-#: dense.c:627 sparse.c:1274
+#: dense.c:622 sparse.c:1275
 #, fuzzy
 msgid "attempt to symmetrize a non-square matrix"
 msgstr "Determinantui reikia kvadratinės matricos"
 
-#: dense.c:726 sparse.c:1652
+#: dense.c:721 sparse.c:1653
 msgid "attempt to get symmetric part of non-square matrix"
 msgstr ""
 
-#: dense.c:878 sparse.c:2082
+#: dense.c:873 sparse.c:2083
 msgid "attempt to get skew-symmetric part of non-square matrix"
 msgstr ""
 
-#: dense.c:1678 sparse.c:3135
+#: dense.c:1673 sparse.c:3136
 #, fuzzy, c-format
 msgid "'%s' must be %d or %d"
 msgstr "'%s' turi būti '%s'"
 
-#: dense.c:2161
+#: dense.c:2156
 #, c-format
 msgid "incorrect left cyclic shift, j (%d) < 0"
 msgstr "neteisingas kairysis ciklinis pastūmimas, j (%d) < 0"
 
-#: dense.c:2164
+#: dense.c:2159
 #, c-format
 msgid "incorrect left cyclic shift, j (%d) >= k (%d)"
 msgstr "neteisingas kairysis ciklinis pastūmimas, j (%d) >= k (%d)"
 
-#: dense.c:2167
+#: dense.c:2162
 #, c-format
 msgid "incorrect left cyclic shift, k (%d) > ldx (%d)"
 msgstr "neteisingas kairysis ciklinis pastūmimas, k (%d) > ldx (%d)"
 
-#: dense.c:2220
+#: dense.c:2215
 #, fuzzy
 msgid "unknown error in getGivens"
 msgstr "Nežinoma getGivens klaida"
 
-#: dense.c:2229 dense.c:2243 dense.c:2273
+#: dense.c:2224 dense.c:2238 dense.c:2268
 msgid "X must be a numeric (double precision) matrix"
 msgstr "X turi būti skaitinė (dvigubo tikslumo) matrica"
 
-#: dense.c:2245 dense.c:2275
+#: dense.c:2240 dense.c:2270
 msgid "y must be a numeric (double precision) matrix"
 msgstr "y turi būti skaitinė (dvigubo tikslumo) matrica"
 
-#: dense.c:2249 dense.c:2279
+#: dense.c:2244 dense.c:2274
 #, c-format
 msgid "number of rows in y (%d) does not match number of rows in X (%d)"
 msgstr ""
 "eilučių skaičius, esantis y (%d) neatitinka eilučių skaičiaus, esančio X (%d)"
 
-#: dense.c:2265
+#: dense.c:2260
 #, fuzzy, c-format
 msgid "LAPACK dposv returned error code %d"
 msgstr "Lapack programa dposv grąžino klaidos kodą %d"
 
-#: dense.c:2293 dense.c:2299
+#: dense.c:2288 dense.c:2294
 #, fuzzy, c-format
 msgid "LAPACK dgels returned error code %d"
 msgstr "Lapack programa %s grąžino klaidos kodą %d"
 
-#: dense.c:2318
+#: dense.c:2313
 msgid "X must be a real (numeric) matrix"
 msgstr "X turi būti realioji (skaitinė) matrica"
 
-#: dense.c:2321
+#: dense.c:2316
 #, fuzzy, c-format
 msgid "tol, given as %g, must be >= 0"
 msgstr "tol, kaip %g, turi būti < = 1"
 
-#: dense.c:2323
+#: dense.c:2318
 #, c-format
 msgid "tol, given as %g, must be <= 1"
 msgstr "tol, kaip %g, turi būti < = 1"
 
-#: dense.c:2352 dense.c:2360
+#: dense.c:2347 dense.c:2355
 #, fuzzy, c-format
 msgid "LAPACK dgeqrf returned error code %d"
 msgstr "Pirmasis iškvietimas į dgeqrf grąžino klaidos kodą %d"
 
-#: dense.c:2365 dense.c:2388
+#: dense.c:2360 dense.c:2383
 #, fuzzy, c-format
 msgid "LAPACK dtrcon returned error code %d"
 msgstr "Lapack programa dtrcon grąžino klaidos kodą %d"
@@ -404,89 +436,64 @@ msgstr "Determinantui reikia kvadratinės matricos"
 msgid "%s(<%s>) does not support structurally rank deficient case"
 msgstr "%s(): struktūrinio rango deficito atvejis: galbūt WRONG nuliai"
 
-#: dgCMatrix.c:14
-#, fuzzy, c-format
-msgid "'%s' is empty or not square"
-msgstr "Matrica nėra kvadratinė"
-
-#: dgCMatrix.c:16 dgCMatrix.c:38 dgCMatrix.c:61 solve.c:43 solve.c:984
-#, fuzzy, c-format
-msgid "dimensions of '%s' and '%s' are inconsistent"
-msgstr "Sistemos, kurią reikia išspręsti, matmenys yra nenuoseklūs"
-
-#: dgCMatrix.c:40
-#, c-format
-msgid "%s(%s, %s) requires m-by-n '%s' with m >= n > 0"
-msgstr ""
-
-#: dgCMatrix.c:63
-#, c-format
-msgid "%s(%s, %s) requires m-by-n '%s' with n >= m > 0"
-msgstr ""
-
-#: dgeMatrix.c:22
-#, fuzzy, c-format
-msgid "dgeMatrix_svd(x,*): dim(x)[j] = %d is too large"
-msgstr "Matricos matmenys %d x %d (= %g) yra per dideli"
-
-#: dgeMatrix.c:90
+#: expm.c:39
 msgid "Matrix exponential requires square, non-null matrix"
 msgstr "Matricos eksponentė reikalauja kvadratinės, ne nulinės matricos"
 
-#: dgeMatrix.c:107 dgeMatrix.c:109
+#: expm.c:56 expm.c:58
 #, c-format
 msgid "dgeMatrix_exp: LAPACK routine dgebal returned %d"
 msgstr "dgeMatrix_exp: LAPACK programa dgebal grąžino %d"
 
-#: dgeMatrix.c:147
+#: expm.c:96
 #, c-format
 msgid "dgeMatrix_exp: dgetrf returned error code %d"
 msgstr "dgeMatrix_exp: dgetrf grąžino klaidos kodą %d"
 
-#: dgeMatrix.c:149
+#: expm.c:98
 #, c-format
 msgid "dgeMatrix_exp: dgetrs returned error code %d"
 msgstr "dgeMatrix_exp: dgetrs grąžino klaidos kodą %d"
 
-#: dgeMatrix.c:224
+#: factor.c:330
 msgid "dgeMatrix_Schur: argument x must be a non-null square matrix"
 msgstr "dgeMatrix_Schur: argumentas x turi būti ne nulinė kvadratinė matrica"
 
-#: dgeMatrix.c:237
+#: factor.c:343
 msgid "dgeMatrix_Schur: first call to dgees failed"
 msgstr "dgeMatrix_Schur: pirmasis iškvietimas į dgees nepavyko"
 
-#: dgeMatrix.c:246
+#: factor.c:352
 #, c-format
 msgid "dgeMatrix_Schur: dgees returned code %d"
 msgstr "dgeMatrix_Schur: dgees grąžintas kodas %d"
 
-#: factorizations.c:355 sparse.c:196
+#: factor.c:403 sparse.c:196
 #, fuzzy, c-format
 msgid "'%s' is not a number"
 msgstr "%s nėra sąrašas"
 
-#: factorizations.c:376
+#: factor.c:424
 #, c-format
 msgid "LU factorization of m-by-n %s requires m == n"
 msgstr ""
 
-#: factorizations.c:385
+#: factor.c:433
 #, c-format
 msgid "LU factorization of %s failed: out of memory or near-singular"
 msgstr ""
 
-#: factorizations.c:462
+#: factor.c:510
 #, c-format
 msgid "QR factorization of m-by-n %s requires m >= n"
 msgstr ""
 
-#: factorizations.c:471
+#: factor.c:519
 #, c-format
 msgid "QR factorization of %s failed: out of memory"
 msgstr ""
 
-#: factorizations.c:571 factorizations.c:849
+#: factor.c:619 factor.c:897
 #, c-format
 msgid "'%s' is not a number or not finite"
 msgstr ""
@@ -526,6 +533,16 @@ msgstr "'%s' eilutės ilgis turi būti 1"
 #: kappa.c:238
 #, c-format
 msgid "%s(%s) is undefined: '%s' is not square"
+msgstr ""
+
+#: matmult.c:107 matmult.c:210 matmult.c:289 matmult.c:377 matmult.c:454
+#: matmult.c:548 matmult.c:812 matmult.c:862
+msgid "non-conformable arguments"
+msgstr ""
+
+#: matmult.c:782 matmult.c:810
+#, c-format
+msgid "'%s' does not support complex matrices"
 msgstr ""
 
 #: objects.c:23
@@ -591,16 +608,6 @@ msgstr ""
 msgid "'%s' is NA or less than %s"
 msgstr ""
 
-#: products.c:107 products.c:210 products.c:289 products.c:377 products.c:454
-#: products.c:548 products.c:809 products.c:859
-msgid "non-conformable arguments"
-msgstr ""
-
-#: products.c:782 products.c:807
-#, c-format
-msgid "'%s' does not support complex matrices"
-msgstr ""
-
 #: solve.c:38
 #, fuzzy, c-format
 msgid "'%s' is not square"
@@ -616,11 +623,6 @@ msgstr ""
 msgid "attempt to construct %s with more than %s nonzero elements"
 msgstr "Determinantui reikia kvadratinės matricos"
 
-#: sparseVector.c:90
-#, c-format
-msgid "%s length cannot exceed %s"
-msgstr ""
-
 #: subscript.c:1542 subscript.c:1695 subscript.c:1938 subscript.c:2122
 #, c-format
 msgid "%s too dense for %s; would have more than %s nonzero entries"
@@ -631,20 +633,20 @@ msgstr ""
 msgid "NA subscripts in %s not supported for '%s' inheriting from %s"
 msgstr ""
 
-#: t_Csparse_subassign.c:142
+#: t_subassign.c:141
 msgid "invalid class of 'x' in Csparse_subassign()"
 msgstr "netinkama 'x' klasė, esanti Csparse_subassign()"
 
-#: t_Csparse_subassign.c:144
+#: t_subassign.c:143
 msgid "invalid class of 'value' in Csparse_subassign()"
 msgstr "netinkama 'value' klasė, esanti Csparse_subassign()"
 
-#: t_Csparse_subassign.c:187
+#: t_subassign.c:186
 #, c-format
 msgid "x[] <- val: val is coerced to logical for \"%s\" x"
 msgstr "x[] <- val: val yra paverstas į loginį \"%s\" x"
 
-#: t_Csparse_subassign.c:192
+#: t_subassign.c:191
 #, c-format
 msgid ""
 "x[] <- val: val should be integer or logical, is coerced to integer, for "
@@ -653,7 +655,7 @@ msgstr ""
 "x[] <- val: val turėtų būti sveikasis skaičius arba loginis, yra pakeistas į "
 "sveikąjį skaičių dėl \"%s\" x"
 
-#: t_Csparse_subassign.c:199
+#: t_subassign.c:198
 msgid "programming error in Csparse_subassign() should never happen"
 msgstr "programavimo klaida Csparse_subassign() niekada neturėtų įvykti"
 
@@ -696,16 +698,17 @@ msgid "invalid 'ncol' value (< 0)"
 msgstr "neleistina 'ncol' reikšmė (< 0)"
 
 #: utils-R.c:390
-#, c-format
+#, fuzzy, c-format
 msgid ""
-"data length [%d] is not a sub-multiple or multiple of the number of rows [%d]"
+"data length [%lld] is not a sub-multiple or multiple of the number of rows "
+"[%d]"
 msgstr "duomenų ilgis [%d] nėra eilučių skaičiaus pogrupis ar kartotinis [%d]"
 
 #: utils-R.c:395
-#, c-format
+#, fuzzy, c-format
 msgid ""
-"data length [%d] is not a sub-multiple or multiple of the number of columns "
-"[%d]"
+"data length [%lld] is not a sub-multiple or multiple of the number of "
+"columns [%d]"
 msgstr ""
 "duomenų ilgis [%d] nėra stulpelių skaičiaus pogrupis ar kartotinis [%d]"
 
@@ -733,372 +736,380 @@ msgstr "apatinis indeksas 'j' už M[ij] ribų"
 msgid "i and j must be integer vectors of the same length"
 msgstr "i ir j turi būti to paties ilgio sveikieji vektoriai"
 
-#: validity.c:40 validity.c:73 validity.c:264 validity.c:283 validity.c:292
-#: validity.c:311 validity.c:337 validity.c:1010 validity.c:1452
-#: validity.c:1476
+#: validity.c:31 validity.c:52 validity.c:231 validity.c:250 validity.c:259
+#: validity.c:441 validity.c:467 validity.c:977 validity.c:1419 validity.c:1443
 #, fuzzy, c-format
 msgid "'%s' slot does not have length %d"
 msgstr "Dim laukas turi būti 2 ilgio"
 
-#: validity.c:45 validity.c:965 validity.c:998
+#: validity.c:36 validity.c:932 validity.c:965
 #, fuzzy, c-format
 msgid "'%s' slot has negative elements"
 msgstr "'Dim' lauko ilgis yra mažesnis nei du"
 
-#: validity.c:71 validity.c:197
+#: validity.c:50 validity.c:164
 #, fuzzy, c-format
 msgid "'%s' slot is not a list"
 msgstr "Dim laukas nėra sveikasis skaičius"
 
-#: validity.c:89
+#: validity.c:68
 #, fuzzy, c-format
 msgid "%s[[%d]] is not NULL or a vector"
 msgstr "Dimnames[%d] nėra simbolių vektorius"
 
-#: validity.c:92
+#: validity.c:71
 #, fuzzy, c-format
 msgid "length of %s[[%d]] (%lld) is not equal to %s[%d] (%d)"
 msgstr "length(Dimnames[%d]) skiriasi nuo Dim[%d], kuris yra %d"
 
-#: validity.c:203
+#: validity.c:170
 #, c-format
 msgid "'%s' slot has no '%s' attribute"
 msgstr ""
 
-#: validity.c:214 validity.c:277 validity.c:305 validity.c:376 validity.c:1115
-#: validity.c:1446 validity.c:1807
+#: validity.c:181 validity.c:244 validity.c:435 validity.c:506 validity.c:1082
+#: validity.c:1413 validity.c:1774
 #, c-format
 msgid "%s[1] != %s[2] (matrix is not square)"
 msgstr ""
 
-#: validity.c:239 validity.c:252
+#: validity.c:206 validity.c:219
 #, c-format
 msgid "%s[1] differs from %s[2]"
 msgstr ""
 
-#: validity.c:267 validity.c:286 validity.c:295 validity.c:314
+#: validity.c:234 validity.c:253 validity.c:262 validity.c:444
 #, fuzzy, c-format
 msgid "'%s' slot is not \"%s\" or \"%s\""
 msgstr "x laukas nėra \"double\""
 
-#: validity.c:320 validity.c:324
-#, fuzzy, c-format
-msgid "'%s' slot is \"%s\" but '%s' slot does not have length %s"
-msgstr "Dim laukas turi būti 2 ilgio"
-
-#: validity.c:340
-#, fuzzy, c-format
-msgid "'%s' slot is not %d or %d"
-msgstr "x laukas nėra \"double\""
-
-#: validity.c:346 validity.c:349
-#, c-format
-msgid "%s-by-%s %s invalid for positive '%s' when %s=%d"
-msgstr ""
-
-#: validity.c:386 validity.c:1178 validity.c:1190 validity.c:1291
-#: validity.c:1303 validity.c:1383 validity.c:1432 validity.c:1491
-#, c-format
-msgid "'%s' slot contains duplicates"
-msgstr ""
-
-#: validity.c:437 validity.c:1613
+#: validity.c:331 validity.c:1580
 #, fuzzy, c-format
 msgid "'%s' slot is not increasing within columns"
 msgstr "laukas j nedidėja stulpelio viduje"
 
-#: validity.c:488
+#: validity.c:382
 #, fuzzy, c-format
 msgid "'%s' slot is not increasing within rows"
 msgstr "laukas j nedidėja stulpelio viduje"
 
-#: validity.c:512 validity.c:801 validity.c:827 validity.c:853 validity.c:1076
-#: validity.c:1682 validity.c:1684
+#: validity.c:406 validity.c:790 validity.c:816 validity.c:842 validity.c:1043
+#: validity.c:1649 validity.c:1651
 #, fuzzy, c-format
 msgid "'%s' and '%s' slots do not have equal length"
 msgstr "Dim laukas turi būti 2 ilgio"
 
-#: validity.c:515
+#: validity.c:409
 #, c-format
 msgid "'%s' slot has nonzero length but %s is 0"
 msgstr ""
 
-#: validity.c:555 validity.c:600 validity.c:646 validity.c:691 validity.c:735
-#: validity.c:770
+#: validity.c:450 validity.c:454
+#, fuzzy, c-format
+msgid "'%s' slot is \"%s\" but '%s' slot does not have length %s"
+msgstr "Dim laukas turi būti 2 ilgio"
+
+#: validity.c:470
+#, fuzzy, c-format
+msgid "'%s' slot is not %d or %d"
+msgstr "x laukas nėra \"double\""
+
+#: validity.c:476 validity.c:479
+#, c-format
+msgid "%s-by-%s %s invalid for positive '%s' when %s=%d"
+msgstr ""
+
+#: validity.c:516 validity.c:1145 validity.c:1157 validity.c:1258
+#: validity.c:1270 validity.c:1350 validity.c:1399 validity.c:1458
+#, c-format
+msgid "'%s' slot contains duplicates"
+msgstr ""
+
+#: validity.c:544 validity.c:589 validity.c:635 validity.c:680 validity.c:724
+#: validity.c:759
 #, fuzzy, c-format
 msgid "%s=\"%s\" but there are entries below the diagonal"
 msgstr "uplo='U' neturi turėti sparse įrašų po įstrižainės"
 
-#: validity.c:565 validity.c:613 validity.c:656 validity.c:704 validity.c:740
-#: validity.c:781
+#: validity.c:554 validity.c:602 validity.c:645 validity.c:693 validity.c:729
+#: validity.c:770
 #, fuzzy, c-format
 msgid "%s=\"%s\" but there are entries above the diagonal"
 msgstr "uplo='L' neturi turėti sparse įrašų virš įstrižainės"
 
-#: validity.c:603 validity.c:616 validity.c:694 validity.c:707 validity.c:773
-#: validity.c:784
+#: validity.c:592 validity.c:605 validity.c:683 validity.c:696 validity.c:762
+#: validity.c:773
 #, fuzzy, c-format
 msgid "%s=\"%s\" but there are entries on the diagonal"
 msgstr "uplo='U' neturi turėti sparse įrašų po įstrižainės"
 
-#: validity.c:911 validity.c:935 validity.c:939
+#: validity.c:878 validity.c:902 validity.c:906
 msgid "matrix has negative diagonal elements"
 msgstr ""
 
-#: validity.c:955 validity.c:983 validity.c:987
+#: validity.c:922 validity.c:950 validity.c:954
 msgid "matrix has nonunit diagonal elements"
 msgstr ""
 
-#: validity.c:1007 validity.c:1032 validity.c:1826
+#: validity.c:974 validity.c:999 validity.c:1793
 #, fuzzy, c-format
 msgid "'%s' slot is not of type \"%s\" or \"%s\""
 msgstr "Dim laukas nėra sveikasis skaičius"
 
-#: validity.c:1015 validity.c:1022
+#: validity.c:982 validity.c:989
 #, fuzzy, c-format
 msgid "'%s' slot is NA"
 msgstr "Dim laukas nėra sveikasis skaičius"
 
-#: validity.c:1017 validity.c:1024
+#: validity.c:984 validity.c:991
 #, fuzzy, c-format
 msgid "'%s' slot is negative"
 msgstr "'Dim' lauko ilgis yra mažesnis nei du"
 
-#: validity.c:1026
+#: validity.c:993
 #, fuzzy, c-format
 msgid "'%s' slot exceeds %s"
 msgstr "'%s' turi būti '%s'"
 
-#: validity.c:1036
+#: validity.c:1003
 #, fuzzy, c-format
 msgid "'%s' slot has length greater than '%s' slot"
 msgstr "'Dim' lauko ilgis yra mažesnis nei du"
 
-#: validity.c:1046 validity.c:1674 validity.c:1696 validity.c:1698
+#: validity.c:1013 validity.c:1641 validity.c:1663 validity.c:1665
 #, fuzzy, c-format
 msgid "'%s' slot is not increasing"
 msgstr "laukas j nedidėja stulpelio viduje"
 
-#: validity.c:1056
+#: validity.c:1023
 #, fuzzy, c-format
 msgid "'%s' slot has elements not in {%s} after truncation towards zero"
 msgstr "'Dim' lauko ilgis yra mažesnis nei du"
 
-#: validity.c:1059
+#: validity.c:1026
 #, fuzzy, c-format
 msgid "'%s' slot is not increasing after truncation towards zero"
 msgstr "laukas j nedidėja stulpelio viduje"
 
-#: validity.c:1125 validity.c:1152 validity.c:1814 validity.c:1821
+#: validity.c:1092 validity.c:1119 validity.c:1781 validity.c:1788
 #, fuzzy, c-format
 msgid "dimensions of '%s' slot are not identical to '%s'"
 msgstr "X ir y matmenys nesuderinami su %s"
 
-#: validity.c:1127
+#: validity.c:1094
 #, c-format
 msgid "'%s' slot is upper (not lower) triangular"
 msgstr ""
 
-#: validity.c:1140
+#: validity.c:1107
 #, c-format
 msgid "'%s' slot has nonunit diagonal elements"
 msgstr ""
 
-#: validity.c:1154
+#: validity.c:1121
 #, c-format
 msgid "'%s' slot is lower (not upper) triangular"
 msgstr ""
 
-#: validity.c:1166 validity.c:1279 validity.c:1370 validity.c:1419
+#: validity.c:1133 validity.c:1246 validity.c:1337 validity.c:1386
 #, fuzzy, c-format
 msgid "'%s' slot does not have length %s or length %s"
 msgstr "Dim laukas turi būti 2 ilgio"
 
-#: validity.c:1206
+#: validity.c:1173
 msgid "matrix has more columns than rows"
 msgstr ""
 
-#: validity.c:1226
+#: validity.c:1193
 #, fuzzy, c-format
 msgid "'%s' slot has fewer than %s rows"
 msgstr "'Dim' lauko ilgis yra mažesnis nei du"
 
-#: validity.c:1228
+#: validity.c:1195
 #, fuzzy, c-format
 msgid "'%s' slot has more than %s rows"
 msgstr "'Dim' lauko ilgis yra mažesnis nei du"
 
-#: validity.c:1230 validity.c:1252
+#: validity.c:1197 validity.c:1219
 #, fuzzy, c-format
 msgid "'%s' slot does not have %s columns"
 msgstr "Dim laukas turi būti 2 ilgio"
 
-#: validity.c:1237
+#: validity.c:1204
 #, fuzzy, c-format
 msgid "'%s' slot must be lower trapezoidal but has entries above the diagonal"
 msgstr "uplo='L' neturi turėti sparse įrašų virš įstrižainės"
 
-#: validity.c:1250
+#: validity.c:1217
 #, fuzzy, c-format
 msgid "'%s' slot does not have %s row"
 msgstr "Dim laukas turi būti 2 ilgio"
 
-#: validity.c:1259
+#: validity.c:1226
 #, fuzzy, c-format
 msgid "'%s' slot must be upper trapezoidal but has entries below the diagonal"
 msgstr "uplo='U' neturi turėti sparse įrašų po įstrižainės"
 
-#: validity.c:1263
+#: validity.c:1230
 #, c-format
 msgid "'%s' slot has negative diagonal elements"
 msgstr ""
 
-#: validity.c:1329
+#: validity.c:1296
 #, c-format
 msgid "'%s' slot has elements not in {%s}\\{%s}"
 msgstr ""
 
-#: validity.c:1338
+#: validity.c:1305
 #, c-format
 msgid "'%s' slot has unpaired negative elements"
 msgstr ""
 
-#: validity.c:1364 validity.c:1408 validity.c:1412 validity.c:1760
-#: validity.c:1792
+#: validity.c:1331 validity.c:1375 validity.c:1379 validity.c:1727
+#: validity.c:1759
 msgid "Cholesky factor has negative diagonal elements"
 msgstr ""
 
-#: validity.c:1455
+#: validity.c:1422
 #, fuzzy, c-format
 msgid "%s[%d] (%s) is not in %s"
 msgstr "%s nėra sąrašas"
 
-#: validity.c:1468 validity.c:1569
+#: validity.c:1435 validity.c:1536
 #, fuzzy, c-format
 msgid "%s is not in {%s}"
 msgstr "%s nėra sąrašas"
 
-#: validity.c:1505
+#: validity.c:1472
 #, c-format
 msgid "%s is not representable as \"%s\""
 msgstr ""
 
-#: validity.c:1510 validity.c:1516
+#: validity.c:1477 validity.c:1483
 #, c-format
 msgid "%s[%d] (%s) is not %d or %d"
 msgstr ""
 
-#: validity.c:1513 validity.c:1629 validity.c:1632 validity.c:1635
+#: validity.c:1480 validity.c:1596 validity.c:1599 validity.c:1602
 #, c-format
 msgid "%s[%d] (%s) is not %d"
 msgstr ""
 
-#: validity.c:1538
+#: validity.c:1505
 #, c-format
 msgid "%s has elements not in {%s}"
 msgstr ""
 
-#: validity.c:1541
+#: validity.c:1508
 #, c-format
 msgid "%s has elements not in {%s}\\{%s}"
 msgstr ""
 
-#: validity.c:1544
+#: validity.c:1511
 #, c-format
 msgid "%s is %d but columns are not stored in increasing order"
 msgstr ""
 
-#: validity.c:1547 validity.c:1550
+#: validity.c:1514 validity.c:1517
 #, c-format
 msgid "traversal of '%s' slot does not complete in exactly %s steps"
 msgstr ""
 
-#: validity.c:1556 validity.c:1558
+#: validity.c:1523 validity.c:1525
 #, fuzzy, c-format
 msgid "%s is not %d"
 msgstr "%s nėra sąrašas"
 
-#: validity.c:1579
+#: validity.c:1546
 #, c-format
 msgid "column '%s' is stored first but %s is not 0"
 msgstr ""
 
-#: validity.c:1585
+#: validity.c:1552
 #, fuzzy, c-format
 msgid "'%s' slot is not increasing when traversed in stored column order"
 msgstr "laukas j nedidėja stulpelio viduje"
 
-#: validity.c:1587
+#: validity.c:1554
 #, c-format
 msgid "'%s' slot allocates fewer than %s elements for column '%s'"
 msgstr ""
 
-#: validity.c:1590
+#: validity.c:1557
 #, c-format
 msgid "'%s' slot allocates more than %s elements for column '%s'"
 msgstr ""
 
-#: validity.c:1604
+#: validity.c:1571
 #, c-format
 msgid "first entry in column '%s' does not have row index '%s'"
 msgstr ""
 
-#: validity.c:1638 validity.c:1641
+#: validity.c:1605 validity.c:1608
 #, c-format
 msgid "%s[%d] (%s) is negative"
 msgstr ""
 
-#: validity.c:1644
+#: validity.c:1611
 #, c-format
 msgid "%s[%d] (%s) is not less than %s"
 msgstr ""
 
-#: validity.c:1662
+#: validity.c:1629
 #, fuzzy, c-format
 msgid "'%s' slot has length less than %d"
 msgstr "'Dim' lauko ilgis yra mažesnis nei du"
 
-#: validity.c:1664
+#: validity.c:1631
 #, fuzzy, c-format
 msgid "'%s' slot has length greater than %s"
 msgstr "'Dim' lauko ilgis yra mažesnis nei du"
 
-#: validity.c:1669
+#: validity.c:1636
 #, fuzzy, c-format
 msgid "last element of '%s' slot is not %s"
 msgstr "pirmasis lauko p elementas turi būti lygus nuliui"
 
-#: validity.c:1702
+#: validity.c:1669
 #, c-format
 msgid "first differences of '%s' slot are less than those of '%s' slot"
 msgstr ""
 
-#: validity.c:1705
+#: validity.c:1672
 #, c-format
 msgid "supernode lengths exceed %s"
 msgstr ""
 
-#: validity.c:1707
+#: validity.c:1674
 #, c-format
 msgid "first differences of '%s' slot are not equal to supernode lengths"
 msgstr ""
 
-#: validity.c:1727
+#: validity.c:1694
 #, c-format
 msgid ""
 "'%s' slot is wrong within diagonal blocks (row and column indices do not "
 "coincide)"
 msgstr ""
 
-#: validity.c:1730
+#: validity.c:1697
 #, fuzzy, c-format
 msgid "'%s' slot is not increasing within supernodes"
 msgstr "laukas j nedidėja stulpelio viduje"
 
-#: validity.c:1845
+#: validity.c:1812
 #, fuzzy, c-format
 msgid "invalid class \"%s\" object: %s"
 msgstr "netinkama objekto klasė į %s"
+
+#: vector.c:90
+#, c-format
+msgid "%s length cannot exceed %s"
+msgstr ""
+
+#, fuzzy, c-format
+#~ msgid "dgeMatrix_svd(x,*): dim(x)[j] = %d is too large"
+#~ msgstr "Matricos matmenys %d x %d (= %g) yra per dideli"
 
 #, c-format
 #~ msgid "diagonal element %d of Cholesky factor is missing"

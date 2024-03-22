@@ -642,3 +642,11 @@ SEXP m_encodeInd2(SEXP i, SEXP j, SEXP di, SEXP orig_1, SEXP chk_bnds)
 	return ans;
 }
 #undef do_ii_FILL
+
+#define _rle_d_
+#include "t_rle.c"
+#undef _rle_d_
+
+#define _rle_i_
+#include "t_rle.c"
+#undef _rle_i_

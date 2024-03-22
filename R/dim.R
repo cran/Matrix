@@ -61,17 +61,17 @@ is.null.DN <- function(dn) {
 ## METHODS FOR GENERIC: dim
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-setMethod("dim", signature(x = "Matrix"),
+setMethod("dim", c(x = "Matrix"),
           function(x) x@Dim)
 
-setMethod("dim", signature(x = "MatrixFactorization"),
+setMethod("dim", c(x = "MatrixFactorization"),
           function(x) x@Dim)
 
 
 ## METHODS FOR GENERIC: dim<-
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-setMethod("dim<-", signature(x = "denseMatrix"),
+setMethod("dim<-", c(x = "denseMatrix"),
           function(x, value) {
               if(is.character(s <- validDimGetsValue(value, prod(d <- x@Dim))))
                  stop(s, domain = NA)
@@ -85,7 +85,7 @@ setMethod("dim<-", signature(x = "denseMatrix"),
               r
           })
 
-setMethod("dim<-", signature(x = "sparseMatrix"),
+setMethod("dim<-", c(x = "sparseMatrix"),
           function(x, value) {
               if(is.character(s <- validDimGetsValue(value, prod(d <- x@Dim))))
                  stop(s, domain = NA)
@@ -96,7 +96,7 @@ setMethod("dim<-", signature(x = "sparseMatrix"),
               switch(.M.repr(x), "C" = .M2C(r), "R" = .M2R(r), r)
           })
 
-setMethod("dim<-", signature(x = "sparseVector"),
+setMethod("dim<-", c(x = "sparseVector"),
           function(x, value) {
               if(is.character(s <- validDimGetsValue(value, length(x))))
                  stop(s, domain = NA)
@@ -108,19 +108,19 @@ setMethod("dim<-", signature(x = "sparseVector"),
 ## METHODS FOR GENERIC: length
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-setMethod("length", "Matrix",
+setMethod("length", c(x = "Matrix"),
           function(x)
               if((r <- prod(x@Dim)) > .Machine$integer.max)
                   r
               else as.integer(r))
 
-setMethod("length", "MatrixFactorization",
+setMethod("length", c(x = "MatrixFactorization"),
           function(x)
               if((r <- prod(x@Dim)) > .Machine$integer.max)
                   r
               else as.integer(r))
 
-setMethod("length", "sparseVector",
+setMethod("length", c(x = "sparseVector"),
           function(x)
               if(is.integer(r <- x@length))
                   r
@@ -132,54 +132,58 @@ setMethod("length", "sparseVector",
 ## METHODS FOR GENERIC: dimnames
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-setMethod("dimnames", signature(x = "Matrix"),
+setMethod("dimnames", c(x = "Matrix"),
           function(x) x@Dimnames)
 
-setMethod("dimnames", signature(x = "symmetricMatrix"),
+setMethod("dimnames", c(x = "symmetricMatrix"),
           function(x) symDN(x@Dimnames))
 
-setMethod("dimnames", signature(x = "MatrixFactorization"),
+setMethod("dimnames", c(x = "MatrixFactorization"),
           function(x) x@Dimnames)
 
 
 ## METHODS FOR GENERIC: dimnames<-
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-setMethod("dimnames<-", signature(x = "Matrix", value = "NULL"),
+setMethod("dimnames<-", c(x = "Matrix", value = "NULL"),
           function(x, value) {
               x@Dimnames <- list(NULL, NULL)
               x
           })
 
-setMethod("dimnames<-", signature(x = "compMatrix", value = "NULL"),
+for(.cl in c("generalMatrix", "symmetricMatrix"))
+setMethod("dimnames<-", c(x = .cl, value = "NULL"),
           function(x, value) {
               if(length(x@factors))
                   x@factors <- list()
               x@Dimnames <- list(NULL, NULL)
               x
           })
+rm(.cl)
 
-setMethod("dimnames<-", signature(x = "MatrixFactorization", value = "NULL"),
+setMethod("dimnames<-", c(x = "MatrixFactorization", value = "NULL"),
           function(x, value) {
               x@Dimnames <- list(NULL, NULL)
               x
           })
 
-setMethod("dimnames<-", signature(x = "Matrix", value = "list"),
+setMethod("dimnames<-", c(x = "Matrix", value = "list"),
           function(x, value) {
               x@Dimnames <- fixupDN.if.valid(value, x@Dim)
               x
           })
 
-setMethod("dimnames<-", signature(x = "compMatrix", value = "list"),
+for(.cl in c("generalMatrix", "symmetricMatrix"))
+setMethod("dimnames<-", c(x = .cl, value = "list"),
           function(x, value) {
               if(length(x@factors))
                   x@factors <- list()
               x@Dimnames <- fixupDN.if.valid(value, x@Dim)
               x
           })
+rm(.cl)
 
-setMethod("dimnames<-", signature(x = "MatrixFactorization", value = "list"),
+setMethod("dimnames<-", c(x = "MatrixFactorization", value = "list"),
           function(x, value) {
               x@Dimnames <- fixupDN.if.valid(value, x@Dim)
               x
@@ -189,13 +193,13 @@ setMethod("dimnames<-", signature(x = "MatrixFactorization", value = "list"),
 ## METHODS FOR GENERIC: unname
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-setMethod("unname", signature(obj = "Matrix"),
+setMethod("unname", c(obj = "Matrix"),
           function(obj, force = FALSE) {
               obj@Dimnames <- list(NULL, NULL)
               obj
           })
 
-setMethod("unname", signature(obj = "MatrixFactorization"),
+setMethod("unname", c(obj = "MatrixFactorization"),
           function(obj, force = FALSE) {
               obj@Dimnames <- list(NULL, NULL)
               obj
@@ -205,5 +209,5 @@ setMethod("unname", signature(obj = "MatrixFactorization"),
 ## METHODS FOR GENERIC: drop
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-setMethod("drop", signature(x = "Matrix"),
+setMethod("drop", c(x = "Matrix"),
           function(x) if(any(x@Dim == 1L)) drop(.M2m(x)) else x)

@@ -24,42 +24,42 @@ environment(det) <- environment() # the Matrix namespace
 ##  1. MatrixFactorization
 ########################################################################
 
-setMethod("determinant", signature(x = "MatrixFactorization", logarithm = "missing"),
+setMethod("determinant", c(x = "MatrixFactorization", logarithm = "missing"),
           function(x, logarithm = TRUE, ...)
               determinant(x, TRUE, ...))
 
 ## FIXME: if we knew the specific class of 'T', then we could optimize
 ## knowing that 'T' is block upper triangular with 1-by-1 and 2-by-2
 ## diagonal blocks
-setMethod("determinant", signature(x = "Schur", logarithm = "logical"),
+setMethod("determinant", c(x = "Schur", logarithm = "logical"),
           function(x, logarithm = TRUE, ...)
               determinant(x@T, logarithm, ...))
 
-setMethod("determinant", signature(x = "denseLU", logarithm = "logical"),
+setMethod("determinant", c(x = "denseLU", logarithm = "logical"),
           function(x, logarithm = TRUE, ...)
               .Call(denseLU_determinant, x, logarithm))
 
-setMethod("determinant", signature(x = "sparseLU", logarithm = "logical"),
+setMethod("determinant", c(x = "sparseLU", logarithm = "logical"),
           function(x, logarithm = TRUE, ...)
               .Call(sparseLU_determinant, x, logarithm))
 
-setMethod("determinant", signature(x = "sparseQR", logarithm = "logical"),
+setMethod("determinant", c(x = "sparseQR", logarithm = "logical"),
           function(x, logarithm = TRUE, ...)
               .Call(sparseQR_determinant, x, logarithm))
 
 for(.cl in c("BunchKaufman", "pBunchKaufman"))
-setMethod("determinant", signature(x = .cl, logarithm = "logical"),
+setMethod("determinant", c(x = .cl, logarithm = "logical"),
           function(x, logarithm = TRUE, ...)
               .Call(BunchKaufman_determinant, x, logarithm))
 rm(.cl)
 
 for(.cl in c("Cholesky", "pCholesky"))
-setMethod("determinant", signature(x = .cl, logarithm = "logical"),
+setMethod("determinant", c(x = .cl, logarithm = "logical"),
           function(x, logarithm = TRUE, ...)
               .Call(Cholesky_determinant, x, logarithm))
 rm(.cl)
 
-setMethod("determinant", signature(x = "CHMfactor", logarithm = "logical"),
+setMethod("determinant", c(x = "CHMfactor", logarithm = "logical"),
           function(x, logarithm = TRUE, sqrt = TRUE, ...) {
               if(missing(sqrt)) {
                   w <- getOption("Matrix.warnSqrtDefault",
@@ -85,17 +85,17 @@ setMethod("determinant", signature(x = "CHMfactor", logarithm = "logical"),
 ##  2. Matrix
 ########################################################################
 
-setMethod("determinant", signature(x = "Matrix", logarithm = "missing"),
+setMethod("determinant", c(x = "Matrix", logarithm = "missing"),
           function(x, logarithm = TRUE, ...)
               determinant(x, TRUE, ...))
 
-setMethod("determinant", signature(x = "Matrix", logarithm = "logical"),
+setMethod("determinant", c(x = "Matrix", logarithm = "logical"),
           function(x, logarithm = TRUE, ...)
               determinant(.M2kind(x, ","), logarithm, ...))
 
 ## .... GENERAL ........................................................
 
-setMethod("determinant", signature(x = "dgeMatrix", logarithm = "logical"),
+setMethod("determinant", c(x = "dgeMatrix", logarithm = "logical"),
           function(x, logarithm = TRUE, ...) {
               d <- x@Dim
               if(d[1L] != d[2L])
@@ -104,7 +104,7 @@ setMethod("determinant", signature(x = "dgeMatrix", logarithm = "logical"),
               determinant(trf, logarithm, ...)
           })
 
-setMethod("determinant", signature(x = "dgCMatrix", logarithm = "logical"),
+setMethod("determinant", c(x = "dgCMatrix", logarithm = "logical"),
           function(x, logarithm = TRUE, ...) {
               d <- x@Dim
               if(d[1L] != d[2L])
@@ -115,15 +115,15 @@ setMethod("determinant", signature(x = "dgCMatrix", logarithm = "logical"),
               else .mkDet(if(anyNA(x@x)) NaN else -Inf, logarithm, 1L)
           })
 
-setMethod("determinant", signature(x = "dgRMatrix", logarithm = "logical"),
+setMethod("determinant", c(x = "dgRMatrix", logarithm = "logical"),
           function(x, logarithm = TRUE, ...)
               determinant(.tCRT(x), logarithm, ...))
 
-setMethod("determinant", signature(x = "dgTMatrix", logarithm = "logical"),
+setMethod("determinant", c(x = "dgTMatrix", logarithm = "logical"),
           function(x, logarithm = TRUE, ...)
               determinant(.M2C(x), logarithm, ...))
 
-setMethod("determinant", signature(x = "indMatrix", logarithm = "logical"),
+setMethod("determinant", c(x = "indMatrix", logarithm = "logical"),
           function(x, logarithm = TRUE, ...) {
               d <- x@Dim
               if(d[1L] != d[2L])
@@ -133,7 +133,7 @@ setMethod("determinant", signature(x = "indMatrix", logarithm = "logical"),
               else .mkDet(0, logarithm, signPerm(perm))
           })
 
-setMethod("determinant", signature(x = "pMatrix", logarithm = "logical"),
+setMethod("determinant", c(x = "pMatrix", logarithm = "logical"),
           function(x, logarithm = TRUE, ...)
               .mkDet(0, logarithm, signPerm(x@perm)))
 
@@ -141,7 +141,7 @@ setMethod("determinant", signature(x = "pMatrix", logarithm = "logical"),
 ## .... SYMMETRIC ......................................................
 
 for(.cl in c("dsyMatrix", "dspMatrix"))
-setMethod("determinant", signature(x = .cl, logarithm = "logical"),
+setMethod("determinant", c(x = .cl, logarithm = "logical"),
           function(x, logarithm = TRUE, ...) {
               trf <- BunchKaufman(x, warnSing = FALSE)
               determinant(trf, logarithm, ...)
@@ -149,7 +149,7 @@ setMethod("determinant", signature(x = .cl, logarithm = "logical"),
 rm(.cl)
 
 for(.cl in c("dpoMatrix", "dppMatrix"))
-setMethod("determinant", signature(x = .cl, logarithm = "logical"),
+setMethod("determinant", c(x = .cl, logarithm = "logical"),
           function(x, logarithm = TRUE, ...) {
               trf <- tryCatch(
                   Cholesky(x, perm = FALSE),
@@ -158,7 +158,7 @@ setMethod("determinant", signature(x = .cl, logarithm = "logical"),
           })
 rm(.cl)
 
-setMethod("determinant", signature(x = "dsCMatrix", logarithm = "logical"),
+setMethod("determinant", c(x = "dsCMatrix", logarithm = "logical"),
           function(x, logarithm = TRUE, ...) {
               trf <- tryCatch(
                   Cholesky(x, perm = TRUE, LDL = TRUE, super = FALSE),
@@ -168,11 +168,11 @@ setMethod("determinant", signature(x = "dsCMatrix", logarithm = "logical"),
               else .mkDet(if(anyNA(x@x)) NaN else -Inf, logarithm, 1L)
           })
 
-setMethod("determinant", signature(x = "dsRMatrix", logarithm = "logical"),
+setMethod("determinant", c(x = "dsRMatrix", logarithm = "logical"),
           function(x, logarithm = TRUE, ...)
               determinant(.tCRT(x), logarithm, ...))
 
-setMethod("determinant", signature(x = "dsTMatrix", logarithm = "logical"),
+setMethod("determinant", c(x = "dsTMatrix", logarithm = "logical"),
           function(x, logarithm = TRUE, ...)
               determinant(.M2C(x), logarithm, ...))
 
@@ -180,7 +180,7 @@ setMethod("determinant", signature(x = "dsTMatrix", logarithm = "logical"),
 ## .... TRIANGULAR .....................................................
 
 for(.cl in c("triangularMatrix", "diagonalMatrix"))
-setMethod("determinant", signature(x = .cl, logarithm = "logical"),
+setMethod("determinant", c(x = .cl, logarithm = "logical"),
           function(x, logarithm = TRUE, ...)
               if(x@diag == "N")
                   .mkDet(x = diag(x, names = FALSE), logarithm = logarithm)

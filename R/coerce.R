@@ -326,34 +326,34 @@ setAs("Matrix", "matrix", .M2m)
 as.matrix.sparseVector <- function(x, ...) .V2m(x)
  as.array.sparseVector <- function(x, ...) .V2a(x)
 
-setMethod("as.vector" , signature(x = "Matrix"),
+setMethod("as.vector" , c(x = "Matrix"),
           function(x, mode = "any") as.vector(.M2v(x), mode))
-setMethod("as.matrix" , signature(x = "Matrix"),
+setMethod("as.matrix" , c(x = "Matrix"),
           as.matrix.Matrix)
-setMethod("as.array"  , signature(x = "Matrix"),
+setMethod("as.array"  , c(x = "Matrix"),
           as.array.Matrix)
-setMethod("as.logical", signature(x = "Matrix"),
+setMethod("as.logical", c(x = "Matrix"),
           function(x, ...) as.logical(.M2v(x)))
-setMethod("as.integer", signature(x = "Matrix"),
+setMethod("as.integer", c(x = "Matrix"),
           function(x, ...) as.integer(.M2v(x)))
-setMethod("as.numeric", signature(x = "Matrix"),
+setMethod("as.numeric", c(x = "Matrix"),
           function(x, ...) as.numeric(.M2v(x)))
-setMethod("as.complex", signature(x = "Matrix"),
+setMethod("as.complex", c(x = "Matrix"),
           function(x, ...) as.complex(.M2v(x)))
 
-setMethod("as.vector" , signature(x = "sparseVector"),
+setMethod("as.vector" , c(x = "sparseVector"),
           function(x, mode = "any") as.vector(.V2v(x), mode))
-setMethod("as.matrix" , signature(x = "sparseVector"),
+setMethod("as.matrix" , c(x = "sparseVector"),
           as.matrix.sparseVector)
-setMethod("as.array"  , signature(x = "sparseVector"),
+setMethod("as.array"  , c(x = "sparseVector"),
           as.array.sparseVector)
-setMethod("as.logical", signature(x = "sparseVector"),
+setMethod("as.logical", c(x = "sparseVector"),
           function(x, ...) as.logical(.V2v(x)))
-setMethod("as.integer", signature(x = "sparseVector"),
+setMethod("as.integer", c(x = "sparseVector"),
           function(x, ...) as.integer(.V2v(x)))
-setMethod("as.numeric", signature(x = "sparseVector"),
+setMethod("as.numeric", c(x = "sparseVector"),
           function(x, ...) as.numeric(.V2v(x)))
-setMethod("as.complex", signature(x = "sparseVector"),
+setMethod("as.complex", c(x = "sparseVector"),
           function(x, ...) as.complex(.V2v(x)))
 
 

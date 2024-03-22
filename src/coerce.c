@@ -3118,18 +3118,25 @@ SEXP R_sparse_as_general(SEXP from)
 
 SEXP dense_as_unpacked(SEXP from, const char *class)
 {
-	if (class[0] != 'p' && class[2] != 'p')
+	if (class[2] != 'p')
 		return from;
 
 	char cl[] = "...Matrix";
-	if (class[0] == 'p') {
-		cl[0] = 'c'; cl[1] = 'o'; cl[2] = 'r';
-	} else if (class[1] == 'p') {
-		cl[0] = 'd'; cl[1] = 'p'; cl[2] = 'o';
-	} else {
-		cl[0] = class[0];
-		cl[1] = class[1];
-		cl[2] = (class[1] == 's') ? 'y' : 'r';
+	cl[0] = class[0];
+	cl[1] = class[1];
+	switch (class[1]) {
+	case 's':
+		cl[2] = 'y';
+		break;
+	case 'p':
+		cl[2] = 'o';
+		break;
+	case 'o':
+	case 't':
+		cl[2] = 'r';
+		break;
+	default:
+		break;
 	}
 	SEXP to = PROTECT(newObject(cl));
 
@@ -3158,7 +3165,7 @@ SEXP dense_as_unpacked(SEXP from, const char *class)
 			SET_SLOT(to, Matrix_factorsSym, factors);
 		UNPROTECT(1); /* factors */
 
-		if (cl[0] == 'c') {
+		if (cl[1] == 'o') {
 			SEXP sd = PROTECT(GET_SLOT(from, Matrix_sdSym));
 			if (LENGTH(sd) > 0)
 				SET_SLOT(to, Matrix_sdSym, sd);
@@ -3212,7 +3219,7 @@ SEXP dense_as_unpacked(SEXP from, const char *class)
 SEXP R_dense_as_unpacked(SEXP from)
 {
 	static const char *valid[] = {
-		"dpoMatrix", "dppMatrix", "corMatrix", "pcorMatrix",
+		"dpoMatrix", "dppMatrix", "corMatrix", "copMatrix",
 		VALID_DENSE, "" };
 	int ivalid = R_check_class_etc(from, valid);
 	if (ivalid < 0)
@@ -3223,22 +3230,15 @@ SEXP R_dense_as_unpacked(SEXP from)
 
 SEXP dense_as_packed(SEXP from, const char *class, char ul, char di)
 {
-	if (class[0] == 'p' || class[2] == 'p')
+	if (class[2] == 'p')
 		return from;
+	int ge = class[1] == 'g';
 
-	char cl_[] = "p...Matrix", *cl = ((char *) &cl_) + 1;
-	int ge = 0;
-	if (class[0] == 'c') {
-		cl[0] = 'c'; cl[1] = 'o'; cl[2] = 'r';
-	} else if (class[1] == 'p') {
-		cl[0] = 'd'; cl[1] = 'p'; cl[2] = 'p';
-	} else {
-		ge = class[1] == 'g';
-		cl[0] = class[0];
-		cl[1] = (!ge) ? class[1] : ((di == '\0') ? 's' : 't');
-		cl[2] = 'p';
-	}
-	SEXP to = PROTECT(newObject((class[0] == 'c') ? cl - 1 : cl));
+	char cl[] = "...Matrix";
+	cl[0] = class[0];
+	cl[1] = (ge) ? ((di == '\0') ? 's' : 't') : class[1];
+	cl[2] = 'p';
+	SEXP to = PROTECT(newObject(cl));
 
 	SEXP dim = PROTECT(GET_SLOT(from, Matrix_DimSym));
 	int *pdim = INTEGER(dim), n = pdim[0];
@@ -3282,7 +3282,7 @@ SEXP dense_as_packed(SEXP from, const char *class, char ul, char di)
 				SET_SLOT(to, Matrix_factorsSym, factors);
 			UNPROTECT(1); /* factors */
 
-			if (cl[0] == 'c') {
+			if (cl[1] == 'o') {
 				SEXP sd = PROTECT(GET_SLOT(from, Matrix_sdSym));
 				if (LENGTH(sd) > 0)
 					SET_SLOT(to, Matrix_sdSym, sd);
@@ -3330,7 +3330,7 @@ SEXP dense_as_packed(SEXP from, const char *class, char ul, char di)
 SEXP R_dense_as_packed(SEXP from, SEXP uplo, SEXP diag)
 {
 	static const char *valid[] = {
-		"dpoMatrix", "dppMatrix", "corMatrix", "pcorMatrix",
+		"dpoMatrix", "dppMatrix", "corMatrix", "copMatrix",
 		VALID_DENSE, "" };
 	int ivalid = R_check_class_etc(from, valid);
 	if (ivalid < 0)

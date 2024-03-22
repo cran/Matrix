@@ -1,36 +1,33 @@
 ## if strict=FALSE then gives "...Matrix" or ".sparseVector" or ""
 ## if strict= TRUE then may also give one of these:
-## "pMatrix", "dpoMatrix", "dppMatrix", "corMatrix", "pcorMatrix"
+## "dpoMatrix", "dppMatrix", "corMatrix", "copMatrix", "pMatrix"
 .M.nonvirtual <- function(x, strict = FALSE)
     .Call(R_Matrix_nonvirtual, x, strict)
 
 ## "[nlidz]" for Matrix, sparseVector, logical, integer, double, complex 'x';
 ## otherwise ""
-.M.kind  <- function(x) .Call(R_Matrix_kind, x)
+.M.kind  <- function(x) .Call(R_Matrix_kind , x)
 
-## "[gstd]" for Matrix, sparseVector 'x';
-## otherwise ""
+## "[gshtdi]" for Matrix, sparseVector 'x'; otherwise ""
 .M.shape <- function(x) .Call(R_Matrix_shape, x)
 
-## "[CRTdiup]" for [CRT]sparseMatrix, diagonalMatrix, indMatrix
-##                 unpackedMatrix, packedMatrix 'x' {resp.};
-## otherwise ""
-.M.repr  <- function(x) .Call(R_Matrix_repr, x)
+## "[upCRTdi]" for Matrix 'x'; otherwise ""
+.M.repr  <- function(x) .Call(R_Matrix_repr , x)
 
 .isMatrix   <- function(x)
     nzchar(cl <- .M.nonvirtual(x)) && substr(cl, 4L, 4L) == "M"
 .isVector   <- function(x)
-    nzchar(cl <- .M.nonvirtual(x)) && substr(cl, 8L, 8L) == "V"
-.isDense    <- function(x) any(.M.repr(x) == c("u", "p"))
+    nzchar(cl <- .M.nonvirtual(x)) && substr(cl, 4L, 4L) != "M"
 .isUnpacked <- function(x) .M.repr(x) == "u"
 .isPacked   <- function(x) .M.repr(x) == "p"
-.isSparse   <- function(x) any(.M.repr(x) == c("C", "R", "T", "d", "i"))
-.isCRT      <- function(x) any(.M.repr(x) == c("C", "R", "T"))
 .isC        <- function(x) .M.repr(x) == "C"
 .isR        <- function(x) .M.repr(x) == "R"
 .isT        <- function(x) .M.repr(x) == "T"
 .isDiagonal <- function(x) .M.repr(x) == "d"
 .isInd      <- function(x) .M.repr(x) == "i"
+.isDense    <- function(x) any(.M.repr(x) == c("u", "p"))
+.isSparse   <- function(x) any(.M.repr(x) == c("C", "R", "T", "d", "i"))
+.isCRT      <- function(x) any(.M.repr(x) == c("C", "R", "T"))
 
 ## for .type.kind[.M.kind(x)]:
 .type.kind <- c("n" = "logical",

@@ -467,12 +467,6 @@ SEXP dense_transpose(SEXP from, const char *class)
 {
 	SEXP to = PROTECT(newObject(class));
 
-	int isCor = class[0] == 'c' || (class[0] == 'p' && class[1] == 'c');
-	if (isCor)
-		class = (class[0] != 'p') ? "dsyMatrix" : "dspMatrix";
-	else if (class[1] == 'p')
-		class = (class[2] != 'p') ? "dsyMatrix" : "dspMatrix";
-
 	SEXP dim = PROTECT(GET_SLOT(from, Matrix_DimSym));
 	int *pdim = INTEGER(dim), m = pdim[0], n = pdim[1], i, j;
 	if (m != n) {
@@ -486,7 +480,7 @@ SEXP dense_transpose(SEXP from, const char *class)
 	UNPROTECT(1); /* dim */
 
 	SEXP dimnames = PROTECT(GET_SLOT(from, Matrix_DimNamesSym));
-	if (class[1] == 's')
+	if (class[1] == 's' || class[1] == 'p' || class[1] == 'o')
 		SET_SLOT(to, Matrix_DimNamesSym, dimnames);
 	else
 		set_reversed_DimNames(to, dimnames);
@@ -514,7 +508,7 @@ SEXP dense_transpose(SEXP from, const char *class)
 				SET_SLOT(to, Matrix_factorsSym, factors);
 			UNPROTECT(1); /* factors */
 
-			if (isCor && n > 0) {
+			if (class[1] == 'o' && n > 0) {
 				SEXP sd = PROTECT(GET_SLOT(from, Matrix_sdSym));
 				SET_SLOT(to, Matrix_sdSym, sd);
 				UNPROTECT(1); /* sd */
@@ -554,6 +548,7 @@ SEXP dense_transpose(SEXP from, const char *class)
 	case 'i':
 		TRANS_LOOP(int, INTEGER);
 		break;
+	case 'c':
 	case 'd':
 		TRANS_LOOP(double, REAL);
 		break;
@@ -573,7 +568,7 @@ SEXP dense_transpose(SEXP from, const char *class)
 SEXP R_dense_transpose(SEXP from)
 {
 	static const char *valid[] = {
-		"corMatrix", "pcorMatrix", "dpoMatrix", "dppMatrix",
+		"dpoMatrix", "dppMatrix", "corMatrix", "copMatrix",
 		VALID_DENSE, "" };
 	int ivalid = R_check_class_etc(from, valid);
 	if (ivalid < 0)

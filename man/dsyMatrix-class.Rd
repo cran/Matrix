@@ -12,8 +12,8 @@
 \alias{coerce,dsyMatrix,dpoMatrix-method}
 \alias{determinant,dsyMatrix,logical-method}
 %
+\alias{coerce,dspMatrix,copMatrix-method}
 \alias{coerce,dspMatrix,dppMatrix-method}
-\alias{coerce,dspMatrix,pcorMatrix-method}
 \alias{determinant,dspMatrix,logical-method}
 %
 \description{

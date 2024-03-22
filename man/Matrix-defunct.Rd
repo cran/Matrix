@@ -1,9 +1,5 @@
 \name{Matrix-defunct}
 \title{Defunct Functions in Package \pkg{Matrix}}
-%
-\keyword{internal}
-\keyword{misc}
-%
 \alias{Matrix-defunct}
 %
 \alias{cBind}
@@ -34,3 +30,6 @@ cBind(..., deparse.level = 1)
   \code{\link{base-defunct}},
   \code{\link{Matrix-deprecated}}
 }
+
+\keyword{internal}
+\keyword{misc}

@@ -8,7 +8,7 @@
 \alias{dpoMatrix-class}
 \alias{dppMatrix-class}
 \alias{corMatrix-class}
-\alias{pcorMatrix-class}
+\alias{copMatrix-class}
 %
 \alias{Arith,dpoMatrix,logical-method}
 \alias{Arith,dpoMatrix,numeric-method}
@@ -31,16 +31,16 @@
 \alias{Ops,dppMatrix,numeric-method}
 \alias{Ops,logical,dppMatrix-method}
 \alias{Ops,numeric,dppMatrix-method}
+\alias{coerce,dppMatrix,copMatrix-method}
 \alias{coerce,dppMatrix,dpoMatrix-method}
-\alias{coerce,dppMatrix,pcorMatrix-method}
 \alias{coerce,matrix,dppMatrix-method}
 \alias{determinant,dppMatrix,logical-method}
 %
-\alias{coerce,corMatrix,pcorMatrix-method}
+\alias{coerce,corMatrix,copMatrix-method}
 \alias{coerce,matrix,corMatrix-method}
 %
-\alias{coerce,pcorMatrix,corMatrix-method}
-\alias{coerce,matrix,pcorMatrix-method}
+\alias{coerce,copMatrix,corMatrix-method}
+\alias{coerce,matrix,copMatrix-method}
 %
 \description{
   \itemize{
@@ -49,7 +49,7 @@
     \item The \code{"dppMatrix"} class is the same except in packed
       storage.  Only the upper triangle or the lower triangle is
       required to be available.
-    \item The \code{"corMatrix"} and \code{"pcorMatrix"} classes
+    \item The \code{"corMatrix"} and \code{"copMatrix"} classes
       represent correlation matrices.  They extend \code{"dpoMatrix"}
       and \code{"dppMatrix"}, respectively, with an additional slot
       \code{sd} allowing restoration of the original covariance matrix.
@@ -71,7 +71,7 @@
     \item{\code{factors}:}{Object of class \code{"list"}.  A named
       list of factorizations that have been computed for the matrix.}
 
-    \item{\code{sd}:}{(for \code{"corMatrix"} and \code{"pcorMatrix"})
+    \item{\code{sd}:}{(for \code{"corMatrix"} and \code{"copMatrix"})
       a \code{\link{numeric}} vector of length \code{n} containing the
       (original) \eqn{\sqrt{var(.)}}{sqrt(var(.))} entries which allow
       reconstruction of a covariance matrix from the correlation matrix.}

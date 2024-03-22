@@ -14,11 +14,11 @@
     m0
 }
 
-setMethod("qr", signature(x = "sparseMatrix"),
+setMethod("qr", c(x = "sparseMatrix"),
           function(x, ...)
               qr(.M2gen(.M2C(x), ","), ...))
 
-setMethod("qr", signature(x = "dgCMatrix"),
+setMethod("qr", c(x = "dgCMatrix"),
           function(x, order = 3L, ...) {
               r <- .Call(dgCMatrix_orf, x, order, TRUE)
               .qr.rank.def.warn(r)
@@ -29,7 +29,7 @@ setMethod("qr", signature(x = "dgCMatrix"),
 ## METHODS FOR CLASS: sparseQR
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-setMethod("expand1", signature(x = "sparseQR"),
+setMethod("expand1", c(x = "sparseQR"),
           function(x, which, ...) {
               .qr.rank.def.warn(x)
               R <- x@R
@@ -63,7 +63,7 @@ setMethod("expand1", signature(x = "sparseQR"),
           })
 
 ## returning list(P1', Q, R, P2'), where A = P1' Q R P2'
-setMethod("expand2", signature(x = "sparseQR"),
+setMethod("expand2", c(x = "sparseQR"),
           function(x, complete = FALSE, ...) {
               m0 <- .qr.rank.def.warn(x)
               R <- x@R
@@ -94,7 +94,7 @@ setMethod("expand2", signature(x = "sparseQR"),
                   list(P1. = P1., Q1 = Q, R1 = triu(R), P2. = P2.)
           })
 
-setMethod("qr.Q", signature(qr = "sparseQR"),
+setMethod("qr.Q", c(qr = "sparseQR"),
           function(qr, complete = FALSE, Dvec) {
               m0 <- .qr.rank.def.warn(qr)
               if(missing(Dvec))
@@ -155,13 +155,13 @@ qrR <- function(qr, complete = FALSE, backPermute = TRUE, row.names = TRUE) {
     if(complete || backPermute) R else triu(R)
 }
 
-setMethod("qr.R", signature(qr = "sparseQR"),
+setMethod("qr.R", c(qr = "sparseQR"),
           function(qr, complete = FALSE, backPermute = FALSE, ...)
               qrR(qr, complete = complete, backPermute = backPermute,
                   row.names = FALSE))
 
 ## https://stat.ethz.ch/pipermail/r-devel/2023-June/082649.html
-setMethod("qr.X", signature(qr = "sparseQR"),
+setMethod("qr.X", c(qr = "sparseQR"),
           function(qr, complete = FALSE, ncol) {
               m0 <- .qr.rank.def.warn(qr)
               R <- qr@R
@@ -232,7 +232,7 @@ setMethod("qr.X", signature(qr = "sparseQR"),
     y0
 }
 
-setMethod("qr.coef", signature(qr = "sparseQR", y = "dgeMatrix"),
+setMethod("qr.coef", c(qr = "sparseQR", y = "dgeMatrix"),
           function(qr, y) {
               if(m0 <- .qr.rank.def.warn(qr))
                   y <- .qr.y0(y, m0)
@@ -241,19 +241,19 @@ setMethod("qr.coef", signature(qr = "sparseQR", y = "dgeMatrix"),
               r
           })
 
-setMethod("qr.coef", signature(qr = "sparseQR", y = "vector"),
+setMethod("qr.coef", c(qr = "sparseQR", y = "vector"),
           function(qr, y)
               drop(qr.coef(qr, .m2dense(y, ",ge"))))
 
-setMethod("qr.coef", signature(qr = "sparseQR", y = "matrix"),
+setMethod("qr.coef", c(qr = "sparseQR", y = "matrix"),
           function(qr, y)
               qr.coef(qr, .m2dense(y, ",ge")))
 
-setMethod("qr.coef", signature(qr = "sparseQR", y = "Matrix"),
+setMethod("qr.coef", c(qr = "sparseQR", y = "Matrix"),
           function(qr, y)
               qr.coef(qr, .m2dense(.M2m(y), ",ge")))
 
-setMethod("qr.fitted", signature(qr = "sparseQR", y = "dgeMatrix"),
+setMethod("qr.fitted", c(qr = "sparseQR", y = "dgeMatrix"),
           function(qr, y, k = qr$rank) {
               if(m0 <- .qr.rank.def.warn(qr))
                   y <- .qr.y0(y, m0)
@@ -264,19 +264,19 @@ setMethod("qr.fitted", signature(qr = "sparseQR", y = "dgeMatrix"),
               r
           })
 
-setMethod("qr.fitted", signature(qr = "sparseQR", y = "vector"),
+setMethod("qr.fitted", c(qr = "sparseQR", y = "vector"),
           function(qr, y, k = qr$rank)
               drop(qr.fitted(qr, .m2dense(y, ",ge"))))
 
-setMethod("qr.fitted", signature(qr = "sparseQR", y = "matrix"),
+setMethod("qr.fitted", c(qr = "sparseQR", y = "matrix"),
           function(qr, y, k = qr$rank)
               qr.fitted(qr, .m2dense(y, ",ge")))
 
-setMethod("qr.fitted", signature(qr = "sparseQR", y = "Matrix"),
+setMethod("qr.fitted", c(qr = "sparseQR", y = "Matrix"),
           function(qr, y, k = qr$rank)
               qr.fitted(qr, .m2dense(.M2m(y), ",ge")))
 
-setMethod("qr.resid", signature(qr = "sparseQR", y = "dgeMatrix"),
+setMethod("qr.resid", c(qr = "sparseQR", y = "dgeMatrix"),
           function(qr, y) {
               if(m0 <- .qr.rank.def.warn(qr))
                   y <- .qr.y0(y, m0)
@@ -287,19 +287,19 @@ setMethod("qr.resid", signature(qr = "sparseQR", y = "dgeMatrix"),
               r
           })
 
-setMethod("qr.resid", signature(qr = "sparseQR", y = "vector"),
+setMethod("qr.resid", c(qr = "sparseQR", y = "vector"),
           function(qr, y)
               drop(qr.resid(qr, .m2dense(y, ",ge"))))
 
-setMethod("qr.resid", signature(qr = "sparseQR", y = "matrix"),
+setMethod("qr.resid", c(qr = "sparseQR", y = "matrix"),
           function(qr, y)
               qr.resid(qr, .m2dense(y, ",ge")))
 
-setMethod("qr.resid", signature(qr = "sparseQR", y = "Matrix"),
+setMethod("qr.resid", c(qr = "sparseQR", y = "Matrix"),
           function(qr, y)
               qr.resid(qr, .m2dense(.M2m(y), ",ge")))
 
-setMethod("qr.qty", signature(qr = "sparseQR", y = "dgeMatrix"),
+setMethod("qr.qty", c(qr = "sparseQR", y = "dgeMatrix"),
           function(qr, y) {
               if(m0 <- .qr.rank.def.warn(qr))
                   y <- .qr.y0(y, m0)
@@ -310,19 +310,19 @@ setMethod("qr.qty", signature(qr = "sparseQR", y = "dgeMatrix"),
               r
           })
 
-setMethod("qr.qty", signature(qr = "sparseQR", y = "vector"),
+setMethod("qr.qty", c(qr = "sparseQR", y = "vector"),
           function(qr, y)
               drop(qr.qty(qr, .m2dense(y, ",ge"))))
 
-setMethod("qr.qty", signature(qr = "sparseQR", y = "matrix"),
+setMethod("qr.qty", c(qr = "sparseQR", y = "matrix"),
           function(qr, y)
               qr.qty(qr, .m2dense(y, ",ge")))
 
-setMethod("qr.qty", signature(qr = "sparseQR", y = "Matrix"),
+setMethod("qr.qty", c(qr = "sparseQR", y = "Matrix"),
           function(qr, y)
               qr.qty(qr, .m2dense(.M2m(y), ",ge")))
 
-setMethod("qr.qy", signature(qr = "sparseQR", y = "dgeMatrix"),
+setMethod("qr.qy", c(qr = "sparseQR", y = "dgeMatrix"),
           function(qr, y) {
               if(m0 <- .qr.rank.def.warn(qr))
                   y <- .qr.y0(y, m0)
@@ -341,14 +341,14 @@ setMethod("qr.qy", signature(qr = "sparseQR", y = "dgeMatrix"),
               r
           })
 
-setMethod("qr.qy", signature(qr = "sparseQR", y = "vector"),
+setMethod("qr.qy", c(qr = "sparseQR", y = "vector"),
           function(qr, y)
               drop(qr.qy(qr, .m2dense(y, ",ge"))))
 
-setMethod("qr.qy", signature(qr = "sparseQR", y = "matrix"),
+setMethod("qr.qy", c(qr = "sparseQR", y = "matrix"),
           function(qr, y)
               qr.qy(qr, .m2dense(y, ",ge")))
 
-setMethod("qr.qy", signature(qr = "sparseQR", y = "Matrix"),
+setMethod("qr.qy", c(qr = "sparseQR", y = "Matrix"),
           function(qr, y)
               qr.qy(qr, .m2dense(.M2m(y), ",ge")))

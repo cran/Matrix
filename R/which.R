@@ -1,14 +1,14 @@
 ## METHODS FOR GENERIC: which
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-setMethod("which", signature(x = "ndenseMatrix"),
+setMethod("which", c(x = "ndenseMatrix"),
           function(x, arr.ind = FALSE, useNames = TRUE) {
               wh <- which(.M2v(x))
               if(arr.ind)
                   arrayInd(wh, x@Dim, dimnames(x), useNames = useNames)
               else wh
           })
-setMethod("which", signature(x = "ldenseMatrix"),
+setMethod("which", c(x = "ldenseMatrix"),
           function(x, arr.ind = FALSE, useNames = TRUE) {
               wh <- which(.M2v(x))
               if(arr.ind)
@@ -16,14 +16,14 @@ setMethod("which", signature(x = "ldenseMatrix"),
               else wh
           })
 
-setMethod("which", signature(x = "nsparseMatrix"),
+setMethod("which", c(x = "nsparseMatrix"),
           function(x, arr.ind = FALSE, useNames = TRUE) {
               wh <- .M2V(x)@i
               if(arr.ind)
                   arrayInd(wh, x@Dim, dimnames(x), useNames = useNames)
               else wh
           })
-setMethod("which", signature(x = "lsparseMatrix"),
+setMethod("which", c(x = "lsparseMatrix"),
           function(x, arr.ind = FALSE, useNames = TRUE) {
               wh <- { x. <- .M2V(x); x.@i[which(x.@x)] }
               if(arr.ind)
@@ -31,14 +31,14 @@ setMethod("which", signature(x = "lsparseMatrix"),
               else wh
            })
 
-setMethod("which", signature(x = "ndiMatrix"),
+setMethod("which", c(x = "ndiMatrix"),
           function(x, arr.ind = FALSE, useNames = TRUE) {
               wh <- .M2V(x)@i
               if(arr.ind)
                   arrayInd(wh, x@Dim, x@Dimnames, useNames = useNames)
               else wh
           })
-setMethod("which", signature(x = "ldiMatrix"),
+setMethod("which", c(x = "ldiMatrix"),
           function(x, arr.ind = FALSE, useNames = TRUE) {
               wh <- { x. <- .M2V(x); x.@i[which(x.@x)] }
               if(arr.ind)
@@ -46,12 +46,12 @@ setMethod("which", signature(x = "ldiMatrix"),
               else wh
           })
 
-setMethod("which", signature(x = "nsparseVector"),
+setMethod("which", c(x = "nsparseVector"),
           function(x, arr.ind = FALSE, useNames = TRUE) x@i)
-setMethod("which", signature(x = "lsparseVector"),
+setMethod("which", c(x = "lsparseVector"),
           function(x, arr.ind = FALSE, useNames = TRUE) x@i[which(x@x)])
 
-setMethod("which", signature(x = "indMatrix"),
+setMethod("which", c(x = "indMatrix"),
           function(x, arr.ind = FALSE, useNames = TRUE) {
               wh <- .M2V(x)@i
               if(arr.ind)

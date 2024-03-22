@@ -141,6 +141,7 @@
                 if(x.length > .Machine$integer.max)
                     m <- as.double(m)
                 i[w] <- m * i.. + j.. + 1L
+                unsorted <- TRUE # Bug #6839
             }
         }
     }
@@ -325,7 +326,7 @@
     if((is.na(drop) || drop) && any(r@Dim == 1L)) drop(as(r, "matrix")) else r
 }
 
-setMethod("[", signature(x = "Matrix", i = "missing", j = "missing",
+setMethod("[", c(x = "Matrix", i = "missing", j = "missing",
                          drop = "missing"),
           function(x, i, j, ..., drop = TRUE) {
               na <- nargs()
@@ -340,7 +341,7 @@ setMethod("[", signature(x = "Matrix", i = "missing", j = "missing",
                   stop("incorrect number of dimensions")
           })
 
-setMethod("[", signature(x = "Matrix", i = "missing", j = "missing",
+setMethod("[", c(x = "Matrix", i = "missing", j = "missing",
                          drop = "logical"),
           function(x, i, j, ..., drop = TRUE) {
               na <- nargs()
@@ -355,7 +356,7 @@ setMethod("[", signature(x = "Matrix", i = "missing", j = "missing",
                   stop("incorrect number of dimensions")
           })
 
-setMethod("[", signature(x = "Matrix", i = "index", j = "missing",
+setMethod("[", c(x = "Matrix", i = "index", j = "missing",
                          drop = "missing"),
           function(x, i, j, ..., drop = TRUE) {
               na <- nargs()
@@ -370,7 +371,7 @@ setMethod("[", signature(x = "Matrix", i = "index", j = "missing",
                   stop("incorrect number of dimensions")
           })
 
-setMethod("[", signature(x = "Matrix", i = "index", j = "missing",
+setMethod("[", c(x = "Matrix", i = "index", j = "missing",
                          drop = "logical"),
           function(x, i, j, ..., drop = TRUE) {
               na <- nargs()
@@ -385,7 +386,7 @@ setMethod("[", signature(x = "Matrix", i = "index", j = "missing",
                   stop("incorrect number of dimensions")
           })
 
-setMethod("[", signature(x = "Matrix", i = "missing", j = "index",
+setMethod("[", c(x = "Matrix", i = "missing", j = "index",
                          drop = "missing"),
           function(x, i, j, ..., drop = TRUE) {
               na <- nargs()
@@ -400,7 +401,7 @@ setMethod("[", signature(x = "Matrix", i = "missing", j = "index",
                   stop("incorrect number of dimensions")
           })
 
-setMethod("[", signature(x = "Matrix", i = "missing", j = "index",
+setMethod("[", c(x = "Matrix", i = "missing", j = "index",
                          drop = "logical"),
           function(x, i, j, ..., drop = TRUE) {
               na <- nargs()
@@ -415,7 +416,7 @@ setMethod("[", signature(x = "Matrix", i = "missing", j = "index",
                   stop("incorrect number of dimensions")
           })
 
-setMethod("[", signature(x = "Matrix", i = "index", j = "index",
+setMethod("[", c(x = "Matrix", i = "index", j = "index",
                          drop = "missing"),
           function(x, i, j, ..., drop = TRUE) {
               na <- nargs()
@@ -427,7 +428,7 @@ setMethod("[", signature(x = "Matrix", i = "index", j = "index",
                   stop("incorrect number of dimensions")
           })
 
-setMethod("[", signature(x = "Matrix", i = "index", j = "index",
+setMethod("[", c(x = "Matrix", i = "index", j = "index",
                          drop = "logical"),
           function(x, i, j, ..., drop = TRUE) {
               na <- nargs()
@@ -440,7 +441,7 @@ setMethod("[", signature(x = "Matrix", i = "index", j = "index",
           })
 
 for(.cl in c("matrix", "nMatrix", "lMatrix"))
-setMethod("[", signature(x = "Matrix", i = .cl, j = "missing",
+setMethod("[", c(x = "Matrix", i = .cl, j = "missing",
                          drop = "missing"),
           function(x, i, j, ..., drop = TRUE) {
               na <- nargs()
@@ -456,21 +457,21 @@ setMethod("[", signature(x = "Matrix", i = .cl, j = "missing",
           })
 rm(.cl)
 
-setMethod("[", signature(x = "Matrix", i = "NULL", j = "ANY",
+setMethod("[", c(x = "Matrix", i = "NULL", j = "ANY",
                          drop = "ANY"),
           function(x, i, j, ..., drop = TRUE) {
               i <- integer(0L)
               callGeneric()
           })
 
-setMethod("[", signature(x = "Matrix", i = "ANY", j = "NULL",
+setMethod("[", c(x = "Matrix", i = "ANY", j = "NULL",
                          drop = "ANY"),
           function(x, i, j, ..., drop = TRUE) {
               j <- integer(0L)
               callGeneric()
           })
 
-setMethod("[", signature(x = "Matrix", i = "NULL", j = "NULL",
+setMethod("[", c(x = "Matrix", i = "NULL", j = "NULL",
                          drop = "ANY"),
           function(x, i, j, ..., drop = TRUE) {
               i <- integer(0L)
@@ -478,7 +479,7 @@ setMethod("[", signature(x = "Matrix", i = "NULL", j = "NULL",
               callGeneric()
           })
 
-setMethod("[", signature(x = "sparseVector", i = "missing", j = "missing",
+setMethod("[", c(x = "sparseVector", i = "missing", j = "missing",
                          drop = "missing"),
           function(x, i, j, ..., drop = TRUE) {
               if(nargs() != 2L)
@@ -486,7 +487,7 @@ setMethod("[", signature(x = "sparseVector", i = "missing", j = "missing",
               x
           })
 
-setMethod("[", signature(x = "sparseVector", i = "index", j = "missing",
+setMethod("[", c(x = "sparseVector", i = "index", j = "missing",
                          drop = "missing"),
           function(x, i, j, ..., drop = TRUE) {
               if(nargs() != 2L)
@@ -600,7 +601,7 @@ setMethod("[", signature(x = "sparseVector", i = "index", j = "missing",
                      stop(.subscript.invalid(i), domain = NA))
           })
 
-setMethod("[", signature(x = "sparseVector", i = "nsparseVector", j = "missing",
+setMethod("[", c(x = "sparseVector", i = "nsparseVector", j = "missing",
                          drop = "missing"),
           function(x, i, j, ..., drop = TRUE) {
               if(nargs() != 2L)
@@ -608,7 +609,7 @@ setMethod("[", signature(x = "sparseVector", i = "nsparseVector", j = "missing",
               x[.subscript.recycle(i, length(x), TRUE)]
           })
 
-setMethod("[", signature(x = "sparseVector", i = "lsparseVector", j = "missing",
+setMethod("[", c(x = "sparseVector", i = "lsparseVector", j = "missing",
                          drop = "missing"),
           function(x, i, j, ..., drop = TRUE) {
               if(nargs() != 2L)
@@ -616,7 +617,7 @@ setMethod("[", signature(x = "sparseVector", i = "lsparseVector", j = "missing",
               x[.subscript.recycle(i, length(x), FALSE)]
           })
 
-setMethod("[", signature(x = "sparseVector", i = "NULL", j = "ANY",
+setMethod("[", c(x = "sparseVector", i = "NULL", j = "ANY",
                          drop = "ANY"),
           function(x, i, j, ..., drop = TRUE) {
               i <- integer(0L)
@@ -627,10 +628,10 @@ setMethod("[", signature(x = "sparseVector", i = "NULL", j = "ANY",
 ## METHODS FOR GENERIC: head
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-setMethod("head", signature(x = "Matrix"),
+setMethod("head", c(x = "Matrix"),
           head.matrix)
 
-setMethod("head", signature(x = "sparseVector"),
+setMethod("head", c(x = "sparseVector"),
           function(x, n = 6L, ...) {
               stopifnot(is.numeric(n), length(n) == 1L, !is.na(n))
               len <- length(x)
@@ -659,10 +660,10 @@ setMethod("head", signature(x = "sparseVector"),
 ## METHODS FOR GENERIC: tail
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-setMethod("tail", signature(x = "Matrix"),
+setMethod("tail", c(x = "Matrix"),
           tail.matrix)
 
-setMethod("tail", signature(x = "sparseVector"),
+setMethod("tail", c(x = "sparseVector"),
           function(x, n = 6L, ...) {
               stopifnot(is.numeric(n), length(n) == 1L, !is.na(n))
               len <- length(x)

@@ -1,9 +1,0 @@
-#ifndef MATRIX_SPARSEVECTOR_H
-#define MATRIX_SPARSEVECTOR_H
-
-#include <Rinternals.h>
-
-SEXP v2spV(SEXP);
-SEXP CR2spV(SEXP);
-
-#endif /* MATRIX_SPARSEVECTOR_H */

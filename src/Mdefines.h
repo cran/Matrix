@@ -88,7 +88,7 @@ do { \
 
 /* Often used symbols, defined in ./init.c */
 extern
-#include "Syms.h"
+#include "Msymbols.h"
 
 /* Often used numbers, defined in ./init.c */
 extern
@@ -219,8 +219,8 @@ do { \
 
 #define VALID_NONVIRTUAL_MATRIX \
 /*  0 */ "dpoMatrix", "dppMatrix", \
-/*  2 */ "corMatrix", "pcorMatrix", \
-/*  4 */ "pMatrix", "indMatrix", \
+/*  2 */ "corMatrix", "copMatrix", \
+/*  4 */   "pMatrix", "indMatrix", \
 /*  6 */ "ngCMatrix", "ngRMatrix", "ngTMatrix", "ngeMatrix", "ndiMatrix", \
 /* 11 */ "nsCMatrix", "nsRMatrix", "nsTMatrix", "nsyMatrix", "nspMatrix", \
 /* 16 */ "ntCMatrix", "ntRMatrix", "ntTMatrix", "ntrMatrix", "ntpMatrix", \

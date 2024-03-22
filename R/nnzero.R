@@ -28,10 +28,10 @@
     switch(typeof(x), logical =, integer =, double =, complex = .nnzero,
            .nnzero.fallback)(x, na.counted)
 
-setMethod("nnzero",    "ANY", .nnzero.fallback)
-setMethod("nnzero", "vector", .nnzero.dispatching)
+setMethod("nnzero", c(x =    "ANY"), .nnzero.fallback)
+setMethod("nnzero", c(x = "vector"), .nnzero.dispatching)
 
-setMethod("nnzero", "denseMatrix",
+setMethod("nnzero", c(x = "denseMatrix"),
           function(x, na.counted = NA) {
               d <- x@Dim
               if(any(d == 0L))
@@ -47,7 +47,7 @@ setMethod("nnzero", "denseMatrix",
                      "t" = if(x@diag == "N") N else N + d[1L] - .nnzero(x@x[indDiag(d[1L], upper = x@uplo == "U", packed = TRUE)], na.counted))
           })
 
-setMethod("nnzero", "sparseMatrix",
+setMethod("nnzero", c(x = "sparseMatrix"),
           function(x, na.counted = NA) {
               d <- x@Dim
               if(any(d == 0L))
@@ -64,7 +64,7 @@ setMethod("nnzero", "sparseMatrix",
                      "t" = if(x@diag == "N") N else N + d[1L])
           })
 
-setMethod("nnzero", "diagonalMatrix",
+setMethod("nnzero", c(x = "diagonalMatrix"),
           function(x, na.counted = NA) {
               if(x@diag != "N")
                   x@Dim[1L]
@@ -76,11 +76,11 @@ setMethod("nnzero", "diagonalMatrix",
               }
           })
 
-setMethod("nnzero", "indMatrix",
+setMethod("nnzero", c(x = "indMatrix"),
           function(x, na.counted = NA)
               length(x@perm))
 
-setMethod("nnzero", "CHMfactor",
+setMethod("nnzero", c(x = "CHMfactor"),
           function(x, na.counted = NA)
               nnzero(as(x, "CsparseMatrix"), na.counted))
 

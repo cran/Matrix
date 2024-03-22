@@ -185,10 +185,10 @@ readMM <- function(file)
                       "readMM", repr), domain = NA)
 }
 
-setMethod("writeMM", "CsparseMatrix",
+setMethod("writeMM", c(obj = "CsparseMatrix"),
           function(obj, file, ...)
-              .Call(Csparse_MatrixMarket, obj, path.expand(as.character(file))))
+              .Call(Csparse_writeMM, obj, path.expand(as.character(file))))
 
-setMethod("writeMM",  "sparseMatrix",
+setMethod("writeMM", c(obj = "sparseMatrix"),
           function(obj, file, ...)
               writeMM(.M2C(obj), file, ...))

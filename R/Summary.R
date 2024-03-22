@@ -7,7 +7,7 @@
 ## NB: Summary depends on the existence, _not_ count, of zeros and ones.
 ##     The only exception is 'sum' which ignores zeros and counts ones.
 
-setMethod("Summary", signature(x = "denseMatrix"),
+setMethod("Summary", c(x = "denseMatrix"),
           function(x, ..., na.rm = FALSE) {
               ## Avoid wrong overflow :
               if(.Generic == "sum")
@@ -37,7 +37,7 @@ setMethod("Summary", signature(x = "denseMatrix"),
               get(.Generic, mode = "function")(y1, y2, ..., na.rm = na.rm)
           })
 
-setMethod("Summary", signature(x = "sparseMatrix"),
+setMethod("Summary", c(x = "sparseMatrix"),
           function(x, ..., na.rm = FALSE) {
               ## Avoid wrong overflow :
               if(.Generic == "sum")
@@ -86,7 +86,7 @@ setMethod("Summary", signature(x = "sparseMatrix"),
               get(.Generic, mode = "function")(y1, y2, y3, ..., na.rm = na.rm)
           })
 
-setMethod("Summary", signature(x = "diagonalMatrix"),
+setMethod("Summary", c(x = "diagonalMatrix"),
           function(x, ..., na.rm = FALSE) {
               kind <- .M.kind(x)
               switch(kind,
@@ -120,7 +120,7 @@ setMethod("Summary", signature(x = "diagonalMatrix"),
               get(.Generic, mode = "function")(y1, y2, y3, ..., na.rm = na.rm)
           })
 
-setMethod("Summary", signature(x = "indMatrix"),
+setMethod("Summary", c(x = "indMatrix"),
           function(x, ..., na.rm = FALSE) {
               nnz <- length(x@perm)
               y1 <- if(.Generic == "sum")
@@ -133,7 +133,7 @@ setMethod("Summary", signature(x = "indMatrix"),
               get(.Generic, mode = "function")(y1, y2, ..., na.rm = na.rm)
           })
 
-setMethod("Summary", signature(x = "sparseVector"),
+setMethod("Summary", c(x = "sparseVector"),
           function(x, ..., na.rm = FALSE) {
               kind <- .M.kind(x)
               zero <- switch(kind, "n" = , "l" = FALSE, "i" = 0L, "d" = 0, "z" = 0+0i)

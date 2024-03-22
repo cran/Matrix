@@ -1,29 +1,28 @@
 #include "Mdefines.h"
 #include "Csparse.h"
-#include "abIndex.h"
 #include "attrib.h"
 #include "bind.h"
-#include "chm_common.h"
+#include "cholmod-common.h"
 #include "coerce.h"
 #include "dense.h"
 #include "determinant.h"
-#include "dgCMatrix.h"
-#include "dgeMatrix.h"
-#include "factorizations.h"
+#include "expm.h"
+#include "factor.h"
 #include "kappa.h"
+#include "matmult.h"
 #include "objects.h"
 #include "perm.h"
-#include "products.h"
 #include "solve.h"
 #include "sparse.h"
-#include "sparseVector.h"
+#include "subassign.h"
 #include "subscript.h"
 #include "utils-R.h"
 #include "validity.h"
+#include "vector.h"
 #include <R_ext/Rdynload.h>
 #include <R_ext/Visibility.h>
 
-#include "Syms.h"
+#include "Msymbols.h"
 Rcomplex Matrix_zzero, Matrix_zone, Matrix_zna;
 
 #define CALLDEF(name, n)  {#name, (DL_FUNC) &name, n}
@@ -31,34 +30,32 @@ Rcomplex Matrix_zzero, Matrix_zone, Matrix_zna;
 #define RREGDEF(name   )  R_RegisterCCallable("Matrix", #name, (DL_FUNC) name)
 
 static R_CallMethodDef CallEntries[] = {
+	CALLDEF(R_all0, 1),
+	CALLDEF(R_any0, 1),
+
+	CALLDEF(compressed_non_0_ij, 2),
+	CALLDEF(Matrix_expand_pointers, 1),
 	CALLDEF(m_encodeInd,  4),
 	CALLDEF(m_encodeInd2, 5),
 
 	CALLDEF(Matrix_rle_i, 2),
 	CALLDEF(Matrix_rle_d, 2),
 
-	CALLDEF(tCsparse_diag, 2),
+	CALLDEF(CsparseMatrix_validate_maybe_sorting, 1),
+
+	CALLDEF(dgCMatrix_lusol, 2),
+	CALLDEF(dgCMatrix_qrsol, 3),
+	CALLDEF(dgCMatrix_cholsol, 2),
+	CALLDEF(dtCMatrix_diag, 2),
+
+	CALLDEF(Csparse_dmperm, 3),
+	CALLDEF(Csparse_writeMM, 2),
+
 	CALLDEF(nCsparse_subassign, 4),
 	CALLDEF(lCsparse_subassign, 4),
 	CALLDEF(iCsparse_subassign, 4),
 	CALLDEF(dCsparse_subassign, 4),
 	CALLDEF(zCsparse_subassign, 4),
-	CALLDEF(Csparse_dmperm, 3),
-	CALLDEF(Csparse_MatrixMarket, 2),
-
-	CALLDEF(Matrix_expand_pointers, 1),
-	CALLDEF(R_all0, 1),
-	CALLDEF(R_any0, 1),
-
-	CALLDEF(compressed_non_0_ij, 2),
-	CALLDEF(dgCMatrix_lusol, 2),
-	CALLDEF(dgCMatrix_qrsol, 3),
-	CALLDEF(dgCMatrix_cholsol, 2),
-
-	CALLDEF(dgeMatrix_Schur, 3),
-	CALLDEF(dgeMatrix_exp, 1),
-
-	CALLDEF(CsparseMatrix_validate_maybe_sorting, 1),
 
 	CALLDEF(Matrix_validate, 1),
 	CALLDEF(MatrixFactorization_validate, 1),
@@ -69,10 +66,9 @@ static R_CallMethodDef CallEntries[] = {
 	CALLDEF(dMatrix_validate, 1),
 	CALLDEF(zMatrix_validate, 1),
 
-	CALLDEF(compMatrix_validate, 1),
+	CALLDEF(generalMatrix_validate, 1),
 	CALLDEF(symmetricMatrix_validate, 1),
 	CALLDEF(triangularMatrix_validate, 1),
-
 	CALLDEF(diagonalMatrix_validate, 1),
 	CALLDEF(indMatrix_validate, 1),
 	CALLDEF(pMatrix_validate, 1),
@@ -104,7 +100,7 @@ static R_CallMethodDef CallEntries[] = {
 	CALLDEF(dpoMatrix_validate, 1),
 	CALLDEF(dppMatrix_validate, 1),
 	CALLDEF(corMatrix_validate, 1),
-	CALLDEF(pcorMatrix_validate, 1),
+	CALLDEF(copMatrix_validate, 1),
 
 	CALLDEF(sparseVector_validate, 1),
 	CALLDEF(lsparseVector_validate, 1),
@@ -186,11 +182,15 @@ static R_CallMethodDef CallEntries[] = {
 	CALLDEF(R_sparse_matmult, 6),
 	CALLDEF(R_diagonal_matmult, 5),
 
+	CALLDEF(dgeMatrix_expm, 1),
+
 	CALLDEF(dgeMatrix_trf, 2),
 	CALLDEF(dsyMatrix_trf, 2),
 	CALLDEF(dspMatrix_trf, 2),
 	CALLDEF(dpoMatrix_trf, 4),
 	CALLDEF(dppMatrix_trf, 2),
+	CALLDEF(dgeMatrix_sch, 3),
+
 	CALLDEF(dgCMatrix_trf, 4),
 	CALLDEF(dgCMatrix_orf, 3),
 	CALLDEF(dpCMatrix_trf, 5),

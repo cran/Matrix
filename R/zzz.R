@@ -593,7 +593,7 @@ setAs("CHMfactor", "pMatrix",
           expand1(from, "P1")
       })
 
-setMethod("chol2inv", signature(x = "CHMfactor"),
+setMethod("chol2inv", c(x = "CHMfactor"),
           function(x, ...) {
               if(FALSE) {
               .Deprecated(old = "chol2inv(<CHMfactor>)",

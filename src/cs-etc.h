@@ -2,7 +2,7 @@
 #define MATRIX_CS_ETC_H
 
 #include <Rinternals.h>
-#include "cs.h"
+#include "SuiteSparse/CXSparse/Include/cs.h"
 
 #define MCS_PATTERN 0
 #define MCS_REAL    1

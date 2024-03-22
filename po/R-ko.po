@@ -14,7 +14,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Matrix 1.1-3\n"
-"POT-Creation-Date: 2023-11-02 21:33\n"
+"POT-Creation-Date: 2024-03-15 17:22\n"
 "PO-Revision-Date: 2015-07-15 17:14-0600\n"
 "Last-Translator:Chel Hee Lee  <chl948@mail.usask.ca>\n"
 "Language-Team: Chel Hee Lee  <chl948@mail.usask.ca>\n"
@@ -49,6 +49,32 @@ msgid "%s=\"%s\" invalid for %s@uplo=\"%s\""
 msgstr ""
 
 msgid "'%s' is not \"%1$s\", \"D%1$s\", or \"%1$s.\""
+msgstr ""
+
+#, fuzzy
+msgid "%1$s(%2$s) is undefined: '%2$s' is not positive semidefinite"
+msgstr "chol()은 음의 값을 가진 대각행렬에 대하여 정의되지 않았습니다."
+
+#, fuzzy
+msgid "matrix is not square"
+msgstr "대각행렬이 아닙니다."
+
+msgid ""
+"'%1$s' is not \"%2$s1\", \"%2$s1.\", \"%3$s\", \"%3$s.\", \"%3$s1\", \"%3$s1."
+"\", or \"%4$s\""
+msgstr ""
+
+#, fuzzy
+msgid "'%s' does not inherit from virtual class %s"
+msgstr "'x'는 \"sparseVector\"로부터의 상속(inherit)이어야 합니다."
+
+msgid "D[i,i] is NA, i=%d"
+msgstr ""
+
+msgid "D[i,i] is negative, i=%d"
+msgstr ""
+
+msgid "'%1$s' is not formally symmetric; factorizing tcrossprod(%1$s)"
 msgstr ""
 
 msgid "unexpected %s=\"%s\" in '%s' method"
@@ -124,14 +150,6 @@ msgid "'%s()' is not yet implemented for  representation '%s'"
 msgstr ""
 "표현(representation)이 '%2$s'의 경우에 아직 구현되지 않은 '%1$s()'입니다."
 
-msgid "'%1$s' is not \"%2$s1\", \"%2$s1.\", \"%3$s\", or \"%4$s\""
-msgstr ""
-
-msgid ""
-"'%1$s' is not \"%2$s1\", \"%2$s1.\", \"%2$s2\", \"%2$s2.\", \"%3$s\", or "
-"\"%4$s\""
-msgstr ""
-
 msgid "longer object length is not a multiple of shorter object length"
 msgstr "객체의 길이(긴 것)이 다른 객체의 길이(짧은 것)의 배수가 아닙니다."
 
@@ -198,11 +216,21 @@ msgstr ""
 "객체의 길이(긴 것)가\n"
 "\t 다른 객체가 가지는 길이(짧은 것)의 배수가 아닙니다."
 
+#, fuzzy
+msgid "invalid class \"%s\" object in '%s' method"
+msgstr "%s은 올바른 'col.names' 문자열이 아닙니다"
+
 msgid "intermediate 'r' is of type %s"
 msgstr "intermediate 'r' is of type %s"
 
 msgid "not yet implemented .. please report"
 msgstr "아직 구현되지 않았습니다.  보고를 부탁드립니다."
+
+msgid "'%s' has non-finite values"
+msgstr ""
+
+msgid "'%1$s' is not \"%2$s\", \"%3$s\", or \"%2$s.\""
+msgstr ""
 
 msgid "'force' must be (coercable to) TRUE or FALSE"
 msgstr "'force'는 반드시 (강제변환될 수 있는) TRUE 또는 FALSE 이어야 합니다."
@@ -254,30 +282,10 @@ msgid "<seqMat>  -->  <abIndex>  is not yet implemented"
 msgstr "<seqMat>  -->  <abIndex>은 아직 구현되지 않았습니다."
 
 #, fuzzy
-msgid "%1$s(%2$s) is undefined: '%2$s' is not positive semidefinite"
-msgstr "chol()은 음의 값을 가진 대각행렬에 대하여 정의되지 않았습니다."
-
-#, fuzzy
-msgid "matrix is not square"
-msgstr "대각행렬이 아닙니다."
-
-msgid ""
-"'%1$s' is not \"%2$s1\", \"%2$s1.\", \"%3$s\", \"%3$s.\", \"%3$s1\", \"%3$s1."
-"\", or \"%4$s\""
+msgid "only square matrices can be used as graph incidence matrices"
 msgstr ""
-
-#, fuzzy
-msgid "'%s' does not inherit from virtual class %s"
-msgstr "'x'는 \"sparseVector\"로부터의 상속(inherit)이어야 합니다."
-
-msgid "D[i,i] is NA, i=%d"
-msgstr ""
-
-msgid "D[i,i] is negative, i=%d"
-msgstr ""
-
-msgid "'%1$s' is not formally symmetric; factorizing tcrossprod(%1$s)"
-msgstr ""
+"오로지 정방(square) 행렬만이 그래프를 위한 접속행렬(incidence matrices)로서 "
+"사용할 수 있습니다."
 
 #, fuzzy
 msgid "matrix is not symmetric; consider forceSymmetric(.) or symmpart(.)"
@@ -550,18 +558,6 @@ msgstr ""
 msgid "assigned dimensions [product %.0f] do not match object length [%.0f]"
 msgstr "dim [product %d]의 값이 객체 [%d]의 길이와 일치하지 않습니다."
 
-msgid "'%s' has non-finite values"
-msgstr ""
-
-msgid "'%1$s' is not \"%2$s\", \"%3$s\", or \"%2$s.\""
-msgstr ""
-
-#, fuzzy
-msgid "only square matrices can be used as graph incidence matrices"
-msgstr ""
-"오로지 정방(square) 행렬만이 그래프를 위한 접속행렬(incidence matrices)로서 "
-"사용할 수 있습니다."
-
 msgid "'lwd' must be NULL or non-negative numeric"
 msgstr "'lwd'는 반드시 NULL 또는 음이 아닌 수 이어야 합니다."
 
@@ -626,6 +622,34 @@ msgstr ""
 msgid "number of nonzero entries cannot exceed %s"
 msgstr "%s의 경우 행의 개수가 올바르지 않습니다."
 
+msgid "'%1$s' is not \"%2$s1\", \"%2$s1.\", \"%3$s\", or \"%4$s\""
+msgstr ""
+
+msgid ""
+"'%1$s' is not \"%2$s1\", \"%2$s1.\", \"%2$s2\", \"%2$s2.\", \"%3$s\", or "
+"\"%4$s\""
+msgstr ""
+
+msgid "non-conformable arguments"
+msgstr "non-conformable arguments"
+
+#, fuzzy
+msgid "model frame and formula mismatch in sparse.model.matrix()"
+msgstr ""
+"model.matrix()를 사용할 때 모델프레임(model frame)과 모델식(formula)가 일치하"
+"지 않습니다."
+
+#, fuzzy
+msgid "non-list contrasts argument ignored"
+msgstr "'contrasts.arg' 인자가 올바르지 않습니다."
+
+#, fuzzy
+msgid "'contrasts.arg' argument must be named"
+msgstr "'contrasts.arg' 인자가 올바르지 않습니다."
+
+msgid "variable '%s' is absent, its contrast will be ignored"
+msgstr "변수 '%s'를 찾을 수 없어 관련 대비(contrast)는 계산되지 않을 것입니다."
+
 msgid "Matrix seems negative semi-definite"
 msgstr "음의 반정치(negative semi-definite) 행렬 같습니다."
 
@@ -650,9 +674,6 @@ msgid ""
 msgstr ""
 "diag(.)에 0 또는 NA가 존재하므로 유한하지 않은 결과(non-finite result)를 얻"
 "을 것으로 생각됩니다."
-
-msgid "non-conformable arguments"
-msgstr "non-conformable arguments"
 
 msgid ""
 "matrix is structurally rank deficient; using augmented matrix with "
@@ -744,23 +765,6 @@ msgstr ""
 msgid "cannot coerce from %s to %s"
 msgstr ""
 
-#, fuzzy
-msgid "model frame and formula mismatch in sparse.model.matrix()"
-msgstr ""
-"model.matrix()를 사용할 때 모델프레임(model frame)과 모델식(formula)가 일치하"
-"지 않습니다."
-
-#, fuzzy
-msgid "non-list contrasts argument ignored"
-msgstr "'contrasts.arg' 인자가 올바르지 않습니다."
-
-#, fuzzy
-msgid "'contrasts.arg' argument must be named"
-msgstr "'contrasts.arg' 인자가 올바르지 않습니다."
-
-msgid "variable '%s' is absent, its contrast will be ignored"
-msgstr "변수 '%s'를 찾을 수 없어 관련 대비(contrast)는 계산되지 않을 것입니다."
-
 msgid "a sparseMatrix should rarely be centered: will not be sparse anymore"
 msgstr ""
 
@@ -772,24 +776,27 @@ msgstr "%s에 사용된 각 행렬이 가지는 열의 개수는 서로 같아�
 msgid "length of 'scale' must equal the number of columns of 'x'"
 msgstr "%s에 사용된 각 행렬이 가지는 열의 개수는 서로 같아야 합니다."
 
-msgid "trimmed means are not defined for complex data"
-msgstr ""
+#, fuzzy
+msgid "invalid subassignment value class \"%s\""
+msgstr "%s는 사용가능한 클래스(class)가 아닙니다."
 
-msgid "first element used of '%s' argument"
+#, fuzzy
+msgid "invalid subassignment value type \"%s\""
+msgstr "%s는 사용할 수 없는 저장형식(storage format)입니다."
+
+msgid "missing subassignment value"
 msgstr ""
 
 #, fuzzy
-msgid "invalid '%s' argument"
-msgstr "입력된 'data'는 올바르지 않습니다."
+msgid "incorrect number of dimensions"
+msgstr "차원(dimensions) 정보가 일치하지 않습니다."
 
-msgid "should never happen ..."
+msgid "replacement has length zero"
 msgstr ""
 
-msgid "'%s' is deprecated; using '%s' instead"
+msgid "number of items to replace is not a multiple of replacement length"
 msgstr ""
-
-msgid "'%s' is deprecated; setting %s=\"%s\""
-msgstr ""
+"교체(replace)할 항목의 개수가 입력된 value가 가지는 길이의 배수가 아닙니다."
 
 msgid ""
 ".M.repl.i.2col(): 'i' has no integer column number;\n"
@@ -812,10 +819,6 @@ msgstr "음수(negative values)는 행렬의 첨자(subscript)로 사용할 수 
 
 msgid "NAs are not allowed in subscripted assignments"
 msgstr "NA는 행렬의 첨자(subscripted assignment)로 사용할 수 없습니다."
-
-msgid "number of items to replace is not a multiple of replacement length"
-msgstr ""
-"교체(replace)할 항목의 개수가 입력된 value가 가지는 길이의 배수가 아닙니다."
 
 msgid "m[ <ij-matrix> ] <- v: inefficiently treating single elements"
 msgstr "m[ <ij-matrix> ] <- v: inefficiently treating single elements"
@@ -954,11 +957,26 @@ msgid "logical subscript too long"
 msgstr ""
 "길이가 너무 긴 논리형 첨자(subscript)입니다 (%2$d이어야 하는데 %1$d입니다)."
 
-#, fuzzy
-msgid "incorrect number of dimensions"
-msgstr "차원(dimensions) 정보가 일치하지 않습니다."
-
 msgid "only zeros may be mixed with negative subscripts"
+msgstr ""
+
+msgid "trimmed means are not defined for complex data"
+msgstr ""
+
+msgid "first element used of '%s' argument"
+msgstr ""
+
+#, fuzzy
+msgid "invalid '%s' argument"
+msgstr "입력된 'data'는 올바르지 않습니다."
+
+msgid "should never happen ..."
+msgstr ""
+
+msgid "'%s' is deprecated; using '%s' instead"
+msgstr ""
+
+msgid "'%s' is deprecated; setting %s=\"%s\""
 msgstr ""
 
 msgid "'%s' has length 0 but '%s' does not"

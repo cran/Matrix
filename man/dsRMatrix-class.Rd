@@ -41,14 +41,13 @@
   }
 }
 \section{Extends}{
-  Classes \code{\linkS4class{RsparseMatrix}}, \code{\linkS4class{dsparseMatrix}} and
-  \code{\linkS4class{symmetricMatrix}}, directly.
+  Classes \code{\linkS4class{dsparseMatrix}},
+  \code{\linkS4class{symmetricMatrix}}, and
+  \code{\linkS4class{RsparseMatrix}}, directly.
 
-  Class \code{"dMatrix"}, by class \code{"dsparseMatrix"},
-  class \code{"sparseMatrix"}, by class \code{"dsparseMatrix"} or
-  \code{"RsparseMatrix"};
-  class \code{"compMatrix"} by class \code{"symmetricMatrix"} and of course,
-  class \code{"Matrix"}.
+  Class \code{"dMatrix"}, by class \code{"dsparseMatrix"};
+  class \code{"sparseMatrix"}, by classes \code{"dsparseMatrix"} and
+  \code{"RsparseMatrix"}.
 }
 \section{Methods}{
    \describe{

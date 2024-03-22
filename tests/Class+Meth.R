@@ -13,7 +13,7 @@ stopifnot(exprs = {
     MatrixClass( "dpoMatrix") == "dsyMatrix"
     MatrixClass( "dppMatrix") == "dspMatrix"
     MatrixClass( "corMatrix") == "dsyMatrix"
-    MatrixClass("pcorMatrix") == "dspMatrix"
+    MatrixClass( "copMatrix") == "dspMatrix"
     identical(MatrixClass("indMatrix"), character(0L))
     identical(MatrixClass(  "pMatrix"), character(0L))
 })
@@ -232,8 +232,9 @@ tstMatrixClass <-
             symC <- extends(clD, "symmetricMatrix")
             triC <- extends(clD, "triangularMatrix")
             diaC <- extends(clD, "diagonalMatrix")
-            if(!(genC || symC || triC || diaC))
-                stop("does not extend one of 'general', 'symmetric', 'triangular', or 'diagonal'")
+            indC <- extends(clD, "indMatrix")
+            if(!(genC || symC || triC || diaC || indC))
+                stop("does not extend one of 'general', 'symmetric', 'triangular', 'diagonal', 'ind'")
             sparseC <- extends(clD, "sparseMatrix")
             denseC  <- extends(clD, "denseMatrix")
             if(!(sparseC || denseC))
@@ -255,7 +256,7 @@ tstMatrixClass <-
 		stopifnot(Qidentical(m, m0.)); cat("ok; ")
 	    }
             is_p <- extends(clD, "indMatrix")
-            is_cor <- extends(clD, "corMatrix") || extends(clD, "pcorMatrix")
+            is_cor <- extends(clD, "corMatrix") || extends(clD, "copMatrix")
             ## ^^^ has diagonal divided out
 	    if(canCoerce(mm, clNam)) { ## replace 'm' by `non-empty' version
 		cat("canCoerce(mm, *) ")
@@ -321,7 +322,8 @@ tstMatrixClass <-
 ### 1) produce 'mM'  and 'mm' for the other cases,
 ### 2) use identical code for all cases
 
-            if(is(m, "dMatrix") && is(m, "compMatrix")) {
+            if(is(m, "dMatrix") &&
+               (is(m, "generalMatrix") || is(m, "symmetricMatrix"))) {
                 if(any(clNam == not.coerce1))
                     cat.("not coercable_1\n")
                 else if(canCoerce(mM, clNam)) {

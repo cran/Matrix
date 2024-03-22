@@ -179,7 +179,7 @@ solve(a, b, ...)
   and non-missing \code{b}, respectively.  A corollary is that
   these methods always give a dense result.
   
-  Methods for sparse \code{a} are built on CSparse routines
+  Methods for sparse \code{a} are built on CXSparse routines
   \code{cs_lsolve}, \code{cs_usolve}, and \code{cs_spsolve} and
   CHOLMOD routines \code{cholmod_solve} and \code{cholmod_spsolve}.
   By default, these methods give a vector result if \code{b}

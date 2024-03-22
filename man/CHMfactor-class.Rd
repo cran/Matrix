@@ -28,9 +28,9 @@
   \code{CHMfactor} is the virtual class of sparse Cholesky
   factorizations of \eqn{n \times n}{n-by-n} real, symmetric
   matrices \eqn{A}, having the general form
-  \Sdeqn{P_1 A P_1' = L_1 D L_1' \\\\\\\\overset{D_{jj} \\\\\\\\ge 0}{=} L L'}{P1 * A * P1' = L1 * D * L1' [ = L * L' ]}
+  \deqn{P_1 A P_1' = L_1 D L_1' \overset{D_{jj} \ge 0}{=} L L'}{P1 * A * P1' = L1 * D * L1' [ = L * L' ]}
   or (equivalently)
-  \Sdeqn{A = P_1' L_1 D L_1' P_1 \\\\\\\\overset{D_{jj} \\\\\\\\ge 0}{=} P_1' L L' P_1}{A = P1' L1 * D * L1' * P1 [ = P1' * L * L' * P1 ]}
+  \deqn{A = P_1' L_1 D L_1' P_1 \overset{D_{jj} \ge 0}{=} P_1' L L' P_1}{A = P1' L1 * D * L1' * P1 [ = P1' * L * L' * P1 ]}
   where
   \eqn{P_1}{P1} is a permutation matrix,
   \eqn{L_1}{L1} is a unit lower triangular matrix,

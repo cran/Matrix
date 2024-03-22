@@ -8,7 +8,7 @@
     cl <- .M.nonvirtual(x, TRUE)
     if(any(cl == c("dpoMatrix", "corMatrix")))
         as(x, "dsyMatrix")
-    else if(any(cl == c("dppMatrix", "pcorMatrix")))
+    else if(any(cl == c("dppMatrix", "copMatrix")))
         as(x, "dspMatrix")
     else x
 }
@@ -51,7 +51,7 @@ setAs("matrix", "dppMatrix",
       })
 
 
-## METHODS FOR CLASS: corMatrix, pcorMatrix
+## METHODS FOR CLASS: corMatrix, copMatrix
 ## dense correlation matrices
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -74,12 +74,12 @@ setAs("matrix", "dppMatrix",
     .set.factor(from, "correlation", to)
 }
 
-.dpp2pcor <- function(from) {
+.dpp2cop <- function(from) {
     if(!is.null(to <- from@factors$correlation))
         return(to)
     sd <- sqrt(diag(from, names = FALSE))
 
-    to <- new("pcorMatrix")
+    to <- new("copMatrix")
     to@Dim <- d <- from@Dim
     to@Dimnames <- from@Dimnames
     to@uplo <- uplo <- from@uplo
@@ -101,38 +101,38 @@ setAs("matrix", "dppMatrix",
     .set.factor(from, "correlation", to)
 }
 
-setAs("pcorMatrix",  "corMatrix", function(from) unpack(from))
-setAs( "corMatrix", "pcorMatrix", function(from)   pack(from))
+setAs("copMatrix", "corMatrix", function(from) unpack(from))
+setAs("corMatrix", "copMatrix", function(from)   pack(from))
 
-setAs("dpoMatrix",  "corMatrix", .dpo2cor)
-setAs("dppMatrix", "pcorMatrix", .dpp2pcor)
+setAs("dpoMatrix", "corMatrix", .dpo2cor)
+setAs("dppMatrix", "copMatrix", .dpp2cop)
 
-setAs("dsyMatrix",  "corMatrix",
-      function(from) .dpo2cor (.dsy2dpo(from)))
-setAs("dspMatrix", "pcorMatrix",
-      function(from) .dpp2pcor(.dsp2dpp(from)))
+setAs("dsyMatrix", "corMatrix",
+      function(from) .dpo2cor(.dsy2dpo(from)))
+setAs("dspMatrix", "copMatrix",
+      function(from) .dpp2cop(.dsp2dpp(from)))
 
-setAs("Matrix",  "corMatrix",
-      function(from) .dpo2cor (.dsy2dpo(.M2unpacked(.M2sym(.M2kind(from, "d"))))))
-setAs("Matrix", "pcorMatrix",
-      function(from) .dpp2pcor(.dsp2dpp(.M2packed  (.M2sym(.M2kind(from, "d"))))))
+setAs("Matrix", "corMatrix",
+      function(from) .dpo2cor(.dsy2dpo(.M2unpacked(.M2sym(.M2kind(from, "d"))))))
+setAs("Matrix", "copMatrix",
+      function(from) .dpp2cop(.dsp2dpp(.M2packed  (.M2sym(.M2kind(from, "d"))))))
 
-setAs("matrix",  "corMatrix",
+setAs("matrix", "corMatrix",
       function(from) {
           storage.mode(from) <- "double"
           .dpo2cor (.dsy2dpo(.M2sym(from)))
       })
-setAs("matrix", "pcorMatrix",
+setAs("matrix", "copMatrix",
       function(from) {
           storage.mode(from) <- "double"
-          .dpp2pcor(.dsp2dpp(pack(from, symmetric = TRUE)))
+          .dpp2cop(.dsp2dpp(pack(from, symmetric = TRUE)))
       })
 
 
 ## METHODS FOR GENERIC: cov2cor
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-setMethod("cov2cor", signature(V = "unpackedMatrix"),
+setMethod("cov2cor", c(V = "unpackedMatrix"),
           function(V) {
               d <- V@Dim
               if(d[1L] != d[2L] || .M.kind(V) == "z")
@@ -141,16 +141,16 @@ setMethod("cov2cor", signature(V = "unpackedMatrix"),
               as(forceSymmetric(V), "corMatrix")
           })
 
-setMethod("cov2cor", signature(V = "packedMatrix"),
+setMethod("cov2cor", c(V = "packedMatrix"),
           function(V) {
               d <- V@Dim
               if(d[1L] != d[2L] || .M.kind(V) == "z")
                   stop(gettextf("'%s' is not a square numeric matrix", "V"),
                        domain = NA)
-              as(forceSymmetric(V), "pcorMatrix")
+              as(forceSymmetric(V), "copMatrix")
           })
 
-setMethod("cov2cor", signature(V = "sparseMatrix"),
+setMethod("cov2cor", c(V = "sparseMatrix"),
           function(V) {
               d <- V@Dim
               if(d[1L] != d[2L] || .M.kind(V) == "z")

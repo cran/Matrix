@@ -109,7 +109,7 @@ char Matrix_shape(SEXP obj)
 		return '\0';
 	ivalid += VALID_NONVIRTUAL_SHIFT(ivalid, 1);
 	const char *cl = valid[ivalid];
-	return (cl[2] == 'd' || cl[3] != 'M') ? 'g' : cl[1];
+	return (cl[3] != 'M') ? 'g' : ((cl[2] == 'd') ? 'i' : cl[1]);
 }
 
 char Matrix_repr(SEXP obj)
@@ -128,15 +128,17 @@ char Matrix_repr(SEXP obj)
 	case 'r':
 		return 'u'; /* unpackedMatrix */
 	case 'p':
-		return 'p'; /* packedMatrix */
+		return 'p'; /*   packedMatrix */
 	case 'C':
+		return 'C'; /*  CsparseMatrix */
 	case 'R':
+		return 'R'; /*  RsparseMatrix */
 	case 'T':
-		return cl[2]; /* [CRT]sparseMatrix */
+		return 'T'; /*  TsparseMatrix */
 	case 'i':
 		return 'd'; /* diagonalMatrix */
 	case 'd':
-		return 'i'; /* indMatrix */
+		return 'i'; /*      indMatrix */
 	default:
 		return '\0';
 	}

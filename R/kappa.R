@@ -1,10 +1,10 @@
 ## METHODS FOR GENERIC: norm
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-setMethod("norm", signature(x = "ANY", type = "missing"),
+setMethod("norm", c(x = "ANY", type = "missing"),
           function(x, type, ...) norm(x, type = "O", ...))
 
-setMethod("norm", signature(x = "denseMatrix", type = "character"),
+setMethod("norm", c(x = "denseMatrix", type = "character"),
           function(x, type, ...) {
               if(identical(type, "2"))
                   return(base::norm(.M2m(x), type = "2"))
@@ -17,7 +17,7 @@ setMethod("norm", signature(x = "denseMatrix", type = "character"),
                      "tp" = .Call(dtpMatrix_norm, x, type))
           })
 
-setMethod("norm", signature(x = "sparseMatrix", type = "character"),
+setMethod("norm", c(x = "sparseMatrix", type = "character"),
           function(x, type, ...) {
               if(any(x@Dim == 0L))
                   return(0)
@@ -45,7 +45,7 @@ setMethod("norm", signature(x = "sparseMatrix", type = "character"),
                           domain = NA))
           })
 
-setMethod("norm", signature(x = "diagonalMatrix", type = "character"),
+setMethod("norm", c(x = "diagonalMatrix", type = "character"),
           function(x, type, ...) {
               if((n <- x@Dim[1L]) == 0L)
                   return(0)
@@ -70,7 +70,7 @@ setMethod("norm", signature(x = "diagonalMatrix", type = "character"),
                           domain = NA))
           })
 
-setMethod("norm", signature(x = "indMatrix", type = "character"),
+setMethod("norm", c(x = "indMatrix", type = "character"),
           function(x, type, ...) {
               d <- x@Dim
               if((m <- d[1L]) == 0L || (n <- d[2L]) == 0L)
@@ -90,7 +90,7 @@ setMethod("norm", signature(x = "indMatrix", type = "character"),
                           domain = NA))
           })
 
-setMethod("norm", signature(x = "pMatrix", type = "character"),
+setMethod("norm", c(x = "pMatrix", type = "character"),
           function(x, type, ...) {
               if((n <- x@Dim[1L]) == 0L)
                   return(0)
@@ -110,10 +110,10 @@ setMethod("norm", signature(x = "pMatrix", type = "character"),
 ## METHODS FOR GENERIC: rcond
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-setMethod("rcond", signature(x = "ANY", norm = "missing"),
+setMethod("rcond", c(x = "ANY", norm = "missing"),
           function(x, norm, ...) rcond(x, norm = "O", ...))
 
-setMethod("rcond", signature(x = "denseMatrix", norm = "character"),
+setMethod("rcond", c(x = "denseMatrix", norm = "character"),
           function(x, norm, ...) {
               x <- .M2kind(x, ",")
               switch(substr(.M.nonvirtual(x, strict = TRUE), 2L, 3L),
@@ -163,7 +163,7 @@ setMethod("rcond", signature(x = "denseMatrix", norm = "character"),
                              else .Call(dsyMatrix_rcond, x, trf, norm)
                          },
                      "pp" = ,
-                     "co" = # pcorMatrix
+                     "op" = # copMatrix
                          {
                              ok <- TRUE
                              trf <- tryCatch(
@@ -180,7 +180,7 @@ setMethod("rcond", signature(x = "denseMatrix", norm = "character"),
                      "tp" = .Call(dtpMatrix_rcond, x, norm))
           })
 
-setMethod("rcond", signature(x = "sparseMatrix", norm = "character"),
+setMethod("rcond", c(x = "sparseMatrix", norm = "character"),
           function(x, norm, useInv = FALSE, ...) {
               d <- x@Dim
               if((m <- d[1L]) == 0L || (n <- d[2L]) == 0L)
@@ -209,7 +209,7 @@ setMethod("rcond", signature(x = "sparseMatrix", norm = "character"),
               }
            })
 
-setMethod("rcond", signature(x = "diagonalMatrix", norm = "character"),
+setMethod("rcond", c(x = "diagonalMatrix", norm = "character"),
           function(x, norm, ...) {
               if((n <- x@Dim[1L]) == 0L)
                   return(Inf)
@@ -238,7 +238,7 @@ setMethod("rcond", signature(x = "diagonalMatrix", norm = "character"),
                           domain = NA))
           })
 
-setMethod("rcond", signature(x = "indMatrix", norm = "character"),
+setMethod("rcond", c(x = "indMatrix", norm = "character"),
           function(x, norm, ...) {
               d <- x@Dim
               if((m <- d[1L]) == 0L || (n <- d[2L]) == 0L)
@@ -266,7 +266,7 @@ setMethod("rcond", signature(x = "indMatrix", norm = "character"),
               }
           })
 
-setMethod("rcond", signature(x = "pMatrix", norm = "character"),
+setMethod("rcond", c(x = "pMatrix", norm = "character"),
           function(x, norm, ...) {
               if((n <- x@Dim[1L]) == 0L)
                   return(Inf)

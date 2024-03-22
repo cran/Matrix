@@ -1,15 +1,15 @@
 ## METHODS FOR GENERIC: BunchKaufman
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-setMethod("BunchKaufman", signature(x = "dsyMatrix"),
+setMethod("BunchKaufman", c(x = "dsyMatrix"),
           function(x, warnSing = TRUE, ...)
               .Call(dsyMatrix_trf, x, as.logical(warnSing)))
 
-setMethod("BunchKaufman", signature(x = "dspMatrix"),
+setMethod("BunchKaufman", c(x = "dspMatrix"),
           function(x, warnSing = TRUE, ...)
               .Call(dspMatrix_trf, x, as.logical(warnSing)))
 
-setMethod("BunchKaufman", signature(x = "matrix"),
+setMethod("BunchKaufman", c(x = "matrix"),
           function(x, uplo = "U", ...)
               BunchKaufman(.m2dense(x, ",sy", uplo), ...))
 
@@ -73,8 +73,8 @@ body(.def.unpacked) <-
 body(.def.packed) <-
     do.call(substitute, list(body(.def.packed  ), list(.PACKED =  TRUE)))
 
-setMethod("expand1", signature(x =  "BunchKaufman"), .def.unpacked)
-setMethod("expand1", signature(x = "pBunchKaufman"), .def.packed)
+setMethod("expand1", c(x =  "BunchKaufman"), .def.unpacked)
+setMethod("expand1", c(x = "pBunchKaufman"), .def.packed)
 rm(.def.unpacked, .def.packed)
 
 .def.unpacked <- .def.packed <- function(x, complete = FALSE, ...) {
@@ -116,6 +116,6 @@ body(.def.packed) <-
 ## list(U, DU, U') where A = U DU U' and U = P[b] U[b] ... P[1] U[1]
 ## OR
 ## list(L, DL, L') where A = L DL L' and L = P[1] L[1] ... P[b] L[b]
-setMethod("expand2", signature(x =  "BunchKaufman"), .def.unpacked)
-setMethod("expand2", signature(x = "pBunchKaufman"), .def.packed)
+setMethod("expand2", c(x =  "BunchKaufman"), .def.unpacked)
+setMethod("expand2", c(x = "pBunchKaufman"), .def.packed)
 rm(.def.unpacked, .def.packed)

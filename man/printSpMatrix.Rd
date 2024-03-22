@@ -24,20 +24,20 @@
 formatSpMatrix(x, digits = NULL, maxp = 1e9,
                cld = getClassDef(class(x)), zero.print = ".",
                col.names, note.dropping.colnames = TRUE, uniDiag = TRUE,
-               align = c("fancy", "right"))
+               align = c("fancy", "right"), \dots)
 
 printSpMatrix(x, digits = NULL, maxp = max(100L, getOption("max.print")),
               cld = getClassDef(class(x)),
               zero.print = ".", col.names, note.dropping.colnames = TRUE,
               uniDiag = TRUE, col.trailer = "",
-              align = c("fancy", "right"))
+              align = c("fancy", "right"), \dots)
 
 printSpMatrix2(x, digits = NULL, maxp = max(100L, getOption("max.print")),
               zero.print = ".", col.names, note.dropping.colnames = TRUE,
               uniDiag = TRUE, suppRows = NULL, suppCols = NULL,
               col.trailer = if(suppCols) "......" else "",
               align = c("fancy", "right"),
-              width = getOption("width"), fitWidth = TRUE)
+              width = getOption("width"), fitWidth = TRUE, \dots)
 }
 \arguments{
   \item{x}{an \R object inheriting from class \code{\linkS4class{sparseMatrix}}.}
@@ -94,6 +94,7 @@ printSpMatrix2(x, digits = NULL, maxp = max(100L, getOption("max.print")),
   \item{fitWidth}{logical indicating if some effort should be made to
     match the desired \code{width} or temporarily enlarge that if deemed
     necessary.}
+  \item{\dots}{unused optional arguments.}
 }
 \details{
   \describe{

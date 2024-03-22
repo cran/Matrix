@@ -5,16 +5,13 @@
 
 SEXP CsparseMatrix_validate_maybe_sorting(SEXP);
 
-SEXP tCsparse_diag(SEXP, SEXP);
+SEXP dgCMatrix_lusol(SEXP, SEXP);
+SEXP dgCMatrix_qrsol(SEXP, SEXP, SEXP);
+SEXP dgCMatrix_cholsol(SEXP, SEXP);
 
-SEXP nCsparse_subassign(SEXP, SEXP, SEXP, SEXP);
-SEXP lCsparse_subassign(SEXP, SEXP, SEXP, SEXP);
-SEXP iCsparse_subassign(SEXP, SEXP, SEXP, SEXP);
-SEXP dCsparse_subassign(SEXP, SEXP, SEXP, SEXP);
-SEXP zCsparse_subassign(SEXP, SEXP, SEXP, SEXP);
+SEXP dtCMatrix_diag(SEXP, SEXP);
 
 SEXP Csparse_dmperm(SEXP, SEXP, SEXP);
-
-SEXP Csparse_MatrixMarket(SEXP, SEXP);
+SEXP Csparse_writeMM(SEXP, SEXP);
 
 #endif /* MATRIX_CSPARSE_H */

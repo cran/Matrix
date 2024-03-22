@@ -1,0 +1,186 @@
+diff -ruN src/SuiteSparse/CXSparse/Makefile src/SuiteSparse-patched/CXSparse/Makefile
+--- src/SuiteSparse/CXSparse/Makefile	1969-12-31 19:00:00
++++ src/SuiteSparse-patched/CXSparse/Makefile	2024-01-12 11:54:13
+@@ -0,0 +1,71 @@
++sources = \
++	Source/cs_add.c       Source/cs_dl_add.c       Source/cs_ci_add.c       Source/cs_cl_add.c \
++	Source/cs_amd.c       Source/cs_dl_amd.c       Source/cs_ci_amd.c       Source/cs_cl_amd.c \
++	Source/cs_chol.c      Source/cs_dl_chol.c      Source/cs_ci_chol.c      Source/cs_cl_chol.c \
++	Source/cs_cholsol.c   Source/cs_dl_cholsol.c   Source/cs_ci_cholsol.c   Source/cs_cl_cholsol.c \
++	Source/cs_compress.c  Source/cs_dl_compress.c  Source/cs_ci_compress.c  Source/cs_cl_compress.c \
++	Source/cs_convert.c \
++	Source/cs_counts.c    Source/cs_dl_counts.c    Source/cs_ci_counts.c    Source/cs_cl_counts.c \
++	Source/cs_cumsum.c    Source/cs_dl_cumsum.c    Source/cs_ci_cumsum.c    Source/cs_cl_cumsum.c \
++	Source/cs_dfs.c       Source/cs_dl_dfs.c       Source/cs_ci_dfs.c       Source/cs_cl_dfs.c \
++	Source/cs_dmperm.c    Source/cs_dl_dmperm.c    Source/cs_ci_dmperm.c    Source/cs_cl_dmperm.c \
++	Source/cs_droptol.c   Source/cs_dl_droptol.c   Source/cs_ci_droptol.c   Source/cs_cl_droptol.c \
++	Source/cs_dropzeros.c Source/cs_dl_dropzeros.c Source/cs_ci_dropzeros.c Source/cs_cl_dropzeros.c \
++	Source/cs_dupl.c      Source/cs_dl_dupl.c      Source/cs_ci_dupl.c      Source/cs_cl_dupl.c \
++	Source/cs_entry.c     Source/cs_dl_entry.c     Source/cs_ci_entry.c     Source/cs_cl_entry.c \
++	Source/cs_ereach.c    Source/cs_dl_ereach.c    Source/cs_ci_ereach.c    Source/cs_cl_ereach.c \
++	Source/cs_etree.c     Source/cs_dl_etree.c     Source/cs_ci_etree.c     Source/cs_cl_etree.c \
++	Source/cs_fkeep.c     Source/cs_dl_fkeep.c     Source/cs_ci_fkeep.c     Source/cs_cl_fkeep.c \
++	Source/cs_gaxpy.c     Source/cs_dl_gaxpy.c     Source/cs_ci_gaxpy.c     Source/cs_cl_gaxpy.c \
++	Source/cs_happly.c    Source/cs_dl_happly.c    Source/cs_ci_happly.c    Source/cs_cl_happly.c \
++	Source/cs_house.c     Source/cs_dl_house.c     Source/cs_ci_house.c     Source/cs_cl_house.c \
++	Source/cs_ipvec.c     Source/cs_dl_ipvec.c     Source/cs_ci_ipvec.c     Source/cs_cl_ipvec.c \
++	Source/cs_leaf.c      Source/cs_dl_leaf.c      Source/cs_ci_leaf.c      Source/cs_cl_leaf.c \
++	Source/cs_load.c      Source/cs_dl_load.c      Source/cs_ci_load.c      Source/cs_cl_load.c \
++	Source/cs_lsolve.c    Source/cs_dl_lsolve.c    Source/cs_ci_lsolve.c    Source/cs_cl_lsolve.c \
++	Source/cs_ltsolve.c   Source/cs_dl_ltsolve.c   Source/cs_ci_ltsolve.c   Source/cs_cl_ltsolve.c \
++	Source/cs_lu.c        Source/cs_dl_lu.c        Source/cs_ci_lu.c        Source/cs_cl_lu.c \
++	Source/cs_lusol.c     Source/cs_dl_lusol.c     Source/cs_ci_lusol.c     Source/cs_cl_lusol.c \
++	Source/cs_malloc.c    Source/cs_dl_malloc.c    Source/cs_ci_malloc.c    Source/cs_cl_malloc.c \
++	Source/cs_maxtrans.c  Source/cs_dl_maxtrans.c  Source/cs_ci_maxtrans.c  Source/cs_cl_maxtrans.c \
++	Source/cs_multiply.c  Source/cs_dl_multiply.c  Source/cs_ci_multiply.c  Source/cs_cl_multiply.c \
++	Source/cs_norm.c      Source/cs_dl_norm.c      Source/cs_ci_norm.c      Source/cs_cl_norm.c \
++	Source/cs_permute.c   Source/cs_dl_permute.c   Source/cs_ci_permute.c   Source/cs_cl_permute.c \
++	Source/cs_pinv.c      Source/cs_dl_pinv.c      Source/cs_ci_pinv.c      Source/cs_cl_pinv.c \
++	Source/cs_post.c      Source/cs_dl_post.c      Source/cs_ci_post.c      Source/cs_cl_post.c \
++	Source/cs_print.c     Source/cs_dl_print.c     Source/cs_ci_print.c     Source/cs_cl_print.c \
++	Source/cs_pvec.c      Source/cs_dl_pvec.c      Source/cs_ci_pvec.c      Source/cs_cl_pvec.c \
++	Source/cs_qr.c        Source/cs_dl_qr.c        Source/cs_ci_qr.c        Source/cs_cl_qr.c \
++	Source/cs_qrsol.c     Source/cs_dl_qrsol.c     Source/cs_ci_qrsol.c     Source/cs_cl_qrsol.c \
++	Source/cs_randperm.c  Source/cs_dl_randperm.c  Source/cs_ci_randperm.c  Source/cs_cl_randperm.c \
++	Source/cs_reach.c     Source/cs_dl_reach.c     Source/cs_ci_reach.c     Source/cs_cl_reach.c \
++	Source/cs_scatter.c   Source/cs_dl_scatter.c   Source/cs_ci_scatter.c   Source/cs_cl_scatter.c \
++	Source/cs_scc.c       Source/cs_dl_scc.c       Source/cs_ci_scc.c       Source/cs_cl_scc.c \
++	Source/cs_schol.c     Source/cs_dl_schol.c     Source/cs_ci_schol.c     Source/cs_cl_schol.c \
++	Source/cs_spsolve.c   Source/cs_dl_spsolve.c   Source/cs_ci_spsolve.c   Source/cs_cl_spsolve.c \
++	Source/cs_sqr.c       Source/cs_dl_sqr.c       Source/cs_ci_sqr.c       Source/cs_cl_sqr.c \
++	Source/cs_symperm.c   Source/cs_dl_symperm.c   Source/cs_ci_symperm.c   Source/cs_cl_symperm.c \
++	Source/cs_tdfs.c      Source/cs_dl_tdfs.c      Source/cs_ci_tdfs.c      Source/cs_cl_tdfs.c \
++	Source/cs_transpose.c Source/cs_dl_transpose.c Source/cs_ci_transpose.c Source/cs_cl_transpose.c \
++	Source/cs_updown.c    Source/cs_dl_updown.c    Source/cs_ci_updown.c    Source/cs_cl_updown.c \
++	Source/cs_usolve.c    Source/cs_dl_usolve.c    Source/cs_ci_usolve.c    Source/cs_cl_usolve.c \
++	Source/cs_util.c      Source/cs_dl_util.c      Source/cs_ci_util.c      Source/cs_cl_util.c \
++	Source/cs_utsolve.c   Source/cs_dl_utsolve.c   Source/cs_ci_utsolve.c   Source/cs_cl_utsolve.c \
++	Source/cxsparse_version.c
++objects = $(sources:.c=.o)
++archive = CXSparse.a
++
++PKG_CPPFLAGS = -I./Include -I../SuiteSparse_config
++
++all : $(archive)
++
++$(archive) : $(objects)
++	rm -f $@
++	$(AR) -cr $@ $(objects)
++	$(RANLIB) $@
++
++.c.o :
++	$(CC) $(PKG_CPPFLAGS) $(CPPFLAGS) $(CFLAGS) -c $< -o $*.o
++
++clean :
++	@rm -f $(objects) $(archive)
+diff -ruN src/SuiteSparse/CXSparse/Source/cs_multiply.c src/SuiteSparse-patched/CXSparse/Source/cs_multiply.c
+--- src/SuiteSparse/CXSparse/Source/cs_multiply.c	2024-01-10 19:08:51
++++ src/SuiteSparse-patched/CXSparse/Source/cs_multiply.c	2024-01-12 11:54:13
+@@ -20,7 +20,8 @@
+     Cp = C->p ;
+     for (j = 0 ; j < n ; j++)
+     {
+-        if (nz + m > C->nzmax && !cs_sprealloc (C, 2*(C->nzmax)+m))
++        if (C->nzmax > (CS_INT_MAX - m) / 2 || /* 2*(C->nzmax)+m overflows */
++            (nz + m > C->nzmax && !cs_sprealloc (C, 2*(C->nzmax)+m)))
+         {
+             return (cs_done (C, w, x, 0)) ;             /* out of memory */
+         } 
+diff -ruN src/SuiteSparse/CXSparse/Source/cs_print.c src/SuiteSparse-patched/CXSparse/Source/cs_print.c
+--- src/SuiteSparse/CXSparse/Source/cs_print.c	2024-01-10 19:08:51
++++ src/SuiteSparse-patched/CXSparse/Source/cs_print.c	2024-01-12 11:54:13
+@@ -2,52 +2,54 @@
+ // CXSparse, Copyright (c) 2006-2022, Timothy A. Davis. All Rights Reserved.
+ // SPDX-License-Identifier: LGPL-2.1+
+ #include "cs.h"
++#include <R_ext/Print.h>
++
+ /* print a sparse matrix; use %g for integers to avoid differences with CS_INT */
+ CS_INT cs_print (const cs *A, CS_INT brief)
+ {
+     CS_INT p, j, m, n, nzmax, nz, *Ap, *Ai ;
+     CS_ENTRY *Ax ;
+-    if (!A) { printf ("(null)\n") ; return (0) ; }
++    if (!A) { Rprintf ("(null)\n") ; return (0) ; }
+     m = A->m ; n = A->n ; Ap = A->p ; Ai = A->i ; Ax = A->x ;
+     nzmax = A->nzmax ; nz = A->nz ;
+-    printf ("CXSparse Version %d.%d.%d, %s.  %s\n", CS_VER, CS_SUBVER,
++    Rprintf ("CXSparse Version %d.%d.%d, %s.  %s\n", CS_VER, CS_SUBVER,
+         CS_SUBSUB, CS_DATE, CS_COPYRIGHT) ;
+     if (nz < 0)
+     {
+-        printf ("%g-by-%g, nzmax: %g nnz: %g, 1-norm: %g\n", (double) m,
++        Rprintf ("%g-by-%g, nzmax: %g nnz: %g, 1-norm: %g\n", (double) m,
+             (double) n, (double) nzmax, (double) (Ap [n]), cs_norm (A)) ;
+         for (j = 0 ; j < n ; j++)
+         {
+-            printf ("    col %g : locations %g to %g\n", (double) j, 
++            Rprintf ("    col %g : locations %g to %g\n", (double) j, 
+                 (double) (Ap [j]), (double) (Ap [j+1]-1)) ;
+             for (p = Ap [j] ; p < Ap [j+1] ; p++)
+             {
+-                printf ("      %g : ", (double) (Ai [p])) ;
++                Rprintf ("      %g : ", (double) (Ai [p])) ;
+ #ifdef CS_COMPLEX
+-                printf ("(%g, %g)\n",
++                Rprintf ("(%g, %g)\n",
+                     Ax ? CS_REAL (Ax [p]) : 1, Ax ? CS_IMAG (Ax [p]) : 0) ;
+ #else
+-                printf ("%g\n", Ax ? Ax [p] : 1) ;
++                Rprintf ("%g\n", Ax ? Ax [p] : 1) ;
+ #endif
+-                if (brief && p > 20) { printf ("  ...\n") ; return (1) ; }
++                if (brief && p > 20) { Rprintf ("  ...\n") ; return (1) ; }
+             }
+         }
+     }
+     else
+     {
+-        printf ("triplet: %g-by-%g, nzmax: %g nnz: %g\n", (double) m,
++        Rprintf ("triplet: %g-by-%g, nzmax: %g nnz: %g\n", (double) m,
+             (double) n, (double) nzmax, (double) nz) ;
+         for (p = 0 ; p < nz ; p++)
+         {
+ 
+-            printf ("    %g %g : ", (double) (Ai [p]), (double) (Ap [p])) ;
++            Rprintf ("    %g %g : ", (double) (Ai [p]), (double) (Ap [p])) ;
+ #ifdef CS_COMPLEX
+-            printf ("(%g, %g)\n",
++            Rprintf ("(%g, %g)\n",
+                 Ax ? CS_REAL (Ax [p]) : 1, Ax ? CS_IMAG (Ax [p]) : 0) ;
+ #else
+-            printf ("%g\n", Ax ? Ax [p] : 1) ;
++            Rprintf ("%g\n", Ax ? Ax [p] : 1) ;
+ #endif
+-            if (brief && p > 20) { printf ("  ...\n") ; return (1) ; }
++            if (brief && p > 20) { Rprintf ("  ...\n") ; return (1) ; }
+         }
+     }
+     return (1) ;
+diff -ruN src/SuiteSparse/CXSparse/Source/cs_randperm.c src/SuiteSparse-patched/CXSparse/Source/cs_randperm.c
+--- src/SuiteSparse/CXSparse/Source/cs_randperm.c	2024-01-10 19:08:51
++++ src/SuiteSparse-patched/CXSparse/Source/cs_randperm.c	2024-01-12 11:54:13
+@@ -2,6 +2,8 @@
+ // CXSparse, Copyright (c) 2006-2022, Timothy A. Davis. All Rights Reserved.
+ // SPDX-License-Identifier: LGPL-2.1+
+ #include "cs.h"
++#include <R_ext/Random.h>
++
+ /* return a random permutation vector, the identity perm, or p = n-1:-1:0.
+  * seed = -1 means p = n-1:-1:0.  seed = 0 means p = identity.  otherwise
+  * p = random permutation.  */
+@@ -13,6 +15,7 @@
+     if (!p) return (NULL) ;             /* out of memory */
+     for (k = 0 ; k < n ; k++) p [k] = n-k-1 ;
+     if (seed == -1) return (p) ;        /* return reverse permutation */
++    GetRNGstate();
+     srand (seed) ;                      /* get new random number seed */
+     for (k = 0 ; k < n ; k++)
+     {
+@@ -21,5 +24,6 @@
+         p [j] = p [k] ;
+         p [k] = t ;
+     }
++    PutRNGstate();
+     return (p) ;
+ }

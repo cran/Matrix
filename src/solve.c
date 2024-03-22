@@ -773,8 +773,12 @@ SEXP CHMfactor_solve(SEXP a, SEXP b, SEXP sparse, SEXP system)
 			X = cholmod_spsolve(ivalid, L, B, &c);
 			cholmod_free_sparse(&B, &c);
 			if (X && ivalid < 7) {
-				X->stype = (ivalid == 2 || ivalid == 4) ? -1 : 1;
-				cholmod_sort(X, &c);
+				if (!X->sorted)
+					cholmod_sort(X, &c);
+				B = cholmod_copy(X,
+					(ivalid == 2 || ivalid == 4) ? -1 : 1, 1, &c);
+				cholmod_free_sparse(&X, &c);
+				X = B;
 			}
 			if (!X)
 				ERROR_SOLVE_OOM("CHMfactor", ".gCMatrix");

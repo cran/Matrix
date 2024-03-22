@@ -25,8 +25,9 @@
 \alias{Ops,ANY,sparseVector-method}
 \alias{Ops,sparseVector,ANY-method}
 \alias{Ops,sparseVector,Matrix-method}
-\alias{Ops,sparseVector,atomicVector-method}
 \alias{Ops,sparseVector,sparseVector-method}
+\alias{Ops,sparseVector,vector-method}
+\alias{Ops,vector,sparseVector-method}
 \alias{Summary,sparseVector-method}
 \alias{as.array,sparseVector-method}
 \alias{as.complex,sparseVector-method}
@@ -157,18 +158,15 @@
       \code{\link[=S4groupGeneric]{Ops}}).}
     \item{Summary}{\code{signature(x = "sparseVector")}: define
       all the \code{\link[=S4groupGeneric]{Summary}} methods.}
-    \item{[}{\code{signature(x = "atomicVector", i = ...)}: not only can you
-      subset (aka \emph{\dQuote{index into}}) sparseVectors \code{x[i]}
-      using sparseVectors \code{i}, but we also support efficient
-      subsetting of traditional vectors \code{x} by logical sparse
-      vectors (i.e., \code{i} of class \code{"nsparseVector"} or
-      \code{"lsparseVector"}).}
     \item{is.na, is.finite, is.infinite}{\code{(x = "sparseVector")}, and}
     \item{is.na, is.finite, is.infinite}{\code{(x = "nsparseVector")}:
       return \code{\link{logical}} or \code{"nsparseVector"} of the same
       length as \code{x}, indicating if/where \code{x} is
       \code{\link{NA}} (or \code{NaN}), finite or infinite, entirely
       analogously to the corresponding base \R functions.}
+    \item{zapsmall}{\code{signature(x = "sparseVectors")}: typically used for
+      numeric sparse vector: \code{\link{round}()} entries
+      such that (relatively) very small entries become zero exactly.}
   }
   \code{c.sparseVector()} is an S3 method for all
   \code{"sparseVector"}s, but automatic dispatch only happens for the

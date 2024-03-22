@@ -16,10 +16,11 @@ SEXP R_any0(SEXP);
 SEXP Mmatrix(SEXP);
 
 SEXP compressed_non_0_ij(SEXP, SEXP);
-
 SEXP Matrix_expand_pointers(SEXP);
-
 SEXP m_encodeInd (SEXP, SEXP, SEXP, SEXP);
 SEXP m_encodeInd2(SEXP, SEXP, SEXP, SEXP, SEXP);
+
+SEXP Matrix_rle_i(SEXP, SEXP);
+SEXP Matrix_rle_d(SEXP, SEXP);
 
 #endif /* MATRIX_UTILS_R_H */

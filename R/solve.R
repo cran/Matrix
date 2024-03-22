@@ -80,112 +80,112 @@ function(perm, margin, n) {
 
 for(.cl in c("MatrixFactorization", "triangularMatrix")) {
 
-setMethod("solve", signature(a = .cl, b = "vector"),
+setMethod("solve", c(a = .cl, b = "vector"),
           function(a, b, ...)
          drop(solve(a, .m2dense(b, ",ge"), ...)))
 
-setMethod("solve", signature(a = .cl, b = "matrix"),
+setMethod("solve", c(a = .cl, b = "matrix"),
           function(a, b, ...)
               solve(a, .m2dense(b, ",ge"), ...))
 
-setMethod("solve", signature(a = .cl, b = "denseMatrix"),
+setMethod("solve", c(a = .cl, b = "denseMatrix"),
           function(a, b, ...)
               solve(a, .M2gen(b, ","), ...))
 
-setMethod("solve", signature(a = .cl, b = "CsparseMatrix"),
+setMethod("solve", c(a = .cl, b = "CsparseMatrix"),
           function(a, b, ...)
               solve(a, .M2gen(b, ","), ...))
 
-setMethod("solve", signature(a = .cl, b = "RsparseMatrix"),
+setMethod("solve", c(a = .cl, b = "RsparseMatrix"),
           function(a, b, ...)
               solve(a, .M2gen(.M2C(b), ","), ...))
 
-setMethod("solve", signature(a = .cl, b = "TsparseMatrix"),
+setMethod("solve", c(a = .cl, b = "TsparseMatrix"),
           function(a, b, ...)
               solve(a, .M2gen(.M2C(b), ","), ...))
 
-setMethod("solve", signature(a = .cl, b = "diagonalMatrix"),
+setMethod("solve", c(a = .cl, b = "diagonalMatrix"),
           function(a, b, ...)
               solve(a, .diag2sparse(b, ",", "g", "C"), ...))
 
-setMethod("solve", signature(a = .cl, b = "indMatrix"),
+setMethod("solve", c(a = .cl, b = "indMatrix"),
           function(a, b, ...)
               solve(a, .ind2sparse(b, ","), ...))
 
-setMethod("solve", signature(a = .cl, b = "dgeMatrix"),
+setMethod("solve", c(a = .cl, b = "dgeMatrix"),
           function(a, b, ...)
               solve(a, .dense2sparse(b, "C"), ...))
 
-setMethod("solve", signature(a = .cl, b = "dgCMatrix"),
+setMethod("solve", c(a = .cl, b = "dgCMatrix"),
           function(a, b, ...)
               solve(a, .sparse2dense(b, FALSE), ...))
 
 }
 rm(.cl)
 
-setMethod("solve", signature(a = "denseLU", b = "missing"),
+setMethod("solve", c(a = "denseLU", b = "missing"),
           function(a, b, ...)
               .Call(denseLU_solve, a, NULL))
 
-setMethod("solve", signature(a = "denseLU", b = "dgeMatrix"),
+setMethod("solve", c(a = "denseLU", b = "dgeMatrix"),
           function(a, b, ...)
               .Call(denseLU_solve, a, b))
 
 for(.cl in c("BunchKaufman", "pBunchKaufman")) {
-setMethod("solve", signature(a = .cl, b = "missing"),
+setMethod("solve", c(a = .cl, b = "missing"),
           function(a, b, ...)
               .Call(BunchKaufman_solve, a, NULL))
 
-setMethod("solve", signature(a = .cl, b = "dgeMatrix"),
+setMethod("solve", c(a = .cl, b = "dgeMatrix"),
           function(a, b, ...)
               .Call(BunchKaufman_solve, a, b))
 }
 rm(.cl)
 
 for(.cl in c("Cholesky", "pCholesky")) {
-setMethod("solve", signature(a = .cl, b = "missing"),
+setMethod("solve", c(a = .cl, b = "missing"),
           function(a, b, ...)
               .Call(Cholesky_solve, a, NULL))
 
-setMethod("solve", signature(a = .cl, b = "dgeMatrix"),
+setMethod("solve", c(a = .cl, b = "dgeMatrix"),
           function(a, b, ...)
               .Call(Cholesky_solve, a, b))
 }
 rm(.cl)
 
-setMethod("solve", signature(a = "sparseLU", b = "missing"),
+setMethod("solve", c(a = "sparseLU", b = "missing"),
           function(a, b, tol = .Machine$double.eps, sparse = TRUE, ...) {
               .solve.checkCondBound(a@U, tol)
               .Call(sparseLU_solve, a, NULL, sparse)
           })
 
-setMethod("solve", signature(a = "sparseLU", b = "dgeMatrix"),
+setMethod("solve", c(a = "sparseLU", b = "dgeMatrix"),
           function(a, b, tol = .Machine$double.eps, ...) {
               .solve.checkCondBound(a@U, tol)
               .Call(sparseLU_solve, a, b, FALSE)
           })
 
-setMethod("solve", signature(a = "sparseLU", b = "dgCMatrix"),
+setMethod("solve", c(a = "sparseLU", b = "dgCMatrix"),
           function(a, b, tol = .Machine$double.eps, ...) {
               .solve.checkCondBound(a@U, tol)
               .Call(sparseLU_solve, a, b, TRUE)
           })
 
-setMethod("solve", signature(a = "sparseQR", b = "missing"),
+setMethod("solve", c(a = "sparseQR", b = "missing"),
           function(a, b, sparse = TRUE, ...) {
               r <- qr.coef(a, diag(a@Dim[2L]))
               if(is.na(sparse) || sparse) .dense2sparse(r, "C") else r
           })
 
-setMethod("solve", signature(a = "sparseQR", b = "dgeMatrix"),
+setMethod("solve", c(a = "sparseQR", b = "dgeMatrix"),
           function(a, b, ...)
               qr.coef(a, b))
 
-setMethod("solve", signature(a = "sparseQR", b = "dgCMatrix"),
+setMethod("solve", c(a = "sparseQR", b = "dgCMatrix"),
           function(a, b, ...)
               .dense2sparse(qr.coef(a, .sparse2dense(b, FALSE)), "C"))
 
-setMethod("solve", signature(a = "CHMfactor", b = "missing"),
+setMethod("solve", c(a = "CHMfactor", b = "missing"),
           function(a, b, sparse = TRUE,
                    system = c("A","LDLt","LD","DLt","L","Lt","D","P","Pt"), ...) {
               if((is.na(sparse) || sparse) && !missing(system)) {
@@ -211,24 +211,24 @@ setMethod("solve", signature(a = "CHMfactor", b = "missing"),
               .Call(CHMfactor_solve, a, NULL, sparse, system)
           })
 
-setMethod("solve", signature(a = "CHMfactor", b = "dgeMatrix"),
+setMethod("solve", c(a = "CHMfactor", b = "dgeMatrix"),
           function(a, b,
                    system = c("A","LDLt","LD","DLt","L","Lt","D","P","Pt"), ...)
               .Call(CHMfactor_solve, a, b, FALSE, system))
 
-setMethod("solve", signature(a = "CHMfactor", b = "dgCMatrix"),
+setMethod("solve", c(a = "CHMfactor", b = "dgCMatrix"),
           function(a, b,
                    system = c("A","LDLt","LD","DLt","L","Lt","D","P","Pt"), ...)
               .Call(CHMfactor_solve, a, b, TRUE, system))
 
 for(.cl in c("dtrMatrix", "dtpMatrix")) {
-setMethod("solve", signature(a = .cl, b = "missing"),
+setMethod("solve", c(a = .cl, b = "missing"),
           function(a, b, tol = .Machine$double.eps, ...) {
               .solve.checkCond(a, tol)
               .Call(dtrMatrix_solve, a, NULL)
           })
 
-setMethod("solve", signature(a = .cl, b = "dgeMatrix"),
+setMethod("solve", c(a = .cl, b = "dgeMatrix"),
           function(a, b, tol = .Machine$double.eps, ...) {
               .solve.checkCond(a, tol)
               .Call(dtrMatrix_solve, a, b)
@@ -236,14 +236,14 @@ setMethod("solve", signature(a = .cl, b = "dgeMatrix"),
 }
 rm(.cl)
 
-setMethod("solve", signature(a = "dtCMatrix", b = "missing"),
+setMethod("solve", c(a = "dtCMatrix", b = "missing"),
           function(a, b, sparse = TRUE, ...) {
               if(a@diag != "N")
                   a <- ..diagU2N(a)
               .Call(dtCMatrix_solve, a, NULL, sparse)
           })
 
-setMethod("solve", signature(a = "dtCMatrix", b = "dgeMatrix"),
+setMethod("solve", c(a = "dtCMatrix", b = "dgeMatrix"),
           function(a, b, sparse = FALSE, ...) {
               if(a@diag != "N")
                   a <- ..diagU2N(a)
@@ -252,7 +252,7 @@ setMethod("solve", signature(a = "dtCMatrix", b = "dgeMatrix"),
               .Call(dtCMatrix_solve, a, b, sparse)
           })
 
-setMethod("solve", signature(a = "dtCMatrix", b = "dgCMatrix"),
+setMethod("solve", c(a = "dtCMatrix", b = "dgCMatrix"),
           function(a, b, sparse = TRUE, ...) {
               if(a@diag != "N")
                   a <- ..diagU2N(a)
@@ -262,7 +262,7 @@ setMethod("solve", signature(a = "dtCMatrix", b = "dgCMatrix"),
           })
 
 for(.cl in c("dtrMatrix", "dtpMatrix", "dtCMatrix"))
-setMethod("solve", signature(a = .cl, b = "triangularMatrix"),
+setMethod("solve", c(a = .cl, b = "triangularMatrix"),
           function(a, b, ...) {
               r <- solve(a, .M2gen(b), ...)
               if(a@uplo == b@uplo) {
@@ -275,7 +275,7 @@ setMethod("solve", signature(a = .cl, b = "triangularMatrix"),
 rm(.cl)
 
 ## MJ: truly an exceptional case ...
-setMethod("solve", signature(a = "Schur", b = "ANY"),
+setMethod("solve", c(a = "Schur", b = "ANY"),
           function(a, b, ...) {
               Q <- a@Q
               T <- a@T
@@ -298,13 +298,13 @@ setMethod("solve", signature(a = "Schur", b = "ANY"),
 ##  2. denseMatrix excl. triangularMatrix
 ########################################################################
 
-setMethod("solve", signature(a = "denseMatrix", b = "ANY"),
+setMethod("solve", c(a = "denseMatrix", b = "ANY"),
           function(a, b, ...) {
               a <- .M2kind(a, ",")
               if(missing(b)) solve(a, ...) else solve(a, b, ...)
           })
 
-setMethod("solve", signature(a = "dgeMatrix", b = "ANY"),
+setMethod("solve", c(a = "dgeMatrix", b = "ANY"),
           function(a, b, tol = .Machine$double.eps, ...) {
               d <- a@Dim
               .solve.checkDim1(d[1L], d[2L])
@@ -314,7 +314,7 @@ setMethod("solve", signature(a = "dgeMatrix", b = "ANY"),
           })
 
 for(.cl in c("dsyMatrix", "dspMatrix"))
-setMethod("solve", signature(a = .cl, b = "ANY"),
+setMethod("solve", c(a = .cl, b = "ANY"),
           function(a, b, tol = .Machine$double.eps, ...) {
               .solve.checkCond(a, tol)
               trf <- BunchKaufman(a, warnSing = FALSE)
@@ -323,7 +323,7 @@ setMethod("solve", signature(a = .cl, b = "ANY"),
 rm(.cl)
 
 for(.cl in c("dpoMatrix", "dppMatrix"))
-setMethod("solve", signature(a = .cl, b = "ANY"),
+setMethod("solve", c(a = .cl, b = "ANY"),
           function(a, b, tol = .Machine$double.eps, ...) {
               .solve.checkCond(a, tol)
               trf <- Cholesky(a, perm = FALSE)
@@ -336,25 +336,25 @@ rm(.cl)
 ##  3. CsparseMatrix excl. triangularMatrix
 ########################################################################
 
-setMethod("solve", signature(a = "CsparseMatrix", b = "ANY"),
+setMethod("solve", c(a = "CsparseMatrix", b = "ANY"),
           function(a, b, ...) {
               a <- .M2kind(a, ",")
               if(missing(b)) solve(a, ...) else solve(a, b, ...)
           })
 
-setMethod("solve", signature(a = "dgCMatrix", b = "missing"),
+setMethod("solve", c(a = "dgCMatrix", b = "missing"),
           function(a, b, sparse = TRUE, ...) {
               trf <- lu(a, errSing = TRUE)
               solve(trf, sparse = sparse, ...)
           })
 
-setMethod("solve", signature(a = "dgCMatrix", b = "vector"),
+setMethod("solve", c(a = "dgCMatrix", b = "vector"),
           function(a, b, ...) {
               trf <- lu(a, errSing = TRUE)
               solve(trf, b, ...)
           })
 
-setMethod("solve", signature(a = "dgCMatrix", b = "matrix"),
+setMethod("solve", c(a = "dgCMatrix", b = "matrix"),
           function(a, b, sparse = FALSE, ...) {
               trf <- lu(a, errSing = TRUE)
               if(is.na(sparse) || sparse)
@@ -362,7 +362,7 @@ setMethod("solve", signature(a = "dgCMatrix", b = "matrix"),
               solve(trf, b, ...)
           })
 
-setMethod("solve", signature(a = "dgCMatrix", b = "denseMatrix"),
+setMethod("solve", c(a = "dgCMatrix", b = "denseMatrix"),
           function(a, b, sparse = FALSE, ...) {
               trf <- lu(a, errSing = TRUE)
               if(is.na(sparse) || sparse)
@@ -370,7 +370,7 @@ setMethod("solve", signature(a = "dgCMatrix", b = "denseMatrix"),
               solve(trf, b, ...)
           })
 
-setMethod("solve", signature(a = "dgCMatrix", b = "sparseMatrix"),
+setMethod("solve", c(a = "dgCMatrix", b = "sparseMatrix"),
           function(a, b, sparse = TRUE, ...) {
               trf <- lu(a, errSing = TRUE)
               if(!(is.na(sparse) || sparse))
@@ -378,7 +378,7 @@ setMethod("solve", signature(a = "dgCMatrix", b = "sparseMatrix"),
               solve(trf, b, ...)
           })
 
-setMethod("solve", signature(a = "dsCMatrix", b = "missing"),
+setMethod("solve", c(a = "dsCMatrix", b = "missing"),
           function(a, b, sparse = TRUE, ...) {
               trf <- tryCatch(
                   Cholesky(a, perm = TRUE, LDL = TRUE, super = FALSE),
@@ -386,7 +386,7 @@ setMethod("solve", signature(a = "dsCMatrix", b = "missing"),
               solve(trf, sparse = sparse, ...)
           })
 
-setMethod("solve", signature(a = "dsCMatrix", b = "vector"),
+setMethod("solve", c(a = "dsCMatrix", b = "vector"),
           function(a, b, ...) {
               trf <- tryCatch(
                   Cholesky(a, perm = TRUE, LDL = TRUE, super = FALSE),
@@ -394,7 +394,7 @@ setMethod("solve", signature(a = "dsCMatrix", b = "vector"),
               solve(trf, b, ...)
           })
 
-setMethod("solve", signature(a = "dsCMatrix", b = "matrix"),
+setMethod("solve", c(a = "dsCMatrix", b = "matrix"),
           function(a, b, sparse = FALSE, ...) {
               trf <- tryCatch(
                   Cholesky(a, perm = TRUE, LDL = TRUE, super = FALSE),
@@ -404,7 +404,7 @@ setMethod("solve", signature(a = "dsCMatrix", b = "matrix"),
               solve(trf, b, ...)
           })
 
-setMethod("solve", signature(a = "dsCMatrix", b = "denseMatrix"),
+setMethod("solve", c(a = "dsCMatrix", b = "denseMatrix"),
           function(a, b, sparse = FALSE, ...) {
               trf <- tryCatch(
                   Cholesky(a, perm = TRUE, LDL = TRUE, super = FALSE),
@@ -414,7 +414,7 @@ setMethod("solve", signature(a = "dsCMatrix", b = "denseMatrix"),
               solve(trf, b, ...)
           })
 
-setMethod("solve", signature(a = "dsCMatrix", b = "sparseMatrix"),
+setMethod("solve", c(a = "dsCMatrix", b = "sparseMatrix"),
           function(a, b, sparse = TRUE, ...) {
               trf <- tryCatch(
                   Cholesky(a, perm = TRUE, LDL = TRUE, super = FALSE),
@@ -436,7 +436,7 @@ setMethod("solve", signature(a = "dsCMatrix", b = "sparseMatrix"),
 ##       A x = b  <==================>  x = P1' inv(L') inv(U') P2' b
 ##
 
-setMethod("solve", signature(a = "RsparseMatrix", b = "ANY"),
+setMethod("solve", c(a = "RsparseMatrix", b = "ANY"),
           function(a, b, ...) {
               a <- .M2kind(.M2C(a), ",")
               if(missing(b)) solve(a, ...) else solve(a, b, ...)
@@ -447,7 +447,7 @@ setMethod("solve", signature(a = "RsparseMatrix", b = "ANY"),
 ##  5. TsparseMatrix excl. triangularMatrix
 ########################################################################
 
-setMethod("solve", signature(a = "TsparseMatrix", b = "ANY"),
+setMethod("solve", c(a = "TsparseMatrix", b = "ANY"),
           function(a, b, ...) {
               a <- .M2kind(.M2C(a), ",")
               if(missing(b)) solve(a, ...) else solve(a, b, ...)
@@ -458,13 +458,13 @@ setMethod("solve", signature(a = "TsparseMatrix", b = "ANY"),
 ##  6. diagonalMatrix
 ########################################################################
 
-setMethod("solve", signature(a = "diagonalMatrix", b = "ANY"),
+setMethod("solve", c(a = "diagonalMatrix", b = "ANY"),
           function(a, b, ...) {
               a <- .M2kind(a, ",")
               if(missing(b)) solve(a, ...) else solve(a, b, ...)
           })
 
-setMethod("solve", signature(a = "ddiMatrix", b = "missing"),
+setMethod("solve", c(a = "ddiMatrix", b = "missing"),
           function(a, b, ...) {
               if(a@diag == "N") {
                   x <- a@x
@@ -475,7 +475,7 @@ setMethod("solve", signature(a = "ddiMatrix", b = "missing"),
               a
           })
 
-setMethod("solve", signature(a = "ddiMatrix", b = "vector"),
+setMethod("solve", c(a = "ddiMatrix", b = "vector"),
           function(a, b, ...) {
               m <- length(b)
               .solve.checkDim2(a@Dim[1L], m)
@@ -489,7 +489,7 @@ setMethod("solve", signature(a = "ddiMatrix", b = "vector"),
               r
           })
 
-setMethod("solve", signature(a = "ddiMatrix", b = "matrix"),
+setMethod("solve", c(a = "ddiMatrix", b = "matrix"),
           function(a, b, ...) {
               d <- dim(b)
               .solve.checkDim2(a@Dim[1L], d[1L])
@@ -507,7 +507,7 @@ setMethod("solve", signature(a = "ddiMatrix", b = "matrix"),
               r
           })
 
-setMethod("solve", signature(a = "ddiMatrix", b = "Matrix"),
+setMethod("solve", c(a = "ddiMatrix", b = "Matrix"),
           function(a, b, ...) {
               .solve.checkDim2(a@Dim[1L], b@Dim[1L])
               if(a@diag == "N") {
@@ -524,7 +524,7 @@ setMethod("solve", signature(a = "ddiMatrix", b = "Matrix"),
 ##  7. indMatrix
 ########################################################################
 
-setMethod("solve", signature(a = "indMatrix", b = "ANY"),
+setMethod("solve", c(a = "indMatrix", b = "ANY"),
           function(a, b, ...) {
               d <- a@Dim
               .solve.checkDim1(d[1L], d[2L])
@@ -539,14 +539,14 @@ setMethod("solve", signature(a = "indMatrix", b = "ANY"),
               if(missing(b)) solve(p, ...) else solve(p, b, ...)
           })
 
-setMethod("solve", signature(a = "pMatrix", b = "missing"),
+setMethod("solve", c(a = "pMatrix", b = "missing"),
           function(a, b, ...) {
               a@Dimnames <- a@Dimnames[2:1]
               a@margin <- if(a@margin == 1L) 2L else 1L
               a
           })
 
-setMethod("solve", signature(a = "pMatrix", b = "vector"),
+setMethod("solve", c(a = "pMatrix", b = "vector"),
           function(a, b, ...) {
               m <- length(b)
               .solve.checkDim2(a@Dim[1L], m)
@@ -556,7 +556,7 @@ setMethod("solve", signature(a = "pMatrix", b = "vector"),
               r
           })
 
-setMethod("solve", signature(a = "pMatrix", b = "matrix"),
+setMethod("solve", c(a = "pMatrix", b = "matrix"),
           function(a, b, ...) {
               d <- dim(b)
               .solve.checkDim2(a@Dim[1L], d[1L])
@@ -570,7 +570,7 @@ setMethod("solve", signature(a = "pMatrix", b = "matrix"),
               r
           })
 
-setMethod("solve", signature(a = "pMatrix", b = "Matrix"),
+setMethod("solve", c(a = "pMatrix", b = "Matrix"),
           function(a, b, ...) {
               .solve.checkDim2(a@Dim[1L], b@Dim[1L])
               perm <- if(a@margin == 1L) invertPerm(a@perm) else a@perm
@@ -622,19 +622,19 @@ setMethod("solve", signature(a = "pMatrix", b = "Matrix"),
     r
 }
 
-setMethod("solve", signature(a = "Matrix", b = "sparseVector"),
+setMethod("solve", c(a = "Matrix", b = "sparseVector"),
           function(a, b, ...)
               solve(a, .spV2dgC(b), ...)) # FIXME? drop(.)?
 
-setMethod("solve", signature(a = "MatrixFactorization", b = "sparseVector"),
+setMethod("solve", c(a = "MatrixFactorization", b = "sparseVector"),
           function(a, b, ...)
               solve(a, .spV2dgC(b), ...)) # FIXME? drop(.)?
 
-setMethod("solve", signature(a = "matrix", b = "Matrix"),
+setMethod("solve", c(a = "matrix", b = "Matrix"),
           function(a, b, ...)
               solve(.m2dense(a, ",ge"), b, ...))
 
-setMethod("solve", signature(a = "matrix", b = "sparseVector"),
+setMethod("solve", c(a = "matrix", b = "sparseVector"),
           function(a, b, ...)
               solve(.m2dense(a, ",ge"), .spV2dge(b), ...)) # FIXME? drop(.)?
 

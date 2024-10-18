@@ -10,7 +10,7 @@ sslib7 = $(ssdir)/SuiteSparse_config/SuiteSparse_config.a
 
 ssenv = \
 	CC="$(CC)" \
-	CPPFLAGS="$(CPPFLAGS) -I\"$(R_INCLUDE_DIR)\" -DNDEBUG -DNPRINT -DNTIMER" \
+	CPPFLAGS="$(CPPFLAGS) -I\"$(R_INCLUDE_DIR)\" -I\"$(R_INCLUDE_DIR)$(R_ARCH)\" -DNDEBUG -DNPRINT -DNTIMER" \
 	CFLAGS="$(CFLAGS) $(CPICFLAGS) $(C_VISIBILITY)" \
 	AR="$(AR)" \
 	RANLIB="$(RANLIB)"

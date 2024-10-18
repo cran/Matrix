@@ -55,6 +55,7 @@ void gk_set_exit_on_error(int value)
 
 
 
+#if 0
 /*************************************************************************/
 /*! This function prints an error message and exits  
  */
@@ -96,6 +97,7 @@ void gk_errexit(int signum, char *f_str,...)
   if (gk_exit_on_error)
     raise(signum);
 }
+#endif
 
 
 /***************************************************************************/

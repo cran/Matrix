@@ -102,8 +102,7 @@ SEXP R_DimNames_fixup(SEXP dimnames)
 			PROTECT(s = asCharacterFactor(s));
 		else {
 			PROTECT(s = coerceVector(s, STRSXP));
-			SET_ATTRIB(s, R_NilValue);
-			SET_OBJECT(s, 0);
+			CLEAR_ATTRIB(s);
 		}
 		SET_VECTOR_ELT(dimnames_, i, s);
 		UNPROTECT(1); /* s */

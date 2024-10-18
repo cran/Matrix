@@ -2,6 +2,21 @@
 #include "Mdefines.h"
 #include "utils.h"
 
+#if R_VERSION < R_Version(4, 5, 0)
+int ANY_ATTRIB(SEXP x)
+{
+	return ATTRIB(x) != R_NilValue;
+}
+
+void CLEAR_ATTRIB(SEXP x)
+{
+	SET_ATTRIB(x, R_NilValue);
+	SET_OBJECT(x, 0);
+	UNSET_S4_OBJECT(x);
+	return;
+}
+#endif
+
 /* memset() but passing length and size rather than their product
    which can overflow size_t ... hence _safer_ than Memzero()
 */

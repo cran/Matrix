@@ -163,7 +163,7 @@ static int print_value
 
     for (width = 6 ; width < 20 ; width++)
     {
-        sprintf (s, "%.*g", width, x) ;
+        snprintf (s, MAXLINE, "%.*g", width, x) ;
         sscanf (s, "%lg", &y) ;
         if (x == y) break ;
     }

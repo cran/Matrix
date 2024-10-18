@@ -207,7 +207,7 @@ Rcomplex Matrix_zzero, Matrix_zone, Matrix_zna; /* 0+0i, 1+0i, NA+NAi */
 
 #define ERROR_INVALID_CLASS(_X_, _FUNC_) \
 do { \
-	if (!OBJECT(_X_)) \
+	if (!Rf_isObject(_X_)) \
 		ERROR_INVALID_TYPE(_X_, _FUNC_); \
 	else { \
 		SEXP class = PROTECT(getAttrib(_X_, R_ClassSymbol)); \

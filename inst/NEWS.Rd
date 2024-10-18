@@ -4,6 +4,33 @@
 \title{News for \R{} Package \pkg{Matrix}}
 \encoding{UTF-8}
 %% NB: The date (yyyy-mm-dd) is the "Packaged: " date in ../DESCRIPTION
+\section{Changes in version 1.7-1 (2024-10-17 r4948)}{
+  \subsection{Bug Fixes}{
+    \itemize{
+      \item Installation under architecture-specific builds of \R{}
+      works again.  It was broken in version 1.7-0, where changes to
+      \file{src/Makevars} resulted in \env{CPPFLAGS} not including
+      \option{-I"${R_INCLUDE_DIR}${R_ARCH}"}.
+    }
+  }
+  \subsection{Misc}{
+    \itemize{
+      \item Registered routine \code{sexp_as_cholmod_factor} no
+      longer calls \code{cholmod_check_factor} before returning,
+      leaving the decision to check to the caller.  Accordingly,
+      most \code{cholmod_check_*} are now registered, though packages
+      calling them must use \code{LinkingTo: Matrix (>= 1.7-1)}.
+
+      \item Internal SuiteSparse and METIS libraries are further
+      patched to avoid possible use of illegal entry points.
+
+      \item Non-API entry points \code{OBJECT}, \code{IS_S4_OBJECT},
+      \code{SET_OBJECT}, \code{ATTRIB}, and \code{SET_ATTRIB} are no
+      longer used.
+    }
+  }
+}
+
 \section{Changes in version 1.7-0 (2024-03-16 r4662)}{
   \subsection{Significant User-Visible Changes}{
     \itemize{

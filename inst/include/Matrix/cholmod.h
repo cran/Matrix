@@ -4187,6 +4187,8 @@ R_MATRIX_INLINE CHM_SP R_MATRIX_CHOLMOD(add)(
 	CHM_SP, CHM_SP, double[2], double[2], int, int, CHM_CM);
 R_MATRIX_INLINE CHM_DN R_MATRIX_CHOLMOD(allocate_dense)(
 	size_t, size_t, size_t, int, CHM_CM);
+R_MATRIX_INLINE CHM_FR R_MATRIX_CHOLMOD(allocate_factor)(
+	size_t, CHM_CM);
 R_MATRIX_INLINE CHM_SP R_MATRIX_CHOLMOD(allocate_sparse)(
 	size_t, size_t, size_t, int, int, int, int, CHM_CM);
 R_MATRIX_INLINE CHM_TR R_MATRIX_CHOLMOD(allocate_triplet)(
@@ -4199,6 +4201,16 @@ R_MATRIX_INLINE    int R_MATRIX_CHOLMOD(band_inplace)(
 	int, int, int, CHM_SP, CHM_CM);
 R_MATRIX_INLINE    int R_MATRIX_CHOLMOD(change_factor)(
 	int, int, int, int, int, CHM_FR, CHM_CM);
+R_MATRIX_INLINE    int R_MATRIX_CHOLMOD(check_common)(
+	CHM_CM);
+R_MATRIX_INLINE    int R_MATRIX_CHOLMOD(check_dense)(
+	CHM_DN, CHM_CM);
+R_MATRIX_INLINE    int R_MATRIX_CHOLMOD(check_factor)(
+	CHM_FR, CHM_CM);
+R_MATRIX_INLINE    int R_MATRIX_CHOLMOD(check_sparse)(
+	CHM_SP, CHM_CM);
+R_MATRIX_INLINE    int R_MATRIX_CHOLMOD(check_triplet)(
+	CHM_TR, CHM_CM);
 R_MATRIX_INLINE CHM_SP R_MATRIX_CHOLMOD(copy)(
 	CHM_SP, int, int, CHM_CM);
 R_MATRIX_INLINE CHM_DN R_MATRIX_CHOLMOD(copy_dense)(
@@ -4207,6 +4219,8 @@ R_MATRIX_INLINE CHM_FR R_MATRIX_CHOLMOD(copy_factor)(
 	CHM_FR, CHM_CM);
 R_MATRIX_INLINE CHM_SP R_MATRIX_CHOLMOD(copy_sparse)(
 	CHM_SP, CHM_CM);
+R_MATRIX_INLINE CHM_TR R_MATRIX_CHOLMOD(copy_triplet)(
+	CHM_TR, CHM_CM);
 R_MATRIX_INLINE    int R_MATRIX_CHOLMOD(defaults)(
 	CHM_CM);
 R_MATRIX_INLINE CHM_SP R_MATRIX_CHOLMOD(dense_to_sparse)(
@@ -4229,6 +4243,8 @@ R_MATRIX_INLINE    int R_MATRIX_CHOLMOD(free_sparse)(
 	CHM_SP *, CHM_CM);
 R_MATRIX_INLINE    int R_MATRIX_CHOLMOD(free_triplet)(
 	CHM_TR *, CHM_CM);
+R_MATRIX_INLINE CHM_SP R_MATRIX_CHOLMOD(horzcat)(
+	CHM_SP, CHM_SP, int, CHM_CM);
 R_MATRIX_INLINE    int R_MATRIX_CHOLMOD(nnz)(
 	CHM_SP, CHM_CM);
 R_MATRIX_INLINE    int R_MATRIX_CHOLMOD(scale)(

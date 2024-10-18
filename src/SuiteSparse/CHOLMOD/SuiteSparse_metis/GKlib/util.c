@@ -17,6 +17,7 @@
 
 
 #include "GKlib.h"
+#include <R_ext/Random.h>
 
 
 
@@ -35,11 +36,13 @@ void gk_RandomPermute(size_t n, int *p, int flag)
       p[i] = i;
   }
 
+  GetRNGstate();
   for (i=0; i<n/2; i++) {
     v = RandomInRange(n);
     u = RandomInRange(n);
     gk_SWAP(p[v], p[u], tmp);
   }
+  PutRNGstate();
 }
 
 

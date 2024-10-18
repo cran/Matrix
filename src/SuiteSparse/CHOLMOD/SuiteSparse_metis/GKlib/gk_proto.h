@@ -135,8 +135,10 @@ void gk_showcorruption(pdbf *p);
  * error.c
  *-------------------------------------------------------------*/
 void gk_set_exit_on_error(int value);
+#if 0
 void errexit(char *,...);
 void gk_errexit(int signum, char *,...);
+#endif
 // int gk_sigtrap();
    int gk_sigtrap(void);
 // int gk_siguntrap();

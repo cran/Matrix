@@ -194,7 +194,7 @@ exportMethods("%&%",
               updown,
               writeMM)
 
-## From 'base'
+## From 'base'  --- several of these are  implicitGeneric
 exportMethods("!",
               "%*%",
               "+",

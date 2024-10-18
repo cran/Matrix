@@ -112,11 +112,8 @@ SEXP dense_band(SEXP from, const char *class, int a, int b)
 
 	if (ge) {
 		PROTECT(x1 = duplicate(x0));
-		if (ATTRIB(x1) != R_NilValue) {
-			SET_ATTRIB(x1, R_NilValue);
-			if (OBJECT(x1))
-				SET_OBJECT(x1, 0);
-		}
+		if (ANY_ATTRIB(x1))
+			CLEAR_ATTRIB(x1);
 		SET_SLOT(to, Matrix_xSym, x1);
 		BAND_CASES(BAND2);
 		UNPROTECT(3); /* x1, x0, to */
@@ -155,11 +152,8 @@ SEXP dense_band(SEXP from, const char *class, int a, int b)
 	} else {
 		if (sy || (tr && (class[1] == 'g' || ul0 == ul1 || n <= 1))) {
 			PROTECT(x1 = duplicate(x0));
-			if (ATTRIB(x1) != R_NilValue) {
-				SET_ATTRIB(x1, R_NilValue);
-				if (OBJECT(x1))
-					SET_OBJECT(x1, 0);
-			}
+			if (ANY_ATTRIB(x1))
+				CLEAR_ATTRIB(x1);
 		} else {
 			/* Band is "opposite" the stored triangle : */
 			PROTECT(from = dense_transpose(from, class));
@@ -188,7 +182,7 @@ SEXP dense_band(SEXP from, const char *class, int a, int b)
 /* NB: argument validation more or less copied by R_sparse_band() */
 SEXP R_dense_band(SEXP from, SEXP k1, SEXP k2)
 {
-	if (!IS_S4_OBJECT(from)) {
+	if (!isS4(from)) {
 		/* defined in ./coerce.c : */
 		SEXP matrix_as_dense(SEXP, const char *, char, char, int, int);
 		from = matrix_as_dense(from, ".ge", '\0', '\0', 0, 0);
@@ -1085,7 +1079,7 @@ int dense_is_symmetric(SEXP obj, const char *class, int checkDN)
 
 SEXP R_dense_is_symmetric(SEXP obj, SEXP checkDN)
 {
-	if (!IS_S4_OBJECT(obj)) {
+	if (!isS4(obj)) {
 		/* defined in ./coerce.c : */
 		SEXP matrix_as_dense(SEXP, const char *, char, char, int, int);
 		obj = matrix_as_dense(obj, ".ge", '\0', '\0', 0, 0);
@@ -1217,7 +1211,7 @@ int dense_is_triangular(SEXP obj, const char *class, int upper)
 
 SEXP R_dense_is_triangular(SEXP obj, SEXP upper)
 {
-	if (!IS_S4_OBJECT(obj)) {
+	if (!isS4(obj)) {
 		/* defined in ./coerce.c : */
 		SEXP matrix_as_dense(SEXP, const char *, char, char, int, int);
 		obj = matrix_as_dense(obj, ".ge", '\0', '\0', 0, 0);
@@ -1354,7 +1348,7 @@ int dense_is_diagonal(SEXP obj, const char *class)
 
 SEXP R_dense_is_diagonal(SEXP obj)
 {
-	if (!IS_S4_OBJECT(obj)) {
+	if (!isS4(obj)) {
 		/* defined in ./coerce.c : */
 		SEXP matrix_as_dense(SEXP, const char *, char, char, int, int);
 		obj = matrix_as_dense(obj, ".ge", '\0', '\0', 0, 0);

@@ -50,6 +50,16 @@ R_MATRIX_CHOLMOD(allocate_dense)(size_t nrow, size_t ncol, size_t d, int xtype,
 	return fn(nrow, ncol, d, xtype, Common);
 }
 
+R_MATRIX_INLINE CHM_FR attribute_hidden
+R_MATRIX_CHOLMOD(allocate_factor)(size_t n, CHM_CM Common)
+{
+	static CHM_FR (*fn)(size_t, CHM_CM) = NULL;
+	if (!fn)
+		fn = (CHM_FR (*)(size_t, CHM_CM))
+			R_GetCCallable("Matrix", "cholmod_allocate_factor");
+	return fn(n, Common);
+}
+
 R_MATRIX_INLINE CHM_SP attribute_hidden
 R_MATRIX_CHOLMOD(allocate_sparse)(size_t nrow, size_t ncol, size_t nzmax,
                                   int sorted, int packed, int stype, int xtype,
@@ -119,6 +129,56 @@ R_MATRIX_CHOLMOD(change_factor)(int to_xtype, int to_ll, int to_super,
 	return fn(to_xtype, to_ll, to_super, to_packed, to_monotonic, L, Common);
 }
 
+R_MATRIX_INLINE int attribute_hidden
+R_MATRIX_CHOLMOD(check_common)(CHM_CM Common)
+{
+	static int (*fn)(CHM_CM) = NULL;
+	if (!fn)
+		fn = (int (*)(CHM_CM))
+			R_GetCCallable("Matrix", "cholmod_check_common");
+	return fn(Common);
+}
+
+R_MATRIX_INLINE int attribute_hidden
+R_MATRIX_CHOLMOD(check_dense)(CHM_DN A, CHM_CM Common)
+{
+	static int (*fn)(CHM_DN, CHM_CM) = NULL;
+	if (!fn)
+		fn = (int (*)(CHM_DN, CHM_CM))
+			R_GetCCallable("Matrix", "cholmod_check_dense");
+	return fn(A, Common);
+}
+
+R_MATRIX_INLINE int attribute_hidden
+R_MATRIX_CHOLMOD(check_factor)(CHM_FR L, CHM_CM Common)
+{
+	static int (*fn)(CHM_FR, CHM_CM) = NULL;
+	if (!fn)
+		fn = (int (*)(CHM_FR, CHM_CM))
+			R_GetCCallable("Matrix", "cholmod_check_factor");
+	return fn(L, Common);
+}
+
+R_MATRIX_INLINE int attribute_hidden
+R_MATRIX_CHOLMOD(check_sparse)(CHM_SP A, CHM_CM Common)
+{
+	static int (*fn)(CHM_SP, CHM_CM) = NULL;
+	if (!fn)
+		fn = (int (*)(CHM_SP, CHM_CM))
+			R_GetCCallable("Matrix", "cholmod_check_sparse");
+	return fn(A, Common);
+}
+
+R_MATRIX_INLINE int attribute_hidden
+R_MATRIX_CHOLMOD(check_triplet)(CHM_TR T, CHM_CM Common)
+{
+	static int (*fn)(CHM_TR, CHM_CM) = NULL;
+	if (!fn)
+		fn = (int (*)(CHM_TR, CHM_CM))
+			R_GetCCallable("Matrix", "cholmod_check_triplet");
+	return fn(T, Common);
+}
+
 R_MATRIX_INLINE CHM_SP attribute_hidden
 R_MATRIX_CHOLMOD(copy)(CHM_SP A, int stype, int mode, CHM_CM Common)
 {
@@ -130,7 +190,7 @@ R_MATRIX_CHOLMOD(copy)(CHM_SP A, int stype, int mode, CHM_CM Common)
 }
 
 R_MATRIX_INLINE CHM_DN attribute_hidden
-R_MATRIX_CHOLMOD(copy_dense)(CHM_DN  A, CHM_CM Common)
+R_MATRIX_CHOLMOD(copy_dense)(CHM_DN A, CHM_CM Common)
 {
 	static CHM_DN (*fn)(CHM_DN, CHM_CM) = NULL;
 	if (!fn)
@@ -157,6 +217,16 @@ R_MATRIX_CHOLMOD(copy_sparse)(CHM_SP A, CHM_CM Common)
 		fn = (CHM_SP (*)(CHM_SP, CHM_CM))
 			R_GetCCallable("Matrix", "cholmod_copy_sparse");
 	return fn(A, Common);
+}
+
+R_MATRIX_INLINE CHM_TR attribute_hidden
+R_MATRIX_CHOLMOD(copy_triplet)(CHM_TR T, CHM_CM Common)
+{
+	static CHM_TR (*fn)(CHM_TR, CHM_CM) = NULL;
+	if (!fn)
+		fn = (CHM_TR (*)(CHM_TR, CHM_CM))
+			R_GetCCallable("Matrix", "cholmod_copy_triplet");
+	return fn(T, Common);
 }
 
 R_MATRIX_INLINE int attribute_hidden
@@ -268,6 +338,16 @@ R_MATRIX_CHOLMOD(nnz)(CHM_SP A, CHM_CM Common)
 		fn = (int (*)(CHM_SP, CHM_CM))
 			R_GetCCallable("Matrix", "cholmod_nnz");
 	return fn(A, Common);
+}
+
+R_MATRIX_INLINE CHM_SP attribute_hidden
+R_MATRIX_CHOLMOD(horzcat)(CHM_SP A, CHM_SP B, int mode, CHM_CM Common)
+{
+	static CHM_SP (*fn)(CHM_SP, CHM_SP, int, CHM_CM) = NULL;
+	if (!fn)
+		fn = (CHM_SP (*)(CHM_SP, CHM_SP, int, CHM_CM))
+			R_GetCCallable("Matrix", "cholmod_horzcat");
+	return fn(A, B, mode, Common);
 }
 
 R_MATRIX_INLINE int attribute_hidden

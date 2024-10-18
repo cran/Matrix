@@ -102,7 +102,7 @@ void InitSeparator(ctrl_t *ctrl, graph_t *graph, idx_t niparts)
       break;
 
     default:
-      gk_errexit(SIGERR, "Unkown iptype of %"PRIDX"\n", ctrl->iptype);
+      gk_errexit(SIGERR, "Unkown iptype of %"PRIDX"\n", (idx_t) ctrl->iptype);
   }
 
   IFSET(ctrl->dbglvl, METIS_DBG_IPART, printf("Initial Sep: %"PRIDX"\n", graph->mincut));

@@ -3,6 +3,12 @@
 
 #include <stddef.h> /* size_t */
 #include <Rinternals.h>
+#include <Rversion.h>
+
+#if R_VERSION < R_Version(4, 5, 0)
+int ANY_ATTRIB(SEXP);
+void CLEAR_ATTRIB(SEXP);
+#endif
 
 void *Matrix_memset(void *, int, R_xlen_t, size_t);
 void *Matrix_memcpy(void *, const void *, R_xlen_t, size_t);

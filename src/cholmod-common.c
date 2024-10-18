@@ -161,8 +161,6 @@ cholmod_factor *sexp_as_cholmod_factor(cholmod_factor *L, SEXP from)
 		}
 	}
 
-	if (!cholmod_check_factor(L, &c))
-		error(_("'%s' failed in '%s'"), "cholmod_check_factor", __func__);
 	UNPROTECT(4);
 	return L;
 }

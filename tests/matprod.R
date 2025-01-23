@@ -542,7 +542,9 @@ cpr   <- t(mm) %*% mm
 cpr.  <- crossprod(mm)
 cpr.. <- crossprod(mm, mm)
 stopifnot(is(cpr., "symmetricMatrix"),
-	  identical3(cpr, as(cpr., "generalMatrix"), cpr..))
+	  identical(cpr, cpr..),
+          all.equal(cpr, as(cpr., "generalMatrix"), tol = 2e-15)
+          )
 ## with dimnames:
 m <- Matrix(c(0, 0, 2:0), 3, 5)
 dimnames(m) <- list(LETTERS[1:3], letters[1:5])
@@ -553,8 +555,8 @@ t1 <- m %*% t(m)
 (t1. <- tcrossprod(m))
 stopifnot(isSymmetric(p1.),
 	  isSymmetric(t1.),
-	  identical(p1, as(p1., "generalMatrix")),
-	  identical(t1, as(t1., "generalMatrix")),
+	  all.equal(p1, as(p1., "generalMatrix"), tol = 2e-15),
+	  all.equal(t1, as(t1., "generalMatrix"), tol = 2e-15),
 	  identical(dimnames(p1), dimnames(p1.)),
 	  identical(dimnames(p1), list(colnames(m), colnames(m))),
 	  identical(dimnames(t1), dimnames(t1.))

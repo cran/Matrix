@@ -29,7 +29,7 @@ diff -ruN src/SuiteSparse/AMD/Makefile src/SuiteSparse-patched/AMD/Makefile
 +	$(RANLIB) $@
 +
 +.c.o :
-+	$(CC) $(PKG_CPPFLAGS) $(CPPFLAGS) $(CFLAGS) -c $< -o $*.o
++	$(CC) $(PKG_CPPFLAGS) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 +
 +clean :
 +	@rm -f $(objects) $(archive)
@@ -63,7 +63,7 @@ diff -ruN src/SuiteSparse/CAMD/Makefile src/SuiteSparse-patched/CAMD/Makefile
 +	$(RANLIB) $@
 +
 +.c.o :
-+	$(CC) $(PKG_CPPFLAGS) $(CPPFLAGS) $(CFLAGS) -c $< -o $*.o
++	$(CC) $(PKG_CPPFLAGS) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 +
 +clean :
 +	@rm -f $(objects) $(archive)
@@ -108,7 +108,7 @@ diff -ruN src/SuiteSparse/CCOLAMD/Makefile src/SuiteSparse-patched/CCOLAMD/Makef
 +	$(RANLIB) $@
 +
 +.c.o :
-+	$(CC) $(PKG_CPPFLAGS) $(CPPFLAGS) $(CFLAGS) -c $< -o $*.o
++	$(CC) $(PKG_CPPFLAGS) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 +
 +clean :
 +	@rm -f $(objects) $(archive)
@@ -796,7 +796,7 @@ diff -ruN src/SuiteSparse/CHOLMOD/Makefile src/SuiteSparse-patched/CHOLMOD/Makef
 +	$(RANLIB) $@
 +
 +.c.o :
-+	$(CC) $(PKG_CPPFLAGS) $(CPPFLAGS) $(CFLAGS) -c $< -o $*.o
++	$(CC) $(PKG_CPPFLAGS) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 +
 +clean :
 +	@rm -f $(objects) $(archive)
@@ -3592,7 +3592,7 @@ diff -ruN src/SuiteSparse/COLAMD/Makefile src/SuiteSparse-patched/COLAMD/Makefil
 +	$(RANLIB) $@
 +
 +.c.o :
-+	$(CC) $(PKG_CPPFLAGS) $(CPPFLAGS) $(CFLAGS) -c $< -o $*.o
++	$(CC) $(PKG_CPPFLAGS) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 +
 +clean :
 +	@rm -f $(objects) $(archive)
@@ -3667,7 +3667,7 @@ diff -ruN src/SuiteSparse/CXSparse/Makefile src/SuiteSparse-patched/CXSparse/Mak
 +	$(RANLIB) $@
 +
 +.c.o :
-+	$(CC) $(PKG_CPPFLAGS) $(CPPFLAGS) $(CFLAGS) -c $< -o $*.o
++	$(CC) $(PKG_CPPFLAGS) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 +
 +clean :
 +	@rm -f $(objects) $(archive)
@@ -3800,7 +3800,7 @@ diff -ruN src/SuiteSparse/SuiteSparse_config/Makefile src/SuiteSparse-patched/Su
 +	$(RANLIB) $@
 +
 +.c.o :
-+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $*.o
++	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 +
 +clean :
 +	@rm -f $(objects) $(archive)

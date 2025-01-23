@@ -12,7 +12,7 @@ $(archive) : $(objects)
 	$(RANLIB) $@
 
 .c.o :
-	$(CC) $(PKG_CPPFLAGS) $(CPPFLAGS) $(CFLAGS) -c $< -o $*.o
+	$(CC) $(PKG_CPPFLAGS) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 
 clean :
 	@rm -f $(objects) $(archive)

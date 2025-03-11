@@ -4,6 +4,20 @@
 \title{News for \R{} Package \pkg{Matrix}}
 \encoding{UTF-8}
 \newcommand{\MPR}{\pkg{Matrix} \href{https://R-forge.R-project.org/tracker/index.php?func=detail&aid=#1&group_id=61&atid=294}{PR##1}}
+
+\section{Changes in version 1.7-3 (2025-03-05, svn r5126)}{
+  \subsection{Bug Fixes}{
+    \itemize{
+      \item \code{<matrix>} \code{o} \code{<sparseVector>} binary
+      \code{"Ops"} work again, returning a matrix (of \code{"Matrix"}).
+
+      \item \code{- new("lgeMatrix")} and more \code{ - <Matrix>} now work.
+
+      \item Use \code{int} instead of \code{Rboolean} in 2x2 cases in \file{utils-R.c}.
+    }
+  }
+}
+
 \section{Changes in version 1.7-2 (2025-01-20, svn r5115)}{
   \subsection{Installation}{
     \itemize{

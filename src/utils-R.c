@@ -529,7 +529,7 @@ SEXP m_encodeInd(SEXP ij, SEXP di, SEXP orig_1, SEXP chk_bnds)
 {
 	SEXP ans;
 	int *ij_di = NULL, n, nprot=1;
-	Rboolean check_bounds = asLogical(chk_bnds), one_ind = asLogical(orig_1);
+	int check_bounds = Rf_asLogical(chk_bnds), one_ind = Rf_asLogical(orig_1);
 
 	if (TYPEOF(di) != INTSXP) {
 		di = PROTECT(coerceVector(di, INTSXP));
@@ -607,7 +607,7 @@ SEXP m_encodeInd2(SEXP i, SEXP j, SEXP di, SEXP orig_1, SEXP chk_bnds)
 {
 	SEXP ans;
 	int n = LENGTH(i), nprot = 1;
-	Rboolean check_bounds = asLogical(chk_bnds), one_ind = asLogical(orig_1);
+	int check_bounds = Rf_asLogical(chk_bnds), one_ind = Rf_asLogical(orig_1);
 
 	if (TYPEOF(di)!= INTSXP) {
 		di = PROTECT(coerceVector(di,INTSXP));

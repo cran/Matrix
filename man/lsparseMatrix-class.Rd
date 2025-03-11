@@ -18,6 +18,7 @@
 \alias{lsTMatrix-class}
 % lsparse
 \alias{!,lsparseMatrix-method}
+\alias{-,lsparseMatrix,missing-method}
 \alias{Arith,lsparseMatrix,Matrix-method}
 \alias{Logic,lsparseMatrix,ldenseMatrix-method}
 \alias{Logic,lsparseMatrix,lsparseMatrix-method}

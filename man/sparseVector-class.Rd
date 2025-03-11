@@ -23,8 +23,10 @@
 \alias{Math,sparseVector-method}
 \alias{Math2,sparseVector-method}
 \alias{Ops,ANY,sparseVector-method}
+\alias{Ops,matrix,sparseVector-method}
 \alias{Ops,sparseVector,ANY-method}
 \alias{Ops,sparseVector,Matrix-method}
+\alias{Ops,sparseVector,matrix-method}
 \alias{Ops,sparseVector,sparseVector-method}
 \alias{Ops,sparseVector,vector-method}
 \alias{Ops,vector,sparseVector-method}

@@ -14,6 +14,8 @@
 \alias{*,ldenseMatrix,ddiMatrix-method}
 \alias{*,ldenseMatrix,ldiMatrix-method}
 \alias{*,ldenseMatrix,ndiMatrix-method}
+\alias{-,ldenseMatrix,missing-method}
+\alias{-,ndenseMatrix,missing-method}
 \alias{Logic,ldenseMatrix,lsparseMatrix-method}
 \alias{Ops,ldenseMatrix,ldenseMatrix-method}
 \alias{^,ldenseMatrix,ddiMatrix-method}

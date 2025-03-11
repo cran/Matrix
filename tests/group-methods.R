@@ -107,7 +107,12 @@ stopifnot(all(lsy), # failed in Matrix 1.0-4
 	  all(t1),  #   "
           ## ok previously (all following):
           !all(t2),
-	  all(sqrt(lsy) == 1))
+          all(sqrt(lsy) == 1)
+          , identical(-nsy, -lsy) # "-" failed up to 2025 (<= 1.7.2)
+          , as.logical( -t1 == -1)
+          , isValid(-t2, "triangularMatrix")
+          , all(- as(lsy, "sparseMatrix") == -1)
+          )
 dsy <- lsy+1
 
 D3 <- Diagonal(x=4:2); L7 <- Diagonal(7) > 0
@@ -336,7 +341,7 @@ showProc.time()
 cl <- sapply(ls(), function(.) class(get(.)))
 Mcl <- cl[vapply(cl, extends, "Matrix",       FUN.VALUE=NA) |
           vapply(cl, extends, "sparseVector", FUN.VALUE=NA)]
-table(Mcl)
+table(unlist(Mcl))
 ## choose *one* of each class:
 ## M.objs <- names(Mcl[!duplicated(Mcl)])
 ## choose all
@@ -344,6 +349,7 @@ M.objs <- names(Mcl) # == the ls() from above
 Mat.objs <- M.objs[vapply(M.objs, function(nm) is(get(nm), "Matrix"), NA)]
 MatDims <- t(vapply(Mat.objs, function(nm) dim(get(nm)), 0:1))
 ## Nice summary info :
+Mcl <- sapply(Mcl, as.vector) # dropping "package" attributes
 noquote(cbind(Mcl[Mat.objs], format(MatDims)))
 
 ## dtCMatrix, uplo="L" :
@@ -464,23 +470,27 @@ options(op) # reset 'warn'
 
 ## arithmetic, logic, and comparison (relop) for 0-extent arrays
 (m <- Matrix(cbind(a=1[0], b=2[0])))
-Lm <- as(m, "lMatrix")
-## Im <- as(m, "iMatrix")
-stopifnot(
-    identical(m, m + 1), identical(m, m + 1[0]),
-    identical(m, m + NULL),## now (2016-09-27) ok
-    identical(m, Lm+ 1L) ,
-    identical(m, m+2:3), ## gave error "length does not match dimension"
-    identical(Lm, m & 1),
-    identical(Lm, m | 2:3),## had Warning "In .... : data length exceeds size of matrix"
-    identical(Lm, m & TRUE[0]),
-    identical(Lm, m | FALSE[0]),
-    identical(Lm, m > NULL),
-    identical(Lm, m > 1),
-    identical(Lm, m > .1[0]),## was losing dimnames
-    identical(Lm, m > NULL), ## was not-yet-implemented
-    identical(Lm, m <= 2:3)  ## had "wrong" warning
-)
+lM <- as(m, "lMatrix")
+nM <- as(m, "nMatrix")
+stopifnot(exprs = {
+    identical(m, m + 1)
+    identical(m, m + 1[0])
+    identical(m, m + NULL)## now (2016-09-27) ok
+    identical(m, lM+ 1L)
+    identical(m, m+2:3) ## gave error "length does not match dimension"
+    identical( -m, m)
+    identical(-lM, m)
+    identical(-nM, m)
+    identical(lM, m & 1)
+    identical(lM, m | 2:3) ## had Warning "In .... : data length exceeds size of matrix"
+    identical(lM, m & TRUE [0])
+    identical(lM, m | FALSE[0])
+    identical(lM, m > NULL)
+    identical(lM, m > 1)
+    identical(lM, m > .1[0]) ## was losing dimnames
+    identical(lM, m > NULL) ## was not-yet-implemented
+    identical(lM, m <= 2:3)  ## had "wrong" warning
+})
 mm <- m[,c(1:2,2:1,2)]
 assertErrV(m + mm) # ... non-conformable arrays
 assertErrV(m | mm) # ... non-conformable arrays
@@ -607,5 +617,17 @@ stopifnot(all.equal(p4,  p4. , tolerance = 1e-15),
 all.equal(p4,  p4. , tolerance = 0)
 all.equal(p4., p4.., tolerance = 0)
 .Machine[["sizeof.longdouble"]]
+
+## <Ops>  <matrix> o <sparseVector>  stopped working
+(M73p <- L7[1:3,] + na.ddv) # 3 x 7 sparse Matrix of class "dgCMatrix"
+m73 <- as.matrix(L7[1:3,])
+(m73p <- m73 + na.ddv)
+stopifnot(is(m73p, "sparseMatrix"),
+          identical(m73p, na.ddv + m73),
+          identical(m73p, M73p))
+## badly failed, returning sparseVector  in Matrix 1.7.{0,1,2}
+
+
+
 
 cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''

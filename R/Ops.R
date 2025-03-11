@@ -10,14 +10,16 @@
 ## > getGroupMembers("Logic") # excluding unary "!" -> ./not.R
 ## [1] "&" "|"
 
-if(FALSE) {
-## vvvv MJ: for _after_ 1.6-2, ditto ./(Arith|Compare|Logic).R
 .Ops.invalid <- function(x) {
     if(is.object(x))
         gettextf("invalid class \"%s\" in '%s' method", class(x)[1L], "Ops")
     else gettextf("invalid type \"%s\" in '%s' method", typeof(x), "Ops")
 }
 
+
+if(FALSE) {
+
+## vvvv MJ: for _after_ 1.6-2, ditto ./(Arith|Compare|Logic).R
 for(.cl in c("Matrix", "sparseVector")) {
 setMethod("Ops", c(e1 = .cl, e2 = "ANY"),
           function(e1, e2)
@@ -58,6 +60,19 @@ setMethod("Ops", c(e1 = "matrix", e2 = .cl),
 rm(.cl)
 ## ^^^^ MJ: for _after_ 1.6-2, ditto ./(Arith|Compare|Logic).R
 }
+
+## "sparseVector" o "matrix"  is *not* dealt with correctly otherwise;
+setMethod("Ops", c(e1 = "sparseVector", e2 = "matrix"),
+          function(e1, e2)
+              if(is.atomic(e2) && nzchar(kn <- .M.kind(e2)))
+                  callGeneric(e1, as(e2, paste0(kn,"Matrix")))
+              else stop(.Ops.invalid(e2), domain = NA))
+setMethod("Ops", c(e1 = "matrix", e2 = "sparseVector"),
+          function(e1, e2)
+              if(is.atomic(e1) && nzchar(kn <- .M.kind(e1)))
+                  callGeneric(as(e1, paste0(kn,"Matrix")), e2)
+              else stop(.Ops.invalid(e1), domain = NA))
+
 
 
 .Ops.checkDim <- function(d.a, d.b) {
@@ -126,6 +141,9 @@ setMethod("-", c(e1 = "denseMatrix", e2 = "missing"),
                   e1@factors <- list()
               e1
           })
+## with these exceptions:
+setMethod("-", c(e1 = "ndenseMatrix", e2 = "missing"), function(e1, e2) -.M2kind(e1, "d"))
+setMethod("-", c(e1 = "ldenseMatrix", e2 = "missing"), function(e1, e2) -.M2kind(e1, "d"))
 
 setMethod("-", c(e1 = "diagonalMatrix", e2 = "missing"),
           function(e1, e2) {
@@ -586,8 +604,7 @@ A.M.n <- function(e1, e2) {
             new(class2(class(e1), "d"), Dim = d, Dimnames = e1@Dimnames)
         else
             as.numeric(e2)
-    } else if(le == 1 || le == d[1] || any(prod(d) == c(le, 0L))) {
-        ## matching dim
+    } else if(le == 1L || le == d[1] || any(prod(d) == c(le, 0))) { # matching dim
         e1@x <- callGeneric(e1@x, as.vector(e2))
         if(length(e1@factors))
             e1@factors <- list()
@@ -607,8 +624,7 @@ A.n.M <- function(e1, e2) {
             new(class2(class(e2), "d"), Dim = d, Dimnames = e2@Dimnames)
         else
             as.numeric(e1)
-    } else if(le == 1 || le == d[1] || any(prod(d) == c(le, 0L))) {
-        ## matching dim
+    } else if(le == 1L || le == d[1] || any(prod(d) == c(le, 0))) { # matching dim
         e2@x <- callGeneric(as.vector(e1), e2@x)
         if(length(e2@factors))
             e2@factors <- list()
@@ -1357,11 +1373,11 @@ setMethod("Arith", c(e1 = "numeric", e2 = "CsparseMatrix"),
 }
 
 A.M.n <- function(e1, e2) {
-    if((l2 <- length(e2)) == 0) # return 0-vector of e1's kind, as matrix()+<0>
+    if((l2 <- length(e2)) == 0L) # return 0-vector of e1's kind, as matrix()+<0>
         return(if(length(e1)) vector(.type.kind[.M.kind(e1)]) else e1)
     is0f <- is0(f0 <- callGeneric(0, e2)) #
     if(all(is0f)) { ## result keeps sparseness structure of e1
-        if(l2 > 1) {  #	 "recycle" e2 "carefully"
+        if(l2 > 1L) {  # "recycle" e2 "carefully"
             e2 <- e2[.Ops.recycle.ind(e1, len = l2)]
         }
         e1@x <- callGeneric(e1@x, e2)
@@ -1378,7 +1394,7 @@ A.M.n <- function(e1, e2) {
                 e1@factors <- list()
             e1
         }
-    } else { ## non-sparse, since '0 o e2' is not (all) 0
+    } else { ## non-sparse result, since '0 o e2' is not (all) 0
         r <- as(e1, "matrix")
         if(l2 == 1) {
             r[] <- f0
@@ -1399,12 +1415,12 @@ setMethod("Arith", c(e1 = "dsparseMatrix", e2 = "logical"),
           .Arith.CM.atom)
 
 A.n.M <- function(e1, e2) {
-    if((l1 <- length(e1)) == 0)
+    if((l1 <- length(e1)) == 0L)
         ## return 0-vector of e2's kind, as <0> + matrix()
         return(if(length(e2)) vector(.type.kind[.M.kind(e2)]) else e2)
     is0f <- is0(f0 <- callGeneric(e1, 0))
     if(all(is0f)) { ## result keeps sparseness structure of e2
-        if(l1 > 1) {  #	 "recycle" e1 "carefully"
+        if(l1 > 1L) {  # "recycle" e1 "carefully"
             e1 <- e1[.Ops.recycle.ind(e2, len = l1)]
         }
         e2@x <- callGeneric(e1, e2@x)
@@ -1420,7 +1436,7 @@ A.n.M <- function(e1, e2) {
                 e2@factors <- list()
             e2
         }
-    } else { ## non-sparse, since '0 o e2' is not (all) 0
+    } else { ## non-sparse, since 'e1 o 0' is not (all) 0
         r <- as(e2, "matrix")
         if(l1 == 1) {
             r[] <- f0
@@ -1642,10 +1658,9 @@ setMethod("-", c(e1 = "sparseMatrix", e2 = "missing"),
               e1
           })
 ## with the following exceptions:
-setMethod("-", c(e1 = "nsparseMatrix", e2 = "missing"),
-          function(e1, e2) -.M2kind(e1, "d"))
-setMethod("-", c(e1 = "indMatrix", e2 = "missing"),
-          function(e1, e2) -as(e1, "dsparseMatrix"))
+setMethod("-", c(e1 = "nsparseMatrix", e2 = "missing"), function(e1, e2) -.M2kind(e1, "d"))
+setMethod("-", c(e1 = "lsparseMatrix", e2 = "missing"), function(e1, e2) -.M2kind(e1, "d"))
+setMethod("-", c(e1 = "indMatrix", e2 = "missing"), function(e1, e2) -as(e1, "dsparseMatrix"))
 
 ## Group method  "Arith"
 

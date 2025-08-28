@@ -1000,7 +1000,7 @@ SEXP R_sparse_matmult(SEXP x, SEXP y, SEXP xtrans, SEXP ytrans, SEXP ztrans,
 			REPROTECT(x = dense_as_sparse(x, xcl, 'R'), xpid);
 			xcl = valid[R_check_class_etc(x, valid)];
 		}
-		if (xcl[1] != 's' || xcl[1] != 'T') {
+		if (xcl[1] != 's' || xcl[2] != 'T') {
 			REPROTECT(x = sparse_transpose(x, xcl, 1), xpid);
 			xcl = valid[R_check_class_etc(x, valid)];
 		}
@@ -1081,7 +1081,7 @@ SEXP R_sparse_matmult(SEXP x, SEXP y, SEXP xtrans, SEXP ytrans, SEXP ztrans,
 			REPROTECT(y = dense_as_sparse(y, ycl, 'R'), ypid);
 			ycl = valid[R_check_class_etc(y, valid)];
 		}
-		if (ycl[1] != 's' || ycl[1] != 'T') {
+		if (ycl[1] != 's' || ycl[2] != 'T') {
 			REPROTECT(y = sparse_transpose(y, ycl, 1), ypid);
 			ycl = valid[R_check_class_etc(y, valid)];
 		}

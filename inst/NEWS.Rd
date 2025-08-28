@@ -5,6 +5,26 @@
 \encoding{UTF-8}
 \newcommand{\MPR}{\pkg{Matrix} \href{https://R-forge.R-project.org/tracker/index.php?func=detail&aid=#1&group_id=61&atid=294}{PR##1}}
 
+\section{Changes in version 1.7-4 (2025-08-27, svn r5172)}{
+  \subsection{Installation}{
+    \itemize{
+      \item Warnings surfaced by \option{-Wtautological-overlap-compare}
+      are squashed.  These revealed two typos in \file{src/matmult.c}
+      causing optimizations for \code{crossprod(\var{.sRMatrix}, y)} and
+      \code{tcrossprod(x, \var{.sRMatrix})} to be skipped.  Thanks to
+      Brian Ripley and Michael Chirico for the reports.
+    }
+  }
+  \subsection{Bug Fixes}{
+    \itemize{
+      \item Methods for \code{band}, \code{triu}, and \code{tril} with
+      signature \code{x="matrix"} returned a formally invalid
+      \code{.geMatrix} (with \code{x} slot of class \code{"matrix"}) in
+      some no-op cases, where no bands are set to zero.
+    }
+  }
+}
+
 \section{Changes in version 1.7-3 (2025-03-05, svn r5126)}{
   \subsection{Bug Fixes}{
     \itemize{

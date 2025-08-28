@@ -284,9 +284,10 @@ SEXP sparse_band(SEXP from, const char *class, int a, int b)
 	int *pdim = INTEGER(dim), m = pdim[0], n = pdim[1];
 	UNPROTECT(1); /* dim */
 
-	/* Need tri[ul](<0-by-0>) and tri[ul](<1-by-1>) to be triangularMatrix */
-	if (a <= 1 - m && b >= n - 1 &&
-	    (class[1] == 't' || m != n || m > 1 || n > 1))
+	/* Need tri[ul](<0-by-0>) and tri[ul](<1-by-1>) */
+	/* to be triangularMatrix                       */
+	if ((m == 0 || n == 0 || (a <= 1 - m && b >= n - 1)) &&
+	    (m != n || n > 1 || class[1] == 't'))
 		return from;
 
 	int ge = 0, sy = 0, tr = 0;

@@ -1593,6 +1593,15 @@ for(n in 0:7) {
     }
 }
 
+## Regression in Matrix 1.6-z: 'x' slot preserved attributes
+##   band(<m-by-0 or 0-by-n matrix>), m != n
+##   band(<m-by-n matrix>, -m, n), m*n >= 2
+for(d in list(c(0L, 1L), c(1L, 2L))) {
+    B <- band(array(0, d), -d[1L], d[2L])
+    validObject(B) # was error: ... invalid object for slot "x" ...
+    stopifnot(identical(B, new("dgeMatrix", Dim = d, x = double(prod(d)))))
+}
+
 ## Platform - and other such info -- so we find it in old saved outputs
 .libPaths()
 SysI <- Sys.info()
